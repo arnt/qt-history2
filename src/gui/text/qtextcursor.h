@@ -25,9 +25,9 @@ class Q_GUI_EXPORT QTextCursor
 public:
     QTextCursor();
     QTextCursor(QTextDocument *document);
+    QTextCursor(QTextDocumentPrivate *p, int pos);
     QTextCursor(QTextFrame *frame);
     QTextCursor(const QTextBlock &block);
-    QTextCursor(const QTextDocumentPrivate *pt, int pos);
     QTextCursor(const QTextCursor &cursor);
     QTextCursor &operator=(const QTextCursor &other);
     ~QTextCursor();
@@ -77,6 +77,7 @@ public:
     void deletePreviousChar();
 
     bool hasSelection() const;
+    bool hasComplexSelection() const;
     void removeSelectedText();
     void clearSelection();
     int selectionStart() const;

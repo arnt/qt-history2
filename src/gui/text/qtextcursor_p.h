@@ -13,7 +13,7 @@
 class QTextCursorPrivate : public QSharedData
 {
 public:
-    QTextCursorPrivate(const QTextDocumentPrivate *table);
+    QTextCursorPrivate(QTextDocumentPrivate *p);
     QTextCursorPrivate(const QTextCursorPrivate &rhs);
     ~QTextCursorPrivate();
 
@@ -30,7 +30,7 @@ public:
     bool movePosition(QTextCursor::MoveOperation op, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
 
     inline QTextBlock block() const
-        { return QTextBlock(pieceTable, pieceTable->blockMap().findNode(position)); }
+        { return QTextBlock(priv, priv->blockMap().findNode(position)); }
     inline QTextBlockFormat blockFormat() const
         { return block().blockFormat(); }
 
@@ -41,7 +41,7 @@ public:
     int position;
     int anchor;
     int adjusted_anchor;
-    QTextDocumentPrivate *pieceTable;
+    QTextDocumentPrivate *priv;
 };
 
 #endif // QTEXTCURSOR_P_H

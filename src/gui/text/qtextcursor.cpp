@@ -18,12 +18,11 @@ enum {
     AdjustDown = 0x12
 };
 
-QTextCursorPrivate::QTextCursorPrivate(const QTextDocumentPrivate *table)
+QTextCursorPrivate::QTextCursorPrivate(QTextDocumentPrivate *p)
     : x(0), position(0), anchor(0), adjusted_anchor(0),
-      pieceTable(const_cast<QTextDocumentPrivate *>(table))
+      priv(p)
 {
-    Q_ASSERT(pieceTable);
-    pieceTable->addCursor(this);
+    priv->addCursor(this);
 }
 
 QTextCursorPrivate::QTextCursorPrivate(const QTextCursorPrivate &rhs)
@@ -32,15 +31,15 @@ QTextCursorPrivate::QTextCursorPrivate(const QTextCursorPrivate &rhs)
     position = rhs.position;
     anchor = rhs.anchor;
     adjusted_anchor = rhs.adjusted_anchor;
-    pieceTable = rhs.pieceTable;
+    priv = rhs.priv;
     x = rhs.x;
-    pieceTable->addCursor(this);
+    priv->addCursor(this);
 }
 
 QTextCursorPrivate::~QTextCursorPrivate()
 {
-    if (pieceTable)
-        pieceTable->removeCursor(this);
+    if (priv)
+        priv->removeCursor(this);
 }
 
 void QTextCursorPrivate::adjustPosition(int positionOfChange, int charsAddedOrRemoved, UndoCommand::Operation op)
@@ -65,13 +64,13 @@ void QTextCursorPrivate::adjustPosition(int positionOfChange, int charsAddedOrRe
 
 void QTextCursorPrivate::setPosition(int newPosition)
 {
-    Q_ASSERT(newPosition >= 0 && newPosition < pieceTable->length());
+    Q_ASSERT(newPosition >= 0 && newPosition < priv->length());
     position = newPosition;
 }
 
 void QTextCursorPrivate::setX()
 {
-    QTextBlock block = pieceTable->blocksFind(position);
+    QTextBlock block = priv->blocksFind(position);
     const QTextLayout *layout = block.layout();
     int pos = position - block.position();
 
@@ -93,29 +92,29 @@ void QTextCursorPrivate::remove()
         op = UndoCommand::MoveCursor;
     }
 
-    pieceTable->remove(pos1, pos2-pos1, op);
+    priv->remove(pos1, pos2-pos1, op);
     anchor = position;
 }
 
 bool QTextCursorPrivate::canDelete(int pos) const
 {
-    QTextDocumentPrivate::FragmentIterator fit = pieceTable->find(pos);
-    QTextCharFormat fmt = pieceTable->formatCollection()->charFormat((*fit)->format);
+    QTextDocumentPrivate::FragmentIterator fit = priv->find(pos);
+    QTextCharFormat fmt = priv->formatCollection()->charFormat((*fit)->format);
     return (fmt.objectIndex() == -1);
 }
 
 void QTextCursorPrivate::insertBlock(const QTextBlockFormat &format, const QTextCharFormat &charFormat)
 {
-    QTextFormatCollection *formats = pieceTable->formatCollection();
+    QTextFormatCollection *formats = priv->formatCollection();
     int idx = formats->indexForFormat(format);
     Q_ASSERT(formats->format(idx).isBlockFormat());
 
-    pieceTable->insertBlock(position, idx, formats->indexForFormat(charFormat));
+    priv->insertBlock(position, idx, formats->indexForFormat(charFormat));
 }
 
 QTextTable *QTextCursorPrivate::tableAt(int position) const
 {
-    QTextFrame *frame = pieceTable->frameAt(position);
+    QTextFrame *frame = priv->frameAt(position);
     while (frame) {
         QTextTable *table = qt_cast<QTextTable *>(frame);
         if (table)
@@ -132,8 +131,8 @@ void QTextCursorPrivate::adjustCursor(QTextCursor::MoveOperation m)
     if (position == anchor)
         return;
 
-    QTextFrame *f_position = pieceTable->frameAt(position);
-    QTextFrame *f_anchor = pieceTable->frameAt(adjusted_anchor);
+    QTextFrame *f_position = priv->frameAt(position);
+    QTextFrame *f_anchor = priv->frameAt(adjusted_anchor);
 
     if (f_position != f_anchor) {
         // find common parent frame
@@ -230,7 +229,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
     int relativePos = position - blockIt.position();
     QTextLine line = layout->findLine(relativePos);
 
-    Q_ASSERT(pieceTable->frameAt(position) == pieceTable->frameAt(adjusted_anchor));
+    Q_ASSERT(priv->frameAt(position) == priv->frameAt(adjusted_anchor));
 
     int newPosition = position;
 
@@ -250,7 +249,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
         break;
     }
     case QTextCursor::PreviousBlock: {
-        if (blockIt == pieceTable->blocksBegin())
+        if (blockIt == priv->blocksBegin())
             return false;
         blockIt = blockIt.previous();
 
@@ -259,19 +258,19 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
     }
     case QTextCursor::PreviousCharacter:
     case QTextCursor::Left:
-        newPosition = pieceTable->previousCursorPosition(position, QTextLayout::SkipCharacters);
+        newPosition = priv->previousCursorPosition(position, QTextLayout::SkipCharacters);
         break;
     case QTextCursor::PreviousWord:
     case QTextCursor::WordLeft:
-        newPosition = pieceTable->previousCursorPosition(position, QTextLayout::SkipWords);
+        newPosition = priv->previousCursorPosition(position, QTextLayout::SkipWords);
         break;
     case QTextCursor::Up: {
         int i = line.line() - 1;
         if (i == -1) {
-            if (blockIt == pieceTable->blocksBegin())
+            if (blockIt == priv->blocksBegin())
                 return false;
             int blockPosition = blockIt.position();
-            QTextTable *table = qt_cast<QTextTable *>(pieceTable->frameAt(blockPosition));
+            QTextTable *table = qt_cast<QTextTable *>(priv->frameAt(blockPosition));
             if (table) {
                 QTextTableCell cell = table->cellAt(blockPosition);
                 if (cell.firstPosition() == blockPosition) {
@@ -282,7 +281,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
                         // move to line above the table
                         blockPosition = table->firstPosition() - 1;
                     }
-                    blockIt = pieceTable->blocksFind(blockPosition);
+                    blockIt = priv->blocksFind(blockPosition);
                 } else {
                     blockIt = blockIt.previous();
                 }
@@ -303,7 +302,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
     }
 
     case QTextCursor::End:
-        position = pieceTable->length() - 1;
+        position = priv->length() - 1;
         break;
     case QTextCursor::EndOfLine: {
         if (!line.isValid() || line.length() == 0)
@@ -342,11 +341,11 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
     }
     case QTextCursor::NextCharacter:
     case QTextCursor::Right:
-        newPosition = pieceTable->nextCursorPosition(position, QTextLayout::SkipCharacters);
+        newPosition = priv->nextCursorPosition(position, QTextLayout::SkipCharacters);
         break;
     case QTextCursor::NextWord:
     case QTextCursor::WordRight:
-        newPosition = pieceTable->nextCursorPosition(position, QTextLayout::SkipWords);
+        newPosition = priv->nextCursorPosition(position, QTextLayout::SkipWords);
         break;
 
     case QTextCursor::Down: {
@@ -354,7 +353,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
 
         if (i >= layout->numLines()) {
             int blockPosition = blockIt.position() + blockIt.length() - 1;
-            QTextTable *table = qt_cast<QTextTable *>(pieceTable->frameAt(blockPosition));
+            QTextTable *table = qt_cast<QTextTable *>(priv->frameAt(blockPosition));
             if (table) {
                 QTextTableCell cell = table->cellAt(blockPosition);
                 if (cell.lastPosition() == blockPosition) {
@@ -365,7 +364,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
                         // move to line below the table
                         blockPosition = table->lastPosition() + 1;
                     }
-                    blockIt = pieceTable->blocksFind(blockPosition);
+                    blockIt = priv->blocksFind(blockPosition);
                 } else {
                     blockIt = blockIt.next();
                 }
@@ -373,7 +372,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
                 blockIt = blockIt.next();
             }
 
-            if (blockIt == pieceTable->blocksEnd())
+            if (blockIt == priv->blocksEnd())
                 return false;
             layout = blockIt.layout();
             i = 0;
@@ -390,7 +389,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
     }
 
     if (mode == QTextCursor::KeepAnchor) {
-        QTextTable *table = qt_cast<QTextTable *>(pieceTable->frameAt(position));
+        QTextTable *table = qt_cast<QTextTable *>(priv->frameAt(position));
         if (table && ((op >= QTextCursor::PreviousBlock && op <= QTextCursor::WordLeft)
                       || (op >= QTextCursor::NextBlock && op <= QTextCursor::WordRight))) {
             int oldColumn = table->cellAt(position).column();
@@ -555,8 +554,8 @@ QTextCursor::QTextCursor(const QTextBlock &block)
 /*!
   \internal
  */
-QTextCursor::QTextCursor(const QTextDocumentPrivate *pt, int pos)
-    : d(new QTextCursorPrivate(pt))
+QTextCursor::QTextCursor(QTextDocumentPrivate *p, int pos)
+    : d(new QTextCursorPrivate(p))
 {
     d->anchor = d->position = pos;
 
@@ -593,7 +592,7 @@ QTextCursor::~QTextCursor()
  */
 bool QTextCursor::isNull() const
 {
-    return !d || !d->pieceTable;
+    return !d || !d->priv;
 }
 
 /*!
@@ -604,7 +603,7 @@ bool QTextCursor::isNull() const
 */
 void QTextCursor::setPosition(int pos, MoveMode m)
 {
-    if (!d || !d->pieceTable)
+    if (!d || !d->priv)
         return;
     d->setPosition(pos);
     if (m == MoveAnchor) {
@@ -622,7 +621,7 @@ void QTextCursor::setPosition(int pos, MoveMode m)
 */
 int QTextCursor::position() const
 {
-    if (!d || !d->pieceTable)
+    if (!d || !d->priv)
         return -1;
     return d->position;
 }
@@ -637,7 +636,7 @@ int QTextCursor::position() const
 */
 int QTextCursor::anchor() const
 {
-    if (!d || !d->pieceTable)
+    if (!d || !d->priv)
         return -1;
     return d->anchor;
 }
@@ -653,7 +652,7 @@ int QTextCursor::anchor() const
 */
 bool QTextCursor::movePosition(MoveOperation op, MoveMode mode, int n)
 {
-    if (!d || !d->pieceTable)
+    if (!d || !d->priv)
         return false;
     switch (op) {
         case Start:
@@ -700,16 +699,16 @@ void QTextCursor::insertText(const QString &text)
 */
 void QTextCursor::insertText(const QString &text, const QTextCharFormat &format)
 {
-    if (!d || !d->pieceTable || text.isEmpty())
+    if (!d || !d->priv || text.isEmpty())
         return;
 
     Q_ASSERT(format.isValid());
 
-    d->pieceTable->beginEditBlock();
+    d->priv->beginEditBlock();
 
     d->remove();
 
-    QTextFormatCollection *formats = d->pieceTable->formatCollection();
+    QTextFormatCollection *formats = d->priv->formatCollection();
     int formatIdx = formats->indexForFormat(format);
     Q_ASSERT(formats->format(formatIdx).isCharFormat());
 
@@ -719,10 +718,10 @@ void QTextCursor::insertText(const QString &text, const QTextCharFormat &format)
     for (int i = 0; i < blocks.size(); ++i) {
         if (i > 0)
             d->insertBlock(blockFmt, format);
-        d->pieceTable->insert(d->position, blocks.at(i), formatIdx);
+        d->priv->insert(d->position, blocks.at(i), formatIdx);
     }
 
-    d->pieceTable->endEditBlock();
+    d->priv->endEditBlock();
 }
 
 /*!
@@ -733,14 +732,14 @@ void QTextCursor::insertText(const QString &text, const QTextCharFormat &format)
 */
 void QTextCursor::deleteChar()
 {
-    if (!d || !d->pieceTable)
+    if (!d || !d->priv)
         return;
 
     if (d->position == d->anchor) {
         if (!d->canDelete(d->position))
             return;
         d->adjusted_anchor = d->anchor =
-                             d->pieceTable->nextCursorPosition(d->anchor, QTextLayout::SkipCharacters);
+                             d->priv->nextCursorPosition(d->anchor, QTextLayout::SkipCharacters);
     }
     d->remove();
     d->setX();
@@ -754,7 +753,7 @@ void QTextCursor::deleteChar()
 */
 void QTextCursor::deletePreviousChar()
 {
-    if (!d || !d->pieceTable)
+    if (!d || !d->priv)
         return;
 
     if (d->position == d->anchor) {
@@ -796,7 +795,7 @@ void QTextCursor::clearSelection()
 */
 void QTextCursor::removeSelectedText()
 {
-    if (!d || !d->pieceTable || d->position == d->anchor)
+    if (!d || !d->priv || d->position == d->anchor)
         return;
 
     d->remove();
@@ -811,7 +810,7 @@ void QTextCursor::removeSelectedText()
 */
 int QTextCursor::selectionStart() const
 {
-    if (!d || !d->pieceTable)
+    if (!d || !d->priv)
         return -1;
     return qMin(d->position, d->adjusted_anchor);
 }
@@ -824,7 +823,7 @@ int QTextCursor::selectionStart() const
 */
 int QTextCursor::selectionEnd() const
 {
-    if (!d || !d->pieceTable)
+    if (!d || !d->priv)
         return -1;
     return qMax(d->position, d->adjusted_anchor);
 }
@@ -837,16 +836,16 @@ int QTextCursor::selectionEnd() const
 */
 QString QTextCursor::selectedText() const
 {
-    if (!d || !d->pieceTable || d->position == d->anchor)
+    if (!d || !d->priv || d->position == d->anchor)
         return QString();
 
-    const QString docText = d->pieceTable->buffer();
+    const QString docText = d->priv->buffer();
     QString text;
     int pos = selectionStart();
     const int end = selectionEnd();
 
     while (pos < end) {
-        QTextDocumentPrivate::FragmentIterator fragIt = d->pieceTable->find(pos);
+        QTextDocumentPrivate::FragmentIterator fragIt = d->priv->find(pos);
         const QTextFragmentData * const frag = fragIt.value();
 
         const int offsetInFragment = qMax(0, pos - fragIt.position());
@@ -884,7 +883,7 @@ QTextBlock QTextCursor::block() const
  */
 QTextBlockFormat QTextCursor::blockFormat() const
 {
-    if (!d || !d->pieceTable)
+    if (!d || !d->priv)
         return QTextBlockFormat();
 
     return d->block().blockFormat();
@@ -898,7 +897,7 @@ QTextBlockFormat QTextCursor::blockFormat() const
 */
 void QTextCursor::setBlockFormat(const QTextBlockFormat &format)
 {
-    if (!d || !d->pieceTable)
+    if (!d || !d->priv)
         return;
 
     int pos1 = d->position;
@@ -908,9 +907,9 @@ void QTextCursor::setBlockFormat(const QTextBlockFormat &format)
         pos2 = d->position;
     }
 
-    QTextBlock from = d->pieceTable->blocksFind(pos1);
-    QTextBlock to = d->pieceTable->blocksFind(pos2);
-    d->pieceTable->setBlockFormat(from, to, format, QTextDocumentPrivate::SetFormat);
+    QTextBlock from = d->priv->blocksFind(pos1);
+    QTextBlock to = d->priv->blocksFind(pos2);
+    d->priv->setBlockFormat(from, to, format, QTextDocumentPrivate::SetFormat);
 }
 
 /*!
@@ -921,7 +920,7 @@ void QTextCursor::setBlockFormat(const QTextBlockFormat &format)
 */
 void QTextCursor::mergeBlockFormat(const QTextBlockFormat &modifier)
 {
-    if (!d || !d->pieceTable)
+    if (!d || !d->priv)
         return;
 
     int pos1 = d->position;
@@ -931,9 +930,9 @@ void QTextCursor::mergeBlockFormat(const QTextBlockFormat &modifier)
         pos2 = d->position;
     }
 
-    QTextBlock from = d->pieceTable->blocksFind(pos1);
-    QTextBlock to = d->pieceTable->blocksFind(pos2);
-    d->pieceTable->setBlockFormat(from, to, modifier, QTextDocumentPrivate::MergeFormat);
+    QTextBlock from = d->priv->blocksFind(pos1);
+    QTextBlock to = d->priv->blocksFind(pos2);
+    d->priv->setBlockFormat(from, to, modifier, QTextDocumentPrivate::MergeFormat);
 }
 
 /*!
@@ -944,20 +943,20 @@ void QTextCursor::mergeBlockFormat(const QTextBlockFormat &modifier)
  */
 QTextCharFormat QTextCursor::charFormat() const
 {
-    if (!d || !d->pieceTable)
+    if (!d || !d->priv)
         return QTextCharFormat();
 
     int pos = d->position - 1;
     if (pos < 0)
         pos = 0;
-    Q_ASSERT(pos >= 0 && pos < d->pieceTable->length());
+    Q_ASSERT(pos >= 0 && pos < d->priv->length());
 
 
-    QTextDocumentPrivate::FragmentIterator it = d->pieceTable->find(pos);
+    QTextDocumentPrivate::FragmentIterator it = d->priv->find(pos);
     Q_ASSERT(!it.atEnd());
     int idx = it.value()->format;
 
-    QTextCharFormat cfmt = d->pieceTable->formatCollection()->charFormat(idx);
+    QTextCharFormat cfmt = d->priv->formatCollection()->charFormat(idx);
     // ##### we miss a clearProperty here
     if (cfmt.objectIndex() != -1)
         cfmt.setObjectIndex(-1);
@@ -973,7 +972,7 @@ QTextCharFormat QTextCursor::charFormat() const
 */
 void QTextCursor::setCharFormat(const QTextCharFormat &format)
 {
-    if (!d || !d->pieceTable || d->position == d->anchor)
+    if (!d || !d->priv || d->position == d->anchor)
         return;
 
     int pos1 = d->position;
@@ -983,7 +982,7 @@ void QTextCursor::setCharFormat(const QTextCharFormat &format)
         pos2 = d->position;
     }
 
-    d->pieceTable->setCharFormat(pos1, pos2-pos1, format, QTextDocumentPrivate::SetFormat);
+    d->priv->setCharFormat(pos1, pos2-pos1, format, QTextDocumentPrivate::SetFormat);
 }
 
 /*!
@@ -995,7 +994,7 @@ void QTextCursor::setCharFormat(const QTextCharFormat &format)
 */
 void QTextCursor::mergeCharFormat(const QTextCharFormat &modifier)
 {
-    if (!d || !d->pieceTable || d->position == d->anchor)
+    if (!d || !d->priv || d->position == d->anchor)
         return;
 
     int pos1 = d->position;
@@ -1005,7 +1004,7 @@ void QTextCursor::mergeCharFormat(const QTextCharFormat &modifier)
         pos2 = d->position;
     }
 
-    d->pieceTable->setCharFormat(pos1, pos2-pos1, modifier, QTextDocumentPrivate::MergeFormat);
+    d->priv->setCharFormat(pos1, pos2-pos1, modifier, QTextDocumentPrivate::MergeFormat);
 }
 
 /*!
@@ -1016,7 +1015,7 @@ void QTextCursor::mergeCharFormat(const QTextCharFormat &modifier)
 */
 bool QTextCursor::atBlockStart() const
 {
-    if (!d || !d->pieceTable)
+    if (!d || !d->priv)
         return false;
 
     return d->position == d->block().position();
@@ -1030,10 +1029,10 @@ bool QTextCursor::atBlockStart() const
 */
 bool QTextCursor::atEnd() const
 {
-    if (!d || !d->pieceTable)
+    if (!d || !d->priv)
         return false;
 
-    return d->position == d->pieceTable->length() - 1;
+    return d->position == d->priv->length() - 1;
 }
 
 /*!
@@ -1044,7 +1043,7 @@ bool QTextCursor::atEnd() const
 */
 void QTextCursor::insertBlock()
 {
-    if (!d || !d->pieceTable)
+    if (!d || !d->priv)
         return;
 
     d->insertBlock(blockFormat(), charFormat());
@@ -1060,13 +1059,13 @@ void QTextCursor::insertBlock()
 */
 void QTextCursor::insertBlock(const QTextBlockFormat &format)
 {
-    if (!d || !d->pieceTable)
+    if (!d || !d->priv)
         return;
 
-    d->pieceTable->beginEditBlock();
+    d->priv->beginEditBlock();
     d->remove();
     d->insertBlock(format, charFormat());
-    d->pieceTable->endEditBlock();
+    d->priv->endEditBlock();
 }
 
 /*!
@@ -1105,10 +1104,10 @@ QTextList *QTextCursor::insertList(int style)
  */
 QTextList *QTextCursor::createList(const QTextListFormat &format)
 {
-    if (!d || !d->pieceTable)
+    if (!d || !d->priv)
         return 0;
 
-    QTextList *list = static_cast<QTextList *>(d->pieceTable->createObject(format));
+    QTextList *list = static_cast<QTextList *>(d->priv->createObject(format));
     QTextBlockFormat modifier;
     modifier.setObjectIndex(list->objectIndex());
     mergeBlockFormat(modifier);
@@ -1138,11 +1137,11 @@ QTextList *QTextCursor::createList(int style)
  */
 QTextList *QTextCursor::currentList() const
 {
-    if (!d || !d->pieceTable)
+    if (!d || !d->priv)
         return 0;
 
     QTextBlockFormat b = blockFormat();
-    QTextObject *o = d->pieceTable->objectForFormat(b);
+    QTextObject *o = d->priv->objectForFormat(b);
     return qt_cast<QTextList *>(o);
 }
 
@@ -1170,11 +1169,11 @@ QTextTable *QTextCursor::insertTable(int rows, int cols)
 */
 QTextTable *QTextCursor::insertTable(int rows, int cols, const QTextTableFormat &format)
 {
-    if(!d || !d->pieceTable)
+    if(!d || !d->priv)
         return 0;
 
     int pos = d->position;
-    QTextTable *t = QTextTablePrivate::createTable(d->pieceTable, d->position, rows, cols, format);
+    QTextTable *t = QTextTablePrivate::createTable(d->priv, d->position, rows, cols, format);
     setPosition(pos+1);
     return t;
 }
@@ -1188,7 +1187,7 @@ QTextTable *QTextCursor::insertTable(int rows, int cols, const QTextTableFormat 
 */
 QTextTable *QTextCursor::currentTable() const
 {
-    if(!d || !d->pieceTable)
+    if(!d || !d->priv)
         return 0;
 
     return d->tableAt(d->position);
@@ -1205,10 +1204,10 @@ QTextTable *QTextCursor::currentTable() const
 */
 QTextFrame *QTextCursor::insertFrame(const QTextFrameFormat &format)
 {
-    if (!d || !d->pieceTable)
+    if (!d || !d->priv)
         return 0;
 
-    return d->pieceTable->insertFrame(selectionStart(), selectionEnd(), format);
+    return d->priv->insertFrame(selectionStart(), selectionEnd(), format);
 }
 
 /*!
@@ -1219,10 +1218,10 @@ QTextFrame *QTextCursor::insertFrame(const QTextFrameFormat &format)
 */
 QTextFrame *QTextCursor::currentFrame() const
 {
-    if(!d || !d->pieceTable)
+    if(!d || !d->priv)
         return 0;
 
-    return d->pieceTable->frameAt(d->position);
+    return d->priv->frameAt(d->position);
 }
 
 
@@ -1231,13 +1230,13 @@ QTextFrame *QTextCursor::currentFrame() const
 */
 void QTextCursor::insertFragment(const QTextDocumentFragment &fragment)
 {
-    if (!d || !d->pieceTable || fragment.isEmpty())
+    if (!d || !d->priv || fragment.isEmpty())
         return;
 
-    d->pieceTable->beginEditBlock();
+    d->priv->beginEditBlock();
     d->remove();
     fragment.d->insert(*this);
-    d->pieceTable->endEditBlock();
+    d->priv->endEditBlock();
 }
 
 /*!
@@ -1269,7 +1268,7 @@ bool QTextCursor::operator<(const QTextCursor &rhs) const
     if (!rhs.d)
         return false;
 
-    Q_ASSERT_X(d->pieceTable == rhs.d->pieceTable, "QTextCursor::operator<", "cannot compare cusors attached to different documents");
+    Q_ASSERT_X(d->priv == rhs.d->priv, "QTextCursor::operator<", "cannot compare cusors attached to different documents");
 
     return d->position < rhs.d->position;
 }
@@ -1287,7 +1286,7 @@ bool QTextCursor::operator<=(const QTextCursor &rhs) const
     if (!rhs.d)
         return false;
 
-    Q_ASSERT_X(d->pieceTable == rhs.d->pieceTable, "QTextCursor::operator<=", "cannot compare cusors attached to different documents");
+    Q_ASSERT_X(d->priv == rhs.d->priv, "QTextCursor::operator<=", "cannot compare cusors attached to different documents");
 
     return d->position <= rhs.d->position;
 }
@@ -1304,7 +1303,7 @@ bool QTextCursor::operator==(const QTextCursor &rhs) const
     if (!rhs.d)
         return false;
 
-    return d->position == rhs.d->position && d->pieceTable == rhs.d->pieceTable;
+    return d->position == rhs.d->position && d->priv == rhs.d->priv;
 }
 
 /*!
@@ -1320,7 +1319,7 @@ bool QTextCursor::operator>=(const QTextCursor &rhs) const
     if (!rhs.d)
         return true;
 
-    Q_ASSERT_X(d->pieceTable == rhs.d->pieceTable, "QTextCursor::operator>=", "cannot compare cusors attached to different documents");
+    Q_ASSERT_X(d->priv == rhs.d->priv, "QTextCursor::operator>=", "cannot compare cusors attached to different documents");
 
     return d->position >= rhs.d->position;
 }
@@ -1337,7 +1336,7 @@ bool QTextCursor::operator>(const QTextCursor &rhs) const
     if (!rhs.d)
         return true;
 
-    Q_ASSERT_X(d->pieceTable == rhs.d->pieceTable, "QTextCursor::operator>", "cannot compare cusors attached to different documents");
+    Q_ASSERT_X(d->priv == rhs.d->priv, "QTextCursor::operator>", "cannot compare cusors attached to different documents");
 
     return d->position > rhs.d->position;
 }
@@ -1366,10 +1365,10 @@ bool QTextCursor::operator>(const QTextCursor &rhs) const
  */
 void QTextCursor::beginEditBlock()
 {
-    if (!d || !d->pieceTable)
+    if (!d || !d->priv)
         return;
 
-    d->pieceTable->beginEditBlock();
+    d->priv->beginEditBlock();
 }
 
 /*!
@@ -1382,9 +1381,9 @@ void QTextCursor::beginEditBlock()
 
 void QTextCursor::endEditBlock()
 {
-    if (!d || !d->pieceTable)
+    if (!d || !d->priv)
         return;
 
-    d->pieceTable->endEditBlock();
+    d->priv->endEditBlock();
 }
 

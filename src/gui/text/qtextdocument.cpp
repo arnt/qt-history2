@@ -348,7 +348,7 @@ QTextCursor QTextDocument::find(const QString &expr, int from, StringComparison 
         }
 
         if (idx >= 0) {
-            QTextCursor cursor(d, block.position() + blockOffset + idx);
+            QTextCursor cursor(docHandle(), block.position() + blockOffset + idx);
             cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, expr.length());
             return cursor;
         }

@@ -153,7 +153,7 @@ void QTextDocumentPrivate::init()
 QTextDocumentPrivate::~QTextDocumentPrivate()
 {
     for (int i = 0; i < cursors.count(); ++i)
-        cursors.at(i)->pieceTable = 0;
+        cursors.at(i)->priv = 0;
     cursors.clear();
     undoPosition = 0;
     undoEnabled = true;
