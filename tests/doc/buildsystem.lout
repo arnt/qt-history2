@@ -17,10 +17,10 @@
     aoutline { curvebox }
     bpaint { @Xrgb slategray1 }
     coutlinestyle { noline }
-    cpaint { lightyellow }
+#    cpaint { lightyellow }
     cmargin { 0c }
-    cvsize { 0.1c }
-    chsize { 0.1c }
+    cvsize { 0.25c }
+    chsize { 0.25c }
     arrowwidth { 0.75f }
     arrowlength { 0.75f }
     backarrowwidth { 0.75f }
@@ -32,13 +32,13 @@
     #rule { yes } rulecolour {red}
     indent { ctr }
     iv { ctr }
-    marginvertical { 0.25c }
-    marginhorizontal { 0.5c }
+    marginvertical { 0.3c }
+    marginhorizontal { 0.75c }
     aformat { @Cell A | @Cell B | @Cell C | @Cell indent { left } D }
     bformat { @Cell A | @Cell B | @StartHSpan @Cell C | @HSpan }
     cformat { @StartVSpan @Cell A | @Cell B | @StartVSpan @Cell C | @VSpan }
     dformat { @Cell A | @Cell B | @Cell C |
-	      @StartVSpan @Cell paint { lightgrey } iv { foot } strut { no } D }
+	      @StartVSpan @Cell margin { 0c } paint { lightgrey } iv { foot } strut { no } D }
     eformat { @Cell A | @Cell B | @Cell C | @VSpan }
 {
     @Rowb
@@ -67,35 +67,39 @@
 	C { UIH:: @Node { .ui.h files } }
 	D { CPPX:: @Node { C++ class
 .h "&" .cpp files } }
+    @Rowa
+	B {}
     @Rowd
 	B { MOC:: @ANode { moc } }
 	D {
 	    @Tbl
-		#rule { yes } rulecolour {red}
+		#rule { yes } rulecolour { red }
 		strut { no }
 		break { lines }
+		marginhorizontal { 0c }
 		cformat { @StartHSpan @Cell indent { ctr } A | @HSpan | @HSpan }
-		bformat { @StartHSpan @Cell A | @HSpan | @HSpan }
-		aformat { @Cell A | @Cell B | @Cell indent { right } C }
+		bformat { @StartHSpan @Cell indent { ctr } A | @HSpan | @HSpan }
+		aformat { @Cell marginright { 0.5f } A |
+			  @Cell B | @Cell width { 1.5c } indent { right } C }
 	    {
 		@Rowc A { @Underline Key }
 		@Rowa
 		    A { produces "&"
 consumes }
-		    B { @CNode }
-		    C { @CNode }
+		    B { PCX:: @CNode }
+		    C { PCY:: @CNode }
 		    @Rowa
 		    A { produces }
-		    B { @CNode }
-		    C { @CNode }
+		    B { PX:: @CNode }
+		    C { PY:: @CNode }
 		    @Rowa
 		    A { consumes }
-		    B { @CNode }
-		    C { @CNode }
+		    B { CX:: @CNode }
+		    C { CY:: @CNode }
 		    @Rowa
 		    A { controls }
-		    B { @CNode }
-		    C { @CNode }
+		    B { CCX:: @CNode }
+		    C { CCY:: @CNode }
 		@Rowb A { @CurveBox paint { @Xrgb yellowgreen } { Qt GUI
 Application }}
 		@Rowb A { @ANode { Qt command line tool } }
@@ -123,13 +127,43 @@ executable
 X11, Mac~OS~X) } }
 }
 //
-@VHArrow from { LUPDATE } to { PRO } pathstyle{dotted}
-@VHArrow from { QMAKE } to { PRO } pathstyle{dotted}
+@VHArrow from { LUPDATE } to { PRO } pathstyle{dotted} pathwidth{0.1f}
+@VHArrow from { QMAKE } to { PRO } pathstyle{dotted} pathwidth{0.1f}
 @Arrow from { LUPDATE } to { TS }
 @Arrow from { TS } to { LINGUIST }
 @Link from { LINGUIST } to { TSX } arrow { both } pathstyle { dashed }
 @Arrow from { TSX } to { LRELEASE }
 @Arrow from { LRELEASE } to { QM }
 @HVHArrow from { MAKETOOL } to { LUPDATE } pathdashlength{0.6f} pathstyle{dashed}
+@HVHArrow from { MAKETOOL } to { LRELEASE } pathdashlength{0.6f} pathstyle{dashed}
+@LVRArrow from { MAKETOOL } to { UIC } bias{1.0f} pathdashlength{0.6f} pathstyle{dashed}
+@LVRArrow from { MAKETOOL } to { MOC } bias{1.0f} pathdashlength{0.6f} pathstyle{dashed}
+@LVRArrow from { MAKETOOL } to { COMPILER } bias{1.75f} pathdashlength{0.6f} pathstyle{dashed}
+@LVRArrow from { MAKETOOL } to { LINKER } bias{1.75f} pathdashlength{0.6f} pathstyle{dashed}
+@Arrow from { QMAKE } to { MAKEFILE }
+@Arrow from { MAKETOOL } to { MAKEFILE } pathstyle{dotted} pathwidth{0.1f}
+@Arrow from { UIC } to { CPP }
+@Arrow from { UIC } to { UI } pathstyle{dotted} pathwidth{0.1f}
+#@VHVArrow from { MOC } to { CPP@SSW } pathstyle{dotted} pathwidth{0.1f}
+@Arrow from { MOC } to { CPP } pathstyle{dotted} pathwidth{0.1f}
+@Arrow from { MOC } to { MOCCPP }
+@VHArrow from { COMPILER } to { MOCCPP } pathstyle{dotted} pathwidth{0.1f}
+@VHVLine from { PRO } to { DESIGNER } arrow { both } pathstyle { dashed }
+@VHVLine from { PRO } to { VISUALSTUDIO } hfrac{0.61} arrow { both } pathstyle { dashed }
+@VHArrow from { DESIGNER } to { UI }
+@Arrow from { DESIGNER } to { UIH }
+@Arrow from { VISUALSTUDIO } to { CPPX }
+@Arrow from { COMPILER } to { UIH } pathstyle{dotted} pathwidth{0.1f}
+@VHVArrow from { COMPILER } to { CPPX } hfrac{0.85} pathstyle{dotted} pathwidth{0.1f}
+#@VHVArrow from { COMPILER } to { CPP@SSE } hfrac{0.85} pathstyle{dotted} pathwidth{0.1f}
+@VHVArrow from { COMPILER } to { CPP } hfrac{0.85} pathstyle{dotted} pathwidth{0.1f}
+@Arrow from { COMPILER } to { OBJECTS }
+@Arrow from { LINKER } to { OBJECTS } pathstyle{dotted} pathwidth{0.1f}
+@Arrow from { LINKER } to { EXE }
+@Arrow from { EXE } to { QM }pathstyle{dotted} pathwidth{0.1f}
+@Link from { PCX } to { PCY } arrow { both } pathstyle { dashed }
+@Arrow from { PX } to { PY } 
+@Arrow from { CY } to { CX } pathstyle{dotted} pathwidth{0.1f}
+@Arrow from { CCX } to { CCY } pathdashlength{0.6f} pathstyle{dashed} 
 }
 }
