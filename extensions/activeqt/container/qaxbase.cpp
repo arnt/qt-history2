@@ -344,11 +344,7 @@ public:
 		return S_OK;
 
 	    QUObject o[2];
-	    const QUParameter *param = signal->method->parameters;
-	    if ( QUType::isEqual( param->type, &static_QUType_QVariant ) )
-		static_QUType_QVariant.set( o+1, var );
-	    else
-		QVariantToQUObject( var, o[1], param );
+	    QVariantToQUObject( var, o[1], signal->method->parameters );
 
 	    // emit the "changed" signal
 	    combase->qt_emit( index, o );
@@ -1422,8 +1418,13 @@ QMetaObject *QAxBase::metaObject() const
 		UINT maxNames = 255;
 		UINT maxNamesOut;
 		info->GetNames( funcdesc->memid, (BSTR*)&bstrNames, maxNames, &maxNamesOut );
-		if ( maxNamesOut )
-		    function = BSTRToQString( bstrNames[0] );
+		QStringList names;
+		int p;
+		for ( p = 0; p < (int)maxNamesOut; ++p ) {
+		    names << BSTRToQString( bstrNames[p] );
+		    SysFreeString( bstrNames[p] );
+		}
+		function = names[0];
 		if ( ( maxNamesOut == 3 && function == "QueryInterface" ) ||
 		     ( maxNamesOut == 1 && function == "AddRef" ) ||
 		     ( maxNamesOut == 1 && function == "Release" ) ||
@@ -1431,16 +1432,12 @@ QMetaObject *QAxBase::metaObject() const
 		     ( maxNamesOut == 6 && function == "GetIDsOfNames" ) ||
 		     ( maxNamesOut == 2 && function == "GetTypeInfoCount" ) ||
 		     ( maxNamesOut == 4 && function == "GetTypeInfo" ) ) {
-		    for ( int p = 0; p < (int)maxNamesOut; ++ p )
-			SysFreeString( bstrNames[p] );
 		    continue;
 		}
 
-		for ( int p = 0; p < (int)maxNamesOut; ++ p ) {
-		    QString paramName;
-		    if ( p )
-			BSTRToQString( bstrNames[p] );
-		    SysFreeString( bstrNames[p] );
+		p = 0;
+		for ( QStringList::Iterator it = names.begin(); it != names.end(); ++it, ++p ) {
+		    QString paramName = *it;
 
 		    // function name
 		    if ( !p ) {
@@ -1692,8 +1689,8 @@ QMetaObject *QAxBase::metaObject() const
 		// get variable name
 		QString variableName;
 
-		BSTR bstrNames[256];
-		UINT maxNames = 255;
+		BSTR bstrNames[2];
+		UINT maxNames = 2;
 		UINT maxNamesOut;
 		info->GetNames( vardesc->memid, (BSTR*)&bstrNames, maxNames, &maxNamesOut );
 		for ( int v = 0; v < (int)maxNamesOut; ++v ) {
