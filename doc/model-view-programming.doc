@@ -162,7 +162,7 @@ properties in detail.
 In its most basic form, an item model can be accessed as a simple table
 in which items are located by their row and column numbers. 
 We can retrieve information about any given item by specifying its row
-and column numbers to the model, and we will receive an index that
+and column numbers to the model, and we receive an index that
 represents the item:
 
 \code
@@ -258,11 +258,11 @@ QModelIndex itemIndex = model->index(1, 2, parent, QModelIndex::View);
 \endcode
 since \l{QModelIndex::Type}{View} is the default fourth argument.
 
-Note that, for most models, the horizontal header will be the
-same for all items in a column, and the vertical header will be the same
+Note that, for most models, the horizontal header is the
+same for all items in a column, and the vertical header is the same
 for all items in a row. The model/view architecture is flexible
 enough to allow individual headers for each combination of row, column,
-and parent supplied. However, many views will not automatically take
+and parent supplied. However, many views do not automatically take
 advantage of this capability.
 
 Items in a model can perform various \e roles for other components,
@@ -310,10 +310,10 @@ items are highlighted in both views.
 
 \img shareddirmodel.png
 
-We will first set up a QDirModel so that it is ready for use, and then
-we'll create some views to display the contents of a directory. This
-shows the simplest pattern of use of a model. The construction and use
-of the model is performed from within a single main() function:
+We set up a QDirModel so that it is ready for use, and create some
+views to display the contents of a directory. This shows the simplest
+pattern of use of a model. The construction and use of the model is
+performed from within a single main() function:
 
 \quotefile shareddirmodel/main.cpp
 \skipto int main
@@ -344,7 +344,7 @@ of items. This subject is covered in more detail in the
 \section2 Using model indices
 
 To demonstrate how data can be retrieved from a model, using model
-indices, we will set up a QDirModel without a view and print out the
+indices, we set up a QDirModel without a view and print out the
 names of files and directories to a terminal. We will use the
 qDebug() function for this purpose.
 Although this does not show a normal way of using a model, it demonstrates
@@ -441,7 +441,7 @@ capabilities.
 As well as presenting data, views handle navigation between items,
 and some aspects of item selection. The views also implement basic
 user interface features, such as context menus and drag and drop.
-A view may provide default editing facilities for items, or it may
+A view can provide default editing facilities for items, or it may
 work with a \l{model-view-delegate.html}{delegate} to provide a custom
 editor.
 
@@ -465,7 +465,7 @@ specialized labelling for views.
 Qt provides three ready-to-use view classes that present data from
 models in ways that are familiar to most users.
 \l QListView displays items from a model in the form of a simple list;
-these may be text labels or icons. \l QTreeView displays items from a
+these can be text labels or icons. \l QTreeView displays items from a
 model as a hierarchy of lists, allowing deeply nested structures to be
 represented in a compact way. \l QTableView presents items from a model
 in the form of a table, much like the layout of a spreadsheet
@@ -480,7 +480,7 @@ user interfaces.
 
 \section2 Using a model 
 
-We will take the \l{model-view-subclassing-model.html}{string list model}
+We take the \l{model-view-subclassing-model.html}{string list model}
 that we created as an example model, set it up with some data, and
 construct a view to display the contents of the model. This can all
 be performed within a single function:
@@ -490,8 +490,8 @@ be performed within a single function:
 \printuntil QAbstractItemModel
 
 Note that the \c StringListModel is declared as a \l QAbstractItemModel.
-This allows us to use the abstract interface to the model, and will
-ensure that the code will still work even if we replace the string list
+This allows us to use the abstract interface to the model, and
+ensures that the code will still work even if we replace the string list
 model with a different model in the future.
 
 The list view provided by \l QListView is sufficient for presenting
@@ -547,8 +547,8 @@ many applications, a shared selection model is desirable.
 \section1 Handling selections of items
 
 The mechanism for handling selections of items within views is provided
-by the \l QItemSelectionModel class. Each of the standard views construct
-their own selection models by default, and will interact with them in the
+by the \l QItemSelectionModel class. All of the standard views construct
+their own selection models by default, and interact with them in the
 normal way. The selection model being used by a view can be obtained
 through the \l{QAbstractItemView::selectionModel()}{selectionModel()}
 function, and a replacement selection model can be specified with
@@ -586,7 +586,7 @@ the data and the selected items synchronized.
 In the example shown above, two views of the same type were used to
 display the same model's data. However, if two different types of view
 were used, the selected items may be represented very differently in
-each view; for example, a contiguous selection in a table view may be
+each view; for example, a contiguous selection in a table view can be
 represented as a fragmented set of highlighted items in a tree view.
 
 \l{model-view-subclassing-model.html}{[Creating New Models]}
@@ -660,7 +660,7 @@ functions to manage the editor widget:
 \printuntil };
 
 Note that no editor widgets are set up when the delegate is
-constructed. We will construct an editor widget when it is needed.
+constructed. We only construct an editor widget when it is needed.
 
 \section2 The editor type
 
@@ -694,7 +694,7 @@ We provide basic editing features with a spin box, checking only that
 we are allowed to provide an editor, and ignoring the differences
 between the actions defined by
 \l{QAbstractItemDelegate::BeginEditAction}{BeginEditAction}. The view
-will ensure that we set up the editor's data and geometry correctly by
+ensures that we set up the editor's data and geometry correctly by
 calling functions that we define later for this purpose. Clearly we
 can create different editors depending on say, the model index, for
 example if we have a column of integers and a column of strings we
@@ -748,9 +748,9 @@ provided by \l QAbstractItemModel. This makes the delegate mostly
 independent from the type of data it manipulates, but some
 assumptions must be made in order to use certain types of
 editor widgets. In this example, we have assumed that the model
-will always contain integer values, but we can still use this
-delegate with different kinds of models because \l{QVariant} will
-provide sensible default values for unexpected data.
+always contains integer values, but we can still use this
+delegate with different kinds of models because \l{QVariant}
+provides sensible default values for unexpected data.
 
 \section2 Updating the editor's geometry
 
@@ -837,17 +837,13 @@ can be obtained using the view's
 and shared between many views with
 \l{QAbstractItemView::setSelectionModel()}{setSelectionModel()},
 so the construction of new selection models is generally not required.
-\omit
-If a new selection model is required then it is only necessary to
-construct 
-\endomit
 
 A selection is created by specifying a model, and a pair of model
 indices to a \l QItemSelection. This uses the indices to refer to items
 in the given model, and interprets them as the top-left and bottom-right
 items in a block of selected items.
 To apply the selection to items in a model requires the selection to be
-submitted to a selection model; this may be achieved in a number of ways,
+submitted to a selection model; this can be achieved in a number of ways,
 each having a different effect on the selections already present in the
 selection model.
 
@@ -863,7 +859,7 @@ table view onto its data:
 \printuntil QItemSelectionModel
 
 The table view's default selection model is retrieved for later use.
-We will not modify any items in the model, but instead select a few
+We do not modify any items in the model, but instead select a few
 items that the view will display at the top-left of the table. To do
 this, we need to retrieve the model indices corresponding to the
 top-left and bottom-right items in the region to be selected:
@@ -893,8 +889,8 @@ The selection of items can be modified using various operations that
 are defined by the selection flags. The selection that results from
 these operations may have a complex structure, but will be represented
 efficiently by the selection model. The use of different selection
-flags to manipulate the selected items is described in the section on
-\l{model-view-selection-commands.html}{selection commands}.
+flags to manipulate the selected items is described when we examine
+how to update a selection.
 
 \section2 Reading the selection state
 
@@ -1019,8 +1015,8 @@ of model indices with those specified in a call to
 \l{QItemSelectionModel::select()}{select()}.
 To clear all selections before you start adding new ones,
 combine the other selection flags with the
-\l{QItemSelectionModel::SelectionFlag}{Clear} flag. This will
-have the effect of resetting the selection model's collection of model
+\l{QItemSelectionModel::SelectionFlag}{Clear} flag. This
+has the effect of resetting the selection model's collection of model
 indices.
 
 \l{model-view-view.html}{[View Classes]}
@@ -1047,7 +1043,7 @@ indices.
     the possibility that data will be inserted, removed, changed, or sorted
     in some way. It also provides support for drag and drop operations.
 
-    In this section, we will create a simple read-only model to explore
+    In this section, we create a simple read-only model to explore
     the basic principles of the model/view architecture. This model will
     later be adapted so that items can be modified with an editor.
 
@@ -1119,7 +1115,7 @@ indices.
 
     An item can have several roles, giving out different data depending on the
     role specified. The items in our model only have one role,
-    \l{QAbstractItemModel::Role}{DisplayRole}, so we will return the data
+    \l{QAbstractItemModel::Role}{DisplayRole}, so we return the data
     for items irrespective of the role specified.
     However, we could reuse the data we provide for the
     \l{QAbstractItemModel::Role}{DisplayRole} in
@@ -1143,7 +1139,7 @@ indices.
 
     \section2 Making the model editable
 
-    A delegate will check whether an item is editable before creating an
+    A delegate checks whether an item is editable before creating an
     editor. The model must let the delegate know that its items are
     editable:
 
@@ -1151,7 +1147,7 @@ indices.
     \skipto bool StringListModel::isEditable
     \printuntil }
 
-    Note that we do not have to know how the delegate will perform the actual
+    Note that we do not have to know how the delegate performs the actual
     editing process. We only have to provide a way for the delegate to set the
     data in the model. This is achieved through the
     \l{QAbstractItemModel::setData()}{setData()} function:
@@ -1181,7 +1177,7 @@ indices.
 
     It is possible to change the number of rows and columns in a model. In the
     string list model it only makes sense to change the number of rows, so we
-    will reimplement the functions for inserting and removing rows. These are
+    reimplement the functions for inserting and removing rows. These are
     declared in the class definition:
 
     \quotefile stringlistmodel/model.h
