@@ -122,7 +122,7 @@ void WriteIncludes::add(const QString &className)
 
     if (uic->customWidgetsInfo()->extends(className, QLatin1String("Q3ListView"))
             || uic->customWidgetsInfo()->extends(className, QLatin1String("Q3Table"))) {
-        add(QLatin1String("QtGui/Q3Header"));
+        add(QLatin1String("Q3Header"));
     }
 }
 
