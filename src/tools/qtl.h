@@ -88,7 +88,7 @@ inline void qBubbleSort( InputIterator b, InputIterator e )
 }
 
 template <class Container>
-inline void qBubbleSort( const Container &c )
+inline void qBubbleSort( Container &c )
 {
   qBubbleSort( c.begin(), c.end() );
 }
