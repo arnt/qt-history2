@@ -46,7 +46,7 @@
 extern void qt_init_image_handlers();
 extern void qt_init_image_plugins();
 
-#define TRANSPARENT 0x00000000
+#define Q_TRANSPARENT 0x00000000
 
 /*!
     \class QImageConsumer qasyncimageio.h
@@ -752,7 +752,7 @@ void QGIFFormat::disposePrevious( QImage& img, QImageConsumer* consumer )
       case RestoreBackground:
 	if (trans_index>=0) {
 	    // Easy:  we use the transparent color
-	    fillRect(img, l, t, r-l+1, b-t+1, TRANSPARENT);
+	    fillRect(img, l, t, r-l+1, b-t+1, Q_TRANSPARENT);
 	} else if (bgcol>=0) {
 	    // Easy:  we use the bgcol given
 	    fillRect(img, l, t, r-l+1, b-t+1, color(bgcol));
@@ -831,7 +831,7 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 		    ccount=0;
 		    state=GlobalColorMap;
 		    globalcmap = new QRgb[gncols+1]; // +1 for trans_index
-		    globalcmap[gncols] = TRANSPARENT;
+		    globalcmap[gncols] = Q_TRANSPARENT;
 		} else {
 		    state=Introducer;
 		}
@@ -939,7 +939,7 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 		    if ( localcmap )
 			delete [] localcmap;
 		    localcmap = new QRgb[lncols+1];
-		    localcmap[lncols] = TRANSPARENT;
+		    localcmap[lncols] = Q_TRANSPARENT;
 		    ncols = lncols;
 		} else {
 		    ncols = gncols;
@@ -1323,7 +1323,7 @@ QRgb QGIFFormat::color( uchar index ) const
     else
 	map =globalcmap;
     if ( index > ncols )
-	return TRANSPARENT;
+	return Q_TRANSPARENT;
     return map[index];
 }
 
