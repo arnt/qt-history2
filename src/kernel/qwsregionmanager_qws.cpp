@@ -8,8 +8,8 @@
 #include <sys/shm.h>
 #endif
 
-#define QT_MAX_REGIONS      400
-#define QT_RECTS_PER_REGION 4
+#define QT_MAX_REGIONS      600
+#define QT_RECTS_PER_REGION 6
 
 /*
 
