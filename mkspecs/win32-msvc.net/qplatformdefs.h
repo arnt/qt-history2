@@ -73,9 +73,8 @@
 
 #define QT_SIGNAL_ARGS		int
 
-#if defined(_MSC_VER) && _MSC_VER >= 1400
-#define QT_VSNPRINTF(buffer, count, format, arg) \
-	vsnprintf_s(buffer, count, count-1, format, arg)
+#if defined(_MSC_VER) && _MSC_VER >= 1400 && defined(QT_VSNPRINTF)
+# undef QT_VSNPRINTF // use the Qt implementation of vsnprintf
 #else
 #define QT_VSNPRINTF ::_vsnprintf
 #endif
