@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.h#3 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.h#4 $
 **
 ** Definition of QPaintDeviceMetrics class
 **
@@ -27,6 +27,8 @@ public:
     int	  height()	const	{ return (int)pdev->metric(PDM_HEIGHT); }
     int	  widthMM()	const	{ return (int)pdev->metric(PDM_WIDTHMM); }
     int	  heightMM()	const	{ return (int)pdev->metric(PDM_HEIGHTMM); }
+    int	  numColors()	const	{ return (int)pdev->metric(PDM_NUMCOLORS); }
+    int	  numPlanes()	const	{ return (int)pdev->metric(PDM_NUMPLANES); }
 
 private:
     QPaintDevice *pdev;
