@@ -1343,7 +1343,7 @@ QFontEngine *loadEngine( QFont::Script script,
 	    size_value = MAXFONTSIZE_XFT;
 	}
 
-	size_value = qt_pointSize(size_value, fp->paintdevice, fp->screen);
+	size_value = qt_pointSize(size_value, 0, fp->screen);
 	XftPatternAddDouble( pattern, XFT_SIZE, size_value );
 
 #  ifdef XFT_MATRIX

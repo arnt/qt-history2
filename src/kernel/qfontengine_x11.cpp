@@ -851,13 +851,6 @@ QFontEngineLatinXLFD::QFontEngineLatinXLFD( XFontStruct *xfs, const char *name,
     memset( glyphAdvances, 0, sizeof( glyphAdvances ) );
     euroIndex = 0;
     euroAdvance = 0;
-
-    unsigned short chars[0x200];
-    for ( int i = 0; i < 0x200; ++i )
-	chars[i] = i;
-    int glyphCount = 0x200;
-    _engines[0]->stringToCMap( (const QChar *)chars, 0x200,
-			       glyphIndices, glyphAdvances, &glyphCount, FALSE );
 }
 
 QFontEngineLatinXLFD::~QFontEngineLatinXLFD()
@@ -1269,6 +1262,12 @@ void QFontEngineLatinXLFD::setScale( double scale )
 {
     for ( int i = 0; i < _count; ++i )
 	_engines[i]->setScale( scale );
+    unsigned short chars[0x200];
+    for ( int i = 0; i < 0x200; ++i )
+	chars[i] = i;
+    int glyphCount = 0x200;
+    _engines[0]->stringToCMap( (const QChar *)chars, 0x200,
+			       glyphIndices, glyphAdvances, &glyphCount, FALSE );
 }
 
 
