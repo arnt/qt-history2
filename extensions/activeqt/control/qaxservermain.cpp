@@ -612,7 +612,6 @@ static HRESULT classIDL( QObject *o, QMetaObject *mo, const QString &className, 
     QString eventsID = qAxFactory()->eventsID( className ).toString().upper();
     STRIPCB(eventsID);
 
-#if QT_VERSION >= 0x030100
     QStrList enumerators = mo->enumeratorNames( TRUE );
     for ( i = 0; i < enumerators.count(); ++i ) {
 	if ( !enums )
@@ -646,7 +645,6 @@ static HRESULT classIDL( QObject *o, QMetaObject *mo, const QString &className, 
 	}
 	out << "\t};" << endl << endl;
     }
-#endif
 
     out << endl;
     out << "\t[" << endl;
@@ -671,11 +669,7 @@ static HRESULT classIDL( QObject *o, QMetaObject *mo, const QString &className, 
 	bool designable = property->designable( o );
 	bool scriptable = isBindable ? property->scriptable( o ) : FALSE;
 	bool ok = TRUE;
-#if QT_VERSION >= 0x030100
 	QString type = convertTypes( property->type(), &ok );
-#else
-	QString type = convertTypes( property->isEnumType() ? "int" : property->type(), &ok );
-#endif
 	QString name = replaceKeyword( property->name() );
 
 	if ( !ok )
@@ -717,14 +711,11 @@ static HRESULT classIDL( QObject *o, QMetaObject *mo, const QString &className, 
 	    const QUParameter *param = slotdata->method->parameters + p;
 	    bool returnValue = FALSE;
 
-#if QT_VERSION >= 0x030100
 	    if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra ) {
 		QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
 		QCString type = QVariant::typeToName( vartype );
 		paramType = convertTypes( type, &ok );
-	    } else 
-#endif
-	    if ( QUType::isEqual( param->type, &static_QUType_QVariant ) && param->typeExtra ) {
+	    } else if ( QUType::isEqual( param->type, &static_QUType_QVariant ) && param->typeExtra ) {
 		QVariant::Type vartype = (QVariant::Type)*(int*)param->typeExtra;
 		QCString type = QVariant::typeToName( vartype );
 		paramType = convertTypes( type, &ok );
@@ -826,14 +817,11 @@ static HRESULT classIDL( QObject *o, QMetaObject *mo, const QString &className, 
 	    const QUParameter *param = signaldata->method->parameters + p;
 	    bool returnValue = FALSE;
 
-#if QT_VERSION >= 0x030100
 	    if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra ) {
 		QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
 		QCString type = QVariant::typeToName( vartype );
 		paramType = convertTypes( type, &ok );
-	    } else 
-#endif
-	    if ( QUType::isEqual( param->type, &static_QUType_QVariant ) && param->typeExtra ) {
+	    } else if ( QUType::isEqual( param->type, &static_QUType_QVariant ) && param->typeExtra ) {
 		QVariant::Type vartype = (QVariant::Type)*(int*)param->typeExtra;
 		QCString type = QVariant::typeToName( vartype );
 		paramType = convertTypes( type, &ok );
