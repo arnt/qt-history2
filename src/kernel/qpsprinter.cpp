@@ -213,7 +213,7 @@ static const char *const ps_header =
 // also 0 shout be mapped to .notdef
 static const struct {
     Q_UINT16 u;
-    const char * const g;
+    const char *g;
 } unicodetoglyph[] = {
     // grep '^[0-9A-F][0-9A-F][0-9A-F][0-9A-F];' < /tmp/glyphlist.txt | sed -e 's/;/, "/' -e 's-;-" },  // -' -e 's/^/    { 0x/' | sort
     { 0x0000, ".notdef" },
