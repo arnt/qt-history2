@@ -261,14 +261,16 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
         if(!project->variables()["OBJECTS_DIR"].isEmpty())
             odir = project->first("OBJECTS_DIR");
         t << "###### Dependencies" << endl << endl;
-        t << odir << ".deps/%.d: %.cpp\n\t"
-          << "@echo Creating depend for $<" << "\n\t"
-          << "@test -d $(@D) || mkdir -p $(@D)" << "\n\t"
+        t << odir << ".deps/%.d: %.cpp\n\t";
+        if(project->isActiveConfig("echo_depend_creation"))
+            t << "@echo Creating depend for $<" << "\n\t";
+        t << "@test -d $(@D) || mkdir -p $(@D)" << "\n\t"
           << "@$(CXX) " << cmd << " $< | sed \"s,^\\($(*F).o\\):," << odir << "\\1:,g\" >$@" << endl << endl;
 
-        t << odir << ".deps/%.d: %.c\n\t"
-          << "@echo Creating depend for $<" << "\n\t"
-          << "@test -d $(@D) || mkdir -p $(@D)" << "\n\t"
+        t << odir << ".deps/%.d: %.c\n\t";
+        if(project->isActiveConfig("echo_depend_creation"))
+            t << "@echo Creating depend for $<" << "\n\t";
+        t << "@test -d $(@D) || mkdir -p $(@D)" << "\n\t"
           << "@$(CC) " << cmd << " $< | sed \"s,^\\($(*F).o\\):," << odir << "\\1:,g\" >$@" << endl << endl;
 
         QString src[] = { "SOURCES", "UICIMPLS", "SRCMOC", QString::null };
