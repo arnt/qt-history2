@@ -1487,7 +1487,7 @@ void QToggleAction::setChecked( bool checked )
 	    {
 		if ( it.current()->inherits( "QToggleAction" ) &&
 		     ((QToggleAction*)it.current())->exclusiveGroup() == m_exclusiveGroup )
-		    ((QToggleAction*)it.current())->setChecked( false );
+		    ((QToggleAction*)it.current())->setChecked( FALSE );
 	    }
 	}
     }
