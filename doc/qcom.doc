@@ -266,8 +266,8 @@
 
 
 /*!
-  \class QComponentServerInterface qcom.h
-  \brief The QComponentServerInterface class defines an interface to register and unregister components.
+  \class QComponentRegistrationInterface qcom.h
+  \brief The QComponentRegistrationInterface class defines an interface to register and unregister components.
 
   \ingroup componentmodel
   
@@ -280,7 +280,7 @@
 */
 
 /*!
-  \fn bool QComponentServerInterface::registerComponents( const QString &filepath ) const
+  \fn bool QComponentRegistrationInterface ::registerComponents( const QString &filepath ) const
 
   Registers the components in this server in the system component registry
   and returns TRUE if successful, otherwise returns FALSE. The \a filepath
@@ -297,7 +297,7 @@
 */
 
 /*!
-  \fn bool QComponentServerInterface::unregisterComponents() const
+  \fn bool QComponentRegistrationInterface ::unregisterComponents() const
 
   Removes the components in this server from the system component registry
   and returns TRUE if successful, otherwise returns FALSE.

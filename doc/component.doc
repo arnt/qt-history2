@@ -354,7 +354,7 @@ application without having to relink the executable against the component's bina
 created by  the compiler.
 
 
-\section2 Exporting the Component
+\section2 Exporting a Component
 
 In order to be able to distribute a component in binary
 form it must be wrapped in a component server. The most common kind of
@@ -365,7 +365,7 @@ This function will return a pointer to a QUnknownInterface
 implementation that can be used as an entry point to query for the
 interfaces needed. Qt provides a macro 
 
-\code Q_EXPORT_INTERFACE \endcode 
+\code Q_EXPORT_COMPONENT \endcode 
 
 that declares the exported function
 
@@ -376,7 +376,7 @@ the standard procedures for dynamically loaded libraries, or using the
 QLibrary class. An implementation of this function might look like this:
 
 \code
-Q_EXPORT_INTERFACE()
+Q_EXPORT_COMPONENT()
 {
     NumberComponent *comp = new NumberComponent;
     QUnknownInterface *iface;
@@ -395,7 +395,7 @@ Q_CREATE_INSTANCE( NumberComponent )
 so that the standard line for exporting the component becomes
 
 \code
-Q_EXPORT_INTERFACE()
+Q_EXPORT_COMPONENT()
 {
     Q_CREATE_INSTANCE( NumberComponent )
 }
@@ -404,7 +404,7 @@ Q_EXPORT_INTERFACE()
 The ucom_instantiate() function must be declared and implemented
 exactly once for  each component server.
 
-Sidenote: The \e Q_EXPORT_INTERFACE macro expands to a declaration and implementation of a 
+Sidenote: The \e Q_EXPORT_COMPONENT macro expands to a declaration and implementation of a 
 second exported function:
 
 \code int ucm_initialize( QApplication* theApp, bool *mt, bool *debug ) \endcode
@@ -416,16 +416,16 @@ running single threaded.
 \section2 Setting Up a qmake Project for a Component Server
 
 To build a component server, some settings have to be changed in the compiler and linker
-options. If you use qmake to generate your makefiles, the \e plugin configuration does that
+options. If you use qmake to generate your makefiles, the \e dll configuration does that
 for you. A simple component server with a single C++ implementation file \e main.cpp could
 look like that:
 
 \code
 TEMPLATE += lib
-CONFIG += qt plugin
+CONFIG += qt dll
 TARGET += myplugin
 VERSION = 1.0.0
-DESTDIR = ...
+DESTDIR = {...}
 
 SOURCES = main.cpp
 \endcode
@@ -454,7 +454,7 @@ components. This component has to be the one returned by the exported function, 
 to implement the interface
 
 \code
-struct Q_EXPORT QComponentFactoryInterface
+struct QComponentFactoryInterface
 	: public QUnknownInterface
 {
     virtual QRESULT createInstance( const QUuid &cid, const QUuid &iid,
@@ -547,7 +547,7 @@ using this UUID a component - or the installation process for the component - ca
 to the central component database. The application can then look up the UUID it requires in 
 the database and use the filename to create a QLibrary object. 
 
-Registering the components in a server is done by implementing the QComponentServerInterface 
+Registering the components in a server is done by implementing the QComponentRegistrationInterface 
 using the \link qcomponentfactory.html QComponentFactory \endlink class like this:
 
 \code
@@ -567,7 +567,7 @@ On Windows, this will use the system registry and register the component
 along with all other COM components. On UNIX, this will create a
 settings file .CLSID that lists all installed components. To register
 all components in a server, it is sufficient to load the library, 
-query for the QComponentServerInterface and call the registerComponent
+query for the QComponentRegistrationInterface and call the registerComponent
 function during the installation process of the component.
 
 Any client application that wants to use this specific component can then use the static
@@ -709,7 +709,7 @@ Even though an application and shared libraries loaded by that application live 
 the same address space, all heap operations executed within the code operate on separate 
 parts of the memory. This raises a number of issues on all platforms
 
-\section3 References to memory allocated in a shared library become invalid when this library is unloaded
+\section2 References to memory allocated in a shared library become invalid when this library is unloaded
 
 If you allocate memory in component code using operator new, make sure that there are no more
 references to that memory before unloading the library. See the documentation of the QLibraryInterface
@@ -720,12 +720,12 @@ for more information.
 On certain platforms, additional problems result from the implementation of the library
 loader, or the memory management
 
-\section3 on Windows, all modules running in one address space should use the same instance of the C runtime library
+\section2 on Windows, all modules running in one address space should use the same instance of the C runtime library
 
 The qmake tool will apply settings to generate code for the shared C runtime to make sure that all
 binaries use the same instance of the runtime library.
 
-\section3 Mixing up compile options for threading, debug symbols, or exception handling between applications and libraries might crash
+\section2 Mixing up compile options for threading, debug symbols, or exception handling between applications and libraries might crash
 
 QLibrary tries to catch those mismatches and will prevent loading of libraries, or issue a warning.
 */
