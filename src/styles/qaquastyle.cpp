@@ -76,6 +76,7 @@ static const int aquaCheckMarkHMargin  = 2;    // horiz. margins of check mark
 static const int aquaRightBorder       = 12;   // right border on aqua
 static const int aquaCheckMarkWidth    = 12;   // checkmarks width on aqua
 static QColor highlightColor = QColor( 0xC2, 0xC2, 0xC2 );
+static bool scrollbar_arrows_together = TRUE;
 
 class QAquaStylePrivate : public QObject
 {
@@ -280,7 +281,7 @@ void QAquaStyle::timerEvent( QTimerEvent * te )
 	    d->defaultButton->repaint( FALSE );
     } else if( te->timerId() == d->progressTimerId ) {
 	if( !d->progressBars.isEmpty() ) {
-	    d->progressOff++;
+	    d->progressOff--;
 	    for( QPtrListIterator<QProgressBar> it(d->progressBars); it.current(); ++it)
 		(*it)->repaint( FALSE );
 	}
@@ -571,7 +572,7 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
     case PE_ScrollBarSubLine: {
 	QPixmap arrow;
 	p->setBackgroundMode( OpaqueMode );
-	QString mod, prefix;
+	QString mod, prefix, join;
 	if(flags & Style_Down )
 	    mod += "psh_";
 	if( flags & Style_Horizontal ) {
@@ -589,12 +590,15 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 		mod += "up_";
 	    mod += QString::number(r.width());
 	}
-	qAquaPixmap( prefix + "sbr_arw_" + mod, arrow );
+	if( scrollbar_arrows_together )
+	    join = "joined_";
+	qAquaPixmap( prefix + "sbr_" + join + "arw_" + mod, arrow );
 	p->drawPixmap( r.x(), r.y(), arrow );
 	break; }
 
     case PE_ScrollBarSubPage:
     case PE_ScrollBarAddPage: {
+
 	QPixmap fill;
 	p->setBackgroundMode( OpaqueMode );
 	QString prefix="v";
@@ -602,7 +606,18 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 	    prefix = "h";
 	qAquaPixmap( prefix + "sbr_back_fill_" + QString::number(
 	    flags & Style_Horizontal ? r.height() : r.width()), fill );
-	p->drawTiledPixmap( r, fill );
+	QRect fillr = r;
+	if( scrollbar_arrows_together) {
+	    QPixmap cap;
+	    qAquaPixmap( prefix + "sbr_joined_back_cap_" + QString::number(
+		flags & Style_Horizontal ? r.height() : r.width()), cap );
+	    p->drawPixmap( r.x(), r.y(), cap );
+	    if(flags & Style_Horizontal)
+		fillr.setX( r.x() + cap.width() );
+	    else
+		fillr.setY( r.y() + cap.height() );
+	}
+	p->drawTiledPixmap( fillr, fill );
 	break; }
 
     case PE_ScrollBarSlider: {
@@ -1189,6 +1204,7 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 					const QStyleOption& opt ) const
 {
     switch(ctrl) {
+#ifndef QT_NO_SCROLLBAR
     case CC_ScrollBar: {
 	if(!widget)
 	    break;
@@ -1251,12 +1267,12 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    //cleanup
 	    QRect eraserect(slider);
 	    if(scrollbar->orientation() == Qt::Vertical) {
-		if(eraserect.y() < subline.height())
+		if(!scrollbar_arrows_together && eraserect.y() < subline.height())
 		    eraserect.setY(subline.height());
 		if(eraserect.bottom() > addline.y())
 		    eraserect.setBottom(addline.y());
 	    } else {
-		if(eraserect.x() < subline.width())
+		if(!scrollbar_arrows_together && eraserect.x() < subline.width())
 		    eraserect.setX(subline.width());
 		if(eraserect.right() > addline.x())
 		    eraserect.setRight(addline.x());
@@ -1284,6 +1300,7 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    }
 	}
 	break; }
+#endif
 
     case CC_TitleBar: {
 	if(!widget)
@@ -1574,13 +1591,14 @@ QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
 	    rect = QRect(-666, -666, 0, 23); //ugh, how bogus!
 	break; }
 
-    case CC_ScrollBar:
+#ifndef QT_NO_SCROLLBAR
+    case CC_ScrollBar: {
+	if(!w)
+	    break;
+	QScrollBar *scr = (QScrollBar *)w;
 	switch(sc) {
 	case SC_ScrollBarAddLine:
 	case SC_ScrollBarSubLine: {
-	    if(!w)
-		break;
-	    QScrollBar *scr = (QScrollBar *)w;
 	    rect = QRect(0, 0, 16, 26);
 	    if(sc == SC_ScrollBarAddLine) {
 		int x = 0, y = 0;
@@ -1596,7 +1614,47 @@ QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
 	default:
 	    rect = QWindowsStyle::querySubControlMetrics( control, w, sc, opt);
 	}
-	break;
+	if( scrollbar_arrows_together ) {
+	    switch(sc) {
+	    case SC_ScrollBarAddLine:
+		if(scr->orientation() == Horizontal)
+		    rect.setRect( scr->width() - 17, 0, 17, 15 );
+		else
+		    rect.setRect( 0, scr->height() - 17, 15, 17 );
+		break;
+	    case SC_ScrollBarSubLine:
+		if(scr->orientation() == Horizontal)
+		    rect.setRect( scr->width() - (22 + 17), 0, 22, 15 );
+		else
+		    rect.setRect( 0, scr->height() - (20 + 17), 15, 20 );
+		break;
+	    case SC_ScrollBarGroove: 
+		if(scr->orientation() == Horizontal)
+		    rect.setX( rect.x() + 7 );
+		else
+		    rect.setY( rect.y() + 5 );
+		//fall through
+	    case SC_ScrollBarSubPage: 
+		if(sc == SC_ScrollBarSubPage) {
+		    if(scr->orientation() == Horizontal) 
+			rect.setWidth(rect.width() + 20);
+		    else
+			rect.setHeight(rect.height() + 20);
+		}
+		//fall through
+	    case SC_ScrollBarAddPage: {
+		int sbextent = pixelMetric(PM_ScrollBarExtent, w);
+		if(scr->orientation() == Horizontal)
+		    rect.moveBy( -sbextent, 0 );
+		else
+		    rect.moveBy( 0, -sbextent );
+		break; }
+	    default: 
+		break;
+	    }
+	}
+	break; }
+#endif
 
     default:
 	rect = QWindowsStyle::querySubControlMetrics( control, w, sc, opt);
@@ -1662,6 +1720,9 @@ void QAquaStyle::appearanceChanged()
 	    qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
 	}
 
+	ThemeScrollBarArrowStyle arrows;
+	GetThemeScrollBarArrowStyle(&arrows);
+	scrollbar_arrows_together = (arrows == kThemeScrollBarArrowsSingle);
 	DisposeCollection(c);
     }
 #if 0
