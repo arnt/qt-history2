@@ -88,14 +88,12 @@ QTextFormat::QTextFormat()
     : d(new QTextFormatPrivate), collection(0)
 {
     d->type = InvalidFormat;
-    d->inheritedType = InvalidFormat;
 }
 
-QTextFormat::QTextFormat(int type, int inheritedType)
+QTextFormat::QTextFormat(int type)
     : d(new QTextFormatPrivate), collection(0)
 {
     d->type = type;
-    d->inheritedType = inheritedType;
 }
 
 QTextFormat::QTextFormat(QTextFormatCollection *c, QTextFormatPrivate *p)
@@ -148,17 +146,6 @@ int QTextFormat::type() const
 {
     return d->type;
 }
-
-int QTextFormat::inheritedType() const
-{
-    return d->inheritedType;
-}
-
-bool QTextFormat::inheritsFormatType(int otherType) const
-{
-    return d->type == otherType || d->inheritedType == otherType;
-}
-
 
 QTextBlockFormat QTextFormat::toBlockFormat() const
 {

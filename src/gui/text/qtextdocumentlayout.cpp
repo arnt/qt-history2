@@ -16,7 +16,7 @@
 QTextDocumentLayout::QTextDocumentLayout()
     : QAbstractTextDocumentLayout()
 {
-    registerHandler(QTextFormat::ImageFormat, new QTextImageHandler(this));
+    registerHandler(QTextFormat::ImageObject, new QTextImageHandler(this));
 }
 
 
@@ -70,7 +70,8 @@ int QTextDocumentLayout::indent(QTextPieceTable::BlockIterator bl) const
 void QTextDocumentLayout::drawListItem(QPainter *painter, const PaintContext &context, QTextPieceTable::BlockIterator bl, const QTextLayout::Selection &selection)
 {
     QTextBlockFormat blockFormat = bl.blockFormat();
-    QFontMetrics fontMetrics(blockFormat.font());
+    QTextCharFormat charFormat = bl.charFormat();
+    QFontMetrics fontMetrics(charFormat.font());
     const int style = listFormat(bl).style();
     QString itemText;
     QPoint pos = (*bl)->rect.topLeft();
@@ -177,7 +178,7 @@ void QTextDocumentLayout::drawBlock(QPainter *painter, const PaintContext &conte
 
 	if (cursor != -1)
 	    painter->drawLine(pos.x(), pos.y(),
-				     pos.x(), pos.y() + QFontMetrics(blockFormat.font()).height());
+				     pos.x(), pos.y() + QFontMetrics(bl.charFormat().font()).height());
 	return;
     }
 
@@ -274,7 +275,7 @@ QTextPieceTable::BlockIterator QTextDocumentLayout::layoutTable(QTextPieceTable:
 	    it = layoutCell(it, &point, cellWidth);
 
 	    rowHeight = qMax(rowHeight, point.y() - pos->y() - y);
-	    rowHeight = qMax(rowHeight, QFontMetrics(fmt.font()).height());
+	    rowHeight = qMax(rowHeight, QFontMetrics(it.charFormat().font()).height());
 // 	    qDebug() << "rowHeight" << rowHeight;
 	}
 	Q_ASSERT(it.blockFormat().group() == group);
@@ -322,7 +323,7 @@ void QTextDocumentLayout::layoutBlock(QTextPieceTable::BlockIterator bl, const Q
 	    from += l.length();
 	}
     } else {
-	y += QFontMetrics(blockFormat.font()).lineSpacing();
+	y += QFontMetrics(bl.charFormat().font()).lineSpacing();
     }
 
     y += blockFormat.bottomMargin();

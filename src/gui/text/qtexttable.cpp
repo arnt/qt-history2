@@ -229,10 +229,10 @@ void QTextTable::insertRows(int pos, int num)
 
     for (int i = 0; i < num; ++i) {
 	for (int j = 0; j < nCols; ++j) {
-	    d->pieceTable->insertBlockSeparator(cursorPos, d->cell_idx);
+	    d->pieceTable->insertBlock(cursorPos, d->cell_idx, d->pieceTable->formatCollection()->indexForFormat(QTextCharFormat()));
 	    ++cursorPos;
 	}
-	d->pieceTable->insertBlockSeparator(cursorPos, d->eor_idx);
+	d->pieceTable->insertBlock(cursorPos, d->eor_idx, d->pieceTable->formatCollection()->indexForFormat(QTextCharFormat()));
 	++cursorPos;
     }
 
@@ -258,7 +258,7 @@ void QTextTable::insertCols(int pos, int num)
 	QTextPieceTable::BlockIterator cell = row[pos];
 	int cursorPos = cell.key();
 	for (int j = 0; j < num; ++j)
-	    d->pieceTable->insertBlockSeparator(cursorPos+j, d->cell_idx);
+	    d->pieceTable->insertBlock(cursorPos+j, d->cell_idx, d->pieceTable->formatCollection()->indexForFormat(QTextCharFormat()));
     }
 
 //     qDebug() << "-------- end insertCols" << pos << num;
@@ -347,7 +347,7 @@ void QTextTable::setRowSpan(int row, int col, int rowspan)
 {
     QTextBlockFormat modifier;
     modifier.setTableCellRowSpan(rowspan);
-    d->pieceTable->setFormat(d->cellAt(row, col).key(), 1, modifier, QTextPieceTable::MergeFormat);
+    d->pieceTable->setBlockFormat(d->cellAt(row, col).key(), 1, modifier, QTextPieceTable::MergeFormat);
 }
 
 /*!
@@ -357,7 +357,7 @@ void QTextTable::setColSpan(int row, int col, int colspan)
 {
     QTextBlockFormat modifier;
     modifier.setTableCellColSpan(colspan);
-    d->pieceTable->setFormat(d->cellAt(row, col).key(), 1, modifier, QTextPieceTable::MergeFormat);
+    d->pieceTable->setBlockFormat(d->cellAt(row, col).key(), 1, modifier, QTextPieceTable::MergeFormat);
 }
 
 /*!

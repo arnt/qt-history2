@@ -77,21 +77,24 @@ QTextPieceTable::QTextPieceTable(QAbstractTextDocumentLayout *layout)
     lout->setParent(this);
 
     undoEnabled = false;
-    insertBlockSeparator(0, formats->indexForFormat(QTextBlockFormat()));
+    insertBlock(0, formats->indexForFormat(QTextBlockFormat()), formats->indexForFormat(QTextCharFormat()));
     undoEnabled = true;
 }
 
 QTextPieceTable::~QTextPieceTable()
 {
     undoPosition = 0;
+    undoEnabled = true;
     truncateUndoStack();
     if (!--formats->ref)
 	delete formats;
 }
 
 
-void QTextPieceTable::insertWithoutUndo(int pos, uint strPos, uint length, int format, UndoCommand::Operation op)
+void QTextPieceTable::insert_string(int pos, uint strPos, uint length, int format, UndoCommand::Operation op)
 {
+    Q_ASSERT(!text.mid(strPos, length).contains(QTextParagraphSeparator));
+
     split(pos);
     uint x = fragments.insert_single(pos, length);
     QTextFragment *X = fragments.fragment(x);
@@ -101,14 +104,9 @@ void QTextPieceTable::insertWithoutUndo(int pos, uint strPos, uint length, int f
     if (w)
 	unite(w);
 
-    if (length == 1 && text.at(strPos) == QTextParagraphSeparator) {
-	insertBlock(pos);
-    } else {
-	int b = blocks.findNode(pos-1);
-	if (!b)
-	    b = blocks.prev(b);
-	blocks.setSize(b, blocks.size(b)+length);
-    }
+    int b = blocks.findNode(pos-1);
+    blocks.setSize(b, blocks.size(b)+length);
+
     Q_ASSERT(blocks.length() == fragments.length());
 
     emit textChanged(pos, length);
@@ -119,9 +117,20 @@ void QTextPieceTable::insertWithoutUndo(int pos, uint strPos, uint length, int f
     adjustDocumentChanges(pos, length);
 }
 
-void QTextPieceTable::insertBlock(int pos)
+void QTextPieceTable::insert_block(int pos, uint strPos, int format, int blockFormat, UndoCommand::Operation op)
 {
+    split(pos);
+    uint x = fragments.insert_single(pos, 1);
+    QTextFragment *X = fragments.fragment(x);
+    X->format = format;
+    X->position = strPos;
+    uint w = fragments.prev(x);
+    if (w)
+	unite(w);
+
+    Q_ASSERT(text.at(strPos) == QTextParagraphSeparator);
     Q_ASSERT(blocks.length()+1 == fragments.length());
+
     int n = blocks.findNode(pos);
     int size = 1;
     int key = n ? blocks.key(n) : pos;
@@ -131,76 +140,84 @@ void QTextPieceTable::insertBlock(int pos)
 	blocks.setSize(n, pos-key);
 	size += oldSize - (pos-key);
     }
-    uint x = blocks.insert_single(pos, size);
+
+    int b = blocks.insert_single(pos, size);
+    QTextBlock *B = blocks.fragment(b);
+    B->format = blockFormat;
     Q_ASSERT(blocks.length() == fragments.length());
-    emit blockChanged(blocks.key(x), QText::Insert);
+
+    emit blockChanged(pos, QText::Insert);
+
+    emit textChanged(pos, 1);
+    for (int i = 0; i < cursors.size(); ++i)
+	cursors.at(i)->adjustPosition(pos, 1, op);
+    emit contentsChanged();
+
+    adjustDocumentChanges(pos, 1);
 }
 
-void QTextPieceTable::removeBlocks(int pos, int length)
+int QTextPieceTable::remove_string(int pos, uint length)
+{
+    Q_ASSERT(pos >= 0);
+    Q_ASSERT(blocks.length() == fragments.length());
+    Q_ASSERT(blocks.length() >= pos+(int)length);
+
+    split(pos);
+    split(pos+length);
+
+    int b = blocks.findNode(pos);
+    uint x = fragments.findNode(pos);
+
+    Q_ASSERT(blocks.size(b) > length);
+    Q_ASSERT(x && fragments.key(x) == (uint)pos && fragments.size(x) == length);
+    Q_ASSERT(!text.mid(fragments.fragment(x)->position, length).contains(QTextParagraphSeparator));
+
+    blocks.setSize(b, blocks.size(b)-length);
+    return fragments.erase_single(x);
+}
+
+int QTextPieceTable::remove_block(int pos)
 {
     Q_ASSERT(pos >= 0);
     Q_ASSERT(blocks.length() == fragments.length());
     Q_ASSERT(blocks.length() >= pos);
 
-    BlockMap::ConstIterator end = blocks.find(pos + length - 1);
-    if (!end.atEnd())
-	++end;
 
-    for (BlockMap::ConstIterator bit = blocks.find(pos); bit != end; ++bit) {
-	int key = bit.key();
-	if (key >= pos)
-	    emit blockChanged(key, QText::Remove);
-    }
+    split(pos);
+    split(pos+1);
 
     int b = blocks.findNode(pos);
-    Q_ASSERT(b != 0);
+    uint x = fragments.findNode(pos);
 
-    while (length > 0) {
-	Q_ASSERT(b != 0);
-	int key = blocks.key(b);
-	int n = blocks.next(b);
-	int diff;
-	if (key != pos) {
-	    Q_ASSERT(key < pos);
-	    int nk = n ? blocks.key(n) : blocks.length();
-	    diff = nk - pos;
-	    blocks.setSize(b, blocks.size(b) - diff);
-	} else {
-	    diff = blocks.size(b);
-	    blocks.erase_single(b);
-	}
-	length -= diff;
-	b = n;
-    }
-    if (length < 0) {
-	b = blocks.findNode(pos-1);
-	Q_ASSERT((int)blocks.key(b) < pos);
-	blocks.setSize(b, blocks.size(b) - length);
-    }
+    Q_ASSERT(b && (int)blocks.key(b) == pos);
+    Q_ASSERT(x && (int)fragments.key(x) == pos);
+    Q_ASSERT(text.at(fragments.fragment(x)->position) == QTextParagraphSeparator);
+
+    blocks.erase_single(b);
+    return fragments.erase_single(x);
 }
 
-void QTextPieceTable::insertBlockSeparator(int pos, int blockFormat)
+void QTextPieceTable::insertBlock(int pos, int blockFormat, int charFormat)
 {
     Q_ASSERT(blockFormat == -1 || formats->format(blockFormat).isBlockFormat());
+    Q_ASSERT(charFormat == -1 || formats->format(charFormat).isCharFormat());
     Q_ASSERT(pos > 0 || (pos == 0 && fragments.length() == 0));
-
-    int strPos = text.length();
-    text.append(QTextParagraphSeparator);
-    insertWithoutUndo(pos, strPos, 1, blockFormat, UndoCommand::MoveCursor);
-
-    Q_ASSERT(blocks.length() == fragments.length());
 
     beginEditBlock();
 
-    if (undoEnabled) {
-	truncateUndoStack();
+    int strPos = text.length();
+    text.append(QTextParagraphSeparator);
+    insert_block(pos, strPos, charFormat, blockFormat, UndoCommand::MoveCursor);
 
-	UndoCommand c = { UndoCommand::Inserted, true,
-			  UndoCommand::MoveCursor, blockFormat, strPos, pos, { 1 } };
+    Q_ASSERT(blocks.length() == fragments.length());
 
-	appendUndoItem(c);
-	Q_ASSERT(undoPosition == undoStack.size());
-    }
+    truncateUndoStack();
+
+    UndoCommand c = { UndoCommand::Inserted, true,
+		      UndoCommand::MoveCursor, blockFormat, strPos, pos, { 1 } };
+
+    appendUndoItem(c);
+    Q_ASSERT(undoPosition == undoStack.size());
 
     endEditBlock();
 }
@@ -222,22 +239,19 @@ void QTextPieceTable::insert(int pos, int strPos, int strLength, int format)
     if (strLength <= 0)
 	return;
     Q_ASSERT(pos > 0);
-    Q_ASSERT(!text.mid(strPos, strLength).contains(QTextParagraphSeparator));
     Q_ASSERT(format == -1 || formats->format(format).isCharFormat());
-    insertWithoutUndo(pos, strPos, strLength, format, UndoCommand::MoveCursor);
+
+    insert_string(pos, strPos, strLength, format, UndoCommand::MoveCursor);
 
     Q_ASSERT(blocks.length() == fragments.length());
 
     beginEditBlock();
-    if (undoEnabled) {
-	truncateUndoStack();
 
-	UndoCommand c = { UndoCommand::Inserted, true,
-			  UndoCommand::MoveCursor, format, strPos, pos, { strLength } };
-
-	appendUndoItem(c);
-	Q_ASSERT(undoPosition == undoStack.size());
-    }
+    truncateUndoStack();
+    UndoCommand c = { UndoCommand::Inserted, true,
+		      UndoCommand::MoveCursor, format, strPos, pos, { strLength } };
+    appendUndoItem(c);
+    Q_ASSERT(undoPosition == undoStack.size());
 
     endEditBlock();
 }
@@ -248,38 +262,47 @@ void QTextPieceTable::remove(int pos, int length, UndoCommand::Operation op)
     Q_ASSERT(blocks.length() == fragments.length());
 
     beginEditBlock();
-
-    removeBlocks(pos, length);
+    truncateUndoStack();
 
     split(pos);
     split(pos+length);
+
+    uint b = blocks.findNode(pos);
+    uint be = blocks.findNode(pos+length-1);
+    uint i = b;
+    while (i != be) {
+	int k = blocks.key(i);
+	split(k);
+	split(k+1);
+	i = blocks.next(i);
+    }
 
     uint x = fragments.findNode(pos);
     uint end = fragments.findNode(pos+length);
 
     uint w = 0;
-    if (undoEnabled) {
-	truncateUndoStack();
+    while (x != end) {
+	uint n = fragments.next(x);
 
-	while (x != end) {
-	    uint n = fragments.next(x);
+	uint key = fragments.key(x);
+	uint b = blocks.findNode(key);
 
-	    QTextFragment *X = fragments.fragment(x);
-	    UndoCommand c = { UndoCommand::Removed, true,
-			      op, X->format, X->position, fragments.key(x), { X->size } };
-	    appendUndoItem(c);
+	QTextFragment *X = fragments.fragment(x);
+	UndoCommand c = { UndoCommand::Removed, true,
+			  op, X->format, X->position, key, { X->size } };
 
-	    w = fragments.erase_single(x);
-	    x = n;
+	if (key != blocks.key(b)) {
+	    Q_ASSERT(!text.mid(X->position, X->size).contains(QTextParagraphSeparator));
+	    w = remove_string(key, X->size);
+	} else {
+	    Q_ASSERT(X->size == 1 && text.at(X->position) == QTextParagraphSeparator);
+	    c.command = UndoCommand::BlockRemoved;
+	    w = remove_block(key);
 	}
-    } else {
-	while (x != end) {
-	    uint n = fragments.next(x);
-	    w = fragments.erase_single(x);
-	    x = n;
-	}
+	appendUndoItem(c);
+	x = n;
+
     }
-
     if (w)
 	unite(w);
 
@@ -295,10 +318,11 @@ void QTextPieceTable::remove(int pos, int length, UndoCommand::Operation op)
     endEditBlock();
 }
 
-void QTextPieceTable::setFormat(int pos, int length, const QTextFormat &newFormat, FormatChangeMode mode)
+void QTextPieceTable::setCharFormat(int pos, int length, const QTextCharFormat &newFormat, FormatChangeMode mode)
 {
-    if (undoEnabled)
-	truncateUndoStack();
+    truncateUndoStack();
+
+    Q_ASSERT(newFormat.isValid());
 
     beginEditBlock();
 
@@ -318,10 +342,7 @@ void QTextPieceTable::setFormat(int pos, int length, const QTextFormat &newForma
 
 	QTextFragment *fragment = it.value();
 
-	if (!formats->format(fragment->format).inheritsFormatType(newFormat.type())) {
-	    pos = it.key() + fragment->size;
-	    continue;
-	}
+	Q_ASSERT(formats->format(fragment->format).type() == QTextFormat::CharFormat);
 
 	int offset = pos - it.key();
 	int length = qMin(endPos - pos, int(fragment->size - offset));
@@ -336,7 +357,7 @@ void QTextPieceTable::setFormat(int pos, int length, const QTextFormat &newForma
 	}
 
 	if (undoEnabled) {
-	    UndoCommand c = { UndoCommand::FormatChanged, true, UndoCommand::MoveCursor, oldFormat,
+	    UndoCommand c = { UndoCommand::CharFormatChanged, true, UndoCommand::MoveCursor, oldFormat,
 			      0, pos, { length } };
 
 	    appendUndoItem(c);
@@ -367,6 +388,52 @@ void QTextPieceTable::setFormat(int pos, int length, const QTextFormat &newForma
     emit formatChanged(startPos, length);
     emit contentsChanged();
 }
+
+void QTextPieceTable::setBlockFormat(int pos, int length, const QTextBlockFormat &newFormat, FormatChangeMode mode)
+{
+    truncateUndoStack();
+
+    beginEditBlock();
+
+    Q_ASSERT(newFormat.isValid());
+
+    int newFormatIdx = -1;
+    if (mode == SetFormat)
+	newFormatIdx = formats->indexForFormat(newFormat);
+
+    BlockIterator blockIt = blocksFind(pos);
+    BlockIterator endIt = blocksFind(pos + length);
+
+    const int startPos = blockIt.start();
+    const int endPos = endIt.end();
+
+    if (!endIt.atEnd())
+	++endIt;
+    for (; !blockIt.atEnd() && blockIt != endIt; ++blockIt) {
+	int oldFormat = blockIt.blockFormatIndex();
+	if (mode == MergeFormat) {
+	    QTextBlockFormat format = formats->blockFormat(oldFormat);
+	    format += newFormat;
+	    newFormatIdx = formats->indexForFormat(format);
+	}
+	blockIt.value()->format = newFormatIdx;
+
+	blockIt.value()->invalidate();
+	if (undoEnabled) {
+	    UndoCommand c = { UndoCommand::BlockFormatChanged, true, UndoCommand::MoveCursor, oldFormat,
+			      0, blockIt.key(), { 1 } };
+
+	    appendUndoItem(c);
+	    Q_ASSERT(undoPosition == undoStack.size());
+	}
+    }
+
+    endEditBlock();
+
+    emit formatChanged(startPos, endPos - startPos + 1);
+    emit contentsChanged();
+}
+
 
 bool QTextPieceTable::split(int pos)
 {
@@ -412,10 +479,10 @@ bool QTextPieceTable::unite(uint f)
 
 void QTextPieceTable::undoRedo(bool undo)
 {
+    PMDEBUG("%s, undoPosition=%d, undoStack size=%d", undo ? "undo:" : "redo:", undoPosition, undoStack.size());
     if ((undo && undoPosition == 0) || (!undo && undoPosition == undoStack.size()))
 	return;
 
-    PMDEBUG("%s", undo ? "undo:" : "redo:");
     undoEnabled = false;
     beginEditBlock();
     while (1) {
@@ -429,17 +496,23 @@ void QTextPieceTable::undoRedo(bool undo)
 	    c.command = UndoCommand::Removed;
 	} else if (c.command == UndoCommand::Removed) {
 	    PMDEBUG("   insert: format %d (from %d, length %d, strpos=%d)", c.format, c.pos, c.length, c.strPos);
-	    insertWithoutUndo(c.pos, c.strPos, c.length, c.format, (UndoCommand::Operation)c.operation);
+	    insert_string(c.pos, c.strPos, c.length, c.format, (UndoCommand::Operation)c.operation);
 	    c.command = UndoCommand::Inserted;
-	} else if (c.command == UndoCommand::FormatChanged) {
+	} else if (c.command == UndoCommand::CharFormatChanged) {
 	    FragmentIterator it = find(c.pos);
 	    Q_ASSERT(!it.atEnd());
 
 	    int oldFormat = it.value()->format;
-
-	    setFormat(c.pos, c.length, formats->format(c.format));
-
+	    setCharFormat(c.pos, c.length, formats->charFormat(c.format));
 	    c.format = oldFormat;
+	} else if (c.command == UndoCommand::BlockFormatChanged) {
+	    BlockIterator it = blocksFind(c.pos);
+	    Q_ASSERT(!it.atEnd());
+
+	    int oldFormat = it.value()->format;
+	    it.value()->format = c.format;
+	    c.format = oldFormat;
+	    // ########### emit doc changed signal
 	} else if (c.command == UndoCommand::Custom) {
 	    if (undo)
 		c.custom->undo();
@@ -464,6 +537,11 @@ void QTextPieceTable::undoRedo(bool undo)
 */
 void QTextPieceTable::appendUndoItem(QAbstractUndoItem *item)
 {
+    if (!undoEnabled) {
+	delete item;
+	return;
+    }
+
     UndoCommand c = { UndoCommand::Custom, (editBlock != 0),
 		      UndoCommand::MoveCursor, 0, 0, 0, { 0 } };
     c.custom = item;
@@ -472,6 +550,9 @@ void QTextPieceTable::appendUndoItem(QAbstractUndoItem *item)
 
 void QTextPieceTable::appendUndoItem(const UndoCommand &c)
 {
+    if (!undoEnabled)
+	return;
+
     if (!undoStack.isEmpty()) {
 	UndoCommand &last = undoStack[undoPosition - 1];
 	if (last.tryMerge(c))
@@ -482,7 +563,7 @@ void QTextPieceTable::appendUndoItem(const UndoCommand &c)
 }
 
 void QTextPieceTable::truncateUndoStack() {
-    if (undoPosition >= undoStack.size())
+    if (!undoEnabled || undoPosition >= undoStack.size())
 	return;
 
     for (int i = undoPosition; i < undoStack.size(); ++i) {
@@ -504,11 +585,11 @@ void QTextPieceTable::truncateUndoStack() {
 
 void QTextPieceTable::enableUndoRedo(bool enable)
 {
-    undoEnabled = enable;
     if (!enable) {
 	undoPosition = 0;
 	truncateUndoStack();
     }
+    undoEnabled = enable;
 }
 
 void QTextPieceTable::endEditBlock()
@@ -692,19 +773,20 @@ void QTextPieceTable::BlockIterator::setBlockFormat(const QTextBlockFormat &form
 {
     if (atEnd())
 	return;
-    const_cast<QTextPieceTable *>(pt)->setFormat(key(), 1, format);
+    const QTextBlock *b = value();
+    b->format = const_cast<QTextPieceTable *>(pt)->formatCollection()->indexForFormat(format);
 }
 
 QTextBlockFormat QTextPieceTable::BlockIterator::blockFormat() const
 {
-    int idx = blockFormatIndex();
-    if (idx == -1)
+    const QTextBlock *b = value();
+    if (b->format == -1)
 	return QTextBlockFormat();
 
-    return pt->formatCollection()->blockFormat(idx);
+    return pt->formatCollection()->blockFormat(b->format);
 }
 
-int QTextPieceTable::BlockIterator::blockFormatIndex() const
+int QTextPieceTable::BlockIterator::charFormatIndex() const
 {
     if (atEnd())
 	return -1;
@@ -713,4 +795,13 @@ int QTextPieceTable::BlockIterator::blockFormatIndex() const
     Q_ASSERT(!it.atEnd());
 
     return it.value()->format;
+}
+
+QTextCharFormat QTextPieceTable::BlockIterator::charFormat() const
+{
+    int idx = charFormatIndex();
+    if (idx == -1)
+ 	return QTextCharFormat();
+
+    return pt->formatCollection()->charFormat(idx);
 }

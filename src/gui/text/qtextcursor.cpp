@@ -146,7 +146,7 @@ void QTextCursorPrivate::insertBlock(const QTextBlockFormat &format)
     int idx = formats->indexForFormat(format);
     Q_ASSERT(formats->format(idx).isBlockFormat());
 
-    pieceTable->insertBlockSeparator(position, idx);
+    pieceTable->insertBlock(position, idx, pieceTable->formatCollection()->indexForFormat(QTextCharFormat()));
 }
 
 
@@ -552,6 +552,8 @@ void QTextCursor::insertText(const QString &text, const QTextCharFormat &format)
     if (!d || text.isEmpty())
 	return;
 
+    Q_ASSERT(format.isValid());
+
     d->pieceTable->beginEditBlock();
 
     d->remove();
@@ -697,7 +699,7 @@ QTextBlockFormat QTextCursor::blockFormat() const
   Modifies the format of the selection by \a modifier. Does nothing if the cursor
   doesn't have a selection.
 */
-void QTextCursor::applyFormatModifier(const QTextFormat &modifier) const
+void QTextCursor::applyCharFormatModifier(const QTextCharFormat &modifier) const
 {
     if (!d || d->position == d->anchor)
 	return;
@@ -710,7 +712,7 @@ void QTextCursor::applyFormatModifier(const QTextFormat &modifier) const
     }
 
     const_cast<QTextPieceTable *>((const QTextPieceTable *)d->pieceTable)
-	->setFormat(pos1, pos2-pos1, modifier, QTextPieceTable::MergeFormat);
+	->setCharFormat(pos1, pos2-pos1, modifier, QTextPieceTable::MergeFormat);
 }
 
 /*!
@@ -729,22 +731,8 @@ void QTextCursor::applyBlockFormatModifier(const QTextBlockFormat &modifier) con
 	pos2 = d->position;
     }
 
-    if (pos1 < d->pieceTable->length())
-	pos1 = d->pieceTable->blocksFind(pos1).key();
-    else
-	pos1 = d->pieceTable->length() - 1;
-
-    QTextPieceTable::BlockIterator endBlock = d->pieceTable->blocksFind(pos2);
-    if (!endBlock.atEnd())
-	++endBlock;
-
-    if (endBlock.atEnd())
-	pos2 = d->pieceTable->length();
-    else
-	pos2 = endBlock.key();
-
     const_cast<QTextPieceTable *>((const QTextPieceTable *)d->pieceTable)
-	->setFormat(pos1, pos2-pos1, modifier, QTextPieceTable::MergeFormat);
+	->setBlockFormat(pos1, pos2-pos1, modifier, QTextPieceTable::MergeFormat);
 }
 
 /*!
@@ -757,23 +745,15 @@ QTextCharFormat QTextCursor::charFormat() const
     if (!d)
 	return QTextCharFormat();
 
-    int pos = d->position;
-    Q_ASSERT(pos >= 0 && pos <= d->pieceTable->length());
+    int pos = d->position - 1;
+    Q_ASSERT(pos >= 0 && pos < d->pieceTable->length());
 
-    QTextPieceTable::BlockIterator bi = d->block();
 
-    if (pos != bi.start())
-	--pos;
+    QTextPieceTable::FragmentIterator it = d->pieceTable->find(pos);
+    Q_ASSERT(!it.atEnd());
+    int idx = it.value()->format;
 
-    int idx;
-    if (pos == bi.end()) {
-	idx = -1;
-    } else {
-	QTextPieceTable::FragmentIterator it = d->pieceTable->find(pos);
-	Q_ASSERT(!it.atEnd());
-	idx = it.value()->format;
-    }
-
+    Q_ASSERT(d->pieceTable->formatCollection()->charFormat(idx).isValid());
     return d->pieceTable->formatCollection()->charFormat(idx);
 }
 

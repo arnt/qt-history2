@@ -25,16 +25,7 @@ QTextFormatCollectionState::QTextFormatCollectionState(const QTextHtmlParser &pa
 	if (!ok)
 	    continue;
 
-	int inheritedType = QTextFormat::InvalidFormat;
-
-	int inheritedTypeNode = parser.findChild(formatNode, "inheritedtype");
-	if (inheritedTypeNode != -1) {
-	    int type = parser.at(inheritedTypeNode).text.toInt(&ok);
-	    if (ok)
-		inheritedType = type;
-	}
-
-	QTextFormat format(formatType, inheritedType);
+	QTextFormat format(formatType);
 
 	for (int propertyNode = parser.findChild(formatNode, "property");
 	     propertyNode != -1; propertyNode = parser.findNextChild(formatNode, propertyNode)) {
@@ -155,8 +146,6 @@ void QTextFormatCollectionState::save(QTextStream &stream) const
 
 	const QTextFormat &format = *it;
 	stream << "<Type>" << format.type() << "</Type>" << endl;
-	if (format.inheritedType() != QTextFormat::InvalidFormat)
-	    stream << "<InheritedType>" << format.inheritedType() << "</InheritedType>" << endl;
 
 	Q_FOREACH(int propId, format.allPropertyIds())
 	    if (format.propertyType(propId) != QTextFormat::Undefined) {
@@ -322,7 +311,7 @@ void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const
 	    QStringList blocks = text.split(QTextParagraphSeparator);
 	    for (int i = 0; i < blocks.size(); ++i) {
 		if (i > 0) {
-		    destPieceTable->insertBlockSeparator(pos, blockFormatIdx);
+		    destPieceTable->insertBlock(pos, blockFormatIdx, destPieceTable->formatCollection()->indexForFormat(QTextCharFormat()));
 		    ++pos;
 		}
 		const QString &txt = blocks.at(i);

@@ -47,7 +47,9 @@ void QAbstractTextDocumentLayout::registerHandler(int formatType, QObject *compo
 
 void QAbstractTextDocumentLayout::layoutObject(QTextObject item, const QTextFormat &format)
 {
-    QTextObjectHandler handler = d->handlers.value(format.type());
+    QTextCharFormat f = format.toCharFormat();
+    Q_ASSERT(f.isValid());
+    QTextObjectHandler handler = d->handlers.value(f.objectType());
     if (!handler.component)
 	return;
     handler.iface->layoutObject(item, format);
@@ -56,7 +58,9 @@ void QAbstractTextDocumentLayout::layoutObject(QTextObject item, const QTextForm
 void QAbstractTextDocumentLayout::drawObject(QPainter *p, const QPoint &position, QTextObject item,
 					     const QTextFormat &format, QTextLayout::SelectionType selType)
 {
-    QTextObjectHandler handler = d->handlers.value(format.type());
+    QTextCharFormat f = format.toCharFormat();
+    Q_ASSERT(f.isValid());
+    QTextObjectHandler handler = d->handlers.value(f.objectType());
     if (!handler.component)
 	return;
     handler.iface->drawObject(p, position, item, format, selType);

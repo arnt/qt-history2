@@ -68,7 +68,7 @@ QTextTable *QTextTableManager::createTable(const QTextCursor &cursor, int rows, 
     // add block after table
     fmt.setNonDeletable(true);
     int idx = pt->formatCollection()->indexForFormat(fmt);
-    pt->insertBlockSeparator(pos, idx);
+    pt->insertBlock(pos, idx, pt->formatCollection()->indexForFormat(QTextCharFormat()));
 
     // create table formats
     fmt.setGroup(group);
@@ -78,10 +78,10 @@ QTextTable *QTextTableManager::createTable(const QTextCursor &cursor, int rows, 
 
     for (int i = 0; i < rows; ++i) {
 	for (int j = 0; j < cols; ++j) {
-	    pt->insertBlockSeparator(pos, cellIdx);
+	    pt->insertBlock(pos, cellIdx, pt->formatCollection()->indexForFormat(QTextCharFormat()));
 	    ++pos;
 	}
-	pt->insertBlockSeparator(pos, eorIdx);
+	pt->insertBlock(pos, eorIdx, pt->formatCollection()->indexForFormat(QTextCharFormat()));
 	++pos;
     }
 
@@ -113,10 +113,10 @@ void QTextTableManager::blockChanged(int blockPosition, QText::ChangeOperation o
 	return;
 
     QTextBlockFormat fmt = blockIt.blockFormat();
-
     QTextFormatGroup *group = fmt.group();
     if (!group)
 	return;
+
     const QTextTableFormat tablefmt = group->commonFormat().toTableFormat();
     if (!tablefmt.isValid())
 	return;

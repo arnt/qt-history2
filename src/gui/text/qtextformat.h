@@ -44,7 +44,6 @@ public:
 	CharFormat = 2,
 	ListFormat = 3,
 	TableFormat = 4,
-	ImageFormat = 5,
 
 	UserFormat = 100
     };
@@ -83,6 +82,8 @@ public:
 
 	NonDeletable = 0x2100,
 
+	ObjectType = 0x2f00,
+
 	// list properties
 	ListStyle = 0x3000,
 	ListIndent = 0x3001,
@@ -113,9 +114,14 @@ public:
 	FormatGroup
     };
 
+    enum ObjectTypes {
+	NoObject,
+	ImageObject
+    };
+
     QTextFormat();
 
-    Q_EXPLICIT QTextFormat(int type, int inheritedType = -1);
+    Q_EXPLICIT QTextFormat(int type);
 
     QTextFormat(const QTextFormat &rhs);
     QTextFormat &operator=(const QTextFormat &rhs);
@@ -128,21 +134,12 @@ public:
     inline bool isValid() const { return type() != InvalidFormat; }
 
     int type() const;
-    int inheritedType() const;
 
-    bool inheritsFormatType(int otherType) const;
+    QTextFormatGroup *group() const;
+    void setGroup(QTextFormatGroup *group);
 
-    inline bool isCharFormat() const { return inheritsFormatType(CharFormat); }
-    inline bool isBlockFormat() const { return inheritsFormatType(BlockFormat); }
-    inline bool isListFormat() const { return inheritsFormatType(ListFormat); }
-    inline bool isTableFormat() const { return inheritsFormatType(TableFormat); }
-    inline bool isImageFormat() const { return inheritsFormatType(ImageFormat); }
-
-    QTextBlockFormat toBlockFormat() const;
-    QTextCharFormat toCharFormat() const;
-    QTextListFormat toListFormat() const;
-    QTextTableFormat toTableFormat() const;
-    QTextImageFormat toImageFormat() const;
+    int groupIndex() const;
+    void setGroupIndex(int group);
 
     bool boolProperty(int propertyId, bool defaultValue = false) const;
     int intProperty(int propertyId, int defaultValue = 0) const;
@@ -154,16 +151,22 @@ public:
     void setProperty(int propertyId, float value);
     void setProperty(int propertyId, const QString &value);
 
-    QTextFormatGroup *group() const;
-    void setGroup(QTextFormatGroup *group);
-
-    int groupIndex() const;
-    void setGroupIndex(int group);
-
     bool hasProperty(int propertyId) const;
     PropertyType propertyType(int propertyId) const;
 
     QList<int> allPropertyIds() const;
+
+    inline bool isCharFormat() const { return type() == CharFormat; }
+    inline bool isBlockFormat() const { return type() == BlockFormat; }
+    inline bool isListFormat() const { return type() == ListFormat; }
+    inline bool isTableFormat() const { return type() == TableFormat; }
+    inline bool isImageFormat() const { return type() == CharFormat && intProperty(ObjectType) == ImageObject; }
+
+    QTextBlockFormat toBlockFormat() const;
+    QTextCharFormat toCharFormat() const;
+    QTextListFormat toListFormat() const;
+    QTextTableFormat toTableFormat() const;
+    QTextImageFormat toImageFormat() const;
 
     bool operator==(const QTextFormat &rhs) const;
     inline bool operator!=(const QTextFormat &rhs) const { return !operator==(rhs); }
@@ -179,7 +182,7 @@ class Q_GUI_EXPORT QTextCharFormat : public QTextFormat
 public:
     inline QTextCharFormat() : QTextFormat(CharFormat) {}
 
-    bool isValid() const { return inheritsFormatType(CharFormat); }
+    bool isValid() const { return isCharFormat(); }
     void setFont(const QFont &font);
     QFont font() const;
 
@@ -248,18 +251,20 @@ public:
     inline bool nonDeletable() const
     { return boolProperty(NonDeletable); }
 
-protected:
-    inline QTextCharFormat(int type) : QTextFormat(type, CharFormat) {}
+    inline void setObjectType(int type)
+    { setProperty(ObjectType, type); }
+    inline bool objectType() const
+    { return intProperty(ObjectType); }
 };
 
-class Q_GUI_EXPORT QTextBlockFormat : public QTextCharFormat
+class Q_GUI_EXPORT QTextBlockFormat : public QTextFormat
 {
 public:
     enum Direction { LeftToRight, RightToLeft, AutoDirection };
 
-    inline QTextBlockFormat() : QTextCharFormat(BlockFormat) {}
+    inline QTextBlockFormat() : QTextFormat(BlockFormat) {}
 
-    bool isValid() const { return inheritsFormatType(BlockFormat); }
+    bool isValid() const { return isBlockFormat(); }
 
     inline void setDirection(Direction dir)
     { setProperty(BlockDirection, dir); }
@@ -270,18 +275,6 @@ public:
     { setProperty(BlockAlignment, int(alignment)); }
     inline Qt::Alignment alignment() const
     { return QFlag(intProperty(BlockAlignment)); }
-
-//     inline void setListFormatIndex(int idx)
-//     { setGroupIndex(idx); }
-//     inline int listFormatIndex() const
-//     { return groupIndex(); }
-
-//     // ################# shouldn't we ensure you can only set one reference?
-//     // both a table and a list reference don't make sense
-//     inline void setTableFormatIndex(int idx)
-//     { setGroupIndex(idx); }
-//     inline int tableFormatIndex() const
-//     { return groupIndex(); }
 
     QTextListFormat listFormat() const;
     QTextTableFormat tableFormat() const;
@@ -338,6 +331,12 @@ public:
     { setProperty(BlockBackgroundColor, int(color.rgb())); }
     inline QColor backgroundColor() const
     { if (hasProperty(BlockBackgroundColor)) return QColor(intProperty(BlockBackgroundColor)); else return QColor(); }
+
+    inline void setNonDeletable(bool d)
+    { setProperty(NonDeletable, d); }
+    inline bool nonDeletable() const
+    { return boolProperty(NonDeletable); }
+
 };
 
 class Q_GUI_EXPORT QTextListFormat : public QTextFormat
@@ -345,7 +344,7 @@ class Q_GUI_EXPORT QTextListFormat : public QTextFormat
 public:
     inline QTextListFormat() : QTextFormat(ListFormat) {}
 
-    bool isValid() const { return inheritsFormatType(ListFormat); }
+    bool isValid() const { return isListFormat(); }
 
     enum Style {
 	ListDisc = -1,
@@ -376,7 +375,7 @@ class Q_GUI_EXPORT QTextTableFormat : public QTextFormat
 public:
     inline QTextTableFormat() : QTextFormat(TableFormat) {}
 
-    bool isValid() const { return inheritsFormatType(TableFormat); }
+    bool isValid() const { return isTableFormat(); }
 
     inline void setBorder(int border)
     { setProperty(TableBorder, border); }
@@ -387,9 +386,9 @@ public:
 class Q_GUI_EXPORT QTextImageFormat : public QTextCharFormat
 {
 public:
-    inline QTextImageFormat() : QTextCharFormat(ImageFormat) {}
+    inline QTextImageFormat() : QTextCharFormat() { setObjectType(ImageObject); }
 
-    bool isValid() const { return inheritsFormatType(ImageFormat); }
+    bool isValid() const { return isImageFormat(); }
 
     inline void setName(const QString &name)
     { setProperty(ImageName, name); }

@@ -39,19 +39,13 @@ void QTextListManager::blockChanged(int blockPosition, QText::ChangeOperation op
     if (blockIt.atEnd())
 	return;
 
-    QTextPieceTable::FragmentIterator fragmentIt = table->find(blockIt.key());
-    if (fragmentIt.atEnd())
-	return;
-
-    int formatIdx = fragmentIt.value()->format;
-    if (formatIdx == -1)
-	return;
-
-    Q_ASSERT(table->formatCollection()->format(formatIdx).isBlockFormat());
-
-    QTextBlockFormat blockFmt = table->formatCollection()->blockFormat(formatIdx);
+    QTextBlockFormat blockFmt = blockIt.blockFormat();
     QTextFormatGroup *group = blockFmt.group();
     if (!group)
+	return;
+
+    const QTextListFormat listfmt = group->commonFormat().toListFormat();
+    if (!listfmt.isValid())
 	return;
 
     if (op == QText::Insert)

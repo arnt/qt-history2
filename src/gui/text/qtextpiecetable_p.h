@@ -54,6 +54,7 @@ public:
     mutable bool layoutDirty;
     mutable bool textDirty;
     mutable QRect rect;
+    mutable int format;
 };
 
 
@@ -65,8 +66,11 @@ public:
     enum Command {
 	Inserted = 0,
 	Removed = 1,
-	FormatChanged = 2,
-	Custom = 4
+	CharFormatChanged = 2,
+	BlockFormatChanged = 3,
+	BlockInserted = 4,
+	BlockRemoved = 5,
+	Custom = 8
     };
     enum Operation {
 	KeepCursor = 0,
@@ -79,6 +83,7 @@ public:
     Q_UINT32 strPos;
     Q_UINT32 pos;
     union {
+	int blockFormat;
 	Q_UINT32 length;
 	QAbstractUndoItem *custom;
     };
@@ -113,7 +118,11 @@ public:
 
 	void setBlockFormat(const QTextBlockFormat &format);
 	QTextBlockFormat blockFormat() const;
-	int blockFormatIndex() const;
+	int blockFormatIndex() const { return value()->format; }
+
+	QTextCharFormat charFormat() const;
+	int charFormatIndex() const;
+
 	inline bool contains(int position) const
 	    { return position >= start() && position <= end(); }
     };
@@ -124,12 +133,13 @@ public:
 
     void insert(int pos, const QString &text, int format = -1);
     void insert(int pos, int strPos, int strLength, int format = -1);
-    void insertBlockSeparator(int pos, int blockFormat);
+    void insertBlock(int pos, int blockFormat, int charFormat);
     void remove(int pos, int length, UndoCommand::Operation = UndoCommand::MoveCursor);
 
     enum FormatChangeMode { MergeFormat, SetFormat };
 
-    void setFormat(int pos, int length, const QTextFormat &newFormat, FormatChangeMode mode = SetFormat);
+    void setCharFormat(int pos, int length, const QTextCharFormat &newFormat, FormatChangeMode mode = SetFormat);
+    void setBlockFormat(int pos, int length, const QTextBlockFormat &newFormat, FormatChangeMode mode = SetFormat);
 
     void undoRedo(bool undo);
     inline void undo() { undoRedo(true); }
@@ -181,10 +191,12 @@ private:
     bool split(int pos);
     bool unite(uint f);
 
-    void insertBlock(int pos);
     void removeBlocks(int pos, int length);
 
-    void insertWithoutUndo(int pos, uint strPos, uint length, int format, UndoCommand::Operation op);
+    void insert_string(int pos, uint strPos, uint length, int format, UndoCommand::Operation op);
+    void insert_block(int pos, uint strPos, int format, int blockformat, UndoCommand::Operation op);
+    int remove_string(int pos, uint length);
+    int remove_block(int pos);
 
     void adjustDocumentChanges(int from, int addedOrRemoved);
 

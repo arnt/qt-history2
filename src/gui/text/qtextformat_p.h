@@ -54,10 +54,9 @@ public:
 
     PropertyMap properties;
     int type;
-    int inheritedType;
 
     inline bool operator==(const QTextFormatPrivate &rhs) const {
-	if (type != rhs.type || inheritedType != rhs.inheritedType)
+	if (type != rhs.type)
 	    return false;
 
 	return properties == rhs.properties;
