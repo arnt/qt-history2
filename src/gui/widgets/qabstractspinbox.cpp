@@ -163,10 +163,7 @@ void QAbstractSpinBox::setButtonSymbols(ButtonSymbols bs)
 
 QString QAbstractSpinBox::text() const
 {
-    if (d->dirty) // needed to make sure text() returns reasonable values if the spin box is not yet shown
-	d->updateEdit();
-
-    return d->edit->displayText();
+    return lineEdit()->displayText();
 }
 
 /*!
@@ -309,6 +306,15 @@ void QAbstractSpinBox::setAlignment(Qt::Alignment flag)
 }
 
 /*!
+    Selects all the text in the spinbox
+*/
+
+void QAbstractSpinBox::selectAll()
+{
+    lineEdit()->selectAll();
+}
+
+/*!
     Virtual function that determines whether stepping up and down is
     legal at any given time.
 
@@ -373,6 +379,9 @@ void QAbstractSpinBox::stepBy(int steps)
 
 QLineEdit *QAbstractSpinBox::lineEdit() const
 {
+    if (d->dirty)
+	d->updateEdit();
+
     return d->edit;
 }
 

@@ -63,7 +63,7 @@ public:
     bool specialValue() const;
     QCoreVariant getZeroVariant() const;
     void setBoundary(Boundary b, const QCoreVariant &val);
-    void setValue(const QCoreVariant &val, EmitPolicy ep);
+    virtual void setValue(const QCoreVariant &val, EmitPolicy ep);
     QCoreVariant bound(const QCoreVariant &val, const QCoreVariant &old = QCoreVariant(), int steps = 0) const;
     QLineEdit *lineEdit();
     void updateSpinBox();

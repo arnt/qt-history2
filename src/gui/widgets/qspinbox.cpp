@@ -935,7 +935,9 @@ QSpinBoxPrivate::QSpinBoxPrivate()
 
 void QSpinBoxPrivate::emitSignals()
 {
-    QAbstractSpinBoxPrivate::emitSignals();
+    pendingemit = false;
+    if (slider)
+        updateSlider();
     emit q->valueChanged(edit->displayText());
     emit q->valueChanged(value.toInt());
 }
@@ -983,8 +985,9 @@ QDoubleSpinBoxPrivate::QDoubleSpinBoxPrivate()
 
 void QDoubleSpinBoxPrivate::emitSignals()
 {
-    QAbstractSpinBoxPrivate::emitSignals();
     pendingemit = false;
+    if (slider)
+        updateSlider();
     emit q->valueChanged(edit->displayText());
     emit q->valueChanged(value.toDouble());
 }

@@ -857,7 +857,10 @@ QDateTimeEditPrivate::QDateTimeEditPrivate()
 
 void QDateTimeEditPrivate::emitSignals()
 {
-    QAbstractSpinBoxPrivate::emitSignals();
+    pendingemit = false;
+    if (slider)
+        updateSlider();
+
     if (value.toDate().isValid()) {
 	emit q->dateTimeChanged(value.toDateTime());
 	if ((display & DateSectionMask) != 0)
@@ -1892,6 +1895,9 @@ void QDateTimeEditPrivate::setValue(const QCoreVariant &val, EmitPolicy ep)
     const QCoreVariant old = value;
     value = bound(val);
     pendingemit = false;
+    if (slider)
+        updateSlider();
+
     update();
     if (value.toDate().isValid()) {
 	if (ep == AlwaysEmit) {

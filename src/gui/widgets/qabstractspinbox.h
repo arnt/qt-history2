@@ -61,6 +61,8 @@ public:
     void setAlignment(Qt::Alignment flag);
     Qt::Alignment alignment() const;
 
+    void selectAll();
+
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
