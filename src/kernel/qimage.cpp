@@ -436,21 +436,24 @@ QImage QImage::copy() const
   Returns a
   \link shclass.html deep copy\endlink of a sub-area of the image.
 
+  The returned image is always \a w by \a h pixels is size. If the
+  area is beyond this image, the pixels are filled with pixel 0.
+
   \sa bitBlt()
 */
 
 QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
 {
-    // Parameter correction
-    if ( w < 0 ) w = width();
-    if ( h < 0 ) h = height();
-    if ( x < 0 ) { w += x; x = 0; }
-    if ( y < 0 ) { h += y; y = 0; }
-    if ( x + w > width() ) w = width() - x;
-    if ( y + h > height() ) h = height() - y;
-    if ( w <= 0 || h <= 0 ) return QImage(); // Nothing left to copy
+    if ( w <= 0 || h <= 0 ) return QImage(); // Nothing to copy
 
     QImage image( w, h, depth(), numColors(), bitOrder() );
+
+    if ( x < 0 || y < 0 || x + w > width() || y + h > height() ) {
+	// bitBlt will not cover entire image - clear it.
+	// ### should deal with each side seperately for efficiency
+	image.fill(0);
+    }
+
     memcpy( image.colorTable(), colorTable(), numColors()*sizeof(QRgb) );
     image.setAlphaBuffer(hasAlphaBuffer());
     bitBlt( &image, 0, 0, this, x, y, -1, -1, conversion_flags );
