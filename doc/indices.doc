@@ -526,7 +526,8 @@ Qt modules: assorted examples
 Pages:
 <ul>
 <li> \link xml-examples.html XML examples \endlink
-<li> \link table-examples.html Qt table examples \endlink
+<li> \link network-examples.html Network examples \endlink
+<li> \link table-examples.html Table examples \endlink
 </ul>
 
 <table cellpadding=2 cellspacing=1 border=0  width=100% bgcolor=#E5E5E5>
@@ -570,9 +571,18 @@ classes QFont, QFontMetrics, QFontInfo, and QFontDatabase.
 
 */
 
+/*! \defgroup network-examples 
+
+\title Network examples 
+
+The following example programs demonstrate the use
+of the Qt network module.
+
+*/
+
 /*! \defgroup table-examples 
 
-\title Qt table examples 
+\title Table examples 
 
 The following example programs demonstrate the use
 of the Qt table module.
