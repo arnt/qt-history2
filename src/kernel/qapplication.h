@@ -47,7 +47,6 @@
 #include "qstringlist.h"
 #endif // QT_H
 
-#define QT_NO_REMOTE
 #ifndef QT_NO_REMOTE
 #include "quuid.h"
 #include "qremotecontrol.h"
