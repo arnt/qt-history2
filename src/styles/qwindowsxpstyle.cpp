@@ -51,6 +51,7 @@
 #include <qbitmap.h>
 #include <qlibrary.h>
 #include <qt_windows.h>
+#include <qimage.h>
 
 #include <uxtheme.h>
 #include <tmschema.h>
@@ -205,7 +206,7 @@ QPixmap *QWindowsXPStylePrivate::tabbody = 0;
 struct XPThemeData
 {
     XPThemeData( const QWidget *w = 0, QPainter *p = 0, const QString &theme = QString::null, int part = 0, int state = 0, const QRect &r = QRect(), QRgb tabBorderColor = 0 )
-        : widget( w ), painter( p ), name( theme ),partId( part ), stateId( state ), rec( r ), tbBorderColor( tabBorderColor ), htheme( 0 )
+        : widget( w ), painter( p ), name( theme ),partId( part ), stateId( state ), rec( r ), tbBorderColor( tabBorderColor ), htheme( 0 ), flipped( FALSE )
     {
     }
     ~XPThemeData()
@@ -265,6 +266,11 @@ struct XPThemeData
 	    SetWindowRgn( QWindowsXPStylePrivate::winId( widget ), hrgn, TRUE );
     }
 
+    void setFlipped( bool b = TRUE )
+    {
+	flipped = b;
+    }
+
     void drawBackground( int pId = 0, int sId = 0 )
     {
 	if ( pId )
@@ -276,6 +282,7 @@ struct XPThemeData
 	    partId == TABP_TABITEMLEFTEDGE ||
 	    partId == TABP_TABITEMRIGHTEDGE ||
 	    partId == TABP_TABITEM ) ) {
+	    QWMatrix m;
 	    QRect oldrec = rec;
 	    rec = QRect( 0, 0, rec.width(), rec.height() );
 	    QPixmap pm( rec.size() );
@@ -283,9 +290,17 @@ struct XPThemeData
 	    p.eraseRect( 0, 0, rec.width(), rec.height() );
 	    pDrawThemeBackground( handle(), p.handle(), partId, stateId, &rect(), 0 );
 	    rec = oldrec;
+	    p.end();
+
+	    if ( flipped ) {
+		QWMatrix m;
+		m.scale( 1, -1 );
+		pm = pm.xForm( m );
+	    }
 	    painter->drawPixmap( rec.x(), rec.y(), pm );
 	    painter->setPen( tbBorderColor );
-	    painter->drawLine( rec.left(), rec.bottom(), rec.right()+1, rec.bottom() );
+	    if ( !flipped )
+		painter->drawLine( rec.left(), rec.bottom(), rec.right()+1, rec.bottom() );
 	} else {
 	    ulong res = pDrawThemeBackground( handle(), painter->handle(), partId, stateId, &rect(), 0 );
 	}
@@ -302,6 +317,7 @@ private:
     QString name;
     HTHEME htheme;
     bool workAround;
+    bool flipped;
 };
 
 const QPixmap *QWindowsXPStylePrivate::tabBody( QWidget *widget )
@@ -773,6 +789,7 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 				  SFlags flags,
 				  const QStyleOption &opt ) const
 {
+    bool doFlipp = FALSE;
     d->currentWidget = widget;
 
     if ( !use_xp ) {
@@ -815,6 +832,10 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 	{
 	    QTabBar *bar = (QTabBar*)widget;
 	    QTab *t = opt.tab();
+	    if ( (bar->shape() == QTabBar::RoundedBelow) ||
+		 (bar->shape() == QTabBar::TriangularBelow) )
+		 doFlipp = TRUE;
+		
 	    int idx = bar->indexOf( t->identifier() );
 	    int aidx = bar->indexOf( bar->currentTab() );
 	    int lastTab = bar->count()-1;
@@ -835,14 +856,26 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 		stateId = TIS_HOT;
 	    else
 		stateId = TIS_NORMAL;
-	    if ( (flags & Style_Selected) || (flags & Style_HasFocus) ) {
-		rect.addCoords( 0, 0, 0, 1 );
-	    } else {
-		rect.addCoords( 0, 2, 0, 0 );
-		if ( idx != aidx+1 )
-		    rect.addCoords( 1, 0, 0, 0 );
-		if ( idx != aidx-1 )
-		    rect.addCoords( 0, 0, -1, 0 );
+	    if ( doFlipp )
+		if ( (flags & Style_Selected) || (flags & Style_HasFocus) ) {
+		    rect.addCoords( 0, 0, 0, 0 );
+		} else {
+		    rect.addCoords( 0, 0, 0, -2 );
+		    if ( idx != aidx+1 )
+			rect.addCoords( 1, 0, 0, 0 );
+		    if ( idx != aidx-1 )
+			rect.addCoords( 0, 0, -1, 0 );
+		}
+	    else {
+		if ( (flags & Style_Selected) || (flags & Style_HasFocus) ) {
+		    rect.addCoords( 0, 0, 0, 1 );
+		} else {
+		    rect.addCoords( 0, 2, 0, 0 );
+		    if ( idx != aidx+1 )
+			rect.addCoords( 1, 0, 0, 0 );
+		    if ( idx != aidx-1 )
+			rect.addCoords( 0, 0, -1, 0 );
+		}
 	    }
 	}
 	break;
@@ -880,6 +913,8 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 	return;
     }
 
+    if ( doFlipp )
+	theme.setFlipped();
     theme.drawBackground();
 
     d->currentWidget = 0;
