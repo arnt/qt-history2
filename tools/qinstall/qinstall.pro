@@ -1,7 +1,7 @@
 
 TEMPLATE	 = app
 
-CONFIG		 = qt warn_on release staticlib
+CONFIG		+= qt warn_on release staticlib
 
 HEADERS		 = data.h qinstallationwizard.h
 
