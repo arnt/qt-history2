@@ -1,5 +1,7 @@
 #include "scriptenginearabic.h"
 
+#include "private/qcomplextext_p.h"
+
 void ScriptEngineArabic::charAttributes( const QString &text, int from, int len, CharAttributes *attributes )
 {
     const QChar *uc = text.unicode() + from;
@@ -16,7 +18,10 @@ void ScriptEngineArabic::charAttributes( const QString &text, int from, int len,
 void ScriptEngineArabic::shape( const FontEngine &f, const QString &text, int from, int len,
 			const ScriptAnalysis &analysis, ShapedItem *result )
 {
+    QPainter::TextDirection dir = analysis.bidiLevel % 2 ? QPainter::RTL : QPainter::LTR;
+    QString shaped = QComplexText::shapedString( text, from, len, dir );
 
+    result->d = (ShapedItemPrivate *)(new QString(shaped));
 }
 
 int ScriptEngineArabic::cursorToX( int cursorPos, const FontEngine &f, const QString &text, int from, int len,

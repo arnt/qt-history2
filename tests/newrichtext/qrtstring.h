@@ -34,8 +34,6 @@ public:
     const QString &str() const { return string; }
 
 private:
-    friend class ScriptItemArray;
-
     QString string;
     QRTFormatArray formats;
 

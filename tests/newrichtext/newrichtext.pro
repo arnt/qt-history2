@@ -6,7 +6,9 @@ TEMPLATE = app
 
 # Input
 HEADERS += qrtformat.h qrtstring.h qtextlayout.h \
-	scriptengine.h scriptenginelatin.h scriptenginearabic.h
+	scriptengine.h scriptenginelatin.h scriptenginearabic.h \
+	qtextdata.h bidi.cpp
 
 SOURCES += qrtformat.cpp qrtstring.cpp test.cpp qtextlayout.cpp \
-	scriptenginelatin.cpp scriptenginearabic.cpp
+	scriptenginelatin.cpp scriptenginearabic.cpp \
+	qtextdata.cpp

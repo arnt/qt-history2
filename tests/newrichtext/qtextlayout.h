@@ -57,9 +57,6 @@ public:
     ScriptItemArray() : d( 0 ) {}
     ~ScriptItemArray();
 
-    void itemize( const QRTString & );
-    void itemize( const QString & );
-
     const ScriptItem &operator[] (int i) const {
 	return d->items[i];
     }
@@ -76,7 +73,6 @@ public:
     int size() const {
 	return d->size;
     }
-private:
     ScriptItemArray( const ScriptItemArray & ) {}
     ScriptItemArray &operator = ( const ScriptItemArray & ) { return *this; }
 
@@ -116,37 +112,49 @@ public:
     CharAttributesArray() : d( 0 ) {}
     ~CharAttributesArray();
 
-    void attributes( const QString &string, const ScriptItemArray &items, int item );
-    void attributes( const QRTString &string, const ScriptItemArray &items, int item ) {
-	attributes( string.str(), items, item );
-    }
-
-private:
     CharAttributesArray( const CharAttributesArray & ) {}
     CharAttributesArray & operator=( const CharAttributesArray & ) { return *this; }
 
     CharAttributesArrayPrivate *d;
 };
 
-class TextLayout {
+class TextLayout
+{
 public:
 
-    // ScriptShape && ScriptPlace
-    static ShapedItem shape( const QRTString &string, const ScriptItemArray &items, int item );
+    virtual void itemize( ScriptItemArray &items, const QRTString & ) const = 0;
+    virtual void itemize( ScriptItemArray &items, const QString & ) const = 0;
+
+    virtual void attributes( CharAttributesArray &attrs, const QString &string,
+		     const ScriptItemArray &items, int item ) const = 0;
+    void attributes( CharAttributesArray &attrs, const QRTString &string,
+		     const ScriptItemArray &items, int item ) const {
+	attributes( attrs, string.str(), items, item );
+    }
+
+
+    static const TextLayout *instance();
 
     // corresponds to ScriptLayout in Uniscribe
-    static void bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOrder, int *visualPositions );
+    void bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOrder ) const;
+
+#if 0
+    // ScriptShape && ScriptPlace
+    ShapedItem shape( const QRTString &string, const ScriptItemArray &items, int item ) {}
+
 
 
     // ### we need something for justification
 
     // ### cursor handling
-    static int cursorToX();
-    static int xToCursor();
+    int cursorToX() {}
+    int xToCursor() {}
 
 //    static ScriptProperties scriptProperties( int script );
+#endif
 
 };
+
 
 
 #endif

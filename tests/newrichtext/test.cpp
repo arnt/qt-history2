@@ -30,6 +30,42 @@ void MyWidget::paintEvent( QPaintEvent * )
 {
 
     QPainter p( this );
+	QRTFormat format = string.format(0);
+	p.setFont( format.font() );
+	p.setPen( format.color() );
+
+#if 1
+	ScriptItemArray items;
+	TextLayout::instance()->itemize( items, string );
+	qDebug("itemization: ");
+	for ( int i = 0; i < items.size(); i++ ) {
+	    qDebug("    (%d): start: %d, level: %d, script: %d", i, items[i].position, items[i].analysis.bidiLevel,
+		   items[i].analysis.script );
+	}
+
+	unsigned char levels[256];
+	int visualOrder[256];
+	for ( int i = 0; i < items.size(); i++ )
+	    levels[i] = items[i].analysis.bidiLevel;
+	TextLayout::instance()->bidiReorder( items.size(), (unsigned char *)levels, (int *)visualOrder );
+
+	int x = 0;
+	int y = 30;
+	QString str = string.str();
+	for ( int i = 0; i < items.size(); i++ ) {
+	    int current = visualOrder[i];
+	    const ScriptItem &it = items[ current ];
+	    int pos = it.position;
+	    int length = (current == items.size() -1 ? str.length() : items[current+1].position ) - pos;
+	    p.drawText( x, y, str, pos, length,
+			it.analysis.bidiLevel % 2 ? QPainter::RTL : QPainter::LTR );
+	    for ( int j = 0; j < length; j++ )
+		x += p.fontMetrics().width( str[pos+j] );
+	    qDebug("visual %d x=%d length=%d", visualOrder[i], x,  length);
+	    y += 20;
+	}
+
+#else
 
     int x = 10, y = 50;
     // just for testing we draw char by char
@@ -47,57 +83,42 @@ void MyWidget::paintEvent( QPaintEvent * )
 	x += p.fontMetrics().charWidth( string.str(), i );
 	oldformat = format;
     }
-
+#endif
 }
 
 #endif
 
 //const char * s = "אי U יו";
 
-const char * s = "אירופה, תוכנה והאינטרנט: Unicode יוצא לשוק העולמי הירשמו כעת לכנס Unicode הבינלאומי העשירי, שייערך בין התאריכים 12־10 במרץ 1997, במיינץ שבגרמניה. בכנס ישתתפו מומחים מכל ענפי התעשייה בנושא האינטרנט העולמי וה־Unicode, בהתאמה לשוק הבינלאומי והמקומי, ביישום Unicode במערכות הפעלה וביישומים, בגופנים, בפריסת טקסט ובמחשוב רב־לשוני. some english inbetween כאשר העולם רוצה לדבר, הוא מדבר ב־Unicode";
+//const char * s = "אירופה, תוכנה והאינטרנט: Unicode יוצא לשוק העולמי הירשמו כעת לכנס Unicode הבינלאומי העשירי, שייערך בין התאריכים 12־10 במרץ 1997, במיינץ שבגרמניה. בכנס ישתתפו מומחים מכל ענפי התעשייה בנושא האינטרנט העולמי וה־Unicode, בהתאמה לשוק הבינלאומי והמקומי, ביישום Unicode במערכות הפעלה וביישומים, בגופנים, בפריסת טקסט ובמחשוב רב־לשוני. some english inbetween כאשר העולם רוצה לדבר, הוא מדבר ב־Unicode";
+//const char * s = "אירופה, תוכנה והאינטרנט: Unicode";
+
+
+const char *s = "أوروبا, برمجيات الحاسوب + انترنيت : some english تصبح";
+
 
 
 int main( int argc, char **argv )
 {
     QApplication a(argc, argv);
-#if 0
+
     MyWidget *w = new MyWidget;
-    w->resize( 300,  300 );
+    w->resize( 600,  300 );
     w->show();
     a.setMainWidget ( w );
 
-    QRTString string("This is a test string");
-
-    QFont f;
-    f.setPointSize( 24 );
-    QRTFormat fmt( f, Qt::red );
-    string.setFormat( fmt, 5, 5 );
-    QRTFormat fmt2( f,  Qt::blue );
-    QRTString str2("foo", fmt2 );
-    string.insert( 20, str2 );
-
-    w->string = string;
-    a.exec();
-    delete w;
-#endif
 
     {
 	QRTString string = QString::fromUtf8( s );
-
+	string.setFormat( QRTFormat( QFont( "Arial", 24 ), Qt::black ) );
+	const TextLayout *textLayout = TextLayout::instance();
+	w->string = string;
 #if 0
-	ScriptItemArray items;
-	items.itemize( string );
-	qDebug("itemization: ");
-	for ( int i = 0; i < items.size(); i++ ) {
-	    qDebug("    (%d): start: %d, level: %d, script: %d", i, items[i].position, items[i].analysis.bidiLevel,
-		   items[i].analysis.script );
-	}
-#else
 	QTime t;
 	t.start();
 	ScriptItemArray items;
 	for ( int i = 0; i < 1000; i++ ) {
-	    items.itemize( string );
+	    textLayout->itemize( items, string );
 	}
 	qDebug("itemize: %dms", t.elapsed() );
 	t.start();
@@ -107,6 +128,9 @@ int main( int argc, char **argv )
 	qDebug("itemize: %dms", t.elapsed() );
 #endif
     }
+
+    a.exec();
+    delete w;
 
     qDebug("at exit:");
     QRTFormat::statistics();
