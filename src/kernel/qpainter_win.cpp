@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#37 $
 **
 ** Implementation of QPainter class for Windows
 **
@@ -20,7 +20,7 @@
 #include <math.h>
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#36 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#37 $")
 
 
 /*****************************************************************************
@@ -1387,9 +1387,7 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
     }
     if ( nocolBrush )
 	SetTextColor( hdc, cbrush.color().pixel() );
-    RoundRect( hdc, x, y, x+w, y+h,
-	       (int)(((long)w)*xRnd/100L),
-	       (int)(((long)h)*yRnd/100L) );
+    RoundRect( hdc, x, y, x+w, y+h, w*xRnd/100, h*yRnd/100 );
     if ( nocolBrush )
 	SetTextColor( hdc, cpen.color().pixel() );
 
