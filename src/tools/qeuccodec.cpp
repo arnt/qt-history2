@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qeuccodec.cpp#6 $
+** $Id: //depot/qt/main/src/tools/qeuccodec.cpp#7 $
 **
 ** Implementation of QEucCodec class
 **
@@ -16479,6 +16479,7 @@ QCString QEucCodec::fromUnicode(const QString& uc, int& len_in_out) const
     }
     len_in_out = cursor - result;
 //debug(" -> len %d",len_in_out);
+    *cursor = 0;
     QCString rstr;
     rstr.setRawData((char*)result,rlen);
     return rstr;

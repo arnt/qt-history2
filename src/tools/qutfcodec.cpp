@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qutfcodec.cpp#4 $
+** $Id: //depot/qt/main/src/tools/qutfcodec.cpp#5 $
 **
 ** Implementation of QEucCodec class
 **
@@ -51,6 +51,7 @@ QCString QUtf8Codec::fromUnicode(const QString& uc, int& len_in_out) const
 	    *cursor++ = 0x80 | (ch.cell&0x3f);
 	}
     }
+    *cursor = 0x00; // NUL terminator
     len_in_out = cursor - result;
     QCString rstr;
     rstr.setRawData((char*)result,rlen);
