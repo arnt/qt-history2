@@ -324,8 +324,12 @@ Option::parseCommandLine(int argc, char **argv)
 	    currlen = 0;
 	    env_argc++;
 	}
-	if(!internalParseCommandLine(env_argc, env_argv)) 
-	    return usage("(**QMAKEFLAGS**)");
+	internalParseCommandLine(env_argc, env_argv);
+	for(int i2 = 0; i2 < env_size; i2++) {
+	    if(env_argv[i2])
+		free(env_argv[i2]);
+	}
+	free(env_argv);
     }
     if(!internalParseCommandLine(argc, argv, 1))
 	return usage(argv[0]);
