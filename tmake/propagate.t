@@ -12,7 +12,6 @@
 
     Project('TMAKE_LIBS += $$LIBS'); # Misc. project-specific extras
 
-    Project('TMAKE_LIBS += $$LIBS');
     if ( !Project("INTERFACE_DECL_PATH") ) {
 	Project('INTERFACE_DECL_PATH = .' );
     }
@@ -257,7 +256,7 @@ clean:
 	#$ ExpandGlue("TMAKE_CLEAN","-rm -f "," ","");
 	-rm -f *~ core
 	#$ ExpandGlue("CLEAN_FILES","-rm -f "," ","");
-	-rm -f tmp/qt.cpp
+	-rm -f allmoc.cpp
 
 ####### Extension Modules
 
