@@ -38,7 +38,7 @@ public:
         return 0;
     }
 };
-static QResourceFileEngineHandler resource_file_handler;
+
 class QResourceFileEnginePrivate : public QFileEnginePrivate
 {
 protected:
@@ -309,3 +309,19 @@ QResourceFileEngine::type() const
 {
     return QIOEngine::Resource;
 }
+
+//Initialization and cleanup
+static QResourceFileEngineHandler *resource_file_handler = 0;
+void qCleanupResourceIO()
+{
+    delete resource_file_handler;
+    resource_file_handler = 0;
+}
+void qInitResourceIO()
+{
+    if(!resource_file_handler) 
+        resource_file_handler = new QResourceFileEngineHandler;
+}
+//yuck, but this will force the auto init in shared libraries
+inline static int qt_force_resource_init() { qInitResourceIO(); return 1; }
+static int qt_forced_resource_init = qt_force_resource_init(); 

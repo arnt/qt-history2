@@ -21,6 +21,8 @@ class QMetaResource;
 class QMetaResourcePrivate;
 class QResourcePrivate;
 
+void qInitResourceIO();
+
 class Q_CORE_EXPORT QResource {
 private:
     QResourcePrivate *d_ptr;

@@ -295,6 +295,7 @@ protected:
 */
 QMetaResource::QMetaResource(const uchar *resource) : d_ptr(new QMetaResourcePrivate(this))
 {
+    qInitResourceIO(); //just to be sure it has been loaded
     if(!qt_resource_root) {
         qt_resource_root = new QResource;
         qt_resource_root->d->container = true;
