@@ -120,40 +120,6 @@ private:
     bool m_changed;
 };
 
-class SetBuddyCommand : public SetPropertyCommand
-{
-    Q_OBJECT
-public:
-    SetBuddyCommand(FormWindow *fw);
-    void init(BuddyConnection *con);
-
-    virtual void redo();
-    virtual void undo();
-
-protected:
-    virtual bool mergeMeWith(QtCommand *);
-    
-private:
-    Connection::HintList m_hints;
-};
-
-class ClearBuddyCommand : public SetPropertyCommand
-{
-    Q_OBJECT
-public:
-    ClearBuddyCommand(FormWindow *fw);
-    void init(BuddyConnection *con);
-
-    virtual void redo();
-    virtual void undo();
-
-protected:
-    virtual bool mergeMeWith(QtCommand *);
-
-private:
-    Connection::HintList m_hints;
-};
-
 class InsertWidgetCommand: public FormWindowCommand
 {
     Q_OBJECT

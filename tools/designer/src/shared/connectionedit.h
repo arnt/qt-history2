@@ -14,550 +14,162 @@
 #ifndef CONNECTIONEDIT_H
 #define CONNECTIONEDIT_H
 
-#include "shared_global.h"
-
 #include <QWidget>
-#include <QVariant>
-#include <QPixmap>
-#include <QPoint>
-#include <QList>
 #include <QMap>
+#include <QMultiMap>
+#include <QList>
+#include <QPixmap>
+#include <QPointer>
 #include <QPolygonF>
 
-#include <qdebug.h>
+#include "shared_global.h"
 
-class ConnectionEdit;
+class QtUndoStack;
 class Connection;
+class ConnectionEdit;
 
-class QT_SHARED_EXPORT CEItem : public QObject
+struct CETypes
 {
-    Q_OBJECT
-public:
-    enum Status { Normal, New, Selected, UnderMouse, Dragged };
-    // order in Type is significant, see ConnectionEdit::insertItem()
-    enum Type { UnknownItem, WidgetItem, EdgeItem, LabelItem, EndPointItem };
-
-    CEItem(ConnectionEdit *edit);
-    ConnectionEdit *edit() const;
-
-    Status status() const;
-    bool underMouse() const;
-    virtual bool selectable() const;
-    void disableSelect(bool b);
-
-    bool visible() const;
-    void setVisible(bool b);
-
-    virtual QRect rect() const = 0;
-    virtual bool contains(const QPoint &p) const;
-
-    virtual void paint(QPainter *p);
-    virtual void update() const;
-
-    virtual void move(const QPoint &delta) = 0;
-
-    virtual Type type() const;
-
-signals:
-    void moved();
-
-protected:
-    virtual QColor colorForStatus();
-
-    friend class ConnectionEdit;
-
-private:
-    bool m_visible;
-    bool m_disable_select;
+    typedef QList<Connection*> ConnectionList;
+    typedef QMap<Connection*, Connection*> ConnectionSet;
+    typedef QMap<QWidget*, QWidget*> WidgetSet;
+    struct EndPoint {
+        enum Type { Source, Target };
+        EndPoint(Connection *_con = 0, Type _type = Source) : con(_con), type(_type) {}
+        bool isNull() const { return con == 0; }
+        bool operator == (const EndPoint &other) const { return con == other.con && type == other.type; }
+        bool operator != (const EndPoint &other) const { return !operator == (other); }
+        Connection *con;
+        Type type;
+    };
+    enum LineDir { UpDir = 0, DownDir, RightDir, LeftDir };
 };
 
-class QT_SHARED_EXPORT CELabelItem : public CEItem
+class Connection : public CETypes
 {
-    Q_OBJECT
 public:
-    CELabelItem(ConnectionEdit *edit);
-
-    QString text() const;
-    void setText(const QString &text);
-
-    virtual QRect rect() const;
-    virtual QPoint pos() const;
-    virtual bool selectable() const;
-    virtual void move(const QPoint &delta);
-    virtual void paint(QPainter *p);
-
-    void setAnchorPos(const QPoint &pos);
-    QPoint anchorPos() const;
-
-    virtual Type type() const;
-
-private:
-    QString m_text;
-    QRect m_rect;
-    QPoint m_anchor_pos;
-};
-
-class CEEdgeItem;
-
-class EndPointLayout;
-
-class CEEndPointItem : public CEItem
-{
-    Q_OBJECT
-public:
-    CEEndPointItem(const QPoint &pos, ConnectionEdit *edit);
-    ~CEEndPointItem();
-    virtual QRect rect() const;
-    virtual void paint(QPainter *p);
-    virtual void move(const QPoint &delta);
-    virtual QPoint pos() const;
-    virtual bool selectable() const;
-
-    CEEdgeItem *sourceEdge() const;
-    CEEdgeItem *destinationEdge() const;
-    CEEdgeItem *otherEdge(const CEEdgeItem *e) const;
-    void addEdge(CEEdgeItem *edge);
-    int edgeCount() const;
-    CEEdgeItem *edge(int i) const;
-    CEEdgeItem *edgeTo(CEEndPointItem *other) const;
-    void adjustPos();
-    void adjustLayout();
-
-    QList<CEEdgeItem*> edgeList() const { return m_edge_list; } // ###
-
-    virtual Type type() const;
-
-public slots:
-    virtual void edgeDestroyed(QObject *o);
-
-protected:
-    QPoint m_pos;
-
-    typedef QList<CEEdgeItem*> EdgeList;
-    EdgeList m_edge_list;
-
-    EndPointLayout *m_layout;
-};
-
-class CEWidgetItem : public CEEndPointItem
-{
-    Q_OBJECT
-public:
-    CEWidgetItem(QWidget *w, ConnectionEdit *edit);
-    virtual QRect rect() const;
-    virtual QPoint pos() const;
-    virtual void move(const QPoint &);
-    virtual void paint(QPainter *p);
-    virtual bool selectable() const;
-    QWidget *widget() const;
-
-    virtual Type type() const;
-
-    bool updateGeometry();
-
-private:
-    QRect widgetRect() const;
-
-    QWidget *m_widget;
-    QRect m_rect;
-};
-
-class CEEdgeItem : public CEItem
-{
-    Q_OBJECT
-public:
-    CEEdgeItem(CEEndPointItem *ep1, CEEndPointItem *ep2, ConnectionEdit *edit);
-
-    virtual QRect rect() const;
-    virtual bool contains(const QPoint &p) const;
-    CEEndPointItem *endPoint1() const;
-    CEEndPointItem *endPoint2() const;
-    CEEndPointItem *otherEndPoint(const CEEndPointItem *ep) const;
-    virtual void paint(QPainter *p);
-    virtual void move(const QPoint &delta);
-    virtual bool selectable() const;
-
-    void recalculate();
-
-    QPoint exitPos() const;
-    void setExitPos(const QPoint &pos);
-    QPoint enterPos() const;
-    void setEnterPos(const QPoint &pos);
-
-    virtual Type type() const;
-    
-    bool visibleAt(const QPoint &pos) const;
-
-public slots:
-    void endPointDestroyed(QObject *o);
-    void endPointMoved();
-
-private:
-    CEEndPointItem *m_ep1, *m_ep2;
-    QPoint m_top, m_side1, m_side2, m_bottom;
-    QPoint m_pos1, m_pos2;
-    QPolygonF m_arrow_head;
-    QPoint m_exit_pos, m_enter_pos;
-};
-
-struct QT_SHARED_EXPORT ConnectionHint
-{
-    enum Type { EndPoint, SourceLabel, DestinationLabel };
-    inline ConnectionHint(Type t = EndPoint, const QPoint &p = QPoint())
-                : type(t), pos(p) {}
-    Type type;
-    QPoint pos;
-};
-
-class QT_SHARED_EXPORT Connection : public QObject
-{
-    Q_OBJECT
-public:
-    enum EndPointStyle { Line, Arrow, Square };
-    enum LabelRole { DisplayRole, DecorationRole, CustomRole = 1000 };
-    typedef QList<ConnectionHint> HintList;
-
     Connection(ConnectionEdit *edit);
+    Connection(ConnectionEdit *edit, QWidget *source, QWidget *target);
+    virtual ~Connection() {}
+    QWidget *widget(EndPoint::Type type) const 
+        { return type == EndPoint::Source ? m_source : m_target; }
+    QPoint endPointPos(EndPoint::Type type) const;
+    QRect endPointRect(EndPoint::Type) const;
+    void setEndPoint(EndPoint::Type type, QWidget *w, const QPoint &pos)
+        { type == EndPoint::Source ? setSource(w, pos) : setTarget(w, pos); }
+            
+    virtual QRegion region() const;
+    bool contains(const QPoint &pos) const;
+    virtual void paint(QPainter *p) const;
 
-    void setEndPointStyle(EndPointStyle source, EndPointStyle dest);
+    void update(bool update_widgets = true) const;
 
-    void setVisible(bool b);
-    bool visible() const;
-
-    QWidget *source() const;
-    QWidget *destination() const;
-    virtual void setSource(QWidget *src);
-    virtual void setDestination(QWidget *dest);
-
-    void setSourceLabel(LabelRole role, const QVariant &v);
-    QVariant sourceLabel(LabelRole role) const;
-    void setDestinationLabel(LabelRole role, const QVariant &v);
-    QVariant destinationLabel(LabelRole role) const;
-
-    CELabelItem *sourceLabelItem() const;
-    CELabelItem *destinationLabelItem() const;
-    void setLabelItems(CELabelItem *source_label, CELabelItem *destination_label);
-
-    HintList hints() const;
-
+    QString label(EndPoint::Type type) const 
+        { return type == EndPoint::Source ? m_source_label : m_target_label; }
+    void setLabel(EndPoint::Type type, const QString &text);
+    QRect labelRect(EndPoint::Type type) const;
+    QPixmap labelPixmap(EndPoint::Type type) const
+        { return type == EndPoint::Source ? m_source_label_pm : m_target_label_pm; }
+        
     ConnectionEdit *edit() const { return m_edit; }
 
-signals:
-    void aboutToDelete(Connection*);
-    void selected(Connection*);
-
+    void checkWidgets();
+            
 private:
-    QWidget *m_source, *m_destination;
-
-    typedef QMap<LabelRole, QVariant> LabelData;
-    LabelData m_source_label_data, m_destination_label_data;
-
-    CELabelItem *m_source_label_item, *m_destination_label_item;
-
+    QPoint m_source_pos, m_target_pos;
+    QWidget *m_source, *m_target;
+    QList<QPoint> m_knee_list;
+    QPolygonF m_arrow_head;
     ConnectionEdit *m_edit;
+    QString m_source_label, m_target_label;
+    QPixmap m_source_label_pm, m_target_label_pm;
+    QRect m_source_rect, m_target_rect;
+    
+    void setSource(QWidget *source, const QPoint &pos);
+    void setTarget(QWidget *target, const QPoint &pos);
+    void updateKneeList();
+    void trimLine();
+    void updatePixmap(EndPoint::Type type);
+    LineDir labelDir(EndPoint::Type type) const;
 };
 
-class QT_SHARED_EXPORT ConnectionEdit : public QWidget
+class QT_SHARED_EXPORT ConnectionEdit : public QWidget, public CETypes
 {
     Q_OBJECT
 public:
-    ConnectionEdit(QWidget *parent);
-    ~ConnectionEdit();
+    ConnectionEdit(QWidget *parent, QtUndoStack *undo_stack);
+    
     inline QWidget *background() const { return m_bg_widget; }
     void setBackground(QWidget *background);
-
-    void setSelected(CEItem *item, bool selected);
-    bool isSelected(const CEItem *item) const;
-    bool isNew(const CEItem *item) const;
-    inline bool isUnderMouse(const CEItem *item) const;
-    int selectedCount() const;
-    void selectNone();
-
-    int connectionCount() const;
-    Connection *connection(int idx) const;
-    void deleteConnection(Connection *con);
-    QList<CEItem*> connectionItems(const Connection *con) const;
-
-    void clear();
-    void dumpItems() const;
-    void updateAllItems();
     
-public slots:
+    void setSelected(Connection *con, bool sel);
+    bool selected(const Connection *con) const;
+    void selectNone();
+    
+    int connectionCount() const { return m_con_list.size(); }
+    Connection *connection(int i) const { return m_con_list.at(i); }
+    
+    void clear();
+    
+public slots:    
     void updateBackground();
-    void deleteWidgetItem(QWidget *w);
-
-    void deleteItems();
-
-signals:
-    void added(Connection*);
-    void aboutToRemove(Connection*);
-    void selected(Connection*);
-    void activated(Connection*);
-
-protected:
+    void widgetRemoved(QWidget *w);
+    void updateLines();
+    
+protected:    
+    virtual void paintEvent(QPaintEvent *e);
+    virtual void mouseMoveEvent(QMouseEvent *e);
     virtual void mousePressEvent(QMouseEvent *e);
     virtual void mouseReleaseEvent(QMouseEvent *e);
-    virtual void mouseMoveEvent(QMouseEvent *e);
-    virtual void mouseDoubleClickEvent(QMouseEvent *e);
-    virtual void paintEvent(QPaintEvent *e);
     virtual void keyPressEvent(QKeyEvent *e);
-    virtual void resizeEvent(QResizeEvent *e);
-
-    virtual Connection *createConnection(QWidget *source, QWidget *destination);
-    void initConnection(Connection *con, const Connection::HintList &hint_list);
-
+    
+    virtual Connection *createConnection(QWidget *source, QWidget *target);
+    
     virtual QWidget *widgetAt(const QPoint &pos) const;
-    CEWidgetItem *widgetItem(QWidget *widget) const;
+    QRect widgetRect(QWidget *w) const;
+    void addConnection(Connection *con);
 
-    enum Mode { DrawMode, EditMode, DragMode };
-    inline Mode mode() const;
-
-private:
+private:    
     QWidget *m_bg_widget;
+    QtUndoStack *m_undo_stack;
     QPixmap m_bg_pixmap;
 
-    typedef QList<CEItem*> ItemList;
-    typedef QMap<CEItem*, CEItem*> SelectedSet;
-    typedef QList<Connection*> ConnectionList;
-    typedef QMultiMap<CEItem*, Connection*> ConnectionMap;
-    typedef QMap<Connection*, Connection*> ConnectionSet;
+    enum State { Editing, Connecting, Dragging };
+    State state() const;
+        
+    Connection *m_tmp_con; // the connection we are currently editing
+    ConnectionList m_con_list;
+    void startConnection(QWidget *source, const QPoint &pos);
+    void continueConnection(QWidget *target, const QPoint &pos);
+    void endConnection(QWidget *target, const QPoint &pos);
 
-    ItemList m_new_item_list;
-    CEEndPointItem *lastEndPoint() const;
-    CEWidgetItem *firstEndPoint() const;
+    void findObjectsUnderMouse(const QPoint &pos);
+    EndPoint m_end_point_under_mouse;
+    QPointer<QWidget> m_widget_under_mouse;
+        
+    EndPoint m_drag_end_point;
+    QPoint m_old_source_pos, m_old_target_pos;
+    void startDrag(const EndPoint &end_point, const QPoint &pos);
+    void continueDrag(const QPoint &pos);
+    void endDrag(const QPoint &pos);
+    void adjustHotSopt(const EndPoint &end_point, const QPoint &pos);
+    
+    void deleteSelected();
+    
+    Connection *connectionAt(const QPoint &pos) const;
+    EndPoint endPointAt(const QPoint &pos) const;
+    ConnectionSet m_sel_con_set;
 
-    ItemList m_item_list;
-    SelectedSet m_selected_item_set;
-    ConnectionList m_connection_list;
-    ConnectionMap m_connection_map;
-
-    QList<CEItem*> m_items_under_mouse;
-
-    void updateUnderMouse(const QPoint &pos);
-
-    CEItem *m_dragged_item, *m_drag_on_move_item;
-    bool m_start_draw_on_move;
-    bool m_start_drag_on_move;
-    QPoint m_last_mouse_pos;
-
-    CEItem *draggedItem() const;
-
-    enum BorderType { ActiveBorder, SelectedBorder };
-    QRect widgetRect(QWidget *w) const;
-
-    void abortNewItems();
-    void initConnection(Connection *con, const ItemList &item_list);
-    void insertEndPoint(const QPoint &pos);
-
-    void insertItem(CEItem *item);
-    void deleteItem(CEItem *item, bool check_connections = true);
-    void deleteItems(ItemList item_list, bool check_connections = true);
-    void setSelectedItems(const ItemList &item_list, bool selected);
-    void deleteWidgetItem(CEWidgetItem *widget_item);
-    void checkConnection(Connection *con);
-
-    void deleteEndPoint(CEEndPointItem *ep);
-
-    enum LineType { TopLoopLine, RightLoopLine, LeftLoopLine, BottomLoopLine,
-                    TopLine, RightLine, LeftLine, BottomLine, NoLine };
-    LineType m_current_line;
-    CEWidgetItem *m_old_target;
-    void createLine(LineType type, CEWidgetItem *target, const QPoint &pos);
-    LineType classifyLine(CEWidgetItem *source, CEWidgetItem *target, const QPoint &pos) const;
-    void addEdgeTo(const QPoint &pos);
-
-    void updateLine(Connection *con);
-    void updateLine(CEEdgeItem *edge);
-
-    void dumpItems();
-
-    CEItem *itemUnderMouse(CEItem::Type type) const;
-    CEItem *itemUnderMouse() const;
-
-    friend class CEItem;
-    friend class CEEndPointItem;
-    friend class CEWidgetItem;
-    friend class CEEdgeItem;
+    void paintConnection(QPainter *p, Connection *con,
+                            WidgetSet *heavy_highlight_set,
+                            WidgetSet *light_highlight_set) const;
+    void paintLabel(QPainter *p, EndPoint::Type type, Connection *con);
+                            
+    QColor m_inactive_color, m_active_color;
+                        
+    friend class Connection;
+    friend class AddConnectionCommand;
+    friend class DeleteConnectionsCommand;
 };
-
-/*******************************************************************************
-** CEItem
-*/
-
-inline ConnectionEdit *CEItem::edit() const
-    { return static_cast<ConnectionEdit*>(parent()); }
-
-inline bool CEItem::contains(const QPoint &p) const
-    { return rect().contains(p); }
-
-inline bool CEItem::underMouse() const
-    { return edit()->isUnderMouse(this); }
-
-inline bool CEItem::selectable() const
-    { return !m_disable_select; }
-
-inline void CEItem::disableSelect(bool b)
-    { m_disable_select = b; }
-
-inline bool CEItem::visible() const
-    { return m_visible; }
-
-inline CEItem::Type CEItem::type() const
-    { return UnknownItem; }
-
-/*******************************************************************************
-** CELabelItem
-*/
-
-inline QRect CELabelItem::rect() const
-    { return m_rect; }
-
-inline QPoint CELabelItem::pos() const
-    { return m_rect.topLeft(); }
-
-inline bool CELabelItem::selectable() const
-    { return CEItem::selectable(); }
-
-inline QString CELabelItem::text() const
-    { return m_text; }
-
-inline QPoint CELabelItem::anchorPos() const
-    { return m_anchor_pos; }
-
-inline CEItem::Type CELabelItem::type() const
-    { return LabelItem; }
-
-/*******************************************************************************
-** CEEndPointItem
-*/
-
-inline QPoint CEEndPointItem::pos() const
-    { return m_pos; }
-
-inline bool CEEndPointItem::selectable() const
-    { return edit()->mode() == ConnectionEdit::EditMode && CEItem::selectable(); }
-
-inline int CEEndPointItem::edgeCount() const
-    { return m_edge_list.size(); }
-
-inline CEEdgeItem *CEEndPointItem::edge(int i) const
-    { return m_edge_list.at(i); }
-
-inline CEItem::Type CEEndPointItem::type() const
-    { return EndPointItem; }
-
-/*******************************************************************************
-** CEWidgetItem
-*/
-
-inline void CEWidgetItem::move(const QPoint &)
-    {}
-
-inline QRect CEWidgetItem::rect() const
-    { return m_rect; }
-
-inline bool CEWidgetItem::selectable() const
-    { return  CEItem::selectable(); }
-
-inline QWidget *CEWidgetItem::widget() const
-    { return m_widget; }
-
-inline QPoint CEWidgetItem::pos() const
-    { return rect().center(); }
-
-inline CEItem::Type CEWidgetItem::type() const
-    { return WidgetItem; }
-
-/*******************************************************************************
-** CEEdgeItem
-*/
-
-inline CEEndPointItem *CEEdgeItem::endPoint1() const
-    { return m_ep1; }
-
-inline CEEndPointItem *CEEdgeItem::endPoint2() const
-    { return m_ep2; }
-
-inline bool CEEdgeItem::selectable() const
-    { return edit()->mode() == ConnectionEdit::EditMode && CEItem::selectable(); }
-
-inline QPoint CEEdgeItem::exitPos() const
-    { return m_exit_pos; }
-
-inline QPoint CEEdgeItem::enterPos() const
-    { return m_enter_pos; }
-
-inline CEItem::Type CEEdgeItem::type() const
-    { return EdgeItem; }
-
-/*******************************************************************************
-** Connection
-*/
-
-inline CELabelItem *Connection::sourceLabelItem() const
-    { return m_source_label_item; }
-
-inline CELabelItem *Connection::destinationLabelItem() const
-    { return m_destination_label_item; }
-
-inline QVariant Connection::sourceLabel(LabelRole role) const
-    { return m_source_label_data.value(role); }
-
-inline QVariant Connection::destinationLabel(LabelRole role) const
-    { return m_destination_label_data.value(role); }
-
-inline QWidget *Connection::source() const
-    { return m_source; }
-
-inline QWidget *Connection::destination() const
-    { return m_destination; }
-
-inline void Connection::setSource(QWidget *src)
-    { m_source = src; }
-
-inline void Connection::setDestination(QWidget *dest)
-    { m_destination = dest; }
-
-
-/*******************************************************************************
-** ConnectionEdit
-*/
-
-inline int ConnectionEdit::connectionCount() const
-    { return m_connection_list.count(); }
-
-inline Connection *ConnectionEdit::connection(int idx) const
-    { return m_connection_list.at(idx); }
-
-inline ConnectionEdit::Mode ConnectionEdit::mode() const
-{
-    if (m_dragged_item != 0)
-        return DragMode;
-    else if (lastEndPoint() != 0)
-        return DrawMode;
-    else
-        return EditMode;
-}
-
-inline bool ConnectionEdit::isSelected(const CEItem *item) const
-    { return m_selected_item_set.contains(const_cast<CEItem*>(item)); }
-
-inline bool ConnectionEdit::isNew(const CEItem *item) const
-    { return m_new_item_list.contains(const_cast<CEItem*>(item)); }
-
-inline bool ConnectionEdit::isUnderMouse(const CEItem *item) const
-    { return itemUnderMouse() == item; }
-
-inline CEItem *ConnectionEdit::draggedItem() const
-    { return m_dragged_item; }
-
-inline int ConnectionEdit::selectedCount() const
-    { return m_selected_item_set.size(); }
-
-inline QList<CEItem*> ConnectionEdit::connectionItems(const Connection *con) const
-    { return m_connection_map.keys(const_cast<Connection*>(con)); }
-
-inline void ConnectionEdit::setBackground(QWidget *background)
-{ m_bg_widget = background; updateBackground(); }
 
 #endif // CONNECTIONEDIT_H

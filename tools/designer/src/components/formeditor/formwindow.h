@@ -212,6 +212,8 @@ public:
 
     WidgetToActionMap &widgetToActionMap() { return m_widget_to_action_map; }
     ActionList &actionList() { return m_action_list; }
+    
+    SignalSlotEditor *signalSlotEditor() const { return m_signalSlotEditor; }
 
 signals:
     void showContextMenu(QWidget *w, const QPoint &pos);

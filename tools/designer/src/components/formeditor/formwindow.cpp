@@ -376,7 +376,7 @@ void FormWindow::setMainContainer(QWidget *w)
     }
 
     m_signalSlotEditor->setBackground(w);
-    m_buddyEditor->setBackground(w);
+//    m_buddyEditor->setBackground(w);
 }
 
 void FormWindow::handlePaintEvent(QWidget *w, QPaintEvent *e)
@@ -1213,6 +1213,7 @@ void FormWindow::deleteWidgets(const QList<QWidget*> &widget_list)
     beginCommand(tr("Delete"));
 
     foreach (QWidget *w, widget_list) {
+        m_signalSlotEditor->widgetRemoved(w);
         DeleteWidgetCommand *cmd = new DeleteWidgetCommand(this);
         cmd->init(w);
         m_commandHistory->push(cmd);
@@ -1583,7 +1584,7 @@ void FormWindow::setContents(QIODevice *dev)
     m_insertedWidgets.clear();
     m_widgets.clear();
     m_signalSlotEditor->clear();
-    m_buddyEditor->clear();
+//    m_buddyEditor->clear();
     emit changed();
 
     QDesignerResource r(this);
@@ -2087,7 +2088,7 @@ void FormWindow::setEditMode(EditMode mode)
         case ConnectionEditMode:
             m_signalSlotEditor->updateBackground();
             m_signalSlotEditor->raise();
-            m_signalSlotEditor->updateAllItems();
+            m_signalSlotEditor->updateLines();
             break;
 
         case TabOrderEditMode:
@@ -2095,9 +2096,9 @@ void FormWindow::setEditMode(EditMode mode)
             break;
 
         case BuddyEditMode:
-            m_buddyEditor->updateBackground();
+//            m_buddyEditor->updateBackground();
             m_buddyEditor->raise();
-            m_buddyEditor->updateAllItems();
+//            m_buddyEditor->updateAllItems();
             break;
 
 #ifdef DESIGNER_VIEW3D
@@ -2139,16 +2140,16 @@ void FormWindow::createConnections(DomConnections *connections, QWidget *parent)
 
 void FormWindow::addBuddy(Connection *con)
 {
-    SetBuddyCommand *command = new SetBuddyCommand(this);
+/*    SetBuddyCommand *command = new SetBuddyCommand(this);
     command->init(qt_cast<BuddyConnection*>(con));
-    commandHistory()->push(command);
+    commandHistory()->push(command); */
 }
 
 void FormWindow::removeBuddy(Connection *con)
 {
-    ClearBuddyCommand *command = new ClearBuddyCommand(this);
+/*    ClearBuddyCommand *command = new ClearBuddyCommand(this);
     command->init(qt_cast<BuddyConnection*>(con));
-    commandHistory()->push(command);
+    commandHistory()->push(command); */
 }
 
 #include "formwindow.moc"

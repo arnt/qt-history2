@@ -43,10 +43,8 @@ public:
     QString slot() const;
 
 private slots:
-    void signalClicked(QListWidgetItem *item, Qt::MouseButton button,
-                        Qt::KeyboardModifiers modifiers);
-    void slotClicked(QListWidgetItem *item, Qt::MouseButton button,
-                        Qt::KeyboardModifiers modifiers);
+    void signalClicked(QListWidgetItem *item);
+    void slotClicked(QListWidgetItem *item);
     void populateSignalList();
     void populateSlotList(const QString &signal = QString());
 
@@ -217,14 +215,14 @@ SignalSlotDialog::SignalSlotDialog(AbstractFormEditor *core, QWidget *source, QW
 
     m_signal_list = new QListWidget(this);
     connect(m_signal_list,
-                SIGNAL(clicked(QListWidgetItem*, Qt::MouseButton, Qt::KeyboardModifiers)),
+                SIGNAL(itemClicked(QListWidgetItem*)),
             this,
-                SLOT(signalClicked(QListWidgetItem*, Qt::MouseButton, Qt::KeyboardModifiers)));
+                SLOT(signalClicked(QListWidgetItem*)));
     m_slot_list = new QListWidget(this);
     connect(m_slot_list,
-                SIGNAL(clicked(QListWidgetItem*, Qt::MouseButton, Qt::KeyboardModifiers)),
+                SIGNAL(itemClicked(QListWidgetItem*)),
             this,
-                SLOT(slotClicked(QListWidgetItem*, Qt::MouseButton, Qt::KeyboardModifiers)));
+                SLOT(slotClicked(QListWidgetItem*)));
     m_slot_list->setEnabled(false);
 
     QPushButton *cancel_button = new QPushButton(tr("Cancel"), this);
@@ -267,12 +265,8 @@ SignalSlotDialog::SignalSlotDialog(AbstractFormEditor *core, QWidget *source, QW
     populateSignalList();
 }
 
-void SignalSlotDialog::signalClicked(QListWidgetItem *item, Qt::MouseButton button,
-                                        Qt::KeyboardModifiers modifiers)
+void SignalSlotDialog::signalClicked(QListWidgetItem *item)
 {
-    Q_UNUSED(button);
-    Q_UNUSED(modifiers);
-
     if (item == 0) {
         populateSlotList();
         m_slot_list->setEnabled(false);
@@ -284,13 +278,9 @@ void SignalSlotDialog::signalClicked(QListWidgetItem *item, Qt::MouseButton butt
     }
 }
 
-void SignalSlotDialog::slotClicked(QListWidgetItem *item, Qt::MouseButton button,
-                                    Qt::KeyboardModifiers modifiers)
+void SignalSlotDialog::slotClicked(QListWidgetItem *item)
 {
     Q_UNUSED(item);
-    Q_UNUSED(button);
-    Q_UNUSED(modifiers);
-
     m_ok_button->setEnabled(true);
 }
 
@@ -314,8 +304,8 @@ QString SignalSlotDialog::slot() const
 ** SignalSlotConnection
 */
 
-SignalSlotConnection::SignalSlotConnection(ConnectionEdit *edit)
-    : Connection(edit)
+SignalSlotConnection::SignalSlotConnection(ConnectionEdit *edit, QWidget *source, QWidget *target)
+    : Connection(edit, source, target)
 {
 }
 
@@ -329,26 +319,23 @@ DomConnection *SignalSlotConnection::toUi() const
     result->setElementSlot(slot());
 
     DomConnectionHints *hints = new DomConnectionHints;
-    Connection::HintList hint_list = this->hints();
     QList<DomConnectionHint*> list;
-    foreach (ConnectionHint h, hint_list) {
-        DomConnectionHint *hint = new DomConnectionHint;
-        hint->setElementX(h.pos.x());
-        hint->setElementY(h.pos.y());
-        switch (h.type) {
-            case ConnectionHint::EndPoint:
-                hint->setAttributeType("endpoint");
-                break;
-            case ConnectionHint::SourceLabel:
-                hint->setAttributeType("sourcelabel");
-                break;
-            case ConnectionHint::DestinationLabel:
-                hint->setAttributeType("destinationlabel");
-                break;
-        }
-        list.append(hint);
-    }
-
+    
+    QPoint sp = endPointPos(EndPoint::Source);
+    QPoint tp = endPointPos(EndPoint::Target);
+    
+    DomConnectionHint *hint = new DomConnectionHint;
+    hint->setAttributeType(QLatin1String("sourcelabel"));
+    hint->setElementX(sp.x());
+    hint->setElementY(sp.y());
+    list.append(hint);
+        
+    hint = new DomConnectionHint;
+    hint->setAttributeType(QLatin1String("destinationlabel"));
+    hint->setElementX(tp.x());
+    hint->setElementY(tp.y());
+    list.append(hint);
+    
     hints->setElementHint(list);
     result->setElementHints(hints);
 
@@ -358,13 +345,13 @@ DomConnection *SignalSlotConnection::toUi() const
 void SignalSlotConnection::setSignal(const QString &signal)
 {
     m_signal = signal;
-    setSourceLabel(DisplayRole, m_signal);
+    setLabel(EndPoint::Source, m_signal);
 }
 
 void SignalSlotConnection::setSlot(const QString &slot)
 {
     m_slot = slot;
-    setDestinationLabel(DisplayRole, m_slot);
+    setLabel(EndPoint::Target, m_slot);
 }
 
 QString SignalSlotConnection::sender() const
@@ -372,7 +359,7 @@ QString SignalSlotConnection::sender() const
     SignalSlotEditor *edit = qt_cast<SignalSlotEditor*>(this->edit());
     Q_ASSERT(edit != 0);
 
-    return realObjectName(edit->formWindow()->core(), source());
+    return realObjectName(edit->formWindow()->core(), widget(EndPoint::Source));
 }
 
 QString SignalSlotConnection::receiver() const
@@ -380,7 +367,7 @@ QString SignalSlotConnection::receiver() const
     SignalSlotEditor *edit = qt_cast<SignalSlotEditor*>(this->edit());
     Q_ASSERT(edit != 0);
 
-    return realObjectName(edit->formWindow()->core(), destination());
+    return realObjectName(edit->formWindow()->core(), widget(EndPoint::Target));
 }
 
 /*******************************************************************************
@@ -388,7 +375,7 @@ QString SignalSlotConnection::receiver() const
 */
 
 SignalSlotEditor::SignalSlotEditor(AbstractFormWindow *form_window, QWidget *parent)
-    : ConnectionEdit(parent)
+    : ConnectionEdit(parent, form_window->commandHistory())
 {
     m_form_window = form_window;
 }
@@ -403,13 +390,9 @@ Connection *SignalSlotEditor::createConnection(QWidget *source, QWidget *destina
     SignalSlotDialog *dialog = new SignalSlotDialog(m_form_window->core(), source, destination);
 
     if (dialog->exec() == QDialog::Accepted) {
-        con = new SignalSlotConnection(this);
-        con->setSource(source);
-        con->setDestination(destination);
+        con = new SignalSlotConnection(this, source, destination);
         con->setSignal(dialog->signal());
         con->setSlot(dialog->slot());
-    
-        con->setLabelItems(new CELabelItem(this), new CELabelItem(this));
     }
 
     delete dialog;
@@ -429,7 +412,7 @@ DomConnections *SignalSlotEditor::toUi() const
     DomConnections *result = new DomConnections;
     QList<DomConnection*> list;
     for (int i = 0; i < connectionCount(); ++i) {
-        SignalSlotConnection *con = qt_cast<SignalSlotConnection*>(connection(i));
+        SignalSlotConnection *con = static_cast<SignalSlotConnection*>(connection(i));
         Q_ASSERT(con != 0);
         list.append(con->toUi());
     }
@@ -463,33 +446,31 @@ void SignalSlotEditor::fromUi(DomConnections *connections, QWidget *parent)
             continue;
         }
 
-        qDebug() << "enstablish connection:" << source << destination;
-
-        Connection::HintList hint_list;
+        QPoint sp = QPoint(-1, -1), tp = QPoint(-1, -1);
         DomConnectionHints *dom_hints = dom_con->elementHints();
         if (dom_hints != 0) {
             QList<DomConnectionHint*> list = dom_hints->elementHint();
             foreach (DomConnectionHint *hint, list) {
                 QString attr_type = hint->attributeType();
-                ConnectionHint::Type hint_type;
+                QPoint p = QPoint(hint->elementX(), hint->elementY());
                 if (attr_type == QLatin1String("sourcelabel"))
-                    hint_type = ConnectionHint::SourceLabel;
+                    sp = p;
                 else if (attr_type == QLatin1String("destinationlabel"))
-                    hint_type = ConnectionHint::DestinationLabel;
-                else
-                    hint_type = ConnectionHint::EndPoint;
-
-                hint_list.append(ConnectionHint(hint_type, QPoint(hint->elementX(), hint->elementY())));
+                    tp = p;
             }
         }
 
+        if (sp == QPoint(-1, -1))
+            sp = widgetRect(source).center();
+        if (tp == QPoint(-1, -1))
+            tp = widgetRect(destination).center();
+        
         SignalSlotConnection *con = new SignalSlotConnection(this);
-        con->setSource(source);
-        con->setDestination(destination);
-        con->setLabelItems(new CELabelItem(this), new CELabelItem(this));
+        con->setEndPoint(EndPoint::Source, source, sp);
+        con->setEndPoint(EndPoint::Target, destination, tp);
         con->setSignal(dom_con->elementSignal());
         con->setSlot(dom_con->elementSlot());
-        initConnection(con, hint_list);
+        addConnection(con);
     }
 }
 

@@ -24,6 +24,7 @@
 #include <abstractpropertyeditor.h>
 #include <qextensionmanager.h>
 #include <propertysheet.h>
+#include <signalsloteditor.h>
 
 #include <QToolBox>
 #include <QStackedWidget>
@@ -161,6 +162,7 @@ void SetPropertyCommand::redo()
     if (m_propertyName == QLatin1String("geometry")) {
         checkSelection(m_widget);
         checkParent(m_widget, m_parentWidget);
+        formWindow()->signalSlotEditor()->updateBackground();
     } else if (m_propertyName == QLatin1String("objectName")) {
         checkObjectName(m_widget);
     }
@@ -182,6 +184,8 @@ void SetPropertyCommand::undo()
     if (m_propertyName == QLatin1String("geometry")) {
         checkSelection(m_widget);
         checkParent(m_widget, m_parentWidget);
+        formWindow()->signalSlotEditor()->updateBackground();
+        formWindow()->signalSlotEditor()->updateLines();
     } else if (m_propertyName == QLatin1String("objectName")) {
         checkObjectName(m_widget);
     }
@@ -204,93 +208,6 @@ bool SetPropertyCommand::mergeMeWith(QtCommand *other)
     return false;
 }
 
-// ---- SetBuddyCommand ----
-
-SetBuddyCommand::SetBuddyCommand(FormWindow *fw)
-    : SetPropertyCommand(fw)
-{
-    setCanMerge(false);
-}
-
-void SetBuddyCommand::init(BuddyConnection *con)
-{
-    m_hints = con->hints();
-    SetPropertyCommand::init(con->source(), 
-                                QLatin1String("buddy"), 
-                                con->destination()->objectName()); 
-}
-
-bool SetBuddyCommand::mergeMeWith(QtCommand *)
-{
-    return false;
-}
-
-void SetBuddyCommand::redo()
-{
-    SetPropertyCommand::redo();
-    
-    QWidget *source = widget();
-    QWidget *destination = qFindChild<QWidget*>(formWindow()->mainContainer(), newValue().toString());
-    
-    BuddyEditor *buddy_editor = formWindow()->buddyEditor();
-    if (buddy_editor->findConnection(source, destination) == 0)
-        buddy_editor->addConnection(source, destination, m_hints);
-}
-
-void SetBuddyCommand::undo()
-{
-    SetPropertyCommand::undo();
-
-    QWidget *source = widget();
-    QWidget *destination = qFindChild<QWidget*>(formWindow()->mainContainer(), newValue().toString());
-
-    BuddyEditor *buddy_editor = formWindow()->buddyEditor();
-    if (buddy_editor->findConnection(source, destination) != 0)
-        buddy_editor->deleteConnection(source, destination);
-}
-
-// ---- ClearBuddyCommand ----
-
-ClearBuddyCommand::ClearBuddyCommand(FormWindow *fw)
-    : SetPropertyCommand(fw)
-{
-    setCanMerge(false);
-}
-
-void ClearBuddyCommand::init(BuddyConnection *con)
-{
-    m_hints = con->hints();
-    SetPropertyCommand::init(con->source(), QLatin1String("buddy"), QString());
-}
-
-bool ClearBuddyCommand::mergeMeWith(QtCommand *)
-{
-    return false;
-}
-
-void ClearBuddyCommand::redo()
-{
-    SetPropertyCommand::redo();
-
-    QWidget *source = widget();
-    QWidget *destination = qFindChild<QWidget*>(formWindow()->mainContainer(), newValue().toString());
-
-    BuddyEditor *buddy_editor = formWindow()->buddyEditor();
-    if (buddy_editor->findConnection(source, destination) != 0)
-        buddy_editor->deleteConnection(source, destination);
-}
-
-void ClearBuddyCommand::undo()
-{
-    SetPropertyCommand::undo();
-
-    QWidget *source = widget();
-    QWidget *destination = qFindChild<QWidget*>(formWindow()->mainContainer(), newValue().toString());
-    
-    BuddyEditor *buddy_editor = formWindow()->buddyEditor();
-    if (buddy_editor->findConnection(source, destination) == 0)
-        buddy_editor->addConnection(source, destination, m_hints);
-}
 
 // ---- InsertWidgetCommand ----
 InsertWidgetCommand::InsertWidgetCommand(FormWindow *formWindow)
@@ -348,6 +265,7 @@ void InsertWidgetCommand::redo()
 
     formWindow()->manageWidget(m_widget);
     m_widget->show();
+    formWindow()->signalSlotEditor()->updateBackground();
 }
 
 void InsertWidgetCommand::undo()
@@ -366,6 +284,7 @@ void InsertWidgetCommand::undo()
 
     formWindow()->unmanageWidget(m_widget);
     m_widget->hide();
+    formWindow()->signalSlotEditor()->updateBackground();
 }
 
 // ---- RaiseWidgetCommand ----
@@ -468,6 +387,7 @@ void DeleteWidgetCommand::redo()
     m_widget->setParent(formWindow());
 
     formWindow()->emitSelectionChanged();
+    formWindow()->signalSlotEditor()->updateBackground();
 }
 
 void DeleteWidgetCommand::undo()
@@ -499,6 +419,7 @@ void DeleteWidgetCommand::undo()
 
     m_widget->show();
     formWindow()->emitSelectionChanged();
+    formWindow()->signalSlotEditor()->updateBackground();
 }
 
 // ---- ReparentWidgetCommand ----

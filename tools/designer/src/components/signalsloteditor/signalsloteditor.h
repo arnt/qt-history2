@@ -28,10 +28,8 @@ class DomConnection;
 
 class SignalSlotConnection : public Connection
 {
-    Q_OBJECT
-
 public:
-    SignalSlotConnection(ConnectionEdit *edit);
+    SignalSlotConnection(ConnectionEdit *edit, QWidget *source = 0, QWidget *target = 0);
 
     void setSignal(const QString &signal);
     void setSlot(const QString &slot);

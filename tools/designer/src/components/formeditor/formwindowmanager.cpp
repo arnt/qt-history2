@@ -573,10 +573,18 @@ void FormWindowManager::slotUpdateActions()
         m_actionLower->setEnabled(false);
         m_actionRaise->setEnabled(false);
         m_actionAdjustSize->setEnabled(false);
-        m_actionUndo->setText(tr("Undo"));
-        m_actionUndo->setEnabled(false);
-        m_actionRedo->setText(tr("Redo"));
-        m_actionRedo->setEnabled(false);
+        
+        if (!m_activeFormWindow) {
+            m_actionUndo->setText(tr("Undo"));
+            m_actionUndo->setEnabled(false);
+            m_actionRedo->setText(tr("Redo"));
+            m_actionRedo->setEnabled(false);
+        } else {
+            m_actionUndo->setEnabled(m_activeFormWindow->commandHistory()->canUndo());
+            m_actionUndo->setText(tr("Undo ") + m_activeFormWindow->commandHistory()->undoDescription());
+            m_actionRedo->setEnabled(m_activeFormWindow->commandHistory()->canRedo());
+            m_actionRedo->setText(tr("Redo ") + m_activeFormWindow->commandHistory()->redoDescription());
+        }
         return;
     }
 
