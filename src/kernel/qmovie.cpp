@@ -333,11 +333,11 @@ void QMoviePrivate::updatePixmapFromImage(const QPoint& off,
         // this frame already.
         QString key = movie_name.arg(framenumber);
         if ( !QPixmapCache::find( key, lines ) ) {
-            lines.convertFromImage(img);
+            lines.convertFromImage(img, Qt::ColorOnly);
             QPixmapCache::insert( key, lines );
         }
     } else {
-        lines.convertFromImage( img );
+        lines.convertFromImage(img, Qt::ColorOnly);
     }
 
     if (bg.isValid()) {
