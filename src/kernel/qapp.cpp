@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#93 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#94 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#93 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#94 $");
 
 
 /*!
@@ -91,25 +91,25 @@ GUIStyle QApplication::app_style = MotifStyle;	// default style for X Windows
 int	 QApplication::app_cspec = QApplication::NormalColor;
 
 
-static QPalette *motifPalette = 0;
+static QPalette *stdPalette = 0;
 
 static void create_palettes()			// creates default palettes
 {
-    QColorGroup motif_nor( black, lightGray,
-			   white, lightGray.dark(), gray,
-			   black, white );
-    QColorGroup motif_dis( darkGray, lightGray,
-			   white, lightGray.dark(), gray,
-			   darkGray, motif_nor.background() );
-    QColorGroup motif_act( black, lightGray,
-			   white, lightGray.dark(), gray,
-			   black, white );
-    motifPalette = new QPalette( motif_nor, motif_dis, motif_act );
+    QColorGroup std_nor( black, lightGray,
+			 white, lightGray.dark(), gray,
+			 black, white );
+    QColorGroup std_dis( darkGray, lightGray,
+			 white, lightGray.dark(), gray,
+			 darkGray, std_nor.background() );
+    QColorGroup std_act( black, lightGray,
+			 white, lightGray.dark(), gray,
+			 black, white );
+    stdPalette = new QPalette( std_nor, std_dis, std_act );
 }
 
 static void destroy_palettes()
 {
-    delete motifPalette;
+    delete stdPalette;
 }
 
 
@@ -172,7 +172,7 @@ QApplication::QApplication( int &argc, char **argv )
     quit_code = 0;
     if ( !app_pal ) {				// palette not already set
 	create_palettes();
-	app_pal = new QPalette( *motifPalette );
+	app_pal = new QPalette( *stdPalette );
 	CHECK_PTR( app_pal );
     }
     if ( !app_font ) {				// font not already set
