@@ -130,7 +130,7 @@ public:
         inline const_iterator() : i(0) {}
         inline const_iterator(Node *n) : i(n) {}
         inline const_iterator(const const_iterator &o): i(o.i) {}
-        inline const_iterator(const iterator &o): i(((const const_iterator &)o).i) {}
+        inline const_iterator(const iterator &o) : i(((const_iterator &)o).i) {}
         inline const T &operator*() const { return i->t(); }
         inline const T *operator->() const { return &i->t(); }
         inline const T &operator[](int j) const { return i[j].t(); }
