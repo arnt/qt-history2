@@ -1526,8 +1526,7 @@ bool QTextEditDocument::inSelection( int selId, const QPoint &pos ) const
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QTextEditString::QTextEditString( QTextEditParag *p )
-    : parag( p )
+QTextEditString::QTextEditString( )
 {
 }
 
