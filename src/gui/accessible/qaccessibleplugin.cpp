@@ -24,6 +24,7 @@
     accessibility plugins.
 
     \ingroup plugins
+    \ingroup accessibility
 */
 
 class QAccessiblePluginPrivate : public QAccessibleFactoryInterface

@@ -187,6 +187,10 @@ related classes together. Some classes may appear in more than one group.
 \i Abstract widget classes usable through subclassing.
 
 \row 
+\i \link accessibility.html   Accessibility \endlink
+\i Classes that provide support for accessibility.
+
+\row 
 \i \link advanced.html   Advanced Widgets \endlink
 \i Advanced GUI widgets such as listviews and progress bars.
 
@@ -531,6 +535,16 @@ These classes provide more complex user interface controls (widgets).
 These classes are abstract widgets; they are generally not usable in
 themselves, but provide functionality that can be used by inheriting
 these classes.
+
+*/
+
+/*! \defgroup accessibility
+
+\title Classes that provide support for accessibility
+
+Accessible applications are able to be used by users who cannot use
+conventional means of interaction. These classes provide support for
+accessible applications.
 
 */
 

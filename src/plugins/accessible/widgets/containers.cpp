@@ -5,6 +5,7 @@
 /*!
   \class QAccessibleWidgetStack qaccessible.h
   \brief The QAccessibleWidgetStack class implements the QAccessibleInterface for widget stacks.
+  \ingroup accessibility
 */
 
 /*!

@@ -18,6 +18,7 @@ QString Q_GUI_EXPORT qacc_stripAmp(const QString &text);
 /*!
   \class QAccessibleHeader qaccessiblewidget.h
   \brief The QAccessibleHeader class implements the QAccessibleInterface for header widgets.
+  \ingroup accessibility
 */
 
 /*!
@@ -103,6 +104,7 @@ int QAccessibleHeader::state(int child) const
 /*!
   \class QAccessibleTabBar qaccessiblewidget.h
   \brief The QAccessibleTabBar class implements the QAccessibleInterface for tab bars.
+  \ingroup accessibility
 */
 
 /*!
@@ -266,6 +268,7 @@ QVector<int> QAccessibleTabBar::selection() const
 /*!
   \class QAccessibleComboBox qaccessiblewidget.h
   \brief The QAccessibleComboBox class implements the QAccessibleInterface for editable and read-only combo boxes.
+  \ingroup accessibility
 */
 
 
@@ -430,6 +433,7 @@ bool QAccessibleComboBox::doAction(int, int child)
 /*!
   \class QAccessibleTitleBar qaccessiblewidget.h
   \brief The QAccessibleTitleBar class implements the QAccessibleInterface for title bars.
+  \ingroup accessibility
 */
 
 /*!

@@ -107,7 +107,7 @@ public:
 /*!
     \class QAccessibleWidget qaccessiblewidget.h
     \brief The QAccessibleWidget class implements the QAccessibleInterface for QWidgets.
-    \ingroup misc
+    \ingroup accessibility
 
     This class is convenient to use as a base class for custom implementations of
     QAccessibleInterfaces that provide information about widget objects.

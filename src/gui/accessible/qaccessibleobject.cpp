@@ -31,11 +31,11 @@ public:
     \brief The QAccessibleObject class implements parts of the
     QAccessibleInterface for QObjects.
 
-    \ingroup misc
+    \ingroup accessibility
 
     This class is mainly provided for convenience. All subclasses of
     the QAccessibleInterface that provide implementations of non-widget objects
-    should use this class as the base class.
+    should use this class as their base class.
 */
 
 extern void qInsertAccessibleObject(QObject *object, QAccessibleInterface *iface);
