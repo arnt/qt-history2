@@ -161,7 +161,7 @@ speaking. You can declare a namespace prefix \c fnord to the namespace name
 xmlns:fnord="http://trolltech.com/fnord/" (remark: namespaces are URI
 references; this does not mean that there must be any data available at the
 address; they are simply unique names, not more).  There is also one
-default namesapce that can be declared: \c xmlns.
+default namespace that can be declared: \c xmlns.
 
 Namespaces can be used for element names and attribute names by prepending
 the prefix with a ":" to the name. If an element name does not have a

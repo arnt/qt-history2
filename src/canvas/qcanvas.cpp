@@ -2750,7 +2750,7 @@ QSize QCanvasView::sizeHint() const
   usually cover a simple rectangular area and are dealt with specially,
   but typical geometric shapes such as lines and circles would be too
   inefficiently bounded by rectangular areas - a diagonal line from one
-  corner of the canvas area to the other bound be bounded by a rectangle covering
+  corner of the canvas area to the other would be bounded by a rectangle covering
   the entire area! QCanvasPolygonalItem objects allow the area to be
   defined by a polygon - a sequence of points
   bounding the area covered by the item.
