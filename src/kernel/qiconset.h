@@ -66,7 +66,6 @@ public:
 			    Mode mode = Normal, State state = Off );
     virtual void setPixmap( const QString& fileName, Size size,
 			    Mode mode = Normal, State state = Off );
-    // ### make the next function virtual in 4.0?
     QPixmap pixmap( Size size, Mode mode, State state = Off ) const;
     QPixmap pixmap( Size size, bool enabled, State state = Off ) const;
     QPixmap pixmap() const;
