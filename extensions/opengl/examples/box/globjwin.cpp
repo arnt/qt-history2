@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/examples/box/globjwin.cpp#2 $
+** $Id: //depot/qt/main/extensions/opengl/examples/box/globjwin.cpp#3 $
 **
 ** Implementation of GLObjectWindow widget class
 **
@@ -30,6 +30,7 @@ GLObjectWindow::GLObjectWindow( QWidget* parent, const char* name )
 
     // Create a menu bar
     QMenuBar *m = new QMenuBar( this );
+    m->setSeparator( QMenuBar::InWindowsStyle );
     m->insertItem("&File", file );
     hlayout->setMenuBar( m );
 
