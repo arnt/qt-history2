@@ -1131,7 +1131,7 @@ bool read_dib(QDataStream& s, int offset, int startpos, QImage& image)
         if (comp == BMP_RLE4) {                // run length compression
             int x=0, y=0, b, c, i;
             register uchar *p = line[h-1];
-            uchar *endp = line[h-1]+w;
+            const uchar *endp = line[h-1]+w;
             while (y < h) {
                 if ((b=d->getch()) == EOF)
                     break;
@@ -1212,6 +1212,7 @@ bool read_dib(QDataStream& s, int offset, int startpos, QImage& image)
         if (comp == BMP_RLE8) {                // run length compression
             int x=0, y=0, b;
             register uchar *p = line[h-1];
+            const uchar *endp = line[h-1]+w;
             while (y < h) {
                 if ((b=d->getch()) == EOF)
                     break;
@@ -1227,11 +1228,21 @@ bool read_dib(QDataStream& s, int offset, int startpos, QImage& image)
                             y = h;                // exit loop
                             break;
                         case 2:                        // delta (jump)
+                            // Protection
+                            if ((uint)x >= (uint)w)
+                                x = w-1;
+                            if ((uint)y >= (uint)h)
+                                y = h-1;
+
                             x += d->getch();
                             y += d->getch();
                             p = line[h-y-1] + x;
                             break;
                         default:                // absolute mode
+                            // Protection
+                            if (p + b > endp)
+                                b = endp-p;
+
                             if (d->readBlock((char *)p, b) != b)
                                 return false;
                             if ((b & 1) == 1)
@@ -1240,6 +1251,10 @@ bool read_dib(QDataStream& s, int offset, int startpos, QImage& image)
                             p += b;
                     }
                 } else {                        // encoded mode
+                    // Protection
+                    if (p + b > endp)
+                        b = endp-p;
+
                     memset(p, d->getch(), b); // repeat pixel
                     x += b;
                     p += b;
