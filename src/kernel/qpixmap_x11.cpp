@@ -42,6 +42,10 @@
 
 #include <stdlib.h>
 
+#if defined(Q_CC_MIPS)
+#  define for if(0){}else for
+#endif
+
 
 /*!
   \class QPixmap::QPixmapData
