@@ -1,7 +1,6 @@
 #include "../../../qactioninterface.h"
 #include "../../../qcleanuphandler.h"
 #include "../../../qdualinterface.h"
-#include "../../../qwidgetfactory.h"
 #include "sounddialog.h"
 
 #include <qaction.h>
@@ -50,6 +49,7 @@ public slots:
     void openDialog();
     void toggleText();
     void selectWidget();
+    void toggleMenu();
     void toolBarMoves( QToolBar* );
     void toolBarDropped( QToolBar* );
 
@@ -82,7 +82,8 @@ QStringList TestInterface::featureList()
 
     list << "Open Dialog";
     list << "Show Text";
-    list << "Set central widget";
+    list << "Set central Widget";
+    list << "Toggle Menu";
 
     return list;
 }
@@ -128,9 +129,14 @@ QAction* TestInterface::create( const QString& actionname, QObject* parent )
 	connect( actionTurnOnText, SIGNAL(activated()), this, SLOT(toggleText()) );
 	actions.addCleanUp( actionTurnOnText );
 	return actionTurnOnText;
-    } else if ( actionname == "Set central widget" ) {
-	QAction* a = new QAction( actionname, QIconSet(*unknown_icon), "Set central &widget", Qt::CTRL + Qt::Key_W, parent, actionname );
+    } else if ( actionname == "Set central Widget" ) {
+	QAction* a = new QAction( actionname, QIconSet(*unknown_icon), "Set central &Widget", Qt::CTRL + Qt::Key_W, parent, actionname );
 	connect( a, SIGNAL(activated()), this, SLOT(selectWidget()) );
+	actions.addCleanUp( a );
+	return a;
+    } else if ( actionname == "Toggle Menu" ) {
+	QAction* a = new QAction( actionname, QIconSet(*unknown_icon), "&Toggle Menu", Qt::CTRL + Qt::Key_U, parent, actionname, TRUE );
+	connect( a, SIGNAL(activated()), this, SLOT(toggleMenu()) );
 	actions.addCleanUp( a );
 	return a;
     } else {
@@ -159,10 +165,6 @@ void TestInterface::toggleText()
 	    actionTurnOnText->setMenuText( "&Show Text" );
 	}
 	ifc->requestSetProperty( "usesTextLabel", !on );
-
-	QClientInterface menuIfc;
-	ifc->requestConnection( "PlugMenuInterface", &menuIfc );
-	menuIfc.requestSetProperty( "defaultUp", TRUE );
     }
 }
 
@@ -175,6 +177,18 @@ void TestInterface::selectWidget()
 	if ( ok ) {
 	    ifc->requestSetProperty( "centralWidget", wc );
 	}
+    }
+}
+
+void TestInterface::toggleMenu()
+{
+    QClientInterface* ifc;
+    if ( ( ifc = clientInterface( "PlugMainWindowInterface" ) ) ) {
+	QVariant up;
+	QClientInterface menuIfc;
+	ifc->requestConnection( "PlugMenuInterface", &menuIfc );
+	menuIfc.requestProperty( "defaultUp", up );
+	menuIfc.requestSetProperty( "defaultUp", !up.toBool() );
     }
 }
 
