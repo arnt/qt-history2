@@ -82,6 +82,11 @@ public:
     Orientation orientation() const { return dir; }
     void setOrientation( Orientation );
 
+    int insideMargin() const;
+    int insideSpacing() const;
+    void setInsideMargin( int m );
+    void setInsideSpacing( int s );
+
     void addSpace( int );
     QSize sizeHint() const;
 
@@ -116,6 +121,7 @@ private:
     int col;
     int nRows, nCols;
     Orientation dir;
+    int spacing, margin;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

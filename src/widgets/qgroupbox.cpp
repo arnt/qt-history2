@@ -152,6 +152,8 @@ void QGroupBox::init()
     lenvisible = 0;
     nCols = nRows = 0;
     dir = Horizontal;
+    margin = 11;
+    spacing = 5;
 }
 
 void QGroupBox::setTextSpacer()
@@ -390,6 +392,58 @@ void QGroupBox::setColumns( int c )
 }
 
 /*!
+  Returns the width of the blank spacing between the items in the group
+  and the frame of the group.
+
+  Only applies if the groupbox has an defined orientation.
+
+  The default is about 11.
+
+  \sa setInsideMargin(), orentiation()
+*/
+int QGroupBox::insideMargin() const
+{
+    return margin;
+}
+
+/*!
+  Returns the width of the blank spacing between each of the items in the
+  group.
+
+  Only applies if the groupbox has an defined orientation.
+
+  The default is about 5.
+
+  \sa setInsideSpacing(), orentiation()
+*/
+int QGroupBox::insideSpacing() const
+{
+    return spacing;
+}
+
+/*!
+  Sets the the width of the blank spacing between each of the items in the
+  group to \a m pixels.
+
+  \sa insideSpacing()
+*/
+void QGroupBox::setInsideMargin( int m )
+{
+    margin = m;
+    setColumnLayout( columns(), dir );
+}
+
+/*!
+  Sets the width of the blank spacing between each of the items in the
+  group to \a s pixels.
+*/
+void QGroupBox::setInsideSpacing( int s )
+{
+    spacing = s;
+    setColumnLayout( columns(), dir );
+}
+
+/*!
   \fn Orientation QGroupBox::orientation() const
   Returns the current orientation of the groupbox.
 
@@ -427,7 +481,7 @@ void QGroupBox::setColumnLayout(int columns, Orientation direction)
     if ( columns < 0 ) // if 0, we create the vbox but not the grid. See below.
 	return;
 
-    vbox = new QVBoxLayout( this, 11, 0 );
+    vbox = new QVBoxLayout( this, margin, 0 );
 
     QSpacerItem *spacer = new QSpacerItem( 0, 0, QSizePolicy::Minimum,
 					   QSizePolicy::Fixed );
@@ -457,7 +511,7 @@ void QGroupBox::setColumnLayout(int columns, Orientation direction)
 	nCols = 1;
 	nRows = columns;
     }
-    grid = new QGridLayout( nRows, nCols, 5 );
+    grid = new QGridLayout( nRows, nCols, spacing );
     row = col = 0;
     grid->setAlignment( AlignTop );
     vbox->addLayout( grid );
