@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#50 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#51 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 #include <stdio.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#50 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#51 $");
 
 
 /*!
@@ -1103,4 +1103,19 @@ QLCDNumber::SegmentStyle QLCDNumber::segmentStyle() const
     if ( fill && shadow )
 	return Filled;
     return Flat;
+}
+
+
+/*!  Returns a suitable size for this LCD number.  The size hint is on
+  the small side, so as to be usable as minimum size.
+  
+  The size hint takes numDigits() and smallDecimalPoint() into
+  consideration.
+
+  \sa setNumDigits() setSmallDecimalPoint() setMinimumSize()
+*/
+
+QSize QLCDNumber::sizeHint() const
+{
+    return QSize( 18 * (numDigits() + (smallDecimalPoint() ? 0 : 1)), 30 );
 }

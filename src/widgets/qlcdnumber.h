@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.h#29 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.h#30 $
 **
 ** Definition of QLCDNumber class
 **
@@ -45,6 +45,8 @@ public:
 
     double  value() const;
     int	    intValue() const;
+    
+    QSize sizeHint() const;
 
 public slots:
     void    display( int num );
