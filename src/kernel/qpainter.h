@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#55 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#56 $
 **
 ** Definition of QPainter class
 **
@@ -200,9 +200,7 @@ public:
     int	       *tabArray() const	{ return tabarray; }
     void	setTabArray( int * );
 
-#if defined(_WS_WIN_)
-    HANDLE	handle() const	{ return hdc; }
-#endif
+    HANDLE	handle() const;
 
     static void initialize();
     static void cleanup();
@@ -254,6 +252,7 @@ protected:
     uint	stockBrush	: 1;
     uint	pixmapBrush	: 1;
     uint	tmpHandle	: 1;
+    uint	xfFont		: 1;
     void       *tm;
 #elif defined(_WS_PM_)
     HPS		hps;				// presentation space
@@ -302,6 +301,17 @@ inline PaintUnit QPainter::unit() const
     return (PaintUnit)pu;
 }
 */
+
+inline HANDLE QPainter::handle() const
+{
+#if defined(_WS_WIN_)
+    return hdc;
+#elif defined(_WS_PM_)
+    return hps;
+#elif defined(_WS_X11_)
+    return hd;
+#endif
+}
 
 
 #if !(defined(QPAINTER_C) || defined(DEBUG))
