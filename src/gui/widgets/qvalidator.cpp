@@ -253,14 +253,15 @@ QIntValidator::~QIntValidator()
     and \a input is a negative integer then Invalid is returned.
 
     \code
+    int pos = 0;
     s = "35";
-    v.validate( s, 0 ); // returns Acceptable
+    v.validate( s, pos ); // returns Acceptable
 
     s = "105";
-    v.validate( s, 0 ); // returns Intermediate
+    v.validate( s, pos ); // returns Intermediate
 
     s = "abc";
-    v.validate( s, 0 ); // returns Invalid
+    v.validate( s, pos ); // returns Invalid
 
     \endcode
 */
@@ -530,31 +531,32 @@ void QDoubleValidator::setDecimals( int decimals )
     // the validator treats the regexp as "^[1-9]\\d{0,3}$"
     QRegExpValidator v( rx, 0 );
     QString s;
+    int pos = 0;
 
-    s = "0";     v.validate( s, 0 );    // returns Invalid
-    s = "12345"; v.validate( s, 0 );    // returns Invalid
-    s = "1";     v.validate( s, 0 );    // returns Acceptable
+    s = "0";     v.validate( s, pos );    // returns Invalid
+    s = "12345"; v.validate( s, pos );    // returns Invalid
+    s = "1";     v.validate( s, pos );    // returns Acceptable
 
     rx.setPattern( "\\S+" );            // one or more non-whitespace characters
     v.setRegExp( rx );
-    s = "myfile.txt";  v.validate( s, 0 ); // Returns Acceptable
-    s = "my file.txt"; v.validate( s, 0 ); // Returns Invalid
+    s = "myfile.txt";  v.validate( s, pos ); // Returns Acceptable
+    s = "my file.txt"; v.validate( s, pos ); // Returns Invalid
 
     // A, B or C followed by exactly five digits followed by W, X, Y or Z
     rx.setPattern( "[A-C]\\d{5}[W-Z]" );
     v.setRegExp( rx );
-    s = "a12345Z"; v.validate( s, 0 );	// Returns Invalid
-    s = "A12345Z"; v.validate( s, 0 );	// Returns Acceptable
-    s = "B12";     v.validate( s, 0 );	// Returns Intermediate
+    s = "a12345Z"; v.validate( s, pos );	// Returns Invalid
+    s = "A12345Z"; v.validate( s, pos );	// Returns Acceptable
+    s = "B12";     v.validate( s, pos );	// Returns Intermediate
 
     // match most 'readme' files
     rx.setPattern( "read\\S?me(\.(txt|asc|1st))?" );
     rx.setCaseSensitive( FALSE );
     v.setRegExp( rx );
-    s = "readme";      v.validate( s, 0 ); // Returns Acceptable
-    s = "README.1ST";  v.validate( s, 0 ); // Returns Acceptable
-    s = "read me.txt"; v.validate( s, 0 ); // Returns Invalid
-    s = "readm";       v.validate( s, 0 ); // Returns Intermediate
+    s = "readme";      v.validate( s, pos ); // Returns Acceptable
+    s = "README.1ST";  v.validate( s, pos ); // Returns Acceptable
+    s = "read me.txt"; v.validate( s, pos ); // Returns Invalid
+    s = "readm";       v.validate( s, pos ); // Returns Intermediate
     \endcode
 
     \sa QRegExp QIntValidator QDoubleValidator
@@ -600,9 +602,7 @@ QRegExpValidator::~QRegExpValidator()
     partially (i.e. could be a valid match if additional valid
     characters are added), and \c Invalid if \a input is not matched.
 
-    The start position is the beginning of the string unless \a pos is
-    given and is > 0 in which case the regexp is matched from \a pos
-    until the end of the string.
+    The \a pos parameter is set to the length of the \a input parameter.
 
     For example, if the regular expression is <b>\\w\\d\\d</b> (that
     is, word-character, digit, digit) then "A57" is \c Acceptable,
