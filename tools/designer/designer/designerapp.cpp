@@ -45,7 +45,6 @@ void set_splash_status( const QString &txt )
     QPainter p( splash );
     p.setPen( Qt::white );
     p.drawText( 5, splash->fontMetrics().height(), txt );
-    p.drawLine( 3, splash->fontMetrics().height() + 3, splash->width() / 3, splash->fontMetrics().height() + 3 );
     QString s = "Licensed to " + QString::fromLatin1( QT_PRODUCT_LICENSEE );
     p.drawText( 5, 2 * splash->fontMetrics().height() + 1, s );
     QApplication::flush();
