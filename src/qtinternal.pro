@@ -10,10 +10,12 @@ X11ONLY	    =	dialogs/qprndlg.h \
 INT_HEADERS =	dialogs/qfontdialog.h \
 		widgets/qheader.h \
 		widgets/qscrollview.h \
+		widgets/qlistview.h \
 		widgets/qspinbox.h
 INT_SOURCES =	dialogs/qfontdialog.cpp \
 		widgets/qheader.cpp \
 		widgets/qscrollview.cpp \
+		widgets/qlistview.cpp \
 		widgets/qspinbox.cpp
 
 # Other non-public Qt files
