@@ -16,6 +16,7 @@
 #ifndef QT_NO_NETWORK
 #include "qlist.h"
 #include "qtimer.h"
+#include "qsocketnotifier.h"
 #include "qsocketdevice.h"
 #include "private/qinternal_p.h"
 #include "qlist.h"
