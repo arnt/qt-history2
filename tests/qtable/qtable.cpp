@@ -226,7 +226,7 @@ QTable::QTable( int numRows, int numCols, QWidget *parent, const char *name )
     editorWidget = 0;
 
     installEventFilter( this );
-    
+
     // Initial size
     resize( 640, 480 );
 }
@@ -545,6 +545,10 @@ void QTable::contentsMousePressEvent( QMouseEvent* e )
     fixRow( curRow, e->pos().y() );
     fixCol( curCol, e->pos().x() );
 
+    if ( currentSelection && currentSelection->active &&
+	 ( currentSelection->anchorCol != curCol || currentSelection->anchorRow != curRow ) )
+	setCurrentCell( currentSelection->anchorRow, currentSelection->anchorCol );
+    
     if ( ( e->state() & ShiftButton ) == ShiftButton ) {
 	if ( !currentSelection ) {
 	    currentSelection = new SelectionRange();
@@ -558,14 +562,13 @@ void QTable::contentsMousePressEvent( QMouseEvent* e )
 	currentSelection = new SelectionRange();
 	selections.append( currentSelection );
 	currentSelection->init( curRow, curCol );
-	setCurrentCell( curRow, curCol );
     } else {
 	clearSelections();
 	currentSelection = new SelectionRange();
 	selections.append( currentSelection );
 	currentSelection->init( curRow, curCol );
-	setCurrentCell( curRow, curCol );
     }
+    setCurrentCell( curRow, curCol );
 }
 
 /*!  \reimp
@@ -621,6 +624,8 @@ void QTable::doAutoScroll()
 
     if ( pos.x() < 0 || pos.x() > visibleWidth() || pos.y() < 0 || pos.y() > visibleHeight() )
 	autoScrollTimer->start( 100, TRUE );
+    
+    setCurrentCell( curRow, curCol );
 }
 
 /*! \reimp
@@ -691,29 +696,33 @@ void QTable::keyPressEvent( QKeyEvent* e )
 	return;
     int curRow = QTable::curRow;
     int curCol = QTable::curCol;
-
+    int oldRow = curRow;
+    int oldCol = curCol;
+    
+    bool navigationKey = FALSE;
     switch ( e->key() ) {
     case Key_Left:
 	curCol = QMAX( 0, curCol - 1 );
-	clearSelections();
+	navigationKey = TRUE;
     	break;
     case Key_Right:
 	curCol = QMIN( cols() - 1, curCol + 1 );
-	clearSelections();
+	navigationKey = TRUE;
 	break;
     case Key_Up:
 	curRow = QMAX( 0, curRow - 1 );
-	clearSelections();
+	navigationKey = TRUE;
 	break;
     case Key_Down:
 	curRow = QMIN( rows() - 1, curRow + 1 );
-	clearSelections();
+	navigationKey = TRUE;
 	break;
     case Key_Prior:
     case Key_Next:
     case Key_Home:
     case Key_End:
 	clearSelections();
+	navigationKey = TRUE;
 	break;
     default: // ... or start in-place editing
 	if ( e->text()[ 0 ].isPrint() ) {
@@ -723,6 +732,20 @@ void QTable::keyPressEvent( QKeyEvent* e )
     }
 
     setCurrentCell( curRow, curCol );
+    if ( navigationKey ) {
+	if ( ( e->state() & ShiftButton ) == ShiftButton ) {
+	    if ( !currentSelection ) {
+		currentSelection = new SelectionRange();
+		selections.append( currentSelection );
+		currentSelection->init( oldRow, oldCol );
+	    }
+	    SelectionRange oldSelection = *currentSelection;
+	    currentSelection->expandTo( curRow, curCol );
+	    repaintSelections( &oldSelection, currentSelection );
+	} else {
+	    clearSelections();
+	}	    
+    }
 }
 
 /*!  \reimp
@@ -1106,19 +1129,15 @@ void QTable::repaintSelections( SelectionRange *oldSelection, SelectionRange *ne
     QRect r( old.unite( cur ) );
     repaintContents( r, FALSE );
 
-    int left = QMIN( oldSelection->leftCol, newSelection->leftCol );
-    int right = QMAX( oldSelection->rightCol, newSelection->rightCol );
     int i;
-    for ( i = left; i <= right; ++i ) {
+    for ( i = 0; i <= cols(); ++i ) {
 	if ( !isColSelected( i ) )
 	    topHeader->setSectionState( i, QTableHeader::Normal );
 	else
 	    topHeader->setSectionState( i, QTableHeader::Bold );
     }
 
-    int top = QMIN( oldSelection->topRow, newSelection->topRow );
-    int bottom = QMAX( oldSelection->bottomRow, newSelection->bottomRow );
-    for ( i = top; i <= bottom; ++i ) {
+    for ( i = 0; i <= rows(); ++i ) {
 	if ( !isRowSelected( i ) )
 	    leftHeader->setSectionState( i, QTableHeader::Normal );
 	else

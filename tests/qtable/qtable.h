@@ -105,7 +105,7 @@ public:
     bool isSelected( int row, int col );
     bool isRowSelected( int row, bool full = FALSE );
     bool isColSelected( int col, bool full = FALSE );
-    
+
 protected:
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
     void contentsMousePressEvent( QMouseEvent* );
