@@ -610,6 +610,10 @@ static int __stdcall winGetExistDirCallbackProc(HWND hwnd,
     return 0;
 }
 
+#ifndef BIF_NEWDIALOGSTYLE
+#define BIF_NEWDIALOGSTYLE     0x0040   // Use the new dialog layout with the ability to resize
+#endif
+
 
 QString QFileDialog::winGetExistingDirectory(const QString& initialDirectory,
 					     QWidget *parent,
@@ -642,7 +646,7 @@ QString QFileDialog::winGetExistingDirectory(const QString& initialDirectory,
 	bi.pidlRoot = NULL;
 	bi.lpszTitle = (TCHAR*)tTitle.ucs2();
 	bi.pszDisplayName = initPath;
-	bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_STATUSTEXT;
+	bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_STATUSTEXT | BIF_NEWDIALOGSTYLE;
 	bi.lpfn = winGetExistDirCallbackProc;
 	bi.lParam = Q_ULONG(&initDir);
 	LPITEMIDLIST pItemIDList = ptrSHBrowseForFolder(&bi);
@@ -671,7 +675,7 @@ QString QFileDialog::winGetExistingDirectory(const QString& initialDirectory,
 	bi.pidlRoot = NULL;
 	bi.lpszTitle = ctitle;
 	bi.pszDisplayName = initPath;
-	bi.ulFlags = BIF_RETURNONLYFSDIRS;
+	bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_STATUSTEXT | BIF_NEWDIALOGSTYLE;
 	bi.lpfn = winGetExistDirCallbackProc;
 	bi.lParam = Q_ULONG(&initDir);
 	LPITEMIDLIST pItemIDList = SHBrowseForFolderA(&bi);
