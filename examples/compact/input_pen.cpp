@@ -2,7 +2,7 @@
 
 #include "input_pen.h"
 #include <qwindowsystem_qws.h>
-#include <qwsevent.h>
+#include <qwsevent_qws.h>
 
 QWSPenInput::QWSPenInput( QWidget *parent, const char *name,
 			  int WFlags )

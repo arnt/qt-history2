@@ -50,6 +50,9 @@ protected slots:
     void setup();
 
 protected:
+    void keypress( unsigned int ch );
+
+protected:
     bool hidden;
     QRect prefRect;
     QIMPenWidget *pw;

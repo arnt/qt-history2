@@ -331,7 +331,7 @@ void QIMPenInput::processMatches()
                 strokes.removeFirst();
                 pw->removeStroke();
             }
-            emit key( matchChar->character() );
+            keypress( matchChar->character() );
             qDebug( "** match \'%c\' ***", matchChar->character() );
             matchChar = 0;
             testChar.clear();
@@ -352,9 +352,9 @@ void QIMPenInput::processMatches()
             if ( strokes.count() > 1 && lastKey
                  && (lastKey >> 16) != Qt::Key_Backspace) {
                 qDebug( "deleting last" );
-                emit key( Qt::Key_Backspace << 16 );
+                keypress( Qt::Key_Backspace << 16 );
             }
-            emit key( matchChar->character() );
+            keypress( matchChar->character() );
             qDebug( "** match \'%c\' ***", matchChar->character() );
             lastKey = matchChar->character();
         }
@@ -373,7 +373,7 @@ void QIMPenInput::processMatches()
                 if ( ml.getFirst() ) {
                     matchChar = ml.getFirst()->penChar;
                     if ( matchChar->penStrokes().count() == 1 ) {
-                        emit key( matchChar->character() );
+                        keypress( matchChar->character() );
                         qDebug( "** match \'%c\' ***", matchChar->character() );
                         lastKey = matchChar->character();
                     }
@@ -387,6 +387,19 @@ void QIMPenInput::processMatches()
         testChar.clear();
         pw->clear();
     }
+}
+
+void QIMPenInput::keypress( unsigned int ch )
+{
+    int unicode = ch;
+
+    if ( ch >= 'a' && ch <= 'z' ) {
+	unicode |= ( Qt::Key_A + ch - 'a' ) << 16;
+    } else if ( ch >= 'A' && ch <= 'Z' ) {
+	unicode |= ( Qt::Key_A + ch - 'A' ) << 16;
+    }
+
+    emit key( unicode );
 }
 
 /*!
