@@ -35,12 +35,12 @@ void Wizard::setupPage1()
     page1->setSpacing(8);
 
     QLabel *info = new QLabel( page1 );
+    info->setMargin( 11 );
     info->setPalette( yellow );
     info->setText( "Enter your personal\n"
                    "key here.\n\n"
                    "Your personal key\n"
                    "consists of 4 digits" );
-    info->setIndent( 8 );
     info->setMaximumWidth( info->sizeHint().width() );
 
     QVBox *page = new QVBox( page1 );
@@ -68,14 +68,14 @@ void Wizard::setupPage2()
     page2->setSpacing(8);
 
     QLabel *info = new QLabel( page2 );
+    info->setMargin( 11 );
     info->setPalette( yellow );
     info->setText( "\n"
-                   "  Enter your personal  \n"
-                   "  data here.  \n\n"
-                   "  The required fields are  \n"
-                   "  First Name, Last Name \n"
-                   "  and E-Mail.  \n" );
-    info->setIndent(8);
+                   "Enter your personal\n"
+                   "data here.\n\n"
+                   "The required fields are\n"
+                   "First Name, Last Name \n"
+                   "and E-Mail.\n" );
     info->setMaximumWidth( info->sizeHint().width() );
 
     QVBox *page = new QVBox( page2 );
@@ -129,13 +129,13 @@ void Wizard::setupPage3()
     QLabel *info = new QLabel( page3 );
     info->setPalette( yellow );
     info->setText( "\n"
-                   "  Look here to see of  \n"
-                   "  the data you entered  \n"
-                   "  is correct. To confirm,  \n"
-                   "  press the [Finish] button  \n"
-                   "  else go back to correct  \n"
-                   "  mistakes." );
-    info->setIndent(8);
+                   "Look here to see of\n"
+                   "the data you entered\n"
+                   "is correct. To confirm,\n"
+                   "press the [Finish] button\n"
+                   "else go back to correct\n"
+                   "mistakes." );
+    info->setMargin( 11 );
     info->setAlignment( AlignTop|AlignLeft );
     info->setMaximumWidth( info->sizeHint().width() );
 
