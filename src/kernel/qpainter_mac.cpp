@@ -1888,8 +1888,24 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
     if(d->paintreg.isEmpty())
 	return;
 
+    x += d->offx;
+    y += d->offy;
+    if ( bg_mode == OpaqueMode ) {
+	QRect br = fontMetrics().boundingRect(str, len);
+	Rect r;
+	r.left = x + br.x();
+	r.top = y + br.y();
+	r.right = r.left + br.width();
+	r.bottom = r.top + br.height();
+	::RGBColor f;
+	f.red = bg_col.red()*256;
+	f.green = bg_col.green()*256;
+	f.blue = bg_col.blue()*256;
+	RGBForeColor( &f );
+	PaintRect( &r );
+    }
     updatePen();
-    cfont.d->drawText(x + d->offx, y + d->offy, str, len);
+    cfont.d->drawText(x, y, str, len);
 }
 #else //!QMAC_NO_QUARTZ
 //FIXME
