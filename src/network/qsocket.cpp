@@ -49,6 +49,62 @@
 
 //#define QSOCKET_DEBUG
 
+/*
+  Perhaps this private functionality needs to be refactored.
+
+  Comment from Robert D Gatlin (Intel):
+ 
+    It would be nice to have the functionality inherent in QSocket available
+    as a separate class as a standard part of the Qt library, something along
+    the line of:
+
+      class QByteBuffer : public QIODevice { ... }
+
+    The same class could/would be used within QSocket for the Read/Write
+    buffers.
+
+    The above class could be used in the following way(s):
+
+	buffer.open( IO_WriteOnly | IO_Append );
+	buffer.writeBlock( a ); // a = QByteArray
+	buffer.close();
+
+	QByteArray b;
+	b.resize( buffer.size() );
+	buffer.open( IO_ReadOnly );
+	buffer.readBlock( b.data(), b.size() );
+	buffer.close();
+
+    But would also be useable with QDataStream (via QIODevice) with:
+
+	buffer.open( IO_WriteOnly | IO_Append );
+	QDataStream is( &buffer );
+	is << 100;
+	buffer.close();
+
+	buffer.open( IO_ReadOnly );
+	QDataStream os( &buffer );
+	Q_UINT32 x;
+	os >> x;
+	buffer.close();
+
+    The real usefulness is with any situations where data (QByteArray) arrives
+    incrementally (as in QSocket and filter case above).
+
+    I tried using QBuffer, but QBuffer does not trim bytes from the front of
+    the buffer in cases like:
+
+	QBuffer buf;
+	buf.open( IO_ReadOnly );
+	QDataStream ds( &buf );
+	Q_INT32 x;
+	ds >> x;
+	buf.close();
+
+    In the above case, buf.size() will be identical before and after the
+    operation with QDataStream. Based on the implementation of QBuffer, it
+    does not appear well suited for this kind of operation.
+*/
 
 // Private class for QSocket
 
