@@ -34,6 +34,7 @@ class Q_GUI_EXPORT QTextEdit : public QViewport
     Q_PROPERTY(bool undoRedoEnabled READ isUndoRedoEnabled WRITE setUndoRedoEnabled)
     Q_PROPERTY(WordWrap wordWrap READ wordWrap WRITE setWordWrap)
     Q_PROPERTY(int wrapColumnOrWidth READ wrapColumnOrWidth WRITE setWrapColumnOrWidth)
+    Q_PROPERTY(bool modified READ isModified WRITE setModified DESIGNABLE false)
 public:
     enum WordWrap {
         NoWrap,
@@ -101,6 +102,8 @@ public:
 
     void ensureCursorVisible();
 
+    bool isModified() const;
+
 public slots:
     void setFontPointSize(float s);
     void setFontFamily(const QString &fontFamily);
@@ -128,9 +131,12 @@ public slots:
     void insertPlainText(const QString &text);
     void insertHtml(const QString &text);
 
+    void setModified(bool m = true);
+
 signals:
     void currentCharFormatChanged(const QTextCharFormat &format);
     void copyAvailable(bool b);
+    void modificationChanged(bool m);
 
 protected:
     virtual void timerEvent(QTimerEvent *ev);
