@@ -38,6 +38,9 @@
     socket. Then you connect the activated() signal to the slot you
     want to be called when a socket event occurs.
 
+    Note for Windows users: the socket passed to QSocketNotifier will
+    become non-blocking, even if it was created as a blocking socket.
+
     There are three types of socket notifiers (read, write and
     exception); you must specify one of these in the constructor.
 

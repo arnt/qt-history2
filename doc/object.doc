@@ -479,20 +479,20 @@ interprets tab and has an application-specific custom event might
 contain:
 
 \code
-  bool MyClass:event( QEvent * e ) {
-      if ( e->type() == QEvent::KeyPress ) {
-	  QKeyEvent * ke = (QKeyEvent*) e;
+  bool MyClass:event( QEvent *evt ) {
+      if ( evt->type() == QEvent::KeyPress ) {
+	  QKeyEvent *ke = (QKeyEvent *)evt;
 	  if ( ke->key() == Key_Tab ) {
 	      // special tab handling here
-	      k->accept();
+	      ke->accept();
 	      return TRUE;
 	  }
-      } else if ( e->type() >= QEvent::User ) {
-	  QCustomEvent * c = (QCustomEvent*) e;
+      } else if ( evt->type() >= QEvent::User ) {
+	  QCustomEvent *ce = (QCustomEvent*) evt;
 	  // custom event handling here
 	  return TRUE;
       }
-      return QWidget::event( e );
+      return QWidget::event( evt );
   }
 \endcode
 
