@@ -366,6 +366,7 @@ QComboBox
 
 QSettings (Brad, Volker)
    Property to enable to read/write to global settings (only).
+   Allow UNIX like configuration files on Windows.
 
 
 New functionality
