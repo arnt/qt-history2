@@ -749,13 +749,13 @@ bool QProcess::start( QStringList *env )
 	    QString command = _arguments[0];
 #if defined(Q_OS_MACX) //look in a bundle
 	    const QString mac_bundle_suffix = ".app/Contents/MacOS/";
-	    if(!QFile::exists(command) && QFile::exists(command + mac_bundle_suffix)) { 
+	    if(!QFile::exists(command) && QFile::exists(command + mac_bundle_suffix)) {
 		QString exec = command;
 		int lslash = command.findRev('/');
-		if(lslash != -1) 
+		if(lslash != -1)
 		    exec = command.mid(lslash+1);
 		QFileInfo fileInfo( command + mac_bundle_suffix + exec );
-		if ( fileInfo.isExecutable() ) 
+		if ( fileInfo.isExecutable() )
 		    command = fileInfo.absFilePath().local8Bit();
 	    }
 #endif
@@ -818,7 +818,7 @@ bool QProcess::start( QStringList *env )
 			    break;
 			}
 		    }
-		} 
+		}
 	    }
 #if defined(Q_OS_MACX)
 	    if(!QFile::exists(arglist[0])) {
@@ -827,7 +827,7 @@ bool QProcess::start( QStringList *env )
 		if(QFile::exists(command + mac_bundle_suffix)) {
 		    QString exec = command;
 		    int lslash = command.findRev('/');
-		    if(lslash != -1) 
+		    if(lslash != -1)
 			exec = command.mid(lslash+1);
 		    QFileInfo fileInfo( command + mac_bundle_suffix + exec );
 		    if ( fileInfo.isExecutable() ) {
@@ -863,6 +863,7 @@ bool QProcess::start( QStringList *env )
 	    int n = ::read( fd[0], &buf, 1 );
 	    if ( n==1 ) {
 		// socket was not closed => error
+		::waitpid( pid, 0, WNOHANG );
 		d->proc = 0;
 		goto error;
 	    } else if ( n==-1 ) {
