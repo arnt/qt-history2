@@ -74,7 +74,10 @@ public:
 	 maxLogLines(-1),
 	 logOffset(0),
 #endif
-	 autoFormatting( (uint)QTextEdit::AutoAll )
+	 autoFormatting( (uint)QTextEdit::AutoAll ),
+	 cursorRepaintMode(false),
+	 cursorBlinkActive(false)
+
     {
 	for ( int i=0; i<7; i++ )
 	    id[i] = 0;
@@ -99,6 +102,8 @@ public:
     int logOffset;
 #endif
     QTextEdit::AutoFormatting autoFormatting;
+    uint cursorRepaintMode : 1;
+    uint cursorBlinkActive : 1;
 };
 
 #ifndef QT_NO_MIME
@@ -2076,10 +2081,28 @@ void QTextEdit::sliderReleased()
     }
 }
 
+void QTextEdit::drawCursor(bool visible)
+{
+    d->cursorRepaintMode = true;
+    blinkCursorVisible = visible;
+    viewport()->update(cursor->topParagraph()->rect());
+}
+
+void QTextEdit::viewportPaintEvent(QPaintEvent *e)
+{
+    if (d->cursorRepaintMode) {
+	drawCursor_helper(blinkCursorVisible);
+	d->cursorRepaintMode = false;
+	repaintChanged();
+    } else {
+	QScrollView::viewportPaintEvent(e);
+    }
+}
+
 /*!
     \internal
 */
-void QTextEdit::drawCursor( bool visible )
+void QTextEdit::drawCursor_helper( bool visible )
 {
     if ( !isUpdatesEnabled() ||
 	 !viewport()->isUpdatesEnabled() ||
@@ -3885,8 +3908,6 @@ bool QTextEdit::find( const QString &expr, bool cs, bool wo, bool forward,
 
 void QTextEdit::blinkCursor()
 {
-    if ( !cursorVisible )
-	return;
     bool cv = cursorVisible;
     blinkCursorVisible = !blinkCursorVisible;
     drawCursor( blinkCursorVisible );
