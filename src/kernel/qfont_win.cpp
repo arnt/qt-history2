@@ -544,11 +544,40 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
 
 }
 
-int QFontPrivate::textWidth( HDC hdc, const QString &str, int pos, int len, QFontPrivate::TextRun *cache )
+// we don't use qt_winTchar here for performance reasons
+// pay attention when using the function. You'll have to delete the
+// returned TCHAR when !(defined(UNICODE) && !defined(Q_OS_WIN32BYTESWAP_))
+static inline TCHAR* tchar(const QChar *uc, int len)
+{
+#ifdef UNICODE
+
+#if defined(Q_OS_WIN32BYTESWAP_)
+    TCHAR *buf = new TCHAR[len];
+    for ( int i = 0; i < len; i++ ) {
+        buf[i] = uc->row() << 8 | uc->cell();
+	uc++;
+    }
+    return buf;
+#else
+    return (TCHAR *)uc;
+#endif
+
+#else
+    TCHAR *buf = new TCHAR[len];
+    for ( int i = 0; i < len; i++ ) {
+        buf[i] = uc->row() ? '?' : uc->cell();
+	uc++;
+    }
+    return buf;
+#endif
+}
+
+
+void QFontPrivate::buildCache( HDC hdc, const QString &str, int pos, int len, QFontPrivate::TextRun *cache )
 {
     // Japanese win95 fails without this
     if ( len == 0 )
-	return 0;
+	return;
     if ( hdc )
 	    currHDC = hdc;
     else
@@ -556,7 +585,6 @@ int QFontPrivate::textWidth( HDC hdc, const QString &str, int pos, int len, QFon
 
     int width = 0;
     SIZE s;
-    const TCHAR* tc = (const TCHAR*)qt_winTchar(str.mid(pos, len),FALSE);
     QPointArray pa;
     int nmarks = 0;
     int i;
@@ -568,10 +596,13 @@ int QFontPrivate::textWidth( HDC hdc, const QString &str, int pos, int len, QFon
 	if ( row >= 0x05 && row <= 0x06 || row >= 0xfb )
 	    singlePrint = TRUE;
 	if ( uc->combiningClass() != 0 && !nmarks && pos + i > 0 ) {
-	    cache->setParams( width, 0, 0, str.unicode() + lasts, i - lasts,
+	    const QChar *qc = str.unicode() + lasts;
+	    int length = i - lasts;
+	    cache->setParams( width, 0, 0, qc, length,
 		singlePrint ? QFont::Hebrew : QFont::NoScript );
+	    cache->mapped = tchar( qc, length );
 	    singlePrint = FALSE;
-	    BOOL res = GetTextExtentPoint32( currHDC, tc + lasts, i - lasts, &s );
+	    BOOL res = GetTextExtentPoint32( currHDC, cache->mapped, length, &s );
 #ifndef Q_NO_DEBUG
 	    if ( !res )
 		qSystemWarning( "QFontPrivate: GetTextExtentPoint32 failed" );
@@ -587,8 +618,11 @@ int QFontPrivate::textWidth( HDC hdc, const QString &str, int pos, int len, QFon
 	    // we abuse Hebrew to tell the printing to call TextOut for every char by itself
 	    // This is needed to work around too much intelligence in Win, when Uniscribe is installed.
 	    // ### For 3.1 we should use Uniscribe when available
-	    cache->setParams( width + p.x(), p.y(), 0, str.unicode() + lasts, i - lasts, 
+	    const QChar *qc = str.unicode() + lasts;
+	    int length = i - lasts;
+	    cache->setParams( width + p.x(), p.y(), 0, qc, length,
 		singlePrint ? QFont::Hebrew : QFont::NoScript );
+	    cache->mapped = tchar( qc, length );
 	    singlePrint = FALSE;
 	    cache->next = new QFontPrivate::TextRun();
 	    cache = cache->next;
@@ -598,24 +632,17 @@ int QFontPrivate::textWidth( HDC hdc, const QString &str, int pos, int len, QFon
 	uc++;
     }
 
+    const QChar *qc = str.unicode() + lasts;
+    int length = i - lasts;
     if ( nmarks ) {
 	QPoint p = pa[(int)(pa.size() - nmarks)];
-	cache->setParams( width + p.x(), p.y(), 0, str.unicode() + lasts, i - lasts,
+	cache->setParams( width + p.x(), p.y(), 0, qc, length,
 	    singlePrint ? QFont::Hebrew : QFont::NoScript );
     } else {
-	cache->setParams( width, 0, 0, str.unicode() + lasts, i - lasts,
+	cache->setParams( width, 0, 0, qc, length,
 	    singlePrint ? QFont::Hebrew : QFont::NoScript );
-	BOOL res = GetTextExtentPoint32( currHDC, tc + lasts, i - lasts, &s );
-#ifndef Q_NO_DEBUG
-	if ( !res )
-	    qSystemWarning( "QFontPrivate: GetTextExtentPoint32 failed" );
-#endif
-	width += s.cx;
     }
-
-    if ( (qt_winver & Qt::WV_NT_based) == 0 )
-	    width -= TMX->tmOverhang;
-    return width;
+    cache->mapped = tchar( qc, length );
 }
 
 void QFontPrivate::drawText( HDC hdc, int x, int y, QFontPrivate::TextRun *cache )
@@ -624,11 +651,10 @@ void QFontPrivate::drawText( HDC hdc, int x, int y, QFontPrivate::TextRun *cache
 //		qDebug( "drawing '%s' at (%d/%d)",
 //			QConstString( (QChar *)cache->string, cache->length).string().latin1(),
 //			x + cache->xoff, y + cache->yoff);
-	//### cache->length may not exceed 8192 on Win9x
-	const TCHAR *tc = (const TCHAR*)qt_winTchar(QConstString( (QChar *)cache->string, cache->length).string(),FALSE);
-	if ( cache->script != QFont::Hebrew )
-	    TextOut( hdc, x + cache->xoff, y + cache->yoff, tc, cache->length );
-        else 
+//	if ( cache->script != QFont::Hebrew )
+	    TextOut( hdc, x + cache->xoff, y + cache->yoff, cache->mapped, cache->length );
+#if 0
+	    else 
 	{
 	    // we need to print every character by itself to keep the bidi
 	    // algorithm of uniscribe from reordering things once again.
@@ -636,12 +662,13 @@ void QFontPrivate::drawText( HDC hdc, int x, int y, QFontPrivate::TextRun *cache
 	    int xadd = 0;
 	    SIZE s;
 	    while( l < cache->length ) {
-		TextOut( hdc, x + cache->xoff + xadd, y + cache->yoff, tc + l, 1 );
-		GetTextExtentPoint32( hdc, tc + l, 1, &s );
+		TextOut( hdc, x + cache->xoff + xadd, y + cache->yoff, cache->mapped + l, 1 );
+		GetTextExtentPoint32( hdc, cache->mapped + l, 1, &s );
 		xadd += s.cx;
 		l++;
 	    }
 	}
+#endif
 	cache = cache->next;
     }
 

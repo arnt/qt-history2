@@ -2275,7 +2275,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 
     //const TCHAR *tc = (const TCHAR *) qt_winTchar( shaped, FALSE );
     QFontPrivate::TextRun *cache = new QFontPrivate::TextRun();
-    cfont.d->textWidth( hdc, shaped, 0, len, cache );
+    cfont.d->buildCache( hdc, shaped, 0, len, cache );
     if ( rop == CopyROP ) {
 	cfont.d->drawText( hdc, x, y, cache );
 	//TextOut( hdc, x, y, tc, len );
@@ -2296,7 +2296,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
     if ( nat_xf )
 	nativeXForm( FALSE );
 
-	delete cache;
+    delete cache;
 }
 
 
