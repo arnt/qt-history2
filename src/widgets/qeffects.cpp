@@ -133,8 +133,6 @@ void QAlphaWidget::paintEvent( QPaintEvent* )
 */
 void QAlphaWidget::run( int time )
 {
-    grabMouse();
-
     duration = time;
 
     if ( duration < 0 )
@@ -168,8 +166,10 @@ void QAlphaWidget::run( int time )
 
 	connect( &anim, SIGNAL(timeout()), this, SLOT(render()));
 	anim.start( 1 );
+	grabMouse();
     } else {
-	widget->show();
+	duration = 0;
+	render();
     }
 }
 
@@ -212,13 +212,15 @@ bool QAlphaWidget::eventFilter( QObject* o, QEvent* e )
 /*
   \reimp
 */
-void QAlphaWidget::closeEvent( QCloseEvent* )
+void QAlphaWidget::closeEvent( QCloseEvent *e )
 {
     if ( !q_blend )
 	return;
 
     showWidget = FALSE;
     render();
+
+    QWidget::closeEvent( e );
 }
 
 /*
@@ -235,28 +237,35 @@ void QAlphaWidget::render()
     else
         elapsed = tempel;
 
-    alpha = tempel / double(duration);
+    if ( duration != 0 )
+	alpha = tempel / double(duration);
+    else
+	alpha = 1;
     if ( alpha >= 1 || !showWidget) {
 	anim.stop();
 	widget->removeEventFilter( this );
+	BackgroundMode bgm = widget->backgroundMode();
 	widget->clearWState( WState_Visible );
 	widget->setWState( WState_ForceHide );
-	if ( QWidget::mouseGrabber() == this )
-	    releaseMouse();
+	releaseMouse();
 
 	if ( showWidget ) {
-	    BackgroundMode bgm = widget->backgroundMode();
 	    widget->setBackgroundMode( NoBackground );
 	    widget->show();
-
-	    widget->clearWState( WState_Visible ); // prevent update in setBackgroundMode
-	    widget->setBackgroundMode( bgm );
-	    widget->setWState( WState_Visible );
 	} else {
 	    widget->hide();
 	}
+	hide();
+
+	if ( showWidget ) {
+	    widget->clearWState( WState_Visible ); // prevent update in setBackgroundMode
+	    widget->setBackgroundMode( bgm );
+	    widget->setWState( WState_Visible );
+	    if ( widget->inherits( "QLabel" ) && widget->testWFlags( WStyle_Tool ) )
+		widget->update();
+	}
 	q_blend = 0;
-	QTimer::singleShot( 10, this, SLOT(goodBye()) );
+	QTimer::singleShot( 0, this, SLOT(goodBye()) );
     } else {
 	alphaBlend();
 	pm = mixed;
@@ -444,7 +453,7 @@ bool QRollEffect::eventFilter( QObject* o, QEvent* e )
 /*
   \reimp
 */
-void QRollEffect::closeEvent( QCloseEvent* )
+void QRollEffect::closeEvent( QCloseEvent *e )
 {
     if ( done )
 	return;
@@ -452,6 +461,8 @@ void QRollEffect::closeEvent( QCloseEvent* )
     showWidget = FALSE;
     done = TRUE;
     scroll();
+
+    QWidget::closeEvent( e );
 }
 
 /*
