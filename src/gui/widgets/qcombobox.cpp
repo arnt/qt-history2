@@ -1440,11 +1440,11 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Backspace:
         // skip autoCompletion if Delete or Backspace has been pressed
         d->skipCompletion = true;
-        break;
+        e->ignore();
+        return;
     case Qt::Key_PageUp:
     case Qt::Key_Up:
         newRow = currentItem() - 1;
-        e->accept();
         break;
     case Qt::Key_Down:
         if (e->state() & Qt::AltButton) {
@@ -1454,45 +1454,47 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
         // fall through
     case Qt::Key_PageDown:
         newRow = currentItem() + 1;
-        e->accept();
         break;
     case Qt::Key_Home:
-        if (!isEditable()) {
-            newRow = 0;
-            e->accept();
+        if (isEditable()) {
+            e->ignore();
+            return;
         }
+        newRow = 0;
         break;
     case Qt::Key_End:
-        if (!isEditable()) {
-            newRow = d->model->rowCount(root()) - 1;
-            e->accept();
+        if (isEditable()) {
+            e->ignore();
+            return;
         }
+        newRow = d->model->rowCount(root()) - 1;
         break;
     case Qt::Key_F4:
-        if (e->state() == 0) {
+        if (e->state() == 0)
             popup();
-            e->accept();
-            return;
-        }
-        break;
+        else
+            e->ignore();
+        return;
     case Qt::Key_Space:
-        if (!d->lineEdit) {
+        if (isEditable())
+            e->ignore();
+        else
             popup();
-            e->accept();
+        return;
+    default:
+        if (e->text().isEmpty() || isEditable()) {
+            e->ignore();
             return;
         }
-        break;
-    default:
-        if (!e->text().isEmpty() && !isEditable()) {
-            // use keyboardSearch from the listView so we do not duplicate code
-            listView()->setCurrentIndex(d->currentIndex);
-            listView()->keyboardSearch(e->text());
-            if (listView()->currentIndex().isValid()
-                && listView()->currentIndex() != d->currentIndex)
-                setCurrentItem(listView()->currentIndex().row());
-        }
+        // use keyboardSearch from the listView so we do not duplicate code
+        listView()->setCurrentIndex(d->currentIndex);
+        listView()->keyboardSearch(e->text());
+        if (listView()->currentIndex().isValid()
+            && listView()->currentIndex() != d->currentIndex)
+            newRow = listView()->currentIndex().row();
         break;
     }
+    e->accept();
     setCurrentItem(newRow);
 }
 
