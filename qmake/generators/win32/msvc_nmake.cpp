@@ -62,6 +62,25 @@ QStringList
 void
 NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 {
+    if ( project->variables()["PRECOMPCPP"].size() > 1 )
+	warn_msg(WarnLogic, "nmake generator doesn't support multiple files in PRECOMPCPP, only first one used" );
+    precomph = Option::fixPathToTargetOS(project->first("PRECOMPH"));
+    precompcpp = Option::fixPathToTargetOS(project->first("PRECOMPCPP"));
+    pch = QString(precomph).replace(".h", ".pch");
+    usePCH = !precomph.isEmpty();
+    deletePCHcpp = precompcpp.isEmpty();
+    if (usePCH) {
+	// Add PCH to cleanup
+	project->variables()["QMAKE_CLEAN"] += pch;
+	// Add cleanup stage for generated file
+	if(deletePCHcpp) {
+	    precompcpp = project->first("TARGET") + "_pch";
+	    project->variables()["QMAKE_CLEAN"] += precompcpp + ".obj";
+	    project->variables()["QMAKE_CLEAN"] += precompcpp + ".cpp";
+	    precompcpp += ".cpp";
+	}
+    }
+
     t << "####### Compiler, tools and options" << endl << endl;
     t << "CC		=	" << var("QMAKE_CC") << endl;
     t << "CXX		=	" << var("QMAKE_CXX") << endl;
@@ -166,25 +185,6 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
 	t << " " << (*cppit);
     t << endl << endl;
-
-    if ( project->variables()["PRECOMPCPP"].size() > 1 )
-	warn_msg(WarnLogic, "nmake generator doesn't support multiple files in PRECOMPCPP, only first one used" );
-    precomph = Option::fixPathToTargetOS(project->first("PRECOMPH"));
-    precompcpp = Option::fixPathToTargetOS(project->first("PRECOMPCPP"));
-    pch = QString(precomph).replace(".h", ".pch");
-    usePCH = !precomph.isEmpty();
-    deletePCHcpp = precompcpp.isEmpty();
-    if (usePCH) {
-	// Add PCH to cleanup
-	project->variables()["QMAKE_CLEAN"] += pch;
-	// Add cleanup stage for generated file
-	if(deletePCHcpp) {
-	    precompcpp = project->first("TARGET") + "_pch";
-	    project->variables()["QMAKE_CLEAN"] += precompcpp + ".obj";
-	    project->variables()["QMAKE_CLEAN"] += precompcpp + ".cpp";
-	    precompcpp += ".cpp";
-	}
-    }
 
     if(!project->isActiveConfig("no_batch")) {
 	// Batchmode doesn't use the non implicit rules QMAKE_RUN_CXX & QMAKE_RUN_CC
@@ -389,22 +389,25 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 QString
 NmakeMakefileGenerator::var(const QString &value)
 {
-    if (usePCH
-	&& (value == "QMAKE_RUN_CXX"
-	||  value == "QMAKE_RUN_CXX_IMP"
-	||  value == "QMAKE_RUN_CXX_IMP_BATCH"))
-    {
-	QFileInfo precomphInfo(precomph);
-	QString precompRule = QString("-c -FI%1 -Yu%2 /Fp%3")
-	    .arg(precomphInfo.fileName())
-	    .arg(precomphInfo.fileName())
-	    .arg(pch);
-	QString p = MakefileGenerator::var(value);
-	p.replace("-c", precompRule);
-	// Cannot use -Gm with -FI & -Yu, as this gives an 
-	// internal compiler error, on the newer compilers
-	p.remove("-Gm");
-	return p;
+    if (usePCH) {
+    	if ((value == "QMAKE_RUN_CXX_IMP_BATCH"
+	    || value == "QMAKE_RUN_CXX_IMP"
+	    || value == "QMAKE_RUN_CXX")) {
+	    QFileInfo precomphInfo(precomph);
+	    QString precompRule = QString("-c -FI%1 -Yu%2 /Fp%3")
+		.arg(precomphInfo.fileName())
+		.arg(precomphInfo.fileName())
+		.arg(pch);
+	    QString p = MakefileGenerator::var(value);
+	    p.replace("-c", precompRule);
+	    // Cannot use -Gm with -FI & -Yu, as this gives an 
+	    // internal compiler error, on the newer compilers
+	    p.remove("-Gm");
+	    return p;
+	} else if (value == "QMAKE_CXXFLAGS") {
+	    // Remove internal compiler error option
+	    return MakefileGenerator::var(value).remove("-Gm");
+	}
     }
 
     // Normal val    
