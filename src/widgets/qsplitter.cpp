@@ -210,7 +210,7 @@ static QSize minSize( const QWidget *w )
 {
     QSize min = w->minimumSize();
     QSize s;
-    if ( (min.height() <= 0 || min.width() <= 0 )   )
+    if ( min.height() <= 0 || min.width() <= 0 )
 	s = w->minimumSizeHint();
     if ( min.height() > 0 )
 	s.setHeight( min.height() );
