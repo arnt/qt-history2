@@ -187,7 +187,7 @@ the directories where you choose to install Qt.
     file if it is not there already.
 
     \list
-    \i QTDIR -- wherever you installed Qt
+    \i QTDIR -- the directory in which you're building Qt
     \i PATH -- to locate the moc program and other Qt tools
     \i MANPATH -- to access the Qt man pages
     \i LD_LIBRARY_PATH -- for the shared Qt library
@@ -219,18 +219,6 @@ the directories where you choose to install Qt.
     After you have done this, you will need to login again, or
     re-source the profile before continuing.
 
-    To re-source your profile type:
-
-\code
-    source .login 
-\endcode
-
-    or
-
-\code
-    source .profile
-\endcode
-
 \i  If you have the commercial edition of Qt, install your license
     file as \c $HOME/.qt-license.
 
@@ -246,8 +234,7 @@ the directories where you choose to install Qt.
 
     This will configure the Qt library for your machine. Note that
     GIF support is turned off by default. Run \c{./configure -help}
-    to get a list of configuration options. Read \c PLATFORMS for a
-    list of supported platforms.
+    to get a list of configuration options. 
 
     To create the library and compile all examples and the tutorial:
 \code

@@ -9,7 +9,7 @@ the directories where you choose to install Qt.
 
 	cd /usr/local
 	gunzip %DISTNAME%.tar.gz	# uncompress the archive
-	tar xf %DISTNAME%.tar	# unpack it
+	tar xvf %DISTNAME%.tar	# unpack it
 
     This creates the directory /usr/local/%DISTNAME% containing the
     files from the main archive.

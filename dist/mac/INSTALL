@@ -1,14 +1,10 @@
 			  INSTALLING Qt/Mac Version %VERSION% (for Mac OS X)
 
 
-You may need to be logged in as root, depending on the permissions of
-the directories where you choose to install Qt.
-
-
 1.  Unpack the archive if you have not done so already:
 
 	cd /Developer
-	gnutar xzf Full_Path_to_Directory_You_Unpacked_To/%DISTNAME%.tar.gz
+	gnutar xzvf Full_Path_to_Directory_You_Unpacked_To/%DISTNAME%.tar.gz
 
     This creates the directory /Developer/%DISTNAME% containing the
     files from the main archive.
@@ -62,14 +58,6 @@ the directories where you choose to install Qt.
 
 	export QTDIR PATH MANPATH DYLD_LIBRARY_PATH
 
-    After you have done this, you will need to login again, or
-    re-source the settings before continuing.
-    
-    To re-source your settings type:
-    source .login 
-    or
-    source .profile
-
 
 3.  If you have the commercial edition of Qt, install your license
     file as $HOME/.qt-license.
@@ -85,8 +73,7 @@ the directories where you choose to install Qt.
 	./configure
 
     This will configure the Qt library for your machine.  Run ./configure -help
-    to get a list of configuration options. Read PLATFORMS for a list of
-    supported platforms.
+    to get a list of configuration options. 
 
     To create the library and compile all the examples and the
     tutorial, type:
