@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#2 $
 **
 ** Implementation of QScrollView class
 **
@@ -428,20 +428,20 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 /*!
  Returns the component horizontal scrollbar.  It is made available to allow
  accelerators, autoscrolling, etc., and to allow changing
- of arrow scrollrates: bar.setSteps( rate, bar.pageStep() ).
+ of arrow scrollrates: bar->setSteps( rate, bar->pageStep() ).
 
  It should not be otherwise manipulated.
 */
-QScrollBar& QScrollView::horizontalScrollBar() { return d->hbar; }
+QScrollBar* QScrollView::horizontalScrollBar() { return &d->hbar; }
 
 /*!
  Returns the component vertical scrollbar.  It is made available to allow
  accelerators, autoscrolling, etc., and to allow changing
- of arrow scrollrates: bar.setSteps( rate, bar.pageStep() ).
+ of arrow scrollrates: bar->setSteps( rate, bar->pageStep() ).
 
  It should not be otherwise manipulated.
 */
-QScrollBar& QScrollView::verticalScrollBar() { return d->vbar; }
+QScrollBar* QScrollView::verticalScrollBar() { return &d->vbar; }
 
 /*!
  Sets the background color of the area \e behind the scrolling widget,
