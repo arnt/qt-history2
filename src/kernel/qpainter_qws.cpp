@@ -1495,13 +1495,12 @@ static void ins_text_bitmap( const QString &key, QBitmap *bm )
 
 #endif // QT_NO_TRANSFORMATIONS
 
-void QPainter::drawText( int x, int y, const QString &s, int from, int len, QPainter::TextDirection dir)
+void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::TextDirection dir )
 {
-    QString shaped = QComplexText::shapedString( s, from, len );
-    drawText( x, y, shaped, shaped.length(), dir );
+    drawText( x, y, str, 0, len, dir );
 }
 
-void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::TextDirection )
+void QPainter::drawText( int x, int y, const QString &str, int from, int len, QPainter::TextDirection dir)
 {
     if(memorymanager->fontAscent(cfont.handle())==0) {
 	return;
@@ -1510,10 +1509,12 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
     if ( !isActive() )
 	return;
     if ( len < 0 )
-	len = str.length();
+	len = str.length() - from;
     if ( len == 0 )				// empty string
 	return;
-
+   QString shaped = QComplexText::shapedString( str, from, len, dir );
+   len = shaped.length();
+   
     if ( testf(DirtyFont|ExtDev|VxF|WxF) ) {
 	if ( testf(DirtyFont) )
 	    updateFont();
@@ -1521,9 +1522,8 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 	if ( testf(ExtDev) ) {
 	    QPDevCmdParam param[2];
 	    QPoint p( x, y );
-	    QString newstr = str.left(len);
 	    param[0].point = &p;
-	    param[1].str = &newstr;
+	    param[1].str = &shaped;
 	    pdev->cmd(QPaintDevice::PdcDrawText2,this,param);
 	    return;
 	}
@@ -1531,7 +1531,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 	if ( txop >= TxScale ) {
 	    QFontMetrics fm = fontMetrics();
 	    QFontInfo	 fi = fontInfo();
-	    QRect bbox = fm.boundingRect( str, len );
+	    QRect bbox = fm.boundingRect( shaped, len );
 	    int w=bbox.width(), h=bbox.height();
 	    int aw, ah;
 	    int tx=-bbox.x(),  ty=-bbox.y();	// text position
@@ -1543,7 +1543,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 		newSize = QMAX( 6.0, QMIN( newSize, 72.0 ) ); // empirical values
 		dfont.setPointSizeFloat( newSize );
 		QFontMetrics fm2( dfont );
-		QRect abbox = fm2.boundingRect( str, len );
+		QRect abbox = fm2.boundingRect( shaped, len );
 		aw = abbox.width();
 		ah = abbox.height();
 		tx = -abbox.x();
@@ -1569,7 +1569,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 		paint.setPen(QPen(Qt::white));
 		paint.setBrush(QBrush(Qt::black));
 		paint.setFont( dfont );
-		paint.drawText( tx, ty, str, len );
+		paint.drawText( tx, ty, shaped, len );
 		paint.end();
 		// Now we have an image with r,g,b gray scale set.
 		// Put this in alpha channel and set pixmap to pen color.
@@ -1589,7 +1589,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 		    return;
 		}
 	    } else {
-		bm_key = gen_text_bitmap_key( mat2, dfont, str, len );
+		bm_key = gen_text_bitmap_key( mat2, dfont, shaped, len );
 		wx_bm = get_text_bitmap( bm_key );
 		create_new_bm = wx_bm == 0;
 		if ( create_new_bm && !empty ) {	// no such cached bitmap
@@ -1598,7 +1598,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 		    paint.begin( &bm );		// draw text in bitmap
 		    paint.setPen( color1 );
 		    paint.setFont( dfont );
-		    paint.drawText( tx, ty, str, len );
+		    paint.drawText( tx, ty, shaped, len );
 		    paint.end();
 		    wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
 		    if ( wx_bm->isNull() ) {
@@ -1610,7 +1610,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 	    if ( bg_mode == OpaqueMode ) {	// opaque fill
 		int fx = x;
 		int fy = y - fm.ascent();
-		int fw = fm.width(str,len);
+		int fw = fm.width(shaped,len);
 		int fh = fm.ascent() + fm.descent();
 		int m, n;
 		QPointArray a(5);
@@ -1679,8 +1679,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
     pdev->cmd(QPaintDevice::PdcDrawText2,this,param);
     */
 
-    QString newstr = str.left(len);
-    gfx->drawText(x,y,newstr);
+    gfx->drawText(x,y,shaped);
 
     //if ( cfont.underline() || cfont.strikeOut() ) {
 	//QFontMetrics fm = fontMetrics();
