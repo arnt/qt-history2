@@ -642,6 +642,17 @@ void QSharedDoubleBuffer::cleanup()
     asynchronous IO classes like QSocket, QHttp and QProcess.
 */
 
+QMembuf::QMembuf() : _size(0), _index(0)
+{
+    buf = new QPtrList<QByteArray>;
+    buf->setAutoDelete( TRUE );
+}
+
+QMembuf::~QMembuf()
+{
+    delete buf;
+}
+
 /*! \internal
     This function consumes \a nbytes bytes of data from the
     buffer and copies it into \a sink. If \a sink is a 0 pointer
@@ -653,7 +664,7 @@ bool QMembuf::consumeBytes( Q_ULONG nbytes, char *sink )
 	return FALSE;
     _size -= nbytes;
     for ( ;; ) {
-	QByteArray *a = buf.first();
+	QByteArray *a = buf->first();
 	if ( _index + nbytes >= a->size() ) {
 	    // Here we skip the whole byte array and get the next later
 	    int len = a->size() - _index;
@@ -662,7 +673,7 @@ bool QMembuf::consumeBytes( Q_ULONG nbytes, char *sink )
 		sink += len;
 	    }
 	    nbytes -= len;
-	    buf.remove();
+	    buf->remove();
 	    _index = 0;
 	    if ( nbytes == 0 )
 		break;
@@ -694,13 +705,13 @@ bool QMembuf::scanNewline( QByteArray *store )
     int n;
     for ( ;; ) {
 	if ( !a ) {
-	    a = buf.first();
+	    a = buf->first();
 	    if ( !a || a->size() == 0 )
 		return FALSE;
 	    p = a->data() + _index;
 	    n = a->size() - _index;
 	} else {
-	    a = buf.next();
+	    a = buf->next();
 	    if ( !a || a->size() == 0 )
 		return FALSE;
 	    p = a->data();
@@ -738,15 +749,15 @@ bool QMembuf::scanNewline( QByteArray *store )
 
 int QMembuf::ungetch( int ch )
 {
-    if ( buf.isEmpty() || _index==0 ) {
+    if ( buf->isEmpty() || _index==0 ) {
 	// we need a new QByteArray
 	QByteArray *ba = new QByteArray( 1 );
-	buf.insert( 0, ba );
+	buf->insert( 0, ba );
 	_size++;
 	ba->at( 0 ) = ch;
     } else {
 	// we can reuse a place in the buffer
-	QByteArray *ba = buf.first();
+	QByteArray *ba = buf->first();
 	_index--;
 	_size++;
 	ba->at( _index ) = ch;

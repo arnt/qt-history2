@@ -167,9 +167,6 @@ QAutoDeleter<T>* qAutoDeleter( T* p )
     return new QAutoDeleter<T>( p );
 }
 
-#define Q_DEFINED_QMEMBUF
-#include "qwinexport.h"
-
 class Q_EXPORT QMembuf
 {
 public:
@@ -190,22 +187,16 @@ public:
 
 private:
 
-    QPtrList<QByteArray> buf;
+    QPtrList<QByteArray> *buf;
     QIODevice::Offset _size;
     QIODevice::Offset _index;
 };
 
-inline QMembuf::QMembuf() : _size(0), _index(0)
-{ buf.setAutoDelete( TRUE ); }
-
-inline QMembuf::~QMembuf()
-{ }
-
 inline void QMembuf::append( QByteArray *ba )
-{ buf.append( ba ); _size += ba->size(); }
+{ buf->append( ba ); _size += ba->size(); }
 
 inline void QMembuf::clear()
-{ buf.clear(); _size=0; _index=0; }
+{ buf->clear(); _size=0; _index=0; }
 
 inline QByteArray QMembuf::readAll()
 { QByteArray ba(_size); consumeBytes(_size,ba.data()); return ba; }
