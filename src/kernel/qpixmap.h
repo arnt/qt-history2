@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#53 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#54 $
 **
 ** Definition of QPixmap class
 **
@@ -101,6 +101,7 @@ protected:
 	QBitmap *mask;
 #if defined(_WS_WIN_)
 	HANDLE	hbm;
+	void   *bits;
 #elif defined(_WS_PM_)
 	HANDLE	hdcmem;
 	HANDLE	hbm;
