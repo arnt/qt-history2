@@ -16725,9 +16725,9 @@ QString QString::fromUtf8( const char* utf8, int len )
 
 /*!
     Returns the Unicode string decoded from the first \a len
-    characters of \a chars, ignoring the rest of \a chars. If \a len
-    is -1 then the length of \a chars is used. If \a len is bigger
-    than the length of \a chars then it will use the length of \a
+    characters of \a ascii, ignoring the rest of \a ascii. If \a len
+    is -1 then the length of \a ascii is used. If \a len is bigger
+    than the length of \a ascii then it will use the length of \a
     chars.
 
     If a codec has been set using QTextCodec::codecForCStrings(),
