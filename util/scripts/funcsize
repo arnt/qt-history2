@@ -64,7 +64,11 @@ sub stdfn {
 }
 
 
-
+$embedded = 0;
+if ( $mode eq "-e" ) {
+    $embedded = 1;
+    $mode = shift;
+}
 
 if ( lc($mode) eq "-f" ) {
     $findfn = stdfn(shift);
