@@ -287,6 +287,7 @@ bool QFile::open( int m )
 		    length = INT_MAX;
 		    ioIndex = 0;
 		}
+		resetStatus();
 	    }
 	}
     } else {
@@ -365,6 +366,7 @@ bool QFile::open( int m, FILE *f )
 		length = INT_MAX;
 		ioIndex = 0;
 	    }
+	    resetStatus();
 	}
     }
     return TRUE;

@@ -69,7 +69,7 @@ bool QFile::remove( const QString &fileName )
 #endif
 	return FALSE;
     }
-    return unlink( QFile::encodeName(QDir::convertSeparators(fileName)) ) == 0;	
+    return unlink( QFile::encodeName(QDir::convertSeparators(fileName)) ) == 0;
 }
 
 bool QFile::open( int m )
@@ -193,6 +193,7 @@ bool QFile::open( int m )
 		    setType( IO_Sequential );
 		    length = INT_MAX;
 		}
+		resetStatus();
 	    }
 	}
     } else {
@@ -237,6 +238,7 @@ bool QFile::open( int m, FILE *f )
 		setType( IO_Sequential );
 		length = INT_MAX;
 	    }
+	    resetStatus();
 	}
     }
     return TRUE;
@@ -285,9 +287,9 @@ QIODevice::Offset QFile::size() const
 {
     struct stat st;
     int ret = 0;
-    if ( isOpen() ) 
+    if ( isOpen() )
 	ret = ::fstat( fh ? fileno(fh) : fd, &st );
-    else 
+    else
 	ret = ::stat( QFile::encodeName(fn), &st );
     if ( ret == -1 )
 	return 0;
@@ -419,7 +421,7 @@ Q_LONG QFile::writeBlock( const char *p, Q_ULONG len )
 
 int QFile::handle() const
 {
-    if ( isOpen() ) 
+    if ( isOpen() )
 	return fh ? fileno( fh ) : fd;
     return -1;
 }
