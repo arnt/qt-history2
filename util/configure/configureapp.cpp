@@ -6,16 +6,24 @@
 #include <qhash.h>
 #include "configureapp.h"
 
-#include <iostream.h>
+// iostream.h is deprecated on .net compilers, so we don't use it.
+#if defined ( Q_CC_MSVC_NET )
+#  include <iostream>
+#elif
+#  include <iostream.h>
+#endif
+
 #include <windows.h>
 
-//using namespace std;
-/*
+// iostream.h is deprecated on .net compilers, so we use std::xxx instead
+#if defined (Q_CC_MSVC_NET)
+using namespace std;
 std::ostream &operator<<( std::ostream &s, const QString &val ) {
     s << val.latin1();
     return s;
 }
-*/
+#endif
+
 // Macros to simplify options marking, and WinCE only code
 #define MARK_OPTION(x,y) ( dictionary[ #x ] == #y ? "*" : " " )
 #define WCE(x) if ( dictionary[ "QMAKESPEC" ].startsWith( "wince-" ) ) { x }
@@ -149,8 +157,11 @@ Configure::Configure( int& argc, char** argv )
 
 Configure::~Configure()
 {
-    for (int i=0; i<3; ++i)
-	delete makeList[i];
+    for (int i=0; i<3; ++i) {
+	QList<MakeItem*> items = makeList[i];
+	for (int j=0; j<items.size(); ++j)
+	    delete items[j];
+    }
 }
 
 #if !defined(EVAL)
