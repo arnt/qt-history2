@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#50 $
+** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#51 $
 **
 ** Implementation of QTabDialog class
 **
@@ -16,7 +16,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#50 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#51 $");
 
 
 /*!
@@ -239,7 +239,7 @@ void QTabDialog::setFont( const QFont & font )
 
 
 /*!
-  Returns TRUE if the tab dialog has an Apply button, FALSE if not.
+  Returns TRUE if the tab dialog has a Defaults button, FALSE if not.
 
   \sa setApplyButton() applyButtonPressed() hasCancelButton()
   hasDefaultButton()
@@ -293,7 +293,7 @@ bool QTabDialog::hasCancelButton() const
 
 
 /*!
-  Returns TRUE if the tab dialog has a Defaults button, FALSE if not.
+  Returns TRUE if the tab dialog has an Apply button, FALSE if not.
 
   \sa setDefaultsButton() defaultButtonPressed() hasApplyButton()
   hasCancelButton()
@@ -426,10 +426,10 @@ void QTabDialog::addTab( QWidget * child, const char * label )
 }
 
 /*!
-  This is a lower-level method for adding tabs, similar to
-  the method above.  It is useful if you are using setTabBar()
-  to set a QTabBar subclass with an overridden
-  QTabBar::paint() routine for a subclass of QTab.
+  This is a lower-level method for adding tabs, similar to the other
+  addTab() method.  It is useful if you are using setTabBar() to set a
+  QTabBar subclass with an overridden QTabBar::paint() routine for a
+  subclass of QTab.
 */
 void QTabDialog::addTab( QWidget * child, QTab* tab )
 {

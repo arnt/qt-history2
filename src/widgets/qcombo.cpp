@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#115 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#116 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#115 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#116 $");
 
 
 /*!
@@ -648,7 +648,7 @@ void QComboBox::changeItem( const QPixmap &im, int index )
 
 
 /*!
-  Returns the current combo box item.
+  Returns the index of the current combo box item.
   \sa setCurrentItem()
 */
 

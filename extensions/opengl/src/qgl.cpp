@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#13 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#14 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -26,7 +26,7 @@
 #include <X11/Xmu/StdCmap.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#13 $");
+RCSTAG("$Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#14 $");
 
 
 #if defined(_CC_MSVC_)
@@ -429,7 +429,7 @@ const QGLFormat &QGLFormat::defaultFormat()
     QApplication a(argc, argv);
     QGLFormat f;
     f.setDoubleBuffer( FALSE );
-    QGLFormat::setDefault( f );
+    QGLFormat::setDefaultFormat( f );
   \endcode
 */
 

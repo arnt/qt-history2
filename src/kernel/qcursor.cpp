@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qcursor.cpp#20 $
 **
 ** Implementation of QCursor class
 **
@@ -13,7 +13,7 @@
 #include "qbitmap.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor.cpp#19 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor.cpp#20 $");
 
 
 /*!
@@ -37,19 +37,19 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor.cpp#19 $");
   use QApplication::setOverrideCursor().
 
   The <a name=cursors>predefined cursor</a> objects are:
-  <dl compact>
-  <dt> arrowCursor <dd> standard arrow cursor
-  <dt> upArrowCursor <dd> upwards arrow
-  <dt> crossCursor <dd> crosshair
-  <dt> waitCursor <dd> hourglass/watch
-  <dt> ibeamCursor <dd> ibeam/text entry
-  <dt> sizeVerCursor <dd> vertical resize
-  <dt> sizeHorCursor <dd> horizontal resize
-  <dt> sizeBDiagCursor <dd> diagonal resize (/)
-  <dt> sizeFDiagCursor <dd> diagonal resize (\)
-  <dt> sizeAllCursor <dd> all directions resize
-  <dt> blankCursor <dd> blank/invisible cursor
-  </dl>
+  <ul>
+  <li> arrowCursor : standard arrow cursor
+  <li> upArrowCursor : upwards arrow
+  <li> crossCursor : crosshair
+  <li> waitCursor : hourglass/watch
+  <li> ibeamCursor : ibeam/text entry
+  <li> sizeVerCursor : vertical resize
+  <li> sizeHorCursor : horizontal resize
+  <li> sizeBDiagCursor : diagonal resize (/)
+  <li> sizeFDiagCursor : diagonal resize (\)
+  <li> sizeAllCursor : all directions resize
+  <li> blankCursor : blank/invisible cursor
+  </ul>
 */
 
 

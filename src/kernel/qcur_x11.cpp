@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcur_x11.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qcur_x11.cpp#47 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -19,7 +19,7 @@
 #include <X11/Xos.h>
 #include <X11/cursorfont.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcur_x11.cpp#46 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcur_x11.cpp#47 $");
 
 
 /*****************************************************************************
@@ -257,8 +257,9 @@ QCursor &QCursor::operator=( const QCursor &c )
 
 
 /*!
-  Returns the cursor shape identifer.  The corresponding setShape()
-  function is internal.
+  Returns the cursor shape identifer. If a custom bitmap has been set,
+  \c BitmapCursor is returned.
+
   \sa setShape()
 */
 
@@ -268,7 +269,14 @@ int QCursor::shape() const			// get cursor shape
 }
 
 /*!
-  Sets the cursor shape identifier to \e shape.
+  Sets the cursor to the shape identified by \e shape. 
+
+  The allowed shapes are: \c ArrowCursor, \c UpArrowCursor, \c
+  CrossCursor, \c WaitCursor, \c IbeamCursor, \c SizeVerCursor, \c
+  SizeHorCursor, \c SizeBDiagCursor, \c SizeFDiagCursor, \c
+  SizeAllCursor, \c BlankCursor. These correspond to the <a
+  href="#cursors">predefined</a> global QCursor objects.
+
   \sa shape()
 */
 
