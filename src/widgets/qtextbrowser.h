@@ -50,7 +50,7 @@
 
 class QTextBrowserData;
 
-class QTextBrowser : public QTextView
+class Q_EXPORT QTextBrowser : public QTextView
 {
     Q_OBJECT
     Q_PROPERTY( QString source READ source WRITE setSource )

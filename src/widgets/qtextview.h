@@ -60,7 +60,7 @@ class QTextFormat;
 class QFont;
 class QColor;
 
-class QTextView : public QScrollView
+class Q_EXPORT QTextView : public QScrollView
 {
     Q_OBJECT
 
@@ -234,7 +234,7 @@ private:
 	ActionReturn
     };
 
-    struct UndoRedoInfo {
+    struct Q_EXPORT UndoRedoInfo {
 	enum Type { Invalid, Insert, Delete, Backspace, Return, RemoveSelected };
 	UndoRedoInfo( QTextDocument *d ) : type( Invalid ), doc( d )
 	{ text = QString::null; id = -1; index = -1; }
