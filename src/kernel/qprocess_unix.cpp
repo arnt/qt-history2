@@ -197,6 +197,55 @@ public:
 
 QCleanupHandler<QProcessManager> qprocess_cleanup_procmanager;
 
+#ifdef Q_OS_QNX6
+#define BAILOUT close(tmpSocket);close(socketFD[1]);return -1;
+int qnx6SocketPairReplacement (int socketFD[2]) {
+    int tmpSocket;
+    tmpSocket = socket (AF_INET, SOCK_STREAM, 0);
+    if (tmpSocket == -1)
+	return -1;
+    socketFD[1] = socket(AF_INET, SOCK_STREAM, 0);
+    if (socketFD[1] == -1) { BAILOUT };
+
+    sockaddr_in ipAddr;
+    memset(&ipAddr, 0, sizeof(ipAddr));
+    ipAddr.sin_family = AF_INET;
+    ipAddr.sin_addr.s_addr = INADDR_ANY;
+
+    int socketOptions = 1;
+    setsockopt(tmpSocket, SOL_SOCKET, SO_REUSEADDR, &socketOptions, sizeof(int));
+
+    bool found = FALSE;
+    for (int socketIP = 2000; (socketIP < 2500) && !(found); socketIP++) {
+	ipAddr.sin_port = htons(socketIP);
+	if (bind(tmpSocket, (struct sockaddr *)&ipAddr, sizeof(ipAddr)))
+	    found = TRUE;
+    }
+
+    if (listen(tmpSocket, 5)) { BAILOUT };
+
+    // Select non-blocking mode 
+    int originalFlags = fcntl(socketFD[1], F_GETFL, 0);
+    fcntl(socketFD[1], F_SETFL, originalFlags | O_NONBLOCK);
+
+    // Request connection
+    if (connect(socketFD[1], (struct sockaddr*)&ipAddr, sizeof(ipAddr)))
+	if (errno != EINPROGRESS) { BAILOUT };
+
+    // Accept connection
+    socketFD[0] = accept(tmpSocket, (struct sockaddr *)NULL, (size_t *)NULL);
+    if(socketFD[0] == -1) { BAILOUT };
+
+    // We're done
+    close(tmpSocket);
+
+    // Restore original flags , ie return to blocking
+    fcntl(socketFD[1], F_SETFL, originalFlags);
+    return 0;
+}
+#undef BAILOUT
+#endif
+
 QProcessManager::QProcessManager()
 {
     procList = new QPtrList<QProc>;
@@ -205,7 +254,11 @@ QProcessManager::QProcessManager()
     // The SIGCHLD handler writes to a socket to tell the manager that
     // something happened. This is done to get the processing in sync with the
     // event reporting.
+#ifndef Q_OS_QNX6
     if ( ::socketpair( AF_UNIX, SOCK_STREAM, 0, sigchldFd ) ) {
+#else
+    if ( qnx6SocketPairReplacement (sigchldFd) ) {
+#endif
 	sigchldFd[0] = 0;
 	sigchldFd[1] = 0;
     } else {
@@ -592,13 +645,25 @@ bool QProcess::start( QStringList *env )
     int sStderr[2];
 
     // open sockets for piping
+#ifndef Q_OS_QNX6
     if ( (comms & Stdin) && ::socketpair( AF_UNIX, SOCK_STREAM, 0, sStdin ) == -1 ) {
+#else
+    if ( (comms & Stdin) && qnx6SocketPairReplacement(sStdin) == -1 ) {
+#endif
 	return FALSE;
     }
+#ifndef Q_OS_QNX6
     if ( (comms & Stderr) && ::socketpair( AF_UNIX, SOCK_STREAM, 0, sStderr ) == -1 ) {
+#else
+    if ( (comms & Stdout) && qnx6SocketPairReplacement(sStderr) == -1 ) {
+#endif
 	return FALSE;
     }
+#ifndef Q_OS_QNX6
     if ( (comms & Stdout) && ::socketpair( AF_UNIX, SOCK_STREAM, 0, sStdout ) == -1 ) {
+#else
+    if ( (comms & Stdout) && qnx6SocketPairReplacement(sStdout) == -1 ) {
+#endif
 	return FALSE;
     }
 
