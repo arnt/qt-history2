@@ -2,8 +2,15 @@
 
 $abort = 0;
 $P4 = "p4";
+$maxChanges = 30;
+$userName = `whoami`;
+chomp $userName;
+$change = 0;
+$all = 0;
+$ask = 1;
 
 # Simplify program name, if it is a path.
+$orig_argv0 = $0; #save the old $0
 $0 =~ s/.*\///;
 
 open( P4, "$P4 -V |") || die "$0: Couldn't exec $P4: $!\n";
@@ -14,10 +21,22 @@ if ( $line !~ /^Perforce/ ) {
     die "$0: $P4 -V isn't p4? Returned: \"$line\"\n";
 }
 
-if ( $#ARGV != 0 ) {
-    die "$0: takes a single change number as argument\n";
-} else {
-    $change = $ARGV[0];
+for $arg ( @ARGV ) {
+  if ( $arg eq "--help" ) {
+    printf "$0 [--all] [change]\n";
+    printf "     default change is last change\n";
+    exit( 0 );
+  } elsif ( $arg eq "--all" ) {
+    $all = 1;
+    $ask = 0;
+  } else {
+    $change = $arg;
+  }
+}
+
+if ( $change == 0 ) { # Get your latest change list
+   $change = findLastChange();
+   print "Discovered change: $change\n";
 }
 
 @fromBranchFiles = ();
@@ -273,14 +292,17 @@ while ( @filesToResolve ) {
     @skippedFiles = ();
 }
 
+if ( $ask ) {
+  print "Enter y to submit change, anything else to create changelist: ";
+  $confirm = <STDIN>;
 
-print "Enter y to submit change, anything else to create changelist: ";
-$confirm = <STDIN>;
-
-if ( $confirm =~ /^[Yy]/ ) {
-    $action = "submit";
+  if ( $confirm =~ /^[Yy]/ ) {
+      $action = "submit";
+  } else {
+      $action = "change";
+  }
 } else {
-    $action = "change";
+  $action = "submit";
 }
 
 print "Running 'p4 $action'\n";
@@ -299,8 +321,28 @@ close( P4 );
 if ( $action eq "change" ) {
     print "Submit the above change number to complete the integration.\n";
 }
-
-print "Done.\n";
+if ( $all ) {
+   my $next_change = findLastChange();
+   if ( $next_change != $change ) {
+     # Check if change contains the word integration
+     # in some form
+     # ------------------------------------------------
+     open ( P4, "$P4 describe -s $next_change |") || die "$0: Couldn't get description of change #$next_change";
+     my @description = <P4>;
+     close( P4 );
+     my $is_integrate = 0;
+     grep {
+       if ( /[iI]ntegrat(e|ed|ion)/ ) {
+         $is_integrate = 1;
+       }
+     } @description;
+     if ( $is_integrate ) {
+        print "Running another integrate.. [$next_change]\n";
+        exec "$orig_argv0 --all $next_change";
+     }
+   }
+}
+print "Done [$change].\n";
 
 sub printNeededRevisions {
     my ($fromBranchFile, $toBranchFile, $change, $start, $end) = @_;
@@ -327,3 +369,15 @@ sub printNeededRevisions {
 	}
     }
 }
+
+sub findLastChange {
+   open( P4, "$P4 changes -m $maxChanges | grep $userName | cut -f 2 -d\" \" |" ) || die "$0: Couldn't exec $P4: $!\n";
+   my @myChanges = <P4>;
+   close( P4 );
+   chomp @myChanges;
+   if ( $#myChanges == -1 ) {
+      die "$0: Couldn't find any submit(s) by $userName in the $maxChanges last changes\n";
+   }
+   return $myChanges[0];
+}
+
