@@ -819,16 +819,16 @@ void QWidgetFactory::setProperty( QObject* obj, const QString &prop, const QDomE
 {
     const QMetaProperty *p = obj->metaObject()->property( obj->metaObject()->findProperty( prop, TRUE ), TRUE );
 
-    QVariant defVarient;
+    QVariant defVariant;
     if ( e.tagName() == "font" ) {
 	QFont f( qApp->font() );
 	if ( obj->isWidgetType() && ( (QWidget*)obj )->parentWidget() )
 	    f = ( (QWidget*)obj )->parentWidget()->font();
-	defVarient = QVariant( f );
+	defVariant = QVariant( f );
     }
 
     QString comment;
-    QVariant v( DomTool::elementToVariant( e, defVarient, comment ) );
+    QVariant v( DomTool::elementToVariant( e, defVariant, comment ) );
 
     if ( e.tagName() == "pixmap" ) {
 	QPixmap pix = loadPixmap( e );
@@ -842,6 +842,8 @@ void QWidgetFactory::setProperty( QObject* obj, const QString &prop, const QDomE
 	v = QVariant( QIconSet( pix ) );
     } else if ( e.tagName() == "image" ) {
 	v = QVariant( loadFromCollection( v.toString() ) );
+    } else if ( e.tagName() == "string" ) {
+	v = QVariant( translate( v.asString(), comment ) );
     }
 
     if ( !p ) {
@@ -1536,7 +1538,7 @@ void QWidgetFactory::loadMenuBar( const QDomElement &e )
 		}
 		n2 = n2.nextSibling().toElement();
 	    }
-	    mb->insertItem( n.attribute( "text" ), popup );
+	    mb->insertItem( translate( n.attribute( "text" ) ), popup );
 	} else if ( n.tagName() == "property" ) {
 	    setProperty( mb, n.attribute( "name" ), n.firstChild().toElement() );
 	}
@@ -1702,4 +1704,10 @@ void QWidgetFactory::loadExtraSource()
     QStringList::Iterator vit;
     for ( vit = vars.begin(); vit != vars.end(); ++vit )
 	variables << *vit;
+}
+
+QString QWidgetFactory::translate( const QString& sourceText, const QString& comment )
+{
+    return qApp->translate( toplevel->name(), sourceText.utf8(),
+			    comment.utf8(), QApplication::UnicodeUTF8 );
 }

@@ -73,6 +73,7 @@ private:
     void loadFunctions( const QDomElement &e );
     QAction *findAction( const QString &name );
     void loadExtraSource();
+    QString translate( const QString& sourceText, const QString& comment = "" );
 
 private:
     struct Image {
