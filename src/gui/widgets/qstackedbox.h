@@ -1,11 +1,13 @@
 /****************************************************************************
-** $Id: .emacs,v 1.3 1998/02/20 15:06:53 agulbra Exp $
 **
-** Definition of something or other
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
-** Created : 979899
+** This file is part of the $MODULE$ of the Qt Toolkit.
 **
-** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
 
