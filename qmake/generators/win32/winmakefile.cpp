@@ -255,7 +255,8 @@ Win32MakefileGenerator::findLibraries(const QString &where)
     for(QStringList::Iterator it = l.begin(); it != l.end(); ) {
 	QChar quoted;
 	QString opt = (*it).stripWhiteSpace();
-	if((opt.left(1) == '\'' || opt.left(1) == '"') && opt[opt.length()-1] == opt[0]) {
+	int a = opt.length()-1;
+	if((opt.left(1) == '\'' || opt.left(1) == '"') && opt[a] == opt[0]) {
 	    quoted = opt[0];
 	    opt = opt.mid(1, opt.length());
 	}
