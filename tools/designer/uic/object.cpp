@@ -420,10 +420,9 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
 	QString keys( e.firstChild().toText().data() );
 	QStringList lst = QStringList::split( '|', keys );
 	v = "int( ";
-#if defined(Q_CC_KAI)
-	// workaround for EDG bug reproduced with KAI C++ 4.0e that
-	// should be fixed in KAI C++ 4.0f although a patch is already
-	// available from KAI
+#if defined(Q_CC_EDG)
+	// workaround for EDG bug reproduced with MIPSpro C++ 7.3.?
+	// and KAI C++ 4.0e that will be fixed in KAI C++ 4.0f
 	QStringList::Iterator it = lst.begin();
 	for ( ; it != lst.end(); ++it ) {
 #else
