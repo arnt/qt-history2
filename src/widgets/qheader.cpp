@@ -1647,6 +1647,24 @@ void QHeader::setSortIndicator( int section, bool increasing )
 }
 
 /*!
+    Sets \a *section to the column number showing the sort indicator
+    and \a *increasing to TRUE if the arrow is pointing downwards.
+
+    If there is no sort indicator then \a *section will be -1 and the
+    value of \a *increasing will be undefined.
+
+    \sa setSortIndicator()
+*/
+
+void QHeader::sortIndicator( int *section, bool *increasing ) const
+{
+    if ( section )
+	(*section) = d->sortColumn;
+    if ( increasing )
+	(*increasing) = d->sortDirection;
+}
+
+/*!
     Resizes section \a section to \a s pixels wide (or high).
 */
 

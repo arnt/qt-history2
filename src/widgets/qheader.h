@@ -86,19 +86,19 @@ public:
     virtual void setResizeEnabled( bool, int section = -1 );
     virtual void setMovingEnabled( bool );
     virtual void setStretchEnabled( bool b, int section );
-    void setStretchEnabled( bool b ) { setStretchEnabled( b, -1 ); }
-    bool isClickEnabled( int section = -1 ) const;
-    bool isResizeEnabled( int section = -1 ) const;
-    bool isMovingEnabled() const;
-    bool isStretchEnabled() const;
-    bool isStretchEnabled( int section ) const;
+    void 	setStretchEnabled( bool b ) { setStretchEnabled( b, -1 ); }
+    bool 	isClickEnabled( int section = -1 ) const;
+    bool 	isResizeEnabled( int section = -1 ) const;
+    bool 	isMovingEnabled() const;
+    bool 	isStretchEnabled() const;
+    bool 	isStretchEnabled( int section ) const;
 
     void 	resizeSection( int section, int s );
     int		sectionSize( int section ) const;
     int		sectionPos( int section ) const;
     int		sectionAt( int pos ) const;
     int		count() const;
-    int headerWidth() const;
+    int 	headerWidth() const;
     QRect	sectionRect( int section ) const;
 
     virtual void setCellSize( int , int ); // obsolete, do not use
@@ -119,10 +119,11 @@ public:
     virtual void moveCell( int, int); // obsolete, do not use
 
     void 	setSortIndicator( int section, bool increasing = TRUE );
-    void adjustHeaderSize() { adjustHeaderSize( -1 ); }
+    void 	sortIndicator( int *section, bool *increasing = 0 ) const;
+    void        adjustHeaderSize() { adjustHeaderSize( -1 ); }
 
 public slots:
-    void setUpdatesEnabled( bool enable );
+    void 	setUpdatesEnabled( bool enable );
     virtual void setOffset( int pos );
 
 signals:
@@ -141,10 +142,10 @@ protected:
     void 	resizeEvent( QResizeEvent *e );
     QRect	sRect( int index );
 
-    virtual void	paintSection( QPainter *p, int index, const QRect& fr);
-    virtual void	paintSectionLabel( QPainter* p, int index, const QRect& fr );
+    virtual void paintSection( QPainter *p, int index, const QRect& fr);
+    virtual void paintSectionLabel( QPainter* p, int index, const QRect& fr );
 
-    void fontChange( const QFont & );
+    void 	fontChange( const QFont & );
 
     void	mousePressEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );
@@ -156,7 +157,7 @@ protected:
 
 private:
     void	handleColumnMove( int fromIdx, int toIdx );
-    void adjustHeaderSize( int diff );
+    void 	adjustHeaderSize( int diff );
     void	init( int );
 
     void	paintRect( int p, int s );
@@ -165,14 +166,14 @@ private:
     int		pPos( int i ) const;
     int		pSize( int i ) const;
     int 	findLine( int );
-    bool reverse() const;
-    void calculatePositions( bool onlyVisible = FALSE, int start = 0 );
+    bool 	reverse() const;
+    void 	calculatePositions( bool onlyVisible = FALSE, int start = 0 );
     void	handleColumnResize(int, int, bool, bool = TRUE );
     QSize	sectionSizeHint( int section, const QFontMetrics& fm ) const;
     void	setSectionSizeAndHeight( int section, int size );
 
-    void resizeArrays( int size );
-    void setIsATableHeader( bool b );
+    void 	resizeArrays( int size );
+    void 	setIsATableHeader( bool b );
     int		offs;
     int		handleIdx;
     int		oldHIdxSize;
