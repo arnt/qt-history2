@@ -508,8 +508,8 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     \value PE_Splitter  Splitter handle; see also QSplitter.
 
     \value PE_Panel  Generic panel frame; see also QFrame.
-    \value PE_PanelPopup  Panel frame for popup windows/menus; see also QMenu.
-    \value PE_PanelMenuBar  Panel frame for menu bars.
+    \value PE_PanelMenu  Panel frame for popup windows/menus; see also QMenu.
+    \value PE_PanelMenuBar  Frame for menu bars.
     \value PE_PanelDockWindow  Panel frame for dock windows and toolbars.
     \value PE_PanelTabWidget  Panel frame for tab widgets.
     \value PE_PanelLineEdit  Panel frame for line edits.
@@ -517,9 +517,6 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
 
     \value PE_TabBarBase  Area below tabs in a tab widget, for example,
         QTab.
-
-    \value PE_MenuFrame  Frame displayed in a QMenu
-    \value PE_MenuBarFrame  Frame displayed in a QMenuBar
 
     \value PE_HeaderSection  Section of a list or table header; see also
         QHeader.
@@ -1135,7 +1132,7 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
         vertical dock window
     \value PM_DockWindowFrameWidth  Frame width of a dock window
 
-    \value PM_MenuBarFrameWidth  Frame width of a menubar
+    \value PM_MenuBarPanelWidth  Frame width of a menubar
     \value PM_MenuBarItemSpacing  Spacing between menubar items
     \value PM_MenuBarHMargin  Spacing between menubar items and top/bottom of bar
     \value PM_MenuBarVMargin  Spacing between menubar items and left/right of bar
@@ -1166,7 +1163,7 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     \value PM_ExclusiveIndicatorWidth  Width of a radio button indicator
     \value PM_ExclusiveIndicatorHeight  Height of a radio button indicator
 
-    \value PM_MenuFrameWidth  Border width (applied on all sides) for a QMenu
+    \value PM_MenuPanelWidth  Border width (applied on all sides) for a QMenu
     \value PM_MenuHMargin  Additional border (used on left and right) for a QMenu
     \value PM_MenuVMargin  Additional border (used for bottom and top) for a QMenu
     \value PM_MenuScrollerHeight  Height of the scroller area in a QMenu

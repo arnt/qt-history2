@@ -4681,7 +4681,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
     case QStyle::PM_MenuVMargin:
         ret = 4;
         break;
-    case QStyle::PM_MenuFrameWidth:
+    case QStyle::PM_MenuPanelWidth:
         ret = 0;
         break;
     default:

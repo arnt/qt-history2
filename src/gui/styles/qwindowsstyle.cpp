@@ -258,7 +258,7 @@ int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QW
         break;
 #endif // QT_NO_SLIDER
 
-    case PM_MenuBarFrameWidth:
+    case PM_MenuBarPanelWidth:
         ret = 0;
         break;
 
@@ -1328,13 +1328,12 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             drawPrimitive(PE_ButtonBevel, &buttonOpt, p, w);
         }
         break;
-    case PE_MenuFrame:
     case PE_Panel:
-    case PE_PanelPopup:
+    case PE_PanelMenu:
         if (const QStyleOptionFrame *frame = qt_cast<const QStyleOptionFrame *>(opt)) {
             if (frame->lineWidth == 2) {
                 QPalette popupPal = frame->palette;
-                if (pe == PE_PanelPopup) {
+                if (pe == PE_PanelMenu) {
                     popupPal.setColor(QPalette::Light, frame->palette.background().color());
                     popupPal.setColor(QPalette::Midlight, frame->palette.light().color());
                 }

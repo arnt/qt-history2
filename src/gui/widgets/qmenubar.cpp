@@ -48,11 +48,11 @@ void QMenuBarPrivate::updateActions()
     Q_Q(QMenuBar);
     if(!itemsDirty)
         return;
-    int q_width = q->width()-(q->style()->pixelMetric(QStyle::PM_MenuBarFrameWidth, 0, q)*2);
+    int q_width = q->width()-(q->style()->pixelMetric(QStyle::PM_MenuBarPanelWidth, 0, q)*2);
     int q_start = -1;
     if(leftWidget || rightWidget) {
         int vmargin = q->style()->pixelMetric(QStyle::PM_MenuBarVMargin, 0, q)
-                      + q->style()->pixelMetric(QStyle::PM_MenuBarFrameWidth, 0, q),
+                      + q->style()->pixelMetric(QStyle::PM_MenuBarPanelWidth, 0, q),
             hmargin = q->style()->pixelMetric(QStyle::PM_MenuBarHMargin, 0, q);
         if(leftWidget && leftWidget->isVisible()) {
             QSize sz = leftWidget->sizeHint();
@@ -96,7 +96,7 @@ QRect QMenuBarPrivate::actionRect(QAction *act) const
 {
     Q_Q(const QMenuBar);
     QRect ret = actionRects.value(act);
-    const int fw = q->style()->pixelMetric(QStyle::PM_MenuBarFrameWidth, 0, q);
+    const int fw = q->style()->pixelMetric(QStyle::PM_MenuBarPanelWidth, 0, q);
     ret.translate(fw, fw);
     return QStyle::visualRect(ret, q);
 }
@@ -636,7 +636,7 @@ void QMenuBar::paintEvent(QPaintEvent *e)
         style()->drawControl(QStyle::CE_MenuBarItem, &opt, &p, this);
     }
      //draw border
-    if(int fw = style()->pixelMetric(QStyle::PM_MenuBarFrameWidth, 0, this)) {
+    if(int fw = style()->pixelMetric(QStyle::PM_MenuBarPanelWidth, 0, this)) {
         QRegion borderReg;
         borderReg += QRect(0, 0, fw, height()); //left
         borderReg += QRect(width()-fw, 0, fw, height()); //right
@@ -648,9 +648,9 @@ void QMenuBar::paintEvent(QPaintEvent *e)
         frame.rect = rect();
         frame.palette = palette();
         frame.state = QStyle::Style_None;
-        frame.lineWidth = style()->pixelMetric(QStyle::PM_MenuBarFrameWidth);
+        frame.lineWidth = style()->pixelMetric(QStyle::PM_MenuBarPanelWidth);
         frame.midLineWidth = 0;
-        style()->drawPrimitive(QStyle::PE_MenuBarFrame, &frame, &p, this);
+        style()->drawPrimitive(QStyle::PE_PanelMenuBar, &frame, &p, this);
     }
     p.setClipRegion(emptyArea);
     QStyleOptionMenuItem menuOpt;
@@ -1058,7 +1058,7 @@ QSize QMenuBar::sizeHint() const
     if(as_gui_menubar) {
         QMap<QAction*, QRect> actionRects;
         QList<QAction*> actionList;
-        d->calcActionRects(width()-(style()->pixelMetric(QStyle::PM_MenuBarFrameWidth, 0, this) * 2),
+        d->calcActionRects(width()-(style()->pixelMetric(QStyle::PM_MenuBarPanelWidth, 0, this) * 2),
                            0, actionRects, actionList);
         for (QMap<QAction*, QRect>::const_iterator i = actionRects.begin();
              i != actionRects.constEnd(); ++i) {
@@ -1068,7 +1068,7 @@ QSize QMenuBar::sizeHint() const
             if(actionRect.bottom() > ret.height())
                 ret.setHeight(actionRect.bottom());
         }
-        if(const int fw = style()->pixelMetric(QStyle::PM_MenuFrameWidth, 0, this)) {
+        if(const int fw = style()->pixelMetric(QStyle::PM_MenuPanelWidth, 0, this)) {
             ret.setWidth(ret.width()+(fw*2));
             ret.setHeight(ret.height()+(fw*2));
         }
@@ -1123,7 +1123,7 @@ int QMenuBar::heightForWidth(int max_width) const
         for (QMap<QAction*, QRect>::const_iterator i = actionRects.begin();
              i != actionRects.constEnd(); ++i)
             height = qMax(height, i.value().bottom());
-        height += (style()->pixelMetric(QStyle::PM_MenuBarFrameWidth, 0, this) * 2)
+        height += (style()->pixelMetric(QStyle::PM_MenuBarPanelWidth, 0, this) * 2)
                     + style()->pixelMetric(QStyle::PM_MenuBarVMargin, 0, this);
     }
     if(d->leftWidget)
@@ -1243,12 +1243,12 @@ QWidget *QMenuBar::cornerWidget(Qt::Corner corner) const
 
 #ifdef QT_COMPAT
 /*!
-    Use style()->pixelMetric(QStyle::PM_MenuBarFrameWidth, this)
+    Use style()->pixelMetric(QStyle::PM_MenuBarPanelWidth, this)
     instead.
 */
 int QMenuBar::frameWidth() const
 {
-    return style()->pixelMetric(QStyle::PM_MenuBarFrameWidth, 0, this);
+    return style()->pixelMetric(QStyle::PM_MenuBarPanelWidth, 0, this);
 }
 
 int QMenuBar::insertAny(const QIcon *icon, const QString *text, const QObject *receiver, const char *member,

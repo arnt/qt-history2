@@ -143,7 +143,7 @@ public:
         PE_Splitter,
 
         PE_Panel,
-        PE_PanelPopup,
+        PE_PanelMenu,
         PE_PanelMenuBar,
         PE_PanelDockWindow,
 
@@ -180,9 +180,6 @@ public:
         PE_PanelGroupBox,
 
         PE_TreeBranch,
-
-        PE_MenuFrame,
-        PE_MenuBarFrame,
 
         PE_RubberBand,
         PE_RubberBandMask,
@@ -404,11 +401,11 @@ public:
         PM_MenuScrollerHeight,
         PM_MenuHMargin,
         PM_MenuVMargin,
-        PM_MenuFrameWidth,
+        PM_MenuPanelWidth,
         PM_MenuTearoffHeight,
         PM_MenuDesktopFrameWidth,
 
-        PM_MenuBarFrameWidth,
+        PM_MenuBarPanelWidth,
         PM_MenuBarItemSpacing,
         PM_MenuBarVMargin,
         PM_MenuBarHMargin,

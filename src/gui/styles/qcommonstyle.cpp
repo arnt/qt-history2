@@ -246,14 +246,12 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         p->setPen(opt->palette.text().color());
         p->drawLineSegments(a);
         break; }
-    case PE_MenuFrame:
     case PE_Panel:
-    case PE_PanelPopup:
+    case PE_PanelMenu:
         if (const QStyleOptionFrame *frame = qt_cast<const QStyleOptionFrame *>(opt))
             qDrawShadePanel(p, frame->rect, frame->palette, frame->state & Style_Sunken,
                             frame->lineWidth);
         break;
-    case PE_MenuBarFrame:
     case PE_PanelMenuBar:
     case PE_PanelToolBar:
         if (const QStyleOptionFrame *frame = qt_cast<const QStyleOptionFrame *>(opt))
@@ -2242,7 +2240,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
     case PM_ButtonShiftHorizontal:
     case PM_ButtonShiftVertical:
 
-    case PM_MenuFrameWidth:
+    case PM_MenuPanelWidth:
     case PM_SpinBoxFrameWidth:
     case PM_DefaultFrameWidth:
         ret = 2;
@@ -2320,7 +2318,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
         break;
 
     case PM_SpinBoxSliderHeight:
-    case PM_MenuBarFrameWidth:
+    case PM_MenuBarPanelWidth:
         ret = 2;
         break;
 

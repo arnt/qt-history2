@@ -215,7 +215,7 @@ QRect QMenuPrivate::actionRect(QAction *act) const
         ret.translate(0, scroll->scrollOffset);
     if(tearoff)
         ret.translate(0, q->style()->pixelMetric(QStyle::PM_MenuTearoffHeight, 0, q));
-    const int fw = q->style()->pixelMetric(QStyle::PM_MenuFrameWidth, 0, q);
+    const int fw = q->style()->pixelMetric(QStyle::PM_MenuPanelWidth, 0, q);
     ret.translate(fw+leftmargin, fw+topmargin);
     return ret;
 }
@@ -1151,7 +1151,7 @@ QSize QMenu::sizeHint() const
     }
     if(d->tearoff)
         s.rheight() += style()->pixelMetric(QStyle::PM_MenuTearoffHeight, &opt, this);
-    if(const int fw = style()->pixelMetric(QStyle::PM_MenuFrameWidth, &opt, this)) {
+    if(const int fw = style()->pixelMetric(QStyle::PM_MenuPanelWidth, &opt, this)) {
         s.rwidth() += fw*2;
         s.rheight() += fw*2;
     }
@@ -1429,7 +1429,7 @@ void QMenu::paintEvent(QPaintEvent *e)
         style()->drawControl(QStyle::CE_MenuItem, &opt, &p, this);
     }
 
-    const int fw = style()->pixelMetric(QStyle::PM_MenuFrameWidth, 0, this);
+    const int fw = style()->pixelMetric(QStyle::PM_MenuPanelWidth, 0, this);
     QStyleOptionMenuItem menuOpt;
     menuOpt.palette = palette();
     menuOpt.state = QStyle::Style_None;
@@ -1485,7 +1485,7 @@ void QMenu::paintEvent(QPaintEvent *e)
         frame.state = QStyle::Style_None;
         frame.lineWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
         frame.midLineWidth = 0;
-        style()->drawPrimitive(QStyle::PE_MenuFrame, &frame, &p, this);
+        style()->drawPrimitive(QStyle::PE_PanelMenu, &frame, &p, this);
     }
 
     //finally the rest of the space
@@ -2161,11 +2161,11 @@ int QMenu::itemParameter(int id) const
 }
 
 /*!
-    Use style()->pixelMetric(QStyle::PM_MenuFrameWidth, this) instead.
+    Use style()->pixelMetric(QStyle::PM_MenuPanelWidth, this) instead.
 */
 int QMenu::frameWidth() const
 {
-    return style()->pixelMetric(QStyle::PM_MenuFrameWidth, 0, this);
+    return style()->pixelMetric(QStyle::PM_MenuPanelWidth, 0, this);
 }
 
 int QMenu::findIdForAction(QAction *act) const
