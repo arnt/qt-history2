@@ -1793,13 +1793,8 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		// cooperate with other tablet applications, but when
 		// we get focus, I want to use the tablet...
 		if (hTab && GET_WM_ACTIVATE_STATE(wParam, lParam)) {
-		    if ( ptrWTEnable(hTab, TRUE) ) {
-			bool present = !ptrWTOverlap(hTab, TRUE);
-#if defined(QT_CHECK_STATE)
-			if ( !present )
-			    qWarning( "Failed to re-enable tablet context" );
-#endif
-		    }
+		    if ( ptrWTEnable(hTab, TRUE) )
+			ptrWTOverlap(hTab, TRUE);		    
 		}
 	    }
 #endif
