@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#10 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -62,6 +62,7 @@ struct QMultiLineData
     int	 scrollAccel;
 };
 
+// ##### This should use font bearings.
 static const int BORDER = 3;
 
 static const int blinkTime  = 500;	 // text cursor blink time
@@ -419,6 +420,7 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
 			cXPos    , cYPos + fm.height() - 2);
 	    p.drawLine( cXPos - 2, cYPos + fm.height() - 2,
 			cXPos + 2, cYPos + fm.height() - 2);
+	    setCaret( cXPos, row*cellHeight()+cYPos, 1, fm.height() );
 	}
     }
     p.end();

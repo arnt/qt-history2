@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#444 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#445 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -110,6 +110,8 @@ static inline void bzero( void *s, int n )
 }
 #endif
 
+//#define X_NOT_BROKEN
+#ifdef X_NOT_BROKEN
 // Some X libraries are built with setlocale #defined to _Xsetlocale,
 // even though library users are then built WITHOUT such a definition.
 // This creates a problem - Qt might setlocale() one value, but then
@@ -121,8 +123,10 @@ static inline void bzero( void *s, int n )
 extern "C" char *_Xsetlocale(int category, const char *locale);
 char *_Xsetlocale(int category, const char *locale)
 {
+    debug("_Xsetlocale(%d,%s),category,locale");
     return setlocale(category,locale);
 }
+#endif
 #endif
 
 // resolve the conflict between X11's FocusIn and QEvent::FocusIn
@@ -215,7 +219,7 @@ static timeval	watchtime;			// watch if time is turned back
 #if !defined(NO_XIM)
 static XIM	xim;
 static XIMStyle xim_style = 0;
-static XIMStyle xim_preferred_style = XIMPreeditNothing | XIMStatusNothing;
+static XIMStyle xim_preferred_style = XIMPreeditPosition | XIMStatusNothing;
 static XFontSet xim_fixed_fontset;
 #endif
 static QTextCodec * input_mapper = 0;
@@ -972,6 +976,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	if ( xim ) {
 	    const char* locale = XLocaleOfIM(xim);
 	    input_mapper = QTextCodec::codecForName(locale);
+debug("Codec for %s is %s", locale, input_mapper ? input_mapper->name() : "<null>");
 	}
     }
 

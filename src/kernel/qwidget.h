@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#210 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#211 $
 **
 ** Definition of QWidget class
 **
@@ -365,6 +365,7 @@ protected:
 
     void	setSizeGrip(bool);
     void	setKeyCompression(bool);
+    void	setCaret(int x, int y, int w, int h);
 
 private slots:
     void	 focusProxyDestroyed();

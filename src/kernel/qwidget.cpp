@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#363 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#364 $
 **
 ** Implementation of QWidget class
 **
@@ -3511,6 +3511,8 @@ void QWidget::keyReleaseEvent( QKeyEvent *e )
   The default implementation calls repaint() since the widget's \link
   QColorGroup color group\endlink changes from normal to active.  You
   may want to call repaint(FALSE) to reduce flicker in any reimplementation.
+  It also calls setCaret(), hinting any system-specific input tools about
+  the focus of the user's attention.
 
   As a special case to support applications not utilizing focus,
   \link isTopLevel() Top-level widgets \endlink that have
@@ -3527,6 +3529,7 @@ void QWidget::focusInEvent( QFocusEvent * )
 	repaint();
 	if ( testWState(WState_AutoMask) )
 	    updateMask();
+	setCaret(width()/2, 0, 1, height());
     }
 }
 

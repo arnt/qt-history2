@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#328 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#329 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -493,6 +493,32 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
     return QPoint( x, y );
 }
 
+/*!
+  When a widget gets focus, it should call setCaret for some appropriate
+  position and size - \a x, \a y and \a w by \a h.
+  This has no \e visual effect, it just provides hints to any system-specific
+  input handling tools.
+
+  In the Windows version of Qt, this method sets the system caret, which is
+  used for user Accessibility focus handling.
+
+  In the X11 version of Qt, this method sets the XIMP "spot" point for
+  complex language input handling.
+*/
+void QWidget::setCaret(int x, int y, int width, int height)
+{
+    QWidget* tlw = topLevelWidget();
+    if ( tlw->extra && tlw->extra->topextra && tlw->extra->topextra->xic ) {
+	QPoint p = tlw->mapFromGlobal(mapToGlobal(QPoint(x,y)));
+	XPoint spot;
+	spot.x = p.x()+width;
+	spot.y = p.y()+height;
+	XIC xic = (XIC)tlw->extra->topextra->xic;
+	XVaNestedList preedit_attr;
+	preedit_attr = XVaCreateNestedList(0, XNSpotLocation, &spot, 0);
+	XSetICValues(xic, XNPreeditAttributes, preedit_attr, 0);
+    }
+}
 
 void QWidget::setSizeGrip( bool sizegrip )
 {

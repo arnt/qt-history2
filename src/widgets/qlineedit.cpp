@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#186 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#187 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -664,16 +664,19 @@ void QLineEdit::paintEvent( QPaintEvent *e )
     p.setClipRegion( e->region() );
     p.drawPixmap( 0, 0, *d->pm );
     if ( hasFocus() ) {
+	int curYTop = d->cursorRepaintRect.y();
+	int curYBot = d->cursorRepaintRect.bottom();
+	int curXPos = d->cursorRepaintRect.x() + 2;
 	if ( cursorOn && d->cursorRepaintRect.intersects( e->rect() ) ) {
-	    int curYTop = d->cursorRepaintRect.y();
-	    int curYBot = d->cursorRepaintRect.bottom();
-	    int curXPos = d->cursorRepaintRect.x() + 2;
 	    p.drawLine( curXPos, curYTop, curXPos, curYBot );
 	    if ( style() != WindowsStyle ) {
 		p.drawLine( curXPos - 2, curYTop, curXPos + 2, curYTop );
 		p.drawLine( curXPos - 2, curYBot, curXPos + 2, curYBot );
 	    }
 	}
+	// Now is the optimal time to set this - all the repaint-minimization
+	// then also reduces the number of calls to setCaret().
+	setCaret( curXPos, curYTop, 1, curYBot-curYTop+1 );
     } else {
 	delete d->pm;
 	d->pm = 0;

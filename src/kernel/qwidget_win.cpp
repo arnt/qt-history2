@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#176 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#177 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -384,6 +384,10 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
     return QPoint( p.x, p.y );
 }
 
+
+void QWidget::setCaret(int x, int y, int width, int height)
+{
+}
 
 void QWidget::setSizeGrip(bool /* sizegrip */)
 {
