@@ -2425,7 +2425,7 @@ void QTable::setNumRows( int r )
     for ( i = 0; i < (int)tmp.size(); ++i ) {
 	QTableItem *it = tmp [ i ];
 	int idx = indexOf( it->row(), it->col() );
-	if ( it && idx < contents.size() )
+	if ( it && (uint)idx < contents.size() )
 	    contents.insert( idx, it );
     }
 
@@ -2475,7 +2475,7 @@ void QTable::setNumCols( int c )
     for ( i = 0; i < (int)tmp.size(); ++i ) {
 	QTableItem *it = tmp[ i ];
 	int idx = indexOf( it->row(), it->col() );
-	if ( it && idx < contents.size() )
+	if ( it && (uint)idx < contents.size() )
 	    contents.insert( idx, it );
     }
 
