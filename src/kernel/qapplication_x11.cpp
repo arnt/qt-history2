@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#60 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#61 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -22,6 +22,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
+#include <X11/Xatom.h>
 
 #if defined(DEBUG) && !defined(CHECK_MEMORY)
 #define  CHECK_MEMORY
@@ -29,7 +30,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#60 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#61 $";
 #endif
 
 
@@ -51,6 +52,8 @@ static char    *appDpyName      = 0;		// X11 display name
 static bool	appSync         = FALSE;	// X11 synchronization
 static int	appScreen;			// X11 screen number
 static Window	appRootWin;			// X11 root window
+static bool	app_save_rootinfo = FALSE;	// save root info
+
 static bool	app_do_modal	= FALSE;	// modal mode
 static int	app_loop_level  = 1;		// event loop level
 static bool	app_exit_loop   = FALSE;	// flag to exit local loop
@@ -91,8 +94,8 @@ static timeval *waitTimer();
 static bool	activateTimer();
 static timeval	watchtime;			// watch if time is turned back
 
+static void	qt_save_rootinfo();
 static bool	qt_try_modal( QWidget *, XEvent * );
-
 void		qt_reset_color_avail();		// defined in qcol_x11.cpp
 
 
@@ -276,6 +279,8 @@ void qt_cleanup()
     }
     delete preRList;
 
+    if ( app_save_rootinfo )			// root window must keep state
+	qt_save_rootinfo();
     QPixmapCache::clear();
     QCursor::cleanup();
     QFont::cleanup();
@@ -296,6 +301,37 @@ void qt_cleanup()
     if ( appMemChk )
 	memchkStop();				// finish memory checking
 #endif
+}
+
+
+void qt_save_rootinfo()				// save new root info
+{
+    Atom prop, type;
+    int	 format;
+    unsigned long length, after;
+    unsigned char *data;
+
+    prop = XInternAtom( appDpy, "_XSETROOT_ID", TRUE );
+    if ( prop != None ) {			// kill old pixmap
+	if ( XGetWindowProperty( appDpy, appRootWin, prop, 0, 1, TRUE,
+				 AnyPropertyType, &type, &format, &length,
+				 &after, &data ) == Success ) {
+	    if ( type == XA_PIXMAP && format == 32 && length == 1 &&
+		 after == 0 && data ) {
+		XKillClient( appDpy, *((Pixmap*)data) );
+		XFree( data );
+	    }
+	    Pixmap dummy = XCreatePixmap( appDpy, appRootWin, 1, 1, 1 );
+	    XChangeProperty( appDpy, appRootWin, prop, XA_PIXMAP, 32,
+			     PropModeReplace, (uchar *)&dummy, 1 );
+	    XSetCloseDownMode( appDpy, RetainPermanent );
+	}
+    }
+}
+
+void qt_updated_rootinfo()
+{
+    app_save_rootinfo = TRUE;
 }
 
 

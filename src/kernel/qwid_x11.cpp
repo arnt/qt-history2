@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#58 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#59 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#58 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#59 $";
 #endif
 
 
@@ -33,6 +33,7 @@ void qt_leave_modal( QWidget * );		// --- "" ---
 bool qt_modal_state();				// --- "" ---
 void qt_open_popup( QWidget * );		// --- "" ---
 void qt_close_popup( QWidget * );		// --- "" ---
+void qt_updated_rootinfo();
 
 
 // --------------------------------------------------------------------------
@@ -297,8 +298,11 @@ void QWidget::setBackgroundColor( const QColor &c )
 
 void QWidget::setBackgroundPixmap( const QPixmap &pm )
 {
-    if ( !pm.isNull() )
+    if ( !pm.isNull() ) {
 	XSetWindowBackgroundPixmap( dpy, ident, pm.handle() );
+	if ( testFlag(WType_Desktop) )		// save rootinfo later
+	    qt_updated_rootinfo();
+    }
 }
 
 
