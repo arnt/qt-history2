@@ -2285,7 +2285,6 @@ void MoveMenuCommand::execute()
     bar->removeItemAt( from );
     int t = ( from > to ? to : to - 1 );
     bar->insertItem( i, t );
-    bar->showItem( to );
 }
 
 void MoveMenuCommand::unexecute()
@@ -2295,7 +2294,6 @@ void MoveMenuCommand::unexecute()
     MenuBarEditorItem * i = bar->item( t );
     bar->removeItemAt( t );
     bar->insertItem( i, from );
-    bar->showItem( from );
 }
 
 // ------------------------------------------------------------
