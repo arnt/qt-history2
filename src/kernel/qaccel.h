@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.h#9 $
+** $Id: //depot/qt/main/src/kernel/qaccel.h#10 $
 **
 ** Definition of QAccel class
 **
@@ -58,9 +58,13 @@ signals:
 protected:
     bool	eventFilter( QObject *, QEvent * );
 
+private slots:
+    void	tlwDestroyed();
+
 private:
     QAccelList *aitems;
     bool	enabled;
+    QWidget    *tlw;
 };
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#20 $
 **
 ** Implementation of QAccel class
 **
@@ -16,7 +16,7 @@
 #include "qlist.h"
 #include "qsignal.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#19 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#20 $")
 
 
 /*!
@@ -99,13 +99,16 @@ QAccel::QAccel( QWidget *parent, const char *name )
     aitems->setAutoDelete( TRUE );
     enabled = TRUE;
     if ( parent && parent->isWidgetType() ) {	// install event filter
-	QWidget *tlw = parent->topLevelWidget();
+	tlw = parent->topLevelWidget();
 	tlw->installEventFilter( this );
+	connect( tlw, SIGNAL(destroyed()), SLOT(tlwDestroyed()) );
     }
+    else {
+	tlw = 0;
 #if defined(CHECK_NULL)
-    else
 	warning( "QAccel: An accelerator must have a parent widget" );
 #endif
+    }
 }
 
 /*!
@@ -114,8 +117,8 @@ QAccel::QAccel( QWidget *parent, const char *name )
 
 QAccel::~QAccel()
 {
-    if ( parent() )
-	((QWidget*)parent())->topLevelWidget()->removeEventFilter( this );
+    if ( tlw )
+	tlw->removeEventFilter( this );
     emit destroyed();
     delete aitems;
 }
@@ -353,4 +356,15 @@ bool QAccel::eventFilter( QObject *, QEvent *e )
 	}
     }
     return FALSE;
+}
+
+
+/*!
+  \internal
+
+*/
+
+void QAccel::tlwDestroyed()
+{
+    tlw = 0;
 }
