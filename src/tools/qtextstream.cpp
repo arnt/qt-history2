@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#120 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#121 $
 **
 ** Implementation of QTextStream class
 **
@@ -1363,10 +1363,10 @@ QString QTextStream::read()
 QTextStream &QTextStream::operator<<( char c )
 {
     CHECK_STREAM_PRECOND
-    ts_putc( c );
+    unsigned char uc = (unsigned char) c;
+    ts_putc( uc );
     return *this;
 }
-
 
 QTextStream &QTextStream::output_int( int format, ulong n, bool neg )
 {
