@@ -2675,6 +2675,12 @@ irix-cc*)
 	QMAKE_VARS="$QMAKE_VARS \"QMAKE_CXXFLAGS+=-LANG:libc_in_namespace_std=off\""
     fi
     ;;
+aix-*)
+    AIX_VERSION=`uname -v`
+    if ["$AIX_VERSION" -lt "5" ]; then
+        QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11+=-lbind\""
+    fi
+    ;;
 *)
     IRIX_VERSION=-1
     MIPSPRO_MINOR_VERSION=-1
