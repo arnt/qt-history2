@@ -1663,3 +1663,12 @@ void QWidget::updateCursor( const QRegion &r ) const
     }
 }
 #endif
+
+void QWidget::setWindowTransparency(int)
+{
+}
+
+int QWidget::windowTransparency() const
+{
+    return 255;
+}
