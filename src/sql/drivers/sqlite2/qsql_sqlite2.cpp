@@ -21,6 +21,7 @@
 #include <qsqlerror.h>
 #include <qsqlfield.h>
 #include <qsqlindex.h>
+#include <qsqlquery.h>
 #include <qstringlist.h>
 #include <qvector.h>
 
@@ -30,6 +31,9 @@
 #include <sqlite.h>
 
 typedef struct sqlite_vm sqlite_vm;
+
+Q_DECLARE_METATYPE(sqlite_vm*)
+Q_DECLARE_METATYPE(sqlite*)
 
 static QVariant::Type nameToType(const QString& typeName)
 {
@@ -274,6 +278,11 @@ QSqlRecord QSQLite2Result::record() const
     return d->rInf;
 }
 
+QVariant QSQLite2Result::handle() const
+{
+    return QVariant::fromValue(d->currentMachine);
+}
+
 /////////////////////////////////////////////////////////
 
 QSQLite2Driver::QSQLite2Driver(QObject * parent)
@@ -478,3 +487,9 @@ QSqlRecord QSQLite2Driver::record(const QString &tbl) const
     q.exec(QLatin1String("SELECT * FROM ") + tbl + QLatin1String(" LIMIT 1"));
     return q.record();
 }
+
+QVariant QSQLite2Driver::handle() const
+{
+    return QVariant::fromValue(d->access);
+}
+

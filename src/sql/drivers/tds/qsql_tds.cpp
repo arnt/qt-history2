@@ -29,6 +29,7 @@
 #include <qsqlerror.h>
 #include <qsqlfield.h>
 #include <qsqlindex.h>
+#include <qsqlquery.h>
 #include <qstringlist.h>
 #include <qvector.h>
 
@@ -95,6 +96,9 @@
 #ifndef CS_PUBLIC
 #define CS_PUBLIC
 #endif
+
+Q_DECLARE_METATYPE(DBPROCESS*)
+Q_DECLARE_METATYPE(LOGINREC*)
 
 QSqlError qMakeError(const QString& err, QSqlError::ErrorType type, int errNo = -1)
 {
@@ -287,9 +291,9 @@ void QTDSResult::cleanup()
     QSqlCachedResult::cleanup();
 }
 
-DBPROCESS *QTDSResult::dbprocess() const
+QVariant QTDSResult::handle() const
 {
-    return d->dbproc;
+    return QVariant::fromValue(d->dbproc);
 }
 
 bool QTDSResult::gotoNext(QSqlCachedResult::ValueCache &values, int index)
@@ -482,9 +486,9 @@ QTDSDriver::QTDSDriver(LOGINREC* rec, const QString& host, const QString &db, QO
     }
 }
 
-LOGINREC* QTDSDriver::loginrec() const
+QVariant QTDSDriver::handle() const
 {
-    return d->login;
+    return QVariant::fromValue(d->login);
 }
 
 void QTDSDriver::init()

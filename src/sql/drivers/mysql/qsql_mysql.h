@@ -41,7 +41,7 @@ public:
     explicit QMYSQLResult(const QMYSQLDriver* db);
     ~QMYSQLResult();
 
-    MYSQL_RES* result();
+    QVariant handle() const;
 protected:
     void cleanup();
     bool fetch(int i);
@@ -85,7 +85,7 @@ public:
     QSqlRecord record(const QString& tablename) const;
     QString formatValue(const QSqlField &field,
                                      bool trimStrings) const;
-    MYSQL *mysql();
+    QVariant handle() const;
 
 protected:
     bool beginTransaction();

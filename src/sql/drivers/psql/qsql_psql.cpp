@@ -23,6 +23,7 @@
 #include <qsqlfield.h>
 #include <qsqlindex.h>
 #include <qsqlrecord.h>
+#include <qsqlquery.h>
 #include <qstringlist.h>
 
 #include <libpq-fe.h>
@@ -49,6 +50,9 @@
 #define QREGPROCOID 24
 #define QXIDOID 28
 #define QCIDOID 29
+
+Q_DECLARE_METATYPE(PGconn*)
+Q_DECLARE_METATYPE(PGresult*)
 
 class QPSQLDriverPrivate
 {
@@ -186,9 +190,9 @@ QPSQLResult::~QPSQLResult()
     delete d;
 }
 
-PGresult* QPSQLResult::result()
+QVariant QPSQLResult::handle() const
 {
-    return d->result;
+    return QVariant::fromValue(d->result);
 }
 
 void QPSQLResult::cleanup()
@@ -457,11 +461,10 @@ QPSQLDriver::~QPSQLDriver()
     delete d;
 }
 
-PGconn* QPSQLDriver::connection()
+QVariant QPSQLDriver::handle() const
 {
-    return d->connection;
+    return QVariant::fromValue(d->connection);
 }
-
 
 bool QPSQLDriver::hasFeature(DriverFeature f) const
 {

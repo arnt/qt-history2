@@ -44,7 +44,7 @@ class QTDSResult : public QSqlCachedResult
 public:
     explicit QTDSResult(const QTDSDriver* db);
     ~QTDSResult();
-    DBPROCESS *dbprocess() const;
+    QVariant handle() const;
 
 protected:
     void cleanup();
@@ -80,7 +80,7 @@ public:
 
     QString formatValue(const QSqlField &field,
                          bool trimStrings) const;
-    LOGINREC* loginrec() const;
+    QVariant handle() const;
 
 protected:
     bool beginTransaction();

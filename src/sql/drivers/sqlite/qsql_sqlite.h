@@ -16,8 +16,6 @@
 
 #include <QtSql/qsqldriver.h>
 #include <QtSql/qsqlresult.h>
-#include <QtSql/qsqlrecord.h>
-#include <QtSql/qsqlindex.h>
 #include <QtSql/private/qsqlcachedresult_p.h>
 
 class QSQLiteDriverPrivate;
@@ -32,6 +30,7 @@ class QSQLiteResult : public QSqlCachedResult
 public:
     explicit QSQLiteResult(const QSQLiteDriver* db);
     ~QSQLiteResult();
+    QVariant handle() const;
 
 protected:
     bool gotoNext(QSqlCachedResult::ValueCache& row, int idx);
@@ -73,6 +72,7 @@ public:
 
     QSqlRecord record(const QString& tablename) const;
     QSqlIndex primaryIndex(const QString &table) const;
+    QVariant handle() const;
 
 private:
     QSQLiteDriverPrivate* d;

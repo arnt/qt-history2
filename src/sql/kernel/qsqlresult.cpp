@@ -797,3 +797,53 @@ void QSqlResult::virtual_hook(int, void *)
 {
 }
 
+
+/*!
+    Returns the low-level database handle for this result set
+    wrapped in a QVariant or an invalid QVariant if there is no handle.
+
+    \warning Use this with uttermost care and only if you know what you're doing.
+
+    \warning The handle returned here can become a stale pointer if the result
+    is modified (for example, if you clear it).
+
+    \warning The handle can be NULL if the result was not executed yet.
+
+    The handle returned here is database-dependent, you should query the type
+    name of the variant before accessing it.
+
+    This example retrieves the handle for a sqlite result:
+
+    \code
+    QSqlQuery query = ...
+    QVariant v = query.result()->handle();
+    if (v.isValid() && v.typeName() == "sqlite3_stmt*") {
+        // v.data() returns a pointer to the handle
+        sqlite3_stmt *handle = *static_cast<sqlite3_stmt **>(v.data());
+        if (handle != 0) { // check that it is not NULL
+            ...
+        }
+    }
+    \endcode
+
+    This snippet returns the handle for PostgreSQL or MySQL:
+
+    \code
+    if (v.typeName() == "PGresult*") {
+        PGresult *handle = *static_cast<PGresult **>(v.data());
+        if (handle != 0) ...
+    }
+
+    if (v.typeName() == "MYSQL_STMT*") {
+        MYSQL_STMT *handle = *static_cast<MYSQL_STMT **>(v.data());
+        if (handle != 0) ...
+    }
+    \endcode
+
+    \sa QSqlDriver::handle()
+*/
+QVariant QSqlResult::handle() const
+{
+    return QVariant();
+}
+

@@ -480,6 +480,11 @@ static bool qMakeStatement(QDB2ResultPrivate* d, bool forwardOnly, bool setForwa
     return true;
 }
 
+QVariant QDB2Result::handle() const
+{
+    return QVariant(qRegisterMetaType<SQLHANDLE>("SQLHANDLE"), &d->hStmt);
+}
+
 /************************************/
 
 QDB2Result::QDB2Result(const QDB2Driver* dr, const QDB2DriverPrivate* dp)
@@ -1486,12 +1491,8 @@ QString QDB2Driver::formatValue(const QSqlField &field, bool trimStrings) const
     }
 }
 
-Qt::HANDLE QDB2Driver::environment()
+QVariant QDB2Driver::handle() const
 {
-    return (Qt::HANDLE)d->hEnv;
+    return QVariant(qRegisterMetaType<SQLHANDLE>("SQLHANDLE"), &d->hDbc);
 }
 
-Qt::HANDLE QDB2Driver::connection()
-{
-    return (Qt::HANDLE)d->hDbc;
-}

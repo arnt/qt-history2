@@ -42,9 +42,9 @@ class Q_EXPORT_SQLDRIVER_OCI QOCIResult : public QSqlCachedResult
 public:
     QOCIResult(const QOCIDriver * db, QOCIPrivate* p);
     ~QOCIResult();
-    OCIStmt* statement();
     bool prepare(const QString& query);
     bool exec();
+    QVariant handle() const;
 
 protected:
     bool gotoNext(ValueCache &values, int index);
@@ -65,22 +65,21 @@ public:
     explicit QOCIDriver(QObject* parent = 0);
     QOCIDriver(OCIEnv* env, OCIError* err, OCISvcCtx* ctx, QObject* parent = 0);
     ~QOCIDriver();
-    bool                hasFeature(DriverFeature f) const;
-    bool                open(const QString & db,
-                              const QString & user,
-                              const QString & password,
-                              const QString & host,
-                              int port,
-                              const QString& connOpts);
-    void                close();
+    bool hasFeature(DriverFeature f) const;
+    bool open(const QString & db,
+              const QString & user,
+              const QString & password,
+              const QString & host,
+              int port,
+              const QString& connOpts);
+    void close();
     QSqlResult *createResult() const;
-    QStringList         tables(QSql::TableType) const;
-    QSqlRecord          record(const QString& tablename) const;
-    QSqlIndex           primaryIndex(const QString& tablename) const;
-    QString             formatValue(const QSqlField &field,
-                                     bool trimStrings) const;
-    OCIEnv*             environment();
-    OCISvcCtx*          serviceContext();
+    QStringList tables(QSql::TableType) const;
+    QSqlRecord record(const QString& tablename) const;
+    QSqlIndex primaryIndex(const QString& tablename) const;
+    QString formatValue(const QSqlField &field,
+                        bool trimStrings) const;
+    QVariant handle() const;
 
 protected:
     bool                beginTransaction();

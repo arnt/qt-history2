@@ -64,9 +64,10 @@ public:
     QODBCResult(const QODBCDriver * db, QODBCDriverPrivate* p);
     virtual ~QODBCResult();
 
-    SQLHANDLE statement();
     bool prepare(const QString& query);
     bool exec();
+
+    QVariant handle() const;
 
 protected:
     bool fetchNext();
@@ -97,9 +98,7 @@ public:
     QStringList tables(QSql::TableType) const;
     QSqlRecord record(const QString& tablename) const;
     QSqlIndex primaryIndex(const QString& tablename) const;
-    SQLHANDLE environment();
-    SQLHANDLE connection();
-
+    QVariant handle() const;
     QString formatValue(const QSqlField &field,
                         bool trimStrings) const;
     bool open(const QString& db,

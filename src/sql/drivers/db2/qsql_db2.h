@@ -35,6 +35,7 @@ public:
     ~QDB2Result();
     bool prepare(const QString& query);
     bool exec();
+    QVariant handle() const;
 
 protected:
     QVariant data(int field);
@@ -68,8 +69,7 @@ public:
     bool commitTransaction();
     bool rollbackTransaction();
     QString formatValue(const QSqlField &field, bool trimStrings) const;
-    Qt::HANDLE environment();
-    Qt::HANDLE connection();
+    QVariant handle() const;
     bool open(const QString& db,
                const QString& user,
                const QString& password,

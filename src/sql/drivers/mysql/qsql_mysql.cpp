@@ -19,6 +19,7 @@
 #include <qsqlerror.h>
 #include <qsqlfield.h>
 #include <qsqlindex.h>
+#include <qsqlquery.h>
 #include <qsqlrecord.h>
 #include <qstringlist.h>
 #include <qtextcodec.h>
@@ -30,6 +31,13 @@
 // comment the next line out if you want to use MySQL/embedded on Win32 systems.
 // note that it will crash if you don't statically link to the mysql/e library!
 # define Q_NO_MYSQL_EMBEDDED
+#endif
+
+Q_DECLARE_METATYPE(MYSQL_RES*)
+Q_DECLARE_METATYPE(MYSQL*)
+
+#if MYSQL_VERSION_ID >= 40108
+Q_DECLARE_METATYPE(MYSQL_STMT*)
 #endif
 
 class QMYSQLDriverPrivate
@@ -272,9 +280,13 @@ QMYSQLResult::~QMYSQLResult()
     delete d;
 }
 
-MYSQL_RES* QMYSQLResult::result()
+QVariant QMYSQLResult::handle() const
 {
-    return d->result;
+#if MYSQL_VERSION_ID >= 40108
+    return d->meta ? QVariant::fromValue(d->meta) : QVariant::fromValue(d->stmt);
+#else
+    return QVariant::fromValue(d->result);
+#endif
 }
 
 void QMYSQLResult::cleanup()
@@ -1071,9 +1083,9 @@ QSqlRecord QMYSQLDriver::record(const QString& tablename) const
     return info;
 }
 
-MYSQL* QMYSQLDriver::mysql()
+QVariant QMYSQLDriver::handle() const
 {
-     return d->mysql;
+    return QVariant::fromValue(d->mysql);
 }
 
 bool QMYSQLDriver::beginTransaction()

@@ -18,6 +18,7 @@
 #include <qsqlerror.h>
 #include <qsqlfield.h>
 #include <qsqlindex.h>
+#include <qsqlquery.h>
 #include <qstringlist.h>
 #include <qvector.h>
 
@@ -28,6 +29,9 @@
 #endif
 
 #include <sqlite3.h>
+
+Q_DECLARE_METATYPE(sqlite3*)
+Q_DECLARE_METATYPE(sqlite3_stmt*)
 
 static QVariant::Type qSqliteType(int tp)
 {
@@ -262,6 +266,11 @@ QSqlRecord QSQLiteResult::record() const
     return d->rInf;
 }
 
+QVariant QSQLiteResult::handle() const
+{
+    return QVariant::fromValue(d->stmt);
+}
+
 /////////////////////////////////////////////////////////
 
 QSQLiteDriver::QSQLiteDriver(QObject * parent)
@@ -457,3 +466,9 @@ QSqlRecord QSQLiteDriver::record(const QString &tbl) const
     q.exec(QLatin1String("SELECT * FROM ") + tbl + QLatin1String(" LIMIT 1"));
     return q.record();
 }
+
+QVariant QSQLiteDriver::handle() const
+{
+    return QVariant::fromValue(d->access);
+}
+

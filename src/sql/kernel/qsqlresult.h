@@ -32,6 +32,7 @@ friend class QSqlQuery;
 friend class QSqlResultPrivate;
 public:
     virtual ~QSqlResult();
+    virtual QVariant handle() const;
 
 protected:
     enum BindingSyntax {

@@ -1265,6 +1265,11 @@ QSqlRecord QODBCResult::record() const
     return d->rInf;
 }
 
+QVariant QODBCResult::handle() const
+{
+    return QVariant(qRegisterMetaType<SQLHANDLE>("SQLHANDLE"), &d->hStmt);
+}
+
 ////////////////////////////////////////
 
 
@@ -1858,16 +1863,6 @@ QSqlRecord QODBCDriver::record(const QString& tablename) const
     return fil;
 }
 
-SQLHANDLE QODBCDriver::environment()
-{
-    return d->hEnv;
-}
-
-SQLHANDLE QODBCDriver::connection()
-{
-    return d->hDbc;
-}
-
 QString QODBCDriver::formatValue(const QSqlField &field,
                                  bool trimStrings) const
 {
@@ -1905,3 +1900,9 @@ QString QODBCDriver::formatValue(const QSqlField &field,
     }
     return r;
 }
+
+QVariant QODBCDriver::handle() const
+{
+    return QVariant(qRegisterMetaType<SQLHANDLE>("SQLHANDLE"), &d->hDbc);
+}
+

@@ -37,7 +37,9 @@ class QPSQLResult : public QSqlResult
 public:
     QPSQLResult(const QPSQLDriver* db, const QPSQLDriverPrivate* p);
     ~QPSQLResult();
-    PGresult* result();
+
+    QVariant handle() const;
+
 protected:
     void cleanup();
     bool fetch(int i);
@@ -84,7 +86,7 @@ public:
     QSqlRecord record(const QString& tablename) const;
 
     Protocol protocol() const;
-    PGconn *connection();
+    QVariant handle() const;
 
     QString escapeIdentifier(const QString &identifier, IdentifierType type) const;
     QString formatValue(const QSqlField &field,

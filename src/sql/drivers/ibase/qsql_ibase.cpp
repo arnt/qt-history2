@@ -19,6 +19,7 @@
 #include <qsqlerror.h>
 #include <qsqlfield.h>
 #include <qsqlindex.h>
+#include <qsqlquery.h>
 #include <qstringlist.h>
 #include <qlist.h>
 #include <qvector.h>
@@ -1144,6 +1145,11 @@ QSqlRecord QIBaseResult::record() const
     return rec;
 }
 
+QVariant QIBaseResult::handle() const
+{
+    return QVariant(qRegisterMetaType<isc_db_handle>("isc_stmt_handle"), d->stmt);
+}
+
 /*********************************/
 
 QIBaseDriver::QIBaseDriver(QObject * parent)
@@ -1416,3 +1422,7 @@ QString QIBaseDriver::formatValue(const QSqlField &field, bool trimStrings) cons
     }
 }
 
+QVariant QIBaseDriver::handle() const
+{
+    return QVariant(qRegisterMetaType<isc_db_handle>("isc_db_handle"), d->ibase);
+}

@@ -464,7 +464,7 @@ QString QSqlDriver::sqlStatement(StatementType type, const QString &tableName,
 */
 QString QSqlDriver::formatValue(const QSqlField &field, bool trimStrings) const
 {
-    static const QLatin1String nullTxt("NULL");
+    const QLatin1String nullTxt("NULL");
 
     QString r;
     if (field.isNull())
@@ -542,6 +542,55 @@ QString QSqlDriver::formatValue(const QSqlField &field, bool trimStrings) const
 }
 
 /*!
+    Returns the low-level database handle wrapped in a QVariant or an
+    invalid variant if there is no handle.
+
+    \warning Use this with uttermost care and only if you know what you're doing.
+
+    \warning The handle returned here can become a stale pointer if the connection
+    is modified (for example, if you close the connection).
+
+    \warning The handle can be NULL if the connection is not open yet.
+
+    The handle returned here is database-dependent, you should query the type
+    name of the variant before accessing it.
+
+    This example retrieves the handle for a connection to sqlite:
+
+    \code
+    QSqlDatabase db = ...;
+    QVariant v = db.driver()->handle();
+    if (v.isValid() && v.typeName() == "sqlite3*") {
+        // v.data() returns a pointer to the handle
+        sqlite3 *handle = *static_cast<sqlite3 **>(v.data());
+        if (handle != 0) { // check that it is not NULL
+            ...
+        }
+    }
+    \endcode
+
+    This snippet returns the handle for PostgreSQL or MySQL:
+
+    \code
+    if (v.typeName() == "PGconn*") {
+        PGconn *handle = *static_cast<PGconn **>(v.data());
+        if (handle != 0) ...
+    }
+
+    if (v.typeName() == "MYSQL*") {
+        MYSQL *handle = *static_cast<MYSQL **>(v.data());
+        if (handle != 0) ...
+    }
+    \endcode
+
+    \sa QSqlResult::handle()
+*/
+QVariant QSqlDriver::handle() const
+{
+    return QVariant();
+}
+
+/*!
     \fn QSqlRecord QSqlDriver::record(const QSqlQuery& query) const
 
     Use query.record() instead.
@@ -562,7 +611,7 @@ QString QSqlDriver::formatValue(const QSqlField &field, bool trimStrings) const
 /*!
     \fn QString QSqlDriver::nullText() const
 
-    Use tr("NULL") for example, instead.
+    sqlStatement() is now used to generate SQL. Use tr("NULL") for example, instead.
 */
 
 /*!

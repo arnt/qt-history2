@@ -32,6 +32,7 @@ public:
 
     bool prepare(const QString& query);
     bool exec();
+    QVariant handle() const;
 
 protected:
     bool gotoNext(QSqlCachedResult::ValueCache& row, int rowIdx);
@@ -75,6 +76,7 @@ public:
     QSqlIndex primaryIndex(const QString &table) const;
 
     QString formatValue(const QSqlField &field, bool trimStrings) const;
+    QVariant handle() const;
 
 private:
     QIBaseDriverPrivate* d;

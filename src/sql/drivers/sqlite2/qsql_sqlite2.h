@@ -36,6 +36,7 @@ class QSQLite2Result : public QSqlCachedResult
 public:
     explicit QSQLite2Result(const QSQLite2Driver* db);
     ~QSQLite2Result();
+    QVariant handle() const;
 
 protected:
     bool gotoNext(QSqlCachedResult::ValueCache& row, int idx);
@@ -76,6 +77,7 @@ public:
 
     QSqlRecord record(const QString& tablename) const;
     QSqlIndex primaryIndex(const QString &table) const;
+    QVariant handle() const;
 
 private:
     QSQLite2DriverPrivate* d;

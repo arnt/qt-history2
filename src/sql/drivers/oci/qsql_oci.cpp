@@ -22,6 +22,7 @@
 #include <qsqlerror.h>
 #include <qsqlfield.h>
 #include <qsqlindex.h>
+#include <qsqlquery.h>
 #include <qstringlist.h>
 #include <qvarlengtharray.h>
 #include <qvector.h>
@@ -32,6 +33,9 @@
 
 #define QOCI_DYNAMIC_CHUNK_SIZE  255
 #define QOCI_PREFETCH_MEM  10240
+
+Q_DECLARE_METATYPE(OCIEnv*)
+Q_DECLARE_METATYPE(OCIStmt*)
 
 #if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
 enum { QOCIEncoding = 2002 }; // AL16UTF16LE
@@ -1068,9 +1072,9 @@ QOCIResult::~QOCIResult()
     delete cols;
 }
 
-OCIStmt* QOCIResult::statement()
+QVariant QOCIResult::handle() const
 {
-    return d->sql;
+    return QVariant::fromValue(d->sql);
 }
 
 bool QOCIResult::reset (const QString& query)
@@ -1774,12 +1778,8 @@ QString QOCIDriver::formatValue(const QSqlField &field, bool) const
     return QSqlDriver::formatValue(field);
 }
 
-OCIEnv* QOCIDriver::environment()
+QVariant QOCIDriver::handle() const
 {
-    return d->env;
+    return QVariant::fromValue(d->env);
 }
 
-OCISvcCtx* QOCIDriver::serviceContext()
-{
-    return d->svc;
-}

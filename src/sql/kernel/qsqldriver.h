@@ -16,7 +16,11 @@
 
 #include "QtCore/qobject.h"
 #include "QtCore/qstring.h"
+
+#include "QtSql/qsql.h"
+#ifdef QT3_SUPPORT
 #include "QtSql/qsqlquery.h"
+#endif
 
 class QStringList;
 class QSqlDatabase;
@@ -24,6 +28,9 @@ class QSqlDriverPrivate;
 class QSqlError;
 class QSqlField;
 class QSqlIndex;
+class QSqlRecord;
+class QSqlResult;
+class QVariant;
 
 class Q_SQL_EXPORT QSqlDriver : public QObject
 {
@@ -70,6 +77,7 @@ public:
 
     QSqlError lastError() const;
 
+    virtual QVariant handle() const;
     virtual bool hasFeature(DriverFeature f) const = 0;
     virtual void close() = 0;
     virtual QSqlResult *createResult() const = 0;
