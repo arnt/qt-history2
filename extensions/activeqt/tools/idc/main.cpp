@@ -16,6 +16,13 @@
 #include <qt_windows.h>
 #include <io.h>
 
+static QString quotePath(const QString &s)
+{
+    if (!s.startsWith("\"") && s.contains(' '))
+        return "\"" + s + "\"";
+    return s;
+}
+
 static bool attachTypeLibrary(const QString &applicationName, int resource, const QByteArray &data, QString *errorMessage)
 {
     HANDLE hExe = 0;
@@ -62,9 +69,9 @@ static bool attachTypeLibrary(const QString &applicationName, int resource, cons
 
 static bool registerServer(const QString &input)
 {
-    bool ok = false;
-    if (input.endsWith(".exe") || input.endsWith(".exe\"")) {
-        ok = system((input + " -regserver").local8Bit()) == 0;
+    bool ok = false;    
+    if (input.endsWith(".exe")) {
+        ok = system((quotePath(input) + " -regserver").local8Bit()) == 0;
     } else {
         HMODULE hdll = 0;
         QT_WA({
@@ -90,8 +97,8 @@ static bool registerServer(const QString &input)
 static bool unregisterServer(const QString &input)
 {
     bool ok = false;
-    if (input.endsWith(".exe") || input.endsWith(".exe\"")) {
-        ok = system((input + " -unregserver").local8Bit()) == 0;
+    if (input.endsWith(".exe")) {        
+        ok = system((quotePath(input) + " -unregserver").local8Bit()) == 0;
     } else {
         HMODULE hdll = 0;
         QT_WA({
@@ -118,8 +125,8 @@ static HRESULT dumpIdl(const QString &input, const QString &idlfile, const QStri
 {
     HRESULT res = E_FAIL;
     
-    if (input.endsWith(".exe") || input.endsWith(".exe\"")) {
-        int ec = system((input + " -dumpidl " + idlfile + " -version " + version).local8Bit());
+    if (input.endsWith(".exe")) {
+        int ec = system((quotePath(input) + " -dumpidl " + idlfile + " -version " + version).local8Bit());
         if (ec == 0)
             res = S_OK;
     } else {
@@ -157,12 +164,6 @@ static void slashify(QString &s)
             s[i] = '\\';
         ++i;
     }
-}
-
-static void quotePath(QString &s)
-{
-    if (!s.startsWith("\"") && s.contains(' '))
-        s = "\"" + s + "\"";
 }
 
 int main(int argc, char **argv)
@@ -206,7 +207,6 @@ int main(int argc, char **argv)
             fprintf(stdout, "Qt interface definition compiler version 1.0\n");
             return 0;
         } else if (p == "/regserver" || p == "-regserver") {
-            quotePath(input);
             if (!registerServer(input)) {
                 fprintf(stderr, "Failed to register server!\n");
                 return 1;
@@ -214,7 +214,6 @@ int main(int argc, char **argv)
             fprintf(stderr, "Server registered successfully!\n");
             return 0;
         } else if (p == "/unregserver" || p == "-unregserver") {
-            quotePath(input);
             if (!unregisterServer(input)) {
                 fprintf(stderr, "Failed to unregister server!\n");
                 return 1;
@@ -250,7 +249,6 @@ int main(int argc, char **argv)
     slashify(input);
     if (!tlbfile.isEmpty()) {
         slashify(tlbfile);
-        quotePath(tlbfile);
         QFile file(tlbfile);
         if (!file.open(QIODevice::ReadOnly)) {
             fprintf(stderr, "Couldn't open %s for read\n", (const char*)tlbfile.local8Bit());
@@ -264,7 +262,7 @@ int main(int argc, char **argv)
         return ok ? 0 : 4;
     } else if (!idlfile.isEmpty()) {
         slashify(idlfile);
-        quotePath(idlfile);
+        idlfile = quotePath(idlfile);
         fprintf(stderr, "\n\n%s\n\n", (const char*)idlfile.local8Bit());
         quotePath(input);
         HRESULT res = dumpIdl(input, idlfile, version);
