@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: tutorial.doc,v 1.5 1995/12/20 18:51:49 hanord Exp $
+** $Id: tutorial.doc,v 1.6 1995/12/21 19:21:19 hanord Exp $
 **
 ** Tutorial
 **
@@ -19,17 +19,30 @@ This tutorial is meant to give an introduction to GUI programming
 using the Qt toolkit.  It introduces some of the most important
 features, but the emphasis is on the programming philosophy in Qt.
 
-It starts with a five-line hello-world and builds gradually,
-introducing one or a few concepts at a time, into a simple, 600-line
-game.
+It starts with a five-line hello-world and builds gradually, introducing
+one or a few concepts at a time, into a simple, 650-line game.
 
-To compile and run the tutorial programs, you need the Qt toolkit, gcc
-version 2.7.0 or later, and X11R6.  You do not need libg++ or
+To compile and run the tutorial programs under Linux, you need the Qt
+toolkit, gcc version 2.7.0 or later, and X11R6.  You do not need libg++ or
 libstdc++.
 
-Each chapter explains what 
-
-
+Tutorial chapters:
+<ol>
+<li>\link t1.html Hello, World!\endlink
+<li>\link t2.html Calling it Quits\endlink
+<li>\link t3.html Family Values\endlink
+<li>\link t4.html Let There Be Widgets\endlink
+<li>\link t5.html Lego\endlink
+<li>\link t6.html Lego Galore!\endlink
+<li>\link t7.html One Thing Leads to Another\endlink
+<li>\link t8.html Preparing for Battle\endlink
+<li>\link t9.html With Cannon You Can\endlink
+<li>\link t10.html Smooth as Silk\endlink
+<li>\link t11.html Giving It a Shot\endlink
+<li>\link t12.html Hanging in the Air the Way Bricks Don't\endlink
+<li>\link t13.html Game Over\endlink
+<li>\link t14.html Facing the Wall\endlink
+<ol>
 */
 
 
@@ -811,7 +824,7 @@ Now, use the one to the left of the last one operated to set the first seven
 LCDs back to 30. Click on the left arrow on the bottom right scroll bar.
 What happens? Why is this the correct behavior?
 
-You may now go on to \link t8.html chapter seven. \endlink
+You may now go on to \link t8.html chapter eight. \endlink
 
 */
 
@@ -833,9 +846,9 @@ In this example, we introduce the first custom widget that can paint
 itself.
 
 <ul>
-<li> \link ../t8/lcdrange.h lcdrange.h \endlink contains the LCDRange
+<li> \link t8/lcdrange.h lcdrange.h \endlink contains the LCDRange
 class definition
-<li> \link tutorial/t8/lcdrange.cpp lcdrange.cpp \endlink contains the LCDRange
+<li> \link t8/lcdrange.cpp lcdrange.cpp \endlink contains the LCDRange
 implementation
 <li> \link t8/cannon.h cannon.h \endlink contains the CannonField
 class definition
@@ -867,7 +880,7 @@ Until now, it has fixed at 0..99.
 \dontinclude t8/lcdrange.cpp
 
 \skip ::setRange
-\until sBar->setRange
+\until sBar
 \line }
 
 setRange() sets the range of the scroll bar in the LCDRange.  Since we
@@ -887,6 +900,7 @@ CannonField is a new custom widget that knows how to display itself.
 
 \dontinclude t8/cannon.h
 
+\skip include
 \skip class
 \until parent=0
 
@@ -900,7 +914,7 @@ provide an interface using the same idiom as for value in LCDRange.
 \line protected
 \line paintEvent
 
-This is the second of the many \link event-system.html event handler\endlink
+This is the second of the many \link event-system.html event handlers\endlink
 in QWidget that we encounter.  This virtual function is called by Qt
 whenever a widget needs to update itself (i.e. paint the widget's surface).
 
@@ -969,7 +983,7 @@ CannonField is a new custom widget that knows how to display itself.
 
 \dontinclude t8/main.cpp
 
-\skip #include "cannon.h"
+\skip cannon.h
 \line cannon.h
 
 We include our new class.
@@ -981,13 +995,13 @@ This time, we include a single LCDRange and a CannonField in our top level
 widget.
 
 \skip angle
-\until angle->setGeometry
+\until setGeometry
 
 We create and set up our LCDRange with a range 5..70 and put it
 10 pixels below the quit button and fix its size to 75x130.
 
 \skip cannonField
-\until cannonField->setBackgroundColor
+\until setBackgroundColor
 
 We create and set up our CannonField. Its position is 10 pixels to the
 right of the LCDRange and the same y position as LCDRange.  The size
@@ -999,6 +1013,7 @@ and blue=200 (which gives an easter-like yellow pastel color).
 The range of the RGB values is 0..255.
 
 \skip connect
+\line connect
 \line connect
 
 Here we connect the valueChanged() signal of the LCDRange to the
@@ -1017,8 +1032,8 @@ the angle actually changes.  If both the LCDRange and the CannonField
 had had this design flaw, the program would have entered an infinite
 loop upon the first change of one of the values.
 
-\skip angle->setValue
-\line angle->setValue
+\skip setValue
+\line setValue
 
 Finally, we set an initial angle value.  Note that this will trigger the
 connection from LCDRange to CannonField.
@@ -1090,9 +1105,9 @@ CannonField is a new custom widget that knows how to display itself.
 \until QPen
 
 In order to paint our widget, we use a QPainter.  QPainter is Qt's
-painting engine.  It can paint 2D graphics on several types of
-\link QPaintDevice paint devices\endlink.  QWidget is a paint device.
-See the QPainter documentation for details. \link SJEKKIT\endlink
+painting engine.  It can render 2D graphics on several types of \link
+QPaintDevice paint devices\endlink.  QWidget is a paint device.  See the
+QPainter \link QPainter documentation\endlink for details.
 
 QPainter uses a QPen and a QBrush. The pen specifies a line style and a
 text color while the brush specifies a fill color and/or a fill pattern.
@@ -1124,9 +1139,8 @@ are now negative (see \link coordsys.html The Coordinate System\endlink).
 The \link QPainter::drawPie() drawPie()\endlink function draws a pie shape
 inside the specified rectangle using a start angle and an arc length.  The
 angles are specified in 1/16th of a degree. The drawing direction is
-always counter-clockwise.  Here we draw a quarter of a circle in the
-bottom left corner of the widget.  The pie is filled with blue and has no
-outline.
+counter-clockwise.  Here we draw a quarter of a circle in the bottom left
+corner of the widget.  The pie is filled with blue and has no outline.
 
 \line rotate
 
@@ -1314,7 +1328,7 @@ fill it with the widget's background color.
 Here we start painting on the pixmap.  We set a blue brush and an
 invisible pen, as in the previous chapter.  This time we use a shortcut.
 \link QPainter::setPen() setPen() and \link QPainter::setBrush()
-setBrush() are overloaded functions in QPainter.
+setBrush()\endlink are overloaded functions in QPainter.
 
 \skip translate
 \until end
@@ -1482,7 +1496,7 @@ We include the math library because we need the sin() and cos() functions.
 
 We initialize our new private variables.
 
-\skip ::shot
+\skip ::shoot
 \until startTimer
 \line }
 
@@ -1612,7 +1626,7 @@ You may now go on to \link t12.html chapter twelve. \endlink
 Qt Tutorial - Chapter 12
 </title></head><body>
 
-<h1>Chapter 12: Something To Die For</h1>
+<h1>Chapter 12: Hanging in the Air the Way Bricks Don't</h1>
 
 <img src=t12.gif>
 
@@ -1786,7 +1800,7 @@ is invisible.  Qt guarantees that no harm is done when painting a hidden
 widget.
 
 \skip ::newTarget
-\until height
+\until repaint
 \line }
 
 This private function creates a target center point at a new "random"
@@ -1932,9 +1946,10 @@ Qt Tutorial - Chapter 13
 
 <img src=t13.gif>
 
-In this example we give MyWidget a new name; GameBoard and added some
-slots.  We put the definition in gamebrd.h and the implementation in
-gamebrd.cpp.
+In this example we start to approach a real playable game. We give
+MyWidget a new name; GameBoard and added some slots.
+
+We put the definition in gamebrd.h and the implementation in gamebrd.cpp.
 
 The CannonField now has a game over state.
 
@@ -1962,7 +1977,7 @@ href=metaobjects.html>signal/slot creation.</a>
 
 <h3>cannon.h</h3>
 
-The CannonField now has a game over state and a few new slots/functions.
+The CannonField now has a game over state and a few new functions.
 
 \dontinclude t13/cannon.h
 
@@ -1972,12 +1987,10 @@ The CannonField now has a game over state and a few new slots/functions.
 This function returns TRUE if the game is over, or FALSE if a game
 is going on.
 
-\skip newTarget
+\skip setGameOver
 \until restartGame
 
 Here are two new slots; setGameOver() and restartGame().
-In addition, the private function newTarget() has become a slot, to
-give the outside world better control of the game.
 
 \skip gameEnded
 \line gameEnded
@@ -2016,270 +2029,443 @@ going on, we stop the shot, set the game over flag and repaint the widget.
 \skip ::restartGame
 \until }
 
-This slot starts a new game.
+This slot starts a new game. If a shot is in the air, we stop shooting.
+We then reset the \c gameEnded variable and repaint the entire widget.
 
 \skip ::paintEvent
+\skip gameEnded
+\until else
 
+The paint event has been enhanced to display the text "Game Over" if
+the game is over, i.e. \c gameEnded is TRUE.  We don't bother to
+check the update rectangle here, because speed is not critical when
+the game is over.
 
-This part of the timer event has not changed from the previous chapter.
+To draw the text, we first set a black pen. The pen color is used when
+drawing text.  Next, we choose a 48 point bold font from the Courier
+family.  Finally, we draw the text centered in the widget's rectangle.
+Unfortunately, on some systems (especially some X servers) it can take a
+while to load such a large font.  Since Qt caches fonts, you will only
+notice this the first time the font is used.
 
-\skip targetRect
 \until }
 
-This if statement checks if the shot rectangle intersects the target
-rectangle.  If it does, the shot has hit the target (ouchh!).  First we
-erase the target, then we stop the shot, create a new target position and
-paint the new target.  Finally we emit the hit() signal to tell the
-outside world that a target was destroyed and return.
+We don't draw the shot or the target when the game is over.
 
-\skip shotR
+
+<h3>gamebrd.h</h3>
+
+This file is new. It contains the definition of the GameBoard class,
+which was last seen as MyWidget.
+
+\dontinclude t13/gamebrd.h
+
+\skip include
+\skip class
+\until };
+
+We have now added four slots. These are protected and are used internally.
+We have also added two QLCDNumbers: \c hits and \c shotsLeft, which display
+the game status. The \c restart button is also new.
+
+
+<h3>gamebrd.cpp</h3>
+
+This file is new. It contains the definition of the GameBoard class,
+which was last seen as MyWidget.
+
+\dontinclude t13/gamebrd.cpp
+
+We have made some changes in the GameBoard constructor.
+
+\skip ::GameBoard
+\skip hit
+\line connect
+\line connect
+
+This time we want to do something when the shot has hit or missed the target.
+Thus we connect the hit() and missed() signals of the CannonField to two
+protected slots with the same names in this class.
+
+\skip shoot
+\skip connect
+\line connect
+
+Previously, we connected the shoot button's clicked() signal directly to
+the CannonField's shoot() slot. This time we want to keep track of the
+number of shots fired, so we connect it to a protected slot instead.
+
+Notice how easy it is to change the behavior of a program when you are
+working with self-contained components.
+
+\skip restart
+\until connect
+
+We create, set up and connect the restart button like we have done with
+the other buttons. Clicking this button will activate the newGame() slot
+in this widget.
+
+\skip hits
+\until shotsLeftL
+
+We create four new widgets.  Note that we don't bother to keep the
+pointers to the QLabel widgets in the GameBoard class. As mentioned before,
+Qt will delete them when the GameBoard widget is destroyed.
+
+\skip setGeometry
+\until shotsLeftL
+
+Since we have a large number of widgets, we want to put the geometry
+setting in one place. This will make it more convenient for us to later
+change the geometry.
+
+\skip newGame
+\line newGame
+
+To start the show, we call the newGame() slot.
+
+\skip ::fire
 \until }
 
-This if statement is the same as in the previous chapter, except that
-it now emits the missed() signal to tell the outside world about the
-failure.
+This function fires a shot.  If the game is over or there is a shot in the
+air, we return immediately.  We decrement number of shots left and tell
+the cannon to shoot.
 
-\skip repaint
+\skip ::hit
 \until }
 
-No changes here.
+This slot is activated when a shot has hit the target. We increment the
+number of hits. If there are no shots left, the game is over. Otherwise,
+we make the CannonField generate a new target.
 
-\skip ::paintEvent
-\skip targetRect
-\line updateR
-\line paintTarget
-
-These two lines have been added to the paintEvent() to paint the
-target if necessary.
-
-\skip ::paintTarget
+\skip ::missed
 \until }
 
-This private function paints the target; a rectangle filled with red and
-with a black outline.
+This slot is activated when a shot has missed the target. If there are no
+shots left, the game is over.
 
-\skip ::targetRect
+\skip ::newGame
 \until }
 
-This private function returns the enclosing rectangle of the target.
-
-\skip ::newTarget
-\until height
-\line }
-
-This slot creates a target center point at a new "random" position.
-
-We use the rand() function to fetch random integers.  The rand() function
-always returns the same series of numbers, and this would make the target
-appear on the same aposition each time you run the program.  To avoid
-this, we set a random seed the first time this function is called. The
-random seed must also be random, in order to avoid equal random number
-series.  The solution is to use the number of seconds that have passed
-since midnight as a pseudo-random value.
-
-First we create a static bool local variable.  A static variable like this
-one is guaranteed to keep its value between calls to the function.
-
-The if test will only succeed the first time this function is called,
-because we set \c first_time to FALSE inside the \c if block.
-
-Then we create the QTime object \c midnight which represents the time
-00:00:00. Next, we fetch the number of seconds from midnight until now
-and use it as a random seed.
-
-See the documentation of QDate, QTime and QDateTime for more information
-on date and time support.
-
-Finally, we calculate the target's center point. We keep it withing the
-rectangle (x=200,y=35,width=290,height=310) (i.e. the possible x and y
-values are x = 200..490 and y = 35..345) in a coordinate system where we
-put y position 0 at the bottom edge of the widget and let y values
-increase upwards.  X is as normal, with 0 at the left edge and with x
-increasing to the right.
-
-Note that rand() return a random integer >= 0.
+This slot is activated when the user clicks the restart button. It is also
+called from the constructor.  First, it sets the number of shots to 15.
+Note that this is the only place in the program that we set the number of
+shots.  Change it to whatever you like to change the game rules.
 
 
 <h3>main.cpp</h3>
 
-\dontinclude t13/main.cpp
-
-There are no new members in the MyWidget class, but we have slightly
-changed the constructor to set the new LCDRange text labels.
-
-\skip ::MyWidget
-\skip angle
-\line ANGLE
-
-We set the angle text label to "ANGLE".
-
-
-\skip force
-\line FORCE
-
-We set the force text label to "FORCE".
-
-Note that we have not changed the position or the size of the LCDRanges.
-The QLCDNumber in LCDRange will become a bit smaller to make room for the
-label.  MyWidget doesn't care about that, because it uses LCDRange as a
-component and trust that it will show its value in the best way possible.
+This file has just been on a diet. MyWidget is gone and the only thing
+left is the main() function.
 
 
 <h2>Behavior</h2>
 
-The cannon can shoot at a target and automatically creates a new target
-when one has been hit.
+What is there to say? Play the game!
 
 
 <h2>Excercises</h2>
 
-Make a cheat button that when pressed makes the CannonField display
-the shot trajectory for 5 seconds.
+Add a random wind factor and show it to the user.
 
-Make a moving target.
+Make some splatter effects when the shot hits the target.
 
-Make it possible to have several shots in the air at the same time.
+Implement multiple targets.
 
-You may now go on to \link t13.html chapter thirteen. \endlink
+You may now go on to \link t14.html chapter fourteen. \endlink
 
 */
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 ------------------------------------------------------------------------------
 
 
-
-/*! \page t.html
+/*! \page t14.html
 
 <title>
-Qt Tutorial - Chapter 
+Qt Tutorial - Chapter 14
 </title></head><body>
 
-<h1>Chapter : </h1>
+<h1>Chapter 14: Facing the Wall</h1>
 
-<img src=t.gif>
+<img src=t14.gif>
 
+This is the final example, which is a complete game.
+
+We add keyboard accelerators, introduce mouse events to CannonField.
+We put a frame around the CannonField and add a barrier (wall) to
+make the game more playable.
 
 <ul>
-<li> \link t \endlink contains MyWidget and main.
-<li> \link t7/lcdrange.h lcdrange.h \endlink contains the LCDRange
+<li> \link t14/lcdrange.h lcdrange.h \endlink contains the LCDRange
 class definition
-<li> \link t7/lcdrange.cpp lcdrange.cpp \endlink contains the LCDRange
+<li> \link t14/lcdrange.cpp lcdrange.cpp \endlink contains the LCDRange
 implementation
-<li> 
+<li> \link t14/cannon.h cannon.h \endlink contains the CannonField
+class definition
+<li> \link t14/cannon.cpp cannon.cpp \endlink contains the CannonField
+implementation
+<li> \link t14/gamebrd.h gamebrd.h \endlink contains the GameBoard
+class definition
+<li> \link t14/gamebrd.cpp gamebrd.cpp \endlink contains the GameBoard
+implementation
+<li> \link t14/main.cpp main.cpp \endlink contains main.
+<li> \link t14/Makefile Makefile \endlink contains some rules for
+generating the metaobject information necessary for <a
+href=metaobjects.html>signal/slot creation.</a>
 </ul>
 
 <h2>Line by Line Walk-Through</h2>
 
 
+<h3>cannon.h</h3>
+
+The CannonField can now receive mouse events to make the user aim the
+barrel by clicking on it and dragging. CannonField also has a barrier
+wall.
+
+
+\dontinclude t14/cannon.h
+
+\skip CannonField
+\skip protected
+\until mouseReleaseEvent
+
+In addition to the familiar event handlers, CannonField implements
+three mouse event handlers. The names say it all.
+
+\skip paintBarrier
+\line paintBarrier
+
+This private function paints the barrier wall.
+
+\skip barrierRect
+\line barrierRect
+
+This private function returns the enclosing rectangle of the barrier.
+
+\skip barrelHit
+\line barrelHit
+
+This private function checks if a point is inside the barrel of the cannon.
+
+\skip barrelPressed
+\line barrelPressed
+
+This private variable is TRUE if the user has pressed the mouse on the barrel
+and not released it.
+
+
+<h3>cannon.cpp</h3>
+
+\dontinclude t14/cannon.cpp
+
+\skip ::CannonField
+\skip barrelPressed
+\line barrelPressed
+
+This line has been added to the constructor. Initially, the barrel is
+not pressed.
+
+\skip ::timerEvent
+\skip return
+\skip if
+until }
+
+In the timerEvent() we now have to test if the shot has hit the barrier,
+in addition to checking if the shot has moved beyond the right or bottom
+edge of the widget.
+
+\skip ::paintEvent
+\skip barrierRect
+\line barrierRect
+\line paintBarrier
+
+In the paint event, we have added painting of the barrier.
+
+\skip ::mousePressEvent
+\until }
+
+This is a Qt event handler.  It is called when the user presses a mouse
+button when the mouse cursor is over the widget.
+
+If the event was not generated by the left mouse button, we return
+immediately. Otherwise, we check if the position of the mouse cursor is
+within the cannon's barrel. If it is, we set \c barrelPressed to TRUE.
+
+Notice that the pos() function returns a point in the widget's coordinate
+system.
+
+\skip ::mouseMoveEvent
+\until setAngle
+\line }
+
+This is another Qt event handler. It is called when the user already has
+pressed the mouse button inside this widget and then moves/drags the
+mouse.  You can make Qt send mouse move events even when no buttons are
+pressed, see \link QWidget::setMouseTracking()
+QWidget::setMouseTracking()\endlink.
+
+This handler repositions the cannon's barrel according to the position of
+the mouse cursor.
+
+First, if the barrel is not pressed, we return.  Next, we fetch the mouse
+cursor's position. If the mouse cursor is to the left or below the widget,
+we adjust the point to be inside the widget.
+
+Then we calculate the angle between the bottom edge of the widget and the
+imaginary line between the bottom left corner of the widget and the cursor
+position. Finally, we set the cannon's angle to the new value converted
+to degrees.
+
+Remember that setAngle() redraws the cannon.
+
+\skip ::mouseReleaseEvent
+\until }
+
+This Qt event handler is called whenever the user releases a mouse button
+after it has been pressed inside this widget.
+
+If the left button is released, we can be sure that the barrel is no longer
+pressed.
+
+
+\skip ::paintBarrier
+\until }
+
+This private function paints the barrier as a rectangle filled with yellow
+and with a black outline.
+
+\skip ::barrierRect
+\until }
+
+This private function returns the rectangle of the barrier.
+We fix the bottom edge of the barrier to the bottom edge of the widget.
+
+\skip ::barrelHit
+\until }
+
+This function returns TRUE if the point is in the barrel, otherwise FALSE.
+
+Here we use the class \link QWMatrix QWMatrix\endlink.  It is defined
+in the header file qwmatrix.h, which is included by qpainter.h.
+
+QWMatrix defines a coordinate system mapping.  It can perform the same
+transformations as the QPainter.
+
+Here we perform the same transformation steps as we do when drawing the
+barrel in the paintCannon() function. First we translate the coordinate
+system, then we rotate it.
+
+Now we need to check if the point \c p (in widget coordinates) lies inside
+the barrel. To do this, we invert the transformation matrix.  The inverted
+matrix performs the inverse transformation that we used when drawing the
+barrel.  We map the point \c p using the inverted matrix and return TRUE
+if it is inside the original barrel rectangle.
+
+
+<h3>gamebrd.h</h3>
+
+The only change is that a frame has been added.
+
+\dontinclude t14/gamebrd.h
+
+\skip QFrame
+\line QFrame
+
+We name declare QFrame.
+
+\skip frame
+\line QFram
+
+And add a QFrame to this widget.
+
+<h3>gamebrd.h</h3>
+
+The only change is that a frame has been added.
+
+\dontinclude t14/gamebrd.h
+
+\skip QFrame
+\line QFrame
+
+We name declare QFrame...
+
+\skip frame
+\line QFram
+
+and add a QFrame to this widget.
+
+
+<h3>gamebrd.cpp</h3>
+
+\dontinclude t14/gamebrd.cpp
+
+\skip qaccel.h
+\line qaccel.h
+
+We include the class definition of QAccelerator.
+
+\skip ::GameBoard
+\skip frame
+\line frame
+\line frame
+
+We create and set up a frame. We want this frame around the CannonField
+widget. Since widgets cannot be transparent, we have to put the frame
+behind the CannonField.  We create the frame before we create the
+CannonField.  Qt guarantees that the last created widget always will be
+on top of the others.
+
+The frame style is set to a sunken WinPanel. See the \link QFrame QFrame
+documentation\endlink for more information.
+
+\skip QAccel
+\line accel
+\line connectItem
+\line connectItem
+
+Here we create and set up an accelerator. An accelerator is an object that
+intercepts keyboard events to an application and calls slots if certain
+keys are pressed. This mechanism is also called shortcut keys.  Note that
+an accelerator can be a child of a widget and will be destroyed when the
+parent is destroyed.  QAccel is \e not a widget and has no visible effect
+on its parent.
+
+We define two shortcut keys. We want the slot fire() to be called when the
+user presses space, and we want the application to quit when key "Q" is
+pressed.  The \c Key_Space and \c Key_Q constants are defined in the
+header file qkeycode.h. Also not that \c Key_Q signifies the Q key on the
+keyboard. The slot will be called when typing both "q" and "Q".
+
+\skip frame
+\line frame
+\line cannonField
+
+We set the initial position of the frame to the same position we
+previously used for the CannonField. Next, we set the position of the
+CannonField relative to the frame.
+
+\skip ::resizeEvent
+\until }
+
+We must now incorporate the frame widget in our resize handler.  First we
+resize the frame exactly as we did with the CannonField in the previous
+chapter. Then we simply resize the CannonField relative to the frame.
+
+
 <h2>Behavior</h2>
+
+The cannon now shoots when you press space. You can also position the
+cannon's angle using the mouse.  The barrier makes it a little more
+challenging to play the game.  We also have a nice looking frame around
+the CannonField.
 
 
 <h2>Excercises</h2>
 
+Make a space invaders game and contribute it to the net.
 
-You may now go on to \link t7.html chapter seven. \endlink
+You may now go on to write your own Qt applications.
 
- */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*! \page t13.html
-
-<title>
-Qt Tutorial - Chapter 13
-</title></head><body>
-
-<h1>Chapter 13: Game Over</h1>
-
-<h2>Introduction</h2>
-
-<img src=t13.gif>
-
-\link t13/main.cpp \endlink
-\link t13/lcdrange.h \endlink
-\link t13/lcdrange.cpp \endlink
-\link t13/cannon.h \endlink
-\link t13/cannon.cpp \endlink
-\link t13/gamebrd.h \endlink
-\link t13/gamebrd.cpp \endlink
-
-<h2>Introduction</h2>
-
-This example shows 
-
-Rename MyWidget to a more descriptive name and put it files of its own.
-
-Add slots.
-
-Process shots internally to count down
-
-Add two QLCDNums to display hits and shots left.
-
-Add two labels to describe the LCDNums.
-
-This is what mother and child look like (with the \e fvwm window
-manager on an X display):
-
-
-\dontinclude t13/main.cpp
-
-
-
-\dontinclude t13/lcdrange.h
-
-
-
-\dontinclude t13/lcdrange.cpp
-\dontinclude t13/cannon.h
-\dontinclude t13/cannon.cpp
-\dontinclude t13/gamebrd.h
-\dontinclude t13/gamebrd.cpp
-
-
-
-
-<h2>Behavior</h2>
-
-Compoment programming; flexibility, complexity and .. design requirements.
-
-
-You may now go on to \link t14 chapter fourteen. \endlink
-
- */
+*/
