@@ -15,6 +15,7 @@ INCLUDEPATH += ../../lib/sdk \
     ../propertyeditor \
     ../signalsloteditor \
     ../buddyeditor \
+    $$QT_BUILD_TREE/tools/designer/src/lib \
     ../../lib
 
 PRECOMPILED_HEADER=formeditor_pch.h
