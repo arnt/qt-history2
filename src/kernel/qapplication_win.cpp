@@ -2219,8 +2219,13 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		break;
 #endif
 #if defined (QT_WINTAB_SUPPORT)	
+//	case WM_ACTIVATE:
+//		qDebug( "ACTIVATE MESSAGE" );
+//		break;
+//	case WM_DESTROY:
+//		qDebug( "DESTROY MESSAGE" );
 	case WT_PACKET:
-		widget = (QETWidget*)QWidget::find( hwnd );
+//		widget = (QETWidget*)QWidget::find( hwnd );
 		if ( (nPackets = WTPacketsGet( hTab, NPACKETQSIZE, &localPacketBuf)) ) {			
 			result = widget->translateTabletEvent( msg, localPacketBuf, nPackets );
 		}
@@ -3551,8 +3556,7 @@ UINT prsAdjust(PACKET p)
 
 bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 									  int numPackets )
-{
-	
+{	
 	static POINT ptOrg, ptOld, ptNew;
 	static DWORD btnOld, btnNew;
 	static UINT prsOld, prsNew;
@@ -3601,10 +3605,12 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 			double radAlt = abs(ortNew.orAltitude / 10) * ( PI / 180 );
 			double tmpX = cos(radAzim) * sin(radAlt);
 			double tmpY = cos(radAzim) * cos(radAlt);
+			
+			double tmpZ = sin( radAlt );
 
-			double degX = atan( tmpX / sin(radAlt) );
-			double degY = atan( tmpY / sin(radAlt) );
-			tiltX = degX * ( 180 / PI );
+			double degX = (radAlt - (PI / 2)) * sin(radAzim);
+			double degY = atan( tmpY / tmpZ );
+			tiltX = -degX * ( 180 / PI );
 			tiltY = -degY * ( 180 / PI );
 		}
 
