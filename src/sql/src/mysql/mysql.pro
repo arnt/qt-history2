@@ -1,3 +1,4 @@
+REQUIRES	= sql
 TEMPLATE	= lib
 CONFIG		+= qt warn_on debug plugin
 
@@ -7,7 +8,7 @@ SOURCES		= main.cpp qsql_mysql.cpp
 
 unix:OBJECTS_DIR	= .obj
 win32:OBJECTS_DIR	= obj
-
+win32:LIBS	+= libmysql.lib
 TARGET		= qsqlmysql
 DESTDIR		= ../../../../plugins/sqldrivers
 
