@@ -74,17 +74,36 @@ QString QSqlRecordPrivate::createField(int i, const QString &prefix) const
     well as setting and retrieving field values.
 
     QSqlRecord is implicitly shared. This means you can make copies of
-    the record in time O(1). If multiple QSqlRecord instances share
-    the same data and one is modifying the record's data then this
+    a record in O(1) time. If multiple QSqlRecord instances share the
+    same data and one is modifying the record's data then this
     modifying instance makes a copy and modifies its private copy -
     thus it does not affect other instances.
 
-    \sa QSqlRecordInfo
+    A record's field's can be set by name or position with setValue();
+    if you want to set a field to NULL use setNull(). To find the
+    position of a field by name use indexOf(), and to find the name of
+    a field at a particular position use fieldName(). Use field() to
+    retrieve a QSqlField object for a given field. Use contains() to
+    see if the record contains a particular field name.
+
+    When queries are generated to be executed on the database only
+    those fields for which isGenerated() is true are included in the
+    generated SQL.
+
+    A record can have fields added with append() or insert(), replaced
+    with replace(), and removed with remove(). All the fields can be
+    removed with clear(). The number of fields is given by count();
+    all their values can be cleared (to NULL) using clearValues(). The
+    names of all the fields is returned by toString() and by
+    toStringList().
 */
 
 
 /*!
-    Constructs an empty record.
+    Constructs an empty record. isEmpty() will return true and count()
+    will return 0.
+
+    \sa append() insert()
 */
 
 QSqlRecord::QSqlRecord()
@@ -113,6 +132,8 @@ QSqlRecord& QSqlRecord::operator=(const QSqlRecord& other)
 }
 
 /*!
+    \internal
+
     Constructs a QSqlRecord with a custom private object \a p
  */
 QSqlRecord::QSqlRecord(QSqlRecordPrivate &p): d(&p)
@@ -138,6 +159,8 @@ QSqlRecord::~QSqlRecord()
     with a QSqlCursor the \link QSqlCursor::value() value(const
     QString&)\endlink overload which uses field names is more
     appropriate.
+
+    \sa fieldName() isNull()
 */
 
 QCoreVariant QSqlRecord::value(int i) const
@@ -150,6 +173,8 @@ QCoreVariant QSqlRecord::value(int i) const
 
     Returns the value of the field called \a name in the record. If
     field \a name does not exist an invalid variant is returned.
+
+    \sa indexOf()
 */
 
 QCoreVariant QSqlRecord::value(const QString& name) const
@@ -159,7 +184,9 @@ QCoreVariant QSqlRecord::value(const QString& name) const
 
 /*!
     Returns the name of the field at position \a i. If the field does
-    not exist, an empty QString is returned.
+    not exist, an empty string is returned.
+
+    \sa indexOf()
 */
 
 QString QSqlRecord::fieldName(int i) const
@@ -172,6 +199,8 @@ QString QSqlRecord::fieldName(int i) const
     record, or -1 if it cannot be found. Field names are not
     case-sensitive. If more than one field matches, the first one is
     returned.
+
+    \sa fieldName()
 */
 
 int QSqlRecord::indexOf(const QString& name) const
@@ -212,8 +241,8 @@ const QSqlField* QSqlRecord::fieldPtr(const QString& name) const
 }
 
 /*!
-    returns the field at position \a i. If the position does not exist,
-    an empty field is returned.
+    Returns the field at position \a i. If the position is out of
+    range, an empty field is returned.
  */
 QSqlField QSqlRecord::field(int i) const
 {
@@ -221,7 +250,7 @@ QSqlField QSqlRecord::field(int i) const
 }
 
 /*! \overload
-    returns the field named \a name
+    Returns the field called \a name.
  */
 QSqlField QSqlRecord::field(const QString &name) const
 {
@@ -231,6 +260,8 @@ QSqlField QSqlRecord::field(const QString &name) const
 
 /*!
     Append a copy of field \a field to the end of the record.
+
+    \sa insert() replace() remove()
 */
 
 void QSqlRecord::append(const QSqlField& field)
@@ -240,7 +271,9 @@ void QSqlRecord::append(const QSqlField& field)
 }
 
 /*!
-    Inserts the field \a field at position \a pos.
+    Inserts the field \a field at position \a pos in the record.
+
+    \sa append() replace() remove()
  */
 void QSqlRecord::insert(int pos, const QSqlField& field)
 {
@@ -249,8 +282,10 @@ void QSqlRecord::insert(int pos, const QSqlField& field)
 }
 
 /*!
-    Replaces the field at position \a pos with \a field.
-    If \a pos does not exist, nothing happens.
+    Replaces the field at position \a pos with the given \a field. If
+    \a pos is out of range, nothing happens.
+
+    \sa append() insert() remove()
 */
 
 void QSqlRecord::replace(int pos, const QSqlField& field)
@@ -263,8 +298,10 @@ void QSqlRecord::replace(int pos, const QSqlField& field)
 }
 
 /*!
-    Removes the field at \a pos. If \a pos does not exist, nothing
-    happens.
+    Removes the field at position \a pos. If \a pos is out of range,
+    nothing happens.
+
+    \sa append() insert() replace()
 */
 
 void QSqlRecord::remove(int pos)
@@ -279,7 +316,7 @@ void QSqlRecord::remove(int pos)
 /*!
     Removes all the record's fields.
 
-    \sa clearValues()
+    \sa clearValues() isEmpty()
 */
 
 void QSqlRecord::clear()
@@ -291,6 +328,8 @@ void QSqlRecord::clear()
 /*!
     Returns true if there are no fields in the record; otherwise
     returns false.
+
+    \sa append() insert() clear()
 */
 
 bool QSqlRecord::isEmpty() const
@@ -312,6 +351,8 @@ bool QSqlRecord::contains(const QString& name) const
 /*!
     Clears the value of all fields in the record and sets each field
     to NULL.
+
+    \sa setValue()
 */
 
 void QSqlRecord::clearValues()
@@ -360,8 +401,6 @@ void QSqlRecord::setGenerated(int i, bool generated)
 
     Returns true if the field \a i is NULL or if there is no field at
     position \a i; otherwise returns false.
-
-    \sa fieldName()
 */
 bool QSqlRecord::isNull(int i) const
 {
@@ -372,7 +411,7 @@ bool QSqlRecord::isNull(int i) const
     Returns true if the field called \a name is NULL or if there is no
     field called \a name; otherwise returns false.
 
-    \sa indexOf()
+    \sa setNull()
 */
 bool QSqlRecord::isNull(const QString& name) const
 {
@@ -382,6 +421,8 @@ bool QSqlRecord::isNull(const QString& name) const
 /*!
     Sets the value of field \a i to NULL. If the field does not exist,
     nothing happens.
+
+    \sa setValue()
 */
 void QSqlRecord::setNull(int i)
 {
@@ -432,9 +473,9 @@ bool QSqlRecord::isGenerated(int i) const
     Returns a list of all the record's field names as a string
     separated by \a sep.
 
-    Note that fields which are not generated are \e not included (see
-    \l{isGenerated()}). The returned string is suitable, for example, for
-    generating SQL SELECT statements. If a \a prefix is specified,
+    Note that fields for which isGenerated() returns false are \e not
+    included. The returned string is suitable, for example, for
+    generating SQL \c SELECT statements. If a \a prefix is specified,
     e.g. a table name, all fields are prefixed in the form:
 
     "\a{prefix}.\<fieldname\>"
@@ -460,9 +501,9 @@ QString QSqlRecord::toString(const QString& prefix, const QString& sep) const
     Returns a list of all the record's field names, each having the
     prefix \a prefix.
 
-    Note that fields which have generated set to false are \e not
-    included. (See \l{isGenerated()}). If \a prefix is supplied, e.g.
-    a table name, all fields are prefixed in the form:
+    Note that fields for which isGenerated() returns false are \e not
+    included. If \a prefix is supplied, e.g. a table name, all fields
+    are prefixed in the form:
 
     "\a{prefix}.\<fieldname\>"
 */
@@ -480,6 +521,8 @@ QStringList QSqlRecord::toStringList(const QString& prefix) const
 
 /*!
     Returns the number of fields in the record.
+
+    \sa isEmpty()
 */
 
 int QSqlRecord::count() const
@@ -490,6 +533,8 @@ int QSqlRecord::count() const
 /*!
     Sets the value of the field at position \a i to \a val. If the
     field does not exist, nothing happens.
+
+    \sa setNull()
 */
 
 void QSqlRecord::setValue(int i, const QCoreVariant& val)

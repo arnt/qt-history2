@@ -84,7 +84,7 @@ QSqlQueryPrivate::~QSqlQueryPrivate()
     on a \l QSqlDatabase. It can be used to execute DML (data
     manipulation language) statements, e.g. \c SELECT, \c INSERT, \c
     UPDATE and \c DELETE, and also DDL (data definition language)
-    statements, e.g. \c{CREATE TABLE}. It can also be used to
+    statements, e.g. \c{CREATE} \c{TABLE}. It can also be used to
     execute database-specific commands which are not standard SQL
     (e.g. \c{SET DATESTYLE=ISO} for PostgreSQL).
 
@@ -125,28 +125,31 @@ QSqlQueryPrivate::~QSqlQueryPrivate()
     \endcode
 
     To access the data returned by a query, use the value() method.
-    Each field in the data returned by a SELECT statement is accessed
-    by passing the field's position in the statement, starting from 0.
-    This makes using \c{SELECT *} queries inadvisable because the
-    order of the fields returned is indeterminate. For the sake of
-    efficiency there are no methods to access a field by name. (The \l
-    QSqlCursor class provides a higher level interface that generates
-    SQL automatically and through which fields are accessible by
-    name.)
+    Each field in the data returned by a \c SELECT statement is
+    accessed by passing the field's position in the statement,
+    starting from 0. This makes using \c{SELECT *} queries inadvisable
+    because the order of the fields returned is indeterminate. For the
+    sake of efficiency there are no methods to access a field by name,
+    unless you use prepared queries with names.
 
     QSqlQuery supports prepared query execution and the binding of
     parameter values to placeholders. Some databases don't support
-    these features, so for them Qt emulates the required
+    these features, so for those, Qt emulates the required
     functionality. For example, the Oracle and ODBC drivers have
     proper prepared query support, and Qt makes use of it; but for
     databases that don't have this support, Qt implements the feature
     itself, e.g. by replacing placeholders with actual values when a
-    query is executed.
+    query is executed. Use numRowsAffected() to find out how many rows
+    were affected by a non-\c SELECT query, and size() to find how
+    many were retrieved by a \c SELECT.
 
     Oracle databases identify placeholders by using a colon-name
     syntax, e.g \c{:name}. ODBC simply uses \c ? characters. Qt
     supports both syntaxes (although you can't mix them in the same
     query).
+
+    You can retrieve the values of all the fields in a single variable
+    (a map) using boundValues().
 
     Below we present the same example using each of the four different
     binding approaches.
@@ -352,10 +355,10 @@ bool QSqlQuery::exec(const QString& query)
     Returns the value of the \a{i}-th field in the query (zero based).
 
     The fields are numbered from left to right using the text of the
-    \c SELECT statement, e.g. in \c{SELECT forename, surname FROM people},
-    field 0 is \c forename and field 1 is \c surname. Using \c{SELECT *}
-    is not recommended because the order of the fields in the query is
-    undefined.
+    \c SELECT statement, e.g. in \c{SELECT} \c{forename,} \c{surname}
+    \c{FROM} \c{people}, field 0 is \c forename and field 1 is \c
+    surname. Using \c{SELECT *} is not recommended because the order
+    of the fields in the query is undefined.
 
     An invalid QCoreVariant is returned if field \a i does not exist, if
     the query is inactive, or if the query is positioned on an invalid
@@ -387,7 +390,7 @@ int QSqlQuery::at() const
 
 /*!
     Returns the text of the current query being used, or an empty
-    QString if there is no current query text.
+    string if there is no current query text.
 
     \sa executedQuery()
 */
@@ -709,7 +712,7 @@ int QSqlQuery::size() const
 /*!
     Returns the number of rows affected by the result's SQL statement,
     or -1 if it cannot be determined. Note that for \c SELECT
-    statements, the value is undefined; see size() instead. If the
+    statements, the value is undefined; use size() instead. If the
     query is not active (isActive() returns false), -1 is returned.
 
     \sa size() QSqlDriver::hasFeature()
@@ -794,6 +797,13 @@ void QSqlQuery::setForwardOnly(bool forward)
     d->sqlResult->setForwardOnly(forward);
 }
 
+/*!
+    Returns a QSqlRecord containing the data for the query's current
+    record; the query must be active (isActive() returns true), and there
+    must be a current record, i.e. a navigation function (e.g. next())
+    must have been called and isValid() must return true. Normally
+    data is retrieved field-by-field using value() or boundValue().
+*/
 QSqlRecord QSqlQuery::record() const
 {
     return d->sqlResult->record();
@@ -823,8 +833,10 @@ void QSqlQuery::afterSeek()
 }
 
 
-/*! ### TODO - document me (clears the result set, releases all resources, usually not
-neccessary to call) */
+/*!
+    Clears the result set and releases any resources held by the
+    query. You should rarely if ever need to call this function.
+*/
 void QSqlQuery::clear()
 {
     *this = driver()->createQuery();
@@ -872,7 +884,7 @@ bool QSqlQuery::prepare(const QString& query)
     Executes a previously prepared SQL query. Returns true if the
     query executed successfully; otherwise returns false.
 
-    \sa prepare(), bindValue(), addBindValue()
+    \sa prepare() bindValue() addBindValue() boundValue() boundValues()
 */
 bool QSqlQuery::exec()
 {
@@ -887,7 +899,7 @@ bool QSqlQuery::exec()
     is \c QSql::Out or \c QSql::InOut, the placeholder will be
     overwritten with data from the database after the exec() call.
 
-    \sa addBindValue(), prepare(), exec()
+    \sa addBindValue(), prepare(), exec(), boundValue() boundValues()
 */
 void QSqlQuery::bindValue(const QString& placeholder, const QCoreVariant& val, QSql::ParamType type
 )
@@ -902,8 +914,6 @@ void QSqlQuery::bindValue(const QString& placeholder, const QCoreVariant& val, Q
     in the prepared statement. Field numbering starts at 0. If \a type
     is \c QSql::Out or \c QSql::InOut, the placeholder will be
     overwritten with data from the database after the exec() call.
-
-    \sa addBindValue(), prepare(), exec()
 */
 void QSqlQuery::bindValue(int pos, const QCoreVariant& val, QSql::ParamType type)
 {
@@ -917,7 +927,7 @@ void QSqlQuery::bindValue(int pos, const QCoreVariant& val, QSql::ParamType type
     If \a type is \c QSql::Out or \c QSql::InOut, the placeholder will
     be overwritten with data from the database after the exec() call.
 
-    \sa bindValue(), prepare(), exec()
+    \sa bindValue(), prepare(), exec(), boundValue() boundValues()
 */
 void QSqlQuery::addBindValue(const QCoreVariant& val, QSql::ParamType type)
 {
@@ -926,6 +936,8 @@ void QSqlQuery::addBindValue(const QCoreVariant& val, QSql::ParamType type)
 
 /*!
     Returns the value for the \a placeholder.
+
+    \sa boundValues() bindValue() addBindValue()
 */
 QCoreVariant QSqlQuery::boundValue(const QString& placeholder) const
 {
@@ -945,26 +957,28 @@ QCoreVariant QSqlQuery::boundValue(int pos) const
 /*!
     Returns a map of the bound values.
 
-    The bound values can be examined in the following way:
+    The bound values can be examined in the following ways:
     \code
     QSqlQuery query;
     ...
     // Examine the bound values - bound using named binding
-    QMap<QString, QCoreVariant>::ConstIterator it;
+    QMap<QString, QCoreVariant>::ConstIterator i;
     QMap<QString, QCoreVariant> vals = query.boundValues();
-    for (it = vals.begin(); it != vals.end(); ++it)
-        qWarning("Placeholder: " + it.key() + ", Value: " + (*it).toString());
+    for (i = vals.constBegin(); i != vals.constEnd(); ++it)
+        qWarning("Placeholder: " + i.key() + ", Value: " + (*i).toString());
     ...
 
     // Examine the bound values - bound using positional binding
-    QList<QCoreVariant>::ConstIterator it;
+    QList<QCoreVariant>::ConstIterator i;
     QList<QCoreVariant> list = query.boundValues().values();
-    int i = 0;
-    for (it = list.begin(); it != list.end(); ++it)
-        qWarning("Placeholder pos: %d, Value: " + (*it).toString(), i++);
+    int j = 0;
+    for (i = list.constBegin(); i != list.constEnd(); ++i)
+        qWarning("Placeholder position: %d, Value: " + (*i).toString(), j++);
     ...
 
     \endcode
+
+    \sa boundValue() bindValue() addBindValue()
 */
 QMap<QString,QCoreVariant> QSqlQuery::boundValues() const
 {
@@ -979,12 +993,12 @@ QMap<QString,QCoreVariant> QSqlQuery::boundValues() const
 /*!
     Returns the last query that was executed.
 
-    In most cases this function returns the same as lastQuery(). If a
-    prepared query with placeholders is executed on a DBMS that does
-    not support it, the preparation of this query is emulated. The
-    placeholders in the original query are replaced with their bound
-    values to form a new query. This function returns the modified
-    query. Useful for debugging purposes.
+    In most cases this function returns the same string as
+    lastQuery(). If a prepared query with placeholders is executed on
+    a DBMS that does not support it, the preparation of this query is
+    emulated. The placeholders in the original query are replaced with
+    their bound values to form a new query. This function returns the
+    modified query. It is mostly useful for debugging purposes.
 
     \sa lastQuery()
 */
