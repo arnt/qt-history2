@@ -176,7 +176,7 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
 
     d->sizeEdit = new QLineEdit( this, "font size I" );
     d->sizeEdit->setFocusPolicy( ClickFocus );
-    QIntValidator *validator = new QIntValidator( 0, 512, this );
+    QIntValidator *validator = new QIntValidator( 1, 512, this );
     d->sizeEdit->setValidator( validator );
     d->sizeList = new QListBox( this, "font size II" );
 
@@ -629,13 +629,8 @@ void QFontDialog::updateSizes()
 
     d->sizeList->clear();
 
-
     if ( !d->familyList->currentText().isEmpty() ) {
 	QValueList<int> sizes = d->fdb.pointSizes( d->familyList->currentText(), d->styleList->currentText() );
-
-
-	if ( d->size <= 0 )
-	    d->size = 12;
 
 	int i = 0;
 	bool found = FALSE;
@@ -793,8 +788,6 @@ void QFontDialog::setFont( const QFont &f )
 QFont QFontDialog::font() const
 {
     int pSize = d->sizeEdit->text().toInt();
-    if ( pSize == 0 )
-	pSize = 12;
 
     QFont f = d->fdb.font( d->familyList->currentText(), d->style, pSize );
     f.setStrikeOut( d->strikeout->isChecked() );
