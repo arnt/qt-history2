@@ -374,7 +374,12 @@ bool QGuiEventLoop::processEvents(ProcessEventsFlags flags)
         return false;
 
     QApplication::sendPostedEvents();
-    bool canWait = d->exitloop || d->quitnow ? false : (flags & WaitForMore);
+
+    QThreadData *data = QThreadData::current();
+    const bool canWait = (data->postEventList.size() == 0
+                          && !d->exitloop
+                          && !d->quitnow
+                          && (flags & WaitForMore));
 
     if(canWait && !d->zero_timer_count) {
         emit aboutToBlock();

@@ -24,7 +24,6 @@
 #include <qthread.h>
 #include <qthreadstorage.h>
 #include <private/qthread_p.h>
-#include <private/qspinlock_p.h>
 
 #include <stdlib.h>
 
@@ -608,16 +607,12 @@ bool QCoreApplication::compressEvent(QEvent *, QObject *, QPostEventList *)
     return false;
 }
 
-
-
 /*!
   \fn void QCoreApplication::sendPostedEvents()
   \overload
 
     Dispatches all posted events, i.e. empties the event queue.
 */
-
-
 
 /*!
   Immediately dispatches all events which have been previously queued
@@ -658,7 +653,12 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
     // okay. here is the tricky loop. be careful about optimizing
     // this, it looks the way it does for good reasons.
     int i = data->postEventList.offset;
+    const int s = data->postEventList.size();
     while (i < data->postEventList.size()) {
+        // avoid live-lock
+        if (i >= s)
+            break;
+
         const QPostEvent &pe = data->postEventList.at(i);
         ++i;
 
@@ -707,15 +707,17 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
     // delivered and update the hasPostedEvents cache.
     if (!event_type) {
         if (!receiver) {
-            for (i = 0; i < data->postEventList.size(); ++i) {
-                if ((receiver = data->postEventList.at(i).receiver)) {
+            for (int x = 0; x < i; ++x) {
+                if ((receiver = data->postEventList.at(x).receiver)) {
                     receiver->d->hasPostedEvents = false;
 #ifdef QT_COMPAT
                     receiver->d->hasPostedChildInsertedEvents = false;
 #endif
                 }
             }
-            data->postEventList.clear();
+
+            const QPostEventList::iterator it = data->postEventList.begin();
+            data->postEventList.erase(it, it + i);
             data->postEventList.offset = 0;
         } else {
             receiver->d->hasPostedEvents = false;

@@ -18,6 +18,7 @@
 #include "qcoreevent.h"
 #include "qsocketnotifier.h"
 #include "qthread.h"
+#include <private/qthread_p.h>
 #include <stdlib.h>
 #include <errno.h>
 
@@ -649,9 +650,11 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
 
     QCoreApplication::sendPostedEvents();
 
-    // don't block if exitLoop() or exit()/quit() has been called.
-    bool canWait = d->exitloop || d->quitnow ? false : (flags & WaitForMore);
-
+    QThreadData *data = QThreadData::current();
+    const bool canWait = (data->postEventList.size() == 0
+                          && !d->exitloop
+                          && !d->quitnow
+                          && (flags & WaitForMore));
     if (canWait)
         emit aboutToBlock();
 

@@ -530,7 +530,12 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
     QCoreApplication::sendPostedEvents();
 
     bool shortcut = d->exitloop || d->quitnow;
-    bool canWait = d->exitloop || d->quitnow ? false : (flags & WaitForMore);
+
+    QThreadData *data = QThreadData::current();
+    const bool canWait = (data->postEventList.size() == 0
+                          && !d->exitloop
+                          && !d->quitnow
+                          && (flags & WaitForMore));
 
     if (flags & ExcludeUserInput) {
         // purge all userinput messages from eventloop
