@@ -148,8 +148,7 @@ MainWindow::MainWindow( bool asClient )
     if ( QFile::exists( dir + "/libqscript.so" ) || QFile::exists( dir + "/qscript.dll" ) )
 	MetaDataBase::setEventsEnabled( TRUE );
 
-    // #### check for editor component
-    MetaDataBase::setEditor( TRUE );
+    setupEditor();
 
     qApp->setMainWidget( this );
     QWidgetFactory::addWidgetFactory( new CustomWidgetFactory );
@@ -234,6 +233,7 @@ MainWindow::MainWindow( bool asClient )
 MainWindow::~MainWindow()
 {
     delete actionPluginManager;
+    delete editorPluginManager;
 }
 
 void MainWindow::setupMDI()
@@ -3636,4 +3636,23 @@ void MainWindow::editFunction( const QString &func )
 {
     if ( !lastActiveFormWindow || !MetaDataBase::hasEditor() )
 	return;
+    SourceEditor *editor = 0;
+    if ( sourceEditors.isEmpty() ) {
+	editor = new SourceEditor( workSpace(), (EditorInterface*)editorPluginManager->queryInterface( "Editor" ) );
+	sourceEditors.append( editor );
+    } else {
+	editor = sourceEditors.first();
+    }
+    editor->show();
+    editor->setForm( lastActiveFormWindow );
+    editor->setFunction( func );
+}
+
+void MainWindow::setupEditor()
+{
+    QString dir = getenv( "QTDIR" );
+    dir += "/plugins";
+    editorPluginManager = new QInterfaceManager<EditorInterface>( "EditorInterface", dir, "*.dll; *.so" );
+
+    MetaDataBase::setEditor( editorPluginManager->queryInterface( "Editor" ) );
 }

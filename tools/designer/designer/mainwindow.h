@@ -23,6 +23,8 @@
 
 #include "metadatabase.h"
 #include "actioninterface.h" // for GCC 2.7.* compatibility
+#include "../shared/editorinterface.h"
+#include "sourceeditor.h"
 
 #if defined(HAVE_KDE)
 #include <kmainwindow.h>
@@ -214,6 +216,7 @@ private:
     void setupActionEditor();
 
     void setupActionManager();
+    void setupEditor();
 
     QWidget* previewFormInternal( QStyle* style = 0, QPalette* pal = 0 );
 
@@ -288,9 +291,11 @@ private:
     QRect propGeom, flGeom, hvGeom;
     bool client;
     QString templPath;
-    QInterfaceManager<ActionInterface>* actionPluginManager;
+    QInterfaceManager<ActionInterface> *actionPluginManager;
     ActionEditor *actionEditor;
     Project *currentProject;
+    QInterfaceManager<EditorInterface> *editorPluginManager;
+    QList<SourceEditor> sourceEditors;
 
 };
 
