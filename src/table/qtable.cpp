@@ -1697,6 +1697,9 @@ void QTable::init( int rows, int cols )
 
     focusStl = SpreadSheet;
 
+    cachedSizeHint = QSize( -1, -1 );
+    was_visible = FALSE;
+
     // Initial size
     resize( 640, 480 );
 }
@@ -3496,11 +3499,15 @@ void QTable::focusOutEvent( QFocusEvent* )
 
 QSize QTable::sizeHint() const
 {
+    if ( ( isVisibleTo( 0 ) || was_visible ) && cachedSizeHint.isValid() ) {
+	( (QTable*)this )->was_visible = TRUE;
+	return cachedSizeHint;
+    }
     QSize s = tableSize();
     if ( s.width() < 500 && s.height() < 500 )
-	return QSize( tableSize().width() + leftMargin() + 5,
-		      tableSize().height() + topMargin() + 5 );
-    return QScrollView::sizeHint();
+	return ( ( (QTable*)this )->cachedSizeHint = QSize( tableSize().width() + leftMargin() + 5,
+							    tableSize().height() + topMargin() + 5 ) );
+    return ( ( (QTable*)this )->cachedSizeHint = QScrollView::sizeHint() );
 }
 
 /*! \reimp
