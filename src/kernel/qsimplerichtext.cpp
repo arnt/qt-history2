@@ -110,7 +110,7 @@ QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
     d->doc = new QTextDocument( 0 );
     d->doc->setFormatter( new QTextFormatterBreakWords );
     d->doc->setDefaultFont( fnt );
-    d->doc->setStyleSheet( sheet );
+    d->doc->setStyleSheet( (QStyleSheet*)sheet );
     d->doc->setText( text, context );
 }
 
@@ -137,8 +137,8 @@ QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
     d->doc->setDefaultFont( fnt );
     d->doc->flow()->setPageSize( verticalBreak );
     d->doc->setVerticalBreak( TRUE );
-    d->doc->setStyleSheet( sheet );
-    d->doc->setMimeSourceFactory( factory );
+    d->doc->setStyleSheet( (QStyleSheet*)sheet );
+    d->doc->setMimeSourceFactory( (QMimeSourceFactory*)factory );
     d->doc->setLinkColor( linkColor );
     d->doc->setUnderlineLinks( linkUnderline );
     d->doc->setText( text, context );

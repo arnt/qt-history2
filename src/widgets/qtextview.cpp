@@ -1479,12 +1479,12 @@ void QTextView::resetFormat()
 
 QStyleSheet* QTextView::styleSheet() const
 {
-    return (QStyleSheet*)doc->styleSheet();
+    return doc->styleSheet();
 }
 
 void QTextView::setStyleSheet( QStyleSheet* styleSheet )
 {
-    doc->setStyleSheet( (const QStyleSheet*)styleSheet );
+    doc->setStyleSheet( styleSheet );
 }
 
 void QTextView::setPaper( const QBrush& pap )
@@ -1523,12 +1523,12 @@ bool QTextView::linkUnderline() const
 
 void QTextView::setMimeSourceFactory( QMimeSourceFactory* factory )
 {
-    doc->setMimeSourceFactory( (const QMimeSourceFactory*)factory );
+    doc->setMimeSourceFactory( factory );
 }
 
 QMimeSourceFactory* QTextView::mimeSourceFactory() const
 {
-    return (QMimeSourceFactory*)doc->mimeSourceFactory();
+    return doc->mimeSourceFactory();
 }
 
 int QTextView::heightForWidth( int w ) const

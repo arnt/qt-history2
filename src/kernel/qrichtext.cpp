@@ -1012,7 +1012,7 @@ void QTextDocument::setPlainText( const QString &text )
 
 struct Tag {
     Tag(){}
-    Tag( const QString&n,  const QStyleSheetItem* s ):name(n),style(s) {
+    Tag( const QString&n, const QStyleSheetItem* s ):name(n),style(s) {
 	wsm = QStyleSheetItem::WhiteSpaceNormal;
     }
     QString name;
@@ -4434,7 +4434,7 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
 }
 
 QTextImage::QTextImage( QTextDocument *p, const QMap<QString, QString> &attr, const QString& context,
-			const QMimeSourceFactory &factory )
+			QMimeSourceFactory &factory )
     : QTextCustomItem( p )
 {
 #if defined(PARSER_DEBUG)
@@ -4458,8 +4458,7 @@ QTextImage::QTextImage( QTextDocument *p, const QMap<QString, QString> &attr, co
 #endif
 
     if ( !imageName.isEmpty() ) {
-	const QMimeSource* m =
-			factory.data( imageName, context );
+	const QMimeSource* m = factory.data( imageName, context );
 	if ( !m ) {
 	    qWarning("QTextImage: no mimesource for %s", imageName.latin1() );
 	}
@@ -5411,7 +5410,7 @@ QTextTableCell::QTextTableCell( QTextTable* table,
 				const QMap<QString, QString> &attr,
 				const QStyleSheetItem* style,
 				const QTextFormat& fmt, const QString& context,
-				const QMimeSourceFactory &factory, const QStyleSheet *sheet,
+				QMimeSourceFactory &factory, QStyleSheet *sheet,
 				const QString& doc)
 {
 #if defined(PARSER_DEBUG)

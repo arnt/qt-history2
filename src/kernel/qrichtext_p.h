@@ -367,12 +367,12 @@ public:
 
     bool inSelection( int selId, const QPoint &pos ) const;
 
-    const QStyleSheet *styleSheet() const { return sheet_; }
-    const QMimeSourceFactory *mimeSourceFactory() const { return factory_; }
+    QStyleSheet *styleSheet() const { return sheet_; }
+    QMimeSourceFactory *mimeSourceFactory() const { return factory_; }
     QString context() const { return contxt; }
 
-    void setStyleSheet( const QStyleSheet *s ) { if ( s ) sheet_ = s; }
-    void setMimeSourceFactory( const QMimeSourceFactory *f ) { if ( f ) factory_ = f; }
+    void setStyleSheet( QStyleSheet *s ) { if ( s ) sheet_ = s; }
+    void setMimeSourceFactory( QMimeSourceFactory *f ) { if ( f ) factory_ = f; }
     void setContext( const QString &c ) { if ( !c.isEmpty() ) contxt = c; }
 
     void setLinkColor( const QColor &c ) { linkC = c; }
@@ -480,8 +480,8 @@ private:
     Focus focusIndicator;
     int minw;
     QTextParag *minwParag;
-    const QStyleSheet* sheet_;
-    const QMimeSourceFactory* factory_;
+    QStyleSheet* sheet_;
+    QMimeSourceFactory* factory_;
     QString contxt;
     QMap<QString, QString> attribs;
     int align;
@@ -921,7 +921,7 @@ private:
     QString anchor_href;
     QString anchor_name;
     QPainter *painter;
-
+    
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -980,7 +980,7 @@ class QTextImage : public QTextCustomItem
 {
 public:
     QTextImage( QTextDocument *p, const QMap<QString, QString> &attr, const QString& context,
-		const QMimeSourceFactory &factory);
+		QMimeSourceFactory &factory);
     ~QTextImage();
 
     Placement placement() const { return place; }
@@ -1007,7 +1007,7 @@ public:
 
 private:
     int tmpheight;
-    
+
 };
 
 class QTextFlow
@@ -1057,7 +1057,7 @@ public:
 		    const QMap<QString, QString> &attr,
 		    const QStyleSheetItem* style,
 		    const QTextFormat& fmt, const QString& context,
-		    const QMimeSourceFactory &factory, const QStyleSheet *sheet, const QString& doc );
+		    QMimeSourceFactory &factory, QStyleSheet *sheet, const QString& doc );
     QTextTableCell( QTextTable* table, int row, int column );
 
     ~QTextTableCell();
