@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#194 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#195 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2391,6 +2391,11 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	if ( msg.wParam != SIZE_MINIMIZED )
 	    setCRect( r );
 	if ( isTopLevel() ) {			// update caption/icon text
+#if 0
+/*
+  Something like this is required to record when windows are minimized.
+  But this fails if you resize() the widget before showing it. (why?)
+*/
 	    if ( msg.wParam == SIZE_MINIMIZED ) {
 		clearWFlags( WState_Visible );
 		QHideEvent e(TRUE);
@@ -2401,6 +2406,7 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 		QShowEvent e(TRUE);
 		QApplication::sendEvent( this, &e );
 	    }
+#endif
 
 	    if ( IsIconic(winId()) && iconText() )
 		SetWindowText( winId(), (TCHAR*)qt_winTchar(iconText(),TRUE) );
