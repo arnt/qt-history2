@@ -1208,7 +1208,7 @@ bool QFont::fromString(const QString &descrip)
 /*! \internal
   Internal function that dumps font cache statistics.
 */
-#if !defined( Q_WS_QWS ) && !defined( Q_WS_MAC )
+#if !defined( Q_WS_QWS ) // && !defined( Q_WS_MAC )
 void QFont::cacheStatistics()
 {
 
@@ -1223,6 +1223,8 @@ void QFont::cacheStatistics()
 	++it;
 #ifdef Q_WS_X11
 	qDebug( "   [%s]", (const char *) qfs->name );
+#elif defined(Q_WS_MAC)
+	qDebug( "   [we need to implement this]"); //XXX
 #else
 	qDebug( "   [%s]", (const char *) qfs->key() );
 #endif

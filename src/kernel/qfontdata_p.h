@@ -160,18 +160,13 @@ class QFontStruct : public QShared
 public:
     inline QFontStruct( const QFontDef& d ) :   QShared(), s(d), info(NULL), cache_cost(0) { }
     inline const QFontDef *spec()  const { return &s; }
-    int ascent() const { return info->ascent+2; /*2?? fixme!*/ }
-    int descent() const { return info->descent; /*2?? fixme!*/ }
+    int ascent() const { return info->ascent; }
+    int descent() const { return info->descent; }
     int minLeftBearing() const { return 0; }
     int minRightBearing() const { return 0; }
     int leading() const { return info->leading; }
     int maxWidth() const { return info->widMax; }
 
-    static short currentFStyle;
-    static short currentFnum;
-    static int currentFsize;
-    static TextEncoding currentEncoding;
-    short fnum;
     int psize;
     QFontDef s;
     FontInfo *info;

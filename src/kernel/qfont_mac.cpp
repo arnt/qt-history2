@@ -11,14 +11,36 @@
 #include "qpaintdevice.h"
 #include "qpainter.h"
 
+/* utility functions */
 extern const unsigned char * p_str(const char * c);
-
-void qstring_to_pstring( QString s, int len, Str255 str, TextEncoding encoding )
+static bool qstring_to_pstring( QString s, int len, Str255 str, TextEncoding encoding )
 {
     UnicodeMapping mapping;
     UnicodeToTextInfo info;
     mapping.unicodeEncoding = CreateTextEncoding( kTextEncodingUnicodeDefault,
-        kTextEncodingDefaultVariant, kUnicode16BitFormat );
+						  kTextEncodingDefaultVariant, kUnicode16BitFormat );
+    mapping.otherEncoding = encoding;
+    mapping.mappingVersion = kUnicodeUseLatestMapping;
+
+    if ( CreateUnicodeToTextInfo( &mapping, &info  ) != noErr )
+      Q_ASSERT( 0 );
+
+    const QChar *uc = s.unicode();
+    UniChar *buf = new UniChar[len];
+    for ( int i = 0; i < len; ++i )
+        buf[i] = uc[i].row() << 8 | uc[i].cell();
+
+    ConvertFromUnicodeToPString( info, len*2, buf, str  );
+    delete buf;
+    return TRUE;
+}
+
+static int qstring_to_text( QString s, int len, Str255 str, TextEncoding encoding )
+{
+    UnicodeMapping mapping;
+    UnicodeToTextInfo info;
+    mapping.unicodeEncoding = CreateTextEncoding( kTextEncodingUnicodeDefault,
+						  kTextEncodingDefaultVariant, kUnicode16BitFormat );
     mapping.otherEncoding = encoding;
     mapping.mappingVersion = kUnicodeUseLatestMapping;
 
@@ -41,13 +63,68 @@ void qstring_to_pstring( QString s, int len, Str255 str, TextEncoding encoding )
     }
 #endif
     delete buf;
+    
+    int ret = str[0];
+    memcpy(str, str+1, ret);
+    return ret;
 }
 
-short QFontStruct::currentFStyle = normal;
-short QFontStruct::currentFnum = 0;
-int QFontStruct::currentFsize = 0;
-TextEncoding QFontStruct::currentEncoding = 0;
+/* font information */
+class QMacSetFontInfo : public QMacSavedFontInfo 
+{
+    TextEncoding enc;
+public:
+    //create this for temporary font settting
+    inline QMacSetFontInfo(const QFontPrivate *d) : QMacSavedFontInfo(), enc(0) { setMacFont(d, this); }
+    inline TextEncoding encoding() { return enc; }
 
+    //you can use this to cause font setting, without restoring old
+    static bool setMacFont(const QFontPrivate *d, QMacSetFontInfo *sfi=NULL);
+};
+
+inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *sfi)
+{
+    //face
+    Str255 str;
+    // encoding == 1, yes it is strange the names of fonts are encoded in MacJapanese
+    TextEncoding encoding = CreateTextEncoding( kTextEncodingMacJapanese,
+						kTextEncodingDefaultVariant, kTextEncodingDefaultFormat );
+    qstring_to_pstring( d->request.family, d->request.family.length(), str, encoding );
+    short fnum;
+    GetFNum(str, &fnum);
+    if(!sfi || fnum != sfi->tfont)
+	TextFont(fnum);
+
+    //style
+    short face = normal;
+    if(d->request.italic)
+	face |= italic;
+    if(d->request.underline) 
+	face |= underline;
+    //strikeout? FIXME
+    if(d->request.weight == QFont::Bold)
+	face |= bold;
+    if(!sfi || face != sfi->tface)
+	TextFace(face);
+	
+    //size
+    int size = d->request.pointSize / 10;
+    if(!sfi || size != sfi->tsize)
+	TextSize( size );
+
+    if(sfi) {
+	if (UpgradeScriptInfoToTextEncoding( FontToScript( fnum ), 
+					     kTextLanguageDontCare, kTextRegionDontCare, NULL,
+					     &sfi->enc ) != noErr)
+	{
+	    Q_ASSERT(0);
+	}
+    }
+
+    return TRUE;
+}
+
+/* Qt platform dependant functions */
 int QFontMetrics::lineSpacing() const
 {
     return leading()+height();
@@ -76,33 +153,13 @@ int QFontMetrics::descent() const
     return FI->fin->descent();
 }
 
-int char_widths[256];
-bool chars_init=false;
-
 int QFontMetrics::charWidth( const QString &s, int pos ) const
 {
-    int ret;
     Str255 str;
-    qstring_to_pstring( s, s.length(), str, QFontStruct::currentEncoding );
-
-    TextFont( FI->fin->fnum );
-    TextSize( FI->request.pointSize / 10 );
-    short style = normal;
-    if(FI->request.italic)
-        style |= italic;
-    if(FI->request.underline) 
-	style |= underline;
-    //strikeout? FIXME
-    if(FI->request.weight == QFont::Bold)
-	style |= bold;
-    TextFace(style);
-
+    QMacSetFontInfo fi(FI);
     //FIXME: This may not work correctly if str contains double byte characters
-    ret = TextWidth( &str[1], pos, 1 );
-    TextFont( QFontStruct::currentFnum );
-    TextSize( QFontStruct::currentFsize );
-    TextFace( QFontStruct::currentFStyle );
-    return ret;
+    qstring_to_text( s, s.length(), str, fi.encoding() );
+    return TextWidth( str, pos+1, 1 );
 }
 
 int QFontMetrics::width(QChar c) const
@@ -110,43 +167,13 @@ int QFontMetrics::width(QChar c) const
     return  width( QString( c ) );
 }
 
-#if 0
-const QFontDef *QFontMetrics::spec() const
-{
-    if ( painter ) {
-	painter->cfont.handle();
-	return painter->cfont.d->fin->spec();
-    } else {
-	return d->fin->spec();
-    }
-}
-#endif
-
 int QFontMetrics::width(const QString &s,int len) const
 {
-    if(len<1) {
-	len=s.length();
-    }
-    int ret;
     Str255 str;
-    qstring_to_pstring( s, len, str, QFontStruct::currentEncoding );
-    TextFont( FI->fin->fnum );
-    TextSize( FI->request.pointSize / 10 );
-    short style = normal;
-    if(FI->request.italic)
-        style |= italic;
-    if(FI->request.underline) 
-	style |= underline;
-    //strikeout? FIXME
-    if(FI->request.weight == QFont::Bold)
-	style |= bold;
-    TextFace(style);
-
-    ret = TextWidth( &str[1], 0, str[0] );
-    TextFont( QFontStruct::currentFnum );
-    TextSize( QFontStruct::currentFsize );
-    TextFace( QFontStruct::currentFStyle );
-    return ret;
+    QMacSetFontInfo fi(FI);
+    //FIXME: This may not work correctly if str contains double byte characters
+    int olen = qstring_to_text( s, len < 1 ? s.length() : len, str, fi.encoding() );
+    return TextWidth( str, 1, olen);
 }
 
 int QFontMetrics::maxWidth() const
@@ -156,7 +183,7 @@ int QFontMetrics::maxWidth() const
 
 int QFontMetrics::height() const
 {
-    return ascent()+descent()+1;
+    return ascent()+descent();
 }
 
 int QFontMetrics::minRightBearing() const
@@ -192,7 +219,7 @@ int QFontMetrics::underlinePos() const
 
 QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 {
-    return QRect( 0,-(ascent()),width(str,len)+5,height()+5);
+    return QRect( 0,-(ascent()),width(str,len),height());
 }
 
 void QFont::cleanup()
@@ -219,47 +246,15 @@ void QFontPrivate::macSetFont(QPaintDevice *v)
 	qDebug("I was really hoping it would never come to this...");
 	Q_ASSERT(0); //we need to figure out if this can really happen
     }
-
-    //style
-    QFontStruct::currentFStyle = normal;
-    if(request.italic)
-	QFontStruct::currentFStyle |= italic;
-    if(request.underline) 
-	QFontStruct::currentFStyle |= underline;
-    //strikeout? FIXME
-    if(request.weight == QFont::Bold)
-	QFontStruct::currentFStyle |= bold;
-
-    //size
-    QFontStruct::currentFsize = request.pointSize / 10;
-
-    //font
-    Str255 str;
-    // encoding == 1, yes it is strange the names of fonts are encoded in MacJapanese
-    TextEncoding encoding = CreateTextEncoding( kTextEncodingMacJapanese,
-        kTextEncodingDefaultVariant, kTextEncodingDefaultFormat );
-    qstring_to_pstring( request.family, request.family.length(), str, encoding );
-    GetFNum(str, &QFontStruct::currentFnum);
-
-    //actually set things now
-    TextFont(QFontStruct::currentFnum);
-    TextSize(QFontStruct::currentFsize);
-    TextFace(QFontStruct::currentFStyle);
-
-    if (UpgradeScriptInfoToTextEncoding( FontToScript( QFontStruct::currentFnum ), 
-        kTextLanguageDontCare, kTextRegionDontCare, NULL,
-	&QFontStruct::currentEncoding ) != noErr)
-        Q_ASSERT(0);
-
-    if(fin)
-	fin->fnum = QFontStruct::currentFnum;
+    QMacSetFontInfo::setMacFont(this);
 }
 
 void QFontPrivate::drawText( QString s, int len )
 {
     Str255 str;
-    qstring_to_pstring( s, len, str, QFontStruct::currentEncoding );
-    DrawString( str  );
+    QMacSetFontInfo fi(this);
+    int olen = qstring_to_text( s, len, str, fi.encoding() );
+    DrawText( str, 0, olen);
 }
 
 void QFontPrivate::load()
@@ -278,19 +273,9 @@ void QFontPrivate::load()
 	fin->deref();
     fin=qfs;
 
-    short fstyle = QFontStruct::currentFStyle, fnum = QFontStruct::currentFnum; 
-    int fsize = QFontStruct::currentFsize;
-    TextEncoding fenc = QFontStruct::currentEncoding;
-
-    macSetFont(NULL);
     fin->info = (FontInfo *)malloc(sizeof(FontInfo));
+    QMacSetFontInfo fi(this);
     GetFontInfo(fin->info);
-
-    QFontStruct::currentEncoding = fenc;
-    TextFont( QFontStruct::currentFnum = fnum );
-    TextSize( QFontStruct::currentFsize = fsize );
-    TextFace( QFontStruct::currentFStyle = fstyle );
-
     // Our 'handle' is actually a structure with the information needed to load
     // the font into the current grafport
 }
@@ -310,24 +295,6 @@ void QFont::setPixelSizeFloat( float pixelSize )
 int QFont::pixelSize() const
 {
     return d->request.pointSize/10;
-}
-
-//
-
-#if 0
-const QFontDef *QFontInfo::spec() const
-{
-    if ( painter ) {
-	painter->cfont.handle();
-	return painter->cfont.d->fin->spec();
-    } else {
-	return fin->spec();
-    }
-}
-#endif
-
-void QFont::cacheStatistics()
-{
 }
 
 QString QFontPrivate::defaultFamily() const
@@ -359,28 +326,11 @@ QString QFontPrivate::lastResortFont() const
 
 QRect QFontPrivate::boundingRect( const QChar &ch )
 {
-    // Grr. How do we force the Mac to speak Unicode?
-    // This currently won't work outside of ASCII
-    TextFont(fin->fnum);
-    TextSize(request.pointSize / 10);
-    short style = normal;
-    if(request.italic)
-        style |= italic;
-    if(request.underline) 
-	style |= underline;
-    //strikeout? FIXME
-    if(request.weight == QFont::Bold)
-	style |= bold;
-    TextFace(style);
-
-    int char_width=CharWidth(ch);
-    TextFont(QFontStruct::currentFnum);
-    TextSize(QFontStruct::currentFsize);
-    TextFace( QFontStruct::currentFStyle );
-    return QRect( 0,-(fin->ascent()),char_width+5,fin->ascent() + fin->descent()+5);
+    QMacSetFontInfo fi(this);
+    return QRect( 0,-(fin->ascent()),CharWidth(ch),fin->ascent() + fin->descent());
 }
 
-int QFontPrivate::textWidth( const QString &str, int pos, int len )
+int QFontPrivate::textWidth( const QString &, int, int )
 {
     return 1000;
 }
