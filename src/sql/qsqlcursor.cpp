@@ -426,7 +426,7 @@ void QSqlCursor::clear()
 void  QSqlCursor::insert( int pos, const QSqlFieldInfo& fieldInfo )
 {
     d->editBuffer.insert( pos, fieldInfo.toField() );
-    d->infoBuffer.insert( d->infoBuffer.at( pos ), fieldInfo );
+    d->infoBuffer[ pos ] = fieldInfo;
     QSqlRecord::insert( pos, fieldInfo.toField() );
 }
 
@@ -439,7 +439,7 @@ void  QSqlCursor::insert( int pos, const QSqlFieldInfo& fieldInfo )
 void QSqlCursor::remove( int pos )
 {
     d->editBuffer.remove( pos );
-    d->infoBuffer.erase( d->infoBuffer.at( pos ) );
+    d->infoBuffer[ pos ] = QSqlFieldInfo();
     QSqlRecord::remove( pos );
 }
 

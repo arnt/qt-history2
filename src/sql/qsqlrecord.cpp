@@ -351,7 +351,7 @@ void QSqlRecord::append( const QSqlField& field )
   already exists at \a pos, it is removed.
 */
 
-void QSqlRecord::insert( int pos, const QSqlField& field )
+void QSqlRecord::insert( int pos, const QSqlField& field ) // ### 4.0: rename to ::replace
 {
     sh->d->insert( pos, field );
 }
