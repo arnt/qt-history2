@@ -888,9 +888,6 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
         }
         break;
 
-    case PE_FrameTabBarBase:
-        return;
-
     case PE_FrameMenu:
 //    case PE_PanelPopup:
         p->save();

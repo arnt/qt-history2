@@ -112,7 +112,6 @@ public:
         PE_FrameWindow,
         PE_FrameButtonBevel,
         PE_FrameButtonTool,
-        PE_FrameTabBarBase,
 
         PE_PanelButtonCommand,
         PE_PanelButtonBevel,

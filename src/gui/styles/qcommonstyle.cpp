@@ -625,51 +625,6 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
     case PE_FrameTabWidget:
         qDrawWinPanel(p, opt->rect, opt->palette, false, 0);
         break;
-    case PE_FrameTabBarBase:
-        if (const QStyleOptionTabWidgetFrame *twf
-                = qt_cast<const QStyleOptionTabWidgetFrame *>(opt)) {
-            QPen oldPen = p->pen();
-            QRect r2 = opt->rect;
-            switch (twf->shape) {
-            case QTabBar::RoundedNorth:
-            case QTabBar::TriangularNorth:
-                p->setPen(opt->palette.light().color());
-                p->drawLine(r2.left(), r2.bottom() - 1, r2.left(), r2.bottom());
-                p->drawLine(r2.left(), r2.bottom() - 1, r2.right(), r2.bottom() - 1);
-                p->setPen(opt->palette.dark().color());
-                p->drawLine(r2.right(), r2.bottom() - 1, r2.right(), r2.bottom());
-                break;
-            case QTabBar::RoundedSouth:
-            case QTabBar::TriangularSouth:
-                p->setPen(opt->palette.shadow().color());
-                p->drawLine(r2.left(), r2.top()+ 1, r2.right(), r2.top() + 1);
-                p->setPen(opt->palette.dark().color());
-                p->drawLine(r2.left(), r2.top(), r2.right()- 1, r2.top());
-                break;
-            case QTabBar::RoundedWest:
-            case QTabBar::TriangularWest:
-                p->setPen(opt->palette.shadow().color());
-                p->drawLine(r2.right(), r2.bottom(), r2.left(), r2.bottom());
-                p->setPen(opt->palette.dark().color());
-                p->drawLine(r2.right(), r2.bottom() - 1, r2.left(), r2.bottom() - 1);
-                p->setPen(opt->palette.light().color());
-                p->drawLine(r2.left(), r2.bottom() - 2, r2.left(), r2.top() - 1);
-                p->drawLine(r2.right(), r2.top(), r2.left(), r2.top());
-                break;
-            case QTabBar::RoundedEast:
-            case QTabBar::TriangularEast:
-                p->setPen(opt->palette.shadow().color());
-                p->drawLine(r2.left(), r2.bottom(), r2.right() + 1, r2.bottom());
-                p->setPen(opt->palette.dark().color());
-                p->drawLine(r2.left(), r2.bottom() - 1, r2.right(), r2.bottom() - 1);
-                p->drawLine(r2.right() + 1, r2.bottom() - 2, r2.right() + 1, r2.top());
-                p->setPen(opt->palette.light().color());
-                p->drawLine(r2.left(), r2.top(), r2.right(), r2.top());
-                break;
-            }
-            p->setPen(oldPen);
-        }
-        break;
     case PE_FrameLineEdit:
     case PE_FrameWindow:
         drawPrimitive(PE_Frame, opt, p, widget);

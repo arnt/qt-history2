@@ -1681,8 +1681,6 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
             }
         }
         break;
-    case QStyle::PE_FrameTabBarBase:
-        break;
     default:
         q->QWindowsStyle::drawPrimitive(pe, opt, p, w);
         break;
@@ -3223,8 +3221,6 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
         qt_mac_set_port(p);
         DrawThemePopupArrow(qt_glb_mac_rect(opt->rect, p), orientation, size, tds, 0, 0);
         break; }
-    case QStyle::PE_FrameTabBarBase:
-        break;
     case QStyle::PE_FrameTabWidget:
         if (const QStyleOptionTabWidgetFrame *twf
                 = qt_cast<const QStyleOptionTabWidgetFrame *>(opt)) {
