@@ -11,7 +11,7 @@
 
 #include <stdlib.h>
 
-#define FONTENGINE_DEBUG
+// #define FONTENGINE_DEBUG
 
 class HackPaintDevice : public QPaintDevice
 {
@@ -137,7 +137,7 @@ void FontEngineXft::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs,
 	    XftDrawString16 (draw, &col, _font, x-offsets[i].x-gi.xoff, y+offsets[i].y-gi.yoff,
 			     (XftChar16 *) (glyphs+i), 1);
 #ifdef FONTENGINE_DEBUG
-	    p->drawRect( x - offsets[i].x - gi.xoff, y + 100 + offsets[i].y - gi.yoff + gi.y, gi.width, gi.height );
+	    p->drawRect( x - offsets[i].x - gi.xoff + gi.x, y + 100 + offsets[i].y - gi.yoff + gi.y, gi.width, gi.height );
 	    p->drawLine( x - offsets[i].x - gi.xoff, y + 150 + 5*i , x - offsets[i].x, y + 150 + 5*i );
 
 #endif

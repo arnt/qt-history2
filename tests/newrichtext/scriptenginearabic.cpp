@@ -538,9 +538,9 @@ void ScriptEngineArabic::charAttributes( const QString &text, int from, int len,
 {
     const QChar *uc = text.unicode() + from;
     for ( int i = 0; i < len; i++ ) {
-	attributes[i].softBreak = FALSE;
 	// ### remove nbsp?
 	attributes[i].whiteSpace = uc[i].isSpace();
+	attributes[i].softBreak = attributes[i].whiteSpace;
 	attributes[i].charStop = TRUE;
 	attributes[i].wordStop = attributes[i].whiteSpace;
     }
@@ -674,7 +674,7 @@ void ScriptEngineArabic::openTypePosition( const OpenTypeIface *openType, Shaped
 	heuristicPositionMarks( result );
     }
 
-    qDebug("logClusters:");
-    for ( int i = 0; i < result->d->length; i++ )
-	qDebug("    %d -> %d", i, result->d->logClusters[i] );
+//     qDebug("logClusters:");
+//     for ( int i = 0; i < result->d->length; i++ )
+// 	qDebug("    %d -> %d", i, result->d->logClusters[i] );
 }

@@ -22,6 +22,28 @@ void ScriptItemArray::resize( int s )
     d->alloc = alloc;
 }
 
+void ScriptItemArray::split( int pos )
+{
+    unsigned int itemToSplit;
+    for ( itemToSplit = 0; itemToSplit < d->size && d->items[itemToSplit].position <= pos; itemToSplit++ )
+	;
+    itemToSplit--;
+    if ( d->items[itemToSplit].position == pos )
+	// already a split at the requested position
+	return;
+
+    if ( d->size == d->alloc )
+	resize( d->size + 1 );
+
+    int numMove = d->size - itemToSplit-1;
+    if ( numMove > 0 )
+	memmove( d->items + itemToSplit+2, d->items +itemToSplit+1, numMove*sizeof( ScriptItem ) );
+    d->size++;
+    d->items[itemToSplit+1] = d->items[itemToSplit];
+    d->items[itemToSplit+1].position = pos;
+//     qDebug("split at position %d itempos=%d", pos, itemToSplit );
+}
+
 
 CharAttributesArray::~CharAttributesArray()
 {
@@ -83,6 +105,8 @@ public:
     int cursorToX( ShapedItem &shaped, int cpos, Edge edge ) const;
     int xToCursor( ShapedItem &shaped, int x ) const;
 
+    int width( ShapedItem &shaped ) const;
+    bool split( ScriptItemArray &items, int item, ShapedItem &shaped, CharAttributesArray &attrs, int width ) const;
 };
 
 
@@ -119,8 +143,8 @@ void TextLayoutQt::itemize( ScriptItemArray &items, const QString &string ) cons
 	items.d = (ScriptItemArrayPrivate *)malloc( sizeof( ScriptItemArrayPrivate ) +
 						    sizeof( ScriptItem ) * size );
 	items.d->alloc = size;
-	items.d->size = 0;
     }
+    items.d->size = 0;
 
     bidiItemize( string, items, QChar::DirON );
 }
@@ -135,7 +159,8 @@ void TextLayoutQt::attributes( CharAttributesArray &attrs, const QString &string
     int len = ( item < items.size() ? items[item].position : string.length() ) - from;
 
 
-    attrs.d = (CharAttributesArrayPrivate *)realloc( attrs.d, sizeof(CharAttributes)*len );
+    attrs.d = (CharAttributesArrayPrivate *)realloc( attrs.d, sizeof( CharAttributesArrayPrivate ) +
+						     sizeof(CharAttributes)*len );
 
     scriptEngines[si.analysis.script]->charAttributes( string, from, len, attrs.d->attributes );
 }
@@ -238,4 +263,52 @@ int TextLayoutQt::xToCursor( ShapedItem &shaped, int x ) const
 // 	   x, cp_before,cp_after,  x_before, x_after,  before ? cp_before : cp_after );
 
     return before ? cp_before : cp_after;
+}
+
+
+int TextLayoutQt::width( ShapedItem &shaped ) const
+{
+    int width = 0;
+    for ( int i = 0; i < shaped.d->num_glyphs; i++ )
+	width += shaped.d->advances[i].x;
+    return width;
+}
+
+bool TextLayoutQt::split( ScriptItemArray &items, int item, ShapedItem &shaped, CharAttributesArray &attrs, int width ) const
+{
+//     qDebug("TextLayoutQt::split: item=%d, width=%d", item, width );
+    // line breaks are always done in logical order
+    ShapedItemPrivate *d = shaped.d;
+
+    int lastBreak = 0;
+    int lastWidth = 0;
+    int w = 0;
+    int lastCluster = 0;
+    int clusterStart = 0;
+    for ( int i = 1; i <= d->length; i++ ) {
+	int newCluster = i < d->length ? d->logClusters[i] : d->num_glyphs;
+	if ( newCluster != lastCluster ) {
+	    // calculate cluster width
+	    int x = 0;
+	    for ( int j = lastCluster; j < newCluster; j++ )
+		x += d->advances[j].x;
+	    lastWidth += x;
+	    if ( w + lastWidth > width )
+		break;
+	    lastCluster = newCluster;
+	    clusterStart = i;
+	    if ( attrs[i].softBreak ) {
+		lastBreak = i;
+		w += lastWidth;
+		lastWidth = 0;
+	    }
+	}
+    }
+
+    if ( lastBreak == 0 )
+	return FALSE;
+
+    // we have the break position
+    items.split( lastBreak + items[item].position );
+    return TRUE;
 }

@@ -199,9 +199,9 @@ void ScriptEngineBasic::charAttributes( const QString &text, int from, int len, 
 {
     const QChar *uc = text.unicode() + from;
     for ( int i = 0; i < len; i++ ) {
-	attributes[i].softBreak = FALSE;
 	// ### remove nbsp?
 	attributes[i].whiteSpace = uc[i].isSpace();
+	attributes[i].softBreak = attributes[i].whiteSpace;
 	attributes[i].charStop = TRUE;
 	attributes[i].wordStop = attributes[i].whiteSpace;
     }
@@ -237,7 +237,7 @@ void ScriptEngineBasic::position( ShapedItem *shaped )
 	QGlyphInfo gi = d->fontEngine->boundingBox( d->glyphs[i] );
 	d->advances[i].x = gi.xoff;
 	d->advances[i].y = gi.yoff;
-	qDebug("setting advance of glyph %d to %d", i, gi.xoff );
+// 	qDebug("setting advance of glyph %d to %d", i, gi.xoff );
     }
 
     heuristicPositionMarks( shaped );

@@ -6,8 +6,9 @@
 
 #include <private/qcomplextext_p.h>
 #include <qdatetime.h>
+#include "editwidget.h"
 
-const char *family = "Diwani Letter";
+const char *family = "Tahoma";
 
 class MyWidget : public QWidget
 {
@@ -106,25 +107,35 @@ int MyWidget::getCursorPosition( int _x )
 //const char *s = "some string";
 //const char * s = "אי U יו";
 
-//const char * s = "אירופה, תוכנה והאינטרנט: Unicode יוצא לשוק העולמי הירשמו כעת לכנס Unicode הבינלאומי העשירי, שייערך בין התאריכים 12־10 במרץ 1997, במיינץ שבגרמניה. בכנס ישתתפו מומחים מכל ענפי התעשייה בנושא האינטרנט העולמי וה־Unicode, בהתאמה לשוק הבינלאומי והמקומי, ביישום Unicode במערכות הפעלה וביישומים, בגופנים, בפריסת טקסט ובמחשוב רב־לשוני. some english inbetween כאשר העולם רוצה לדבר, הוא מדבר ב־Unicode אירופה, תוכנה והאינטרנט: Unicode יוצא לשוק העולמי הירשמו כעת לכנס Unicode הבינלאומי העשירי, שייערך בין התאריכים 12־10 במרץ 1997, במיינץ שבגרמניה. בכנס ישתתפו מומחים מכל ענפי התעשייה בנושא האינטרנט העולמי וה־Unicode, בהתאמה לשוק הבינלאומי והמקומי, ביישום Unicode במערכות הפעלה וביישומים, בגופנים, בפריסת טקסט ובמחשוב רב־לשוני. some english inbetween כאשר העולם רוצה לדבר, הוא מדבר ב־Unicode אירופה, תוכנה והאינטרנט: Unicode יוצא לשוק העולמי הירשמו כעת לכנס Unicode הבינלאומי העשירי, שייערך בין התאריכים 12־10 במרץ 1997, במיינץ שבגרמניה. בכנס ישתתפו מומחים מכל ענפי התעשייה בנושא האינטרנט העולמי וה־Unicode, בהתא";
+const char * s = "אירופה, תוכנה והאינטרנט: Unicode יוצא לשוק העולמי הירשמו כעת לכנס Unicode הבינלאומי העשירי, שייערך בין התאריכים 12־10 במרץ 1997, במיינץ שבגרמניה. בכנס ישתתפו מומחים מכל ענפי התעשייה בנושא האינטרנט העולמי וה־Unicode, בהתאמה לשוק הבינלאומי והמקומי, ביישום Unicode במערכות הפעלה וביישומים, בגופנים, בפריסת טקסט ובמחשוב רב־לשוני. some english inbetween כאשר העולם רוצה לדבר, הוא מדבר ב־Unicode אירופה, תוכנה והאינטרנט: Unicode יוצא לשוק העולמי הירשמו כעת לכנס Unicode הבינלאומי העשירי, שייערך בין התאריכים 12־10 במרץ 1997, במיינץ שבגרמניה. בכנס ישתתפו מומחים מכל ענפי התעשייה בנושא האינטרנט העולמי וה־Unicode, בהתאמה לשוק הבינלאומי והמקומי, ביישום Unicode במערכות הפעלה וביישומים, בגופנים, בפריסת טקסט ובמחשוב רב־לשוני. some english inbetween כאשר העולם רוצה לדבר, הוא מדבר ב־Unicode אירופה, תוכנה והאינטרנט: Unicode יוצא לשוק העולמי הירשמו כעת לכנס Unicode הבינלאומי העשירי, שייערך בין התאריכים 12־10 במרץ 1997, במיינץ שבגרמניה. בכנס ישתתפו מומחים מכל ענפי התעשייה בנושא האינטרנט העולמי וה־Unicode, בהתא";
 //const char * s = "אירופה, תוכנה והאינטרנט: Unicode";
 
 
-//const char *s = "أوروبا, برمجيات الحاسوب + انترنيت: some english אירופה, תוכנה והאינטרנט";
-const char *s = "لاَْلحاسًوب";// برمجيات الحاسوب";
+// const char *s = "أوروبا, برمجيات الحاسوب + انترنيت: some english אירופה, תוכנה והאינטרנט";
+// const char *s = "لاَْلحاسًوب";// برمجيات الحاسوب";
 
 
 // Thai
 // const char *s = "ทำไมเขาถึงไม่พูด �าษาไทย";
 
 // Vietnamese
-//  const char *s = "Tại sao họ không thể chỉ nói tiệ̣̣́ng.";
+//  const char *s = "Tại sao họ không thể chỉ nói tiệ̣̣́ng."
+//  " لاَْلحاسًوب برمجيات الحاسوب";
 // const char *s = "Tại";// sao họ";
 
 
 int main( int argc, char **argv )
 {
     QApplication a(argc, argv);
+
+    EditWidget *w = new EditWidget( 0, 0 );
+    w->setText( QString::fromUtf8( s ) );
+    QFont f( family );
+    f.setPointSize( 36 );
+    w->setFont( f );
+    w->resize( 300, 300 );
+    w->show();
+#if 0
 
     MyWidget *w = new MyWidget;
     w->resize( 700,  300 );
@@ -152,6 +163,7 @@ int main( int argc, char **argv )
 // 	qDebug("itemize: %dms", t.elapsed() );
 #endif
     }
+#endif
 
     a.exec();
     delete w;

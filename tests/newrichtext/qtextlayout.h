@@ -39,8 +39,10 @@ struct ScriptAnalysis
     bool operator == ( const ScriptAnalysis &other ) {
 	return
 	    script == other.script &&
-	    bidiLevel == other.bidiLevel &&
-	    override == other.override;
+	    bidiLevel == other.bidiLevel;
+	// ###
+// 	    &&
+// 	    override == other.override;
     }
 
 };
@@ -80,6 +82,7 @@ public:
     int size() const {
 	return d->size;
     }
+    void split( int pos );
     ScriptItemArray( const ScriptItemArray & ) {}
     ScriptItemArray &operator = ( const ScriptItemArray & ) { return *this; }
 
@@ -189,6 +192,10 @@ public:
     CharAttributesArray( const CharAttributesArray & ) {}
     CharAttributesArray & operator=( const CharAttributesArray & ) { return *this; }
 
+    const CharAttributes &operator [] (int i) const {
+	return d->attributes[i];
+    }
+
     CharAttributesArrayPrivate *d;
 };
 
@@ -216,8 +223,11 @@ public:
 	Trailing
     };
 
-    virtual int cursorToX( ShapedItem &shaped, int cpos, Edge edge ) const = 0;
+    virtual int cursorToX( ShapedItem &shaped, int cpos, Edge edge = Leading ) const = 0;
     virtual int xToCursor( ShapedItem &shaped, int x ) const = 0;
+
+    virtual int width( ShapedItem &shaped ) const = 0;
+    virtual bool split( ScriptItemArray &items, int item, ShapedItem &, CharAttributesArray &, int width ) const = 0;
 
 //    static ScriptProperties scriptProperties( int script );
 
