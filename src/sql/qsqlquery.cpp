@@ -185,7 +185,7 @@ bool QSqlQuery::isNull( int field ) const
 
 /*! Executes the SQL \a query.  Returns TRUE if the query was
     successful sets the query state to active, otherwise returns FALSE
-    and the query becomes inactive.  The \a query string must use 
+    and the query becomes inactive.  The \a query string must use
     syntax appropriate for the SQL database being queried, for example,
     standard SQL.
 
@@ -383,6 +383,8 @@ bool QSqlQuery::seek( int i, bool relative )
 	    afterSeek();
 	    return FALSE;
 	}
+	afterSeek();
+	return TRUE;
     }
     if ( actualIdx == ( at() - 1 ) ) {
 	if ( !d->sqlResult->fetchPrev() ) {
@@ -390,6 +392,8 @@ bool QSqlQuery::seek( int i, bool relative )
 	    afterSeek();
 	    return FALSE;
 	}
+	afterSeek();
+	return TRUE;
     }
     if ( !d->sqlResult->fetch( actualIdx ) ) {
 	d->sqlResult->setAt( QSql::AfterLast );
