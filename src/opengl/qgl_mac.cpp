@@ -246,16 +246,16 @@ void QGLContext::updatePaintDevice()
             //get drawable area
             RgnHandle widgetRgn = qt_mac_get_rgn();
             GetControlRegion(hiview, kControlStructureMetaPart, widgetRgn);
+            QPoint wpos = posInWindow(w);
+            OffsetRgn(widgetRgn, wpos.x(), wpos.y());
+
             QRegion clp = qt_mac_convert_mac_region(widgetRgn);
-            QPoint p = posInWindow(w);
-            clp.translate(p.x(), p.y());
             qt_mac_dispose_rgn(widgetRgn);
 #ifdef DEBUG_WINDOW_UPDATE
             QVector<QRect> rs = clp.rects();
             for(int i = 0; i < rs.count(); i++)
                 qDebug("%d %d %d %d", rs[i].x(), rs[i].y(), rs[i].width(), rs[i].height());
 #endif
-
             //update the clip
             if(!aglIsEnabled((AGLContext)cx, AGL_BUFFER_RECT))
                 aglEnable((AGLContext)cx, AGL_BUFFER_RECT);
@@ -265,8 +265,8 @@ void QGLContext::updatePaintDevice()
                 if(aglIsEnabled((AGLContext)cx, AGL_CLIP_REGION))
                     aglDisable((AGLContext)cx, AGL_CLIP_REGION);
             } else {
-                QPoint mp(posInWindow(w));
-                const GLint offs[4] = { mp.x(), w->topLevelWidget()->height() - (mp.y() + w->height()), w->width(), w->height() };
+                const GLint offs[4] = { wpos.x(), w->topLevelWidget()->height() - (wpos.y() + w->height()), 
+                                        w->width(), w->height() };
                 aglSetInteger((AGLContext)cx, AGL_BUFFER_RECT, offs);
                 aglSetInteger((AGLContext)cx, AGL_CLIP_REGION, (const GLint *)clp.handle(true));
                 if(!aglIsEnabled((AGLContext)cx, AGL_CLIP_REGION))
