@@ -65,7 +65,7 @@ INCLUDEPATH += ../3rdparty/zlib
 		../3rdparty/zlib/uncompr.c \
 		../3rdparty/zlib/zutil.c
 }
-!contains(QT_CONFIG, no-zlib):!contains(QT_CONFIG, zlib) {
+!contains(QT_CONFIG, no-zlib):contains(QT_CONFIG, zlib) {
 	unix:LIBS += -lz
 	win32:LIBS += libz.lib
 }
