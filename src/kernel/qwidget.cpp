@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#382 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#383 $
 **
 ** Implementation of QWidget class
 **
@@ -2072,7 +2072,7 @@ void QWidget::setFocusProxy( QWidget * w )
 
 QWidget * QWidget::focusProxy() const
 {
-    return extra ? extra->focus_proxy : 0; // ### watch out for deletes
+    return extra ? extra->focus_proxy : 0;
 }
 
 
