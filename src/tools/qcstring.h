@@ -207,7 +207,7 @@ public:
     QCString    &replace( char c, const char *after );
     QCString    &replace( const char *, const char * );
     QCString    &replace( char, char );
-    
+
     short	toShort( bool *ok=0 )	const;
     ushort	toUShort( bool *ok=0 )	const;
     int		toInt( bool *ok=0 )	const;
@@ -327,9 +327,6 @@ Q_EXPORT inline bool operator<( const char *s1, const QCString &s2 )
 Q_EXPORT inline bool operator<=( const QCString &s1, const QCString &s2 )
 { return qstrcmp( s1.data(), s2.data() ) <= 0; }
 
-Q_EXPORT inline bool operator<=( const QCString &s1, const QCString &s2 )
-{ return qstrcmp( s1.data(),s2.data() ) <= 0; }
-
 Q_EXPORT inline bool operator<=( const QCString &s1, const char *s2 )
 { return qstrcmp( s1.data(), s2 ) <= 0; }
 
@@ -339,9 +336,6 @@ Q_EXPORT inline bool operator<=( const char *s1, const QCString &s2 )
 Q_EXPORT inline bool operator>( const QCString &s1, const QCString &s2 )
 { return qstrcmp( s1.data(), s2.data() ) > 0; }
 
-Q_EXPORT inline bool operator>( const QCString &s1, const QCString &s2 )
-{ return qstrcmp( s1.data(),s2.data() ) > 0; }
-
 Q_EXPORT inline bool operator>( const QCString &s1, const char *s2 )
 { return qstrcmp( s1.data(), s2 ) > 0; }
 
@@ -350,9 +344,6 @@ Q_EXPORT inline bool operator>( const char *s1, const QCString &s2 )
 
 Q_EXPORT inline bool operator>=( const QCString &s1, const QCString& s2 )
 { return qstrcmp( s1.data(), s2.data() ) >= 0; }
-
-Q_EXPORT inline bool operator>=( const QCString &s1, const QCString &s2 )
-{ return qstrcmp( s1.data(),s2.data() ) >= 0; }
 
 Q_EXPORT inline bool operator>=( const QCString &s1, const char *s2 )
 { return qstrcmp( s1.data(), s2 ) >= 0; }
