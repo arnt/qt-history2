@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#49 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -30,7 +30,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#48 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#49 $")
 
 
 #define COLOR_VALUE(c) ((flags & RGBColor) ? c.rgb() : c.pixel())
@@ -2023,7 +2023,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 		if ( k < len-1 ) {
 		    k++;
 		    p++;
-		    if ( *p != '&' && isprint(UCHAR(*p)) )
+		    if ( *p != '&' && UCHAR(*p) > 32 )
 			cc = PREFIX | UCHAR(*p);// use prefix char
 		}
 	    } else {
