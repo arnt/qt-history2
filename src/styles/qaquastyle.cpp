@@ -1144,7 +1144,7 @@ QSize QAquaStyle::sizeFromContents( ContentsType contents,
 */
 QRect QAquaStyle::subRect( SubRect r, const QWidget *w ) const
 {
-    QRect ret;
+    QRect ret, wrect(w->rect());
     switch(r) {
     case SR_PushButtonContents:
 	ret = QWindowsStyle::subRect(r, w);
@@ -1157,6 +1157,18 @@ QRect QAquaStyle::subRect( SubRect r, const QWidget *w ) const
     case SR_ComboBoxFocusRect: {
 	QRect wrect = w->rect();
 	ret = QRect(wrect.x()+4, wrect.y()+4, wrect.width()-8-20, wrect.height()-8);
+	break; }
+
+    case SR_RadioButtonContents: {
+	QRect ir = subRect(SR_RadioButtonIndicator, w);
+	ret.setRect(ir.right() + 5, wrect.y(), 
+		    wrect.width() - ir.width() - 5, wrect.height());
+	break; }
+
+    case SR_CheckBoxContents: {
+	QRect ir = subRect(SR_CheckBoxIndicator, w);
+	ret.setRect(ir.right() + 5, wrect.y(), 
+		    wrect.width() - ir.width() - 5, wrect.height());
 	break; }
 
     default:
