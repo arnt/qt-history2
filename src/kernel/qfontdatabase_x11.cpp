@@ -819,7 +819,7 @@ static inline void checkXftCoverage( QtFontFamily *family )
     QCString ext = family->fontFilename.mid( family->fontFilename.findRev( '.' ) ).lower();
     if ( family->fontFileIndex == 0 && ( ext == ".ttf" || ext == ".otf" ) ) {
 	void *map;
-// 	qDebug("using own ttf code coverage checking of '%s'!", family->name.latin1() );
+	// qDebug("using own ttf code coverage checking of '%s'!", family->name.latin1() );
 	int fd = open( family->fontFilename.data(), O_RDONLY );
 	size_t pagesize = getpagesize();
 	off_t offset = 0;
@@ -834,7 +834,7 @@ static inline void checkXftCoverage( QtFontFamily *family )
 	    unsigned char *ttf = (unsigned char *)map;
 	    Q_UINT32 version = getUInt( ttf );
 	    if ( version != 0x00010000 ) {
-		qDebug("file has wrong version %x",  version );
+		// qDebug("file has wrong version %x",  version );
 		goto error1;
 	    }
 	    Q_UINT16 numTables =  getUShort( ttf+4 );
@@ -851,7 +851,7 @@ static inline void checkXftCoverage( QtFontFamily *family )
 		}
 	    }
 	    if ( !cmap_offset ) {
-		qDebug("no cmap found" );
+		// qDebug("no cmap found" );
 		goto error1;
 	    }
 
@@ -868,7 +868,7 @@ static inline void checkXftCoverage( QtFontFamily *family )
 
 	    version = getUShort( cmap );
 	    if ( version != 0 ) {
-		qDebug("wrong cmap version" );
+		// qDebug("wrong cmap version" );
 		goto error1;
 	    }
 	    numTables = getUShort( cmap + 2 );
@@ -884,7 +884,7 @@ static inline void checkXftCoverage( QtFontFamily *family )
 	    }
 
 	    if ( !unicode_table ) {
-		qDebug("no unicode table found" );
+		// qDebug("no unicode table found" );
 		goto error1;
 	    }
 
@@ -895,7 +895,7 @@ static inline void checkXftCoverage( QtFontFamily *family )
 	    for ( int i = 0; i < QFont::NScripts+1; i++ ) {
 		QChar ch = sampleCharacter( (QFont::Script)i );
 		if ( getglyph_t( unicode_table, format, ch.unicode() ) ) {
-		    // 		qDebug("font can render script %d",  i );
+		    // qDebug("font can render script %d",  i );
 		    family->scripts[i] = QtFontFamily::Supported;
 		} else {
 		    family->scripts[i] |= QtFontFamily::UnSupported_Xft;
@@ -913,7 +913,7 @@ static inline void checkXftCoverage( QtFontFamily *family )
  xftCheck:
 #endif
 
-//     qDebug("using Freetype for checking of '%s'", family->name.latin1() );
+    // qDebug("using Freetype for checking of '%s'", family->name.latin1() );
 
     FT_Library ft_lib;
     FT_Error error = FT_Init_FreeType( &ft_lib );
@@ -1069,13 +1069,13 @@ void QFontDatabase::createDatabase()
 
 
 static inline QFontEngine *loadEngine( int styleStrategy, int styleHint,
-					   const QString &family,
-					   const QString &foundry,
-					   int weight, bool italic,
-					   bool oblique, int pixelSize,
-					   char pitch, bool use_regular,
-					   const QCString &encoding,
-					   int x11Screen )
+				       const QString &family,
+				       const QString &foundry,
+				       int weight, bool italic,
+				       bool oblique, int pixelSize,
+				       char pitch, bool use_regular,
+				       const QCString &encoding,
+				       int x11Screen )
 {
 #ifndef QT_NO_XFTFREETYPE
     if ( encoding == "*-*" ) {
@@ -1114,7 +1114,6 @@ static inline QFontEngine *loadEngine( int styleStrategy, int styleHint,
 	}
 #endif // 0
 
-
 	const char *generic_value = 0;
 	switch ( styleHint ) {
 	case QFont::SansSerif:
@@ -1147,7 +1146,18 @@ static inline QFontEngine *loadEngine( int styleStrategy, int styleHint,
 
 	XftPatternAddInteger( pattern, XFT_WEIGHT, weight );
 	XftPatternAddInteger( pattern, XFT_SLANT, slant_value );
-	XftPatternAddDouble( pattern, XFT_PIXEL_SIZE, size_value );
+
+	/*
+	  Xft1 doesn't obey user settings for turning off anti-aliasing using
+	  the following:
+
+	  match any size > 6 size < 12 edit antialias = false;
+
+	  ... if we request pixel sizes.  so, work around this limitiation and
+	  convert the pixel size to a point size and request that.
+	*/
+	size_value = size_value * 72.0 / QPaintDevice::x11AppDpiY( x11Screen );
+	XftPatternAddDouble( pattern, XFT_SIZE, size_value );
 
 	extern bool qt_use_antialiasing; // defined in qfont_x11.cpp
 	if ( !qt_use_antialiasing || styleStrategy & ( QFont::PreferAntialias |
@@ -1420,7 +1430,7 @@ QFontEngine *QFontDatabase::findFont( QFont::Script script,
 
     QChar sample = sampleCharacter( script );
     if ( fe && !canRender( fe, sample ) ) {
-	qWarning( "font loaded can't render sample 0x%04x", sample.unicode() );
+	// qWarning( "font loaded can't render sample 0x%04x", sample.unicode() );
 	delete fe;
 	fe = 0;
     }
