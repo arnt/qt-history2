@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextedit.cpp#39 $
+** $Id: //depot/qt/main/src/widgets/qtextedit.cpp#40 $
 **
 ** Implementation of the QTextEdit class
 **
@@ -1581,6 +1581,8 @@ void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * )
     }
 #endif
     drawCursor( TRUE );
+    if ( !doc->hasSelection( QTextDocument::Standard, TRUE ) )
+	doc->removeSelection( QTextDocument::Standard );
 }
 
 /*! \reimp */
@@ -2257,7 +2259,7 @@ void QTextEdit::setParagType( QStyleSheetItem::DisplayMode dm, QStyleSheetItem::
 /*!
   Sets the alignment of the current paragraph to \a a. Valid alignments
   are \c Qt::AlignLeft, \c Qt::AlignRight, Qt::AlignJustify and
-  Qt::AlignCenter (which centers horizontally). 
+  Qt::AlignCenter (which centers horizontally).
 
   \sa setParagType()
 */
