@@ -84,7 +84,7 @@
 
 */
 
-const char  *mfhdr_tag = "QPIC"; // header tag
+const char  *qt_mfhdr_tag = "QPIC"; // header tag
 const Q_UINT16 mfhdr_maj = 6; // major version #
 const Q_UINT16 mfhdr_min = 0; // minor version #
 
@@ -800,7 +800,7 @@ bool QPicturePrivate::checkFormat()
 
     char mf_id[4];                                // picture header tag
     s.readRawBytes(mf_id, 4);                        // read actual tag
-    if (memcmp(mf_id, mfhdr_tag, 4) != 0) {         // wrong header id
+    if (memcmp(mf_id, qt_mfhdr_tag, 4) != 0) {         // wrong header id
         qWarning("QPicturePaintEngine::checkFormat: Incorrect header");
         pictb.close();
         return false;
