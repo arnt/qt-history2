@@ -204,7 +204,7 @@ rm -f syncqt*
 
 echo "Removing src .cpp files for other platforms..." >&2
 cd ${DISTDIR}/qt/src
-find . -name '*_x11.c*' -o -name '*_win.c*' -o -name '*_os2.c*' \
+find . -name '*_x11.c*' -o -name '*_mac.c*' -o -name '*_win.c*' -o -name '*_os2.c*' \
 	| grep -v "_${platform}" | xargs rm -f
 
 echo "Generate lex and yacc files for moc..." >&2
