@@ -2326,6 +2326,7 @@ void qt_cleanup()
     if ( qt_is_gui_used ) {
 	QPixmapCache::clear();
 	QPainter::cleanup();
+	QCursor::cleanup();
 	QFont::cleanup();
 	QColor::cleanup();
 	QSharedDoubleBuffer::cleanup();
