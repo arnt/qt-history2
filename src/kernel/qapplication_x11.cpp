@@ -4576,6 +4576,7 @@ static const KeySym KeyTbl[] = {		// keyboard mapping table
     XK_Clear,		Qt::Key_Delete,
     XK_Pause,		Qt::Key_Pause,
     XK_Print,		Qt::Key_Print,
+    XK_KP_Begin,	Qt::Key_Clear,
     0x1005FF60,		Qt::Key_SysReq,		// hardcoded Sun SysReq
     0x1007ff00,		Qt::Key_SysReq,		// hardcoded X386 SysReq
     XK_Home,		Qt::Key_Home,		// cursor movement
