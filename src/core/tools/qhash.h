@@ -169,8 +169,9 @@ public:
     inline bool operator!() const { return d->size == 0; }
     inline operator QSafeBool() const { return d->size == 0 ? 0 : &BoolStruct::QTrue; }
 
-    void reserve(int size);
     inline int capacity() const { return d->numBuckets; }
+    void reserve(int size);
+    inline void squeeze() { reserve(1); }
 
     inline void detach() { if (d->ref != 1) detach_helper(); }
     inline bool isDetached() const { return d->ref == 1; }

@@ -54,7 +54,7 @@ uint qHash(const QString &key)
 
 static const uchar prime_deltas[] = {
     0,  0,  1,  3,  1,  5,  3,  3,  1,  9,  7,  5,  3,  9, 25,  3,
-    1, 21,  3, 21,  7, 15,  9,  5,  3, 29, 15
+    1, 21,  3, 21,  7, 15,  9,  5,  3, 29, 15,  0,  0,  0,  0,  0
 };
 
 static inline int primeForNumBits(int numBits)
@@ -184,6 +184,12 @@ QHashData::Node *QHashData::prevNode(Node *node)
     return e;
 }
 
+/*
+    If hint is negative, -hint gives the approximate number of
+    buckets that should be used for the hash table. If hint is
+    nonnegative, (1 << hint) gives the approximate number
+    of buckets that should be used.
+*/
 void QHashData::rehash(int hint)
 {
     if (hint < 0) {
@@ -191,8 +197,8 @@ void QHashData::rehash(int hint)
 	if (hint < MinNumBits)
 	    hint = MinNumBits;
 	userNumBits = hint;
-	if (size > (1 << userNumBits))
-	    return;
+        while (primeForNumBits(hint) < (size >> 1))
+	    ++hint;
     } else if (hint < MinNumBits) {
 	hint = MinNumBits;
     }
