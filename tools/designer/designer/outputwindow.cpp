@@ -84,7 +84,7 @@ void OutputWindow::setupError()
     errorView->setAllColumnsShowFocus( TRUE );
 }
 
-void debugMessageOutput( QtMsgType type, const char *msg )
+static void debugMessageOutput( QtMsgType type, const char *msg )
 {
     QString s( msg );
     s += "\n";
@@ -95,9 +95,9 @@ void debugMessageOutput( QtMsgType type, const char *msg )
 	else if ( OutputWindow::oldMsgHandler )
 	    (*OutputWindow::oldMsgHandler)( type, msg );
 	else
-	    fprintf( stderr, s.latin1() );
+	    fprintf( stderr, "%s", s.latin1() );
     } else {
-	fprintf( stderr, s.latin1() );
+	fprintf( stderr, "%s", s.latin1() );
 	abort();
     }
 
