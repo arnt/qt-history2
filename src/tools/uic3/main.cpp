@@ -333,7 +333,7 @@ int main(int argc, char * argv[])
         out << "#endif // " << protector << endl;
     }
 
-    if (fileOut.status() != IO_Ok) {
+    if (fileOut.error() != QFile::NoError) {
         fprintf(stderr, "%s: Error writing to file\n", argv[0]);
         if (!outputFile.isEmpty())
             remove(outputFile);
