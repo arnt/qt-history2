@@ -62,16 +62,11 @@ public:
 
 QRecursiveMutexPrivate::QRecursiveMutexPrivate()
 {
-#ifdef Q_OS_TEMP
+    QT_WA( {
 	handle = CreateMutex( NULL, FALSE, NULL );
-#else
-#if defined(UNICODE)
-    if ( qWinVersion() & Qt::WV_NT_based )
-	handle = CreateMutex( NULL, FALSE, NULL );
-    else
-#endif
+    } , {
 	handle = CreateMutexA( NULL, FALSE, NULL );
-#endif
+    } );
 #ifdef QT_CHECK_RANGE
     if ( !handle )
 	qSystemWarning( "Mutex init failure" );

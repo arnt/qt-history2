@@ -103,22 +103,19 @@ QString QDir::canonicalPath() const
 
     char cur[PATH_MAX];
     QT_GETCWD( cur, PATH_MAX );
-#ifdef UNICODE
-    if ( qt_winunicode ) {
+    QT_WA( {
 	if ( ::_wchdir( dPath.ucs2() ) >= 0 ) {
 	    TCHAR tmp[PATH_MAX];
 	    if ( ::_wgetcwd( tmp, PATH_MAX ) )
 		r = QString::fromUcs2( tmp );
 	}
-    } else 
-#endif
-    {
+    } , {
 	if ( QT_CHDIR(qt_win95Name(dPath)) >= 0 ) {
 	    char tmp[PATH_MAX];
 	    if ( QT_GETCWD( tmp, PATH_MAX ) )
 		r = QString::fromLocal8Bit( tmp );
 	}
-    }
+    } );
     QT_CHDIR( cur );
     slashify( r );
     return r;
@@ -138,12 +135,11 @@ QString QDir::canonicalPath() const
 
 bool QDir::mkdir( const QString &dirName, bool acceptAbsPath ) const
 {
-#ifdef UNICODE
-    if ( qt_winunicode )
+    QT_WA( {
 	return ::_wmkdir( filePath(dirName,acceptAbsPath).ucs2() ) == 0;
-    else
-#endif
+    }, {
 	return _mkdir(qt_win95Name(filePath(dirName,acceptAbsPath))) == 0;
+    } );
 }
 
 /*!
@@ -162,12 +158,11 @@ bool QDir::mkdir( const QString &dirName, bool acceptAbsPath ) const
 
 bool QDir::rmdir( const QString &dirName, bool acceptAbsPath ) const
 {
-#ifdef UNICODE
-    if ( qt_winunicode )
+    QT_WA( {
 	return ::_wrmdir( filePath(dirName,acceptAbsPath).ucs2() ) == 0;
-    else
-#endif
+    } , {
 	return _rmdir(qt_win95Name(filePath(dirName,acceptAbsPath))) == 0;
+    } );
 }
 
 
@@ -182,12 +177,11 @@ bool QDir::rmdir( const QString &dirName, bool acceptAbsPath ) const
 
 bool QDir::isReadable() const
 {
-#ifdef UNICODE
-    if ( qt_winunicode )
+    QT_WA( {
 	return ::_waccess( dPath.ucs2(), R_OK ) == 0;
-    else
-#endif
+    } , {
 	return QT_ACCESS(qt_win95Name(dPath), R_OK) == 0;
+    } );
 }
 
 /*!
@@ -242,15 +236,11 @@ bool QDir::rename( const QString &oldName, const QString &newName,
     }
     QString fn1 = filePath( oldName, acceptAbsPaths );
     QString fn2 = filePath( newName, acceptAbsPaths );
-#ifdef UNICODE
-    if ( qt_winunicode ) {
-	bool r = ::_wrename( fn1.ucs2(), fn2.ucs2() ) == 0;
-	return r;
-    } else 
-#endif
-    {
+    QT_WA( {
+	return ::_wrename( fn1.ucs2(), fn2.ucs2() ) == 0;
+    } , {
 	return ::rename(qt_win95Name(fn1), qt_win95Name(fn2)) == 0;
-    }
+    } );
 }
 /*!
   Sets the application's current working directory to \a path.
@@ -263,12 +253,11 @@ bool QDir::setCurrent( const QString &path )
 {
     int r;
 
-#ifdef UNICODE
-    if ( qt_winunicode )
+    QT_WA( {
 	r = ::_wchdir( path.ucs2() );
-    else
-#endif
+    } , {
 	r = QT_CHDIR(qt_win95Name(path));
+    } );
 
     return r >= 0;
 }
@@ -282,20 +271,17 @@ QString QDir::currentDirPath()
 {
     QString result;
 
-#ifdef UNICODE
-    if ( qt_winunicode ) {
-	TCHAR currentName[PATH_MAX];
+    QT_WA( {
+        TCHAR currentName[PATH_MAX];
 	if ( ::_wgetcwd(currentName,PATH_MAX) != 0 ) {
 	    result = QString::fromUcs2( currentName );
 	}
-    } else 
-#endif
-    {
+    } , {
 	char currentName[PATH_MAX];
 	if ( QT_GETCWD(currentName,PATH_MAX) != 0 ) {
 	    result = QString::fromLocal8Bit(currentName);
 	}
-    }
+    } );
     slashify( result );
 
     return result;
@@ -401,13 +387,12 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	p += '/';
     p += QString::fromLatin1("*.*");
 
-#ifdef UNICODE
-    if ( qt_winunicode )
+    QT_WA( {
 	ff = FindFirstFile( p.ucs2(), &finfo );
-    else 
-#endif
+    }, {
 	// Cast is safe, since char is at end of WIN32_FIND_DATA
 	ff = FindFirstFileA(qt_win95Name(p),(WIN32_FIND_DATAA*)&finfo);
+    } );
 
     if ( ff == FF_ERROR ) {
 	// if it is a floppy disk drive, it might just not have a file on it
@@ -441,16 +426,13 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	if ( first )
 	    first = FALSE;
 	else {
-#ifdef UNICODE
-	    if ( qt_winunicode ) {
+	    QT_WA( {
 		if ( !FindNextFile(ff,&finfo) )
 		    break;
-	    } else 
-#endif
-	    {
+	    } , {
 		if ( !FindNextFileA(ff,(WIN32_FIND_DATAA*)&finfo) )
 		    break;
-	    }
+	    } );
 	}
 	int  attrib = finfo.dwFileAttributes;
 	bool isDir	= (attrib & IS_SUBDIR) != 0;
@@ -464,12 +446,11 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	bool isSystem	= (attrib & IS_SYSTEM) != 0;
 
 	QString fname;
-#ifdef UNICODE
-	if ( qt_winunicode )
+	QT_WA( {
 	    fname = QString::fromUcs2( (unsigned short *)finfo.cFileName );
-	else 
-#endif
+	} , {
 	    fname = QString::fromLocal8Bit( (const char*)finfo.cFileName );
+	} );
 
 	if ( !match( filters, fname ) && !(allDirs && isDir) )
 	    continue;

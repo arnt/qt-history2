@@ -290,11 +290,13 @@ const char* QWindowsMimeText::mimeFor(int cf)
 {
     if ( cf == CF_TEXT )
 	return "text/plain";
-    else if ( cf == CF_UNICODETEXT )
-	if ( qWinVersion() & Qt::WV_DOS_based )
-	    return "text/plain;charset=utf16";
-	else
+    else if ( cf == CF_UNICODETEXT ) {
+	QT_WA( {
 	    return "text/plain;charset=ISO-10646-UCS-2";
+        } , {
+	    return "text/plain;charset=utf16";
+	} );
+    }
     else
 	return 0;
 }
@@ -614,24 +616,22 @@ QByteArray QWindowsMimeUri::convertFromMime( QByteArray data, const char* mime, 
     int size = sizeof(DROPFILES)+2;
     QStringList::Iterator i;
     for ( i = fn.begin(); i!=fn.end(); ++i ) {
-	if ( qWinVersion() & Qt::WV_NT_based )
-	    size += (*i).length()+1;
-	else
+	QT_WA( {
+	    size += sizeof(TCHAR)*( (*i).length()+1 );
+	} , {
 	    size += (*i).local8Bit().length()+1;
+	} );
     }
 
-    QByteArray result(size*sizeof(TCHAR));
+    QByteArray result( size );
     DROPFILES* d = (DROPFILES*)result.data();
     d->pFiles = sizeof(DROPFILES);
     GetCursorPos(&d->pt); // try
     d->fNC = TRUE;
     char* files = ((char* )d) + d->pFiles;
 
-#if defined(UNICODE)
-#ifndef Q_OS_TEMP
-    if ( qWinVersion() & Qt::WV_NT_based ) {
-#endif
-	d->fWide = sizeof(TCHAR)>1;
+    QT_WA( {
+	d->fWide = TRUE;
 	TCHAR* f = (TCHAR*)files;
 
 	for ( i = fn.begin(); i!=fn.end(); ++i ) {
@@ -644,12 +644,7 @@ QByteArray QWindowsMimeUri::convertFromMime( QByteArray data, const char* mime, 
 	    *f++ = 0;
 	}
 	*f = 0;
-#ifndef Q_OS_TEMP
-    } else
-#endif
-#endif
-#ifndef Q_OS_TEMP
-    {
+    } , {
 	d->fWide = FALSE;
 	char* f = files;
 
@@ -664,8 +659,7 @@ QByteArray QWindowsMimeUri::convertFromMime( QByteArray data, const char* mime, 
 	    *f++ = 0;
 	}
 	*f = 0;
-    }
-#endif
+    } );
     return result;
 }
 

@@ -56,22 +56,13 @@ public:
 QWaitConditionPrivate::QWaitConditionPrivate()
 : waitersCount(0)
 {
-#if defined(UNICODE)
-#ifndef Q_OS_TEMP
-    if ( qWinVersion() & Qt::WV_NT_based ) {
-#endif
+    QT_WA( {
 	handle = CreateEvent( NULL, TRUE, FALSE, NULL );
 	single = CreateEvent( NULL, FALSE, FALSE, NULL );
-#ifndef Q_OS_TEMP
-    } else
-#endif
-#endif
-#ifndef Q_OS_TEMP
-    {
+    } , {
 	handle = CreateEventA( NULL, TRUE, FALSE, NULL );
 	single = CreateEventA( NULL, FALSE, FALSE, NULL );
-    }
-#endif
+    } );
 
 #ifdef QT_CHECK_RANGE
     if ( !handle || !single )

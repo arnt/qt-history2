@@ -148,8 +148,8 @@ public:
     bool	    dirty()      const { return hfont == 0; }
     HDC		    dc()	 const;
     HFONT	    font()	 const { return hfont; }
-    TEXTMETRICA	   *textMetricA() const;
-    TEXTMETRICW	   *textMetricW() const;
+    const TEXTMETRICA	   *textMetricA() const { return &tm.a; }
+    const TEXTMETRICW	   *textMetricW() const { return &tm.w; }
     QString key() const  { return k; }
     void	    reset();
 

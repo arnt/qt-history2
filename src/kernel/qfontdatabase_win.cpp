@@ -189,10 +189,7 @@ void populate_database(const QString& fam)
     QWidget dummy( 0, "qt_dummy_popdb");
     QPainter p( &dummy );
 
-#if defined(UNICODE)
-#ifndef Q_OS_TEMP
-    if ( qt_winver & Qt::WV_NT_based ) {
-#endif
+    QT_WA( {
         LOGFONT lf;
         lf.lfCharSet = DEFAULT_CHARSET;
         if ( fam.isNull() ) {
@@ -204,12 +201,7 @@ void populate_database(const QString& fam)
 
         EnumFontFamiliesEx( dummy.handle(), &lf, 
             (FONTENUMPROC)storeFont, (LPARAM)db, 0 );
-#ifndef Q_OS_TEMP
-    } else
-#endif
-#endif
-#ifndef Q_OS_TEMP
-    {
+    } , {
         LOGFONTA lf;
         lf.lfCharSet = DEFAULT_CHARSET;
         if ( fam.isNull() ) {
@@ -223,8 +215,7 @@ void populate_database(const QString& fam)
 
 	EnumFontFamiliesExA( dummy.handle(), &lf,
             (FONTENUMPROCA)storeFont, (LPARAM)db, 0 );
-    }
-#endif
+    } );
 
     // ##### Should add Italic if none already
     // ##### Should add Bold and Bold Italic if any less-than-bold exists

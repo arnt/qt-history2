@@ -122,14 +122,11 @@ QDesktopWidgetPrivate::QDesktopWidgetPrivate( QDesktopWidget *that )
 	getMonitorInfo = (InfoFunc)GetProcAddress( user32hnd, L"GetMonitorInfoW" );
 #else
 	enumDisplayMonitors = (EnumFunc)GetProcAddress( user32hnd, "EnumDisplayMonitors" );
-	if ( qt_winver & Qt::WV_NT_based )
-#if defined(UNICODE)
+	QT_WA( {
 	    getMonitorInfo = (InfoFunc)GetProcAddress( user32hnd, "GetMonitorInfoW" );
-#else
+	} , {
 	    getMonitorInfo = (InfoFunc)GetProcAddress( user32hnd, "GetMonitorInfoA" );
-#endif
-	else
-	    getMonitorInfo = (InfoFunc)GetProcAddress( user32hnd, "GetMonitorInfoA" );
+	} );
 #endif
 
 	if ( !enumDisplayMonitors || !getMonitorInfo ) {

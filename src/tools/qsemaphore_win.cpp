@@ -52,20 +52,11 @@ QSemaphore::QSemaphore( int maxcount )
 {
     d = new QSemaphorePrivate;
     d->maxCount = maxcount;
-#if defined(UNICODE)
-#ifndef Q_OS_TEMP
-    if ( qWinVersion() & Qt::WV_NT_based ) {
-#endif
+    QT_WA( {
 	d->handle = CreateSemaphore( NULL, maxcount, maxcount, NULL );
-#ifndef Q_OS_TEMP
-    } else
-#endif
-#endif
-#ifndef Q_OS_TEMP
-    {
+    } , {
 	d->handle = CreateSemaphoreA( NULL, maxcount, maxcount, NULL );
-    }
-#endif
+    } );
 
 #ifdef QT_CHECK_RANGE
     if ( !d->handle )

@@ -322,7 +322,8 @@ static void     unregWinClasses();
 
 static int	translateKeyCode( int );
 
-Qt::WindowsVersion qt_winver = Qt::WV_NT;
+// Detect the Windows version
+Qt::WindowsVersion qt_winver = (Qt::WindowsVersion) qWinVersion();
 
 extern QCursor *qt_grab_cursor();
 
@@ -522,10 +523,7 @@ static void qt_set_windows_resources()
     QFont titleFont;
     QFont smallTitleFont;
 
-#ifndef Q_OS_TEMP
-#if defined(UNICODE)
-    if ( qt_winver & Qt::WV_NT_based ) {
-	// W or A version
+    QT_WA( {
 	NONCLIENTMETRICS ncm;
 	ncm.cbSize = sizeof( ncm );
 	SystemParametersInfo( SPI_GETNONCLIENTMETRICS,
@@ -535,9 +533,7 @@ static void qt_set_windows_resources()
 	statusFont = qt_LOGFONTtoQFont(ncm.lfStatusFont,TRUE);
 	titleFont = qt_LOGFONTtoQFont(ncm.lfCaptionFont,TRUE);
 	smallTitleFont = qt_LOGFONTtoQFont(ncm.lfSmCaptionFont,TRUE);
-    } else
-#endif
-    {
+    } , {
 	// A version
 	NONCLIENTMETRICSA ncm;
 	ncm.cbSize = sizeof( ncm );
@@ -548,8 +544,7 @@ static void qt_set_windows_resources()
 	statusFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfStatusFont,TRUE);
 	titleFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfCaptionFont,TRUE);
 	smallTitleFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfSmCaptionFont,TRUE);
-    }
-#endif
+    } );
 
     QApplication::setFont( menuFont, TRUE, "QPopupMenu" );
     QApplication::setFont( menuFont, TRUE, "QMenuBar" );
@@ -691,8 +686,6 @@ static void qt_set_windows_resources()
 
 void qt_init( int *argcptr, char **argv, QApplication::Type )
 {
-    // Detect the Windows version
-    (void) QApplication::winVersion();
 
 #if defined(QT_DEBUG)
     int argc = *argcptr;
@@ -722,24 +715,12 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
     // Get the application name/instance if qWinMain() was not invoked
     set_winapp_name();
     if ( appInst == 0 ) {
-#ifdef Q_OS_TEMP
-		appInst = GetModuleHandle( 0 );
-#else
-#if defined(UNICODE)
-	if ( qt_winver & Qt::WV_NT_based )
+	QT_WA( {
 	    appInst = GetModuleHandle( 0 );
-	else
-#endif
+	}, {
 	    appInst = GetModuleHandleA( 0 );
-#endif
+	} );
     }
-
-#ifdef Q_OS_TEMP
-    qt_winunicode = TRUE;
-#else
-    // Tell tools/ modules.
-    qt_winunicode = (qt_winver & Qt::WV_NT_based);
-#endif
 
 #ifndef Q_OS_TEMP
     // Initialize OLE/COM
@@ -770,24 +751,15 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
     {
 	HFONT hfont = (HFONT)GetStockObject( DEFAULT_GUI_FONT );
 	QFont f("MS Sans Serif",8);
-#if defined(UNICODE)
-#ifndef Q_OS_TEMP
-	if ( qt_winver & Qt::WV_NT_based ) {
-#endif
+	QT_WA( {
 	    LOGFONT lf;
 	    if ( GetObject( hfont, sizeof(lf), &lf ) )
 		f = qt_LOGFONTtoQFont((LOGFONT&)lf,TRUE);
-#ifndef Q_OS_TEMP
-	} else
-#endif
-#endif
-#ifndef Q_OS_TEMP
-	{
+	} , {
 	    LOGFONTA lf;
 	    if ( GetObjectA( hfont, sizeof(lf), &lf ) )
 		f = qt_LOGFONTtoQFont((LOGFONT&)lf,TRUE);
-	}
-#endif
+	} );
 	QApplication::setFont( f );
     }
 
@@ -798,18 +770,13 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
     if ( QApplication::desktopSettingsAware() )
 	qt_set_windows_resources();
 
-#ifdef Q_OS_TEMP
+    QT_WA( {
 	WM95_MOUSEWHEEL = RegisterWindowMessage(L"MSWHEEL_ROLLMSG");
-#else
-#if defined(UNICODE)
-    if ( qt_winver & Qt::WV_NT_based )
-	WM95_MOUSEWHEEL = RegisterWindowMessage(L"MSWHEEL_ROLLMSG");
-    else
-#endif
+    } , {
 	WM95_MOUSEWHEEL = RegisterWindowMessageA("MSWHEEL_ROLLMSG");
-#endif
+    } );
 
-	// the WinTab API
+    // the WinTab API
 #if defined(QT_TABLET_SUPPORT)
 
 #define FIX_DOUBLE(x) ( double(INT(x)) + double(FRAC(x) / 0x10000 ) )
@@ -1018,10 +985,7 @@ const QString qt_reg_winclass( int flags )	// register window class
     if ( winclassNames->find(cname.latin1()) )		// already registered
 	return cname;
 
-#if defined(UNICODE)
-#ifndef Q_OS_TEMP
-    if ( qt_winver & Qt::WV_NT_based ) {
-#endif
+    QT_WA( {
 	WNDCLASS wc;
 	wc.style	= style;
 	wc.lpfnWndProc	= (WNDPROC)QtWndProc;
@@ -1030,10 +994,10 @@ const QString qt_reg_winclass( int flags )	// register window class
 	wc.hInstance	= (HINSTANCE)qWinAppInst();
 	if ( icon ) {
 	    wc.hIcon = LoadIcon( appInst, L"IDI_ICON1" );
-#ifndef Q_OS_TEMP
+//#ifndef Q_OS_TEMP
 	    if ( !wc.hIcon )
 		wc.hIcon = LoadIcon( 0, IDI_APPLICATION );
-#endif
+//#endif
 	}
 	else
 	{
@@ -1044,12 +1008,7 @@ const QString qt_reg_winclass( int flags )	// register window class
 	wc.lpszMenuName	= 0;
 	wc.lpszClassName= cname.ucs2();
 	RegisterClass( &wc );
-#ifndef Q_OS_TEMP
-    } else
-#endif
-#endif
-#ifndef Q_OS_TEMP
-    {
+    } , {
 	WNDCLASSA wc;
 	wc.style	= style;
 	wc.lpfnWndProc	= (WNDPROC)QtWndProc;
@@ -1069,8 +1028,7 @@ const QString qt_reg_winclass( int flags )	// register window class
 	wc.lpszMenuName	= 0;
 	wc.lpszClassName= cname.latin1();
 	RegisterClassA( &wc );
-    }
-#endif
+    } );
 
     winclassNames->insert( cname.latin1(), (int*)1 );
     return cname;
@@ -1083,18 +1041,11 @@ static void unregWinClasses()
     QAsciiDictIterator<int> it(*winclassNames);
     const char *k;
     while ( (k = it.currentKey()) ) {
-#ifdef Q_OS_TEMP
+	QT_WA( {
 	    UnregisterClass( QString::fromLatin1(k).ucs2(), (HINSTANCE)qWinAppInst() );
-#else
-#if defined(UNICODE)
-	if ( qt_winver & Qt::WV_NT_based ) {
-	    UnregisterClass( QString::fromLatin1(k).ucs2(), (HINSTANCE)qWinAppInst() );
-	} else
-#endif
-	{
+	} , {
 	    UnregisterClassA( k, (HINSTANCE)qWinAppInst() );
-	}
-#endif
+	} );
 	++it;
     }
     delete winclassNames;
@@ -1122,7 +1073,7 @@ void QApplication::setMainWidget( QWidget *mainWidget )
 
 Qt::WindowsVersion QApplication::winVersion()
 {
-    return qt_winver = (Qt::WindowsVersion)qWinVersion();
+    return qt_winver;
 }
 
 #ifndef QT_NO_CURSOR
@@ -1760,12 +1711,11 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    switch( wParam ) {
 	    case SC_CONTEXTHELP:
 		QWhatsThis::enterWhatsThisMode();
-#if defined(UNICODE)
-		if ( qt_winver & Qt::WV_NT_based )
+		QT_WA( {
 		    DefWindowProc( hwnd, WM_NCPAINT, 1, 0 );
-		else
-#endif
+		} , {
 		    DefWindowProcA( hwnd, WM_NCPAINT, 1, 0 );
+		} );
 		break;
 #if defined(QT_NON_COMMERCIAL)
 		QT_NC_SYSCOMMAND
@@ -1791,11 +1741,8 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 
 	case WM_SETTINGCHANGE:
 	    if ( !msg.wParam ) {
-		QString area =
-#if defined(UNICODE)
-		    ( qt_winver & Qt::WV_NT_based ) ? QString::fromUcs2( (unsigned short *)msg.lParam ) :
-#endif
-		    QString::fromLocal8Bit( (char*)msg.lParam );
+		QString area = QT_WA_INLINE( QString::fromUcs2( (unsigned short *)msg.lParam ),  
+					     QString::fromLocal8Bit( (char*)msg.lParam ) );
 		if ( area == "intl" )
 		    QApplication::postEvent( widget, new QEvent( QEvent::LocaleChange ) );
 	    }
@@ -2788,38 +2735,25 @@ static
 QChar wmchar_to_unicode(DWORD c)
 {
     // qt_winMB2QString is the generalization of this function.
-#ifdef Q_OS_TEMP
+    QT_WA( {
 	return QChar( (ushort)c );
-#else
-#if defined(UNICODE)
-    if ( qt_winver & Qt::WV_NT_based ) {
-	return QChar( (ushort)c );
-    } else
-#endif
-    {
+    } , {
 	char mb[2];
 	mb[0] = c&0xff;
 	mb[1] = 0;
 	WCHAR wc[1];
 	MultiByteToWideChar( inputcharset, MB_PRECOMPOSED, mb, -1, wc, 1);
 	return QChar(wc[0]);
-    }
-#endif
+    } );
 }
 
 static
 QChar imechar_to_unicode(DWORD c)
 {
     // qt_winMB2QString is the generalization of this function.
-#ifdef Q_OS_TEMP
+    QT_WA( {
 	return QChar( (ushort)c );
-#else
-#if defined(UNICODE)
-    if ( qt_winver & Qt::WV_NT_based ) {
-	return QChar( (ushort)c );
-    } else
-#endif
-    {
+    } , {
 	char mb[3];
 	mb[0] = (c>>8)&0xff;
 	mb[1] = c&0xff;
@@ -2828,8 +2762,7 @@ QChar imechar_to_unicode(DWORD c)
 	MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED,
 	    mb, -1, wc, 1);
 	return QChar(wc[0]);
-    }
-#endif
+    } );
 }
 
 bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
@@ -2987,21 +2920,14 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 		else {
 		    if (t != WM_SYSKEYDOWN) {
 			UINT map;
-#ifdef Q_OS_TEMP
+			QT_WA( {
 			    map = MapVirtualKey( msg.wParam, 2 );
-#else
-#if defined(UNICODE)
-			if ( qt_winver & Qt::WV_NT_based ) {
-			    map = MapVirtualKey( msg.wParam, 2 );
-			} else
-#endif
-			{
+			} , {
 			    map = MapVirtualKeyA( msg.wParam, 2 );
 			    // High-order bit is 0x8000 on '95
 			    if ( map & 0x8000 )
 				map = (map^0x8000)|0x80000000;
-			}
-#endif
+			} );
 			// If the high bit of the return value of
 			// MapVirtualKey is set, the key is a deadkey.
 			if ( !(map & 0x80000000) ) {
@@ -3411,16 +3337,11 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 		txt = caption();
 
 	    if ( !!txt ) {
-#ifdef Q_OS_TEMP
+		QT_WA( {
 		    SetWindowText( winId(), txt.ucs2() );
-#else
-#if defined(UNICODE)
-		if ( qt_winver & Qt::WV_NT_based )
-		    SetWindowText( winId(), txt.ucs2() );
-		else
-#endif
+		} , {
 		    SetWindowTextA( winId(), txt.local8Bit() );
-#endif
+		} );
 	    }
 	}
 	if ( msg.wParam != SIZE_MINIMIZED && oldSize != newSize) {
@@ -3506,16 +3427,11 @@ void QApplication::setWheelScrollLines( int n )
 #ifdef SPI_SETWHEELSCROLLLINES
     if ( n < 0 )
 	n = 0;
-#ifdef Q_OS_TEMP
+    QT_WA( {
 	SystemParametersInfo( SPI_SETWHEELSCROLLLINES, (uint)n, 0, 0 );
-#else
-#if defined(UNICODE)
-    if ( qt_winver & WV_NT_based )
-	SystemParametersInfo( SPI_SETWHEELSCROLLLINES, (uint)n, 0, 0 );
-    else
-#endif
+    } , {
 	SystemParametersInfoA( SPI_SETWHEELSCROLLLINES, (uint)n, 0, 0 );
-#endif
+    } );
 #else
     wheel_scroll_lines = n;
 #endif
@@ -3525,16 +3441,11 @@ int QApplication::wheelScrollLines()
 {
 #ifdef SPI_GETWHEELSCROLLLINES
     uint i = 3;
-#ifdef Q_OS_TEMP
+    QT_WA( {
 	SystemParametersInfo( SPI_GETWHEELSCROLLLINES, sizeof( uint ), &i, 0 );
-#else
-#if defined(UNICODE)
-    if ( qt_winver & WV_NT_based )
-	SystemParametersInfo( SPI_GETWHEELSCROLLLINES, sizeof( uint ), &i, 0 );
-    else
-#endif
+    } , {
 	SystemParametersInfoA( SPI_GETWHEELSCROLLLINES, sizeof( uint ), &i, 0 );
-#endif
+    } );
     if ( i > INT_MAX )
 	i = INT_MAX;
     return i;
@@ -3597,16 +3508,11 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 	break;
 	}
 	BOOL onoff = enable;
-#ifdef Q_OS_TEMP
+	QT_WA( {
 	    SystemParametersInfo( api, 0, &onoff, 0 );
-#else
-#if defined(UNICODE)
-	if ( qt_winver & WV_NT_based )
-	    SystemParametersInfo( api, 0, &onoff, 0 );
-	else
-#endif
+	}, {
 	    SystemParametersInfoA( api, 0, &onoff, 0 );
-#endif
+	} );
     }
 }
 
@@ -3645,16 +3551,11 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 	    api = SPI_GETUIEFFECTS;
 	    break;
 	}
-#ifdef Q_OS_TEMP
+	QT_WA( {
 	    SystemParametersInfo( api, 0, &enabled, 0 );
-#else
-#if defined(UNICODE)
-	if ( qt_winver & WV_NT_based )
-	    SystemParametersInfo( api, 0, &enabled, 0 );
-	else
-#endif
+	} , {
 	    SystemParametersInfoA( api, 0, &enabled, 0 );
-#endif
+	} );
 	return enabled;
     } else {
 	if ( QColor::numBitPlanes() < 16 )
@@ -3689,19 +3590,16 @@ static void initWinTabFunctions()
 	return;
     QLibrary library( "wintab32" );
     library.setAutoUnload( FALSE );
-#if defined(UNICODE)
-    if ( qWinVersion() & Qt::WV_NT_based ) {
+    QT_WA( {
 	ptrWTOpen = (PtrWTOpen)library.resolve( "WTOpenW" );
 	ptrWTInfo = (PtrWTInfo)library.resolve( "WTInfoW" );
 	ptrWTGet = (PtrWTGet)library.resolve( "WTGetW" );
-    } else {
-#endif
+    } , {
 	ptrWTOpen = (PtrWTOpen)library.resolve( "WTOpenA" );
 	ptrWTInfo = (PtrWTInfo)library.resolve( "WTOInfoA" );
 	ptrWTGet = (PtrWTGet)library.resolve( "WTGetA" );
-#if defined(UNICODE)
-    }
-#endif
+    } );
+
     ptrWTClose = (PtrWTClose)library.resolve( "WTClose" );
     ptrWTEnable = (PtrWTEnable)library.resolve( "WTEnable" );
     ptrWTOverlap = (PtrWTEnable)library.resolve( "WTOverlap" );

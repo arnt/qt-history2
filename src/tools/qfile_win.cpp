@@ -60,12 +60,11 @@ bool qt_file_access( const QString& fn, int t )
 {
     if ( fn.isEmpty() )
 	return FALSE;
-#ifdef UNICODE
-    if ( qt_winunicode )
+    QT_WA( {
 	return ::_waccess( fn.ucs2(), t) == 0;
-    else
-#endif
+    } , {
 	return QT_ACCESS(qt_win95Name(fn), t) == 0;
+    } );
 }
 
 bool QFile::remove( const QString &fileName )
@@ -76,12 +75,11 @@ bool QFile::remove( const QString &fileName )
 #endif
 	return FALSE;
     }
-#ifdef UNICODE
-    if ( qt_winunicode )
+    QT_WA( {
 	return ::_wremove( fileName.ucs2() ) == 0;
-    else
-#endif
+    } , {
 	return ::remove(qt_win95Name(fileName)) == 0;
+    } );
 }
 
 #define HAS_TEXT_FILEMODE
@@ -137,12 +135,11 @@ bool QFile::open( int m )
 	if ( isAsynchronous() )
 	    oflags |= QT_OPEN_ASYNC;
 #endif
-#ifdef UNICODE
-	if ( qt_winunicode )
+	QT_WA( {
 	    fd = ::_wopen( fn.ucs2(), oflags, 0666 );
-	else
-#endif
+	} , {
 	    fd = QT_OPEN(qt_win95Name(fn), oflags, 0666 );
+	} );
 
 	if ( fd != -1 ) {			// open successful
 	    QT_STATBUF st;
@@ -185,20 +182,17 @@ bool QFile::open( int m )
 	    strcat( perm2, "b" );
 #endif
 	for (;;) { // At most twice
-#ifdef UNICODE
-	    if ( qt_winunicode ) {
+	    QT_WA( {
 		TCHAR tperm2[4];
 		tperm2[0] = perm2[0];
 		tperm2[1] = perm2[1];
 		tperm2[2] = perm2[2];
 		tperm2[3] = perm2[3];
 		fh = ::_wfopen( fn.ucs2(), tperm2 );
-	    } else
-#endif
-	    {
+	    } , {
 		fh = fopen(qt_win95Name(fn),
 			    perm2 );
-	    }
+	    } );
 	    if ( !fh && try_create ) {
 		perm2[0] = 'w';			// try "w+" instead of "r+"
 		try_create = FALSE;
@@ -292,14 +286,11 @@ QIODevice::Offset QFile::size() const
     if ( isOpen() ) {
 	QT_FSTAT( fh ? QT_FILENO(fh) : fd, &st );
     } else {
-#ifdef UNICOCE
-	if ( qt_winunicode ) {
+	QT_WA( {
 	    ::_wstat( fn.ucs2(), (QT_STATBUF4TSTAT*)&st );
-	} else 
-#endif
-	{
+	} , {
 	    QT_STAT(qt_win95Name(fn), &st);
-	}
+	} );
     }
     return st.st_size;
 }

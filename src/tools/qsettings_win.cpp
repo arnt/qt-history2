@@ -100,28 +100,18 @@ QSettingsSysPrivate::QSettingsSysPrivate( QSettingsPrivate *priv )
 
     LONG res;
     if ( settingsTryLocal ) {
-#ifdef Q_OS_TEMP
-	res = RegOpenKeyExW( HKEY_LOCAL_MACHINE, NULL, 0, KEY_ALL_ACCESS, &local );
-#else
-#if defined(UNICODE)
-	if ( qWinVersion() & Qt::WV_NT_based )
+	QT_WA( {
 	    res = RegOpenKeyExW( HKEY_LOCAL_MACHINE, NULL, 0, KEY_ALL_ACCESS, &local );
-	else
-#endif
+	} , {
 	    res = RegOpenKeyExA( HKEY_LOCAL_MACHINE, NULL, 0, KEY_ALL_ACCESS, &local );
-#endif
+	} );
 
 	if ( res != ERROR_SUCCESS ) {
-#ifdef Q_OS_TEMP
-	    res = RegOpenKeyExW( HKEY_LOCAL_MACHINE, NULL, 0, KEY_READ, &local );
-#else
-#if defined(UNICODE)
-	    if ( qWinVersion() & Qt::WV_NT_based )
+	    QT_WA( {
 		res = RegOpenKeyExW( HKEY_LOCAL_MACHINE, NULL, 0, KEY_READ, &local );
-	    else
-#endif
+	    } , {
 		res = RegOpenKeyExA( HKEY_LOCAL_MACHINE, NULL, 0, KEY_READ, &local );
-#endif
+	    } );
 	    if ( res != ERROR_SUCCESS ) {
 		local = NULL;
 	    }
@@ -129,28 +119,18 @@ QSettingsSysPrivate::QSettingsSysPrivate( QSettingsPrivate *priv )
     }
 
     if ( settingsTryUser ) {
-#ifdef Q_OS_TEMP
-	res = RegOpenKeyExW( HKEY_CURRENT_USER, NULL, 0, KEY_ALL_ACCESS, &user );
-#else
-#if defined(UNICODE)
-	if ( qWinVersion() & Qt::WV_NT_based ) 
+	QT_WA( {
 	    res = RegOpenKeyExW( HKEY_CURRENT_USER, NULL, 0, KEY_ALL_ACCESS, &user );
-	else
-#endif
+	} , {
 	    res = RegOpenKeyExA( HKEY_CURRENT_USER, NULL, 0, KEY_ALL_ACCESS, &user );
-#endif
+	} );
 
 	if ( res != ERROR_SUCCESS ) {
-#ifdef Q_OS_TEMP
-	    res = RegOpenKeyExW( HKEY_CURRENT_USER, NULL, 0, KEY_READ, &user );
-#else
-#if defined(UNICODE)
-	    if ( qWinVersion() & Qt::WV_NT_based ) 
+	    QT_WA( {
 		res = RegOpenKeyExW( HKEY_CURRENT_USER, NULL, 0, KEY_READ, &user );
-	    else
-#endif
+	    } , {
 		res = RegOpenKeyExA( HKEY_CURRENT_USER, NULL, 0, KEY_READ, &user );
-#endif
+	    } );
 	    if ( res != ERROR_SUCCESS ) {
 		user = NULL;
 	    }
@@ -230,63 +210,38 @@ HKEY QSettingsSysPrivate::openKey( const QString &key, bool write, bool remove )
 
     // if we write and there is a user specific setting, overwrite that
     if ( write && user ) {
-#if defined(UNICODE)
-#ifndef Q_OS_TEMP
-	if ( qWinVersion() & Qt::WV_NT_based )
-#endif
+	QT_WA( {
 	    res = RegOpenKeyExW( user, f.ucs2(), 0, KEY_ALL_ACCESS, &handle );
-#ifndef Q_OS_TEMP
-	else
-#endif
-#endif
-#ifndef Q_OS_TEMP
+	} , {
 	    res = RegOpenKeyExA( user, f.local8Bit(), 0, KEY_ALL_ACCESS, &handle );
-#endif
+	} );
     }
 
     if ( res != ERROR_SUCCESS && local ) {
-#if defined(UNICODE)
-#ifndef Q_OS_TEMP
-	if ( qWinVersion() & Qt::WV_NT_based ) {
-#endif
+	QT_WA( {
 	    if ( write && !remove )
 		res = RegCreateKeyExW( local, f.ucs2(), 0, L"", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
 	    else
 		res = RegOpenKeyExW( local, f.ucs2(), 0, KEY_ALL_ACCESS, &handle );
-#ifndef Q_OS_TEMP
-	} else
-#endif
-#endif
-#ifndef Q_OS_TEMP
-	{
+	} , {
 	    if ( write && !remove )
 		res = RegCreateKeyExA( local, f.local8Bit(), 0, "", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
 	    else
 		res = RegOpenKeyExA( local, f.local8Bit(), 0, KEY_ALL_ACCESS, &handle );
-	}
-#endif
+	} );
     }
     if ( !handle && user ) {
-#if defined(UNICODE)
-#ifndef Q_OS_TEMP
-	if ( qWinVersion() & Qt::WV_NT_based ) {
-#endif
+	QT_WA( {
 	    if ( write && !remove )
 		res = RegCreateKeyExW( user, f.ucs2(), 0, L"", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
 	    else
 		res = RegOpenKeyExW( user, f.ucs2(), 0, KEY_ALL_ACCESS, &handle );
-#ifndef Q_OS_TEMP
-	} else
-#endif
-#endif
-#ifndef Q_OS_TEMP
-	{
+	} , {
 	    if ( write && !remove )
 		res = RegCreateKeyExA( user, f.local8Bit(), 0, "", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
 	    else
 		res = RegOpenKeyExA( user, f.local8Bit(), 0, KEY_ALL_ACCESS, &handle );
-	}
-#endif
+	} );
     }
     return handle;
 }
@@ -311,16 +266,11 @@ bool QSettingsSysPrivate::writeKey( const QString &key, const QByteArray &value,
 	e = "";
 
     if ( value.size() ) {
-#ifdef Q_OS_TEMP
-	res = RegSetValueExW( handle, e.isEmpty() ? 0 : e.ucs2(), 0, type, (const uchar*)value.data(), value.size() );
-#else
-#if defined(UNICODE)
-	if ( qWinVersion() & Qt::WV_NT_based )
+	QT_WA( {
 	    res = RegSetValueExW( handle, e.isEmpty() ? 0 : e.ucs2(), 0, type, (const uchar*)value.data(), value.size() );
-	else
-#endif
+	} , {
 	    res = RegSetValueExA( handle, e.isEmpty() ? (const char*)0 : (const char*)e.local8Bit(), 0, type, (const uchar*)value.data(), value.size() );
-#endif
+	} );
 	
 	if ( res != ERROR_SUCCESS ) {
 #if defined(QT_CHECK_STATE)
@@ -338,28 +288,18 @@ HKEY QSettingsSysPrivate::readKeyHelper( HKEY root, const QString &folder, const
 {
     HKEY handle;
     LONG res = ERROR_ACCESS_DENIED;
-#ifdef Q_OS_TEMP
-    res = RegOpenKeyExW( root, folder.ucs2(), 0, KEY_READ, &handle );
-#else
-#if defined(UNICODE)
-    if ( qWinVersion() & Qt::WV_NT_based )
+    QT_WA( {
 	res = RegOpenKeyExW( root, folder.ucs2(), 0, KEY_READ, &handle );
-    else
-#endif
+    } , {
 	res = RegOpenKeyExA( root, folder.local8Bit(), 0, KEY_READ, &handle );
-#endif
+    } );
     
     if ( res == ERROR_SUCCESS ) {
-#ifdef Q_OS_TEMP
-	res = RegQueryValueExW( handle, entry.isEmpty() ? 0 : entry.ucs2(), NULL, NULL, NULL, &size );
-#else
-#if defined(UNICODE)
-	if ( qWinVersion() & Qt::WV_NT_based )
+	QT_WA( {
 	    res = RegQueryValueExW( handle, entry.isEmpty() ? 0 : entry.ucs2(), NULL, NULL, NULL, &size );
-	else
-#endif
+	} , {
 	    res = RegQueryValueExA( handle, entry.isEmpty() ? (const char*)0 : (const char*)entry.local8Bit(), NULL, NULL, NULL, &size );
-#endif
+	} );
     }
     if ( res != ERROR_SUCCESS ) {
 	size = 0;
@@ -427,16 +367,11 @@ QByteArray QSettingsSysPrivate::readKey( const QString &key, bool *ok )
     }
 
     uchar* data = new uchar[ size ];
-#ifdef Q_OS_TEMP
-    RegQueryValueExW( handle, e.isEmpty() ? 0 : e.ucs2(), NULL, NULL, data, &size );
-#else
-#if defined(UNICODE)
-    if ( qWinVersion() & Qt::WV_NT_based )
+    QT_WA( {
 	RegQueryValueExW( handle, e.isEmpty() ? 0 : e.ucs2(), NULL, NULL, data, &size );
-    else
-#endif
+    } , {
 	RegQueryValueExA( handle, e.isEmpty() ? (const char*)0 : (const char*)e.local8Bit(), NULL, NULL, data, &size );
-#endif
+    } );
 
     QByteArray result;
     result.setRawData( (const char*)data, size );
@@ -553,23 +488,16 @@ QString QSettingsPrivate::sysReadEntry(const QString &key, const QString &def, b
 	*ok = TRUE;
     QString result = QString::null;
 
-#if defined(UNICODE)
-#ifndef Q_OS_TEMP
-    if ( qWinVersion() & Qt::WV_NT_based ) {
-#endif
+    QT_WA( {
 	int s = array.size();
 	for ( int i = 0; i < s; i+=2 ) {
 	    QChar c( array[ i ], array[ i+1 ] );
 	    if( !c.isNull() )
 		result+=c;
 	}
-#ifndef Q_OS_TEMP
-    } else
-#endif
-#endif
-#ifndef Q_OS_TEMP
+    } , {
 	result = QString::fromLocal8Bit( array );
-#endif
+    } );
     
     if ( array.size() == 2 && result.isNull() )
 	result = "";
@@ -616,10 +544,7 @@ bool QSettingsPrivate::sysWriteEntry( const QString &key, const QString &value )
     Q_ASSERT(sysd);
 
     QByteArray array( 0 );
-#if defined(UNICODE)
-#ifndef Q_OS_TEMP
-    if ( qWinVersion() & Qt::WV_NT_based ) {
-#endif
+    QT_WA( {
 	array.resize( value.length() * 2 + 2 );
 	const QChar *data = value.unicode();
 	int i;
@@ -630,16 +555,10 @@ bool QSettingsPrivate::sysWriteEntry( const QString &key, const QString &value )
 
 	array[ (2*i) ] = 0;
 	array[ (2*i)+1 ] = 0;
-#ifndef Q_OS_TEMP
-    } else
-#endif
-#endif
-#ifndef Q_OS_TEMP
-    {
+    } , {
 	array.resize( value.length() );
 	array = value.local8Bit();
-    }
-#endif
+    } );
 
     return sysd->writeKey( key, array, REG_SZ );
 }
@@ -663,16 +582,11 @@ bool QSettingsPrivate::sysRemoveEntry( const QString &key )
 	return TRUE;
     if ( e == "Default" )
 	e = "";
-#ifdef Q_OS_TEMP
-    res = RegDeleteValueW( handle, e.ucs2() );
-#else
-#if defined(UNICODE)
-    if ( qWinVersion() & Qt::WV_NT_based )
+    QT_WA( {
 	res = RegDeleteValueW( handle, e.ucs2() );
-    else
-#endif
+    } , {
 	res = RegDeleteValueA( handle, e.local8Bit() );
-#endif
+    } );
 
     if ( res != ERROR_SUCCESS && res != ERROR_FILE_NOT_FOUND ) {
 #if defined(QT_CHECK_STATE)
@@ -719,19 +633,12 @@ QStringList QSettingsPrivate::sysEntryList( const QString &key ) const
 
     DWORD count;
     DWORD maxlen;
-#ifdef Q_OS_TEMP
-    RegQueryInfoKeyW( handle, NULL, NULL, NULL, NULL, NULL, NULL, &count, &maxlen, NULL, NULL, NULL );
-#else
-#if defined(UNICODE)
-    if ( qWinVersion() & Qt::WV_NT_based )
+    QT_WA( {
 	RegQueryInfoKeyW( handle, NULL, NULL, NULL, NULL, NULL, NULL, &count, &maxlen, NULL, NULL, NULL );
-    else
-#endif
-	RegQueryInfoKeyA( handle, NULL, NULL, NULL, NULL, NULL, NULL, &count, &maxlen, NULL, NULL, NULL );
-#endif
-
-    if ( qWinVersion() & Qt::WV_NT_based )
 	maxlen++;
+    } , {
+	RegQueryInfoKeyA( handle, NULL, NULL, NULL, NULL, NULL, NULL, &count, &maxlen, NULL, NULL, NULL );
+    } );
 
     DWORD index = 0;
 
@@ -744,24 +651,15 @@ QStringList QSettingsPrivate::sysEntryList( const QString &key ) const
 
     while ( res != ERROR_NO_MORE_ITEMS ) {
 	vnamesz = maxlen;
-#if defined(UNICODE)
-#ifndef Q_OS_TEMP
-	if ( qWinVersion() & Qt::WV_NT_based ) {
-#endif
+	QT_WA( {
 	    res = RegEnumValueW( handle, index, vnameT, &vnamesz, NULL, NULL, NULL, NULL );
 	    if ( res == ERROR_SUCCESS )
 		qname = QString::fromUcs2( vnameT );
-#ifndef Q_OS_TEMP
-	} else
-#endif
-#endif
-#ifndef Q_OS_TEMP
-	{
+	} , {
 	    res = RegEnumValueA( handle, index, vnameA, &vnamesz, NULL, NULL, NULL, NULL );
 	    if ( res == ERROR_SUCCESS )
 		qname = vnameA;
-	}
-#endif
+	} );
 	if ( res == ERROR_NO_MORE_ITEMS )
 	    break;
 	if ( qname.isEmpty() )
@@ -796,19 +694,12 @@ QStringList QSettingsPrivate::sysSubkeyList( const QString &key ) const
 
     DWORD count;
     DWORD maxlen;
-#ifdef Q_OS_TEMP
-    RegQueryInfoKeyW( handle, NULL, NULL, NULL, &count, &maxlen, NULL, NULL, NULL, NULL, NULL, NULL );
-#else
-#if defined(UNICODE)
-    if ( qWinVersion() & Qt::WV_NT_based )
+    QT_WA( {
 	RegQueryInfoKeyW( handle, NULL, NULL, NULL, &count, &maxlen, NULL, NULL, NULL, NULL, NULL, NULL );
-    else
-#endif
-	RegQueryInfoKeyA( handle, NULL, NULL, NULL, &count, &maxlen, NULL, NULL, NULL, NULL, NULL, NULL );
-#endif
-
-    if ( qWinVersion() & Qt::WV_NT_based )
 	maxlen++;
+    } , {
+	RegQueryInfoKeyA( handle, NULL, NULL, NULL, &count, &maxlen, NULL, NULL, NULL, NULL, NULL, NULL );
+    } );
 
     DWORD index = 0;
     FILETIME lastWrite;
@@ -822,24 +713,15 @@ QStringList QSettingsPrivate::sysSubkeyList( const QString &key ) const
 
     while ( res != ERROR_NO_MORE_ITEMS ) {
 	vnamesz = maxlen;
-#if defined(UNICODE)
-#ifndef Q_OS_TEMP
-	if ( qWinVersion() & Qt::WV_NT_based ) {
-#endif
+	QT_WA( {
 	    res = RegEnumKeyExW( handle, index, vnameT, &vnamesz, NULL, NULL, NULL, &lastWrite );
 	    if ( res == ERROR_SUCCESS )
 		qname = QString::fromUcs2( vnameT );
-#ifndef Q_OS_TEMP
-	} else
-#endif
-#endif
-#ifndef Q_OS_TEMP
-	{
+	} , {
 	    res = RegEnumKeyExA( handle, index, vnameA, &vnamesz, NULL, NULL, NULL, &lastWrite );
 	    if ( res == ERROR_SUCCESS )
 		qname = vnameA;
-	}
-#endif
+	} );
 
 	if ( res == ERROR_NO_MORE_ITEMS )
 	    break;

@@ -124,20 +124,17 @@ static QString currentDirOfDrive( char ch )
 {
     QString result;
 
-#ifdef UNICODE
-    if ( qt_winunicode ) {
+    QT_WA( {
 	TCHAR currentName[PATH_MAX];
 	if ( _wgetdcwd( toupper( (uchar) ch ) - 'A' + 1, currentName, PATH_MAX ) >= 0 ) {
 	    result = QString::fromUcs2( currentName );
 	}
-    } else 
-#endif
-    {
+    } , {
 	char currentName[PATH_MAX];
 	if ( _getdcwd( toupper( (uchar) ch ) - 'A' + 1, currentName, PATH_MAX ) >= 0 ) {
 	    result = QString::fromLocal8Bit(currentName);
 	}
-    }
+    } );
     return result;
 }
 
@@ -192,12 +189,12 @@ bool QFileInfo::isSymLink() const
 QString QFileInfo::readLink() const
 {
 #ifndef QT_NO_COMPONENT
-#ifdef UNICODE
-    if ( qWinVersion() & Qt::WV_NT_based ) {
+    QString fileLinked;
+
+    QT_WA( {
 	IShellLink *psl;                            // pointer to IShellLink i/f
 	HRESULT hres;
 	WIN32_FIND_DATA wfd;
-	QString fileLinked;
 	TCHAR szGotPath[MAX_PATH];
 	// Get pointer to the IShellLink interface.
 
@@ -223,11 +220,7 @@ QString QFileInfo::readLink() const
 	    }
 	    psl->Release();
 	}
-
-	return fileLinked;
-    } else 
-#endif
-    {
+    } , {
 	IShellLinkA *psl;                            // pointer to IShellLink i/f
 	HRESULT hres;
 	WIN32_FIND_DATAA wfd;
@@ -259,9 +252,9 @@ QString QFileInfo::readLink() const
 	    }
 	    psl->Release();
 	}
+    } );
 
-	return fileLinked;
-    }
+    return fileLinked;
 #else
     return QString();
 #endif

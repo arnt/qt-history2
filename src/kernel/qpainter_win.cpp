@@ -2281,18 +2281,11 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 
     bool force_bitmap = rop != CopyROP;
     if ( force_bitmap ) {
-#ifdef Q_OS_TEMP
+	QT_WA( {
 	    force_bitmap &= !(((TEXTMETRICW*)textMetric())->tmPitchAndFamily&(TMPF_VECTOR|TMPF_TRUETYPE));
-#else
-#  ifdef UNICODE
-	if ( qt_winver & WV_NT_based ) {
-	    force_bitmap &= !(((TEXTMETRICW*)textMetric())->tmPitchAndFamily&(TMPF_VECTOR|TMPF_TRUETYPE));
-	} else
-#  endif
-	{
+	} , {
 	    force_bitmap &= !(((TEXTMETRICA*)textMetric())->tmPitchAndFamily&(TMPF_VECTOR|TMPF_TRUETYPE));
-	}
-#endif
+	} );
     }
 
     if ( force_bitmap || testf(ExtDev|VxF|WxF) ) {

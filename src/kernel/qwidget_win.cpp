@@ -140,9 +140,12 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
     if ( desktop ) {				// desktop widget
 	popup = FALSE;				// force this flags off
+#ifndef Q_OS_TEMP
 	if ( qt_winver != Qt::WV_NT && qt_winver != Qt::WV_95 )
-	    crect.setRect( GetSystemMetrics( 76 ), GetSystemMetrics( 77 ), GetSystemMetrics( 78 ), GetSystemMetrics( 79 ) );
+	    crect.setRect( GetSystemMetrics( 76 /* SM_XVIRTUALSCREEN  */ ), GetSystemMetrics( 77 /* SM_YVIRTUALSCREEN  */ ), 
+			   GetSystemMetrics( 78 /* SM_CXVIRTUALSCREEN */ ), GetSystemMetrics( 79 /* SM_CYVIRTUALSCREEN */ ) );
 	else
+#endif
 	    crect.setRect( 0, 0, GetSystemMetrics( SM_CXSCREEN ), GetSystemMetrics( SM_CYSCREEN ) );
     }
 
@@ -221,21 +224,12 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	}
     }
     if ( testWFlags(WStyle_Title) ) {
-#ifdef UNICODE
-#  ifndef Q_OS_TEMP
-	if ( qt_winver & Qt::WV_NT_based ) {
-#  endif
+	QT_WA( {
 	    title = QString::fromLocal8Bit( isTopLevel() ? qAppName() : name() );
 	    ttitle = title.ucs2();
-#  ifndef Q_OS_TEMP
-	} else
-#  endif
-#endif
-#ifndef Q_OS_TEMP
-	{
+	} , {
 	    title95 = isTopLevel() ? qAppName() : name();
-	}
-#endif
+	} );
     }
 
 	// The WState_Created flag is checked by translateConfigEvent() in
@@ -295,8 +289,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    id = CreateWindow( cname, ttitle, style, x, y, cx, cy, parentw, 0, appinst, 0 );
 #else
 
-#  ifdef UNICODE
-	if ( qt_winver & Qt::WV_NT_based ) {
+	QT_WA( {
 	    const TCHAR *cname = windowClassName.ucs2();
 	    if ( exsty )
 		id = CreateWindowEx( exsty, cname, ttitle, style,
@@ -308,9 +301,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 				    CW_USEDEFAULT, CW_USEDEFAULT,
 				    CW_USEDEFAULT, CW_USEDEFAULT,
 				    parentw, 0, appinst, 0 );
-	} else
-#  endif
-	{
+	} , {
 	    if ( exsty )
 		id = CreateWindowExA( exsty, windowClassName.latin1(), title95, style,
 				    CW_USEDEFAULT, CW_USEDEFAULT,
@@ -321,7 +312,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 				    CW_USEDEFAULT, CW_USEDEFAULT,
 				    CW_USEDEFAULT, CW_USEDEFAULT,
 				    parentw, 0, appinst, 0 );
-	}
+	} );
 
 #endif
 
@@ -333,23 +324,14 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	if ( testWFlags( WStyle_StaysOnTop) )
 	    SetWindowPos( id, HWND_TOPMOST, 0, 0, 100, 100, SWP_NOACTIVATE );
     } else {					// create child widget
-#ifdef UNICODE
-#ifndef Q_OS_TEMP
-	if ( qt_winver & Qt::WV_NT_based ) {
-#endif
+	QT_WA( {
 	    const TCHAR *cname = windowClassName.ucs2();
 	    id = CreateWindow( cname, ttitle, style, 0, 0, 100, 30,
 			    parentw, NULL, appinst, NULL );
-#ifndef Q_OS_TEMP
-	} else
-#endif
-#endif
-#ifndef Q_OS_TEMP
-	{
+	} , {
 	    id = CreateWindowA( windowClassName.latin1(), title95, style, 0, 0, 100, 30,
 			    parentw, NULL, appinst, NULL );
-	}
-#endif
+	} );
 #ifndef QT_NO_DEBUG
 	if ( id == NULL )
 	    qSystemWarning( "QWidget: Failed to create window" );
@@ -647,22 +629,16 @@ void QWidget::setCaption( const QString &caption )
 	return; // for less flicker
     topData()->caption = caption;
 
-#ifdef Q_OS_TEMP
-    SetWindowText( winId(), caption.ucs2() );
-#else
 #if defined(QT_NON_COMMERCIAL)
     QT_NC_CAPTION
 #else
     QString cap = caption;
 #endif
-#if defined(UNICODE)
-    if ( qt_winver & WV_NT_based )
+    QT_WA( {
 	SetWindowText( winId(), cap.ucs2() );
-    else
-#endif
+    } , {
 	SetWindowTextA( winId(), cap.local8Bit() );
-
-#endif
+    } );
 
     QEvent e( QEvent::CaptionChange );
     QApplication::sendEvent( this, &e );

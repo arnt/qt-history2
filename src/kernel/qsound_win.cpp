@@ -65,20 +65,11 @@ void QAuServerWindows::play( const QString& filename, int loop )
     DWORD flags = SND_FILENAME|SND_ASYNC;
     if ( loop > 1 || loop < 0 )
 	flags |= SND_LOOP;
-#ifdef UNICODE
-#ifndef Q_OS_TEMP
-    if ( qWinVersion() == Qt::WV_NT ) {
-#endif
+    QT_WA( {
 	PlaySoundW( filename.ucs2(), 0, flags );
-#ifndef Q_OS_TEMP
-    } else
-#endif
-#endif
-#ifndef Q_OS_TEMP
-    {
+    } , {
 	PlaySoundA( QFile::encodeName(filename).data(), 0, flags );
-    }
-#endif
+    } );
 }
 
 void QAuServerWindows::play(QSound* s)
@@ -89,20 +80,11 @@ void QAuServerWindows::play(QSound* s)
 void QAuServerWindows::stop(QSound* s)
 {
     if ( !s->isFinished() ) {
-#ifdef UNICODE
-#ifndef Q_OS_TEMP
-	if ( qWinVersion() == Qt::WV_NT ) {
-#endif
+	QT_WA( {
 	    PlaySoundW( 0, 0, 0 );
-#ifndef Q_OS_TEMP
-	} else
-#endif
-#endif
-#ifndef Q_OS_TEMP
-	{
+	} , {
 	    PlaySoundA( 0, 0, 0 );
-	}
-#endif
+	} );
     }
 }
 

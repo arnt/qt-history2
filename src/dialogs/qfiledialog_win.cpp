@@ -298,8 +298,7 @@ QString QFileDialog::winGetOpenFileName( const QString &initialSelection,
 
     if ( parent )
 	qt_enter_modal( parent );
-#ifdef UNICODE
-    if ( qt_winunicode ) {
+    QT_WA( {
 	// Use Unicode strings and API
 	OPENFILENAME* ofn = makeOFN( parent, isel,
 				     *initialDirectory, title,
@@ -309,9 +308,7 @@ QString QFileDialog::winGetOpenFileName( const QString &initialSelection,
 	    selFilIdx = ofn->nFilterIndex;
 	}
 	cleanUpOFN( &ofn );
-    } else
-#endif
-    {
+    } , {
 	// Use ANSI strings and API
 	OPENFILENAMEA* ofn = makeOFNA( parent, isel,
 				       *initialDirectory, title,
@@ -321,7 +318,7 @@ QString QFileDialog::winGetOpenFileName( const QString &initialSelection,
 	    selFilIdx = ofn->nFilterIndex;
 	}
 	cleanUpOFNA( &ofn );
-    }
+    } );
     if ( parent )
 	qt_leave_modal( parent );
 
@@ -368,8 +365,7 @@ QString QFileDialog::winGetSaveFileName( const QString &initialSelection,
 
     if ( parent )
 	qt_enter_modal( parent );
-#ifdef UNICODE
-    if ( qt_winunicode ) {
+    QT_WA( {
 	// Use Unicode strings and API
 	OPENFILENAME* ofn = makeOFN( parent, isel,
 				     *initialDirectory, title,
@@ -379,9 +375,7 @@ QString QFileDialog::winGetSaveFileName( const QString &initialSelection,
 	    selFilIdx = ofn->nFilterIndex;
 	}
 	cleanUpOFN( &ofn );
-    } else
-#endif
-    {
+    } , {
 	// Use ANSI strings and API
 	OPENFILENAMEA* ofn = makeOFNA( parent, isel,
 				       *initialDirectory, title,
@@ -391,7 +385,7 @@ QString QFileDialog::winGetSaveFileName( const QString &initialSelection,
 	    selFilIdx = ofn->nFilterIndex;
 	}
 	cleanUpOFNA( &ofn );
-    }
+    } );
 
     if ( parent )
 	qt_leave_modal( parent );
@@ -440,8 +434,7 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
 
     if ( parent )
 	qt_enter_modal( parent );
-#ifdef UNICODE
-    if ( qt_winunicode ) {
+    QT_WA( {
 	OPENFILENAME* ofn = makeOFN( parent, QString::null,
 				     *initialDirectory, title,
 				     winFilter( filter ), ExistingFiles );
@@ -470,9 +463,7 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
 	    }
 	}
 	cleanUpOFN( &ofn );
-    } else 
-#endif
-    {
+    } , {
 	OPENFILENAMEA* ofn = makeOFNA( parent, QString::null,
 				       *initialDirectory, title,
 				       winFilter( filter ), ExistingFiles );
@@ -501,7 +492,7 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
 	    }
 	    cleanUpOFNA( &ofn );
 	}
-    }
+    } );
     if ( parent )
 	qt_leave_modal( parent );
 

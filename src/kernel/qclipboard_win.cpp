@@ -417,20 +417,13 @@ bool QClipboard::event( QEvent *e )
 	    break;
     }
     if ( propagate && nextClipboardViewer ) {
-#if defined(UNICODE)
-#ifndef Q_OS_TEMP
-	if ( qWinVersion() & Qt::WV_NT_based )
-#endif
+	QT_WA( {
 	    SendMessage( nextClipboardViewer, m->message,
 			 m->wParam, m->lParam );
-#ifndef Q_OS_TEMP
-	else
-#endif
-#endif
-#ifndef Q_OS_TEMP
+	} , {
 	    SendMessageA( nextClipboardViewer, m->message,
 			 m->wParam, m->lParam );
-#endif
+	} );
     }
 
     return TRUE;

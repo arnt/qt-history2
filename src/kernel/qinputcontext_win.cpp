@@ -189,21 +189,20 @@ static LONG getCompositionString( HIMC himc, DWORD dwIndex, LPVOID lpbuf, DWORD 
     LONG len = 0;
     if ( unicode ) 
 	*unicode = TRUE;
-#ifdef Q_OS_TEMP
-    buflen = ImmGetCompositionString( himc, dwIndex, lpbuf, dBufLen );
-#else
+#ifndef Q_OS_TEMP
     if ( aimm )
 	aimm->GetCompositionStringW( himc, dwIndex, dBufLen, &len, lpbuf );
-#ifdef UNICODE
-    else if ( qt_winver != Qt::WV_95 )
-	len = ImmGetCompositionStringW( himc, dwIndex, lpbuf, dBufLen );
+    else
 #endif
-    else {
-	len = ImmGetCompositionStringA( himc, dwIndex, lpbuf, dBufLen );
-	if ( unicode ) 
-	    *unicode = FALSE;
+    {
+	QT_WA( {
+	    len = ImmGetCompositionStringW( himc, dwIndex, lpbuf, dBufLen );
+	} , {
+	    len = ImmGetCompositionStringA( himc, dwIndex, lpbuf, dBufLen );
+	    if ( unicode ) 
+		*unicode = FALSE;
+	} );
     }
-#endif
     return len;
 }
 
@@ -259,7 +258,9 @@ static QString getString( HIMC himc, DWORD dwindex, int *selStart = 0, int *selL
 	return QString::null;
     if ( unicode ) {
 	return QString( (QChar *)buffer, len/sizeof(QChar) );
-    } else {
+    } 
+#ifndef Q_OS_TEMP
+    else {
 	buffer[len] = 0;
 	WCHAR *wc = new WCHAR[len+1];
 	int l = MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED,
@@ -268,6 +269,7 @@ static QString getString( HIMC himc, DWORD dwindex, int *selStart = 0, int *selL
 	delete [] wc;
 	return res;
     }
+#endif
 }
 
 void QInputContext::TranslateMessage( const MSG *msg)
@@ -279,17 +281,15 @@ void QInputContext::TranslateMessage( const MSG *msg)
 LRESULT QInputContext::DefWindowProc( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam )
 {
     LRESULT retval;
-#ifdef Q_OS_TEMP
-    retval = DefWindowProc( hwnd, msg, wParam, lParam );
-#else
-    if ( !aimm || aimm->OnDefWindowProc( hwnd, msg, wParam, lParam, &retval ) != S_OK ) {
-#if defined(UNICODE)
-	if ( qt_winver & Qt::WV_NT_based )
+#ifndef Q_OS_TEMP
+    if ( !aimm || aimm->OnDefWindowProc( hwnd, msg, wParam, lParam, &retval ) != S_OK ) 
+#endif
+    {
+	QT_WA( {
 	    retval = ::DefWindowProc( hwnd, msg, wParam, lParam );
-	else
-#endif
+	} , {
 	    retval = ::DefWindowProcA( hwnd,msg, wParam, lParam );
-#endif
+	} );
     }
     return retval;
 }
@@ -310,24 +310,21 @@ void QInputContext::setFont( const QWidget *w, const QFont &f )
     if ( GetObject( hf, sizeof(lf), &lf ) )
 	ImmSetCompositionFont( imc, &lf );
 #else
-#ifdef UNICODE
-    if ( qt_winver & Qt::WV_NT_based ) {
+    QT_WA( {
 	LOGFONT lf;
 	if ( GetObject( hf, sizeof(lf), &lf ) )
 	    if ( aimm )
 		aimm->SetCompositionFontW( imc, &lf );
 	    else
 		ImmSetCompositionFont( imc, &lf );
-    } else
-#endif
-    {
+    } , {
 	LOGFONTA lf;
 	if ( GetObjectA( hf, sizeof(lf), &lf ) )
 	    if ( aimm )
 		aimm->SetCompositionFontA( imc, &lf );
 	    else
 		ImmSetCompositionFontA( imc, &lf );
-    }
+    } );
 #endif
     releaseContext( w->winId(), imc );
 }

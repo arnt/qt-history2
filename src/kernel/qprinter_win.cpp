@@ -153,30 +153,21 @@ QPrinter::QPrinter( PrinterMode m )
     hdevmode  = 0;
     hdevnames = 0;
 
-#if defined(UNICODE)
-#ifndef Q_OS_TEMP
-    if ( qWinVersion() & Qt::WV_NT_based ) {
-#endif
+    QT_WA( {
         PRINTDLG pd;
         memset( &pd, 0, sizeof(PRINTDLG) );
         pd.lStructSize = sizeof(PRINTDLG);
         pd.Flags = PD_RETURNDEFAULT | PD_RETURNDC;
         if ( PrintDlg( &pd ) != 0 )
             readPdlg( &pd );
-#ifndef Q_OS_TEMP
-    } else
-#endif
-#endif
-#ifndef Q_OS_TEMP
-    {
+    } , {
         PRINTDLGA pd;
         memset( &pd, 0, sizeof(PRINTDLGA) );
         pd.lStructSize = sizeof(PRINTDLGA);
         pd.Flags = PD_RETURNDEFAULT | PD_RETURNDC;
         if ( PrintDlgA( &pd ) != 0 )
             readPdlgA( &pd );
-    }
-#endif
+    } );
     switch ( m ) {
     case ScreenResolution:
 	{
@@ -576,8 +567,7 @@ static void setDefaultPrinter(const QString &printerName, HANDLE *hmode, HANDLE 
     HANDLE hdevnames = *hnames;
     // Open the printer by name, to get a HANDLE
     HANDLE hPrinter;
-#if defined(UNICODE)
-    if ( qWinVersion() & Qt::WV_NT_based ) {
+    if(qt_winunicode) {
 	if ( !OpenPrinter( (TCHAR *)printerName.ucs2(), &hPrinter, NULL ) ) {
 	    qDebug("OpenPrinter(%s) failed, error %d",printerName.latin1(),GetLastError());
 	    return;
@@ -662,9 +652,7 @@ static void setDefaultPrinter(const QString &printerName, HANDLE *hmode, HANDLE 
 	// Clean up
 	GlobalUnlock(hdevnames);
 	GlobalFree(pinf2);
-    } else
-#endif
-    {
+    } else {
 	QCString pName = printerName.local8Bit();
 	if ( !OpenPrinterA( pName.data(), &hPrinter,NULL ) ) {
 	    qDebug( "OpenPrinterA(%s) failed, error %d", pName.data(), GetLastError() );
@@ -840,11 +828,7 @@ bool QPrinter::setup( QWidget *parent )
 
     bool result = FALSE;
 
-    // Must handle the -A and -W versions separately; they're incompatible
-#if defined(UNICODE)
-#ifndef Q_OS_TEMP
-    if ( qWinVersion() & Qt::WV_NT_based ) {
-#endif // Q_OS_TEMP
+    QT_WA( {
         PRINTDLG pd;
         memset( &pd, 0, sizeof(PRINTDLG) );
         pd.lStructSize = sizeof(PRINTDLG);
@@ -862,12 +846,6 @@ bool QPrinter::setup( QWidget *parent )
 	if ( result ) {
 	    // writePdlg {
 	    pd.Flags = PD_RETURNDC;
-#if 0
-	    if ( appcolcopies )
-		pd.Flags |= PD_NOPAGENUMS;
-	    else
-		pd.Flags |= PD_USEDEVMODECOPIESANDCOLLATE;
-#else
 	    // We want the Collate checkbox to be visible -- for that we have
 	    // to specify PD_NOPAGENUMS if we don't set pd.nMinPage and
 	    // pd.nMaxPage. In all other cases, we don't need to specify this
@@ -877,7 +855,6 @@ bool QPrinter::setup( QWidget *parent )
 	    // showed this behaviour.)
 	    if ( min_pg==0 && max_pg==0 )
 		pd.Flags |= PD_NOPAGENUMS;
-#endif
 	    if ( usercolcopies )
 		pd.Flags |= PD_COLLATE;
             if ( outputToFile() )
@@ -905,12 +882,7 @@ bool QPrinter::setup( QWidget *parent )
             if ( result )                               // get values from dlg
                 readPdlg( &pd );
         }
-#ifndef Q_OS_TEMP
-    } else
-#endif // Q_OS_TEMP
-#endif
-#ifndef Q_OS_TEMP
-    {
+    } , {
         // Win95/98 A version; identical to the above!
         PRINTDLGA pd;
         memset( &pd, 0, sizeof(PRINTDLGA) );
@@ -928,12 +900,6 @@ bool QPrinter::setup( QWidget *parent )
 
 	if ( result ) {
 	    pd.Flags = PD_RETURNDC;
-#if 0
-	    if ( appcolcopies )
-		pd.Flags |= PD_NOPAGENUMS;
-	    else
-                pd.Flags |= PD_USEDEVMODECOPIESANDCOLLATE;
-#else
 	    // We want the Collate checkbox to be visible -- for that we have
 	    // to specify PD_NOPAGENUMS if we don't set pd.nMinPage and
 	    // pd.nMaxPage. In all other cases, we don't need to specify this
@@ -943,7 +909,6 @@ bool QPrinter::setup( QWidget *parent )
 	    // showed this behaviour.)
 	    if ( min_pg==0 && max_pg==0 )
 		pd.Flags |= PD_NOPAGENUMS;
-#endif
 	    if ( usercolcopies )
 		pd.Flags |= PD_COLLATE;
             if ( outputToFile() )
@@ -970,8 +935,7 @@ bool QPrinter::setup( QWidget *parent )
             if ( result )
                 readPdlgA( &pd );
         }
-    }
-#endif // Q_OS_TEMP
+    } );
     setPrinterMapping( hdc, res );
 
     return result;
@@ -1043,29 +1007,22 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
             if ( !hdc )
                 ok = FALSE;
         }
-#if defined(UNICODE)
-        if ( qWinVersion() & Qt::WV_NT_based ) {
+	QT_WA( {
             DOCINFO di;
             memset( &di, 0, sizeof(DOCINFO) );
             di.cbSize = sizeof(DOCINFO);
             di.lpszDocName = doc_name.ucs2();
             if ( ok && StartDoc(hdc, &di) == SP_ERROR )
                 ok = FALSE;
-        } else
-#endif
-	{
+        } , {
             DOCINFOA di;
             memset( &di, 0, sizeof(DOCINFOA) );
             di.cbSize = sizeof(DOCINFOA);
-#if defined(__MINGW32__)
-            di.lpszDocName = (const TCHAR*)doc_name.unicode();
-#else
 	    QCString docNameA = doc_name.local8Bit();
             di.lpszDocName = docNameA.data();
-#endif
             if ( ok && StartDocA(hdc, &di) == SP_ERROR )
                 ok = FALSE;
-        }
+        } );
         if ( ok && StartPage(hdc) == SP_ERROR )
             ok = FALSE;
 	if ( qWinVersion() & Qt::WV_DOS_based )
@@ -1343,33 +1300,21 @@ void QPrinter::reinit()
 {
     if ( hdevmode ) {
 	HDC hdcTmp;
-#ifdef Q_OS_TEMP
-	DEVMODE* dm = (DEVMODE*)GlobalLock( hdevmode );
-        if ( dm ) {
-	    writeDevmode( dm );
-	    hdcTmp = CreateDC( L"WINSPOOL", dm->dmDeviceName, 0, dm );
-	    GlobalUnlock( hdevmode );
-	}
-#else
-#if defined(UNICODE)
-	if ( qWinVersion() & Qt::WV_NT_based ) {
+	QT_WA( {
 	    DEVMODE* dm = (DEVMODE*)GlobalLock( hdevmode );
 	    if ( dm ) {
 		writeDevmode( dm );
 		hdcTmp = CreateDC( L"WINSPOOL", dm->dmDeviceName, 0, dm );
 		GlobalUnlock( hdevmode );
 	    }
-	} else
-#endif
-	{
+	} , {
 	    DEVMODEA* dm = (DEVMODEA*)GlobalLock( hdevmode );
 	    if ( dm ) {
 		writeDevmodeA( dm );
 		hdcTmp = CreateDCA( "WINSPOOL", (LPCSTR)dm->dmDeviceName, 0, dm );
 		GlobalUnlock( hdevmode );
 	    }
-	}
-#endif
+	} );
 	if ( hdcTmp ) {
 	    DeleteDC( hdc );
 	    hdc = hdcTmp;

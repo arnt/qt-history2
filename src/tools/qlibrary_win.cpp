@@ -75,16 +75,11 @@ bool QLibraryPrivate::loadLibrary()
 	pHnd = lib->instance;
     }
     else {
-#ifdef Q_OS_TEMP
-	pHnd = LoadLibraryW( filename.ucs2() );
-#else
-#if defined(UNICODE)
-	if ( qWinVersion() & Qt::WV_NT_based )
+	QT_WA( {
 	    pHnd = LoadLibraryW( filename.ucs2() );
-	else
-#endif
+	} , {
 	    pHnd = LoadLibraryA(QFile::encodeName( filename ).data());
-#endif
+	} );
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
 	if ( !pHnd )
 	    qSystemWarning( QString("Failed to load library %1!").arg( filename ) );

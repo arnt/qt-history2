@@ -745,8 +745,18 @@ Q_EXPORT const char *qVersion();
 Q_EXPORT bool qSysInfo( int *wordSize, bool *bigEndian );
 #if defined(Q_WS_WIN)
 Q_EXPORT int qWinVersion();
+#define QT_WA( uni, ansi ) if ( qt_winunicode ) { uni } else { ansi }
+#define QT_WA_INLINE( uni, ansi ) ( qt_winunicode ? uni : ansi )
 #endif
 
+#ifdef Q_OS_TEMP
+#ifdef QT_WA
+#undef QT_WA
+#undef QT_WA_INLINE
+#endif
+#define QT_WA( uni, ansi ) uni
+#define QT_WA_INLINE( uni, ansi ) ( uni )
+#endif
 
 #ifndef Q_INLINE_TEMPLATES
 #  define Q_INLINE_TEMPLATES 

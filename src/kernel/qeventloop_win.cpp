@@ -52,45 +52,30 @@ static int	 numZeroTimers	= 0;		// number of full-speed timers
 bool winPeekMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
 		     UINT wMsgFilterMax, UINT wRemoveMsg )
 {
-#ifdef Q_OS_TEMP
+    QT_WA( {
 	return PeekMessage( msg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg );
-#else
-#if defined(UNICODE)
-    if ( qt_winver & Qt::WV_NT_based )
-	return PeekMessage( msg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg );
-    else
-#endif
+    } , {
 	return PeekMessageA( msg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg );
-#endif
+    } );
 }
 
 bool winPostMessage( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
 {
-#ifdef Q_OS_TEMP
+    QT_WA( {
 	return PostMessage( hWnd, msg, wParam, lParam );
-#else
-#if defined(UNICODE)
-    if ( qt_winver & Qt::WV_NT_based )
-	return PostMessage( hWnd, msg, wParam, lParam );
-    else
-#endif
+    } , {
 	return PostMessageA( hWnd, msg, wParam, lParam );
-#endif
+    } );
 }
 
 static bool winGetMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
 		     UINT wMsgFilterMax )
 {
-#ifdef Q_OS_TEMP
+    QT_WA( {
 	return GetMessage( msg, hWnd, wMsgFilterMin, wMsgFilterMax );
-#else
-#if defined(UNICODE)
-    if ( qt_winver & Qt::WV_NT_based )
-	return GetMessage( msg, hWnd, wMsgFilterMin, wMsgFilterMax );
-    else
-#endif
+    } , {
 	return GetMessageA( msg, hWnd, wMsgFilterMin, wMsgFilterMax );
-#endif
+    } );
 }
 
 
@@ -643,16 +628,12 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 
     QInputContext::TranslateMessage( &msg );			// translate to WM_CHAR
 
-#ifdef Q_OS_TEMP
-	DispatchMessage( &msg );		// send to QtWndProc
-#else
-#if defined(UNICODE)
-    if ( qt_winver & Qt::WV_NT_based )
-	DispatchMessage( &msg );		// send to QtWndProc
-    else
-#endif
+    QT_WA( {
+        DispatchMessage( &msg );		// send to QtWndProc
+    } , {
 	DispatchMessageA( &msg );		// send to QtWndProc
-#endif
+    } );
+
     if ( configRequests )			// any pending configs?
 	qWinProcessConfigRequests();
     QApplication::sendPostedEvents();

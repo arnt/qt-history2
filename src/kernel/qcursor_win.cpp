@@ -471,16 +471,11 @@ void QCursor::update() const
 #endif
 	return;
     }
-#ifdef Q_OS_TEMP
+    // ### From MSDN:
+    // ### LoadCursor has been superseded by the LoadImage function.
+    QT_WA( {
 	data->hcurs = LoadCursorW( 0, (const TCHAR *)sh );
-#else
-#if defined(UNICODE)
-    if ( qt_winver & Qt::WV_NT_based )
-	// ### From MSDN:
-	// ### LoadCursor has been superseded by the LoadImage function.
-	data->hcurs = LoadCursorW( 0, (const TCHAR *)sh );
-    else
-#endif
+    } , {
 	data->hcurs = LoadCursorA( 0, (const char*)sh );
-#endif
+    } );
 }
