@@ -155,8 +155,9 @@ public:
     virtual void doneCurrent();
     virtual void swapBuffers() const;
 
-    GLuint bindTexture(const QPixmap &pm) const;
-    GLuint bindTexture(const QString &fname) const;
+    GLuint bindTexture(const QPixmap &pm);
+    GLuint bindTexture(const QString &fname);
+    void deleteTexture(GLuint tx_id);
 
     void *getProcAddress(const QString &proc) const;
     QPaintDevice* device() const;
@@ -284,6 +285,10 @@ public:
     void renderText(double x, double y, double z, const QString & str,
                      const QFont & fnt = QFont(), int listBase = 2000);
     QPaintEngine *paintEngine() const;
+
+    GLuint bindTexture(const QPixmap &pm);
+    GLuint bindTexture(const QString &fname);
+    void deleteTexture(GLuint tx_id);
 
 public slots:
     virtual void updateGL();

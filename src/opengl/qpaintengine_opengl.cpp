@@ -681,7 +681,7 @@ void QOpenGLPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QR
 	return;
     }
     dgl->makeCurrent();
-    dgl->context()->bindTexture(pm);
+    dgl->bindTexture(pm);
 
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
@@ -706,7 +706,6 @@ void QOpenGLPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QR
     }
     glEnd();
 
-    glDisable(GL_BLEND);
     glDisable(GL_TEXTURE_2D);
     glPopAttrib();
 }
@@ -715,7 +714,7 @@ void QOpenGLPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pm, con
 					 Qt::PixmapDrawingMode)
 {
     dgl->makeCurrent();
-    dgl->context()->bindTexture(pm);
+    dgl->bindTexture(pm);
 
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -747,7 +746,6 @@ void QOpenGLPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pm, con
     glEnd();
     glPopMatrix();
 
-    glDisable(GL_BLEND);
     glDisable(GL_TEXTURE_2D);
     glPopAttrib();
 }

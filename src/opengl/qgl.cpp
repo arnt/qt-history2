@@ -900,8 +900,10 @@ static int scramble(const QString &str)
     Note that this will only work if the implementation supports the
     GL_ARB_texture_compression and GL_EXT_texture_compression_s3tc
     extensions.
+
+    \sa deleteTexture()
 */
-GLuint QGLContext::bindTexture(const QString &fname) const
+GLuint QGLContext::bindTexture(const QString &fname)
 {
     typedef void (APIENTRY *qt_glCompressedTexImage2DARB) (GLenum, GLint, GLenum, GLsizei,
 							   GLsizei, GLint, GLsizei, const GLvoid *);
@@ -1026,18 +1028,20 @@ GLuint QGLContext::bindTexture(const QString &fname) const
     The texture that is generated is cached, so multiple calls to
     bindTexture() with the same QPixmap will return the same texture
     id.
+
+    \sa deleteTexture()
 */
-GLuint QGLContext::bindTexture(const QPixmap &pm) const
+GLuint QGLContext::bindTexture(const QPixmap &pm)
 {
     static bool init_mipmaps = true;
     static bool generate_mipmaps = false;
-    
+
     if (init_mipmaps) {
 	QString ext((const char *) glGetString(GL_EXTENSIONS));
 	generate_mipmaps = ext.contains("GL_SGIS_generate_mipmap");
 	init_mipmaps = false;
     }
-    
+
     if (!qt_txCache)
 	qt_txCache = new QGLTextureCache(QGL_TX_CACHE_MAX);
 
@@ -1074,6 +1078,27 @@ GLuint QGLContext::bindTexture(const QPixmap &pm) const
     int cost = tx.width()*tx.height()*4/1024;
     qt_txCache->insert(pm.serialNumber(), new QGLTexture(this, tx_id), cost);
     return tx_id;
+}
+
+/*!
+    Removes the texture identified by \a id from the texture cache and
+    calls glDeleteTexture() on it.
+
+    \sa bindTexture()
+*/
+void QGLContext::deleteTexture(GLuint id)
+{
+    if (!qt_txCache)
+	return;
+
+    QList<int> keys = qt_txCache->keys();
+    for (int i = 0; i < keys.size(); ++i) {
+	QGLTexture *tex = qt_txCache->find(keys.at(i));
+	if (tex->id == id && tex->context == this) {
+	    qt_txCache->remove(keys.at(i));
+	    break;
+	}
+    }
 }
 
 /*!
@@ -2526,6 +2551,51 @@ void QGLWidget::setAutoBufferSwap(bool on)
 bool QGLWidget::autoBufferSwap() const
 {
     return d->autoSwap;
+}
+
+/*!
+    Generates and binds a 2D GL texture to the current context, based
+    on the pixmap that is passed in. The generated texture id is
+    returned and can be used in glBindTexture() calls.
+
+    The texture that is generated is cached, so multiple calls to
+    bindTexture() with the same QPixmap will return the same texture
+    id.
+
+    \sa deleteTexture()
+*/
+GLuint QGLWidget::bindTexture(const QPixmap &pm)
+{
+    return d->glcx->bindTexture(pm);
+}
+
+/*! \overload
+
+    Reads the DirectDrawSurface (DDS) compressed file \a fname and
+    generates a 2D GL texture from it.
+
+    Only the DXT1, DXT3 and DXT5 DDS formats are supported.
+
+    Note that this will only work if the implementation supports the
+    GL_ARB_texture_compression and GL_EXT_texture_compression_s3tc
+    extensions.
+
+    \sa deleteTexture()
+*/
+GLuint QGLWidget::bindTexture(const QString &fname)
+{
+    return d->glcx->bindTexture(fname);
+}
+
+/*!
+    Removes the texture identified by \a id from the texture cache and
+    calls glDeleteTexture() on it.
+
+    \sa bindTexture()
+*/
+void QGLWidget::deleteTexture(GLuint id)
+{
+    return d->glcx->deleteTexture(id);
 }
 
 static QSingleCleanupHandler<QOpenGLPaintEngine> qt_paintengine_cleanup_handler;
