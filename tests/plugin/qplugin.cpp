@@ -350,7 +350,7 @@ bool QPlugIn::loadInterface()
 	delete ifc;
 	ifc = 0;
 	return FALSE;
-    } else {
+    } else if ( qApp ) {
 	QStrList appIfaces = qApp->queryInterfaceList();
 	for ( uint i = 0; i < appIfaces.count(); i++ ) {
 	    QCString iface = appIfaces.at( i );
