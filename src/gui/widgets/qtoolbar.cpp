@@ -789,6 +789,12 @@ void QToolBar::resizeEvent(QResizeEvent *event)
 }
 
 /*! \reimp */
+void QToolBar::contextMenuEvent(QContextMenuEvent *event)
+{
+    event->ignore();
+}
+
+/*! \reimp */
 bool QToolBar::event(QEvent *event)
 {
     switch (event->type()) {

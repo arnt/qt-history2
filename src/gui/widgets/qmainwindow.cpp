@@ -441,3 +441,41 @@ bool QMainWindow::event(QEvent *event)
     }
     return QWidget::event(event);
 }
+
+/*!
+    \reimp
+*/
+void QMainWindow::contextMenuEvent(QContextMenuEvent *event)
+{
+    QMenu *popup = createPopupMenu();
+    if (!popup)
+	return;
+    popup->exec(event->globalPos());
+    delete popup;
+    event->accept();
+}
+
+/*!
+    This function is called to create a popup menu when the user
+    right-clicks a toolbar or dock window. If you want to create a
+    custom popup menu, reimplement this function and return the
+    created popup menu. Ownership of the popup menu is transferred to
+    the caller.
+*/
+QMenu *QMainWindow::createPopupMenu()
+{
+    QMenu *menu = 0;
+    QList<QToolBar *> toolbars = qFindChildren<QToolBar *>(this);
+    QList<QDockWindow *> dockwindows = qFindChildren<QDockWindow *>(this);
+    if (toolbars.size() || dockwindows.size()) {
+        menu = new QMenu(this);
+        for (int i = 0; i < toolbars.size(); ++i)
+            menu->addAction(toolbars.at(i)->toggleViewAction());
+        if (dockwindows.size()) {
+            menu->addSeparator();
+            for (int i = 0; i < dockwindows.size(); ++i)
+                menu->addAction(dockwindows.at(i)->toggleViewAction());
+        }
+    }
+    return menu;
+}

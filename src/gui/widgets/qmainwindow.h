@@ -21,6 +21,7 @@ class QMainWindowPrivate;
 class QMenuBar;
 class QStatusBar;
 class QToolBar;
+class QMenu;
 
 class Q_GUI_EXPORT QMainWindow : public QWidget
 {
@@ -66,6 +67,9 @@ public:
 
     void setDockWindowState(const QString &state);
     QString dockWindowState() const;
+
+    virtual QMenu *createPopupMenu();
+    void contextMenuEvent(QContextMenuEvent *event);
 
 #ifdef QT_COMPAT
     QT_COMPAT_CONSTRUCTOR QMainWindow(QWidget *parent, const char *name, Qt::WFlags flags = 0);

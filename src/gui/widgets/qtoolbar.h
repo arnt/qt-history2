@@ -110,6 +110,7 @@ protected:
     void childEvent(QChildEvent *event);
     void paintEvent(QPaintEvent *event);
     void resizeEvent(QResizeEvent *event);
+    void contextMenuEvent(QContextMenuEvent *event);
     bool event(QEvent *event);
 
 private:
