@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#30 $
 **
 ** Implementation of QPixmap class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#29 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#30 $";
 #endif
 
 
@@ -256,9 +256,7 @@ bool qt_image_did_turn_scanlines()
 
 bool QPixmap::load( const char *fileName, const char *format )
 {
-    QImageIO io;
-    io.setFileName( fileName );
-    io.setFormat( format );
+    QImageIO io( fileName, format );
 #if defined(_WS_WIN_)
     can_turn_scanlines = TRUE;
 #endif
@@ -284,10 +282,8 @@ bool QPixmap::save( const char *fileName, const char *format ) const
 {
     if ( isNull() )
 	return FALSE;				// nothing to save
-    QImageIO io;
+    QImageIO io( fileName, format );
     io.setImage( convertToImage() );
-    io.setFileName( fileName );
-    io.setFormat( format );
     return io.write();
 }
 
@@ -303,10 +299,8 @@ bool QPixmap::save( const char *fileName, const char *format ) const
 
 QDataStream &operator<<( QDataStream &s, const QPixmap &pixmap )
 {
-    QImageIO io;
+    QImageIO io( s.device(), "BMP" );
     io.setImage( pixmap.convertToImage() );
-    io.setIODevice( s.device() );
-    io.setFormat( "BMP" );
     io.write();
     return s;
 }
@@ -318,9 +312,7 @@ QDataStream &operator<<( QDataStream &s, const QPixmap &pixmap )
 
 QDataStream &operator>>( QDataStream &s, QPixmap &pixmap )
 {
-    QImageIO io;
-    io.setIODevice( s.device() );
-    io.setFormat( "BMP" );
+    QImageIO io( s.device(), "BMP" );
     io.read();
     pixmap.convertFromImage( io.image() );
     return s;
