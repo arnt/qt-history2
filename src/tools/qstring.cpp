@@ -2520,8 +2520,8 @@ QString QString::fromUtf8( const char* utf8, int len )
 		error = i;
 	    } else {
 	        // Error
-	        *qch++ = QChar(0xdbff);
-		*qch++ = QChar(0xde00+((uchar)utf8[i]));
+	        *qch++ = 0xdbff;
+		*qch++ = 0xde00+((uchar)utf8[i]);
  	    }
 	}
     }
