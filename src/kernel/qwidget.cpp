@@ -5688,6 +5688,35 @@ void QWidget::repaint( bool erase )
 
 
 
+/*!
+    \overload void QWidget::drawText( const QPoint &pos, const QString& str )
+
+    Draws the string \a str at position \a pos.
+*/
+
+/*!
+    Draws the string \a str at position \a(x, y).
+
+    The \a y position is the base line position of the text. The text
+    is drawn using the default font and the default foreground color.
+
+    This function is provided for convenience. You will generally get
+    more flexible results and often higher speed by using a a \link
+    QPainter painter\endlink instead.
+
+    \sa setFont(), foregroundColor(), QPainter::drawText()
+*/
+
+void QWidget::drawText(int x, int y, const QString &str)
+{
+    if(!testWState(WState_Visible))
+	return;
+    QPainter paint(this);
+    paint.drawText(x, y, str);
+}
+
+
+
 
 /*!\obsolete  Use paletteBackgroundColor() or eraseColor() instead. */
 const QColor & QWidget::backgroundColor() const { return eraseColor(); }

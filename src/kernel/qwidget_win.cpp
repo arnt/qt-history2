@@ -1283,17 +1283,6 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
 }
 
 
-void QWidget::drawText( int x, int y, const QString &str )
-{
-    if ( testWState(WState_Visible) ) {
-	QPainter paint;
-	paint.begin( this );
-	paint.drawText( x, y, str );
-	paint.end();
-    }
-}
-
-
 int QWidget::metric( int m ) const
 {
     int val;

@@ -877,7 +877,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 		from = "Created";
 	    else if(grpf == grp)
 		from = "Copied";
-	    qDebug("Qt: internal: With window group '%s' [%p] @ %d: %s", 
+	    qDebug("Qt: internal: With window group '%s' [%p] @ %d: %s",
 		   cfstring2qstring(cfname).latin1(), grpf, (int)lvl, from);
 	} else {
 	    qDebug("Qt: internal: No window group!!!");
@@ -1979,14 +1979,6 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
     if(QDIsPortBuffered(GetWindowPort((WindowPtr)hd)))
 	QMacSavedPortInfo::flush(this);
 #endif
-}
-
-void QWidget::drawText(int x, int y, const QString &str)
-{
-    if(!testWState(WState_Visible))
-	return;
-    QPainter paint(this);
-    paint.drawText(x, y, str);
 }
 
 int QWidget::metric(int m) const

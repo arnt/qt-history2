@@ -2177,37 +2177,6 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
     qt_insert_sip( this, dx, dy ); // #### ignores r
 }
 
-
-/*!
-    \overload void QWidget::drawText( const QPoint &pos, const QString& str )
-
-    Draws the string \a str at position \a pos.
-*/
-
-/*!
-    Draws the string \a str at position \a(x, y).
-
-    The \a y position is the base line position of the text. The text
-    is drawn using the default font and the default foreground color.
-
-    This function is provided for convenience. You will generally get
-    more flexible results and often higher speed by using a a \link
-    QPainter painter\endlink instead.
-
-    \sa setFont(), foregroundColor(), QPainter::drawText()
-*/
-
-void QWidget::drawText( int x, int y, const QString &str )
-{
-    if ( testWState(WState_Visible) ) {
-	QPainter paint;
-	paint.begin( this );
-	paint.drawText( x, y, str );
-	paint.end();
-    }
-}
-
-
 /*!
     Internal implementation of the virtual QPaintDevice::metric()
     function.
