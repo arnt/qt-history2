@@ -2135,12 +2135,10 @@ void Resource::loadToolBars( const QDomElement &e )
 	    QDomElement n2 = n.firstChild().toElement();
 	    while ( !n2.isNull() ) {
 		if ( n2.tagName() == "action" ) {
-		    for ( QAction *a = formwindow->actionList().first(); a; a = formwindow->actionList().next() ) {
-			if ( QString( a->name() ) == n2.attribute( "name" ) ) {
-			    a->addTo( tb );
-			    tb->addAction( a );
-			    break;
-			}
+		    QAction *a = formwindow->findAction( n2.attribute( "name" ) );
+		    if ( a ) {
+			a->addTo( tb );
+			tb->addAction( a );
 		    }
 		}
 		n2 = n2.nextSibling().toElement();
@@ -2161,12 +2159,10 @@ void Resource::loadMenuBar( const QDomElement &e )
 	    QDomElement n2 = n.firstChild().toElement();
 	    while ( !n2.isNull() ) {
 		if ( n2.tagName() == "action" ) {
-		    for ( QAction *a = formwindow->actionList().first(); a; a = formwindow->actionList().next() ) {
-			if ( QString( a->name() ) == n2.attribute( "name" ) ) {
-			    a->addTo( popup );
-			    popup->addAction( a );
-			    break;
-			}
+		    QAction *a = formwindow->findAction( n2.attribute( "name" ) );
+		    if ( a ) {
+			a->addTo( popup );
+			popup->addAction( a );
 		    }
 		}
 		n2 = n2.nextSibling().toElement();

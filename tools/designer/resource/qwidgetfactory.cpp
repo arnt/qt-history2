@@ -444,7 +444,7 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
 	mw->centralWidget()->show();
 	return mw;
 
-    } 
+    }
 #if defined(QT_MODULE_SQL)
     else if ( className == "QSqlTable" ) {
 
@@ -1313,12 +1313,9 @@ void QWidgetFactory::loadToolBars( const QDomElement &e )
 	    QDomElement n2 = n.firstChild().toElement();
 	    while ( !n2.isNull() ) {
 		if ( n2.tagName() == "action" ) {
-		    for ( QAction *a = actionList.first(); a; a = actionList.next() ) {
-			if ( QString( a->name() ) == n2.attribute( "name" ) ) {
-			    a->addTo( tb );
-			    break;
-			}
-		    }
+		    QAction *a = findAction( n2.attribute( "name" ) );
+		    if ( a )
+			a->addTo( tb );
 		}
 		n2 = n2.nextSibling().toElement();
 	    }
@@ -1338,12 +1335,9 @@ void QWidgetFactory::loadMenuBar( const QDomElement &e )
 	    QDomElement n2 = n.firstChild().toElement();
 	    while ( !n2.isNull() ) {
 		if ( n2.tagName() == "action" ) {
-		    for ( QAction *a = actionList.first(); a; a = actionList.next() ) {
-			if ( QString( a->name() ) == n2.attribute( "name" ) ) {
-			    a->addTo( popup );
-			    break;
-			}
-		    }
+		    QAction *a = findAction( n2.attribute( "name" ) );
+		    if ( a )
+			a->addTo( popup );
 		}
 		n2 = n2.nextSibling().toElement();
 	    }
@@ -1367,4 +1361,16 @@ void QWidgetFactory::loadFunctions( const QDomElement &e )
 	n = n.nextSibling().toElement();
     }
     functions = s;
+}
+
+QAction *QWidgetFactory::findAction( const QString &name )
+{
+    for ( QAction *a = actionList.first(); a; a = actionList.next() ) {
+	if ( QString( a->name() ) == name )
+	    return a;
+	QAction *ac = (QAction*)a->child( name.latin1(), "QAction" );
+	if ( ac )
+	    return ac;
+    }
+    return 0;
 }

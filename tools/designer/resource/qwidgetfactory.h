@@ -52,6 +52,7 @@ private:
     void loadToolBars( const QDomElement &e );
     void loadMenuBar( const QDomElement &e );
     void loadFunctions( const QDomElement &e );
+    QAction *findAction( const QString &name );
 
 private:
     struct Image {

@@ -170,6 +170,7 @@ public:
     void setActiveObject( QObject *o );
 
     QList<QAction> &actionList() { return actions; }
+    QAction *findAction( const QString &name );
 
     void setProject( Project *pro );
     Project *project() const;

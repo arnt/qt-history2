@@ -2289,3 +2289,15 @@ Project *FormWindow::project() const
 {
     return proj;
 }
+
+QAction *FormWindow::findAction( const QString &name )
+{
+    for ( QAction *a = actionList().first(); a; a = actionList().next() ) {
+	if ( QString( a->name() ) == name )
+	    return a;
+	QAction *ac = (QAction*)a->child( name.latin1(), "QAction" );
+	if ( ac )
+	    return ac;
+    }
+    return 0;
+}

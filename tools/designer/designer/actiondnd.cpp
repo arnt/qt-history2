@@ -37,8 +37,13 @@ void QDesignerToolBar::addAction( QAction *a )
     actionList.append( a );
     doReinsert = TRUE;
     connect( a, SIGNAL( destroyed() ), this, SLOT( actionRemoved() ) );
-    // ####
-    ( (QDesignerAction*)a )->widget()->installEventFilter( this );
+    if ( !a->inherits( "QActionGroup" ) ) {
+	( (QDesignerAction*)a )->widget()->installEventFilter( this );
+	actionMap.insert( ( (QDesignerAction*)a )->widget(), a );
+    } else {
+	( (QDesignerActionGroup*)a )->widget()->installEventFilter( this );
+	actionMap.insert( ( (QDesignerActionGroup*)a )->widget(), a );
+    }
 }
 
 bool QDesignerToolBar::eventFilter( QObject *o, QEvent *e )
