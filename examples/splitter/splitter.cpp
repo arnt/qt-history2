@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/splitter/splitter.cpp#2 $
+** $Id: //depot/qt/main/examples/splitter/splitter.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -90,5 +90,7 @@ int main( int argc, char ** argv )
 
     a.setMainWidget( s1 );
     s1->show();
-    return a.exec();
+    int result = a.exec();
+    delete s1;
+    return result;
 }
