@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#44 $
+** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#45 $
 **
 ** Implementation of QCheckBox class
 **
@@ -16,7 +16,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qchkbox.cpp#44 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qchkbox.cpp#45 $")
 
 
 /*----------------------------------------------------------------------------
@@ -130,7 +130,7 @@ void QCheckBox::drawButton( QPainter *paint )
     int		 x, y, w, h;
 
     getSizeOfBitmap( gs, &w, &h );
-    x = 0;
+    x = gs == MotifStyle ? 1 : 0;
     y = height()/2 - h/2;
 
 #define SAVE_CHECKBOX_PIXMAPS
