@@ -235,6 +235,14 @@ QImageFormat* QMNGFormatType::decoderFor( const uchar* buffer, int length )
      && buffer[5]==10
      && buffer[6]==26
      && buffer[7]==10
+     || buffer[0]==139 // JNG signature
+     && buffer[1]=='J'
+     && buffer[2]=='N'
+     && buffer[3]=='G'
+     && buffer[4]==13
+     && buffer[5]==10
+     && buffer[6]==26
+     && buffer[7]==10
 #ifdef QT_NO_IMAGEIO_PNG // if we don't have native PNG support use libmng
      || buffer[0]==137 // PNG signature
      && buffer[1]=='P'
