@@ -42,6 +42,8 @@ static void printUsage()
 	      "    -help  Display this information and exit\n"
 	      "    -nocompress\n"
 	      "           Do not compress the .qm files\n"
+	      "    -nounfinished\n"
+	      "           Do not include unfinished translations\n"
 	      "    -verbose\n"
 	      "           Explain what is being done\n"
 	      "    -version\n"
@@ -65,11 +67,11 @@ static bool loadTsFile( MetaTranslator& tor, const QString& tsFileName,
 
 static void releaseMetaTranslator( const MetaTranslator& tor,
 				   const QString& qmFileName, bool verbose,
-				   bool stripped )
+				   bool ignoreUnfinished, bool stripped )
 {
     if ( verbose )
 	fprintf( stderr, "Updating '%s'...\n", qmFileName.latin1() );
-    if ( !tor.release(qmFileName, verbose,
+    if ( !tor.release(qmFileName, verbose, ignoreUnfinished,
 		      stripped ? QTranslator::Stripped
 			       : QTranslator::Everything) )
 	fprintf( stderr,
@@ -78,20 +80,22 @@ static void releaseMetaTranslator( const MetaTranslator& tor,
 }
 
 static void releaseTsFile( const QString& tsFileName, bool verbose,
-			   bool stripped )
+			   bool ignoreUnfinished, bool stripped )
 {
     MetaTranslator tor;
     if ( loadTsFile(tor, tsFileName, verbose) ) {
 	QString qmFileName = tsFileName;
 	qmFileName.replace( QRegExp("\\.ts$"), "" );
 	qmFileName += ".qm";
-	releaseMetaTranslator( tor, qmFileName, verbose, stripped );
+	releaseMetaTranslator( tor, qmFileName, verbose, ignoreUnfinished,
+			       stripped );
     }
 }
 
 int main( int argc, char **argv )
 {
     bool verbose = FALSE;
+    bool ignoreUnfinished = false;
     bool stripped = TRUE;
     bool metTranslations = FALSE;
     MetaTranslator tor;
@@ -102,6 +106,9 @@ int main( int argc, char **argv )
     for ( i = 1; i < argc; i++ ) {
 	if ( qstrcmp(argv[i], "-nocompress") == 0 ) {
 	    stripped = FALSE;
+	    continue;
+	} else if ( qstrcmp(argv[i], "-nounfinished") == 0 ) {
+	    ignoreUnfinished = TRUE;
 	    continue;
 	} else if ( qstrcmp(argv[i], "-verbose") == 0 ) {
 	    verbose = TRUE;
@@ -152,7 +159,8 @@ int main( int argc, char **argv )
 
 	if ( fullText.find(QString("<!DOCTYPE TS>")) >= 0 ) {
 	    if ( outputFile.isEmpty() ) {
-		releaseTsFile( argv[i], verbose, stripped );
+		releaseTsFile( argv[i], verbose, ignoreUnfinished,
+			       stripped );
 	    } else {
 		loadTsFile( tor, argv[i], verbose );
 	    }
@@ -170,7 +178,8 @@ int main( int argc, char **argv )
         	for ( t = toks.begin(); t != toks.end(); ++t ) {
 		    if ( it.key() == QString("TRANSLATIONS") ) {
 			metTranslations = TRUE;
-			releaseTsFile( *t, verbose, stripped );
+			releaseTsFile( *t, verbose, ignoreUnfinished,
+				       stripped );
 		    }
 		}
 	    }
@@ -184,7 +193,8 @@ int main( int argc, char **argv )
     }
 
     if ( !outputFile.isEmpty() )
-	releaseMetaTranslator( tor, outputFile, verbose, stripped );
+	releaseMetaTranslator( tor, outputFile, verbose, ignoreUnfinished,
+			      stripped );
 
     return 0;
 }

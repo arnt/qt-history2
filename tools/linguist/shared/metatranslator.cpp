@@ -441,6 +441,7 @@ bool MetaTranslator::save( const QString& filename ) const
 }
 
 bool MetaTranslator::release( const QString& filename, bool verbose,
+			      bool ignoreUnfinished,
 			      QTranslator::SaveMode mode ) const
 {
     QTranslator tor( 0 );
@@ -464,20 +465,23 @@ bool MetaTranslator::release( const QString& filename, bool verbose,
 		QCString comment = m.key().comment();
 		QString translation = m.key().translation();
 
-		/*
-		  Drop the comment in (context, sourceText, comment),
-		  unless (context, sourceText, "") already exists, or
-		  unless we already dropped the comment of (context,
-		  sourceText, comment0).
-		*/
-		if ( comment.isEmpty()
-		     || contains(context, sourceText, "")
-		     || !tor.findMessage(context, sourceText, "").translation()
-			    .isNull() ) {
-		    tor.insert( m.key() );
-		} else {
-		    tor.insert( QTranslatorMessage(context, sourceText, "",
-						   translation) );
+		if ( !ignoreUnfinished
+		     || m.key().type() != MetaTranslatorMessage::Unfinished ) {
+		    /*
+		      Drop the comment in (context, sourceText, comment),
+		      unless (context, sourceText, "") already exists, or
+		      unless we already dropped the comment of (context,
+		      sourceText, comment0).
+		    */
+		    if ( comment.isEmpty()
+			 || contains(context, sourceText, "")
+			 || !tor.findMessage(context, sourceText, "").translation()
+				.isNull() ) {
+			tor.insert( m.key() );
+		    } else {
+			tor.insert( QTranslatorMessage(context, sourceText, "",
+						       translation) );
+		    }
 		}
 	    }
 	}
