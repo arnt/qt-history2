@@ -686,6 +686,8 @@ bool QDB2Result::exec()
 #ifdef UNICODE
             {
                 QString str(values.at(i).toString());
+                if (*ind != SQL_NULL_DATA)
+                    *ind = str.length();
                 if (bindValueType(i) & QSql::Out) {
                     QByteArray ba((char*)str.utf16(), str.capacity() * sizeof(QChar));
                     r = SQLBindParameter(d->hStmt,
@@ -720,6 +722,8 @@ bool QDB2Result::exec()
             default: {
                 QByteArray ba(values.at(i).toString().local8Bit());
                 int len = ba.length() + 1;
+                if (*ind != SQL_NULL_DATA)
+                    *ind = ba.length();
                 r = SQLBindParameter(d->hStmt,
                                       i + 1,
                                       qParamType[(QFlag)(bindValueType(i)) & 3],
