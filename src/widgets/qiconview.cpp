@@ -4941,8 +4941,4 @@ void QIconView::movedContents( int, int )
     }
 }
 
-/*!
-  \internal
-*/
-
 #include "qiconview.moc"
