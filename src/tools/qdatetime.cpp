@@ -517,7 +517,6 @@ QString QDate::shortMonthName( int month )
 	    return QString::fromLocal8Bit( buf );
     } );
 #endif
-
     return QString::null;
 }
 
@@ -711,9 +710,9 @@ QString QDate::toString( Qt::DateFormat f ) const
 	    tt.tm_mday = day();
 	    tt.tm_mon = month() - 1;
 	    tt.tm_year = year() - 1900;
-	    // Get rid of a warning
-	    static const char * egcsWorkaround = "%x";
-	    if ( strftime( buf, sizeof(buf), egcsWorkaround, &tt ) )
+
+	    static const char * avoidEgcsWarning = "%x";
+	    if ( strftime( buf, sizeof(buf), avoidEgcsWarning, &tt ) )
 		return QString::fromLocal8Bit( buf );
 #else
 	    SYSTEMTIME st;
@@ -733,8 +732,18 @@ QString QDate::toString( Qt::DateFormat f ) const
 #endif
 	    return QString::null;
 	}
-#ifdef QT_NO_TEXTDATE
     default:
+#ifndef QT_NO_TEXTDATE
+    case Qt::TextDate:
+	{
+	    QString buf = shortDayName( dayOfWeek() );
+	    buf += ' ';
+	    buf += shortMonthName( m );
+	    QString t;
+	    t.sprintf( " %d %d", d, y );
+	    buf += t;
+	    return buf;
+	}
 #endif
     case Qt::ISODate:
 	{
@@ -742,46 +751,6 @@ QString QDate::toString( Qt::DateFormat f ) const
 	    QString day( QString::number( d ).rightJustify( 2, '0' ) );
 	    return QString::number( y ) + "-" + month + "-" + day;
 	}
-#ifndef QT_NO_TEXTDATE
-    default:
-    case Qt::TextDate:
-	{
-#ifndef Q_WS_WIN
-	    QString buf = shortDayName( dayOfWeek() );
-	    buf += ' ';
-	    buf += shortMonthName(m);
-	    QString t;
-	    t.sprintf( " %d %d", d, y);
-	    buf += t;
-	    return buf;
-#else
-	    QString buf;
-	    QString winstr;
-	    QT_WA( {
-		TCHAR out[255];
-		GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_ILDATE, out, 255 );
-		winstr = QString::fromUcs2( (ushort*)out );
-	    } , {
-		char out[255];
-		GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_ILDATE, (char*)&out, 255 );
-		winstr = QString::fromLocal8Bit( out );
-	    } );
-	    switch ( winstr.toInt() ) {
-	    case 1:
-		buf = shortDayName( dayOfWeek() ) + " " + QString().setNum( d ) + ". " + shortMonthName( m ) + " " + QString().setNum( y );
-		break;
-	    case 2:
-		buf = shortDayName( dayOfWeek() ) + " " + QString().setNum( y ) + " " + shortMonthName( m ) + " " + QString().setNum( d );
-		break;
-	    default:
-		buf = shortDayName( dayOfWeek() ) + " " + shortMonthName( m ) + " " + QString().setNum( d ) + " " + QString().setNum( y );
-		break;
-	    }
-
-	    return buf;
-#endif
-	}
-#endif
     }
 }
 #endif //QT_NO_SPRINTF
@@ -851,7 +820,7 @@ bool QDate::setYMD( int y, int m, int d )
 	return isValid();
     if ( !isValid(y,m,d) ) {
 #if defined(QT_CHECK_RANGE)
-	 qWarning( "QDate::setYMD: Invalid date %04d/%02d/%02d", y, m, d );
+	 qWarning( "QDate::setYMD: Invalid date %04d-%02d-%02d", y, m, d );
 #endif
 	 return FALSE;
     }
@@ -1096,20 +1065,29 @@ QDate QDate::fromString( const QString& s, Qt::DateFormat f )
 #ifndef QT_NO_TEXTDATE
     case Qt::TextDate:
 	{
-	    QString monthName( s.mid( 4, 3 ) );
+	    /*
+	      This will fail gracefully if the input string doesn't
+	      contain any space.
+	    */
+	    int monthPos = s.find( ' ' ) + 1;
+	    int dayPos = s.find( ' ', monthPos ) + 1;
+
+	    QString monthName( s.mid(monthPos, dayPos - monthPos - 1) );
 	    int month = -1;
-	    // Assume that English monthnames are the default
-	    for ( int i = 0; i < 12; ++i ) {
+
+	    // try English names first
+	    for ( int i = 0; i < 12; i++ ) {
 		if ( monthName == qt_shortMonthNames[i] ) {
 		    month = i + 1;
 		    break;
 		}
 	    }
-	    // If English names can't be found, search the localized ones
+
+	    // try the localized names
 	    if ( month == -1 ) {
-		for ( int i = 1; i <= 12; ++i ) {
-		    if ( monthName == shortMonthName( i ) ) {
-			month = i;
+		for ( int i = 0; i < 12; i++ ) {
+		    if ( monthName == shortMonthName( i + 1 ) ) {
+			month = i + 1;
 			break;
 		    }
 		}
@@ -1120,7 +1098,7 @@ QDate QDate::fromString( const QString& s, Qt::DateFormat f )
 		month = 1;
 	    }
 #endif
-	    int day = s.mid( 8, 2 ).simplifyWhiteSpace().toInt();
+	    int day = s.mid( dayPos, 2 ).stripWhiteSpace().toInt();
 	    int year = s.right( 4 ).toInt();
 	    return QDate( year, month, day );
 	}
@@ -2446,7 +2424,7 @@ QDateTime QDateTime::fromString( const QString& s, Qt::DateFormat f )
 {
     if ( ( s.isEmpty() ) || ( f == Qt::LocalDate ) ) {
 #if defined(QT_CHECK_RANGE)
-	qWarning( "QDateTime::fromString: Parameter out of range." );
+	qWarning( "QDateTime::fromString: Parameter out of range" );
 #endif
 	return QDateTime();
     }
