@@ -153,7 +153,7 @@
         <property name="shortcut" >
           <string>Ctrl+P</string>
         </property>
-        <property name="text" >
+        <property name="menuText" >
           <string>&amp;Print...</string>
         </property>
       </action>
@@ -167,7 +167,7 @@
         <property name="shortcut" >
           <string>Ctrl+Q</string>
         </property>
-        <property name="text" >
+        <property name="menuText" >
           <string>E&amp;xit</string>
         </property>
       </action>
@@ -184,7 +184,7 @@
         <property name="shortcut" >
           <string>Ctrl+C</string>
         </property>
-        <property name="text" >
+        <property name="menuText" >
           <string>&amp;Copy</string>
         </property>
       </action>
@@ -201,7 +201,7 @@
         <property name="shortcut" >
           <string>Ctrl+F</string>
         </property>
-        <property name="text" >
+        <property name="menuText" >
           <string>&amp;Find in Text...</string>
         </property>
       </action>
@@ -212,7 +212,7 @@
         <property name="shortcut" >
           <string>F3</string>
         </property>
-        <property name="text" >
+        <property name="menuText" >
           <string>Find &amp;Next</string>
         </property>
       </action>
@@ -223,7 +223,7 @@
         <property name="shortcut" >
           <string>Shift+F3</string>
         </property>
-        <property name="text" >
+        <property name="menuText" >
           <string>Find &amp;Previous</string>
         </property>
       </action>
@@ -240,7 +240,7 @@
         <property name="shortcut" >
           <string>Ctrl+Home</string>
         </property>
-        <property name="text" >
+        <property name="menuText" >
           <string>&amp;Home</string>
         </property>
       </action>
@@ -257,7 +257,7 @@
         <property name="shortcut" >
           <string>Alt+Left</string>
         </property>
-        <property name="text" >
+        <property name="menuText" >
           <string>&amp;Previous</string>
         </property>
       </action>
@@ -274,7 +274,7 @@
         <property name="shortcut" >
           <string>Alt+Right</string>
         </property>
-        <property name="text" >
+        <property name="menuText" >
           <string>&amp;Next</string>
         </property>
       </action>
@@ -285,7 +285,7 @@
         <property name="whatsThis" >
           <string>Display further information about Qt Assistant.</string>
         </property>
-        <property name="text" >
+        <property name="menuText" >
           <string>About Qt Assistant</string>
         </property>
       </action>
@@ -293,7 +293,7 @@
         <property name="objectName" >
           <string notr="true">actionAboutApplication</string>
         </property>
-        <property name="text" >
+        <property name="menuText" >
           <string>About Qt</string>
         </property>
       </action>
@@ -310,7 +310,7 @@
         <property name="shortcut" >
           <string>Ctrl++</string>
         </property>
-        <property name="text" >
+        <property name="menuText" >
           <string>Zoom &amp;in</string>
         </property>
       </action>
@@ -327,7 +327,7 @@
         <property name="shortcut" >
           <string>Ctrl+-</string>
         </property>
-        <property name="text" >
+        <property name="menuText" >
           <string>Zoom &amp;out</string>
         </property>
       </action>
@@ -338,7 +338,7 @@
         <property name="whatsThis" >
           <string>Open the settings dialog.</string>
         </property>
-        <property name="text" >
+        <property name="menuText" >
           <string>&amp;Settings...</string>
         </property>
       </action>
@@ -352,7 +352,7 @@
         <property name="shortcut" >
           <string>Ctrl+N</string>
         </property>
-        <property name="text" >
+        <property name="menuText" >
           <string>New Window</string>
         </property>
       </action>
@@ -363,7 +363,7 @@
         <property name="whatsThis" >
           <string>Close the current window.</string>
         </property>
-        <property name="text" >
+        <property name="menuText" >
           <string>&amp;Close</string>
         </property>
       </action>
@@ -374,7 +374,7 @@
         <property name="whatsThis" >
           <string>Add the currently displayed page as a new bookmark.</string>
         </property>
-        <property name="text" >
+        <property name="menuText" >
           <string>&amp;Add Bookmark</string>
         </property>
       </action>
@@ -394,7 +394,7 @@
         <property name="shortcut" >
           <string>Shift+F1</string>
         </property>
-        <property name="text" >
+        <property name="menuText" >
           <string>What's This?</string>
         </property>
       </action>
@@ -405,7 +405,7 @@
         <property name="shortcut" >
           <string>Ctrl+Alt+N</string>
         </property>
-        <property name="text" >
+        <property name="menuText" >
           <string>Add Tab</string>
         </property>
       </action>
@@ -416,7 +416,7 @@
         <property name="shortcut" >
           <string>Ctrl+Alt+Right</string>
         </property>
-        <property name="text" >
+        <property name="menuText" >
           <string>Next Tab</string>
         </property>
       </action>
@@ -427,7 +427,7 @@
         <property name="shortcut" >
           <string>Ctrl+Alt+Left</string>
         </property>
-        <property name="text" >
+        <property name="menuText" >
           <string>Previous Tab</string>
         </property>
       </action>
@@ -438,7 +438,7 @@
         <property name="shortcut" >
           <string>Ctrl+Alt+Q</string>
         </property>
-        <property name="text" >
+        <property name="menuText" >
           <string>Close Tab</string>
         </property>
       </action>
@@ -452,12 +452,11 @@
         <property name="shortcut" >
           <string>F1</string>
         </property>
-        <property name="text" >
+        <property name="menuText" >
           <string>Qt Assistant Manual</string>
         </property>
       </action>
   </widget>
-  <layoutDefault spacing="6" margin="11" />
   <includes>
     <include location="global" >qmap.h</include>
     <include location="local" >finddialog.h</include>
