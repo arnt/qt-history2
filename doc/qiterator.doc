@@ -479,7 +479,7 @@
     \fn bool QVectorMutableIterator::hasNext() const
 
     Returns true if there is at least one item ahead of the iterator,
-    i.e. the iterator is \a not at the back of the container;
+    i.e. the iterator is \e not at the back of the container;
     otherwise returns false.
 
     \sa hasPrev(), next()
@@ -542,7 +542,7 @@
     \fn bool QVectorMutableIterator::hasPrev() const
 
     Returns true if there is at least one item behind the iterator,
-    i.e. the iterator is \a not at the front of the container;
+    i.e. the iterator is \e not at the front of the container;
     otherwise returns false.
 
     \sa hasNext(), prev()
@@ -1148,7 +1148,7 @@
     \fn bool QHashMutableIterator::hasNext() const
 
     Returns true if there is at least one item ahead of the iterator,
-    i.e. the iterator is \a not at the back of the container;
+    i.e. the iterator is \e not at the back of the container;
     otherwise returns false.
 
     \sa hasPrev(), next()
@@ -1216,7 +1216,7 @@
     \fn bool QHashMutableIterator::hasPrev() const
 
     Returns true if there is at least one item behind the iterator,
-    i.e. the iterator is \a not at the front of the container;
+    i.e. the iterator is \e not at the front of the container;
     otherwise returns false.
 
     \sa hasNext(), prev()
@@ -1295,7 +1295,7 @@
     \sa key()
 */
 
-/*
+/*!
     \fn const T &QMapMutableIterator::value() const
     \fn const T &QHashMutableIterator::value() const
 

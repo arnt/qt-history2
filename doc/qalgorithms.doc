@@ -239,9 +239,9 @@
 /*! \fn bool qEqual(InputIterator1 begin1, InputIterator1 end1, InputIterator2 begin2)
     \relates <qalgorithms.h>
 
-    Compares the items in the range [begin1, end1) with the items in
-    the range [begin2, ...). Returns true if all the items compare
-    equal, false otherwise.
+    Compares the items in the range [\a begin1, \a end1) with the
+    items in the range [\a begin2, ...). Returns true if all the
+    items compare equal, false otherwise.
 
     Example:
     \code
@@ -550,7 +550,7 @@
     ascending order beforehand.
 
     If there are many occurrences of the same value, it is not
-    specified which one is returned. Use \a qLowerBound() or \a
+    specified which one is returned. Use qLowerBound() or
     qUpperBound() if you need more control.
 
     Example:
@@ -606,5 +606,5 @@
 /*! \fn QBackInsertIterator<Container> qBackInserter(Container &c)
     \relates <qalgorithms.h>
 
-    \obsolete
+    \internal
 */
