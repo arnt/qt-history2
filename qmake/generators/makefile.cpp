@@ -846,7 +846,7 @@ MakefileGenerator::init()
 	}
 	if(!noIO()) {
 	    QString sources[] = { QString("OBJECTS"), QString("LEXSOURCES"), QString("YACCSOURCES"),
-				  QString("HEADERS"), QString("SOURCES"), QString("FORMS"),
+				  QString("HEADERS"), QString("SOURCES"), QString("FORMS"), QString("PRECOMPILED_HEADER"),
 				  QString::null };
 	    depHeuristics.clear();
 	    bool write_cache = FALSE, read_cache = QFile::exists(cache_file);

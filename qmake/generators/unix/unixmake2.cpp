@@ -854,7 +854,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 		outfile += header_prefix + "c";
 	    else
 		outfile += header_prefix + "c++";
-	    t << outfile << ": " << precomph
+	    t << outfile << ": " << precomph << " " << findDependencies(precomph).join(" \\\n\t\t")
 	      << "\n\t" << "test -d " << precomph_out_dir << " || mkdir -p " << precomph_out_dir 
 	      << "\n\t" << "$(CXX) " << flags << " $(INCPATH) " << precomph << " -o " << outfile << endl << endl;
 	}
