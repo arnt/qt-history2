@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#30 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#31 $
 **
 ** Implementation of QTableView class
 **
@@ -19,7 +19,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#30 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#31 $");
 
 
 const int sbDim = 16;
@@ -195,8 +195,8 @@ void QTableView::setPalette( const QPalette &p )
 
 void QTableView::show()
 {
-    QWidget::show();
     showOrHideScrollBars();
+    QWidget::show();
 }
 
 
@@ -1370,6 +1370,7 @@ void QTableView::resizeEvent( QResizeEvent * )
     setAutoUpdate( update );
     updateScrollBars( horSteps | horGeometry | horRange |
 		      verSteps | verGeometry | verRange );
+    showOrHideScrollBars();
     updateFrameSize();
 }
 
