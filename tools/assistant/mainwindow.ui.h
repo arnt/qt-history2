@@ -511,7 +511,8 @@ void MainWindow::showDesignerHelp()
 void MainWindow::showLink( const QString & link, const QString & title )
 {    
     browser->setCaption( title );
-    QFileInfo fi( link );
+    QString filename = link.left( link.find( '#' ) );
+    QFileInfo fi( filename );
     // introduce a default-not-found site
     if ( !fi.exists() )
 	browser->setSource( "index.html" ); 
