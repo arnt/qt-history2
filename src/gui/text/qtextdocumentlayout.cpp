@@ -85,6 +85,7 @@ public:
     void layoutBlock(const QTextBlockIterator block);
 
     void floatMargins(int y, int *left, int *right);
+    int findY(int yfrom, int requiredWidth);
     void removeFloatsForBlock(const QTextBlockIterator &b);
 };
 
@@ -302,7 +303,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(QTextBlockIterator bl)
 
         int left, right;
         floatMargins(d->currentYPos, &left, &right);
-    redo:
+
         left = qMax(left, l);
         right = qMax(right, r);
 //         qDebug() << "layout line y=" << currentYPos << "left=" << left << "right=" <<right;
@@ -311,8 +312,14 @@ void QTextDocumentLayoutPrivate::layoutBlock(QTextBlockIterator bl)
         floatMargins(d->currentYPos, &left, &right);
         if (line.width() > right-left) {
             // float has been added in the meantime, redo
+            line.layout(right-left);
 //             qDebug() << "    redo: left=" << left << " right=" << right;
-            goto redo;
+            if (line.textWidth() > right-left) {
+                // lines min width more than what we have
+                d->currentYPos = findY(d->currentYPos, line.textWidth());
+                floatMargins(d->currentYPos, &left, &right);
+                line.layout(right-left);
+            }
         }
 
         line.setPosition(QPoint(left, currentYPos-cy));
@@ -337,6 +344,35 @@ void QTextDocumentLayoutPrivate::floatMargins(int y, int *left, int *right)
                 *right = qMin(*right, it->rect.left());
         }
     }
+}
+
+
+int QTextDocumentLayoutPrivate::findY(int yfrom, int requiredWidth)
+{
+    int right, left;
+    requiredWidth = qMin(requiredWidth, pageSize.width());
+
+//     qDebug() << "findY:";
+    while (1) {
+        floatMargins(yfrom, &left, &right);
+//         qDebug() << "    right=" << right << "left=" << left << "requiredWidth=" << requiredWidth;
+        if (right-left >= requiredWidth)
+            break;
+
+        // move float down until we find enough space
+        int newY = INT_MAX;
+        for (QHash<QTextFormatGroup *, Float>::const_iterator it = floats.constBegin(); it != floats.constEnd(); ++it) {
+            QRect r = it->rect;
+            r.moveBy(it->block.layout()->position());
+            if (r.y() <= yfrom && r.bottom() > yfrom) {
+                newY = qMin(newY, r.bottom());
+            }
+        }
+        if (newY == INT_MAX)
+            break;
+        yfrom = newY;
+    }
+    return yfrom;
 }
 
 void QTextDocumentLayoutPrivate::removeFloatsForBlock(const QTextBlockIterator &b)
@@ -460,11 +496,24 @@ void QTextDocumentLayout::layoutObject(QTextObject item, const QTextFormat &form
     QSize s = handler.iface->intrinsicSize(format);
 
     int left, right;
-    d->floatMargins(d->currentYPos, &left, &right);
+    int floaty = d->findY(d->currentYPos, s.width());
+    d->floatMargins(floaty, &left, &right);
+
+    QTextLayout *layout = d->currentBlock.layout();
+
+#if 0
+    QTextLine cline = layout->lineAt(layout->numLines()-1);
+    Q_ASSERT(cline.isValid());
+    if (cline.textWidth() > right-left - s.width()) {
+        // ##### place float on next line
+    }
+    cline.setWidth(right-left-s.width());
+#endif
+
     QTextDocumentLayoutPrivate::Float fl;
-    QPoint fposition = QPoint((pos == QTextFloatFormat::Left ? left : right - s.width()), d->currentYPos);
+    QPoint fposition = QPoint((pos == QTextFloatFormat::Left ? left : right - s.width()), floaty);
     fl.block = d->currentBlock;
-    fposition -= fl.block.layout()->position();
+    fposition -= layout->position();
     fl.rect = QRect(fposition.x(), fposition.y(), s.width(), s.height());
 //     qDebug() << "layoutObject: " << fl.rect;
 
