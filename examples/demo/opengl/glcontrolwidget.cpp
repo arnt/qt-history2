@@ -5,8 +5,6 @@
 
 #include <math.h>
 
-const int redrawWait = 50;
-
 GLControlWidget::GLControlWidget( QWidget *parent, const char *name, QGLWidget *share, WFlags f )
 : QGLWidget( parent, name, share, f ),
   xRot(0),yRot(0),zRot(0),xTrans(0),yTrans(0),zTrans(-10.0),scale(5.0), animation(TRUE), wasAnimated(FALSE), delay( 50 )
