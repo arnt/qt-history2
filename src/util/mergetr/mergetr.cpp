@@ -311,7 +311,7 @@ void merge( const QString& newname, const QString& oldname,
     f2.close();
     fout.close();
     QFile fileout(resname);
-    if ( !fileout.open( IO_WriteOnly) )
+    if ( !fileout.open( IO_WriteOnly | IO_Translate ) )
 	return;
     fileout.writeBlock(fout.buffer());
     fileout.close();
