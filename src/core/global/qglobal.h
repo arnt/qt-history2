@@ -1665,12 +1665,12 @@ for (QForeachMemory<sizeof(qForeachSizeofContainerHelper(container))> _container
 
 #endif
 
-#ifdef QT_KEYWORDS
+#ifndef QT_NO_KEYWORDS
 #  ifndef foreach
 #    define foreach Q_FOREACH
 #  endif
 #  ifndef forever
-#    define forever for(;;)
+#    define forever for (;;)
 #  endif
 #endif
 
