@@ -1156,10 +1156,10 @@ void QApplication::winFocus(QWidget *widget, bool gotFocus)
 }
 
 struct KeyRec {
-    KeyRec(int c, uchar a, int s, const QString& t) : code(c), state(s), ascii(a), text(t) { }
+    KeyRec(int c, char a, int s, const QString& t) : code(c), state(s), ascii(a), text(t) { }
     KeyRec() { }
     int code, state;
-    uchar ascii;
+    char ascii;
     QString text;
 };
 
@@ -1190,7 +1190,7 @@ static KeyRec* find_key_rec(int code, bool remove)
     return result;
 }
 
-static void store_key_rec(int code, uchar ascii, int state, const QString &text)
+static void store_key_rec(int code, char ascii, int state, const QString &text)
 {
     if (nrecs == maxrecs) {
         qWarning("Qt: Internal keyboard buffer overflow");
@@ -2987,7 +2987,6 @@ bool QETWidget::translateKeyEvent(const MSG &msg, bool grab)
                 store_key_rec(msg.wParam, a, state, text);
                 k0 = sendKeyEvent(QEvent::KeyPress, code, state, grab, text);
             }
-
         } else {
             QString text;
             // Must be KEYUP
