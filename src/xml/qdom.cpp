@@ -3921,7 +3921,7 @@ QString QDomElementPrivate::text()
 
 void QDomElementPrivate::save( QTextStream& s, int indent ) const
 {
-    if ( prev && !prev->isText() )
+    if ( !( prev && prev->isText() ) )
 	for ( int i = 0; i < indent; ++i )
 	    s << " ";
 
@@ -3967,7 +3967,7 @@ void QDomElementPrivate::save( QTextStream& s, int indent ) const
     } else {
 	s << "/>";
     }
-    if ( next && !next->isText() )
+    if ( !( next && next->isText() ) )
 	s << endl;
 }
 
