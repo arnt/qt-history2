@@ -373,7 +373,7 @@ QString QDir::absFilePath( const QString &fileName,
     QString tmp = absPath();
 #ifdef Q_OS_WIN32
     if ( fileName[0].isLetter() && fileName[1] == ':' ) {
-	int drv = fileName.upper()[0].latin1() - 'A' + 1;
+	int drv = fileName.toUpper()[0].latin1() - 'A' + 1;
 	if ( _getdrive() != drv ) {
 	    QT_WA( {
 		TCHAR buf[PATH_MAX];

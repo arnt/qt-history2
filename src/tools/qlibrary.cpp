@@ -369,7 +369,7 @@ QString QLibrary::library() const
     QString filename = libfile;
 
 #if defined(Q_WS_WIN)
-    if ( filename.findRev( '.' ) <= filename.findRev( '/' ) )
+    if ( filename.lastIndexOf( '.' ) <= filename.lastIndexOf( '/' ) )
 	filename += ".dll";
 #else
 #ifdef Q_OS_DARWIN

@@ -171,13 +171,13 @@ QString QSettingsSysPrivate::folder( const QString &key )
 {
     QString k = validateKey( key );
     Q_ASSERT(settingsBasePath);
-    return *settingsBasePath + k.left( k.findRev( "\\" ) );
+    return *settingsBasePath + k.left( k.lastIndexOf( "\\" ) );
 }
 
 QString QSettingsSysPrivate::entry( const QString &key )
 {
     QString k = validateKey( key );
-    return k.right( k.length() - k.findRev( "\\" ) - 1 );
+    return k.right( k.length() - k.lastIndexOf( "\\" ) - 1 );
 }
 
 HKEY QSettingsSysPrivate::openKey( const QString &key, bool write, bool remove )
@@ -486,7 +486,7 @@ bool QSettingsPrivate::sysWriteEntry( const QString &key, double value )
 {
     Q_ASSERT(sysd);
 
-    QByteArray array( sizeof(double) );
+    QByteArray array( sizeof(double), 0 );
     const char *data = (char*)&value;
 
     for ( int i = 0; i < sizeof(double); ++i )
@@ -499,7 +499,7 @@ bool QSettingsPrivate::sysWriteEntry( const QString &key, int value )
 {
     Q_ASSERT(sysd);
 
-    QByteArray array( sizeof(int) );
+    QByteArray array( sizeof(int), 0 );
     const char* data = (char*)&value;
     for ( int i = 0; i < sizeof(int ); ++i )
 	array[i] = data[i];
@@ -511,7 +511,7 @@ bool QSettingsPrivate::sysWriteEntry( const QString &key, const QString &value )
 {
     Q_ASSERT(sysd);
 
-    QByteArray array( 0 );
+    QByteArray array;
     QT_WA( {
 	array.resize( value.length() * 2 + 2 );
 	const QChar *data = value.unicode();

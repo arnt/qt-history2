@@ -2315,7 +2315,7 @@ QByteArray qt_winQString2MB( const QString& s, int uclen )
     if ( uclen == 0 )
 	return QByteArray("");
     BOOL used_def;
-    QByteArray mb(4096);
+    QByteArray mb(4096, 0);
     int len;
     while ( !(len=WideCharToMultiByte(CP_ACP, 0, (const WCHAR*)s.unicode(), uclen,
 		mb.data(), mb.size()-1, 0, &used_def)) )

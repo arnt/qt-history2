@@ -103,7 +103,7 @@ bool QLibraryPrivate::freeLibrary()
 	    if ( lib->refCount == 0 ) {
 		ok = FreeLibrary( pHnd );
 		if ( ok ) {
-		    map->remove( it );
+		    map->erase( it );
 		    if ( map->count() == 0 ) {
 			delete map;
 			map = 0;

@@ -31,7 +31,7 @@ QByteArray qt_win95Name(const QString s)
 	QString ss(s);
 	ss[0] = '\\';
 	ss[1] = '\\';
-	int n = ss.find('/');
+	int n = ss.indexOf('/');
 	if ( n >= 0 )
 	    ss[n] = '\\';
 	return ss.toLocal8Bit();
@@ -39,7 +39,7 @@ QByteArray qt_win95Name(const QString s)
 	QString ss(s);
 	ss[2] = '\\';
 	ss.remove( 3, 1 );
-	int n = ss.find('/');
+	int n = ss.indexOf('/');
 	if ( n >= 0 )
 	    ss[n] = '\\';
 	return ss.toLocal8Bit();
@@ -63,7 +63,7 @@ bool isValidFile( const QString& fileName )
 {
     // Only : needs to be checked for, other invalid characters
     // are currently checked by fopen()
-    int findColon = fileName.findRev( ':' );
+    int findColon = fileName.lastIndexOf( ':' );
     if ( findColon == -1 )
 	return TRUE;
     else if ( findColon != 1 )

@@ -466,10 +466,10 @@ void QFileInfo::doStat() const
 	  || fn[0] == '\\' && fn[1] == '\\' )
 	{
 	    // UNC - stat doesn't work for all cases (Windows bug)
-	    int s = fn.find(fn[0],2);
+	    int s = fn.indexOf(fn[0],2);
 	    if ( s > 0 ) {
 		// "\\server\..."
-		s = fn.find(fn[0],s+1);
+		s = fn.indexOf(fn[0],s+1);
 		if ( s > 0 ) {
 		    // "\\server\share\..."
 		    if ( fn[s+1] != 0 ) {
@@ -511,7 +511,7 @@ QString QFileInfo::dirPath( bool absPath ) const
 	s = absFilePath();
     else
 	s = fn;
-    int pos = s.findRev( '/' );
+    int pos = s.lastIndexOf( '/' );
     if ( pos == -1 ) {
 	if ( s[ 2 ] == '/' )
 	    return s.left( 3 );
@@ -532,9 +532,9 @@ QString QFileInfo::dirPath( bool absPath ) const
 
 QString QFileInfo::fileName() const
 {
-    int p = fn.findRev( '/' );
+    int p = fn.lastIndexOf( '/' );
     if ( p == -1 ) {
-	int p = fn.findRev( ':' );
+	int p = fn.lastIndexOf( ':' );
 	if ( p != -1 )
 	    return fn.mid( p + 1 );
 	return fn;
