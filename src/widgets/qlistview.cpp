@@ -228,6 +228,7 @@ struct QListViewPrivate
     bool was_visible : 1;
 
     bool startEdit : 1;
+    bool ignoreEditAfterFocus : 1;
 
     QListView::RenameAction defRenameAction;
 
@@ -2412,6 +2413,8 @@ void QListView::init()
     d->resizeMode = NoColumn;
     d->defRenameAction = Reject;
     d->pressedEmptyArea = FALSE;
+    d->startEdit = TRUE;
+    d->ignoreEditAfterFocus = FALSE;
 
     setMouseTracking( TRUE );
     viewport()->setMouseTracking( TRUE );
@@ -3895,7 +3898,10 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
     if ( !e )
 	return;
 
-    d->startEdit = TRUE;
+    if ( !d->ignoreEditAfterFocus )
+	d->startEdit = TRUE;
+    d->ignoreEditAfterFocus = FALSE;
+
     if ( currentItem() && currentItem()->renameBox ) {
 	d->startEdit = FALSE;
 	if ( d->defRenameAction == Reject )
@@ -4398,6 +4404,10 @@ void QListView::focusInEvent( QFocusEvent *e )
 	d->focusItem = firstChild();
 	emit currentChanged( d->focusItem );
 	repaintItem( d->focusItem );
+    } 
+    if ( e->reason() == QFocusEvent::Mouse ) {
+	d->ignoreEditAfterFocus = TRUE;
+	d->startEdit = FALSE;
     }
     if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ) {
 	bool db = d->useDoubleBuffer;
