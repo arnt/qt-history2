@@ -535,9 +535,12 @@
                                 </xsl:call-template>
                             </xsl:variable>
                             
-                            <xsl:text>        QDomNode child = doc.createTextNode(</xsl:text>
+                            <xsl:text>        QDomNode child = doc.createElement(QLatin1String("</xsl:text>
+                            <xsl:value-of select="$lower-name"/>
+                            <xsl:text>"));&endl;</xsl:text>
+                            <xsl:text>        child.appendChild(doc.createTextNode(</xsl:text>
                             <xsl:value-of select="$qstring-func"/>
-                            <xsl:text>);&endl;</xsl:text>
+                            <xsl:text>));&endl;</xsl:text>
                         </xsl:otherwise>
                     </xsl:choose>
                     <xsl:text>        e.appendChild(child);&endl;</xsl:text>
