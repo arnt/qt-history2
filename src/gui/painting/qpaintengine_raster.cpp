@@ -1094,25 +1094,30 @@ enum LineDrawMode {
     LineDrawIncludeLastPixel
 };
 
-static LineDrawMode clipLine(QLineF &line, const QRect &rect)
+static LineDrawMode clipLine(QLineF *line, const QRect &rect)
 {
     LineDrawMode mode = LineDrawNormal;
 
-    qreal x1 = line.x1();
-    qreal x2 = line.x2();
-    qreal y1 = line.y1();
-    qreal y2 = line.y2();
+    qreal x1 = line->x1();
+    qreal x2 = line->x2();
+    qreal y1 = line->y1();
+    qreal y2 = line->y2();
 
-    enum { left, right, top, bottom };
+    qreal left = rect.x();
+    qreal right = rect.x() + rect.width() - 1;
+    qreal top = rect.y();
+    qreal bottom = rect.y() + rect.height() - 1;
+
+    enum { Left, Right, Top, Bottom };
     // clip the lines, after cohen-sutherland, see e.g. http://www.nondot.org/~sabre/graphpro/line6.html
-    int p1 = ((x1 < rect.left()) << left)
-             | ((x1 >= rect.right()) << right)
-             | ((y1 < rect.top()) << top)
-             | ((y1 >= rect.bottom()) << bottom);
-    int p2 = ((x2 < rect.top()) << left)
-             | ((x2 >= rect.bottom()) << right)
-             | ((y2 < rect.top()) << top)
-             | ((y2 >= rect.bottom()) << bottom);
+    int p1 = ((x1 < left) << Left)
+             | ((x1 > right) << Right)
+             | ((y1 < top) << Top)
+             | ((y1 > bottom) << Bottom);
+    int p2 = ((x2 < left) << Left)
+             | ((x2 > right) << Right)
+             | ((y2 < top) << Top)
+             | ((y2 > bottom) << Bottom);
 
     if (p1 & p2)
         // completely outside
@@ -1123,46 +1128,47 @@ static LineDrawMode clipLine(QLineF &line, const QRect &rect)
         qreal dy = y2 - y1;
 
         // clip x coordinates
-        if (x1 < rect.left()) {
-            y1 += dy/dx * (rect.left() - x1);
-            x1 = rect.left();
-        } else if (x1 > rect.right()) {
-            y1 -= dy/dx * (x1 - rect.right());
-            x1 = rect.right();
+        if (x1 < left) {
+            y1 += dy/dx * (left - x1);
+            x1 = left;
+        } else if (x1 > right) {
+            y1 -= dy/dx * (x1 - right);
+            x1 = right;
         }
-        if (x2 < rect.left()) {
-            y2 += dy/dx * (rect.left() - x2);
-            x2 = rect.left();
+        if (x2 < left) {
+            y2 += dy/dx * (left - x2);
+            x2 = left;
             mode = LineDrawIncludeLastPixel;
-        } else if (x2 > rect.right()) {
-            y2 -= dy/dx * (x2 - rect.right());
-            x2 = rect.right();
+        } else if (x2 > right) {
+            y2 -= dy/dx * (x2 - right);
+            x2 = right;
             mode = LineDrawIncludeLastPixel;
         }
-        p1 = ((y1 < rect.top()) << top)
-             | ((y1 >= rect.bottom()) << bottom);
-        p2 = ((y2 < rect.top()) << top)
-             | ((y2 >= rect.bottom()) << bottom);
+        p1 = ((y1 < top) << Top)
+             | ((y1 > bottom) << Bottom);
+        p2 = ((y2 < top) << Top)
+             | ((y2 > bottom) << Bottom);
         if (p1 & p2)
             return LineDrawClipped;
         // clip y coordinates
-        if (y1 < rect.left()) {
-            x1 += dx/dy * (rect.left() - y1);
-            y1 = rect.left();
-        } else if (y1 > rect.bottom()) {
-            x1 -= dx/dy * (y1 - rect.bottom());
-            y1 = rect.bottom();
+        if (y1 < top) {
+            x1 += dx/dy * (top - y1);
+            y1 = top;
+        } else if (y1 > bottom) {
+            x1 -= dx/dy * (y1 - bottom);
+            y1 = bottom;
         }
-        if (y2 < rect.left()) {
-            x2 += dx/dy * (rect.left() - y2);
-            y2 = rect.left();
+        if (y2 < top) {
+            x2 += dx/dy * (top - y2);
+            y2 = top
+                 ;
             mode = LineDrawIncludeLastPixel;
-        } else if (y2 > rect.bottom()) {
-            x2 -= dx/dy * (y2 - rect.bottom());
-            y2 = rect.bottom();
+        } else if (y2 > bottom) {
+            x2 -= dx/dy * (y2 - bottom);
+            y2 = bottom;
             mode = LineDrawIncludeLastPixel;
         }
-        line = QLineF(QPointF(x1, y1), QPointF(x2, y2));
+        *line = QLineF(QPointF(x1, y1), QPointF(x2, y2));
     }
     return mode;
 }
@@ -1179,6 +1185,17 @@ static void drawLine_bresenham(const QLineF &line, qt_span_func span_func, void 
     qreal x2 = line.x2();
     qreal y1 = line.y1();
     qreal y2 = line.y2();
+
+    QRasterBuffer *rb = ((FillData *)data)->rasterBuffer;
+
+    Q_ASSERT(x1 >= 0);
+    Q_ASSERT(x1 < rb->width());
+    Q_ASSERT(x2 >= 0);
+    Q_ASSERT(x2 < rb->width());
+    Q_ASSERT(y1 >= 0);
+    Q_ASSERT(y1 < rb->height());
+    Q_ASSERT(y2 >= 0);
+    Q_ASSERT(y2 < rb->height());
 
     int ax = int(qAbs(x2-x1)*256);
     int ay = int(qAbs(y2-y1)*256);
@@ -1221,7 +1238,8 @@ static void drawLine_bresenham(const QLineF &line, qt_span_func span_func, void 
             span.len = x - span.x;
             if (style == LineDrawIncludeLastPixel)
                 ++span.len;
-            span_func(y, 1, &span, data);
+            if (span.x >= 0 && span.x + span.len <= rb->width() && y >= 0 && y < rb->height())
+                span_func(y, 1, &span, data);
         } else {
             while(x != xe) {
                 if(d >= 0) {
@@ -1241,7 +1259,9 @@ static void drawLine_bresenham(const QLineF &line, qt_span_func span_func, void 
                 ++span.x;
             else
                 ++span.len;
-            span_func(y, 1, &span, data);
+
+            if (span.x >= 0 && span.x + span.len < rb->width() && y >= 0 && y < rb->height())
+                span_func(y, 1, &span, data);
         }
     } else {
         d += (ax - (ay >> 1));
@@ -1263,8 +1283,10 @@ static void drawLine_bresenham(const QLineF &line, qt_span_func span_func, void 
             d += ax;
         }
         if (style == LineDrawIncludeLastPixel) {
-            span.x = x;
-            span_func(y, 1, &span, data);
+            if (x >= 0 && x < rb->width() && y >= 0 && y < rb->height()) {
+                span.x = x;
+                span_func(y, 1, &span, data);
+            }
         }
     }
 }
@@ -1272,7 +1294,7 @@ static void drawLine_bresenham(const QLineF &line, qt_span_func span_func, void 
 void QRasterPaintEngine::drawLine(const QLineF &l)
 {
 #ifdef QT_DEBUG_DRAW
-    qDebug(" - QRasterPaintEngine::drawLine(), x1=%.2f, y1=%.2f, x2=%.2f, y2=%.2f",
+    qDebug("\n - QRasterPaintEngine::drawLine(), x1=%.2f, y1=%.2f, x2=%.2f, y2=%.2f",
            l.x1(), l.y1(), l.x2(), l.y2());
 #endif
 
@@ -1282,8 +1304,9 @@ void QRasterPaintEngine::drawLine(const QLineF &l)
         && (d->pen.widthF() == 0
             || (d->pen.widthF() <= 1 && d->txop <= QPainterPrivate::TxTranslate))) {
 
-        QLineF line = d->matrix.map(l);
-        LineDrawMode mode = clipLine(line, d->deviceRect);
+        QLineF line = l * d->matrix;
+        LineDrawMode mode = clipLine(&line, QRect(QPoint(0, 0), d->deviceRect.size()));
+
         if (mode == LineDrawClipped)
             return;
 
@@ -2112,13 +2135,9 @@ void qt_unite_spans(QSpan *clipSpans, int clipSpanCount,
         newSpans.add(sp);
     }
 
-
-
-
     *outSpans = newSpans.data();
     *outCount = newSpans.size();
 }
-
 
 
 void qt_span_fill_clipped(int y, int spanCount, QT_FT_Span *spans, void *userData)
