@@ -532,7 +532,7 @@ protected:
 #endif
 
 private slots:
-    void	 macSetActive() { setActiveWindow(); }
+    void	 focusProxyDestroyed();
 
 protected:
     QWidget(QWidgetPrivate &d, QWidget* parent, WFlags f);

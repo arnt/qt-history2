@@ -504,8 +504,41 @@ enum {
     kEventQtRequestTimer = 15,
     kEventQtRequestWakeup = 16,
     kEventQtRequestShowSheet = 17,
-    kEventQtRequestSocketAct = 18
+    kEventQtRequestActivate = 18,
+    kEventQtRequestSocketAct = 19
 };
+static void qt_mac_event_release(EventRef &event)
+{
+    ReleaseEvent(event);
+    event = 0;
+}
+static void qt_mac_event_release(QWidget *w, EventRef &event)
+{
+    if (event) {
+	if (IsEventInQueue(GetMainEventQueue(), event))  {
+	    QWidget *widget = 0;
+	    GetEventParameter(event, kEventParamQWidget, typeQWidget, 0, sizeof(widget), 0, &widget);
+	    if (w == widget) {
+		RemoveEventFromQueue(GetMainEventQueue(), event);
+		qt_mac_event_release(event);
+	    }
+	}
+    }
+}
+
+static bool qt_event_remove(EventRef &event)
+{
+    if (event) {
+	if (IsEventInQueue(GetMainEventQueue(), event))  {
+	    RemoveEventFromQueue(GetMainEventQueue(), event);
+	    qt_mac_event_release(event);
+	}
+	return TRUE;
+    }
+    return FALSE;
+}
+
+/* updates */
 static EventRef request_updates_pending = NULL;
 void qt_event_request_updates()
 {
@@ -522,6 +555,37 @@ void qt_event_request_updates()
     PostEventToQueue(GetMainEventQueue(), request_updates_pending, kEventPriorityHigh);
     ReleaseEvent(request_updates_pending);
 }
+static QValueList<WId> request_updates_pending_list;
+void qt_event_request_updates(QWidget *w, const QRegion &r, bool subtract)
+{
+    w->createExtra();
+    if(subtract) {
+	if(w->extra->has_dirty_area) {
+	    w->extra->dirty_area -= r;
+	    if(w->extra->dirty_area.isEmpty()) {
+		request_updates_pending_list.remove(w->winId());
+		w->extra->has_dirty_area = FALSE;
+	    }
+	}
+	return;
+    } else if(w->extra->has_dirty_area) {
+	w->extra->dirty_area |= r;
+	return;
+    }
+    w->extra->has_dirty_area = TRUE;
+    w->extra->dirty_area = r;
+    //now maintain the list of widgets to be updated
+    if(request_updates_pending_list.isEmpty()) {
+	EventRef upd = NULL;
+	CreateEvent(NULL, kEventClassQt, kEventQtRequestPropagateWidgetUpdates,
+		    GetCurrentEventTime(), kEventAttributeUserEvent, &upd);
+	PostEventToQueue(GetMainEventQueue(), upd, kEventPriorityStandard);
+	ReleaseEvent(upd);
+    }
+    request_updates_pending_list.append(w->winId());
+}
+
+/* socket notifiers */
 static EventRef request_select_pending = NULL;
 void qt_event_request_select(QGuiEventLoop *loop) {
     if(request_select_pending) {
@@ -557,36 +621,19 @@ void qt_event_request_sockact(QGuiEventLoop *loop) {
     ReleaseEvent(request_sockact_pending);
 }
 
-static EventRef request_showsheet = 0;
-
-static void cleanupEventRef(EventRef &event)
-{
-    ReleaseEvent(event);
-    event = 0;
-}
-
-static bool qt_event_remove(EventRef &event)
-{
-    if (event) {
-	if (IsEventInQueue(GetMainEventQueue(), event))  {
-	    RemoveEventFromQueue(GetMainEventQueue(), event);
-	    cleanupEventRef(event);
-	}
-	return TRUE;
-    }
-    return FALSE;
-}
-
+/* sheets */
+static EventRef request_showsheet_pending = 0;
 void qt_event_request_showsheet(QWidget *w)
 {
-    qt_event_remove(request_showsheet);
+    qt_event_remove(request_showsheet_pending);
     CreateEvent(0, kEventClassQt, kEventQtRequestShowSheet, GetCurrentEventTime(),
-		kEventAttributeUserEvent, &request_showsheet);
-    SetEventParameter(request_showsheet, kEventParamQWidget, typeQWidget, sizeof(w), &w);
-    PostEventToQueue(GetMainEventQueue(), request_showsheet, kEventPriorityStandard);
-    ReleaseEvent(request_showsheet);
+		kEventAttributeUserEvent, &request_showsheet_pending);
+    SetEventParameter(request_showsheet_pending, kEventParamQWidget, typeQWidget, sizeof(w), &w);
+    PostEventToQueue(GetMainEventQueue(), request_showsheet_pending, kEventPriorityStandard);
+    ReleaseEvent(request_showsheet_pending);
 }
 
+/* updates */
 static QList<WId> request_updates_pending_list;
 void qt_event_request_updates(QWidget *w, const QRegion &r, bool subtract)
 {
@@ -637,6 +684,8 @@ void qt_event_request_flush_updates()
 	}
     }
 }
+
+/* wakeup */
 static EventRef request_wakeup_pending = NULL;
 void qt_event_request_wakeup()
 {
@@ -655,26 +704,47 @@ void qt_event_request_wakeup()
     ReleaseEvent(request_wakeup_pending);
 }
 
-static void qt_event_cleanup(QWidget *w, EventRef &event)
+/* activation */
+static struct {
+    QWidget *widget;
+    EventRef event;
+    EventLoopTimerRef timer;
+    EventLoopTimerUPP timerUPP;
+} request_activate_pending = { NULL, NULL, NULL, NULL };
+bool qt_event_remove_activate()
 {
-    if (event) {
-	if (IsEventInQueue(GetMainEventQueue(), event))  {
-	    QWidget *widget = 0;
-	    GetEventParameter(event, kEventParamQWidget, typeQWidget, 0, sizeof(widget), 0, &widget);
-	    if (w == widget) {
-		RemoveEventFromQueue(GetMainEventQueue(), event);
-		cleanupEventRef(event);
-	    }
-	}
+    if(request_activate_pending.timer) {
+	RemoveEventLoopTimer(request_activate_pending.timer);
+	request_activate_pending.timer = 0;
+    }
+    if(request_activate_pending.event)
+	qt_mac_event_release(request_activate_pending.event);
+    return TRUE;
+}
+QMAC_PASCAL void qt_event_activate_timer_callbk(EventLoopTimerRef r, void *d)
+{
+    EventLoopTimerRef otc = request_activate_pending.timer;
+    qt_event_remove_activate();
+    if(r == otc) {
+	CreateEvent(0, kEventClassQt, kEventQtRequestActivate, GetCurrentEventTime(),
+		    kEventAttributeUserEvent, &request_activate_pending.event);
+	QWidget *w = (QWidget *)d;
+	SetEventParameter(request_activate_pending.event, kEventParamQWidget, typeQWidget, sizeof(w), &w);
+	PostEventToQueue(GetMainEventQueue(), request_activate_pending.event, kEventPriorityHigh);
+	ReleaseEvent(request_activate_pending.event);
     }
 }
-
-void qt_event_cleanup_for_widget(QWidget *w)
+void qt_event_request_activate(QWidget *w)
 {
-    if (w)
-	qt_event_cleanup(w, request_showsheet);
+    /* We put these into a timer because due to order of events being sent we need to be sure this
+       comes from inside of the event loop */
+    qt_event_remove_activate();
+    if(!request_activate_pending.timerUPP)
+	request_activate_pending.timerUPP = NewEventLoopTimerUPP(qt_event_activate_timer_callbk);
+    InstallEventLoopTimer(GetMainEventLoop(), 0, 0, request_activate_pending.timerUPP, w, &request_activate_pending.timer);
 }
 
+/* timers */
 void qt_event_request_timer(MacTimerInfo *tmr)
 {
     EventRef tmr_ev = NULL;
@@ -693,6 +763,7 @@ MacTimerInfo *qt_event_get_timer(EventRef event)
     return t;
 }
 
+/* menubars */
 #ifndef QMAC_QMENUBAR_NO_NATIVE
 static EventRef request_menubarupdate_pending = NULL;
 void qt_event_request_menubarupdate()
@@ -712,6 +783,34 @@ void qt_event_request_menubarupdate()
 }
 #endif
 
+//context menu
+static EventRef request_context_pending = NULL;
+static void qt_event_request_context(QWidget *w=NULL, EventRef *where=NULL)
+{
+    if(!where)
+	where = &request_context_pending;
+    if(*where || QMacBlockingFunction::blocking())
+	return;
+    CreateEvent(NULL, kEventClassQt, kEventQtRequestContext, GetCurrentEventTime(),
+		kEventAttributeUserEvent, where);
+    if(w)
+	SetEventParameter(*where, kEventParamQWidget, typeQWidget, sizeof(w), &w);
+    PostEventToQueue(GetMainEventQueue(), *where, kEventPriorityStandard);
+    ReleaseEvent(*where);
+}
+static EventRef request_context_hold_pending = NULL;
+QMAC_PASCAL void
+QApplication::qt_context_timer_callbk(EventLoopTimerRef r, void *d)
+{
+    QWidget *w = (QWidget *)d;
+    EventLoopTimerRef otc = mac_context_timer;
+    RemoveEventLoopTimer(mac_context_timer);
+    mac_context_timer = NULL;
+    if(r == otc && w == qt_button_down)
+	qt_event_request_context(w, &request_context_hold_pending);
+}
+
+/* clipboard */
 void qt_event_send_clipboard_changed()
 {
 #if 0
@@ -723,12 +822,27 @@ void qt_event_send_clipboard_changed()
 #endif
 }
 
+/* events that hold pointers to widgets, must be cleaned up like this */
+void qt_mac_event_release(QWidget *w)
+{
+    if (w) {
+        // cleanup activation pending
+	if(request_activate_pending.widget == w)
+	    qt_event_remove_activate();
+	// cleanup show sheet pending
+	qt_mac_event_release(w, request_showsheet_pending); 
+
+    }
+}
+
+/* watched events */
 static EventTypeSpec events[] = {
     { kEventClassQt, kEventQtRequestTimer },
     { kEventClassQt, kEventQtRequestWakeup },
     { kEventClassQt, kEventQtRequestSelect },
     { kEventClassQt, kEventQtRequestShowSheet },
     { kEventClassQt, kEventQtRequestContext },
+    { kEventClassQt, kEventQtRequestActivate },
 #ifndef QMAC_QMENUBAR_NO_NATIVE
     { kEventClassQt, kEventQtRequestMenubarUpdate },
 #endif
@@ -1535,33 +1649,6 @@ static bool qt_try_modal(QWidget *widget, EventRef event)
     return !block_event;
 }
 
-//context menu hack
-static EventRef request_context_pending = NULL;
-static void qt_event_request_context(QWidget *w=NULL, EventRef *where=NULL)
-{
-    if(!where)
-	where = &request_context_pending;
-    if(*where || QMacBlockingFunction::blocking())
-	return;
-    CreateEvent(NULL, kEventClassQt, kEventQtRequestContext, GetCurrentEventTime(),
-		kEventAttributeUserEvent, where);
-    if(w)
-	SetEventParameter(*where, kEventParamQWidget, typeQWidget, sizeof(w), &w);
-    PostEventToQueue(GetMainEventQueue(), *where, kEventPriorityStandard);
-    ReleaseEvent(*where);
-}
-static EventRef request_context_hold_pending = NULL;
-QMAC_PASCAL void
-QApplication::qt_context_timer_callbk(EventLoopTimerRef r, void *w)
-{
-    QWidget *widg = (QWidget *)w;
-    EventLoopTimerRef otc = mac_context_timer;
-    RemoveEventLoopTimer(mac_context_timer);
-    mac_context_timer = NULL;
-    if(r == otc && widg == qt_button_down)
-	qt_event_request_context(widg, &request_context_hold_pending);
-}
-
 bool qt_mac_send_event(QEventLoop::ProcessEventsFlags flags, EventRef event, WindowPtr pt)
 {
     if(flags != QEventLoop::AllEvents) {
@@ -1641,6 +1728,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    tlw->propagateUpdates();
 	    }
 	} else if(ekind == kEventQtRequestShowSheet) {
+	    request_showsheet_pending = NULL;
 	    QWidget *widget = NULL;
 	    GetEventParameter(event, kEventParamQWidget, typeQWidget, NULL,
 			      sizeof(widget), NULL, &widget);
@@ -1665,6 +1753,12 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    QGuiEventLoop *l = NULL;
 	    GetEventParameter(event, kEventParamQGuiEventLoop, typeQGuiEventLoop, NULL, sizeof(l), NULL, &l);
 	    l->activateSocketNotifiers();
+	} else if(ekind == kEventQtRequestActivate) {
+	    request_activate_pending.event = 0;
+	    QWidget *w = 0;
+	    GetEventParameter(event, kEventParamQWidget, typeQWidget, 0, sizeof(w), 0, &w);
+	    if(w)
+		w->setActiveWindow();
 	} else if(ekind == kEventQtRequestContext) {
 	    bool send = FALSE;
 	    if((send = (event == request_context_hold_pending)))
