@@ -214,7 +214,7 @@ QRect QFontPrivate::boundingRect( const QChar &ch )
 {
 #ifndef Q_OS_TEMP
     GLYPHMETRICS gm;
-    memset( &gm, 0, sizeof(GLYPHMETRICS) );
+
     if ( !mat ) {
 	mat = new MAT2;
 	mat->eM11.value = mat->eM22.value = 1;
@@ -1099,8 +1099,32 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 	if ( newl < l ) l = newl;
 	if ( newr > r ) r = newr;
     }
+
     const TEXTMETRICA *tm = TMX;
     return QRect(l, -tm->tmAscent, cx+r, tm->tmAscent+tm->tmDescent);
+
+#if 0 // accurate, but slooooow
+    const QChar *ch = str.unicode();
+    if ( !mat ) {
+	mat = new MAT2;
+	mat->eM11.value = mat->eM22.value = 1;
+	mat->eM11.fract = mat->eM22.fract = 0;
+	mat->eM21.value = mat->eM12.value = 0;
+	mat->eM21.fract = mat->eM12.fract = 0;
+    }
+
+    GLYPHMETRICS gm;
+    int asc = 0, desc = 0;
+    while ( len ) {
+	GetGlyphOutlineW( d->fin->dc(), ch->unicode(), GGO_METRICS, &gm, 0, 0, mat );
+	asc = QMAX( asc, gm.gmptGlyphOrigin.y );
+	desc = QMAX( desc, gm.gmBlackBoxY - gm.gmptGlyphOrigin.y );
+	--len;
+	++ch;
+    }
+
+    return QRect( l, -asc, cx+r, asc + desc );
+#endif
 }
 
 
