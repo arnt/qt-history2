@@ -149,6 +149,7 @@ extern void qt_clear_paintevent_clipping(QPaintDevice *dev);
 extern void qt_mac_set_cursor(const QCursor *, const Point *); //Cursor switching - qcursor_mac.cpp
 extern bool qt_mac_is_macsheet(QWidget *, bool =FALSE); //qwidget_mac.cpp
 QCString p2qstring(const unsigned char *); //qglobal.cpp
+qt_mac_command_set_enabled(UInt32, bool); //qmenubar_mac.cpp
 
 /* Unicode input entry magic */
 class QTSMDocumentWrapper
@@ -206,19 +207,6 @@ static QMAC_PASCAL void qt_mac_display_change_callbk(void *, SInt16 msg, void *)
 	    QResizeEvent re(dw->size(), dw->size());
 	    QApplication::sendEvent(dw, &re);
 	}
-    }
-}
-
-void qt_mac_command_set_enabled(UInt32 cmd, bool b)
-{
-    if(b) {
-	EnableMenuCommand(NULL, cmd);
-	if(MenuRef mr = GetApplicationDockTileMenu())
-	    EnableMenuCommand(mr, cmd);
-    } else {
-	DisableMenuCommand(NULL, cmd);
-	if(MenuRef mr = GetApplicationDockTileMenu())
-	    DisableMenuCommand(mr, cmd);
     }
 }
 
@@ -557,22 +545,6 @@ void qt_event_request_menubarupdate()
 		kEventAttributeUserEvent, &request_menubarupdate_pending);
     PostEventToQueue(GetMainEventQueue(), request_menubarupdate_pending, kEventPriorityHigh);
     ReleaseEvent(request_menubarupdate_pending);
-}
-static bool menubar_modal_state = FALSE;
-void qt_mac_set_modal_state(bool b)
-{
-    menubar_modal_state = b;
-    MenuRef mr = AcquireRootMenu();
-    for(int i = 1; i < CountMenuItems(mr); i++) {
-	MenuRef mr2;
-	GetMenuItemHierarchicalMenu(mr, i+1, &mr2);
-	if(b)
-	    DisableMenuItem(mr2, 0);
-	else
-	    EnableMenuItem(mr2, 0);
-    }
-    ReleaseMenu(mr);
-    qt_mac_command_set_enabled(kHICommandQuit, !b);
 }
 #endif
 
@@ -1261,8 +1233,8 @@ void qt_enter_modal(QWidget *widget)
     }
     qt_modal_stack->insert(0, widget);
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
-    if(!app_do_modal)
-	qt_mac_set_modal_state(TRUE);
+    if(!app_do_modal) 
+	qt_event_request_menubarupdate();
 #endif
     app_do_modal = TRUE;
 }
@@ -1285,8 +1257,8 @@ void qt_leave_modal(QWidget *widget)
 #endif
     app_do_modal = (qt_modal_stack != 0);
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
-    if(!app_do_modal)
-	qt_mac_set_modal_state(FALSE);
+    if(!app_do_modal) 
+	qt_event_request_menubarupdate();
 #endif
 }
 
@@ -1457,7 +1429,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	} else if(ekind == kEventQtRequestMenubarUpdate) {
 	    request_menubarupdate_pending = NULL;
 	    QMenuBar::macUpdateMenuBar();
-	    qt_mac_set_modal_state(menubar_modal_state);
 #endif
 	} else if(ekind == kEventQtRequestSelect) {
 	    request_select_pending = NULL;
@@ -2227,7 +2198,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    widget->setFocus();
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 		QMenuBar::macUpdateMenuBar();
-		qt_mac_set_modal_state(menubar_modal_state); //just to update..
 #endif
 	    }
 	} else if(ekind == kEventWindowDeactivated) {

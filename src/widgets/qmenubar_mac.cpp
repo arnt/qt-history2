@@ -50,12 +50,41 @@
 extern QString cfstring2qstring(CFStringRef); //qglobal.cpp
 QCString p2qstring(const unsigned char *); //qglobal.cpp
 void qt_event_request_menubarupdate(); //qapplication_mac.cpp
+bool qt_modal_state(); //qapplication_mac.cpp
+
+void qt_mac_command_set_enabled(UInt32 cmd, bool b)
+{
+    if(b) {
+	EnableMenuCommand(NULL, cmd);
+	if(MenuRef mr = GetApplicationDockTileMenu())
+	    EnableMenuCommand(mr, cmd);
+    } else {
+	DisableMenuCommand(NULL, cmd);
+	if(MenuRef mr = GetApplicationDockTileMenu())
+	    DisableMenuCommand(mr, cmd);
+    }
+}
+
+static void qt_mac_set_modal_state(bool b)
+{
+    MenuRef mr = AcquireRootMenu();
+    for(int i = 1; i < CountMenuItems(mr); i++) {
+	MenuRef mr2;
+	GetMenuItemHierarchicalMenu(mr, i+1, &mr2);
+	if(b)
+	    DisableMenuItem(mr2, 0);
+	else
+	    EnableMenuItem(mr2, 0);
+    }	
+    ReleaseMenu(mr);
+    qt_mac_command_set_enabled(kHICommandQuit, !b);
+}
 
 //internal class
 class QMenuBar::MacPrivate {
 public:
     MacPrivate() : commands(0), popups(0), mac_menubar(0),
-	apple_menu(0), in_apple(0), dirty(1) { }
+	apple_menu(0), in_apple(0), dirty(FALSE), modal(FALSE) { }
     ~MacPrivate() { clear(); delete popups; delete commands; }
 
     class CommandBinding {
@@ -78,7 +107,7 @@ public:
     MenuBarHandle mac_menubar;
     MenuRef apple_menu;
     int in_apple;
-    uint dirty;
+    bool dirty, modal;
 
     void clear() {
 	in_apple = 0;
@@ -686,8 +715,11 @@ bool QMenuBar::macUpdateMenuBar()
     //now set it
     static bool first = TRUE;
     if(mb) {
-	if(!mb->mac_eaten_menubar || (!first && !mb->mac_d->dirty && (mb == activeMenuBar))) 
-		return mb->mac_eaten_menubar;
+	if(!mb->mac_eaten_menubar || (!first && !mb->mac_d->dirty && (mb == activeMenuBar))) {
+	    if(mb->mac_d->modal != qt_modal_state()) 
+		qt_mac_set_modal_state(mb->mac_d->modal = qt_modal_state());
+	    return mb->mac_eaten_menubar;
+	}
 	first = FALSE;
 	activeMenuBar = mb;
 	if(mb->mac_d->dirty || !mb->mac_d->mac_menubar) {
@@ -698,6 +730,8 @@ bool QMenuBar::macUpdateMenuBar()
 	    SetMenuBar(mb->mac_d->mac_menubar);
 	    InvalMenuBar();
 	}
+	if(mb->mac_d->modal != qt_modal_state()) 
+	    qt_mac_set_modal_state(mb->mac_d->modal = qt_modal_state());
 	return TRUE;
     } else if(first || fall_back_to_empty) {
 	first = FALSE;
