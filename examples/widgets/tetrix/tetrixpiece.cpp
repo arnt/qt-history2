@@ -1,11 +1,14 @@
 #include <QtCore>
 
+#include <cstdlib>
+
 #include "tetrixpiece.h"
+
+using namespace std;
 
 void TetrixPiece::setRandomShape()
 {
-    int random = QTime::currentTime().msec();
-    setShape(TetrixShape(random % 7 + 1));
+    setShape(TetrixShape(rand() % 7 + 1));
 }
 
 void TetrixPiece::setShape(TetrixShape shape)

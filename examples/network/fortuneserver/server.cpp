@@ -47,7 +47,6 @@ Server::Server(QWidget *parent)
     mainLayout->addLayout(buttonLayout);
 
     setWindowTitle(tr("Fortune Server"));
-    srand(time(0));
 }
 
 void Server::sendFortune()

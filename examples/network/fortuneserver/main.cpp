@@ -1,5 +1,8 @@
 #include <QApplication>
 
+#include <cstdlib>
+#include <ctime>
+
 #include "server.h"
 
 int main(int argc, char *argv[])
@@ -8,5 +11,6 @@ int main(int argc, char *argv[])
     Server server;
     app.setMainWidget(&server);
     server.show();
+    srand(time(0));
     return app.exec();
 }
