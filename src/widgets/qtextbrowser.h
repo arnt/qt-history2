@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextbrowser.h#30 $
+** $Id: //depot/qt/main/src/widgets/qtextbrowser.h#31 $
 **
 ** Definition of the QTextBrowser class
 **
@@ -67,6 +67,8 @@ public slots:
     virtual void forward();
     virtual void home();
     virtual void reload();
+    void setText( const QString &txt ) { setText( txt, QString::null ); }
+    virtual void setText( const QString &txt, const QString &context );
 
 signals:
     void backwardAvailable( bool );
@@ -76,7 +78,6 @@ signals:
 
 protected:
     void keyPressEvent( QKeyEvent * e);
-    void showEvent( QShowEvent* );
 
 private:
     void popupDetail( const QString& contents, const QPoint& pos );

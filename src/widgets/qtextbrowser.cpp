@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextbrowser.cpp#61 $
+** $Id: //depot/qt/main/src/widgets/qtextbrowser.cpp#62 $
 **
 ** Implementation of the QTextBrowser class
 **
@@ -438,13 +438,13 @@ void QTextBrowser::popupDetail( const QString& contents, const QPoint& pos )
 		    i + 5, h + 5 );
 }
 
+/*! \reimp */
 
-
-/*!\reimp
- */
-void QTextBrowser::showEvent( QShowEvent* e )
+void QTextBrowser::setText( const QString &txt, const QString &context )
 {
-    QTextView::showEvent( e );
-    scrollToAnchor( d->curmark );
+    d->curmark = "";
+    d->curmain = "";
+    QTextEdit::setText( txt, context );
 }
+
 #endif  // QT_NO_TEXTBROWSER
