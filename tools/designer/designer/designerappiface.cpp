@@ -505,6 +505,21 @@ QWidget *DesignerFormWindowImpl::form() const
     return formWindow;
 }
 
+void DesignerFormWindowImpl::setListViewIcon( const QPixmap &pix )
+{
+    FormList * listView = formWindow->mainWindow()->formlist();
+    QString formname = formWindow->name();
+    QListViewItemIterator it( (QListView*)listView );
+    while ( it.current() ) {
+	QListViewItem *item = it.current();
+	++it;
+	if ( item->text( 0 ) == formname ) {
+	    item->setPixmap( 0, pix );
+	    break;
+	}
+    }
+}
+
 void DesignerFormWindowImpl::setCurrentWidget( QWidget * )
 {
 }

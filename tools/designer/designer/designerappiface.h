@@ -156,6 +156,7 @@ public:
     QWidgetList selectedWidgets() const;
     QWidget *currentWidget() const;
     QWidget *form() const;
+    void setListViewIcon( const QPixmap & );
     void setCurrentWidget( QWidget * );
     QList<QAction> actionList() const;
     void addAction( QAction * );
