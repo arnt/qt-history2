@@ -34,7 +34,7 @@ public:
     QTreeViewPrivate()
         : QAbstractItemViewPrivate(),
           header(0), indent(20), itemHeight(-1),
-          sameHeightItems(false), rootDecoration(true), reopen(-1) { }
+          uniformRowHeights(false), rootDecoration(true), reopen(-1) { }
     // FIXME: add a sameHeightItems property to make drawing of millions rows faster
 
     ~QTreeViewPrivate() {}
@@ -52,7 +52,7 @@ public:
         { return (++item >= viewItems.count() ? viewItems.count() - 1 : item); }
 
     inline int height(int item) const {
-        if (sameHeightItems) return itemHeight;
+        if (uniformRowHeights) return itemHeight;
         if (viewItems.at(item).height == 0)
             viewItems[item].height = q_func()->rowSizeHint(viewItems.at(item).index);
         return viewItems.at(item).height;
@@ -84,7 +84,7 @@ public:
 
     mutable QVector<QTreeViewItem> viewItems;
     int itemHeight; // this is just a number; contentsHeight() / numItems
-    bool sameHeightItems; // used when all rows have the same height
+    bool uniformRowHeights; // used when all rows have the same height
     bool rootDecoration;
 
     // used for drawing

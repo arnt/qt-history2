@@ -60,14 +60,14 @@ void QTableViewPrivate::updateVerticalScrollbar()
 
     // set the scroller range
     int y = height;
-    int r = verticalHeader->logicalIndexAt(height) + 1;
-    int max = (count - r) * factor;
-    while (y > 0 && r > 0)
-        y -= verticalHeader->sectionSize(--r);
+    int row = verticalHeader->logicalIndexAt(height) + 1;
+    int max = row ? (count - row) * factor : 0;
+    while (y > 0 && row > 0)
+        y -= verticalHeader->sectionSize(--row);
 
     if (y < 0) { // if the last item starts above the viewport, we have to backtrack
         int backtracking = factor * -y;
-        int sectionSize = verticalHeader->sectionSize(r);
+        int sectionSize = verticalHeader->sectionSize(row);
         if (sectionSize > 0) // avoid division by zero
             max += (backtracking / sectionSize) + 1;
     }
@@ -92,14 +92,14 @@ void QTableViewPrivate::updateHorizontalScrollbar()
 
     // set the scroller range
     int x = width;
-    int c = horizontalHeader->logicalIndexAt(width) + 1;
-    int max = (count - c) * factor;
-    while (x > 0 && c > 0)
-        x -= horizontalHeader->sectionSize(--c);
+    int col = horizontalHeader->logicalIndexAt(QApplication::reverseLayout() ? 0 : width) + 1;
+    int max = col ? (count - col) * factor : 0;
+    while (x > 0 && col > 0)
+        x -= horizontalHeader->sectionSize(--col);
 
     if (x < 0) { // if the last item starts left of the viewport, we have to backtrack
         int backtracking = factor * -x;
-        int sectionSize = horizontalHeader->sectionSize(c);
+        int sectionSize = horizontalHeader->sectionSize(col);
         if (sectionSize > 0) // avoid division by zero
             max += (backtracking / sectionSize) + 1;
     }

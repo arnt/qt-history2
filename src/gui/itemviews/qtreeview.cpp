@@ -221,6 +221,25 @@ void QTreeView::setRootIsDecorated(bool show)
 }
 
 /*!
+  \property QTreeView::uniformRowHeights
+  \brief whether all items in the treeview have the same height
+
+  This property should only be set to true if it is guarantied that all items
+  in the view has the same height. This enables the view to do some
+  optimizations.
+*/
+
+bool QTreeView::uniformRowHeights() const
+{
+    return d->uniformRowHeights;
+}
+
+void QTreeView::setUniformRowHeights(bool uniform)
+{
+    d->uniformRowHeights = uniform;
+}
+
+/*!
   Returns the horizontal position of the \a column in the viewport.
 */
 int QTreeView::columnViewportPosition(int column) const
@@ -511,7 +530,7 @@ void QTreeView::paintEvent(QPaintEvent *e)
     QVector<QTreeViewItem> viewItems = d->viewItems;
 
     while (y < h && i < c) {
-        s = d->height(i);
+        s = d->height(i); // FIXME: _major_ slowdown if we have 100k+ items!
         if (y + s >= t) {
             option.rect.setRect(0, y, 0, s);
             option.state = state|(viewItems.at(i).open ? QStyle::Style_Open : QStyle::Style_None);
@@ -1077,7 +1096,7 @@ int QTreeView::rowSizeHint(const QModelIndex &left) const
     QAbstractItemDelegate *delegate = itemDelegate();
     int width = d->viewport->width();
     int height = 0;
-    // only check the visible columns
+    // only check the visible columns - FIXME: is this ok ?
     int start = d->header->visualIndexAt(0);
     int end = d->header->visualIndexAt(width);
 
@@ -1360,28 +1379,28 @@ void QTreeViewPrivate::reopenChildren(const QModelIndex &parent, bool update)
 void QTreeViewPrivate::updateVerticalScrollbar()
 {
     int factor = q->verticalFactor();
-    int height = viewport->height();
+    int viewHeight = viewport->height();
     int itemCount = viewItems.count();
 
     // if we have no viewport or no items, there is nothing to do
-    if (height <= 0 || itemCount <= 0) {
+    if (viewHeight <= 0 || itemCount <= 0) {
         q->verticalScrollBar()->setRange(0, 0);
         return;
     }
 
     // set page step size
-    q->verticalScrollBar()->setPageStep(height); // FIXME: wrong
+    q->verticalScrollBar()->setPageStep(viewHeight); // FIXME: wrong
 
     // set the scroller range
-    int y = height;
+    int y = viewHeight;
     int i = itemCount; // FIXME: wrong
     while (y > 0 && i > 0)
-        y -= this->height(--i);
+        y -= height(--i);
     int max = i * factor;
 
     if (y < 0) { // if the first item starts above the viewport, we have to backtrack
         int backtracking = factor * -y;
-        int itemSize = this->height(i);
+        int itemSize = height(i);
         if (itemSize > 0) // avoid division by zero
             max += (backtracking / itemSize) + 1;
     }
@@ -1406,14 +1425,14 @@ void  QTreeViewPrivate::updateHorizontalScrollbar()
 
     // set the scroller range
     int x = width;
-    int c = header->logicalIndexAt(width) + 1;
-    int max = (count - c) * factor;
-    while (x > 0 && c > 0)
-        x -= header->sectionSize(--c);
+    int col = header->logicalIndexAt(QApplication::reverseLayout() ? 0 : width) + 1;
+    int max = col ? (count - col) * factor : 0;
+    while (x > 0 && col > 0)
+        x -= header->sectionSize(--col);
 
     if (x < 0) { // if the first item starts left of the viewport, we have to backtrack
         int backtracking = factor * -x;
-        int sectionSize = header->sectionSize(c);
+        int sectionSize = header->sectionSize(col);
         if (sectionSize > 0) // avoid division by zero
             max += (backtracking / sectionSize) + 1;
     }

@@ -23,8 +23,9 @@ class Q_GUI_EXPORT QTreeView : public QAbstractItemView
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTreeView)
-    Q_PROPERTY(bool rootIsDecorated READ rootIsDecorated WRITE setRootIsDecorated)
     Q_PROPERTY(int indentation READ indentation WRITE setIndentation)
+    Q_PROPERTY(bool rootIsDecorated READ rootIsDecorated WRITE setRootIsDecorated)
+    Q_PROPERTY(bool uniformRowHeights READ uniformRowHeights WRITE setUniformRowHeights)
 
 public:
     QTreeView(QWidget *parent = 0);
@@ -41,6 +42,9 @@ public:
 
     bool rootIsDecorated() const;
     void setRootIsDecorated(bool show);
+
+    bool uniformRowHeights() const;
+    void setUniformRowHeights(bool uniform);
 
     int columnViewportPosition(int column) const;
     int columnWidth(int column) const;
