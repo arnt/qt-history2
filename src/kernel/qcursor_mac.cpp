@@ -452,9 +452,21 @@ QPoint QCursor::pos()
   \sa pos(), QWidget::mapFromGlobal(), QWidget::mapToGlobal()
 */
 
-void QCursor::setPos( int, int )
+// some kruft I found on the web..
+#define MTemp 0x828
+#define RawMouse 0x82c
+#define CrsrNewCouple 0x8ce
+
+void QCursor::setPos( int x, int y)
 {
-    qDebug("Not yet implemented, but probably not called either.. %s:%d", __FILE__, __LINE__);
+    HideCursor();
+    Point where;
+    where.h = x;
+    where.v = y;
+    *((Point *) RawMouse) = where ;
+    *((Point *) MTemp) = where ;
+    *((short *) CrsrNewCouple) = -1 ;
+    ShowCursor ( ) ;
 }
 
 /*!
