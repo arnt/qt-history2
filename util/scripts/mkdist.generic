@@ -124,23 +124,14 @@ export QTDIR
 echo "Create symlinks for Qt header files.." >&2
 ${QTDIR}/bin/syncqt
 ###${curdir}/make_qt_dot_h > ${QTDIR}/include/qt.h
-rm ${QTDIR}/include/qt.h
+[ -f ${QTDIR}/include/qt.h ] && rm ${QTDIR}/include/qt.h
 
 if [ "$nodoc" = "yes" ]; then
   echo "Documentation won't be generated" >& 2
 else
   echo "Generating documentation" >&2
   mkdir -p ${DISTDIR}/qt/doc/html
-  mkdir -p ${DISTDIR}/qt/extensions/opengl/html
-  mkdir -p ${DISTDIR}/qt/extensions/imageio/html
-  mkdir -p ${DISTDIR}/qt/extensions/nsplugin/html
   ${DISTDIR}/qt/util/qdoc/qdoc ${DISTDIR}/qt
-  ${DISTDIR}/qt/util/qdoc/qdoc ${DISTDIR}/qt/extensions/opengl ||
-	echo "WARNING - opengl doc incomplete"
-  ${DISTDIR}/qt/util/qdoc/qdoc ${DISTDIR}/qt/extensions/imageio ||
-	echo "WARNING - imageio doc incomplete"
-  ${DISTDIR}/qt/util/qdoc/qdoc ${DISTDIR}/qt/extensions/nsplugin ||
-	echo "WARNING - nsplugin doc incomplete"
   if [ "${platform}" = "x11" ]; then
     mkdir -p ${DISTDIR}/qt/doc/man/man1  ${DISTDIR}/qt/doc/man/man3
     ${DISTDIR}/qt/util/qdoc/man
@@ -192,10 +183,10 @@ if [ "${platform}" = "win" ]; then
   perl -pi -e 's/^#include \<unistd\.h\>$/\/\* #include <unistd.h> \*\//' lex.yy.c
   cd ${DISTDIR}/qt/src
   echo "Moving source and include files..." >&2
-  mv ../include/qt.h .
+  [ -f ../include/qt.h ] && mv ../include/qt.h .
   rm -f ../include/*
   mv */q*.h ../include
-  mv qt.h ../include
+  [ -f qt.h ] && mv qt.h ../include
   cd ${DISTDIR}/qt
   mv extensions/opengl/src/q*.h include
   mv extensions/imageio/src/q*.h include
