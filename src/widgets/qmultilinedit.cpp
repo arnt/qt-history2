@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#31 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#32 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -868,6 +868,7 @@ void QMultiLineEdit::insertAt( const char *txt, int line, int col )
 	int w = textWidth( oldLine );
 	setWidth( QMAX( cellWidth(), w ) );
     } else { //multiline
+	bool aupd = autoUpdate();
 	setAutoUpdate( FALSE );
 	QString newString = oldLine->mid( col, oldLine->length() );
 	oldLine->remove( col, oldLine->length() );
@@ -885,8 +886,9 @@ void QMultiLineEdit::insertAt( const char *txt, int line, int col )
 	newString.prepend( t.right( lastLen ) );
 	insertLine( newString, line );
 	updateCellWidth();
-	setAutoUpdate( TRUE );
-	repaint( FALSE );
+	setAutoUpdate( aupd );
+	if ( aupd )
+	    repaint( FALSE );
     }
     textDirty = TRUE;
     ASSERT( numLines() != 0 );
@@ -1514,6 +1516,9 @@ bool QMultiLineEdit::partiallyInvisible( int row )
 
 void QMultiLineEdit::makeVisible()
 {
+    if ( !autoUpdate() )
+	return;
+
     if ( partiallyInvisible( cursorY ) ) {
 	if ( cursorY >= lastRowVisible() )
 	    setBottomCell( cursorY );
@@ -1773,4 +1778,50 @@ void QMultiLineEdit::getCursorPosition( int *line, int *col )
 	*line = cursorY;
     if ( col )
 	*col = cursorX;
+}
+
+
+/*!
+  Returns TRUE if the view updates itself automatically whenever it
+  is changed in some way.
+
+  \sa setAutoUpdate()
+*/
+
+bool QMultiLineEdit::autoUpdate() const
+{
+    return QTableView::autoUpdate();
+}
+
+
+/*!
+
+*/
+
+/*!
+  Sets the auto-update option of multi-line editor to \e enable.
+
+  If \e enable is TRUE (this is the default) then the editor updates
+  itself automatically whenever it has changed in some way (generally,
+  when text has vbeen inserted or deleted).
+
+  If \e enable is FALSE, the view does NOT repaint itself, or update
+  its internal state variables itself when it is changed.  This can be
+  useful to avoid flicker during large changes, and is singularly
+  useless otherwise: Disable auto-update, do the changes, re-enable
+  auto-update, and call repaint().
+
+  \warning Do not leave the view in this state for a long time
+  (i.e. between events ). If, for example, the user interacts with the
+  view when auto-update is off, strange things can happen.
+
+  Setting auto-update to TRUE does not repaint the view, you must call
+  repaint() to do this.
+
+  \sa autoUpdate() repaint()
+*/
+
+void QMultiLineEdit::setAutoUpdate( bool enable )
+{
+    QTableView::setAutoUpdate( enable );
 }
