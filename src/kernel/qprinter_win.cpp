@@ -637,7 +637,7 @@ static BITMAPINFO *getWindowsBITMAPINFO( const QPixmap &pixmap,
     BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi;
     bmh->biSize		  = sizeof(BITMAPINFOHEADER);
     bmh->biWidth	  = w;
-    if ( (qt_winver & Qt::WV_DOS_based) && !pixmap.isNull() && pixmap.isQBitmap() )
+    if ( !pixmap.isNull() && pixmap.isQBitmap() )
       bmh->biHeight	  = h;
     else
       bmh->biHeight	  = -h;
