@@ -972,29 +972,30 @@ void Configure::generateConfigfiles()
 
 	outStream << "/* Install paths from configure */" << endl;
 
-	outStream << "static const char QT_INSTALL_PREFIX [256] = \""
+	outStream << "static const char QT_INSTALL_PREFIX [267] = \"qt_nstpath="
 		  << QString(dictionary["QT_INSTALL_PREFIX"]).replace( "\\", "\\\\" ) << "\";" << endl;
-	outStream << "static const char QT_INSTALL_BINS   [256] = \""
+	outStream << "static const char QT_INSTALL_BINS   [267] = \"qt_binpath="
 		  << QString(dictionary["QT_INSTALL_BINS"]).replace( "\\", "\\\\" )  << "\";" << endl;
-	outStream << "static const char QT_INSTALL_DOCS   [256] = \""
+	outStream << "static const char QT_INSTALL_DOCS   [267] = \"qt_docpath="
 		  << QString(dictionary["QT_INSTALL_DOCS"]).replace( "\\", "\\\\" )  << "\";" << endl;
-	outStream << "static const char QT_INSTALL_HEADERS[256] = \""
+	outStream << "static const char QT_INSTALL_HEADERS[267] = \"qt_hdrpath="
 		  << QString(dictionary["QT_INSTALL_HEADERS"]).replace( "\\", "\\\\" )  << "\";" << endl;
-	outStream << "static const char QT_INSTALL_LIBS   [256] = \""
+	outStream << "static const char QT_INSTALL_LIBS   [267] = \"qt_libpath="
 		  << QString(dictionary["QT_INSTALL_LIBS"]).replace( "\\", "\\\\" )  << "\";" << endl;
-	outStream << "static const char QT_INSTALL_PLUGINS[256] = \""
+	outStream << "static const char QT_INSTALL_PLUGINS[267] = \"qt_plgpath="
 		  << QString(dictionary["QT_INSTALL_PLUGINS"]).replace( "\\", "\\\\" )  << "\";" << endl;
-	outStream << "static const char QT_INSTALL_DATA   [256] = \""
+	outStream << "static const char QT_INSTALL_DATA   [267] = \"qt_datpath="
 		  << QString(dictionary["QT_INSTALL_DATA"]).replace( "\\", "\\\\" )  << "\";" << endl;
 
 	outStream << endl;
-	outStream << "const char *qInstallPath()        { return QT_INSTALL_PREFIX;  }" << endl;
-	outStream << "const char *qInstallPathDocs()    { return QT_INSTALL_DOCS;    }" << endl;
-	outStream << "const char *qInstallPathHeaders() { return QT_INSTALL_HEADERS; }" << endl;
-	outStream << "const char *qInstallPathLibs()    { return QT_INSTALL_LIBS;    }" << endl;
-	outStream << "const char *qInstallPathBins()    { return QT_INSTALL_BINS;    }" << endl;
-	outStream << "const char *qInstallPathPlugins() { return QT_INSTALL_PLUGINS; }" << endl;
-	outStream << "const char *qInstallPathData()    { return QT_INSTALL_DATA;    }" << endl;
+	outStream << "/* strlen( \"qt_xxxpath=\" ) == 11 */" << endl;
+	outStream << "const char *qInstallPath()        { return QT_INSTALL_PREFIX  + 11; }" << endl;
+	outStream << "const char *qInstallPathDocs()    { return QT_INSTALL_DOCS    + 11; }" << endl;
+	outStream << "const char *qInstallPathHeaders() { return QT_INSTALL_HEADERS + 11; }" << endl;
+	outStream << "const char *qInstallPathLibs()    { return QT_INSTALL_LIBS;   + 11; }" << endl;
+	outStream << "const char *qInstallPathBins()    { return QT_INSTALL_BINS    + 11;    }" << endl;
+	outStream << "const char *qInstallPathPlugins() { return QT_INSTALL_PLUGINS + 11; }" << endl;
+	outStream << "const char *qInstallPathData()    { return QT_INSTALL_DATA    + 11;    }" << endl;
 
     	outFile.close();
     }
