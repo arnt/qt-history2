@@ -77,12 +77,16 @@ Section "MainSection" SEC01
   SetOutPath "$INSTDIR"
   SetOverwrite ifnewer
   File /r "%PACKAGEDIR%\*.*"
-  ;strcmp $DISPLAY_US_LICENSE "1" 0 removeUSLicense
-  ;  Delete "$INSTDIR\.LICENSE"
-  ;  goto end
-  ;removeUSLicense:
-  ;  Delete "$INSTDIR\.LICENSE_US"
-  ;end:
+  
+  ;clean up license files
+  strcmp $DISPLAY_US_LICENSE "1" 0 NonUS
+    File /oname=".LICENSE" "%PACKAGEDIR%\.LICENSE-US"
+    goto End
+
+  NonUS:
+    File /oname=".LICENSE" "%PACKAGEDIR%\.LICENSE"
+
+  End:
 SectionEnd
 
 Section -AdditionalIcons
@@ -123,8 +127,22 @@ Function .onInit
 FunctionEnd
 
 Function CheckQtLicense
+  push $0
+  push $1
+  push $2
+  qtnsisext::GetLicenseKey
+  pop $0
+  pop $1
+  pop $2
+  !insertmacro MUI_INSTALLOPTIONS_WRITE "EnterQtLicensePage.ini" "Field 2" "State" "$0"
+  !insertmacro MUI_INSTALLOPTIONS_WRITE "EnterQtLicensePage.ini" "Field 4" "State" "$1"
+  !insertmacro MUI_INSTALLOPTIONS_WRITE "EnterQtLicensePage.ini" "Field 6" "State" "$2"
+
   !insertmacro MUI_HEADER_TEXT "$(LicenseTitle)" "$(LicenseTitleDescription)"
   !insertmacro MUI_INSTALLOPTIONS_DISPLAY "checkqtlicense.ini"
+  pop $2
+  pop $1
+  pop $0
 FunctionEnd
 
 Function SetEnvPage
