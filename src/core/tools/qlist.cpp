@@ -196,23 +196,128 @@ void **QListData::erase(void **xi)
 }
 
 /*! \class QList
-    \brief The QList class is a generic container that provides lists.
+    \brief The QList class is a template class that provides lists.
+
+    \ingroup qtl
+    \ingroup tools
+    \ingroup shared
+    \mainclass
+    \reentrant
 
     QList\<T\> is one of Qt's generic \l{container classes}. It
     stores a list of values and provides fast index-based access as
-    well as fast insertions.
+    well as fast insertions and removals.
 
     QList\<T\>, QLinkedList\<T\>, and QVector\<T\> provide similar
-    functionality.
-    ### time constraints
+    functionality. Here's an overview:
 
-    Here's an example QList that stores QDate values:
+    \list
+    \i For most purposes, QList is the right class to use. Its
+       index-based API is more convenient than QLinkedList's
+       iterator-based API, and it is usually faster than
+       QVector\<T\>, because of the way it stores its items in
+       memory.
+    \i If you need a real linked list, with guaranteed \l{constant
+       time} insertions in the middle of the list and iterators to
+       items rather than indexes, use QLinkedList.
+    \i If you want the items to occupy adjacent memory positions,
+       use QVector.
+    \endlist
+
+    Here's an example of a QList<int> and a QList<QDate>:
 
     \code
-	QList<QDate> list;
+	QList<int> integerList;
+        QList<QDate> dateList;
     \endcode
 
-    ### operator<<()
+    Qt includes a QStringList class that inherits QList\<QString\>
+    and adds a few convenience functions, such as QStringList::join()
+    and QStringList::find().
+
+    QList stores a list of items. The default constructor creates an
+    empty list. To fill the list, you can use operator<<():
+
+    \code
+	QList<QString> list;
+        list << "one" << "two" << "three";
+        // list: [ "one", "two", "three" ]
+    \endcode
+
+    QList provides these basic functions to add, move, and remove
+    items: insert(), replace(), removeAt(), move(), swap(). In
+    addition, it provides the following convenience functions:
+    append(), prepend(), removeFirst(), and removeLast().
+
+    QList uses 0-based indexes, just like C++ arrays. To access the
+    item at a certain index, you can use operator[](). On non-const
+    lists, operator[]() returns a reference to the item and can be
+    used on the left side of an assignment:
+
+    \code
+	if (list[0] == "Bob")
+	    list[0] = "Robert";
+    \endcode
+
+    For read-only access, an alternative syntax is to use at():
+
+    \code
+	for (int i = 0; i < list.size(); ++i) {
+	    if (list.at(i) == "Jane")
+		cout << "Found Jane at index " << i << endl;
+        }
+    \endcode
+
+    For subtle technical reasons, at() is slightly faster than
+    operator[](). We therefore recommend that you use it whenever
+    possible.
+
+    A common requirement is to remove an item from a list and do
+    something with it. For this, QList provides takeAt(),
+    takeFirst(), and takeLast(). Here's a loop that removes the items
+    from a list one at a time and calls \c delete on them:
+    \code
+	QList<QWidget *> list;
+        ...
+        while (!list.isEmpty())
+	    delete list.takeFirst();
+    \endcode
+
+    If you want to find all occurrences of a certain value in a list,
+    you can use indexOf() or lastIndexOf(). The former searches
+    forward starting from a certain index, the latter searches
+    backward. Both return the index of a matching item if they find
+    it; otherwise, they return -1. For example:
+
+    \code
+	int i = list.indexOf("Jane");
+        if (i != -1)
+	    cout << "First occurrence of Jane at index " << i << endl;
+    \endcode
+
+    If you simply want to check whether a list contains a certain
+    value, use contains(). If you want to find out how many times a
+    certain value occurs in the list, use count(). If you want to
+    replace all occurrences of a certain value with another, use
+    replace().
+
+    QList's value type must be an \l{assignable data type}. This
+    covers most data types you are likely to encounter, but the
+    compiler won't let you, for example, store a QWidget as a value;
+    instead, store a QWidget *. Some individual functions have
+    additional requirements; for example, indexOf() and lastIndexOf()
+    expect the value type to support \c operator==(). These
+    requirements are documented on a per-function basis.
+
+    Like the other container classes, QList provides \l{Java-style
+    iterators} (QListIterator and QListMutableIterator) and
+    \l{STL-style iterators} (QList::const_iterator and
+    QList::iterator). In practice, these are rarely used, because
+    you can use indexes into the QList. QList is implemented in such
+    a way that direct index-based access is as fast as using
+    iterators.
+
+    \sa QListIterator, QListMutableIterator, QLinkedList, QVector
 */
 
 /*! \fn QList::QList()
@@ -242,10 +347,6 @@ void **QListData::erase(void **xi)
 
     Assigns \a other to this list and returns a reference to this
     list.
-
-    This operation occurs in \l{constant time}, because QList is
-    \l{implicitly shared}.
-### Jasmin: presumably this list's contents are destroyed first?
 */
 
 /*! \fn bool QList::operator==(const QList &other) const
@@ -663,7 +764,7 @@ void **QListData::erase(void **xi)
     Returns a reference to the first item in the list. This function
     assumes that the list isn't empty.
 
-    \sa last()
+    \sa last(), isEmpty()
 */
 
 /*! \fn const T& QList::first() const
@@ -676,7 +777,7 @@ void **QListData::erase(void **xi)
     Returns a reference to the last item in the list. This function
     assumes that the list isn't empty.
 
-    \sa first()
+    \sa first(), isEmpty()
 */
 
 /*! \fn const T& QList::last() const
@@ -857,13 +958,6 @@ void **QListData::erase(void **xi)
         for (i = list.begin(); i != list.end(); ++i)
 	    *i += 2;
     \endcode
-
-### Jasmin: Presume you're working from here
-    QList::iterator and the other iterator clas
-
-    For QList, we recommend that you use QList::at() and QList::replace()
-    to acce
-### to here?
 
     Most QList functions accept an integer index rather than an
     iterator. For that reason, iterators are rarely useful in
