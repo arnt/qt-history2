@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdatabase.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qfontdatabase.cpp#21 $
 **
 ** Implementation of font database class.
 **
@@ -33,6 +33,9 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+#ifdef _WS_MAC_
+extern int qFontGetWeight( const QCString &weightString, bool adjustScore=FALSE );
+#endif
 
 #ifdef _WS_X11_
 #include "qt_x11.h"
