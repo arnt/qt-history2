@@ -2657,7 +2657,7 @@ void QTextEdit::formatMore()
     bool firstVisible = FALSE;
     QRect cr( contentsX(), contentsY(), visibleWidth(), visibleHeight() );
     for ( int i = 0; lastFormatted &&
-		  ( i < to || ( firstVisible && lastBottom > contentsY()+visibleHeight() ) );
+	  ( i < to || ( firstVisible && lastBottom > contentsY()+height() ) );
 	  i++ ) {
 	lastFormatted->format();
 	if ( i == 0 )
