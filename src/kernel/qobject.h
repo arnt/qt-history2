@@ -170,7 +170,7 @@ protected:
     explicit QObject(QObjectPrivate *d, QObject *parent, const char *name);
 private:
     explicit QObject(QWidgetPrivate *d, QObject *parent, const char *name);
-    void setParent_helper(QObject *);
+    virtual void setParent_helper(QObject *);
     uint isSignal : 1;
     uint isWidget : 1;
     uint pendTimer : 1;

@@ -4078,6 +4078,18 @@ bool QWidget::event( QEvent *e )
 	    unsetPalette();
 	break;
 
+    case QEvent::Polish:
+	if ( !ownFont() && !QApplication::font(this).isCopyOf(QApplication::font()))
+	    unsetFont();
+#ifndef QT_NO_PALETTE
+	if ( !ownPalette() && !QApplication::palette(this).isCopyOf(QApplication::palette()))
+	    unsetPalette();
+#endif
+	qApp->polish(this);
+#ifndef QT_NO_COMPAT
+	QApplication::sendPostedEvents( this, QEvent::ChildInserted );
+#endif
+
     case QEvent::ActivationChange:
     case QEvent::EnabledChange:
     case QEvent::FontChange:
@@ -5058,7 +5070,22 @@ void QWidget::updateGeometry()
 }
 
 
-/*!
+
+/*! 
+    \internal
+ */
+void QWidget::setParent_helper(QObject *parent)
+{
+    if (parent && !parent->isWidget) {
+	qWarning("QWidget::setParent: Cannot reparent a widget into an object.");
+	return;
+    }
+    setParent( (QWidget*)parent, getWFlags() & ~WType_Mask);
+}
+
+
+/*! \fn void QWidget::setParent(QWidget *parent) 
+
     Sets the parent of the widget to \a parent. The widget is moved
     to position (0,0) in its new parent.
 
@@ -5079,15 +5106,6 @@ void QWidget::updateGeometry()
     QWizard.
 
 */
-
-
-void QWidget::setParent(QWidget *parent)
-{
-    setParent( parent, getWFlags() & ~WType_Mask);
-}
-
-
-
 
 /*!
     \overload

@@ -711,22 +711,6 @@ void QObject::ensurePolished() const
 	return;
     d->polished = m;
 
-    if (isWidget) {
-	QWidget *w = (QWidget*)this;
-	if ( !w->ownFont()
-	     && !QApplication::font(w).isCopyOf(QApplication::font()))
-	    w->unsetFont();
-#ifndef QT_NO_PALETTE
-	if ( !w->ownPalette()
-	     && !QApplication::palette(w).isCopyOf(QApplication::palette()))
-	    w->unsetPalette();
-#endif
-	qApp->polish(w);
-#ifndef QT_NO_COMPAT
-	QApplication::sendPostedEvents( w, QEvent::ChildInserted );
-#endif
-    }
-
     QEvent e(QEvent::Polish);
     QApplication::sendEvent((QObject*)this, &e);
     if (parentObj) {
@@ -1079,16 +1063,7 @@ QObjectList QObject::queryList( const char *inheritsClass,
 
 void QObject::setParent(QObject *parent)
 {
-    if (isWidget) {
-	if (parent && !parent->isWidget) {
-	    qWarning("QObject::setParent: Cannot reparent a widget into an object.");
-	    return;
-	}
-	// DIY virtual table:
-	static_cast<QWidget*>(this)->setParent(static_cast<QWidget*>(parent));
-    } else {
-	setParent_helper(parent);
-    }
+    setParent_helper(parent);
 }
 
 
