@@ -312,15 +312,18 @@ void QGenericTreeView::open(const QModelIndex &item)
   Closes the model item specified by the \a index.
 */
 
-void QGenericTreeView::close(const QModelIndex &item)
+void QGenericTreeView::close(const QModelIndex &index)
 {
-    if (!item.isValid())
+    if (!index.isValid())
         return;
-    int idx = d->viewIndex(item);
-    if (idx > -1) // is visible
+    int idx = d->viewIndex(index);
+    if (idx > -1) { // is visible
         d->close(idx, true);
-    else
-        d->opened.remove(d->opened.indexOf(item));
+    } else {
+        idx = d->opened.indexOf(index);
+        if (idx > -1)
+            d->opened.remove(idx);
+    }
 }
 
 /*!
@@ -330,9 +333,9 @@ void QGenericTreeView::close(const QModelIndex &item)
   false.
 */
 
-bool QGenericTreeView::isOpen(const QModelIndex &item) const
+bool QGenericTreeView::isOpen(const QModelIndex &index) const
 {
-    return d->opened.contains(item);
+    return d->opened.contains(index);
 }
 
 /*!
@@ -914,6 +917,9 @@ void QGenericTreeView::rowsInserted(const QModelIndex &parent, int, int)
   inclusive have been removed from the given \a parent model item.*/
 void QGenericTreeView::rowsRemoved(const QModelIndex &parent, int start, int end)
 {
+    if (d->items.isEmpty())
+        return;
+
     for (int i = start; i <= end; ++i) {
         QModelIndex idx = model()->index(i, 0, parent);
         close(model()->index(i, 0, parent));
