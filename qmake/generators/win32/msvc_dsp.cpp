@@ -893,5 +893,5 @@ DspMakefileGenerator::endGroups(QTextStream &t)
 	t << "\n# End Group\n";
     }
     currentGroup = "";
-    return -dirs.count();
+    return dirs.count();
 }
