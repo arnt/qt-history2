@@ -37,7 +37,6 @@ HEADERS     =	dialogs/qfiledlg.h \
 		kernel/qpntarry.h \
 		kernel/qpoint.h \
 		kernel/qprinter.h \
-		kernel/qpsprn.h \
 		kernel/qrect.h \
 		kernel/qregion.h \
 		kernel/qsignal.h \
@@ -138,7 +137,6 @@ SOURCES     =	dialogs/qfiledlg.cpp \
 		kernel/qpoint.cpp \
 		kernel/qprinter.cpp \
 		kernel/qprn_win.cpp \
-		kernel/qpsprn.cpp \
 		kernel/qptd_win.cpp \
 		kernel/qptr_win.cpp \
 		kernel/qrect.cpp \
