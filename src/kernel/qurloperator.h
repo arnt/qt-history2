@@ -70,6 +70,8 @@ public:
     QUrlOperator& operator=( const QUrlOperator &url );
     QUrlOperator& operator=( const QString &url );
 
+    virtual void stop();
+    
 signals:
     void newChild( const QUrlInfo &, QNetworkOperation *res );
     void finished( QNetworkOperation *res );
@@ -80,7 +82,8 @@ signals:
     void data( const QByteArray &, QNetworkOperation *res );
     void dataTransferProgress( int bytesDone, int bytesTotal, QNetworkOperation *res );
     void startedNextCopy( const QList<QNetworkOperation> &lst );
-    
+    void connectionStateChanged( int state, const QString &data );
+
 protected:
     virtual void reset();
     virtual bool parse( const QString& url );

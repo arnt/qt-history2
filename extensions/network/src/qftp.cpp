@@ -734,7 +734,6 @@ void QFtp::dataConnected()
 
 void QFtp::dataClosed()
 {
-    emit connectionStateChanged( ConClosed, tr( "Connection closed" ) );
     // switch back to ASCII mode
     commandSocket->writeBlock( "TYPE A\r\n", 8 );
 

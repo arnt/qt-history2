@@ -324,6 +324,8 @@ QNetworkProtocol::QNetworkProtocol()
 		 url(), SIGNAL( itemChanged( QNetworkOperation * ) ) );
 	connect( this, SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ),
 		 url(), SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ) );
+	connect( this, SIGNAL( connectionStateChanged( int, const QString & ) ),
+		 url(), SIGNAL( connectionStateChanged( int, const QString & ) ) );
     }
 
     connect( this, SIGNAL( finished( QNetworkOperation * ) ),
@@ -379,6 +381,8 @@ void QNetworkProtocol::setUrl( QUrlOperator *u )
 		    url(), SIGNAL( itemChanged( QNetworkOperation * ) ) );
 	disconnect( this, SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ),
 		    url(), SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ) );
+	disconnect( this, SIGNAL( connectionStateChanged( int, const QString & ) ),
+		    url(), SIGNAL( connectionStateChanged( int, const QString & ) ) );
     }
 
     d->url = u;
@@ -402,6 +406,8 @@ void QNetworkProtocol::setUrl( QUrlOperator *u )
 		 url(), SIGNAL( itemChanged( QNetworkOperation * ) ) );
 	connect( this, SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ),
 		 url(), SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ) );
+	connect( this, SIGNAL( connectionStateChanged( int, const QString & ) ),
+		 url(), SIGNAL( connectionStateChanged( int, const QString & ) ) );
     }
 
     if ( !d->opInProgress && !d->operationQueue.isEmpty() )

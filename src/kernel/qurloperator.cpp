@@ -37,7 +37,7 @@ struct QUrlOperatorPrivate
     QNetworkProtocol *networkProtocol;
     QString nameFilter;
     QDir dir;
-    
+
     // maps needed for copy/move operations
     QPtrDict<QNetworkOperation> getOpPutOpMap;
     QPtrDict<QNetworkProtocol> getOpPutProtMap;
@@ -195,11 +195,24 @@ struct QUrlOperatorPrivate
 
 /*!
   \fn void QUrlOperator::startedNextCopy( const QList<QNetworkOperation> &lst )
-  
+
   This signal is emitted if copy() started a new copy opration. \a lst contains all
   QNetworkOperations which describe this copy operation.
-  
+
   \sa copy()
+*/
+
+/*!
+  \fn void QUrlOperator::connectionStateChanged( int state, const QString &data )
+
+  This signal is emitted whenever the state of the connection of
+  the network protocol of the url operator is changed. \a state describes the new state,
+  which is one of
+      QNetworkProtocol::ConHostFound,
+      QNetworkProtocol::ConConnected,
+      QNetworkProtocol::ConClosed
+  This enum is defined in QNetworkProtocol
+  \a data is a message text.
 */
 
 /*!
@@ -562,7 +575,7 @@ QList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QString 
 /*!
   Copies \a files to the directory \a dest. If \a move is TRUE,
   the files are moved and not copied. \a dest has to point to a directory.
-  
+
   This method is just a convenience function of the copy method above. It
   calles the copy above for each entry in \a files one after the other. You
   don't get a result from this method, but each time a new copy is started,
@@ -1010,9 +1023,25 @@ void QUrlOperator::finishedCopy()
 {
     if ( d->waitingCopies.isEmpty() )
 	return;
-    
+
     QString cp = d->waitingCopies.first();
     d->waitingCopies.remove( cp );
     QList<QNetworkOperation> lst = copy( cp, d->waitingCopiesDest, d->waitingCopiesMove );
     emit startedNextCopy( lst );
+}
+
+/*!
+  Stops the current network operation which is just processed and 
+  removes all waiting network operations of this QUrlOperator.
+*/
+
+void QUrlOperator::stop()
+{
+    d->getOpPutOpMap.clear();
+    d->getOpPutProtMap.clear();
+    d->getOpGetProtMap.clear();
+    d->getOpRemoveOpMap.clear();
+    d->waitingCopies.clear();
+    deleteNetworkProtocol();
+    getNetworkProtocol();
 }
