@@ -442,7 +442,7 @@ QMakeProject::read(QTextStream &file, QMap<QString, QStringList> &place)
 
 	int hash_mark = line.find("#");
 	if(hash_mark != -1) //good bye comments
-	    line = line.left(hash_mark);
+	    line = line.left(hash_mark).stripWhiteSpace();
 	if(!line.isEmpty() && line.right(1) == "\\") {
 	    if (!line.startsWith("#")) {
 		line.truncate(line.length() - 1);
