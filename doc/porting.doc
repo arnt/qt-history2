@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.15 1999/01/15 15:25:08 ettrich Exp $
+** $Id: porting.doc,v 1.16 1999/01/15 16:21:51 warwick Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -64,6 +64,14 @@ need any change.
 QApplication::setColorSpec()
 PrivateColor and TrueColor are obsolete.  Use ManyColor.
 
+
+<h3>QColor</h3>
+
+<p>
+All colors (red, white, blue, black, color0, etc.) are in the Qt namespace.
+In members of classes that inherit the Qt namespace-class (eg. QWidget
+subclasses), you can use the unqualified names as usual, but in global
+functions (eg. main()), you need to qualify them:  Qt::red, Qt::white, etc.
 
 <h3>QRegion</h3>
 
