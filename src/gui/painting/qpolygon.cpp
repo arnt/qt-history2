@@ -99,15 +99,13 @@ const qReal Q_PI = qReal(3.14159265358979323846);
 
 QPolygon::QPolygon(const QRect &r, bool closed)
 {
-    setPoints(4,
-              r.x(),  r.y(),
-              r.x() + r.width(), r.y(),
-              r.x() + r.width(), r.y() + r.height(),
-              r.x(),  r.y() + r.height());
-    if (closed) {
-        resize(5);
-        setPoint(4, r.left(), r.top());
-    }
+    reserve(closed ? 5 : 4);
+    *this << QPoint(r.x(), r.y())
+          << QPoint(r.x() + r.width(), r.y())
+          << QPoint(r.x() + r.width(), r.y() + r.height())
+          << QPoint(r.x(), r.y() + r.height());
+    if (closed)
+        *this << QPoint(r.left(), r.top());
 }
 
 /*!
