@@ -3469,17 +3469,19 @@ void QTable::contentsMousePressEventEx( QMouseEvent* e )
 	if ( selMode != NoSelection ) {
 	    if ( selMode == Single || selMode == SingleRow && !isSelected( tmpRow, tmpCol, FALSE ) )
 		clearSelection();
-	    currentSel = new QTableSelection();
-	    selections.append( currentSel );
-	    if ( !isRowSelection( selectionMode() ) ) {
-		currentSel->init( tmpRow, tmpCol );
-		currentSel->expandTo( tmpRow, tmpCol );
-	    } else {
-		currentSel->init( tmpRow, 0 );
-		currentSel->expandTo( tmpRow, numCols() - 1 );
-		repaintSelections( 0, currentSel );
+	    if ( !(selMode == SingleRow && isSelected( tmpRow, tmpCol, FALSE )) ) {
+		currentSel = new QTableSelection();
+		selections.append( currentSel );
+		if ( !isRowSelection( selectionMode() ) ) {
+		    currentSel->init( tmpRow, tmpCol );
+		    currentSel->expandTo( tmpRow, tmpCol );
+		} else {
+		    currentSel->init( tmpRow, 0 );
+		    currentSel->expandTo( tmpRow, numCols() - 1 );
+		    repaintSelections( 0, currentSel );
+		}
+		emit selectionChanged();
 	    }
-	    emit selectionChanged();
 	}
 	setCurrentCell( tmpRow, tmpCol, FALSE );
     } else {
