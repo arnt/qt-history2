@@ -148,13 +148,6 @@ QFilePrivate::openExternalFile(int flags, int fd)
 */
 
 /*!
-    \fn Q_LONG QFile::writeBlock(const QByteArray& data)
-
-    \overload
-*/
-
-
-/*!
     Constructs a QFile with no name.
 */
 QFile::QFile() : QIODevice(*new QFilePrivate)
@@ -225,6 +218,15 @@ QFile::setFileName(const QString &name)
         d->fileEngine->setFileName(name);
     d->fileName = name;
 }
+
+/*!
+    \fn QString QFile::decodeName(const char *localFileName)
+
+    \overload
+
+    Returns the Unicode version of the given \a localFileName. See
+    encodeName() for details.
+*/
 
 /*!
     When you use QFile, QFileInfo, and QDir to access the file system
@@ -408,7 +410,7 @@ QFile::rename(const QString &newName)
     \overload
 
     Renames the file \a oldName to \a newName. Returns true if
-    successful, otherwise false.
+    successful; otherwise returns false.
 
     \sa rename()
 */
@@ -421,30 +423,31 @@ QFile::rename(const QString &oldName, const QString &newName)
 
 /*!
     \overload
-  Opens a file in the mode \a m using an existing file handle \a f.
-  Returns true if successful, otherwise false.
 
-  Example:
-  \code
-    #include <stdio.h>
+    Opens the existing file handle \a fh with the given \a mode.
+    Returns true if successful; otherwise returns false.
 
-    void printError(const char* msg)
-    {
-        QFile f;
-        f.open(QIODevice::WriteOnly, stderr);
-        f.writeBlock(msg, qstrlen(msg));        // write to stderr
-        f.close();
-    }
-  \endcode
+    Example:
+    \code
+        #include <stdio.h>
 
-  When a QFile is opened using this function, close() does not actually
-  close the file, only flushes it.
+        void printError(const char* msg)
+        {
+            QFile file;
+            file.open(QIODevice::WriteOnly, stderr);
+            file.writeBlock(msg, qstrlen(msg));        // write to stderr
+            file.close();
+        }
+    \endcode
 
-  \warning If \a f is \c stdin, \c stdout, \c stderr, you may not
-  be able to seek.  See QIODevice::isSequentialAccess() for more
-  information.
+    When a QFile is opened using this function, close() does not actually
+    close the file, only flushes it.
 
-  \sa close()
+    \warning If \a fh is \c stdin, \c stdout, \c stderr, you may not be
+    able to seek(). See QIODevice::isSequentialAccess() for more
+    information.
+
+    \sa close()
 */
 
 bool
@@ -455,21 +458,23 @@ QFile::open(int mode, FILE *fh)
 
 /*!
     \overload
-  Opens a file in the mode \a m using an existing file descriptor \a f.
-  Returns true if successful, otherwise false.
 
-  When a QFile is opened using this function, close() does not actually
-  close the file.
+    Opens the existing file descripter \a fd with the given \a mode.
+    Returns true if successful; otherwise returns false.
 
-  The QFile that is opened using this function, is automatically set to be in
-  raw mode; this means that the file input/output functions are slow. If you
-  run into performance issues, you should try to use one of the other open
-  functions.
+    When a QFile is opened using this function, close() does not
+    actually close the file.
 
-  \warning If \a f is one of 0 (stdin), 1 (stdout) or 2 (stderr), you may not
-  be able to seek. size() is set to \c LLONG_MAX (in limits.h).
+    The QFile that is opened using this function is automatically set
+    to be in raw mode; this means that the file input/output functions
+    are slow. If you run into performance issues, you should try to
+    use one of the other open functions.
 
-  \sa close()
+    \warning If \a fd is one of 0 (stdin), 1 (stdout) or 2 (stderr),
+    you may not be able to seek(). size() is set to \c LLONG_MAX (in
+    \c limits.h).
+
+    \sa close()
 */
 
 bool
@@ -500,8 +505,6 @@ QFile::open(int mode, int fd)
 
 
 /*!
-    \overload
-
     Reads a line of text.
 
     Reads bytes from the file into string \a s, until end-of-line or
