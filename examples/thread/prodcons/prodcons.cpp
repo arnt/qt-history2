@@ -1,4 +1,6 @@
 #include <qthread.h>
+#include <qwaitcondition.h>
+#include <qmutex.h>
 #include <qapplication.h>
 #include <qwidget.h>
 #include <qpushbutton.h>
