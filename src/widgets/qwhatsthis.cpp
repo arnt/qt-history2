@@ -237,6 +237,7 @@ QWhatsThisPrivate::Button::Button( QWidget * parent, const char * name )
     setToggleButton( TRUE );
     setAutoRaise( TRUE );
     setFocusPolicy( NoFocus );
+    setTextLabel( tr( "What's this?" ) );
     wt->buttons->insert( (void *)this, this );
 }
 
