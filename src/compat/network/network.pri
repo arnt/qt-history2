@@ -3,7 +3,6 @@
 HEADERS +=      network/q3dns.h \
                 network/q3socket.h \
                 network/q3socketdevice.h \
-                network/q3socketdevice_p.h \
                 network/q3serversocket.h
 
 SOURCES +=      network/q3dns.cpp \
