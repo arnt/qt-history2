@@ -7,23 +7,23 @@ static bool attachTypeLibrary( const QString &applicationName, char *resourceNam
     HANDLE hExe = BeginUpdateResourceA( applicationName.latin1(), FALSE );
     if ( hExe == 0 ) {
 	if ( errorMessage )
-	    *errorMessage = QString("Could not load the executable %1.").arg(applicationName);
+	    *errorMessage = QString("Failed to attach type library to binary %1 - could not open file.").arg(applicationName);
 	return FALSE;
     }
     if ( !UpdateResourceA(hExe,(char*)"TYPELIB",resourceName,0,data.data(),data.count()) ) {
 	EndUpdateResource( hExe, TRUE );
 	if ( errorMessage )
-	    *errorMessage = QString("Could not update the executable %1.").arg(applicationName);
+	    *errorMessage = QString("Failed to attach type library to binary %1 - could not update file.").arg(applicationName);
 	return FALSE;
     }
     if ( !EndUpdateResource(hExe,FALSE) ) {
 	if ( errorMessage )
-	    *errorMessage = QString("Could not update the executable %1.").arg(applicationName);
+	    *errorMessage = QString("Failed to attach type library to binary %1 - could not write file.").arg(applicationName);
 	return FALSE;
     }
 
     if ( errorMessage )
-	*errorMessage = QString("Updated the executable %1.").arg(applicationName);
+	*errorMessage = QString("Type library attached to %1.").arg(applicationName);
     return TRUE;
 }
 
@@ -67,6 +67,9 @@ int main( int argc, char **argv )
 	    else
 		version = argv[i];
 	} else if ( p == "/tlb" || p == "-tlb" ) {
+	    if ( qWinVersion() & Qt::WV_DOS_based )
+		qFatal( "IDC requires Windows NT/2000/XP!" );
+
 	    ++i;
 	    if ( i > argc ) {
 		error = "Missing name for type library file!";
@@ -86,7 +89,7 @@ int main( int argc, char **argv )
 	}
 	i++;
     }
-    if ( error ) {
+    if ( !error.isEmpty() ) {
 	qFatal( error.latin1() );
 	return -1;
     }
@@ -111,7 +114,7 @@ int main( int argc, char **argv )
 	QByteArray data = file.readAll();
 	QString error;
 	bool ok = attachTypeLibrary( input, MAKEINTRESOURCE(1), data, &error );
-	qDebug( error );
+	qWarning( error );
 	return ok ? 0 : -1;
     } else if ( idlfile ) {
 	slashify( idlfile );
@@ -126,8 +129,10 @@ int main( int argc, char **argv )
 	    qFatal( "Couldn't resolve 'DumpIDL' symbol in %s", input.local8Bit() );
 	    return 3;
 	}
-	DumpIDL( idlfile, version );
+	HRESULT res = DumpIDL( idlfile, version );
 	FreeLibrary( hdll );
+	if ( res != S_OK )
+	    qFatal( "Error writing IDL from %s", input.local8Bit() );
     }
     return 0;
 }
