@@ -372,7 +372,7 @@ bool QScreenCursor::restoreUnder( const QRect &r, QGfxRasterBase *g )
 		{
 		    memcpy(dest, src, bytes);
 		    src += srcLineStep;
-		    dest += linestep;	
+		    dest += linestep;
 		}
 	    }
 	}
@@ -803,6 +803,8 @@ QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h) :
     clipcursor = 0;
     clipDirty = FALSE;
 
+    penx=0;
+    peny=0;
     alphatype=IgnoreAlpha;
     alphabuf = 0;
     ismasking=FALSE;
@@ -3527,7 +3529,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 #endif
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
 		  }
-#endif		
+#endif
 		myptr++;
 	      } else {
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
@@ -3540,7 +3542,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 #endif
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
 		  }
-#endif		
+#endif
 		myptr++;
 	      }
 	    }
@@ -3557,7 +3559,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 #endif
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
 		}
-#endif		
+#endif
 		if(myrop==XorROP) {
 		  *((PackType*)myptr) ^= dput;
 		} else if(myrop==NotROP) {
@@ -3606,7 +3608,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 #endif
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
 		  }
-#endif		
+#endif
 		myptr++;
 	      } else {
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
@@ -3619,7 +3621,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 #endif
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
 		  }
-#endif		
+#endif
 		myptr++;
 	      }
 	    }
@@ -3641,10 +3643,10 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 			} else if(myrop==NotROP) {
 			    *((((unsigned long)myptr) & 0x1) ?
 			      myptr-1 : myptr+1)= ~(*((((unsigned long)myptr)
-	      			& 0x1) ? myptr-1 : myptr+1));		
+	      			& 0x1) ? myptr-1 : myptr+1));
 			} else {
 			    *((((unsigned long)myptr) & 0x1) ?
-			      myptr-1 : myptr+1)=gv;			
+			      myptr-1 : myptr+1)=gv;
 			}
 		    } else {
 #else
@@ -4873,7 +4875,7 @@ void QGfxRaster<depth,type>::drawPolyline( const QPointArray &a,int index, int n
 #else
     GFX_START(clipbounds)
 #endif
-	
+
     if((*gfx_optype))
 	sync();
     (*gfx_optype)=0;
