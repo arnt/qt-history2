@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/tabdialog/tabdialog.cpp#1 $
+** $Id: //depot/qt/main/examples/tabdialog/tabdialog.cpp#2 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -93,7 +93,8 @@ void TabDialog::setupTab3()
 {
     QVBox *tab3 = new QVBox( this );
     tab3->setMargin( 5 );
-
+    tab3->setSpacing( 5 );
+    
     (void)new QLabel( QString( "Open %1 with:" ).arg( filename ), tab3 );
 
     QListBox *prgs = new QListBox( tab3 );
