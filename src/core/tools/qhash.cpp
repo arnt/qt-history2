@@ -892,21 +892,21 @@ void QHashData::free()
 
     QHash provides both \l{STL-style iterators} and \l{Java-style
     iterators}. The STL-style iterators are more low-level and more
-    cumbersome to use; in exchange, they are slightly faster and, for
-    developers who already know STL, have the advantage of
+    cumbersome to use; but on the other hand, they are slightly faster
+    and, for developers who already know STL, have the advantage of
     familiarity.
 
     QHash::iterator allows you to iterate over a QHash and to modify
-    the value (but not the key) stored in a hash. If you want to
-    iterate over a const QHash, you need to use
-    QHash::const_iterator. It is generally a good practice to use
+    the value (but not the key) stored under a particular key. If you
+    want to iterate over a const QHash, you should use
+    QHash::const_iterator. It is generally good practice to use
     QHash::const_iterator on a non-const QHash as well, unless you
-    change the QHash through the iterator. This will result in
-    slightly faster code and in increased code readability.
+    need to change the QHash through the iterator. Const iterators are
+    slightly faster, and can improve code readability.
 
     The default QHash::iterator constructor creates an uninitialized
     iterator. You must initialize it using a QHash function like
-    QHash::begin(), QHash::end(), and QHash::find() before you can
+    QHash::begin(), QHash::end(), or QHash::find() before you can
     start iterating. Here's a typical loop that prints all the (key,
     value) pairs stored in a hash:
 
@@ -923,10 +923,10 @@ void QHashData::free()
     \endcode
 
     Unlike QMap, which orders its items by key, QHash stores its
-    items in an apparently random order. The only guarantee is that
-    items that share the same key (because they were inserted using
+    items in an arbitrary order. The only guarantee is that items that
+    share the same key (because they were inserted using
     QHash::insertMulti()) will appear consecutively, from the most
-    recently to the less recently inserted value.
+    recently to the least recently inserted value.
 
     Let's see a few examples of things we can do with a
     QHash::iterator that we cannot do with a QHash::const_iterator.
@@ -954,10 +954,10 @@ void QHashData::free()
 
     The call to QHash::erase() removes the item pointed to by the
     iterator from the hash, and returns an iterator to the next item.
-    Here's another correct way of removing an item while iterating:
+    Here's another way of removing an item while iterating:
 
     \code
-	QHash<QString, int>::iterator i;
+	QHash<QString, int>::iterator i = hash.begin();
         while (i != hash.end()) {
 	    QHash<QString, int>::iterator prev = i;
 	    ++i;
@@ -982,13 +982,13 @@ void QHashData::free()
 
     Multiple iterators can be used on the same hash. However, be
     aware that any modification performed directly on the QHash has
-    the potential of changing the order in which the items are stored
-    in the hash drastically, as they might cause QHash to rehash its
-    internal data structure. There is one notable exception:
+    the potential of dramatically changing the order in which the
+    items are stored in the hash, as they might cause QHash to rehash
+    its internal data structure. There is one notable exception:
     QHash::erase(). This function can safely be called while
-    iterating, and won't affect the order of items in the hash. If
-    you need to keep iterators over a long period of time, we
-    recommend that you use QMap rather than QHash.
+    iterating, and won't affect the order of items in the hash. If you
+    need to keep iterators over a long period of time, we recommend
+    that you use QMap rather than QHash.
 
     \sa QHash::const_iterator, QHashMutableIterator
 */
@@ -1101,20 +1101,20 @@ void QHashData::free()
 
     QHash provides both \l{STL-style iterators} and \l{Java-style
     iterators}. The STL-style iterators are more low-level and more
-    cumbersome to use; in exchange, they are slightly faster and, for
-    developers who already know STL, have the advantage of
+    cumbersome to use; but on the other hand, they are slightly faster
+    and, for developers who already know STL, have the advantage of
     familiarity.
 
     QHash::const_iterator allows you to iterate over a QHash. If you
     want to modify the QHash as you iterate over it, you must use
-    QHash::iterator instead. It is generally a good practice to use
+    QHash::iterator instead. It is generally good practice to use
     QHash::const_iterator on a non-const QHash as well, unless you
-    change the QHash through the iterator. This will result in
-    slightly faster code and in increased code readability.
+    need to change the QHash through the iterator. Const iterators are
+    slightly faster, and can improve code readability.
 
     The default QHash::const_iterator constructor creates an
     uninitialized iterator. You must initialize it using a QHash
-    function like QHash::constBegin(), QHash::constEnd(), and
+    function like QHash::constBegin(), QHash::constEnd(), or
     QHash::find() before you can start iterating. Here's a typical
     loop that prints all the (key, value) pairs stored in a hash:
 
@@ -1126,23 +1126,22 @@ void QHashData::free()
         hash.insert("December", 12);
 
         QHash<QString, int>::const_iterator i;
-        for (i = hash.begin(); i != hash.end(); ++i)
+        for (i = hash.constBegin(); i != hash.constEnd(); ++i)
 	    cout << i.key() << ": " << i.value() << endl;
     \endcode
 
     Unlike QMap, which orders its items by key, QHash stores its
-    items in an apparently random order. The only guarantee is that
-    items that share the same key (because they were inserted using
+    items in an arbitrary order. The only guarantee is that items that
+    share the same key (because they were inserted using
     QHash::insertMulti()) will appear consecutively, from the most
-    recently to the less recently inserted value.
+    recently to the least recently inserted value.
 
-    Multiple iterators can be used on the same hash. However, be
-    aware that any modification performed directly on the QHash has
-    the potential of changing the order in which the items are stored
-    in the hash drastically, as they might cause QHash to rehash its
-    internal data structure. If you need to keep iterators over a
-    long period of time, we recommend that you use QMap rather than
-    QHash.
+    Multiple iterators can be used on the same hash. However, be aware
+    that any modification performed directly on the QHash has the
+    potential of dramatically changing the order in which the items
+    are stored in the hash, as they might cause QHash to rehash its
+    internal data structure. If you need to keep iterators over a long
+    period of time, we recommend that you use QMap rather than QHash.
 
     \sa QHash::iterator, QHashIterator
 */
