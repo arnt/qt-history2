@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#80 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#81 $
 **
 ** Definition of QIconView widget class
 **
@@ -1859,20 +1859,17 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 
 void QIconView::orderItemsInGrid()
 {
-    int w = 0, h = 0, y = d->spacing;
-
-//     resizeContents( viewport()->width(), viewport()->height() );
-//     QIconViewItem *item = d->firstItem;
-//     for ( ; item; item = item->next ) {
-// 	insertInGrid( item );
-// 	w = QMAX( w, item->x() + item->width() );
-// 	h = QMAX( h, item->y() + item->height() );
-//     }
+    int w = 0, y = d->spacing;
 
     QIconViewItem *item = d->firstItem;
-    while ( item && item != d->lastItem ) { 
+    while ( item ) {
 	item = makeRowLayout( item, y );
-	w = QMAX( w, item->x() + item->width() ); 
+	w = QMAX( w, item->x() + item->width() );
+
+	if ( !item || !item->next )
+	    break;
+
+	item = item->next;
     }
     resizeContents( w, d->lastItem->y() + d->lastItem->height() );
     d->dirty = FALSE;
@@ -3325,10 +3322,10 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 		h = QMAX( h, item->height() );
 	    }
 	    end = item;
-	    
+	
 	    if ( d->rastY != -1 )
 		h = QMAX( h, d->rastY );
-	    
+	
 	    // now move the items
 	    item = begin;
 	    while ( TRUE ) {
@@ -3348,45 +3345,31 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 	    QIconViewItem *item = begin;
 	    int i = 0;
 	    int sp = 0;
-// 	    while ( TRUE ) {
-// 		int r = item->width() / d->rastX + 1;
-// 		if ( item == begin ) {
-// 		    i += r;
-// 		    sp += r;
-// 		    x = d->spacing;
-// 		} else {
-// 		    sp += r;
-// 		    x = i * d->rastX + sp * d->spacing;
-// 		    i += r;
-// 		}
-// 		if ( x + item->width() > visibleWidth() ) {
-//  		    if ( item != begin )
-//  			item = item->prev;
-// 		    break;
-// 		}
-// 		h = QMAX( h, item->height() );
-// 		QIconViewItem *old = item;
-// 		item = item->next;
-// 		if ( !item ) {
-// 		    item = old;
-// 		    break;
-// 		}
-// 	    }
 	    while ( TRUE ) {
-		if ( item->next ) {
-		    int r = item->next->width() / d->rastX + 1;
-		    if ( d->rastX * r + r * d->spacing + x > visibleWidth() )
-			break;
-		} else if ( !item->next )
+		int r = calcGridNum( item->width(), d->rastX );
+		if ( item == begin ) {
+		    i += r;
+		    sp += r;
+		    x = d->spacing + d->rastX * r;
+		} else {
+		    sp += r;
+		    i += r;
+		    x = i * d->rastX + sp * d->spacing;
+		}
+		if ( x > visibleWidth() && item != begin ) {
+		    item = item->prev;
 		    break;
-		
-		int r = item->width() / d->rastX + 1;
-		x += r * d->rastX + r * d->spacing;
-		item = item->next;
+		}
 		h = QMAX( h, item->height() );
+		QIconViewItem *old = item;
+		item = item->next;
+		if ( !item ) {
+		    item = old;
+		    break;
+		}
 	    }
 	    end = item;
-	    
+	
 	    if ( d->rastY != -1 )
 		h = QMAX( h, d->rastY );
 
@@ -3395,7 +3378,7 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 	    i = 0;
 	    sp = 0;
 	    while ( TRUE ) {
-		int r = item->width() / d->rastX + 1;
+		int r = calcGridNum( item->width(), d->rastX );
 		if ( item == begin ) {
 		    item->move( d->spacing + ( r * d->rastX - item->width() ) / 2, y + h - item->height() );
 		    i += r;
@@ -3413,8 +3396,16 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 	    y += h + d->spacing;
 	}
     }
-
+    
     return end;
+}
+
+int QIconView::calcGridNum( int w, int x )
+{
+    float r = (float)w / (float)x;
+    if ( ( w / x ) * x != w )
+	r += 1.0;
+    return (int)r;
 }
 
 #include "qiconview.moc"
