@@ -75,7 +75,7 @@ int mac_window_count = 0;
 /*****************************************************************************
   Externals
  *****************************************************************************/
-void requestUpdates();
+void qt_event_request_updates();
 
 
 /*****************************************************************************
@@ -811,13 +811,14 @@ void QWidget::showWindow()
 {
     dirtyClippedRegion(TRUE);
     if ( isTopLevel() ) {
-	QApplication::sendPostedEvents();
+	//ick, this is needed because docks are updated by it and mac paints immediatly. FIXME
+	QApplication::sendPostedEvents(this, QEvent::LayoutHint);
+
 #ifdef Q_WS_MACX
 	//handle transition
 	if(qApp->style().inherits("QAquaStyle") && parentWidget() && testWFlags(WShowModal)) 
 	    TransitionWindowAndParent((WindowPtr)hd, (WindowPtr)parentWidget()->hd,
-				      kWindowSheetTransitionEffect,
-				      kWindowShowTransitionAction, NULL);
+				      kWindowSheetTransitionEffect, kWindowShowTransitionAction, NULL);
 #endif
 	//now actually show it
 	ShowHide((WindowPtr)hd, 1);
@@ -1127,7 +1128,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		}
 	    }
 	    if(isResize)
-		requestUpdates();
+		qt_event_request_updates();
 
 	    //finally issue "expose" event
 	    QRegion upd((oldregion + clpreg) - bltregion); 

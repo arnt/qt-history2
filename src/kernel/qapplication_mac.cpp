@@ -192,7 +192,7 @@ enum {
     kEventQtRequestPropagate = 1
 };
 static bool request_pending = FALSE;
-void requestUpdates() 
+void qt_event_request_updates() 
 {
     if(request_pending)
 	return;
@@ -875,7 +875,7 @@ QApplication::qt_select_timer_callbk(EventLoopTimerRef, void *)
 	    errno = 0;
 	} 
     } else if ( nsel > 0 && sn_highest >= 0 ) {
-	requestUpdates();
+	qt_event_request_updates();
 	sn_activate();
     }
 #else
@@ -1341,8 +1341,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
     switch(eclass)
     {
     case kEventClassQt:
-	request_pending = FALSE;
 	if(ekind == kEventQtRequestPropagate) {
+	    request_pending = FALSE;
+	    QApplication::sendPostedEvents();
 	    if(QWidgetList *list   = qApp->topLevelWidgets()) {
 		for ( QWidget     *widget = list->first(); widget; widget = list->next() ) {
 		    if ( !widget->isHidden() && !widget->isDesktop())
