@@ -61,7 +61,6 @@ SUBDIRS	=	aclock \
 		wizard \
 		compact \
 		launcher \
-		kiosk \
 		canvas \
 		xform
 
