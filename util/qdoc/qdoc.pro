@@ -1,8 +1,6 @@
 TEMPLATE	= app
-CONFIG		= warn_on console release
-win32:CONFIG	+= qt
-unix:CONFIG	+= qtinc
-unix:DEFINES	+= QT_NO_CODECS QT_LITE_UNICODE
+CONFIG		= warn_on console release qtinc
+DEFINES		+= QT_NO_CODECS QT_LITE_UNICODE
 INCLUDEPATH	= ../../include ../../src/tools
 DEPENDPATH	= ../../include ../../src/tools
 OBJECTS_DIR	= .
@@ -46,9 +44,8 @@ SOURCES		= binarywriter.cpp \
 		  resolver.cpp \
 		  stringset.cpp \
 		  tokenizer.cpp \
-		  walkthrough.cpp 
-
-unix:SOURCES	+= ../../src/codecs/qtextcodec.cpp \
+		  walkthrough.cpp \
+		  ../../src/codecs/qtextcodec.cpp \
 		  ../../src/tools/qbitarray.cpp \
 		  ../../src/tools/qbuffer.cpp \
 		  ../../src/tools/qcollection.cpp \
@@ -69,9 +66,14 @@ unix:SOURCES	+= ../../src/codecs/qtextcodec.cpp \
 		  ../../src/tools/qregexp.cpp \
 		  ../../src/tools/qstring.cpp \
 		  ../../src/tools/qstringlist.cpp \
-		  ../../src/tools/qtextstream.cpp \
-		  ../../src/tools/qdir_unix.cpp \
+		  ../../src/tools/qtextstream.cpp
+
+unix:SOURCES	+= ../../src/tools/qdir_unix.cpp \
 		  ../../src/tools/qfile_unix.cpp \
 		  ../../src/tools/qfileinfo_unix.cpp
+
+win32:SOURCES	+= ../../src/tools/qdir_win.cpp \
+		  ../../src/tools/qfile_win.cpp \
+		  ../../src/tools/qfileinfo_win.cpp
 
 TARGET		= qdoc
