@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#71 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#72 $
 **
 ** Definition of QPainter class
 **
@@ -193,6 +193,11 @@ private:
     void	updatePen();
     void	updateBrush();
     void	updateXForm();
+    void	updateInvXForm();
+    void	map( int, int, int *rx, int *ry ) const;
+    void	map( int, int, int, int, int *, int *, int *, int * ) const;
+    void	mapInv( int, int, int *, int * ) const;
+    void	mapInv( int, int, int, int, int *, int *, int *, int * ) const;
 
     enum { IsActive=0x01, ExtDev=0x02, IsStartingUp=0x04, NoCache=0x08,
 	   VxF=0x10, WxF=0x20, ClipOn=0x40, SafePolygon=0x80, MonoDev=0x100,
@@ -220,10 +225,10 @@ private:
     QCOORD	wx, wy, ww, wh;
     QCOORD	vx, vy, vw, vh;
     QWMatrix	wxmat;
-#if defined(_WS_MAC_) || defined(_WS_WIN16_) || defined(_WS_X11_)
-    long	wm11, wm12, wm21, wm22, wdx, wdy;
-    long	im11, im12, im21, im22, idx, idy;
-#endif
+    int		wm11, wm12, wm21, wm22, wdx, wdy;
+    int		im11, im12, im21, im22, idx, idy;
+    int		txop;
+    bool	txinv;
     void       *penRef;				// pen cache ref
     void       *brushRef;			// brush cache ref
     void       *ps_stack;
