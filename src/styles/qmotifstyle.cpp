@@ -42,7 +42,6 @@
 #include "qpopupmenu.h"
 #include "qapplication.h"
 #include "qpainter.h"
-#include "qpalette.h"
 #include "qdrawutil.h"
 #include "qpixmap.h"
 #include "qpalette.h"
