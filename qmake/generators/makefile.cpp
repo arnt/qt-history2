@@ -500,7 +500,7 @@ MakefileGenerator::init()
                             warn_msg(WarnLogic, "Dependency for [%s]: Not found %s", (*file_it).latin1(),
                                      (*dep_it).latin1());
                         } else {
-                            for(uint i = 0; i < files.count(); i++)
+                            for(int i = 0; i < files.count(); i++)
                                 out_deps.append(dir + files[i]);
                         }
                     }
@@ -1066,7 +1066,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
                 QString local_dirstr = dirstr;
                 fixEnvVariables(local_dirstr);
                 QStringList files = QDir(local_dirstr).entryList(QStringList(filestr));
-                for(uint x = 0; x < files.count(); x++) {
+                for(int x = 0; x < files.count(); x++) {
                     QString file = files[x];
                     if(file == "." || file == "..") //blah
                         continue;
