@@ -792,17 +792,21 @@ inline QString &QString::prepend( QChar c )
 inline QString &QString::prepend( char c )
 { return insert(0,c); }
 
+#ifndef QT_NO_CAST_ASCII
 inline QString &QString::prepend( const QByteArray & s )
 { return insert(0,s.data()); }
+#endif
 
 inline QString &QString::append( const QString & s )
 { return operator+=(s); }
 
+#ifndef QT_NO_CAST_ASCII
 inline QString &QString::append( const QByteArray &s )
 { return operator+=(s.data()); }
 
 inline QString &QString::append( const char * s )
 { return operator+=(s); }
+#endif
 
 inline QString &QString::append( QChar c )
 { return operator+=(c); }
@@ -810,8 +814,10 @@ inline QString &QString::append( QChar c )
 inline QString &QString::append( char c )
 { return operator+=(c); }
 
+#ifndef QT_NO_CAST_ASCII
 inline QString &QString::operator+=( const QByteArray &s )
 { return operator+=(s.data()); }
+#endif
 
 inline QString &QString::setNum( short n, int base )
 { return setNum((long)n, base); }
