@@ -44,6 +44,11 @@ public:
         return false;
     }
 
+#if defined(QT_COMPAT)
+    inline QT_COMPAT bool locked()
+    { return isLocked(); }
+#endif
+
 private:
     QMutexPrivate * d;
 
@@ -94,6 +99,11 @@ public:
     static void unlock() {}
 
     static bool isLocked() { return false; }
+
+#if defined(QT_COMPAT)
+    static inline QT_COMPAT bool locked()
+    { return false; }
+#endif
 
 private:
 #if defined(Q_DISABLE_COPY)
