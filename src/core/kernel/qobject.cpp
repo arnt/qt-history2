@@ -2276,16 +2276,16 @@ void QMetaObject::connectSlotsByName(QObject *o)
         bool foundIt = false;
         for(int j = 0; j < list.count(); ++j) {
             const QObject *co = list.at(j);
-            const char *objName = co->objectName().utf8();
+            const char *objName = co->objectName().ascii();
             int len = qstrlen(objName);
             if (!len
                 || qstrncmp(sig + 3, objName, len)
                 || sig[len+3] != '_')
                 continue;
-            int sigIndex = co->metaObject()->indexOfSignal(sig + len + 4);
+            int sigIndex = co->metaObject()->indexOfMember(sig + len + 4);
             if (sigIndex < 0)
                 continue;
-            if (QMetaObject::connect(co, sigIndex, o, QSLOT_CODE, i)) {
+            if (QMetaObject::connect(co, sigIndex, o, i)) {
                 foundIt = true;
                 break;
             }
