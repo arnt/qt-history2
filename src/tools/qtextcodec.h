@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.h#2 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.h#3 $
 **
 ** Definition of QTextCodec class
 **
@@ -27,6 +27,7 @@
 #include "qstring.h"
 
 class QTextCodec;
+class QIODevice;
 
 class QTextEncoder {
 public:
@@ -42,8 +43,9 @@ public:
 
 class QTextCodec {
 public:
-    QTextCodec();
     virtual ~QTextCodec();
+
+    static QTextCodec* loadCodec(QIODevice*);
 
     static QTextCodec* codecForMib(int mib);
     static QTextCodec* codecForName(const char* hint);
@@ -63,6 +65,7 @@ public:
     virtual int heuristicNameMatch(const char* hint) const;
 
 protected:
+    QTextCodec();
     static int simpleHeuristicNameMatch(const char* name, const char* hint);
 };
 
