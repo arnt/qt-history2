@@ -16,8 +16,8 @@
 #include <qsqlcursor.h>
 #include <qfile.h>
 
-#define DRIVER       "QMYSQL3" /* see the Qt SQL documentation for a list of available drivers */
-#define DATABASE     "" /* the name of your database */
+#define DRIVER       "QSQLITE" /* see the Qt SQL documentation for a list of available drivers */
+#define DATABASE     ":memory:" /* the name of your database */
 #define USER         "" /* user name with appropriate rights */
 #define PASSWORD     ""	/* password for USER */
 #define HOST         "" /* host on which the database is running */

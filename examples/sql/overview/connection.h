@@ -12,16 +12,16 @@
 
 // Enter your connection info here
 
-#define DB_SALES_DRIVER	    "QOCI8"
-#define DB_SALES_DBNAME	    "AXDB"
-#define DB_SALES_USER	    "test"
-#define DB_SALES_PASSWD	    "test"
+#define DB_SALES_DRIVER	    "QSQLITE"
+#define DB_SALES_DBNAME	    ":memory:"
+#define DB_SALES_USER	    ""
+#define DB_SALES_PASSWD	    ""
 #define DB_SALES_HOST	    ""
 
-#define DB_ORDERS_DRIVER    "QOCI8"
-#define DB_ORDERS_DBNAME    "AXDB"
-#define DB_ORDERS_USER	    "test"
-#define DB_ORDERS_PASSWD    "test"
+#define DB_ORDERS_DRIVER    "QSQLITE"
+#define DB_ORDERS_DBNAME    ":memory:"
+#define DB_ORDERS_USER	    ""
+#define DB_ORDERS_PASSWD    ""
 #define DB_ORDERS_HOST	    ""
 
 bool createConnections();

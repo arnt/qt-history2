@@ -17,8 +17,8 @@
 #include <qmessagebox.h>
 
 /* Modify the following to match your environment */
-#define DRIVER       "QPSQL7"  /* see the Qt SQL documentation for a list of available drivers */
-#define DATABASE     "" /* the name of your database */
+#define DRIVER       "QSQLITE"  /* see the Qt SQL documentation for a list of available drivers */
+#define DATABASE     ":memory:" /* the name of your database */
 #define USER         ""   /* user name with appropriate rights */
 #define PASSWORD     ""   /* password for USER */
 #define HOST         "" /* host on which the database is running */
@@ -53,6 +53,10 @@ int main( int argc, char ** argv )
 	db->lastError().showMessage( "An error occured. Please read the README file in the sqltable"
 				     "dir for more information.\n\n" );
 	return 1;
+    }
+
+    if (!db->tables().contains("simpletable")) {
+	QSqlQuery q("create table simpletable(id int, name varchar(20), address varchar(20))", db);
     }
 
     SimpleCursor cursor;

@@ -35,5 +35,19 @@ bool createConnections()
 	return FALSE;
     }
 
+    QSqlQuery q(QString::null, defaultDB);
+    q.exec("create table people (id integer primary key, name char(40))");
+    q.exec("create table staff (id integer primary key, forename char(40), "
+           "surname char(40), salary float, statusid integer)");
+    q.exec("create table status (id integer primary key, name char(30))");
+    q.exec("create table creditors (id integer primary key, forename char(40), "
+           "surname char(40), city char(30))");
+    q.exec("create table prices (id integer primary key, name char(40), price float)");
+    q.exec("create table invoiceitem (id integer primary key, "
+           "pricesid integer, quantity integer, paiddate date)");
+
+    QSqlQuery q2(QString::null, oracle);
+    q2.exec("create table people (id integer primary key, name char(40))");
+
     return TRUE;
 }
