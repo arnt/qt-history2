@@ -254,7 +254,8 @@ lvalue use the [] operator instead
 \i copy() is obsolete, use regular assignment instead.
 \endlist
 
-* case sensitive find has been removed. Use QString instead.
+* case sensitive find() has been removed. Use QString instead
+(with QString::indexOf()).
 
 \section1 QCString
 
