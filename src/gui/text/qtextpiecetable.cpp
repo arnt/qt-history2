@@ -17,6 +17,24 @@
 
 #define PMDEBUG if(0) qDebug
 
+static bool isValidBlockSeparator(const QChar &ch)
+{
+    return ch == QChar::ParagraphSeparator
+        || ch == QTextBeginningOfFrame
+        || ch == QTextEndOfFrame
+        || ch == QTextTableCellSeparator;
+}
+
+#ifndef QT_NO_DEBUG
+static bool noBlockInString(const QString &str)
+{
+    return !str.contains(QChar::ParagraphSeparator)
+        && !str.contains(QTextBeginningOfFrame)
+        && !str.contains(QTextEndOfFrame)
+        && !str.contains(QTextTableCellSeparator);
+}
+#endif
+
 bool UndoCommand::tryMerge(const UndoCommand &other)
 {
     if (command != other.command)
@@ -92,7 +110,7 @@ QTextPieceTable::~QTextPieceTable()
 void QTextPieceTable::insert_string(int pos, uint strPos, uint length, int format, UndoCommand::Operation op)
 {
     // ##### optimise when only appending to the fragment!
-    Q_ASSERT(!text.mid(strPos, length).contains(QChar::ParagraphSeparator));
+    Q_ASSERT(noBlockInString(text.mid(strPos, length)));
 
     split(pos);
     uint x = fragments.insert_single(pos, length);
@@ -120,7 +138,7 @@ void QTextPieceTable::insert_block(int pos, uint strPos, int format, int blockFo
     X->stringPosition = strPos;
     // no need trying to unite, since paragraph separators are always in a fragment of their own
 
-    Q_ASSERT(text.at(strPos) == QChar::ParagraphSeparator);
+    Q_ASSERT(isValidBlockSeparator(text.at(strPos)));
     Q_ASSERT(blocks.length()+1 == fragments.length());
 
     int block_pos = pos;
@@ -150,16 +168,18 @@ void QTextPieceTable::insert_block(int pos, uint strPos, int format, int blockFo
     adjustDocumentChangesAndCursors(pos, 1, op);
 }
 
-void QTextPieceTable::insertBlock(int pos, int blockFormat, int charFormat, UndoCommand::Operation op)
+void QTextPieceTable::insertBlock(const QChar &blockSeparator,
+                                  int pos, int blockFormat, int charFormat, UndoCommand::Operation op)
 {
     Q_ASSERT(formats->format(blockFormat).isBlockFormat());
     Q_ASSERT(formats->format(charFormat).isCharFormat());
     Q_ASSERT(pos >= 0 && (pos < fragments.length() || (pos == 0 && fragments.length() == 0)));
+    Q_ASSERT(isValidBlockSeparator(blockSeparator));
 
     beginEditBlock();
 
     int strPos = text.length();
-    text.append(QChar::ParagraphSeparator);
+    text.append(blockSeparator);
     insert_block(pos, strPos, charFormat, blockFormat, op, UndoCommand::BlockRemoved);
 
     Q_ASSERT(blocks.length() == fragments.length());
@@ -171,6 +191,11 @@ void QTextPieceTable::insertBlock(int pos, int blockFormat, int charFormat, Undo
     Q_ASSERT(undoPosition == undoStack.size());
 
     endEditBlock();
+}
+
+void QTextPieceTable::insertBlock(int pos, int blockFormat, int charFormat, UndoCommand::Operation op)
+{
+    insertBlock(QChar::ParagraphSeparator, pos, blockFormat, charFormat, op);
 }
 
 void QTextPieceTable::insert(int pos, int strPos, int strLength, int format)
@@ -198,7 +223,7 @@ void QTextPieceTable::insert(int pos, const QString &str, int format)
     if (str.size() == 0)
         return;
 
-    Q_ASSERT(!str.contains(QChar::ParagraphSeparator));
+    Q_ASSERT(noBlockInString(str));
 
     int strPos = text.length();
     text.append(str);
@@ -216,7 +241,7 @@ int QTextPieceTable::remove_string(int pos, uint length, UndoCommand::Operation 
 
     Q_ASSERT(blocks.size(b) > length);
     Q_ASSERT(x && fragments.position(x) == (uint)pos && fragments.size(x) == length);
-    Q_ASSERT(!text.mid(fragments.fragment(x)->stringPosition, length).contains(QChar::ParagraphSeparator));
+    Q_ASSERT(noBlockInString(text.mid(fragments.fragment(x)->stringPosition, length)));
 
     blocks.setSize(b, blocks.size(b)-length);
     const int w = fragments.erase_single(x);
@@ -237,7 +262,7 @@ int QTextPieceTable::remove_block(int pos, int *blockFormat, int command, UndoCo
 
     Q_ASSERT(x && (int)fragments.position(x) == pos);
     Q_ASSERT(fragments.size(x) == 1);
-    Q_ASSERT(text.at(fragments.fragment(x)->stringPosition) == QChar::ParagraphSeparator);
+    Q_ASSERT(isValidBlockSeparator(text.at(fragments.fragment(x)->stringPosition)));
     Q_ASSERT(b);
 
     if (blocks.size(b) == 1 && command == UndoCommand::BlockAdded) {
@@ -294,11 +319,11 @@ void QTextPieceTable::remove(int pos, int length, UndoCommand::Operation op)
 
         if (key+1 != blocks.position(b)) {
 //  	    qDebug("remove_string from %d length %d", key, X->size);
-            Q_ASSERT(!text.mid(X->stringPosition, X->size).contains(QChar::ParagraphSeparator));
+            Q_ASSERT(noBlockInString(text.mid(X->stringPosition, X->size)));
             w = remove_string(key, X->size, op);
         } else {
 //  	    qDebug("remove_block at %d", key);
-            Q_ASSERT(X->size == 1 && text.at(X->stringPosition) == QChar::ParagraphSeparator);
+            Q_ASSERT(X->size == 1 && isValidBlockSeparator(text.at(X->stringPosition)));
             b = blocks.prev(b);
             c.command = blocks.size(b) == 1 ? UndoCommand::BlockDeleted : UndoCommand::BlockRemoved;
             w = remove_block(key, &c.blockFormat, UndoCommand::BlockAdded, op);
@@ -465,8 +490,8 @@ bool QTextPieceTable::unite(uint f)
     QTextFragment *nf = fragments.fragment(n);
 
     if (nf->format == ff->format && (ff->stringPosition + (int)ff->size == nf->stringPosition)) {
-        if (text.at(ff->stringPosition) == QChar::ParagraphSeparator
-            || text.at(nf->stringPosition) == QChar::ParagraphSeparator)
+        if (isValidBlockSeparator(text.at(ff->stringPosition))
+            || isValidBlockSeparator(text.at(nf->stringPosition)))
             return false;
 
         fragments.setSize(f, ff->size + nf->size);
@@ -890,8 +915,8 @@ QTextFrame *QTextPieceTable::insertFrame(int start, int end, const QTextFrameFor
     int charIdx = formats->indexForFormat(cfmt);
 
     if (end != -1) {
-        insertBlock(start, idx, charIdx);
-        insertBlock(++end, idx, charIdx, UndoCommand::KeepCursor);
+        insertBlock(QTextBeginningOfFrame, start, idx, charIdx, UndoCommand::MoveCursor);
+        insertBlock(QTextEndOfFrame, ++end, idx, charIdx, UndoCommand::KeepCursor);
     } else {
         end = start;
     }

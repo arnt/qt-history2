@@ -174,6 +174,8 @@ private:
     bool unite(uint f);
     void truncateUndoStack();
 
+    void insertBlock(const QChar &blockSeparator, int pos, int blockFormat, int charFormat, UndoCommand::Operation op);
+
     void insert_string(int pos, uint strPos, uint length, int format, UndoCommand::Operation op);
     void insert_block(int pos, uint strPos, int format, int blockformat, UndoCommand::Operation op, int command);
     int remove_string(int pos, uint length, UndoCommand::Operation op);
