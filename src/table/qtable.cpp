@@ -2885,7 +2885,7 @@ void QTable::removeSelection( const QTableSelection &s )
 
   Removes selection number \a num from the table.
 
-  \sa numSelections() addSelection()
+  \sa numSelections() addSelection() clearSelection()
 */
 
 void QTable::removeSelection( int num )
@@ -2901,7 +2901,7 @@ void QTable::removeSelection( int num )
 /*! Returns the number of the current selection or -1 if there is
   no current selection.
 
-  \sa numSelection()
+  \sa numSelections()
 */
 
 int QTable::currentSelection() const
