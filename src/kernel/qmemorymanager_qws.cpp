@@ -526,7 +526,11 @@ void QGlyphTree::compress()
 class QMemoryManagerFont : public QShared {
     QGlyph* default_glyph;
 public:
-    QMemoryManagerFont() : default_glyph(0) { }
+    QMemoryManagerFont() : default_glyph(0)
+    {
+	r0Cache = new QGlyph* [256];
+	memset((void*)r0Cache, 0, sizeof(QGlyph*)*256);
+    }
     ~QMemoryManagerFont()
     {
 	if ( default_glyph ) {
@@ -542,6 +546,8 @@ public:
 	    }
 	    delete tree;
 	}
+
+	delete [] r0Cache;
     }
 
     QGlyph* defaultGlyph()
@@ -574,10 +580,37 @@ public:
 	}
 	return default_glyph;
     }
+    
+    QGlyph *get(glyph_t gl)
+    {
+	QGlyph *g;
+	if (gl <= 0xff) { // optimisation for latin1
+	    g = r0Cache[gl];
+	    if (!g) {
+		g = r0Cache[gl] = tree->get(gl, renderer);
+		if (!g) {
+		    //if ( ch.isSpace() && ch != ' ' )
+		    //    g = r0Cache[gl] = get(' ');
+		    //else
+		    g = r0Cache[gl] = defaultGlyph();
+		}
+	    }
+	} else {
+	    g = tree->get(gl, renderer);
+	    if (!g) {
+		//if ( ch.isSpace() && ch != ' ' )
+		//    g = get(' ');
+		//else
+		g = defaultGlyph();
+	    }
+	}
+	return g;
+    }
 
     QFontDef def;
     QGlyphTree* tree;
     QRenderedFont* renderer; // ==0 for QPFs
+    QGlyph **r0Cache;
 
     struct Q_PACKED {
 	Q_INT8 ascent,descent;
@@ -906,9 +939,7 @@ QGlyph QMemoryManager::lockGlyph(FontID id, glyph_t g)
 	    gl = 0; // ### Hope this is inFont(), shoud be as it is the default char
 	font->tree = new QGlyphTree(gl, gl, font->renderer);
     }
-    QGlyph* glyph = font->tree->get(g, font->renderer);
-    if ( !glyph )
-	glyph = font->defaultGlyph();
+    QGlyph *glyph = font->get(g);
     return *glyph;
 }
 
