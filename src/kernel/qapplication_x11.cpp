@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#575 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#576 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -259,7 +259,7 @@ int		qt_visual_option = -1;
 bool		qt_cmap_option	 = FALSE;
 QWidget	       *qt_button_down	 = 0;		// widget got last button-down
 
-extern bool is_gui_used; // qwidget.cpp
+extern bool qt_is_gui_used; // qwidget.cpp
 
 struct QScrollInProgress {
     static long serial;
@@ -903,11 +903,11 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 		if ( ++i < argc )
 		    mwGeometry = argv[i];
 //Ming-Che 10/10
-		} else if ( arg == "-im" ) {
+	    } else if ( arg == "-im" ) {
 		if ( ++i < argc )
-			ximServer = argv[i];
-		} else if ( arg == "-noxim" ) {
-			noxim=TRUE;
+		    ximServer = argv[i];
+	    } else if ( arg == "-noxim" ) {
+		    noxim=TRUE;
 //
 	    } else if ( arg == "-iconic" ) {
 		mwIconic = !mwIconic;
@@ -981,7 +981,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 #endif
 	// Connect to X server
 
-	if( is_gui_used ) {
+	if( qt_is_gui_used ) {
 	    if ( ( appDpy = XOpenDisplay(appDpyName) ) == 0 ) {
 		qWarning( "%s: cannot connect to X server %s", appName,
 			  XDisplayName(appDpyName) );
@@ -997,7 +997,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 
     // Get X parameters
 
-    if( is_gui_used ) {
+    if( qt_is_gui_used ) {
 	appScreen  = DefaultScreen(appDpy);
 	appRootWin = RootWindow(appDpy,appScreen);
 
@@ -1080,7 +1080,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
     }
     gettimeofday( &watchtime, 0 );
 
-    if( is_gui_used ) {
+    if( qt_is_gui_used ) {
 	qApp->setName( appName );
 
 	XSelectInput( appDpy, appRootWin,
@@ -1092,7 +1092,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
     }
     setlocale( LC_ALL, "" );		// use correct char set mapping
     setlocale( LC_NUMERIC, "C" );	// make sprintf()/scanf() work
-    if ( is_gui_used ) {
+    if ( qt_is_gui_used ) {
 #if !defined(NO_XIM)
 	qt_xim = 0;
 //Ming-Che 10/10
@@ -1171,7 +1171,7 @@ void qt_cleanup()
 	QApplication::close_xim();
 #endif
 
-    if ( is_gui_used && !QPaintDevice::x11AppDefaultColormap() )
+    if ( qt_is_gui_used && !QPaintDevice::x11AppDefaultColormap() )
 	XFreeColormap( QPaintDevice::x11AppDisplay(),
 		       QPaintDevice::x11AppColormap() );
 
@@ -1185,7 +1185,7 @@ void qt_cleanup()
     delete sip_list;
     sip_list = 0;
 
-    if ( is_gui_used && !appForeignDpy )
+    if ( qt_is_gui_used && !appForeignDpy )
 	XCloseDisplay( appDpy );		// close X display
     appDpy = 0;
 
@@ -2052,7 +2052,7 @@ bool QApplication::processNextEvent( bool canWait )
     XEvent event;
     int	   nevents = 0;
 
-    if (is_gui_used ) {
+    if (qt_is_gui_used ) {
 	sendPostedEvents();
 
 	while ( XPending(appDpy) ) {		// also flushes output buffer
@@ -2091,7 +2091,7 @@ bool QApplication::processNextEvent( bool canWait )
 	FD_ZERO( &app_readfds );
     }
 
-    if ( is_gui_used ) {
+    if ( qt_is_gui_used ) {
 	FD_SET( app_Xfd, &app_readfds );
 	XFlush( appDpy );
     }
@@ -2103,7 +2103,7 @@ bool QApplication::processNextEvent( bool canWait )
 #define FDCAST (void*)
 #endif
 
-    nsel = select( is_gui_used ? ( QMAX(app_Xfd,sn_highest)+1) : (sn_highest+1) ,
+    nsel = select( qt_is_gui_used ? ( QMAX(app_Xfd,sn_highest)+1) : (sn_highest+1) ,
 		   FDCAST (&app_readfds),
 		   FDCAST (sn_write  ? &app_writefds  : 0),
 		   FDCAST (sn_except ? &app_exceptfds : 0),
@@ -3210,7 +3210,7 @@ bool qKillTimer( QObject *obj )
 // comparing window, time and position between two mouse press events.
 //
 
-int translateButtonState( int s )
+static int translateButtonState( int s )
 {
     int bst = 0;
     if ( s & Button1Mask )

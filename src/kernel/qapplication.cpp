@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#291 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#292 $
 **
 ** Implementation of QApplication class
 **
@@ -250,7 +250,7 @@ QWidget	 *QApplication::active_window  = 0;	// toplevel with keyboard focus
 bool	  QApplication::obey_desktop_settings = TRUE;  // use winsys resources
 int	  QApplication::cursor_flash_time = 1000;      // text caret flash time
 int	  QApplication::mouse_double_click_time = 400; // mouse dbl click limit
-bool	  is_gui_used;
+bool	  qt_is_gui_used;
 
 // Default application palettes and fonts (per widget type)
 QAsciiDict<QPalette> *QApplication::app_palettes = 0;
@@ -314,7 +314,7 @@ static void qt_fix_tooltips()
 void QApplication::process_cmdline( int* argcptr, char ** argv )
 {
     // process platform-indep command line
-    if ( !is_gui_used )
+    if ( !qt_is_gui_used )
 	return;
 
     int argc = *argcptr;
@@ -433,7 +433,7 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 //######### BINARY COMPATIBILITY constructor
 QApplication::QApplication( int &argc, char **argv )
 {
-    is_gui_used = TRUE;
+    qt_is_gui_used = TRUE;
     init_precmdline();
     static char *empty = "";
     if ( argc == 0 || argv == 0 ) {
@@ -466,7 +466,7 @@ QApplication::QApplication( int &argc, char **argv )
 
 QApplication::QApplication( int &argc, char **argv, bool GUIenabled  )
 {
-    is_gui_used = GUIenabled;
+    qt_is_gui_used = GUIenabled;
     init_precmdline();
     static char *empty = "";
     if ( argc == 0 || argv == 0 ) {
@@ -487,7 +487,7 @@ QApplication::QApplication( int &argc, char **argv, bool GUIenabled  )
 
 QApplication::QApplication( Display* dpy )
 {
-    is_gui_used = TRUE;
+    qt_is_gui_used = TRUE;
     init_precmdline();
     // ... no command line.
     qt_init( dpy );
