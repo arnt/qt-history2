@@ -142,14 +142,12 @@ QTimer::~QTimer()
 
 /*! \overload
 
-    Starts the timer with the timeout specified in \l interval.
+    Starts or restarts the timer with the timeout specified in \l interval.
 
     If \l singleShot is true, the timer will be activated only once.
 */
 void QTimer::start()
 {
-    if (id >=0)
-        return;
     if (id != INV_TIMER)                        // stop running timer
         stop();
     nulltimer = (!inter && single);
