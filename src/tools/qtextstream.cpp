@@ -245,13 +245,13 @@ QChar QTextStream::eat_ws()
 void QTextStream::init()
 {
     // ### ungetcBuf = QEOF;
-    dev = 0;					// no device set
+    dev = 0;
     fstrm = owndev = FALSE;
     mapper = 0;
     d = new QTextStreamPrivate;
-    doUnicodeHeader = TRUE;
-    latin1 = TRUE;
-    littleEndian = FALSE;
+    doUnicodeHeader = TRUE;	 // autodetect
+    latin1 = TRUE;		 // should use local?
+    internalOrder = QChar::networkOrdered();
 }
 
 /*!
@@ -668,11 +668,11 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 	if ( c1 == 0xfe && c2 == 0xff ) {
 	    mapper = 0;
 	    latin1 = FALSE;
-	    littleEndian = FALSE;
+	    internalOrder = QChar::networkOrdered();
 	} else if ( c1 == 0xff && c2 == 0xfe ) {
 	    mapper = 0;
 	    latin1 = FALSE;
-	    littleEndian = TRUE;
+	    internalOrder = !QChar::networkOrdered();
 	} else {
 	    if ( c2 != EOF ) {
 	 	dev->ungetch( c2 );
@@ -796,9 +796,7 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 	    int c2 = dev->getch();
 	    if ( c2 == EOF )
 		return rnum;
-	    if ( littleEndian )
-		*buf = QChar( c1, c2 );
-	    else
+	    if ( isNetworkOrder() )
 		*buf = QChar( c2, c1 );
 	    buf++;
 	    rnum++;
@@ -821,7 +819,7 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 		    if ( !dev->atEnd() )
 			dev->ungetch( cbuf[--rlen] );
 		uint i = 0;
-		if ( !littleEndian ) {
+		if ( isNetworkOrder() ) {
 		    while( i < rlen ) {
 			*buf = QChar( cbuf[i+1], cbuf[i] );
 			buf++;
@@ -964,11 +962,10 @@ void QTextStream::ts_putc( QChar c )
 	    doUnicodeHeader = FALSE;
 	    ts_putc( QChar::byteOrderMark );
 	}
-
-	// ###
-	if ( littleEndian ) {
+	if ( internalOrder ) {
+	    // this case is important for QStringBuffer
 	    dev->writeBlock( (char*)&c, sizeof(QChar) );
-	} else if ( !littleEndian ) {
+	} else if ( isNetworkOrder() ) {
 	    dev->putch(c.row());
 	    dev->putch(c.cell());
 	} else {
@@ -2417,13 +2414,13 @@ void QTextStream::setEncoding( Encoding e )
 	mapper = 0;
 	latin1 = FALSE;
 	doUnicodeHeader = TRUE;
-	littleEndian = FALSE;
+	internalOrder = QChar::networkOrdered();
 	break;
     case UnicodeReverse:
 	mapper = 0;
 	latin1 = FALSE;
 	doUnicodeHeader = TRUE;
-	littleEndian = TRUE;
+	internalOrder = !QChar::networkOrdered();
 	break;
     case RawUnicode:
 	mapper = 0;

@@ -150,20 +150,18 @@ public:
     int	  precision( int );
 
 private:
-    long	 input_int();
+    long	input_int();
     void	init();
     QTextStream &output_int( int, ulong, bool );
     QIODevice	*dev;
-#ifndef QT_NO_COMPAT    
-    bool	isNetworkOrder() { return !littleEndian; }
-#endif
+    bool	isNetworkOrder() { return !internalOrder; }
 
-    int		 fflags;
-    int		 fwidth;
-    int		 fillchar;
-    int		 fprec;
-    bool	 fstrm;
-    bool	 owndev;
+    int		fflags;
+    int		fwidth;
+    int		fillchar;
+    int		fprec;
+    bool	fstrm;
+    bool	owndev;
     QTextCodec 	*mapper;
     QTextStreamPrivate * d;
     QChar	ungetcBuf;

@@ -197,9 +197,12 @@ public:
     void setCell( uchar cell ) { ucs = (ucs & 0xff00) + cell; }
     void setRow( uchar row ) { ucs = (((ushort) row)<<8) + (ucs&0xff); }
 
-#ifndef QT_NO_COMPAT
-    static bool networkOrdered() { return FALSE; }
-#endif
+    static bool networkOrdered() {
+	int wordSize;
+	bool bigEndian = FALSE;
+	qSysInfo( &wordSize, &bigEndian );
+	return bigEndian;
+    }
 
     friend inline bool operator==( char ch, QChar c );
     friend inline bool operator==( QChar c, char ch );

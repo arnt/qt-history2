@@ -11578,9 +11578,8 @@ Constructs a QChar for the character with Unicode code point \a rc.
 
 /*! \fn bool  QChar::networkOrdered ()
 
-  Returns TRUE if this character is in network byte order (MSB first),
-  and FALSE if it is not.  This is a platform-dependent property, so
-  we strongly advise against using this function in portable code.
+  Returns TRUE if this character is in network byte order (MSB first);
+  otherwise returns FALSE.  This is platform dependent.
 */
 
 
