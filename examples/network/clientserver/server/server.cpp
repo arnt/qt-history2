@@ -33,8 +33,10 @@ public:
 	QSocket( parent, name )
     {
 	line = 0;
-	connect( this, SIGNAL(readyRead()), SLOT(readClient()) );
-	connect( this, SIGNAL(connectionClosed()), SLOT(connectionClosed()) );
+	connect( this, SIGNAL(readyRead()),
+		SLOT(readClient()) );
+	connect( this, SIGNAL(connectionClosed()),
+		SLOT(deleteLater()) );
 	setSocket( sock );
     }
 
@@ -42,19 +44,22 @@ public:
     {
     }
 
+signals:
+    void logText( const QString& );
+
 private slots:
     void readClient()
     {
+	QTextStream ts( this );
 	while ( canReadLine() ) {
-	    QTextStream os( this );
-	    os << line << ": " << readLine();
+	    QString str = ts.readLine();
+	    emit logText( tr("Read: '%1'\n").arg(str) );
+
+	    ts << line << ": " << str << endl;
+	    emit logText( tr("Wrote: '%1: %2'\n").arg(line).arg(str) );
+
 	    line++;
 	}
-    }
-
-    void connectionClosed()
-    {
-	delete this;
     }
 
 private:
@@ -86,12 +91,12 @@ public:
 
     void newConnection( int socket )
     {
-	(void)new ClientSocket( socket, this );
-	emit newConnect();
+	ClientSocket *s = new ClientSocket( socket, this );
+	emit newConnect( s );
     }
 
 signals:
-    void newConnect();
+    void newConnect( ClientSocket* );
 };
 
 
@@ -107,17 +112,19 @@ public:
     {
 	SimpleServer *server = new SimpleServer( this );
 
-	QString itext = QString(
+	QString itext = tr(
 		"This is a small server example.\n"
 		"Connect with the client now."
 		);
 	QLabel *lb = new QLabel( itext, this );
 	lb->setAlignment( AlignHCenter );
 	infoText = new QTextView( this );
-	QPushButton *quit = new QPushButton( "Quit" , this );
+	QPushButton *quit = new QPushButton( tr("Quit") , this );
 
-	connect( server, SIGNAL(newConnect()), SLOT(newConnect()) );
-	connect( quit, SIGNAL(clicked()), qApp, SLOT(quit()) );
+	connect( server, SIGNAL(newConnect(ClientSocket*)),
+		SLOT(newConnect(ClientSocket*)) );
+	connect( quit, SIGNAL(clicked()), qApp,
+		SLOT(quit()) );
     }
 
     ~ServerInfo()
@@ -125,9 +132,18 @@ public:
     }
 
 private slots:
-    void newConnect()
+    void newConnect( ClientSocket *s )
     {
-	infoText->append( "New connection\n" );
+	infoText->append( tr("New connection\n") );
+	connect( s, SIGNAL(logText(const QString&)),
+		infoText, SLOT(append(const QString&)) );
+	connect( s, SIGNAL(connectionClosed()),
+		SLOT(connectionClosed()) );
+    }
+
+    void connectionClosed()
+    {
+	infoText->append( tr("Client closed connection\n") );
     }
 
 private:
