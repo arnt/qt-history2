@@ -125,8 +125,6 @@ public:
     void setPosition(const QPointF &p);
 
     QRectF boundingRect() const;
-    // #### get rid
-    QRectF rect() const;
 
     qreal minimumWidth() const;
     qreal maximumWidth() const;

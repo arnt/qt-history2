@@ -316,7 +316,9 @@ QTextDocumentLayoutPrivate::HitPoint
 QTextDocumentLayoutPrivate::hitTest(QTextBlock bl, const QPoint &point, int *position) const
 {
     const QTextLayout *tl = bl.layout();
-    QRect textrect = tl->rect().toRect();
+    QRectF br = tl->boundingRect();
+    br.translate(tl->position());
+    QRect textrect = br.toRect();
 //     LDEBUG << "    checking block" << bl.position() << "point=" << point
 //            << "    tlrect" << textrect;
     if (!textrect.contains(point)) {
@@ -565,9 +567,9 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPoint &offset, QPainter *paint
 
     QColor bgCol = blockFormat.backgroundColor();
     if (bgCol.isValid()) {
-        QRect r = bl.layout()->rect().toRect();
-        r.translate(offset);
-        painter->fillRect(r , bgCol);
+        QRectF r = bl.layout()->boundingRect();
+        r.translate(bl.layout()->position() + offset);
+        painter->fillRect(r, bgCol);
     }
 
     QList<QTextLayout::FormatRange> overrides = tl->additionalFormats();
@@ -618,9 +620,10 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPoint &offset, QPainter *pa
     QString itemText;
     QSize size;
 
-    QTextLine firstLine = bl.layout()->lineAt(0);
+    QTextLayout *layout = bl.layout();
+    QTextLine firstLine = layout->lineAt(0);
     Q_ASSERT(firstLine.isValid());
-    QPoint pos = offset + bl.layout()->rect().toRect().topLeft();
+    QPoint pos = (offset + layout->boundingRect().topLeft() + layout->position()).toPoint();
     Qt::LayoutDirection dir = blockFormat.layoutDirection();
     {
         QRectF textRect = firstLine.naturalTextRect();

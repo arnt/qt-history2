@@ -723,29 +723,16 @@ void QTextLayout::setPosition(const QPointF &p)
 */
 QRectF QTextLayout::boundingRect() const
 {
-    if (!d->boundingRect.isValid()) {
-        qreal xmin = 0, xmax = 0, ymin = 0, ymax = 0;
-        for (int i = 0; i < d->lines.size(); ++i) {
-            const QScriptLine &si = d->lines[i];
-            xmin = qMin(xmin, si.x);
-            ymin = qMin(ymin, si.y);
-            xmax = qMax(xmax, si.x+si.width);
-            // ### shouldn't the ascent be used in ymin???
-            ymax = qMax(ymax, si.y+si.ascent+si.descent+1);
-        }
-        d->boundingRect = QRectF(xmin, ymin, xmax-xmin, ymax-ymin);
+    qreal xmin = 0, xmax = 0, ymin = 0, ymax = 0;
+    for (int i = 0; i < d->lines.size(); ++i) {
+        const QScriptLine &si = d->lines[i];
+        xmin = qMin(xmin, si.x);
+        ymin = qMin(ymin, si.y);
+        xmax = qMax(xmax, si.x+si.width);
+        // ### shouldn't the ascent be used in ymin???
+        ymax = qMax(ymax, si.y+si.ascent+si.descent+1);
     }
-    return d->boundingRect;
-}
-
-/*!
-  \internal
-*/
-QRectF QTextLayout::rect() const
-{
-    QRectF r = boundingRect();
-    r.translate(d->position);
-    return r;
+    return QRectF(xmin, ymin, xmax-xmin, ymax-ymin);
 }
 
 /*!
@@ -1030,7 +1017,6 @@ void QTextLine::layout(qreal width)
     line.width = width;
     line.length = 0;
     line.textWidth = 0;
-    eng->boundingRect = QRectF();
     layout_helper(INT_MAX);
 }
 
@@ -1044,7 +1030,6 @@ void QTextLine::layoutFixedColumnWidth(int numColumns)
     line.width = qreal(INT_MAX/256);
     line.length = 0;
     line.textWidth = 0;
-    eng->boundingRect = QRectF();
     layout_helper(numColumns);
 }
 

@@ -895,7 +895,6 @@ void QTextEngine::invalidate()
 {
     freeMemory();
     lines.clear();
-    boundingRect = QRect();
     minWidth = 0;
     maxWidth = 0;
 }

@@ -341,7 +341,6 @@ public:
 
     qreal minWidth;
     qreal maxWidth;
-    QRectF boundingRect;
     QPointF position;
     uint ignoreBidi : 1;
     uint cacheGlyphs : 1;
