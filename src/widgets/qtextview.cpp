@@ -1609,7 +1609,7 @@ void QTextView::insert( const QString &text, bool indent, bool checkNewLine, boo
 
 void QTextView::undo()
 {
-    if ( isReadOnly() )
+    if ( isReadOnly() || !doc->commands()->isUndoAvailable() )
         return;
 
     for ( int i = 0; i < (int)doc->numSelections(); ++i )
@@ -1641,7 +1641,7 @@ void QTextView::undo()
 
 void QTextView::redo()
 {
-    if ( isReadOnly() )
+    if ( isReadOnly() || !doc->commands()->isRedoAvailable() )
         return;
 
     for ( int i = 0; i < (int)doc->numSelections(); ++i )
