@@ -18,7 +18,7 @@
 
 template<class type>
 class Q3AsciiCache
-#ifdef Q_QDOC
+#ifdef qdoc
 	: public Q3PtrCollection
 #else
 	: public Q3GCache

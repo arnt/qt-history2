@@ -19,7 +19,7 @@
 #include "QtCore/qdatastream.h"
 #include "QtCore/qlist.h"
 
-#if defined(Q_QDOC)
+#if defined(qdoc)
 class Q3StrListIterator : public Q3PtrListIterator<char>
 {
 };

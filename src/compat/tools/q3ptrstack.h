@@ -37,7 +37,7 @@ public:
 	  operator type *() const	{ return (type *)Q3GList::cfirst(); }
     type *current() const		{ return (type *)Q3GList::cfirst(); }
 
-#ifdef Q_QDOC
+#ifdef qdoc
 protected:
     virtual QDataStream& read( QDataStream&, Q3PtrCollection::Item& );
     virtual QDataStream& write( QDataStream&, Q3PtrCollection::Item ) const;

@@ -18,7 +18,7 @@
 
 template<class type>
 class Q3PtrVector
-#ifdef Q_QDOC
+#ifdef qdoc
 	: public Q3PtrCollection
 #else
 	: public Q3GVector
@@ -58,7 +58,7 @@ public:
     type *at( uint i ) const		{ return (type *)Q3GVector::at(i); }
     void  toList( Q3GList *list ) const	{ Q3GVector::toList(list); }
 
-#ifdef Q_QDOC
+#ifdef qdoc
 protected:
     virtual int compareItems( Q3PtrCollection::Item d1, Q3PtrCollection::Item d2 );
     virtual QDataStream& read( QDataStream &s, Q3PtrCollection::Item &d );

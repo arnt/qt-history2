@@ -18,7 +18,7 @@
 
 template<class type>
 class Q3Dict
-#ifdef Q_QDOC
+#ifdef qdoc
 	: public Q3PtrCollection
 #else
 	: public Q3GDict
@@ -50,7 +50,7 @@ public:
     void  resize(uint n)		{ Q3GDict::resize(n); }
     void  statistics() const		{ Q3GDict::statistics(); }
 
-#ifdef Q_QDOC
+#ifdef qdoc
 protected:
     virtual QDataStream& read(QDataStream &, Q3PtrCollection::Item &);
     virtual QDataStream& write(QDataStream &, Q3PtrCollection::Item) const;

@@ -33,12 +33,12 @@ struct QAxMetaObject;
 
 class QAxBase
 {
-#ifdef Q_QDOC
-#error "The Symbol Q_QDOC is reserved for documentation purposes."
+#ifdef qdoc
+#error "The Symbol qdoc is reserved for documentation purposes."
     Q_PROPERTY(QString control READ control WRITE setControl)
 #endif
 public:
-#ifndef Q_QDOC
+#ifndef qdoc
     typedef QMap<QString, QVariant> PropertyBag;
 #endif
     
@@ -86,8 +86,8 @@ public:
     
     QVariant asVariant() const;
     
-#ifdef Q_QDOC
-#error "The Symbol Q_QDOC is reserved for documentation purposes."
+#ifdef qdoc
+#error "The Symbol qdoc is reserved for documentation purposes."
     enum PropertyBag {};
 signals:
     void signal(const QString&,int,void*);
