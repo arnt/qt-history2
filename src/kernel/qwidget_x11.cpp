@@ -1230,15 +1230,15 @@ QWidget *QWidget::keyboardGrabber()
   focus.
 
   This function performs the same operation as clicking the mouse on
-  the title bar of a top-level window. On X11, the result depends on 
-  the Window Manager. If you want to ensure that the window is stacked 
-  on top as well, call raise() in addition. Note that the window has be 
+  the title bar of a top-level window. On X11, the result depends on
+  the Window Manager. If you want to ensure that the window is stacked
+  on top as well, call raise() in addition. Note that the window has be
   to visible, otherwise setActiveWindow() has no effect.
 
-  On Windows, if you are calling this when the application is not 
+  On Windows, if you are calling this when the application is not
   currently the active one then it will not make it the active window.  It
-  will flash the task bar entry blue to indicate that the window has done 
-  something.  This is due to Microsoft not allowing an application to 
+  will flash the task bar entry blue to indicate that the window has done
+  something.  This is due to Microsoft not allowing an application to
   interrupt what the user is currently doing in another application.
 
   \sa isActiveWindow(), topLevelWidget(), show()
@@ -1461,7 +1461,6 @@ void QWidget::hideWindow()
 	    XWithdrawWindow( x11Display(), winId(), x11Screen() );
 
 	crect.moveTopLeft( QPoint(crect.x() - fleft, crect.y() - ftop ));
-	topData()->fsize = crect.size();
 	fleft = fright = ftop = fbottom = 0;
     } else {
 	if ( winId() ) // in nsplugin, may be 0
@@ -1732,8 +1731,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     if ( !isTopLevel() && oldGeom == r )
 	return;
 
-    setCRect( r );
-
+    crect = r;
     bool isResize = size() != oldSize;
 
     if ( isTopLevel() ) {
@@ -2313,4 +2311,95 @@ void QWidget::setName( const char *name )
 			qt_window_role, XA_STRING, 8, PropModeReplace,
 			(unsigned char *)name, qstrlen( name ) );
     }
+}
+
+
+/*!
+  \internal
+
+  Computes the frame rectangle when needed.  This is an internal function, you
+  should never call this.
+*/
+
+static Atom edesktop = 0;
+extern void qt_x11_intern_atom(const char *, Atom *);
+
+void QWidget::updateFrameStrut()
+{
+    if (! fstrut_dirty)
+	return;
+
+    if (! isVisible())
+	return;
+
+    if (! isTopLevel()) {
+	fleft = fright = ftop = fbottom = 0;
+	return;
+    }
+
+    // for Enlightenment
+    if (! edesktop)
+	qt_x11_intern_atom("ENLIGHTENMENT_DESKTOP", &edesktop);
+
+    Atom type_ret;
+    Window l = winId(), w = winId(), p, r; // target window, it's parent, root
+    Window *c;
+    int i_unused;
+    unsigned int nc;
+    unsigned char *data_ret;
+    unsigned long l_unused;
+
+    while (XQueryTree(QPaintDevice::x11AppDisplay(), w, &r, &p, &c, &nc)) {
+	if (c && nc > 0)
+	    XFree(c);
+
+	// if the parent window is the root window, an Enlightenment virtual root or
+	// a NET WM virtual root window, stop here
+
+   	data_ret = 0;
+	if (p == r ||
+#warning "TODO: NET WM virtual root support"
+	    (XGetWindowProperty(QPaintDevice::x11AppDisplay(), p, edesktop, 0, 1, FALSE,
+				XA_CARDINAL, &type_ret, &i_unused, &l_unused, &l_unused,
+				&data_ret) == Success &&
+	     type_ret == XA_CARDINAL)) {
+	    if (data_ret)
+		XFree(data_ret);
+
+	    break;
+	}
+
+	if (! p) {
+	    qDebug("QWidget::updateFrameStrut(): ERROR - no parent");
+	    return;
+	}
+
+	l = w;
+	w = p;
+    }
+
+    // we have our window
+    int transx, transy;
+    XWindowAttributes wattr;
+    if (XTranslateCoordinates(QPaintDevice::x11AppDisplay(), l, w,
+			      0, 0, &transx, &transy, &p) &&
+	XGetWindowAttributes(QPaintDevice::x11AppDisplay(), w, &wattr)) {
+	fleft = transx;
+	ftop = transy;
+	fright = wattr.width - crect.width() - fleft;
+	fbottom = wattr.height - crect.height() - ftop;
+
+	// add the border_width for the window managers frame... some window managers
+	// do not use a border_width of zero for their frames, and if we the left and
+	// top strut, we ensure that pos() is absolutely correct.  frameGeometry()
+	// will still be incorrect though... perhaps i should have foffset as well, to
+	// indicate the frame offset (equal to the border_width on X).
+	// - Brad
+	fleft += wattr.border_width;
+	fright += wattr.border_width;
+	ftop += wattr.border_width;
+	fbottom += wattr.border_width;
+    }
+
+    fstrut_dirty = 0;
 }

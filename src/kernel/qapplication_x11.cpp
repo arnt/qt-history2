@@ -3047,6 +3047,10 @@ bool QApplication::processNextEvent( bool canWait )
 	    (**it)();
     }
 
+    // Sync application settings if they have been modified
+    if (app_settings)
+	app_settings->sync();
+
 #if defined(Q_OS_WIN32)
 #define FDCAST (fd_set*)
 #else
@@ -3324,7 +3328,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	if ( keywidget ) // should always exist
 	    keywidget->translateKeyEvent( event, grabbed );
     }
-    break;
+	break;
 
     case GraphicsExpose:
     case Expose:				// paint event
@@ -3351,7 +3355,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    break;
 	setActiveWindow( widget );
     }
-    break;
+	break;
 
     case XFocusOut:				// lost focus
 	if ( widget->isDesktop() )
@@ -3392,7 +3396,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	curWin = widget->winId();
 	widget->translateMouseEvent( event ); //we don't get MotionNotify, emulate it
     }
-    break;
+	break;
 
     case LeaveNotify: {			// leave window
 	qt_x_time = event->xcrossing.time;
@@ -3427,7 +3431,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	qt_dispatchEnterLeave( enter, widget );
 	curWin = enter ? enter->winId() : 0;
     }
-    break;
+	break;
 
     case UnmapNotify:			// window hidden
 	if ( widget->isTopLevel() && widget->isVisible() && !widget->isPopup() ) {
@@ -3465,78 +3469,9 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		    XMapWindow( appDpy, widget->winId() );
 		}
 	    }
-	}
-	else if (!QWidget::find((WId)event->xreparent.parent) )
-	    {
-		Window parent = event->xreparent.parent;
-		int x = event->xreparent.x;
-		int y = event->xreparent.y;
-		XWindowAttributes a;
-		qt_ignore_badwindow();
-		XGetWindowAttributes( widget->x11Display(), parent, &a );
-		if (qt_badwindow())
-		    break;
-
-		QRect& r = widget->crect;
-		QRect frect ( r );
-
-		// help OL(V)WM to get things right: they sometimes
-		// need a little bit longer, i.e. both a and x/y may
-		// contain bogus values at this point in time.
-		int count = 0;
-		while ( count < 10 && a.x == 0 && a.y == 0 &&
-			( a.width < r.width() || a.height < r.height() ) ) {
-		    count++;
-		    QApplication::syncX();
-		    qt_ignore_badwindow();
-		    XGetWindowAttributes( widget->x11Display(), parent, &a );
-		    if (qt_badwindow())
-			break;
-		}
-
-		if ( x <= 4 && y <= 4 && a.width <= r.width()+8 &&
-		     a.height <= r.height()+8 ) {
-		    // multi reparenting window manager, parent is
-		    // just a shell. The 4 is for safety to support
-		    // Blackbox...
-		    Window root_return, parent_return, *children_return;
-		    unsigned int nchildren;
-		    if ( XQueryTree( widget->x11Display(), parent,
-				     &root_return, &parent_return,
-				     &children_return, &nchildren) ) {
-			if ( children_return )
-			    XFree( (void*) children_return );
-			XWindowAttributes a2;
-			qt_ignore_badwindow();
-			XGetWindowAttributes( widget->x11Display(), parent_return,
-					      &a2 );
-			if (qt_badwindow())
-			    break;
-			x += a.x;
-			y += a.y;
-			frect.setRect(r.left() - x , r.top() - y, a2.width, a2.height );
-		    }
-		} else {
-		    if ( x == y && x == 0 && a.x == r.x() && a.y == r.y()  ) {
-			// we do not believe this, OL(V)M tries to lie to us
-			XWindowAttributes aw;
-			qt_ignore_badwindow();
-			XGetWindowAttributes( widget->x11Display(), widget->winId(), &aw );
-			if (qt_badwindow())
-			    break;
-			x = aw.x;
-			y = aw.y;
-		    }
-		    // single reparenting window manager
-		    frect.setRect(r.left() - x, r.top() - y, a.width, a.height );
-		}
-
-		// save framestrut
-		widget->setFRect(frect);
-
-		// store the parent. Useful for many things, embedding for instance.
-		widget->topData()->parentWinId = parent;
-	    }
+	} else
+	    // store the parent. Useful for many things, embedding for instance.
+	    widget->topData()->parentWinId = event->xreparent.parent;
 	break;
 
     case SelectionRequest:
@@ -5140,7 +5075,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	    was_resize = TRUE;
 	    QSize oldSize = size();
 	    cr.setSize( newSize );
-	    setCRect( cr );
+	    crect = cr;
 
 	    if ( isVisible() ) {
 		QResizeEvent e( newSize, oldSize );
@@ -5152,14 +5087,14 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	}
 
 	if ( newCPos != cr.topLeft() ) { // compare with cpos (exluding frame)
-	    QPoint oldPos = pos();
+	    QPoint oldPos = geometry().topLeft();
 	    cr.moveTopLeft( newCPos );
-	    setCRect( cr );
+	    crect = cr;
 	    if ( isVisible() ) {
-		QMoveEvent e( pos(), oldPos ); // pos (including frame), not cpos
+		QMoveEvent e( newCPos, oldPos ); // pos (including frame), not cpos
 		QApplication::sendEvent( this, &e );
 	    } else {
-		QMoveEvent * e = new QMoveEvent( pos(), oldPos );
+		QMoveEvent * e = new QMoveEvent( newCPos, oldPos );
 		QApplication::postEvent( this, e );
 	    }
 	}

@@ -198,7 +198,7 @@ void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
 	static EventTypeSpec events[] = {
 	    { kEventClassMouse, kEventMouseWheelMoved },
 	    { kEventClassMouse, kEventMouseDown },
-	    { kEventClassMouse, kEventMouseUp }, 
+	    { kEventClassMouse, kEventMouseUp },
 	    { kEventClassMouse, kEventMouseDragged },
 	    { kEventClassMouse, kEventMouseMoved },
 
@@ -212,12 +212,12 @@ void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
 	    { kEventClassWindow, kEventWindowShown },
 	    { kEventClassWindow, kEventWindowHidden },
 
-	    { kEventClassApplication, kEventAppActivated }, 
+	    { kEventClassApplication, kEventAppActivated },
 	    { kEventClassApplication, kEventAppDeactivated }
 	};
-	InstallEventHandler( GetApplicationEventTarget(), 
-			     NewEventHandlerUPP(QApplication::globalEventProcessor), 
-			     GetEventTypeCount(events), events, 
+	InstallEventHandler( GetApplicationEventTarget(),
+			     NewEventHandlerUPP(QApplication::globalEventProcessor),
+			     GetEventTypeCount(events), events,
 			     (void *)qApp, NULL);
     }
 }
@@ -711,7 +711,7 @@ bool QApplication::processNextEvent( bool canWait )
     if(qt_is_gui_used) {
 	sendPostedEvents();
 
-	/* this gives QD a chance to flush buffers, I don't like doing it 
+	/* this gives QD a chance to flush buffers, I don't like doing it
 	   FIXME!! */
 	EventRecord ev;
 	EventAvail(everyEvent, &ev);
@@ -720,7 +720,7 @@ bool QApplication::processNextEvent( bool canWait )
 	OSStatus ret;
 	do {
 	    ret = ReceiveNextEvent( 0, 0, 0.01, TRUE, &event );
-	    if(ret == eventLoopTimedOutErr || ret == eventLoopQuitErr) 
+	    if(ret == eventLoopTimedOutErr || ret == eventLoopQuitErr)
 		break;
 	    ret = SendEventToApplication(event);
 	    ReleaseEvent(event);
@@ -745,7 +745,7 @@ bool QApplication::processNextEvent( bool canWait )
 
     if ( qt_preselect_handler ) {
 	QVFuncList::Iterator end = qt_preselect_handler->end();
-	for ( QVFuncList::Iterator it = qt_preselect_handler->begin(); 
+	for ( QVFuncList::Iterator it = qt_preselect_handler->begin();
 	      it != end; ++it )
 	    (**it)();
     }
@@ -766,8 +766,8 @@ bool QApplication::processNextEvent( bool canWait )
     } else {
 	FD_ZERO( &app_readfds );
     }
-    int nsel = select( sn_highest + 1, (&app_readfds), 
-		       (sn_write  ? &app_writefds  : 0), 
+    int nsel = select( sn_highest + 1, (&app_readfds),
+		       (sn_write  ? &app_writefds  : 0),
 		       (sn_except ? &app_exceptfds : 0), &tm );
 #else
 #warning "need to implement sockets on mac9"
@@ -775,7 +775,7 @@ bool QApplication::processNextEvent( bool canWait )
 
     if ( qt_postselect_handler ) {
 	QVFuncList::Iterator end = qt_postselect_handler->end();
-	for ( QVFuncList::Iterator it = qt_postselect_handler->begin(); 
+	for ( QVFuncList::Iterator it = qt_postselect_handler->begin();
 	      it != end; ++it )
 	    (**it)();
     }
@@ -877,20 +877,21 @@ bool QApplication::do_mouse_down( Point *pt )
     {
 	DragWindow( wp, *pt, 0 );
 
-	int ox = widget->x(), oy = widget->y();
+	int ox = widget->crect.x(), oy = widget->crect.y();
 	QMacSavedPortInfo savedInfo;
 	SetPortWindowPort( wp );
 	Point p = { 0, 0 };
 	LocalToGlobal(&p);
-	widget->setCRect( QRect( p.h, p.v, widget->width(), widget->height() ) );
-	QMoveEvent qme( QPoint( widget->x(), widget->y() ), QPoint( ox, oy) );
+	widget->crect.setRect( p.h, p.v, widget->width(), widget->height() );
+	QMoveEvent qme( QPoint( widget->crect.x(), widget->crect.y() ),
+			QPoint( ox, oy) );
 	QApplication::sendEvent( widget, &qme );
     }
     break;
     case inContent:
 	in_widget = TRUE;
 	break;
-    case inGrow: 
+    case inGrow:
 	Rect limits;
 
 	if( widget ) {
@@ -907,26 +908,26 @@ bool QApplication::do_mouse_down( Point *pt )
 	    int nh = HiWord( growWindowSize );
 
 	    if( nw < desktop()->width() && nw > 0 && nh < desktop()->height() && nh > 0 ) {
-		if( widget ) 
+		if( widget )
 		    widget->resize( nw, nh );
 	    }
 	}
 	break;
     case inCollapseBox:
 	if( TrackBox( wp, *pt, windowPart ) == true ) {
-	    if(widget) 
+	    if(widget)
 		widget->showMinimized();
 	}
 	break;
     case inZoomIn:
 	if( TrackBox( wp, *pt, windowPart ) == true ) {
-	    if(widget) 
+	    if(widget)
 		widget->showNormal();
 	}
 	break;
     case inZoomOut:
 	if( TrackBox( wp, *pt, windowPart ) == true ) {
-	    if(widget) 
+	    if(widget)
 		widget->showMaximized();
 	}
 	break;
@@ -1043,7 +1044,7 @@ static bool qt_try_modal( QWidget *widget, EventRef event )
 }
 
 
-QMAC_PASCAL OSStatus 
+QMAC_PASCAL OSStatus
 QApplication::globalEventProcessor(EventHandlerCallRef ref, EventRef event, void *data)
 {
     QApplication *app = (QApplication *)data;
@@ -1066,23 +1067,23 @@ QApplication::globalEventProcessor(EventHandlerCallRef ref, EventRef event, void
 	int button=QEvent::NoButton, state=0, wheel_delta=0;
 	if(ekind == kEventMouseDown || ekind == kEventMouseUp) {
 	    EventMouseButton mb;
-	    GetEventParameter(event, kEventParamMouseButton, typeMouseButton, NULL, 
+	    GetEventParameter(event, kEventParamMouseButton, typeMouseButton, NULL,
 			      sizeof(mb), NULL, &mb);
 	    if(mb == kEventMouseButtonPrimary)
 		button = QMouseEvent::LeftButton;
 	    else if(mb == kEventMouseButtonSecondary)
 	        button = QMouseEvent::RightButton;
-	    else 
+	    else
 		button = QMouseEvent::MidButton;
 	}
 
 	int keys;
-	GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, NULL, 
+	GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, NULL,
 			  sizeof(keys), NULL, &keys);
 	keys = get_modifiers(keys);
-	
+
 	Point where;
-	GetEventParameter(event, kEventParamMouseLocation, typeQDPoint, NULL, 
+	GetEventParameter(event, kEventParamMouseLocation, typeQDPoint, NULL,
 			  sizeof(where), NULL, &where);
 
 	switch(ekind) {
@@ -1090,9 +1091,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef ref, EventRef event, void
 	{
 
 	    UInt32 count;
-	    GetEventParameter(event, kEventParamClickCount, typeUInt32, NULL, 
+	    GetEventParameter(event, kEventParamClickCount, typeUInt32, NULL,
 			      sizeof(count), NULL, &count);
-	    if(count == 2) 
+	    if(count == 2)
 		etype = QEvent::MouseButtonDblClick;
 	    else
 		etype = QEvent::MouseButtonPress;
@@ -1112,7 +1113,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef ref, EventRef event, void
 	case kEventMouseWheelMoved:
 	{
 	    long int mdelt;
-	    GetEventParameter(event, kEventParamMouseWheelDelta, typeLongInteger, NULL, 
+	    GetEventParameter(event, kEventParamMouseWheelDelta, typeLongInteger, NULL,
 			      sizeof(mdelt), NULL, &mdelt);
 	    wheel_delta = mdelt * 100;
 	    state = mouse_button_state;
@@ -1182,10 +1183,10 @@ QApplication::globalEventProcessor(EventHandlerCallRef ref, EventRef event, void
 	}
 	case kEventMouseDown:
 	    qt_button_down = widget;
-	    break;     
+	    break;
 	case kEventMouseUp:
 	    qt_button_down = NULL;
-	    break;     
+	    break;
 	}
 
 	//finally send the event to the widget if its not the popup
@@ -1204,12 +1205,12 @@ QApplication::globalEventProcessor(EventHandlerCallRef ref, EventRef event, void
 		}
 		if(QWidget *tlw = widget->topLevelWidget()) {
 		    tlw->raise();
-		    if(tlw->isTopLevel() && !tlw->isPopup() && 
+		    if(tlw->isTopLevel() && !tlw->isPopup() &&
 		       (tlw->isModal() || !tlw->isDialog())) {
 			if(IsMenuBarVisible()) {
 			    if(QObject *mb = tlw->child(0, "QMenuBar", FALSE)) {
 				QMenuBar *bar = (QMenuBar *)mb;
-				if(bar->isTopLevel() && bar->isVisible()) 
+				if(bar->isTopLevel() && bar->isVisible())
 				    HideMenuBar();
 			    }
 			}
@@ -1229,12 +1230,12 @@ QApplication::globalEventProcessor(EventHandlerCallRef ref, EventRef event, void
 	    switch(ekind) {
 	    case kEventMouseDown: desc = "MouseButtonPress"; break;
 	    case kEventMouseUp: desc = "MouseButtonRelease"; break;
-	    case kEventMouseDragged: 
+	    case kEventMouseDragged:
 	    case kEventMouseMoved: desc = "MouseMove"; break;
 	    case kEventMouseWheelMoved: desc = "MouseWheelMove"; break;
 	    }
-	    qDebug("Would send (%s) event to %s %s (%d %d %d)", desc, 
-		   widget->name(), widget->className(), button|keys, state|keys, 
+	    qDebug("Would send (%s) event to %s %s (%d %d %d)", desc,
+		   widget->name(), widget->className(), button|keys, state|keys,
 		   wheel_delta);
 #endif
 	    QPoint p( where.h, where.v );
@@ -1282,7 +1283,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef ref, EventRef event, void
 				mystr.length());
 		    a.ignore();
 		    QApplication::sendEvent( widget->topLevelWidget(), &a );
-		    if ( a.isAccepted() ) 
+		    if ( a.isAccepted() )
 			isAccel = TRUE;
 		}
 	    }
@@ -1290,26 +1291,26 @@ QApplication::globalEventProcessor(EventHandlerCallRef ref, EventRef event, void
 		QKeyEvent ke(etype,mychar, mychar, modifiers, mystr, ekind == kEventRawKeyRepeat, mystr.length());
 		QApplication::sendEvent(widget,&ke);
 	    }
-	} 
+	}
 	break;
     }
     case kEventClassWindow:
     {
 	WindowRef wid;
-	GetEventParameter(event, kEventParamDirectObject, typeWindowRef, NULL, 
+	GetEventParameter(event, kEventParamDirectObject, typeWindowRef, NULL,
 			  sizeof(WindowRef), NULL, &wid);
 	widget = QWidget::find( (WId)wid );
 	if(!widget) {
 	    qWarning("Couldn't find EventClasWindow widget for %d", (int)wid);
         break;
     }
-    
+
 	if(ekind == kEventWindowUpdate) {
 		int metricWidth = widget->metric (QPaintDeviceMetrics::PdmWidth );
 		int metricHeight = widget->metric( QPaintDeviceMetrics::PdmHeight );
 		widget->crect.setWidth( metricWidth - 1 );
 		widget->crect.setHeight( metricHeight - 1 );
-		
+
 		QMacSavedPortInfo savedInfo;
 		BeginUpdate((WindowPtr)widget->handle());
 		widget->propagateUpdates();
@@ -1318,13 +1319,13 @@ QApplication::globalEventProcessor(EventHandlerCallRef ref, EventRef event, void
 		if(widget) {
 		    widget->raise();
 		    QWidget *tlw = widget->topLevelWidget();
-		    if(tlw->isTopLevel() && !tlw->isPopup() && 
+		    if(tlw->isTopLevel() && !tlw->isPopup() &&
 		       (tlw->isModal() || !tlw->isDialog())) {
 				if(IsMenuBarVisible()) {
 			    	if(QObject *mb = tlw->child(0, "QMenuBar", FALSE)) {
 						QMenuBar *bar = (QMenuBar *)mb;
-						if(bar->isTopLevel() && bar->isVisible()) 
-				   		 	HideMenuBar();	
+						if(bar->isTopLevel() && bar->isVisible())
+				   		 	HideMenuBar();
 			    	}
 				}
 				app->setActiveWindow(tlw);
@@ -1335,7 +1336,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef ref, EventRef event, void
 				widget->setFocus();
 		}
 	} else if(ekind == kEventWindowDeactivated) {
-		if(active_window && widget == active_window) 
+		if(active_window && widget == active_window)
 		    app->setActiveWindow(NULL);
 		while(app->inPopupMode())
 		    app->activePopupWidget()->close();

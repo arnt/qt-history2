@@ -500,9 +500,6 @@ protected:
     virtual void setWFlags( WFlags );
     void	 clearWFlags( WFlags n );
 
-    virtual void setFRect( const QRect & );
-    virtual void setCRect( const QRect & );
-
     virtual bool focusNextPrevChild( bool next );
 
     QWExtra	*extraData();
@@ -546,6 +543,7 @@ private:
     void   	 setBackgroundPixmapDirect( const QPixmap & );
     void         setBackgroundModeDirect( BackgroundMode );
     void         setBackgroundEmpty();
+    void	 updateFrameStrut();
 #if defined(Q_WS_X11)
     void         setBackgroundX11Relative();
 #endif
@@ -559,9 +557,10 @@ private:
     uint 	 sizehint_forced :1;
     uint 	 is_closing :1;
     uint 	 in_show : 1;
+    uint	 fstrut_dirty : 1;
 
     // frame strut
-    int	     fleft, fright, ftop, fbottom;
+    int		 fleft, fright, ftop, fbottom;
     QRect	 crect;
 
     QColor	 bg_col;
@@ -662,13 +661,31 @@ inline const QRect &QWidget::geometry() const
 { return crect; }
 
 inline int QWidget::x() const
-{ return crect.x() - fleft; }
+{
+    if (fstrut_dirty) {
+	QWidget *that = (QWidget *) this;
+	that->updateFrameStrut();
+    }
+    return crect.x() - fleft;
+}
 
 inline int QWidget::y() const
-{ return crect.y() - ftop; }
+{
+    if (fstrut_dirty) {
+	QWidget *that = (QWidget *) this;
+	that->updateFrameStrut();
+    }
+    return crect.y() - ftop;
+}
 
 inline QPoint QWidget::pos() const
-{ return QPoint(crect.x() - fleft, crect.y() - ftop); }
+{
+    if (fstrut_dirty) {
+	QWidget *that = (QWidget *) this;
+	that->updateFrameStrut();
+    }
+    return QPoint(crect.x() - fleft, crect.y() - ftop);
+}
 
 inline QSize QWidget::size() const
 { return crect.size(); }
@@ -848,7 +865,6 @@ struct Q_EXPORT QTLWExtra {
     QString  iconText;				// widget icon text
     QPixmap *icon;				// widget icon
     QFocusData *focusData;			// focus data (for TLW)
-    QSize    fsize;				// rect of frame
     short    incw, inch;			// size increments
     uint     iconic: 1;				// iconified [cur. win32 only]
     uint     fullscreen : 1;			// full-screen mode

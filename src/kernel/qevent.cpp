@@ -904,8 +904,8 @@ void QFocusEvent::resetReason()
 
 /*!
   \fn const QPoint &QMoveEvent::pos() const
-  Returns the new position of the widget, which is the same as
-  QWidget::pos().
+  Returns the new position of the widget, excluding window frame for top level
+  widgets.
 */
 
 /*!

@@ -131,7 +131,7 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
     if ( !window )				// always initialize
 	initializeWindow = TRUE;
 
-    
+
     if ( popup ) {
 	setWFlags(WStyle_Tool); // a popup is a tool window
 	setWFlags(WStyle_StaysOnTop); // a popup stays on top
@@ -861,7 +861,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	oldAlloc = allocatedRegion();
     }
 
-    setCRect( r );
+    crect = r;
 
     if ( testWFlags(WType_Desktop) )
 	return;
@@ -1310,7 +1310,7 @@ inline bool QRect::intersects( const QRect &r ) const
 {
     return ( QMAX( x1, r.x1 ) <= QMIN( x2, r.x2 ) &&
 	     QMAX( y1, r.y1 ) <= QMIN( y2, r.y2 ) );
-} 
+}
 
 QRegion QWidget::allocatedRegion() const
 {

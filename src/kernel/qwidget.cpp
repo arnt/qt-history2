@@ -249,8 +249,6 @@
 	metric().
 
   <li> Internal kernel functions:
-	setFRect(),
-	setCRect(),
 	focusNextPrevChild(),
 	wmapper(),
 	clearWFlags(),
@@ -686,6 +684,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     : QObject( parent, name ), QPaintDevice( QInternal::Widget )
 {
     fleft = fright = ftop = fbottom = 0;
+    fstrut_dirty = 1;
 
     isWidget = TRUE;				// is a widget
     winid = 0;					// default attributes
@@ -920,7 +919,7 @@ void QWidget::createTLExtra()
 	QTLWExtra* x = extra->topextra = new QTLWExtra;
 	x->icon = 0;
 	x->focusData = 0;
-	x->fsize = crect.size();
+	// x->fsize = crect.size();
 	x->incw = x->inch = 0;
 	x->basew = x->baseh = 0;
 	x->iconic = 0;
@@ -1402,6 +1401,10 @@ void QWidget::enabledChange( bool )
 
 QRect QWidget::frameGeometry() const
 {
+    if (fstrut_dirty) {
+	QWidget *that = (QWidget *) this;
+	that->updateFrameStrut();
+    }
     return QRect(crect.x() - fleft,
 		 crect.y() - ftop,
 		 crect.width() + fleft + fright,
@@ -2940,63 +2943,16 @@ void QWidget::reparentFocusWidgets( QWidget * oldtlw )
 */
 QSize QWidget::frameSize() const
 {
-    return extra && extra->topextra
-	? extra->topextra->fsize
-	: crect.size();
-}
-
-/*!
-  \internal
-  Sets the frame rectangle and recomputes the client rectangle.
-
-  The frame rectangle is the geometry of this widget including any
-  decorative borders, in its parent's coordinate system.
-
-  The client rectangle is the geometry of just this widget in its
-  parent's coordinate system.
-*/
-
-void QWidget::setFRect( const QRect &r )
-{
-    if ( !isTopLevel() )
-	fleft = fright = ftop = fbottom = 0;
-
-    if ( extra && extra->topextra ) {
-	crect.moveTopLeft(crect.topLeft() + QPoint(fleft, ftop));
-
-	fleft   = crect.left() - r.left();
-	fright  = r.right()    - crect.right();
-	ftop    = crect.top()  - r.top();
-	fbottom = r.bottom()   - crect.bottom();
-
-	extra->topextra->fsize = QSize(crect.width() + fleft + fright,
-				       crect.height() + ftop + fbottom);
-    } else {
-	// One rect is both the same.
-	crect = r;
+    if (fstrut_dirty) {
+	QWidget *that = (QWidget *) this;
+	that->updateFrameStrut();
     }
-}
+    return QSize(crect.width() + fleft + fright,
+		 crect.height() + ftop + fbottom);
 
-/*!
-  \internal
-  Sets the client rectangle and recomputes the frame rectangle.
-
-  The client rectangle is the geometry of just this widget in its
-  parent's coordinate system.
-
-  The frame rectangle is the geometry of this widget including any
-  decorative borders, in its parent's coordinate system.
-*/
-
-void QWidget::setCRect( const QRect &r )
-{
-    if ( !isTopLevel() )
-	fleft = fright = ftop = fbottom = 0;
-
-    crect = r;
-    if (extra && extra->topextra)
-	extra->topextra->fsize = QSize(crect.width() + fleft + fright,
-				       crect.height() + ftop + fbottom);
+    // return extra && extra->topextra
+    // ? extra->topextra->fsize
+    // : crect.size();
 }
 
 
@@ -3030,7 +2986,6 @@ void QWidget::move( int x, int y )
 			 y + geometry().y() - QWidget::y(),
 			 width(), height(), TRUE );
 }
-
 
 
 /*!

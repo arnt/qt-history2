@@ -261,7 +261,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    GetWindowRect( id, &fr );		// update rects
 	    GetClientRect( id, &cr );
 	}
-	
+
  	if ( topLevel ){
 	    // one cannot trust cr.left and cr.top, use a correction POINT instead
 	    POINT pt;
@@ -966,7 +966,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    }
 	    MoveWindow( winId(), fr.x(), fr.y(), fr.width(), fr.height(), TRUE );
 	} else {
-	    setCRect( QRect( x, y, w, h ) );
+	    crest.setRect( x, y, w, h );
 	    MoveWindow( winId(), x, y, w, h, TRUE );
 	}
 	clearWState( WState_ConfigPending );

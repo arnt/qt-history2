@@ -158,7 +158,7 @@ static WId qt_root_win() {
     return (WId) ret;
 }
 
-QMAC_PASCAL OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef window, RgnHandle, 
+QMAC_PASCAL OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef window, RgnHandle,
 			 RgnHandle, void *w)
 {
     QWidget *widget = (QWidget *)w;
@@ -167,7 +167,7 @@ QMAC_PASCAL OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef window, RgnHan
 
     //I shouldn't be painting the whole region, but instead just what
     //I'm told to paint, FIXME!
-    if ( widget ) 
+    if ( widget )
 	paint_children(widget, QRegion(0, 0, widget->width(), widget->height()), TRUE);
     return 0;
 }
@@ -261,22 +261,22 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	WindowClass wclass = kSheetWindowClass;
 
 #if 0
-	if(testWFlags(WShowModal)) 
+	if(testWFlags(WShowModal))
 	    wclass = kMovableModalWindowClass;
-	else if(testWFlags(WType_Dialog) ) 
+	else if(testWFlags(WType_Dialog) )
 	    wclass = kToolbarWindowClass;
-	else if(testWFlags( WType_Popup )) 
+	else if(testWFlags( WType_Popup ))
 	    wclass = kAlertWindowClass;
-	else if(testWFlags( WStyle_Tool ) ) 
+	else if(testWFlags( WStyle_Tool ) )
 	    wclass = kSheetWindowClass;
-	else if(testWFlags(WType_TopLevel) ) 
+	else if(testWFlags(WType_TopLevel) )
 	    wclass = kDocumentWindowClass;
-	else if(testWFlags(WType_Desktop)) 
+	else if(testWFlags(WType_Desktop))
 	    wclass = kDesktopWindowClass;
 #else
-	if(testWFlags(WType_Dialog) ) 
+	if(testWFlags(WType_Dialog) )
 	    wclass = kToolbarWindowClass;
-	else if(testWFlags( WType_Popup )) 
+	else if(testWFlags( WType_Popup ))
 	    wclass = kAlertWindowClass;
 	else
 	    wclass = kDocumentWindowClass;
@@ -288,7 +288,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 		if(wclass == kToolbarWindowClass)
 		    wclass = kDocumentWindowClass;
 		if(wclass == kDocumentWindowClass )
-		    wattr |= kWindowStandardDocumentAttributes;	
+		    wattr |= kWindowStandardDocumentAttributes;
 	    } else {
 		//FIXME I shouldn't have to do this
 		if(wclass == kDocumentWindowClass )
@@ -306,7 +306,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	InstallWindowContentPaintProc((WindowPtr)id, NewWindowPaintUPP(macSpecialErase), 0, this);
 //	ChangeWindowAttributes((WindowPtr)id, kWindowNoBufferingAttribute, 0);
 
-	if(testWFlags( WType_Popup )) 
+	if(testWFlags( WType_Popup ))
 	    SetWindowModality((WindowPtr)id, kWindowModalityNone, NULL);
 	if(!mac_window_count++)
 	    SetPortWindowPort((WindowPtr)id);
@@ -452,7 +452,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	    ((QAccel*)obj)->repairEventFilter();
 	if(obj->isWidgetType()) {
 	    QWidget *w = (QWidget *)obj;
-	    if(((WId)w->hd) == old_winid) 
+	    if(((WId)w->hd) == old_winid)
 		w->hd = hd; //all my children hd's are now mine!
 	}
     }
@@ -734,10 +734,10 @@ void QWidget::showWindow()
 	qApp->sendPostedEvents(this, 0);
 	if(QObjectList *lst = queryList()) {
 	    QObjectListIt it(*lst);
-	    for(QObject *obj; (obj = it.current()); ++it ) 
+	    for(QObject *obj; (obj = it.current()); ++it )
 		qApp->sendPostedEvents(obj, 0);
 	}
-	
+
 #ifdef Q_WS_MACX
 	//handle transition
 	if(qApp->style().inherits("QAquaStyle") &&
@@ -746,7 +746,7 @@ void QWidget::showWindow()
 				      kWindowSheetTransitionEffect,
 				      kWindowShowTransitionAction, NULL);
 	}
-#endif	
+#endif
 
 	//now actually show it
 	ShowHide((WindowPtr)hd, 1);
@@ -762,7 +762,7 @@ void QWidget::hideWindow()
     dirtyClippedRegion(TRUE);
     if ( isTopLevel() ) {
 	ShowHide((WindowPtr)hd, 0);
-	if(QWidget *widget = parentWidget() ? parentWidget() : QWidget::find((WId)FrontWindow())) 
+	if(QWidget *widget = parentWidget() ? parentWidget() : QWidget::find((WId)FrontWindow()))
 	    widget->setActiveWindow();
     } else {
 	bool v = testWState(WState_Visible);
@@ -816,7 +816,7 @@ void QWidget::showMaximized()
 	SetPortWindowPort( (WindowPtr)hd );
 	Point p = { 0, 0 };
 	LocalToGlobal(&p);
-	setCRect( QRect( p.h, p.v, bounds.right, bounds.bottom) );
+	crect.setRect( p.h, p.v, bounds.right, bounds.bottom );
 
 	if(isVisible()) {
 	    dirtyClippedRegion(TRUE);
@@ -854,7 +854,7 @@ void QWidget::showNormal()
 	    SetPortWindowPort( (WindowPtr)hd );
 	    Point p = { 0, 0 };
 	    LocalToGlobal(&p);
-	    setCRect( QRect( p.h, p.v, bounds.right, bounds.bottom) );
+	    crect.setRect( p.h, p.v, bounds.right, bounds.bottom );
 
 	    if(isVisible()) {
 		dirtyClippedRegion(TRUE);
@@ -960,7 +960,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 
     QRect  r( x, y, w, h );
     dirtyClippedRegion(FALSE);
-    setCRect( r );
+    crect = r;
 
     if (!isTopLevel() && size() == olds && oldp == pos() )
 	return;
@@ -1022,7 +1022,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		bltregion.translate(pos().x() - oldp.x(), pos().y() - oldp.y());
 		bltregion &= clippedRegion(FALSE);
 		SetClip((RgnHandle)bltregion.handle());
-		
+
 		//now do the blt
 		BitMap *scrn = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)handle()));
 		CopyBits(scrn, scrn, &oldr, &newr, srcCopy, 0);
@@ -1348,7 +1348,7 @@ void QWidget::propagateUpdates()
 		if(childWidget->isVisible())
 		    childWidget->propagateUpdates();
 	    }
-	}	
+	}
     }
 }
 

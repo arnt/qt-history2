@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#436 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#437 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2912,7 +2912,7 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	QSize newSize( a, b );
 	cr.setSize( newSize );
 	if ( msg.wParam != SIZE_MINIMIZED )
-	    setCRect( cr );
+	    crect = cr;
 	if ( isTopLevel() ) {			// update caption/icon text
 	    createTLExtra();
 	    if ( msg.wParam == SIZE_MINIMIZED ) {
@@ -2962,17 +2962,17 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
     } else if ( msg.message == WM_MOVE ) {	// move event
 	int a = (int) (short) LOWORD(msg.lParam);
 	int b = (int) (short) HIWORD(msg.lParam);
-	QPoint oldPos = pos();
+	QPoint oldPos = geometry().topLeft();
 	// Ignore silly Windows move event to wild pos after iconify.
 	if ( !isMinimized() ) {
 	    QPoint newCPos( a, b );
 	    cr.moveTopLeft( newCPos );
-	    setCRect( cr );
+	    crect = cr;
 	    if ( isVisible() ) {
-		QMoveEvent e( pos(), oldPos );  // pos (including frame), not cpos
+		QMoveEvent e( newCPos, oldPos );  // cpos (client position)
 		QApplication::sendEvent( this, &e );
 	    } else {
-		QMoveEvent * e = new QMoveEvent( pos(), oldPos );
+		QMoveEvent * e = new QMoveEvent( newCPos, oldPos );
 		QApplication::postEvent( this, e );
 	    }
 	}
