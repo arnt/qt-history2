@@ -213,33 +213,31 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 		Point where;
 		GetEventParameter(event, kEventParamMouseLocation, typeQDPoint, NULL,
 				  sizeof(where), NULL, &where);
+		QObject *child_object = NULL;
 		if(object) {
 		    QAccessibleInterface *iface;
 		    if(QAccessible::queryAccessibleInterface(object, &iface) == QS_OK) {
 			QPoint p(where.h, where.v);
 			if(object->isWidgetType())
 			    p = ((QWidget*)object)->mapFromGlobal(p);
-			object = NULL;
 			int child = iface->childAt(p.x(), p.y());
 			if(child > 0) {
 			    QAccessibleInterface *child_iface;
 			    if(iface->navigate(Child, child, &child_iface) != -1) {
-				object = child_iface->object();
+				child_object = child_iface->object();
 				child_iface->release();
 			    }
 			}
 			iface->release();
 		    } else if(object->isWidgetType()) {
 			QWidget *widget = (QWidget*)object;
-			object = widget->childAt(widget->mapFromGlobal(QPoint(where.h, where.v)));
-		    } else {
-			object = NULL;
-		    }
+			child_object = widget->childAt(widget->mapFromGlobal(QPoint(where.h, where.v)));
+		    } 
 		} else {
-		    object = QApplication::widgetAt(where.h, where.v);
+		    child_object = QApplication::widgetAt(where.h, where.v);
 		}
-		if(object) {
-		    AXUIElementRef element = qt_mac_find_uielement(object);
+		if(child_object && child_object != object) {
+		    AXUIElementRef element = qt_mac_find_uielement(child_object);
 		    SetEventParameter(event, kEventParamAccessibleChild, typeCFTypeRef, sizeof(element), &element);
 		}
 	    } else if(!object) { //the below are not mine then..
