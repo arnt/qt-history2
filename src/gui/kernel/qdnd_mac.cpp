@@ -136,7 +136,7 @@ static mac_enum_mapper dnd_action_symbols[] = {
 static DragActions qt_mac_dnd_map_qt_actions(QDrag::DropActions qActions)
 {
     DragActions ret = kDragActionNothing;
-    for(int i = 0; dnd_action_symbols[i].qt_code; i++) {
+    for(int i = 0; dnd_action_symbols[i].qt_code; ++i) {
         if(qActions & dnd_action_symbols[i].qt_code)
             ret |= dnd_action_symbols[i].mac_code;
     }
@@ -145,11 +145,22 @@ static DragActions qt_mac_dnd_map_qt_actions(QDrag::DropActions qActions)
 static QDrag::DropActions qt_mac_dnd_map_mac_actions(DragActions macActions)
 {
     QDrag::DropActions ret = QDrag::IgnoreAction;
-    for(int i = 0; dnd_action_symbols[i].qt_code; i++) {
+    for(int i = 0; dnd_action_symbols[i].qt_code; ++i) {
         if(macActions & dnd_action_symbols[i].mac_code)
             ret |= QDrag::DropAction(dnd_action_symbols[i].qt_code);
     }
     return ret;
+}
+static QDrag::DropAction qt_mac_dnd_map_mac_preferred_action(DragActions macActions)
+{
+    static QDrag::DropAction preferred_actions[] = { QDrag::CopyAction, QDrag::LinkAction, //in order
+                                                      QDrag::MoveAction, QDrag::IgnoreAction };
+    const QDrag::DropActions qtActions = qt_mac_dnd_map_mac_actions(macActions);
+    for(int i = 0; preferred_actions[i] != QDrag::IgnoreAction; ++i) {
+        if(qtActions & preferred_actions[i])
+            return preferred_actions[i];
+    }
+    return QDrag::IgnoreAction;
 }
 static void qt_mac_dnd_update_action(DragReference dragRef) {
     SInt16 mod;
@@ -195,9 +206,10 @@ bool QDropData::hasFormat(const QString &mime) const
     return false;
 }
 
-QVariant QDropData::retrieveData(const QString &mime, QVariant::Type) const
+QVariant QDropData::retrieveData(const QString &mime, QVariant::Type type) const
 {
     Size flavorsize=0;
+    QVariant ret;
     QMacMime::QMacMimeType qmt = QMacMime::MIME_DND;
     {
         ItemReference ref = 0;
@@ -228,11 +240,19 @@ QVariant QDropData::retrieveData(const QString &mime, QVariant::Type) const
                     arrs.append(QByteArray::fromRawData(buffer, flavorsize));
                 }
             }
-            if(!arrs.isEmpty())
-                return c->convertToMime(arrs, mime, flav);
+            if(!arrs.isEmpty()) {
+                QByteArray mime_data = c->convertToMime(arrs, mime, flav);
+#if 0
+                if(type == QVariant::String) 
+                    ret = QString::fromUtf8(mime_data);
+                else 
+#endif
+                    ret = mime_data;
+                break;
+            }
         }
     }
-    return QByteArray();
+    return ret;
 }
 
 QStringList QDropData::formats() const
@@ -258,7 +278,7 @@ QStringList QDropData::formats() const
     for(int x = 1; x <= (int)cnt; x++) {
         if(GetFlavorType(qt_mac_current_dragRef, ref, x, &flav) == noErr) {
             QString mime = QMacMime::flavorToMime(qmt, flav);
-            if(!mime.isNull())
+            if(!mime.isNull() && !ret.contains(mime)) 
                 ret.append(mime);
         }
     }
@@ -318,9 +338,9 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
         }
     }
 
-    DragActions macAction = kDragActionNothing;
-    GetDragDropAction(dragRef, &macAction);
-    QDrag::DropAction qtAction = (QDrag::DropAction)qt_mac_dnd_map_mac_actions(macAction); 
+    DragActions macActions = kDragActionNothing;
+    GetDragDropAction(dragRef, &macActions);
+    QDrag::DropAction qtAction = qt_mac_dnd_map_mac_preferred_action(macActions); 
 
     //Dispatch events
     bool ret = true;
@@ -540,7 +560,7 @@ QDrag::DropAction QDragManager::drag(QDrag *o)
     DragActions ret = kDragActionNothing;
     GetDragDropAction(dragRef, &ret);
     DisposeDrag(dragRef); //cleanup
-    return (QDrag::DropAction)qt_mac_dnd_map_mac_actions(ret);
+    return qt_mac_dnd_map_mac_preferred_action(ret);
 }
 
 void QDragManager::updatePixmap()
