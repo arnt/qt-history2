@@ -245,6 +245,9 @@ private:
     void drop();
     void updatePixmap();
 
+private slots:
+    void resetPointer();
+
 private:
     QDragObject * object;
     void updateMode( ButtonState newstate );
