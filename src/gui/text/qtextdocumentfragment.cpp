@@ -698,16 +698,18 @@ bool QTextHTMLImporter::scanTable(int tableNodeIdx, Table *table)
     if (cellCount == 0)
         return false;
 
+    const QTextHtmlParserNode &node = at(tableNodeIdx);
     QTextTableFormat fmt;
-    fmt.setBorder(at(tableNodeIdx).tableBorder);
-    fmt.setWidth(at(tableNodeIdx).width);
-    fmt.setCellSpacing(at(tableNodeIdx).tableCellSpacing);
-    fmt.setCellPadding(at(tableNodeIdx).tableCellPadding);
-    fmt.setAlignment(at(tableNodeIdx).alignment);
-    if (at(tableNodeIdx).bgColor.isValid())
-        fmt.setBackgroundColor(at(tableNodeIdx).bgColor);
+    fmt.setBorder(node.tableBorder);
+    fmt.setWidth(node.width);
+    fmt.setCellSpacing(node.tableCellSpacing);
+    fmt.setCellPadding(node.tableCellPadding);
+    fmt.setAlignment(node.alignment);
+    if (node.bgColor.isValid())
+        fmt.setBackgroundColor(node.bgColor);
     else
         fmt.clearBackgroundColor();
+    fmt.setPosition(node.cssFloat);
 
     fmt.setColumns(table->columns);
     fmt.setColumnWidthConstraints(columnWidths);
