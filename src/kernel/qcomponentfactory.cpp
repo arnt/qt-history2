@@ -50,26 +50,23 @@
 
   \ingroup componentmodel
 
-  The component factory provides convenience functions that can be
-  used both by applications to instantiate components, and by component
-  servers to register components.
+  The component factory provides static convenience functions that can be used both by 
+  applications to instantiate components, and by component servers to register components.
 
-  The createInstance() function is used to obtain a pointer to an
-  interface.
+  The createInstance() function provides a pointer to an interface implemented in a specific 
+  component.
 
-  Use registerServer() to load a shared library which provides the
-  QComponentServerInterface and register its components. Use
-  unregisterServer() to unregister a shared library's components.
+  Use registerServer() to load a component server and register its components, and unregisterServer()
+  to unregsiter the components. The component exported by the component server has to implement the
+  QComponentServerInterface. registerComponent() and unregisterComponent() register and unregister
+  single components from the system component registry, and should be used by implementations of the 
+  QComponentServerInterface.
 
-  registerComponent() and unregisterComponent() register and unregister
-  single components from the global component database, and can be used
-  by implementations of the QComponentServerInterface.
-
-  \sa QComponentServerInterface, QComponentFactoryInterface
+  \sa QComponentServerInterface QComponentFactoryInterface
 */
 
 /*!
-  Searches for the component identifier \a cid in the system component database,
+  Searches for the component identifier \a cid in the system component registry,
   loads the corresponding component server and queries for the interface \a iid. 
   \a iface is set to the resulting interface pointer.
 
@@ -79,7 +76,7 @@
   implementation of the QComponentFactoryInterface in the component server if 
   provided.
 
-  Returns QS_OK if the interface was successfully instantiated, QE_NOINTERFACE if
+  The function returns QS_OK if the interface was successfully instantiated, QE_NOINTERFACE if
   the component does not provide an interface \a iid, or QE_NOCOMPONENT if there was 
   an error loading the component.
 
@@ -158,7 +155,7 @@ bool QComponentFactory::unregisterServer( const QString &filename )
 }
 
 /*!
-  Registers the component with id \a cid in the global component database.
+  Registers the component with id \a cid in the system component registry.
   The component is registered with an optional \a description and is provided
   by the server at \a filepath.
 
@@ -182,7 +179,7 @@ bool QComponentFactory::registerComponent( const QUuid &cid, const QString &file
 }
 
 /*!
-  Unregisters the component with id \a cid from the global component database.
+  Unregisters the component with id \a cid from the system component registry.
 
   Call this function for each component in an implementation of
   \link QComponentServerInterface::unregisterComponents() unregisterComponents \endlink.

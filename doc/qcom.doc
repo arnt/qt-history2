@@ -6,27 +6,28 @@
   \class QUnknownInterface qcom.h
   \brief The QUnknownInterface class is the base class for all interfaces of the Qt Component Model.
 
-  \preliminary
   \ingroup componentmodel
-  
 
   All interfaces in the component object model are derived from the QUnknownInterface. This 
   interface provides control of the object's lifetime and the ability to navigate a component 
-  implementing multiple interfaces.
+  that implements multiple interfaces.
+
   The object's lifetime is controlled using a reference count that is increased and
-  decreased using the functions addRef and release, respectively.
-  The queryInterface function determines whether the component supports a specific interface.
+  decreased using the functions addRef() and release(), respectively.
+
+  The queryInterface() function determines whether the component supports a specific interface.
   For every interface a Unique Universal Identifier (UUID) is provided to identify requests
-  for the interface. In Qt, this identifier is wrapped in the \link QUuid QUuid \endlink class
-  that provides convenience operators for comparison and copying.
+  for that interface. In Qt, this identifier is wrapped in the \link QUuid QUuid \endlink class 
+  which provides convenience operators for comparison and copying.
 */
 
 /*!
   \fn QRESULT  QUnknownInterface::queryInterface( const QUuid &request, QUnknownInterface** iface )
 
-  Sets \a iface to point to an interface specified with \a request, or 0 if this 
-  interface can't provide the requested interface. An implementation of this function 
+  Sets \a iface to point to an interface specified with \a request, or null if this 
+  interface can't provide the interface requested. An implementation of this function 
   must call addRef() on the pointer it returns.
+
   Possible return values for this function are QS_OK when the call succeeds, or QE_NOINTERFACE
   if the requested interface cannot be provided.
 
@@ -54,7 +55,8 @@
   For any component, a query for the QUnknownInterface must always return the same pointer value to
   allow a client to determine whether two interfaces point to the same component.
   \i Static set of interfaces
-  The number of interfaces for which queryInterface returns a valid pointer must not change.
+  The number of interfaces for which queryInterface returns a valid pointer must not change during
+  the lifetime of the component.
   \i Reflexive
   If a client holding a pointer to one interface queries for that interface, the call must succeed.
   \i Symmetric
@@ -92,8 +94,8 @@
 /*!
   \fn ulong QUnknownInterface::release()
 
-  Decreases the reference count for this interface by one and returns
-  the new reference count. If the reference count falls to 0, the object is freed from memory.
+  Decreases the reference count for this interface by one and returns the new 
+  reference count. If the reference count falls to 0, the object is freed from memory.
 
   Example:
   \code
@@ -107,7 +109,8 @@
   }
   \endcode
 
-  This function should be called whenever a copy of a pointer to this interface is no longer needed.
+  This function should be called whenever a copy of a pointer to this interface is no 
+  longer needed.
 
   \sa addRef()
 */
@@ -116,14 +119,17 @@
 
 /*!
   \class QComponentInterface qcom.h
-  \brief The QComponentInterface class provides a means of obtaining basic information about components.
+  \brief The QComponentInterface class defines an interface to get basic information about a component.
 
-  \preliminary
   \ingroup componentmodel
 
-  This interface defines the functions name(), description(), 
-  author() and version(), all of which return a string containing 
-  the relevant information.
+  This interface defines the functions name(), description(), author() and version(), all of which return 
+  a string containing the relevant information.
+
+  Components that implement the QComponentInterface can be identified by the QPluginManager class and can 
+  be used in plugins.
+
+  \sa QFeatureListInterface
 */
 
 /*!
@@ -153,88 +159,115 @@
 
 /*!
   \class QComponentFactoryInterface qcom.h
-  \brief The QComponentFactoryInterface class is an interface for component creation.
+  \brief The QComponentFactoryInterface class defines an interface for component creation.
 
-  \preliminary
   \ingroup componentmodel
+
+  A component server can only export a single component that might implement any number
+  of interfaces. To be able to provide multiple components in one component server, implement
+  this interface in the exported component and create the actual components in the createInstance()
+  implementation. A client using this interface has to know the component identifiers of the
+  components provided.
 */
 
 /*!
-  \fn QComponentFactoryInterface::createInstance( const QUuid &cid, const QUuid &iid, QUnknownInterface **iface, QUnknownInterface *outer )
+  \fn QRESULT QComponentFactoryInterface::createInstance( const QUuid &cid, const QUuid &iid, QUnknownInterface **iface, QUnknownInterface *outer )
 
-  Creates the component specified by \a cid and sets \a iface to the point to the interface \a iid implemented by that component. 
-  The component can use the \a outer interface for containment and aggregation.
+  Creates the component specified by \a cid and sets \a iface to point to the interface \a iid implemented by that component. 
+  The component can use the \a outer interface for containment and aggregation. \a iface is set to null if the component \cid 
+  is not provided by this factory, or if the component does not implement the interface requested.
+
+  The function returns QS_OK if the interface was successfully instantiated, QE_NOINTERFACE if
+  the component does not provide an interface \a iid, or QE_NOCOMPONENT if there was an error 
+  loading the component \a cid.
 */
 
 
 /*!
   \class QLibraryInterface qcom.h
-  \brief The QLibraryInterface class is an interface to control loading and unloading of components.
+  \brief The QLibraryInterface class defines an interface to control loading and unloading of components.
 
-  \preliminary
   \ingroup componentmodel
 
+  If the component exported by a component server implements this interface, QLibrary calls the function init()
+  after loading the library, and the loading is stopped if this function call rerturns FALSE. 
+
+  Before the component server is unloaded, QLibrary calls the canUnload() function which has to return FALSE if
+  the component wants to prevent being unloaded. If canUnload() returns TRUE, the cleanup() function is called 
+  so that any resources allocated in the library can be cleaned up properly.
 */
 
 /*!
   \fn bool QLibraryInterface::init()
 
-  When this function returns FALSE, the component implementing this interface will not be loaded.
+  This function is called by QLibrary right after retrieving the component exported by a component server.
+  When this function returns FALSE, the component server will not be loaded.
 */
 
 /*!
   \fn void QLibraryInterface::cleanup()
 
-  Called by QLibrary before unloading the component implementing this interface.
+  This function is called by QLibrary before unloading the the component server. Implement this function
+  to free any resources allocated by the component, e.g. memory, file handles or sockets.
 */
 
 /*!
   \fn bool QLibraryInterface::canUnload() const
 
   When this function returns FALSE, the component implementing this interface will not be unloaded.
-  This function may be called regularily to unload unused libraries.
+  QLibrary calls this function regularily to unload unused libraries, so the implementation of this
+  function should be efficient.
+
+  This function should return FALSE when memory is still allocated by the library and referenced outside
+  of the library. To watch the lifetime of allocated memory, use the QObject::destroyed() signal, or the
+  QObjectCleanupHandler class. For more information, see the implementation of this interface in the style 
+  plugins that ship with Qt.
 */
 
 
 
 /*!
   \class QFeatureListInterface qcom.h
-  \brief The QFeatureListInterface class is an interface to retrieve information about features provided by a component.
+  \brief The QFeatureListInterface class defines an interface to get the list of features provided by a component.
 
-  \preliminary
   \ingroup componentmodel
-  
+
+  Component servers are commonly used as plugins that can be removed from or added to an application dynamically to change the
+  functionality of the program. The application needs to identify which functionality is provided by which plugin and can use
+  the QPluginManager class to get the plugin interface corresponding to a certain feature. The QPluginManager class utilizes
+  the QFeatureListInterface or the QComponentInterface to get the list of features provided by a plugin.
+
+  \sa QComponentInterface QPluginManager
 */
 
 /*!
   \fn QStringList QFeatureListInterface::featureList() const
 
-  Returns a list of features implemented in this component.
+  Returns a list of features implemented in this component. A feature can be anything.
 */
 
 
 /*!
   \class QComponentServerInterface qcom.h
-  \brief The QComponentServerInterface class provides a means of registering and unregistering components.
+  \brief The QComponentServerInterface class defines an interface to register and unregister components.
 
-  \preliminary
   \ingroup componentmodel
   
+  This interface defines two functions, registerComponents() and unregisterComponents(), that are used
+  by the QComponentFactory class to register and unregister all components provided by a component server.
 
-  This interface defines two functions, registerComponents() and unregisterComponents().
-
-  \sa QComponentFactory
+  \sa QComponentFactory QComponentFactoryInterface
 */
 
 /*!
   \fn bool QComponentServerInterface::registerComponents( const QString &filepath ) const
 
-  Registers the components in this server in the system registry and
-  returns TRUE when successful, otherwise returns FALSE. The \a filepath is
+  Registers the components in this server in the system component registry and
+  returns TRUE if successful, otherwise returns FALSE. The \a filepath is
   the absolute path to the shared library file.
 
   Implementations of this function should use the \link QComponentFactory::registerComponent()
-  static functions \endlink in QComponentFactory
+  static functions \endlink in QComponentFactory to access the component registry.
 
   Example:
   \code
@@ -245,11 +278,11 @@
 /*!
   \fn bool QComponentServerInterface::unregisterComponents() const
 
-  Removes the components in this server from the system registry and returns
+  Removes the components in this server from the system component registry and returns
   TRUE if successful, otherwise returns FALSE.
 
   Implementations of this function should use the \link QComponentFactory::unregisterComponent()
-  static functions \endlink in QComponentFactory
+  static functions \endlink in QComponentFactory to access the component registry.
 
   \code
   return QComponentFactory::unregisterComponent( QUuid(DD19964B-A2C8-42AE-AAF9-8ADC509BCA03) );
