@@ -391,8 +391,9 @@ public:
         : QDropEvent(pos,typ),
           rect( pos, QSize( 1, 1 ) ) {}
     QRect answerRect()          const { return rect; }
-    using QDropEvent::accept;
-    using QDropEvent::ignore;
+    inline void accept(bool y = true) { QDropEvent::accept(y); }
+    inline void ignore() { QDropEvent::ignore(); }
+
     void accept( const QRect & r)     { accpt = TRUE; rect = r; }
     void ignore( const QRect & r)     { accpt = FALSE; rect = r; }
 

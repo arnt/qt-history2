@@ -437,7 +437,7 @@ public:
 
     virtual ~QCanvasSprite();
 
-    using QCanvasItem::move;
+    inline void move(double x, double y) { QCanvasItem::move(x, y); }
     virtual void move(double x, double y, int frame);
     void setFrame(int);
     enum FrameAnimationType { Cycle, Oscillate };
