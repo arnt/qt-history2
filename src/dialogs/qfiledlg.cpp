@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#18 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#19 $
 **
 ** Implementation of QFileDialog class
 **
@@ -20,7 +20,7 @@
 #include "qapp.h"
 #if defined(_WS_WIN_)
 #if defined(_CC_BOOL_DEF_)
-#undef  bool
+#undef	bool
 #include <windows.h>
 #define bool int
 #else
@@ -28,7 +28,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#18 $")
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#19 $")
 
 
 /*----------------------------------------------------------------------------
@@ -230,7 +230,7 @@ void QFileDialog::setDir( const QDir &dir )
 /*----------------------------------------------------------------------------
   Re-reads the active directory in the file dialog.
 
-  It is seldom necessary to call this function.  It is provided in
+  It is seldom necessary to call this function.	 It is provided in
   case the directory contents change and you want to refresh the
   directory list box.
  ----------------------------------------------------------------------------*/
@@ -295,7 +295,7 @@ QString QFileDialog::getOpenFileName( const char *dirName, const char *filter,
     OPENFILENAME ofn;
     memset( &ofn, 0, sizeof(OPENFILENAME) );
     ofn.lStructSize	= sizeof(OPENFILENAME);
-    ofn.hwndOwner	= parent ? parent->topLevelWidget()->id() : 0;
+    ofn.hwndOwner	= parent ? parent->topLevelWidget()->winId() : 0;
     ofn.lpstrFilter	= win_filter[0];
     ofn.lpstrFile	= file;
     ofn.nMaxFile	= maxstrlen;
@@ -350,7 +350,7 @@ QString QFileDialog::getSaveFileName( const char *dirName, const char *filter,
     OPENFILENAME ofn;
     memset( &ofn, 0, sizeof(OPENFILENAME) );
     ofn.lStructSize	= sizeof(OPENFILENAME);
-    ofn.hwndOwner	= parent ? parent->topLevelWidget()->id() : 0;
+    ofn.hwndOwner	= parent ? parent->topLevelWidget()->winId() : 0;
     ofn.lpstrFilter	= win_filter[0];
     ofn.lpstrFile	= file;
     ofn.nMaxFile	= maxstrlen;
