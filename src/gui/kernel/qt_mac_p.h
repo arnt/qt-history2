@@ -265,16 +265,4 @@ inline QMacSavedPortInfo::~QMacSavedPortInfo()
     DisposeRgn(clip);
 }
 
-inline bool qt_mac_can_clickThrough(const QWidget *w)
-{
-    // Idea here is that if a parent doesn't have a clickthrough property,
-    // neither can it's child
-    while (w) {
-	if (w->testAttribute(Qt::WA_MacNoClickThrough))
-	    return false;
-	w = w->parentWidget();
-    }
-    return true;
-}
-
 #endif // QT_MAC_P_H

@@ -2687,6 +2687,21 @@ void QWidget::setForegroundRole(QPalette::ColorRole role)
 }
 
 
+#if defined(Q_WS_MAC)
+static inline bool qt_mac_can_clickThrough(const QWidget *w)
+{
+    // Idea here is that if a parent doesn't have a clickthrough property,
+    // neither can it's child
+    while (w) {
+	if (w->testAttribute(Qt::WA_MacNoClickThrough))
+	    return false;
+	w = w->parentWidget();
+    }
+    return true;
+}
+#endif
+
+
 
 /*!
     \property QWidget::palette
