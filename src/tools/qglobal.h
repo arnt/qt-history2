@@ -418,7 +418,6 @@
    such as template specialization nevertheless */
 #  elif defined(__sgi)
 #    define Q_CC_MIPS
-#    define Q_STRICT_INLINING_RULES
 #    if defined(_MIPS_SIM) && (_MIPS_SIM == _ABIO32) /* o32 ABI */
 #      define Q_TYPENAME
 #      define Q_BROKEN_TEMPLATE_SPECIALIZATION

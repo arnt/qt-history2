@@ -157,8 +157,10 @@ public:
     static QString toString( const QVector<QTextStringChar> &data );
     QString toString() const;
 
-    inline QTextStringChar &at( int i ) const;
-    inline int length() const;
+    inline QTextStringChar &at( int i ) const {
+	return const_cast<QTextString *>(this)->data[ i ];
+    }
+    inline int length() const { return data.size(); }
 
     int width( int idx ) const;
 
@@ -274,7 +276,7 @@ public:
     bool operator==( const QTextCursor &c ) const;
     bool operator!=( const QTextCursor &c ) const { return !(*this == c); }
 
-    inline QTextParagraph *paragraph() const;
+    inline QTextParagraph *paragraph() const { return para; }
 
     QTextDocument *document() const;
     int index() const;
@@ -1106,7 +1108,10 @@ public:
 //     void setFormat( QTextFormat *fm );
 //     QTextFormat *paragFormat() const;
 
-    inline QTextDocument *document() const;
+    inline QTextDocument *document() const {
+	if (hasdoc) return (QTextDocument*) docOrPseudo;
+	return 0;
+    }
     QTextParagraphPseudoDocument *pseudoDocument() const;
 
     QRect rect() const;
@@ -1552,11 +1557,6 @@ public:
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-inline int QTextString::length() const
-{
-    return data.size();
-}
-
 inline int QTextParagraph::length() const
 {
     return str->length();
@@ -1565,11 +1565,6 @@ inline int QTextParagraph::length() const
 inline QRect QTextParagraph::rect() const
 {
     return r;
-}
-
-inline QTextParagraph *QTextCursor::paragraph() const
-{
-    return para;
 }
 
 inline int QTextCursor::index() const
@@ -1825,16 +1820,6 @@ inline bool QTextFormat::useLinkColor() const
     return linkColor;
 }
 
-
-// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-inline QTextStringChar &QTextString::at( int i ) const
-{
-    return const_cast<QTextString *>(this)->data[ i ];
-}
-
-// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 inline QTextStringChar *QTextParagraph::at( int i ) const
 {
     return &str->at( i );
@@ -1927,13 +1912,6 @@ inline QMap<int, QTextLineStart*> &QTextParagraph::lineStartList()
 inline QTextString *QTextParagraph::string() const
 {
     return str;
-}
-
-inline QTextDocument *QTextParagraph::document() const
-{
-    if ( hasdoc )
-	return (QTextDocument*) docOrPseudo;
-    return 0;
 }
 
 inline QTextParagraphPseudoDocument *QTextParagraph::pseudoDocument() const

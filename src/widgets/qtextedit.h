@@ -75,10 +75,6 @@ public:
 	search.line = search.index = 0;
 	tags = lastTag = 0;
     }
-    ~QTextEditOptimPrivate()
-    {
-	clearTags();
-    }
     void clearTags()
     {
 	Tag * itr = tags;
@@ -89,6 +85,10 @@ public:
 	}
 	tags = lastTag = 0;
 	tagIndex.clear();
+    }
+    ~QTextEditOptimPrivate()
+    {
+	clearTags();
     }
     int len;
     int numLines;
