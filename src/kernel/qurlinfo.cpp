@@ -60,7 +60,11 @@ public:
     int permissions;
     QString owner;
     QString group;
+#if defined(QT_LARGEFILE_SUPPORT)
+    QIODevice::Offset size;
+#else
     uint size;
+#endif
     QDateTime lastModified;
     QDateTime lastRead;
     bool isDir;
@@ -160,10 +164,17 @@ QUrlInfo::QUrlInfo( const QUrlInfo &ui )
     isExecutable.
 */
 
+#if defined(QT_ABI_QT4)
+QUrlInfo::QUrlInfo( const QString &name, int permissions, const QString &owner,
+		    const QString &group, QIODevice::Offset size, const QDateTime &lastModified,
+		    const QDateTime &lastRead, bool isDir, bool isFile, bool isSymLink,
+		    bool isWritable, bool isReadable, bool isExecutable )
+#else
 QUrlInfo::QUrlInfo( const QString &name, int permissions, const QString &owner,
 		    const QString &group, uint size, const QDateTime &lastModified,
 		    const QDateTime &lastRead, bool isDir, bool isFile, bool isSymLink,
 		    bool isWritable, bool isReadable, bool isExecutable )
+#endif
 {
     d = new QUrlInfoPrivate;
     d->name = name;
@@ -194,10 +205,17 @@ QUrlInfo::QUrlInfo( const QString &name, int permissions, const QString &owner,
     isExecutable.
 */
 
+#if defined(QT_ABI_QT4)
+QUrlInfo::QUrlInfo( const QUrl &url, int permissions, const QString &owner,
+		    const QString &group, QIODevice::Offset size, const QDateTime &lastModified,
+		    const QDateTime &lastRead, bool isDir, bool isFile, bool isSymLink,
+		    bool isWritable, bool isReadable, bool isExecutable )
+#else
 QUrlInfo::QUrlInfo( const QUrl &url, int permissions, const QString &owner,
 		    const QString &group, uint size, const QDateTime &lastModified,
 		    const QDateTime &lastRead, bool isDir, bool isFile, bool isSymLink,
 		    bool isWritable, bool isReadable, bool isExecutable )
+#endif
 {
     d = new QUrlInfoPrivate;
     d->name = QFileInfo( url.path() ).fileName();
@@ -368,7 +386,11 @@ void QUrlInfo::setGroup( const QString &s )
     \sa isValid()
 */
 
+#if defined(QT_ABI_QT4)
+void QUrlInfo::setSize( QIODevice::Offset size )
+#else
 void QUrlInfo::setSize( uint size )
+#endif
 {
     if ( !d )
 	d = new QUrlInfoPrivate;
@@ -498,11 +520,19 @@ QString QUrlInfo::group() const
     \sa isValid()
 */
 
+#if defined(QT_ABI_QT4)
+QIODevice::Offset QUrlInfo::size() const
+#else
 uint QUrlInfo::size() const
+#endif
 {
     if ( !d )
 	return 0;
+#if defined(QT_LARGEFILE_SUPPORT) && !defined(QT_ABI_QT4)
+    return d->size > UINT_MAX ? UINT_MAX : (uint)d->size;
+#else
     return d->size;
+#endif
 }
 
 /*!

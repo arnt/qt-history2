@@ -41,6 +41,9 @@
 #ifndef QT_H
 #include "qdatetime.h"
 #include "qstring.h"
+#if defined(QT_ABI_QT4)
+#include "qiodevice.h"
+#endif
 #endif // QT_H
 
 class QUrlOperator;
@@ -53,6 +56,18 @@ public:
     QUrlInfo();
     QUrlInfo( const QUrlOperator &path, const QString &file );
     QUrlInfo( const QUrlInfo &ui );
+#if (QT_VERSION-0 >= 0x040000)
+#error "QUrlInfo::QUrlInfo() should accept QIODevice::Offset instead of uint"
+#elif defined(QT_ABI_QT4)
+    QUrlInfo( const QString &name, int permissions, const QString &owner,
+	      const QString &group, QIODevice::Offset size, const QDateTime &lastModified,
+	      const QDateTime &lastRead, bool isDir, bool isFile, bool isSymLink,
+	      bool isWritable, bool isReadable, bool isExecutable );
+    QUrlInfo( const QUrl &url, int permissions, const QString &owner,
+	      const QString &group, QIODevice::Offset size, const QDateTime &lastModified,
+	      const QDateTime &lastRead, bool isDir, bool isFile, bool isSymLink,
+	      bool isWritable, bool isReadable, bool isExecutable );
+#else
     QUrlInfo( const QString &name, int permissions, const QString &owner,
 	      const QString &group, uint size, const QDateTime &lastModified,
 	      const QDateTime &lastRead, bool isDir, bool isFile, bool isSymLink,
@@ -61,6 +76,7 @@ public:
 	      const QString &group, uint size, const QDateTime &lastModified,
 	      const QDateTime &lastRead, bool isDir, bool isFile, bool isSymLink,
 	      bool isWritable, bool isReadable, bool isExecutable );
+#endif
     QUrlInfo &operator=( const QUrlInfo &ui );
     virtual ~QUrlInfo();
 
@@ -70,7 +86,13 @@ public:
     virtual void setSymLink( bool b );
     virtual void setOwner( const QString &s );
     virtual void setGroup( const QString &s );
+#if (QT_VERSION-0 >= 0x040000)
+#error "QUrlInfo::setSize() should accept QIODevice::Offset instead of uint"
+#elif defined(QT_ABI_QT4)
+    virtual void setSize( QIODevice::Offset size );
+#else
     virtual void setSize( uint size );
+#endif
     virtual void setWritable( bool b );
     virtual void setReadable( bool b );
     virtual void setPermissions( int p );
@@ -82,7 +104,13 @@ public:
     int permissions() const;
     QString owner() const;
     QString group() const;
+#if (QT_VERSION-0 >= 0x040000)
+#error "QUrlInfo::size() should return QIODevice::Offset instead of uint"
+#elif defined(QT_ABI_QT4)
+    QIODevice::Offset size() const;
+#else
     uint size() const;
+#endif
     QDateTime lastModified() const;
     QDateTime lastRead() const;
     bool isDir() const;
