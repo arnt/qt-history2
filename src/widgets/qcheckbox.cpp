@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#71 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#72 $
 **
 ** Implementation of QCheckBox class
 **
@@ -24,8 +24,11 @@
   QCheckBox and QRadioButton are both toggle buttons, but a check box
   represents an independent switch that can be on (checked) or off
   (unchecked).
-
+  
   <img src=qchkbox-m.gif> <img src=qchkbox-w.gif>
+
+  \sa QButton QRadioButton
+  <a href="guibooks.html#fowler">Fowler: Check Box.</a>
 */
 
 

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#79 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#80 $
 **
 ** Implementation of QTableView class
 **
@@ -109,6 +109,8 @@ void CornerSquare::paintEvent( QPaintEvent * )
   if autoUpdate() is FALSE.
   This may cause errors if relevant state variables are not initialized.
 
+  \sa QScrollView
+  <a href="guibooks.html#fowler">GUI Design Handbook: Table</a>
 */
 
 

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#131 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#132 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -70,6 +70,10 @@ struct QLineEditPrivate {
   be customized except by inheriting the class.
 
   <img src=qlined-m.gif> <img src=qlined-w.gif>
+  
+  \sa QMultiLineEdit QLabel QComboBox
+  <a href="guibooks.html#fowler">GUI Design Handbook: Field, Entry,</a>
+  <a href="guibooks.html#fowler">GUI Design Handbook: Field, Required.</a>
 */
 
 
@@ -1136,7 +1140,7 @@ QSize QLineEdit::sizeHint() const
 	return QSize( w + 4, h + 4 );
 	
     }
-    
+
 }
 
 

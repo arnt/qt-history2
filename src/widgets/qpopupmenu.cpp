@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#150 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#151 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -142,6 +142,8 @@ static QPopupMenuExtra * lookInPMDict( const QPopupMenu *that )
   <img src=qpopmenu-m.gif> <img src=qpopmenu-w.gif>
 
   \sa QMenuBar
+  <a href="guibooks.html#fowler">GUI Design Handbook: Menu, Drop-Down and
+  Pop-Up</a>
 */
 
 

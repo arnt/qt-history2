@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qcursor.cpp#23 $
 **
 ** Implementation of QCursor class
 **
@@ -47,6 +47,9 @@
   <li> sizeAllCursor : all directions resize
   <li> blankCursor : blank/invisible cursor
   </ul>
+  
+  \sa QWidget
+  <a href="guibooks.html#fowler">GUI Design Handbook: Cursors.</a>
 */
 
 

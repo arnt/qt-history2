@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#133 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#134 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -104,6 +104,10 @@
   <img src="qcombo2-m.gif">(Motif 2, read-write)<br clear=all>
   <img src="qcombo3-m.gif">(Motif 2, read-only)<br clear=all>
   <img src="qcombo1-w.gif">(Windows style)
+
+  \sa QLineEdit QListBox QSpinBox QRadioButton QButtonGroup
+  <a href="guibooks.html#fowler">GUI Design Handbook: Combo Box,</a>
+  <a href="guibooks.html#fowler">GUI Design Handbook: Drop-Down List Box.</a>
 */
 
 

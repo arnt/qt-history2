@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#142 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#143 $
 **
 ** Implementation of QListBox widget class
 **
@@ -364,6 +364,10 @@ int QListBoxPixmap::width( const QListBox * ) const
   and will delete them when they are not needed.
 
   <img src=qlistbox-m.gif> <img src=qlistbox-w.gif>
+  
+  \sa QListView QComboBox QButtonGroup
+  <a href="guibooks.html#fowler">GUI Design Handbook: List Box (two
+  sections)</a>
 */
 
 

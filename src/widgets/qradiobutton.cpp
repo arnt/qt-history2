@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#74 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#75 $
 **
 ** Implementation of QRadioButton class
 **
@@ -32,6 +32,9 @@
   The QButtonGroup widget is very useful for defining groups of radio buttons.
 
   <img src=qradiobt-m.gif> <img src=qradiobt-w.gif>
+
+  \sa QPushButton QToolButton
+  <a href="guibooks.html#fowler">GUI Design Handbook: Radio Button</a>
 */
 
 

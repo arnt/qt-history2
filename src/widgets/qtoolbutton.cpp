@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#24 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#25 $
 **
 ** Implementation of QToolButton class
 **
@@ -38,6 +38,9 @@ class QToolButtonPrivate
 
   This means that it implements the ridiculous Microsoft auto-raise
   feature.  And it isn't finished, either.
+
+  \sa QPushButton QToolButton
+  <a href="guibooks.html#fowler">GUI Design Handbook: Push Button</a>
 */
 
 

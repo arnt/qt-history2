@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#19 $
 **
 ** Implementation of QToolBar class
 **
@@ -29,8 +29,9 @@
 
   Very simple, even.
 
-  \sa QToolButton
-  <a href="http://www.iarchitect.com/visual.htm">Isys on Visual Design</a>
+  \sa QToolButton QMainWindow
+  <a href="http://www.iarchitect.com/visual.htm">Isys on Visual Design,</a>
+  <a href="guibooks.html#fowler">GUI Design Handbook: Tool Bar</a>
 */
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#10 $
 **
 ** Implementation of QStatusBar class
 **
@@ -42,6 +42,8 @@
 
   </ul>
 
+  \sa QToolBar QMainWindow QLabel
+  <a href="guibooks.html#fowler">GUI Design Handbook: Status Bar.</a>
 */
 
 

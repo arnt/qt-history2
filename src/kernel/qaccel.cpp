@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#44 $
 **
 ** Implementation of QAccel class
 **
@@ -47,6 +47,10 @@
 		     myWindow,			// connected to myWindow's
 		     SLOT(printDoc()) );	// printDoc() slot
   \endcode
+
+  \sa QKeyEvent QWidget::keyPressEvent() QMenuData::setAccel()
+  QButton::setAccel()
+  <a href="guibooks.html#fowler">GUI Design Handbook: Keyboard Shortcuts,</a>
 */
 
 
@@ -380,7 +384,7 @@ void QAccel::tlwDestroyed()
 
 
 /* 62 defined shortcuts from the microsoft book:
-   
+
 <b><u>A</u></b>bout
 Insert <b><u>O</u></b>bject
 <b><u>Q</u></b>uick View

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogbar.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qprogbar.cpp#18 $
 **
 ** Implementation of QProgressBar class
 **
@@ -26,6 +26,9 @@
   QProgressDialog provides a fuller encapsulation.
 
   <img src=qprogbar-m.gif> <img src=qprogbar-w.gif>
+  
+  \sa QProgressDialog
+  <a href="guibooks.html#fowler">GUI Design Handbook: Progress Indicator</a>
 */
 
 

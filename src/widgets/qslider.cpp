@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#50 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#51 $
 **
 ** Implementation of QSlider class
 **
@@ -43,7 +43,11 @@ static int sliderStartVal = 0; //##### class member?
 
   A slider has a default focusPolicy() of \a TabFocus.
 
-  <img src=qslider-m.gif> <img src=qslider-w.gif> */
+  <img src=qslider-m.gif> <img src=qslider-w.gif>
+  
+  \sa QScrollBar QSpinBox
+  <a href="guibooks.html#fowler">GUI Design Handbook: Slider</a>
+*/
 
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#112 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#113 $
 **
 ** Implementation of QMenuBar class
 **
@@ -33,6 +33,7 @@
   <img src=qmenubar-m.gif> <img src=qmenubar-w.gif>
 
   \sa QPopupMenu
+  <a href="guibooks.html#fowler">GUI Design Handbook: Menu Bar</a>
 */
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#7 $
 **
 ** Implementation of QIconSet class
 **
@@ -53,6 +53,10 @@ struct QIconSetPrivate: public QShared
 
   QIconSet must be fed at least one icon, and can generate the other
   variants from the ones it is fed, or use programmer-specified icons.
+  
+  \sa QPixmap QLabel QToolButton
+  <a href="guibooks.html#fowler">GUI Design Handbook: Iconic Label.</a>
+
 */
 
 

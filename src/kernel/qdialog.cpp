@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#48 $
 **
 ** Implementation of QDialog class
 **
@@ -70,6 +70,9 @@
 
   Modeless dialogs behave just like ordinary widgets. The only difference
   is that they have the default button mechanism.
+
+  \sa QTabDialog QWidget QSemiModal
+  <a href="guibooks.html#fowler">GUI Design Handbook: Dialogs, Standard.</a>
 */
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#64 $
+** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#65 $
 **
 ** Implementation of QMessageBox class
 **
@@ -283,7 +283,9 @@ static const unsigned char critical_gif_data[] = {
   <img src=qmsgbox-m.gif> <img src=qmsgbox-w.gif>
 
   \sa QDialog, <a href="http://www.iarchitect.com/errormsg.htm">Isys on
-  error messages</a>
+  error messages,</a>
+  <a href="guibooks.html#fowler">GUI Design Handbook: Message Box.</a>
+
 */
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#110 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#111 $
 **
 ** Implementation of QPushButton class
 **
@@ -32,6 +32,9 @@
   get keyboard focus by tabbing but not by clicking.
 
   <img src=qpushbt-m.gif> <img src=qpushbt-w.gif>
+  
+  \sa QRadioButton QToolButton
+  <a href="guibooks.html#fowler">GUI Design Handbook: Push Button</a>
 */
 
 
@@ -344,7 +347,7 @@ void QPushButton::drawButton( QPainter *paint )
 	    bx3 = bx2 + (bx2-bx1) + 1;		// left side of stem
 	    bx4 = bx3 + (by5-by3) - 1;		// right side of stem
 	    by1 = by2 - 1;			// end of stem
-	    
+	
 	    if ( hasMenuArrow ) {
 		by1 -= (y2 - y1)/3;
 		by2 -= (y2 - y1)/3;
@@ -459,7 +462,7 @@ void QPushButton::focusInEvent( QFocusEvent *e )
 
   setIsMenuButton() does not cause the button to do anything other
   than draw the menu indication.
-  
+
   \sa isMenuButton()
 */
 
@@ -474,7 +477,7 @@ void QPushButton::setIsMenuButton( bool enable )
 
 /*!  Returns TRUE if this button indicates to the user that pressing
   it will pop up a menu, and FALSE otherwise.  The default is FALSE.
-  
+
   \sa setIsMenuButton()
 */
 

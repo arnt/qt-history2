@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#49 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#50 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -81,7 +81,7 @@ private:
 ** QTipManager meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Mon Mar 17 12:39:34 1997
-**      by: The Qt Meta Object Compiler ($Revision: 2.44 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.45 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -582,7 +582,8 @@ void QTipManager::hideTip()
   can forcibly remove the tip by calling remove() with no arguments.
   This is handy if the widget scrolls.
 
-  \sa QStatusBar QWhatsThis
+  \sa QStatusBar QWhatsThis QToolTipGroup
+  <a href="guibooks.html#fowler">GUI Design Handbook: Tool Tip</a>
 */
 
 

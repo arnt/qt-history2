@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#91 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#92 $
 **
 ** Implementation of QScrollBar class
 **
@@ -86,6 +86,9 @@
   \ingroup realwidgets
 
   <img src=qscrbar-m.gif> <img src=qscrbar-w.gif>
+  
+  \sa QSlider QSpinBox
+  <a href="guibooks.html#fowler">GUI Design Handbook: Scroll Bar</a>
 */
 
 
