@@ -142,6 +142,10 @@ struct QTextHtmlParserNode {
     QTextCharFormat charFormat() const;
 
     QStyleSheetItem::WhiteSpaceMode wsm;
+
+    inline bool isNotSelfNesting() const
+    { return id == Html_p || id == Html_li; }
+
 private:
     void setAttributesFromId();
 

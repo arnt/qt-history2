@@ -575,21 +575,6 @@ static QString quoteNewline(const QString &s)
     return n;
 }
 
-static QTextListFormat::Style convertListStyle(QStyleSheetItem::ListStyle style)
-{
-    switch (style) {
-        case QStyleSheetItem::ListDisc: return QTextListFormat::ListDisc;
-        case QStyleSheetItem::ListCircle: return QTextListFormat::ListCircle;
-        case QStyleSheetItem::ListSquare: return QTextListFormat::ListSquare;
-        case QStyleSheetItem::ListDecimal: return QTextListFormat::ListDecimal;
-        case QStyleSheetItem::ListLowerAlpha: return QTextListFormat::ListLowerAlpha;
-        case QStyleSheetItem::ListUpperAlpha: return QTextListFormat::ListUpperAlpha;
-        case QStyleSheetItem::ListStyleUndefined: return QTextListFormat::ListStyleUndefined;
-    }
-    Q_ASSERT(false);
-    return QTextListFormat::ListStyleUndefined;
-}
-
 QTextHtmlParserNode::QTextHtmlParserNode()
     : parent(0), isBlock(false), isListItem(false), isListStart(false), isTableCell(false), isAnchor(false),
       fontItalic(false), fontUnderline(false), fontOverline(false),
@@ -987,7 +972,7 @@ void QTextHtmlParser::resolveParent()
 
     // some elements are not self nesting
     if (node->tag == at(p).tag) {
-        if (node->style && !node->style->selfNesting())
+        if (node->style && node->isNotSelfNesting())
             p = at(p).parent;
     }
 
