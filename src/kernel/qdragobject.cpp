@@ -538,11 +538,10 @@ public:
     }
 };
 
-/*!
-  Sets the MIME subtype of the text begin dragged. The default subtype
-  is "plain", thus the default MIME type of the text is "text/plain".
-  You might use this to declare that the text is "text/html" by
-  calling setSubtype("html").
+/*!  Sets the MIME subtype of the text being dragged. The default subtype
+  is "plain", so the default MIME type of the text is "text/plain".  You
+  might use this to declare that the text is "text/html" by calling
+  setSubtype("html").
 */
 void QTextDrag::setSubtype( const QCString & st)
 {
@@ -560,7 +559,7 @@ void QTextDrag::setSubtype( const QCString & st)
 
   Qt provides no built-in mechanism for delivering only single-line.
 
-  Drag&Drop text does \e not have a NUL terminator when it
+  Drag-and-Drop text does \e not have a NULL terminator when it
   is dropped onto the target.
 
   For detailed information about drag-and-drop, see the QDragObject class.
@@ -568,7 +567,7 @@ void QTextDrag::setSubtype( const QCString & st)
 
 
 /*!  Constructs a text drag object and sets it to \a text.  \a dragSource
-  must be the drag source, \a name is the object name. */
+  must be the drag source; \a name is the object name. */
 
 QTextDrag::QTextDrag( const QString &text,
 		      QWidget * dragSource, const char * name )
@@ -580,7 +579,7 @@ QTextDrag::QTextDrag( const QString &text,
 
 
 /*!  Constructs a default text drag object.  \a dragSource must be the drag
-  source, \a name is the object name.
+  source; \a name is the object name.
 */
 
 QTextDrag::QTextDrag( QWidget * dragSource, const char * name )
@@ -687,7 +686,7 @@ bool QTextDrag::canDecode( const QMimeSource* e )
 /*!
   Attempts to decode the dropped information in \a e
   into \a str, returning TRUE if successful.  If \a subtype is null,
-  any text subtype is accepted, otherwise only that specified is
+  any text subtype is accepted; otherwise only that specified is
   accepted.  \a subtype is set to the accepted subtype.
 
   \sa canDecode()
@@ -775,7 +774,7 @@ public:
 */
 
 /*!  Constructs an image drag object and sets it to \a image.  \a dragSource
-  must be the drag source, \a name is the object name. */
+  must be the drag source; \a name is the object name. */
 
 QImageDrag::QImageDrag( QImage image,
 			QWidget * dragSource, const char * name )
@@ -786,7 +785,7 @@ QImageDrag::QImageDrag( QImage image,
 }
 
 /*!  Constructs a default text drag object.  \a dragSource must be the drag
-  source, \a name is the object name.
+  source; \a name is the object name.
 */
 
 QImageDrag::QImageDrag( QWidget * dragSource, const char * name )
@@ -935,7 +934,7 @@ bool QImageDrag::decode( const QMimeSource* e, QPixmap& pm )
   \class QStoredDrag qdragobject.h
   \brief Simple stored-value drag object for arbitrary MIME data.
 
-  When a block of data only has one representation, you can use
+  When a block of data has only one representation, you can use
   a QStoredDrag to hold it.
 
   For detailed information about drag-and-drop, see the QDragObject class.
@@ -977,7 +976,7 @@ const char * QStoredDrag::format(int i) const
 
 /*!
   Sets the encoded data of this drag object to \a encodedData.  The
-  encoded data is what's delivered to the drop sites, and must be in a
+  encoded data is what's delivered to the drop sites. It must be in a
   strictly defined and portable format.
 
   The drag object can't be dropped (by the user) until this function
@@ -1008,15 +1007,14 @@ QByteArray QStoredDrag::encodedData(const char* m) const
   \brief Provides for drag-and-drop of a list of URI references.
 
   URIs are a useful way to refer to files that may be distributed
-  across multiple machines.  Much of the time a URI will refer to
+  across multiple machines.  A URI will often refer to
   a file on a machine local to both the drag source and the
-  drop target, and so the URI will be equivalent to passing a
-  filename, but more extensible.
+  drop target, so the URI will be equivalent to passing a
+  file name but will be more extensible.
 
-  While presenting URIs to the user, use them in Unicode form so
-  that the user can comfortably edit and view them.
-  For use in HTTP or other protocols, use the correctly escaped
-  ASCII form (see
+  Use URIs in Unicode form so that the user can comfortably edit and view
+  them.  For use in HTTP or other protocols, use the correctly escaped
+  ASCII form.
 */
 
 /*!
@@ -1252,7 +1250,7 @@ QString QUriDrag::uriToUnicodeUri(const char* uri)
 }
 
 /*!
-  Returns the name of a local file equivalent to \a uri,
+  Returns the name of a local file equivalent to \a uri
   or a null string if \a uri is not a local file.
 
   \sa localFileToUri()
@@ -1351,9 +1349,9 @@ QWidget* QDropEvent::source() const
 
   \ingroup draganddrop
 
-  This class provides a drag object which can be used to transfer
-  data about colors for drag-and-drop and over the clipboard. It's
-  e.g. used in the QColorDialog.
+  This class provides a drag object which can be used to transfer data
+  about colors for drag-and-drop and over the clipboard. For example, it
+  is used in the QColorDialog.
 
   For detailed information about drag-and-drop, see the QDragObject class.
 */
@@ -1379,7 +1377,7 @@ QColorDrag::QColorDrag( QWidget *dragsource, const char *name )
 }
 
 /*!
-  Sets the color of the color drag to \a col
+  Sets the color of the color drag to \a col.
 */
 
 void QColorDrag::setColor( const QColor &col )
@@ -1396,7 +1394,7 @@ void QColorDrag::setColor( const QColor &col )
 }
 
 /*!
-  Returns TRUE, if the color drag object can decode the
+  Returns TRUE if the color drag object can decode the
   mime source \a e.
 */
 

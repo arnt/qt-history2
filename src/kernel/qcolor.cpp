@@ -42,7 +42,6 @@
 #include <ctype.h>
 
 
-// NOT REVISED
 /*!
   \class QColor qcolor.h
   \brief The QColor class provides colors based on RGB.
@@ -51,8 +50,8 @@
   \ingroup drawing
   \ingroup appearance
 
-  A color is normally specified in terms of RGB (red,green and blue)
-  components, but it is also possible to specify HSV (hue,saturation
+  A color is normally specified in terms of RGB (red, green and blue)
+  components, but it is also possible to specify HSV (hue, saturation
   and value) or set a color name (the names are copied from from the
   X11 color database).
 
@@ -74,38 +73,38 @@
   (lazy allocation), that is, whenever the pixel() function is called:
 
   <ol>
-  <li>Is the pixel value valid? If it is, just return it, otherwise,
+  <li>Is the pixel value valid? If it is, just return it; otherwise,
   allocate a pixel value.
   <li>Check an internal hash table to see if we allocated an equal RGB
   value earlier. If we did, set the pixel value and return.
   <li>Try to allocate the RGB value. If we succeed, we get a pixel value
-  which we save in the internal table with the RGB value.
+  that we save in the internal table with the RGB value.
   Return the pixel value.
   <li>The color could not be allocated. Find the closest matching
   color and save it in the internal table.
   </ol>
 
-  Since many people don't know the HSV color model very well, we'll
+  Because many people don't know the HSV color model very well, we'll
   cover it briefly here.
 
   The RGB model is hardware-oriented.  Its representation is close to
   what most monitors show.  In contrast, HSV represents color in a way
   more suited to traditional human perception of color.  For example,
   the relationships "stronger than", "darker than", "the opposite of"
-  are easily expressed in HSV, but are much harder to express in RGB.
+  are easily expressed in HSV but are much harder to express in RGB.
 
-  HSV, like RGB, has three components.  They are: <ul> <li> H, for
+  HSV, like RGB, has three components:  <ul> <li> H, for
   hue, is either 0-360 if the color is chromatic (not gray), or
   meaningless if it is gray.  It represents degrees on the color wheel
   familiar to most people.  Red is 0 (degrees), green is 120 and blue
-  is 240. <li> S, for saturation, is 0-255 and the bigger it is, the
-  stronger the color is.  Grayish colors have saturation near 0, very
+  is 240. <li> S, for saturation, is 0-255, and the bigger it is, the
+  stronger the color is.  Grayish colors have saturation near 0; very
   strong colors have saturation near 255. <li> V, for value, is 0-255
-  and represents lightness or brightness of the color.  0 is black,
+  and represents lightness or brightness of the color.  0 is black;
   255 is far from black as possible. </ul>
 
   Here are some examples: Pure red is H=0, S=255, V=255.  A dark red,
-  moving slightly towards the magenta, could be H=350 (equvalent to
+  moving slightly towards the magenta, could be H=350 (equivalent to
   -10), S=255, V=180.  A grayish light red could have H about 0 (say
   350-359 or 0-10), S about 50-100, and S=255.
 
@@ -232,7 +231,7 @@ void QColor::initGlobalColors()
 
 
 /*!
-  Constructs a color with a RGB value and a custom pixel value.
+  Constructs a color with an RGB value and a custom pixel value.
 
   If the \a pixel = 0xffffffff, then the color uses the RGB value in a
   standard way.	 If \a pixel is something else, then the pixel value will
@@ -254,7 +253,7 @@ QColor::QColor( QRgb rgb, uint pixel )
   Constructs a color with the RGB \e or HSV value \a (x,y,z).
 
   The \e (x,y,z) triplet defines an RGB value if \a colorSpec == \c
-  QColor::Rgb.	\a x (red), \a y (green) and \a z (blue) must be in the
+  QColor::Rgb.	\a x (red), \a y (green), and \a z (blue) must be in the
   range 0..255.
 
   The \a (x,y,z) triplet defines a HSV value if \a colorSpec == \c
@@ -326,13 +325,13 @@ QColor &QColor::operator=( const QColor &c )
 
 /*!
   \fn bool QColor::isValid() const
-  Returns FALSE if the color is invalid, i.e. it was constructed using the
+  Returns FALSE if the color is invalid, i.e., it was constructed using the
   default constructor.
 */
 
 /*!
   \fn bool QColor::isDirty() const
-  Returns TRUE if the color is dirty, i.e. lazy allocation is enabled and
+  Returns TRUE if the color is dirty, i.e., lazy allocation is enabled and
   an RGB/HSV value has been set but not allocated.
   \sa setLazyAlloc(), alloc(), pixel()
 */
@@ -375,8 +374,8 @@ static int hex2int( QChar hexchar )
   <li> #RRGGBB
   <li> #RRRGGGBBB
   <li> #RRRRGGGGBBBB
-  <li> A named from the X color database (rgb.txt),  e.g.
-  "steelblue" or "gainsboro".  These color names also work
+  <li> A named from the X color database (rgb.txt) (e.g.
+  "steelblue" or "gainsboro").  These color names also work
   under Qt for Windows.
   </ul>
 */
@@ -430,7 +429,7 @@ void QColor::setNamedColor( const QString& name )
   \arg \e *s, saturation.
   \arg \e *v, value.
 
-  The hue defines the color. Its range is 0..359 if the color is chromatic
+  The hue defines the color. Its range is 0..359 if the color is chromatic,
   and -1 if the color is achromatic.  The saturation and value both vary
   between 0 and 255 inclusive.
 
@@ -624,7 +623,7 @@ void QColor::setRgb( QRgb rgb )
   dark(10000 / \e factor).
 
   This function converts the current RGB color to HSV, multiplies V with
-  \e factor and converts back to RGB.
+  \e factor, and converts back to RGB.
 
   \sa dark()
 */
@@ -656,7 +655,7 @@ QColor QColor::light( int factor ) const
 
   Returns a darker color if \e factor is greater than 100.
   Setting \e factor to 300 returns a color that has
-  one third the brightness.
+  one-third the brightness.
 
   Returns a lighter color if \e factor is less than 100, equal to
   light(10000 / \e factor).

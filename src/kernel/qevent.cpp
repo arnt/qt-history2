@@ -40,16 +40,15 @@
 #include "qapplication.h"
 
 
-// BEING REVISED: paul
 /*!
   \class QEvent qevent.h
-  \brief The QEvent class is base class of all
+  \brief The QEvent class is the base class of all
   event classes. Event objects contain event parameters.
 
   \ingroup environment
   \ingroup event
 
-  The   main event loop of Qt (QApplication::exec()) fetches
+  The main event loop of Qt (QApplication::exec()) fetches
   native window system events from the event queue, translates them
   into QEvent and sends the translated events to QObjects.
 
@@ -65,7 +64,7 @@
   QObject::installEventFilter() allows an object to intercept events
   to another object.
 
-  The basic QEvent only contains an event type parameter.  Subclasses
+  The basic QEvent contains only an event type parameter.  Subclasses
   of QEvent contain additional parameters that describe the particular
   event.
 
@@ -104,7 +103,7 @@
 /*! \enum QEvent::Type
 
   This enum type defines the valid event types in Qt.  The currently
-  defined event types, and the specialized classes for each type, are: <ul>
+  defined event types and the specialized classes for each type are as follow: <ul>
 
   <li> \c None - not an event
   <li> \c Timer - regular timer events, QTimerEvent
@@ -112,7 +111,7 @@
   <li> \c MouseButtonRelease - mouse release, QMouseEvent
   <li> \c MouseButtonDblClick - mouse press again, QMouseEvent
   <li> \c MouseMove - mouse move, QMouseEvent
-  <li> \c KeyPress - key press (including e.g. shift), QKeyEvent
+  <li> \c KeyPress - key press (including shift, for example), QKeyEvent
   <li> \c KeyRelease - key release, QKeyEvent
   <li> \c FocusIn - widget gains keyboard focus, QFocusEvent
   <li> \c FocusOut - widget loses keyboard focus, QFocusEvent
@@ -124,30 +123,30 @@
   <li> \c Show - widget was shown on screen, QShowEvent
   <li> \c Hide - widget was removed from screen, QHideEvent
   <li> \c Close - widget was closed (permanently), QCloseEvent
-  <li> \c Accel - key press in child, for shortcut key handling, QKeyEvent
+  <li> \c Accel - key press in child for shortcut key handling, QKeyEvent
   <li> \c Wheel - mouse wheel rolled, QWheelEvent
-  <li> \c AccelAvailable - an internal event used by Qt on some platforms.
+  <li> \c AccelAvailable - internal event used by Qt on some platforms
   <li> \c AccelOverride - key press in child, for overriding shortcut key handling, QKeyEvent
- <li> \c WindowActivate - the window was activated
- <li> \c WindowDeactivate - the window was deactivated
+  <li> \c WindowActivate - the window was activated
+  <li> \c WindowDeactivate - the window was deactivated
   <li> \c CaptionChange - widget's caption changed
   <li> \c IconChange - widget's icon changed
-  <li> \c ParentFontChange - the font of the parent widget changed.
-  <li> \c ApplicationFontChange - the default application font changed.
-  <li> \c ParentPaletteChange - the palette of the parent widget changed.
-  <li> \c ApplicationPaletteChange - the default application palette changed.
+  <li> \c ParentFontChange - the font of the parent widget changed
+  <li> \c ApplicationFontChange - the default application font changed
+  <li> \c ParentPaletteChange - the palette of the parent widget changed
+  <li> \c ApplicationPaletteChange - the default application palette changed
   <li> \c Clipboard - system clipboard contents have changed
   <li> \c SockAct - socket activated, used to implement QSocketNotifier
   <li> \c DragEnter - drag-and-drop enters widget, QDragEnterEvent
   <li> \c DragMove - drag-and-drop in progress, QDragMoveEvent
   <li> \c DragLeave - drag-and-drop leaves widget, QDragLeaveEvent
   <li> \c Drop - drag-and-drop is completed, QDropEvent
-  <li> \c DragResponse - an internal event used by Qt on some platforms.
+  <li> \c DragResponse - internal event used by Qt on some platforms
   <li> \c ChildInserted - object gets a child, QChildEvent
   <li> \c ChildRemoved - object loses a child, QChildEvent
   <li> \c LayoutHint - a widget child has changed layout properties
-  <li> \c ActivateControl - an internal event used by Qt on some platforms.
-  <li> \c DeactivateControl - an internal event used by Qt on some platforms.
+  <li> \c ActivateControl - internal event used by Qt on some platforms
+  <li> \c DeactivateControl - internal event used by Qt on some platforms
   <li> \c Quit - reserved
   <li> \c Create - reserved
   <li> \c Destroy - reserved
@@ -209,14 +208,14 @@
   \ingroup event
 
   Mouse events occur when a mouse button is pressed or released inside a
-  widget, or when the mouse cursor is moved.
+  widget or when the mouse cursor is moved.
 
-  Mouse move events will only occur when some mouse button is pressed
+  Mouse move events will occur only when some mouse button is pressed
   down, unless mouse tracking has been enabled with
   QWidget::setMouseTracking().
 
   Qt automatically grabs the mouse when a mouse button is pressed inside a
-  widget, and the widget will continue to receive mouse events until the
+  widget; the widget will continue to receive mouse events until the
   last mouse button is released.
 
   The functions pos(), x() and y() give the cursor position relative
@@ -244,9 +243,9 @@
   \c QEvent::MouseButtonDblClick or \c QEvent::MouseMove.
 
   The \a pos parameter specifies the position relative to the
-  receiving widget; \a button specifies the ButtonState of the button
+  receiving widget. \a button specifies the ButtonState of the button
   that caused the event, which should be 0 if \a type is \c
-  MouseMove; \a state is the ButtonState at the time of the event.
+  MouseMove. \a state is the ButtonState at the time of the event.
 
   The globalPos() is initialized to QCursor::pos(), which may not be
   appropriate. Use the other constructor to specify the global position
@@ -269,15 +268,15 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
   \c QEvent::MouseButtonDblClick or \c QEvent::MouseMove.
 
   The \a pos parameter specifies the position relative to the
-  receiving widget; \a globalPos is the position in absolute
-  coordinates; \a button specifies the ButtonState of the button that
-  caused the event, which should be 0 if \a type is \c MouseMove; and
+  receiving widget. \a globalPos is the position in absolute
+  coordinates. \a button specifies the ButtonState of the button that
+  caused the event, which should be 0 if \a type is \c MouseMove.
   \a state is the ButtonState at the time of the event.
 */
 
 /*!
   \fn const QPoint &QMouseEvent::pos() const
-  Returns the position of the mouse pointer, relative to the widget that
+  Returns the position of the mouse pointer relative to the widget that
   received the event.
 
   If you move the widget as a result of the mouse event, use the
@@ -291,10 +290,10 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
 
   Returns the global position of the mouse pointer \e at \e the \e
   time of the event. This is important on asynchronous window systems
-  like X11: Whenever you move your widgets around in response to mouse
-  evens, globalPos() can differ a lot from the current pointer
+  like X11. Whenever you move your widgets around in response to mouse
+  events, globalPos() can differ a lot from the current pointer
   position QCursor::pos(), and from
-  <code> QWidget::mapToGlobal( pos() ) </code>.
+  QWidget::mapToGlobal( pos() ).
 
   \sa globalX(), globalY()
 */
@@ -315,13 +314,13 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
 
 /*!
   \fn int QMouseEvent::globalX() const
-  Returns the global X position of the mouse pointer at the time of the event
+  Returns the global X position of the mouse pointer at the time of the event.
   \sa globalY(), globalPos()
 */
 
 /*!
   \fn int QMouseEvent::globalY() const
-  Returns the global Y position of the mouse pointer at the time of the event
+  Returns the global Y position of the mouse pointer at the time of the event.
   \sa globalX(), globalPos()
 */
 
@@ -343,14 +342,14 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
   \fn ButtonState QMouseEvent::state() const
 
   Returns the button state (a combination of mouse buttons and keyboard
-  modifiers), i.e. what buttons and keys were being held depressed
+  modifiers), i.e., what buttons and keys were being held depressed
   immediately before the event was generated.
 
   Note that this means that for \c QEvent::MouseButtonPress and \c
   QEvent::MouseButtonDblClick, the flag for the button() itself will not be
-  set in the state; while for \c QEvent::MouseButtonRelease, it will.
+  set in the state, whereas for \c QEvent::MouseButtonRelease it will.
 
-  This value is mainly interesting for \c QEvent::MouseMove, for the
+  This value is mainly interesting for \c QEvent::MouseMove; for the
   other cases, button() is more useful.
 
   The returned value is \c LeftButton, \c RightButton, \c MidButton,
@@ -417,14 +416,14 @@ Qt::ButtonState QMouseEvent::stateAfter() const
   pos() and globalPos() return the mouse pointer location at the
   time of the event.
 
-  A wheel event contains a special accept flag which tells whether the
+  A wheel event contains a special accept flag that tells whether the
   receiver wants the event.  You should call QWheelEvent::accept() if you
-  handle the wheel event, otherwise it will be sent to the parent widget.
+  handle the wheel event; otherwise it will be sent to the parent widget.
 
   The QWidget::setEnable() function can be used to enable or disable mouse
   and keyboard events for a widget.
 
-  The event handler QWidget::wheelEvent() receive wheel events.
+  The event handler QWidget::wheelEvent() receives wheel events.
 
   \sa QMouseEvent, QWidget::grabMouse()
 */
@@ -435,7 +434,7 @@ Qt::ButtonState QMouseEvent::stateAfter() const
   Constructs a wheel event object.
 
   The globalPos() is initialized to QCursor::pos(), which usually is
-  right but not always. Use the other constructor if you need to
+  right (but not always). Use the other constructor if you need to
   specify the global position explicitly.
 
   \sa pos(), delta(), state()
@@ -458,16 +457,16 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state )
 /*!
   \fn int QWheelEvent::delta() const
 
-  Returns the distance that the wheel is rotated, expressed in
-  multiples or divisions of WHEEL_DELTA, which is set at 120
-  currently.A positive value indicates that the wheel was rotated
-  forward, away from the user; a negative value indicates that the
-  wheel was rotated backward, toward the user.
+  Returns the distance that the wheel is rotated expressed in
+  multiples or divisions of WHEEL_DELTA, which is currently set at 120.
+  A positive value indicates that the wheel was rotated
+  forward away from the user; a negative value indicates that the
+  wheel was rotated backward toward the user.
 
   The WHEEL_DELTA constant was set to 120 by the wheel mouse vendors
   to allow building finer-resolution wheels in the future, including
-  perhaps a freely-rotating wheel with no notches. The expectation is
-  that such a device would send more messages per rotation, but with a
+  perhaps a freely rotating wheel with no notches. The expectation is
+  that such a device would send more messages per rotation but with a
   smaller value in each message.
 */
 
@@ -477,7 +476,7 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state )
   received the event.
 
   If you move your widgets around in response to mouse
-  evens, use globalPos() instead of this function.
+  events, use globalPos() instead of this function.
 
   \sa x(), y(), globalPos()
 */
@@ -502,8 +501,8 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state )
 
   Returns the global position of the mouse pointer \e at \e the \e
   time of the event. This is important on asynchronous window systems
-  like X11: Whenever you move your widgets around in response to mouse
-  evens, globalPos() can differ a lot from the current pointer
+  such as X11; whenever you move your widgets around in response to mouse
+  events, globalPos() can differ a lot from the current pointer
   position QCursor::pos().
 
   \sa globalX(), globalY()
@@ -511,13 +510,13 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state )
 
 /*!
   \fn int QWheelEvent::globalX() const
-  Returns the global X position of the mouse pointer at the time of the event
+  Returns the global X position of the mouse pointer at the time of the event.
   \sa globalY(), globalPos()
 */
 
 /*!
   \fn int QWheelEvent::globalY() const
-  Returns the global Y position of the mouse pointer at the time of the event
+  Returns the global Y position of the mouse pointer at the time of the event.
   \sa globalX(), globalPos()
 */
 
@@ -526,13 +525,13 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state )
   \fn ButtonState QWheelEvent::state() const
   Returns the keyboard modifier flags of the event.
 
-  The returned value is \c ShiftButton, \c ControlButton and \c AltButton
+  The returned value is \c ShiftButton, \c ControlButton, and \c AltButton
   OR'ed together.
 */
 
 /*!
   \fn bool QWheelEvent::isAccepted() const
-  Returns TRUE if the receiver of the event handles the wheel event
+  Returns TRUE if the receiver of the event handles the wheel event.
 */
 
 /*!
@@ -559,6 +558,26 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state )
 */
 
 
+/*! \enum Qt::Modifier
+
+  This enum type describes the keyboard modifier keys supported by Qt.
+  The currently defined values are:<ul>
+
+  <li> SHIFT (0x00200000) - the shift keys provided on all normal keyboards
+  <li> CTRL (0x00400000) - the control keys
+  <li> ALT (0x00800000) - the normal alt keys, but not e.g. AltGr.
+  <li> UNICODE_ACCEL - the accelerator is specified as a Unicode code
+  point, not a Qt Key
+
+  </ul>
+*/
+
+/*! \enum Qt::Modifier
+
+  This enum type lists all the keys known by Qt.
+  The currently defined values are:<ul>
+
+
 
 /*!
   \class QKeyEvent qevent.h
@@ -569,7 +588,7 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state )
   Key events occur when a key is pressed or released when a widget has
   keyboard input focus.
 
-  A key event contains a special accept flag which tells whether the
+  A key event contains a special accept flag that tells whether the
   receiver wants the key.  You should call QKeyEvent::ignore() if the
   key press or release event is not handled by your widget.
 
@@ -589,12 +608,12 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state )
 
   The \a type parameter must be \c QEvent::KeyPress or \c QEvent::KeyRelease.
 
-  If \a key is 0, the event is not a result of a known key (e.g. it
+  If \a key is 0 the event is not a result of a known key (e.g., it
   may be the result of a compose sequence or keyboard macro).
 
   \a text will be returned by text().
 
-  If \a autorep is TRUE then isAutoRepeat() will be TRUE.
+  If \a autorep is TRUE, isAutoRepeat() will be TRUE.
 
   \a count is the number of single keys.
 
@@ -608,7 +627,7 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state )
   The header file qnamespace.h lists the possible keyboard codes.  These codes
   are independent of the underlying window system.
 
-  Key code 0 means that the event is not a result of a known key (e.g. it
+  Key code 0 means that the event is not a result of a known key (e.g., it
   may be the result of a compose sequence or keyboard macro).
 */
 
@@ -622,7 +641,7 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state )
 
 /*!
   \fn QString QKeyEvent::text() const
-  Returns the Unicode text which this key generated.
+  Returns the Unicode text that this key generated.
 
   \sa QWidget::setKeyCompression()
 */
@@ -682,8 +701,8 @@ Qt::ButtonState QKeyEvent::stateAfter() const
   Returns TRUE if this event comes from an auto-repeating key and
   FALSE if it comes from an initial press.
 
-  Note that if the event is a multiple-key compressed event which
-  partly is due to autorepeat, this function returns an indeterminate
+  Note that if the event is a multiple-key compressed event that
+  partly is due to auto-repeat, this function returns an indeterminate
   value.
 */
 
@@ -693,7 +712,7 @@ Qt::ButtonState QKeyEvent::stateAfter() const
   Returns the number of single keys for this event. If text() is not
   empty, this is simply the length of the string.
 
-  However, Qt also compresses invisible keycodes, such as BackSpace.
+  However, Qt also compresses invisible keycodes such as BackSpace.
   For those, count() returns the number of key presses/repeats this
   event represents.
 
@@ -722,9 +741,8 @@ Qt::ButtonState QKeyEvent::stateAfter() const
   \ingroup event
 
   Focus events are sent to widgets when the keyboard input focus
-  changes.  This happens due to either a mouse action, the tab key,
-  the window system, a keyboard shortcut or some other application
-  specific issue. The actual reason for a specific event is obtained by
+  changes.  This happens due to a mouse action, the Tab key,
+  the window system, a keyboard shortcut, or some other application-specific issue. The actual reason for a specific event is obtained by
   reason() in the appropriate event handler.
 
   The event handlers QWidget::focusInEvent() and QWidget::focusOutEvent()
@@ -749,13 +767,13 @@ QFocusEvent::Reason QFocusEvent::prev_reason = QFocusEvent::Other;
 /*! \enum QFocusEvent::Reason
 
   <ul>
-  <li> \c Mouse - the focus change happened because of a mouse action
+  <li> \c Mouse - the focus change happened because of a mouse action.
   <li> \c Tab - the focus change happened because of a Tab press
-        (possibly including shift/control)
-  <li> \c ActiveWindow - the window system made this window (in)active
-  <li> \c Popup - the application opened/closed a popup that grabbed/released focus
-  <li> \c Shortcut - the focus change happened because of a keyboard shortcut
-  <li> \c Other - any other reason, usually application-specific
+        (possibly including Shift/Control).
+  <li> \c ActiveWindow - the window system made this window (in)active.
+  <li> \c Popup - the application opened/closed a popup that grabbed/released focus.
+  <li> \c Shortcut - the focus change happened because of a keyboard shortcut.
+  <li> \c Other - any other reason, usually application-specific.
   </ul>
 
    See the \link focus.html focus overview \endlink for more about focus.
@@ -812,19 +830,19 @@ void QFocusEvent::resetReason()
   \ingroup event
 
   Paint events are sent to widgets that need to update themselves, for
-  instance when a part of a widget is exposed because an overlying
-  widget is moved away.
+  instance when part of a widget is exposed because an overlying widget is
+  moved.
 
   The event contains a region() that needs to be updated, and a rect()
-  that is the bounding rectangle of that region. Both are provided
-  because many widgets can't make much use of region(), and rect() can
-  be much faster than region().boundingRect().  Painting is clipped to
-  region() during processing of a paint event.
-  
+  that is the bounding rectangle of that region. Both are provided because
+  many widgets can't make much use of region(), and rect() can be much
+  faster than region().boundingRect().  Painting is clipped to region()
+  during processing of a paint event.
+
   The erased() function returns TRUE if the region() has been cleared
   to the widget's background (see QWidget::backgroundMode()), and
   FALSE if the region's contents are arbitrary.
-  
+
   \sa QPainter QWidget::update() QWidget::repaint()
   QWidget::paintEvent() QWidget::backgroundMode() QRegion
 */
@@ -936,15 +954,15 @@ void QFocusEvent::resetReason()
   by choosing "Close" from the window menu. They are also sent when you
   call QWidget::close() to close a widget from inside the program.
 
-  Close events contain a special accept flag which tells whether the
+  Close events contain a special accept flag that tells whether the
   receiver wants the widget to be closed.  When a widget accepts the
   close event, it is hidden. If it refuses to accept the close event,
-  either nothing happens or it is forcibly closed, if the sender of
+  either nothing happens or it is forcibly closed if the sender of
   the close event really wants to.
 
   The main widget of the application - QApplication::mainWidget() - is
   a special case.  When it accepts the close event, Qt leaves the main
-  event loop and the application is immediately terminated (i.e. it
+  event loop and the application is immediately terminated (i.e., it
   returns back from the call to QApplication::exec() in your main()
   function).
 
@@ -959,14 +977,14 @@ void QFocusEvent::resetReason()
 
   If you want your widget also to be deleted when it is closed, simply
   create it with the \c WDestructiveClose widget flag.  This is very
-  useful for the independent top-level windows of a multi window
+  useful for the independent top-level windows of a multi-window
   application. The Application Walkthrough example uses this too.
 
   QObject emits the \link QObject::destroyed() destroyed()\endlink signal
   when it is deleted.  This is a useful signal if a widget needs to know
   when another widget is deleted.
 
-  If the last top level window is closed, the
+  If the last top-level window is closed, the
   QApplication::lastWindowClosed() signal is emitted.
 
   \sa QWidget::close(), QWidget::hide(), QObject::destroyed(),
@@ -1024,7 +1042,7 @@ void QFocusEvent::resetReason()
   Child events are sent to objects when children are inserted or removed.
 
   A \c ChildRemoved event is sent immediately, but a \c ChildInserted event
-  is \e posted (with QApplication::postEvent())
+  is \e posted (with QApplication::postEvent()).
 
 
 
@@ -1362,7 +1380,7 @@ QCustomEvent::QCustomEvent( int type )
   \fn QHideEvent::QHideEvent(bool spontaneous)
 
   Constructs a QHideEvent.  \a spontaneous is TRUE if the event
-  originated outside the application - ie. the user hid the window via the
+  originated outside the application - i.e., the user hid the window via the
   window manager controls.
 */
 
@@ -1370,9 +1388,9 @@ QCustomEvent::QCustomEvent( int type )
   \fn bool QHideEvent::spontaneous () const
 
   Returns TRUE if the event originated outside the application -
-  ie. the user hid the window via the window manager controls, either
+  i.e., the user hid the window via the window manager controls, either
   by iconifying the window or by switching to another virtual desktop where
-  the window isn't visible. The window will become hidden, but not withdrawn.
+  the window isn't visible. The window will become hidden but not withdrawn.
   If the window was iconified, QWidget::isMinimized() is TRUE.
 */
 
@@ -1380,7 +1398,7 @@ QCustomEvent::QCustomEvent( int type )
   \class QShowEvent qevent.h
   \brief The event sent when a widget is shown.
 
-  There are two kind of show events: spontaneous show events by the
+  There are two kinds of show events: spontaneous show events by the
   window system and internal show events. Spontaneous show events are
   sent just after the window system shows the window, including after
   a top-level window has been shown (un-iconified) by the
@@ -1394,14 +1412,13 @@ QCustomEvent::QCustomEvent( int type )
   \fn QShowEvent::QShowEvent(bool spontaneous)
 
   Constructs a QShowEvent.  \a spontaneous is TRUE if the event
-  originated outside the application - ie. the user revealed the window via the
+  originated outside the application - i.e., the user revealed the window via the
   window manager controls.
 */
 
 /*!
   \fn bool QShowEvent::spontaneous () const
-  Returns TRUE if the event
-  originated outside the application - ie. the user revealed the window via the
+  Returns TRUE if the event originated outside the application - i.e., the user revealed the window via the
   window manager controls.
 */
 

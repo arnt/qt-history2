@@ -41,14 +41,13 @@
 
 #ifndef QT_NO_ASYNC_IO
 
-// NOT REVISED
 /*!
   \class QAsyncIO qasyncio.h
   \brief Encapsulates I/O asynchronicity.
 
   The Qt classes for asynchronous input/output provide a simple
   mechanism to allow large files or slow data sources to be processed
-  without using large amounts of memory, or blocking the user interface.
+  without using large amounts of memory or blocking the user interface.
 
   This facility is used in Qt to drive animated images.  See QImageConsumer.
 */
@@ -62,7 +61,7 @@ QAsyncIO::~QAsyncIO()
 }
 
 /*!
-  Ensures only one object can respond to changes in readiness.
+  Ensures that only one object can respond to changes in readiness.
 */
 void QAsyncIO::connect(QObject* obj, const char *member)
 {
@@ -204,7 +203,7 @@ void QDataSource::rewind()
 
 /*!
   \class QIODeviceSource qasyncio.h
-  \brief The QIODeviceSource class is a QDataSource that draws data from a QIODevice
+  \brief The QIODeviceSource class is a QDataSource that draws data from a QIODevice.
 
   This class encapsulates retrieving data from a QIODevice (such as a QFile).
 */
@@ -214,7 +213,7 @@ void QDataSource::rewind()
   \e must be dynamically allocated, becomes owned by the QIODeviceSource,
   and will be deleted when the QIODeviceSource destructs. \a buffer_size
   determines the size of buffering to use between asynchronous operations.
-  The higher \a buffer_size, the more efficient but the less interleaved
+  The higher the \a buffer_size, the more efficient, but the less interleaved
   the operation will be with other processing.
 */
 QIODeviceSource::QIODeviceSource(QIODevice* device, int buffer_size) :

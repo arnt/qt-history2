@@ -46,7 +46,6 @@
 extern void qt_init_image_handlers();
 
 
-// NOT REVISED
 /*!
   \class QImageConsumer qasyncimageio.h
   \brief An abstraction used by QImageDecoder.
@@ -54,8 +53,8 @@ extern void qt_init_image_handlers();
   \ingroup images
 
   A QImageConsumer consumes information about changes to the QImage
-  maintained by a QImageDecoder.  It represents the a view of the
-  image which the decoder produces.
+  maintained by a QImageDecoder.  It represents a view of the image that
+  the decoder produces.
 
   \sa QImageDecoder
 */
@@ -117,8 +116,8 @@ extern void qt_init_image_handlers();
   </ul>
 
   To make the QImageDecoder
-  do this just delete it and pass the information to it again
-  for decoding (setLooping() will be called again of course, but
+  do this, just delete it and pass the information to it again
+  for decoding (setLooping() will be called again, of course, but
   that can be ignored), or keep copies of the
   changed areas at the ends of frames.
 */
@@ -149,13 +148,13 @@ extern void qt_init_image_handlers();
   \ingroup images
 
   New formats are installed by creating objects of class
-  QImageFormatType, and the QMovie class can be used for using
-  all installed incremental image formats; QImageDecoder is only
-  useful for creating new ways of feeding data to an QImageConsumer.
+  QImageFormatType; the QMovie class can be used for
+  all installed incremental image formats. QImageDecoder is
+  useful only for creating new ways of feeding data to an QImageConsumer.
   
   \mustquote
 
-  Qt supports GIF reading, if it is configured that way during
+  Qt supports GIF reading if it is configured that way during
   installation (see qgif.h). If it is, we are required to state that
   "The Graphics Interchange Format(c) is the Copyright property of
   CompuServe Incorporated. GIF(sm) is a Service Mark property of
@@ -303,7 +302,7 @@ void QImageDecoderPrivate::cleanup()
 
 
 /*!
-  Constructs a QImageDecoder which will send change information to
+  Constructs a QImageDecoder that will send change information to
   a given QImageConsumer.
 */
 QImageDecoder::QImageDecoder(QImageConsumer* c)
@@ -335,10 +334,10 @@ QImageDecoder::~QImageDecoder()
 /*!
   Call this function to decode some data into image changes.  The data
   will be decoded, sending change information to the QImageConsumer of
-  this QImageDecoder, until one of the change functions of the consumer
+  this QImageDecoder until one of the change functions of the consumer
   returns FALSE.
 
-  Returns the number of bytes consumed, 0 if consumption is complete,
+  Returns the number of bytes consumed: 0 if consumption is complete,
   and -1 if decoding fails due to invalid data.
 */
 int QImageDecoder::decode(const uchar* buffer, int length)
@@ -371,13 +370,11 @@ int QImageDecoder::decode(const uchar* buffer, int length)
     return actual_decoder->decode(img, consumer, buffer, length);
 }
 
-/*!
-  Returns a QImageFormatType by name. This might be used in cases where
-  the user needs to force data to be interpreted as being in a certain
-  format.  \a name is one of the formats listed by
-  QImageDecoder::inputFormats(). Note that you will still need to supply
-  decodable data to result->decoderFor() before you can begin decoding
-  the data.
+/*!  Returns a QImageFormatType by name. This might be used when the user
+  needs to force data to be interpreted as being in a certain format.  \a
+  name is one of the formats listed by QImageDecoder::inputFormats(). Note
+  that you will still need to supply decodable data to
+  result->decoderFor() before you can begin decoding the data.
 */
 QImageFormatType* QImageDecoder::format( const char* name )
 {
@@ -438,7 +435,7 @@ QStrList QImageDecoder::inputFormats()
 
 /*!
   Registers a new QImageFormatType.  This is not needed in
-  application code as factories call this themselves.
+  application code because factories call this themselves.
 */
 void QImageDecoder::registerDecoderFactory(QImageFormatType* f)
 {
@@ -449,7 +446,7 @@ void QImageDecoder::registerDecoderFactory(QImageFormatType* f)
 
 /*!
   Unregisters a new QImageFormatType.  This is not needed in
-  application code as factories call this themselves.
+  application code because factories call this themselves.
 */
 void QImageDecoder::unregisterDecoderFactory(QImageFormatType* f)
 {
@@ -465,10 +462,10 @@ void QImageDecoder::unregisterDecoderFactory(QImageFormatType* f)
 
   \ingroup images
 
-  By making a derived classes of QImageFormatType which in turn
+  By making a derived class of QImageFormatType, which in turn
   creates objects that are a subclass of QImageFormat, you can add
   support for more incremental image formats, allowing such formats to
-  be sources for a QMovie, or for the first frame of the image stream
+  be sources for a QMovie or for the first frame of the image stream
   to be loaded as a QImage or QPixmap.
 
   Your new subclass must reimplement the decode() function in order to
@@ -514,7 +511,7 @@ QImageFormat::~QImageFormat()
 
   \ingroup images
 
-  While the QImageIO class allows for \e complete loading of images,
+  Whereas the QImageIO class allows for \e complete loading of images,
   QImageFormatType allows for \e incremental loading of images.
 
   New image file formats are installed by creating objects of derived
@@ -528,7 +525,7 @@ QImageFormat::~QImageFormat()
   The factories for formats built into Qt
   are automatically defined before any other factory is initialized.
   If two factories would recognize an image format, the factory created
-  last will override the earlier one, thus you can override current
+  last will override the earlier one; you can thus override current
   and future built-in formats.
 */
 
@@ -536,10 +533,10 @@ QImageFormat::~QImageFormat()
   \fn virtual QImageFormat* QImageFormatType::decoderFor(const
 	    uchar* buffer, int length)
 
-  Returns a decoder for decoding an image which starts with the give bytes.
+  Returns a decoder for decoding an image that starts with the give bytes.
   This function should only return a decoder if it is definite that the
   decoder applies to data with the given header.  Returns 0 if there is
-  insufficient data in the header to make a positive identification,
+  insufficient data in the header to make a positive identification
   or if the data is not recognized.
 */
 

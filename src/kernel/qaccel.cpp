@@ -46,7 +46,6 @@
 #include "qwhatsthis.h"
 #include "qguardedptr.h"
 
-// REVISED: paul
 /*!
   \class QAccel qaccel.h
   \brief The QAccel class handles keyboard accelerator and shortcut keys.
@@ -55,14 +54,14 @@
 
   A keyboard accelerator triggers an action when a certain key
   combination is pressed. The accelerator handles all keyboard
-  activity for all children of one top level widget, so it is not
+  activity for all children of one top-level widget, so it is not
   affected by the keyboard focus.
 
   In most cases, you will not need to use this class directly. Use
   QMenuData::insertItem() or QMenuData::setAccel() to make
   accelerators for operations that are also available on menus.  Many
   widgets automatically generate accelerators, such as QButton,
-  QGroupBox, QLabel(with QLabel::setBuddy()), QMenuBar and QTabBar.
+  QGroupBox, QLabel (with QLabel::setBuddy()), QMenuBar and QTabBar.
   Example:
   \code
      QPushButton p( "&Exit", parent ); //automatic shortcut ALT+Key_E
@@ -434,10 +433,9 @@ bool QAccel::disconnectItem( int id, const QObject *receiver,
 }
 
 
-/*!
-  Makes sure that the accelerator is watching the correct event
-  filter. This function is called automatically; you should not need
-  to call it in application code.
+/*!  Makes sure that the accelerator is watching the correct event filter.
+  This function is called automatically; you should not need to call it in
+  application code.
 */
 
 void QAccel::repairEventFilter()
@@ -519,7 +517,7 @@ bool QAccel::eventFilter( QObject *o, QEvent *e )
   you need to write e.g. Qt::ALT+Qt::Key_X.)
 
   We provide a \link accelerators.html list of common accelerators
-  \endlink in English.  At the time of writing the Microsoft and The
+  \endlink in English.  At the time of this writing, Microsoft and The
   Open Group appear to not have issued such recommendations for other
   languages.
 */
@@ -684,13 +682,13 @@ done:
 
 
 /*!
-  Sets a Whats This help for the accelerator item \a id to \a text.
+  Sets a What's This help for the accelerator item \a id to \a text.
 
   The text will be shown when the application is in What's This mode
   and the user hits the accelerator key.
 
-  To set Whats This help on a menu item (with or without an
-  accelerator key) use QMenuData::setWhatsThis().
+  To set What's This help on a menu item (with or without an
+  accelerator key), use QMenuData::setWhatsThis().
 
   \sa whatsThis(), QWhatsThis::inWhatsThisMode(), QMenuData::setWhatsThis()
  */
@@ -703,7 +701,7 @@ void QAccel::setWhatsThis( int id, const QString& text )
 }
 
 /*!
-  Returns the Whats This help text for the specified item \a id or
+  Returns the What's This help text for the specified item \a id or
   QString::null if no text has been defined yet.
 
   \sa setWhatsThis()

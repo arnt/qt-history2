@@ -44,8 +44,6 @@
 #include "qdragobject.h"
 #include "qpixmap.h"
 
-// REVISED: arnt
-
 /*!
   \class QClipboard qclipboard.h
   \brief The QClipboard class provides access to the window system clipboard.
@@ -59,8 +57,8 @@
   similar mechanisms. For advanced clipboard usage, you should read
   \link dnd.html the drag-and-drop documentation\endlink.
 
-  There is only one QClipboard object in an application, and you
-  can gain access to it using QApplication::clipboard().
+  There is a single QClipboard object in an application, and you can gain
+  access to it using QApplication::clipboard().
 
   Example:
   \code
@@ -77,12 +75,11 @@
   \endcode
 
   QClipboard features some convenience functions to access common data
-  types: The methods setText() allows exchanging unicode text easily
-  over the clipboard, while setPixmap() setImage() allows to exchange
-  QPixmap and QImage between applications.  setData() is the ultimate
-  in flexibility:  It allows you to add any QMimeSource onto the
-  clipboard.  (There are corresponding getters for each of these,
-  e.g. text().)
+  types: The methods setText() allows exchanging Unicode text easily over
+  the clipboard, whereas setPixmap() setImage() allows exchanging QPixmap
+  and QImage between applications.  SetData() is the ultimate in
+  flexibility: it allows you to add any QMimeSource onto the clipboard.
+  (There are corresponding getters for each of these, e.g. text().)
 
   You can clear the clipboard by calling the method clear().
 */
@@ -190,8 +187,8 @@ void QClipboard::setText( const QString &text )
 
 
 /*!
-  Returns the clipboard image, or a null image if the clipboard does
-  not contain an image, or if it contains an image in an unsupported
+  Returns the clipboard image, or returns a null image if the clipboard does
+  not contain an image or if it contains an image in an unsupported
   image format.
 
   \sa setImage() pixmap() data(), QImage::isNull()
@@ -223,8 +220,8 @@ void QClipboard::setImage( const QImage &image )
 
 /*!
   Returns the clipboard pixmap, or null if the clipboard does not
-  contain any pixmap. Note that this can lose information - for
-  example, if the image is 24-bit and the display 8-bit the result is
+  contain any pixmap. Note that this can lose information. For
+  example, if the image is 24-bit and the display is 8-bit, the result is
   converted to 8 bits, and if the image has an alpha channel the
   result just has a mask.
 

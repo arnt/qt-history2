@@ -42,12 +42,12 @@
 // REVISED: paul
 /*!
   \class QBitmap qbitmap.h
-  \brief The QBitmap class provides monochrome (1 bit depth) pixmaps.
+  \brief The QBitmap class provides monochrome (1-bit depth) pixmaps.
 
   \ingroup drawing
   \ingroup shared
 
-  The QBitmap class is a monochrome off-screen paint device, used
+  The QBitmap class is a monochrome off-screen paint device used
   mainly for creating custom QCursor and QBrush objects, in
   QPixmap::setMask() and for QRegion.
 
@@ -61,7 +61,7 @@
   color0 sets the bitmap bits to 0, and painting with \c color1 sets the
   bits to 1.  For a bitmap, 0-bits indicate background (or white) and
   1-bits indicate foreground (or black).  Using the \c black and \c white
-  QColor objects make no sense, because the QColor::pixel()
+  QColor objects make no sense because the QColor::pixel()
   value is not necessarily 0 for black and 1 for white.
 
   Just like the QPixmap class, QBitmap is optimized by the use of \link
@@ -87,7 +87,7 @@ QBitmap::QBitmap()
 /*!
   Constructs a bitmap with \a w width and \a h height.
 
-  The contents of the bitmap is uninitialized if \a clear is FALSE, otherwise
+  The contents of the bitmap is uninitialized if \a clear is FALSE; otherwise
   it is filled with pixel value 0 (the QColor \c Qt::color0).
 
   The optional \a optimization argument specifies the optimization
@@ -156,7 +156,7 @@ QBitmap::QBitmap( const QSize &size, const uchar *bits, bool isXbitmap )
 
 
 /*!
-  Constructs a bitmap which is a copy of \a bitmap.
+  Constructs a bitmap that is a copy of \a bitmap.
 */
 
 QBitmap::QBitmap( const QBitmap &bitmap )
@@ -167,7 +167,7 @@ QBitmap::QBitmap( const QBitmap &bitmap )
 
 /*!
   Constructs a pixmap from the file \a fileName. If the file does not
-  exist, or is of an unknown format, the pixmap becomes a null pixmap.
+  exist or is of an unknown format, the pixmap becomes a null pixmap.
 
   The parameters are passed on to QPixmap::load(). Dithering will be
   performed if the file format uses more than 1 bit per pixel.
@@ -246,7 +246,7 @@ QBitmap &QBitmap::operator=( const QImage &image )
 
 #ifndef QT_NO_TRANSFORMATIONS
 /*!
-  Returns a transformed copy of this bitmap, using \a matrix.
+  Returns a transformed copy of this bitmap by using \a matrix.
 
   This function does exactly the same as QPixmap::xForm(), except that
   it returns a QBitmap instead of a QPixmap.
