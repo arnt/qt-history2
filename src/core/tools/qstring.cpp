@@ -1231,7 +1231,7 @@ QString &QString::remove(int pos, int len)
         // range problems
     } else if (pos + len >= d->size) {  // pos ok
         resize(pos);
-    } else if (len != 0) {
+    } else if (len > 0) {
         detach();
         memmove(d->data + pos, d->data + pos + len,
                 (d->size - pos - len + 1) * sizeof(ushort));
