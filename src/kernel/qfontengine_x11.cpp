@@ -21,6 +21,7 @@
 #include "qfontdatabase.h"
 #include "qpaintdevice.h"
 #include "qpainter.h"
+#include "qstackarray.h"
 
 #ifndef Q_Q3PAINTER
 #include "qgc_x11.h"
@@ -1781,6 +1782,37 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
     if ( si->isSpace )
 	return;
 
+#ifdef QT_XFT2
+    QStackArray<XftGlyphSpec,256> glyphSpec(si->num_glyphs);
+    if ( si->analysis.bidiLevel % 2 ) {
+	int i = si->num_glyphs;
+	while( i-- ) {
+	    int xp = x + offsets[i].x;
+	    int yp = y + offsets[i].y;
+	    if ( transform )
+		p->map( xp, yp, &xp, &yp );
+	    glyphSpec[i].x = xp;
+	    glyphSpec[i].y = yp;
+	    glyphSpec[i].glyph = *(glyphs + i);
+	    x += advances[i];
+	}
+    } else {
+	int i = 0;
+	while ( i < si->num_glyphs ) {
+	    int xp = x + offsets[i].x;
+	    int yp = y + offsets[i].y;
+	    if ( transform )
+		p->map( xp, yp, &xp, &yp );
+	    glyphSpec[i].x = xp;
+	    glyphSpec[i].y = yp;
+	    glyphSpec[i].glyph = *(glyphs + i);
+	    x += advances[i];
+	    i++;
+	}
+    }
+
+    XftDrawGlyphSpec( draw, &col, fnt, glyphSpec, si->num_glyphs );
+#else
     if ( transform || si->hasPositioning ) {
 	if ( si->analysis.bidiLevel % 2 ) {
 	    int i = si->num_glyphs;
@@ -1789,12 +1821,8 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 		int yp = y + offsets[i].y;
 		if ( transform )
 		    p->map( xp, yp, &xp, &yp );
-#ifdef QT_XFT2
 		FT_UInt glyph = *(glyphs + i);
-		XftDrawGlyphs( draw, &col, fnt, xp, yp, &glyph, 1 );
-#else
 		XftDrawString16( draw, &col, fnt, xp, yp, (XftChar16 *) (glyphs+i), 1);
-#endif // QT_XFT2
 #ifdef FONTENGINE_DEBUG
 		glyph_metrics_t gi = boundingBox( glyphs[i] );
 		p->drawRect( x+offsets[i].x+gi.x, y+offsets[i].y+100+gi.y, gi.width, gi.height );
@@ -1812,12 +1840,7 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 		int yp = y + offsets[i].y;
 		if ( transform )
 		    p->map( xp, yp, &xp, &yp );
-#ifdef QT_XFT2
-		FT_UInt glyph = *(glyphs + i);
-		XftDrawGlyphs( draw, &col, fnt, xp, yp, &glyph, 1 );
-#else
 		XftDrawString16( draw, &col, fnt, xp, yp, (XftChar16 *) (glyphs+i), 1 );
-#endif // QT_XFT2
 		// 	    qDebug("advance = %d/%d", adv.x, adv.y );
 		x += advances[i];
 		i++;
@@ -1826,22 +1849,6 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
     } else {
 	// Xft has real trouble drawing the glyphs on their own.
 	// Drawing them as one string increases performance significantly.
-#ifdef QT_XFT2
-	// #### we should use a different method anyways on Xft2
-	FT_UInt g[128];
-	FT_UInt *gl = g;
-	if ( si->num_glyphs > 128 )
-	    gl = new FT_UInt[si->num_glyphs];
-	if ( si->analysis.bidiLevel % 2 )
-	    for ( int i = 0; i < si->num_glyphs; i++ )
-		gl[i] = glyphs[si->num_glyphs-1-i];
-	else
-	    for ( int i = 0; i < si->num_glyphs; i++ )
-		gl[i] = glyphs[i];
-	XftDrawGlyphs( draw, &col, fnt, x, y, gl, si->num_glyphs );
-	if ( gl != g )
-	    delete [] gl;
-#else
 	XftChar16 g[128];
 	XftChar16 *gl = (XftChar16 *)glyphs;
 	if ( si->analysis.bidiLevel % 2 ) {
@@ -1854,8 +1861,8 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 	XftDrawString16( draw, &col, fnt, x, y, gl, si->num_glyphs );
 	if ( gl != (XftChar16 *)glyphs && gl != g )
 	    delete [] gl;
-#endif // QT_XFT2
     }
+#endif
 
 #ifdef FONTENGINE_DEBUG
     if ( !si->analysis.bidiLevel % 2 ) {
