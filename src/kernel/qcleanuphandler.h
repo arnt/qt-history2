@@ -20,18 +20,18 @@ public:
 	}
     }
 
-    void addCleanUp( Type* object ) 
+    void addCleanUp( Type* object )
     {
 	cleanUpObjects.insert( 0, new QGuardedPtr<Type>(object) );
     }
 
-    bool clean() 
+    bool clean()
     {
 	QListIterator<QGuardedPtr<Type> > it( cleanUpObjects );
 	while ( it.current() ) {
 	    QGuardedPtr<Type>* guard = it.current();
 	    ++it;
-	    if ( *guard )
+	    if ( (Type*)*guard )
 		return FALSE;
 	}
 	return TRUE;
@@ -55,13 +55,13 @@ public:
 	}
     }
 
-    void addCleanUp( Type* object ) 
+    void addCleanUp( Type* object )
     {
 	if ( object )
 	    cleanUpObjects.insert( 0, object );
     }
 
-    bool clean() 
+    bool clean()
     {
 	QListIterator<Type> it( cleanUpObjects );
 	while ( it.current() ) {
