@@ -1,11 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprndlg.h#12 $
+** $Id: //depot/qt/main/src/dialogs/qprndlg.h#13 $
 **
-**		      ***   INTERNAL HEADER FILE   ***
-**
-**		This file is NOT a part of the Qt interface!
-**
-** Definition of internal print dialog (X11) used by QPrinter::select().
+** Definition of print dialog.
 **
 ** Created : 950829
 **
@@ -20,20 +16,38 @@
 #include "qdialog.h"
 #endif // QT_H
 
+class QGroupBox;
+
+
+struct QPrintDialogPrivate;
+
 
 class QPrintDialog : public QDialog
 {
     Q_OBJECT
 public:
     QPrintDialog( QPrinter *, QWidget *parent=0, const char *name=0 );
+    ~QPrintDialog();
+
+    static bool getPrinterSetup( QPrinter * );
 
 private slots:
-    void	printerOrFileSelected( int );
-    void	browseClicked();
-    void	okClicked();
+    void browseClicked();
+    void okClicked();
 
+    void printerOrFileSelected( int );
+    void landscapeSelected( int );
+    void paperSizeSelectedCombo( int );
+    void paperSizeSelectedRadio( int );
+    void orientSelected( int );
+    void pageOrderSelected( int );
+    void setNumCopies( int );
+    
 private:
-    QPrinter *printer;
+    QPrintDialogPrivate *d;
+
+    QGroupBox * setupDestination();
+    QGroupBox * setupOptions();
 
 private:	// Disabled copy constructor and operator=
     QPrintDialog( const QPrintDialog & );

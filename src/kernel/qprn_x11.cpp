@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprn_x11.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qprn_x11.cpp#32 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -25,7 +25,7 @@
 #include <process.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_x11.cpp#31 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_x11.cpp#32 $");
 
 
 /*****************************************************************************
@@ -110,6 +110,8 @@ bool QPrinter::aborted() const
 /*!
   Opens a printer setup dialog and asks the user to specify what printer
   to use and miscellaneous printer settings.
+  
+  Now obsoleted by QPrintDialog::getPrinterSetup().
 
   Returns TRUE if the user pressed "Ok" to print, or FALSE if the
   user cancelled the operation.
