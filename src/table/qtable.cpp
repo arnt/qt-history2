@@ -2698,6 +2698,8 @@ int QTable::currentSelection() const
 
 void QTable::contentsMousePressEvent( QMouseEvent* e )
 {
+    if ( e->button() != LeftButton )
+	return;
     shouldClearSelection = FALSE;
     mousePressed = TRUE;
     if ( isEditing() )
@@ -2768,6 +2770,8 @@ void QTable::contentsMousePressEvent( QMouseEvent* e )
 
 void QTable::contentsMouseDoubleClickEvent( QMouseEvent *e )
 {
+    if ( e->button() != LeftButton )
+	return;
     int tmpRow = rowAt( e->pos().y() );
     int tmpCol = columnAt( e->pos().x() );
     QTableItem *itm = item( tmpRow, tmpCol );
@@ -2903,6 +2907,8 @@ void QTable::doAutoScroll()
 
 void QTable::contentsMouseReleaseEvent( QMouseEvent *e )
 {
+    if ( e->button() != LeftButton )
+	return;
     if ( shouldClearSelection ) {
 	int tmpRow = rowAt( e->pos().y() );
 	int tmpCol = columnAt( e->pos().x() );
@@ -4973,6 +4979,8 @@ static int real_pos( const QPoint &p, Qt::Orientation o )
 
 void QTableHeader::mousePressEvent( QMouseEvent *e )
 {
+    if ( e->button() != LeftButton )
+	return;
     QHeader::mousePressEvent( e );
     mousePressed = TRUE;
     pressPos = real_pos( e->pos(), orientation() );
@@ -5060,6 +5068,8 @@ bool QTableHeader::doSelection( QMouseEvent *e )
 
 void QTableHeader::mouseReleaseEvent( QMouseEvent *e )
 {
+    if ( e->button() != LeftButton )
+	return;
     autoScrollTimer->stop();
     mousePressed = FALSE;
     bool hasCached = resizedSection != -1;
