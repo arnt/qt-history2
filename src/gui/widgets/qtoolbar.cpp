@@ -714,7 +714,7 @@ void QToolBar::resizeEvent(QResizeEvent *event)
     while (i > 0) {
 	QWidget *w = box->itemAt(i)->widget();
 	if (pick(orientation, w->pos()) + pick(orientation, w->size())
-            >= pick(orientation, size()) - extension_size)
+            > pick(orientation, size()) - extension_size)
         {
             w->hide();
             d->items[i - 1].hidden = true;
