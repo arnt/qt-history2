@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#234 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#235 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -10905,7 +10905,7 @@ bool QString::findArg(int& pos, int& len) const
     QString str;
     QString s = ...;
     int x = ...;
-    QTextOStream(str) << s << " : " << x;
+    QTextOStream(&str) << s << " : " << x;
   \endcode
 
   For \link QObject::tr() translations,\endlink especially if the
