@@ -108,8 +108,6 @@ bool DspMakefileGenerator::writeBuildstepForFile(QTextStream &t, const QString &
 
     { // moc rules
         QString mocFile(QMakeSourceFileInfo::mocFile(file));
-        if (QMakeSourceFileInfo::mocable(file))
-            project->variables()["GENERATED"] << mocFile;
 
         QStringList generated(project->variables()["GENERATED"]);
         if (generated.contains(file)) {
@@ -174,7 +172,16 @@ bool DspMakefileGenerator::writeBuildstepForFile(QTextStream &t, const QString &
             compilerDepends += inputList;
         }
 
-        t << "USERDEP_" << file << "=" << valGlue(compilerDepends, "\"", "\"\t\"", "\"") << endl;
+        QString fileBase = file.left(file.lastIndexOf('.'));
+        fileBase = fileBase.mid(fileBase.lastIndexOf('\\') + 1);
+        QString fileOut(compilerOutput.first());
+        fileOut.replace("${QMAKE_FILE_BASE}", fileBase);
+        fileOut.replace('/', '\\');
+
+        QString dependencies(valGlue(compilerDepends, "\"", "\"\t\"", "\""));
+        dependencies.replace("${QMAKE_FILE_BASE}", fileBase);
+
+        t << "USERDEP_" << file << "=" << dependencies << endl;
         for (int iconfig = 0; iconfig < configurations.count(); ++iconfig) {
             QString config(configurations.at(iconfig));
             QString &buildName = buildNames[iconfig];
@@ -185,15 +192,12 @@ bool DspMakefileGenerator::writeBuildstepForFile(QTextStream &t, const QString &
                 buildStep = "BuildCmds= \\\n\t";
             else
                 buildStep += " \\\n\t";
-            QString fileBase = file.left(file.lastIndexOf('.'));
-            fileBase = fileBase.mid(fileBase.lastIndexOf('\\') + 1);
-            QString fileOut(compilerOutput.first());
-            fileOut.replace("${QMAKE_FILE_BASE}", fileBase);
-            fileOut.replace('/', '\\');
             QString command(compilerCommands.join(" "));
             command.replace("${QMAKE_FILE_OUT}", fileOut);
             command.replace("${QMAKE_FILE_IN}", fileIn);
             command.replace("${QMAKE_FILE_BASE}", fileBase);
+            command.replace("$(INCPATH)", varGlue("INCLUDES", " -I", " -I", ""));
+            command.replace("$(DEFINES)", varGlue("DEFINES", " -D", " -D", ""));
 
             buildName = compilerName.first();
             buildStep += command;
@@ -613,6 +617,7 @@ DspMakefileGenerator::init()
     }
     project->variables()["QMAKE_INTERNAL_PRL_LIBS"] << "MSVCDSP_LIBS";
 
+    project->variables()["GENERATED"] += project->variables()["SRCMOC"];
     mocPath = var("QMAKE_MOC");
     // defines
     mocArgs = varGlue("PRL_EXPORT_DEFINES"," -D"," -D","") + varGlue("DEFINES"," -D"," -D","") +
