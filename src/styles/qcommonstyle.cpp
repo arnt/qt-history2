@@ -271,19 +271,6 @@ void QCommonStyle::drawSizeGrip( QPainter *p, int x, int y, int w, int h, const 
     p->restore();
 }
 
-/*!
- \reimp
- */
-QStyle::ListViewItemControl
-QCommonStyle::listViewItemPointOver( const QListViewItem *i, const QPoint &pos )
-{
-#ifndef QT_NO_LISTVIEW
-    if(pos.x() >= 0 && pos.x() < i->listView()->treeStepSize())
-       return ListViewExpand;
-#endif
-    return ListViewNone;
-}
-
 #endif
 
 
@@ -1408,6 +1395,13 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl control,
     SubControl ret = SC_None;
 
     switch (control) {
+    case CC_ListView: {
+#ifndef QT_NO_LISTVIEW
+	if(pos.x() >= 0 && pos.x() < ((QListViewItem *)data)->listView()->treeStepSize())
+	    ret = SC_ListViewExpand;
+#endif
+	break; }
+
     case CC_ScrollBar: {
 	QRect r;
 	uint ctrl = SC_ScrollBarAddLine;

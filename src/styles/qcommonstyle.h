@@ -137,9 +137,6 @@ public:
     void drawStatusBarSection( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, bool permanent );
     void drawSizeGrip( QPainter *p, int x, int y, int w, int h, const QColorGroup &g );
 
-    ListViewItemControl listViewItemPointOver( const QListViewItem *, const QPoint & );
-
-
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QCommonStyle( const QCommonStyle & );

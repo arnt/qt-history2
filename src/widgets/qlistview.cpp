@@ -1878,7 +1878,7 @@ int QListViewItem::width( const QFontMetrics& fm,
 void QListViewItem::paintFocus( QPainter *p, const QColorGroup &cg,
 				const QRect & r )
 {
-    listView()->style().drawFocusRect( p, r, cg, isSelected()? & cg.highlight() : & cg.base(), isSelected() );
+    listView()->style().drawPrimitive( QStyle::PO_FocusRect, p, r, cg );
 }
 
 
@@ -1904,7 +1904,10 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 	return;
     QListView *lv = listView();
     if ( lv )
-	lv->style().drawListViewItemBranch( p, y, w, totalHeight(), cg, this );
+	lv->style().drawComplexControl( QStyle::CC_ListView, p, lv, QRect( 0, y, w, totalHeight() ), 
+					cg, QStyle::CStyle_Default, 
+					QStyle::SC_ListViewBranch | QStyle::SC_ListViewExpand, QStyle::SC_None,
+					this);
 }
 
 
@@ -3733,8 +3736,9 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 
 	if ( it.current() ) {
 	    x1 -= treeStepSize() * (it.current()->l - 1);
-	    QStyle::ListViewItemControl ctrl = style().listViewItemPointOver( i, QPoint(x1, e->pos().y()) );
-	    if( ctrl == QStyle::ListViewBranches || ctrl == QStyle::ListViewExpand) {
+	    QStyle::SubControl ctrl = style().querySubControl( QStyle::CC_ListView,
+							       this, QPoint(x1, e->pos().y()), i );
+	    if( ctrl == QStyle::SC_ListViewExpand) {
 		if ( e->button() == LeftButton ) {
 		    bool close = i->isOpen();
 		    setOpen( i, !i->isOpen() );

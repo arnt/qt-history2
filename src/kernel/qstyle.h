@@ -182,6 +182,7 @@ public:
 	CE_TabBarTab,
 
 	CE_Splitter
+
         /*
 	  CE_MenuBarItem,
 	*/
@@ -240,8 +241,8 @@ public:
 	CC_ScrollBar,
 	CC_Slider,
 	CC_ToolButton,
-	CC_TitleBar
-
+	CC_TitleBar,
+	CC_ListView
 	/*
 	  CC_MenuItem,
 	*/
@@ -282,7 +283,11 @@ public:
 	SC_TitleBarLabel =		0x00000010,
 	SC_TitleBarNormalButton =	0x00000020,
 	SC_TitleBarShadeButton =       	0x00000040,
-	SC_TitleBarUnshadeButton =	0x00000080
+	SC_TitleBarUnshadeButton =	0x00000080,
+
+	SC_ListView              =      0x00000001,
+	SC_ListViewBranch        =      0x00000002,
+	SC_ListViewExpand        =      0x00000004
 
 	/*
 	  SC_MenuItemCheck =		0x00000001,
@@ -494,13 +499,6 @@ public:
     // titleBarPixmap - how would we do something like this in the new api? use
     // styleHint and return pointers to pixmaps?
     virtual QPixmap titleBarPixmap( const QTitleBar *, SubControl ) const = 0;
-
-    // listviewitem
-    enum ListViewItemControl { ListViewNone = 0x00,
-			       ListViewCheckBox = 0x1, ListViewController = 0x2, ListViewRadio = 0x4,
-			       ListViewBranches = 0x8, ListViewExpand =0x10 };
-    virtual void drawListViewItemBranch( QPainter *, int, int, int, const QColorGroup & cg, QListViewItem * ) = 0;
-    virtual ListViewItemControl listViewItemPointOver( const QListViewItem *, const QPoint & ) = 0;
 
     // header
     virtual void drawHeaderSection( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, bool down ) = 0;
