@@ -264,7 +264,7 @@ typename QVector<T>::Iterator QVector<T>::insert( Iterator pos, size_type n, con
 {
     int p = pos - d->array;
     if ( n != 0 ) {
-	if (d->ref != 1 || d->size +1 > d->alloc)
+	if (d->ref != 1 || d->size + n > d->alloc)
 	    realloc(d->size, QVectorData::grow(d->size+n, sizeof(T),
 					       Q_TYPEINFO_STATIC(T)));
 	if (Q_TYPEINFO_COMPLEX(T)) {
@@ -283,7 +283,7 @@ typename QVector<T>::Iterator QVector<T>::insert( Iterator pos, size_type n, con
 	} else {
 	    T *b = d->array+p;
 	    T *i = b+n;
-	    memmove(d->array+p+n, d->array+p, (d->size-p)*sizeof(T));
+	    memmove(i, b, (d->size-p)*sizeof(T));
 	    while (i!= b)
 		*(--i) = t;
 	}
@@ -306,7 +306,7 @@ typename QVector<T>::Iterator QVector<T>::erase( Iterator first, Iterator last )
 	while (i != b)
 	    (--i)->~T();
     } else {
-	memmove(d->array + f, d->array + l, n*sizeof(T));
+	memmove(d->array + f, d->array + l, (d->size-l)*sizeof(T));
     }
     d->size -= n;
     return d->array + f;

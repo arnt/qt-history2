@@ -73,10 +73,27 @@ public:
     }
 #endif
 
-    T &at( typename QValueVector<T>::size_type i)
+    void resize( int n, const T& val = T() )
     {
-	Q_ASSERT(i >= 0 && i < size());
+	if ( n < size() )
+	    erase( begin() + n, end() );
+	else
+	    insert( end(), n - size(), val );
+    }
+
+
+    T& at( int i, bool* ok = 0 )
+    {
 	detach();
+	if ( ok )
+	    *ok = ( i >= 0 && i < size() );
+	return *( begin() + i );
+    }
+
+    const T&at( int i, bool* ok = 0 ) const
+    {
+	if ( ok )
+	    *ok = ( i >= 0 && i < size() );
 	return *( begin() + i );
     }
 };
