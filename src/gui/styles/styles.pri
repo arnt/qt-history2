@@ -14,7 +14,7 @@ SOURCES += \
 	styles/qcommonstyle.cpp
 
 contains( styles, all ) {
-	styles = mac windows
+	styles = mac windows windowsxp
 }
 
 x11|embedded|!macx-*:styles -= mac
