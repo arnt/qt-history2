@@ -36,8 +36,8 @@
 
 #include "qsql_mysql.h"
 
-#include <qlist.h>
 #include <qdatetime.h>
+#include <qmap.h>
 
 #if defined (Q_OS_WIN32)
 #define NO_CLIENT_LONG_LONG
@@ -47,16 +47,23 @@
 
 #define QMYSQL_DRIVER_NAME "QMYSQL"
 
-class QMYSQLPrivate
+class QMYSQLDriverPrivate
 {
 public:
-    QMYSQLPrivate() : result(0), mysql(0) {}
-    MYSQL_RES* result;
-    MYSQL_ROW  row;
+    QMYSQLDriverPrivate() : mysql(0) {}
     MYSQL*     mysql;
 };
 
-QSqlError qMakeError( const QString& err, int type, const QMYSQLPrivate* p )
+class QMYSQLResultPrivate : public QMYSQLDriverPrivate
+{
+public:
+    QMYSQLResultPrivate() : QMYSQLDriverPrivate(), result(0) {}
+    MYSQL_RES* result;
+    MYSQL_ROW  row;
+    QMap< int, int > fieldTypes;
+};
+
+QSqlError qMakeError( const QString& err, int type, const QMYSQLDriverPrivate* p )
 {
     return QSqlError(QMYSQL_DRIVER_NAME ": " + err, QString(mysql_error( p->mysql )), type);
 }
@@ -95,7 +102,6 @@ QVariant::Type qDecodeMYSQLType( int mysqltype )
  	type = QVariant::ByteArray;
  	break;
     default:
-
     case FIELD_TYPE_ENUM :
     case FIELD_TYPE_SET :
     case FIELD_TYPE_STRING :
@@ -106,17 +112,11 @@ QVariant::Type qDecodeMYSQLType( int mysqltype )
     return type;
 }
 
-QSqlField qMakeField( const MYSQL_FIELD* f )
-{
-    const char* c = (const char*)f->name;
-    return QSqlField( QString(c), qDecodeMYSQLType(f->type) );
-}
-
 QMYSQLResult::QMYSQLResult( const QMYSQLDriver* db )
 : QSqlResult( db )
 {
-    d =   new QMYSQLPrivate();
-    (*d) = (*db->d);
+    d =   new QMYSQLResultPrivate();
+    d->mysql = db->d->mysql;
 }
 
 QMYSQLResult::~QMYSQLResult()
@@ -160,42 +160,41 @@ bool QMYSQLResult::fetchFirst()
 
 QVariant QMYSQLResult::data( int field )
 {
-    if ( d->row[field] ) {
+    if ( !isSelect() )
+	return QVariant();
+    QString val( ( d->row[field] ) );
+    QVariant::Type type = qDecodeMYSQLType( d->fieldTypes[ field ] );
+    switch ( type ) {
+    case QVariant::Int:
+	return QVariant( val.toInt() );
+	break;
+    case QVariant::Double:
+	return QVariant( val.toDouble() );
+	break;
+    case QVariant::Date:
+	return QVariant( QDate::fromString( val, Qt::ISODate )  );
+	break;
+    case QVariant::Time:
+	return QVariant( QTime::fromString( val, Qt::ISODate ) );
+	break;
+    case QVariant::DateTime:
+	return QVariant( QDateTime::fromString( val, Qt::ISODate ) );
+	break;
+    case QVariant::ByteArray: {
 	MYSQL_FIELD* f = mysql_fetch_field_direct( d->result, field );
-	if ( f ) {
-	    QString val( ( d->row[field] ) );
-	    QSqlField info = qMakeField( f );
-	    switch ( info.type() ) {
-	    case QVariant::Int:
-		return QVariant( val.toInt() );
-		break;
-	    case QVariant::Double:
-		return QVariant( val.toDouble() );
-		break;
-	    case QVariant::Date:
-		return QVariant( QDate::fromString( val, Qt::ISODate )  );
-		break;
-	    case QVariant::Time:
-		return QVariant( QTime::fromString( val, Qt::ISODate ) );
-		break;
-	    case QVariant::DateTime:
-		return QVariant( QDateTime::fromString( val, Qt::ISODate ) );
-		break;
-	    case QVariant::ByteArray: {
-		if ( ! ( f->flags & BLOB_FLAG ) )
-		    return QVariant( QByteArray() );
-		unsigned long * fl = mysql_fetch_lengths( d->result );
-		QByteArray ba;
-		ba.duplicate( d->row[field], fl[field] );
-		return QVariant( ba );
-		break;
-	    }
-	    default:
-	    case QVariant::String:
-		return QVariant( val );
-		break;
-	    }
-	}
+	if ( ! ( f->flags & BLOB_FLAG ) )
+	    return QVariant( QByteArray() );
+	unsigned long * fl = mysql_fetch_lengths( d->result );
+	QByteArray ba;
+	ba.duplicate( d->row[field], fl[field] );
+	return QVariant( ba );
+	break;
+    }
+    default:
+    case QVariant::String:
+    case QVariant::CString:
+	return QVariant( val );
+	break;
     }
 #ifdef QT_CHECK_RANGE
     qWarning("QMYSQLResult::data: unknown data type");
@@ -226,7 +225,15 @@ bool QMYSQLResult::reset ( const QString& query )
 	setLastError( qMakeError( "Unable to store result", QSqlError::Statement, d ) );
 	return FALSE;
     }
-    setSelect( !(mysql_field_count( d->mysql ) == 0) );
+    int numFields = mysql_field_count( d->mysql );
+    setSelect( !( numFields == 0) );
+    d->fieldTypes.clear();
+    if ( isSelect() ) {
+	for( int i = 0; i < numFields; i++) {
+	    MYSQL_FIELD* field = mysql_fetch_field_direct( d->result, i );
+	    d->fieldTypes[i] = field->type;
+	}
+    }
     setActive( TRUE );
     return TRUE;
 }
@@ -251,7 +258,7 @@ QMYSQLDriver::QMYSQLDriver( QObject * parent, const char * name )
 
 void QMYSQLDriver::init()
 {
-    d = new QMYSQLPrivate();
+    d = new QMYSQLDriverPrivate();
 }
 
 QMYSQLDriver::~QMYSQLDriver()
@@ -317,7 +324,7 @@ void QMYSQLDriver::close()
 
 QSqlQuery QMYSQLDriver::createQuery() const
 {
-    return QSqlQuery(new QMYSQLResult( this ) );
+    return QSqlQuery( new QMYSQLResult( this ) );
 }
 
 QStringList QMYSQLDriver::tables( const QString& ) const
@@ -343,7 +350,7 @@ QSqlIndex QMYSQLDriver::primaryIndex( const QString& tablename ) const
     QSqlIndex idx;
     QSqlQuery i = createQuery();
     QString stmt( "show index from %1;" );
-    QSqlRecord fil = record( tablename );    
+    QSqlRecord fil = record( tablename );
     i.exec( stmt.arg( tablename ) );
     while ( i.isActive() && i.next() ) {
 	if ( i.value(2).toString() == "PRIMARY" ) {
@@ -373,7 +380,7 @@ QSqlRecord QMYSQLDriver::record( const QSqlQuery& query ) const
     QSqlRecord fil;
     if ( query.isActive() && query.driver() == this ) {
 	QMYSQLResult* result =  (QMYSQLResult*)query.result();
-	QMYSQLPrivate* p = result->d;
+	QMYSQLResultPrivate* p = result->d;
 	if ( !mysql_errno( p->mysql ) ) {
 	    for ( ;; ) {
 		MYSQL_FIELD* f = mysql_fetch_field( p->result );

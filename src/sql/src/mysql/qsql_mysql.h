@@ -42,7 +42,8 @@
 #include "../../qsqlfield.h"
 #include "../../qsqlindex.h"
 
-class QMYSQLPrivate;
+class QMYSQLDriverPrivate;
+class QMYSQLResultPrivate;
 class QMYSQLDriver;
 
 class QMYSQLResult : public QSqlResult
@@ -62,7 +63,7 @@ protected:
     int                 size();
     int                 numRowsAffected();
 private:
-    QMYSQLPrivate* 	d;
+    QMYSQLResultPrivate* d;
 };
 
 class QMYSQLDriver : public QSqlDriver
@@ -86,7 +87,7 @@ public:
     QSqlRecord          record( const QSqlQuery& query ) const;
 private:
     void		init();
-    QMYSQLPrivate* 	d;
+    QMYSQLDriverPrivate* d;
 };
 
 
