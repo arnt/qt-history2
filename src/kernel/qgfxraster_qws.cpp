@@ -2066,7 +2066,7 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_1(
 		monobitcount++;
 	    } else {
 		monobitcount=1;
-		(*srcdata)++;
+		(*srcdata)--;
 		monobitval=**srcdata;
 	    }
 	    if(src_little_endian) {
