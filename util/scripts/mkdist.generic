@@ -218,7 +218,6 @@ if [ "${platform}" = "win" ]; then
   mv extensions/nsplugin/src/q*.h include
   rm -rf makefiles
   rm -rf extensions/xt
-  rm -rf doc
   find . -name 'qtx11.*' | xargs rm -vf
 
   cd ${DISTDIR}/qt
