@@ -41,9 +41,9 @@
 
 #include <stdlib.h>
 #include <limits.h>
-#include <qdebug.h>
 
 #include "qx11info_x11.h"
+#include <qdebug.h>
 
 // #define QT_XIM_DEBUG
 #ifdef QT_XIM_DEBUG
@@ -334,6 +334,7 @@ QXIMInputContext::QXIMInputContext()
 */
 void QXIMInputContext::create_xim()
 {
+    ++fontsetRefCount;
 #ifndef QT_NO_XIM
     xim = XOpenIM(X11->display, 0, 0, 0);
     if (xim) {
@@ -418,6 +419,16 @@ void QXIMInputContext::close_xim()
     // XCloseIM(xim);
     // We prefer a less serious memory leak
     xim = 0;
+
+    if ( --fontsetRefCount == 0 ) {
+	Display *dpy = X11->display;
+	for ( int i = 0; i < 8; i++ ) {
+	    if ( fontsetCache[i] && fontsetCache[i] != (XFontSet)-1 ) {
+		XFreeFontSet(dpy, fontsetCache[i]);
+		fontsetCache[i] = 0;
+	    }
+	}
+    }
 }
 
 
@@ -524,6 +535,7 @@ void QXIMInputContext::setFocusWidget(QWidget *w)
         data = createICData(w);
 
     XSetICFocus(data->ic);
+    update();
 }
 
 
@@ -642,6 +654,53 @@ QXIMInputContext::ICData *QXIMInputContext::createICData(QWidget *w)
     return data;
 }
 
+void QXIMInputContext::update()
+{
+    QWidget *w = focusWidget();
+    if (!w)
+        return;
+
+    ICData *data = ximData.value(w);
+    if (!data)
+        return;
+
+    QRect r = w->inputMethodQuery(Qt::ImMicroFocus).toRect();
+    QPoint p = r.bottomLeft();
+    XPoint spot;
+    spot.x = p.x();
+    spot.y = p.y();
+
+    r = w->rect();
+    XRectangle area;
+    area.x = r.x();
+    area.y = r.y();
+    area.width = r.width();
+    area.height = r.height();
+
+    XFontSet fontset = getFontSet(w->inputMethodQuery(Qt::ImFont).toFont());
+    if (data->fontset == fontset)
+        fontset = 0;
+    else
+        data->fontset = fontset;
+
+    XVaNestedList preedit_attr;
+    if (fontset)
+        preedit_attr = XVaCreateNestedList(0,
+                                           XNSpotLocation, &spot,
+                                           XNArea, &area,
+                                           XNFontSet, fontset,
+                                           (char *) 0);
+    else
+        preedit_attr = XVaCreateNestedList(0,
+                                           XNSpotLocation, &spot,
+                                           XNArea, &area,
+                                           (char *) 0);
+
+    XSetICValues(data->ic, XNPreeditAttributes, preedit_attr, (char *) 0);
+    XFree(preedit_attr);
+}
+
+
 #else
 /*
     When QT_NO_XIM is defined, we provide a dummy implementation for
@@ -657,7 +716,8 @@ QString QXIMInputContext::identifierName() { return QString(); }
 void QXIMInputContext::mouseHandler(int, QMouseEvent *) {}
 void QXIMInputContext::setFocusWidget(QWidget *) {}
 void QXIMInputContext::reset() {}
-QXIMInputContext::~QXIMInputContext() {}
+void QXIMInputContext::update() {}
+XIMInputContext::~QXIMInputContext() {}
 void QXIMInputContext::widgetDestroyed(QWidget *) {}
 QString QXIMInputContext::language() { return QString(); }
 bool QXIMInputContext::x11FilterEvent(QWidget *, XEvent *) { return true; }

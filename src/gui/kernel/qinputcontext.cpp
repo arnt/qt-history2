@@ -511,6 +511,15 @@ QFont QInputContext::font() const
     return d->focusWidget->inputMethodQuery(Qt::ImFont).toFont();
 }
 
+/*!
+  Is called when a state in the focus widget has changed. QInputContext
+  can then use QWidget::inputMethodQuery() to query the new state of the
+  widget.
+*/
+void QInputContext::update()
+{
+}
+
 
 void QInputContext::widgetDestroyed(QWidget *w)
 {

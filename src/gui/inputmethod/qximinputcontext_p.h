@@ -90,6 +90,8 @@ public:
     void create_xim();
     void close_xim();
 
+    void update();
+
     ICData *icData() const;
 protected:
     bool x11FilterEvent( QWidget *keywidget, XEvent *event );
@@ -102,12 +104,6 @@ private:
     QHash<QWidget *, ICData *> ximData;
 
     ICData *createICData(QWidget *w);
-
-//     void setComposePosition(int, int);
-//     void setComposeArea(int, int, int, int);
-//     void setXFontSet(const QFont &);
-
-//     int lookupString(XKeyEvent *, QByteArray &, KeySym *, Status *) const;
 };
 
 

@@ -225,8 +225,10 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
     const bool moved = cursor.movePosition(op, mode);
     q->ensureCursorVisible();
 
-    if (moved)
+    if (moved) {
         emit q->cursorPositionChanged();
+        q->updateMicroFocus();
+    }
 
     selectionChanged();
 
@@ -248,6 +250,7 @@ void QTextEditPrivate::updateCurrentCharFormat()
     emit q->currentFontChanged(fmt.font());
     emit q->currentColorChanged(fmt.textColor());
 #endif
+    q->updateMicroFocus();
 }
 
 void QTextEditPrivate::indent()
@@ -496,6 +499,7 @@ void QTextEditPrivate::selectionChanged()
     lastSelectionState = current;
     emit q->copyAvailable(current);
     emit q->selectionChanged();
+    q->updateMicroFocus();
 }
 
 bool QTextEditPrivate::pageUp(QTextCursor::MoveMode moveMode)
@@ -507,9 +511,10 @@ bool QTextEditPrivate::pageUp(QTextCursor::MoveMode moveMode)
         moved = cursor.movePosition(QTextCursor::Up, moveMode);
     } while (moved && vbar->value() > targetY);
 
-    if (moved)
+    if (moved) {
         emit q->cursorPositionChanged();
-
+        q->updateMicroFocus();
+    }
     return moved;
 }
 
@@ -522,9 +527,10 @@ bool QTextEditPrivate::pageDown(QTextCursor::MoveMode moveMode)
         moved = cursor.movePosition(QTextCursor::Down, moveMode);
     } while (moved && vbar->value() < targetY);
 
-    if (moved)
+    if (moved) {
         emit q->cursorPositionChanged();
-
+        q->updateMicroFocus();
+    }
     return moved;
 }
 
@@ -590,8 +596,10 @@ void QTextEditPrivate::ensureVisible(int documentPosition)
 
 void QTextEditPrivate::emitCursorPosChanged(const QTextCursor &someCursor)
 {
-    if (someCursor.isCopyOf(cursor))
+    if (someCursor.isCopyOf(cursor)) {
         emit q->cursorPositionChanged();
+        q->updateMicroFocus();
+    }
 }
 
 void QTextEditPrivate::setBlinkingCursorEnabled(bool enable)
@@ -961,6 +969,7 @@ void QTextEdit::setAlignment(Qt::Alignment a)
     QTextBlockFormat fmt;
     fmt.setAlignment(a);
     d->cursor.mergeBlockFormat(fmt);
+    updateMicroFocus();
 }
 
 /*!
@@ -1858,6 +1867,7 @@ void QTextEdit::wheelEvent(QWheelEvent *ev)
         }
     }
     QViewport::wheelEvent(ev);
+    updateMicroFocus();
 }
 
 /*!
@@ -2420,6 +2430,7 @@ void QTextEdit::ensureCursorVisible()
         else if (crect.y() + crect.height() > d->contentsY() + visibleHeight)
             d->vbar->setValue(crect.y() + crect.height() - visibleHeight);
     }
+    updateMicroFocus();
 }
 
 

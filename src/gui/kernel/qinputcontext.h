@@ -55,6 +55,7 @@ public:
     virtual QString language() = 0;
 
     virtual void reset() = 0;
+    virtual void update();
 
     virtual void mouseHandler( int x, QMouseEvent *event);
     virtual QFont font() const;

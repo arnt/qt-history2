@@ -37,6 +37,9 @@
 #include "qt_windows.h"
 #include "qinputcontext_p.h"
 #endif
+#if defined(Q_WS_X11)
+#include "qinputcontext.h"
+#endif
 #if defined(Q_WS_QWS)
 #include "qwsmanager_qws.h"
 #endif
@@ -6374,6 +6377,19 @@ void QWidget::setShortcutEnabled(int id, bool enable)
     if (id)
         qApp->d->shortcutMap.setShortcutEnabled(enable, id, this, 0);
 }
+
+
+void QWidget::updateMicroFocus()
+{
+#ifdef Q_WS_X11
+    QInputContext *ic = inputContext();
+    if (ic)
+        ic->update();
+#endif
+    // ##### is this correct
+    QAccessible::updateAccessibility(this, 0, QAccessible::StateChanged);
+}
+
 
 #if defined (Q_WS_WIN)
 /*!

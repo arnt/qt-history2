@@ -559,6 +559,7 @@ protected:
     int metric(PaintDeviceMetric) const;
 
     void resetInputContext();
+    void updateMicroFocus();
 
     void create(WId = 0, bool initializeWindow = true,
                          bool destroyOldWindow = true);
