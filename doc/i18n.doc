@@ -37,8 +37,6 @@
 
 \title Internationalization with Qt
 
-\keyword internationalization
-
 The internationalization of an application is the process of making
 the application usable by people in countries other than one's own. 
 
