@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#282 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#283 $
 **
 ** Implementation of QApplication class
 **
@@ -919,21 +919,24 @@ QPalette QApplication::palette( const QWidget* w, const char* className  )
   \sa QWidget::setPalette(), palette(), QStyle::polish()
 */
 
-void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets, const char* className )
+void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets,
+			       const char* className )
 {
     QPalette* pal = new QPalette( palette );
+    CHECK_PTR( pal );
 
     if ( !startingUp() )
 	qApp->style().polish( *pal );
 
-
     if (!className) {
 	if ( !app_pal ) {
-	    app_pal = new QPalette( palette );
+	    app_pal = pal;
 	    CHECK_PTR( app_pal );
 	}
 	else {
-	    *app_pal = palette;
+	    *app_pal = *pal;
+	    delete pal;
+	    pal = 0;
 	}
 	delete app_palettes;
 	app_palettes = 0;
@@ -945,17 +948,17 @@ void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets, c
 	    CHECK_PTR( app_palettes );
 	    app_palettes->setAutoDelete( TRUE );
 	}
-	CHECK_PTR( pal );
 	app_palettes->insert(className, pal);
     }
+
     if ( updateAllWidgets && is_app_running && !is_app_closing ) {
 	QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
 	register QWidget *w;
 	while ( (w=it.current()) ) {		// for all widgets...
 	    ++it;
-	    if ( ( !className  || w->inherits( className ) ) && // that fit with classname
-		!w->testWFlags(WType_Desktop) // (except desktop)
-		 && !w->testWState(WState_PaletteFixed) ) {// (and except fixed palettes)
+	    if ( ( !className || w->inherits( className ) )
+		 && !w->testWFlags(WType_Desktop) 	     // except desktop
+		 && !w->testWState(WState_PaletteFixed) ) {  // except fixed
 		w->setPalette( QApplication::palette( w ) );
 	    }
 	}
