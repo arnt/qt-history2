@@ -1828,7 +1828,9 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
             HIRect itemRect = qt_hirectForQRect(mi->rect);
             HIThemeMenuItemDrawInfo mdi;
             mdi.version = qt_mac_hitheme_version;
-            if (opt->state & QStyle::Style_Selected)
+            if (!(opt->state & QStyle::Style_Enabled))
+                mdi.state = kThemeMenuDisabled;
+            else if (opt->state & QStyle::Style_Selected)
                 mdi.state = kThemeMenuSelected;
             else
                 mdi.state = kThemeMenuActive;
@@ -1857,28 +1859,28 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
         break;
     case QStyle::CE_MenuBarItem:
         if (const QStyleOptionMenuItem *mi = qt_cast<const QStyleOptionMenuItem *>(opt)) {
-            HIThemeMenuTitleDrawInfo tdi;
-            tdi.version = qt_mac_hitheme_version;
-            if (!(mi->state & QStyle::Style_Enabled))
-                tdi.state = kThemeMenuDisabled;
+            p->fillRect(mi->rect, opt->palette.background());
+
+            HIRect menuRect = qt_hirectForQRect(mi->menuRect);
+            HIRect itemRect = qt_hirectForQRect(mi->rect);
+            HIThemeMenuItemDrawInfo mdi;
+            mdi.version = qt_mac_hitheme_version;
+            if (!(opt->state & QStyle::Style_Enabled))
+                mdi.state = kThemeMenuDisabled;
+            else if ((opt->state & QStyle::Style_Selected) && (opt->state & QStyle::Style_Down))
+                mdi.state = kThemeMenuSelected;
             else
-                tdi.state = kThemeMenuActive;
-            if (mi->state & QStyle::Style_Selected)
-                tdi.state |= kThemeMenuSelected;
-            tdi.attributes = 0;
-            tdi.condensedTitleExtra = 0.0;
-            HIRect mbRect = qt_hirectForQRect(mi->menuRect), textRect;
-            HIRect rect = qt_hirectForQRect(QRect(mi->rect.x(), 0, mi->rect.width(),
-                                            mi->menuRect.height()), false);
-            HIThemeDrawMenuTitle(&mbRect, &rect, &tdi, cg,
-                                 kHIThemeOrientationNormal, &textRect);
+                mdi.state = kThemeMenuActive;
+            mdi.itemType = kThemeMenuItemPlain;
+            HIThemeDrawMenuItem(&menuRect, &itemRect, &mdi,
+                                cg, kHIThemeOrientationNormal, 0);
+
             //text
-            QPixmap pix = mi->icon.pixmap(Qt::SmallIconSize, QIcon::Normal);
-            q->drawItem(p, qt_qrectForHIRect(textRect),
-                        Qt::AlignCenter | Qt::TextHideMnemonic | Qt::TextDontClip
-                        | Qt::TextSingleLine,
+            q->drawItem(p, mi->rect,
+                        Qt::AlignCenter | Qt::TextHideMnemonic | Qt::TextDontClip | Qt::TextSingleLine,
                         mi->palette, mi->state & QStyle::Style_Enabled,
-                        pix, mi->text, -1, &mi->palette.buttonText().color());
+                        mi->icon.pixmap(Qt::SmallIconSize, QIcon::Normal), 
+                        mi->text, -1, &mi->palette.buttonText().color());
         }
         break;
     case QStyle::CE_MenuBarEmptyArea:
@@ -1886,7 +1888,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
             HIThemeMenuBarDrawInfo bdi;
             bdi.version = qt_mac_hitheme_version;
             bdi.state = kThemeMenuBarNormal;
-            bdi.attributes = kThemeMenuSquareMenuBar;
+            bdi.attributes = 0;
             HIRect hirect = qt_hirectForQRect(mi->rect);
             HIThemeDrawMenuBarBackground(&hirect, &bdi, cg,
                                          kHIThemeOrientationNormal);
@@ -1898,7 +1900,6 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
             tdi.version = qt_mac_hitheme_version;
             tdi.reserved = 0;
             bool isIndeterminate = (pb->minimum == 0 && pb->maximum == 0);
-            // Boy, I love writing this...
             switch (qt_aqua_size_constrain(w)) {
             case QAquaSizeUnknown:
             case QAquaSizeLarge:
@@ -3451,17 +3452,21 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
         break;
     case QStyle::CE_MenuBarItem:
         if (const QStyleOptionMenuItem *mi = qt_cast<const QStyleOptionMenuItem *>(opt)) {
-            QRect ir(mi->rect.x(), 0, mi->rect.width(), mi->menuRect.height());
             Rect mrect = *qt_glb_mac_rect(mi->menuRect, p),
-                 irect = *qt_glb_mac_rect(ir, p, false);
+                 irect = *qt_glb_mac_rect(mi->rect, p, false);
             ThemeMenuState tms = kThemeMenuActive;
-            if (!(mi->state & QStyle::Style_Selected))
-                tms = kThemeMenuDisabled;
-            if (mi->state & QStyle::Style_Down)
-                tms = kThemeMenuSelected;
+            ThemeMenuItemType tmit = kThemeMenuItemPlain;
+            if ((opt->state & QStyle::Style_Selected) && (opt->state & QStyle::Style_Down))
+                tms |= kThemeMenuSelected;
             qt_mac_set_port(p);
-            DrawThemeMenuTitle(&mrect, &irect, tms, 0, 0, 0);
-            q->QWindowsStyle::drawControl(ce, mi, p, widget);
+            DrawThemeMenuItem(&mrect, &irect, mrect.top, mrect.bottom, tms, tmit, 0, 0);
+
+            //text
+            q->drawItem(p, mi->rect,
+                        Qt::AlignCenter | Qt::TextHideMnemonic | Qt::TextDontClip | Qt::TextSingleLine,
+                        mi->palette, mi->state & QStyle::Style_Enabled,
+                        mi->icon.pixmap(Qt::SmallIconSize, QIcon::Normal), 
+                        mi->text, -1, &mi->palette.buttonText().color());
         }
         break;
     case QStyle::CE_MenuBarEmptyArea:
@@ -4437,6 +4442,15 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
         else
             ret = sz.width();
         break; }
+
+    case PM_MenuBarHMargin:
+        ret = 8;
+        break;
+
+    case PM_MenuBarVMargin: 
+        ret = 0;
+        break; 
+
     case QStyle::PM_MenuDesktopFrameWidth:
         ret = 15;
         break;
