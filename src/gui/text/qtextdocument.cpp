@@ -1000,24 +1000,25 @@ void QTextHtmlExporter::emitFragment(const QTextFragment &fragment)
 
     QString txt = fragment.text();
     if (txt.count() == 1 && txt.at(0) == QChar::ObjectReplacementCharacter) {
-        Q_ASSERT(format.isImageFormat());
-        QTextImageFormat imgFmt = format.toImageFormat();
+        if (format.isImageFormat()) {
+            QTextImageFormat imgFmt = format.toImageFormat();
 
-        html += QLatin1String("<img");
+            html += QLatin1String("<img");
 
-        if (imgFmt.hasProperty(QTextFormat::ImageName))
-            emitAttribute("src", imgFmt.name());
+            if (imgFmt.hasProperty(QTextFormat::ImageName))
+                emitAttribute("src", imgFmt.name());
 
-        if (imgFmt.hasProperty(QTextFormat::ImageWidth))
-            emitAttribute("width", QString::number(imgFmt.width()));
+            if (imgFmt.hasProperty(QTextFormat::ImageWidth))
+                emitAttribute("width", QString::number(imgFmt.width()));
 
-        if (imgFmt.hasProperty(QTextFormat::ImageHeight))
-            emitAttribute("height", QString::number(imgFmt.height()));
+            if (imgFmt.hasProperty(QTextFormat::ImageHeight))
+                emitAttribute("height", QString::number(imgFmt.height()));
 
-        if (QTextFrame *imageFrame = qt_cast<QTextFrame *>(doc->objectForFormat(imgFmt)))
-            emitFloatStyle(imageFrame->format().position());
+            if (QTextFrame *imageFrame = qt_cast<QTextFrame *>(doc->objectForFormat(imgFmt)))
+                emitFloatStyle(imageFrame->format().position());
 
-        html += QLatin1String(" />");
+            html += QLatin1String(" />");
+        }
     } else {
         Q_ASSERT(!txt.contains(QChar::ObjectReplacementCharacter));
 
