@@ -1109,38 +1109,16 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 			break;
 		    }
 		}
-			
+
 		if ( textFormat() == Qt::RichText && ( !cursor->parag()->style() ||
 			       cursor->parag()->style()->displayMode() != QStyleSheetItem::DisplayListItem ) ) {
 		    if ( cursor->index() == 0 && ( e->text()[0] == '-' || e->text()[0] == '*' ) ) {
-			setParagType( QStyleSheetItem::DisplayListItem, QStyleSheetItem::ListSquare );
-			cursor->parag()->incDepth();
+			setParagType( QStyleSheetItem::DisplayListItem, QStyleSheetItem::ListDisc );
 			drawCursor( FALSE );
 			repaintChanged();
 			drawCursor( TRUE );
 			break;
 		    }
-#if 0			
-		    else if ( e->text()[0] == '.' && cursor->index() == 1 ) {
-			QChar c = cursor->parag()->at(0)->c;
-			QStyleSheetItem::ListStyle ls = QStyleSheetItem::ListDisc;
-			if ( c == '1' )
-			    ls = QStyleSheetItem::ListDecimal;
-			else if ( c == 'a' )
-			    ls = QStyleSheetItem::ListLowerAlpha;
-			else if ( c == 'A' )
-			    ls = QStyleSheetItem::ListUpperAlpha;
-			if ( ls != QStyleSheetItem::ListDisc ) {
-			    setParagType( QStyleSheetItem::DisplayListItem, ls );
- 			    cursor->parag()->incDepth();
- 			    cursor->parag()->setListValue( -1 );
-			    drawCursor( FALSE );
-			    repaintChanged();
-			    drawCursor( TRUE );
-			    break;
-			}
-		    }
-#endif		
 		}
 		if ( overWrite && !cursor->atParagEnd() )
 		    cursor->remove();
@@ -1731,7 +1709,7 @@ void QTextEdit::viewportResizeEvent( QResizeEvent *e )
 {
     QScrollView::viewportResizeEvent( e );
     if ( e->oldSize().width() != e->size().width() ) {
-	bool stayAtBottom = e->oldSize().height() != e->size().height() && 
+	bool stayAtBottom = e->oldSize().height() != e->size().height() &&
 	       contentsY() > 0 && contentsY() >= doc->height() - e->oldSize().height();
 	doResize();
 	if ( stayAtBottom )
@@ -2205,8 +2183,8 @@ void QTextEdit::contentsDropEvent( QDropEvent *e )
 					   selStartIndex );
 		}
 	    }
-	 }	
-	
+	 }
+
 	if ( internalDrag && e->action() == QDropEvent::Move ) {
 	    removeSelectedText();
 	    intern = TRUE;
@@ -3090,7 +3068,6 @@ void QTextEdit::setParagType( QStyleSheetItem::DisplayMode dm,
   are \c Qt::AlignLeft, \c Qt::AlignRight, Qt::AlignJustify and
   Qt::AlignCenter (which centers horizontally).
 
-  \sa setParagType()
 */
 
 void QTextEdit::setAlignment( int a )
@@ -4119,7 +4096,7 @@ void QTextEdit::append( const QString &text )
     if ( cursor->index() > 0 )
 	cursor->splitAndInsertEmptyParag();
     QTextCursor oldCursor2 = *cursor;
-  	
+
     if ( f == Qt::PlainText ) {
 	cursor->insert( text, TRUE );
 	if ( doc->useFormatCollection() &&
