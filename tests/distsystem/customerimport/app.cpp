@@ -38,7 +38,7 @@ void ImportApp::doImport()
 
 		    QSqlCursor axaptaCursor( "CustTable", true, axaptaDB );
 
-		    axaptaCursor.select( "Name = '" + customerName.left( 29 ) + "' and Address = '" + customerAddress + "' and dataareaid = 'ts3'" );
+		    axaptaCursor.select( "Name = '" + customerName.left( 30 ) + "' and Address = '" + customerAddress + "' and dataareaid = 'ts3'" );
 		    axaptaCursor.first();
 		    if( axaptaCursor.isValid() ) {
 			    // We found a record, hooray :)
@@ -60,7 +60,7 @@ void ImportApp::doImport()
 			    bool b = q.exec( tmp );
 			    if( b ) {
 				QString simpleAxaptaAddress = axaptaCursor.value( "ADDRESS" ).toString();
-				QString simpleInternAddress = customerAddress;
+				QString simpleInternAddress = customerAddress.left( 30 );
 
 				simpleAxaptaAddress.replace( QRegExp( "[\r\n ]" ), " " );
 				simpleInternAddress.replace( QRegExp( "[\r\n ]" ), " " );
