@@ -6,6 +6,9 @@
 #include <qfiledialog.h>
 #include <qpushbutton.h>
 #include <qlineedit.h>
+#include <qurl.h>
+#include <qlabel.h>
+#include <qpixmap.h>
 #include "qnetwork.h"
 
 Main::Main(QWidget* parent, const char* name, int f) :
@@ -33,6 +36,9 @@ Main::Main(QWidget* parent, const char* name, int f) :
     QPushButton *but5 = new QPushButton( "Test &Filters", this );
     lay->addWidget( but5 );
     connect( but5, SIGNAL(clicked()), this, SLOT(boom()) );
+    QPushButton *but6 = new QPushButton( "Test &Preview", this );
+    lay->addWidget( but6 );
+    connect( but6, SIGNAL(clicked()), this, SLOT(platsch()) );
 }
 
 void Main::bang()
@@ -99,6 +105,38 @@ void Main::boom()
 	 "Project files (*.pro)" );
 }
 
+class Preview : public QLabel
+{
+    Q_OBJECT
+    
+public:
+    Preview( QWidget *parent )
+	: QLabel( parent ) {
+    }
+    
+public slots:
+    void showPreview( const QUrl &u ) {
+	if ( u.isLocalFile() ) {
+	    QString path = u.path();
+	    QPixmap pix( path );
+	    if ( pix.isNull() )
+		setText( "This is not a pixmap" );
+	    else
+		setPixmap( pix );
+	} else
+	    setText( "I only shoud local files!" );
+    }
+    
+};
+
+void Main::platsch()
+{
+    QFileDialog *fd = new QFileDialog( initEd->text(), filtEd->text() );
+    fd->setPreviewMode( FALSE, TRUE );
+    fd->setContentsPreviewWidget( new Preview( this ) );
+    fd->show();
+}
+
 void Main::resizeEvent(QResizeEvent*)
 {
 }
@@ -131,3 +169,5 @@ main(int argc, char** argv)
 
     return app.exec();
 }
+
+#include "filedlg.moc"

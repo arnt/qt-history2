@@ -15,6 +15,7 @@ public slots:
     void ratatatat();
     void whoosh();
     void boom();
+    void platsch();
 private:
     QLabel *lab;
     QLineEdit* initEd;
