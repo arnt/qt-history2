@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#55 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#56 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -366,7 +366,7 @@ static void parseEtcLpMember( QListView * printers )
     while ( (printer = it.current()) != 0 ) {
 	++it;
 	// uglehack.
-	// I haven't found any real documenation, so I'm guessing that
+	// I haven't found any real documentation, so I'm guessing that
 	// since lpstat uses /etc/lp/member rather than one of the
 	// other directories, it's the one to use.  I did not find a
 	// decent way to locate aliases and remote printers.
@@ -465,7 +465,7 @@ static QPrintDialog * globalPrintDialog = 0;
   comfortable use on a small-screen machine.  This will be improved on
   in 2.0.
 
-  <img width="479" height="540" src="printerdialog.gif"><br clear=all>
+  <img src="printerdialog.gif"><br clear=all>
   The printer dialog, on a large screen, in Motif style.
 */
 
