@@ -30,6 +30,41 @@ public:
     QPaintEngine *paintEngine() const { return (QPaintEngine *)&svgEngine; }
     bool play(QPainter *p) { return svgEngine.play(p); }
 
+    int metric(PaintDeviceMetric m) const {
+        int val;
+        QRect br = svgEngine.boundingRect();
+        switch (m) {
+        case PdmWidth:
+            val = br.width();
+            break;
+        case PdmHeight:
+            val = br.height();
+            break;
+        case PdmWidthMM:
+            val = int(25.4/72.0*br.width());
+            break;
+        case PdmHeightMM:
+            val = int(25.4/72.0*br.height());
+            break;
+        case PdmDpiX:
+            val = 72;
+            break;
+        case PdmDpiY:
+            val = 72;
+            break;
+        case PdmNumColors:
+            val = 16777216;
+            break;
+        case PdmDepth:
+            val = 24;
+            break;
+        default:
+            val = 0;
+            qWarning("Q3SvgDevice::metric: Invalid metric command");
+        }
+        return val;
+    }
+
 private:
     Q3SVGPaintEngine svgEngine;
 };
@@ -51,34 +86,12 @@ bool Q3Picture::load(QIODevice *dev, const char *format)
 	Q3SvgDevice svg;
 	if (!svg.load(dev))
 	    return FALSE;
- 	QPainter p(this);
+        QPainter p(this);
 	bool b = svg.play(&p);
 	d->brect = svg.boundingRect();
 	return b;
     }
-
-    if (format) {
-#ifndef QT_NO_PICTUREIO
-        QPictureIO io(dev, format);
-        bool result = io.read();
-        if (result) {
-            operator=(io.picture());
-
-        } else if (format)
-#else
-            bool result = false;
-#endif
-        {
-            qWarning("Q3Picture::load: No such picture format: %s", format);
-        }
-        return result;
-    }
-
-    detach();
-    QByteArray a = dev->readAll();
-
-    d->pictb.setData(a);                        // set byte array in buffer
-    return d->checkFormat();
+    return QPicture::load(dev, format);
 }
 
 bool Q3Picture::save(const QString &fileName, const char *format)
@@ -100,26 +113,7 @@ bool Q3Picture::save(const QString &fileName, const char *format)
 	return svg.save(fileName);
     }
 
-    if(format) {
-#ifndef QT_NO_PICTUREIO
-        QPictureIO io(fileName, format);
-        bool result = io.write();
-        if (result) {
-            operator=(io.picture());
-        } else if (format)
-#else
-        bool result = false;
-#endif
-        {
-            qWarning("Q3Picture::save: No such picture format: %s", format);
-        }
-        return result;
-    }
-
-    QFile f(fileName);
-    if (!f.open(QIODevice::WriteOnly))
-        return false;
-    return save(&f, format);
+    return QPicture::save(fileName, format);
 }
 
 bool Q3Picture::save(QIODevice *dev, const char *format)
@@ -139,22 +133,5 @@ bool Q3Picture::save(QIODevice *dev, const char *format)
 	return svg.save(dev);
     }
 
-    if(format) {
-#ifndef QT_NO_PICTUREIO
-        QPictureIO io(dev, format);
-        bool result = io.write();
-        if (result) {
-            operator=(io.picture());
-        } else if (format)
-#else
-        bool result = false;
-#endif
-        {
-            qWarning("Q3Picture::save: No such picture format: %s", format);
-        }
-        return result;
-    }
-
-    dev->write(d->pictb.buffer(), d->pictb.buffer().size());
-    return true;
+    return QPicture::save(dev, format);
 }

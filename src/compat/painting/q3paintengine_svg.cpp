@@ -248,18 +248,6 @@ void Q3SVGPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 
 }
 
-void Q3SVGPaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
-{
-    QDomElement e;
-
-    e = d->doc.createElement("line");
-    e.setAttribute("x1", p1.x());
-    e.setAttribute("y1", p1.y());
-    e.setAttribute("x2", p2.x());
-    e.setAttribute("y2", p2.y());
-    d->appendChild(e, QPicturePrivate::PdcDrawLine);
-}
-
 void Q3SVGPaintEngine::drawRect(const QRect &r)
 {
     QDomElement e;
@@ -278,15 +266,18 @@ void Q3SVGPaintEngine::drawRect(const QRect &r)
     d->appendChild(e, QPicturePrivate::PdcDrawRect);
 }
 
-void Q3SVGPaintEngine::drawPoint(const QPoint &p)
+void Q3SVGPaintEngine::drawPoint(const QPointF &p)
 {
-    drawLine(p, p);
+    QLineF l(p, p);
+    drawLines(&l, 1);
 }
 
-void Q3SVGPaintEngine::drawPoints(const QPolygon &pa, int index, int npoints)
+void Q3SVGPaintEngine::drawPoints(const QPointF *points, int pointCount)
 {
-    for (int i = index; i < npoints; ++i)
-        drawLine(pa[i], pa[i]); // should be drawPoint(), but saves one fu call
+    for (int i = 0; i < pointCount; ++i) {
+        QLineF l(points[i], points[i]);
+        drawLines(&l, 1);
+    }
 }
 
 void Q3SVGPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
@@ -410,50 +401,55 @@ void Q3SVGPaintEngine::drawChord(const QRect &r, int _a, int alen)
     d->appendChild(e, QPicturePrivate::PdcDrawChord);
 }
 
-void Q3SVGPaintEngine::drawLineSegments(const QPolygon &pa, int /* index */, int /* nlines */)
+void Q3SVGPaintEngine::drawLine(const QLineF &line)
+{
+    drawLines(&line, 1);
+}
+
+void Q3SVGPaintEngine::drawLines(const QLineF *lines, int lineCount)
 {
     QDomElement e;
-    uint end = pa.size() / 2; // ### use index and nlines instead - they are verified by QPainter
 
-    for (uint i = 0; i < end; i++) {
+    for (int i = 0; i < lineCount; ++i) {
         e = d->doc.createElement("line");
-        e.setAttribute("x1", pa[int(2*i)].x());
-        e.setAttribute("y1", pa[int(2*i)].y());
-        e.setAttribute("x2", pa[int(2*i+1)].x());
-        e.setAttribute("y2", pa[int(2*i+1)].y());
+        e.setAttribute("x1", lines[i].startX());
+        e.setAttribute("y1", lines[i].startY());
+        e.setAttribute("x2", lines[i].endX());
+        e.setAttribute("y2", lines[i].endY());
         d->appendChild(e, QPicturePrivate::PdcDrawLineSegments);
     }
 }
 
-void Q3SVGPaintEngine::drawPolyline(const QPolygon &a, int index, int npoints)
+void Q3SVGPaintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
 {
     QString str;
-    QDomElement e = d->doc.createElement("polyline");
-    for (int i = index; i < npoints; ++i) {
-        QString tmp;
-        tmp.sprintf("%d %d ", a[i].x(), a[i].y());
-        str += tmp;
+    if (mode == PolylineMode) {
+        QDomElement e = d->doc.createElement("polyline");
+        for (int i = 0; i < pointCount; ++i) {
+            QString tmp;
+            tmp.sprintf("%f %f ", points[i].x(), points[i].y());
+            str += tmp;
+        }
+        e.setAttribute("points", str.trimmed());
+        d->appendChild(e, QPicturePrivate::PdcDrawPolyline);
+    } else {
+        QDomElement e = d->doc.createElement("polygon");
+        for (int i = 0; i < pointCount; ++i) {
+            QString tmp;
+            tmp.sprintf("%f %f ", points[i].x(), points[i].y());
+            str += tmp;
+        }
+        e.setAttribute("points", str.trimmed());
+        d->appendChild(e, QPicturePrivate::PdcDrawPolygon);
     }
-    e.setAttribute("points", str.trimmed());
-    d->appendChild(e, QPicturePrivate::PdcDrawPolyline);
 }
 
-void Q3SVGPaintEngine::drawPolygon(const QPolygon &a, bool, int index, int npoints)
+void Q3SVGPaintEngine::drawPolygon(const QPoint *points, int pointCount, PolygonDrawMode mode)
 {
-    QString str;
-    QDomElement e = d->doc.createElement("polygon");
-    for (int i = index; i < npoints; ++i) {
-        QString tmp;
-        tmp.sprintf("%d %d ", a[i].x(), a[i].y());
-        str += tmp;
-    }
-    e.setAttribute("points", str.trimmed());
-    d->appendChild(e, QPicturePrivate::PdcDrawPolygon);
-}
-
-void Q3SVGPaintEngine::drawConvexPolygon(const QPolygon &pa, int index, int npoints)
-{
-    drawPolygon(pa, false, index, npoints);
+    QPolygonF poly;
+    for (int i = 0; i < pointCount; ++i)
+        poly << points[i];
+    drawPolygon(poly.constData(), pointCount, mode);
 }
 
 void Q3SVGPaintEngine::drawCubicBezier(const QPolygon &a, int /* index */)

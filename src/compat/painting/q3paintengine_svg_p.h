@@ -39,19 +39,18 @@ public:
     void updateClipRegion(const QRegion &region, Qt::ClipOperation op);
     void updateRenderHints(QPainter::RenderHints hints);
 
-    void drawLine(const QPoint &p1, const QPoint &p2);
+    void drawLine(const QLineF &line);
+    void drawLines(const QLineF *lines, int lineCount);
     void drawRect(const QRect &r);
-    void drawPoint(const QPoint &p);
-    void drawPoints(const QPolygon &pa, int index = 0, int npoints = -1);
+    void drawPoint(const QPointF &p);
+    void drawPoints(const QPointF *points, int pointCount);
     void drawRoundRect(const QRect &r, int xRnd, int yRnd);
     void drawEllipse(const QRect &r);
     void drawArc(const QRect &r, int a, int alen);
     void drawPie(const QRect &r, int a, int alen);
     void drawChord(const QRect &r, int a, int alen);
-    void drawLineSegments(const QPolygon &, int index = 0, int nlines = -1);
-    void drawPolyline(const QPolygon &pa, int index = 0, int npoints = -1);
-    void drawPolygon(const QPolygon &pa, bool winding = false, int index = 0, int npoints = -1);
-    void drawConvexPolygon(const QPolygon &, int index = 0, int npoints = -1);
+    void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
+    void drawPolygon(const QPoint *points, int pointCount, PolygonDrawMode mode);
 #ifndef QT_NO_BEZIER
     void drawCubicBezier(const QPolygon &, int index = 0);
 #endif
