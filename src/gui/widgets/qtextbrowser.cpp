@@ -488,6 +488,168 @@ void QTextBrowser::mouseReleaseEvent(QMouseEvent *ev)
 }
 
 /*!
+    \reimp
+*/
+void QTextBrowser::focusOutEvent(QFocusEvent *ev)
+{
+    Q_D(QTextEdit);
+    d->focusIndicator.clearSelection();
+    QTextEdit::focusOutEvent(ev);
+}
+
+/*!
+    \reimp
+*/
+bool QTextBrowser::focusNextPrevChild(bool next)
+{
+    Q_D(QTextBrowser);
+
+    qDebug() << "QTextBrowser::focusNextPrevChild(" << next << ")";
+
+    if (!d->readOnly)
+        return false;
+
+    if (!d->focusIndicator.hasSelection()) {
+        d->focusIndicator = QTextCursor(d->doc);
+        if (next)
+            d->focusIndicator.movePosition(QTextCursor::Start);
+        else
+            d->focusIndicator.movePosition(QTextCursor::End);
+    }
+
+    Q_ASSERT(!d->focusIndicator.isNull());
+
+    int anchorStart = -1;
+    int anchorEnd = -1;
+
+    if (next) {
+        int startPos = d->focusIndicator.selectionEnd();
+        QTextBlock block = d->doc->findBlock(startPos);
+
+        while (block.isValid()) {
+            anchorStart = -1;
+
+            QTextBlock::Iterator it = block.begin();
+
+            while (!it.atEnd() && it.fragment().position() < startPos)
+                ++it;
+
+            for (; !it.atEnd(); ++it) {
+                const QTextFragment fragment = it.fragment();
+                const QTextCharFormat fmt = fragment.charFormat();
+
+                if (fmt.isAnchor() && fmt.hasProperty(QTextFormat::AnchorHref)) {
+                    anchorStart = fragment.position();
+                    break;
+                }
+            }
+
+            if (anchorStart != -1) {
+                anchorEnd = -1;
+
+                for (; !it.atEnd(); ++it) {
+                    const QTextFragment fragment = it.fragment();
+                    const QTextCharFormat fmt = fragment.charFormat();
+
+                    if (!fmt.isAnchor()) {
+                        anchorEnd = fragment.position();
+                        break;
+                    }
+                }
+
+                if (anchorEnd == -1)
+                    anchorEnd = block.position() + block.length() - 1;
+
+                break;
+            }
+
+            block = block.next();
+            startPos = block.position();
+        }
+    } else {
+        int startPos = d->focusIndicator.selectionStart();
+        if (startPos > 0)
+            --startPos;
+
+        QTextBlock block = d->doc->findBlock(startPos);
+
+        while (block.isValid()) {
+            anchorStart = -1;
+
+            const QTextBlock::Iterator blockStart = block.begin();
+            QTextBlock::Iterator it = blockStart;
+
+            while (!it.atEnd() && it.fragment().position() < startPos)
+                ++it;
+
+            if (!it.atEnd()) {
+                do {
+                    const QTextFragment fragment = it.fragment();
+                    const QTextCharFormat fmt = fragment.charFormat();
+
+                    if (fmt.isAnchor() && fmt.hasProperty(QTextFormat::AnchorHref)) {
+                        anchorStart = fragment.position();
+                        break;
+                    }
+
+                    if (it == blockStart)
+                        it = QTextBlock::Iterator();
+                    else
+                        --it;
+                } while (!it.atEnd());
+            }
+
+            if (anchorStart != -1 && !it.atEnd()) {
+                anchorEnd = -1;
+
+                do {
+                    const QTextFragment fragment = it.fragment();
+                    const QTextCharFormat fmt = fragment.charFormat();
+
+                    if (!fmt.isAnchor()) {
+                        anchorEnd = fragment.position();
+                        break;
+                    }
+
+                    if (it == blockStart)
+                        it = QTextBlock::Iterator();
+                    else
+                        --it;
+                } while (!it.atEnd());
+
+                if (anchorEnd == -1)
+                    anchorEnd = qMax(0, block.position() - 1);
+
+                break;
+            }
+
+            block = block.previous();
+            startPos = block.position() + block.length() - 1;
+        }
+
+    }
+
+    if (anchorStart != -1 && anchorEnd != -1) {
+        qDebug() << "anchorStart" << anchorStart << "anchorEnd" << anchorEnd;
+        d->focusIndicator.setPosition(anchorStart);
+        d->focusIndicator.setPosition(anchorEnd, QTextCursor::KeepAnchor);
+    } else {
+        d->focusIndicator.clearSelection();
+    }
+
+    if (d->focusIndicator.hasSelection()) {
+        qSwap(d->focusIndicator, d->cursor);
+        ensureCursorVisible();
+        qSwap(d->focusIndicator, d->cursor);
+        d->viewport->update();
+        return true;
+    } else {
+        d->viewport->update();
+        return false;
+    }
+}
+
+/*!
     This function is called when the document is loaded. The \a type
     indicates the type of resource to be loaded. For each image in
     the document, this function is called once.

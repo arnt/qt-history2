@@ -60,9 +60,11 @@ signals:
     void anchorClicked(const QUrl &);
 
 protected:
-    void keyPressEvent(QKeyEvent *ev);
-    void mouseMoveEvent(QMouseEvent *ev);
-    void mouseReleaseEvent(QMouseEvent *ev);
+    virtual void keyPressEvent(QKeyEvent *ev);
+    virtual void mouseMoveEvent(QMouseEvent *ev);
+    virtual void mouseReleaseEvent(QMouseEvent *ev);
+    virtual void focusOutEvent(QFocusEvent *ev);
+    virtual bool focusNextPrevChild(bool next);
 
 #if defined(QT_COMPAT)
 public:
