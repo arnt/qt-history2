@@ -15,5 +15,5 @@ QAction* ActionPlugInManager::create( const QString& actionname, QObject* parent
 QString ActionPlugInManager::group( const QString& actionname )
 {
     ActionInterface *iface = (*this)[actionname];
-    return iface ? iface->group( actionname ) : 0;
+    return iface ? iface->group( actionname ) : QString::null;
 }
