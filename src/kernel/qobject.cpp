@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#31 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#30 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#31 $";
 #endif
 
 
@@ -777,6 +777,7 @@ void QObject::activate_signal( const char *signal )
 	object = c->object();
 	object->sigSender = this;
 	(object->*r)();
+	object->sigSender = 0;
     }
 }
 
@@ -799,10 +800,11 @@ void QObject::activate_signal( const char *signal, TYPE param )		      \
 	object = c->object();						      \
 	object->sigSender = this;					      \
 	(object->*r)( param );						      \
+	object->sigSender = 0;						      \
     }									      \
 }
 
-// We don't want to duplicate too much text...
+// We don't want to duplicate too much text so...
 
 ACTIVATE_SIGNAL_WITH_PARAM( short )
 ACTIVATE_SIGNAL_WITH_PARAM( int )
