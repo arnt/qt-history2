@@ -246,12 +246,7 @@ void QDockWindowResizeHandle::startLineDraw()
 #else
     QWidget *paint_on = QApplication::desktop();
 #endif
-    bool unclipped = paint_on->testWFlags( WPaintUnclipped );
-    ( (QDockWindowResizeHandle*)paint_on )->setWFlags( WPaintUnclipped );
-    unclippedPainter = new QPainter;
-    unclippedPainter->begin( paint_on );
-    if ( !unclipped )
-	( (QDockWindowResizeHandle*)paint_on )->clearWFlags( WPaintUnclipped );
+    unclippedPainter = new QPainter( paint_on, TRUE );
     unclippedPainter->setPen( QPen( gray, orientation() == Horizontal ? height() : width() ) );
     unclippedPainter->setRasterOp( XorROP );
 }
@@ -1034,12 +1029,7 @@ void QDockWindow::startRectDraw( const QPoint &so, bool drawRect )
 #else
     QWidget *paint_on = QApplication::desktop();
 #endif
-    bool unclipped = paint_on->testWFlags( WPaintUnclipped );
-    ( (QDockWindow*)paint_on)->setWFlags( WPaintUnclipped );
-    unclippedPainter = new QPainter;
-    unclippedPainter->begin( paint_on );
-    if ( !unclipped )
-	( (QDockWindow*)paint_on)->clearWFlags( WPaintUnclipped );
+    unclippedPainter = new QPainter( paint_on, TRUE );
     unclippedPainter->setPen( QPen( gray, 3 ) );
     unclippedPainter->setRasterOp( XorROP );
     currRect = QRect( realWidgetPos( this ), size() );
