@@ -45,6 +45,5 @@ win32 {
 		io/qdir_unix.cpp \
 		io/qfile_unix.cpp \
 		io/qfileinfo_unix.cpp
-} else:mac {
-	SOURCES += io/qsettings_mac.cpp
+	mac:SOURCES += io/qsettings_mac.cpp
 }
