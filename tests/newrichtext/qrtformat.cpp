@@ -1,7 +1,7 @@
 #include "qrtformat.h"
 
 #include <qcolor.h>
-#include <qfont.h>
+#include "qfont.h"
 #include <qshared.h>
 #include <qdict.h>
 

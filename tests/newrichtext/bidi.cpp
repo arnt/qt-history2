@@ -121,8 +121,7 @@ static void appendItems(ScriptItemArray &items, int &start, int &stop, BidiContr
 #if (BIDI_DEBUG >= 1)
     qDebug("new run: dir=%s from %d, to %d level = %d\n", directions[dir], start, stop, level);
 #endif
-    QFont::Script script;
-    SCRIPT_FOR_CHAR( script, text[start] );
+    QFont::Script script = QTextData::scriptForChar( text[start].unicode() );
     ScriptItem item;
     item.position = start;
     item.analysis.script = script;
@@ -135,8 +134,7 @@ static void appendItems(ScriptItemArray &items, int &start, int &stop, BidiContr
     items.append( item );
     for ( int i = start+1; i <= stop; i++ ) {
 
-	QFont::Script s;
-	SCRIPT_FOR_CHAR( s, text[i] );
+	QFont::Script s = QTextData::scriptForChar( text[i].unicode() );
 	if ( s != script && !isSpace( text[i] ) ) {
 	    ScriptItem item;
 	    item.position = i;

@@ -13,7 +13,7 @@ class MyWidget : public QWidget
 public:
     MyWidget( QWidget *parent = 0,  const char *name = 0);
 
-    QRTString string;
+    QString string;
 protected:
     void paintEvent( QPaintEvent *e);
 
@@ -30,11 +30,11 @@ void MyWidget::paintEvent( QPaintEvent * )
 {
 
     QPainter p( this );
-	QRTFormat format = string.format(0);
-	p.setFont( format.font() );
-	p.setPen( format.color() );
+// 	QRTFormat format = string.format(0);
+// 	p.setFont( format.font() );
+// 	p.setPen( format.color() );
 
-#if 1
+#if 0
 	ScriptItemArray items;
 	TextLayout::instance()->itemize( items, string );
 	qDebug("itemization: ");
@@ -79,31 +79,18 @@ void MyWidget::paintEvent( QPaintEvent * )
 
 #else
 
-    int x = 10, y = 50;
-    // just for testing we draw char by char
-    QRTFormat oldformat;
-    for ( int i = 0; i < string.length(); i++ ) {
-	QRTFormat format = string.format(i);
-	if ( i == 0 || format != oldformat ) {
-	    qDebug("format change at pos %d", i );
-	}
+	p.drawText( 10, 50, string );
 
-	p.setFont( format.font() );
-	p.setPen( format.color() );
-
-	p.drawText( x, y, string.str(), i, 1 );
-	x += p.fontMetrics().charWidth( string.str(), i );
-	oldformat = format;
-    }
 #endif
 }
 
 #endif
 
+//const char *s = "some string";
 //const char * s = "אי U יו";
 
-const char * s = "אירופה, תוכנה והאינטרנט: Unicode יוצא לשוק העולמי הירשמו כעת לכנס Unicode הבינלאומי העשירי, שייערך בין התאריכים 12־10 במרץ 1997, במיינץ שבגרמניה. בכנס ישתתפו מומחים מכל ענפי התעשייה בנושא האינטרנט העולמי וה־Unicode, בהתאמה לשוק הבינלאומי והמקומי, ביישום Unicode במערכות הפעלה וביישומים, בגופנים, בפריסת טקסט ובמחשוב רב־לשוני. some english inbetween כאשר העולם רוצה לדבר, הוא מדבר ב־Unicode";
-//const char * s = "אירופה, תוכנה והאינטרנט: Unicode";
+//const char * s = "אירופה, תוכנה והאינטרנט: Unicode יוצא לשוק העולמי הירשמו כעת לכנס Unicode הבינלאומי העשירי, שייערך בין התאריכים 12־10 במרץ 1997, במיינץ שבגרמניה. בכנס ישתתפו מומחים מכל ענפי התעשייה בנושא האינטרנט העולמי וה־Unicode, בהתאמה לשוק הבינלאומי והמקומי, ביישום Unicode במערכות הפעלה וביישומים, בגופנים, בפריסת טקסט ובמחשוב רב־לשוני. some english inbetween כאשר העולם רוצה לדבר, הוא מדבר ב־Unicode אירופה, תוכנה והאינטרנט: Unicode יוצא לשוק העולמי הירשמו כעת לכנס Unicode הבינלאומי העשירי, שייערך בין התאריכים 12־10 במרץ 1997, במיינץ שבגרמניה. בכנס ישתתפו מומחים מכל ענפי התעשייה בנושא האינטרנט העולמי וה־Unicode, בהתאמה לשוק הבינלאומי והמקומי, ביישום Unicode במערכות הפעלה וביישומים, בגופנים, בפריסת טקסט ובמחשוב רב־לשוני. some english inbetween כאשר העולם רוצה לדבר, הוא מדבר ב־Unicode אירופה, תוכנה והאינטרנט: Unicode יוצא לשוק העולמי הירשמו כעת לכנס Unicode הבינלאומי העשירי, שייערך בין התאריכים 12־10 במרץ 1997, במיינץ שבגרמניה. בכנס ישתתפו מומחים מכל ענפי התעשייה בנושא האינטרנט העולמי וה־Unicode, בהתא";
+const char * s = "אירופה, תוכנה והאינטרנט: Unicode";
 
 
 //const char *s = "أوروبا, برمجيات الحاسوب + انترنيت : some english تصبح";
@@ -114,38 +101,38 @@ int main( int argc, char **argv )
 {
     QApplication a(argc, argv);
 
-//     MyWidget *w = new MyWidget;
-//     w->resize( 600,  300 );
-//     w->show();
-//     a.setMainWidget ( w );
+    MyWidget *w = new MyWidget;
+    w->resize( 600,  300 );
+    w->show();
+    a.setMainWidget ( w );
 
 
     {
-	QRTString string = QString::fromUtf8( s );
-	qDebug("string length=%d",  string.qstring().length() );
-#if 0
-	string.setFormat( QRTFormat( QFont( "Arial", 24 ), Qt::black ) );
-	const TextLayout *textLayout = TextLayout::instance();
+	QString string = QString::fromUtf8( s );
+	//qDebug("string length=%d",  string.qstring().length() );
+#if 1
+// 	string.setFormat( QRTFormat( QFont( "Arial", 24 ), Qt::black ) );
+// 	const TextLayout *textLayout = TextLayout::instance();
 	w->string = string;
 #else
 	QTime t;
 	t.start();
-	ScriptItemArray items;
 	const TextLayout * const textLayout = TextLayout::instance();
 	for ( int i = 0; i < 1000; i++ ) {
+	    ScriptItemArray items;
 	    textLayout->itemize( items, string );
 	}
 	qDebug("itemize: %dms", t.elapsed() );
-	t.start();
-	for ( int i = 0; i < 1000; i++ ) {
-	    QString str = QComplexText::bidiReorderString( string.qstring() );
-	}
-	qDebug("itemize: %dms", t.elapsed() );
+// 	t.start();
+// 	for ( int i = 0; i < 1000; i++ ) {
+// 	    QString str = QComplexText::bidiReorderString( string.qstring() );
+// 	}
+// 	qDebug("itemize: %dms", t.elapsed() );
 #endif
     }
 
-//     a.exec();
-//     delete w;
+    a.exec();
+    delete w;
 
     qDebug("at exit:");
     QRTFormat::statistics();

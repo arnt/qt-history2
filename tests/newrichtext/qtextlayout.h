@@ -20,6 +20,7 @@ Some of the ideas are stolen from the Uniscribe API or from Pango.
 
 #include "qrtstring.h"
 #include <qmemarray.h>
+#include <stdlib.h>
 
 struct ScriptAnalysis
 {
@@ -61,7 +62,7 @@ public:
 	return d->items[i];
     }
     void append( const ScriptItem &item ) {
-	if ( d->items[d->size-1].analysis == item.analysis ) {
+	if ( d->size && d->items[d->size-1].analysis == item.analysis ) {
 	    //    qDebug("ScriptItemArray::append: trying to add same item" );
 	    return;
 	}
@@ -81,13 +82,36 @@ public:
     ScriptItemArrayPrivate *d;
 };
 
-class ShapedItemPrivate;
+class Offset {
+public:
+    Offset() : x( 0 ), y( 0 ) {}
+    short x;
+    short y;
+};
+
+class ShapedItemPrivate
+{
+public:
+    ShapedItemPrivate() : alloc( 0 ), num_glyphs( 0 ), glyphs( 0 ), offsets( 0 ) {}
+    ~ShapedItemPrivate() {
+	free( glyphs );
+	delete[] offsets;
+    }
+    int alloc;
+    int num_glyphs;
+    int * glyphs;
+    Offset *offsets;
+};
 
 class ShapedItem
 {
 public:
     ShapedItem();
     ~ShapedItem();
+
+    const int *glyphs() const;
+    int count() const;
+    const Offset *offsets() const;
 
     ShapedItemPrivate *d;
 };
@@ -140,6 +164,8 @@ public:
 
     // ScriptShape && ScriptPlace
     virtual void shape( ShapedItem &shaped, const QRTString &string,
+			const ScriptItemArray &items, int item ) const = 0;
+    virtual void shape( ShapedItem &shaped, const QFont &f, const QString &string,
 			const ScriptItemArray &items, int item ) const = 0;
 
 #if 0

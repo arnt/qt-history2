@@ -2,7 +2,7 @@
 #define QTEXTDATA_H
 
 #include <qstring.h>
-#include <qfont.h>
+#include "qfont.h"
 
 #include <private/qunicodetables_p.h>
 
@@ -25,9 +25,9 @@ public:
 		// 0x80 + SCRIPTS_xx
 		unsigned char index = script-0x80;
 		unsigned char cell = uc &0xff;
-		while( otherScripts[index] < cell )
-		    index += 2;
-		script = otherScripts[index+1];
+		while( otherScripts[index++] < cell )
+		    index++;
+		script = otherScripts[index];
 	    }
 	}
 	return (QFont::Script)script;

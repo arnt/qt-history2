@@ -31,14 +31,30 @@ CharAttributesArray::~CharAttributesArray()
 
 ShapedItem::ShapedItem()
 {
-    d = 0;
+    d = new ShapedItemPrivate();
 }
 
 ShapedItem::~ShapedItem()
 {
-    // ####
     if ( d )
-	delete ( (QString *)d );
+	delete d;
+}
+
+
+const int *ShapedItem::glyphs() const
+{
+    return d->glyphs;
+
+}
+
+int ShapedItem::count() const
+{
+    return d->num_glyphs;
+}
+
+const Offset *ShapedItem::offsets() const
+{
+    return d->offsets;
 }
 
 ScriptEngine **scriptEngines = 0;
@@ -55,6 +71,8 @@ public:
 		     const ScriptItemArray &items, int item ) const;
 
     void shape( ShapedItem &shaped, const QRTString &string,
+		const ScriptItemArray &items, int item ) const;
+    void shape( ShapedItem &shaped, const QFont &font, const QString &string,
 		const ScriptItemArray &items, int item ) const;
 };
 
@@ -105,15 +123,32 @@ void TextLayoutQt::attributes( CharAttributesArray &attrs, const QString &string
 void TextLayoutQt::shape( ShapedItem &shaped, const QRTString &string,
 	    const ScriptItemArray &items, int item ) const
 {
+    // ###
+#if 0
     const ScriptItem &si = items[item];
     int from = si.position;
     item++;
     int len = ( item < items.size() ? items[item].position : string.length() ) - from;
 
+    // ###
     QFont f;
     scriptEngines[si.analysis.script]->shape( f, string.qstring(), from, len, si.analysis, &shaped );
+#endif
 }
 
+void TextLayoutQt::shape( ShapedItem &shaped, const QFont &f, const QString &string,
+			 const ScriptItemArray &items, int item ) const
+{
+    const ScriptItem &si = items[item];
+    QFont::Script script = (QFont::Script)si.analysis.script;
+    int from = si.position;
+    item++;
+    int len = ( item < items.size() ? items[item].position : string.length() ) - from;
+
+    FontEngineIface *fe = f.engineForScript( script );
+    if ( fe )
+	scriptEngines[script]->shape( *fe, string, from, len, si.analysis, &shaped );
+}
 
 static TextLayout *_instance = 0;
 

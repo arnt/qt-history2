@@ -1,7 +1,7 @@
 #ifndef QRTFORMAT_H
 #define QRTFORMAT_H
 
-#include <qfont.h>
+#include "qfont.h"
 #include <qcolor.h>
 
 class QRTFormatPrivate;
