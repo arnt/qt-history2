@@ -1,8 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/examples/box/glbox.cpp#4 $
+** $Id: //depot/qt/main/extensions/opengl/examples/sharedbox/glbox.cpp#1 $
 **
 ** Implementation of GLBox
-** This is a simple QGLWidget displaying an openGL wireframe box
+** This is a simple QGLWidget displaying a box
 **
 ** The OpenGL code is mostly borrowed from Brian Pauls "spin" example
 ** in the Mesa distribution
@@ -11,17 +11,23 @@
 
 #include "glbox.h"
 
+// Shared display list id:
+GLuint GLBox::object = 0;
+
+// Counter keeping track of number of GLBox instances sharing 
+// the display list, so that the last instance can delete it:
+int GLBox::listUsers = 0;
 
 /*!
   Create a GLBox widget
 */
 
-GLBox::GLBox( QWidget* parent, const char* name )
-    : QGLWidget( parent, name )
+GLBox::GLBox( QWidget* parent, const char* name, const QGLWidget* shareWidget )
+    : QGLWidget( parent, name, shareWidget )
 {
     xRot = yRot = zRot = 0.0;		// default object rotation
-    scale = 1.25;			// default object scale
-    object = 0;
+    scale = 1.0;			// default object scale
+    listUsers++;
 }
 
 
@@ -31,7 +37,11 @@ GLBox::GLBox( QWidget* parent, const char* name )
 
 GLBox::~GLBox()
 {
-    glDeleteLists( object, 1 );
+    listUsers--;
+    if ( listUsers == 0 ) { // I.e. this was the last object using display list
+	glDeleteLists( object, 1 );
+	object = 0;
+    }
 }
 
 
@@ -42,17 +52,17 @@ GLBox::~GLBox()
 
 void GLBox::paintGL()
 {
-    glClear( GL_COLOR_BUFFER_BIT );
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
+    glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
-    glTranslatef( 0.0, 0.0, -10.0 );
+    glTranslatef( 0.0, 0.0, -3.0 );
     glScalef( scale, scale, scale );
 
     glRotatef( xRot, 1.0, 0.0, 0.0 ); 
     glRotatef( yRot, 0.0, 1.0, 0.0 ); 
     glRotatef( zRot, 0.0, 0.0, 1.0 );
 
-    glColor3f( 1.0, 1.0, 1.0 );
     glCallList( object );
 }
 
@@ -64,8 +74,9 @@ void GLBox::paintGL()
 void GLBox::initializeGL()
 {
     glClearColor( 0.0, 0.0, 0.0, 0.0 ); // Let OpenGL clear to black
-    object = makeObject();		// Generate an OpenGL display list
-    glShadeModel( GL_FLAT );
+    if ( object == 0 )	      		// If the display list is not made yet
+	object = makeObject();		// ...make it
+    glEnable(GL_DEPTH_TEST);
 }
 
 
@@ -79,8 +90,7 @@ void GLBox::resizeGL( int w, int h )
     glViewport( 0, 0, (GLint)w, (GLint)h );
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
-    glFrustum( -1.0, 1.0, -1.0, 1.0, 5.0, 15.0 );
-    glMatrixMode( GL_MODELVIEW );
+    glFrustum(-1.0, 1.0, -1.0, 1.0, 1.0, 10.0);
 }
 
 
@@ -96,29 +106,32 @@ GLuint GLBox::makeObject()
 
     glNewList( list, GL_COMPILE );
 
-    glLineWidth( 2.0 );
-
-    glBegin( GL_LINE_LOOP );
-    glVertex3f(  1.0,  0.5, -0.4 );
-    glVertex3f(  1.0, -0.5, -0.4 );
-    glVertex3f( -1.0, -0.5, -0.4 );
-    glVertex3f( -1.0,  0.5, -0.4 );
+    glBegin(GL_QUADS);
+    /* Front face */
+    glColor3f((GLfloat)0.0, (GLfloat)0.7, (GLfloat)0.1);  /* Green */
+    glVertex3f(-1.0, 1.0, 1.0);
+    glVertex3f(1.0, 1.0, 1.0);
+    glVertex3f(1.0, -1.0, 1.0);
+    glVertex3f(-1.0, -1.0, 1.0);
+    /* Back face */
+    glColor3f((GLfloat)0.9, (GLfloat)1.0, (GLfloat)0.0);  /* Yellow */
+    glVertex3f(-1.0, 1.0, -1.0);
+    glVertex3f(1.0, 1.0, -1.0);
+    glVertex3f(1.0, -1.0, -1.0);
+    glVertex3f(-1.0, -1.0, -1.0);
+    /* Top side face */
+    glColor3f((GLfloat)0.2, (GLfloat)0.2, (GLfloat)1.0);  /* Blue */
+    glVertex3f(-1.0, 1.0, 1.0);
+    glVertex3f(1.0, 1.0, 1.0);
+    glVertex3f(1.0, 1.0, -1.0);
+    glVertex3f(-1.0, 1.0, -1.0);
+    /* Bottom side face */
+    glColor3f((GLfloat)0.7, (GLfloat)0.0, (GLfloat)0.1);  /* Red */
+    glVertex3f(-1.0, -1.0, 1.0);
+    glVertex3f(1.0, -1.0, 1.0);
+    glVertex3f(1.0, -1.0, -1.0);
+    glVertex3f(-1.0, -1.0, -1.0);
     glEnd();
-
-    glBegin( GL_LINE_LOOP );
-    glVertex3f(  1.0,  0.5, 0.4 );
-    glVertex3f(  1.0, -0.5, 0.4 );
-    glVertex3f( -1.0, -0.5, 0.4 );
-    glVertex3f( -1.0,  0.5, 0.4 );
-    glEnd();
-
-    glBegin( GL_LINES );
-    glVertex3f(  1.0,  0.5, -0.4 );   glVertex3f(  1.0,  0.5, 0.4 );
-    glVertex3f(  1.0, -0.5, -0.4 );   glVertex3f(  1.0, -0.5, 0.4 );
-    glVertex3f( -1.0, -0.5, -0.4 );   glVertex3f( -1.0, -0.5, 0.4 );
-    glVertex3f( -1.0,  0.5, -0.4 );   glVertex3f( -1.0,  0.5, 0.4 );
-    glEnd();
-
     glEndList();
 
     return list;

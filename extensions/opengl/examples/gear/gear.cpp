@@ -175,30 +175,36 @@ static void draw()
 }
 
 
-static void init( int width, int height )
+
+class GearWidget : public QGLWidget
+{
+public:
+    GearWidget( QWidget *parent=0, const char *name=0 );
+protected:
+    void initializeGL();
+    void resizeGL( int, int );
+    void paintGL();
+    void timerEvent( QTimerEvent * );
+};
+
+GearWidget::GearWidget( QWidget *parent, const char *name )
+     : QGLWidget( parent, name )
+{
+    startTimer( 10 );
+}
+
+void GearWidget::initializeGL()
 {
     static GLfloat pos[4] = {5.0, 5.0, 10.0, 1.0 };
     static GLfloat red[4] = {0.8, 0.1, 0.0, 1.0 };
     static GLfloat green[4] = {0.0, 0.8, 0.2, 1.0 };
     static GLfloat blue[4] = {0.2, 0.2, 1.0, 1.0 };
 
-    GLfloat w = (float) width / (float) height;
-    GLfloat h = 1.0;
-
     glLightfv( GL_LIGHT0, GL_POSITION, pos );
     glEnable( GL_CULL_FACE );
     glEnable( GL_LIGHTING );
     glEnable( GL_LIGHT0 );
     glEnable( GL_DEPTH_TEST );
-
-    static bool first_time = TRUE;
-    if ( first_time ) {
-	first_time = FALSE;
-    } else {
-	glDeleteLists( gear1, 1 );
-	glDeleteLists( gear2, 1 );
-	glDeleteLists( gear3, 1 );
-    }
 
     /* make the gears */
     gear1 = glGenLists(1);
@@ -220,6 +226,13 @@ static void init( int width, int height )
     glEndList();
 
     glEnable( GL_NORMALIZE );
+}
+
+
+void GearWidget::resizeGL( int width, int height )
+{
+    GLfloat w = (float) width / (float) height;
+    GLfloat h = 1.0;
 
     glViewport( 0, 0, width, height );
     glMatrixMode(GL_PROJECTION);
@@ -230,28 +243,6 @@ static void init( int width, int height )
     glTranslatef( 0.0, 0.0, -40.0 );
 }
 
-
-
-class GearWidget : public QGLWidget
-{
-public:
-    GearWidget( QWidget *parent=0, const char *name=0 );
-protected:
-    void resizeGL( int, int );
-    void paintGL();
-    void timerEvent( QTimerEvent * );
-};
-
-GearWidget::GearWidget( QWidget *parent, const char *name )
-     : QGLWidget( parent, name )
-{
-    startTimer( 10 );
-}
-
-void GearWidget::resizeGL( int width, int height )
-{
-    init( width, height );
-}
 
 void GearWidget::paintGL()
 {

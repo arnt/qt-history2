@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.h#7 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.h#8 $
 **
 ** Definition of OpenGL classes for Qt
 **
@@ -13,8 +13,8 @@
 #define QGL_H
 
 
-#define QGL_VERSION	100
-#define QGL_VERSION_STR	"1.0"
+#define QGL_VERSION	200
+#define QGL_VERSION_STR	"2.0b"
 
 const char *qGLVersion();
 
@@ -41,33 +41,34 @@ class QGLFormat
 {
 public:
     QGLFormat( bool doubleBuffer=TRUE );
-    QGLFormat( const QGLFormat & );
+    QGLFormat( const QGLFormat& f );
     virtual ~QGLFormat();
 
-    QGLFormat &operator=( const QGLFormat & );
+    QGLFormat&		operator=( const QGLFormat& f );
 
-    bool    doubleBuffer() const;
-    void    setDoubleBuffer( bool );
-    bool    depth() const;
-    void    setDepth( bool );
-    bool    rgba() const;
-    void    setRgba( bool );
-    bool    alpha() const;
-    void    setAlpha( bool );
-    bool    accum() const;
-    void    setAccum( bool );
-    bool    stencil() const;
-    void    setStencil( bool );
-    bool    stereo() const;
-    void    setStereo( bool );
+    bool    		doubleBuffer() const;
+    void    		setDoubleBuffer( bool enable );
+    bool    		depth() const;
+    void    		setDepth( bool enable );
+    bool    		rgba() const;
+    void    		setRgba( bool enable );
+    bool    		alpha() const;
+    void    		setAlpha( bool enable );
+    bool    		accum() const;
+    void    		setAccum( bool enable );
+    bool    		stencil() const;
+    void    		setStencil( bool enable );
+    bool    		stereo() const;
+    void    		setStereo( bool enable );
 
-    static const QGLFormat &defaultFormat();
-    static void  setDefaultFormat( const QGLFormat & );
+    static const	QGLFormat &defaultFormat();
+    static void		setDefaultFormat( const QGLFormat& f );
 
-    static bool  hasOpenGL();
+    static bool		hasOpenGL();
 
-public:
-    struct Internal : public QShared {
+private:
+
+    struct FormatFlags : public QShared {
 	bool	doubleBuffer;
 	bool	depth;
 	bool	rgba;
@@ -77,62 +78,60 @@ public:
 	bool	stereo;
     };
 
-private:
-    void    detach();
-    Internal *data;
+    void		detach();
+    FormatFlags*	data;
 };
 
 
 class QGLContext
 {
 public:
-    QGLContext( const QGLFormat &, QPaintDevice * );
+    QGLContext( const QGLFormat& format, QPaintDevice* device );
     virtual ~QGLContext();
 
-    bool	isValid() const;
+    bool		create( const QGLContext* shareContext = 0 );
+    bool		isValid() const;
+    void		reset();
 
-    const QGLFormat &format() const;
-    void	setFormat( const QGLFormat & );
+    const QGLFormat&	format() const;
+    void		setFormat( const QGLFormat& format );
 
-    QPaintDevice *device() const;
+    void		makeCurrent();
+    void		swapBuffers();
 
-    void	makeCurrent();
-    void	swapBuffers();
-
-    bool	create();
-    void	reset();
+    QPaintDevice*	device() const;
 
 protected:
-    bool	chooseContext();
+    bool		chooseContext( const QGLContext* shareContext = 0 );
+    void		doneCurrent();
+
 #if defined(Q_WGL)
-    virtual int choosePixelFormat( void * );
+    virtual int		choosePixelFormat( void* pfd );
 #elif defined(Q_GLX)
-    virtual void *chooseVisual();
+    virtual void*	chooseVisual();
 #endif
-    void	doneCurrent();
 
 protected:
 #if defined(Q_WGL)
-    HANDLE	rc;
-    HANDLE	dc;
-    HANDLE	win;
-#endif
-#if defined(Q_GLX)
-    void       *vi;
-    void       *cx;
+    HANDLE		rc;
+    HANDLE		dc;
+    HANDLE		win;
+#elif defined(Q_GLX)
+    void*		vi;
+    void*		cx;
 #endif
 
 private:
-    bool	valid;
-    QGLFormat	glFormat;
-    QPaintDevice *paintDevice;
+    bool		valid;
+    QGLFormat		glFormat;
+    QPaintDevice*	paintDevice;
 
     friend class QGLWidget;
 
 private:	// Disabled copy constructor and operator=
     QGLContext() {}
-    QGLContext( const QGLContext & ) {}
-    QGLContext &operator=( const QGLContext & ) { return *this; }
+    QGLContext( const QGLContext& ) {}
+    QGLContext&		operator=( const QGLContext& ) { return *this; }
 };
 
 
@@ -140,40 +139,44 @@ class QGLWidget : public QWidget
 {
     Q_OBJECT
 public:
-    QGLWidget( QWidget *parent=0, const char *name=0, WFlags f=0 );
-    QGLWidget( const QGLFormat &format, QWidget *parent=0, const char *name=0,
-	       WFlags f=0 );
+    QGLWidget( QWidget* parent=0, const char* name=0,
+	       const QGLWidget* shareWidget = 0, WFlags f=0 );
+    QGLWidget( const QGLFormat& format, QWidget* parent=0, const char* name=0,
+	       const QGLWidget* shareWidget = 0, WFlags f=0 );
    ~QGLWidget();
 
-    void	makeCurrent();
-    bool	doubleBuffer() const;
-    void	swapBuffers();
+    bool		isValid() const;
 
-    bool	isValid() const;
+    void		makeCurrent();
+    bool		doubleBuffer() const;
+    void		swapBuffers();
 
-    const QGLFormat  &format() const;
-    void	setFormat( const QGLFormat & );
+    const QGLFormat&	format() const;
+    void		setFormat( const QGLFormat& format );
 
-    const QGLContext *context() const;
-    void	setContext( QGLContext * );
+    const QGLContext*	context() const;
+    void		setContext( QGLContext* context, 
+				    const QGLContext* shareContext = 0 );
 
 public slots:
-    void	updateGL();
+    void		updateGL();
 
 protected:
-    virtual void paintGL();
-    virtual void resizeGL( int w, int h );
+    virtual void	initializeGL();
+    virtual void	paintGL();
+    virtual void	resizeGL( int w, int h );
 
-    void	paintEvent( QPaintEvent * );
-    void	resizeEvent( QResizeEvent * );
+    void		paintEvent( QPaintEvent* );
+    void		resizeEvent( QResizeEvent* );
 
 private:
-    void	gl_init( QGLContext * );
-    QGLContext *glcx;
+    void		gl_init();
+    bool		initDone;
+    QGLContext*		glcx;
 
 private:	// Disabled copy constructor and operator=
-    QGLWidget( const QGLWidget & ) {}
-    QGLWidget &operator=( const QGLWidget & ) { return *this; }
+    QGLWidget( const QGLWidget& ) {}
+    QGLWidget&		operator=( const QGLWidget& ) { return *this; }
 };
 
 
@@ -224,12 +227,12 @@ inline bool QGLContext::isValid() const
 {
     return valid;
 }
-inline const QGLFormat &QGLContext::format() const
+inline const QGLFormat& QGLContext::format() const
 {
     return glFormat;
 }
 
-inline QPaintDevice *QGLContext::device() const
+inline QPaintDevice* QGLContext::device() const
 {
     return paintDevice;
 }
