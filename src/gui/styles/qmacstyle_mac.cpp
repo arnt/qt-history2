@@ -298,7 +298,7 @@ public:
     bool animatable(Animates, const QWidget *) const;
     void stopAnimate(Animates, QWidget *);
     void startAnimate(Animates, QWidget *);
-    static ThemeDrawState getDrawState(QStyle::SFlags flags, const QPalette &pal);
+    static ThemeDrawState getDrawState(QStyle::StyleFlags flags, const QPalette &pal);
 
     bool focusable(const QWidget *) const;
 
@@ -1111,7 +1111,7 @@ void QMacStylePrivate::removeWidget(QWidget *w)
     }
 }
 
-ThemeDrawState QMacStylePrivate::getDrawState(QStyle::SFlags flags, const QPalette &pal)
+ThemeDrawState QMacStylePrivate::getDrawState(QStyle::StyleFlags flags, const QPalette &pal)
 {
     ThemeDrawState tds = kThemeStateActive;
     if (flags & QStyle::Style_Down) {
@@ -1520,7 +1520,7 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
             HIThemeButtonDrawInfo bdi;
             bdi.version = qt_mac_hitheme_version;
             bdi.state = tds;
-            QStyle::SFlags flags = header->state;
+            QStyle::StyleFlags flags = header->state;
             QRect ir = header->rect;
             if (w && (qt_cast<QTreeView *>(w->parentWidget())
 #ifdef QT_COMPAT
@@ -1941,16 +1941,15 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                 textr.moveBy(pixmap.width() + 2, 0);
             }
 
-            // change the color to bright text if we are a table header and selected.
-	    QColor penColor;
-            if (w && p->font().bold() && (qt_cast<QTreeView *>(w->parentWidget())
+	    QColor penColor = header->palette.buttonText().color();
+            if (p->font().bold()) {
+                // If it's a table, use the bright text instead.
+                if (!(w && (qt_cast<QTreeView *>(w->parentWidget())
 #ifdef QT_COMPAT
-			|| w->parentWidget()->inherits("Q3ListView")
+                            || w->parentWidget()->inherits("Q3ListView"))))
 #endif
-		))
-		penColor = header->palette.buttonText().color();
-	    else
-                penColor = header->palette.color(QPalette::BrightText);
+                    penColor = header->palette.color(QPalette::BrightText);
+            }
             q->drawItem(p, textr, Qt::AlignVCenter, header->palette,
                         header->state & QStyle::Style_Enabled, header->text, -1, &penColor);
         }
@@ -2486,7 +2485,7 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
             QRect button, menuarea;
             button   = q->querySubControlMetrics(cc, tb, QStyle::SC_ToolButton, widget);
             menuarea = q->querySubControlMetrics(cc, tb, QStyle::SC_ToolButtonMenu, widget);
-	    QStyle::SFlags bflags = tb->state,
+	    QStyle::StyleFlags bflags = tb->state,
             mflags = tb->state;
             if (tb->subControls & QStyle::SC_ToolButton)
                 bflags |= QStyle::Style_Down;
@@ -3093,7 +3092,7 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
     case QStyle::PE_HeaderSection:
         if (const QStyleOptionHeader *header = qt_cast<const QStyleOptionHeader *>(opt)) {
             ThemeButtonKind bkind;
-	    QStyle::SFlags flags = header->state;
+	    QStyle::StyleFlags flags = header->state;
             QRect ir = header->rect;
             bool scaleHeader = false;
             SInt32 headerHeight = 0;
@@ -3885,7 +3884,7 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc, const
             QRect button, menuarea;
             button   = q->querySubControlMetrics(cc, tb, QStyle::SC_ToolButton, widget);
             menuarea = q->querySubControlMetrics(cc, tb, QStyle::SC_ToolButtonMenu, widget);
-	    QStyle::SFlags bflags = tb->state,
+	    QStyle::StyleFlags bflags = tb->state,
             mflags = tb->state;
             if (tb->subControls & QStyle::SC_ToolButton)
                 bflags |= QStyle::Style_Down;
