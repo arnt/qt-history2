@@ -1292,6 +1292,7 @@ QCoreVariant::Type QCoreVariant::type() const
 
     \sa type()
 */
+
 int QCoreVariant::userType() const
 {
     return d->type;
@@ -1455,6 +1456,8 @@ QCoreVariant::Type QCoreVariant::nameToType(const char *name)
                 return (Type)i;
         }
     }
+    if (QMetaType::type(name))
+        return QCoreVariant::UserType;
     return Invalid;
 }
 

@@ -1335,27 +1335,27 @@ QCoreVariant QMetaProperty::read(const QObject *obj) const
     if (!isEnumType()) {
         int handle = priv(mobj[QMetaObject::ReadProperty]->d.data)->propertyData + 3*idx[QMetaObject::ReadProperty];
         int flags = mobj[QMetaObject::ReadProperty]->d.data[handle + 2];
-        const char *type = mobj[QMetaObject::ReadProperty]->d.stringdata + mobj[QMetaObject::ReadProperty]->d.data[handle + 1];
+        const char *typeName = mobj[QMetaObject::ReadProperty]->d.stringdata + mobj[QMetaObject::ReadProperty]->d.data[handle + 1];
         t = (flags >> 24);
         if (t == QCoreVariant::Invalid)
-            t = QMetaType::type(type);
+            t = QMetaType::type(typeName);
         if (t == QCoreVariant::Invalid)
-            t = QCoreVariant::nameToType(type);
+            t = QCoreVariant::nameToType(typeName);
         if (t == QCoreVariant::Invalid)
             return QCoreVariant();
     }
     QCoreVariant value;
     void *argv[1];
-    if ((uint)t == 0xffffffff) {
+    if (t == QCoreVariant::LastType) {
         argv[0] = &value;
     } else {
-        value = QCoreVariant((QCoreVariant::Type)t);
+        value = QCoreVariant(t, (void*)0);
         argv[0] = value.data();
     }
     const_cast<QObject*>(obj)->qt_metacall(QMetaObject::ReadProperty,
                      idx[QMetaObject::ReadProperty] + mobj[QMetaObject::ReadProperty]->propertyOffset(),
                      argv);
-    if ((uint)t != 0xffffffff && argv[0] != value.data())
+    if (t != QCoreVariant::LastType && argv[0] != value.data())
         return QCoreVariant((QCoreVariant::Type)t, argv[0]);
     return value;
 }
@@ -1388,20 +1388,23 @@ bool QMetaProperty::write(QObject *obj, const QCoreVariant &value) const
     } else {
         int handle = priv(mobj[QMetaObject::WriteProperty]->d.data)->propertyData + 3*idx[QMetaObject::WriteProperty];
         int flags = mobj[QMetaObject::WriteProperty]->d.data[handle + 2];
-        const char *type = mobj[QMetaObject::WriteProperty]->d.stringdata + mobj[QMetaObject::WriteProperty]->d.data[handle + 1];
+        const char *typeName = mobj[QMetaObject::WriteProperty]->d.stringdata + mobj[QMetaObject::WriteProperty]->d.data[handle + 1];
         t = flags >> 24;
-        if (t == QCoreVariant::Invalid)
-            t = QMetaType::type(type);
-        if (t == QCoreVariant::Invalid)
-            t = QCoreVariant::nameToType(type);
+        if (t == QCoreVariant::Invalid) {
+            const char *vtypeName = value.typeName();
+            if (vtypeName && strcmp(typeName, vtypeName) == 0)
+                t = value.userType();
+            else
+                t = QCoreVariant::nameToType(typeName);
+        }
         if (t == QCoreVariant::Invalid)
             return false;
-        if (t != 0xffffffff && (t != value.userType() || (t < QCoreVariant::UserType && !v.cast((QCoreVariant::Type)t))))
+        if (t != QCoreVariant::LastType && (t != (uint)value.userType() || (t < QCoreVariant::UserType && !v.cast((QCoreVariant::Type)t))))
             return false;
     }
 
     void *argv[1];
-    if ((uint)t == 0xffffffff)
+    if (t == QCoreVariant::LastType)
         argv[0] = &v;
     else
         argv[0] = v.data();
