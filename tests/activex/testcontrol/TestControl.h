@@ -6,6 +6,12 @@
 #include "resource.h"       // main symbols
 #include <atlctl.h>
 
+#if _ATL_VER < 0x0300
+#define BEGIN_PROP_MAP	BEGIN_PROPERTY_MAP
+#define END_PROP_MAP	END_PROPERTY_MAP
+#define PROP_DATA_ENTRY	PROP_ENTRY_EX
+#endif
+
 
 /////////////////////////////////////////////////////////////////////////////
 // CTestControl
@@ -33,7 +39,9 @@ public:
 
 DECLARE_REGISTRY_RESOURCEID(IDR_TESTCONTROL)
 
+#if _ATL_VER >= 0x0300
 DECLARE_PROTECT_FINAL_CONSTRUCT()
+#endif
 
 BEGIN_COM_MAP(CTestControl)
 	COM_INTERFACE_ENTRY(ITestControl)
@@ -69,8 +77,14 @@ BEGIN_PROP_MAP(CTestControl)
 END_PROP_MAP()
 
 BEGIN_MSG_MAP(CTestControl)
+#if _ATL_VER < 0x0300
+	MESSAGE_HANDLER(WM_PAINT, OnPaint)
+	MESSAGE_HANDLER(WM_SETFOCUS, OnSetFocus)
+	MESSAGE_HANDLER(WM_KILLFOCUS, OnKillFocus)
+#else
 	CHAIN_MSG_MAP(CComControl<CTestControl>)
 	DEFAULT_REFLECTION_HANDLER()
+#endif
 END_MSG_MAP()
 // Handler prototypes:
 //  LRESULT MessageHandler(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
@@ -80,26 +94,21 @@ END_MSG_MAP()
 
 
 // IViewObjectEx
+#if _ATL_VER < 0x0300
+	STDMETHOD(GetViewStatus)(DWORD* pdwStatus)
+	{
+		ATLTRACE(_T("IViewObjectExImpl::GetViewStatus\n"));
+		*pdwStatus = VIEWSTATUS_SOLIDBKGND | VIEWSTATUS_OPAQUE;
+		return S_OK;
+	}
+#else
 	DECLARE_VIEW_STATUS(VIEWSTATUS_SOLIDBKGND | VIEWSTATUS_OPAQUE)
+#endif
 
 // ITestControl
 public:
 
-	HRESULT OnDraw(ATL_DRAWINFO& di)
-	{
-		RECT& rc = *(RECT*)di.prcBounds;
-		Rectangle(di.hdcDraw, rc.left, rc.top, rc.right, rc.bottom);
-
-		SetTextAlign(di.hdcDraw, TA_CENTER|TA_BASELINE);
-		LPCTSTR pszText = _T("ATL 3.0 : TestControl");
-		TextOut(di.hdcDraw, 
-			(rc.left + rc.right) / 2, 
-			(rc.top + rc.bottom) / 2, 
-			pszText, 
-			lstrlen(pszText));
-
-		return S_OK;
-	}
+	HRESULT OnDraw(ATL_DRAWINFO& di);
 	OLE_COLOR m_clrBackColor;
 	CComBSTR m_bstrCaption;
 };
