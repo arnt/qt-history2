@@ -1561,7 +1561,7 @@ void QFontEngineXft::recalcAdvances( int len, glyph_t *glyphs, advance_t *advanc
 //#define FONTENGINE_DEBUG
 void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags )
 {
-#if Q_Q4PAINTER
+#ifndef Q_Q4PAINTER
     if ( !si->num_glyphs )
 	return;
 
