@@ -154,6 +154,7 @@ private slots:
 
 private:
     bool popupOpen;
+    HierarchyItem *itemSlots, *itemPrivate, *itemProtected, *itemPublic;
 
 };
 

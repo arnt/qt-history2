@@ -612,29 +612,41 @@ void FormDefinitionView::refresh( bool doDelete )
     }
 
     QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( formWindow );
-    HierarchyItem *itemSlots = new HierarchyItem( HierarchyItem::SlotParent,
-						  this, tr( "Slots" ), QString::null, QString::null );
+    itemSlots = new HierarchyItem( HierarchyItem::SlotParent,
+				   this, tr( "Slots" ), QString::null, QString::null );
     itemSlots->moveItem( i );
     itemSlots->setPixmap( 0, *folderPixmap );
-    HierarchyItem *itemPrivate = new HierarchyItem( HierarchyItem::Private, itemSlots, tr( "private" ),
-						    QString::null, QString::null );
-    HierarchyItem *itemProtected = new HierarchyItem( HierarchyItem::Protected, itemSlots, tr( "protected" ),
-						      QString::null, QString::null );
-    HierarchyItem *itemPublic = new HierarchyItem( HierarchyItem::Public, itemSlots, tr( "public" ),
-						   QString::null, QString::null );
+    itemPrivate = new HierarchyItem( HierarchyItem::Private, itemSlots, tr( "private" ),
+				     QString::null, QString::null );
+    itemProtected = new HierarchyItem( HierarchyItem::Protected, itemSlots, tr( "protected" ),
+				       QString::null, QString::null );
+    itemPublic = new HierarchyItem( HierarchyItem::Public, itemSlots, tr( "public" ),
+				     QString::null, QString::null );
+    if ( formWindow->project()->language() != "C++" ) {
+	itemPrivate->setVisible( FALSE );
+	itemProtected->setVisible( FALSE );
+	itemPublic->setVisible( FALSE );
+	itemSlots->setText( 0, tr( "Functions" ) );
+    }
+
     QValueList<MetaDataBase::Slot>::Iterator it = --( slotList.end() );
     if ( !slotList.isEmpty() ) {
 	for (;;) {
 	    QListViewItem *item = 0;
-	    if ( (*it).access == "protected" )
+	    if ( formWindow->project()->language() == "C++" ) {
+		if ( (*it).access == "protected" )
+		    item = new HierarchyItem( HierarchyItem::Slot,
+					      itemProtected, (*it).slot, QString::null, QString::null );
+		else if ( (*it).access == "private" )
+		    item = new HierarchyItem( HierarchyItem::Slot,
+					      itemPrivate, (*it).slot, QString::null, QString::null );
+		else // default is public
+		    item = new HierarchyItem( HierarchyItem::Slot,
+					      itemPublic, (*it).slot, QString::null, QString::null );
+	    } else {
 		item = new HierarchyItem( HierarchyItem::Slot,
-					  itemProtected, (*it).slot, QString::null, QString::null );
-	    else if ( (*it).access == "private" )
-		item = new HierarchyItem( HierarchyItem::Slot,
-					  itemPrivate, (*it).slot, QString::null, QString::null );
-	    else // default is public
-		item = new HierarchyItem( HierarchyItem::Slot,
-					  itemPublic, (*it).slot, QString::null, QString::null );
+					  itemSlots, (*it).slot, QString::null, QString::null );
+	    }
 	    item->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
 	    if ( it == slotList.begin() )
 		break;
@@ -664,9 +676,10 @@ static HierarchyItem::Type getChildType( int type )
 {
     switch ( (HierarchyItem::Type)type ) {
     case HierarchyItem::Widget:
-    case HierarchyItem::SlotParent:
 	qWarning( "getChildType: Inserting childs dynamically to Widget or SlotParent is not allwowed!" );
-	return (HierarchyItem::Type)type;
+	break;
+    case HierarchyItem::SlotParent:
+	return HierarchyItem::Slot;
     case HierarchyItem::Public:
     case HierarchyItem::Protected:
     case HierarchyItem::Private:
