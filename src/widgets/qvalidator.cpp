@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#5 $
 **
 ** C++ file skeleton
 **
@@ -11,17 +11,26 @@
 
 #include <limits.h> // *_MIN, *_MAX
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qvalidator.cpp#4 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qvalidator.cpp#5 $");
 
 
 /*!  \class QValidator qvalidator.h
 
   \brief The QValidator class provides ways to validate an input text.
 
-  The class provides validation of integers or floating-point
-  numbers, optionally with \link QRegExp regular expression \endlink
-  prefixes or suffixes.  It is also possible to reimplement a number
-  of three virtual functions and do your own testing.
+  The class itself is abstract; two subclasses provide rudimentary
+  numeric range checking.
+
+  The class includes two virtual functions, isValid() and fixup().
+
+  isValid() is pure virtual, so it must be implemented by every
+  subclass.  It returns TRUE or FALSE depending on whether its
+  argument is valid (for the class' definition of valid).
+
+  fixup() is provided for validators that can repair some or all user
+  errors.  The default does nothing.  QLineEdit, for example, will
+  call fixup() if the user presses Return and the content is not
+  currently valid, in case fixup() can do do magic.
 
   QValidator is generally used with QLineEdit, QSpinBox and QComboBox.
 */
@@ -77,6 +86,17 @@ void QValidator::fixup( QString & input )
 {
     NOT_USED(input);
 }
+
+
+/*! \class QIntValidator qvalidator.h
+
+  \brief The QIntValidator class provides range checking of integers.
+
+  QIntValidator provides a lower and an upper bound.  It does not
+  provide a fixup() function.
+
+  \sa QDoubleValidator
+*/
 
 
 /*!  Creates a validator object which accepts all integers.
@@ -150,6 +170,17 @@ void QIntValidator::setRange( int bottom, int top )
   \sa bottom() setRange()
 */
 
+
+/*! \class QDoubleValidator qvalidator.h
+
+  \brief The QDoubleValidator class provides range checking of integers.
+
+  QDoubleValidator provides an upper bound, a lower bound, and a limit
+  on the number of digits after the decimal point.  It does not
+  provide a fixup() function.
+
+  \sa QIntValidator
+*/
 
 /*!  Creates a validator object which accepts all double from 2.7182818
   to 3.1415926 (please, no bug reports) with at most seven digits after
