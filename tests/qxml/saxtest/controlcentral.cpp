@@ -149,12 +149,13 @@ void ControlCentral::parse( const QString& filename, const QString& incrementalS
 	while ( it != steps.end() ) {
 	    int size = (*it).toInt();
 	    rawData.resize( size );
-	    file.readBlock( rawData.data(), size );
+	    size = file.readBlock( rawData.data(), size );
+	    rawData.resize( size );
 #if 1
 	    rawData.resize( size + 1 );
 	    rawData[ size ] = 0;
 	    qDebug( rawData );
-	    rawData.resize( size - 1 );
+	    rawData.resize( size );
 #endif
 	    QBuffer buf( rawData );
 	    QXmlInputSource source( &buf );

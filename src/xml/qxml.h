@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.h#27 $
+** $Id: //depot/qt/main/src/xml/qxml.h#28 $
 **
 ** Definition of QXmlSimpleReader and related classes.
 **
@@ -320,6 +320,7 @@ private:
     bool atEnd();
 
     void init( const QXmlInputSource& i );
+    void initData( const QXmlInputSource& i );
 
     bool entityExist( const QString& ) const;
 

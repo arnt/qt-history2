@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#53 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#54 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -2356,6 +2356,7 @@ bool QXmlSimpleReader::parseContinue( const QXmlInputSource& input )
 	return parse( input, TRUE );
     }
     if ( !d->parseStack->isEmpty() ) {
+	initData( input );
 	int state = state = d->parseStack->top()->state;
 	d->parseStack->pop();
 	return parseBeginOrContinue( state, TRUE );
@@ -6280,14 +6281,13 @@ bool QXmlSimpleReader::parseString()
 
 
 /*
-  Inits the data values.
+  Initializes the reader. \a i is the input source to read the data from.
 */
 void QXmlSimpleReader::init( const QXmlInputSource& i )
 {
-    inputSource = &i;
-    xml = i.data();
-    xmlLength = xml.length();
-    xmlRef = "";
+    lineNr = 0;
+    columnNr = -1;
+    initData( i );
 
     d->externParameterEntities.clear();
     d->parameterEntities.clear();
@@ -6300,12 +6300,24 @@ void QXmlSimpleReader::init( const QXmlInputSource& i )
     d->xmlVersion = "";
     d->encoding = "";
     d->standalone = QXmlSimpleReaderPrivate::Unknown;
+    d->error = QString::null;
+}
 
-    lineNr = 0;
-    columnNr = -1;
+/*
+  Initializes the reader. \a i is the input source to read the data from.
+*/
+void QXmlSimpleReader::initData( const QXmlInputSource& i )
+{
+    inputSource = &i;
+    if ( d->encoding.isEmpty() )
+	xml = i.data();
+    else
+	xml = i.data( d->encoding );
+    xmlLength = xml.length();
+    xmlRef = "";
+
     pos = 0;
     next();
-    d->error = QString::null;
 }
 
 /*
