@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#9 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#10 $
 **
 ** Implementation of something useful.
 **
@@ -341,6 +341,21 @@ void QWizard::setNextEnabled( QWidget * w, bool enable )
 
 */
 
+void QWizard::setFinishEnabled( QWidget * w, bool enable )
+{
+    QWizardPrivate::Page * p = d->page( w );
+    if ( !p )
+	return;
+
+    p->finishEnabled = enable;
+    updateButtons();
+}
+
+
+/*!
+
+*/
+
 void QWizard::setHelpEnabled( QWidget * w, bool enable )
 {
     QWizardPrivate::Page * p = d->page( w );
@@ -384,15 +399,22 @@ void QWizard::setApproprate( QWidget * w, bool enable )
 }
 
 
-void QWizard::updateButtons() const
+void QWizard::updateButtons()
 {
     if ( !d->current )
 	return;
+
     d->backButton->setEnabled( d->current->backEnabled &&
 			       d->current->back != 0 );
     d->nextButton->setEnabled( d->current->nextEnabled );
     d->finishButton->setEnabled( d->current->finishEnabled );
     d->helpButton->setEnabled( d->current->helpEnabled );
+
+    if ( ( d->current->finishEnabled && !d->finishButton->isVisible() ) ||
+	 ( d->current->backEnabled && !d->backButton->isVisible() ) ||
+	 ( d->current->nextEnabled && !d->nextButton->isVisible() ) ||
+	 ( d->current->helpEnabled && !d->helpButton->isVisible() ) )
+	layOut();
 }
 
 
@@ -465,16 +487,49 @@ divider and buttons below it.
 
 void QWizard::layOutButtonRow( QHBoxLayout * layout )
 {
+    bool hasHelp = FALSE;
+    bool hasEarlyFinish = FALSE;
+
+    int i = d->pages.count() - 2;
+    while ( !hasEarlyFinish && i >= 0 ) {
+	if ( d->pages[i]->finishEnabled )
+	    hasEarlyFinish = TRUE;
+	i--;
+    }
+    while ( !hasHelp && i < (int)d->pages.count() ) {
+	if ( d->pages[i]->helpEnabled )
+	    hasHelp = TRUE;
+	i++;
+    }
+
     QBoxLayout * h = new QBoxLayout( QBoxLayout::LeftToRight );
     layout->addLayout( h );
     h->addStretch( 42 );
+
     h->addWidget( d->backButton );
 
     h->addSpacing( 6 );
-    h->addWidget( d->nextButton );
 
-    h->addSpacing( 12 );
-    h->addWidget( d->helpButton );
+    if ( hasEarlyFinish ) {
+	d->nextButton->show();
+	d->finishButton->show();
+	h->addWidget( d->nextButton );
+	h->addSpacing( 12 );
+	h->addWidget( d->finishButton );
+    } else if ( d->current->finishEnabled ) {
+	d->nextButton->hide();
+	d->finishButton->show();
+	h->addWidget( d->finishButton );
+    } else {
+	d->nextButton->show();
+	d->finishButton->hide();
+	h->addWidget( d->nextButton );
+    }
+
+    if ( hasHelp ) {
+	h->addSpacing( 12 );
+	h->addWidget( d->helpButton );
+    }
 
     d->finishButton->hide();
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.h#4 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.h#5 $
 **
 ** Definition of the QWizard wizard framework
 **
@@ -59,6 +59,7 @@ public:
 public slots:
     virtual void setBackEnabled( QWidget *, bool );
     virtual void setNextEnabled( QWidget *, bool );
+    virtual void setFinishEnabled( QWidget *, bool );
 
     virtual void setHelpEnabled( QWidget *, bool );
 
@@ -85,7 +86,7 @@ private:
 
     void setNextPage( QWidget * );
 
-    void updateButtons() const;
+    void updateButtons();
 
     int count() const;
 
