@@ -5181,7 +5181,9 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	XEvent nextpress;
 	if ( XCheckTypedWindowEvent(dpy,event->xkey.window,
 				    XKeyPress,&nextpress) ) {
-	    autor = nextpress.xkey.time == event->xkey.time;
+	    // check for event pairs with delta t <= 10 msec.
+	    autor = (nextpress.xkey.time - event->xkey.time) <= 10;
+
 	    // Put it back... we COULD send the event now and not need
 	    // the static curr_autorep variable.
 	    XPutBackEvent(dpy,&nextpress);
@@ -5208,7 +5210,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 		break;
 	    }
 	    if ( evPress.xkey.keycode != event->xkey.keycode ||
-		 evRelease.xkey.time != evPress.xkey.time){
+		 (evPress.xkey.time - evRelease.xkey.time) > 10){
 		XPutBackEvent(dpy, &evRelease);
 		XPutBackEvent(dpy, &evPress);
 		break;
