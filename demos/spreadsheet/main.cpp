@@ -316,6 +316,7 @@ void SpreadSheet::setupContents()
     table->setItem(7, 0, new SpreadSheetItem("Hotel"));
     table->setItem(8, 0, new SpreadSheetItem("Flight (Oslo)"));
     table->setItem(9, 0, new SpreadSheetItem("Total:"));
+    table->item(9,0)->setBackgroundColor(Qt::lightGray);
     // column 1
     table->setItem(0, 1, new SpreadSheetItem("Price"));
     table->item(0, 1)->setBackgroundColor(Qt::yellow);
@@ -328,6 +329,8 @@ void SpreadSheet::setupContents()
     table->setItem(6, 1, new SpreadSheetItem("120"));
     table->setItem(7, 1, new SpreadSheetItem("300"));
     table->setItem(8, 1, new SpreadSheetItem("1240"));
+    table->setItem(9, 1, new SpreadSheetItem());
+    table->item(9,1)->setBackgroundColor(Qt::lightGray);
     // column 2
     table->setItem(0, 2, new SpreadSheetItem("Currency"));
     table->item(0,2)->setBackgroundColor(Qt::yellow);
@@ -340,6 +343,8 @@ void SpreadSheet::setupContents()
     table->setItem(6, 2, new SpreadSheetItem("USD"));
     table->setItem(7, 2, new SpreadSheetItem("USD"));
     table->setItem(8, 2, new SpreadSheetItem("USD"));
+    table->setItem(9, 2, new SpreadSheetItem());
+    table->item(9,2)->setBackgroundColor(Qt::lightGray);
     // column 3
     table->setItem(0, 3, new SpreadSheetItem("Ex.Rate"));
     table->item(0,3)->setBackgroundColor(Qt::yellow);
@@ -352,6 +357,8 @@ void SpreadSheet::setupContents()
     table->setItem(6, 3, new SpreadSheetItem("7"));
     table->setItem(7, 3, new SpreadSheetItem("7"));
     table->setItem(8, 3, new SpreadSheetItem("7"));
+    table->setItem(9, 3, new SpreadSheetItem());
+    table->item(9,3)->setBackgroundColor(Qt::lightGray);
     // column 4
     table->setItem(0, 4, new SpreadSheetItem("NOK"));
     table->item(0,4)->setBackgroundColor(Qt::yellow);
@@ -365,6 +372,7 @@ void SpreadSheet::setupContents()
     table->setItem(7, 4, new SpreadSheetItem("* B8 D8"));
     table->setItem(8, 4, new SpreadSheetItem("* B9 D9"));
     table->setItem(9, 4, new SpreadSheetItem("sum E2 E9"));
+    table->item(9,4)->setBackgroundColor(Qt::lightGray);
 
 }
 
