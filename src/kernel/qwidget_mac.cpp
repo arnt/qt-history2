@@ -1285,9 +1285,8 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
 
     if ( dx == 0 && dy == 0 )
 	return;
-    if ( w > 0 && h > 0 ) {
+    if ( w > 0 && h > 0 ) 
 	bitBlt(this,x2,y2,this,x1,y1,w,h);
-    }
 
     if ( !valid_rect && children() ) {	// scroll children
 	QPoint pd( dx, dy );
@@ -1627,8 +1626,20 @@ QRegion QWidget::clippedRegion(bool do_children)
 	    }
 	}
 
-	if(!isTopLevel() && parentWidget())
+	if(isTopLevel()) {
+	    QRegion contents;
+	    RgnHandle r = NewRgn();
+	    GetWindowRegion((WindowPtr)hd, kWindowContentRgn, r);
+	    if(!EmptyRgn(r)) {
+		contents = QRegion(r);
+		contents.translate(-x(), -y());
+	    }
+	    DisposeRgn(r);
+	    extra->clip_sibs &= contents;
+	}
+	else if(parentWidget()) {
 	    extra->clip_sibs &= parentWidget()->clippedRegion(FALSE);
+	} 
     }
 
     //translate my stuff and my children now
