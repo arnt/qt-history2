@@ -649,10 +649,6 @@ void P4Interface::p4Info( const QString &filename, P4Info *p4i )
     if ( !p4i )
 	return;
 
-    /* TODO: Change this so it uses the icon that is 
-	     currently used in the FormList widget.    
-    */
-
     QWidget *form = 0;
     DesignerFormWindow *fwIface = 0;
     
@@ -737,12 +733,7 @@ void P4Interface::p4Info( const QString &filename, P4Info *p4i )
 	actionDiff->setEnabled( FALSE );
 	actionEdit->setEnabled( FALSE );
     }
-/*
-    TODO: Change this to set the just created pixmap using some
-	  interface giving access to the listviews etc.
 
-    flIface->setPixmap( fwIface, 0, pix );
-*/
     if ( fwIface )
 	fwIface->setListViewIcon( pix );
 }
@@ -755,12 +746,12 @@ void P4Interface::statusMessage( const QString &text )
     outputView->append( txt );
 }
 
-void P4Interface::reloadFile( const QString &file )
+void P4Interface::reloadFile( const QString &filename )
 {
-    if ( !appInterface || file.isEmpty() )
+    if ( !appInterface || filename.isEmpty() )
 	return;
 
-    qDebug( "P4 todo: reload file after sync" );
+    qDebug( "P4 todo: reload file after change" );
 }
 
 QUnknownInterface *P4Interface::queryInterface( const QUuid &uuid )
