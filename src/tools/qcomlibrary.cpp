@@ -114,7 +114,7 @@ void QComLibrary::createInstanceInternal()
 
 	if ( entry ) {
 	    if ( entry->queryInterface( IID_QLibrary, (QUnknownInterface**)&libiface ) == QS_OK ) {
-		if ( !libiface->init() ) {
+		if ( libiface && !libiface->init() ) {
 		    libiface->release();
 		    libiface = 0;
 		    unload();
