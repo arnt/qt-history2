@@ -159,9 +159,6 @@ public:
     QWidget *rightCornerWidget;
 };
 
-#define d d_func()
-#define q q_func()
-
 QTabWidgetPrivate::QTabWidgetPrivate()
     : tabs(0), stack(0), dirty(true),
       pos(QTabWidget::North), shape(QTabWidget::Rounded),
@@ -173,6 +170,7 @@ QTabWidgetPrivate::~QTabWidgetPrivate()
 
 void QTabWidgetPrivate::init()
 {
+    Q_Q(QTabWidget);
     stack = new QStackedWidget(q);
     stack->setLineWidth(0);
     QObject::connect(stack, SIGNAL(widgetRemoved(int)), q, SLOT(removeTab(int)));
@@ -191,6 +189,7 @@ void QTabWidgetPrivate::init()
 
 QStyleOptionTabWidgetFrame QTabWidgetPrivate::getStyleOption() const
 {
+    Q_Q(const QTabWidget);
     QStyleOptionTabWidgetFrame option;
     option.init(q);
 
@@ -236,6 +235,7 @@ QStyleOptionTabWidgetFrame QTabWidgetPrivate::getStyleOption() const
 QTabWidget::QTabWidget(QWidget *parent)
     : QWidget(*new QTabWidgetPrivate, parent, 0)
 {
+    Q_D(QTabWidget);
     d->init();
 }
 
@@ -247,6 +247,7 @@ QTabWidget::QTabWidget(QWidget *parent)
 QTabWidget::QTabWidget(QWidget *parent, const char *name, Qt::WFlags f)
     : QWidget(*new QTabWidgetPrivate, parent, f)
 {
+    Q_D(QTabWidget);
     setObjectName(name);
     d->init();
 }
@@ -335,6 +336,7 @@ int QTabWidget::insertTab(int index, QWidget *w, const QString &label)
 */
 int QTabWidget::insertTab(int index, QWidget *w, const QIcon& icon, const QString &label)
 {
+    Q_D(QTabWidget);
     index = d->tabs->insertTab(index, icon, label);
     d->stack->insertWidget(index, w);
     setUpLayout();
@@ -348,6 +350,7 @@ int QTabWidget::insertTab(int index, QWidget *w, const QIcon& icon, const QStrin
 */
 void QTabWidget::setTabText(int index, const QString &label)
 {
+    Q_D(QTabWidget);
     d->tabs->setTabText(index, label);
     setUpLayout();
 }
@@ -358,6 +361,7 @@ void QTabWidget::setTabText(int index, const QString &label)
 
 QString QTabWidget::tabText(int index) const
 {
+    Q_D(const QTabWidget);
     return d->tabs->tabText(index);
 }
 
@@ -368,6 +372,7 @@ QString QTabWidget::tabText(int index) const
 */
 void QTabWidget::setTabIcon(int index, const QIcon &icon)
 {
+    Q_D(QTabWidget);
     d->tabs->setTabIcon(index, icon);
     setUpLayout();
 }
@@ -378,6 +383,7 @@ void QTabWidget::setTabIcon(int index, const QIcon &icon)
 
 QIcon QTabWidget::tabIcon(int index) const
 {
+    Q_D(const QTabWidget);
     return d->tabs->tabIcon(index);
 }
 
@@ -389,6 +395,7 @@ QIcon QTabWidget::tabIcon(int index) const
 
 bool QTabWidget::isTabEnabled(int index) const
 {
+    Q_D(const QTabWidget);
     return d->tabs->isTabEnabled(index);
 }
 
@@ -408,6 +415,7 @@ bool QTabWidget::isTabEnabled(int index) const
 
 void QTabWidget::setTabEnabled(int index, bool enable)
 {
+    Q_D(QTabWidget);
     d->tabs->setTabEnabled(index, enable);
 }
 
@@ -421,6 +429,7 @@ void QTabWidget::setTabEnabled(int index, bool enable)
 */
 void QTabWidget::setCornerWidget(QWidget * w, Qt::Corner corner)
 {
+    Q_D(QTabWidget);
     if (!w)
         return;
     if ((uint)corner & 1)
@@ -434,6 +443,7 @@ void QTabWidget::setCornerWidget(QWidget * w, Qt::Corner corner)
 */
 QWidget * QTabWidget::cornerWidget(Qt::Corner corner) const
 {
+    Q_D(const QTabWidget);
     if ((uint)corner & 1)
         return d->rightCornerWidget;
     return d->leftCornerWidget;
@@ -445,6 +455,7 @@ QWidget * QTabWidget::cornerWidget(Qt::Corner corner) const
 */
 void QTabWidget::removeTab(int index)
 {
+    Q_D(QTabWidget);
     if (QWidget *w = d->stack->widget(index))
         d->stack->removeWidget(w);
 }
@@ -457,6 +468,7 @@ void QTabWidget::removeTab(int index)
 
 QWidget * QTabWidget::currentWidget() const
 {
+    Q_D(const QTabWidget);
     return d->stack->currentWidget();
 }
 
@@ -468,11 +480,13 @@ QWidget * QTabWidget::currentWidget() const
 
 int QTabWidget::currentIndex() const
 {
+    Q_D(const QTabWidget);
     return d->tabs->currentIndex();
 }
 
 void QTabWidget::setCurrentIndex(int index)
 {
+    Q_D(QTabWidget);
     d->tabs->setCurrentIndex(index);
 }
 
@@ -483,6 +497,7 @@ void QTabWidget::setCurrentIndex(int index)
 */
 int QTabWidget::indexOf(QWidget* w) const
 {
+    Q_D(const QTabWidget);
     return d->stack->indexOf(w);
 }
 
@@ -505,6 +520,7 @@ void QTabWidget::resizeEvent(QResizeEvent *e)
 */
 void QTabWidget::setTabBar(QTabBar* tb)
 {
+    Q_D(QTabWidget);
     if (tb->parentWidget() != this) {
         tb->setParent(this);
         tb->show();
@@ -525,6 +541,7 @@ void QTabWidget::setTabBar(QTabBar* tb)
 */
 QTabBar* QTabWidget::tabBar() const
 {
+    Q_D(const QTabWidget);
     return d->tabs;
 }
 
@@ -535,6 +552,7 @@ QTabBar* QTabWidget::tabBar() const
 
 void QTabWidgetPrivate::showTab(int index)
 {
+    Q_Q(QTabWidget);
     if (index < stack->count() && index >= 0) {
         stack->setCurrentIndex(index);
         emit q->currentChanged(index);
@@ -546,6 +564,7 @@ void QTabWidgetPrivate::showTab(int index)
 
 void QTabWidgetPrivate::removeTab(int index)
 {
+    Q_Q(QTabWidget);
     tabs->removeTab(index);
     q->setUpLayout();
     q->tabRemoved(index);
@@ -558,6 +577,7 @@ void QTabWidgetPrivate::removeTab(int index)
 */
 void QTabWidget::setUpLayout(bool onlyCheck)
 {
+    Q_D(QTabWidget);
     if (onlyCheck && !d->dirty)
         return; // nothing to do
 
@@ -590,6 +610,7 @@ void QTabWidget::setUpLayout(bool onlyCheck)
 */
 QSize QTabWidget::sizeHint() const
 {
+    Q_D(const QTabWidget);
     QSize lc(0, 0), rc(0, 0);
     QStyleOption opt(0);
     opt.init(this);
@@ -628,6 +649,7 @@ QSize QTabWidget::sizeHint() const
 */
 QSize QTabWidget::minimumSizeHint() const
 {
+    Q_D(const QTabWidget);
     QSize lc(0, 0), rc(0, 0);
 
     if(d->leftCornerWidget)
@@ -661,6 +683,7 @@ void QTabWidget::showEvent(QShowEvent *)
 
 void QTabWidgetPrivate::updateTabBarPosition()
 {
+    Q_Q(QTabWidget);
     switch (pos) {
     case QTabWidget::North:
         tabs->setShape(shape == QTabWidget::Rounded ? QTabBar::RoundedNorth
@@ -693,11 +716,13 @@ void QTabWidgetPrivate::updateTabBarPosition()
 */
 QTabWidget::TabPosition QTabWidget::tabPosition() const
 {
+    Q_D(const QTabWidget);
     return d->pos;
 }
 
 void QTabWidget::setTabPosition(TabPosition pos)
 {
+    Q_D(QTabWidget);
     if (d->pos == pos)
         return;
     d->pos = pos;
@@ -716,11 +741,13 @@ void QTabWidget::setTabPosition(TabPosition pos)
 
 QTabWidget::TabShape QTabWidget::tabShape() const
 {
+    Q_D(const QTabWidget);
     return d->shape;
 }
 
 void QTabWidget::setTabShape(TabShape s)
 {
+    Q_D(QTabWidget);
     if (d->shape == s)
         return;
     d->shape = s;
@@ -743,6 +770,7 @@ void QTabWidget::changeEvent(QEvent *ev)
  */
 void QTabWidget::keyPressEvent(QKeyEvent *e)
 {
+    Q_D(QTabWidget);
     if ((e->key() == Qt::Key_Tab || e->key() == Qt::Key_Backtab) &&
         count() > 1 && e->modifiers() & Qt::ControlModifier) {
         int page = currentIndex();
@@ -769,6 +797,7 @@ void QTabWidget::keyPressEvent(QKeyEvent *e)
 */
 QWidget *QTabWidget::widget(int index) const
 {
+    Q_D(const QTabWidget);
     return d->stack->widget(index);
 }
 
@@ -778,6 +807,7 @@ QWidget *QTabWidget::widget(int index) const
 */
 int QTabWidget::count() const
 {
+    Q_D(const QTabWidget);
     return d->tabs->count();
 }
 
@@ -789,6 +819,7 @@ int QTabWidget::count() const
 */
 void QTabWidget::setTabToolTip(int index, const QString & tip)
 {
+    Q_D(QTabWidget);
     d->tabs->setTabToolTip(index, tip);
 }
 
@@ -800,6 +831,7 @@ void QTabWidget::setTabToolTip(int index, const QString & tip)
 */
 QString QTabWidget::tabToolTip(int index) const
 {
+    Q_D(const QTabWidget);
     return d->tabs->tabToolTip(index);
 }
 
@@ -832,6 +864,7 @@ void QTabWidget::tabRemoved(int index)
 */
 void QTabWidget::paintEvent(QPaintEvent *)
 {
+    Q_D(QTabWidget);
     QStylePainter p(this);
     QStyleOptionTabWidgetFrame opt;
     opt = d->getStyleOption();
@@ -979,6 +1012,7 @@ void QTabWidget::paintEvent(QPaintEvent *)
     Use currentChanged(int) instead.
 */
 
-
+#define d d_func()
 #include "moc_qtabwidget.cpp"
+#undef d
 #endif

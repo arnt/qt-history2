@@ -34,10 +34,6 @@
 #include "qtoolbarhandle_p.h"
 #include "qtoolbarseparator_p.h"
 
-#define d d_func()
-#define q q_func()
-
-
 static QStyleOptionFrame getStyleOption(QToolBar *tb)
 {
     QStyleOptionFrame opt;
@@ -54,6 +50,7 @@ static QStyleOptionFrame getStyleOption(QToolBar *tb)
 
 void QToolBarPrivate::init()
 {
+    Q_Q(QToolBar);
     movable = true;
     q->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding));
 
@@ -99,6 +96,7 @@ void QToolBarPrivate::init()
 
 void QToolBarPrivate::toggleView(bool b)
 {
+    Q_Q(QToolBar);
     if (b == q->isExplicitlyHidden()) {
         if (b)
             q->show();
@@ -109,6 +107,7 @@ void QToolBarPrivate::toggleView(bool b)
 
 void QToolBarPrivate::updateIconSize(const QSize &sz)
 {
+    Q_Q(QToolBar);
     if (!explicitIconSize) {
         // iconSize not explicitly set
         q->setIconSize(sz);
@@ -118,6 +117,7 @@ void QToolBarPrivate::updateIconSize(const QSize &sz)
 
 void QToolBarPrivate::updateToolButtonStyle(Qt::ToolButtonStyle style)
 {
+    Q_Q(QToolBar);
     if (!explicitToolButtonStyle) {
         q->setToolButtonStyle(style);
         explicitToolButtonStyle = false;
@@ -126,6 +126,7 @@ void QToolBarPrivate::updateToolButtonStyle(Qt::ToolButtonStyle style)
 
 QToolBarItem QToolBarPrivate::createItem(QAction *action)
 {
+    Q_Q(QToolBar);
     QToolBarItem item;
     item.action = action;
     item.hidden = false;
@@ -162,8 +163,8 @@ QToolBarItem QToolBarPrivate::createItem(QAction *action)
 */
 int QToolBarPrivate::indexOf(QAction *action) const
 {
-    for (int i = 0; i < d->items.size(); ++i) {
-        const QToolBarItem &item = d->items.at(i);
+    for (int i = 0; i < items.size(); ++i) {
+        const QToolBarItem &item = items.at(i);
         if (item.action == action)
             return i;
     }
@@ -262,6 +263,7 @@ int QToolBarPrivate::indexOf(QAction *action) const
 QToolBar::QToolBar(QWidget *parent)
     : QWidget(*new QToolBarPrivate, parent, 0)
 {
+    Q_D(QToolBar);
     d->init();
 }
 
@@ -277,6 +279,7 @@ QToolBar::QToolBar(QWidget *parent)
 QToolBar::QToolBar(const QString &title, QWidget *parent)
     : QWidget(*new QToolBarPrivate, parent, 0)
 {
+    Q_D(QToolBar);
     d->init();
     setWindowTitle(title);
 }
@@ -288,6 +291,7 @@ QToolBar::QToolBar(const QString &title, QWidget *parent)
 QToolBar::QToolBar(QWidget *parent, const char *name)
     : QWidget(*new QToolBarPrivate, parent, 0)
 {
+    Q_D(QToolBar);
     d->init();
     setObjectName(name);
 }
@@ -326,6 +330,7 @@ QToolBar::~QToolBar()
 
 void QToolBar::setMovable(bool movable)
 {
+    Q_D(QToolBar);
     if (!movable == !d->movable)
         return;
     d->movable = movable;
@@ -334,7 +339,7 @@ void QToolBar::setMovable(bool movable)
 }
 
 bool QToolBar::isMovable() const
-{ return d->movable; }
+{ Q_D(const QToolBar); return d->movable; }
 
 /*!
     \property QToolBar::allowedAreas
@@ -350,6 +355,7 @@ bool QToolBar::isMovable() const
 
 void QToolBar::setAllowedAreas(Qt::ToolBarAreas areas)
 {
+    Q_D(QToolBar);
     areas &= Qt::ToolBarArea_Mask;
     if (areas == d->allowedAreas)
         return;
@@ -358,7 +364,7 @@ void QToolBar::setAllowedAreas(Qt::ToolBarAreas areas)
 }
 
 Qt::ToolBarAreas QToolBar::allowedAreas() const
-{ return d->allowedAreas; }
+{ Q_D(const QToolBar); return d->allowedAreas; }
 
 /*! \property QToolBar::orientation
     \brief orientation of the toolbar
@@ -371,6 +377,7 @@ Qt::ToolBarAreas QToolBar::allowedAreas() const
 
 void QToolBar::setOrientation(Qt::Orientation orientation)
 {
+    Q_D(QToolBar);
     if (orientation == d->orientation)
         return;
 
@@ -397,7 +404,7 @@ void QToolBar::setOrientation(Qt::Orientation orientation)
 }
 
 Qt::Orientation QToolBar::orientation() const
-{ return d->orientation; }
+{ Q_D(const QToolBar); return d->orientation; }
 
 /*! \property QToolBar::iconSize
     \brief size of icons in the toolbar.
@@ -406,10 +413,11 @@ Qt::Orientation QToolBar::orientation() const
 */
 
 QSize QToolBar::iconSize() const
-{ return d->iconSize; }
+{ Q_D(const QToolBar); return d->iconSize; }
 
 void QToolBar::setIconSize(const QSize &iconSize)
 {
+    Q_D(QToolBar);
     QSize sz = iconSize;
     if (!sz.isValid()) {
         QMainWindow *mw = qobject_cast<QMainWindow *>(parentWidget());
@@ -442,10 +450,11 @@ void QToolBar::setIconSize(const QSize &iconSize)
 */
 
 Qt::ToolButtonStyle QToolBar::toolButtonStyle() const
-{ return d->toolButtonStyle; }
+{ Q_D(const QToolBar); return d->toolButtonStyle; }
 
 void QToolBar::setToolButtonStyle(Qt::ToolButtonStyle toolButtonStyle)
 {
+    Q_D(QToolBar);
     d->explicitToolButtonStyle = true;
     if (d->toolButtonStyle == toolButtonStyle)
         return;
@@ -593,6 +602,7 @@ QAction *QToolBar::insertWidget(QAction *before, QWidget *widget)
 */
 QRect QToolBar::actionGeometry(QAction *action) const
 {
+    Q_D(const QToolBar);
     for (int i = 0; i < d->items.size(); ++i) {
         const QToolBarItem &item = d->items.at(i);
         if (item.action == action)
@@ -609,6 +619,7 @@ QRect QToolBar::actionGeometry(QAction *action) const
 */
 QAction *QToolBar::actionAt(const QPoint &p) const
 {
+    Q_D(const QToolBar);
     QWidget *widget = childAt(p);
     for (int i = 0; i < d->items.size(); ++i) {
         const QToolBarItem &item = d->items.at(i);
@@ -628,6 +639,7 @@ QAction *QToolBar::actionAt(const QPoint &p) const
 /*! \reimp */
 void QToolBar::actionEvent(QActionEvent *event)
 {
+    Q_D(QToolBar);
     QAction *action = event->action();
     QToolBarWidgetAction *widgetAction = qobject_cast<QToolBarWidgetAction *>(action);
 
@@ -692,6 +704,7 @@ void QToolBar::actionEvent(QActionEvent *event)
 /*! \reimp */
 void QToolBar::changeEvent(QEvent *event)
 {
+    Q_D(QToolBar);
     switch (event->type()) {
     case QEvent::WindowTitleChange:
         d->toggleViewAction->setText(windowTitle());
@@ -712,6 +725,7 @@ void QToolBar::changeEvent(QEvent *event)
 /*! \reimp */
 void QToolBar::childEvent(QChildEvent *event)
 {
+    Q_D(QToolBar);
     QWidget *widget = qobject_cast<QWidget *>(event->child());
     if (widget) {
 #if !defined(QT_NO_DEBUG)
@@ -755,6 +769,7 @@ void QToolBar::paintEvent(QPaintEvent *event)
 /*! \reimp */
 void QToolBar::resizeEvent(QResizeEvent *event)
 {
+    Q_D(QToolBar);
     QBoxLayout *box = qobject_cast<QBoxLayout *>(layout());
     Qt::Orientation orientation = (box->direction() == QBoxLayout::LeftToRight
                                    || box->direction() == QBoxLayout::RightToLeft)
@@ -879,6 +894,7 @@ void QToolBar::resizeEvent(QResizeEvent *event)
 /*! \reimp */
 bool QToolBar::event(QEvent *event)
 {
+    Q_D(QToolBar);
     switch (event->type()) {
     case QEvent::Hide:
         if (!isExplicitlyHidden())
@@ -909,7 +925,7 @@ bool QToolBar::event(QEvent *event)
     \sa QAction::text QWidget::windowTitle
 */
 QAction *QToolBar::toggleViewAction() const
-{ return d->toggleViewAction; }
+{ Q_D(const QToolBar); return d->toggleViewAction; }
 
 /*!
     \fn void QToolBar::setLabel(const QString &label)
@@ -923,4 +939,6 @@ QAction *QToolBar::toggleViewAction() const
     Use windowTitle() instead.
 */
 
+#define d d_func()
 #include "moc_qtoolbar.cpp"
+#undef d

@@ -2960,3 +2960,4 @@ void QTextEdit::ensureCursorVisible()
 
 #define d d_func()
 #include "moc_qtextedit.cpp"
+#undef d

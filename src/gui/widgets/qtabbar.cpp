@@ -84,10 +84,9 @@ public:
 };
 
 
-#define d d_func()
-#define q q_func()
 QStyleOptionTab QTabBarPrivate::getStyleOption(int tab) const
 {
+    Q_Q(const QTabBar);
     QStyleOptionTab opt;
     const QTabBarPrivate::Tab *ptab = &tabList.at(tab);
     opt.init(q);
@@ -241,12 +240,14 @@ QStyleOptionTab QTabBarPrivate::getStyleOption(int tab) const
 
 int QTabBarPrivate::extraWidth() const
 {
+    Q_Q(const QTabBar);
     return 2 * qMax(q->style()->pixelMetric(QStyle::PM_TabBarScrollButtonWidth, 0, q),
                     QApplication::globalStrut().width());
 }
 
 void QTabBarPrivate::init()
 {
+    Q_Q(QTabBar);
     leftB = new QToolButton(q);
     leftB->setArrowType(Qt::LeftArrow);
     QObject::connect(leftB, SIGNAL(clicked()), q, SLOT(scrollTabs()));
@@ -271,6 +272,7 @@ const QTabBarPrivate::Tab *QTabBarPrivate::at(int index) const
 
 int QTabBarPrivate::indexAtPos(const QPoint &p) const
 {
+    Q_Q(const QTabBar);
     if (q->tabRect(currentIndex).contains(p))
         return currentIndex;
     for (int i = 0; i < tabList.count(); ++i)
@@ -290,6 +292,7 @@ inline static bool verticalTabs(QTabBar::Shape shape)
 
 void QTabBarPrivate::layoutTabs()
 {
+    Q_Q(QTabBar);
     scrollOffset = 0;
     layoutDirty = false;
     QSize size = q->size();
@@ -335,17 +338,17 @@ void QTabBarPrivate::layoutTabs()
         int extra = extraWidth();
         if (!vertTabs) {
             QRect arrows = QStyle::visualRect(q->layoutDirection(), q->rect(), QRect(available - extra, 0, extra, size.height()));
-            d->leftB->setGeometry(arrows.left(), arrows.top(), extra/2, arrows.height());
-            d->rightB->setGeometry(arrows.right() - extra/2 + 1, arrows.top(), extra/2, arrows.height());
+            leftB->setGeometry(arrows.left(), arrows.top(), extra/2, arrows.height());
+            rightB->setGeometry(arrows.right() - extra/2 + 1, arrows.top(), extra/2, arrows.height());
         } else {
             QRect arrows = QRect(0, available - extra, size.width(), extra );
-            d->leftB->setGeometry(arrows.left(), arrows.top(), arrows.width(), extra/2);
-            d->rightB->setGeometry(arrows.left(), arrows.bottom() - extra/2 + 1, arrows.width(), extra/2);
+            leftB->setGeometry(arrows.left(), arrows.top(), arrows.width(), extra/2);
+            rightB->setGeometry(arrows.left(), arrows.bottom() - extra/2 + 1, arrows.width(), extra/2);
         }
-        d->leftB->setEnabled(scrollOffset > 0);
-        d->rightB->setEnabled(last - scrollOffset >= available - extra);
-        d->leftB->show();
-        d->rightB->show();
+        leftB->setEnabled(scrollOffset > 0);
+        rightB->setEnabled(last - scrollOffset >= available - extra);
+        leftB->show();
+        rightB->show();
     } else {
         rightB->hide();
         leftB->hide();
@@ -356,6 +359,7 @@ void QTabBarPrivate::layoutTabs()
 
 void QTabBarPrivate::makeVisible(int index)
 {
+    Q_Q(QTabBar);
     if (!validIndex(index) || leftB->isExplicitlyHidden())
         return;
     const QRect tabRect = tabList.at(index).rect;
@@ -373,9 +377,9 @@ void QTabBarPrivate::makeVisible(int index)
     if (scrollOffset && end < available)  // need scrolling at all?
         scrollOffset = 0;
 
-    d->leftB->setEnabled(scrollOffset > 0);
+    leftB->setEnabled(scrollOffset > 0);
     const int last = horiz ? tabList.last().rect.right() : tabList.first().rect.bottom();
-    d->rightB->setEnabled(last - scrollOffset >= available);
+    rightB->setEnabled(last - scrollOffset >= available);
     if (oldScrollOffset != scrollOffset)
         q->update();
 
@@ -383,11 +387,12 @@ void QTabBarPrivate::makeVisible(int index)
 
 void QTabBarPrivate::scrollTabs()
 {
+    Q_Q(QTabBar);
     const QObject *sender = q->sender();
     int i = -1;
     if (!verticalTabs(shape)) {
         if (sender == leftB) {
-            for (i = d->tabList.count() - 1; i >= 0; --i) {
+            for (i = tabList.count() - 1; i >= 0; --i) {
                 if (tabList.at(i).rect.left() - scrollOffset < 0) {
                     makeVisible(i);
                     return;
@@ -412,7 +417,7 @@ void QTabBarPrivate::scrollTabs()
             }
         } else if (sender == rightB) {
             int available = q->height() - extraWidth();
-            for (i = d->tabList.count() - 1; i >= 0; --i) {
+            for (i = tabList.count() - 1; i >= 0; --i) {
                 if (tabList.at(i).rect.bottom() - scrollOffset > available) {
                     makeVisible(i);
                     return;
@@ -424,6 +429,7 @@ void QTabBarPrivate::scrollTabs()
 
 void QTabBarPrivate::refresh()
 {
+    Q_Q(QTabBar);
     if (!q->isVisible()) {
         layoutDirty = true;
     } else {
@@ -439,6 +445,7 @@ void QTabBarPrivate::refresh()
 QTabBar::QTabBar(QWidget* parent)
     :QWidget(*new QTabBarPrivate, parent, 0)
 {
+    Q_D(QTabBar);
     d->init();
 }
 
@@ -464,11 +471,13 @@ QTabBar::~QTabBar()
 
 QTabBar::Shape QTabBar::shape() const
 {
+    Q_D(const QTabBar);
     return d->shape;
 }
 
 void QTabBar::setShape(Shape shape)
 {
+    Q_D(QTabBar);
     if (d->shape == shape)
         return;
     d->shape = shape;
@@ -488,11 +497,13 @@ void QTabBar::setShape(Shape shape)
 
 void QTabBar::setDrawBase(bool drawBase)
 {
+    Q_D(QTabBar);
     d->drawBase = drawBase;
 }
 
 bool QTabBar::drawBase() const
 {
+    Q_D(const QTabBar);
     return d->drawBase;
 }
 
@@ -535,6 +546,7 @@ int QTabBar::insertTab(int index, const QString &text)
 */
 int QTabBar::insertTab(int index, const QIcon& icon, const QString &text)
 {
+    Q_D(QTabBar);
     if (!d->validIndex(index)) {
         index = d->tabList.count();
         d->tabList.append(QTabBarPrivate::Tab(icon, text));
@@ -553,6 +565,7 @@ int QTabBar::insertTab(int index, const QIcon& icon, const QString &text)
  */
 void QTabBar::removeTab(int index)
 {
+    Q_D(QTabBar);
     if (d->validIndex(index)) {
         releaseShortcut(d->tabList.at(index).shortcutId);
         d->tabList.removeAt(index);
@@ -570,6 +583,7 @@ void QTabBar::removeTab(int index)
 */
 bool QTabBar::isTabEnabled(int index) const
 {
+    Q_D(const QTabBar);
     if (const QTabBarPrivate::Tab *tab = d->at(index))
         return tab->enabled;
     return false;
@@ -581,6 +595,7 @@ bool QTabBar::isTabEnabled(int index) const
 */
 void QTabBar::setTabEnabled(int index, bool enabled)
 {
+    Q_D(QTabBar);
     if (QTabBarPrivate::Tab *tab = d->at(index)) {
         tab->enabled = enabled;
         update();
@@ -598,6 +613,7 @@ void QTabBar::setTabEnabled(int index, bool enabled)
 */
 QString QTabBar::tabText(int index) const
 {
+    Q_D(const QTabBar);
     if (const QTabBarPrivate::Tab *tab = d->at(index))
         return tab->text;
     return QString();
@@ -608,6 +624,7 @@ QString QTabBar::tabText(int index) const
 */
 void QTabBar::setTabText(int index, const QString &text)
 {
+    Q_D(QTabBar);
     if (QTabBarPrivate::Tab *tab = d->at(index)) {
         tab->text = text;
         releaseShortcut(tab->shortcutId);
@@ -623,6 +640,7 @@ void QTabBar::setTabText(int index, const QString &text)
 */
 QIcon QTabBar::tabIcon(int index) const
 {
+    Q_D(const QTabBar);
     if (const QTabBarPrivate::Tab *tab = d->at(index))
         return tab->icon;
     return QIcon();
@@ -633,6 +651,7 @@ QIcon QTabBar::tabIcon(int index) const
 */
 void QTabBar::setTabIcon(int index, const QIcon & icon)
 {
+    Q_D(QTabBar);
     if (QTabBarPrivate::Tab *tab = d->at(index))
         tab->icon = icon;
 }
@@ -643,6 +662,7 @@ void QTabBar::setTabIcon(int index, const QIcon & icon)
 */
 void QTabBar::setTabToolTip(int index, const QString & tip)
 {
+    Q_D(QTabBar);
     if (QTabBarPrivate::Tab *tab = d->at(index))
         tab->toolTip = tip;
 }
@@ -653,6 +673,7 @@ void QTabBar::setTabToolTip(int index, const QString & tip)
 */
 QString QTabBar::tabToolTip(int index) const
 {
+    Q_D(const QTabBar);
     if (const QTabBarPrivate::Tab *tab = d->at(index))
         return tab->toolTip;
     return QString();
@@ -664,6 +685,7 @@ QString QTabBar::tabToolTip(int index) const
 */
 QRect QTabBar::tabRect(int index) const
 {
+    Q_D(const QTabBar);
     if (const QTabBarPrivate::Tab *tab = d->at(index)) {
         if (d->layoutDirty)
             const_cast<QTabBarPrivate*>(d)->layoutTabs();
@@ -684,6 +706,7 @@ QRect QTabBar::tabRect(int index) const
 
 int QTabBar::currentIndex() const
 {
+    Q_D(const QTabBar);
     if (d->validIndex(d->currentIndex))
         return d->currentIndex;
     return -1;
@@ -692,6 +715,7 @@ int QTabBar::currentIndex() const
 
 void QTabBar::setCurrentIndex(int index)
 {
+    Q_D(QTabBar);
     if (d->validIndex(index)) {
         d->currentIndex = index;
         update();
@@ -711,6 +735,7 @@ void QTabBar::setCurrentIndex(int index)
 
 int QTabBar::count() const
 {
+    Q_D(const QTabBar);
     return d->tabList.count();
 }
 
@@ -719,6 +744,7 @@ int QTabBar::count() const
  */
 QSize QTabBar::sizeHint() const
 {
+    Q_D(const QTabBar);
     if (d->layoutDirty)
         const_cast<QTabBarPrivate*>(d)->layoutTabs();
     QRect r;
@@ -732,6 +758,7 @@ QSize QTabBar::sizeHint() const
  */
 QSize QTabBar::minimumSizeHint() const
 {
+    Q_D(const QTabBar);
     if (style()->styleHint(QStyle::SH_TabBar_PreferNoArrows, 0, this))
         return sizeHint();
     if (verticalTabs(d->shape))
@@ -745,6 +772,7 @@ QSize QTabBar::minimumSizeHint() const
 */
 QSize QTabBar::tabSizeHint(int index) const
 {
+    Q_D(const QTabBar);
     if (const QTabBarPrivate::Tab *tab = d->at(index)) {
         QStyleOptionTab opt = d->getStyleOption(index);
         int iconExtent = style()->pixelMetric(QStyle::PM_SmallIconSize, &opt, this);
@@ -798,6 +826,7 @@ void QTabBar::tabLayoutChange()
  */
 void QTabBar::showEvent(QShowEvent *)
 {
+    Q_D(QTabBar);
     if (d->layoutDirty)
         d->layoutTabs();
     if (!d->validIndex(d->currentIndex))
@@ -810,7 +839,7 @@ void QTabBar::showEvent(QShowEvent *)
  */
 bool QTabBar::event(QEvent *e)
 {
-
+    Q_D(QTabBar);
     if (e->type() == QEvent::HoverMove
         || e->type() == QEvent::HoverEnter) {
         QHoverEvent *he = static_cast<QHoverEvent *>(e);
@@ -855,6 +884,7 @@ bool QTabBar::event(QEvent *e)
  */
 void QTabBar::resizeEvent(QResizeEvent *)
 {
+    Q_D(QTabBar);
     d->layoutTabs();
     d->makeVisible(d->currentIndex);
 }
@@ -863,6 +893,7 @@ void QTabBar::resizeEvent(QResizeEvent *)
  */
 void QTabBar::paintEvent(QPaintEvent *)
 {
+    Q_D(QTabBar);
     QStyleOptionTab tabOverlap;
     tabOverlap.shape = d->shape;
     int overlap = style()->pixelMetric(QStyle::PM_TabBarBaseOverlap, &tabOverlap, this);
@@ -923,6 +954,7 @@ void QTabBar::paintEvent(QPaintEvent *)
  */
 void QTabBar::mousePressEvent (QMouseEvent *e)
 {
+    Q_D(QTabBar);
     if (e->button() != Qt::LeftButton) {
         e->ignore();
         return;
@@ -940,6 +972,7 @@ void QTabBar::mousePressEvent (QMouseEvent *e)
  */
 void QTabBar::mouseMoveEvent (QMouseEvent *e)
 {
+    Q_D(QTabBar);
     if (e->buttons() != Qt::LeftButton) {
         e->ignore();
         return;
@@ -960,6 +993,7 @@ void QTabBar::mouseMoveEvent (QMouseEvent *e)
  */
 void QTabBar::mouseReleaseEvent (QMouseEvent *e)
 {
+    Q_D(QTabBar);
     if (e->button() != Qt::LeftButton)
         e->ignore();
 
@@ -973,6 +1007,7 @@ void QTabBar::mouseReleaseEvent (QMouseEvent *e)
  */
 void QTabBar::keyPressEvent(QKeyEvent *e)
 {
+    Q_D(QTabBar);
     if (e->key() != Qt::Key_Left && e->key() != Qt::Key_Right) {
         e->ignore();
         return;
@@ -990,6 +1025,7 @@ void QTabBar::keyPressEvent(QKeyEvent *e)
  */
 void QTabBar::changeEvent(QEvent *e)
 {
+    Q_D(QTabBar);
     d->refresh();
     QWidget::changeEvent(e);
 }
@@ -1007,5 +1043,6 @@ void QTabBar::changeEvent(QEvent *e)
     Use currentChanged() instead.
 */
 
-
+#define d d_func()
 #include "moc_qtabbar.cpp"
+#undef d

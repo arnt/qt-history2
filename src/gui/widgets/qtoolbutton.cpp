@@ -54,11 +54,9 @@ public:
     bool hasMenu() const;
 };
 
-#define d d_func()
-#define q q_func()
-
 bool QToolButtonPrivate::hasMenu() const
 {
+    Q_Q(const QToolButton);
     return (menu || q->actions().size() > (defaultAction ? 1 : 0));
 }
 
@@ -129,6 +127,7 @@ bool QToolButtonPrivate::hasMenu() const
 QToolButton::QToolButton(QWidget * parent)
     : QAbstractButton(*new QToolButtonPrivate, parent)
 {
+    Q_D(QToolButton);
     d->init();
 }
 
@@ -141,6 +140,7 @@ QToolButton::QToolButton(QWidget * parent)
 QToolButton::QToolButton(QWidget * parent, const char *name)
     : QAbstractButton(*new QToolButtonPrivate, parent)
 {
+    Q_D(QToolButton);
     setObjectName(name);
     d->init();
 }
@@ -161,6 +161,7 @@ QToolButton::QToolButton(const QIcon& iconSet, const QString &textLabel,
                           QWidget * parent, const char *name)
     : QAbstractButton(*new QToolButtonPrivate, parent)
 {
+    Q_D(QToolButton);
     setObjectName(name);
     d->init();
     setIcon(iconSet);
@@ -187,6 +188,7 @@ QToolButton::QToolButton(const QIcon& iconSet, const QString &textLabel,
 QToolButton::QToolButton(Qt::ArrowType type, QWidget *parent, const char *name)
     : QAbstractButton(*new QToolButtonPrivate, parent)
 {
+    Q_D(QToolButton);
     setObjectName(name);
     d->init();
     setAutoRepeat(true);
@@ -200,6 +202,7 @@ QToolButton::QToolButton(Qt::ArrowType type, QWidget *parent, const char *name)
 
 void QToolButtonPrivate::init()
 {
+    Q_Q(QToolButton);
     delay = q->style()->styleHint(QStyle::SH_ToolButton_PopupDelay, 0, q);
     menu = 0;
     defaultAction = 0;
@@ -222,6 +225,7 @@ void QToolButtonPrivate::init()
 
 QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
 {
+    Q_Q(const QToolButton);
     QStyleOptionToolButton opt;
     opt.init(q);
     bool down = q->isDown();
@@ -298,6 +302,7 @@ QToolButton::~QToolButton()
 */
 QSize QToolButton::sizeHint() const
 {
+    Q_D(const QToolButton);
     ensurePolished();
 
     int w = 0, h = 0;
@@ -386,21 +391,25 @@ QSize QToolButton::minimumSizeHint() const
 
 QSize QToolButton::iconSize() const
 {
+    Q_D(const QToolButton);
     return d->iconSize;
 }
 
 Qt::ToolButtonStyle QToolButton::toolButtonStyle() const
 {
+    Q_D(const QToolButton);
     return d->toolButtonStyle;
 }
 
 Qt::ArrowType QToolButton::arrowType() const
 {
+    Q_D(const QToolButton);
     return d->arrowType;
 }
 
 void QToolButton::setIconSize(const QSize &size)
 {
+    Q_D(QToolButton);
     if (d->iconSize == size)
         return;
 
@@ -413,6 +422,7 @@ void QToolButton::setIconSize(const QSize &size)
 
 void QToolButton::setToolButtonStyle(Qt::ToolButtonStyle style)
 {
+    Q_D(QToolButton);
     if (d->toolButtonStyle == style)
         return;
 
@@ -425,6 +435,7 @@ void QToolButton::setToolButtonStyle(Qt::ToolButtonStyle style)
 
 void QToolButton::setArrowType(Qt::ArrowType type)
 {
+    Q_D(QToolButton);
     if (d->arrowType == type)
         return;
 
@@ -442,6 +453,7 @@ void QToolButton::setArrowType(Qt::ArrowType type)
 */
 void QToolButton::paintEvent(QPaintEvent *)
 {
+    Q_D(QToolButton);
     QStylePainter p(this);
     p.drawComplexControl(QStyle::CC_ToolButton, d->getStyleOption());
 }
@@ -451,6 +463,7 @@ void QToolButton::paintEvent(QPaintEvent *)
  */
 void QToolButton::actionEvent(QActionEvent *event)
 {
+    Q_D(QToolButton);
     QAction *action = event->action();
     switch (event->type()) {
     case QEvent::ActionChanged:
@@ -473,6 +486,7 @@ void QToolButton::actionEvent(QActionEvent *event)
 
 void QToolButtonPrivate::actionTriggered()
 {
+    Q_Q(QToolButton);
     if (QAction *action = qobject_cast<QAction *>(q->sender()))
         emit q->triggered(action);
 }
@@ -482,6 +496,7 @@ void QToolButtonPrivate::actionTriggered()
  */
 void QToolButton::enterEvent(QEvent * e)
 {
+    Q_D(QToolButton);
     if (d->autoRaise)
         update();
 
@@ -494,6 +509,7 @@ void QToolButton::enterEvent(QEvent * e)
  */
 void QToolButton::leaveEvent(QEvent * e)
 {
+    Q_D(QToolButton);
     if (d->autoRaise)
         update();
 
@@ -506,6 +522,7 @@ void QToolButton::leaveEvent(QEvent * e)
  */
 void QToolButton::timerEvent(QTimerEvent *e)
 {
+    Q_D(QToolButton);
     if (e->timerId() == d->popupTimer.timerId()) {
         d->popupTimerDone();
         return;
@@ -519,6 +536,7 @@ void QToolButton::timerEvent(QTimerEvent *e)
 */
 void QToolButton::changeEvent(QEvent *e)
 {
+    Q_D(QToolButton);
     if (e->type() == QEvent::ParentChange) {
         if (qobject_cast<QToolBar*>(parentWidget()))
             d->autoRaise = true;
@@ -531,6 +549,7 @@ void QToolButton::changeEvent(QEvent *e)
 */
 void QToolButton::mousePressEvent(QMouseEvent *e)
 {
+    Q_D(QToolButton);
     QStyleOptionToolButton opt = d->getStyleOption();
     if (e->button() == Qt::LeftButton && d->popupMode == MenuButtonPopup) {
         QRect popupr = QStyle::visualRect(opt.direction, opt.rect,
@@ -643,6 +662,7 @@ QIcon QToolButton::iconSet(bool /* on */) const
 */
 void QToolButton::setMenu(QMenu* menu)
 {
+    Q_D(QToolButton);
     d->menu = menu;
     update();
 }
@@ -654,6 +674,7 @@ void QToolButton::setMenu(QMenu* menu)
 */
 QMenu* QToolButton::menu() const
 {
+    Q_D(const QToolButton);
     return d->menu;
 }
 
@@ -664,6 +685,7 @@ QMenu* QToolButton::menu() const
 */
 void QToolButton::showMenu()
 {
+    Q_D(QToolButton);
     if (!d->hasMenu()) {
         d->menuButtonDown = false;
         return; // no menu to show
@@ -677,22 +699,24 @@ void QToolButton::showMenu()
 
 void QToolButtonPrivate::buttonPressed()
 {
-    if (!d->hasMenu())
+    Q_Q(QToolButton);
+    if (!hasMenu())
         return; // no menu to show
 
     if (delay > 0 && popupMode == QToolButton::DelayedPopup)
         popupTimer.start(delay, q);
-    else if  (d->popupMode == QToolButton::InstantPopup)
+    else if  (popupMode == QToolButton::InstantPopup)
         q->showMenu();
 }
 
 void QToolButtonPrivate::popupTimerDone()
 {
+    Q_Q(QToolButton);
     popupTimer.stop();
     if (!menuButtonDown && !down)
         return;
 
-    d->menuButtonDown = true;
+    menuButtonDown = true;
     QPointer<QMenu> actualMenu;
     if(menu) {
         actualMenu = menu;
@@ -774,6 +798,7 @@ void QToolButtonPrivate::popupTimerDone()
 */
 void QToolButton::setPopupDelay(int delay)
 {
+    Q_D(QToolButton);
     d->delay = delay;
 
     update();
@@ -784,6 +809,7 @@ void QToolButton::setPopupDelay(int delay)
 */
 int QToolButton::popupDelay() const
 {
+    Q_D(const QToolButton);
     return d->delay;
 }
 #endif
@@ -818,11 +844,13 @@ int QToolButton::popupDelay() const
 
 void QToolButton::setPopupMode(ToolButtonPopupMode mode)
 {
+    Q_D(QToolButton);
     d->popupMode = mode;
 }
 
 QToolButton::ToolButtonPopupMode QToolButton::popupMode() const
 {
+    Q_D(const QToolButton);
     return d->popupMode;
 }
 
@@ -835,6 +863,7 @@ QToolButton::ToolButtonPopupMode QToolButton::popupMode() const
 */
 void QToolButton::setAutoRaise(bool enable)
 {
+    Q_D(QToolButton);
     d->autoRaise = enable;
 
     update();
@@ -842,6 +871,7 @@ void QToolButton::setAutoRaise(bool enable)
 
 bool QToolButton::autoRaise() const
 {
+    Q_D(const QToolButton);
     return d->autoRaise;
 }
 
@@ -853,6 +883,7 @@ bool QToolButton::autoRaise() const
  */
 void QToolButton::setDefaultAction(QAction *action)
 {
+    Q_D(QToolButton);
     d->defaultAction = action;
     if (!action)
         return;
@@ -878,6 +909,7 @@ void QToolButton::setDefaultAction(QAction *action)
  */
 QAction *QToolButton::defaultAction() const
 {
+    Q_D(const QToolButton);
     return d->defaultAction;
 }
 
@@ -888,6 +920,7 @@ QAction *QToolButton::defaultAction() const
  */
 void QToolButton::nextCheckState()
 {
+    Q_D(QToolButton);
     if (!d->defaultAction)
         QAbstractButton::nextCheckState();
     else
@@ -899,6 +932,7 @@ void QToolButton::nextCheckState()
 QToolButton::QToolButton(QToolButtonPrivate &dd, QWidget *parent)
     :QAbstractButton(dd, parent)
 {
+    Q_D(QToolButton);
     d->init();
 }
 
@@ -985,6 +1019,8 @@ QToolButton::QToolButton(QToolButtonPrivate &dd, QWidget *parent)
 
     Use setToolButtonStyle() instead.
 */
+#define d d_func()
 #include "moc_qtoolbutton.cpp"
+#undef d
 
 #endif

@@ -20,10 +20,6 @@
 
 #include "qabstractscrollarea_p.h"
 #include <qwidget.h>
-#define d d_func()
-#define q q_func()
-
-
 
 /*!
     \class QAbstractScrollArea qabstractscrollarea.h
@@ -75,7 +71,8 @@
 
 */
 
-inline  bool QAbstractScrollAreaPrivate::viewportEvent(QEvent *e) { return q->viewportEvent(e); }
+inline  bool QAbstractScrollAreaPrivate::viewportEvent(QEvent *e) 
+{ Q_Q(QAbstractScrollArea); return q->viewportEvent(e); }
 
 class QAbstractScrollAreaHelper : public QWidget
 {
@@ -100,6 +97,7 @@ QAbstractScrollAreaPrivate::QAbstractScrollAreaPrivate()
 
 void QAbstractScrollAreaPrivate::init()
 {
+    Q_Q(QAbstractScrollArea);
     q->setFocusPolicy(Qt::WheelFocus);
     q->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
     q->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -118,6 +116,7 @@ void QAbstractScrollAreaPrivate::init()
 
 void QAbstractScrollAreaPrivate::layoutChildren()
 {
+    Q_Q(QAbstractScrollArea);
     bool needh = (hbarpolicy == Qt::ScrollBarAlwaysOn
                   || (hbarpolicy == Qt::ScrollBarAsNeeded && hbar->minimum() < hbar->maximum()));
 
@@ -170,6 +169,7 @@ void QAbstractScrollAreaPrivate::layoutChildren()
 QAbstractScrollArea::QAbstractScrollArea(QAbstractScrollAreaPrivate &dd, QWidget *parent)
     :QFrame(dd, parent)
 {
+    Q_D(QAbstractScrollArea);
     d->init();
 }
 
@@ -181,6 +181,7 @@ QAbstractScrollArea::QAbstractScrollArea(QAbstractScrollAreaPrivate &dd, QWidget
 QAbstractScrollArea::QAbstractScrollArea(QWidget *parent)
     :QFrame(*new QAbstractScrollAreaPrivate, parent)
 {
+    Q_D(QAbstractScrollArea);
     d->init();
 }
 
@@ -196,6 +197,7 @@ QAbstractScrollArea::~QAbstractScrollArea()
  */
 QWidget *QAbstractScrollArea::viewport() const
 {
+    Q_D(const QAbstractScrollArea);
     return d->viewport;
 }
 
@@ -207,6 +209,7 @@ scrolling range.
 // ### still thinking about the name
 QSize QAbstractScrollArea::maximumViewportSize() const
 {
+    Q_D(const QAbstractScrollArea);
     int hsbExt = d->hbar->sizeHint().height();
     int vsbExt = d->vbar->sizeHint().width();
 
@@ -230,11 +233,13 @@ QSize QAbstractScrollArea::maximumViewportSize() const
 
 Qt::ScrollBarPolicy QAbstractScrollArea::verticalScrollBarPolicy() const
 {
+    Q_D(const QAbstractScrollArea);
     return d->vbarpolicy;
 }
 
 void QAbstractScrollArea::setVerticalScrollBarPolicy(Qt::ScrollBarPolicy policy)
 {
+    Q_D(QAbstractScrollArea);
     d->vbarpolicy = policy;
     if (isVisible())
         d->layoutChildren();
@@ -248,6 +253,7 @@ void QAbstractScrollArea::setVerticalScrollBarPolicy(Qt::ScrollBarPolicy policy)
  */
 QScrollBar *QAbstractScrollArea::verticalScrollBar() const
 {
+    Q_D(const QAbstractScrollArea);
     return d->vbar;
 }
 
@@ -262,11 +268,13 @@ QScrollBar *QAbstractScrollArea::verticalScrollBar() const
 
 Qt::ScrollBarPolicy QAbstractScrollArea::horizontalScrollBarPolicy() const
 {
+    Q_D(const QAbstractScrollArea);
     return d->hbarpolicy;
 }
 
 void QAbstractScrollArea::setHorizontalScrollBarPolicy(Qt::ScrollBarPolicy policy)
 {
+    Q_D(QAbstractScrollArea);
     d->hbarpolicy = policy;
     if (isVisible())
         d->layoutChildren();
@@ -279,6 +287,7 @@ void QAbstractScrollArea::setHorizontalScrollBarPolicy(Qt::ScrollBarPolicy polic
  */
 QScrollBar *QAbstractScrollArea::horizontalScrollBar() const
 {
+    Q_D(const QAbstractScrollArea);
     return d->hbar;
 }
 
@@ -293,6 +302,7 @@ QScrollBar *QAbstractScrollArea::horizontalScrollBar() const
 */
 void QAbstractScrollArea::setViewportMargins(int left, int top, int right, int bottom)
 {
+    Q_D(QAbstractScrollArea);
     d->left = left;
     d->top = top;
     d->right = right;
@@ -306,6 +316,7 @@ void QAbstractScrollArea::setViewportMargins(int left, int top, int right, int b
 */
 bool QAbstractScrollArea::event(QEvent *e)
 {
+    Q_D(QAbstractScrollArea);
     switch (e->type()) {
     case QEvent::MouseTrackingChange:
         d->viewport->setMouseTracking(hasMouseTracking());
@@ -356,6 +367,7 @@ bool QAbstractScrollArea::event(QEvent *e)
  */
 bool QAbstractScrollArea::viewportEvent(QEvent *e)
 {
+    Q_D(QAbstractScrollArea);
     switch (e->type()) {
     case QEvent::Resize:
     case QEvent::Paint:
@@ -494,6 +506,7 @@ void QAbstractScrollArea::contextMenuEvent(QContextMenuEvent *e)
 */
 void QAbstractScrollArea::keyPressEvent(QKeyEvent * e)
 {
+    Q_D(QAbstractScrollArea);
     switch (e->key()) {
     case Qt::Key_PageUp:
         d->vbar->triggerAction(QScrollBar::SliderPageStepSub);
@@ -583,6 +596,7 @@ void QAbstractScrollArea::scrollContentsBy(int, int)
 
 void QAbstractScrollAreaPrivate::hslide(int x)
 {
+    Q_Q(QAbstractScrollArea);
     int dx = xoffset - x;
     xoffset = x;
     q->scrollContentsBy(dx, 0);
@@ -590,6 +604,7 @@ void QAbstractScrollAreaPrivate::hslide(int x)
 
 void QAbstractScrollAreaPrivate::vslide(int y)
 {
+    Q_Q(QAbstractScrollArea);
     int dy = yoffset - y;
     yoffset = y;
     q->scrollContentsBy(0, dy);
@@ -606,6 +621,7 @@ void QAbstractScrollAreaPrivate::showOrHideScrollBars()
 */
 QSize QAbstractScrollArea::minimumSizeHint() const
 {
+    Q_D(const QAbstractScrollArea);
     int h = qMax(10, fontMetrics().height());
     int f = 2 * d->frameWidth;
     return QSize((6 * h) + f, (4 * h) + f);
@@ -619,4 +635,6 @@ QSize QAbstractScrollArea::sizeHint() const
     return QSize(256, 192);
 }
 
+#define d d_func()
 #include "moc_qabstractscrollarea.cpp"
+#undef d
