@@ -448,10 +448,18 @@ bool QWhatsThisPrivate::eventFilter(QObject *o, QEvent *e)
 
 /*!
   \class QWhatsThisAction
-    \brief A ready-made action to invoke What's This context help
+
+    \brief The QWhatsThisAction class provides a ready-made action to
+    invoke "What's This" context help.
 
     \ingroup helpsystem
-    \mainclass
+
+    QWhatsThisAction is a convenient way to let users enter "What's
+    this?" mode.  Instantiate a QWhatsThisAction object, and add it to
+    either a menu, a tool bar, or a tool button.
+
+    \sa QWhatsThis QToolBar, QMenu QToolButton
+
 */
 
 
