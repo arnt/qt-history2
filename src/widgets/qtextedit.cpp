@@ -1557,6 +1557,7 @@ void QTextEdit::imComposeEvent( QIMEvent *e )
 	cursor->setIndex( d->preeditStart + e->cursorPos() );
 	doc->setSelectionStart( QTextDocument::IMSelectionText, *cursor );
 	doc->setSelectionEnd( QTextDocument::IMSelectionText, c );
+	cursor->setIndex( d->preeditStart + d->preeditLength );
     }
 
     repaintChanged();

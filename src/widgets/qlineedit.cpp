@@ -1759,9 +1759,10 @@ void QLineEdit::imComposeEvent( QIMEvent *e )
 	e->ignore();
     } else {
 	d->text.replace( d->imstart, d->imend - d->imstart, e->text() );
-	d->cursor = d->imend = d->imstart + e->text().length();
+	d->imend = d->imstart + e->text().length();
 	d->imselstart = d->imstart + e->cursorPos();
 	d->imselend = d->imselstart + e->selectionLength();
+	d->cursor = e->selectionLength() ? d->imend : d->imselend;
 	d->updateTextLayout();
 	update();
     }
@@ -1886,7 +1887,7 @@ void QLineEdit::drawContents( QPainter *p )
 	if ( d->selstart < d->selend && (last >= d->selstart && first < d->selend ) ) {
 	    QRect highlight = QRect( QPoint( tix + ti.cursorToX( QMAX( d->selstart - first, 0 ) ),
 					     lineRect.top() ),
-				     QPoint( tix + ti.cursorToX( QMIN( d->selend - first, last - first + 1 ) ),
+				     QPoint( tix + ti.cursorToX( QMIN( d->selend - first, last - first + 1 ) ) - 1,
 					     lineRect.bottom() ) ).normalize();
 	    p->save();
   	    p->setClipRegion( QRegion( lineRect ) - highlight, QPainter::CoordPainter );
@@ -1903,7 +1904,7 @@ void QLineEdit::drawContents( QPainter *p )
 	// input method edit area
 	if ( d->imstart < d->imend && (last >= d->imstart && first < d->imend ) ) {
 	    QRect highlight = QRect( QPoint( tix + ti.cursorToX( QMAX( d->imstart - first, 0 ) ), lineRect.top() ),
-			      QPoint( tix + ti.cursorToX( QMIN( d->imend - first, last - first + 1 ) ), lineRect.bottom() ) ).normalize();
+			      QPoint( tix + ti.cursorToX( QMIN( d->imend - first, last - first + 1 ) )-1, lineRect.bottom() ) ).normalize();
 	    p->save();
  	    p->setClipRect( lineRect & highlight, QPainter::CoordPainter );
 
@@ -1920,7 +1921,7 @@ void QLineEdit::drawContents( QPainter *p )
 	// input method selection
 	if ( d->imselstart < d->imselend && (last >= d->imselstart && first < d->imselend ) ) {
 	    QRect highlight = QRect( QPoint( tix + ti.cursorToX( QMAX( d->imselstart - first, 0 ) ), lineRect.top() ),
-			      QPoint( tix + ti.cursorToX( QMIN( d->imselend - first, last - first + 1 ) ), lineRect.bottom() ) ).normalize();
+			      QPoint( tix + ti.cursorToX( QMIN( d->imselend - first, last - first + 1 ) )-1, lineRect.bottom() ) ).normalize();
 	    p->save();
 	    p->setClipRect( lineRect & highlight, QPainter::CoordPainter );
 	    p->fillRect( highlight, pal.text() );
@@ -1933,7 +1934,7 @@ void QLineEdit::drawContents( QPainter *p )
 	if ( d->cursorVisible && d->maskData &&
 	     d->selend <= d->selstart && (last >= d->cursor && first <= d->cursor ) ) {
 	    QRect highlight = QRect( QPoint( tix + ti.cursorToX( QMAX( d->cursor - first, 0 ) ), lineRect.top() ),
-				     QPoint( tix + ti.cursorToX( QMIN( d->cursor + 1 - first, last - first + 1 ) ), lineRect.bottom() ) ).normalize();
+				     QPoint( tix + ti.cursorToX( QMIN( d->cursor + 1 - first, last - first + 1 ) )-1, lineRect.bottom() ) ).normalize();
 	    p->save();
 	    p->setClipRect( lineRect & highlight, QPainter::CoordPainter );
 	    p->fillRect( highlight, pal.text() );
