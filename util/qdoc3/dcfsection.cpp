@@ -44,7 +44,7 @@ void generateDcfSections( const DcfSection& rootSect, const QString& fileName,
 			  const QString& /* category */ )
 {
     QFile file(fileName);
-    if (!file.open(QFile::WriteOnly | QFile::Translate))
+    if (!file.open(QFile::WriteOnly | QFile::Text))
         return ;
 
     QTextStream out(&file);

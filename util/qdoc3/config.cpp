@@ -477,9 +477,9 @@ void Config::load( Location location, const QString& fileName )
 	location.fatal( tr("Too many nested includes") );
 
     QFile fin( fileName );
-    if ( !fin.open(QFile::ReadOnly | QFile::Translate) ) {
+    if ( !fin.open(QFile::ReadOnly | QFile::Text) ) {
 	fin.setFileName(fileName + ".qdoc");
-	if (!fin.open(QFile::ReadOnly | QFile::Translate))
+	if (!fin.open(QFile::ReadOnly | QFile::Text))
 	    location.fatal( tr("Cannot open file '%1'").arg(fileName) );
     }
 
