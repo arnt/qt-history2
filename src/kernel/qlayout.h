@@ -68,7 +68,7 @@ public:
 	    ++x->ref;
 	x = qAtomicSetPtr(&it, x);
 	if (!--x->ref)
-	    delete it;
+	    delete x;
 	return *this;
     }
     inline QLayoutItem *operator++() { return it ? it->next() : 0; }
