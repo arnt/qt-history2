@@ -78,7 +78,7 @@ typedef int timeval;
  *****************************************************************************/
 //#define DEBUG_EVENTS [like EventDebug but more specific to Qt]
 //#define DEBUG_DROPPED_EVENTS
-//#define DEBUG_KEY_MAPS
+#define DEBUG_KEY_MAPS
 //#define DEBUG_MOUSE_MAPS
 //#define DEBUG_MODAL_EVENTS
 //#define DEBUG_PLATFORM_SETTINGS
@@ -1102,6 +1102,7 @@ static key_sym key_syms[] = {
 { '}', MAP_KEY(Qt::Key_BraceRight) },
 { '|', MAP_KEY(Qt::Key_Bar) },
 { '~', MAP_KEY(Qt::Key_AsciiTilde) },
+{ '^', MAP_KEY(Qt::Key_AsciiCircum) },
 //terminator
 {   0, MAP_KEY(0) } };
 
