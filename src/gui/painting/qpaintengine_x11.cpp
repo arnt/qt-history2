@@ -896,10 +896,9 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPoint &origin)
     d->bg_origin = origin;
 
     int  bs = d->cbrush.style();
-    int x = 0, y = 0;
     bool cacheIt = !testf(ClipOn|MonoDev|NoCache) &&
                    (bs == Qt::NoBrush || bs == Qt::SolidPattern) &&
-                   x == 0 && y == 0;
+                   origin.x() == 0 && origin.y() == 0;
 
     bool obtained = false;
     bool internclipok = hasClipping();
