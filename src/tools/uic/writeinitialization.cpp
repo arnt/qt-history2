@@ -393,11 +393,16 @@ void WriteInitialization::writeProperties(const QString &varName, const QString 
             output << option.indent << varName << "->resize(QSize(" << w << ", " << h << ").expandedTo("
                 << varName << "->minimumSizeHint()));\n";
             continue;
-        } else if (propertyName == QLatin1String("buttonGroupId")
+        } else if (propertyName == QLatin1String("buttonGroupId") // Q3ButtonGroup support
                     && p->elementNumber()
                     && m_widgetChain.top() && m_widgetChain.top()->attributeClass() == QLatin1String("Q3ButtonGroup")) {
             output << option.indent << driver->findOrInsertWidget(m_widgetChain.top()) << "->insert("
                    << varName << ", " << p->elementNumber() << ");\n";
+            continue;
+        } else if (propertyName == QLatin1String("control") // ActiveQt support
+                    && className == QLatin1String("QAxWidget")) {
+            output << option.indent << varName << "->setControl("
+                   << fixString(p->elementString()) << ");\n";
             continue;
         }
 
