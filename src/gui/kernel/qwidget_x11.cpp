@@ -1375,16 +1375,6 @@ void QWidget::setActiveWindow()
     QWidget *tlw = topLevelWidget();
     if (tlw->isVisible() && !tlw->d->topData()->embedded && !X11->deferred_map.contains(tlw)) {
         XSetInputFocus(d->xinfo->display(), tlw->winId(), XRevertToNone, qt_x_time);
-
-#ifndef QT_NO_XIM
-        // trigger input context creation if it hasn't happened already
-        d->createInputContext();
-
-        if (tlw->d->topData()->xic) {
-            QInputContext *qic = (QInputContext *) tlw->d->topData()->xic;
-            qic->setFocus();
-        }
-#endif
     }
 }
 
