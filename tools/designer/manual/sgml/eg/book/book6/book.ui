@@ -1,7 +1,8 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>BookForm</class>
-<include location="local" impldecl="in declaration">qdatabrowser.h</include>
+<include location="global" impldecl="in declaration">qsqlrecord.h</include>
 <include location="local" impldecl="in declaration">editbook.h</include>
+<include location="global" impldecl="in declaration">qdatabrowser.h</include>
 <widget class="QDialog">
     <property name="name">
         <cstring>BookForm</cstring>
@@ -10,8 +11,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>534</width>
-            <height>526</height>
+            <width>526</width>
+            <height>522</height>
         </rect>
     </property>
     <property name="caption">
@@ -190,8 +191,16 @@
     
 }</function>
     <function name="editClicked()" >{
+    QSqlCursor cur( "book" );
+    cur.setFilter( BookDataTable-&gt;filter() );
+    cur.setSort( QSqlIndex::fromStringList( BookDataTable-&gt;sort(), &amp;cur ) );
+    cur.select();
+    cur.seek( BookDataTable-&gt;sqlCursor()-&gt;at() );
+    cur.editBuffer( TRUE );
     EditBookForm *dialog = new EditBookForm( this, "Edit Book Form", TRUE );
-    dialog-&gt;BookDataBrowser-&gt;setCursor( BookDataTable-&gt;sqlCursor() );
+    dialog-&gt;BookDataBrowser-&gt;setCursor( &amp;cur );
+    dialog-&gt;BookDataBrowser-&gt;readFields();
+    dialog-&gt;BookDataBrowser-&gt;updateBoundary();
     dialog-&gt;exec();
     delete dialog;
 }</function>

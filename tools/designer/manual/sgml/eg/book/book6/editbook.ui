@@ -1,5 +1,7 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>EditBookForm</class>
+<include location="global" impldecl="in declaration">qsqlrecord.h</include>
+<forward>class QSqlRecord;</forward>
 <widget class="QDialog">
     <property name="name">
         <cstring>EditBookForm</cstring>
@@ -8,8 +10,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>572</width>
-            <height>303</height>
+            <width>564</width>
+            <height>299</height>
         </rect>
     </property>
     <property name="caption">
@@ -186,6 +188,9 @@
                             <property name="text">
                                 <string>&amp;Update</string>
                             </property>
+                            <property name="default">
+                                <bool>true</bool>
+                            </property>
                         </widget>
                         <widget class="QPushButton">
                             <property name="name">
@@ -282,8 +287,8 @@
         <receiver>EditBookForm</receiver>
         <slot>primeInsertBook(QSqlRecord*)</slot>
     </connection>
-    <slot access="protected" language="C++">destroy()</slot>
     <slot access="protected" language="C++">init()</slot>
+    <slot access="protected" language="C++">destroy()</slot>
     <slot access="public" language="C++">primeInsertBook( QSqlRecord *buffer )</slot>
 </connections>
 <functions>
