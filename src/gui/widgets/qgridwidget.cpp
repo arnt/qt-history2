@@ -62,7 +62,7 @@ public:
     rows. The widget flags \a f are passed to the QFrame constructor.
 */
 QGridWidget::QGridWidget(int n, Qt::Orientation orientation, QWidget *parent, Qt::WFlags f)
-    : QFrame(parent, f)
+    : QFrame(*(new QGridWidgetPrivate), parent, f)
 {
     Q_D(QGridWidget);
 
@@ -78,7 +78,7 @@ QGridWidget::QGridWidget(int n, Qt::Orientation orientation, QWidget *parent, Qt
     passed to the QFrame constructor.
  */
 QGridWidget::QGridWidget(int n, QWidget *parent, Qt::WFlags f)
-    : QFrame(parent, f)
+    : QFrame(*(new QGridWidgetPrivate), parent, f)
 {
     Q_D(QGridWidget);
     d->lay = new QGridLayout(this);
@@ -92,7 +92,7 @@ QGridWidget::QGridWidget(int n, QWidget *parent, Qt::WFlags f)
     argument and then use setObjectName() instead.
 */
 QGridWidget::QGridWidget(int n, Qt::Orientation orientation, QWidget *parent, const char *name, Qt::WFlags f)
-    : QFrame(parent, f)
+    : QFrame(*(new QGridWidgetPrivate), parent, f)
 {
     Q_D(QGridWidget);
     setObjectName(name);
@@ -106,7 +106,7 @@ QGridWidget::QGridWidget(int n, Qt::Orientation orientation, QWidget *parent, co
     argument and then use setObjectName() instead.
 */
 QGridWidget::QGridWidget(int n, QWidget *parent, const char *name, Qt::WFlags f)
-    : QFrame(parent, f)
+    : QFrame(*(new QGridWidgetPrivate), parent, f)
 {
     Q_D(QGridWidget);
     setObjectName(name);
