@@ -881,7 +881,7 @@ QMakeProject::read(uchar cmd)
             configs.clear();
             QStringList new_configs = vars["CONFIG"];
             for(QStringList::ConstIterator it = new_configs.begin(); it != new_configs.end(); ++it) {
-                if(processed.indexOf((*it)) == -1) 
+                if(processed.indexOf((*it)) == -1)
                     configs.append((*it));
             }
             if(configs.isEmpty())
@@ -1677,7 +1677,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                     const QStringList &var = place[varMap(arg_list.first())];
                     for(QStringList::ConstIterator vit = var.begin();
                         vit != var.end(); ++vit) {
-                        if(regx.search(*vit) != -1) {
+                        if(regx.indexIn(*vit) != -1) {
                             if(!replacement.isEmpty())
                                 replacement += Option::field_sep;
                             replacement += (*vit);

@@ -747,7 +747,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	if(project->first("TEMPLATE") == "app") {
 	    if(project->isActiveConfig("resource_fork") && !project->isActiveConfig("console"))
 		targ += ".app";
-	} else if(!project->isActiveConfig("staticlib") && !project->isActiveConfig("plugin") && 
+	} else if(!project->isActiveConfig("staticlib") && !project->isActiveConfig("plugin") &&
 	   !project->isActiveConfig("frameworklib")) {
 	    QString li[] = { "TARGET_", "TARGET_x", "TARGET_x.y", QString::null };
 	    for(int n = 0; !li[n].isNull(); n++) {
@@ -786,11 +786,11 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    QTextStream sht(&shf);
 	    sht << "#!/bin/sh" << endl;
 	    //copy the actual target
-	    sht << "OUT_TARG=\"${TARGET_BUILD_DIR}/${FULL_PRODUCT_NAME}\"\n" 
+	    sht << "OUT_TARG=\"${TARGET_BUILD_DIR}/${FULL_PRODUCT_NAME}\"\n"
                 << "if [ -e \"$OUT_TARG\" ]; then" << "\n"
-                << "  [ \"$OUT_TARG\" = \"" 
-		<< (dstdir.isEmpty() ? QDir::currentDirPath() + QDir::separator(): dstdir) << targ << "\" ] || " 
-		<< "[ \"$OUT_TARG\" = \"" << targ << "\" ] || " 
+                << "  [ \"$OUT_TARG\" = \""
+		<< (dstdir.isEmpty() ? QDir::currentDirPath() + QDir::separator(): dstdir) << targ << "\" ] || "
+		<< "[ \"$OUT_TARG\" = \"" << targ << "\" ] || "
 		<< "cp -r \"$OUT_TARG\" " << "\"" << dstdir << targ << "\"" << "\n"
                 << "fi" << endl;
 	    //rename as a framework
@@ -798,7 +798,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 		sht << "ln -sf \"" << targ <<  "\" " << "\"" << dstdir << targ << "\"" << endl;
 	    //create all the version symlinks (just to be like unixmake)
 	    for(QStringList::Iterator it = links.begin(); it != links.end(); ++it) {
-		if(targ != (*it)) 
+		if(targ != (*it))
 		    sht << "ln -sf \"" << targ <<  "\" " << "\"" << dstdir << (*it) << "\"" << endl;
 	    }
 	    shf.close();
@@ -1179,7 +1179,7 @@ QString
 ProjectBuilderMakefileGenerator::fixEnvs(const QString &file)
 {
     QRegExp reg_var("\\$\\((.*)\\)");
-    for(int rep = 0; (rep = reg_var.search(file, rep)) != -1;) {
+    for(int rep = 0; (rep = reg_var.indexIn(file, rep)) != -1;) {
         if(project->variables()["QMAKE_PBX_VARS"].indexOf(reg_var.cap(1)) == -1)
             project->variables()["QMAKE_PBX_VARS"].append(reg_var.cap(1));
         rep += reg_var.matchedLength();

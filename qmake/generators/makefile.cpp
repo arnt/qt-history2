@@ -488,7 +488,7 @@ MakefileGenerator::init()
     if(mocAware()) {
         if(!project->isEmpty("MOC_DIR"))
             project->variables()["INCLUDEPATH"].append(project->first("MOC_DIR"));
-        if(Option::h_moc_ext == Option::cpp_ext.first()) 
+        if(Option::h_moc_ext == Option::cpp_ext.first())
             v["OBJMOC"] = createObjectList("_HDRMOC");
 
         QStringList &l = v["SRCMOC"];
@@ -1650,7 +1650,7 @@ MakefileGenerator::checkMultipleDefinition(const QString &f, const QString &w)
     }
 }
 
-QMakeLocalFileName 
+QMakeLocalFileName
 MakefileGenerator::fixPathForFile(const QMakeLocalFileName &file)
 {
     return QMakeLocalFileName(fileFixify(file.real()));
@@ -1678,7 +1678,7 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &f
         for(QStringList::Iterator it = nodeplist.begin();
             it != nodeplist.end(); ++it) {
             QRegExp regx((*it));
-            if(regx.search(file.local()) != -1) {
+            if(regx.indexIn(file.local()) != -1) {
                 found = true;
                 break;
             }

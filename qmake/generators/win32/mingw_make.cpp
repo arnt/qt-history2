@@ -163,7 +163,7 @@ void MingwMakefileGenerator::writeSubDirs(QTextStream &t)
     QRegExp rx("(\\n\\tcd [^\\n\\t]+)(\\n\\t.+)\\n\\t@cd ..") ;
     rx.setMinimalMatching(true);
     int pos = 0 ;
-    while(-1 != (pos = rx.search(qs, pos)))
+    while(-1 != (pos = rx.indexIn(qs, pos)))
     {
         QString qsMatch = rx.cap(2);
         qsMatch.replace("\n\t"," && \\\n\t");
