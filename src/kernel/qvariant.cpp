@@ -534,6 +534,7 @@ static void cast(QVariant::Private *d, QVariant::Type t, void *result, bool *ok)
 	if (d->type == QVariant::String)
 	    *ba = static_cast<QString *>(d->value.ptr)->toAscii();
     }
+    break;
     case QVariant::Int: {
 	int *i = static_cast<int *>(result);
 	switch (d->type) {
