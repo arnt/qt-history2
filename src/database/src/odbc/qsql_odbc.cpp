@@ -802,7 +802,7 @@ QSqlFieldList QODBCResult::fields()
     if ( count > 0 && r == SQL_SUCCESS ) {
 	for ( int i = 0; i < count; ++i ) {
 	    QSqlField fi = qMakeField( d, i );
-	    if ( isActive() )
+	    if ( isActive() && isValid() )
 		fi.value() = data( i );
             fil.append( fi );
         }

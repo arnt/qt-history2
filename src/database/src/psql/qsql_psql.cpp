@@ -5,9 +5,10 @@
 #include <qpointarray.h>
 #include <postgres.h>
 #include <libpq-fe.h>
-#include <catalog/pg_type.h>  // ### consider getting rid of this dependency
-#include <utils/geo_decls.h>  // ### consider getting rid of this dependency
-#include <utils/timestamp.h>  // ### consider getting rid of this dependency
+#include <catalog/pg_type.h>
+#include <utils/geo_decls.h>
+#include <utils/timestamp.h>
+#include <math.h>
 
 class QPSQLPrivate
 {
@@ -216,8 +217,20 @@ QVariant QPSQLResult::data( int i )
 	case QVariant::DateTime:
 	    {
 		Timestamp* ts = (Timestamp*)rawdata;
-		// ### need to decode this properly		return QVariant( QDateTime( QDate(y,m,d), QTime() ) );
-		return QVariant( QDateTime() );
+		double time, date;
+		double ds = (double)(24*60*60);
+		time = *ts;
+		date = ( time < 0 ) ? ceil( time / ds ) : floor ( time / ds );
+		if ( date != 0 )
+		    time -= rint( date * ds );
+		if ( time < 0 ) {
+		    time += ds;
+		    date -= 1;
+		}
+		uint dt = date + QDate::greg2jul(2000,1,1);
+ 		int y,m,d;
+ 		QDate::jul2greg( dt, y, m, d );
+		return QVariant( QDateTime( QDate(y,m,d), QTime() ) );
 
 	    }
 	case QVariant::Point:
@@ -338,7 +351,7 @@ QSqlFieldList QPSQLResult::fields()
     int count = PQnfields ( d->result );
     for ( int i = 0; i < count; ++i ) {
 	QSqlField fi = qMakeField( d, i );
-	if ( isActive() )
+	if ( isActive() && isValid() )
 	    fi.value() = data( i );
 	fil.append( fi  );
     }
