@@ -13,6 +13,8 @@
 #ifndef    QMUTEX_P_H
 #define    QMUTEX_P_H
 
+#ifndef QT_H
+#endif // QT_H
 //
 //  W A R N I N G
 //  -------------

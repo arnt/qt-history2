@@ -15,7 +15,8 @@
 
 #ifndef QT_H
 #include "qglobal.h"
-#endif
+#endif // QT_H
+
 class QString;
 class QByteArray;
 

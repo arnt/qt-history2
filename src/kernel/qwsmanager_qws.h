@@ -19,6 +19,7 @@
 #include "qpixmap.h"
 #include "qobject.h"
 #include "qwsdecoration_qws.h"
+#include "qevent.h"
 #endif // QT_H
 
 #ifndef QT_NO_QWS_MANAGER

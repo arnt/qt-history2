@@ -1,6 +1,10 @@
 #ifndef QATOMIC_H
 #define QATOMIC_H
 
+#ifndef QT_H
+#endif // QT_H
+
+
 #if defined(__GNUC__)
 #  if defined(__i386__)
 #    include "qatomic_x86.h"

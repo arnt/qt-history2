@@ -21,6 +21,7 @@
 #include <qfile.h>
 #include <qfileinfo.h>
 #include <qstringlist.h>
+#include <qevent.h>
 
 #include <unistd.h>
 #include <fcntl.h>
@@ -233,11 +234,11 @@ void QWSSoundServerSocket::newConnection(int s)
 }
 #endif
 
-class QWSSoundServerData : public QObject {
+class QWSSoundServerPrivate : public QObject {
     Q_OBJECT
 
 public:
-    QWSSoundServerData(QObject* parent=0, const char* name=0) :
+    QWSSoundServerPrivate(QObject* parent=0, const char* name=0) :
 	QObject(parent, name)
     {
 #ifndef QT_NO_QWS_SOUNDSERVER
@@ -245,6 +246,7 @@ public:
 	connect(server, SIGNAL(playFile(const QString&)),
 		this, SLOT(playFile(const QString&)));
 #endif
+	timerId = 0;
 	fd = -1;
 	active.setAutoDelete(TRUE);
 	unwritten = 0;
@@ -252,8 +254,49 @@ public:
     }
 
 public slots:
-    void playFile(const QString& filename)
+    void playFile(const QString& filename);
+    void feedDevice(int fd);
+
+
+protected:
+    void timerEvent(QTimerEvent* event);
+
+private:
+    bool openDevice();
+    void closeDevice()
     {
+	if ( fd >= 0 ) {
+	    ::close(fd);
+	    fd = -1;
+	}
+    }
+
+    QPtrList<QWSSoundServerBucket> active;
+    int fd;
+    int unwritten;
+    int timerId;
+    char* cursor;
+    short d16[sound_buffer_size*2];
+    signed char d8[sound_buffer_size*2];
+    bool can_GETOSPACE;
+#ifndef QT_NO_QWS_SOUNDSERVER
+    QWSSoundServerSocket *server;
+#endif
+};
+
+void QWSSoundServerPrivate::timerEvent(QTimerEvent* event)
+{
+    if ( fd >= 0 )
+        feedDevice(fd);
+  
+    if ( fd < 0 && event->timerId() == timerId ) {
+        killTimer(timerId);
+	timerId = 0;
+    }
+}
+
+void QWSSoundServerPrivate::playFile(const QString& filename)
+{
 	QFile* f = new QFile(filename);
 	if ( f->open(IO_ReadOnly) ) {
 	    if ( openDevice() )
@@ -263,10 +306,52 @@ public slots:
 	} else {
 	    qDebug("Failed opening \"%s\"",filename.latin1());
 	}
-    }
+}
 
-    void feedDevice(int fd)
-    {
+bool QWSSoundServerPrivate::openDevice()
+{
+	if ( fd < 0 ) {
+	    fd = ::open("/dev/dsp",O_WRONLY);
+	    if ( fd < 0 )
+		return FALSE;
+
+	    // Setup soundcard at 16 bit mono
+	    int v;
+	    v=0x00010000+sound_fragment_size;
+	    if ( ioctl(fd, SNDCTL_DSP_SETFRAGMENT, &v) )
+		qWarning("Could not set fragments to %08x",v);
+#ifdef QT_QWS_SOUND_16BIT
+	    v=AFMT_S16_LE; if ( ioctl(fd, SNDCTL_DSP_SETFMT, &v) )
+		qWarning("Could not set format %d",v);
+	    if ( AFMT_S16_LE != v )
+		qDebug("Want format %d got %d", AFMT_S16_LE, v);
+#else
+	    v=AFMT_U8; if ( ioctl(fd, SNDCTL_DSP_SETFMT, &v) )
+		qWarning("Could not set format %d",v);
+	    if ( AFMT_U8 != v )
+		qDebug("Want format %d got %d", AFMT_U8, v);
+#endif
+	    v=sound_stereo; if ( ioctl(fd, SNDCTL_DSP_STEREO, &v) )
+		qWarning("Could not set stereo %d",v);
+	    if ( sound_stereo != v )
+		qDebug("Want stereo %d got %d", sound_stereo, v);
+#ifdef QT_QWS_SOUND_STEREO
+	    sound_stereo=v;
+#endif
+	    v=sound_speed; if ( ioctl(fd, SNDCTL_DSP_SPEED, &sound_speed) )
+		qWarning("Could not set speed %d",v);
+	    if ( v != sound_speed )
+		qDebug("Want speed %d got %d", v, sound_speed);
+
+	    int delay = 1000*(sound_buffer_size>>(sound_stereo+sound_16bit))
+				    /sound_speed/2;
+	    timerId = startTimer(delay);
+	}
+	return TRUE;
+}
+
+void  QWSSoundServerPrivate::feedDevice(int fd)
+{
 	if ( !unwritten && active.count() == 0 ) {
 	    closeDevice();
 	    return;
@@ -347,89 +432,19 @@ public slots:
 	    unwritten -= w;
 
 	    if ( !unwritten && active.count() == 0 ) {
-		killTimers();
+	        if (timerId)
+		    killTimer(timerId);
 		int delay = 1000*(w>>(sound_stereo+sound_16bit))/sound_speed;
-		startTimer(delay);
+		timerId = startTimer(delay);
 	    }
 	}
-    }
+}
 
-protected:
-    void timerEvent(QTimerEvent* event)
-    {
-	if ( fd >= 0 )
-	    feedDevice(fd);
-	if ( fd < 0 )
-	    killTimer(event->timerId());
-    }
-
-private:
-    bool openDevice()
-    {
-	if ( fd < 0 ) {
-	    fd = ::open("/dev/dsp",O_WRONLY);
-	    if ( fd < 0 )
-		return FALSE;
-
-	    // Setup soundcard at 16 bit mono
-	    int v;
-	    v=0x00010000+sound_fragment_size;
-	    if ( ioctl(fd, SNDCTL_DSP_SETFRAGMENT, &v) )
-		qWarning("Could not set fragments to %08x",v);
-#ifdef QT_QWS_SOUND_16BIT
-	    v=AFMT_S16_LE; if ( ioctl(fd, SNDCTL_DSP_SETFMT, &v) )
-		qWarning("Could not set format %d",v);
-	    if ( AFMT_S16_LE != v )
-		qDebug("Want format %d got %d", AFMT_S16_LE, v);
-#else
-	    v=AFMT_U8; if ( ioctl(fd, SNDCTL_DSP_SETFMT, &v) )
-		qWarning("Could not set format %d",v);
-	    if ( AFMT_U8 != v )
-		qDebug("Want format %d got %d", AFMT_U8, v);
-#endif
-	    v=sound_stereo; if ( ioctl(fd, SNDCTL_DSP_STEREO, &v) )
-		qWarning("Could not set stereo %d",v);
-	    if ( sound_stereo != v )
-		qDebug("Want stereo %d got %d", sound_stereo, v);
-#ifdef QT_QWS_SOUND_STEREO
-	    sound_stereo=v;
-#endif
-	    v=sound_speed; if ( ioctl(fd, SNDCTL_DSP_SPEED, &sound_speed) )
-		qWarning("Could not set speed %d",v);
-	    if ( v != sound_speed )
-		qDebug("Want speed %d got %d", v, sound_speed);
-
-	    int delay = 1000*(sound_buffer_size>>(sound_stereo+sound_16bit))
-				    /sound_speed/2;
-	    startTimer(delay);
-	}
-	return TRUE;
-    }
-
-    void closeDevice()
-    {
-	if ( fd >= 0 ) {
-	    ::close(fd);
-	    fd = -1;
-	}
-    }
-
-    QPtrList<QWSSoundServerBucket> active;
-    int fd;
-    int unwritten;
-    char* cursor;
-    short d16[sound_buffer_size*2];
-    signed char d8[sound_buffer_size*2];
-    bool can_GETOSPACE;
-#ifndef QT_NO_QWS_SOUNDSERVER
-    QWSSoundServerSocket *server;
-#endif
-};
 
 QWSSoundServer::QWSSoundServer(QObject* parent) :
     QObject(parent)
 {
-    d = new QWSSoundServerData(this);
+    d = new QWSSoundServerPrivate(this);
 }
 
 void QWSSoundServer::playFile( const QString& filename )

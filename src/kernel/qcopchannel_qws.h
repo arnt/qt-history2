@@ -47,8 +47,8 @@ signals:
 
 private:
     // server side
-    static void registerChannel( const QString &ch, const QWSClient *cl );
-    static void detach( const QWSClient *cl );
+    static void registerChannel( const QString &ch, QWSClient *cl );
+    static void detach( QWSClient *cl );
     static void answer( QWSClient *cl, const QCString &ch,
 			const QCString &msg, const QByteArray &data );
     // client side

@@ -10,6 +10,9 @@
 **
 ****************************************************************************/
 
+#ifndef QT_H
+#endif // QT_H
+
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
 

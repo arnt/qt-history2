@@ -1,7 +1,10 @@
 #ifndef QSTACKARRAY_H
 #define QSTACKARRAY_H
 
+#ifndef QT_H
 #include <qglobal.h>
+#endif // QT_H
+
 #include <new>
 
 template<class T, int prealloc = 256>

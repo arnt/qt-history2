@@ -23,7 +23,6 @@
 #include "private/qapplication_p.h"
 #include "qwidget.h"
 #include "private/qwidget_p.h"
-#include "qobjectlist.h"
 #include "qwidgetlist.h"
 #include "qwidgetintdict.h"
 #include "qbitarray.h"
@@ -1135,7 +1134,7 @@ QWSQCopMessageEvent* QWSDisplay::waitForQCopResponse()
 {
     qt_fbdpy->d->waitForQCopResponse();
     QWSQCopMessageEvent *e = (QWSQCopMessageEvent*)qt_fbdpy->d->dequeue();
-    ASSERT( e->type == QWSEvent::QCopMessage );
+    Q_ASSERT( e->type == QWSEvent::QCopMessage );
     return e;
 }
 #endif
@@ -1183,14 +1182,14 @@ void QWSDisplay::grabKeyboard( QWidget *w, bool grab )
     d->flush();
 }
 
-QPtrList<QWSWindowInfo> * QWSDisplay::windowList()
+QList<QWSWindowInfo*> * QWSDisplay::windowList()
 {
-    QPtrList<QWSWindowInfo> * ret=new QPtrList<QWSWindowInfo>;
+    QList<QWSWindowInfo*> * ret=new QList<QWSWindowInfo*>;
     ret->setAutoDelete(true);
     if(d->directServerConnection()) {
-	QPtrList<QWSInternalWindowInfo> * qin=QWSServer::windowList();
-	QWSInternalWindowInfo * qwi;
-	for(qwi=qin->first();qwi!=0;qwi=qin->next()) {
+	QList<QWSInternalWindowInfo*> * qin=QWSServer::windowList();
+	for ( int i = 0; i < qin->count(); ++i) {
+	    QWSInternalWindowInfo * qwi = qin->at(i);
 	    QWSWindowInfo * tmp=new QWSWindowInfo();
 	    tmp->winid=qwi->winid;
 	    tmp->clientid=qwi->clientid;
@@ -1859,11 +1858,10 @@ QWidget *QApplication::findWidget( const QObjectList& list,
 				   const QPoint &pos, bool rec )
 {
     QWidget *w;
-    QObjectListIterator it( list );
-    it.toLast();
-    while ( it.current() ) {
-	if ( it.current()->isWidgetType() ) {
-	    w = (QWidget*)it.current();
+    
+    for ( int i = list.size()-1; i >= 0; --i ) {
+	if ( list.at(i)->isWidgetType() ) {
+	  w = static_cast<QWidget*>(list.at(i));
 	    if ( w->isVisible() && w->geometry().contains(pos)
 		 && w->requestedRegion().contains( qt_screen->mapToDevice( w->mapToGlobal(w->mapFromParent(pos)), QSize(qt_screen->width(), qt_screen->height()) ) ) ) {
 		if ( !rec )
@@ -1872,17 +1870,13 @@ QWidget *QApplication::findWidget( const QObjectList& list,
 		return c ? c : w;
 	    }
 	}
-	--it;
     }
     return 0;
 }
 
 QWidget *QApplication::findChildWidget( const QWidget *p, const QPoint &pos )
 {
-    if ( p->children() ) {
-	return findWidget( *p->children(), pos, TRUE );
-    }
-    return 0;
+    return findWidget( p->children(), pos, true );
 }
 
 QWidget *QApplication::widgetAt( int x, int y, bool child )
@@ -2709,17 +2703,14 @@ void QETWidget::repaintHierarchy(QRegion r, bool post)
 	clearWState( WState_InPaintEvent );
     }
 
-    if ( children() ) {
-	QObjectListIterator it(*children());
-	register QObject *obj;
-	while ( (obj=it.current()) ) {
-	    ++it;
-	    if ( obj->isWidgetType() ) {
-		QETWidget* w = (QETWidget*)obj;
-		if ( w->isVisible() )
-		    w->repaintHierarchy(r, post);
-	    }
-	}
+    QObjectList childList = children();
+    for (int i = 0; i < childList.size(); ++i) {
+        register QObject *obj=childList.at(i);
+        if ( obj->isWidgetType() ) {
+    	    QETWidget* w = static_cast<QETWidget*>(obj);
+    	    if ( w->isVisible() )
+    	        w->repaintHierarchy(r, post);
+        }
     }
 }
 
@@ -2814,15 +2805,11 @@ bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *even
 	alloc_region = newRegion;
 
 	// set children's allocated region dirty
-	const QObjectList *c = children();
-	if ( c ) {
-	    QObjectListIterator it(*c);
-	    QObject* ch;
-	    while ((ch=it.current())) {
-		++it;
-		if ( ch->isWidgetType() ) {
-		    ((QWidget *)ch)->alloc_region_dirty = TRUE;
-		}
+	QObjectList childList = children();
+	for (int i = 0; i < childList.size(); ++i) {
+	    QObject* ch = childList.at(i);
+	    if (ch->isWidgetType()) {
+		static_cast<QWidget*>(ch)->alloc_region_dirty = TRUE;
 	    }
 	}
 

@@ -1,8 +1,10 @@
 #ifndef QHASH_H
 #define QHASH_H
 
+#ifndef QT_H
 #include "qiterator.h"
 #include "qatomic.h"
+#endif // QT_H
 
 class QByteArray;
 class QString;

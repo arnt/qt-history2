@@ -19,7 +19,7 @@
 #include "private/qlock_p.h"
 #include "qwindowdefs.h"
 
-#include "qptrlist.h"
+#include "qlist.h"
 
 // Class forward definitions
 class QWSRegionManager;
@@ -69,7 +69,7 @@ public:
     void removeProperty( int winId, int property );
     bool getProperty( int winId, int property, char *&data, int &len );
 
-    QPtrList<QWSWindowInfo> * windowList();
+    QList<QWSWindowInfo*> * windowList();
 
     void nameRegion( int winId, const QString& n, const QString &c );
     void requestRegion( int winId, QRegion );

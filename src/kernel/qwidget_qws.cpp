@@ -21,7 +21,6 @@
 #include "qimage.h"
 #include "qwidgetlist.h"
 #include "qwidgetintdict.h"
-#include "qobjectlist.h"
 #include "qaccel.h"
 #include "qdragobject.h"
 #include "qfocusdata.h"
@@ -36,6 +35,8 @@
 #include "qwsmanager_qws.h"
 #include "qwsregionmanager_qws.h"
 #include "qinputcontext_p.h"
+
+#include "qwidget_p.h"
 
 void qt_insert_sip( QWidget*, int, int );	// defined in qapplication_x11.cpp
 int  qt_sip_count( QWidget* );			// --- "" ---
@@ -71,12 +72,12 @@ static void paint_children(QWidget * p,const QRegion& r, bool post)
 {
     if(!p)
 	return;
-    QObjectList * childObjects=(QObjectList*)p->children();
-    if(childObjects) {
-	QObject * o;
-	for(o=childObjects->first();o!=0;o=childObjects->next()) {
-	    if( o->isWidgetType() ) {
-		QWidget *w = (QWidget *)o;
+    QObjectList childObjects=p->children();
+    for (int i = 0; i < childObjects.size(); ++i) { 
+        QObject * o;
+
+	if(o->isWidgetType()) {
+		QWidget *w = static_cast<QWidget *>(o);
 		if ( w->testWState(Qt::WState_Visible) ) {
 		    QRegion wr( QRegion(w->geometry()) & r );
 		    if ( !wr.isEmpty() ) {
@@ -90,13 +91,13 @@ static void paint_children(QWidget * p,const QRegion& r, bool post)
 		    }
 		}
 	    }
-	}
     }
+
 }
 
 // Paint the widget and its children
 
-static void paint_heirarchy(QWidget *w, bool post)
+static void paint_hierarchy(QWidget *w, bool post)
 {
     if ( w && w->testWState(Qt::WState_Visible) ) {
 	if ( post )
@@ -106,14 +107,11 @@ static void paint_heirarchy(QWidget *w, bool post)
 	    w->repaint(w->rect(),
 		    !w->testWFlags(QWidget::WRepaintNoErase));
 
-	QObjectList *childObjects=(QObjectList*)w->children();
-	if ( childObjects ) {
-	    QObject * o;
-	    for(o=childObjects->first();o!=0;o=childObjects->next()) {
-		if( o->isWidgetType() ) {
-		    paint_heirarchy((QWidget *)o,post);
-		}
-	    }
+	QObjectList childObjects = w->children();
+	for (int i = 0; i < childObjects.size(); ++i) {
+	    QObject *o = childObjects.at(i);
+	    if( o->isWidgetType() )
+	        paint_hierarchy(static_cast<QWidget *>(o),post);
 	}
     }
 }
@@ -310,15 +308,12 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
     deactivateWidgetCleanup();
     if ( testWState(WState_Created) ) {
 	clearWState( WState_Created );
-	if ( children() ) {
-	    QObjectListIterator it(*children());
-	    register QObject *obj;
-	    while ( (obj=it.current()) ) {	// destroy all widget children
-		++it;
-		if ( obj->isWidgetType() )
-		    ((QWidget*)obj)->destroy(destroySubWindows,
-					     destroySubWindows);
-	    }
+	QObjectList childObjects =  children();
+	for (int i = 0; i < childObjects.size(); ++i) {
+	    QObject *obj = childObjects.at(i);
+	    if ( obj->isWidgetType() )
+	        static_cast<QWidget*>(obj)->destroy(destroySubWindows,
+						     destroySubWindows);
 	}
 	if ( mouseGrb == this )
 	    releaseMouse();
@@ -726,7 +721,7 @@ void QWidget::showWindow()
 	p->setChildrenAllocatedDirty( geometry(), this );
 	p->paintable_region_dirty = TRUE;
 	p->overlapping_children = -1;
-	paint_heirarchy( this, TRUE );
+	paint_hierarchy( this, TRUE );
     }
 }
 
@@ -819,26 +814,30 @@ void QWidget::showNormal()
 void QWidget::raise()
 {
     QWidget *p = parentWidget();
-    if ( p && p->childObjects && p->childObjects->findRef(this) >= 0 )
-	p->childObjects->append( p->childObjects->take() );
+    if (p && p->d->children.contains(this)) {
+        p->d->children.take( this );
+	p->d->children.append( this );
+    }
     if ( isTopLevel() ) {
 	if ( !testWFlags( WStyle_Tool ) )
 	    setActiveWindow();
 	qwsDisplay()->setAltitude( winId(), 0 );
     } else if ( p ) {
 	p->setChildrenAllocatedDirty( geometry(), this );
-	paint_heirarchy( this, TRUE );
+	paint_hierarchy( this, TRUE );
     }
 }
 
 void QWidget::lower()
 {
     QWidget *p = parentWidget();
-    if ( p && p->childObjects && p->childObjects->findRef(this) >= 0 )
-	p->childObjects->insert( 0, p->childObjects->take() );
-    if ( isTopLevel() )
+    if ( p && p->d->children.contains(this) ) {
+        p->d->children.take( this );
+	p->d->children.insert( 0, this );
+    }
+    if ( isTopLevel() ) {
 	qwsDisplay()->setAltitude( winId(), -1 );
-    else if ( p ) {
+    } else if ( p ) {
 	p->setChildrenAllocatedDirty( geometry() );
 	paint_children( p,geometry(),TRUE );
     }
@@ -846,12 +845,17 @@ void QWidget::lower()
 
 void QWidget::stackUnder( QWidget* w)
 {
+
+  //### quick-and-dirty changeover to the new objectlist.
+  //### may not work, but no-one uses this function anyway :-)
     QWidget *p = parentWidget();
     if ( !p || !w || isTopLevel() || p != w->parentWidget() )
 	return;
-    int loc = p->childObjects->findRef(w);
-    if ( loc >= 0 && p->childObjects && p->childObjects->findRef(this) >= 0 )
-	p->childObjects->insert( loc, p->childObjects->take() );
+    int loc = p->d->children.indexOf(w);
+    if ( loc >= 0 && p->d->children.contains(this) ) {
+        p->d->children.take(this);
+	p->d->children.insert( loc, this );
+    }
     if ( p ) {
 	// #### excessive repaints
 	p->setChildrenAllocatedDirty();
@@ -1049,7 +1053,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    } else {
 		if ( oldp != r.topLeft() ) {
 		    updateActivePainter();
-		    paint_heirarchy( this, TRUE );
+		    paint_hierarchy( this, TRUE );
 		} else {
 		    setChildrenAllocatedDirty( dirtyChildren );
 		    updateActivePainter();
@@ -1257,15 +1261,14 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
 
     QPoint gpos = mapToGlobal( QPoint() );
 
-    if ( !valid_rect && children() ) {	// scroll children
+    if ( !valid_rect && children().size() > 0 ) {	// scroll children
 	setChildrenAllocatedDirty();
 	QPoint pd( dx, dy );
-	QObjectListIterator it(*children());
-	register QObject *object;
-	while ( it ) {				// move all children
-	    object = it.current();
+	QObjectList childObjects = children();
+	for (int i = 0; i < childObjects.size(); ++i) { // move all children
+	    QObject *object = childObjects.at(i);
 	    if ( object->isWidgetType() ) {
-		QWidget *w = (QWidget *)object;
+		QWidget *w = static_cast<QWidget *>(object);
 		QPoint oldp = w->pos();
 		QRect  r( w->pos() + pd, w->size() );
 		w->crect = r;
@@ -1273,7 +1276,6 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
 		QMoveEvent e( r.topLeft(), oldp );
 		QApplication::sendEvent( w, &e );
 	    }
-	    ++it;
 	}
     }
 
@@ -1292,7 +1294,7 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
 	update |= QRect( sr.x(), y, sr.width(), QABS(dy) );
     }
     repaint( update, !testWFlags(WRepaintNoErase) );
-    if ( !valid_rect && children() )
+    if ( !valid_rect )
 	paint_children( this, update, FALSE );
 }
 
@@ -1372,12 +1374,9 @@ void QWidget::updateOverlappingChildren() const
 	return;
 
     QRegion r;
-    const QObjectList *c = children();
-    if ( c ) {
-	QObjectListIterator it(*c);
-	QObject* ch;
-	while ((ch=it.current())) {
-	    ++it;
+    QObjectList childObjects = children();
+    for (int i = 0; i < childObjects.size(); ++i) {
+	QObject *ch = childObjects.at(i);
 	    if ( ch->isWidgetType() && !((QWidget*)ch)->isTopLevel() ) {
 		QWidget *w = (QWidget *)ch;
 		if ( w->isVisible() ) {
@@ -1390,8 +1389,8 @@ void QWidget::updateOverlappingChildren() const
 		    r |= rr;
 		}
 	    }
-	}
     }
+    
     overlapping_children = 0;
 }
 
@@ -1410,18 +1409,16 @@ void QWidget::updateRequestedRegion( const QPoint &gpos )
 	    req_region = qt_screen->mapToDevice( req_region, QSize(qt_screen->width(), qt_screen->height()) );
 	}
     }
-    const QObjectList *c = children();
-    if ( c ) {
-	QObjectListIterator it(*c);
-	QObject* ch;
-	while ((ch=it.current())) {
-	    ++it;
+
+    QObjectList childObjects = children();
+    for (int i = 0; i < childObjects.size(); ++i) {
+	QObject *ch = childObjects.at(i);
 	    if ( ch->isWidgetType() && !((QWidget*)ch)->isTopLevel() ) {
-		QWidget *w = (QWidget *)ch;
+		QWidget *w = static_cast<QWidget *>(ch);
 		w->updateRequestedRegion( gpos + w->pos() );
 	    }
-	}
     }
+
 }
 
 QRegion QWidget::requestedRegion() const
@@ -1431,34 +1428,26 @@ QRegion QWidget::requestedRegion() const
 
 void QWidget::setChildrenAllocatedDirty()
 {
-    const QObjectList *c = children();
-    if ( c ) {
-	QObjectListIterator it(*c);
-	QObject* ch;
-	while ((ch=it.current())) {
-	    ++it;
-	    if ( ch->isWidgetType() ) {
-		((QWidget *)ch)->alloc_region_dirty = TRUE;
-	    }
+    QObjectList childObjects = children();
+    for (int i = 0; i < childObjects.size(); ++i) {
+        QObject *ch = childObjects.at(i);
+	if ( ch->isWidgetType() ) {
+	    static_cast<QWidget *>(ch)->alloc_region_dirty = TRUE;
 	}
     }
 }
 
 void QWidget::setChildrenAllocatedDirty( const QRegion &r, const QWidget *dirty )
 {
-    const QObjectList *c = children();
-    if ( c ) {
-	QObjectListIterator it(*c);
-	QObject* ch;
-	while ((ch=it.current())) {
-	    ++it;
-	    if ( ch->isWidgetType() ) {
-		QWidget *w = (QWidget *)ch;
-		if ( r.boundingRect().intersects( w->geometry() ) )
-		    w->alloc_region_dirty = TRUE;
-		if ( w == dirty )
-		    break;
-	    }
+    QObjectList childObjects = children();
+    for (int i = 0; i < childObjects.size(); ++i) {
+        QObject *ch = childObjects.at(i);
+	if ( ch->isWidgetType() ) {
+	    QWidget *w = static_cast<QWidget *>(ch);
+	    if ( r.boundingRect().intersects( w->geometry() ) )
+	        w->alloc_region_dirty = TRUE;
+	    if ( w == dirty )
+	        break;
 	}
     }
 }
@@ -1488,41 +1477,35 @@ QRegion QWidget::allocatedRegion() const
 	    return alloc_region;
 	} else {
 	    if ( isAllocatedRegionDirty() ) {
-		const QObjectList *c;
 		QRegion r( req_region );
 		r &= parentWidget()->allocatedRegion();
 		parentWidget()->updateOverlappingChildren();
 		if ( parentWidget()->overlapping_children ) {
-		    c = parentWidget()->children();
-		    if ( c ) {
-			QObjectListIterator it(*c);
-			QObject* ch;
-			bool clip=FALSE;
-			while ((ch=it.current())) {
-			    ++it;
-			    if ( ch->isWidgetType() ) {
-				QWidget *w = (QWidget*)ch;
-				if ( w == this )
-				    clip=TRUE;
-				else if ( clip && !w->isTopLevel() && w->isVisible() ) {
-				    if ( w->geometry().intersects( geometry() ) )
+		    QObjectList siblings = parentWidget()->children(); 
+		    bool clip=FALSE;
+		    for (int i = 0; i < siblings.size(); ++i) {
+		        QObject *ch = siblings.at(i);
+			if ( ch->isWidgetType() ) {
+			    QWidget *w = static_cast<QWidget*>(ch);
+			    if ( w == this )
+			        clip=TRUE;
+			    else if ( clip && !w->isTopLevel() && w->isVisible() ) {
+			        if ( w->geometry().intersects( geometry() ) )
 					r -= w->req_region;
-				}
 			    }
 			}
 		    }
+		    
 		}
 
 		// if I'm dirty, so are my chlidren.
-		c = children();
-		if ( c ) {
-		    QObjectListIterator it(*c);
-		    QObject* ch;
-		    while ((ch=it.current())) {
-			++it;
-			if ( ch->isWidgetType() && !((QWidget*)ch)->isTopLevel() ) {
-			    ((QWidget *)ch)->alloc_region_dirty = TRUE;
-			}
+		QObjectList childObjects = children();
+		for (int i = 0; i < childObjects.size(); ++i) {
+		    QObject *ch = childObjects.at(i);
+		    if ( ch->isWidgetType() ) {
+		        QWidget *w = static_cast<QWidget *>(ch);
+			if ( !w->isTopLevel() )
+			    w->alloc_region_dirty = TRUE;
 		    }
 		}
 
@@ -1542,17 +1525,16 @@ QRegion QWidget::paintableRegion() const
     if (isVisible()) {
 	if ( paintable_region_dirty || isAllocatedRegionDirty() ) {
 	    paintable_region = allocatedRegion();
-	    const QObjectList *c = children();
-	    if ( c ) {
-		QObjectListIterator it(*c);
-		QObject* ch;
-		while ((ch=it.current())) {
-		    ++it;
-		    if ( ch->isWidgetType() && !((QWidget*)ch)->isTopLevel() && ((QWidget*)ch)->isVisible() ) {
-			paintable_region -= ((QWidget*)ch)->req_region;
-		    }
+	    QObjectList childObjects = children();
+	    for (int i = 0; i < childObjects.size(); ++i) {
+	        QObject *ch = childObjects.at(i);
+		if ( ch->isWidgetType() ) {
+		    QWidget *w = static_cast<QWidget *>(ch);
+		    if ( !w->isTopLevel() && w->isVisible() ) 
+		        paintable_region -= w->req_region;
 		}
 	    }
+	    
 	    paintable_region_dirty = FALSE;
 #ifndef QT_NO_CURSOR
 	    // The change in paintable region may have result in the
@@ -1601,18 +1583,15 @@ class QWSUpdatePainter : public QPainter
 void QWidget::updateActivePainter() const
 {
     if ( painterDict && painterDict->count() ) {
-	const QObjectList *c = children();
-	if ( c ) {
-	    QObjectListIterator it(*c);
-	    QObject* ch;
-	    while ((ch=it.current())) {
-		++it;
-		if ( ch->isWidgetType() ) {
-		    QWidget *w = (QWidget *)ch;
-		    w->updateActivePainter();
-		}
+        QObjectList childObjects = children();
+	for (int i = 0; i < childObjects.size(); ++i) {
+	    QObject *ch = childObjects.at(i);
+	    if ( ch->isWidgetType() ) {
+	        QWidget *w = static_cast<QWidget *>(ch);
+		w->updateActivePainter();
 	    }
 	}
+	
 	QPainter *painter = painterDict->find( (void *)this );
 	if ( painter ) {
 	    painter->save();

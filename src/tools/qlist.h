@@ -4,9 +4,9 @@
 #ifndef QT_H
 #include "qiterator.h"
 #include "qatomic.h"
-#include <new>
-
 #endif // QT_H
+
+#include <new>
 
 struct Q_EXPORT QListData {
     struct DataHeader {

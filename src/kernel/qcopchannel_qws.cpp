@@ -19,13 +19,13 @@
 #include "qwsdisplay_qws.h"
 #include "qwscommand_qws.h"
 #include "qwindowsystem_qws.h"
-#include "qptrlist.h"
+#include "qlist.h"
 #include "qmap.h"
 
-typedef QMap<QString, QPtrList<QWSClient> > QCopServerMap;
+typedef QMap<QString, QList<QWSClient*> > QCopServerMap;
 static QCopServerMap *qcopServerMap = 0;
 
-typedef QMap<QString, QPtrList<QCopChannel> > QCopClientMap;
+typedef QMap<QString, QList<QCopChannel*> > QCopClientMap;
 static QCopClientMap *qcopClientMap = 0;
 
 class QCopChannelPrivate
@@ -86,7 +86,7 @@ QCopChannel::QCopChannel( const QCString& channel, QObject* parent, const char* 
 	return;
     }
 
-    it = qcopClientMap->insert( channel, QPtrList<QCopChannel>() );
+    it = qcopClientMap->insert( channel, QList<QCopChannel*>() );
     it.data().append( this );
 
     // inform server about this channel
@@ -103,7 +103,7 @@ QCopChannel::~QCopChannel()
 {
     QCopClientMap::Iterator it = qcopClientMap->find( d->channel );
     Q_ASSERT( it != qcopClientMap->end() );
-    it.data().removeRef( this );
+    it.data().remove( this );
     // still any clients connected locally ?
     if ( it.data().isEmpty() ) {
 	QByteArray data;
@@ -275,7 +275,7 @@ void QWSServerSignalBridge::emitRemovedChannel(const QString& channel) {
     Server side: subscribe client \a cl on channel \a ch.
 */
 
-void QCopChannel::registerChannel( const QString &ch, const QWSClient *cl )
+void QCopChannel::registerChannel( const QString &ch, QWSClient *cl )
 {
     if ( !qcopServerMap )
 	qcopServerMap = new QCopServerMap;
@@ -283,7 +283,7 @@ void QCopChannel::registerChannel( const QString &ch, const QWSClient *cl )
     // do we need a new channel list ?
     QCopServerMap::Iterator it = qcopServerMap->find( ch );
     if ( it == qcopServerMap->end() )
-      it = qcopServerMap->insert( ch, QList<QWSClient>() );
+      it = qcopServerMap->insert( ch, QList<QWSClient*>() );
     
     // If this is the first client in the channel, announce the channel as being created.
     if (it.data().count() == 0) {
@@ -301,15 +301,15 @@ void QCopChannel::registerChannel( const QString &ch, const QWSClient *cl )
     Server side: unsubscribe \a cl from all channels.
 */
 
-void QCopChannel::detach( const QWSClient *cl )
+void QCopChannel::detach( QWSClient *cl )
 {
     if ( !qcopServerMap )
 	return;
 
     QCopServerMap::Iterator it = qcopServerMap->begin();
     for ( ; it != qcopServerMap->end(); it++ ) {
-      if (it.data().containsRef(cl)) {
-	it.data().removeRef( cl );
+      if (it.data().contains(cl)) {
+	it.data().remove( cl );
 	// If this was the last client in the channel, announce the channel as dead.
 	if (it.data().count() == 0) {
 	  QWSServerSignalBridge* qwsBridge = new QWSServerSignalBridge();
@@ -366,14 +366,14 @@ void QCopChannel::answer( QWSClient *cl, const QCString &ch,
 	return;
     }
 
-    QPtrList<QWSClient> clist = (*qcopServerMap)[ ch ];
+    QList<QWSClient*> clist = (*qcopServerMap)[ ch ];
     if ( clist.isEmpty() ) {
 	qWarning( "QCopChannel: no client registered for channel %s", ch.data() );
 	return;
     }
 
-    QWSClient *c = clist.first();
-    for (; c != 0; c = clist.next() ) {
+    for (int i=0; i < clist.size(); ++i ) {
+        QWSClient *c = clist.at(i);
 	QWSServer::sendQCopEvent( c, ch, msg, data );
     }
 }
@@ -393,9 +393,9 @@ void QCopChannel::sendLocally( const QCString &ch, const QCString &msg,
 	return;
 
     // feed local clients with received data
-    QPtrList<QCopChannel> clients = (*qcopClientMap)[ ch ];
-    for ( QCopChannel *p = clients.first(); p != 0; p = clients.next() )
-	p->receive( msg, data );
+    QList<QCopChannel*> clients = (*qcopClientMap)[ ch ];
+    for ( int i = 0; i < clients.size(); ++i )
+	clients.at(i)->receive( msg, data );
 }
 #include "qcopchannel_qws.moc"
 

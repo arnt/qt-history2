@@ -20,7 +20,7 @@
 #include "qcstring.h"
 #include "qmap.h"
 #include "qdatetime.h"
-#include "qptrlist.h"
+#include "qlist.h"
 #include "qimage.h"
 
 #include "qwsproperty_qws.h"
@@ -233,7 +233,7 @@ public:
     QWSWindow *windowAt( const QPoint& pos );
 
     // For debugging only at this time
-    const QPtrList<QWSWindow> &clientWindows() { return windows; }
+    const QList<QWSWindow*> clientWindows() { return windows; }
 
     void openMouse();
     void closeMouse();
@@ -254,7 +254,7 @@ public:
 
     void enablePainting(bool);
     static void processEventQueue();
-    static QPtrList<QWSInternalWindowInfo> * windowList();
+    static QList<QWSInternalWindowInfo*> * windowList();
 
     void sendPropertyNotifyEvent( int property, int state );
 #ifndef QT_NO_QWS_PROPERTIES
@@ -380,7 +380,7 @@ private:
     void disconnectClient( QWSClient * );
     void screenSave(int level);
     void doClient( QWSClient * );
-    typedef QMapIterator<int,QWSClient*> ClientIterator;
+    typedef QMap<int,QWSClient*>::Iterator ClientIterator;
     typedef QMap<int,QWSClient*> ClientMap;
     void releaseMouse(QWSWindow* w);
     void releaseKeyboard(QWSWindow* w);
@@ -421,16 +421,16 @@ private:
     QRegion serverRegion;
     QRegion dirtyBackground;
     bool disablePainting;
-    QPtrList<QWSMouseHandler> mousehandlers;
+    QList<QWSMouseHandler*> mousehandlers;
 #ifndef QT_NO_QWS_KEYBOARD
-    QPtrList<QWSKeyboardHandler> keyboardhandlers;
+    QList<QWSKeyboardHandler*> keyboardhandlers;
 #endif
 
-    QPtrList<QWSCommandStruct> commandQueue;
+    QList<QWSCommandStruct*> commandQueue;
     QWSRegionManager *rgnMan;
 
     // Window management
-    QPtrList<QWSWindow> windows; // first=topmost
+    QList<QWSWindow*> windows; // first=topmost
     QWSWindow* newWindow(int id, QWSClient* client);
     QWSWindow* findWindow(int windowid, QWSClient* client);
     void moveWindowRegion(QWSWindow*, int dx, int dy );
@@ -448,7 +448,7 @@ private:
     QWSSoundServer *soundserver;
 #endif
 #ifndef QT_NO_COP
-    QMap<QString, QPtrList<QWSClient> > channels;
+    QMap<QString, QList<QWSClient*> > channels;
 #endif
 #ifndef QT_NO_QWS_IM
     bool microF;

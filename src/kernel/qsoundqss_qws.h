@@ -22,7 +22,7 @@
 
 #ifndef QT_NO_SOUND
 
-class QWSSoundServerData;
+class QWSSoundServerPrivate;
 
 class QWSSoundServer : public QObject {
     Q_OBJECT
@@ -32,7 +32,7 @@ public:
     void playFile( const QString& filename );
 
 private:
-    QWSSoundServerData* d;
+    QWSSoundServerPrivate* d;
 };
 
 #ifndef QT_NO_QWS_SOUNDSERVER

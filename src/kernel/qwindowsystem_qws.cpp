@@ -518,296 +518,6 @@ void QWSClient::sendSelectionRequestEvent( QWSConvertSelectionCommand *cmd, int 
     sendEvent( &event );
 }
 
-#if !defined( QT_NO_SOUND ) && !defined( Q_OS_MACX )
-#ifdef QT_USE_OLD_QWS_SOUND
-
-	/*
-	***
-	****
-*************
-**********
-**********  WARNING:  This code is obsoleted by tests/qsound,
-**********            which will soobn be used instead.
-*************
-	****
-	***
-	*/
-
-struct QRiffChunk {
-    char id[4];
-    Q_UINT32 size;
-    char data[4/*size*/];
-};
-
-//#define QT_QWS_SOUND_8BIT
-static const int sound_fragment_size = 8;
-static const int sound_stereo = 0;
-static const int sound_speed = 11025;
-
-static const int sound_buffer_size=1<<sound_fragment_size;
-class QWSSoundServerBucket {
-public:
-    QWSSoundServerBucket(QIODevice* d)
-    {
-	dev = d;
-	out = 0;
-	chunk_remaining = 0;
-	available = readSamples(data,sound_buffer_size); // preload some
-    }
-    ~QWSSoundServerBucket()
-    {
-	delete dev;
-    }
-    int max() const
-    {
-	return available;
-    }
-    void add(int* mix, int count)
-    {
-	Q_ASSERT(available>=count);
-	available -= count;
-	while ( count-- ) {
-	    *mix++ += ((int)data[out] - 128)*128;
-	    if ( ++out == sound_buffer_size )
-		out = 0;
-	}
-    }
-    void rewind(int count)
-    {
-	Q_ASSERT(count<sound_buffer_size);
-	out = (out + (sound_buffer_size-count))%sound_buffer_size;
-	available += count;
-    }
-    bool refill()
-    {
-	int toread = sound_buffer_size - available;
-	int in = (out + available)%sound_buffer_size;
-	int a = sound_buffer_size-in; if ( a > toread ) a = toread;
-	int rd = a ? readSamples(data+in,a) : 0;
-	if ( rd < 0 )
-	    return FALSE; // ############
-	int b = toread - rd;
-	if ( b ) {
-	    int r = readSamples(data,b);
-	    if ( r > 0 )
-		rd += r;
-	}
-	available += rd;
-	return rd > 0;
-    }
-private:
-    int readSamples(uchar* dst, int count)
-    {
-	if ( chunk_remaining < 0 )
-	    return 0; // in error state
-	for ( ;; ) {
-	    if ( chunk_remaining > 0 ) {
-		if ( count > chunk_remaining )
-		    count = chunk_remaining;
-		chunk_remaining -= count;
-		return dev->readBlock((char*)dst, count);
-	    } else {
-		chunk_remaining = -1;
-		// Keep reading chunks...
-		const int n = sizeof(chunk)-sizeof(chunk.data);
-		if ( dev->readBlock((char*)&chunk,n) != n ) {
-		    return 0;
-		}
-		if ( qstrncmp(chunk.id,"data",4) == 0 ) {
-		    chunk_remaining = chunk.size;
-		} else if ( qstrncmp(chunk.id,"RIFF",4) == 0 ) {
-		    char d[4];
-		    dev->readBlock(d,4);
-		    if ( qstrncmp(d,"WAVE",4) != 0 ) {
-			return 0;
-		    }
-		} else if ( qstrncmp(chunk.id,"fmt ",4) == 0 ) {
-		    struct {
-			#define WAVE_FORMAT_PCM 1
-			Q_INT16 formatTag;
-			Q_INT16 channels;
-			Q_INT32 samplesPerSec;
-			Q_INT32 avgBytesPerSec;
-			Q_INT16 blockAlign;
-		    } chunkdata;
-		    if ( dev->readBlock((char*)&chunkdata,sizeof(chunkdata)) != sizeof(chunkdata) ) {
-			qDebug("WAV file: UNSUPPORTED SIZE");
-			return 0;
-		    }
-		    if ( chunkdata.formatTag != WAVE_FORMAT_PCM ) {
-			qDebug("WAV file: UNSUPPORTED FORMAT");
-			return 0;
-		    }
-		    if ( chunkdata.channels != sound_stereo+1 ) {
-			qDebug("WAV file: UNSUPPORTED CHANNELS");
-			return 0;
-		    }
-		    /* Ignore
-		    if ( chunkdata.samplesPerSec != sound_speed ) {
-			return 0;
-		    }
-		    */
-		} else {
-		    // ignored chunk
-		    if ( !dev->at(dev->at()+chunk.size) ) {
-			return 0;
-		    }
-		}
-	    }
-	}
-    }
-    QRiffChunk chunk;
-    int chunk_remaining;
-
-    QIODevice* dev;
-    uchar data[sound_buffer_size];
-    int available,out;
-};
-
-class QWSSoundServerData {
-public:
-    QWSSoundServerData(QWSSoundServer* s)
-    {
-	active.setAutoDelete(TRUE);
-	sn = 0;
-	server = s;
-    }
-
-    void feedDevice(int fd)
-    {
-	QWSSoundServerBucket* bucket;
-	int available = sound_buffer_size;
-	int n = 0;
-	QPtrListIterator<QWSSoundServerBucket> it(active);
-	for (; (bucket = *it);) {
-	    ++it;
-	    int m = bucket->max();
-	    if ( m ) {
-		if ( m < available )
-		    available = m;
-		n++;
-	    } else {
-		active.removeRef(bucket);
-	    }
-	}
-	if ( n ) {
-	    int data[sound_buffer_size];
-	    for (int i=0; i<available; i++)
-		data[i]=0;
-	    for (bucket = active.first(); bucket; bucket = active.next()) {
-		bucket->add(data,available);
-	    }
-#ifdef QT_QWS_SOUND_8BIT
-	    signed char d8[sound_buffer_size];
-	    for (int i=0; i<available; i++) {
-		int t = data[i] / 1; // ######### configurable
-		if ( t > 127 ) t = 127;
-		if ( t < -128 ) t = -128;
-		d8[i] = (signed char)t;
-	    }
-	    int w = ::write(fd,d8,available);
-#else
-	    short d16[sound_buffer_size];
-	    for (int i=0; i<available; i++) {
-		int t = data[i]; // ######### configurable
-		if ( t > 32767 ) t = 32767;
-		if ( t < -32768 ) t = -32768;
-		d16[i] = (short)t;
-		//d16[i] = ((t&0xff)<<8)|((t>>8)&0xff);
-	    }
-	    int w = ::write(fd,(char*)d16,available*2)/2;
-#endif
-	    if ( w < 0 )
-		return; // ##############
-	    int rw = available - w;
-	    if ( rw ) {
-		for (bucket = active.first(); bucket; bucket = active.next()) {
-		    bucket->rewind(rw);
-		    bucket->refill();
-		}
-	    }
-	    for (bucket = active.first(); bucket; bucket = active.next()) {
-		if ( !bucket->refill() ) {
-		    //active.remove(bucket);
-		}
-	    }
-	} else {
-	    closeDevice();
-	}
-    }
-
-    void playFile(const QString& filename)
-    {
-	QFile* f = new QFile(filename);
-	f->open(IO_ReadOnly);
-	active.append(new QWSSoundServerBucket(f));
-	openDevice();
-    }
-
-private:
-    void openDevice()
-    {
-	if ( !sn ) {
-	    int fd = ::open("/dev/dsp",O_RDWR);
-	    if ( fd < 0 ) {
-		// For debugging purposes - defined QT_NO_SOUND if you
-		// don't have sound hardware!
-		fd = ::open("/tmp/dsp",O_WRONLY);
-	    }
-
-	    // Setup soundcard at 16 bit mono
-	    int v;
-	    v=0x00040000+sound_fragment_size; ioctl(fd, SNDCTL_DSP_SETFRAGMENT, &v);
-#ifdef QT_QWS_SOUND_8BIT
-	    v=AFMT_U8; ioctl(fd, SNDCTL_DSP_SETFMT, &v);
-#else
-	    v=AFMT_S16_LE; ioctl(fd, SNDCTL_DSP_SETFMT, &v);
-#endif
-	    v=sound_stereo; ioctl(fd, SNDCTL_DSP_STEREO, &v);
-	    v=sound_speed; ioctl(fd, SNDCTL_DSP_SPEED, &v);
-
-	    sn = new QSocketNotifier(fd,QSocketNotifier::Write,server);
-	    QObject::connect(sn,SIGNAL(activated(int)),server,SLOT(feedDevice(int)));
-	}
-    }
-
-    void closeDevice()
-    {
-	if ( sn ) {
-	    ::close(sn->socket());
-	    delete sn;
-	    sn = 0;
-	}
-    }
-
-    QPtrList<QWSSoundServerBucket> active;
-    QSocketNotifier* sn;
-    QWSSoundServer* server;
-};
-
-QWSSoundServer::QWSSoundServer(QObject* parent) :
-    QObject(parent)
-{
-    d = new QWSSoundServerData(this);
-}
-
-QWSSoundServer::~QWSSoundServer()
-{
-    delete d;
-}
-
-void QWSSoundServer::playFile(const QString& filename)
-{
-    d->playFile(filename);
-}
-
-void QWSSoundServer::feedDevice(int fd)
-{
-    d->feedDevice(fd);
-}
-
-#endif
-#endif
 
 /*********************************************************************
  *
@@ -1080,14 +790,14 @@ void QWSServer::clientClosed()
     QWSClient* cl = (QWSClient*)sender();
 
     // Remove any queued commands for this client
-    QPtrListIterator<QWSCommandStruct> it(commandQueue);
-    QWSCommandStruct *cs;
-    while ((cs = *it) != 0) {
+    int i = 0;
+    while ( i < commandQueue.size() ) {
+        QWSCommandStruct *cs = commandQueue.at(i);
 	if (cs->client == cl) {
-	    commandQueue.removeRef(cs);
+	    commandQueue.removeAt(i);
 	    delete cs;
 	} else {
-	    ++it;
+	    ++i;
 	}
     }
 
@@ -1099,20 +809,17 @@ void QWSServer::clientClosed()
     QRegion exposed;
     {
 	// Shut down all windows for this client
-	QPtrListIterator<QWSWindow> it( windows );
-	QWSWindow* w;
-	while (( w = it.current() )) {
-	    ++it;
+	for ( int i = 0; i < windows.size(); ++i ) {
+	    QWSWindow* w = windows.at(i);
 	    if ( w->forClient(cl) )
 		w->shuttingDown();
 	}
     }
     {
 	// Delete all windows for this client
-	QPtrListIterator<QWSWindow> it( windows );
-	QWSWindow* w;
-	while (( w = it.current() )) {
-	    ++it;
+        int i = 0;
+        while ( i < windows.size() ) {
+	    QWSWindow* w = windows.at(i);
 	    if ( w->forClient(cl) ) {
 		releaseMouse(w);
 		releaseKeyboard(w);
@@ -1120,12 +827,14 @@ void QWSServer::clientClosed()
 		rgnMan->remove( w->allocationIndex() );
 		if ( focusw == w )
 		    setFocus(focusw,0);
-		windows.removeRef(w);
+		windows.remove(w);
 #ifndef QT_NO_QWS_PROPERTIES
 		manager()->removeProperties( w->winId() );
 #endif
 		emit windowEvent( w, Destroy );
 		delete w; //windows is not auto-delete
+	    } else {
+	        ++i;
 	    }
 	}
     }
@@ -1222,8 +931,7 @@ void QWSServer::doClient( QWSClient *client )
 
 
     while ( !commandQueue.isEmpty() ) {
-	commandQueue.first();
-	QWSCommandStruct *cs = commandQueue.take();
+	QWSCommandStruct *cs = commandQueue.takeAt(0);
 	switch ( cs->command->type ) {
 	case QWSCommand::Identify:
 	    invokeIdentify( (QWSIdentifyCommand*)cs->command, cs->client );
@@ -1515,13 +1223,12 @@ void QWSServer::setMouseHandler(QWSMouseHandler* mh)
 /*!
   \internal
 */
-QPtrList<QWSInternalWindowInfo> * QWSServer::windowList()
+QList<QWSInternalWindowInfo*> * QWSServer::windowList()
 {
-    QPtrList<QWSInternalWindowInfo> * ret=new QPtrList<QWSInternalWindowInfo>;
+    QList<QWSInternalWindowInfo*> * ret=new QList<QWSInternalWindowInfo*>;
     ret->setAutoDelete(TRUE);
-    QWSWindow * window;
-    for(window=qwsServer->windows.first();window!=0;
-	window=qwsServer->windows.next()) {
+    for (int i=0; i < qwsServer->windows.size(); ++i) {
+        QWSWindow *window = qwsServer->windows.at(i);
 	QWSInternalWindowInfo * qwi=new QWSInternalWindowInfo();
 	qwi->winid=window->winId();
 	qwi->clientid=(unsigned int)window->client();
@@ -1589,7 +1296,7 @@ void QWSServer::sendQCopEvent( QWSClient *c, const QCString &ch,
 
 QWSWindow *QWSServer::windowAt( const QPoint& pos )
 {
-    for (uint i=0; i<windows.count(); i++) {
+    for (int i=0; i<windows.size(); ++i) {
 	QWSWindow* w = windows.at(i);
 	if ( w->requested_region.contains( pos ) )
 	    return w;
@@ -1866,13 +1573,11 @@ void QWSServer::invokeRegionDestroy( const QWSRegionDestroyCommand *cmd, QWSClie
 
     setWindowRegion( changingw, QRegion() );
     rgnMan->remove( changingw->allocationIndex() );
-    QWSWindow *w = windows.first();
-    while ( w ) {
-	if ( w == changingw ) {
-	    windows.take();
+    for ( int i = 0; i < windows.size(); ++i ) {
+	if ( windows.at(i) == changingw ) {
+	    windows.takeAt(i);
 	    break;
 	}
-	w = windows.next();
     }
     syncRegions();
     if ( focusw == changingw ) {
@@ -1922,7 +1627,7 @@ void QWSServer::setFocus( QWSWindow* changingw, bool gain )
 	focusw = 0;
 	// pass focus to window which most recently got it...
 	QWSWindow* bestw=0;
-	for (uint i=0; i<windows.count(); i++) {
+	for (int i=0; i<windows.size(); ++i) {
 	    QWSWindow* w = windows.at(i);
 	    if ( w != changingw && !w->hidden() &&
 		    (!bestw || bestw->focusPriority() < w->focusPriority()) )
@@ -2198,16 +1903,15 @@ QWSWindow* QWSServer::newWindow(int id, QWSClient* client)
     }
     w->setAllocationIndex( idx );
     // insert after "stays on top" windows
-    QWSWindow *win = windows.first();
 
     bool added = FALSE;
-    while ( win ) {
+    for ( int i = 0; i < windows.size(); ++i ) { 
+        QWSWindow *win = windows.at(i);
 	if ( !win->onTop ) {
-	    windows.insert( windows.at(), w );
+	    windows.insert( i, w );
 	    added = TRUE;
 	    break;
 	}
-	win = windows.next();
     }
     if ( !added )
 	windows.append( w );
@@ -2217,7 +1921,7 @@ QWSWindow* QWSServer::newWindow(int id, QWSClient* client)
 
 QWSWindow* QWSServer::findWindow(int windowid, QWSClient* client)
 {
-    for (uint i=0; i<windows.count(); i++) {
+    for (int i=0; i<windows.size(); ++i) {
 	QWSWindow* w = windows.at(i);
 	if ( w->winId() == windowid )
 	    return w;
@@ -2240,35 +1944,37 @@ void QWSServer::raiseWindow( QWSWindow *changingw, int /*alt*/ )
     int windowPos = 0;
 
     //change position in list:
-    QWSWindow *w = windows.first();
-    while ( w ) {
+    for ( int i = 0; i < windows.size(); ++i ) { 
+        QWSWindow *w = windows.at(i);
 	if ( w == changingw ) {
-	    windowPos = windows.at();
-	    windows.take();
+	    windowPos = i;
+	    windows.takeAt(i);
 	    break;
 	}
-	w = windows.next();
     }
 
-    if ( changingw->onTop )
+    int newPos = -1;
+    if ( changingw->onTop ) {
 	windows.prepend( changingw );
-    else {
+	newPos = 0;
+    } else {
 	// insert after "stays on top" windows
 	bool in = FALSE;
-	w = windows.first();
-	while ( w ) {
+	for ( int i = 0; i < windows.size(); ++i ) { 
+ 	    QWSWindow *w = windows.at(i);
 	    if ( !w->onTop ) {
-		windows.insert( windows.at(), changingw );
+		windows.insert( i, changingw );
 		in = TRUE;
+		newPos = i;
 		break;
 	    }
-	    w = windows.next();
 	}
 	if ( !in )
 	    windows.append( changingw );
+	newPos = windows.size()-1;
     }
 
-    if ( windowPos != windows.at() ) {
+    if ( windowPos != newPos ) {
 	// window changed position
 	setWindowRegion( changingw, changingw->requested_region );
     }
@@ -2278,7 +1984,7 @@ void QWSServer::raiseWindow( QWSWindow *changingw, int /*alt*/ )
 
 void QWSServer::lowerWindow( QWSWindow *changingw, int /*alt*/ )
 {
-    if ( changingw == windows.last() ) {
+    if (changingw == windows.last()) {
 	rgnMan->commit();
 	changingw->updateAllocation(); // still need ack
 	return;
@@ -2287,7 +1993,7 @@ void QWSServer::lowerWindow( QWSWindow *changingw, int /*alt*/ )
     //lower: must remove region from window first.
     QRegion visible;
     visible = changingw->allocation();
-    for (uint i=0; i<windows.count(); i++) {
+    for (int i=0; i<windows.size(); ++i) {
 	QWSWindow* w = windows.at(i);
 	if ( w != changingw )
 	    visible = visible - w->requested_region;
@@ -2297,14 +2003,13 @@ void QWSServer::lowerWindow( QWSWindow *changingw, int /*alt*/ )
     QRegion exposed = changingw->allocation() - visible;
 
     //change position in list:
-    QWSWindow *w = windows.first();
-    while ( w ) {
+    for (int i=0; i<windows.size(); ++i) {
+	QWSWindow* w = windows.at(i);
 	if ( w == changingw ) {
-	    windows.take();
+	    windows.takeAt(i);
 	    windows.append( changingw );
 	    break;
 	}
-	w = windows.next();
     }
 
     changingw->removeAllocation( rgnMan, exposed );
@@ -2410,7 +2115,7 @@ QRegion QWSServer::setWindowRegion( QWSWindow* changingw, QRegion r )
     // end up with.
     // Then continue with the deeper windows, taking the requested region
     bool deeper = changingw == 0;
-    for (uint i=0; i<windows.count(); i++) {
+    for (int i=0; i<windows.size(); ++i) {
 	QWSWindow* w = windows.at(i);
 	if ( w == changingw ) {
 	    windex = i;
@@ -2447,7 +2152,7 @@ void QWSServer::exposeRegion( QRegion r, int start )
 {
     r &= screenRegion;
 
-    for (uint i=start; i<windows.count(); i++) {
+    for (int i=start; i<windows.size(); ++i) {
 	if ( r.isEmpty() )
 	    break; // Nothing left for deeper windows
 	QWSWindow* w = windows.at(i);
@@ -2464,7 +2169,7 @@ void QWSServer::notifyModified( QWSWindow *active )
 	active->updateAllocation();
 
     // now the rest
-    for (uint i=0; i<windows.count(); i++) {
+    for (int i=0; i<windows.size(); ++i) {
 	QWSWindow* w = windows.at(i);
 	w->updateAllocation();
     }
@@ -2512,6 +2217,7 @@ void QWSServer::openMouse()
 	    {
 #endif
 		QWSMouseHandler* h = newMouseHandler(ms);
+		(void)h;
 		/* XXX handle mouse cursor visibility sensibly
 		   if ( !h->inherits("QCalibratedMouseHandler") )
 		   needviscurs = TRUE;
@@ -2743,10 +2449,10 @@ void QWSServer::paintBackground( const QRegion &rr )
 void QWSServer::clearRegion( const QRegion &r, const QColor &c )
 {
     if ( !r.isEmpty() ) {
-	ASSERT ( qt_fbdpy );
+	Q_ASSERT ( qt_fbdpy );
 	gfx->setBrush( QBrush(c) );
 	QSize s( swidth, sheight );
-	QArray<QRect> a = r.rects();
+	QArray<QRect> a = r.rects(); //#### use QList/QVector instead???
 	for ( int i = 0; i < (int)a.count(); i++ ) {
 	    QRect r = qt_screen->mapFromDevice( a[i], s );
 	    gfx->fillRect( r.x(), r.y(), r.width(), r.height() );
@@ -2758,7 +2464,7 @@ void QWSServer::clearRegion( const QRegion &r, const QColor &c )
 void QWSServer::refreshBackground()
 {
     QRegion r(0, 0, swidth, sheight);
-    for (uint i=0; i<windows.count(); i++) {
+    for (int i=0; i<windows.size(); ++i) {
 	if ( r.isEmpty() )
 	    return; // Nothing left for deeper windows
 	QWSWindow* w = windows.at(i);

@@ -125,7 +125,7 @@ static void build_scale_table( uint **table, uint nBits )
 }
 */
 
-static QList<QShared> *qws_pixmapData = 0;
+static QList<QShared*> *qws_pixmapData = 0;
 static bool qws_trackPixmapData = TRUE;
 
 class QwsPixmap : public QPixmap
@@ -146,10 +146,8 @@ void QwsPixmap::mapPixmaps( bool from )
     if ( !images )
 	images = new QPtrDict<QImage>;
     qws_trackPixmapData = FALSE;
-    QListIterator<QShared> it( *qws_pixmapData );
-    while ( it.current() ) {
-	QPixmapData *d = (QPixmapData*)it.current();
-	++it;
+    for ( int i = 0; i < qws_pixmapData->size(); ++i ) {
+	QPixmapData *d = (QPixmapData*)qws_pixmapData->at(i);
 	if ( d->w && d->h ) {
 	    if ( from ) {
 		QwsPixmap p;
@@ -193,10 +191,8 @@ void QwsPixmap::freeSharedData()
 {
     if ( !qws_pixmapData || !memorymanager )
 	return;
-    QListIterator<QShared> it( *qws_pixmapData );
-    while ( it.current() ) {
-	QPixmapData *d = (QPixmapData*)it.current();
-	++it;
+    for ( int i = 0; i < qws_pixmapData->size(); ++i ) {
+	QPixmapData *d = (QPixmapData*)qws_pixmapData->at(i);
 	if ( d->w && d->h && memorymanager->inVRAM(d->id) ) {
 	    memorymanager->deletePixmap(d->id);
 	    d->w = d->h = 0;
@@ -225,7 +221,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     int dd = defaultDepth();
 
     if ( !qws_pixmapData )
-	qws_pixmapData = new QList<QShared>;
+	qws_pixmapData = new QList<QShared*>;
 
     if ( optim == DefaultOptim )		// use default optimization
 	optim = defOptim;
@@ -294,7 +290,7 @@ void QPixmap::deref()
 {
     if ( data && data->deref() ) {			// last reference lost
 	if ( qws_trackPixmapData )
-	    qws_pixmapData->removeRef( data );
+	    qws_pixmapData->remove( data );
 	if ( data->mask )
 	    delete data->mask;
 	if ( data->clut )
@@ -740,7 +736,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     int	   sbpl;				// bytes per line in original
     int	   bpp;					// bits per pixel
     bool   depth1 = depth() == 1;
-    int	   y;
+    //int	   y;
 
     if ( isNull() )				// this is a null pixmap
 	return copy();

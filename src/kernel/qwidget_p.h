@@ -26,8 +26,9 @@
 // We mean it.
 //
 //
-
+#ifndef QT_H
 #include "qobject_p.h"
+#endif // QT_H
 
 struct QWidgetPrivate : public QObjectPrivate
 {

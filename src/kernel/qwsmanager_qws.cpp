@@ -30,7 +30,7 @@
 #include "qwsdisplay_qws.h"
 #include "qwsregionmanager_qws.h"
 #include "qwsdefaultdecoration_qws.h"
-
+#include "qevent.h"
 
 enum WMStyle {
     Default_WMStyle = 1, /* Starting at zero stuffs up menus */

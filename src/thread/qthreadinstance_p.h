@@ -25,7 +25,9 @@
 //
 //
 
+#ifndef QT_H
 #include "qmutex.h"
+#endif // QT_H
 
 #ifdef Q_OS_UNIX
 #include <pthread.h>
