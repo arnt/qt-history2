@@ -1,13 +1,13 @@
 #ifndef QPLUGIN_H
 #define QPLUGIN_H
 
-#ifndef QT_NO_PLUGIN
-
 #ifndef QT_H
 #include "qplugininterface.h"
 #include "qstringlist.h"
 #include "qwindowdefs.h"
 #endif // QT_H
+
+#ifndef QT_NO_PLUGIN
 
 class Q_EXPORT QPlugIn : public QPlugInInterface
 {
