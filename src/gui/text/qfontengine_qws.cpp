@@ -121,13 +121,13 @@ QFontEngine::FECaps QFontEngineFT::capabilites() const
 
 
 /* returns 0 as glyph index for non existant glyphs */
-QFontEngine::Error QFontEngineFT::stringToCMap( const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, Flags flags ) const
+bool QFontEngineFT::stringToCMap( const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags ) const
 {
     if(*nglyphs < len) {
 	*nglyphs = len;
-	return OutOfMemory;
+	return false;
     }
-    if ( flags & Mirrored ) {
+    if ( flags & QTextEngine::RightToLeft ) {
 	for(int i = 0; i < len; i++ ) {
 	    unsigned short ch = ::mirroredChar(str[i]).unicode();
 	    if (ch == 0xa0) ch = 0x20;
@@ -153,7 +153,7 @@ QFontEngine::Error QFontEngineFT::stringToCMap( const QChar *str, int len, QGlyp
 	glyphs[i].advance.x = rendered_glyphs[g]->advance;
 	glyphs[i].advance.y = 0;
     }
-    return NoError;
+    return true;
 }
 
 
@@ -323,7 +323,7 @@ QOpenType *QFontEngineFT::openType() const
     return _openType;
 }
 
-void QFontEngineFT::recalcAdvances(int len, QGlyphLayout *glyphs, Flags) const
+void QFontEngineFT::recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::ShaperFlags) const
 {
     for ( int i = 0; i < len; i++ ) {
 	FT_UInt g = glyphs[i].glyph;
@@ -354,11 +354,11 @@ QFontEngine::FECaps QFontEngineBox::capabilites() const
     return FullTransformations;
 }
 
-QFontEngine::Error QFontEngineBox::stringToCMap(const QChar *, int len, QGlyphLayout *glyphs, int *nglyphs, Flags) const
+bool QFontEngineBox::stringToCMap(const QChar *, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags) const
 {
     if(*nglyphs < len) {
 	*nglyphs = len;
-	return OutOfMemory;
+	return false;
     }
 
     for(int i = 0; i < len; i++)
@@ -370,7 +370,7 @@ QFontEngine::Error QFontEngineBox::stringToCMap(const QChar *, int len, QGlyphLa
 	(glyphs++)->advance.y = 0;
     }
 
-    return NoError;
+    return true;
 }
 
 void QFontEngineBox::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags)
