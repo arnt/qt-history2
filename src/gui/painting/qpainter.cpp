@@ -998,6 +998,10 @@ void QPainter::setClipping(bool enable)
         qWarning("QPainter::setClipping(), painter not active, state will be reset by begin");
         return;
     }
+
+    if (d->state->clipEnabled == enable)
+        return;
+
     d->state->clipEnabled = enable;
     if (d->engine) {
         d->engine->setDirty(QPaintEngine::DirtyClip);
@@ -1067,9 +1071,12 @@ void QPainter::setClipRegion(const QRegion &r)
         return;
     }
 
+    if (!d->state->clipEnabled && r.isEmpty())
+        return;
+
     d->state->clipRegion = r;
+    d->state->clipEnabled = !r.isEmpty();
     d->state->clipMatrix = d->state->matrix;
-    d->state->clipEnabled = true;
     d->state->clipType = QPainterState::RegionClip;
 
     d->engine->setDirty(QPaintEngine::DirtyClip);
