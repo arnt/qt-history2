@@ -44,8 +44,7 @@ public:
     bool normalExit();
     int exitStatus();
 
-#if defined(UNIX)
-#else
+#if defined( _WS_WIN_ )
     QByteArray readStdout();
 #endif
 
@@ -70,27 +69,26 @@ private:
     QString     command;
     QDir        workingDir;
     QStringList arguments;
+
     QSocketNotifier *notifierStdin;
     QSocketNotifier *notifierStdout;
     QSocketNotifier *notifierStderr;
     QQueue<QByteArray> stdinBuf;
-#if defined(UNIX)
     int socketStdin[2];
     int socketStdout[2];
     int socketStderr[2];
-    pid_t pid;
-    ssize_t stdinBufRead;
-#else
+#if defined( _WS_WIN_ )
     HANDLE pipeStdin[2];
     HANDLE pipeStdout[2];
     HANDLE pipeStderr[2];
+#endif
+
+#if defined( _WS_WIN_ )
     PROCESS_INFORMATION pid;
     uint stdinBufRead;
-/*
-    OVERLAPPED overlappedStdin;
-    OVERLAPPED overlappedStdout;
-    OVERLAPPED overlappedStderr;
-*/
+#else
+    pid_t pid;
+    ssize_t stdinBufRead;
 #endif
 
     void init();
