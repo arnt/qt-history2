@@ -222,8 +222,8 @@ QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
 
     superclass = objectDict->find( superclassname ); // get super class meta object
 
-    signaloffset = superclass ? superclass->numSignals( TRUE ) : 0;
-    slotoffset = superclass ? superclass->numSlots( TRUE ) : 0;
+    signaloffset = superclass ? ( superclass->signalOffset() + superclass->numSignals() ) : 0;
+    slotoffset = superclass ? ( superclass->slotOffset() + superclass->numSlots() ) : 0;
 }
 
 /*!\internal
@@ -338,9 +338,9 @@ QMetaData *QMetaObject::signal( int index, bool super ) const
 
 /*! \internal
   \fn  int signalOffset() const;
-  
+
   Returns the signal offset for this metaobject.
-  
+
 */
 
 /*! \internal
@@ -351,18 +351,18 @@ QMetaData *QMetaObject::signal( int index, bool super ) const
 int QMetaObject::findSignal( const char* n, bool super ) const
 {
     QMetaData *md = signalDict ? signalDict->find( n ) : 0;
-    if ( md ) 
+    if ( md )
 	return signalOffset() + ( md - signalData );
-    if ( !super || !superclass) 
+    if ( !super || !superclass)
 	return -1;
     return superclass->findSignal( n, super );
 }
 
 /*! \internal
   \fn  int slotOffset() const;
-  
+
   Returns the slot offset for this metaobject.
-  
+
 */
 
 /*! \internal
@@ -373,9 +373,9 @@ int QMetaObject::findSignal( const char* n, bool super ) const
 int QMetaObject::findSlot( const char* n, bool super ) const
 {
     QMetaData *md = slotDict ? slotDict->find( n ) : 0;
-    if ( md ) 
+    if ( md )
 	return slotOffset() + ( md - slotData );
-    if ( !super || !superclass) 
+    if ( !super || !superclass)
 	return -1;
     return superclass->findSlot( n, super );
 }
