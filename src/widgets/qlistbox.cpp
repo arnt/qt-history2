@@ -2625,6 +2625,12 @@ void QListBox::setSelectionMode( SelectionMode mode )
 {
     if ( d->selectionMode == mode )
 	return;
+    
+    if ( isMultiSelection() && ( mode == QListBox::Single || mode == QListBox::NoSelection ) ){
+	clearSelection();
+	if ( ( mode == QListBox::Single ) && currentItem() )
+	    setSelected( currentItem(), TRUE );
+    }   
 
     d->selectionMode = mode;
     triggerUpdate( TRUE );

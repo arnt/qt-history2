@@ -4800,6 +4800,9 @@ bool QListView::isMultiSelection() const
 
 void QListView::setSelectionMode( SelectionMode mode )
 {
+    if ( d->selectionMode == mode )
+	return;    
+    
     if ( isMultiSelection() && ( mode == QListView::Single || mode == QListView::NoSelection ) ){
 	clearSelection();
 	if ( ( mode == QListView::Single ) && currentItem() )
