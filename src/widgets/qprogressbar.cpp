@@ -298,14 +298,6 @@ void QProgressBar::show()
 
 void QProgressBar::initFrame()
 {
-    QPalette pal = palette();
-    QColorGroup ia = pal.inactive();
-    if ( ia.highlight() == ia.background() ) {
-	ia.setColor( QColorGroup::Highlight, pal.active().highlight() );
-	pal.setInactive( ia );
-	setPalette( pal );
-    }
-
     setFrameStyle(QFrame::NoFrame);
 }
 
@@ -373,7 +365,11 @@ void QProgressBar::drawContents( QPainter *p )
     QPoint pn = backgroundOffset();
     paint.setBrushOrigin( -pn.x(), -pn.y() );
 
-    paint.fillRect( bar, backgroundBrush() );
+    const QPixmap *bpm = paletteBackgroundPixmap();
+    if ( bpm )
+	paint.fillRect( bar, QBrush( paletteBackgroundColor(), *bpm ) );
+    else
+	paint.fillRect( bar, paletteBackgroundColor() );
     paint.setFont( p->font() );
 
     QStyle::SFlags flags = QStyle::Style_Default;

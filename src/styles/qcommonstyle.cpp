@@ -792,6 +792,11 @@ void QCommonStyle::drawControl( ControlElement element,
     case CE_ProgressBarContents:
 	{
 	    const QProgressBar *progressbar = (const QProgressBar *) widget;
+	    // Correct the highlight color if same as background,
+	    // or else we cannot see the progress...
+	    QColorGroup cgh = cg;
+	    if ( cgh.highlight() == cgh.background() )
+		cgh.setColor( QColorGroup::Highlight, progressbar->palette().active().highlight() );
 	    bool reverse = QApplication::reverseLayout();
 	    int fw = 2;
 	    int w = r.width() - 2*fw;
@@ -801,7 +806,7 @@ void QCommonStyle::drawControl( ControlElement element,
 		if (x > w)
 		    x = 2 * w - x;
 		x = reverse ? r.right() - x : x + r.x();
-		p->setPen( QPen(cg.highlight(), 4) );
+		p->setPen( QPen(cgh.highlight(), 4) );
 		p->drawLine(x, r.y() + 1, x, r.height() - fw);
 	    } else {
 		const int unit_width = pixelMetric(PM_ProgressBarChunkWidth, widget);
@@ -836,7 +841,7 @@ void QCommonStyle::drawControl( ControlElement element,
 		for (int i=0; i<nu; i++) {
 		    drawPrimitive( PE_ProgressBarChunk, p,
 				   QRect( x0+x, r.y(), unit_width, r.height() ),
-				   cg, Style_Default, opt );
+				   cgh, Style_Default, opt );
 		    x += reverse ? -unit_width: unit_width;
 		}
 
@@ -847,7 +852,7 @@ void QCommonStyle::drawControl( ControlElement element,
 		    int offset = reverse ? x0+x+unit_width-pixels_left : x0+x;
 		    drawPrimitive( PE_ProgressBarChunk, p,
 				   QRect( offset, r.y(), pixels_left,
-					  r.height() ), cg, Style_Default,
+					  r.height() ), cgh, Style_Default,
 				   opt );
 		}
 	    }
