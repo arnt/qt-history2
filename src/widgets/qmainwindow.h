@@ -195,25 +195,25 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-inline void QMainWindow::addToolBar( QDockWindow *w, ToolBarDock d, bool newLine )
+inline void QMainWindow::addToolBar( QDockWindow *w, ToolBarDock dock, bool newLine )
 {
-    addDockWindow( w, d, newLine );
+    addDockWindow( w, dock, newLine );
 }
 
 inline void QMainWindow::addToolBar( QDockWindow *w, const QString &label,
-			      ToolBarDock d, bool newLine )
+			      ToolBarDock dock, bool newLine )
 {
-    addDockWindow( w, label, d, newLine );
+    addDockWindow( w, label, dock, newLine );
 }
 
-inline void QMainWindow::moveToolBar( QDockWindow *w, ToolBarDock d )
+inline void QMainWindow::moveToolBar( QDockWindow *w, ToolBarDock dock )
 {
-    moveDockWindow( w, d );
+    moveDockWindow( w, dock );
 }
 
-inline void QMainWindow::moveToolBar( QDockWindow *w, ToolBarDock d, bool nl, int index, int extraOffset )
+inline void QMainWindow::moveToolBar( QDockWindow *w, ToolBarDock dock, bool nl, int index, int extraOffset )
 {
-    moveDockWindow( w, d, nl, index, extraOffset );
+    moveDockWindow( w, dock, nl, index, extraOffset );
 }
 
 inline void QMainWindow::removeToolBar( QDockWindow *w )
