@@ -21,9 +21,33 @@ QMAKE_CONFIG=""
 HELP=
 
 if [ "$relpath" != `pwd` ]; then
+    #setup the magic variable
     outpath=`pwd`
+
+    #prepare the new tree
+    echo "Preparing build tree.."
+    mkdir -p $outpath/bin
+    for a in `find $relpath/qmake` $relpath/Makefile; do
+       my_a=`echo $a | sed "s,^${relpath}/,${outpath}/,"`
+       [ -f $my_a ] && continue
+       if [ -d $a ]; then
+	    mkdir -p $my_a
+       else
+           a_dir=`dirname $my_a`
+	   [ -d $a_dir ] || mkdir -p $a_dir
+	   case `basename $a` in
+	   *.o|*.d|GNUmakefile*|qmake) ;;
+	   *) ln -sf $a $my_a ;;
+	   esac
+       fi
+    done
+    [ -d $outpath/include ] || mkdir -p $outpath/include
+    for a in `$relpath/bin/syncqt -show`; do
+       ln -sf $relpath/$a $outpath/include/`basename $a`
+    done
+
     #let qmake see qconfig/qmodules.h
-    QMAKE_VARS="$QMAKE_VARS \"INCLUDEPATH+=$outpath/src/tools\" \"DEPENDPATH+=$outpath/src/tools\"" 
+    QMAKE_VARS="$QMAKE_VARS \"INCLUDEPATH+=$outpath/src/tools\""
 else
     touch .test.qt.
     if [ '!' -f ${QTDIR}/.test.qt. ];
@@ -993,10 +1017,12 @@ echo
 
 #do the qmake..
 [ -x "$relpath/bin/syncqt" ] && $relpath/bin/syncqt
-if [ '!' -f "$relpath/bin/qmake" ]
+if [ '!' -f "$outpath/bin/qmake" ]
 then
     echo Creating qmake...
-    (cd $relpath/qmake; /bin/sh -c $MAKE || (echo "QMake failed to build. Aborting." && exit 2)) || exit 2
+    chmod 666 $outpath/qmake/GNUmakefile
+    sed -e "s,@REL_QTDIR@,$relpath,g" -e "s,@OUT_QTDIR@,$outpath,g" $relpath/qmake/GNUmakefile.in >$outpath/qmake/GNUmakefile
+    (cd $outpath/qmake; /bin/sh -c $MAKE || (echo "QMake failed to build. Aborting." && exit 2)) || exit 2
 fi
 
 QMAKE_ALL_ARGS="\"CONFIG+=$QMAKE_CONFIG\" $QMAKE_VARS $QMAKE_SWITCHES"
@@ -1016,7 +1042,7 @@ for a in `echo $QMAKE_PROJECTS | sort | uniq`; do
     test -d $dir || mkdir -p $dir
     N=$outpath/$dir/Makefile
     QMAKE_EXTRA_ARGS="\"QMAKE_ABSOLUTE_SOURCE_PATH=$outpath/$dir\""
-    PIPE="$relpath/bin/qmake $QMAKE_ALL_ARGS $QMAKE_EXTRA_ARGS -o $N -mkspec $CONF $a"
+    PIPE="$outpath/bin/qmake $QMAKE_ALL_ARGS $QMAKE_EXTRA_ARGS -o $N -mkspec $CONF $a"
     if [ "x$CONCURRENT" = "x0" ] || [ "x$CONCURRENT" = "x1" ]
     then
 	EXEC=$PIPE

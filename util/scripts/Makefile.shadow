@@ -2,10 +2,10 @@
 #mkdir -p ~/builds
 #cd ~/builds
 #ln -s $QTDIR/utils/scripts/Makefile.shadow ./Makefile
-#make MAKE_CONF="-make src/qt.pro" qt-debug-shared
+#make MAKE_CONF="-make src" qt-shared-debug
 #Doing this will create a shadow tree in ~/builds, the commandline
-#MAKE_CONF will cause only qt.pro to be processed by configure. If you want
-#the whole tree just omit the variable setting. You can then walk into ~/builds/src
+#MAKE_CONF will cause only src/ to be processed by configure. If you want
+#the whole tree just omit the variable setting. You can then walk into ~/builds/$platform-type/$build-type/src
 #and do a make.
 
 #***YOU CAN SET THESE IN THIS FILE, HOWEVER IT IS DUMB FOR EVERYBODY
@@ -22,9 +22,6 @@ ifdef CONFG_DIR
 endif
 #this will set shadow build for platform/processor
 SHADOW_DIR=$(shell uname -s)-$(shell uname -m)
-
-#this is to stop this makefile from actually building for now, I will
-MAKE:=@echo -e "\a**Not built, this makefile needs to be finished, configure succeeded however**\a"; \#$(MAKE)
 
 all: 
 	@echo "Please specify the build you want to make of:"
