@@ -956,11 +956,12 @@ QFontMetricsF &QFontMetricsF::operator=(const QFontMetricsF &fm)
 }
 
 /*!
-  returns true if the two fontmetrics are equal.
+  Returns true if the font metrics are equal to the \a other font
+  metrics; otherwise returns false.
 
   Two font metrics are considered equal if they were constructed from the
-  same QFont and the paintdevices they were constructed for are considered
-  compatible.
+  same QFont and the paint devices they were constructed for are
+  considered to be compatible.
 */
 bool QFontMetricsF::operator ==(const QFontMetricsF &other)
 {
@@ -970,7 +971,8 @@ bool QFontMetricsF::operator ==(const QFontMetricsF &other)
 /*!
   \fn bool QFontMetricsF::operator !=(const QFontMetricsF &other);
 
-  returns true if the two font metrics objects are not equal.
+  Returns true if the font metrics are not equal to the \a other font
+  metrics; otherwise returns false.
 
   \sa operator==()
 */
@@ -1204,14 +1206,14 @@ float QFontMetricsF::rightBearing(QChar ch) const
 }
 
 /*!
-    Returns the width in pixels of the first \a len characters of \a
-    str. If \a len is negative (the default), the entire string is
-    used.
+    \fn float QFontMetricsF::width(const QString &text) const
 
-    Note that this value is \e not equal to boundingRect().width();
-    boundingRect() returns a rectangle describing the pixels this
-    string will cover whereas width() returns the distance to where
-    the next string should be drawn.
+    Returns the width in pixels of the characters in the given \a text.
+
+    Note that this value is \e not equal to the width returned by
+    boundingRect().width() because boundingRect() returns a rectangle
+    describing the pixels this string will cover whereas width()
+    returns the distance to where the next string should be drawn.
 
     \sa boundingRect()
 */
@@ -1327,17 +1329,13 @@ QRectF QFontMetricsF::boundingRect(QChar ch) const
 }
 
 /*!
+    \fn QRectF QFontMetricsF::boundingRect(const QRectF &rect, int flags, const QString &text, int tabstops, int *tabarray) const
     \overload
 
-    Returns the bounding rectangle of the first \a len characters of
-    \a str, which is the set of pixels the text would cover if drawn
-    at (0, 0). The drawing, and hence the bounding rectangle, is
-    constrained to the rectangle (\a x, \a y, \a w, \a h).
+    Returns the bounding rectangle of the characters in the given \a text.
+    This is the set of pixels the text would cover if drawn at (0, 0).
 
-    If \a len is negative (which is the default), the entire string is
-    used.
-
-    The \a flgs argument is the bitwise OR of the following flags:
+    The \a flags argument is the bitwise OR of the following flags:
     \list
     \i \c Qt::AlignAuto aligns to the left border for all languages except
           Arabic and Hebrew where it aligns to the right.
@@ -1361,18 +1359,20 @@ QRectF QFontMetricsF::boundingRect(QChar ch) const
     If several of the horizontal or several of the vertical alignment
     flags are set, the resulting alignment is undefined.
 
-    These flags are defined in \c qnamespace.h.
+    These flags are defined in \l{Qt::AlignmentFlag}.
 
-    If \c Qt::TextExpandTabs is set in \a flgs, then: if \a tabarray is
-    non-null, it specifies a 0-terminated sequence of pixel-positions
-    for tabs; otherwise if \a tabstops is non-zero, it is used as the
-    tab spacing (in pixels).
+    If \c Qt::TextExpandTabs is set in \a flags, the following behavior is
+    used to interpret tab characters in the text:
+    \list
+    \i If \a tabarray is non-null, it specifies a 0-terminated sequence of
+       pixel-positions for tabs in the text.
+    \i If \a tabstops is non-zero, it is used as the tab spacing (in pixels).
+    \endlist
 
     Note that the bounding rectangle may extend to the left of (0, 0),
-    e.g. for italicized fonts, and that the text output may cover \e
-    all pixels in the bounding rectangle.
+    e.g. for italicized fonts.
 
-    Newline characters are processed as linebreaks.
+    Newline characters are processed as line breaks.
 
     Despite the different actual character heights, the heights of the
     bounding rectangles of "Yes" and "yes" are the same.
@@ -1403,12 +1403,11 @@ QRectF QFontMetricsF::boundingRect(const QRectF &r, int flgs, const QString& str
 }
 
 /*!
-    Returns the size in pixels of the first \a len characters of \a
-    str.
+    \fn QSizeF QFontMetricsF::size(int flags, const QString &text, int tabstops, int *tabarray) const
 
-    If \a len is negative (the default), the entire string is used.
+    Returns the size in pixels of the characters in the given \a text.
 
-    The \a flgs argument is the bitwise OR of the following flags:
+    The \a flags argument is the bitwise OR of the following flags:
     \list
     \i \c Qt::TextSingleLine ignores newline characters.
     \i \c Qt::TextExpandTabs expands tabs (see below)
@@ -1416,16 +1415,19 @@ QRectF QFontMetricsF::boundingRect(const QRectF &r, int flgs, const QString& str
     \i \c Qt::TextWordBreak breaks the text to fit the rectangle.
     \endlist
 
-    These flags are defined in \c qnamespace.h.
+    These flags are defined in \l{Qt::TextFlags}.
 
-    If \c Qt::TextExpandTabs is set in \a flgs, then: if \a tabarray is
-    non-null, it specifies a 0-terminated sequence of pixel-positions
-    for tabs; otherwise if \a tabstops is non-zero, it is used as the
-    tab spacing (in pixels).
+    If \c Qt::TextExpandTabs is set in \a flags, the following behavior is
+    used to interpret tab characters in the text:
+    \list
+    \i If \a tabarray is non-null, it specifies a 0-terminated sequence of
+       pixel-positions for tabs in the text.
+    \i If \a tabstops is non-zero, it is used as the tab spacing (in pixels).
+    \endlist
 
-    Newline characters are processed as linebreaks.
+    Newline characters are processed as line breaks.
 
-    Despite the different actual character heights, the heights of the
+    Note: Despite the different actual character heights, the heights of the
     bounding rectangles of "Yes" and "yes" are the same.
 
     \sa boundingRect()
