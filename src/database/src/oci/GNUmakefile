@@ -5,6 +5,6 @@
 #
 #############################################################################
 
-PROJECT = qsqlodbc
+PROJECT = oci
 
 include $(QTDIR)/GNUmakefile.inc

@@ -1,5 +1,11 @@
 #include "qsql_oci.h"
 
+//#define OCI1_ORACLE
+//#define ORI_ORACLE
+//#define ORL_ORACLE
+#define OCIEXTP_ORACLE
+#define OCI8DP_ORACLE
+#define OCIEXTP_ORACLE
 #include <oci.h>
 #include <qvector.h>
 #include <qdatetime.h>
@@ -7,7 +13,9 @@
 class QOCIPrivate
 {
 public:
-    QOCIPrivate() {}
+    QOCIPrivate()
+	: env(0), err(0), svc(0), sql(0)
+    {}
     OCIEnv           *env;
     OCIError         *err;
     OCISvcCtx        *svc;
@@ -155,7 +163,7 @@ QSqlFieldInfo makeFieldInfo( const QOCIPrivate* p, ub4 i )
 }
 
 QOCIDriver::QOCIDriver( QObject * parent, const char * name )
-: QSqlDriver(parent,"QOCI")
+: QSqlDriver(parent, (name ? name : "QOCI"))
 {
     init();
 }
@@ -170,7 +178,7 @@ void QOCIDriver::init()
 			    NULL,
 			    NULL,
 			    NULL,
-			    NULL);
+			    (void**)NULL);
 #ifdef CHECK_RANGE
     if ( r != 0 )
 	qWarning( "Unable to create environment - " + OraWarn( d ) );
@@ -225,6 +233,7 @@ bool QOCIDriver::open( const QString & db,
     }
     setOpen( TRUE );
     return TRUE;
+    Q_CONST_UNUSED( host );
 }
 
 void QOCIDriver::close()
@@ -595,5 +604,6 @@ QVariant QOCIResult::data( int field )
 
 bool QOCIResult::isNull( int field ) const
 {
+    // ### finish
     return FALSE;
 }
