@@ -5,7 +5,7 @@
 **
 ** Created : 930417
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **
@@ -55,6 +55,7 @@
 #define MOC_YACC_CODE
 void yyerror( const char *msg );
 
+#include "qplatformdefs.h"
 #include "qasciidict.h"
 #include "qdatetime.h"
 #include "qdict.h"
@@ -78,7 +79,6 @@ void yyerror( const char *msg );
 # include "mwerks_mac.h"
 #endif
 
-#include <qplatformdefs.h>
 #include <ctype.h>
 #include <limits.h>
 #include <stdio.h>
