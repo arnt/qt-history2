@@ -87,11 +87,10 @@ bool QDir::mkdir( const QString &dirName, bool acceptAbsPath ) const
 	name = dirName.left( dirName.length() - 1 );
     return QT_MKDIR( QFile::encodeName(filePath(name,acceptAbsPath)), 0777 )
 	== 0;
-#elseif
+#else
     return QT_MKDIR( QFile::encodeName(filePath(dirName,acceptAbsPath)), 0777 )
 	== 0;
 #endif
-    return FALSE;
 }
 
 bool QDir::rmdir( const QString &dirName, bool acceptAbsPath ) const
