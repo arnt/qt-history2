@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#129 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#130 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -26,7 +26,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#129 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#130 $")
 
 
 // --------------------------------------------------------------------------
@@ -300,7 +300,7 @@ static bool obtain_gc( void **ref, GC *gc, ulong pix,
     }
 #endif
 
-    *ref = (void *)gc;
+    *ref = (void *)g;
 
     if ( g->gc ) {				// reuse existing GC
 	g_numhits++;	// S
@@ -624,29 +624,26 @@ void QPainter::updatePen()			// update after changed pen
 
     if ( cacheIt ) {
 	if ( gc ) {
-	    if ( testf(OptPen) )
+	    if ( penRef )
 		release_gc( penRef );
 	    else
 		free_gc( dpy, gc );
 	}
-	setf(OptPen);
 	if ( obtain_gc(&penRef, &gc, cpen.color().pixel(), dpy, hd) )
 	    return;
-	if ( !penRef ) {
+	if ( !penRef )
 	    gc = alloc_gc( dpy, hd, FALSE );
-	    clearf(OptPen);
-	}
     }
     else {
 	if ( gc ) {
-	    if ( testf(OptPen) ) {
+	    if ( penRef ) {
 		release_gc( penRef );
-		gc = alloc_gc( dpy, hd, testf(MonoDev) );
+		penRef = 0;
+		gc = alloc_gc( dpy, hd, testf(MonoDev) );		
 	    }
 	}
 	else
 	    gc = alloc_gc( dpy, hd, testf(MonoDev) );
-	clearf(OptPen);
     }
 #endif
 
@@ -749,29 +746,26 @@ static uchar *pat_tbl[] = {
 
     if ( cacheIt ) {
 	if ( gc_brush ) {
-	    if ( testf(OptBrush) )
+	    if ( brushRef )
 		release_gc( brushRef );
 	    else
 		free_gc( dpy, gc_brush );
 	}
-	setf(OptBrush);
 	if ( obtain_gc(&brushRef, &gc_brush, cbrush.color().pixel(), dpy, hd) )
 	    return;
-	if ( !brushRef ) {
+	if ( !brushRef )
 	    gc_brush = alloc_gc( dpy, hd, FALSE );
-	    clearf(OptBrush);
-	}
     }
     else {
 	if ( gc_brush ) {
-	    if ( testf(OptBrush) ) {
+	    if ( brushRef ) {
 		release_gc( brushRef );
+		brushRef = 0;
 		gc_brush = alloc_gc( dpy, hd, testf(MonoDev) );
 	    }
 	}
 	else
 	    gc_brush = alloc_gc( dpy, hd, testf(MonoDev) );
-	clearf(OptBrush);
     }
 #endif
 
@@ -997,9 +991,10 @@ bool QPainter::end()				// end painting
     if ( testf(ExtDev) )
 	pdev->cmd( PDC_END, this, 0 );
     if ( gc_brush ) {				// restore brush gc
-	if ( testf(OptBrush) ) {
+	if ( brushRef ) {
 #if defined(USE_GC_CACHE)
 	    release_gc( brushRef );
+	    brushRef = 0;
 #endif
 	}
 	else {
@@ -1013,9 +1008,10 @@ bool QPainter::end()				// end painting
 	}
     }
     if ( gc ) {					// restore pen gc
-	if ( testf(OptPen) ) {
+	if ( penRef ) {
 #if defined(USE_GC_CACHE)
 	    release_gc( penRef );
+	    penRef = 0;
 #endif
 	}
 	else {
@@ -1418,10 +1414,19 @@ void QPainter::setClipping( bool enable )	// set clipping
 	if ( !pdev->cmd(PDC_SETCLIP,this,param) || !hd )
 	    return;
     }
-    if ( testf(ClipOn) ) {
+    if ( enable ) {
+#if defined(USE_GC_CACHE)
+	if ( penRef )
+	    updatePen();
+#endif
 	XSetRegion( dpy, gc, crgn.handle() );
-	if ( gc_brush )
+	if ( gc_brush ) {
+#if defined(USE_GC_CACHE)
+	    if ( brushRef )
+		updateBrush();
+#endif
 	    XSetRegion( dpy, gc_brush, crgn.handle() );
+	}
     }
     else {
 	XSetClipMask( dpy, gc, None );
