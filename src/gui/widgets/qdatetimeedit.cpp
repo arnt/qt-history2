@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-// #define QDATETIMEEDIT_DEBUG
+//#define QDATETIMEEDIT_DEBUG
 #ifdef QDATETIMEEDIT_DEBUG
 #  define DEBUG qDebug
 #else
@@ -70,7 +70,7 @@ public:
 
     void clearSection(Section s);
 
-    int sectionLength(Section s) const;
+    int sectionSize(Section s) const;
     int sectionPos(Section s) const;
     QDateTimeEdit::Section publicSection(Section s) const;
 
@@ -93,9 +93,9 @@ public:
 
     static QString sectionName(int s);
     static QString stateName(int s);
-    static uint getType(QDateTimeEdit::Sections display);
 
     QString format;
+    QString escapedFormat;
     QList<SectionNode> sections;
     SectionNode first, last;
     QStringList separators;
@@ -103,6 +103,8 @@ public:
     mutable int cachedday;
     mutable Section currentsection;
     Section oldsection;
+    mutable QCoreVariant cached;
+    mutable QString cachedText;
 };
 
 #define d d_func()
@@ -572,14 +574,16 @@ QString QDateTimeEdit::sectionText(Section s) const
     \row \i yyyy \i the year as four digit number (1752 to 8000)
     \endtable
 
-    All other input characters will be ignored and can be used as delimiters.
+    All other input characters or sequence of characters that are
+    enclosed in singlequotes will be treated as text and can be used
+    as delimiters.
 
     Example format strings (assuming that the QDate is the
     20<sup><small>th</small></sup> July 1969):
     \table
     \header \i Format \i Result
     \row \i dd.MM.yyyy    \i 20.07.1969
-    \row \i MMMM d yy \i July 20 69
+    \row \i MMM d yy \i Jul 20 69
     \endtable
 
     If you specify an invalid format the format will not be set.
@@ -620,6 +624,7 @@ QString QDateTimeEdit::format() const
 bool QDateTimeEdit::setFormat(const QString &format)
 {
     if (d->parseFormat(format)) {
+        d->cached = QCoreVariant();
         if ((d->display & QDateTimeEditPrivate::TimeSectionMask) == 0
             || (d->display & QDateTimeEditPrivate::DateSectionMask) == 0) {
             if ((d->display & QDateTimeEditPrivate::TimeSectionMask) != 0) {
@@ -632,7 +637,7 @@ bool QDateTimeEdit::setFormat(const QString &format)
 	d->update();
         d->edit->setCursorPosition(0);
         d->editorCursorPositionChanged(-1, 0);
-	return true;
+        return true;
     }
     return false;
 }
@@ -681,7 +686,7 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
         && !d->edit->hasSelectedText()) {
         const int pos = d->edit->cursorPosition();
         const QDateTimeEditPrivate::Section s = d->sections.last().section;
-        const int suffixStart = d->sectionPos(s) + d->sectionLength(s);
+        const int suffixStart = d->sectionPos(s) + d->sectionSize(s);
         if (pos == d->last.pos && pos > suffixStart) {
             d->ignorecursorpositionchanged = true;
             d->edit->setCursorPosition(suffixStart);
@@ -699,8 +704,8 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Left:
     case Qt::Key_Right:
         if (!(e->state() & Qt::ControlButton)) {
-            const int sellength = d->edit->selectedText().size();
-            if (sellength == 0 || sellength != d->sectionLength(d->currentsection))
+            const int selsize = d->edit->selectedText().size();
+            if (selsize == 0 || selsize != d->sectionSize(d->currentsection))
                 break;
             select = false;
         }
@@ -732,7 +737,6 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
 void QDateTimeEdit::wheelEvent(QWheelEvent *e)
 {
     const QDateTimeEditPrivate::Section s = d->sectionAt(qMax(0, d->edit->cursorPositionAt(e->pos()) - 1));
-    // ### cursorPositionAt seems to give me one to many characters
     if (s != d->currentsection)
         d->edit->setCursorPosition(d->sectionNode(s).pos);
     switch (s) {
@@ -806,7 +810,9 @@ void QDateTimeEdit::stepBy(int steps)
 QDateTimeEdit::StepEnabled QDateTimeEdit::stepEnabled() const
 {
     switch (d->currentsection) {
-    case QDateTimeEditPrivate::NoSection: case QDateTimeEditPrivate::FirstSection: case QDateTimeEditPrivate::LastSection: return 0;
+    case QDateTimeEditPrivate::NoSection:
+    case QDateTimeEditPrivate::FirstSection:
+    case QDateTimeEditPrivate::LastSection: return 0;
     default: break;
     }
     if (d->wrapping)
@@ -897,23 +903,23 @@ void QDateTimeEditPrivate::editorCursorPositionChanged(int oldpos, int newpos)
         return;
     ignorecursorpositionchanged = true;
     Section s = sectionAt(newpos);
-    Section old = oldsection;
+    const Section old = oldsection;
     oldsection = sectionAt(oldpos);
     int c = newpos;
 
     if (!d->dragging) {
         const int selstart = d->edit->selectionStart();
         const Section selSection = sectionAt(selstart);
-        const int l = sectionLength(selSection);
+        const int l = sectionSize(selSection);
 
         if (s == NoSection) {
-            if (l > 0 && selstart == sectionPos(selSection) && d->edit->selectedText().length() == l) {
+            if (l > 0 && selstart == sectionPos(selSection) && d->edit->selectedText().size() == l) {
                 s = selSection;
                 setSelected(selSection, true);
                 c = -1;
             } else {
                 const SectionNode &sn = sectionNode(closestSection(newpos, oldpos < newpos));
-                c = sn.pos + (oldpos < newpos ? 0 : qMax(0, sectionLength(sn.section) - 1));
+                c = sn.pos + (oldpos < newpos ? 0 : qMax(0, sectionSize(sn.section) - 1));
                 edit->setCursorPosition(c);
                 s = sn.section;
             }
@@ -1242,8 +1248,10 @@ QDateTimeEdit::Section QDateTimeEditPrivate::publicSection(Section s) const
 bool QDateTimeEditPrivate::addSection(QList<SectionNode> *list, Section ds, int pos)
 {
     for (int i=0; i<list->size(); ++i) {
-	if ((list->at(i).section & ~Internal) == (ds & ~Internal))
+	if ((list->at(i).section & ~Internal) == (ds & ~Internal)) {
+            DEBUG("Could not add section %s to pos %d because it is already in the list", sectionName(ds).latin1(), pos);
 	    return false;
+        }
     }
     SectionNode s;
     s.section = ds;
@@ -1270,9 +1278,9 @@ void QDateTimeEditPrivate::setSelected(Section s, bool forward)
     default: break;
     }
     if (forward) {
-        edit->setSelection(d->sectionPos(s), d->sectionLength(s));
+        edit->setSelection(d->sectionPos(s), d->sectionSize(s));
     } else {
-        edit->setSelection(d->sectionPos(s) + d->sectionLength(s), -d->sectionLength(s));
+        edit->setSelection(d->sectionPos(s) + d->sectionSize(s), -d->sectionSize(s));
     }
 }
 
@@ -1284,49 +1292,80 @@ void QDateTimeEditPrivate::setSelected(Section s, bool forward)
 
 */
 
+static QString unquote(const QString &str)
+{
+    QString ret;
+    const QChar quote = QLatin1Char('\'');
+    QChar status = QLatin1Char('0');
+    for (int i=0; i<str.size(); ++i) {
+        if (str.at(i) == quote) {
+            if (status != quote) {
+                status = quote;
+            } else if (!ret.isEmpty() && str.at(i - 1) == QLatin1Char('\\')) {
+                ret[ret.size() - 1] = quote;
+            } else {
+                status = QLatin1Char('0');
+            }
+        } else {
+            ret += str.at(i);
+        }
+    }
+    return ret;
+}
+
 bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
 {
     QList<SectionNode> list;
     QDateTimeEdit::Sections newDisplay = 0;
     QStringList newSeparators;
     int i, index = 0;
-    for (i = 0; i<(int)newFormat.length(); ++i) {
-	if (i + 1 < newFormat.length()) {
+    int add = 0;
+    QChar status = QLatin1Char('0');
+    const QChar quote = QLatin1Char('\'');
+    for (i = 0; i<newFormat.size(); ++i) {
+        if (newFormat.at(i) == quote) {
+            ++add;
+            if (status != quote) {
+                status = quote;
+            } else if (newFormat.at(i - 1) != QLatin1Char('\\')) {
+                status = QLatin1Char('0');
+            }
+        } else if (i + 1 < newFormat.size() && status != quote) {
 	    switch (newFormat.at(i).cell()) {
 	    case 'h':
 		if (newFormat.at(i+1) == QLatin1Char('h')) {
-                    if (!addSection(&list, HoursSection, i))
+                    if (!addSection(&list, HoursSection, i - add))
                         return false;
-                    newSeparators << newFormat.mid(index, i - index);
+                    newSeparators << unquote(newFormat.mid(index, i - index));
                     index = ++i + 1;
 		    newDisplay |= QDateTimeEdit::HoursSection;
 		}
 		break;
 	    case 'm':
 		if (newFormat.at(i+1) == QLatin1Char('m')) {
-                    if (!addSection(&list, MinutesSection, i))
+                    if (!addSection(&list, MinutesSection, i - add))
                         return false;
-                    newSeparators << newFormat.mid(index, i - index);
+                    newSeparators << unquote(newFormat.mid(index, i - index));
                     index = ++i + 1;
 		    newDisplay |= QDateTimeEdit::MinutesSection;
 		}
 		break;
 	    case 's':
 		if (newFormat.at(i+1) == QLatin1Char('s')) {
-                    if (!addSection(&list, SecondsSection, i))
+                    if (!addSection(&list, SecondsSection, i - add))
                         return false;
-                    newSeparators << newFormat.mid(index, i - index);
+                    newSeparators << unquote(newFormat.mid(index, i - index));
                     index = ++i + 1;
 		    newDisplay |= QDateTimeEdit::SecondsSection;
 		}
 		break;
 	    case 'z':
-		if (i + 2 <(int)newFormat.length()
+		if (i + 2 <newFormat.size()
                     && newFormat.at(i+1) == QLatin1Char('z')
                     && newFormat.at(i+2) == QLatin1Char('z')) {
-		    if (!addSection(&list, MSecsSection, i))
+		    if (!addSection(&list, MSecsSection, i - add))
                         return false;
-                    newSeparators << newFormat.mid(index, i - index);
+                    newSeparators << unquote(newFormat.mid(index, i - index));
                     index = (i += 2) + 1;
 		    newDisplay |= QDateTimeEdit::MSecsSection;
 		}
@@ -1335,9 +1374,9 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
 	    case 'a': {
 		const bool cap = newFormat.at(i) == QLatin1Char('A');
 		if (newFormat.at(i+1) == (cap ? QLatin1Char('P') : QLatin1Char('p'))) {
-		    if (!addSection(&list, cap ? AMPMSection : AMPMLowerCaseSection, i))
+		    if (!addSection(&list, cap ? AMPMSection : AMPMLowerCaseSection, i - add))
                         return false;
-                    newSeparators << newFormat.mid(index, i - index);
+                    newSeparators << unquote(newFormat.mid(index, i - index));
                     index = ++i + 1;
 		    newDisplay |= QDateTimeEdit::AMPMSection;
 		}
@@ -1346,23 +1385,23 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
 		if (newFormat.at(i+1) == QLatin1Char('y')) {
                     static const QDate YY_MIN(2000, 1, 1);
                     static const QDate YY_MAX(2000, 12, 31);
-                    const bool four = (i + 3 <(int)newFormat.length()
+                    const bool four = (i + 3 <newFormat.size()
                                        && newFormat.at(i+2) == QLatin1Char('y') && newFormat.at(i+3) == QLatin1Char('y'));
-		    if (!addSection(&list, four ? YearsSection : YearsTwoDigitsSection, i)
+		    if (!addSection(&list, four ? YearsSection : YearsTwoDigitsSection, i - add)
                         || (!four && (maximum.toDate() < YY_MIN || minimum.toDate() > YY_MAX)))
                         return false;
 
-                    newSeparators << newFormat.mid(index, i - index);
+                    newSeparators << unquote(newFormat.mid(index, i - index));
                     index = (i += (four ? 3 : 1)) + 1;
 		    newDisplay |= QDateTimeEdit::YearsSection;
 		}
 		break;
 	    case 'M':
 		if (newFormat.at(i+1) == QLatin1Char('M')) {
-		    const bool three = (i + 2 <(int)newFormat.length() && newFormat.at(i+2) == QLatin1Char('M'));
-		    if (!addSection(&list, three ? MonthsShortNameSection : MonthsSection, i))
+		    const bool three = (i + 2 <newFormat.size() && newFormat.at(i+2) == QLatin1Char('M'));
+		    if (!addSection(&list, three ? MonthsShortNameSection : MonthsSection, i - add))
                         return false;
-                    newSeparators << newFormat.mid(index, i - index);
+                    newSeparators << unquote(newFormat.mid(index, i - index));
                     index = (i += (three ? 2 : 1)) + 1;
 		    newDisplay |= QDateTimeEdit::MonthsSection;
 		}
@@ -1370,9 +1409,9 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
 
 	    case 'd':
 		if (newFormat.at(i+1) == QLatin1Char('d')) {
-		    if (!addSection(&list, DaysSection, i))
+		    if (!addSection(&list, DaysSection, i - add))
                         return false;
-                    newSeparators << newFormat.mid(index, i - index);
+                    newSeparators << unquote(newFormat.mid(index, i - index));
                     index = ++i + 1;
 		    newDisplay |= QDateTimeEdit::DaysSection;
 		}
@@ -1383,15 +1422,34 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
 	}
     }
     if (list.isEmpty()) {
-// 	qWarning("Could not parse format. No sections in format '%s'.",
-// 		 newFormat.latin1());
+ 	DEBUG("Could not parse format. No sections in format '%s'.", newFormat.latin1());
 	return false;
     }
 
-    newSeparators << (index < newFormat.size() ? newFormat.mid(index) : QString());
+    newSeparators << (index < newFormat.size() ? unquote(newFormat.mid(index)) : QString());
 
     format = newFormat;
+    escapedFormat = QString();
+    status = QLatin1Char('0');
+    for (int i = 0; i < newFormat.length(); ++i) {
+        if (newFormat.at(i) == quote){
+            if (status == quote) {
+                if (!escapedFormat.isEmpty() && newFormat.at(i - 1) == QLatin1Char('\\')) {
+                    escapedFormat[escapedFormat.length() - 1] = quote;
+                } else {
+                    status = QLatin1Char('0');
+                }
+            } else {
+                status = quote;
+            }
+        } else {
+            escapedFormat += newFormat.at(i);
+        }
+    }
     separators = newSeparators;
+    DEBUG("format is [%s]", format.latin1());
+    DEBUG("escapedFormat = [%s]", escapedFormat.latin1());
+    DEBUG("separators:\n%s", separators.join("\n").latin1());
 
     display = newDisplay;
     last.pos = newFormat.size();
@@ -1410,14 +1468,14 @@ QDateTimeEditPrivate::Section QDateTimeEditPrivate::sectionAt(int index) const
 {
     if (index < separators.first().size()) {
         return (index == 0 ? FirstSection : NoSection);
-    } else if (format.size() - index < separators.last().size() + 1) {
+    } else if (escapedFormat.size() - index < separators.last().size() + 1) { // ### escapedFormat??
         if (separators.last().size() == 0)
             return sections.last().section;
         return (index == last.pos ? LastSection : NoSection);
     }
     for (int i=0; i<sections.size(); ++i) {
 	int tmp = sections.at(i).pos;
-        if (index < tmp + sectionLength(sections.at(i).section)) {
+        if (index < tmp + sectionSize(sections.at(i).section)) {
             return (index < tmp ? NoSection : sections.at(i).section);
         }
     }
@@ -1441,7 +1499,7 @@ QDateTimeEditPrivate::Section QDateTimeEditPrivate::closestSection(int index, bo
     }
     for (int i=0; i<sections.size(); ++i) {
 	int tmp = sections.at(i).pos;
-        if (index < tmp + sectionLength(sections.at(i).section)) {
+        if (index < tmp + sectionSize(sections.at(i).section)) {
             if (index < tmp && !forward)
                 return sections.at(i-1).section;
             return sections.at(i).section;
@@ -1522,7 +1580,7 @@ void QDateTimeEditPrivate::clearSection(Section s)
     int cursorPos = d->edit->cursorPosition();
     bool blocked = d->edit->blockSignals(true);
     QString t = d->edit->text();
-    t.replace(sectionPos(s), sectionLength(s), QString().fill(QLatin1Char(' '), sectionLength(s)));
+    t.replace(sectionPos(s), sectionSize(s), QString().fill(QLatin1Char(' '), sectionSize(s)));
     d->edit->setText(t);
     d->edit->setCursorPosition(cursorPos);
     d->edit->blockSignals(blocked);
@@ -1531,10 +1589,10 @@ void QDateTimeEditPrivate::clearSection(Section s)
 /*!
     \internal
 
-    Returns the length of section \a s.
+    Returns the size of section \a s.
 */
 
-int QDateTimeEditPrivate::sectionLength(Section s) const
+int QDateTimeEditPrivate::sectionSize(Section s) const
 {
     switch(s) {
     case FirstSection:
@@ -1573,7 +1631,7 @@ int QDateTimeEditPrivate::sectionLength(Section s) const
 QString QDateTimeEditPrivate::sectionText(const QString &text, Section s) const
 {
     const SectionNode sn = sectionNode(s);
-    return sn.section == NoSection ? QString() : text.mid(sn.pos, sectionLength(s));
+    return sn.section == NoSection ? QString() : text.mid(sn.pos, sectionSize(s));
 }
 
 /*!
@@ -1584,9 +1642,11 @@ QString QDateTimeEditPrivate::sectionText(const QString &text, Section s) const
 
 QString QDateTimeEditPrivate::toString(const QCoreVariant &var) const
 {
-    QString ret = format;
+    if (var == cached)
+        return cachedText;
+    QString ret = escapedFormat; // ### escapedFormat??
     for (int i=0; i<sections.size(); ++i) {
-	int l = sectionLength(sections.at(i).section);
+	int l = sectionSize(sections.at(i).section);
 	ret.remove(sections.at(i).pos, l);
 	if (sections.at(i).section == AMPMSection || sections.at(i).section == AMPMLowerCaseSection) {
 	    QString input = var.toTime().hour() > 11 ? "pm" : "am"; // ### might be wrong
@@ -1598,6 +1658,8 @@ QString QDateTimeEditPrivate::toString(const QCoreVariant &var) const
                        rightJustified(l, QLatin1Char('0')));
 	}
     }
+    cached = var;
+    cachedText = ret;
     return ret;
 }
 
@@ -1668,13 +1730,13 @@ QCoreVariant QDateTimeEditPrivate::fromString(QString *text, QValidator::State *
     if (fixday) {
         day = qMin(day, QDate(year, month, 1).daysInMonth());
         const SectionNode &sn = sectionNode(DaysSection);
-        text->replace(sn.pos, sectionLength(DaysSection), QString::number(day));
+        text->replace(sn.pos, sectionSize(DaysSection), QString::number(day));
     }
 
-    DEBUG("fromString: '%s' => '%s' (%s)",
-          text->latin1(),
-          QCoreVariant(QDateTime(QDate(year, month, day), QTime(hour, minute, second, msec))).
-          toString().latin1(), stateName(state).latin1());
+//     DEBUG("fromString: '%s' => '%s' (%s)",
+//           text->latin1(),
+//           QCoreVariant(QDateTime(QDate(year, month, day), QTime(hour, minute, second, msec))).
+//           toString().latin1(), stateName(state).latin1());
     return QCoreVariant(QDateTime(QDate(year, month, day), QTime(hour, minute, second, msec)));
 }
 
@@ -1695,13 +1757,13 @@ int QDateTimeEditPrivate::sectionValue(Section s, QString *text, QValidator::Sta
         state = QValidator::Intermediate;
     } else {
         const int index = sectionNode(s).pos;
-        const int length = sectionLength(s);
+        const int size = sectionSize(s);
         const bool done = !st.contains(QLatin1Char(' '));
         switch(s) {
         case AMPMSection:
         case AMPMLowerCaseSection: {
             st = st.toLower();
-            text->replace(index, length, (s == AMPMSection ? text->mid(index, length).toUpper() : text->mid(index, length).toLower()));
+            text->replace(index, size, (s == AMPMSection ? text->mid(index, size).toUpper() : text->mid(index, size).toLower()));
             if (done) {
                 num = (st == "am" ? 0 : (st == "pm" ? 1 : -1));
                 state = (num == -1 ? QValidator::Invalid : QValidator::Acceptable);
@@ -1727,7 +1789,7 @@ int QDateTimeEditPrivate::sectionValue(Section s, QString *text, QValidator::Sta
                         num = j;
                         state = QValidator::Acceptable;
                         st[0] = st.at(0).toUpper();
-                        text->replace(index, length, st);
+                        text->replace(index, size, st);
                         break;
                     }
                 }
@@ -1819,38 +1881,38 @@ QValidator::State QDateTimeEditPrivate::validate(QString *input, int *pos, QCore
 {
     Q_ASSERT(input);
     SectionNode sn;
-    int diff = input->size() - format.size();
+    int diff = input->size() - escapedFormat.size(); // ### escapedFormat??
     if (diff > 0) {
         const Section s = (pos ? closestSection(*pos - 1, false) : currentsection);
         if (s == FirstSection && s == LastSection) {
-            DEBUG("invalid because s == %s", sectionName(s).latin1());
+//            DEBUG("invalid because s == %s", sectionName(s).latin1());
             return QValidator::Invalid;
         }
         sn = sectionNode(s);
         const int sectionstart = sn.pos;
-        const int sectionlength = sectionLength(s);
+        const int sectionsize = sectionSize(s);
 
-        QString sub = input->mid(sectionstart, sectionlength + diff);
+        QString sub = input->mid(sectionstart, sectionsize + diff);
         if (sub.count(QLatin1Char(' ')) < diff) {
-            DEBUG("sub is '%s' diff is %d sub.count is %d", sub.latin1(), diff, sub.count(QLatin1Char(' ')));
+//            DEBUG("sub is '%s' diff is %d sub.count is %d", sub.latin1(), diff, sub.count(QLatin1Char(' ')));
             return QValidator::Invalid;
         }
 
         sub.remove(QLatin1Char(' '));
-        input->replace(sectionstart, sectionlength + diff, sub.leftJustified(sectionlength, QLatin1Char(' ')));
+        input->replace(sectionstart, sectionsize + diff, sub.leftJustified(sectionsize, QLatin1Char(' ')));
     } else if (diff < 0) {
         const Section s = (pos ? closestSection(*pos, false) : currentsection);
         if (s == FirstSection && s == LastSection) {
-            DEBUG(".invalid because s == %s", sectionName(s).latin1());
+//            DEBUG(".invalid because s == %s", sectionName(s).latin1());
             return QValidator::Invalid;
         }
         sn = sectionNode(s);
         const int sectionstart = sn.pos;
-        const int sectionlength = sectionLength(s);
+        const int sectionsize = sectionSize(s);
 
-        QString sub = input->mid(sectionstart, sectionlength + diff);
+        QString sub = input->mid(sectionstart, sectionsize + diff);
         sub.remove(QLatin1Char(' '));
-        input->replace(sectionstart, sectionlength + diff, sub.leftJustified(sectionlength, QLatin1Char(' ')));
+        input->replace(sectionstart, sectionsize + diff, sub.leftJustified(sectionsize, QLatin1Char(' ')));
 
         sn = sectionNode(currentsection);
     }
@@ -1859,16 +1921,16 @@ QValidator::State QDateTimeEditPrivate::validate(QString *input, int *pos, QCore
     for (int i=0; i<sections.size(); ++i) {
         sn = sections.at(i);
         if (input->mid(index, sn.pos - index) != separators.at(i)) {
-            DEBUG("invalid because '%s' != '%s'", input->mid(index, sn.pos - index).latin1(), separators.at(i).latin1());
+//            DEBUG("invalid because '%s' != '%s'", input->mid(index, sn.pos - index).latin1(), separators.at(i).latin1());
             return QValidator::Invalid;
         }
-        index = sn.pos + sectionLength(sn.section);
+        index = sn.pos + sectionSize(sn.section);
     }
 
-    if (sn.pos + sectionLength(sn.section) < input->size()
-        && input->mid(sn.pos + sectionLength(sn.section)) != separators.last()) {
+    if (sn.pos + sectionSize(sn.section) < input->size()
+        && input->mid(sn.pos + sectionSize(sn.section)) != separators.last()) {
         DEBUG("invalid because '%s' != '%s'",
-              input->mid(sn.pos + sectionLength(sn.section)).latin1(),
+              input->mid(sn.pos + sectionSize(sn.section)).latin1(),
               separators.last().latin1());
         return QValidator::Invalid;
     }
@@ -1882,7 +1944,6 @@ QValidator::State QDateTimeEditPrivate::validate(QString *input, int *pos, QCore
     DEBUG("'%s' => '%s' (%s)", input->latin1(), (!val ? "foo" : val->toString().latin1()), stateName(state).latin1());
     return state;
 }
-
 
 /*!
     \internal
