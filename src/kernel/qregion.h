@@ -98,12 +98,6 @@ private:
     void *clipRectangles(int &num) const;
     friend void *qt_getClipRects(const QRegion &r, int &num);
 #endif
-#if defined(Q_WS_MAC)
-    friend struct qt_mac_rgn_data_cache;
-    friend QRegionData *qt_mac_get_rgn_data();
-    friend void qt_mac_free_rgn_data(QRegionData *);
-    void rectifyRegion();
-#endif
     void exec(const QByteArray &ba, int ver = 0);
     struct QRegionData {
 	QAtomic ref;
@@ -121,6 +115,12 @@ private:
 	QRegionPrivate *region;
 #endif
     };
+#if defined(Q_WS_MAC)
+    friend struct qt_mac_rgn_data_cache;
+    friend QRegionData *qt_mac_get_rgn_data();
+    friend void qt_mac_free_rgn_data(QRegionData *);
+    void rectifyRegion();
+#endif
     struct QRegionData *d;
     static struct QRegionData shared_empty;
     static void cleanUp(QRegionData *x);
