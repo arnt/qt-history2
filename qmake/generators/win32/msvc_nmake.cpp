@@ -41,7 +41,7 @@
 #include <qdir.h>
 #include <stdlib.h>
 #include <time.h>
-
+#include <qdict.h>
 
 NmakeMakefileGenerator::NmakeMakefileGenerator(QMakeProject *p) : Win32MakefileGenerator(p), init_flag(FALSE)
 {
@@ -140,6 +140,10 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     t << "####### Files" << endl << endl;
     t << "HEADERS =	" << varList("HEADERS") << endl;
     t << "SOURCES =	" << varList("SOURCES") << endl;
+    if (! project->variables()["OBJECTS_DIR"].isEmpty())
+	t << "OBJECTS_DIR = " << var("OBJECTS_DIR") << endl;
+    else
+	t << "OBJECTS_DIR = ." << endl;
     t << "OBJECTS =	" << varList("OBJECTS") << endl;
     t << "FORMS =	" << varList("FORMS") << endl;
     t << "UICDECLS =	" << varList("UICDECLS") << endl;
@@ -156,11 +160,51 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     t << endl;
 
     t << "####### Implicit rules" << endl << endl;
-    t << ".SUFFIXES: .cpp .cxx .cc .c" << endl << endl;
-    t << ".cpp.obj:\n\t" << var("QMAKE_RUN_CXX_IMP") << endl << endl;
-    t << ".cxx.obj:\n\t" << var("QMAKE_RUN_CXX_IMP") << endl << endl;
-    t << ".cc.obj:\n\t" << var("QMAKE_RUN_CXX_IMP") << endl << endl;
-    t << ".c.obj:\n\t" << var("QMAKE_RUN_CC_IMP") << endl << endl;
+    if(!project->isActiveConfig("no_batch")) {
+	QDict<void> source_directories;
+	if(!project->isEmpty("MOC_DIR"))
+	    source_directories.insert(project->first("MOC_DIR"), (void*)1);
+	if(!project->isEmpty("UI_SOURCES_DIR"))
+	    source_directories.insert(project->first("UI_SOURCES_DIR"), (void*)1);
+	else if(!project->isEmpty("UI_DIR"))
+	    source_directories.insert(project->first("UI_DIR"), (void*)1);
+	QString srcs[] = { QString("SOURCES"), QString::null };
+	for(int x = 0; !srcs[x].isNull(); x++) {
+	    QStringList &l = project->variables()[srcs[x]];
+	    for(QStringList::Iterator sit = l.begin(); sit != l.end(); ++sit) {
+		QString sep = "\\";
+		if((*sit).find(sep) == -1)
+		    sep = "/";
+		QString dir = (*sit).section(sep, 0, -2);
+		if(!dir.isEmpty() && !source_directories[dir]) 
+		    source_directories.insert(dir, (void*)1);
+	    }
+	}
+
+	t << ".SUFFIXES: .c";
+	QStringList::Iterator cppit;
+	for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
+	    t << " " << (*cppit);
+	t << endl << endl;
+	for(QDictIterator<void> it(source_directories); it.current(); ++it) {
+	    if(it.currentKey().isEmpty())
+		continue;
+	    for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
+		t << "(" << it.currentKey() << ")" << (*cppit) << "$(OBJECTS_DIR).obj::\n\t" 
+		  << var("QMAKE_RUN_CXX_IMP") << endl << endl;
+	    t << "(" << it.currentKey() << ")" << ".c$(OBJECTS_DIR).obj::\n\t" 
+	      << var("QMAKE_RUN_CXX_IMP") << endl << endl;
+	}
+    } else {
+	t << ".SUFFIXES: .c";
+	QStringList::Iterator cppit;
+	for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
+	    t << " " << (*cppit);
+	t << endl << endl;
+	for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
+	    t << (*cppit) << ".obj:\n\t" << var("QMAKE_RUN_CXX_IMP") << endl << endl;
+	t << ".c.obj:\n\t" << var("QMAKE_RUN_CC_IMP") << endl << endl;
+    }
 
     t << "####### Build rules" << endl << endl;
     t << "all: " << varGlue("ALL_DEPS",""," "," ") << "$(TARGET)" << endl << endl;
