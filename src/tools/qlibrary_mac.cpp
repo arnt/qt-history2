@@ -170,7 +170,11 @@ bool QLibraryPrivate::loadLibrary()
 	return TRUE;
     }
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
-    qDebug("Failed to load library %s!", filename.latin1());
+    NSLinkEditErrors lee;
+    int err;
+    const char *f, *msg;
+    NSLinkEditError(&lee, &err, &f, &msg);
+    qDebug("Failed to load library '%s' (%d:%d):\n  %s",  filename.latin1(), lee, err, msg);
 #endif
     pHnd = NULL;
     return FALSE;
