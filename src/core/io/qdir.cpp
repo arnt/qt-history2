@@ -961,7 +961,7 @@ bool QDir::remove(const QString &fileName, bool acceptAbsPath)
     \sa QFileInfo::exists(), QFile::exists()
 */
 
-bool QDir::exists(const QString &name, bool acceptAbsPath) //### const in 4.0
+bool QDir::exists(const QString &name, bool acceptAbsPath) const
 {
     if (name.isEmpty()) {
         qWarning("QDir::exists: Empty or null file name");

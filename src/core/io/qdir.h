@@ -136,7 +136,7 @@ public:
     bool rename(const QString &name, const QString &newName,
                          bool acceptAbsPaths = true );
     bool exists(const QString &name,
-                         bool acceptAbsPath = true);
+                         bool acceptAbsPath = true) const;
 
     static char separator();
 

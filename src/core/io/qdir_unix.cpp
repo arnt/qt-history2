@@ -47,7 +47,7 @@ QString QDir::canonicalPath() const
 {
     QString r;
     char cur[PATH_MAX+1];
-    if (::getcwd(cur, PATH_MAX)) {
+    if (exists(dPath) && ::getcwd(cur, PATH_MAX)) {
         char tmp[PATH_MAX+1];
         // need the cast for old solaris versions of realpath that doesn't take
         // a const char*.
