@@ -1079,7 +1079,7 @@ void QListView::doItemsLayout()
     if (model() && model()->columnCount(rootIndex()) > 0) { // no columns means no contents
         if (layoutMode() == SinglePass)
             d->doItemsLayout(model()->rowCount(rootIndex())); // layout everything
-        else
+        else if (!d->batchLayoutTimer)
             d->batchLayoutTimer = startTimer(0); // do a new batch as fast as possible
     }
     QAbstractItemView::doItemsLayout();
