@@ -307,8 +307,7 @@ void LightStyleV3::drawPrimitive(PrimitiveElement pe,
 	}
 
     case PE_ButtonDefault:
-	if (flags & Style_HasFocus) p->setPen(pal.highlight());
-	else p->setPen(pal.dark());
+	p->setPen(pal.mid().color());
 	p->setBrush(pal.brush(QPalette::Midlight));
 	p->drawRect(r);
 	break;
@@ -682,15 +681,17 @@ void LightStyleV3::drawPrimitive(PrimitiveElement pe,
 
     case PE_FocusRect:
 	p->setBrush(NoBrush);
-	if (flags & Style_FocusAtBorder)
-	    p->setPen(pal.shadow());
-	else
-	    p->setPen(pal.dark());
+	p->setPen(QPen((data.isDefault() || qGray(data.color().rgb()) >= 128
+			? pal.shadow().color() : pal.light().color()),
+		       0, DotLine));
 	p->drawRect(r);
 	break;
 
-    default:
-	if (pe >= PE_ArrowUp && pe <= PE_ArrowLeft) {
+    case PE_ArrowUp:
+    case PE_ArrowDown:
+    case PE_ArrowRight:
+    case PE_ArrowLeft:
+	{
 	    QPointArray a;
 
 	    switch (pe) {
@@ -733,8 +734,11 @@ void LightStyleV3::drawPrimitive(PrimitiveElement pe,
 		p->drawPoint(a[6]);
 	    }
 	    p->restore();
-	} else
-	    QCommonStyle::drawPrimitive(pe, p, r, pal, flags, data);
+	    break;
+	}
+
+    default:
+	basestyle->drawPrimitive(pe, p, r, pal, flags, data);
 	break;
     }
 }
@@ -798,9 +802,11 @@ void LightStyleV3::drawControl(ControlElement control,
 		     flags & Style_Enabled, button->pixmap(), button->text(),
 		     button->text().length(), &pal.buttonText().color());
 
-	    if (! button->isDefault() && (flags & Style_HasFocus))
-		drawPrimitive(PE_FocusRect, p, subRect(SR_PushButtonFocusRect, widget),
-			      pal, flags);
+	    if (flags & Style_HasFocus) {
+		QRect fr = subRect(SR_PushButtonFocusRect, widget);
+		drawPrimitive(PE_FocusRect, p, fr, pal, flags,
+			      QStyleOption(pal.dark().color()));
+	    }
 	    break;
 	}
 
