@@ -33,7 +33,7 @@
     \ingroup appearance
 
     This class implements the Platinum look and feel. It's an
-    experimental class that tries to resemble a Macinosh-like GUI
+    experimental class that tries to resemble a Macintosh-like GUI
     style with the QStyle system. The emulation is currently far from
     perfect.
 
