@@ -566,6 +566,8 @@ bool QVariantToVoidStar(const QVariant &var, void *data, const char *type)
     }
 
     switch (var.type()) {
+    case QVariant::Invalid:
+        break;
     case QVariant::String:
         *(QString*)data = var.toString();
         break;
@@ -623,7 +625,11 @@ bool QVariantToVoidStar(const QVariant &var, void *data, const char *type)
     case QVariant::Point:
         *(QPoint*)data = var.toPoint();
         break;
+    case QVariant::UserType:
+        qVariantGet(var, *(void**)data, type);
+        break;
     default:
+        qWarning("QVariantToVoidStar: Unhandled QVariant type.");
         return false;
     }
     
@@ -791,8 +797,11 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const char *type)
                 } else
 #endif
                 {
-                    if (type)
+                    if (type) {
+                        if (disp)
+                            disp->AddRef();
                         qVariantSet(var, disp, type);
+                    }
                 }
             }
         }
@@ -805,6 +814,8 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const char *type)
                 unkn = *arg.ppunkVal;
             else
                 unkn = arg.punkVal;
+            if (unkn)
+                unkn->AddRef();
             qVariantSet(var, unkn, "IUnknown*");
         }
         break;
