@@ -10,6 +10,9 @@ Corrupted designerrc (Reggie)
     When the .designerrc is empty or corrupted designer crashes on
     startup
 
+\n doesn't work in tooltips, whatsthis, etc. in preview mode, but when
+uiced it does work.
+
 Small
 -----
 
