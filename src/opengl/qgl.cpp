@@ -306,7 +306,7 @@ void QGLFormat::setDoubleBuffer(bool enable)
     Returns true if the depth buffer is enabled; otherwise returns
     false. The depth buffer is enabled by default.
 
-    \sa setDepth()
+    \sa setDepth(), setDepthBufferSize()
 */
 
 /*!
@@ -321,7 +321,7 @@ void QGLFormat::setDoubleBuffer(bool enable)
     than a pixel with a low Z value. This information is used to
     decide whether to draw a pixel or not.
 
-    \sa depth()
+    \sa depth(), setDepthBufferSize()
 */
 
 void QGLFormat::setDepth(bool enable)
@@ -364,23 +364,23 @@ void QGLFormat::setRgba(bool enable)
 /*!
     \fn bool QGLFormat::alpha() const
 
-    Returns true if the alpha channel of the framebuffer is enabled;
-    otherwise returns false. The alpha channel is disabled by default.
+    Returns true if the alpha buffer in the framebuffer is enabled;
+    otherwise returns false. The alpha buffer is disabled by default.
 
-    \sa setAlpha()
+    \sa setAlpha(), setAlphaBufferSize()
 */
 
 /*!
-    If \a enable is true enables the alpha channel; otherwise disables
-    the alpha channel.
+    If \a enable is true enables the alpha buffer; otherwise disables
+    the alpha buffer.
 
     The alpha buffer is disabled by default.
 
-    The alpha channel is typically used for implementing transparency
+    The alpha buffer is typically used for implementing transparency
     or translucency. The A in RGBA specifies the transparency of a
     pixel.
 
-    \sa alpha()
+    \sa alpha(), setAlphaBufferSize()
 */
 
 void QGLFormat::setAlpha(bool enable)
@@ -395,7 +395,7 @@ void QGLFormat::setAlpha(bool enable)
     Returns true if the accumulation buffer is enabled; otherwise
     returns false. The accumulation buffer is disabled by default.
 
-    \sa setAccum()
+    \sa setAccum(), setAccumBufferSize()
 */
 
 /*!
@@ -407,7 +407,7 @@ void QGLFormat::setAlpha(bool enable)
     The accumulation buffer is used to create blur effects and
     multiple exposures.
 
-    \sa accum()
+    \sa accum(), setAccumBufferSize()
 */
 
 void QGLFormat::setAccum(bool enable)
@@ -422,7 +422,7 @@ void QGLFormat::setAccum(bool enable)
     Returns true if the stencil buffer is enabled; otherwise returns
     false. The stencil buffer is disabled by default.
 
-    \sa setStencil()
+    \sa setStencil(), setStencilBufferSize()
 */
 
 /*!
@@ -434,7 +434,7 @@ void QGLFormat::setAccum(bool enable)
     The stencil buffer masks certain parts of the drawing area so that
     masked parts are not drawn on.
 
-    \sa stencil()
+    \sa stencil(), setStencilBufferSize()
 */
 
 void QGLFormat::setStencil(bool enable)
@@ -588,6 +588,8 @@ bool QGLFormat::testOption(QGL::FormatOptions opt) const
 
 /*!
     Set the preferred depth buffer size.
+
+    \sa depth(), setDepth(), depthBufferSize()
 */
 void QGLFormat::setDepthBufferSize(int size)
 {
@@ -596,6 +598,8 @@ void QGLFormat::setDepthBufferSize(int size)
 
 /*!
     Returns the depth buffer size.
+
+    \sa depth(), setDepth(), setDepthBufferSize()
 */
 int QGLFormat::depthBufferSize() const
 {
@@ -605,6 +609,8 @@ int QGLFormat::depthBufferSize() const
 /*!
     Set the preferred alpha buffer size and turn on the alpha format
     option.
+
+    \sa alpha(), setAlpha(), alphaBufferSize()
 */
 void QGLFormat::setAlphaBufferSize(int size)
 {
@@ -613,6 +619,8 @@ void QGLFormat::setAlphaBufferSize(int size)
 
 /*!
     Returns the alpha buffer size.
+
+    \sa alpha(), setAlpha(), setAlphaBufferSize()
 */
 int QGLFormat::alphaBufferSize() const
 {
@@ -622,6 +630,8 @@ int QGLFormat::alphaBufferSize() const
 /*!
     Set the preferred accumulation buffer size, where \a size is the
     bit depth for each RGBA component.
+
+    \sa accum(), setAccum(), accumBufferSize()
 */
 void QGLFormat::setAccumBufferSize(int size)
 {
@@ -630,6 +640,8 @@ void QGLFormat::setAccumBufferSize(int size)
 
 /*!
     Returns the accumulation buffer size.
+
+    \sa accum(), setAccum(), setAccumBufferSize()
 */
 int QGLFormat::accumBufferSize() const
 {
@@ -638,6 +650,8 @@ int QGLFormat::accumBufferSize() const
 
 /*!
     Set the preferred stencil buffer size.
+
+    \sa stencil(), setStencil(), stencilBufferSize()
 */
 void QGLFormat::setStencilBufferSize(int size)
 {
@@ -646,6 +660,8 @@ void QGLFormat::setStencilBufferSize(int size)
 
 /*!
     Returns the stencil buffer size.
+
+    \sa stencil(), setStencil(), setStencilBufferSize()
 */
 int QGLFormat::stencilBufferSize() const
 {
