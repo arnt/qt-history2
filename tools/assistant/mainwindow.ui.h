@@ -40,12 +40,7 @@ void MainWindow::init()
     settingsDia = 0;
 
     QSettings settings;
-#ifdef QT_PALMTOPCENTER_DOCS
-    settings.insertSearchPath( QSettings::Unix,
-			       QDir::homeDirPath() + "/.palmtopcenter/" );
-#else
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-#endif
 
     dw = new QDockWindow;
     helpDock = new HelpDialog( dw, this, browser );
@@ -61,10 +56,8 @@ void MainWindow::init()
     // read geometry configuration
     QString keybase("/Qt Assistant/3.1/");
 
-#ifndef QT_PALMTOPCENTER_DOCS
     setupGoActions( settings.readListEntry( keybase + "AdditionalDocFiles" ),
-	settings.readListEntry( keybase + "CategoriesSelected" ) );
-#endif
+		    settings.readListEntry( keybase + "CategoriesSelected" ) );
     if ( !settings.readBoolEntry( keybase  + "GeometryMaximized", FALSE ) ) {
 	QRect r( pos(), size() );
 	r.setX( settings.readNumEntry( keybase + "GeometryX", r.x() ) );
@@ -93,23 +86,9 @@ void MainWindow::setup()
 {
     helpDock->initialize();
     QSettings settings;
-#ifdef QT_PALMTOPCENTER_DOCS
-    settings.insertSearchPath( QSettings::Unix,
-			       QDir::homeDirPath() + "/.palmtopcenter/" );
-    QString dir = settings.readEntry( "/palmtopcenter/qtopiadir" );
-    if ( dir.isEmpty() )
-	dir = getenv( "PALMTOPCENTERDIR" );
-    QString lang = settings.readEntry( "/palmtopcenter/language" );
-    if ( lang.isEmpty() )
-	lang = getenv( "LANG" );
-    browser->mimeSourceFactory()->addFilePath( dir + "/doc/" + lang );
-    browser->mimeSourceFactory()->addFilePath( dir + "/doc/en/" );
-    browser->mimeSourceFactory()->setExtensionType("html","text/html;charset=UTF-8");
-#else
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
     QString base( qInstallPathDocs() );
     browser->mimeSourceFactory()->addFilePath( base + "/html/" );
-#endif
 
     connect( actionGoPrevious, SIGNAL( activated() ), browser, SLOT( backward() ) );
     connect( actionGoNext, SIGNAL( activated() ), browser, SLOT( forward() ) );
@@ -291,13 +270,7 @@ void MainWindow::find()
 
 void MainWindow::goHome()
 {
-#ifdef QT_PALMTOPCENTER_DOCS
-    showLink( "qtopiadesktop.html" );
-#else
-    // #### we need a general Qt frontpage with links to Qt Class docu, Designer Manual, Linguist Manual, etc,
-    showLink( QString( qInstallPathDocs() ) +
-	      "/html/index.html" );
-#endif
+    showLink( QString( qInstallPathDocs() ) + "/html/index.html" );
 }
 
 void MainWindow::showAssistantHelp()
@@ -405,12 +378,7 @@ void MainWindow::showLink( const QString &link )
 
 void MainWindow::showQtHelp()
 {
-#ifdef QT_PALMTOPCENTER_DOCS
-    showLink( "palmtopcenter.html" );
-#else
-    showLink( QString( qInstallPathDocs() ) +
-	      "/html/index.html" );
-#endif
+    showLink( QString( qInstallPathDocs() ) + "/html/index.html" );
 }
 
 void MainWindow::setFamily( const QString & f )

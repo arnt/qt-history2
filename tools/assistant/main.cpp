@@ -250,7 +250,6 @@ int main( int argc, char ** argv )
     bool max = config->readBoolEntry( keybase  + "GeometryMaximized", FALSE );
     QString link = config->readEntry( keybase + "Source", "" );
 
-#ifndef QT_PALMTOPCENTER_DOCS
     bool firstRun = config->readBoolEntry( keybase + "FirstRun", TRUE );
     if ( firstRun ) {
 	QString path = QString( qInstallPathDocs() ) + "/html/";
@@ -273,8 +272,6 @@ int main( int argc, char ** argv )
 	config->writeEntry( keybase + "FirstRun", FALSE );
 	config->writeEntry( keybase + "NewDoc", TRUE );
     }
-#endif
-
     delete config;
     config = 0;
 

@@ -124,9 +124,6 @@ private:
     void showContentsTopic();
     bool insertContents( const QString &filename,
 			 HelpNavigationContentsItem *newEntry );
-    void insertContents( const QString &filename, const QString &title,
-			 HelpNavigationContentsItem *lastItem,
-			 HelpNavigationContentsItem *handbook );
     bool isValidCategory( QString category );
     void showInitDoneMessage();
 

@@ -81,9 +81,7 @@ static const char * book_xpm[]={
 #include <qcursor.h>
 #include <qstatusbar.h>
 #include <qvalidator.h>
-//#ifdef QT_PALMTOPCENTER_DOCS
 #include <qsettings.h>
-//#endif
 
 static QPixmap *bookPixmap = 0;
 
@@ -135,16 +133,6 @@ QValidator::State SearchValidator::validate( QString &str, int & ) const
     return QValidator::Acceptable;
 }
 
-struct Entry
-{
-    QString link;
-    QString title;
-    int depth;
-#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-    bool operator==( const Entry& ) const { return FALSE; }
-#endif
-};
-
 HelpNavigationListItem::HelpNavigationListItem( QListBox *ls, const QString &txt )
     : QListBoxText( ls, txt )
 {
@@ -183,8 +171,6 @@ QString HelpNavigationContentsItem::link() const
 {
     return theLink;
 }
-
-
 
 
 
@@ -231,33 +217,12 @@ void HelpDialog::initialize()
     bookPixmap = new QPixmap( book_xpm );
     QMimeSourceFactory *mime = QMimeSourceFactory::defaultFactory();
     mime->setExtensionType( "html", "text/html;charset=UTF-8" );
-#ifdef QT_PALMTOPCENTER_DOCS
-    QSettings settings;
-    settings.insertSearchPath( QSettings::Unix,
-			   QDir::homeDirPath() + "/.palmtopcenter/" );
 
-    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    QString basePath;
-    basePath = settings.readEntry( "/palmtopcenter/qtopiadir" );
-    if ( basePath.isEmpty() )
-	basePath = getenv( "PALMTOPCENTERDIR" );
-    QString lang = settings.readEntry( "/palmtopcenter/language" );
-    if ( lang.isEmpty() )
-	lang = getenv( "LANG" );
-    documentationPath = basePath + "/doc/" + lang;
-
-    mime->addFilePath( basePath + "/pics" );
-    mime->addFilePath( basePath + "/pics/inline" );
-    mime->addFilePath( basePath + "/pics/large" );
-    mime->addFilePath( basePath + "/pics/small" );
-    mime->addFilePath( documentationPath );
-    mime->addFilePath( basePath + "/doc/en" );
-#else
     QString base( qInstallPathDocs() );
     documentationPath = base + "/html";
     mime->addFilePath( documentationPath );
     mime->addFilePath( base + "/../gif/" );
-#endif
+
     editIndex->installEventFilter( this );
     listBookmarks->header()->hide();
     listBookmarks->header()->setStretchEnabled( TRUE );
@@ -265,9 +230,6 @@ void HelpDialog::initialize()
     listContents->header()->setStretchEnabled( TRUE );
     framePrepare->hide();
     connect( qApp, SIGNAL(lastWindowClosed()), SLOT(lastWinClosed()) );
-#ifdef QT_PALMTOPCENTER_DOCS
-    tabWidget->removePage( contentPage );
-#endif
 
     termsEdit->setValidator( new SearchValidator( termsEdit ) );
 
@@ -777,13 +739,6 @@ void HelpDialog::insertContents()
 	setupTitleMap();
 
     listContents->setSorting( -1 );
-#ifdef QT_PALMTOPCENTER_DOCS
-    HelpNavigationContentsItem *qtDocu;
-    qtDocu = new HelpNavigationContentsItem( listContents, 0 );
-    qtDocu->setText( 0, tr( "Qtopia Desktop Documentation" ) );
-    qtDocu->setLink( documentationPath + "/qtopiadesktop.html" );
-    qtDocu->setPixmap( 0, *bookPixmap );
-#endif
 
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
@@ -812,14 +767,6 @@ void HelpDialog::insertContents()
     }
     setCursor( arrowCursor );
     showInitDoneMessage();
-
-#ifdef QT_PALMTOPCENTER_DOCS
-    settings.insertSearchPath( QSettings::Unix,
-			       QDir::homeDirPath() + "/.palmtopcenter/" );
-
-    QString manualdir = "qtopiadesktop.html";
-    //insertContents( manualdir, tr( "Qtopia Desktop Manual" ), lastItem, handbook );
-#endif
 }
 
 bool HelpDialog::insertContents( const QString &filename, HelpNavigationContentsItem *newEntry )
@@ -883,93 +830,6 @@ bool HelpDialog::insertContents( const QString &filename, HelpNavigationContents
 	}
     }
     return TRUE;
-}
-
-void HelpDialog::insertContents( const QString &filename, const QString &titl,
-				 HelpNavigationContentsItem *lastItem,
-				 HelpNavigationContentsItem *handbook )
-{
-    QFile file( filename );
-    if ( !file.open( IO_ReadOnly ) )
-	return;
-    QFileInfo fi( filename );
-    QString dir = fi.dirPath();
-    QTextStream ts( &file );
-    QString text = ts.read();
-    text = text.simplifyWhiteSpace();
-    QValueList<Entry> entries;
-
-    int i = text.find( titl );
-
-    QString link, title;
-    int depth = 0;
-    while ( i < (int)text.length() ) {
-	QChar c = text[ i ];
-	if ( c == '<' ) {
-	    ++i;
-	    c = text[ i ];
-	    if ( c == 'a' || c == 'A' ) {
-		int j = text.find( "\"", i );
-		int k = text.find( "\"", j + 1 );
-		link = text.mid( j + 1, k - j - 1 );
-		k = text.find( ">", k ) + 1;
-		j = text.find( "<", k );
-		title = text.mid( k, j - k );
-		title = title.simplifyWhiteSpace();
-		if ( title == "Next" ) {
-		    i = text.length();
-		    continue;
-		}
-		if ( !title.isEmpty() && !link.startsWith( "http:" ) ) {
-		    Entry e;
-		    e.link = link;
-		    e.title = title;
-		    e.depth = depth;
-		    entries.append( e );
-		}
-	    }
-	    if ( c == 'd' || c == 'D' ) {
-		++i;
-		c = text[ i ];
-		if ( c == 'l' || c == 'L' )
-		    depth++;
-	    }
-	    if ( c == '/' ) {
-		++i;
-		c = text[ i ];
-		if ( c == 'd' || c == 'D' ) {
-		    ++i;
-		    c = text[ i ];
-		    if ( c == 'l' || c == 'L' )
-			depth--;
-		}
-	    }
-	}
-	++i;
-    }
-
-    int oldDepth = -1;
-    lastItem = (HelpNavigationContentsItem*)handbook;
-    for ( QValueList<Entry>::Iterator it2 = entries.begin(); it2 != entries.end(); ++it2 ) {
-	if ( (*it2).depth == oldDepth )
-	    lastItem = new HelpNavigationContentsItem( lastItem->parent(), lastItem );
-	else if ( (*it2).depth > oldDepth )
-	    lastItem = new HelpNavigationContentsItem( lastItem, lastItem );
-	else if ( (*it2).depth < oldDepth ) {
-	    int diff = oldDepth - (*it2).depth;
-	    HelpNavigationContentsItem *i = (HelpNavigationContentsItem*)lastItem->parent(), *i2 = lastItem;
-	    while ( diff > 0 ) {
-		i = (HelpNavigationContentsItem*)i->parent();
-		i2 = (HelpNavigationContentsItem*)i2->parent();
-		--diff;
-	    }
-	    lastItem = new HelpNavigationContentsItem( i, i2 );
-	}
-	oldDepth = (*it2).depth;
-	lastItem->setText( 0, (*it2).title );
-	lastItem->setLink( dir + "/" + (*it2).link );
-    }
-
 }
 
 void HelpDialog::currentContentsChanged( QListViewItem * )
