@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_win.cpp#15 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_win.cpp#16 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -323,6 +323,10 @@ bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 	    case WSAEACCES:
 		e = Inaccessible;
 		break;
+	    case 10107:
+		// Workaround for a problem with the WinSock Proxy Server. See
+		// also support/arc-12/25557 for details on the problem.
+		goto successful;
 	    default:
 		e = UnknownError;
 		break;
