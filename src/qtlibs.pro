@@ -1,11 +1,15 @@
 TEMPLATE = subdirs
 CONFIG += ordered
 
-!qt_one_lib { 
-    SUBDIRS += qtkernel.pro
-    SUBDIRS += qxml.pro #hacks to satisfy qt.pro - see hacks comment with --Sam
-}
+#must be built absolutely first!
+!qt_one_lib:SUBDIRS += qtkernel.pro 
+
+#must be built second!
 SUBDIRS += qt_gui.pro
-win32:SUBDIRS += qtmain.pro
-!qt_one_lib:SUBDIRS += qsqlkernel.pro qcompat.pro qnetwork.pro qopengl.pro 
- 
+
+#can be built in any order..
+win32:SUBDIRS += qtmain.pro 
+!qt_one_lib:SUBDIRS += qsqlkernel.pro qnetwork.pro qopengl.pro 
+
+#once all of the stuff in compat is out of Qt (now linked into qtkernel) we can uncomment this --SAM
+#SUBDIRS += qcompat.pro 

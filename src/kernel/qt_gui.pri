@@ -34,6 +34,8 @@ kernel {
 		  $$KERNEL_H/qpalette.h \
 		  $$KERNEL_H/qpen.h \
 		  $$KERNEL_H/qpicture.h \
+		  $$KERNEL_P/qpictureformatinterface_p.h \
+		  $$KERNEL_H/qpictureformatplugin.h \
 		  $$KERNEL_H/qpixmap.h \
 		  $$KERNEL_H/qpixmapcache.h \
 		  $$KERNEL_H/qprinter.h \
@@ -162,6 +164,8 @@ kernel {
 		  $$KERNEL_CPP/qpainter.cpp \
 		  $$KERNEL_CPP/qpalette.cpp \
 		  $$KERNEL_CPP/qpicture.cpp \
+		  $$KERNEL_CPP/qpictureformatplugin.cpp \
+		  $$KERNEL_CPP/qimage_gui.cpp \
 		  $$KERNEL_CPP/qpixmap.cpp \
 		  $$KERNEL_CPP/qpixmapcache.cpp \
 		  $$KERNEL_CPP/qprinter.cpp \

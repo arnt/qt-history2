@@ -17,6 +17,7 @@
 
 #ifndef QT_H
 #include "qpaintdevice.h"
+#include "qstringlist.h"
 #include "qbuffer.h"
 #endif // QT_H
 
@@ -49,6 +50,16 @@ public:
 
     friend Q_EXPORT QDataStream &operator<<( QDataStream &, const QPicture & );
     friend Q_EXPORT QDataStream &operator>>( QDataStream &, QPicture & );
+
+#ifndef QT_NO_IMAGEIO
+    static const char* pictureFormat( const QString &fileName );
+    static QList<QByteArray> inputFormats();
+    static QList<QByteArray> outputFormats();
+#ifndef QT_NO_STRINGLIST
+    static QStringList inputFormatList();
+    static QStringList outputFormatList();
+#endif
+#endif
 
 protected:
     bool	cmd( int, QPainter *, QPDevCmdParam * );
@@ -88,6 +99,71 @@ inline const char* QPicture::data() const
 {
     return d->pictb.buffer();
 }
+
+
+#ifndef QT_NO_PICTUREIO
+class QIODevice;
+class QPictureIO;
+typedef void (*picture_io_handler)( QPictureIO * ); // picture IO handler
+
+struct QPictureIOData;
+
+class Q_EXPORT QPictureIO
+{
+public:
+    QPictureIO();
+    QPictureIO( QIODevice	 *ioDevice, const char *format );
+    QPictureIO( const QString &fileName, const char* format );
+   ~QPictureIO();
+
+    const QPicture &picture()	const;
+    int		status()	const;
+    const char *format()	const;
+    QIODevice  *ioDevice()	const;
+    QString	fileName()	const;
+    int		quality()	const;
+    QString	description()	const;
+    const char *parameters()	const;
+    float gamma() const;
+
+    void	setPicture( const QPicture & );
+    void	setStatus( int );
+    void	setFormat( const char * );
+    void	setIODevice( QIODevice * );
+    void	setFileName( const QString & );
+    void	setQuality( int );
+    void	setDescription( const QString & );
+    void	setParameters( const char * );
+    void	setGamma( float );
+
+    bool	read();
+    bool	write();
+
+    static QByteArray pictureFormat( const QString &fileName );
+    static QByteArray pictureFormat( QIODevice * );
+    static QList<QByteArray> inputFormats();
+    static QList<QByteArray> outputFormats();
+
+    static void defineIOHandler( const char *format,
+				 const char *header,
+				 const char *flags,
+				 picture_io_handler read_picture,
+				 picture_io_handler write_picture );
+
+private:
+    void	init();
+
+    QPictureIOData *d;
+
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QPictureIO( const QPictureIO & );
+    QPictureIO &operator=( const QPictureIO & );
+#endif
+};
+
+#endif //QT_NO_PICTUREIO
+
 
 /*****************************************************************************
   QPicture stream functions

@@ -219,20 +219,20 @@ bool QPicture::load( const QString &fileName, const char *format )
 
 bool QPicture::load( QIODevice *dev, const char *format )
 {
-#ifndef QT_NO_SVG
-    if ( qstrcmp( format, "svg" ) == 0 ) {
-	QSvgDevice svg;
-	if ( !svg.load( dev ) )
-	    return FALSE;
- 	QPainter p( this );
-	bool b = svg.play( &p );
-	d->brect = svg.boundingRect();
-	return b;
-    }
-#endif
-    if ( format ) {
-	qWarning( "QPicture::load: No such picture format: %s", format );
-	return FALSE;
+    if(format) {
+#ifndef QT_NO_PICTUREIO
+	QPictureIO io( dev, format );
+	bool result = io.read();
+	if ( result ) {
+	    operator=( io.picture() );
+	} else if ( format ) 
+#else
+	bool result = FALSE;
+#endif    
+	{
+		qWarning( "QPicture::load: No such picture format: %s", format );
+	}
+	return result;
     }
 
     detach();
@@ -266,18 +266,22 @@ bool QPicture::save( const QString &fileName, const char *format )
 	return FALSE;
     }
 
-#ifndef QT_NO_SVG
-    // identical to QIODevice* code below but the file name
-    // makes a difference when it comes to saving pixmaps
-    if ( qstricmp( format, "svg" ) == 0 ) {
-	QSvgDevice svg;
-	QPainter p( &svg );
-	if ( !play( &p ) )
-	    return FALSE;
-	svg.setBoundingRect( boundingRect() );
-	return svg.save( fileName );
+
+    if(format) {
+#ifndef QT_NO_PICTUREIO
+	QPictureIO io( fileName, format );
+	bool result = io.write();
+	if ( result ) {
+	    operator=( io.picture() );
+	} else if ( format ) 
+#else
+	bool result = FALSE;
+#endif    
+	{
+	    qWarning( "QPicture::save: No such picture format: %s", format );
+	}
+	return result;
     }
-#endif
 
     QFile f( fileName );
     if ( !f.open(IO_WriteOnly) )
@@ -299,19 +303,20 @@ bool QPicture::save( QIODevice *dev, const char *format )
 	return FALSE;
     }
 
-#ifndef QT_NO_SVG
-    if ( qstricmp( format, "svg" ) == 0 ) {
-	QSvgDevice svg;
-	QPainter p( &svg );
-	if ( !play( &p ) )
-	    return FALSE;
-	svg.setBoundingRect( boundingRect() );
-	return svg.save( dev );
-    }
-#endif
-    if ( format ) {
-	qWarning( "QPicture::save: No such picture format: %s", format );
-	return FALSE;
+    if(format) {
+#ifndef QT_NO_PICTUREIO
+	QPictureIO io( dev, format );
+	bool result = io.write();
+	if ( result ) {
+	    operator=( io.picture() );
+	} else if ( format ) 
+#else
+	bool result = FALSE;
+#endif    
+	{
+	    qWarning( "QPicture::save: No such picture format: %s", format );
+	}
+	return result;
     }
 
     dev->writeBlock( d->pictb.buffer(), d->pictb.buffer().size() );
@@ -1174,6 +1179,813 @@ QDataStream &operator>>( QDataStream &s, QPicture &r )
 
     return s;
 }
+
+#ifndef QT_NO_PICTUREIO
+#include "qregexp.h"
+#include "qapplication.h"
+#include "qpictureformatinterface_p.h"
+#include "private/qpluginmanager_p.h"
+#include "qfile.h"
+
+/*!
+    Returns a string that specifies the picture format of the file \a
+    fileName, or 0 if the file cannot be read or if the format is not
+    recognized.
+
+    The QPictureIO documentation lists the guaranteed supported picture
+    formats, or use QPicture::inputFormats() and QPicture::outputFormats()
+    to get lists that include the installed formats.
+
+    \sa load() save()
+*/
+
+const char* QPicture::pictureFormat( const QString &fileName )
+{
+    return QPictureIO::pictureFormat( fileName );
+}
+
+/*!
+    Returns a list of picture formats that are supported for picture
+    input.
+
+    \sa outputFormats() inputFormatList() QPictureIO
+*/
+QList<QByteArray> QPicture::inputFormats()
+{
+    return QPictureIO::inputFormats();
+}
+
+#ifndef QT_NO_STRINGLIST
+static QStringList qToStringList(const QList<QByteArray> arr) 
+{
+    QStringList list;
+    for (int i = 0; i < arr.count(); ++i)
+	list.append(QString(arr.at(i)));
+    return list;
+}
+
+/*!
+    Returns a list of picture formats that are supported for picture
+    input.
+
+    Note that if you want to iterate over the list, you should iterate
+    over a copy, e.g.
+    \code
+    QStringList list = myPicture.inputFormatList();
+    QStringList::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
+
+    \sa outputFormatList() inputFormats() QPictureIO
+*/
+QStringList QPicture::inputFormatList()
+{
+    return qToStringList(QPictureIO::inputFormats());
+}
+
+
+/*!
+    Returns a list of picture formats that are supported for picture
+    output.
+
+    Note that if you want to iterate over the list, you should iterate
+    over a copy, e.g.
+    \code
+    QStringList list = myPicture.outputFormatList();
+    QStringList::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
+
+    \sa inputFormatList() outputFormats() QPictureIO
+*/
+QStringList QPicture::outputFormatList()
+{
+    return qToStringList(QPictureIO::outputFormats());
+}
+#endif //QT_NO_STRINGLIST
+
+/*!
+    Returns a list of picture formats that are supported for picture
+    output.
+
+    \sa inputFormats() outputFormatList() QPictureIO
+*/
+QList<QByteArray> QPicture::outputFormats()
+{
+    return QPictureIO::outputFormats();
+}
+
+/*****************************************************************************
+  QPictureIO member functions
+ *****************************************************************************/
+
+/*!
+    \class QPictureIO qpicture.h
+
+    \brief The QPictureIO class contains parameters for loading and
+    saving pictures.
+
+    \ingroup pictures
+    \ingroup graphics
+    \ingroup io
+
+    QPictureIO contains a QIODevice object that is used for picture data
+    I/O. The programmer can install new picture file formats in addition
+    to those that Qt provides.
+
+    Qt currently supports only SVG picture file formats.
+
+    You don't normally need to use this class; QPicture::load(),
+    QPiicture::save().
+
+    \sa QPicture QPixmap QFile
+*/
+
+struct QPictureIOData 
+{
+    QPicture	pi;				// picture
+    int		iostat;				// IO status
+    QByteArray	frmt;				// picture format
+    QIODevice  *iodev;				// IO device
+    QString	fname;				// file name
+    QString     descr;				// picture description
+    const char *parameters;
+    int quality;
+    float gamma;
+};
+
+/*!
+    Constructs a QPictureIO object with all parameters set to zero.
+*/
+
+QPictureIO::QPictureIO()
+{
+    init();
+}
+
+/*!
+    Constructs a QPictureIO object with the I/O device \a ioDevice and a
+    \a format tag.
+*/
+
+QPictureIO::QPictureIO( QIODevice *ioDevice, const char *format )
+{
+    init();
+    d->iodev = ioDevice;
+    d->frmt = format;
+}
+
+/*!
+    Constructs a QPictureIO object with the file name \a fileName and a
+    \a format tag.
+*/
+
+QPictureIO::QPictureIO( const QString &fileName, const char* format )
+{
+    init();
+    d->frmt = format;
+    d->fname = fileName;
+}
+
+/*!
+    Contains initialization common to all QPictureIO constructors.
+*/
+
+void QPictureIO::init()
+{
+    d = new QPictureIOData();
+    d->parameters = 0;
+    d->quality = -1; // default quality of the current format
+    d->gamma=0.0f;
+    d->iostat = 0;
+    d->iodev  = 0;
+}
+
+/*!
+    Destroys the object and all related data.
+*/
+
+QPictureIO::~QPictureIO()
+{
+    if ( d->parameters )
+	delete [] (char*)d->parameters;
+    delete d;
+}
+
+
+/*****************************************************************************
+  QPictureIO picture handler functions
+ *****************************************************************************/
+
+class QPictureHandler
+{
+public:
+    QPictureHandler( const char *f, const char *h, const QByteArray& fl,
+		     picture_io_handler r, picture_io_handler w );
+    QByteArray	      format;			// picture format
+    QRegExp	      header;			// picture header pattern
+    enum TMode { Untranslated=0, TranslateIn, TranslateInOut } text_mode;
+    picture_io_handler  read_picture;		// picture read function
+    picture_io_handler  write_picture;		// picture write function
+    bool	      obsolete;			// support not "published"
+};
+
+QPictureHandler::QPictureHandler( const char *f, const char *h, const QByteArray& fl,
+			      picture_io_handler r, picture_io_handler w )
+    : format(f), header(QString::fromLatin1(h))
+{
+    text_mode = Untranslated;
+    if ( fl.contains('t') )
+	text_mode = TranslateIn;
+    else if ( fl.contains('T') )
+	text_mode = TranslateInOut;
+    obsolete = fl.contains('O');
+    read_picture  = r;
+    write_picture = w;
+}
+
+typedef QList<QPictureHandler*> QPHList;// list of picture handlers
+static QPHList *pictureHandlers = 0;
+#ifndef QT_NO_COMPONENT
+static QPluginManager<QPictureFormatInterface> *plugin_manager = 0;
+#else
+static void *plugin_manager = 0;
+#endif
+
+void qt_init_picture_plugins()
+{
+#ifndef QT_NO_COMPONENT
+    if ( plugin_manager )
+	return;
+
+    plugin_manager = new QPluginManager<QPictureFormatInterface>( IID_QPictureFormat, QApplication::libraryPaths(), "/pictureformats" );
+
+    QStringList features = plugin_manager->featureList();
+    QStringList::Iterator it = features.begin();
+    while ( it != features.end() ) {
+	QString str = *it;
+	++it;
+	QInterfacePtr<QPictureFormatInterface> iface;
+	plugin_manager->queryInterface( str, &iface );
+	if ( iface )
+	    iface->installIOHandler( str );
+    }
+#endif
+}
+
+static void cleanup()
+{
+    // make sure that picture handlers are delete before plugin manager
+    delete pictureHandlers;
+    pictureHandlers = 0;
+#ifndef QT_NO_COMPONENT
+    delete plugin_manager;
+    plugin_manager = 0;
+#endif
+}
+
+void qt_init_picture_handlers()		// initialize picture handlers
+{
+    if ( !pictureHandlers ) {
+	pictureHandlers = new QPHList;
+	pictureHandlers->setAutoDelete( TRUE );
+	qAddPostRoutine( cleanup );
+    }
+}
+
+static QPictureHandler *get_picture_handler( const char *format )
+{						// get pointer to handler
+    qt_init_picture_handlers();
+    qt_init_picture_plugins();
+    for(QPHList::Iterator it = pictureHandlers->begin(); it != pictureHandlers->end(); ++it) {
+	if ( (*it)->format == format )
+	    return (*it);
+    }
+    return 0;					// no such handler
+}
+
+
+/*!
+    Defines a picture I/O handler for the picture format called \a
+    format, which is recognized using the \link qregexp.html#details
+    regular expression\endlink \a header, read using \a readPicture and
+    written using \a writePicture.
+
+    \a flags is a string of single-character flags for this format.
+    The only flag defined currently is T (upper case), so the only
+    legal value for \a flags are "T" and the empty string. The "T"
+    flag means that the picture file is a text file, and Qt should treat
+    all newline conventions as equivalent. (XPM files and some PPM
+    files are text files for example.)
+
+    \a format is used to select a handler to write a QPicture; \a header
+    is used to select a handler to read an picture file.
+
+    If \a readPicture is a null pointer, the QPictureIO will not be able
+    to read pictures in \a format. If \a writePicture is a null pointer,
+    the QPictureIO will not be able to write pictures in \a format. If
+    both are null, the QPictureIO object is valid but useless.
+
+    Example:
+    \code
+	void readSVG( QPictureIO *picture )
+	{
+	// read the picture using the picture->ioDevice()
+	}
+
+	void writeSVG( QPictureIO *picture )
+	{
+	// write the picture using the picture->ioDevice()
+	}
+
+	// add the GIF picture handler
+
+	QPictureIO::defineIOHandler( "SVG",
+				   0, 0,
+				   readSVG, writeSVG );
+    \endcode
+
+    Before the regex test, all the 0 bytes in the file header are
+    converted to 1 bytes. This is done because when Qt was
+    ASCII-based, QRegExp could not handle 0 bytes in strings.
+
+    The regexp is only applied on the first 14 bytes of the file.
+
+    (Note that if one handlerIO supports writing a format and another
+    supports reading it, Qt supports both reading and writing. If two
+    handlers support the same operation, Qt chooses one arbitrarily.)
+*/
+
+void QPictureIO::defineIOHandler( const char *format,
+				const char *header,
+				const char *flags,
+				picture_io_handler readPicture,
+				picture_io_handler writePicture )
+{
+    qt_init_picture_handlers();
+    QPictureHandler *p;
+    p = new QPictureHandler( format, header, QByteArray(flags),
+			     readPicture, writePicture );
+    pictureHandlers->insert( 0, p );
+}
+
+
+/*****************************************************************************
+  QPictureIO normal member functions
+ *****************************************************************************/
+
+/*!
+    Returns the picture currently set.
+
+    \sa setPicture()
+*/
+const QPicture &QPictureIO::picture() const { return d->pi; }
+
+/*!
+    Returns the picture's IO status. A non-zero value indicates an
+    error, whereas 0 means that the IO operation was successful.
+
+    \sa setStatus()
+*/
+int QPictureIO::status() const { return d->iostat; }
+
+/*!
+    Returns the picture format string or 0 if no format has been
+    explicitly set.
+*/
+const char *QPictureIO::format() const { return d->frmt; }
+
+/*!
+    Returns the IO device currently set.
+
+    \sa setIODevice()
+*/
+QIODevice *QPictureIO::ioDevice() const { return d->iodev; }
+
+/*!
+    Returns the file name currently set.
+
+    \sa setFileName()
+*/
+QString QPictureIO::fileName() const { return d->fname; }
+
+
+/*!
+    Returns the picture description string.
+
+    \sa setDescription()
+*/
+QString QPictureIO::description() const { return d->descr; }
+
+/*!
+    Sets the picture to \a picture.
+
+    \sa picture()
+*/
+void QPictureIO::setPicture( const QPicture &picture )
+{
+    d->pi = picture;
+}
+
+/*!
+    Sets the picture IO status to \a status. A non-zero value indicates
+    an error, whereas 0 means that the IO operation was successful.
+
+    \sa status()
+*/
+void QPictureIO::setStatus( int status )
+{
+    d->iostat = status;
+}
+
+/*!
+    Sets the picture format to \a format for the picture to be read or
+    written.
+
+    It is necessary to specify a format before writing an picture, but
+    it is not necessary to specify a format before reading an picture.
+
+    If no format has been set, Qt guesses the picture format before
+    reading it. If a format is set the picture will only be read if it
+    has that format.
+
+    \sa read() write() format()
+*/
+void QPictureIO::setFormat( const char *format )
+{
+    d->frmt = format;
+}
+
+/*!
+    Sets the IO device to be used for reading or writing an picture.
+
+    Setting the IO device allows pictures to be read/written to any
+    block-oriented QIODevice.
+
+    If \a ioDevice is not null, this IO device will override file name
+    settings.
+
+    \sa setFileName()
+*/
+void QPictureIO::setIODevice( QIODevice *ioDevice )
+{
+    d->iodev = ioDevice;
+}
+
+/*!
+    Sets the name of the file to read or write an picture from to \a
+    fileName.
+
+    \sa setIODevice()
+*/
+void QPictureIO::setFileName( const QString &fileName )
+{
+    d->fname = fileName;
+}
+
+/*!
+    Returns the quality of the written picture, related to the
+    compression ratio.
+
+    \sa setQuality() QPicture::save()
+*/
+int QPictureIO::quality() const
+{
+    return d->quality;
+}
+
+/*!
+    Sets the quality of the written picture to \a q, related to the
+    compression ratio.
+
+    \a q must be in the range -1..100. Specify 0 to obtain small
+    compressed files, 100 for large uncompressed files. (-1 signifies
+    the default compression.)
+
+    \sa quality() QPicture::save()
+*/
+
+void QPictureIO::setQuality( int q )
+{
+    d->quality = q;
+}
+
+/*!
+    Returns the picture's parameters string.
+
+    \sa setParameters()
+*/
+
+const char *QPictureIO::parameters() const
+{
+    return d->parameters;
+}
+
+/*!
+    Sets the picture's parameter string to \a parameters. This is for
+    picture handlers that require special parameters.
+
+    Although the current picture formats supported by Qt ignore the
+    parameters string, it may be used in future extensions or by
+    contributions (for example, JPEG).
+
+    \sa parameters()
+*/
+
+void QPictureIO::setParameters( const char *parameters )
+{
+    if ( d && d->parameters )
+	delete [] (char*)d->parameters;
+    d->parameters = qstrdup( parameters );
+}
+
+/*!
+    Sets the gamma value at which the picture will be viewed to \a
+    gamma. If the picture format stores a gamma value for which the
+    picture is intended to be used, then this setting will be used to
+    modify the picture. Setting to 0.0 will disable gamma correction
+    (i.e. any specification in the file will be ignored).
+
+    The default value is 0.0.
+
+    \sa gamma()
+*/
+void QPictureIO::setGamma( float gamma )
+{
+    d->gamma=gamma;
+}
+
+/*!
+    Returns the gamma value at which the picture will be viewed.
+
+    \sa setGamma()
+*/
+float QPictureIO::gamma() const
+{
+    return d->gamma;
+}
+
+/*!
+    Sets the picture description string for picture handlers that support
+    picture descriptions to \a description.
+
+    Currently, no picture format supported by Qt uses the description
+    string.
+*/
+
+void QPictureIO::setDescription( const QString &description )
+{
+    d->descr = description;
+}
+
+
+/*!
+    Returns a string that specifies the picture format of the file \a
+    fileName, or null if the file cannot be read or if the format is
+    not recognized.
+*/
+
+QByteArray QPictureIO::pictureFormat( const QString &fileName )
+{
+    QFile file( fileName );
+    QByteArray format;
+    if ( !file.open(IO_ReadOnly) )
+	return format;
+    format = pictureFormat( &file );
+    file.close();
+    return format;
+}
+
+/*!
+    \overload
+
+    Returns a string that specifies the picture format of the picture read
+    from IO device \a d, or 0 if the device cannot be read or if the
+    format is not recognized.
+
+    Make sure that \a d is at the right position in the device (for
+    example, at the beginning of the file).
+
+    \sa QIODevice::at()
+*/
+
+QByteArray QPictureIO::pictureFormat( QIODevice *d )
+{
+    // if you change this change the documentation for defineIOHandler()
+    const int buflen = 14;
+
+    char buf[buflen];
+    char buf2[buflen];
+    qt_init_picture_handlers();
+    qt_init_picture_plugins();
+    int pos = d->at();			// save position
+    int rdlen = d->readBlock( buf, buflen );	// read a few bytes
+
+    QByteArray format;
+    if ( rdlen != buflen )
+	return format;
+
+    strncpy( buf2, buf, buflen );
+
+    for ( int n = 0; n < rdlen; n++ )
+	if ( buf[n] == '\0' )
+	    buf[n] = '\001';
+    if ( d->status() == IO_Ok && rdlen > 0 ) {
+	buf[rdlen - 1] = '\0';
+	QString bufStr = QString::fromLatin1(buf);
+	for(QPHList::Iterator it = pictureHandlers->begin(); it != pictureHandlers->end(); ++it) {
+	    if ( (*it)->header.search(bufStr) != -1 ) { // try match with headers
+		format = (*it)->format;
+		break;
+	    }
+	}
+    }
+    d->at( pos );				// restore position
+    return format;
+}
+
+/*!
+    Returns a sorted list of picture formats that are supported for
+    picture input.
+*/
+QList<QByteArray> QPictureIO::inputFormats()
+{
+    QList<QByteArray> result;
+
+    qt_init_picture_handlers();
+    qt_init_picture_plugins();
+
+    for(QPHList::Iterator it = pictureHandlers->begin(); it != pictureHandlers->end(); ++it) {
+	if ( (*it)->read_picture && !(*it)->obsolete  && !result.contains((*it)->format) )
+	    result.append((*it)->format);
+    }
+    qHeapSort(result);
+    
+    return result;
+}
+
+/*!
+    Returns a sorted list of picture formats that are supported for
+    picture output.
+*/
+QList<QByteArray> QPictureIO::outputFormats()
+{
+    qt_init_picture_handlers();
+    qt_init_picture_plugins();
+
+    QList<QByteArray> result;
+    for(QPHList::Iterator it = pictureHandlers->begin(); it != pictureHandlers->end(); ++it) {
+	if ( (*it)->write_picture && !(*it)->obsolete && !result.contains((*it)->format) )
+	    result.append((*it)->format);
+    }
+    return result;
+}
+
+
+
+/*!
+    Reads an picture into memory and returns TRUE if the picture was
+    successfully read; otherwise returns FALSE.
+
+    Before reading an picture you must set an IO device or a file name.
+    If both an IO device and a file name have been set, the IO device
+    will be used.
+
+    Setting the picture file format string is optional.
+
+    Note that this function does \e not set the \link format()
+    format\endlink used to read the picture. If you need that
+    information, use the pictureFormat() static functions.
+
+    Example:
+
+    \code
+	QPictureIO iio;
+	QPixmap  pixmap;
+	iio.setFileName( "vegeburger.bmp" );
+	if ( picture.read() )        // ok
+	    pixmap = iio.picture();  // convert to pixmap
+    \endcode
+
+    \sa setIODevice() setFileName() setFormat() write() QPixmap::load()
+*/
+bool QPictureIO::read()
+{
+    QFile	   file;
+    const char	  *picture_format;
+    QPictureHandler *h;
+
+    if ( d->iodev ) {				// read from io device
+	// ok, already open
+    } else if ( !d->fname.isEmpty() ) {		// read from file
+	file.setName( d->fname );
+	if ( !file.open(IO_ReadOnly) )
+	    return FALSE;			// cannot open file
+	d->iodev = &file;
+    } else {					// no file name or io device
+	return FALSE;
+    }
+    if (d->frmt.isEmpty()) {
+	// Try to guess format
+	picture_format = pictureFormat( d->iodev );	// get picture format
+	if ( !picture_format ) {
+	    if ( file.isOpen() ) {			// unknown format
+		file.close();
+		d->iodev = 0;
+	    }
+	    return FALSE;
+	}
+    } else {
+	picture_format = d->frmt;
+    }
+
+    h = get_picture_handler( picture_format );
+    if ( file.isOpen() ) {
+#if !defined(Q_OS_UNIX)
+	if ( h && h->text_mode ) {		// reopen in translated mode
+	    file.close();
+	    file.open( IO_ReadOnly | IO_Translate );
+	}
+	else
+#endif
+	    file.at( 0 );			// position to start
+    }
+    d->iostat = 1;					// assume error
+
+    if ( h && h->read_picture ) 
+	(*h->read_picture)( this );
+
+    if ( file.isOpen() ) {			// picture was read using file
+	file.close();
+	d->iodev = 0;
+    }
+    return d->iostat == 0;				// picture successfully read?
+}
+
+
+/*!
+    Writes an picture to an IO device and returns TRUE if the picture was
+    successfully written; otherwise returns FALSE.
+
+    Before writing an picture you must set an IO device or a file name.
+    If both an IO device and a file name have been set, the IO device
+    will be used.
+
+    The picture will be written using the specified picture format.
+
+    Example:
+    \code
+	QPictureIO iio;
+	QPicture   im;
+	im = pixmap; // convert to picture
+	iio.setPicture( im );
+	iio.setFileName( "vegeburger.bmp" );
+	iio.setFormat( "BMP" );
+	if ( iio.write() )
+	    // returned TRUE if written successfully
+    \endcode
+
+    \sa setIODevice() setFileName() setFormat() read() QPixmap::save()
+*/
+bool QPictureIO::write()
+{
+    if ( d->frmt.isEmpty() )
+	return FALSE;
+    QPictureHandler *h = get_picture_handler( d->frmt );
+    if ( !h && !plugin_manager) {
+	qt_init_picture_plugins();
+	h = get_picture_handler( d->frmt );
+    }
+    if ( !h || !h->write_picture ) {
+	qWarning( "QPictureIO::write: No such picture format handler: %s",
+		 format() );
+	return FALSE;
+    }
+    QFile file;
+    if ( !d->iodev && !d->fname.isEmpty() ) {
+	file.setName( d->fname );
+	bool translate = h->text_mode==QPictureHandler::TranslateInOut;
+	int fmode = translate ? IO_WriteOnly|IO_Translate : IO_WriteOnly;
+	if ( !file.open(fmode) )		// couldn't create file
+	    return FALSE;
+	d->iodev = &file;
+    }
+    d->iostat = 1;
+    (*h->write_picture)( this );
+    if ( file.isOpen() ) {			// picture was written using file
+	file.close();
+	d->iodev = 0;
+    }
+    return d->iostat == 0;				// picture successfully written?
+}
+
+#endif //QT_NO_PICTUREIO
 
 #endif // QT_NO_PICTURE
 

@@ -3,9 +3,6 @@ include(qbase.pri)
 
 QCONFIG = kernel 
 
-#these are just hacks to keep it building, but must be fixed!! --SAM
-QCONFIG += xml #needed for QSVGDevice (presumably because of qpicture.cpp)
-
 !cups:DEFINES += QT_NO_CUPS
 !nis:DEFINES += QT_NO_NIS
 DEFINES += QT_GUI
