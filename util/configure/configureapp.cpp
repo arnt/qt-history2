@@ -142,12 +142,10 @@ Configure::Configure( int& argc, char** argv )
 void Configure::buildModulesList()
 {
     QDir dir( dictionary[ "QT_SOURCE_TREE" ] + "/src" );
-    const QFileInfoList* fiList = dir.entryInfoList();
-    if ( !fiList )
+    QFileInfoList fiList = dir.entryInfoList();
+    if ( fiList.isEmpty() )
 	return;
 
-    QFileInfoListIterator listIter( *fiList );
-    QFileInfo* fi;
 
     licensedModules = QStringList::split( ' ', "compat styles tools kernel widgets dialogs iconview workspace" );
 
@@ -155,12 +153,18 @@ void Configure::buildModulesList()
     if( ( products == "qt-enterprise" || products == "qt-internal" ) && ( dictionary[ "FORCE_PROFESSIONAL" ] != "yes" ) )
 	licensedModules += QStringList::split( ' ', "network canvas table xml opengl sql" );
 
-    while( ( fi = listIter.current() ) ) {
-	if( licensedModules.findIndex( fi->fileName() ) != -1 )
-	    modules += fi->fileName();
-	++listIter;
+    for(int i = 0; i < fiList.size(); ++i) {
+	const QFileInfo &fi = fiList.at(i);
+	if( licensedModules.findIndex( fi.fileName() ) != -1 )
+	    modules += fi.fileName();
     }
 }
+#endif
+
+// #### somehow I get a compiler error about vc++ reaching the nesting limit without
+// undefining the ansi for scoping.
+#ifdef for
+#undef for
 #endif
 
 void Configure::parseCmdLine()
@@ -960,15 +964,12 @@ void Configure::generateOutputVars()
 
 	QStringList winPlatforms;
 	QDir mkspecsDir( dictionary[ "QT_SOURCE_TREE" ] + "\\mkspecs" );
-	const QFileInfoList* specsList = mkspecsDir.entryInfoList();
-	QFileInfoListIterator it( *specsList );
-	QFileInfo* fi;
-
-	while( ( fi = it.current() ) ) {
-	    if( fi->fileName().left( 5 ) == "win32" ) {
-		winPlatforms += fi->fileName();
+	const QFileInfoList &specsList = mkspecsDir.entryInfoList();
+	for(int i = 0; i < specsList.size(); ++i) {
+    	    const QFileInfo &fi = specsList.at(i);
+	    if( fi.fileName().left( 5 ) == "win32" ) {
+		winPlatforms += fi.fileName();
 	    }
-	    ++it;
 	}
 	cout << "Available platforms are: " << winPlatforms.join( ", " ).latin1() << endl;
     }
@@ -1392,14 +1393,6 @@ void Configure::buildQmake()
 
 void Configure::findProjects( const QString& dirName )
 {
-    QDir dir( dirName );
-    QString entryName;
-    const QFileInfoList* list = dir.entryInfoList();
-    QFileInfoListIterator it( *list );
-    QFileInfo* fi;
-    int makeListNumber;
-    ProjectType qmakeTemplate;
-
     static QHash<QString,bool> excludeTable;
     static bool initExcludeTable = false;
     if (!initExcludeTable) {
@@ -1416,15 +1409,22 @@ void Configure::findProjects( const QString& dirName )
     }
 
     if( dictionary[ "NOPROCESS" ] == "no" ) {
-	while( ( fi = it.current() ) ) {
-	    if( fi->fileName()[ 0 ] != '.' && fi->fileName() != "qmake.pro" ) {
-		entryName = dirName + "/" + fi->fileName();
-		if( fi->isDir() ) {
+	QDir dir( dirName );
+	QString entryName;
+	int makeListNumber;
+	ProjectType qmakeTemplate;
+
+	const QFileInfoList &list = dir.entryInfoList();
+	for(int i = 0; i < list.size(); ++i) {
+	    const QFileInfo &fi = list.at(i);
+	    if( fi.fileName()[ 0 ] != '.' && fi.fileName() != "qmake.pro" ) {
+		entryName = dirName + "/" + fi.fileName();
+		if( fi.isDir() ) {
 		    findProjects( entryName );
 		} else {
-		    if( fi->fileName().right( 4 ) == ".pro" ) {
-			if ( !excludeTable[fi->fileName()] ) {
-			    qmakeTemplate = projectType( fi->absFilePath() );
+		    if( fi.fileName().right( 4 ) == ".pro" ) {
+			if ( !excludeTable[fi.fileName()] ) {
+			    qmakeTemplate = projectType( fi.absFilePath() );
 			    switch ( qmakeTemplate ) {
 				case Lib:
 				case Subdirs:
@@ -1436,35 +1436,34 @@ void Configure::findProjects( const QString& dirName )
 			    }
 			    makeList[makeListNumber].append( new MakeItem(
 					dirName,
-					fi->fileName(),
+					fi.fileName(),
 					"Makefile",
 					qmakeTemplate ) );
 			    if( dictionary[ "DSPFILES" ] == "yes" ) {
 				makeList[makeListNumber].append( new MakeItem(
 					    dirName,
-					    fi->fileName(),
-					    fi->fileName().left( fi->fileName().length() - 4 ) + ".dsp",
+					    fi.fileName(),
+					    fi.fileName().left( fi.fileName().length() - 4 ) + ".dsp",
 					    qmakeTemplate ) );
 			    }
 			    if( dictionary[ "VCPFILES" ] == "yes" ) {
 				makeList[makeListNumber].append( new MakeItem(
 					    dirName,
-					    fi->fileName(),
-					    fi->fileName().left( fi->fileName().length() - 4 ) + ".vcp",
+					    fi.fileName(),
+					    fi.fileName().left( fi.fileName().length() - 4 ) + ".vcp",
 					    qmakeTemplate ) );
 			    }
 			    if( dictionary[ "VCPROJFILES" ] == "yes" ) {
 				makeList[makeListNumber].append( new MakeItem(
 					    dirName,
-					    fi->fileName(),
-					    fi->fileName().left( fi->fileName().length() - 4 ) + ".vcproj",
+					    fi.fileName(),
+					    fi.fileName().left( fi.fileName().length() - 4 ) + ".vcproj",
 					    qmakeTemplate ) );
 			    }
 			}
 		    }
 		}
 	    }
-	    ++it;
 	}
     }
 }

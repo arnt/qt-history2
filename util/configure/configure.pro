@@ -18,6 +18,7 @@ SOURCES	 = main.cpp configureapp.cpp \
            $$QT_SOURCE_TREE/src/tools/qdatastream.cpp \
            $$QT_SOURCE_TREE/src/compat/qglist.cpp \
 	   $$QT_SOURCE_TREE/src/tools/qlist.cpp \
+	   $$QT_SOURCE_TREE/src/tools/qlocale.cpp \
 	   $$QT_SOURCE_TREE/src/compat/qgvector.cpp \
 	   $$QT_SOURCE_TREE/src/tools/qvector.cpp \
            $$QT_SOURCE_TREE/src/tools/qglobal.cpp \
