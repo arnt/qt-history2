@@ -58,6 +58,12 @@
 */
 
 static int qt_mime_serial_number = 0;
+static QMimeSourceFactory* defaultfactory = 0;
+
+void qt_cleanup_defaultfactory()
+{
+    delete defaultfactory;
+}
 
 /*! Constructs a mime source and assigns a globally unique serial
   number to it.
@@ -253,6 +259,8 @@ QMimeSourceFactory::QMimeSourceFactory() :
 */
 QMimeSourceFactory::~QMimeSourceFactory()
 {
+    if ( defaultFactory() == this )
+	defaultfactory = 0;
     delete d;
 }
 
@@ -360,7 +368,10 @@ const QMimeSource* QMimeSourceFactory::data(const QString& abs_name) const
     }
 
     if ( !r ) {
-	for ( QMimeSourceFactory *f = QMimeSourceFactory::defaultFactory()->d->factories.first(); f; f = defaultFactory()->d->factories.next() ) {
+	for ( QMimeSourceFactory *f = QMimeSourceFactory::defaultFactory()->d->factories.first();
+	      f; f = defaultFactory()->d->factories.next() ) {
+	    if ( f == this )
+		continue;
 	    r = (QMimeSource*)f->data( abs_name );
 	    if ( r )
 		return r;
@@ -489,12 +500,6 @@ void QMimeSourceFactory::setData( const QString& abs_name, QMimeSource* data )
 }
 
 
-
-static QMimeSourceFactory* defaultfactory = 0;
-void qt_cleanup_defaultfactory()
-{
-    delete defaultfactory;
-}
 
 /*!
   Returns the application-wide default mime source factory. This
