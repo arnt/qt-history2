@@ -249,14 +249,30 @@ public:
 
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::Null) const;
 
+#ifdef Q_NO_USING_KEYWORD
+    bool insertRows(int row, const QModelIndex &parent, int count)
+    { return QAbstractItemModel::insertRows(row, parent, count); }
+    bool insertColumns(int column, const QModelIndex &parent, int count)
+    { return QAbstractItemModel::insertColumns(column, parent, count); }
+    bool removeRows(int row, const QModelIndex &parent, int count)
+    { return QAbstractItemModel::removeRows(row, parent, count); }
+    bool removeColumns(int column, const QModelIndex &parent, int count)
+    { return QAbstractItemModel::removeColumns(column, parent, count); }
+#else
+    using QAbstractItemModel::insertRows;
+    using QAbstractItemModel::insertColumns;
+    using QAbstractItemModel::removeRows;
+    using QAbstractItemModel::removeColumns;
+#endif
+
     inline bool insertRows(int row, int count)
-    { return QAbstractItemModel::insertRows(row, QModelIndex::Null, count); }
+    { return insertRows(row, QModelIndex::Null, count); }
     inline bool insertColumns(int column, int count)
-    { return QAbstractItemModel::insertColumns(column, QModelIndex::Null, count); }
+    { return insertColumns(column, QModelIndex::Null, count); }
     inline bool removeRows(int row, int count)
-    { return QAbstractItemModel::removeRows(row, QModelIndex::Null, count); }
+    { return removeRows(row, QModelIndex::Null, count); }
     inline bool removeColumns(int column, int count)
-    { return QAbstractItemModel::removeColumns(column, QModelIndex::Null, count); }
+    { return removeColumns(column, QModelIndex::Null, count); }
 
 protected:
     QAbstractTableModel(QAbstractItemModelPrivate &dd, QObject *parent);
