@@ -57,7 +57,19 @@ bool QDecorationStyled::paint(QPainter *painter, const QWidget *widget, int deco
     if (decorationRegion == None)
         return false;
 
-    const QPalette pal = widget->palette();
+    QPalette pal = widget->palette();
+    //ideally, the difference between Active and Inactive should be enough, so we shouldn't need to test this
+    if (widget != qApp->activeWindow()) {
+        //pal.setCurrentColorGroup(QPalette::Disabled); //Can't do this either, because of palette limitations
+        //copied from Q3TitleBar:
+         pal.setColor(QPalette::Inactive, QPalette::Highlight,
+                      pal.color(QPalette::Inactive, QPalette::Dark));
+        pal.setColor(QPalette::Inactive, QPalette::Base,
+                      pal.color(QPalette::Inactive, QPalette::Dark));
+        pal.setColor(QPalette::Inactive, QPalette::HighlightedText,
+                      pal.color(QPalette::Inactive, QPalette::Background));
+    }
+
     QRegion oldClipRegion = painter->clipRegion();
 
     Qt::WindowFlags flags = widget->windowFlags();
