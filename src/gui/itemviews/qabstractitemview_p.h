@@ -166,28 +166,4 @@ inline int qBinarySearch(const QVector<T> &vec, const T &item, int start, int en
     return i;
 }
 
-template <typename T>
-inline void qExpand(QVector<T> &vec, int after, size_t n)
-{
-    size_t m = vec.size() - after - 1;
-    vec.resize(vec.size() + n);
-    T *b = static_cast<T *>(vec.data());
-    T *src = b + after + 1;
-    T *dst = src + n;
-    memmove(dst, src, m * sizeof(T));
-}
-
-template <typename T>
-inline void qCollapse(QVector<T> &vec, int after, size_t n)
-{
-    if (after + 1 + n < static_cast<size_t>(vec.size())) {
-        T *b = vec.data();
-        T *dst = b + after + 1;
-        T *src = dst + n;
-        size_t m = vec.size() - n - after - 1;
-        memmove(dst, src, m * sizeof(T));
-    }
-    vec.resize(vec.size() - n);
-}
-
 #endif // QABSTRACTITEMVIEW_P_H

@@ -1246,7 +1246,7 @@ void QTreeViewPrivate::collapse(int i)
         tmp = tmp.parent();
         idx = viewIndex(tmp);
     }
-    qCollapse<QTreeViewItem>(viewItems, i, total);
+    viewItems.remove(i + 1, total); // collapse
 
     emit q->collapsed(index);
 }
@@ -1260,7 +1260,7 @@ void QTreeViewPrivate::layout(int i)
     if (i == -1)
         viewItems.resize(count);
     else
-        qExpand<QTreeViewItem>(viewItems, i, count);
+        viewItems.insert(i + 1, count, QTreeViewItem()); // expand
 
     int first = i + 1;
     int level = (i >= 0 ? viewItems.at(i).level + 1 : 0);
@@ -1280,7 +1280,7 @@ void QTreeViewPrivate::layout(int i)
 
     // remove hidden items
     if (hidden > 0)
-        qCollapse<QTreeViewItem>(viewItems, last, hidden);
+        viewItems.remove(last + 1, hidden); // collapse
 
     QModelIndex root = q->rootIndex();
     while (parent != root) {
