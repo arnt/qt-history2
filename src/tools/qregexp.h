@@ -95,5 +95,5 @@ private:
     QRegExpEngine *eng;
     QRegExpPrivate *priv;
 };
-#endif QT_NO_REGEXP
+#endif // QT_NO_REGEXP
 #endif // QREGEXP_H
