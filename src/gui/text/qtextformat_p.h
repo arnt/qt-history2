@@ -2,6 +2,7 @@
 #define QTEXTFORMAT_P_H
 
 #include "qtextformat.h"
+#include <private/qobject_p.h>
 #include <qvector.h>
 #include <qmap.h>
 
@@ -64,7 +65,6 @@ public:
 };
 
 
-
 class Q_GUI_EXPORT QTextFormatCollection
 {
 public:
@@ -97,12 +97,26 @@ public:
 
     inline int numFormats() const { return formats.count(); }
 
+    QTextFormatGroup *createGroup(int index);
+
     mutable QAtomic ref;
 private:
 
     mutable QVector<QSharedDataPointer<QTextFormatPrivate> > formats;
     QVector<QTextFormatGroup *> groups;
 };
+
+class QTextFormatGroupPrivate : public QObjectPrivate
+{
+    Q_DECLARE_PUBLIC(QTextFormatGroup);
+public:
+    QTextFormatCollection *collection;
+    int index;
+
+    typedef QMap<int, int> BlockList;
+    BlockList blocks;
+};
+
 
 
 #endif // QTEXTFORMAT_P_H

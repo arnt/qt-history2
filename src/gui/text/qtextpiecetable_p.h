@@ -24,7 +24,6 @@
 
 class QTextFormatCollection;
 class QTextFormat;
-class QTextListManager;
 class QTextTableManager;
 class QTextBlockFormat;
 class QTextCursorPrivate;
@@ -134,7 +133,6 @@ public:
 
     inline QTextFormatCollection *formatCollection() { return formats; }
     inline const QTextFormatCollection *formatCollection() const { return formats; }
-    inline QTextListManager *listManager() const { return lists; }
     inline QTextTableManager *tableManager() const { return tables; }
     inline QAbstractTextDocumentLayout *layout() const { return lout; }
 
@@ -200,7 +198,6 @@ private:
     int docChangeLength;
 
     QTextFormatCollection *formats;
-    QTextListManager *lists;
     QTextTableManager *tables;
     QAbstractTextDocumentLayout *lout;
     FragmentMap fragments;

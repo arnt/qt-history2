@@ -1,5 +1,7 @@
 #include "qtextformat.h"
 #include "qtextformat_p.h"
+#include <qtextblockiterator.h>
+#include <qtextlist.h>
 
 #include <qstring.h>
 #include <qfontmetrics.h>
@@ -7,6 +9,7 @@
 #include <private/qobject_p.h>
 #include <qmap.h>
 #include <qfont.h>
+#include <qvector.h>
 
 
 #ifndef QT_NO_DEBUG
@@ -249,8 +252,8 @@ void QTextFormat::setGroup(QTextFormatGroup *group)
 	return;
     }
 
-    QTextFormatCollection *c = group->collection;
-    Q_ASSERT(group->collection);
+    QTextFormatCollection *c = group->d_func()->collection;
+    Q_ASSERT(c);
     ++c->ref;
     c = qAtomicSetPtr(&collection, c);
     if (c && !--c->ref)
@@ -426,31 +429,49 @@ QTextTableFormat QTextBlockFormat::tableFormat() const
 
 // ------------------------------------------------------
 
+QTextFormatGroup *QTextFormatCollection::createGroup(int index)
+{
+    QTextFormat f = format(index);
+
+    QTextFormatGroup *group;
+    if (f.isListFormat())
+	group = new QTextList;
+    else
+	group = new QTextFormatGroup;
+    group->d_func()->collection = this;
+    group->d_func()->index = index;
+
+    return group;
+}
+
+
 QTextFormatCollection::QTextFormatCollection(const QTextFormatCollection &rhs)
 {
     ref = 0;
     formats = rhs.formats;
     for (int i = 0; i < rhs.groups.size(); ++i) {
 	QTextFormatGroup *g = rhs.groups.at(i);
-	groups.append(new QTextFormatGroup(this, g->idx));
+	groups.append(createGroup(g->d_func()->index));
     }
 }
 QTextFormatCollection &QTextFormatCollection::operator=(const QTextFormatCollection &rhs)
 {
-    qDeleteAll(groups);
+    for (int i = 0; i < groups.size(); ++i)
+	delete groups[i];
     groups.clear();
 
     formats = rhs.formats;
     for (int i = 0; i < rhs.groups.size(); ++i) {
 	QTextFormatGroup *g = rhs.groups.at(i);
-	groups.append(new QTextFormatGroup(this, g->idx));
+	groups.append(createGroup(g->d_func()->index));
     }
     return *this;
 }
 
 QTextFormatCollection::~QTextFormatCollection()
 {
-    qDeleteAll(groups);
+    for (int i = 0; i < groups.size(); ++i)
+	delete groups[i];
 }
 
 int QTextFormatCollection::indexForFormat(const QTextFormat &format)
@@ -480,7 +501,7 @@ QTextFormatGroup *QTextFormatCollection::createGroup(const QTextFormat &format)
 {
     int formatIdx = indexForFormat(format);
 
-    QTextFormatGroup *g = new QTextFormatGroup(this, formatIdx);
+    QTextFormatGroup *g = createGroup(formatIdx);
     groups.append(g);
     return g;
 }
@@ -494,7 +515,7 @@ QTextFormatGroup *QTextFormatCollection::group(int groupIndex) const
 
 int QTextFormatCollection::indexForGroup(QTextFormatGroup *group)
 {
-    Q_ASSERT(group->collection == this);
+    Q_ASSERT(group->d_func()->collection == this);
     for (int i = 0; i < groups.size(); ++i)
 	if (groups.at(i) == group)
 	    return i;
@@ -513,14 +534,42 @@ QTextFormat QTextFormatCollection::format(int idx) const
 }
 
 
+#define d d_func()
+#define q q_func()
+
+
+QTextFormatGroup::QTextFormatGroup()
+    : QObject(*new QTextFormatGroupPrivate, 0)
+{
+}
+
+QTextFormatGroup::QTextFormatGroup(QTextFormatGroupPrivate &p)
+    :QObject(p, 0)
+{
+}
+
+QTextFormatGroup::~QTextFormatGroup()
+{
+}
+
+
 QTextFormat QTextFormatGroup::commonFormat() const
 {
-    return collection->format(idx);
+    return d->collection->format(d->index);
 }
 
 void QTextFormatGroup::setCommonFormat(const QTextFormat &format)
 {
-    idx = collection->indexForFormat(format);
+    d->index = d->collection->indexForFormat(format);
     // ####### undo/redo
 }
 
+void QTextFormatGroup::insertBlock(const QTextBlockIterator &block)
+{
+    d->blocks.insert(block.position(), block.n);
+}
+
+void QTextFormatGroup::removeBlock(const QTextBlockIterator &block)
+{
+    d->blocks.remove(block.position());
+}

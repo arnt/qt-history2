@@ -1,7 +1,6 @@
 #include "qtextdocumentlayout_p.h"
 #include <private/qtextformat_p.h>
 #include "qtextpiecetable_p.h"
-#include "qtextlistmanager_p.h"
 #include "qtexttablemanager_p.h"
 #include "qtextimagehandler_p.h"
 #include "qtexttable.h"
@@ -80,7 +79,7 @@ void QTextDocumentLayout::drawListItem(QPainter *painter, const PaintContext &co
 	case QTextListFormat::ListDecimal:
 	case QTextListFormat::ListLowerAlpha:
 	case QTextListFormat::ListUpperAlpha:
-	    itemText = QTextListItem(bl).text();
+	    itemText = static_cast<QTextList *>(blockFormat.group())->itemText(bl);
 	    size.setWidth(fontMetrics.width(itemText));
 	    size.setHeight(fontMetrics.height());
 	    break;

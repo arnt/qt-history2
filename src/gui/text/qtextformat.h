@@ -4,6 +4,7 @@
 #ifndef QT_H
 #include <qcolor.h>
 #include <qshareddatapointer.h>
+#include <qobject.h>
 #endif // QT_H
 
 class QString;
@@ -18,20 +19,30 @@ class QTextListFormat;
 class QTextTableFormat;
 class QTextImageFormat;
 class QTextFormat;
+class QTextBlockIterator;
 
-class QTextFormatGroup
+class QTextFormatGroupPrivate;
+
+class QTextFormatGroup : public QObject
 {
+    Q_DECLARE_PRIVATE(QTextFormatGroup);
+protected:
+    QTextFormatGroup();
+    ~QTextFormatGroup();
+    QTextFormatGroup(QTextFormatGroupPrivate &p);
 public:
     int commonFormatType() const;
     QTextFormat commonFormat() const;
     void setCommonFormat(const QTextFormat &format);
+
+protected:
+    virtual void insertBlock(const QTextBlockIterator &block);
+    virtual void removeBlock(const QTextBlockIterator &block);
+
 private:
     friend class QTextFormatCollection;
     friend class QTextFormat;
-    QTextFormatGroup(QTextFormatCollection *c, int index) : collection(c), idx(index) {}
-
-    QTextFormatCollection *collection;
-    int idx;
+    friend class QTextPieceTable;
 };
 
 class Q_GUI_EXPORT QTextFormat

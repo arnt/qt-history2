@@ -11,7 +11,7 @@ class QTextListPrivate;
 class QTextPieceTable;
 class QTextCursor;
 
-class Q_GUI_EXPORT QTextList : public QObject
+class Q_GUI_EXPORT QTextList : public QTextFormatGroup
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTextList);
@@ -21,18 +21,20 @@ public:
     inline bool isEmpty() const
     { return count() == 0; }
 
-    QTextCursor item(int i) const;
+    QTextBlockIterator item(int i) const;
 
-    void setFormat(const QTextListFormat &format);
-    QTextListFormat format() const;
+    QString itemNumber(const QTextBlockIterator &) const;
+    QString itemText(const QTextBlockIterator &) const;
+
+
+    void setFormat(const QTextListFormat &format) { setCommonFormat(format); }
+    QTextListFormat format() const { return commonFormat().toListFormat(); }
 
 private:
-    QTextList(QTextPieceTable *table, QObject *parent);
+    QTextList();
     ~QTextList();
 
-    friend class QTextListManager;
-    friend class QTextListItem;
-    QTextPieceTable *tbl;
+    friend class QTextFormatCollection;
 
 #if defined(Q_DISABLE_COPY)
     QTextList(const QTextList &rhs);

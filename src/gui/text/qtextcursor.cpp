@@ -3,7 +3,7 @@
 #include "qglobal.h"
 #include "qtextdocumentfragment.h"
 #include "qtextdocumentfragment_p.h"
-#include "qtextlistmanager_p.h"
+#include "qtextlist.h"
 #include "qtexttablemanager_p.h"
 #include "qtexttable.h"
 
@@ -851,13 +851,10 @@ QTextList *QTextCursor::createList(const QTextListFormat &format)
 	return 0;
 
     QTextFormatCollection *c = d->pieceTable->formatCollection();
-    QTextFormatGroup *group = c->createGroup(format);
+    QTextList *list = static_cast<QTextList *>(c->createGroup(format));
     QTextBlockFormat modifier;
-    modifier.setGroup(group);
+    modifier.setGroup(list);
     applyBlockFormatModifier(modifier);
-
-    QTextList *list = d->pieceTable->listManager()->list(group);
-    Q_ASSERT(list);
     return list;
 }
 
@@ -887,7 +884,10 @@ QTextList *QTextCursor::currentList() const
     if (!d)
 	return 0;
 
-    return d->pieceTable->listManager()->list(blockFormat().group());
+    QTextBlockFormat b = blockFormat();
+    if (b.isListFormat())
+	return static_cast<QTextList *>(b.group());
+    return 0;
 }
 
 int QTextCursor::listItemNumber() const
@@ -895,7 +895,8 @@ int QTextCursor::listItemNumber() const
     if (!d)
 	return -1;
 
-    return QTextListItem(d->block()).itemNumber();
+    // ###########
+    return 1;
 }
 
 QString QTextCursor::listItemText() const
@@ -903,7 +904,8 @@ QString QTextCursor::listItemText() const
     if (!d)
 	return QString();
 
-    return QTextListItem(d->block()).text();
+    // #############
+    return QString();
 }
 
 /*!

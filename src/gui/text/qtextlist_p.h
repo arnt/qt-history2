@@ -6,40 +6,17 @@
 #include "qtextdocument.h"
 #include "qabstracttextdocumentlayout.h"
 #include <qpointer.h>
-#include <private/qobject_p.h>
+#include "qtextformat_p.h"
 #endif // QT_H
 
 class QTextList;
 
-class QTextListPrivate : public QObjectPrivate
+class QTextListPrivate : public QTextFormatGroupPrivate
 {
 public:
     int itemNumber(const QTextBlockIterator &block) const;
 
-    void appendBlock(const QTextBlockIterator &block);
-
-    QTextFormatGroup *group() const;
-
     void removeAllFormatIndicesFromBlocks();
-
-    typedef QVector<QTextBlockIterator> BlockList;
-    BlockList blocks;
-};
-
-class QTextListItem
-{
-public:
-    inline QTextListItem() : item(-1) {}
-    QTextListItem(const QTextBlockIterator &block);
-    QTextListItem(QTextList *_list, int _item);
-
-    QString text() const;
-
-    inline int itemNumber() const { return item; }
-
-private:
-    QPointer<QTextList> list;
-    int item;
 };
 
 template <class Manager>

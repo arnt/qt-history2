@@ -5,7 +5,6 @@
 #include "qtextdocument.h"
 #include <qtextformat.h>
 #include <private/qtextformat_p.h>
-#include "qtextlistmanager_p.h"
 #include "qtexttablemanager_p.h"
 #include "qtextcursor.h"
 #include "qtextimagehandler_p.h"
@@ -68,7 +67,6 @@ QTextPieceTable::QTextPieceTable(QAbstractTextDocumentLayout *layout)
 
     formats = new QTextFormatCollection;
     ++formats->ref;
-    lists = new QTextListManager(this);
     tables = new QTextTableManager(this);
     if (!layout)
 	layout = new QTextDocumentLayout();
@@ -150,6 +148,9 @@ void QTextPieceTable::insert_block(int pos, uint strPos, int format, int blockFo
 
     Q_ASSERT(blocks.length() == fragments.length());
 
+    QTextFormatGroup *group = formats->format(blockFormat).group();
+    if (group)
+	group->insertBlock(QTextBlockIterator(this, b));
     emit blockChanged(pos+1, QText::Insert);
 
     emit textChanged(pos, 1);
@@ -195,6 +196,10 @@ int QTextPieceTable::remove_block(int pos)
     Q_ASSERT(b && (int)blocks.position(b) == pos+1);
     Q_ASSERT(x && (int)fragments.position(x) == pos);
     Q_ASSERT(text.at(fragments.fragment(x)->stringPosition) == QTextParagraphSeparator);
+
+    QTextFormatGroup *group = formats->format(blocks.fragment(b)->format).group();
+    if (group)
+	group->removeBlock(QTextBlockIterator(this, b));
 
     int size = blocks.size(b);
     int p = blocks.prev(b);
@@ -415,6 +420,7 @@ void QTextPieceTable::setBlockFormat(int pos, int length, const QTextBlockFormat
     int newFormatIdx = -1;
     if (mode == SetFormat)
 	newFormatIdx = formats->indexForFormat(newFormat);
+    QTextFormatGroup *group = newFormat.group();
 
     QTextBlockIterator blockIt = blocksFind(pos);
     QTextBlockIterator endIt = blocksFind(pos + length);
@@ -426,10 +432,12 @@ void QTextPieceTable::setBlockFormat(int pos, int length, const QTextBlockFormat
 	++endIt;
     for (; !blockIt.atEnd() && blockIt != endIt; ++blockIt) {
 	int oldFormat = block(blockIt)->format;
+	QTextBlockFormat format = formats->blockFormat(oldFormat);
+	QTextFormatGroup *oldGroup = format.group();
 	if (mode == MergeFormat) {
-	    QTextBlockFormat format = formats->blockFormat(oldFormat);
 	    format += newFormat;
 	    newFormatIdx = formats->indexForFormat(format);
+	    group = format.group();
 	}
 	block(blockIt)->format = newFormatIdx;
 
@@ -440,6 +448,10 @@ void QTextPieceTable::setBlockFormat(int pos, int length, const QTextBlockFormat
 
 	    appendUndoItem(c);
 	    Q_ASSERT(undoPosition == undoStack.size());
+	}
+	if (group != oldGroup) {
+	    oldGroup->removeBlock(blockIt);
+	    group->insertBlock(blockIt);
 	}
     }
 
