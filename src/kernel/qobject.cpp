@@ -241,8 +241,8 @@ QObject::QObject(QObject *parent)
     d_ptr->q_ptr = this;
     setParent(parent);
     QEvent e( QEvent::Create );
-    QApplication::sendEvent( this, &e );
-    QApplication::postEvent(this, new QEvent(QEvent::PolishRequest));
+    QKernelApplication::sendEvent( this, &e );
+    QKernelApplication::postEvent(this, new QEvent(QEvent::PolishRequest));
 }
 
 
@@ -264,8 +264,8 @@ QObject::QObject( QObject *parent, const char *name )
 	setObjectName(name);
     setParent(parent);
     QEvent e( QEvent::Create );
-    QApplication::sendEvent( this, &e );
-    QApplication::postEvent(this, new QEvent(QEvent::PolishRequest));
+    QKernelApplication::sendEvent( this, &e );
+    QKernelApplication::postEvent(this, new QEvent(QEvent::PolishRequest));
 }
 
 #endif
@@ -288,8 +288,8 @@ QObject::QObject(QObjectPrivate *dd, QObject *parent, const char *name)
 	setObjectName(name);
     setParent(parent);
     QEvent e( QEvent::Create );
-    QApplication::sendEvent( this, &e );
-    QApplication::postEvent(this, new QEvent(QEvent::PolishRequest));
+    QKernelApplication::sendEvent( this, &e );
+    QKernelApplication::postEvent(this, new QEvent(QEvent::PolishRequest));
 }
 
 /*!\internal*/
@@ -346,7 +346,7 @@ QObject::~QObject()
     wasDeleted = 1;
 
     QEvent e( QEvent::Destroy );
-    QApplication::sendEvent( this, &e );
+    QKernelApplication::sendEvent( this, &e );
 
     blockSig = 0; // unblock signals so we always emit destroyed()
     emit destroyed( this );
@@ -360,8 +360,8 @@ QObject::~QObject()
     }
 
     // might have pending timers
-    if ( QApplication::eventLoop() && pendTimer )
-	QApplication::eventLoop()->unregisterTimers(this);
+    if ( QKernelApplication::eventLoop() && pendTimer )
+	QKernelApplication::eventLoop()->unregisterTimers(this);
 
     if ( parentObj )				// remove it from parent object
 	setParent_helper(0);
@@ -395,7 +395,7 @@ QObject::~QObject()
 	d->children.setAutoDelete(TRUE);
 	d->children.clear();
     }
-    QApplication::removePostedEvents( this );
+    QKernelApplication::removePostedEvents( this );
 
     if (d->objectName && d->ownObjectName) {
 	delete [] (char*)d->objectName;
@@ -712,10 +712,10 @@ void QObject::ensurePolished() const
     d->polished = m;
 
     QEvent e(QEvent::Polish);
-    QApplication::sendEvent((QObject*)this, &e);
+    QKernelApplication::sendEvent((QObject*)this, &e);
     if (parentObj) {
 	QChildEvent e(QEvent::ChildPolished, (QObject*)this);
-	QApplication::sendEvent((QObject*)parentObj, &e);
+	QKernelApplication::sendEvent((QObject*)parentObj, &e);
     }
 
 }
@@ -898,7 +898,7 @@ bool QObject::blockSignals( bool block )
 int QObject::startTimer( int interval )
 {
     pendTimer = TRUE;				// set timer flag
-    return QApplication::eventLoop()->registerTimer(interval, (QObject *)this);
+    return QKernelApplication::eventLoop()->registerTimer(interval, (QObject *)this);
 }
 
 /*!
@@ -912,8 +912,8 @@ int QObject::startTimer( int interval )
 
 void QObject::killTimer( int id )
 {
-    if ( QApplication::eventLoop() )
-	QApplication::eventLoop()->unregisterTimer(id);
+    if ( QKernelApplication::eventLoop() )
+	QKernelApplication::eventLoop()->unregisterTimer(id);
 }
 
 static void objSearch( QObjectList &result,
@@ -1073,22 +1073,20 @@ void QObject::setParent_helper(QObject *parent)
 	return;
     if (parentObj && parentObj->d->children.remove(this)) {
 	QChildEvent e(QEvent::ChildRemoved, this);
-	QApplication::sendEvent( parentObj, &e);
+	QKernelApplication::sendEvent( parentObj, &e);
     }
     parentObj = parent;
     if (parentObj) {
-	if (isWidget && parentObj->isWidget && qt_cast<QDesktopWidget*>(parent))
-	    return; // QDesktop widget does not take ownership of widget children
 	parentObj->d->children.append(this);
 	const QMetaObject *polished = d->polished;
 	QChildEvent e(QEvent::ChildAdded, this);
-	QApplication::sendEvent(parentObj, &e);
+	QKernelApplication::sendEvent(parentObj, &e);
 	if (polished) {
 	    QChildEvent e(QEvent::ChildPolished, this);
-	    QApplication::sendEvent(parentObj, &e);
+	    QKernelApplication::sendEvent(parentObj, &e);
 	}
 #ifndef QT_NO_COMPAT
-	QApplication::postEvent(parentObj, new QChildEvent(QEvent::ChildInserted, this));
+	QKernelApplication::postEvent(parentObj, new QChildEvent(QEvent::ChildInserted, this));
 #endif
     }
 }
@@ -1219,7 +1217,7 @@ void QObject::removeEventFilter( const QObject *obj )
 */
 void QObject::deleteLater()
 {
-    QApplication::postEvent( this, new QEvent( QEvent::DeferredDelete) );
+    QKernelApplication::postEvent( this, new QEvent( QEvent::DeferredDelete) );
 }
 
 /*!

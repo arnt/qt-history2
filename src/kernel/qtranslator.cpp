@@ -641,15 +641,8 @@ void QTranslator::clear()
     d->messages = 0;
 #endif
 
-    if ( qApp && qApp->loopLevel() ) {
-	qApp->setReverseLayout( qt_detectRTLLanguage() );
-
-	QWidgetList list = QApplication::topLevelWidgets();
-	for (int i = 0; i < list.size(); ++i) {
-	    QWidget *w = list.at(i);
-	    qApp->postEvent( w, new QEvent( QEvent::LanguageChange ) );
-	}
-    }
+    QEvent ev(QEvent::LanguageChange);
+    QKernelApplication::sendEvent(QKernelApplication::instance(), &ev);
 }
 
 #ifndef QT_NO_TRANSLATION_BUILDER

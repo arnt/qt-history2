@@ -2053,6 +2053,14 @@ bool QApplication::event( QEvent *e )
 	}
 	if(ce->isAccepted())
 	    return TRUE;
+    } else if(e->type() == QEvent::LanguageChange) {
+	if(loopLevel()) {
+	    QWidgetList list = topLevelWidgets();
+	    for (int i = 0; i < list.size(); ++i) {
+		QWidget *w = list.at(i);
+		postEvent( w, new QEvent( QEvent::LanguageChange ) );
+	    }
+	}
     } else if (e->type() == QEvent::Timer) {
 	QTimerEvent *te = static_cast<QTimerEvent*>(e);
 	Q_ASSERT(te != 0);
