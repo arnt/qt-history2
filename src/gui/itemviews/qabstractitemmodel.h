@@ -169,10 +169,10 @@ public:
 
 signals:
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-    void rowsInserted(const QModelIndex &parent, int start, int end);
-    void rowsRemoved(const QModelIndex &parent, int start, int end);
-    void columnsInserted(const QModelIndex &parent, int start, int end);
-    void columnsRemoved(const QModelIndex &parent, int start, int end);
+    void rowsInserted(const QModelIndex &parent, int first, int last);
+    void rowsRemoved(const QModelIndex &parent, int first, int last);
+    void columnsInserted(const QModelIndex &parent, int first, int last);
+    void columnsRemoved(const QModelIndex &parent, int first, int last);
 
 protected:
     QAbstractItemModel(QAbstractItemModelPrivate &dd, QObject *parent);

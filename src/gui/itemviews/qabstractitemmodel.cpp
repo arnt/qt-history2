@@ -660,7 +660,7 @@ bool QAbstractItemModel::setItemData(const QModelIndex &index, const QMap<int, Q
 }
 
 /*!
-  Inserts \a count rows in the model at position \a row. If \a row is 0 the
+  Inserts \a count rows in the model before position \a row. If \a row is 0 the
   rows are prepended to the model, if \a row is rowCount() the rows are
   appended to the model. The row will be a child of \a parent.
   If \a parent has no children \a count rows with at least one column is inserted.
@@ -677,7 +677,7 @@ bool QAbstractItemModel::insertRows(int, const QModelIndex &, int)
 }
 
 /*!
-  Inserts \a count new columns in the model at position \a column. If \a
+  Inserts \a count new columns in the model before position \a column. If \a
   column is 0 the columns are prepended to the model, if \a column is
   columnCount() the columns are appended to the model. The column will
   be a child of \a parent.   If \a parent has no children \a count columns with at least one row is inserted.
