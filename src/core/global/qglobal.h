@@ -1184,6 +1184,8 @@ Q_CORE_EXPORT void qt_check_pointer(const char *, int);
 
 enum QtMsgType { QtDebugMsg, QtWarningMsg, QtCriticalMsg, QtFatalMsg, QtSystemMsg = QtCriticalMsg };
 
+Q_CORE_EXPORT void qt_message_output(QtMsgType, const char *buf);
+
 typedef void (*QtMsgHandler)(QtMsgType, const char *);
 Q_CORE_EXPORT QtMsgHandler qInstallMsgHandler(QtMsgHandler);
 

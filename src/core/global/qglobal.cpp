@@ -524,6 +524,37 @@ QtMsgHandler qInstallMsgHandler(QtMsgHandler h)
     return old;
 }
 
+
+void qt_message_output(QtMsgType msgType, const char *buf)
+{
+    if (handler) {
+        (*handler)(msgType, buf);
+    } else {
+#if defined(Q_CC_MWERKS)
+        mac_default_handler(buf);
+#elif defined(Q_OS_TEMP)
+        QString fstr(buf);
+        OutputDebugString((fstr + "\n").utf16());
+#else
+        fprintf(stderr, "%s\n", buf);
+#endif
+    }
+
+    if (msgType == QtFatalMsg
+        || (msgType == QtWarningMsg && (qgetenv("QT_FATAL_WARNINGS") != 0)) ) {
+
+#if defined(Q_CC_MSVC) && defined(QT_DEBUG) && defined(_DEBUG) && defined(_CRT_ERROR)
+        _CrtDbgReport(_CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, buf);
+#endif
+
+#if defined(Q_OS_UNIX) && defined(QT_DEBUG)
+        abort(); // trap; generates core dump
+#else
+        exit(1); // goodbye cruel world
+#endif
+    }
+}
+
 #undef qDebug
 /*!
     \relates QApplication
@@ -566,18 +597,8 @@ void qDebug(const char *msg, ...)
     va_start(ap, msg);                        // use variable arg list
     qvsnprintf(buf, QT_BUFFER_LENGTH, msg, ap);
     va_end(ap);
-    if (handler) {
-        (*handler)(QtDebugMsg, buf);
-    } else {
-#if defined(Q_CC_MWERKS)
-        mac_default_handler(buf);
-#elif defined(Q_OS_TEMP)
-        QString fstr(buf);
-        OutputDebugString((fstr + "\n").utf16());
-#else
-        fprintf(stderr, "%s\n", buf);                // add newline
-#endif
-    }
+
+    qt_message_output(QtDebugMsg, buf);
 }
 
 #undef qWarning
@@ -617,35 +638,10 @@ void qWarning(const char *msg, ...)
     char buf[QT_BUFFER_LENGTH];
     va_list ap;
     va_start(ap, msg); // use variable arg list
-    bool fatalWarnings = (qgetenv("QT_FATAL_WARNINGS") != 0);
     qvsnprintf(buf, QT_BUFFER_LENGTH, msg, ap);
     va_end(ap);
-    if (handler) {
-        (*handler)(QtWarningMsg, buf);
-    } else {
-#if defined(Q_CC_MWERKS)
-        mac_default_handler(buf);
-#else
-        fprintf(stderr, "%s\n", buf);
-#endif
-#if defined(Q_OS_TEMP) && defined(QT_DEBUG)
-        QString fstr;
-        fstr.sprintf("%s:%s %s %s\n", __FILE__, __LINE__, QT_VERSION_STR, buf);
-        OutputDebugString(fstr.utf16());
-#elif defined(Q_CC_MSVC) && defined(QT_DEBUG) && defined(_DEBUG) && defined(_CRT_ERROR)
-        if (fatalWarnings)
-            _CrtDbgReport(_CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, buf);
-#endif
-    }
 
-    if (!fatalWarnings)
-        return;
-
-#if defined(Q_OS_UNIX) && defined(QT_DEBUG)
-    abort(); // trap; generates core dump
-#else
-    exit(1); // goodbye cruel world
-#endif
+    qt_message_output(QtWarningMsg, buf);
 }
 
 /*!
@@ -686,18 +682,7 @@ void qCritical(const char *msg, ...)
     qvsnprintf(buf, QT_BUFFER_LENGTH, msg, ap);
     va_end(ap);
 
-    if (handler) {
-        (*handler)(QtCriticalMsg, buf);
-    } else {
-#if defined(Q_CC_MWERKS)
-        mac_default_handler(buf);
-#elif defined(Q_OS_TEMP)
-        QString fstr(buf);
-        OutputDebugString((fstr + "\n").utf16());
-#else
-        fprintf(stderr, "%s\n", buf);
-#endif
-    }
+    qt_message_output(QtCriticalMsg, buf);
 }
 #ifdef QT_COMPAT
 void qSystemWarning(const char *msg, int code)
@@ -768,27 +753,8 @@ void qFatal(const char *msg, ...)
     va_start(ap, msg); // use variable arg list
     qvsnprintf(buf, QT_BUFFER_LENGTH, msg, ap);
     va_end(ap);
-    if (handler) {
-        (*handler)(QtFatalMsg, buf);
-    } else {
-#if defined(Q_CC_MWERKS)
-        mac_default_handler(buf);
-#else
-        fprintf(stderr, "%s\n", buf);
-#endif
-    }
 
-#if defined(Q_OS_UNIX) && defined(QT_DEBUG)
-    abort(); // trap; generates core dump
-#elif defined(Q_OS_TEMP) && defined(QT_DEBUG)
-    QString fstr;
-    fstr.sprintf("%s:%s %s %s\n", __FILE__, __LINE__, QT_VERSION_STR, buf);
-    OutputDebugString(fstr.ucs2());
-#elif defined(Q_CC_MSVC) && defined(QT_DEBUG) && defined(_DEBUG) && defined(_CRT_ERROR)
-    _CrtDbgReport(_CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, buf);
-#else
-    exit(1); // goodbye cruel world
-#endif
+    qt_message_output(QtFatalMsg, buf);
 }
 
 // getenv is declared as deprecated in VS2005. This function
