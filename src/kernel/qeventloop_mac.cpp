@@ -799,9 +799,6 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
     }
 
     if(d->quitnow) {
-#if defined(QT_THREAD_SUPPORT)
-	locker.mutex()->unlock();
-#endif
 	return FALSE;
     }
 
@@ -824,9 +821,6 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 	RunApplicationEventLoop();
     }
 
-#if defined(QT_THREAD_SUPPORT)
-    locker.mutex()->unlock();
-#endif
     return nevents > 0;
 }
 

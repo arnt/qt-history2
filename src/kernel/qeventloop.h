@@ -89,10 +89,6 @@ public:
 
     virtual void wakeUp();
 
-#if defined(QT_THREAD_SUPPORT)
-    QMutex *mutex() const;
-#endif // QT_THREAD_SUPPORT
-
 signals:
     void awake();
     void aboutToBlock();

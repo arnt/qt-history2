@@ -69,13 +69,6 @@ QEventLoop::~QEventLoop()
     INSTANCE = 0;
 }
 
-#if defined(QT_THREAD_SUPPORT)
-QMutex *QEventLoop::mutex() const
-{
-    return &d->mutex;
-}
-#endif // QT_THREAD_SUPPORT
-
 /*!
     Enters the main event loop and waits until exit() is called or the
     main widget is destroyed, and returns the value that was passed to
@@ -286,13 +279,6 @@ void QEventLoop::processEvents( ProcessEventsFlags flags, int maxTime )
 
     Wakes up the event loop.  This function is thread safe, and can be
     called by any running thread.
-*/
-
-/*! \fn QMutex *QEventLoop::mutex() const
-
-    Returns the Qt library mutex.  Do not call this function unless you
-    really know what you are doing.
-
 */
 
 /*! \fn void QEventLoop::awake()
