@@ -663,6 +663,7 @@ public:
  field type (QVariant::Type)
  field length (int)
  field decimal precision (int)
+ not null (bool)
 
 */
 
@@ -1146,13 +1147,14 @@ class CreateIndex : public Op
 {
 public:
     CreateIndex( const QVariant& id,
-		 bool unique )
-	: Op( id, QVariant( unique, 1 ) ) {}
+		 bool unique,
+		 bool notnull )
+	: Op( id, QVariant( unique, 1 ), QVariant( notnull, 1 ) ) {}
     QString name() const { return "createindex"; }
     int exec( LocalSQLEnvironment* env )
     {
 	LocalSQLFileDriver* drv = env->fileDriver( p1.toInt() );
-	return drv->createIndex( env->stack()->pop().toList(), p2.toBool() );
+	return drv->createIndex( env->stack()->pop().toList(), p2.toBool(), p3.toBool() );
     }
 };
 

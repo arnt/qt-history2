@@ -64,7 +64,7 @@ public:
     bool rangeMark( const List& data );
     bool rangeSave( const List& data, const List& cols, LocalSQLResultSet* result );
     bool markAll();
-    bool createIndex( const List& data, bool unique );
+    bool createIndex( const List& data, bool unique, bool notnull );
     bool drop();
     bool fieldTypeInfo( const QString& name, QVariant& v );
     bool fieldTypeInfo( int i, QVariant& v );
@@ -89,6 +89,7 @@ protected:
 
     bool rangeAction( const List* data, const List* cols, LocalSQLResultSet* result );
     bool saveResult( const List* cols, LocalSQLResultSet* result );
+    bool appendNotNullInfo( const QValueList<uint>& cols );
 
 private:
     QString nm;

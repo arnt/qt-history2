@@ -711,7 +711,7 @@ void Parser::emitExpr( const QVariant& expr, bool group, int trueLab,
 	int i;
 
 	switch ( node ) {
-    	case Node_Avg:
+	case Node_Avg:
 	    resultColumn = (*++v).toInt();
 	    yyProg->append( new PushGroupAvg(0, resultColumn) );
 	    break;
@@ -765,7 +765,7 @@ void Parser::emitExpr( const QVariant& expr, bool group, int trueLab,
 	    for ( i = 0; i < (int) yyActiveTableIds.count(); i++ ) {
 		tableId = yyActiveTableIds[i];
 		if ( group )
-		    error( "Invalid use of '*'" );		
+		    error( "Invalid use of '*'" );
 		else
 		    yyProg->append( new PushStarValue(tableId) );
 	    }
@@ -1076,7 +1076,7 @@ void Parser::createIndex( int tableId, const QStringList& columns, bool unique )
 	++col;
     }
     yyProg->append( new MakeList );
-    yyProg->append( new CreateIndex(tableId, unique) );
+    yyProg->append( new CreateIndex(tableId, unique, FALSE /* ###jasmin */ ) );
 }
 
 void Parser::pourConstantsIntoCondition( QVariant *cond,

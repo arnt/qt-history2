@@ -209,6 +209,7 @@ public:
     xbDbf file;		/* class for table   */
     QValueList<int> marked;
     QVector<xbNdx> indexes;
+    QValueList<uint> notnulls; /* not null columns */
     bool dopack;
 };
 
@@ -256,6 +257,7 @@ bool FileDriver::create( const List& data )
 	env->output() << "Table already exists: " << name() << endl;
 	return TRUE;
     }
+    d->notnulls.clear();
     QArray<xbSchema> xbrec( data.count()+1 ); /* one extra for null entry */
     xbSchema x;
     uint i = 0;
@@ -301,11 +303,51 @@ bool FileDriver::create( const List& data )
     if ( rc != XB_NO_ERROR ) {
 	ERROR_RETURN( "Unable to create table '" + name() + "': " + QString( xbStrError( rc ) ) );
     }
-
     d->file.CloseDatabase();   /* Close database and associated indexes */
+    /* not null specification */
+    if ( d->notnulls.count() ) {
+	xbSchema notnullrec[] =
+	{
+	    { "FIELDNUM", XB_NUMERIC_FLD,     9, 0 },
+	    { "",0,0,0 }
+	};
+	xbDbf notnullfile( &d->x );
+	rc = notnullfile.CreateDatabase( env->path() + "/" + name().latin1() + "nn.dbf",
+					 notnullrec, XB_OVERLAY );
+	if ( rc != XB_NO_ERROR ) {
+	    ERROR_RETURN( "Unable to create nn table '" + name() + "nn': " + QString( xbStrError( rc ) ) );
+	}
+	notnullfile.CloseDatabase();
+	if ( !appendNotNullInfo( d->notnulls ) ) {
+	    ERROR_RETURN( "Unable to store NOT NULL information: " + QString( xbStrError( rc ) ) );
+	}
+    }
 #ifdef DEBUG_XBASE
     env->output() << "success" << endl;
 #endif
+    return TRUE;
+}
+
+bool FileDriver::appendNotNullInfo( const QValueList<uint>& cols )
+{
+    if ( !cols.count() )
+	return TRUE;
+    QFileInfo fi( env->path() + "/" + name() );
+    QString basename = fi.baseName();
+    xbDbf notnullfile( &d->x );
+    xbShort rc = notnullfile.OpenDatabase( env->path() + "/" + basename + "nn.dbf" );
+    if ( rc != XB_NO_ERROR )
+	return FALSE;
+    for ( uint i = 0; i < cols.count(); ++i ) {
+	notnullfile.BlankRecord();
+	notnullfile.PutField( (short)0, QString::number(cols[i]).latin1() );
+	rc = notnullfile.AppendRecord();
+	if ( rc != XB_NO_ERROR ) {
+	    notnullfile.CloseDatabase();
+	    return FALSE;
+	}
+    }
+    notnullfile.CloseDatabase();
     return TRUE;
 }
 
@@ -344,6 +386,23 @@ bool FileDriver::open()
 	    env->output() << "(unique)" << flush;
 #endif
 	d->indexes.insert( i, idx );
+    }
+    /* determine NOT NULL columns */
+    d->notnulls.clear();
+    if ( QFile::exists( env->path() + "/" + basename + "nn.dbf" ) ) {
+	xbDbf notnullfile( &d->x );
+	rc = notnullfile.OpenDatabase( env->path() + "/" + basename + "nn.dbf" );
+	if ( rc != XB_NO_ERROR ) {
+	    ERROR_RETURN( "Unable to open nn table [" + QString ( xbStrError( rc ) ) + "]" );
+	}
+	char buf[10];
+	rc = notnullfile.GetFirstRecord();
+	while( rc == XB_NO_ERROR ) {
+	    notnullfile.GetField( 1, buf );
+	    d->notnulls.append( QString(buf).toInt() );
+	    rc = notnullfile.GetNextRecord();
+	}
+	notnullfile.CloseDatabase();
     }
 #ifdef DEBUG_XBASE
     env->output() << "success" << endl;
@@ -1022,7 +1081,7 @@ bool FileDriver::markAll()
      return TRUE;
 }
 
-bool FileDriver::createIndex( const List& data, bool unique )
+bool FileDriver::createIndex( const List& data, bool unique, bool notnull )
 {
 #ifdef DEBUG_XBASE
     env->output() << "FileDriver::createIndex..." << flush;
@@ -1033,6 +1092,7 @@ bool FileDriver::createIndex( const List& data, bool unique )
     if ( !data.count() ) {
 	ERROR_RETURN( "Internal error: Unable to create index, no fields defined");
     }
+    QValueList<uint> notnulls;
     uint i = 0;
     xbShort rc;
     QString indexDesc;
@@ -1055,6 +1115,8 @@ bool FileDriver::createIndex( const List& data, bool unique )
 			  QString( v2.typeName() ) + "'" );
 	}
 	indexDesc += QString(( indexDesc.length()>0 ? QString("+") : QString::null ) ) + name;
+	if ( !d->notnulls.contains( fieldnum ) )
+	    notnulls.append( fieldnum );
     }
     /* check if index already exists */
     bool forceCreate = TRUE;
@@ -1064,7 +1126,8 @@ bool FileDriver::createIndex( const List& data, bool unique )
 	    d->indexes[i]->GetExpression( buf,XB_MAX_NDX_NODE_SIZE  );
 	    if ( QString(buf) == indexDesc ) {
 		forceCreate = FALSE;
-		env->output() << "Unable to create index, index already exists: " << env->path() + "/" + name() << "." << buf << endl;
+		env->output() << "Unable to create index, index already exists: " <<
+		    env->path() + "/" + name() << "." << buf << endl;
 		break;
 	    }
 	}
@@ -1082,7 +1145,8 @@ bool FileDriver::createIndex( const List& data, bool unique )
 	d->indexes.insert( d->indexes.size()-1, idx );
 	/* get unique index name based on file name */
 	QFileInfo fi( env->path() + "/" + name() );
-	indexName = fi.baseName();
+	QString basename = fi.baseName();
+	indexName = basename;
 	i = 1;
 	fi.setFile( env->path() + "/" + indexName + QString::number(i) + ".ndx" );
 	while ( fi.exists() ) {
@@ -1101,7 +1165,13 @@ bool FileDriver::createIndex( const List& data, bool unique )
 	    QFile::remove( env->path() + "/" + indexName );
 	    ERROR_RETURN( "Unable to create index, unable to build index: " + QString( xbStrError( rc ) ) );
 	}
-
+	/* save not null info */
+	if ( notnulls.count() ) {
+	    if ( !appendNotNullInfo( notnulls ) ) {
+		ERROR_RETURN( "Unable to store NOT NULL information creating index: " +
+			      QString( xbStrError( rc ) ) );
+	    }
+	}
     }
 #ifdef DEBUG_XBASE
      env->output() << "success" << endl;
@@ -1132,6 +1202,7 @@ bool FileDriver::drop()
 #endif
     for ( uint i = 0; i < indexList.count(); ++i )
 	QFile::remove( indexList[i] );
+    QFile::remove( env->path() + "/" + basename + "nn.dbf" );
 #ifdef DEBUG_XBASE
      env->output() << "success" << endl;
 #endif

@@ -163,7 +163,7 @@ struct LocalSQLFileDriver : public LocalSQLDataSet
     virtual bool rangeMark( const List& data ) = 0;
     virtual bool rangeSave( const List& data, const List& cols, LocalSQLResultSet* result ) = 0;
     virtual bool markAll() = 0;
-    virtual bool createIndex( const List& index, bool unique ) = 0;
+    virtual bool createIndex( const List& index, bool unique, bool notnull ) = 0;
     virtual bool drop() = 0;
     virtual bool fieldTypeInfo( const QString& name, QVariant& v ) = 0;
     virtual bool fieldTypeInfo( int i, QVariant& v ) = 0;
