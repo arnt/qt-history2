@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#21 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#22 $
 **
 ** Definition of QPopupMenu class
 **
@@ -84,6 +84,10 @@ private:
     bool	accelDisabled;
     int		popupActive;
     int		tabMark;
+
+private:	//Disabled copy constructor and operator=
+    QPopupMenu( const QPopupMenu & ) {}
+    QPopupMenu &operator=( const QPopupMenu & ) { return *this; }
 };
 
 

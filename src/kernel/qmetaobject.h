@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.h#4 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.h#5 $
 **
 ** Definition of QMetaObject class
 **
@@ -57,6 +57,10 @@ private:
     QMemberDict *slotDict;			// slot dictionary
     QMetaData	*signalData;			// signal meta data
     QMemberDict *signalDict;			// signal dictionary
+
+private:	//Disabled copy constructor and operator=
+    QMetaObject( const QMetaObject & ) {}
+    QMetaObject &operator=( const QMetaObject & ) { return *this; }
 };
 
 

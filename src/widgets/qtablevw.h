@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.h#6 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.h#7 $
 **
 ** Definition of QTableView class
 **
@@ -156,6 +156,10 @@ private:
     QScrollBar *vScrollBar;
     QScrollBar *hScrollBar;
     CornerSquare *cornerSquare;
+
+private:	//Disabled copy constructor and operator=
+    QTableView( const QTableView & ) {}
+    QTableView &operator=( const QTableView & ) { return *this; }
 };
 
 

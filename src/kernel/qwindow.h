@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindow.h#3 $
+** $Id: //depot/qt/main/src/kernel/qwindow.h#4 $
 **
 ** Definition of QWindow class
 **
@@ -22,6 +22,10 @@ class QWindow : public QWidget			// window widget class
 public:
     QWindow( QWidget *parent=0, const char *name=0, WFlags f=0 );
    ~QWindow();
+
+private:	//Disabled copy constructor and operator=
+    QWindow( const QWindow & ) {}
+    QWindow &operator=( const QWindow & ) { return *this; }
 };
 
 

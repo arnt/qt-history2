@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipbrd.h#2 $
+** $Id: //depot/qt/main/src/kernel/qclipbrd.h#3 $
 **
 ** Definition of QClipboard class
 **
@@ -45,6 +45,10 @@ protected:
     bool	event( QEvent * );
 
     friend class QApplication;
+
+private:	//Disabled copy constructor and operator=
+    QClipboard( const QClipboard & ) {}
+    QClipboard &operator=( const QClipboard & ) { return *this; }
 };
 
 

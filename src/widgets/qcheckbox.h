@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.h#8 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.h#9 $
 **
 ** Definition of QCheckBox class
 **
@@ -31,6 +31,10 @@ public:
 protected:
     void    drawButton( QPainter * );
     void    drawButtonLabel( QPainter * );
+
+private:	//Disabled copy constructor and operator=
+    QCheckBox( const QCheckBox & ) {}
+    QCheckBox &operator=( const QCheckBox & ) { return *this; }
 };
 
 

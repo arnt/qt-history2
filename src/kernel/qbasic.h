@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbasic.h#5 $
+** $Id: //depot/qt/main/src/kernel/qbasic.h#6 $
 **
 **   Geometry Management
 **
@@ -56,6 +56,10 @@ private:
     QWidget *main;
 
     
+
+private:	//Disabled copy constructor and operator=
+    QBasicManager( const QBasicManager & ) {}
+    QBasicManager &operator=( const QBasicManager & ) { return *this; }
 };
 
 

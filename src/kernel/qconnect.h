@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qconnect.h#7 $
+** $Id: //depot/qt/main/src/kernel/qconnect.h#8 $
 **
 ** Definition of QConnection class
 **
@@ -35,6 +35,10 @@ private:
     QObject *obj;				// object connected to
     QMember  mbr;				// member connected to
     const char *mbr_name;
+
+private:	//Disabled copy constructor and operator=
+    QConnection( const QConnection & ) {}
+    QConnection &operator=( const QConnection & ) { return *this; }
 };
 
 inline QMember *QConnection::member() const

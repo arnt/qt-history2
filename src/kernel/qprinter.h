@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.h#11 $
+** $Id: //depot/qt/main/src/kernel/qprinter.h#12 $
 **
 ** Definition of QPrinter class
 **
@@ -80,6 +80,10 @@ private:
     short	from_pg, to_pg;
     short	min_pg,  max_pg;
     short	ncopies;
+
+private:	//Disabled copy constructor and operator=
+    QPrinter( const QPrinter & ):QPaintDevice(0) {}
+    QPrinter &operator=( const QPrinter & ) { return *this; }
 };
 
 

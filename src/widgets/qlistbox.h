@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#30 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#31 $
 **
 ** Definition of QListBox widget class
 **
@@ -160,6 +160,10 @@ public:
     void	setStringCopy( bool );
 #endif
 
+
+private:	//Disabled copy constructor and operator=
+    QListBox( const QListBox & ) {}
+    QListBox &operator=( const QListBox & ) { return *this; }
 };
 
 #if defined(OBSOLETE)

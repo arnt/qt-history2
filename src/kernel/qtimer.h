@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.h#10 $
+** $Id: //depot/qt/main/src/kernel/qtimer.h#11 $
 **
 ** Definition of QTimer class
 **
@@ -38,6 +38,10 @@ protected:
 private:
     int		id;
     bool	single;
+
+private:	//Disabled copy constructor and operator=
+    QTimer( const QTimer & ) {}
+    QTimer &operator=( const QTimer & ) { return *this; }
 };
 
 

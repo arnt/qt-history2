@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#75 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#76 $
 **
 ** Definition of QPainter class
 **
@@ -264,6 +264,10 @@ public:
     void drawBezier( const QPointArray &, int index=0, int npoints=-1 );
 #endif
 
+
+private:	//Disabled copy constructor and operator=
+    QPainter( const QPainter & ) {}
+    QPainter &operator=( const QPainter & ) { return *this; }
 };
 
 

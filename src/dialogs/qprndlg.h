@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprndlg.h#5 $
+** $Id: //depot/qt/main/src/dialogs/qprndlg.h#6 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -33,6 +33,10 @@ private slots:
 
 private:
     QPrinter *printer;
+
+private:	//Disabled copy constructor and operator=
+    QPrintDialog( const QPrintDialog & ) {}
+    QPrintDialog &operator=( const QPrintDialog & ) { return *this; }
 };
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.h#14 $
+** $Id: //depot/qt/main/src/kernel/qdialog.h#15 $
 **
 ** Definition of QDialog class
 **
@@ -56,6 +56,10 @@ private:
     int		rescode;
     uint	did_move   : 1;
     uint	did_resize : 1;
+
+private:	//Disabled copy constructor and operator=
+    QDialog( const QDialog & ) {}
+    QDialog &operator=( const QDialog & ) { return *this; }
 };
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatastream.h#14 $
+** $Id: //depot/qt/main/src/tools/qdatastream.h#15 $
 **
 ** Definition of QDataStream class
 **
@@ -71,6 +71,10 @@ private:
     int		 byteorder;
     bool	 printable;
     bool	 noswap;
+
+private:	//Disabled copy constructor and operator=
+    QDataStream( const QDataStream & ) {}
+    QDataStream &operator=( const QDataStream & ) { return *this; }
 };
 
 

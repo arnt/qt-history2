@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.h#3 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.h#4 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -37,6 +37,10 @@ private:
     bool	dirtyMatrix;
     QString     fontsUsed;
     friend class QPrinter;
+
+private:	//Disabled copy constructor and operator=
+    QPSPrinter( const QPSPrinter & ):QPaintDevice(0) {}
+    QPSPrinter &operator=( const QPSPrinter & ) { return *this; }
 };
 
 

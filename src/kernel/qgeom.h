@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgeom.h#3 $
+** $Id: //depot/qt/main/src/kernel/qgeom.h#4 $
 **
-**  Studies in Geometry Management
+**  Geometry Management
 **
 **  Author:   Paul Olav Tvete
 **  Created:  960416
@@ -29,6 +29,10 @@ private:
     QBox * topBox;
     int defBorder;
     void initBox( Direction, int, int );
+
+private:	//Disabled copy constructor and operator=
+    //###QGeomManager( const QGeomManager & ) {}
+    QGeomManager &operator=( const QGeomManager & ) { return *this; }
 };
 
 
@@ -59,6 +63,10 @@ private:
     QChain * serChain;
     bool    pristine;
     int     defBorder() { return gm->defaultBorder(); }
+
+private:	//Disabled copy constructor and operator=
+    QBox( const QBox & ) {}
+    QBox &operator=( const QBox & ) { return *this; }
 };
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.h#11 $
+** $Id: //depot/qt/main/src/kernel/qpicture.h#12 $
 **
 ** Definition of QPicture class
 **
@@ -37,6 +37,10 @@ private:
     QBuffer	pictb;
     int		trecs;
     bool	formatOk;
+
+private:	//Disabled copy constructor and operator=
+    QPicture( const QPicture & ) :QPaintDevice(0) {}
+    QPicture &operator=( const QPicture & ) { return *this; }
 };
 
 

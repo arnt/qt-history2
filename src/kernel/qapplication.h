@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#45 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#46 $
 **
 ** Definition of QApplication class
 **
@@ -110,6 +110,10 @@ public:
     static void	    setCursor( const QCursor &, bool replace=FALSE );
     static void	    restoreCursor();
 #endif
+
+private:	//Disabled copy constructor and operator=
+    QApplication( const QApplication & ) {}
+    QApplication &operator=( const QApplication & ) { return *this; }
 };
 
 

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.h#17 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.h#18 $
 **
 ** Definition of QComboBox class
 **
@@ -87,6 +87,10 @@ public:
     const char *string( int index ) const;
 #endif
 
+
+private:	//Disabled copy constructor and operator=
+    QComboBox( const QComboBox & ) {}
+    QComboBox &operator=( const QComboBox & ) { return *this; }
 };
 
 #if defined(OBSOLETE)
