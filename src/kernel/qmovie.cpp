@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#54 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#55 $
 **
 ** Implementation of movie classes
 **
@@ -237,9 +237,9 @@ QMovieFramePrivate::QMovieFramePrivate()
 QMovieFramePrivate::QMovieFramePrivate( QList<QMovieFrame> &_frames )
 {
     Init();
-    
+
     frames = _frames;
-    
+
     if ( frames.count() == 0 )
     {
       emit dataStatus( QMovie::SourceEmpty );
@@ -360,7 +360,7 @@ void QMovieFramePrivate::refresh()
     bitBlt(&mymask, dx, dy, f->pixmap().mask(), 0, 0, w, h, CopyROP, TRUE);
     mypixmap.setMask(mymask);
   }
-  
+
   emit areaChanged( QRect( dx, dy, w, h ) );
 
   // Check for end of loop
@@ -437,7 +437,7 @@ void QMovieFramePrivate::setSpeed( int percent )
 
     if ( oldspeed != percent && percent >= 0 )
       speed = percent;
-    
+
     if ( !running() || stepping() )
       return;
 
@@ -456,7 +456,7 @@ void QMovieFramePrivate::step( int _steps )
 void QMovieFramePrivate::restart()
 {
 }
-    
+
 /************************************************************
  * QMovieFilePrivate
  ************************************************************/
@@ -606,7 +606,7 @@ void QMovieFilePrivate::updatePixmapFromImage()
     // Convert to pixmap and paste that onto myself
     QPixmap lines;
     lines.convertFromImage(img);
-    bitBlt(&mypixmap, l, t, &lines, 0, 0, w, h, CopyROP, !bg.isValid()); 
+    bitBlt(&mypixmap, l, t, &lines, 0, 0, w, h, CopyROP, !bg.isValid());
 
     if (!bg.isValid() && gimg.hasAlphaBuffer()) {
 	bitBlt(&mymask, l, t, lines.mask(), 0, 0, w, h, CopyROP, TRUE);
@@ -889,7 +889,7 @@ bool QMovie::isNull() const
     if ( f )
       return f->isNull();
     ASSERT( d );
-    return f->isNull();
+    return d->isNull();
 }
 
 /*!
@@ -1110,7 +1110,7 @@ void QMovie::restart()
     else if ( d )
     {
       if (d->isNull()) return;
-      
+
       if (d->source->rewindable())
       {
 	d->source->enableRewind(TRUE);
@@ -1399,7 +1399,7 @@ QDataStream& operator<<(QDataStream& str, QMovieFrames& frames)
 ** QMovieFilePrivate meta object code from reading C++ file 'standard input'
 **
 ** Created: Fri Aug 21 01:55:09 1998
-**      by: The Qt Meta Object Compiler ($Revision: 1.54 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.55 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
