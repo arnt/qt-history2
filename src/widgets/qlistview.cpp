@@ -359,7 +359,7 @@ static QPoint activatedP;
     \endcode
 
     There is also an interator class to traverse a tree of list view
-    items. To iterate over all selected items of a list view, do the 
+    items. To iterate over all selected items of a list view, do the
     following:
     \code
 	QListViewItemIterator it( listview );
@@ -7080,7 +7080,7 @@ QListViewItemIterator::QListViewItemIterator( QListViewItem *item )
     Constructs an iterator for the QListView that contains the \a item
     using the flags \a iteratorFlags. The current iterator item is set
     to point to \a item or the next matching item if \a item doesn't
-    match the flags.
+    match all the flags.
 
     \sa QListView::IteratorFlag
 */
@@ -7131,7 +7131,7 @@ QListViewItemIterator::QListViewItemIterator( QListView *lv )
 /*!
     Constructs an iterator for the QListView \a lv with the flags \a
     iteratorFlags. The current iterator item is set to point on the
-    first child (QListViewItem) of \a lv that matches the flags.
+    first child (QListViewItem) of \a lv that matches all the flags.
 
     \sa QListView::IteratorFlag
 */
@@ -7407,7 +7407,7 @@ void QListViewItemIterator::currentRemoved()
 }
 
 /*
-  returns TRUE if the item \a item matches any of the flags set for the iterator
+  returns TRUE if the item \a item matches all of the flags set for the iterator
 */
 bool QListViewItemIterator::matchesFlags( const QListViewItem *item ) const
 {
@@ -7417,82 +7417,35 @@ bool QListViewItemIterator::matchesFlags( const QListViewItem *item ) const
     if ( d->flags == 0 )
   	return TRUE;
 
-    if ( d->flags & Visible && item->isVisible() )
-	return TRUE;
-    if ( d->flags & Invisible && !item->isVisible() )
-	return TRUE;
-    if ( d->flags & Selected && item->isSelected() )
-	return TRUE;
-    if ( d->flags & Unselected && !item->isSelected() )
-	return TRUE;
-    if ( d->flags & Selectable && item->isSelectable() )
-	return TRUE;
-    if ( d->flags & NotSelectable && !item->isSelectable() )
-	return TRUE;
-    if ( d->flags & DragEnabled && item->dragEnabled() )
-	return TRUE;
-    if ( d->flags & DragDisabled && !item->dragEnabled() )
-	return TRUE;
-    if ( d->flags & DropEnabled && item->dropEnabled() )
-	return TRUE;
-    if ( d->flags & DropDisabled && !item->dropEnabled() )
-	return TRUE;
-    if ( d->flags & Expandable && item->isExpandable() )
-	return TRUE;
-    if ( d->flags & NotExpandable && !item->isExpandable() )
-	return TRUE;
-    if ( d->flags & Checked && isChecked( item ) )
-	return TRUE;
-    if ( d->flags & NotChecked && !isChecked( item ) )
-	return TRUE;
+    if ( d->flags & Visible && !item->isVisible() )
+	return FALSE;
+    if ( d->flags & Invisible && item->isVisible() )
+	return FALSE;
+    if ( d->flags & Selected && !item->isSelected() )
+	return FALSE;
+    if ( d->flags & Unselected && item->isSelected() )
+	return FALSE;
+    if ( d->flags & Selectable && !item->isSelectable() )
+	return FALSE;
+    if ( d->flags & NotSelectable && item->isSelectable() )
+	return FALSE;
+    if ( d->flags & DragEnabled && !item->dragEnabled() )
+	return FALSE;
+    if ( d->flags & DragDisabled && item->dragEnabled() )
+	return FALSE;
+    if ( d->flags & DropEnabled && !item->dropEnabled() )
+	return FALSE;
+    if ( d->flags & DropDisabled && item->dropEnabled() )
+	return FALSE;
+    if ( d->flags & Expandable && !item->isExpandable() )
+	return FALSE;
+    if ( d->flags & NotExpandable && item->isExpandable() )
+	return FALSE;
+    if ( d->flags & Checked && !isChecked( item ) )
+	return FALSE;
+    if ( d->flags & NotChecked && isChecked( item ) )
+	return FALSE;
 
-    return FALSE;
-//     if ( testPair( QListViewItemIterator::Visible, QListViewItemIterator::Invisible,
-// 		    item->isVisible() ) )
-// 	return TRUE;
-//     if ( testPair( QListViewItemIterator::Selected, QListViewItemIterator::Unselected,
-// 		    item->isSelected() ) )
-// 	return TRUE;
-//     if ( testPair( QListViewItemIterator::Selectable, QListViewItemIterator::NotSelectable,
-// 		    item->isSelectable() ) )
-// 	return TRUE;
-//     if ( testPair( QListViewItemIterator::DragEnabled, QListViewItemIterator::DragDisabled,
-// 		    item->dragEnabled() ) )
-// 	return TRUE;
-//     if ( testPair( QListViewItemIterator::DropEnabled, QListViewItemIterator::DropDisabled,
-// 		    item->dropEnabled() ) )
-// 	return TRUE;
-//     if ( testPair( QListViewItemIterator::Expandable, QListViewItemIterator::NotExpandable,
-// 		    item->isExpandable() ) )
-// 	return TRUE;
-//     if ( testPair( QListViewItemIterator::Checked, QListViewItemIterator::NotChecked,
-// 		    isChecked( item ) ) )
-// 	return TRUE;
-
-//     return FALSE;
-}
-
-/*
-  tests two IteratorFlag pairs and the value describing the pairs \a matchFirst
-  and returns TRUE if
-
-  - both firstFlag and secondFlag have been specified in flags (the value dont matter as it's either of them)
-  - if either firstFlag/secondFlag have been specified and the value matches
-  - if neither firstFlag/secondFlag have been specified in flags
-*/
-bool QListViewItemIterator::testPair( QListViewItemIterator::IteratorFlag firstFlag,
-	       QListViewItemIterator::IteratorFlag secondFlag,
-	       bool matchFirst ) const
-{
-    if ( d->flags & firstFlag && d->flags & secondFlag ) {
-	return TRUE;
-    } else if ( d->flags & firstFlag ) {
-	if ( !matchFirst )
-	    return FALSE;
-    } else if ( d->flags & secondFlag ) {
-	if ( matchFirst )
-	    return FALSE;
-    }
     return TRUE;
 }
 
