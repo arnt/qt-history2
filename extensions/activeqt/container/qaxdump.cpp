@@ -161,14 +161,16 @@ QString qax_generateDocumentation(QAxBase *that)
 
     QStringList methodDetails, propDetails;
 
-    const int slotCount = mo->slotCount();
+    const int slotCount = mo->memberCount();
     if (slotCount) {
 	stream << "<h2>Public Slots:</h2>" << endl;
 	stream << "<ul>" << endl;
 
         int defArgCount = 0;
-	for (int islot = mo->slotOffset(); islot < slotCount; ++islot) {
-	    const QMetaMember slot = mo->slot(islot);
+	for (int islot = mo->memberOffset(); islot < slotCount; ++islot) {
+	    const QMetaMember slot = mo->member(islot);
+            if (slot.memberType() != QMetaMember::Slot)
+                continue;
 
             if (slot.attributes() & QMetaMember::Cloned) {
                 ++defArgCount;
@@ -222,7 +224,7 @@ QString qax_generateDocumentation(QAxBase *that)
 
 	stream << "</ul>" << endl;
     }
-    int signalCount = mo->signalCount();
+    int signalCount = mo->memberCount();
     if (signalCount) {
         ITypeLib *typeLib = 0;
         if (typeInfo) {
@@ -235,8 +237,10 @@ QString qax_generateDocumentation(QAxBase *that)
 	stream << "<h2>Signals:</h2>" << endl;
 	stream << "<ul>" << endl;
 
-	for (int isignal = mo->signalOffset(); isignal < signalCount; ++isignal) {
-	    const QMetaMember signal = mo->signal(isignal);
+	for (int isignal = mo->memberOffset(); isignal < signalCount; ++isignal) {
+	    const QMetaMember signal(mo->member(isignal));
+            if (signal.memberType() != QMetaMember::Signal)
+                continue;
 
             QString prototype = namedPrototype(signal.signature(), signal.parameters());
 	    QString signature = signal.signature();

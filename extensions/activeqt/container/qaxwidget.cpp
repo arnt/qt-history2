@@ -1099,7 +1099,7 @@ HRESULT WINAPI QAxHostWindow::SetMenu(HMENU hmenuShared, HOLEMENU /*holemenu*/, 
 
 int QAxHostWindow::qt_metacall(QMetaObject::Call call, int isignal, void **argv)
 {
-    if (!m_spOleObject || call != QMetaObject::EmitSignal || !menuBar)
+    if (!m_spOleObject || call != QMetaObject::InvokeMetaMember || !menuBar)
         return -1;
 
     if (isignal != menuBar->metaObject()->indexOfSignal("activated(QAction*)"))

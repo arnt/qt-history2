@@ -696,12 +696,9 @@ QStringList QAxScript::functions(FunctionFlags flags) const
     QStringList functions;
     
     const QMetaObject *mo = script_engine->metaObject();
-    for (int i = 0; i < mo->slotCount(); ++i) {
-        if (i < mo->slotOffset())
-            continue;
-        
-        const QMetaMember slot = mo->slot(i);
-        if (slot.access() != QMetaMember::Public)
+    for (int i = mo->memberOffset(); i < mo->memberCount(); ++i) {
+       const QMetaMember slot(mo->member(i));
+       if (slot.memberType() != QMetaMember::Slot || slot.access() != QMetaMember::Public)
             continue;
         QString slotname = QString::fromLatin1(slot.signature());
         if (slotname.contains('_'))

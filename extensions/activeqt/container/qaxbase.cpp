@@ -316,7 +316,7 @@ public:
 
             QString nameString(signame);
             void *argv[] = {0, &nameString, &pDispParams->cArgs, &pDispParams->rgvarg};
-            combase->qt_metacall(QMetaObject::EmitSignal, index, argv);
+            combase->qt_metacall(QMetaObject::InvokeMetaMember, index, argv);
         }
 
         HRESULT hres = S_OK;
@@ -326,8 +326,9 @@ public:
         if (((QAxObject*)qobject)->receivers(QByteArray::number(QSIGNAL_CODE) + signame)) {
             index = meta->indexOfSignal(signame);
             Q_ASSERT(index != -1);
-            const QMetaMember signal = meta->signal(index);
-            Q_ASSERT(signame == signal.signature());
+            const QMetaMember signal = meta->member(index);
+            Q_ASSERT(signal.memberType() == QMetaMember::Signal);
+            Q_ASSERT(signame == signal.signature());            
             // verify parameter count
             int pcount = axmeta->numParameter(signame);
             int argcount = pDispParams->cArgs;
@@ -388,7 +389,7 @@ public:
 
             if (ok) {
                 // emit the generated signal if everything went well
-                combase->qt_metacall(QMetaObject::EmitSignal, index, argv);
+                combase->qt_metacall(QMetaObject::InvokeMetaMember, index, argv);
                 // update the VARIANT for references and free memory
                 for (p = 0; p < pcount; ++p) {
                     bool out;
@@ -437,7 +438,7 @@ public:
         if (index != -1) {
             QString propnameString(propname);
             void *argv[] = {0, &propnameString};
-            combase->qt_metacall(QMetaObject::EmitSignal, index, argv);
+            combase->qt_metacall(QMetaObject::InvokeMetaMember, index, argv);
         }
 
         QByteArray signame = propsigs.value(dispID);
@@ -459,7 +460,7 @@ public:
                 argv[1] = &var;
 
             // emit the "changed" signal
-            combase->qt_metacall(QMetaObject::EmitSignal, index, argv);
+            combase->qt_metacall(QMetaObject::InvokeMetaMember, index, argv);
         }
         return S_OK;
     }
@@ -1342,6 +1343,17 @@ private:
             RequestingEdit      = 0x00100000,
             Bindable            = 0x00200000
     };
+    enum MemberFlags {
+        AccessPrivate = 0x00,
+        AccessProtected = 0x01,
+        AccessPublic = 0x02,
+        MemberMethod = 0x00,
+        MemberSignal = 0x04,
+        MemberSlot = 0x08,
+        MemberCompatibility = 0x10,
+        MemberCloned = 0x20,
+        MemberScriptable = 0x40,
+    };
 
     inline QList<QByteArray> paramList(const QByteArray &proto)
     {
@@ -1417,7 +1429,7 @@ private:
         Method &signal = signal_list[proto];
         signal.type = 0;
         signal.parameters = parameters;
-        signal.flags = QMetaMember::Public;
+        signal.flags = QMetaMember::Public | MemberSignal;
         if (proto != prototype)
             signal.realPrototype = prototype;
     }
@@ -1437,7 +1449,7 @@ private:
         Method &slot = slot_list[proto];
         slot.type = replaceType(type);
         slot.parameters = parameters;
-        slot.flags = flags;
+        slot.flags = flags | MemberSlot;
         if (proto != prototype)
             slot.realPrototype = prototype;
     }
@@ -2541,7 +2553,7 @@ QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject, co
     QAxMetaObject *metaobj = new QAxMetaObject;
 
     // revision + classname + table + zero terminator
-    int int_data_size = 1+1+2+2+2+2+2+1;
+    int int_data_size = 1+1+2+2+2+2+1;
 
     int_data_size += classinfo_list.count() * 2;
     int_data_size += signal_list.count() * 5;
@@ -2557,15 +2569,13 @@ QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject, co
     int_data[0] = 1; // revision number
     int_data[1] = 0; // classname index
     int_data[2] = classinfo_list.count(); // num_classinfo
-    int_data[3] = 12; // idx_classinfo
-    int_data[4] = signal_list.count(); // num_signals
+    int_data[3] = 10; // idx_classinfo
+    int_data[4] = signal_list.count() + slot_list.count(); // num_methods
     int_data[5] = int_data[3] + int_data[2] * 2; // idx_signals
-    int_data[6] = slot_list.count(); // num_slots
-    int_data[7] = int_data[5] + int_data[4] * 5; // idx_slots
-    int_data[8] = property_list.count(); // num_properties
-    int_data[9] = int_data[7] + int_data[6] * 5; // idx_properties
-    int_data[10] = enum_list.count(); // num_enums
-    int_data[11] = int_data[9] + int_data[8] * 3; // idx_enums
+    int_data[6] = property_list.count(); // num_properties
+    int_data[7] = int_data[5] + int_data[4] * 5; // idx_properties
+    int_data[8] = enum_list.count(); // num_enums
+    int_data[9] = int_data[7] + int_data[6] * 3; // idx_enums
     int_data[int_data_size - 1] = 0; // eod;
 
     char null('\0');
@@ -2613,7 +2623,6 @@ QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject, co
         stringdata += null;
         int_data[offset++] = flags;
     }
-    Q_ASSERT(offset == int_data[7]);
 
     // each slot in form prototype\0parameters\0type\0tag\0
     for (QMap<QByteArray, Method>::ConstIterator it = slot_list.begin(); it != slot_list.end(); ++it) {
@@ -2639,7 +2648,7 @@ QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject, co
         stringdata += null;
         int_data[offset++] = flags;
     }
-    Q_ASSERT(offset == int_data[9]);
+    Q_ASSERT(offset == int_data[7]);
 
     // each property in form name\0type\0
     for (QMap<QByteArray, QPair<QByteArray, int> >::ConstIterator it = property_list.begin(); it != property_list.end(); ++it) {
@@ -2655,7 +2664,7 @@ QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject, co
         stringdata += null;
         int_data[offset++] = flags;
     }
-    Q_ASSERT(offset == int_data[11]);
+    Q_ASSERT(offset == int_data[9]);
 
     int value_offset = offset + enum_list.count() * 4;
     // each enum in form name\0
@@ -2672,7 +2681,7 @@ QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject, co
         int_data[offset++] = value_offset;
         value_offset += count * 2;
     }
-    Q_ASSERT(offset == int_data[11] + enum_list.count() * 4);
+    Q_ASSERT(offset == int_data[9] + enum_list.count() * 4);
 
     // each enum value in form key\0
     for (QMap<QByteArray, QList<QPair<QByteArray, int> > >::ConstIterator it = enum_list.begin(); it != enum_list.end(); ++it) {
@@ -2924,7 +2933,7 @@ static bool checkHRESULT(HRESULT hres, EXCEPINFO *exc, QAxBase *that, const QStr
                     help += QString(" [%1]").arg(helpContext);
 
                 void *argv[] = {0, &code, &source, &desc, &help};
-                that->qt_metacall(QMetaObject::EmitSignal, exceptionSignal, argv);
+                that->qt_metacall(QMetaObject::InvokeMetaMember, exceptionSignal, argv);
             }
         }
         return false;
@@ -3094,7 +3103,7 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
 
 int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
 {
-    Q_ASSERT(call == QMetaObject::InvokeSlot);
+    Q_ASSERT(call == QMetaObject::InvokeMetaMember);
 
     // get the IDispatch
     IDispatch *disp = d->dispatch();
@@ -3103,7 +3112,9 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
 
     const QMetaObject *mo = metaObject();
     // get the slot information
-    QMetaMember slot = mo->slot(index + mo->slotOffset());
+    const QMetaMember slot = mo->member(index + mo->memberOffset());
+    Q_ASSERT(slot.memberType() == QMetaMember::Slot);
+
     QByteArray signature(slot.signature());
     QByteArray slotname(signature);
     slotname.truncate(slotname.indexOf('('));
@@ -3125,7 +3136,7 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
         return index;
 
     // slot found, so everthing that goes wrong now should not bother the caller
-    index -= mo->slotCount();
+    index -= mo->memberCount();
 
     // setup the parameters
     DISPPARAMS params;
@@ -3207,12 +3218,16 @@ int QAxBase::qt_metacall(QMetaObject::Call call, int id, void **v)
     }
 
     switch(call) {
-    case QMetaObject::EmitSignal:
-        QMetaObject::activate(qObject(), mo, id, v);
-        id -= mo->signalCount();
-        break;
-    case QMetaObject::InvokeSlot:
-        id = internalInvoke(call, id, v);
+    case QMetaObject::InvokeMetaMember:
+        switch (mo->member(id + mo->memberOffset()).memberType()) {
+        case QMetaMember::Signal:
+            QMetaObject::activate(qObject(), mo, id, v);
+            id -= mo->memberCount();
+            break;
+        case QMetaMember::Slot:
+            id = internalInvoke(call, id, v);
+            break;
+        }
         break;
     case QMetaObject::ReadProperty:
     case QMetaObject::WriteProperty:
@@ -3239,8 +3254,11 @@ static void qax_noSuchFunction(int disptype, const QByteArray &name, const QByte
     if (disptype == DISPATCH_METHOD) {
         qWarning("QAxBase::dynamicCallHelper: %s: No such method in %s [%s]", name.data(), that->control().latin1(), coclass ? coclass: "unknown");
         qWarning("\tCandidates are:");
-        for (int i = 0; i < metaObject->slotCount(); ++i) {
-            QByteArray signature = metaObject->slot(i).signature();
+        for (int i = 0; i < metaObject->memberCount(); ++i) {
+            const QMetaMember slot(metaObject->member(i));
+            if (slot.memberType() != QMetaMember::Slot)
+                continue;
+            QByteArray signature = slot.signature();
             if (signature.toLower().startsWith(function.toLower()))
                 qWarning("\t\t%s", signature.data());
         }
@@ -3299,7 +3317,8 @@ bool QAxBase::dynamicCallHelper(const char *name, void *inout, QList<QVariant> &
         if (d->useMetaObject)
             id = mo->indexOfSlot(function);
         if (id >= 0) {
-            const QMetaMember slot = mo->slot(id);
+            const QMetaMember slot = mo->member(id);
+            Q_ASSERT(slot.memberType() == QMetaMember::Slot);
             function = slot.signature();
             type = slot.typeName();
         }
