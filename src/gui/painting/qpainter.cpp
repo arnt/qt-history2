@@ -2848,7 +2848,10 @@ void QPainter::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoi
     if (d->state->txop > QPainterPrivate::TxTranslate
         && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
         // ##### what's this crap? Why do we need an image at all here?
+        // Yes we need it to preserve the alpha channel in the pixmap
+        // While setPixel() is needed to switch on alpha buffer on Embedded
 	QImage img(r.width(), r.height(), 32);
+        img.setPixel(0, 0, QColor(255, 0, 0, 127).rgb());
 	img.setAlphaBuffer(true);
         QPixmap pm = img;
         QPainter p(&pm);
