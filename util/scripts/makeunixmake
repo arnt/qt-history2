@@ -45,11 +45,7 @@ find tutorial \
 	TEMPLATE=$(echo $(basename $DIR).t)
 	if [ ! -f $TEMPLATE ]
 	then
-	    if [ "${platform}" = "x11" ]; then
-		TEMPLATE=$QTDIR/tmake/propagate.t
-	    else
-		TEMPLATE=app
-	    fi
+	    TEMPLATE=$QTDIR/tmake/propagate.t
 	fi
 	tmake -t ${TEMPLATE} $tmakearg $(basename $pro_file) > Makefile.in
         if [ -n "$LIST" ] ; then echo "$DIR/Makefile.in" ; fi
