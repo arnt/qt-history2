@@ -1367,6 +1367,10 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 		if ( overWrite && !cursor->atParagEnd() )
 		    cursor->remove();
 		QString t = e->text();
+#ifdef Q_WS_X11
+		// the X11 keyboard layout is broken and does not reverse
+		// braces correctly. This is a hack to get halfway correct
+		// behaviour
 		QTextParagraph *p = cursor->paragraph();
 		if ( p && p->string() && p->string()->isRightToLeft() ) {
 		    QChar *c = (QChar *)t.unicode();
@@ -1377,6 +1381,7 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 			c++;
 		    }
 		}
+#endif
 		insert( t, TRUE, FALSE );
 		break;
 	    } else if ( e->state() & ControlButton ) {

@@ -688,6 +688,10 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	if ( !t.isEmpty() && (!e->ascii() || e->ascii()>=32) &&
 	     e->key() != Key_Delete &&
 	     e->key() != Key_Backspace ) {
+#ifdef Q_WS_X11
+	    // the X11 keyboard layout is broken and does not reverse
+	    // braces correctly. This is a hack to get halfway correct
+	    // behaviour
 	    if ( d->parag && d->parag->string() && d->parag->string()->isRightToLeft() ) {
 		QChar *c = (QChar *)t.unicode();
 		int l = t.length();
@@ -697,6 +701,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 		    c++;
 		}
 	    }
+#endif
 	    insert( t );
 	    return;
 	}
