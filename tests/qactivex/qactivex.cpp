@@ -899,8 +899,14 @@ void QActiveXBase::clear()
 	ptr->Release();
 	ptr = 0;
 
-	CAxWindow axwindow = winId();
-	axwindow.DestroyWindow();
+	bool wasVisible = isVisible();
+	QRect geom = geometry();
+	hide();
+	destroy();
+	create();
+	setGeometry( geom );
+	if ( wasVisible )
+	    show();
 
 	_Module.Term();
 	CoUninitialize();
