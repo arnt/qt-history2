@@ -287,19 +287,39 @@ cat << EOF
 # Read PORTING for instructions how to port Qt to a new platform.
 #
 
-all: none
+all:
+	@echo This version of Qt has been ported to these operating systems:
+EOF
+echo ../makefiles/*-* | fmt -1 | sed -e 's-.*/--' -e 's/-.*//' | fmt -1 | uniq | fmt -70 | sed 's/^/	@echo "	"/'
+cat << EOF
+	@echo
+	@echo Each of these make targets make build directories for all of the
+	@echo configurations supported on that operating system.
+	@echo
+	@echo make list gives a complete list of supported configurations.
 
-# Pseudo target to force mkdir for the others
-
-FORCE:
-
-
+list: 
+	@echo Supported configurations:
 EOF
 
 for a in ../makefiles/*[a-z] ; do
     PLATFORM=`basename $a`
+    echo '	@echo "	"'${PLATFORM}
+done
+
+echo '	@echo Send mail to qt-info@troll.no for info about other platforms'
+echo
+
+for a in `echo ../makefiles/*-* | fmt -1 | sed -e 's-.*/--' -e 's/-.*//' | fmt -1 | uniq`
+do
+    echo ${a}':' `echo ../makefiles/${a}-* | sed -e 's-\.\./makefiles/--g'`
+    echo
+done
+
+for a in ../makefiles/*[a-z] ; do
+    PLATFORM=`basename $a`
     cat << EOF
-${PLATFORM}: FORCE
+${PLATFORM}:
 	mkdir ${PLATFORM}
 	cd template ; tar cf - . | ( cd ../${PLATFORM} ; tar xf - )
 EOF
@@ -308,11 +328,3 @@ EOF
 
 done
 
-echo 'none: '
-echo '	@echo Available platforms:'
-for a in ../makefiles/*[a-z] ; do
-    PLATFORM=`basename $a`
-    echo '	 @echo "	"' ${PLATFORM}
-done
-
-echo '	@echo Send mail to qt-info@troll.no for info about other platforms'
