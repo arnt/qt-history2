@@ -63,11 +63,10 @@
 
     \section1 Developing Style-Aware Custom Widgets
 
-    If you are developing custom widgets and want them to look good
-    on all platforms, you can use QStyle functions to perform parts
-    of the widget drawing, such as drawItem(), drawPrimitive(),
-    drawControl(), drawControlMask(), drawComplexControl(), and
-    drawComplexControlMask().
+    If you are developing custom widgets and want them to look good on
+    all platforms, you can use QStyle functions to perform parts of
+    the widget drawing, such as drawItem(), drawPrimitive(),
+    drawControl(), and drawComplexControl().
 
     Most QStyle draw functions take four arguments:
     \list
@@ -460,9 +459,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value PE_IndicatorSpinMinus  Decrease symbol for a spin widget.
 
     \value PE_IndicatorCheckBox  On/off indicator, for example, a QCheckBox.
-    \value PE_IndicatorCheckBoxMask  Bitmap mask for an indicator.
     \value PE_IndicatorRadioButton  Exclusive on/off indicator, for example, a QRadioButton.
-    \value PE_IndicatorRadioButtonMask  Bitmap mask for an exclusive indicator.
 
     \value PE_Q3DockWindowSeparator  Item separator for Qt 3 compatible dock window
                                      and toolbar contents.
@@ -759,15 +756,6 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 */
 
 /*!
-    \fn void QStyle::drawControlMask(ControlElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget) const
-
-    Draw a bitmask for the ControlElement \a element using the \a
-    painter with the style options specified by \a option. See
-    drawControl() for an explanation of the use of \a option and \a
-    widget.
-*/
-
-/*!
     \enum QStyle::SubRect
 
     This enum represents a sub-area of a widget. Style implementations
@@ -993,22 +981,6 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \sa ComplexControl SubControl QStyleOptionComplex
 */
 
-/*!
-    \fn void QStyle::drawComplexControlMask(ComplexControl control, const QStyleOptionComplex *option, QPainter *painter, const QWidget *widget) const
-
-    Draws a bitmask for the ComplexControl \a control using \a
-    painter with the style options specified by \a option. See
-    drawComplexControl() for an explanation of the use of the \a
-    widget and \a option arguments.
-
-    The \c rect member of the QStyleOptionComplex \a option parameter
-    should be expressed in logical coordinates. Reimplementations of
-    this function can use visualRect() to convert the logical
-    coordinates into screen coordinates before calling
-    drawPrimitive() or drawControl().
-
-    \sa drawComplexControl() ComplexControl QStyleOptionComplex
-*/
 
 /*!
     \fn QRect QStyle::subControlRect(ComplexControl control,
@@ -1449,9 +1421,9 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
      \value SH_ToolBar_IconSize The default icon size for the icons in a toolbar.
 
-     \value SH_FocusFrame_NeedBitMask Whether the focus frame needs a
-     bit mask. If it does, the frame will draw it using
-     drawControlMask() with CE_FocusFrame.
+     \value SH_FocusFrame_Mask The mask of the focus frame.
+
+     \value SH_RubberBand_Mask The mask of the rubber band.
 
      \omitvalue SH_UnderlineAccelerator
 

@@ -42,10 +42,9 @@
 
     All the functions are full documented in \l{QStyle}, although the
     extra functions that QCommonStyle provides, e.g.
-    drawComplexControl(), drawComplexControlMask(), drawControl(),
-    drawControlMask(), drawPrimitive(), hitTestComplexControl(),
-    subControlRect(), sizeFromContents(), and subRect() are
-    documented here.
+    drawComplexControl(), drawControl(), drawPrimitive(),
+    hitTestComplexControl(), subControlRect(), sizeFromContents(), and
+    subRect() are documented here.
 */
 
 /*!
@@ -375,9 +374,6 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
                             &opt->palette.brush(QPalette::Button));
         }
         break;
-    case PE_IndicatorCheckBoxMask:
-        p->fillRect(opt->rect, Qt::color1);
-        break;
     case PE_IndicatorRadioButton: {
         QRect ir = opt->rect;
         p->setPen(opt->palette.dark().color());
@@ -388,11 +384,6 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
             p->drawEllipse(ir);
         }
         break; }
-    case PE_IndicatorRadioButtonMask:
-        p->setPen(Qt::color1);
-        p->setBrush(Qt::color1);
-        p->drawEllipse(opt->rect);
-        break;
     case PE_FrameFocusRect:
         if (const QStyleOptionFocusRect *fropt = qt_cast<const QStyleOptionFocusRect *>(opt)) {
             QColor bg = fropt->backgroundColor;
@@ -1451,7 +1442,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
         p->restore();
         break; }
     case CE_RubberBand: {
-	p->save();
+        p->save();
         QRect r = opt->rect.adjusted(0,0,-1,-1);
         p->setBrush(Qt::Dense4Pattern);
         p->setBackground(QBrush(opt->palette.base()));
@@ -1462,7 +1453,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
             r.addCoords(3,3, -3,-3);
             p->drawRect(r);
         }
-	p->restore();
+        p->restore();
         break; }
     case CE_DockWindowTitle:
         if (const QStyleOptionDockWindow *dwOpt = qt_cast<const QStyleOptionDockWindow *>(opt)) {
@@ -1505,53 +1496,6 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
     }
 }
 
-/*!
-    Draws the mask for the given control \a ce, with style options
-    \a opt, on painter \a p. The widget \a w is optional and may contain
-    a widget that is useful for drawing the primitive.
-*/
-void QCommonStyle::drawControlMask(ControlElement ce, const QStyleOption *opt, QPainter *p,
-                                   const QWidget *w) const
-{
-    QPalette pal(Qt::color1,Qt::color1,Qt::color1,Qt::color1,Qt::color1,Qt::color1,Qt::color1,
-                 Qt::color1,Qt::color0);
-    switch (ce) {
-    case CE_PushButton:
-    case CE_PushButtonBevel:
-        if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
-            QStyleOptionButton newBtn = *btn;
-            newBtn.palette = pal;
-            drawPrimitive(PE_PanelButtonCommand, &newBtn, p, w);
-        }
-        break;
-    case CE_FocusFrame: {
-        // only called if SH_FocusFrame_NeedBitMask returns true (the
-        // default is 0). It's cheaper to mask the frame with a
-        // region.
-        p->save();
-        p->setPen(Qt::NoPen);
-        int vmargin = pixelMetric(QStyle::PM_FocusFrameVMargin),
-            hmargin = pixelMetric(QStyle::PM_FocusFrameHMargin);
-        p->fillRect(opt->rect,  QBrush(Qt::color1));
-        p->fillRect(opt->rect.adjusted(hmargin, vmargin, -hmargin, -vmargin), QBrush(Qt::color0));
-        p->restore();
-    }
-        break;
-    case CE_RubberBand:
-        p->setBrush(Qt::color1);
-        p->setPen(Qt::NoPen);
-        p->drawRect(opt->rect);
-        if (opt->state & State_Rectangle) {
-            p->setBrush(Qt::color0);
-            p->drawRect(opt->rect.x() + 4, opt->rect.y() + 4,
-                    opt->rect.width() - 8, opt->rect.height() - 8);
-        }
-        break;
-    default:
-        p->fillRect(opt->rect, Qt::color1);
-    }
-
-}
 
 /*!
     Returns the rectangle occupied by sub-rectangle \a sr, with style
@@ -2202,17 +2146,6 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
     default:
         qWarning("drawComplexControl control not handled %d", cc);
     }
-}
-
-/*!
-    Draws the mask for the given complex control \a cc, with style
-    options \a opt, on painter \a p. The widget \a w is optional and may
-    contain a widget that is useful for drawing the mask.
-*/
-void QCommonStyle::drawComplexControlMask(ComplexControl , const QStyleOptionComplex *opt,
-                                          QPainter *p, const QWidget *) const
-{
-    p->fillRect(opt->rect, Qt::color1);
 }
 
 /*!
@@ -2964,7 +2897,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
 
 
 /*! \reimp */
-int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *,
+int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *widget,
                             QStyleHintReturn *) const
 {
     int ret;
@@ -3078,6 +3011,30 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
 
     case SH_ToolBar_IconSize:
         ret = Qt::SmallIconSize;
+        break;
+
+    case SH_FocusFrame_Mask:
+        ret = 1;
+        if (widget) {
+            ret = 0;
+            QRegion reg = widget->rect();
+            int vmargin = pixelMetric(QStyle::PM_FocusFrameVMargin),
+                hmargin = pixelMetric(QStyle::PM_FocusFrameHMargin);
+            reg -= QRect(widget->rect().adjusted(hmargin, vmargin, -hmargin, -vmargin));
+            const_cast<QWidget*>(widget)->setMask(reg);
+            //### TODO return region in QStyleHintReturn
+        }
+        break;
+
+    case SH_RubberBand_Mask:
+        ret = 1;
+        if (widget && (opt->state & State_Rectangle)) {
+            ret = 0;
+            QRegion reg = widget->rect();
+            reg -= opt->rect.adjusted(4, 4, -4, -4);
+            const_cast<QWidget*>(widget)->setMask(reg);
+            //### TODO return region in QStyleHintReturn
+        }
         break;
 
     default:

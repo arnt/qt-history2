@@ -57,19 +57,9 @@ void QStylePainter::drawControl(QStyle::ControlElement ce, const QStyleOption &o
     wstyle->drawControl(ce, &opt, this, widget);
 }
 
-void QStylePainter::drawControlMask(QStyle::ControlElement ce, const QStyleOption &opt)
-{
-    wstyle->drawControlMask(ce, &opt, this, widget);
-}
-
 void QStylePainter::drawComplexControl(QStyle::ComplexControl cc, const QStyleOptionComplex &opt)
 {
     wstyle->drawComplexControl(cc, &opt, this, widget);
-}
-
-void QStylePainter::drawComplexControlMask(QStyle::ComplexControl cc, const QStyleOptionComplex &opt)
-{
-    wstyle->drawComplexControlMask(cc, &opt, this, widget);
 }
 
 void QStylePainter::drawItemText(const QRect &r, int flags, const QPalette &pal, bool enabled,

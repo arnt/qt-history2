@@ -5028,6 +5028,10 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
     case SH_EtchDisabledText:
         ret = false;
         break;
+    case SH_RubberBand_Mask:
+    case SH_FocusFrame_Mask:
+        ret = 0;
+        break;
     default:
         ret = QWindowsStyle::styleHint(sh, opt, w, shret);
         break;
@@ -5317,50 +5321,6 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
             d->HIThemeDrawControl(ce, opt, p, w);
         else
             d->AppManDrawControl(ce, opt, p, w);
-        break;
-    }
-}
-
-/*! \reimp */
-void QMacStyle::drawControlMask(ControlElement ce, const QStyleOption *opt, QPainter *p,
-                                const QWidget *w) const
-{
-    switch (ce) {
-    case CE_RubberBand:
-        p->fillRect(opt->rect, Qt::color1);
-        break;
-    case CE_FocusFrame: {
-#if 0
-        const QRgb fillColor = qRgb(192, 191, 190);
-        QImage img;
-        {
-            QPixmap pix(opt->rect.size(), 32);
-            pix.fill(fillColor);
-            QPainter pix_paint(&pix);
-            drawControl(CE_FocusFrame, opt, &pix_paint, w);
-            pix_paint.end();
-            img = pix.toImage();
-        }
-        QImage mask(img.width(), img.height(), 1, 2, QImage::LittleEndian);
-        for (int y = 0; y < img.height(); y++) {
-            for (int x = 0; x < img.width(); x++) {
-                QRgb clr = img.pixel(x, y);
-                int diff = (((qRed(clr)-qRed(fillColor))*((qRed(clr)-qRed(fillColor)))) +
-                            ((qGreen(clr)-qGreen(fillColor))*((qGreen(clr)-qGreen(fillColor)))) +
-                            ((qBlue(clr)-qBlue(fillColor))*((qBlue(clr)-qBlue(fillColor)))));
-                mask.setPixel(x, y, diff < 100);
-            }
-        }
-        QBitmap qmask;
-        qmask = mask;
-        p->drawPixmap(0, 0, mask);
-#else
-        p->fillRect(opt->rect, Qt::color1);
-#endif
-        break; }
-
-    default:
-        QWindowsStyle::drawControlMask(ce, opt, p, w);
         break;
     }
 }

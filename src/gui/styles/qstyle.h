@@ -130,13 +130,11 @@ public:
         PE_IndicatorBranch,
         PE_IndicatorButtonDropDown,
         PE_IndicatorCheckBox,
-        PE_IndicatorCheckBoxMask,
         PE_IndicatorDockWindowResizeHandle,
         PE_IndicatorHeaderArrow,
         PE_IndicatorMenuCheckMark,
         PE_IndicatorProgressChunk,
         PE_IndicatorRadioButton,
-        PE_IndicatorRadioButtonMask,
         PE_IndicatorSpinDown,
         PE_IndicatorSpinMinus,
         PE_IndicatorSpinPlus,
@@ -209,8 +207,6 @@ public:
 
     virtual void drawControl(ControlElement element, const QStyleOption *opt, QPainter *p,
                              const QWidget *w = 0) const = 0;
-    virtual void drawControlMask(ControlElement element, const QStyleOption *opt, QPainter *p,
-                                 const QWidget *w = 0) const = 0;
 
     enum SubRect {
         SR_PushButtonContents,
@@ -328,8 +324,6 @@ public:
 
     virtual void drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p,
                                     const QWidget *widget = 0) const = 0;
-    virtual void drawComplexControlMask(ComplexControl cc, const QStyleOptionComplex *opt,
-                                        QPainter *p, const QWidget *widget = 0) const = 0;
     virtual SubControl hitTestComplexControl(ComplexControl cc, const QStyleOptionComplex *opt,
                                              const QPoint &pt, const QWidget *widget = 0) const = 0;
     virtual QRect subControlRect(ComplexControl cc, const QStyleOptionComplex *opt,
@@ -515,7 +509,8 @@ public:
         SH_TitleBar_AutoRaise,
         SH_ToolButton_PopupDelay,
         SH_ToolBar_IconSize,
-        SH_FocusFrame_NeedBitMask,
+        SH_FocusFrame_Mask,
+        SH_RubberBand_Mask,
         // Add new style hint values here
 
 #ifdef QT_COMPAT

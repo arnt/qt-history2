@@ -25,7 +25,6 @@ class Q_GUI_EXPORT QCheckBox : public QAbstractButton
     Q_OBJECT
 
     Q_PROPERTY(bool tristate READ isTristate WRITE setTristate)
-    Q_OVERRIDE(bool autoMask DESIGNABLE true SCRIPTABLE true)
 
 public:
     explicit QCheckBox(QWidget *parent=0);
@@ -48,7 +47,6 @@ protected:
     void checkStateSet();
     void nextCheckState();
     void paintEvent(QPaintEvent *);
-    void updateMask();
 
 #ifdef QT_COMPAT
 public:

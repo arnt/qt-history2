@@ -30,13 +30,9 @@ public:
                        const QWidget *w = 0) const;
     void drawControl(ControlElement element, const QStyleOption *opt, QPainter *p,
                      const QWidget *w = 0) const;
-    void drawControlMask(ControlElement element, const QStyleOption *opt, QPainter *p,
-                         const QWidget *w = 0) const;
     QRect subRect(SubRect r, const QStyleOption *opt, const QWidget *widget = 0) const;
     void drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p,
                             const QWidget *w = 0) const;
-    void drawComplexControlMask(ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p,
-                                const QWidget *w = 0) const;
     SubControl hitTestComplexControl(ComplexControl cc, const QStyleOptionComplex *opt,
                                      const QPoint &pt, const QWidget *w = 0) const;
     QRect subControlRect(ComplexControl cc, const QStyleOptionComplex *opt, SubControl sc,

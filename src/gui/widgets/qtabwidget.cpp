@@ -431,13 +431,6 @@ QWidget * QTabWidget::currentWidget() const
 }
 
 /*!
-    \property QTabWidget::autoMask
-    \brief whether the tab widget is automatically masked
-
-    \sa QWidget::setAutoMask()
-*/
-
-/*!
     \property QTabWidget::currentIndex
     \brief the index position of the current tab page
 
@@ -646,8 +639,6 @@ void QTabWidget::setUpLayout(bool onlyCheck)
     if (!onlyCheck)
         update();
     updateGeometry();
-    if (autoMask())
-        updateMask();
 }
 
 /*!
@@ -800,22 +791,6 @@ void QTabWidget::changeEvent(QEvent *ev)
     if(ev->type() == QEvent::StyleChange)
         setUpLayout();
     QWidget::changeEvent(ev);
-}
-
-
-/*!
-    \reimp
- */
-void QTabWidget::updateMask()
-{
-    if (!autoMask())
-        return;
-
-    QRect r;
-    QRegion reg(r);
-    reg += QRegion(d->tabs->geometry());
-    reg += QRegion(d->stack->geometry());
-    setMask(reg);
 }
 
 

@@ -204,22 +204,6 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
                 p->fillRect(opt->rect, QBrush(p->background().color(), Qt::Dense5Pattern));
         } break;
 
-    case PE_IndicatorRadioButtonMask:
-        {
-            static const int pts1[] = {
-                // up left  lines
-                1,9, 1,8, 0,7, 0,4, 1,3, 1,2, 2,1, 3,1, 4,0, 7,0, 8,1, 9,1,
-                // bottom right  lines
-                10,2, 10,3, 11,4, 11,7, 10,8, 10,9, 9,10, 8,10, 7,11, 4,11, 3,10, 2,10
-            };
-            QRect r = opt->rect;
-            QPolygon a(INTARRLEN(pts1), pts1);
-            a.translate(r.x(), r.y());
-            p->setPen(Qt::color1);
-            p->setBrush(Qt::color1);
-            p->drawPolygon(a);
-            break;
-        }
     default:
         QMotifStyle::drawPrimitive(pe, opt, p, widget);
     }

@@ -46,8 +46,6 @@ public:
 
 
 protected:
-    virtual void drawRubberBandMask(QPainter *);
-    virtual void drawRubberBand(QPainter *);
 
     void paintEvent(QPaintEvent *);
     void changeEvent(QEvent *);

@@ -169,13 +169,6 @@ public:
 */
 
 /*!
-    \property QPushButton::autoMask
-    \brief whether the button is automatically masked
-
-    \sa QWidget::setAutoMask()
-*/
-
-/*!
     \property QPushButton::default
     \brief whether the push button is the default button
 
@@ -360,21 +353,6 @@ QSize QPushButton::sizeHint() const
             expandedTo(QApplication::globalStrut()));
 }
 
-
-/*!
-    \reimp
- */
-void QPushButton::updateMask()
-{
-    QBitmap bm(size());
-    bm.fill(Qt::color0);
-
-    QStylePainter p(&bm, this);
-    p.drawControlMask(QStyle::CE_PushButton, d->getStyleOption());
-    p.end();
-
-    setMask(bm);
-}
 
 
 /*!\reimp

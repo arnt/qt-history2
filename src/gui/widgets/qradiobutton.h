@@ -23,7 +23,6 @@ class Q_GUI_EXPORT QRadioButton : public QAbstractButton
     Q_OBJECT
 
     Q_OVERRIDE(bool autoExclusive DESIGNABLE true)
-    Q_OVERRIDE(bool autoMask DESIGNABLE true SCRIPTABLE true)
 
 public:
     explicit QRadioButton(QWidget *parent=0);
@@ -34,7 +33,6 @@ public:
 protected:
     bool hitButton(const QPoint &) const;
     void paintEvent(QPaintEvent *);
-    void updateMask();
 
 #ifdef QT_COMPAT
 public:

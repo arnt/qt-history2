@@ -26,7 +26,6 @@ class Q_GUI_EXPORT QPushButton : public QAbstractButton
     Q_PROPERTY(bool autoDefault READ autoDefault WRITE setAutoDefault)
     Q_PROPERTY(bool default READ isDefault WRITE setDefault)
     Q_PROPERTY(bool flat READ isFlat WRITE setFlat)
-    Q_OVERRIDE(bool autoMask DESIGNABLE true SCRIPTABLE true)
 
 public:
     explicit QPushButton(QWidget *parent=0);
@@ -55,7 +54,6 @@ protected:
     void keyPressEvent(QKeyEvent *);
     void focusInEvent(QFocusEvent *);
     void focusOutEvent(QFocusEvent *);
-    void updateMask();
 
 public:
 #ifdef QT_COMPAT

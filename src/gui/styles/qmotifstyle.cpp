@@ -375,20 +375,6 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
             p->fillRect(opt->rect, QBrush(p->background().color(), Qt::Dense5Pattern));
         break; }
 
-    case PE_IndicatorRadioButtonMask: {
-        static int inner_pts[] = { // used for filling diamond
-            0,opt->rect.height()/2,
-            opt->rect.width()/2,0,
-            opt->rect.width()-1,opt->rect.height()/2,
-            opt->rect.width()/2,opt->rect.height()-1
-        };
-        QPolygon a(INTARRLEN(inner_pts), inner_pts);
-        p->setPen(Qt::color1);
-        p->setBrush(Qt::color1);
-        a.translate(opt->rect.x(), opt->rect.y());
-        p->drawPolygon(a);
-        break; }
-
     case PE_IndicatorSpinUp:
     case PE_IndicatorSpinPlus:
     case PE_IndicatorSpinDown:
@@ -2306,18 +2292,6 @@ QMotifStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWidget *w
 
     case SH_MessageBox_UseBorderForButtonSpacing:
         ret = 1;
-        break;
-
-    case SH_FocusFrame_NeedBitMask:
-        ret = 1;
-        if (widget) {
-            ret = 0;
-            QRegion reg = widget->rect();
-            int vmargin = pixelMetric(QStyle::PM_FocusFrameVMargin),
-                hmargin = pixelMetric(QStyle::PM_FocusFrameHMargin);
-            reg -= QRect(widget->rect().adjusted(hmargin, vmargin, -hmargin, -vmargin));
-            const_cast<QWidget*>(widget)->setMask(reg);
-        }
         break;
 
     default:

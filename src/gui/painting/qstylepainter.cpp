@@ -103,15 +103,6 @@
 */
 
 /*!
-    \fn void QStylePainter::drawControlMask(QStyle::ControlElement element, const QStyleOption &option)
-
-    Use the widget's style to draw the mast for control element \a
-    element further specified by QStyleOption \a option.
-
-    \sa QStyle::drawControlMask()
-*/
-
-/*!
   \fn void QStylePainter::drawComplexControl(QStyle::ComplexControl cc,
                                              const QStyleOptionComplex &option)
 
@@ -119,17 +110,6 @@
     QStyleOptionComplex \a option.
 
     \sa QStyle::drawComplexControl()
-*/
-
-
-/*!
-    \fn void QStylePainter::drawComplexControlMask(QStyle::ComplexControl cc,
-                                                   const QStyleOptionComplex &option);
-
-    Use the widget's style to draw a complex control element's mask \a cc
-    specified by QStyleOptionComplex \a option.
-
-    \sa QStyle::drawComplexControlMask()
 */
 
 /*!

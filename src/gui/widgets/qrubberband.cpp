@@ -13,7 +13,7 @@
 
 #include "qbitmap.h"
 #include "qevent.h"
-#include "qpainter.h"
+#include "qstylepainter.h"
 #include "qrubberband.h"
 #include "qstyle.h"
 #include "qstyleoption.h"
@@ -109,32 +109,6 @@ QRubberBand::~QRubberBand()
 */
 
 /*!
-    Virtual function that draws the mask of a QRubberBand using
-    painter \a p.
-
-    The drawing is themed (using QStyle), but you can reimplement it
-    to achieve custom effects.
-*/
-void QRubberBand::drawRubberBandMask(QPainter *p)
-{
-    QStyleOption opt = d->getStyleOption();
-    style()->drawControlMask(QStyle::CE_RubberBand, &opt, p, this);
-}
-
-/*!
-    Virtual function that draws the contents of a QRubberBand using
-    painter \a p.
-
-    The drawing is themed (using QStyle), but you can reimplement it
-    to achieve custom effects.
-*/
-void QRubberBand::drawRubberBand(QPainter *p)
-{
-    QStyleOption opt = d->getStyleOption();
-    style()->drawControl(QStyle::CE_RubberBand, &opt, p, this);
-}
-
-/*!
   Returns the shape of this rubber band. The shape can only be set
   upon construction.
 */
@@ -148,11 +122,10 @@ QRubberBand::Shape QRubberBand::shape() const
 */
 void QRubberBand::updateMask()
 {
-    QBitmap bm(width(), height(), true);
-    QPainter p(&bm);
-    drawRubberBandMask(&p);
-    p.end();
-    setMask(QRegion(bm));
+    QStyleOption opt = d->getStyleOption();
+    if (style()->styleHint(QStyle::SH_RubberBand_Mask, &opt, q, 0)) {
+        //### TODO get region from QStyleHintReturn and set the mask
+    }
 }
 
 /*!
@@ -160,8 +133,8 @@ void QRubberBand::updateMask()
 */
 void QRubberBand::paintEvent(QPaintEvent *)
 {
-    QPainter p(this);
-    drawRubberBand(&p);
+    QStylePainter painter(this);
+    painter.drawControl(QStyle::CE_RubberBand, d->getStyleOption());
 }
 
 /*!

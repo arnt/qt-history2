@@ -99,13 +99,6 @@ public:
 */
 
 /*!
-    \property QCheckBox::autoMask
-    \brief whether the checkbox is automatically masked
-
-    \sa QWidget::setAutoMask()
-*/
-
-/*!
     \property QCheckBox::tristate
     \brief whether the checkbox is a tri-state checkbox
 
@@ -227,31 +220,6 @@ void QCheckBox::paintEvent(QPaintEvent *)
     p.drawControl(QStyle::CE_CheckBox, opt);
 }
 
-
-/*!
-  \reimp
-*/
-void QCheckBox::updateMask()
-{
-    QStyleOptionButton opt = d->getStyleOption();
-    opt.rect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_CheckBoxIndicator, &opt, this));
-
-    QBitmap bm(width(), height());
-    bm.fill(Qt::color0);
-
-    QStylePainter p(&bm, this);
-    p.drawControlMask(QStyle::CE_CheckBox, opt);
-    if (!text().isNull() || !icon().isNull()) {
-        QStyleOptionButton opt = d->getStyleOption();
-        QRect crect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_CheckBoxContents, &opt, this));
-        QRect frect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_CheckBoxFocusRect, &opt, this));
-        QRect label(crect.unite(frect));
-        p.fillRect(label, Qt::color1);
-    }
-    p.end();
-
-    setMask(bm);
-}
 
 /*!\reimp*/
 bool QCheckBox::hitButton(const QPoint &pos) const

@@ -52,20 +52,19 @@ void QFocusFramePrivate::updateSize()
         hmargin = q->style()->pixelMetric(QStyle::PM_FocusFrameHMargin);
     QRect geom(widget->x()-hmargin, widget->y()-vmargin,
                widget->width()+(hmargin*2), widget->height()+(vmargin*2));
-    if(geom != q->geometry()) {
-        q->setGeometry(geom);
-        QStyleOption opt = getStyleOption();
-        if (q->style()->styleHint(QStyle::SH_FocusFrame_NeedBitMask, &opt, q, 0)) {
-            QBitmap bm(q->size());
-            bm.fill(Qt::color0);
-            QStylePainter p(&bm, q);
-            p.drawControlMask(QStyle::CE_FocusFrame, opt);
-            p.end();
-            q->setMask(bm);
-        }
-    }
+    q->setGeometry(geom);
 }
 
+void QFocusFrame::updateMask()
+{
+    Q_D(QFocusFrame);
+    if (!d->widget)
+        return;
+    QStyleOption opt = d->getStyleOption();
+    if (style()->styleHint(QStyle::SH_FocusFrame_Mask, &opt, this, 0)) {
+        //### TODO get region from QStyleHintReturn and set the mask
+    }
+}
 QStyleOption QFocusFramePrivate::getStyleOption() const
 {
     Q_Q(const QFocusFrame);
@@ -79,6 +78,8 @@ QStyleOption QFocusFramePrivate::getStyleOption() const
 QFocusFrame::QFocusFrame(QWidget *widget)
     : QWidget(*new QFocusFramePrivate, widget ? widget->parentWidget() : 0, 0)
 {
+    setAttribute(Qt::WA_TransparentForMouseEvents);
+    setAutoMask(true);
     setFocusPolicy(Qt::NoFocus);
     setAttribute(Qt::WA_NoSystemBackground, true);
     setAttribute(Qt::WA_NoChildEventsForParent, true);

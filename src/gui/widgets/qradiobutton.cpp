@@ -60,13 +60,6 @@
 */
 
 /*!
-    \property QRadioButton::autoMask
-    \brief whether the radio button is automatically masked
-
-    \sa QWidget::setAutoMask()
-*/
-
-/*!
     \property QRadioButton::autoExclusive
     \brief whether the radio button is automatically exclusive
 
@@ -164,26 +157,6 @@ void QRadioButton::paintEvent(QPaintEvent *)
     p.drawControl(QStyle::CE_RadioButton, opt);
 }
 
-/*!
-    \reimp
-*/
-void QRadioButton::updateMask()
-{
-    QStyleOptionButton opt = getStyleOption(this);
-    opt.rect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_RadioButtonIndicator, &opt, this));
-    QBitmap bm(width(), height());
-    bm.fill(Qt::color0);
-    QStylePainter p(&bm, this);
-    p.drawControlMask(QStyle::CE_RadioButton, opt);
-    if (!text().isEmpty() || !icon().isNull()) {
-        QRect crect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_RadioButtonContents, &opt, this));
-        QRect frect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_RadioButtonFocusRect, &opt, this));
-        QRect label(crect.unite(frect));
-        p.fillRect(label, Qt::color1);
-    }
-    p.end();
-    setMask(bm);
-}
 #ifdef QT_COMPAT
 /*!
     Use one of the constructors that doesn't take the \a name

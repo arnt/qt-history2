@@ -30,7 +30,6 @@ class Q_GUI_EXPORT QTabWidget : public QWidget
     Q_PROPERTY(TabShape tabShape READ tabShape WRITE setTabShape)
     Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex)
     Q_PROPERTY(int count READ count)
-    Q_OVERRIDE(bool autoMask DESIGNABLE true SCRIPTABLE true)
 
 public:
     explicit QTabWidget(QWidget *parent = 0);
@@ -97,7 +96,6 @@ protected:
     void setTabBar(QTabBar *);
     QTabBar* tabBar() const;
     void changeEvent(QEvent *);
-    void updateMask();
 
 #ifdef QT_COMPAT
 public:
