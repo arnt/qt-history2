@@ -9,4 +9,4 @@ SOURCES		= cannon.cpp \
 		  main.cpp
 TARGET		= t14
 REQUIRES=full-config
-irix-n32:LIBS += -lm
+unix:LIBS += -lm
