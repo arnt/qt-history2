@@ -346,7 +346,7 @@ static const char * const file_link_xpm[]={
     "ccccccccccccc###"};
 
 /* XPM */
-static char * drive_hd_xpm[] = {
+static const char * const drive_hd_xpm[] = {
 "16 16 7 1",
 "# c #000000",
 "a c #008000",
