@@ -3337,7 +3337,7 @@ void QPSPrintEnginePrivate::emitHeader(bool finished)
 
     delete buffer;
     buffer = 0;
-    fontStream.unsetDevice();
+    fontStream.flush();
     delete fontBuffer;
     fontBuffer = 0;
 }
@@ -3566,11 +3566,11 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
     d->pagesInBuffer = 0;
     d->buffer = new QBuffer();
     d->buffer->open(QIODevice::WriteOnly);
-    d->outStream.setEncoding(QTextStream::Latin1);
+    d->outStream.setCodec(QTextCodec::codecForName("ISO-8895-1"));
     d->outStream.setDevice(d->buffer);
     d->fontBuffer = new QBuffer();
     d->fontBuffer->open(QIODevice::WriteOnly);
-    d->fontStream.setEncoding(QTextStream::Latin1);
+    d->fontStream.setCodec(QTextCodec::codecForName("ISO-8895-1"));
     d->fontStream.setDevice(d->fontBuffer);
     d->headerFontNumber = 0;
     d->pageCount           = 1;                // initialize state
@@ -3601,7 +3601,7 @@ bool QPSPrintEngine::end()
     d->outStream << "%%EOF\n";
     ignoreSigPipe(false);
 
-    d->outStream.unsetDevice();
+    d->outStream.flush();
     if (d->outDevice)
         d->outDevice->close();
     if (d->fd >= 0)
@@ -3896,12 +3896,12 @@ bool QPSPrintEngine::newPage()
         d->pageFontNames.clear();
     }
 
-    d->pageStream.unsetDevice();
+    d->pageStream.flush();
     if (d->pageBuffer)
         delete d->pageBuffer;
     d->pageBuffer = new QBuffer();
     d->pageBuffer->open(QIODevice::WriteOnly);
-    d->pageStream.setEncoding(QTextStream::Latin1);
+    d->pageStream.setCodec(QTextCodec::codecForName("ISO-8859-1"));
     d->pageStream.setDevice(d->pageBuffer);
 
     d->currentFont = 0; // reset current font

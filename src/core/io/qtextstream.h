@@ -18,44 +18,48 @@
 #include "QtCore/qstring.h"
 #include "QtCore/qchar.h"
 
+#ifndef QT_NO_TEXTCODEC
+#ifdef QT_COMPAT
+#include "QtCore/qtextcodec.h"
+#endif
+#endif
+
 #include <stdio.h>
 
-#ifndef QT_NO_TEXTSTREAM
 class QTextCodec;
 class QTextDecoder;
 
 class QTextStreamPrivate;
-
 class Q_CORE_EXPORT QTextStream                                // text stream class
 {
     Q_DECLARE_PRIVATE(QTextStream)
 
 public:
-    enum Encoding { Locale, Latin1, Unicode, UnicodeNetworkOrder,
-                    UnicodeReverse, RawUnicode, UnicodeUTF8 };
-
-    void setEncoding(Encoding);
-#ifndef QT_NO_TEXTCODEC
-    void setCodec(QTextCodec*);
-    QTextCodec *codec();
-#endif
-
     QTextStream();
-    explicit QTextStream(QIODevice *);
-    QTextStream(QString *, QIODevice::OpenMode flags);
-    QTextStream(QByteArray *, QIODevice::OpenMode flags);
-    QTextStream(const QByteArray &, QIODevice::OpenMode flags);
-    QTextStream(FILE *, QIODevice::OpenMode flags);
+    explicit QTextStream(QIODevice *device);
+    QTextStream(FILE *fileHandle, QIODevice::OpenMode openMode = QIODevice::ReadWrite);
+    QTextStream(QString *string, QIODevice::OpenMode openMode = QIODevice::ReadWrite);
+    QTextStream(QByteArray *array, QIODevice::OpenMode openMode = QIODevice::ReadWrite);
+    QTextStream(const QByteArray &array, QIODevice::OpenMode openMode = QIODevice::ReadOnly);
     virtual ~QTextStream();
 
-    QIODevice *device() const;
-    void setDevice(QIODevice *);
-    void unsetDevice();
-
-    bool         atEnd() const;
-#ifdef QT_COMPAT
-    inline QT_COMPAT bool eof() const { return atEnd(); }
+#ifndef QT_NO_TEXTCODEC
+    void setCodec(QTextCodec *codec);
+    QTextCodec *codec() const;
+    void setAutoDetectUnicode(bool enabled);
+    bool autoDetectUnicode() const;
 #endif
+
+    void setDevice(QIODevice *device);
+    QIODevice *device() const;
+
+    void setString(QString *string);
+    QString *string() const;
+
+    bool atEnd() const;
+
+    QString readLine(qint64 maxlen = 0);
+    QString readAll();
 
     QTextStream &operator>>(QChar &);
     QTextStream &operator>>(char &);
@@ -65,6 +69,9 @@ public:
     QTextStream &operator>>(unsigned int &);
     QTextStream &operator>>(signed long &);
     QTextStream &operator>>(unsigned long &);
+    QTextStream &operator>>(qlonglong&);
+    QTextStream &operator>>(qulonglong&);
+
     QTextStream &operator>>(float &);
     QTextStream &operator>>(double &);
 #ifdef QT_USE_FIXED_POINT
@@ -82,21 +89,18 @@ public:
     QTextStream &operator<<(unsigned int);
     QTextStream &operator<<(signed long);
     QTextStream &operator<<(unsigned long);
+    QTextStream &operator<<(qlonglong);
+    QTextStream &operator<<(qulonglong);
     QTextStream &operator<<(float);
     QTextStream &operator<<(double);
 #ifdef QT_USE_FIXED_POINT
     inline QTextStream &operator<<(QFixedPoint f) { return operator<<(f.toDouble()); }
 #endif
-    QTextStream &operator<<(const char*);
+    QTextStream &operator<<(const char *);
     QTextStream &operator<<(const QString &);
     QTextStream &operator<<(const QByteArray &);
     QTextStream &operator<<(const void *);                // any pointer
 
-    QTextStream &readRawBytes(char *, qint64 len);
-    QTextStream &writeRawBytes(const char* , qint64 len);
-
-    QString readLine();
-    QString read();
     void skipWhiteSpace();
     bool seek(qint64 offset);
 
@@ -117,9 +121,11 @@ public:
         fixed        = 0x2000                         // fixed float output
     };
 
-    static const int basefield;    // bin | oct | dec | hex
-    static const int adjustfield;  // left | right | internal
-    static const int floatfield;   // scientific | fixed
+    enum {
+        basefield = bin | oct | dec | hex,
+        adjustfield = left | right | internal,
+        floatfield = scientific | fixed
+    };
 
     int flags() const;
     void setFlags(int f);
@@ -127,16 +133,22 @@ public:
     int setf(int bits, int mask);
     int unsetf(int bits);
 
-    void  reset();
+    void reset();
+    void flush();
 
     int width() const;
     void setWidth(int w);
     int fill() const;
-    void setFill(int f);
+    void setFill(int ch);
     int precision() const;
     void setPrecision(int p);
 
 #ifdef QT_COMPAT
+    enum Encoding { Locale, Latin1, Unicode, UnicodeNetworkOrder,
+                    UnicodeReverse, RawUnicode, UnicodeUTF8 };
+    QT_COMPAT void setEncoding(Encoding encoding);
+    inline QT_COMPAT QString read() { return readAll(); }
+    inline QT_COMPAT void unsetDevice() { setDevice(0); }
     inline QT_COMPAT int flags(int f) { int old = flags(); setFlags(f); return old; }
     inline QT_COMPAT int width(int w) { int old = width(); setWidth(w); return old; }
     inline QT_COMPAT int fill(int f) { int old = fill(); setFill(f); return old; }
@@ -218,10 +230,10 @@ inline QTextStreamManipulator qSetW(int w)
     return QTextStreamManipulator(func,w);
 }
 
-inline QTextStreamManipulator qSetFill(int f)
+inline QTextStreamManipulator qSetFill(int ch)
 {
     QTSMFI func = &QTextStream::setFill;
-    return QTextStreamManipulator(func,f);
+    return QTextStreamManipulator(func,ch);
 }
 
 inline QTextStreamManipulator qSetPrecision(int p)
@@ -229,7 +241,5 @@ inline QTextStreamManipulator qSetPrecision(int p)
     QTSMFI func = &QTextStream::setPrecision;
     return QTextStreamManipulator(func,p);
 }
-
-#endif // QT_NO_TEXTSTREAM
 
 #endif // QTEXTSTREAM_H

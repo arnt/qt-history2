@@ -152,7 +152,7 @@ void MainWindow::loadFile(const QString &fileName)
 
     QTextStream in(&file);
     QApplication::setOverrideCursor(Qt::WaitCursor);
-    textEdit->setPlainText(in.read());
+    textEdit->setPlainText(in.readAll());
     QApplication::restoreOverrideCursor();
 
     setCurrentFile(fileName);

@@ -57,6 +57,9 @@ public:
 
     OpenMode openMode() const;
 
+    void setTextModeEnabled(bool enabled);
+    bool isTextModeEnabled() const;
+
     bool isOpen() const;
     bool isReadable() const;
     bool isWritable() const;

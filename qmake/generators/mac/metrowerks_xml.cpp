@@ -423,6 +423,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
         t << line << endl;
     }
     t << endl;
+    t.flush();
     file.close();
 
     if(!project->isEmpty("CODEWARRIOR_PREFIX_HEADER")) {
@@ -441,6 +442,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
                     prefix << "#define " << (*it) << endl;
                 }
             }
+            prefix.flush();
             prefixfile.close();
         }
     }

@@ -144,6 +144,7 @@ QMakeOutTextStream::QMakeOutTextStream(QFile *file) : QTextStream(new QMakeBuffe
 }
 QMakeOutTextStream::~QMakeOutTextStream()
 {
+    flush();
     delete device();
 }
 #elif 0

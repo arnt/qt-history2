@@ -41,7 +41,7 @@ QString loadFile( const QString &fileName )
     }
 
     QTextStream in( &file );
-    return in.read();
+    return in.readAll();
 }
 
 QMap<QString, QString> proFileTagMap( const QString& text )

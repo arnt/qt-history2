@@ -147,7 +147,7 @@ int main( int argc, char **argv )
         }
 
         QTextStream t( &f );
-        QString fullText = t.read();
+        QString fullText = t.readAll();
         f.close();
 
         if ( fullText.contains(QString("<!DOCTYPE TS>"))) {

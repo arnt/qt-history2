@@ -77,7 +77,7 @@ listResourceFile(const QString &file)
                     QString fileName(res.firstChild().toText().data());
                     QFileInfo file(filePath + fileName);
                     QString alias;
-                    if(res.toElement().hasAttribute("alias")) 
+                    if(res.toElement().hasAttribute("alias"))
                         alias = res.toElement().attribute("alias");
                     if(!file.exists() || file.isDir()) {
                         bool recursive = false;
@@ -390,6 +390,7 @@ main(int argc, char **argv)
         }
 
         //close
+        out.flush();
         out_dev->close();
         if(asTempFile) {
             QTemporaryFile *temp = static_cast<QTemporaryFile*>(out_dev);
@@ -441,6 +442,7 @@ main(int argc, char **argv)
     }
 
     //close
+    out.flush();
     out_dev->close();
     if(!write_error && asTempFile) {
         QTemporaryFile *temp = static_cast<QTemporaryFile*>(out_dev);

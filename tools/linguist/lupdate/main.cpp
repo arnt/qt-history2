@@ -126,7 +126,7 @@ int main( int argc, char **argv )
             }
 
             QTextStream t( &f );
-            fullText = t.read();
+            fullText = t.readAll();
             f.close();
         }
 

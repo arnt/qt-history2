@@ -340,6 +340,19 @@ void QIODevice::setOpenMode(OpenMode openMode)
     d->openMode = openMode;
 }
 
+void QIODevice::setTextModeEnabled(bool enabled)
+{
+    if (enabled)
+        d->openMode |= Text;
+    else
+        d->openMode &= ~Text;
+}
+
+bool QIODevice::isTextModeEnabled() const
+{
+    return d->openMode & Text;
+}
+
 /*!
     Returns true is the device is open; otherwise returns false. A
     device is open if it can be read from and/or written to. By

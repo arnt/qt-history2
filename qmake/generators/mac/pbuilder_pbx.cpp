@@ -395,6 +395,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                 (project->isEmpty("QMAKE_QMAKE") ? QString("$(QTDIR)/bin/qmake") :
                  var("QMAKE_QMAKE")) << endl;
             writeMakeQmake(mkt);
+            mkt.flush();
             mkf.close();
         }
         QString phase_key = keyFor("QMAKE_PBX_MAKEQMAKE_BUILDPHASE");
@@ -647,6 +648,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                 mkt << endl;
                 writeExtraCompilerTargets(mkt);
             }
+            mkt.flush();
             mkf.close();
         }
         mkfile = fileFixify(mkfile, qmake_getpwd());
@@ -812,6 +814,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             for(int i = 0; i < tmp.count(); i++)
                 t << "tmp/lib" << tmp[i] << ".a" << ":\n\t"
                   << var(QString("MAKELIB") + tmp[i]) << endl << endl;
+            mkt.flush();
             mkf.close();
         }
         QString phase_key = keyFor("QMAKE_PBX_SUBLIBS_BUILDPHASE");
@@ -1094,7 +1097,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             QFile plist_in_file(plist);
             if(plist_in_file.open(QIODevice::ReadOnly)) {
                 QMakeOutTextStream plist_in(&plist_in_file);
-                QString plist_in_text = plist_in.read();
+                QString plist_in_text = plist_in.readAll();
                 plist_in_text = plist_in_text.replace("@ICON@",
                   (project->isEmpty("ICON") ? QString("") : project->first("ICON").section(Option::dir_sep, -1)));
                 plist_in_text = plist_in_text.replace("@EXECUTABLE@", project->first("QMAKE_ORIG_TARGET"));
@@ -1442,6 +1445,7 @@ ProjectBuilderMakefileGenerator::pbuilderVersion() const
                         version = stringreg.cap(1);
                 }
             }
+            plist.flush();
             version_file.close();
         } else { debug_msg(1, "pbuilder: version.plist: Failure to open %s", version_plist.toLatin1().constData()); }
         if(version_plist.contains("Xcode")) {
