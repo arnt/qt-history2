@@ -112,52 +112,51 @@ static const char *const ps_header =
 "}ie}D/di{gsave TR 1 i 1 eq{false eq{pop true 3 1 roll 4 i 4 i false 4 i 4 i\n"
 "imagemask BkCol SC imagemask}{pop false 3 1 roll imagemask}ie}{dup false ne{\n"
 "level3}{false}ie{/ma ED 8 eq{/dc[0 1]d/DeviceGray}{/dc[0 1 0 1 0 1]d\n"
-"/DeviceRGB}ie scs/im ED/mt ED/h ED/w ED/id <</ImageType 1 d/Width w d/Height\n"
-"h d/ImageMatrix mt d/DataSource im d/BitsPerComponent 8 d/Decode dc d >> d\n"
-"/md <</ImageType 1 d/Width w d/Height h d/ImageMatrix mt d/DataSource ma d\n"
-"/BitsPerComponent 1 d/Decode[0 1]d >> d <</ImageType 3 d/DataDict id d\n"
-"/MaskDict md d/InterleaveType 3 d >> image}{pop 8 4 1 roll 8 eq{image}{QCI}\n"
-"ie}ie}ie grestore}d/SetLinGrad{level3{/c2 ED/c1 ED/y2 ED/x2 ED/y1 ED/x1 ED\n"
-"/LinGrad <</PatternType 2 d/Shading <</ShadingType 2 d/ColorSpace\n"
-"[/DeviceRGB]d/Coords[x1 y1 x2 y2]d/Extend[true true]d/Function <<\n"
-"/FunctionType 2 d/Domain[0 1]d/C0 c1 d/C1 c2 d/N 1 d >> d >> d >> matrix\n"
-"makepattern d}{pop}ie/BSt 15 d}D/BF{gsave BSt 1 eq{BCol SC WFi{fill}{eofill}\n"
-"ie}if BSt 2 ge BSt 8 le and{BDArr BSt 2 sub get/sc ED BCol{1. exch sub sc\n"
-"mul 1. exch sub}forall 3 array astore SC WFi{fill}{eofill}ie}if BSt 9 ge BSt\n"
-"14 le and{WFi{clip}{eoclip}ie defM SM pathbbox 3 i 3 i TR 4 2 roll 3 2 roll\n"
-"exch sub/h ED sub/w ED OMo{NP 0 0 MT 0 h RL w 0 RL 0 h neg RL CP BkCol SC\n"
-"fill}if BCol SC 0.3 SW NP BSt 9 eq BSt 11 eq or{0 4 h{dup 0 exch MT w exch\n"
-"LT}for}if BSt 10 eq BSt 11 eq or{0 4 w{dup 0 MT h LT}for}if BSt 12 eq BSt 14\n"
-"eq or{w h gt{0 6 w h add{dup 0 MT h sub h LT}for}{0 6 w h add{dup 0 exch MT\n"
-"w sub w exch LT}for}ie}if BSt 13 eq BSt 14 eq or{w h gt{0 6 w h add{dup h MT\n"
-"h sub 0 LT}for}{0 6 w h add{dup w exch MT w sub 0 exch LT}for}ie}if S}if BSt\n"
-"15 eq{level3{LinGrad setpattern WFi{fill}{eofill}ie}if}if BSt 24 eq{}if\n"
-"grestore}D/mat matrix d/ang1 D0/ang2 D0/w D0/h D0/x D0/y D0/ARC{/ang2 ED\n"
-"/ang1 ED/h ED/w ED/y ED/x ED mat CM pop x w 2 div add y h 2 div add TR 1 h w\n"
-"div neg scale ang2 0 ge{0 0 w 2 div ang1 ang1 ang2 add arc}{0 0 w 2 div ang1\n"
-"ang1 ang2 add arcn}ie mat SM}D/C D0/P{NP MT 0.5 0.5 rmoveto 0 -1 RL -1 0 RL\n"
-"0 1 RL CP fill}D/M{/Cy ED/Cx ED}D/L{NP Cx Cy MT/Cy ED/Cx ED Cx Cy LT QS}D/DL\n"
-"{NP MT LT QS}D/HL{1 i DL}D/VL{2 i exch DL}D/R{/h ED/w ED/y ED/x ED NP x y MT\n"
-"0 h RL w 0 RL 0 h neg RL CP BF QS}D/xr D0/yr D0/rx D0/ry D0/rx2 D0/ry2 D0/E{\n"
-"/h ED/w ED/y ED/x ED mat CM pop x w 2 div add y h 2 div add TR 1 h w div\n"
-"scale NP 0 0 w 2 div 0 360 arc mat SM BF QS}D/BC{/BkCol ED}D/BR{/BCol ED/BSt\n"
-"ED}D/NB{0[0 0 0]BR}D/PE{setlinejoin setlinecap/PCol ED/LWi ED/PSt ED LWi 0\n"
-"eq{0.25/LWi ED}if PCol SC}D/P1{1 0 3 2 roll 0 0 PE}D/ST{defM SM concat}D/MF{\n"
-"true exch true exch{exch pop exch pop dup 0 get dup findfont dup/FontName\n"
-"get 3 -1 roll eq{exit}if}forall exch dup 1 get/fxscale ED 2 get/fslant ED\n"
-"exch/fencoding ED[fxscale 0 fslant 1 0 0]makefont fencoding false eq{}{dup\n"
-"maxlength dict begin{1 i/FID ne{def}{pop pop}ifelse}forall/Encoding\n"
-"fencoding d currentdict end}ie definefont pop}D/MFEmb{findfont dup length\n"
-"dict begin{1 i/FID ne{d}{pop pop}ifelse}forall/Encoding ED currentdict end\n"
-"definefont pop}D/DF{findfont/fs 3 -1 roll d[fs 0 0 fs -1 mul 0 0]makefont d}\n"
-"D/ty 0 d/Y{/ty ED}D/Tl{gsave SW NP 1 i exch MT 1 i 0 RL S grestore}D/XYT{ty\n"
-"MT/xyshow where{pop pop xyshow}{exch pop 1 i dup length 2 div exch\n"
-"stringwidth pop 3 -1 roll exch sub exch div exch 0 exch ashow}ie}D/AT{ty MT\n"
-"1 i dup length 2 div exch stringwidth pop 3 -1 roll exch sub exch div exch 0\n"
-"exch ashow}D/QI{/C save d pageinit/Cx 0 d/Cy 0 d/OMo false d}D/QP{C restore\n"
-"showpage}D/SPD{/setpagedevice where{<< 3 1 roll d >> setpagedevice}{pop pop}\n"
-"ie}D/CLS{gsave NP}D/ACR{/h ED/w ED/y ED/x ED x y MT 0 h RL w 0 RL 0 h neg RL\n"
-"CP}D/CLO{grestore}D\n";
+"/DeviceRGB}ie scs/im ED/mt ED/h ED/w ED/id <</ImageType 1/Width w/Height h\n"
+"/ImageMatrix mt/DataSource im/BitsPerComponent 8/Decode dc >> d/md <<\n"
+"/ImageType 1/Width w/Height h/ImageMatrix mt/DataSource ma/BitsPerComponent\n"
+"1/Decode[0 1]>> d <</ImageType 3/DataDict id/MaskDict md/InterleaveType 3 >>\n"
+"image}{pop 8 4 1 roll 8 eq{image}{QCI}ie}ie}ie grestore}d/SetLinGrad{level3{\n"
+"/c2 ED/c1 ED/y2 ED/x2 ED/y1 ED/x1 ED/LinGrad <</PatternType 2 d/Shading <<\n"
+"/ShadingType 2 d/ColorSpace[/DeviceRGB]d/Coords[x1 y1 x2 y2]d/Extend[true\n"
+"true]d/Function <</FunctionType 2 d/Domain[0 1]d/C0 c1 d/C1 c2 d/N 1 d >> d\n"
+">> d >> matrix makepattern d}{pop}ie/BSt 15 d}D/BF{gsave BSt 1 eq{BCol SC\n"
+"WFi{fill}{eofill}ie}if BSt 2 ge BSt 8 le and{BDArr BSt 2 sub get/sc ED BCol{\n"
+"1. exch sub sc mul 1. exch sub}forall 3 array astore SC WFi{fill}{eofill}ie}\n"
+"if BSt 9 ge BSt 14 le and{WFi{clip}{eoclip}ie defM SM pathbbox 3 i 3 i TR 4\n"
+"2 roll 3 2 roll exch sub/h ED sub/w ED OMo{NP 0 0 MT 0 h RL w 0 RL 0 h neg\n"
+"RL CP BkCol SC fill}if BCol SC 0.3 SW NP BSt 9 eq BSt 11 eq or{0 4 h{dup 0\n"
+"exch MT w exch LT}for}if BSt 10 eq BSt 11 eq or{0 4 w{dup 0 MT h LT}for}if\n"
+"BSt 12 eq BSt 14 eq or{w h gt{0 6 w h add{dup 0 MT h sub h LT}for}{0 6 w h\n"
+"add{dup 0 exch MT w sub w exch LT}for}ie}if BSt 13 eq BSt 14 eq or{w h gt{0\n"
+"6 w h add{dup h MT h sub 0 LT}for}{0 6 w h add{dup w exch MT w sub 0 exch LT\n"
+"}for}ie}if S}if BSt 15 eq{level3{LinGrad setpattern WFi{fill}{eofill}ie}if}\n"
+"if BSt 24 eq{}if grestore}D/mat matrix d/ang1 D0/ang2 D0/w D0/h D0/x D0/y D0\n"
+"/ARC{/ang2 ED/ang1 ED/h ED/w ED/y ED/x ED mat CM pop x w 2 div add y h 2 div\n"
+"add TR 1 h w div neg scale ang2 0 ge{0 0 w 2 div ang1 ang1 ang2 add arc}{0 0\n"
+"w 2 div ang1 ang1 ang2 add arcn}ie mat SM}D/C D0/P{NP MT 0.5 0.5 rmoveto 0\n"
+"-1 RL -1 0 RL 0 1 RL CP fill}D/M{/Cy ED/Cx ED}D/L{NP Cx Cy MT/Cy ED/Cx ED Cx\n"
+"Cy LT QS}D/DL{NP MT LT QS}D/R{/h ED/w ED/y ED/x ED NP x y MT 0 h RL w 0 RL 0\n"
+"h neg RL CP BF QS}D/xr D0/yr D0/rx D0/ry D0/rx2 D0/ry2 D0/E{/h ED/w ED/y ED\n"
+"/x ED mat CM pop x w 2 div add y h 2 div add TR 1 h w div scale NP 0 0 w 2\n"
+"div 0 360 arc mat SM BF QS}D/BC{/BkCol ED}D/BR{/BCol ED/BSt ED}D/NB{0[0 0 0]\n"
+"BR}D/PE{setlinejoin setlinecap/PCol ED/LWi ED/PSt ED LWi 0 eq{0.25/LWi ED}if\n"
+"PCol SC}D/P1{1 0 3 2 roll 0 0 PE}D/ST{defM SM concat}D/MF{true exch true\n"
+"exch{exch pop exch pop dup 0 get dup findfont dup/FontName get 3 -1 roll eq{\n"
+"exit}if}forall exch dup 1 get/fxscale ED 2 get/fslant ED exch/fencoding ED[\n"
+"fxscale 0 fslant 1 0 0]makefont fencoding false eq{}{dup maxlength dict\n"
+"begin{1 i/FID ne{def}{pop pop}ifelse}forall/Encoding fencoding d currentdict\n"
+"end}ie definefont pop}D/MFEmb{findfont dup length dict begin{1 i/FID ne\n"
+"{d}{pop pop}ifelse}forall/Encoding ED currentdict end definefont pop}D/DF{\n"
+"findfont/fs 3 -1 roll d[fs 0 0 fs -1 mul 0 0]makefont d}D/ty 0 d/Y{/ty ED}D\n"
+"/Tl{gsave SW NP 1 i exch MT 1 i 0 RL S grestore}D/XYT{ty MT/xyshow where{pop\n"
+"pop xyshow}{exch pop 1 i dup length 2 div exch stringwidth pop 3 -1 roll\n"
+"exch sub exch div exch 0 exch ashow}ie}D/AT{ty MT 1 i dup length 2 div exch\n"
+"stringwidth pop 3 -1 roll exch sub exch div exch 0 exch ashow}D/QI{/C save d\n"
+"pageinit/Cx 0 d/Cy 0 d/OMo false d}D/QP{C restore showpage}D/SPD{\n"
+"/setpagedevice where{<< 3 1 roll d >> setpagedevice}{pop pop}ie}D/CLS{gsave\n"
+"NP}D/ACR{/h ED/w ED/y ED/x ED x y MT 0 h RL w 0 RL 0 h neg RL CP}D/CLO{\n"
+"grestore}D\n";
 
 static const char * const agl =
 ".notdef\0space\0exclam\0quotedbl\0numbersign\0dollar\0percent\0ampersand\0"
@@ -519,6 +518,7 @@ static const struct { Q_UINT16 u; Q_UINT16 index; } unicodetoglyph[] = {
 
 
 
+
 #define MM(n) int((n * 720 + 127) / 254)
 #define IN(n) int(n * 72)
 
@@ -845,7 +845,6 @@ public:
     float scale;
 
     bool embedFonts;
-    bool compressImages;
     QStringList fontpath;
     bool        collate;
     int         copies;
@@ -4535,7 +4534,6 @@ QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
 
     currentFontFile = 0;
     scale = 1.;
-    compressImages = false;
 
 #ifdef Q_WS_X11
     // append qsettings fontpath
@@ -4598,7 +4596,6 @@ QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
         if (!fp.isEmpty())
             fontpath += fp;
     }
-    compressImages = settings.readBoolEntry("/qt/postscript_compressImages", TRUE);
 #else
     embedFonts = false;
 #endif
@@ -4689,61 +4686,131 @@ enum {
     None = INT_MAX
 };
 
-/* puts the lowest numBits of data into the out array starting at postion (byte/bit).
-   Adjusts byte and bit to point ot the next position.
-
-   Need to make sure the out array is long enough before calling the method.
-*/
-static void emitBits(char *out, int & byte, int & bit,
-                      int numBits, uint data)
+static QByteArray runlengthEncode(const QByteArray &input)
 {
-    int b = 0;
-    uint dd = data;
-    while(b < numBits) {
-        if (bit == 0)
-            out[byte] = 0;
-        if (dd & 1)
-            out[byte] = (uchar)out[byte] | (1 << bit);
-        dd = dd >> 1;
-        b++;
-        bit++;
-        if (bit > 6) {
-            bit = 0;
-            byte++;
+    if (!input.length())
+        return input;
+
+    const char *data = input.constData();
+
+    QByteArray out;
+    int start = 0;
+    char last = *data;
+
+    enum State {
+        Undef,
+        Equal,
+        Diff
+    };
+    State state = Undef;
+
+    int i = 1;
+    while (1) {
+        bool flush = false;
+        switch(state) {
+        case Undef:
+            state = (last == data[i]) ? Equal : Diff;
+            break;
+        case Equal:
+            if (data[i] != last)
+                flush = true;
+            break;
+        case Diff:
+            if (data[i] == last) {
+                --i;
+                flush = true;
+            }
         }
-    }
+        if (flush || i == input.size() - 1 || i - start == 128) {
+            int size = i - start;
+            if (state == Equal) {
+                out.append((char)(uchar)(257-size));
+                out.append(last);
+            } else {
+                out.append((char)(uchar)size-1);
+                while (start < i)
+                    out.append(data[start++]);
+            }
+            state = Undef;
+            start = i;
+            if (i == input.size() - 1)
+                break;
+        }
+        last = data[i];
+        ++i;
+    };
+    out.append((char)128);
+    return out;
 }
 
-//#define DEBUG_COMPRESS
-#ifdef DEBUG_COMPRESS
-#include <qdatetime.h>
-#endif
+static QByteArray ascii85Encode(const QByteArray &input)
+{
+    int isize = input.size()/4*4;
+    QByteArray output;
+    output.resize(input.size()*5/4+7);
+    char *out = output.data();
+    const uchar *in = (const uchar *)input.constData();
+    for (int i = 0; i < isize; i += 4) {
+        uint val = (((uint)in[i])<<24) + (((uint)in[i+1])<<16) + (((uint)in[i+2])<<8) + (uint)in[i+3];
+        if (val == 0) {
+            *out = 'z';
+            ++out;
+        } else {
+            char base[5];
+            base[4] = val % 85;
+            val /= 85;
+            base[3] = val % 85;
+            val /= 85;
+            base[2] = val % 85;
+            val /= 85;
+            base[1] = val % 85;
+            val /= 85;
+            base[0] = val % 85;
+            *(out++) = base[0] + '!';
+            *(out++) = base[1] + '!';
+            *(out++) = base[2] + '!';
+            *(out++) = base[3] + '!';
+            *(out++) = base[4] + '!';
+        }
+    }
+    //write the last few bytes
+    int remaining = input.size() - isize;
+    uint val = 0;
+    for (int i = isize; i < input.size(); ++i)
+        val = val << 8 + in[i];
+    val <<= 8*(4-remaining);
+    char base[5];
+    base[4] = val % 85;
+    val /= 85;
+    base[3] = val % 85;
+    val /= 85;
+    base[2] = val % 85;
+    val /= 85;
+    base[1] = val % 85;
+    val /= 85;
+    base[0] = val % 85;
+    for (int i = 0; i < remaining+1; ++i)
+        *(out++) = base[i] + '!';
+    *(out++) = '~';
+    *(out++) = '>';
+    output.resize(out-output.data());
+    return output;
+}
 
-static QByteArray compress(const QImage & image, bool gray, bool compress) {
-#ifdef DEBUG_COMPRESS
-    QTime t;
-    t.start();
-    int sizeUncompressed[11];
-    for(int i = 0; i < 11; i++)
-        sizeUncompressed[i] = 0;
-    int sizeCompressed[11];
-    for(int i = 0; i < 11; i++)
-        sizeCompressed[i] = 0;
-#endif
-
+static QByteArray compress(const QImage & image, bool gray) {
     int width = image.width();
     int height = image.height();
     int depth = image.depth();
     int size = width*height;
 
-    int pastPixel[tableSize];
-    int mostRecentPixel[hashSize];
     if (depth == 1)
         size = (width+7)/8*height;
     else if (!gray)
         size = size*3;
 
-    unsigned char *pixel = new unsigned char[size+1];
+    QByteArray pixelData;
+    pixelData.resize(size+1);
+    uchar *pixel = (uchar *)pixelData.data();
     int i = 0;
     if (depth == 1) {
         QImage::Endian bitOrder = image.bitOrder();
@@ -4800,311 +4867,8 @@ static QByteArray compress(const QImage & image, bool gray, bool compress) {
 
     pixel[size] = 0;
 
-    if (!compress) {
-        QByteArray outarr;
-        outarr.resize(2*size+1);
-        char *data = outarr.data();
-        for (int i = 0; i < size; ++i) {
-            const char *hex = toHex(pixel[i]);
-            *(data++) = hex[0];
-            *(data++) = hex[1];
-        }
-        outarr[2*size] = 0;
-        delete [] pixel;
-        return outarr;
-    }
-
-    /* this compression function emits blocks of data, where each
-       block is an unquoted series of pixels, or a quote from earlier
-       pixels. if the six-letter string "banana" were a six-pixel
-       image, it might be unquoted "ban" followed by a 3-pixel quote
-       from -2.  note that the final "a" is then copied from the
-       second "a", which is copied from the first "a" in the same copy
-       operation.
-
-       the scanning for quotable blocks uses a cobol-like loop and a
-       hash table: we know how many pixels we need to quote, hash the
-       first and last pixel we need, and then go backwards in time
-       looking for some spot where those pixels of those two colours
-       occur at the right distance from each other.
-
-       when we find a spot, we'll try a string-compare of all the
-       intervening pixels. we only do a maximum of 128 both-ends
-       compares or 64 full-string compares. it's more important to be
-       fast than get the ultimate in compression.
-
-       The format of the compressed stream is as follows:
-       // 2 bits step size for search and backreference (1 or 3)
-       1 bit compressed or uncompressed block follows
-
-       uncompressed block:
-       3 bits size of block in bytes
-       size*8 bits data
-
-       compressed block:
-       3 bits compression header
-       0-2 size of block is 1-3 bytes
-       3-7 size of block is bigger, 4-8 additional bits specifying size follow
-       0/4-8 additional size fields
-       10 location of backreference
-    */
-
-    for(i=0; i < hashSize; i++)
-        mostRecentPixel[i] = None;
-    int index = 0;
-    int emittedUntil = 0;
-    char *out = (char *)malloc(256 * sizeof(char));
-    int outLen = 256;
-    int outOffset = 0;
-    int outBit = 0;
-
-    /* we process pixels serially, emitting as necessary/possible. */
-    while(index <= size) {
-        int bestCandidate = None;
-        int bestLength = 0;
-        i = index % tableSize;
-        int h = pixel[index] % hashSize;
-        int start, end;
-        start = end = pastPixel[i] = mostRecentPixel[h];
-        mostRecentPixel[h] = index;
-        /* if our first candidate quote is unusable, or we don't need
-           to quote because we've already emitted something for this
-           pixel, just skip. */
-        if (start < index - tableSize || index >= size ||
-            emittedUntil > index)
-            start = end = None;
-        int attempts = 0;
-        /* scan for suitable quote candidates: not too far back, and
-           if we've found one that's as big as it can get, don't look
-           for more */
-        while(start != None && end != None &&
-              bestLength < maxQuoteLength &&
-              start >= index - tableSize &&
-              end >= index - tableSize + bestLength) {
-            /* scan backwards, looking for something good enough to
-               try a (slow) string comparison. we maintain indexes to
-               the start and the end of the quote candidate here */
-            while(start != None && end != None &&
-                  (pixel[start] != pixel[index] ||
-                   pixel[end] != pixel[index+bestLength])) {
-                if (attempts++ > numAttempts) {
-                    start = None;
-                } else if (pixel[end] % hashSize ==
-                           pixel[index+bestLength] % hashSize) {
-                    /* we move the area along the end index' chain */
-                    end = pastPixel[end%tableSize];
-                    start = end - bestLength;
-                } else if (pixel[start] % hashSize ==
-                           pixel[index] % hashSize) {
-                    /* ... or along the start index' chain */
-                    start = pastPixel[start%tableSize];
-                    end = start + bestLength;
-                } else {
-#if 0
-                    /* this should never happen: both the start and
-                       the end pointers ran off their tracks. */
-                    qDebug("oops! %06x %06x %06x %06x %5d %5d %5d %d",
-                           pixel[start], pixel[end],
-                           pixel[index], pixel[index+bestLength],
-                           start, end, index, bestLength);
-#endif
-                    /* but if it should happen, no problem. we'll just
-                       say we found nothing, and the compression will
-                       be a bit worse. */
-                    start = None;
-                }
-                /* if we've moved either index too far to use the
-                   quote candidate, let's just give up here. there's
-                   also a guard against "start" insanity. */
-                if (start < index - tableSize || start < 0 || start >= index)
-                    start = None;
-                if (end < index - tableSize + bestLength || end < bestLength)
-                    end = None;
-            }
-            /* ok, now start and end point to an area of suitable
-               length whose first and last points match, or one/both
-               is/are set to None. */
-            if (start != None && end != None) {
-                /* slow string compare... */
-                int length = 0;
-                while(length < maxQuoteLength &&
-                      index+length < size &&
-                      pixel[start+length] == pixel[index+length])
-                    length++;
-                /* if we've found something that overlaps the index
-                   point, maybe we can move the quote point back?  if
-                   we're copying 10 pixels from 8 pixels back (an
-                   overlap of 2), that'll be faster than copying from
-                   4 pixels back (an overlap of 6). */
-                if (start + length > index && length > 0) {
-                    int dd = index-start;
-                    int equal = true;
-                    while(equal && start + length > index &&
-                          start > dd && start-dd >= index-tableSize) {
-                        int i = 0;
-                        while(equal && i < dd) {
-                            if(pixel[start+i] != pixel[start+i-dd])
-                                equal = false;
-                            i++;
-                        }
-                        if (equal)
-                            start -= dd;
-                    }
-                }
-                /* if what we have is longer than the best previous
-                   candidate, we'll use this one. */
-                if (length > bestLength) {
-                    attempts = 0;
-                    bestCandidate = start;
-                    bestLength = length;
-                    if (length < maxQuoteLength && index + length < size)
-                        end = mostRecentPixel[pixel[index+length]%hashSize];
-                } else {
-                    /* and if it ins't, we'll try some more. but we'll
-                       count each string compare extra, since they're
-                       so expensive. */
-                    attempts += 2;
-                    if (attempts > numAttempts) {
-                        start = None;
-                    } else if (pastPixel[start%tableSize] + bestLength <
-                               pastPixel[end%tableSize]) {
-                        start = pastPixel[start%tableSize];
-                        end = start + bestLength;
-                    } else {
-                        end = pastPixel[end%tableSize];
-                        start = end - bestLength;
-                    }
-                }
-                /* again, if we can't make use of the current quote
-                   candidate, we don't try any more */
-                if (start < index - tableSize || start < 0 || start > size+1)
-                    start = None;
-                if (end < index - tableSize + bestLength || end < 0 || end > size+1)
-                    end = None;
-            }
-        }
-        /* backreferences to 1 byte of data are actually more costly than
-           emitting the data directly, 2 bytes don't save much. */
-        if (bestCandidate != None && bestLength < 3)
-            bestCandidate = None;
-        /* at this point, bestCandidate is a candidate of bestLength
-           length, or else it's None. if we have such a candidate, or
-           we're at the end, we have to emit all unquoted data. */
-        if (index == size || bestCandidate != None) {
-            /* we need a double loop, because there's a maximum length
-               on the "unquoted data" section. */
-            while(emittedUntil < index) {
-#ifdef DEBUG_COMPRESS
-                int x = 0;
-                int bl = emittedUntil - index;
-                while ((bl /= 2))
-                    x++;
-                if (x > 10) x = 10;
-                sizeUncompressed[x]++;
-#endif
-                int l = qMin(8, index - emittedUntil);
-                if (outOffset + l + 2 >= outLen) {
-                    outLen *= 2;
-                    out = (char *) realloc(out, outLen);
-                }
-                emitBits(out, outOffset, outBit,
-                         1, 0);
-                emitBits(out, outOffset, outBit,
-                         quoteSize, l-1);
-                while(l--) {
-                    emitBits(out, outOffset, outBit,
-                             8, pixel[emittedUntil]);
-                    emittedUntil++;
-                }
-            }
-        }
-        /* if we have some quoted data to output, do it. */
-        if (bestCandidate != None) {
-#ifdef DEBUG_COMPRESS
-            int x = 0;
-            int bl = bestLength;
-            while ((bl /= 2))
-                x++;
-            if (x > 10) x = 10;
-            sizeCompressed[x]++;
-#endif
-            if (outOffset + 4 >= outLen) {
-                outLen *= 2;
-                out = (char *) realloc(out, outLen);
-            }
-            emitBits(out, outOffset, outBit,
-                     1, 1);
-            int l = bestLength - 3;
-            const struct off_len {
-                int off;
-                int bits;
-            } ol_table [] = {
-                /* Warning: if you change the table here, change /uc in the PS code! */
-                { 3, 0/*dummy*/ },
-                { 16, 4 },
-                { 32, 5 },
-                { 64, 6 },
-                { 128, 7 },
-                { /*256*/ 0xfffffff, 8 },
-            };
-
-            if (l < ol_table[0].off) {
-                emitBits(out, outOffset, outBit,
-                         quoteSize, l);
-            } else {
-                const off_len *ol = ol_table;
-                l -= ol->off;
-                ol++;
-                while (l >= ol->off) {
-                    l -= ol->off;
-                    ol++;
-                }
-                emitBits(out, outOffset, outBit,
-                         quoteSize, ol->bits-1);
-                emitBits(out, outOffset, outBit,
-                         ol->bits, l);
-            }
-            emitBits(out, outOffset, outBit,
-                     quoteReach, index - bestCandidate - 1);
-            emittedUntil += bestLength;
-        }
-        index++;
-    }
-    /* we've output all the data; time to clean up and finish off the
-       last characters. */
-    if (outBit)
-        outOffset++;
-    i = 0;
-    /* we have to make sure the data is encoded in a stylish way :) */
-    while(i < outOffset) {
-        uchar c = out[i];
-        c += 42;
-        if (c > 'Z' && (c != 't' || i == 0 || out[i-1] != 'Q'))
-            c += 84;
-        out[i] = c;
-        i++;
-    }
-    QByteArray outarr(out, outOffset);
-    free(out);
-    delete [] pixel;
-
-#ifdef DEBUG_COMPRESS
-    qDebug("------------- image compression statistics ----------------");
-    qDebug(" compression time %d", t.elapsed());
-    qDebug("Size dist of uncompressed blocks:");
-    qDebug("\t%d\t%d\t%d\t%d\t%d\t%d\n", sizeUncompressed[0], sizeUncompressed[1],
-           sizeUncompressed[2], sizeUncompressed[3], sizeUncompressed[4], sizeUncompressed[5]);
-    qDebug("\t%d\t%d\t%d\t%d\t%d\n", sizeUncompressed[6], sizeUncompressed[7],
-           sizeUncompressed[8], sizeUncompressed[9], sizeUncompressed[10]);
-    qDebug("Size dist of compressed blocks:");
-    qDebug("\t%d\t%d\t%d\t%d\t%d\t%d\n", sizeCompressed[0], sizeCompressed[1],
-           sizeCompressed[2], sizeCompressed[3], sizeCompressed[4], sizeCompressed[5]);
-    qDebug("\t%d\t%d\t%d\t%d\t%d\n", sizeCompressed[6], sizeCompressed[7],
-           sizeCompressed[8], sizeCompressed[9], sizeCompressed[10]);
-    qDebug("===> total compression ratio %d/%d = %f", outOffset, size, (float)outOffset/(float)size);
-    qDebug("-----------------------------------------------------------");
-#endif
-
+    QByteArray runlength = runlengthEncode(pixelData);
+    QByteArray outarr = ascii85Encode(runlength);
     return outarr;
 }
 
@@ -5185,17 +4949,12 @@ void QPSPrintEnginePrivate::drawImage(float x, float y, float w, float h,
         const char *bits;
 
         if (!mask.isNull()) {
-            out = ::compress(mask, true, compressImages);
+            out = ::compress(mask, true);
             size = (width+7)/8*height;
-            if (compressImages) {
-                pageStream << "/mask " << size << " string uc\n";
-                ps_r7( pageStream, out, out.size() );
-                pageStream << "d\n";
-            } else {
-                pageStream << "/mask currentfile " << size << " string readhexstring\n";
-                ps_r7( pageStream, out, out.size() );
-                pageStream << " pop d\n";
-            }
+            pageStream << "/mask currentfile/ASCII85Decode filter/RunLengthDecode filter "
+                       << size << " string readstring\n";
+            ps_r7( pageStream, out, out.size() );
+            pageStream << " pop d\n";
         }
         if (img.depth() == 1) {
             size = (width+7)/8*height;
@@ -5208,16 +4967,11 @@ void QPSPrintEnginePrivate::drawImage(float x, float y, float w, float h,
             bits = "24 ";
         }
 
-        out = ::compress(img, gray, compressImages);
-        if (compressImages) {
-            pageStream << "/sl " << size << " string uc\n";
-            ps_r7(pageStream, out, out.size());
-            pageStream << "d\n";
-        } else {
-            pageStream << "/sl currentfile " << size << " string readhexstring\n";
-            ps_r7( pageStream, out, out.size() );
-            pageStream << " pop d\n";
-        }
+        out = ::compress(img, gray);
+        pageStream << "/sl currentfile/ASCII85Decode filter/RunLengthDecode filter "
+                       << size << " string readstring\n";
+        ps_r7( pageStream, out, out.size() );
+        pageStream << " pop d\n";
         pageStream << width << ' ' << height << "[" << scaleX << " 0 0 " << scaleY << " 0 0]sl "
                    << bits << (!mask.isNull() ? "mask " : "false ")
                    << x << ' ' << y << " di\n";

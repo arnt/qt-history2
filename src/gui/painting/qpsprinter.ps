@@ -317,31 +317,31 @@
 	% the image dict
 	/id
 	<<
-	  /ImageType 1 d
-	  /Width		        w d
-	  /Height		        h d
-	  /ImageMatrix            mt d
-	  /DataSource		im d
-	  /BitsPerComponent	8 d
-	  /Decode		        dc d
+	  /ImageType 1
+	  /Width w
+	  /Height h
+	  /ImageMatrix mt
+	  /DataSource im
+	  /BitsPerComponent 8
+	  /Decode dc
 	>> d
 	% the mask dictionary
 	/md
 	<<
-	  /ImageType		1 d
-	  /Width		        w d
-	  /Height		        h d
-	  /ImageMatrix            mt d
-	  /DataSource		ma d
-	  /BitsPerComponent	1 d
-	  /Decode		        [0 1] d
+	  /ImageType 1
+	  /Width w
+	  /Height h
+	  /ImageMatrix mt
+	  /DataSource ma
+	  /BitsPerComponent 1
+	  /Decode [0 1]
 	>> d
 	% and the combined image dict
 	<<
-	  /ImageType 3 d
-	  /DataDict id d
-	  /MaskDict md d
-	  /InterleaveType 3 d
+	  /ImageType 3
+	  /DataDict id
+	  /MaskDict md
+	  /InterleaveType 3
 	>> 
 	image
       } {
