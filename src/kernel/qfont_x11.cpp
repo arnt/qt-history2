@@ -839,7 +839,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
 	if (chars->combiningClass() == 0 || pos + i == 0) {
 	    tmp = scriptForChar(*chars);
 
-	    if (tmp != current) {
+	    if (tmp != current || w > pw + 30000 ) { // X11 doesn't draw strings wider than 32768px
 		if (last && lastlen) {
 		    if (qfs && qfs != (QFontStruct *) -1 && qfs->codec)
 			cache->mapped =
