@@ -1077,7 +1077,6 @@ void QLineEdit::focusOutEvent( QFocusEvent * e )
 void QLineEdit::drawContents( QPainter *painter )
 {
     int marg = frameWidth();
-    painter->translate( marg, 0 );
     const QColorGroup & g = colorGroup();
 
     int lineheight = QMIN( fontMetrics().lineSpacing() + 4, height() );
@@ -1122,7 +1121,7 @@ void QLineEdit::drawContents( QPainter *painter )
     parag->invalidate( 0 );
     parag->format();
     updateOffset( parag, cursor );
-    int xoff = 1 - d->offset;
+    int xoff = 1 - d->offset + marg;
     int yoff = ( height() - parag->rect().height()  + 1 ) / 2;
     if ( yoff < 0 )
 	yoff = 0;
