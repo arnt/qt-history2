@@ -916,7 +916,7 @@ fi
 # is this a shadow build?
 if [ "$OPT_SHADOW" = "maybe" ]; then
     OPT_SHADOW=no
-    if [ "$relpath" != "$outpath" ] && [ '!' -e "$outpath/configure" ]; then
+    if [ "$relpath" != "$outpath" ] && [ '!' -f "$outpath/configure" ]; then
 	if [ -L "$outpath" ]; then
 	    [ "$relpath" -ef "$outpath" ] || OPT_SHADOW=yes
 	else
