@@ -74,6 +74,8 @@ class QTextFormatCollection;
 static QPtrDict<QTextFormatCollection> *qFormatCollectionDict = 0;
 const int QStyleSheetItem_WhiteSpaceNoCompression = 3; // ### belongs in QStyleSheetItem, fix 3.1
 
+const int border_tolerance = 2;
+
 #if defined(PARSER_DEBUG)
 static QString debug_indent;
 #endif
@@ -1442,7 +1444,7 @@ void QTextDocument::clear( bool createEmptyParag )
 
 int QTextDocument::widthUsed() const
 {
-    return wused;
+    return wused + border_tolerance;
 }
 
 int QTextDocument::height() const
@@ -7175,11 +7177,11 @@ int QTextFlow::adjustFlow( int y, int /*w*/, int h )
 {
     if ( pagesize > 0 ) { // check pages
 	int yinpage = y % pagesize;
-	if ( yinpage <= 2 )
-	    return 2 - yinpage;
+	if ( yinpage <= border_tolerance )
+	    return border_tolerance - yinpage;
 	else
-	    if ( yinpage + h > pagesize - 2 )
-		return ( pagesize - yinpage ) + 2;
+	    if ( yinpage + h > pagesize - border_tolerance )
+		return ( pagesize - yinpage ) + border_tolerance;
     }
     return 0;
 }
@@ -7858,7 +7860,7 @@ QTextTableCell::~QTextTableCell()
 
 QSize QTextTableCell::sizeHint() const
 {
-    int extra = 2 * ( parent->innerborder + parent->cellpadding + 2);
+    int extra = 2 * ( parent->innerborder + parent->cellpadding + border_tolerance);
     int used = richtext->widthUsed() + extra;
 
     if  (stretch_ ) {
@@ -7871,7 +7873,7 @@ QSize QTextTableCell::sizeHint() const
 
 QSize QTextTableCell::minimumSize() const
 {
-    int extra = 2 * ( parent->innerborder + parent->cellpadding + 2);
+    int extra = 2 * ( parent->innerborder + parent->cellpadding + border_tolerance);
     return QSize( QMAX( richtext->minimumWidth() + extra, minw), 0 );
 }
 
@@ -7909,7 +7911,7 @@ bool QTextTableCell::hasHeightForWidth() const
 
 int QTextTableCell::heightForWidth( int w ) const
 {
-    int extra = 2 * ( parent->innerborder + parent->cellpadding + 2 );
+    int extra = 2 * ( parent->innerborder + parent->cellpadding + border_tolerance );
     w = QMAX( minw, w );
 
     if ( cached_width != w ) {
