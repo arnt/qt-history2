@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#36 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#37 $
 **
 ** Definition of QButton widget class
 **
@@ -31,7 +31,6 @@ public:
     const QPixmap *pixmap()	const	{ return bpixmap; }
     void	setPixmap( const QPixmap & );
 
-public:
     bool	isToggleButton() const	{ return toggleBt; }
 
     bool	isDown()	const	{ return buttonDown; }
@@ -77,12 +76,11 @@ private:
 #if defined(OBSOLETE)
 public:
     bool	toggleButton()	const;
-    bool        isUp()          const;
-    bool        isOff()         const;
+    bool	isUp()		const;
+    bool	isOff()		const;
     void	switchOn();
     void	switchOff();
 #endif
-
 
 private:	// Disabled copy constructor and operator=
     QButton( const QButton & ) {}
@@ -91,19 +89,19 @@ private:	// Disabled copy constructor and operator=
 
 
 #if defined(OBSOLETE)
-inline bool QButton::toggleButton() const 
+inline bool QButton::toggleButton() const
 {
     qObsolete("QButton","toggleButton","isToggleButton");
-    return isToggleButton(); 
+    return isToggleButton();
 }
 
-inline bool QButton::isUp() const 
+inline bool QButton::isUp() const
 {
     qObsolete("QButton","isUp","!isDown()");
     return !buttonDown;
 }
 
-inline bool QButton::isOff() const 
+inline bool QButton::isOff() const
 {
     qObsolete("QButton","isOff","!isOn()");
     return !buttonOn;
