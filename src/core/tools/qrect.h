@@ -489,6 +489,7 @@ public:
 
     QRectF adjusted(float x1, float y1, float x2, float y2) const;
 
+    QPointF origin() const;
     QSizeF size() const;
     float width() const;
     float height() const;
@@ -562,7 +563,7 @@ inline bool QRectF::isEmpty() const
 { return w <= 0. || h <= 0.; }
 
 inline bool QRectF::isValid() const
-{ return w >= 0. && h >= 0.; }
+{ return w > 0. && h > 0.; }
 
 inline float QRectF::x() const
 { return xp; }
@@ -581,6 +582,9 @@ inline float QRectF::height() const
 
 inline QSizeF QRectF::size() const
 { return QSizeF(w, h); }
+
+inline QPointF QRectF::origin() const
+{ return QPointF(xp, yp); }
 
 inline void QRectF::translate(float dx, float dy)
 {
