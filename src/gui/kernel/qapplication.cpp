@@ -904,6 +904,13 @@ QApplication::~QApplication()
     //### this should probable be done even later
     qt_call_post_routines();
 
+    // kill timers before closing down the dispatcher
+    if (qt_double_buffer_timer)
+        qApp->killTimer(qt_double_buffer_timer);
+    qt_double_buffer_timer = 0;
+    d->toolTipWakeUp.stop();
+    d->toolTipFallAsleep.stop();
+
     d->eventDispatcher->closingDown();
     d->eventDispatcher = 0;
 
