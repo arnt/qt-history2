@@ -31,7 +31,7 @@ sub-tools: sub-src FORCE
 	cd ..
 
 symlinks: .qmake.cache
-	syncqt
+#	syncqt
 
 sub-src: src-moc .qmake.cache FORCE
 	cd src
