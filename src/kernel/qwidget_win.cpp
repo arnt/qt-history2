@@ -1224,8 +1224,8 @@ void QWidgetPrivate::erase_helper( const QRegion& rgn )
     if ( hasRegion )
 	DeleteObject( newRegion );
     if ( tmphdc ) {
-	ReleaseDC( winId(), lhdc );
-	hdc = 0;
+	ReleaseDC( q->winId(), lhdc );
+	q->hdc = 0;
     }
 }
 
