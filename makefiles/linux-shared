@@ -1,11 +1,12 @@
 diff -ur template/library/Makefile linux-shared/library/Makefile
 --- template/library/Makefile	Fri Jul  5 16:51:39 1996
 +++ linux-shared/library/Makefile	Fri Jul  5 17:24:27 1996
-@@ -92,6 +92,7 @@
+@@ -92,6 +92,8 @@
  	$(CC) -shared -Wl,-soname,libqt.so.0 \
  		-o ../../../lib/libqt.so.${VERSION} \
  		$(OBJECTS) $(METAOBJ) -lX11 -lgcc -lc
 +	ln -s libqt.so.${VERSION} ../../../lib/libqt.so
++	ln -s libqt.so.${VERSION} ../../../lib/libqt.so.0
  
  depend:
  	makedepend $(SOURCES) 2> /dev/null
