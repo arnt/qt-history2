@@ -265,7 +265,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         if (!res)
             qSystemWarning("QWidget: Failed to set window style");
 #endif
-#ifdef GWLP_WNDPROC
+#ifdef _WIN64
         res = SetWindowLongPtrA( window, GWLP_WNDPROC, (LONG_PTR)QtWndProc );
 #else
         res = SetWindowLongA( window, GWL_WNDPROC, (LONG)QtWndProc );
