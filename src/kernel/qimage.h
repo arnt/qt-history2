@@ -139,8 +139,10 @@ public:
     bool	load( const QString &fileName, const char* format=0 );
     bool	loadFromData( const uchar *buf, uint len,
 			      const char *format=0 );
-    bool	loadFromData( QByteArray data, const char *format=0 );
-    bool	save( const QString &fileName, const char* format ) const;
+    bool	loadFromData( QByteArray data, const char* format=0 );
+    bool	save( const QString &fileName, const char* format ) const; // ### remove 3.0
+    bool	save( const QString &fileName, const char* format,
+		      int quality ) const; // ### change to quality=-1 in 3.0
 
     bool	valid( int x, int y ) const;
     int		pixelIndex( int x, int y ) const;
@@ -203,6 +205,9 @@ class QIODevice;
 typedef void (*image_io_handler)( QImageIO * ); // image IO handler
 
 
+struct QImageIOData; //### use instead of params in 3.0
+
+
 class Q_EXPORT QImageIO
 {
 public:
@@ -248,7 +253,7 @@ private:
     QCString	frmt;				// image format
     QIODevice  *iodev;				// IO device
     QString	fname;				// file name
-    char       *params;				// image parameters
+    char       *params;				// image parameters //### change to QImageIOData *d in 3.0
     QString     descr;				// image description
 
 private:	// Disabled copy constructor and operator=

@@ -107,7 +107,9 @@ public:
     bool	loadFromData( const QByteArray &data,
 			      const char* format=0,
 			      int conversion_flags=0 );
-    bool	save( const QString& fileName, const char* format ) const;
+    bool	save( const QString& fileName, const char* format ) const; // ### remove 3.0
+    bool	save( const QString& fileName, const char* format,
+		      int quality ) const; // ### change to quality=-1 in 3.0
 
 #if defined(_WS_WIN_)
     HBITMAP	hbm()		const;

@@ -2637,10 +2637,29 @@ bool QImage::loadFromData( QByteArray buf, const char *format )
 
 bool QImage::save( const QString &fileName, const char* format ) const
 {
+    return save( fileName, format, -1 );
+}
+
+/*!
+  Saves the image to the file \e fileName, using the image file format
+  \e format and a quality factor \e quality.  \e quality must be in the
+  range [0,100] and is not taken into account if the file format does
+  not support compression.  Returns TRUE if successful, or FALSE if the
+  image could not be saved.
+  \sa load(), loadFromData(), imageFormat(), QPixmap::save(), QImageIO
+*/
+
+bool QImage::save( const QString &fileName, const char* format, int quality ) const
+{
     if ( isNull() )
 	return FALSE;				// nothing to save
     QImageIO io( fileName, format );
     io.setImage( *this );
+    if ( quality >= 0 ) {
+	QString s;
+	s.setNum( quality > 100 ? 100 : quality );
+	io.setParameters( s.latin1() );
+    }
     return io.write();
 }
 
@@ -2961,6 +2980,12 @@ static QImageHandler *get_image_handler( const char *format )
   For image formats supporting incremental display, such as sequences
   of animated frames, see the QImageFormatType class.
 */
+
+struct QImageIOData //### use instead of params in 3.0
+{
+    const char *params;
+    int quality;
+};
 
 void QImageIO::defineIOHandler( const char *format,
 				const char *header,

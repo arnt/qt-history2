@@ -800,10 +800,30 @@ bool QPixmap::loadFromData( const QByteArray &buf, const char *format,
 
 bool QPixmap::save( const QString &fileName, const char *format ) const
 {
+    return save( fileName, format, -1 );
+}
+
+
+/*!
+  Saves the pixmap to the file \e fileName, using the image file format
+  \e format and a quality factor \e quality.  \e quality must be in the
+  range [0,100] and is not taken into account if the file format does
+  not support compression.  Returns TRUE if successful, or FALSE if the
+  pixmap could not be saved.
+  \sa load(), loadFromData(), imageFormat(), QImage::save(), QImageIO
+*/
+
+bool QPixmap::save( const QString &fileName, const char *format, int quality ) const
+{
     if ( isNull() )
 	return FALSE;				// nothing to save
     QImageIO io( fileName, format );
     io.setImage( convertToImage() );
+    if ( quality >= 0 ) {
+	QString s;
+	s.setNum( quality > 100 ? 100 : quality );
+	io.setParameters( s.latin1() );
+    }
     return io.write();
 }
 

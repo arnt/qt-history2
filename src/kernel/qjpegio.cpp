@@ -287,7 +287,7 @@ my_jpeg_destination_mgr::my_jpeg_destination_mgr(QImageIO* iioptr)
 }
 
 
-int qt_jpeg_quality = 75; // Global (no provision for parameters)
+int qt_jpeg_quality = 75; //### remove 3.0 ?
 
 static
 void write_jpeg_image(QImageIO* iio)
@@ -334,7 +334,18 @@ void write_jpeg_image(QImageIO* iio)
 	}
 
 	jpeg_set_defaults(&cinfo);
-	jpeg_set_quality(&cinfo, qt_jpeg_quality, TRUE /* limit to baseline-JPEG values */);
+	int quality = qt_jpeg_quality;
+	if ( iio->parameters() ) {
+	    bool ok = false;
+	    int iq = QString::fromLatin1( iio->parameters() ).toInt( &ok );
+	    if ( ok && iq >= 0)
+		 quality = QMIN( 100, iq );
+#if defined(CHECK_RANGE)
+	    else
+		qWarning( "JPEG: Quality %d out of range", iq );
+#endif
+	}
+	jpeg_set_quality(&cinfo, quality, TRUE /* limit to baseline-JPEG values */);
 
 	jpeg_start_compress(&cinfo, TRUE);
 
