@@ -739,27 +739,24 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
             if (cspan > 1 && cell.column() != c)
                 continue;
 
-            if (rspan != 1) {
-                int cr = cell.row();
-                if (cr != r) {
-                    // already layouted rowspan cell
-#if 0
-                    // adjust height so cell fits
-                    if (cr + rspan == r + 1)
-                        td->heights.at(i) = ...;
-#endif
+            if (rspan > 1 && cell.row() != r)
                     continue;
-                }
-            }
 
             layoutStruct.y = y;
             layoutStruct.x_left = td->columnPositions.at(c) + td->padding;
             layoutStruct.x_right = td->columnPositions.at(c + cspan - 1) + td->widths.at(c + cspan - 1) - td->padding;
             layoutCell(table, cell, &layoutStruct);
 
-            if (rspan == 1)
-                td->heights[r] = qMax(td->heights.at(r), layoutStruct.y + td->padding - y);
+            int heightToDistribute = layoutStruct.y + td->padding - y;
+            for (int n = rspan; n > 0; --n) {
+                const int row = r + n - 1;
+                int h = heightToDistribute / n;
+                td->heights[row] = qMax(td->heights.at(row), h);
 
+                heightToDistribute -= td->heights.at(row);
+                if (heightToDistribute < 0)
+                    continue;
+            }
         }
     }
 
