@@ -12,6 +12,7 @@
 
 #include <qmainwindow.h>
 #include <qintdict.h>
+#include <qptrlist.h>
 #include "categoryinterface.h"
 
 class QToolBox;
