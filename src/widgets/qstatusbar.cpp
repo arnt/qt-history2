@@ -127,6 +127,8 @@ public:
 #ifndef QT_NO_SIZEGRIP
     QSizeGrip * resizer;
 #endif
+
+    int savedStrut;
 };
 
 
@@ -331,6 +333,7 @@ void QStatusBar::reformat()
     }
 #endif
     l->addStrut( maxH );
+    d->savedStrut = maxH;
     vbox->addSpacing( 2 );
     d->box->activate();
     repaint();
@@ -484,8 +487,28 @@ void QStatusBar::resizeEvent( QResizeEvent * e )
 
 bool QStatusBar::event( QEvent *e )
 {
-    if ( e->type() == QEvent::LayoutHint )
-	update();
+    if ( e->type() == QEvent::LayoutHint ) {
+	// Calculate new strut height and call reformat() if it has changed
+	int maxH = fontMetrics().height();
+
+	QStatusBarPrivate::SBItem* item = d->items.first();
+	while ( item ) {
+	    int itemH = QMIN(item->w->sizeHint().height(),
+			    item->w->maximumHeight());
+	    maxH = QMAX( maxH, itemH );
+	    item = d->items.next();
+	}
+
+#ifndef QT_NO_SIZEGRIP
+	if ( d->resizer )
+	    maxH = QMAX( maxH, d->resizer->sizeHint().height() );
+#endif
+
+	if ( maxH != d->savedStrut )
+	    reformat();
+	else
+	    update();
+    }
     if ( e->type() == QEvent::ChildRemoved ) {
 	QStatusBarPrivate::SBItem* item = d->items.first();
 	while ( item ) {
