@@ -43,7 +43,7 @@ struct parser_info {
 static QString remove_quotes(QString arg)
 {
     if(arg.size() >= 2 &&
-       (arg.at(0) == '\'' || arg.at(0) == '"') && arg.at(arg.length()-1) == arg.at(0))
+       (arg.at(0) == QLatin1Char('\'') || arg.at(0) == QLatin1Char('"')) && arg.at(arg.length()-1) == arg.at(0))
         return arg.mid(1, arg.length()-2);
     return arg;
 }
@@ -411,15 +411,18 @@ static QStringList split_arg_list(QString params)
                 quote = 0;
             }
             args << mid;
-        } else if(params[x] == ')') {
+            break;
+        }
+        QChar curr = params.at(x);
+        if(curr == QLatin1Char(')')) {
             parens--;
-        } else if(params[x] == '(') {
+        } else if(curr == QLatin1Char('(')) {
             parens++;
-        } else if(quote.unicode() && params[x] == quote) {
+        } else if(quote.unicode() && curr == quote) {
             quote = 0;
-        } else if(!quote.unicode() && (params[x] == '\'' || params[x] == '"')) {
-            quote = params[x];
-        } else if(!parens && !quote.unicode() && params[x] == ',') {
+        } else if(!quote.unicode() && (curr == QLatin1Char('\'') || curr == QLatin1Char('"'))) {
+            quote = curr;
+        } else if(!parens && !quote.unicode() && curr == QLatin1Char(',')) {
             QString mid = params.mid(last, x - last).trimmed();
             if(quote.unicode()) {
                 if(mid[0] == quote && mid[(int)mid.length()-1] == quote)
@@ -441,26 +444,23 @@ static QStringList split_value_list(const QString &vals, bool do_semicolon=false
     QStringList ret;
     QStack<QChar> quote;
     for(int x = 0; x < (int)vals.length(); x++) {
-#if 0
-        //I don't think I can do this, because you could have a trailing slash before your next
-        //argument (ie a directory) which would cause problems. I will need to test more, but I'm
-        //a bit nervous to change it now..
-        if(x != (int)vals.length()-1 && vals[x] == '\\' && (vals[x+1] == ' '  || (do_semicolon && vals[x+1] == ';')))
-            build += QString(vals[x++]) + QString(vals[x++]);
-        else
-#endif
-        if(x != (int)vals.length()-1 && vals[x] == '\\' && (vals[x+1] == '\'' || vals[x+1] == '"'))
-            build += vals[x++]; //get that 'escape'
-        else if(!quote.isEmpty() && vals[x] == quote.top())
+        QChar curr = vals.at(x);
+       if(x != (int)vals.length()-1 && curr == QLatin1Char('\\') &&
+          (vals.at(x+1) == QLatin1Char('\'') || vals.at(x+1) == QLatin1Char('"'))) {
+           build += curr; //get that 'escape'
+           x++;
+       } else if(!quote.isEmpty() && curr == quote.top()) {
             quote.pop();
-        else if(vals[x] == '\'' || vals[x] == '"')
-            quote.push(vals[x]);
+       } else if(curr == QLatin1Char('\'') || curr == QLatin1Char('"')) {
+            quote.push(curr);
+       }
 
-        if(quote.isEmpty() && ((do_semicolon && vals[x] == ';') ||  vals[x] == Option::field_sep)) {
+       if(quote.isEmpty() && ((do_semicolon && curr == QLatin1Char(';')) ||
+                              curr == Option::field_sep)) {
             ret << build;
             build = "";
         } else {
-            build += vals[x];
+            build += curr;
         }
     }
     if(!build.isEmpty())

@@ -1698,9 +1698,12 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
         for(QStringList::ConstIterator input = tmp_inputs.begin(); input != tmp_inputs.end(); ++input) {
             QString in = Option::fixPathToTargetOS((*input), false);
             QStringList deps = findDependencies((*input));
-            if(!tmp_dep.isEmpty())
-                deps += fileFixify(tmp_dep, Option::output_dir, Option::output_dir);
             QString out = replaceExtraCompilerVariables(tmp_out, (*input), QString::null);
+            if(!tmp_dep.isEmpty()) {
+                QStringList pre_deps = fileFixify(tmp_dep, Option::output_dir, Option::output_dir);
+                for(int i = 0; i < pre_deps.size(); ++i) 
+                   deps += replaceExtraCompilerVariables(pre_deps.at(i), (*input), out);
+            }
             QString cmd = replaceExtraCompilerVariables(tmp_cmd, (*input), out);
             for(QStringList::Iterator it3 = vars.begin(); it3 != vars.end(); ++it3)
                 cmd.replace("$(" + (*it3) + ")", "$(QMAKE_COMP_" + (*it3)+")");
@@ -1708,7 +1711,6 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                 char buff[256];
                 QString dep_cmd = replaceExtraCompilerVariables(tmp_dep_cmd, (*input), out);
                 dep_cmd = Option::fixPathToLocalOS(dep_cmd);
-                QStringList dep_cmd_deps;
                 if(FILE *proc = QT_POPEN(dep_cmd.toLatin1().constData(), "r")) {
                     QString indeps;
                     while(!feof(proc)) {
@@ -1719,14 +1721,8 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                     }
                     fclose(proc);
                     if(!indeps.isEmpty())
-                        dep_cmd_deps += fileFixify(indeps.replace('\n', ' ').simplified().split(' '));
+                        deps += fileFixify(indeps.replace('\n', ' ').simplified().split(' '));
                 }
-#if 1
-                for(int i = 0; i < dep_cmd_deps.size(); ++i) {
-                    if(out != dep_cmd_deps.at(i))
-                        deps += replaceExtraCompilerVariables(dep_cmd_deps.at(i), (*input), out);
-                }
-#endif
             }
             t << out << ": " << in;
             for(int i = 0; i < deps.size(); ++i) {
