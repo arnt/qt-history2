@@ -1,5 +1,8 @@
 #include "qlist.h"
+#include "qstack.h"
 #include "qxpath.h"
+
+#define QXPATH_DEBUG
 
 /***************************************************************
  *
@@ -98,22 +101,27 @@ public:
     virtual ~QXPathAtom()
     {}
 
+    virtual void addChild( QXPathAtom* child )
+    {
+	// default implementation: noop (delete child to avoid memory leaks if
+	// used wrong)
+	delete child;
+    }
+
     virtual bool evaluate( QXPathDataType* ret ) = 0;
     virtual Type type() = 0;
 
     QXPathAtom *parent;
 };
 
-
-// Location Path node
-class QXPathAtomLocationPath : public QXPathAtom
+class QXPathAtomWithChildren : public QXPathAtom
 {
 public:
-    QXPathAtomLocationPath() : QXPathAtom()
+    QXPathAtomWithChildren() : QXPathAtom()
     {
 	children.setAutoDelete( TRUE );
     }
-    ~QXPathAtomLocationPath()
+    ~QXPathAtomWithChildren()
     {
 	children.clear();
     }
@@ -124,13 +132,30 @@ public:
 	child->parent = this;
     }
 
-    bool evaluate( QXPathDataType* )
+protected:
+    QList<QXPathAtom> children; // QList is more complex than needed
+};
+
+class QXPathAtomLocationPath : public QXPathAtomWithChildren
+{
+public:
+    QXPathAtomLocationPath() : QXPathAtomWithChildren()
+    { }
+    ~QXPathAtomLocationPath()
+    { }
+
+    bool evaluate( QXPathDataType *ret )
     {
+#if defined(QXPATH_DEBUG)
+	qDebug( "QXPathAtom: LocationPath {" );
+#endif
 	QXPathAtom *it;
 	for ( it=children.first(); it!=0; it=children.next() ) {
-	    QXPathDataType *t;
-	    it->evaluate( t );
+	    it->evaluate( ret );
 	}
+#if defined(QXPATH_DEBUG)
+	qDebug( "QXPathAtom: }" );
+#endif
 	return TRUE;
     }
 
@@ -138,12 +163,8 @@ public:
     {
 	return LocationPath;
     }
-
-private:
-    QList<QXPathAtom> children; // QList is more complex than needed
 };
 
-// Location Step node
 class QXPathAtomLocationStep : public QXPathAtom
 {
 public:
@@ -160,6 +181,9 @@ public:
 
     bool evaluate( QXPathDataType* )
     {
+#if defined(QXPATH_DEBUG)
+	qDebug( "QXPathAtom: LocationStep" );
+#endif
 	return TRUE;
     }
 
@@ -174,7 +198,6 @@ private:
     QXPathAtom	    *valuePredicate;
 };
 
-// Variable Reference node
 class QXPathAtomVariableReference : public QXPathAtom
 {
 public:
@@ -187,6 +210,9 @@ public:
 
     bool evaluate( QXPathDataType* )
     {
+#if defined(QXPATH_DEBUG)
+	qDebug( "QXPathAtom: VariableReference: %s", value.latin1() );
+#endif
 	return TRUE;
     }
 
@@ -199,7 +225,6 @@ private:
     QString value;
 };
 
-// String Literal node
 class QXPathAtomLiteral : public QXPathAtom
 {
 public:
@@ -212,6 +237,9 @@ public:
 
     bool evaluate( QXPathDataType* )
     {
+#if defined(QXPATH_DEBUG)
+	qDebug( "QXPathAtom: Literal: %s", value.latin1() );
+#endif
 	return TRUE;
     }
 
@@ -224,7 +252,6 @@ private:
     QString value;
 };
 
-// Number node
 class QXPathAtomNumber : public QXPathAtom
 {
 public:
@@ -237,6 +264,9 @@ public:
 
     bool evaluate( QXPathDataType* )
     {
+#if defined(QXPATH_DEBUG)
+	qDebug( "QXPathAtom: Number: %f", value );
+#endif
 	return TRUE;
     }
 
@@ -249,33 +279,28 @@ private:
     double value;
 };
 
-// Operator node
-class QXPathAtomOperator : public QXPathAtom
+class QXPathAtomOperator : public QXPathAtomWithChildren
 {
 public:
-    QXPathAtomOperator( QXPathNS::Operator op ) : QXPathAtom()
+    QXPathAtomOperator( QXPathNS::Operator op ) : QXPathAtomWithChildren()
     {
 	value = op;
-	children.setAutoDelete( TRUE );
     }
     ~QXPathAtomOperator()
-    {
-	children.clear();
-    }
+    {}
 
-    void addChild( QXPathAtom* child )
+    bool evaluate( QXPathDataType* ret )
     {
-	children.append( child );
-	child->parent = this;
-    }
-
-    bool evaluate( QXPathDataType* )
-    {
+#if defined(QXPATH_DEBUG)
+	qDebug( "QXPathAtom: Operator %d [", value );
+#endif
 	QXPathAtom *it;
 	for ( it=children.first(); it!=0; it=children.next() ) {
-	    QXPathDataType *t;
-	    it->evaluate( t );
+	    it->evaluate( ret );
 	}
+#if defined(QXPATH_DEBUG)
+	qDebug( "QXPathAtom: ]" );
+#endif
 	return TRUE;
     }
 
@@ -286,36 +311,30 @@ public:
 
 private:
     QXPathNS::Operator value;
-    QList<QXPathAtom> children; // QList is more complex than needed
 };
 
-// Function Call node
-class QXPathAtomFunctionCall : public QXPathAtom
+class QXPathAtomFunctionCall : public QXPathAtomWithChildren
 {
 public:
-    QXPathAtomFunctionCall( const QString &name ) : QXPathAtom()
+    QXPathAtomFunctionCall( const QString &name ) : QXPathAtomWithChildren()
     {
 	value = name;
-	children.setAutoDelete( TRUE );
     }
     ~QXPathAtomFunctionCall()
-    {
-	children.clear();
-    }
+    { }
 
-    void addChild( QXPathAtom* child )
+    bool evaluate( QXPathDataType* ret )
     {
-	children.append( child );
-	child->parent = this;
-    }
-
-    bool evaluate( QXPathDataType* )
-    {
+#if defined(QXPATH_DEBUG)
+	qDebug( "QXPathAtom: FunctionCall: %s (", value.latin1() );
+#endif
 	QXPathAtom *it;
 	for ( it=children.first(); it!=0; it=children.next() ) {
-	    QXPathDataType *t;
-	    it->evaluate( t );
+	    it->evaluate( ret );
 	}
+#if defined(QXPATH_DEBUG)
+	qDebug( "QXPathAtom: )" );
+#endif
 	return TRUE;
     }
 
@@ -326,7 +345,6 @@ public:
 
 private:
     QString value;
-    QList<QXPathAtom> children; // QList is more complex than needed
 };
 
 
@@ -789,9 +807,13 @@ QXPathAtom* QXPathParser::parse( const QString& expr )
 {
     Token token;
     QXPathAtom *act_root = 0;
+    QXPathAtom *tmp;
+    QStack<QXPathAtom> stack;
 
+    // init lexical analyzer
     delete lex;
     lex = new QXPathLexicalAnalyzer( expr );
+    // get token after token and parse the expression
     while ( !lex->atEnd() ) {
 	token = lex->nextToken();
 	switch ( token ) {
@@ -826,6 +848,11 @@ QXPathAtom* QXPathParser::parse( const QString& expr )
 	    case TkNodeType_Node:
 		break;
 	    case TkOperator:
+		if ( stack.isEmpty() )
+		    goto error;
+		tmp= new QXPathAtomOperator( lex->getOperator() );
+		tmp->addChild( stack.pop() );
+		stack.push( tmp );
 		break;
 	    case TkFunctionName:
 		break;
@@ -834,6 +861,7 @@ QXPathAtom* QXPathParser::parse( const QString& expr )
 	    case TkLiteral:
 		break;
 	    case TkNumber:
+		stack.push( new QXPathAtomNumber(lex->getNumber()) );
 		break;
 	    case TkVariableReference:
 		break;
@@ -841,9 +869,25 @@ QXPathAtom* QXPathParser::parse( const QString& expr )
     }
     delete lex;
     lex = 0;
+
+    // build the tree from the stack content
+    while ( !stack.isEmpty() ) {
+	if ( act_root == 0 ) {
+	    act_root = stack.pop();
+	} else {
+	    if ( stack.top()->type() == QXPathAtom::Operator ) {
+		tmp = stack.pop();
+		tmp->addChild( act_root );
+		act_root = tmp;
+	    } else {
+		goto error;
+	    }
+	}
+    }
     return act_root;
 error:
     delete act_root;
+    stack.setAutoDelete( TRUE );
     delete lex;
     lex = 0;
     return 0;
@@ -942,6 +986,16 @@ bool QXPath::isValid() const
     return d->exprTree != 0;
 }
 
+/*!
+  fnord
+*/
+bool QXPath::evaluate( QXPathDataType* ret )
+{
+    if ( d->exprTree != 0 )
+	return d->exprTree->evaluate( ret );
+    else
+	return FALSE;
+}
 
 #if 0
 // old stuff that I probably don't need

@@ -12,11 +12,13 @@ int main( int argc, char** argv )
 	int i = 0;
 	while ( paths[i] != 0 ) {
 	    QXPath xpath( paths[i] );
+	    xpath.evaluate( 0 );
 	    i++;
 	}
     } else {
 	for ( int i=1; i<argc; i++ ) {
 	    QXPath xpath( argv[i] );
+	    xpath.evaluate( 0 );
 	}
     }
     return 0;

@@ -22,6 +22,8 @@ public:
     QString expression() const;
     bool isValid() const;
 
+    virtual bool evaluate( QXPathDataType* ret );
+
 private:
     QXPathPrivate *d;
 };
