@@ -480,7 +480,7 @@ QImage::QImage( uchar* yourdata, int w, int h, int depth,
     data->w = w;
     data->h = h;
     data->d = depth;
-    data->ncols = numColors;
+    data->ncols = depth != 32 ? numColors : 0;
     if ( !yourdata )
 	return;	    // Image header info can be saved without needing to allocate memory.
     int bpl = ((w*depth+31)/32)*4;	// bytes per scanline
@@ -1234,6 +1234,8 @@ bool QImage::create( int width, int height, int depth, int numColors,
 	return FALSE;
     }
 
+    if ( depth == 32 )
+	numColors = 0;
     setNumColors( numColors );
     if ( data->ncols != numColors )		// could not alloc color table
 	return FALSE;
