@@ -306,29 +306,25 @@ QVariant QPSQLResult::data( int i )
 	    return QVariant( QDate::fromString( val, Qt::ISODate ) );
 	}
     case QVariant::Time:
-	if ( val.isEmpty() ) {
+	if ( val.isEmpty() )
 	    return QVariant( QTime() );
-	} else {
-	    // strip the timezone
-	    int i = val.findRev( "+" );
-	    if ( i > 0 )
-		val = val.left( (uint)i );
-	    return QVariant( QTime::fromString( val, Qt::ISODate ) );
-	}
+	// strip the timezone
+	if ( val.at( val.length() - 3 ) == '+' )
+	    val.truncate( val.length() - 3 );
+	return QVariant( QTime::fromString( val, Qt::ISODate ) );
     case QVariant::DateTime:
 	if ( val.length() < 10 )
 	    return QVariant( QDateTime() );
 	// remove the timezone
-	if ( val.find( "+", val.length() - 3 ) >= 0 )
-	    val = val.left( val.length() - 3 );
-	// for some reasons the milliseconds are sometimes only 2 digits
-	if ( val.find( ".", val.length() - 3 ) >= 0 )
-	    val = "0" + val;
-	if ( val.isEmpty() ) {
+	if ( val.at( val.length() - 3 ) == '+' )
+	    val.truncate( val.length() - 3 );
+	// milliseconds are sometimes returned with 2 digits only
+	if ( val.at( val.length() - 3 ).isPunct() )
+	    val.insert( val.length() - 2, '0' );
+	if ( val.isEmpty() )
 	    return QVariant( QDateTime() );
-	} else {
+	else
 	    return QVariant( QDateTime::fromString( val, Qt::ISODate ) );
-	}
     case QVariant::Point:
 	return QVariant( pointFromString( val ) );
     case QVariant::Rect: // format '(x,y),(x',y')'
