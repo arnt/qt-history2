@@ -25,78 +25,95 @@
 
 typedef QValueList<MetaTranslatorMessage> TML;
 
-/*
-  This utility reads a project file and creates a stripped version of all the
-  message files specified there.
-
-  For example, if the project file contains the lines
-
-TRANSLATIONS	= funnyapp_fr.ts \
-		  funnyapp_no.xyz
-
-  then funnyapp_fr.ts and funnyapp_no.xyz are converted into funnyapp_fr.qm and
-  funnyapp_no.xyz.qm (sic).
-*/
+static void printUsage()
+{
+    qWarning( "Usage: lrelease [options] file.pro...\n"
+	      "Options:\n"
+	      "    -help  Display this information and exits\n"
+	      "    -verbose\n"
+	      "           Explains what is being done\n"
+	      "    -version\n"
+	      "           Display the version of lrelease and exits" );
+}
 
 int main( int argc, char **argv )
 {
+    bool verbose = FALSE;
     bool metTranslations = FALSE;
+    int numProFiles = 0;
 
-    if ( argc != 2 ) {
-	qWarning( "Usage:\n    lrelease file.pro" );
-	return 1;
-    }
+    for ( int i = 1; i < argc; i++ ) {
+	if ( qstrcmp(argv[i], "-help") == 0 ) {
+	    printUsage();
+	    return 0;
+	} else if ( qstrcmp(argv[i], "-verbose") == 0 ) {
+	    verbose = TRUE;
+	    continue;
+	} else if ( qstrcmp(argv[i], "-version") == 0 ) {
+	    qWarning( "lrelease version %s", QT_VERSION_STR );
+	    return 0;
+	}
 
-    QFile f( argv[1] );
-    if ( !f.open(IO_ReadOnly) ) {
-	qWarning( "lrelease error: Cannot open project file '%s': %s", argv[1],
-		  strerror(errno) );
-	return 1;
-    }
+	numProFiles++;
+	QFile f( argv[i] );
+	if ( !f.open(IO_ReadOnly) ) {
+	    qWarning( "lrelease error: Cannot open project file '%s': %s",
+		      argv[i], strerror(errno) );
+	    return 1;
+	}
 
-    QTextStream t( &f );
-    QString fullText = t.read();
-    f.close();
+	QTextStream t( &f );
+	QString fullText = t.read();
+	f.close();
 
-    /*
-      Strip comments, merge lines ending with backslash, add spaces around '=',
-      replace '\n' with ';', and simplify white spaces.
-    */
-    fullText.replace( QRegExp(QString("#[^\n]$")), QString(" ") );
-    fullText.replace( QRegExp(QString("\\\\\\s*\n")), QString(" ") );
-    fullText.replace( QRegExp(QString("=")), QString(" = ") );
-    fullText.replace( QRegExp(QString("\n")), QString(";") );
-    fullText = fullText.simplifyWhiteSpace();
+	/*
+	  Strip comments, merge lines ending with backslash, add
+	  spaces around '=', replace '\n' with ';', and simplify
+	  white spaces.
+	*/
+	fullText.replace( QRegExp(QString("#[^\n]$")), QString(" ") );
+	fullText.replace( QRegExp(QString("\\\\\\s*\n")), QString(" ") );
+	fullText.replace( QRegExp(QString("=")), QString(" = ") );
+	fullText.replace( QRegExp(QString("\n")), QString(";") );
+	fullText = fullText.simplifyWhiteSpace();
 
-    QStringList lines = QStringList::split( QChar(';'), fullText );
-    QStringList::Iterator line;
-    for ( line = lines.begin(); line != lines.end(); ++line ) {
-	QStringList toks = QStringList::split( QChar(' '), *line );
+	QStringList lines = QStringList::split( QChar(';'), fullText );
+	QStringList::Iterator line;
+	for ( line = lines.begin(); line != lines.end(); ++line ) {
+	    QStringList toks = QStringList::split( QChar(' '), *line );
 
-	if ( toks.count() >= 3 && toks[1] == QString("=") ) {
-	    if ( toks.first() == QString("TRANSLATIONS") ) {
-		metTranslations = TRUE;
-		QStringList::Iterator t;
-		for ( t = toks.at(2); t != toks.end(); ++t ) {
-		    MetaTranslator tor;
-		    QString f = *t;
-		    QString g = *t;
-		    g.replace( QRegExp(QString(".ts$")), QString("") );
-		    g += QString( ".qm" );
-		    if ( tor.load(f) ) {
-			if ( !tor.release(g) )
+	    if ( toks.count() >= 3 && toks[1] == QString("=") ) {
+		if ( toks.first() == QString("TRANSLATIONS") ) {
+		    metTranslations = TRUE;
+		    QStringList::Iterator t;
+		    for ( t = toks.at(2); t != toks.end(); ++t ) {
+			MetaTranslator tor;
+			QString f = *t;
+			QString g = *t;
+			g.replace( QRegExp(QString(".ts$")), QString("") );
+			g += QString( ".qm" );
+			if ( tor.load(f) ) {
+			    if ( verbose )
+				qWarning( "Updating '%s'...", g.latin1() );
+			    if ( !tor.release(g, verbose) )
+				qWarning( "lrelease warning: For some reason, I"
+					  " cannot save '%s'", g.latin1() );
+			} else {
 			    qWarning( "lrelease warning: For some reason, I"
-				      " cannot save '%s'", g.latin1() );
-		    } else {
-			qWarning( "lrelease warning: For some reason, I cannot"
-				  " load '%s'", f.latin1() );
+				      " cannot load '%s'", f.latin1() );
+			}
 		    }
 		}
 	    }
 	}
+	if ( !metTranslations )
+	    qWarning( "lrelease warning: Met no 'TRANSLATIONS' entry in"
+		      " project file '%s'", argv[i] );
     }
-    if ( !metTranslations )
-	qWarning( "lrelease warning: Met no 'TRANSLATIONS' entry in"
-		  " project file '%s'", argv[1] );
+
+    if ( numProFiles == 0 ) {
+	printUsage();
+	return 1;
+    }
     return 0;
 }

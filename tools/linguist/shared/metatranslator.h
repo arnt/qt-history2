@@ -71,7 +71,7 @@ public:
 
     bool load( const QString& filename );
     bool save( const QString& filename ) const;
-    bool release( const QString& filename ) const;
+    bool release( const QString& filename, bool verbose = FALSE ) const;
 
     bool contains( const char *context, const char *sourceText,
 		   const char *comment ) const;

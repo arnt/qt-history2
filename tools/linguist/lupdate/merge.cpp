@@ -17,9 +17,9 @@
 #include <metatranslator.h>
 
 // defined in numberh.cpp
-extern void applyNumberHeuristic( MetaTranslator *tor );
+extern void applyNumberHeuristic( MetaTranslator *tor, bool verbose );
 // defined in sametexth.cpp
-extern void applySameTextHeuristic( MetaTranslator *tor );
+extern void applySameTextHeuristic( MetaTranslator *tor, bool verbose );
 
 typedef QValueList<MetaTranslatorMessage> TML;
 
@@ -30,7 +30,7 @@ typedef QValueList<MetaTranslatorMessage> TML;
   extracted from the source code, without any translation yet.
 */
 
-void merge( MetaTranslator *tor, const MetaTranslator *virginTor  )
+void merge( MetaTranslator *tor, const MetaTranslator *virginTor, bool verbose )
 {
     TML all = tor->messages();
     TML::Iterator it;
@@ -73,11 +73,11 @@ void merge( MetaTranslator *tor, const MetaTranslator *virginTor  )
       The same-text heuristic handles cases where a message has an obsolete
       counterpart with a different context or comment.
     */
-    applySameTextHeuristic( tor );
+    applySameTextHeuristic( tor, verbose );
 
     /*
       The number heuristic handles cases where a message has an obsolete
       counterpart with mostly numbers differing in the source text.
     */
-    applyNumberHeuristic( tor );
+    applyNumberHeuristic( tor, verbose );
 }

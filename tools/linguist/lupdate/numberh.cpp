@@ -193,12 +193,13 @@ static QString translationAttempt( const QString& oldTranslation,
   translation, "XeT 3.1" is added to the translator and is marked Unfinished.
 */
 
-void applyNumberHeuristic( MetaTranslator *tor )
+void applyNumberHeuristic( MetaTranslator *tor, bool verbose )
 {
     TMM translated, untranslated;
     TMM::Iterator t, u;
     TML all = tor->messages();
     TML::Iterator it;
+    int inserted = 0;
 
     for ( it = all.begin(); it != all.end(); ++it ) {
 	if ( (*it).type() == MetaTranslatorMessage::Unfinished ) {
@@ -218,6 +219,10 @@ void applyNumberHeuristic( MetaTranslator *tor )
 						 (*t).sourceText(),
 						 (*u).sourceText()) );
 	    tor->insert( m );
+	    inserted++;
 	}
     }
+    if ( verbose && inserted != 0 )
+	qWarning( " number heuristic provided %d translation%s",
+		  inserted, inserted == 1 ? "" : "s" );
 }

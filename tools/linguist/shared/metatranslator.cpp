@@ -355,13 +355,34 @@ bool MetaTranslator::save( const QString& filename ) const
     return TRUE;
 }
 
-bool MetaTranslator::release( const QString& filename ) const
+bool MetaTranslator::release( const QString& filename, bool verbose ) const
 {
     QTranslator tor( 0 );
+    int finished = 0;
+    int unfinished = 0;
+    int untranslated = 0;
     TMM::ConstIterator m;
-    for ( m = mm.begin(); m != mm.end(); ++m )
-	tor.insert( m.key() );
-    return tor.save( filename, QTranslator::Stripped );
+
+    for ( m = mm.begin(); m != mm.end(); ++m ) {
+	if ( m.key().type() != MetaTranslatorMessage::Obsolete ) {
+	    if ( m.key().translation().isEmpty() ) {
+		untranslated++;
+	    } else {
+		if ( m.key().type() == MetaTranslatorMessage::Unfinished )
+		    unfinished++;
+		else
+		    finished++;
+		tor.insert( m.key() );
+	    }
+	}
+    }
+
+    bool saved = tor.save( filename, QTranslator::Stripped );
+    if ( saved && verbose )
+	qDebug( " %d finished, %d unfinished and %d untranslated messages",
+		finished, unfinished, untranslated );
+		
+    return saved;
 }
 
 bool MetaTranslator::contains( const char *context, const char *sourceText,

@@ -36,7 +36,7 @@ static QCString sameTextKey( const MetaTranslatorMessage& m )
   translation of any untranslated "Enabled:" text and is marked Unfinished.
 */
 
-void applySameTextHeuristic( MetaTranslator *tor )
+void applySameTextHeuristic( MetaTranslator *tor, bool verbose )
 {
     TMM translated, avoid;
     TMM::Iterator t;
@@ -44,10 +44,12 @@ void applySameTextHeuristic( MetaTranslator *tor )
     TML::Iterator u;
     TML all = tor->messages();
     TML::Iterator it;
+    int inserted = 0;
 
     for ( it = all.begin(); it != all.end(); ++it ) {
 	if ( (*it).type() == MetaTranslatorMessage::Unfinished ) {
-	    untranslated.append( *it );
+	    if ( (*it).translation().isEmpty() )
+		untranslated.append( *it );
 	} else {
 	    QCString key = sameTextKey( *it );
 	    t = translated.find( key );
@@ -68,6 +70,10 @@ void applySameTextHeuristic( MetaTranslator *tor )
 	    MetaTranslatorMessage m( *u );
 	    m.setTranslation( (*t).translation() );
 	    tor->insert( m );
+	    inserted++;
 	}
     }
+    if ( verbose && inserted != 0 )
+	qWarning( " same-text heuristic provided %d translation%s",
+		  inserted, inserted == 1 ? "" : "s" );
 }
