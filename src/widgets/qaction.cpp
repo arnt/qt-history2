@@ -256,6 +256,8 @@ void QActionPrivate::update( uint upd )
 	if ( upd & Icons )
 	    if ( iconset )
 		mi->popup->changeItem( mi->id, *iconset, t );
+	    else
+		mi->popup->changeItem( mi->id, QIconSet(), t );
 	if ( upd & EverythingElse ) {
 	    mi->popup->changeItem( mi->id, t );
 	    if ( !whatsthis.isEmpty() )
@@ -278,6 +280,8 @@ void QActionPrivate::update( uint upd )
 	if ( upd & Icons ) {
 	    if ( iconset )
 		btn->setIconSet( *iconset );
+	    else
+		btn->setIconSet( QIconSet() );
 	}
 	if ( upd & EverythingElse ) {
 	    btn->setToggleButton( toggleaction );
