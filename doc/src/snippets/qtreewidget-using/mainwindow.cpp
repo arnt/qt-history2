@@ -82,20 +82,20 @@ void MainWindow::setupTreeItems()
 void MainWindow::findItems()
 {
     QString itemText = QInputDialog::getText(this, tr("Find Items"),
-        tr("Input the text to find:"));
+        tr("Text to find (including wildcards):"));
 
     if (itemText.isEmpty())
         return;
 
     QTreeWidgetItem *item;
     foreach (item, treeWidget->selectedItems())
-        treeWidget->setSelected(item, false);
+        treeWidget->setItemSelected(item, false);
 
-    QList<QTreeWidgetItem *> found = treeWidget->findItems(itemText,
-        QAbstractItemModel::MatchFromStart | QAbstractItemModel::MatchContains);
+    QList<QTreeWidgetItem *> found = treeWidget->findItems(QRegExp(
+        itemText, Qt::CaseSensitive, QRegExp::Wildcard));
 
     foreach (item, found) {
-        treeWidget->setSelected(item, true);
+        treeWidget->setItemSelected(item, true);
         // Show the item->text(0) for each item.
     }
 }
