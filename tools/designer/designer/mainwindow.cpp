@@ -45,6 +45,7 @@
 #include "formsettingsimpl.h"
 #include "about.h"
 #include "multilineeditorimpl.h"
+#include "wizardeditorimpl.h"
 #include "createtemplate.h"
 #include "outputwindow.h"
 #include <qinputdialog.h>
@@ -3234,7 +3235,11 @@ void MainWindow::setupRMBSpecialCommands( QValueList<int> &ids, QMap<QString, in
 	    commands.insert( "remove", id );
 	}
 	ids << ( id = rmbFormWindow->insertItem( tr("Add Page"), -1, 0 ) );
-	commands.insert( "add", id );
+              commands.insert( "add", id );
+
+        ids << ( id = rmbFormWindow->insertItem( tr("Edit Pages"), -1, 0 ) );
+        commands.insert( "edit", id );
+
     } else if ( fw->mainContainer()->inherits( "QMainWindow" ) ) {
 	if ( ids.isEmpty() )
 	    ids << rmbFormWindow->insertSeparator( 0 );
@@ -3344,11 +3349,15 @@ void MainWindow::handleRMBSpecialCommands( int id, QMap<QString, int> &commands,
 		QDesignerWizard *dw = (QDesignerWizard*)wiz;
 		DeleteWizardPageCommand *cmd = new DeleteWizardPageCommand( tr( "Remove Page %1 of %2" ).
 									    arg( dw->pageTitle() ).arg( wiz->name() ),
-									    formWindow(), wiz, wiz->currentPage() );
+									    formWindow(), wiz, wiz->indexOf( wiz->currentPage() ) );
 		formWindow()->commandHistory()->addCommand( cmd );
 		cmd->execute();
 	    }
-	}
+	} else if ( id == commands[ "edit" ] ) {
+                  WizardEditor *e = new WizardEditor( this, wiz, fw );
+	    e->exec();
+	    delete e;
+              }
     } else if ( fw->mainContainer()->inherits( "QMainWindow" ) ) {
 	QMainWindow *mw = (QMainWindow*)fw->mainContainer();
 	if ( id == commands[ "add_toolbar" ] ) {

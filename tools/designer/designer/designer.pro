@@ -49,7 +49,8 @@ HEADERS	= command.h \
 		  previewwidgetimpl.h \
 		  paletteeditoradvancedimpl.h \
 		  pixmapcollection.h \
-		  sourcefile.h
+		  sourcefile.h \
+		  wizardeditorimpl.h
 
 SOURCES	= command.cpp \
 		  formwindow.cpp \
@@ -96,7 +97,8 @@ SOURCES	= command.cpp \
 		  previewframe.cpp \
 		  previewwidgetimpl.cpp \
 		  paletteeditoradvancedimpl.cpp \
-		  sourcefile.cpp
+		  sourcefile.cpp \
+		  wizardeditorimpl.cpp
 
 TARGET	= designer
 INCLUDEPATH	+= ../shared ../util ../resource ../../../src/3rdparty/zlib/
@@ -105,7 +107,7 @@ win32:LIBS	+= $(QTDIR)/lib/qutil.lib $(QTDIR)/lib/qresource.lib
 DEFINES	+= DESIGNER
 DESTDIR	= ../../../bin
 win32-msvc:RC_FILE = designer.rc
-INTERFACES	= listboxeditor.ui connectioneditor.ui editslots.ui newform.ui listvieweditor.ui connectionviewer.ui customwidgeteditor.ui paletteeditor.ui iconvieweditor.ui preferences.ui multilineeditor.ui formsettings.ui about.ui pixmapfunction.ui createtemplate.ui actioneditor.ui projectsettings.ui finddialog.ui replacedialog.ui gotolinedialog.ui pixmapcollectioneditor.ui previewwidget.ui paletteeditoradvanced.ui
+INTERFACES	= listboxeditor.ui connectioneditor.ui editslots.ui newform.ui listvieweditor.ui connectionviewer.ui customwidgeteditor.ui paletteeditor.ui iconvieweditor.ui preferences.ui multilineeditor.ui formsettings.ui about.ui pixmapfunction.ui createtemplate.ui actioneditor.ui projectsettings.ui finddialog.ui replacedialog.ui gotolinedialog.ui pixmapcollectioneditor.ui previewwidget.ui paletteeditoradvanced.ui wizardeditor.ui
 PROJECTNAME	= Designer
 
 sql {

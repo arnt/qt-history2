@@ -17,7 +17,6 @@
 ** not clear to you.
 **
 **********************************************************************/
-
 #include "command.h"
 #include "formwindow.h"
 #include "widgetfactory.h"
@@ -876,12 +875,13 @@ void DeleteTabPageCommand::unexecute()
 // ------------------------------------------------------------
 
 AddWizardPageCommand::AddWizardPageCommand( const QString &n, FormWindow *fw,
-					    QWizard *w, const QString &label )
+					    QWizard *w, const QString &label, int i, bool s )
     : Command( n, fw ), wizard( w ), pageLabel( label )
 {
     page = new QDesignerWidget( formWindow(), wizard, "page" );
     page->hide();
-    index = -1;
+    index = i;
+    show = s;
     MetaDataBase::addEntry( page );
 }
 
@@ -889,8 +889,9 @@ void AddWizardPageCommand::execute()
 {
     if ( index == -1 )
 	index = wizard->pageCount();
-    ( (QDesignerWizard*)wizard )->insertPage( page, pageLabel, index );
-    ( (QDesignerWizard*)wizard )->setCurrentPage( ( (QDesignerWizard*)wizard )->pageNum( page ) );
+    wizard->insertPage( page, pageLabel, index );
+    if ( show )
+        ( (QDesignerWizard*)wizard )->setCurrentPage( ( (QDesignerWizard*)wizard )->pageNum( page ) );
     formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
     formWindow()->mainWindow()->objectHierarchy()->pagesChanged( wizard );
 }
@@ -906,15 +907,16 @@ void AddWizardPageCommand::unexecute()
 // ------------------------------------------------------------
 
 DeleteWizardPageCommand::DeleteWizardPageCommand( const QString &n, FormWindow *fw,
-						  QWizard *w, QWidget *p )
-    : Command( n, fw ), wizard( w ), page( p )
+						  QWizard *w, int i, bool s )
+    : Command( n, fw ), wizard( w ), index( i )
 {
-    pageLabel = ( (QDesignerWizard*)wizard )->pageTitle();
-    index = ( (QDesignerWizard*)wizard )->currentPageNum();
+    show = s;
 }
 
 void DeleteWizardPageCommand::execute()
 {
+    page = wizard->page( index );
+    pageLabel = wizard->title( page );
     wizard->removePage( page );
     page->hide();
     formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
@@ -923,10 +925,37 @@ void DeleteWizardPageCommand::execute()
 
 void DeleteWizardPageCommand::unexecute()
 {
-    ( (QDesignerWizard*)wizard )->insertPage( page, pageLabel, index );
-    ( (QDesignerWizard*)wizard )->setCurrentPage( ( (QDesignerWizard*)wizard )->pageNum( page ) );
+    wizard->insertPage( page, pageLabel, index );
+    if ( show )
+        ( (QDesignerWizard*)wizard )->setCurrentPage( ( (QDesignerWizard*)wizard )->pageNum( page ) );
     formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
     formWindow()->mainWindow()->objectHierarchy()->pagesChanged( wizard );
+}
+
+// ------------------------------------------------------------
+
+SwapWizardPagesCommand::SwapWizardPagesCommand( const QString &n, FormWindow *fw, QWizard *w, int i1, int i2 )
+    : Command( n, fw ), wizard( w ), index1( i1 ), index2( i2 )
+{
+}
+
+void SwapWizardPagesCommand::execute()
+{
+    QWidget *page1 = wizard->page( index1 );
+    QWidget *page2 = wizard->page( index2 );
+    QString page1Label = wizard->title( page1 );
+    QString page2Label = wizard->title( page2 );
+    wizard->removePage( page1 );
+    wizard->removePage( page2 );
+    wizard->insertPage( page1, page1Label, index2 );
+    wizard->insertPage( page2, page2Label, index1 );
+    formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
+    formWindow()->mainWindow()->objectHierarchy()->pagesChanged( wizard );
+}
+
+void SwapWizardPagesCommand::unexecute()
+{
+    execute();
 }
 
 // ------------------------------------------------------------

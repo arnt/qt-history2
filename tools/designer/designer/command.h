@@ -73,6 +73,7 @@ public:
 	MoveTabPage,
 	AddWizardPage,
 	DeleteWizardPage,
+              SwapWizardPages,
 	AddConnection,
 	RemoveConnection,
 	AddSlot,
@@ -416,7 +417,7 @@ class AddWizardPageCommand : public Command
 {
 public:
     AddWizardPageCommand( const QString &n, FormWindow *fw,
-			  QWizard *w, const QString &label );
+			  QWizard *w, const QString &label, int index = -1, bool show = true );
 
     void execute();
     void unexecute();
@@ -425,6 +426,7 @@ public:
 private:
     QWizard *wizard;
     int index;
+    bool show;
     QWidget *page;
     QString pageLabel;
 
@@ -434,7 +436,7 @@ class DeleteWizardPageCommand : public Command
 {
 public:
     DeleteWizardPageCommand( const QString &n, FormWindow *fw,
-			     QWizard *w, QWidget *p );
+			     QWizard *w, int index, bool show = true );
 
     void execute();
     void unexecute();
@@ -443,9 +445,25 @@ public:
 private:
     QWizard *wizard;
     int index;
+    bool show;
     QWidget *page;
     QString pageLabel;
 
+};
+
+class SwapWizardPagesCommand : public Command
+{
+public:
+    SwapWizardPagesCommand( const QString &n, FormWindow *fw,
+                              QWizard *w, int index1, int index2 );
+
+    void execute();
+    void unexecute();
+    Type type() const { return SwapWizardPages; }
+
+private:
+    QWizard *wizard;
+    int index1, index2;
 };
 
 class AddConnectionCommand : public Command

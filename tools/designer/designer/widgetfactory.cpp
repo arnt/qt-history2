@@ -350,32 +350,9 @@ void QDesignerWizard::removePage( QWidget *p )
 
 void QDesignerWizard::insertPage( QWidget *p, const QString &t, int index )
 {
+    QWizard::insertPage( p, t, index );
     if ( removedPages.find( p ) )
 	removedPages.remove( p );
-    if ( index == pageCount() ) {
-	addPage( p, t );
-	return;
-    }
-
-    QList<Page> pages;
-    pages.setAutoDelete( TRUE );
-
-    setCurrentPage( pageCount() - 1 );
-    while ( pageCount() ) {
-	QWidget *w = currentPage();
-	pages.insert( 0, new Page( w, title( w ) ) );
-	back();
-	removePage( w );
-    }
-    int i = 0;
-    for ( Page *pg = pages.first(); pg; pg = pages.next(), ++i ) {
-	if ( i == index ) {
-	    addPage( p, t );
-	    next();
-	}
-	addPage( pg->p, pg->t );
-	next();
-    }
 }
 
 QMap< int, QMap< QString, QVariant> > *defaultProperties = 0;
