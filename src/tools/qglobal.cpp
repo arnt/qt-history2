@@ -47,9 +47,6 @@
 #  else
 // Note that Irix 6.5 is an incomplete SUSv2 implementation.
 // _SGI_SOURCE must be defined prior to including <stdio.h>.
-#    if defined(Q_OS_IRIX) && !defined(_SGI_SOURCE)
-#      define _SGI_SOURCE
-#    endif
 #    include <unistd.h>
 #    if !defined(_XOPEN_VERSION) || (_XOPEN_VERSION<500)
 // vsnprintf() was first specified by SUSv2/XPG5.

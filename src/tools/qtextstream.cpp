@@ -350,7 +350,7 @@ bool QStringBuffer::at( Q_ULONG pos )
 #endif
     if ( pos >= s->length()*2 ) {
 #if defined(QT_CHECK_RANGE)
-	qWarning( "QStringBuffer::at: Index %d out of range", pos );
+	qWarning( "QStringBuffer::at: Index %lu out of range", pos );
 #endif
 	return FALSE;
     }
@@ -359,7 +359,7 @@ bool QStringBuffer::at( Q_ULONG pos )
 }
 
 
-Q_LONG  QStringBuffer::readBlock( char *p, Q_ULONG len )
+Q_LONG QStringBuffer::readBlock( char *p, Q_ULONG len )
 {
 #if defined(QT_CHECK_STATE)
     Q_CHECK_PTR( p );
