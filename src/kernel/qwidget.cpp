@@ -3803,7 +3803,6 @@ void QWidget::hide()
     if ( !isTopLevel() && parentWidget() )
 	QApplication::postEvent( parentWidget(),
 				 new QEvent( QEvent::LayoutHint) );
-
 }
 
 void QWidget::setShown( bool show )
@@ -4194,7 +4193,7 @@ QRect QWidget::visibleRect() const
 
 void QWidget::adjustSize()
 {
-    QApplication::sendPostedEvents( this, QEvent::LayoutHint );
+    QApplication::sendPostedEvents( 0, QEvent::LayoutHint );
     if ( !testWState(WState_Polished) )
 	polish();
     QSize s = sizeHint();
