@@ -125,7 +125,6 @@ static void printHtmlLongMembers( HtmlWriter& out,
 
 	    QValueList<Decl *> by = (*m)->reimplementedBy();
 	    if ( !by.isEmpty() ) {
-
 		/*
 		  We don't want totally uninteresting
 		  reimplementations in this list.
@@ -135,7 +134,7 @@ static void printHtmlLongMembers( HtmlWriter& out,
 		while ( r != by.end() ) {
 		    Decl *d = *r;
 		    ++r;
-		    if ( d->internal() )
+		    if ( d->doc() == 0 || d->internal() )
 			by.remove( d );
 		}
 	    }
@@ -678,28 +677,45 @@ void ClassDecl::printHtmlLong( HtmlWriter& out ) const
     if ( !hfile.isEmpty() )
 	Doc::printHtmlIncludeHeader( out, hfile );
 
-    int n = supert.count();
-    QValueStack<QString> seps = separators( n, QString(".\n") );
+    QValueList<CodeChunk> mySupert;
+    QValueList<CodeChunk> mySubt;
     QValueList<CodeChunk>::ConstIterator st;
+
+    st = supert.begin();
+    while ( st != supert.end() ) {
+	if ( rootContext()->resolvePlain((*st).base()) != 0 )
+	    mySupert.append( *st );
+	++st;
+    }
+
+    st = subt.begin();
+    while ( st != subt.end() ) {
+	if ( rootContext()->resolvePlain((*st).base()) != 0 )
+	    mySubt.append( *st );
+	++st;
+    }
+
+    int n = mySupert.count();
+    QValueStack<QString> seps = separators( n, QString(".\n") );
 
     if ( n > 0 ) {
 	out.putsMeta( "<p>Inherits " );
-	st = supert.begin();
-	while ( st != supert.end() ) {
+	st = mySupert.begin();
+	while ( st != mySupert.end() ) {
 	    printHtmlDataType( out, *st, this );
 	    out.puts( seps.pop() );
 	    ++st;
 	}
     }
 
-    n = subt.count();
+    n = mySubt.count();
     seps = separators( n, QString(".\n") );
 
     if ( n > 0 ) {
 	out.putsMeta( "<p>Inherited by " );
 	qHeapSort( ((ClassDecl *) this)->subt );
-	st = subt.begin();
-	while ( st != subt.end() ) {
+	st = mySubt.begin();
+	while ( st != mySubt.end() ) {
 	    printHtmlDataType( out, *st, this );
 	    out.puts( seps.pop() );
 	    ++st;

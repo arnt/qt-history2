@@ -23,7 +23,7 @@ public:
     void setListView( QListView * );
 
 private:
-    QStack<QListViewItem> stack;
+    QPtrStack<QListViewItem> stack;
     QListView * table;
 };                   
 
