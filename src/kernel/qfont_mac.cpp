@@ -252,7 +252,7 @@ int QFontMetrics::width(QChar c) const
 int QFontMetrics::charWidth(const QString &str, int pos) const
 {
     QTextEngine layout(str, d);
-    layout.itemize(FALSE);
+    layout.itemize(QTextEngine::WidthOnly);
     return layout.width(pos, 1);
 }
 

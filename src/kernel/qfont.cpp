@@ -2177,7 +2177,7 @@ int QFontMetrics::width( const QString &str, int len ) const
 	return 0;
 
     QTextEngine layout( str, d );
-    layout.itemize( FALSE );
+    layout.itemize( QTextEngine::WidthOnly );
     return layout.width( 0, len );
 }
 
@@ -2254,7 +2254,7 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 	return QRect();
 
     QTextEngine layout( str, d );
-    layout.itemize( FALSE );
+    layout.itemize( QTextEngine::NoBidi );
     glyph_metrics_t gm = layout.boundingBox( 0, len );
     return QRect( gm.x, gm.y, gm.width, gm.height );
 }

@@ -473,7 +473,7 @@ void QTextEngine::bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOr
     ::bidiReorder(numRuns, levels, visualOrder );
 }
 
-void QTextEngine::itemize( bool doBidi )
+void QTextEngine::itemize( int mode )
 {
     if ( doBidi ) {
 	if ( direction == QChar::DirON )
@@ -494,7 +494,7 @@ void QTextEngine::itemize( bool doBidi )
 	SCRIPT_CONTROL *control = 0;
 	SCRIPT_STATE s_state;
 	SCRIPT_STATE *state = 0;
-	if ( doBidi ) {
+	if ( !(mode & NoBidi) ) {
 	    control = &s_ctrl;
 	    state = &s_state;
 	    state->uBidiLevel = (direction == QChar::DirR ? 1 : 0);
@@ -542,7 +542,7 @@ void QTextEngine::itemize( bool doBidi )
 	return;
     }
 
-    if ( doBidi ) {
+    if ( !(Mode & NoBidi) ) {
 	bidiItemize( string, items, direction == QChar::DirR );
     } else {
 	BidiControl control( false );

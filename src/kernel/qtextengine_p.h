@@ -247,7 +247,13 @@ public:
     QTextEngine( const QString &str, QFontPrivate *f );
     ~QTextEngine();
 
-    void itemize( bool doBidi = TRUE );
+    enum Mode {
+	Full = 0x00,
+	NoBidi = 0x01,
+	WidthOnly = 0x03
+    };
+
+    void itemize( int mode = Full );
 
     static void bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOrder );
 
@@ -273,7 +279,8 @@ public:
     int currentItem;
     QChar::Direction direction : 5;
     unsigned int haveCharAttributes : 1;
-    unsigned int reserved : 26;
+    unsigned int widthOnly : 1;
+    unsigned int reserved : 25;
 
     int length( int item ) const {
 	const QScriptItem &si = items[item];

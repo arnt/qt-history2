@@ -201,7 +201,7 @@ int QFontMetrics::lineSpacing() const
 int QFontMetrics::charWidth( const QString &str, int pos ) const
 {
     QTextEngine layout( str,  d );
-    layout.itemize( FALSE );
+    layout.itemize( QTextEngine::WidthOnly );
     int w = layout.width( pos, 1 );
 }
 

@@ -61,7 +61,7 @@ void QTextEngine::bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOr
     ::bidiReorder(numRuns, levels, visualOrder );
 }
 
-void QTextEngine::itemize( bool doBidi )
+void QTextEngine::itemize( int mode )
 {
     if ( !items.d ) {
 	int size = 8;
@@ -71,7 +71,7 @@ void QTextEngine::itemize( bool doBidi )
     }
     items.d->size = 0;
 
-    if ( doBidi ) {
+    if ( !(mode & NoBidi) ) {
 	if ( direction == QChar::DirON )
 	    direction = basicDirection( string );
 	bidiItemize( string, items, direction == QChar::DirR );
@@ -81,6 +81,8 @@ void QTextEngine::itemize( bool doBidi )
 	int stop = string.length() - 1;
 	appendItems(items, start, stop, control, QChar::DirL, string.unicode() );
     }
+    if ( mode & WidthOnly )
+	widthOnly = TRUE;
 }
 
 void QTextEngine::shape( int item ) const
@@ -100,8 +102,10 @@ void QTextEngine::shape( int item ) const
 	si.fontEngine = fnt->engineForScript( script );
     si.fontEngine->ref();
 
-    si.ascent = si.fontEngine->ascent();
-    si.descent = si.fontEngine->descent();
+    if ( !widthOnly ) {
+	si.ascent = si.fontEngine->ascent();
+	si.descent = si.fontEngine->descent();
+    }
 
     if ( si.fontEngine && si.fontEngine != (QFontEngine*)-1 ) {
 	assert( script < QFont::NScripts );
@@ -111,8 +115,9 @@ void QTextEngine::shape( int item ) const
 
     si.width = 0;
     advance_t *advances = this->advances( &si );
-    for ( int i = 0; i < si.num_glyphs; i++ )
-	si.width += advances[i];
+    advance_t *end = advances + si.num_glyphs;
+    while ( advances < end )
+	si.width += *(advances++);
 
     return;
 }

@@ -230,65 +230,28 @@ QFontEngine::Type QFontEngineBox::type() const
 // Xlfd cont engine
 // ------------------------------------------------------------------
 
-
-// returns TRUE if the character doesn't exist (ie. zero bounding box)
-static inline bool charNonExistent(const XCharStruct *xcs)
-{
-    return (!xcs || (xcs->width == 0 && xcs->ascent + xcs->descent == 0));
-}
-
-
-// return the XCharStruct for the specified cell in the single dimension font xfs
-static inline XCharStruct *getCharStruct1d(XFontStruct *xfs, uint c)
+static inline XCharStruct *charStruct( XFontStruct *xfs, uint ch )
 {
     XCharStruct *xcs = 0;
-    if (c >= xfs->min_char_or_byte2 &&
-	c <= xfs->max_char_or_byte2) {
-	if (xfs->per_char != 0) {
-	    xcs = xfs->per_char + (c - xfs->min_char_or_byte2);
-	    if (charNonExistent(xcs))
-		xcs = 0;
-	} else
+    unsigned char r = ch>>8;
+    unsigned char c = ch&0xff;
+    if ( r >= xfs->min_byte1 &&
+	 r <= xfs->max_byte1 &&
+	 c >= xfs->min_char_or_byte2 &&
+	 c <= xfs->max_char_or_byte2) {
+	if ( !xfs->per_char )
 	    xcs = &(xfs->min_bounds);
-    }
-    return xcs;
-}
-
-
-// return the XCharStruct for the specified row/cell in the 2 dimension font xfs
-static inline XCharStruct *getCharStruct2d(XFontStruct *xfs, uint r, uint c)
-{
-    XCharStruct *xcs = 0;
-
-    if (r >= xfs->min_byte1 &&
-	r <= xfs->max_byte1 &&
-	c >= xfs->min_char_or_byte2 &&
-	c <= xfs->max_char_or_byte2) {
-	if (xfs->per_char != 0) {
+	else {
 	    xcs = xfs->per_char + ((r - xfs->min_byte1) *
 				   (xfs->max_char_or_byte2 -
 				    xfs->min_char_or_byte2 + 1)) +
 		  (c - xfs->min_char_or_byte2);
-	    if (charNonExistent(xcs))
+	    if (xcs->width == 0 && xcs->ascent == 0 &&  xcs->descent == 0)
 		xcs = 0;
-	} else
-	    xcs = &(xfs->min_bounds);
+	}
     }
-
     return xcs;
 }
-
-static inline XCharStruct *charStruct( XFontStruct *xfs, int ch )
-{
-    XCharStruct *xcs;
-    if (! xfs->max_byte1)
-	// single row font
-	xcs = getCharStruct1d(xfs, ch);
-    else
-	xcs = getCharStruct2d(xfs, (ch>>8), ch&0xff);
-    return xcs;
-}
-
 
 QFontEngineXLFD::QFontEngineXLFD( XFontStruct *fs, const char *name, const char *encoding, int cmap )
     : _fs( fs ), _name( name ), _codec( 0 ), _scale( 1. ), _cmap( cmap )
@@ -344,15 +307,38 @@ QFontEngine::Error QFontEngineXLFD::stringToCMap( const QChar *str,  int len, gl
 	if ( haveNbsp )
 	    free( chars );
     } else {
-	for ( int i = 0; i < len; i++ )
-	    glyphs[i] = str[i].unicode() == 0xa0 ? 0x20 : str[i].unicode();
+	glyph_t *g = glyphs + len;
+	const QChar *c = str + len;
+	while ( c != str ) {
+	    *(--g) = (--c)->unicode() == 0xa0 ? 0x20 : c->unicode();
+	}
     }
     *nglyphs = len;
 
     if ( advances ) {
-	for ( int i = 0; i < len; i++ ) {
-	    XCharStruct *xcs = charStruct( _fs, glyphs[i] );
-	    advances[i] = (xcs ? xcs->width : _fs->ascent);
+	glyph_t *g = glyphs + len;
+	advance_t *a = advances + len;
+	XCharStruct *xcs;
+	// inlined for better perfomance
+	if ( !_fs->per_char ) {
+	    xcs = &_fs->min_bounds;
+	    while ( a != advances )
+		*(--a) = xcs->width;
+	}
+	else if ( !_fs->max_byte1 ) {
+	    XCharStruct *base = _fs->per_char - _fs->min_char_or_byte2;
+	    while ( g-- != glyphs ) {
+		unsigned int gl = *g;
+		xcs = (gl >= _fs->min_char_or_byte2 && gl <= _fs->max_char_or_byte2) ?
+		      base + gl : 0;
+		*(--a) = (!xcs || !xcs->width || (!xcs->ascent && !xcs->descent)) ? _fs->ascent : xcs->width;
+	    }
+	}
+	else {
+	    while ( g != glyphs ) {
+		xcs = charStruct( _fs, *(--g) );
+		*(--a) = (xcs ? xcs->width : _fs->ascent);
+	    }
 	}
 	if ( _scale != 1. ) {
 	    for ( int i = 0; i < len; i++ )
@@ -1657,7 +1643,28 @@ bool QOpenType::supportsScript( unsigned int script )
     return FALSE;
 }
 
-extern void q_calculateAdvances( QTextEngine *engine, QScriptItem *item );
+static void q_calculateAdvances( QTextEngine *engine, QScriptItem *si )
+{
+
+    glyph_t *glyphs = engine->glyphs( si );
+    advance_t *advances = engine->advances( si );
+    offset_t *offsets = engine->offsets( si );
+    GlyphAttributes *glyphAttributes = engine->glyphAttributes( si );
+
+    for ( int i = 0; i < si->num_glyphs; i++ ) {
+	if ( glyphAttributes[i].mark )
+	    advances[i] = 0;
+	else {
+	    glyph_metrics_t gi = si->fontEngine->boundingBox( glyphs[i] );
+	    advances[i] = gi.xoff;
+	    //qDebug("setting advance of glyph %d to %d", i, gi.xoff );
+	    int y = offsets[i].y + gi.y;
+	    si->ascent = QMAX( si->ascent, -y );
+	    si->descent = QMAX( si->descent, y + gi.height );
+	}
+    }
+}
+
 extern void q_heuristicPosition( QTextEngine *engine, QScriptItem *item );
 
 void QOpenType::apply( unsigned int script, unsigned short *featuresToApply, QTextEngine *engine, QScriptItem *si, int stringLength )

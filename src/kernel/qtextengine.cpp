@@ -654,7 +654,7 @@ static void bidiReorder( int numItems, const Q_UINT8 *levels, int *visualOrder )
 
 
 QTextEngine::QTextEngine( const QString &str, QFontPrivate *f )
-    : string( str ), fnt( f ), direction( QChar::DirON ), haveCharAttributes( FALSE )
+    : string( str ), fnt( f ), direction( QChar::DirON ), haveCharAttributes( FALSE ), widthOnly( FALSE )
 {
 #ifdef Q_WS_WIN
     if ( !resolvedUsp10 )

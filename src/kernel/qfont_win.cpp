@@ -404,7 +404,7 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 	painter->nativeXForm( TRUE );
 
     QTextEngine layout( str,  d );
-    layout.itemize( FALSE );
+    layout.itemize( QTextEngine::WidthOnly );
     int w = layout.width( pos, 1 );
 
     if ( qt_winver & Qt::WV_NT_based && painter )

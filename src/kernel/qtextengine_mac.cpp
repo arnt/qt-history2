@@ -60,7 +60,7 @@ void QTextEngine::bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOr
     ::bidiReorder(numRuns, levels, visualOrder );
 }
 
-void QTextEngine::itemize( bool doBidi )
+void QTextEngine::itemize( int mode )
 {
     if ( !items.d ) {
 	int size = 1;
@@ -70,7 +70,7 @@ void QTextEngine::itemize( bool doBidi )
     }
     items.d->size = 0;
 
-    if ( doBidi ) {
+    if ( !(mode & NoBidi) ) {
 	if ( direction == QChar::DirON )
 	    direction = basicDirection( string );
 	bidiItemize( string, items, direction == QChar::DirR );

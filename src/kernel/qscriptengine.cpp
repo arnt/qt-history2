@@ -31,7 +31,6 @@ static inline void positionCluster( QTextEngine *engine, QScriptItem *si, int gf
     }
 
     glyph_t *glyphs = engine->glyphs( si );
-    advance_t *advances = engine->advances( si );
     offset_t *offsets = engine->offsets( si );
     GlyphAttributes *glyphAttributes = engine->glyphAttributes( si );
 
@@ -166,14 +165,12 @@ static inline void positionCluster( QTextEngine *engine, QScriptItem *si, int gf
 	    offsets[gfrom+i].x = p.x() - baseInfo.xoff;
 	    offsets[gfrom+i].y = p.y() - baseInfo.yoff;
 	}
-	advances[gfrom+i] = 0;
     }
 }
 
 
 void q_heuristicPosition( QTextEngine *engine, QScriptItem *si )
 {
-    advance_t *advances = engine->advances( si );
     GlyphAttributes *glyphAttributes = engine->glyphAttributes( si );
 
     int cEnd = -1;
@@ -186,9 +183,6 @@ void q_heuristicPosition( QTextEngine *engine, QScriptItem *si )
 	    cEnd = -1;
 	}
     }
-    si->width = 0;
-    for ( i = 0; i < si->num_glyphs; i++ )
-	si->width += advances[i];
 }
 
 
@@ -207,7 +201,7 @@ static void heuristicSetGlyphAttributes( const QString &string, int from, int le
 //     qDebug("QScriptEngine::heuristicSetGlyphAttributes, num_glyphs=%d", num_glyphs);
     GlyphAttributes *glyphAttributes = engine->glyphAttributes( si );
     unsigned short *logClusters = engine->logClusters( si );
-
+    advance_t *advances = engine->advances( si );
 
     // honour the logClusters array if it exists.
     const QChar *uc = string.unicode() + from;
@@ -223,9 +217,12 @@ static void heuristicSetGlyphAttributes( const QString &string, int from, int le
     glyphAttributes[0].clusterStart = TRUE;
 
     while ( pos < len ) {
-	if ( ::category( uc[pos] ) == QChar::Mark_NonSpacing ) {
-	    glyphAttributes[pos].mark = TRUE;
-	    glyphAttributes[pos].clusterStart = FALSE;
+	if ( ::category( uc[pos] ) != QChar::Mark_NonSpacing ) {
+	    glyphAttributes[pos].mark = FALSE;
+	    glyphAttributes[pos].clusterStart = TRUE;
+	    glyphAttributes[pos].combiningClass = 0;
+	    cStart = pos;
+	} else {
 	    int cmb = combiningClass( uc[pos] );
 
 	    if ( cmb == 0 ) {
@@ -258,14 +255,12 @@ static void heuristicSetGlyphAttributes( const QString &string, int from, int le
 		}
 	    }
 
+	    glyphAttributes[pos].mark = TRUE;
+	    glyphAttributes[pos].clusterStart = FALSE;
 	    glyphAttributes[pos].combiningClass = cmb;
 	    // 		qDebug("found a mark at position %d", pos );
 	    logClusters[pos] = cStart;
-	} else {
-	    glyphAttributes[pos].mark = FALSE;
-	    glyphAttributes[pos].clusterStart = TRUE;
-	    glyphAttributes[pos].combiningClass = 0;
-	    cStart = pos;
+	    advances[pos] = 0;
 	}
 	pos++;
     }
@@ -285,34 +280,22 @@ static void convertToCMap( const QChar *chars, int len, QTextEngine *engine, QSc
     }
 }
 
-void q_calculateAdvances( QTextEngine *engine, QScriptItem *si )
+static void basic_shape( int /*script*/, const QString &string, int from, int len, QTextEngine *engine, QScriptItem *si )
 {
-
-    glyph_t *glyphs = engine->glyphs( si );
-    advance_t *advances = engine->advances( si );
-    offset_t *offsets = engine->offsets( si );
-    GlyphAttributes *glyphAttributes = engine->glyphAttributes( si );
-
-    si->width = 0;
-    for ( int i = 0; i < si->num_glyphs; i++ ) {
-	if ( glyphAttributes[i].mark )
-	    advances[i] = 0;
-	else {
-	    glyph_metrics_t gi = si->fontEngine->boundingBox( glyphs[i] );
-	    advances[i] = gi.xoff;
-	    //qDebug("setting advance of glyph %d to %d", i, gi.xoff );
-	    int y = offsets[i].y + gi.y;
-	    si->ascent = QMAX( si->ascent, -y );
-	    si->descent = QMAX( si->descent, y + gi.height );
+    convertToCMap( string.unicode() + from, len, engine, si );
+    if ( !engine->widthOnly ) {
+	heuristicSetGlyphAttributes( string, from, len, engine, si );
+	q_heuristicPosition( engine, si );
+    } else {
+	const QChar *uc = string.unicode() + from;
+	const QChar *end = uc + len;
+	advance_t *advances = engine->advances( si );
+	while ( uc < end ) {
+	    ++advances;
+	    if ( ::category( (++uc)->unicode() ) == QChar::Mark_NonSpacing )
+		*advances = 0;
 	}
     }
-}
-
-static void basic_shape( int /*script*/, const QString &string, int from, int len, QTextEngine *engine, QScriptItem *item )
-{
-    convertToCMap( string.unicode() + from, len, engine, item );
-    heuristicSetGlyphAttributes( string, from, len, engine, item );
-    q_heuristicPosition( engine, item );
 }
 
 static void basic_attributes( int /*script*/, const QString &text, int from, int len, QCharAttributes *attributes )
