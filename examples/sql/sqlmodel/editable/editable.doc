@@ -47,9 +47,8 @@
   This is just a convenience method that sets the \c lastname column in the 
   database table to a new value at the specified position.
 
-  Note that the first call to \c setQuery() is a workaround for sqlite since
-  sqlite is not capable to modify the table that is currently displayed.
-  It is not neccessary for all other database systems.
+  Note that the initial call to \c clear() is a workaround for in-process databases
+  since sqlite is not capable to modify the table that is currently displayed.
 
   \skipto main(
   \printuntil }

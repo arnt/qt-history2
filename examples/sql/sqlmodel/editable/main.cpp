@@ -59,7 +59,7 @@ bool EditableSqlModel::setData(const QModelIndex &idx, int role, const QVariant 
 
 bool EditableSqlModel::editLastName(int pkey, const QString &newValue)
 {
-    setQuery("");
+    clear();
 
     QSqlQuery q;
     q.prepare("update persons set lastname = ? where id = ?");
