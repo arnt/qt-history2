@@ -4,6 +4,7 @@
 #include <qtextview.h>
 #include <qpushbutton.h>
 #include <qapplication.h>
+#include <qmessagebox.h>
 
 class UicManager : public QVBox
 {
@@ -14,7 +15,7 @@ public:
     {
 	// Layout
 	output = new QTextView( this );
-	quitButton = new QPushButton( "Quit", this );
+	quitButton = new QPushButton( tr("Quit"), this );
 	connect( quitButton, SIGNAL(clicked()),
 		qApp, SLOT(quit()) );
 	resize( 500, 500 );
@@ -35,7 +36,14 @@ public:
 	connect( proc, SIGNAL(processExited()),
 		this, SLOT(scrollToTop()) );
 
-	proc->start();
+	if ( !proc->start() ) {
+	    // error handling
+	    QMessageBox::critical( 0,
+		    tr("Fatal error"),
+		    tr("Could not start the uic command."),
+		    tr("Quit") );
+	    exit( -1 );
+	}
     }
     ~UicManager() {}
 
