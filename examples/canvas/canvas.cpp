@@ -412,9 +412,9 @@ void Main::help()
     static QMessageBox* about = new QMessageBox( "Qt Canvas Example",
 	    "<h3>The QCanvas classes example</h3>"
 	    "<ul>"
-		"<li> Press CTRL-S for some sprites."
-		"<li> Press CTRL-C for some circles."
-		"<li> Press CTRL-L for some lines."
+		"<li> Press ALT-S for some sprites."
+		"<li> Press ALT-C for some circles."
+		"<li> Press ALT-L for some lines."
 		"<li> Drag the objects around."
 		"<li> Read the code!"
 	    "</ul>", QMessageBox::Information, 1, 0, 0, this, 0, FALSE );
