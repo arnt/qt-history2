@@ -242,6 +242,50 @@ bool QtCommand::mergeMeWith(QtCommand *)
     return false;
 }
 
+QtMultiCommand::QtMultiCommand(const QString &description)
+    : QtCommand(Command, description, false)
+{
+}
+
+QtMultiCommand::QtMultiCommand(const QList<QtCommand*> &command_list,
+                                const QString &description)
+    : QtCommand(Command, description, false), m_command_list(command_list)
+{
+}
+
+QtMultiCommand::~QtMultiCommand()
+{
+    while (!m_command_list.isEmpty())
+        delete m_command_list.takeLast();
+}
+
+void QtMultiCommand::append(QtCommand *command)
+{
+    m_command_list.append(command);
+}
+
+QtCommand *QtMultiCommand::command(int i) const
+{
+    return m_command_list.at(i);
+}
+
+int QtMultiCommand::count() const
+{
+    return m_command_list.size();
+}
+
+void QtMultiCommand::redo()
+{
+    for (int i = 0; i < m_command_list.size(); ++i)
+        m_command_list.at(i)->redo();
+}
+
+void QtMultiCommand::undo()
+{
+    for (int i = m_command_list.size() - 1; i >= 0; --i)
+        m_command_list.at(i)->undo();
+}
+
 /*!
     \fn void QtCommand::redo()
 

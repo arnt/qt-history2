@@ -59,6 +59,24 @@ class QT_SHARED_EXPORT QtCommand : public QObject
         Type m_type;
 };
 
+class QtMultiCommand : public QtCommand
+{
+public:
+    QtMultiCommand(const QString &description = QString());
+    QtMultiCommand(const QList<QtCommand*> &command_list,
+                    const QString &description = QString());
+    ~QtMultiCommand();
+    virtual void redo();
+    virtual void undo();
+
+    void append(QtCommand *command);
+    int count() const;
+    QtCommand *command(int i) const;
+    
+private:
+    QList<QtCommand*> m_command_list;    
+};
+
 struct QtUndoState;
 
 class QT_SHARED_EXPORT QtUndoStack : public QObject, private QList<QtCommand*>
