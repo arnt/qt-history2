@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#19 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#18 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#19 $";
 #endif
 
 
@@ -301,8 +301,6 @@ void QMenuBar::paintEvent( QPaintEvent *e )	// paint menu bar
 {
     register QPainter *p;
     QPainter     paint;
-    QPainter    *paint_pixmap;
-    QPixMap     *pm = 0;
     QColorGroup  g  = colorGroup();
     QFontMetrics fm = fontMetrics();
     QSize	 sz = size();
@@ -317,39 +315,22 @@ void QMenuBar::paintEvent( QPaintEvent *e )	// paint menu bar
     for ( int i=0; i<mitems->count(); i++ ) {
 	QMenuItem *mi = mitems->at( i );
 	QRect r = irects[i];
-	if ( mi->isDisabled() ) {
-	    pm = new QPixMap( r.width(), r.height() );
-	    CHECK_PTR( pm );
-	    pm->fill( g.background() );
-	    paint_pixmap = new QPainter;
-	    paint_pixmap->begin( pm );		// draw menu item in pixmap
-	    CHECK_PTR( paint_pixmap );
-	    paint_pixmap->setBackgroundColor( g.background() );
-	    p = paint_pixmap;			// redirect painting
-	    r.setRect( 0, 0, r.width(), r.height() );
-	}
 	if ( i == actItem )			// active item frame
 	    p->drawShadePanel( r, g.light(), g.dark(), motifItemFrame );
 	else					// incognito frame
 	    p->drawShadePanel( r, g.background(), g.background(),
 			       motifItemFrame );
 	if ( mi->image() )
-	    p->drawPixMap( r.left() + motifItemFrame, r.top() + motifItemFrame,
+	    p->drawPixMap( r.left() + motifItemFrame,
+			   r.top() + motifItemFrame,
 			   *mi->image() );
 	else if ( mi->string() ) {
-	    p->setPen( g.text() );
+	    if ( mi->isDisabled() )
+		p->setPen( palette().disabled().text() );
+	    else
+		p->setPen( g.text() );
 	    p->drawText( r, AlignCenter | AlignVCenter | ShowPrefix | DontClip,
 			 mi->string() );
-	}
-	if ( mi->isDisabled() ) {		// overwrite with gray brush
-	    p->setPen( NoPen );
-	    p->setBrush( QBrush(g.background(),Dense4Pattern) );
-	    p->drawRect( r );
-	    paint_pixmap->end();
-	    delete paint_pixmap;
-	    p = &paint;
-	    p->drawPixMap( irects[i].topLeft(), *pm );
-	    delete pm;
 	}
     }
     p->end();
