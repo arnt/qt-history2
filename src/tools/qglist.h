@@ -86,23 +86,24 @@ protected:
     bool removeRef( QPtrCollection::Item = 0 );	// remove item (0=current)
     bool removeFirst();				// remove first item
     bool removeLast();				// remove last item
-    bool removeAt( uint index );		// remove item at i'th position
+    bool removeAt( uint );			// remove item at i'th position
+    bool replaceAt( uint, QPtrCollection::Item ); // replace item at position i with item
     QPtrCollection::Item takeNode( QLNode * );	// take out node
-    QPtrCollection::Item take();			// take out current item
+    QPtrCollection::Item take();		// take out current item
     QPtrCollection::Item takeAt( uint index );	// take out item at i'th pos
     QPtrCollection::Item takeFirst();		// take out first item
     QPtrCollection::Item takeLast();		// take out last item
 
-    void sort();                        // sort all items;
-    void clear();			// remove all items
+    void sort();                        	// sort all items;
+    void clear();				// remove all items
 
     int	 findRef( QPtrCollection::Item, bool = TRUE ); // find exact item in list
     int	 find( QPtrCollection::Item, bool = TRUE ); // find equal item in list
 
-    uint containsRef( QPtrCollection::Item ) const; // get number of exact matches
-    uint contains( QPtrCollection::Item )	const;	// get number of equal matches
+    uint containsRef( QPtrCollection::Item ) const;	// get number of exact matches
+    uint contains( QPtrCollection::Item ) const;	// get number of equal matches
 
-    QPtrCollection::Item at( uint index );		// access item at i'th pos
+    QPtrCollection::Item at( uint index );	// access item at i'th pos
     int	  at() const;				// get current index
     QLNode *currentNode() const;		// get current node
 
@@ -124,7 +125,7 @@ protected:
     virtual QDataStream &write( QDataStream &, QPtrCollection::Item ) const;
 #endif
 private:
-    void  prepend( QPtrCollection::Item ); // add item at start of list
+    void  prepend( QPtrCollection::Item );	// add item at start of list
 
     void heapSortPushDown( QPtrCollection::Item* heap, int first, int last );
 
@@ -133,7 +134,7 @@ private:
     QLNode *curNode;				// current node
     int curIndex;				// current index
     uint numNodes;				// number of nodes
-    QGListIteratorList *iterators; 			// list of iterators
+    QGListIteratorList *iterators; 		// list of iterators
 
     QLNode *locate( uint );			// get node at i'th pos
     QLNode *unlink();				// unlink node

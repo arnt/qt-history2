@@ -43,7 +43,7 @@
 #endif // QT_H
 
 
-template<class type> 
+template<class type>
 class QPtrList
 #ifdef Q_QDOC
 	: public QPtrCollection
@@ -86,6 +86,7 @@ public:
     uint  contains( const type *d ) const { return QGList::contains((QPtrCollection::Item)d); }
     uint  containsRef( const type *d ) const
 					{ return QGList::containsRef((QPtrCollection::Item)d); }
+    bool replace( uint i, const type *d ) { return QGList::replaceAt( i, (QPtrCollection::Item)d ); }
     type *at( uint i )			{ return (type *)QGList::at(i); }
     int	  at() const			{ return QGList::at(); }
     type *current()  const		{ return (type *)QGList::get(); }
@@ -120,7 +121,7 @@ template<class type> inline void QPtrList<type>::deleteItem( QPtrCollection::Ite
     if ( del_item ) delete (type *)d;
 }
 
-template<class type> 
+template<class type>
 class QPtrListIterator : public QGListIterator
 {
 public:

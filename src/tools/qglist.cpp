@@ -422,15 +422,15 @@ void QGList::append( QPtrCollection::Item d )
 
 bool QGList::insertAt( uint index, QPtrCollection::Item d )
 {
-    if ( index == 0 ) {				// insert at head of list
+    if ( index == 0 ) {
 	prepend( d );
 	return TRUE;
-    } else if ( index == numNodes ) {		// append at tail of list
+    } else if ( index == numNodes ) {
 	append( d );
 	return TRUE;
     }
     QLNode *nextNode = locate( index );
-    if ( !nextNode )				// illegal position
+    if ( !nextNode )
 	return FALSE;
     QLNode *prevNode = nextNode->prev;
     register QLNode *n = new QLNode( newItem(d) );
@@ -498,7 +498,7 @@ QLNode *QGList::unlink()
         curNode = n->prev;
         curIndex--;
     }
-    
+
     if ( iterators )
 	iterators->notifyRemove( n, curNode );
     numNodes--;
@@ -582,13 +582,30 @@ bool QGList::removeAt( uint index )
 {
     if ( !locate(index) )
 	return FALSE;
-    QLNode *n = unlink();			// unlink node
+    QLNode *n = unlink();
     if ( !n )
 	return FALSE;
-    deleteItem( n->data );			// deallocate this node
+    deleteItem( n->data );
     delete n;
     return TRUE;
 }
+
+
+/*!
+  Replaces the item at index \a index with \a d.
+*/
+bool QGList::replaceAt( uint index, QPtrCollection::Item d )
+{
+    QLNode *n = locate( index );
+    if ( !n )
+	return FALSE;
+    if ( n->data != d ) {
+	deleteItem( n->data );
+	n->data = newItem( d );
+    }
+    return TRUE;
+}
+
 
 
 /*!
