@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#67 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#68 $
 **
 ** Implementation of QApplication class
 **
@@ -16,7 +16,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#67 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#68 $")
 
 
 /*----------------------------------------------------------------------------
@@ -123,8 +123,10 @@ static void destroy_palettes()
   etc.)
 
   Notice that \e argc and \e argv might be changed.  Qt will remove
-  command line arguments that it recognizes.  \e argc and \e argv are
-  can be accessed later by \c qApp->argc() and \c qApp->argv().
+  command line arguments that it recognizes.  \e argc and \e argv are can
+  be accessed later by \c qApp->argc() and \c qApp->argv().  The
+  documentation for argv() contains a detailed description of how to
+  process command line arguments.
 
   Qt debugging options:
   <ul>
@@ -208,7 +210,7 @@ QApplication::~QApplication()
   The documentation for argv() contains a detailed description of how to
   process command line arguments.
 
-  \sa argv(), QApplication::Qapplication()
+  \sa argv(), QApplication::QApplication()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
