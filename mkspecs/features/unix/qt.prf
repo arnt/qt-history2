@@ -35,7 +35,7 @@ for(QTLIB, $$list($$unique(QT))) {
              INCLUDEPATH = $$QMAKE_INCDIR_QT/$$qlib $$INCLUDEPATH
          }
 	 isEqual(QTLIB, opengl):CONFIG += opengl
-	 false:CONFIG(debug, debug|release) {
+	 CONFIG(debug, debug|release) {
 	    mac:qt_framework {
 	        LIBS   += -framework $${qlib}
             } else {

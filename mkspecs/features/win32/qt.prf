@@ -53,7 +53,7 @@ for(QTLIB, $$list($$unique(QT))) {
 	    }
 	    exists($$QMAKE_INCDIR_QT/$$qlib):INCLUDEPATH *= $$QMAKE_INCDIR_QT/$$qlib
 	    isEqual(QTLIB, opengl):CONFIG += opengl
-	    false:CONFIG(debug, debug|release) {
+	    CONFIG(debug, debug|release) {
 	        LIBS   += -l$${qlib}d
 	    } else { 
 	        LIBS   += -l$${qlib}
