@@ -589,7 +589,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 	tb_fill = QApplication::style()->pixelMetric(QStyle::PM_ToolBarHandleExtent)
                   + QApplication::style()->pixelMetric(QStyle::PM_ToolBarFrameWidth) * 2
 		  + QApplication::style()->pixelMetric(QStyle::PM_ToolBarItemSpacing) * 3
-                  + 16; // ## size of extension - get this from somewhere else
+                  + QApplication::style()->pixelMetric(QStyle::PM_ToolBarExtensionExtent);
     }
 
     for (int line = 0; line < tb_layout_info.size(); ++line) {

@@ -434,6 +434,7 @@ public:
         PM_ToolBarHandleExtent,
         PM_ToolBarItemSpacing,
         PM_ToolBarSeparatorExtent,
+        PM_ToolBarExtensionExtent,
 
         PM_SpinBoxSliderHeight,
 

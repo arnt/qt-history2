@@ -13,6 +13,7 @@
 
 #include "qtoolbarextension_p.h"
 #include <qpixmap.h>
+#include <qstyle.h>
 
 // ### move this into the style code and make the extension stylable
 // ### (sizeHint() as well)
@@ -65,5 +66,6 @@ void QToolBarExtension::setOrientation(Qt::Orientation o)
 
 QSize QToolBarExtension::sizeHint() const
 {
-    return QSize(14, 14);
+    int ext = style()->pixelMetric(QStyle::PM_ToolBarExtensionExtent);
+    return QSize(ext, ext);
 }

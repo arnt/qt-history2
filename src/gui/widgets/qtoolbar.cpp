@@ -749,12 +749,12 @@ void QToolBar::resizeEvent(QResizeEvent *event)
 	if (orientation == Qt::Horizontal) {
 	    d->extension->setGeometry(width() - d->extension->sizeHint().width() - margin,
 				      margin,
-				      d->extension->sizeHint().width() - margin*2,
+				      d->extension->sizeHint().width(),
 				      height() - margin*2);
         } else {
 	    d->extension->setGeometry(margin,
 				      height() - d->extension->sizeHint().height() - margin*2,
-				      width() - margin*2,
+				      width(),
 				      d->extension->sizeHint().height());
         }
 
