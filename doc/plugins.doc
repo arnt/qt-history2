@@ -23,9 +23,6 @@ There are five plugin base classes:
 Suppose that you have a new style class called 'MyStyle' that you want
 to make available as a plugin. The required code is straightforward:
 \code
-    // file: mystyleplugin.h
-    #include "mystyle.h"
-    
     class MyStylePlugin : public QStylePlugin
     {
     public:
@@ -33,10 +30,9 @@ to make available as a plugin. The required code is straightforward:
 	~MyStylePlugin();
 
 	QStringList keys() { 
-	    QStringList l; 
-	    l << "MyStyle"; 
-	    return l; 
+	    return QStringList() << "MyStyle"; 
 	}
+
 	QStyle* create( const QString& key ) { 
 	    if ( key == "MyStyle" ) 
 		return new MyStyle;

@@ -1,5 +1,72 @@
 \chapter Qt Designer
 
+\section1 Visual Form Design 
+
+\QD is written in Qt and provides visual user interface design. Qt
+applications can be written entirely as source code, or using \QD
+to speed up development.
+
+\img designer.png
+\caption Qt Designer
+
+Designing a form with \QD is a simple process. Developers click a
+toolbar button representing the widget they want, then click on a form
+to place the widget. The widget's properties can then be changed using
+the property editor. The precise positions and sizes of the widgets
+does not matter. Developers select widgets and apply layouts to them.
+For example, some button widgets might be selected and laid out
+side-by-side by choosing the 'lay out horizontally' option. This
+approach makes visual design very fast, and the finished forms will
+scale properly to fit whatever window size the end-user prefers. (See
+\l{Layouts} for information about Qt's automatic layouts.)
+
+Taking a visual design approach eliminates the time consuming compile,
+link and run cycle, and makes it easy to correct or change designs.
+\QD's preview options let developers see their forms in any style, for
+example, a Windows developer can preview a form in Motif style. \QD
+provides live preview and editing of database data through its tight
+integration with Qt's database classes. (See \l{Databases} for more
+about Qt's database support.)
+
+Developers can create both dialog-style applications and main
+window-style applications with menus, toolbars, balloon help, etc.
+Several form templates are supplied, and developers can create their
+own templates to ensure consistency across an application or family of
+applications. \QD uses wizards to make creating toolbars, menus and
+database applications as fast and easy as possible. Programmers can
+create their own custom widgets which can easily be integrated with
+\QD. 
+
+\QD supports a project-based approach to application development. A
+project is represented by a \File .pro file, which \Cmd qmake can use
+to generate Makefiles. Developers create a new project and then add
+forms and source files as required. Developers can completely separate
+the user interface from the underlying functionality by subclassing,
+or they can keep their source code and forms together by editing the
+form's source directly in \QD. 
+
+Icons and other images used in the application are automatically
+shared across all forms in a project to reduce executable size and
+speed up loading.
+
+Form designs are stored in XML format in \File .ui files and
+converted into C++ header and source files by the \Cmd uic (User
+Interface Compiler). The \Cmd qmake build tool automatically
+includes build rules for \Cmd uic in the Makefiles it generates, so
+developers do not need to invoke \Cmd uic themselves.
+
+Usually forms are compiled into the executable, but in some situations
+customers need to modify the appearance of an application without
+accessing the source code. Qt supports 'dynamic dialogs':
+\File .ui files can be loaded at runtime and dynamically converted
+into fully functional forms. Companies can supply application
+executables along with the customer-modifiable forms in \File .ui
+format, and the customer can use \QD to customize the appearance of
+the application's forms. Loading a dynamic dialog is trivial: 
+\code 
+    QDialog *creditForm = (QDialog *)
+			  QWidgetFactory::create( "creditform.ui" ); 
+\endcode
 
 \section1 GUI Application Example
 

@@ -1,0 +1,72 @@
+\chapter Plugins and Dynamic Libraries
+
+\quote
+Qt can access functions from dynamic libraries platform-independently.
+Qt also supports plugins, which allow developers to create and
+distribute Qt codecs, database drivers, image format converters,
+styles and custom widgets as independent components. 
+\endquote
+
+\section1 Dynamic Libraries
+
+  \index DLL
+  \index dynamic libraries
+  \index libraries
+  \index linking
+  \index shared libraries
+
+The \Class QLibrary class provides cross-platform dynamic library
+loading, a more powerful mechanism than the more restrictive
+build-time linking.
+
+Below is an example of the most basic way to dynamically load and use
+a library. The example attempts to obtain a pointer to the \c
+print_str symbol from the \c mylib library.
+\code
+    typedef void (Prototype)( const char *str );
+
+    QLibrary lib( "mylib" );
+    Prototype *func = (Protoype *) lib.resolve( "print_str" );
+    if ( func )
+	func( "Hello world!" );
+\endcode
+Calling a function this way is not type safe, and only symbols with C
+linkage are supported (due to C++ name mangling). These limitations
+do not apply to Qt plugins.
+
+\section1 Plugins
+
+Converting a Qt codec, database driver, image format converter, style
+or custom widget into a plugin is achieved by subclassing the
+appropriate plugin base class, implementing a few simple functions,
+and adding a macro.
+
+For example, if a developer has created a \Class QStyle subclass
+called 'HeavenlyStyle' that they want to make available as a plugin,
+they would create a subclass like this: 
+\code
+    class HeavenlyStylePlugin : public QStylePlugin
+    {
+    public:
+	HeavenlyStylePlugin() {}
+	~HeavenlyStylePlugin();
+
+	QStringList keys() { 
+	    return QStringList() << "HeavenlyStyle"; 
+	}
+
+	QStyle* create( const QString& key ) { 
+	    if ( key == "HeavenlyStyle" ) 
+		return new HeavenlyStyle;
+	    return 0;
+	}
+    };
+
+    Q_EXPORT_PLUGIN( HeavenlyStylePlugin )
+\endcode
+
+To load the new style, use code like this:
+\code
+    ### Help!    
+\endcode
+
