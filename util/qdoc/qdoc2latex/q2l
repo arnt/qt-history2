@@ -10,8 +10,8 @@ sub usage {
 	  "-d is debug, i.e. show don't do\n",
 	  "-y is produce postscript and don't ask about intermediate steps\n",
 	  "-Y as -y but cleanup after\n",
-	  "-c is clear intermediate files and quit\n",
-	  "-C is clear intermediate, log and postscript files and quit\n",
+	  "-c is clear intermediate files before and after the run\n",
+	  "-C is clear intermediate, log and postscript files\n",
 	  "-u is output US letter size (default is A4)\n",
 	  ;
     exit;
@@ -21,32 +21,27 @@ usage() unless @ARGV;
 
 my $DEBUG = 0;
 my $YES = 0;
-my $CLEANYES = 0;
 my $SIZE = 'a4';
-my $CLEANUP1 = '';
-my $CLEANUP2 = '';
+my $JUSTCLEAN = 0;
+my $RUNCLEAN = 0;
 
 Getopt::Long::Configure('no_ignore_case');
 GetOptions('help|h' => \&usage,
 	   'debug|d' => \$DEBUG,
 	   'yes|y' => \$YES,
-	   'Yes|YES|Y' => \$CLEANYES,
-	   'c' => \$CLEANUP1,
-	   'C' => \$CLEANUP2,
+	   'c' => \$RUNCLEAN,
+	   'C' => \$JUSTCLEAN,
 	   'u' => \$SIZE,
 	  ) or usage();
 
-if ( $CLEANUP1 or $CLEANUP2 ) {
-    cleanup();
-    if ( $CLEANUP2 ) {
-	perform("rm *.ilg");
-	perform("rm *.log");
-	perform("rm *.ps");
-	perform("rm *.pdf");
-    }
-    exit;
+if ( $JUSTCLEAN or $RUNCLEAN ) {
+    cleanup(1);
+    perform("rm -f *.ps");
+    perform("rm -f *.pdf");
+    exit if $JUSTCLEAN and not @ARGV;
+    $RUNCLEAN = 1 if $JUSTCLEAN;
 }
-my $YESTOPS = $YES || $CLEANYES;
+my $YESTOPS = $YES;
 $SIZE = 'letter' if $SIZE eq '1';
 
 my $QTDIR = $ENV{'QTDIR'};
@@ -107,7 +102,7 @@ else {
 	}
     }
 }
-cleanup() if ask("cleanup");
+cleanup($JUSTCLEAN) if $RUNCLEAN;
 
 
 sub perform {
@@ -121,7 +116,7 @@ sub perform {
 
 
 sub ask {
-    return 1 if $YES or $CLEANYES;
+    return 1 if $YES;
     my $prog = shift;
     return 1 if $YESTOPS and $prog !~ /(?:pdflatex|ps2pdf)/;
     if ( $prog !~ /(?:pdflatex|ps2pdf)/ ) {
@@ -132,7 +127,7 @@ sub ask {
     }
     my $ans = <STDIN>;
     if ( $ans =~ /^q/i ) {
-	cleanup() if $CLEANYES;
+	cleanup($JUSTCLEAN) if $RUNCLEAN;
 	exit;
     }
     $YESTOPS = 1 if $ans =~ /^y/i;
@@ -141,11 +136,18 @@ sub ask {
 
 
 sub cleanup {
-    perform("rm *.tex");
-    perform("rm *.dvi");
-    perform("rm *.ind");
-    perform("rm *.idx");
-    perform("rm *.aux");
+    my $all = shift || 0;
+
+    perform("rm -f *.tex");
+    perform("rm -f *.dvi");
+    perform("rm -f *.ind");
+    perform("rm -f *.idx");
+    perform("rm -f *.aux");
+
+    if ( $all ) {
+	perform("rm -f *.ilg");
+	perform("rm -f *.log");
+    }
 
     1;
 }
