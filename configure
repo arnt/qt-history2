@@ -295,7 +295,7 @@ while [ -n "$1" ]; do
 	    if [ -d $relpath/$1 ]
 	    then
 		QMAKE_PROJECTS="$QMAKE_PROJECTS `find $relpath/$1 -name '*.pro' -print`"
-            else
+	    else
 		QMAKE_PROJECTS="$QMAKE_PROJECTS `find $relpath/$1 -name '*.pro' -print`"
 	    fi
 	fi
@@ -427,7 +427,7 @@ while [ -n "$1" ]; do
    -v)
 	[ "x$VERBOSE" = "xyes" ] && QMAKE_SWITCHES="$QMAKE_SWITCHES -d"
 	VERBOSE=yes
-        ;;
+	;;
    -j?*)
 	CONCURRENT="`echo $1 | sed 's,-j,,'`"
 	;;
@@ -496,7 +496,7 @@ then
 	PLATFORM=macx-g++
 	;;
      AIX*)
-        #PLATFORM=aix-g++
+	#PLATFORM=aix-g++
 	PLATFORM=aix-xlc
 	PLATFORM_NOTES="
 	    - Also available: aix-g++
@@ -773,9 +773,9 @@ if [ "$HELP" = "yes" ]; then
 
     cat <<EOF
 Usage:  $relconf [-debug] [-release] [-qt-gif] [-no-gif] [-sm] [-no-sm] \\
-        [-qt-zlib] [-system-zlib] [-qt-libpng] [-system-libpng] \\
-        [-no-jpeg] [-system-jpeg] [-no-thread] [-thread] [-enable-kde2] \\
-        [-Istring] [-lstring] [-Lstring] [-Rstring] [-enable-<module>] \\
+	[-qt-zlib] [-system-zlib] [-qt-libpng] [-system-libpng] \\
+	[-no-jpeg] [-system-jpeg] [-no-thread] [-thread] [-enable-kde2] \\
+	[-Istring] [-lstring] [-Lstring] [-Rstring] [-enable-<module>] \\
 	[-disable-<module>] \\
 
 The defaults (*) are usually acceptable.  Here is a short explanation of
@@ -798,23 +798,23 @@ each option:
 
  *  -qt-zlib ........... Use the zlib bundled with Qt.
     -system-zlib ....... Use a zlib from the operating system
-                         http://www.info-zip.org/pub/infozip/zlib
+			 http://www.info-zip.org/pub/infozip/zlib
 
  *  -qt-libpng ......... Use the libpng bundled with Qt.
     -system-libpng ..... Use a libpng from the operating system.
-                         See http://www.libpng.org/pub/png
+			 See http://www.libpng.org/pub/png
 
  *  -no-mng ............ Do not compile in MNG I/O support.
     -system-libmng ..... Use libmng from the operating system.
-                         See http://www.libmng.com
+			 See http://www.libmng.com
 
  *  -no-jpeg ........... Do not compile in JPEG I/O support.
     -system-jpeg ....... Use jpeglib from the operating system.
-                         See http://www.ijg.org
+			 See http://www.ijg.org
 
  *  -no-nas-sound ...... Do not compile in NAS sound support.
     -system-nas-sound .. Use NAS libaudio from the operating system.
-                         See http://radscan.com/nas.html
+			 See http://radscan.com/nas.html
 
     -no-freetype ....... Qt/Embedded only: do not compile in FreeType2 support.
  *  -freetype .......... Qt/Embedded only: add FreeType2 font support.
@@ -823,7 +823,7 @@ each option:
 			 KDE2 widgets can be used directly in
 			 the Qt Designer. \$KDEDIR must be
 			 set to point to a KDE2 installation.
-                         See http://www.kde.org
+			 See http://www.kde.org
 
     -embedded arch...... This will enable embedded for Qt, you must have a proper
 			 license for this switch to work.
@@ -835,8 +835,8 @@ each option:
     -platform target ... The platform you are building on ($PLATFORM)
     -xplatform target .. The platform when cross-compiling.
 
-                         See the PLATFORMS file for a list of supported
-                         operating systems and compilers.
+			 See the PLATFORMS file for a list of supported
+			 operating systems and compilers.
 
 
     -Dstring ........... Add an explicit define to the preprocessor.
@@ -845,14 +845,14 @@ each option:
     -Rstring ........... Add an explicit dynamic library runtime search path.
     -lstring ........... Add an explicit library.
 
-    
+
     -enable-<module> .......... Enables a module where module is one of the below.
-    -disable-<module> ......... Disables a module, where module can can be one of: 
-                                $MODULES_HELP
+    -disable-<module> ......... Disables a module, where module can can be one of:
+				$MODULES_HELP
 
     -with-<module setting> .... This will activate a setting as described below.
-    -without-<module setting> . This will deactivate a setting for any enabled module, 
-			        consult each Qt module for their specific settings.
+    -without-<module setting> . This will deactivate a setting for any enabled module,
+				consult each Qt module for their specific settings.
 EOF
 
    [ "x$ERROR" = "xyes" ] && exit 1
@@ -927,7 +927,7 @@ fi
 [ ! -d $outpath/src/tools ] && mkdir -p $outpath/src/tools
 rm -f $outpath/src/tools/qmodules.h.new
 cat >$outpath/src/tools/qmodules.h.new << EOF
-// These modules are licensed to $Licensee
+// These modules are present in this configuration of Qt
 EOF
 for MODULE in $MODULES
 do
@@ -956,17 +956,17 @@ quoted=no
 tmp=""
 for i in $QMAKE_VARS; do
   if [ "$quoted" = "no" ]
-  then 
-    case "$i" in 
-      \"*\")   echo $i | sed 's,^",,' | sed 's,"$,,' >>$outpath/.qmake.cache;   ;; 
-      \"*)   quoted=yes ; tmp=$i;   ;; 
-      *)   echo $i >>.qmake.cache ;; 
+  then
+    case "$i" in
+      \"*\")   echo $i | sed 's,^",,' | sed 's,"$,,' >>$outpath/.qmake.cache;   ;;
+      \"*)   quoted=yes ; tmp=$i;   ;;
+      *)   echo $i >>.qmake.cache ;;
     esac
-  else 
-    case "$i" in 
+  else
+    case "$i" in
       *\") quoted=no
-           echo $tmp $i | sed 's,^",,' | sed 's,"$,,' >>$outpath/.qmake.cache
-           tmp="" ;; 
+	   echo $tmp $i | sed 's,^",,' | sed 's,"$,,' >>$outpath/.qmake.cache
+	   tmp="" ;;
       *) tmp="$tmp $i" >>$outpath/.qmake.cache ;;
     esac
   fi
@@ -1062,7 +1062,7 @@ for a in `echo $QMAKE_PROJECTS | sort | uniq`; do
 	echo " (`basename $CONF`)"
 	echo -n $EXEC
     fi
-    echo 
+    echo
 
     [ -f $N ] && chmod +w $N
     if [ "x$PROCS" = "x1" ]

@@ -66,6 +66,29 @@
 #include <qconfig.h>
 #endif
 
+// prune to local config
+#include "qmodules.h"
+#ifndef QT_MODULE_ICONVIEW
+# define QT_NO_ICONVIEW
+#endif
+#ifndef QT_MODULE_WORKSPACE
+# define QT_NO_WORKSPACE
+#endif
+#ifndef QT_MODULE_NETWORK
+#define QT_NO_NETWORK
+#endif
+#ifndef QT_MODULE_CANVAS
+# define QT_NO_CANVAS
+#endif
+#ifndef QT_MODULE_TABLE
+#define QT_NO_TABLE
+#endif
+#ifndef QT_MODULE_XML
+# define QT_NO_XML
+#endif
+#ifndef QT_MODULE_SQL
+# define QT_NO_SQL
+#endif
 
 // Data structures
 /*!
@@ -253,7 +276,9 @@
   XML
 */
 #if defined(QT_NO_STRINGLIST) || defined(QT_NO_TEXTSTREAM) || defined(QT_NO_TEXTCODEC)
-# define QT_NO_XML
+# ifndef QT_NO_XML
+#  define QT_NO_XML
+# endif
 #endif
 
 /*!
@@ -447,17 +472,10 @@
 # define QT_NO_DRAGANDDROP
 #endif
 
-#if defined(QT_NO_PROPERTIES)
-    /*!
-	SQL
-    */
-# define QT_NO_SQL
-#endif
-
 #if defined(QT_NO_CLIPBOARD) || defined(QT_NO_MIME) || defined(Q_WS_QWS)
     /*!
 	Cut and paste of complex data types (non-text)
-	Not yet implemented for QWS. 
+	Not yet implemented for QWS.
     */
 # define QT_NO_MIMECLIPBOARD
 #endif
@@ -709,11 +727,15 @@
 /*!
     QCanvas
 */
-# define QT_NO_CANVAS
+# ifndef QT_NO_CANVAS
+#  define QT_NO_CANVAS
+# endif
 /*!
     QIconView
 */
-# define QT_NO_ICONVIEW
+# ifndef QT_NO_ICONVIEW
+#  define QT_NO_ICONVIEW
+# endif
 #endif
 
 #if defined(QT_NO_SCROLLBAR)
@@ -818,7 +840,9 @@
     QWorkSpace
 */
 #ifdef QT_NO_FRAME
-# define QT_NO_WORKSPACE
+# ifndef QT_NO_WORKSPACE
+#  define QT_NO_WORKSPACE
+# endif
 #endif
 /*!
     QLCDNumber
@@ -835,7 +859,9 @@
     /*!
 	QTable
     */
-# define QT_NO_TABLE
+# ifndef QT_NO_TABLE
+#  define QT_NO_TABLE
+# endif
 #endif
 
 #if defined(QT_NO_LISTBOX)
@@ -843,7 +869,7 @@
 	QComboBox
     */
 # define QT_NO_COMBOBOX
-#endif    
+#endif
 
 #if defined(QT_NO_HEADER) || defined(QT_NO_SCROLLVIEW)
     /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.h#17 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.h#18 $
 **
 ** Definition of the QSvgDevice class
 **
@@ -38,21 +38,17 @@
 #ifndef QSVGDEVICE_H
 #define QSVGDEVICE_H
 
-#include <qmodules.h>
-
-#if !defined(QT_MODULE_XML)
-#define QM_EXPORT
-#else
-#define QM_EXPORT Q_EXPORT
-#endif
-
 #ifndef QT_H
 #include "qpaintdevice.h"
 #include "qrect.h"
 #include "qdom.h"
 #endif // QT_H
 
+#include "qfeatures.h"
+
 #ifndef QT_NO_SVG
+
+#define QM_EXPORT Q_EXPORT
 
 class QPainter;
 class QDomNode;
@@ -93,7 +89,7 @@ private:
     void applyTransform( QDomElement *e ) const;
 
     // reading
-    QRect brect;	    		// bounding rectangle
+    QRect brect;			// bounding rectangle
     QDomDocument doc;			// document tree
     QDomNode current;
     QPoint curPt;
@@ -115,4 +111,3 @@ inline QRect QSvgDevice::boundingRect() const
 #endif // QT_NO_SVG
 
 #endif // QSVGDEVICE_H
-

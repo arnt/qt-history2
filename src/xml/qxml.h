@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.h#14 $
+** $Id: //depot/qt/main/src/xml/qxml.h#15 $
 **
 ** Definition of QXmlSimpleReader and related classes.
 **
@@ -38,14 +38,6 @@
 #ifndef QXML_H
 #define QXML_H
 
-#include "qmodules.h"
-
-#if !defined(QT_MODULE_XML)
-#define QM_EXPORT
-#else
-#define QM_EXPORT Q_EXPORT
-#endif
-
 #ifndef QT_H
 #include "qtextstream.h"
 #include "qfile.h"
@@ -53,7 +45,11 @@
 #include "qstringlist.h"
 #endif // QT_H
 
+#include "qfeatures.h"
+
 #ifndef QT_NO_XML
+
+#define QM_EXPORT Q_EXPORT
 
 class QXmlNamespaceSupport;
 class QXmlAttributes;

@@ -49,15 +49,11 @@
 #include <qbitmap.h>
 #endif // QT_H
 
-#include <qmodules.h>
-
-#if !defined(QT_MODULE_ICONVIEW)
-#define QM_EXPORT
-#else
-#define QM_EXPORT Q_EXPORT
-#endif
+#include "qfeatures.h"
 
 #ifndef QT_NO_ICONVIEW
+
+#define QM_EXPORT Q_EXPORT
 
 class QIconView;
 class QPainter;
