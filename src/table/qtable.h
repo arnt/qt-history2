@@ -472,6 +472,21 @@ private:
     void setCurrentCell( int row, int col, bool updateSelections );
     void fixCell( int &row, int &col, int key );
     void delayedUpdateGeometries();
+    struct TableWidget
+    {
+	TableWidget( QWidget *w, int r, int c ) : wid( w ), row( r ), col ( c ) {}
+	QWidget *wid;
+	int row, col;
+    };
+    void saveContents( QPtrVector<QTableItem> &tmp,
+		       QPtrVector<QTable::TableWidget> &tmp2 );
+    void updateHeaderAndResizeContents( QTableHeader *header,
+					int num, int colRow,
+					int width, bool &updateBefore );
+    void restoreContents( QPtrVector<QTableItem> &tmp,
+			  QPtrVector<QTable::TableWidget> &tmp2,
+			  int oldNum );
+    void finishContentsResze( bool updateBefore );
 
 private:
     QPtrVector<QTableItem> contents;

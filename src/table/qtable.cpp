@@ -4246,176 +4246,95 @@ int QTable::numCols() const
     return topHeader->count();
 }
 
-void QTable::setNumRows( int r )
+void QTable::saveContents( QPtrVector<QTableItem> &tmp,
+			   QPtrVector<QTable::TableWidget> &tmp2)
 {
-    if ( r < 0 )
-	return;
     if ( editRow != -1 && editCol != -1 )
 	endEdit( editRow, editCol, FALSE, edMode != Editing );
-    QPtrVector<QTableItem> tmp;
     tmp.resize( contents.size() );
-    QPtrVector<QWidget> tmp2;
     tmp2.resize( widgets.size() );
     int i;
-    bool updateWidgets = widgets.size() > 0;
     for ( i = 0; i < (int)tmp.size(); ++i ) {
 	QTableItem *item = contents[ i ];
 	if ( item && indexOf( item->row(), item->col() ) == i )
 	    tmp.insert( i, item );
 	else
 	    tmp.insert( i, 0 );
-	if ( updateWidgets ) {
-	    QWidget *w = widgets[ i ];
-	    if ( w )
-		tmp2.insert( i, w );
-	    else
-		tmp2.insert( i, 0 );
-	}
     }
-
-    bool isUpdatesEnabled = leftHeader->isUpdatesEnabled();
-    leftHeader->setUpdatesEnabled( FALSE );
-    bool updateBefore = r < numRows();
-    int w = fontMetrics().width( QString::number( r ) + "W" );
-    if ( r > numRows() ) {
-	leftHeader->QHeader::resizeArrays( r + 1 );
-	leftHeader->QTableHeader::resizeArrays( r + 1 );
-	int old = numRows();
-	clearSelection( FALSE );
-	int i = 0;
-	for ( i = old; i < r; ++i )
-	    leftHeader->addLabel( QString::null, 20 );
-    } else {
-	clearSelection( FALSE );
-	while ( numRows() > r )
-	    leftHeader->removeLabel( numRows() - 1 );
+    for ( i = 0; i < (int)tmp2.size(); ++i ) {
+	QWidget *w = widgets[ i ];
+	if ( w )
+	    tmp2.insert( i, new TableWidget( w, i % numRows(), i / numCols() ) );
+	else
+	    tmp2.insert( i, 0 );
     }
-
-    if ( VERTICALMARGIN > 0 && w > VERTICALMARGIN )
-	setLeftMargin( w );
-
-    contents.setAutoDelete( FALSE );
-    contents.clear();
-    contents.setAutoDelete( TRUE );
-    if ( updateWidgets ) {
-	widgets.setAutoDelete( FALSE );
-	widgets.clear();
-	widgets.setAutoDelete( TRUE );
-    }
-    resizeData( numRows() * numCols() );
-
-    for ( i = 0; i < (int)tmp.size(); ++i ) {
-	QTableItem *it = tmp [ i ];
-	int idx = it ? indexOf( it->row(), it->col() ) : 0;
-	if ( it && (uint)idx < contents.size() ) {
-	    contents.insert( idx, it );
-	    it->setSpan( it->rowSpan(), it->colSpan() );
-	} else {
-	    delete it;
-	}
-	if ( updateWidgets ) {
-	    QWidget *w = tmp2[ i ];
-	    if ( w )
-		widgets.insert( idx, w );
-	}
-    }
-
-    leftHeader->setUpdatesEnabled( isUpdatesEnabled );
-
-    QRect r2( cellGeometry( numRows() - 1, numCols() - 1 ) );
-    resizeContents( r2.right() + 1, r2.bottom() + 1 );
-    updateGeometries();
-    if ( updateBefore )
-	repaintContents( contentsX(), contentsY(),
-			 visibleWidth(), visibleHeight(), TRUE );
-    else
-	repaintContents( contentsX(), contentsY(),
-			 visibleWidth(), visibleHeight(), FALSE );
-    if ( isUpdatesEnabled )
-	leftHeader->update();
-
-    if ( isRowSelection( selectionMode() ) ) {
-	int r = curRow;
-	curRow = -1;
-	setCurrentCell( r, curCol );
-    }
-    leftHeader->updateCache();
 }
 
-void QTable::setNumCols( int c )
+void QTable::updateHeaderAndResizeContents( QTableHeader *header,
+					    int num, int rowCol,
+					    int width, bool &updateBefore )
 {
-    if ( c < 0 )
-	return;
-    if ( editRow != -1 && editCol != -1 )
-	endEdit( editRow, editCol, FALSE, edMode != Editing );
-    QPtrVector<QTableItem> tmp;
-    tmp.resize( contents.size() );
-    QPtrVector<QWidget> tmp2;
-    tmp2.resize( widgets.size() );
-    bool updateWidgets = widgets.size() > 0;
-    int i;
-    for ( i = 0; i < (int)tmp.size(); ++i ) {
-	QTableItem *item = contents[ i ];
-	if ( item && indexOf( item->row(), item->col() ) == i )
-	    tmp.insert( i, item );
-	else
-	    tmp.insert( i, 0 );
-	if ( updateWidgets ) {
-	    QWidget *w = widgets[ i ];
-	    if ( w )
-		tmp2.insert( i, w );
-	    else
-		tmp2.insert( i, 0 );
-	}
-    }
-
-    bool isUpdatesEnabled = topHeader->isUpdatesEnabled();
-    topHeader->setUpdatesEnabled( FALSE );
-    bool updateBefore = c < numCols();
-
-    if ( c > numCols() ) {
-	topHeader->QHeader::resizeArrays( c + 1 );
-	topHeader->QTableHeader::resizeArrays( c + 1 );
-	int old = numCols();
+    updateBefore = rowCol < num;
+    if ( rowCol > num ) {
+	header->QHeader::resizeArrays( rowCol + 1 );
+	header->QTableHeader::resizeArrays( rowCol + 1 );
+	int old = num;
 	clearSelection( FALSE );
 	int i = 0;
-	for ( i = old; i < c; ++i )
-	    topHeader->addLabel( QString::null, 100 );
+	for ( i = old; i < rowCol; ++i )
+	    header->addLabel( QString::null, width );
     } else {
 	clearSelection( FALSE );
-	while ( numCols() > c )
-	    topHeader->removeLabel( numCols() - 1 );
+	while ( num > rowCol )
+	    header->removeLabel( num - 1 );
     }
 
-    int nc = numCols();
     contents.setAutoDelete( FALSE );
     contents.clear();
     contents.setAutoDelete( TRUE );
-    if ( updateWidgets ) {
-	widgets.setAutoDelete( FALSE );
-	widgets.clear();
-	widgets.setAutoDelete( TRUE );
-    }
+    widgets.setAutoDelete( FALSE );
+    widgets.clear();
+    widgets.setAutoDelete( TRUE );
     resizeData( numRows() * numCols() );
+}
 
+void QTable::restoreContents( QPtrVector<QTableItem> &tmp,
+			      QPtrVector<QTable::TableWidget> &tmp2,
+			      int oldNum )
+{
+    int i;
     for ( i = 0; i < (int)tmp.size(); ++i ) {
-	QTableItem *it = tmp[ i ];
-	int idx = it ? it->row() * nc + it->col() : 0;
-	if ( it && (uint)idx < contents.size()
-	     && ( !it || it->col() < numCols() ) ) {
+	QTableItem *it = tmp [ i ];
+	int idx;
+	if ( oldNum == -1 )
+	    idx = it ? indexOf( it->row(), it->col() ) : 0;
+	else
+	    idx = it ? it->row() * oldNum + it->col() : 0;
+	if ( it && (uint)idx < contents.size() &&
+	     ( oldNum == -1 &&( !it || it->col() < numCols() ) ) ) {
 	    contents.insert( idx, it );
 	    it->setSpan( it->rowSpan(), it->colSpan() );
 	} else {
 	    delete it;
 	}
-	if ( updateWidgets ) {
-	    QWidget *w = tmp2[ i ];
-	    if ( w )
-		widgets.insert( idx, w );
+    }
+    for ( i = 0; i < (int)tmp2.size(); ++i ) {
+	TableWidget *w = tmp2[ i ];
+	if ( w ) {
+	    int idx;
+	    if ( oldNum == -1 )
+		idx = indexOf( w->row, w->col );
+	    else
+		idx = w->row * oldNum + w->col;
+	    if ( (uint)idx < widgets.size() )
+		widgets.insert( idx, w->wid );
+	    delete w;
 	}
     }
+}
 
-    topHeader->setUpdatesEnabled( isUpdatesEnabled );
+void QTable::finishContentsResze( bool updateBefore )
+{
     QRect r( cellGeometry( numRows() - 1, numCols() - 1 ) );
     resizeContents( r.right() + 1, r.bottom() + 1 );
     updateGeometries();
@@ -4425,14 +4344,62 @@ void QTable::setNumCols( int c )
     else
 	repaintContents( contentsX(), contentsY(),
 			 visibleWidth(), visibleHeight(), FALSE );
-    if ( isUpdatesEnabled )
-	topHeader->update();
 
     if ( isRowSelection( selectionMode() ) ) {
 	int r = curRow;
 	curRow = -1;
 	setCurrentCell( r, curCol );
     }
+}
+
+void QTable::setNumRows( int r )
+{
+    if ( r < 0 )
+	return;
+    QPtrVector<QTableItem> tmp;
+    QPtrVector<TableWidget> tmp2;
+    saveContents( tmp, tmp2 );
+
+    bool isUpdatesEnabled = leftHeader->isUpdatesEnabled();
+    leftHeader->setUpdatesEnabled( FALSE );
+
+    bool updateBefore;
+    updateHeaderAndResizeContents( leftHeader, numRows(), r, 20, updateBefore );
+
+    int w = fontMetrics().width( QString::number( r ) + "W" );
+    if ( VERTICALMARGIN > 0 && w > VERTICALMARGIN )
+	setLeftMargin( w );
+
+    restoreContents( tmp, tmp2, -1 );
+
+    finishContentsResze( updateBefore );
+    leftHeader->setUpdatesEnabled( isUpdatesEnabled );
+    if ( isUpdatesEnabled )
+	leftHeader->update();
+    leftHeader->updateCache();
+}
+
+void QTable::setNumCols( int c )
+{
+    if ( c < 0 )
+	return;
+    QPtrVector<QTableItem> tmp;
+    QPtrVector<TableWidget> tmp2;
+    saveContents( tmp, tmp2 );
+
+    bool isUpdatesEnabled = topHeader->isUpdatesEnabled();
+    topHeader->setUpdatesEnabled( FALSE );
+
+    bool updateBefore;
+    int nc = numCols();
+    updateHeaderAndResizeContents( topHeader, numCols(), c, 100, updateBefore );
+
+    restoreContents( tmp, tmp2, nc );
+
+    finishContentsResze( updateBefore );
+    topHeader->setUpdatesEnabled( isUpdatesEnabled );
+    if ( isUpdatesEnabled )
+	topHeader->update();
     topHeader->updateCache();
 }
 
