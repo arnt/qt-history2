@@ -17,6 +17,8 @@
 #include "qdesigner_toolwindow.h"
 
 class QDesignerWorkbench;
+class AbstractFormWindow;
+class QStackedWidget;
 
 class QDesignerResourceEditor: public QDesignerToolWindow
 {
@@ -26,6 +28,12 @@ public:
     virtual ~QDesignerResourceEditor();
 
     virtual QRect geometryHint() const;
+
+public slots:
+    void updateStack();
+
+private:
+    QStackedWidget *m_stack;
 };
 
 #endif // QDESIGNER_RESOURCEEDITOR_H

@@ -131,7 +131,6 @@ void IconPropertyEditor::showDialog()
         file_path = dialog.filePath();
         qrc_path = dialog.qrcPath();
         if (!file_path.isEmpty()) {
-            qDebug() << "IconPropertyEditor::showDialog():" << file_path << qrc_path;
             setIcon(m_core->iconCache()->nameToIcon(file_path, qrc_path));
         }
     }

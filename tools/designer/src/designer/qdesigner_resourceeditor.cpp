@@ -11,7 +11,10 @@
 **
 ****************************************************************************/
 
-#include <QtGui/QToolBar>
+#include <QtGui/QStackedWidget>
+#include <QtGui/QLabel>
+
+#include <abstractformwindowmanager.h>
 
 #include "qdesigner.h"
 #include "qdesigner_resourceeditor.h"
@@ -25,10 +28,20 @@ QDesignerResourceEditor::QDesignerResourceEditor(QDesignerWorkbench *workbench)
     : QDesignerToolWindow(workbench)
 {
     setObjectName(QLatin1String("ResourceEditor"));
-    ResourceEditor *widget = new ResourceEditor(workbench->core(), this);
+    
+    m_stack = new QStackedWidget(this);
+    QLabel *label = new QLabel(tr("No opened forms"));
+    label->setAlignment(Qt::AlignCenter);
+    m_stack->addWidget(label);
+    m_stack->addWidget(new ResourceEditor(workbench->core()));
+    
+    setCentralWidget(m_stack);
 
-    setCentralWidget(widget);
-
+    connect(workbench->core()->formWindowManager(), SIGNAL(formWindowAdded(AbstractFormWindow*)),
+            this, SLOT(updateStack()));
+    connect(workbench->core()->formWindowManager(), SIGNAL(formWindowRemoved(AbstractFormWindow*)),
+            this, SLOT(updateStack()));
+    
     setWindowTitle(tr("Resource Editor"));
 }
 
@@ -48,3 +61,12 @@ QRect QDesignerResourceEditor::geometryHint() const
 
     return r;
 }
+
+void QDesignerResourceEditor::updateStack()
+{
+    if (workbench()->core()->formWindowManager()->formWindowCount() == 0)
+        m_stack->setCurrentIndex(0);
+    else
+        m_stack->setCurrentIndex(1);
+}
+
