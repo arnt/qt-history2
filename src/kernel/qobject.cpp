@@ -299,7 +299,7 @@ static void remove_tree( QObject* obj )
   http://www.trolltech.com/designer/ for more information about that.
   You can find an object by name (and type) using child(), and more
   than one using queryList().
-  
+
   \sa parent(), name(), child(), queryList()
 */
 
@@ -875,6 +875,7 @@ void QObject::killTimers()
 static void objSearch( QObjectList *result,
 		       QObjectList *list,
 		       const char  *inheritsClass,
+		       bool onlyWidgets,
 		       const char  *objName,
 		       QRegExp	   *rx,
 		       bool	    recurse )
@@ -884,7 +885,9 @@ static void objSearch( QObjectList *result,
     QObject *obj = list->first();
     while ( obj ) {
 	bool ok = TRUE;
-	if ( inheritsClass && !obj->inherits(inheritsClass) )
+	if ( onlyWidgets )
+	    ok = obj->isWidgetType();
+	else if ( inheritsClass && !obj->inherits(inheritsClass) )
 	    ok = FALSE;
 	if ( ok ) {
 	    if ( objName )
@@ -896,7 +899,7 @@ static void objSearch( QObjectList *result,
 	    result->append( obj );
 	if ( recurse && obj->children() )
 	    objSearch( result, (QObjectList *)obj->children(), inheritsClass,
-		       objName, rx, recurse );
+		       onlyWidgets, objName, rx, recurse );
 	obj = list->next();
     }
 }
@@ -996,12 +999,13 @@ QObjectList *QObject::queryList( const char *inheritsClass,
 {
     QObjectList *list = new QObjectList;
     CHECK_PTR( list );
+    bool onlyWidgets = (inheritsClass && qstrcmp( inheritsClass, "QWidget" ) == 0 );
     if ( regexpMatch && objName ) {		// regexp matching
 	QRegExp rx(QString::fromLatin1(objName));
-	objSearch( list, (QObjectList *)children(), inheritsClass,
+	objSearch( list, (QObjectList *)children(), inheritsClass, onlyWidgets,
 		   0, &rx, recursiveSearch );
     } else {
-	objSearch( list, (QObjectList *)children(), inheritsClass,
+	objSearch( list, (QObjectList *)children(), inheritsClass, onlyWidgets,
 		   objName, 0, recursiveSearch );
     }
     return list;
