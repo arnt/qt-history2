@@ -9,7 +9,6 @@ HEADERS += qfont.h \
            qfontdata_p.h \
 	   qfontengine_p.h \
            qpainter.h \
-           qtextdata.h \
            qtextengine.h \
            qtextlayout.h \
            scriptengine.h \
@@ -21,7 +20,6 @@ SOURCES += qfont.cpp \
 	   ../../src/kernel/qfontdatabase.cpp \
 	   qfontengine.cpp \
            qpainter_x11.cpp \
-           qtextdata.cpp \
            qtextengine.cpp \
            qtextlayout.cpp \
 	   scriptengine.cpp \

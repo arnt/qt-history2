@@ -1,6 +1,7 @@
 #include <qstring.h>
 
-#include "qtextdata.h"
+#include <private/qunicodetables_p.h>
+#include <qfont.h>
 
 #define BIDI_DEBUG 0//2
 #if (BIDI_DEBUG >= 1)
@@ -122,7 +123,7 @@ static void appendItems(QScriptItemArray &items, int &start, int &stop, BidiCont
 #if (BIDI_DEBUG >= 1)
     qDebug("new run: dir=%s from %d, to %d level = %d\n", directions[dir], start, stop, level);
 #endif
-    QFont::Script script = QTextData::scriptForChar( text[start].unicode() );
+    QFont::Script script = (QFont::Script)scriptForChar( text[start].unicode() );
     QScriptItem item;
     item.position = start;
     item.analysis.script = script;
@@ -140,7 +141,7 @@ static void appendItems(QScriptItemArray &items, int &start, int &stop, BidiCont
     items.append( item );
     for ( int i = start+1; i <= stop; i++ ) {
 
-	QFont::Script s = QTextData::scriptForChar( text[i].unicode() );
+	QFont::Script s = (QFont::Script)scriptForChar( text[i].unicode() );
 	if ( s != script && !isSpace( text[i] ) && !isMark( text[i] ) ) {
 	    QScriptItem item;
 	    item.position = i;

@@ -62,7 +62,7 @@
 # include "qsettings.h"
 #endif // QT_NO_XFTFREETYPE
 
-#include "qtextdata.h"
+#include <private/qunicodetables_p.h>
 #include "qt_x11.h"
 
 #include <time.h>
@@ -820,7 +820,7 @@ void QFont::initialize()
 	QFontPrivate *priv = new QFontPrivate;
 
 	for (uint i = 0; i < sample.length(); i++) {
-	    SCRIPT_FOR_CHAR( tmp, *uc, priv );
+	    SCRIPT_FOR_CHAR( tmp, *uc );
 	    uc++;
 	    if (tmp != cs && tmp != QFont::UnknownScript) {
 		cs = tmp;

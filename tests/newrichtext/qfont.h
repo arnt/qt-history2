@@ -173,6 +173,9 @@ public:
 #endif
 
 
+    // a copy of this lives in qunicodetables.cpp, as we can't include
+    // qfont.h it in tools/. Do not modify without changing the script
+    // enum in qunicodetable_p.h aswell.
     enum Script {
 	// European Alphabetic Scripts
 	Latin,

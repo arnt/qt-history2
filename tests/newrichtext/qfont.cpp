@@ -48,7 +48,7 @@
 #include "qcleanuphandler.h"
 #include "qstringlist.h"
 
-#include "qtextdata.h"
+#include <private/qunicodetables_p.h>
 #include "qtextengine.h"
 
 // #define QFONTCACHE_DEBUG
