@@ -26,9 +26,9 @@
 */
 
 #if defined(Q_OS_TEMP)
-extern void __cdecl qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QVector<pchar> &);
+extern void __cdecl qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QVector<char *> &);
 #else
-extern void qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QVector<pchar> &);
+extern void qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QVector<char *> &);
 #endif
 
 #if defined(QT_NEEDS_QMAIN)
@@ -68,7 +68,7 @@ int APIENTRY WinMain(HINSTANCE instance, HINSTANCE prevInstance,
         cmdp = (char*) malloc((qstrlen(cmdParam) + 1) * sizeof(char));
         qstrcpy(cmdp, cmdParam);
     }
-    QVector<pchar> argv(8);
+    QVector<char *> argv(8);
     qWinMain(instance, prevInstance, cmdp, cmdShow, argc, argv);
 
 #ifdef Q_OS_TEMP

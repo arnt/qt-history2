@@ -114,11 +114,11 @@ static void msgHandler(QtMsgType t, const char* str)
 
 #if defined(Q_OS_TEMP)
 Q_CORE_EXPORT void __cdecl qWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
-               int cmdShow, int &argc, QVector<pchar> &argv)
+               int cmdShow, int &argc, QVector<char *> &argv)
 #else
 Q_CORE_EXPORT
 void qWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
-               int cmdShow, int &argc, QVector<pchar> &argv)
+               int cmdShow, int &argc, QVector<char *> &argv)
 #endif
 {
     static bool already_called = false;
