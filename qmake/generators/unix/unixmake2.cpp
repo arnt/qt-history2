@@ -422,7 +422,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 		t << "\n\t" << "test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
 	    if(!project->isEmpty("QMAKE_PRE_LINK"))
 		t << var("QMAKE_PRE_LINK") << "\n\t";
-	    t << "$(LINK) $(LFLAGS) -o $(TARGET) " << incr_deps << " " << incr_objs << " $(LIBS) $(OBJCOMP)";
+	    t << "$(LINK) $(LFLAGS) -o $(TARGET) " << incr_deps << " " << incr_objs << " $(OBJCOMP) $(LIBS)";
 	    if(!project->isEmpty("QMAKE_POST_LINK"))
 		t << "\n\t" << var("QMAKE_POST_LINK");
 	    t << endl << endl;
@@ -436,7 +436,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 		t << "test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
 	    if(!project->isEmpty("QMAKE_PRE_LINK"))
 		t << var("QMAKE_PRE_LINK") << "\n\t";
-	    t << "$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS) $(OBJCOMP)";
+	    t << "$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(OBJCOMP) $(LIBS)";
 	    if(!project->isEmpty("QMAKE_POST_LINK"))
 		t << "\n\t" << var("QMAKE_POST_LINK");
 	    t << endl << endl;
