@@ -5,7 +5,7 @@ QCONFIG         =
 DEFINES += QT_BUILD_CORE_LIB 
 
 include(../qbase.pri)
-include($$QT_SOURCE_TREE/arch/$$ARCH/arch.pri)
+include(arch/$$ARCH/arch.pri)
 include(base/base.pri)
 include(thread/thread.pri)
 include(tools/tools.pri)
