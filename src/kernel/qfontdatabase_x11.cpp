@@ -1517,8 +1517,10 @@ unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStr
 
 #ifdef Q_WS_X11
 	QtFontEncoding *encoding = size->encodingID( -1 ); // -1 == prefer Xft
-	if ( ! encoding ) {
+	if ( ! encoding || ( styleStrategy & QFont::OpenGLCompatible ) ) {
+	    // Xft not available, or we want an XLFD font
 	    for ( int x = 0; ! encoding && x < size->count; ++x ) {
+		if ( size->encodings[x].encoding == -1 ) continue; // skip Xft
 		if ( scripts_for_xlfd_encoding[size->encodings[x].encoding][script] ) {
 		    encoding = &size->encodings[x];
 		    break;
@@ -1526,7 +1528,8 @@ unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStr
 	    }
 	}
 
-	if ( ! encoding ) {
+	if ( ! encoding || ( encoding->encoding == -1 &&
+			     ( styleStrategy & QFont::OpenGLCompatible ) ) ) {
 #  ifdef FONT_MATCH_DEBUG
 	    qDebug( "          foundry doesn't support the script we want" );
 #  endif // FONT_MATCH_DEBUG

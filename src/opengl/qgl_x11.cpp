@@ -456,10 +456,10 @@ void *QGLContext::tryVisual( const QGLFormat& f, int bufDepth )
 	if ( useTranspExt ) {
 	    QCString cstr( glXGetClientString( d->paintDevice->x11Display(),
 					       GLX_VENDOR ) );
-	    useTranspExt = !cstr.contains( "Xi Graphics" ); // bug workaround	
+	    useTranspExt = !cstr.contains( "Xi Graphics" ); // bug workaround
 	    if ( useTranspExt ) {
 		// bug workaround - some systems (eg. FireGL) refuses to return an overlay
-		// visual if the GLX_TRANSPARENT_TYPE_EXT attribute is specfied, even if 
+		// visual if the GLX_TRANSPARENT_TYPE_EXT attribute is specfied, even if
 		// the implementation supports transparent overlays
 		int tmpSpec[] = { GLX_LEVEL, f.plane(), GLX_TRANSPARENT_TYPE_EXT,
 				  GLX_TRANSPARENT_INDEX_EXT, None };
@@ -470,7 +470,7 @@ void *QGLContext::tryVisual( const QGLFormat& f, int bufDepth )
 		}
 	    }
 	}
-	
+
 	useTranspExtChecked = TRUE;
     }
     if ( f.plane() && useTranspExt ) {
@@ -645,7 +645,7 @@ uint QGLContext::colorIndex( const QColor& c ) const
 void QGLContext::generateFontDisplayLists( const QFont & fnt, int listBase )
 {
     QFont f = fnt;
-    f.setStyleStrategy( QFont::PreferBitmap );
+    f.setStyleStrategy( QFont::OpenGLCompatible );
     glXUseXFont( (Font) f.handle(), 0, 256, listBase );
 }
 
