@@ -4158,9 +4158,9 @@ bool QWidget::event( QEvent *e )
 	    break;
 
 	case QEvent::FocusIn:
+	    resetInputContext();
 	    focusInEvent( (QFocusEvent*)e );
 	    setFontSys();
-	    resetInputContext();
 	    break;
 
 	case QEvent::FocusOut:

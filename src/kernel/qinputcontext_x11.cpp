@@ -18,40 +18,61 @@ extern "C" {
 
     static int xic_start_callback(XIC, XPointer client_data, XPointer) {
 	QInputContext *qic = (QInputContext *) client_data;
-	if (! qic)
+	if (! qic) {
+	    // qDebug("compose start: no qic");
 	    return 0;
+	}
 
-	QWidget *widget = qApp->focusWidget();
-	if (! widget)
+	qic->focusWidget = qApp->focusWidget();
+	if (! qic->focusWidget) {
+	    // qDebug("compose start: no focus widget");
 	    return 0;
+	}
 
 	qic->composing = TRUE;
 	qic->lastcompose = qic->text = QString::null;
 
+	// qDebug("compose start: %p", qic->focusWidget);
+
 	QIMEvent event(QEvent::IMStart, qic->text, -1);
-	QApplication::sendEvent(widget, &event);
+	QApplication::sendEvent(qic->focusWidget, &event);
 	return 0;
     }
 
 
     static int xic_draw_callback(XIC, XPointer client_data, XPointer call_data) {
 	QInputContext *qic = (QInputContext *) client_data;
-	if (! qic)
+	if (! qic) {
+	    // qDebug("compose event: invalid compose event %p", qic);
 	    return 0;
+	}
 
-	QWidget *widget = qApp->focusWidget();
-	if (! widget)
+	if (qApp->focusWidget() != qic->focusWidget) {
+	    if (qic->focusWidget) {
+		QIMEvent endevent(QEvent::IMEnd, qic->lastcompose, -1);
+		QApplication::sendEvent(qic->focusWidget, &endevent);
+	    }
+
+	    qic->text = qic->lastcompose = QString::null;
+	    qic->focusWidget = qApp->focusWidget();
+
+	    if (qic->focusWidget) {
+		qic->composing = TRUE;
+		QIMEvent startevent(QEvent::IMStart, qic->text, -1);
+		QApplication::sendEvent(qic->focusWidget, &startevent);
+	    }
+	}
+
+	if (! qic->composing || ! qic->focusWidget) {
+	    // qDebug("compose event: invalid compose event %d %p",
+	    // qic->composing, qic->focusWidget);
+
 	    return 0;
+	}
 
 	XIMPreeditDrawCallbackStruct *drawstruct =
 	    (XIMPreeditDrawCallbackStruct *) call_data;
 	XIMText *text = (XIMText *) drawstruct->text;
-
-	// qDebug("xic_draw_callback: f %d l %d c %d t %p",
-	// drawstruct->chg_first,
-	// drawstruct->chg_length,
-	// drawstruct->caret,
-	// drawstruct->text);
 
 	if (text) {
 	    char *str = 0;
@@ -83,26 +104,24 @@ extern "C" {
 	    qic->text.remove(drawstruct->chg_first, drawstruct->chg_length);
 
 	QIMEvent event(QEvent::IMCompose, qic->text, drawstruct->caret);
-	QApplication::sendEvent(widget, &event);
+	QApplication::sendEvent(qic->focusWidget, &event);
 	return 0;
     }
 
 
     static int xic_done_callback(XIC, XPointer client_data, XPointer) {
 	QInputContext *qic = (QInputContext *) client_data;
-	if (! qic)
+	if (! qic || ! qic->composing || ! qic->focusWidget)
 	    return 0;
 
-	QWidget *widget = qApp->focusWidget();
-	if (! widget)
-	    return 0;
-
-	qic->composing = FALSE;
+	// qDebug("compose done");
 
 	QIMEvent event(QEvent::IMEnd, qic->lastcompose, -1);
-	QApplication::sendEvent(widget, &event);
+	QApplication::sendEvent(qic->focusWidget, &event);
 
-	qic->lastcompose = QString::null;
+ 	qic->lastcompose = QString::null;
+	qic->composing = FALSE;
+	qic->focusWidget = 0;
 
 	return 0;
     }
@@ -110,11 +129,7 @@ extern "C" {
 
     static int xic_caret_callback(XIC, XPointer client_data, XPointer call_data) {
 	QInputContext *qic = (QInputContext *) client_data;
-	if (! qic)
-	    return 0;
-
-	QWidget *widget = qApp->focusWidget();
-	if (! widget)
+	if (! qic || ! qic->composing || ! qic->focusWidget)
 	    return 0;
 
 	XIMPreeditCaretCallbackStruct *caretstruct =
@@ -123,9 +138,11 @@ extern "C" {
 	if (! caretstruct)
 	    return 0;
 
+	// qDebug("compose position: %d", caretstruct->position);
+
 	// this is probably wrong
 	QIMEvent event(QEvent::IMCompose, qic->text, caretstruct->position);
-	QApplication::sendEvent(widget, &event);
+	QApplication::sendEvent(qic->focusWidget, &event);
 	return 0;
     }
 
@@ -138,9 +155,8 @@ extern "C" {
 
 
 QInputContext::QInputContext(QWidget *widget)
+    : ic(0), focusWidget(0), composing(FALSE)
 {
-    ic = 0;
-
 #if !defined(NO_XIM)
     if (! qt_xim) {
 	qWarning("QInputContext: no input method context available");
@@ -202,7 +218,7 @@ QInputContext::QInputContext(QWidget *widget)
 		       XNInputStyle, qt_xim_style,
 		       XNClientWindow, widget->winId(),
 		       0);
-#endif // Q_WS_X11 && !NO_XIM
+#endif // !NO_XIM
 }
 
 
@@ -211,33 +227,28 @@ QInputContext::~QInputContext()
 #if !defined(NO_XIM)
     if (ic)
 	XDestroyIC((XIC) ic);
-#endif // Q_WS_X11 && !NO_XIM
+#endif // !NO_XIM
     ic = 0;
+    focusWidget = 0;
+    composing = FALSE;
 }
 
 
 void QInputContext::reset()
 {
 #if !defined(NO_XIM)
-    if (composing)
-	return;
+    if (focusWidget && composing) {
+	// qDebug("QInputContext::reset: composing - sending IMEnd");
 
-    text.truncate(0);
+	QIMEvent event(QEvent::IMEnd, lastcompose, -1);
+	QApplication::sendEvent(focusWidget, &event);
 
-    XIMPreeditState state = XIMPreeditUnKnown;
-    XVaNestedList attr = XVaCreateNestedList(0, XNPreeditState, &state, NULL);
-    bool st = FALSE;
-    if (! XGetICValues((XIC) ic, XNPreeditAttributes, attr, NULL))
-	st = TRUE;
-    XFree(attr);
+	focusWidget = 0;
+	composing = FALSE;
+    }
 
     (void) XmbResetIC((XIC) ic);
-
-    attr = XVaCreateNestedList(0, XNPreeditState, st, 0);
-    if (st)
-	XSetICValues((XIC) ic, XNPreeditAttributes, attr, NULL);
-    XFree(attr);
-#endif // Q_WS_X11 && !NO_XIM
+#endif // !NO_XIM
 }
 
 
@@ -286,7 +297,7 @@ int QInputContext::lookupString(XKeyEvent *event, QCString &chars,
 				chars.size(), key, status);
 
 	if ((*status) == XBufferOverflow ) {
-	    chars.resize(count+1);
+	    chars.resize(count + 1);
 	    count = XmbLookupString((XIC) ic, event, chars.data(),
 				    chars.size(), key, status);
 	}

@@ -5,6 +5,7 @@
 #include "qt_x11.h"
 
 class QKeyEvent;
+class QWidget;
 
 
 class QInputContext
@@ -24,6 +25,7 @@ public:
 
     void *ic;
     QString text, lastcompose;
+    QWidget *focusWidget;
     bool composing;
 };
 
