@@ -508,7 +508,8 @@ void QComboBoxPrivate::returnPressed()
     if (lineEdit && !lineEdit->text().isEmpty()) {
         QString text = lineEdit->text();
         // check for duplicates (if not enabled) and quit
-        if (!d->duplicatesEnabled && q->contains(text))
+        if (!d->duplicatesEnabled && q->findItem(text, QAbstractItemModel::Match_Exactly |
+                                                 QAbstractItemModel::Match_Case) != -1)
             return;
         int row = -1;
         switch (insertionPolicy) {
@@ -683,13 +684,16 @@ void QComboBox::setDuplicatesEnabled(bool enable)
 
 /*!
   Returns true if any item in the combobox matches the given \a text.
+
+  This is a convenience function. It performs the same as calling
+  findItem(text, Match_Exactly | Match_Case) != -1.
+
+  \sa findItem()
 */
 bool QComboBox::contains(const QString &text) const
 {
-    return model()->match(model()->index(0, 0, root()),
-                          QAbstractItemModel::Role_Edit, text, 1,
-                          QAbstractItemModel::Match_Exactly
-                          |QAbstractItemModel::Match_Case).count() > 0;
+    return findItem(text, QAbstractItemModel::Match_Exactly
+                    |QAbstractItemModel::Match_Case) != -1;
 }
 
 /*!
@@ -698,7 +702,7 @@ bool QComboBox::contains(const QString &text) const
 
   The \a flags specify how the items in the combobox are searched.
 */
-int QComboBox::findItem(const QString &text, QAbstractItemModel::MatchFlag flags) const
+int QComboBox::findItem(const QString &text, QAbstractItemModel::MatchFlags flags) const
 {
     QModelIndexList result;
     QModelIndex start = model()->index(0, 0, root());
@@ -843,14 +847,6 @@ QAbstractItemDelegate *QComboBox::itemDelegate() const
 void QComboBox::setItemDelegate(QAbstractItemDelegate *delegate)
 {
     Q_ASSERT(delegate);
-//     if (delegate->model() != model()) {
-//          qWarning("QComboBox::setItemDelegate() failed: Trying to set a delegate, "
-//                   "which works on a different model than the view.");
-//          return;
-//     }
-
-    if (d->delegate && d->delegate->parent() == this)
-        delete d->delegate;
 
     d->delegate = delegate;
     listView()->setItemDelegate(d->delegate);
