@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#19 $
 **
 ** Implementation of QPrinter class
 **
@@ -12,7 +12,7 @@
 
 #include "qprinter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#18 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#19 $")
 
 
 /*----------------------------------------------------------------------------
@@ -59,27 +59,27 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#18 $")
   Example (a complete application):
 
   \code
-  #include <qapp.h>
-  #include <qpainter.h>
-  #include <qprinter.h>
+    #include <qapp.h>
+    #include <qpainter.h>
+    #include <qprinter.h>
 
-  int main( int argc, char **argv )
-  {
-      QApplication a( argc, argv );
+    int main( int argc, char **argv )
+    {
+	QApplication a( argc, argv );
 
-      QPrinter prt;
-      if ( prt.setup(0) ) {
-	  QPainter p;
-	  p.begin( &prt );
-	  p.rotate( 55 );
-	  p.setFont( QFont("times", 144, QFont::Bold) );
-	  p.drawText( 80,30, "Hello, world!" );
-	  p.end();
-      }
-      return 0;
-  }
+	QPrinter prt;
+	if ( prt.setup(0) ) {
+	    QPainter p;
+	    p.begin( &prt );
+	    p.rotate( 55 );
+	    p.setFont( QFont("times", 144, QFont::Bold) );
+	    p.drawText( 80,30, "Hello, world!" );
+	    p.end();
+	}
+        return 0;
+    }
   \endcode
-  ----------------------------------------------------------------------------*/
+ ----------------------------------------------------------------------------*/
 
 
 /*----------------------------------------------------------------------------
