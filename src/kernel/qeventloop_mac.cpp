@@ -820,7 +820,13 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
 	}
 	if(!(flags & ExcludeSocketNotifiers)) {
 	    emit aboutToBlock();
+#if defined(QT_THREAD_SUPPORT)
+	    locker.mutex()->unlock();
+#endif
 	    nevents += macHandleSelect(tm);
+#if defined(QT_THREAD_SUPPORT)
+	    locker.mutex()->lock();
+#endif
 	}
 
 	// we are awake, broadcast it
@@ -830,7 +836,13 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
 	nevents += qt_activate_timers();
     } else if(canWait && !zero_timer_count) {
 	emit aboutToBlock();
+#if defined(QT_THREAD_SUPPORT)
+	locker.mutex()->unlock();
+#endif
 	RunApplicationEventLoop();
+#if defined(QT_THREAD_SUPPORT)
+	locker.mutex()->lock();
+#endif
 
 	// we are awake, broadcast it
 	emit awake();
