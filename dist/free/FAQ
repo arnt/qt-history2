@@ -1,4 +1,4 @@
-		       Frequently Asked Questions
+                       Frequently Asked Questions
 
 
 1:  Will Qt continue to be free?
@@ -6,15 +6,13 @@
     A: We will continue to release free versions for the X Window System,
        and they will be free for non-commercial purposes.
 
-       Send a mail to sales@troll.no for more information.
-
 2:  What kind of licenses exist for Qt?
 
     A: The Qt toolkit is available under several licenses; the free license
        for X, a license for shareware developers for X and a fully-fledged
        professional license.
 
-3:  What are the differences between the free and commercial versions of Qt?
+3:  What are the differences between the professional and free versions of Qt?
 
     A: You can write commercial software using the professional license.
        The library itself is the same. You also get 1 year of free support
@@ -91,7 +89,7 @@
 14: I want to port Qt to a new platform.  What do I do?
 
     A: If the new platform is POSIX-like and runs the X Window System, it's
-       simple.	Read the file PORTING for details. If you succeed you can
+       simple.  Read the file PORTING for details. If you succeed you can
        send us the patches.  When we've added your patches to our source
        tree, Qt will officially support the new platform.
 
@@ -115,7 +113,7 @@
 
 18: I need to modify Qt
 
-    A: Are you sure?  Inheritance is very often a  better alternative.	If
+    A: Are you sure?  Inheritance is very often a  better alternative.  If
        you do change Qt, you may not distribute the modified toolkit or
        programs using it.
 
@@ -125,13 +123,13 @@
 
 19: How can I distribute my cool widget library?
 
-    A: In several ways.	 Pick and choose.
+    A: In several ways.  Pick and choose.
 
        If the library is small, a widget or two, perhaps the best way is
        to submit it as a contribution to Qt.
 
        If it's larger, you can distribute it, and you can include Qt along
-       with it.	 But you _cannot_ include Qt _as_part_of_ your library
+       with it.  But you _cannot_ include Qt _as_part_of_ your library
        (e.g. by making a shared library which includes Qt and your
        library).
 
@@ -160,5 +158,3 @@
 
     A: We are working on it now. There will be further announcements on
        qt-interest.
-
-
