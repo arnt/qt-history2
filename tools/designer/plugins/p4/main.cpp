@@ -340,11 +340,11 @@ void P4Interface::connectTo( QUnknownInterface *ai )
 	if ( !( flIface = (DesignerFormListInterface*)ai->queryInterface( IID_DesignerFormListInterface ) ) )
 	    return;
 
-	flIface->connect( SIGNAL( selectionChanged() ), this, SLOT( formChanged() ) );
-	flIface->release();
-
 	appInterface = ai;
 	appInterface->addRef();
+
+	flIface->connect( SIGNAL( selectionChanged() ), this, SLOT( formChanged() ) );
+	flIface->release();
 
 	P4Init* init = new P4Init;
 	init->execute();
@@ -438,11 +438,11 @@ void P4Interface::p4Sync()
 {
     if ( !appInterface )
 	return;
-    DesignerFormWindowInterface *fwIface = 0;
-    if ( !( fwIface = (DesignerFormWindowInterface*)appInterface->queryInterface( IID_DesignerActiveFormWindowInterface ) ) )
+    DesignerFormInterface *fwIface = 0;
+    if ( !( fwIface = (DesignerFormInterface*)appInterface->queryInterface( IID_DesignerFormInterface ) ) )
 	return;
 
-    P4Sync *sync = new P4Sync( fwIface->fileName() );
+    P4Sync *sync = new P4Sync( fwIface->property( "fileName" ).toString() );
     fwIface->release();
 
     connect( sync, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
@@ -454,10 +454,10 @@ void P4Interface::p4Edit()
 {
     if ( !appInterface )
 	return;
-    DesignerFormWindowInterface *fwIface = 0;
-    if ( !( fwIface = (DesignerFormWindowInterface*)appInterface->queryInterface( IID_DesignerActiveFormWindowInterface ) ) )
+    DesignerFormInterface *fwIface = 0;
+    if ( !( fwIface = (DesignerFormInterface*)appInterface->queryInterface( IID_DesignerFormInterface ) ) )
 	return;
-    P4Edit *edit = new P4Edit( fwIface->fileName(), TRUE );
+    P4Edit *edit = new P4Edit( fwIface->property( "fileName" ).toString(), TRUE );
     fwIface->release();
 
     connect( edit, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
@@ -469,11 +469,11 @@ void P4Interface::p4Submit()
 {
     if ( !appInterface )
 	return;
-    DesignerFormWindowInterface *fwIface = 0;
-    if ( !( fwIface = (DesignerFormWindowInterface*)appInterface->queryInterface( IID_DesignerActiveFormWindowInterface ) ) )
+    DesignerFormInterface *fwIface = 0;
+    if ( !( fwIface = (DesignerFormInterface*)appInterface->queryInterface( IID_DesignerFormInterface ) ) )
 	return;
 
-    P4Submit *submit = new P4Submit( fwIface->fileName() );
+    P4Submit *submit = new P4Submit( fwIface->property( "fileName" ).toString() );
     fwIface->release();
 
     connect( submit, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
@@ -485,11 +485,11 @@ void P4Interface::p4Revert()
 {
     if ( !appInterface )
 	return;
-    DesignerFormWindowInterface *fwIface = 0;
-    if ( !( fwIface = (DesignerFormWindowInterface*)appInterface->queryInterface( IID_DesignerActiveFormWindowInterface ) ) )
+    DesignerFormInterface *fwIface = 0;
+    if ( !( fwIface = (DesignerFormInterface*)appInterface->queryInterface( IID_DesignerFormInterface ) ) )
 	return;
 
-    P4Revert *revert = new P4Revert( fwIface->fileName() );
+    P4Revert *revert = new P4Revert( fwIface->property( "fileName" ).toString() );
     fwIface->release();
 
     connect( revert, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
@@ -501,11 +501,11 @@ void P4Interface::p4Add()
 {
     if ( !appInterface )
 	return;
-    DesignerFormWindowInterface *fwIface = 0;
-    if ( !( fwIface = (DesignerFormWindowInterface*)appInterface->queryInterface( IID_DesignerActiveFormWindowInterface ) ) )
+    DesignerFormInterface *fwIface = 0;
+    if ( !( fwIface = (DesignerFormInterface*)appInterface->queryInterface( IID_DesignerFormInterface ) ) )
 	return;
 
-    P4Add *add = new P4Add( fwIface->fileName() );
+    P4Add *add = new P4Add( fwIface->property( "fileName" ).toString() );
     fwIface->release();
 
     connect( add, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
@@ -517,11 +517,11 @@ void P4Interface::p4Delete()
 {
     if ( !appInterface )
 	return;
-    DesignerFormWindowInterface *fwIface = 0;
-    if ( !( fwIface = (DesignerFormWindowInterface*)appInterface->queryInterface( IID_DesignerActiveFormWindowInterface ) ) )
+    DesignerFormInterface *fwIface = 0;
+    if ( !( fwIface = (DesignerFormInterface*)appInterface->queryInterface( IID_DesignerFormInterface ) ) )
 	return;
 
-    P4Delete *del = new P4Delete( fwIface->fileName() );
+    P4Delete *del = new P4Delete( fwIface->property( "fileName" ).toString() );
     fwIface->release();
 
     connect( del, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
@@ -533,11 +533,11 @@ void P4Interface::p4Diff()
 {
     if ( !appInterface )
 	return;
-    DesignerFormWindowInterface *fwIface = 0;
-    if ( !( fwIface = (DesignerFormWindowInterface*)appInterface->queryInterface( IID_DesignerActiveFormWindowInterface ) ) )
+    DesignerFormInterface *fwIface = 0;
+    if ( !( fwIface = (DesignerFormInterface*)appInterface->queryInterface( IID_DesignerFormInterface ) ) )
 	return;
 
-    P4Diff *diff = new P4Diff( fwIface->fileName() );
+    P4Diff *diff = new P4Diff( fwIface->property( "fileName" ).toString() );
     fwIface->release();
 
     connect( diff, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
@@ -550,12 +550,12 @@ void P4Interface::p4Refresh()
     P4Info::files.clear();
 
     DesignerFormListInterface *flIface = 0;
-    if ( !( flIface = (DesignerFormListInterface*)appInterface->queryInterface( IID_DesignerFormListInterface ) ) ) 
+    if ( !( flIface = (DesignerFormListInterface*)appInterface->queryInterface( IID_DesignerFormInterface ) ) ) 
 	return;
 
-    DesignerFormWindowInterface *fw = flIface->current();
+    DesignerFormInterface *fw = flIface->current();
     while ( fw ) {
-	QString filename = fw->fileName();
+	QString filename = fw->property( "fileName" ).toString();
 	qDebug( "fstat for %s", filename.latin1() );
 	if ( !!filename ) {
 	    P4FStat* fs = new P4FStat( filename );
@@ -584,12 +584,12 @@ void P4Interface::p4MightEdit( bool b, const QString &filename )
 
 void P4Interface::formChanged()
 {
-    DesignerFormWindowInterface *fwIface = 0;
+    DesignerFormInterface *fwIface = 0;
 
-    if ( !( fwIface = (DesignerFormWindowInterface*)appInterface->queryInterface( IID_DesignerActiveFormWindowInterface ) ) )
+    if ( !( fwIface = (DesignerFormInterface*)appInterface->queryInterface( IID_DesignerFormInterface ) ) )
 	return;
 
-    QString filename = fwIface->fileName();
+    QString filename = fwIface->property( "fileName" ).toString();
 
     qDebug( "P4: formChanged to %s", filename.latin1() );
 
@@ -630,21 +630,20 @@ void P4Interface::p4Info( const QString& filename, P4Info* p4i )
     if ( !( flIface = (DesignerFormListInterface*)appInterface->queryInterface( IID_DesignerFormListInterface ) ) )
 	return;
 
-    DesignerFormWindowInterface *fwIface = flIface->current();
+    DesignerFormInterface *fwIface = flIface->current();
     while ( fwIface ) {
-	if ( fwIface->fileName() == filename )
+	if ( fwIface->property( "fileName" ).toString() == filename )
 	    break;
 
-	delete fwIface;
+	fwIface->release();
 	fwIface = flIface->next();
     }
-    flIface->release();
 
     if ( !fwIface )
 	return;
 
     if ( p4i->controlled ) {
-	QPixmap pix = fwIface->icon();
+	QPixmap pix = fwIface->property( "icon" ).toPixmap();
 	if ( pix.isNull() ) {
 	    pix = QPixmap( 22,22,32 );
 	    pix.fill( Qt::color0 );
@@ -693,7 +692,7 @@ void P4Interface::p4Info( const QString& filename, P4Info* p4i )
 	}
 	flIface->setPixmap( fwIface, 0, pix );
     } else {
-	QPixmap pix = fwIface->icon();
+	QPixmap pix = fwIface->property( "icon" ).toPixmap();
 	actionAdd->setEnabled( TRUE );
 	actionDelete->setEnabled( FALSE );
 	actionSubmit->setEnabled( FALSE );
@@ -702,7 +701,8 @@ void P4Interface::p4Info( const QString& filename, P4Info* p4i )
 	actionEdit->setEnabled( FALSE );
 	flIface->setPixmap( fwIface, 0, pix );
     }
-    delete fwIface;
+    fwIface->release();
+    flIface->release();
 }
 
 void P4Interface::statusMessage( const QString &text )
