@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#155 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#156 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#155 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#156 $");
 
 
 /*!
@@ -1647,6 +1647,14 @@ QImage QImage::convertBitOrder( Endian bitOrder ) const
 QImage QImage::createAlphaMask( bool yes ) const
 {
     return createAlphaMask( (int)yes );
+}
+#else
+/*!
+  OBSOLETE - Provided for backward compatibility on some compilers.
+*/
+QImage QImage::createAlphaMask() const
+{
+    return createAlphaMask( TRUE );
 }
 #endif
 
