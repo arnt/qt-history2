@@ -1640,7 +1640,7 @@ void QListViewPrivate::Root::setup()
   order by any column, and so on.
 
   The simplest mode of usage is to create a QListView, add some column
-  headers using setColumn(), create one or more QListViewItem objects
+  headers using addColumn(), create one or more QListViewItem objects
   with the QListView as parent, set up the list view's geometry(), and
   show() it.
 
