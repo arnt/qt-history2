@@ -199,7 +199,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	id = window;
 	setWinId( window );
 	SetWindowLongA( window, GWL_STYLE, style );
-	SetWindowLongA( window, GWL_WNDPROC, (LONG)QtWndProc );
+	SetWindowLongA( window, GWLP_WNDPROC, (LONG)QtWndProc );
     } else if ( desktop ) {			// desktop widget
 	id = GetDesktopWindow();
 	QWidget *otherDesktop = find( id );	// is there another desktop?
