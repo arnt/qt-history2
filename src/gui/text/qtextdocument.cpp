@@ -257,12 +257,26 @@ QTextCursor QTextDocument::find(const QString &expr, QString::CaseSensitivity cs
 
         const int index = fragText.indexOf(expr, offsetInsideFragment, cs);
 
-        // ### not imlpemented, yet
-        Q_ASSERT(mode == FindAnything);
-
         if (index >= 0) {
             QTextCursor cursor(d->pieceTable, fragIt.position() + index);
-            cursor.moveTo(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, expr.length());
+
+            // ### testme
+            if (mode == FindWords) {
+                const int findPos = cursor.position();
+                cursor.moveTo(QTextCursor::NextWord);
+                cursor.moveTo(QTextCursor::PreviousWord);
+                // ### test end of word, too - needs something like EndOfWord in API
+                if (cursor.position() != findPos) {
+                    pos = findPos + 1;
+                    continue;
+                }
+
+                // ### EndOfWord
+                cursor.moveTo(QTextCursor::NextWord, QTextCursor::KeepAnchor);
+            } else {
+                cursor.moveTo(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, expr.length());
+            }
+
             return cursor;
         }
 
