@@ -9,6 +9,8 @@
 #include <qpixmap.h>
 #include <qimage.h>
 
+static int errorcount = 0;
+
 #define PROP(prop) return m_##prop;
 #define SET_PROP(prop) m_##prop = prop;
 
@@ -25,6 +27,7 @@
 	    reallyWrong = img1 != img2; \
 	} \
 	if ( reallyWrong ) { \
+	    errorcount++; \
 	    qDebug( "\t\tfailed in line %d!", __LINE__ ); \
 	    if ( valvar.canCast( QVariant::String ) ) { \
 		qDebug( "\t\t\tobject value: %s\n\t\t\texpvar: %s", \
@@ -109,7 +112,7 @@ public:
 	m_font = QFont( "Times New Roman", 12, 75, TRUE );
 	m_pixmap = QPixmap( 100, 100 );
 	m_pixmap.fill( red );
-	m_list << QString("Foo") << 13 << 2.5;
+	m_list << 1.5 << 2.6 << 3.7 << 4.8;
 	m_beta = AlphaC;
 
 /*
@@ -324,7 +327,7 @@ public:
 	emit betaPointerSlot( m_beta );
 	VERIFY_EQUAL( object->property( "beta" ), m_beta );
 */
-	return 0;
+	return errorcount;
     }
 
     QString unicode() const { PROP(unicode) }
