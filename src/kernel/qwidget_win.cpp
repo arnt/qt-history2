@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#191 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#192 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -388,7 +388,12 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 
 void QWidget::setFontSys()
 {
-    // SendIMEMessageEx( IME_SETCONVERSIONFONTEX ); ...
+    LOGFONT lf;
+    if ( GetObject( font().handle(), sizeof(lf), &lf ) ) {
+	HIMC imc = ImmGetContext( winId() ); // Can we store it?
+	ImmSetCompositionFont( imc, &lf );
+	ImmReleaseContext( winId(), imc );
+    }
 }
 
 void QWidget::setMicroFocusHint(int x, int y, int width, int height)
@@ -397,12 +402,21 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height)
     // caret are the location is moved.
     CreateCaret( winId(), 0, width, height );
     SetCaretPos( x, y );
-    // SendIMEMessageEx( IME_SETCONVERSIONWINDOW ); ...
+
+    COMPOSITIONFORM cf;
+    cf.dwStyle = CFS_FORCE_POSITION; // ### need X-like inputStyle config settings
+    cf.ptCurrentPos.x = x+width/2;
+    cf.ptCurrentPos.y = y+height;
+    HIMC imc = ImmGetContext( winId() ); // Can we store it?
+    ImmSetCompositionWindow( imc, &cf );
+    ImmReleaseContext( winId(), imc );
 }
 
+#if 0
 void QWidget::setSizeGrip(bool /* sizegrip */)
 {
 }
+#endif
 
 
 void QWidget::setBackgroundColorDirect( const QColor &color )
