@@ -845,8 +845,12 @@ void QAction::showStatusText( const QString& text )
 	par = par->parent();
     if ( !par || !par->isWidgetType() )
 	return;
-    QObjectList* l = ( (QWidget*)par )->topLevelWidget()->queryList("QStatusBar");
-    for ( QStatusBar* bar = (QStatusBar*) l->first(); bar; bar = (QStatusBar*)l->next() ) {
+    QObjectList *l = ( (QWidget*)par )->topLevelWidget()->queryList( "QStatusBar" );
+    if ( !l )
+	return;
+    // #### hopefully the last one is the one of the mainwindow...
+    QStatusBar *bar = (QStatusBar*)l->last();
+    if ( bar ) {
 	if ( text.isEmpty() )
 	    bar->clear();
 	else
