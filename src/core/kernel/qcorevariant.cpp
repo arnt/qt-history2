@@ -90,7 +90,7 @@ template<> QUrl QVariant_to<QUrl>(const QCoreVariant &v)
 // takes a type, returns the internal void* pointer casted
 // to a pointer of the input type
 template <typename T>
-inline static const T *v_cast(const QCoreVariant::Private *d, T * = 0)
+inline static const T *v_cast(const QCoreVariant::Private *d)
 {
     if (sizeof(T) > sizeof(QCoreVariant::Private::Data))
         // this is really a static_cast, but gcc 2.95 complains about it.
@@ -99,7 +99,7 @@ inline static const T *v_cast(const QCoreVariant::Private *d, T * = 0)
 }
 
 template <typename T>
-inline static T *v_cast(QCoreVariant::Private *d, T * = 0)
+inline static T *v_cast(QCoreVariant::Private *d)
 {
     if (sizeof(T) > sizeof(QCoreVariant::Private::Data))
         // this is really a static_cast, but gcc 2.95 complains about it.
