@@ -317,7 +317,7 @@ QMakeProject::read(const char *project)
 
 	base_vars = cache; //start with the cache
 	if(!read(Option::specfile, base_vars)) {
-	    fprintf(stderr, "Failure to read MKSPEC file.\n");
+	    fprintf(stderr, "Failure to read MKSPEC file %s.\n", Option::specfile.latin1());
 	    return FALSE;
 	}
 	cfile = project;

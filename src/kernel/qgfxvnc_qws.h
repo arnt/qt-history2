@@ -34,7 +34,9 @@
 #ifndef QGFXVNC_QWS_H
 #define QGFXVNC_QWS_H
 
+#ifndef QT_H
 #include <qserversocket.h>
+#endif // QT_H
 
 #ifndef QT_NO_QWS_VNC
 

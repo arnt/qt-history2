@@ -4,7 +4,7 @@
 **
 ** This header file efficiently includes all Qt GUI Toolkit functionality.
 **
-** Generated : Fri Jan 12 15:20:31 EST 2001
+** Generated : Fri Jan 12 16:49:23 EST 2001
 
 **
 ** Copyright (C) 1995-2000 Trolltech AS.  All rights reserved.
@@ -263,7 +263,7 @@
 #include <qxml.h>
 #include <qinterfacemanager.h>
 
-#if defined( Q_MOC_CPP ) || defined( QT_H_CPP )
+#if defined( QT_MOC_CPP ) || defined( QT_H_CPP )
 #include <limits.h>
 #include "../kernel/qlayoutengine_p.h"
 #include "../widgets/qeffects_p.h"
@@ -273,7 +273,7 @@
 #include "../kernel/qpsprinter_p.h"
 #include "../widgets/qtitlebar_p.h"
 #include "../kernel/qrichtext_p.h"
-#endif // Q_MOC_CPP
+#endif // Private headers
 
 
 #ifdef Q_WS_QWS
@@ -285,6 +285,7 @@
 #include <qlock_qws.h>
 #include <qdirectpainter_qws.h>
 #include "qmemorymanager_qws.h"
+#include <qgfxvnc_qws.h>
 #include <qsoundqss_qws.h>
 #include "qgfx_qws.h"
 #include "qwsdisplay_qws.h"

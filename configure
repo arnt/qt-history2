@@ -979,7 +979,7 @@ fi
 if [ "x$EMBEDDED" != "xno" ]
 then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}-emb-$EMBEDDED"
-    QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBDIR_QT=$outpath/lib-e-$EMBEDDED\" \"DEFINES+=QWS\""
+    QMAKE_VARS="$QMAKE_VARS \"DEFINES+=QWS\""
     QMAKE_CONFIG="$QMAKE_CONFIG embedded"
 else
     QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBDIR_QT=$outpath/lib\""

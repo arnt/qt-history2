@@ -9,7 +9,6 @@ use File::Find;
     y.tab.h
     qconfig.h
     qgfxlinuxfb_qws.h
-    qgfxvnc_qws.h
     qvfbhdr_qws.h
     qwsdisplay_qws.h
     qxt.h
@@ -222,9 +221,9 @@ do_headers @QT_HEADERS;
 %IGNORE_HEADERS=();
 
 $printpath=1;
-print QT_H "\n#if defined( Q_MOC_CPP ) || defined( QT_H_CPP )\n";
+print QT_H "\n#if defined( QT_MOC_CPP ) || defined( QT_H_CPP )\n";
 do_headers @QT_HEADERS_P;
-print QT_H "#endif // Q_MOC_CPP\n\n";
+print QT_H "#endif // Private headers\n\n";
 
 $printpath=0;
 print QT_H "\n#ifdef Q_WS_QWS\n";
