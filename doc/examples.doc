@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: examples.doc,v 2.27 1999/06/03 19:59:58 paul Exp $
+** $Id: examples.doc,v 2.28 1999/06/21 16:28:21 reggie Exp $
 **
 ** Documentation for the examples
 **
@@ -22,7 +22,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: examples.doc,v 2.27 1999/06/03 19:59:58 paul Exp $";
+static char ident[] = "$Id: examples.doc,v 2.28 1999/06/21 16:28:21 reggie Exp $";
 #endif
 
 
@@ -33,7 +33,7 @@ static char ident[] = "$Id: examples.doc,v 2.27 1999/06/03 19:59:58 paul Exp $";
   This example program looks like a complete modern application.  It
   has a menu bar, it has a tool bar, it has a status bar and works
   like a simple text editor.
-    
+
   There is a <a href="walkthrough-application.html">walkthrough</a> of
   this example.
 
@@ -59,7 +59,7 @@ static char ident[] = "$Id: examples.doc,v 2.27 1999/06/03 19:59:58 paul Exp $";
 
   <h1 align=center>Buttons and Groupboxes</h1><br clear="all">
 
-  This examples shows different types of Groupboxes (Buttongroups, etc.) and lots 
+  This examples shows different types of Groupboxes (Buttongroups, etc.) and lots
   of different kinds of Buttons (Checkboxes, Radiobuttons, Pushbuttons, etc.)
 
   <hr>
@@ -378,6 +378,31 @@ static char ident[] = "$Id: examples.doc,v 2.27 1999/06/03 19:59:58 paul Exp $";
 
 */
 
+/*! \example listbox/main.cpp
+
+  <h1 align=center>Listboxe Example</h1><br clear="all">
+
+  This example shows how to use the different modes (single columns, multipe columns,
+  fixed number of rows, etc.) of QListBox.
+
+  <hr>
+
+  Header file:
+
+  \include listbox/listbox.h
+
+  <hr>
+
+  Implementation:
+
+  \include listbox/listbox.cpp
+
+  <hr>
+
+  Main:
+
+*/
+
 /*! \example listviews/main.cpp
 
   <h1 align=center>Listviews</h1><br clear="all">
@@ -563,7 +588,7 @@ static char ident[] = "$Id: examples.doc,v 2.27 1999/06/03 19:59:58 paul Exp $";
 
   In this examples it's demonstrated how to display rich text, using
   Qt, in a widget. In this example some sayings taken from the famous
-  Unix "Fortune" are displayed nicely formatted. 
+  Unix "Fortune" are displayed nicely formatted.
 
   <hr>
 
@@ -588,7 +613,7 @@ static char ident[] = "$Id: examples.doc,v 2.27 1999/06/03 19:59:58 paul Exp $";
   <h1 align=center>Rot13</h1><br clear="all">
 
   In this example you can enter a text in one Mulitilineedit widget
-  and it is displayed in the edit widget at the right transformed using 
+  and it is displayed in the edit widget at the right transformed using
   the rot13 algorithm.
 
   <hr>
@@ -1080,7 +1105,7 @@ static char ident[] = "$Id: examples.doc,v 2.27 1999/06/03 19:59:58 paul Exp $";
 
   This example implements a simple and not full functional filemanager using
   a widget derived from QIconView to display the current directory and the
-  widget of the DirectoryView example to display the directory tree. 
+  widget of the DirectoryView example to display the directory tree.
 
   <hr>
 
@@ -1123,7 +1148,7 @@ static char ident[] = "$Id: examples.doc,v 2.27 1999/06/03 19:59:58 paul Exp $";
   magnify or drag out a rectangle.  Two combo boxes let you select
   amplification and refresh frequency, a text label tells you the color
   of the pixel the cursor is on, and a button lets you save the
-  magnified area as a .bmp file. 
+  magnified area as a .bmp file.
 
   <hr>
 
