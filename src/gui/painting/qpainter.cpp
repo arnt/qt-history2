@@ -387,10 +387,16 @@ void QPainter::initFrom(const QWidget *widget)
 
 void QPainter::save()
 {
+    if (!isActive()) {
+        qWarning("QPainter::save(), painter not active");
+        return;
+    }
+
     d->state = new QPainterState(d->states.back());
+    // We need top propagate pending changes to the restore later..
+    d->state->changeFlags = d->engine->dirtyFlag;
     d->states.push_back(d->state);
-    if (isActive())
-        d->engine->updateState(d->state, false);
+    d->engine->updateState(d->state, false);
 }
 
 /*!
@@ -405,15 +411,16 @@ void QPainter::restore()
     if (d->states.size()==0) {
         qWarning("QPainter::restore(), unbalanced save/restore");
         return;
+    } else if (!isActive()) {
+        qWarning("QPainter::restore(), painter not active");
+        return;
     }
 
     QPainterState *tmp = d->state;
     d->states.pop_back();
     d->state = d->states.back();
-
     d->txinv = false;
-    if (d->engine)
-        d->engine->updateState(d->state);
+    d->engine->updateState(d->state);
     delete tmp;
 }
 
