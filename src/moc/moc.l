@@ -86,15 +86,15 @@ extern void moc_warn( char *msg );
 <IN_CLASS>"{"			{ classPLevel++;Y; }
 <IN_CLASS>"}"			{ classPLevel--;Y;if (classPLevel == 0)
                                                       {X;return '}';} }
-<IN_CLASS>"public"		{ X;return PUBLIC; }
-<IN_CLASS>"protected"		{ X;return PROTECTED; }
-<IN_CLASS>"private"		{ X;return PRIVATE; }
-<IN_CLASS>"signals"		{ X;return SIGNALS; }
-<IN_CLASS>"slots"		{ X;return SLOTS; }
-<IN_CLASS>"enum"		{ X;return ENUM_IN_CLASS; }
-<IN_CLASS>"Q_OBJECT"		{ X;return Q_OBJECT; }
-<IN_CLASS>"Q_PROPERTY"		{ X;return Q_PROPERTY; }
-<IN_CLASS>"Q_CLASSINFO"		{ X;return Q_CLASSINFO; }
+<IN_CLASS>"public"		{ X;if( classPLevel == 1 ) return PUBLIC; }
+<IN_CLASS>"protected"		{ X;if( classPLevel == 1 )return PROTECTED; }
+<IN_CLASS>"private"		{ X;if( classPLevel == 1 )return PRIVATE; }
+<IN_CLASS>"signals"		{ X;if( classPLevel == 1 )return SIGNALS; }
+<IN_CLASS>"slots"		{ X;if( classPLevel == 1 )return SLOTS; }
+<IN_CLASS>"enum"		{ X;if( classPLevel == 1 )return ENUM_IN_CLASS; }
+<IN_CLASS>"Q_OBJECT"		{ X;if( classPLevel == 1 )return Q_OBJECT; }
+<IN_CLASS>"Q_PROPERTY"		{ X;if( classPLevel == 1 )return Q_PROPERTY; }
+<IN_CLASS>"Q_CLASSINFO"		{ X;if( classPLevel == 1 )return Q_CLASSINFO; }
 
 <IN_NAMESPACE>"{"		{ namespacePLevel++;Y; }
 <IN_NAMESPACE>"}"		{ namespacePLevel--;Y;if (namespacePLevel == 0)
