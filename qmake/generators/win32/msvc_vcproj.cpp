@@ -60,7 +60,7 @@ static QString readRegistryKey(HKEY parentHandle, const QString &rSubkey)
     HKEY handle = 0;
     LONG res;
     QT_WA( {
-        res = RegOpenKeyExW(parentHandle, rSubkeyPath.utf16(),
+        res = RegOpenKeyExW(parentHandle, (WCHAR*)rSubkeyPath.utf16(),
                             0, KEY_READ, &handle);
     } , {
         res = RegOpenKeyExA(parentHandle, rSubkeyPath.local8Bit(),
@@ -74,7 +74,7 @@ static QString readRegistryKey(HKEY parentHandle, const QString &rSubkey)
     DWORD dataType;
     DWORD dataSize;
     QT_WA( {
-        res = RegQueryValueExW(handle, rSubkeyName.utf16(), 0, &dataType, 0, &dataSize);
+        res = RegQueryValueExW(handle, (WCHAR*)rSubkeyName.utf16(), 0, &dataType, 0, &dataSize);
     }, {
         res = RegQueryValueExA(handle, rSubkeyName.local8Bit(), 0, &dataType, 0, &dataSize);
     } );
@@ -86,7 +86,7 @@ static QString readRegistryKey(HKEY parentHandle, const QString &rSubkey)
     // get the value
     QByteArray data(dataSize, 0);
     QT_WA( {
-        res = RegQueryValueExW(handle, rSubkeyName.utf16(), 0, 0,
+        res = RegQueryValueExW(handle, (WCHAR*)rSubkeyName.utf16(), 0, 0,
                                reinterpret_cast<unsigned char*>(data.data()), &dataSize);
     }, {
         res = RegQueryValueExA(handle, rSubkeyName.local8Bit(), 0, 0,
