@@ -1318,15 +1318,25 @@ QRect QMacStyle::querySubControlMetrics(ComplexControl control,
     QRect ret;
     switch(control) {
     case CC_SpinWidget: {
-	if(0 && (sc == SC_SpinWidgetUp || sc == SC_SpinWidgetDown)) {
-	    QRect field = QWindowsStyle::querySubControlMetrics(control, w, SC_SpinWidgetButtonField, opt);
-	    const int w = 12, h = 10; //isn't there some way to get this from the AppManager?
-	    int x = field.x() + ((field.width() / 2) - (w / 2)), y = field.y() + (field.height() / 2);
-	    if(sc == SC_SpinWidgetUp)
-		y -= h;
-	    ret.setRect(x, y, w, h);
-	} else {
-	    ret = QWindowsStyle::querySubControlMetrics(control, w, sc, opt);
+	const int spinner_w = 20, spinner_h = 10; //isn't there some way to get this from the AppMan?
+	int fw = pixelMetric(PM_SpinBoxFrameWidth, w), y = fw, x = w->width() - fw - spinner_w;
+	switch ( sc ) {
+	case SC_SpinWidgetUp:
+	    ret.setRect(x, y + ((w->height() / 2) - spinner_h), spinner_w, spinner_h);
+	    break;
+	case SC_SpinWidgetDown:
+	    ret.setRect(x, y + (w->height() / 2), spinner_w, spinner_h);
+	    break;
+	case SC_SpinWidgetButtonField:
+	    ret.setRect(x, y, spinner_w, w->height() - 2*fw);
+	    break;
+	case SC_SpinWidgetEditField:
+	    ret.setRect(fw, fw, w->width() - spinner_w - (fw*3) - 5, w->height() - 2*fw);
+	    break;
+	case SC_SpinWidgetFrame:
+	    ret = QRect(0, 0, w->width() - spinner_w - fw - 5, w->height());
+	default:
+	    break;
 	}
 	break; }
     case CC_TitleBar: {
