@@ -3363,11 +3363,11 @@ int QTable::addSelection(const QTableSelection &s)
 
     const int maxr = numRows()-1;
     const int maxc = numCols()-1;
-    QTableSelection *sel = new QTableSelection(qMin(s.anchorRow(), maxr), qMin(s.anchorCol(), maxc),
-                                    qMin(s.bottomRow(), maxr), qMin(s.rightCol(), maxc));
+    currentSel = new QTableSelection(qMin(s.anchorRow(), maxr), qMin(s.anchorCol(), maxc),
+                                     qMin(s.bottomRow(), maxr), qMin(s.rightCol(), maxc));
 
-    selections.append(sel);
-    repaintSelections(0, sel, true, true);
+    selections.append(currentSel);
+    repaintSelections(0, currentSel, true, true);
     emit selectionChanged();
     return selections.count() - 1;
 }
@@ -3471,6 +3471,8 @@ void QTable::selectRow(int row)
 void QTable::selectColumn(int col)
 {
     col = qMin(numCols()-1, col);
+    if (col < 0)
+        return;
     QTableSelection sel(0, col, numRows() - 1, col);
     addSelection(sel);
 }
