@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#24 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#25 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -224,10 +224,20 @@ enum RasterOp					// raster op/transfer mode
       NotCopyROP, NotOrROP, NotXorROP, NotEraseROP, NotROP };
 
 
-// Text output flags
+// Text formatting flags for QPainter::drawText and QLabel::setFormat
 
-enum TextAlignment				// text alignment
-    { AlignLeft=0x0, AlignRight, AlignTop, AlignBottom, AlignCenter };
+const AlignLeft		= 0x000;		// text alignment
+const AlignRight	= 0x001;
+const AlignCenter	= 0x002;
+const AlignTop		= 0x000;
+const AlignBottom	= 0x004;
+const AlignVerCenter	= 0x008;
+
+const WordBreak		= 0x010;		// misc. flags
+const ClipText		= 0x020;
+const ExpandTabs	= 0x040;
+const ShowPrefix	= 0x080;
+const SingleLineText	= 0x100;
 
 
 #endif // QWINDEFS_H
