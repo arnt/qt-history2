@@ -707,17 +707,16 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 {
     //if(!parentWidget())
     //setWinId( 0 );
+    QWidget* oldtlw = topLevelWidget();
     winid=parent->winid;
     qDebug("reparent");
- 
+
     QWidget * topper=parent;
     while(topper->parentWidget()) {
 	topper=topper->parentWidget();
     }
-    
+
     mytop=topper;
-    
-    reparentFocusWidgets( parent );             // fix focus chains
 
     if ( parentObj ) {                          // remove from parent
         parentObj->removeChild( this );
@@ -725,8 +724,6 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     if ( parent ) {                             // insert into new parent
         parentObj = parent;                     // avoid insertChild warning
         parent->insertChild( this );
-    } else {
-        qApp->noteTopLevel(this);
     }
     bool     enable = isEnabled();              // remember status
     FocusPolicy fp = focusPolicy();
@@ -761,19 +758,12 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     if ( showIt )
         show();
 
-    QObjectList *accelerators = queryList( "QAccel" );
-    QObjectListIt it( *accelerators );
-    QObject *obj;
-    while ( (obj=it.current()) != 0 ) {
-        ++it;
-        ((QAccel*)obj)->repairEventFilter();
-    }
-    delete accelerators;
-    if ( !parent ) {
-        QFocusData *fd = focusData( TRUE );
-        if ( fd->focusWidgets.findRef(this) < 0 )
-            fd->focusWidgets.append( this );
-    }
+    reparentFocusWidgets( oldtlw );             // fix focus chains
+    
+    QCustomEvent e( QEvent::Reparent, 0 );
+    QApplication::sendEvent( this, &e );
+
+
 }
 
 void QWidget::hideWindow()

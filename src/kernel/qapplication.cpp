@@ -1093,6 +1093,12 @@ void QApplication::polish( QWidget *w )
 	if ( !font( w ).isCopyOf( font() ) )
 	    w->setFont( font( w ) );
     }
+    
+#if 0
+    if ( qdevel && w->isTopLevel() )
+	qdevel->addTopLevelWidget(tlw);
+#endif
+
     app_style->polish( w );
 }
 
@@ -1331,7 +1337,7 @@ void QApplication::closeAllWindows()
 
   This signal is emitted when the GUI threads is about to process a cycle
   of the event loop.
-  
+
   \sa wakeUpGuiThread()
 */
 
@@ -1386,6 +1392,14 @@ bool QApplication::notify( QObject *receiver, QEvent *event )
 #endif
 	return FALSE;
     }
+    
+#if 0
+    if ( qdevel && event->type() == QEvent::Reparent
+	 && receiver->isWidgetType() 
+	 && ((QWidget*)receiver)->isTopLevel() )
+	qdevel->addTopLevelWidget( (QWidget*)receiver );
+#endif
+
 
     if ( receiver->pendEvent && event->type() == QEvent::ChildRemoved ) {
 	// if this is a child remove event an the child insert hasn't been
@@ -1540,19 +1554,6 @@ const QColor& QApplication::winStyleHighlightColor()
   Note that this function is implemented for the Windows version
   of Qt only.
 */
-
-
-/*!
-  Tells the -qdevel widget, if any, about a new top-level widget.
-*/
-
-void QApplication::noteTopLevel( QWidget*  )
-{
-#if 0
-    if ( qdevel )
-	qdevel->addTopLevelWidget(tlw);
-#endif
-}
 
 
 /*!
@@ -1753,7 +1754,7 @@ void QApplication::sendPostedEvents()
 /*##############
 
   The following was in the documentation. The code did not implement it.
-  
+
   If \a receiver is 0, all objects get their events.  If \a event_type is
   0, all types of events are dispatched.
 

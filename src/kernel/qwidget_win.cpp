@@ -320,6 +320,7 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 			bool showIt )
 {
+    QWidget* oldtlw = topLevelWidget();
     WId old_winid = winid;
     bool accept_drops = acceptDrops();
     if ( accept_drops )
@@ -328,16 +329,12 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	old_winid = 0;
     setWinId( 0 );
 
-    reparentFocusWidgets( parent );		// fix focus chains
-
     if ( parentObj ) {				// remove from parent
 	parentObj->removeChild( this );
     }
     if ( parent ) {				// insert into new parent
 	parentObj = parent;			// avoid insertChild warning
 	parent->insertChild( this );
-    } else {
-	qApp->noteTopLevel(this);
     }
     bool     enable = isEnabled();		// remember status
     FocusPolicy fp = focusPolicy();
@@ -373,11 +370,8 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     if ( old_winid )
 	DestroyWindow( old_winid );
 
-    if ( !parent ) {
-	QFocusData *fd = focusData( TRUE );
-	if ( fd->focusWidgets.findRef(this) < 0 )
-	    fd->focusWidgets.append( this );
-    }
+    reparentFocusWidgets( oldtlw );		// fix focus chains
+
     if ( accept_drops )
 	setAcceptDrops( TRUE );
 

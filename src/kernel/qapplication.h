@@ -182,9 +182,9 @@ public:
     static void create_xim();
     static void close_xim();
 #endif
-    
+
     void	     wakeUpGuiThread();
-    
+
 signals:
     void	     lastWindowClosed();
     void	     aboutToQuit();
@@ -232,7 +232,6 @@ private:
     bool	     inPopupMode() const;
     void	     closePopup( QWidget *popup );
     void	     openPopup( QWidget *popup );
-    void	     noteTopLevel( QWidget* tlw );
 
     static void      removePostedEvent( QEvent * );
 

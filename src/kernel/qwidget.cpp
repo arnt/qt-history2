@@ -2654,54 +2654,50 @@ void QWidget::setTabOrder( QWidget* first, QWidget *second )
     }
 }
 
-/*!
-  Moves the relevant widgets from the this window's tab chain to
-  that of \a parent, if there's anything to move and we're really
-  moving
+/*!\internal
+  
+  Moves the relevant subwidgets of this widget from the \a oldtlw's
+  tab chain to that of the new parent, if there's anything to move and
+  we're really moving
+  
+  This function is called from QWidget::reparent() *after* the widget
+  has been reparented.
 
   \sa reparent()
 */
 
-void QWidget::reparentFocusWidgets( QWidget * parent )
+void QWidget::reparentFocusWidgets( QWidget * oldtlw )
 {
-    if ( focusData() &&
-	 ( parent == 0 ? parentObj != 0
-		       : parent->topLevelWidget() != topLevelWidget() ) )
-    {
-	QFocusData * from = focusData();
-	from->focusWidgets.first();
-	QFocusData * to;
-	if ( parent ) {
-	    to = parent->focusData( TRUE );
+    if ( oldtlw == topLevelWidget() )
+	return; // nothing to do
+
+    QFocusData * from = oldtlw->focusData();
+    from->focusWidgets.first();
+    QFocusData * to;
+    to = focusData();
+    
+    do {
+	QWidget * pw = from->focusWidgets.current();
+	while( pw && pw != this )
+	    pw = pw->parentWidget();
+	if ( pw == this ) {
+	    QWidget * w = from->focusWidgets.take();
+	    if ( w == from->it.current() )
+		// probably best to clear keyboard focus, or
+		// the user might become rather confused
+		w->clearFocus();
+	    if ( !isTopLevel() )
+		to->focusWidgets.append( w );
 	} else {
-	    // ################ NOT CURRECT - need focusdata of a TLW!
-	    createTLExtra();
-	    to = extra->topextra->focusData = new QFocusData;
+	    from->focusWidgets.next();
 	}
+    } while( from->focusWidgets.current() );
 
-	do {
-	    QWidget * pw = from->focusWidgets.current();
-	    while( pw && pw != this && !pw->isTopLevel() )
-		pw = pw->parentWidget();
-	    if ( pw == this ) {
-		QWidget * w = from->focusWidgets.take();
-		if ( w == from->it.current() )
-		    // probably best to clear keyboard focus, or
-		    // the user might become rather confused
-		    w->clearFocus();
-		if ( !isTopLevel() )
-		    to->focusWidgets.append( w );
-	    } else {
-		from->focusWidgets.next();
-	    }
-	} while( from->focusWidgets.current() );
-
-	if ( parentObj == 0 ) {
-	    // this widget is no longer a top-level widget, so get rid
-	    // of old focus data
-	    delete extra->topextra->focusData;
-	    extra->topextra->focusData = 0;
-	}
+    if ( !isTopLevel() && extra && extra->topextra && extra->topextra->focusData ) {
+	// this widget is no longer a top-level widget, so get rid
+	// of old focus data
+	delete extra->topextra->focusData;
+	extra->topextra->focusData = 0;
     }
 }
 
@@ -3249,8 +3245,6 @@ void QWidget::polish()
 {
     if ( !testWState(WState_Polished) ) {
 	setWState(WState_Polished);
-	if ( !parentObj )
-	    qApp->noteTopLevel(this);
 	qApp->polish( this );
 	QApplication::sendPostedEvents( this, QEvent::ChildInserted );
     }

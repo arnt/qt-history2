@@ -461,11 +461,11 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     if ( accept_drops )
 	setAcceptDrops( FALSE ); // dnd unregister (we will register again below)
 
+    QWidget* oldtlw = topLevelWidget();
     WId old_winid = winid;
     if ( testWFlags(WType_Desktop) )
 	old_winid = 0;
     setWinId( 0 );
-    reparentFocusWidgets( parent );		// fix focus chains
 
     if ( parentObj ) {				// remove from parent
 	parentObj->removeChild( this );
@@ -473,8 +473,6 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     if ( parent ) {				// insert into new parent
 	parentObj = parent;			// avoid insertChild warning
 	parent->insertChild( this );
-    } else {
-	qApp->noteTopLevel(this);
     }
     bool     enable = isEnabled();		// remember status
     FocusPolicy fp = focusPolicy();
@@ -528,18 +526,14 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	setCursor(oldcurs);
     }
 
-    if ( !parent ) {
-	QFocusData *fd = focusData( TRUE );
-	if ( fd->focusWidgets.findRef(this) < 0 )
- 	    fd->focusWidgets.append( this );
-    }
+    reparentFocusWidgets( oldtlw );
+
 
     if ( accept_drops )
 	setAcceptDrops( TRUE );
 
     QCustomEvent e( QEvent::Reparent, 0 );
     QApplication::sendEvent( this, &e );
-
 }
 
 

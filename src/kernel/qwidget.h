@@ -418,7 +418,7 @@ private:
     void	 deleteTLSysExtra();
     void	 deactivateWidgetCleanup();
     void	 internalSetGeometry( int, int, int, int, bool );
-    void	 reparentFocusWidgets( QWidget *parent );
+    void	 reparentFocusWidgets( QWidget * );
     QFocusData	*focusData( bool create );
     void         setBackgroundFromMode();
     void         setBackgroundColorDirect( const QColor & );
