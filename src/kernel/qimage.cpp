@@ -2842,19 +2842,6 @@ bool QImage::loadFromData( QByteArray buf, const char *format )
 
 /*!
   Saves the image to the file \e fileName, using the image file format
-  \e format and default quality settings.
-  Returns TRUE if successful, or FALSE if the image could not be saved.
-
-  \sa load(), loadFromData(), imageFormat(), QPixmap::save(), QImageIO
-*/
-
-bool QImage::save( const QString &fileName, const char* format ) const
-{
-    return save( fileName, format, -1 );
-}
-
-/*!
-  Saves the image to the file \e fileName, using the image file format
   \e format and a quality factor \e quality.  \e quality must be in the
   range [0,100] or -1.  Specify 0 to obtain small compressed files, 100
   for large uncompressed files and -1 to use the default settings.
@@ -2869,18 +2856,12 @@ bool QImage::save( const QString &fileName, const char* format, int quality ) co
 	return FALSE;				// nothing to save
     QImageIO io( fileName, format );
     io.setImage( *this );
-    if ( quality > 100  || quality < -1 ) {
 #if defined(CHECK_RANGE)
+    if ( quality > 100  || quality < -1 )
 	qWarning( "QPixmap::save: quality out of range [-1,100]" );
 #endif
-        if ( quality > 100 )
-	    quality = 100;
-    }
-    if ( quality >= 0 ) {
-	QString s;
-	s.setNum( quality );
-	io.setParameters( s.latin1() );
-    }
+    if ( quality >= 0 )
+	io.setQuality( QMAX(quality,100) );
     return io.write();
 }
 
@@ -3045,15 +3026,18 @@ static void swapPixel01( QImage *image )	// 1-bpp: swap 0 and 1 pixels
   \sa QImage, QPixmap, QFile, QMovie
 */
 
+struct QImageIOData
+{
+    const char *parameters;
+};
+
 /*!
   Constructs a QImageIO object with all parameters set to zero.
 */
 
 QImageIO::QImageIO()
 {
-    iostat = 0;
-    iodev  = 0;
-    params = 0;
+    init();
 }
 
 /*!
@@ -3063,9 +3047,8 @@ QImageIO::QImageIO()
 QImageIO::QImageIO( QIODevice *ioDevice, const char *format )
     : frmt(format)
 {
-    iostat = 0;
+    init();
     iodev  = ioDevice;
-    params = 0;
 }
 
 /*!
@@ -3075,9 +3058,19 @@ QImageIO::QImageIO( QIODevice *ioDevice, const char *format )
 QImageIO::QImageIO( const QString &fileName, const char* format )
     : frmt(format), fname(fileName)
 {
+    init();
+}
+
+/*!
+  Contains initialization common to all constructors.
+*/
+
+void QImageIO::init()
+{
+    d = new QImageIOData();
+    d->parameters = 0;
     iostat = 0;
     iodev  = 0;
-    params = 0;
 }
 
 /*!
@@ -3086,8 +3079,9 @@ QImageIO::QImageIO( const QString &fileName, const char* format )
 
 QImageIO::~QImageIO()
 {
-    if ( params )
-	delete [] params;
+    if ( d->parameters )
+	delete [] d->parameters;
+    delete d;
 }
 
 
@@ -3189,13 +3183,6 @@ static QImageHandler *get_image_handler( const char *format )
 }
 
 
-struct QImageIOData //### use instead of QImageIO::params in 3.0
-{
-    const char *params;
-    int quality;
-};
-
-
 /*!
   Defines a image IO handler for a specified image format.
   An image IO handler is responsible for reading and writing images.
@@ -3289,12 +3276,6 @@ void QImageIO::defineIOHandler( const char *format,
 */
 
 /*!
-  \fn const char *QImageIO::parameters() const
-  Returns image parameters string.
-  \sa setParameters()
-*/
-
-/*!
   \fn QString QImageIO::description() const
   Returns the image description string.
   \sa setDescription()
@@ -3359,6 +3340,7 @@ void QImageIO::setIODevice( QIODevice *ioDevice )
 
 /*!
   Sets the name of the file to read or write an image.
+
   \sa setIODevice()
 */
 
@@ -3368,18 +3350,31 @@ void QImageIO::setFileName( const QString &fileName )
 }
 
 /*!
+  Returns image parameters string.
+
+  \sa setParameters()
+*/
+
+const char *QImageIO::parameters() const
+{
+    return d->parameters;
+}
+
+/*!
   Sets the image parameters string for image handlers that require
   special parameters.
 
   Although all image formats supported by Qt ignore the parameters string,
   it will be useful for future extensions or contributions (like JPEG).
+
+  \sa parameters()
 */
 
 void QImageIO::setParameters( const char *parameters )
 {
-    if ( params )
-	delete [] params;
-    params = qstrdup( parameters );
+    if ( d && d->parameters )
+	delete [] d->parameters;
+    d->parameters = qstrdup( parameters );
 }
 
 /*!

@@ -389,7 +389,7 @@ bool QPNGImageWriter::writeImage(const QImage& image, int quality, int off_x, in
 	return FALSE;
     }
 
-    if (quality > 0) {
+    if (quality >= 0) {
 	if (quality > 9) {
 #if defined(CHECK_RANGE)
 	    qWarning( "PNG: Quality %d out of range", quality );
@@ -544,24 +544,13 @@ static
 void write_png_image(QImageIO* iio)
 {
     QPNGImageWriter writer(iio->ioDevice());
-    int quality = -1;
-    if ( iio->parameters() ) {
-	bool ok = FALSE;
-	int iq = QString::fromLatin1( iio->parameters() ).toInt( &ok );
-	if ( ok && iq >= 0 ) {
-	    if ( iq > 100) {
-#if defined(CHECK_RANGE)
-		qWarning( "PNG: Quality %d out of range", iq );
-#endif
-		iq = 100;
-	    }
-	    quality = (100-iq) * 9 / 91; // map [0,100] -> [9,0]
-	}
+    int quality = iio->quality();
+    if ( quality >= 0 ) {
+	quality = QMAX( quality, 100 );
+	quality = (100-quality) * 9 / 91; // map [0,100] -> [9,0]
     }
-    if ( writer.writeImage(iio->image(), quality) )
-	iio->setStatus(0);
-    else
-	iio->setStatus(-1);
+    bool ok = writer.writeImage( iio->image(), quality );
+    iio->setStatus( ok ? 0 : -1 );
 }
 
 // NOT REVISED

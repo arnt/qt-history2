@@ -88,7 +88,6 @@ public:
     void	detach();
     QImage	copy()		const;
     QImage	copy(int x, int y, int w, int h, int conversion_flags=0) const;
-    QImage	copy(QRect&)	const; // constness srong - REMOVE in Qt 3.0
     QImage	copy(const QRect&)	const;
 
     bool	isNull()	const	{ return data->bits == 0; }
@@ -161,9 +160,8 @@ public:
     bool	loadFromData( const uchar *buf, uint len,
 			      const char *format=0 );
     bool	loadFromData( QByteArray data, const char* format=0 );
-    bool	save( const QString &fileName, const char* format ) const; // ### remove 3.0
     bool	save( const QString &fileName, const char* format,
-		      int quality ) const; // ### change to quality=-1 in 3.0
+		      int quality=-1 ) const;
 
     bool	valid( int x, int y ) const;
     int		pixelIndex( int x, int y ) const;
@@ -230,7 +228,7 @@ class QIODevice;
 typedef void (*image_io_handler)( QImageIO * ); // image IO handler
 
 
-struct QImageIOData; //### use instead of params in 3.0
+struct QImageIOData;
 
 
 class Q_EXPORT QImageIO
@@ -247,16 +245,18 @@ public:
     const char *format()	const	{ return frmt; }
     QIODevice  *ioDevice()	const	{ return iodev; }
     QString	fileName()	const	{ return fname; }
-    const char *parameters()	const	{ return params; }
+    int		quality()	const	{ return m_quality; }
     QString	description()	const	{ return descr; }
+    const char *parameters()	const;
 
     void	setImage( const QImage & );
     void	setStatus( int );
     void	setFormat( const char * );
     void	setIODevice( QIODevice * );
-    void	setFileName( const QString &);
+    void	setFileName( const QString & );
+    void	setQuality( int );
+    void	setDescription( const QString & );
     void	setParameters( const char * );
-    void	setDescription( const QString &);
 
     bool	read();
     bool	write();
@@ -273,13 +273,17 @@ public:
 				 image_io_handler write_image );
 
 private:
+    void	init();
+
     QImage	im;				// image
     int		iostat;				// IO status
     QCString	frmt;				// image format
     QIODevice  *iodev;				// IO device
     QString	fname;				// file name
+    int		m_quality;			// image quality (compression)
     char       *params;				// image parameters //### change to QImageIOData *d in 3.0
     QString     descr;				// image description
+    QImageIOData *d;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
@@ -326,12 +330,6 @@ inline int QImage::numBytes() const
 inline int QImage::bytesPerLine() const
 {
     return data->h ? data->nbytes/data->h : 0;
-}
-
-// REMOVE in Qt 3.0
-inline QImage QImage::copy(QRect& r) const
-{
-    return copy(r.x(), r.y(), r.width(), r.height());
 }
 
 inline QImage QImage::copy(const QRect& r) const
