@@ -1286,3 +1286,41 @@ void Project::removeTempProject()
     }
 }
 
+void Project::addAndEditFunction( const QString &function )
+{
+    for ( SourceFile *f = sourcefiles.first(); f; f = sourcefiles.next() ) {
+	if ( QFileInfo( f->fileName() ).baseName() == "main" ) {
+	    QValueList<LanguageInterface::Function> funcs;
+	    LanguageInterface *iface = MetaDataBase::languageInterface( language() );
+	    if ( !iface )
+		return;
+	    iface->functions( f->text(), &funcs );
+	    QString func = function;
+	    int i = func.find( '(' );
+	    if ( i != -1 )
+		func = func.left( i );
+	
+	    bool found = FALSE;
+	    for ( QValueList<LanguageInterface::Function>::Iterator it = funcs.begin();
+		  it != funcs.end(); ++it ) {
+		if ( (*it).name == func ) {
+		    found = TRUE;
+		    break;
+		}
+	    }
+	
+	    if ( !found ) {
+		QString code = f->text();
+		code += "\n" + iface->createFunctionStart( "", func, "", "" ) + "\n{\n}\n";
+		f->setText( code );
+		if ( f->editor() )
+		    f->editor()->refresh( FALSE );
+	    }
+	
+	    MainWindow::self->editSource( f );
+	    f->editor()->setFunction( func, "" );
+	
+	    break;
+	}
+    }
+}
