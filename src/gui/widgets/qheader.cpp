@@ -1094,12 +1094,17 @@ QSize QHeader::sectionSizeHint(int section, const QFontMetrics& fm) const
     QString label = d->labels[section];
     if (!label.isNull()) {
         int lines = label.count('\n') + 1;
-        bound.setHeight(fm.height() +  fm.lineSpacing() * (lines - 1));
         int w = 0;
-        for (int i = 0; i < lines; ++i) {
-            QString s = lines == 1 ? label : label.section('\n', i, i);
-            int tmpw = fm.width(s);
-            w = qMax(w, tmpw);
+        if (lines > 1) {
+            bound.setHeight(fm.height() + fm.lineSpacing() * (lines - 1));
+            QStringList list = label.split('\n');
+            for (int i=0; i < list.count(); ++i) {
+                int tmpw = fm.width(list.at(i));
+                w = QMAX(w, tmpw);
+            }
+        } else {
+            bound.setHeight(fm.height());
+            w = fm.width(label);
         }
         bound.setWidth(w);
     }
