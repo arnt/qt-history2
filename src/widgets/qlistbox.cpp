@@ -3215,6 +3215,10 @@ QRect QListBox::itemRect( QListBoxItem *item ) const
     return QRect( 0, 0, -1, -1 );
 }
 
+
+#if QT_VERSION >= 300
+#error "Return c so the user knows where it goes"
+#endif
 /*!
   Inserts \a lbi at its sorted position in the list box.
 
@@ -3240,6 +3244,9 @@ void QListBox::inSort( const QListBoxItem * lbi )
 }
 
 
+#if QT_VERSION >= 300
+#error "Return result so the user knows where it goes"
+#endif
 /*!
   Inserts a new item of \a text at its sorted position in the list box.
 
