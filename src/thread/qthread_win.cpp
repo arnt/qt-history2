@@ -98,8 +98,6 @@ void QThreadInstance::finish( QThreadInstance *d )
 	return;
     }
 
-    // this is copied to QThread::exit() - if you modify this code,
-    // make sure you fix below as well
     QMutexLocker locker( d->mutex() );
     d->running = FALSE;
     d->finished = TRUE;
@@ -107,9 +105,10 @@ void QThreadInstance::finish( QThreadInstance *d )
 
     QThreadStorageData::finish( d->thread_storage );
     d->thread_storage = 0;
-
     d->id = 0;
 
+    CloseHandle(d->handle);
+    d->handle = 0;
     if ( d->orphan ) {
         d->deinit();
 	delete d;
@@ -278,7 +277,7 @@ void QThread::start(Priority priority)
 
 bool QThread::wait( unsigned long time )
 {
-    QMutexLocker locker( d->mutex() );
+    d->mutex()->lock();
 
     if ( d->id == GetCurrentThreadId() ) {
 	qWarning( "Thread tried to wait on itself" );
@@ -286,7 +285,7 @@ bool QThread::wait( unsigned long time )
     }
     if ( d->finished || !d->running )
 	return TRUE;
-    locker.mutex()->unlock();
+    d->mutex()->unlock();
     switch ( WaitForSingleObject( d->handle, time ) ) {
     case WAIT_TIMEOUT:
 	return FALSE;
@@ -297,7 +296,6 @@ bool QThread::wait( unsigned long time )
     default:
 	break;
     }
-    locker.mutex()->lock();
     return TRUE;
 }
 
@@ -311,24 +309,6 @@ void QThread::exit()
 	return;
     }
 
-    // this is copied from QThreadInstance::finish() - if you modify
-    // this code, make sure you fix above as well
-    QMutexLocker locker( d->mutex() );
-    d->running = FALSE;
-    d->finished = TRUE;
-    d->args[0] = d->args[1] = 0;
-
-    QThreadStorageData::finish( d->thread_storage );
-    d->thread_storage = 0;
-
-    d->id = 0;
-
-    CloseHandle( d->handle );
-
-    if ( d->orphan ) {
-        d->deinit();
-	delete d;
-    }
-
+    QThreadInstance::finish(d);
     _endthreadex(0);
 }
