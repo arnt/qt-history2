@@ -104,7 +104,7 @@ struct QBasicAtomicPointer
     inline bool operator!() const
     { return operator==(0); }
 
-    inline QBasicAtomic &operator=(T *t)
+    inline QBasicAtomicPointer<T> &operator=(T *t)
     {
         q_atomic_lock(lock);
         pointer = t;
