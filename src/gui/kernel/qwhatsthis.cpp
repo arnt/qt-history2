@@ -488,8 +488,9 @@ class QWhatsThisButton : public QToolButton
 {
     Q_OBJECT
 public:
-    QWhatsThisButton(QWidget *p) : QToolButton(p, "automatic what's this? button") {
-        setToggleButton(true);
+    QWhatsThisButton(QWidget *p) : QToolButton(p) {
+        setObjectName("automatic what's this? button");
+        setCheckable(true);
         QPixmap pix( (const char**)button_image );
         setIcon( pix );
         QObject::connect(this, SIGNAL(toggled(bool)), this, SLOT(whatToggled(bool)));
