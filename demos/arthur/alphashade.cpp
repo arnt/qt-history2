@@ -68,7 +68,7 @@ void drawPrimitives(DemoWidget *dw, QPainter *p, int count, double distance, int
         p->rotate(step + i * rotationSpeed);
         uint pixel = colorTable[i%TABLESIZE];
         pixel |= dw->attribs()->alpha ? 63 << 24 : 0xff << 24;
-        QColor c(pixel);
+        QColor c(pixel, QColor::RgbaFormat);
         p->setBrush(c);
 
         enum PrimitiveType {
