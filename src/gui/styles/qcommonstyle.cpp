@@ -3054,6 +3054,11 @@ QPixmap QCommonStyle::standardPixmap(StandardPixmap standardPixmap, const QStyle
 #ifndef QT_NO_IMAGEIO_XPM
     switch (standardPixmap) {
     case SP_ToolBarHorizontalExtensionButton:
+        if (QApplication::layoutDirection() == Qt::RightToLeft) {
+            QImage im((const char **)tb_extension_arrow_h_xpm);
+            im = im.mirror(true, false);
+            return QPixmap(im);
+        }
         return QPixmap((const char **)tb_extension_arrow_h_xpm);
     case SP_ToolBarVerticalExtensionButton:
         return QPixmap((const char **)tb_extension_arrow_v_xpm);
