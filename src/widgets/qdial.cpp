@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdial.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qdial.cpp#23 $
 **
 ** Implementation of something useful.
 **
@@ -59,7 +59,7 @@ public:
     QRegion eraseArea;
     bool eraseAreaValid;
     bool showNotches;
-    
+
     QPointArray lines;
 };
 
@@ -308,7 +308,7 @@ void QDial::paint( QPainter &p )
     p.setPen( NoPen );
     p.setBrush( QBrush( colorGroup().light(), Dense4Pattern ) );
     p.drawEllipse( br );
-    
+
     p.setPen( QPen( colorGroup().dark() ) );
     p.drawArc( br, 60 * 16, 180 * 16 );
     p.setPen( QPen( colorGroup().light() ) );
@@ -334,10 +334,10 @@ void QDial::paint( QPainter &p )
 		       (int)(0.5+yc-back*sin(a+m_pi*5/6)) );
     arrow[2] = QPoint( (int)(0.5+xc+back*cos(a-m_pi*5/6)),
 		       (int)(0.5+yc-back*sin(a-m_pi*5/6)) );
-    
+
     d->eraseArea = arrow.boundingRect();
     d->eraseAreaValid = TRUE;
-    
+
     if ( isEnabled() ) {
 	p.setPen( d->color );
 	p.setBrush( d->color );
@@ -767,11 +767,20 @@ void QDial::repaintScreen()
     p.end();
 }
 
+/*!
+  Enables or disables showing of notches. If \a b is TRUE, the notches
+  are shown, else not.
+*/
+
 void QDial::setShowNotches( bool b )
 {
     d->showNotches = b;
     repaint( FALSE );
 }
+
+/*!
+  Retuns TRUE if notches are shown, else FALSE;
+*/
 
 bool QDial::showNotches()
 {

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#296 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#297 $
 **
 ** Implementation of QListBox widget class
 **
@@ -911,6 +911,14 @@ void QListBox::insertItem( const QListBoxItem *lbi, int index )
     d->count++;
     triggerUpdate( TRUE );
 }
+
+/*!
+  Inserts the item \a lbi into the list after the item \a after.
+
+  If \a after is NULL, \a lbi is inserted at the beginning.
+
+  \sa insertStrList()
+*/
 
 void QListBox::insertItem( const QListBoxItem *lbi, const QListBoxItem *after )
 {
