@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#53 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#54 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#53 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#54 $")
 
 
 declare(QListM, QLBItem);
@@ -36,10 +36,10 @@ int QLBItemList::compareItems( GCI i1, GCI i2)
     if ( lbi1->type == LBI_String && lbi2->type == LBI_String )
 	return strcmp( lbi1->string, lbi2->string );
     if ( lbi1->type == LBI_String )
-	return 1;	// A string is greater than an unknown
+	return 1;				// string greater than unknown
     if ( lbi2->type == LBI_String )
-	return -1;	// An unknown is less than a string
-    return 0;		// An unknown equals an unknown
+	return -1;				// unknown less than a string
+    return 0;					// unknown equals an unknown
 }
 
 
@@ -152,6 +152,18 @@ QListBox::~QListBox()
 
 
 /*----------------------------------------------------------------------------
+  Reimplements QWidget::setFont() to update the list box line height.
+ ----------------------------------------------------------------------------*/
+
+void QListBox::setFont( const QFont &font )
+{
+    QWidget::setFont( font );    
+    if ( stringsOnly )
+	setCellHeight( fontMetrics().lineSpacing() + 1 );
+}
+
+
+/*----------------------------------------------------------------------------
   Returns the number of items in the list box.
  ----------------------------------------------------------------------------*/
 
@@ -190,7 +202,7 @@ void QListBox::insertStrList( const QStrList *list, int index )
     }
     updateNumRows( TRUE );
     if ( autoUpdate() && itemVisible(index) )
-	update();
+	repaint();
 }
 
 /*----------------------------------------------------------------------------
@@ -222,7 +234,7 @@ void QListBox::insertStrList( const char **strings, int numStrings, int index )
     }
     updateNumRows( TRUE );
     if ( autoUpdate() && itemVisible(index) )
-	update();
+	repaint();
 }
 
 /*----------------------------------------------------------------------------
@@ -245,8 +257,12 @@ void QListBox::insertItem( const char *string, int index )
     }
     insertAny( string, 0, 0, index, TRUE );
     updateNumRows( FALSE );
-    if ( autoUpdate() && itemVisible(index) )
-	update();
+    if ( autoUpdate() && itemVisible(index) ) {
+	int x, y;
+	colXPos( 0, &x );
+	rowYPos( index, &y );
+	repaint( x, y, -1, -1 );
+    }
 }
 
 /*----------------------------------------------------------------------------
@@ -270,8 +286,12 @@ void QListBox::insertItem( const QPixmap &pixmap, int index )
     if ( w > cellWidth() )
 	setCellWidth( w );
     updateNumRows( FALSE );
-    if ( autoUpdate() && itemVisible(index) )
-	update();
+    if ( autoUpdate() && itemVisible(index) ) {
+	int x, y;
+	colXPos( index, &x );
+	rowYPos( index, &y );
+	repaint( x, y, -1, -1 );
+    }
 }
 
 /*----------------------------------------------------------------------------
@@ -291,15 +311,13 @@ void QListBox::inSort( const char *string )
 #endif
 	return;
     }
-    itemList->inSort( newAny( string, 0 ) );
-    QFontMetrics fm = fontMetrics();
-    int w = fm.width( string ) + 6;
-    if ( w > cellWidth() )
-	setCellWidth( w );
-    updateNumRows( FALSE );
-    if ( autoUpdate() ) {
-	update();			// optimize drawing (find index)
-    }
+    QLBItem lbi;
+    lbi.type = LBI_String;
+    lbi.string = string;
+    itemList->inSort(&lbi);
+    int index = itemList->at();
+    itemList->remove();
+    insertItem( string, index );
 }
 
 
@@ -312,6 +330,8 @@ void QListBox::removeItem( int index )
 {
     if ( !checkIndex( "removeItem", count(), index ) )
 	return;
+    if ( current >= index )
+	current--;
     bool    updt = autoUpdate() && itemVisible( index );
     QLBItem *lbi = itemList->take( index );
     QFontMetrics fm = fontMetrics();
@@ -323,7 +343,7 @@ void QListBox::removeItem( int index )
 	delete lbi->pixmap;
     delete lbi;
     if ( updt )
-	update();
+	repaint();
 }
 
 /*----------------------------------------------------------------------------
@@ -450,6 +470,7 @@ void QListBox::setStringCopy( bool enable )
   items are inserted or removed.
 
   The default setting is TRUE.
+
   \sa setAutoUpdate()
  ----------------------------------------------------------------------------*/
 
@@ -877,26 +898,15 @@ void QListBox::insertItem( const QLBItem *lbi, int index )
 #endif
 	return;
     }
-    stringsOnly = FALSE;
+    if ( stringsOnly ) {
+	stringsOnly = FALSE;
+	setCellHeight( 0 );
+    }
     insertAny( 0, 0, lbi, index, TRUE );
     updateNumRows( FALSE );
     if ( autoUpdate() )
-	update();
+	repaint();
 }
-
-#if 0
-void QListBox::inSort( const QLBItem *lbi )
-{
-#if defined(CHECK_NULL)
-    CHECK_PTR( lbi );
-#endif
-    itemList->inSort( lbi );
-//###	 updateNumRows( FALSE );
-    if ( autoUpdate() ) {
-	update(); // Optimize drawing ( find index )
-    }
-}
-#endif
 
 
 /*----------------------------------------------------------------------------
@@ -930,17 +940,13 @@ QLBItem *QListBox::item( int index ) const
 
 int QListBox::cellHeight( int index )
 {
-    if ( stringsOnly ) {
-	QFontMetrics fm = fontMetrics();
-	return fm.lineSpacing() + 1;
-    }
+    if ( stringsOnly )
+	return QTableView::cellHeight();
     QLBItem *lbi = item( index );
     if ( lbi ) {
 	switch( lbi->type ) {
-	    case LBI_String: {
-		QFontMetrics fm = fontMetrics();
-		return fm.lineSpacing() + 1;
-	    }
+	    case LBI_String:
+		return fontMetrics().lineSpacing() + 1;
 	    case LBI_Pixmap: {
 		if ( lbi->pixmap )
 		    return lbi->pixmap->height();
@@ -1019,7 +1025,7 @@ bool QListBox::itemVisible( int index )
 }
 
 /*----------------------------------------------------------------------------
-  Repaints the cell at position \e row using \e p.  The \e column
+  Repaints the cell at position \e row using \e p.  The \e col
   argument is ignored, it is present because QTableView is more
   general.
 
@@ -1030,7 +1036,7 @@ bool QListBox::itemVisible( int index )
   \sa QTableView::paintCell()
  ----------------------------------------------------------------------------*/
 
-void QListBox::paintCell( QPainter *p, int row, int column )
+void QListBox::paintCell( QPainter *p, int row, int col )
 {
     if ( ownerDrawn ) {
 	paintItem( p, row );
@@ -1048,22 +1054,24 @@ void QListBox::paintCell( QPainter *p, int row, int column )
 	return;
     }
 
-    QFontMetrics fm = fontMetrics();
     QColorGroup	 g  = colorGroup();
     GUIStyle	 gs = style();
-    QColor	 fc;				// fill color
-    if ( gs == WindowsStyle )
-	fc = darkBlue;				// !!!hardcoded
-    else
-	fc = g.text();
+
     if ( current == row ) {
-	p->fillRect( 0, 0, cellWidth(column), cellHeight(row), fc );
+	QColor	 fc;				// fill color
+	if ( gs == WindowsStyle )
+	    fc = darkBlue;			// !!!hardcoded
+	else
+	    fc = g.text();
+	p->fillRect( 0, 0, cellWidth(col), cellHeight(row), fc );
 	p->setPen( backgroundColor() );
     } else {
 	p->setPen( g.text() );
     }
-    if ( lbi->type == LBI_String )  // ### assumes leading() >= 0
+    if ( lbi->type == LBI_String ) {
+	QFontMetrics fm = fontMetrics();
 	p->drawText( 3, fm.ascent() + fm.leading()/2, lbi->string );
+    }
     if ( lbi->type == LBI_Pixmap )
 	p->drawPixmap( 3, 0, *lbi->pixmap );
 }
@@ -1152,9 +1160,14 @@ void QListBox::mouseMoveEvent( QMouseEvent *e )
 
 void QListBox::keyPressEvent( QKeyEvent *e )
 {
+    if ( numRows() == 0 )
+	return;
+    if ( currentItem() < 0 )
+	setCurrentItem( topItem() );
+
     switch ( e->key() ) {
 	case Key_Up:
-	    if ( currentItem() != 0 ) {
+	    if ( currentItem() > 0 ) {
 		setCurrentItem( currentItem() - 1 );
 		if ( currentItem() == topItem() - 1 )
 		    setTopItem( topItem() - 1 );
@@ -1178,11 +1191,15 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 }
 
 
-/*! Handles focus in events.  If there is no current item, sets the
-  current item to first one. \sa keyPressEvent() */
+/*----------------------------------------------------------------------------
+  Handles focus events.  Repaints, and sets the current item to
+  first one if there is no current item.
+  \sa keyPressEvent(), focusOutEvent()
+ ----------------------------------------------------------------------------*/
 
-void QListBox::focusInEvent( QFocusEvent * ) {
-    if ( currentItem() < 0 )
+void QListBox::focusInEvent( QFocusEvent * )
+{
+    if ( currentItem() < 0 && numRows() > 0 )
 	setCurrentItem( topItem() );
 }
 
@@ -1354,6 +1371,8 @@ void QListBox::insertAny( const char *str, const QPixmap *pm,
     if ( !lbi )
 	lbi = newAny( str, pm );
     itemList->insert( index, lbi );
+    if ( current == index )
+	current++;
     if ( updateCellWidth ) {
 	QFontMetrics fm = fontMetrics();
 	int w = internalItemWidth( lbi, fm );
@@ -1395,9 +1414,9 @@ void QListBox::changeAny( const char *str, const QPixmap *pm,
     // ### the update rectangles are dubious
     if ( autoUpdate() && rowYPos( index, &y ) ) {
 	if ( nh == h )
-	    update( frameWidth(), y, viewWidth(), h );
+	    repaint( frameWidth(), y, viewWidth(), h );
 	else
-	    update( frameWidth(), y, viewWidth(), viewHeight() - y );
+	    repaint( frameWidth(), y, viewWidth(), viewHeight() - y );
     }
 }
 
@@ -1444,3 +1463,4 @@ int QListBox::internalItemWidth( const QLBItem	    *lbi,
     }
     return w;
 }
+

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#23 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#24 $
 **
 ** Definition of QListBox widget class
 **
@@ -44,6 +44,8 @@ class QListBox : public QTableView		// list box widget
 public:
     QListBox( QWidget *parent=0, const char *name=0 );
    ~QListBox();
+
+    void	setFont( const QFont & );
 
     int		count() const;
 
