@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#59 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#60 $
 **
 ** Definition of QIconView widget class
 **
@@ -155,7 +155,8 @@ protected:
 
 };
 
-QIconViewItemLineEdit::QIconViewItemLineEdit( const QString &text, QWidget *parent, QIconViewItem *theItem, const char *name )
+QIconViewItemLineEdit::QIconViewItemLineEdit( const QString &text, QWidget *parent, 
+					      QIconViewItem *theItem, const char *name )
     : QMultiLineEdit( parent, name ), item( theItem ), startText( text )
 {
     setWordWrap( QMultiLineEdit::FixedWidthWrap | QMultiLineEdit::BreakWithinWords );
@@ -200,11 +201,23 @@ void QIconViewItemLineEdit::focusOutEvent( QFocusEvent * )
  *
  *****************************************************************************/
 
+/*!
+  \class QIconDragItem qiconview.h
+  \brief The QIconDragItem is the interan data structure of a QIconDrag
+
+*/
+
+/*!
+ */
+
 QIconDragItem::QIconDragItem()
     : rect_()
 {
     makeKey();
 }
+
+/*!
+ */
 
 QIconDragItem::QIconDragItem( const QRect &r )
     : rect_( r )
@@ -212,19 +225,31 @@ QIconDragItem::QIconDragItem( const QRect &r )
     makeKey();
 }
 
+/*!
+ */
+
 QIconDragItem::~QIconDragItem()
 {
 }
+
+/*!
+ */
 
 bool QIconDragItem::operator<( const QIconDragItem &icon )
 {
     return key_ < icon.key_;
 }
 
+/*!
+ */
+
 bool QIconDragItem::operator==( const QIconDragItem &icon )
 {
     return key_ == icon.key_;
 }
+
+/*!
+ */
 
 void QIconDragItem::makeKey()
 {
@@ -233,15 +258,24 @@ void QIconDragItem::makeKey()
     key_ = k;
 };
 
+/*!
+ */
+
 QRect QIconDragItem::rect() const
 {
     return rect_;
 }
 
+/*!
+ */
+
 QString QIconDragItem::key() const
 {
     return key_;
 }
+
+/*!
+ */
 
 void QIconDragItem::setRect( const QRect &r )
 {
@@ -254,29 +288,47 @@ void QIconDragItem::setRect( const QRect &r )
  *
  *****************************************************************************/
 
+/*!
+ */
+
 QIconDrag::QIconDrag( const QIconList &icons_, QWidget * dragSource, const char* name )
     : QDragObject( dragSource, name ), icons( icons_ )
 {
 }
+
+/*!
+ */
 
 QIconDrag::QIconDrag( QWidget * dragSource, const char* name )
     : QDragObject( dragSource, name )
 {
 }
 
+/*!
+ */
+
 QIconDrag::~QIconDrag()
 {
 }
+
+/*!
+ */
 
 void QIconDrag::setIcons( const QIconList &list_ )
 {
     icons = list_;
 }
 
+/*!
+ */
+
 void QIconDrag::append( const QIconDragItem &icon_ )
 {
     icons.append( icon_ );
 }
+
+/*!
+ */
 
 const char* QIconDrag::format( int i ) const
 {
@@ -284,6 +336,9 @@ const char* QIconDrag::format( int i ) const
 	return "application/x-qiconlist";
     return 0;
 }
+
+/*!
+ */
 
 QByteArray QIconDrag::encodedData( const char* mime ) const
 {
@@ -306,12 +361,18 @@ QByteArray QIconDrag::encodedData( const char* mime ) const
     return a;
 }
 
+/*!
+ */
+
 bool QIconDrag::canDecode( QMimeSource* e )
 {
     if ( e->provides( "application/x-qiconlist" ) )
 	return TRUE;
     return FALSE;
 }
+
+/*!
+ */
 
 bool QIconDrag::decode( QMimeSource* e, QIconList &list_ )
 {
@@ -2559,7 +2620,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	setCurrentItem( findFirstVisibleItem() );
 	break;
     default:
-	if ( !e->text().isEmpty() && e->text()[ 0 ].isPrint() ) 
+	if ( !e->text().isEmpty() && e->text()[ 0 ].isPrint() )
 	    findItemByName( e->text() );
     }
 
