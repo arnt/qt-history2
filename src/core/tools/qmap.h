@@ -42,7 +42,7 @@ struct Q_CORE_EXPORT QMapData
     static QMapData shared_null;
 };
 
-#if !defined(QT_NO_DATASTREAM) && !defined(QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION)
+#if !defined(QT_NO_DATASTREAM)
 class QDataStream;
 template <class Key, class T> class QMap;
 template <class Key, class T>
@@ -260,8 +260,9 @@ private:
     QMapData::Node *node_create(QMapData *d, QMapData::Node *update[], const Key &key,
                                 const T &value);
 
-#if !defined(QT_NO_DATASTREAM) && !defined(QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION)
-    friend QDataStream &operator>> <>(QDataStream &out, QMap<Key, T> &map);
+#if !defined(QT_NO_DATASTREAM)
+    template <typename aKey, typename aT>
+    friend QDataStream &operator>> (QDataStream &out, QMap<aKey, aT> &map);
 #endif
 };
 
