@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#284 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#285 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -2567,7 +2567,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    map( x, y, &x, &y );
     }
 
-    QString mapped;
+    QCString mapped;
 
     const QTextCodec* mapper = cfont.d->mapper();
     if ( mapper ) {
