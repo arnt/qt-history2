@@ -977,6 +977,12 @@ QApplication::~QApplication()
 
     qt_cleanup();
 
+#ifndef QT_NO_SESSIONMANAGER
+    // delete the session manager
+    delete session_manager;
+    session_manager = 0;
+#endif
+
     delete static_eventloop;
     static_eventloop = 0;
 
