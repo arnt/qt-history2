@@ -1104,7 +1104,8 @@ QString QCoreApplication::applicationFilePath()
 
     return filePath.filePath();
 #elif defined(Q_WS_MAC)
-    return QDir::cleanPath(QFile::decodeName(qAppFileName()));
+    QFileInfo fi(qAppFileName());
+    return fi.exists() ? fi.canonicalFilePath() : QString::null;
 #else
     QString argv0 = QFile::decodeName(QByteArray(argv()[0]));
     QString absPath;
