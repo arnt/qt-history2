@@ -1259,7 +1259,7 @@ void QPainter::saveWorldMatrix()
 }
 
 /*! \obsolete
-  We recommend using save() instead.
+  We recommend using restore() instead.
 */
 
 void QPainter::restoreWorldMatrix()
