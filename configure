@@ -2696,8 +2696,11 @@ esac
 if [ -x "/usr/bin/perl" ] && [ -x "$relpath/bin/syncqt" ]; then
     SYNCQT_OPTS=
     [ "$Edition" = "troll" ] &&  SYNCQT_OPTS="$SYNCQT_OPTS -check-includes"
-    [ "$Edition" = "troll" ] &&  QTDIR=$relpath perl $relpath/bin/syncqt $SYNCQT_OPTS -outdir $relpath
-    [ "$OPT_SHADOW" = "yes" ] && QTDIR=$relpath perl $relpath/bin/syncqt $SYNCQT_OPTS -outdir $outpath
+    if [ "$OPT_SHADOW" = "yes" ]; then 
+       $outpath/bin/syncqt $SYNCQT_OPTS
+    elif [ "$Edition" = "troll" ]; then 
+       QTDIR=$relpath perl $outpath/bin/syncqt $SYNCQT_OPTS
+    fi
 fi
 
 if [ "$OPT_SHADOW" = "yes" ]; then
