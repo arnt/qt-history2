@@ -27,7 +27,6 @@
 #include <qcombobox.h>
 #include <qevent.h>
 #include <qlineedit.h>
-#include <qobjectlist.h>
 #include <qfileinfo.h>
 #include <qfile.h>
 #include <qdatastream.h>

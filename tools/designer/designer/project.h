@@ -23,11 +23,10 @@
 #include "../interfaces/projectsettingsiface.h"
 #include "sourcefile.h"
 #include "formfile.h"
-#include <qobjectlist.h>
 #include <qptrdict.h>
+#include <qlist.h>
 #include "formfile.h"
 
-class QObjectList;
 struct DesignerProject;
 struct DesignerDatabase;
 class PixmapCollection;

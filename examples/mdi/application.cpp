@@ -251,7 +251,7 @@ void ApplicationWindow::tileHorizontal()
     QWidgetList windows = ws->windowList();
     if ( !windows.count() )
 	return;
-    
+
     int heightForEach = ws->height() / windows.count();
     int y = 0;
     for ( int i = 0; i < int(windows.count()); ++i ) {
@@ -263,7 +263,7 @@ void ApplicationWindow::tileHorizontal()
 	}
 	int preferredHeight = window->minimumHeight()+window->parentWidget()->baseSize().height();
 	int actHeight = QMAX(heightForEach, preferredHeight);
-	
+
 	window->parentWidget()->setGeometry( 0, y, ws->width(), actHeight );
 	y += actHeight;
     }
@@ -302,7 +302,7 @@ MDIWindow::~MDIWindow()
 void MDIWindow::closeEvent( QCloseEvent *e )
 {
     if ( medit->isModified() ) {
-	switch( QMessageBox::warning( this, "Save Changes", 
+	switch( QMessageBox::warning( this, "Save Changes",
 	    tr("Save changes to %1?").arg( caption() ),
 	    tr("Yes"), tr("No"), tr("Cancel") ) ) {
 	case 0:

@@ -18,7 +18,6 @@
 #include "qwidget.h"
 #include "qfontmetrics.h"
 #include "qcursor.h"
-#include "qobjectlist.h"
 
 QWidget *cursorWidget( QPoint * = 0 );
 
@@ -210,13 +209,9 @@ bool QDragger::isParentToDragged( QWidget *w )
 
 bool QDragger::noWidgets( QWidget *w )
 {
-    const QObjectList *l = w->children();
-    if ( !l )
-	return TRUE;
-    QObjectListIterator iter( *l );
-    QObject *tmp;
-    while( (tmp = iter.current()) ) {
-	++iter;
+    const QObjectList l = w->children();
+    for (int i = 0; i < l.size(); ++i) {
+	QObject *tmp = l.at(i);
 	if ( tmp->isWidgetType() )
 	    return FALSE;
     }
@@ -225,13 +220,9 @@ bool QDragger::noWidgets( QWidget *w )
 
 void QDragger::sendAllChildrenHome( QWidget *w )
 {
-    const QObjectList *l = w->children();
-    if ( !l )
-	return;
-    QObjectListIterator iter( *l );
-    QObject *tmp;
-    while( (tmp = iter.current()) ) {
-	++iter;
+    const QObjectList l = w->children();
+    for (int i = 0; i < l.size(); ++i) {
+	QObject *tmp = l.at(i);
 	if ( tmp->isWidgetType() ) {
 	    sendAllChildrenHome( (QWidget*) tmp );
 	    DraggedInfo *di = draggedDict.find( (long) tmp );
@@ -429,13 +420,9 @@ void QDragger::killDropWindow()
 
 void QDragger::killDropWindow( DropInfo *di )
 {
-    const QObjectList *l = di->w->children();
-    if ( !l )
-	return;
-    QObjectListIterator iter( *l );
-    QObject *tmp;
-    while( (tmp = iter.current()) ) {
-	++iter;
+    const QObjectList l = di->w->children();
+    for (int i = 0; i < l.size(); ++i) {
+	QObject *tmp = l.at(i);
 	if ( tmp->isWidgetType() ) {
 	    DraggedInfo *dri = draggedDict.find( (long) tmp );
 	    if ( dri ) {

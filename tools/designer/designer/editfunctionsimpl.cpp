@@ -97,17 +97,14 @@ EditFunctions::EditFunctions( QWidget *parent, FormWindow *fw, bool justSlots )
 		      SLOT( emitItemRenamed(QListViewItem*, int, const QString&) ) );
 
     // Connect signal-relay to QLineEdit "functionName"
-    QObjectList *l = parent->queryList( "QLineEdit", "functionName" );
-    QObject *obj;
-    QObjectListIterator itemsLineEditIt( *l );
-    while ( (obj = itemsLineEditIt.current()) != 0 ) {
-        ++itemsLineEditIt;
+    QObjectList l = parent->queryList( "QLineEdit", "functionName" );
+    for (int i = 0; i < l.size(); ++i) {
+	QObject *obj = l.at(i);
 	QObject::connect( this,
 			  SIGNAL( itemRenamed( const QString & ) ),
 			  obj,
 			  SLOT( setText( const QString & ) ) );
     }
-    delete l;
 }
 
 void EditFunctions::okClicked()

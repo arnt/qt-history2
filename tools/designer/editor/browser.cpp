@@ -13,6 +13,7 @@
 #include "browser.h"
 #include "editor.h"
 #include <private/qrichtext_p.h>
+#include <qcursor.h>
 
 
 EditorBrowser::EditorBrowser( Editor *e )

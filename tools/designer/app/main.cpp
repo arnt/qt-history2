@@ -23,7 +23,6 @@
 #include "designerapp.h"
 
 #include <qtextstream.h>
-#include <qobjectlist.h>
 #include <qsettings.h>
 #include <qsplashscreen.h>
 #include <qdir.h>
@@ -56,19 +55,14 @@ static void signalHandler( QT_SIGNAL_ARGS )
     for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
 	QString arg = (*it).stripWhiteSpace();
 	if ( arg[0] != '-' ) {
-	    QObjectList* l = MainWindow::self->queryList( "FormWindow" );
-	    FormWindow* fw = (FormWindow*) l->first();
-#if 0 // ### what's this dead code for?
-	    FormWindow* totop;
-#endif
+	    QObjectList l = MainWindow::self->queryList( "FormWindow" );
 	    bool haveit = FALSE;
-	    while ( fw ) {
-		haveit = haveit || fw->fileName() == arg;
-#if 0 // ### what's this dead code for?
-		if ( haveit )
-		    totop = fw;
-#endif
-		fw = (FormWindow*) l->next();
+	    for (int i = 0; i < l.size(); ++i) {
+		FormWindow* fw = (FormWindow*) l.at(i);
+		if (fw->fileName() == arg) {
+		    haveit = true;
+		    break;
+		}
 	    }
 	    if ( !haveit )
 		MainWindow::self->openFormWindow( arg );

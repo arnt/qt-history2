@@ -762,9 +762,11 @@ void CustomWidgetEditor::loadDescription()
 void CustomWidgetEditor::updateCustomWidgetSizes()
 {
     if ( cwLst.isEmpty() )
-	cwLst = *mainWindow->queryList( "CustomWidget" );
-    for ( QObject *o = cwLst.first(); o; o = cwLst.next() )
+	cwLst = mainWindow->queryList( "CustomWidget" );
+    for (int i = 0; i < cwLst.size(); ++i ) {
+	QObject *o = cwLst.at(i);
 	( (QWidget*)o )->updateGeometry();
+    }
 }
 
 void CustomWidgetEditor::horDataChanged( int a )
@@ -778,9 +780,9 @@ void CustomWidgetEditor::horDataChanged( int a )
     QSizePolicy osp = w->sizePolicy;
     w->sizePolicy.setHorData( st );
     if ( cwLst.isEmpty() )
-	cwLst = *mainWindow->queryList( "CustomWidget" );
-    for ( QObject *o = cwLst.first(); o; o = cwLst.next() ) {
-	CustomWidget *cw = (CustomWidget*)o;
+	cwLst = mainWindow->queryList( "CustomWidget" );
+    for (int i = 0; i < cwLst.size(); ++i ) {
+	CustomWidget *cw = (CustomWidget*)cwLst.at(i);
 	if ( cw->realClassName() == boxWidgets->currentText() ) {
 	    if ( cw->sizePolicy() == osp )
 		cw->setSizePolicy( w->sizePolicy );
@@ -799,9 +801,9 @@ void CustomWidgetEditor::verDataChanged( int a )
     QSizePolicy osp = w->sizePolicy;
     w->sizePolicy.setVerData( st );
     if ( cwLst.isEmpty() )
-	cwLst = *mainWindow->queryList( "CustomWidget" );
-    for ( QObject *o = cwLst.first(); o; o = cwLst.next() ) {
-	CustomWidget *cw = (CustomWidget*)o;
+	cwLst = mainWindow->queryList( "CustomWidget" );
+    for (int i = 0; i < cwLst.size(); ++i ) {
+	CustomWidget *cw = (CustomWidget*)cwLst.at(i);
 	if ( cw->realClassName() == boxWidgets->currentText() ) {
 	    if ( cw->sizePolicy() == osp )
 		cw->setSizePolicy( w->sizePolicy );

@@ -31,7 +31,7 @@
 #include <qmap.h>
 #include <qguardedptr.h>
 #include <private/qpluginmanager_p.h>
-#include <qobjectlist.h>
+#include <qlist.h>
 
 class QToolBox;
 class PropertyEditor;

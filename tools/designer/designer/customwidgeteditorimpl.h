@@ -17,7 +17,6 @@
 #include "metadatabase.h"
 
 #include <qmap.h>
-#include <qobjectlist.h>
 
 class QTimer;
 class QListBoxItem;
@@ -62,7 +61,7 @@ protected slots:
     void horDataChanged( int );
     void verDataChanged( int );
     void widgetIsContainer( bool );
-    
+
 private:
     MetaDataBase::CustomWidget *findWidget( QListBoxItem *i );
     void setupDefinition();

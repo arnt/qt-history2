@@ -351,12 +351,12 @@ DeleteCommand::DeleteCommand( const QString &n, FormWindow *fw,
 
     // Include the children of the selected items when deleting
     for ( QWidget *w = widgets.first(); w; w = widgets.next() ) {
-	QObjectList *children = w->queryList( "QWidget" );
-	for ( QWidget *c = (QWidget *)children->first(); c; c = (QWidget *)children->next() ) {
+	QObjectList children = w->queryList( "QWidget" );
+	for (int i = 0; i < children.size(); ++i) {
+	    QWidget *c = static_cast<QWidget *>(children.at(i));
 	    if ( widgets.find( c ) == -1 && formWindow()->widgets()->find( c ) )
 		widgets.append( c );
 	}
-	delete children;
     }
 }
 
@@ -1777,26 +1777,23 @@ void AddActionToToolBarCommand::execute()
 	toolBar->reInsert();
 	QObject::connect( action, SIGNAL( destroyed() ), toolBar, SLOT( actionRemoved() ) );
     } else {
-	QObjectListIterator it( *action->children() );
-	if ( action->children() ) {
-	    int i = 0;
-	    while ( it.current() ) {
-		QObject *o = it.current();
-		++it;
-		if ( !qt_cast<QAction*>(o) )
-		    continue;
-		// ### fix it for nested actiongroups
-		if ( qt_cast<QDesignerAction*>(o) ) {
-		    QDesignerAction *ac = (QDesignerAction*)o;
-		    toolBar->insertAction( ac->widget(), ac );
-		    ac->widget()->installEventFilter( toolBar );
-		    if ( index == -1 )
-			toolBar->appendAction( ac );
-		    else
-			toolBar->insertAction( index + (i++), ac );
-		}
-		QObject::connect( o, SIGNAL( destroyed() ), toolBar, SLOT( actionRemoved() ) );
+	QObjectList l = action->children();
+	int i = 0;
+	for (int j = 0; j < l.size(); ++j) {
+	    QObject *o = l.at(j);
+	    if ( !qt_cast<QAction*>(o) )
+		continue;
+	    // ### fix it for nested actiongroups
+	    if ( qt_cast<QDesignerAction*>(o) ) {
+		QDesignerAction *ac = (QDesignerAction*)o;
+		toolBar->insertAction( ac->widget(), ac );
+		ac->widget()->installEventFilter( toolBar );
+		if ( index == -1 )
+		    toolBar->appendAction( ac );
+		else
+		    toolBar->insertAction( index + (i++), ac );
 	    }
+	    QObject::connect( o, SIGNAL( destroyed() ), toolBar, SLOT( actionRemoved() ) );
 	}
 	toolBar->reInsert();
 	QObject::connect( action, SIGNAL( destroyed() ), toolBar, SLOT( actionRemoved() ) );
@@ -1818,19 +1815,16 @@ void AddActionToToolBarCommand::unexecute()
     if ( !qt_cast<QActionGroup*>(action) || ( (QActionGroup*)action )->usesDropDown()) {
 	action->removeEventFilter( toolBar );
     } else {
-	if ( action->children() ) {
-	    QObjectListIterator it( *action->children() );
-	    while ( it.current() ) {
-		QObject *o = it.current();
-		++it;
-		if ( !qt_cast<QAction*>(o) )
-		    continue;
-		if ( qt_cast<QDesignerAction*>(o) ) {
-		    o->removeEventFilter( toolBar );
-		    toolBar->removeAction( (QAction*)o );
-		}
-		QObject::disconnect( o, SIGNAL( destroyed() ), toolBar, SLOT( actionRemoved() ) );
+	QObjectList l = action->children();
+	for (int i = 0; i < l.size(); ++i) {
+	    QObject *o = l.at(i);
+	    if ( !qt_cast<QAction*>(o) )
+		continue;
+	    if ( qt_cast<QDesignerAction*>(o) ) {
+		o->removeEventFilter( toolBar );
+		toolBar->removeAction( (QAction*)o );
 	    }
+	    QObject::disconnect( o, SIGNAL( destroyed() ), toolBar, SLOT( actionRemoved() ) );
 	}
     }
     formWindow()->mainWindow()->objectHierarchy()->rebuild();

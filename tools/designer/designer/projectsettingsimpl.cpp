@@ -25,7 +25,6 @@
 #include <qcheckbox.h>
 #include <qfiledialog.h>
 #include <qcombobox.h>
-#include <qobjectlist.h>
 #include <qheader.h>
 #include <qpushbutton.h>
 #include <qlabel.h>

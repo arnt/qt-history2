@@ -15,7 +15,6 @@
 #include <qtabwidget.h>
 #include <qfileinfo.h>
 #include <qaccel.h>
-#include <qobjectlist.h>
 #include <qtimer.h>
 #include <qdragobject.h>
 #include <qfontinfo.h>
@@ -197,14 +196,11 @@ void MainWindow::setObjectsEnabled( bool b )
 	qApp->setOverrideCursor( QCursor( Qt::WaitCursor ) );
 	statusBar()->message( tr( "Initializing Qt Assistant..." ) );
     }
-    QObjectList *l = queryList( "QAction" );
-    QObject *obj;
-    QObjectListIterator it( *l );
-    while ( (obj = it.current()) != 0 ) {
-        ++it;
+    QObjectList l = queryList( "QAction" );
+    for (int i = 0; i < l.size(); ++i) {
+	QObject *obj = l.at(i);
         ((QAction*)obj)->setEnabled( b );
     }
-    delete l;
     QPtrListIterator<QAction> ait( *goActions );
     while ( ait.current() != 0 ) {
 	(*ait)->setEnabled( b );
@@ -450,12 +446,11 @@ void MainWindow::showSettingsDialog( int page )
 	return;
 
     goMenu->removeItemAt( goMenu->count() - 1 );
-    QObjectList *lst = (QObjectList*)Toolbar->children();
-    QObject *obj;
-    for ( obj = lst->last(); obj; obj = lst->prev() ) {
+    QObjectList lst = Toolbar->children();
+    for (int i = 0; i < lst.size(); ++i) {
+	QObject *obj = lst.at(i);
 	if ( obj->isA( "QToolBarSeparator" ) ) {
 	    delete obj;
-	    obj = 0;
 	    break;
 	}
     }

@@ -46,7 +46,6 @@
 #include <qmessagebox.h>
 #include <qmetaobject.h>
 #include <qobject.h>
-#include <qobjectlist.h>
 #include <qtabbar.h>
 #ifndef QT_NO_TABLE
 #include <qtable.h>
@@ -711,8 +710,7 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 
     if ( obj->inherits( "QTabWidget" ) ) {
 	QTabWidget* tw = (QTabWidget*) obj;
-	QObjectList* tmpl = tw->queryList( "QWidgetStack" );
-	QWidgetStack *ws = (QWidgetStack*)tmpl->first();
+	QWidgetStack *ws = (QWidgetStack*)tw->queryList( "QWidgetStack" ).first();
 	QTabBar *tb = ( (QDesignerTabWidget*)obj )->tabBar();
 	for ( int i = 0; i < tb->count(); ++i ) {
 	    QTab *t = tb->tabAt( i );
@@ -740,7 +738,6 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 	    --indent;
 	    ts << makeIndent( indent ) << "</widget>" << endl;
 	}
-	delete tmpl;
     } else if ( obj->inherits( "QWidgetStack" ) ) {
 	QDesignerWidgetStack* ws = (QDesignerWidgetStack*) obj;
 	for ( int i = 0; i < ws->count(); ++i ) {
@@ -1155,8 +1152,8 @@ void Resource::saveItem( const QStringList &text,
 
 void Resource::saveChildrenOf( QObject* obj, QTextStream &ts, int indent )
 {
-    const QObjectList *l = obj->children();
-    if ( !l )
+    const QObjectList l = obj->children();
+    if ( l.isEmpty() )
 	return; // no children to save
 
     QString closeTag;
@@ -1195,10 +1192,11 @@ void Resource::saveChildrenOf( QObject* obj, QTextStream &ts, int indent )
 
     }
 
-    QObject *o = 0;
-    for ( QPtrListIterator<QObject> it ( *l ); ( o = it.current() ); ++it )
+    for (int i = 0; i < l.size(); ++i) {
+	QObject *o = l.at(i);
 	if ( !QString( o->name() ).startsWith( "qt_dead_widget_" ) )
 	    saveObject( o, grid, ts, indent );
+    }
     if ( !closeTag.isEmpty() ) {
 	indent--;
 	ts << closeTag << endl;
@@ -2283,13 +2281,9 @@ void Resource::loadConnections( const QDomElement &e )
 		    } else {
 			if ( name == "this" )
 			    name = toplevel->name();
-			QObjectList *l = toplevel->queryList( 0, name, FALSE );
-			if ( l ) {
-			    if ( l->first() )
-				conn.sender = l->first();
-			    delete l;
-			    l = 0;
-			}
+			QObjectList l = toplevel->queryList( 0, name, FALSE );
+			if ( l.size() )
+			    conn.sender = l.first();
 			if ( !conn.sender )
 			    conn.sender = formwindow->findAction( name );
 		    }
@@ -2301,13 +2295,9 @@ void Resource::loadConnections( const QDomElement &e )
 		    if ( name == "this" || qstrcmp( toplevel->name(), name ) == 0 ) {
 			conn.receiver = toplevel;
 		    } else {
-			QObjectList *l = toplevel->queryList( 0, name, FALSE );
-			if ( l ) {
-			    if ( l->first() )
-				conn.receiver = l->first();
-			    delete l;
-			    l = 0;
-			}
+			QObjectList l = toplevel->queryList( 0, name, FALSE );
+			if ( l.size() )
+			    conn.receiver = l.first();
 			if ( !conn.receiver )
 			    conn.receiver = formwindow->findAction( name );
 		    }
@@ -2514,16 +2504,13 @@ void Resource::loadTabOrder( const QDomElement &e )
 	    QString name = n.firstChild().toText().data();
 	    if ( name.isEmpty() )
 		continue;
-	    QObjectList *l = toplevel->queryList( 0, name, FALSE );
-	    if ( l ) {
-		if ( l->first() ) {
-		    QWidget *w = (QWidget*)l->first();
-		    widgets.append( w );
-		    if ( last )
-			toplevel->setTabOrder( last, w );
-		    last = w;
-		}
-		delete l;
+	    QObjectList l = toplevel->queryList( 0, name, FALSE );
+	    if ( l.size() ) {
+		QWidget *w = (QWidget*)l.first();
+		widgets.append( w );
+		if ( last )
+		    toplevel->setTabOrder( last, w );
+		last = w;
 	    }
 	}
 	n = n.nextSibling().toElement();
@@ -2717,15 +2704,14 @@ QColorGroup Resource::loadColorGroup( const QDomElement &e )
 
 void Resource::saveChildActions( QAction *a, QTextStream &ts, int indent )
 {
-    if ( !a->children() )
+    QObjectList l = a->children();
+    if ( !l.size() )
 	return;
-    QObjectListIterator it( *a->children() );
-    while ( it.current() ) {
-	QObject *o = it.current();
-	++it;
-	if ( !o->inherits( "QAction" ) )
+    for (int i = 0; i < l.size(); ++i) {
+	QObject *o = l.at(i);
+	QAction *ac = qt_cast<QAction *>(o);
+	if (!ac)
 	    continue;
-	QAction *ac = (QAction*)o;
 	bool isGroup = ac->inherits( "QActionGroup" );
 	if ( isGroup )
 	    ts << makeIndent( indent ) << "<actiongroup>" << endl;

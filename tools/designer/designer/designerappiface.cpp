@@ -172,10 +172,8 @@ QPtrList<DesignerFormWindow> DesignerProjectImpl::formList() const
     if ( !forms )
 	return list;
 
-    QPtrListIterator<QObject> it( *forms );
-    while ( it.current() ) {
-	QObject *obj = it.current();
-	++it;
+    for (int i = 0; i < forms->size(); ++i ) {
+	QObject *obj = forms->at(i);
 	QWidget *par = qt_cast<FormWindow*>(obj->parent());
 	if ( !obj->isWidgetType() || !par )
 	    continue;

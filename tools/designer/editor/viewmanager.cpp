@@ -16,7 +16,6 @@
 #include <qlayout.h>
 #include <private/qrichtext_p.h>
 #include "paragdata.h"
-#include <qobjectlist.h>
 #include <qlabel.h>
 #include <qtimer.h>
 

@@ -192,13 +192,13 @@ XFormControl::XFormControl( const QFont &initialFont,
     startTimer(20); // start an initial animation
 }
 
-void XFormControl::timerEvent(QTimerEvent*)
+void XFormControl::timerEvent(QTimerEvent *e)
 {
     int v = magS->value();
     v = (v+2)+v/10;
     if ( v >= 200 ) {
 	v = 200;
-	killTimers();
+	killTimer(e->timerId());
     }
     magS->setValue(v);
 }

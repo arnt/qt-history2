@@ -57,4 +57,15 @@ Table of contents:
 If you specify a negative value for \e len to left() or right() then an empty string is
 returned.
 
+\section1 QObject
+
+children() and QueryList now return a QObjectList instead of a pointer
+to a QObjectList. See also the comments on QObjectList.
+
+killTimers() has been removed.
+
+\section1 QObjectList
+
+QObjectList is a typdef to a QList of QObject pointers and not a QPtrList now.
+
 */

@@ -19,7 +19,6 @@
 #include <qapplication.h>
 #include <qcombobox.h>
 #include <qstylefactory.h>
-#include <qobjectlist.h>
 #include <qfontdatabase.h>
 #include <qlineedit.h>
 #include <qlistbox.h>
@@ -168,15 +167,9 @@ static void setStyleHelper(QWidget *w, QStyle *s)
 {
     w->setStyle(s);
 
-    const QObjectList *children = w->children();
-    if (! children)
-	return;
-
-    QPtrListIterator<QObject> childit(*children);
-    QObject *child;
-    while ((child = childit.current()) != 0) {
-	++childit;
-
+    const QObjectList children = w->children();
+    for (int i = 0; i < children.size(); ++i) {
+	QObject *child = children.at(i);
 	if (child->isWidgetType())
 	    setStyleHelper((QWidget *) child, s);
     }

@@ -25,7 +25,6 @@
 #include <qfile.h>
 #include <qtextstream.h>
 #include <qurl.h>
-#include <qobjectlist.h>
 #include <qfeatures.h>
 #include <qtextcodec.h>
 #include <qdom.h>
@@ -1276,14 +1275,14 @@ void Project::addObject( QObject *o )
 
 void Project::setObjects( const QObjectList &ol )
 {
-    for ( QObjectListIterator it( ol ); it.current(); ++it )
-	addObject( it.current() );
+    for (int i = 0; i < ol.size(); ++i )
+	addObject( ol.at(i) );
 }
 
 void Project::removeObject( QObject *o )
 {
     bool wasModified = modified;
-    objs.removeRef( o );
+    objs.remove( o );
     MetaDataBase::removeEntry( o );
     fakeFormFiles.remove( (void*)o );
     emit objectRemoved( o );
@@ -1394,7 +1393,8 @@ void Project::addAndEditFunction( const QString &function, const QString &functi
 
 bool Project::hasParentObject( QObject *o )
 {
-    for ( QObject *p = objs.first(); p; p = objs.next() ) {
+    for (int i = 0; i < objs.size(); ++i ) {
+	QObject *p = objs.at(i);
 	QObject *c = p->child( o->name(), o->className() );
 	if ( c )
 	    return TRUE;
@@ -1408,7 +1408,7 @@ QString Project::qualifiedName( QObject *o )
     QObject *p = o->parent();
     while ( p ) {
 	name.prepend( QString( p->name() ) + "." );
-	if ( objs.findRef( p ) != -1 )
+	if ( objs.findIndex( p ) != -1 )
 	    break;
 	p = p->parent();
     }

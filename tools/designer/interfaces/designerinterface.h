@@ -33,7 +33,6 @@
 #include <qstringlist.h>
 #include <qvaluelist.h>
 #include <qwidgetlist.h>
-#include <qobjectlist.h>
 #include <qcstring.h>
 
 struct DesignerProject;

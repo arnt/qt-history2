@@ -28,7 +28,6 @@
 #include <qmainwindow.h>
 #include <qmenudata.h>
 #include <qmessagebox.h>
-#include <qobjectlist.h>
 #include <qpainter.h>
 #include <qstyle.h>
 #include <qtimer.h>
@@ -597,13 +596,12 @@ QPoint QDesignerToolBar::calcIndicatorPos( const QPoint &pos )
 	QPoint pnt( width() - 2, 0 );
 	insertAnchor = 0;
 	afterAnchor = TRUE;
-	if ( !children() )
+	QObjectList l = children();
+	if ( l.isEmpty() )
 	    return pnt;
 	pnt = QPoint( 13, 0 );
-	QObjectListIterator it( *children() );
-	QObject * obj;
-	while( (obj=it.current()) != 0 ) {
-	    ++it;
+	for (int i = 0; i < l.size(); ++i) {
+	    QObject * obj = l.at(i);
 	    if ( obj->isWidgetType() &&
 		 qstrcmp( "qt_dockwidget_internal", obj->name() ) != 0 ) {
 		QWidget *w = (QWidget*)obj;
@@ -619,13 +617,12 @@ QPoint QDesignerToolBar::calcIndicatorPos( const QPoint &pos )
 	QPoint pnt( 0, height() - 2 );
 	insertAnchor = 0;
 	afterAnchor = TRUE;
-	if ( !children() )
+	QObjectList l = children();
+	if ( l.isEmpty() )
 	    return pnt;
 	pnt = QPoint( 0, 13 );
-	QObjectListIterator it( *children() );
-	QObject * obj;
-	while( (obj=it.current()) != 0 ) {
-	    ++it;
+	for (int i = 0; i < l.size(); ++i) {
+	    QObject * obj = l.at(i);
 	    if ( obj->isWidgetType() &&
 		 qstrcmp( "qt_dockwidget_internal", obj->name() ) != 0 ) {
 		QWidget *w = (QWidget*)obj;
@@ -699,10 +696,9 @@ void QDesignerToolBar::installEventFilters( QWidget *w )
 {
     if ( !w )
 	return;
-    QObjectList *l = w->queryList( "QWidget" );
-    for ( QObject *o = l->first(); o; o = l->next() )
-	o->installEventFilter( this );
-    delete l;
+    QObjectList l = w->queryList( "QWidget" );
+    for (int i = 0; i < l.size(); ++i)
+	l.at(i)->installEventFilter( this );
 }
 
 #include "actiondnd.moc"

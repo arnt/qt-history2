@@ -1,9 +1,8 @@
-#include <qobjectlist.h>
 
 void WidgetsBase::init()
 {
     timeEdit->setTime( QTime::currentTime() );
-    dateEdit->setDate( QDate::currentDate() );    
+    dateEdit->setDate( QDate::currentDate() );
 }
 
 void WidgetsBase::destroy()
@@ -14,14 +13,13 @@ void WidgetsBase::destroy()
 void WidgetsBase::resetColors()
 {
     groupBox->setPalette( palette(), FALSE );
-    QObjectList *chldn = groupBox->queryList();
-    if ( chldn ) {
-	for(QObject *obj=chldn->first(); obj; obj = chldn->next()) {
-	    if(obj->isWidgetType()) {
-		QWidget *w = (QWidget *)obj;
-		if(!w->isTopLevel())
-		    w->setPalette(palette(), FALSE);
-	    }
+    QObjectList chldn = groupBox->queryList();
+    for (int i = 0; i < chldn.size(); ++i) {
+	QObject *obj = chldn.at(i);
+	if(obj->isWidgetType()) {
+	    QWidget *w = (QWidget *)obj;
+	    if(!w->isTopLevel())
+		w->setPalette(palette(), FALSE);
 	}
     }
 }
@@ -29,14 +27,13 @@ void WidgetsBase::resetColors()
 void WidgetsBase::setColor( const QString & color )
 {
     groupBox->setPalette( QColor( color ), FALSE );
-    QObjectList *chldn = groupBox->queryList();
-    if ( chldn ) {
-	for(QObject *obj=chldn->first(); obj; obj = chldn->next()) {
-	    if(obj->isWidgetType()) {
-		QWidget *w = (QWidget *)obj;
-		if(!w->isTopLevel())
-		    w->setPalette(QColor(color), FALSE);
-	    }
+    QObjectList chldn = groupBox->queryList();
+    for (int i = 0; i < chldn.size(); ++i) {
+	QObject *obj = chldn.at(i);
+	if(obj->isWidgetType()) {
+	    QWidget *w = (QWidget *)obj;
+	    if(!w->isTopLevel())
+		w->setPalette(QColor(color), FALSE);
 	}
     }
 }

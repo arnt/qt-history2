@@ -42,7 +42,6 @@
 #include <qfontdialog.h>
 #include <qspinbox.h>
 #include <qevent.h>
-#include <qobjectlist.h>
 #include <qlistbox.h>
 #include <qfontdatabase.h>
 #include <qcolor.h>
@@ -834,10 +833,9 @@ QDateEdit *PropertyDateItem::lined()
     if ( lin )
 	return lin;
     lin = new QDateEdit( listview->viewport() );
-    QObjectList *l = lin->queryList( "QLineEdit" );
-    for ( QObject *o = l->first(); o; o = l->next() )
-	o->installEventFilter( listview );
-    delete l;
+    QObjectList l = lin->queryList( "QLineEdit" );
+    for (int i = 0; i < l.size(); ++i)
+	l.at(i)->installEventFilter( listview );
     connect( lin, SIGNAL( valueChanged( const QDate & ) ),
 	     this, SLOT( setValue() ) );
     return lin;
@@ -911,10 +909,9 @@ QTimeEdit *PropertyTimeItem::lined()
     lin = new QTimeEdit( listview->viewport() );
     connect( lin, SIGNAL( valueChanged( const QTime & ) ),
 	     this, SLOT( setValue() ) );
-    QObjectList *l = lin->queryList( "QLineEdit" );
-    for ( QObject *o = l->first(); o; o = l->next() )
-	o->installEventFilter( listview );
-    delete l;
+    QObjectList l = lin->queryList( "QLineEdit" );
+    for (int i = 0; i < l.size(); ++i)
+	l.at(i)->installEventFilter( listview );
     return lin;
 }
 
@@ -986,10 +983,9 @@ QDateTimeEdit *PropertyDateTimeItem::lined()
     lin = new QDateTimeEdit( listview->viewport() );
     connect( lin, SIGNAL( valueChanged( const QDateTime & ) ),
 	     this, SLOT( setValue() ) );
-    QObjectList *l = lin->queryList( "QLineEdit" );
-    for ( QObject *o = l->first(); o; o = l->next() )
-	o->installEventFilter( listview );
-    delete l;
+    QObjectList l = lin->queryList( "QLineEdit" );
+    for (int i = 0; i < l.size(); ++i)
+	l.at(i)->installEventFilter( listview );
     return lin;
 }
 
@@ -1155,10 +1151,9 @@ QSpinBox *PropertyIntItem::spinBox()
 	spinBx = new QSpinBox( 0, INT_MAX, 1, listview->viewport() );
     spinBx->hide();
     spinBx->installEventFilter( listview );
-    QObjectList *ol = spinBx->queryList( "QLineEdit" );
-    if ( ol && ol->first() )
-	ol->first()->installEventFilter( listview );
-    delete ol;
+    QObjectList ol = spinBx->queryList( "QLineEdit" );
+    if ( !ol.isEmpty() )
+	ol.at(0)->installEventFilter( listview );
     connect( spinBx, SIGNAL( valueChanged( int ) ),
 	     this, SLOT( setValue() ) );
     return spinBx;
@@ -1251,10 +1246,9 @@ QSpinBox* PropertyLayoutItem::spinBox()
     spinBx->setSpecialValueText( tr( "default" ) );
     spinBx->hide();
     spinBx->installEventFilter( listview );
-    QObjectList *ol = spinBx->queryList( "QLineEdit" );
-    if ( ol && ol->first() )
-	ol->first()->installEventFilter( listview );
-    delete ol;
+    QObjectList ol = spinBx->queryList( "QLineEdit" );
+    if ( !ol.isEmpty() )
+	ol.at(0)->installEventFilter( listview );
     connect( spinBx, SIGNAL( valueChanged( int ) ),
 	     this, SLOT( setValue() ) );
     return spinBx;
@@ -1324,10 +1318,9 @@ QComboBox *PropertyListItem::combo()
 	     this, SLOT( setValue() ) );
     comb->installEventFilter( listview );
     if ( editable ) {
-	QObjectList *ol = comb->queryList( "QLineEdit" );
-	if ( ol && ol->first() )
-	    ol->first()->installEventFilter( listview );
-	delete ol;
+	QObjectList ol = comb->queryList( "QLineEdit" );
+	if ( !ol.isEmpty() )
+	    ol.at(0)->installEventFilter( listview );
     }
     return comb;
 }
@@ -2402,10 +2395,10 @@ void PropertyCursorItem::setValue()
 {
     if ( !comb )
 	return;
-    if ( QVariant( QCursor( combo()->currentItem() ) ) == val )
+    if ( QVariant( QCursor( (Qt::CursorShape)combo()->currentItem() ) ) == val )
 	return;
     setText( 1, combo()->currentText() );
-    PropertyItem::setValue( QCursor( combo()->currentItem() ) );
+    PropertyItem::setValue( QCursor( (Qt::CursorShape)combo()->currentItem() ) );
     notifyValueChange();
 }
 

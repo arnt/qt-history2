@@ -567,16 +567,15 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
 	    w->setPalette( *palet );
 	}
 
-	if ( style )
+	if ( style ) {
 	    w->setStyle( style );
 
-	QObjectList *l = w->queryList( "QWidget" );
-	for ( QObject *o = l->first(); o; o = l->next() ) {
-	    if ( style )
+	    QObjectList l = w->queryList( "QWidget" );
+	    for (int i = 0; i < l.size(); ++i) {
+		QObject *o = l.at(i);
 		( (QWidget*)o )->setStyle( style );
+	    }
 	}
-	delete l;
-
 	w->move( fw->mapToGlobal( QPoint(0,0) ) );
 	((MainWindow*)w )->setWFlags( WDestructiveClose );
 	previewing = TRUE;
@@ -3242,15 +3241,15 @@ void MainWindow::finishedRun()
 void MainWindow::enableAll( bool enable )
 {
     menuBar()->setEnabled( enable );
-    QObjectList *l = queryList( "QDockWindow" );
-    for ( QObject *o = l->first(); o; o = l->next() ) {
+    QObjectList l = queryList( "QDockWindow" );
+    for (int i = 0; i < l.size(); ++i ) {
+	QObject *o = l.at(i);
 	if ( o == wspace->parentWidget() ||
 	     o == oWindow->parentWidget() ||
 	     o == hierarchyView->parentWidget() )
 	    continue;
 	( (QWidget*)o )->setEnabled( enable );
     }
-    delete l;
 }
 
 void MainWindow::showSourceLine( QObject *o, int line, LineMode lm )
@@ -3444,7 +3443,8 @@ void MainWindow::breakPointsChanged()
 
     e->saveBreakPoints();
 
-    for ( QObject *o = debuggingForms.first(); o; o = debuggingForms.next() ) {
+    for (int i = 0; i < debuggingForms.size(); ++i ) {
+	QObject *o = debuggingForms.at(i);
 	if ( qstrcmp( o->name(), e->object()->name() ) == 0 ) {
 	    iiface->setBreakPoints( o, MetaDataBase::breakPoints( e->object() ) );
 	    break;

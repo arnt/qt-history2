@@ -28,7 +28,6 @@
 #include <qapplication.h>
 #include <qpainter.h>
 #include <qpen.h>
-#include <qobjectlist.h>
 #include <qworkspace.h>
 #include <qpopupmenu.h>
 #include <qtextstream.h>
@@ -342,9 +341,8 @@ void Workspace::setCurrentProject( Project *pro )
     }
 
     QObjectList l = project->objects();
-    QObjectListIterator objs( l );
-    for ( ;objs.current(); ++objs ) {
-	QObject* o = objs.current();
+    for (int i = 0; i < l.size(); ++i) {
+	QObject *o = l.at(i);
 	(void) new WorkspaceItem( projectItem, o, project );
     }
 

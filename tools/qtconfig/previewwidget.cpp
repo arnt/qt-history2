@@ -12,17 +12,13 @@
 
 #include "previewwidget.h"
 
-#include <qobjectlist.h>
-
 PreviewWidget::PreviewWidget( QWidget *parent, const char *name )
     : PreviewWidgetBase( parent, name )
 {
     // install event filter on child widgets
-    QObjectList *l = queryList("QWidget");
-    QObjectListIterator it(*l);
-    QObject * obj;
-    while ((obj = it.current()) != 0) {
-        ++it;
+    QObjectList l = queryList("QWidget");
+    for (int i = 0; i < l.size(); ++i) {
+	QObject * obj = l.at(i);
         obj->installEventFilter(this);
 	((QWidget*)obj)->setFocusPolicy(NoFocus);
     }

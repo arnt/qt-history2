@@ -22,7 +22,6 @@
 #include <qsize.h>
 #include <qpainter.h>
 #include <qevent.h>
-#include <qobjectlist.h>
 #include <qlabel.h>
 #include <qwizard.h>
 #include <qptrdict.h>

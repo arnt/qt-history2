@@ -24,7 +24,6 @@
 #include <qobject.h>
 #include <qlayout.h>
 #include <qptrdict.h>
-#include <qobjectlist.h>
 #include <qstrlist.h>
 #include <qmetaobject.h>
 #include <qwidgetlist.h>
@@ -601,31 +600,24 @@ void MetaDataBase::doConnections( QObject *o )
     }
 
     QObject *sender = 0, *receiver = 0;
-    QObjectList *l = 0;
     QValueList<Connection>::Iterator it = r->connections.begin();
     for ( ; it != r->connections.end(); ++it ) {
 	Connection conn = *it;
 	if ( qstrcmp( conn.sender->name(), o->name() ) == 0 ) {
 	    sender = o;
 	} else {
-	    l = o->queryList( 0, conn.sender->name(), FALSE );
-	    if ( !l || !l->first() ) {
-		delete l;
+	    QObjectList l = o->queryList( 0, conn.sender->name(), FALSE );
+	    if ( l.isEmpty() )
 		continue;
-	    }
-	    sender = l->first();
-	    delete l;
+	    sender = l.first();
 	}
 	if ( qstrcmp( conn.receiver->name(), o->name() ) == 0 ) {
 	    receiver = o;
 	} else {
-	    l = o->queryList( 0, conn.receiver->name(), FALSE );
-	    if ( !l || !l->first() ) {
-		delete l;
+	    QObjectList l = o->queryList( 0, conn.receiver->name(), FALSE );
+	    if ( l.isEmpty() )
 		continue;
-	    }
-	    receiver = l->first();
-	    delete l;
+	    receiver = l.first();
 	}
 	QString s = "2""%1";
 	s = s.arg( conn.signal );

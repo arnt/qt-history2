@@ -22,7 +22,8 @@ public:
     AnimatedThingy( QWidget* parent, const QString& s ) :
 	QLabel(parent),
 	label(s),
-	step(0)
+	step(0),
+	timerId(0)
     {
 	label+="\n... and wasting CPU\nwith this animation!\n";
 
@@ -37,14 +38,17 @@ public:
 
     void show()
     {
-	if (!isVisible()) startTimer(100);
+	if (!timerId)
+	    timerId = startTimer(100);
 	QWidget::show();
     }
 
     void hide()
     {
 	QWidget::hide();
-	killTimers();
+	if (timerId)
+	    killTimer(timerId);
+	timerId = 0;
     }
 
     QSize sizeHint() const
@@ -116,6 +120,7 @@ private:
     int dx0,dy0,dx1,dy1;
     QString label;
     int step;
+    int timerId;
 };
 
 
@@ -141,7 +146,8 @@ class CPUWaster : public QWidget
 
 public:
     CPUWaster() :
-	pb(0)
+	pb(0),
+	timerId(0)
     {
 	menubar = new QMenuBar( this, "menu" );
 	Q_CHECK_PTR( menubar );
@@ -213,7 +219,7 @@ public slots:
 
     void toggleMinimumDuration()
     {
-	options->setItemChecked( md_id, 
+	options->setItemChecked( md_id,
 	   !options->isItemChecked( md_id ) );
     }
 
@@ -244,7 +250,9 @@ private:
 	    QPainter p(this);
 	    p.fillRect(0, 0, width(), height(), backgroundColor());
 	    enableDrawingItems(TRUE);
-	    killTimers();
+	    if (timerId)
+		killTimer(timerId);
+	    timerId = 0;
 	    delete pb;
 	    pb = 0;
 	}
@@ -267,10 +275,10 @@ private:
 	    menubar->setItemEnabled(i, yes);
 	}
     }
-		    
+
     void draw(int n)
     {
-	if ( timer_driven ) {
+	if ( timer_driven && !timerId ) {
 	    if ( pb ) {
 		qWarning("This cannot happen!");
 		return;
@@ -281,7 +289,7 @@ private:
 	    pb->setCaption("Please Wait");
 	    connect(pb, SIGNAL(cancelled()), this, SLOT(stopDrawing()));
 	    enableDrawingItems(FALSE);
-	    startTimer(0);
+	    timerId = startTimer(0);
 	    got_stop = FALSE;
 	} else {
 	    QProgressDialog* lpb = newProgressDialog(
@@ -311,6 +319,7 @@ private:
     QMenuBar* menubar;
     QProgressDialog* pb;
     QPopupMenu* options;
+    int timerId;
     int td_id, ld_id;
     int dl_id, cl_id;
     int md_id;

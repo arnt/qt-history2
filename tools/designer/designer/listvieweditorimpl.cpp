@@ -70,17 +70,14 @@ ListViewEditor::ListViewEditor( QWidget *parent, QListView *lv, FormWindow *fw )
 		      SLOT( emitItemRenamed(QListViewItem*, int, const QString&) ) );
 
     // Connect signal-relay to QLineEdit "itemText"
-    QObjectList *l = parent->queryList( "QLineEdit", "itemText" );
-    QObject *obj;
-    QObjectListIterator itemsLineEditIt( *l );
-    while ( (obj = itemsLineEditIt.current()) != 0 ) {
-        ++itemsLineEditIt;
+    QObjectList l = parent->queryList( "QLineEdit", "itemText" );
+    for (int i = 0; i < l.size(); ++i) {
+	QObject *obj = l.at(i);
 	QObject::connect( this,
 			  SIGNAL( itemRenamed( const QString & ) ),
 			  obj,
 			  SLOT( setText( const QString & ) ) );
     }
-    delete l;
 
     // Clamp on drag and drop to QListBox
     ListBoxDnd *columnsDnd = new ListBoxDnd( colPreview );
@@ -97,15 +94,13 @@ ListViewEditor::ListViewEditor( QWidget *parent, QListView *lv, FormWindow *fw )
 
     // Find QLineEdit "colText" and connect
     l = parent->queryList( "QLineEdit", "colText" );
-    QObjectListIterator columnsLineEditIt( *l );
-    while ( (obj = columnsLineEditIt.current()) != 0 ) {
-        ++columnsLineEditIt;
+    for (int i = 0; i < l.size(); ++i) {
+	QObject *obj = l.at(i);
 	QObject::connect( columnsRename,
 			  SIGNAL( itemTextChanged( const QString & ) ),
 			  obj,
 			  SLOT( setText( const QString & ) ) );
     }
-    delete l;
 }
 
 void ListViewEditor::applyClicked()

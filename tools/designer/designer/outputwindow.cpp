@@ -116,10 +116,10 @@ void OutputWindow::setErrorMessages( const QStringList &errors, const QValueList
     QValueList<uint>::ConstIterator lit = lines.begin();
     QStringList::ConstIterator it = locations.begin();
     QObjectList objects = (QObjectList)locationObjects;
-    QObject *o = objects.first();
     QListViewItem *after = 0;
-    for ( ; lit != lines.end() && mit != errors.end(); ++lit, ++mit, ++it, o = objects.next() )
-	after = new ErrorItem( errorView, after, *mit, *lit, *it, o );
+    int i = 0;
+    for ( ; lit != lines.end() && mit != errors.end(); ++lit, ++mit, ++it, ++i )
+	after = new ErrorItem( errorView, after, *mit, *lit, *it, objects.at(i) );
     setCurrentPage( 1 );
 }
 

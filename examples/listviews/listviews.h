@@ -24,7 +24,6 @@ class QListView;
 class QLabel;
 class QPainter;
 class QColorGroup;
-class QObjectList;
 class QPopupMenu;
 
 // -----------------------------------------------------------------
@@ -111,7 +110,7 @@ public:
     FolderListItem( QListView *parent, Folder *f );
     FolderListItem( FolderListItem *parent, Folder *f );
 
-    void insertSubFolders( const QObjectList *lst );
+    void insertSubFolders( const QObjectList &lst );
 
     Folder *folder() { return myFolder; }
 

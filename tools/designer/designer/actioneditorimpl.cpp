@@ -27,7 +27,6 @@
 #include <qcheckbox.h>
 #include <qpushbutton.h>
 #include <qpopupmenu.h>
-#include <qobjectlist.h>
 
 ActionEditor::ActionEditor( QWidget* parent,  const char* name, WFlags fl )
     : ActionEditorBase( parent, name, fl ), currentAction( 0 ), formWindow( 0 )
@@ -223,12 +222,11 @@ void ActionEditor::setFormWindow( FormWindow *fw )
 
 void ActionEditor::insertChildActions( ActionItem *i )
 {
-    if ( !i->actionGroup() || !i->actionGroup()->children() )
+    if (!i->actionGroup())
 	return;
-    QObjectListIterator it( *i->actionGroup()->children() );
-    while ( it.current() ) {
-	QObject *o = it.current();
-	++it;
+    QObjectList l = i->actionGroup()->children();
+    for (int j = 0; j < l.size(); ++j) {
+	QObject *o = l.at(j);
 	if ( !qt_cast<QAction*>(o) )
 	    continue;
 	QAction *a = (QAction*)o;
@@ -285,13 +283,11 @@ void ActionEditor::removeAction( QAction *a )
 	MetaDataBase::removeConnection( formWindow, (*it2).sender, (*it2).signal,
 					(*it2).receiver, (*it2).slot );
     // If it's an actiongroup, do the same for its children
-    QActionGroup *ag = (QActionGroup *)a->qt_metacast( "QActionGroup" );
-    QObjectList *subActions = ( ag ? ag->queryList( "QAction" ) : 0 );
-    if ( subActions && subActions->count() ) {
-	QObjectListIterator subAction( *subActions );
-	while ( subAction.current() ) {
-	    QAction *sa = (QAction*)subAction.current();
-	    ++subAction;
+    QActionGroup *ag = qt_cast<QActionGroup *>(a);
+    if (ag) {
+	QObjectList subActions = ag->queryList( "QAction" );
+	for (int i = 0; i < subActions.size(); ++i) {
+	    QAction *sa = (QAction*)subActions.at(i);
 	    removeAction( sa );
 	}
     }

@@ -20,6 +20,7 @@
 #include <qtranslator.h>
 #include <qsettings.h>
 #include <qsplashscreen.h>
+#include <qcursor.h>
 
 int main( int argc, char **argv )
 {

@@ -34,7 +34,6 @@
 #include <qpainter.h>
 #include <qpen.h>
 #include <qlabel.h>
-#include <qobjectlist.h>
 #include <qtimer.h>
 #include <qapplication.h>
 #include <qlayout.h>
@@ -66,12 +65,11 @@
 static void setCursorToAll( const QCursor &c, QWidget *start )
 {
     start->setCursor( c );
-    QObjectList *l = (QObjectList*)start->children();
-    if ( l ) {
-	for ( QObject *o = l->first(); o; o = l->next() ) {
-	    if ( o->isWidgetType() && !qt_cast<SizeHandle*>(o) )
-		setCursorToAll( c, ( (QWidget*)o ) );
-	}
+    QObjectList l = start->children();
+    for (int i = 0; i < l.size(); ++i) {
+	QObject *o = l.at(i);
+	if ( o->isWidgetType() && !qt_cast<SizeHandle*>(o) )
+	    setCursorToAll( c, ( (QWidget*)o ) );
     }
 }
 
@@ -81,12 +79,11 @@ static void restoreCursors( QWidget *start, FormWindow *fw )
 	start->setCursor( MetaDataBase::cursor( start ) );
     else
 	start->setCursor( Qt::ArrowCursor );
-    QObjectList *l = (QObjectList*)start->children();
-    if ( l ) {
-	for ( QObject *o = l->first(); o; o = l->next() ) {
-	    if ( o->isWidgetType() && !qt_cast<SizeHandle*>(o) )
-		restoreCursors( ( (QWidget*)o ), fw );
-	}
+    QObjectList l = start->children();
+    for (int i = 0; i < l.size(); ++i) {
+	QObject *o = l.at(i);
+	if ( o->isWidgetType() && !qt_cast<SizeHandle*>(o) )
+	    restoreCursors( ( (QWidget*)o ), fw );
     }
 }
 
@@ -405,13 +402,11 @@ void FormWindow::insertWidget()
     if ( r.height() < 2 * grid().y() )
 	r.setHeight( 2 * grid().y() );
 
-    const QObjectList *l = insertParent->children();
-    QObjectListIterator it( *l );
     QWidgetList lst;
     if ( WidgetDatabase::isContainer( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( w ) ) ) ) {
-	for ( ; it.current(); ) {
-	    QObject *o = it.current();
-	    ++it;
+	QObjectList l = insertParent->children();
+	for (int i = 0; i < l.size(); ++i) {
+	    QObject *o = l.at(i);
 	    if ( o->isWidgetType() &&
 		 ( (QWidget*)o )->isVisibleTo( this ) &&
 		 insertedWidgets.find( (QWidget*)o ) && o != w ) {
@@ -570,16 +565,16 @@ void FormWindow::handleMousePress( QMouseEvent *e, QWidget *w )
 		} else { // ...widget selected
 		    // only if widget has a layout (it is a layout meta widget or a laid out container!), unselect its childs
 		    if ( WidgetFactory::layoutType( w ) != WidgetFactory::NoLayout ) {
-			QObjectList *l = w->queryList( "QWidget" );
+			QObjectList l = w->queryList( "QWidget" );
 			setPropertyShowingBlocked( TRUE );
-			for ( QObject *o = l->first(); o; o = l->next() ) {
+			for (int i = 0; i < l.size(); ++i) {
+			    QObject *o = l.at(i);
 			    if ( !o->isWidgetType() )
 				continue;
 			    if ( insertedWidgets.find( (QWidget*)o ) )
 				selectWidget( (QWidget*)o, FALSE );
 			}
 			setPropertyShowingBlocked( FALSE );
-			delete l;
 		    }
 		}
 		qApp->processEvents();
@@ -1136,12 +1131,9 @@ void FormWindow::handleKeyPress( QKeyEvent *e, QWidget *w )
 	}
     }
     if ( !e->isAccepted() ) {
-	QObjectList *l = queryList( "QWidget" );
-	if ( !l )
-	    return;
-	if ( l->find( w ) != -1 )
+	QObjectList l = queryList( "QWidget" );
+	if ( l.findIndex( w ) != -1 )
 	    e->accept();
-	delete l;
     }
 
 }
@@ -1341,19 +1333,17 @@ void FormWindow::endRectDraw()
 
 void FormWindow::selectWidgets()
 {
-    QObjectList *l = mainContainer()->queryList( "QWidget" );
-    if ( l ) {
-	for ( QObject *o = l->first(); o; o = l->next() ) {
-	    if ( ( (QWidget*)o )->isVisibleTo( this ) &&
-		 insertedWidgets[ (void*)o ] ) {
-		QPoint p = ( (QWidget*)o )->mapToGlobal( QPoint(0,0) );
-		p = mapFromGlobal( p );
-		QRect r( p, ( (QWidget*)o )->size() );
-		if ( r.intersects( currRect ) && !r.contains( currRect ) )
-		    selectWidget( (QWidget*)o );
-	    }
+    QObjectList l = mainContainer()->queryList( "QWidget" );
+    for (int i = 0; i < l.size(); ++i) {
+	QObject *o = l.at(i);
+	if ( ( (QWidget*)o )->isVisibleTo( this ) &&
+	     insertedWidgets[ (void*)o ] ) {
+	    QPoint p = ( (QWidget*)o )->mapToGlobal( QPoint(0,0) );
+	    p = mapFromGlobal( p );
+	    QRect r( p, ( (QWidget*)o )->size() );
+	    if ( r.intersects( currRect ) && !r.contains( currRect ) )
+		selectWidget( (QWidget*)o );
 	}
-	delete l;
     }
     emitSelectionChanged();
 }
@@ -1396,30 +1386,25 @@ void FormWindow::redo()
 
 void FormWindow::raiseChildSelections( QWidget *w )
 {
-    QObjectList *l = w->queryList( "QWidget" );
-    if ( !l || !l->first() ) {
-	delete l;
+    QObjectList l = w->queryList( "QWidget" );
+    if (l.isEmpty())
 	return;
-    }
 
     QPtrDictIterator<WidgetSelection> it( usedSelections );
     for ( ; it.current(); ++it ) {
-	if ( l->findRef( it.current()->widget() ) != -1 )
+	if ( l.findIndex( it.current()->widget() ) != -1 )
 	    it.current()->show();
     }
-    delete l;
 }
 
 void FormWindow::updateChildSelections( QWidget *w )
 {
-    QObjectList *l = w->queryList( "QWidget" );
-    if ( l ) {
-	for ( QObject *o = l->first(); o; o = l->next() ) {
-	    if ( o->isWidgetType() &&
-		 insertedWidgets.find( (QWidget*)o ) )
-		updateSelection( (QWidget*)o );
-	}
-	delete l;
+    QObjectList l = w->queryList( "QWidget" );
+    for (int i = 0; i < l.size(); ++i) {
+	QObject *o = l.at(i);
+	if ( o->isWidgetType() &&
+	     insertedWidgets.find( (QWidget*)o ) )
+	    updateSelection( (QWidget*)o );
     }
 }
 
@@ -1427,16 +1412,16 @@ void FormWindow::checkSelectionsForMove( QWidget *w )
 {
     checkedSelectionsForMove = TRUE;
 
-    QObjectList *l = w->parentWidget()->queryList( "QWidget", 0, FALSE, FALSE );
+    QObjectList l = w->parentWidget()->queryList( "QWidget", 0, FALSE, FALSE );
     moving.clear();
-    if ( l ) {
+    if ( !l.isEmpty() ) {
 	QPtrDictIterator<WidgetSelection> it( usedSelections );
 	WidgetSelection *sel;
 	while ( ( sel = it.current() ) != 0 ) {
 	    if ( it.current()->widget() == mainContainer() )
 		continue;
 	    ++it;
-	    if ( l->find( sel->widget() ) == -1 ) {
+	    if ( l.findIndex( sel->widget() ) == -1 ) {
 		if ( WidgetFactory::layoutType( w ) == WidgetFactory::NoLayout )
 		    sel->setWidget( 0 );
 	    } else {
@@ -1448,7 +1433,6 @@ void FormWindow::checkSelectionsForMove( QWidget *w )
 		}
 	    }
 	}
-	delete l;
     }
 }
 
@@ -1744,22 +1728,19 @@ void FormWindow::showOrderIndicators()
 {
     hideOrderIndicators();
     orderIndicators.setAutoDelete( TRUE );
-    QObjectList *l = mainContainer()->queryList( "QWidget" );
+    QObjectList l = mainContainer()->queryList( "QWidget" );
     stackedWidgets = MetaDataBase::tabOrder( this );
-    if ( l ) {
-	int order = 1;
-	for ( QObject *o = l->first(); o; o = l->next() ) {
-	    QWidget* w = (QWidget*) o;
-	    if ( w->isShown() &&
-		 insertedWidgets[ (void*)w ]  &&
-		 w->focusPolicy() != NoFocus ) {
-		OrderIndicator* ind = new OrderIndicator( order++, w, this );
-		orderIndicators.append( ind );
-		if ( stackedWidgets.findRef( w ) == -1 )
-		    stackedWidgets.append( w );
-	    }
+    int order = 1;
+    for (int i = 0; i < l.size(); ++i) {
+	QWidget* w = (QWidget*) l.at(i);
+	if ( w->isShown() &&
+	     insertedWidgets[ (void*)w ]  &&
+	     w->focusPolicy() != NoFocus ) {
+	    OrderIndicator* ind = new OrderIndicator( order++, w, this );
+	    orderIndicators.append( ind );
+	    if ( stackedWidgets.findRef( w ) == -1 )
+		stackedWidgets.append( w );
 	}
-	delete l;
     }
     updateOrderIndicators();
 }
@@ -1876,29 +1857,27 @@ void FormWindow::checkAccels()
 {
     CHECK_MAINWINDOW;
     QMap<QChar, QWidgetList > accels;
-    QObjectList *l = mainContainer()->queryList( "QWidget" );
-    if ( l ) {
-	for ( QObject *o = l->first(); o; o = l->next() ) {
-	    if ( ( (QWidget*)o )->isVisibleTo( this ) &&
-		 insertedWidgets[ (void*)o ] ) {
-		QWidget *w = (QWidget*)o;
-		QMetaProperty text =
-		    w->metaObject()->property( w->metaObject()->findProperty( "text" ) );
-		QMetaProperty title =
-		    w->metaObject()->property( w->metaObject()->findProperty( "title" ) );
-		QMetaProperty pageTitle =
-		    w->metaObject()->property( w->metaObject()->findProperty( "pageTitle" ) );
-		if ( text )
-		    find_accel( w->property( "text" ).toString(), accels, w );
-		if ( title )
-		    find_accel( w->property( "title" ).toString(), accels, w );
-		if ( pageTitle )
-		    find_accel( w->property( "pageTitle" ).toString(), accels, w );
-	    } else if ( qt_cast<MenuBarEditor*>(o) ) {
-		((MenuBarEditor *)o)->checkAccels( accels );
-	    }
+    QObjectList l = mainContainer()->queryList( "QWidget" );
+    for (int i = 0; i < l.size(); ++i) {
+	QObject* o = l.at(i);
+	if ( ( (QWidget*)o )->isVisibleTo( this ) &&
+	     insertedWidgets[ (void*)o ] ) {
+	    QWidget *w = (QWidget*)o;
+	    QMetaProperty text =
+		w->metaObject()->property( w->metaObject()->findProperty( "text" ) );
+	    QMetaProperty title =
+		w->metaObject()->property( w->metaObject()->findProperty( "title" ) );
+	    QMetaProperty pageTitle =
+		w->metaObject()->property( w->metaObject()->findProperty( "pageTitle" ) );
+	    if ( text )
+		find_accel( w->property( "text" ).toString(), accels, w );
+	    if ( title )
+		find_accel( w->property( "title" ).toString(), accels, w );
+	    if ( pageTitle )
+		find_accel( w->property( "pageTitle" ).toString(), accels, w );
+	} else if ( qt_cast<MenuBarEditor*>(o) ) {
+	    ((MenuBarEditor *)o)->checkAccels( accels );
 	}
-	delete l;
     }
 
     bool ok = TRUE;
@@ -1951,15 +1930,13 @@ void FormWindow::selectAll()
 {
     checkedSelectionsForMove = FALSE;
     blockSignals( TRUE );
-    QObjectList *l = mainContainer()->queryList( "QWidget" );
-    if ( l ) {
-	for ( QObject *o = l->first(); o; o = l->next() ) {
-	    if ( ( (QWidget*)o )->isVisibleTo( this ) &&
-		 insertedWidgets[ (void*)o ] ) {
-		selectWidget( (QWidget*)o );
-	    }
+    QObjectList l = mainContainer()->queryList( "QWidget" );
+    for (int i = 0; i < l.size(); ++i) {
+	QObject* o = l.at(i);
+	if ( ( (QWidget*)o )->isVisibleTo( this ) &&
+	     insertedWidgets[ (void*)o ] ) {
+	    selectWidget( (QWidget*)o );
 	}
-	delete l;
     }
 
     blockSignals( FALSE );
@@ -2026,11 +2003,12 @@ void FormWindow::layoutHorizontalContainer( QWidget *w )
 {
     if ( w == this )
 	w = mainContainer();
-    QObjectList *l = (QObjectList*)WidgetFactory::containerOfWidget(w)->children();
-    if ( !l )
+    QObjectList l = WidgetFactory::containerOfWidget(w)->children();
+    if ( l.isEmpty() )
 	return;
     QWidgetList widgets;
-    for ( QObject *o = l->first(); o; o = l->next() ) {
+    for (int i = 0; i < l.size(); ++i) {
+	QObject* o = l.at(i);
 	if ( o->isWidgetType() &&
 	     ( (QWidget*)o )->isVisibleTo( this ) &&
 	     insertedWidgets.find( (QWidget*)o ) )
@@ -2047,11 +2025,12 @@ void FormWindow::layoutVerticalContainer( QWidget *w )
 {
     if ( w == this )
 	w = mainContainer();
-    QObjectList *l = (QObjectList*)WidgetFactory::containerOfWidget(w)->children();
-    if ( !l )
+    QObjectList l = WidgetFactory::containerOfWidget(w)->children();
+    if ( l.isEmpty() )
 	return;
     QWidgetList widgets;
-    for ( QObject *o = l->first(); o; o = l->next() ) {
+    for (int i = 0; i < l.size(); ++i) {
+	QObject* o = l.at(i);
 	if ( o->isWidgetType() &&
 	     ( (QWidget*)o )->isVisibleTo( this ) &&
 	     insertedWidgets.find( (QWidget*)o ) )
@@ -2071,11 +2050,12 @@ void FormWindow::layoutGridContainer( QWidget *w )
     int xres = grid().x();
     int yres = grid().y();
 
-    QObjectList *l = (QObjectList*)WidgetFactory::containerOfWidget(w)->children();
-    if ( !l )
+    QObjectList l = WidgetFactory::containerOfWidget(w)->children();
+    if ( l.isEmpty() )
 	return;
     QWidgetList widgets;
-    for ( QObject *o = l->first(); o; o = l->next() ) {
+    for (int i = 0; i < l.size(); ++i) {
+	QObject* o = l.at(i);
 	if ( o->isWidgetType() &&
 	     ( (QWidget*)o )->isVisibleTo( this ) &&
 	     insertedWidgets.find( (QWidget*)o ) )
@@ -2121,12 +2101,13 @@ void FormWindow::breakLayout( QWidget *w )
 BreakLayoutCommand *FormWindow::breakLayoutCommand( QWidget *w )
 {
     CHECK_MAINWINDOW_VALUE( 0 );
-    QObjectList *l = (QObjectList*)w->children();
-    if ( !l )
+    QObjectList l = w->children();
+    if ( l.isEmpty() )
 	return 0;
 
     QWidgetList widgets;
-    for ( QObject *o = l->first(); o; o = l->next() ) {
+    for (int i = 0; i < l.size(); ++i) {
+	QObject* o = l.at(i);
 	if ( o->isWidgetType() &&
 	     !mainWindow()->isAToolBarChild( (QWidget*)o ) &&
 	     ( (QWidget*)o )->isVisibleTo( this ) &&
@@ -2154,22 +2135,19 @@ bool FormWindow::hasInsertedChildren( QWidget *w ) const
     w = WidgetFactory::containerOfWidget( w );
     if ( !w )
 	return FALSE;
-    QObjectList *l = w->queryList( "QWidget" );
-    if ( !l || !l->first() ) {
-	delete l;
+    QObjectList l = w->queryList( "QWidget" );
+    if ( l.isEmpty())
 	return FALSE;
-    }
 
-    for ( QObject *o = l->first(); o; o = l->next() ) {
+    for (int i = 0; i < l.size(); ++i) {
+	QObject* o = l.at(i);
 	if ( o->isWidgetType() &&
 	     ( (QWidget*)o )->isVisibleTo( (FormWindow*)this ) &&
 	     insertedWidgets.find( (QWidget*)o ) ) {
-	    delete l;
 	    return TRUE;
 	}
     }
 
-    delete l;
     return FALSE;
 }
 
@@ -2349,11 +2327,12 @@ bool FormWindow::unify( QObject *w, QString &s, bool changeIt )
 	    QPtrList<QAction> al;
 	    QAction *a = 0;
 	    for ( a = actions.first(); a; a = actions.next() ) {
-		QObjectList *l = a->queryList( "QAction" );
+		QObjectList l = a->queryList( "QAction" );
 		al.append( a );
-		for ( QObject *ao = l->first(); ao; ao = l->next() )
+		for (int i = 0; i < l.size(); ++i) {
+		    QObject* ao = l.at(i);
 		    al.append( (QAction*)ao );
-		delete l;
+		}
 	    }
 	    for ( a = al.first(); a; a = al.next() ) {
 		if ( a != w &&
@@ -2368,18 +2347,17 @@ bool FormWindow::unify( QObject *w, QString &s, bool changeIt )
 	}
 	if ( qt_cast<QMainWindow*>(mainContainer()) ) {
 	    if ( !found ) {
-		QObjectList *l = mainContainer()->queryList( "QDockWindow", 0, TRUE );
-		for ( QObject *o = l->first(); o; o = l->next() ) {
-		    if ( o != w &&
-			 qstrcmp( o->name(), s.latin1() ) == 0 ) {
+		QObjectList l = mainContainer()->queryList( "QDockWindow", 0, TRUE );
+		for (int i = 0; i < l.size(); ++i) {
+		    QObject* o = l.at(i);
+		    if ( o != w && qstrcmp( o->name(), s.latin1() ) == 0 ) {
 			found = TRUE;
 			if ( !changeIt )
 			    break;
 			s = orig + "_" + QString::number( ++num );
-			o = l->first();
+			o = l.first();
 		    }
 		}
-		delete l;
 	    }
 	}
     }
@@ -2512,8 +2490,8 @@ QWidget *FormWindow::containerAt( const QPoint &pos, QWidget *notParentOf )
 
 	int wd = widgetDepth( it.current() );
 	if ( wd == depth && container ) {
-	    if ( ( (QObjectList*)it.current()->parentWidget()->children() )->find( it.current() ) >
-		 ( (QObjectList*)container->parentWidget()->children() )->find( container ) )
+	    if ( it.current()->parentWidget()->children().findIndex( it.current() ) >
+		 container->parentWidget()->children().findIndex( container ) )
 		wd++;
 	}
 	if ( wd > depth && !isChildOf( it.current(), notParentOf ) ) {
@@ -2631,12 +2609,11 @@ QAction *FormWindow::findAction( const QString &name )
 
 void FormWindow::killAccels( QObject *top )
 {
-    QObjectList *l = top->queryList( "QAccel" );
-    if ( !l )
-	return;
-    for ( QObject *o = l->first(); o; o = l->next() )
+    QObjectList l = top->queryList( "QAccel" );
+    for (int i = 0; i < l.size(); ++i) {
+	QObject* o = l.at(i);
 	( (QAccel*)o )->setEnabled( FALSE );
-    delete l;
+    }
 }
 
 DesignerFormWindow *FormWindow::iFace()

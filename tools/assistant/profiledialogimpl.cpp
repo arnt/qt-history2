@@ -19,6 +19,7 @@
 #include <qtoolbutton.h>
 #include <qpushbutton.h>
 #include <qlabel.h>
+#include <qcursor.h>
 
 #include "docuparser.h"
 #include "profiledialogimpl.h"

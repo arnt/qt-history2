@@ -15,7 +15,6 @@
 #include <qlabel.h>
 #include <qpainter.h>
 #include <qpalette.h>
-#include <qobjectlist.h>
 #include <qpopupmenu.h>
 #include <qheader.h>
 #include <qregexp.h>
@@ -55,7 +54,7 @@ FolderListItem::FolderListItem( QListView *parent, Folder *f )
     myFolder = f;
     setText( 0, f->folderName() );
 
-    if ( myFolder->children() )
+    if ( !myFolder->children().isEmpty() )
 	insertSubFolders( myFolder->children() );
 }
 
@@ -66,15 +65,16 @@ FolderListItem::FolderListItem( FolderListItem *parent, Folder *f )
 
     setText( 0, f->folderName() );
 
-    if ( myFolder->children() )
+    if ( !myFolder->children().isEmpty() )
 	insertSubFolders( myFolder->children() );
 }
 
-void FolderListItem::insertSubFolders( const QObjectList *lst )
+void FolderListItem::insertSubFolders( const QObjectList &lst )
 {
-    Folder *f;
-    for ( f = ( Folder* )( ( QObjectList* )lst )->first(); f; f = ( Folder* )( ( QObjectList* )lst )->next() )
+    for (int i = 0; i < lst.size(); ++i) {
+	Folder *f = static_cast<Folder *>(lst.at(i));
 	(void)new FolderListItem( this, f );
+    }
 }
 
 // -----------------------------------------------------------------

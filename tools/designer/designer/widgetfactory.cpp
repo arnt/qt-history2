@@ -52,7 +52,6 @@
 #include <qtabbar.h>
 #include <qlistbox.h>
 #include <qlistview.h>
-#include <qobjectlist.h>
 #include <qlcdnumber.h>
 #include <qslider.h>
 #include <qdial.h>
@@ -998,11 +997,10 @@ WidgetFactory::LayoutType WidgetFactory::layoutType( QWidget *w, QLayout *&layou
 	return NoLayout;
     QLayout *lay = w->layout();
 
-    if ( w->inherits( "QGroupBox" ) ) {
-	QObjectList *l = lay->queryList( "QLayout" );
-	if ( l && l->first() )
-	    lay = (QLayout*)l->first();
-	delete l;
+    if ( qt_cast<QGroupBox *>(w) ) {
+	QObjectList l = lay->queryList( "QLayout" );
+	if ( l.size() )
+	    lay = (QLayout*)l.first();
     }
     layout = lay;
 
@@ -1497,14 +1495,9 @@ void QDesignerLabel::updateBuddy()
     if ( myBuddy.isEmpty() )
 	return;
 
-    QObjectList *l = topLevelWidget()->queryList( "QWidget", myBuddy, FALSE, TRUE );
-    if ( !l || !l->first() ) {
-	delete l;
-	return;
-    }
-
-    QLabel::setBuddy( (QWidget*)l->first() );
-    delete l;
+    QObjectList l = topLevelWidget()->queryList( "QWidget", myBuddy, FALSE, TRUE );
+    if (l.size())
+	QLabel::setBuddy( (QWidget*)l.first() );
 }
 
 
@@ -1554,7 +1547,8 @@ bool QLayoutWidget::event( QEvent *e )
 */
 void QLayoutWidget::updateSizePolicy()
 {
-    if ( !children() || children()->count() == 0 ) {
+    QObjectList l = children();
+    if (!l.size()) {
 	sp = QWidget::sizePolicy();
 	return;
     }
@@ -1584,17 +1578,14 @@ void QLayoutWidget::updateSizePolicy()
 		parentLayout = 0;
 	}
 
-	QObjectListIterator it( *children() );
-	QObject *o;
-
 	if ( layout()->inherits("QVBoxLayout") ) {
 	    if ( parentLayout && parentLayout->inherits("QHBoxLayout") )
 		vt = QSizePolicy::Minimum;
 	    else
 		vt = QSizePolicy::Fixed;
 
-	    while ( ( o = it.current() ) ) {
-		++it;
+	    for (int i = 0; i < l.size(); ++i) {
+		QObject *o = l.at(i);
 		if ( !o->isWidgetType() || ( (QWidget*)o )->testWState( WState_ForceHide ) )
 		    continue;
 		QWidget *w = (QWidget*)o;
@@ -1614,8 +1605,8 @@ void QLayoutWidget::updateSizePolicy()
 	    else
 		ht = QSizePolicy::Fixed;
 
-	    while ( ( o = it.current() ) ) {
-		++it;
+	    for (int i = 0; i < l.size(); ++i) {
+		QObject *o = l.at(i);
 		if ( !o->isWidgetType() || ( (QWidget*)o )->testWState( WState_ForceHide ) )
 		    continue;
 		QWidget *w = (QWidget*)o;
@@ -1639,8 +1630,8 @@ void QLayoutWidget::updateSizePolicy()
 		    vt = QSizePolicy::Minimum;
 	    }
 
-	    while ( ( o = it.current() ) ) {
-		++it;
+	    for (int i = 0; i < l.size(); ++i) {
+		QObject *o = l.at(i);
 		if ( !o->isWidgetType() || ( (QWidget*)o )->testWState( WState_ForceHide ) )
 		    continue;
 		QWidget *w = (QWidget*)o;

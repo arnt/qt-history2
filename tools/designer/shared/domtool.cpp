@@ -207,7 +207,7 @@ QVariant DomTool::elementToVariant( const QDomElement& e, const QVariant& defVal
 	}
 	v = QVariant( sp );
     } else if ( e.tagName() == "cursor" ) {
-	v = QVariant( QCursor( e.firstChild().toText().data().toInt() ) );
+	v = QVariant( QCursor( (Qt::CursorShape)e.firstChild().toText().data().toInt() ) );
     } else if ( e.tagName() == "stringlist" ) {
 	QStringList lst;
 	QDomElement n;

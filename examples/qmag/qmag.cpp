@@ -63,6 +63,7 @@ private:
     bool	grabbing;	// TRUE if qmag is currently grabbing
     int		grabx, graby;
     QString	multifn;	// filename for multisave
+    int timerId;
 };
 
 
@@ -82,7 +83,8 @@ static const int timer[] = {
 
 
 MagWidget::MagWidget( QWidget *parent, const char *name )
-    : QWidget( parent, name)
+    : QWidget( parent, name),
+      timerId(0)
 {
     z = 1;			// default zoom (100%)
     r = 0;			// default refresh (none)
@@ -182,21 +184,23 @@ void MagWidget::setZoom( int index )
 void MagWidget::setRefresh( int index )
 {
     r = index;
-    killTimers();
+    killTimer(timerId);
+    timerId = 0;
     if (index && !grabbing)
-	startTimer( timer[r] );
+	timerId = startTimer( timer[r] );
 }
 
 
 void MagWidget::save()
 {
     if ( !p.isNull() ) {
-	killTimers();
+	killTimer(timerId);
+	timerId = 0;
 	QString fn = QFileDialog::getSaveFileName();
 	if ( !fn.isEmpty() )
 	    p.save( fn, "BMP" );
 	if ( r )
-	    startTimer( timer[r] );
+	    timerId = startTimer( timer[r] );
     }
 }
 
@@ -217,7 +221,7 @@ void MagWidget::multiSave()
 
 void MagWidget::grab()
 {
-    if ( !isVisible() ) 
+    if ( !isVisible() )
 	return;			// don't eat resources when iconified
 
     if ( grabx < 0 || graby < 0 )
@@ -236,7 +240,7 @@ void MagWidget::grab()
 	x = QApplication::desktop()->width()-w;
     else if ( x < 0 )
 	x = 0;
-    if ( y + h > QApplication::desktop()->height() ) 
+    if ( y + h > QApplication::desktop()->height() )
 	y = QApplication::desktop()->height()-h;
     else if ( y < 0 )
 	y = 0;
@@ -256,7 +260,7 @@ void MagWidget::paintEvent( QPaintEvent * )
 {
     if ( !pm.isNull() ) {
 	QPainter paint( this );
-	paint.drawPixmap( 0, zoom ? zoom->height()+4 : 0, pm, 
+	paint.drawPixmap( 0, zoom ? zoom->height()+4 : 0, pm,
 			      0,0, width(), height()-yoffset );
     }
 }
@@ -266,7 +270,8 @@ void MagWidget::mousePressEvent( QMouseEvent *e )
 {
     if ( !grabbing ) {		// prepare to grab...
 	grabbing = TRUE;
-	killTimers();
+	killTimer(timerId);
+	timerId = 0;
 	grabMouse( crossCursor );
 	grabx = -1;
 	graby = -1;
@@ -301,7 +306,7 @@ void MagWidget::grabAround(QPoint pos)
 		w*pz < QApplication::desktop()->width() &&
 		h*pz < QApplication::desktop()->height() )
 	    pz++;
-	if ( (w*pz*h*pz - width()*(height()-yoffset)) > 
+	if ( (w*pz*h*pz - width()*(height()-yoffset)) >
 	     (width()*(height()-yoffset) - w*(pz-1)*h*(pz-1)) )
 	    pz--;
 	if ( pz < 1 )
@@ -318,7 +323,7 @@ void MagWidget::grabAround(QPoint pos)
     }
     grab();
     if ( r )
-	startTimer( timer[r] );
+	timerId = startTimer( timer[r] );
 }
 
 
@@ -341,12 +346,12 @@ void MagWidget::mouseMoveEvent( QMouseEvent *e )
 		qRed(px), qGreen(px), qBlue(px));
 	}
 	QString label;
-	label.sprintf( "x=%d, y=%d %s", 
+	label.sprintf( "x=%d, y=%d %s",
 	    x+grabx, y+graby, (const char*)pixelinfo );
 	rgb->setText( label );
     }
 }
-	
+
 
 void MagWidget::focusOutEvent( QFocusEvent * )
 {

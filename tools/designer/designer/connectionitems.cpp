@@ -169,14 +169,13 @@ void ConnectionItem::setConnection( ConnectionContainer *c )
 
 static void appendChildActions( QAction *action, QStringList &lst )
 {
-    QObjectListIterator it( *action->children() );
-    while ( it.current() ) {
-	QObject *o = it.current();
-	++it;
+    QObjectList l = action->children();
+    for (int i = 0; i < l.size(); ++i) {
+	QObject *o = l.at(i);
 	if ( !qt_cast<QAction*>(o) )
 	    continue;
 	lst << o->name();
-	if ( o->children() && qt_cast<QActionGroup*>(o) )
+	if ( !o->children().isEmpty() && qt_cast<QActionGroup*>(o) )
 	    appendChildActions( (QAction*)o, lst );
     }
 }
@@ -189,7 +188,7 @@ static QStringList flatActions( const QPtrList<QAction> &l )
     while ( it.current() ) {
 	QAction *action = it.current();
 	lst << action->name();
-	if ( action->children() && qt_cast<QActionGroup*>(action) )
+	if ( !action->children().isEmpty() && qt_cast<QActionGroup*>(action) )
 	    appendChildActions( action, lst );
 	++it;
     }

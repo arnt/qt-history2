@@ -7,7 +7,6 @@
 #include <qfiledialog.h>
 #include <qtabwidget.h>
 #include <qpoint.h>
-#include <qobjectlist.h>
 #include <qpushbutton.h>
 #include <qlayout.h>
 #include <qfileinfo.h>
@@ -143,14 +142,9 @@ void StartDialog::initFileOpen()
     QPoint point( 0, 0 );
     fd->reparent( tab, point );
 
-    QObjectList *l = fd->queryList( "QPushButton" );
-    QObjectListIterator it( *l );
-    QObject *obj;
-    while ( (obj = it.current()) != 0 ) {
-        ++it;
-	((QPushButton*)obj)->hide();
-    }
-    delete l;
+    QObjectList l = fd->queryList( "QPushButton" );
+    for (int i = 0; i < l.size(); ++i)
+	static_cast<QPushButton *>(l.at(i))->hide();
 
     fd->setSizeGripEnabled ( FALSE );
     tabLayout->addWidget( fd );

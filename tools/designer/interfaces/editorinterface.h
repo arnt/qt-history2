@@ -31,7 +31,6 @@
 #include <qvaluelist.h>
 
 class QWidget;
-class QObjectList;
 class QObject;
 
 // {8668161a-6037-4220-86b6-ccaa20127df8}

@@ -29,7 +29,6 @@
 #include "menubareditor.h"
 
 #include <qpalette.h>
-#include <qobjectlist.h>
 #include <qheader.h>
 #include <qpopupmenu.h>
 #include <qtabwidget.h>
@@ -443,62 +442,58 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 	item->setPixmap( 0, ( (QAction*)o )->iconSet().pixmap() );
 
     ( (HierarchyItem*)item )->setObject( o );
-    const QObjectList *l = o->children();
-    if ( qt_cast<QDesignerToolBar*>(o) )
-	l = 0;
-    if ( l ) {
-	QObjectListIterator it( *l );
-	it.toLast();
-	for ( ; it.current(); --it ) {
-	    if ( !it.current()->isWidgetType() ||
-		 ( (QWidget*)it.current() )->isHidden() )
-		continue;
-	    if ( !formWindow->widgets()->find( (QWidget*)it.current() ) ) {
-		if ( qt_cast<QWidgetStack*>(it.current()->parent()) ||
-		     qt_cast<QWidgetStack*>(it.current()) ) {
-		    QObject *obj = it.current();
-		    QDesignerTabWidget *tw = qt_cast<QDesignerTabWidget*>(it.current()->parent());
-		    QDesignerWizard *dw = qt_cast<QDesignerWizard*>(it.current()->parent());
-		    QWidgetStack *stack = 0;
-		    if ( dw || tw || qt_cast<QWidgetStack*>(obj) )
-			stack = (QWidgetStack*)obj;
-		    else
-			stack = (QWidgetStack*)obj->parent();
-		    if ( widgetStacks->findRef( stack ) != -1 )
+    QObjectList l = qt_cast<QDesignerToolBar*>(o) ? QObjectList() : o->children();
+    for (int i = l.size(); i > 0; ) {
+	--i;
+	QObject *obj = l.at(i);
+	if ( !obj->isWidgetType() || static_cast<QWidget*>(obj)->isHidden() )
+	    continue;
+	if ( !formWindow->widgets()->find( (QWidget*)obj ) ) {
+	    if ( qt_cast<QWidgetStack*>(obj->parent()) ||
+		 qt_cast<QWidgetStack*>(obj) ) {
+		QDesignerTabWidget *tw = qt_cast<QDesignerTabWidget*>(obj->parent());
+		QDesignerWizard *dw = qt_cast<QDesignerWizard*>(obj->parent());
+		QWidgetStack *stack = 0;
+		if ( dw || tw || qt_cast<QWidgetStack*>(obj) )
+		    stack = (QWidgetStack*)obj;
+		else
+		    stack = (QWidgetStack*)obj->parent();
+		if ( widgetStacks->findRef( stack ) != -1 )
+		    continue;
+		widgetStacks->append( stack );
+		QObjectList l2 = stack->queryList( "QWidget", 0, TRUE, FALSE );
+		for (int j = l2.size(); j >0; ) {
+		    --j;
+		    QObject* obj = l.at(j);
+		    if ( qstrcmp( obj->className(),
+				  "QWidgetStackPrivate::Invisible" ) == 0 ||
+			 ( tw && !tw->tabBar()->tab( stack->id( (QWidget*)obj ) ) ) ||
+			 ( dw && dw->isPageRemoved( (QWidget*)obj ) ) )
 			continue;
-		    widgetStacks->append( stack );
-		    QObjectList *l2 = stack->queryList( "QWidget", 0, TRUE, FALSE );
-		    for ( obj = l2->last(); obj; obj = l2->prev() ) {
-			if ( qstrcmp( obj->className(),
-				      "QWidgetStackPrivate::Invisible" ) == 0 ||
-			     ( tw && !tw->tabBar()->tab( stack->id( (QWidget*)obj ) ) ) ||
-			     ( dw && dw->isPageRemoved( (QWidget*)obj ) ) )
-			    continue;
-			if ( qstrcmp( obj->name(), "designer_wizardstack_button" ) == 0 )
-			    continue;
-			if ( stack->id( (QWidget*)obj ) == -1 )
-			    continue;
-			insertObject( obj, item );
-		    }
-		    delete l2;
-		} else if ( qt_cast<QToolBox*>(it.current()->parent()) ) {
-		    if ( !qt_cast<QScrollView*>(it.current()) )
+		    if ( qstrcmp( obj->name(), "designer_wizardstack_button" ) == 0 )
 			continue;
-		    QToolBox *tb = (QToolBox*)it.current()->parent();
-		    for ( int i = tb->count() - 1; i >= 0; --i )
-			insertObject( tb->page( i ), item );
+		    if ( stack->id( (QWidget*)obj ) == -1 )
+			continue;
+		    insertObject( obj, item );
 		}
-		continue;
+	    } else if ( qt_cast<QToolBox*>(obj->parent()) ) {
+		if ( !qt_cast<QScrollView*>(obj) )
+		    continue;
+		QToolBox *tb = (QToolBox*)obj->parent();
+		for ( int i = tb->count() - 1; i >= 0; --i )
+		    insertObject( tb->page( i ), item );
 	    }
-	    insertObject( it.current(), item );
+	    continue;
 	}
+	insertObject( obj, item );
     }
 
     if ( fakeMainWindow ) {
-	QObjectList *l = o->parent()->queryList( "QDesignerToolBar" );
-	for ( QObject *obj = l->first(); obj; obj = l->next() )
-	    insertObject( obj, item );
-	delete l;
+	QObjectList l = o->parent()->queryList( "QDesignerToolBar" );
+	for (int i = 0; i < l.size(); ++i) {
+	    QObject* o = l.at(i);
+	    insertObject( o, item );
+	}
     } else if ( qt_cast<QDesignerToolBar*>(o) || qt_cast<PopupMenuEditor*>(o) ) {
 	QPtrList<QAction> actions;
 	if ( qt_cast<QDesignerToolBar*>(o) )
@@ -521,9 +516,11 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 	    }
 	    --it;
 	}
-    } else if ( qt_cast<QDesignerActionGroup*>(o) && o->children() ) {
-	QObjectList *l = (QObjectList*)o->children();
-	for ( QObject *obj = l->last(); obj; obj = l->prev() ) {
+    } else if ( qt_cast<QDesignerActionGroup*>(o) && !o->children().isEmpty() ) {
+	QObjectList l = o->children();
+	for (int i = l.size(); i > 0; ) {
+	    --i;
+	    QObject *obj = l.at(i);
 	    if ( qt_cast<QDesignerAction*>(obj) ) {
 		QDesignerAction *da = (QDesignerAction*)obj;
 		if ( da->supportsMenu() )

@@ -13,7 +13,6 @@
 #include "cppcompletion.h"
 #include <qobject.h>
 #include <qmetaobject.h>
-#include <qobjectlist.h>
 #include <qregexp.h>
 
 CppEditorCompletion::CppEditorCompletion( Editor *e )
@@ -44,17 +43,16 @@ bool CppEditorCompletion::doObjectCompletion( const QString &objName )
 
     QValueList<CompletionEntry> lst;
 
-    if ( obj->children() ) {
-	for ( QObjectListIterator cit( *obj->children() ); cit.current(); ++cit ) {
-	    QString s( cit.current()->name() );
-	    if ( s.find( " " ) == -1 && s.find( "qt_" ) == -1 &&
-		 s.find( "unnamed" ) == -1 ) {
-		CompletionEntry c;
-		c.type = "variable";
-		c.text = s;
-		c.prefix = "";
-		lst << c;
-	    }
+    QObjectList ol = obj->children();
+    for (int i = 0; i < ol.size(); ++i) {
+	QString s( ol.at(i)->name() );
+	if ( s.find( " " ) == -1 && s.find( "qt_" ) == -1 &&
+	     s.find( "unnamed" ) == -1 ) {
+	    CompletionEntry c;
+	    c.type = "variable";
+	    c.text = s;
+	    c.prefix = "";
+	    lst << c;
 	}
     }
 

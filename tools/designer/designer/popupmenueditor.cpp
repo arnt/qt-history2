@@ -15,7 +15,6 @@
 #include <qdatastream.h>
 #include <qdragobject.h>
 #include <qlineedit.h>
-#include <qobjectlist.h>
 #include <qpainter.h>
 #include <qpopupmenu.h>
 #include <qrect.h>
@@ -128,18 +127,16 @@ PopupMenuEditorItem::PopupMenuEditorItem( QActionGroup * actionGroup, PopupMenuE
     PopupMenuEditor * pme = ( actionGroup->usesDropDown() ? s : m );
     if ( !children )
 	return;
-    QObjectList * l = g->queryList( "QAction" );
-    QObject * o = l->first();
-    while ( o ) {
+    QObjectList l = g->queryList( "QAction" );
+    for (int i = 0; i < l.size(); ++i) {
+	QObject * o = l.at(i);
  	if ( o->parent() == g ) {
- 	    if ( o->inherits( "QActionGroup" ) )
- 		pme->insert( ( QActionGroup * ) o );
+ 	    if ( qt_cast<QActionGroup *>(o) )
+ 		pme->insert( static_cast<QActionGroup *>(o) );
  	    else
- 		pme->insert( ( QAction * ) o );
+ 		pme->insert( static_cast<QAction *>(o) );
  	}
- 	o = l->next();
      }
-    delete l;
 }
 
 PopupMenuEditorItem::PopupMenuEditorItem( PopupMenuEditorItem * item, PopupMenuEditor * menu,
@@ -235,13 +232,10 @@ void PopupMenuEditorItem::focusOnMenu()
 
 int PopupMenuEditorItem::count() const
 {
-    if ( s ) {
+    if ( s )
 	return s->count();
-    } else if ( g ) {
-	const QObjectList * l = g->children();
-	if ( l )
-	    return l->count();
-    }
+    if ( g )
+	return g->children().size();
     return 0;
 }
 
@@ -255,7 +249,7 @@ bool PopupMenuEditorItem::eventFilter( QObject * o, QEvent * event )
 
 	if ( c->inherits( "QActionGroup" ) ) {
 	    i = new PopupMenuEditorItem( ( QActionGroup * ) c, s );
-	} else if ( c->inherits( "QAction" ) ) {	    
+	} else if ( c->inherits( "QAction" ) ) {
 	    i = new PopupMenuEditorItem( ( QAction * ) c, s );
 	    if ( c->name() == "qt_separator_action" )
 		i->setSeparator( TRUE );
@@ -1263,8 +1257,10 @@ void PopupMenuEditor::dropInPlace( PopupMenuEditorItem * i, int y )
 
 void PopupMenuEditor::dropInPlace( QActionGroup * g, int y )
 {
-    QObjectList l = *g->children();
-    for ( QAction *a = (QAction *)l.last(); a; a = (QAction *)l.prev() ) {
+    QObjectList l = g->children();
+    for (int i = l.size(); i > 0; ) {
+	--i;
+	QAction *a = static_cast<QAction *>(l.at(i));
 	if ( a->inherits( "ActionGroup" ) )
 	    dropInPlace( (QActionGroup *)a, y );
 	else
