@@ -54,6 +54,7 @@ QDesignerResource::QDesignerResource(FormWindow *formWindow)
    : m_formWindow(formWindow), m_core(formWindow->core())
 {
     m_topLevelSpacerCount = 0;
+    m_copyWidget = false;
 
     m_internal_to_qt.insert("QDesignerWidget", "QWidget");
     m_internal_to_qt.insert("QDesignerStackedWidget", "QStackedWidget");
@@ -83,6 +84,7 @@ QDesignerResource::~QDesignerResource()
 void QDesignerResource::save(QIODevice *dev, QWidget *widget)
 {
     m_topLevelSpacerCount = 0;
+
     Resource::save(dev, widget);
 
     if (m_topLevelSpacerCount != 0) {
@@ -128,7 +130,7 @@ QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
     QWidget *mainWidget = Resource::create(ui, parentWidget);
     if (mainWidget == 0)
         return 0;
-    
+
     if (m_formWindow) {
         for (int index = 0; index < m_formWindow->toolCount(); ++index) {
             AbstractFormWindowTool *tool = m_formWindow->tool(index);
@@ -436,7 +438,7 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
     if (!item)
         return 0;
 
-    if (qobject_cast<Spacer*>(widget)) {
+    if (qobject_cast<Spacer*>(widget) && m_copyWidget == false) {
         ++m_topLevelSpacerCount;
         return 0;
     }
@@ -849,6 +851,8 @@ bool QDesignerResource::addItem(DomWidget *ui_widget, QWidget *widget, QWidget *
 
 void QDesignerResource::copy(QIODevice *dev, const QList<QWidget*> &selection)
 {
+    m_copyWidget = true;
+
     DomUI *ui = copy(selection);
     QDomDocument doc;
     doc.appendChild(ui->write(doc));
@@ -857,10 +861,13 @@ void QDesignerResource::copy(QIODevice *dev, const QList<QWidget*> &selection)
     m_laidout.clear();
 
     delete ui;
+    m_copyWidget = false;
 }
 
 DomUI *QDesignerResource::copy(const QList<QWidget*> &selection)
 {
+    m_copyWidget = true;
+
     DomUI *ui = new DomUI();
     ui->setAttributeVersion(QLatin1String("4.0"));
 
@@ -881,6 +888,8 @@ DomUI *QDesignerResource::copy(const QList<QWidget*> &selection)
     ui->setElementWidget(ui_widget);
 
     m_laidout.clear();
+
+    m_copyWidget = false;
 
     return ui;
 }

@@ -113,6 +113,7 @@ private:
     QStack<QLayout*> m_chain;
     QHash<AbstractWidgetDataBaseItem*, bool> m_usedCustomWidgets;
     int m_topLevelSpacerCount;
+    bool m_copyWidget;
 };
 
 #endif // QDESIGNER_RESOURCE_H
