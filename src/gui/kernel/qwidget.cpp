@@ -1527,7 +1527,7 @@ void QWidget::showMinimized()
     if (isMin && isVisible()) return;
 
     ensurePolished();
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     if (parent())
         QApplication::sendPostedEvents(parent(), QEvent::ChildInserted);
 #endif
@@ -1651,7 +1651,7 @@ void QWidget::showFullScreen()
 	return;
 
     ensurePolished();
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     if (parent())
         QApplication::sendPostedEvents(parent(), QEvent::ChildInserted);
 #endif
@@ -1680,7 +1680,7 @@ void QWidget::showMaximized()
 	return;
 
     ensurePolished();
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     if (parent())
         QApplication::sendPostedEvents(parent(), QEvent::ChildInserted);
 #endif
@@ -1700,7 +1700,7 @@ void QWidget::showMaximized()
 void QWidget::showNormal()
 {
     ensurePolished();
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     if (parent())
         QApplication::sendPostedEvents(parent(), QEvent::ChildInserted);
 #endif
