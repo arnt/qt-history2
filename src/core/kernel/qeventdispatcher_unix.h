@@ -46,7 +46,6 @@ public:
 protected:
     QEventDispatcherUNIX(QEventDispatcherUNIXPrivate &, QObject *parent);
 
-    int timeToWait();
     void setSocketNotifierPending(QSocketNotifier *notifier);
 
     int activateTimers();
