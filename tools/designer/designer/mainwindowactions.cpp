@@ -628,11 +628,18 @@ void MainWindow::setupFileActions()
     a->addTo( fileMenu );
 
     a = new QAction( this, 0 );
+    a->setText( tr( "Save Project" ) );
+    a->setMenuText( tr( "Save Pro&ject" ) );
+    a->setStatusTip( tr( "Saves the current project" ) );
+    a->setWhatsThis( tr("<b>Saves the current project</b>" ) );
+    connect( a, SIGNAL( activated() ), this, SLOT( fileSaveProject() ) );
+    a->addTo( fileMenu );
+
+    a = new QAction( this, 0 );
     a->setText( tr( "Close Project" ) );
     a->setMenuText( tr( "Close P&roject" ) );
     a->setStatusTip( tr( "Closes the current project" ) );
-    a->setWhatsThis( tr("<b>Closes the current project</b>"
-			"<p>Closes the current project, if one exists.</p>") );
+    a->setWhatsThis( tr("<b>Closes the current project</b>" ) );
     connect( a, SIGNAL( activated() ), this, SLOT( fileCloseProject() ) );
     a->addTo( fileMenu );
 
