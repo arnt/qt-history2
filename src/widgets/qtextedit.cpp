@@ -1715,8 +1715,13 @@ void QTextEdit::resizeEvent( QResizeEvent *e )
 void QTextEdit::viewportResizeEvent( QResizeEvent *e )
 {
     QScrollView::viewportResizeEvent( e );
-    if ( e->oldSize().width() != e->size().width() )
+    if ( e->oldSize().width() != e->size().width() ) {
+	bool stayAtBottom = e->oldSize().height() != e->size().height() && 
+	       contentsY() > 0 && contentsY() >= doc->height() - e->oldSize().height();
 	doResize();
+	if ( stayAtBottom )
+	    scrollToBottom();
+    }
 }
 
 /*!
@@ -2351,7 +2356,7 @@ void QTextEdit::formatMore()
 
     int bottom = contentsHeight();
     int lastBottom = -1;
-    int to = !sender() ? 2 : 20;
+    int to = 20;
     bool firstVisible = FALSE;
     QRect cr( contentsX(), contentsY(), visibleWidth(), visibleHeight() );
     for ( int i = 0; ( i < to || firstVisible ) && lastFormatted; ++i ) {
@@ -2371,7 +2376,7 @@ void QTextEdit::formatMore()
     if ( bottom > contentsHeight() ) {
 	resizeContents( contentsWidth(), QMAX( doc->height(), bottom ) );
     } else if ( lastBottom != -1 && lastBottom < contentsHeight() ) {
-	resizeContents( contentsWidth(), QMAX( doc->height(), lastBottom ) );
+ 	resizeContents( contentsWidth(), QMAX( doc->height(), lastBottom ) );
 	if ( contentsHeight() < visibleHeight() )
 	    updateContents( 0, contentsHeight(), visibleWidth(),
 			    visibleHeight() - contentsHeight() );
@@ -4057,9 +4062,7 @@ void QTextEdit::append( const QString &text )
     drawCursor( FALSE );
     QTextCursor oldc( *cursor );
     ensureFormatted( doc->lastParag() );
-    bool scrollToEnd = contentsY() >= contentsHeight() - visibleHeight() -
-			   ( horizontalScrollBar()->isVisible() ?
-			     horizontalScrollBar()->height() : 0 );
+    bool atBottom = contentsY() >= contentsHeight() - visibleHeight();
     cursor->gotoEnd();
     if ( cursor->index() > 0 )
 	cursor->splitAndInsertEmptyParag();
@@ -4075,12 +4078,14 @@ void QTextEdit::append( const QString &text )
 	    doc->removeSelection( QTextDocument::Temp );
 	}
     } else {
+	if ( cursor->parag()->prev() )
+	    cursor->parag()->prev()->invalidate(0); // vertical margins might have to change
 	doc->setRichTextInternal( text );
     }
     formatMore();
     repaintChanged();
-    if ( scrollToEnd )
-	ensureCursorVisible();
+    if ( atBottom )
+        scrollToBottom();
     *cursor = oldc;
     if ( !isReadOnly() )
 	cursorVisible = TRUE;
@@ -4930,10 +4935,9 @@ void QTextEdit::zoomTo( int size )
 
 void QTextEdit::sync()
 {
-    QTextParag *p = lastFormatted;
-    while ( p ) {
-	p->format();
-	p = p->next();
+    while ( lastFormatted ) {
+	lastFormatted->format();
+	lastFormatted = lastFormatted->next();
     }
     resizeContents( contentsWidth(), doc->height() );
 }

@@ -1616,9 +1616,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
     QTextParag* curpar = lParag;
     int pos = 0;
     QValueStack<QTextDocumentTag> tags;
-    if ( !sheet_->item( "p" ) )
-	(new QStyleSheetItem( sheet_, "p" ))->setDisplayMode( QStyleSheetItem::DisplayBlock );
-    QTextDocumentTag initag( "p", sheet_->item("p"), *formatCollection()->defaultFormat() );
+    QTextDocumentTag initag( "", sheet_->item(""), *formatCollection()->defaultFormat() );
     QTextDocumentTag curtag = initag;
     bool space = TRUE;
     bool doLineBreak = FALSE;
@@ -1633,7 +1631,6 @@ void QTextDocument::setRichTextInternal( const QString &text )
     QString anchorName;
 
     QString wellKnownTags = "br hr wsp table qt body meta title";
-    NEWPAR;
 
     while ( pos < length ) {
 	if ( hasPrefix(doc, length, pos, '<' ) ){
