@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#36 $
+** $Id: //depot/qt/main/src/moc/moc.y#37 $
 **
 ** Parser and code generator for meta object compiler
 **
-** Author  : Haavard Nord
+** Author  : Haavard Nord    Eirik Eng
 ** Created : 930417
 **
-** Copyright (C) 1993,1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993 - 1995 by Troll Tech AS.  All rights reserved.
 **
 ** --------------------------------------------------------------------------
 ** This file contains the parser and code generator for the meta object
@@ -19,13 +19,13 @@
 ** target application.
 **
 ** C++ header files are assumed to have correct syntax, and we are therefore
-** doing less strict checking that C++ compilers.
+** doing less strict checking than C++ compilers.
 **
 ** The C++ grammar has been adopted from the "The Annotated C++ Reference
 ** Manual" (ARM), by Ellis and Stroustrup (Addison Wesley, 1992).
 **
 ** Notice that this code is not possible to compile with GNU bison, instead
-** use standard the AT&T yacc or Berkeley yacc.
+** use standard AT&T yacc or Berkeley yacc.
 ** Don't panic if you get 7 shift/reduce conflicts. That is perfectly normal.
 **
 ** TODO:
@@ -33,6 +33,9 @@
 **    Better grammer. int as def. return value.
 **    Clean up memory.
 *****************************************************************************/
+
+/* Gi feilmelding hvis Q_OBJECT IKKE ligger i private: delen av klassen!!! */
+
 
 %{
 #include "qlist.h"
@@ -43,19 +46,22 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#36 $";
+static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#37 $";
 #endif
 
+
+QString rmWS( const char * );
 
 enum AccessPerm { _PRIVATE, _PROTECTED, _PUBLIC };
 
 
 struct Argument					// single arg meta data
 {
-    Argument( char *name, char *ptr )
-	{ typeName=name; ptrType=ptr; }
-    QString typeName;
-    QString ptrType;
+    Argument( char *left, char *right )
+	{ leftType  = rmWS( left );
+          rightType = rmWS( right ); }
+    QString leftType;
+    QString rightType;
 };
 
 declare(QList,Argument);
@@ -67,12 +73,13 @@ public:
 
 
 struct Function					// member function meta data
-{						//   used for public methods,
-    QString  name;				//   signals and slots
-    QString  type;
-    QString  ptrType;
-    int	     lineNo;
-    ArgList *args;
+{						//   used for signals and slots
+    AccessPerm accessPerm;
+    QString    qualifier;                       // const or volatile
+    QString    name;
+    QString    type;
+    int	       lineNo;
+    ArgList   *args;
     Function() { args=0; }
    ~Function() { delete args; }
 };
@@ -86,20 +93,29 @@ public:
 
 
 ArgList *addArg( Argument * );			// add arg to tmpArgList
-void	 addMember( QString, char );		// add tmpFunc to current class
+void	 addMember( char );			// add tmpFunc to current class
 
 char	*strnew( const char * );		// returns a new string (copy)
 char	*stradd( const char *, const char * );	// add two strings
+char	*stradd( const char *, const char *,	// add three strings
+                               const char * );
 
 extern int yydebug;
-int	 lexdebug;
-int	 lineNo;				// current line number
-bool	 errorControl;				// controlled errors
-bool	 skipClass;				// don't generate for class
-bool	 skipFunc;				// don't generate for func
+bool	   lexDebug        = FALSE;
+bool	   grammarDebug    = FALSE;
+int	   lineNo;				// current line number
+bool	   errorControl    = FALSE; 		// controlled errors
+bool	   displayWarnings = TRUE;
+bool	   skipClass;				// don't generate for class
+bool	   skipFunc;				// don't generate for func
 
-ArgList	 *tmpArgList;				// current argument list
-Function *tmpFunc;				// current member function
+ArgList	  *tmpArgList;				// current argument list
+Function  *tmpFunc;				// current member function
+AccessPerm tmpAccessPerm;                       // current access permission
+AccessPerm subClassPerm;                        // current access permission
+bool       Q_OBJECTdetected;                    // TRUE if current class
+                                                // contains the Q_OBJECT macro
+QString    tmpExpression;
 
 %}
 
@@ -154,22 +170,26 @@ Function *tmpFunc;				// current member function
 %token			DBL_COLON
 %token			TRIPLE_DOT
 
-%token			METHODS
 %token			SIGNALS
 %token			SLOTS
+%token			Q_OBJECT
 
 
 %type  <string>		class_name
 %type  <string>		opt_base_spec
 %type  <string>		base_spec
 %type  <string>		base_list
+%type  <string>		qt_macro_name
 %type  <string>		base_specifier
 %type  <access>		access_specifier
-%type  <function>	fct_decl
 %type  <string>		fct_name
-%type  <function>	fct_name_decl
+%type  <string>		type_name
+%type  <string>		simple_type_names
 %type  <string>		simple_type_name
+%type  <string>		class_key
 %type  <string>		complete_class_name
+%type  <string>		qualified_class_name
+%type  <string>		elaborated_type_specifier
 
 %type  <arg_list>	argument_declaration_list
 %type  <arg_list>	arg_declaration_list
@@ -177,72 +197,76 @@ Function *tmpFunc;				// current member function
 %type  <string>		abstract_decl_opt
 %type  <string>		abstract_decl
 %type  <arg>		argument_declaration
+%type  <string>		cv_qualifier_list_opt
+%type  <string>		cv_qualifier_list
+%type  <string>		cv_qualifier
 %type  <string>		decl_specifiers
+%type  <string>		decl_specifier
+%type  <string>		decl_specs_opt
+%type  <string>		decl_specs
+%type  <string>		type_specifier
 %type  <string>		declarator
 %type  <string>		ptr_operator
+%type  <string>		ptr_operators
+%type  <string>		ptr_operators_opt
 
 %%
-class_defs:
+class_defs:               /* empty */
 			| class_defs class_def
 			;
 
-class_def:		  class_specifier ';' { generate(); BEGIN OUTSIDE; }
+class_def:		                      { initClass(); }
+                          class_specifier ';' { generateClass(); 
+                                                BEGIN OUTSIDE; }
 			;
 
 
 /***** r.17.1 (ARM p.387 ): Keywords	*****/
 
-class_name:		  IDENTIFIER
+class_name:		  IDENTIFIER          { $$ = $1; }
 			;
 
 
 /***** r.17.2 (ARM p.388): Expressions	*****/
 
-expression:		  primary_expression
-			;
 
-primary_expression:	  literal
-			;
+/* const_expression skips all characters until it encounters either one
+   of "]", ")" or "," (it handles and discards sublevels of parentheses).
+   Since the rule is empty it must be used with care!
+*/
 
-literal:		  integer_constant
-			| character_constant
-			| floating_constant
-			| string_literal
-			| IDENTIFIER
-			;
-
-integer_constant:	  INT_VAL
-			;
-
-character_constant:	  CHAR_VAL
-			;
-
-floating_constant:	  DOUBLE_VAL
-			;
-
-string_literal:		  STRING
-			;
-
+const_expression:          /* empty */            { initExpression();
+                                                    BEGIN IN_EXPR; }
+                        ;
 
 /***** r.17.3 (ARM p.391): Declarations	*****/
 
-decl_specifier:		  storage_class_specifier
-			| type_specifier
-			| fct_specifier
-			| FRIEND
-			| TYPEDEF
+decl_specifier:		  storage_class_specifier { $$ = ""; }
+			| type_specifier          { $$ = $1; }
+			| fct_specifier           { $$ = ""; }
+			| FRIEND                  { skipFunc = TRUE; $$ = ""; }
+			| TYPEDEF                 { skipFunc = TRUE; $$ = ""; }
 			;
 
-decl_specifiers:	  decl_specs_opt simple_type_name decl_specs_opt
-						{ $$ = $2; }
+decl_specifiers:	  decl_specs_opt type_name decl_specs_opt
+						  { char *tmp = new char[
+						    strlen($1) +
+						    strlen($2) +
+						    strlen($3) + 3 ];
+                                                    strcpy(tmp,$1);
+                                                    strcat(tmp," ");
+                                                    strcat(tmp,$2);
+                                                    strcat(tmp," ");
+                                                    strcat(tmp,$3);
+                                                    $$ = tmp; }
 			;
 
-decl_specs_opt:			/* empty */
-			| decl_specs
+decl_specs_opt:			/* empty */       { $$ = ""; }
+                        | decl_specs              { $$ = $1; }
 			;
 
-decl_specs:		  decl_specs decl_specifier
-			| decl_specifier
+decl_specs:		  decl_specifier            { $$ = $1; }
+                        | decl_specs decl_specifier { $$ = stradd($1," ",$2); }
 			;
 
 storage_class_specifier:  AUTO
@@ -255,33 +279,57 @@ fct_specifier:		  INLINE
 			| VIRTUAL
 			;
 
-type_specifier:		  CONST
-			| VOLATILE
+type_specifier:		  CONST                 { $$ = "const"; }
+			| VOLATILE              { $$ = "volatile"; }
 			;
 
-simple_type_name:	  complete_class_name	{ $$ = $1; }
-			| CHAR			{ $$ = "char"; }
-			| SHORT			{ $$ = "short"; }
-			| INT			{ $$ = "int"; }
-			| LONG			{ $$ = "long"; }
-			| SIGNED		{ $$ = "signed"; }
-			| UNSIGNED		{ $$ = "unsigned"; }
-			| FLOAT			{ $$ = "float"; }
-			| DOUBLE		{ $$ = "double"; }
-			| VOID			{ $$ = "void"; }
+type_name:                elaborated_type_specifier { $$ = $1; }
+                        | complete_class_name	    { $$ = $1; }
+                        | simple_type_names         { $$ = $1; }
+                        ;
+
+simple_type_names:        simple_type_names simple_type_name
+						    { $$ = stradd($1," ",$2); }
+                        | simple_type_name          { $$ = $1; }
+
+simple_type_name:	  CHAR			    { $$ = "char"; }
+			| SHORT			    { $$ = "short"; }
+			| INT			    { $$ = "int"; }
+			| LONG			    { $$ = "long"; }
+			| SIGNED		    { $$ = "signed"; }
+			| UNSIGNED		    { $$ = "unsigned"; }
+			| FLOAT			    { $$ = "float"; }
+			| DOUBLE		    { $$ = "double"; }
+			| VOID			    { $$ = "void"; }
 			;
 
-class_key		: CLASS
+class_key:		  CLASS                     { $$ = "class"; }
+                        | STRUCT                    { $$ = "struct"; }
 			;
 
-complete_class_name:	  class_name
+complete_class_name:	  qualified_class_name  { $$ = $1; }
+                        | DBL_COLON  qualified_class_name 
+                                                { $$ = stradd( "::", $2 ); }
 			;
 
+qualified_class_name:     qualified_class_name DBL_COLON class_name
+                                                { $$ = stradd( $1, "::", $3 );}
+                        | class_name            { $$ = $1; }
+                        ;
+
+elaborated_type_specifier:
+                          class_key IDENTIFIER  { $$ = stradd($1," ",$2); }
+                        | ENUM IDENTIFIER       { $$ = stradd("enum ",$2); }
+                        | UNION IDENTIFIER      { $$ = stradd("union ",$2); }
+                        ;
 
 /***** r.17.4 (ARM p.393): Declarators	*****/
 
-argument_declaration_list:  arg_declaration_list_opt triple_dot_opt
-			|   arg_declaration_list ',' TRIPLE_DOT
+argument_declaration_list:  arg_declaration_list_opt triple_dot_opt { $$ = $1;}
+			|   arg_declaration_list ',' TRIPLE_DOT     { $$ = $1;
+                                       moc_warn("Ellipsis not supported"
+                                               " in signals and slots.\n"
+                                               "Ellipsis argument ignored."); }
 			;
 
 arg_declaration_list_opt:	/* empty */	{ $$ = tmpArgList; }
@@ -289,7 +337,10 @@ arg_declaration_list_opt:	/* empty */	{ $$ = tmpArgList; }
 			;
 
 triple_dot_opt:			/* empty */
-			| TRIPLE_DOT
+			| TRIPLE_DOT { moc_warn("Ellipsis not supported"
+                                               " in signals and slots.\n"
+                                               "Ellipsis argument ignored."); }
+
 			;
 
 arg_declaration_list:	  arg_declaration_list
@@ -297,93 +348,137 @@ arg_declaration_list:	  arg_declaration_list
 			  argument_declaration	{ $$ = addArg($3); }
 			| argument_declaration	{ $$ = addArg($1); }
 
-argument_declaration:	  decl_specifiers declarator
-					{ $$ = new Argument($1,$2); CHECK_PTR($$); }
-			| decl_specifiers declarator '=' expression
-					{ $$ = new Argument($1,$2); CHECK_PTR($$); }
+argument_declaration:	  decl_specifiers abstract_decl_opt
+				{ $$ = new Argument(stradd($1,$2),""); 
+                                  CHECK_PTR($$); }
 			| decl_specifiers abstract_decl_opt
-					{ $$ = new Argument($1,$2); CHECK_PTR($$); }
-			| decl_specifiers abstract_decl_opt '=' expression
-					{ $$ = new Argument($1,$2); CHECK_PTR($$); }
+                          '=' { expLevel = 1; }
+                          const_expression
+				{ $$ = new Argument(stradd($1,$2),"");
+                                  CHECK_PTR($$); }
+			| decl_specifiers abstract_decl_opt dname
+                                abstract_decl_opt
+				{ $$ = new Argument(stradd($1,$2),$4); 
+                                  CHECK_PTR($$); }
+			| decl_specifiers abstract_decl_opt dname 
+                                abstract_decl_opt
+                          '='   { expLevel = 1; }
+                          const_expression
+				{ $$ = new Argument(stradd($1,$2),$4); 
+                                  CHECK_PTR($$); }
 			;
+
 
 abstract_decl_opt:	  /* empty */		{ $$ = ""; }
 			| abstract_decl		{ $$ = $1; }
 			;
 
-abstract_decl:		 abstract_decl ptr_operator  /* NOTE: Simplified! */
+abstract_decl:		  abstract_decl ptr_operator
 						{ $$ = stradd($1,$2); }
+                        | '['                   { expLevel = 1; }
+                          const_expression ']'
+                                   { $$ = stradd( "[", 
+                                     tmpExpression.stripWhiteSpace(), "]" ); }
+                        | abstract_decl '['     { expLevel = 1; }
+                          const_expression ']'
+                                   { $$ = stradd( $1,"[",
+                                     tmpExpression.stripWhiteSpace(),"]" ); }
 			| ptr_operator		{ $$ = $1; }
+			| '(' abstract_decl ')'	{ $$ = $2; }
 			;
 
-declarator:		  dname			{ $$ = "";}
-			| ptr_operator declarator { $$ = stradd($1,$2);}
+declarator:		  dname			{ $$ = ""; }
+			| declarator ptr_operator
+                                                { $$ = stradd($1,$2);}
+                        | declarator '['        { expLevel = 1; }
+                          const_expression ']'
+                                   { $$ = stradd( $1,"[",
+                                     tmpExpression.stripWhiteSpace(),"]" ); }
 			| '(' declarator ')'	{ $$ = $2; }
 			;
 
 dname:			  IDENTIFIER
 			;
 
-fct_decl:		  fct_name_decl
-			  '('
+fct_decl:		  '('
 			  argument_declaration_list
 			  ')'
 			  cv_qualifier_list_opt
-			  fct_body_opt
-						{ tmpFunc->args = $3;
-						  $$ = tmpFunc; }
+			  fct_body_or_semicolon
+						{ tmpFunc->args      = $2;
+                                                  tmpFunc->qualifier = $4; }
 			;
 
 fct_name:		  IDENTIFIER		/* NOTE: simplified! */
+                        | IDENTIFIER array_decls 
+                                { func_warn("Variable as signal or slot."); }
+               		| IDENTIFIER '=' { expLevel=0; }
+                          const_expression     /* probably const member */
+                                                { skipFunc = TRUE; }
+               		| IDENTIFIER array_decls '=' { expLevel=0; }
+                          const_expression     /* probably const member */
+                                                { skipFunc = TRUE; }
+                        ;
+
+
+array_decls:             '['                    { expLevel = 1; }
+                          const_expression ']'
+                        | array_decls '['        { expLevel = 1; }
+                          const_expression ']'
+
 			;
 
-fct_name_decl:		  fct_name		{ tmpFunc->name = $1;
-						  tmpFunc->ptrType  = "";
-						  $$ = tmpFunc; }
-			| ptr_operator fct_name_decl
-						{ tmpFunc->name = $2->name;
-						  tmpFunc->ptrType =
-						    stradd($1,
-							(char*)$2->ptrType);
-						  $$ = tmpFunc; }
+ptr_operators_opt:         /* empty */          { $$ = ""; }
+                        | ptr_operators          { $$ = $1; }
+                        ;
 
-ptr_operator:		  '*' cv_qualifier_list_opt { $$="*"; }
-			| '&' cv_qualifier_list_opt { $$="&"; }
-			| complete_class_name
+ptr_operators:            ptr_operator          { $$ = $1; }
+                        | ptr_operators ptr_operator { $$ = stradd($1," ",$2);}
+                        ;
+
+ptr_operator:		  '*' cv_qualifier_list_opt { $$ = stradd("*"," ",$2);}
+			| '&' cv_qualifier_list_opt { $$ = stradd("&"," ",$2);}
+/*!			| complete_class_name
 			  DBL_COLON
 			  '*'
-			  cv_qualifier_list_opt	{ $$=stradd($1,"*"); }
+			  cv_qualifier_list_opt	{ $$ = stradd($1,"::*",$4); }*/
 			;
 
-cv_qualifier_list_opt:		/* empty */
-			| cv_qualifier_list
+cv_qualifier_list_opt:		/* empty */     { $$ = ""; }
+			| cv_qualifier_list     { $$ = $1; }
 			;
 
-cv_qualifier_list:	  cv_qualifier
+cv_qualifier_list:	  cv_qualifier          { $$ = $1; }
 			| cv_qualifier_list cv_qualifier
+                                                { $$ = stradd($1,$2); }
 			;
 
-cv_qualifier:		  CONST
-			| VOLATILE
+cv_qualifier:		  CONST                 { $$ = "const"; }
+			| VOLATILE              { $$ = "volatile"; }
 			;
 
-fct_body_opt:			/* empty */
+fct_body_or_semicolon:	  ';'
 			| fct_body
+                        | '=' INT_VAL ';'   /* abstract func, INT_VAL = 0 */
 			;
 
-fct_body:		  '{' {BEGIN INSIDE; level = 1;}
-			  '}' {BEGIN CLASS_DEF;}
+fct_body:		  '{' {BEGIN IN_FCT; fctLevel = 1;}
+			  '}' {BEGIN QT_DEF; }
 			;
 
 
 /***** r.17.5 (ARM p.395): Class Declarations *****/
 
 class_specifier:	  class_head
-			  '{'			{ BEGIN INSIDE; level = 1; }
+			  '{'			{ BEGIN IN_CLASS; level = 1; }
 			  opt_obj_member_list
-			  '}'			{ BEGIN CLASS_DEF; }
-			| class_head		{ BEGIN CLASS_DEF;
+			  '}'			{ BEGIN QT_DEF; } /*catch ';'*/
+			| class_key class_name	{ BEGIN QT_DEF;   /* -- " -- */
 						  skipClass = TRUE; }
+                        | class_key class_name
+                          '(' IDENTIFIER ')' /* Qt macro name */
+                                                { BEGIN QT_DEF; /* catch ';' */
+                                                  skipClass = TRUE; }
 			;
 
 class_head:		  class_key
@@ -403,27 +498,35 @@ obj_member_list:	  obj_member_list obj_member_area
 			| obj_member_area
 			;
 
-obj_member_area:	  SIGNALS		{ BEGIN CLASS_DEF; }
-			  opt_signal_declarations
-			| SLOTS			{ BEGIN CLASS_DEF; }
-			  opt_slot_declarations
-			| PRIVATE		{ BEGIN INSIDE; level = 1; }
-			| PROTECTED		{ BEGIN INSIDE; level = 1; }
-			| PUBLIC		{ BEGIN INSIDE; level = 1; }
+
+qt_access_specifier:      access_specifier      { tmpAccessPerm = $1; }
+                        | SIGNALS       { moc_err( "Missing access specifier"
+                                                   " before \"signals:\"." ); }
+                        | SLOTS       { moc_err( "Missing access specifier"
+                                                   " before \"slots:\"." ); }
+                        ;
+
+obj_member_area:	  qt_access_specifier	{ BEGIN QT_DEF; }
+			  qt_member_area
+			| Q_OBJECT		{ if ( tmpAccessPerm )
+                                moc_warn("Q_OBJECT is not in the private"
+                                        "  section of the class.\n"
+                                        "Q_OBJECT is a macro that resets"
+                                        " access permission to \"private\".");
+                                                  Q_OBJECTdetected = TRUE; }
 			;
 
-opt_method_declarations:	/* empty */
-			| { errorControl=TRUE; }  method_declarations
-			  { errorControl=FALSE; }
-			;
+qt_member_area:	          SIGNALS ':' opt_signal_declarations
+			| SLOTS	  ':' opt_slot_declarations
+			| ':'            { if ( grammarDebug )
+                                                  BEGIN QT_DEF;
+                                              else
+                                                  BEGIN IN_CLASS; 
+                                           if ( level != 1 )
+                                               moc_warn( "unexpected ':'" );
+                                         }
+                                      opt_slot_declarations
 
-method_declarations:	  method_declarations method_declaration
-			| method_declaration
-			;
-
-method_declaration:	  decl_specifiers fct_decl optional_semicolon
-						{ addMember($1,'m'); }
-			| error ';'		{ yyerrok; }
 			;
 
 opt_signal_declarations:	/* empty */
@@ -434,9 +537,9 @@ signal_declarations:	  signal_declarations signal_declaration
 			| signal_declaration
 			;
 
-signal_declaration:	  decl_specifiers fct_decl optional_semicolon
-						{ addMember($1,'s'); }
-			;
+
+signal_declaration:	  signal_or_slot	{ addMember('s'); }
+                        ;
 
 opt_slot_declarations:		/* empty */
 			| slot_declarations
@@ -446,12 +549,11 @@ slot_declarations:	  slot_declarations slot_declaration
 			| slot_declaration
 			;
 
-slot_declaration:	  decl_specifiers fct_decl optional_semicolon
-						{ addMember($1,'t'); }
+slot_declaration:	  signal_or_slot	{ addMember('t'); }
 			;
 
-optional_semicolon:		/* empty */
-			| ';'
+opt_semicolons:		  /* empty */
+			| opt_semicolons ';'
 			;
 
 base_spec:		  ':' base_list		{ $$=$2; }
@@ -461,17 +563,158 @@ base_list		: base_list ',' base_specifier
 			| base_specifier
 			;
 
+qt_macro_name:            IDENTIFIER '(' IDENTIFIER ')'   
+                                           { $$ = stradd( $1, "(", $3, ")" ); }
+                        | IDENTIFIER '(' simple_type_name ')'   
+                                           { $$ = stradd( $1, "(", $3, ")" ); }
+                        ;
+
 base_specifier:		  complete_class_name			       {$$=$1;}
 			| VIRTUAL access_specifier complete_class_name {$$=$3;}
 			| VIRTUAL complete_class_name		       {$$=$2;}
 			| access_specifier VIRTUAL complete_class_name {$$=$3;}
 			| access_specifier complete_class_name	       {$$=$2;}
+                        | qt_macro_name			               {$$=$1;}
+			| VIRTUAL access_specifier qt_macro_name       {$$=$3;}
+			| VIRTUAL qt_macro_name		               {$$=$2;}
+			| access_specifier VIRTUAL qt_macro_name       {$$=$3;}
+			| access_specifier qt_macro_name	       {$$=$2;}
 			;
 
 access_specifier:	  PRIVATE		{ $$=_PRIVATE; }
 			| PROTECTED		{ $$=_PROTECTED; }
 			| PUBLIC		{ $$=_PUBLIC; }
 			;
+
+operator_name:            decl_specs_opt IDENTIFIER ptr_operators_opt
+                        | decl_specs_opt simple_type_name ptr_operators_opt
+                        | '+'
+                        | '-'
+                        | '*'
+                        | '/'
+                        | '%'
+                        | '^'
+                        | '&'
+                        | '|'
+                        | '~'
+                        | '!'
+                        | '='
+                        | '<'
+                        | '>'
+                        | '+' '='
+                        | '-' '='
+                        | '*' '='
+                        | '/' '='
+                        | '%' '='
+                        | '^' '='
+                        | '&' '='
+                        | '|' '='
+                        | '~' '='
+                        | '!' '='
+                        | '=' '='
+                        | '<' '='
+                        | '>' '='
+                        | '<' '<'
+                        | '>' '>'
+                        | '<' '<' '='
+                        | '>' '>' '='
+                        | '&' '&'
+                        | '|' '|'
+                        | '+' '+'
+                        | '-' '-'
+                        | ','
+                        | '-' '>' '*'
+                        | '-' '>'
+                        | '(' ')'
+                        | '[' ']'
+                        ;
+
+
+opt_virtual:              /* empty */
+                        | VIRTUAL
+                        ;
+
+type_and_name:		  type_name fct_name
+                                                { tmpFunc->type = $1; 
+                                                  tmpFunc->name = $2; } 
+               		| fct_name
+                                                { tmpFunc->type = "int"; 
+                                                  tmpFunc->name = $1; 
+                                  if ( tmpFunc->name == className )
+                                      func_warn( "Constructors cannot be"
+                                                 " signals or slots."); 
+                                                }
+               		| opt_virtual '~' fct_name
+                                                { 
+                                       func_warn( "Destructors cannot be"
+                                                  " signals or slots."); 
+                                                }
+               		| decl_specs type_name decl_specs_opt 
+               		  ptr_operators_opt fct_name
+                                                { tmpFunc->type = 
+                                                      stradd($1,$2,$3,$4); 
+                                                  tmpFunc->name = $5; }
+               		| decl_specs type_name /* probably friend decl */
+                                                { skipFunc = TRUE; }
+               		| type_name ptr_operators fct_name
+                                                { tmpFunc->type = 
+                                                      stradd($1,$2); 
+                                                  tmpFunc->name = $3; }
+               		| type_name decl_specs ptr_operators_opt 
+                 	  fct_name
+                                                { tmpFunc->type = 
+                                                      stradd($1,$2,$3); 
+                                                  tmpFunc->name = $4; }
+                        | type_name OPERATOR operator_name
+                                                { operatorError();    }
+               		| OPERATOR operator_name
+                                                { operatorError();    }
+               		| decl_specs type_name decl_specs_opt 
+               		  ptr_operators_opt OPERATOR operator_name
+                                                { operatorError();    }
+               		| type_name ptr_operators OPERATOR  operator_name
+                                                { operatorError();    }
+               		| type_name decl_specs ptr_operators_opt 
+                 	  OPERATOR  operator_name
+                                                { operatorError();    }
+                        ;
+
+signal_or_slot:		  type_and_name fct_decl opt_semicolons
+               		| type_and_name opt_bitfield ';' opt_semicolons
+                                { func_warn("Variable as signal or slot."); }
+               		| type_and_name opt_bitfield ','member_declarator_list 
+                          ';' opt_semicolons
+                                { func_warn("Variable as signal or slot."); }
+                        | enum_specifier  ';' opt_semicolons
+                                { func_warn("Enum declaration as signal or"
+                                          "slot."); } 
+			;
+
+
+member_declarator_list:   member_declarator
+                        | member_declarator_list ',' member_declarator
+                        ;
+
+member_declarator:        declarator
+                        | IDENTIFIER ':'         { expLevel = 0; }
+                          const_expression
+                        | ':'                    { expLevel = 0; }
+                          const_expression
+                        ;
+
+opt_bitfield:             /* empty */
+                        | ':'                    { expLevel = 0; }
+                          const_expression
+                        ;
+
+
+enum_specifier:           ENUM opt_identifier '{'   {BEGIN IN_FCT; fctLevel=1;}
+                                              '}'   {BEGIN QT_DEF; }
+                        ;
+
+opt_identifier:           /* empty */
+                        | IDENTIFIER
+                        ;
 
 %%
 
@@ -487,14 +730,15 @@ int yydebug;
 #endif
 
 void init();					// initialize
-void generate();				// generate C++ source code
+void initClass();				// prepare for new class
+void generateClass();				// generate C++ code for class
+void initExpression();				// prepare for new expression
 
 QString	  fileName;				// file name
 QString   ofileName;				// output file name
 bool	  noInclude = FALSE;			// no #include <filename>
 QString	  className;				// name of parsed class
 QString	  superclassName;			// name of super class
-FuncList  methods;				// method interface (public)
 FuncList  signals;				// signal interface
 FuncList  slots;				// slots interface
 
@@ -505,7 +749,8 @@ int yyparse();
 
 int main( int argc, char **argv )		// program starts here
 {
-    char *error = 0;
+    bool autoInclude = TRUE;
+    char *error      = 0;
     for ( int n=1; n<argc; n++ ) {
 	QString arg = argv[n];
 	if ( arg[0] == '-' ) {			// option
@@ -522,21 +767,52 @@ int main( int argc, char **argv )		// program starts here
 		    ofileName = &arg[2];
 	    }
 	    else
-	    if ( strcmp(opt,"i") == 0 )		// no #include statement
-		noInclude = TRUE;
-	    else
+	    if ( strcmp(opt,"i") == 0 ) {	// no #include statement
+		noInclude   = TRUE;
+                autoInclude = FALSE;
+	    } else
+	    if ( strcmp(opt,"i-") == 0 ) {	// no #include statement
+		noInclude   = TRUE;
+                autoInclude = FALSE;
+	    } else
+	    if ( strcmp(opt,"i+") == 0 ) {	// produce #include statement
+		noInclude   = FALSE;
+                autoInclude = FALSE;
+	    } else
+	    if ( strcmp(opt,"k") == 0 ) {	// don't stop on errors
+		errorControl = TRUE;
+	    } else
+	    if ( strcmp(opt,"nw") == 0 ) {	// don't display warnings
+		displayWarnings = FALSE;
+	    } else
+	    if ( strcmp(opt,"ldbg") == 0 ) {	// lex debug output
+		lexDebug = TRUE;
+	    } else
+	    if ( strcmp(opt,"ydbg") == 0 ) {	// yacc debug output
+		yydebug = TRUE;
+	    } else
+	    if ( strcmp(opt,"dbg") == 0 ) {	// non-signal members are slots
+		grammarDebug = TRUE;
+	    } else {
 		error = "Invalid argument";
-	}
-	else {
+            }
+	} else {
 	    if ( !fileName.isNull() )		// can handle only one file
-		error = "Too many input files specified";
+		error    = "Too many input files specified";
 	    else
 		fileName = arg.copy();
 	}
     }
+    if ( autoInclude ) {
+        int ppos = fileName.find('.');
+        if ( ppos != -1 && fileName.right( fileName.length()-ppos-1 ) == "h" )
+            noInclude = FALSE;
+        else
+            noInclude = TRUE;
+    }
     if ( fileName.isNull() ) {
 	fileName = "standard input";
-	yyin = stdin;
+	yyin     = stdin;
     }
     else if ( argc < 2 || error ) {		// incomplete/wrong args
 	fprintf( stderr, "Qt meta object compiler\n" );
@@ -567,36 +843,115 @@ int main( int argc, char **argv )		// program starts here
     if ( !ofileName.isNull() )
 	fclose( out );
 
+    slots.clear();
+    signals.clear();
     return 0;
 }
+
+
+extern char *getenv();
+extern char *getenv( const char * );
+
+char *getenv() { return 0; }
+char *getenv( const char * ) { return 0; }
 
 
 void init()					// initialize
 {
     BEGIN OUTSIDE;
-    lineNo = 1;
-    lexdebug = 0;
-    yydebug = 0;
-    errorControl = FALSE;
-    skipClass = FALSE;
-    skipFunc = FALSE;
-    methods.setAutoDelete( TRUE );
+    lineNo       = 1;
+    skipClass    = FALSE;
+    skipFunc     = FALSE;
     signals.setAutoDelete( TRUE );
     slots.setAutoDelete( TRUE );
 
-    tmpArgList = new ArgList;
+    tmpArgList   = new ArgList;
     CHECK_PTR( tmpArgList );
-    tmpFunc = new Function;
+    tmpFunc      = new Function;
     CHECK_PTR( tmpFunc );
+}
+
+void initClass()                                 // prepare for new class
+{
+    tmpAccessPerm    = _PRIVATE;
+    subClassPerm     = _PRIVATE;
+    Q_OBJECTdetected = FALSE;
+    skipClass        = FALSE;
+    slots.clear();
+    signals.clear();
+}
+
+/* Remove white space from SIGNAL and SLOT names */
+
+QString rmWS( const char *src )
+{
+    QString tmp( strlen( src ) + 1 );
+    register char *d = tmp.data();
+    register char *s = (char *)src;
+    while( *s && isspace(*s) )
+        s++;
+    while ( *s ) {
+        while( *s && !isspace(*s) )
+	    *d++ = *s++;
+        while( *s && isspace(*s) )
+            s++;
+        if ( *s && ( isalpha(*s) || *s == '_' ) )
+            *d++ = ' ';
+    }
+    tmp.truncate( d - tmp.data() );
+    return tmp;
+}
+
+void initExpression()
+{
+    tmpExpression = "";
+}
+
+void addExpressionString( char *s )
+{
+    tmpExpression += s;
+}
+
+void addExpressionChar( char c )
+{
+    tmpExpression += c;    
 }
 
 void yyerror( char *msg )			// print yacc error message
 {
+
+    fprintf( stderr, "%s:%d: Error: %s\n", fileName.data(), lineNo, msg);
+/*
     if ( errorControl )
-	fprintf( stderr, "moc: Ignoring definition on line %d\n",
-lineNo );
+        fprintf( stderr, "%s:%d: Warning: %s\n", fileName.data(), lineNo, msg);
     else
-	fprintf( stderr, "moc: %s, line %d\n", msg, lineNo );
+        fprintf( stderr, "%s:%d: Error: %s\n", fileName.data(), lineNo, msg );
+*/
+}
+
+void moc_err( char *s )
+{
+    yyerror( s );
+    if ( errorControl )
+        exit( -1 );
+}
+
+void moc_warn( char *msg )
+{
+    if ( displayWarnings )
+    fprintf( stderr, "%s:%d: Warning: %s\n", fileName.data(), lineNo, msg );
+}
+
+void func_warn( char *msg )
+{
+    moc_warn( msg );
+    skipFunc = TRUE;
+}
+
+void operatorError()
+{
+    moc_warn("Operator functions cannot be signals or slots.");
+    skipFunc = TRUE;
 }
 
 #ifndef yywrap
@@ -612,6 +967,28 @@ char *stradd( const char *s1, const char *s2 )	// adds two strings
     CHECK_PTR( n );
     strcpy( n, s1 );
     strcat( n, s2 );
+    return n;
+}
+
+char *stradd( const char *s1, const char *s2, const char *s3 )// adds 3 strings
+{
+    char *n = new char[strlen(s1)+strlen(s2)+strlen(s3)+1];
+    CHECK_PTR( n );
+    strcpy( n, s1 );
+    strcat( n, s2 );
+    strcat( n, s3 );
+    return n;
+}
+
+char *stradd( const char *s1, const char *s2, 
+              const char *s3, const char *s4 )// adds 4 strings
+{
+    char *n = new char[strlen(s1)+strlen(s2)+strlen(s3)+strlen(s4)+1];
+    CHECK_PTR( n );
+    strcpy( n, s1 );
+    strcat( n, s2 );
+    strcat( n, s3 );
+    strcat( n, s4 );
     return n;
 }
 
@@ -631,20 +1008,13 @@ void generateFuncs( FuncList *list, char *functype, int num )
         while ( a ) {
             if ( count++ )
                 typstr += ",";
-            typstr += a->typeName;
-            typstr += a->ptrType;
+            typstr += a->leftType;
+            typstr += a->rightType;
             a = f->args->next();
         }
-        fprintf( out, "    typedef %s %s(%s::*m%d_t%d)(%s);\n",
-                 (char*)f->type, (char*)f->ptrType,
+        fprintf( out, "    typedef %s(%s::*m%d_t%d)(%s);\n",
+                 (char*)f->type,
                  (char*)className, num, list->at(),(char*)typstr );
-        if ( num == Signal_Num && (f->type != "void" || f->ptrType != "" ) )
-            warning( "moc: warning: %s (%d) signal %s%s %s(%s)"
-                     " should have void return value",
-                     (char*)fileName, f->lineNo,
-                     (char*)f->type, (char*)f->ptrType, (char*)f->name,
-                     (char*)typstr );
-
         f->type = f->name.copy();
         f->type += "(";
         f->type += typstr;
@@ -664,7 +1034,7 @@ void generateFuncs( FuncList *list, char *functype, int num )
                  functype, list->at(), num, list->at() );
 }
 
-void generate()                                 // generate C++ source code
+void generateClass()                  // generate C++ source code for a class
 {
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
@@ -673,9 +1043,14 @@ void generate()                                 // generate C++ source code
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     static int gen_count = 0;
-    if ( skipClass ) {                          // don't generate for class
-        skipClass = FALSE;
+    if ( skipClass )                            // don't generate for class
         return;
+    if ( !Q_OBJECTdetected ) {
+        if ( signals.count() == 0 && slots.count() == 0 )
+            return;
+        if ( displayWarnings )
+            warning("The declaration of the class \"%s\" contains slots "
+                   "and/or signals but no Q_OBJECT macro!", className.data() );
     }
     if ( gen_count++ == 0 ) {                   // first class to be generated
 	QDateTime dt = QDateTime::currentDateTime();
@@ -756,7 +1131,7 @@ void generate()                                 // generate C++ source code
         QString typstr = "";                    // type string
         QString valstr = "";                    // value string
         QString argstr = "";                    // argument string (type+value)
-        int  count = 0;
+        int  count     = 0;
         char buf[12];
                                                 // method header
         Argument *a = f->args->first();
@@ -766,14 +1141,14 @@ void generate()                                 // generate C++ source code
                 valstr += ", ";
                 argstr += ", ";
             }
-            typstr += a->typeName;
-            typstr += a->ptrType;
-            argstr += a->typeName;
-            argstr += a->ptrType;
+            typstr += a->leftType;
+            typstr += a->rightType;
+            argstr += a->leftType;
             argstr += " ";
             sprintf( buf, "t%d", count );
-            argstr += buf;
             valstr += buf;
+            argstr += buf;
+            argstr += a->rightType;
             a = f->args->next();
         }
 
@@ -824,13 +1199,11 @@ void generate()                                 // generate C++ source code
 	fprintf( out, "\tobject = (QSenderObject*)c->object();\n" );
 	fprintf( out, "\tobject->setSender( this );\n" );
 	fprintf( out, "\t(object->*r)(%s);\n", (char*)valstr );
+	fprintf( out, "\tobject->setSender( 0 );\n" );
 	fprintf( out, "    }\n}\n" );
         f = signals.next();
     }
 
-    methods.clear();
-    slots.clear();
-    signals.clear();
 }
 
 
@@ -840,20 +1213,30 @@ ArgList *addArg( Argument *a )			// add argument to list
     return tmpArgList;
 }
 
-void addMember( QString type, char m )
+void addMember( char m )
 {
-    tmpFunc->type = type;
-    tmpFunc->args = tmpArgList;
-    tmpFunc->lineNo = lineNo;
-    tmpArgList = new ArgList;
+    if ( skipFunc ) {
+        tmpArgList  = new ArgList;   // ugly but works!
+        CHECK_PTR( tmpArgList );
+        tmpFunc     = new Function;
+        CHECK_PTR( tmpFunc );
+        skipFunc    = FALSE;
+        return;
+    }
+    if ( m == 's' && tmpFunc->type != "void" ) {
+        moc_err( "Signals must have \"void\" as their return type" );
+        return;
+    }
+    tmpFunc->accessPerm = tmpAccessPerm;
+    tmpFunc->args       = tmpArgList;
+    tmpFunc->lineNo     = lineNo;
+    tmpArgList          = new ArgList;
     CHECK_PTR( tmpArgList );
-    if ( !skipFunc ) {
-	switch( m ) {
-	    case 's': signals.append( tmpFunc ); break;
-	    case 't': slots.  append( tmpFunc ); break;
-	}
+    switch( m ) {
+        case 's': signals.append( tmpFunc ); break;
+        case 't': slots.  append( tmpFunc ); break;
     }
     skipFunc = FALSE;
-    tmpFunc = new Function;
+    tmpFunc  = new Function;
     CHECK_PTR( tmpFunc );
 }
