@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qcache.doc,v 2.19 1999/10/27 21:40:22 arnt Exp $
+** $Id: qcache.doc,v 2.20 1999/10/27 22:19:18 ettrich Exp $
 **
 ** QCache and QCacheIterator class documentation
 **
@@ -35,20 +35,15 @@
   \ingroup collection
   \ingroup tools
 
-  QCache is implemented as a template class. Define a template
-  instance QCache\<X\> to create a cache that operates on pointers to
-  X, or X*.
+  A cache is a least recently used (LRU) list of cache items.  Each
+  cache item has a key and a certain cost. The sum of item costs,
+  totalCost(), never exceeds the maximum cache cost, maxCost(). If
+  inserting a new item would cause the total cost to exceed the
+  maximum cost, the least recently used items in the cache are
+  removed.
 
-  A cache is a least recently used (LRU) list of cache items.  The
-  cache items are accessed via \l QString keys, which are Unicode
-  strings.  If you want to use non-Unicode, plain 8-bit \c char* keys,
-  use the QAsciiCache template.  A QCache has the same performace as
-  a QAsciiCache.
-
-  Each cache item has a cost.  The sum of item costs, totalCost(), will not
-  exceed the maximum cache cost, maxCost().  If inserting a new item
-  would cause the total cost to exceed the maximum cost, the least
-  recently used items in the cache are removed.
+  QCache is a template class. QCache\<X\> defines a cache that
+  operates on pointers to X, or X*.
 
   Apart from insert(), by far the most important function is find()
   (which also exists as operator[]).  This function looks up an item,
@@ -68,11 +63,17 @@
   Inherit a dictionary and reimplement it if you want deep copies.
 
   When removing a cache item, the virtual function
-  QCollection::deleteItem() is called.  It's default implementation
-  in QCache is to delete the item if auto-deletion is enabled.
+  QCollection::deleteItem() is called.  The default implementation
+  deletes the item if auto-deletion is enabled, and does nothing
+  otherwise.
 
   There is a QCacheIterator which may be used to traverse the
   items in the cache in arbitrary order.
+
+  In QCache, the cache items are accessed via \l QString keys, which
+  are Unicode strings.  If you want to use non-Unicode, plain 8-bit \c
+  char* keys, use the QAsciiCache template.  A QCache has the same
+  performace as a QAsciiCache.
 
   \sa QCacheIterator, QAsciiCache, QIntCache,
       \link collection.html Collection Classes\endlink
