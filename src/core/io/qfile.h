@@ -23,7 +23,7 @@
 
 class QFilePrivate;
 
-class QFile : public QIODevice                        // file I/O device class
+class Q_CORE_EXPORT QFile : public QIODevice                        // file I/O device class
 {
     QFilePrivate *d_ptr;
     Q_DECLARE_PRIVATE(QFile)

@@ -23,7 +23,7 @@
 class QDir;
 class QFileInfoPrivate;
 
-class QFileInfo
+class Q_CORE_EXPORT QFileInfo
 {
 protected:
     QFileInfoPrivate *d_ptr;

@@ -20,7 +20,7 @@
 
 class QDirPrivate;
 
-class QDir
+class Q_CORE_EXPORT QDir
 {
 protected:
     QDirPrivate *d_ptr;
