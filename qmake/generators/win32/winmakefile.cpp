@@ -233,9 +233,9 @@ Win32MakefileGenerator::findHighestVersion(const QString &d, const QString &stem
     }
     if(dir.exists(stem + Option::prl_ext)) {
 	QMakeProject proj;
-	if(proj.read(bd + stem + Option::prl_ext, QDir::currentDirPath())) {
+	if(proj.read(bd + stem + Option::prl_ext, QDir::currentDirPath(), TRUE)) {
 	    if(!proj.isEmpty("QMAKE_PRL_VERSION")) 
-		biggest = QMAX(biggest, project->first("QMAKE_PRL_VERSION").replace(".", "").toInt());
+		biggest = QMAX(biggest, proj.first("QMAKE_PRL_VERSION").replace(".", "").toInt());
 	}
     }
     return biggest;

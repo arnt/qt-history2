@@ -408,8 +408,15 @@ QMakeProject::read(const QString &file, QMap<QString, QStringList> &place)
 }
 
 bool
-QMakeProject::read(const QString &project, const QString &)
+QMakeProject::read(const QString &project, const QString &, bool just_project)
 {
+    if(just_project) { //nothing more, nothing less
+	pfile = project;
+	if(pfile != "-" && !QFile::exists(pfile) && pfile.right(4) != ".pro")
+	    pfile += ".pro";
+	return read(pfile, vars);
+    }
+
     if(cfile.isEmpty()) {
 	// hack to get the Option stuff in there
 	base_vars["QMAKE_EXT_CPP"] = Option::cpp_ext;
