@@ -12,10 +12,10 @@
 **
 ****************************************************************************/
 
-#include "qstringlist.h"
-
-#include "qregexp.h"
 #include "qalgorithms.h"
+#include "qdatastream.h"
+#include "qregexp.h"
+#include "qstringlist.h"
 
 /*! \typedef QStringListIterator
     \relates QStringList
@@ -53,92 +53,95 @@
     \mainclass
     \reentrant
 
-    QStringList inherits from QList\<QString\> and extends it with
-    four functions: find(), join(), replace(), and sort().
+    QStringList inherits from QList\<QString\>. All of QList's
+    functionality also applies to QStringList. For example, you can
+    use isEmpty() to test whether the list is empty, and you can call
+    functions like append(), prepend(), insert(), replace(), and
+    remove() to modify a QStringList. In addition, QStringList
+    provides a few convenience functions that make handling lists of
+    strings easier.
 
-    Like QList and QString, QStringList is \l{implicitly shared}.
-    Passing string lists around as value parameters is both fast and
-    safe.
+    Like QList, QStringList is \l{implicitly shared}. Passing string
+    lists around as value parameters is both fast and safe.
 
-    Strings can be added to a list using append(), operator+=() or
-    operator<<(), for example:
+    Strings can be added to a list using append(), operator+=(), or
+    operator<<(). For example:
     \code
         QStringList fonts;
-        fonts.append("Times");
-        fonts += "Courier";
-        fonts += "Courier New";
-        fonts << "Helvetica [Cronyx]" << "Helvetica [Adobe]";
+        fonts << "Arial" << "Helvetica" << "Times" << "Courier";
     \endcode
 
     To iterate over a string, you can either use index positions or
     QList's Java-style and STL-style iterator types. Here are
-    examples of each option:
+    examples of each approach.
 
+    Index:
     \code
-	// index position
         for (int i = 0; i < fonts.size(); ++i)
 	    cout << fonts.at(i).ascii() << endl;
-
-	// Java-style iterator
-	QStringListIterator j(fonts);
-        while (j.hasNext())
-	    cout << j.next().ascii() << endl;
-
-	// STL-style iterator
-	QStringList::const_iterator k;
-        for (k = fonts.constBegin(); k != fonts.end(); ++k)
-	    cout << (*k).ascii() << endl;
     \endcode
 
-    
-
-    String lists have an iterator, QStringList::Iterator(), e.g.
+    Java-style iterator:
     \code
-    for (QStringList::Iterator it = fonts.begin(); it != fonts.end(); ++it) {
-	cout << *it << ":";
-    }
-    cout << endl;
-    // Output:
-    //	Times:Courier:Courier New:Helvetica [Cronyx]:Helvetica [Adobe]:
+	QStringListIterator i(fonts);
+        while (i.hasNext())
+	    cout << i.next().ascii() << endl;
     \endcode
 
-    Many Qt functions return string lists by value; to iterate over
-    these you should make a copy and iterate over the copy.
+    STL-style iterator:
+    \code
+	QStringList::const_iterator i;
+        for (i = fonts.constBegin(); i != fonts.constEnd(); ++i)
+	    cout << (*i).ascii() << endl;
+    \endcode
+
+    QStringListIterator and QStringListMutableIterator are simply
+    typedefs for QListIterator<QString> and
+    QListMutableIterator<QString>.
 
     You can concatenate all the strings in a string list into a single
-    string (with an optional separator) using join(), e.g.
+    string (with an optional separator) using join(). For example:
+
     \code
-    QString allFonts = fonts.join(", ");
-    cout << allFonts << endl;
-    // Output:
-    //	Times, Courier, Courier New, Helvetica [Cronyx], Helvetica [Adobe]
+        QString str = fonts.join(",");
+	// str == "Arial,Helvetica,Times,Courier"
     \endcode
 
-    You can sort the list with sort(), and extract a new list which
-    contains only those strings which contain a particular substring
-    (or match a particular regular expression) using the find()
-    functions, e.g.
-    \code
-    fonts.sort();
-    cout << fonts.join(", ") << endl;
-    // Output:
-    //	Courier, Courier New, Helvetica [Adobe], Helvetica [Cronyx], Times
+    To break up a string into a string list, use QString::split():
 
-    QStringList helveticas = fonts.find("Helvetica");
-    cout << helveticas.join(", ") << endl;
-    // Output:
-    //	Helvetica [Adobe], Helvetica [Cronyx]
+    \code
+	QString str = "Arial,Helvetica,Times,Courier";
+	QStringList list = str.split(",");
+        // list: [ "Arial", "Helvetica", "Times", "Courier" ]
     \endcode
 
-    Existing strings can be split into string lists with character,
-    string or regular expression separators, e.g.
+    The argument to split can be a single character, a string, or a
+    QRegExp.
+
+    You can sort a string list with sort(), and extract a new list
+    which contains only those strings which contain a particular
+    substring (or match a particular regular expression) using the
+    find() functions. For example:
+
     \code
-    QString s = "Red\tGreen\tBlue";
-    QStringList colors = s.split("\t");
-    cout << colors.join(", ") << endl;
-    // Output:
-    //	Red, Green, Blue
+        QStringList monospacedFonts = fonts.find(QRegExp("Courier|Fixed"));
     \endcode
+
+    Similarly, the replace() function calls QString::replace() on
+    each string in the string list in turn. Here's an example that
+    uses it to replace all occurrences of "$QTDIR" with "/usr/lib/qt"
+    in a string list:
+
+    \code
+	QStringList files;
+        files << "$QTDIR/src/moc/moc.y"
+	      << "$QTDIR/src/moc/moc.l"
+              << "$QTDIR/include/qconfig.h";
+
+	files.replace("$QTDIR", "/usr/lib/qt");
+    \endcode
+
+    \sa QString, QStringListIterator, QStringListMutableIterator
 */
 
 /*!
@@ -148,52 +151,61 @@
 */
 
 /*!
-    \fn QStringList::QStringList(const QStringList& l)
+    \fn QStringList::QStringList(const QString &str)
 
-    Constructs a copy of the list \a l. This function is very fast
-    because QStringList is implicitly shared. In most situations this
-    acts like a deep copy, for example, if this list or the original
-    one or some other list referencing the same shared data is
-    modified, the modifying list first makes a copy, i.e.
-    copy-on-write.
-*/
-
-/*!
-    \fn QStringList::QStringList (const QString & i)
-
-    Constructs a string list consisting of the single string \a i.
+    Constructs a string list consisting of the single string \a str.
     Longer lists are easily created as follows:
 
     \code
-    QStringList items;
-    items << "Buy" << "Sell" << "Update" << "Value";
+	list = (QStringList() << str1 << str2 << str3);
     \endcode
 */
 
 /*!
-    \fn QStringList::QStringList (const char *i)
+    \fn QStringList::QStringList(const char *str)
 
-    Constructs a string list consisting of the single Latin1 string \a i.
+    Constructs a string list consisting of the single string \a str.
 */
 
 /*!
-    \fn QStringList::QStringList(const QList<QString>& l)
+    \fn QStringList::QStringList(const QStringList &other)
 
-    Constructs a new string list that is a copy of \a l.
+    Constructs a copy of \a other.
+
+    This operation takes \l{constant time}, because QStringList is
+    \l{implicitly shared}. This makes returning a QStringList from a
+    function very fast. If a shared instance is modified, it will be
+    copied (copy-on-write), and that takes \l{linear time}.
+
+    \sa operator=()
 */
 
 /*!
-    Sorts the list of strings in ascending case-sensitive order.
+    \fn QStringList::QStringList(const QList<QString> &other)
 
-    Sorting is very fast. It uses the \link qtl.html Qt Template
-    Library's\endlink efficient HeapSort implementation that has a
-    time complexity of O(n*log n).
+    Constructs a copy of \a other.
 
-    If you want to sort your strings in an arbitrary order consider
-    using a QMap. For example you could use a QMap\<QString,QString\>
-    to create a case-insensitive ordering (e.g. mapping the lowercase
-    text to the text), or a QMap\<int,QString\> to sort the strings by
-    some integer index, etc.
+    This operation takes \l{constant time}, because QStringList is
+    \l{implicitly shared}. This makes returning a QStringList from a
+    function very fast. If a shared instance is modified, it will be
+    copied (copy-on-write), and that takes \l{linear time}.
+
+    \sa operator=()
+*/
+
+/*!
+    Sorts the list of strings in ascending order (case sensitively).
+
+    Sorting is performed using Qt's qHeapSort() algorithm,
+    which operates in \l{linear-logarithmic time}, i.e. O(\e{n} log \e{n}).
+
+    If you want to sort your strings in an arbitrary order, consider
+    using a QMap. For example, you could use a QMap\<QString,
+    QString\> to create a case-insensitive ordering (e.g. mapping the
+    lower-case text to the text), or a QMap\<int, QString\> to sort
+    the strings by some integer index.
+
+    \sa qHeapSort()
 */
 void QStringList::sort()
 {
@@ -251,22 +263,22 @@ void QStringList::sort()
     \sa join() QString::section()
 */
 #endif
-#endif //QT_COMPAT
+#endif // QT_COMPAT
 
 /*!
     Returns a list of all the strings containing the substring \a str.
 
     If \a cs is \l QString::CaseSensitive, the string comparison is
-    case sensitive; otherwise case is ignored.
+    case sensitive; otherwise the comparison is case insensitive.
 
     \code
     QStringList list;
     list << "Bill Gates" << "John Doe" << "Bill Clinton";
     list = list.find("Bill");
-    // list == ["Bill Gates", "Bill Clinton"]
+    // list: [ "Bill Gates", "Bill Clinton" ]
     \endcode
 
-    \sa QString::indexOf()
+    \sa QString::contains()
 */
 
 QStringList QStringList::find(const QString &str, QString::CaseSensitivity cs) const
@@ -284,8 +296,6 @@ QStringList QStringList::find(const QString &str, QString::CaseSensitivity cs) c
 
     Returns a list of all the strings that match the regular
     expression \a rx.
-
-    \sa QString::indexOf()
 */
 
 QStringList QStringList::find(const QRegExp &rx) const
@@ -332,26 +342,26 @@ QStringList& QStringList::replace(const QString &before, const QString &after, Q
 
     Example:
     \code
-    QStringList list;
-    list << "alpha" << "beta" << "gamma" << "epsilon";
-    list.replace(QRegExp("^a"), "o");
-    // list == ["olpha", "beta", "gamma", "epsilon"]
+        QStringList list;
+        list << "alpha" << "beta" << "gamma" << "epsilon";
+        list.replace(QRegExp("^a"), "o");
+        // list == ["olpha", "beta", "gamma", "epsilon"]
     \endcode
 
     For regexps containing \link qregexp.html#capturing-text
-    capturing parentheses \endlink, occurrences of <b>\\1</b>,
-    <b>\\2</b>, ..., in \a after are replaced with \a{rx}.cap(1),
-    cap(2), ...
+    capturing parentheses \endlink, occurrences of \bold{\\1},
+    \bold{\\2}, ..., in \a after are replaced with \a{rx}.cap(1),
+    \a{rx}.cap(2), ...
 
     Example:
     \code
-    QStringList list;
-    list << "Bill Clinton" << "Gates, Bill";
-    list.replace(QRegExp("^(.*), (.*)$"), "\\2 \\1");
-    // list == ["Bill Clinton", "Bill Gates"]
+        QStringList list;
+        list << "Bill Clinton" << "Gates, Bill";
+        list.replace(QRegExp("^(.*), (.*)$"), "\\2 \\1");
+        // list == ["Bill Clinton", "Bill Gates"]
     \endcode
 
-    \sa QString::replace()
+    \sa replace()
 */
 QStringList& QStringList::replace(const QRegExp &rx, const QString &after)
 {
@@ -380,16 +390,27 @@ QString QStringList::join(const QString &sep) const
 }
 
 #ifndef QT_NO_DATASTREAM
-template <class T>
-QDataStream& operator>>( QDataStream& s, QStringList& l )
+/*!
+    \relates QStringList
+
+    Reads a string list from stream \a in into \a list.
+
+    \sa \link datastreamformat.html Format of the QDataStrea operators \endlink
+*/
+QDataStream &operator>>(QDataStream &in, QStringList &list)
 {
-    return operator>>(s, (QList<T>&)l);
+    return operator>>(in, static_cast<QList<QString> &>(list));
 }
 
-template <class T>
-QDataStream& operator<<( QDataStream& s, const QStringList& l )
+/*!
+    \relates QStringList
+
+    Writes the string list \a list to stream \a out.
+
+    \sa \link datastreamformat.html Format of the QDataStrea operators \endlink
+*/
+QDataStream &operator<<(QDataStream &out, const QStringList &list)
 {
-    return operator<<(s, (QList<T>&)l);
+    return operator<<(out, static_cast<const QList<QString> &>(list));
 }
 #endif // QT_NO_DATASTREAM
-

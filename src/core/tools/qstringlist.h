@@ -33,12 +33,12 @@ class Q_CORE_EXPORT QStringList : public QList<QString>
 {
 public:
     inline QStringList() { }
-    inline QStringList(const QStringList &l) : QList<QString>(l) { }
-    inline QStringList(const QList<QString> &l) : QList<QString>(l) { }
     inline QStringList(const QString &i) { append(i); }
 #ifndef QT_NO_CAST_FROM_ASCII
     inline QStringList(const char *i) { append(i); }
 #endif
+    inline QStringList(const QStringList &l) : QList<QString>(l) { }
+    inline QStringList(const QList<QString> &l) : QList<QString>(l) { }
 
     void sort();
 
@@ -107,11 +107,8 @@ QStringList QStringList::split(const QRegExp &sep, const QString &str, bool allo
 #endif
 
 #ifndef QT_NO_DATASTREAM
-template <class T>
-Q_CORE_EXPORT QDataStream& operator>>( QDataStream& s, QStringList& l );
-
-template <class T>
-Q_CORE_EXPORT QDataStream& operator<<( QDataStream& s, const QStringList& l );
+Q_CORE_EXPORT QDataStream& operator>>(QDataStream &in, QStringList &list);
+Q_CORE_EXPORT QDataStream& operator<<(QDataStream &out, const QStringList &list);
 #endif // QT_NO_DATASTREAM
 
 #endif // QSTRINGLIST_H
