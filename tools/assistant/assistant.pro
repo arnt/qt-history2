@@ -67,5 +67,5 @@ mac:ICON = assistant.icns
 TRANSLATIONS        = assistant_de.ts \
                   assistant_fr.ts
 
-unix:!zlib:LIBS        += -lz
 
+unix:!contains(QT_CONFIG, zlib):LIBS += -lz
