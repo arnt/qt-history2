@@ -138,41 +138,10 @@ QIODevicePrivate::~QIODevicePrivate()
 
     \endlist
 
-    QIODevice provides numerous pure virtual functions that you need
-    to implement when subclassing it. Here is a skeleton subclass with
-    all the members you are sure to need and some that you will
-    probably need:
+    QIODevice provides a QIOEngine which has the responsibility of
+    doing actual read, writes, file information. 
 
-    \code
-    class MyDevice : public QIODevice
-    {
-    public:
-        MyDevice();
-        ~MyDevice();
-
-        bool open(int mode);
-        void close();
-        void flush();
-
-        uint size() const;
-        int  at() const;        // non-pure virtual
-        bool at(int);           // non-pure virtual
-        bool atEnd() const;     // non-pure virtual
-
-        int readBlock(char *data, uint maxlen);
-        int writeBlock(const char *data, uint len);
-        int readLine(char *data, uint maxlen);
-
-        int getch();
-        int putch(int);
-        int ungetch(int);
-    };
-    \endcode
-
-    The three non-pure virtual functions need not be reimplemented for
-    sequential devices.
-
-    \sa QDataStream, QTextStream
+    \sa QDataStream, QTextStream, QIOEngine
 */
 
 /*!
@@ -322,7 +291,7 @@ int QIODevice::flags() const
     otherwise returns false, i.e. if the device is a direct access
     device.
 
-    Operations involving size() and at(int) are not valid on
+    Operations involving size() and seek(int) are not valid on
     sequential devices.
 
     \sa isDirectAccess()
