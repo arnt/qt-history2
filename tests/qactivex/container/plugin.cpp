@@ -25,7 +25,7 @@
 **
 **********************************************************************/
 
-#ifndef QT_PLUGIN 
+#ifdef QT_PLUGIN
 
 #include <qwidgetplugin.h>
 #include <qlistbox.h>
