@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#4 $
 **
 ** Implementation of QScrollView class
 **
@@ -46,7 +46,8 @@ struct QScrollViewData {
     QScrollView::ScrollBarMode	hMode		: 2;
 };
 
-/*! \class QScrollView qscrollview.h
+/*!
+\class QScrollView qscrollview.h
 \brief The QScrollView widget provides a scrolling area with on-demand scrollbars.
 
 The QScrollView can be used in two ways:
@@ -67,7 +68,7 @@ of 32767 by 32767 pixels.  The second technique is not constrained by
 this limitation, but currently the scrollbars fail beyond about
 1000000 pixels due to integer overflow.
 
-<img src=qviewp-m.gif> <img src=qviewp-w.gif>
+<img src=qscrollview-m.gif> <img src=qscrollview-w.gif>
 */
 
 
@@ -115,7 +116,7 @@ void QScrollView::vslide( int pos )
     }
 }
 
-/*
+/*!
   Updates scrollbars - all possibilities considered.
 */
 void QScrollView::updateScrollBars()
@@ -635,8 +636,7 @@ void QScrollView::viewResize( int w, int h )
 }
 
 /*!
-  \fn void QScrollView::drawContentsOffset(QPainter*, int offsetx, int offsety,
-		int clipx, int clipy, int clipw, int cliph)
+  \fn void QScrollView::drawContentsOffset(QPainter*, int offsetx, int offsety, int clipx, int clipy, int clipw, int cliph)
 
   Override this method if you are viewing a drawing area rather than a widget.
 

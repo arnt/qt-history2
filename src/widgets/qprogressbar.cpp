@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#6 $
 **
 ** Implementation of QProgressBar class
 **
@@ -14,7 +14,7 @@
 #include <qdrawutl.h>
 #include <qapp.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qprogressbar.cpp#5 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qprogressbar.cpp#6 $");
 
 /*!
   \class QProgressBar qprogbar.h
@@ -78,6 +78,7 @@ void QProgressBar::reset()
 /*!
   Sets the current amount of progress made to \e prog units of the
   total number of steps.
+  \sa progress()
 */
 void QProgressBar::setProgress( int prog )
 {
@@ -190,4 +191,10 @@ void QProgressBar::drawContents( QPainter *p )
 /*!
   \fn int QProgressBar::totalSteps() const
   Returns the total number of steps, as set at construction or by reset(int).
+*/
+
+/*!
+  \fn int QProgressBar::progress() const
+  Returns the current amount of progress.
+  \sa setProgress()
 */

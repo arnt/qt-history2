@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#3 $
+** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#4 $
 **
 ** Implementation of QProgressDialog class
 **
@@ -14,7 +14,7 @@
 #include <qdrawutl.h>
 #include <qapp.h>
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#3 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#4 $");
 
 // If the operation is expected to take this long (as predicted by
 // progress time), show the progress dialog.
@@ -116,6 +116,10 @@ QProgressDialog::QProgressDialog( const char* label_text, int total_steps,
     connect( this, SIGNAL(cancelled()), this, SLOT(reset()) );
 }
 
+/*!
+  Destroys the progress dialog, destroying any objects ever
+  returned by progressBar() or labelWidget().
+*/
 QProgressDialog::~QProgressDialog()
 {
     delete d;

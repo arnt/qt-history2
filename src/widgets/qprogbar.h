@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogbar.h#3 $
+** $Id: //depot/qt/main/src/widgets/qprogbar.h#4 $
 **
 ** Definition of QProgressBar class
 **
@@ -12,7 +12,7 @@
 #ifndef QPROGBAR_H
 #define QPROGBAR_H
 
-#include <qframe.h>
+#include "qframe.h"
 
 
 class QProgressBar : public QFrame
