@@ -1344,7 +1344,7 @@ void QUriDrag::setFileNames( const QStringList & fnames )
     QList<QByteArray> uris;
     for ( QStringList::ConstIterator i = fnames.begin();
     i != fnames.end(); ++i ) {
-	QCString fileUri = localFileToUri(*i);
+	QByteArray fileUri = localFileToUri(*i);
 	if (!fileUri.isEmpty())
 	    uris.append(fileUri);
     }
@@ -1426,7 +1426,7 @@ QByteArray QUriDrag::localFileToUri(const QString& filename)
 	return QCString();
 #else
     if (!(r.length() >= 1 && r[0] == '/'))
-	return QCString();
+	return QByteArray();
 #endif
     
 #ifdef Q_WS_WIN
