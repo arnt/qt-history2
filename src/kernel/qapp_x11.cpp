@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#239 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#240 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -67,7 +67,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 extern "C" void bzero(void *, size_t len);
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#239 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#240 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -2718,7 +2718,7 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
 
     if ( merging_okay ) {
 	while ( XCheckIfEvent(dpy,&xevent,isPaintEvent,(XPointer)&info) 
-	    && qApp->x11EventFilter(&xevent) )	// send event through filter
+	    && !qApp->x11EventFilter(&xevent) )	// send event through filter
 	{
 	    if ( !info.config ) {
 		paintRect = paintRect.unite( QRect(xevent.xexpose.x,
