@@ -142,7 +142,10 @@ void QSplitterHandle::mouseReleaseEvent( QMouseEvent *e )
 void QSplitterHandle::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
-    style().drawControl( QStyle::CE_Splitter, &p, this, QRect(0, 0, width(), height()), colorGroup() );
+    void *data[1];
+    int tmp = orientation();
+    data[0] = (void*)&tmp;
+    style().drawControl( QStyle::CE_Splitter, &p, this, QRect(0, 0, width(), height()), colorGroup(), QStyle::CStyle_Default, data );
 }
 
 class QSplitterLayoutStruct
@@ -280,7 +283,7 @@ void QSplitter::init()
 */
 
 
-/*!  
+/*!
   \property QSplitter::orientation
   \brief the orientation of the splitter
 

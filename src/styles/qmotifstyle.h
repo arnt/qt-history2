@@ -101,7 +101,7 @@ public:
 			 CFlags flags = CStyle_Default,
 			 SCFlags subActive = SC_None,
 			 void* data = 0 ) const;
-    
+
     QRect querySubControlMetrics( ComplexControl control,
 				  const QWidget *widget,
 				  SubControl sc,
@@ -136,8 +136,6 @@ public:
     QRect comboButtonFocusRect( int x, int y, int w, int h ) const;
 
 
-    void drawPushButton( QPushButton* btn, QPainter *p );
-
     void drawArrow( QPainter *p, ArrowType type, bool down,
                     int x, int y, int w, int h,
                     const QColorGroup &g, bool enabled, const QBrush *fill = 0 );
@@ -171,11 +169,6 @@ public:
                            int x, int y, int w, int h,
                            const QColorGroup& g, QCOORD c,
                            Orientation );
-
-    int splitterWidth() const;
-    void drawSplitter( QPainter *p, int x, int y, int w, int h,
-                       const QColorGroup &g, Orientation );
-
 
     void drawCheckMark( QPainter *p, int x, int y, int w, int h,
                              const QColorGroup &g,

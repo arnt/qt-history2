@@ -481,12 +481,15 @@ void QMotifStyle::drawControl( ControlElement element,
 {
     switch( element ) {
     case CE_Splitter: {
+	void **sdata = (void **)data;
 	const int motifOffset = 10;
 	int sw;
-	QSplitter *split;	
+ 	const QSplitter *split;	
 	sw = pixelMetric( PM_SplitterWidth );
-	split = (QSplitter *)widget;
-	if ( split->orientation() == QSplitter::Horizontal ) {	
+	if ( !data )
+	    return;
+	int orient = *((int *)sdata[0]);
+	if ( orient == Horizontal ) {	
 	    QCOORD xPos = r.x() + r.width() / 2;
 	    QCOORD kPos = motifOffset;
 	    QCOORD kSize = sw - 2;
@@ -509,9 +512,9 @@ void QMotifStyle::drawControl( ControlElement element,
     case CE_PushButton: {
  	int diw,
  	    x1, y1, x2, y2;
- 	QPushButton *btn;
+ 	const QPushButton *btn;
 	QColorGroup newCg = cg;
- 	btn = ( QPushButton * )widget;
+ 	btn = ( const QPushButton * )widget;
  	p->setPen( cg.foreground() );
  	p->setBrush( QBrush( cg.button(), NoBrush ) );
  	diw = pixelMetric( PM_ButtonDefaultIndicator );
@@ -735,6 +738,7 @@ int QMotifStyle::pixelMetric( PixelMetric metric, const QWidget *widget ) const
 	break;
     case PM_SplitterWidth:
 	ret = QMAX( 10, QApplication::globalStrut().width() );
+	break;
 //     case PM_SliderMaximumDragDistance:
 //     case PM_ScrollBarMaximumDragDistance: {
 // 	QScrollBar *sb = (QScrollBar*) widget;
@@ -1135,62 +1139,6 @@ QMotifStyle::drawFocusRect( QPainter* p,
 
 
 /*! \reimp */
-
-void
-QMotifStyle::drawPushButton( QPushButton* btn, QPainter *p)
-{
-    QColorGroup g = btn->colorGroup();
-    int x1, y1, x2, y2;
-
-    btn->rect().coords( &x1, &y1, &x2, &y2 );   // get coordinates
-
-    p->setPen( g.foreground() );
-    p->setBrush( QBrush(g.button(),NoBrush) );
-
-    int diw = buttonDefaultIndicatorWidth();
-    if ( btn->isDefault() || btn->autoDefault() ) {
-        x1 += diw;
-        y1 += diw;
-        x2 -= diw;
-        y2 -= diw;
-    }
-
-    QBrush fill;
-    if ( btn->isDown() )
-        fill = g.brush( QColorGroup::Mid );
-    else if ( btn->isOn() )
-        fill = QBrush( g.mid(), Dense4Pattern );
-    else
-        fill = g.brush( QColorGroup::Button );
-
-    if ( btn->isDefault() ) {
-        if ( diw == 0 ) {
-            QPointArray a;
-            a.setPoints( 9,
-                         x1, y1, x2, y1, x2, y2, x1, y2, x1, y1+1,
-                         x2-1, y1+1, x2-1, y2-1, x1+1, y2-1, x1+1, y1+1 );
-            p->setPen( g.shadow() );
-            p->drawPolyline( a );
-            x1 += 2;
-            y1 += 2;
-            x2 -= 2;
-            y2 -= 2;
-        } else {
-            qDrawShadePanel( p, btn->rect(), g, TRUE );
-        }
-    }
-
-    if ( !btn->isFlat() || btn->isOn() || btn->isDown() )
-        drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn() || btn->isDown(),
-                    &fill );
-
-    if ( p->brush().style() != NoBrush )
-        p->setBrush( NoBrush );
-}
-
-
-
-/*! \reimp */
 void QMotifStyle::tabbarMetrics( const QTabBar* t, int& hframe, int& vframe, int& overlap) const
 {
     QCommonStyle::tabbarMetrics( t, hframe, vframe, overlap );
@@ -1463,50 +1411,6 @@ void QMotifStyle::drawSliderGroove( QPainter *p,
                                       Orientation )
 {
     qDrawShadePanel( p, x, y, w, h, g, TRUE, 1, &g.brush( QColorGroup::Mid ) );
-}
-
-
-/*! \reimp
-*/
-
-int QMotifStyle::splitterWidth() const
-{
-    return QMAX( 10, QApplication::globalStrut().width() );
-}
-
-
-/*! \reimp
-*/
-
-void QMotifStyle::drawSplitter( QPainter *p, int x, int y, int w, int h,
-  const QColorGroup &g, Orientation orient)
-{
-    const int motifOffset = 10;
-    int sw = splitterWidth();
-    if ( orient == Horizontal ) {
-            QCOORD xPos = x + w/2;
-            QCOORD kPos = motifOffset;
-            QCOORD kSize = sw - 2;
-
-            qDrawShadeLine( p, xPos, kPos + kSize - 1 ,
-                            xPos, h, g );
-            qDrawShadePanel( p, xPos-sw/2+1, kPos,
-                             kSize, kSize, g, FALSE, 1,
-                             &g.brush( QColorGroup::Button ));
-            qDrawShadeLine( p, xPos, 0, xPos, kPos, g );
-        } else {
-            QCOORD yPos = y + h/2;
-            QCOORD kPos = w - motifOffset - sw;
-            QCOORD kSize = sw - 2;
-
-            qDrawShadeLine( p, 0, yPos, kPos, yPos, g );
-            qDrawShadePanel( p, kPos, yPos-sw/2+1,
-                             kSize, kSize, g, FALSE, 1,
-                             &g.brush( QColorGroup::Button ));
-            qDrawShadeLine( p, kPos + kSize -1, yPos,
-                            w, yPos, g );
-        }
-
 }
 
 /*! \reimp
@@ -2188,6 +2092,8 @@ QPixmap QMotifStyle::titleBarPixmap( const QTitleBar *, SubControl ctrl) const
 	return QPixmap((const char **)qt_maximize_xpm);
     case SC_TitleBarCloseButton:
 	return QPixmap((const char **)qt_close_xpm);
+    default:
+	break;
     }
     return QPixmap();
 }
