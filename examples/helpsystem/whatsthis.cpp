@@ -55,7 +55,7 @@ QString HeaderWhatsThis::text( const QPoint &p )
     if( section == -1 )
 	return "This is empty space.";
     QString docsPath = qApp->applicationDirPath() + "/../../doc";
-    return QString("This is the %1. section in the %2 <a href=%2/html/qheader.html>header</a>.").
+    return QString("This is section number %1 in the %2 <a href=%2/html/qheader.html>header</a>.").
 	arg(section + 1).
 	arg(orient).
 	arg(docsPath);
