@@ -8,8 +8,6 @@ HEADERS		= finddialog.h \
 		  printout.h \
 		  trwindow.h \
 		  listviews.h \
-		  pixmaploader.h \
-		  ../pics/images.h \
 		  ../shared/metatranslator.h
 SOURCES		= finddialog.cpp \
 		  main.cpp \
@@ -21,9 +19,49 @@ SOURCES		= finddialog.cpp \
 		  simtexth.cpp \
 		  trwindow.cpp \
 		  listviews.cpp \
-		  pixmaploader.cpp \
 		  ../shared/metatranslator.cpp
 FORMS		= about.ui
+
+IMAGES		+= images/accel.xpm \
+		   images/book.xpm \
+		   images/check_danger.xpm \
+		   images/check_obs.xpm \
+		   images/check_off.xpm \
+		   images/check_on.xpm \
+		   images/d_doneandnext.png \
+		   images/d_editcopy.png \
+		   images/d_editcut.png \
+		   images/d_editpaste.png \
+		   images/d_fileopen.png \
+		   images/d_filesave.png \
+		   images/d_next.png \
+		   images/d_nextunfinished.png \
+		   images/d_prev.png \
+		   images/d_prevunfinished.png \
+		   images/d_print.png \
+		   images/d_redo.png \
+		   images/d_searchfind.png \
+		   images/d_undo.png \
+		   images/doneandnext.png \
+		   images/editcopy.png \
+		   images/editcut.png \
+		   images/editpaste.png \
+		   images/endpunct.xpm \
+		   images/fileopen.png \
+		   images/filesave.png \
+		   images/icon.xpm \
+		   images/next.png \
+		   images/nextunfinished.png \
+		   images/pagecurl.png \
+		   images/phrase.xpm \
+		   images/prev.png \
+		   images/prevunfinished.png \
+		   images/print.png \
+		   images/redo.png \
+		   images/searchfind.png \
+		   images/splash.png \
+		   images/undo.png \
+		   images/whatsthis.xpm
 
 TRANSLATIONS	= linguist_de.ts \
 		  linguist_fr.ts

@@ -25,7 +25,6 @@
 */
 
 #include "finddialog.h"
-#include "pixmaploader.h"
 
 #include <qcheckbox.h>
 #include <qlabel.h>

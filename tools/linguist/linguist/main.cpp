@@ -19,7 +19,6 @@
 **********************************************************************/
 
 #include "trwindow.h"
-#include "pixmaploader.h"
 
 #include <qapplication.h>
 #include <qlabel.h>
@@ -72,7 +71,7 @@ int main( int argc, char **argv )
 			     Qt::WStyle_Customize | Qt::WStyle_NoBorder |
 			     Qt::WX11BypassWM );
 	splash->setFrameStyle( QFrame::WinPanel | QFrame::Raised );
-	splash->setPixmap( createPixmap( SplashPixmap ) );
+	splash->setPixmap( QPixmap::fromMimeSource( "splash.png" ) );
 	splash->adjustSize();
 	splash->setCaption( "Qt Linguist" );
 	splash->move( screen.center() - QPoint( splash->width() / 2,

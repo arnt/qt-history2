@@ -34,7 +34,6 @@
 
 #include "phrasebookbox.h"
 #include "phraselv.h"
-#include "pixmaploader.h"
 
 PhraseBookBox::PhraseBookBox( const QString& filename,
 			      const PhraseBook& phraseBook, QWidget *parent,

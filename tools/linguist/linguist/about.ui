@@ -1,4 +1,4 @@
-<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<!DOCTYPE UI><UI version="3.1" stdsetdef="1">
 <class>AboutDialog</class>
 <comment>*********************************************************************
 ** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
@@ -19,8 +19,6 @@
 ** not clear to you.
 **
 *********************************************************************</comment>
-<include location="local" impldecl="in implementation">pixmaploader.h</include>
-<pixmapfunction>createPixmap</pixmapfunction>
 <widget class="QDialog">
     <property name="name">
         <cstring>AboutDialog</cstring>
@@ -57,13 +55,13 @@
                 <enum>Plain</enum>
             </property>
             <property name="pixmap">
-                <pixmap>SplashPixmap</pixmap>
+                <pixmap>splash.png</pixmap>
             </property>
             <property name="scaledContents">
                 <bool>false</bool>
             </property>
             <property name="alignment">
-                <set>AlignAuto|AlignCenter</set>
+                <set>AlignCenter</set>
             </property>
             <property name="hAlign" stdset="0">
             </property>
@@ -76,7 +74,7 @@
                 <string>Version 1.0</string>
             </property>
             <property name="alignment">
-                <set>AlignAuto|AlignCenter</set>
+                <set>AlignCenter</set>
             </property>
             <property name="hAlign" stdset="0">
             </property>
@@ -89,7 +87,7 @@
                 <string>Copyright (C) 2000-2002 Trolltech AS. All Rights Reserved.</string>
             </property>
             <property name="alignment">
-                <set>AlignAuto|AlignCenter</set>
+                <set>AlignCenter</set>
             </property>
             <property name="hAlign" stdset="0">
             </property>
@@ -103,13 +101,13 @@
 &lt;p&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;/p&gt;</string>
             </property>
             <property name="alignment">
-                <set>WordBreak|AlignAuto|AlignVCenter|AlignLeft</set>
+                <set>WordBreak|AlignVCenter|AlignLeft</set>
             </property>
             <property name="wordwrap" stdset="0">
             </property>
         </widget>
         <spacer>
-            <property name="name" stdset="0">
+            <property name="name">
                 <cstring>Spacer3</cstring>
             </property>
             <property name="orientation">
@@ -140,7 +138,7 @@
                     <number>6</number>
                 </property>
                 <spacer>
-                    <property name="name" stdset="0">
+                    <property name="name">
                         <cstring>Spacer2</cstring>
                     </property>
                     <property name="orientation">
@@ -171,7 +169,7 @@
                     </property>
                 </widget>
                 <spacer>
-                    <property name="name" stdset="0">
+                    <property name="name">
                         <cstring>Spacer1</cstring>
                     </property>
                     <property name="orientation">
@@ -200,7 +198,9 @@
     </connection>
 </connections>
 <slots>
-    <slot access="protected" language="C++">init()</slot>    
-    <slot access="protected" language="C++">destroy()</slot>   
+    <slot access="protected">init()</slot>
+    <slot access="protected">destroy()</slot>
 </slots>
+<pixmapinproject/>
+<layoutdefaults spacing="6" margin="11"/>
 </UI>

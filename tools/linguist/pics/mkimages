@@ -1,2 +1,0 @@
-#!/bin/sh
-$QTDIR/tools/qembed/qembed *.png */*.{png,xpm} >images.h

@@ -31,7 +31,6 @@
 #include "printout.h"
 #include "about.h"
 #include "phraselv.h"
-#include "pixmaploader.h"
 
 #include <qaccel.h>
 #include <qaction.h>
@@ -173,23 +172,32 @@ class Action : public QAction
 {
 public:
     Action( QPopupMenu *pop, const QString& menuText, QObject *receiver,
-	    const char *member, int accel = 0, bool toggle = FALSE );
+	    const char *member, const QString &imageName = QString::null,
+	    int accel = 0, bool toggle = FALSE );
     Action( QPopupMenu *pop, const QString& menuText, int accel = 0,
 	    bool toggle = FALSE );
 
     virtual void setWhatsThis( const QString& whatsThis );
 
-    bool addToToolbar( QToolBar *tb, const QString& text,
-		       const char *imageName );
+    bool addToToolbar( QToolBar *tb, const QString& text );
 };
 
 Action::Action( QPopupMenu *pop, const QString& menuText, QObject *receiver,
-		const char *member, int accel, bool toggle )
+		const char *member, const QString &imageName, int accel,
+		bool toggle )
     : QAction( pop->parent(), (const char *) 0, toggle )
 {
-    QAction::addTo( pop );
     setMenuText( menuText );
     setAccel( accel );
+
+    if ( !imageName.isEmpty() ) {
+	QPixmap enabledPix = QPixmap::fromMimeSource( imageName );
+	QIconSet s( enabledPix );
+	QPixmap disabledPix = QPixmap::fromMimeSource( "d_" + imageName );
+	s.setPixmap( disabledPix, QIconSet::Small, QIconSet::Disabled );
+	setIconSet( s );
+    }
+    QAction::addTo( pop );
     connect( this, SIGNAL(activated()), receiver, member );
 }
 
@@ -208,76 +216,42 @@ void Action::setWhatsThis( const QString& whatsThis )
     setStatusTip( whatsThis );
 }
 
-bool Action::addToToolbar( QToolBar *tb, const QString& text,
-			   const char *imageName )
+bool Action::addToToolbar( QToolBar *tb, const QString& text )
 {
     setText( text );
-    EmbImage *en = imageDict->find( QString("enabled/") + QString(imageName) );
-    if ( en != 0 ) {
-	QPixmap enabled;
-	enabled.loadFromData( en->data, en->size );
- 	QIconSet s( enabled );
-
-	EmbImage *dis = imageDict->find( QString("disabled/") +
-					 QString(imageName) );
-	if ( dis != 0 ) {
-	    QPixmap disabled;
-	    disabled.loadFromData( dis->data, dis->size );
-	    // work around a bug in QIconSet
-	    s.setPixmap( disabled, QIconSet::Small, QIconSet::Disabled,
-			 QIconSet::On );
-	    s.setPixmap( disabled, QIconSet::Small, QIconSet::Disabled,
-			 QIconSet::Off );
-	}
-
- 	setIconSet( s );
-    }
     return QAction::addTo( tb );
 }
 
 const QPixmap TrWindow::pageCurl()
 {
     QPixmap pixmap;
-    setupImageDict();
-    EmbImage *pagecurl = imageDict->find( QString("pagecurl") );
-    if ( pagecurl ) {
-	pixmap.loadFromData( pagecurl->data, pagecurl->size );
+    pixmap = QPixmap::fromMimeSource( "pagecurl.png" );
+    if ( !pixmap.isNull() ) {
 	QBitmap pageCurlMask( pagecurl_mask_width, pagecurl_mask_height,
 			pagecurl_mask_bits, TRUE );
 	pixmap.setMask( pageCurlMask );
     }
+
     return pixmap;
 }
 
 TrWindow::TrWindow()
     : QMainWindow( 0, "translation window", WType_TopLevel | WDestructiveClose )
 {
-    setupImageDict();
-
-    setIcon( createPixmap( IconPixmap ) );
+    setIcon( QPixmap::fromMimeSource( "icon.xpm" ) );
 
     // Create the application global listview symbols
-    pxOn  = new QPixmap;
-    pxOff = new QPixmap;
-    pxObsolete = new QPixmap;
-    pxDanger = new QPixmap;
-
-    EmbImage *em;
-    em = imageDict->find( QString("symbols/check_on") );
-    pxOn->loadFromData( em->data, em->size );
-    em = imageDict->find( QString("symbols/check_off") );
-    pxOff->loadFromData( em->data, em->size );
-    em = imageDict->find( QString("symbols/check_obs") );
-    pxObsolete->loadFromData( em->data, em->size );
-    em = imageDict->find( QString("symbols/check_danger") );
-    pxDanger->loadFromData( em->data, em->size );
+    pxOn  = new QPixmap( QPixmap::fromMimeSource( "check_on.xpm" ) );
+    pxOff = new QPixmap( QPixmap::fromMimeSource( "check_off.xpm" ) );
+    pxObsolete = new QPixmap( QPixmap::fromMimeSource( "check_obs.xpm" ) );
+    pxDanger = new QPixmap( QPixmap::fromMimeSource( "check_danger.xpm" ) );
 
     QBitmap onMask( check_on_mask_width, check_on_mask_height,
-    		    check_on_mask_bits, TRUE );
+		    check_on_mask_bits, TRUE );
     QBitmap offMask( check_off_mask_width, check_off_mask_height,
-    		     check_off_mask_bits, TRUE );
+		     check_off_mask_bits, TRUE );
     QBitmap dangerMask( check_danger_mask_width, check_danger_mask_height,
-    			check_danger_mask_bits, TRUE );
+			check_danger_mask_bits, TRUE );
     pxOn->setMask( onMask );
     pxOff->setMask( offMask );
     pxObsolete->setMask( onMask );
@@ -1456,17 +1430,17 @@ void TrWindow::setupMenuBar()
 	     this, SLOT(printPhraseBook(int)) );
     // File menu
     openAct = new Action( filep, tr("&Open..."), this, SLOT(open()),
-			  QAccel::stringToKey(tr("Ctrl+O")) );
+			  "fileopen.png", QAccel::stringToKey(tr("Ctrl+O")) );
 
     filep->insertSeparator();
 
     saveAct = new Action( filep, tr("&Save"), this, SLOT(save()),
-			  QAccel::stringToKey(tr("Ctrl+S")) );
+			  "filesave.png", QAccel::stringToKey(tr("Ctrl+S")) );
     saveAsAct = new Action( filep, tr("Save &As..."), this, SLOT(saveAs()) );
     releaseAct = new Action( filep, tr("&Release..."), this, SLOT(release()) );
     filep->insertSeparator();
     printAct = new Action( filep, tr("&Print..."), this, SLOT(print()),
-			   QAccel::stringToKey(tr("Ctrl+P")) );
+			   "print.png", QAccel::stringToKey(tr("Ctrl+P")) );
 
     filep->insertSeparator();
 
@@ -1480,39 +1454,39 @@ void TrWindow::setupMenuBar()
     filep->insertSeparator();
 
     exitAct = new Action( filep, tr("E&xit"), this, SLOT(close()),
-			  QAccel::stringToKey(tr("Ctrl+Q")) );
+			  QString::null, QAccel::stringToKey(tr("Ctrl+Q")) );
     // Edit menu
     undoAct = new Action( editp, tr("&Undo"), me, SLOT(undo()),
-			  QAccel::stringToKey(tr("Ctrl+Z")) );
+			  "undo.png", QAccel::stringToKey(tr("Ctrl+Z")) );
     undoAct->setEnabled( FALSE );
     connect( me, SIGNAL(undoAvailable(bool)), undoAct, SLOT(setEnabled(bool)) );
     redoAct = new Action( editp, tr("&Redo"), me, SLOT(redo()),
-			  QAccel::stringToKey(tr("Ctrl+Y")) );
+			  "redo.png", QAccel::stringToKey(tr("Ctrl+Y")) );
     redoAct->setEnabled( FALSE );
     connect( me, SIGNAL(redoAvailable(bool)), redoAct, SLOT(setEnabled(bool)) );
     editp->insertSeparator();
     cutAct = new Action( editp, tr("Cu&t"), me, SLOT(cut()),
-			 QAccel::stringToKey(tr("Ctrl+X")) );
+			 "editcut.png", QAccel::stringToKey(tr("Ctrl+X")) );
     cutAct->setEnabled( FALSE );
     connect( me, SIGNAL(cutAvailable(bool)), cutAct, SLOT(setEnabled(bool)) );
     copyAct = new Action( editp, tr("&Copy"), me, SLOT(copy()),
-			  QAccel::stringToKey(tr("Ctrl+C")) );
+			  "editcopy.png", QAccel::stringToKey(tr("Ctrl+C")) );
     copyAct->setEnabled( FALSE );
     connect( me, SIGNAL(copyAvailable(bool)), copyAct, SLOT(setEnabled(bool)) );
     pasteAct = new Action( editp, tr("&Paste"), me, SLOT(paste()),
-			   QAccel::stringToKey(tr("Ctrl+V")) );
+			   "editpaste.png", QAccel::stringToKey(tr("Ctrl+V")) );
     pasteAct->setEnabled( FALSE );
     connect( me, SIGNAL(pasteAvailable(bool)),
 	     pasteAct, SLOT(setEnabled(bool)) );
     selectAllAct = new Action( editp, tr("Select &All"), me, SLOT(selectAll()),
-			       QAccel::stringToKey(tr("Ctrl+A")) );
+			       QString::null, QAccel::stringToKey(tr("Ctrl+A")) );
     selectAllAct->setEnabled( FALSE );
     editp->insertSeparator();
     findAct = new Action( editp, tr("&Find..."), this, SLOT(find()),
-			  QAccel::stringToKey(tr("Ctrl+F")) );
+			  "searchfind.png", QAccel::stringToKey(tr("Ctrl+F")) );
     findAct->setEnabled( FALSE );
     findAgainAct = new Action( editp, tr("Find &Next"),
-			       this, SLOT(findAgain()), Key_F3 );
+			       this, SLOT(findAgain()), QString::null, Key_F3 );
     findAgainAct->setEnabled( FALSE );
 #ifdef notyet
     replaceAct = new Action( editp, tr("&Replace..."), this, SLOT(replace()),
@@ -1524,36 +1498,36 @@ void TrWindow::setupMenuBar()
     // when updating the accelerators, remember the status bar
     prevUnfinishedAct = new Action( translationp, tr("&Prev Unfinished"),
 				    this, SLOT(prevUnfinished()),
-				    QAccel::stringToKey(tr("Ctrl+K")) );
+				    "prevunfinished.png", QAccel::stringToKey(tr("Ctrl+K")) );
     nextUnfinishedAct = new Action( translationp, tr("&Next Unfinished"),
 				    this, SLOT(nextUnfinished()),
-				    QAccel::stringToKey(tr("Ctrl+L")) );
+				    "nextunfinished.png", QAccel::stringToKey(tr("Ctrl+L")) );
 
     prevAct = new Action( translationp, tr("P&rev"),
-			  this, SLOT(prev()),
+			  this, SLOT(prev()), "prev.png",
 			  QAccel::stringToKey(tr("Ctrl+Shift+K")) );
     nextAct = new Action( translationp, tr("Ne&xt"),
-			  this, SLOT(next()),
+			  this, SLOT(next()), "next.png",
 			  QAccel::stringToKey(tr("Ctrl+Shift+L")) );
     doneAndNextAct = new Action( translationp, tr("Done and &Next"),
-				 this, SLOT(doneAndNext()),
+				 this, SLOT(doneAndNext()), "doneandnext.png",
 				 QAccel::stringToKey(tr("Ctrl+Enter")) );
     doneAndNextAlt = new QAction( this );
     doneAndNextAlt->setAccel( QAccel::stringToKey(tr("Ctrl+Return")) );
     connect( doneAndNextAlt, SIGNAL(activated()), this, SLOT(doneAndNext()) );
     beginFromSourceAct = new Action( translationp, tr("&Begin from Source"),
 				     me, SLOT(beginFromSource()),
-				     QAccel::stringToKey(tr("Ctrl+B")) );
+				     QString::null, QAccel::stringToKey(tr("Ctrl+B")) );
     connect( me, SIGNAL(updateActions(bool)), beginFromSourceAct,
 	     SLOT(setEnabled(bool)) );
 
     // Phrasebook menu
     newPhraseBookAct = new Action( phrasep, tr("&New Phrase Book..."),
 				   this, SLOT(newPhraseBook()),
-				   QAccel::stringToKey(tr("Ctrl+N")));
+				   QString::null, QAccel::stringToKey(tr("Ctrl+N")) );
     openPhraseBookAct = new Action( phrasep, tr("&Open Phrase Book..."),
 				    this, SLOT(openPhraseBook()),
-				    QAccel::stringToKey(tr("Ctrl+H")) );
+				    "book.xpm", QAccel::stringToKey(tr("Ctrl+H")) );
     closePhraseBookId = phrasep->insertItem( tr("&Close Phrase Book"),
 					     closePhraseBookp );
     phrasep->insertSeparator();
@@ -1565,13 +1539,13 @@ void TrWindow::setupMenuBar()
 
     // Validation menu
     acceleratorsAct = new Action( validationp, tr("&Accelerators"),
-				  this, SLOT(revalidate()), 0, TRUE );
+				  this, SLOT(revalidate()), "accel.xpm", 0, TRUE );
     acceleratorsAct->setOn( TRUE );
     endingPunctuationAct = new Action( validationp, tr("&Ending Punctuation"),
-				       this, SLOT(revalidate()), 0, TRUE );
+				       this, SLOT(revalidate()), "endpunct.xpm", 0, TRUE );
     endingPunctuationAct->setOn( TRUE );
     phraseMatchesAct = new Action( validationp, tr("&Phrase Matches"),
-				   this, SLOT(revalidate()), 0, TRUE );
+				   this, SLOT(revalidate()), "phrase.xpm", 0, TRUE );
     phraseMatchesAct->setOn( TRUE );
 
     // View menu
@@ -1586,14 +1560,14 @@ void TrWindow::setupMenuBar()
     viewp->insertItem( tr("&Toolbars"), createDockWindowMenu( OnlyToolBars ) );
 
     // Help
-    manualAct = new Action( helpp, tr("&Manual"), this, SLOT(manual()),
+    manualAct = new Action( helpp, tr("&Manual"), this, SLOT(manual()), 0,
 			    Key_F1 );
     helpp->insertSeparator();
     aboutAct = new Action( helpp, tr("&About"), this, SLOT(about()) );
     aboutQtAct = new Action( helpp, tr("About &Qt"), this, SLOT(aboutQt()) );
     helpp->insertSeparator();
     whatsThisAct = new Action( helpp, tr("&What's This?"),
-			       this, SLOT(whatsThis()), SHIFT + Key_F1 );
+			       this, SLOT(whatsThis()), "whatsthis.xpm", SHIFT + Key_F1 );
 
     openAct->setWhatsThis( tr("Open a Qt translation source file (TS file) for"
 			      " editing.") );
@@ -1669,41 +1643,37 @@ void TrWindow::setupToolBars()
     QToolBar *validationt   = new QToolBar( tr("Validation"), this );
     QToolBar *helpt = new QToolBar( tr("Help"), this );
 
-    openAct->addToToolbar( filet, tr("Open"), "fileopen" );
-    saveAct->addToToolbar( filet, tr("Save"), "filesave" );
-    printAct->addToToolbar( filet, tr("Print"), "print" );
+    openAct->addToToolbar( filet, tr("Open") );
+    saveAct->addToToolbar( filet, tr("Save") );
+    printAct->addToToolbar( filet, tr("Print") );
     filet->addSeparator();
-    openPhraseBookAct->addToToolbar( filet, tr("Open Phrase Book"), "book" );
+    openPhraseBookAct->addToToolbar( filet, tr("Open Phrase Book") );
 
-    undoAct->addToToolbar( editt, tr("Undo"), "undo" );
-    redoAct->addToToolbar( editt, tr("Redo"), "redo" );
+    undoAct->addToToolbar( editt, tr("Undo") );
+    redoAct->addToToolbar( editt, tr("Redo") );
     editt->addSeparator();
-    cutAct->addToToolbar( editt, tr("Cut"), "editcut" );
-    copyAct->addToToolbar( editt, tr("Copy"), "editcopy" );
-    pasteAct->addToToolbar( editt, tr("Paste"), "editpaste" );
+    cutAct->addToToolbar( editt, tr("Cut") );
+    copyAct->addToToolbar( editt, tr("Copy") );
+    pasteAct->addToToolbar( editt, tr("Paste") );
     editt->addSeparator();
-    findAct->addToToolbar( editt, tr("Find"), "searchfind" );
+    findAct->addToToolbar( editt, tr("Find") );
 #ifdef notyet
-    replaceAct->addToToolbar( editt, tr("Replace"), "replace" );
+    replaceAct->addToToolbar( editt, tr("Replace") );
 #endif
 
     // beginFromSourceAct->addToToolbar( translationst,
     //                                tr("Begin from Source"), "searchfind" );
-    prevAct->addToToolbar( translationst, tr("Prev"), "prev" );
-    nextAct->addToToolbar( translationst, tr("Next"), "next" );
-    prevUnfinishedAct->addToToolbar( translationst, tr("Prev Unfinished"),
-				     "prevunfinished" );
-    nextUnfinishedAct->addToToolbar( translationst, tr("Next Unfinished"),
-				     "nextunfinished" );
-    doneAndNextAct->addToToolbar( translationst, tr("Done and Next"),
-				  "doneandnext" );
+    prevAct->addToToolbar( translationst, tr("Prev") );
+    nextAct->addToToolbar( translationst, tr("Next") );
+    prevUnfinishedAct->addToToolbar( translationst, tr("Prev Unfinished") );
+    nextUnfinishedAct->addToToolbar( translationst, tr("Next Unfinished") );
+    doneAndNextAct->addToToolbar( translationst, tr("Done and Next") );
 
-    acceleratorsAct->addToToolbar( validationt, tr("Accelerators"), "accel" );
-    endingPunctuationAct->addToToolbar( validationt, tr("Punctuation"),
-					"endpunct" );
-    phraseMatchesAct->addToToolbar( validationt, tr("Phrases"), "phrase" );
+    acceleratorsAct->addToToolbar( validationt, tr("Accelerators") );
+    endingPunctuationAct->addToToolbar( validationt, tr("Punctuation") );
+    phraseMatchesAct->addToToolbar( validationt, tr("Phrases") );
 
-    whatsThisAct->addToToolbar( helpt, tr("What's This?"), "whatsthis" );
+    whatsThisAct->addToToolbar( helpt, tr("What's This?") );
 }
 
 void TrWindow::setCurrentContextItem( QListViewItem *item )
