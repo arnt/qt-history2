@@ -687,6 +687,7 @@ ConnectionEdit::ConnectionEdit(QWidget *parent, AbstractFormWindow *form)
     m_bg_widget = 0;
     m_widget_under_mouse = 0;
     m_tmp_con = 0;
+    m_start_connection_on_drag = true;
     m_undo_stack = form->commandHistory();
     m_active_color = Qt::red;
     m_inactive_color = Qt::blue;
@@ -839,32 +840,52 @@ void ConnectionEdit::paintEvent(QPaintEvent *e)
 void ConnectionEdit::mousePressEvent(QMouseEvent *e)
 {
     Connection *con_under_mouse = connectionAt(e->pos());
-
+    m_start_connection_on_drag = false;
+    
     switch (state()) {
         case Connecting:
         case Dragging:
             break;
         case Editing:
             if (!m_end_point_under_mouse.isNull()) {
-                if (!(e->modifiers() & Qt::ControlModifier)) {
+                if (!(e->modifiers() & Qt::ShiftModifier)) {
                     startDrag(m_end_point_under_mouse, e->pos());
                 }
             } else if (con_under_mouse != 0) {
-                if (!(e->modifiers() & Qt::ControlModifier)) {
+                if (!(e->modifiers() & Qt::ShiftModifier)) {
                     selectNone();
                     setSelected(con_under_mouse, true);
                 } else {
                     setSelected(con_under_mouse, !selected(con_under_mouse));
                 }
             } else {
-                if (!(e->modifiers() & Qt::ControlModifier)) {
+                if (!(e->modifiers() & Qt::ShiftModifier)) {
                     selectNone();
+                    if (m_widget_under_mouse != 0)
+                        m_start_connection_on_drag = true;
                 }
             }
             break;
     }
     
     e->accept();
+}
+
+void ConnectionEdit::mouseDoubleClickEvent(QMouseEvent *e)
+{
+    switch (state()) {
+        case Connecting:
+            break;
+        case Dragging:
+            break;
+        case Editing:
+            if (m_sel_con_set.size() == 1) {
+                Connection *con = m_sel_con_set.keys().first();
+                modifyConnection(con);
+            }
+            break;
+    }
+    
 }
 
 void ConnectionEdit::mouseReleaseEvent(QMouseEvent *e)
@@ -892,7 +913,8 @@ void ConnectionEdit::mouseReleaseEvent(QMouseEvent *e)
 
 void ConnectionEdit::findObjectsUnderMouse(const QPoint &pos)
 {
-    QWidget *w = widgetAt(pos);
+    Connection *con_under_mouse = connectionAt(pos);
+    QWidget *w = con_under_mouse != 0 ? 0 : widgetAt(pos);
     if (w == m_bg_widget)
         w = 0;
     if (w != m_widget_under_mouse) {
@@ -923,8 +945,10 @@ void ConnectionEdit::mouseMoveEvent(QMouseEvent *e)
             continueConnection(m_widget_under_mouse, e->pos());
             break;
         case Editing:
-            if ((e->buttons() & Qt::LeftButton) && m_widget_under_mouse != 0) { 
-                selectNone();
+            if ((e->buttons() & Qt::LeftButton)
+                    && m_start_connection_on_drag
+                    && m_widget_under_mouse != 0) { 
+                m_start_connection_on_drag = false;
                 startConnection(m_widget_under_mouse, e->pos());
                 setCursor(Qt::CrossCursor);
             }
@@ -985,6 +1009,10 @@ void ConnectionEdit::continueConnection(QWidget *target, const QPoint &pos)
     m_tmp_con->setEndPoint(EndPoint::Target, target, pos);    
 }
     
+void ConnectionEdit::modifyConnection(Connection *)
+{
+}
+
 Connection *ConnectionEdit::createConnection(QWidget *source, QWidget *target)
 {
     Connection *con = new Connection(this, source, target);

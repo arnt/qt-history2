@@ -42,9 +42,11 @@ public:
     QString signal() const;
     QString slot() const;
 
+    void setSignalSlot(const QString &signal, const QString &slot);
+    
 private slots:
-    void signalClicked(QListWidgetItem *item);
-    void slotClicked(QListWidgetItem *item);
+    void selectSignal(QListWidgetItem *item);
+    void selectSlot(QListWidgetItem *item);
     void populateSignalList();
     void populateSlotList(const QString &signal = QString());
 
@@ -117,6 +119,8 @@ static bool signalMatchesSlot(const QString &signal, const QString &slot)
 
 void SignalSlotDialog::populateSlotList(const QString &signal)
 {
+    qDebug() << "SignalSlotDialog::populateSlotList()" << signal;
+
     QString selectedName;
     QList<QListWidgetItem *> list = m_slot_list->selectedItems();
     if (list.size() > 0) {
@@ -154,6 +158,9 @@ void SignalSlotDialog::populateSlotList(const QString &signal)
         if (sig == selectedName)
             m_slot_list->setSelected(item, true);
     }
+    
+    if (m_slot_list->selectedItems().isEmpty())
+        m_ok_button->setEnabled(false);
 }
 
 void SignalSlotDialog::populateSignalList()
@@ -167,7 +174,6 @@ void SignalSlotDialog::populateSignalList()
     m_signal_list->clear();
 
     bool show_all = m_show_all_checkbox->isChecked();
-    qDebug() << "populateSignalList" << show_all;
 
     QStringList signatures;
 
@@ -201,8 +207,9 @@ void SignalSlotDialog::populateSignalList()
         selectedName.clear();
 
     populateSlotList(selectedName);
-    if (!found_selected)
+    if (!found_selected) {
         m_slot_list->setEnabled(false);
+    }
 }
 
 SignalSlotDialog::SignalSlotDialog(AbstractFormEditor *core, QWidget *source, QWidget *destination,
@@ -217,12 +224,12 @@ SignalSlotDialog::SignalSlotDialog(AbstractFormEditor *core, QWidget *source, QW
     connect(m_signal_list,
                 SIGNAL(itemClicked(QListWidgetItem*)),
             this,
-                SLOT(signalClicked(QListWidgetItem*)));
+                SLOT(selectSignal(QListWidgetItem*)));
     m_slot_list = new QListWidget(this);
     connect(m_slot_list,
                 SIGNAL(itemClicked(QListWidgetItem*)),
             this,
-                SLOT(slotClicked(QListWidgetItem*)));
+                SLOT(selectSlot(QListWidgetItem*)));
     m_slot_list->setEnabled(false);
 
     QPushButton *cancel_button = new QPushButton(tr("Cancel"), this);
@@ -265,22 +272,64 @@ SignalSlotDialog::SignalSlotDialog(AbstractFormEditor *core, QWidget *source, QW
     populateSignalList();
 }
 
-void SignalSlotDialog::signalClicked(QListWidgetItem *item)
+static QListWidgetItem *findItem(const QListWidget &list_widget, const QString &text)
+{
+    QListWidgetItem *result = 0;
+    for (int i = 0; i < list_widget.count(); ++i) {
+        QListWidgetItem *item = list_widget.item(i);
+        if (item->text() == text) {
+            result = item;
+            break;
+        }
+    }
+    return result;
+}
+
+void SignalSlotDialog::setSignalSlot(const QString &signal, const QString &slot)
+{
+    QListWidgetItem *sig_item = findItem(*m_signal_list, signal);
+    
+    if (sig_item == 0) {
+        m_show_all_checkbox->setChecked(true);
+        sig_item = findItem(*m_signal_list, signal);
+    }
+    
+    if (sig_item != 0) {
+        selectSignal(sig_item);
+        QListWidgetItem *slot_item = findItem(*m_slot_list, slot);
+        if (slot_item == 0) {
+            m_show_all_checkbox->setChecked(true);
+            slot_item = findItem(*m_slot_list, slot);
+        }
+        if (slot_item != 0)
+            selectSlot(slot_item);
+    }
+}
+
+void SignalSlotDialog::selectSignal(QListWidgetItem *item)
 {
     if (item == 0) {
+        m_signal_list->clearSelection();
         populateSlotList();
         m_slot_list->setEnabled(false);
         m_ok_button->setEnabled(false);
     } else {
+        m_signal_list->setSelected(item, true);
+        m_signal_list->ensureItemIsVisible(item);
         populateSlotList(item->text());
         m_slot_list->setEnabled(true);
-        m_ok_button->setEnabled(false);
+        m_ok_button->setEnabled(!m_slot_list->selectedItems().isEmpty());
     }
 }
 
-void SignalSlotDialog::slotClicked(QListWidgetItem *item)
+void SignalSlotDialog::selectSlot(QListWidgetItem *item)
 {
-    Q_UNUSED(item);
+    if (item == 0) {
+        m_slot_list->clearSelection();
+    } else {
+        m_slot_list->setSelected(item, true);
+        m_slot_list->ensureItemIsVisible(item);
+    }
     m_ok_button->setEnabled(true);
 }
 
@@ -378,6 +427,20 @@ SignalSlotEditor::SignalSlotEditor(AbstractFormWindow *form_window, QWidget *par
     : ConnectionEdit(parent, form_window)
 {
     m_form_window = form_window;
+}
+
+void SignalSlotEditor::modifyConnection(Connection *con)
+{
+    SignalSlotConnection *sigslot_con = static_cast<SignalSlotConnection*>(con);
+
+    SignalSlotDialog *dialog = new SignalSlotDialog(m_form_window->core(),
+                                                    sigslot_con->widget(EndPoint::Source), 
+                                                    sigslot_con->widget(EndPoint::Target));
+    dialog->setSignalSlot(sigslot_con->signal(), sigslot_con->slot());
+    if (dialog->exec() == QDialog::Accepted) {
+        sigslot_con->setSignal(dialog->signal());
+        sigslot_con->setSlot(dialog->slot());
+    }
 }
 
 Connection *SignalSlotEditor::createConnection(QWidget *source, QWidget *destination)

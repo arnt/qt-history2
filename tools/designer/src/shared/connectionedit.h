@@ -126,8 +126,10 @@ protected:
     virtual void mousePressEvent(QMouseEvent *e);
     virtual void mouseReleaseEvent(QMouseEvent *e);
     virtual void keyPressEvent(QKeyEvent *e);
+    virtual void mouseDoubleClickEvent(QMouseEvent *e);
     
     virtual Connection *createConnection(QWidget *source, QWidget *target);
+    virtual void modifyConnection(Connection *con);
     
     virtual QWidget *widgetAt(const QPoint &pos) const;
     QRect widgetRect(QWidget *w) const;
@@ -143,6 +145,7 @@ private:
 
     Connection *m_tmp_con; // the connection we are currently editing
     ConnectionList m_con_list;
+    bool m_start_connection_on_drag;
     void startConnection(QWidget *source, const QPoint &pos);
     void continueConnection(QWidget *target, const QPoint &pos);
     void endConnection(QWidget *target, const QPoint &pos);

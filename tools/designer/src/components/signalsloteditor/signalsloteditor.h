@@ -65,6 +65,7 @@ protected:
 
 private:
     virtual Connection *createConnection(QWidget *source, QWidget *destination);
+    virtual void modifyConnection(Connection *con);
 
     AbstractFormWindow *m_form_window;
 };
