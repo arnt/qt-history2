@@ -29,6 +29,7 @@
 #include <qpushbutton.h>
 #include <qlistbox.h>
 #include <qpainter.h>
+#include <qgroupbox.h>
 
 /*!
     Class used by PaletteEditor for bold combobox items
@@ -80,9 +81,48 @@ PaletteEditorAdvanced::~PaletteEditorAdvanced()
 {
 }
 
+void PaletteEditorAdvanced::onToggleBuildInactive( bool v )
+{
+    if (selectedPalette == 1) {
+	groupCentral->setDisabled(v);
+	groupEffect->setDisabled(v);
+    }
+
+    if (v) {
+	buildInactive();
+	updateStyledButtons();
+    }
+}
+
+void PaletteEditorAdvanced::onToggleBuildDisabled( bool v )
+{
+    if (selectedPalette == 2) {
+	groupCentral->setDisabled(v);
+	groupEffect->setDisabled(v);
+    }
+
+    if (v) {
+	buildDisabled();
+	updateStyledButtons();
+    }
+}
+
 void PaletteEditorAdvanced::paletteSelected(int p)
 {
     selectedPalette = p;
+
+    if(p == 1) { // inactive
+	groupCentral->setDisabled(checkBuildInactive->isChecked());
+	groupEffect->setDisabled(checkBuildInactive->isChecked());
+    }
+    else if (p == 2) { // disabled
+	groupCentral->setDisabled(checkBuildDisabled->isChecked());
+	groupEffect->setDisabled(checkBuildDisabled->isChecked());
+    }
+    else {
+	groupCentral->setEnabled(true);
+	groupEffect->setEnabled(true);
+    }
     updateStyledButtons();
 }
 

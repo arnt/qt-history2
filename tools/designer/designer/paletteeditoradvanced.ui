@@ -30,7 +30,7 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>355</width>
+            <width>351</width>
             <height>334</height>
         </rect>
     </property>
@@ -152,7 +152,7 @@
         </widget>
         <widget class="QGroupBox">
             <property name="name">
-                <cstring>groupInactiveCentral</cstring>
+                <cstring>groupCentral</cstring>
             </property>
             <property name="title">
                 <string>Central color &amp;roles</string>
@@ -343,7 +343,7 @@
         </widget>
         <widget class="QGroupBox">
             <property name="name">
-                <cstring>groupInactiveEffect</cstring>
+                <cstring>groupEffect</cstring>
             </property>
             <property name="title">
                 <string>3-D shadow &amp;effects</string>
@@ -680,15 +680,29 @@
         <receiver>buttonEffect</receiver>
         <slot>setDisabled(bool)</slot>
     </connection>
-    <slot access="protected" language="C++" returnType="void">init()</slot>
+    <connection>
+        <sender>checkBuildInactive</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>PaletteEditorAdvancedBase</receiver>
+        <slot>onToggleBuildInactive(bool)</slot>
+    </connection>
+    <connection>
+        <sender>checkBuildDisabled</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>PaletteEditorAdvancedBase</receiver>
+        <slot>onToggleBuildDisabled(bool)</slot>
+    </connection>
     <slot access="protected" language="C++" returnType="void">destroy()</slot>
-    <slot access="protected" language="C++" returnType="void">paletteSelected(int)</slot>
+    <slot access="protected" language="C++" returnType="void">init()</slot>
+    <slot access="protected" language="C++" returnType="void">onToggleBuildDisabled(bool)</slot>
     <slot access="protected" language="C++" returnType="void">onCentral(int)</slot>
     <slot access="protected" language="C++" returnType="void">onChooseCentralColor()</slot>
     <slot access="protected" language="C++" returnType="void">onChooseEffectColor()</slot>
     <slot access="protected" language="C++" returnType="void">onChoosePixmap()</slot>
     <slot access="protected" language="C++" returnType="void">onEffect(int)</slot>
     <slot access="protected" language="C++" returnType="void">onToggleBuildEffects(bool)</slot>
+    <slot access="protected" language="C++" returnType="void">onToggleBuildInactive(bool)</slot>
+    <slot access="protected" language="C++" returnType="void">paletteSelected(int)</slot>
     <slot access="public" language="C++" returnType="void">showHelp()</slot>
 </connections>
 <tabstops>

@@ -44,6 +44,8 @@ protected slots:
     void onChoosePixmap();
 
     void onToggleBuildEffects( bool );
+    void onToggleBuildInactive( bool );
+    void onToggleBuildDisabled( bool );
 
 protected:
     void mapToActiveCentralRole( const QColor& );
