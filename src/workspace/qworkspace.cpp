@@ -660,7 +660,7 @@ void QWorkspace::resizeEvent( QResizeEvent * )
 /*! \reimp */
 void QWorkspace::showEvent( QShowEvent *e )
 {
-    if ( d->maxWindow )
+    if ( d->maxWindow && !style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this))
 	showMaximizeControls();
     QWidget::showEvent( e );
     if ( d->becomeActive ) {
@@ -676,7 +676,8 @@ void QWorkspace::showEvent( QShowEvent *e )
 /*! \reimp */
 void QWorkspace::hideEvent( QHideEvent * )
 {
-    if ( !isVisibleTo(0) )
+
+    if ( !isVisibleTo(0) && !style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this))
 	hideMaximizeControls();
 }
 
@@ -703,7 +704,13 @@ void QWorkspace::minimizeWindow( QWidget* w)
 		topLevelWidget()->setCaption( d->topCaption );
 #endif
 	    inCaptionChange = FALSE;
-	    hideMaximizeControls();
+	    if ( !style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this) && d->maxWindow ) 
+		hideMaximizeControls();
+	    for (QPtrListIterator<QWorkspaceChild> it( d->windows ); it.current(); ++it ) {
+		QWorkspaceChild* c = it.current();
+		c->titlebar->setMovable( TRUE );
+		c->widgetResizeHandler->setActive( TRUE );
+	    }
 	}
 	insertIcon( c->iconWidget() );
 	c->hide();
@@ -724,9 +731,9 @@ void QWorkspace::normalizeWindow( QWidget* w)
     if ( c ) {
 	QWorkspace *fake = (QWorkspace*)w;
 	fake->clearWState( WState_Minimized | WState_Maximized );
-	if ( !style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this) && d->maxWindow )
+	if ( !style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this) && d->maxWindow ) {
 	    hideMaximizeControls();
-	else {
+	} else {
 	    c->widgetResizeHandler->setActive( TRUE );
 	    c->titlebar->setMovable(TRUE);
 	}
@@ -746,11 +753,12 @@ void QWorkspace::normalizeWindow( QWidget* w)
 	    c->show();
 	}
 
-	if ( style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this)) {
+	if ( !style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this)) 
+	    hideMaximizeControls();
+	for (QPtrListIterator<QWorkspaceChild> it( d->windows ); it.current(); ++it ) {
+	    QWorkspaceChild* c = it.current();
 	    c->titlebar->setMovable( TRUE );
 	    c->widgetResizeHandler->setActive( TRUE );
-	} else {
-	    hideMaximizeControls();
 	}
 	activateWindow( w, TRUE );
 
