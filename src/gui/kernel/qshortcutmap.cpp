@@ -232,7 +232,8 @@ bool QShortcutMap::tryShortcutEvent(QWidget *w, QKeyEvent *e)
         if (e->isAccepted())
             return false;
     }
-    switch(nextState(e)) {
+    Qt::SequenceMatch result = nextState(e);
+    switch(result) {
     case Qt::NoMatch:
         return e->isAccepted();
     case Qt::Identical:
@@ -241,7 +242,9 @@ bool QShortcutMap::tryShortcutEvent(QWidget *w, QKeyEvent *e)
     default:
 	break;
     }
-    return true;
+    // If nextState is Qt::Identical && identicals.count == 0
+    // we've only found disabled shortcuts
+    return d->identicals.count() > 0 || result == Qt::PartialMatch;
 }
 
 /*! \internal
@@ -278,7 +281,8 @@ Qt::SequenceMatch QShortcutMap::nextState(QKeyEvent *e)
     }
 
     // Should we eat this key press?
-    if (d->currentState != Qt::NoMatch)
+    if (d->currentState == Qt::PartialMatch
+        || (d->currentState == Qt::Identical && d->identicals.count()))
         e->accept();
     // Does the new state require us to clean up?
     if (result == Qt::NoMatch)
@@ -318,6 +322,7 @@ Qt::SequenceMatch QShortcutMap::find(QKeyEvent *e)
 
     QList<QShortcutEntry>::ConstIterator itEnd = d->sequences.constEnd();
     bool partialFound = false;
+    bool identicalDisabledFound = false;
     Qt::SequenceMatch result = Qt::NoMatch;
     do {
         if (it == itEnd)
@@ -325,11 +330,17 @@ Qt::SequenceMatch QShortcutMap::find(QKeyEvent *e)
         result = newEntry.keyseq.matches((*it).keyseq);
         if (correctSubWindow((*it).owner)) {
             if (result == Qt::Identical) {
-                d->identicals.append(&*it);
+                if ((*it).enabled)
+                    d->identicals.append(&*it);
+                else
+                    identicalDisabledFound = true;
             } else if (result == Qt::PartialMatch) {
                 if (d->identicals.size())
                     break;  // We don't need partials, if we have identicals
-                partialFound = true;
+                // We only care about enabled partials, so we don't consume
+                // key events when all partials are disabled!
+                if ((*it).enabled)
+                    partialFound = true;
             }
         }
         ++it;
@@ -339,6 +350,8 @@ Qt::SequenceMatch QShortcutMap::find(QKeyEvent *e)
         result = Qt::Identical;
     } else if (partialFound) {
         result = Qt::PartialMatch;
+    } else if (identicalDisabledFound) {
+        result = Qt::Identical;
     } else {
         clearSequence(d->currentSequence);
         result = Qt::NoMatch;
@@ -455,10 +468,10 @@ QVector<const QShortcutEntry*> QShortcutMap::matches() const
 */
 void QShortcutMap::dispatchEvent()
 {
-    if (d->currentState != Qt::Identical)
+    if (!d->identicals.size()
+        || d->currentState != Qt::Identical)
         return;
 
-    Q_ASSERT(d->identicals.size());
     if (d->prevSequence != d->currentSequence) {
         d->ambigCount = 0;
         d->prevSequence = d->currentSequence;
