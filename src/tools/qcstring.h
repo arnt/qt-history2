@@ -50,9 +50,9 @@ inline char *hack_strchr( const char *s, int c )
 { return (char *)strchr(s, c); }
 inline char *hack_strrchr( const char *s, int c )
 { return (char *)strrchr(s, c); }
-#define strstr	hack_strstr
-#define strchr	hack_strchr
-#define strrchr hack_strrchr
+#define strstr(s1,s2)	hack_strstr((s1),(s2))
+#define strchr(s,c)	hack_strchr((s),(c))
+#define strrchr(s,c)	hack_strrchr((s),(c))
 #endif
 
 
@@ -75,8 +75,10 @@ Q_EXPORT inline uint qstrlen( const char *str )
 { return str ? strlen(str) : 0; }
 
 // ### remove 3.0
+#if defined(QT_CLEAN_NAMESPACE)
 #undef	strlen
 #define strlen qstrlen
+#endif
 
 Q_EXPORT inline char *cstrcpy( char *dst, const char *src )
 { return strcpy(dst,src); }
@@ -85,8 +87,10 @@ Q_EXPORT inline char *qstrcpy( char *dst, const char *src )
 { return src ? strcpy(dst, src) : 0; }
 
 // ### remove 3.0
+#if defined(QT_CLEAN_NAMESPACE)
 #undef	strcpy
 #define strcpy qstrcpy
+#endif
 
 Q_EXPORT char *qstrncpy( char *dst, const char *src, uint len );
 
@@ -97,8 +101,10 @@ Q_EXPORT inline int qstrcmp( const char *str1, const char *str2 )
 { return (str1 && str2) ? strcmp(str1,str2) : (int)((long)str2 - (long)str1); }
 
 // ### remove 3.0
+#if defined(QT_CLEAN_NAMESPACE)
 #undef	strcmp
 #define strcmp qstrcmp
+#endif
 
 Q_EXPORT inline int cstrncmp( const char *str1, const char *str2, uint len )
 { return strncmp(str1,str2,len); }
@@ -107,17 +113,21 @@ Q_EXPORT inline int qstrncmp( const char *str1, const char *str2, uint len )
 { return (str1 && str2) ? strncmp(str1,str2,len) :
 			  (int)((long)str2 - (long)str1); }
 // ### remove 3.0
+#if defined(QT_CLEAN_NAMESPACE)
 #undef	strncmp
 #define strncmp qstrncmp
+#endif
 
 Q_EXPORT int qstricmp( const char *, const char * );
 Q_EXPORT int qstrnicmp( const char *, const char *, uint len );
 
 // ### remove 3.0
+#if defined(QT_CLEAN_NAMESPACE)
 #undef	stricmp
 #define stricmp	 qstricmp
 #undef	strnicmp
 #define strnicmp qstrnicmp
+#endif
 
 
 // qChecksum: Internet checksum
@@ -247,7 +257,7 @@ inline QCString &QCString::operator=( const QCString &s )
 { return (QCString&)assign( s ); }
 
 inline QCString &QCString::operator=( const char *str )
-{ return (QCString&)duplicate( str, strlen(str)+1 ); }
+{ return (QCString&)duplicate( str, qstrlen(str)+1 ); }
 
 inline bool QCString::isNull() const
 { return data() == 0; }

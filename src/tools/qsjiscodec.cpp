@@ -197,10 +197,10 @@ int QSjisCodec::heuristicNameMatch(const char* hint) const
 	p = hint;
     }
     if (p) {
-	if ((stricmp(p, "mscode") == 0) ||
-	    (stricmp(p, "PCK") == 0) ||
-	    (stricmp(p, "SJIS") == 0) ||
-	    (stricmp(p, "ShiftJIS") == 0)) {
+	if ((qstricmp(p, "mscode") == 0) ||
+	    (qstricmp(p, "PCK") == 0) ||
+	    (qstricmp(p, "SJIS") == 0) ||
+	    (qstricmp(p, "ShiftJIS") == 0)) {
 	    return score + 4;
 	}
     }

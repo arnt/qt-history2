@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#390 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#391 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -222,7 +222,7 @@ static void set_winapp_name()
 	if ( p )
 	    memmove( appName, p+1, qstrlen(p) );
 	int l = qstrlen( appName );
-	if ( (l > 4) && !stricmp( appName + l - 4, ".exe" ) )
+	if ( (l > 4) && !qstricmp( appName + l - 4, ".exe" ) )
 	    appName[l-4] = '\0';		// drop .exe extension
     }
 }

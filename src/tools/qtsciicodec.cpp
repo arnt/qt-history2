@@ -141,7 +141,7 @@ int QTSCIICodec::heuristicNameMatch(const char* hint) const
         p++;
     else
         p = hint;
-    if (stricmp(p, "TSCII") == 0)
+    if (qstricmp(p, "TSCII") == 0)
       	return 4;
     return QTextCodec::heuristicNameMatch(hint);
 }

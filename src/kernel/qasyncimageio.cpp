@@ -382,7 +382,7 @@ QImageFormatType* QImageDecoder::format( const char* name )
 	f;
 	f = QImageDecoderPrivate::factories->next())
     {
-	if ( stricmp(name,f->formatName())==0 )
+	if ( qstricmp(name,f->formatName())==0 )
 	    return f;
     }
     return 0;

@@ -14661,7 +14661,7 @@ bool operator>=( const char *s1, const QString &s2 )
   Returns TRUE if the two strings are equal, or FALSE if they are different.
   A null string is different from an empty, non-null string.
 
-  Equivalent to <code>strcmp(s1,s2) == 0</code>.
+  Equivalent to <code>qstrcmp(s1,s2) == 0</code>.
 */
 
 /*!
@@ -14669,7 +14669,7 @@ bool operator>=( const char *s1, const QString &s2 )
   \relates QString
   Returns TRUE if the two strings are equal, or FALSE if they are different.
 
-  Equivalent to <code>strcmp(s1,s2) == 0</code>.
+  Equivalent to <code>qstrcmp(s1,s2) == 0</code>.
 */
 
 /*!
@@ -14677,7 +14677,7 @@ bool operator>=( const char *s1, const QString &s2 )
   \relates QString
   Returns TRUE if the two strings are equal, or FALSE if they are different.
 
-  Equivalent to <code>strcmp(s1,s2) == 0</code>.
+  Equivalent to <code>qstrcmp(s1,s2) == 0</code>.
 */
 
 /*!
@@ -14685,7 +14685,7 @@ bool operator>=( const char *s1, const QString &s2 )
   \relates QString
   Returns TRUE if the two strings are different, or FALSE if they are equal.
 
-  Equivalent to <code>strcmp(s1,s2) != 0</code>.
+  Equivalent to <code>qstrcmp(s1,s2) != 0</code>.
 */
 
 /*!
@@ -14693,7 +14693,7 @@ bool operator>=( const char *s1, const QString &s2 )
   \relates QString
   Returns TRUE if the two strings are different, or FALSE if they are equal.
 
-  Equivalent to <code>strcmp(s1,s2) != 0</code>.
+  Equivalent to <code>qstrcmp(s1,s2) != 0</code>.
 */
 
 /*!
@@ -14701,7 +14701,7 @@ bool operator>=( const char *s1, const QString &s2 )
   \relates QString
   Returns TRUE if the two strings are different, or FALSE if they are equal.
 
-  Equivalent to <code>strcmp(s1,s2) != 0</code>.
+  Equivalent to <code>qstrcmp(s1,s2) != 0</code>.
 */
 
 /*!
@@ -14709,7 +14709,7 @@ bool operator>=( const char *s1, const QString &s2 )
   \relates QString
   Returns TRUE if \a s1 is alphabetically less than \a s2, otherwise FALSE.
 
-  Equivalent to <code>strcmp(s1,s2) \< 0</code>.
+  Equivalent to <code>qstrcmp(s1,s2) \< 0</code>.
 */
 
 /*!
@@ -14717,7 +14717,7 @@ bool operator>=( const char *s1, const QString &s2 )
   \relates QString
   Returns TRUE if \a s1 is alphabetically less than \a s2, otherwise FALSE.
 
-  Equivalent to <code>strcmp(s1,s2) \< 0</code>.
+  Equivalent to <code>qstrcmp(s1,s2) \< 0</code>.
 */
 
 /*!
@@ -14726,7 +14726,7 @@ bool operator>=( const char *s1, const QString &s2 )
   Returns TRUE if \a s1 is alphabetically less than or equal to \a s2,
   otherwise FALSE.
 
-  Equivalent to <code>strcmp(s1,s2) \<= 0</code>.
+  Equivalent to <code>qstrcmp(s1,s2) \<= 0</code>.
 */
 
 /*!
@@ -14735,7 +14735,7 @@ bool operator>=( const char *s1, const QString &s2 )
   Returns TRUE if \a s1 is alphabetically less than or equal to \a s2,
   otherwise FALSE.
 
-  Equivalent to <code>strcmp(s1,s2) \<= 0</code>.
+  Equivalent to <code>qstrcmp(s1,s2) \<= 0</code>.
 */
 
 /*!
@@ -14743,7 +14743,7 @@ bool operator>=( const char *s1, const QString &s2 )
   \relates QString
   Returns TRUE if \a s1 is alphabetically greater than \a s2, otherwise FALSE.
 
-  Equivalent to <code>strcmp(s1,s2) \> 0</code>.
+  Equivalent to <code>qstrcmp(s1,s2) \> 0</code>.
 */
 
 /*!
@@ -14751,7 +14751,7 @@ bool operator>=( const char *s1, const QString &s2 )
   \relates QString
   Returns TRUE if \a s1 is alphabetically greater than \a s2, otherwise FALSE.
 
-  Equivalent to <code>strcmp(s1,s2) \> 0</code>.
+  Equivalent to <code>qstrcmp(s1,s2) \> 0</code>.
 */
 
 /*!
@@ -14760,7 +14760,7 @@ bool operator>=( const char *s1, const QString &s2 )
   Returns TRUE if \a s1 is alphabetically greater than or equal to \a s2,
   otherwise FALSE.
 
-  Equivalent to <code>strcmp(s1,s2) \>= 0</code>.
+  Equivalent to <code>qstrcmp(s1,s2) \>= 0</code>.
 */
 
 /*!
@@ -14769,7 +14769,7 @@ bool operator>=( const char *s1, const QString &s2 )
   Returns TRUE if \a s1 is alphabetically greater than or equal to \a s2,
   otherwise FALSE.
 
-  Equivalent to <code>strcmp(s1,s2) \>= 0</code>.
+  Equivalent to <code>qstrcmp(s1,s2) \>= 0</code>.
 */
 
 /*!

@@ -81,32 +81,8 @@ char *qstrdup( const char *str )
 	return 0;
     char *dst = new char[strlen(str)+1];
     CHECK_PTR( dst );
-    return cstrcpy( dst, str );
+    return strcpy( dst, str );
 }
-
-/*!
-  \fn uint strlen( const char *str )
-  \relates QCString
-
-  A safe strlen() function that overrides the one defined by the C library.
-  The original strlen() function has been renamed cstrlen().
-
-  Returns the number of characters in \e str, or 0 if \e str is null.
-*/
-
-/*!
-  \fn char *strcpy( char *dst, const char *str )
-  \relates QCString
-
-  A safe strcpy() function that overrides the one defined by the C library.
-  The original strcpy() function has been renamed cstrcpy().
-
-  Copies all characters (including \0) from \e str into \e dst and returns
-  a pointer to \e dst.
-  If \e src is null, it immediately returns 0.
-
-  \sa qstrncpy()
-*/
 
 /*!
   \relates QCString
@@ -117,7 +93,7 @@ char *qstrdup( const char *str )
   a pointer to \e dst.	Guarantees that \e dst is \0-terminated.
   If \e src is null, it immediately returns 0.
 
-  \sa strcpy()
+  \sa qstrcpy()
 */
 
 char *qstrncpy( char *dst, const char *src, uint len )
@@ -131,11 +107,10 @@ char *qstrncpy( char *dst, const char *src, uint len )
 }
 
 /*!
-  \fn int strcmp( const char *str1, const char *str2 )
+  \fn int qstrcmp( const char *str1, const char *str2 )
   \relates QCString
 
-  A safe strcmp() function that overrides the one defined by the C library.
-  The original strcmp() function has been renamed cstrcmp().
+  A safe strcmp() function.
 
   Compares \e str1 and \e str2.	 Returns a negative value if \e str1
   is less than \e str2, 0 if \e str1 is equal to \e str2 or a positive
@@ -146,15 +121,14 @@ char *qstrncpy( char *dst, const char *src, uint len )
   Special case II: Returns a random nonzero value if \e str1 is null
   or \e str2 is null (but not both).
 
-  \sa strncmp(), stricmp(), strnicmp()
+  \sa qstrncmp(), qstricmp(), qstrnicmp()
 */
 
 /*!
-  \fn int strncmp( const char *str1, const char *str2, uint len )
+  \fn int qstrncmp( const char *str1, const char *str2, uint len )
   \relates QCString
 
-  A safe strncmp() function that overrides the one defined by the C library.
-  The original strncmp() function has been renamed cstrncmp().
+  A safe strncmp() function.
 
   Compares \e str1 and \e str2 up to \e len bytes.
 
@@ -167,15 +141,14 @@ char *qstrncpy( char *dst, const char *src, uint len )
   Special case II: Returns a random nonzero value if \e str1 is null
   or \e str2 is null (but not both).
 
-  \sa strcmp(), stricmp(), strnicmp()
+  \sa qstrcmp(), qstricmp(), qstrnicmp()
 */
 
 /*!
-  \fn int stricmp( const char *str1, const char *str2 )
+  \fn int qstricmp( const char *str1, const char *str2 )
   \relates QCString
 
-  A safe stricmp() function that overrides the one defined by the C library,
-  if the C library has one.
+  A safe stricmp() function.
 
   Compares \e str1 and \e str2 ignoring the case.
 
@@ -188,7 +161,7 @@ char *qstrncpy( char *dst, const char *src, uint len )
   Special case II: Returns a random nonzero value if \e str1 is null
   or \e str2 is null (but not both).
 
-  \sa strcmp(), strncmp(), strnicmp()
+  \sa qstrcmp(), qstrncmp(), qstrnicmp()
 */
 
 int qstricmp( const char *str1, const char *str2 )
@@ -209,8 +182,7 @@ int qstricmp( const char *str1, const char *str2 )
   \fn int strnicmp( const char *str1, const char *str2, uint len )
   \relates QCString
 
-  A safe strnicmp() function that overrides the one defined by the C library,
-  if the C library has one.
+  A safe strnicmp() function.
 
   Compares \e str1 and \e str2 up to \e len bytes ignoring the case.
 
@@ -223,7 +195,7 @@ int qstricmp( const char *str1, const char *str2 )
   Special case II: Returns a random nonzero value if \e str1 is null
   or \e str2 is null (but not both).
 
-  \sa strcmp(), strncmp() stricmp()
+  \sa qstrcmp(), qstrncmp() qstricmp()
 */
 
 int qstrnicmp( const char *str1, const char *str2, uint len )
@@ -1793,7 +1765,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
   \relates QCString
   Returns TRUE if the two strings are equal, or FALSE if they are different.
 
-  Equivalent to <code>strcmp(s1,s2) == 0</code>.
+  Equivalent to <code>qstrcmp(s1,s2) == 0</code>.
 */
 
 /*!
@@ -1801,7 +1773,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
   \relates QCString
   Returns TRUE if the two strings are equal, or FALSE if they are different.
 
-  Equivalent to <code>strcmp(s1,s2) == 0</code>.
+  Equivalent to <code>qstrcmp(s1,s2) == 0</code>.
 */
 
 /*!
@@ -1809,7 +1781,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
   \relates QCString
   Returns TRUE if the two strings are equal, or FALSE if they are different.
 
-  Equivalent to <code>strcmp(s1,s2) == 0</code>.
+  Equivalent to <code>qstrcmp(s1,s2) == 0</code>.
 */
 
 /*!
@@ -1817,7 +1789,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
   \relates QCString
   Returns TRUE if the two strings are different, or FALSE if they are equal.
 
-  Equivalent to <code>strcmp(s1,s2) != 0</code>.
+  Equivalent to <code>qstrcmp(s1,s2) != 0</code>.
 */
 
 /*!
@@ -1825,7 +1797,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
   \relates QCString
   Returns TRUE if the two strings are different, or FALSE if they are equal.
 
-  Equivalent to <code>strcmp(s1,s2) != 0</code>.
+  Equivalent to <code>qstrcmp(s1,s2) != 0</code>.
 */
 
 /*!
@@ -1833,7 +1805,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
   \relates QCString
   Returns TRUE if the two strings are different, or FALSE if they are equal.
 
-  Equivalent to <code>strcmp(s1,s2) != 0</code>.
+  Equivalent to <code>qstrcmp(s1,s2) != 0</code>.
 */
 
 /*!
@@ -1841,7 +1813,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
   \relates QCString
   Returns TRUE if \e s1 is alphabetically less than \e s2, otherwise FALSE.
 
-  Equivalent to <code>strcmp(s1,s2) \< 0</code>.
+  Equivalent to <code>qstrcmp(s1,s2) \< 0</code>.
 */
 
 /*!
@@ -1849,7 +1821,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
   \relates QCString
   Returns TRUE if \e s1 is alphabetically less than \e s2, otherwise FALSE.
 
-  Equivalent to <code>strcmp(s1,s2) \< 0</code>.
+  Equivalent to <code>qstrcmp(s1,s2) \< 0</code>.
 */
 
 /*!
@@ -1858,7 +1830,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
   Returns TRUE if \e s1 is alphabetically less than or equal to \e s2,
   otherwise FALSE.
 
-  Equivalent to <code>strcmp(s1,s2) \<= 0</code>.
+  Equivalent to <code>qstrcmp(s1,s2) \<= 0</code>.
 */
 
 /*!
@@ -1867,7 +1839,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
   Returns TRUE if \e s1 is alphabetically less than or equal to \e s2,
   otherwise FALSE.
 
-  Equivalent to <code>strcmp(s1,s2) \<= 0</code>.
+  Equivalent to <code>qstrcmp(s1,s2) \<= 0</code>.
 */
 
 /*!
@@ -1875,7 +1847,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
   \relates QCString
   Returns TRUE if \e s1 is alphabetically greater than \e s2, otherwise FALSE.
 
-  Equivalent to <code>strcmp(s1,s2) \> 0</code>.
+  Equivalent to <code>qstrcmp(s1,s2) \> 0</code>.
 */
 
 /*!
@@ -1883,7 +1855,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
   \relates QCString
   Returns TRUE if \e s1 is alphabetically greater than \e s2, otherwise FALSE.
 
-  Equivalent to <code>strcmp(s1,s2) \> 0</code>.
+  Equivalent to <code>qstrcmp(s1,s2) \> 0</code>.
 */
 
 /*!
@@ -1892,7 +1864,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
   Returns TRUE if \e s1 is alphabetically greater than or equal to \e s2,
   otherwise FALSE.
 
-  Equivalent to <code>strcmp(s1,s2) \>= 0</code>.
+  Equivalent to <code>qstrcmp(s1,s2) \>= 0</code>.
 */
 
 /*!
@@ -1901,7 +1873,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
   Returns TRUE if \e s1 is alphabetically greater than or equal to \e s2,
   otherwise FALSE.
 
-  Equivalent to <code>strcmp(s1,s2) \>= 0</code>.
+  Equivalent to <code>qstrcmp(s1,s2) \>= 0</code>.
 */
 
 /*!

@@ -812,32 +812,32 @@ const QJpUnicodeConv *QJpUnicodeConv::newConverter(int rule)
 		s = env.mid(i, j - i).stripWhiteSpace();
 		i = j + 1;
 	    }
-	    if (stricmp(s, "unicode-0.9") == 0) {
+	    if (qstricmp(s, "unicode-0.9") == 0) {
 		rule = (rule & 0xff00) | JU_Unicode;
-	    } else if (stricmp(s, "unicode-0201") == 0) {
+	    } else if (qstricmp(s, "unicode-0201") == 0) {
 		rule = (rule & 0xff00) | JU_Unicode_JISX0201;
-	    } else if (stricmp(s, "unicode-ascii") == 0) {
+	    } else if (qstricmp(s, "unicode-ascii") == 0) {
 		rule = (rule & 0xff00) | JU_Unicode_ASCII;
-	    } else if (stricmp(s, "jisx0221-1995") == 0) {
+	    } else if (qstricmp(s, "jisx0221-1995") == 0) {
 		rule = (rule & 0xff00) | JU_JISX0221_JISX0201;
-	    } else if ((stricmp(s, "open-0201") == 0) ||
-		       (stricmp(s, "open-19970715-0201") == 0)) {
+	    } else if ((qstricmp(s, "open-0201") == 0) ||
+		       (qstricmp(s, "open-19970715-0201") == 0)) {
 		rule = (rule & 0xff00) | JU_JISX0221_JISX0201;
-	    } else if ((stricmp(s, "open-ascii") == 0) ||
-		       (stricmp(s, "open-19970715-ascii") == 0)) {
+	    } else if ((qstricmp(s, "open-ascii") == 0) ||
+		       (qstricmp(s, "open-19970715-ascii") == 0)) {
 		rule = (rule & 0xff00) | JU_JISX0221_ASCII;
-	    } else if ((stricmp(s, "open-ms") == 0) ||
-		       (stricmp(s, "open-19970715-ms") == 0)) {
+	    } else if ((qstricmp(s, "open-ms") == 0) ||
+		       (qstricmp(s, "open-19970715-ms") == 0)) {
 		rule = (rule & 0xff00) | JU_Microsoft_CP932;
-	    } else if (stricmp(s, "cp932") == 0) {
+	    } else if (qstricmp(s, "cp932") == 0) {
 		rule = (rule & 0xff00) | JU_Microsoft_CP932;
-	    } else if (stricmp(s, "jdk1.1.7") == 0) {
+	    } else if (qstricmp(s, "jdk1.1.7") == 0) {
 		rule = (rule & 0xff00) | JU_Sun_JDK117;
-	    } else if (stricmp(s, "nec-vdc") == 0) {
+	    } else if (qstricmp(s, "nec-vdc") == 0) {
 		rule = rule | JU_NEC_VDC;
-	    } else if (stricmp(s, "ibm-vdc") == 0) {
+	    } else if (qstricmp(s, "ibm-vdc") == 0) {
 		rule = rule | JU_IBM_VDC;
-	    } else if (stricmp(s, "udc") == 0) {
+	    } else if (qstricmp(s, "udc") == 0) {
 		rule = rule | JU_UDC;
 	    }
 	}

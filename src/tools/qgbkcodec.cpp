@@ -169,9 +169,9 @@ int QGbkCodec::heuristicNameMatch(const char* hint) const
     	p = hint;
     }
     if (p) {
-    	if (stricmp(p, "GBK") == 0)
+    	if (qstricmp(p, "GBK") == 0)
       	    return score + 4;
-	else if (stricmp(p, "GB2312") == 0)
+	else if (qstricmp(p, "GB2312") == 0)
 	    return score + 2;
     }
     return QTextCodec::heuristicNameMatch(hint);

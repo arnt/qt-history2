@@ -3956,7 +3956,7 @@ static void read_bmp_image( QImageIO *iio )
     s.setByteOrder( QDataStream::LittleEndian );// Intel byte order
     s >> bf;					// read BMP file header
 
-    if ( strncmp(bf.bfType,"BM",2) != 0 )	// not a BMP image
+    if ( qstrncmp(bf.bfType,"BM",2) != 0 )	// not a BMP image
 	return;
 
     QImage image;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#181 $
+** $Id: //depot/qt/main/src/moc/moc.y#182 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -1689,7 +1689,7 @@ int yywrap()					// more files?
 char *stradd( const char *s1, const char *s2 )	// adds two strings
 {
     char *n = new char[qstrlen(s1)+qstrlen(s2)+1];
-    strcpy( n, s1 );
+    qstrcpy( n, s1 );
     strcat( n, s2 );
     return n;
 }
@@ -1697,7 +1697,7 @@ char *stradd( const char *s1, const char *s2 )	// adds two strings
 char *stradd( const char *s1, const char *s2, const char *s3 )// adds 3 strings
 {
     char *n = new char[qstrlen(s1)+qstrlen(s2)+qstrlen(s3)+1];
-    strcpy( n, s1 );
+    qstrcpy( n, s1 );
     strcat( n, s2 );
     strcat( n, s3 );
     return n;
@@ -1707,7 +1707,7 @@ char *stradd( const char *s1, const char *s2,
 	      const char *s3, const char *s4 )// adds 4 strings
 {
     char *n = new char[qstrlen(s1)+qstrlen(s2)+qstrlen(s3)+qstrlen(s4)+1];
-    strcpy( n, s1 );
+    qstrcpy( n, s1 );
     strcat( n, s2 );
     strcat( n, s3 );
     strcat( n, s4 );
@@ -1718,7 +1718,7 @@ char *stradd( const char *s1, const char *s2,
 char *straddSpc( const char *s1, const char *s2 )
 {
     char *n = new char[qstrlen(s1)+qstrlen(s2)+2];
-    strcpy( n, s1 );
+    qstrcpy( n, s1 );
     strcat( n, " " );
     strcat( n, s2 );
     return n;
@@ -1727,7 +1727,7 @@ char *straddSpc( const char *s1, const char *s2 )
 char *straddSpc( const char *s1, const char *s2, const char *s3 )
 {
     char *n = new char[qstrlen(s1)+qstrlen(s2)+qstrlen(s3)+3];
-    strcpy( n, s1 );
+    qstrcpy( n, s1 );
     strcat( n, " " );
     strcat( n, s2 );
     strcat( n, " " );
@@ -1739,7 +1739,7 @@ char *straddSpc( const char *s1, const char *s2,
 	      const char *s3, const char *s4 )
 {
     char *n = new char[qstrlen(s1)+qstrlen(s2)+qstrlen(s3)+qstrlen(s4)+4];
-    strcpy( n, s1 );
+    qstrcpy( n, s1 );
     strcat( n, " " );
     strcat( n, s2 );
     strcat( n, " " );
@@ -2436,7 +2436,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#181 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#182 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;

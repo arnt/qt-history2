@@ -177,7 +177,7 @@ bool QWindowsMimeAnyMime::canConvert( const char* mime, int cf )
 {
     QWindowsRegisteredMimeType *mt = mimetypes.current();
     if ( mt ) // quick check with most-recent
-	if ( mt->cf == cf && 0==stricmp(mt->mime,mime) ) {
+	if ( mt->cf == cf && 0==qstricmp(mt->mime,mime) ) {
 	    return TRUE;
 	}
     for ( mt = mimetypes.first(); mt; mt = mimetypes.next() )
@@ -191,7 +191,7 @@ bool QWindowsMimeAnyMime::canConvert( const char* mime, int cf )
 	}
     }
 
-    return 0==stricmp(mt->mime,mime);
+    return 0==qstricmp(mt->mime,mime);
 }
 
 QByteArray QWindowsMimeAnyMime::convertToMime( QByteArray data, const char* , int )

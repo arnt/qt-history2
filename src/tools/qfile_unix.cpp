@@ -257,7 +257,7 @@ bool QFile::open( int m )
     {
 	QFile f;
 	f.open( IO_WriteOnly, stderr );
-	f.writeBlock( msg, strlen(msg) );	// write to stderr
+	f.writeBlock( msg, qstrlen(msg) );	// write to stderr
 	f.close();
     }
   \endcode

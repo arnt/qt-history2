@@ -2494,7 +2494,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
     if ( decode ) {				// decode from internal data
 	char	  *data = *internal;
 	text_info *ti	= (text_info*)data;
-	if ( strncmp(ti->tag,"qptr",4)!=0 || ti->w != w || ti->h != h ||
+	if ( qstrncmp(ti->tag,"qptr",4)!=0 || ti->w != w || ti->h != h ||
 	     ti->tf != tf || ti->len != len ) {
 #if defined(CHECK_STATE)
 	    qWarning( "QPainter::drawText: Internal text info is invalid" );

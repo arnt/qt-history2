@@ -290,15 +290,15 @@ private:
 		if ( dev->readBlock((char*)&chunk,n) != n ) {
 		    return 0;
 		}
-		if ( strncmp(chunk.id,"data",4) == 0 ) {
+		if ( qstrncmp(chunk.id,"data",4) == 0 ) {
 		    chunk_remaining = chunk.size;
-		} else if ( strncmp(chunk.id,"RIFF",4) == 0 ) {
+		} else if ( qstrncmp(chunk.id,"RIFF",4) == 0 ) {
 		    char d[4];
 		    dev->readBlock(d,4);
-		    if ( strncmp(d,"WAVE",4) != 0 ) {
+		    if ( qstrncmp(d,"WAVE",4) != 0 ) {
 			return 0;
 		    }
-		} else if ( strncmp(chunk.id,"fmt ",4) == 0 ) {
+		} else if ( qstrncmp(chunk.id,"fmt ",4) == 0 ) {
 		    struct {
 			#define WAVE_FORMAT_PCM 1
 			Q_INT16 formatTag;

@@ -708,7 +708,7 @@ static const struct RGBData {
 
 static int rgb_cmp( const void *d1, const void *d2 )
 {
-    return stricmp( ((RGBData *)d1)->name, ((RGBData *)d2)->name );
+    return qstricmp( ((RGBData *)d1)->name, ((RGBData *)d2)->name );
 }
 
 uint qt_get_rgb_val( const char *name )
