@@ -2471,10 +2471,12 @@ void QLineEditPrivate::removeSelectedText()
 void QLineEditPrivate::parseInputMask( const QString &maskFields )
 {
     if ( maskFields.isEmpty() || maskFields.section( ';', 0, 0 ).isEmpty() ) {
-	delete [] maskData;
-	maskData = 0;
-	maxLength = 32767;
-	q->setText( QString::null );
+	if ( maskData ) {
+	    delete [] maskData;
+	    maskData = 0;
+	    maxLength = 32767;
+	    q->setText( QString::null );
+	}
 	return;
     }
 
