@@ -235,6 +235,7 @@ bool		qt_broken_wm		= FALSE;
 // NET WM support
 Atom		qt_net_supported	= 0;
 Atom		qt_net_virtual_roots	= 0;
+Atom		qt_net_workarea		= 0;
 Atom		qt_net_wm_state		= 0;
 Atom		qt_net_wm_state_modal	= 0;
 Atom		qt_net_wm_state_max_v	= 0;
@@ -254,6 +255,9 @@ Atom		qt_enlightenment_desktop	= 0;
 Atom		*qt_net_supported_list	= 0;
 // list of virtual root windows
 Window		*qt_net_virtual_root_list	= 0;
+
+// function to update the workarea of the screen - in qdesktopwidget_x11.cpp
+extern void qt_desktopwidget_update_workarea(void);
 
 // current focus model
 static const int FocusModel_Unknown = -1;
@@ -1804,6 +1808,7 @@ void qt_init_internal( int *argcptr, char **argv,
 
 	qt_x11_intern_atom( "_NET_SUPPORTED", &qt_net_supported );
 	qt_x11_intern_atom( "_NET_VIRTUAL_ROOTS", &qt_net_virtual_roots );
+	qt_x11_intern_atom( "_NET_WORKAREA", &qt_net_workarea );
 	qt_x11_intern_atom( "_NET_WM_STATE", &qt_net_wm_state );
 	qt_x11_intern_atom( "_NET_WM_STATE_MODAL", &qt_net_wm_state_modal );
 	qt_x11_intern_atom( "_NET_WM_STATE_MAXIMIZED_VERT", &qt_net_wm_state_max_v );
@@ -3099,6 +3104,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		qt_get_net_supported();
 	    } else if ( event->xproperty.atom == qt_net_virtual_roots ) {
 		qt_get_net_virtual_roots();
+	    } else if ( event->xproperty.atom == qt_net_workarea ) {
+		qt_desktopwidget_update_workarea();
 	    } else if ( obey_desktop_settings ) {
 		if ( event->xproperty.atom == qt_resource_manager )
 		    qt_set_x11_resources();

@@ -73,6 +73,8 @@ public:
     const QRect& availableGeometry( const QPoint &point ) const
     { return availableGeometry( screenNumber( point ) ); }
 
+    void insertChild( QObject * );
+
 protected:
     void resizeEvent( QResizeEvent *e );
 

@@ -5732,3 +5732,11 @@ const QPixmap *QWidget::backgroundPixmap() const { return erasePixmap(); }
 /*!\obsolete  Use setPaletteBackgroundPixmap() or setErasePixmap() instead. */
 void QWidget::setBackgroundPixmap( const QPixmap &pm ) { setErasePixmap( pm ); }
 
+
+// documentation in qdesktopwidget_win.cpp
+void QDesktopWidget::insertChild( QObject *obj )
+{
+    if ( obj->isWidgetType() )
+	return;
+    QWidget::insertChild( obj );
+}

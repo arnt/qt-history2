@@ -38,7 +38,36 @@
 #include "qdesktopwidget.h"
 #include "qt_x11.h"
 
-extern int qt_x11_create_desktop_on_screen; // defined in qwidget_x11.cpp
+// defined in qwidget_x11.cpp
+extern int qt_x11_create_desktop_on_screen;
+
+// defined in qapplication_x11.cpp
+extern Atom qt_net_workarea;
+extern bool qt_net_supports(Atom atom);
+
+// function to update the workarea of the screen
+static bool qt_desktopwidget_workarea_dirty = TRUE;
+void qt_desktopwidget_update_workarea(void)
+{
+    qt_desktopwidget_workarea_dirty = TRUE;
+}
+
+
+class QSingleDesktopWidget : public QWidget
+{
+public:
+    QSingleDesktopWidget()
+	: QWidget( 0, "desktop", WType_Desktop )
+    {
+    }
+
+    void insertChild( QObject *child )
+    {
+	if ( child->isWidgetType() )
+	    return;
+	QWidget::insertChild( child );
+    }
+};
 
 class QDesktopWidgetPrivate
 {
@@ -52,6 +81,7 @@ public:
 
     QWidget **screens;
     QMemArray<QRect> rects;
+    QRect workarea;
 };
 
 QDesktopWidgetPrivate::QDesktopWidgetPrivate()
@@ -127,7 +157,7 @@ QDesktopWidgetPrivate::~QDesktopWidgetPrivate()
 // the QDesktopWidget itself will be created on the default screen
 // as qt_x11_create_desktop_on_screen defaults to -1
 QDesktopWidget::QDesktopWidget()
-: QWidget( 0, "desktop", WType_Desktop )
+    : QWidget( 0, "desktop", WType_Desktop )
 {
     d = new QDesktopWidgetPrivate;
 }
@@ -169,7 +199,7 @@ QWidget *QDesktopWidget::screen( int screen )
     if ( ! d->screens[screen] ||               // not created yet
 	 ! d->screens[screen]->isDesktop() ) { // reparented away
 	qt_x11_create_desktop_on_screen = screen;
-	d->screens[screen] = new QWidget( 0, "desktop", WType_Desktop );
+	d->screens[screen] = new QSingleDesktopWidget;
 	qt_x11_create_desktop_on_screen = -1;
     }
 
@@ -178,7 +208,34 @@ QWidget *QDesktopWidget::screen( int screen )
 
 const QRect& QDesktopWidget::availableGeometry( int screen ) const
 {
-    return screenGeometry(screen);
+    if ( qt_desktopwidget_workarea_dirty ) {
+	if ( ! isVirtualDesktop() && qt_net_supports( qt_net_workarea ) ) {
+	    Atom ret;
+	    int format, e;
+	    unsigned char *data = 0;
+	    unsigned long nitems, after;
+
+	    e = XGetWindowProperty( QPaintDevice::x11AppDisplay(),
+				    QPaintDevice::x11AppRootWindow( screen ),
+				    qt_net_workarea, 0, 4, False, XA_CARDINAL,
+				    &ret, &format, &nitems, &after, &data );
+
+	    if (e == Success && ret == XA_CARDINAL &&
+		format == 32 && nitems == 4) {
+		long *workarea = (long *) data;
+		d->workarea.setRect( workarea[0],
+				     workarea[1],
+				     workarea[2],
+				     workarea[3] );
+	    } else {
+		d->workarea = screenGeometry(screen);
+	    }
+	} else {
+	    d->workarea = screenGeometry(screen);
+	}
+	qt_desktopwidget_workarea_dirty = FALSE;
+    }
+    return d->workarea;
 }
 
 const QRect& QDesktopWidget::screenGeometry( int screen ) const
@@ -230,4 +287,6 @@ int QDesktopWidget::screenNumber( const QPoint &point ) const
 
 void QDesktopWidget::resizeEvent( QResizeEvent * )
 {
+    delete d;
+    d = new QDesktopWidgetPrivate;
 }

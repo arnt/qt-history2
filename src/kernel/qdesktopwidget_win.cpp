@@ -216,6 +216,8 @@ QDesktopWidgetPrivate::~QDesktopWidgetPrivate()
 
     In the illustration above, Application One's primary screen is
     screen 0, and App Two's primary screen is screen 1.
+
+
 */
 
 /*!
@@ -355,7 +357,7 @@ const QRect& QDesktopWidget::screenGeometry( int screen ) const
 
 /*!
     \overload const QRect &QDesktopWidget::screenGeometry( QWidget *widget ) const
-    
+
     Returns the geometry of the screen which contains \a widget.
 */
 
@@ -424,3 +426,7 @@ void QDesktopWidget::resizeEvent( QResizeEvent * )
     delete d;
     d = new QDesktopWidgetPrivate( this );
 }
+
+/*! \fn void QDesktopWidget::insertChild( QObject *child )
+    \reimp
+*/
