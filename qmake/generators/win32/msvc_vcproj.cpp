@@ -378,7 +378,7 @@ nextfile:
         t << "\n\t\t" << (*it)->uuid << _slnProjDbgConfTag1;
         t << "\n\t\t" << (*it)->uuid << _slnProjDbgConfTag2;
         t << "\n\t\t" << (*it)->uuid << _slnProjRelConfTag1;
-        t << "\n\t\t" << (*it)->uuid << _slnProjRelConfTag1;
+        t << "\n\t\t" << (*it)->uuid << _slnProjRelConfTag2;
     }
     t << _slnProjConfEnd;
     t << _slnExtSections;
