@@ -3075,8 +3075,8 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
 
     QPoint globalPos;
 
-    globalPos.rx() = LOWORD ( msg.lParam );
-    globalPos.ry() = HIWORD ( msg.lParam );
+    globalPos.rx() = (short)LOWORD ( msg.lParam );
+    globalPos.ry() = (short)HIWORD ( msg.lParam );
 
 
     // if there is a widget under the mouse and it is not shadowed 
