@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#55 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#56 $
 
 $snapshotversion=200;
 $base = "/tmp/striptree-$$";
@@ -181,11 +181,13 @@ if ( $skipdoc ) {
     cd doc/html
     mkdir -p $base/cvs/qt/html
     rsync -avz motorkatt:/local/lib/cvs/qt/html $base/cvs/qt
-    for B in *.html *.gif *.jpg
+    for B in *.html *.png
     do
-      C=$base/cvs/qt/html/\${B},v
-      [ -f \$C ] && rcs -l \$C
-      ci -q -mnone -t-'' -u \$B \$C
+      if [ -f $B ]; then
+          C=$base/cvs/qt/html/\${B},v
+          [ -f \$C ] && rcs -l \$C
+          ci -q -mnone -t-'' -u \$B \$C
+      fi
     done
     ";
 }
