@@ -12,14 +12,14 @@
 ** notice:
 
  * (c) Copyright 1993, Silicon Graphics, Inc.
- * ALL RIGHTS RESERVED 
- * Permission to use, copy, modify, and distribute this software for 
+ * ALL RIGHTS RESERVED
+ * Permission to use, copy, modify, and distribute this software for
  * any purpose and without fee is hereby granted, provided that the above
  * copyright notice appear in all copies and that both the copyright notice
- * and this permission notice appear in supporting documentation, and that 
+ * and this permission notice appear in supporting documentation, and that
  * the name of Silicon Graphics, Inc. not be used in advertising
  * or publicity pertaining to distribution of the software without specific,
- * written prior permission. 
+ * written prior permission.
  *
  * THE MATERIAL EMBODIED ON THIS SOFTWARE IS PROVIDED TO YOU "AS-IS"
  * AND WITHOUT WARRANTY OF ANY KIND, EXPRESS, IMPLIED OR OTHERWISE,
@@ -33,8 +33,8 @@
  * ADVISED OF THE POSSIBILITY OF SUCH LOSS, HOWEVER CAUSED AND ON
  * ANY THEORY OF LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE
  * POSSESSION, USE OR PERFORMANCE OF THIS SOFTWARE.
- * 
- * US Government Users Restricted Rights 
+ *
+ * US Government Users Restricted Rights
  * Use, duplication, or disclosure by the Government is subject to
  * restrictions set forth in FAR 52.227.19(c)(2) or subparagraph
  * (c)(1)(ii) of the Rights in Technical Data and Computer Software
@@ -50,6 +50,7 @@
 
 #include "glteapots.h"
 #include <qapplication.h>
+#include <qevent.h>
 
 #if defined(Q_CC_MSVC)
 #pragma warning(disable:4305) // init: truncation from const double to float
@@ -92,11 +93,11 @@ GLTeapots::~GLTeapots()
 
 void GLTeapots::paintGL()
 {
-    QApplication::setOverrideCursor( waitCursor ); // Since it takes some time
+    QApplication::setOverrideCursor( WaitCursor ); // Since it takes some time
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    renderTeapot( 2.0, 17.0, 0.0215, 0.1745, 0.0215, 
+    renderTeapot( 2.0, 17.0, 0.0215, 0.1745, 0.0215,
 		  0.07568, 0.61424, 0.07568,
 		  0.633, 0.727811, 0.633, 0.6 );
     renderTeapot( 2.0, 14.0, 0.135, 0.2225, 0.1575,
@@ -121,7 +122,7 @@ void GLTeapots::paintGL()
     renderTeapot( 6.0, 14.0, 0.2125, 0.1275, 0.054,
 		  0.714, 0.4284, 0.18144,
 		  0.393548, 0.271906, 0.166721, 0.2 );
-    renderTeapot( 6.0, 11.0, 0.25, 0.25, 0.25, 
+    renderTeapot( 6.0, 11.0, 0.25, 0.25, 0.25,
 		  0.4, 0.4, 0.4,
 		  0.774597, 0.774597, 0.774597, 0.6 );
     renderTeapot( 6.0, 8.0, 0.19125, 0.0735, 0.0225,
@@ -140,7 +141,7 @@ void GLTeapots::paintGL()
     renderTeapot( 10.0, 14.0, 0.0, 0.1, 0.06,
 		  0.0, 0.50980392, 0.50980392,
 		  0.50196078, 0.50196078, 0.50196078, .25 );
-    renderTeapot( 10.0, 11.0, 0.0, 0.0, 0.0, 
+    renderTeapot( 10.0, 11.0, 0.0, 0.0, 0.0,
 		  0.1, 0.35, 0.1,
 		  0.45, 0.55, 0.45, .25 );
     renderTeapot( 10.0, 8.0, 0.0, 0.0, 0.0,
@@ -169,7 +170,7 @@ void GLTeapots::paintGL()
 		  0.5, 0.5, 0.5,
 		  0.7, 0.7, 0.7, .078125 );
     renderTeapot( 14.0, 2.0, 0.05, 0.05, 0.0,
-		  0.5, 0.5, 0.4, 
+		  0.5, 0.5, 0.4,
 		  0.7, 0.7, 0.04, .078125 );
 
     // May add a glFinish() here to make sure the GL rendering has finished
@@ -187,7 +188,7 @@ void GLTeapots::initializeGL()
     GLfloat ambient[] = { 0.0, 0.0, 0.0, 1.0 };
     GLfloat diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
     GLfloat position[] = { 0.0, 3.0, 3.0, 0.0 };
-    
+
     GLfloat lmodel_ambient[] = { 0.2, 0.2, 0.2, 1.0 };
     GLfloat local_view[] = { 0.0 };
 
@@ -324,17 +325,17 @@ void GLTeapots::mouseReleaseEvent( QMouseEvent* )
 
 void GLTeapots::renderTeapot( GLfloat x, GLfloat y, GLfloat ambr,
 			  GLfloat ambg, GLfloat ambb, GLfloat difr,
-			  GLfloat difg, GLfloat difb, 
-			  GLfloat specr, GLfloat specg, 
+			  GLfloat difg, GLfloat difb,
+			  GLfloat specr, GLfloat specg,
 			  GLfloat specb, GLfloat shine )
 {
     float mat[4];
 
     glPushMatrix();
     glTranslatef (x, y, 0.0);
-    mat[0] = ambr; mat[1] = ambg; mat[2] = ambb; mat[3] = 1.0;	
+    mat[0] = ambr; mat[1] = ambg; mat[2] = ambb; mat[3] = 1.0;
     glMaterialfv (GL_FRONT, GL_AMBIENT, mat);
-    mat[0] = difr; mat[1] = difg; mat[2] = difb;	
+    mat[0] = difr; mat[1] = difg; mat[2] = difb;
     glMaterialfv (GL_FRONT, GL_DIFFUSE, mat);
     mat[0] = specr; mat[1] = specg; mat[2] = specb;
     glMaterialfv (GL_FRONT, GL_SPECULAR, mat);
@@ -402,7 +403,7 @@ void GLTeapots::teapot()
     if ( !glIsList( teapotList ) ) {
 	float p[4][4][3], q[4][4][3], r[4][4][3], s[4][4][3];
 	long grid = 14;
-	
+
 	teapotList = glGenLists( 1 );
 	glNewList( teapotList, GL_COMPILE );
 	glPushMatrix();
@@ -415,7 +416,7 @@ void GLTeapots::teapot()
 		    for ( long l = 0; l < 3; l++ ) {
 			p[j][k][l] = cpdata[patchdata[i][j*4+k]][l];
 			q[j][k][l] = cpdata[patchdata[i][j*4+(3-k)]][l];
-			if ( l == 1 ) 
+			if ( l == 1 )
 			    q[j][k][l] *= -1.0;
 			if ( i < 6 ) {
 			    r[j][k][l] = cpdata[patchdata[i][j*4+(3-k)]][l];
@@ -430,7 +431,7 @@ void GLTeapots::teapot()
 		    }
 		}
 	    }
-	    glMap2f( GL_MAP2_TEXTURE_COORD_2, 0, 1, 2, 2, 0, 1, 4, 2, 
+	    glMap2f( GL_MAP2_TEXTURE_COORD_2, 0, 1, 2, 2, 0, 1, 4, 2,
 		    &tex[0][0][0] );
 	    glMap2f( GL_MAP2_VERTEX_3, 0, 1, 3, 4, 0, 1, 12, 4, &p[0][0][0] );
 	    glEnable( GL_MAP2_VERTEX_3);
