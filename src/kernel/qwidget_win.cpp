@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#18 $
 **
 ** Implementation of QWidget and QWindow classes for Windows
 **
@@ -19,7 +19,7 @@
 #include "qobjcoll.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#17 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#18 $")
 
 
 const char *qt_reg_winclass( int type );	// defined in qapp_win.cpp
@@ -259,14 +259,9 @@ QCursor *qt_grab_cursor()
 
 
 
-LRESULT CALLBACK JournalRecordProc (int nCode, WPARAM wParam, LPARAM lParam)
-		{
-
-    // This journal record function doesn't need to do
-    // anything so we just pass the hook notification on
-    // to any other installed journal record hooks.
-    return(CallNextHookEx(journalRec,
-	nCode, wParam, lParam));
+LRESULT CALLBACK qJournalRecordProc( int nCode, WPARAM wParam, LPARAM lParam )
+{
+    return CallNextHookEx( journalRec, nCode, wParam, lParam );
 }
 
 void QWidget::grabMouse()
@@ -277,7 +272,7 @@ void QWidget::grabMouse()
 	setWFlags( WState_MGrab );
 	if ( !qt_nograb() ) {
 	    journalRec = SetWindowsHookEx( WH_JOURNALRECORD,
-					   (HOOKPROC)JournalRecordProc,
+					   (HOOKPROC)qJournalRecordProc,
 					   GetModuleHandle(0), 0 );
 	    SetCapture( id() );
 	    mouseGrb = this;
@@ -293,7 +288,7 @@ void QWidget::grabMouse( const QCursor &cursor )
 	setWFlags( WState_MGrab );
 	if ( !qt_nograb() ) {
 	    journalRec = SetWindowsHookEx( WH_JOURNALRECORD,
-					   (HOOKPROC)JournalRecordProc,
+					   (HOOKPROC)qJournalRecordProc,
 					   GetModuleHandle(0), 0 );
 	    SetCapture( id() );
 	    mouseGrbCur = new QCursor( cursor );
