@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#52 $
+** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#53 $
 **
 ** Implementation of QMessageBox class
 **
@@ -16,7 +16,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#52 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#53 $");
 
 
 // Message box icons, from page 210 of the Windows style guide.
@@ -1174,7 +1174,7 @@ int QMessageBox::critical( QWidget *parent, const char *caption,
 
 
 static const char *textAboutQt =
-"This program was developed with the cross-platform GUI library Qt.\n\n"
+"This program was developed with Qt, a cross-platform GUI library.\n\n"
 "Qt is a product of Troll Tech AS (http://www.troll.no).\n"
 "The free edition of Qt may be used freely to develop free software\n"
 "on the X Window System.\n\n"
