@@ -39,7 +39,7 @@
 
 // from qapplication.cpp and qapplication_x11.cpp - These are NOT for
 // external use ignore them
-extern bool Q_CORE_EXPORT qt_resolve_symlinks;
+// extern bool Q_CORE_EXPORT qt_resolve_symlinks;
 
 
 static const char *appearance_text =
@@ -269,7 +269,8 @@ MainWindow::MainWindow()
     dcispin->setValue(QApplication::doubleClickInterval());
     cfispin->setValue(QApplication::cursorFlashTime());
     wslspin->setValue(QApplication::wheelScrollLines());
-    resolvelinks->setChecked(qt_resolve_symlinks);
+    // #############
+//    resolvelinks->setChecked(qt_resolve_symlinks);
 
     effectcheckbox->setChecked(QApplication::isEffectEnabled(Qt::UI_General));
     effectbase->setEnabled(effectcheckbox->isChecked());
