@@ -42,7 +42,6 @@
 #include "qfiledefs_p.h"
 #include "qregexp.h"
 #include "qstringlist.h"
-#include "../kernel/qapplication_p.h"
 #include <stdlib.h>
 #include <ctype.h>
 
@@ -81,7 +80,7 @@ static void QDir::slashify( QString& n)
 QString QDir::homeDirPath()
 {
     QString d;
-    if ( qt_winver & Qt::WV_NT_based )
+    if ( qWinVersion() & Qt::WV_NT_based )
 	d = QString(getenv("HOMEDRIVE")) + getenv("HOMEPATH");
     else
 	d = getenv("HOME");

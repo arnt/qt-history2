@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#433 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#434 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -832,44 +832,9 @@ void QApplication::setMainWidget( QWidget *mainWidget )
     main_widget = mainWidget;			// set main widget
 }
 
-
 Qt::WindowsVersion QApplication::winVersion()
 {
-
-#ifndef VER_PLATFORM_WIN32s
-#define VER_PLATFORM_WIN32s	    0
-#endif
-#ifndef VER_PLATFORM_WIN32_WINDOWS
-#define VER_PLATFORM_WIN32_WINDOWS  1
-#endif
-#ifndef VER_PLATFORM_WIN32_NT
-#define VER_PLATFORM_WIN32_NT	    2
-#endif
-
-    static int t=0;
-    if ( !t ) {
-	t=1;
-	OSVERSIONINFOA osver;
-	osver.dwOSVersionInfoSize = sizeof(osver);
-	GetVersionExA( &osver );
-	switch ( osver.dwPlatformId ) {
-	case VER_PLATFORM_WIN32s:
-	    qt_winver = Qt::WV_32s;
-	    break;
-	case VER_PLATFORM_WIN32_WINDOWS:
-	    if ( osver.dwMinorVersion == 10 )
-		qt_winver = Qt::WV_98;
-	    else
-		qt_winver = Qt::WV_95;
-	    break;
-	default: // VER_PLATFORM_WIN32_NT
-	    if ( osver.dwMajorVersion < 5 )
-		qt_winver = Qt::WV_NT;
-	    else
-		qt_winver = Qt::WV_2000;
-	}
-    }
-    return qt_winver;
+    return qt_winver = (Qt::WindowsVersion)qWinVersion();
 }
 
 #ifndef QT_NO_CURSOR

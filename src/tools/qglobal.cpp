@@ -145,6 +145,48 @@ bool qSysInfo( int *wordSize, bool *bigEndian )
     return TRUE;
 }
 
+#if defined(Q_OS_WIN32)
+#include "qt_windows.h"
+int qWinVersion()
+{
+#ifndef VER_PLATFORM_WIN32s
+#define VER_PLATFORM_WIN32s	    0
+#endif
+#ifndef VER_PLATFORM_WIN32_WINDOWS
+#define VER_PLATFORM_WIN32_WINDOWS  1
+#endif
+#ifndef VER_PLATFORM_WIN32_NT
+#define VER_PLATFORM_WIN32_NT	    2
+#endif
+
+    static int winver = Qt::WV_NT;
+    static int t=0;
+    if ( !t ) {
+	t=1;
+	OSVERSIONINFOA osver;
+	osver.dwOSVersionInfoSize = sizeof(osver);
+	GetVersionExA( &osver );
+	switch ( osver.dwPlatformId ) {
+	case VER_PLATFORM_WIN32s:
+	    winver = Qt::WV_32s;
+	    break;
+	case VER_PLATFORM_WIN32_WINDOWS:
+	    if ( osver.dwMinorVersion == 10 )
+		winver = Qt::WV_98;
+	    else
+		winver = Qt::WV_95;
+	    break;
+	default: // VER_PLATFORM_WIN32_NT
+	    if ( osver.dwMajorVersion < 5 )
+		winver = Qt::WV_NT;
+	    else
+		winver = Qt::WV_2000;
+	}
+    }
+    return winver;
+}
+#endif
+
 
 /*****************************************************************************
   Debug output routines

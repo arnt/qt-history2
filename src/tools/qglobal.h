@@ -442,6 +442,9 @@ extern bool qt_winunicode;
 
 Q_EXPORT const char *qVersion();
 Q_EXPORT bool qSysInfo( int *wordSize, bool *bigEndian );
+#if defined(Q_OS_WIN32)
+Q_EXPORT int qWinVersion();
+#endif
 
 
 //
