@@ -16,7 +16,7 @@
 #endif
 
 GLLandscape::GLLandscape( QWidget * parent, const char * name )
-    : QGLWidget( parent, name ), timerID(-1)
+    : QGLWidget( parent, name )
 {
     mouseButtonDown  = FALSE;
     animationRunning = FALSE;
