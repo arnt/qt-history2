@@ -448,7 +448,6 @@ public:
     int         findRev( QChar c, int index=-1, bool cs=TRUE) const;
     int         findRev( char c, int index=-1, bool cs=TRUE) const;
     int         findRev( const QString &str, int index=-1, bool cs=TRUE) const;
-    int         findRev( QRegExp &, int index=-1 ) const;
     int         findRev( const QRegExp &, int index=-1 ) const;
 #ifndef QT_NO_CAST_ASCII
     int         findRev( const char* str, int index=-1 ) const;
