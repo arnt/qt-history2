@@ -43,13 +43,13 @@
 
 /*!
     \class QSqlIndex qsqlindex.h
-    \brief A SQL database index.
+    \brief Manipulate and describe QSqlCursor and QSqlDatabase indexes. 
 
     \module sql
 
-     This class is used to describe and manipulate SQL database
-     indexes.  An index can belong to only one table or view in a
-     database.  Information about the fields that compromise the index
+     This class is used to describe and manipulate QSqlCursor and
+     QSqlDatabase indexes.  An index refers to only one table or view in
+     a database.  Information about the fields that comprise the index
      can be used to generate SQL statements, or to affect the behavior
      of a \l QSqlCursor object.
 
@@ -99,7 +99,7 @@ QSqlIndex::~QSqlIndex()
 
 }
 
-/*! Sets the name of the index to \a n.
+/*! Sets the name of the index to \a name.
 */
 
 void QSqlIndex::setName( const QString& name )
@@ -113,7 +113,7 @@ void QSqlIndex::setName( const QString& name )
 */
 
 /*!  Appends the field \a field to the list of indexed fields.  The
-  field is added in an ascending sort order.
+  field is appended with an ascending sort order.
 
 */
 
@@ -123,7 +123,7 @@ void QSqlIndex::append( const QSqlField& field )
 }
 
 /*!  Appends the field \a field to the list of indexed fields.  The
-  field is added in an ascending sort order, unless \a desc is TRUE.
+  field is appended with an ascending sort order, unless \a desc is TRUE.
 
 */
 
@@ -135,7 +135,7 @@ void QSqlIndex::append( const QSqlField& field, bool desc )
 
 
 /*!  Returns true if field \a i in the index is sorted in descending
-  order, otherwise FALSE is returned.
+  order, otherwise returns FALSE.
 
 */
 
@@ -160,17 +160,17 @@ void QSqlIndex::setDescending( int i, bool desc )
 
 /*! \reimp
 
-  Returns a comma-separated list of all field names as a string.  This
-  string is suitable, for example, for generating a SQL SELECT
-  statement.  Only generated fields are included in the list (see
-  isGenerated() ). If a \a prefix is specified, it is prepended before
-  all field names in the form:
+  Returns a comma-separated list of all the index's field names as a
+  string.  This string is suitable, for example, for generating an SQL
+  SELECT statement.  Only generated fields are included in the list (see
+  isGenerated() ). If a \a prefix is specified, e.g. a table name, it is
+  prepended before all field names in the form:
 
   "\a prefix.\a fieldname"
 
   If \a sep is specified, each field is separated by \a sep.  If \a
   verbose is TRUE (the default), each field contains a suffix
-  indicating ASCending or DESCending sort.
+  indicating an ASCending or DESCending sort order.
 
 */
 
@@ -189,14 +189,14 @@ QString QSqlIndex::toString( const QString& prefix, const QString& sep, bool ver
 
 /*! \reimp
 
-  Returns a list of all field names used in the index.  Only generated
-  fields are included in the list (see isGenerated() ). If \a prefix is
-  supplied, all fields are prefixed in the form:
+  Returns a list of all the index's field names.  Only generated
+  fields are included in the list (see isGenerated() ). If a \a prefix
+  is specified, e.g. a table name, all fields are prefixed in the form:
 
   "\a prefix.\a fieldname"
 
   If \a verbose is TRUE (the default), each field contains a
-  suffix indicating an ASCending or DESCending sort.
+  suffix indicating an ASCending or DESCending sort order.
 
 */
 QStringList QSqlIndex::toStringList( const QString& prefix, bool verbose ) const
@@ -222,8 +222,10 @@ QString QSqlIndex::createField( int i, const QString& prefix, bool verbose ) con
 }
 
 /*! Returns an index based on the field descriptions in \a l and the
-  cursor \a cursor.  The field descriptions should be of the format
-  produces by toStringList().
+  cursor \a cursor.  The field descriptions should be in the same format
+  that toStringList() produces, for example, a surname field in the
+  people table might be in one of these forms: "surname", "surname
+  DESC", "people.surname ASC". 
 
   \sa toStringList()
 
