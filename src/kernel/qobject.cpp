@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#180 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#181 $
 **
 ** Implementation of QObject class
 **
@@ -326,13 +326,28 @@ QObject::QObject( QObject *parent, const char *name )
     sigSender = 0;				// no sender yet
     isSignal   = FALSE;				// assume not a signal object
     isWidget   = FALSE;				// assume not a widget object
-    hiPriority = FALSE;				// normal priority
     pendTimer  = FALSE;				// no timers yet
     pendEvent  = FALSE;				// no events yet
     blockSig   = FALSE;				// not blocking signals
+    wasDeleted = FALSE;				// double-delete catcher
     if ( parentObj )				// add object to parent
 	parentObj->insertChild( this );
 }
+
+
+
+#if defined(DEBUG)
+static bool isGoodName( const char * s, bool l )
+{
+    if ( !s || !isalpha( *s ) )
+	return FALSE;
+    int n=1;
+    while ( s+n && n<40 && ( isalnum( s[n] ) || ( l && isspace( s[n] ) ) ) )
+	n++;
+    return n < 40 && s+n && !s[n];
+}
+#endif
+
 
 /*!
   Destroys the object and all its children objects.
@@ -348,9 +363,25 @@ QObject::QObject( QObject *parent, const char *name )
 
 QObject::~QObject()
 {
+    if ( wasDeleted ) {
+#if defined(DEBUG)
+	debug( "Double QObject::delete.  Information follows, if available" );
+	if ( metaObj && isGoodName( metaObj->className(), FALSE ) )
+	    debug( "  class name: %s", metaObj->className() );
+	if ( parentObj && !parentObj->wasDeleted &&
+	     isGoodName( parentObj->objname, TRUE ) )
+	    debug( "  parent object name: %s", parentObj->objname );
+	if ( parentObj && parentObj->metaObj && 
+	     isGoodName( parentObj->metaObj->className(), FALSE ) )
+	    debug( "  parent class name: %s", parentObj->metaObj->className() );
+#endif
+	return;
+    }
+    wasDeleted = 1;
     emit destroyed();
     if ( objname )
 	delete [] objname;
+    objname = 0;
     if ( pendTimer )				// might be pending timers
 	qKillTimer( this );
     if ( pendEvent )				// pending posted events
@@ -936,10 +967,7 @@ void QObject::insertChild( QObject *obj )
     }
 #endif
     obj->parentObj = this;
-    if ( obj->hiPriority )
-	childObjects->insert( 0, obj );		// high priority inserts
-    else
-	childObjects->append( obj );		// normal priority appends
+    childObjects->append( obj );
 
     obj->pendEvent = TRUE;
     QChildEvent *e = new QChildEvent( QEvent::ChildInserted, obj );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#58 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#59 $
 **
 ** Definition of QObject class
 **
@@ -53,7 +53,7 @@ public:
 
     virtual void	setName( const char *name );
     bool	isWidgetType()	  const { return isWidget; }
-    bool	highPriority()	  const { return hiPriority; }
+    bool	highPriority()	  const { return FALSE; }
 
     bool	signalsBlocked()  const { return blockSig; }
     void	blockSignals( bool b );
@@ -93,6 +93,9 @@ signals:
 public:
     QObject	*parent() const { return parentObj; }
 
+private slots:
+    void	cleanupEventFilter();
+
 protected:
     bool	activate_filters( QEvent * );
     QConnectionList *receivers( const char *signal ) const;
@@ -119,15 +122,13 @@ protected:
 
     uint	isSignal   : 1;
     uint	isWidget   : 1;
-    uint	hiPriority : 1;
     uint	pendTimer  : 1;
     uint	pendEvent  : 1;
     uint	blockSig   : 1;
 
-private slots:
-    void	cleanupEventFilter();
-
 private:
+    uint	wasDeleted : 1;
+
     QMetaObject *queryMetaObject() const;
     static QMetaObject *metaObj;
     char	*objname;
