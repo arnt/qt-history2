@@ -627,6 +627,8 @@ void QApplication::process_cmdline()
 */
 
 QApplication::QApplication( int &argc, char **argv )
+        // ### FIXME - the order below is undefined, you might end up getting a 
+        // QGuiEventLoop before a QApplicationPrivate - funny things will happen
     : QCoreApplication(*new QApplicationPrivate(argc, argv), new QGuiEventLoop())
 {
     construct(GuiClient);
