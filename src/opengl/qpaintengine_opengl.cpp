@@ -47,7 +47,8 @@ QOpenGLPaintEngine::QOpenGLPaintEngine(const QPaintDevice *)
                    PaintEngineFeatures(CoordTransform
 				       | PenWidthTransform
 				       | PixmapTransform
-				       | PixmapScale ))
+				       | PixmapScale
+		                       | SolidAlphaFill ))
 {
 }
 
@@ -407,6 +408,9 @@ void QOpenGLPaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
 void QOpenGLPaintEngine::drawRect(const QRect &r)
 {
     dgl->makeCurrent();
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+
     int x, y, w, h;
     r.rect(&x, &y, &w, &h);
     if (d->cbrush.style() != NoBrush) {
