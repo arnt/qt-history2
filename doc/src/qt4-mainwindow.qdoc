@@ -206,14 +206,14 @@
     \img mainwindow-docks-example.png
 
     Finally, once all of the main window components have been set up, the
-    center widget is created and installed:
+    central widget is created and installed:
 
     \code
         QWidget *centralWidget = new QWidget(this);
         setCentralWidget(centralWidget);
     \endcode
 
-    The center widget can be any subclass of QWidget.
+    The central widget can be any subclass of QWidget.
 
 
     \section1 What's Changed since Qt 3?
