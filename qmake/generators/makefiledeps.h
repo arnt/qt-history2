@@ -6,6 +6,7 @@
 struct SourceFile;
 struct SourceDependChildren;
 class SourceFiles;
+class QMakeProject;
 
 class QMakeLocalFileName {
     uint is_null : 1;
@@ -34,6 +35,8 @@ private:
     bool findMocs(SourceFile *);
     bool findDeps(SourceFile *);
     void dependTreeWalker(SourceFile *, SourceDependChildren *);
+protected:
+    QMakeProject *project;
 
 protected:
     virtual QMakeLocalFileName fixPathForFile(const QMakeLocalFileName &);
@@ -41,7 +44,7 @@ protected:
     virtual QMakeLocalFileName findFileForMoc(const QMakeLocalFileName &);
 
 public:
-    QMakeSourceFileInfo();
+    QMakeSourceFileInfo(QMakeProject *prj);
     virtual ~QMakeSourceFileInfo();
     void setDependencyPaths(const QList<QMakeLocalFileName> &);
     enum SourceFileSeek { SEEK_DEPS=0x01, SEEK_MOCS=0x02, ADD_MOC=0x04 };

@@ -66,8 +66,6 @@ protected:
     QMakeLocalFileName findFileForDep(const QMakeLocalFileName &);
     QMakeLocalFileName findFileForMoc(const QMakeLocalFileName &);
 
-    QMakeProject *project;
-
     QString buildArgs();
     QString specdir();
 

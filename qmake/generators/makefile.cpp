@@ -68,9 +68,9 @@ static bool createDir(const QString& fullPath)
 }
 
 
-MakefileGenerator::MakefileGenerator(QMakeProject *p) : init_opath_already(false),
+MakefileGenerator::MakefileGenerator(QMakeProject *p) : QMakeSourceFileInfo(p), init_opath_already(false),
                                                         init_already(false), moc_aware(false),
-                                                        no_io(false), project(p)
+                                                        no_io(false)
 {
 }
 
@@ -187,6 +187,43 @@ MakefileGenerator::init()
         return;
     init_already = true;
 
+    QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
+    for(QStringList::Iterator it = quc.begin(); it != quc.end(); ++it) {
+        QString tmp_out = project->variables()[(*it) + ".output"].first();
+        if(tmp_out.isEmpty())
+            continue;
+        if(project->variables()[(*it) + ".CONFIG"].indexOf("combine") != -1) {
+            // Don't generate compiler output if it doesn't have input.
+            QStringList &compilerInputs = project->variables()[(*it) + ".input"];
+            if (compilerInputs.isEmpty() || project->variables()[compilerInputs.first()].isEmpty())
+                continue;
+            if(tmp_out.indexOf("$") == -1) {
+                if(project->variables().contains((*it) + ".variable_out"))
+                    project->variables()[project->variables().value((*it) + ".variable_out").first()] += tmp_out;
+                else if(project->variables()[(*it) + ".CONFIG"].indexOf("no_link") == -1)
+                    project->variables()["OBJECTS"] += tmp_out; //auto link it in
+            }
+            continue;
+        }
+        QStringList &tmp = project->variables()[(*it) + ".input"];
+        for(QStringList::Iterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
+            QStringList &inputs = project->variables()[(*it2)];
+            for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
+                if((*input).isEmpty())
+                    continue;
+                if(QFile::exists((*input)))
+                    (*input) = fileFixify((*input));
+                QFileInfo fi(Option::fixPathToLocalOS((*input)));
+                QString in = fileFixify(Option::fixPathToTargetOS((*input), false));
+                QString out = replaceExtraCompilerVariables(tmp_out, (*input), QString::null);
+                if(project->variables().contains((*it) + ".variable_out"))
+                    project->variables()[project->variables().value((*it) + ".variable_out").first()] += out;
+                else if(project->variables()[(*it) + ".CONFIG"].indexOf("no_link") == -1)
+                    project->variables()["OBJECTS"] += out; //auto link it in
+            }
+        }
+    }
+
     QMap<QString, QStringList> &v = project->variables();
     QString paths[] = { QString("SOURCES"), QString("FORMS"), QString("YACCSOURCES"), QString("INCLUDEPATH"),
                         QString("HEADERS"), QString("HEADERS_ORIG"), QString("LEXSOURCES"),
@@ -264,7 +301,7 @@ MakefileGenerator::init()
                                     debug_msg(1, "%s:%d Failure to find %s in vpath (%s)",
                                               __FILE__, __LINE__,
                                               (*val_it).latin1(), vpath.join("::").latin1());
-                                    warn_msg(WarnLogic, "Failure to find: %s", (*val_it).latin1());
+                                    //warn_msg(WarnLogic, "Failure to find: %s", (*val_it).latin1());
                                     continue;
                                 } else {
                                     for(int i = 0; i < (int)d.count(); i++) {
@@ -299,43 +336,6 @@ MakefileGenerator::init()
         }
     }
 
-    //extra compilers (done here so it ends up in the variables post-fixified)
-    QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
-    for(QStringList::Iterator it = quc.begin(); it != quc.end(); ++it) {
-        QString tmp_out = project->variables()[(*it) + ".output"].first();
-        if(tmp_out.isEmpty())
-            continue;
-        if(project->variables()[(*it) + ".CONFIG"].indexOf("combine") != -1) {
-            // Don't generate compiler output if it doesn't have input.
-            QStringList &compilerInputs = project->variables()[(*it) + ".input"];
-            if (compilerInputs.isEmpty() || project->variables()[compilerInputs.first()].isEmpty())
-                continue;
-            if(tmp_out.indexOf("$") == -1) {
-                if(project->variables().contains((*it) + ".variable_out"))
-                    project->variables()[project->variables().value((*it) + ".variable_out").first()] += tmp_out;
-                else if(project->variables()[(*it) + ".CONFIG"].indexOf("no_link") == -1)
-                    project->variables()["OBJECTS"] += tmp_out; //auto link it in
-            }
-            continue;
-        }
-        QStringList &tmp = project->variables()[(*it) + ".input"];
-        for(QStringList::Iterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
-            QStringList &inputs = project->variables()[(*it2)];
-            for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
-                if((*input).isEmpty())
-                    continue;
-                if(QFile::exists((*input)))
-                    (*input) = fileFixify((*input));
-                QFileInfo fi(Option::fixPathToLocalOS((*input)));
-                QString in = fileFixify(Option::fixPathToTargetOS((*input), false));
-                QString out = replaceExtraCompilerVariables(tmp_out, (*input), QString::null);
-                if(project->variables().contains((*it) + ".variable_out"))
-                    project->variables()[project->variables().value((*it) + ".variable_out").first()] += out;
-                else if(project->variables()[(*it) + ".CONFIG"].indexOf("no_link") == -1)
-                    project->variables()["OBJECTS"] += out; //auto link it in
-            }
-        }
-    }
 
     //SOURCES (as objects) get built first!
     v["OBJECTS"] = createObjectList("SOURCES") + v["OBJECTS"]; // init variables
