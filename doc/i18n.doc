@@ -43,7 +43,7 @@ means adapting to user and locality preferences such as language,
 input techniques, character encodings, and presentation conventions.
 
 
-<h2>Step by Step</h2>
+\section1 Step by Step
 
 Writing cross-platform international software with Qt is a gentle,
 incremental process.  Your software can become internationalized in
@@ -51,29 +51,28 @@ the following stages:
 
 <ol>
  <li><b>Use QString for all user-visible text.</b>
-	<p>
+
 	Since QString uses the Unicode encoding internally, all the
 	languages of the world can be processed transparently using
 	familiar text processing operations.  Also, since all Qt
 	functions that present text to the user take a QString as a
 	parameter, there is no char* to QString conversion time.
-	<p>
+
 	Strings that are in "programmer space" (such as QObject names
 	and file format texts) need not use QString; the traditional
 	char* or the QCString class will suffice.
-	<p>
+
 	You're unlikely to notice that you are using Unicode -
 	QString, and QChar are just like easier versions of the clumsy
 	const char* and char from traditional C.
-	</p>
+
  <li><b>Use \link QObject::tr() tr()\endlink for all literal text.</b>
-	<p>
-	Where your program uses <tt>"quoted text"</tt> for text
-	that will be presented to the user, ensure it goes through
-	the \l QApplication::translate() function, usually this
-	simply means using \l QObject::tr().
-	For example, assuming <tt>LoginWidget</tt> is a subclass of
-	QWidget:
+
+	Where your program uses \c {"quoted text"} for text that will
+	be presented to the user, ensure it goes through the \l
+	QApplication::translate() function, usually this simply means
+	using \l QObject::tr(). For example, assuming
+	\c LoginWidget is a subclass of QWidget:
 	\code
 	LoginWidget::LoginWidget()
 	{
@@ -104,10 +103,10 @@ the following stages:
 	}
 	\endcode
 
-	Finally, if you need to have translatable text completely
+	If you need to have translatable text completely
 	outside a function, there are two macros to help: QT_TR_NOOP()
 	and QT_TRANSLATE_NOOP().  They merely mark the text for
-	extraction by the <tt>lupdate</tt> utility described below -
+	extraction by the \e lupdate utility described below -
 	the macros expand to just the text (without the scope).
 	Example usages are shown below.
 
@@ -130,15 +129,20 @@ the following stages:
 	    return tr( greeting_strings[greet_type] );
 	}
 	\endcode
-	<p>
+
 	If you disable the const char* to QString automatic conversion
 	by compiling your software with the macro QT_NO_CAST_ASCII
 	defined, you'll be very likely to catch any strings you are
 	missing. See QString::fromLatin1() for more details. Disabling
-	the conversion can make programming cumbersome.
-	</p>
+	the conversion makes programming cumbersome.
+
+	If your source language uses characters outside Latin-1, you
+	might find QObject::trUtf8() more convenient than
+	QObject::tr(). QObject::tr() depends on the
+	QApplication::defaultCodec(), which makes it more fragile.
+
  <li><b>Use QString::arg() for simple arguments.</b>
-	<p>
+
 	The printf() style of inserting arguments in strings
 	is a poor choice for internationalized text, as it is
 	sometimes necessary to change the order of arguments when
@@ -155,7 +159,7 @@ the following stages:
 			 );
 	}
 	\endcode
-	</p>
+
  <li><b>Produce translation.</b>
 
 	Once you are using tr() sufficiently, you can start producing
@@ -163,28 +167,30 @@ the following stages:
 
         Translation of a Qt application is a three-step process:
 
-	<ol>
-	  <li> Run <tt>lupdate</tt> to extract translatable text from
+	\list 1
+	  \i Run \e lupdate to extract translatable text from
 	  the C++ source code of the Qt application, resulting in a
 	  message file for translators (a .ts file).  The utility
 	  recognizes the tr() construct described above and creates
 	  a certain number of .ts files (usually one per language).
-	  <li> Provide translations for the source texts in the .ts
+
+	  \i Provide translations for the source texts in the .ts
 	  file, using Qt Linguist.  Since .ts files are in XML
 	  format, you can also edit them by hand.
-	  <li> Run <tt>lrelease</tt> to obtain a light-weight message
+
+	  \i Run \e lrelease to obtain a light-weight message
 	  file (a .qm file) from the .ts file, suitable only for end
 	  use. 	You can see the .ts files as "source files", and .qm
 	  as "object files".  The translator edits the .ts files, but
 	  the users of your application only need the .qm files.  Both
 	  kinds of files are platform and locale independent.
-	</ol>
+	\endlist
 
 	Typically, you will repeat these steps for every release of
-	your application.  The <tt>lupdate</tt> utility does its best
+	your application.  The \e lupdate utility does its best
 	to reuse the translations from the previous release.
 
-	Before you run <tt>lupdate</tt>, you should prepare a project
+	Before you run \e lupdate, you should prepare a project
 	file.  Here's an example project file (or .pro file):
 
 <pre>
@@ -199,13 +205,13 @@ TRANSLATIONS	= superapp_dk.ts \
 		  superapp_se.ts
 </pre>
 
-	When you invoke <tt>lupdate</tt> or <tt>lrelease</tt>, you
+	When you invoke \e lupdate or \e lrelease, you
 	have to give the name of the project file as a command-line
 	argument.
 
 	In this example, four exotic languages are supported: Danish,
 	Finnish, Norwegian and Swedish.  If you use tmake, you don't
-	need an extra project file for lupdate; your tmake project
+	need an extra project file for \e lupdate; your tmake project
 	file will do, if you add the TRANSLATIONS lines.
 
 	In your application, you have to \l QTranslator::load()
@@ -213,7 +219,7 @@ TRANSLATIONS	= superapp_dk.ts \
 	to install them using \l QApplication::installTranslator().
 
 	If you have been using the old Qt tools (findtr, msg2qm and
-	mergetr), you can use <tt>qm2ts</tt> to convert your old
+	mergetr), you can use \e qm2ts to convert your old
 	.qm files.
 
 	To get started, you should read at least the first chapter of
@@ -234,9 +240,8 @@ TRANSLATIONS	= superapp_dk.ts \
 	.ts and .qm files.  This will simplify transition to the
 	official Qt translations.
 
-	</p>
  <li><b>Support encodings.</b>
-	<p>
+
 	The QTextCodec class and the facilities in QTextStream
 	make it easy to support many input and
 	output encodings for your users' data. When the application
@@ -307,9 +312,8 @@ TRANSLATIONS	= superapp_dk.ts \
 	dynamically loaded libraries. For details of writing your own
 	QTextCodec, see the mail QTextCodec class documentation.
 
-	</p>
  <li><b>Localization.</b>
-	<p>
+
 	Localization is the process of adapting to local conventions
 	such as date and time presentations.  Such localizations can be
 	accomplished using appropriate tr() strings, even "magic" words,
@@ -324,7 +328,6 @@ TRANSLATIONS	= superapp_dk.ts \
 	    }
 	}
 	\endcode
-	</p>
 
 	In general, it is recommended that you do \e not attempt
 	to localize images - choose clear icons that are appropriate
@@ -333,7 +336,7 @@ TRANSLATIONS	= superapp_dk.ts \
 </ol>
 
 
-<h2>System Support</h2>
+\section1 System Support
 
 Operating systems and window systems supporting Unicode are still in
 the early stages of development.  The level of support
@@ -346,7 +349,7 @@ be too concerned with the actual limitations.
      <li>Locale-oriented fonts and input methods.  Qt hides these and
 	    provides Unicode input and output.
      <li>Filesystem conventions such as
-            <a class="r" href="http://www.ietf.org/rfc/rfc2279.txt">UTF-8</a>
+            \link http://www.ietf.org/rfc/rfc2279.txt UTF-8 \endlink
             are under development
 	    in some Unix variants.  All Qt file functions allow Unicode,
 	    but convert all filenames to the local 8-bit encoding, as
@@ -370,7 +373,7 @@ be too concerned with the actual limitations.
     </ul>
 </dl>
 
-<h2>Supporting more Input Methods</h2>
+\section1 Supporting more input methods
 
 While Trolltech doesn't have the resources or expertise in all the
 languages of the world to immediately include support in Qt, we are
@@ -407,12 +410,12 @@ The current state of activity is:
   <dd>Fully supported. Uses eucJP with the XIM protocol on X11,
 	and the IME Windows NT in Japanese Windows NT.
 	Serika Kurusugawa and other are assisting with this effort.
-	<a href="ftp://ftp.sra.co.jp/pub/x11/kinput2/">kinput2</a>
+	\link ftp://ftp.sra.co.jp/pub/x11/kinput2/ kinput2 \endlink
 	is the tested input method for X11.
  <dt><b>eucKR</b>
   <dd>Supported.
 	Mizi Research are assisting with this effort.
-	<a class="r" href="http://www.mizi.com">hanIM</a>
+	\link http://www.mizi.com hanIM \endlink
        	is the tested input method.
  <dt><b>Big5</b>
   <dd>Qt contains a Big5 codec developed by Ming Che-Chuang.
@@ -432,23 +435,21 @@ or just included with your application.
 Eventually, we hope to help Unix become as Unicode-oriented as
 Windows NT is becoming. This means better font support in the font servers,
 with new developments like the True Type font servers
-<a class="r" href="http://www.dcs.ed.ac.uk/home/jec/programs/xfsft/">xfsft</a>,
-<a href="ftp://sunsite.unc.edu/pub/Linux/X11/fonts/">xfstt</a>,
+\link http://www.dcs.ed.ac.uk/home/jec/programs/xfsft/ xfsft \endlink,
+\link ftp://sunsite.unc.edu/pub/Linux/X11/fonts/ xfstt \endlink,
 and x-tt, as well as
-<a href="http://www.ietf.org/rfc/rfc2279.txt">UTF-8</a>
+\link http://www.ietf.org/rfc/rfc2279.txt UTF-8 \endlink
 (a Unicode encoding) filenames such as with the
-<a href="http://www.sun.com/software/white-papers/wp-unicode/">Unicode
-support in Solaris<sup class="tm"><font size="-1">TM</font></sup> 7</a>.
+\link http://www.sun.com/software/white-papers/wp-unicode/ Unicode
+support in Solaris 7 \endlink.
 
+\section1 Notes about locales on X11
 
-<h2>Notes about locales on X11</h2>
-
-Many Unix distributions contain only partial support for some locales -
-for example, if you have a <tt>/usr/share/locale/ja_JP.EUC</tt>
-directory, this does not necessarily mean you can display Japanese text
-- you also need JIS encoded fonts (or Unicode fonts), and that
-<tt>/usr/share/locale/ja_JP.EUC</tt> directory needs to be complete.
+Many Unix distributions contain only partial support for some locales.
+For example, if you have a \c /usr/share/locale/ja_JP.EUC
+directory, this does not necessarily mean you can display Japanese text;
+you also need JIS encoded fonts (or Unicode fonts), and that
+\c /usr/share/locale/ja_JP.EUC directory needs to be complete.
 For best results, use complete locales from your OS vendor.
-
 
 */
