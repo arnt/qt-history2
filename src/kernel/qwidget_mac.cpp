@@ -2310,8 +2310,8 @@ Qt::HANDLE QWidget::macCGHandle(bool do_children) const
 {
     if(!cg_hd) {
 	CreateCGContextForPort(GetWindowPort((WindowPtr)handle()), (CGContextRef*)&cg_hd);
-#ifdef USE_TRANSLATED_CG_CONTEXT
-	CGContextTranslateCTM((CGContextRef)cg_hd, 0, height());
+#if defined( USE_TRANSLATED_CG_CONTEXT )
+	CGContextTranslateCTM((CGContextRef)cg_hd, 0, topLevelWidget()->height());
 	CGContextScaleCTM((CGContextRef)cg_hd, 1, -1);
 #endif
     }
