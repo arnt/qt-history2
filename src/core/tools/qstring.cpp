@@ -1599,7 +1599,7 @@ bool QString::operator==(const QString &other) const
 */
 bool QString::operator==(const QLatin1String &other) const
 {
-    const ushort *uc = ucs2();
+    const ushort *uc = utf16();
     const uchar *c = (uchar *)other.latin1();
 
     while (*uc == *c) {
@@ -1654,7 +1654,7 @@ bool QString::operator<(const QString &other) const
 */
 bool QString::operator<(const QLatin1String &other) const
 {
-    const ushort *uc = ucs2();
+    const ushort *uc = utf16();
     const uchar *c = (uchar *) other.latin1();
 
     while (*uc == *c) {
@@ -1746,7 +1746,7 @@ bool QString::operator<(const QLatin1String &other) const
 */
 bool QString::operator>(const QLatin1String &other) const
 {
-    const ushort *uc = ucs2();
+    const ushort *uc = utf16();
     const uchar *c = (uchar *) other.latin1();
 
     while (*uc == *c) {
@@ -2134,7 +2134,7 @@ int QString::lastIndexOf(QChar ch, int from, CaseSensitivity cs) const
 */
 QString& QString::replace(const QRegExp& rx, const QString& after)
 {
-    QRegExp rx2 = rx;
+    QRegExp rx2(rx);
 
     if (isEmpty() && rx2.search(*this) == -1)
         return *this;
@@ -3020,19 +3020,11 @@ QByteArray QString::toUtf8() const
 }
 
 /*!
-    Returns a QString containing the first \a maxSize characters of
-    the Latin-1 string \a str. If \a str is 0 or is shorter than \a
-    maxSize, or if \a maxSize is -1, \a maxSize is ignored.
+    Returns a QString initialized with the Latin-1 string \a str.
 
-    Example:
-    \code
-        QString str = QString::fromLatin1("123456789", 5);
-        // str == "12345"
-    \endcode
-
-    \sa latin1(), fromAscii(), fromUtf8(), fromLocal8Bit()
+    \inline sa latin1(), fromAscii(), fromUtf8(), fromLocal8Bit()
 */
-QString QString::fromLatin1(const char *str, int maxSize)
+QString QString::fromLatin1(const char *str)
 {
     Data *d;
     if (!str) {
@@ -3042,9 +3034,8 @@ QString QString::fromLatin1(const char *str, int maxSize)
         d = &shared_empty;
         ++d->ref;
     } else {
-        int slen = strlen(str);
-        int len = maxSize < 0 ? slen : qMin(slen, maxSize);
-        d = (Data*) qMalloc(sizeof(Data)+len*sizeof(QChar));
+        int len = strlen(str);
+        d = (Data*) qMalloc(sizeof(Data) + len * sizeof(QChar));
         d->ref = 1;
         d->alloc = d->size = len;
         d->c = 0;
@@ -3052,7 +3043,7 @@ QString QString::fromLatin1(const char *str, int maxSize)
         d->data = d->array;
         ushort *i = d->data;
         while(len--)
-           * i++ = (uchar)*str++;
+           *i++ = (uchar)*str++;
     }
     return QString(d);
 }
@@ -3132,27 +3123,17 @@ QString qt_winMB2QString(const char* mb, int mblen)
 #endif // Q_OS_WIN32
 
 /*!
-    Returns a QString containing the first \a maxSize characters of
-    the 8-bit string \a str. If \a str is 0 or is shorter than \a
-    maxSize, or if \a maxSize is -1, \a maxSize is ignored.
+    Returns a QString initialized with the 8-bit string \a str.
 
     QTextCodec::codecForLocale() is used to perform the conversion
     from Unicode.
 
-    Example:
-    \code
-        QString str = QString::fromLocal8Bit("123456789", 5);
-        // str == "12345"
-    \endcode
-
     \sa local8Bit(), fromAscii(), fromLatin1(), fromUtf8()
 */
-QString QString::fromLocal8Bit(const char *str, int maxSize)
+QString QString::fromLocal8Bit(const char *str)
 {
     if (!str)
         return QString::null;
-    int slen = strlen(str);
-    int len = maxSize < 0 ? slen : qMin(slen, maxSize);
 #if defined(Q_OS_DARWIN)
     return fromUtf8(str,len);
 #elif defined(Q_OS_WIN32)
@@ -3165,65 +3146,46 @@ QString QString::fromLocal8Bit(const char *str, int maxSize)
 #  if !defined(QT_NO_TEXTCODEC)
     QTextCodec *codec = QTextCodec::codecForLocale();
     if (codec)
-        return codec->toUnicode(str, len);
+        return codec->toUnicode(str, strlen(str));
 #  endif // !QT_NO_TEXTCODEC
 #endif
-    return fromLatin1(str, len);
+    return fromLatin1(str);
 }
 
 /*!
-    Returns a QString containing the first \a maxSize characters of
-    the 8-bit ASCII string \a str. If \a str is 0 or is shorter than
-    \a maxSize, or if \a maxSize is -1, \a maxSize is ignored.
+    Returns a QString initialized with the 8-bit ASCII string \a str.
 
     If a codec has been set using QTextCodec::setCodecForCStrings(),
     it is used to convert \a str to Unicode; otherwise this function
     does the same as fromLatin1().
 
-    Example:
-    \code
-        QString str = QString::fromAscii("123456789", 5);
-        // str == "12345"
-    \endcode
-
     \sa ascii(), fromLatin1(), fromUtf8(), fromLocal8Bit()
 */
-QString QString::fromAscii(const char *str, int maxSize)
+QString QString::fromAscii(const char *str)
 {
 #ifndef QT_NO_TEXTCODEC
     if (codecForCStrings) {
         if (!str)
             return QString::null;
-        int slen = strlen(str);
-        int len = maxSize < 0 ? slen : qMin(slen, maxSize);
-        if (len == 0 || *str == '\0')
-            return QString::fromLatin1("");
-        return codecForCStrings->toUnicode(str, len);
+        if (!*str)
+            return QLatin1String("");
+        return codecForCStrings->toUnicode(str, strlen(str));
     }
 #endif
-    return fromLatin1(str, maxSize);
+    return fromLatin1(str);
 }
 
 /*!
-    Returns a QString containing the first \a maxSize characters of
-    the UTF-8 string \a str. If \a str is 0 or is shorter than \a
-    maxSize, or if \a maxSize is -1, \a maxSize is ignored.
-
-    Example:
-    \code
-        QString str = QString::fromUtf8("123456789", 5);
-        // str == "12345"
-    \endcode
+    Returns a QString initialized with the UTF-8 string \a str.
 
     \sa utf8(), fromAscii(), fromLatin1(), fromLocal8Bit()
 */
-QString QString::fromUtf8(const char *str, int maxSize)
+QString QString::fromUtf8(const char *str)
 {
     if (!str)
         return QString::null;
 
-    int slen = strlen(str);
-    int len = maxSize < 0 ? slen : qMin(slen, maxSize);
+    int len = strlen(str);
     QString result;
     result.resize(len*2); // worst case
     ushort *qch = result.d->data;
@@ -3294,25 +3256,22 @@ QString QString::fromUtf8(const char *str, int maxSize)
 }
 
 /*!
-
-    Returns a QString containing the first \a size characters of
-    the zero-terminated Unicode string \a unicode (ISO-10646-UCS-2 
-    encoded). If \a unicode is 0, an empty string is created.  If
-    If \a unicode is shorter than \a size, or if \a size is -1, 
-    \a maxSize is ignored.
+    Returns a QString initialized with the zero-terminated Unicode
+    string \a unicode (ISO-10646-UTF-16 encoded). If \a unicode is 0,
+    an empty string is created.
 
     QString makes a deep copy of the Unicode data.
 
-    \sa ucs2(), setUnicodeCodes()
+    \sa utf16(), setUtf16()
 */
-QString QString::fromUcs2(const ushort *unicode, int size)
+QString QString::fromUtf16(const ushort *unicode)
 {
     if (!unicode)
         return QString();
     int length = 0;
     while (unicode[length] != 0)
         length++;
-    return QString((const QChar *)unicode, size <= -1 ? length : qMin(length, size));
+    return QString((const QChar *)unicode, length);
 }
 
 /*!
@@ -3322,7 +3281,7 @@ QString QString::fromUcs2(const ushort *unicode, int size)
     If \a unicode is 0, nothing is copied, but the string is still
     resized to \a size.
 
-    \sa unicode(), setUnicodeCodes()
+    \sa unicode(), setUtf16()
 */
 QString& QString::setUnicode(const QChar *unicode, int size)
 {
@@ -3333,18 +3292,16 @@ QString& QString::setUnicode(const QChar *unicode, int size)
 }
 
 /*!
+    \fn QString &QString::setUtf16(const ushort *unicode, int size)
+
     Resizes the string to \a size characters and copies \a unicode
     into the string.
 
     If \a unicode is 0, nothing is copied, but the string is still
     resized to \a size.
 
-    \sa ucs2(), setUnicode()
+    \sa utf16(), setUnicode()
 */
-QString& QString::setUnicodeCodes(const ushort *unicode, int size)
-{
-     return setUnicode((const QChar *)unicode, size);
-}
 
 /*!
     Returns a string that has whitespace removed from the start
@@ -3889,8 +3846,8 @@ int QString::localeAwareCompare(const QString &other) const
 #if defined(Q_OS_WIN32)
     int res;
     QT_WA({
-        const TCHAR* s1 = (TCHAR*)ucs2();
-        const TCHAR* s2 = (TCHAR*)other.ucs2();
+        const TCHAR* s1 = (TCHAR*)utf16();
+        const TCHAR* s2 = (TCHAR*)other.utf16();
         res = CompareStringW(LOCALE_USER_DEFAULT, 0, s1, length(), s2, other.length());
     } , {
         QByteArray s1 = toLocal8Bit();
@@ -3924,11 +3881,11 @@ int QString::localeAwareCompare(const QString &other) const
     Returns a '\\0'-terminated Unicode representation of the string.
     The result remains valid until the string is modified.
 
-    \sa ucs2()
+    \sa utf16()
 */
 
 /*!
-    \fn const ushort *QString::ucs2() const
+    \fn const ushort *QString::utf16() const
 
     Returns the QString as a zero-terminated array of unsigned
     shorts. The result remains valid until the string is modified.
@@ -4098,7 +4055,7 @@ QString QString::toUpper() const
     The %lc escape sequence expects a unicode character of type ushort
     (as returned by QChar::unicode()). The %ls escape sequence expects
     a pointer to a zero-terminated array of unicode characters of type
-    ushort (as returned by QString::ucs2()).
+    ushort (as returned by QString::utf16()).
 
     The format string supports most of the conversion specifiers
     provided by printf() in the standard C++ library. It doesn't
@@ -4390,7 +4347,7 @@ QString &QString::sprintf(const char* cformat, ...)
                     const ushort *ch = buff;
                     while (*ch != 0)
                         ++ch;
-                    subst.setUnicodeCodes(buff, ch - buff);
+                    subst.setUtf16(buff, ch - buff);
                 } else
                     subst = QString::fromUtf8(va_arg(ap, const char*));
                 if (precision != -1)
@@ -4763,8 +4720,8 @@ ushort QString::toUShort(bool *ok, int base) const
     FALSE; otherwise \a *ok is set to TRUE.
 
     \code
-	QString string( "1234.56" );
-	double a = string.toDouble();   // a == 1234.56
+        QString string( "1234.56" );
+        double a = string.toDouble();   // a == 1234.56
     \endcode
 
     This function tries to interpret the string according to the
@@ -4775,16 +4732,16 @@ ushort QString::toUShort(bool *ok, int base) const
     on the "C" locale.
 
     \code
-	bool ok;
-	double d;
+        bool ok;
+        double d;
 
         QLocale::setDefault(QLocale::C);
-	d = QString( "1234,56" ).toDouble(&ok); // ok == false
-	d = QString( "1234.56" ).toDouble(&ok); // ok == true, d == 1234.56
+        d = QString( "1234,56" ).toDouble(&ok); // ok == false
+        d = QString( "1234.56" ).toDouble(&ok); // ok == true, d == 1234.56
 
-	QLocale::setDefault(QLocale::German);
-	d = QString( "1234,56" ).toDouble(&ok); // ok == true, d == 1234.56
-	d = QString( "1234.56" ).toDouble(&ok); // ok == true, d == 1234.56
+        QLocale::setDefault(QLocale::German);
+        d = QString( "1234,56" ).toDouble(&ok); // ok == true, d == 1234.56
+        d = QString( "1234.56" ).toDouble(&ok); // ok == true, d == 1234.56
     \endcode
 
     Due to the ambiguity between the decimal point and thousands group
@@ -4793,9 +4750,9 @@ ushort QString::toUShort(bool *ok, int base) const
     see QLocale::toDouble().
 
     \code
-	bool ok;
+        bool ok;
         QLocale::setDefault(QLocale::C);
-	double d = QString( "1,234,567.89" ).toDouble(&ok); // ok == false
+        double d = QString( "1,234,567.89" ).toDouble(&ok); // ok == false
     \endcode
 
     \warning If the string contains trailing whitespace this function
@@ -5469,17 +5426,17 @@ QString QString::arg(const QString &a, int fieldWidth) const
     not 10.
 
     \code
-	QString str;
-	str = QString( "Decimal 63 is %1 in hexadecimal" )
-		.arg( 63, 0, 16 );
-	// str == "Decimal 63 is 3f in hexadecimal"
+        QString str;
+        str = QString( "Decimal 63 is %1 in hexadecimal" )
+                .arg( 63, 0, 16 );
+        // str == "Decimal 63 is 3f in hexadecimal"
 
-	QLocale::setDefault(QLocale::English, QLocale::UnitedStates);
-	str = QString( "%1 %L2 %L3" )
-		.arg( 12345 )
-		.arg( 12345 )
-		.arg( 12345, 0, 16 );
-	// str == "12345 12,345 3039"
+        QLocale::setDefault(QLocale::English, QLocale::UnitedStates);
+        str = QString( "%1 %L2 %L3" )
+                .arg( 12345 )
+                .arg( 12345 )
+                .arg( 12345, 0, 16 );
+        // str == "12345 12,345 3039"
     \endcode
 */
 

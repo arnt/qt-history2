@@ -33,6 +33,12 @@
 /*! \class QLatin1Char
     \brief The QLatin1Char class provides an 8-bit ASCII/Latin-1 character.
 
+    \internal
+
+    This class is only useful to avoid the codec for C strings business
+    in the QChar(ch) constructor. You can avoid it by writing
+    QChar(ch, 0).
+
     \ingroup text
 */
 

@@ -383,7 +383,7 @@ Q_LONG QFile::readLine(QString& s, Q_ULONG maxlen)
     ba.resize(maxlen);
     Q_LONG l = readLine(ba.data(),maxlen);
     if (l >= 0)
-        s = QString::fromLatin1(ba, l);
+        s = QString::fromLatin1(ba);
     return l;
 }
 

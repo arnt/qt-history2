@@ -195,21 +195,22 @@ public:
     inline const char *latin1() const { return toLatin1(); }
     inline const char *utf8() const { return toUtf8(); }
     inline const char *local8Bit() const{ return toLocal8Bit(); }
-    const ushort *ucs2() const;
+    const ushort *utf16() const;
 
     QByteArray toAscii() const;
     QByteArray toLatin1() const;
     QByteArray toUtf8() const;
     QByteArray toLocal8Bit() const;
 
-    static QString fromAscii(const char*, int size=-1);
-    static QString fromLatin1(const char*, int size=-1);
-    static QString fromUtf8(const char*, int size=-1);
-    static QString fromLocal8Bit(const char*, int size=-1);
-    static QString fromUcs2(const ushort *ucs2, int size=-1);
+    static QString fromAscii(const char *);
+    static QString fromLatin1(const char *);
+    static QString fromUtf8(const char *);
+    static QString fromLocal8Bit(const char *);
+    static QString fromUtf16(const ushort *);
 
     QString &setUnicode(const QChar *unicode, int size);
-    QString &setUnicodeCodes(const ushort *unicode_as_ushorts, int size);
+    inline QString &setUtf16(const ushort *utf16, int size)
+    { return setUnicode(reinterpret_cast<const QChar *>(utf16), size); }
 
     int compare(const QString &s) const;
     static inline int compare(const QString &s1, const QString &s2)
@@ -267,11 +268,11 @@ public:
     inline QString(const char *ch) : d(&shared_null)
     { ++d->ref; *this = fromAscii(ch); }
     inline QString(const QByteArray &a) : d(&shared_null)
-    { ++d->ref; *this = fromAscii(a, a.size()); }
+    { ++d->ref; *this = fromAscii(a); }
     inline QString &operator=(const char *ch)
     { return (*this = fromAscii(ch)); }
     inline QString &operator=(const QByteArray &a)
-    { return (*this = fromAscii(a, a.size())); }
+    { return (*this = fromAscii(a)); }
 
     // these are needed, so it compiles with STL support enabled
     inline QString &prepend(const char *s)
@@ -390,10 +391,6 @@ public:
     { return startsWith(s, cs?CaseSensitive:CaseInsensitive); }
     inline QT_COMPAT bool endsWith(const QString &s, bool cs) const
     { return endsWith(s, cs?CaseSensitive:CaseInsensitive); }
-    inline QT_COMPAT QString &setAscii(const char *str, int len=-1)
-    { *this = fromAscii(str, len); return *this; }
-    inline QT_COMPAT QString &setLatin1(const char *str, int len=-1)
-    { *this = fromLatin1(str, len); return *this; }
     inline QT_COMPAT QChar constref(uint i) const
     { return at(i); }
     QT_COMPAT QChar &ref(uint i);
@@ -405,6 +402,64 @@ public:
     inline QT_COMPAT QString upper() const { return toUpper(); }
     inline QT_COMPAT QString stripWhiteSpace() const { return trimmed(); }
     inline QT_COMPAT QString simplifyWhiteSpace() const { return simplified(); }
+    inline QT_COMPAT QString &setUnicodeCodes(const ushort *unicode_as_ushorts, int size)
+    { return setUtf16(unicode_as_ushorts, size); }
+    inline const QT_COMPAT ushort *ucs2() const { return utf16(); }
+    inline static QT_COMPAT QString fromAscii(const char *str, int maxSize)
+    {
+        if (!str)
+            return QString::null;
+        int slen = qstrlen(str);
+        int len = maxSize >= 0 && maxSize <= slen ? maxSize : slen;
+        if (slen == len)
+            return fromAscii(str);
+        else
+            return fromAscii(QByteArray(str, len));
+    }
+    inline static QT_COMPAT QString fromLatin1(const char *str, int maxSize)
+    {
+        if (!str)
+            return QString::null;
+        int slen = qstrlen(str);
+        int len = maxSize >= 0 && maxSize <= slen ? maxSize : slen;
+        if (slen == len)
+            return fromLatin1(str);
+        else
+            return fromLatin1(QByteArray(str, len));
+    }
+    inline static QT_COMPAT QString fromUtf8(const char *str, int maxSize)
+    {
+        if (!str)
+            return QString::null;
+        int slen = qstrlen(str);
+        int len = maxSize >= 0 && maxSize <= slen ? maxSize : slen;
+        if (slen == len)
+            return fromUtf8(str);
+        else
+            return fromUtf8(QByteArray(str, len));
+    }
+    inline static QT_COMPAT QString fromLocal8Bit(const char *str, int maxSize)
+    {
+        if (!str)
+            return QString::null;
+        int slen = qstrlen(str);
+        int len = maxSize >= 0 && maxSize <= slen ? maxSize : slen;
+        if (slen == len)
+            return fromLocal8Bit(str);
+        else
+            return fromLocal8Bit(QByteArray(str, len));
+    }
+    inline QT_COMPAT QString &setAscii(const char *str, int len = -1)
+    { *this = fromAscii(str, len); return *this; }
+    inline QT_COMPAT QString &setLatin1(const char *str, int len = -1)
+    { *this = fromLatin1(str, len); return *this; }
+    inline static QT_COMPAT QString fromUcs2(const ushort *ucs2, int size = -1)
+    {
+        QString result = fromUtf16(ucs2);
+        if (size >= 0 && result.size() > size)
+            result.truncate(size);
+        return result;
+    }
 #endif
 
     inline bool ensure_constructed()
@@ -481,7 +536,6 @@ private:
 };
 
 
-
 inline QString::QString(const QLatin1String &latin1) : d(&shared_null)
 { ++d->ref; *this = fromLatin1(latin1.latin1()); }
 inline int QString::length() const
@@ -504,7 +558,7 @@ inline QChar *QString::data()
 { detach(); return (QChar*) d->data; }
 inline const QChar *QString::constData() const
 { return (const QChar*) d->data; }
-inline const ushort *QString::ucs2() const
+inline const ushort *QString::utf16() const
 { d->data[d->size] = 0; return d->data; } //###
 inline void QString::detach()
 { if (d->ref != 1 || d->data != d->array) realloc(); }
