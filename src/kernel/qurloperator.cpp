@@ -180,7 +180,7 @@ struct QUrlOperatorPrivate
   \fn void QUrlOperator::data( const QByteArray &data, QNetworkOperation *op )
 
   This signal is emitted when new \a data has been received
-  after e.g. calling get() or put(). \op holds the name of the file which data
+  after e.g. calling get() or put(). \a op holds the name of the file which data
   is retrieved in the first argument and the data in the second argument (raw).
   You get them with op->arg( 0 ) and op->rawArg( 1 ).
 

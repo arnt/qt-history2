@@ -1181,7 +1181,7 @@ QDataStream& operator<< ( QDataStream& s, const QVariant::Type p )
 
 /*! \fn QMapConstIterator<QString, QVariant> QVariant::mapFind( const QString& key ) const
 
-  Returns an iterator to the item in the map with \key as key, if the
+  Returns an iterator to the item in the map with \a key as key, if the
   variant's type is appropriate and \a key is a valid key, or else a
   null iterator.
 */
