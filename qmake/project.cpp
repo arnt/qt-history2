@@ -538,7 +538,9 @@ QMakeProject::isActiveConfig(const QString &x)
 bool
 QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString, QStringList> &place)
 {
-    if(func == "exists") {
+    if(func == "requires") {
+	return doProjectCheckReqs(args, place);
+    } else if(func == "exists") {
 	if(args.count() != 1) {
 	    fprintf(stderr, "%d: exists(file) requires one argument.\n", line_count);
 	    return FALSE;
@@ -650,9 +652,10 @@ QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString,
     return FALSE;
 }
 
-void
+bool
 QMakeProject::doProjectCheckReqs(const QStringList &deps, QMap<QString, QStringList> &place)
 {
+    bool ret = FALSE;
     for(QStringList::ConstIterator it = deps.begin(); it != deps.end(); ++it) {
 	QString chk = (*it);
 	if(chk.isEmpty())
@@ -688,8 +691,10 @@ QMakeProject::doProjectCheckReqs(const QStringList &deps, QMap<QString, QStringL
 	    debug_msg(1, "Project Parser: %s:%d Failed test: REQUIRES = %s", 
 		      projectFile().latin1(), line_count, chk.latin1());
 	    place["QMAKE_FAILED_REQUIREMENTS"].append(chk);
+	    ret = FALSE;
 	}
     }
+    return ret;
 }
 
 
