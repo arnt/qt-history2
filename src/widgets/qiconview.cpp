@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#114 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#115 $
 **
 ** Definition of QIconView widget class
 **
@@ -2712,7 +2712,7 @@ bool QIconView::sortOrder() const
 void QIconView::contentsMousePressEvent( QMouseEvent *e )
 {
     QIconViewItem *item = findItem( e->pos() );
-    emit mouseButtonPressed( e->button(), item, e->globalPos() ); 
+    emit mouseButtonPressed( e->button(), item, e->globalPos() );
 
     if ( d->currentItem )
 	d->currentItem->renameItem();
@@ -2766,7 +2766,7 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 	else
 	    emit viewportRightPressed();
     } else if ( e->button() == MidButton ) {
-	emit mouseButtonPressed( 1, item, e->globalPos() ); 
+	emit mouseButtonPressed( 1, item, e->globalPos() );
     }
 }
 
@@ -2777,8 +2777,8 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 void QIconView::contentsMouseReleaseEvent( QMouseEvent *e )
 {
     QIconViewItem *item = findItem( e->pos() );
-    emit mouseButtonClicked( e->button(), item, e->globalPos() ); 
-    
+    emit mouseButtonClicked( e->button(), item, e->globalPos() );
+
     d->mousePressed = FALSE;
     d->startDrag = FALSE;
 
@@ -3777,6 +3777,7 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 	    // first calculate the row height
 	    int h = 0;
 	    int x = 0;
+	    int ih = 0;
 	    QIconViewItem *item = begin;
 	    while ( TRUE ) {
 		x += d->spacing + item->width();
@@ -3785,6 +3786,7 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 		    break;
 		}
 		h = QMAX( h, item->height() );
+		ih = QMAX( ih, item->iconRect().height() );
 		QIconViewItem *old = item;
 		item = item->next;
 		if ( !item ) {
@@ -3802,9 +3804,10 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 	    while ( TRUE ) {
 		item->dirty = FALSE;
 		if ( item == begin )
-		    item->move( d->spacing, y + h - item->height() );
+		    item->move( d->spacing, y + ih - item->iconRect().height() );
 		else
-		    item->move( item->prev->x() + item->prev->width() + d->spacing, y + h - item->height() );
+		    item->move( item->prev->x() + item->prev->width() + d->spacing,
+				y + ih - item->iconRect().height() );
 		if ( item == end )
 		    break;
 		item = item->next;
@@ -3814,6 +3817,7 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 	    // first calculate the row height
 	    int h = begin->height();
 	    int x = d->spacing;
+	    int ih = begin->iconRect().height();
 	    QIconViewItem *item = begin;
 	    int i = 0;
 	    int sp = 0;
@@ -3833,6 +3837,7 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 		    break;
 		}
 		h = QMAX( h, item->height() );
+		ih = QMAX( ih, item->iconRect().height() );
 		QIconViewItem *old = item;
 		item = item->next;
 		if ( !item ) {
@@ -3854,18 +3859,20 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 		int r = calcGridNum( item->width(), d->rastX );
 		if ( item == begin ) {
 		    if ( d->itemTextPos == Bottom )
-			item->move( d->spacing + ( r * d->rastX - item->width() ) / 2, y + h - item->height() );
+			item->move( d->spacing + ( r * d->rastX - item->width() ) / 2, 
+				    y + ih - item->iconRect().height() );
 		    else
-			item->move( d->spacing, y + h - item->height() );
+			item->move( d->spacing, y + ih - item->iconRect().height() );
 		    i += r;
 		    sp += r;
 		} else {
 		    sp += r;
 		    int x = i * d->rastX + sp * d->spacing;
 		    if ( d->itemTextPos == Bottom )
-			item->move( x + ( r * d->rastX - item->width() ) / 2, y + h - item->height() );
+			item->move( x + ( r * d->rastX - item->width() ) / 2, 
+				    y + ih - item->iconRect().height() );
 		    else
-			item->move( x, y + h - item->height() );
+			item->move( x, y + ih - item->iconRect().height() );
 		    i += r;
 		}
 		if ( item == end )
@@ -3912,7 +3919,7 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 			item->move( x + ( w - item->width() ) / 2, d->spacing );
 		    else
 			item->move( x + ( w - item->width() ) / 2,
-				item->prev->y() + item->prev->height() + d->spacing );
+				    item->prev->y() + item->prev->height() + d->spacing );
 		} else {
 		    if ( item == begin )
 			item->move( x, d->spacing );
