@@ -687,10 +687,10 @@ QTextEngine::QTextEngine( const QString &str, QFontPrivate *f )
 
     num_glyphs = QMAX( 16, str.length()*3/2 );
     int space_charAttributes = (sizeof(QCharAttributes)*str.length()+sizeof(void*)-1)/sizeof(void*);
+    int space_logClusters = (sizeof(unsigned short)*str.length()+sizeof(void*)-1)/sizeof(void*);
     int space_glyphs = (sizeof(glyph_t)*num_glyphs+sizeof(void*)-1)/sizeof(void*);
     int space_advances = (sizeof(advance_t)*num_glyphs+sizeof(void*)-1)/sizeof(void*);
     int space_offsets = (sizeof(qoffset_t)*num_glyphs+sizeof(void*)-1)/sizeof(void*);
-    int space_logClusters = (sizeof(unsigned short)*num_glyphs+sizeof(void*)-1)/sizeof(void*);
     int space_glyphAttributes = (sizeof(GlyphAttributes)*num_glyphs+sizeof(void*)-1)/sizeof(void*);
 
     allocated = space_charAttributes + space_glyphs + space_advances +
@@ -700,14 +700,14 @@ QTextEngine::QTextEngine( const QString &str, QFontPrivate *f )
 
     void **m = memory;
     m += space_charAttributes;
+    logClustersPtr = (unsigned short *) m;
+    m += space_logClusters;
     glyphPtr = (glyph_t *) m;
     m += space_glyphs;
     advancePtr = (advance_t *) m;
     m += space_advances;
     offsetsPtr = (qoffset_t *) m;
     m += space_offsets;
-    logClustersPtr = (unsigned short *) m;
-    m += space_logClusters;
     glyphAttributesPtr = (GlyphAttributes *) m;
 
     used = 0;
@@ -724,10 +724,10 @@ void QTextEngine::reallocate( int totalGlyphs )
 {
     int new_num_glyphs = totalGlyphs;
     int space_charAttributes = (sizeof(QCharAttributes)*string.length()+sizeof(void*)-1)/sizeof(void*);
+    int space_logClusters = (sizeof(unsigned short)*string.length()+sizeof(void*)-1)/sizeof(void*);
     int space_glyphs = (sizeof(glyph_t)*new_num_glyphs+sizeof(void*)-1)/sizeof(void*);
     int space_advances = (sizeof(advance_t)*new_num_glyphs+sizeof(void*)-1)/sizeof(void*);
     int space_offsets = (sizeof(qoffset_t)*new_num_glyphs+sizeof(void*)-1)/sizeof(void*);
-    int space_logClusters = (sizeof(unsigned short)*new_num_glyphs+sizeof(void*)-1)/sizeof(void*);
     int space_glyphAttributes = (sizeof(GlyphAttributes)*new_num_glyphs+sizeof(void*)-1)/sizeof(void*);
 
     int newAllocated = space_charAttributes + space_glyphs + space_advances +
@@ -737,6 +737,9 @@ void QTextEngine::reallocate( int totalGlyphs )
     void **nm = newMemory;
     memcpy( nm, memory, string.length()*sizeof(QCharAttributes) );
     nm += space_charAttributes;
+    memcpy( nm, logClustersPtr, num_glyphs*sizeof(unsigned short) );
+    logClustersPtr = (unsigned short *) nm;
+    nm += space_logClusters;
     memcpy( nm, glyphPtr, num_glyphs*sizeof(glyph_t) );
     glyphPtr = (glyph_t *) nm;
     nm += space_glyphs;
@@ -746,9 +749,6 @@ void QTextEngine::reallocate( int totalGlyphs )
     memcpy( nm, offsetsPtr, num_glyphs*sizeof(qoffset_t) );
     offsetsPtr = (qoffset_t *) nm;
     nm += space_offsets;
-    memcpy( nm, logClustersPtr, num_glyphs*sizeof(unsigned short) );
-    logClustersPtr = (unsigned short *) nm;
-    nm += space_logClusters;
     memcpy( nm, glyphAttributesPtr, num_glyphs*sizeof(GlyphAttributes) );
     glyphAttributesPtr = (GlyphAttributes *) nm;
 

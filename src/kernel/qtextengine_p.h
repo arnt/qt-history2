@@ -295,20 +295,20 @@ public:
     }
     void splitItem( int item, int pos );
 
+    unsigned short *logClustersPtr;
     glyph_t *glyphPtr;
     advance_t *advancePtr;
     qoffset_t *offsetsPtr;
-    unsigned short *logClustersPtr;
     GlyphAttributes *glyphAttributesPtr;
 
+    inline unsigned short *logClusters( const QScriptItem *si ) const
+	{ return logClustersPtr+si->position; }
     inline glyph_t *glyphs( const QScriptItem *si ) const
 	{ return glyphPtr+si->glyph_data_offset; }
     inline advance_t *advances( const QScriptItem *si ) const
 	{ return advancePtr+si->glyph_data_offset; }
     inline qoffset_t *offsets( const QScriptItem *si ) const
 	{ return offsetsPtr+si->glyph_data_offset; }
-    inline unsigned short *logClusters( const QScriptItem *si ) const
-	{ return logClustersPtr+si->glyph_data_offset; }
     inline GlyphAttributes *glyphAttributes( const QScriptItem *si ) const
 	{ return glyphAttributesPtr+si->glyph_data_offset; }
 
