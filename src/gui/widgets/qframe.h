@@ -38,9 +38,7 @@ class Q_GUI_EXPORT QFrame : public QWidget
 
 public:
     QFrame(QWidget* parent = 0, WFlags f = 0);
-#ifdef QT_COMPAT
     QFrame(QWidget* parent, const char* name, WFlags f = 0);
-#endif
 
     int         frameStyle()    const;
     void setFrameStyle(int);
