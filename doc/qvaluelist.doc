@@ -293,7 +293,7 @@
 
 /*!
   \fn Iterator QValueList::prepend( const T& x )
-  Inserts the value \e x at the end of the list.
+  Inserts the value \e x at the beginning of the list.
 
   Returns an iterator pointing at the inserted item.
 
