@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qintdict.h#7 $
+** $Id: //depot/qt/main/src/tools/qintdict.h#8 $
 **
 ** Definition of QIntDict template/macro class
 **
@@ -73,7 +73,7 @@ public:									      \
     QIntDictIteratorM(type)(const QIntDictM(type) &d) :			      \
 	QGDictIterator((QGDict &)d){}					      \
    ~QIntDictIteratorM(type)()	 {}					      \
-    int	  count()   const     { return dict->count(); }			      \
+    uint  count()   const     { return dict->count(); }			      \
     bool  isEmpty() const     { return dict->count() == 0; }		      \
     type *toFirst()	      { return (type *)QGDictIterator::toFirst(); }   \
     operator type *()  const  { return (type *)QGDictIterator::get(); }	      \
@@ -132,7 +132,7 @@ template<class type> class QIntDictIteratorT : public QGDictIterator
 public:
     QIntDictIteratorT(const QIntDictT<type> &d) :QGDictIterator((QGDict &)d) {}
    ~QIntDictIteratorT()	      {}
-    int	  count()   const     { return dict->count(); }
+    uint  count()   const     { return dict->count(); }
     bool  isEmpty() const     { return dict->count() == 0; }
     type *toFirst()	      { return (type *)QGDictIterator::toFirst(); }
     operator type *()  const  { return (type *)QGDictIterator::get(); }
