@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#71 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#72 $
 **
 ** Definition of QFileDialog class
 **
@@ -230,13 +230,13 @@ public:
     void setMode( Mode );
     Mode mode() const;
 
-    enum ViewMode { DetailView = 1, 
-		    ListView = 2, 
+    enum ViewMode { DetailView = 1,
+		    ListView = 2,
 		    PreviewContents = 4,
 		    PreviewInfo = 8 };
     void setViewMode( int m );
     int viewMode() const;
-    
+
     bool eventFilter( QObject *, QEvent * );
 
     void setPreviewMode( bool info, bool contents );
@@ -299,8 +299,8 @@ protected:
 private slots:
     void updateGeometries();
     void modeButtonsDestroyed();
-    void clearView();
-    void polishDirectory();
+    void urlStart( int action );
+    void urlFinished( int action );
     void insertEntry( const QUrlInfo &fi );
     void removeEntry( const QString &fi );
     void createdDirectory( const QUrlInfo &info );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#282 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#283 $
 **
 ** Implementation of QFileDialog class
 **
@@ -399,7 +399,7 @@ struct QFileDialogPrivate {
     QList<WaitForStruct> waitFor;
 
     bool ignoreNextKeyPress;
-    
+
 };
 
 QFileDialogPrivate::~QFileDialogPrivate()
@@ -1521,10 +1521,10 @@ void QFileDialog::init()
     d->waitFor.setAutoDelete( TRUE );
 
     d->url = QUrl( "file:/" );
-    connect( &d->url, SIGNAL( start() ),
-             this, SLOT( clearView() ) );
-    connect( &d->url, SIGNAL( finished() ),
-             this, SLOT( polishDirectory() ) );
+    connect( &d->url, SIGNAL( start( int ) ),
+             this, SLOT( urlStart( int ) ) );
+    connect( &d->url, SIGNAL( finished( int ) ),
+             this, SLOT( urlFinished( int ) ) );
     connect( &d->url, SIGNAL( entry( const QUrlInfo & ) ),
              this, SLOT( insertEntry( const QUrlInfo & ) ) );
     connect( &d->url, SIGNAL( removed( const QString & ) ),
@@ -1783,7 +1783,7 @@ void QFileDialog::init()
     }
 
     d->preview->hide();
-    
+
     nameEdit->setFocus();
 
     connect( nameEdit, SIGNAL( returnPressed() ),
@@ -2871,8 +2871,8 @@ void QFileDialog::error( int ecode, const QString &msg )
 
     QMessageBox::critical( this, tr( "ERROR" ), msg );
 
-    if ( ecode == QUrl::ReadDir || ecode == QUrl::ParseError ||
-	 ecode == QUrl::UnknownProtocol ) {
+    if ( ecode == QUrl::ErrReadDir || ecode == QUrl::ErrParse ||
+	 ecode == QUrl::ErrUnknownProtocol ) {
 	// #### todo
 	d->url = "/";
 	rereadDir();
@@ -3051,10 +3051,10 @@ QFileDialog::Mode QFileDialog::mode() const
 }
 
 /*!
-  Set the viewmode of the filedialog. You can choose between 
-  DetailView, ListView, PreviewContents and PreviewInfo. One 
-  of the View-Flags and one of the Preview-Flags can be or'd 
-  together, e.g. to set the filedialog to show a detail view 
+  Set the viewmode of the filedialog. You can choose between
+  DetailView, ListView, PreviewContents and PreviewInfo. One
+  of the View-Flags and one of the Preview-Flags can be or'd
+  together, e.g. to set the filedialog to show a detail view
   and the show contents preview widget, use
      setViewMode( QFileDialog::DetailView | QFileDialog::PreviewContents );
 */
@@ -3070,7 +3070,7 @@ void QFileDialog::setViewMode( int m )
 	d->detailView->setOn( FALSE );
 	d->mcView->setOn( TRUE );
     }
-    
+
     if ( d->infoPreview && ( m & PreviewInfo ) ) {
 	d->previewInfo->setOn( TRUE );
 	d->previewContents->setOn( FALSE );
@@ -3095,12 +3095,12 @@ int QFileDialog::viewMode() const
 	ret = DetailView;
     else if ( files->isVisible() )
 	ret = ListView;
-    
+
     if ( d->infoPreview && d->previewInfo->isVisible() )
 	ret = ret | PreviewInfo;
     else if ( d->contentsPreview && d->previewContents->isVisible() )
 	ret = ret | PreviewContents;
-    
+
     return ret;
 }
 
@@ -3550,36 +3550,40 @@ QUrl QFileDialog::url() const
     return d->url;
 }
 
-void QFileDialog::clearView()
+void QFileDialog::urlStart( int action )
 {
-    files->clear();
-    d->moreFiles->clear();
-    files->setSorting( -1 );
+    if ( action == QUrl::ActListDirectory ) {
+	files->clear();
+	d->moreFiles->clear();
+	files->setSorting( -1 );
 
-    QString cp( d->url );
-    int i = d->paths->count() - 1;
-    while( i >= 0 && d->paths->text( i ) <= cp )
-	i--;
-    if ( i < d->paths->count() )
-	i++;
-    if ( i == d->paths->count() || d->paths->text( i ) != cp )
-	d->paths->insertItem( d->url, i );
-    d->paths->setCurrentItem( i );
-    d->last = 0;
-    d->hadDotDot = FALSE;
-    if ( d->url.path() == "/" )
-	d->cdToParent->setEnabled( FALSE );
-    else
-	d->cdToParent->setEnabled( TRUE );
+	QString cp( d->url );
+	int i = d->paths->count() - 1;
+	while( i >= 0 && d->paths->text( i ) <= cp )
+	    i--;
+	if ( i < d->paths->count() )
+	    i++;
+	if ( i == d->paths->count() || d->paths->text( i ) != cp )
+	    d->paths->insertItem( d->url, i );
+	d->paths->setCurrentItem( i );
+	d->last = 0;
+	d->hadDotDot = FALSE;
+	if ( d->url.path() == "/" )
+	    d->cdToParent->setEnabled( FALSE );
+	else
+	    d->cdToParent->setEnabled( TRUE );
+    }
 }
 
-void QFileDialog::polishDirectory()
+void QFileDialog::urlFinished( int action )
 {
-    if ( !d->hadDotDot && d->url.path() != "/" ) {
-	QUrlInfo ui( d->url, ".." );
-	ui.setName( ".." );
-	ui.setDir( TRUE );
-	insertEntry( ui );
+    if ( action == QUrl::ActListDirectory ) {
+	if ( !d->hadDotDot && d->url.path() != "/" ) {
+	    QUrlInfo ui( d->url, ".." );
+	    ui.setName( ".." );
+	    ui.setDir( TRUE );
+	    insertEntry( ui );
+	}
     }
 }
 
