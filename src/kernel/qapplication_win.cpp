@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#449 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#450 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1407,10 +1407,20 @@ void QApplication::winFocus( QWidget *widget, bool gotFocus )
 // QtWndProc() receives all messages from the main event loop
 //
 
+static bool inLoop = FALSE;
+
+#define RETURN(x) { inLoop=FALSE;return x; }
+
 extern "C"
 LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			    LPARAM lParam )
 {
+    
+    if ( inLoop ) {
+	qApp->sendPostedEvents( 0, QEvent::ShowWindowRequest );
+    }
+    inLoop = TRUE;
+
     bool result = TRUE;
     QEvent::Type evt_type = QEvent::None;
     QETWidget *widget;
@@ -1425,12 +1435,12 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
     msg.lParam = lParam;
 
     if ( qt_winEventFilter(&msg) )		// send through app filter
-	return 0;
+	RETURN(0);
 
     switch ( message ) {
     case WM_QUERYENDSESSION: {
 	if ( sm_smActive ) // bogus message from windows
-	    return TRUE;
+	    RETURN(TRUE);
 
 	sm_smActive = TRUE;
 	sm_blockUserInput = TRUE; // prevent user-interaction outside interaction windows
@@ -1440,7 +1450,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    //### should call something like fsync() for all
 	    //file descriptors being closed?
 	}
-	return !sm_cancel;
+	RETURN(!sm_cancel);
     }
 
     case WM_ENDSESSION: {
@@ -1452,7 +1462,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    qApp->quit();
 	}
 
-	return 0;
+	RETURN(0);
     }
 
     case WM_SETTINGCHANGE:
@@ -1471,11 +1481,11 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
     if ( app_do_modal )	{			// modal event handling
 	int ret = 0;
 	if ( !qt_try_modal(widget, &msg, ret ) )
-	    return ret;
+	    RETURN(ret);
     }
 
     if ( widget->winEvent(&msg) )		// send through widget filter
-	return 0;
+	RETURN(0);
 
     if ( sn_msg && message == sn_msg ) {	// socket notifier message
 	int type = -1;
@@ -1606,7 +1616,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			  r.right-r.left, r.bottom-r.top,
 			  widget->backgroundColor(),
 			  widget->backgroundPixmap(), ox, oy );
-		    return TRUE;
+		    RETURN(TRUE);
 		}
 		break;
 
@@ -1632,7 +1642,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 
 	    case WM_PALETTECHANGED:			// our window changed palette
 		if ( QColor::hPal() && (WId)wParam == widget->winId() )
-		    return 0;			// otherwise: FALL THROUGH!
+		    RETURN(0);			// otherwise: FALL THROUGH!
 		// FALL THROUGH
 	    case WM_QUERYNEWPALETTE:		// realize own palette
 		if ( QColor::hPal() ) {
@@ -1644,13 +1654,13 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		    SelectPalette( hdc, hpalOld, TRUE );
 		    RealizePalette( hdc );
 		    ReleaseDC( widget->winId(), hdc );
-		    return n;
+		    RETURN(n);
 		}
 		break;
 
 	    case WM_CLOSE:				// close window
 		widget->translateCloseEvent( msg );
-		return 0;				// always handled
+		RETURN(0);				// always handled
 
 	    case WM_DESTROY:			// destroy window
 		if ( hwnd == curWin ) {
@@ -1676,7 +1686,17 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			mmi->ptMaxTrackSize.x = x->maxw + f.width()	 - s.width();
 		    if ( x->maxh < QWIDGETSIZE_MAX )
 			mmi->ptMaxTrackSize.y = x->maxh + f.height() - s.height();
-		    return 0;
+		    RETURN(0);
+		}
+		break;
+
+	    case WM_CONTEXTMENU:
+		{
+		    QWidget *fw = qApp->focusWidget();
+		    if ( fw ) {
+			QContextMenuEvent e( QContextMenuEvent::Keyboard, QPoint( 0, 0 ), widget->pos() );
+			QApplication::sendEvent( fw, &e );
+		    }
 		}
 		break;
 
@@ -1687,7 +1707,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		if ( qt_clipboard ) {
 		    QCustomEvent e( QEvent::Clipboard, &msg );
 		    QApplication::sendEvent( qt_clipboard, &e );
-		    return 0;
+		    RETURN(0);
 		}
 		// NOTE: fall-through!
 	    default:
@@ -1701,13 +1721,13 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	result = QApplication::sendEvent(widget, &e);
     }
     if ( result )
-	return FALSE;
+	RETURN(FALSE);
 
 do_default:
     if ( qt_winver & Qt::WV_NT_based )
-	return DefWindowProc(hwnd,message,wParam,lParam);
+	RETURN( DefWindowProc(hwnd,message,wParam,lParam) )
     else
-	return DefWindowProcA(hwnd,message,wParam,lParam);
+	RETURN( DefWindowProcA(hwnd,message,wParam,lParam) )
 }
 
 
@@ -2408,8 +2428,19 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 				    RightButton)) == 0 ) {
 	    qt_button_down = 0;
 	}
-	QMouseEvent e( type, pos, QPoint(gpos.x,gpos.y), button, state );
-	QApplication::sendEvent( widget, &e );
+
+	if ( type == QEvent::MouseButtonRelease && button == RightButton ) {
+	    QContextMenuEvent e( QContextMenuEvent::Mouse, pos, QPoint(gpos.x,gpos.y) );
+	    QApplication::sendEvent( widget, &e );
+	    if ( !e.isAccepted() ) { // Only send mouse event when context event has not been processed
+		QMouseEvent e2( type, pos, QPoint(gpos.x,gpos.y), button, state );
+		QApplication::sendEvent( widget, &e2 );
+	    }
+	} else {
+	    QMouseEvent e( type, pos, QPoint(gpos.x,gpos.y), button, state );
+	    QApplication::sendEvent( widget, &e );
+	}
+
 	if ( type != QEvent::MouseMove )
 	    pos.rx() = pos.ry() = -9999;	// init for move compression
     }
