@@ -6,6 +6,8 @@
 ** of a constructor, and a destroy() function in place of a destructor.
 *****************************************************************************/
 
+using namespace Qt;
+
 void DialogForm::init()
 {
     extensionShown = FALSE;
