@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#138 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#139 $
 #
 # this is a massive hack, written very quickly
 #
@@ -433,6 +433,11 @@ sub processdocs {
 	if (!$internal) {
 	    $doc =~ s/^\s*\\internal\s/For internal use only.\\internal /s;
 	    $doc =~ s/\\internal\s.*//s;
+	}
+
+	if ($doc =~ s/\s*\\important\s+(.*?)(?:(?:\n\s*\n\s*)|(?:$ ))/\n\n/s) {
+	    $important{$url} = $1;
+	    print "imp: $1\n";
 	}
 
 	# this code is _really_ hard to follow... sorry
@@ -1496,7 +1501,7 @@ sub weirdly {
 
 sub printclass {
     local ( $url ) = @_;
-    local ( $class, $file, $tail, $fnheader, %fndocs );
+    local ( $class, $file, $tail, $fnheader );
 
     $class = $name{$url};
 
@@ -1641,6 +1646,30 @@ sub printclass {
 	    $m{$mode} .= $_ . ";";
 	}
     }
+
+    if ( $important{$url} =~ /\S/ ) {
+	my $i;
+	my $p;
+	foreach $i ( split( /\s+/s, $important{$url} ) ) {
+	    $i =~ s/[^\(\),]*$//;
+	    next unless ( $i =~ /\S/ );
+	    $p = $class . "::" . $i;
+	    if ( defined( $anchor{$p} ) && $type{$anchor{$p}} eq "fn" ) {
+		my $parent;
+		$parent = $anchir{$p};
+		$parent =~ s/\x23.*//;
+		$parent = $name{$parent} . "::" . $i;
+		print "imp: ", $name{$anchor{$p}}, " - ", $parent, "\n";
+#		$m{$fndocs{$anchor{$p}}} .= $c . ";";
+#VOLD
+	    } else {
+		print "sex: - ", $p, " -\n";
+	    }
+	}
+	print "vold: $url - ", $important{$url}, "\n";
+    }
+
+
     foreach $mode ('Public', 'Public Slots', 'Signals',
 		   'Static Public', 'Protected', 
 		   'Protected Slots', 'Static Protected',
@@ -1757,7 +1786,7 @@ sub printclass {
 	print O "<hr><h2>Detailed Description</h2>\n", $doc{$url}, "\n";
     }
 
-    foreach $url ( sort weirdly keys %fndocs ) {
+    foreach $url ( sort weirdly grep( /$url/, keys %fndocs ) ) {
 	next unless ($doc{$url} =~ /\S/s);
 
 	$documented{$url}++;
@@ -2148,7 +2177,7 @@ chdir( $sourcedir );
 foreach $c ( sort keys %doc ) {
     if ($type{$c} eq "class") {
 	if ($anchor{$name{$c}} eq $c) {
-	    &printclass($c);
+	    $classpool{$c}++;
 	} else {
 	    print "not printing $c\n";
 	}
@@ -2156,6 +2185,27 @@ foreach $c ( sort keys %doc ) {
 	# nothing
     } else {
 #	print $c, " is a ", $type{$c}, "\n" unless ( $c =~ /\x23/ );
+    }
+}
+
+$moreclassestoprint = 1;
+while( $moreclassestoprint ) {
+    $moreclassestoprint = 0;
+    foreach $url ( keys %classpool ) {
+	if ( $classpool{$url} > 0 ) {
+	    my $okay = 1;
+	    foreach $parent ( sort split( /\W+/, $inheritance{$url} ) ) {
+		if (defined( $anchor{$parent} ) &&
+		    $classpool{$anchor{$parent}} > 0 ) {
+		    $moreclassestoprint = 1;
+		    $okay = 0;
+		}
+	    }
+	    if ( $okay ) {
+		$classpool{$url} = 0;
+		printclass( $url );
+	    }
+	}
     }
 }
 
@@ -2178,7 +2228,8 @@ if ( $internal ) {
 
 print "Documented ", $countdoc, " member functions, left out ",
     $errmsg, " undocumented member functions and ", 
-    $countall-$countdoc-$errmsg, " private or non-function members\n";
+    $countall-$countdoc-$errmsg, " (", $countall,
+    ") private or non-function members\n";
 
 &post();
 
