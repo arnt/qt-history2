@@ -26,7 +26,10 @@
 
 class QSVGPaintEnginePrivate;
 
-class QM_EXPORT_SVG QSVGPaintEngine : public QPaintEngine, public QPaintCommands {
+class QM_EXPORT_SVG QSVGPaintEngine : public QPaintEngine, public QPaintCommands
+{
+    Q_DECLARE_PRIVATE(QSVGPaintEngine);
+
 public:
     QSVGPaintEngine();
     ~QSVGPaintEngine();
@@ -80,6 +83,9 @@ public:
 
     QRect boundingRect() const;
     void setBoundingRect(const QRect &r);
+
+protected:
+    QSVGPaintEngine(QSVGPaintEnginePrivate &dptr);
 
 private:
     QSVGPaintEnginePrivate *d;

@@ -78,7 +78,7 @@ typedef QMap<QString,ElementType> QSvgTypeMap;
 static QSvgTypeMap *qSvgTypeMap=0; // element types
 static QMap<QString,QString> *qSvgColMap=0; // recognized color keyword names
 
-class QSVGPaintEnginePrivate
+class QSVGPaintEnginePrivate : public QPaintEnginePrivate
 {
 public:
     QSVGPaintEnginePrivate()
@@ -107,10 +107,24 @@ public:
     int wheight;
 };
 
+#define d d_func()
+#define q q_func()
+
 QSVGPaintEngine::QSVGPaintEngine()
-    : QPaintEngine()
+    : QPaintEngine(*(new QSVGPaintEnginePrivate))
 {
-    d = new QSVGPaintEnginePrivate;
+    QDomImplementation domImpl;
+    QDomDocumentType docType = domImpl.createDocumentType( "svg", publicId, systemId);
+    d->doc = domImpl.createDocument("http://www.w3.org/2000/svg", "svg", docType);
+    d->doc.insertBefore(d->doc.createProcessingInstruction("xml", piData), d->doc.firstChild());
+    d->current = d->doc.documentElement();
+    d->images.clear();
+    d->pixmaps.clear();
+}
+
+QSVGPaintEngine::QSVGPaintEngine(QSVGPaintEnginePrivate &dptr)
+    : QPaintEngine(dptr)
+{
     QDomImplementation domImpl;
     QDomDocumentType docType = domImpl.createDocumentType( "svg", publicId, systemId);
     d->doc = domImpl.createDocument("http://www.w3.org/2000/svg", "svg", docType);
@@ -124,7 +138,6 @@ QSVGPaintEngine::~QSVGPaintEngine()
 {
     delete qSvgTypeMap; qSvgTypeMap = 0;	// static
     delete qSvgColMap; qSvgColMap = 0;
-    delete d;
 }
 
 bool QSVGPaintEngine::begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped)
