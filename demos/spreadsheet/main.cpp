@@ -47,9 +47,23 @@ public:
 
         QString op = list.at(0).toLower();
         int c1 = list.at(1).at(0).toUpper().ascii() - 'A';
-        int r1 = list.at(1).at(1).digitValue() - 1;
+        int r1 = 0;
+        QString r1s = list.at(1);
+        for (int i = 1; i < r1s.count(); ++i) {
+            r1 *= 10;
+            r1 += r1s.at(i).digitValue();
+        }
+        --r1;
+
         int c2 = list.at(2).at(0).toUpper().ascii() - 'A';
-        int r2 = list.at(2).at(1).digitValue() - 1;
+        int r2 = 0;
+        QString r2s = list.at(2);
+        for (int j = 1; j < r2s.count(); ++j) {
+            r2 *= 10;
+            r2 += r2s.at(j).digitValue();
+        }
+        --r2;        
+
         QTableWidgetItem *start = table->item(r1, c1);
         QTableWidgetItem *end = table->item(r2, c2);
 
@@ -82,27 +96,6 @@ public:
             return display();
         if (role == QAbstractItemModel::EditRole || role == QAbstractItemModel::StatusTipRole)
             return formula;
-        if (role == QAbstractItemModel::ToolTipRole) {
-            switch (table->column(this)) {
-            case 0:
-                return "This column shows the purchased item/service";
-                break;
-            case 1:
-                return "This column shows the price of the purchase";
-                break;
-            case 2:
-                return "This column shows the currency";
-                break;
-            case 3:
-                return "This column shows the exchange rate to NOK";
-                break;
-            case 4:
-                return "This column shows the expenses in NOK";
-                break;
-            default:
-                return "Demo of a travel expense spreadsheet application";
-            }
-        }
 
         QString t = text();
         bool numberOk;
@@ -171,12 +164,11 @@ public:
                 table->setItem(r, c, new SpreadSheetItem(table));
             }
         }
-        //table->verticalHeader()->setResizeMode(QHeaderView::Stretch);
-        //table->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
+
         // column 0
-        //table->horizontalHeader()->setResizeMode(QHeaderView::Custom, 0);
         table->item(0,0)->setText("Item");
         table->item(0,0)->setBackgroundColor(Qt::yellow);
+        table->item(0,0)->setToolTip("This column shows the purchased item/service");
         table->item(1,0)->setText("AirportBus");
         table->item(2,0)->setText("Flight (Munich)");
         table->item(3,0)->setText("Lunch");
@@ -189,6 +181,7 @@ public:
         // column 1
         table->item(0,1)->setText("Price");
         table->item(0,1)->setBackgroundColor(Qt::yellow);
+        table->item(0,1)->setToolTip("This column shows the price of the purchase");
         table->item(1,1)->setText("150");
         table->item(2,1)->setText("2350");
         table->item(3,1)->setText("-14");
@@ -200,6 +193,7 @@ public:
         // column 2
         table->item(0,2)->setText("Currency");
         table->item(0,2)->setBackgroundColor(Qt::yellow);
+        table->item(0,2)->setToolTip("This column shows the currency");
         table->item(1,2)->setText("NOK");
         table->item(2,2)->setText("NOK");
         table->item(3,2)->setText("EUR");
@@ -211,6 +205,7 @@ public:
         // column 3
         table->item(0,3)->setText("Ex.Rate");
         table->item(0,3)->setBackgroundColor(Qt::yellow);
+        table->item(0,3)->setToolTip("This column shows the exchange rate to NOK");
         table->item(1,3)->setText("1");
         table->item(2,3)->setText("1");
         table->item(3,3)->setText("8");
@@ -222,6 +217,7 @@ public:
         // column 4
         table->item(0,4)->setText("NOK");
         table->item(0,4)->setBackgroundColor(Qt::yellow);
+        table->item(0,4)->setToolTip("This column shows the expenses in NOK");
         table->item(1,4)->setText("* B2 D2");
         table->item(2,4)->setText("* B3 D3");
         table->item(3,4)->setText("* B4 D4");
