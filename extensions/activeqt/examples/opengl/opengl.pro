@@ -1,7 +1,7 @@
 TEMPLATE = app
 TARGET	 = openglax
 
-CONFIG	+= qt warn_off release activeqt
+CONFIG	+= qt warn_off activeqt
 
 QT += opengl
 

@@ -35,7 +35,7 @@
 */
 
 GLBox::GLBox( QWidget* parent, const char* name )
-    : QGLWidget( parent, name )
+    : QGLWidget( parent )
 {
     xRot = yRot = zRot = 0.0;		// default object rotation
     scale = 1.25;			// default object scale

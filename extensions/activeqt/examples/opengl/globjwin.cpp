@@ -46,19 +46,19 @@ GLObjectWindow::GLObjectWindow(QWidget* parent)
     QSlider* x = new QSlider(Qt::Vertical, this);
     x->setMaximum(360);
     x->setPageStep(60);
-    x->setTickmarks( QSlider::TickMarksLeft );
+    x->setTickPosition( QSlider::TicksLeft );
     QObject::connect( x, SIGNAL(valueChanged(int)),c,SLOT(setXRotation(int)) );
 
     QSlider* y = new QSlider(Qt::Vertical, this);
     y->setMaximum(360);
     y->setPageStep(60);
-    y->setTickmarks( QSlider::TickMarksLeft );
+    y->setTickPosition( QSlider::TicksLeft );
     QObject::connect( y, SIGNAL(valueChanged(int)),c,SLOT(setYRotation(int)) );
 
     QSlider* z = new QSlider(Qt::Vertical, this);
     z->setMaximum(360);
     z->setPageStep(60);
-    z->setTickmarks( QSlider::TickMarksLeft );
+    z->setTickPosition( QSlider::TicksLeft );
     QObject::connect( z, SIGNAL(valueChanged(int)),c,SLOT(setZRotation(int)) );
 
     // Now that we have all the widgets, put them into a nice layout
