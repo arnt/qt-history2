@@ -1791,8 +1791,8 @@ void QTextEdit::removeSelectedText( int selNum )
     if ( undoEnabled ) {
 	checkUndoRedoInfo( UndoRedoInfo::RemoveSelected );
 	if ( !undoRedoInfo.valid() ) {
-	doc->selectionStart( selNum, undoRedoInfo.id, undoRedoInfo.index );
-	undoRedoInfo.d->text = QString::null;
+	    doc->selectionStart( selNum, undoRedoInfo.id, undoRedoInfo.index );
+	    undoRedoInfo.d->text = QString::null;
 	}
 	readFormats( c1, c2, undoRedoInfo.d->text, TRUE );
     }
@@ -2439,9 +2439,8 @@ void QTextEdit::contentsDropEvent( QDropEvent *e )
 	return;
     inDnD = FALSE;
     e->acceptAction();
-    QString text;
     bool intern = FALSE;
-    if ( QTextDrag::decode( e, text ) ) {
+    if ( QRichTextDrag::canDecode( e ) ) {
 	bool hasSel = doc->hasSelection( QTextDocument::Standard );
 	bool internalDrag = e->source() == this || e->source() == viewport();
 	int dropId, dropIndex;
@@ -2480,6 +2479,7 @@ void QTextEdit::contentsDropEvent( QDropEvent *e )
 	if ( internalDrag && e->action() == QDropEvent::Move ) {
 	    removeSelectedText();
 	    intern = TRUE;
+	    doc->removeSelection( QTextDocument::Standard );
 	} else {
 	    doc->removeSelection( QTextDocument::Standard );
 #ifndef QT_NO_CURSOR
@@ -2491,7 +2491,12 @@ void QTextEdit::contentsDropEvent( QDropEvent *e )
 	cursor->setIndex( insertCursor.index() );
 	drawCursor( TRUE );
 	if ( !cursor->nestedDepth() ) {
-	    insert( text, FALSE, TRUE, FALSE );
+	    QString subType = "plain";
+	    if ( textFormat() != PlainText ) {
+		if ( e->provides( "application/x-qrichtext" ) )
+		    subType = "x-qrichtext";
+	    }
+	    pasteSubType( subType.latin1(), e );
 	    // emit appropriate signals.
 	    emit selectionChanged();
 	    emit cursorPositionChanged( cursor );
@@ -4710,14 +4715,22 @@ void QTextEdit::setDocument( QTextDocument *dc )
 
     \sa paste() cut() QTextEdit::copy()
 */
-void QTextEdit::pasteSubType( const QCString& subtype )
+
+void QTextEdit::pasteSubType( const QCString &subtype )
+{
+    QMimeSource *m = QApplication::clipboard()->data( d->clipboard_mode );
+    pasteSubType( subtype, m );
+}
+
+/*! \internal */
+
+void QTextEdit::pasteSubType( const QCString& subtype, QMimeSource *m )
 {
     QCString st = subtype;
     if ( subtype != "x-qrichtext" )
         st.prepend( "text/" );
     else
 	st.prepend( "application/" );
-    QMimeSource *m = QApplication::clipboard()->data( d->clipboard_mode );
     if ( !m )
 	return;
     if ( doc->hasSelection( QTextDocument::Standard ) )
@@ -4741,6 +4754,8 @@ void QTextEdit::pasteSubType( const QCString& subtype )
 	    // one letter back and later go one forward again.
 	    oldC.gotoPreviousLetter();
 	    bool couldGoBack = oldC != *cursor;
+	    // first para might get deleted, so remember to reset it
+	    bool wasAtFirst = oldC.paragraph() == doc->firstParagraph();
 
 	    if ( start < end )
 		t = t.mid( start, end - start );
@@ -4750,6 +4765,12 @@ void QTextEdit::pasteSubType( const QCString& subtype )
 	    if ( lastFormatted->prev() )
 		lastFormatted = lastFormatted->prev();
 	    doc->setRichTextInternal( t, cursor );
+
+	    // the first para might have been deleted in
+	    // setRichTextInternal(). To be sure, reset it if
+	    // necessary.
+	    if ( wasAtFirst )
+		oldC.setParagraph( doc->firstParagraph() );
 
 	    // if we went back one letter before (see last comment),
 	    // go one forward to point to the right position

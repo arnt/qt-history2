@@ -543,6 +543,11 @@ private slots:
 #endif
 
 private:
+#ifndef QT_NO_CLIPBOARD
+    void pasteSubType( const QCString &subtype, QMimeSource *m );
+#endif
+
+private:
     QTextDocument *doc;
     QTextCursor *cursor;
     QTimer *formatTimer, *scrollTimer, *changeIntervalTimer, *blinkTimer, *dragStartTimer;
