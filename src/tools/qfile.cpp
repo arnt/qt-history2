@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#21 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#22 $
 **
 ** Implementation of QFile class
 **
@@ -15,7 +15,7 @@
 #include <limits.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#21 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#22 $";
 #endif
 
 
@@ -172,7 +172,7 @@ bool QFile::exists( const char *fileName )
   <li>\c IO_Translate enables carriage returns and linefeed translation
   for text files under MS-DOS, Window, OS/2 and Macintosh.  Cannot be
   combined with \c IO_Raw.
-  <\ul>
+  </ul>
 
   If the file does not exist and \c IO_WriteOnly or \c IO_ReadWrite is
   specified, it will be created.
