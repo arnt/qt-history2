@@ -11,7 +11,6 @@
 ****************************************************************************/
 
 #include "qbitmap.h"
-#include "qfontengine_p.h"
 
 // #define FONTENGINE_DEBUG
 
@@ -31,6 +30,7 @@
 
 #include "qfont.h"
 #include "qtextengine_p.h"
+#include "qfontengine_p.h"
 
 #include <private/qunicodetables_p.h>
 
@@ -40,9 +40,9 @@
 extern int qt_mib_for_xlfd_encoding( const char *encoding );
 extern int qt_xlfd_encoding_id( const char *encoding );
 
-extern void qt_draw_transformed_rect( QPainter *p, int x, int y, int w, int h, bool fill );
+extern void qt_draw_transformed_rect( QPaintEngine *p, int x, int y, int w, int h, bool fill );
 
-static void drawLines( QPainter *p, QFontEngine *fe, int baseline, int x1, int w, int textFlags )
+static void drawLines( QPaintEngine *p, QFontEngine *fe, int baseline, int x1, int w, int textFlags )
 {
     int lw = fe->lineThickness();
     if ( textFlags & Qt::Underline ) {
@@ -115,11 +115,11 @@ QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *, int len, QGlyphL
     return NoError;
 }
 
-void QFontEngineBox::draw( QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags )
+void QFontEngineBox::draw( QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags )
 {
     Display *dpy = QX11Info::appDisplay();
-    Qt::HANDLE hd = p->device()->handle();
-    GC gc = static_cast<QX11PaintEngine *>(p->device()->engine())->d->gc;
+    Qt::HANDLE hd = p->handle();
+    GC gc = static_cast<QX11PaintEngine *>(p)->d->gc;
 
 #ifdef FONTENGINE_DEBUG
     p->save();
@@ -134,7 +134,7 @@ void QFontEngineBox::draw( QPainter *p, int x, int y, const QGlyphFragment &si, 
 #endif
 
 
-    if ( p->d->txop > QPainter::TxTranslate ) {
+    if ( p->painterState()->txop > QPainter::TxTranslate ) {
 	int xp = x;
 	int yp = _size + 2;
 	int s = _size - 3;
@@ -143,8 +143,8 @@ void QFontEngineBox::draw( QPainter *p, int x, int y, const QGlyphFragment &si, 
 	    xp += _size;
 	}
     } else {
-	if ( p->d->txop == QPainter::TxTranslate )
-	    p->map( x, y, &x, &y );
+	if ( p->painterState()->txop == QPainter::TxTranslate )
+	    p->painterState()->painter->map( x, y, &x, &y );
 	XRectangle _rects[32];
 	XRectangle *rects = _rects;
 	if ( si.num_glyphs > 32 )
@@ -404,7 +404,7 @@ static int x_font_errorhandler(Display *, XErrorEvent *)
 #endif
 
 
-void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags )
+void QFontEngineXLFD::draw( QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags )
 {
     if ( !si.num_glyphs )
 	return;
@@ -412,16 +412,17 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QGlyphFragment &si,
 //     qDebug("QFontEngineXLFD::draw( %d, %d, numglyphs=%d", x, y, si.num_glyphs );
 
     Display *dpy = QX11Info::appDisplay();
-    Qt::HANDLE hd = p->device()->handle();
-    GC gc = static_cast<QX11PaintEngine *>(p->device()->engine())->d->gc;
+    Qt::HANDLE hd = p->handle();
+    GC gc = static_cast<QX11PaintEngine *>(p)->d->gc;
 
     bool transform = FALSE;
     int xorig = x;
     int yorig = y;
 
     Qt::HANDLE font_id = _fs->fid;
-    if ( p->d->txop > QPainter::TxTranslate ) {
-	bool degenerate = QABS( p->m11()*p->m22() - p->m12()*p->m21() ) < 0.01;
+    if ( p->painterState()->txop > QPainter::TxTranslate ) {
+	const QWMatrix &m = p->painterState()->worldMatrix;
+	bool degenerate = QABS( m.m11()*m.m22() - m.m12()*m.m21() ) < 0.01;
 	if ( !degenerate && xlfd_transformations != XlfdTrUnsupported ) {
 	    // need a transformed font from the server
 	    QByteArray xlfd_transformed = _name;
@@ -438,10 +439,10 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QGlyphFragment &si,
 		endPos++;
 	    float size = QString(xlfd_transformed.mid( pos, endPos-pos )).toInt();
 	    float mat[4];
-	    mat[0] = p->m11()*size*_scale;
-	    mat[1] = -p->m12()*size*_scale;
-	    mat[2] = -p->m21()*size*_scale;
-	    mat[3] = p->m22()*size*_scale;
+	    mat[0] = m.m11()*size*_scale;
+	    mat[1] = -m.m12()*size*_scale;
+	    mat[2] = -m.m21()*size*_scale;
+	    mat[3] = m.m22()*size*_scale;
 
 	    // check if we have it cached
 	    TransformedFont *trf = transformed_fonts;
@@ -514,12 +515,11 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QGlyphFragment &si,
             int w=bbox.width(), h=bbox.height();
             int aw = w, ah = h;
             int tx=-bbox.x(), ty=-bbox.y();    // text position
-            QWMatrix mat1 = p->d->matrix;
 	    if ( aw == 0 || ah == 0 )
 		return;
 	    double rx = (double)w / (double)aw;
 	    double ry = (double)h / (double)ah;
-            QWMatrix mat2 = QPixmap::trueMatrix( QWMatrix( rx, 0, 0, ry, 0, 0 )*mat1, aw, ah );
+            QWMatrix mat2 = QPixmap::trueMatrix( QWMatrix( rx, 0, 0, ry, 0, 0 )*m, aw, ah );
 	    QBitmap *wx_bm;
 #if 0
             QString bm_key = gen_text_bitmap_key( mat2, dfont, str, pos, len );
@@ -531,7 +531,7 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QGlyphFragment &si,
                 QBitmap bm( aw, ah, TRUE );     // create bitmap
                 QPainter paint;
                 paint.begin( &bm );             // draw text in bitmap
-		draw( &paint, 0, si.ascent, si, textFlags );
+		draw( paint.d->engine, 0, si.ascent, si, textFlags );
                 paint.end();
                 wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
                 if ( wx_bm->isNull() ) {
@@ -540,7 +540,7 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QGlyphFragment &si,
                 }
             }
             double fx=x, fy=y - si.ascent, nfx, nfy;
-            mat1.map( fx,fy, &nfx,&nfy );
+            m.map( fx,fy, &nfx,&nfy );
             double tfx=tx, tfy=ty, dx, dy;
             mat2.map( tfx, tfy, &dx, &dy );     // compute position of bitmap
             x = qRound(nfx-dx);
@@ -560,8 +560,8 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QGlyphFragment &si,
             return;
         }
 	transform = TRUE;
-    } else if ( p->d->txop == QPainter::TxTranslate ) {
-	p->map( x, y, &x, &y );
+    } else if ( p->painterState()->txop == QPainter::TxTranslate ) {
+	p->painterState()->painter->map( x, y, &x, &y );
     }
 
     XSetFont(dpy, gc, font_id);
@@ -589,7 +589,7 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QGlyphFragment &si,
 
     int xpos = x;
 
-    if ( si.analysis.bidiLevel % 2 ) {
+    if ( si.right_to_left ) {
 	int i = si.num_glyphs;
 	while( i-- ) {
 	    advance_t adv = glyphs[i].advance;
@@ -599,7 +599,7 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QGlyphFragment &si,
 	    int xp = x-glyphs[i].offset.x-gi.xoff;
 	    int yp = y+glyphs[i].offset.y-gi.yoff;
 	    if ( transform )
-		p->map( xp, yp, &xp, &yp );
+		p->painterState()->painter->map( xp, yp, &xp, &yp );
 	    XDrawString16(dpy, hd, gc, xp, yp, chars+i, 1 );
 	}
     } else {
@@ -609,7 +609,7 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QGlyphFragment &si,
 		int xp = x+glyphs[i].offset.x;
 		int yp = y+glyphs[i].offset.y;
 		if ( transform )
-		    p->map( xp, yp, &xp, &yp );
+		    p->painterState()->painter->map( xp, yp, &xp, &yp );
 		XDrawString16(dpy, hd, gc, xp, yp, chars+i, 1 );
 		advance_t adv = glyphs[i].advance;
 		// 	    qDebug("advance = %d/%d", adv.x, adv.y );
@@ -1024,7 +1024,7 @@ QFontEngineLatinXLFD::stringToCMap( const QChar *str, int len, QGlyphLayout *gly
     return NoError;
 }
 
-void QFontEngineLatinXLFD::draw( QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags )
+void QFontEngineLatinXLFD::draw( QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags )
 {
     if ( !si.num_glyphs ) return;
 
@@ -1042,7 +1042,7 @@ void QFontEngineLatinXLFD::draw( QPainter *p, int x, int y, const QGlyphFragment
 	    glyphs[i].glyph = glyphs[i].glyph & 0xff;
 
 	// draw the text
-	QGlyphFragment si2 = si;
+	QTextItem si2 = si;
 	si2.glyphs = si.glyphs + start;
 	si2.num_glyphs = end - start;
 	_engines[which]->draw( p, x, y, si2, textFlags );
@@ -1064,7 +1064,7 @@ void QFontEngineLatinXLFD::draw( QPainter *p, int x, int y, const QGlyphFragment
 	glyphs[i].glyph = glyphs[i].glyph & 0xff;
 
     // draw the text
-    QGlyphFragment si2 = si;
+    QTextItem si2 = si;
     si2.glyphs = si.glyphs + start;
     si2.num_glyphs = end - start;
     _engines[which]->draw( p, x, y, si2, textFlags );
@@ -1513,7 +1513,7 @@ void QFontEngineXft::recalcAdvances(int len, QGlyphLayout *glyphs)
 
 
 //#define FONTENGINE_DEBUG
-void QFontEngineXft::draw( QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags )
+void QFontEngineXft::draw( QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags )
 {
     if ( !si.num_glyphs )
 	return;
@@ -1525,17 +1525,17 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QGlyphFragment &si, 
 
     XftFont *fnt = _font;
     bool transform = FALSE;
-    if ( p->d->txop >= QPainter::TxScale ) {
+    if ( p->painterState()->txop >= QPainter::TxScale ) {
 	if (! (_face->face_flags & FT_FACE_FLAG_SCALABLE)) {
-	    Qt::HANDLE hd = p->device()->handle();
-	    GC gc = static_cast<QX11PaintEngine *>(p->device()->engine())->d->gc;
+	    Qt::HANDLE hd = p->handle();
+	    GC gc = static_cast<QX11PaintEngine *>(p)->d->gc;
 
 	    // font doesn't support transformations, need to do it by hand
             QRect bbox( 0, 0, si.width, si.ascent + si.descent + 1 );
             int w=bbox.width(), h=bbox.height();
             int aw = w, ah = h;
             int tx=-bbox.x(), ty=-bbox.y();    // text position
-            QWMatrix mat1 = p->d->matrix;
+            QWMatrix mat1 = p->painterState()->worldMatrix;
 	    if ( aw == 0 || ah == 0 )
 		return;
 	    double rx = (double)w / (double)aw;
@@ -1546,7 +1546,7 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QGlyphFragment &si, 
                 QBitmap bm( aw, ah, TRUE );     // create bitmap
                 QPainter paint;
                 paint.begin( &bm );             // draw text in bitmap
-                draw( &paint, 0, si.ascent, si, textFlags );
+                draw( paint.d->engine, 0, si.ascent, si, textFlags );
                 paint.end();
                 wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
                 if ( wx_bm->isNull() ) {
@@ -1574,10 +1574,10 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QGlyphFragment &si, 
 	XftMatrix *mat = 0;
 	XftPatternGetMatrix( pattern, XFT_MATRIX, 0, &mat );
 	XftMatrix m2;
-	m2.xx = p->m11()*_scale;
-	m2.xy = -p->m21()*_scale;
-	m2.yx = -p->m12()*_scale;
-	m2.yy = p->m22()*_scale;
+	m2.xx = p->painterState()->worldMatrix.m11()*_scale;
+	m2.xy = -p->painterState()->worldMatrix.m21()*_scale;
+	m2.yx = -p->painterState()->worldMatrix.m12()*_scale;
+	m2.yy = p->painterState()->worldMatrix.m22()*_scale;
 
 	// check if we have it cached
 	TransformedFont *trf = transformed_fonts;
@@ -1636,16 +1636,15 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QGlyphFragment &si, 
 	    transformed_fonts = trf;
 	}
 	transform = TRUE;
-    } else if ( p->d->txop == QPainter::TxTranslate ) {
-	p->map( x, y, &x, &y );
+    } else if ( p->painterState()->txop == QPainter::TxTranslate ) {
+	p->painterState()->painter->map( x, y, &x, &y );
     }
 
     QGlyphLayout *glyphs = si.glyphs;
 
-    const QColor &pen = static_cast<QX11PaintEngine *>(p->device()->engine())->d->cpen.color();
+    const QColor &pen = static_cast<QX11PaintEngine *>(p)->d->cpen.color();
 
-    XftDraw *draw = ((Q_HackPaintDevice *)p->device())->xftDrawHandle();
-
+    XftDraw *draw = static_cast<Q_HackPaintDevice *>(p->painterState()->painter->device())->xftDrawHandle();
     XftColor col;
     col.color.red = pen.red () | pen.red() << 8;
     col.color.green = pen.green () | pen.green() << 8;
@@ -1670,13 +1669,13 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QGlyphFragment &si, 
 
 #ifdef QT_XFT2
     QStackArray<XftGlyphSpec,256> glyphSpec(si.num_glyphs);
-    if ( si.analysis.bidiLevel % 2 ) {
+    if ( si.right_to_left ) {
 	int i = si.num_glyphs;
 	while( i-- ) {
 	    int xp = x + glyphs[i].offset.x;
 	    int yp = y + glyphs[i].offset.y;
 	    if ( transform )
-		p->map( xp, yp, &xp, &yp );
+		p->painterState()->painter->map( xp, yp, &xp, &yp );
 	    glyphSpec[i].x = xp;
 	    glyphSpec[i].y = yp;
 	    glyphSpec[i].glyph = glyphs[i].glyph;
@@ -1688,7 +1687,7 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QGlyphFragment &si, 
 	    int xp = x + glyphs[i].offset.x;
 	    int yp = y + glyphs[i].offset.y;
 	    if ( transform )
-		p->map( xp, yp, &xp, &yp );
+		p->painterState()->painter->map( xp, yp, &xp, &yp );
 	    glyphSpec[i].x = xp;
 	    glyphSpec[i].y = yp;
 	    glyphSpec[i].glyph = glyphs[i].glyph;
@@ -2280,7 +2279,7 @@ void QOpenType::init(QGlyphLayout *glyphs, int num_glyphs,
     length = len;
 
     Q_ASSERT(len == num_glyphs);
-    tmpAttributes = (GlyphAttributes *) realloc( tmpAttributes, num_glyphs*sizeof(GlyphAttributes) );
+    tmpAttributes = (QGlyphLayout::Attributes *) realloc( tmpAttributes, num_glyphs*sizeof(QGlyphLayout::Attributes) );
     for (int i = 0; i < num_glyphs; ++i) {
 	str->string[i] = glyphs[i].glyph;
 	tmpAttributes[i] = glyphs[i].attributes;

@@ -96,7 +96,7 @@ QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, in
 }
 
 void
-QFontEngineMac::draw(QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags)
+QFontEngineMac::draw(QPainter *p, int x, int y, const QTextItem &si, int textFlags)
 {
     int txop = p->d->txop;
     QWMatrix xmat = p->d->matrix;
@@ -162,7 +162,7 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QGlyphFragment &si, int te
     uchar task = DRAW;
     if(textFlags != 0)
 	task |= WIDTH; //I need the width for these..
-    if(si.analysis.bidiLevel % 2 ) {
+    if(si.right_to_left ) {
 	glyphs += si.num_glyphs;
 	for(int i = 0; i < si.num_glyphs; i++) {
 	    glyphs--;
@@ -178,11 +178,11 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QGlyphFragment &si, int te
     if(w && textFlags != 0) {
 	int lw = lineThickness();
 	if(textFlags & Qt::Underline)
-	    p->drawRect(x, y+underlinePosition(), (si.analysis.bidiLevel % 2) ? -w : w, lw);
+	    p->drawRect(x, y+underlinePosition(), si.right_to_left ? -w : w, lw);
 	if(textFlags & Qt::Overline)
-	    p->drawRect(x, y + (ascent() + 1), (si.analysis.bidiLevel % 2) ? -w : w, lw);
+	    p->drawRect(x, y + (ascent() + 1), si.right_to_left ? -w : w, lw);
 	if(textFlags & Qt::StrikeOut)
-	    p->drawRect(x, y + (ascent() / 3), (si.analysis.bidiLevel % 2) ? -w : w, lw);
+	    p->drawRect(x, y + (ascent() / 3), si.right_to_left ? -w : w, lw);
     }
 }
 

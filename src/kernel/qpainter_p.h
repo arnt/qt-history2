@@ -15,49 +15,49 @@ class QPaintEngine;
 class QPainterState
 {
 public:
-    QPainterState( const QPainterState *s = 0 )
-    {
-	if (s) {
-	    font = QFont(s->font);
-	    pfont = s->pfont;
-	    pen = QPen(s->pen);
-	    brush = QBrush(s->brush);
-	    bgOrigin = s->bgOrigin;
-	    bgBrush = QBrush(s->bgBrush);
- 	    clipRegion = QRegion(s->clipRegion);
-	    clipEnabled = s->clipEnabled;
-	    rasterOp = s->rasterOp;
-	    bgMode = s->bgMode;
-	    VxF = s->VxF;
-	    WxF = s->WxF;
+    QPainterState() {
+	bgBrush = Qt::white;
+	bgMode = QPainter::TransparentMode;
+	rasterOp = Qt::CopyROP;
+	clipEnabled = false;
+	WxF = false;
+	VxF = false;
+	wx = wy = ww = wh = 0;
+	vx = vy = vw = vh = 0;
+	pfont = 0;
+	painter = 0;
+	txop = 0;
+    }
+    QPainterState( const QPainterState *s ) {
+	font = QFont(s->font);
+	pfont = s->pfont;
+	pen = QPen(s->pen);
+	brush = QBrush(s->brush);
+	bgOrigin = s->bgOrigin;
+	bgBrush = QBrush(s->bgBrush);
+	clipRegion = QRegion(s->clipRegion);
+	clipEnabled = s->clipEnabled;
+	rasterOp = s->rasterOp;
+	bgMode = s->bgMode;
+	VxF = s->VxF;
+	WxF = s->WxF;
 #ifndef QT_NO_TRANSFORMATIONS
-	    worldMatrix = s->worldMatrix;
-	    matrix = s->matrix;
+	worldMatrix = s->worldMatrix;
+	matrix = s->matrix;
+	txop = s->txop;
 #else
-	    xlatex = s->xlatex;
-	    xlatey = s->xlatey;
+	xlatex = s->xlatex;
+	xlatey = s->xlatey;
 #endif
-	    wx = s->wx;
-	    wy = s->wy;
-	    ww = s->ww;
-	    wh = s->wh;
-	    vx = s->vx;
-	    vy = s->vy;
-	    vw = s->vw;
-	    vh = s->vh;
-	    painter = s->painter;
-	} else {
-	    bgBrush = Qt::white;
-	    bgMode = QPainter::TransparentMode;
-	    rasterOp = Qt::CopyROP;
-	    clipEnabled = false;
-	    WxF = false;
-	    VxF = false;
-	    wx = wy = ww = wh = 0;
-	    vx = vy = vw = vh = 0;
-	    pfont = 0;
-	    painter = 0;
-	}
+	wx = s->wx;
+	wy = s->wy;
+	ww = s->ww;
+	wh = s->wh;
+	vx = s->vx;
+	vy = s->vy;
+	vw = s->vw;
+	vh = s->vh;
+	painter = s->painter;
     }
 
     QPoint 	bgOrigin;
@@ -71,6 +71,7 @@ public:
 #ifndef QT_NO_TRANSFORMATIONS
     QWMatrix    worldMatrix; 	    	// World transformation matrix, not window and viewport
     QWMatrix    matrix;			// Complete transformation matrix, including win and view.
+    int txop;
 #else
     int         xlatex;
     int         xlatey;
@@ -92,7 +93,7 @@ class QPainterPrivate
 {
 public:
     QPainterPrivate()
-	: txop(0), txinv(0), device(0), engine(0)
+	: txinv(0), device(0), engine(0)
     {
 	states.push_back(new QPainterState());
 	state = states.back();
@@ -110,10 +111,7 @@ public:
     QVector<QPainterState*> states;
 
 #ifndef QT_NO_TRANSFORMATIONS
-    QWMatrix matrix; // reloaded stinks...
     QWMatrix invMatrix;
-
-    int txop;
     uint txinv:1;
 #endif
 

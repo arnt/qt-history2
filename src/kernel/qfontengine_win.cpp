@@ -269,7 +269,7 @@ QFontEngine::Error QFontEngineWin::stringToCMap( const QChar *str, int len, QGly
 // #define COLOR_VALUE(c) ((p->flags & QPainter::RGBColor) ? RGB(c.red(),c.green(),c.blue()) : c.pixel())
 #define COLOR_VALUE(c) c.pixel()
 
-void QFontEngineWin::draw( QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags )
+void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextItem &si, int textFlags )
 {
     HDC old_hdc = hdc;
     hdc = p->handle();
@@ -435,7 +435,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QGlyphFragment &si, 
 #endif
     int xo = x;
 
-    if ( !(si.analysis.bidiLevel % 2) ) {
+    if ( !(si.right_to_left) ) {
 	// hack to get symbol fonts working on Win95. See also QFontEngine constructor
 	if ( useTextOutA ) {
 	    // can only happen if !ttf
@@ -781,7 +781,7 @@ QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *,  int len, QGlyph
     return NoError;
 }
 
-void QFontEngineBox::draw( QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags )
+void QFontEngineBox::draw( QPainter *p, int x, int y, const QTextItem &si, int textFlags )
 {
     Q_UNUSED( p );
     Q_UNUSED( x );

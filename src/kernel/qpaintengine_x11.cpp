@@ -436,10 +436,10 @@ void qt_erase_background(Qt::HANDLE hd, int screen,
     }
 }
 
-void qt_draw_transformed_rect( QPainter *pp,  int x, int y, int w,  int h, bool fill )
+void qt_draw_transformed_rect( QPaintEngine *pe,  int x, int y, int w,  int h, bool fill )
 {
-    QPaintDevice *pd = pp->device();
-    QX11PaintEngine *p = static_cast<QX11PaintEngine *>(pd->engine());
+    QX11PaintEngine *p = static_cast<QX11PaintEngine *>(pe);
+    QPainter *pp = p->painterState()->painter;
 
     XPoint points[5];
     int xp = x,  yp = y;
@@ -467,12 +467,11 @@ void qt_draw_transformed_rect( QPainter *pp,  int x, int y, int w,  int h, bool 
 }
 
 
-void qt_draw_background( QPainter *pp, int x, int y, int w,  int h )
+void qt_draw_background( QPaintEngine *pe, int x, int y, int w,  int h )
 {
-    QPaintDevice *pd = pp->device();
-    QX11PaintEngine *p = static_cast<QX11PaintEngine *>(pd->engine());
+    QX11PaintEngine *p = static_cast<QX11PaintEngine *>(pe);
     XSetForeground( p->d->dpy, p->d->gc, p->d->bg_brush.color().pixel(p->d->scrn) );
-    qt_draw_transformed_rect( pp, x, y, w, h, TRUE);
+    qt_draw_transformed_rect( p, x, y, w, h, TRUE);
     XSetForeground( p->d->dpy, p->d->gc, p->d->cpen.color().pixel(p->d->scrn) );
 }
 // ########
@@ -1500,7 +1499,7 @@ void QX11PaintEngine::updateFont(QPainterState *ps)
 
 void QX11PaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
 {
-    qDebug("QX11PaintEngine::drawTextItem() - implement me!");
+    ti.fontEngine->draw(this, p.x(),  p.y(), ti, textflags);
 }
 
 Qt::HANDLE QX11PaintEngine::handle() const

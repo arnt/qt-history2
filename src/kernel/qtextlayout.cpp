@@ -22,75 +22,55 @@
 
 #include "qfontengine_p.h"
 
-QRect QTextItem::rect() const
+QRect QTextObject::rect() const
 {
     QScriptItem& si = eng->items[itm];
     return QRect( 0, - si.ascent, si.width, si.ascent+si.descent );
 }
 
-int QTextItem::width() const
+int QTextObject::width() const
 {
     return eng->items[itm].width;
 }
 
-int QTextItem::ascent() const
+int QTextObject::ascent() const
 {
     return eng->items[itm].ascent;
 }
 
-int QTextItem::descent() const
+int QTextObject::descent() const
 {
     return eng->items[itm].descent;
 }
 
-void QTextItem::setWidth( int w )
+void QTextObject::setWidth( int w )
 {
     eng->items[itm].width = w;
 }
 
-void QTextItem::setAscent( int a )
+void QTextObject::setAscent( int a )
 {
     eng->items[itm].ascent = a;
 }
 
-void QTextItem::setDescent( int d )
+void QTextObject::setDescent( int d )
 {
     eng->items[itm].descent = d;
 }
 
-int QTextItem::from() const
+int QTextObject::at() const
 {
     return eng->items[itm].position;
 }
 
-int QTextItem::length() const
-{
-    return eng->length(itm);
-}
-
-int QTextItem::format() const
+int QTextObject::format() const
 {
     return eng->items[itm].format;
 }
 
-bool QTextItem::isRightToLeft() const
+bool QTextObject::isRightToLeft() const
 {
     return (eng->items[itm].analysis.bidiLevel % 2);
-}
-
-bool QTextItem::isObject() const
-{
-    return eng->items[itm].isObject;
-}
-
-bool QTextItem::isSpace() const
-{
-    return eng->items[itm].isSpace;
-}
-
-bool QTextItem::isTab() const
-{
-    return eng->items[itm].isTab;
 }
 
 
@@ -144,31 +124,6 @@ QString QTextLayout::text() const
 void QTextLayout::setInlineObjectInterface(QTextInlineObjectInterface *iface)
 {
     d->setInlineObjectInterface(iface);
-}
-
-/* add an additional item boundary eg. for style change */
-
-int QTextLayout::numItems() const
-{
-    return d->items.size();
-}
-
-QTextItem QTextLayout::itemAt( int i ) const
-{
-    return QTextItem( i, d );
-}
-
-
-QTextItem QTextLayout::findItem( int strPos ) const
-{
-    if ( strPos == 0 && d->items.size() )
-	return QTextItem( 0, d );
-    // ## TODO use bsearch
-    for ( int i = d->items.size()-1; i >= 0; --i ) {
-	if ( d->items[i].position < strPos )
-	    return QTextItem( i, d );
-    }
-    return QTextItem();
 }
 
 void QTextLayout::setFormat(int from, int length, int format)
@@ -289,6 +244,8 @@ QTextLine QTextLayout::createLine(int from, int y, int x1, int x2)
 
     const QCharAttributes *attributes = d->attributes();
 
+    int minw = 0;
+
 //     qDebug("from: %d:   item=%d, total %d width available %d", from, item, d->items.size(), line.width);
     int spacew = 0;
     while (item < d->items.size()) {
@@ -340,6 +297,8 @@ QTextLine QTextLayout::createLine(int from, int y, int x1, int x2)
 		tmpw += glyphs[gp].advance;
 		++gp;
 	    }
+	    minw = qMax(tmpw, minw);
+
 	    int nextspacew = 0;
 	    while (gp <= ge) {
 		nextspacew += glyphs[gp].advance;
@@ -362,6 +321,8 @@ QTextLine QTextLayout::createLine(int from, int y, int x1, int x2)
  found:
 //     qDebug("line length = %d, ascent=%d, descent=%d, textWidth=%d", line.length, line.ascent, line.descent, line.textWidth);
 //     qDebug("        : '%s'", d->string.mid(line.from, line.length).utf8());
+
+    d->minWidth = qMax(d->minWidth, minw);
 
     int l = d->lines.size();
     d->lines.append(line);
@@ -405,6 +366,11 @@ QRegion QTextLayout::region() const
 {
     // ####
     return QRegion();
+}
+
+int QTextLayout::minimumWidth() const
+{
+    return d->minWidth;
 }
 
 static void drawSelection(QPainter *p, QPalette *pal, QTextLayout::SelectionType type,
@@ -593,7 +559,7 @@ void QTextLine::draw( QPainter *p, int x, int y, int selection ) const
 		// ###
 		selType = static_cast<QTextLayout::SelectionType>(eng->selections[selection].type());
 
-	    eng->inlineObjectIface->drawItem(p, QPoint(x, y), QTextItem(item, eng), format, selType);
+	    eng->inlineObjectIface->drawObject(p, QPoint(x, y), QTextObject(item, eng), format, selType);
 	}
 
 	if ( si.isTab || si.isObject ) {
@@ -626,14 +592,14 @@ void QTextLine::draw( QPainter *p, int x, int y, int selection ) const
 	QFontEngine *fe = f.d->engineForScript((QFont::Script)si.analysis.script);
 	Q_ASSERT( fe );
 
-	QGlyphFragment gf;
-	gf.analysis = si.analysis;
+	QTextItem gf;
+	gf.right_to_left = (si.analysis.bidiLevel % 2);
 	gf.hasPositioning = si.hasPositioning;
 	gf.ascent = si.ascent;
 	gf.descent = si.descent;
 	gf.num_glyphs = ge - gs + 1;
 	gf.glyphs = glyphs + gs;
-	gf.font = fe;
+	gf.fontEngine = fe;
 	int textFlags = 0;
 	if (f.d->underline) textFlags |= Qt::Underline;
 	if (f.d->overline) textFlags |= Qt::Overline;
@@ -656,7 +622,7 @@ void QTextLine::draw( QPainter *p, int x, int y, int selection ) const
 		++gs;
 	    }
 	    gf.width = w;
-	    p->drawGlyphs(QPoint(x, y), gf, textFlags);
+	    p->drawTextItem(QPoint(x, y), gf, textFlags);
 	    x += w;
 	    if (ul && *ul != -1 && *ul < end) {
 		// draw underline
@@ -669,7 +635,7 @@ void QTextLine::draw( QPainter *p, int x, int y, int selection ) const
 		    ++gs;
 		}
 		gf.width = w;
-		p->drawGlyphs(QPoint(x, y), gf, (textFlags ^ Qt::Underline));
+		p->drawTextItem(QPoint(x, y), gf, (textFlags ^ Qt::Underline));
 		x += w;
 		++ul;
 	    }

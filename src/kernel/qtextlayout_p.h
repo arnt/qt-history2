@@ -28,11 +28,11 @@ class QRect;
 class QRegion;
 
 // ###### go away
-class Q_GUI_EXPORT QTextItem
+class Q_GUI_EXPORT QTextObject
 {
 public:
-    QTextItem( int i, QTextEngine *e ) : itm( i ), eng( e ) {}
-    inline QTextItem() : itm(0), eng(0) {}
+    QTextObject( int i, QTextEngine *e ) : itm( i ), eng( e ) {}
+    inline QTextObject() : itm(0), eng(0) {}
     inline bool isValid() const { return (bool)eng; }
 
     QRect rect() const;
@@ -40,26 +40,13 @@ public:
     int ascent() const;
     int descent() const;
 
-    enum Edge {
-	Leading,
-	Trailing
-    };
-    enum CursorPosition {
-	BetweenCharacters,
-	OnCharacters
-    };
-
     bool isRightToLeft() const;
-    bool isObject() const;
-    bool isSpace() const;
-    bool isTab() const;
 
     void setWidth( int w );
     void setAscent( int a );
     void setDescent( int d );
 
-    int from() const;
-    int length() const;
+    int at() const;
 
     QTextEngine *engine() const { return eng; }
     int item() const { return itm; }
@@ -104,10 +91,6 @@ public:
     void setFormat(int from, int length, int format);
     void setTextFlags(int textFlags);
     void setPalette(const QPalette &);
-
-    int numItems() const;
-    QTextItem itemAt( int i ) const;
-    QTextItem findItem( int strPos ) const;
 
     enum LayoutMode {
 	NoBidi,
@@ -166,13 +149,14 @@ public:
 
     QTextEngine *engine() const { return d; }
 
+    int minimumWidth() const;
+
 private:
     QTextLayout( QTextEngine *e ) : d( e ) {}
     /* disable copy and assignment */
     QTextLayout( const QTextLayout & ) {}
     void operator = ( const QTextLayout & ) {}
 
-    friend class QTextItem;
     friend class QPainter;
     friend class QPSPrinter;
     QTextEngine *d;
@@ -181,8 +165,8 @@ private:
 class QTextInlineObjectInterface
 {
 public:
-    virtual void layoutItem(QTextItem item, const QTextFormat &format) = 0;
-    virtual void drawItem(QPainter *painter, const QPoint &position, QTextItem item, const QTextFormat &format, QTextLayout::SelectionType selection) = 0;
+    virtual void layoutObject(QTextObject object, const QTextFormat &format) = 0;
+    virtual void drawObject(QPainter *painter, const QPoint &position, QTextObject object, const QTextFormat &format, QTextLayout::SelectionType selection) = 0;
 };
 Q_DECLARE_INTERFACE(QTextInlineObjectInterface)
 

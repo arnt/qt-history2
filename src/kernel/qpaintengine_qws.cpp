@@ -73,10 +73,9 @@ void qwsUpdateActivePainters()
 }
 
 
-void qt_draw_background( QPainter *pp, int/* x*/, int /*y*/, int /*w*/,  int /*h*/ )
+void qt_draw_background( QPaintEngine *pe, int/* x*/, int /*y*/, int /*w*/,  int /*h*/ )
 {
-    QPaintDevice *pd = pp->device();
-    QWSPaintEngine *p = static_cast<QWSPaintEngine *>(pd->engine());
+    QWSPaintEngine *p = static_cast<QWSPaintEngine *>(pe);
 // // //     XSetForeground( p->d->dpy, p->d->gc, p->d->bg_brush.color().pixel(p->d->scrn) );
 // // //     qt_draw_transformed_rect( pp, x, y, w, h, TRUE);
 // // //     XSetForeground( p->d->dpy, p->d->gc, p->d->cpen.color().pixel(p->d->scrn) );

@@ -22,6 +22,27 @@
 
 class QPainterState;
 class QPaintDevice;
+struct QGlyphLayout;
+class QFontEngine;
+
+class QTextItem {
+public:
+    unsigned short right_to_left : 1;
+    unsigned short hasPositioning : 1;
+    unsigned short underline : 1;
+    unsigned short overline : 1;
+    unsigned short strikeout : 1;
+    short descent;
+    int ascent;
+    int width;
+
+    QChar *chars;
+    int numChars;
+    QGlyphLayout *glyphs;
+    int num_glyphs;
+    QFontEngine *fontEngine;
+};
+Q_DECLARE_TYPEINFO(QTextItem, Q_PRIMITIVE_TYPE);
 
 struct QPaintEnginePrivate {
     QPaintEnginePrivate() : active(false), flags(0) {}
@@ -149,6 +170,7 @@ public:
     bool hasCapability(Capability cap) const { return gccaps&cap; }
 
     inline void updateState(QPainterState *state, bool updateGC = true);
+    inline QPainterState *painterState() const { return state; }
 
 private:
     void updateInternal(QPainterState *state, bool updateGC = true);

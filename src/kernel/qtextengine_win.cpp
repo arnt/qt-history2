@@ -52,7 +52,7 @@ typedef struct tag_SCRIPT_ITEM {
     QScriptAnalysis  a;
 } SCRIPT_ITEM;
 
-typedef GlyphAttributes SCRIPT_VISATTR;
+typedef QGlyphAttributes SCRIPT_VISATTR;
 typedef qoffset_t GOFFSET;
 
 #define USP_E_SCRIPT_NOT_IN_FONT   \

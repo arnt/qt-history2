@@ -32,14 +32,13 @@
 
 class QPaintDevice;
 class QPainterPrivate;
-class QTextParag;
 class QPointArray;
 class QPen;
 class QBrush;
 class QWMatrix;
 class QFontInfo;
 class QFontMetrics;
-struct QGlyphFragment;
+class QTextItem;
 
 class Q_GUI_EXPORT QPainter : public Qt
 {
@@ -188,18 +187,16 @@ public:
 #endif
 
     void drawText(int x, int y, int w, int h, int flags, const QString&, int len = -1,
-		  QRect *br=0, QTextParag **intern=0);
-    void drawText(const QRect &, int flags, const QString&, int len = -1, QRect *br=0,
-		  QTextParag **intern=0);
+		  QRect *br=0);
+    void drawText(const QRect &, int flags, const QString&, int len = -1, QRect *br=0);
 
     void drawTextItem(int x, int y, const QTextItem &ti, int textflags = 0);
     void drawTextItem(const QPoint& p, const QTextItem &ti, int textflags = 0);
-    void drawGlyphs(const QPoint& p, const QGlyphFragment &f, int textflags = 0);
 
     QRect boundingRect(int x, int y, int w, int h, int flags,
-		       const QString&, int len = -1, QTextParag **intern=0);
+		       const QString&, int len = -1);
     QRect boundingRect(const QRect &, int flags,
-		       const QString&, int len = -1, QTextParag **intern=0);
+		       const QString&, int len = -1);
 
     void fillRect(int x, int y, int w, int h, const QBrush &);
     void fillRect(const QRect &, const QBrush &);
@@ -400,9 +397,9 @@ inline void QPainter::drawPicture( const QPoint &p, const QPicture &pic )
 }
 
 inline QRect QPainter::boundingRect(const QRect &r, int flags,
-				     const QString&s, int len, QTextParag **intern)
+				     const QString&s, int len)
 {
-    return boundingRect(r.x(), r.y(), r.width(), r.height(), flags, s, len, intern);
+    return boundingRect(r.x(), r.y(), r.width(), r.height(), flags, s, len);
 }
 
 inline void QPainter::drawTextItem(const QPoint& p, const QTextItem &ti, int textflags)
@@ -411,9 +408,9 @@ inline void QPainter::drawTextItem(const QPoint& p, const QTextItem &ti, int tex
 }
 
 inline void QPainter::drawText(int x, int y, int w, int h, int flags, const QString &str,
-				int len, QRect *br, QTextParag **intern)
+				int len, QRect *br)
 {
-    drawText(QRect(x, y, w, h), flags, str, len, br, intern);
+    drawText(QRect(x, y, w, h), flags, str, len, br);
 }
 
 inline void QPainter::drawImage(const QPoint &p, const QImage &i, const QRect &sr,

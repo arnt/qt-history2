@@ -827,6 +827,7 @@ void QTextEngine::setText(const QString &str)
     direction = QChar::DirON;
     haveCharAttributes = false;
     widthOnly = false;
+    minWidth = 0;
 
     used = 0;
     allocated = 0;
@@ -926,7 +927,7 @@ void QTextEngine::shape( int item ) const
 	if (inlineObjectIface && formats) {
 	    QTextFormat format = formats->format(items[item].format);
 	    // ##### const cast
-	    inlineObjectIface->layoutItem(QTextItem(item, const_cast<QTextEngine *>(this)), format);
+	    inlineObjectIface->layoutObject(QTextObject(item, const_cast<QTextEngine *>(this)), format);
 	}
     } else {
 	shapeText(item);

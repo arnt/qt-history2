@@ -5872,18 +5872,19 @@ void QPSPrinter::drawTextItem(const QPoint &p, const QTextItem &ti, int textflag
 {
     int x = p.x();
     int y = p.y();
-    QScriptItem &si = ti.engine()->items[ti.item()];
-    int len = ti.engine()->length( ti.item() );
-    if ( si.isSpace || si.isObject )
-	return;
+    // #########################
+//     QScriptItem &si = ti.engine()->items[ti.item()];
+//     int len = ti.engine()->length( ti.item() );
+//     if ( si.isSpace || si.isObject )
+// 	return;
 
-    if ( d->currentSet != d->currentUsed || d->scriptUsed != si.analysis.script || !d->currentFontFile ) {
-	d->currentUsed = d->currentSet;
-	d->setFont( d->currentSet, si.analysis.script );
-    }
-    if( d->currentFontFile ) // better not crash in case somethig goes wrong.
-	d->currentFontFile->drawText( d->pageStream, QPoint(x, y), ti.engine(), ti.item(),
-				      ti.engine()->string.mid( si.position, len ), d, state);
+//     if ( d->currentSet != d->currentUsed || d->scriptUsed != si.analysis.script || !d->currentFontFile ) {
+// 	d->currentUsed = d->currentSet;
+// 	d->setFont( d->currentSet, si.analysis.script );
+//     }
+//     if( d->currentFontFile ) // better not crash in case somethig goes wrong.
+// 	d->currentFontFile->drawText( d->pageStream, QPoint(x, y), ti.engine(), ti.item(),
+// 				      ti.engine()->string.mid( si.position, len ), d, state);
 }
 
 void QPSPrinter::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p, bool optim)

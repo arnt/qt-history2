@@ -28,7 +28,6 @@ class QGfx;
 
 class QIODevice;
 class QString;
-class QTextItem;
 class QApplicationPrivate;
 class QPaintEngine;
 class QX11Info;

@@ -16,6 +16,7 @@
 #ifndef QT_H
 #include "qglobal.h"
 #include "qshared.h"
+#include "qtextengine_p.h"
 #include "qfontdata_p.h"
 #endif // QT_H
 
@@ -33,9 +34,7 @@ struct TransformedFont;
 typedef int advance_t;
 
 class QTextEngine;
-struct QGlyphFragment;
 struct QGlyphLayout;
-struct GlyphAttributes;
 
 #if defined(Q_WS_X11) || defined(Q_WS_WIN) || defined(Q_WS_MAC)
 class QFontEngine : public QShared
@@ -80,7 +79,7 @@ public:
     virtual QOpenType *openType() const { return 0; }
 #endif
 
-    virtual void draw(QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags) = 0;
+    virtual void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags) = 0;
 
     virtual glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs) = 0;
     virtual glyph_metrics_t boundingBox(glyph_t glyph) = 0;
@@ -177,7 +176,7 @@ public:
     /* returns 0 as glyph index for non existant glyphs */
     Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored) const;
 
-    void draw(QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags);
+    void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags);
 
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
@@ -232,7 +231,7 @@ public:
 
     Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored) const;
 
-    void draw(QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags);
+    void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags);
 
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
@@ -302,7 +301,7 @@ public:
 
     Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored) const;
 
-    void draw(QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags);
+    void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags);
 
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
@@ -356,7 +355,7 @@ public:
 
     Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored) const;
 
-    void draw(QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags);
+    void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags);
 
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
@@ -406,7 +405,7 @@ public:
 
     Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored) const;
 
-    void draw(QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags);
+    void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags);
 
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
@@ -479,7 +478,7 @@ private:
     TTO_GSUB_String *str;
     TTO_GSUB_String *tmp;
     TTO_GPOS_Data *positions;
-    GlyphAttributes *tmpAttributes;
+    QGlyphLayout::Attributes *tmpAttributes;
     unsigned short *tmpLogClusters;
     int length;
     int orig_nglyphs;
@@ -508,7 +507,7 @@ public:
 
     Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored) const;
 
-    void draw(QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags);
+    void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags);
 
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
@@ -528,7 +527,7 @@ public:
 
     enum { WIDTH=0x01, DRAW=0x02, EXISTS=0x04 };
     int doTextTask(const QChar *s, int pos, int use_len, int len, uchar task, int =-1, int y=-1,
-		   QPainter *p=NULL) const;
+		   QPaintEngine *p=NULL) const;
 };
 
 #elif defined(Q_WS_WIN)
@@ -540,7 +539,7 @@ public:
 
     Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored) const;
 
-    void draw(QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags);
+    void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags);
 
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);

@@ -74,7 +74,7 @@ struct QtFontEnginePos {
  	int y;
      };
 
-void QFontEngine::draw( QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags )
+void QFontEngine::draw( QPainter *p, int x, int y, const QTextItem &si, int textFlags )
 {
 #ifndef QT_NO_TRANSFORMATIONS
     if ( p->d->txop > QPainter::TxScale ) {
@@ -203,7 +203,7 @@ void QFontEngine::draw( QPainter *p, int x, int y, const QGlyphFragment &si, int
     for (int i = 0; i < si.num_glyphs; ++i)
 	g[i] = glyphs[i].glyph;
 
-    if ( si.analysis.bidiLevel % 2 ) {
+    if ( si.right_to_left ) {
 	int i = si.num_glyphs;
 	while( i-- ) {
 	    x += glyphs[i].advance;

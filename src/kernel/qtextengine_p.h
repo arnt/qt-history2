@@ -20,6 +20,7 @@
 #include "private/qtextlayout_p.h"
 #include <private/qfontdata_p.h>
 #include <qvector.h>
+#include <qpaintengine.h>
 #endif // QT_H
 
 #include <stdlib.h>
@@ -68,10 +69,10 @@ struct glyph_metrics_t
 Q_DECLARE_TYPEINFO(glyph_metrics_t, Q_PRIMITIVE_TYPE);
 
 typedef unsigned short glyph_t;
+typedef int advance_t;
 
 #if defined( Q_WS_X11 ) || defined ( Q_WS_QWS ) || defined (Q_WS_MAC)
 
-typedef int advance_t;
 
 struct QScriptAnalysis
 {
@@ -136,34 +137,40 @@ inline bool operator == ( const QScriptAnalysis &sa1, const QScriptAnalysis &sa2
 
 #endif
 
-// enum and struct are  made to be compatible with Uniscribe, dont change unless you know what you're doing.
-struct GlyphAttributes {
-    // highest value means highest priority for justification. Justification is done by first inserting kashidas
-    // starting with the highest priority positions, then stretching spaces, afterwards extending inter char
-    // spacing, and last spacing between arabic words.
-    // NoJustification is for example set for arabic where no Kashida can be inserted or for diacritics.
-    enum Justification {
-	NoJustification= 0,   // Justification can't be applied at this glyph
-	Arabic_Space   = 1,   // This glyph represents a space in an Arabic item
-	Character      = 2,   // Inter-character justification point follows this glyph
-	Space          = 4,   // This glyph represents a blank outside an Arabic run
-	Arabic_Normal  = 7,   // Normal Middle-Of-Word glyph that connects to the right (begin)
-	Arabic_Kashida = 8,   // Kashida(U+640) in middle of word
-	Arabic_Alef    = 9,   // Final form of Alef-like (U+627, U+625, U+623, U+632)
-	Arabic_Ha      = 10,  // Final Form Of Ha (U+647)
-	Arabic_Ra      = 11,  // Final Form Of Ra (U+631)
-	Arabic_Ba      = 12,  // Middle-Of-Word Form Of Ba (U+628)
-	Arabic_Bara    = 13,  // Ligature Of Alike (U+628,U+631)
-	Arabic_Seen    = 14   // Highest Priority: Initial Shape Of Seen(U+633) (End)
+struct QGlyphLayout
+{
+    unsigned short glyph;
+    int advance;
+    struct { short x; short y; } offset;
+    struct Attributes {
+	// highest value means highest priority for justification. Justification is done by first inserting kashidas
+	// starting with the highest priority positions, then stretching spaces, afterwards extending inter char
+	// spacing, and last spacing between arabic words.
+	// NoJustification is for example set for arabic where no Kashida can be inserted or for diacritics.
+	enum Justification {
+	    NoJustification= 0,   // Justification can't be applied at this glyph
+	    Arabic_Space   = 1,   // This glyph represents a space in an Arabic item
+	    Character      = 2,   // Inter-character justification point follows this glyph
+	    Space          = 4,   // This glyph represents a blank outside an Arabic run
+	    Arabic_Normal  = 7,   // Normal Middle-Of-Word glyph that connects to the right (begin)
+	    Arabic_Kashida = 8,   // Kashida(U+640) in middle of word
+	    Arabic_Alef    = 9,   // Final form of Alef-like (U+627, U+625, U+623, U+632)
+	    Arabic_Ha      = 10,  // Final Form Of Ha (U+647)
+	    Arabic_Ra      = 11,  // Final Form Of Ra (U+631)
+	    Arabic_Ba      = 12,  // Middle-Of-Word Form Of Ba (U+628)
+	    Arabic_Bara    = 13,  // Ligature Of Alike (U+628,U+631)
+	    Arabic_Seen    = 14   // Highest Priority: Initial Shape Of Seen(U+633) (End)
+	};
+	unsigned short justification   :4;  // Justification class
+	unsigned short clusterStart    :1;  // First glyph of representation of cluster
+	unsigned short mark            :1;  // needs to be positioned around base char
+	unsigned short zeroWidth       :1;  // ZWJ, ZWNJ etc, with no width
+	unsigned short dontPrint       :1;
+	unsigned short combiningClass  :8;
     };
-    unsigned short justification   :4;  // Justification class
-    unsigned short clusterStart    :1;  // First glyph of representation of cluster
-    unsigned short mark            :1;  // needs to be positioned around base char
-    unsigned short zeroWidth       :1;  // ZWJ, ZWNJ etc, with no width
-    unsigned short dontPrint       :1;
-    unsigned short combiningClass  :8;
+    Attributes attributes;
 };
-Q_DECLARE_TYPEINFO(GlyphAttributes, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(QGlyphLayout, Q_PRIMITIVE_TYPE);
 
 // also this is compatible to uniscribe. Do not change.
 struct QCharAttributes {
@@ -220,32 +227,6 @@ struct QScriptLine
 Q_DECLARE_TYPEINFO(QScriptLine, Q_PRIMITIVE_TYPE);
 
 typedef QVector<QScriptLine> QScriptLineArray;
-
-struct QGlyphLayout
-{
-    glyph_t glyph;
-    advance_t advance;
-    struct { short x; short y; } offset;
-    GlyphAttributes attributes;
-};
-Q_DECLARE_TYPEINFO(QGlyphLayout, Q_PRIMITIVE_TYPE);
-
-
-struct QGlyphFragment
-{
-    QScriptAnalysis analysis;
-    unsigned short hasPositioning : 1;
-    unsigned short underline : 1;
-    unsigned short overline : 1;
-    unsigned short strikeout : 1;
-    short descent;
-    int ascent;
-    int width;
-    int num_glyphs;
-    QFontEngine *font;
-    QGlyphLayout *glyphs;
-};
-Q_DECLARE_TYPEINFO(QGlyphFragment, Q_PRIMITIVE_TYPE);
 
 
 class QFontPrivate;
@@ -344,6 +325,7 @@ public:
     void **memory;
     int num_glyphs;
     int used;
+    int minWidth;
 
     int cursorPos;
     const QTextLayout::Selection *selections;

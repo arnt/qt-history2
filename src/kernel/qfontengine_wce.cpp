@@ -156,7 +156,7 @@ QFontEngine::Error QFontEngineWin::stringToCMap( const QChar *str, int len, QGly
 #define COLOR_VALUE(c) ((p->flags & QPainter::RGBColor) ? RGB(c.red(),c.green(),c.blue()) : c.pixel())
 
 
-void QFontEngineWin::draw( QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags )
+void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextItem &si, int textFlags )
 {
     bool force_bitmap = p->rop != QPainter::CopyROP;
     force_bitmap |= p->txop >= QPainter::TxScale
@@ -313,7 +313,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QGlyphFragment &si, 
     int xo = x;
 
     y -= ascent();
-    if ( !(si.analysis.bidiLevel % 2) ) {
+    if ( !(si.right_to_left) ) {
 	bool haveOffsets = FALSE;
 	int w = 0;
 	for( int i = 0; i < si.num_glyphs; i++ ) {
@@ -476,7 +476,7 @@ QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *,  int len, QGlyph
     return NoError;
 }
 
-void QFontEngineBox::draw( QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags )
+void QFontEngineBox::draw( QPainter *p, int x, int y, const QTextItem &si, int textFlags )
 {
     Q_UNUSED( p );
     Q_UNUSED( x );
