@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: pictures.doc,v 2.7 1999/06/16 09:38:17 warwick Exp $
+** $Id: pictures.doc,v 2.8 1999/06/16 09:38:54 warwick Exp $
 **
 ** Pictures of Most Widgets in Qt
 **
@@ -21,7 +21,7 @@
 **
 *****************************************************************************/
 
-// $Id: pictures.doc,v 2.7 1999/06/16 09:38:17 warwick Exp $
+// $Id: pictures.doc,v 2.8 1999/06/16 09:38:54 warwick Exp $
 
 /*! \page pictures.html
 
@@ -77,8 +77,6 @@ Non-hierarchical list view
 
 <img src="treeview.png" width="227" height="261" align="top">&nbsp;
 Hierarchical list view (multi-column tree view)
-
-<img src=qlistbox-w.png align=top>&nbsp;Windows
 
 <h2><a href="qmainwindow.html">QMainWindow</a></h2>
 <img src=qmainwindow-w.png align=top>&nbsp;Windows
