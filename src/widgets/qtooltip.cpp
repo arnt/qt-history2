@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#11 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -15,7 +15,7 @@
 #include "qlabel.h"
 #include "qpoint.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#10 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#11 $");
 
 // magic value meaning an entire widget - if someone tries to insert a
 // tool tip on this part of a widget it will be interpreted as the
@@ -125,6 +125,7 @@ void QTipManager::add( QWidget * w, const QRect & r, const char * s,
 	t = new QTip;
 	t->next = 0;
 	w->installEventFilter( tipManager );
+	w->setMouseTracking( TRUE );
 	tips->insert( (long)w, t );
     } else {
 	while( t && t->rect != r && t->next != 0 )
