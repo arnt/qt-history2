@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#211 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#212 $
 **
 ** Definition of QWidget class
 **
@@ -363,9 +363,9 @@ protected:
     QWExtra	*extraData();
     QFocusData	*focusData();
 
-    void	setSizeGrip(bool);
-    void	setKeyCompression(bool);
-    void	setCaret(int x, int y, int w, int h);
+    virtual void setSizeGrip(bool);
+    virtual void setKeyCompression(bool);
+    virtual void setCaret(int x, int y, int w, int h);
 
 private slots:
     void	 focusProxyDestroyed();
@@ -404,17 +404,6 @@ private:
     QFont	 fnt;
     QLayout 	*lay_out;
     QWExtra	*extra;
-    /*
-    uint	 automask : 1;
-    uint	 polished : 1;
-    uint	 paletteState : 2; // 0 uninitialized, 1 initialized, 2 fix
-    uint	 fontState : 2; // 0 uninitialized, 1 initialized, 2 fix
-    uint	 dnd : 1; // drop enable
-    uint	 keyCompression : 1;
-if defined(_WS_X11_)
-    uint	 usposition : 1;
-endif
-    */
 
     static void	 createMapper();
     static void	 destroyMapper();
