@@ -102,7 +102,7 @@ public:
         painter = p;
         pen = QPen();
         bgOrigin = QPointF(0, 0);
-        brush = bgBrush = QBrush();
+        brush = QBrush();
         font = deviceFont = QFont();
         tmpClipRegion = QRegion();
         tmpClipPath = QPainterPath();
