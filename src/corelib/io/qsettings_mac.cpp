@@ -22,29 +22,39 @@ static const int numHostNames = 2;
 
 /*
     On the Mac, it is more natural to use '.' as the key separator
-    than '/'. Therefore, it makes sense to replace '/' with '.' and
-    vice versa.
+    than '/'. Therefore, it makes sense to replace '/' with '.' in
+    keys. Then we replace '.' with middle dots (which we can't show
+    here) and middle dots with '/'. A key like "4.0/BrowserCommand"
+    becomes "4<middot>0.BrowserCommand".
 */
-static QString swapSlashesAndDots(const QString &key)
+
+enum RotateShift { Macify = 1, Qtify = 2 };
+
+static QString rotateSlashesDotsAndMiddots(const QString &key, int shift)
 {
+    static const int NumKnights = 3;
+    static char knightsOfTheRoundTable[NumKnights] = { '/', '.', '\xb7' };
     QString result = key;
+
     for (int i = 0; i < result.size(); ++i) {
-        if (result.at(i) == QLatin1Char('/'))
-            result[i] = QLatin1Char('.');
-        else if (result.at(i) == QLatin1Char('.'))
-            result[i] = QLatin1Char('/');
+        for (int j = 0; j < NumKnights; ++j) {
+            if (result.at(i) == QLatin1Char(knightsOfTheRoundTable[j])) {
+                result[i] = QLatin1Char(knightsOfTheRoundTable[(j + shift) % NumKnights]).unicode();
+                break;
+            }
+        }
     }
     return result;
 }
 
 static QCFType<CFStringRef> macKey(const QString &key)
 {
-    return QCFString::toCFStringRef(swapSlashesAndDots(key));
+    return QCFString::toCFStringRef(rotateSlashesDotsAndMiddots(key, Macify));
 }
 
 static QString qtKey(CFStringRef cfkey)
 {
-    return swapSlashesAndDots(QCFString::toQString(cfkey));
+    return rotateSlashesDotsAndMiddots(QCFString::toQString(cfkey), Qtify);
 }
 
 static QCFType<CFPropertyListRef> macValue(const QVariant &value);
