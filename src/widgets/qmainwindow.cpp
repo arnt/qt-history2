@@ -469,8 +469,8 @@ public:
 // NOT REVISED
 /*! \class QMainWindow qmainwindow.h
 
-  \brief The QMainWindow class provides a typical application window,
-  with a menu bar, some tool bars and a status bar.
+  \brief The QMainWindow class provides a typical main application
+  window, with a menu bar, tool bars and a status bar.
 
   \ingroup application
 
