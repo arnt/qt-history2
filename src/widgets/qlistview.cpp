@@ -6672,6 +6672,7 @@ void QListViewItem::moveToJustAfter( QListViewItem * olderSibling )
 	}
 	siblingItem = olderSibling->siblingItem;
 	olderSibling->siblingItem = this;
+	parentItem->lsc = Unsorted;
     }
 }
 
