@@ -415,11 +415,13 @@ void QTextDocument::setHtml(const QString &html)
     \value FindWholeWords Makes find match only complete words.
 */
 
-static bool findInBlock(const QTextBlock &block, const QString &text, const QString &expression, int offset, QTextDocument::FindFlags options, QTextCursor &cursor)
+static bool findInBlock(const QTextBlock &block, const QString &text, const QString &expression, int offset, 
+                        QTextDocument::FindFlags options, QTextDocument::FindDirection direction, QTextCursor &cursor)
 {
     const Qt::CaseSensitivity cs = (options & QTextDocument::FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive;
 
-    const int idx = text.lastIndexOf(expression, offset, cs);
+    const int idx = (direction == QTextDocument::FindForward) ?
+                    text.indexOf(expression, offset, cs) : text.lastIndexOf(expression, offset, cs);
     if (idx == -1)
         return false;
 
@@ -471,7 +473,7 @@ QTextCursor QTextDocument::find(const QString &expr, int from, FindFlags options
 
             const int blockLength = block.length();
             while (blockOffset < blockLength) {
-                if (findInBlock(block, blockText, expr, blockOffset, options, cursor))
+                if (findInBlock(block, blockText, expr, blockOffset, options, direction, cursor))
                     return cursor;
 
                 blockOffset += expr.length();
@@ -488,7 +490,7 @@ QTextCursor QTextDocument::find(const QString &expr, int from, FindFlags options
             const QString blockText = block.text();
 
             while (blockOffset >= 0) {
-                if (findInBlock(block, blockText, expr, blockOffset, options, cursor))
+                if (findInBlock(block, blockText, expr, blockOffset, options, direction, cursor))
                     return cursor;
 
                 blockOffset -= expr.length();
