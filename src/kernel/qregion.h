@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.h#10 $
+** $Id: //depot/qt/main/src/kernel/qregion.h#11 $
 **
 ** Definition of QRegion class
 **
@@ -25,7 +25,7 @@ public:
 
     QRegion();
     QRegion( const QRect &, RegionType = Rectangle );
-    QRegion( const QPointArray & );
+    QRegion( const QPointArray &, bool winding=FALSE );
     QRegion( const QRegion & );
    ~QRegion();
     QRegion &operator=( const QRegion & );
@@ -79,14 +79,15 @@ private:
 };
 
 
-#define QRGN_SETRECT	1			// region stream commands
-#define QRGN_SETELLIPSE 2
-#define QRGN_SETPTARRAY 3
-#define QRGN_MOVE	4
-#define QRGN_OR		5
-#define QRGN_AND	6
-#define QRGN_SUB	7
-#define QRGN_XOR	8
+#define QRGN_SETRECT		1		// region stream commands
+#define QRGN_SETELLIPSE		2
+#define QRGN_SETPTARRAY_ALT	3
+#define QRGN_SETPTARRAY_WIND	4
+#define QRGN_MOVE		5
+#define QRGN_OR			6
+#define QRGN_AND		7
+#define QRGN_SUB		8
+#define QRGN_XOR		9
 
 
 // --------------------------------------------------------------------------
