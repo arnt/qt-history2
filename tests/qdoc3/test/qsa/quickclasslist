@@ -188,6 +188,7 @@ QVBox
 QVBoxLayout
 QVButtonGroup
 QVGroupBox
+QWidget
 QWidgetStack
 QWindowsStyle
 QWizard
