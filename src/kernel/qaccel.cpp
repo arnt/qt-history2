@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#61 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#62 $
 **
 ** Implementation of QAccel class
 **
@@ -434,7 +434,6 @@ int QAccel::shortcutKey( const QString &str )
 	    return 0;
 	if ( str[p] != '&' ) {
 	    int c = str[p].unicode();
-	    debug( "sex <%s> %d", str.ascii(), c );
 	    if ( c < 32 || ( c > 126 && c < 160 ) || c > 255 )
 		return 0;
 	    if ( c >= 'a' && c <= 'z' )
