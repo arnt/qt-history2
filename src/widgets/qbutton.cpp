@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#35 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#36 $
 **
 ** Implementation of QButton widget class
 **
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#35 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#36 $")
 
 
 /*----------------------------------------------------------------------------
@@ -51,6 +51,8 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#35 $")
   auto-resizing\endlink.  Enabling
   auto-resizing will make a label resize itself whenever the contents
   change.
+
+  \sa QButtonGroup
  ----------------------------------------------------------------------------*/
 
 
@@ -232,7 +234,7 @@ void QButton::setAutoResize( bool enable )
   \sa switchOff(), isOn()
  ----------------------------------------------------------------------------*/
 
-void QButton::switchOn()			// switch button on
+void QButton::switchOn()
 {
 #if defined(CHECK_STATE)
     if ( !toggleBt )
@@ -250,7 +252,7 @@ void QButton::switchOn()			// switch button on
   \sa switchOn(), isOn()
  ----------------------------------------------------------------------------*/
 
-void QButton::switchOff()			// switch button off
+void QButton::switchOff()
 {
 #if defined(CHECK_STATE)
     if ( !toggleBt )
@@ -279,7 +281,7 @@ void QButton::switchOff()			// switch button off
   \sa toggleButton()
  ----------------------------------------------------------------------------*/
 
-void QButton::setToggleButton( bool toggle )	// set to toggle button
+void QButton::setToggleButton( bool toggle )
 {
     toggleBt = toggle;
 }
@@ -321,10 +323,11 @@ void QButton::drawButtonLabel( QPainter * )
 
 
 /*----------------------------------------------------------------------------
-  Handles mouse press events for the button. \sa mouseReleaseEvent()
+  Handles mouse press events for the button.
+  \sa mouseReleaseEvent()
  ----------------------------------------------------------------------------*/
 
-void QButton::mousePressEvent( QMouseEvent *e ) // mouse press
+void QButton::mousePressEvent( QMouseEvent *e )
 {
     if ( e->button() != LeftButton || mlbDown )
 	return;
@@ -338,10 +341,11 @@ void QButton::mousePressEvent( QMouseEvent *e ) // mouse press
 }
 
 /*----------------------------------------------------------------------------
-  Handles mouse release events for the button. \sa mousePressEvent()
+  Handles mouse release events for the button.
+  \sa mousePressEvent()
  ----------------------------------------------------------------------------*/
 
-void QButton::mouseReleaseEvent( QMouseEvent *e)// mouse release
+void QButton::mouseReleaseEvent( QMouseEvent *e)
 {
     if ( e->button() != LeftButton || !mlbDown )
 	return;
@@ -363,9 +367,10 @@ void QButton::mouseReleaseEvent( QMouseEvent *e)// mouse release
 
 /*----------------------------------------------------------------------------
   Handles mouse move events for the button.
+  \sa mousePressEvent(), mouseReleaseEvent()
  ----------------------------------------------------------------------------*/
 
-void QButton::mouseMoveEvent( QMouseEvent *e )	// mouse move event
+void QButton::mouseMoveEvent( QMouseEvent *e )
 {
     if ( !((e->state() & LeftButton) && mlbDown) )
 	return;					// left mouse button is up
