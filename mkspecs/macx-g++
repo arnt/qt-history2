@@ -57,8 +57,8 @@ QMAKE_LIBS_QT		= -lqt
 QMAKE_LIBS_QT_THREAD    = -lqt-mt
 QMAKE_LIBS_THREAD	= 
 
-QMAKE_MOC		+= $(QTDIR)/bin/moc
-QMAKE_UIC		+= $(QTDIR)/bin/uic
+QMAKE_MOC		= $(QTDIR)/bin/moc
+QMAKE_UIC		= $(QTDIR)/bin/uic
 
 QMAKE_AR		= ar cq
 QMAKE_RANLIB		= ranlib
@@ -66,6 +66,6 @@ QMAKE_RANLIB		= ranlib
 QMAKE_TAR		= tar -cf
 QMAKE_GZIP		= gzip -9f
 
-QMAKE_COPY              = cp -f
+QMAKE_COPY              = install -c
 QMAKE_MOVE              = mv
 QMAKE_DEL               = rm -f

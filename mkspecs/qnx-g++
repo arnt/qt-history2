@@ -52,8 +52,8 @@ QMAKE_LIBS_QT		= -lqt
 QMAKE_LIBS_OPENGL	= -lGLU -lGL -lXmu
 QMAKE_LIBS_OPENGL_QT	= -lGL -lXmu
 
-QMAKE_MOC		+= $(QTDIR)/bin/moc
-QMAKE_UIC		+= $(QTDIR)/bin/uic
+QMAKE_MOC		= $(QTDIR)/bin/moc
+QMAKE_UIC		= $(QTDIR)/bin/uic
 
 QMAKE_AR		= ar cqs
 QMAKE_RANLIB		=
@@ -61,6 +61,6 @@ QMAKE_RANLIB		=
 QMAKE_TAR		= tar -cf
 QMAKE_GZIP		= gzip -9f
 
-QMAKE_COPY              = cp -f
+QMAKE_COPY              = install -c
 QMAKE_MOVE              = mv
 QMAKE_DEL               = rm -f

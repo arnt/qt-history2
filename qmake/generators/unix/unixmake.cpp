@@ -608,34 +608,38 @@ UnixMakefileGenerator::init()
 QString
 UnixMakefileGenerator::defaultInstall(const QString &t)
 {
-    QStringList ret;
+    QString target="$(TARGET)";
+    QStringList links;
     if(t == "target") {
 	if(project->variables()["TEMPLATE"].first() == "app") {
-	    ret << "$(TARGET)";
+
 	} else if(!project->isActiveConfig("staticlib")) {
-	    if(project->isActiveConfig("plugin"))
-		ret << "$(TARGETD)";
-	    else if ( !project->variables()["QMAKE_HPUX_SHLIB"].isEmpty() )
-		ret << "$(TARGET)" << "$(TARGET0)";
-	    else
-		ret << "$(TARGET)" << "$(TARGET0)" << "$(TARGET1)" << "$(TARGET2)";
+	    if(project->isActiveConfig("plugin")) {
+		
+	    } else if ( !project->variables()["QMAKE_HPUX_SHLIB"].isEmpty() ) {
+		links << "$(TARGET0)";
+	    }else
+		links << "$(TARGET0)" << "$(TARGET1)" << "$(TARGET2)";
 	} else {
-	    ret = "$(TARGETA)";
+	    target = "$(TARGETA)";
 	}
     }
-    if(!ret.isEmpty()) {
-	QString targs, destdir=project->variables()["DESTDIR"].first();
-	for(QStringList::Iterator it = ret.begin(); it != ret.end(); it++) {
-	    QString tmp;
-	    if(!destdir.isEmpty())
-		tmp = destdir + Option::dir_sep;
-	    tmp += (*it);
-	    targs += Option::fixPathToTargetOS(tmp, FALSE) + " ";
-	}
-	if(Option::mode == Option::WIN_MODE) {
-	} else if(Option::mode == Option::UNIX_MODE) {
-	    return QString("$(COPY) ") + targs + project->variables()["target.path"].first();
+    
+    QString targetdir = Option::fixPathToTargetOS(project->variables()["target.path"].first(), FALSE);
+    if(targetdir.right(1) != Option::dir_sep)
+	targetdir += Option::dir_sep;
+
+    QString ret, destdir=project->variables()["DESTDIR"].first();
+    if(!destdir.isEmpty() && destdir.right(1) != Option::dir_sep)
+	destdir += Option::dir_sep;
+    ret = QString("$(COPY) ") + Option::fixPathToTargetOS(destdir + target, FALSE) + " " + targetdir;
+    if(!links.isEmpty()) {
+	for(QStringList::Iterator it = links.begin(); it != links.end(); it++) {
+	    if(Option::mode == Option::WIN_MODE) {
+	    } else if(Option::mode == Option::UNIX_MODE) {
+		ret += "\n\tln -s " + Option::fixPathToTargetOS(destdir + (*it), FALSE) + " " + targetdir;
+	    }
 	}
     }
-    return "";
+    return ret;
 }

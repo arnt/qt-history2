@@ -285,10 +285,11 @@ QMakeProject::read(const char *file, QMap<QString, QStringList> &place)
 bool
 QMakeProject::read(QString project, QString pwd)
 {
+    QString cachefile;
     if(cfile.isEmpty()) {
 	/* parse the cache */
 	if(Option::do_cache) {
-	    QString cachefile = Option::cachefile;
+	    cachefile = Option::cachefile;
 	    if(cachefile.find(QDir::separator()) == -1) {
 		/* find the cache file, otherwise return false */
 		QString start_dir;
@@ -314,9 +315,6 @@ QMakeProject::read(QString project, QString pwd)
 		}
 	    }
 	    if(!cachefile.isEmpty()) {
-		if(Option::debug_level)
-		    printf("QMAKECACHE file: reading %s\n", cachefile.latin1());
-
 		read(cachefile, cache);
 		if(Option::specfile.isEmpty() && !cache["MKSPEC"].isEmpty())
 		    Option::specfile = cache["MKSPEC"].first();
@@ -346,8 +344,13 @@ QMakeProject::read(QString project, QString pwd)
 	    fprintf(stderr, "Failure to read MKSPEC file %s.\n", Option::specfile.latin1());
 	    return FALSE;
 	}
-	for( QMap<QString, QStringList>::Iterator it = cache.begin(); it != cache.end(); ++it)
-	    base_vars[it.key()] += it.data();
+	if(!cachefile.isEmpty()) {
+	    if(Option::debug_level)
+		printf("QMAKECACHE file: reading %s\n", cachefile.latin1());
+	    read(cachefile, base_vars);
+	}
+
+	
 
 	cfile = project;
 	for(QStringList::Iterator it = Option::user_vars.begin(); it != Option::user_vars.end(); ++it) {
