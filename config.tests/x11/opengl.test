@@ -41,7 +41,7 @@ do
 	if [ ! -z "$FOUND_LIB" ]
 	then
 	    F=yes
-	    [ "$VERBOSE" = "yes" ] echo "  Found $L lib in $LIBDIR"
+	    [ "$VERBOSE" = "yes" ] && echo "  Found $L lib in $LIBDIR"
 	    break
 	fi
     done
