@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#14 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#15 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -76,6 +76,8 @@ public:
 
     void cursorLeft( bool mark, long steps );
     void cursorRight( bool mark, long steps );
+    void cursorWordForward( bool mark );
+    void cursorWordBackward( bool mark );
 
     enum EchoMode { Normal, NoEcho, Password };
     virtual void setEchoMode( EchoMode );

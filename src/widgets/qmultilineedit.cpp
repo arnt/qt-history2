@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#38 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#39 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -874,7 +874,6 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
     if ( e->state() & ControlButton ) {
 	switch ( e->key() ) {
 	case Key_A:
-	case Key_Left:
 	    home( e->state() & ShiftButton );
 	    break;
 	case Key_B:
@@ -888,8 +887,19 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	    del();
 	    break;
 	case Key_E:
-	case Key_Right:
 	    end( e->state() & ShiftButton );
+	    break;
+	case Key_Left:
+	    cursorWordBackward( e->state() & ShiftButton );
+	    break;
+	case Key_Right:
+	    cursorWordForward( e->state() & ShiftButton );
+	    break;
+	case Key_Up:
+	    cursorUp( e->state() & ShiftButton );
+	    break;
+	case Key_Down:
+	    cursorDown( e->state() & ShiftButton );
 	    break;
 	case Key_F:
 	    cursorRight( e->state() & ShiftButton );
@@ -2812,3 +2822,75 @@ void QMultiLineEdit::setSelection( int row_from, int col_from, int row_to, int c
     row_from = col_from = row_to = col_to;
 }
 
+
+/*!
+  Moves the cursor one word to the right.  If \a mark is TRUE, the text
+  is marked. 
+  \sa cursorWordBackward()
+*/
+void QMultiLineEdit::cursorWordForward( bool mark )
+{
+    int x = cursorX;
+    int y = cursorY;
+    
+    if ( x == lineLength( y ) || textLine(y).at(x).isSpace() ) {
+	while ( x < lineLength( y ) && textLine(y).at(x).isSpace() )
+	    ++x;
+	if ( x == lineLength( y ) ) {
+	    if ( y < (int)contents->count() - 1) {
+		++y;
+		x = 0;
+		while ( x < lineLength( y ) && textLine(y).at(x).isSpace() )
+		    ++x;
+	    }
+	}
+    }
+    else {
+	while ( x < lineLength( y ) && !textLine(y).at(x).isSpace() )
+	    ++x;
+	int xspace = x;
+	while ( xspace < lineLength( y ) && textLine(y).at(xspace).isSpace() )
+	    ++xspace;
+	if ( xspace <  lineLength( y ) )
+	    x = xspace;
+    }
+    int oldY = cursorY;
+    setCursorPosition( y, x, mark );
+    if ( oldY != cursorY )
+	updateCell( oldY, 0, FALSE );
+    updateCell( cursorY, 0, FALSE );
+    blinkTimer = startTimer(  QApplication::cursorFlashTime() / 2  );
+}
+
+/*!
+  Moves the cursor one word to the left.  If \a mark is TRUE, the text
+  is marked. 
+  \sa cursorWordForward()
+*/
+void QMultiLineEdit::cursorWordBackward( bool mark )
+{
+    int x = cursorX;
+    int y = cursorY;
+
+    while ( x > 0 && textLine(y).at(x-1).isSpace() )
+	--x;
+
+    if ( x == 0 ) {
+	if ( y > 0 ) {
+	    --y;
+	    x = lineLength( y );
+	    while ( x > 0  && textLine(y).at(x-1).isSpace() )
+		--x;
+	}
+    }
+    else {
+	while ( x > 0  && !textLine(y).at(x-1).isSpace() )
+	    --x;
+    }
+    int oldY = cursorY;
+    setCursorPosition( y, x, mark );
+    if ( oldY != cursorY )
+	updateCell( oldY, 0, FALSE );
+    updateCell( cursorY, 0, FALSE );
+    blinkTimer = startTimer(  QApplication::cursorFlashTime() / 2  );
+}

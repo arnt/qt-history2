@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.h#73 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.h#74 $
 **
 ** Definition of QLineEdit widget class
 **
@@ -83,6 +83,8 @@ public:
 
     void	cursorLeft( bool mark, int steps = 1 );
     void	cursorRight( bool mark, int steps = 1 );
+    void	cursorWordForward( bool mark );
+    void	cursorWordBackward( bool mark );
     void	backspace();
     void	del();
     void	home( bool mark );

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#205 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#206 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -405,7 +405,6 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
     if ( e->state() & ControlButton ) {
 	switch ( e->key() ) {
 	case Key_A:
-	case Key_Left:
 	    home( e->state() & ShiftButton );
 	    break;
 	case Key_B:
@@ -419,7 +418,6 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    del();
 	    break;
 	case Key_E:
-	case Key_Right:
 	    end( e->state() & ShiftButton );
 	    break;
 	case Key_F:
@@ -442,6 +440,12 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 		copy();
 		del();
 	    }
+	    break;
+	case Key_Right:
+	    cursorWordForward( e->state() & ShiftButton );
+	    break;
+	case Key_Left:
+	    cursorWordBackward( e->state() & ShiftButton );
 	    break;
 	default:
 	    unknown++;
@@ -1034,8 +1038,8 @@ void QLineEdit::markWord( int pos )
     i++;
     markAnchor = i;
 
-    
-    
+
+
     int lim = tbuf.length();
     i = pos;
     while ( i < lim && tbuf.at(i).isPrint() && !tbuf.at(i).isSpace() )
@@ -1057,7 +1061,7 @@ void QLineEdit::markWord( int pos )
     }
     if ( style() == MotifStyle && echoMode() == Normal )
 	copy();
-    
+
     d->pmDirty = TRUE;
 }
 
@@ -1703,4 +1707,34 @@ has been called.
 bool QLineEdit::edited() const
 {
     return ed;
+}
+
+/*!
+  Moves the cursor one word to the right.  If \a mark is TRUE, the text
+  is marked. 
+  \sa cursorWordBackward()
+*/
+void QLineEdit::cursorWordForward( bool mark )
+{
+    int i = cursorPos;
+    while ( i < (int) tbuf.length() && !tbuf[i].isSpace() )
+	++i;
+    while ( i < (int) tbuf.length() && tbuf[i].isSpace() )
+	++i;
+    cursorRight( mark, i - cursorPos );
+}
+
+/*!
+  Moves the cursor one word to the left.  If \a mark is TRUE, the text
+  is marked. 
+  \sa cursorWordForward()
+*/
+void QLineEdit::cursorWordBackward( bool mark )
+{
+    int i = cursorPos;
+    while ( i > 0 && tbuf[i-1].isSpace() )
+	--i;
+    while ( i > 0 && !tbuf[i-1].isSpace() )
+	--i;
+    cursorLeft( mark, cursorPos - i );
 }
