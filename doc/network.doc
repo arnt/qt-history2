@@ -111,7 +111,7 @@ method, the type of the operation and some more stuff from this \c QNetworkOpera
 object. For more details see the class documentation of \c QNetworkOperation.
 
 Now, later you get signals emitted by the \c QUrlOperator, which inform you about the process
-of the operations. As you can call many methods which operate on an URL of one
+of the operations. As you can call many methods which operate on a URL of one
 \c QUrlOperator, it queues up all these operations. So you can't know which operation
 the \c QUrlOperator just processes. Because of this you get in each signal as the last argument
 a pointer to the \c QNetworkOperation object which is just processed and from which this
