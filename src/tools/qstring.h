@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#53 $
+** $Id: //depot/qt/main/src/tools/qstring.h#54 $
 **
 ** Definition of extended char array operations, and QByteArray and
 ** QString classes
@@ -285,11 +285,11 @@ QDataStream &operator>>( QDataStream &, Q2String & );
 inline bool Q2String::isNull() const
 { return unicode() == 0; }
 
-inline bool Q2String::isEmpty() const
-{ return length() == 0; }
-
 inline uint Q2String::length() const
 { return d->len; }
+
+inline bool Q2String::isEmpty() const
+{ return length() == 0; }
 
 inline Q2String Q2String::copy() const
 { return Q2String( *this ); }
