@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#270 $
+** $Id: //depot/qt/main/src/moc/moc.y#271 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -925,10 +925,16 @@ whatever:		  IDENTIFIER
 
 
 class_head:		  class_key
-			  qualified_class_name	{ g->className = $2; }
+			  qualified_class_name	{ g->className = $2; 
+						  if ( g->className == "QObject" )
+						     Q_OBJECTdetected = TRUE;
+						}
 			| class_key
 			  IDENTIFIER		/* possible DLL EXPORT macro */
-			  class_name		{ g->className = $3; }
+			  class_name		{ g->className = $3;
+						  if ( g->className == "QObject" )
+						     Q_OBJECTdetected = TRUE;
+						}
 			;
 
 full_class_head:	  class_head
@@ -1316,8 +1322,8 @@ property:		IDENTIFIER IDENTIFIER
 					}
 				    }
 				    g->props.append( new Property( lineNo, $1, $2,
-								g->propWrite, g->propRead, g->propReset, 
-								   g->propStored, g->propDesignable, 
+								g->propWrite, g->propRead, g->propReset,
+								   g->propStored, g->propDesignable,
 								   g->propScriptable, g->propOverride ) );
 				}
 			;
@@ -2688,7 +2694,7 @@ void generateClass()		      // generate C++ source code for a class
     const char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     const char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#270 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#271 $)\n**\n";
     const char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     const char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2749,6 +2755,8 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf( out, "#include <%sqvariant.h>\n", (const char*)g->qtPath );
 	g->hasVariantIncluded = TRUE;
     }
+    
+    bool isQObject =  g->className == "QObject" ;
 
 
 //
@@ -2781,12 +2789,21 @@ void generateClass()		      // generate C++ source code for a class
     fprintf( out, "#ifndef QT_NO_TRANSLATION\n" );
     fprintf( out, "QString %s::tr( const char *s, const char *c )\n{\n",
 	     (const char*)qualifiedClassName() );
-    fprintf( out, "    return qApp->translate( \"%s\", s, c, FALSE );\n}\n",
+    fprintf( out, "    if ( qApp )\n" );
+    fprintf( out, "\treturn qApp->translate( \"%s\", s, c, FALSE );\n",
 	     (const char*)qualifiedClassName() );
+    fprintf( out, "    else\n" );
+    fprintf( out, "\treturn QString::fromLatin1( s );\n",
+	     (const char*)qualifiedClassName() );
+    fprintf( out, "}\n" );
     fprintf( out, "QString %s::trUtf8( const char *s, const char *c )\n{\n",
 	     (const char*)qualifiedClassName() );
-    fprintf( out, "    return qApp->translate( \"%s\", s, c, TRUE );\n}\n",
+    fprintf( out, "    if ( qApp )\n" );
+    fprintf( out, "\treturn qApp->translate( \"%s\", s, c, TRUE );\n",
 	     (const char*)qualifiedClassName() );
+    fprintf( out, "    else\n" );
+    fprintf( out, "\treturn QString::fromUtf8( s );\n" );
+    fprintf( out, "}\n" );
     fprintf( out, "#endif // QT_NO_TRANSLATION\n\n" );
 
 //
@@ -2794,7 +2811,9 @@ void generateClass()		      // generate C++ source code for a class
 //
     fprintf( out, "QMetaObject* %s::staticMetaObject()\n{\n", (const char*)qualifiedClassName() );
     fprintf( out, "    if ( metaObj )\n\treturn metaObj;\n" );
-    if ( !g->superClassName.isEmpty() )
+    if ( isQObject )
+	fprintf( out, "    QMetaObject* parentObject = staticQtMetaObject();\n" );
+    else if ( !g->superClassName.isEmpty() )
 	fprintf( out, "    QMetaObject* parentObject = %s::staticMetaObject();\n", (const char*)g->superClassName );
     else
 	fprintf( out, "    QMetaObject* parentObject = 0;\n" );
@@ -3009,14 +3028,14 @@ void generateClass()		      // generate C++ source code for a class
 	    fprintf( out, "; break;\n" );
 	}
 	fprintf( out, "    default:\n" );
-	if ( !g->superClassName.isEmpty() )
+	if ( !g->superClassName.isEmpty() && !isQObject )
 	    fprintf( out, "\treturn %s::qt_invoke(_id,_o);\n", (const char*)g->superClassName );
 	else
 	    fprintf( out, "\treturn FALSE;\n" );
 	fprintf( out, "    }\n" );
 	fprintf( out, "    return TRUE;\n}\n" );
     } else {
-	if ( !g->superClassName.isEmpty() )
+	if ( !g->superClassName.isEmpty()  && !isQObject )
 	    fprintf( out, "    return %s::qt_invoke(_id,_o);\n}\n", (const char*)g->superClassName );
 	else
 	    fprintf( out, "    return FALSE;\n}\n" );
@@ -3069,14 +3088,14 @@ void generateClass()		      // generate C++ source code for a class
 	    fprintf( out, "; break;\n" );
 	}
 	fprintf( out, "    default:\n" );
-	if ( !g->superClassName.isEmpty() )
+	if ( !g->superClassName.isEmpty()  && !isQObject )
 	    fprintf( out, "\treturn %s::qt_emit(_id,_o);\n", (const char*)g->superClassName );
 	else
 	    fprintf( out, "\treturn FALSE;\n" );
 	fprintf( out, "    }\n" );
 	fprintf( out, "    return TRUE;\n}\n" );
     } else {
-	if ( !g->superClassName.isEmpty() )
+	if ( !g->superClassName.isEmpty()  && !isQObject )
 	    fprintf( out, "    return %s::qt_emit(_id,_o);\n}\n", (const char*)g->superClassName );
 	else
 	    fprintf( out, "    return FALSE;\n}\n" );
@@ -3096,11 +3115,11 @@ void generateClass()		      // generate C++ source code for a class
 	    propindex ++;
 	    fprintf( out, "    case %d: ", propindex );
 	    fprintf( out, "switch( _f ) {\n" );
-	    
+	
 	    uint flag_break = 0;
 	    uint flag_propagate = 0;
-	    
-	    
+	
+	
 	    if ( it.current()->setfunc ) {
 		fprintf( out, "\tcase 0: %s(", it.current()->setfunc->name.data() );
 		QCString type = it.current()->type.copy(); // detach on purpose
@@ -3163,7 +3182,7 @@ void generateClass()		      // generate C++ source code for a class
 		flag_break |= 1 << (5+1);
 	    else if ( it.current()->stored != "false" )
 		fprintf( out, "\tcase 5: return %s();\n", it.current()->stored.data() );
-	    
+	
 	    int i = 0;
 	    if ( flag_propagate != 0 ) {
 		fprintf( out, "\t" );
@@ -3185,14 +3204,14 @@ void generateClass()		      // generate C++ source code for a class
 	    fprintf( out, "\tdefault: return FALSE;\n    } break;\n" );
 	}
 	fprintf( out, "    default:\n" );
-	if ( !g->superClassName.isEmpty() )
+	if ( !g->superClassName.isEmpty()  && !isQObject )
 	    fprintf( out, "\treturn %s::qt_property( _p, _f, _v );\n", (const char*)g->superClassName );
 	else
 	    fprintf( out, "\treturn FALSE;\n" );
 	fprintf( out, "    }\n" );
 	fprintf( out, "    return TRUE;\n}\n" );
     } else {
-	if ( !g->superClassName.isEmpty() )
+	if ( !g->superClassName.isEmpty() &&  !isQObject )
 	    fprintf( out, "    return %s::qt_property( _p, _f, _v);\n}\n", (const char*)g->superClassName );
 	else
 	    fprintf( out, "    return FALSE;\n}\n" );

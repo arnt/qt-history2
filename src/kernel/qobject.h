@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#131 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#132 $
 **
 ** Definition of QObject class
 **
@@ -61,27 +61,15 @@ struct QAccessibleInterface;
 
 class Q_EXPORT QObject: public Qt
 {
+    Q_OBJECT
     Q_PROPERTY( QCString name READ name WRITE setName )
 
 public:
     QObject( QObject *parent=0, const char *name=0 );
     virtual ~QObject();
 
-    virtual bool qt_invoke( int, QUObject* );
-    virtual bool qt_emit( int, QUObject* );
-#ifndef QT_NO_PROPERTIES
-    virtual bool qt_property( const QMetaProperty*, int, QVariant* );
-#endif
-
-    static QString tr( const char *sourceText, const char *comment = 0 );
-#ifndef QT_NO_TEXTCODEC
-    static QString trUtf8( const char *sourceText, const char *comment = 0 );
-#endif
     virtual bool event( QEvent * );
     virtual bool eventFilter( QObject *, QEvent * );
-
-    virtual QMetaObject *metaObject() const { return staticMetaObject(); }
-    virtual const char	*className()  const;
 
     bool	 isA( const char * )	 const;
     bool	 inherits( const char * ) const;
@@ -160,8 +148,6 @@ protected:
 
     const QObject *sender();
 
-    static QMetaObject* staticMetaObject();
-
     virtual void timerEvent( QTimerEvent * );
     virtual void childEvent( QChildEvent * );
     virtual void customEvent( QCustomEvent * );
@@ -182,7 +168,6 @@ private:
     uint	wasDeleted : 1;
     uint	isTree : 1;
 
-    static QMetaObject *metaObj;
     const char	*objname;
     QObject	*parentObj;
     QObjectList *childObjects;
@@ -192,6 +177,8 @@ private:
     QPostEventList *postedEvents;
     QObjectPrivate* d;
 
+    static QMetaObject* staticQtMetaObject();
+    
     friend class QApplication;
     friend class QBaseApplication;
     friend class QWidget;
@@ -247,6 +234,7 @@ inline QString QObject::trUtf8( const char *sourceText, const char * ) {
 }
 #endif
 #endif //QT_NO_TRANSLATION
+
 
 
 #endif // QOBJECT_H
