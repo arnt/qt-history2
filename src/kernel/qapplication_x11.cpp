@@ -4468,10 +4468,10 @@ static int translateButtonState( int s )
 		}
 	    }
 
-	    if (altmask == 0 && metamask == 0) {
-		// alt/meta aren't mapped anywhere
-		altmask = metamask = 1 << (Mod5MapIndex + 1);
-	    }
+	    if (altmask == 0) // no alt keys mapped
+		altmask = Mod1Mask;
+	    if (metamask == 0) // no meta keys mapped
+		metamask = Mod4Mask;
 	    XFreeModifiermap(map);
 	} else {
 	    // assume defaults
