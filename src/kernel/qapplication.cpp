@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#260 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#261 $
 **
 ** Implementation of QApplication class
 **
@@ -1527,7 +1527,7 @@ QString QApplication::translate( const char * scope, const char * key ) const
 	while( (mf=it.current()) != 0 ) {
 	    ++it;
 	    result = mf->find( scope, key );
-	    if ( result != QString::null )
+	    if ( !result.isNull() )
 		return result;
 	}
     }
