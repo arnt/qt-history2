@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#28 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#29 $
 **
 ** Implementation of QFrame widget class
 **
@@ -15,7 +15,7 @@
 #include "qdrawutl.h"
 #include "qframe.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#28 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#29 $")
 
 
 /*!
@@ -385,9 +385,8 @@ void QFrame::paintEvent( QPaintEvent * )
 /*!  Adjusts the frame rectangle for the resized widget.  The frame
   rectangle is elastic, the surrounding area is static.
 
-  The resulting frame rectangle may be null or invalid unless
-  setMinimumSize() is used to ensure that the user cannot shrink the
-  widget too much.
+  The resulting frame rectangle may be null or invalid.  You can use
+  setMinimumSize() is avoid that possibility.
 
   Nothing is done if the frame rectangle is a \link QRect::isNull()
   null rectangle\endlink already.  */
