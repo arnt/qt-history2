@@ -26,7 +26,7 @@ class QPixmap;
 
 class QGLWidgetPrivate : public QWidgetPrivate
 {
-    Q_DECL_PUBLIC( QWidget );
+    Q_DECLARE_PUBLIC( QWidget );
 public:
     QGLWidgetPrivate():	QWidgetPrivate() {}
     ~QGLWidgetPrivate() {}

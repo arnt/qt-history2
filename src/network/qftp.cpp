@@ -955,8 +955,8 @@ void QFtpPI::dtpConnectState( int s )
 
 class QFtpPrivate : public QObjectPrivate
 {
+    Q_DECLARE_PUBLIC(QFtp);
 public:
-    Q_DECL_PUBLIC(QFtp);
 
     QFtpPrivate()
 	: close_waitForStateChange(false), state(QFtp::Unconnected), error(QFtp::NoError) { }

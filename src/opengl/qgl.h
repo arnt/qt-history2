@@ -238,6 +238,7 @@ private:	// Disabled copy constructor and operator=
 class QM_EXPORT_OPENGL QGLWidget : public QWidget, public QGL
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QGLWidget);
 public:
     QGLWidget( QWidget* parent=0, const char* name=0,
 	       const QGLWidget* shareWidget = 0, WFlags f=0 );
@@ -327,8 +328,6 @@ private:	// Disabled copy constructor and operator=
     friend class QGLContext;
     friend class QGLOverlayWidget;
     friend class QOpenGLPaintEngine;
-
-    Q_DECL_PRIVATE(QGLWidget);
 
 private slots:
     void macInternalFixBufferRect();

@@ -34,6 +34,7 @@ class QFtpPrivate;
 class QM_EXPORT_FTP QFtp : public QObject
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QFtp);
 
 public:
     QFtp( QObject *parent = 0, const char *name = 0 );
@@ -120,9 +121,6 @@ private slots:
     void piError( int, const QString& );
     void piConnectState( int );
     void piFtpReply( int, const QString& );
-
-private:
-    Q_DECL_PRIVATE(QFtp);
 };
 
 #endif // QT_NO_NETWORKPROTOCOL_FTP

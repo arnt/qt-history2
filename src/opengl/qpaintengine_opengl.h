@@ -21,6 +21,7 @@ class QOpenGLPaintEnginePrivate;
 
 class QOpenGLPaintEngine : public QPaintEngine
 {
+    Q_DECLARE_PRIVATE(QOpenGLPaintEngine);
 public:
     QOpenGLPaintEngine(const QPaintDevice *);
     ~QOpenGLPaintEngine();
@@ -65,8 +66,6 @@ public:
     Qt::HANDLE handle() const;
 #endif
     inline Type type() const { return QPaintEngine::OpenGL; }
-
-    Q_DECL_PRIVATE(QOpenGLPaintEngine);
 
 private:
 #if defined(Q_DISABLE_COPY)

@@ -22,7 +22,7 @@
 #include "private/qpaintengine_p.h"
 
 class QOpenGLPaintEnginePrivate : public QPaintEnginePrivate {
-    Q_DECL_PUBLIC(QOpenGLPaintEngine);
+    Q_DECLARE_PUBLIC(QOpenGLPaintEngine);
 public:
     QOpenGLPaintEnginePrivate()
     {

@@ -55,6 +55,8 @@ public:
 class QM_EXPORT_SQL QSqlDatabase : public QObject
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QSqlDatabase);
+
     Q_PROPERTY( QString databaseName  READ databaseName WRITE setDatabaseName )
     Q_PROPERTY( QString userName  READ userName WRITE setUserName )
     Q_PROPERTY( QString password  READ password WRITE setPassword )
@@ -104,7 +106,7 @@ public:
     QString 		connectOptions() const;
 
     QSqlDriver*		driver() const;
-    
+
     // MOC_SKIP_BEGIN
     QT_STATIC_CONST char * const defaultConnection;
     // MOC_SKIP_END
@@ -118,13 +120,12 @@ public:
     static QStringList   drivers();
     static void          registerSqlDriver( const QString& name, const QSqlDriverCreatorBase* creator ); // ### 4.0: creator should not be const
     static bool 	 isDriverAvailable( const QString& name );
-    
+
 protected:
     QSqlDatabase(const QString& type, const QString& name, QObject * parent=0);
     QSqlDatabase(QSqlDriver* driver, QObject * parent=0);
 private:
     void 	init( const QString& type, const QString& name );
-    Q_DECL_PRIVATE(QSqlDatabase);
 #if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
     QSqlDatabase( const QSqlDatabase & );
     QSqlDatabase &operator=( const QSqlDatabase & );
