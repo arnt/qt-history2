@@ -1508,13 +1508,13 @@ void MainWindow::fileCreateTemplate()
 	}
     }
     for ( i = 0; i < WidgetDatabase::count(); ++i ) {
-	if ( WidgetDatabase::isContainer( i ) && !WidgetDatabase::isForm(i) && 
+	if ( WidgetDatabase::isContainer( i ) && !WidgetDatabase::isForm(i) &&
 	     WidgetDatabase::className( i ) != "QTabWidget" && WidgetDatabase::widgetGroup( i ) != "Temp" ) {
 	    qDebug("container %s", WidgetDatabase::className( i ).latin1() );
 	    dia.listClass->insertItem( WidgetDatabase::className( i ) );
 	}
     }
-    
+
     QList<MetaDataBase::CustomWidget> *lst = MetaDataBase::customWidgets();
     for ( MetaDataBase::CustomWidget *w = lst->first(); w; w = lst->next() ) {
 	if ( w->isContainer )
@@ -2200,15 +2200,15 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    break;
 	if ( o && ( o->inherits( "QDesignerMenuBar" ) ||
 		   o->inherits( "QDesignerToolBar" ) ||
-		    o->inherits( "QToolButton" ) && o->parent() && o->parent()->inherits( "QDesignerToolBar" ) ) ) {
+		    ( o->inherits( "QComboBox") || o->inherits( "QToolButton" ) ) && o->parent() && o->parent()->inherits( "QDesignerToolBar" ) ) ) {
 	    QWidget *w = (QWidget*)o;
-	    if ( w->inherits( "QToolButton" ) )
+	    if ( w->inherits( "QToolButton" ) || w->inherits( "QComboBox" ) )
 		w = w->parentWidget();
 	    QWidget *pw = w->parentWidget();
 	    while ( pw ) {
 		if ( pw->inherits( "FormWindow" ) ) {
 		    ( (FormWindow*)pw )->emitShowProperties( w );
-		    return !o->inherits( "QToolButton" ) && !o->inherits( "QMenuBar" );
+		    return !o->inherits( "QToolButton" ) && !o->inherits( "QMenuBar" ) && !o->inherits( "QComboBox" );
 		}
 		pw = pw->parentWidget();
 	    }

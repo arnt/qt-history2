@@ -91,7 +91,8 @@ void QDesignerToolBar::buttonMouseMoveEvent( QMouseEvent *e, QObject *o )
     int idx = actionList.find( a );
     actionList.remove( a );
 
-    QStoredDrag *drag = new QStoredDrag( "application/x-designer-actions", this );
+    QString type = a->inherits( "QActionGroup" ) ? QString( "application/x-designer-actiongroup" ) : QString( "application/x-designer-actions" );
+    QStoredDrag *drag = new QStoredDrag( type, this );
     QString s = QString::number( (long)a ); // #### huha, that is evil
     drag->setEncodedData( QCString( s.latin1() ) );
     drag->setPixmap( a->iconSet().pixmap() );
@@ -106,7 +107,7 @@ void QDesignerToolBar::buttonMouseMoveEvent( QMouseEvent *e, QObject *o )
 void QDesignerToolBar::dragEnterEvent( QDragEnterEvent *e )
 {
     lastIndicatorPos = QPoint( -1, -1 );
-    if ( e->provides( "application/x-designer-actions" ) || 
+    if ( e->provides( "application/x-designer-actions" ) ||
 	 e->provides( "application/x-designer-actiongroup" ) )
 	e->accept();
 }
@@ -162,20 +163,42 @@ void QDesignerToolBar::dropEvent( QDropEvent *e )
 	    drawIndicator( QPoint( -1, -1 ) );
     } else {
 	QDesignerActionGroup *a = (QDesignerActionGroup*)s.toLong(); // #### huha, that is evil
-	a->addTo( this );
-	// #######
-	actionMap.insert( a->widget(), a );
-	if ( a->widget() )
+	if ( a->usesDropDown() ) {
+	    a->addTo( this );
+	    actionMap.insert( a->widget(), a );
 	    a->widget()->installEventFilter( this );
-	int index = actionList.findRef( *actionMap.find( insertAnchor ) );
-	if ( index != -1 && afterAnchor )
-	    ++index;
-	if ( !insertAnchor )
-	    index = 0;
-	if ( index == -1 )
-	    actionList.append( a );
-	else
-	    actionList.insert( index, a );
+	    int index = actionList.findRef( *actionMap.find( insertAnchor ) );
+	    if ( index != -1 && afterAnchor )
+		++index;
+	    if ( !insertAnchor )
+		index = 0;
+	    if ( index == -1 )
+		actionList.append( a );
+	    else
+		actionList.insert( index, a );
+	} else {
+	    a->addTo( this );
+	    QObjectListIt it( *a->children() );
+	    int index = actionList.findRef( *actionMap.find( insertAnchor ) );
+	    if ( index != -1 && afterAnchor )
+		++index;
+	    if ( !insertAnchor )
+		index = 0;
+	    int i = 0;
+	    while ( it.current() ) {
+		QObject *o = it.current();
+		++it;
+		if ( !o->inherits( "QAction" ) )
+		    continue;
+		QDesignerAction *ac = (QDesignerAction*)o;
+		actionMap.insert( ac->widget(), ac );
+		ac->widget()->installEventFilter( this );
+		if ( index == -1 )
+		    actionList.append( ac );
+		else
+		    actionList.insert( index + (i++), ac );
+	    }
+	}
 	reInsert();
 	connect( a, SIGNAL( destroyed() ), this, SLOT( actionRemoved() ) );
 	if ( lastIndicatorPos != QPoint( -1, -1 ) )
@@ -538,7 +561,7 @@ void QDesignerPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	return;
     a->removeFrom( this );
     actionList.remove( itm );
-    
+
     QStoredDrag *drag = new QStoredDrag( "application/x-designer-actions", this );
     QString s = QString::number( (long)a ); // #### huha, that is evil
     drag->setEncodedData( QCString( s.latin1() ) );
