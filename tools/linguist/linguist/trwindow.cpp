@@ -1836,13 +1836,15 @@ bool TrWindow::danger( const QString& source, const QString& translation,
 
 void TrWindow::readConfig()
 {
-    QString   keybase("/Qt Linguist/3.1/");
+    QString keybase( "/Qt Linguist/" +
+		     QString::number( (QT_VERSION >> 16) & 0xff ) +
+		     "." + QString::number( (QT_VERSION >> 8) & 0xff ) + "/" );
     QSettings config;
 
     config.insertSearchPath( QSettings::Windows, "/Trolltech" );
 
     QRect r( pos(), size() );
-    recentFiles = config.readListEntry( keybase + "RecentlyOpenedFiles", ',' );
+    recentFiles = config.readListEntry( keybase + "RecentlyOpenedFiles" );
     if ( !config.readBoolEntry( keybase + "Geometry/MainwindowMaximized", FALSE ) ) {
 	r.setX( config.readNumEntry( keybase + "Geometry/MainwindowX", r.x() ) );
 	r.setY( config.readNumEntry( keybase + "Geometry/MainwindowY", r.y() ) );
@@ -1905,11 +1907,13 @@ void TrWindow::readConfig()
 
 void TrWindow::writeConfig()
 {
-    QString   keybase("/Qt Linguist/3.1/");
+    QString keybase( "/Qt Linguist/" +
+		     QString::number( (QT_VERSION >> 16) & 0xff ) +
+		     "." + QString::number( (QT_VERSION >> 8) & 0xff ) + "/" );
     QSettings config;
 
     config.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    config.writeEntry( keybase + "RecentlyOpenedFiles", recentFiles, ',' );
+    config.writeEntry( keybase + "RecentlyOpenedFiles", recentFiles );
     config.writeEntry( keybase + "Geometry/MainwindowMaximized", isMaximized() );
     config.writeEntry( keybase + "Geometry/MainwindowX", x() );
     config.writeEntry( keybase + "Geometry/MainwindowY", y() );

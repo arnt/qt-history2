@@ -2082,8 +2082,8 @@ void MainWindow::writeConfig()
     config.writeEntry( keybase + "ShowStartDialog", shStartDialog );
     config.writeEntry( keybase + "FileFilter", fileFilter );
     config.writeEntry( keybase + "TemplatePath", templPath );
-    config.writeEntry( keybase + "RecentlyOpenedFiles", recentlyFiles, ',' );
-    config.writeEntry( keybase + "RecentlyOpenedProjects", recentlyProjects, ',' );
+    config.writeEntry( keybase + "RecentlyOpenedFiles", recentlyFiles );
+    config.writeEntry( keybase + "RecentlyOpenedProjects", recentlyProjects );
     config.writeEntry( keybase + "DatabaseAutoEdit", databaseAutoEdit );
 
     config.writeEntry( keybase + "AutoSave/Enabled", autoSaveEnabled );
@@ -2217,8 +2217,13 @@ void MainWindow::readConfig()
 		break;
 	    }
 	}
-	recentlyFiles = config.readListEntry( keybase + "RecentlyOpenedFiles", ',' );
-	recentlyProjects = config.readListEntry( keybase + "RecentlyOpenedProjects", ',' );
+	if ( keybase == DesignerApplication::oldSettingsKey() ) {
+	    recentlyFiles = config.readListEntry( keybase + "RecentlyOpenedFiles", ',' );
+	    recentlyProjects = config.readListEntry( keybase + "RecentlyOpenedProjects", ',' );
+	} else {
+	    recentlyFiles = config.readListEntry( keybase + "RecentlyOpenedFiles" );
+	    recentlyProjects = config.readListEntry( keybase + "RecentlyOpenedProjects" );
+	}
 
 	backPix = config.readBoolEntry( keybase + "Background/UsePixmap", TRUE ) | readPreviousConfig;
 	if ( backPix ) {
