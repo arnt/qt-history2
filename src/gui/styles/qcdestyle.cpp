@@ -143,7 +143,7 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
 {
     switch(pe) {
     case PE_IndicatorCheckBox: {
-        bool down = opt->state & State_Down;
+        bool down = opt->state & State_Sunken;
         bool on = opt->state & State_On;
         bool showUp = !(down ^ on);
         QBrush fill = showUp || opt->state & State_NoChange ? opt->palette.brush(QPalette::Button) : opt->palette.brush(QPalette::Mid);
@@ -186,7 +186,7 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
                 11,4, 10,3, 10,2 };
             static const int pts5[] = {              // inner fill
                 4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
-            bool down = opt->state & State_Down;
+            bool down = opt->state & State_Sunken;
             bool on = opt->state & State_On;
             QPolygon a(INTARRLEN(pts1), pts1);
             a.translate(r.x(), r.y());

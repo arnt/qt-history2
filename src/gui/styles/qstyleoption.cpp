@@ -45,7 +45,7 @@
         {
             QStyleOptionButton option;
             option.init(this);
-            option.state = isDown() ? QStyle::State_Down : QStyle::State_Raised;
+            option.state = isDown() ? QStyle::State_Sunken : QStyle::State_Raised;
             if (isDefault())
                 option.features |= QStyleOptionButton::DefaultButton;
             option.text = text();

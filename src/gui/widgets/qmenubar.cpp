@@ -326,7 +326,7 @@ QStyleOptionMenuItem QMenuBarPrivate::getStyleOption(const QAction *action) cons
     if (currentAction && currentAction == action) {
         opt.state |= QStyle::State_Selected;
         if (popupState && !closePopupMode)
-            opt.state |= QStyle::State_Down;
+            opt.state |= QStyle::State_Sunken;
     }
     if (q->hasFocus() || currentAction)
         opt.state |= QStyle::State_HasFocus;

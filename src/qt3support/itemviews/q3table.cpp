@@ -6601,12 +6601,12 @@ void Q3TableHeader::paintSection(QPainter *p, int index, const QRect& fr)
            opt.state |= QStyle::State_Enabled;
        if (isClickEnabled()) {
            if (sectionState(index) == Selected) {
-               opt.state |= QStyle::State_Down;
+               opt.state |= QStyle::State_DownArrow;
                if (!mousePressed)
                    opt.state |= QStyle::State_Sunken;
            }
        }
-       if (!(opt.state & QStyle::State_Down))
+       if (!(opt.state & QStyle::State_Sunken))
            opt.state |= QStyle::State_Raised;
        style()->drawControl(QStyle::CE_HeaderSection, &opt, p, this);
        paintSectionLabel(p, index, fr);

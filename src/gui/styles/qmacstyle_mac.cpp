@@ -1121,7 +1121,7 @@ void QMacStylePrivate::removeWidget(QWidget *w)
 ThemeDrawState QMacStylePrivate::getDrawState(QStyle::State flags)
 {
     ThemeDrawState tds = kThemeStateActive;
-    if (flags & QStyle::State_Down) {
+    if (flags & QStyle::State_Sunken) {
         tds = kThemeStatePressed;
     } else if (flags & QStyle::State_Active) {
         if (!(flags & QStyle::State_Enabled))
@@ -1554,7 +1554,7 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
         bi.state = tds;
         if (tds == kThemeStateInactive && opt->palette.currentColorGroup() == QPalette::Active)
             bi.state = kThemeStateActive;
-        if (opt->state & QStyle::State_Down)
+        if (opt->state & QStyle::State_Sunken)
             bi.state |= kThemeStatePressed;
         bi.kind = kThemeDisclosureButton;
         bi.value = opt->state & QStyle::State_Open ? kThemeDisclosureDown : kThemeDisclosureRight;
@@ -1570,7 +1570,7 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
 #endif
                 ))
                 break; // ListView-type header is taken care of.
-            q->drawPrimitive(header->state & QStyle::State_Up ? QStyle::PE_IndicatorArrowUp : QStyle::PE_IndicatorArrowDown, header, p, w);
+            q->drawPrimitive(header->state & QStyle::State_UpArrow ? QStyle::PE_IndicatorArrowUp : QStyle::PE_IndicatorArrowDown, header, p, w);
         }
         break;
     case QStyle::PE_FrameGroupBox:
@@ -1677,7 +1677,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
         break; }
     case QStyle::CE_PushButtonBevel:
         if (const QStyleOptionButton *btn = ::qstyleoption_cast<const QStyleOptionButton *>(opt)) {
-            if (!(btn->state & (QStyle::State_Raised | QStyle::State_Down | QStyle::State_On)))
+            if (!(btn->state & (QStyle::State_Raised | QStyle::State_Sunken | QStyle::State_On)))
                 break;
             bool drawColorless = btn->palette.currentColorGroup() == QPalette::Active;
             if (btn->state & QStyle::State_On)
@@ -1866,7 +1866,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
             else
                 mdi.state = kThemeMenuActive;
             if (ce == QStyle::CE_MenuScroller) {
-                if (opt->state & QStyle::State_Down)
+                if (opt->state & QStyle::State_DownArrow)
                     mdi.itemType = kThemeMenuItemScrollDownArrow;
                 else
                     mdi.itemType = kThemeMenuItemScrollUpArrow;
@@ -1898,7 +1898,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
             mdi.version = qt_mac_hitheme_version;
             if (!(opt->state & QStyle::State_Enabled))
                 mdi.state = kThemeMenuDisabled;
-            else if ((opt->state & QStyle::State_Selected) && (opt->state & QStyle::State_Down))
+            else if ((opt->state & QStyle::State_Selected) && (opt->state & QStyle::State_Sunken))
                 mdi.state = kThemeMenuSelected;
             else
                 mdi.state = kThemeMenuActive;
@@ -2345,10 +2345,10 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                                         | QAbstractSpinBox::StepDownEnabled)))
                     tds = kThemeStateUnavailable;
                 if (sb->activeSubControls == QStyle::SC_SpinBoxDown
-                    && (sb->state & QStyle::State_Down))
+                    && (sb->state & QStyle::State_Sunken))
                     tds = kThemeStatePressedDown;
                 else if (sb->activeSubControls == QStyle::SC_SpinBoxUp
-                         && (sb->state & QStyle::State_Down))
+                         && (sb->state & QStyle::State_Sunken))
                     tds = kThemeStatePressedUp;
                 bdi.state = tds;
                 if (!(sb->state & QStyle::State_Active)
@@ -2484,7 +2484,7 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                     if (sc == QStyle::SC_TitleBarMinButton)
                         tmp |= QStyle::SC_TitleBarNormalButton;
                     if (active && (titlebar->activeSubControls & tmp)
-                            && (titlebar->state & QStyle::State_Down))
+                            && (titlebar->state & QStyle::State_Sunken))
                         wwdi.widgetState = kThemeStatePressed;
                     /*
                     if (titlebar->window() && titlebar->window()->isWindowModified()
@@ -2557,12 +2557,12 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
             QStyle::State bflags = tb->state,
             mflags = tb->state;
             if (tb->subControls & QStyle::SC_ToolButton)
-                bflags |= QStyle::State_Down;
+                bflags |= QStyle::State_Sunken;
             if (tb->subControls & QStyle::SC_ToolButtonMenu)
-                mflags |= QStyle::State_Down;
+                mflags |= QStyle::State_Sunken;
 
             if (tb->subControls & QStyle::SC_ToolButton) {
-                if (bflags & (QStyle::State_Down | QStyle::State_On | QStyle::State_Raised)) {
+                if (bflags & (QStyle::State_Sunken | QStyle::State_On | QStyle::State_Raised)) {
                     HIThemeButtonDrawInfo bdi;
                     bdi.version = qt_mac_hitheme_version;
                     bdi.state = tds;
@@ -2572,7 +2572,7 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                     if (tb->state & QStyle::State_HasFocus && QMacStyle::focusRectPolicy(widget)
                             != QMacStyle::FocusDisabled)
                         bdi.adornment |= kThemeAdornmentFocus;
-                    if (tb->state & (QStyle::State_On | QStyle::State_Down))
+                    if (tb->state & (QStyle::State_On | QStyle::State_Sunken))
                         bdi.value |= kThemeStatePressed;
 
                     QRect off_rct(0, 0, 0, 0);
@@ -2600,7 +2600,7 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                 if (tb->state & QStyle::State_HasFocus
                         && QMacStyle::focusRectPolicy(widget) != QMacStyle::FocusDisabled)
                     bdi.adornment |= kThemeAdornmentFocus;
-                if (tb->state & (QStyle::State_On | QStyle::State_Down)
+                if (tb->state & (QStyle::State_On | QStyle::State_Sunken)
                                  || (tb->activeSubControls & QStyle::SC_ToolButtonMenu))
                     bdi.value |= kThemeStatePressed;
                 HIRect hirect = qt_hirectForQRect(menuarea, p, false);
@@ -3101,7 +3101,7 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
         currentInfo.state = tds;
         if (tds == kThemeStateInactive && opt->palette.currentColorGroup() == QPalette::Active)
             currentInfo.state = kThemeStateActive;
-        if (opt->state & QStyle::State_Down)
+        if (opt->state & QStyle::State_Sunken)
             currentInfo.state |= kThemeStatePressed;
         currentInfo.value = opt->state & QStyle::State_Open ? kThemeDisclosureDown
                                                             : kThemeDisclosureRight;
@@ -3118,8 +3118,9 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
 #endif
                 ))
                 break; // ListView-type header is taken care of.
-            q->drawPrimitive(header->state & QStyle::State_Up ? QStyle::PE_IndicatorArrowUp
-                                                              : QStyle::PE_IndicatorArrowDown, header, p, w);
+            q->drawPrimitive(header->state & QStyle::State_UpArrow ? QStyle::PE_IndicatorArrowUp
+                                                                   : QStyle::PE_IndicatorArrowDown,
+                                                                   header, p, w);
         }
         break;
     case QStyle::PE_Frame:
@@ -3287,7 +3288,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
         break; }
     case QStyle::CE_PushButtonBevel:
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
-            if (!(btn->state & (QStyle::State_Raised | QStyle::State_Down | QStyle::State_On)))
+            if (!(btn->state & (QStyle::State_Raised | QStyle::State_Sunken | QStyle::State_On)))
                 break;
             bool drawColorless = btn->palette.currentColorGroup() == QPalette::Active;
             QString pmkey;
@@ -3298,9 +3299,9 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
             if (btn->state & QStyle::State_On) {
                 darken = true;
                 frame = 12;
-                if (btn->state & QStyle::State_Down)
+                if (btn->state & QStyle::State_Sunken)
                     frame += 8;
-            } else if (btn->state & QStyle::State_Down) {
+            } else if (btn->state & QStyle::State_Sunken) {
                 darken = false;
                 frame = 0;
             }
@@ -3521,7 +3522,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
             if (opt->state & QStyle::State_Selected)
                 tms |= kThemeMenuSelected;
             if (ce == QStyle::CE_MenuScroller) {
-                if (opt->state & QStyle::State_Down)
+                if (opt->state & QStyle::State_DownArrow)
                     tmit = kThemeMenuItemScrollDownArrow;
                 else
                     tmit = kThemeMenuItemScrollUpArrow;
@@ -3546,7 +3547,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                  irect = *qt_glb_mac_rect(mi->rect, p, false);
             ThemeMenuState tms = kThemeMenuActive;
             ThemeMenuItemType tmit = kThemeMenuItemPlain;
-            if ((opt->state & QStyle::State_Selected) && (opt->state & QStyle::State_Down))
+            if ((opt->state & QStyle::State_Selected) && (opt->state & QStyle::State_Sunken))
                 tms |= kThemeMenuSelected;
             qt_mac_set_port(p);
             DrawThemeMenuItem(&mrect, &irect, mrect.top, mrect.bottom, tms, tmit, 0, 0);
@@ -3952,17 +3953,17 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
             QStyle::State bflags = tb->state,
             mflags = tb->state;
             if (tb->activeSubControls & QStyle::SC_ToolButton)
-                bflags |= QStyle::State_Down;
+                bflags |= QStyle::State_Sunken;
             if (tb->activeSubControls & QStyle::SC_ToolButtonMenu)
-                mflags |= QStyle::State_Down;
+                mflags |= QStyle::State_Sunken;
 
             if (tb->subControls & QStyle::SC_ToolButton) {
-                if (bflags & (QStyle::State_Down | QStyle::State_On | QStyle::State_Raised)) {
+                if (bflags & (QStyle::State_Sunken | QStyle::State_On | QStyle::State_Raised)) {
                     ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
                     if (tb->state & QStyle::State_HasFocus && QMacStyle::focusRectPolicy(widget)
                             != QMacStyle::FocusDisabled)
                         info.adornment |= kThemeAdornmentFocus;
-                    if (tb->state & (QStyle::State_On | QStyle::State_Down))
+                    if (tb->state & (QStyle::State_On | QStyle::State_Sunken))
                         info.value |= kThemeStatePressed;
 
                     QRect off_rct(0, 0, 0, 0);
@@ -3987,7 +3988,7 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
                 if (tb->state & QStyle::State_HasFocus
                         && QMacStyle::focusRectPolicy(widget) != QMacStyle::FocusDisabled)
                     info.adornment |= kThemeAdornmentFocus;
-                if (tb->state & (QStyle::State_On | QStyle::State_Down)
+                if (tb->state & (QStyle::State_On | QStyle::State_Sunken)
                         || (tb->activeSubControls & QStyle::SC_ToolButtonMenu))
                     info.value |= kThemeStatePressed;
                 qt_mac_set_port(p);
@@ -4111,7 +4112,7 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
             for (int i = 0; types[i].qt_type; ++i) {
                 ThemeDrawState ctrl_tds = wtds;
                 if (active && (tbar->activeSubControls & types[i].qt_type)
-                        && (tbar->state & QStyle::State_Down))
+                        && (tbar->state & QStyle::State_Sunken))
                     ctrl_tds = kThemeStatePressed;
                 ThemeTitleBarWidget twt = types[i].mac_type;
                 /*
@@ -5262,7 +5263,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                 QRect cr = tb->rect;
                 int shiftX = 0;
                 int shiftY = 0;
-                if (tb->state & (State_Down | State_On)) {
+                if (tb->state & (State_Sunken | State_On)) {
                     shiftX = pixelMetric(PM_ButtonShiftHorizontal, tb, w);
                     shiftY = pixelMetric(PM_ButtonShiftVertical, tb, w);
                 }
@@ -5270,7 +5271,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                 // The text is a bit bolder and gets a drop shadow and the icons are also darkened.
                 // This doesn't really fit into any particular case in QIcon, so we
                 // do the majority of the work ourselves.
-                if (tb->state & QStyle::State_Down
+                if (tb->state & QStyle::State_Sunken
                         && !(tb->features & QStyleOptionToolButton::Arrow)) {
                     Qt::ToolButtonStyle tbstyle = tb->toolButtonStyle;
                     if (tb->icon.isNull() && !tb->text.isEmpty())

@@ -233,7 +233,7 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
     opt.icon = q->icon();
     opt.arrowType = arrowType;
     if (down)
-        opt.state |= QStyle::State_Down;
+        opt.state |= QStyle::State_Sunken;
     if (checked)
         opt.state |= QStyle::State_On;
     if (autoRaise)
@@ -256,7 +256,7 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
         }
     } else {
         if (menuButtonDown)
-            opt.state  |= QStyle::State_Down;
+            opt.state  |= QStyle::State_Sunken;
     }
     if (arrowType != Qt::NoArrow)
         opt.features |= QStyleOptionToolButton::Arrow;

@@ -114,7 +114,7 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt,
                  qAbs(w - h) > 10) {
                 // small buttons
 
-                if (!(flags & (State_Sunken | State_Down))) {
+                if (!(flags & State_Sunken)) {
                     p->fillRect(x + 2, y + 2, w - 4, h - 4,
                                  pal.brush(QPalette::Button));
                     // the bright side
@@ -173,7 +173,7 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt,
                 }
             } else {
                 // big ones
-                if (!(flags & (State_Sunken | State_Down))) {
+                if (!(flags & State_Sunken)) {
                     p->fillRect(x + 3, y + 3, w - 6,
                                  h - 6,
                                  pal.brush(QPalette::Button));
@@ -295,7 +295,7 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt,
                 h;
             r.rect(&x, &y, &w, &h);
 
-            if (!(flags & (State_Down | State_On))) {
+            if (!(flags & (State_Sunken | State_On))) {
                 p->fillRect(x+3, y+3, w-6, h-6,
                              pal.brush(QPalette::Button));
                 // the bright side
@@ -449,7 +449,7 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt,
                 QPen oldPen = p->pen();
                 int x1 = r.x();
                 int y1 = r.y();
-                if (flags & State_Down) {
+                if (flags & State_Sunken) {
                     x1++;
                     y1++;
                 }
@@ -459,7 +459,7 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt,
                                          check_mark);
                     // ### KLUDGE!!
                     flags ^= State_On;
-                    flags ^= State_Down;
+                    flags ^= State_Sunken;
                 } else if (flags & State_NoChange) {
                     amark = QPolygon(sizeof(nochange_mark)
                                          / (sizeof(int) * 2),
@@ -498,7 +498,7 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt,
     case PE_ExclusiveIndicator:
         {
 #define INTARRLEN(x) sizeof(x) / (sizeof(int) * 2)
-            bool down = flags & State_Down;
+            bool down = flags & State_Sunken;
             bool on = flags & State_On;
 
             static const int pts1[] = {                // normal circle
@@ -587,7 +587,7 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt,
     case PE_ScrollBarAddLine:
         {
             drawPrimitive(PE_ButtonBevel, p, r, pal,
-                           (flags & State_Enabled) | ((flags & State_Down)
+                           (flags & State_Enabled) | ((flags & State_Sunken)
                                                       ? State_Sunken
                                                       : State_Raised));
             p->setPen(pal.shadow());
@@ -603,7 +603,7 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt,
     case PE_ScrollBarSubLine:
         {
             drawPrimitive(PE_ButtonBevel, p, r, pal,
-                           (flags & State_Enabled) | ((flags & State_Down)
+                           (flags & State_Enabled) | ((flags & State_Sunken)
                                                       ? State_Sunken
                                                       : State_Raised));
             p->setPen(pal.shadow());
@@ -745,14 +745,14 @@ void QPlatinumStyle::drawControl(ControlElement element,
 
             // take care of the flags based on what we know...
             if (btn->isDown())
-                flags |= State_Down;
+                flags |= State_Sunken;
             if (btn->isChecked())
                 flags |= State_On;
             if (btn->isEnabled())
                 flags |= State_Enabled;
             if (btn->isDefault())
                 flags |= State_Default;
-            if (! btn->isFlat() && !(flags & State_Down))
+            if (! btn->isFlat() && !(flags & State_Sunken))
                 flags |= State_Raised;
 
             r.coords(&x1, &y1, &x2, &y2);
@@ -791,8 +791,6 @@ void QPlatinumStyle::drawControl(ControlElement element,
 
                 SFlags myFlags = flags;
                 // don't draw the default button sunken, unless it's necessary.
-                if (myFlags & State_Down)
-                    myFlags ^= State_Down;
                 if (myFlags & State_Sunken)
                     myFlags ^= State_Sunken;
                 if (useBevelButton) {
@@ -818,7 +816,7 @@ void QPlatinumStyle::drawControl(ControlElement element,
             if (!btn->isFlat() || btn->isChecked() || btn->isDown()) {
                 if (useBevelButton) {
                     // fix for toggle buttons...
-                    if (flags & (State_Down | State_On))
+                    if (flags & (State_Sunken | State_On))
                         flags |= State_Sunken;
                     drawPrimitive(PE_ButtonBevel, p, QRect(x1, y1,
                                                              x2 - x1 + 1,

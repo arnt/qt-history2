@@ -692,7 +692,7 @@ QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
     if (currentAction && currentAction == action)
         opt.state |= QStyle::State_Selected;
     if (mouseDown)
-        opt.state |= QStyle::State_Down;
+        opt.state |= QStyle::State_Sunken;
     opt.menuHasCheckableItems = hasCheckableItems;
     if (!action->isCheckable()) {
         opt.checkType = QStyleOptionMenuItem::NotCheckable;
@@ -1493,7 +1493,7 @@ void QMenu::paintEvent(QPaintEvent *e)
             menuOpt.rect.setRect(fw, height() - scrollerHeight - fw, width() - (fw * 2),
                                      scrollerHeight);
             emptyArea -= QRegion(menuOpt.rect);
-            menuOpt.state = QStyle::State_Down;
+            menuOpt.state = QStyle::State_DownArrow;
             p.setClipRect(menuOpt.rect);
             style()->drawControl(QStyle::CE_MenuScroller, &menuOpt, &p, this);
         }

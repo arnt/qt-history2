@@ -301,19 +301,19 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
     case PE_PanelButtonBevel:
     case PE_PanelButtonTool: {
         QBrush fill;
-        if (opt->state & State_Down)
+        if (opt->state & State_Sunken)
             fill = opt->palette.brush(QPalette::Mid);
         else if (opt->state & State_On)
             fill = QBrush(opt->palette.mid().color(), Qt::Dense4Pattern);
         else
             fill = opt->palette.brush(QPalette::Button);
-        qDrawShadePanel(p, opt->rect, opt->palette, bool(opt->state & (State_Down | State_On)),
+        qDrawShadePanel(p, opt->rect, opt->palette, bool(opt->state & (State_Sunken | State_On)),
                         pixelMetric(PM_DefaultFrameWidth), &fill);
         break; }
 
     case PE_IndicatorCheckBox: {
         bool on = opt->state & State_On;
-        bool down = opt->state & State_Down;
+        bool down = opt->state & State_Sunken;
         bool showUp = !(down ^ on);
         QBrush fill = showUp || opt->state & State_NoChange ?
                       opt->palette.brush(QPalette::Button) : opt->palette.brush(QPalette::Mid);
@@ -361,7 +361,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
             opt->rect.width()-3,opt->rect.height()/2
         };
         bool on = opt->state & State_On;
-        bool down = opt->state & State_Down;
+        bool down = opt->state & State_Sunken;
         bool showUp = !(down ^ on);
         QPolygon a(INTARRLEN(inner_pts), inner_pts);
         p->setPen(Qt::NoPen);
@@ -499,7 +499,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
                 bTop.translate(rect.width() - 1, rect.height() - 1);
                 bBot.translate(rect.width() - 1, rect.height() - 1);
             }
-            if (opt->state & State_Down)
+            if (opt->state & State_Sunken)
                 colspec = horizontal ? 0x2334 : 0x2343;
             else
                 colspec = horizontal ? 0x1443 : 0x1434;
@@ -514,7 +514,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
                 bTop.translate(rect.width() - 1, 0);
                 bBot.translate(rect.width() - 1, 0);
             }
-            if (opt->state & State_Down)
+            if (opt->state & State_Sunken)
                 colspec = horizontal ? 0x2443 : 0x2434;
             else
                 colspec = horizontal ? 0x1334 : 0x1343;
@@ -695,7 +695,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
 
     case CE_ScrollBarSlider: {
         QStyleOption bevelOpt = *opt;
-        bevelOpt.state = (opt->state | State_Raised) & ~State_Down;
+        bevelOpt.state = (opt->state | State_Raised) & ~State_Sunken;
         p->save();
         p->setBrushOrigin(bevelOpt.rect.topLeft());
         drawPrimitive(PE_PanelButtonBevel, &bevelOpt, p, widget);
@@ -776,7 +776,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                 }
             }
             if (!(btn->features & QStyleOptionButton::Flat) ||
-                (btn->state & (State_Down|State_On))) {
+                (btn->state & (State_Sunken | State_On))) {
                 QStyleOptionButton newOpt = *btn;
                 newOpt.rect = QRect(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
                 p->setBrushOrigin(p->brushOrigin());
@@ -1052,7 +1052,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                                            QRect(x+w - motifArrowHMargin - motifItemFrame - dim,
                                                  y+h/2-dim/2, dim, dim));
                 if ((opt->state & State_Selected))
-                    arrowOpt.state = (State_Down | ((opt->state & State_Enabled) ? State_Enabled : State_None));
+                    arrowOpt.state = (State_Sunken | ((opt->state & State_Enabled) ? State_Enabled : State_None));
                 else
                     arrowOpt.state = ((opt->state & State_Enabled) ? State_Enabled : State_None);
                 drawPrimitive(arrow, &arrowOpt, p, widget);
@@ -1165,14 +1165,14 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
             State mflags = bflags;
 
             if (toolbutton->activeSubControls & SC_ToolButton)
-                bflags |= State_Down;
+                bflags |= State_Sunken;
             if (toolbutton->activeSubControls & SC_ToolButtonMenu)
-                mflags |= State_Down;
+                mflags |= State_Sunken;
 
             QStyleOption tool(0);
             tool.palette = toolbutton->palette;
             if (toolbutton->subControls & SC_ToolButton) {
-                if (bflags & (State_Down | State_On | State_Raised)) {
+                if (bflags & (State_Sunken | State_On | State_Raised)) {
                     tool.rect = button;
                     tool.state = bflags;
                     drawPrimitive(PE_PanelButtonTool, &tool, p, widget);
@@ -1182,7 +1182,7 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
             if (toolbutton->subControls & SC_ToolButtonMenu) {
                 tool.rect = menuarea;
                 tool.state = mflags;
-                if (mflags & (State_Down | State_On | State_Raised))
+                if (mflags & (State_Sunken | State_On | State_Raised))
                     drawPrimitive(PE_IndicatorButtonDropDown, &tool, p, widget);
                 drawPrimitive(PE_IndicatorArrowDown, &tool, p, widget);
             }
@@ -1233,12 +1233,12 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
 
                 copy.palette = pal2;
 
-                if (spinbox->activeSubControls == SC_SpinBoxUp && (spinbox->state & State_Down)) {
+                if (spinbox->activeSubControls == SC_SpinBoxUp && (spinbox->state & State_Sunken)) {
                     copy.state |= State_On;
                     copy.state |= State_Sunken;
                 } else {
                     copy.state |= State_Raised;
-                    copy.state &= ~State_Down;
+                    copy.state &= ~State_Sunken;
                 }
                 pe = (spinbox->buttonSymbols == QAbstractSpinBox::PlusMinus ? PE_IndicatorSpinPlus
                       : PE_IndicatorSpinUp);
@@ -1259,12 +1259,12 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
                 }
                 copy.palette = pal2;
 
-                if (spinbox->activeSubControls == SC_SpinBoxDown && (spinbox->state & State_Down)) {
+                if (spinbox->activeSubControls == SC_SpinBoxDown && (spinbox->state & State_Sunken)) {
                     copy.state |= State_On;
                     copy.state |= State_Sunken;
                 } else {
                     copy.state |= State_Raised;
-                    copy.state &= ~State_Down;
+                    copy.state &= ~State_Sunken;
                 }
                 pe = (spinbox->buttonSymbols == QAbstractSpinBox::PlusMinus ? PE_IndicatorSpinMinus
                       : PE_IndicatorSpinDown);

@@ -117,7 +117,7 @@ QStyleOptionButton QCheckBoxPrivate::getStyleOption() const
     QStyleOptionButton opt;
     opt.init(q);
     if (down)
-        opt.state |= QStyle::State_Down;
+        opt.state |= QStyle::State_Sunken;
     if (tristate && noChange)
         opt.state |= QStyle::State_NoChange;
     else

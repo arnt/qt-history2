@@ -457,7 +457,7 @@ void QScrollBar::paintEvent(QPaintEvent *)
     opt.subControls = QStyle::SC_All;
     if (d->pressedControl) {
         opt.activeSubControls = (QStyle::SubControl)d->pressedControl;
-        opt.state |= QStyle::State_Down;
+        opt.state |= QStyle::State_Sunken;
     } else {
         opt.activeSubControls = (QStyle::SubControl)d->hoverControl;
     }

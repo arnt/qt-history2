@@ -1708,7 +1708,7 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
     case PE_Splitter:
     case PE_DockWindowResizeHandle:
         {
-            p->setBrush((flags & State_Down) ? pal.foreground() : pal.background());
+            p->setBrush((flags & State_Sunken) ? pal.foreground() : pal.background());
             p->setPen(pal.foreground());
             p->drawRect(r);
             break;

@@ -1450,16 +1450,16 @@ void Q3Header::paintSection(QPainter *p, int index, const QRect& fr)
     if (d->sortSection != section)
         opt.state |= QStyle::State_Off;
     else if (!d->sortDirection)
-        opt.state |= QStyle::State_Up;
+        opt.state |= QStyle::State_UpArrow;
     if (isEnabled())
         opt.state |= QStyle::State_Enabled;
     if (isClickEnabled(section)) {
         if (index == oldHandleIdx)
             opt.state |= QStyle::State_Sunken; //currently selected
         if ((state == Pressed || state == Moving) && index == handleIdx)
-            opt.state |= QStyle::State_Down; //currently pressed
+            opt.state |= QStyle::State_Sunken; //currently pressed
     }
-    if(!(opt.state & QStyle::State_Down))
+    if(!(opt.state & QStyle::State_Sunken))
         opt.state |= QStyle::State_Raised;
     p->setBrushOrigin(fr.topLeft());
     if (d->clicks[section]) {
@@ -1554,9 +1554,9 @@ void Q3Header::paintSectionLabel(QPainter *p, int index, const QRect& fr)
         if (isEnabled())
             opt.state |= QStyle::State_Enabled;
         if (d->sortDirection)
-            opt.state |= QStyle::State_Down;
+            opt.state |= QStyle::State_DownArrow;
         else
-            opt.state |= QStyle::State_Up;
+            opt.state |= QStyle::State_UpArrow;
         QRect ar(fr.x() + tw - arrowWidth - 6 + ew, 4, arrowWidth, arrowHeight);
         if (label(section).isRightToLeft())
             ar.moveBy( 2*(fr.right() - ar.right()) + ar.width() - fr.width(), 0 );

@@ -519,7 +519,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value State_Bottom
     \value State_Children
     \value State_None
-    \value State_Down
+    \value State_DownArrow
     \value State_Editing
     \value State_Enabled
     \value State_FocusAtBorder
@@ -538,7 +538,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value State_Sibling
     \value State_Sunken
     \value State_Top
-    \value State_Up
+    \value State_UpArrow
     \omitvalue State_Default
 
     \sa drawPrimitive()
@@ -578,10 +578,10 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \row \i \l State_NoChange \i Indicates a "tri-state" controller.
     \row \i \l State_Enable \i Indicates the controller is enabled.
     \row \i{1,2} \l PE_TreeBranch \i{1,2} \l QStyleOption
-         \i \l State_Down \i Indicates that the Tree Branch is pressed
+         \i \l State_DownArrow \i Indicates that the Tree Branch is pressed
     \row \i \l State_Open \i Indicates that the tree branch is expanded.
     \row \i \l PE_IndicatorHeaderArrow \i \l QStyleOptionHeader
-         \i \l State_Up \i Indicates that the arrow should be drawn up;
+         \i \l State_UpArrow \i Indicates that the arrow should be drawn up;
          otherwise it should be down.
     \row \i \l PE_PanelGroupBox, \l PE_Panel, \l PE_PanelLineEdit,
             \l PE_PanelPopup, \l PE_PanelDockWidget
@@ -695,7 +695,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
          \i{1,4} \l QStyleOptionMenuItem
          \i \l State_Selected \i The menu item is currently selected item
     \row \i \l State_Enabled \i The item is enabled
-    \row \i \l State_Down
+    \row \i \l State_DownArrow
          \i Set if the menu item is down
          (i.e., if the mouse button or the space bar is pressed)
     \row \i \l State_HasFocus \i Set if the menubar has input focus
@@ -705,7 +705,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \row \i \l State_HasFocus \i Set if the button has input focus
     \row \i \l State_Raised \i Set if the button is not down, not on and not flat
     \row \i \l State_On \i Set if the button is a toggle button and is toggled on
-    \row \i \l State_Down
+    \row \i \l State_DownArrow
          \i Set if the button is down (i.e., the mouse button or the
          space bar is pressed on the button)
     \row \i \l State_ButtonDefault \i Set if the button is a default button
@@ -718,7 +718,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \row \i \l State_On \i Set if the button is checked
     \row \i \l State_Off \i Set if the button is not checked
     \row \i \l State_NoChange \i Set if the button is in the NoChange state
-    \row \i \l State_Down
+    \row \i \l State_DownArrow
          \i Set if the button is down (i.e., the mouse button or
          the space bar is pressed on the button)
     \row \i{1,2} \l CE_ProgressBarContents, \l CE_ProgressBarLabel,
@@ -731,7 +731,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
          \i{1,7} \l QStyleOptionToolButton
          \i \l State_Enabled \i Set if the tool button is enabled
     \row \i \l State_HasFocus \i Set if the tool button has input focus
-    \row \i \l State_Down
+    \row \i \l State_DownArrow
          \i Set if the tool button is down (i.e., a mouse button or
          the space bar is pressed)
     \row \i \l State_On \i Set if the tool button is a toggle button and is toggled on
@@ -742,8 +742,8 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
          \i \l State_Selected \i The tab is the currently selected tab
     \row \i{1,3} \l CE_HeaderSection \i{1,3} \l QStyleOptionHeader
          \i \l State_Sunken \i Indicates that the section is pressed.
-    \row \i \l State_Up \i Indicates that the sort indicator should be pointing up.
-    \row \i \l State_Down \i Indicates that the sort indicator should be pointing down.
+    \row \i \l State_UpArrow \i Indicates that the sort indicator should be pointing up.
+    \row \i \l State_DownArrow \i Indicates that the sort indicator should be pointing down.
     \endtable
 
     \sa ControlElement, StyleFlags, QStyleOption
@@ -957,7 +957,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \row \i{1,6} \l {CC_ToolButton} \i{1,6} \l QStyleOptionToolButton
          \i \l State_Enabled \i Set if the tool button is enabled
     \row \i \l State_HasFocus \i Set if the tool button has input focus
-    \row \i \l State_Down \i Set if the tool button is down (i.e., a mouse
+    \row \i \l State_DownArrow \i Set if the tool button is down (i.e., a mouse
         button or the space bar is pressed)
     \row \i \l State_On \i Set if the tool button is a toggle button
         and is toggled on

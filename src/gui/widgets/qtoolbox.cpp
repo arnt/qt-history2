@@ -177,7 +177,7 @@ void QToolBoxButton::paintEvent(QPaintEvent *)
     if (selected)
         opt.state |= QStyle::State_Selected;
     if (isDown())
-        opt.state |= QStyle::State_Down;
+        opt.state |= QStyle::State_Sunken;
     opt.text = text;
     opt.icon = icon();
     style()->drawControl(QStyle::CE_ToolBoxTab, &opt, p, parentWidget());

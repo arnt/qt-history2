@@ -261,8 +261,8 @@ void QMotifPlusStyle::drawPrimitive(PrimitiveElement pe,
     case PE_ButtonCommand:
     case PE_ButtonBevel:
     case PE_ButtonTool:
-        if (flags & (State_Down | State_On | State_Raised | State_Sunken))
-            drawMotifPlusShade(p, r, pal, bool(flags & (State_Down | State_On)),
+        if (flags & (State_On | State_Raised | State_Sunken))
+            drawMotifPlusShade(p, r, pal, bool(flags & (State_Sunken | State_On)),
                                 bool(flags & State_MouseOver));
         else if (flags & State_MouseOver)
             p->fillRect(r, pal.brush(QPalette::Midlight));
@@ -1443,7 +1443,7 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
             if (controls & SC_SpinBoxUp) {
                 flags = State_Enabled;
                 if (active == SC_SpinBoxUp)
-                    flags |= State_Down;
+                    flags |= State_Sunken;
 
                 PrimitiveElement pe;
                 if (sw->buttonSymbols() == QSpinWidget::PlusMinus)
@@ -1461,7 +1461,7 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
             if (controls & SC_SpinBoxDown) {
                 flags = State_Enabled;
                 if (active == SC_SpinBoxDown)
-                    flags |= State_Down;
+                    flags |= State_Sunken;
 
                 PrimitiveElement pe;
                 if (sw->buttonSymbols() == QSpinWidget::PlusMinus)

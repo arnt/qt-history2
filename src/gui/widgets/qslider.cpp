@@ -328,7 +328,7 @@ void QSlider::paintEvent(QPaintEvent *)
         opt.subControls |= QStyle::SC_SliderTickmarks;
     if (d->pressedControl) {
         opt.activeSubControls = d->pressedControl;
-        opt.state |= QStyle::State_Down;
+        opt.state |= QStyle::State_Sunken;
     } else {
         opt.activeSubControls = d->hoverControl;
     }

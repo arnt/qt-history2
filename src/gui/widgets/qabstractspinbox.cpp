@@ -1243,7 +1243,7 @@ QStyleOptionSpinBox QAbstractSpinBoxPrivate::getStyleOption() const
     else
         opt.activeSubControls = hoverControl;
     if (buttonstate)
-        opt.state |= QStyle::State_Down;
+        opt.state |= QStyle::State_Sunken;
 
     if (type != QVariant::Invalid) {
         opt.percentage = (value - minimum) / (maximum - minimum);

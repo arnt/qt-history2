@@ -76,14 +76,14 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
     case PE_FrameButtonBevel:
     case PE_FrameButtonTool:
         qDrawShadeRect(p, opt->rect, opt->palette,
-                       opt->state & (State_Sunken | State_Down | State_On), 1, 0);
+                       opt->state & (State_Sunken | State_On), 1, 0);
         break;
     case PE_PanelButtonCommand:
     case PE_PanelButtonBevel:
     case PE_PanelButtonTool:
     case PE_IndicatorButtonDropDown:
         qDrawShadePanel(p, opt->rect, opt->palette,
-                        opt->state & (State_Sunken | State_Down | State_On), 1,
+                        opt->state & (State_Sunken | State_On), 1,
                         &opt->palette.brush(QPalette::Button));
         break;
     case PE_IndicatorCheckBox:
@@ -544,7 +544,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
             if (btn->features & QStyleOptionButton::AutoDefaultButton)
                 br.setCoords(br.left() + dbi, br.top() + dbi, br.right() - dbi, br.bottom() - dbi);
             if (!(btn->features & QStyleOptionButton::Flat)
-                || btn->state & (State_Down | State_On)) {
+                || btn->state & (State_Sunken | State_On)) {
                 QStyleOptionButton tmpBtn = *btn;
                 tmpBtn.rect = br;
                 drawPrimitive(PE_PanelButtonCommand, &tmpBtn, p, widget);
@@ -562,7 +562,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
             QRect ir = btn->rect;
             uint tf = Qt::AlignVCenter | Qt::TextShowMnemonic;
-            if (btn->state & (State_On | State_Down))
+            if (btn->state & (State_On | State_Sunken))
                 ir.translate(pixelMetric(PM_ButtonShiftHorizontal, opt, widget),
                              pixelMetric(PM_ButtonShiftVertical, opt, widget));
             if (!btn->icon.isNull()) {
@@ -639,7 +639,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
         p->fillRect(opt->rect, opt->palette.background());
         QStyleOption arrowOpt = *opt;
         arrowOpt.state |= State_Enabled;
-        drawPrimitive(((opt->state & State_Down) ? PE_IndicatorArrowDown : PE_IndicatorArrowUp),
+        drawPrimitive(((opt->state & State_DownArrow) ? PE_IndicatorArrowDown : PE_IndicatorArrowUp),
                       &arrowOpt, p, widget);
         break; }
     case CE_MenuTearoff:
@@ -800,7 +800,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
             QRect rect = toolbutton->rect;
             int shiftX = 0;
             int shiftY = 0;
-            if (toolbutton->state & (State_Down | State_On)) {
+            if (toolbutton->state & (State_Sunken | State_On)) {
                 shiftX = pixelMetric(PM_ButtonShiftHorizontal, toolbutton, widget);
                 shiftY = pixelMetric(PM_ButtonShiftVertical, toolbutton, widget);
             }
@@ -1540,7 +1540,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                                                                       SC_ScrollBarSubLine, widget));
                 if (newScrollbar.rect.isValid()) {
                     newScrollbar.state &= (scrollbar->activeSubControls & SC_ScrollBarSubLine) ?
-                                          ~State(0) : ~(State_Down | State_MouseOver);
+                                          ~State(0) : ~(State_Sunken | State_MouseOver);
                     drawControl(CE_ScrollBarSubLine, &newScrollbar, p, widget);
                 }
             }
@@ -1551,8 +1551,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                                                subControlRect(cc, &newScrollbar,
                                                                       SC_ScrollBarAddLine, widget));
                 if (newScrollbar.rect.isValid()) {
-                    newScrollbar.state &= (scrollbar->activeSubControls & CE_ScrollBarAddLine) ?
-                                          ~State(0) : ~(State_Down | State_MouseOver);
+                    newScrollbar.state &= (scrollbar->activeSubControls & SC_ScrollBarAddLine) ?
+                                          ~State(0) : ~(State_Sunken | State_MouseOver);
                     drawControl(CE_ScrollBarAddLine, &newScrollbar, p, widget);
                 }
             }
@@ -1564,7 +1564,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                                                                       SC_ScrollBarSubPage, widget));
                 if (newScrollbar.rect.isValid()) {
                     newScrollbar.state &= (scrollbar->activeSubControls & CE_ScrollBarSubPage) ?
-                                          ~State(0) : ~(State_Down | State_MouseOver);
+                                          ~State(0) : ~(State_Sunken | State_MouseOver);
                     drawControl(CE_ScrollBarSubPage, &newScrollbar, p, widget);
                 }
             }
@@ -1576,7 +1576,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                                                                       SC_ScrollBarAddPage, widget));
                 if (newScrollbar.rect.isValid()) {
                     newScrollbar.state &= (scrollbar->activeSubControls & CE_ScrollBarAddPage) ?
-                                          ~State(0) : ~(State_Down | State_MouseOver);
+                                          ~State(0) : ~(State_Sunken | State_MouseOver);
                     drawControl(CE_ScrollBarAddPage, &newScrollbar, p, widget);
                 }
             }
@@ -1588,7 +1588,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                                                                       SC_ScrollBarFirst, widget));
                 if (newScrollbar.rect.isValid()) {
                     newScrollbar.state &= (scrollbar->activeSubControls & CE_ScrollBarFirst) ?
-                                          ~State(0) : ~(State_Down | State_MouseOver);
+                                          ~State(0) : ~(State_Sunken | State_MouseOver);
                     drawControl(CE_ScrollBarFirst, &newScrollbar, p, widget);
                 }
             }
@@ -1600,7 +1600,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                                                                       SC_ScrollBarLast, widget));
                 if (newScrollbar.rect.isValid()) {
                     newScrollbar.state &= (scrollbar->activeSubControls & CE_ScrollBarLast) ?
-                                          ~State(0) : ~(State_Down | State_MouseOver);
+                                          ~State(0) : ~(State_Sunken | State_MouseOver);
                     drawControl(CE_ScrollBarLast, &newScrollbar, p, widget);
                 }
             }
@@ -1612,7 +1612,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                                                                       SC_ScrollBarSlider, widget));
                 if (newScrollbar.rect.isValid()) {
                     newScrollbar.state &= (scrollbar->activeSubControls & CE_ScrollBarSlider) ?
-                                          ~State(0) : ~(State_Down | State_MouseOver);
+                                          ~State(0) : ~(State_Sunken | State_MouseOver);
                     drawControl(CE_ScrollBarSlider, &newScrollbar, p, widget);
 
                     if (scrollbar->state & State_HasFocus) {
@@ -1655,12 +1655,12 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
 
                 copy.palette = pal2;
 
-                if (sb->activeSubControls == SC_SpinBoxUp && (sb->state & State_Down)) {
+                if (sb->activeSubControls == SC_SpinBoxUp && (sb->state & State_Sunken)) {
                     copy.state |= State_On;
                     copy.state |= State_Sunken;
                 } else {
                     copy.state |= State_Raised;
-                    copy.state &= ~State_Down;
+                    copy.state &= ~State_Sunken;
                 }
                 pe = (sb->buttonSymbols == QAbstractSpinBox::PlusMinus ? PE_IndicatorSpinPlus
                                                                        : PE_IndicatorSpinUp);
@@ -1682,12 +1682,12 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 }
                 copy.palette = pal2;
 
-                if (sb->activeSubControls == SC_SpinBoxDown && (sb->state & State_Down)) {
+                if (sb->activeSubControls == SC_SpinBoxDown && (sb->state & State_Sunken)) {
                     copy.state |= State_On;
                     copy.state |= State_Sunken;
                 } else {
                     copy.state |= State_Raised;
-                    copy.state &= ~State_Down;
+                    copy.state &= ~State_Sunken;
                 }
                 pe = (sb->buttonSymbols == QAbstractSpinBox::PlusMinus ? PE_IndicatorSpinMinus
                                                                        : PE_IndicatorSpinDown);
@@ -1719,14 +1719,14 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             State mflags = bflags;
 
             if (toolbutton->activeSubControls & SC_ToolButton)
-                bflags |= State_Down;
+                bflags |= State_Sunken;
             if (toolbutton->activeSubControls & SC_ToolButtonMenu)
-                mflags |= State_Down;
+                mflags |= State_Sunken;
 
             QStyleOption tool(0);
             tool.palette = toolbutton->palette;
             if (toolbutton->subControls & SC_ToolButton) {
-                if (bflags & (State_Down | State_On | State_Raised)) {
+                if (bflags & (State_Sunken | State_On | State_Raised)) {
                     tool.rect = button;
                     tool.state = bflags;
                     drawPrimitive(PE_PanelButtonTool, &tool, p, widget);
@@ -1736,7 +1736,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             if (toolbutton->subControls & SC_ToolButtonMenu) {
                 tool.rect = menuarea;
                 tool.state = mflags;
-                if (mflags & (State_Down | State_On | State_Raised))
+                if (mflags & (State_Sunken | State_On | State_Raised))
                     drawPrimitive(PE_IndicatorButtonDropDown, &tool, p, widget);
                 drawPrimitive(PE_IndicatorArrowDown, &tool, p, widget);
             }
@@ -1803,7 +1803,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 else
                     pm = standardPixmap(SP_TitleBarCloseButton, &tool, widget);
                 tool.rect = ir;
-                tool.state = down ? State_Down : State_Raised;
+                tool.state = down ? State_Sunken : State_Raised;
                 drawPrimitive(PE_PanelButtonTool, &tool, p, widget);
 
                 p->save();
@@ -1822,7 +1822,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 down = tb->activeSubControls & SC_TitleBarMaxButton;
                 pm = standardPixmap(SP_TitleBarMaxButton, &tool, widget);
                 tool.rect = ir;
-                tool.state = down ? State_Down : State_Raised;
+                tool.state = down ? State_Sunken : State_Raised;
                 drawPrimitive(PE_PanelButtonTool, &tool, p, widget);
 
                 p->save();
@@ -1848,7 +1848,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 down = tb->activeSubControls & ctrl;
                 pm = standardPixmap(spixmap, &tool, widget);
                 tool.rect = ir;
-                tool.state = down ? State_Down : State_Raised;
+                tool.state = down ? State_Sunken : State_Raised;
                 drawPrimitive(PE_PanelButtonTool, &tool, p, widget);
 
                 p->save();
@@ -1866,7 +1866,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 down = tb->activeSubControls & SC_TitleBarShadeButton;
                 pm = standardPixmap(SP_TitleBarShadeButton, &tool, widget);
                 tool.rect = ir;
-                tool.state = down ? State_Down : State_Raised;
+                tool.state = down ? State_Sunken : State_Raised;
                 drawPrimitive(PE_PanelButtonTool, &tool, p, widget);
                 p->save();
                 if (down)
@@ -1883,7 +1883,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 down = tb->activeSubControls & SC_TitleBarUnshadeButton;
                 pm = standardPixmap(SP_TitleBarUnshadeButton, &tool, widget);
                 tool.rect = ir;
-                tool.state = down ? State_Down : State_Raised;
+                tool.state = down ? State_Sunken : State_Raised;
                 drawPrimitive(PE_PanelButtonTool, &tool, p, widget);
                 p->save();
                 if (down)
@@ -1901,7 +1901,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 down = tb->activeSubControls & SC_TitleBarContextHelpButton;
                 pm = standardPixmap(SP_TitleBarContextHelpButton, &tool, widget);
                 tool.rect = ir;
-                tool.state = down ? State_Down : State_Raised;
+                tool.state = down ? State_Sunken : State_Raised;
                 drawPrimitive(PE_PanelButtonTool, &tool, p, widget);
                 p->save();
                 if (down)

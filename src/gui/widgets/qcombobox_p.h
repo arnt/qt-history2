@@ -80,7 +80,7 @@ protected:
         menuOpt.tabWidth = 0;
         menuOpt.menuItemType = QStyleOptionMenuItem::Scroller;
         if (sliderAction == QAbstractSlider::SliderSingleStepAdd)
-            menuOpt.state = QStyle::State_Down;
+            menuOpt.state = QStyle::State_DownArrow;
         p.eraseRect(rect());
         style()->drawControl(QStyle::CE_MenuScroller, &menuOpt, &p);
     }

@@ -76,7 +76,7 @@ void ColorButton::drawButton(QPainter *p)
     buttonOptions.features = QStyleOptionButton::None;
     buttonOptions.rect = rect();
     buttonOptions.palette = palette();
-    buttonOptions.state = (isDown() ? QStyle::State_Down : QStyle::State_Raised);
+    buttonOptions.state = (isDown() ? QStyle::State_Sunken : QStyle::State_Raised);
     style()->drawPrimitive(QStyle::PE_PanelButtonBevel, &buttonOptions, p, this);
 
     drawButtonLabel(p);

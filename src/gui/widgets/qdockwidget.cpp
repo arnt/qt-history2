@@ -170,7 +170,7 @@ void QDockWidgetTitleButton::paintEvent(QPaintEvent *)
     if (isChecked())
         opt.state |= QStyle::State_On;
     if (isDown())
-        opt.state |= QStyle::State_Down;
+        opt.state |= QStyle::State_Sunken;
     style()->drawPrimitive(QStyle::PE_PanelButtonTool, &opt, &p, this);
 
     r.adjust(2, 2, -2, -2);

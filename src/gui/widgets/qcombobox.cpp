@@ -685,7 +685,7 @@ QStyleOptionComboBox QComboBoxPrivate::getStyleOption() const
     opt.subControls = QStyle::SC_All;
     if (arrowDown) {
         opt.activeSubControls = QStyle::SC_ComboBoxArrow;
-        opt.state |= QStyle::State_Down;
+        opt.state |= QStyle::State_Sunken;
     } else {
         opt.activeSubControls = hoverControl;
     }
