@@ -572,8 +572,10 @@ void QTextLine::draw( QPainter *p, int x, int y, int *underlinePositions ) const
 	int item = visualOrder[i]+firstItem;
 	QScriptItem &si = eng->items[item];
 
-	if (si.isObject && eng->inlineObjectIface)
-	    eng->inlineObjectIface->drawItem(p, QPoint(x, y), QTextItem(item, eng));
+	if (si.isObject && eng->inlineObjectIface && eng->formats) {
+	    QTextFormat format = eng->formats->format(si.format);
+	    eng->inlineObjectIface->drawItem(p, QPoint(x, y), QTextItem(item, eng), format);
+	}
 
 	if ( si.isTab || si.isObject ) {
 	    x += si.width;
@@ -850,3 +852,9 @@ int QTextLine::xToCursor( int x, CursorPosition cpos ) const
 	    break;
     return si.position + i;
 }
+
+// don't inline in header.
+QTextInlineObjectInterface::~QTextInlineObjectInterface()
+{
+}
+

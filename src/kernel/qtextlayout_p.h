@@ -119,12 +119,13 @@ private:
 
 class QPainter;
 class QTextFormatCollection;
+class QTextFormat;
 
 struct QTextInlineObjectInterface
 {
-    virtual ~QTextInlineObjectInterface() = 0;
-    virtual void layoutItem(QTextItem item) = 0;
-    virtual void drawItem(QPainter *painter, const QPoint &position, QTextItem item) = 0;
+    virtual ~QTextInlineObjectInterface();
+    virtual void layoutItem(QTextItem item, const QTextFormat &format) = 0;
+    virtual void drawItem(QPainter *painter, const QPoint &position, QTextItem item, const QTextFormat &format) = 0;
 };
 
 class Q_GUI_EXPORT QTextLayout
