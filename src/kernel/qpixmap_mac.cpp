@@ -42,7 +42,7 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
 		one_bit = (*(bits + (sy + (x / 8))) >> (7 - (x % 8))) & 0x01;
 	    else
 		one_bit = (*(bits + (sy + (x / 8))) >> (x % 8)) & 0x01;
-	    r.green = r.blue = r.red = one_bit ? 255 : 0;
+	    r.green = r.blue = r.red = one_bit ? 255*256 : 0;
 	    SetCPixel(x,y,&r);
 	}
     }
