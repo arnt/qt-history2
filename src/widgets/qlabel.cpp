@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#107 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#108 $
 **
 ** Implementation of QLabel widget class
 **
@@ -532,10 +532,7 @@ QSize QLabel::sizeHint() const
 
 QSizePolicy QLabel::sizePolicy() const
 {
-    if ( isqml )
-	return QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred, TRUE );
-    else
-	return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
+    return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum, isqml );
 }
 
 
