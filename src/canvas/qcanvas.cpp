@@ -48,14 +48,14 @@
 
 #include <stdlib.h>
 
-class QCanvas::QCanvasData {
+class QCanvas::Data {
 public:
     QList<QCanvasView> viewList;
     QPtrDict<void> itemDict;
     QPtrDict<void> animDict;
 };
 
-class QCanvasView::QCanvasViewData {
+class QCanvasView::Data {
 public:
     QWMatrix xform;
     QWMatrix ixform;
@@ -477,7 +477,7 @@ drawForeground(), you can draw things in front of all canvas items.
 
 void QCanvas::init(int w, int h, int chunksze, int mxclusters)
 {
-    d = new QCanvasData;
+    d = new Data;
     awidth=w;
     aheight=h;
     chunksize=chunksze;
@@ -2878,7 +2878,7 @@ void QCanvasSprite::draw(QPainter& painter)
 QCanvasView::QCanvasView(QWidget* parent, const char* name, WFlags f) :
     QScrollView(parent,name,f)
 {
-    d = new QCanvasViewData;
+    d = new Data;
     viewing = 0;
     setCanvas(0);
     connect(this,SIGNAL(contentsMoving(int,int)),this,SLOT(cMoving(int,int)));
@@ -2891,7 +2891,7 @@ QCanvasView::QCanvasView(QWidget* parent, const char* name, WFlags f) :
 QCanvasView::QCanvasView(QCanvas* canvas, QWidget* parent, const char* name, WFlags f) :
     QScrollView(parent,name,f)
 {
-    d = new QCanvasViewData;
+    d = new Data;
     viewing = 0;
     setCanvas(canvas);
 

@@ -303,8 +303,8 @@ private:
     int chwidth,chheight;
     QCanvasChunk* chunks;
 
-    class QCanvasData;
-    QCanvasData* d;
+    class Data;
+    Data* d;
 
     void initTiles(QPixmap p, int h, int v, int tilewidth, int tileheight);
     ushort *grid;
@@ -345,8 +345,8 @@ protected:
 
 private:
     QCanvas* viewing;
-    class QCanvasViewData;
-    QCanvasViewData* d;
+    class Data;
+    Data* d;
     friend void qt_unview(QCanvas* c);
 
 private slots:
