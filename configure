@@ -696,6 +696,27 @@ fi
 qdir="\$(QTDIR)"
 [ "$relpath" != "$outpath" ] && qdir="$outpath"
 
+# we may write in the source tree, let's take advantage of this
+# to test that QTDIR is correctly set to be the source tree
+touch .test.qt.
+if [ '!' -f ${QTDIR}/.test.qt. ]
+then
+    rm -f .test.qt.
+    echo
+    echo
+    echo '   The environment variable $QTDIR is not set correctly. It is currently'
+    echo '   set to "'$QTDIR'", but it should be set to this directory,'
+    echo '   which is "'`pwd`'".'
+    echo
+    echo '   Please read the INSTALL file for instructions on how to set $QTDIR'
+    echo '   correctly. If you have set $QTDIR in your .profile or .login, you '
+    echo '   will need to log out and log in again to make the setting effective.'
+    echo
+    echo
+    exit 1
+fi
+rm -f .test.qt.
+
 # if the source tree is different from the build tree,
 # symlink or copy part of the sources
 if [ "$relpath" != "$outpath" ]
@@ -775,27 +796,6 @@ else
 	rm -f $outpath/Makefile
 	cp $relpath/GNUmakefile $outpath/Makefile
     fi
-
-    # we may write in the source tree, let's take advantage of this
-    # to test that QTDIR is correctly set to be the source tree
-    touch .test.qt.
-    if [ '!' -f ${QTDIR}/.test.qt. ]
-    then
-	rm -f .test.qt.
-	echo
-	echo
-	echo '   The environment variable $QTDIR is not set correctly. It is currently'
-	echo '   set to "'$QTDIR'", but it should be set to this directory,'
-	echo '   which is "'`pwd`'".'
-	echo
-	echo '   Please read the INSTALL file for instructions on how to set $QTDIR'
-	echo '   correctly. If you have set $QTDIR in your .profile or .login, you '
-	echo '   will need to log out and log in again to make the setting effective.'
-	echo
-	echo
-	exit 1
-    fi
-    rm -f .test.qt.
 fi
 
 # find out which awk we want to use, prefer gawk, then nawk, then regular awk
