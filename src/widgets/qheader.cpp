@@ -1329,7 +1329,6 @@ void QHeader::paintSectionLabel( QPainter *p, int index, const QRect& fr )
 void QHeader::paintEvent( QPaintEvent *e )
 {
     QPainter p( this );
-    p.setClipRect( e->rect() );
     p.setPen( colorGroup().buttonText() );
     int pos = orient == Horizontal
 		     ? e->rect().left()
