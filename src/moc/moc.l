@@ -124,16 +124,14 @@ extern void moc_warn( const char *msg );
 <IN_PROPERTY>"READ"		{ X; return READ; }
 <IN_PROPERTY>"WRITE"		{ X; return WRITE; }
 <IN_PROPERTY>"STORED"		{ X; return STORED; }
-<IN_PROPERTY>"DEFAULT"		{ X; return DEFAULT; }
-<IN_PROPERTY>"NODEFAULT"	{ X; return NODEFAULT; }
+<IN_PROPERTY>"RESET"		{ X; return RESET; }
 <IN_PROPERTY>"DESIGNABLE"	{ X; return DESIGNABLE; }
 
 <IN_PROPDEF>"READ"		{ X; if ( expLevel == 1 ) BEGIN IN_PROPERTY; return READ; }
 <IN_PROPDEF>"WRITE"		{ X; if ( expLevel == 1 ) BEGIN IN_PROPERTY; return WRITE; }
 <IN_PROPDEF>"STORED"		{ X; if ( expLevel == 1 ) BEGIN IN_PROPERTY; return STORED; }
-<IN_PROPDEF>"DEFAULT"		{ X; if ( expLevel == 1 ) BEGIN IN_PROPERTY; return DEFAULT; }
+<IN_PROPDEF>"RESET"		{ X; if ( expLevel == 1 ) BEGIN IN_PROPERTY; return RESET; }
 <IN_PROPDEF>"DESIGNABLE"	{ X; if ( expLevel == 1 ) BEGIN IN_PROPERTY; return DESIGNABLE; }
-<IN_PROPDEF>"NODEFAULT"		{ X; if ( expLevel == 1 ) BEGIN IN_PROPERTY; return NODEFAULT; }
 <IN_PROPDEF>"("			{ addExpressionChar( '(' ); expLevel++;X; }
 <IN_PROPDEF>")"			{ expLevel--;Y;if (expLevel == 0)
 					{ X; BEGIN IN_PROPERTY; return ')';}

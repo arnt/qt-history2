@@ -78,6 +78,7 @@ public:
     QMember 	get;				// get-function or 0 ( 0 indicates an error )
     QMember 	set;				// set-function or 0
     QMember 	store;				// store-function or 0
+    QMember     reset;                          // reset-function or 0
     QMetaEnum	*enumData; 			// a pointer to the enum specification or 0
 
     enum Specification  { Unspecified, Class, Reference, Pointer, ConstCharStar };
@@ -194,17 +195,17 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-inline bool QMetaProperty::writeable() const 
+inline bool QMetaProperty::writeable() const
 { return set != 0; }
 inline bool QMetaProperty::testFlags( uint f ) const
 { return (flags & (uint)f) != (uint)0; }
-inline bool QMetaProperty::isValid() const 
+inline bool QMetaProperty::isValid() const
 { return get != 0 && !testFlags( UnresolvedEnum | UnresolvedDesignable | UnresolvedStored ) ; }
-inline bool QMetaProperty::isSetType() const 
+inline bool QMetaProperty::isSetType() const
 { return ( enumData != 0 && enumData->set ); }
-inline bool QMetaProperty::isEnumType() const 
+inline bool QMetaProperty::isEnumType() const
 { return ( enumData != 0 ); }
-inline bool QMetaProperty::designable() const 
+inline bool QMetaProperty::designable() const
 { return ( isValid() && set != 0 && !testFlags( NotDesignable | UnresolvedDesignable ) ); }
 inline void QMetaProperty::setFlags( uint f )
 { flags |= (uint)f; }
