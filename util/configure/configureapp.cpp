@@ -1183,7 +1183,7 @@ void Configure::generateConfigfiles()
         }
     }
 
-    
+
 
     QString archFile = dictionary[ "QT_SOURCE_TREE" ] + "/src/core/arch/windows/arch/qatomic.h";
     QDir archhelper;
@@ -1587,6 +1587,8 @@ void Configure::generateMakefiles()
 	if (dictionary["LEAN"] == "no")
 	    findProjects(dictionary["QT_SOURCE_TREE"]);
 
+        QString qtDir = QDir::convertSeparators(dictionary["QT_SOURCE_TREE"] + "/");
+
 	QString pwd = QDir::currentDirPath();
 	for ( i=0; i<3; i++ ) {
 	    for ( int j=0; j<makeList[i].size(); ++j) {
@@ -1619,7 +1621,7 @@ void Configure::generateMakefiles()
 
 		QDir::setCurrent( QDir::convertSeparators( dirPath ) );
 
-                if (dictionary["FAST"] == "yes") {
+                if (dictionary["FAST"] == "yes" && dirPath != qtDir) {
                     QFile file(makefileName);
                     if (!file.open(QFile::WriteOnly)) {
                         printf("failed on dirPath=%s, makefile=%s\n",
