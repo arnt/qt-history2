@@ -29,7 +29,14 @@ var p4Command;
  * Purging filters that will be moved into files later
  */
 
-var preRemove = [ /doc/ ];
+var preRemove = [ new RegExp("/qt/tools/designer/manual"),
+		  new RegExp("/qt/tools/designer/doc"),
+		  new RegExp("/qt/tools/designer/plugins/designer_interface_roadmap"),
+		  new RegExp("/qt/tools/designer/plugins/extrawidgets"),
+		  new RegExp("/qt/tools/designer/plugins/p4"),
+		  new RegExp("/qt/tools/designer/plugins/qvim"),
+		  new RegExp("/qt/tools/designer/plugins/designer_interface_roadmap"),
+		  new RegExp("/qt/tools/inspector") ];
 var preKeep = [ /./ ];
 
 /*******************************************************************************
@@ -224,7 +231,6 @@ function purgeFiles(fileList, remove, keep)
 	fileName = fileList[i];
 	for (var r in remove) {
 	    if (fileName.find(remove[r]) != -1) {
-		System.println( "remove hit, regexp: %1 string: %2".arg(remove[r]).arg(fileName));
 		doRemove = true;
 		break;
 	    }
