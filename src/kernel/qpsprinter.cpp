@@ -5241,8 +5241,6 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
     else if ( script == QFont::Bopomofo )
 	script = QFont::Han;
 
-    QString searchname = xfontname;
-
 #ifdef Q_WS_X11
     // we need an extension here due to the fact that we use different
     // fonts for different scripts
@@ -5327,7 +5325,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 			// fold to lower (since X folds to lowercase)
 			//qWarning(xfontname);
 			//qWarning(mapping);
-			if (mapping.lower().contains(searchname.lower())) {
+			if (mapping.lower().contains(xfontname.lower())) {
 			    int index = mapping.find(' ',0);
 			    QString ffn = mapping.mid(0,index);
 				// remove the most common bitmap formats
