@@ -155,9 +155,9 @@ private:
     void	setPHeight( int i, int h );
     int 	findLine( int );
     bool reverse() const;
-    void calculatePositions();
+    void calculatePositions( bool onlyVisible = FALSE, int start = 0 );
 
-    void	handleColumnResize(int, int, bool);
+    void	handleColumnResize(int, int, bool, bool = TRUE );
 
     int		offs;
     int		handleIdx;

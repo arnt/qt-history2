@@ -108,15 +108,6 @@ struct QHeaderData
     int lastPos;
     int fullSize;
 
-    void calculatePositions(){
-	// positions is sorted by index, not by section
-	positionsDirty = FALSE;
-	lastPos = 0;
-	for ( int i = 0; i < count; i++ ) {
-	    positions[i] = lastPos;
-	    lastPos +=sizes[i2s[i]];
-	}
-    }
     int sectionAt( int pos ) {
 	// positions is sorted by index, not by section
 	if ( !count )
@@ -550,7 +541,7 @@ void QHeader::mouseReleaseEvent( QMouseEvent *e )
 	if( reverse() )
 	    c = d->lastPos - c;
 	handleColumnResize( handleIdx, c, TRUE );
-	} break;
+    } break;
     case Moving: {
 #ifndef QT_NO_CURSOR
 	unsetCursor();
@@ -636,7 +627,7 @@ void QHeader::mouseMoveEvent( QMouseEvent *e )
 	}
 	break;
     case Sliding:
-	handleColumnResize( handleIdx, c, FALSE );
+	handleColumnResize( handleIdx, c, FALSE, FALSE );
 	break;
     case Moving: {
 	int newPos = findLine( pos );
@@ -664,7 +655,7 @@ void QHeader::mouseMoveEvent( QMouseEvent *e )
   of the header.
 */
 
-void QHeader::handleColumnResize( int index, int c, bool final )
+void QHeader::handleColumnResize( int index, int c, bool final, bool recalcAll )
 {
     int section = d->i2s[index];
     int lim = d->positions[index] +  2*GRIPMARGIN;
@@ -674,7 +665,7 @@ void QHeader::handleColumnResize( int index, int c, bool final )
     int newSize = c - d->positions[index];
     d->sizes[section] = newSize;
 
-    calculatePositions();
+    calculatePositions( !recalcAll, !recalcAll ? section : 0 );
 
     int pos = d->positions[index]-offset();
     if( reverse() ) // repaint the whole thing. Could be optimized (lars)
@@ -1599,9 +1590,16 @@ int QHeader::headerWidth() const
     return d->lastPos;
 }
 
-void QHeader::calculatePositions()
+void QHeader::calculatePositions( bool onlyVisible, int start )
 {
-    d->calculatePositions();
+    d->positionsDirty = FALSE;
+    d->lastPos = d->positions[start];
+    for ( int i = start; i < count(); i++ ) {
+	d->positions[i] = d->lastPos;
+	d->lastPos += d->sizes[d->i2s[i]];
+	if ( onlyVisible && d->lastPos > offset() + ( orientation() == Horizontal ? width() : height() ) )
+	    break;
+    }
 }
 
 
