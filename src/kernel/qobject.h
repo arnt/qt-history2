@@ -220,6 +220,7 @@ public:
 
 #ifdef QT_NO_TRANSLATION
 inline QString QObject::tr(const char* s) { return QString(s); }
+inline QString QObject::tr(const char* s, const char *) { return QString(s); }
 #endif
 
 
