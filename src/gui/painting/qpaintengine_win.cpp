@@ -660,7 +660,7 @@ void QWin32PaintEngine::drawPolygon(const QPointArray &pa, PolygonDrawMode mode)
             copy.setPoint(npoints-1, x2, y2);
             Polyline(d->hdc, (POINT*)copy.data(), npoints);
         }
-
+        return;
     }
 
 #ifndef Q_OS_TEMP
