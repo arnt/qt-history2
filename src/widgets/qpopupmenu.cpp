@@ -2018,8 +2018,12 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	register QMenuData *top = this;		// find top level
 	while ( top->parentMenu )
 	    top = top->parentMenu;
-	if ( top->isMenuBar )
+	if ( top->isMenuBar ) {
+	    int beforeId = top->actItem; 
 	    ((QMenuBar*)top)->tryKeyEvent( this, e );
+	    if ( beforeId != top->actItem )
+		ok_key = TRUE;
+	}
     }
 #endif
     if ( actItem < 0 ) {
@@ -2106,6 +2110,10 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    }
 	}
     }
+
+    if ( !ok_key && 
+	!( e->key() == Key_Control || e->key() == Key_Shift || e->key() == Key_Meta ) )
+	qApp->beep();
 }
 
 
