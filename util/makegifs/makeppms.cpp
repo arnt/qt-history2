@@ -23,7 +23,7 @@
 #include <qscrbar.h>
 #include <qslider.h>
 #include <qtabbar.h>
-#include <qviewp.h>
+#include <qscrollview.h>
 
 #include <life.h>
 
@@ -502,10 +502,10 @@ public:
     }
 };
 
-class EgQViewport : public QViewport {
+class EgQScrollView : public QScrollView {
     LifeWidget life;
 public:
-    EgQViewport()
+    EgQScrollView()
     {
 	view(&life);
 
@@ -534,7 +534,6 @@ public:
 	setFrameStyle(WinPanel|Sunken);
     }
 };
-
 
 int main( int argc, char **argv )
 {
@@ -576,7 +575,7 @@ int main( int argc, char **argv )
 	DEPICT( EgQTabBar, "qtabbar", "QTabBar" );
 	DEPICT( EgQProgressBar, "qprogbar", "QProgressBar" );
 	DEPICT( EgQProgressDialog, "qprogdlg", "QProgressDialog" );
-	DEPICT( EgQViewport, "qviewp", "QViewport" );
+	DEPICT( EgQScrollView, "qscrollview", "QScrollView" );
 
 	if ( !first ) break;
 
