@@ -347,9 +347,6 @@
         <property name="text">
             <string>View</string>
         </property>
-        <property name="exclusive">
-            <bool>true</bool>
-        </property>
         <property name="usesDropDown">
             <bool>false</bool>
         </property>
@@ -588,7 +585,7 @@
     <function access="private">init()</function>
     <function>clearData( bool fillWithDefaults )</function>
     <function>populate()</function>
-    <function returnType="QPixmap">colorSwatch( const QColor color )</function>
+    <function returnType="QPixmap">colorSwatch( QColor color )</function>
     <function>load( const QString &amp; filename )</function>
     <function returnType="bool">okToClear()</function>
     <function>changedColor( const QString &amp; name )</function>
