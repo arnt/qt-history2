@@ -916,7 +916,7 @@ static inline QString usertypeToQString( const TYPEDESC &tdesc, ITypeInfo *info,
 		TYPEATTR *typeattr = 0;
 		usertypeinfo->GetTypeAttr( &typeattr );
 		if ( typeattr && typeattr->typekind == TKIND_ALIAS )
-		    userTypeName = guessTypes( typeattr->tdescAlias, info, enumlist, function );
+		    userTypeName = guessTypes( typeattr->tdescAlias, usertypeinfo, enumlist, function );
 
 		usertypeinfo->ReleaseTypeAttr( typeattr );
 		typeName = userTypeName;

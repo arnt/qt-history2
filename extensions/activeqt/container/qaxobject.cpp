@@ -28,7 +28,6 @@
 #include "qaxobject.h"
 #include <ole2.h>
 
-extern int moduleLockCount;
 extern void moduleLock();
 extern void moduleUnlock();
 
