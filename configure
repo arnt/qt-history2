@@ -3343,19 +3343,6 @@ full)
 esac
 cat >> $outpath/src/core/global/qconfig.h.new <<EOF
 
-/* Generated functions */
-extern const char *qInstallPath();
-extern const char *qInstallPathDocs();
-extern const char *qInstallPathHeaders();
-extern const char *qInstallPathLibs();
-extern const char *qInstallPathBins();
-extern const char *qInstallPathPlugins();
-extern const char *qInstallPathData();
-extern const char *qInstallPathTranslations();
-extern const char *qInstallPathSysconf();
-extern const char *qInstallLicensee();
-extern const char *qInstallLicensedProducts();
-
 /* License information */
 #define QT_PRODUCT_LICENSEE qInstallLicensee()
 #define QT_PRODUCT_LICENSE  qInstallLicensedProducts()

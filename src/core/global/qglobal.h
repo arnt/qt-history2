@@ -1308,6 +1308,8 @@ Q_CORE_EXPORT const char *qInstallPathData();
 Q_CORE_EXPORT const char *qInstallPathTranslations();
 Q_CORE_EXPORT const char *qInstallPathSysconf();
 
+Q_CORE_EXPORT const char *qInstallLicensee();
+Q_CORE_EXPORT const char *qInstallLicensedProducts();
 
 class QBool
 {
