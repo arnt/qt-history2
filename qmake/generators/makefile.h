@@ -33,7 +33,9 @@ class MakefileGenerator : protected QMakeSourceFileInfo
     QStringList createObjectList(const QString &var);
     QString build_args();
     void checkMultipleDefinition(const QString &, const QString &);
-    QMap<QString, QString> fileFixed, mocablesToMOC, mocablesFromMOC;
+    QString createMocFileName(const QString &);
+    QMap<QString, QString> fileFixed;
+    QMap<QString, QMakeLocalFileName> depHeuristics;
     QMap<QString, QStringList> depends;
 
 protected:
@@ -49,18 +51,13 @@ protected:
 
     //interface to the source file info
     QMakeLocalFileName findFileForDep(const QMakeLocalFileName &);
-    void setFileMocable(const QMakeLocalFileName &);
+    QMakeLocalFileName findFileForMoc(const QMakeLocalFileName &);
 
-protected:
     QMakeProject *project;
 
     QString buildArgs();
-
     QString specdir();
-    QString cleanFilePath(const QString &file) const;
 
-    QString findMocSource(const QString &moc_file) const;
-    QString findMocDestination(const QString &src_file) const;
     virtual QStringList &findDependencies(const QString &file);
 
     void setNoIO(bool o);
@@ -112,24 +109,6 @@ public:
     virtual bool write();
     virtual bool openOutput(QFile &) const;
 };
-
-inline QString MakefileGenerator::findMocSource(const QString &moc_file) const
-{
-    QString tmp = cleanFilePath(moc_file);
-    if (mocablesFromMOC.contains(tmp))
-	return mocablesFromMOC[tmp];
-    else
-	return QString("");
-}
-
-inline QString MakefileGenerator::findMocDestination(const QString &src_file) const
-{
-    QString tmp = cleanFilePath(src_file);
-    if (mocablesToMOC.contains(tmp))
-	return mocablesToMOC[tmp];
-    else
-	return QString("");
-}
 
 inline void MakefileGenerator::setMocAware(bool o)
 { moc_aware = o; }

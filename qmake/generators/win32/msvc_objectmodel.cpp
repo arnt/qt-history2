@@ -1808,14 +1808,14 @@ VCFilter::VCFilter()
 
 void VCFilter::addMOCstage( QTextStream &strm, QString filename )
 {
-    QString mocOutput = Project->findMocDestination( filename );
+    QString mocOutput = Project->mocFile( filename );
     QString mocApp = Project->var( "QMAKE_MOC" );
 
-    if( mocOutput.isEmpty() && filename.endsWith(".moc") ) {
-        // In specialcases we DO moc .cpp files
-	// when the result is an .moc file
-	mocOutput = filename;
-	filename = Project->findMocSource( mocOutput );
+    if( mocOutput.isEmpty() && filename.endsWith(Option::cpp_moc_ext) ) {
+        // In specialcases we DO moc .cpp files when the result is an .moc file
+	QString old_filename = filename;
+	filename = mocOutput;
+	mocOutput = old_filename;
     }
 
     if (mocOutput.isEmpty())

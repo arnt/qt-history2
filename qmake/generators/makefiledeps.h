@@ -37,7 +37,7 @@ private:
 
 protected:
     virtual QMakeLocalFileName findFileForDep(const QMakeLocalFileName &);
-    virtual void setFileMocable(const QMakeLocalFileName &);
+    virtual QMakeLocalFileName findFileForMoc(const QMakeLocalFileName &);
 
 public:
     QMakeSourceFileInfo();
@@ -47,6 +47,8 @@ public:
     void addSourceFiles(const QStringList &, uchar);
 
     QStringList dependencies(const QString &file);
+
+    QString mocFile(const QString &file);
     bool mocable(const QString &file);
 };
 

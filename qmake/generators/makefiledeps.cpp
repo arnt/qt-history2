@@ -26,9 +26,10 @@ struct SourceDependChildren;
 struct SourceFile {
     SourceFile() : deps(0), mocable(0), traversed(0), exists(1),
 		   moc_checked(0), dep_checked(0) { }
-    QMakeLocalFileName file;
+    QMakeLocalFileName file, mocfile;
     SourceDependChildren *deps;
-    uint mocable : 1, traversed : 1, exists : 1, moc_checked : 1,  dep_checked : 1;
+    uint mocable : 1, traversed : 1, exists : 1;
+    uint moc_checked : 1,  dep_checked : 1;
 };
 struct SourceDependChildren {
     SourceFile **children;
@@ -174,6 +175,14 @@ bool QMakeSourceFileInfo::mocable(const QString &file)
     return false;
 }
 
+QString QMakeSourceFileInfo::mocFile(const QString &file)
+{
+    QString ret;
+    if(SourceFile *node = files->lookupFile(file))
+	return ret = node->mocfile.local();
+    return ret;
+}
+
 QMakeSourceFileInfo::QMakeSourceFileInfo()
 {
     files = 0;
@@ -204,9 +213,9 @@ void QMakeSourceFileInfo::addSourceFiles(const QStringList &l, uchar seek)
 	}
 	/* Do moc before dependency checking since some includes can come from
 	   moc_*.cpp files */
-	if(seek & SEEK_MOCS && !file->moc_checked)
+	if(seek & SEEK_MOCS)
 	    findMocs(file);
-	if(seek & SEEK_DEPS && !file->dep_checked)
+	if(seek & SEEK_DEPS)
 	    findDeps(file);
 	files->addFile(file);
     }
@@ -218,14 +227,14 @@ char *QMakeSourceFileInfo::getBuffer(int s) {
     return spare_buffer;
 }
 
-void QMakeSourceFileInfo::setFileMocable(const QMakeLocalFileName &)
-{
-
-}
-
 #ifdef Q_WS_WIN
 #define S_ISDIR(x) (x & _S_IFDIR)
 #endif
+
+QMakeLocalFileName QMakeSourceFileInfo::findFileForMoc(const QMakeLocalFileName &)
+{
+    return QMakeLocalFileName();
+}
 
 QMakeLocalFileName QMakeSourceFileInfo::findFileForDep(const QMakeLocalFileName &file)
 {
@@ -240,19 +249,17 @@ QMakeLocalFileName QMakeSourceFileInfo::findFileForDep(const QMakeLocalFileName 
 
 bool QMakeSourceFileInfo::findDeps(SourceFile *file)
 {
+    if(file->dep_checked)
+	return true;
     file->dep_checked = true;
-    if(!file->deps)
-	file->deps = new SourceDependChildren;
+
     struct stat fst;
     char *buffer = 0;
     int buffer_len = 0;
     {
 	int fd = open(file->file.local(), O_RDONLY);
-	if(fd == -1)
+	if(fd == -1 || fstat(fd, &fst) || S_ISDIR(fst.st_mode))
 	    return false;
-	if(fstat(fd, &fst) || S_ISDIR(fst.st_mode))
-	    return false;
-
 	buffer = getBuffer(fst.st_size);
 	for(int have_read = 0;
 	    (have_read = read(fd, buffer + buffer_len, fst.st_size - buffer_len));
@@ -261,6 +268,8 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
     }
     if(!buffer)
 	return false;
+    if(!file->deps)
+	file->deps = new SourceDependChildren;
 
     int line_count = 0;
     bool ui_file = false;
@@ -433,18 +442,17 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
 
 bool QMakeSourceFileInfo::findMocs(SourceFile *file)
 {
+    if(file->moc_checked)
+	return true;
     file->moc_checked = true;
 
     int buffer_len;
     char *buffer = 0;
     {
-	int fd = open(file->file.local().latin1(), O_RDONLY);
-	if(fd == -1)
-	    return false;
 	struct stat fst;
-	if(fstat(fd, &fst) || S_ISDIR(fst.st_mode))
+	int fd = open(file->file.local().latin1(), O_RDONLY);
+	if(fd == -1 || fstat(fd, &fst) || S_ISDIR(fst.st_mode))
 	    return false; //shouldn't happen
-
 	buffer = getBuffer(fst.st_size);
 	for(int have_read = buffer_len = 0;
 	    (have_read = read(fd, buffer + buffer_len, fst.st_size - buffer_len));
@@ -518,7 +526,7 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
 		debug_msg(2, "Mocgen: %s:%d Found MOC symbol %s", file->file.real().latin1(),
 			  line_count, buffer+x);
 		file->mocable = true;
-		setFileMocable(file->file);
+		file->mocfile = findFileForMoc(file->file);
 		break;
 	    }
 	}

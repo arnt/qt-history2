@@ -276,7 +276,7 @@ ProjectGenerator::init()
 			addConfig("lex_included");
 		    }
 		    if(!h.contains((*dep_it))) {
-			if(QMakeSourceFileInfo::mocable((*dep_it)) && !findMocDestination((*dep_it)).isEmpty())
+			if(QMakeSourceFileInfo::mocable((*dep_it)))
 			    h += (*dep_it);
 		    }
 		}

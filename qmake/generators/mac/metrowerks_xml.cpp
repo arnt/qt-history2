@@ -437,9 +437,11 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 	} else {
 	    createFork(mocs);
 	    QTextStream mocs(&mocfile);
-	    QStringList &list = project->variables()["SRCMOC"];
-	    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
-		QString src = findMocSource((*it));
+	    const QStringList &list = project->variables()["SOURCES"];
+	    for(QStringList::ConstIterator it = list.begin(); it != list.end(); ++it) {
+		if(!QMakeSourceFileInfo::mocable((*it)))
+		    continue;
+		QString src = QMakeSourceFileInfo::mocFile((*it));
 		if(src.lastIndexOf('/') != -1)
 		    src = src.right(src.length() - src.lastIndexOf('/') - 1);
 		mocs << src << endl;

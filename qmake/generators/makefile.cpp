@@ -205,6 +205,7 @@ MakefileGenerator::init()
     /* get deps and mocables */
     if((Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT ||
 	Option::mkfile::do_deps || Option::mkfile::do_mocs) && !noIO()) {
+	depHeuristics.clear();
 	if((Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT || Option::mkfile::do_deps) &&
 	   doDepends()) {
 	    QStringList incDirs = v["DEPENDPATH"] + v["QMAKE_ABSOLUTE_SOURCE_PATH"];
@@ -438,14 +439,8 @@ MakefileGenerator::init()
 	    impls.append(impl);
 	    findDependencies(impl).append(decl);
 
-	    QString mocable = Option::h_moc_mod + fi.baseName(TRUE) + Option::h_moc_ext;
-	    if(!v["MOC_DIR"].isEmpty())
-		mocable.prepend(v["MOC_DIR"].first());
-	    else if(fi.dirPath() != ".")
-		mocable.prepend(fi.dirPath() + Option::dir_sep);
+	    QString mocable = createMocFileName((*it));
 	    checkMultipleDefinition(mocable, "SOURCES");
-	    mocablesToMOC[cleanFilePath(decl)] = mocable;
-	    mocablesFromMOC[cleanFilePath(mocable)] = decl;
 	    v["_UIMOC"].append(mocable);
 	}
 	v["OBJECTS"] += (v["UICOBJECTS"] = createObjectList("UICDECLS"));
@@ -911,7 +906,6 @@ MakefileGenerator::writeUicSrc(QTextStream &t, const QString &ui)
     }
 }
 
-
 void
 MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj, const QString &src)
 {
@@ -920,7 +914,7 @@ MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj, const QString
     QStringList::Iterator oit = objl.begin(), sit = srcl.begin();
     QString stringSrc("$src"), stringObj("$obj");
     for(;sit != srcl.end() && oit != objl.end(); oit++, sit++) {
-	QString hdr = findMocSource((*sit));
+	QString hdr = QMakeSourceFileInfo::mocFile((*sit));
 	t << (*oit) << ": " << (*sit) << " "
 	  << hdr << " " << findDependencies(hdr).join(" \\\n\t\t");
 	bool use_implicit_rule = !project->isEmpty("QMAKE_RUN_CXX_IMP");
@@ -943,13 +937,12 @@ MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj, const QString
     }
 }
 
-
 void
 MakefileGenerator::writeMocSrc(QTextStream &t, const QString &src)
 {
     QStringList &l = project->variables()[src];
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-	QString m = Option::fixPathToTargetOS(findMocDestination(*it));
+	QString m = QMakeSourceFileInfo::mocFile(*it);
 	if(!m.isEmpty()) {
 	    QString deps;
 	    if(!project->isActiveConfig("no_mocdepend"))
@@ -1320,6 +1313,36 @@ MakefileGenerator::createObjectList(const QString &var)
     return ret;
 }
 
+QString
+MakefileGenerator::createMocFileName(const QString &file)
+{
+    bool from_cpp = false;
+    for(QStringList::Iterator it =  Option::cpp_ext.begin(); it !=  Option::cpp_ext.end(); ++it) {
+	if(file.endsWith((*it))) {
+	    from_cpp = true;
+	    break;
+	}
+    }
+
+    QString ret;
+    int dir_pos = file.lastIndexOf(Option::dir_sep),
+	ext_pos = file.indexOf('.', dir_pos == -1 ? 0 : dir_pos), 
+	ext_len = file.length() - ext_pos;
+    if(!project->isEmpty("MOC_DIR"))
+	ret = project->first("MOC_DIR");
+    else if(dir_pos != -1)
+	ret = file.left(dir_pos+1);
+
+    if(from_cpp) 
+	ret += Option::cpp_moc_mod + file.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::cpp_moc_ext;
+    else
+	ret += Option::h_moc_mod + file.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::h_moc_ext;
+
+    if(!ret.isNull())
+	ret = Option::fixPathToTargetOS(ret);
+    return ret;
+}
+
 bool
 MakefileGenerator::writeMakefile(QTextStream &t)
 {
@@ -1598,13 +1621,8 @@ MakefileGenerator::fileFixify(const QString& file0, const QString &out_d,
     return file;
 }
 
-QString
-MakefileGenerator::cleanFilePath(const QString &file) const
-{
-    return fileFixify(Option::fixPathToTargetOS(file));
-}
-
-void MakefileGenerator::checkMultipleDefinition(const QString &f, const QString &w)
+void 
+MakefileGenerator::checkMultipleDefinition(const QString &f, const QString &w)
 {
     if(!(Option::warn_level & WarnLogic))
 	return;
@@ -1626,40 +1644,17 @@ void MakefileGenerator::checkMultipleDefinition(const QString &f, const QString 
     }
 }
 
-void 
-MakefileGenerator::setFileMocable(const QMakeLocalFileName &file)
+QMakeLocalFileName
+MakefileGenerator::findFileForMoc(const QMakeLocalFileName &file)
 {
-    const QString file_name = file.local();
-
-    bool header = false;
-    for(QStringList::Iterator it =  Option::h_ext.begin(); it !=  Option::h_ext.end(); ++it) {
-	if(file_name.endsWith((*it))) {
-	    header = true;
-	    break;
-	}
-    }
-	
-    int ext_pos = file_name.lastIndexOf('.'), ext_len = file_name.length() - ext_pos,
-	dir_pos = file_name.lastIndexOf(Option::dir_sep, ext_pos);
-    QString mocFile;
-    if(!project->isEmpty("MOC_DIR"))
-	mocFile = project->first("MOC_DIR");
-    else if(dir_pos != -1)
-	mocFile = file_name.left(dir_pos+1);
-
-    if(header) {
-	mocFile += Option::h_moc_mod + file_name.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::h_moc_ext;
-	checkMultipleDefinition(mocFile, "SOURCES");
-	project->variables()["_HDRMOC"].append(mocFile);
+    QString ret = createMocFileName(file.real());
+    if(ret.endsWith(Option::cpp_moc_ext)) { //.moc
+	project->variables()["_SRCMOC"].append(ret);
     } else {
-	mocFile += Option::cpp_moc_mod + file_name.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::cpp_moc_ext;
-	project->variables()["_SRCMOC"].append(mocFile);
+	checkMultipleDefinition(ret, "SOURCES");
+	project->variables()["_HDRMOC"].append(ret);
     }
-    if(!mocFile.isEmpty()) {
-	mocFile = Option::fixPathToTargetOS(mocFile);
-	mocablesToMOC[cleanFilePath(file_name)] = mocFile;
-	mocablesFromMOC[cleanFilePath(mocFile)] = file_name;
-    }
+    return QMakeLocalFileName(ret);
 }
 
 QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &file)
@@ -1689,6 +1684,9 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &f
     //reliable these will be, most likely when problems arise turn it off
     //and see if they go away..
     if(Option::mkfile::do_dep_heuristics) {
+	if(depHeuristics.contains(file.real())) 
+	    return depHeuristics[file.real()];
+
 	{ //is it a file from a .ui?
 	    QString inc_file = file.real().section(Option::dir_sep, -1);
 	    int extn = inc_file.lastIndexOf('.');
@@ -1784,10 +1782,10 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &f
 		}
 	    }
 	}
+	depHeuristics.insert(file.real(), ret);
     }
     return ret;
 }
-
 
 QStringList
 &MakefileGenerator::findDependencies(const QString &file)
@@ -1796,7 +1794,6 @@ QStringList
 	depends.insert(file, QMakeSourceFileInfo::dependencies(file));
     return depends[file];
 }
-
 
 QString
 MakefileGenerator::specdir()

@@ -108,29 +108,11 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		QStringList list = project->variables()["SOURCES"] + project->variables()["DEF_FILE"];
 		if(!project->isActiveConfig("flat"))
 		    list.sort();
-		QStringList::Iterator it;
-		for(it = list.begin(); it != list.end(); ++it) {
+		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 		    beginGroupForFile((*it), t);
 		    t << "# Begin Source File\n\nSOURCE=" << (*it) << endl;
 		    if(usePCH && (*it).endsWith(".c"))
 			t << "# SUBTRACT CPP /FI\"" << namePCH << "\" /Yu\"" << namePCH << "\" /Fp" << endl;
-		    if(project->isActiveConfig("moc") && (*it).endsWith(Option::cpp_moc_ext)) {
-			QString base = (*it);
-			base.replace(QRegExp("\\..*$"), "").toUpper();
-			base.replace(QRegExp("[^a-zA-Z]"), "_");
-
-			QString build = "\n\n# Begin Custom Build - Moc'ing " + findMocSource((*it)) +
-					"...\n" "InputPath=.\\" + (*it) + "\n\n" "\"" + (*it) + "\""
-					" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n"
-					"\t" + mocpath + findMocSource((*it)) + " -o " +
-					(*it) + "\n\n" "# End Custom Build\n\n";
-
-			t << "USERDEP_" << base << "=\".\\" << findMocSource((*it)) << "\" \"$(QTDIR)\\bin\\moc.exe\"" << endl << endl;
-
-			t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Release\"" << build
-			  << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Debug\""
-			  << build << "!ENDIF " << endl << endl;
-		    }
 		    t << "# End Source File" << endl;
 		}
 		endGroups(t);
@@ -196,11 +178,13 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			if(!tmp.isEmpty()) // Got Deps for PCH
 			    customDependencies += tmp;
 		    }
-		    if (project->isActiveConfig("moc") && !findMocDestination((*it)).isEmpty()) {
+
+		    QString mocFile = QMakeSourceFileInfo::mocFile((*it));
+		    if (project->isActiveConfig("moc") && !mocFile.isEmpty()) {
 			QString mocpath = var( "QMAKE_MOC" );
 			mocpath = mocpath.replace( QRegExp( "\\..*$" ), "" ) + " ";
-			buildCmds += "\t" + mocpath + (*it)  + " -o " + findMocDestination((*it)) + " \\\n";
-			createMOC  = "\"" + findMocDestination((*it)) +	"\" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n   $(BuildCmds)\n\n";
+			buildCmds += "\t" + mocpath + (*it)  + " -o " + mocFile + " \\\n";
+			createMOC  = "\"" + mocFile +	"\" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n   $(BuildCmds)\n\n";
 			customDependencies += "\"$(QTDIR)\\bin\\moc.exe\"";
 		    }
 		    if (!createMOC.isEmpty() || !compilePCH.isEmpty()) {
@@ -295,35 +279,36 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 //		endGroups(t);
 		t << "\n# End Group\n";
 	    } else if(variable == "MSVCDSP_MOCSOURCES" && project->isActiveConfig("moc")) {
-		if(project->variables()["SRCMOC"].isEmpty())
+		if(project->variables()["SOURCES"].isEmpty())
 		    continue;
 
 		QString mocpath = var("QMAKE_MOC");
 		mocpath = mocpath.replace(QRegExp("\\..*$"), "") + " ";
 
-		QStringList list = project->variables()["SRCMOC"];
+		QStringList list = project->variables()["SOURCES"];
 		if(!project->isActiveConfig("flat"))
 		    list.sort();
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
+		    if(!QMakeSourceFileInfo::mocable(*it))
+			continue;
 //		    beginGroupForFile((*it), t);
 		    t << "# Begin Source File\n\nSOURCE=" << (*it) << endl;
-		    if(project->isActiveConfig("moc") && (*it).endsWith(Option::cpp_moc_ext)) {
-			QString base = (*it);
-			base.replace(QRegExp("\\..*$"), "").toUpper();
-			base.replace(QRegExp("[^a-zA-Z]"), "_");
+		    QString base = (*it);
+		    base.replace(QRegExp("\\..*$"), "").toUpper();
+		    base.replace(QRegExp("[^a-zA-Z]"), "_");
 
-			QString build = "\n\n# Begin Custom Build - Moc'ing " + findMocSource((*it)) +
-					"...\n" "InputPath=.\\" + (*it) + "\n\n" "\"" + (*it) + "\""
-					" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n"
-					"\t" + mocpath + findMocSource((*it)) + " -o " +
-					(*it) + "\n\n" "# End Custom Build\n\n";
+		    QString mocFile = QMakeSourceFileInfo::mocFile((*it));
+		    QString build = "\n\n# Begin Custom Build - Moc'ing " + mocFile +
+				    "...\n" "InputPath=.\\" + (*it) + "\n\n" "\"" + (*it) + "\""
+				    " : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n"
+				    "\t" + mocpath + mocFile + " -o " +
+				    (*it) + "\n\n" "# End Custom Build\n\n";
 
-			t << "USERDEP_" << base << "=\".\\" << findMocSource((*it)) << "\" \"$(QTDIR)\\bin\\moc.exe\"" << endl << endl;
-
-			t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Release\"" << build
-			  << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Debug\""
-			  << build << "!ENDIF " << endl << endl;
-		    }
+		    t << "USERDEP_" << base << "=\".\\" << mocFile << "\" \"$(QTDIR)\\bin\\moc.exe\"" << endl << endl;
+		    
+		    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Release\"" << build
+		      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Debug\""
+		      << build << "!ENDIF " << endl << endl;
 		    t << "# End Source File" << endl;
 		}
 //		endGroups(t);
@@ -845,9 +830,8 @@ DspMakefileGenerator::init()
 	    "# End Special Build Tool\n");
     }
 
-    if(!project->variables()["SOURCES"].isEmpty() || !project->variables()["RC_FILE"].isEmpty()) {
+    if(!project->variables()["SOURCES"].isEmpty() || !project->variables()["RC_FILE"].isEmpty()) 
 	project->variables()["SOURCES"] += project->variables()["RC_FILE"];
-    }
     QStringList &list = project->variables()["FORMS"];
     for(it = list.begin(); it != list.end(); ++it) {
 	if(QFile::exists(*it + ".h"))
