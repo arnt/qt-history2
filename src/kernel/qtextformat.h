@@ -24,6 +24,7 @@ class QTextFormat
     friend class QTextFormatCollection;
 public:
     enum FormatType {
+	InvalidFormat = -1,
 	BlockFormat = 1,
 	CharFormat = 2,
 	ListFormat = 3,

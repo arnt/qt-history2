@@ -203,7 +203,6 @@ bool QTextFormatPrivate::operator==(const QTextFormatPrivate &rhs) const
 }
 
 QTextFormat::QTextFormat()
-    : d(new QTextFormatPrivate)
 {
 }
 
@@ -234,6 +233,14 @@ QTextFormat::~QTextFormat()
 
 void QTextFormat::merge(const QTextFormat &other)
 {
+    if (!other.d)
+	return;
+
+    if (!d) {
+	(*this) = other;
+	return;
+    }
+
     QList<int> allProps = other.d->propertyMap().keys();
 
     for (int i = 0; i < allProps.count(); ++i) {
@@ -247,11 +254,15 @@ void QTextFormat::merge(const QTextFormat &other)
 
 int QTextFormat::type() const
 {
+    if (!d)
+	return InvalidFormat;
     return d->type;
 }
 
 int QTextFormat::inheritedType() const
 {
+    if (!d)
+	return InvalidFormat;
     return d->inheritedType;
 }
 
@@ -292,6 +303,9 @@ QTextImageFormat QTextFormat::toImageFormat() const
 
 bool QTextFormat::boolProperty(int propertyId, bool defaultValue) const
 {
+    if (!d)
+	return defaultValue;
+
     const QTextFormatProperty prop = d->property(propertyId, QTextFormat::Bool);
 
     if (!prop.isValid())
@@ -302,6 +316,9 @@ bool QTextFormat::boolProperty(int propertyId, bool defaultValue) const
 
 int QTextFormat::intProperty(int propertyId, int defaultValue) const
 {
+    if (!d)
+	return defaultValue;
+
     const QTextFormatProperty prop = d->property(propertyId, QTextFormat::Integer);
 
     if (!prop.isValid())
@@ -312,6 +329,9 @@ int QTextFormat::intProperty(int propertyId, int defaultValue) const
 
 float QTextFormat::floatProperty(int propertyId, float defaultValue) const
 {
+    if (!d)
+	return defaultValue;
+
     const QTextFormatProperty prop = d->property(propertyId, QTextFormat::Float);
 
     if (!prop.isValid())
@@ -322,6 +342,9 @@ float QTextFormat::floatProperty(int propertyId, float defaultValue) const
 
 QString QTextFormat::stringProperty(int propertyId, const QString &defaultValue) const
 {
+    if (!d)
+	return defaultValue;
+
     const QTextFormatProperty prop = d->property(propertyId, QTextFormat::String);
 
     if (!prop.isValid())
@@ -332,6 +355,9 @@ QString QTextFormat::stringProperty(int propertyId, const QString &defaultValue)
 
 QByteArray QTextFormat::binaryProperty(int propertyId, QByteArray defaultValue) const
 {
+    if (!d)
+	return defaultValue;
+
     const QTextFormatProperty prop = d->property(propertyId, QTextFormat::Binary);
 
     if (!prop.isValid())
@@ -342,6 +368,9 @@ QByteArray QTextFormat::binaryProperty(int propertyId, QByteArray defaultValue) 
 
 int QTextFormat::formatReferenceProperty(int propertyId, int defaultValue) const
 {
+    if (!d)
+	return defaultValue;
+
     const QTextFormatProperty prop = d->property(propertyId, QTextFormat::FormatReference);
 
     if (!prop.isValid())
@@ -352,31 +381,43 @@ int QTextFormat::formatReferenceProperty(int propertyId, int defaultValue) const
 
 void QTextFormat::setProperty(int propertyId, bool value)
 {
+    if (!d)
+	return;
     d->setProperty(propertyId, value);
 }
 
 void QTextFormat::setProperty(int propertyId, int value)
 {
+    if (!d)
+	return;
     d->setProperty(propertyId, value);
 }
 
 void QTextFormat::setProperty(int propertyId, float value)
 {
+    if (!d)
+	return;
     d->setProperty(propertyId, value);
 }
 
 void QTextFormat::setProperty(int propertyId, const QString &value)
 {
+    if (!d)
+	return;
     d->setProperty(propertyId, value);
 }
 
 void QTextFormat::setProperty(int propertyId, const QByteArray &value)
 {
+    if (!d)
+	return;
     d->setProperty(propertyId, value);
 }
 
 void QTextFormat::setFormatReferenceProperty(int propertyId, int value)
 {
+    if (!d)
+	return;
     QTextFormatProperty prop;
     prop.type = FormatReference;
     prop.data.intValue = value;
@@ -385,11 +426,16 @@ void QTextFormat::setFormatReferenceProperty(int propertyId, int value)
 
 bool QTextFormat::hasProperty(int propertyId) const
 {
+    if (!d)
+	return false;
     return d->property(propertyId, QTextFormat::Undefined).isValid();
 }
 
 QTextFormat::PropertyType QTextFormat::propertyType(int propertyId) const
 {
+    if (!d)
+	return QTextFormat::Undefined;
+
     QTextFormatProperty prop = d->property(propertyId, QTextFormat::Undefined);
     if (!prop.isValid())
 	return QTextFormat::Undefined;
@@ -398,11 +444,20 @@ QTextFormat::PropertyType QTextFormat::propertyType(int propertyId) const
 
 QList<int> QTextFormat::allPropertyIds() const
 {
+    if (!d)
+	return QList<int>();
+
     return d->propertyMap().keys();
 }
 
 bool QTextFormat::operator==(const QTextFormat &rhs) const
 {
+    if (!d)
+	return !rhs.d;
+
+    if (!rhs.d)
+	return false;
+
     return *d == *rhs.d;
 }
 
