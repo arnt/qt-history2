@@ -190,7 +190,7 @@ protected:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractItemModel::MatchFlags);
 
-class QAbstractTableModel : public QAbstractItemModel
+class Q_GUI_EXPORT QAbstractTableModel : public QAbstractItemModel
 {
     Q_OBJECT
 
@@ -213,7 +213,7 @@ private:
     int columnCount(const QModelIndex &parent) const;
 };
 
-class QAbstractListModel : public QAbstractTableModel
+class Q_GUI_EXPORT QAbstractListModel : public QAbstractTableModel
 {
     Q_OBJECT
 
