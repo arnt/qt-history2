@@ -19,6 +19,7 @@
 #include <qvarlengtharray.h>
 #include <qtextformat.h>
 #include <qabstracttextdocumentlayout.h>
+#include "qtextdocument_p.h"
 #include "qtextformat_p.h"
 #include <limits.h>
 
@@ -333,6 +334,48 @@ QTextLayout::QTextLayout(const QString& string, const QFont& fnt)
     d = new QTextEngine((string.isNull() ? (const QString&)QString::fromLatin1("") : string), fnt.d);
 }
 
+QTextLayout::QTextLayout(const QTextBlock &block)
+{
+    d = new QTextEngine();
+    d->block = block;
+
+    const QTextDocumentPrivate *p = block.docHandle();
+
+    d->formats = p->formatCollection();
+    d->docLayout = p->layout();
+
+    QString txt = block.text();
+    setText(txt);
+    if (txt.isEmpty())
+        return;
+
+    int lastTextPosition = 0;
+    int textLength = 0;
+
+    QTextDocumentPrivate::FragmentIterator it = p->find(block.position());
+    QTextDocumentPrivate::FragmentIterator end = p->find(block.position() + block.length() - 1); // -1 to omit the block separator char
+    int lastFormatIdx = it.value()->format;
+
+    for (; it != end; ++it) {
+        const QTextFragmentData * const frag = it.value();
+
+        const int formatIndex = frag->format;
+        if (formatIndex != lastFormatIdx) {
+            Q_ASSERT(lastFormatIdx != -1);
+            setFormat(lastTextPosition, textLength, lastFormatIdx);
+
+            lastFormatIdx = formatIndex;
+            lastTextPosition += textLength;
+            textLength = 0;
+        }
+
+        textLength += frag->size;
+    }
+
+    Q_ASSERT(lastFormatIdx != -1);
+    setFormat(lastTextPosition, textLength, lastFormatIdx);
+}
+
 /*!
     Destructs the layout.
 */
@@ -347,12 +390,8 @@ QTextLayout::~QTextLayout()
 */
 void QTextLayout::setText(const QString& string, const QFont& fnt)
 {
-    QAbstractTextDocumentLayout *layout = d->docLayout;
-    const QTextFormatCollection *formats = d->formats;
     delete d;
     d = new QTextEngine((string.isNull() ? (const QString&)QString::fromLatin1("") : string), fnt.d);
-    d->docLayout = layout;
-    d->formats = formats;
 }
 
 /*!
@@ -967,12 +1006,18 @@ void QTextLine::layout(int width, LineWidthUnit unit)
     line.textWidth = 0;
 
     if (!eng->items.size()) {
-        // ##### use block font
+        QFont f;
+        QFontEngine *e;
+
         if (eng->fnt) {
-            QFontEngine *e = eng->fnt->engineForScript(QFont::Latin);
-            line.ascent = e->ascent();
-            line.descent = e->descent();
+            e = eng->fnt->engineForScript(QFont::Latin);
+        } else {
+            f = eng->block.charFormat().font();
+            e = f.d->engineForScript(QFont::Latin);
         }
+
+        line.ascent = e->ascent();
+        line.descent = e->descent();
         return;
     }
 

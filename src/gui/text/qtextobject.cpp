@@ -720,42 +720,9 @@ QTextLayout *QTextBlock::layout() const
         return 0;
 
     const QTextBlockData *b = p->blockMap().fragment(n);
-    if (!b->layout) {
-        b->layout = new QTextLayout();
-        b->layout->setFormatCollection(p->formatCollection());
-        b->layout->setDocumentLayout(p->layout());
-    }
-    if (b->textDirty) {
-        QString text = this->text();
-        b->layout->setText(text, charFormat().font());
-
-        if (!text.isEmpty()) {
-            int lastTextPosition = 0;
-            int textLength = 0;
-
-            QTextDocumentPrivate::FragmentIterator it = p->find(position());
-            QTextDocumentPrivate::FragmentIterator end = p->find(position() + length() - 1); // -1 to omit the block separator char
-            int lastFormatIdx = it.value()->format;
-
-            for (; it != end; ++it) {
-                const QTextFragmentData * const frag = it.value();
-
-                const int formatIndex = frag->format;
-                if (formatIndex != lastFormatIdx) {
-                    Q_ASSERT(lastFormatIdx != -1);
-                    b->layout->setFormat(lastTextPosition, textLength, lastFormatIdx);
-
-                    lastFormatIdx = formatIndex;
-                    lastTextPosition += textLength;
-                    textLength = 0;
-                }
-
-                textLength += frag->size;
-            }
-
-            Q_ASSERT(lastFormatIdx != -1);
-            b->layout->setFormat(lastTextPosition, textLength, lastFormatIdx);
-        }
+    if (!b->layout || b->textDirty) {
+        delete b->layout;
+        b->layout = new QTextLayout(*this);
         b->textDirty = false;
     }
     return b->layout;

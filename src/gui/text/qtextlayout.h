@@ -65,6 +65,7 @@ class QTextFormatCollection;
 class QTextFormat;
 class QTextLine;
 class QAbstractTextDocumentLayout;
+class QTextBlock;
 
 class Q_GUI_EXPORT QTextLayout
 {
@@ -74,8 +75,7 @@ public:
     QTextLayout(const QString& string);
     QTextLayout(const QString& string, QPainter *);
     QTextLayout(const QString& string, const QFont& fnt);
-    // ######### implement me!
-    // QTextLayout(const QTextBlock &b);
+    QTextLayout(const QTextBlock &b);
     ~QTextLayout();
 
     void setText(const QString& string, const QFont& fnt);

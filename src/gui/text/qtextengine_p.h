@@ -22,6 +22,7 @@
 #include <private/qfontdata_p.h>
 #include <qvector.h>
 #include <qpaintengine.h>
+#include <qtextobject.h>
 #endif // QT_H
 
 #include <stdlib.h>
@@ -407,6 +408,7 @@ public:
     unsigned int textFlags;
     QPalette *pal;
     QAbstractTextDocumentLayout *docLayout;
+    QTextBlock block;
 
     int allocated;
     void **memory;
