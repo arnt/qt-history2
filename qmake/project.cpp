@@ -156,17 +156,21 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
     SKIP_WS(d);
     bool scope_failed = FALSE, else_line = FALSE, or_op=FALSE;
     int parens = 0, scope_count=0;
-    while(*d && *d != '=') {
-	if((*d == '+' || *d == '-' || *d == '*' || *d == '~')) {
-	    if(*(d+1) == '=') {
+    while(*d) {
+	if(!parens) {
+	    if(*d == '=')
 		break;
-	    } else if(*(d+1) == ' ') {
-		const char *k = d + 1;
-		SKIP_WS(k);
-		if(*k == '=') {
-		    QString msg;
-		    qmake_error_msg(*d + "must be followed immediatly by =");
-		    return FALSE;
+	    if(*d == '+' || *d == '-' || *d == '*' || *d == '~') {
+		if(*(d+1) == '=') {
+		    break;
+		} else if(*(d+1) == ' ') {
+		    const char *k = d + 1;
+		    SKIP_WS(k);
+		    if(*k == '=') {
+			QString msg;
+			qmake_error_msg(*d + "must be followed immediatly by =");
+			return FALSE;
+		    }
 		}
 	    }
 	}
@@ -893,7 +897,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 	else if(x == 2) //environment
 	    reg_var = QRegExp("(^|\\\\*)\\$\\$\\(([a-zA-Z0-9_\\.-]*)\\)");
 	else if(x == 3) //function
-	    reg_var = QRegExp("(^|\\\\*\\$\\$([a-zA-Z0-9_]*)\\((\\(.|(.*)\\)*)\\)");
+	    reg_var = QRegExp("(^|\\\\*)\\$\\$([a-zA-Z0-9_]*)\\((\\(.|(.*)\\)*)\\)");
 	else if(x == 4) //normal variable
 	    reg_var = QRegExp("(^|\\\\*)\\$\\$([a-zA-Z0-9_\\.-]*)");
 	while((rep = reg_var.search(str, jump_to)) != -1) {
