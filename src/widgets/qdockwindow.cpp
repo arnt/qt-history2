@@ -210,7 +210,7 @@ void QDockWindowResizeHandle::startLineDraw()
 {
     if ( unclippedPainter )
 	endLineDraw();
-#ifdef MAC_DRAG_HACK    
+#ifdef MAC_DRAG_HACK
     QWidget *paint_on = topLevelWidget();
 #else
     QWidget *paint_on = QApplication::desktop();
@@ -926,7 +926,8 @@ void QDockWindow::updatePosition( const QPoint &globalPos )
     tmpDockArea = 0;
     if ( doAdjustSize ) {
 	QApplication::sendPostedEvents( this, QEvent::LayoutHint );
-	adjustSize();
+	if ( inherits( "QToolBar" ) )
+	    adjustSize();
 	show();
     }
 }
@@ -958,7 +959,7 @@ void QDockWindow::startRectDraw( const QPoint &so, bool drawRect )
     state = place();
     if ( unclippedPainter )
 	endRectDraw( !opaque );
-#ifdef MAC_DRAG_HACK    
+#ifdef MAC_DRAG_HACK
     QWidget *paint_on = topLevelWidget();
 #else
     QWidget *paint_on = QApplication::desktop();
@@ -1274,7 +1275,8 @@ void QDockWindow::undock( QWidget *w )
     updateGui();
     emit orientationChanged( orientation() );
     QApplication::sendPostedEvents( this, QEvent::LayoutHint );
-    adjustSize();
+    if ( inherits( "QToolBar" ) )
+	adjustSize();
     if ( !w ) {
 	show();
     } else {
