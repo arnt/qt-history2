@@ -349,15 +349,7 @@ void PixmapCollection::createCppFile()
 	out << "    QMimeSourceFactory::defaultFactory()->addFactory( designerMimeSourceFactory );" << endl;
 	out << "}" << endl;
 
-	out << "static void qInitImages()" << endl;
-	out << "{" << endl;
-	out << "    if ( designerMimeSourceFactory )" << endl;
-	out << "	return;" << endl;
-	out << "    designerMimeSourceFactory = new DesignerMimeSourceFactory;" << endl;
-	out << "    QMimeSourceFactory::defaultFactory()->addFactory( designerMimeSourceFactory );" << endl;
-	out << "}" << endl;
-
-	out << "static void qCleanupImages()" << endl;
+	out << "static void qCleanupImages_" << project->fixedProjectName() << "()" << endl;
 	out << "{" << endl;
 	out << "    if ( !designerMimeSourceFactory )" << endl;
 	out << "	return;" << endl;
@@ -369,8 +361,8 @@ void PixmapCollection::createCppFile()
 	out << "class StaticInitImages" << endl;
 	out << "{" << endl;
 	out << "public:" << endl;
-	out << "    StaticInitImages() { qInitImages(); }" << endl;
-	out << "    ~StaticInitImages() { qCleanupImages(); }" << endl;
+	out << "    StaticInitImages() { qInitImages_" << project->fixedProjectName() << "(); }" << endl;
+	out << "    ~StaticInitImages() { qCleanupImages_" << project->fixedProjectName() << "(); }" << endl;
 	out << "};" << endl;
 
 	out << "static StaticInitImages staticImages;" << endl;
