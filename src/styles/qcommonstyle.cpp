@@ -756,8 +756,7 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 	QPushButton *button = (QPushButton *) widget;
 	int dx1, dx2;
 
-	dx1 = (pixelMetric(PM_ButtonMargin, widget) / 2) +
-	      pixelMetric(PM_DefaultFrameWidth, widget);
+	dx1 = pixelMetric(PM_DefaultFrameWidth, widget);
        	if (button->isDefault() || button->autoDefault())
 	    dx1 += pixelMetric(PM_ButtonDefaultIndicator, widget);
 	dx2 = dx1 * 2;
