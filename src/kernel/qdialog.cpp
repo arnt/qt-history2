@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#62 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#63 $
 **
 ** Implementation of QDialog class
 **
@@ -99,8 +99,11 @@
   \endlink which can be used to customize the window frame style.
 
   A dialog is always a top level widget. The optional parent, however,
-  will know about this child and also delete it on destruction.
-
+  will know about this child and also delete it on
+  destruction. Furthermore, the window system will be able to tell
+  that both the dialog and the parent belong together. Some X11 window
+  managers will for instance provide a common taskbar entry in that
+  case.
 */
 
 QDialog::QDialog( QWidget *parent, const char *name, bool modal, WFlags f )

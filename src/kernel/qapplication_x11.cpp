@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#378 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#379 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3603,6 +3603,7 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
     QRegion paintRegion( paintRect );
 
     if ( merging_okay ) {
+	debug("merge");
 	while ( XCheckIfEvent(dpy,&xevent,isPaintOrScrollDoneEvent,(XPointer)&info)
 	    && !qApp->x11EventFilter(&xevent) )	// send event through filter
 	{
@@ -3677,6 +3678,10 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 {
     if ( parentWidget() && !testWFlags(WType_Modal) )
 	return TRUE;				// child widget
+    
+    while (XCheckTypedWindowEvent(dpy, winId(), ConfigureNotify, event)); // compress
+    
+    
     Window child;
     int	   x, y;
     XTranslateCoordinates( dpy, winId(), DefaultRootWindow(dpy),

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#109 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#110 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -1254,6 +1254,7 @@ QFontMetrics::QFontMetrics( const QPainter *painter )
 	warning( "QFontMetrics: Get font metrics between QPainter::begin() "
 		 "and QPainter::end()" );
 #endif
+    u.p->updateFont(); //### does this break any optimizations? Was necessary for Windows  (M)
     u.p->setf( QPainter::FontMet );
     insertFontMetrics( this );
 }

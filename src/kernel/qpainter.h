@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#120 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#121 $
 **
 ** Definition of QPainter class
 **
@@ -206,6 +206,8 @@ public:
     void	drawText( const QRect &, int flags,
 			  const QString&, int len = -1, QRect *br=0,
 			  char **internal=0 );
+
+    //#####    void	drawText( const QPoint &, const QString &, int flags, int rotation = 0);
 
   // Text drawing functions
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#111 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#112 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -978,8 +978,8 @@ void QPainter::setClipping( bool enable )
 	if ( !pdev->cmd(PDC_SETCLIP,this,param) || !hdc )
 	    return;
     }
-    if ( testf(ClipOn) )
-	SelectClipRgn( hdc, crgn.handle() );
+    if ( enable )
+	SelectClipRgn( hdc, crgn.handle()  );
     else
 	SelectClipRgn( hdc, 0 );
 }
