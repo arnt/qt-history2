@@ -440,7 +440,7 @@ UnixMakefileGenerator::init()
 	project->variables()["QMAKE_RUN_CXX_IMP"].append("$(CXX) -c $(CXXFLAGS) $(INCPATH) -o $@ $<");
     }
     if ( project->isActiveConfig("resource_fork") ) {
-	project->variables()["DESTDIR"].append(project->variables()["TARGET"].first() + ".app/Contents/MacOS/");
+	project->variables()["DESTDIR"].first() += project->variables()["TARGET"].first() + ".app/Contents/MacOS/";
     }
     project->variables()["QMAKE_FILETAGS"] += QStringList::split("HEADERS SOURCES TARGET DESTDIR", " ");
     if ( !project->variables()["PRECOMPH"].isEmpty() ) {
