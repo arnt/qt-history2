@@ -3281,9 +3281,8 @@ QTextParagraph *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch
 	buf_pixmap = 0;
     }
 
-    return lastFormatted;
-
     QTextFormat::setPainter(oldPainter);
+    return lastFormatted;
 }
 
 /*
