@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/frame.h#5 $
+** $Id: //depot/qt/main/examples/demo/frame.h#6 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -24,17 +24,10 @@ public:
     void addCategory( QWidget *w, const QPixmap &p1, const QPixmap &p2, const QString &n );
 
 private slots:
-    void styleWindows();
-    void styleMotif();
-    void styleMotifPlus();
-    void stylePlatinum();
-    void styleSGI();
-    void setStyle( int i, QStyle *s );
-
+    void setStyle( const QString& );
     void clickedCategory( QListBoxItem * );
 
 private:
-    int idWindows, idMotif, idMotifPlus, idPlatinum, idSGI;
     int idEnglish;
 
     QString title;

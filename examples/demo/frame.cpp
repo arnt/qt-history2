@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/frame.cpp#7 $
+** $Id: //depot/qt/main/examples/demo/frame.cpp#8 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -18,11 +18,9 @@
 #include <qlistbox.h>
 #include <qpainter.h>
 #include <qwidgetstack.h>
-#include <qwindowsstyle.h>
-#include <qmotifstyle.h>
-#include <qmotifplusstyle.h>
-#include <qplatinumstyle.h>
-#include <qsgistyle.h>
+#include <qstylefactory.h>
+#include <qaction.h>
+#include <qsignalmapper.h>
 
 class CategoryItem : public QListBoxItem {
 public:
@@ -111,14 +109,20 @@ Frame::Frame( QWidget *parent, const char *name )
 
     QPopupMenu *styleMenu = new QPopupMenu( this, "style" );
     styleMenu->setCheckable( TRUE );
-    idWindows = styleMenu->insertItem( "Windows", this,
-				       SLOT( styleWindows() ) );
-    idMotif = styleMenu->insertItem( "Motif", this, SLOT( styleMotif() ) );
-    idMotifPlus = styleMenu->insertItem( "Motif Plus", this,
-					 SLOT( styleMotifPlus() ) );
-    idPlatinum = styleMenu->insertItem( "Platinum", this,
-					SLOT( stylePlatinum() ) );
-    idSGI = styleMenu->insertItem( "SGI", this, SLOT( styleSGI() ) );
+    QActionGroup *ag = new QActionGroup( this, 0 );
+    ag->setExclusive( TRUE );
+    QSignalMapper *styleMapper = new QSignalMapper( this );
+    connect( styleMapper, SIGNAL( mapped( const QString& ) ), this, SLOT( setStyle( const QString& ) ) );
+
+    QStringList list = QStyleFactory::styles();
+    list.sort();
+    for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it ) {
+	QString style = *it;
+	QAction *a = new QAction( style, QIconSet(), "&"+style, 0, ag, 0, ag->isExclusive() );
+	connect( a, SIGNAL( activated() ), styleMapper, SLOT(map()) );
+	styleMapper->setMapping( a, a->text() );
+    }
+    ag->addTo( styleMenu );
 
     QPopupMenu *langMenu = new QPopupMenu( this, "language" );
     styleMenu->setCheckable( TRUE );
@@ -172,41 +176,11 @@ void Frame::addCategory( QWidget *w, const QPixmap &p1, const QPixmap &p2, const
 	categories->setMinimumHeight( 3 * item->height( categories ) );
 }
 
-
-void Frame::styleWindows()
+void Frame::setStyle( const QString& style )
 {
-    setStyle( idWindows, new QWindowsStyle() );
-}
-
-void Frame::styleMotif()
-{
-    setStyle( idMotif, new QMotifStyle() );
-}
-
-void Frame::styleMotifPlus()
-{
-    setStyle( idMotifPlus, new QMotifPlusStyle() );
-}
-
-void Frame::stylePlatinum()
-{
-    setStyle( idPlatinum, new QPlatinumStyle() );
-}
-
-void Frame::styleSGI()
-{
-    setStyle( idSGI, new QSGIStyle() );
-}
-
-void Frame::setStyle( int i, QStyle *s )
-{
-    QApplication::setStyle( s );
-    menuBar()->setItemChecked( idWindows, FALSE );
-    menuBar()->setItemChecked( idMotif, FALSE );
-    menuBar()->setItemChecked( idMotifPlus, FALSE );
-    menuBar()->setItemChecked( idPlatinum, FALSE );
-    menuBar()->setItemChecked( idSGI, FALSE );
-    menuBar()->setItemChecked( i, TRUE );
+    QStyle *s = QStyleFactory::create( style );
+    if ( s )
+	QApplication::setStyle( s );
 }
 
 void Frame::clickedCategory( QListBoxItem *item )
