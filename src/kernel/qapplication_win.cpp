@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#500 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#501 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1498,8 +1498,8 @@ extern "C"
 LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			    LPARAM lParam )
 {
-
     if ( inLoop ) {
+	qApp->sendPostedEvents( 0, QEvent::LayoutHint );
 	qApp->sendPostedEvents( 0, QEvent::ShowWindowRequest );
     }
     inLoop = TRUE;

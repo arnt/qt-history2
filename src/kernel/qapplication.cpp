@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#501 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#502 $
 **
 ** Implementation of QApplication class
 **
@@ -2376,10 +2376,6 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
     // to avoid endless loops
     if ( receiver == 0 && event_type == 0 )
 	sendPostedEvents( 0, QEvent::ChildInserted );
-    // Prioritize Layouting, so that widgets are shown after 
-    // they've been placed
-    else if ( event_type == QEvent::ShowWindowRequest )
-	sendPostedEvents( receiver, QEvent::LayoutHint );
 
     if ( !globalPostedEvents || ( receiver && !receiver->postedEvents ) )
 	return;
