@@ -5185,7 +5185,8 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	if ( XCheckTypedWindowEvent(dpy,event->xkey.window,
 				    XKeyPress,&nextpress) ) {
 	    // check for event pairs with delta t <= 10 msec.
-	    autor = (nextpress.xkey.time - event->xkey.time) <= 10;
+	    autor = ( nextpress.xkey.keycode == event->xkey.keycode &&
+		      (nextpress.xkey.time - event->xkey.time) <= 10 );
 
 	    // Put it back... we COULD send the event now and not need
 	    // the static curr_autorep variable.
