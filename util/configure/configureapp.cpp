@@ -289,7 +289,7 @@ bool ConfigureApp::displayHelp()
 	cout << "-accessibility      Enable Windows Active Accessibility." << endl;
 	cout << "-no-accessibility * Disable Windows Active Accessibility." << endl << endl;
 	cout << "-no-dsp             Disable the generation of VC++ .DSP-files." << endl;
-	cout << "-dsp                Enable the generation of VC++ .DSP-files." << endl;
+	cout << "-dsp              * Enable the generation of VC++ .DSP-files." << endl;
 	cout << "-no-qmake           Do not build qmake." << endl;
 	cout << "-lean               Only process the Qt core projects." << endl;
 	cout << "                    (qt.pro, qtmain.pro)." << endl;
