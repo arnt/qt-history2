@@ -149,8 +149,8 @@ MakefileGenerator::generateMocList(QString fn_target)
 	    }
 	    break;
 	}
-	while(x < total_size_read && 
-	      ((*(big_buffer+x) >= 'a' && *(big_buffer+x) <= 'z') || 
+	while(x < total_size_read &&
+	      ((*(big_buffer+x) >= 'a' && *(big_buffer+x) <= 'z') ||
 	       (*(big_buffer+x) >= 'A' && *(big_buffer+x) <= 'Z') ||
 	       (*(big_buffer+x) <= '0' && *(big_buffer+x) >= '9') ||
 	       *(big_buffer+x) == '_')) x++;
@@ -510,7 +510,7 @@ MakefileGenerator::init()
 	QString dirs[] = { QString("OBJECTS_DIR"), QString("MOC_DIR"), QString("DESTDIR"), QString::null };
 	for(int x = 0; dirs[x] != QString::null; x++) {
 	    if ( !v[dirs[x]].isEmpty() ) {
-		{ 
+		{
 		    QString &path = v[dirs[x]].first();
 		    if(path.right(Option::dir_sep.length()) != Option::dir_sep)
 			path += Option::dir_sep;
@@ -543,7 +543,7 @@ MakefileGenerator::init()
 			    QString("LEXSOURCES"), QString("QMAKE_INTERNAL_INCLUDED_FILES"), QString::null };
     for(int y = 0; paths[y] != QString::null; y++) {
 	QStringList &l = v[paths[y]];
-	if(!l.isEmpty()) 
+	if(!l.isEmpty())
 	    fileFixify(l);
     }
 
@@ -605,7 +605,7 @@ MakefileGenerator::init()
 	    } else {
 	    	impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::cpp_ext;
                 decl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::h_ext;
-	    } 
+	    }
 	    decls.append(decl);
 	    impls.append(impl);
 	    depends[impl].append(decl);
@@ -937,7 +937,7 @@ MakefileGenerator::writeMakefile(QTextStream &t)
 
 //get store argv, but then it would have more options than are probably necesary
 //this will try to guess the bare minimum..
-QString MakefileGenerator::build_args() 
+QString MakefileGenerator::build_args()
 {
     static QString ret;
     if(ret.isEmpty()) {
@@ -965,7 +965,7 @@ QString MakefileGenerator::build_args()
 	    ret += " -nodependheuristics";
 
 	//arguments
-	for(QStringList::Iterator it = Option::user_vars.begin(); it != Option::user_vars.end(); ++it) 
+	for(QStringList::Iterator it = Option::user_vars.begin(); it != Option::user_vars.end(); ++it)
 	    ret += " \"" + (*it) + "\"";
 
 	//inputs
@@ -1052,7 +1052,7 @@ MakefileGenerator::fileFixify(QString &file) const
 		    break;
 		if(file.left(match_dir.length()) == match_dir) {
 		    file = file.right(file.length() - (match_dir.length() + 1));
-		    for(int o = 0; o < i; o++) 
+		    for(int o = 0; o < i; o++)
 			file.prepend(".." + Option::dir_sep);
 		}
 	    }
