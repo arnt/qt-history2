@@ -1486,6 +1486,13 @@ QRect QMacStyle::querySubControlMetrics(ComplexControl control,
 	    ttdi.trackInfo.slider.thumbDir = kThemeThumbUpward;
 	else
 	    ttdi.trackInfo.slider.thumbDir = kThemeThumbDownward;
+
+	//The AppManager draws outside my rectangle, so account for that difference..
+	Rect macRect;
+	GetThemeTrackBounds(&ttdi, &macRect);
+	ttdi.bounds.left  += ttdi.bounds.left  - macRect.left;
+	ttdi.bounds.right -= macRect.right - ttdi.bounds.right;
+
 	switch(sc) {
 	case SC_SliderGroove: {
 	    Rect mrect;
