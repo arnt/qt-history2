@@ -50,7 +50,7 @@
 int line_count;
 extern "C" void yyerror(const char *);
 
-static QString varMap(const QString &x) 
+static QString varMap(const QString &x)
 {
     QString ret(x);
     ret.replace(QRegExp("^TMAKE"), "QMAKE");
@@ -155,7 +155,7 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
     if(scope_failed)
 	return TRUE; /* oh well */
     if(!*d) {
-	if(!var.isEmpty()) 
+	if(!var.isEmpty())
 	    yyerror(file + ": Parse Error");
 	return var.isEmpty(); /* allow just a scope */
     }
@@ -176,14 +176,14 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
     var = var.stripWhiteSpace();
 #undef SKIP_WS
 
-    if(!var.isEmpty() && Option::mkfile::do_preprocess) 
+    if(!var.isEmpty() && Option::mkfile::do_preprocess)
 	debug_msg(0, "%s:%d :: %s %s %s",  file.latin1(), line_count, var.latin1(), op.latin1(), vals.latin1());
     var = varMap(var); //backwards compatability
 
     QStringList vallist;  /* vallist is the broken up list of values */
     if((var == "DEPENDPATH" || var == "INCLUDEPATH") && vals.find(';') != -1) { //these guys use ; for space reasons I guess
 	QRegExp rp("([^;]*)[;$]");
-	for(int x = 0; (x = rp.match(vals, 0)) != -1; ) {
+	for(int x = 0; (x = rp.search(vals, 0)) != -1; ) {
 	    vallist.append("\"" + rp.cap(1) + "\"");
 	    vals.remove(x, rp.matchedLength());
 	}
@@ -194,7 +194,7 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
     }
     if(vals.find('"') != -1) { //strip out quoted entities
 	QRegExp quoted("( |^)(\"[^\"]*\")( |$)");
-	for(int x = 0; (x = quoted.match(vals, 0)) != -1; ) {
+	for(int x = 0; (x = quoted.search(vals, 0)) != -1; ) {
 	    vallist.append(quoted.cap(2));
 	    vals.remove(x, quoted.matchedLength());
 	}
@@ -324,9 +324,9 @@ QMakeProject::read(QString project, QString pwd)
 
 	/* parse mkspec */
 	if(Option::mkfile::qmakespec.isEmpty()) {
-	    if(getenv("QTDIR") && 
-	       !QFile::exists(Option::mkfile::qmakespec = QString(getenv("QTDIR")) + 
-			      QDir::separator() + QString("mkspecs") + 
+	    if(getenv("QTDIR") &&
+	       !QFile::exists(Option::mkfile::qmakespec = QString(getenv("QTDIR")) +
+			      QDir::separator() + QString("mkspecs") +
 			      QDir::separator() + "default")) {
 		fprintf(stderr, "QMAKESPEC has not been set, so configuration cannot be deduced.\n");
 		return FALSE;
@@ -337,7 +337,7 @@ QMakeProject::read(QString project, QString pwd)
 		fprintf(stderr, "QTDIR has not been set, so mkspec cannot be deduced.\n");
 		return FALSE;
 	    }
-	    Option::mkfile::qmakespec.prepend(QString(getenv("QTDIR")) + 
+	    Option::mkfile::qmakespec.prepend(QString(getenv("QTDIR")) +
 					      QDir::separator() + "mkspecs" + QDir::separator());
 	}
 	QString spec = Option::mkfile::qmakespec + QDir::separator() + "qmake.conf";
@@ -353,7 +353,7 @@ QMakeProject::read(QString project, QString pwd)
 
 	/* commandline */
 	cfile = project;
-	for(QStringList::Iterator it = Option::before_user_vars.begin(); 
+	for(QStringList::Iterator it = Option::before_user_vars.begin();
 	    it != Option::before_user_vars.end(); ++it) {
 	    if(!parse("(internal)", (*it), base_vars)) {
 		fprintf(stderr, "Argument failed to parse: %s\n", (*it).latin1());
@@ -373,7 +373,7 @@ QMakeProject::read(QString project, QString pwd)
     if(!read(pfile, vars))
 	return FALSE;
 
-    for(QStringList::Iterator it = Option::after_user_vars.begin(); 
+    for(QStringList::Iterator it = Option::after_user_vars.begin();
 	it != Option::after_user_vars.end(); ++it) {
 	if(!parse("(internal after)", (*it), vars)) {
 	    fprintf(stderr, "Argument failed to parse: %s\n", (*it).latin1());
@@ -409,27 +409,27 @@ QMakeProject::read(QString project, QString pwd)
 bool
 QMakeProject::isActiveConfig(const QString &x)
 {
-    if(x.isEmpty()) 
+    if(x.isEmpty())
 	return TRUE;
 
     QRegExp re(x, FALSE, TRUE);
-    if((Option::target_mode == Option::TARG_MACX_MODE || Option::target_mode == Option::TARG_UNIX_MODE) && 
-       x == "unix") 
+    if((Option::target_mode == Option::TARG_MACX_MODE || Option::target_mode == Option::TARG_UNIX_MODE) &&
+       x == "unix")
 	return TRUE;
     else if(Option::target_mode == Option::TARG_MACX_MODE && x == "macx")
 	return TRUE;
     else if(Option::target_mode == Option::TARG_MAC9_MODE && x == "mac9")
 	return TRUE;
-    else if((Option::target_mode == Option::TARG_MAC9_MODE || Option::target_mode == Option::TARG_MACX_MODE) && 
-	    x == "mac") 
+    else if((Option::target_mode == Option::TARG_MAC9_MODE || Option::target_mode == Option::TARG_MACX_MODE) &&
+	    x == "mac")
 	return TRUE;
-    else if(Option::target_mode == Option::TARG_WIN_MODE && x == "win32") 
+    else if(Option::target_mode == Option::TARG_WIN_MODE && x == "win32")
 	return TRUE;
 
 
-    QString spec = Option::mkfile::qmakespec.right(Option::mkfile::qmakespec.length() - 
+    QString spec = Option::mkfile::qmakespec.right(Option::mkfile::qmakespec.length() -
 						   (Option::mkfile::qmakespec.findRev(QDir::separator())+1));
-    if(re.exactMatch(spec)) 
+    if(re.exactMatch(spec))
 	return TRUE;
 #ifdef Q_OS_UNIX
     else if(spec == "default") {
@@ -451,7 +451,7 @@ QMakeProject::isActiveConfig(const QString &x)
 
     QStringList &configs = vars["CONFIG"];
     for(QStringList::Iterator it = configs.begin(); it != configs.end(); ++it) {
-	if(re.exactMatch((*it))) 
+	if(re.exactMatch((*it)))
 	    return TRUE;
     }
     return FALSE;
@@ -469,7 +469,7 @@ QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString,
 	file = Option::fixPathToLocalOS(file);
 	file.replace(QRegExp("\""), "");
 	doVariableReplace(file, place);
-	
+
 	if(QFile::exists(file))
 	    return TRUE;
 	//regular expression I guess
@@ -515,7 +515,7 @@ QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString,
 	    return FALSE;
 	}
 	bool ret = FALSE;
-	if(args.count() == 2) 
+	if(args.count() == 2)
 	    ret = !proj.isEmpty(args[1]);
 	else
 	    ret = (proj.isEmpty(args[1]) ? FALSE : (proj.values(args[1]).findIndex(args[2]) != -1));
@@ -587,7 +587,7 @@ QMakeProject::doProjectCheckReqs(const QStringList &deps, QMap<QString, QStringL
 	    int rparen = chk.findRev(')');
 	    if(rparen == -1) {
 		QCString error;
-		error.sprintf("%s: Function (in REQUIRES) missing right paren: %s", 
+		error.sprintf("%s: Function (in REQUIRES) missing right paren: %s",
 			      projectFile().latin1(), chk.latin1());
 		yyerror(error);
 	    } else {
@@ -624,7 +624,8 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 	    left = 2;
 	    right = 0;
 	}
-	while((rep = reg_var.match(str, 0, &rep_len)) != -1) {
+	while((rep = reg_var.search(str)) != -1) {
+	    rep_len = reg_var.matchedLength();
 	    QString rep_var = varMap(str.mid(rep + left, rep_len - (left + right)));
 	    QString replacement = rep_var == "LITERAL_WHITESPACE" ? QString("\t") : place[rep_var].join(" ");
 	    debug_msg(2, "Project parser: (%s) :: %s -> %s", str.latin1(),

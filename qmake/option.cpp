@@ -349,10 +349,10 @@ bool Option::postProcessProject(QMakeProject *project)
 
 void fixEnvVariables(QString &x)
 {
-    int rep, rep_len;
+    int rep;
     QRegExp reg_var("\\$\\(.*\\)");
-    while((rep = reg_var.match(x, 0, &rep_len)) != -1)
-	x.replace(rep, rep_len, QString(getenv(x.mid(rep + 2, rep_len - 3).latin1())));
+    while((rep = reg_var.search(x)) != -1)
+	x.replace(rep, reg_var.matchedLength(), QString(getenv(x.mid(rep + 2, reg_var.matchedLength() - 3).latin1())));
 }
 static QString fixPath(QString x)
 {
