@@ -568,7 +568,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe,
     case PE_ScrollBarSubPage:
 	{
 	    QBrush br;
-	    QColor c = p->backgroundColor();
+	    QColor c = p->background().color();
 
 	    p->setPen(NoPen);
 	    p->setBackgroundMode(OpaqueMode);

@@ -160,7 +160,7 @@ QFontEngineMac::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int tex
     if(pState->painter->backgroundMode() == Qt::OpaqueMode) {
 	glyph_metrics_t br = boundingBox(glyphs, si.num_glyphs);
 	pState->painter->fillRect(x+br.x.toInt(), y+br.y.toInt(), br.width.toInt(), br.height.toInt(),
-                                  pState->painter->backgroundColor());
+                                  pState->painter->background().color());
     }
 
 
