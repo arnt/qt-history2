@@ -148,6 +148,179 @@ static int requiredUnicodeBits[QFont::NScripts][2] = {
 #define JapaneseCsbBit 17
 #define KoreanCsbBit 21
 
+
+static bool localizedName(const QString &name)
+{
+    const QChar *c = name.unicode();
+    for(int i = 0; i < name.length(); ++i) {
+        if(c[i].unicode() >= 0x100)
+            return true;
+    }
+    return false;
+}
+
+#define MAKE_TAG(ch1, ch2, ch3, ch4) (\
+    (((DWORD)(ch4)) << 24) | \
+    (((DWORD)(ch3)) << 16) | \
+    (((DWORD)(ch2)) << 8) | \
+    ((DWORD)(ch1)) \
+    )
+
+static inline Q_UINT16 getUShort(unsigned char *p)
+{
+    Q_UINT16 val;
+    val = *p++ << 8;
+    val |= *p;
+
+    return val;
+}
+
+static QString getEnglishName(const QString &familyName)
+{
+    QString i18n_name;
+
+    HDC hdc = GetDC( 0 );
+    HFONT hfont;
+    QT_WA( {
+        LOGFONTW lf;
+        memset( &lf, 0, sizeof( LOGFONTW ) );
+        memcpy( lf.lfFaceName, familyName.ucs2(), QMIN(LF_FACESIZE, familyName.length())*sizeof(QChar) );
+        lf.lfCharSet = DEFAULT_CHARSET;
+        hfont = CreateFontIndirectW( &lf );
+    }, {
+        LOGFONTA lf;
+        memset( &lf, 0, sizeof( LOGFONTA ) );
+        QCString lfam = familyName.local8Bit();
+        memcpy( lf.lfFaceName, familyName.local8Bit(), QMIN( LF_FACESIZE, familyName.local8Bit().length() ) );
+        lf.lfCharSet = DEFAULT_CHARSET;
+        hfont = CreateFontIndirectA( &lf );
+    } );
+    if(!hfont) {
+        ReleaseDC(0, hdc);
+        return QString::null;
+    }
+
+    HGDIOBJ oldobj = SelectObject( hdc, hfont );
+
+    const DWORD name_tag = MAKE_TAG( 'n', 'a', 'm', 'e' );
+
+    enum {
+        NameRecordSize = 12,
+        FamilyId = 1,
+        MS_LangIdEnglish = 0x009
+    };
+
+    // get the name table
+    Q_UINT16 count;
+    Q_UINT16 string_offset;
+    unsigned char *table = 0;
+    unsigned char *names;
+
+    int microsoft_id = -1;
+    int apple_id = -1;
+    int unicode_id = -1;
+
+    DWORD bytes = GetFontData( hdc, name_tag, 0, 0, 0 );
+    if ( bytes == GDI_ERROR ) {
+        int err = GetLastError();
+        goto error;
+    }
+
+    table = new unsigned char[bytes];
+    GetFontData(hdc, name_tag, 0, table, bytes);
+    if ( bytes == GDI_ERROR )
+        goto error;
+
+    if(getUShort(table) != 0)
+        goto error;
+
+    count = getUShort(table+2);
+    string_offset = getUShort(table+4);
+    names = table + 6;
+
+    if(string_offset >= bytes || 6 + count*NameRecordSize > string_offset)
+        goto error;
+
+    for(int i = 0; i < count; ++i) {
+        // search for the correct name entry
+
+        Q_UINT16 platform_id = getUShort(names + i*NameRecordSize);
+        Q_UINT16 encoding_id = getUShort(names + 2 + i*NameRecordSize);
+        Q_UINT16 language_id = getUShort(names + 4 + i*NameRecordSize);
+        Q_UINT16 name_id = getUShort(names + 6 + i*NameRecordSize);
+
+        if(name_id != FamilyId)
+            continue;
+
+        enum {
+            PlatformId_Unicode = 0,
+            PlatformId_Apple = 1,
+            PlatformId_Microsoft = 3
+        };
+
+        Q_UINT16 length = getUShort(names + 8 + i*NameRecordSize);
+        Q_UINT16 offset = getUShort(names + 10 + i*NameRecordSize);
+        if(string_offset + offset + length >= bytes)
+            continue;
+
+        if ((platform_id == PlatformId_Microsoft
+            && (encoding_id == 0 || encoding_id == 1))
+            && (language_id & 0x3ff) == MS_LangIdEnglish
+            && microsoft_id == -1)
+            microsoft_id = i;
+            // not sure if encoding id 4 for Unicode is utf16 or ucs4...
+        else if(platform_id == PlatformId_Unicode && encoding_id < 4 && unicode_id == -1)
+            unicode_id = i;
+        else if(platform_id == PlatformId_Apple && encoding_id == 0 && language_id == 0)
+            apple_id = i;
+    }
+    {
+        bool unicode = false;
+        int id = -1;
+        if(microsoft_id != -1) {
+            id = microsoft_id;
+            unicode = true;
+        } else if(apple_id != -1) {
+            id = apple_id;
+            unicode = false;
+        } else if (unicode_id != -1) {
+            id = unicode_id;
+            unicode = true;
+        }
+        if(id != -1) {
+            Q_UINT16 length = getUShort(names + 8 + id*NameRecordSize);
+            Q_UINT16 offset = getUShort(names + 10 + id*NameRecordSize);
+            if(unicode) {
+                // utf16
+
+                length /= 2;
+                i18n_name.setLength(length);
+                QChar *uc = (QChar *) i18n_name.unicode();
+                unsigned char *string = table + string_offset + offset;
+                for(int i = 0; i < length; ++i)
+                    uc[i] = getUShort(string + 2*i);
+            } else {
+                // Apple Roman
+
+                i18n_name.setLength(length);
+                QChar *uc = (QChar *) i18n_name.unicode();
+                unsigned char *string = table + string_offset + offset;
+                for(int i = 0; i < length; ++i)
+                    uc[i] = string[i];
+            }
+        }
+    }
+  error:
+    delete [] table;
+    SelectObject( hdc, oldobj );
+    DeleteObject( hfont );
+    ReleaseDC( 0, hdc );
+
+    //qDebug("got i18n name of '%s' for font '%s'", i18n_name.latin1(), familyName.local8Bit().data());
+    return i18n_name;
+}
+
+
 static
 int CALLBACK
 #ifndef Q_OS_TEMP
@@ -167,6 +340,7 @@ storeFont(ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/)
     QString familyName;
     int weight;
     bool fixed;
+    bool ttf;
 
     // ### make non scalable fonts work
 
@@ -176,6 +350,7 @@ storeFont(ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/)
         weight = f->elfLogFont.lfWeight;
         TEXTMETRIC *tm = (TEXTMETRIC *)textmetric;
         fixed = !(tm->tmPitchAndFamily & TMPF_FIXED_PITCH);
+        ttf = (tm->tmPitchAndFamily & TMPF_TRUETYPE);
     } , {
         ENUMLOGFONTEXA* fa = (ENUMLOGFONTEXA *)f;
         familyName = QString::fromLocal8Bit(fa->elfLogFont.lfFaceName);
@@ -183,6 +358,7 @@ storeFont(ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/)
         weight = fa->elfLogFont.lfWeight;
         TEXTMETRICA *tm = (TEXTMETRICA *)textmetric;
         fixed = !(tm->tmPitchAndFamily & TMPF_FIXED_PITCH);
+        ttf = (tm->tmPitchAndFamily & TMPF_TRUETYPE);
     });
     // the "@family" fonts are just the same as "family". Ignore them.
     if (familyName[0] != '@') {
@@ -204,6 +380,9 @@ storeFont(ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/)
         familyName.replace('-', ' ');
         QtFontFamily *family = db->family(familyName, true);
         family->rawName = rawName;
+
+        if(ttf && localizedName(familyName) && family->english_name.isEmpty())
+            family->english_name = getEnglishName(familyName);
 
         QtFontFoundry *foundry = family->foundry(foundryName,  true);
         QtFontStyle *style = foundry->style(styleKey,  true);
@@ -251,6 +430,7 @@ storeFont(ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/)
                 memset(&lf, 0, sizeof(LOGFONTA));
                 QByteArray lfam = familyName.toLocal8Bit();
                 memcpy(lf.lfFaceName, lfam.data(), qMin(LF_FACESIZE, lfam.length()));
+                lf.lfCharSet = DEFAULT_CHARSET;
                 HFONT hfont = CreateFontIndirectA(&lf);
                 HGDIOBJ oldobj = SelectObject(hdc, hfont);
                 GetTextCharsetInfo(hdc, &signature, 0);

@@ -346,6 +346,9 @@ struct QtFontFamily
     QByteArray fontFilename;
     int fontFileIndex;
 #endif
+#ifdef Q_WS_WIN
+    QString english_name;
+#endif
     int count;
     QtFontFoundry **foundries;
 
@@ -942,8 +945,12 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
 
         for (int x = 0; x < db->count; ++x) {
             QtFontFamily *try_family = db->families[x];
-            if (!family_name.isEmpty() &&
-                 ucstricmp(try_family->name, family_name) != 0)
+            if (!family_name.isEmpty()
+                && ucstricmp(try_family->name, family_name) != 0
+#ifdef Q_WS_WIN
+                && ucstricmp(try_family->english_name, family_name) != 0
+#endif
+                )
                 continue;
 
             if (family_name.isEmpty())
