@@ -46,9 +46,6 @@ SourceEditor::SourceEditor( QWidget *parent, EditorInterface *iface, LanguageInt
 SourceEditor::~SourceEditor()
 {
     saveBreakPoints();
-    iFace->release();
-    lIface->release();
-    MainWindow::self->editorClosed( this );
     editor = 0;
     if ( formWindow() ) {
 	formWindow()->formFile()->setCodeEdited( FALSE );
@@ -58,6 +55,9 @@ SourceEditor::~SourceEditor()
 	if ( MainWindow::self->objectHierarchy()->sourceEditor() == this )
 	    MainWindow::self->objectHierarchy()->setFormWindow( 0, 0 );
     }
+    iFace->release();
+    lIface->release();
+    MainWindow::self->editorClosed( this );
 }
 
 void SourceEditor::setObject( QObject *o, Project *p )
