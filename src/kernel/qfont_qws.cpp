@@ -258,7 +258,7 @@ QFontInternal *QFontMetrics::internal()
         painter->cfont.load();
         return painter->cfont.d->fin;
     } else {
-        return fin;
+        return d->fin;
     }
 }
 
@@ -268,7 +268,7 @@ const QFontDef *QFontMetrics::spec() const
 	painter->cfont.handle();
 	return painter->cfont.d->fin->spec();
     } else {
-	return fin->spec();
+	return d->fin->spec();
     }
 }
 
@@ -384,7 +384,7 @@ const QFontDef *QFontInfo::spec() const
 	painter->cfont.handle();
 	return painter->cfont.d->fin->spec();
     } else {
-	return fin->spec();
+	return d->fin->spec();
     }
 }
 

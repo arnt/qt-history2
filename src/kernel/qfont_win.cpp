@@ -591,7 +591,7 @@ const QFontDef *QFontMetrics::spec() const
 	painter->cfont.handle();
 	return painter->cfont.d->fin->spec();
     } else {
-	return fin->spec();
+	return d->fin->spec();
     }
 }
 
@@ -601,10 +601,10 @@ void *QFontMetrics::textMetric() const
 	return painter->textMetric();
 #ifdef UNICODE
     } else if ( qt_winver & Qt::WV_NT_based ) {
-	return fin->textMetricW();
+	return d->fin->textMetricW();
 #endif
     } else {
-	return fin->textMetricA();
+	return d->fin->textMetricA();
     }
 }
 
@@ -612,9 +612,9 @@ void *QFontMetrics::textMetric() const
 #undef  TMX
 #undef  TMA
 #undef  TMW
-#define TMA (painter ? (TEXTMETRICA*)painter->textMetric() : fin->textMetricA())
+#define TMA (painter ? (TEXTMETRICA*)painter->textMetric() : d->fin->textMetricA())
 #ifdef UNICODE
-#define TMW (painter ? (TEXTMETRICW*)painter->textMetric() : fin->textMetricW())
+#define TMW (painter ? (TEXTMETRICW*)painter->textMetric() : d->fin->textMetricW())
 #else
 #define TMW TMA
 #endif
@@ -921,7 +921,7 @@ HDC QFontMetrics::hdc() const
 	painter->textMetric(); // ensure font is up-to-date
 	return painter->handle();
     } else {
-	return fin->dc();
+	return d->fin->dc();
     }
 }
 
@@ -948,7 +948,7 @@ int QFontMetrics::lineWidth() const
 	painter->cfont.handle();
 	return painter->cfont.d->fin->lineWidth();
     } else {
-	return fin->lineWidth();
+	return d->fin->lineWidth();
     }
 }
 
@@ -963,7 +963,7 @@ const QFontDef *QFontInfo::spec() const
 	painter->cfont.handle();
 	return painter->cfont.d->fin->spec();
     } else {
-	return fin->spec();
+	return d->fin->spec();
     }
 }
 
