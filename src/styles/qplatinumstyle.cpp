@@ -886,7 +886,7 @@ void QPlatinumStyle::drawControl( ControlElement element,
 			       g, flags, opt );
 		w -= dx;
 	    }
-
+#ifndef QT_NO_ICONSET
 	    if ( btn->iconSet() && !btn->iconSet()->isNull() ) {
 		QIconSet::Mode mode = btn->isEnabled()
 				      ? QIconSet::Normal : QIconSet::Disabled;
@@ -903,7 +903,7 @@ void QPlatinumStyle::drawControl( ControlElement element,
 		x += pixw + 4;
 		w -= pixw + 4;
 	    }
-
+#endif
 	    drawItem( p, QRect( x, y, w, h ),
 		      AlignCenter | ShowPrefix,
 		      btn->colorGroup(), btn->isEnabled(),

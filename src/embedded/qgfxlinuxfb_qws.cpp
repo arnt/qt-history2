@@ -30,6 +30,9 @@
 **
 **********************************************************************/
 
+#include "qgfxlinuxfb_qws.h"
+
+#ifndef QT_NO_QWS_LINUXFB
 #include "qgfxraster_qws.h"
 #include "qmemorymanager_qws.h"
 #include "qwsdisplay_qws.h"
@@ -44,7 +47,6 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#include "qgfxlinuxfb_qws.h"
 #include "qwindowsystem_qws.h"
 
 #if !defined(Q_OS_MACX) && !defined(Q_OS_FREEBSD) && !defined (QT_NO_QWS_LINUXFB)
@@ -880,3 +882,4 @@ void QLinuxFbScreen::blank(bool on)
 #endif
 }
 
+#endif // QT_NO_QWS_LINUXFB

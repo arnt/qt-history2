@@ -236,7 +236,9 @@ void QInputDialog::setType( Type t )
 	d->stack->raiseWidget( input );
 	d->stack->setFixedHeight( input->sizeHint().height() );
 	input->setFocus();
+#ifndef QT_NO_ACCEL
 	d->label->setBuddy( input );
+#endif
     }
 
     d->type = t;

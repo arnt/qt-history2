@@ -52,7 +52,6 @@
 #include "qaccessible.h"
 #endif
 
-
 /*!
   \class QGroupBox qgroupbox.h
   \brief The QGroupBox widget provides a group box frame with a title.
@@ -90,6 +89,7 @@
   \sa QButtonGroup
 */
 
+class QCheckBox;
 
 class QGroupBoxPrivate
 {
@@ -199,8 +199,10 @@ void QGroupBox::setTextSpacer()
 	QFontMetrics fm = fontMetrics();
 	int fh = fm.height();
 	if ( isCheckable() ) {
+#ifndef QT_NO_CHECKBOX
 	    fh = d->checkbox->sizeHint().height() + 2;
 	    w = d->checkbox->sizeHint().width() + 2*fm.width( "xx" );
+#endif
 	} else {
 	    fh = fm.height();
 	    w = fm.width( str, lenvisible ) + 2*fm.width( "xx" );
@@ -242,8 +244,10 @@ void QGroupBox::setTitle( const QString &title )
     }
 #endif
     if ( isCheckable() ) {
+#ifndef QT_NO_CHECKBOX
 	d->checkbox->setText( str );
 	updateCheckBoxGeometry();
+#endif
     }
     calculateFrame();
     setTextSpacer();
@@ -347,11 +351,13 @@ void QGroupBox::paintEvent( QPaintEvent *event )
 			  isEnabled(), 0, str, -1, ownPalette() ? 0 : &pen );
 	paint.setClipRegion( event->region().subtract( r ) ); // clip everything but title
     } else if ( isCheckable() ) {
+#ifndef QT_NO_CHECKBOX
 	QRect cbClip = d->checkbox->geometry();
 	QFontMetrics fm = paint.fontMetrics();
 	cbClip.setX( cbClip.x() - fm.width(QChar(' ')) );
 	cbClip.setWidth( cbClip.width() + fm.width(QChar(' ')) );
 	paint.setClipRegion( event->region().subtract( cbClip ) );
+#endif
     }
     if ( bFlat ) {
 	    QRect fr = frameRect();
@@ -682,6 +688,7 @@ void QGroupBox::calculateFrame()
 	    return;
 	}
     } else if ( isCheckable() ) {
+#ifndef QT_NO_CHECKBOX
 	QRect r = rect();
 	int va = style().styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, this);
 	if( va & AlignVCenter )
@@ -690,6 +697,7 @@ void QGroupBox::calculateFrame()
 	    r.setTop( fontMetrics().ascent() );
 	setFrameRect( r );
 	return;
+#endif
     }
 
     // no visible label
@@ -711,11 +719,13 @@ void QGroupBox::focusInEvent( QFocusEvent * )
 void QGroupBox::fontChange( const QFont & oldFont )
 {
     QWidget::fontChange( oldFont );
+#ifndef QT_NO_CHECKBOX
     if ( isCheckable() ) {
 	// make sure checkbox gets the right font as its font change is called too late
 	d->checkbox->setFont( font() );
 	updateCheckBoxGeometry();
     }
+#endif
     calculateFrame();
     setTextSpacer();
 }
@@ -729,8 +739,10 @@ QSize QGroupBox::sizeHint() const
     QFontMetrics fm( font() );
     int tw, th;
     if ( isCheckable() ) {
+#ifndef QT_NO_CHECKBOX
 	tw = d->checkbox->sizeHint().width() + 2*fm.width( "xx" );
 	th = d->checkbox->sizeHint().height() + fm.width( QChar(' ') );
+#endif
     } else {
 	tw = fm.width( title() ) + 2 * fm.width( "xx" );
 	th = fm.height() + fm.width( QChar(' ') );
@@ -789,6 +801,7 @@ void QGroupBox::setFlat( bool b )
 */
 void QGroupBox::setCheckable( bool b )
 {
+#ifndef QT_NO_CHECKBOX
     if ( isCheckable() == b )
 	return;
 
@@ -812,20 +825,27 @@ void QGroupBox::setCheckable( bool b )
     calculateFrame();
     setTextSpacer();
     update();
+#endif
 }
 
 
 bool QGroupBox::isCheckable() const
 {
+#ifndef QT_NO_CHECKBOX
     return ( d->checkbox != 0 );
+#else
+    return FALSE;
+#endif
 }
 
 
 bool QGroupBox::isChecked() const
 {
+#ifndef QT_NO_CHECKBOX
     if ( isCheckable() )
 	return d->checkbox->isChecked();
     else
+#endif
 	return FALSE;
 }
 
@@ -848,8 +868,10 @@ bool QGroupBox::isChecked() const
 */
 void QGroupBox::setChecked( bool b )
 {
+#ifndef QT_NO_CHECKBOX
     if ( isCheckable() )
 	d->checkbox->setChecked( b );
+#endif
 }
 
 /*
@@ -875,6 +897,7 @@ void QGroupBox::setChildrenEnabled( bool b )
 */
 void QGroupBox::updateCheckBoxGeometry()
 {
+#ifndef QT_NO_CHECKBOX
     if ( isCheckable() ) {
 	QSize cbSize = d->checkbox->sizeHint();
 	QRect cbRect( 0, 0, cbSize.width(), cbSize.height() );
@@ -898,6 +921,7 @@ void QGroupBox::updateCheckBoxGeometry()
 
 	d->checkbox->setGeometry( cbRect );
     }
+#endif
 }
 
 

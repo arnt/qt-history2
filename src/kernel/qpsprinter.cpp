@@ -5698,7 +5698,6 @@ void QPSPrinterPrivate::drawImage( QPainter *paint, float x, float y, float w, f
 	    ps_r7( pageStream, out, out.size() );
 	    pageStream << "d\n";
 	}
-
 	if ( img.depth() == 1 ) {
 	    size = (width+7)/8*height;
 	    bits = "1 ";
@@ -6308,8 +6307,10 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
         QRect r = *(p[0].rect);
         QImage img = *(p[1].image);
 	QImage mask;
+#ifndef QT_NO_IMAGE_DITHER_TO_1
 	if ( img.hasAlphaBuffer() )
 	    mask = img.createAlphaMask();
+#endif
         d->drawImage(paint, r.x(), r.y(), r.width(), r.height(), img, mask);
         break;
     }

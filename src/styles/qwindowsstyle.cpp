@@ -229,7 +229,6 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 
     case PE_Indicator:
 	{
-#ifndef QT_NO_BUTTON
 	    QBrush fill;
 	    if (flags & Style_NoChange) {
 		QBrush b = p->brush();
@@ -284,7 +283,6 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 
 	    p->drawLineSegments( a );
 	}
-#endif
 	break;
 
     case PE_ExclusiveIndicator:

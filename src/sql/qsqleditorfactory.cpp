@@ -185,9 +185,11 @@ QWidget * QSqlEditorFactory::createEditor( QWidget * parent,
 	case QVariant::DateTime:
 	    w = new QDateTimeEdit( parent, "qt_editor_datetime" );
 	    break;
+#ifndef QT_NO_LABEL
 	case QVariant::Pixmap:
 	    w = new QLabel( parent, "qt_editor_pixmap" );
 	    break;
+#endif
 	case QVariant::Palette:
 	case QVariant::ColorGroup:
 	case QVariant::Color:

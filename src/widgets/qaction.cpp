@@ -177,7 +177,11 @@ QActionPrivate::QActionPrivate()
       key( 0 ), accel( 0 ), accelid( 0 ),
 #endif
       enabled( TRUE ), visible( TRUE ), toggleaction( FALSE ), on( FALSE ),
-      forceDisabled( FALSE ), tipGroup( 0 ), d_group( 0 )
+      forceDisabled( FALSE ), 
+#ifndef QT_NO_TOOLTIP
+      tipGroup( 0 ), 
+#endif
+      d_group( 0 )
 {
     menuitems.setAutoDelete( TRUE );
     comboitems.setAutoDelete( TRUE );

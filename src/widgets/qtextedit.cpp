@@ -2579,7 +2579,9 @@ void QTextEdit::contentsDropEvent( QDropEvent *e )
 		if ( e->provides( "application/x-qrichtext" ) )
 		    subType = "x-qrichtext";
 	    }
+#ifndef QT_NO_CLIPBOARD
 	    pasteSubType( subType.latin1(), e );
+#endif
 	    // emit appropriate signals.
 	    emit selectionChanged();
 	    emit cursorPositionChanged( cursor );
@@ -3179,7 +3181,7 @@ void QTextEdit::redo()
 
 void QTextEdit::paste()
 {
-#ifndef QT_NO_CLIPBOARD
+#ifndef QT_NO_MIMECLIPBOARD
     if ( isReadOnly() )
 	return;
     QString subType = "plain";
@@ -3259,10 +3261,10 @@ void QTextEdit::cut()
     QTextDrag *drag = dragObject();
     if ( !drag )
 	return;
-#endif
-#ifndef QT_NO_CLIPBOARD
+#ifndef QT_NO_MIMECLIPBOARD
     QApplication::clipboard()->setData( drag, d->clipboard_mode );
 #endif
+#endif //QT_NO_DRAGANDDROP
     removeSelectedText();
     updateMicroFocusHint();
 }
@@ -3273,10 +3275,10 @@ void QTextEdit::normalCopy()
     QTextDrag *drag = dragObject();
     if ( !drag )
 	return;
-#endif
-#ifndef QT_NO_CLIPBOARD
+#ifndef QT_NO_MIMECLIPBOARD
     QApplication::clipboard()->setData( drag, d->clipboard_mode );
 #endif
+#endif //QT_NO_DRAGANDDROP
 }
 
 /*!
@@ -4826,14 +4828,17 @@ void QTextEdit::setDocument( QTextDocument *dc )
 
 void QTextEdit::pasteSubType( const QCString &subtype )
 {
+#ifndef QT_NO_MIMECLIPBOARD
     QMimeSource *m = QApplication::clipboard()->data( d->clipboard_mode );
     pasteSubType( subtype, m );
+#endif
 }
 
 /*! \internal */
 
 void QTextEdit::pasteSubType( const QCString& subtype, QMimeSource *m )
 {
+#ifndef QT_NO_DRAGANDDROP
     QCString st = subtype;
     if ( subtype != "x-qrichtext" )
 	st.prepend( "text/" );
@@ -4938,6 +4943,7 @@ void QTextEdit::pasteSubType( const QCString& subtype, QMimeSource *m )
 	if ( !t.isEmpty() )
 	    insert( t, FALSE, TRUE );
     }
+#endif //QT_NO_DRAGANDDROP
 }
 
 #ifndef QT_NO_MIMECLIPBOARD

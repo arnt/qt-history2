@@ -1,6 +1,6 @@
 Feature: WORKSPACE
 Section: Widgets
-Requires: SCROLLBAR VBOX TITLEBAR RESIZEHANDLER POPUPMENU LABEL TOOLBUTTON MAINWINDOW
+Requires: SCROLLBAR VBOX TITLEBAR RESIZEHANDLER POPUPMENU LABEL TOOLBUTTON
 Name: QWorkSpace
 SeeAlso: ???
 
@@ -49,7 +49,7 @@ SeeAlso: ???
 
 Feature: SQL
 Section: Database
-Requires: STRINGLIST REGEXP_CAPTURE
+Requires: STRINGLIST REGEXP_CAPTURE VARIANT SPRINTF DATESTRING
 Name: SQL classes
 SeeAlso: ???
 
@@ -211,7 +211,7 @@ SeeAlso: ???
 
 Feature: COMPONENT
 Section: File I/O
-Requires: QUUID_STRING SETTINGS SPRINTF LIBRARY
+Requires: QUUID_STRING SETTINGS SPRINTF LIBRARY DATESTRING
 Name: Dynamic module linking
 SeeAlso: ???
 
@@ -361,7 +361,7 @@ SeeAlso: ???
 
 Feature: RICHTEXT
 Section: Widgets
-Requires: DRAWUTIL LAYOUT STRINGLIST TEXTSTREAM
+Requires: STYLE LAYOUT STRINGLIST TEXTSTREAM
 Name: RichText (HTML) display
 SeeAlso: ???
 
@@ -938,7 +938,7 @@ SeeAlso: ???
 
 Feature: PUSHBUTTON
 Section: Widgets
-Requires: BUTTON
+Requires: BUTTON STYLE
 Name: Push-buttons
 SeeAlso: ???
 
@@ -1010,7 +1010,7 @@ SeeAlso: ???
 
 Feature: SYNTAXHIGHLIGHTER
 Section: Widgets
-Requires: RICHTEXT
+Requires: TEXTEDIT
 Name: Rich text syntax highlighting
 SeeAlso: ???
 
@@ -1239,13 +1239,13 @@ SeeAlso: ???
 
 Feature: FONTDIALOG
 Section: Widgets
-Requires: DIALOG FONTDATABASE COMBOBOX LABEL CHECKBOX PUSHBUTTON VGROUPBOX
+Requires: DIALOG FONTDATABASE COMBOBOX LABEL CHECKBOX PUSHBUTTON VGROUPBOX VALIDATOR
 Name: QFontDialog
 SeeAlso: ???
 
 Feature: PRINTDIALOG
 Section: Widgets
-Requires: DIALOG LISTVIEW PRINTER COMBOBOX LABEL BUTTONGROUP SPINBOX RADIOBUTTON PUSHBUTTON
+Requires: DIALOG LISTVIEW PRINTER COMBOBOX LABEL BUTTONGROUP SPINBOX RADIOBUTTON PUSHBUTTON DIR
 Name: QPrintDialog
 SeeAlso: ???
 

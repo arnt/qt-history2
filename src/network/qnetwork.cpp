@@ -65,4 +65,4 @@ void qInitNetworkProtocols()
 #endif
 }
 
-#endif // QT_NO_NETWORKPROTOCOL
+#endif // QT_NO_NETWORK

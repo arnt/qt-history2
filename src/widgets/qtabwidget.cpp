@@ -213,7 +213,9 @@ QTabWidget::QTabWidget( QWidget *parent, const char *name, WFlags f )
     d = new QTabWidgetData;
 
     d->tabCloseButton = new QToolButton( parent );
+#ifndef QT_NO_CURSOR
     d->tabCloseButton->setCursor( arrowCursor );
+#endif
     d->tabCloseButton->setPixmap( style().stylePixmap( QStyle::SP_DockWindowCloseButton,
 						       d->tabCloseButton ) );
     d->tabCloseButton->setFixedSize( 12, 12 );

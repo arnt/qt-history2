@@ -257,7 +257,9 @@ public:
     {}
     ~QPushButtonPrivate()
     {
+#ifndef QT_NO_ICONSET
 	delete iconset;
+#endif
     }
 #ifndef QT_NO_POPUPMENU
     QGuardedPtr<QPopupMenu> popup;
@@ -302,7 +304,7 @@ QPushButton::QPushButton( const QString &text, QWidget *parent,
     The \a parent and \a name arguments are sent to the QWidget
     constructor.
 */
-
+#ifndef QT_NO_ICONSET
 QPushButton::QPushButton( const QIconSet& icon, const QString &text,
 			  QWidget *parent, const char *name )
 	: QButton( parent, name )
@@ -311,7 +313,7 @@ QPushButton::QPushButton( const QIconSet& icon, const QString &text,
     setText( text );
     setIconSet( icon );
 }
-
+#endif
 
 
 /*!
@@ -405,13 +407,14 @@ QSize QPushButton::sizeHint() const
     int w = 0, h = 0;
 
     // calculate contents size...
+#ifndef QT_NO_ICONSET
     if ( iconSet() && !iconSet()->isNull() ) {
 	int iw = iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 4;
 	int ih = iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).height();
 	w += iw;
 	h = QMAX( h, ih );
     }
-
+#endif
     if ( isMenuButton() )
 	w += style().pixelMetric(QStyle::PM_MenuButtonIndicator, this);
 
@@ -656,8 +659,8 @@ void QPushButton::setPopup( QPopupMenu* popup )
     d->popup = popup;
     setIsMenuButton( popup != 0 );
 }
-#endif
-
+#endif //QT_NO_POPUPMENU
+#ifndef QT_NO_ICONSET
 void QPushButton::setIconSet( const QIconSet& icon )
 {
     if ( !d )
@@ -681,7 +684,7 @@ QIconSet* QPushButton::iconSet() const
 {
     return d ? d->iconset : 0;
 }
-
+#endif // QT_NO_ICONSET
 #ifndef QT_NO_POPUPMENU
 /*!
     Returns the button's associated popup menu or 0 if no popup menu

@@ -2887,7 +2887,7 @@ void QApplication::removeTranslator( QTranslator * mf )
     }
 }
 
-
+#ifndef QT_NO_TEXTCODEC
 /*! \obsolete
   This is the same as QTextCodec::setCodecForTr().
 */
@@ -2903,6 +2903,7 @@ QTextCodec* QApplication::defaultCodec() const
 {
     return QTextCodec::codecForTr();
 }
+#endif //QT_NO_TEXTCODEC
 
 /*! \enum QApplication::Encoding
 

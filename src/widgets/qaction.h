@@ -78,12 +78,12 @@ public:
     QAction( const QIconSet& icon, const QString& menuText, QKeySequence accel,
 	     QObject* parent, const char* name = 0 );
 
-    QAction( QObject* parent, const char* name , bool toggle ); // obsolete
     QAction( const QString& text, const QIconSet& icon, const QString& menuText, QKeySequence accel,
 	     QObject* parent, const char* name = 0, bool toggle = FALSE ); // obsolete
     QAction( const QString& text, const QString& menuText, QKeySequence accel, QObject* parent,
 	     const char* name = 0, bool toggle = FALSE ); // obsolete
 #endif
+    QAction( QObject* parent, const char* name , bool toggle ); // obsolete
     ~QAction();
 
     virtual void setIconSet( const QIconSet& );

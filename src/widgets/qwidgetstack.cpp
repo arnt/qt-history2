@@ -542,7 +542,9 @@ QSize QWidgetStack::sizeHint() const
 	    sh.rwidth() = 0;
 	if ( w->sizePolicy().verData() == QSizePolicy::Ignored )
 	    sh.rheight() = 0;
+#ifndef QT_NO_LAYOUT
 	size = size.expandedTo( sh ).expandedTo( qSmartMinSize(w) );
+#endif
     }
     if ( size.isNull() )
 	size = QSize( 128, 64 );
@@ -563,10 +565,12 @@ QSize QWidgetStack::minimumSizeHint() const
     QIntDictIterator<QWidget> it( *dict );
     QWidget *w;
 
+#ifndef QT_NO_LAYOUT
     while ( (w = it.current()) != 0 ) {
 	++it;
 	size = size.expandedTo( qSmartMinSize(w) );
     }
+#endif
     if ( size.isNull() )
 	size = QSize( 64, 32 );
     size += QSize( 2*frameWidth(), 2*frameWidth() );

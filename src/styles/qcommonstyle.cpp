@@ -658,6 +658,7 @@ void QCommonStyle::drawControl( ControlElement element,
 		ir.setWidth(ir.width() - mbi);
 	    }
 
+#ifndef QT_NO_ICONSET
 	    if ( button->iconSet() && ! button->iconSet()->isNull() ) {
 		QIconSet::Mode mode =
 		    button->isEnabled() ? QIconSet::Normal : QIconSet::Disabled;
@@ -676,6 +677,7 @@ void QCommonStyle::drawControl( ControlElement element,
 		ir.moveBy(pixw + 4, 0);
 		ir.setWidth(ir.width() - (pixw + 4));
 	    }
+#endif //QT_NO_ICONSET
 	    drawItem(p, ir, AlignCenter | ShowPrefix, cg,
 		     flags & Style_Enabled, button->pixmap(), button->text(),
 		     button->text().length(), &(cg.buttonText()) );
@@ -1085,6 +1087,7 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
     QRect rect, wrect(widget->rect());
 
     switch (r) {
+#ifndef QT_NO_DIALOGBUTTONS
     case SR_DialogButtonAbort:
     case SR_DialogButtonRetry:
     case SR_DialogButtonIgnore:
@@ -1151,6 +1154,7 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 		return QRect(fw, start, wrect.width() - (fw*2), wrect.height() - start - (fw*2));
 	}
 	return QRect(); }
+#endif //QT_NO_DIALOGBUTTONS
     case SR_PushButtonContents:
 	{
 #ifndef QT_NO_PUSHBUTTON
@@ -2394,6 +2398,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 #endif
 
     switch (contents) {
+#ifndef QT_NO_DIALOGBUTTONS
     case CT_DialogButtons: {
 	const QDialogButtons *dbtns = (const QDialogButtons *)widget;
 	int w = contentsSize.width(), h = contentsSize.height();
@@ -2431,6 +2436,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 	const int fw = pixelMetric(PM_DefaultFrameWidth, widget) * 2;
 	sz = QSize(w + fw, h + fw);
 	break; }
+#endif //QT_NO_DIALOGBUTTONS
     case CT_PushButton:
 	{
 #ifndef QT_NO_PUSHBUTTON
@@ -2564,10 +2570,11 @@ int QCommonStyle::styleHint(StyleHint sh, const QWidget * w, const QStyleOption 
     int ret;
 
     switch (sh) {
+#ifndef QT_NO_DIALOGBUTTONS
     case SH_DialogButtons_DefaultButton:
 	ret = QDialogButtons::Accept;
 	break;
-
+#endif
     case SH_GroupBox_TextLabelVerticalAlignment:
 	ret = Qt::AlignVCenter;
 	break;

@@ -63,7 +63,9 @@ class Q_EXPORT QPushButton : public QButton
 public:
     QPushButton( QWidget *parent, const char* name=0 );
     QPushButton( const QString &text, QWidget *parent, const char* name=0 );
+#ifndef QT_NO_ICONSET
     QPushButton( const QIconSet& icon, const QString &text, QWidget *parent, const char* name=0 );
+#endif
     ~QPushButton();
 
     QSize	sizeHint() const;
@@ -96,9 +98,10 @@ public:
     void setPopup( QPopupMenu* popup );
     QPopupMenu* popup() const;
 #endif
+#ifndef QT_NO_ICONSET
     void setIconSet( const QIconSet& );
     QIconSet* iconSet() const;
-
+#endif
     void setFlat( bool );
     bool isFlat() const;
 

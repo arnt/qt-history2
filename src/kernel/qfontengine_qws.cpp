@@ -53,7 +53,9 @@ void QFontEngine::draw( QPainter *p, int x, int y, const QTextEngine *engine, co
 	if ( aw == 0 || ah == 0 )
 	    return;
 	QWMatrix mat1 = p->xmat;
+#ifndef QT_NO_PIXMAP_TRANSFORMATION
 	QWMatrix mat2 = QPixmap::trueMatrix( mat1, aw, ah );
+#endif
 	QPixmap *tpm = 0;
 	QBitmap *wx_bm = 0;
 	if ( memorymanager->fontSmooth(handle()) &&
@@ -113,7 +115,9 @@ void QFontEngine::draw( QPainter *p, int x, int y, const QTextEngine *engine, co
 	double fx=x, fy=y - si->ascent, nfx, nfy;
 	mat1.map( fx,fy, &nfx,&nfy );
 	double tfx=tx, tfy=ty, dx, dy;
+#ifndef QT_NO_PIXMAP_TRANSFORMATION
 	mat2.map( tfx, tfy, &dx, &dy );     // compute position of bitmap
+#endif
 	x = qRound(nfx-dx);
 	y = qRound(nfy-dy);
 
