@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qdeveloper.h#1 $
+** $Id: //depot/qt/main/src/dialogs/qdeveloper.h#2 $
 **
 ** Definition of QDeveloper class
 **
@@ -31,32 +31,6 @@
 
 class QDeveloperPrivate;
 
-class Q_EXPORT QDeveloper : public QMainWindow
-{
-    Q_OBJECT
-public:
-    QDeveloper();
-   ~QDeveloper();
-
-private:
-    QDeveloperPrivate* d;
-    friend QApplication;
-    void addTopLevelWidget(QWidget*);
-
-private:
-    void updateDetails( QObject* object, QMetaObject* cls=0 );
-
-private slots:
-    void selectObject( QListViewItem* );
-    void selectClass( QListViewItem* );
-
-private:	// Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QDeveloper( const QDeveloper & );
-    QDeveloper &operator=( const QDeveloper & );
-#endif
-};
-
 class QDeveloperObjectItem : public QObject, public QListViewItem {
     Q_OBJECT
     QObject* object;
@@ -76,6 +50,34 @@ protected:
 
 private slots:
     void objectDestroyed();
+};
+
+
+class Q_EXPORT QDeveloper : public QMainWindow
+{
+    Q_OBJECT
+public:
+    QDeveloper();
+   ~QDeveloper();
+
+private:
+    QDeveloperPrivate* d;
+    friend QApplication;
+    void addTopLevelWidget(QWidget*);
+
+private:
+    void updateDetails( QObject* object, QMetaObject* cls=0 );
+
+private slots:
+    void selectObject( QListViewItem* );
+    void selectClass( QListViewItem* );
+    void recordUnknownTranslation( const char *, const char * );
+
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QDeveloper( const QDeveloper & );
+    QDeveloper &operator=( const QDeveloper & );
+#endif
 };
 
 #endif // QFILEDIALOG_H

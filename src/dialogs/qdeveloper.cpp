@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qdeveloper.cpp#1 $
+** $Id: //depot/qt/main/src/dialogs/qdeveloper.cpp#2 $
 **
 ** Implementation of QDeveloper class
 **
@@ -21,18 +21,22 @@
 **
 *****************************************************************************/
 
+#include <stdlib.h>
+#include "qapplication.h"
 #include "qdeveloper.h"
-#include "qmenubar.h"
-#include "qstatusbar.h"
+#include "qhbox.h"
+#include "qlabel.h"
+#include "qlist.h"
 #include "qlistview.h"
-#include "qsplitter.h"
+#include "qmenubar.h"
 #include "qmetaobject.h"
 #include "qobjectdict.h"
 #include "qobjectlist.h"
-#include "qlabel.h"
 #include "qpushbutton.h"
+#include "qsplitter.h"
+#include "qstatusbar.h"
 #include "qvbox.h"
-#include "qhbox.h"
+#include "qwidgetstack.h"
 
 class QDeveloperClassItem : public QListViewItem {
     QDeveloperPrivate* d;
@@ -71,20 +75,82 @@ public:
     }
 };
 
+class QDeveloperTranslationKey;
+
+class QDeveloperTranslationScope : public QListViewItem {
+public:
+    QDeveloperTranslationScope( QListView* parent, const char* scope ) :
+	QListViewItem(parent, scope)
+    {
+    }
+
+    QDict<QDeveloperTranslationKey> keys;
+};
+
+class QDeveloperTranslationKey : public QListViewItem {
+public:
+    QDeveloperTranslationKey( QDeveloperTranslationScope* parent, const char* key ) :
+	QListViewItem(parent, key)
+    {
+    }
+
+    void setup()
+    {
+	QListViewItem::setup();
+	int lines = 1+text(0).contains('\n');
+	setHeight( listView()->fontMetrics().height()*lines );
+    }
+};
+
 class QDeveloperPrivate {
 public:
-    QDeveloperPrivate(QWidget* parent)
+    QDeveloperPrivate()
     {
-	splitter = new QSplitter(parent);
-	classes = new QListView(splitter);
-	objects = new QListView(splitter);
-	classes->setFrameStyle(QFrame::Sunken|QFrame::Panel);
-	objects->setFrameStyle(QFrame::Sunken|QFrame::Panel);
+    }
 
-	classes->addColumn("Class");
-	objects->addColumn("Object");
-	objects->addColumn("Class");
-	objects->addColumn("Address");
+    void init(QWidget* parent, QDeveloper* trtarget)
+    {
+	makeTranslator(parent,trtarget);
+	makeExplorer(parent);
+    }
+
+    void makeTranslator(QWidget* parent, QDeveloper* trtarget)
+    {
+	QObject::connect(qApp,SIGNAL(unknownTranslation(const char*, const char*)),
+	    trtarget, SLOT(recordUnknownTranslation(const char*, const char*)));
+
+	// This one first - because "Scope" probably hasn't been translated...
+	translations = new QListView(parent);
+	translations->setFrameStyle(QFrame::Sunken|QFrame::Panel);
+	translations->addColumn(QDeveloper::tr("Scope/Key"));
+
+	// We'll need to add other stuff around it later.
+	translator = translations;
+
+        // ##### This at least.  But would it make sense to be able to
+        // ##### look at some OTHER translation while trying to
+        // ##### translate this one?  ie. use an auxiliary QMessageFile
+        // ##### for another column.  
+	translations->addColumn(getenv("LANG"));
+    }
+
+    void makeExplorer(QWidget* parent)
+    {
+	explorer = new QVBox(parent);
+	QSplitter* splitter = new QSplitter(explorer);
+	QHBox* hbox = new QHBox(explorer);
+	(void)new QLabel(QDeveloper::tr("Class\nstuff\nhere"),hbox);
+	(void)new QLabel(QDeveloper::tr("Object\nstuff\nhere"),hbox);
+
+	classes = new QListView(splitter);
+	classes->setFrameStyle(QFrame::Sunken|QFrame::Panel);
+	classes->addColumn(QDeveloper::tr("Class"));
+
+	objects = new QListView(splitter);
+	objects->setFrameStyle(QFrame::Sunken|QFrame::Panel);
+	objects->addColumn(QDeveloper::tr("Object"));
+	objects->addColumn(QDeveloper::tr("Class"));
+	objects->addColumn(QDeveloper::tr("Address"));
     }
 
     QDeveloperObjectItem* findTopLevel( QObject* o )
@@ -125,7 +191,7 @@ public:
 		}
 		cursor = cursor->nextSibling();
 	    }
-	    fatal("Huh?");
+	    fatal(QDeveloper::tr("Huh?"));
 	    return 0;
 	} else {
 	    // QObject
@@ -135,9 +201,12 @@ public:
 	}
     }
 
-    QSplitter* splitter;
+    QWidget* explorer;
+    QWidget* translator;
     QListView* classes;
     QListView* objects;
+    QListView* translations;
+    QDict<QDeveloperTranslationScope> translationScopes;
 };
 
 static
@@ -244,35 +313,40 @@ void QDeveloperObjectItem::objectDestroyed()
 QDeveloper::QDeveloper() :
     QMainWindow(0,0,WDestructiveClose)
 {
+    QWidgetStack* stack = new QWidgetStack(this);
+    d = new QDeveloperPrivate;
+    d->init(stack, this);
+
+    setCentralWidget(stack);
+
     int id;
 
     QPopupMenu * file = new QPopupMenu();
-    menuBar()->insertItem( "&File", file );
+    menuBar()->insertItem( tr("&File"), file );
 
     QPopupMenu * edit = new QPopupMenu();
-    id=menuBar()->insertItem( "&Edit", edit );
+    id=menuBar()->insertItem( tr("&Edit"), edit );
     menuBar()->setItemEnabled(id,FALSE);
 
-    QPopupMenu * options = new QPopupMenu();
-    menuBar()->insertItem( "&Options", options );
+    // The QDeveloper is modal because by restricting to one window,
+    // it doesn't get mixed with application widgets, nor take up too
+    // much space.
+    QPopupMenu * mode = new QPopupMenu();
+    menuBar()->insertItem( tr("&Mode"), mode );
 
-    QVBox* vbox = new QVBox(this);
-    d = new QDeveloperPrivate(vbox);
-    QHBox* hbox = new QHBox(vbox);
-    (void)new QLabel("Class\nstuff\nhere",hbox);
-    (void)new QLabel("Object\nstuff\nhere",hbox);
-
-    setCentralWidget(vbox);
+    stack->addWidget(d->explorer, mode->insertItem(tr("&Explorer")));
+    stack->addWidget(d->translator, mode->insertItem(tr("&Translator")));
+    connect(mode,SIGNAL(activated(int)),stack,SLOT(raiseWidget(int)));
 
     QString msg;
     int nclasses = QMetaObjectInit::init()+1; // +1 for QObject
     if ( nclasses ) {
-	msg.sprintf("Qt Application Builder - %d classes", nclasses);
+	msg.sprintf(tr("Qt Application Builder - %d classes"), nclasses);
 	QListViewItem *lvi = new QDeveloperClassItem( d->classes, QObject::metaObject(), d );
 	lvi->setOpen(TRUE); // #### WWA: Arnt, why needed?
     } else {
-	msg = "Sorry, your compiler/platform is insufficient for "
-		"Qt Application Builder";
+	msg = tr("Sorry, your compiler/platform is insufficient for "
+		"Qt Application Builder");
     }
     statusBar()->message(msg);
 
@@ -335,5 +409,19 @@ void QDeveloper::updateDetails( QObject* object, QMetaObject* cls )
 	// Show detailed information
     } else {
 	// Disable display
+    }
+}
+
+void QDeveloper::recordUnknownTranslation( const char *scope, const char *key )
+{
+    QDeveloperTranslationScope *dts = d->translationScopes.find(scope);
+    if ( !dts ) {
+	dts = new QDeveloperTranslationScope( d->translations, scope );
+	d->translationScopes.insert(scope,dts);
+    }
+    QDeveloperTranslationKey *dtk = dts->keys.find(key);
+    if ( !dtk ) {
+	dtk = new QDeveloperTranslationKey( dts, key );
+	dts->keys.insert(key,dtk);
     }
 }
