@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#62 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#63 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#62 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#63 $");
 
 
 extern uchar *qt_get_bitflip_array();		// defined in qimage.cpp
@@ -506,7 +506,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    }
 	}
     }
-    SetDIBitsToDevice( pm.handle(), 0, 0, w, h, 0, 0, 0, h,
+    SetDIBitsToDevice( handle(), 0, 0, w, h, 0, 0, 0, h,
 		       image.bits(), bmi, DIB_RGB_COLORS );
     if ( !native && d == 32 ) {
 	for ( int i=0; i<image.height(); i++ ) {

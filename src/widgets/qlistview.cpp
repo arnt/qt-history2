@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#32 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#33 $
 **
 ** Implementation of something useful
 **
@@ -23,7 +23,7 @@
 #include <stdarg.h> // va_list
 #include <stdlib.h> // qsort
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#32 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#33 $");
 
 
 const int Unsorted = 32767;
@@ -383,7 +383,7 @@ void QListViewItem::invalidateHeight()
 
 void QListViewItem::setOpen( bool o )
 {
-    if ( o == open )
+    if ( o == (bool)open )
 	return;
     open = o;
 
@@ -987,7 +987,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 
 void QListView::buildDrawableList() const
 {
-    if ( (int)d->r->lsc != d->column || d->r->lso != d->ascending )
+    if ( (int)d->r->lsc != d->column || (bool)d->r->lso != d->ascending )
 	d->r->sortChildItems( d->column, d->ascending );
 
     QStack<QListViewPrivate::Pending> stack;
@@ -1622,7 +1622,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	break;
     case Key_Next:
 	// this is window style.  mostif style is probably different.
-	if ( !r.isValid ||
+	if ( !r.isValid() ||
 	     !viewport()->rect().contains( itemRect( i->itemBelow() ) ) )
 	    verticalScrollBar()->addPage();
 	i = itemAt( QPoint( 0, contentsY() + viewport()->height() - 1 ) );
