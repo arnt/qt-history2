@@ -776,6 +776,11 @@ QFontDatabase::findFont(int script, const QFontPrivate *fp,
              foundry_name.isEmpty() ? "-- any --" : foundry_name.toLatin1().constData(),
              script, scriptName(script).toLatin1().constData(),
              request.weight, request.style, request.stretch, request.pixelSize, pitch);
+#if defined(FONT_MATCH_DEBUG)
+    if (force_encoding_id >= 0) {
+        FM_DEBUG("    required encoding: %d", force_encoding_id);
+    }
+#endif
 
     if (qt_enable_test_font && request.family == QLatin1String("__Qt__Box__Engine__")) {
         fe = new QTestFontEngine(request.pixelSize);
