@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#42 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#43 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -20,7 +20,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#42 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#43 $";
 #endif
 
 
@@ -100,15 +100,13 @@ char *qstrdup( const char *str )
   a pointer to \e dst.
   If \e src is null, it immediately returns 0.
 
-  \sa strncpy()
+  \sa qstrncpy()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn char *strncpy( char *dst, const char *str, uint len )
   \relates QString
 
-  A safe strncpy() function that overrides the one defined by the C library.
-  The original strncpy() function has been renamed cstrncpy().
+  A safe strncpy() function.
 
   Copies all characters up to \e len bytes from \e str into \e dst and returns
   a pointer to \e dst.  Guarantees that \e dst is \0-terminated.
@@ -121,7 +119,7 @@ char *qstrncpy( char *dst, const char *src, uint len )
 {
     if ( !src )
 	return 0;
-    cstrncpy( dst, src, len );
+    strncpy( dst, src, len );
     if ( len > 0 )
 	dst[len-1] = '\0';
     return dst;
@@ -442,16 +440,11 @@ QString::QString( const char *str )		// deep copy
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
+  \fn uint QString::length() const
   Returns the length of the string, excluding the '\0'-terminator.
   Null strings (null pointers) and \e empty strings ("") have zero length.
   \sa size()
  ----------------------------------------------------------------------------*/
-
-uint QString::length() const
-{
-    uint len = QByteArray::size();
-    return len ? len - 1 : 0;			// subtract for terminating \0
-}						// (if not empty)
 
 /*---------------------------------------------------------------------------
   \fn bool QString::truncate( uint pos )

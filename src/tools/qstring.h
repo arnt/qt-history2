@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#25 $
+** $Id: //depot/qt/main/src/tools/qstring.h#26 $
 **
 ** Definition of extended char array operations, and QByteArray and
 ** QString classes
@@ -50,13 +50,7 @@ inline char *qstrcpy( char *dst, const char *src )
 #undef  strcpy
 #define strcpy qstrcpy
 
-inline char *cstrncpy( char *dst, const char *src, uint len )
-{ return strncpy( dst, src, len ); }
-
 char *qstrncpy( char *dst, const char *src, uint len );
-
-#undef  strncpy
-#define strncpy qstrncpy
 
 inline int cstrcmp( const char *str1, const char *str2 )
 { return strcmp(str1,str2); }
@@ -218,6 +212,9 @@ QDataStream &operator>>( QDataStream &, QString & );
 // --------------------------------------------------------------------------
 // QString inline functions
 //
+
+inline uint QString::length() const
+{ return strlen( data() ); }
 
 inline bool QString::truncate( uint pos )
 { return resize(pos+1); }

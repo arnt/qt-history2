@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.h#4 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.h#5 $
 **
 ** Definition of QFileInfo class
 **
@@ -35,6 +35,8 @@ public:
     QFileInfo( const char *relativeOrAbsoluteFileName );
    ~QFileInfo();
 
+    QFileInfo &operator=( const QFileInfo & );
+
     bool    exists()         const;
     void    refresh()        const;
     void    setCaching( bool );
@@ -44,7 +46,7 @@ public:
     void setFile( const QDir &, const char *fileName );
     void setFile( const char *relativeOrAbsoluteFileName );
 
-    QString name()           const;
+    const char *name()       const;
     QString fileName()       const;
     QString fullPathName()   const;
     QString baseName()       const;
@@ -58,7 +60,7 @@ public:
     bool    isExecutable()   const;
 
     bool    isRelative()     const;
-    bool    useAbsolutePath();
+    bool    convertToAbsolute();
 
     bool    isFile()         const;
     bool    isDir()	     const;
@@ -77,10 +79,16 @@ public:
     QDateTime lastRead()     const;
 
 private:
-    void  init();
+    void init();
+    void doStat() const;
     QString fn;
     QFileInfoCache *fic;
+    bool cache;
 };
 
+inline bool QFileInfo::caching() const
+{
+    return cache;
+}
 
 #endif // QFILEINF_H
