@@ -637,10 +637,13 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
     
     int qtProps = 0;
     int qtSlots = 0;
+
+    bool control = false;
     
     if (o && o->isWidgetType()) {
         qtProps = QWidget::staticMetaObject.propertyCount();
         qtSlots = QWidget::staticMetaObject.propertyCount();
+        control = true;
     }
     
     QString classID = qAxFactory()->classID(className).toString().toUpper();
@@ -894,7 +897,15 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
     const char *classVersion = mo->classInfo(mo->indexOfClassInfo("Version")).value();
     if (classVersion)
         out << "\t\tversion(" << classVersion << ")," << endl;
-    out << "\t\tuuid(" << classID << ")" << endl;
+    out << "\t\tuuid(" << classID << ")";
+    if (control) {
+        out << ", " << endl;
+        out << "\t\tcontrol";
+    } else if (!o) {
+        out << ", " << endl;
+        out << "\t\tnoncreatable";
+    }
+    out << endl;
     out << "\t]" << endl;
     out << "\tcoclass " << className << endl;
     out << "\t{" << endl;
