@@ -24,7 +24,7 @@ HEADERS		= qapp.h	qbitmap.h	qbrush.h	qcolor.h      \
 		  qpen.h	qpixmap.h	qpntarry.h	qpoint.h      \
 		  qprinter.h	qprtdrv.h	qprtstrm.h	qrect.h	      \
 		  qregion.h	qsize.h		qtimer.h	qview.h	      \
-		  qwidget.h	qwindefs.h	qwmatrix.h
+		  qwidget.h	qwindefs.h	qwmatrix.h	qfontdta.h
 SOURCES		= qapp.cpp	qapp_x11.cpp	qcol_x11.cpp	qcolor.cpp    \
 		  qconnect.cpp	qcur_x11.cpp	qcursor.cpp	qfont.cpp     \
                   qfnt_x11.cpp  \
@@ -209,7 +209,8 @@ qfont.o: /home/popcorn/home/hanord/qt/include/qgarray.h
 qfont.o: /home/popcorn/home/hanord/qt/include/qshared.h
 qfont.o: /home/popcorn/home/hanord/qt/include/qgeneric.h
 qfont.o: /usr/include/string.h /usr/include/features.h
-qfont.o: /usr/include/sys/cdefs.h
+qfont.o: /usr/include/sys/cdefs.h qfontdta.h qpainter.h qpaintd.h qrect.h
+qfont.o: qsize.h qpoint.h qcolor.h qfontmet.h qregion.h qpen.h qbrush.h
 qfont.o: /home/popcorn/home/hanord/qt/include/qdstream.h
 qfont.o: /home/popcorn/home/hanord/qt/include/qiodev.h
 qfnt_x11.o: /usr/include/X11/Xlib.h /usr/include/sys/types.h
@@ -225,17 +226,18 @@ qfnt_x11.o: /usr/include/sys/time.h /usr/include/linux/time.h
 qfnt_x11.o: /usr/include/sys/time.h /usr/include/sys/param.h
 qfnt_x11.o: /usr/include/limits.h /usr/include/posix1_lim.h
 qfnt_x11.o: /usr/include/linux/limits.h /usr/include/posix2_lim.h
-qfnt_x11.o: /usr/include/linux/param.h qfont.h qwindefs.h qobjdefs.h
+qfnt_x11.o: /usr/include/linux/param.h /usr/include/X11/Xatom.h qfont.h
+qfnt_x11.o: qwindefs.h qobjdefs.h
 qfnt_x11.o: /home/popcorn/home/hanord/qt/include/qglobal.h
 qfnt_x11.o: /home/popcorn/home/hanord/qt/include/qstring.h
 qfnt_x11.o: /home/popcorn/home/hanord/qt/include/qarray.h
 qfnt_x11.o: /home/popcorn/home/hanord/qt/include/qgarray.h
 qfnt_x11.o: /home/popcorn/home/hanord/qt/include/qshared.h
-qfnt_x11.o: /home/popcorn/home/hanord/qt/include/qgeneric.h qpainter.h
-qfnt_x11.o: qpaintd.h qrect.h qsize.h qpoint.h qcolor.h qfontmet.h qregion.h
-qfnt_x11.o: qpen.h qbrush.h /usr/include/ctype.h /usr/include/stdlib.h
-qfnt_x11.o: /usr/include/errno.h /usr/include/linux/errno.h
-qfnt_x11.o: /usr/include/alloca.h
+qfnt_x11.o: /home/popcorn/home/hanord/qt/include/qgeneric.h qfontdta.h
+qfnt_x11.o: qpainter.h qpaintd.h qrect.h qsize.h qpoint.h qcolor.h qfontmet.h
+qfnt_x11.o: qregion.h qpen.h qbrush.h /usr/include/ctype.h
+qfnt_x11.o: /usr/include/stdlib.h /usr/include/errno.h
+qfnt_x11.o: /usr/include/linux/errno.h /usr/include/alloca.h
 qfnt_x11.o: /home/popcorn/home/hanord/qt/include/qdict.h
 qfnt_x11.o: /home/popcorn/home/hanord/qt/include/qgdict.h
 qfnt_x11.o: /home/popcorn/home/hanord/qt/include/qcollect.h
