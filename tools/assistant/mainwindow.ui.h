@@ -1,12 +1,12 @@
 #include <qtabwidget.h>
 #include <qaccel.h>
 
-QList<MainWindow> *MainWindow::windows = 0;
+QPtrList<MainWindow> *MainWindow::windows = 0;
 
 void MainWindow::init()
 {
     if ( !windows )
-	windows = new QList<MainWindow>;
+	windows = new QPtrList<MainWindow>;
     windows->append( this );
     setWFlags( WDestructiveClose );
     browser = new HelpWindow( this, this, "qt_assistant_helpwindow" );
