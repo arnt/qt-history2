@@ -347,6 +347,10 @@ void **QListData::erase(void **xi)
     a way that direct index-based access is just as fast as using
     iterators.
 
+    QList does \e not support inserting, prepending, appending or replacing
+    with references to its own values. Doing so will cause your application to
+    abort with an error message.
+
     \sa QListIterator, QMutableListIterator, QLinkedList, QVector
 */
 

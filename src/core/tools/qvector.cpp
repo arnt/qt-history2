@@ -175,6 +175,10 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
     low-level class with little functionality that is optimized for
     speed.
 
+    QVector does \e not support inserting, prepending, appending or replacing
+    with references to its own values. Doing so will cause your application to
+    abort with an error message.
+
     \sa QVectorIterator, QMutableVectorIterator, QList, QLinkedList
 */
 
