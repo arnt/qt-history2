@@ -1133,20 +1133,20 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 	    break;
 	  case ExtensionLabel:
 	    switch (ch) {
-	     case 0xf9:
+	    case 0xf9:
 		state=GraphicControlExtension;
 		break;
-	     case 0xff:
+	    case 0xff:
 		state=ApplicationExtension;
 		break;
-/////////////////////////////////////////// Ignored at this time //////
-//           case 0xfe:
-//                state=CommentExtension;
-//                break;
-//           case 0x01:
-//                break;
-///////////////////////////////////////////////////////////////////////
-	     default:
+#if 0
+	    case 0xfe:
+		state=CommentExtension;
+		break;
+	    case 0x01:
+		break;
+#endif
+	    default:
 		state=SkipBlockSize;
 	    }
 	    count=0;
