@@ -21,19 +21,6 @@
 #ifndef FILTERINTERFACE_H
 #define FILTERINTERFACE_H
 
-//
-//  W A R N I N G  --  PRIVATE INTERFACES
-//  --------------------------------------
-//
-// This file and the interfaces declared in the file are not
-// public. It exists for internal purpose. This header file and
-// interfaces may change from version to version (even binary
-// incompatible) without notice, or even be removed.
-//
-// We mean it.
-//
-//
-
 #include <qcom.h>
 
 // {ea8cb381-59b5-44a8-bae5-9bea8295762a}
