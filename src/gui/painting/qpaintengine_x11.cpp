@@ -1931,7 +1931,7 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
 #endif // !QT_NO_XFT && !QT_NO_XRENDER
             {
                 XCopyArea(d->dpy, pixmap.handle(), d->hd, d->gc, sx, sy, sw, sh, x, y);
-#ifndef QT_NO_XRENDER
+#if !defined(QT_NO_XRENDER) && !defined(QT_NO_XFT)
                 if (mode == Qt::CopyPixmap && pixmap.data->alphapm
                     && d->pdev->devType() == QInternal::Pixmap) {
                     QPixmap *px = static_cast<QPixmap *>(d->pdev);
@@ -1970,7 +1970,7 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
                               agc, sx, sy, sw, sh, x, y);
                     XFreeGC(d->dpy, agc);
                 }
-#endif // !QT_NO_XRENDER
+#endif // !QT_NO_XRENDER && !QT_NO_XFT
             }
     }
 
