@@ -336,7 +336,7 @@ inline int QString::grow(int size)
 */
 
 /*!
-    Constructs a string initialize with the first \a size characters
+    Constructs a string initialized with the first \a size characters
     of the QChar array \a unicode.
 
     QString makes a deep copy of the string data.
@@ -509,19 +509,20 @@ void QString::resize(int size)
     The sole purpose of this function is to provide a means of fine
     tuning QString's memory usage. In general, you will rarely ever
     need to call this function. If you want to change the size of the
-    vector, call resize().
+    string, call resize().
 
     This function is useful for code that needs to build up a long
     string and wants to avoid repeated reallocation. In this example,
     we want to add to the string until some condition is true, and
-    we're fairly sure that size is big enough:
+    we're fairly sure that size is large enough to make a call to
+    reserve() worthwhile:
 
     \code
         QString result;
         int len = 0;
         result.reserve(maxSize);
         while (...) {
-            result[len++] = getNextChar();      // fill part of the space
+            result[len++] = getNextChar(); // fill part of the space
         }
         result.squeeze();
     \endcode
@@ -1023,13 +1024,13 @@ QString &QString::remove(QChar ch, CaseSensitivity cs)
 
     \overload
 
-    Removes every occurrence of the regexp \a rx in the string,
-    and returns a reference to the string. For example:
+    Removes every occurrence of the regular expression \a rx in the
+    string, and returns a reference to the string. For example:
 
     \code
-        QString str = "Banana";
-        str.remove(QRegExp("a[mn]"));
-        // str == "Ba"
+        QString str = "Telephone";
+        str.remove(QRegExp("[aeiou]."));
+        // str == "The"
     \endcode
 
     \sa indexOf(), lastIndexOf(), replace()
@@ -1164,8 +1165,8 @@ static int bm_find(const QChar *uc, uint l, int index, const QChar *puc, uint pl
 
 /*! \overload
 
-    Replaces every occurrence of the byte array \a before with the
-    byte array \a after.
+    Replaces every occurrence of the string \a before with the string
+    \a after.
 
     If \a cs is QString::CaseSensitive (the default), the search is
     case sensitive; otherwise the search is case insensitive.
@@ -1292,8 +1293,8 @@ QString& QString::replace(QChar ch, const QString & after, CaseSensitivity cs)
 
 /*! \overload
 
-    Replaces every occurrence of \a before with the character \a
-    after. Returns a reference to the string.
+    Replaces every occurrence of the character \a before with the
+    character \a after. Returns a reference to the string.
 
     If \a cs is QString::CaseSensitive (the default), the search is
     case sensitive; otherwise the search is case insensitive.
@@ -1591,7 +1592,7 @@ bool QString::operator>(const QLatin1String &other) const
 /*!
     Returns the index position of the first occurrence of the string
     \a str in this string, searching forward from index position \a
-    from. Returns -1 if \a str could not be found.
+    from. Returns -1 if \a str is not found.
 
     If \a cs is QString::CaseSensitive (the default), the search is
     case sensitive; otherwise the search is case insensitive.
@@ -1721,7 +1722,7 @@ int QString::indexOf(QChar ch, int from, CaseSensitivity cs) const
     \a str in this string, searching backward from index position \a
     from. If \a from is -1 (the default), the search starts at the
     last character; if \a from is -2, at the next to last character
-    and so on. Returns -1 if \a str could not be found.
+    and so on. Returns -1 if \a str is not found.
 
     If \a cs is QString::CaseSensitive (the default), the search is
     case sensitive; otherwise the search is case insensitive.
@@ -1831,17 +1832,19 @@ int QString::lastIndexOf(QChar ch, int from, CaseSensitivity cs) const
 #ifndef QT_NO_REGEXP_CAPTURE
 /*! \overload
 
-    Replaces every occurrence of the regexp \a rx in the string with
-    \a after. Returns a reference to the string. For example:
+    Replaces every occurrence of the regular expression \a rx in the
+    string with \a after. Returns a reference to the string. For
+    example:
     \code
         QString str = "Banana";
         str.replace(QRegExp("a[mn]"), "ox");
         // str == "Boxoxa"
     \endcode
 
-    For regexps containing \link qregexp.html#capturing-text capturing
-    parentheses \endlink, occurrences of \bold{\\1}, \bold{\\2}, ...,
-    in \a after are replaced with \a{rx}.cap(1), cap(2), ...
+    For regular expressions containing \link
+    qregexp.html#capturing-text capturing parentheses \endlink,
+    occurrences of \bold{\\1}, \bold{\\2}, ..., in \a after are
+    replaced with \a{rx}.cap(1), cap(2), ...
 
     \code
         QString str = "A <i>bon mot</i>.";
@@ -2055,8 +2058,8 @@ int QString::count(QChar ch, CaseSensitivity cs) const
 
     \overload
 
-    Returns true if the regexp \a rx matches somewhere in this
-    string; otherwise returns false.
+    Returns true if the regular expression \a rx matches somewhere in
+    this string; otherwise returns false.
 */
 
 #ifndef QT_NO_REGEXP
@@ -2069,8 +2072,8 @@ int QString::count(QChar ch, CaseSensitivity cs) const
 
     Example:
     \code
-        QString str = "bananas";
-        str.indexOf(QRegExp("a[mn]"), 0);       // returns 1
+        QString str = "the minimum";
+        str.indexOf(QRegExp("m[aeiou]"), 0);       // returns 4
     \endcode
 */
 int QString::indexOf(const QRegExp& rx, int from) const
@@ -2079,14 +2082,16 @@ int QString::indexOf(const QRegExp& rx, int from) const
 }
 
 /*!
+    \overload
+
     Returns the index position of the last match of the regular
     expression \a rx in the string, searching backward from index
     position \a from. Returns -1 if \a rx didn't match anywhere.
 
     Example:
     \code
-        QString str = "bananas";
-        str.lastIndexOf(QRegExp("a[mn]"));      // returns 3
+        QString str = "the minimum";
+        str.lastIndexOf(QRegExp("m[aeiou]"));      // returns 8
     \endcode
 */
 int QString::lastIndexOf(const QRegExp& rx, int from) const
@@ -2096,8 +2101,8 @@ int QString::lastIndexOf(const QRegExp& rx, int from) const
 
 /*! \overload
 
-    Returns the number of times the regexp \a rx matches in the
-    string.
+    Returns the number of times the regular expression \a rx matches
+    in the string.
 
     This function counts overlapping matches, so in the example
     below, there are four instances of "ana" or "ama":
@@ -2169,7 +2174,7 @@ int QString::count(const QRegExp& rx) const
     from the left, and -1, -2, etc., counting from right to left.
 
     The \a flags argument can be used to affect some aspects of the
-    function's behaviour, e.g. whether to be case sensitive, whether
+    function's behavior, e.g. whether to be case sensitive, whether
     to skip empty fields and how to deal with leading and trailing
     separators; see \l{SectionFlags}.
 
@@ -2200,32 +2205,14 @@ int QString::count(const QRegExp& rx) const
 /*!
     \overload
 
-    This function returns a section of the string.
-
-    This string is treated as a sequence of fields separated by the
-    string, \a sep. The returned string consists of the fields from
-    position \a start to position \a end inclusive. If \a end is not
-    specified, all fields from position \a start to the end of the
-    string are included. Fields are numbered 0, 1, 2, etc., counting
-    from the left, and -1, -2, etc., counting from right to left.
-
-    The \a flags argument can be used to affect some aspects of the
-    function's behaviour, e.g. whether to be case sensitive, whether
-    to skip empty fields and how to deal with leading and trailing
-    separators; see \l{SectionFlags}.
-
     \code
         QString data = "forename**middlename**surname**phone";
         QString str = data.section("**", 2, 2); // str == "surname"
     \endcode
 
-    If \a start or \a end is negative, we count fields from the right
-    of the string, the right-most field being -1, the one from
-    right-most field being -2, and so on.
-
     \code
-    QString data = "forename**middlename**surname**phone";
-    QString str = data.section("**", -3, -2); // str == "middlename**surname"
+        QString data = "forename**middlename**surname**phone";
+        QString str = data.section("**", -3, -2); // str == "middlename**surname"
     \endcode
 
     \sa split()
@@ -2293,34 +2280,19 @@ public:
 /*!
     \overload
 
-    This function returns a section of the string.
-
     This string is treated as a sequence of fields separated by the
-    regular expression, \a reg. The returned string consists of the
-    fields from position \a start to position \a end inclusive. If \a
-    end is not specified, all fields from position \a start to the end
-    of the string are included. Fields are numbered 0, 1, 2, etc., counting
-    from the left, and -1, -2, etc., counting from right to left.
-
-    The \a flags argument can be used to affect some aspects of the
-    function's behaviour, e.g. whether to be case sensitive, whether
-    to skip empty fields and how to deal with leading and trailing
-    separators; see \l{SectionFlags}.
+    regular expression, \a reg.
 
     \code
-    QString line = "forename\tmiddlename  surname \t \t phone";
-    QRegExp sep("\s+");
-    QString s = line.section(sep, 2, 2); // s == "surname"
+        QString line = "forename\tmiddlename  surname \t \t phone";
+        QRegExp sep("\\s+");
+        QString s = line.section(sep, 2, 2); // s == "surname"
     \endcode
 
-    If \a start or \a end is negative, we count fields from the right
-    of the string, the right-most field being -1, the one from
-    right-most field being -2, and so on.
-
     \code
-    QString line = "forename\tmiddlename  surname \t \t phone";
-    QRegExp sep("\\s+");
-    QString s = line.section(sep, -3, -2); // s == "middlename  surname"
+        QString line = "forename\tmiddlename  surname \t \t phone";
+        QRegExp sep("\\s+");
+        QString s = line.section(sep, -3, -2); // s == "middlename  surname"
     \endcode
 
     \warning Using this QRegExp version is much more expensive than
@@ -2438,7 +2410,8 @@ QString QString::right(int len) const
     Returns an empty string if index \a i exceeds the length of the
     string. If there are less than \a len characters available in the
     string starting at position \a i, or if \a len is -1 (the
-    default), the function returns all characters that are available.
+    default), the function returns all characters that are available
+    from position \a i.
 
     Example:
     \code
@@ -3045,7 +3018,7 @@ QString QString::fromUtf8(const char *str, int maxSize)
 /*!
     Returns a QString initialized with the zero-terminated Unicode
     string \a unicode (ISO-10646-UCS-2 encoded). If \a unicode is 0,
-    a null string is created.
+    an empty string is created.
 
     QString makes a deep copy of the Unicode data.
 
@@ -3320,12 +3293,14 @@ QString& QString::fill(QChar ch, int size)
 
 /*! \fn bool QString::isEmpty() const
 
-    Returns true if the string has size 0; otherwise returns false.
+    Returns true if the string has no characters; otherwise returns
+    false.
 
     Example:
     \code
         QString().isEmpty();            // returns true
         QString("").isEmpty();          // returns true
+        QString("x").isEmpty();         // returns false
         QString("abc").isEmpty();       // returns false
     \endcode
 
@@ -3504,7 +3479,8 @@ QString& QString::fill(QChar ch, int size)
     \relates QString
 
     Returns a string which is the result of concatenating the string
-    \a s1 and character \a s2.
+    \a s1 and the string \a s2. \a s2 is converted to
+    Unicode using fromAscii().
 
     Equivalent to \a {s1}.append(\a s2).
 */
@@ -3516,7 +3492,8 @@ QString& QString::fill(QChar ch, int size)
     \relates QString
 
     Returns a string which is the result of concatenating the
-    character \a s1 and string \a s2.
+    string \a s1 and string \a s2. \a s1 is converted to
+    Unicode using fromAscii().
 */
 
 /*!
@@ -3552,7 +3529,7 @@ QString& QString::fill(QChar ch, int size)
 
     The comparison is based exclusively on the numeric Unicode values
     of the characters and is very fast, but is not what a human would
-    expect. Consider sorting user-interface strings with
+    expect. Consider sorting user-visible strings with
     QString::localeAwareCompare().
 
     \code
@@ -3658,15 +3635,15 @@ int QString::localeAwareCompare(const QString &other) const
 */
 
 /*!
-    Returns a string of length \a width that contains this string
+    Returns a string of size() \a width that contains this string
     padded by the \a fill character.
 
-    If \a truncate is false and the length of the string is more than
+    If \a truncate is false and the size() of the string is more than
     \a width, then the returned string is a copy of the string.
 
-    If \a truncate is true and the length of the string is more than
-    \a width, then any characters in a copy of the string after length
-    \a width are removed, and the copy is returned.
+    If \a truncate is true and the size() of the string is more than
+    \a width, then any characters in a copy of the string after
+    position \a width are removed, and the copy is returned.
 
     \code
         QString s = "apple";
@@ -3698,13 +3675,13 @@ QString QString::leftJustified(int width, QChar fill, bool truncate) const
 }
 
 /*!
-    Returns a string of length \a width that contains the \a fill
+    Returns a string of size() \a width that contains the \a fill
     character followed by the string.
 
-    If \a truncate is false and the length of the string is more than
+    If \a truncate is false and the size() of the string is more than
     \a width, then the returned string is a copy of the string.
 
-    If \a truncate is true and the length of the string is more than
+    If \a truncate is true and the size() of the string is more than
     \a width, then the resulting string is truncated at position \a
     width.
 
@@ -3746,7 +3723,7 @@ QString QString::rightJustified(int width, QChar fill, bool truncate) const
         str = str.toLower();        // str == "trolltech"
     \endcode
 
-    \sa upper()
+    \sa toUpper()
 */
 
 QString QString::toLower() const
@@ -3782,7 +3759,7 @@ QString QString::toLower() const
         str = str.toUpper();        // str == "TEXT"
     \endcode
 
-    \sa lower()
+    \sa toLower()
 */
 
 QString QString::toUpper() const
@@ -4185,7 +4162,7 @@ QString &QString::sprintf(const char* cformat, ...)
 /*!
     Returns the string converted to a \c {long long} using base \a
     base, which is 10 by default and must be between 2 and 36, or 0.
-    
+
     If \a base is 0, the base is determined automatically using the
     following rules: If the string begins with "0x", it is assumed to
     be hexadecimal; if it begins with "0", it is assumed to be octal;
@@ -4223,7 +4200,7 @@ Q_LLONG QString::toLongLong(bool *ok, int base) const
 /*!
     Returns the string converted to an \c {unsigned long long} using base \a
     base, which is 10 by default and must be between 2 and 36, or 0.
-    
+
     If \a base is 0, the base is determined automatically using the
     following rules: If the string begins with "0x", it is assumed to
     be hexadecimal; if it begins with "0", it is assumed to be octal;
@@ -4530,7 +4507,7 @@ double QString::toDouble(bool *ok) const
     Example:
     \code
         QString str1 = "1234.56";
-        str1.toFloat();             // returns 1234.56f
+        str1.toFloat();             // returns 1234.56
 
         bool ok;
         QString str2 = "R2D2";
@@ -4619,8 +4596,8 @@ QString &QString::setNum(Q_ULLONG n, int base)
 /*!
     \overload
 
-    Sets the string to the printed value of \a n, formatted in format
-    \a f with precision \a prec, and returns a reference to the
+    Sets the string to the printed value of \a n, formatted using
+    format \a f with precision \a prec, and returns a reference to the
     string.
 
     The format \a f can be 'f', 'F', 'e', 'E', 'g' or 'G'. See \link
@@ -4745,27 +4722,10 @@ QString QString::number(Q_ULLONG n, int base)
 /*!
     \overload
 
-    Argument \a n is formatted according to the \a f format specified,
-    which is \c g by default, and can be any of the following:
-
-    \table
-    \header \i Format \i Meaning
-    \row \i \c e \i format as [-]9.9e[+|-]999
-    \row \i \c E \i format as [-]9.9E[+|-]999
-    \row \i \c f \i format as [-]9.9
-    \row \i \c g \i use \c e or \c f format, whichever is the most concise
-    \row \i \c G \i use \c E or \c f format, whichever is the most concise
-    \endtable
-
-    With 'e', 'E', and 'f', \a prec is the number of digits after the
-    decimal point. With 'g' and 'G', \a prec is the maximum number of
-    significant digits (trailing zeroes are omitted).
-
-    \code
-        double d = 12.34;
-        QString ds = QString("%1").arg(d, 0, 'E', 3);
-        // ds == "1.234E+01"
-    \endcode
+    Argument \a n is formatted according to the format \a f, and the
+    precision \a prec. The format \a f can be 'f', 'F', 'e', 'E', 'g'
+    or 'G'. See \link #arg-formats arg \endlink() for an explanation
+    of the formats.
 
     \sa setNum()
 */
@@ -4792,7 +4752,7 @@ QString QString::number(double n, char f, int prec)
     (If you want to discard empty entries, call
     QStringList::remove(QString()) on the result.)
 
-    \sa join(), section()
+    \sa QStringList::join(), section()
 */
 QStringList QString::split(const QString &sep) const
 {
@@ -4834,8 +4794,8 @@ QStringList QString::split(const QChar &sep) const
     does not match anywhere in the string, split() returns a
     single-element list containing this string.
 
-    Here's an example where we extract the words in a sentence by
-    using one or many whitespace characters as the separator:
+    Here's an example where we extract the words in a sentence
+    using one or more whitespace characters as the separator:
 
     \code
         QString str = "Some  text\n\twith  strange whitespace.";
@@ -4865,7 +4825,7 @@ QStringList QString::split(const QChar &sep) const
         // list: [ "", "Now", ": ", "this", " ", "sentence", " ", "fragment", "." ]
     \endcode
 
-    \sa join(), section()
+    \sa QStringList::join(), section()
 */
 QStringList QString::split(const QRegExp &rx) const
 {
@@ -5046,8 +5006,8 @@ static QString replaceArgEscapes(const QString &s, const ArgEscapeData &d, int f
 }
 
 /*!
-    This function returns a copy of this string where replaces the
-    lowest numbered occurrence of \c %1, \c %2, ..., \c %9 with \a a.
+    This function returns a copy of this string where \a a replaces
+    the lowest numbered occurrence of \c %1, \c %2, ..., \c %9.
 
     The \a fieldWidth value specifies the minimum amount of space that
     \a a is padded to. A positive value will produce right-aligned
@@ -5140,7 +5100,7 @@ QString QString::arg(const QString &a, int fieldWidth) const
         // str == "Decimal 63 is 3f in hexadecimal"
 
         QLocale::setDefaultLocale(QLocale::English, QLocale::UnitedStates);
-        str = QString("%1 %l2 %l3")
+        str = QString("%1 %L2 %L3")
                 .arg(12345)
                 .arg(12345)
                 .arg(12345, 0, 16);
@@ -5151,20 +5111,36 @@ QString QString::arg(const QString &a, int fieldWidth) const
 /*! \fn QString QString::arg(uint a, int fieldWidth, int base) const
 
     \overload
+
+    \a base is the base to use when converting the integer \a a into a
+    string. \a base must be between 2 and 36, with 8 giving octal, 10
+    decimal, and 16 hexadecimal numbers.
 */
 
 /*! \fn QString QString::arg(long a, int fieldWidth, int base) const
 
     \overload
+
+    \a base is the base to use when converting the integer \a a into a
+    string. \a base must be between 2 and 36, with 8 giving octal, 10
+    decimal, and 16 hexadecimal numbers.
 */
 
 /*! \fn QString QString::arg(ulong a, int fieldWidth, int base) const
 
     \overload
+
+    \a base is the base to use when converting the integer \a a into a
+    string. \a base must be between 2 and 36, with 8 giving octal, 10
+    decimal, and 16 hexadecimal numbers.
 */
 
 /*!
     \overload
+
+    \a base is the base to use when converting the integer \a a into a
+    string. \a base must be between 2 and 36, with 8 giving octal, 10
+    decimal, and 16 hexadecimal numbers.
 */
 QString QString::arg(Q_LLONG a, int fieldWidth, int base) const
 {
@@ -5191,6 +5167,10 @@ QString QString::arg(Q_LLONG a, int fieldWidth, int base) const
 
 /*!
     \overload
+
+    \a base is the base to use when converting the integer \a a into a
+    string. \a base must be between 2 and 36, with 8 giving octal, 10
+    decimal, and 16 hexadecimal numbers.
 */
 QString QString::arg(Q_ULLONG a, int fieldWidth, int base) const
 {
@@ -5219,12 +5199,20 @@ QString QString::arg(Q_ULLONG a, int fieldWidth, int base) const
     \fn QString QString::arg(short a, int fieldWidth, int base) const
 
     \overload
+
+    \a base is the base to use when converting the integer \a a into a
+    string. \a base must be between 2 and 36, with 8 giving octal, 10
+    decimal, and 16 hexadecimal numbers.
 */
 
 /*!
     \fn QString QString::arg(ushort a, int fieldWidth, int base) const
 
     \overload
+
+    \a base is the base to use when converting the integer \a a into a
+    string. \a base must be between 2 and 36, with 8 giving octal, 10
+    decimal, and 16 hexadecimal numbers.
 */
 
 /*!
@@ -5447,10 +5435,10 @@ void QString::updateProperties() const
 
     Returns a pointer to the data stored in the QString. The pointer
     can be used to access and modify the characters that compose the
-    string. The data is '\\0'-terminated.
+    string. For convenience, the data is '\\0'-terminated.
 
     The pointer remains valid as long as the string isn't modified
-    through other means.
+    by other means.
 
     Example:
     \code
@@ -5473,8 +5461,8 @@ void QString::updateProperties() const
 /*! \fn const QChar *QString::constData() const
 
     Returns a pointer to the data stored in the QString. The pointer
-    can be used to access and modify the characters that compose the
-    string. For convenience, the data is '\\0'-terminated.
+    can be used to access the characters that compose the string. For
+    convenience, the data is '\\0'-terminated.
 
     The pointer remains valid as long as the string isn't modified.
 
@@ -5529,7 +5517,7 @@ void QString::updateProperties() const
 
 /*! \fn QString::operator const char *() const
 
-    Returns a 8-bit ASCII representation of the string as a \c{const
+    Returns an 8-bit ASCII representation of the string as a \c{const
     char *}.
 
     This operator performs the same as ascii(), except that it is
