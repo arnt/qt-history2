@@ -1969,10 +1969,11 @@ bool QObject::connect(const QObject *sender, const char *signal,
             break;
         }
         if(smember.attributes() & QMetaMember::Compatability)
-            qWarning("Object::connect: Connecting from COMPAT signal (%s).", signal);
+            qWarning("Object::connect: Connecting from COMPAT signal (%s::%s).", smeta->className(), signal);
         if(rmember.attributes() & QMetaMember::Compatability)
-            qWarning("Object::connect: Connecting to COMPAT %s (%s).",
-                     (membcode == QSLOT_CODE) ? "slot" : "signal", member);
+            qWarning("Object::connect: Connecting from %s::%s to COMPAT %s (%s::%s).",
+                     smeta->className(), signal,
+                     (membcode == QSLOT_CODE) ? "slot" : "signal", rmeta->className(), member);
         switch(rmember.access()) {
         case QMetaMember::Private:
             break;
