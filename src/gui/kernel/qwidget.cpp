@@ -5328,6 +5328,19 @@ void QWidget::imEvent(QIMEvent *e)
     e->ignore();
 }
 
+/*!
+  This method is only relevant for input widgets. It is used by the
+  input method to query a set of properties of the widget to be able
+  to support complex input method operations as support for
+  surrounding text and reconversions.
+
+  /sa Qt::ImQueryProperty QIMEvent QInputContext
+*/
+QVariant QWidget::imQuery(Qt::ImQueryProperty)
+{
+    return QVariant();
+}
+
 #ifndef QT_NO_DRAGANDDROP
 
 /*!

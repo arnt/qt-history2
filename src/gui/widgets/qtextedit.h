@@ -196,6 +196,7 @@ protected:
     virtual void wheelEvent(QWheelEvent *ev);
 
     virtual QMenu *createPopupMenu(const QPoint &pos);
+    QVariant imQuery(Qt::ImQueryProperty property);
 
     QTextEdit(QTextEditPrivate &dd, QWidget *parent);
 

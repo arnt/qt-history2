@@ -33,6 +33,7 @@
 #include <qapplication.h>
 #include <limits.h>
 #include <qtexttable.h>
+#include <qvariant.h>
 
 #ifndef QT_NO_ACCEL
 #include <qkeysequence.h>
@@ -1757,6 +1758,23 @@ void QTextEdit::imEvent(QIMEvent *e)
         break;
     default:
         Q_ASSERT(false);
+    }
+}
+
+/*!\reimp
+*/
+QVariant QTextEdit::imQuery(Qt::ImQueryProperty property)
+{
+   QTextBlock block = d->cursor.block();
+    switch(property) {
+    case Qt::ImCursorPosition:
+        return QVariant(d->cursor.position() - block.position());
+    case Qt::ImSurroundingText:
+        return QVariant(block.text());
+    case Qt::ImCurrentSelection:
+        return QVariant(d->cursor.selectedText());
+    default:
+        return QVariant();
     }
 }
 

@@ -1683,6 +1683,22 @@ void QLineEdit::imEvent(QIMEvent *e)
 
 /*!\reimp
 */
+QVariant QLineEdit::imQuery(Qt::ImQueryProperty property)
+{
+    switch(property) {
+    case Qt::ImCursorPosition:
+        return QVariant(d->cursor);
+    case Qt::ImSurroundingText:
+        return QVariant(d->text);
+    case Qt::ImCurrentSelection:
+        return QVariant(selectedText());
+    default:
+        return QVariant();
+    }
+}
+
+/*!\reimp
+*/
 
 void QLineEdit::focusInEvent(QFocusEvent*)
 {

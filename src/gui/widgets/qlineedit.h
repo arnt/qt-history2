@@ -160,6 +160,7 @@ protected:
 #ifdef QT_COMPAT
     inline QT_COMPAT void repaintArea(int, int) { update(); }
 #endif
+    QVariant imQuery(Qt::ImQueryProperty);
 
 public:
 #ifdef QT_COMPAT

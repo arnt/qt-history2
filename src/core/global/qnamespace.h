@@ -1121,6 +1121,12 @@ public:
         SystemScope
     };
 
+    enum ImQueryProperty {
+        ImCursorPosition,
+        ImSurroundingText,
+        ImCurrentSelection
+    };
+
 #if defined(Q_WS_MAC)
     typedef void * HANDLE;
 #elif defined(Q_WS_WIN)

@@ -35,6 +35,7 @@ class QLayout;
 class QWSRegionManager;
 class QStyle;
 class QAction;
+class QVariant;
 
 class QActionEvent;
 class QMouseEvent;
@@ -547,6 +548,7 @@ protected:
     // Misc. protected functions
     virtual void changeEvent(QEvent *);
 
+    virtual QVariant imQuery(Qt::ImQueryProperty);
     int metric(int) const;
 
     void resetInputContext();
