@@ -127,7 +127,7 @@ static const char *const ps_header =
 "QCIindex QCIcolor x get 0.30 mul QCIcolor x 1 add get 0.59 mul QCIcolor x 2\n"
 "add get 0.11 mul add add cvi put}for QCIgray image}ifelse}D/di{gsave\n"
 "translate dup false ne{/languagelevel where{pop languagelevel 2 ge}{false}\n"
-"ifelse}{false}ifelse{/ma exch d 8 eq{/decode[1 0]d/DeviceGray}{/decode[0 1 0\n"
+"ifelse}{false}ifelse{/ma exch d 8 eq{/decode[0 1]d/DeviceGray}{/decode[0 1 0\n"
 "1 0 1]d/DeviceRGB}ifelse setcolorspace/im exch d/matrix exch d/height exch\n"
 "def/width exch def/Image 7 dict dup begin/ImageType 1 d/Width width d/Height\n"
 "height d/ImageMatrix matrix d/DataSource im d/BitsPerComponent 8 d/Decode\n"
@@ -5107,7 +5107,7 @@ QByteArray compress( const QImage & image, bool gray ) {
     int pastPixel[tableSize];
     int mostRecentPixel[hashSize];
     if ( depth == 1 )
-	size = (size+7)/8;
+	size = (width+7)/8*height;
     else if ( !gray )
 	size = size*3;
 
@@ -5127,6 +5127,8 @@ QByteArray compress( const QImage & image, bool gray ) {
 		    pixel[i >> 3] ^= (0x80 >> ( i & 7 ));
 		i++;
 	    }
+	    // we need to align to 8 bit here
+	    i = (i+7) & 0xffffff8;
         }
     } else if ( depth == 8 ) {
         for( int y=0; y < height; y++ ) {
@@ -5556,7 +5558,7 @@ void QPSPrinterPrivate::drawImage( QPainter *paint, float x, float y, float w, f
 	bool hasMask = img.hasAlphaBuffer();
 	if ( hasMask ) {
 	    out = ::compress( img.createAlphaMask(), TRUE );
-	    size = (width*height+7)/8;
+	    size = (width+7)/8*height;
 	    pageStream << "/mask " << size << " string d\n"
 		       << "mask uc\n";
 	    ps_r7( pageStream, out, out.size() );
@@ -5564,7 +5566,7 @@ void QPSPrinterPrivate::drawImage( QPainter *paint, float x, float y, float w, f
 	}
 
 	if ( img.depth() == 1 ) {
-	    size = (width*height+7)/8;
+	    size = (width+7)/8*height;
 	    bits = "1 ";
 	} else if ( gray ) {
 	    size = width*height;
