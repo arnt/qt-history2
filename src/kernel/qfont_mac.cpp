@@ -39,11 +39,15 @@
 #include <qdict.h>
 #include <qapplication.h>
 #include <qpainter.h>
-#ifdef Q_WS_MACX
+#if defined( Q_WS_MACX ) && defined( QMAC_FONT_ATSUI )
 # define QMAC_FONT_ANTIALIAS
 #endif
 #ifdef QMAC_FONT_ANTIALIAS
-# include <ApplicationServices/ApplicationServices.h>
+# ifndef QMAC_FONT_ATSUI
+#  warning "Fancy anti-aliasing not available without ATSUI"
+# else
+#  include <ApplicationServices/ApplicationServices.h>
+# endif
 #endif
 
 /*****************************************************************************
@@ -307,6 +311,13 @@ enum text_task { GIMME_WIDTH=0x01, GIMME_DRAW=0x02, GIMME_EXISTS=0x04 };
 static int do_text_task(const QFontPrivate *d, const QChar *s, int pos,
 			int use_len, int len, uchar task, int =-1, int y=-1)
 {
+    if(task & GIMME_EXISTS) {
+	if(task != GIMME_EXISTS)
+	    qWarning("GIMME_EXISTS must appear by itself!");
+	qWarning("need to implement exists()");
+	return 1;
+    }
+
     int ret = 0;
     QMacSetFontInfo fi(d);
     QATSUStyle *st = fi.atsuStyle();
@@ -367,7 +378,11 @@ static int do_text_task(const QFontPrivate *d, const QChar *s, int pos,
     GetPort(&port);
     GetPortClipRegion(port, clip);
     GetPortBounds(port, &clipr);
-    QDBeginCGContext(port, &ctx);
+    if(OSStatus err = QDBeginCGContext(port, &ctx)) {
+	qDebug("Whoa, that is a major problem! %s:%d", __FILE__, __LINE__);
+	ATSUDisposeTextLayout(alayout);
+	return 0;
+    }
     ClipCGContextToRegion(ctx, &clipr, clip);
     valueSizes[arr] = sizeof(ctx);
     values[arr] = &ctx;
@@ -377,6 +392,7 @@ static int do_text_task(const QFontPrivate *d, const QChar *s, int pos,
 	qDebug("%d: Whoa!! you forgot to increase arr_guess! %d", __LINE__, arr);
     if(OSStatus e = ATSUSetLayoutControls(alayout, arr, tags, valueSizes, values)) {
 	qDebug("%ld: This shouldn't happen %s:%d", e, __FILE__, __LINE__);
+	ATSUDisposeTextLayout(alayout);
 #ifdef QMAC_FONT_ANTIALIAS
 	QDEndCGContext(port, &ctx);
 #endif
@@ -385,15 +401,6 @@ static int do_text_task(const QFontPrivate *d, const QChar *s, int pos,
     ATSUSetTransientFontMatching(alayout, true);
 
     //do required task now
-    if(task & GIMME_DRAW) {
-	ATSUDrawText(alayout, kATSUFromTextBeginning, kATSUToTextEnd, 
-#ifdef QMAC_FONT_ANTIALIAS
-		     kATSUUseGrafPortPenLoc, FixRatio((clipr.bottom-clipr.top)-y, 1)
-#else
-		     kATSUUseGrafPortPenLoc, kATSUUseGrafPortPenLoc
-#endif
-	    );
-    }
     if(task & GIMME_WIDTH) {
 	ATSUTextMeasurement left, right, bottom, top;
 	ATSUMeasureText(alayout, kATSUFromTextBeginning, kATSUToTextEnd,
@@ -405,6 +412,15 @@ static int do_text_task(const QFontPrivate *d, const QChar *s, int pos,
 	       FixRound(right) - FixRound(left));
 #endif
 	ret = FixRound(right-left);
+    }
+    if(task & GIMME_DRAW) {
+	ATSUDrawText(alayout, kATSUFromTextBeginning, kATSUToTextEnd, 
+#ifdef QMAC_FONT_ANTIALIAS
+		     kATSUUseGrafPortPenLoc, FixRatio((clipr.bottom-clipr.top)-y, 1)
+#else
+		     kATSUUseGrafPortPenLoc, kATSUUseGrafPortPenLoc
+#endif
+	    );
     }
     //cleanup
     ATSUDisposeTextLayout(alayout);
