@@ -4024,7 +4024,9 @@ void QFileDialog::dataTransferProgress( int bytesDone, int bytesTotal, QNetworkO
 	else
 	    return;
 
-	d->progressDia->setProgress( bytesDone < bytesTotal ? bytesDone : bytesTotal - 1 );
+	if ( d->progressDia ) {
+	    d->progressDia->setProgress( bytesDone < bytesTotal ? bytesDone : bytesTotal - 1 );
+	}
     }
 }
 
@@ -4219,11 +4221,22 @@ void QFileDialog::stopCopy()
     if ( d->ignoreStop )
 	return;
 
+    d->url.blockSignals( TRUE );
     d->url.stop();
     if ( d->progressDia ) {
 	d->ignoreStop = TRUE;
-	d->progressDia->close();
-	delete d->progressDia;
-	d->progressDia = 0;
+	QTimer::singleShot( 100, this, SLOT( removeProgressDia() ) );
     }
+    d->url.blockSignals( FALSE );
+}
+
+/*!
+  \internal
+*/
+
+void QFileDialog::removeProgressDia()
+{
+    if ( d->progressDia )
+	delete d->progressDia;
+    d->progressDia = 0;
 }

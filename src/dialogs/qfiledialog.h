@@ -277,6 +277,7 @@ protected slots:
     void changeMode( int );
     void fileNameEditReturnPressed();
     void stopCopy();
+    void removeProgressDia();
     
 private slots:
     void fileSelected( int );

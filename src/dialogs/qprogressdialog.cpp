@@ -350,7 +350,9 @@ bool QProgressDialog::wasCancelled() const
 
 int QProgressDialog::totalSteps() const
 {
-    return bar()->totalSteps();
+    if ( d && d->bar )
+	return bar()->totalSteps();
+    return 0;
 }
 
 
