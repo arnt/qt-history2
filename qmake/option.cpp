@@ -378,9 +378,14 @@ Option::init(int argc, char **argv)
                 Option::mkfile::project_files.append(proj);
             } else { //last try..
                 QStringList profiles = QDir(pwd).entryList(QStringList("*" + Option::pro_ext));
+#ifndef QT_BUILD_QMAKE_LIBRARY
                 if(profiles.isEmpty())
                     return usage(argv[0]);
-                Option::mkfile::project_files.append(pwd + "/" + profiles[0]);
+#endif
+                QString profile;
+                if(!profiles.isEmpty())
+                    profile = profiles[0];
+                Option::mkfile::project_files.append(pwd + "/" + profile);
             }
         }
     }
