@@ -511,7 +511,7 @@ void QComboBoxPrivate::init()
     model = l->model();
     container = new ItemViewContainer(l, q);
     container->setParent(q, Qt::WType_Popup);
-    q->setFocusPolicy(Qt::StrongFocus);
+    q->setFocusPolicy(Qt::TabFocus);
     q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     q->setCurrentItem(0);
     QStyleOptionComboBox opt = d->getStyleOption();
