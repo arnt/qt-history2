@@ -662,6 +662,15 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
         that->setAlphaBuffer(true);
     }
     image.setAlphaBuffer(hasAlphaBuffer());
+    image.data->dpmx = dotsPerMeterX();
+    image.data->dpmy = dotsPerMeterY();
+    image.data->offset = offset();
+#ifndef QT_NO_IMAGE_TEXT
+    if (data->misc) {
+        image.data->misc = new QImageDataMisc;
+        *image.data->misc = misc();
+    }
+#endif
     return image;
 }
 

@@ -437,11 +437,12 @@ void QMoviePrivate::frameDone(const QPoint& p,
 {
     preFrameDone();
     const QImage& gimg = decoder->image();
+    QPoint point = p - gimg.offset();
     if (framenumber==0)
         emit sizeChanged(gimg.size());
-    valid_area = valid_area.unite(QRect(p,rect.size()));
-    updatePixmapFromImage(p,rect);
-    emit areaChanged(QRect(p,rect.size()));
+    valid_area = valid_area.unite(QRect(point,rect.size()));
+    updatePixmapFromImage(point,rect);
+    emit areaChanged(QRect(point,rect.size()));
     emit dataStatus(QMovie::EndOfFrame);
     ++framenumber;
 }
