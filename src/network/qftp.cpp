@@ -120,9 +120,13 @@ signals:
     void newData( const QByteArray& );
     void dataProgress( int );
 
+    void connectState( int );
+
 private slots:
     void slotConnected();
     void slotReadyRead();
+    void slotError( int );
+    void slotConnectionClosed();
 
 private:
     QFtpPI *pi;
@@ -164,7 +168,7 @@ private slots:
     void readyRead();
     void error( int );
 
-    void dtpConnectionClosed();
+    void dtpConnectState( int );
 
 private:
     // the states are modelled after the generalized state diagram of RFC 959,
@@ -187,6 +191,7 @@ private:
     QStringList pendingCommands;
     QString currentCmd;
 
+    bool waitForDtpToConnect;
     bool waitForDtpToClose;
 };
 
@@ -215,11 +220,13 @@ QFtpDTP::QFtpDTP( QFtpPI *p, QObject *parent, const char *name ) :
 	     SLOT( slotConnected() ) );
     connect( this, SIGNAL( readyRead() ),
 	     SLOT( slotReadyRead() ) );
-#if 0
-    connect( dtp, SIGNAL( bytesWritten( int ) ),
-	     SLOT( slotBytesWritten( int ) ) );
-    connect( dtp, SIGNAL( error( int ) ),
+    connect( this, SIGNAL( error( int ) ),
 	     SLOT( slotError( int ) ) );
+    connect( this, SIGNAL( connectionClosed() ),
+	     SLOT( slotConnectionClosed() ) );
+#if 0
+    connect( this, SIGNAL( bytesWritten( int ) ),
+	     SLOT( slotBytesWritten( int ) ) );
 #endif
 }
 
@@ -367,17 +374,21 @@ bool QFtpDTP::parseDir( const QString &buffer, const QString &userName, QUrlInfo
 
 void QFtpDTP::slotConnected()
 {
-#if defined(QFTPDTP_DEBUG)
-    qDebug( "QFtpDTP connected" );
-#endif
     totalBytesRead = 0;
+#if defined(QFTPDTP_DEBUG)
+    qDebug( "QFtpDTP::connectState( CsConnected )" );
+#endif
+    emit connectState( QFtp::CsConnected );
 }
 
 void QFtpDTP::slotReadyRead()
 {
     if ( pi->currentCommand().isEmpty() ) {
 	close();
-	emit connectionClosed(); // ### maybe we should use a "done()" singal for the DTP...
+#if defined(QFTPDTP_DEBUG)
+	qDebug( "QFtpDTP::connectState( CsClosed )" );
+#endif
+	emit connectState( QFtp::CsClosed );
 	return;
     }
 
@@ -412,6 +423,28 @@ void QFtpDTP::slotReadyRead()
     }
 }
 
+void QFtpDTP::slotError( int e )
+{
+    if ( e == QSocket::ErrHostNotFound ) {
+#if defined(QFTPDTP_DEBUG)
+	qDebug( "QFtpDTP::connectState( CsHostNotFound )" );
+#endif
+	emit connectState( QFtp::CsHostNotFound );
+    } else if ( e == QSocket::ErrConnectionRefused ) {
+#if defined(QFTPDTP_DEBUG)
+	qDebug( "QFtpDTP::connectState( CsConnectionRefused )" );
+#endif
+	emit connectState( QFtp::CsConnectionRefused );
+    }
+}
+
+void QFtpDTP::slotConnectionClosed()
+{
+#if defined(QFTPDTP_DEBUG)
+    qDebug( "QFtpDTP::connectState( CsClosed )" );
+#endif
+    emit connectState( QFtp::CsClosed );
+}
 
 /**********************************************************************
  *
@@ -422,6 +455,7 @@ QFtpPI::QFtpPI( QObject *parent ) :
     QObject( parent ),
     dtp(this),
     state(Begin), currentCmd(QString::null),
+    waitForDtpToConnect(FALSE),
     waitForDtpToClose(FALSE)
 {
     connect( &commandSocket, SIGNAL(hostFound()),
@@ -437,8 +471,8 @@ QFtpPI::QFtpPI( QObject *parent ) :
     connect( &commandSocket, SIGNAL(error(int)),
 	    SLOT(error(int)) );
 
-    connect( &dtp, SIGNAL( connectionClosed() ),
-	     SLOT( dtpConnectionClosed() ) );
+    connect( &dtp, SIGNAL(connectState(int)),
+	     SLOT(dtpConnectState(int)) );
 }
 
 void QFtpPI::connectToHost( const QString &host, Q_UINT16 port )
@@ -633,6 +667,7 @@ bool QFtpPI::processReply()
 	    QStringList lst = QStringList::split( ',', replyText.mid(l+1,r-l-1) );
 	    QString host = lst[0] + "." + lst[1] + "." + lst[2] + "." + lst[3];
 	    Q_UINT16 port = ( lst[4].toUInt() << 8 ) + lst[5].toUInt();
+	    waitForDtpToConnect = TRUE;
 	    dtp.connectToHost( host, port );
 	}
     } else if ( replyCodeInt == 213 ) {
@@ -673,8 +708,16 @@ bool QFtpPI::processReply()
     return TRUE;
 }
 
+/*
+  Starts next pending command. Returns FALSE if there are no pending commands,
+  otherwise it returns TRUE.
+*/
 bool QFtpPI::startNextCmd()
 {
+    if ( waitForDtpToConnect )
+	// don't process any new commands until we are connected
+	return TRUE;
+
 #if defined(QFTPPI_DEBUG)
     if ( state != Idle )
 	qDebug( "QFtpPI startNextCmd: Internal error! QFtpPI called in non-Idle state %d", state );
@@ -693,20 +736,34 @@ bool QFtpPI::startNextCmd()
     return TRUE;
 }
 
-void QFtpPI::dtpConnectionClosed()
+void QFtpPI::dtpConnectState( int s )
 {
-#if defined(QFTPDTP_DEBUG)
-    qDebug( "QFtpPI DTP connection closed: %d '%d %s'", waitForDtpToClose, 100*replyCode[0]+10*replyCode[1]+replyCode[2], replyText.latin1() );
-#endif
-    if ( waitForDtpToClose ) {
-	// there is an unprocessed reply
-	if ( processReply() )
-	    replyText = "";
-	else
+    switch ( s ) {
+	case QFtp::CsClosed:
+	    if ( waitForDtpToClose ) {
+		// there is an unprocessed reply
+		if ( processReply() )
+		    replyText = "";
+		else
+		    return;
+	    }
+	    waitForDtpToClose = FALSE;
+	    readyRead();
+	    return;
+	case QFtp::CsConnected:
+	    waitForDtpToConnect = FALSE;
+	    if ( !startNextCmd() )
+		emit finishedOk( replyText );
+	    return;
+	case QFtp::CsHostNotFound:
+	case QFtp::CsConnectionRefused:
+	    emit error( tr( "Connection refused for data connection" ) );
+	    if ( !startNextCmd() )
+		emit finishedOk( replyText );
+	    return;
+	default:
 	    return;
     }
-    waitForDtpToClose = FALSE;
-    readyRead();
 }
 
 /**********************************************************************
