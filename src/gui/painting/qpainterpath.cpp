@@ -186,6 +186,39 @@ QList<QPointArray> QPainterPathPrivate::flatten(const QWMatrix &matrix)
 /*!
   \internal
 
+  Convenience function used by scanToBitmap to set bits in a scanline...
+*/
+
+static inline void qt_painterpath_setbits(int from, int to, uchar *scanLine, uint fgPixel)
+{
+    if (to < from)
+        return;
+
+    int entryByte = from / 8;
+    int exitByte = to / 8;
+
+    // special case for ranges less than a byte.
+    if (exitByte == entryByte) {
+        uint entryPart = ((0xff << (from%8))&0xff);
+        uint exitPart = (0xff >> (8-(to%8)));
+        *(scanLine + entryByte) |= entryPart & exitPart & 0xff;
+    } else {
+        // First byte in this scan segment...
+        *(scanLine + entryByte) |= ((0xff << (from%8))&0xff);
+
+        // Fill areas between entry and exit bytes.
+        if (exitByte > entryByte + 1)
+            memset(scanLine+entryByte+1,  fgPixel, exitByte-entryByte-1);
+
+        // Last byte in this scan segment...
+        *(scanLine + exitByte) |= (0xff >> (8-(to%8)));
+    }
+
+}
+
+/*!
+  \internal
+
   Scans the path to a bitmap that can be used to define filling. The insides
   of the bitmap will be filled with foreground color and the outsides
   will be filled with background color.
@@ -233,7 +266,7 @@ QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
     QImage image(scanRect.width(), scanRect.height(), 1, 2, QImage::LittleEndian);
     image.fill(bgPixel);
     int isects[MAX_INTERSECTIONS];
-    QVarLengthArray<int, 1024> windingNumbers;
+    QVarLengthArray<int, 1024> windingNumbers(scanRect.width());
     int numISects;
     for (int y=0; y<scanRect.height(); ++y) {
         int scanLineY = y + scanRect.y();
@@ -270,6 +303,9 @@ QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
         if (numISects <= 0)
             continue;
 
+        // There is always an even number of intersections in closed curves.
+        Q_ASSERT(numISects%2 == 0);
+
         // Sort the intersection entries...
         qHeapSort(&isects[0], &isects[numISects]);
 
@@ -279,26 +315,7 @@ QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
             for (int i=0; i<numISects; i+=2) {
                 int from = qMax(0, isects[i]);
                 int to = qMin(scanRect.width(), isects[i+1]);
-
-                int entryByte = from / 8;
-                int exitByte = to / 8;
-
-                // special case for ranges less than a byte.
-                if (exitByte == entryByte) {
-                    uint entryPart = ((0xff << (from%8))&0xff);
-                    uint exitPart = (0xff >> (8-(to%8)));
-                    *(scanLine + entryByte) |= entryPart & exitPart & 0xff;
-                } else {
-                    // First byte in this scan segment...
-                    *(scanLine + entryByte) |= ((0xff << (from%8))&0xff);
-
-                    // Fill areas between entry and exit bytes.
-                    if (exitByte > entryByte + 1)
-                        memset(scanLine+entryByte+1,  fgPixel, exitByte-entryByte-1);
-
-                    // Last byte in this scan segment...
-                    *(scanLine + exitByte) |= (0xff >> (8-(to%8)));
-                }
+                qt_painterpath_setbits(from, to, scanLine, fgPixel);
             }
         } else { // Winding fill rule
             for (int i=0; i<numISects; ) {
@@ -310,31 +327,8 @@ QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
                     windingNumber += windingNumbers[isects[i]];
                     to = qMin(scanRect.width(), isects[i]);
                 }
-
-                if (to <= from)
-                    continue;
-
-                int entryByte = from / 8;
-                int exitByte = to / 8;
-
-                // special case for ranges less than a byte.
-                if (exitByte == entryByte) {
-                    uint entryPart = ((0xff << (from%8))&0xff);
-                    uint exitPart = (0xff >> (8-(to%8)));
-                    *(scanLine + entryByte) |= entryPart & exitPart & 0xff;
-                } else {
-                    // First byte in this scan segment...
-                    *(scanLine + entryByte) |= ((0xff << (from%8))&0xff);
-
-                    // Fill areas between entry and exit bytes.
-                    if (exitByte > entryByte + 1)
-                        memset(scanLine+entryByte+1,  fgPixel, exitByte-entryByte-1);
-
-                    // Last byte in this scan segment...
-                    *(scanLine + exitByte) |= (0xff >> (8-(to%8)));
-                }
+                qt_painterpath_setbits(from, to, scanLine, fgPixel);
             }
-
         }
     }
     QBitmap bm;
