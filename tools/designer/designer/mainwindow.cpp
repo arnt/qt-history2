@@ -891,6 +891,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 
     QWidget *w = 0;
     bool passiveInteractor;
+    QWidget *ed = 0;
     switch ( e->type() ) {
     case QEvent::AccelOverride:
 	if ( ( (QKeyEvent*)e )->key() == Key_F1 &&
@@ -1105,7 +1106,10 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
     case QEvent::FocusIn:
 	if ( !o->inherits( "FormWindow" ) && isAFormWindowChild( o ) )
 	    return TRUE;
-	if ( o->inherits( "Editor" ) || o->inherits( "FormWindow" ) ) {
+	if ( qworkspace->activeWindow() &&
+	     qworkspace->activeWindow()->inherits( "SourceEditor" ) )
+	    ed = (QWidget*)qworkspace->activeWindow()->child( 0, "Editor" );
+	if ( o != ed && ( o->inherits( "Editor" ) || o->inherits( "FormWindow" ) ) ) {
 	    // QCustomEvent( 9999 ) is used by QListView to end in-place
 	    // editing. In the case that one edits e.g. a class variable in
 	    // the form definition view and clicks on another form in the
@@ -1114,6 +1118,11 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    // editing, which triggers a FormDefinitionView::save(). To make
 	    // sure that we save() before the new active formwindow is set,
 	    // post queued custom events of that type now.
+	    // BUT: We must not do that of we click on the editor
+	    // which is currently active already anyway. This crashes
+	    // for some reason, which I couldn't find. That's why
+	    // there is the o != ed condition in the if statement
+	    // above
 	    if ( hierarchyView->formDefinitionView()->isRenaming() )
 		QApplication::sendPostedEvents( hierarchyView->formDefinitionView()->
 						child( 0, "QLineEdit" ) , 9999 );
