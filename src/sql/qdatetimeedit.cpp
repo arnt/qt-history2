@@ -1663,7 +1663,7 @@ void QTimeEdit::setTime( const QTime& time )
 	d->s = 0;
 	return;
     }
-    if ( time > maxValue() || time < maxValue() )
+    if ( time > maxValue() || time < minValue() )
 	return;
     d->h = time.hour();
     d->m = time.minute();
