@@ -49,6 +49,7 @@
 #include "qptrdict.h"
 #include "qvector.h"
 #include "qiconset.h"
+#include "qcleanuphandler.h"
 
 #include "qpixmapcache.h"
 
@@ -60,13 +61,7 @@ const int Unsorted = 16383;
 static QBitmap * verticalLine = 0;
 static QBitmap * horizontalLine = 0;
 
-static void cleanupBitmapLines()
-{
-    delete verticalLine;
-    delete horizontalLine;
-    verticalLine = 0;
-    horizontalLine = 0;
-}
+QCleanUpHandler<QBitmap> qlv_cleanup_bitmap;
 
 struct QListViewPrivate
 {
@@ -1517,7 +1512,8 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 	    p.end();
 	    QApplication::flushX();
 	    horizontalLine->setMask( *horizontalLine );
-	    qAddPostRoutine( cleanupBitmapLines );
+	    qlv_cleanup_bitmap.addCleanUp( verticalLine );
+	    qlv_cleanup_bitmap.addCleanUp( horizontalLine );
 	}
 	int line; // index into dotlines
 	for( line = 0; line < c; line += 2 ) {

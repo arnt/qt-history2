@@ -42,6 +42,7 @@
 #include "qwidgetlist.h"
 #include "qwidgetintdict.h"
 #include "qptrdict.h"
+#include "qcleanuphandler.h"
 
 #include "qwindowsstyle.h"
 #ifdef _WS_QWS_
@@ -319,7 +320,7 @@ typedef QList<QPostEvent>	  QPostEventList;
 typedef QListIterator<QPostEvent> QPostEventListIt;
 static QPostEventList *postedEvents = 0;	// list of posted events
 
-static void cleanupPostedEvents();
+QCleanUpHandler<QPostEventList> qapp_cleanup_events;
 
 #ifndef QT_NO_PALETTE
 QPalette *qt_std_pal = 0;
@@ -591,11 +592,9 @@ void QApplication::construct( int &argc, char **argv, Type type )
     }
     qt_init( &argc, argv, type );   // Must be called before initialize()
     process_cmdline( &argc, argv );
-
 #if defined(QT_THREAD_SUPPORT)
     qt_mutex = new QMutex(TRUE);
 #endif
-
     initialize( argc, argv );
 }
 
@@ -1949,7 +1948,7 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
 	postedEvents = new QPostEventList;
 	CHECK_PTR( postedEvents );
 	postedEvents->setAutoDelete( TRUE );
-	qAddPostRoutine( cleanupPostedEvents );
+	qapp_cleanup_events.addCleanUp( postedEvents );
     }
     if ( receiver == 0 ) {
 #if defined(CHECK_NULL)
@@ -2144,14 +2143,6 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 	}
     }
 }
-
-
-static void cleanupPostedEvents()		// cleanup list
-{
-    delete postedEvents;
-    postedEvents = 0;
-}
-
 
 /*!
   Removes all events posted using postEvent() for \a receiver.

@@ -48,6 +48,7 @@
 #include "qtooltip.h"
 #include "qsimplerichtext.h"
 #include "qstylesheet.h"
+#include "qcleanuphandler.h"
 
 // REVISED: warwick
 /*!
@@ -153,7 +154,6 @@ public:
     void say_helper(QWidget*,const QPoint& ppos,bool);
 
     // setup and teardown
-    static void tearDownWhatsThis();
     static void setUpWhatsThis();
 
     void leaveWhatsThisMode();
@@ -184,6 +184,7 @@ private slots:
 // static, but static the less-typing way
 static QWhatsThisPrivate * wt = 0;
 
+QCleanUpHandler<QWhatsThisPrivate> qwt_cleanup_private;
 
 // the item
 QWhatsThisPrivate::WhatsThisItem::~WhatsThisItem()
@@ -290,7 +291,6 @@ void QWhatsThisButton::mouseReleased()
 QWhatsThisPrivate::QWhatsThisPrivate()
     : QObject( 0, "global what's this object" )
 {
-    qAddPostRoutine( tearDownWhatsThis );
     whatsThat = 0;
     dict = new QPtrDict<QWhatsThisPrivate::WhatsThisItem>;
     tlw = new QPtrDict<QWidget>;
@@ -432,18 +432,11 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 
 void QWhatsThisPrivate::setUpWhatsThis()
 {
-    if ( !wt )
+    if ( !wt ) {
 	wt = new QWhatsThisPrivate();
+	qwt_cleanup_private.addCleanUp( wt );
+    }
 }
-
-
-void QWhatsThisPrivate::tearDownWhatsThis()
-{
-    delete wt;
-    wt = 0;
-}
-
-
 
 void QWhatsThisPrivate::leaveWhatsThisMode()
 {

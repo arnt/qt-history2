@@ -41,6 +41,7 @@
 #include "qguardedptr.h"
 #include "qtimer.h"
 #include "qeffects_p.h"
+#include "qcleanuphandler.h"
 
 static bool globally_enabled = TRUE;
 
@@ -139,12 +140,7 @@ private:
 static QTipManager *tipManager	  = 0;
 static bool	    initializedTM = FALSE;
 
-static void cleanupTipManager()
-{
-    delete tipManager;
-    tipManager = 0;
-    initializedTM = FALSE;
-}
+QGuardedCleanUpHandler<QTipManager> qtip_cleanup_manager;
 
 static void initTipManager()
 {
@@ -154,7 +150,7 @@ static void initTipManager()
     }
     if ( !initializedTM ) {
 	initializedTM = TRUE;
-	qAddPostRoutine( cleanupTipManager );
+	qtip_cleanup_manager.addCleanUp( tipManager );
     }
 }
 

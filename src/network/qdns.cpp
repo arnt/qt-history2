@@ -51,7 +51,7 @@
 #include "qfile.h"
 #include "qtextstream.h"
 #include "qsocketdevice.h"
-
+#include "qcleanuphandler.h"
 
 //#define DEBUG_QDNS
 
@@ -61,12 +61,7 @@ static Q_UINT16 id; // ### seeded started by now()
 
 static QDateTime * originOfTime = 0;
 
-
-static void cleanup()
-{
-    delete originOfTime;
-    originOfTime = 0;
-}
+QCleanUpHandler<QDateTime> qdns_cleanup_time;
 
 static Q_UINT32 now()
 {
@@ -75,7 +70,7 @@ static Q_UINT32 now()
 
     originOfTime = new QDateTime( QDateTime::currentDateTime() );
     ::id = originOfTime->time().msec() * 60 + originOfTime->time().second();
-    qAddPostRoutine( cleanup );
+    qdns_cleanup_time.addCleanUp( originOfTime );
     return 0;
 }
 
@@ -1954,11 +1949,11 @@ QString QDns::canonicalName() const
 
 #include <sys/types.h>
 #include <netinet/in.h>
-#if defined (_OS_SCO_) || defined (_OS_AIX_)
+#if defined (_OS_SCO_) // SCO OpenServer 5.0.5
 # define class c_class
 #endif
 #include <arpa/nameser.h>
-#if defined (_OS_SCO_) || defined (_OS_AIX_)
+#if defined (_OS_SCO_)
 # undef class
 #endif
 #include <resolv.h>
@@ -2010,11 +2005,11 @@ static void doResInit()
 	while( !i.atEnd() ) {
 	    line = i.readLine().simplifyWhiteSpace().lower();
 	    uint n = 0;
-	    while( n < line.length() && line[(int)n] != '#' )
+	    while( n < line.length() && line[n] != '#' )
 		n++;
 	    line.truncate( n );
 	    n = 0;
-	    while( n < line.length() && !line[(int)n].isSpace() )
+	    while( n < line.length() && !line[n].isSpace() )
 		n++;
 	    QString ip = line.left( n );
 	    QHostAddress a;
@@ -2023,7 +2018,7 @@ static void doResInit()
 		bool first = TRUE;
 		line = line.mid( n+1 );
 		n = 0;
-		while( n < line.length() && !line[(int)n].isSpace() )
+		while( n < line.length() && !line[n].isSpace() )
 		    n++;
 		QString hostname = line.left( n );
 		// ### in case of bad syntax, hostname is invalid. do we care?
@@ -2130,7 +2125,7 @@ static void doResInit()
     if ( QApplication::winVersion() == Qt::WV_98 ||
 	 QApplication::winVersion() == Qt::WV_2000 ) {
 	// for 98 and 2000 try the API call GetNetworkParams()
-	HINSTANCE hinstLib = LoadLibraryA( "iphlpapi" ); // we don't need Unicode here
+	HINSTANCE hinstLib = LoadLibraryA( "iphlpapi" );
 	if ( hinstLib != 0 ) {
 	    GNP getNetworkParams = (GNP) GetProcAddress( hinstLib, "GetNetworkParams" );
 	    if ( getNetworkParams != 0 ) {

@@ -45,6 +45,7 @@
 #include "qpixmapcache.h"
 #include "qapplication.h"
 #include "qpushbutton.h"
+#include "qcleanuphandler.h"
 #include <ctype.h>
 
 static const int autoRepeatDelay  = 300;
@@ -68,20 +69,14 @@ static const int drawingPixHeight = 100;
 
 static QPixmap *drawpm = 0;
 
-
-static void cleanupButtonPm()
-{
-    delete drawpm;
-    drawpm = 0;
-}
-
+QCleanUpHandler<QPixmap> qbt_cleanup_pixmap;
 
 static inline void makeDrawingPixmap()
 {
     if ( !drawpm ) {
-	qAddPostRoutine( cleanupButtonPm );
 	drawpm = new QPixmap( drawingPixWidth, drawingPixHeight );
 	CHECK_PTR( drawpm );
+	qbt_cleanup_pixmap.addCleanUp( drawpm );
     }
 }
 

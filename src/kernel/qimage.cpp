@@ -47,6 +47,7 @@
 #include "qmngio.h"
 #include "qjpegio.h"
 #include "qmap.h"
+#include "qcleanuphandler.h"
 #include <stdlib.h>
 #include <ctype.h>
 
@@ -3160,11 +3161,7 @@ QImageHandler::QImageHandler( const char *f, const char *h, const QCString& fl,
 typedef QList<QImageHandler> QIHList;// list of image handlers
 static QIHList *imageHandlers = 0;
 
-static void cleanup_image_handlers()		// cleanup image handler list
-{
-    delete imageHandlers;
-    imageHandlers = 0;
-}
+QCleanUpHandler<QIHList> qimg_cleanup_handler;
 
 void qt_init_image_handlers()		// initialize image handlers
 {
@@ -3172,7 +3169,7 @@ void qt_init_image_handlers()		// initialize image handlers
 	imageHandlers = new QIHList;
 	CHECK_PTR( imageHandlers );
 	imageHandlers->setAutoDelete( TRUE );
-	qAddPostRoutine( cleanup_image_handlers );
+	qimg_cleanup_handler.addCleanUp( imageHandlers );
 #ifndef QT_NO_IMAGEIO_BMP
 	QImageIO::defineIOHandler( "BMP", "^BM", 0,
 				   read_bmp_image, write_bmp_image );

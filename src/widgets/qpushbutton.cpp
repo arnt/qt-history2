@@ -47,6 +47,7 @@
 #include "qguardedptr.h"
 #include "qptrdict.h" // binary compatibility
 #include "qapplication.h"
+#include "qcleanuphandler.h"
 
 // NOT REVISED
 /*!
@@ -160,16 +161,14 @@ public:
 };
 
 static QPtrDict<QPushButtonPrivate> *d_ptr = 0;
-static void cleanup_d_ptr()
-{
-    delete d_ptr;
-    d_ptr = 0;
-}
+
+QCleanUpHandler<QPtrDict<QPushButtonPrivate> > qpb_cleanup_private;
+
 static QPushButtonPrivate* d( const QPushButton* foo )
 {
     if ( !d_ptr ) {
 	d_ptr = new QPtrDict<QPushButtonPrivate>;
-	qAddPostRoutine( cleanup_d_ptr );
+	qpb_cleanup_private.addCleanUp( d_ptr );
     }
     QPushButtonPrivate* ret = d_ptr->find( (void*)foo );
     if ( ! ret ) {
