@@ -177,12 +177,14 @@ public:
     void	drawRoundRect( const QRect &, int = 25, int = 25 );
     void	drawEllipse( int x, int y, int w, int h );
     void	drawEllipse( const QRect & );
+#ifndef QT_NO_WMATRIX
     void	drawArc( int x, int y, int w, int h, int a, int alen );
     void	drawArc( const QRect &, int a, int alen );
     void	drawPie( int x, int y, int w, int h, int a, int alen );
     void	drawPie( const QRect &, int a, int alen );
     void	drawChord( int x, int y, int w, int h, int a, int alen );
     void	drawChord( const QRect &, int a, int alen );
+#endif
     void	drawLineSegments( const QPointArray &,
 				  int index=0, int nlines=-1 );
     void	drawPolyline( const QPointArray &,
@@ -625,7 +627,7 @@ inline void QPainter::drawEllipse( const QRect &r )
 {
     drawEllipse( r.x(), r.y(), r.width(), r.height() );
 }
-
+#ifndef QT_NO_WMATRIX
 inline void QPainter::drawArc( const QRect &r, int a, int alen )
 {
     drawArc( r.x(), r.y(), r.width(), r.height(), a, alen );
@@ -640,7 +642,7 @@ inline void QPainter::drawChord( const QRect &r, int a, int alen )
 {
     drawChord( r.x(), r.y(), r.width(), r.height(), a, alen );
 }
-
+#endif // QT_NO_WMATRIX
 inline void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm,
 				  const QRect &sr )
 {

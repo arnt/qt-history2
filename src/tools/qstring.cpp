@@ -4046,7 +4046,6 @@ QString &QString::setNum(double n, char f, int prec)
     ::sprintf( buf, format, n );        // snprintf is unfortunately not portable
     SetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buffer );
 #else
-    char buf[512];
     ::sprintf(buf, format, n);        // snprintf is unfortunately not portable
     qt_fix_double(buf);
 #endif

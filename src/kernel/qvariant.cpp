@@ -236,7 +236,7 @@ static bool isNull(const QVariant::Private *d)
     return d->is_null;
 }
 
-
+#ifndef QT_NO_DATASTREAM
 static void load(QVariant::Private *d, QDataStream &s)
 {
     switch (d->type) {
@@ -364,6 +364,7 @@ static void save(const QVariant::Private *d, QDataStream &s)
 	qFatal("cannot handle GUI types of QVariant without a Gui application");
     }
 }
+#endif // QT_NO_DATASTREAM
 
 static bool compare(const QVariant::Private *a, const QVariant::Private *b)
 {
@@ -818,8 +819,10 @@ const QVariant::Handler qt_kernel_variant_handler = {
     construct,
     clear,
     isNull,
+#ifndef QT_NO_DATASTREAM
     load,
     save,
+#endif
     compare,
     cast,
     canCast

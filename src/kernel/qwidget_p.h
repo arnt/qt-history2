@@ -131,12 +131,14 @@ class QWidgetPrivate : public QObjectPrivate
 
 public:
     QWidgetPrivate() :
-	QObjectPrivate(), extra(0), focus_child(0),
+	QObjectPrivate(), extra(0), focus_child(0)
 #ifndef QT_NO_LAYOUT
-	layout(0),
+	,layout(0),
 #endif
-	fg_role(QPalette::Foreground),
+#ifndef QT_NO_PALETTE
+	,fg_role(QPalette::Foreground),
 	bg_role(QPalette::Background)
+#endif
     {high_attributes[0] = 0;}
     ~QWidgetPrivate();
 
@@ -178,9 +180,10 @@ public:
 #ifndef QT_NO_LAYOUT
     QLayout *layout;
 #endif
+#ifndef QT_NO_PALETTE
     QPalette::ColorRole fg_role : 8;
     QPalette::ColorRole bg_role : 8;
-
+#endif
     uint high_attributes[1]; // the low ones are in QWidget::widget_attributes
 };
 

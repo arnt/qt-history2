@@ -774,6 +774,12 @@ Requires: DATASTREAM IMAGEIO
 Name: QPicture
 SeeAlso: ???
 
+Feature: PICTUREFORMATPLUGIN
+Section: Painting
+Requires: COMPONENT PICTURE
+Name: QPictureFormatPlugin
+SeeAlso: ???
+
 Feature: LAYOUT
 Section: Kernel
 Requires:
@@ -1248,6 +1254,13 @@ Section: Widgets
 Requires: DIALOG LISTVIEW PRINTER COMBOBOX LABEL BUTTONGROUP SPINBOX RADIOBUTTON PUSHBUTTON DIR
 Name: QPrintDialog
 SeeAlso: ???
+
+Feature: PAGESETUPDIALOG
+Section: Widgets
+Requires: DIALOG LISTVIEW PRINTER COMBOBOX LABEL BUTTONGROUP SPINBOX RADIOBUTTON PUSHBUTTON DIR
+Name: QPageSetupDialog
+SeeAlso: ???
+
 
 Feature: PROGRESSDIALOG
 Section: Widgets

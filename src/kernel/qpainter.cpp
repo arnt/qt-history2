@@ -579,7 +579,9 @@ bool QPainter::begin( const QPaintDevice *pd, const QWidget *copyAttributes, boo
 	copyFrom(copyAttributes);
 	updateBrush();
 	updatePen();
+#ifndef QT_NO_TRANSFORMATIONS
 	updateXForm();
+#endif
 	return TRUE;
     }
     return FALSE;
@@ -1573,7 +1575,6 @@ void QPainter::resetXForm()
     clearf( VxF );
 
     if (!redirection_offset.isNull()) {
-	txop = TxTranslate;
 	setf(WxF, true);
     }
 }

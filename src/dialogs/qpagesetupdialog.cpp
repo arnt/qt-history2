@@ -14,6 +14,8 @@
 
 #include "qpagesetupdialog.h"
 
+#ifndef QT_NO_PAGESETUPDIALOG
+
 #include "qcombobox.h"
 #include "qlabel.h"
 #include "qlayout.h"
@@ -179,3 +181,4 @@ void QPageSetupDialog::accept()
 #endif
     QDialog::accept();
 }
+#endif

@@ -140,12 +140,12 @@ void QPainter::setFont( const QFont &font )
     }
     updateFont();
 }
-
+#ifndef QT_NO_TRANSFORMATIONS
 void QPainter::updateXForm()
 {
 
 }
-
+#endif
 void QPainter::updateFont()
 {
     clearf(DirtyFont);
@@ -418,7 +418,9 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
     }
 
     if (!redirection_offset.isNull()) {
-	txop = TxTranslate; //### will not work if QT_NO_TRANSFORMATIONS
+#ifndef QT_NO_TRANSFORMATIONS
+	txop = TxTranslate;
+#endif
 	setf(WxF, true);
     }
     return TRUE;
@@ -979,7 +981,7 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
     a.translate(-redirection_offset);
 #else
     map( x, y, &x, &y );
-    a.makeArc( x, y, w, h, 0, 360*16 );
+    a.makeEllipse(x, y, w, h);
 #endif
     QPen oldpen=pen();
     QPen tmppen=oldpen;
@@ -989,7 +991,7 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
     setPen(oldpen);
 }
 
-
+#ifndef QT_NO_WMATRIX
 void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
 {
     if ( !isActive() )
@@ -1082,7 +1084,7 @@ void QPainter::drawChord( int x, int y, int w, int h, int a, int alen )
     pa.setPoint( n, pa.at(0) );			// connect endpoints
     drawPolyInternal( pa );
 }
-
+#endif // QT_NO_WMATRIX
 
 void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 {

@@ -51,9 +51,11 @@ public:
     void putPoints(int index, int nPoints, int firstx, int firsty, ...);
     void putPoints(int index, int nPoints, const QPointArray & from, int fromIndex=0);
 
-    void makeArc(int x, int y, int w, int h, int a1, int a2);
     void makeEllipse(int x, int y, int w, int h);
+#ifndef QT_NO_WMATRIX
+    void makeArc(int x, int y, int w, int h, int a1, int a2);
     void makeArc(int x, int y, int w, int h, int a1, int a2, const QWMatrix &matrix);
+#endif
     QPointArray cubicBezier() const;
 
     void *shortPoints(int index = 0, int nPoints = -1) const;

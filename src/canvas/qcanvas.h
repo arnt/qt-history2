@@ -770,7 +770,6 @@ private:
 
 #define Q_DEFINED_QCANVAS
 #include "qwinexport.h"
-#endif // QT_NO_CANVAS
 
 // If we want to be able to a Qt version that was compiled with MSVC 6, in a
 // project that uses MSVC .NET, we have to first export QList<QCanvasItem*> in
@@ -780,6 +779,7 @@ public:
     void sort();
     void drawUnique( QPainter& painter );
 };
+#endif // QT_NO_CANVAS
 
 
 #endif // QCANVAS_H

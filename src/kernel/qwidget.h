@@ -89,7 +89,9 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( int maximumHeight READ maximumHeight WRITE setMaximumHeight STORED false DESIGNABLE false )
     Q_PROPERTY( QSize sizeIncrement READ sizeIncrement WRITE setSizeIncrement )
     Q_PROPERTY( QSize baseSize READ baseSize WRITE setBaseSize )
+#ifndef QT_NO_PALETTE
     Q_PROPERTY( QPalette palette READ palette WRITE setPalette RESET unsetPalette )
+#endif
     Q_PROPERTY( QFont font READ font WRITE setFont RESET unsetFont )
 #ifndef QT_NO_CURSOR
     Q_PROPERTY( QCursor cursor READ cursor WRITE setCursor RESET unsetCursor )
@@ -205,6 +207,7 @@ public:
 
     QWidget	*topLevelWidget()   const;
 
+#ifndef QT_NO_PALETTE    
     // Widget appearance functions
     const QPalette &palette() const;
     void setPalette( const QPalette & );
@@ -215,7 +218,8 @@ public:
 
     void setForegroundRole(QPalette::ColorRole);
     QPalette::ColorRole foregroundRole() const;
-
+#endif
+    
     const QFont &font() const;
     void setFont( const QFont & );
     void unsetFont();
@@ -583,7 +587,9 @@ private:
     void	 deactivateWidgetCleanup();
     void setGeometry_helper(int, int, int, int, bool);
     void setFont_helper(const QFont &);
+#ifndef QT_NO_PALETTE
     void setPalette_helper(const QPalette &);
+#endif
     void show_helper();
     void hide_helper();
     void setEnabled_helper(bool);
@@ -684,6 +690,7 @@ public:
     const QColor &foregroundColor() const;
     const QPixmap *erasePixmap() const;
     void setErasePixmap( const QPixmap & );
+#ifndef QT_NO_PALETTE
     const QColor &paletteForegroundColor() const;
     void setPaletteForegroundColor( const QColor & );
     const QColor &paletteBackgroundColor() const;
@@ -692,14 +699,17 @@ public:
     void setPaletteBackgroundPixmap( const QPixmap & );
     const QBrush& backgroundBrush() const;
     const QColor &backgroundColor() const;
-    void setBackgroundColor( const QColor & );
     const QPixmap *backgroundPixmap() const;
     void setBackgroundPixmap( const QPixmap & );
+#endif
+    void setBackgroundColor( const QColor & );
     QColorGroup colorGroup() const;
     QWidget *parentWidget( bool sameWindow ) const;
     inline void setKeyCompression(bool b) { setAttribute(WA_KeyCompression, b); }
     inline void setFont( const QFont &f, bool ) { setFont( f ); }
+#ifndef QT_NO_PALETTE
     inline void setPalette( const QPalette &p, bool ) { setPalette( p ); }
+#endif
     enum BackgroundOrigin { WidgetOrigin, ParentOrigin, WindowOrigin, AncestorOrigin };
     inline void setBackgroundOrigin( BackgroundOrigin ){};
     inline BackgroundOrigin backgroundOrigin() const { return WindowOrigin; }
@@ -869,8 +879,6 @@ inline bool QWidget::testAttribute(WidgetAttribute attribute) const
 }
 
 #ifndef QT_NO_COMPAT
-inline QColorGroup QWidget::colorGroup() const //obsolete
-{ return QColorGroup(palette()); }
 inline bool QWidget::isVisibleToTLW() const // obsolete
 { return isVisible(); }
 inline QWidget *QWidget::parentWidget( bool sameWindow ) const
@@ -881,6 +889,9 @@ inline QWidget *QWidget::parentWidget( bool sameWindow ) const
 }
 inline void QWidget::setBackgroundMode( BackgroundMode m, BackgroundMode)
 { setBackgroundMode(m); }
+#ifndef QT_NO_PALETTE
+inline QColorGroup QWidget::colorGroup() const //obsolete
+{ return QColorGroup(palette()); }
 inline void QWidget::setPaletteForegroundColor(const QColor &c)
 { QPalette p = palette(); p.setColor(foregroundRole(), c); setPalette(p); }
 inline const QBrush& QWidget::backgroundBrush() const { return palette().brush(backgroundRole()); }
@@ -900,6 +911,9 @@ inline const QColor &QWidget::paletteBackgroundColor() const { return background
 inline void QWidget::setPaletteBackgroundColor(const QColor &c) { setBackgroundColor(c); }
 inline const QPixmap *QWidget::paletteBackgroundPixmap() const { return backgroundPixmap(); }
 inline void QWidget::setPaletteBackgroundPixmap(const QPixmap &p) { setBackgroundPixmap(p); }
+#else
+inline void QWidget::setBackgroundColor(const QColor &) {}
+#endif
 inline void QWidget::erase() { erase(0, 0, crect.width(), crect.height()); }
 inline void QWidget::erase(const QRect &r) { erase(r.x(), r.y(), r.width(), r.height()); }
 #endif

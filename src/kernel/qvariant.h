@@ -328,8 +328,10 @@ class Q_KERNEL_EXPORT QVariant
     typedef void (*f_construct)(Private *, const void *);
     typedef void (*f_clear)(Private *);
     typedef bool (*f_null)(const Private *);
+#ifndef QT_NO_DATASTREAM
     typedef void (*f_load)(Private *, QDataStream &);
     typedef void (*f_save)(const Private *, QDataStream &);
+#endif
     typedef bool (*f_compare)(const Private *, const Private *);
     typedef void (*f_cast)(QVariant::Private *d, Type t, void *, bool *);
     typedef bool (*f_canCast)(QVariant::Private *d, Type t);
@@ -337,8 +339,10 @@ class Q_KERNEL_EXPORT QVariant
 	f_construct construct;
 	f_clear clear;
 	f_null isNull;
+#ifndef QT_NO_DATASTREAM
 	f_load load;
 	f_save save;
+#endif
 	f_compare compare;
 	f_cast cast;
 	f_canCast canCast;
@@ -679,8 +683,9 @@ inline Q##f QVariant::to##f() const { \
 
 Q_VARIANT_TO(Font);
 Q_VARIANT_TO(Color);
+#ifndef QT_NO_ACCEL
 Q_VARIANT_TO(KeySequence);
-
+#endif
 #endif // QT_GUI_LIB
 
 

@@ -468,8 +468,10 @@ private:
     int microY;
 #endif
 #ifndef QT_NO_COMPAT
+#ifndef QT_NO_QWS_KEYBOARD
     static inline void setKeyboardFilter(KeyboardFilter *f)
 	{ if (f) addKeyboardFilter(f); else removeKeyboardFilter(); }
+#endif
 #endif
 };
 

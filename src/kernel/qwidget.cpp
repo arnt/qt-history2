@@ -735,7 +735,9 @@ void QWidgetPrivate::init(Qt::WFlags f)
     q->in_show_maximized = 0;
     q->im_enabled = FALSE;
     q->create();					// platform-dependent init
+#ifndef QT_NO_PALETTE
     q->pal = q->isTopLevel() ? QApplication::palette() : q->parentWidget()->palette();
+#endif
     if ( ! q->isTopLevel() )
 	q->fnt = q->parentWidget()->font();
 #if defined(Q_WS_X11)
@@ -800,8 +802,9 @@ QWidget::~QWidget()
 #endif
 
     // delete layout while we still are a valid widget
+#ifndef QT_NO_LAYOUT
     delete d->layout;
-
+#endif
     // Remove myself focus list
     // ### Focus: maybe remove children aswell?
     QWidget *w = this;
@@ -1008,9 +1011,10 @@ void QWidgetPrivate::updateInheritedBackground(bool force)
 {
     if (!q->isVisible() || !isBackgroundInherited())
 	return;
-
+#ifndef QT_NO_PALETTE
     if (!force)
 	force = (q->palette().brush(q->backgroundRole()).pixmap() || isTransparent());
+#endif
     if (force) {
 	q->repaint();
 	for (int i = 0; i < children.size(); ++i)
@@ -1042,14 +1046,18 @@ void QWidgetPrivate::propagatePaletteChange()
 	    QWidget *w = static_cast<QWidget*>(children.at(i));
 	    if(!w->isWidgetType() || w->isTopLevel())
 		continue;
+#ifndef QT_NO_PALETTE
 	    if(!w->testAttribute(QWidget::WA_SetPalette))
 		w->pal = qt_naturalWidgetPalette(w);
+#endif
 	    w->d->updateSystemBackground();
 	    w->d->propagatePaletteChange();
 	}
     }
 #ifndef QT_NO_COMPAT
+#ifndef QT_NO_PALETTE
     q->paletteChange(q->palette()); // compatibility
+#endif
 #endif
 }
 
@@ -1128,8 +1136,11 @@ void QPixmap::fill( const QWidget *widget, int xoff, int yoff )
 	w = w->parentWidget();
 	parents += w;
     }
+#ifndef QT_NO_PALETTE
     QBrush brush = widget->palette().brush(w->d->bg_role);
-
+#else
+    QBrush brush(red); //############
+#endif
     fill(brush.color());
     if (brush.pixmap()) {
 	QPainter p;
@@ -1164,7 +1175,9 @@ void QPainter::copyFrom(const QWidget* w)
     if (!w)
 	return;
     cfont = w->font();
+#ifndef QT_NO_PALETTE
     cpen = w->palette().color(w->foregroundRole());
+#endif
     const QWidget *p = w;
     QPoint offset;
     while (p->d->isBackgroundInherited()) {
@@ -1172,7 +1185,9 @@ void QPainter::copyFrom(const QWidget* w)
 	p = p->parentWidget();
     }
     bg_origin = -offset;
+#ifndef QT_NO_PALETTE
     bg_brush = w->palette().brush(p->d->bg_role);
+#endif
 }
 #endif
 
@@ -2095,6 +2110,7 @@ QWidget *QWidget::topLevelWidget() const
 */
 Qt::BackgroundMode QWidget::backgroundMode() const
 {
+#ifndef QT_NO_PALETTE
     if (testAttribute(WA_NoSystemBackground))
 	return NoBackground;
     switch(backgroundRole()) {
@@ -2133,6 +2149,7 @@ Qt::BackgroundMode QWidget::backgroundMode() const
     default:
 	break;
     }
+#endif
     return NoBackground;
 }
 
@@ -2149,7 +2166,7 @@ void QWidget::setBackgroundMode( BackgroundMode m )
     }
     setAttribute(WA_NoSystemBackground, false);
     setAttribute(WA_SetForegroundRole, false);
-
+#ifndef QT_NO_PALETTE
     QPalette::ColorRole role;
     switch(m) {
     case FixedColor:
@@ -2211,6 +2228,7 @@ void QWidget::setBackgroundMode( BackgroundMode m )
 	break;
     }
     setBackgroundRole(role);
+#endif // QT_NO_PALETTE
 }
 #endif
 
@@ -2220,6 +2238,7 @@ void QWidget::setBackgroundMode( BackgroundMode m )
 
   \sa setBackgroundRole(), foregroundRole()
  */
+#ifndef QT_NO_PALETTE
 QPalette::ColorRole QWidget::backgroundRole() const
 {
     const QWidget *w = this;
@@ -2290,7 +2309,7 @@ void QWidget::setForegroundRole(QPalette::ColorRole role)
 }
 
 
-#ifndef QT_NO_PALETTE
+
 /*!
     \property QWidget::palette
     \brief the widget's palette
@@ -3281,18 +3300,18 @@ void QWidget::show_helper()
 #ifndef QT_NO_COMPAT
     QApplication::sendPostedEvents( this, QEvent::ChildInserted );
 #endif
-
+#ifndef QT_NO_LAYOUT
     if (!isTopLevel() && parentWidget()->d->layout)
 	parentWidget()->d->layout->activate();
-
+#endif
     // adjust size if necessary
     if (testAttribute(WA_InvalidSize))
 	adjustSize();
-
+#ifndef QT_NO_LAYOUT
     // activate our layout before we and our children become visible
     if (d->layout)
 	d->layout->activate();
-
+#endif
     // make sure we receive pending move and resize events
     if (testAttribute(WA_PendingMoveEvent)) {
 	QMoveEvent e(crect.topLeft(), crect.topLeft());
@@ -3459,7 +3478,7 @@ void QWidget::hide_helper()
     if (wasVisible)
 	QAccessible::updateAccessibility( this, 0, QAccessible::ObjectHide );
 #endif
-
+#ifndef QT_NO_LAYOUT
     // invalidate layout similar to updateGeometry()
     if (!isTopLevel() && parentWidget() && parentWidget()->d->layout) {
 	parentWidget()->d->layout->update();
@@ -3467,6 +3486,7 @@ void QWidget::hide_helper()
 	    QApplication::postEvent(parentWidget(),
 				    new QEvent( QEvent::LayoutRequest));
     }
+#endif
 }
 
 void QWidget::setShown( bool show )
@@ -4079,12 +4099,12 @@ bool QWidget::event( QEvent *e )
 	else
 	    setFont_helper(qt_naturalWidgetFont(this));
 	break;
-
+#ifndef QT_NO_PALETTE
     case QEvent::ApplicationPaletteChange:
 	if (!testAttribute(WA_SetPalette) && !isDesktop())
 	    unsetPalette();
 	break;
-
+#endif
     case QEvent::Polish:
 	if ( !ownFont() && !QApplication::font(this).isCopyOf(QApplication::font()))
 	    unsetFont();
@@ -4926,11 +4946,12 @@ void QWidget::updateMask()
 
     \sa  sizePolicy()
 */
+#ifndef QT_NO_LAYOUT
 QLayout* QWidget::layout() const
 {
     return d->layout;
 }
-
+#endif
 
 
 /*!
@@ -5072,8 +5093,10 @@ QWidget  *QWidget::childAt( const QPoint & p, bool includeThis ) const
 
 void QWidget::updateGeometry()
 {
+#ifndef QT_NO_LAYOUT
     if (!isTopLevel() && isShown() && parentWidget() && parentWidget()->d->layout)
 	parentWidget()->d->layout->update();
+#endif
 }
 
 
@@ -5131,8 +5154,10 @@ void QWidget::setParent(QWidget *parent, WFlags f)
 	unsetFont();
     else
 	setFont_helper( fnt.resolve( qt_naturalWidgetFont( this ) ) );
+#ifndef QT_NO_PALETTE
     if (!testAttribute(WA_SetPalette))
 	unsetPalette();
+#endif
 }
 
 

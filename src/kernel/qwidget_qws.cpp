@@ -661,7 +661,11 @@ void QWidget::repaint( const QRegion& r )
 	    parents += w;
 	}
 
+#ifndef QT_NO_PALETTE
 	QBrush bg = q->palette().brush(w->d->bg_role);
+#else
+	QBrush bg(red); //##########
+#endif
 	QRect rr = rgn.boundingRect();
 	bool was_unclipped = q->testWFlags(Qt::WPaintUnclipped);
 	q->clearWFlags(Qt::WPaintUnclipped);
@@ -1664,11 +1668,12 @@ void QWidget::updateCursor( const QRegion &r ) const
 }
 #endif
 
-void QWidget::setWindowTransparency(int)
+
+void QWidget::setWindowTransparency(double)
 {
 }
 
-int QWidget::windowTransparency() const
+double QWidget::windowTransparency() const
 {
-    return 255;
+    return 1.0;
 }

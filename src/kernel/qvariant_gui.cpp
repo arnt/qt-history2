@@ -156,9 +156,11 @@ static void construct(QVariant::Private *x, const void *v)
 	case QVariant::SizePolicy:
 	    x->value.ptr = new QSizePolicy;
 	    break;
+#ifndef QT_NO_CURSOR
 	case QVariant::Cursor:
 	    x->value.ptr = new QCursor;
 	    break;
+#endif
 	default:
 	    qKernelVariantHandler()->construct(x, v);
 	}
@@ -291,7 +293,7 @@ static bool isNull(const QVariant::Private *d)
     return d->is_null;
 }
 
-
+#ifndef QT_NO_DATASTREAM
 static void load(QVariant::Private *d, QDataStream &s)
 {
     switch (d->type) {
@@ -457,7 +459,7 @@ static void save(const QVariant::Private *d, QDataStream &s)
 	qKernelVariantHandler()->save(d, s);
     }
 }
-
+#endif
 
 
 static bool compare(const QVariant::Private *a, const QVariant::Private *b)
@@ -582,6 +584,7 @@ static void cast(QVariant::Private *d, QVariant::Type t, void *result, bool *ok)
 	    static_cast<QColor *>(result)->setNamedColor(*static_cast<QString *>(d->value.ptr));
 	    converted = true;
 	}
+#ifndef QT_NO_ACCEL
     case QVariant::KeySequence: {
 	QKeySequence *seq = static_cast<QKeySequence *>(result);
 	switch (d->type) {
@@ -597,7 +600,7 @@ static void cast(QVariant::Private *d, QVariant::Type t, void *result, bool *ok)
 	    break;
 	}
     }
-
+#endif
     default:
 	break;
     }
@@ -636,8 +639,10 @@ const QVariant::Handler qt_gui_variant_handler = {
     construct,
     clear,
     isNull,
+#ifndef QT_NO_DATASTREAM
     load,
     save,
+#endif
     compare,
     cast,
     canCast

@@ -25,7 +25,7 @@
 #include <qcleanuphandler.h>
 
 #include <stdlib.h>
-
+#include <limits.h>
 // #define QFONTDATABASE_DEBUG
 #ifdef QFONTDATABASE_DEBUG
 #  define FD_DEBUG qDebug

@@ -140,7 +140,7 @@
 // Playing sounds
 //#define QT_NO_SOUND
 
-// Standard template library compatibility
+// Standard template library compatiblity
 //#define QT_NO_STL
 
 // QStringList
@@ -487,7 +487,7 @@
 #define QT_NO_STYLE_WINDOWS
 #endif
 
-// Internal title bar widget
+// Internal titlebar widget
 #if !defined(QT_NO_TITLEBAR) && (defined(QT_NO_STYLE))
 #define QT_NO_TITLEBAR
 #endif
@@ -662,11 +662,6 @@
 #define QT_NO_VBOX
 #endif
 
-// Button groups
-#if !defined(QT_NO_BUTTONGROUP) && (defined(QT_NO_GROUPBOX) || defined(QT_NO_BUTTON))
-#define QT_NO_BUTTONGROUP
-#endif
-
 // Complex scripts (eg. BiDi)
 #if !defined(QT_NO_COMPLEXTEXT) && (defined(QT_NO_RICHTEXT))
 #define QT_NO_COMPLEXTEXT
@@ -682,14 +677,14 @@
 #define QT_NO_PRINTER
 #endif
 
+// Aqua style
+#if !defined(QT_NO_STYLE_AQUA) && (defined(QT_NO_STYLE_WINDOWS) || defined(QT_NO_IMAGE_TRANSFORMATION))
+#define QT_NO_STYLE_AQUA
+#endif
+
 // Vertical group boxes
 #if !defined(QT_NO_VGROUPBOX) && (defined(QT_NO_HGROUPBOX))
 #define QT_NO_VGROUPBOX
-#endif
-
-// Horizontal button groups
-#if !defined(QT_NO_HBUTTONGROUP) && (defined(QT_NO_BUTTONGROUP))
-#define QT_NO_HBUTTONGROUP
 #endif
 
 // Server to play sound
@@ -700,11 +695,6 @@
 // QHeader
 #if !defined(QT_NO_HEADER) && (defined(QT_NO_STYLE) || defined(QT_NO_ICONSET))
 #define QT_NO_HEADER
-#endif
-
-// Vertical button groups
-#if !defined(QT_NO_VBUTTONGROUP) && (defined(QT_NO_HBUTTONGROUP))
-#define QT_NO_VBUTTONGROUP
 #endif
 
 // Hebrew Codec
@@ -792,6 +782,11 @@
 #define QT_NO_NETWORKPROTOCOL_FTP
 #endif
 
+// Button groups
+#if !defined(QT_NO_BUTTONGROUP) && (defined(QT_NO_GROUPBOX) || defined(QT_NO_BUTTON) || defined(QT_NO_RADIOBUTTON))
+#define QT_NO_BUTTONGROUP
+#endif
+
 // Spin boxes
 #if !defined(QT_NO_SPINBOX) && (defined(QT_NO_RANGECONTROL) || defined(QT_NO_SPINWIDGET) || defined(QT_NO_LINEEDIT) || defined(QT_NO_VALIDATOR))
 #define QT_NO_SPINBOX
@@ -805,6 +800,11 @@
 // QDateTimeEdit
 #if !defined(QT_NO_DATETIMEEDIT) && (defined(QT_NO_RICHTEXT) || defined(QT_NO_SPINWIDGET) || defined(QT_NO_DATESTRING))
 #define QT_NO_DATETIMEEDIT
+#endif
+
+// Horizontal button groups
+#if !defined(QT_NO_HBUTTONGROUP) && (defined(QT_NO_BUTTONGROUP))
+#define QT_NO_HBUTTONGROUP
 #endif
 
 // QTextCodecPlugin
@@ -825,6 +825,16 @@
 // Scalable Vector Graphics (SVG)
 #if !defined(QT_NO_SVG) && (defined(QT_NO_DOM) || defined(QT_NO_TRANSFORMATIONS) || defined(QT_NO_SPRINTF))
 #define QT_NO_SVG
+#endif
+
+// Vertical button groups
+#if !defined(QT_NO_VBUTTONGROUP) && (defined(QT_NO_HBUTTONGROUP))
+#define QT_NO_VBUTTONGROUP
+#endif
+
+// QPictureFormatPlugin
+#if !defined(QT_NO_PICTUREFORMATPLUGIN) && (defined(QT_NO_COMPONENT) || defined(QT_NO_PICTURE))
+#define QT_NO_PICTUREFORMATPLUGIN
 #endif
 
 // QIconView
@@ -955,6 +965,11 @@
 // SQL value editor widgets
 #if !defined(QT_NO_SQL_EDIT_WIDGETS) && (defined(QT_NO_SQL) || defined(QT_NO_SPINBOX) || defined(QT_NO_COMBOBOX) || defined(QT_NO_CHECKBOX) || defined(QT_NO_DATETIMEEDIT))
 #define QT_NO_SQL_EDIT_WIDGETS
+#endif
+
+// QPageSetupDialog
+#if !defined(QT_NO_PAGESETUPDIALOG) && (defined(QT_NO_DIALOG) || defined(QT_NO_LISTVIEW) || defined(QT_NO_PRINTER) || defined(QT_NO_COMBOBOX) || defined(QT_NO_LABEL) || defined(QT_NO_BUTTONGROUP) || defined(QT_NO_SPINBOX) || defined(QT_NO_RADIOBUTTON) || defined(QT_NO_PUSHBUTTON) || defined(QT_NO_DIR))
+#define QT_NO_PAGESETUPDIALOG
 #endif
 
 // QPrintDialog

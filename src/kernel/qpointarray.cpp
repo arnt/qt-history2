@@ -393,12 +393,13 @@ static inline int fix_angle(int a)
 
     See the \link qcanvas.html#anglediagram angle diagram\endlink.
 */
-
+#ifndef QT_NO_WMATRIX
 void QPointArray::makeArc(int x, int y, int w, int h, int a1, int a2)
 {
     QWMatrix unit;
     makeArc(x, y, w, h, a1, a2, unit);
 }
+#endif
 
 #ifndef QT_NO_TRANSFORMATIONS
 // Based upon:
@@ -492,11 +493,9 @@ void QPointArray::makeArc(int x, int y, int w, int h, int a1, int a2, const QWMa
     bool arc = a1 != 0 || a2 != 360 * 16 || rev;
 
     double xP, yP, xQ, yQ, xK, yK;
-
     xf.map(x + w, y + h / 2.0, &xP, &yP);
     xf.map(x + w / 2.0, y, &xQ, &yQ);
     xf.map(x + w, y, &xK, &yK);
-
     int m = 3;
     int max;
     int q = int(qMax(QABS(xP - xQ), QABS(yP - yQ)));

@@ -1,4 +1,5 @@
 #include "qisciicodec_p.h"
+#ifndef QT_NO_CODECS
 
 #define	QValidChar(u)	   ((u) ? QChar((u)) : QChar::replacement)
 
@@ -232,3 +233,4 @@ QString QIsciiCodec::toUnicode( const char* chars, int len_in ) const
     }
     return result;
 }
+#endif // QT_NO_CODECS
