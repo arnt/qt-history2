@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#101 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#102 $
 **
 ** Implementation of QTextStream class
 **
@@ -950,8 +950,8 @@ long QTextStream::input_int()
 		else if ( tolower(c) == 'b' )
 		    val = (long)input_bin();
 		else {			// octal
+		    ts_ungetc( ch );
 		    if ( c >= '0' && c <= '7' ) {
-			ts_ungetc( ch );
 			val = (long)input_oct();
 		    } else {
 			val = 0;
