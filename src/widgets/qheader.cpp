@@ -1770,4 +1770,10 @@ bool QHeader::isStretchEnabled( int section ) const
     return d->fullSize == section;
 }
 
+void QHeader::fontChange( const QFont & oldFont )
+{
+    resize( sizeHint() );
+    QWidget::fontChange( oldFont );
+}
+
 #endif // QT_NO_HEADER

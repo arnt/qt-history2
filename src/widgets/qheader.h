@@ -141,7 +141,8 @@ protected:
     void	mousePressEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );
     void	mouseMoveEvent( QMouseEvent * );
-
+    void 	fontChange( const QFont & );
+    
 private:
     void adjustHeaderSize( int diff );
     void	init( int );
