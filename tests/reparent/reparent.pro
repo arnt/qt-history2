@@ -1,0 +1,10 @@
+SOURCES = main.cpp
+TEMPLATE	= app
+CONFIG	+= qt warn_on release
+TARGET	= reparent
+INTERFACES	= widget.ui 
+DBFILE	= reparent.db
+IMAGEFILE	= images.cpp
+PROJECTNAME	= reparent
+LANGUAGE	= C++
+{SOURCES+=images.cpp}
