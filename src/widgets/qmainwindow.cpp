@@ -1494,6 +1494,7 @@ void QMainWindow::setStatusBar( QStatusBar * newStatusBar )
     connect( toolTipGroup(), SIGNAL(removeTip()),
 	     d->sb, SLOT(clear()) );
     d->sb->installEventFilter( this );
+    triggerLayout();
 }
 
 
