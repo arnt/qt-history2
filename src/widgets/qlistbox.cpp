@@ -3596,9 +3596,9 @@ void QListBox::showEvent( QShowEvent * )
   item at position \e index in the list.  Returns FALSE if the item is
   outside the visible area.
 */
-#ifndef QT_NO_COMPAT
 bool QListBox::itemYPos( int index, int *yPos ) const
 {
+    qObsolete( "QListBox", "itemYPos" );
     QListBoxItem* i = item(index);
     if ( !i )
 	return FALSE;
@@ -3606,7 +3606,6 @@ bool QListBox::itemYPos( int index, int *yPos ) const
 	*yPos = i->y;
     return TRUE;
 }
-#endif
 
 
 /*! \fn bool QListBoxItem::selected() const
