@@ -74,14 +74,15 @@ SOURCES		= binarywriter.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qlibrary.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qlist.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qlinkedlist.cpp \
+		  $$QT_SOURCE_TREE/src/tools/qlocale.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qmap.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qregexp.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qstack.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qstring.cpp \
-		  $$QT_SOURCE_TREE/src/tools/qlocale.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qstringlist.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qtextstream.cpp \
                   $$QT_SOURCE_TREE/src/tools/qunicodetables.cpp \
+		  $$QT_SOURCE_TREE/src/tools/qlocale.cpp \
                   $$QT_SOURCE_TREE/src/tools/qvector.cpp
 unix:SOURCES	+= $$QT_SOURCE_TREE/src/tools/qdir_unix.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qfile_unix.cpp \
