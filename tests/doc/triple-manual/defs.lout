@@ -21,7 +21,7 @@ macro @Comma { |0.65s } # For numbers, e.g. 1,500 => 1{@Comma}500
 macro @TTGreenColour		{{cmyk 0.40 0.00 1.00 0.01}}
 macro @LightGreyColour		{{rgb 0.90 0.90 0.90}}
 
-macro @SidebarPP { //0.35f 2f @Wide &0c }
+macro @SidebarPP { //0.75f 0c @Wide &0c }
 
 def @C right x { { 0.875 1.00 } @Scale { Courier Base } @Font x }
 macro @Code { @C }
@@ -37,7 +37,7 @@ def @Win right x { Slope @Font x } # Window or dialog
 macro @OK { @Click { OK } }
 macro @Cancel { @Click { Cancel } }
 macro @Close { @Click { Close } }
-macro @Cpp { {C |0.55fo +0.015f @VShift{+|0.3s +}} }
+macro @Cpp { {C |0.666fo +0.015f @VShift{+|0.3s +}} }
 macro @TRUE { { 0.875 1.00 } @Scale { Courier Base } @Font { TRUE } }
 macro @FALSE { { 0.875 1.00 } @Scale { Courier Base } @Font { FALSE } }
 

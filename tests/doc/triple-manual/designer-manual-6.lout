@@ -223,7 +223,7 @@ Add a second button to the right of the first. Change the second
 button's @Prop{name} to 'cancelPushButton' and its @Prop{text} to 'Cancel'.
 }
 @EndList
-@LP
+
 We'll now lay out the widgets and connect up the slots we need.
 @NumberedList
 @LI{
@@ -315,7 +315,7 @@ int main( int argc, char *argv[] )
     return app.exec();
 }
 @End @RawVerbatim
-@LP
+
 Note that we're including @File{creditformbase.h} and
 instantiating a CreditFormBase object; once we've written our
 subclass we'll replace the header with our subclass, @File{creditform.h},

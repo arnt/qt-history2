@@ -189,7 +189,7 @@ Right click the form in the Forms list, then click Remove form
 from project.
 }
 @EndList
-@LP
+
 Now that we have the simple template we are ready to use it.
 Click @Option{File"|"New} to invoke the @Win{New File} dialog. One of
 the templates that will appear is 'Simple Dialog'. Click the

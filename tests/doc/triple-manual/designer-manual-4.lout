@@ -23,7 +23,7 @@ dialog, and if they choose a color, we'll then ask them to name
 it.
 
 @Figure 
-    @Caption { colortool's Color Name Dialog }
+    @Caption { colortool's Color Name dialog }
     0.5 @Scale @IncludeGraphic { "images/qd-colortool-name.eps.gz" }
 
 @BeginSubSections
@@ -365,37 +365,8 @@ size.
 When previewing the form, try pressing @Option{Tab} to move between
 widgets that can accept focus. It is most likely that the tab
 order is correct. If it isn't, we can easily change it: see the
-Changing the Tab Order [p.~@PageOf{tab.order}] sidebar.
-
-@LP
-{ Changing the Tab Order } @Sidebar {
-Keyboard @PageMark{changing.the.tab.order.sidebar} users press the
-@Option{Tab} key to move the focus from widget to widget as they use a
-form. The order in which the focus moves is called the tab order.
-tab.order @Index{ Tab Order } tab.order.mode @RawIndex{ Tab Order Mode
-} tab.order.mode.tab.order @SubIndex{ Tab Order }
-@SidebarPP
-To change a form's tab order click the @NamePageRef{tab.order}
-toolbar button. This will put @QDR into tab order mode; a number in a
-blue circle will appear next to every widget that can accept focus.
-@SidebarPP
-To change the tab order, click every widget in turn in the order
-you want them to accept focus. If a widget already has the right
-tab order number you must @I{still click it} unless that widget
-and @I{all} the following widgets have the correct tab order
-numbers; in which case you can stop. Press @Option{Esc} to leave tab
-order mode. You can test the tab order by previewing (@Option{Ctrl+T})
-and pressing the @Option{Tab} key.
-@SidebarPP
-If you prefer the tab order that you had before this one, click
-@Option{Edit"|"Undo} (or press @Option{Ctrl+Z}).
-@LP
-@Centre @Box linewidth {  none } paint { white } @Figure 
-    @Location { Raw }
-    @Caption {}
-    0.5 @Scale @IncludeGraphic { "images/dialog1tab.eps.gz" }
-
-}
+Changing the Tab Order [p.~@PageOf{changing.the.tab.order.sidebar}]
+sidebar.
 
 @End @SubSubSection
 @EndSubSubSections
@@ -427,6 +398,37 @@ using a predefined signal and a predefined slot, it will work
 in preview mode. Click @OK to close the dialog, then click
 @Option{Ctrl+T} to preview. Clicking the @Cancel button will now
 close the form, even in preview mode.
+
+@LP
+{ Changing the Tab Order } @Sidebar {
+Keyboard @PageMark{changing.the.tab.order.sidebar} users press the
+@Option{Tab} key to move the focus from widget to widget as they use a
+form. The order in which the focus moves is called the tab order.
+tab.order @Index{ Tab Order } tab.order.mode @RawIndex{ Tab Order Mode
+} tab.order.mode.tab.order @SubIndex{ Tab Order }
+@SidebarPP
+To change a form's tab order click the @NamePageRef{tab.order}
+toolbar button. This will put @QDR into tab order mode; a number in a
+blue circle will appear next to every widget that can accept focus.
+@SidebarPP
+To change the tab order, click every widget in turn in the order
+you want them to accept focus. If a widget already has the right
+tab order number you must @I{still click it} unless that widget
+and @I{all} the following widgets have the correct tab order
+numbers; in which case you can stop. Press @Option{Esc} to leave tab
+order mode. You can test the tab order by previewing (@Option{Ctrl+T})
+and pressing the @Option{Tab} key.
+@SidebarPP
+If you prefer the tab order that you had before this one, click
+@Option{Edit"|"Undo} (or press @Option{Ctrl+Z}).
+#@LP
+#@Centre @Box linewidth {  none } paint { white }
+@Figure 
+    @Location { Raw }
+    @Caption { Tab Order Mode }
+    0.5 @Scale @IncludeGraphic { "images/dialog1tab.eps.gz" }
+
+}
 
 @LP
 Now we'll connect the OK button. Click @Option{Edit"|"Connections}
@@ -621,8 +623,6 @@ editor.
                     colorTable->setItem( row, COL_WEB, item );
                 }
                 colorTable->setCurrentCell( row, colorTable->currentColumn() );
-@End @RawVerbatim
-@LD @Code @RawVerbatim @Begin
                 (void) new QIconViewItem( colorIconView, name,
                                           colorSwatch( color ) );
                 m_changed = TRUE;
@@ -767,7 +767,7 @@ drag vertically a little, then release.
 
 @Figure
     @Caption { Placing widgets and spacers }
-    0.5 @Scale @IncludeGraphic { "images/dialog2setwidg.eps.gz" }
+    0.45 @Scale @IncludeGraphic { "images/dialog2setwidg.eps.gz" }
 
 @End @SubSubSection
 @SubSubSection
@@ -859,9 +859,9 @@ so that the main form can look for the text.
 @LP
 Click @Win{Object Explorer}'s @Option{Members} tab, then right click
 @Option{Signals}
-and click @Option{New}. Enter @Code{lookfor(const QString"&")}. We'll emit
-this signal when we implement the code for the @Func{find()}
-slot.
+and click @Option{New}. Enter @Code{lookfor(const} @Code{QString"&")}.
+We'll emit this signal when we implement the code for the
+@Func{find()} slot.
 
 @End @SubSubSection
 @SubSubSection
@@ -977,7 +977,8 @@ qstring @Index{ QString }
         QString ltext = text.lower();
         QWidget *visible = colorWidgetStack->visibleWidget();
         bool found = FALSE;
-
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
         if ( visible == tablePage && colorTable->numRows() ) {
             int row = colorTable->currentRow();
             for ( int i = row + 1; i < colorTable->numRows(); ++i )
@@ -993,7 +994,8 @@ qstring @Index{ QString }
         }
         else if ( visible == iconsPage ) {
             QIconViewItem *start = colorIconView->currentItem();
-            for ( QIconViewItem *item = start->nextItem(); item; item = item->nextItem() )
+            QIconViewItem *item = start->nextItem();
+            for ( ; item; item = item->nextItem() )
                 if ( item->text().lower().contains( ltext ) ) {
                     colorIconView->setCurrentItem( item );
                     colorIconView->ensureItemVisible( item );
@@ -1421,7 +1423,7 @@ The @File{colortool} application is now complete. There
 are many possible extensions to its functionality that you might
 like to try, for example:
 
-@NumberedList
+@BulletList
 @LI{
 Adding additional columns to the table view to show RGB values
 (0..255), scaled RGB values (0.00..1.00), HSV values, etc.

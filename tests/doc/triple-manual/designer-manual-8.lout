@@ -225,7 +225,8 @@ otherwise we output some error information and return @FALSE.
 
         if ( ! createConnections() )
             return 1;
-
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
         BookForm bookForm;
         app.setMainWidget( &bookForm );
         bookForm.show();

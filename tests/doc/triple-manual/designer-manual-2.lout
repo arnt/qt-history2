@@ -15,7 +15,7 @@ and explanations and details are mostly left for the more detailed
 @NamePageRef{creating.dialogs} chapters.
 
 @Figure
-    @Caption { The Metric Conversion Dialog }
+    @Caption { The metric conversion dialog }
     0.45 @Scale @IncludeGraphic { "images/qsmetric.eps.gz" }
 @BeginSections
 @Section
@@ -95,7 +95,7 @@ Click @Option{File"|"Save} to save the project.
 @EndList
     
 @Figure 
-    @Caption { The Project Settings Dialog }
+    @Caption { The Project Settings dialog }
     @Location { Raw }
     0.45 @Scale @IncludeGraphic { "images/qs-projset.eps.gz" }
 
@@ -182,7 +182,7 @@ Click the fifth label. Change the label's @Prop{text} property to
 }
 @EndList
 @Figure
-    @Caption { The blank metric conversion form's labels }
+    @Caption { The metric conversion form's labels }
     0.45 @Scale @IncludeGraphic { "images/qs-txtlbl.eps.gz" }
 @LP
 See also @NamePageRef{using.the.property.editor}.
@@ -387,7 +387,7 @@ Click @OK to close the Edit Listbox dialog.
 @EndList
 
 @Figure
-    @Caption { The Edit Listbox Dialog }
+    @Caption { The Edit Listbox dialog }
     0.45 @Scale @IncludeGraphic { "images/qs-editlistbox1.eps.gz" }
 @LP
 The toComboBox:
@@ -548,7 +548,7 @@ numberLineEdit for the Receiver, and @Func{setfocus()} for the Slot.
 @EndList
 
 @Figure
-    @Caption { The View and Edit Connections Dialog }
+    @Caption { The View and Edit Connections dialog }
     0.45 @Scale @IncludeGraphic { "images/qs-editconn1.eps.gz" }
 @LP
 We also need to connect the quit button to the form:
@@ -586,7 +586,7 @@ Select @Func{convert()} from the Slot combobox to complete our connection.
 }
 @EndList
 @Figure
-    @Caption { The Edit Functions Dialog }
+    @Caption { The Edit Functions dialog }
     0.45 @Scale @IncludeGraphic { "images/qs-editfunc.eps.gz" }
 @LP
 We will now connect the last few widgets:
@@ -622,7 +622,7 @@ Click @Option{Save} to save the project.
 }
 @EndList
 @Figure
-    @Caption { The View and Edit Connections Dialog }
+    @Caption { The View and Edit Connections dialog }
     0.45 @Scale @IncludeGraphic { "images/qs-editconn2.eps.gz" }
 
 @End @SubSection

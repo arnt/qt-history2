@@ -78,7 +78,7 @@ for the GUI part of an application in @QDR. The main
 benefits of project management are:
 @BulletList
 @LI{
-Grouping forms [p.~@PageOf{grouping.forms}] that belong together.
+Grouping forms that belong together.
 }
 @LI{
 Sharing images between different forms.
@@ -97,7 +97,7 @@ and why project management is required to achieve them.
     @Tag{grouping.forms}
 @Begin
 @LP
-Grouping forms [p.~@PageOf{grouping.forms}] means that @QDR maintains a list of
+Grouping forms means that @QDR maintains a list of
 the @File{.ui} files that belong to the same project.
 This makes it easy to switch between forms with a single mouse
 click.
@@ -199,7 +199,7 @@ you can still continue to use it. Look upon the @File{.pro}
 file as a file that describes the GUI part of your application.
 All you need to do -- as previously -- is add the @File{.ui}
 files and the images collection to your own Makefiles.
-
+@NP
 @End @SubSection
 @EndSubSections
 @End @Section
@@ -212,6 +212,7 @@ First let us look at a small figure that shows the relationship
 between @File{.ui} files, generated code and application
 code:
 
+@DP
 @Figure
 @Diag 
     font { Helvetica Base }
@@ -250,7 +251,8 @@ writes } }
 @Arrow from { E } to { D } pathstyle { dotted } ylabel { "#"includes }
 @VHCurveArrow from { F } to { D } pathstyle { dotted } ylabel { "#"includes }
 }
-#
+
+@PP
 @QDR reads and writes @File{.ui} files, e.g.
 @File{form.ui}. The user interface compiler, @File{uic},
 creates both a header file, e.g. @File{form.h}, and an
@@ -300,6 +302,7 @@ which we'll cover next.
 A very clean way to implement custom slots for generated forms
 is via @Cpp inheritance as shown in the next figure:
 
+@DP
 @Figure
 @Diag 
     font { Helvetica Base }
@@ -346,6 +349,7 @@ writes } }
 @Arrow from { H } to { G } pathstyle { dotted } ylabel { "#"includes }
 }
 
+@PP
 Here the user wrote an additional class @Option{FormImpl}, which is
 split into the header file @File{formimpl.h} and the implementation
 file @File{formimpl.cpp}. The header file includes the
@@ -407,6 +411,7 @@ up with a new concept, the @I{ui.h extension}.
 @LP
 This is how it works:
 
+@DP
 @Figure
 @Diag 
     font { Helvetica Base }
@@ -424,8 +429,10 @@ This is how it works:
     indent { ctr }
     marginvertical { 1.0f }
     marginhorizontal { 1.0f }
-    aformat { @Cell A | @Cell B | @Cell C | @Cell D }
-    bformat { @Cell A | @StartHSpan @Cell B | @HSpan | @Cell D }
+    aformat { @Cell marginleft { 0c } A | @Cell marginleft { 0c } B |
+	      @Cell C | @Cell D }
+    bformat { @Cell marginleft { 0c } A |
+	      @StartHSpan @Cell marginleft { 0c } B | @HSpan | @Cell D }
 {
     @Rowb B { A:: @CurveBox paint { darkgrey } { white @Colour @QDR } }
     @Rowa B { B:: @Box { form.ui } }
@@ -459,6 +466,7 @@ writes } }
 @RVLCurveArrow from { 0.64,0.1 } to { I } bias { 10f } pathstyle { dotted } ylabel { "#"includes }
 }
 
+@PP
 In addition to the @File{.ui} file, @File{form.ui},
 @QDR reads and writes another associated file @File{form.ui.h}.
 This @File{.ui.h} file is an @I{ordinary @Cpp source file}
@@ -493,7 +501,7 @@ Whenever the user removes a custom slot, @QDR removes
 it from the @File{.ui.h} file.
 }
 @EndList
-@LP
+
 This way integrity is guaranteed, there is no more need for subclassing
 and no more danger of forgotten or misspelled slots in subclasses.
 

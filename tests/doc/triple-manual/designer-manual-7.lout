@@ -360,9 +360,11 @@ they chose.
 
     public:
         FileChooser( QWidget *parent = 0, const char *name = 0);
-
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
         enum Mode { File, Directory };
-
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
         QString fileName() const;
         Mode mode() const;
 @End @RawVerbatim
@@ -487,6 +489,8 @@ the given mode.
             fn = QFileDialog::getOpenFileName( lineEdit->text(),
                                                QString::null, this );
         else
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
             fn = QFileDialog::getExistingDirectory( lineEdit->text(), this );
 
         if ( !fn.isEmpty() ) {
@@ -602,7 +606,8 @@ qstringlist @Index{ QStringList }
 qwidget @Index{ QWidget }
 qstring @Index{ QString }
 qiconset @Index{ QIconSet }
-functions require just a few lines of code.
+functions require just a few lines of code
+(see @File{"qt/tools/designer/examples/filechooser/plugin/plugin.{h,cpp}"}).
 @LD @Code @RawVerbatim @Begin
     #include <qwidgetplugin.h>
 
@@ -622,7 +627,7 @@ functions require just a few lines of code.
         bool isContainer( const QString& ) const;
     };
 @End @RawVerbatim
-@Filename{@File{"qt/tools/designer/examples/filechooser/plugin/plugin.h"}}
+
 @End @SubSubSection
 @SubSubSection
     @Title { The QWidgetPlugin Functions }
@@ -738,7 +743,8 @@ and @Func{whatsThis()} functions.
             return "File Chooser Widget";
         return QString::null;
     }
-
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
     QString CustomWidgetPlugin::whatsThis( const QString& feature ) const
     {
         if ( feature == "FileChooser" )

@@ -35,63 +35,63 @@ files @RawIndex{ Files }
 files.adding.to.projects @SubIndex{ Adding to Projects }
 options:
 
-@BulletList
-@LI{
-@Option{File"|"New}@LLP
+@TaggedList labelwidth { 7f }
+@TagItem{
+@Option{File"|"New}}{
 
  Click this menu option (or press @Option{Ctrl+N}) to create a new project, form or file. This option invokes the New File Dialog.
 
 files @RawIndex{ Files }
 files.opening @SubIndex{ Opening }}
-@LI{
-@Option{File"|"Open}@LLP
+@TagItem{
+@Option{File"|"Open}}{
 
  Click this menu option (or press @Option{Ctrl+O}) to open existing projects, forms or files. The File Open Dialog is invoked through which a file name can be selected.
 
 files @RawIndex{ Files }
 files.closing @SubIndex{ Closing }}
-@LI{
-@Option{File"|"Close}@LLP
+@TagItem{
+@Option{File"|"Close}}{
 
  Click this menu option to close the currently open project. If the project has unsaved changes, the Save Form Dialog appears.
 
 files @RawIndex{ Files }
 files.saving @SubIndex{ Saving }}
-@LI{
-@Option{File"|"Save}@LLP
+@TagItem{
+@Option{File"|"Save}}{
 
  Click this menu option (or press @Option{Ctrl+S}) to save the project along with its forms and files. For a project that has forms or files, click 'Save' to save the project before exiting. For new forms, click 'Save' and the Save Form As Dialog appears. For forms that have been saved previously click 'Save'. For new files or for files that have been changed, click 'Save'.
 
 files @RawIndex{ Files }
 files.saving @SubIndex{ Saving }}
-@LI{
-@Option{File"|"Save As}@LLP
+@TagItem{
+@Option{File"|"Save As}}{
 
  Click this menu option to save and name the current form or file. This option invokes the Save Form As Dialog.
 
 files @RawIndex{ Files }
 files.saving @SubIndex{ Saving }}
-@LI{
-@Option{File"|"Save All}@LLP
+@TagItem{
+@Option{File"|"Save All}}{
 
  Click this menu option to save every open file and form in every open project.
 
 files @RawIndex{ Files }
 files.templates @SubIndex{ Templates }}
-@LI{
-@Option{File"|"Create Template}@LLP
+@TagItem{
+@Option{File"|"Create @LLP Template}}{
 
  Click this menu option to create a form template. This option invokes the Create Template Dialog dialog.}
-@LI{
-@Option{File"|"Recently Opened Files}@LLP
+@TagItem{
+@Option{File"|"Recently @LLP Opened Files}}{
 
  Click this menu option to list the most recently opened files. Click one of the files listed to open it. Note that we recommend that you open projects rather than files. You can open a file by clicking the file's name in the project's File Overview Window.}
-@LI{
-@Option{File"|"Recently Opened Projects}@LLP
+@TagItem{
+@Option{File"|"Recently @LLP Opened Projects}}{
 
  Click this menu option to list the most recently opened projects. Click one of the projects listed to open it.}
-@LI{
-@Option{File"|"Exit}@LLP
+@TagItem{
+@Option{File"|"Exit}}{
 
  Click this menu option to exit @QDR. If any open files have unsaved
  changes, the @Win{Save Form Dialog} message box will appear for each
@@ -116,75 +116,75 @@ This menu is invoked with @Option{Alt+E}, and provides the following
 undo.and.redo @Index{ Undo and Redo }
 options:
 
-@BulletList
-@LI{
-@Option{Edit"|"Undo}@LLP
+@TaggedList labelwidth { 7f }
+@TagItem{
+@Option{Edit"|"Undo}}{
 
  Click this menu option (or press @Option{Ctrl+Z}) to undo an action. The name of the last action that was performed appears after the word 'Undo'.
 
 undo.and.redo @Index{ Undo and Redo }}
-@LI{
-@Option{Edit"|"Redo}@LLP
+@TagItem{
+@Option{Edit"|"Redo}}{
 
  Click this menu option (or press @Option{Ctrl+Y}) to redo an action. The name of the last action that was performed appears after the word 'Redo'.}
-@LI{
-@Option{Edit"|"Cut}@LLP
+@TagItem{
+@Option{Edit"|"Cut}}{
 
  Click this menu option (or press @Option{Ctrl+X}) to delete the selected item from the current form or file and copy it to the clipboard.}
-@LI{
-@Option{Edit"|"Copy}@LLP
+@TagItem{
+@Option{Edit"|"Copy}}{
 
  Click this menu option (or press @Option{Ctrl+C}) to copy the selected item from the current form or file to the clipboard.}
-@LI{
-@Option{Edit"|"Paste}@LLP
+@TagItem{
+@Option{Edit"|"Paste}}{
 
  Click this menu option (or press @Option{Ctrl+V}) to paste the clipboard item (if any) into the current form or file.}
-@LI{
-@Option{Edit"|"Delete}@LLP
+@TagItem{
+@Option{Edit"|"Delete}}{
 
  Click this menu option (or press @Option{Del}) to delete the selected item from the current form or file.}
-@LI{
-@Option{Edit"|"Select All}@LLP
+@TagItem{
+@Option{Edit"|"Select All}}{
 
  Click this menu option (or press @Option{Ctrl+A}) to highlight all the widgets on the current form or all the text in the current file.
 
 accelerators.checking @Index{ Accelerators, Checking }}
-@LI{
-@Option{Edit"|"Check Accelerators}@LLP
+@TagItem{
+@Option{Edit"|"Check @LLP Accelerators}}{
 
  Click this menu option (or press @Option{Alt+R}) to verify that all the accelerators are used only once. If an accelerator is used more than once, a message box appears with the statement 'The accelerator 'x' is used 'y' times'. Click @Option{Select} to highlight the widgets with the same accelerator, or click @Cancel to exit the message box without taking any action.
 
 signals.and.slots @RawIndex{ Signals and Slots }
 signals.and.slots.edit.slots.dialog @SubIndex{ Edit Slots Dialog }
 edit.functions.dialog @Index{ Edit Functions Dialog }}
-@LI{
-@Option{Edit"|"Slots}@LLP
+@TagItem{
+@Option{Edit"|"Slots}}{
 
  Click this menu option to edit and create slots and functions. This option invokes the Edit Functions Dialog.
 
 signals.and.slots @RawIndex{ Signals and Slots }
 signals.and.slots.view.connections.dialog @SubIndex{ View Connections Dialog }
 view.connections.dialog @Index{ View Connections Dialog }}
-@LI{
-@Option{Edit"|"Connections}@LLP
+@TagItem{
+@Option{Edit"|"Connections}}{
 
  Click this menu option to invoke the View and Edit Connections Dialog.
 
 form.settings.dialog @Index{ Form Settings Dialog }}
-@LI{
-@Option{Edit"|"Form Settings}@LLP
+@TagItem{
+@Option{Edit"|"Form  @LLP Settings}}{
 
  Click this menu option to invoke the Form Settings Dialog.
 
 preferences.dialog @Index{ Preferences Dialog }}
-@LI{
-@Option{Edit"|"Preferences}@LLP
+@TagItem{
+@Option{Edit"|"Preferences}}{
 
  Click this menu option to invoke the Preferences Dialog.}
 @EndList
 
 See also @NamePageRef{the.edit.toolbar.buttons}.
-
+@NP
 @End @Section
 @Section
     @Title { The Project Menu }
@@ -199,37 +199,37 @@ projects @RawIndex{ Projects }
 projects.active.project @SubIndex{ Active Project }
 options:
 
-@BulletList
-@LI{
-@Option{Project"|"Active Project}@LLP
+@TaggedList labelwidth { 8f }
+@TagItem{
+@Option{Project"|"@LLP Active Project}}{
 
  Click this menu option to toggle between projects if there is more than one project open. You can also toggle between projects using the Active Project drop-down combobox in the The File Toolbar Buttons.
 
 projects @RawIndex{ Projects }
 projects.adding.files @SubIndex{ Adding Files }}
-@LI{
-@Option{Project"|"Add File}@LLP
+@TagItem{
+@Option{Project"|"Add File}}{
 
  Click this menu option to invoke the Add Dialog
 
 projects @RawIndex{ Projects }
 projects.project.settings @SubIndex{ Project Settings }}
-@LI{
-@Option{Project"|"Project Settings}@LLP
+@TagItem{
+@Option{Project"|"@LLP Project Settings}}{
 
  Click this menu option to invoke the Project Settings Dialog.
 
 projects @RawIndex{ Projects }
 projects.image.collection.dialog @SubIndex{ Image Collection Dialog }
 image.collection.dialog @Index{ Image Collection Dialog }}
-@LI{
-@Option{Project"|"Image Collection}@LLP
+@TagItem{
+@Option{Project"|"@LLP Image Collection}}{
 
  Click this menu option to invoke the Image Collection Dialog.
 
 database.connections.dialog @Index{ Database Connections Dialog }}
-@LI{
-@Option{Project"|"Database Connections}@LLP
+@TagItem{
+@Option{Project"|"Database @LLP Connections}}{
 
  Click this menu option to invoke the Edit Database Connections Dialog.}
 @EndList
@@ -249,28 +249,28 @@ This menu is invoked with @Option{Alt+S}, and provides the following
 find.text.dialog @Index{ Find Text Dialog }
 options:
 
-@BulletList
-@LI{
-@Option{Search"|"Find}@LLP
+@TaggedList labelwidth { 8f }
+@TagItem{
+@Option{Search"|"Find}}{
 
  Click this menu option (or press @Option{Ctrl+F}) to invoke the Find Text Dialog.
 
 incremental.search @Index{ Incremental Search }
 search.incremental @Index{ Search, Incremental }}
-@LI{
-@Option{Search"|"Find Incremental}@LLP
+@TagItem{
+@Option{Search"|"Find @LLP Incremental}}{
 
  Click this menu option (or press @Option{Alt+I}) to place the cursor in the text box located next to the @Option{Find} toolbar button. Type characters into the text box; as you type, @QDR will highlight the first occurrence of the text that it finds in the file. Press the @Option{Enter} key to go to the next occurrence of the text. Press the @Option{Esc} key once you have found the word you are looking for to place the cursor in the editor.
 
 replace.text.dialog @Index{ Replace Text Dialog }}
-@LI{
-@Option{Search"|"Replace}@LLP
+@TagItem{
+@Option{Search"|"Replace}}{
 
  Click this menu option (or press @Option{Ctrl+R}) to invoke the Replace Text Dialog to replace specific words or characters.
 
 goto.line.dialog @Index{ Goto Line Dialog }}
-@LI{
-@Option{Search"|"Goto line}@LLP
+@TagItem{
+@Option{Search"|"Goto line}}{
 
  Click this menu option (or press @Option{Alt+G}) to invoke the Goto Line Dialog to go to a specific line in the file.}
 @EndList
@@ -291,258 +291,258 @@ tools @RawIndex{ Tools }
 tools.pointer @SubIndex{ Pointer }
 options:
 
-@BulletList
-@LI{
-@Option{Tools"|"Pointer}@LLP
+@TaggedList labelwidth { 9f }
+@TagItem{
+@Option{Tools"|"Pointer}}{
 
  Click this menu option (or press @Option{F2}) to de-select any selected widget toolbar button. The pointer is also used to stop inserting new widgets on the form if you double clicked a widget toolbar button. Press the @Option{Esc} key to return to the pointer at any time.
 
 edit.connections.dialog @Index{ Edit Connections Dialog }}
-@LI{
-@Option{Tools"|"Connect Signals and Slots}@LLP
+@TagItem{
+@Option{Tools"|"Connect}@LLP @Option{Signals and Slots}}{
 
  Click this menu option (or press @Option{F3}) to connect signals and slots. Click on a widget and drag the connection line to the widget (or form) that you want to connect to. Release the mouse button and the View and Edit Connections Dialog will appear.
 
 tab.order @Index{ Tab Order }}
-@LI{
-@Option{Tools"|"Tab Order}@LLP
+@TagItem{
+@Option{Tools"|"Tab Order}}{
 
  Click this menu option (or press @Option{F4}) to set the tab order for all the widgets on the form that can accept keyboard focus. Choose this option and blue circles with numbers on them appear next to the widgets. Click the widget that you want to be first in the tab order, then click the widget that should be next in the tab order, and continue until all the widgets have the tab order numbers you want. If you make a mistake, double click the first widget and start again. Press @Option{Esc} to leave tab order mode. If you want to revert your changes, leave tab order mode, then undo.
 
 set.buddy @Index{ Set Buddy }}
-@LI{
-@Option{Tools"|"Set Buddy}@LLP
+@TagItem{
+@Option{Tools"|"Set Buddy}}{
 
  Click this toolbar button (or press @Option{F5}) to set a buddy to a label. Then click on a label and drag the line to the widget that you want to be the buddy. Release the mouse button and the buddy is set.
 
 tools @RawIndex{ Tools }
 buttons.pushbutton @SubSubIndex{ PushButton }}
-@LI{
-@Option{Tools"|"Buttons"|"PushButton}@LLP
+@TagItem{
+@Option{Tools"|"Buttons"|" @LLP PushButton}}{
 
  Click this menu option and then click the form to place a PushButton on the form.
 
 tools @RawIndex{ Tools }
 buttons.toolbutton @SubSubIndex{ ToolButton }}
-@LI{
-@Option{Tools"|"Buttons"|"ToolButton}@LLP
+@TagItem{
+@Option{Tools"|"Buttons"|" @LLP ToolButton}}{
 
  Click this menu option and then click the form to place a ToolButton on the form.
 
 tools @RawIndex{ Tools }
 buttons.radiobutton @SubSubIndex{ RadioButton }}
-@LI{
-@Option{Tools"|"Buttons"|"RadioButton}@LLP
+@TagItem{
+@Option{Tools"|"Buttons"|" @LLP RadioButton}}{
 
  Click this menu option and then click the form to place a RadioButton on the form. It is recommended that you place RadioButtons inside ButtonGroups so that Qt will automatically ensure that only one RadioButton in the group is active at any one time.
 
 tools @RawIndex{ Tools }
 buttons.checkbox @SubSubIndex{ CheckBox }}
-@LI{
-@Option{Tools"|"Buttons"|"CheckBox}@LLP
+@TagItem{
+@Option{Tools"|"Buttons"|" @LLP CheckBox}}{
 
  Click this menu option and then click the form to place a CheckBox on the form.
 
 tools @RawIndex{ Tools }
 containers.groupbox @SubSubIndex{ GroupBox }}
-@LI{
-@Option{Tools"|"Containers"|"GroupBox}@LLP
+@TagItem{
+@Option{Tools"|"Containers"|" @LLP GroupBox}}{
 
  Click this menu option and then click the form to place a GroupBox on the form.
 
 tools @RawIndex{ Tools }
 containers.buttongroup @SubSubIndex{ ButtonGroup }}
-@LI{
-@Option{Tools"|"Containers"|"ButtonGroup}@LLP
+@TagItem{
+@Option{Tools"|"Containers"|" @LLP ButtonGroup}}{
 
  Click this menu option and then click the form to place a ButtonGroup on the form.
 
 tools @RawIndex{ Tools }
 containers.frame @SubSubIndex{ Frame }}
-@LI{
-@Option{Tools"|"Containers"|"Frame}@LLP
+@TagItem{
+@Option{Tools"|"Containers"|" @LLP Frame}}{
 
  Click this menu option and then click the form to place a Frame on the form.
 
 tools @RawIndex{ Tools }
 containers.tabwidget @SubSubIndex{ TabWidget }}
-@LI{
-@Option{Tools"|"Containers"|"TabWidget}@LLP
+@TagItem{
+@Option{Tools"|"Containers"|" @LLP TabWidget}}{
 
  Click this menu option and then click the form to place a TabWidget on the form. To add or remove tabs, right click the tab widget and choose 'Add Page' or 'Remove Page'.
 
 tools @RawIndex{ Tools }
 views.listbox @SubSubIndex{ ListBox }}
-@LI{
-@Option{Tools"|"Views"|"ListBox}@LLP
+@TagItem{
+@Option{Tools"|"Views"|"ListBox}}{
 
  Click this menu option and then click the form to place a ListBox on the form.
 
 tools @RawIndex{ Tools }
 views.listview @SubSubIndex{ ListView }}
-@LI{
-@Option{Tools"|"Views"|"ListView}@LLP
+@TagItem{
+@Option{Tools"|"Views"|"ListView}}{
 
  Click this menu option and then click the form to place a ListView on the form.
 
 tools @RawIndex{ Tools }
 views.icon.view @SubSubIndex{ Icon View }}
-@LI{
-@Option{Tools"|"Views"|"Icon View}@LLP
+@TagItem{
+@Option{Tools"|"Views"|"@LLP Icon View}}{
 
  Click this menu option and then click the form to place an IconView on the form.
 
 tools @RawIndex{ Tools }
 views.table @SubSubIndex{ Table }}
-@LI{
-@Option{Tools"|"Views"|"Table}@LLP
+@TagItem{
+@Option{Tools"|"Views"|"Table}}{
 
  Click this menu option and then click the form to place a Table on the form.
 
 tools @RawIndex{ Tools }
 views.table @SubSubIndex{ Table }}
-@LI{
-@Option{Tools"|"Database"|"DataTable}@LLP
+@TagItem{
+@Option{Tools"|"Database"|" @LLP DataTable}}{
 
  Click this menu option and then click the form to place a DataTable on the form.
 
 tools @RawIndex{ Tools }
 database.databrowser @SubSubIndex{ DataBrowser }}
-@LI{
-@Option{Tools"|"Database"|"DataBrowser}@LLP
+@TagItem{
+@Option{Tools"|"Database"|" @LLP DataBrowser}}{
 
  Click this menu option and then click the form to place a DataBrowser on the form.
 
 tools @RawIndex{ Tools }
 database.dataview @SubSubIndex{ DataView }}
-@LI{
-@Option{Tools"|"Database"|"DataView}@LLP
+@TagItem{
+@Option{Tools"|"Database"|" @LLP DataView}}{
 
  Click this menu option and then click the form to place a DataView on the form.
 
 tools @RawIndex{ Tools }
 input.lineedit @SubSubIndex{ LineEdit }}
-@LI{
-@Option{Tools"|"Input"|"LineEdit}@LLP
+@TagItem{
+@Option{Tools"|"Input"|"LineEdit}}{
 
  Click this menu option and then click the form to place a LineEdit on the form.
 
 tools @RawIndex{ Tools }
 input.spinbox @SubSubIndex{ SpinBox }}
-@LI{
-@Option{Tools"|"Input"|"SpinBox}@LLP
+@TagItem{
+@Option{Tools"|"Input"|"SpinBox}}{
 
  Click this menu option and then click the form to place a SpinBox on the form.
 
 tools @RawIndex{ Tools }
 input.dateedit @SubSubIndex{ DateEdit }}
-@LI{
-@Option{Tools"|"Input"|"DateEdit}@LLP
+@TagItem{
+@Option{Tools"|"Input"|"DateEdit}}{
 
  Click this menu option and then click the form to place a DateEdit on the form.
 
 tools @RawIndex{ Tools }
 input.timeedit @SubSubIndex{ TimeEdit }}
-@LI{
-@Option{Tools"|"Input"|"TimeEdit}@LLP
+@TagItem{
+@Option{Tools"|"Input"|"TimeEdit}}{
 
  Click this menu option and then click the form to place a TimeEdit on the form.
 
 tools @RawIndex{ Tools }
 input.datetimeedit @SubSubIndex{ DateTimeEdit }}
-@LI{
-@Option{Tools"|"Input"|"DateTimeEdit}@LLP
+@TagItem{
+@Option{Tools"|"Input"|" @LLP DateTimeEdit}}{
 
  Click this menu option and then click the form to place a DateTimeEdit on the form.
 
 tools @RawIndex{ Tools }
 input.textedit @SubSubIndex{ TextEdit }}
-@LI{
-@Option{Tools"|"Input"|"TextEdit}@LLP
+@TagItem{
+@Option{Tools"|"Input"|"TextEdit}}{
 
  Click this menu option and then click the form to place a TextEdit on the form.
 
 tools @RawIndex{ Tools }
 input.combobox @SubSubIndex{ ComboBox }}
-@LI{
-@Option{Tools"|"Input"|"ComboBox}@LLP
+@TagItem{
+@Option{Tools"|"Input"|" @LLP ComboBox}}{
 
  Click this menu option and then click the form to place a ComboBox on the form.
 
 tools @RawIndex{ Tools }
 input.slider @SubSubIndex{ Slider }}
-@LI{
-@Option{Tools"|"Input"|"Slider}@LLP
+@TagItem{
+@Option{Tools"|"Input"|"Slider}}{
 
  Click this menu option and then click the form to place a Slider on the form.
 
 tools @RawIndex{ Tools }
 input.scrollbar @SubSubIndex{ ScrollBar }}
-@LI{
-@Option{Tools"|"Input"|"ScrollBar}@LLP
+@TagItem{
+@Option{Tools"|"Input"|"ScrollBar}}{
 
  Click this menu option and then click the form to place a Scrollbar on the form.
 
 tools @RawIndex{ Tools }
 input.dial @SubSubIndex{ Dial }}
-@LI{
-@Option{Tools"|"Input"|"Dial}@LLP
+@TagItem{
+@Option{Tools"|"Input"|"Dial}}{
 
  Click this menu option and then click the form to place a Dial on the form.
 
 tools @RawIndex{ Tools }
 display.textlabel @SubSubIndex{ TextLabel }}
-@LI{
-@Option{Tools"|"Display"|"TextLabel}@LLP
+@TagItem{
+@Option{Tools"|"Display"|" @LLP TextLabel}}{
 
  Click this menu option and then click the form to place a TextLabel on the form.
 
 tools @RawIndex{ Tools }
 display.pixmaplabel @SubSubIndex{ PixmapLabel }}
-@LI{
-@Option{Tools"|"Display"|"PixmapLabel}@LLP
+@TagItem{
+@Option{Tools"|"Display"|" @LLP PixmapLabel}}{
 
  Click this menu option and then click the form to place a PixmapLabel on the form.
 
 tools @RawIndex{ Tools }
 display.lcdnumber @SubSubIndex{ LCDNumber }}
-@LI{
-@Option{Tools"|"Display"|"LCDNumber}@LLP
+@TagItem{
+@Option{Tools"|"Display"|" @LLP LCDNumber}}{
 
  Click this menu option and then click the form to place a LCDNumber on the form.
 
 tools @RawIndex{ Tools }
 display.line @SubSubIndex{ Line }}
-@LI{
-@Option{Tools"|"Display"|"Line}@LLP
+@TagItem{
+@Option{Tools"|"Display"|"Line}}{
 
  Click this menu option and then click the form to place a Line on the form.
 
 tools @RawIndex{ Tools }
 display.progressbar @SubSubIndex{ ProgressBar }}
-@LI{
-@Option{Tools"|"Display"|"ProgressBar}@LLP
+@TagItem{
+@Option{Tools"|"Display"|" @LLP ProgressBar}}{
 
  Click this menu option and then click the form to place a ProgressBar on the form.
 
 tools @RawIndex{ Tools }
 display.textbrowser @SubSubIndex{ TextBrowser }}
-@LI{
-@Option{Tools"|"Display"|"TextBrowser}@LLP
+@TagItem{
+@Option{Tools"|"Display"|" @LLP TextBrowser}}{
 
  Click this menu option and then click the form to place a TextBrowser on the form.
 
 edit.custom.widgets.dialog @Index{ Edit Custom Widgets Dialog }}
-@LI{
-@Option{Tools"|"Custom"|"Edit Custom Widgets}@LLP
+@TagItem{
+@Option{Tools"|"Custom"|"Edit  @LLP Custom Widgets}}{
 
  Click this menu option to invoke the Edit Custom Widgets Dialog.}
-@LI{
-@Option{Tools"|"Custom"|"<My Custom Widget>}@LLP
+@TagItem{
+@Option{Tools"|"Custom"|" @LLP <My Custom Widget>}}{
 
  Click this menu option and then click the form to place the Custom Widget on the form. Note that this menu option only appears if you have created a widget using @Option{Tools"|"Custom"|"Edit Custom Widgets}.}
-@LI{
-@Option{Tools"|"Configure Toolbox}@LLP
+@TagItem{
+@Option{Tools"|"Configure  @LLP Toolbox}}{
 
  Click this menu option to invoke the Configure Toolbox Dialog.}
 @EndList
@@ -565,30 +565,30 @@ layouts @RawIndex{ Layouts }
 layouts.adjust.size @SubIndex{ Adjust Size }
 options:
 
-@BulletList
-@LI{
-@Option{Layout"|"Adjust Size}@LLP
+@TaggedList labelwidth { 9f }
+@TagItem{
+@Option{Layout"|"Adjust Size}}{
 
  Click this menu option (or press @Option{Ctrl+J}) to adjust the size of the widget to it's recommended size.
 
 layouts @RawIndex{ Layouts }
 layouts.horizontal @SubIndex{ Horizontal }}
-@LI{
-@Option{Layout"|"Lay Out Horizontally}@LLP
+@TagItem{
+@Option{Layout"|"Lay Out @LLP Horizontally}}{
 
  Click this menu option (or press @Option{Ctrl+H}) to lay out the selected widgets or layouts side by side. Use @Option{Shift+Click} to select each widget or layout, and then choose this menu option to group them horizontally. Note that for complex widgets it is sometimes easiest to select widgets and layouts by clicking them in the Widgets tab of the @Win{Object Explorer} Window. If only one widget is selected, its child widgets will be laid out horizontally.
 
 layouts @RawIndex{ Layouts }
 layouts.vertical @SubIndex{ Vertical }}
-@LI{
-@Option{Layout"|"Lay Out Vertically}@LLP
+@TagItem{
+@Option{Layout"|"Lay Out}@LLP @Option{Vertically}}{
 
  Click this menu option (or press @Option{Ctrl+L}) to lay out the selected widgets one above the other. Use @Option{Shift+Click} to select each widget or layout, and then choose this menu option to group them vertically. Note that for complex widgets it is sometimes easiest to select widgets and layouts by clicking them in the Widgets tab of the @Win{Object Explorer} Window. If only one widget is selected, its child widgets will be laid out vertically.
 
 layouts @RawIndex{ Layouts }
 layouts.grid @SubIndex{ Grid }}
-@LI{
-@Option{Layout"|"Lay Out in a Grid}@LLP
+@TagItem{
+@Option{Layout"|"Lay Out in a @LLP Grid}}{
 
  Click this menu option (or press @Option{Ctrl+G}) to lay out the selected widgets in a grid. If only one widget is selected, its child widgets will be laid out in a grid.
 
@@ -596,8 +596,8 @@ layouts @RawIndex{ Layouts }
 layouts.horizontal @SubIndex{ Horizontal }
 layouts @RawIndex{ Layouts }
 layouts.splitters @SubIndex{ Splitters }}
-@LI{
-@Option{Layout"|"Lay Out Horizontally (in Splitter)}@LLP
+@TagItem{
+@Option{Layout"|"Lay Out @LLP Horizontally @LLP (in Splitter)}}{
 
  Click this menu option to lay out the selected widgets or layouts side by side with a splitter between each. Use @Option{Shift+Click} to select each widget or layout, and then choose this menu option to group them horizontally. Note that for complex widgets it is sometimes easiest to select widgets and layouts by clicking them in the Widgets tab of the @Win{Object Explorer} Window.
 
@@ -605,22 +605,22 @@ layouts @RawIndex{ Layouts }
 layouts.vertical @SubIndex{ Vertical }
 layouts @RawIndex{ Layouts }
 layouts.splitters @SubIndex{ Splitters }}
-@LI{
-@Option{Layout"|"Lay Out Vertically (in Splitter)}@LLP
+@TagItem{
+@Option{Layout"|"Lay Out @LLP Vertically (in Splitter)}}{
 
  Click this menu option to lay out the selected widgets or layouts one above the other with a splitter between each. Use @Option{Shift+Click} to select each widget or layout, and then choose this menu option to group them vertically. Note that for complex widgets it is sometimes easiest to select widgets and layouts by clicking them in the Widgets tab of the @Win{Object Explorer} Window.
 
 layouts @RawIndex{ Layouts }
 layouts.break.layout @SubIndex{ Break layout }}
-@LI{
-@Option{Layout"|"Break Layout}@LLP
+@TagItem{
+@Option{Layout"|"Break Layout}}{
 
  Click this menu option (or press @Option{Ctrl+B}) to break a layout. Click on the layout, then select this option; the layout is deleted.
 
 layouts @RawIndex{ Layouts }
 layouts.spacers @SubIndex{ Spacers }}
-@LI{
-@Option{Layout"|"Add Spacer}@LLP
+@TagItem{
+@Option{Layout"|"Add Spacer}}{
 
  Click this menu option to add a vertical or horizontal spacer to widgets that take up too much space on the form. The spacer consumes extra space in the layout.}
 @EndList
@@ -641,33 +641,33 @@ This menu is invoked with @Option{Alt+P}, and provides the following
 previewing @Index{ Previewing }
 options:
 
-@BulletList
-@LI{
-@Option{Preview"|"Preview Form}@LLP
+@TaggedList labelwidth { 12f }
+@TagItem{
+@Option{Preview"|"Preview Form}}{
 
  Click this menu option (or press @Option{Ctrl+T}) to preview the form within @QDR.}
-@LI{
-@Option{Preview"|"...in Windows Style}@LLP
+@TagItem{
+@Option{Preview"|"...in Windows Style}}{
 
  Click this menu option to preview the form in the Windows style.}
-@LI{
-@Option{Preview"|"...in Motif Style}@LLP
+@TagItem{
+@Option{Preview"|"...in Motif Style}}{
 
  Click this menu option to preview the form in the Motif style.}
-@LI{
-@Option{Preview"|"...in CDE Style}@LLP
+@TagItem{
+@Option{Preview"|"...in CDE Style}}{
 
  Click this menu option to preview the form in the CDE style.}
-@LI{
-@Option{Preview"|"...in MotifPlus Style}@LLP
+@TagItem{
+@Option{Preview"|"...in MotifPlus Style}}{
 
  Click this menu option to preview the form in the MotifPlus style.}
-@LI{
-@Option{Preview"|"...in Platinum Style}@LLP
+@TagItem{
+@Option{Preview"|"...in Platinum Style}}{
 
  Click this menu option to preview the form in the Platinum style.}
-@LI{
-@Option{Preview"|"...in SGI Style}@LLP
+@TagItem{
+@Option{Preview"|"...in SGI Style}}{
 
  Click this menu option to preview the form in the SGI style.}
 @EndList
@@ -684,117 +684,117 @@ options:
 This menu is invoked with @Option{Alt+W}, and provides the following
 options:
 
-@BulletList
-@LI{
-@Option{Window"|"Close}@LLP
+@TaggedList labelwidth { 9f }
+@TagItem{
+@Option{Window"|"Close}}{
 
  Click this menu option (or press @Option{Ctrl+F4}) to close the window that is currently active.}
-@LI{
-@Option{Window"|"Close All}@LLP
+@TagItem{
+@Option{Window"|"Close All}}{
 
  Click this menu option to close all the windows that are currently open.}
-@LI{
-@Option{Window"|"Next}@LLP
+@TagItem{
+@Option{Window"|"Next}}{
 
  Click this menu option (or press @Option{Ctrl+F6}) to make the next window active. The order is the order in which the windows were opened.}
-@LI{
-@Option{Window"|"Previous}@LLP
+@TagItem{
+@Option{Window"|"Previous}}{
 
  Click this menu option (or press @Option{Ctrl+Shift+F6}) to make the previous window active. The order is the order in which the windows were opened.}
-@LI{
-@Option{Window"|"Tile}@LLP
+@TagItem{
+@Option{Window"|"Tile}}{
 
  Click this menu option to arrange all the open files and forms side by side so that each window is visible.}
-@LI{
-@Option{Window"|"Cascade}@LLP
+@TagItem{
+@Option{Window"|"Cascade}}{
 
  Click this menu option to stack all the open file and forms, one on top of the other, but with an overlap so that each window's title bar is visible.
 
 file.overview.window @Index{ File Overview Window }
 windows @RawIndex{ Windows }
 windows.file.overview @SubIndex{ File Overview }}
-@LI{
-@Option{Window"|"Views"|"File Overview}@LLP
+@TagItem{
+@Option{Window"|"Views"|"@LLP File Overview}}{
 
  Click this menu option to make the File Overview Window visible, or to hide it if it is already visible. If the window is currently visible, a check mark will appear next to the name in the menu.
 
 property.editor.signal.handlers @Index{ Property Editor"/"Signal Handlers }
 windows @RawIndex{ Windows }
 windows.property.editor.signal.handlers @SubIndex{ Property Editor"/"Signal Handlers }}
-@LI{
-@Option{Window"|"Views"|"Property Editor"/"Signal Handlers}@LLP
+@TagItem{
+@Option{Window"|"Views"|"@LLP Property Editor"/"@LLP Signal Handlers}}{
 
  Click this menu option to make the Property Editor"/"Signal Handlers Window visible, or to hide it if it is already visible. If the window is currently visible, a check mark will appear next to the name in the menu.
 
 object.explorer @Index{ Object Explorer }
 windows @RawIndex{ Windows }
 windows.object.explorer @SubIndex{ Object Explorer }}
-@LI{
-@Option{Window"|"Views"|"Object Explorer}@LLP
+@TagItem{
+@Option{Window"|"Views"|"@LLP Object Explorer}}{
 
  Click this menu option to make the @Win{Object Explorer} Window visible, or to hide it if it is already visible. If the window is currently visible, a check mark will appear next to the name in the menu.}
-@LI{
-@Option{Window"|"Views"|"Line Up}@LLP
+@TagItem{
+@Option{Window"|"Views"|"@LLP Line Up}}{
 
  Click this menu option to eliminate any extra space between toolbars and line them up next to each other all at once, rather than moving each individual toolbar into place.}
-@LI{
-@Option{Window"|"Toolbars"|"File}@LLP
+@TagItem{
+@Option{Window"|"Toolbars"|"@LLP File}}{
 
  Click this menu option to make the File toolbar buttons visible, or to hide them if they are already visible. If the toolbar buttons are currently visible, a check mark will appear next to the name in the menu.}
-@LI{
-@Option{Window"|"Toolbars"|"Edit}@LLP
+@TagItem{
+@Option{Window"|"Toolbars"|"@LLP Edit}}{
 
  Click this menu option to make the Edit toolbar buttons visible, or to hide them if they are already visible. If the toolbar buttons are currently visible, a check mark will appear next to the name in the menu.}
-@LI{
-@Option{Window"|"Toolbars"|"Search}@LLP
+@TagItem{
+@Option{Window"|"Toolbars"|"@LLP Search}}{
 
  Click this menu option to make the Search toolbar buttons visible, or to hide them if they are already visible. if the toolbar buttons are currently visible, a check mark will appear next to the name in the menu.}
-@LI{
-@Option{Window"|"Toolbars"|"Layout}@LLP
+@TagItem{
+@Option{Window"|"Toolbars"|"@LLP Layout}}{
 
  Click this menu option to make the Layout toolbar buttons visible, or to hide them if they are already visible. If the toolbar buttons are currently visible, a check mark will appear next to the name in the menu.}
-@LI{
-@Option{Window"|"Toolbars"|"Tools}@LLP
+@TagItem{
+@Option{Window"|"Toolbars"|"@LLP Tools}}{
 
  Click this menu option to make the Tools toolbar buttons visible, or to hide them if they are already visible. If the toolbar buttons are currently visible, a check mark will appear next to the name in the menu.}
-@LI{
-@Option{Window"|"Toolbars"|"Buttons}@LLP
+@TagItem{
+@Option{Window"|"Toolbars"|"@LLP Buttons}}{
 
  Click this menu option to make the Buttons toolbar buttons visible, or to hide them if they are already visible. If the toolbar buttons are currently visible, a check mark will appear next to the name in the menu.}
-@LI{
-@Option{Window"|"Toolbars"|"Containers}@LLP
+@TagItem{
+@Option{Window"|"Toolbars"|"@LLP Containers}}{
 
  Click this menu option to make the Containers toolbar buttons visible, or to hide them if they are already visible. If the toolbar buttons are currently visible, a check mark will appear next to the name in the menu.}
-@LI{
-@Option{Window"|"Toolbars"|"Views}@LLP
+@TagItem{
+@Option{Window"|"Toolbars"|"@LLP Views}}{
 
  Click this menu option to make the Views toolbar buttons visible, or to hide them if they are already visible. If the toolbar buttons are currently visible, a check mark will appear next to the name in the menu.}
-@LI{
-@Option{Window"|"Toolbars"|"Database}@LLP
+@TagItem{
+@Option{Window"|"Toolbars"|"@LLP Database}}{
 
  Click this menu option to make the Database toolbar buttons visible, or to hide them if they are already visible. If the toolbar buttons are currently visible, a check mark will appear next to the name in the menu.}
-@LI{
-@Option{Window"|"Toolbars"|"Input}@LLP
+@TagItem{
+@Option{Window"|"Toolbars"|"@LLP Input}}{
 
  Click this menu option to make the Input toolbar buttons visible, or to hide them if they are already visible. If the toolbar buttons are currently visible, a check mark will appear next to the name in the menu.}
-@LI{
-@Option{Window"|"Toolbars"|"Display}@LLP
+@TagItem{
+@Option{Window"|"Toolbars"|"@LLP Display}}{
 
  Click this menu option to make the Display toolbar buttons visible, or to hide them if they are already visible. If the toolbar buttons are currently visible, a check mark will appear next to the name in the menu.}
-@LI{
-@Option{Window"|"Toolbars"|"Custom}@LLP
+@TagItem{
+@Option{Window"|"Toolbars"|"@LLP Custom}}{
 
  Click this menu option to make the Custom toolbar buttons visible, or to hide them if they are already visible. If the toolbar buttons are currently visible, a check mark will appear next to the name in the menu.}
-@LI{
-@Option{Window"|"Toolbars"|"Help}@LLP
+@TagItem{
+@Option{Window"|"Toolbars"|"@LLP Help}}{
 
  Click this menu option to make the Help toolbar buttons visible, or to hide them if they are already visible. If the toolbar buttons are currently visible, a check mark will appear next to the name in the menu.}
-@LI{
-@Option{Window"|"Toolbars"|"Line Up}@LLP
+@TagItem{
+@Option{Window"|"Toolbars"|"@LLP Line Up}}{
 
  Click this menu option to eliminate extra space between toolbars and line them up next to each other all at once, rather than moving each individual toolbar into place.}
-@LI{
-@Option{Window"|"n}@LLP
+@TagItem{
+@Option{Window"|"n}}{
 
  Click one of the numbered menu options that list the currently open files and forms to switch to the named file or form.}
 @EndList
@@ -811,25 +811,25 @@ windows.object.explorer @SubIndex{ Object Explorer }}
 This menu is invoked with @Option{Alt+H}, and provides the following
 options:
 
-@BulletList
-@LI{
-@Option{Help"|"Contents}@LLP
+@TaggedList labelwidth { 9f }
+@TagItem{
+@Option{Help"|"Contents}}{
 
  Click this menu option (or press @Option{F1}) to invoke the Qt Assistant application which provides on-line help. The on-line help is context sensitive, so you can type the item you want more information about in the line edit and Qt Assistant will automatically find it if it is available.}
-@LI{
-@Option{Help"|"Manual}@LLP
+@TagItem{
+@Option{Help"|"Manual}}{
 
  Click this menu option (or press @Option{Ctrl+M}) to invoke the Qt Assistant application which opens showing this manual.}
-@LI{
-@Option{Help"|"About}@LLP
+@TagItem{
+@Option{Help"|"About}}{
 
  Click this menu option to invoke the About @QDR dialog which gives the version number and some licensing information.}
-@LI{
-@Option{Help"|"About Qt}@LLP
+@TagItem{
+@Option{Help"|"About Qt}}{
 
  Click this menu option to invoke a dialog which provides information about Qt.}
-@LI{
-@Option{Help"|"What's This?}@LLP
+@TagItem{
+@Option{Help"|"What's This?}}{
 
  Click this menu option to invoke a small question mark that is attached to the mouse pointer. Click on a feature which you would like more information about. A popup box appears with information about the feature.}
 @EndList
