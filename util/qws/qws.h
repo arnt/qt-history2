@@ -201,8 +201,9 @@ public:
     void sendSelectionRequestEvent( QWSConvertSelectionCommand *cmd, int windowid );
     QWSCommand* readMoreCommand();
     void writeRegion( QRegion reg );
-/*
 signals:
+    void readyRead();
+/*
     void connectionClosed();
 private slots:
     void closeHandler();

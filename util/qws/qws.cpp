@@ -81,12 +81,10 @@ QWSClient::QWSClient( QObject* parent, int socket, int shmid, int swidth, int sh
 
     flush();
 
-    /*
-    ####### Use QSocketNotifier to implement these anew.
-
-    connect( this, SIGNAL(closed()), this, SLOT(closeHandler()) );
-    connect( this, SIGNAL(error(int)), this, SLOT(errorHandler(int)) );
-    */
+    QSocketNotifier* sn = new QSocketNotifier(socket,QSocketNotifier::Read,this);
+    QObject::connect(sn,SIGNAL(activated(int)),this,SIGNAL(readyRead()));
+    //connect( this, SIGNAL(closed()), this, SLOT(closeHandler()) );
+    //connect( this, SIGNAL(error(int)), this, SLOT(errorHandler(int)) );
 }
 
 QWSClient::~QWSClient()
