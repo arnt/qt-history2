@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#102 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#103 $
 **
 ** Definition of QPixmap class
 **
@@ -131,7 +131,7 @@ public:
     HBITMAP	multiCellBitmap() const;
     int		multiCellOffset() const;
     int		allocCell();
-    void	freeCell();
+    void	freeCell( bool = FALSE );
 #endif
 
 protected:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#85 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#86 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -33,6 +33,8 @@ extern uchar *qt_get_bitflip_array();		// defined in qimage.cpp
 #define DATA_MCPI	 data->hbm_or_mcpi.mcpi
 #define DATA_MCPI_MCP	 data->hbm_or_mcpi.mcpi->mcp
 #define DATA_MCPI_OFFSET data->hbm_or_mcpi.mcpi->offset
+
+static bool mcp_system_unstable = FALSE;
 
 
 /*
@@ -129,8 +131,16 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 void QPixmap::deref()
 {
     if ( data && data->deref() ) {		// last reference lost
-	if ( data->mcp )
-	    freeCell();
+	if ( data->mcp ) {
+	    if ( mcp_system_unstable ) {	// all mcp's gone
+		data->mcp = FALSE;
+		delete DATA_MCPI;
+		DATA_MCPI = 0;
+		DATA_HBM  = 0;
+	    } else {
+		freeCell( TRUE );
+	    }
+	}
 	if ( data->mask )
 	    delete data->mask;
 	if ( data->bits )
@@ -950,9 +960,19 @@ void QMultiCellPixmap::freeCell( int offset, int size )
 typedef QList<QMultiCellPixmap>  QMultiCellPixmapList;
 typedef QMultiCellPixmapList   *pQMultiCellPixmapList;
 
-static const int mcp_num_lists = 10;
+static const int mcp_num_lists  = 10;
 static bool	 mcp_lists_init = FALSE;
 static pQMultiCellPixmapList mcp_lists[mcp_num_lists];
+
+static void cleanup_mcp()
+{
+    if ( mcp_lists_init ) {
+	mcp_system_unstable = TRUE;		// tell QPixmap::deref()
+	mcp_lists_init = FALSE;
+	for ( int i=0; i<mcp_num_lists; i++ )
+	    delete mcp_lists[i];
+    }
+}
 
 static void init_mcp()
 {
@@ -960,6 +980,7 @@ static void init_mcp()
 	mcp_lists_init = TRUE;
 	for ( int i=0; i<mcp_num_lists; i++ )
 	    mcp_lists[i] = 0;
+	qAddPostRoutine( cleanup_mcp );
     }
 }
 
@@ -1035,7 +1056,7 @@ int QPixmap::allocCell()
 }
 
 
-void QPixmap::freeCell()
+void QPixmap::freeCell( bool terminate )
 {
     if ( !mcp_lists_init || !data->mcp )
 	return;
@@ -1045,9 +1066,8 @@ void QPixmap::freeCell()
     delete DATA_MCPI;
     DATA_MCPI = 0;
     ASSERT( hdc == 0 );
-    if ( QApplication::closingDown() ) {	// app terminated
+    if ( terminate ) {			// pixmap is being destroyed
 	DATA_HBM = 0;
-	hdc = 0;
     } else {
 	if ( data->d == defaultDepth() )
 	    DATA_HBM = CreateCompatibleBitmap( qt_display_dc(), data->w, data->h);
@@ -1060,10 +1080,12 @@ void QPixmap::freeCell()
     if ( mcp->isEmpty() ) {			// no more cells left
 	int i = index_of_mcp_list(width(),depth()==1,0);
 	ASSERT( i >= 0 && mcp_lists[i] );
-	mcp_lists[i]->remove( mcp );
-	if ( mcp_lists[i]->isEmpty() ) {
-	    delete mcp_lists[i];
-	    mcp_lists[i] = 0;
+	if ( mcp_lists[i]->count() > 1 ) {	// don't remove the last one
+	    mcp_lists[i]->remove( mcp );
+	    if ( mcp_lists[i]->isEmpty() ) {
+		delete mcp_lists[i];
+		mcp_lists[i] = 0;
+	    }
 	}
     }
 }
