@@ -3,7 +3,10 @@
 #include <qstring.h>
 #include <qfontmetrics.h>
 #include <qdebug.h>
+#include <qvector.h>
 #include "qobject_p.h"
+#include <qmap.h>
+#include <qfont.h>
 
 enum { UndefinedIndex = -1 };
 
@@ -278,6 +281,14 @@ QTextListFormat QTextFormat::toListFormat() const
 	return QTextListFormat();
     return QTextListFormat(*d);
 }
+
+QTextTableFormat QTextFormat::toTableFormat() const
+{
+    if (!isTableFormat())
+	return QTextTableFormat();
+    return QTextTableFormat(*d);
+}
+
 
 bool QTextFormat::booleanProperty(int propertyId, bool defaultValue) const
 {

@@ -1,14 +1,12 @@
 #ifndef QTEXTFORMAT_H
 #define QTEXTFORMAT_H
 
-#include <qfont.h>
 #include <qcolor.h>
-#include <qmap.h>
-#include <qvector.h>
 #include <qstylesheet.h>
 
 class QString;
 class QByteArray;
+class QFont;
 
 class QTextFormatCollection;
 class QTextFormatCollectionPrivate;
@@ -17,6 +15,7 @@ class QTextFormatPrivate;
 class QTextBlockFormat;
 class QTextCharFormat;
 class QTextListFormat;
+class QTextTableFormat;
 
 class QTextFormat
 {
@@ -26,6 +25,7 @@ public:
 	BlockFormat = 1,
 	CharFormat = 2,
 	ListFormat = 3,
+	TableFormat = 4,
 
 	UserFormat = 100
     };
@@ -35,6 +35,7 @@ public:
 	BlockDirection = 0x1000,
 	BlockAlignment = 0x1010,
 	BlockListFormatIndex = 0x1020,
+	BlockTableFormatIndex = 0x1021,
 	BlockTopMargin = 0x1030,
 	BlockBottomMargin = 0x1031,
 	BlockLeftMargin = 0x1032,
@@ -62,6 +63,10 @@ public:
 	// list properties
 	ListStyle = 0x3000,
 	ListIndent = 0x3001,
+
+	// table properties
+	TableNumRows = 0x4000,
+	TableNumCols = 0x4001,
 
 	// --
 	UserProperty = 0x10000
@@ -100,10 +105,12 @@ public:
     bool isCharFormat() const { return inheritsFormatType(CharFormat); }
     bool isBlockFormat() const { return inheritsFormatType(BlockFormat); }
     bool isListFormat() const { return inheritsFormatType(ListFormat); }
+    bool isTableFormat() const { return inheritsFormatType(TableFormat); }
 
     QTextBlockFormat toBlockFormat() const;
     QTextCharFormat toCharFormat() const;
     QTextListFormat toListFormat() const;
+    QTextTableFormat toTableFormat() const;
 
     bool booleanProperty(int propertyId, bool defaultValue = false) const;
     int intProperty(int propertyId, int defaultValue = 0) const;
@@ -226,6 +233,13 @@ public:
     int listFormatIndex() const
     { return formatReferenceProperty(BlockListFormatIndex); }
 
+    // ################# shouldn't we ensure you can only set one reference?
+    // both a table and a list reference don't make sense
+    void setTableFormatIndex(int idx)
+    { setFormatReferenceProperty(BlockTableFormatIndex, idx); }
+    int tableFormatIndex() const
+    { return formatReferenceProperty(BlockTableFormatIndex); }
+
     void setTopMargin(int margin)
     { setProperty(BlockTopMargin, margin); }
     int topMargin() const
@@ -277,6 +291,23 @@ public:
 
 };
 
+class QTextTableFormat : public QTextFormat
+{
+public:
+    QTextTableFormat() : QTextFormat(TableFormat) {}
+
+    Q_EXPLICIT QTextTableFormat(const QTextFormatPrivate &priv) : QTextFormat(priv) {}
+
+    void setNumRows(int rows)
+    { setProperty(TableNumRows, rows); }
+    void setNumCols(int cols)
+    { setProperty(TableNumCols, cols); }
+    int numRows() const
+    { return intProperty(TableNumRows, 1); }
+    int numCols() const
+    { return intProperty(TableNumCols, 1); }
+};
+
 class QTextFormatCollection : public QObject
 {
     Q_OBJECT
@@ -297,6 +328,8 @@ public:
     { return format(index, QTextFormat::CharFormat).toCharFormat(); }
     QTextListFormat listFormat(int index) const
     { return format(index, QTextFormat::ListFormat).toListFormat(); }
+    QTextTableFormat tableFormat(int index) const
+    { return format(index, QTextFormat::TableFormat).toTableFormat(); }
 
     int numFormats() const;
 
