@@ -239,7 +239,7 @@ public:
     bool opaque;
     bool inMovement;
     bool dockMenu;
-    
+
     QMap< int, bool > dockable;
 };
 
@@ -1065,7 +1065,8 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
 		    mul = 2;
 		    div = 5;
 		}
-		if ( rect_extend( ir, o, TRUE ) < ( mul * rect_extend( it.key(), o, TRUE ) ) / div ) {
+		bool contains = it.key().contains( d->oldPosRect );
+		if ( !contains && rect_extend( ir, o, TRUE ) < ( mul * rect_extend( it.key(), o, TRUE ) ) / div ) {
 		    if ( rect_pos( ir, o, TRUE ) <= rect_pos( it.key(), o, TRUE ) ) {
 #ifdef QMAINWINDOW_DEBUG
 			qDebug( "above" );
@@ -2842,7 +2843,7 @@ void QMainWindow::rightMouseButtonMenu( const QPoint &p )
   Returns TRUE, if rightclicking on an empty space on a toolbar dock
   opens a popup menu which allows lining up toolbars and hiding/showing
   toolbars.
-  
+
   \sa setDockEnabled(), lineUpToolBars()
 */
 
@@ -2855,7 +2856,7 @@ bool QMainWindow::isDockMenuEnabled() const
   When passing TRUE for \a b here, rightclicking on an empty space on a toolbar dock
   opens a popup menu which allows lining up toolbars and hiding/showing
   toolbars.
-  
+
   \sa lineUpToolBars(), isDockMenuEnabled()
 */
 
