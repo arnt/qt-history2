@@ -320,8 +320,11 @@ void FormList::rmbClicked( QListViewItem *i )
 
     if ( id == REMOVE_FORM ) {
 	project->removeUiFile( ( (FormListItem*)i )->text( 1 ), ( (FormListItem*)i )->formWindow() );
-	if ( ( (FormListItem*)i )->formWindow() )
+	if ( ( (FormListItem*)i )->formWindow() ) {
 	    ( (FormListItem*)i )->formWindow()->setProject( 0 );
+	    ( (FormListItem*)i )->formWindow()->commandHistory()->setModified( FALSE );
+	    ( (FormListItem*)i )->formWindow()->close();
+	}
 	delete i;
     }
 }
