@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#5 $
 **
 ** C++ file skeleton
 **
@@ -22,7 +22,7 @@
 extern void qt_xdnd_send_move( Window, QDragObject *, const QPoint & );
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdragobject.cpp#4 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdragobject.cpp#5 $");
 
 
 // both a struct for storing stuff in and a wrapper to avoid polluting
@@ -142,12 +142,16 @@ void QDragData::Manager::move( const QPoint & globalPos )
 
     int lx, ly;
     Window target;
+#if defined( _WS_X11_ )    
     if ( !XTranslateCoordinates(qt_xdisplay(), qt_xrootwin(), qt_xrootwin(),
 				globalPos.x(), globalPos.y(),
 				&lx, &ly, &target) ) {
 	// somehow got to a different screen?  ignore for now
 	return;
     }
+#elif defined(_WS_WIN_)
+    return;
+#endif
 
     QWidget * w = QWidget::find( target );
 
@@ -189,7 +193,13 @@ void QDragData::Manager::move( const QPoint & globalPos )
 	restoreCursor = TRUE;
     } else {
 	// another process, so do the IPC thing
+#if defined( _WS_X11_ )    
 	qt_xdnd_send_move( target, object, globalPos );
+#elif defined(_WS_WIN_)
+	QApplication::setOverrideCursor( crossCursor,
+					 restoreCursor );
+	restoreCursor = TRUE;
+#endif
     }
 }
 
