@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#47 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#48 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -20,7 +20,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#47 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#48 $";
 #endif
 
 
@@ -367,7 +367,7 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
 
   A QString that has not been assigned to anything is \e null, i.e. both
   the length and data pointer is 0. A QString that references the empty
-  string ("", a single '\0' char) is \e empty.  Both void and empty
+  string ("", a single '\0' char) is \e empty.  Both null and empty
   QStrings are legal parameters to the methods. Assigning <var>const char
   * 0</var> to QString gives a null QString.
 
@@ -419,23 +419,49 @@ QString::QString( const char *str )		// deep copy
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
+  \fn bool QString::isNull() const
+  Returns TRUE if the string is null, i.e. if data() == 0.
+  A null string is also an empty string.
+
+  Example:
+  \code
+    QString a;		// a.data() == 0,  a.size() == 0, a.length() == 0
+    QString b == "";	// b.data() == "", b.size() == 1, b.length() == 0
+    a.isNull();		// TRUE, because a.data() == 0
+    a.isEmpty();	// TRUE, because a.length() == 0
+    b.isNull();		// FALSE, because b.data() == ""
+    b.isEmpty();	// TRUE;, because b.length() == 0 
+  \endcode
+
+  \sa isEmpty(), length(), size()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
   \fn bool QString::isEmpty() const
 
-  Returns TRUE if the string is empty (i.e. if length() == 0).
-  ----------------------------------------------------------------------------*/
+  Returns TRUE if the string is empty, i.e. if length() == 0.
+  An empty string is not always a null string.
+
+  See example in isNull().
+
+  \sa isNull(), length(), size()
+ ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn uint QString::length() const
   Returns the length of the string, excluding the '\0'-terminator.
-  Null strings (null pointers) and \e empty strings ("") have zero length.
-  \sa size()
+  Equivalent to calling \c strlen(data()).
+
+  Null strings and empty strings have zero length.
+
+  \sa size(), isNull(), isEmpty()
  ----------------------------------------------------------------------------*/
 
 /*---------------------------------------------------------------------------
   \fn bool QString::truncate( uint pos )
   Truncates the string at position \e pos.
 
-  Equivalent to calling resize(pos+1).
+  Equivalent to calling \c resize(pos+1).
 
   Example:
   \code
@@ -474,16 +500,17 @@ bool QString::resize( uint len )
   Implemented as a call to the native vsprintf() (see your C-library
   manual).
 
-  If your string is shorter than 256 characters, Qt sprintf() calls
-  resize(256) to decrease the chance of memory corruption.
+  If your string is shorter than 256 characters, this sprintf() calls
+  resize(256) to decrease the chance of memory corruption.  The string is
+  resized back to its natural length before sprintf() returns.
 
-  Example of use:
+  Example:
   \code
-  QString s;
-  s.sprintf( "%d - %s", 1, "first" );		// result < 256 chars
+    QString s;
+    s.sprintf( "%d - %s", 1, "first" );		// result < 256 chars
 
-  QString big( 25000 );				// very long string
-  big.sprintf( "%d - %s", 2, veryLongString );	// result < 25000 chars
+    QString big( 25000 );			// very long string
+    big.sprintf( "%d - %s", 2, longString );	// result < 25000 chars
   \endcode
 
   \warning All vsprintf() implementations will write past the end of
@@ -495,8 +522,7 @@ bool QString::resize( uint len )
   Giving user-supplied arguments to sprintf() is begging for trouble.
   Sooner or later someone \e will paste a 3000-character line into
   your application.
-
-  ----------------------------------------------------------------------------*/
+ ----------------------------------------------------------------------------*/
 
 QString &QString::sprintf( const char *format, ... )
 {
