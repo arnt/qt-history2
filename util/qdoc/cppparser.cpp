@@ -494,9 +494,8 @@ static bool matchProperty( ClassDecl *classDecl )
 	return FALSE;
 
     QString name;
-    CodeChunk type;
+    CodeChunk type( yyTokenizer->lexeme() );
 
-    type.append( yyTokenizer->lexeme() );
     yyTok = getToken();
     matchTemplateAngles( &type );
 

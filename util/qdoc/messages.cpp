@@ -140,7 +140,7 @@ void warning( int level, const char *message, ... )
     va_list ap;
 
     va_start( ap, message );
-    fprintf( stderr, "qdoc warning: " );
+    fprintf( stderr, "qdoc %s: ", level == 0 ? "error" : "warning" );
     vfprintf( stderr, message, ap );
     fprintf( stderr, "\n" );
     va_end( ap );
@@ -148,13 +148,10 @@ void warning( int level, const char *message, ... )
 
 void syswarning( const char *message, ... )
 {
-    if ( tooMany(message) )
-	return;
-
     va_list ap;
 
     va_start( ap, message );
-    fprintf( stderr, "qdoc warning: " );
+    fprintf( stderr, "qdoc error: " );
     vfprintf( stderr, message, ap );
     fprintf( stderr, ": %s\n", strerror(errno) );
     va_end( ap );
