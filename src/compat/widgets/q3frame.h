@@ -19,7 +19,7 @@
 #include "qframe.h"
 #endif
 
-class Q_GUI_EXPORT Q3Frame : public QFrame
+class Q_COMPAT_EXPORT Q3Frame : public QFrame
 {
     Q_OBJECT
     Q_PROPERTY(int margin READ margin WRITE setMargin)
