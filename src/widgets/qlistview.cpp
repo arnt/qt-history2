@@ -3959,7 +3959,8 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
 		if ( e->button() == LeftButton ) {
 		    bool close = i->isOpen();
 		    setOpen( i, !i->isOpen() );
-		    qApp->processEvents();
+		    // ### Looks dangerous, removed because of reentrance problems
+		    // qApp->processEvents();
 		    if ( !d->focusItem ) {
 			d->focusItem = i;
 			repaintItem( d->focusItem );
