@@ -832,10 +832,14 @@ int QTextFormat::objectIndex() const
 */
 void QTextFormat::setObjectIndex(int o)
 {
-    QTextFormatProperty prop;
-    prop.type = FormatObject;
-    prop.data.intValue = o;
-    d->insertProperty(ObjectIndex, prop);
+    if (o == -1) {
+        d->clearProperty(ObjectIndex);
+    } else {
+        QTextFormatProperty prop;
+        prop.type = FormatObject;
+        prop.data.intValue = o;
+        d->insertProperty(ObjectIndex, prop);
+    }
 }
 
 /*!
