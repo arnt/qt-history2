@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#79 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#80 $
 **
 ** Implementation of QTabBar class
 **
@@ -426,10 +426,8 @@ void QTabBar::paintEvent( QPaintEvent * e )
 {
     QPainter p( this );
 
-    if (backgroundPixmap() ) {
-	p.setBrushOrigin( rect().bottomLeft() );
-	p.fillRect(0, 0, width(), height(), QBrush( colorGroup().background(), *backgroundPixmap() ));
-    }
+    p.setBrushOrigin( rect().bottomLeft() );
+    p.fillRect(0, 0, width(), height(), QBrush( colorGroup().brush( QColorGroup::Background ) ));
 
     QTab * t;
     t = l->first();
@@ -768,6 +766,7 @@ void QTabBar::focusOutEvent( QFocusEvent * )
 	if ( t->id == d->focus ) {
 	    QPainter p;
 	    p.begin( this );
+	    p.setBrushOrigin( rect().bottomLeft() );
 	    QRect r = t->r;
 	    p.setFont( font() );
 
@@ -781,7 +780,7 @@ void QTabBar::focusOutEvent( QFocusEvent * )
 	    int h = QMAX(p.fontMetrics().height() + 4, ih );
 	    p.fillRect( QRect( r.left() + ( r.width() -w ) / 2 - 4,
 				   r.top() + ( r.height()-h ) / 2 - 1,
-			       w + 2, h + 2 ), colorGroup().background() );
+			       w + 2, h + 2 ), colorGroup().brush(QColorGroup::Background ) );
 	    paintLabel( &p, QRect( r.left() + ( r.width() -w ) /2 - 3,
 				   r.top() + ( r.height()-h ) / 2,
 				   w, h ), t, FALSE );
