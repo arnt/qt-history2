@@ -77,12 +77,26 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     QString ofile = Option::output.name();
     if(ofile.findRev(Option::dir_sep) != -1)
 	ofile = ofile.right(ofile.length() - ofile.findRev(Option::dir_sep) -1);
-    bool do_incremental = project->isActiveConfig("incremental") && !project->variables()["QMAKE_INCREMENTAL"].isEmpty() &&
-			 (!project->variables()["QMAKE_APP_FLAG"].isEmpty() || !project->isActiveConfig("staticlib"));
+    bool do_incremental = (project->isActiveConfig("incremental") &&
+			   !project->variables()["QMAKE_INCREMENTAL"].isEmpty() &&
+			  (!project->variables()["QMAKE_APP_FLAG"].isEmpty() ||
+			   !project->isActiveConfig("staticlib")));
 
     t << "####### Compiler, tools and options" << endl << endl;
-    t << "CC       = " << var("QMAKE_CC") << endl;
-    t << "CXX      = " << var("QMAKE_CXX") << endl;
+    t << "CC       = ";
+    if (project->isActiveConfig("thread") &&
+	! project->variables()["QMAKE_CC_THREAD"].isEmpty())
+	t << var("QMAKE_CC_THREAD") << endl;
+    else
+	t << var("QMAKE_CC") << endl;
+
+    t << "CXX      = ";
+    if (project->isActiveConfig("thread") &&
+	! project->variables()["QMAKE_CXX_THREAD"].isEmpty())
+	t << var("QMAKE_CXX_THREAD") << endl;
+    else
+	t << var("QMAKE_CXX") << endl;
+
     t << "LEX      = " << var("QMAKE_LEX") << endl;
     t << "YACC     = " << var("QMAKE_YACC") << endl;
     t << "CFLAGS   = " << var("QMAKE_CFLAGS") << " " << varGlue("DEFINES","-D"," -D","") << endl;
@@ -90,11 +104,19 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << "LEXFLAGS = " << var("QMAKE_LEXFLAGS") << endl;
     t << "YACCFLAGS= " << var("QMAKE_YACCFLAGS") << endl;
     t << "INCPATH  = " << varGlue("INCLUDEPATH","-I", " -I", "") << " -I" << Option::mkfile::qmakepath << endl;
+
     if(!project->isActiveConfig("staticlib")) {
-	t << "LINK     = " << var("QMAKE_LINK") << endl;
+	t << "LINK     = ";
+	if (project->isActiveConfig("thread") &&
+	    ! project->variables()["QMAKE_LINK_THREAD"].isEmpty())
+	    t << var("QMAKE_LINK_THREAD") << endl;
+	else
+	    t << var("QMAKE_LINK") << endl;
+
 	t << "LFLAGS   = " << var("QMAKE_LFLAGS") << endl;
 	t << "LIBS     = " << "$(SUBLIBS) " << var("QMAKE_LIBDIR_FLAGS") << " " << var("QMAKE_LIBS") << endl;
     }
+
     t << "AR       = " << var("QMAKE_AR") << endl;
     t << "RANLIB   = " << var("QMAKE_RANLIB") << endl;
     t << "MOC      = " << var("QMAKE_MOC") << endl;
