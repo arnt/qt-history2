@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#76 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#77 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -731,10 +731,13 @@ void QHeader::setOffset( int x )
 /*!
   Returns the position of actual division line \a i. May return a position
   outside the widget.
+
+  Note that the last division line is numbered count(). (There are one more lines than
+  sections).
  */
 int QHeader::pPos( int i ) const
 {
-    if ( i < 0 || i >= count() )
+    if ( i < 0 || i > count() )
 	return 0;
 
     return cellPos( i ) - offset();
@@ -891,10 +894,15 @@ void QHeader::paintEvent( QPaintEvent *e )
 {
     QPainter p( this );
     p.setPen( colorGroup().buttonText() );
-    int id = cellAt( orient == Horizontal
+    int pos = orient == Horizontal
 		     ? e->rect().left()
-		     : e->rect().top() );
-
+		     : e->rect().top();
+    int id = cellAt( pos );
+    if ( id < 0 ) 
+	if ( pos > 0 )
+	    return;
+	else
+	    id = 0;
     for ( int i = id; i < count(); i++ ) {
 	QRect r = sRect( i );
 	paintSection( &p, i, r );
