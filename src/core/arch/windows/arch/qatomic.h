@@ -14,6 +14,10 @@
 #ifndef WINDOWS_QATOMIC_H
 #define WINDOWS_QATOMIC_H
 
+#include <qglobal.h>
+
+#ifndef Q_CC_GNU
+
 // use compiler intrinsics for all atomic functions
 extern "C" {
     long _InterlockedIncrement(volatile long *);
@@ -75,5 +79,42 @@ inline int q_atomic_set_int(volatile int *ptr, int newval)
 
 inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
 { return _InterlockedExchangePointer(reinterpret_cast<void * volatile *>(ptr), newval); }
+
+#else
+
+extern "C" {
+    __declspec(dllimport) long __stdcall InterlockedCompareExchange(long *, long, long);
+    __declspec(dllimport) long __stdcall InterlockedIncrement(long *);
+    __declspec(dllimport) long __stdcall InterlockedDecrement(long *);
+    __declspec(dllimport) long __stdcall InterlockedExchange(long *, long);
+}
+
+#ifndef InterlockedCompareExchangePointer
+#define InterlockedCompareExchangePointer(a,b,c) \
+        reinterpret_cast<void *>(InterlockedCompareExchange(reinterpret_cast<long *>(a), reinterpret_cast<long>(b), reinterpret_cast<long>(c)))
+#endif
+#ifndef InterlockedExchangePointer
+#define InterlockedExchangePointer(a, b) \
+        reinterpret_cast<void *>(InterlockedExchange(reinterpret_cast<long *>(a), reinterpret_cast<long>(b)))
+#endif
+inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval)
+{ return InterlockedCompareExchange(reinterpret_cast<long *>(const_cast<int *>(ptr)), newval, expected) == expected; }
+
+inline int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval)
+{ return InterlockedCompareExchangePointer(reinterpret_cast<void **>(const_cast<void *>(ptr)), newval, expected) == expected; }
+
+inline int q_atomic_increment(volatile int *ptr)
+{ return InterlockedIncrement(reinterpret_cast<long *>(const_cast<int *>(ptr))); }
+
+inline int q_atomic_decrement(volatile int *ptr)
+{ return InterlockedDecrement(reinterpret_cast<long *>(const_cast<int *>(ptr))); }
+
+inline int q_atomic_set_int(volatile int *ptr, int newval)
+{ return InterlockedExchange(reinterpret_cast<long *>(const_cast<int *>(ptr)), newval); }
+
+inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
+{ return InterlockedExchangePointer(reinterpret_cast<void **>(const_cast<void *>(ptr)), newval); }
+
+#endif // Q_CC_GNU
 
 #endif // WINDOWS_QATOMIC_H
