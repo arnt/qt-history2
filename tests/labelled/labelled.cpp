@@ -12,8 +12,8 @@
 main(int argc, char** argv)
 {
     QApplication::setColorSpec( QApplication::ManyColor );
-    QApplication app(argc, argv);
     QApplication::setFont( QFont("Helvetica") );
+    QApplication app(argc, argv);
 
     QVBox b;
 
@@ -21,7 +21,7 @@ main(int argc, char** argv)
     //m.setAlignment(AlignLeft);
     QGrid g( 2, &m);
     for ( int i = 1; i < 10; i++ ) 
-	new QCheckBox( "Press Me", &g );
+	new QCheckBox( "Pressing me is fun!", &g );
 
 
     QButtonRow h( &b );
