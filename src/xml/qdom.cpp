@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#29 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#30 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -42,8 +42,10 @@
 #include "qxml.h"
 #include "qmap.h"
 #include "qtextstream.h"
+#include "qtextcodec.h"
 #include "qiodevice.h"
 #include "qdict.h"
+#include "qregexp.h"
 
 // NOT REVISED
 
@@ -5210,8 +5212,24 @@ void QDomDocumentPrivate::save( QTextStream& s, int ) const
     bool doc = FALSE;
 
     QDomNodePrivate* n = first;
+    if ( n->isProcessingInstruction() && n->nodeName()=="xml" ) {
+	// we have an XML declaration
+	QString data = n->nodeValue();
+	QRegExp encoding( "encoding\\s*=\\s*((\"([^\"]*)\")|('([^']*)'))" );
+	encoding.search( data );
+	QString enc = encoding.cap(3);
+	if ( enc.isEmpty() ) {
+	    enc = encoding.cap(5);
+	}
+	if ( enc.isEmpty() ) {
+	    s.setEncoding( QTextStream::UnicodeUTF8 );
+	} else {
+	    s.setCodec( QTextCodec::codecForName( enc ) );
+	}
+    }
     while ( n ) {
-	if ( !doc && !n->isProcessingInstruction() ) {
+	if ( !doc && !(n->isProcessingInstruction()&&n->nodeName()=="xml") ) {
+	    // save doctype after XML declaration
 	    type->save( s, 0 );
 	    doc = TRUE;
 	}
