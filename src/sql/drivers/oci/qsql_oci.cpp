@@ -475,8 +475,12 @@ QVariant::Type qDecodeOCIType( int ocitype )
     case SQLT_AFC:
     case SQLT_VCS:
     case SQLT_AVC:
+#ifdef SQLT_INTERVAL_YM
     case SQLT_INTERVAL_YM:
+#endif
+#ifdef SQLT_INTERVAL_DS
     case SQLT_INTERVAL_DS:
+#endif
 	type = QVariant::String;
 	break;
     case SQLT_INT:
@@ -507,9 +511,11 @@ QVariant::Type qDecodeOCIType( int ocitype )
 	break;
     case SQLT_DAT:
     case SQLT_ODT:
+#ifdef SQLT_TIMESTAMP
     case SQLT_TIMESTAMP:
     case SQLT_TIMESTAMP_TZ:
     case SQLT_TIMESTAMP_LTZ:
+#endif
 	type = QVariant::DateTime;
 	break;
     default:
