@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#150 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#151 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#150 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#151 $");
 
 
 /*!
@@ -306,9 +306,11 @@ QImage QImage::copy() const
 */
 QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
 {
-    QImage result( w, h, depth(), numColors(), bitOrder() );
-    bitBlt( &result, 0, 0, this, x, y, -1, -1, conversion_flags );
-    return result;
+    QImage image( w, h, depth(), numColors(), bitOrder() );
+    memcpy( image.colorTable(), colorTable(), numColors()*sizeof(QRgb) );
+    image.setAlphaBuffer(hasAlphaBuffer());
+    bitBlt( &image, 0, 0, this, x, y, -1, -1, conversion_flags );
+    return image;
 }
 
 /*!
@@ -4096,6 +4098,20 @@ QImage QImage::convertDepthWithPalette( int d, QRgb* palette, int palette_count,
     }
 }
 
+static
+bool
+haveSamePalette(const QImage& a, const QImage& b)
+{
+    if (a.depth() != b.depth()) return FALSE;
+    if (a.numColors() != b.numColors()) return FALSE;
+    QRgb* ca = a.colorTable();
+    QRgb* cb = b.colorTable();
+    for (int i=a.numColors(); i--; ) {
+	if (*ca++ != *cb++) return FALSE;
+    }
+    return TRUE;
+}
+
 /*!
   Copies a \a sw by \a sh pixel area from \a src to position (\a dx, \a dy)
   in \a dst.  The pixels copied from source (src) are converted according
@@ -4125,7 +4141,19 @@ void bitBlt( QImage* dst, int dx, int dy, const QImage* src,
     if ( sw <= 0 || sh <= 0 ) return; // Nothing left to copy
     if ( (dst->data == src->data) && dx==sx && dy==sy ) return; // Same pixels
 
-    if ( dst->depth() != 32 ) {
+    // "Easy" to copy if both same depth and one of:
+    //   - 32 bit
+    //   - 8 bit, identical palette
+    //   - 1 bit, identical palette and byte-aligned area
+    //
+    if ( haveSamePalette(*dst,*src)
+	&& ( dst->depth() != 1 ||
+	      !( (dx&7) || (sx&7) ||
+		    ((sw&7) && (sx+sw < src->width()) ||
+			       (dx+sw < dst->width()) ) ) ) )
+    {
+	// easy to copy
+    } else if ( dst->depth() != 32 ) {
 	QImage dstconv = dst->convertDepth( 32 );
 	bitBlt( &dstconv, dx, dy, src, sx, sy, sw, sh, 
 	   (conversion_flags&~DitherMode_Mask) | AvoidDither );
@@ -4151,7 +4179,37 @@ void bitBlt( QImage* dst, int dx, int dy, const QImage* src,
 
     // Now assume both are 32-bit or 8-bit with compatible palettes.
 
+    // "Easy"
+
     switch ( dst->depth() ) {
+      case 1:
+	{
+debug("EASSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSY!");
+	    uchar* d = dst->scanLine(dy) + dx/8;
+	    uchar* s = src->scanLine(sy) + sx/8;
+	    const int bw = (sw+7)/8;
+	    if ( bw < 64 ) {
+		// Trust ourselves
+		const int dd = dst->bytesPerLine() - bw;
+		const int ds = src->bytesPerLine() - bw;
+		while ( sh-- ) {
+		    for ( int t=bw; t--; )
+			*d++ = *s++;
+		    d += dd;
+		    s += ds;
+		}
+	    } else {
+		// Trust libc
+		const int dd = dst->bytesPerLine();
+		const int ds = src->bytesPerLine();
+		while ( sh-- ) {
+		    memcpy( d, s, bw );
+		    d += dd;
+		    s += ds;
+		}
+	    }
+	}
+	break;
       case 8:
 	{
 	    uchar* d = dst->scanLine(dy) + dx;
