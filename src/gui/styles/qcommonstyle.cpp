@@ -2240,7 +2240,6 @@ QStyle::SubControl QCommonStyle::hitTestComplexControl(ComplexControl cc, const 
         if (const QStyleOptionTitleBar *tb = qstyleoption_cast<const QStyleOptionTitleBar *>(opt)) {
             QRect r;
             uint ctrl = SC_TitleBarLabel;
-            bool isMinimized = tb->titleBarState & Qt::WindowMinimized;
 
             while (ctrl <= SC_TitleBarUnshadeButton) {
                 r = visualRect(opt->direction, opt->rect,
@@ -2250,16 +2249,6 @@ QStyle::SubControl QCommonStyle::hitTestComplexControl(ComplexControl cc, const 
                     break;
                 }
                 ctrl <<= 1;
-            }
-            if (tb->titleBarFlags & Qt::WindowShadeButtonHint) {
-                if (sc == SC_TitleBarMinButton || sc == SC_TitleBarMaxButton) {
-                    if (isMinimized)
-                        sc = SC_TitleBarUnshadeButton;
-                    else
-                        sc = SC_TitleBarShadeButton;
-                }
-            } else if (sc == SC_TitleBarMinButton && isMinimized) {
-                sc = QStyle::SC_TitleBarNormalButton;
             }
         }
         break;
@@ -2499,16 +2488,7 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
             const int delta = controlHeight + controlMargin;
             int offset = 0;
 
-            if (sc == SC_TitleBarMinButton && !(tb->titleBarFlags & Qt::WindowMinimizeButtonHint))
-                break;
-            if (sc == SC_TitleBarMaxButton && !(tb->titleBarFlags & Qt::WindowMaximizeButtonHint))
-                break;
-            if (sc == SC_TitleBarCloseButton && !(tb->titleBarFlags & Qt::WindowSystemMenuHint))
-                break;
-            if (sc == SC_TitleBarShadeButton && !(tb->titleBarFlags & Qt::WindowShadeButtonHint))
-                break;
-            if (sc == SC_TitleBarUnshadeButton && !(tb->titleBarFlags & Qt::WindowShadeButtonHint))
-                break;
+            bool isMinimized = tb->titleBarState & Qt::WindowMinimized;
 
             switch (sc) {
             case SC_TitleBarLabel:
@@ -2520,6 +2500,8 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
                         ret.addCoords(0, 0, -delta, 0);
                     if (tb->titleBarFlags & Qt::WindowMaximizeButtonHint)
                         ret.addCoords(0, 0, -delta, 0);
+                    if (tb->titleBarFlags & Qt::WindowShadeButtonHint)
+                        ret.addCoords(0, 0, -delta, 0);
                     if (tb->titleBarFlags & Qt::WindowContextHelpButtonHint)
                         ret.addCoords(0, 0, -delta, 0);
                 }
@@ -2528,18 +2510,35 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
                 if (tb->titleBarFlags & Qt::WindowContextHelpButtonHint)
                     offset += delta;
             case SC_TitleBarMinButton:
-            case SC_TitleBarNormalButton:
-                if (tb->titleBarFlags & Qt::WindowMinimizeButtonHint)
+                if (!isMinimized && (tb->titleBarFlags & Qt::WindowMinimizeButtonHint))
                     offset += delta;
+                else if (sc == SC_TitleBarMinButton)
+                    break;
+            case SC_TitleBarNormalButton:
+                if (isMinimized && (tb->titleBarFlags & Qt::WindowMinimizeButtonHint))
+                    offset += delta;
+                else if (sc == SC_TitleBarNormalButton)
+                    break;
             case SC_TitleBarMaxButton:
                 if (tb->titleBarFlags & Qt::WindowMaximizeButtonHint)
                     offset += delta;
+                else if (sc == SC_TitleBarMaxButton)
+                    break;
             case SC_TitleBarShadeButton:
-            case SC_TitleBarUnshadeButton:
-                if (tb->titleBarFlags & Qt::WindowShadeButtonHint)
+                if (!isMinimized && (tb->titleBarFlags & Qt::WindowShadeButtonHint))
                     offset += delta;
+                else if (sc == SC_TitleBarShadeButton)
+                    break;
+            case SC_TitleBarUnshadeButton:
+                if (isMinimized && (tb->titleBarFlags & Qt::WindowShadeButtonHint))
+                    offset += delta;
+                else if (sc == SC_TitleBarUnshadeButton)
+                    break;
             case SC_TitleBarCloseButton:
-                offset += delta;
+                if (tb->titleBarFlags & Qt::WindowSystemMenuHint)
+                    offset += delta;
+                else if (sc == SC_TitleBarCloseButton)
+                    break;
                 ret.setRect(tb->rect.right() - offset, tb->rect.top() + controlMargin,
                             controlHeight, controlHeight);
                 break;

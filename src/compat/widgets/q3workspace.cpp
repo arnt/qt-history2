@@ -2257,14 +2257,12 @@ void Q3WorkspaceChild::titleBarDoubleClicked()
 {
     if (!windowWidget())
         return;
-    if ((windowWidget()->windowFlags() & Qt::WindowMinMaxButtonsHint)) {
-        if (titlebar->isTool())
+    if (iconw)
+        showNormal();
+    else if (windowWidget()->windowFlags() & Qt::WindowShadeButtonHint)
             showShaded();
-        else if (iconw)
-            showNormal();
-        else if ((windowWidget()->windowFlags() & Qt::WindowMaximizeButtonHint))
-            showMaximized();
-    }
+    else if (windowWidget()->windowFlags() & Qt::WindowMaximizeButtonHint)
+        showMaximized();
 }
 
 void Q3WorkspaceChild::adjustToFullscreen()
