@@ -124,22 +124,20 @@ void QTextPieceTable::insert_block(int pos, uint strPos, int format, int blockFo
     Q_ASSERT(text.at(strPos) == QTextParagraphSeparator);
     Q_ASSERT(blocks.length()+1 == fragments.length());
 
-    int block_pos = pos;
+    if (blocks.length() && command == UndoCommand::BlockRemoved)
+        ++pos;
     int size = 1;
     int n = blocks.findNode(pos);
-    int key = n ? blocks.position(n) : 0;
+    int key = n ? blocks.position(n) : blocks.length();
 
-    if (command == UndoCommand::BlockRemoved || key != pos) {
-	Q_ASSERT(n || (!n && !pos));
-	if (key != pos) {
-	    Q_ASSERT(key < pos);
-	    int oldSize = blocks.size(n);
-	    blocks.setSize(n, pos-key+1);
-	    size += oldSize - (pos-key+1);
-	}
-	++block_pos;
+    Q_ASSERT(n || (!n && pos == blocks.length()));
+    if (key != pos) {
+        Q_ASSERT(key < pos);
+        int oldSize = blocks.size(n);
+        blocks.setSize(n, pos-key);
+        size += oldSize - (pos-key);
     }
-    int b = blocks.insert_single(block_pos, size);
+    int b = blocks.insert_single(pos, size);
     QTextBlock *B = blocks.fragment(b);
     B->format = blockFormat;
 
@@ -252,11 +250,11 @@ int QTextPieceTable::remove_block(int pos, int *blockFormat, int command, UndoCo
 
     if (blocks.size(b) == 1 && command == UndoCommand::BlockAdded) {
 	Q_ASSERT((int)blocks.position(b) == pos);
-// 	qDebug("removing empty block");
+//  	qDebug("removing empty block");
 	// empty block remove the block itself
     } else {
 	// non empty block, merge with next one into this block
-// 	qDebug("merging block with next");
+//  	qDebug("merging block with next");
 	int n = blocks.next(b);
 	Q_ASSERT((int)blocks.position(n) == pos + 1);
 	blocks.setSize(b, blocks.size(b) + blocks.size(n) - 1);
@@ -316,13 +314,14 @@ void QTextPieceTable::remove(int pos, int length, UndoCommand::Operation op)
                           op, X->format, X->stringPosition, key, { X->size } };
 
         if (key+1 != blocks.position(b)) {
-// 	    qDebug("remove_string from %d length %d", key, X->size);
+//  	    qDebug("remove_string from %d length %d", key, X->size);
             Q_ASSERT(!text.mid(X->stringPosition, X->size).contains(QTextParagraphSeparator));
             w = remove_string(key, X->size, op);
         } else {
-// 	    qDebug("remove_block at %d", key);
+//  	    qDebug("remove_block at %d", key);
             Q_ASSERT(X->size == 1 && text.at(X->stringPosition) == QTextParagraphSeparator);
-            c.command = UndoCommand::BlockDeleted;
+            b = blocks.prev(b);
+            c.command = blocks.size(b) == 1 ? UndoCommand::BlockDeleted : UndoCommand::BlockRemoved;
             w = remove_block(key, &c.blockFormat, UndoCommand::BlockAdded, op);
         }
         appendUndoItem(c);
