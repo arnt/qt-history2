@@ -2124,8 +2124,8 @@ bool QGdiplusPaintEngine::begin(QPaintDevice *pdev)
         //     d->graphics = new Graphis(hdc);
         GdipCreateFromHDC(d->hdc, &d->graphics);
     } else if (pdev->devType() == QInternal::Pixmap) {
-        d->bitmapDevice = qt_convert_to_gdipbitmap(static_cast<QPixmap*>(pdev), &d->dontDeletePixels);
-        GdipGetImageGraphicsContext(d->bitmapDevice, &d->graphics);
+        d->hdc = static_cast<QPixmap *>(pdev)->winHDC();
+        GdipCreateFromHDC(d->hdc, &d->graphics);
     } else {
         qDebug() << "QGdiplusPaintEngine::begin(), unsupported paint device..." << pdev->devType();
     }

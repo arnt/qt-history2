@@ -62,8 +62,6 @@ public:
     HWND hwnd;
     HDC hdc;
 
-    QImage dontDeletePixels;
-
     QtGpGraphics *graphics;
     QtGpBitmap *bitmapDevice;
     QtGpPen *pen;
