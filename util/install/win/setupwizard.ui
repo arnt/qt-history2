@@ -516,8 +516,7 @@
                             </sizepolicy>
                         </property>
                         <property name="text">
-                            <string>Enter the supplied license information here, License ID and Products String are mandatory, the rest is optional.
-Alternatively, the installation wizard may read them from a license file.</string>
+                            <string>Choose the "Read from file" button to read the license information that is provided with Qt from a file. If you are lacking a valid license file please contact sales@trolltech.com.</string>
                         </property>
                         <property name="alignment">
                             <set>WordBreak|AlignVCenter</set>
