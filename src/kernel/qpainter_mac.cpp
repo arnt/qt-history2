@@ -2227,7 +2227,7 @@ QPoint QPainter::pos() const
     QPoint ret;
 #ifdef USE_CORE_GRAPHICS
     CGPoint pt = CGContextGetPathCurrentPoint((CGContextRef)hd);
-    ret = QPoint((int)(pt.x - d->offx), (int)(d->cg_info.height - pt.y - d->offy));
+    ret = QPoint((int)(pt.x - d->offx), (int)(pt.y - d->offy));
 #else
     ((QPainter *)this)->initPaintDevice();
     Point pt;
