@@ -885,8 +885,9 @@ QTextList *QTextCursor::currentList() const
         return 0;
 
     QTextBlockFormat b = blockFormat();
-    if (b.isListFormat())
-        return static_cast<QTextList *>(b.group());
+    QTextFormatGroup *g = b.group();
+    if (g)
+        return qt_cast<QTextList *>(g);
     return 0;
 }
 
@@ -894,9 +895,11 @@ int QTextCursor::listItemNumber() const
 {
     if (!d)
         return -1;
+    QTextList *l = currentList();
+    if (!l)
+        return -1;
 
-    // ###########
-    return 1;
+    return l->itemNumber(d->block());
 }
 
 QString QTextCursor::listItemText() const
@@ -904,8 +907,11 @@ QString QTextCursor::listItemText() const
     if (!d)
         return QString();
 
-    // #############
-    return QString();
+    QTextList *l = currentList();
+    if (!l)
+        return QString();
+
+    return l->itemText(d->block());
 }
 
 /*!

@@ -26,6 +26,7 @@ class QTextFormatGroupPrivate;
 class QTextFormatGroup : public QObject
 {
     Q_DECLARE_PRIVATE(QTextFormatGroup);
+    Q_OBJECT
 protected:
     QTextFormatGroup();
     ~QTextFormatGroup();

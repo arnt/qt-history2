@@ -7,12 +7,6 @@
 
 #define d d_func()
 
-int QTextListPrivate::itemNumber(const QTextBlockIterator &block) const
-{
-// #####
-    return 1;
-}
-
 /*!
     \class QTextList qtextlist.h
     \brief A list in a QTextDocument
@@ -52,8 +46,9 @@ int QTextList::count() const
 */
 QTextBlockIterator QTextList::item(int i) const
 {
-    // ###########
-    return QTextBlockIterator();
+    if (i < 1 || i > d->blocks.size())
+        return QTextBlockIterator();
+    return d->blocks.at(i-1);
 }
 
 /*!
@@ -68,26 +63,23 @@ QTextBlockIterator QTextList::item(int i) const
   \returns the format of the list.
 */
 
+int QTextList::itemNumber(const QTextBlockIterator &blockIt) const
+{
+    return d->blocks.indexOf(blockIt) + 1;
+}
 
 QString QTextList::itemText(const QTextBlockIterator &blockIt) const
 {
-    return QString();
-#if 0
-    if (!list || item < 0)
-        return QString::null;
+    int item = d->blocks.indexOf(blockIt) + 1;
+    if (item <= 0)
+        return QString();
 
-    QTextBlockIterator block = list->d->blocks.at(item - 1);
-    if (block.atEnd())
-        return QString::null;
-
+    QTextBlockIterator block = d->blocks.at(item-1);
     QTextBlockFormat blockFormat = block.blockFormat();
-    QTextListFormat listFmt = blockFormat.listFormat();
-    if (!listFmt.isValid())
-        return QString::null;
 
     QString result;
 
-    const int style = listFmt.style();
+    const int style = format().style();
 
     switch (style) {
         case QTextListFormat::ListDecimal:
@@ -113,6 +105,15 @@ QString QTextList::itemText(const QTextBlockIterator &blockIt) const
     if (blockFormat.direction() == QTextBlockFormat::RightToLeft)
         return result.prepend(QChar('.'));
     return result + QChar('.');
-#endif
 }
 
+void QTextList::insertBlock(const QTextBlockIterator &block)
+{
+    d->blocks.append(block);
+    qBubbleSort(d->blocks);
+}
+
+void QTextList::removeBlock(const QTextBlockIterator &block)
+{
+    d->blocks.remove(block);
+}

@@ -564,12 +564,10 @@ void QTextFormatGroup::setCommonFormat(const QTextFormat &format)
     // ####### undo/redo
 }
 
-void QTextFormatGroup::insertBlock(const QTextBlockIterator &block)
+void QTextFormatGroup::insertBlock(const QTextBlockIterator &)
 {
-    d->blocks.insert(block.position(), block.n);
 }
 
-void QTextFormatGroup::removeBlock(const QTextBlockIterator &block)
+void QTextFormatGroup::removeBlock(const QTextBlockIterator &)
 {
-    d->blocks.remove(block.position());
 }

@@ -14,9 +14,8 @@ class QTextList;
 class QTextListPrivate : public QTextFormatGroupPrivate
 {
 public:
-    int itemNumber(const QTextBlockIterator &block) const;
-
-    void removeAllFormatIndicesFromBlocks();
+    typedef QList<QTextBlockIterator> BlockList;
+    BlockList blocks;
 };
 
 template <class Manager>

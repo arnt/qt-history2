@@ -112,9 +112,6 @@ class QTextFormatGroupPrivate : public QObjectPrivate
 public:
     QTextFormatCollection *collection;
     int index;
-
-    typedef QMap<int, int> BlockList;
-    BlockList blocks;
 };
 
 

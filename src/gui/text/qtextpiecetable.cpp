@@ -450,8 +450,10 @@ void QTextPieceTable::setBlockFormat(int pos, int length, const QTextBlockFormat
             Q_ASSERT(undoPosition == undoStack.size());
         }
         if (group != oldGroup) {
-            oldGroup->removeBlock(blockIt);
-            group->insertBlock(blockIt);
+            if (oldGroup)
+                oldGroup->removeBlock(blockIt);
+            if (group)
+                group->insertBlock(blockIt);
         }
     }
 
