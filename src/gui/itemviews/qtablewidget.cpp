@@ -709,7 +709,8 @@ void QTableWidgetItem::clear()
 
 /*!
     \property QTableWidget::sortingEnabled
-    \brief whether the items in the tree widget are sorted
+    \brief whether the items in the table can be sorted
+    by clicking on the horizontal header.
 */
 
 #define d d_func()
@@ -810,7 +811,7 @@ void QTableWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMod
 /*!
     \fn void QTableWidget::keyPressed(QTableWidgetItem *item, Qt::Key key, Qt::ButtonState state)
 
-    This signal is emitted if keyTracking is turned on an a key was
+    This signal is emitted if keyTracking is turned on and a key was
     pressed. The \a item is the current item as the key was pressed, the
     \a key tells which key was pressed and \a state which modifier
     keys (see \l{Qt::ButtonState}).
