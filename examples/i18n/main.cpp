@@ -88,7 +88,6 @@ MyWidget* showLang(QString lang)
 	delete translator;
     }
     translator = new QTranslator( 0 );
-qDebug( "lang = %s", lang.latin1() );
     translator->load( lang, "." );
     qApp->installTranslator( translator );
     MyWidget *m = new MyWidget;
