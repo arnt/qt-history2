@@ -108,19 +108,6 @@ void QPrintDialogUnixButtonGroup::insert(QAbstractButton *button, int id)
     connect(button, SIGNAL(clicked()), &mapper, SLOT(map()));
 }
 
-class QPrintDialogUnixSpinBox : public QSpinBox
-{
-public:
-    QPrintDialogUnixSpinBox(int min, int max, int steps, QWidget *parent, const char *name)
-        : QSpinBox(min, max, steps, parent, name)
-    {}
-
-    void interpretText()
-    {
-        QSpinBox::interpretText();
-    }
-};
-
 enum { Success = 's', Unavail = 'u', NotFound = 'n', TryAgain = 't' };
 enum { Continue = 'c', Return = 'r' };
 
@@ -215,9 +202,9 @@ public:
 
     QPrintDialogUnixButtonGroup *printRange;
     QLabel *firstPageLabel;
-    QPrintDialogUnixSpinBox *firstPage;
+    QSpinBox *firstPage;
     QLabel *lastPageLabel;
-    QPrintDialogUnixSpinBox *lastPage;
+    QSpinBox *lastPage;
     QRadioButton *printAllButton;
     QRadioButton *printRangeButton;
     QRadioButton *printSelectionButton;
@@ -233,7 +220,7 @@ public:
     QPrintDialogUnixButtonGroup *colorMode;
     QPrinter::ColorMode colorMode2;
 
-    QPrintDialogUnixSpinBox *copies;
+    QSpinBox *copies;
     int numCopies;
 
     QBoxLayout *customLayout;
@@ -1170,7 +1157,7 @@ QGroupBox *QPrintDialogUnix::setupOptions()
     horiz->addSpacing(19);
     horiz->addWidget(d->firstPageLabel);
 
-    d->firstPage = new QPrintDialogUnixSpinBox(1, 9999, 1, g, "first page");
+    d->firstPage = new QSpinBox(1, 9999, 1, g);
     d->firstPage->setValue(1);
     horiz->addWidget(d->firstPage, 1);
     connect(d->firstPage, SIGNAL(valueChanged(int)),
@@ -1183,7 +1170,7 @@ QGroupBox *QPrintDialogUnix::setupOptions()
     horiz->addSpacing(19);
     horiz->addWidget(d->lastPageLabel);
 
-    d->lastPage = new QPrintDialogUnixSpinBox(1, 9999, 1, g, "last page");
+    d->lastPage = new QSpinBox(1, 9999, 1, g);
     d->lastPage->setValue(9999);
     horiz->addWidget(d->lastPage, 1);
     connect(d->lastPage, SIGNAL(valueChanged(int)),
@@ -1214,7 +1201,7 @@ QGroupBox *QPrintDialogUnix::setupOptions()
     QLabel *l = new QLabel(tr("Number of copies:"), g, "Number of copies");
     horiz->addWidget(l);
 
-    d->copies = new QPrintDialogUnixSpinBox(1, 99, 1, g, "copies");
+    d->copies = new QSpinBox(1, 99, 1, g);
     d->copies->setValue(1);
     horiz->addWidget(d->copies, 1);
     connect(d->copies, SIGNAL(valueChanged(int)),
