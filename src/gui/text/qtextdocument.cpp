@@ -1012,15 +1012,41 @@ void QTextHtmlExporter::emitBlockFormatAttributes(const QTextBlockFormat &format
         emitAttribute("bgcolor", format.backgroundColor().name());
 }
 
+static bool isOrderedList(int style)
+{
+    return style == QTextListFormat::ListDecimal || style == QTextListFormat::ListLowerAlpha
+           || style == QTextListFormat::ListUpperAlpha;
+}
+
 void QTextHtmlExporter::emitBlock(const QTextBlock &block)
 {
     if (block.begin().atEnd())
         return;
 
+    QTextList *list = qt_cast<QTextList *>(doc->objectForFormat(block.blockFormat()));
+    if (list) {
+        if (list->itemNumber(block) == 0) { // first item? emit <ul> or appropriate
+            const int style = list->format().style();
+            switch (style) {
+                case QTextListFormat::ListDecimal: html += QLatin1String("<ol>"); break;
+                case QTextListFormat::ListDisc: html += QLatin1String("<ul>"); break;
+                case QTextListFormat::ListCircle: html += QLatin1String("<ul type=circle>"); break;
+                case QTextListFormat::ListSquare: html += QLatin1String("<ul type=square>"); break;
+                case QTextListFormat::ListLowerAlpha: html += QLatin1String("<ol type=a>"); break;
+                case QTextListFormat::ListUpperAlpha: html += QLatin1String("<ol type=A>"); break;
+                default: html += QLatin1String("<ul>"); // ### should not happen
+            }
+        }
+
+        html += QLatin1String("<li");
+    }
+
     const bool pre = block.blockFormat().nonBreakableLines();
-    if (pre)
+    if (pre) {
+        if (list)
+            html += QLatin1Char('>');
         html += QLatin1String("<pre");
-    else
+    } else if (!list)
         html += QLatin1String("<p");
 
     emitBlockFormatAttributes(block.blockFormat());
@@ -1032,8 +1058,17 @@ void QTextHtmlExporter::emitBlock(const QTextBlock &block)
 
     if (pre)
         html += QLatin1String("</pre>");
-    else
+    else if (!list)
         html += QLatin1String("</p>");
+
+    if (list) {
+        if (list->itemNumber(block) == list->count() - 1) { // last item? close list
+            if (isOrderedList(list->format().style()))
+                html += QLatin1String("</ol>");
+            else
+                html += QLatin1String("</ul>");
+        }
+    }
 }
 
 void QTextHtmlExporter::emitTable(const QTextTable *table)
