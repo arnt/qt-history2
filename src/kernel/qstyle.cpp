@@ -54,6 +54,175 @@ public:
     }
 };
 
+/*!
+  \class QStyleOption qstyle.h
+  \brief The QStyleOption class specifies optional parameters for QStyle functions.
+  \preliminary
+  \ingroup appearance
+  \ingroup mainclasses
+
+  Some QStyle functions take an optional argument specifying extra
+  information that is required for a paritical primitive or control.
+  So that the QStyle class can be extended, QStyleOption is use to
+  give a variable-argument for these options.
+
+  The QStyleOption class has constructors for each type of optional
+  argument, and this set of constructors may be extended in future
+  Qt releases. There are also corresponding access functions that
+  return the optional arguments - these too may be extended.
+
+  For each constructor, you should refer to the documentation of
+  the QStyle functions to see the meaning of the arguments.
+
+  When calling QStyle functions from your own widgets, you must only
+  pass either the default QStyleOption, or the argument that QStyle
+  is documented to accept. For example, if the function expects
+  QStyleOption(QMenuItem*,int), you must not pass QStyleOption(QMenuItem*),
+  and the optional integer would then be uninitialized.
+
+  When making your own QStyle subclass, you must similarly only expect the
+  default or documented argument - the other arguments will have
+  uninitialized values.
+
+  If you make your own QStyle subclasses and your own widgets, you can
+  make a subclass of QStyleOption in order to pass additional arguments
+  to your QStyle subclass (of course, you'll need to cast the
+  "const QStyleOption&" argument to your subclass, so be sure your style
+  has been called from your widget!
+*/
+
+/*!
+  \fn QStyleOption::QStyleOption(StyleOptionDefault=Default)
+
+  The default option. This can always be passed as the optional argument
+  to QStyle functions.
+*/
+
+/*!
+  \fn QStyleOption::QStyleOption(int, int)
+
+  Pass two integers. For example, linewidth and midlinewidth.
+*/
+/*!
+  \fn QStyleOption::QStyleOption(int, int, int, int)
+
+  Pass four integers.
+*/
+/*!
+  \fn QStyleOption::QStyleOption(QMenuItem*)
+
+  Pass a menu item.
+*/
+/*!
+  \fn QStyleOption::QStyleOption(QMenuItem*, int)
+
+  Pass a menu item and an integer.
+*/
+/*!
+  \fn QStyleOption::QStyleOption(QMenuItem*, int, int)
+
+  Pass a menu item and two integers.
+*/
+/*!
+  \fn QStyleOption::QStyleOption(const QColor&)
+
+  Pass a color.
+*/
+/*!
+  \fn QStyleOption::QStyleOption(QTab*)
+
+  Pass a QTab.
+*/
+/*!
+  \fn QStyleOption::QStyleOption(QListViewItem*)
+
+  Pass a QListViewItem.
+*/
+/*!
+  \fn QStyleOption::QStyleOption(Qt::ArrowType)
+
+  Pass an Qt::ArrowType.
+*/
+
+/*!
+  \fn bool QStyleOption::isDefault() const
+
+  Returns whether the option was constructed with the
+  default constructor.
+*/
+
+/*!
+  \fn int QStyleOption::lineWidth() const
+
+  Returns the line width if the appropriate constructor was
+  called, else undefined.
+*/
+/*!
+  \fn int QStyleOption::midLineWidth() const
+
+  Returns the mid-line width if the appropriate constructor was
+  called, else undefined.
+*/
+/*!
+  \fn int QStyleOption::frameShape() const
+
+  Returns a QFrame::Shape value if the appropriate constructor was
+  called, else undefined.
+*/
+/*!
+  \fn int QStyleOption::frameShadow() const
+
+  Returns a QFrame::Shadow value if the appropriate constructor was
+  called, else undefined.
+*/
+
+/*!
+  \fn QMenuItem* QStyleOption::menuItem() const
+
+  Returns a menu item if the appropriate constructor was
+  called, else undefined.
+*/
+/*!
+  \fn int QStyleOption::maxIconWidth() const
+
+  Returns the maximum width of the menu item check area
+  if the appropriate constructor was
+  called, else undefined.
+*/
+/*!
+  \fn int QStyleOption::tabWidth() const
+
+  Returns the tab indent width if the appropriate constructor was
+  called, else undefined.
+*/
+
+/*!
+  \fn const QColor& QStyleOption::color() const
+
+  Returns a color if the appropriate constructor was
+  called, else undefined.
+*/
+
+/*!
+  \fn QTab* QStyleOption::tab() const
+
+  Returns a QTabBar tab if the appropriate constructor was
+  called, else undefined.
+*/
+
+/*!
+  \fn QListViewItem* QStyleOption::listViewItem() const
+
+  Returns a QListView item if the appropriate constructor was
+  called, else undefined.
+*/
+
+/*!
+  \fn Qt::ArrowType QStyleOption::arrowType() const
+
+  Returns an arrow type if the appropriate constructor was
+  called, else undefined.
+*/
 
 /*!
   \class QStyle qstyle.h
@@ -429,7 +598,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 */
 
 /*!
-  \fn void QStyle::drawPrimitive( PrimitiveElement pe, QPainter *p, const QRect &r, const QColorGroup &cg, SFlags flags = Style_Default, void **data = 0 ) const;
+  \fn void QStyle::drawPrimitive( PrimitiveElement pe, QPainter *p, const QRect &r, const QColorGroup &cg, SFlags flags = Style_Default, const QStyleOption& opt = QStyleOption::Default ) const;
 
   Draws the style PrimitiveElement \a pe using the painter \a p in the
   area \a r.  Colors are used from the color group \a cg.
@@ -442,95 +611,80 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   For example, a pressed button would be drawn with the flags \c
   Style_Enabled and \c Style_Down.
 
-  The \a data argument can be used to control how various
-  PrimitiveElements are drawn. Note that \a data may be zero even for
-  PrimitiveElements that make use of extra data. When data is
-  non-zero, the data is used as follows:
+  The \a opt argument can be used to control how various
+  PrimitiveElements are drawn. Note that \a opt may be the default value
+  even for PrimitiveElements that make use of extra options. When \a opt
+  is non-default, it is used as follows:
 
 <center>
 <table cellpadding=4 cellspacing=2 border=0>
 <tr bgcolor=#A2C511>
 <th>PrimitiveElement</th>
-<th>Data</th>
-<th>Data Cast</th>
+<th>Options</th>
 <th>Notes</th>
 </tr>
 <tr bgcolor=#d0d0d0>
 <td valign=top><b>PE_FocusRect</b></td>
-<td valign=top>data[0]</td>
-<td valign=top>const QColor *</td>
-<td valign=top>pointer to the background color on which the focus rect is being drawn.</td>
+<td valign=top>QStyleOption(const QColor& bg)</td>
+<td valign=top>\e bg is the background color on which the focus rect is being drawn.</td>
 </tr>
 <tr bgcolor=#f0f0f0>
 <td rowspan=2 valign=top><b>PE_Panel</b></td>
-<td valign=top>data[0]</td>
-<td valign=top>int *</td>
-<td valign=top>line width for drawing the panel.</td>
+<td rowspan=2 valign=top>QStyleOption(int linewidth, int midlinewidth)
+	<p>opt.\link QStyleOption::lineWidth() lineWidth()\endlink <p>opt.\link QStyleOption::midLineWidth() midLineWidth()\endlink</td>
+<td valign=top>\e linewidth is the line width for drawing the panel.</td>
 </tr>
 <tr bgcolor=#f0f0f0>
-<td valign=top>data[1]</td>
-<td valign=top>int *</td>
-<td valign=top>mid-line width for drawing the panel.</td>
+<td valign=top>\e midlinewidth is the mid-line width for drawing the panel.</td>
 </tr>
 <tr bgcolor=#d0d0d0>
 <td rowspan=2 valign=top><b>PE_PanelPopup</b></td>
-<td valign=top>data[0]</td>
-<td valign=top>int *</td>
-<td valign=top>line width for drawing the panel.</td>
+<td rowspan=2 valign=top>QStyleOption(int linewidth, int midlinewidth)
+	<p>opt.\link QStyleOption::lineWidth() lineWidth()\endlink <p>opt.\link QStyleOption::midLineWidth() midLineWidth()\endlink</td>
+<td valign=top>\e linewidth is the line width for drawing the panel.</td>
 </tr>
 <tr bgcolor=#d0d0d0>
-<td valign=top>data[1]</td>
-<td valign=top>int *</td>
-<td valign=top>mid-line width for drawing the panel.</td>
+<td valign=top>\e midlinewidth is the mid-line width for drawing the panel.</td>
 </tr>
 <tr bgcolor=#f0f0f0>
 <td rowspan=2 valign=top><b>PE_PanelMenuBar</b></td>
-<td valign=top>data[0]</td>
-<td valign=top>int *</td>
-<td valign=top>line width for drawing the panel.</td>
+<td rowspan=2 valign=top>QStyleOption(int linewidth, int midlinewidth)
+	<p>opt.\link QStyleOption::lineWidth() lineWidth()\endlink <p>opt.\link QStyleOption::midLineWidth() midLineWidth()\endlink</td>
+<td valign=top>\e linewidth is the line width for drawing the panel.</td>
 </tr>
 <tr bgcolor=#f0f0f0>
-<td valign=top>data[1]</td>
-<td valign=top>int *</td>
-<td valign=top>mid-line width for drawing the panel.</td>
+<td valign=top>\e midlinewidth is the mid-line width for drawing the panel.</td>
 </tr>
 <tr bgcolor=#d0d0d0>
 <td rowspan=2 valign=top><b>PE_PanelDockWindow</b></td>
-<td valign=top>data[0]</td>
-<td valign=top>int *</td>
-<td valign=top>line width for drawing the panel.</td>
+<td rowspan=2 valign=top>QStyleOption(int linewidth, int midlinewidth)
+	<p>opt.\link QStyleOption::lineWidth() lineWidth()\endlink <p>opt.\link QStyleOption::midLineWidth() midLineWidth()\endlink</td>
+<td valign=top>\e linewidth is the line width for drawing the panel.</td>
 </tr>
 <tr bgcolor=#d0d0d0>
-<td valign=top>data[1]</td>
-<td valign=top>int *</td>
-<td valign=top>mid-line width for drawing the panel.</td>
+<td valign=top>\e midlinewidth is the mid-line width for drawing the panel.</td>
 </tr>
 <tr bgcolor=#f0f0f0>
 <td valign=top rowspan=4><b>PE_GroupBoxFrame</b></td>
-<td valign=top>data[0]</td>
-<td valign=top>int *</td>
-<td valign=top>frame shape for the group box.  See QFrame.</td>
+<td rowspan=4 valign=top>QStyleOption(int linewidth, int midlinewidth, int shape, int shadow)
+	<p>opt.\link QStyleOption::lineWidth() lineWidth()\endlink <p>opt.\link QStyleOption::midLineWidth() midLineWidth()\endlink
+	<p>opt.\link QStyleOption::frameShape() frameShape()\endlink <p>opt.\link QStyleOption::frameShadow() frameShadow()\endlink</td>
+<td valign=top>\e linewidth is the line width for the group box.</td>
 </tr>
 <tr bgcolor=#f0f0f0>
-<td valign=top>data[1]</td>
-<td valign=top>int *</td>
-<td valign=top>frame shadow for the group box.</td>
+<td valign=top>\e midlinewidth is the mid-line width for the group box.</td>
 </tr>
 <tr bgcolor=#f0f0f0>
-<td valign=top>data[2]</td>
-<td valign=top>int *</td>
-<td valign=top>line width for the group box.</td>
+<td valign=top>\e shape is the frame shape for the group box.  See QFrame.</td>
 </tr>
 <tr bgcolor=#f0f0f0>
-<td valign=top>data[3]</td>
-<td valign=top>int *</td>
-<td valign=top>mid-line width for the group box.</td>
+<td valign=top>\e shadow is the frame shadow for the group box.</td>
 </tr>
 </table>
 </center>
 
   For all other \link QStyle::PrimitiveElement
-  PrimitiveElements\endlink, \a data is unused.
+  PrimitiveElements\endlink, \a opt is unused.
 
   \sa StyleFlags
 */
@@ -575,7 +729,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 */
 
 /*!
-  \fn void QStyle::drawControl ( ControlElement element, QPainter *p, const QWidget *widget, const QRect &r, const QColorGroup &cg, SFlags how = Style_Default, void **data = 0 ) const;
+  \fn void QStyle::drawControl ( ControlElement element, QPainter *p, const QWidget *widget, const QRect &r, const QColorGroup &cg, SFlags how = Style_Default, const QStyleOption& opt = QStyleOption::Default ) const;
 
   Draws the ControlElement \a element using the painter \a p in the
   area \a r.  Colors are used from the color group \a cg.
@@ -588,11 +742,11 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
   The \a widget argument is a pointer to a QWidget or one of its
   subclasses.  The widget can be cast to the appropriate type based on
-  the value of \a element. The \a data argument can be used to pass
+  the value of \a element. The \a opt argument can be used to pass
   extra information required when drawing the ControlElement.  Note
-  that \a data may be zero even for ControlElements that can make use
-  of the extra data.  See the table below for the appropriate \a
-  widget and \a data casts:
+  that \a opt may be the default value even for ControlElements that can make use
+  of the extra options.  See the table below for the appropriate \a
+  widget and \a opt usage:
 
 <center>
 <table cellpadding=4 cellspacing=2 border=0>
@@ -600,8 +754,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 <th>ControlElement<br>&amp; Widget Cast</th>
 <th>Style Flags</th>
 <th>Notes</th>
-<th>Data</th>
-<th>Data Cast</th>
+<th>Options</th>
 <th>Notes</th>
 </tr>
 <tr bgcolor=#d0d0d0>
@@ -609,7 +762,6 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 <td valign=top>Style_Enabled</td>
 <td valign=top>set if the button is enabled.</td>
 <td rowspan=6 valign=top>unused</td>
-<td rowspan=6 valign=top>&nbsp;</td>
 <td rowspan=6 valign=top>&nbsp;</td>
 </tr>
 <tr bgcolor=#d0d0d0>
@@ -639,7 +791,6 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 <td valign=top>set if the button is enabled.</td>
 <td rowspan=6 valign=top>unused</td>
 <td rowspan=6 valign=top>&nbsp;</td>
-<td rowspan=6 valign=top>&nbsp;</td>
 </tr>
 <tr bgcolor=#f0f0f0>
 <td valign=top>Style_HasFocus</td>
@@ -667,7 +818,6 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 <td valign=top>Style_Enabled</td>
 <td valign=top>set if the checkbox is enabled.</td>
 <td rowspan=6 valign=top>unused</td>
-<td rowspan=6 valign=top>&nbsp;</td>
 <td rowspan=6 valign=top>&nbsp;</td>
 </tr>
 <tr bgcolor=#d0d0d0>
@@ -699,7 +849,6 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 <td valign=top>set if the checkbox is enabled.</td>
 <td rowspan=6 valign=top>unused</td>
 <td rowspan=6 valign=top>&nbsp;</td>
-<td rowspan=6 valign=top>&nbsp;</td>
 </tr>
 <tr bgcolor=#f0f0f0>
 <td valign=top>Style_HasFocus</td>
@@ -730,7 +879,6 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 <td valign=top>set if the radiobutton is enabled.</td>
 <td rowspan=5 valign=top>unused</td>
 <td rowspan=5 valign=top>&nbsp;</td>
-<td rowspan=5 valign=top>&nbsp;</td>
 </tr>
 <tr bgcolor=#d0d0d0>
 <td valign=top>Style_HasFocus</td>
@@ -757,7 +905,6 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 <td valign=top>set if the radiobutton is enabled.</td>
 <td rowspan=5 valign=top>unused</td>
 <td rowspan=5 valign=top>&nbsp;</td>
-<td rowspan=5 valign=top>&nbsp;</td>
 </tr>
 <tr bgcolor=#f0f0f0>
 <td valign=top>Style_HasFocus</td>
@@ -782,14 +929,13 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 <td rowspan=2 valign=top><b>CE_TabBarTab</b><br>const QTabBar *</td></td>
 <td valign=top>Style_Enabled</td>
 <td valign=top>set is the tabbar and tab is enabled.</td>
-<td valign=top>data[0]</td>
-<td valign=top>QTab *</td>
-<td valign=top>pointer to the QTab being drawn.</td>
+<td valign=top>QStyleOption(QTab *t)
+	<p>opt.\link QStyleOption::tab() tab()\endlink</td>
+<td valign=top>\e t is the QTab being drawn.</td>
 </tr>
 <tr bgcolor=#d0d0d0>
 <td valign=top>Style_Selected</td>
 <td valign=top>set is the tab is selected (ie. the current tab).</td>
-<td valign=top>&nbsp;</td>
 <td valign=top>&nbsp;</td>
 <td valign=top>&nbsp;</td>
 </tr>
@@ -797,14 +943,13 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 <td rowspan=2 valign=top><b>CE_TabBarLabel</b><br>const QTabBar *</td>
 <td valign=top>Style_Enabled</td>
 <td valign=top>set is the tabbar and tab is enabled.</td>
-<td valign=top>data[0]</td>
-<td valign=top>QTab *</td>
-<td valign=top>pointer to the QTab being drawn.</td>
+<td valign=top>QStyleOption(QTab *t)
+        <p>opt.\link QStyleOption::tab() tab()\endlink</td>
+<td valign=top>\e t is the QTab being drawn.</td>
 </tr>
 <tr bgcolor=#f0f0f0>
 <td valign=top>Style_HasFocus</td>
 <td valign=top>set is the tab has input focus.</td>
-<td valign=top>&nbsp;</td>
 <td valign=top>&nbsp;</td>
 <td valign=top>&nbsp;</td>
 </tr>
@@ -813,7 +958,6 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 <td valign=top>Style_Enabled</td>
 <td valign=top>set is the progressbar is enabled.</td>
 <td rowspan=2 valign=top>unused</td>
-<td rowspan=2 valign=top>&nbsp;</td>
 <td rowspan=2 valign=top>&nbsp;</td>
 </tr>
 <tr bgcolor=#d0d0d0>
@@ -826,7 +970,6 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 <td valign=top>set is the progressbar is enabled.</td>
 <td rowspan=2 valign=top>unused</td>
 <td rowspan=2 valign=top>&nbsp;</td>
-<td rowspan=2 valign=top>&nbsp;</td>
 </tr>
 <tr bgcolor=#f0f0f0>
 <td valign=top>Style_HasFocus</td>
@@ -838,7 +981,6 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 <td valign=top>set is the progressbar is enabled.</td>
 <td rowspan=2 valign=top>unused</td>
 <td rowspan=2 valign=top>&nbsp;</td>
-<td rowspan=2 valign=top>&nbsp;</td>
 </tr>
 <tr bgcolor=#d0d0d0>
 <td valign=top>Style_HasFocus</td>
@@ -848,38 +990,35 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 <td valign=top rowspan=3><b>CE_PopupMenuItem</b><br>const QPopupMenu *</td>
 <td valign=top>Style_Enabled</td>
 <td valign=top>set if the menuitem is enabled</td>
-<td valign=top>data[0]</td>
-<td valign=top>QMenuItem *</td>
-<td valign=top>pointer to the menu item being drawn.
+<td rowspan=3 valign=top>QStyleOption(QMenuItem *mi, int tabwidth, int maxpmwidth)
+	<p>opt.\link QStyleOption::menuItem() menuItem()\endlink
+	<p>opt.\link QStyleOption::tabWidth() tabWidth()\endlink
+	<p>opt.\link QStyleOption::maxIconWidth() maxIconWidth()\endlink</td>
+<td valign=top>\e mi is the menu item being drawn.
 QMenuItem is currently an internal class.</td>
 </tr>
 <tr bgcolor=#f0f0f0>
 <td valign=top>Style_Active</td>
 <td valign=top>set if the menuitem is active (ie. the current item).</td>
-<td valign=top>data[1]</td>
-<td valign=top>int *</td>
-<td valign=top>width of the tab column where key accelerators are drawn.</td>
+<td valign=top>\e tabwidth is the width of the tab column where key accelerators are drawn.</td>
 </tr>
 <tr bgcolor=#f0f0f0>
 <td valign=top>Style_Down</td>
 <td valign=top>set if the menuitem is down (ie. mouse button or space pressed).</td>
-<td valign=top>data[2]</td>
-<td valign=top>int *</td>
-<td valign=top>maximum width of the check column where checkmarks and iconsets
+<td valign=top>\e maxpmwidth is the maximum width of the check column where checkmarks and iconsets
 are drawn.</td>
 </tr>
 <tr bgcolor=#d0d0d0>
 <td rowspan=4 valign=top><b>CE_MenuBarItem</b><br>const QMenuBar *</td>
 <td valign=top>Style_Enabled</td>
 <td valign=top>set if the menuitem is enabled</td>
-<td valign=top>data[0]</td>
-<td valign=top>QMenuItem *</td>
-<td valign=top>pointer to the menu item being drawn.</td>
+<td valign=top>QStyleOption(QMenuItem *mi)
+	<p>opt.\link QStyleOption::menuItem() menuItem()\endlink</td>
+<td valign=top>\e mi is the menu item being drawn.</td>
 </tr>
 <tr bgcolor=#d0d0d0>
 <td valign=top>Style_Active</td>
 <td valign=top>set if the menuitem is active (ie. the current item).</td>
-<td rowspan=3>&nbsp;</td>
 <td rowspan=3>&nbsp;</td>
 <td rowspan=3>&nbsp;</td>
 </tr>
@@ -895,15 +1034,14 @@ are drawn.</td>
 <td valign=top rowspan=7><b>CE_ToolButtonLabel</b><br>const QToolButton *</td>
 <td valign=top>Style_Enabled</td>
 <td valign=top>set if the toolbutton is enabled.</td>
-<td valign=top>data[0]</td>
-<td valign=top>ArrowType *</td>
-<td valign=top>when the tool button only contains an arrow, this is the
-    arrow's type. Otherwise, data is 0.</td>
+<td valign=top>QStyleOption(ArrowType t)
+	<p>opt.\link QStyleOption::arrowType() arrowType()\endlink</td>
+<td valign=top>when the tool button only contains an arrow, \e t is the
+    arrow's type.</td>
 </tr>
 <tr bgcolor=#f0f0f0>
 <td valign=top>Style_HasFocus</td>
 <td valign=top>set if the toolbutton has input focus.</td>
-<td valign=top>&nbsp;</td>
 <td valign=top>&nbsp;</td>
 <td valign=top>&nbsp;</td>
 </tr>
@@ -912,12 +1050,10 @@ are drawn.</td>
 <td valign=top>set if the toolbutton is down (ie. mouse button or space pressed).</td>
 <td valign=top>&nbsp;</td>
 <td valign=top>&nbsp;</td>
-<td valign=top>&nbsp;</td>
 </tr>
 <tr bgcolor=#f0f0f0>
 <td valign=top>Style_On</td>
 <td valign=top>set if the toolbutton is a toggle button and is toggled on.</td>
-<td valign=top rowspan=4>&nbsp;</td>
 <td valign=top rowspan=4>&nbsp;</td>
 <td valign=top rowspan=4>&nbsp;</td>
 </tr>
@@ -941,11 +1077,11 @@ are drawn.</td>
 */
 
 /*!
-  \fn void QStyle::drawControlMask( ControlElement element, QPainter *p, const QWidget *widget, const QRect &r, void **data = 0 ) const;
+  \fn void QStyle::drawControlMask( ControlElement element, QPainter *p, const QWidget *widget, const QRect &r, const QStyleOption& opt = QStyleOption::Default ) const;
 
   Draw a bitmask for the ControlElement \a element using the painter
   \a p in the area \r.  See drawControl() for an
-  explanation of the use of the \a widget and \a data arguments.
+  explanation of the use of the \a widget and \a opt arguments.
 
   The rect \a r should be in screen coordinates.
 
@@ -1157,7 +1293,7 @@ are drawn.</td>
 */
 
 /*!
-  \fn void QStyle::drawComplexControl( ComplexControl control, QPainter *p, const QWidget *widget, const QRect &r, const QColorGroup &cg, SFlags how = Style_Default, SCFlags sub = SC_All, SCFlags subActive = SC_None, void **data = 0 ) const;
+  \fn void QStyle::drawComplexControl( ComplexControl control, QPainter *p, const QWidget *widget, const QRect &r, const QColorGroup &cg, SFlags how = Style_Default, SCFlags sub = SC_All, SCFlags subActive = SC_None, const QStyleOption& opt = QStyleOption::Default ) const;
 
   Draws the ComplexControl \a control using the painter \a p in the
   area \a r.  Colors are used from the color group \a cg.  The \a sub
@@ -1176,11 +1312,11 @@ are drawn.</td>
 
   The \a widget argument is a pointer to a QWidget or one of its
   subclasses.  The widget can be cast to the appropriate type based on
-  the value of \a control.  The \a data argument can be used to pass
+  the value of \a control.  The \a opt argument can be used to pass
   extra information required when drawing the ComplexControl.  Note
-  that \a data may be zero even for ComplexControls that can make use
-  of the extra data.  See the table below for the appropriate \a
-  widget and \a data casts:
+  that \a opt may be the default value even for ComplexControls that
+  can make use of the extra options.  See the table below for the appropriate
+  \a widget and \a opt usage:
 
 <center>
 <table cellpadding=4 cellspacing=2 border=0>
@@ -1188,8 +1324,7 @@ are drawn.</td>
 <th>ComplexControl<br>&amp; Widget Cast</th>
 <th>Style Flags</th>
 <th>Notes</th>
-<th>Data</th>
-<th>Data Cast</th>
+<th>Options</th>
 <th>Notes</th>
 </tr>
 <tr bgcolor=#d0d0d0>
@@ -1197,7 +1332,6 @@ are drawn.</td>
 <td valign=top>Style_Enabled</td>
 <td valign=top>set if the spinwidget is enabled.</td>
 <td rowspan=2 valign=top>unused</td>
-<td rowspan=2 valign=top>&nbsp;</td>
 <td rowspan=2 valign=top>&nbsp;</td>
 </tr>
 <tr bgcolor=#d0d0d0>
@@ -1210,7 +1344,6 @@ are drawn.</td>
 <td valign=top>set if the combobox is enabled.</td>
 <td rowspan=2 valign=top>unused</td>
 <td rowspan=2 valign=top>&nbsp;</td>
-<td rowspan=2 valign=top>&nbsp;</td>
 </tr>
 <tr bgcolor=#f0f0f0>
 <td valign=top>Style_HasFocus</td>
@@ -1222,12 +1355,10 @@ are drawn.</td>
 <td valign=top>set if the scrollbar is enabled.</td>
 <td valign=top>unused</td>
 <td valign=top>&nbsp;</td>
-<td valign=top>&nbsp;</td>
 </tr>
 <tr bgcolor=#d0d0d0>
 <td valign=top>Style_HasFocus</td>
 <td valign=top>set if the scrollbar has input focus.</td>
-<td valign=top>&nbsp;</td>
 <td valign=top>&nbsp;</td>
 <td valign=top>&nbsp;</td>
 </tr>
@@ -1237,12 +1368,10 @@ are drawn.</td>
 <td valign=top>set if the slider is enabled.</td>
 <td valign=top>unused</td>
 <td valign=top>&nbsp;</td>
-<td valign=top>&nbsp;</td>
 </tr>
 <tr bgcolor=#f0f0f0>
 <td valign=top>Style_HasFocus</td>
 <td valign=top>set if the slider has input focus.</td>
-<td valign=top>&nbsp;</td>
 <td valign=top>&nbsp;</td>
 <td valign=top>&nbsp;</td>
 </tr>
@@ -1250,15 +1379,13 @@ are drawn.</td>
 <td valign=top rowspan=7><b>CC_ToolButton</b><br>const QToolButton *</td>
 <td valign=top>Style_Enabled</td>
 <td valign=top>set if the toolbutton is enabled.</td>
-<td valign=top>data[0]</td>
-<td valign=top>ArrowType *</td>
-<td valign=top>when the tool button only contains an arrow, this is the
-    arrow's type. Otherwise, data is 0.</td>
+<td valign=top>QStyleOption(ArrowType t)<p>opt.\link QStyleOption::arrowType() arrowType()\endlink</td>
+<td valign=top>when the tool button only contains an arrow, \e t is the
+    arrow's type.</td>
 </tr>
 <tr bgcolor=#d0d0d0>
 <td valign=top>Style_HasFocus</td>
 <td valign=top>set if the toolbutton has input focus.</td>
-<td valign=top>&nbsp;</td>
 <td valign=top>&nbsp;</td>
 <td valign=top>&nbsp;</td>
 </tr>
@@ -1267,12 +1394,10 @@ are drawn.</td>
 <td valign=top>set if the toolbutton is down (ie. mouse button or space pressed).</td>
 <td valign=top>&nbsp;</td>
 <td valign=top>&nbsp;</td>
-<td valign=top>&nbsp;</td>
 </tr>
 <tr bgcolor=#d0d0d0>
 <td valign=top>Style_On</td>
 <td valign=top>set if the toolbutton is a toggle button and is toggled on.</td>
-<td valign=top rowspan=4>&nbsp;</td>
 <td valign=top rowspan=4>&nbsp;</td>
 <td valign=top rowspan=4>&nbsp;</td>
 </tr>
@@ -1295,15 +1420,13 @@ are drawn.</td>
 <td valign=top>set if the titlebar is enabled.</td>
 <td valign=top>unused</td>
 <td valign=top>&nbsp;</td>
-<td valign=top>&nbsp;</td>
 </tr>
 <tr bgcolor=#d0d0d0>
 <td valign=top><b>CC_ListView</b><br>const QListView *</td>
 <td valign=top>Style_Enabled</td>
 <td valign=top>set if the titlebar is enabled.</td>
-<td valign=top>data[0]</td>
-<td valign=top>QListViewItem *</td>
-<td valign=top>pointer to the item that needs branches drawn</td>
+<td valign=top>QStyleOption(QListViewItem *item)<p>opt.\link QStyleOption::listViewItem() listViewItem()\endlink</td>
+<td valign=top>\e item is the item that needs branches drawn</td>
 </tr>
 </table>
 </center>
@@ -1312,11 +1435,11 @@ are drawn.</td>
 */
 
 /*!
-  \fn void QStyle::drawComplexControlMask( ComplexControl control, QPainter *p, const QWidget *widget, const QRect &r, void **data = 0 ) const;
+  \fn void QStyle::drawComplexControlMask( ComplexControl control, QPainter *p, const QWidget *widget, const QRect &r, const QStyleOption& opt = QStyleOption::Default ) const;
 
   Draw a bitmask for the ComplexControl \a control using the painter
   \a p in the area \a r.  See drawComplexControl() for an explanation
-  of the use of the \a widget and \a data arguments.
+  of the use of the \a widget and \a opt arguments.
 
   The rect \a r should be in logical coordinates.  Reimplementations
   of this function should use visualRect() to change the logical
@@ -1327,33 +1450,33 @@ are drawn.</td>
 */
 
 /*!
-  \fn QRect QStyle::querySubControlMetrics( ComplexControl control, const QWidget *widget, SubControl subcontrol, void **data = 0 ) const;
+  \fn QRect QStyle::querySubControlMetrics( ComplexControl control, const QWidget *widget, SubControl subcontrol, const QStyleOption& opt = QStyleOption::Default ) const;
 
   Returns the rect for the SubControl \a subcontrol for \a widget in
   logical coordinates.
 
   The \a widget argument is a pointer to a QWidget or one of its
   subclasses.  The widget can be cast to the appropriate type based on
-  the value of \a control. The \a data argument can be used to pass
+  the value of \a control. The \a opt argument can be used to pass
   extra information required when drawing the ComplexControl.  Note
-  that \a data may be zero even for ComplexControls that can make use of
-  the extra data. See drawComplexControl() for an explanation of the
-  \a widget and \a data arguments.
+  that \a opt may be the default value even for ComplexControls that can make use of
+  the extra options. See drawComplexControl() for an explanation of the
+  \a widget and \a opt arguments.
 
   \sa drawComplexControl(), ComplexControl, SubControl
 */
 
 /*!
-  \fn SubControl QStyle::querySubControl( ComplexControl control, const QWidget *widget, const QPoint &pos, void **data = 0 ) const;
+  \fn SubControl QStyle::querySubControl( ComplexControl control, const QWidget *widget, const QPoint &pos, const QStyleOption& opt = QStyleOption::Default ) const;
 
   Returns the SubControl for \a widget at the point \a pos.  The \a
   widget argument is a pointer to a QWidget or one of its subclasses.
   The widget can be casted to the appropriate type based on the value of
-  \a control.  The \a data argument can be used to pass extra
+  \a control.  The \a opt argument can be used to pass extra
   information required when drawing the ComplexControl.  Note that \a
-  data may be zero even for ComplexControls that can make use of the
-  extra data. See drawComplexControl() for an explanation of the \a
-  widget and \a data arguments.
+  opt may be the default value even for ComplexControls that can make use of the
+  extra options. See drawComplexControl() for an explanation of the \a
+  widget and \a opt arguments.
 
   Note that \a pos is passed in screen coordinates.  When using
   querySubControlMetrics() to check for hits and misses, use
@@ -1511,26 +1634,25 @@ are drawn.</td>
 */
 
 /*!
-  \fn QSize QStyle::sizeFromContents( ContentsType contents, const QWidget *widget, const QSize &contentsSize, void **data = 0 ) const;
+  \fn QSize QStyle::sizeFromContents( ContentsType contents, const QWidget *widget, const QSize &contentsSize, const QStyleOption& opt = QStyleOption::Default ) const;
 
   Returns the size of \a widget based on the contents size \a
   contentsSize.
 
   The \a widget argument is a pointer to a QWidget or one of its
   subclasses.  The widget can be cast to the appropriate type based on
-  the value of \a contents. The \a data argument can be used to pass
+  the value of \a contents. The \a opt argument can be used to pass
   extra information required when calculating the size.  Note that \a
-  data may be zero even for ContentsTypes that can make use of the extra
-  data.  See the table below for the appropriate \a widget and \a data
-  casts:
+  opt may be the default value even for ContentsTypes that can make use of the extra
+  options.  See the table below for the appropriate \a widget and \a opt
+  usage:
 
   <center>
   <table cellpadding=4 cellspacing=2 border=0>
     <tr bgcolor=#A2C511>
       <th>ContentsType</th>
       <th>Widget Cast</th>
-      <th>Data</th>
-      <th>Data Cast</th>
+      <th>Options</th>
       <th>Notes</th>
     </tr>
     <tr bgcolor=#d0d0d0>
@@ -1538,13 +1660,11 @@ are drawn.</td>
       <td valign=top>const QPushButton *</td>
       <td valign=top>unused</td>
       <td valign=top>&nbsp;</td>
-      <td valign=top>&nbsp;</td>
     </tr>
     <tr bgcolor=#f0f0f0>
       <td valign=top><b>CT_CheckBox</b></td>
       <td valign=top>const QCheckBox *</td>
       <td valign=top>unused</td>
-      <td valign=top>&nbsp;</td>
       <td valign=top>&nbsp;</td>
     </tr>
     <tr bgcolor=#d0d0d0>
@@ -1552,13 +1672,11 @@ are drawn.</td>
       <td valign=top>const QRadioButton *</td>
       <td valign=top>unused</td>
       <td valign=top>&nbsp;</td>
-      <td valign=top>&nbsp;</td>
     </tr>
     <tr bgcolor=#f0f0f0>
       <td valign=top><b>CT_ToolButton</b></td>
       <td valign=top>const QToolButton *</td>
       <td valign=top>unused</td>
-      <td valign=top>&nbsp;</td>
       <td valign=top>&nbsp;</td>
     </tr>
     <tr bgcolor=#d0d0d0>
@@ -1566,13 +1684,11 @@ are drawn.</td>
       <td valign=top>const QComboBox *</td>
       <td valign=top>unused</td>
       <td valign=top>&nbsp;</td>
-      <td valign=top>&nbsp;</td>
     </tr>
     <tr bgcolor=#f0f0f0>
       <td valign=top><b>CT_Splitter</b></td>
       <td valign=top>const QSplitter *</td>
       <td valign=top>unused</td>
-      <td valign=top>&nbsp;</td>
       <td valign=top>&nbsp;</td>
     </tr>
     <tr bgcolor=#d0d0d0>
@@ -1580,21 +1696,19 @@ are drawn.</td>
       <td valign=top>const QDockWindow *</td>
       <td valign=top>unused</td>
       <td valign=top>&nbsp;</td>
-      <td valign=top>&nbsp;</td>
     </tr>
     <tr bgcolor=#f0f0f0>
       <td valign=top><b>CT_ProgressBar</b></td>
       <td valign=top>const QProgressBar *</td>
       <td valign=top>unused</td>
       <td valign=top>&nbsp;</td>
-      <td valign=top>&nbsp;</td>
     </tr>
     <tr bgcolor=#d0d0d0>
       <td valign=top><b>CT_PopupMenuItem</b></td>
       <td valign=top>const QPopupMenu *</td>
-      <td valign=top>data[0]</td>
-      <td valign=top>QMenuItem *</td>
-      <td valign=top>pointer to the menu item to use when calculating the size.
+      <td valign=top>QStyleOption(QMenuItem *mi)
+	    <p>opt.\link QStyleOption::menuItem() menuItem()\endlink</td>
+      <td valign=top>\e mi is the menu item to use when calculating the size.
       QMenuItem is currently an internal class.</td>
     </tr>
   </table>
@@ -1727,14 +1841,15 @@ are drawn.</td>
 */
 
 /*!
-  \fn QPixmap QStyle::stylePixmap( StylePixmap stylepixmap, const QWidget *widget = 0, void **data = 0 ) const;
+  \fn QPixmap QStyle::stylePixmap( StylePixmap stylepixmap, const QWidget *widget = 0, const QStyleOption& opt = QStyleOption::Default ) const;
 
   Returns a pixmap for \a stylepixmap.
 
-  The \a data argument can be used to pass extra information required
-  when drawing the ControlElement.  Note that \a data may be zero even
-  for StylePixmaps that can make use of the extra data.  Currently,
-  the \a data argument is unused.
+  The \a opt argument can be used to pass extra information required
+  when drawing the ControlElement.  Note that \a opt may be the
+  default value even
+  for StylePixmaps that can make use of the extra options.  Currently,
+  the \a opt argument is unused.
 
   The \a widget argument is a pointer to a QWidget or one of its
   subclasses.  The widget can be cast to the appropriate type based on

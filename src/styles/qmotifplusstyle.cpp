@@ -407,7 +407,7 @@ void QMotifPlusStyle::drawPrimitive( PrimitiveElement pe,
 				     const QRect &r,
 				     const QColorGroup &cg,
 				     SFlags flags,
-				     void **data ) const
+				     const QStyleOption& opt ) const
 {
     switch (pe) {
     case PE_ButtonCommand:
@@ -428,11 +428,11 @@ void QMotifPlusStyle::drawPrimitive( PrimitiveElement pe,
 	break;
 
     case PE_SpinWidgetUp:
-	drawPrimitive(PE_ArrowUp, p, r, cg, flags, data);
+	drawPrimitive(PE_ArrowUp, p, r, cg, flags, opt);
 	break;
 
     case PE_SpinWidgetDown:
-	drawPrimitive(PE_ArrowDown, p, r, cg, flags, data);
+	drawPrimitive(PE_ArrowDown, p, r, cg, flags, opt);
 	break;
 
     case PE_Indicator:
@@ -749,7 +749,7 @@ void QMotifPlusStyle::drawPrimitive( PrimitiveElement pe,
 	}
 
     default:
-	QMotifStyle::drawPrimitive(pe, p, r, cg, flags, data);
+	QMotifStyle::drawPrimitive(pe, p, r, cg, flags, opt);
 	break;
     }
 }
@@ -763,7 +763,7 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 				   const QRect &r,
 				   const QColorGroup &cg,
 				   SFlags flags,
-				   void **data ) const
+				   const QStyleOption& opt ) const
 {
     switch (element) {
     case CE_PushButton:
@@ -828,10 +828,10 @@ void QMotifPlusStyle::drawControl( ControlElement element,
     case CE_MenuBarItem:
 	{
 #ifndef QT_NO_MENUDATA
-	    if (! data)
+	    if (opt.isDefault())
 		break;
 
-	    QMenuItem *mi = (QMenuItem *) data[0];
+	    QMenuItem *mi = opt.menuItem();
 	    if ((flags & Style_Enabled) && (flags & Style_Active))
 		drawMotifPlusShade(p, r, singleton->prelight_palette.active(), FALSE);
 	    else
@@ -848,16 +848,16 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 #ifndef QT_NO_POPUPMENU
     case CE_PopupMenuItem:
 	{
-	    if (! widget || ! data)
+	    if (! widget || opt.isDefault())
 		break;
 
 	    QPopupMenu *popupmenu = (QPopupMenu *) widget;
-	    QMenuItem *mi = (QMenuItem *) data[0];
+	    QMenuItem *mi = opt.menuItem();
 	    if ( !mi )
 		break;
 
-	    int tab = *((int *) data[1]);
-	    int maxpmw = *((int *) data[2]);
+	    int tab = opt.tabWidth();
+	    int maxpmw = opt.maxIconWidth();
 	    bool dis = ! (flags & Style_Enabled);
 	    bool checkable = popupmenu->isCheckable();
 	    bool act = flags & Style_Active;
@@ -1080,7 +1080,7 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 		}
 	    } else
 		// triangular drawing code
-		QMotifStyle::drawControl(element, p, widget, r, cg, flags, data);
+		QMotifStyle::drawControl(element, p, widget, r, cg, flags, opt);
 
 	    p->setPen(oldpen);
 #endif
@@ -1088,7 +1088,7 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 	}
 
     default:
-	QMotifStyle::drawControl(element, p, widget, r, cg, flags, data);
+	QMotifStyle::drawControl(element, p, widget, r, cg, flags, opt);
 	break;
     }
 }
@@ -1195,7 +1195,7 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 			    SFlags flags,
 			    SCFlags controls,
 			    SCFlags active,
-			    void **data ) const
+			    const QStyleOption& opt ) const
 {
     switch (control) {
     case CC_ScrollBar:
@@ -1205,13 +1205,13 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 	    QRect addline, subline, addpage, subpage, slider, first, last;
 	    bool maxedOut = (scrollbar->minValue() == scrollbar->maxValue());
 
-	    subline = querySubControlMetrics(control, widget, SC_ScrollBarSubLine, data);
-	    addline = querySubControlMetrics(control, widget, SC_ScrollBarAddLine, data);
-	    subpage = querySubControlMetrics(control, widget, SC_ScrollBarSubPage, data);
-	    addpage = querySubControlMetrics(control, widget, SC_ScrollBarAddPage, data);
-	    slider  = querySubControlMetrics(control, widget, SC_ScrollBarSlider,  data);
-	    first   = querySubControlMetrics(control, widget, SC_ScrollBarFirst,   data);
-	    last    = querySubControlMetrics(control, widget, SC_ScrollBarLast,    data);
+	    subline = querySubControlMetrics(control, widget, SC_ScrollBarSubLine, opt);
+	    addline = querySubControlMetrics(control, widget, SC_ScrollBarAddLine, opt);
+	    subpage = querySubControlMetrics(control, widget, SC_ScrollBarSubPage, opt);
+	    addpage = querySubControlMetrics(control, widget, SC_ScrollBarAddPage, opt);
+	    slider  = querySubControlMetrics(control, widget, SC_ScrollBarSlider,  opt);
+	    first   = querySubControlMetrics(control, widget, SC_ScrollBarFirst,   opt);
+	    last    = querySubControlMetrics(control, widget, SC_ScrollBarLast,    opt);
 
 	    bool skipUpdate = FALSE;
 	    if (singleton->hovering) {
@@ -1326,12 +1326,12 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 		visualRect(querySubControlMetrics(CC_ComboBox,
 						  combobox,
 						  SC_ComboBoxEditField,
-						  data), widget);
+						  opt), widget);
 	    arrow =
 		visualRect(querySubControlMetrics(CC_ComboBox,
 						  combobox,
 						  SC_ComboBoxArrow,
-						  data), widget);
+						  opt), widget);
 
 	    if (combobox->editable()) {
 		if (controls & SC_ComboBoxEditField && editfield.isValid()) {
@@ -1425,9 +1425,9 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 	    const QSlider *slider = (const QSlider *) widget;
 
 	    QRect groove = querySubControlMetrics(CC_Slider, widget, SC_SliderGroove,
-						  data),
+						  opt),
 		  handle = querySubControlMetrics(CC_Slider, widget, SC_SliderHandle,
-						  data);
+						  opt);
 
 	    if ((controls & SC_SliderGroove) && groove.isValid()) {
 		drawMotifPlusShade(p, groove, cg, TRUE, &cg.brush(QColorGroup::Mid));
@@ -1460,14 +1460,14 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 
 	    if (controls & SC_SliderTickmarks)
 		QMotifStyle::drawComplexControl(control, p, widget, r, cg, flags,
-						SC_SliderTickmarks, active, data);
+						SC_SliderTickmarks, active, opt);
 #endif
 	    break;
 	}
 
     default:
 	QMotifStyle::drawComplexControl(control, p, widget, r, cg, flags,
-					controls, active, data);
+					controls, active, opt);
     }
 }
 
@@ -1477,7 +1477,7 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 QRect QMotifPlusStyle::querySubControlMetrics(ComplexControl control,
 					      const QWidget *widget,
 					      SubControl subcontrol,
-					      void **data) const
+					      const QStyleOption& opt) const
 {
     QRect rect;
 
@@ -1592,13 +1592,13 @@ QRect QMotifPlusStyle::querySubControlMetrics(ComplexControl control,
 				  thickness - 2*motifBorder, len);
 	    } else
 		rect = QMotifStyle::querySubControlMetrics(control, widget,
-							   subcontrol, data);
+							   subcontrol, opt);
 #endif
 	    break;
 	}
 
     default:
-	rect = QMotifStyle::querySubControlMetrics(control, widget, subcontrol, data);
+	rect = QMotifStyle::querySubControlMetrics(control, widget, subcontrol, opt);
 	break;
     }
 

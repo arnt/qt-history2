@@ -365,14 +365,14 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 				   const QRect &r,
 				   const QColorGroup &cg,
 				   SFlags flags,
-				   void **data ) const
+				   const QStyleOption& opt ) const
 {
     switch( pe ) {
     case PE_HeaderArrow:
 	if(flags & Style_Up)
-	    drawPrimitive(PE_ArrowUp, p, QRect(r.x(), r.y()+2, r.width(), r.height()-4), cg, 0, data);
+	    drawPrimitive(PE_ArrowUp, p, QRect(r.x(), r.y()+2, r.width(), r.height()-4), cg, 0, opt);
 	else
-	    drawPrimitive(PE_ArrowDown, p, QRect(r.x(), r.y()+2, r.width(), r.height()-4), cg, 0, data);
+	    drawPrimitive(PE_ArrowDown, p, QRect(r.x(), r.y()+2, r.width(), r.height()-4), cg, 0, opt);
 	break;
 
     case PE_ArrowUp:
@@ -634,7 +634,7 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 	break; }
 #endif
     default:
-	QWindowsStyle::drawPrimitive(pe, p, r, cg, flags, data);
+	QWindowsStyle::drawPrimitive(pe, p, r, cg, flags, opt);
 	break;
     }
 }
@@ -648,7 +648,7 @@ void QAquaStyle::drawControl( ControlElement element,
 				 const QRect &r,
 				 const QColorGroup &cg,
 				 SFlags how,
-				 void **data ) const
+				 const QStyleOption& opt ) const
 {
     SFlags flags = Style_Default;
     if (widget->isEnabled())
@@ -701,16 +701,18 @@ void QAquaStyle::drawControl( ControlElement element,
 
     case CE_PopupMenuItem: {
 #ifndef QT_NO_POPUPMENU
-	if(!widget || !data || !data[0])
+	if(!widget || opt.isDefault())
 	    break;
 	QPopupMenu *popupmenu = (QPopupMenu *)widget;
-	QMenuItem *mi = (QMenuItem *)data[0];
+	QMenuItem *mi = opt.menuItem();
+	if ( !mi )
+	    break;
 
 	const QColorGroup & g = cg;
 	QColorGroup itemg = g;
 	bool dis = !mi->isEnabled();
-	int tab = *((int *)data[1]);
-	int maxpmw = *((int *)data[2]);
+	int tab = opt.tabWidth();
+	int maxpmw = opt.maxIconWidth();
 	bool checkable = popupmenu->isCheckable();
 	bool act = how & Style_Active;
 	int x, y, w, h;
@@ -883,10 +885,12 @@ void QAquaStyle::drawControl( ControlElement element,
 	break; }
 
     case CE_MenuBarItem: {
-	if(!data || !data[0])
+	if (opt.isDefault())
 	    break;
 
-	QMenuItem *mi = (QMenuItem *)data[0];
+	QMenuItem *mi = opt.menuItem();
+	if (!mi)
+	    break;
 	bool down = how & Style_Down;
 	bool active = how & Style_Active;
 	if( down && active ){
@@ -912,7 +916,7 @@ void QAquaStyle::drawControl( ControlElement element,
 
 	// ### What about buttons that are so small that the pixmaps don't fit?
 	if( w < 33 ){
-	    drawPrimitive( PE_ButtonCommand, p, r, cg, how, data);
+	    drawPrimitive( PE_ButtonCommand, p, r, cg, how, opt);
 	    return;
 	}
 
@@ -986,7 +990,7 @@ void QAquaStyle::drawControl( ControlElement element,
 		p->drawLine(xx+2, yy+2, xx+2, yy+hh-2);
 	    }
 	    QRect ar(r.right() - dx, r.y() + 2, dx - 4, r.height() - 4);
-	    drawPrimitive(PE_ArrowDown, p, ar, cg, how, data);
+	    drawPrimitive(PE_ArrowDown, p, ar, cg, how, opt);
 	    w -= dx;
 	}
 
@@ -1012,7 +1016,7 @@ void QAquaStyle::drawControl( ControlElement element,
 	break; }
 
     default:
-	QWindowsStyle::drawControl( element, p, widget, r, cg, how, data);
+	QWindowsStyle::drawControl( element, p, widget, r, cg, how, opt);
 	break;
     }
 }
@@ -1076,18 +1080,18 @@ int QAquaStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 QSize QAquaStyle::sizeFromContents( ContentsType contents,
 				       const QWidget *widget,
 				       const QSize &contentsSize,
-				       void **data ) const
+				       const QStyleOption& opt ) const
 {
     QSize sz(contentsSize);
     switch(contents) {
     case CT_PopupMenuItem: {
 #ifndef QT_NO_POPUPMENU
-	if(!widget || !data || !data[0] || !data[1])
+	if(!widget || opt.isDefault())
 	    break;
 	const QPopupMenu *popup = (const QPopupMenu *) widget;
 	bool checkable = popup->isCheckable();
-	QMenuItem *mi = (QMenuItem *) data[0];
-	int maxpmw = *((int *) data[1]);
+	QMenuItem *mi = opt.menuItem();
+	int maxpmw = opt.maxIconWidth();
 	int w = sz.width(), h = sz.height();
 
 	if (mi->isSeparator()) {
@@ -1121,12 +1125,12 @@ QSize QAquaStyle::sizeFromContents( ContentsType contents,
 	break; }
 
     case CT_PushButton:
-	sz = QWindowsStyle::sizeFromContents(contents, widget, contentsSize, data);
+	sz = QWindowsStyle::sizeFromContents(contents, widget, contentsSize, opt);
 	sz.setWidth(sz.width() + 16);
 	break;
 
     default:
-	sz = QWindowsStyle::sizeFromContents(contents, widget, contentsSize, data);
+	sz = QWindowsStyle::sizeFromContents(contents, widget, contentsSize, opt);
 	break;
     }
     return sz;
@@ -1181,7 +1185,7 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 					SFlags flags,
 					SCFlags sub,
 					SCFlags subActive,
-					void **data ) const
+					const QStyleOption& opt ) const
 {
     switch(ctrl) {
     case CC_ScrollBar: {
@@ -1192,13 +1196,13 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	QRect addline, subline, addpage, subpage, slider, first, last;
 	bool maxedOut = (scrollbar->minValue() == scrollbar->maxValue());
 
-	subline = querySubControlMetrics(ctrl, widget, SC_ScrollBarSubLine, data);
-	addline = querySubControlMetrics(ctrl, widget, SC_ScrollBarAddLine, data);
-	subpage = querySubControlMetrics(ctrl, widget, SC_ScrollBarSubPage, data);
-	addpage = querySubControlMetrics(ctrl, widget, SC_ScrollBarAddPage, data);
-	slider  = querySubControlMetrics(ctrl, widget, SC_ScrollBarSlider,  data);
-	first   = querySubControlMetrics(ctrl, widget, SC_ScrollBarFirst,   data);
-	last    = querySubControlMetrics(ctrl, widget, SC_ScrollBarLast,    data);
+	subline = querySubControlMetrics(ctrl, widget, SC_ScrollBarSubLine, opt);
+	addline = querySubControlMetrics(ctrl, widget, SC_ScrollBarAddLine, opt);
+	subpage = querySubControlMetrics(ctrl, widget, SC_ScrollBarSubPage, opt);
+	addpage = querySubControlMetrics(ctrl, widget, SC_ScrollBarAddPage, opt);
+	slider  = querySubControlMetrics(ctrl, widget, SC_ScrollBarSlider,  opt);
+	first   = querySubControlMetrics(ctrl, widget, SC_ScrollBarFirst,   opt);
+	last    = querySubControlMetrics(ctrl, widget, SC_ScrollBarLast,    opt);
 
 	if ((sub & SC_ScrollBarSubPage) && subpage.isValid())
 	    drawPrimitive(PE_ScrollBarSubPage, p, subpage, cg,
@@ -1309,9 +1313,9 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	break; }
 
     case CC_ListView: {
-	if(!data || !data[0])
+	if (opt.isDefault())
 	    break;
-	QListViewItem *item = (QListViewItem *)data[0];
+	QListViewItem *item = opt.listViewItem();
 	int y=r.y(), h=r.height();
 	for(QListViewItem *child = item->firstChild(); child && y < h;
 	    y += child->totalHeight(), child = child->nextSibling()) {
@@ -1348,7 +1352,7 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    p->drawPixmap( sr.x(), sr.y(), btn );
 	}
 	if(sub & SC_SpinWidgetFrame)
-	    QWindowsStyle::drawComplexControl(ctrl, p, widget, r, cg, flags, SC_SpinWidgetFrame, subActive, data);
+	    QWindowsStyle::drawComplexControl(ctrl, p, widget, r, cg, flags, SC_SpinWidgetFrame, subActive, opt);
 	break; }
 
     case CC_Slider: {
@@ -1396,9 +1400,9 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	if ( sub & SC_SliderTickmarks )
 	    QWindowsStyle::drawComplexControl( ctrl, p, widget, r, cg, flags,
 					       SC_SliderTickmarks, subActive,
-					       data );
+					       opt );
 	if ( sub & SC_SliderHandle ) {
-	    QRect re = querySubControlMetrics( CC_Slider, widget, SC_SliderHandle, data );
+	    QRect re = querySubControlMetrics( CC_Slider, widget, SC_SliderHandle, opt );
 	    QPixmap px;
 	    QString hstr = QString::number( re.height() );
 	    QString dir;
@@ -1447,8 +1451,8 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	QToolButton *toolbutton = (QToolButton *) widget;
 
 	QRect button, menuarea;
-	button   = querySubControlMetrics(ctrl, widget, SC_ToolButton, data);
-	menuarea = querySubControlMetrics(ctrl, widget, SC_ToolButtonMenu, data);
+	button   = querySubControlMetrics(ctrl, widget, SC_ToolButton, opt);
+	menuarea = querySubControlMetrics(ctrl, widget, SC_ToolButtonMenu, opt);
 
 	bool on = toolbutton->isOn();
 	bool down = toolbutton->isDown();
@@ -1525,7 +1529,7 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    drawPrimitive(PE_ArrowDown, p, QRect(menuarea.x()+2,
 						 menuarea.y()+(menuarea.height()-menuarea.width()-4),
 						 menuarea.width() - 4, menuarea.width()-2),
-			  cg, mflags, data);
+			  cg, mflags, opt);
 	}
 
 	if (toolbutton->hasFocus() && !toolbutton->focusProxy()) {
@@ -1536,7 +1540,7 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	break; }
 
     default:
-	QWindowsStyle::drawComplexControl(ctrl, p, widget, r, cg, flags, sub, subActive, data);
+	QWindowsStyle::drawComplexControl(ctrl, p, widget, r, cg, flags, sub, subActive, opt);
     }
 }
 
@@ -1546,12 +1550,12 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
 					    const QWidget *w,
 					    SubControl sc,
-					    void **data ) const
+					    const QStyleOption& opt ) const
 {
     QRect rect;
     switch( control ) {
     case CC_ComboBox: {
-	rect = QWindowsStyle::querySubControlMetrics(control, w, sc, data);
+	rect = QWindowsStyle::querySubControlMetrics(control, w, sc, opt);
 	if(sc == SC_ComboBoxEditField)
 	    rect.setWidth(rect.width() - 5);
 	break; }
@@ -1589,12 +1593,12 @@ QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
 		rect.setSize(QSize(rect.height(), rect.width()));
 	    break; }
 	default:
-	    rect = QWindowsStyle::querySubControlMetrics( control, w, sc, data);
+	    rect = QWindowsStyle::querySubControlMetrics( control, w, sc, opt);
 	}
 	break;
 
     default:
-	rect = QWindowsStyle::querySubControlMetrics( control, w, sc, data);
+	rect = QWindowsStyle::querySubControlMetrics( control, w, sc, opt);
 	break;
     }
     return rect;

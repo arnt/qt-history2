@@ -747,7 +747,8 @@ int QPopupMenu::itemAtPos( const QPoint &pos, bool ignoreSeparator ) const
 	data[0] = mi;
 	data[1] = (void *) &maxPMWidth;
 	sz = style().sizeFromContents(QStyle::CT_PopupMenuItem, this,
-				      QSize(0, itemh), data);
+				      QSize(0, itemh),
+				      QStyleOption(mi,maxPMWidth));
 	sz = sz.expandedTo(QSize(itemw, sz.height()));
 	itemw = sz.width();
 	itemh = sz.height();
@@ -776,7 +777,6 @@ QRect QPopupMenu::itemGeometry( int index )
 {
     QMenuItem *mi;
     QSize sz;
-    void *data[2];
     int row = 0;
     int x = contentsRect().x();
     int y = contentsRect().y();
@@ -786,10 +786,9 @@ QRect QPopupMenu::itemGeometry( int index )
 	++it;
 	int itemh = itemHeight( mi );
 
-	data[0] = mi;
-	data[1] = &maxPMWidth;
 	sz = style().sizeFromContents(QStyle::CT_PopupMenuItem, this,
-				      QSize(0, itemh), data);
+				      QSize(0, itemh),
+				      QStyleOption(mi,maxPMWidth));
 	sz = sz.expandedTo(QSize(itemw, sz.height()));
 	itemw = sz.width();
 	itemh = sz.height();
@@ -903,11 +902,9 @@ void QPopupMenu::updateSize()
 		}
 	    }
 
-	    void *data[2];
-	    data[0] = (void *) mi;
-	    data[1] = (void *) &maxPMWidth;
 	    QSize sz = style().sizeFromContents(QStyle::CT_PopupMenuItem, this,
-						QSize(w, itemHeight), data);
+						QSize(w, itemHeight),
+						QStyleOption(mi,maxPMWidth));
 
 	    w = sz.width();
 	    itemHeight = sz.height();
@@ -953,7 +950,6 @@ void QPopupMenu::updateSize()
 	QMenuItemListIt it(*mitems);
 	QMenuItem *mi;
 	QSize sz;
-	void *data[2];
 	int row = 0;
 	int x = contentsRect().x();
 	int y = contentsRect().y();
@@ -962,10 +958,9 @@ void QPopupMenu::updateSize()
 	    ++it;
 	    int itemh = itemHeight( mi );
 
-	    data[0] = mi;
-	    data[1] = &maxPMWidth;
 	    sz = style().sizeFromContents(QStyle::CT_PopupMenuItem, this,
-					  QSize(0, itemh), data);
+					  QSize(0, itemh),
+					  QStyleOption(mi,maxPMWidth));
 	    sz = sz.expandedTo(QSize(itemw, sz.height()));
 	    itemw = sz.width();
 	    itemh = sz.height();
@@ -1214,20 +1209,14 @@ void QPopupMenu::drawItem( QPainter* p, int tab_, QMenuItem* mi,
     if (mouseBtDn)
 	flags |= QStyle::Style_Down;
 
-    void *data[3];
-    data[0] = mi;
-    data[1] = &tab_;
-    data[2] = &maxPMWidth;
-
     if ( mi->custom() && mi->custom()->fullSpan() ) {
 	QMenuItem dummy;
-	data[0] = &dummy;
 	style().drawControl(QStyle::CE_PopupMenuItem, p, this, QRect(x, y, w, h), cg,
-			    flags, data);
+			    flags, QStyleOption(&dummy,maxPMWidth,tab_));
 	mi->custom()->paint( p, cg, act, !dis, x, y, w, h );
     } else
 	style().drawControl(QStyle::CE_PopupMenuItem, p, this, QRect(x, y, w, h), cg,
-			    flags, data);
+			    flags, QStyleOption(mi,maxPMWidth,tab_));
 }
 
 
@@ -1244,16 +1233,14 @@ void QPopupMenu::drawContents( QPainter* p )
     int itemw = contentsRect().width() / ncols;
     QSize sz;
     QStyle::SFlags flags;
-    void *data[3];
     while ( (mi=it.current()) ) {
 	++it;
 	int itemh = itemHeight( mi );
 
-	data[0] = mi;
-	data[1] = &maxPMWidth;
-	data[2] = 0;
 	sz = style().sizeFromContents(QStyle::CT_PopupMenuItem, this,
-				      QSize(0, itemh), data);
+				      QSize(0, itemh),
+				      QStyleOption(mi,maxPMWidth,0)
+				);
 	sz = sz.expandedTo(QSize(itemw, sz.height()));
 	itemw = sz.width();
 	itemh = sz.height();
@@ -1264,12 +1251,9 @@ void QPopupMenu::drawContents( QPainter* p )
 		if (isEnabled() && mi->isEnabled())
 		    flags |= QStyle::Style_Enabled;
 
-		data[0] = 0;
-		data[1] = &tab;
-		data[2] = &maxPMWidth;
 		style().drawControl(QStyle::CE_PopupMenuItem, p, this,
 				    QRect(x, y, itemw, contentsRect().bottom() - y),
-				    colorGroup(), flags, data);
+				    colorGroup(), flags, QStyleOption(0,maxPMWidth));
 	    }
 	    y = contentsRect().y();
 	    x +=itemw;
@@ -1283,12 +1267,9 @@ void QPopupMenu::drawContents( QPainter* p )
 	if ( isEnabled() )
 	    flags |= QStyle::Style_Enabled;
 
-	data[0] = 0;
-	data[1] = &tab;
-	data[2] = &maxPMWidth;
 	style().drawControl(QStyle::CE_PopupMenuItem, p, this,
 			    QRect(x, y, itemw, contentsRect().bottom() - y),
-			    colorGroup(), flags, data);
+			    colorGroup(), flags, QStyleOption(0,maxPMWidth));
     }
 }
 
@@ -1842,7 +1823,6 @@ void QPopupMenu::updateRow( int row )
     QMenuItemListIt it(*mitems);
     QMenuItem *mi;
     QSize sz;
-    void *data[2];
     int r = 0;
     int x = contentsRect().x();
     int y = contentsRect().y();
@@ -1851,10 +1831,8 @@ void QPopupMenu::updateRow( int row )
 	++it;
 	int itemh = itemHeight( mi );
 
-	data[0] = mi;
-	data[1] = &maxPMWidth;
 	sz = style().sizeFromContents(QStyle::CT_PopupMenuItem, this,
-				      QSize(0, itemh), data);
+				      QSize(0, itemh), QStyleOption(mi,maxPMWidth));
 	sz = sz.expandedTo(QSize(itemw, sz.height()));
 	itemw = sz.width();
 	itemh = sz.height();

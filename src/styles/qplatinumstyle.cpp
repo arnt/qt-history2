@@ -84,7 +84,7 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 				    const QRect &r,
 				    const QColorGroup &cg,
 				    SFlags flags,
-				    void **data ) const
+				    const QStyleOption& opt ) const
 {
     switch (pe) {
     case PE_HeaderSection:
@@ -93,7 +93,7 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 	    // sunken...
 	    if ( flags & Style_Sunken )
 		flags ^= Style_Sunken;
-	    drawPrimitive( PE_ButtonBevel, p, r, cg, flags, data );
+	    drawPrimitive( PE_ButtonBevel, p, r, cg, flags, opt );
 	    break;
 	}
     case PE_ButtonTool:
@@ -110,7 +110,7 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 
 	    fill = myCG.brush( QColorGroup::Button );
 	    myCG.setBrush( QColorGroup::Mid, fill );
-	    drawPrimitive( PE_ButtonBevel, p, r, myCG, flags, data );
+	    drawPrimitive( PE_ButtonBevel, p, r, myCG, flags, opt );
 	    break;
 	}
     case PE_ButtonBevel:
@@ -725,7 +725,7 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 	    break;
 	}
     default:
-	QWindowsStyle::drawPrimitive( pe, p, r, cg, flags, data );
+	QWindowsStyle::drawPrimitive( pe, p, r, cg, flags, opt );
 	break;
     }
 
@@ -739,7 +739,7 @@ void QPlatinumStyle::drawControl( ControlElement element,
 				  const QRect &r,
 				  const QColorGroup &cg,
 				  SFlags how,
-				  void **data ) const
+				  const QStyleOption& opt ) const
 {
     switch( element ) {
     case CE_PushButton:
@@ -810,12 +810,12 @@ void QPlatinumStyle::drawControl( ControlElement element,
 		    drawPrimitive( PE_ButtonBevel, p, QRect( x1, y1,
 							     x2 - x1 + 1,
 							     y2 - y1 + 1 ),
-				   myCg, myFlags, data );
+				   myCg, myFlags, opt );
 		} else {
 		    drawPrimitive( PE_ButtonCommand, p, QRect( x1, y1,
 							       x2 - x1 + 1,
 							       y2 - y1 + 1 ),
-				   cg2, myFlags, data );
+				   cg2, myFlags, opt );
 		}
 	    }
 
@@ -834,13 +834,13 @@ void QPlatinumStyle::drawControl( ControlElement element,
 		    drawPrimitive( PE_ButtonBevel, p, QRect( x1, y1,
 							     x2 - x1 + 1,
 							     y2 - y1 + 1 ),
-				   myCg, flags, data );
+				   myCg, flags, opt );
 		} else {
 
 		    drawPrimitive( PE_ButtonCommand, p, QRect( x1, y1,
 							       x2 - x1 + 1,
 							       y2 - y1 + 1 ),
-				   myCg, flags, data );
+				   myCg, flags, opt );
 		}
 	    }
 
@@ -881,7 +881,7 @@ void QPlatinumStyle::drawControl( ControlElement element,
 		    flags |= Style_Enabled;
 		drawPrimitive( PE_ArrowDown, p, QRect(x + w - dx - 1, y + 2,
 						      dx, h - 4),
-			       g, flags, data );
+			       g, flags, opt );
 		w -= dx;
 	    }
 
@@ -916,7 +916,7 @@ void QPlatinumStyle::drawControl( ControlElement element,
 #endif
 	}
     default:
-	QWindowsStyle::drawControl( element, p, widget, r, cg, how, data );
+	QWindowsStyle::drawControl( element, p, widget, r, cg, how, opt );
 	break;
     }
 }
@@ -931,7 +931,7 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 					 SFlags how,
 					 SCFlags sub,
 					 SCFlags subActive,
-					 void **data ) const
+					 const QStyleOption& opt ) const
 {
     switch ( control ) {
     case CC_ComboBox:
@@ -1004,7 +1004,7 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 
 	    if ( sub & SC_ComboBoxArrow ) {
 		QRect rTmp = querySubControlMetrics( CC_ComboBox, widget,
-						     SC_ComboBoxArrow, data );
+						     SC_ComboBoxArrow, opt );
 		int xx = rTmp.x(),
 		    yy = rTmp.y(),
 		    ww = rTmp.width(),
@@ -1098,10 +1098,9 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 			QStyle::visualRect( subRect( SR_ComboBoxFocusRect,
 						     cmb ),
 					    widget );
-		    void *pdata[1];
-		    pdata[0] = (void *) &cg.highlight();
 		    drawPrimitive( PE_FocusRect, p, re, cg,
-				   Style_FocusAtBorder, pdata);
+				   Style_FocusAtBorder,
+				   QStyleOption(cg.highlight()));
 		}
 		if ( cmb->editable() ) {
 		    // need this for the moment...
@@ -1128,9 +1127,9 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 	    int ticks = slider->tickmarks();
 
 	    QRect groove = querySubControlMetrics(CC_Slider, widget, SC_SliderGroove,
-						  data),
+						  opt),
 		  handle = querySubControlMetrics(CC_Slider, widget, SC_SliderHandle,
-						  data);
+						  opt);
 
 	    if ((sub & SC_SliderGroove) && groove.isValid()) {
 		p->fillRect( groove, cg.brush(QColorGroup::Background) );
@@ -1299,13 +1298,13 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 	    if ( sub & SC_SliderTickmarks )
 		QCommonStyle::drawComplexControl( control, p, widget, r,
 						  cg, how, SC_SliderTickmarks,
-						  subActive, data );
+						  subActive, opt );
 #endif
 	    break;
 	}
     default:
 	QWindowsStyle::drawComplexControl( control, p, widget, r, cg,
-					   how, sub, subActive, data );
+					   how, sub, subActive, opt );
 	break;
     }
 }
@@ -1317,7 +1316,7 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 QRect QPlatinumStyle::querySubControlMetrics( ComplexControl control,
 					      const QWidget *widget,
 					      SubControl sc,
-					      void ** data ) const
+					      const QStyleOption& opt ) const
 {
     QRect rect;
     switch( control ) {
@@ -1346,7 +1345,7 @@ QRect QPlatinumStyle::querySubControlMetrics( ComplexControl control,
 	    }
 	default:
 	    rect = QWindowsStyle::querySubControlMetrics( control, widget, sc,
-							  data );
+							  opt );
 	    break;
 	}
 #endif
@@ -1420,7 +1419,7 @@ QRect QPlatinumStyle::querySubControlMetrics( ComplexControl control,
 		break;
 	    default:
 		rect = QWindowsStyle::querySubControlMetrics( control, widget,
-							      sc, data );
+							      sc, opt );
 		break;
 	    }
 #endif
@@ -1450,7 +1449,7 @@ QRect QPlatinumStyle::querySubControlMetrics( ComplexControl control,
 		break;
 	    default:
 		rect = QWindowsStyle::querySubControlMetrics( control, widget,
-							      sc, data );
+							      sc, opt );
 		break;
 	    }
 #endif
@@ -1458,7 +1457,7 @@ QRect QPlatinumStyle::querySubControlMetrics( ComplexControl control,
 	}
     default:
 	rect = QWindowsStyle::querySubControlMetrics( control, widget,
-						      sc, data );
+						      sc, opt );
 	break;
     }
     return rect;

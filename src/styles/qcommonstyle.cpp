@@ -113,7 +113,7 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 				  const QRect &r,
 				  const QColorGroup &cg,
 				  SFlags flags,
-				  void **data ) const
+				  const QStyleOption& opt ) const
 {
     switch (pe) {
     case PE_HeaderArrow:
@@ -161,8 +161,8 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
     case PE_FocusRect: {
 	const QColor *bg = 0;
 
-	if (data)
-	    bg = (const QColor *) data[0];
+	if (!opt.isDefault())
+	    bg = &opt.color();
 
 	QPen oldPen = p->pen();
 
@@ -327,25 +327,22 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 
     case PE_Panel:
     case PE_PanelPopup: {
-	int lw = pixelMetric(PM_DefaultFrameWidth);
-	if (data)
-	    lw = *((int *) data[0]);
+	int lw = opt.isDefault() ? pixelMetric(PM_DefaultFrameWidth)
+		    : opt.lineWidth();
 
 	qDrawShadePanel(p, r, cg, (flags & Style_Sunken), lw);
 	break; }
 
     case PE_PanelDockWindow: {
-	int lw = pixelMetric(PM_DockWindowFrameWidth);
-	if (data)
-	    lw = *((int *) data[0]);
+	int lw = opt.isDefault() ? pixelMetric(PM_DockWindowFrameWidth)
+		    : opt.lineWidth();
 
 	qDrawShadePanel(p, r, cg, FALSE, lw);
 	break; }
 
     case PE_PanelMenuBar: {
-	int lw = pixelMetric(PM_MenuBarFrameWidth);
-	if (data)
-	    lw = *((int *) data[0]);
+	int lw = opt.isDefault() ? pixelMetric(PM_MenuBarFrameWidth)
+		    : opt.lineWidth();
 
 	qDrawShadePanel(p, r, cg, FALSE, lw, &cg.brush(QColorGroup::Button));
 	break; }
@@ -432,14 +429,13 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 
     case PE_GroupBoxFrame: {
 #ifndef QT_NO_FRAME
-	if ( !data )
+	if ( opt.isDefault() )
 	    break;
 
-	// evil hacks
-	QFrame::Shape	type 	= (QFrame::Shape) *((int *) data[0]);
-	QFrame::Shadow	cstyle 	= (QFrame::Shadow) *((int *) data[1]);
-	int 		lwidth 	= *((int *) data[2]);
-	int 		mlwidth = *((int *) data[3]);
+	QFrame::Shape	type 	= (QFrame::Shape)opt.frameShape();
+	QFrame::Shadow	cstyle 	= (QFrame::Shadow)opt.frameShadow();
+	int 		lwidth 	= opt.lineWidth();
+	int 		mlwidth = opt.midLineWidth();
 
 	int x = r.x();
 	int y = r.y();
@@ -502,7 +498,7 @@ void QCommonStyle::drawControl( ControlElement element,
 				const QRect &r,
 				const QColorGroup &cg,
 				SFlags flags,
-				void **data ) const
+				const QStyleOption& opt ) const
 {
 #if defined(QT_CHECK_STATE)
     if (! widget) {
@@ -549,7 +545,7 @@ void QCommonStyle::drawControl( ControlElement element,
 	    if (button->isMenuButton()) {
 		int mbi = pixelMetric(PM_MenuButtonIndicator, widget);
 		QRect ar(ir.right() - mbi, ir.y() + 2, mbi - 4, ir.height() - 4);
-		drawPrimitive(PE_ArrowDown, p, ar, cg, flags, data);
+		drawPrimitive(PE_ArrowDown, p, ar, cg, flags, opt);
 		ir.setWidth(ir.width() - mbi);
 	    }
 
@@ -583,7 +579,7 @@ void QCommonStyle::drawControl( ControlElement element,
 	}
 
     case CE_CheckBox:
-	drawPrimitive(PE_Indicator, p, r, cg, flags, data);
+	drawPrimitive(PE_Indicator, p, r, cg, flags, opt);
 	break;
 
     case CE_CheckBoxLabel:
@@ -604,7 +600,7 @@ void QCommonStyle::drawControl( ControlElement element,
 	}
 
     case CE_RadioButton:
-	drawPrimitive(PE_ExclusiveIndicator, p, r, cg, flags, data);
+	drawPrimitive(PE_ExclusiveIndicator, p, r, cg, flags, opt);
 	break;
 
     case CE_RadioButtonLabel:
@@ -669,11 +665,11 @@ void QCommonStyle::drawControl( ControlElement element,
 
     case CE_TabBarLabel:
 	{
-	    if ( ! data )
+	    if ( opt.isDefault() )
 		break;
 
 	    const QTabBar * tb = (const QTabBar *) widget;
-	    QTab * t = (QTab *) data[0];
+	    QTab * t = opt.tab();
 
 	    QRect tr = r;
 	    if ( t->identifier() == tb->currentTab() )
@@ -732,7 +728,7 @@ void QCommonStyle::drawControl( ControlElement element,
 		for (int i=0; i<nu; i++) {
 		    drawPrimitive( PE_ProgressBarChunk, p,
 				   QRect( x0+x, r.y(), unit_width, r.height() ),
-				   cg, Style_Default, data );
+				   cg, Style_Default, opt );
 		    x += reverse ? -unit_width: unit_width;
 		}
 	    }
@@ -751,10 +747,10 @@ void QCommonStyle::drawControl( ControlElement element,
     case CE_MenuBarItem:
 	{
 #ifndef QT_NO_MENUDATA
-	    if (! data)
+	    if (opt.isDefault())
 		break;
 
-	    QMenuItem *mi = (QMenuItem *) data[0];
+	    QMenuItem *mi = opt.menuItem();
 	    drawItem( p, r, AlignCenter|ShowPrefix|DontClip|SingleLine, cg,
 		      flags & Style_Enabled, mi->pixmap(), mi->text(), -1,
 		      &cg.buttonText() );
@@ -767,16 +763,14 @@ void QCommonStyle::drawControl( ControlElement element,
 	{
 	    const QToolButton *toolbutton = (const QToolButton *) widget;
 	    QRect rect = r;
-	    Qt::ArrowType arrowType = Qt::DownArrow;
-
-	    if (data)
-		arrowType  = *((Qt::ArrowType *) data[0]);
+	    Qt::ArrowType arrowType = opt.isDefault()
+			? Qt::DownArrow : opt.arrowType();
 
 	    if (flags & (Style_Down | Style_On))
 		rect.moveBy(pixelMetric(PM_ButtonShiftHorizontal, widget),
 			    pixelMetric(PM_ButtonShiftVertical, widget));
 
-	    if (data) {
+	    if (!opt.isDefault()) {
 		PrimitiveElement pe;
 		switch (arrowType) {
 		case Qt::LeftArrow:  pe = PE_ArrowLeft;  break;
@@ -786,7 +780,7 @@ void QCommonStyle::drawControl( ControlElement element,
 		case Qt::DownArrow:  pe = PE_ArrowDown;  break;
 		}
 
-		drawPrimitive(pe, p, rect, cg, flags, data);
+		drawPrimitive(pe, p, rect, cg, flags, opt);
 	    } else {
 		QColor btext = cg.buttonText();
 
@@ -841,7 +835,7 @@ void QCommonStyle::drawControlMask( ControlElement control,
 				    QPainter *p,
 				    const QWidget *widget,
 				    const QRect &r,
-				    void **data ) const
+				    const QStyleOption& opt ) const
 {
     Q_UNUSED(widget);
 
@@ -849,15 +843,15 @@ void QCommonStyle::drawControlMask( ControlElement control,
 
     switch (control) {
     case CE_PushButton:
-	drawPrimitive(PE_ButtonCommand, p, r, cg, Style_Default, data);
+	drawPrimitive(PE_ButtonCommand, p, r, cg, Style_Default, opt);
 	break;
 
     case CE_CheckBox:
-	drawPrimitive(PE_IndicatorMask, p, r, cg, Style_Default, data);
+	drawPrimitive(PE_IndicatorMask, p, r, cg, Style_Default, opt);
 	break;
 
     case CE_RadioButton:
-	drawPrimitive(PE_ExclusiveIndicatorMask, p, r, cg, Style_Default, data);
+	drawPrimitive(PE_ExclusiveIndicatorMask, p, r, cg, Style_Default, opt);
 	break;
 
     default:
@@ -1125,7 +1119,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 				       SFlags flags,
 				       SCFlags controls,
 				       SCFlags active,
-				       void **data ) const
+				       const QStyleOption& opt ) const
 {
 #if defined(QT_CHECK_STATE)
     if (! widget) {
@@ -1142,13 +1136,13 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    QRect addline, subline, addpage, subpage, slider, first, last;
 	    bool maxedOut = (scrollbar->minValue() == scrollbar->maxValue());
 
-	    subline = querySubControlMetrics(control, widget, SC_ScrollBarSubLine, data);
-	    addline = querySubControlMetrics(control, widget, SC_ScrollBarAddLine, data);
-	    subpage = querySubControlMetrics(control, widget, SC_ScrollBarSubPage, data);
-	    addpage = querySubControlMetrics(control, widget, SC_ScrollBarAddPage, data);
-	    slider  = querySubControlMetrics(control, widget, SC_ScrollBarSlider,  data);
-	    first   = querySubControlMetrics(control, widget, SC_ScrollBarFirst,   data);
-	    last    = querySubControlMetrics(control, widget, SC_ScrollBarLast,    data);
+	    subline = querySubControlMetrics(control, widget, SC_ScrollBarSubLine, opt);
+	    addline = querySubControlMetrics(control, widget, SC_ScrollBarAddLine, opt);
+	    subpage = querySubControlMetrics(control, widget, SC_ScrollBarSubPage, opt);
+	    addpage = querySubControlMetrics(control, widget, SC_ScrollBarAddPage, opt);
+	    slider  = querySubControlMetrics(control, widget, SC_ScrollBarSlider,  opt);
+	    first   = querySubControlMetrics(control, widget, SC_ScrollBarFirst,   opt);
+	    last    = querySubControlMetrics(control, widget, SC_ScrollBarLast,    opt);
 
        	    if ((controls & SC_ScrollBarSubLine) && subline.isValid())
 		drawPrimitive(PE_ScrollBarSubLine, p, subline, cg,
@@ -1218,8 +1212,8 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    const QToolButton *toolbutton = (const QToolButton *) widget;
 
 	    QRect button, menuarea;
-	    button   = querySubControlMetrics(control, widget, SC_ToolButton, data);
-	    menuarea = querySubControlMetrics(control, widget, SC_ToolButtonMenu, data);
+	    button   = querySubControlMetrics(control, widget, SC_ToolButton, opt);
+	    menuarea = querySubControlMetrics(control, widget, SC_ToolButtonMenu, opt);
 
 	    SFlags bflags = flags,
 		   mflags = flags;
@@ -1231,7 +1225,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 
 	    if (controls & SC_ToolButton) {
 		if (bflags & (Style_Down | Style_On | Style_Raised))
-		    drawPrimitive(PE_ButtonTool, p, button, cg, bflags, data);
+		    drawPrimitive(PE_ButtonTool, p, button, cg, bflags, opt);
 		else if ( toolbutton->parentWidget() &&
 			  toolbutton->parentWidget()->backgroundPixmap() &&
 			  ! toolbutton->parentWidget()->backgroundPixmap()->isNull() ) {
@@ -1244,8 +1238,8 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 
 	    if (controls & SC_ToolButtonMenu) {
 		if (mflags & (Style_Down | Style_On | Style_Raised))
-		    drawPrimitive(PE_ButtonDropDown, p, menuarea, cg, mflags, data);
-		drawPrimitive(PE_ArrowDown, p, menuarea, cg, mflags, data);
+		    drawPrimitive(PE_ButtonDropDown, p, menuarea, cg, mflags, opt);
+		drawPrimitive(PE_ArrowDown, p, menuarea, cg, mflags, opt);
 	    }
 
 	    if (toolbutton->hasFocus() && !toolbutton->focusProxy()) {
@@ -1518,11 +1512,11 @@ void QCommonStyle::drawComplexControlMask( ComplexControl control,
 					   QPainter *p,
 					   const QWidget *widget,
 					   const QRect &r,
-					   void **data ) const
+					   const QStyleOption& opt ) const
 {
     Q_UNUSED(control);
     Q_UNUSED(widget);
-    Q_UNUSED(data);
+    Q_UNUSED(opt);
 
     p->fillRect(r, color1);
 }
@@ -1532,7 +1526,7 @@ void QCommonStyle::drawComplexControlMask( ComplexControl control,
 QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 					    const QWidget *widget,
 					    SubControl sc,
-					    void **data ) const
+					    const QStyleOption& opt ) const
 {
 
     QRect rect;
@@ -1836,7 +1830,7 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 QStyle::SubControl QCommonStyle::querySubControl(ComplexControl control,
 						 const QWidget *widget,
 						 const QPoint &pos,
-						 void **data ) const
+						 const QStyleOption& opt ) const
 {
     SubControl ret = SC_None;
 
@@ -1845,7 +1839,7 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl control,
     case CC_ListView:
 	{
 	    if(pos.x() >= 0 && pos.x() <
-	       ((QListViewItem *) data[0])->listView()->treeStepSize())
+	       opt.listViewItem()->listView()->treeStepSize())
 		ret = SC_ListViewExpand;
 	    break;
 	}
@@ -1859,7 +1853,7 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl control,
 	    // we can do this because subcontrols were designed to be masks as well...
 	    while (ret == SC_None && ctrl <= SC_ScrollBarGroove) {
 		r = querySubControlMetrics(control, widget,
-					   (QStyle::SubControl) ctrl, data);
+					   (QStyle::SubControl) ctrl, opt);
 		if (r.isValid() && r.contains(pos))
 		    ret = (QStyle::SubControl) ctrl;
 
@@ -1878,7 +1872,7 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl control,
 
 	    // we can do this because subcontrols were designed to be masks as well...
 	    while (ret == SC_None && ctrl <= SC_TitleBarUnshadeButton) {
-		r = querySubControlMetrics( control, widget, (QStyle::SubControl) ctrl, data );
+		r = querySubControlMetrics( control, widget, (QStyle::SubControl) ctrl, opt );
 		if (r.isValid() && r.contains(pos))
 		    ret = (QStyle::SubControl) ctrl;
 
@@ -2066,7 +2060,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 QSize QCommonStyle::sizeFromContents(ContentsType contents,
 				     const QWidget *widget,
 				     const QSize &contentsSize,
-				     void **data ) const
+				     const QStyleOption& opt ) const
 {
     QSize sz(contentsSize);
 
@@ -2141,13 +2135,13 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
     case CT_PopupMenuItem:
 	{
 #ifndef QT_NO_POPUPMENU
-	    if (! data)
+	    if (opt.isDefault())
 		break;
 
 	    const QPopupMenu *popup = (const QPopupMenu *) widget;
 	    bool checkable = popup->isCheckable();
-	    QMenuItem *mi = (QMenuItem *) data[0];
-	    int maxpmw = *((int *) data[1]);
+	    QMenuItem *mi = opt.menuItem();
+	    int maxpmw = opt.maxIconWidth();
 	    int w = sz.width(), h = sz.height();
 
 	    if (mi->isSeparator()) {
@@ -2231,7 +2225,7 @@ int QCommonStyle::styleHint(StyleHint sh, const QWidget *, void ***) const
 
 
 /*! \reimp */
-QPixmap QCommonStyle::stylePixmap(StylePixmap, const QWidget *, void **) const
+QPixmap QCommonStyle::stylePixmap(StylePixmap, const QWidget *, const QStyleOption&) const
 {
     return QPixmap();
 }

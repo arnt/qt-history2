@@ -547,11 +547,8 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
     if ( selected )
 	flags |= QStyle::Style_Selected;
 
-    void *data[1];
-    data[0] = t;
-
     style().drawControl( QStyle::CE_TabBarTab, p, this, t->rect(),
-			 colorGroup(), flags, data );
+			 colorGroup(), flags, QStyleOption(t) );
 
     QRect r( t->r );
     p->setFont( font() );
@@ -602,11 +599,9 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
     if (has_focus)
 	flags |= QStyle::Style_HasFocus;
 
-    void *data[1];
-    data[0] = (void *) t;
     style().drawControl( QStyle::CE_TabBarLabel, p, this, r,
 			 t->isEnabled() ? colorGroup(): palette().disabled(),
-			 flags, data );
+			 flags, QStyleOption(t) );
 }
 
 
@@ -1072,10 +1067,8 @@ void QTabBar::focusOutEvent( QFocusEvent * )
 
 	    QStyle::SFlags flags = QStyle::Style_Default;
 	    flags |= QStyle::Style_Selected;
-	    void *data[1];
-	    data[0] = t;
 	    style().drawControl( QStyle::CE_TabBarTab, &p, this, t->rect(),
-				 colorGroup(), flags, data );
+				 colorGroup(), flags, QStyleOption(t) );
 
 	    paintLabel( &p, QRect( r.left() + ( r.width() -w ) /2 - 3,
 				   r.top() + ( r.height()-h ) / 2,

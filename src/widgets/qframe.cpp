@@ -544,11 +544,7 @@ void QFrame::drawFrame( QPainter *p )
     const QColorGroup & g = colorGroup();
 
 #ifndef QT_NO_STYLE
-    int lw = lineWidth();
-    int mlw = midLineWidth();
-    void *data[2];
-    data[0] = (void *) &lw;
-    data[1] = (void *) &mlw;
+    QStyleOption opt(lineWidth(),midLineWidth());
 
     QStyle::SFlags flags = QStyle::Style_Default;
     if (isEnabled())
@@ -571,13 +567,13 @@ void QFrame::drawFrame( QPainter *p )
 
     case MenuBarPanel:
 #ifndef QT_NO_STYLE
-	style().drawPrimitive(QStyle::PE_PanelMenuBar, p, r, g, flags, data);
+	style().drawPrimitive(QStyle::PE_PanelMenuBar, p, r, g, flags, opt);
 	break;
 #endif // fall through to Panel if QT_NO_STYLE
 
     case ToolBarPanel:
 #ifndef QT_NO_STYLE
-	style().drawPrimitive( QStyle::PE_PanelDockWindow, p, rect(), g, flags, data);
+	style().drawPrimitive( QStyle::PE_PanelDockWindow, p, rect(), g, flags, opt);
         break;
 #endif // fall through to Panel if QT_NO_STYLE
 
@@ -586,7 +582,7 @@ void QFrame::drawFrame( QPainter *p )
         if ( cstyle == Plain )
             qDrawPlainRect( p, r, g.foreground(), lwidth );
         else
-	    style().drawPrimitive(QStyle::PE_Panel, p, r, g, flags, data);
+	    style().drawPrimitive(QStyle::PE_Panel, p, r, g, flags, opt);
         break;
 #endif // fall through to Panel if QT_NO_STYLE
 
@@ -595,7 +591,7 @@ void QFrame::drawFrame( QPainter *p )
         if ( cstyle == Plain )
             qDrawPlainRect( p, r, g.foreground(), lwidth );
         else
-	    style().drawPrimitive(QStyle::PE_PanelPopup, p, r, g, flags, data);
+	    style().drawPrimitive(QStyle::PE_PanelPopup, p, r, g, flags, opt);
         break;
 #endif // fall through to Panel if QT_NO_STYLE
 

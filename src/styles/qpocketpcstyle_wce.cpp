@@ -157,7 +157,7 @@ void QPocketPCStyle::drawPrimitive( PrimitiveElement pe,
 				   const QRect &r,
 				   const QColorGroup &cg,
 				   SFlags flags,
-				   void **data ) const
+				   const QStyleOption& opt ) const
 {
     static const QCOORD radioOutline[] = { 1,3, 3,1, 4,1, 5,0, 9,0, 10,1, 11,1, 13,3, 13,4, 14,5,
 	14,9, 13,10, 13,11, 11,13, 10,13, 9,14, 5,14, 4,13, 3,13, 1,11, 1,10, 0,9, 0,5, 1,4, 1,3 };
@@ -409,9 +409,8 @@ void QPocketPCStyle::drawPrimitive( PrimitiveElement pe,
 	break; }
 
     case PE_PanelDockWindow: {
-	int lw = pixelMetric(PM_DockWindowFrameWidth);
-	if (data)
-	    lw = *((int *) data[0]);
+	int lw = opt.isDefault() ? pixelMetric(PM_DockWindowFrameWidth)
+			: opt.lineWidth();
 
 	qDrawShadePanel(p, r, cg, FALSE, lw);
 	break; }
@@ -504,7 +503,7 @@ void QPocketPCStyle::drawPrimitive( PrimitiveElement pe,
 
 
     default:
-	QWindowsStyle::drawPrimitive( pe, p, r, cg, flags, data );
+	QWindowsStyle::drawPrimitive( pe, p, r, cg, flags, opt );
 	break;
     }
 }
@@ -519,7 +518,7 @@ void QPocketPCStyle::drawControl( ControlElement element,
 				 const QRect &r,
 				 const QColorGroup &cg,
 				 SFlags how,
-				 void **data ) const
+				 const QStyleOption& opt ) const
 {
 #if defined(QT_CHECK_STATE)
     if (! widget) {
@@ -565,7 +564,7 @@ void QPocketPCStyle::drawControl( ControlElement element,
 	    if (button->isMenuButton()) {
 		int mbi = pixelMetric(PM_MenuButtonIndicator, widget);
 		QRect ar(ir.right() - mbi, ir.y() + 2, mbi - 4, ir.height() - 4);
-		drawPrimitive(PE_ArrowDown, p, ar, cg, flags, data);
+		drawPrimitive(PE_ArrowDown, p, ar, cg, flags, opt);
 		ir.setWidth(ir.width() - mbi);
 	    }
 
@@ -621,12 +620,12 @@ void QPocketPCStyle::drawControl( ControlElement element,
 	}
     case CE_TabBarLabel:
 	{
-	    if ( ! data )
+	    if ( opt.isDefault() )
 		break;
 
 	    const QTabBar * tb = (const QTabBar *) widget;
-	    QTab * t = (QTab *) data[0];
-	    //bool has_focus = *((bool *) data[1]);
+	    QTab * t = opt.tab();
+	    //bool has_focus = opt.hasFocus();
 
 	    QRect tr = r;
 	    if ( t->identifier() == tb->currentTab() )
@@ -645,16 +644,16 @@ void QPocketPCStyle::drawControl( ControlElement element,
 #ifndef QT_NO_POPUPMENU
     case CE_PopupMenuItem:
 	{
-	    if (! widget || !data)
+	    if (! widget || opt.isDefault())
 		break;
 
 	    const QPopupMenu *popupmenu = (const QPopupMenu *) widget;
-	    QMenuItem *mi = (QMenuItem *) data[0];
+	    QMenuItem *mi = opt.menuItem();
 	    if ( !mi )
 		break;
 
-	    int tab = *((int *) data[1]);
-	    int maxpmw = *((int *) data[2]);
+	    int tab = opt.tabWidth();
+	    int maxpmw = opt.maxIconWidth();
 	    bool dis = ! mi->isEnabled();
 	    bool checkable = popupmenu->isCheckable();
 	    bool act = how & Style_Selected;
@@ -844,14 +843,14 @@ void QPocketPCStyle::drawControl( ControlElement element,
 		    p->setBrushOrigin(p->brushOrigin() - QPoint(1,1));
 		}
 	    }
-	    if (! data)
+	    if (opt.isDefault())
 		break;
 
-	    QMenuItem *mi = (QMenuItem *) data[0];
+	    QMenuItem *mi = opt.menuItem();
 	    drawItem( p, r, AlignCenter|ShowPrefix|DontClip|SingleLine, cg,
 		      mi->isEnabled(), mi->pixmap(), mi->text(), -1,
 		      &cg.buttonText() );
-	    //QCommonStyle::drawControl(element, p, widget, pr, cg, how, data);
+	    //QCommonStyle::drawControl(element, p, widget, pr, cg, how, opt);
 	    break;
 	}
 
@@ -879,7 +878,7 @@ void QPocketPCStyle::drawControl( ControlElement element,
 	    else if (checkbox->state() == QButton::NoChange)
 		flags |= Style_NoChange;
 
-	    drawPrimitive(PE_Indicator, p, ir, cg, flags, data);
+	    drawPrimitive(PE_Indicator, p, ir, cg, flags, opt);
 	    break;
 	}
 
@@ -921,7 +920,7 @@ void QPocketPCStyle::drawControl( ControlElement element,
 	    else if (radiobutton->state() == QButton::Off)
 		flags |= Style_Off;
 
-	    drawPrimitive(PE_ExclusiveIndicator, p, ir, cg, flags, data);
+	    drawPrimitive(PE_ExclusiveIndicator, p, ir, cg, flags, opt);
 	    break;
 	}
 
@@ -985,7 +984,7 @@ void QPocketPCStyle::drawControl( ControlElement element,
 		for (int i=0; i<nu; i++) {
 		    drawPrimitive( PE_ProgressBarChunk, p,
 				   QRect( x0+x, r.y(), unit_width, r.height() ),
-				   cg, Style_Default, data );
+				   cg, Style_Default, opt );
 		    x += reverse ? -unit_width: unit_width;
 		}
 	    }
@@ -1225,7 +1224,7 @@ int QPocketPCStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 QRect QPocketPCStyle::querySubControlMetrics( ComplexControl control,
 					    const QWidget *widget,
 					    SubControl sc,
-					    void **data ) const
+					    const QStyleOption& opt ) const
 {
     QRect rect;
 
@@ -1245,7 +1244,7 @@ QRect QPocketPCStyle::querySubControlMetrics( ComplexControl control,
 	const int buttonWidth = 22;
 	const int barStart = 0;
 	const int grooveStart = buttonWidth;
-	int sliderStart = (data) ? *((int*) data[0]) : buttonWidth;
+	int sliderStart = scrollbar->sliderStart();
 	int sliderEnd = 0;
 	int grooveEnd = 0;
 	int barEnd = 0;
@@ -1384,8 +1383,8 @@ QRect QPocketPCStyle::querySubControlMetrics( ComplexControl control,
 		    int thickness  = pixelMetric( PM_SliderControlThickness, sl );
 		    int len   = pixelMetric( PM_SliderLength, sl );
 
-		    if ( data )
-			sliderPos = *((int *) data[0]);
+		    if ( !opt.isDefault() )
+			sliderPos = sl->sliderStart();
 
 		    if ( sl->orientation() == Horizontal )
 			rect.setRect( sliderPos, tickOffset, len, thickness );
@@ -1458,19 +1457,19 @@ QRect QPocketPCStyle::querySubControlMetrics( ComplexControl control,
 		{
 		    const QTitleBar *titlebar = (QTitleBar*)widget;
 		    QRect ir( 0, 0, titlebar->width(), titlebar->height() );
-		    if( titlebar->window ) { 
-			if ( titlebar->window->testWFlags( WStyle_Tool ) ) {
-			    if ( titlebar->window->testWFlags( WStyle_SysMenu ) )
+		    if( titlebar->window() ) { 
+			if ( titlebar->window()->testWFlags( WStyle_Tool ) ) {
+			    if ( titlebar->window()->testWFlags( WStyle_SysMenu ) )
 				ir.addCoords( 0, 0, -TITLEBAR_CONTROL_WIDTH-TITLEBAR_SEPARATION-2, 0 );
-			    if ( titlebar->window->testWFlags( WStyle_MinMax ) )
+			    if ( titlebar->window()->testWFlags( WStyle_MinMax ) )
 				ir.addCoords( 0, 0, -TITLEBAR_CONTROL_WIDTH-2, 0 );
 			} else {
-			    if ( titlebar->window->testWFlags( WStyle_SysMenu ) )
+			    if ( titlebar->window()->testWFlags( WStyle_SysMenu ) )
 				ir.addCoords( TITLEBAR_SEPARATION+TITLEBAR_CONTROL_WIDTH+2, 0, 
 					     -TITLEBAR_CONTROL_WIDTH-TITLEBAR_SEPARATION-2, 0 );
-			    if ( titlebar->window->testWFlags( WStyle_Minimize ) )
+			    if ( titlebar->window()->testWFlags( WStyle_Minimize ) )
 				ir.addCoords( 0, 0, -2*TITLEBAR_CONTROL_WIDTH-2, 0 );
-			    else if ( titlebar->window->testWFlags( WStyle_Maximize ) )
+			    else if ( titlebar->window()->testWFlags( WStyle_Maximize ) )
 				ir.addCoords( 0, 0, -TITLEBAR_CONTROL_WIDTH-2, 0 );
 			}
 		    }
@@ -1525,7 +1524,7 @@ QRect QPocketPCStyle::querySubControlMetrics( ComplexControl control,
 QSize QPocketPCStyle::sizeFromContents( ContentsType contents,
 				       const QWidget *widget,
 				       const QSize &contentsSize,
-				       void **data ) const
+				       const QStyleOption& opt ) const
 {
     QSize sz(contentsSize);
 
@@ -1540,13 +1539,13 @@ QSize QPocketPCStyle::sizeFromContents( ContentsType contents,
 
     case CT_PopupMenuItem:
 	{
-	    if (! widget || ! data)
+	    if (! widget || opt.isDefault())
 		break;
 
 	    const QPopupMenu *popup = (const QPopupMenu *) widget;
 	    bool checkable = popup->isCheckable();
-	    QMenuItem *mi = (QMenuItem *) data[0];
-	    int maxpmw = *((int *) data[1]);
+	    QMenuItem *mi = opt.menuItem();
+	    int maxpmw = opt.maxIconWidth();
 	    int w = sz.width(), h = sz.height();
 
 	    if (mi->isSeparator()) {
@@ -1800,7 +1799,7 @@ static const char * dock_window_close_xpm[] = {
  */
 QPixmap QPocketPCStyle::stylePixmap(StylePixmap stylepixmap,
 				   const QWidget *widget,
-				   void **data) const
+				   const QStyleOption& opt) const
 {
     switch (stylepixmap) {
     case SP_TitleBarShadeButton:
@@ -1821,7 +1820,7 @@ QPixmap QPocketPCStyle::stylePixmap(StylePixmap stylepixmap,
 	break;
     }
 
-    return QCommonStyle::stylePixmap(stylepixmap, widget, data);
+    return QCommonStyle::stylePixmap(stylepixmap, widget, opt);
 }
 
 
@@ -1834,7 +1833,7 @@ void QPocketPCStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 					SFlags how,
 					SCFlags sub,
 					SCFlags subActive,
-					void **data ) const
+					const QStyleOption& opt ) const
 {
     switch (ctrl) {
 #ifndef QT_NO_COMBOBOX
@@ -1876,10 +1875,10 @@ void QPocketPCStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 #ifndef QT_NO_LISTVIEW
     case CC_ListView:
 	{
-	    if (! data)
+	    if (opt.isDefault())
 		break;
 
-	    QListViewItem *item = (QListViewItem *) data[0],
+	    QListViewItem *item = opt.listViewItem(),
 			 *child = item->firstChild();
 
 	    int linetop = 0, linebot = 0, y = r.y();
@@ -2009,7 +2008,7 @@ void QPocketPCStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	case SC_SpinWidgetUp:
 	case SC_SpinWidgetDown:
 	    QCommonStyle::drawComplexControl( ctrl, p, widget, r, cg, how,
-					      sub, subActive, data );
+					      sub, subActive, opt );
 	    break;
 	case SC_SpinWidgetFrame:
 	    qDrawWinPanel( p, r, cg, TRUE );
@@ -2063,7 +2062,7 @@ void QPocketPCStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	if ( sub & SC_SliderTickmarks )
 	    QCommonStyle::drawComplexControl( ctrl, p, widget, r, cg, how,
 					      SC_SliderTickmarks, subActive,
-					      data );
+					      opt );
 
 	if ( sub & SC_SliderHandle ) {
 	    // 4444440
@@ -2084,7 +2083,7 @@ void QPocketPCStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    const QColor c4 = cg.light();
 
 	    QRect re = querySubControlMetrics( CC_Slider, widget, SC_SliderHandle,
-					       data );
+					       opt );
 	    int x = re.x(), y = re.y(), wi = re.width(), he = re.height();
 
 	    int x1 = x;
@@ -2274,7 +2273,7 @@ void QPocketPCStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 
 	default:
 	    QCommonStyle::drawComplexControl( ctrl, p, widget, r, cg, how, sub,
-					      subActive, data );
+					      subActive, opt );
 	break;
     }
 }

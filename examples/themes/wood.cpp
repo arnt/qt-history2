@@ -919,7 +919,7 @@ void NorwegianWoodStyle::drawPrimitive( PrimitiveElement pe,
 					QPainter *p,
 					const QRect &r,
 					const QColorGroup &cg,
-					SFlags flags, void **data ) const
+					SFlags flags, const QStyleOption& opt ) const
 {
     int x, y, w, h;
     r.rect( &x, &y, &w, &h );
@@ -979,7 +979,7 @@ void NorwegianWoodStyle::drawPrimitive( PrimitiveElement pe,
 	    drawSemicircleButton( p, r, PointUp, flags & Style_Down, cg );
 	break;
     default:
-	QWindowsStyle::drawPrimitive( pe, p, r, cg, flags, data );
+	QWindowsStyle::drawPrimitive( pe, p, r, cg, flags, opt );
 	break;
     }
 }
@@ -989,7 +989,7 @@ void NorwegianWoodStyle::drawControl( ControlElement element,
 				      const QWidget *widget,
 				      const QRect &r,
 				      const QColorGroup &cg,
-				      SFlags how, void **data ) const
+				      SFlags how, const QStyleOption& opt ) const
 {
     switch( element ) {
     case CE_PushButton:
@@ -1033,7 +1033,7 @@ void NorwegianWoodStyle::drawControl( ControlElement element,
 		
 	    drawPrimitive( PE_ButtonCommand, p,
 			   QRect( x1, y1, x2 - x1 + 1, y2 - y1 + 1),
-			   myCg, flags, data );
+			   myCg, flags, opt );
 	
 	    if ( btn->isDefault() ) {
 		QPen pen( Qt::black, 4 );
@@ -1052,7 +1052,7 @@ void NorwegianWoodStyle::drawControl( ControlElement element,
 		    flags |= Style_Enabled;		
 		drawPrimitive( PE_ArrowDown, p,
 			       QRect( x2 - dx, dx, y1, y2 - y1),
-			       myCg, flags, data );
+			       myCg, flags, opt );
 	    }
 	
 	    if ( p->brush().style() != NoBrush )
@@ -1090,7 +1090,7 @@ void NorwegianWoodStyle::drawControl( ControlElement element,
 	    break;
 	}
     default:
-	QWindowsStyle::drawControl( element, p, widget, r, cg, how, data );
+	QWindowsStyle::drawControl( element, p, widget, r, cg, how, opt );
 	break;
     }
 }
@@ -1099,7 +1099,7 @@ void NorwegianWoodStyle::drawControlMask( ControlElement element,
 					  QPainter *p,
 					  const QWidget *widget,
 					  const QRect &r,
-					  void **data ) const
+					  const QStyleOption& opt ) const
 {
     switch( element ) {
     case CE_PushButton:
@@ -1111,7 +1111,7 @@ void NorwegianWoodStyle::drawControlMask( ControlElement element,
 	    break;
 	}
     default:
-	QWindowsStyle::drawControlMask( element, p, widget, r, data );
+	QWindowsStyle::drawControlMask( element, p, widget, r, opt );
 	break;
     }
 }
@@ -1124,7 +1124,7 @@ void NorwegianWoodStyle::drawComplexControl( ComplexControl cc,
 					     SFlags how,
 					     SCFlags sub,
 					     SCFlags subActive,
-					     void **data ) const
+					     const QStyleOption& opt ) const
 {
     switch( cc ) {
     case CC_ComboBox:
@@ -1135,14 +1135,14 @@ void NorwegianWoodStyle::drawComplexControl( ComplexControl cc,
 	    int awh, ax, ay, sh, sy, dh, ew;
 	    get_combo_parameters( subRect(SR_PushButtonContents, widget),
 				  ew, awh, ax, ay, sh, dh, sy );
-	    drawPrimitive( PE_ButtonCommand, p, r, cg, Style_Raised, data );
+	    drawPrimitive( PE_ButtonCommand, p, r, cg, Style_Raised, opt );
 	    QStyle *mstyle = QStyleFactory::create( "Motif" );
 	    if ( mstyle )
 		mstyle->drawPrimitive( PE_ArrowDown, p,
-				       QRect(ax, ay, awh, awh), cg, how, data );
+				       QRect(ax, ay, awh, awh), cg, how, opt );
 	    else
 		drawPrimitive( PE_ArrowDown, p,
-			       QRect(ax, ay, awh, awh), cg, how, data );
+			       QRect(ax, ay, awh, awh), cg, how, opt );
 
 	    QPen oldPen = p->pen();
 	    p->setPen( cg.light() );
@@ -1155,7 +1155,7 @@ void NorwegianWoodStyle::drawComplexControl( ComplexControl cc,
 	
 	    if ( cmb->editable() ) {
 		QRect r( querySubControlMetrics(CC_ComboBox, widget,
-						SC_ComboBoxEditField, data) );
+						SC_ComboBoxEditField, opt) );
 		qDrawShadePanel( p, r, cg, TRUE, 1,
 				 &cg.brush(QColorGroup::Button) );
 	    }
@@ -1164,7 +1164,7 @@ void NorwegianWoodStyle::drawComplexControl( ComplexControl cc,
 	}
     default:
 	QWindowsStyle::drawComplexControl( cc, p, widget, r, cg, how,
-					   sub, subActive, data );
+					   sub, subActive, opt );
 	break;
     }
 }
@@ -1173,7 +1173,7 @@ void NorwegianWoodStyle::drawComplexControlMask( ComplexControl control,
 						 QPainter *p,
 						 const QWidget *widget,
 						 const QRect &r,
-						 void **data ) const
+						 const QStyleOption& opt ) const
 {
     switch ( control ) {
     case CC_ComboBox:
@@ -1185,7 +1185,7 @@ void NorwegianWoodStyle::drawComplexControlMask( ComplexControl control,
 	    break;
 	}
     default:
-	QWindowsStyle::drawComplexControlMask( control, p, widget, r, data );
+	QWindowsStyle::drawComplexControlMask( control, p, widget, r, opt );
 	break;
     }
 }
@@ -1193,7 +1193,7 @@ void NorwegianWoodStyle::drawComplexControlMask( ComplexControl control,
 QRect NorwegianWoodStyle::querySubControlMetrics( ComplexControl control,
 						  const QWidget *widget,
 						  SubControl sc,
-						  void **data ) const
+						  const QStyleOption& opt ) const
 {
     QRect rect;
     switch ( control ) {
@@ -1210,7 +1210,7 @@ QRect NorwegianWoodStyle::querySubControlMetrics( ComplexControl control,
 		}
 	    default:
 		rect = QWindowsStyle::querySubControlMetrics( control, widget,
-							      sc, data );
+							      sc, opt );
 		break;
 	    }
 	    break;
@@ -1236,14 +1236,14 @@ QRect NorwegianWoodStyle::querySubControlMetrics( ComplexControl control,
 		break;
 	    default:
 		rect = QWindowsStyle::querySubControlMetrics( control, widget,
-							      sc, data );
+							      sc, opt );
 		break;
 	    }
 	    break;
 	}
     default:
 	rect = QWindowsStyle::querySubControlMetrics( control, widget,
-						      sc, data );
+						      sc, opt );
 	break;
     }
     return rect;

@@ -35,6 +35,7 @@
 **
 **********************************************************************/
 
+#if 0 // ###### not ported to new API yet
 #ifndef QINTERLACESTYLE_H
 #define QINTERLACESTYLE_H
 
@@ -99,4 +100,5 @@ private:
 
 #endif // QT_NO_STYLE_INTERLACE
 
+#endif
 #endif

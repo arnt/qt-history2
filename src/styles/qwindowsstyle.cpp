@@ -116,7 +116,7 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 				   const QRect &r,
 				   const QColorGroup &cg,
 				   SFlags flags,
-				   void **data ) const
+				   const QStyleOption& opt ) const
 {
     switch (pe) {
     case PE_ButtonCommand:
@@ -195,10 +195,10 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 	}
 
     case PE_FocusRect:
-	if (data)
-	    p->drawWinFocusRect(r, *((const QColor *) data[0]));
-	else
+	if (opt.isDefault())
 	    p->drawWinFocusRect(r);
+	else
+	    p->drawWinFocusRect(r, opt.color());
 	break;
 
     case PE_Indicator:
@@ -344,14 +344,13 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
     case PE_Panel:
     case PE_PanelPopup:
 	{
-	    int lw = pixelMetric(PM_DefaultFrameWidth);
-	    if (data)
-		lw = *((int *) data[0]);
+	    int lw = opt.isDefault() ? pixelMetric(PM_DefaultFrameWidth)
+			: opt.lineWidth();
 
 	    if (lw == 2)
 		qDrawWinPanel(p, r, cg, flags & Style_Sunken);
 	    else
-		QCommonStyle::drawPrimitive(pe, p, r, cg, flags, data);
+		QCommonStyle::drawPrimitive(pe, p, r, cg, flags, opt);
 	    break;
 	}
 
@@ -480,7 +479,7 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 	    }
 	    p->restore();
 	} else
-	    QCommonStyle::drawPrimitive(pe, p, r, cg, flags, data);
+	    QCommonStyle::drawPrimitive(pe, p, r, cg, flags, opt);
     }
 }
 
@@ -494,7 +493,7 @@ void QWindowsStyle::drawControl( ControlElement element,
 				 const QRect &r,
 				 const QColorGroup &cg,
 				 SFlags flags,
-				 void **data ) const
+				 const QStyleOption& opt ) const
 {
     switch (element) {
 #ifndef QT_NO_TABBAR
@@ -595,7 +594,7 @@ void QWindowsStyle::drawControl( ControlElement element,
 			     r2.left(), r2.bottom() - 2 );
 
 	    } else {
-		QCommonStyle::drawControl(element, p, widget, r, cg, flags, data);
+		QCommonStyle::drawControl(element, p, widget, r, cg, flags, opt);
 	    }
 	    break;
 	}
@@ -604,16 +603,16 @@ void QWindowsStyle::drawControl( ControlElement element,
 #ifndef QT_NO_POPUPMENU
     case CE_PopupMenuItem:
 	{
-	    if (! widget || !data)
+	    if (! widget || opt.isDefault())
 		break;
 
 	    const QPopupMenu *popupmenu = (const QPopupMenu *) widget;
-	    QMenuItem *mi = (QMenuItem *) data[0];
+	    QMenuItem *mi = opt.menuItem();
 	    if ( !mi )
 		break;
 
-	    int tab = *((int *) data[1]);
-	    int maxpmw = *((int *) data[2]);
+	    int tab = opt.tabWidth();
+	    int maxpmw = opt.maxIconWidth();
 	    bool dis = ! mi->isEnabled();
 	    bool checkable = popupmenu->isCheckable();
 	    bool act = flags & Style_Active;
@@ -807,12 +806,12 @@ void QWindowsStyle::drawControl( ControlElement element,
 		    p->setBrushOrigin(p->brushOrigin() - QPoint(1,1));
 		}
 	    }
-	    QCommonStyle::drawControl(element, p, widget, pr, cg, flags, data);
+	    QCommonStyle::drawControl(element, p, widget, pr, cg, flags, opt);
 	    break;
 	}
 
     default:
-	QCommonStyle::drawControl(element, p, widget, r, cg, flags, data);
+	QCommonStyle::drawControl(element, p, widget, r, cg, flags, opt);
     }
 }
 
@@ -893,7 +892,7 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 QSize QWindowsStyle::sizeFromContents( ContentsType contents,
 				       const QWidget *widget,
 				       const QSize &contentsSize,
-				       void **data ) const
+				       const QStyleOption& opt ) const
 {
     QSize sz(contentsSize);
 
@@ -902,7 +901,7 @@ QSize QWindowsStyle::sizeFromContents( ContentsType contents,
 	{
 #ifndef QT_NO_PUSHBUTTON
 	    const QPushButton *button = (const QPushButton *) widget;
-	    sz = QCommonStyle::sizeFromContents(contents, widget, contentsSize, data);
+	    sz = QCommonStyle::sizeFromContents(contents, widget, contentsSize, opt);
 	    int w = sz.width(), h = sz.height();
 
 	    if (button->isDefault() || button->autoDefault()) {
@@ -923,13 +922,13 @@ QSize QWindowsStyle::sizeFromContents( ContentsType contents,
     case CT_PopupMenuItem:
 	{
 #ifndef QT_NO_POPUPMENU
-	    if (! widget || ! data)
+	    if (! widget || opt.isDefault())
 		break;
 
 	    const QPopupMenu *popup = (const QPopupMenu *) widget;
 	    bool checkable = popup->isCheckable();
-	    QMenuItem *mi = (QMenuItem *) data[0];
-	    int maxpmw = *((int *) data[1]);
+	    QMenuItem *mi = opt.menuItem();
+	    int maxpmw = opt.maxIconWidth();
 	    int w = sz.width(), h = sz.height();
 
 	    if (mi->isSeparator()) {
@@ -973,7 +972,7 @@ QSize QWindowsStyle::sizeFromContents( ContentsType contents,
 	}
 
     default:
-	sz = QCommonStyle::sizeFromContents(contents, widget, sz, data);
+	sz = QCommonStyle::sizeFromContents(contents, widget, sz, opt);
 	break;
     }
 
@@ -1257,7 +1256,7 @@ static const char* const critical_xpm[]={
  */
 QPixmap QWindowsStyle::stylePixmap(StylePixmap stylepixmap,
 				   const QWidget *widget,
-				   void **data) const
+				   const QStyleOption& opt) const
 {
     switch (stylepixmap) {
     case SP_TitleBarShadeButton:
@@ -1284,7 +1283,7 @@ QPixmap QWindowsStyle::stylePixmap(StylePixmap stylepixmap,
 	break;
     }
 
-    return QCommonStyle::stylePixmap(stylepixmap, widget, data);
+    return QCommonStyle::stylePixmap(stylepixmap, widget, opt);
 }
 
 /*!\reimp
@@ -1296,16 +1295,16 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 					SFlags flags,
 					SCFlags sub,
 					SCFlags subActive,
-					void **data ) const
+					const QStyleOption& opt ) const
 {
     switch (ctrl) {
 #ifndef QT_NO_LISTVIEW
     case CC_ListView:
 	{
-	    if (! data)
+	    if (opt.isDefault())
 		break;
 
-	    QListViewItem *item = (QListViewItem *) data[0],
+	    QListViewItem *item = opt.listViewItem(),
 			 *child = item->firstChild();
 
 	    int linetop = 0, linebot = 0, y = r.y();
@@ -1481,9 +1480,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    if ( cb->hasFocus() && !cb->editable() ) {
 		QRect re =
 		    QStyle::visualRect( subRect( SR_ComboBoxFocusRect, cb ), widget );
-		void *pdata[1];
-		pdata[0] = (void *) &cg.highlight();
-		drawPrimitive( PE_FocusRect, p, re, cg, Style_FocusAtBorder, pdata);
+		drawPrimitive( PE_FocusRect, p, re, cg, Style_FocusAtBorder, QStyleOption(cg.highlight()));
 	    }
 	}
 
@@ -1499,9 +1496,9 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    int ticks = sl->tickmarks();
 
 	    QRect groove = querySubControlMetrics(CC_Slider, widget, SC_SliderGroove,
-						  data),
+						  opt),
 		  handle = querySubControlMetrics(CC_Slider, widget, SC_SliderHandle,
-						  data);
+						  opt);
 
 	    if ((sub & SC_SliderGroove) && groove.isValid()) {
 		int mid = thickness / 2;
@@ -1529,7 +1526,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    if (sub & SC_SliderTickmarks)
 		QCommonStyle::drawComplexControl(ctrl, p, widget, r, cg, flags,
 						 SC_SliderTickmarks, subActive,
-						 data );
+						 opt );
 
 	    if ( sub & SC_SliderHandle ) {
 		// 4444440
@@ -1741,7 +1738,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 
     default:
 	QCommonStyle::drawComplexControl( ctrl, p, widget, r, cg, flags, sub,
-					  subActive, data );
+					  subActive, opt );
 	break;
     }
 }

@@ -176,7 +176,7 @@ void MetalStyle::drawPrimitive( PrimitiveElement pe,
 				QPainter *p,
 				const QRect &r,
 				const QColorGroup &cg,
-				SFlags flags, void **data ) const
+				SFlags flags, const QStyleOption& opt ) const
 {
     switch( pe ) {
     case PE_HeaderSection:
@@ -193,13 +193,13 @@ void MetalStyle::drawPrimitive( PrimitiveElement pe,
 	drawMetalButton( p, r.x(), r.y(), r.width(), r.height(),
 			 flags & Style_Down, !( flags & Style_Horizontal ) );
 	drawPrimitive( (flags & Style_Horizontal) ? PE_ArrowRight :PE_ArrowDown,
-		       p, r, cg, flags, data );
+		       p, r, cg, flags, opt );
 	break;
     case PE_ScrollBarSubLine:
 	drawMetalButton( p, r.x(), r.y(), r.width(), r.height(),
 			 flags & Style_Down, !( flags & Style_Horizontal ) );
 	drawPrimitive( (flags & Style_Horizontal) ? PE_ArrowLeft : PE_ArrowUp,
-		       p, r, cg, flags, data );
+		       p, r, cg, flags, opt );
 	break;
 
 	
@@ -208,7 +208,7 @@ void MetalStyle::drawPrimitive( PrimitiveElement pe,
 			 flags & Style_Horizontal );
 	break;
     default:
-	QWindowsStyle::drawPrimitive( pe, p, r, cg, flags, data );
+	QWindowsStyle::drawPrimitive( pe, p, r, cg, flags, opt );
 	break;
     }
 }
@@ -219,7 +219,7 @@ void MetalStyle::drawControl( ControlElement element,
 			      const QRect &r,
 			      const QColorGroup &cg,
 			      SFlags how,
-			      void **data ) const
+			      const QStyleOption& opt ) const
 {
     switch( element ) {
     case CE_PushButton:
@@ -263,7 +263,7 @@ void MetalStyle::drawControl( ControlElement element,
 		flags |= Style_Raised;
 	    drawPrimitive( PE_ButtonCommand, p,
 			   QRect( x1, y1, x2 - x1 + 1, y2 - y1 + 1),
-			   cg, flags, data );
+			   cg, flags, opt );
 	
 	    if ( btn->isMenuButton() ) {
 		flags = Style_Default;
@@ -273,7 +273,7 @@ void MetalStyle::drawControl( ControlElement element,
 		int dx = ( y1 - y2 - 4 ) / 3;
 		drawPrimitive( PE_ArrowDown, p,
 			       QRect(x2 - dx, dx, y1, y2 - y1),
-			       cg, flags, data );
+			       cg, flags, opt );
 	    }
 	    if ( p->brush().style() != NoBrush )
 		p->setBrush( NoBrush );
@@ -312,7 +312,7 @@ void MetalStyle::drawControl( ControlElement element,
 	    break;
 	}
     default:
-	QWindowsStyle::drawControl( element, p, widget, r, cg, how, data );
+	QWindowsStyle::drawControl( element, p, widget, r, cg, how, opt );
 	break;
     }
 }
@@ -324,17 +324,17 @@ void MetalStyle::drawComplexControl( ComplexControl cc,
 				     SFlags how,
 				     SCFlags sub,
 				     SCFlags subActive,
-				     void **data ) const
+				     const QStyleOption& opt ) const
 {
     switch ( cc ) {
     case CC_Slider:
 	{
 	    const QSlider *slider = ( const QSlider* ) widget;
 	    QRect handle = querySubControlMetrics( CC_Slider, widget,
-						   SC_SliderHandle, data);
+						   SC_SliderHandle, opt);
 	    if ( sub & SC_SliderGroove )
 		QWindowsStyle::drawComplexControl( cc, p, widget, r, cg, how,
-						   SC_SliderGroove, subActive, data );
+						   SC_SliderGroove, subActive, opt );
 	    if ( (sub & SC_SliderHandle) && handle.isValid() )
 		drawMetalButton( p, handle.x(), handle.y(), handle.width(),
 				 handle.height(), FALSE,
@@ -356,12 +356,12 @@ void MetalStyle::drawComplexControl( ComplexControl cc,
 				  r.y() + 2 + 2, 16 - 4, r.height() - 4 -4 ),
 			   cg,
 			   cmb->isEnabled() ? Style_Enabled : Style_Default,
-			   data );
+			   opt );
 	    break;
 	}
     default:
 	QWindowsStyle::drawComplexControl( cc, p, widget, r, cg, how, sub, subActive,
-					   data );
+					   opt );
 	break;
     }
 }
@@ -369,7 +369,7 @@ void MetalStyle::drawComplexControl( ComplexControl cc,
 QRect MetalStyle::querySubControlMetrics( ComplexControl cc,
 					  const QWidget *widget,
 					  SubControl sc,
-					  void **data ) const
+					  const QStyleOption& opt ) const
 {
     QRect rect;
     switch( cc ) {
@@ -393,20 +393,20 @@ QRect MetalStyle::querySubControlMetrics( ComplexControl cc,
 		break;
 	    case SC_ScrollBarSlider:
 		// CHEAT
-		rect = QWindowsStyle::querySubControlMetrics( cc, widget, sc, data );
+		rect = QWindowsStyle::querySubControlMetrics( cc, widget, sc, opt );
 		if ( horz )
 		    rect.setRect( rect.x(), b, rect.width(), w - 2 * b );
 		else
 		    rect.setRect( b, rect.y(), w - 2 * b, rect.height() );
 		break;
 	    default:
-		rect = QWindowsStyle::querySubControlMetrics( cc, widget, sc, data );
+		rect = QWindowsStyle::querySubControlMetrics( cc, widget, sc, opt );
 		break;
 	    }
 	    break;
 	}
     default:
-	rect = QWindowsStyle::querySubControlMetrics( cc, widget, sc, data );
+	rect = QWindowsStyle::querySubControlMetrics( cc, widget, sc, opt );
 	break;
     }
     return rect;

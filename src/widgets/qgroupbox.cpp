@@ -312,15 +312,10 @@ void QGroupBox::paintEvent( QPaintEvent *event )
 	paint.setClipRegion( event->region().subtract( r ) ); // clip everything but title
     }
     // I really think this should call drawFrame() instead...
-    void *data[4];
-    int fs = frameShape(), fh = frameShadow(), lw = lineWidth(),
-	mw = midLineWidth();
-    data[0] = &fs;
-    data[1] = &fh;
-    data[2] = &lw;
-    data[3] = &mw;
     style().drawPrimitive( QStyle::PE_GroupBoxFrame, &paint, frameRect(),
-			   colorGroup(), QStyle::Style_Default, data );
+			   colorGroup(), QStyle::Style_Default, 
+			   QStyleOption(lineWidth(), midLineWidth(),
+			    frameShape(), frameShadow()) );
     drawContents( &paint );			// draw the contents
 }
 

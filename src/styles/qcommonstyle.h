@@ -57,7 +57,7 @@ public:
 			const QRect &r,
 			const QColorGroup &cg,
 			SFlags flags = Style_Default,
-			void **data = 0 ) const;
+			const QStyleOption& = QStyleOption::Default ) const;
 
     void drawControl( ControlElement element,
 		      QPainter *p,
@@ -65,13 +65,13 @@ public:
 		      const QRect &r,
 		      const QColorGroup &cg,
 		      SFlags how = Style_Default,
-		      void **data = 0 ) const;
+		      const QStyleOption& = QStyleOption::Default ) const;
 
     void drawControlMask( ControlElement element,
 			  QPainter *p,
 			  const QWidget *widget,
 			  const QRect &r,
-			  void **data = 0 ) const;
+			  const QStyleOption& = QStyleOption::Default ) const;
 
     QRect subRect( SubRect r, const QWidget *widget ) const;
 
@@ -83,30 +83,30 @@ public:
 			     SFlags how = Style_Default,
 			     SCFlags sub = SC_All,
 			     SCFlags subActive = SC_None,
-			     void **data = 0 ) const;
+			     const QStyleOption& = QStyleOption::Default ) const;
 
     void drawComplexControlMask( ComplexControl control,
 				 QPainter *p,
 				 const QWidget *widget,
 				 const QRect &r,
-				 void **data = 0 ) const;
+				 const QStyleOption& = QStyleOption::Default ) const;
 
     QRect querySubControlMetrics( ComplexControl control,
 				  const QWidget *widget,
 				  SubControl sc,
-				  void **data = 0 ) const;
+				  const QStyleOption& = QStyleOption::Default ) const;
 
     SubControl querySubControl( ComplexControl control,
 				const QWidget *widget,
 				const QPoint &pos,
-				void **data = 0 ) const;
+				const QStyleOption& = QStyleOption::Default ) const;
 
     int pixelMetric( PixelMetric m, const QWidget *widget = 0 ) const;
 
     QSize sizeFromContents( ContentsType s,
 			    const QWidget *widget,
 			    const QSize &contentsSize,
-			    void **data = 0 ) const;
+			    const QStyleOption& = QStyleOption::Default ) const;
 
     int styleHint( StyleHint sh,
 		   const QWidget *widget = 0,
@@ -114,7 +114,7 @@ public:
 
     QPixmap stylePixmap( StylePixmap sp,
 			 const QWidget *widget = 0,
-			 void **data = 0 ) const;
+			 const QStyleOption& = QStyleOption::Default ) const;
 
 
 private:

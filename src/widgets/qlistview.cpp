@@ -1914,13 +1914,11 @@ int QListViewItem::width( const QFontMetrics& fm,
 void QListViewItem::paintFocus( QPainter *p, const QColorGroup &cg,
 				const QRect & r )
 {
-    void *data[1];
-    data[0] = (void *) (isSelected() ? &cg.highlight() : &cg.base());
     listView()->style().drawPrimitive( QStyle::PE_FocusRect, p, r, cg,
 				       (isSelected() ?
 					QStyle::Style_FocusAtBorder :
 					QStyle::Style_Default),
-				       data);
+				       QStyleOption(isSelected() ? cg.highlight() : cg.base()));
 }
 
 
@@ -1947,8 +1945,6 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 	return;
     QListView *lv = listView();
     if ( lv ) {
-	void *data[1];
-	data[0] = this;
 	lv->style().drawComplexControl( QStyle::CC_ListView, p, lv,
 					QRect( 0, y, w, h ),
 					cg,
@@ -1956,7 +1952,7 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 					QStyle::Style_Default,
 					(QStyle::SC_ListViewBranch |
 					 QStyle::SC_ListViewExpand),
-					QStyle::SC_None, data);
+					QStyle::SC_None, QStyleOption(this));
     }
 }
 
@@ -3832,16 +3828,15 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 		 d->h->offset() -
 		 d->h->cellPos( d->h->mapToActual( 0 ) );
 	QPtrListIterator<QListViewPrivate::DrawableItem> it( *(d->drawables) );
-	void *data[1];
 	while( it.current() && it.current()->i != i )
 	    ++it;
 
 	if ( it.current() ) {
 	    x1 -= treeStepSize() * (it.current()->l - 1);
-	    data[0] = i;
 	    QStyle::SubControl ctrl =
 		style().querySubControl( QStyle::CC_ListView,
-					 this, QPoint(x1, e->pos().y()), data );
+					 this, QPoint(x1, e->pos().y()),
+					 QStyleOption(i) );
 	    if( ctrl == QStyle::SC_ListViewExpand) {
 		if ( e->button() == LeftButton ) {
 		    bool close = i->isOpen();

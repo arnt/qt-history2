@@ -35,6 +35,8 @@
 **
 **********************************************************************/
 
+#if 0 // ###### not ported to new API yet
+
 #include "qinterlacestyle.h"
 
 #ifndef QT_NO_STYLE_INTERLACE
@@ -797,3 +799,4 @@ void QInterlaceStyle::drawPanel( QPainter *p, int x, int y, int w, int h,
 
 #endif // QT_NO_STYLE_INTERLACE
 
+#endif

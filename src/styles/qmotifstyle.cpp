@@ -204,7 +204,7 @@ void QMotifStyle::drawPrimitive( PrimitiveElement pe,
 				 const QRect &r,
 				 const QColorGroup &cg,
 				 SFlags flags,
-				 void **data ) const
+				 const QStyleOption& opt ) const
 {
     switch( pe ) {
     case PE_ButtonCommand:
@@ -714,7 +714,7 @@ void QMotifStyle::drawPrimitive( PrimitiveElement pe,
 	break;
 
     default:
-	QCommonStyle::drawPrimitive( pe, p, r, cg, flags, data );
+	QCommonStyle::drawPrimitive( pe, p, r, cg, flags, opt );
 	break;
     }
 }
@@ -728,7 +728,7 @@ void QMotifStyle::drawControl( ControlElement element,
 			       const QRect &r,
 			       const QColorGroup &cg,
 			       SFlags flags,
-			       void **data ) const
+			       const QStyleOption& opt ) const
 {
     switch( element ) {
     case CE_PushButton:
@@ -893,7 +893,7 @@ void QMotifStyle::drawControl( ControlElement element,
 			     r2.left(), r2.bottom() - 2 );
 
 	    } else {
-		QCommonStyle::drawControl( element, p, widget, r, cg, flags, data );
+		QCommonStyle::drawControl( element, p, widget, r, cg, flags, opt );
 	    }
 #endif
 	    break;
@@ -941,16 +941,16 @@ void QMotifStyle::drawControl( ControlElement element,
 #ifndef QT_NO_POPUPMENU
     case CE_PopupMenuItem:
 	{
-	    if (! widget || ! data)
+	    if (! widget || opt.isDefault())
 		break;
 
 	    const QPopupMenu *popupmenu = (const QPopupMenu *) widget;
-	    QMenuItem *mi = (QMenuItem *) data[0];
+	    QMenuItem *mi = opt.menuItem();
 	    if ( !mi )
 		break;
 
-	    int tab = *((int *) data[1]);
-	    int maxpmw = *((int *) data[2]);
+	    int tab = opt.tabWidth();
+	    int maxpmw = opt.maxIconWidth();
 	    bool dis = ! (flags & Style_Enabled);
 	    bool checkable = popupmenu->isCheckable();
 	    bool act = flags & Style_Active;
@@ -1094,12 +1094,12 @@ void QMotifStyle::drawControl( ControlElement element,
 				 &cg.brush(QColorGroup::Button) );
 	    else  // other item
 		p->fillRect( r, cg.brush(QColorGroup::Button) );
-	    QCommonStyle::drawControl( element, p, widget, r, cg, flags, data );
+	    QCommonStyle::drawControl( element, p, widget, r, cg, flags, opt );
 	    break;
 	}
 
     default:
-	QCommonStyle::drawControl( element, p, widget, r, cg, flags, data );
+	QCommonStyle::drawControl( element, p, widget, r, cg, flags, opt );
 	break;
     }
 }
@@ -1153,7 +1153,7 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 				     SFlags flags,
 				     SCFlags sub,
 				     SCFlags subActive,
-				     void **data ) const
+				     const QStyleOption& opt ) const
 {
     switch ( control ) {
     case CC_SpinWidget: {
@@ -1169,7 +1169,7 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 		drawSub |= SC_SpinWidgetDown;
 
 	    QCommonStyle::drawComplexControl( control, p, widget, r, cg, flags,
-					      drawSub, subActive, data );
+					      drawSub, subActive, opt );
 	}
 	break; }
 
@@ -1179,9 +1179,9 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 	    const QSlider * slider = (const QSlider *) widget;
 
 	    QRect groove = querySubControlMetrics(CC_Slider, widget, SC_SliderGroove,
-						  data),
+						  opt),
 		  handle = querySubControlMetrics(CC_Slider, widget, SC_SliderHandle,
-						  data);
+						  opt);
 
 	    if ((sub & SC_SliderGroove) && groove.isValid()) {
 		qDrawShadePanel( p, groove, cg, TRUE, 2,
@@ -1213,7 +1213,7 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 	    if ( sub & SC_SliderTickmarks )
 		QCommonStyle::drawComplexControl( control, p, widget, r, cg, flags,
 						  SC_SliderTickmarks, subActive,
-						  data );
+						  opt );
 #endif
 	    break;
 	}
@@ -1227,7 +1227,7 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 
 	    drawPrimitive( PE_ButtonCommand, p, r, cg, flags );
 	    QRect ar = QStyle::visualRect( querySubControlMetrics( CC_ComboBox, cb, SC_ComboBoxArrow,
-								   data ), cb );
+								   opt ), cb );
 	    drawPrimitive( PE_ArrowDown, p, ar, cg, flags | Style_Enabled );
 
 	    QRect tr = r;
@@ -1271,17 +1271,17 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 				pixelMetric(PM_DefaultFrameWidth, widget),
 				&cg.brush(QColorGroup::Mid));
 	    QCommonStyle::drawComplexControl(control, p, widget, r, cg, flags, sub,
-					     subActive, data);
+					     subActive, opt);
 	    break;
 	}
 
 #ifndef QT_NO_LISTVIEW
     case CC_ListView:
 	{
-	    if (! data)
+	    if (opt.isDefault())
 		break;
 
-	    QListViewItem *item = (QListViewItem *) data[0];
+	    QListViewItem *item = opt.listViewItem();
 	    QListViewItem *child = item->firstChild();
 	    int linetop = 0, linebot = 0, y = r.y();
 
@@ -1354,7 +1354,7 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 
     default:
 	QCommonStyle::drawComplexControl( control, p, widget, r, cg, flags,
-					  sub, subActive, data );
+					  sub, subActive, opt );
     }
 }
 
@@ -1450,7 +1450,7 @@ int QMotifStyle::pixelMetric( PixelMetric metric, const QWidget *widget ) const
 QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 					   const QWidget *widget,
 					   SubControl sc,
-					   void **data ) const
+					   const QStyleOption& opt ) const
 {
     QRect rect;
 
@@ -1514,7 +1514,7 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 				  sliderPos + motifBorder,
 				  thickness - 2*motifBorder, len );
 	    } else
-		rect = QCommonStyle::querySubControlMetrics(control, widget, sc, data);
+		rect = QCommonStyle::querySubControlMetrics(control, widget, sc, opt);
 #endif
 	    break;
 	}
@@ -1636,7 +1636,7 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 	break;
 
     default:
-	return QCommonStyle::querySubControlMetrics( control, widget, sc, data );
+	return QCommonStyle::querySubControlMetrics( control, widget, sc, opt );
     }
 
     return rect;
@@ -1647,7 +1647,7 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 QSize QMotifStyle::sizeFromContents( ContentsType contents,
 				     const QWidget *widget,
 				     const QSize &contentsSize,
-				     void **data ) const
+				     const QStyleOption& opt ) const
 {
     QSize sz(contentsSize);
 
@@ -1656,7 +1656,7 @@ QSize QMotifStyle::sizeFromContents( ContentsType contents,
 	{
 #ifndef QT_NO_PUSHBUTTON
 	    const QPushButton *button = (const QPushButton *) widget;
-	    sz = QCommonStyle::sizeFromContents(contents, widget, contentsSize, data);
+	    sz = QCommonStyle::sizeFromContents(contents, widget, contentsSize, opt);
 	    if ((button->isDefault() || button->autoDefault()) &&
 		sz.width() < 80 && ! button->pixmap())
 		sz.setWidth(80);
@@ -1667,13 +1667,13 @@ QSize QMotifStyle::sizeFromContents( ContentsType contents,
     case CT_PopupMenuItem:
 	{
 #ifndef QT_NO_POPUPMENU
-	    if (! widget || ! data)
+	    if (! widget || opt.isDefault())
 		break;
 
 	    const QPopupMenu *popup = (QPopupMenu *) widget;
 	    bool checkable = popup->isCheckable();
-	    QMenuItem *mi = (QMenuItem *) data[0];
-	    int maxpmw = *((int *) data[1]);
+	    QMenuItem *mi = opt.menuItem();
+	    int maxpmw = opt.maxIconWidth();
 	    int w = sz.width(), h = sz.height();
 
 	    if ( mi->isSeparator() ) {
@@ -1713,7 +1713,7 @@ QSize QMotifStyle::sizeFromContents( ContentsType contents,
 	}
 
     default:
-	sz = QCommonStyle::sizeFromContents( contents, widget, contentsSize, data );
+	sz = QCommonStyle::sizeFromContents( contents, widget, contentsSize, opt );
 	break;
     }
 
@@ -2091,7 +2091,7 @@ static const char* const critical_xpm[]={
  */
 QPixmap QMotifStyle::stylePixmap(StylePixmap sp,
 				 const QWidget *widget,
-				 void **data) const
+				 const QStyleOption& opt) const
 {
 #ifndef QT_NO_IMAGEIO_XPM
     switch (sp) {
@@ -2163,7 +2163,7 @@ QPixmap QMotifStyle::stylePixmap(StylePixmap sp,
     }
 #endif
 
-    return QCommonStyle::stylePixmap(sp, widget, data);
+    return QCommonStyle::stylePixmap(sp, widget, opt);
 }
 
 

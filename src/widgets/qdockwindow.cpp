@@ -485,7 +485,7 @@ void QDockWindowHandle::updateGui()
 {
     if ( !closeButton ) {
 	closeButton = new QToolButton( this, "qt_close_button1" );
-	closeButton->setPixmap( style().stylePixmap( QStyle::SP_DockWindowCloseButton, closeButton, 0 ) );
+	closeButton->setPixmap( style().stylePixmap( QStyle::SP_DockWindowCloseButton, closeButton ) );
 	closeButton->setFixedSize( 12, 12 );
 	connect( closeButton, SIGNAL( clicked() ),
 		 dockWindow, SLOT( hide() ) );
@@ -621,7 +621,7 @@ void QDockWindowTitleBar::updateGui()
 {
     if ( !closeButton ) {
 	closeButton = new QToolButton( this, "qt_close_button2" );
-	closeButton->setPixmap( style().stylePixmap( QStyle::SP_DockWindowCloseButton, closeButton, 0) );
+	closeButton->setPixmap( style().stylePixmap( QStyle::SP_DockWindowCloseButton, closeButton) );
 	closeButton->setFixedSize( 12, 12 );
 	connect( closeButton, SIGNAL( clicked() ),
 		 dockWindow, SLOT( hide() ) );

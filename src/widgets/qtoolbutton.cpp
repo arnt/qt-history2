@@ -402,8 +402,6 @@ void QToolButton::drawButton( QPainter * p )
     QStyle::SCFlags active = QStyle::SC_None;
 
     Qt::ArrowType arrowtype = d->arrow;
-    void *data[1];
-    data[0] = (void *) &arrowtype;
 
     if (isDown())
 	active |= QStyle::SC_ToolButton;
@@ -436,7 +434,9 @@ void QToolButton::drawButton( QPainter * p )
 	flags |= QStyle::Style_Raised;
 
     style().drawComplexControl(QStyle::CC_ToolButton, p, this, rect(), colorGroup(),
-			       flags, controls, active, hasArrow ? data : 0);
+			       flags, controls, active,
+				hasArrow ? QStyleOption(arrowtype) :
+				    QStyleOption());
     drawButtonLabel(p);
 }
 
@@ -448,8 +448,6 @@ void QToolButton::drawButtonLabel(QPainter *p)
 	QStyle::visualRect(style().subRect(QStyle::SR_ToolButtonContents, this), this);
 
     Qt::ArrowType arrowtype = d->arrow;
-    void *data[1];
-    data[0] = (void *) &arrowtype;
 
     QStyle::SFlags flags = QStyle::Style_Default;
     if (isEnabled())
@@ -471,7 +469,9 @@ void QToolButton::drawButtonLabel(QPainter *p)
 	flags |= QStyle::Style_Raised;
 
     style().drawControl(QStyle::CE_ToolButtonLabel, p, this, r,
-			colorGroup(), flags, hasArrow ? data : 0);
+			colorGroup(), flags,
+			hasArrow ? QStyleOption(arrowtype) :
+			    QStyleOption());
 }
 
 

@@ -46,6 +46,57 @@
 
 class QPopupMenu;
 class QStylePrivate;
+class QMenuItem;
+class QTab;
+class QListViewItem;
+
+class QStyleOption {
+public:
+    enum StyleOptionDefault { Default };
+
+    QStyleOption(StyleOptionDefault=Default) : def(TRUE) {}
+
+    // Note: we don't use default arguments since that is unnecessary
+    // initialization.
+    QStyleOption(int in1, int in2) :
+	def(FALSE), i1(in1), i2(in2) {}
+    QStyleOption(int in1, int in2, int in3, int in4) :
+	def(FALSE), i1(in1), i2(in2), i3(in3), i4(in4) {}
+    QStyleOption(QMenuItem* m) : def(FALSE), mi(m) {}
+    QStyleOption(QMenuItem* m, int in1) : def(FALSE), mi(m), i1(in1) {}
+    QStyleOption(QMenuItem* m, int in1, int in2) : def(FALSE), mi(m), i1(in1), i2(in2) {}
+    QStyleOption(const QColor& c) : def(FALSE), cl(&c) {}
+    QStyleOption(QTab* t) : def(FALSE), tb(t) {}
+    QStyleOption(QListViewItem* i) : def(FALSE), li(i) {}
+    QStyleOption(Qt::ArrowType a) : def(FALSE), i1((int)a) {}
+
+    bool isDefault() const { return def; }
+
+    int lineWidth() const { return i1; }
+    int midLineWidth() const { return i2; }
+    int frameShape() const { return i3; }
+    int frameShadow() const { return i4; }
+
+    QMenuItem* menuItem() const { return mi; }
+    int maxIconWidth() const { return i1; }
+    int tabWidth() const { return i2; }
+
+    const QColor& color() const { return *cl; }
+
+    QTab* tab() const { return tb; }
+
+    QListViewItem* listViewItem() const { return li; }
+
+    Qt::ArrowType arrowType() const { return (Qt::ArrowType)i1; }
+
+private:
+    bool def;
+    QMenuItem* mi;
+    QTab* tb;
+    QListViewItem* li;
+    const QColor* cl;
+    int i1, i2, i3, i4;
+};
 
 class Q_EXPORT QStyle: public QObject
 {
@@ -166,7 +217,7 @@ public:
 				const QRect &r,
 				const QColorGroup &cg,
 				SFlags flags = Style_Default,
-				void **data = 0 ) const = 0;
+				const QStyleOption& = QStyleOption::Default ) const = 0;
 
 
     enum ControlElement {
@@ -198,12 +249,12 @@ public:
 			      const QRect &r,
 			      const QColorGroup &cg,
 			      SFlags how = Style_Default,
-			      void **data = 0 ) const = 0;
+			      const QStyleOption& = QStyleOption::Default ) const = 0;
     virtual void drawControlMask( ControlElement element,
 				  QPainter *p,
 				  const QWidget *widget,
 				  const QRect &r,
-				  void **data = 0 ) const = 0;
+				  const QStyleOption& = QStyleOption::Default ) const = 0;
 
     enum SubRect {
 	SR_PushButtonContents,
@@ -298,21 +349,21 @@ public:
 				     SFlags how = Style_Default,
 				     SCFlags sub = SC_All,
 				     SCFlags subActive = SC_None,
-				     void **data = 0 ) const = 0;
+				     const QStyleOption& = QStyleOption::Default ) const = 0;
     virtual void drawComplexControlMask( ComplexControl control,
 					 QPainter *p,
 					 const QWidget *widget,
 					 const QRect &r,
-					 void **data = 0 ) const = 0;
+					 const QStyleOption& = QStyleOption::Default ) const = 0;
 
     virtual QRect querySubControlMetrics( ComplexControl control,
 					  const QWidget *widget,
 					  SubControl sc,
-					  void **data = 0 ) const = 0;
+					  const QStyleOption& = QStyleOption::Default ) const = 0;
     virtual SubControl querySubControl( ComplexControl control,
 					const QWidget *widget,
 					const QPoint &pos,
-					void **data = 0 ) const = 0;
+					const QStyleOption& = QStyleOption::Default ) const = 0;
 
 
     enum PixelMetric {
@@ -377,7 +428,7 @@ public:
     virtual QSize sizeFromContents( ContentsType contents,
 				    const QWidget *widget,
 				    const QSize &contentsSize,
-				    void **data = 0 ) const = 0;
+				    const QStyleOption& = QStyleOption::Default ) const = 0;
 
     enum StyleHint  {
 	// ...
@@ -459,7 +510,8 @@ public:
 
     virtual int styleHint( StyleHint stylehint,
 			   const QWidget *widget = 0,
-			   void ***returnData = 0 ) const = 0;
+			   void ***returnData = 0 // ########### use something like QStyleOption here too
+			) const = 0;
 
 
     enum StylePixmap {
@@ -477,7 +529,7 @@ public:
 
     virtual QPixmap stylePixmap( StylePixmap stylepixmap,
 				 const QWidget *widget = 0,
-				 void **data = 0 ) const = 0;
+				 const QStyleOption& = QStyleOption::Default ) const = 0;
 
 
     static QRect visualRect( const QRect &logical, const QWidget *w );

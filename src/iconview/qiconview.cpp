@@ -1970,8 +1970,6 @@ void QIconViewItem::paintFocus( QPainter *p, const QColorGroup &cg )
     if ( !view )
 	return;
 
-    void *data[1];
-    data[0] = (void *) (isSelected() ? &cg.highlight() : &cg.base());
     view->style().drawPrimitive(QStyle::PE_FocusRect, p,
 				QRect( textRect( FALSE ).x(), textRect( FALSE ).y(),
 				       textRect( FALSE ).width(),
@@ -1979,16 +1977,16 @@ void QIconViewItem::paintFocus( QPainter *p, const QColorGroup &cg )
 				(isSelected() ?
 				 QStyle::Style_FocusAtBorder :
 				 QStyle::Style_Default),
-				data);
+				QStyleOption(isSelected() ? cg.highlight() : cg.base()));
 
     if ( this != view->d->currentItem ) {
-	data[0] = (void *) &cg.base();
 	view->style().drawPrimitive(QStyle::PE_FocusRect, p,
 				    QRect( pixmapRect( FALSE ).x(),
 					   pixmapRect( FALSE ).y(),
 					   pixmapRect( FALSE ).width(),
 					   pixmapRect( FALSE ).height() ),
-				    cg, QStyle::Style_Default, data);
+				    cg, QStyle::Style_Default,
+				    QStyleOption(cg.base()));
     }
 }
 
@@ -4953,12 +4951,11 @@ void QIconView::drawRubber( QPainter *p )
     QPoint pnt( d->rubber->x(), d->rubber->y() );
     pnt = contentsToViewport( pnt );
 
-    void *data[1];
-    data[0] = (void *) &colorGroup().base();
     style().drawPrimitive(QStyle::PE_FocusRect, p,
 			  QRect( pnt.x(), pnt.y(),
 				 d->rubber->width(), d->rubber->height() ),
-			  colorGroup(), QStyle::Style_Default, data);
+			  colorGroup(), QStyle::Style_Default,
+			  QStyleOption(colorGroup().base()));
 }
 
 /*!  Returns the QDragObject that should be used for
@@ -5154,8 +5151,7 @@ void QIconView::drawDragShapes( const QPoint &pos )
 	return;
     }
 
-    void *data[1];
-    data[0] = (void *) &colorGroup().base();
+    QStyleOption opt(colorGroup().base());
 
     if ( d->isIconDrag ) {
 	QPainter p;
@@ -5174,9 +5170,9 @@ void QIconView::drawDragShapes( const QPoint &pos )
 		continue;
 
 	    style().drawPrimitive(QStyle::PE_FocusRect, &p, ir, colorGroup(),
-				  QStyle::Style_Default, data);
+				  QStyle::Style_Default, opt);
 	    style().drawPrimitive(QStyle::PE_FocusRect, &p, tr, colorGroup(),
-				  QStyle::Style_Default, data);
+				  QStyle::Style_Default, opt);
 	}
 
 	p.end();
@@ -5189,7 +5185,7 @@ void QIconView::drawDragShapes( const QPoint &pos )
 	for ( int i = 0; i < d->numDragItems; ++i ) {
 	    QRect r( pos.x() + i * 40, pos.y(), 35, 35 );
 	    style().drawPrimitive(QStyle::PE_FocusRect, &p, r, colorGroup(),
-				  QStyle::Style_Default, data);
+				  QStyle::Style_Default, opt);
 	}
 
 	p.end();

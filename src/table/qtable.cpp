@@ -2445,14 +2445,13 @@ void QTable::paintFocus( QPainter *p, const QRect &cr )
 	p->drawRect( focusRect.x(), focusRect.y(), focusRect.width() - 1, focusRect.height() - 1 );
 	p->drawRect( focusRect.x() - 1, focusRect.y() - 1, focusRect.width() + 1, focusRect.height() + 1 );
     } else {
-	void *data[1];
-	data[0] = (void *) ( isSelected( curRow, curCol, FALSE ) ?
-			     &colorGroup().highlight() : &colorGroup().base() );
+	QColor c = isSelected( curRow, curCol, FALSE ) ?
+			     colorGroup().highlight() : colorGroup().base();
 	style().drawPrimitive( QStyle::PE_FocusRect, p, focusRect, colorGroup(),
 			       ( isSelected( curRow, curCol, FALSE ) ?
 				 QStyle::Style_FocusAtBorder :
 				 QStyle::Style_Default ),
-			       data);
+			         QStyleOption(c) );
     }
 }
 

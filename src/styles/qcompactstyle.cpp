@@ -133,21 +133,21 @@ void drawPopupMenuItem( QPainter* p, bool checkable,
 
 /*! \reimp */
 void QCompactStyle::drawControl( ControlElement element, QPainter *p, const QWidget *widget, const QRect &r,
-		  const QColorGroup &g, SFlags flags, void **data )
+		  const QColorGroup &g, SFlags flags, const QStyleOption& opt )
 {
     switch ( element ) {
     case CE_PopupMenuItem:
 	{
-	    if (! widget || !data)
+	    if (! widget || opt.isDefault())
 		break;
 
 	    const QPopupMenu *popupmenu = (const QPopupMenu *) widget;
-	    QMenuItem *mi = (QMenuItem *) data[0];
+	    QMenuItem *mi = opt.menuItem();
 	    if ( !mi )
 		break;
 
-	    int tab = *((int *) data[1]);
-	    int maxpmw = *((int *) data[2]);
+	    int tab = opt.tabWidth();
+	    int maxpmw = opt.maxIconWidth();
 	    bool dis = ! mi->isEnabled();
 	    bool checkable = popupmenu->isCheckable();
 	    bool act = flags & Style_Active;
@@ -225,7 +225,7 @@ void QCompactStyle::drawControl( ControlElement element, QPainter *p, const QWid
 			cflags |= Style_On;
 
 		    drawPrimitive( PE_CheckMark, p, QRect(x + motifItemFrame + 2, y + motifItemFrame,
-				    mw, mh), itemg, cflags, data );
+				    mw, mh), itemg, cflags, opt );
 		}
 	    }
 
@@ -302,7 +302,7 @@ void QCompactStyle::drawControl( ControlElement element, QPainter *p, const QWid
 	break;
 
     default:
-	QWindowsStyle::drawControl( element, p, widget, r, g, flags, data );
+	QWindowsStyle::drawControl( element, p, widget, r, g, flags, opt );
 	break;
     }
 }

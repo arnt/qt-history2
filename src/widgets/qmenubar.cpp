@@ -1007,8 +1007,6 @@ void QMenuBar::drawContents( QPainter *p )
 	    buffer.painter()->setPen( p->pen() );
 	    buffer.painter()->setBrush( p->brush() );
 
-	    void *data[1];
-	    data[0] = (void *) mi;
 	    QStyle::SFlags flags = QStyle::Style_Default;
 	    if (isEnabled() && mi->isEnabled())
 		flags |= QStyle::Style_Enabled;
@@ -1019,7 +1017,7 @@ void QMenuBar::drawContents( QPainter *p )
 	    if (hasFocus() || hasmouse || popupvisible)
 		flags |= QStyle::Style_HasFocus;
 	    style().drawControl(QStyle::CE_MenuBarItem, buffer.painter(), this,
-				r, g, flags, data);
+				r, g, flags, QStyleOption(mi));
 	    if(!buffer.isBuffered())
 		buffer.painter()->flush(r);
 	}

@@ -114,7 +114,7 @@ void QCDEStyle::drawControl( ControlElement element,
 			     const QRect &r,
 			     const QColorGroup &cg,
 			     SFlags how,
-			     void **data ) const
+			     const QStyleOption& opt ) const
 {
 
     switch( element ) {
@@ -125,11 +125,11 @@ void QCDEStyle::drawControl( ControlElement element,
 				 &cg.brush( QColorGroup::Button ) );
 	    else  // other item
 		p->fillRect( r, cg.brush( QColorGroup::Button ) );
-	    QCommonStyle::drawControl( element, p, widget, r, cg, how, data );
+	    QCommonStyle::drawControl( element, p, widget, r, cg, how, opt );
 	    break;
 	}
     default:
-	QMotifStyle::drawControl( element, p, widget, r, cg, how, data );
+	QMotifStyle::drawControl( element, p, widget, r, cg, how, opt );
     break;
     }
 
@@ -143,7 +143,7 @@ void QCDEStyle::drawPrimitive( PrimitiveElement pe,
 			       const QRect &r,
 			       const QColorGroup &cg,
 			       SFlags flags,
-			       void **data ) const
+			       const QStyleOption& opt ) const
 {
     switch( pe ) {
     case PE_Indicator: {
@@ -358,7 +358,7 @@ void QCDEStyle::drawPrimitive( PrimitiveElement pe,
     }
 	break;
     default:
-	QMotifStyle::drawPrimitive( pe, p, r, cg, flags, data );
+	QMotifStyle::drawPrimitive( pe, p, r, cg, flags, opt );
     }
 }
 

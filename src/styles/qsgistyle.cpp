@@ -531,7 +531,7 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
 		    const QRect &r,
 		    const QColorGroup &cg,
 		    SFlags flags,
-		    void **data ) const
+		    const QStyleOption& opt ) const
 {
     const int x = r.x();
     const int y = r.y();
@@ -564,7 +564,7 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
     case PE_ButtonBevel:
     case PE_ButtonTool:
 	{
-	    drawPrimitive( PE_ButtonCommand, p, QRect( x+1, y+1, w-2, h-2 ), cg, flags, data );
+	    drawPrimitive( PE_ButtonCommand, p, QRect( x+1, y+1, w-2, h-2 ), cg, flags, opt );
 
 	    QPen oldPen = p->pen();
 	    QPointArray a;
@@ -617,9 +617,9 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
 	{
 	    QRect er = r;
 	    er.addCoords( 1, 1, -1, -1 );
-	    drawPrimitive( PE_ButtonBevel, p, er, cg, flags, data );
+	    drawPrimitive( PE_ButtonBevel, p, er, cg, flags, opt );
 	    if ( !(flags & QStyle::Style_Off) )
-		drawPrimitive( PE_CheckMark, p, r, cg, flags, data );
+		drawPrimitive( PE_CheckMark, p, r, cg, flags, opt );
 	}
 	break;
 
@@ -746,7 +746,7 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
 
     case PE_Panel:
 	{
-	    const int lineWidth = data ? *(int*)data[0] : defaultFrameWidth;
+	    const int lineWidth = opt.isDefault() ? defaultFrameWidth : opt.lineWidth();
 	    drawPanel( p, x, y, w, h, cg, flags & (Style_Sunken | Style_Down | Style_On), lineWidth, 0 );
 	    if ( lineWidth <= 1 )
 		return;
@@ -766,7 +766,7 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
     case PE_ScrollBarSubLine:
 	if ( !r.contains( d->mousePos ) && !(flags & Style_Active) )
 	    flags &= ~Style_MouseOver;
-	drawPrimitive( PE_ButtonCommand, p, r, cg, flags, data );
+	drawPrimitive( PE_ButtonCommand, p, r, cg, flags, opt );
 	drawPrimitive(((flags & Style_Horizontal) ? PE_ArrowLeft : PE_ArrowUp),
 		      p, r, cg, Style_Enabled | flags);
 	break;
@@ -774,7 +774,7 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
     case PE_ScrollBarAddLine:
 	if ( !r.contains( d->mousePos ) )
 	    flags &= ~Style_MouseOver;
-	drawPrimitive( PE_ButtonCommand, p, r, cg, flags, data );
+	drawPrimitive( PE_ButtonCommand, p, r, cg, flags, opt );
 	drawPrimitive(((flags & Style_Horizontal) ? PE_ArrowRight : PE_ArrowDown),
 		      p, r, cg, Style_Enabled | flags);
 	break;
@@ -833,7 +833,7 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
 		qDrawShadeLine( p, xPos, kPos + kSize - 1 ,
 			xPos, h, cg );
 
-		drawPrimitive( PE_ButtonBevel, p, QRect(xPos-sw/2+1, kPos, kSize, kSize+1), cg, flags, data );
+		drawPrimitive( PE_ButtonBevel, p, QRect(xPos-sw/2+1, kPos, kSize, kSize+1), cg, flags, opt );
 		qDrawShadeLine( p, xPos+2, 0, xPos, kPos, cg );
 	    } else {
 		int yPos = y + h/2;
@@ -841,14 +841,14 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
 		int kSize = sw - 2;
 
 		qDrawShadeLine( p, 0, yPos, kPos, yPos, cg );
-		drawPrimitive( PE_ButtonBevel, p, QRect( kPos, yPos-sw/2+1, kSize+1, kSize ), cg, flags, data );
+		drawPrimitive( PE_ButtonBevel, p, QRect( kPos, yPos-sw/2+1, kSize+1, kSize ), cg, flags, opt );
 		qDrawShadeLine( p, kPos + kSize+1, yPos, w, yPos, cg );
 	    }
 	}
 	break;
 
     default:
-	QMotifStyle::drawPrimitive( pe, p, r, cg, flags, data );
+	QMotifStyle::drawPrimitive( pe, p, r, cg, flags, opt );
 	break;
     }
 }
@@ -860,7 +860,7 @@ void QSGIStyle::drawControl( ControlElement element,
 		  const QRect &r,
 		  const QColorGroup &cg,
 		  SFlags flags,
-		  void **data ) const
+		  const QStyleOption& opt ) const
 {
     if ( widget == d->hotWidget )
 	flags |= Style_MouseOver;
@@ -903,7 +903,7 @@ void QSGIStyle::drawControl( ControlElement element,
 
 	    QBrush fill = cg.brush( QColorGroup::Button );
 	    if ( !btn->isFlat() || btn->isOn() || btn->isDown() )
-		drawPrimitive( PE_ButtonBevel, p, QRect( x1, y1, x2-x1+1, y2-y1+1 ), cg, flags, data );
+		drawPrimitive( PE_ButtonBevel, p, QRect( x1, y1, x2-x1+1, y2-y1+1 ), cg, flags, opt );
 
 	    if ( p->brush().style() != Qt::NoBrush )
 		p->setBrush( Qt::NoBrush );
@@ -914,14 +914,14 @@ void QSGIStyle::drawControl( ControlElement element,
     case CE_PopupMenuItem:
 	{
 #ifndef QT_NO_POPUPMENU
-	    if (! widget || ! data)
+	    if (! widget || opt.isDefault())
 		break;
-	    QMenuItem *mi = (QMenuItem *) data[0];
+	    QMenuItem *mi = opt.menuItem();
 	    if ( !mi )
 		break;
 	    const QPopupMenu *popupmenu = (const QPopupMenu *) widget;
-	    int tab = *((int *) data[1]);
-	    int maxpmw = *((int *) data[2]);
+	    int tab = opt.tabWidth();
+	    int maxpmw = opt.maxIconWidth();
 	    bool dis = ! (flags & Style_Enabled);
 	    bool checkable = popupmenu->isCheckable();
 	    bool act = flags & Style_Active;
@@ -1055,10 +1055,10 @@ void QSGIStyle::drawControl( ControlElement element,
     case CE_MenuBarItem:
 	{
 #ifndef QT_NO_MENUDATA
-	    if (! data)
+	    if (opt.isDefault())
 		break;
 
-	    QMenuItem *mi = (QMenuItem *) data[0];
+	    QMenuItem *mi = opt.menuItem();
 
 	    bool active = flags & Style_Active;
 	    int x, y, w, h;
@@ -1092,11 +1092,11 @@ void QSGIStyle::drawControl( ControlElement element,
 	break;
 
     case CE_CheckBox:
-	QMotifStyle::drawControl( element, p, widget, r, cg, flags, data );
+	QMotifStyle::drawControl( element, p, widget, r, cg, flags, opt );
 	break;
 
     default:
-	QMotifStyle::drawControl( element, p, widget, r, cg, flags, data );
+	QMotifStyle::drawControl( element, p, widget, r, cg, flags, opt );
 	break;
     }
 }
@@ -1110,7 +1110,7 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 			 SFlags flags,
 			 SCFlags sub,
 			 SCFlags subActive,
-			 void **data ) const
+			 const QStyleOption& opt ) const
 {
     if ( widget == d->hotWidget )
 	flags |= Style_MouseOver;
@@ -1122,9 +1122,9 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 	    const QSlider * slider = (const QSlider *) widget;
 
 	    QRect groove = querySubControlMetrics(CC_Slider, widget, SC_SliderGroove,
-						  data),
+						  opt),
 		  handle = querySubControlMetrics(CC_Slider, widget, SC_SliderHandle,
-						  data);
+						  opt);
 
 	    if ((sub & SC_SliderGroove) && groove.isValid()) {
 		QRegion region( groove );
@@ -1136,7 +1136,7 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 
 		QRect grooveTop = groove;
 		grooveTop.addCoords( 1, 1, -1, -1 );
-		drawPrimitive( PE_ButtonBevel, p, grooveTop, cg, flags & ~Style_MouseOver, data );
+		drawPrimitive( PE_ButtonBevel, p, grooveTop, cg, flags & ~Style_MouseOver, opt );
 
 		if ( slider->hasFocus() ) {
 		    QRect fr = subRect( SR_SliderFocusRect, widget );
@@ -1177,7 +1177,7 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 	    if ( sub & SC_SliderTickmarks )
 		QMotifStyle::drawComplexControl( control, p, widget, r, cg, flags,
 						 SC_SliderTickmarks, subActive,
-						 data );
+						 opt );
 #endif
 	    break;
 	}
@@ -1199,7 +1199,7 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 
 		QBrush arrow = cg.brush( QColorGroup::Dark );
 		drawPrimitive( PE_ArrowDown, p, QRect( ax, ay, awh, awh ), cg,
-			       flags, data );
+			       flags, opt );
 
 		p->fillRect( ax, sy, awh, sh, arrow );
 	    }
@@ -1226,20 +1226,20 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 	    if ( maxedOut )
 		flags &= ~Style_Enabled;
 
-	    QRect handle = QStyle::visualRect( querySubControlMetrics( CC_ScrollBar, widget, SC_ScrollBarSlider, data ), widget );
+	    QRect handle = QStyle::visualRect( querySubControlMetrics( CC_ScrollBar, widget, SC_ScrollBarSlider, opt ), widget );
 
 	    if ( sub & SC_ScrollBarGroove ) {
 	    }
 	    if ( sub & SC_ScrollBarAddLine ) {
-		QRect er = QStyle::visualRect( querySubControlMetrics( CC_ScrollBar, widget, SC_ScrollBarAddLine, data ), widget );
-		drawPrimitive( PE_ScrollBarAddLine, p, er, cg, flags, data );
+		QRect er = QStyle::visualRect( querySubControlMetrics( CC_ScrollBar, widget, SC_ScrollBarAddLine, opt ), widget );
+		drawPrimitive( PE_ScrollBarAddLine, p, er, cg, flags, opt );
 	    }
 	    if ( sub & SC_ScrollBarSubLine ) {
-		QRect er = QStyle::visualRect( querySubControlMetrics( CC_ScrollBar, widget, SC_ScrollBarSubLine, data ), widget );
-		drawPrimitive( PE_ScrollBarSubLine, p, er, cg, flags, data );
+		QRect er = QStyle::visualRect( querySubControlMetrics( CC_ScrollBar, widget, SC_ScrollBarSubLine, opt ), widget );
+		drawPrimitive( PE_ScrollBarSubLine, p, er, cg, flags, opt );
 	    }
 	    if ( sub & SC_ScrollBarAddPage ) {
-		QRect er = QStyle::visualRect( querySubControlMetrics( CC_ScrollBar, widget, SC_ScrollBarAddPage, data ), widget );
+		QRect er = QStyle::visualRect( querySubControlMetrics( CC_ScrollBar, widget, SC_ScrollBarAddPage, opt ), widget );
 		QRegion region( er );
 		if ( d->lastScrollbarRect.isValid() && er.intersects( d->lastScrollbarRect ) ) {
 		    region = region.subtract( d->lastScrollbarRect );
@@ -1250,7 +1250,7 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 		    p->setClipRegion( region );
 		}
 
-		drawPrimitive( PE_ScrollBarAddPage, p, er, cg, flags & ~Style_MouseOver, data );
+		drawPrimitive( PE_ScrollBarAddPage, p, er, cg, flags & ~Style_MouseOver, opt );
 
 		if ( d->lastScrollbarRect.isValid() && er.intersects( d->lastScrollbarRect ) ) {
 		    if ( sub & SC_ScrollBarSlider && handle.isValid() ) {
@@ -1265,7 +1265,7 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 		p->setClipping( FALSE );
 	    }
 	    if ( sub & SC_ScrollBarSubPage ) {
-		QRect er = QStyle::visualRect( querySubControlMetrics( CC_ScrollBar, widget, SC_ScrollBarSubPage, data ), widget );
+		QRect er = QStyle::visualRect( querySubControlMetrics( CC_ScrollBar, widget, SC_ScrollBarSubPage, opt ), widget );
 		QRegion region( er );
 		if ( d->lastScrollbarRect.isValid() && er.intersects( d->lastScrollbarRect ) ) {
 		    region = region.subtract( d->lastScrollbarRect );
@@ -1275,7 +1275,7 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 		    region = region.subtract( handle );
 		    p->setClipRegion( region );
 		}
-		drawPrimitive( PE_ScrollBarSubPage, p, er, cg, flags & ~Style_MouseOver, data );
+		drawPrimitive( PE_ScrollBarSubPage, p, er, cg, flags & ~Style_MouseOver, opt );
 		if ( d->lastScrollbarRect.isValid() && er.intersects( d->lastScrollbarRect ) ) {
 		    if ( sub & SC_ScrollBarSlider && handle.isValid() ) {
 			region = er;
@@ -1293,14 +1293,14 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 		if ( subActive == SC_ScrollBarSlider )
 		    flags |= Style_Active;
 
-		drawPrimitive( PE_ScrollBarSlider, p, handle, cg, flags, data );
+		drawPrimitive( PE_ScrollBarSlider, p, handle, cg, flags, opt );
 	    }
 #endif
 	}
 	break;
 
     default:
-	QMotifStyle::drawComplexControl( control, p, widget, r, cg, flags, sub, subActive, data );
+	QMotifStyle::drawComplexControl( control, p, widget, r, cg, flags, sub, subActive, opt );
 	break;
     }
 }
@@ -1333,7 +1333,7 @@ QRect QSGIStyle::subRect( SubRect r, const QWidget *widget ) const
 QRect QSGIStyle::querySubControlMetrics( ComplexControl control,
 					   const QWidget *widget,
 					   SubControl sub,
-					   void **data ) const
+					   const QStyleOption& opt ) const
 {
     QRect rect;
 
@@ -1372,10 +1372,10 @@ QRect QSGIStyle::querySubControlMetrics( ComplexControl control,
 	break;
 
     case CC_ScrollBar:
-	return QCommonStyle::querySubControlMetrics( control, widget, sub, data );
+	return QCommonStyle::querySubControlMetrics( control, widget, sub, opt );
 
     default:
-	return QMotifStyle::querySubControlMetrics( control, widget, sub, data );
+	return QMotifStyle::querySubControlMetrics( control, widget, sub, opt );
     }
 
     return rect;
