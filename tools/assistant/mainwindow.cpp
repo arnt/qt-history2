@@ -364,7 +364,7 @@ void MainWindow::showLink(const QString &link)
 
     QUrl url(link);
     QFileInfo fi(url.toLocalFile());    
-    tabs->setSource(url);
+    tabs->setSource(url.toString());
     tabs->currentBrowser()->setFocus();    
 }
 
@@ -484,7 +484,7 @@ void MainWindow::showSettingsDialog(int page)
     sh->item(QLatin1String("tt"))->setFontFamily(family);
     */
     tabs->currentBrowser()->reload();
-    showLink(tabs->currentBrowser()->source());
+    showLink(tabs->currentBrowser()->source().toString());
 }
 
 MainWindow* MainWindow::newWindow()
@@ -518,7 +518,7 @@ void MainWindow::saveSettings()
     QStringList lst;
     QList<HelpWindow*> browsers = tabs->browsers();
     foreach (HelpWindow *browser, browsers)
-        lst << browser->source();
+        lst << browser->source().toString();
     config->setSource(lst);
     config->save();
 }

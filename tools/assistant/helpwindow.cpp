@@ -31,6 +31,7 @@
 #include <qtextstream.h>
 #include <qtextcodec.h>
 #include <qabstracttextdocumentlayout.h>
+#include <qstatusbar.h>
 
 #if defined(Q_OS_WIN32)
 #include <windows.h>
@@ -126,10 +127,10 @@ void HelpWindow::setSource(const QUrl &name)
     if (name.scheme() == QLatin1String("file")) {
         QFileInfo fi(name.toLocalFile());
         if (!fi.exists()) {
-            //statusBar()->message(tr("Failed to open link: '%1'").arg(fi.absoluteFilePath()), 5000);
+            mw->statusBar()->message(tr("Failed to open link: '%1'").arg(fi.absoluteFilePath()), 5000);
             setHtml(tr("<div align=\"center\"><h1>The page could not be found!</h1><br>"
                 "<h3>'%1'</h3></div>").arg(fi.absoluteFilePath()));
-            //mw->tabs->updateTitle(tr("Error..."));
+            mw->browsers()->updateTitle(tr("Error..."));
             return;
         }
 
@@ -140,10 +141,10 @@ void HelpWindow::setSource(const QUrl &name)
         QTextBrowser::setSource(name);
         return;
     }
-    //statusBar()->message(tr("Failed to open link: '%1'").arg(name.toString()), 5000);
+    mw->statusBar()->message(tr("Failed to open link: '%1'").arg(name.toString()), 5000);
     setHtml(tr("<div align=\"center\"><h1>The page could not be found!!!</h1><br>"
         "<h3>'%1'</h3></div>").arg(name.toString()));
-    //mw->tabs->updateTitle(tr("Error..."));
+    mw->browsers()->updateTitle(tr("Error..."));
 }
 
 

@@ -133,7 +133,7 @@ void TabbedBrowser::newTab(const QString &lnk)
     if(link.isNull()) {
         HelpWindow *w = currentBrowser();
         if(w)
-            link = w->source();
+            link = w->source().toString();
     }
     HelpWindow *win = createHelpWindow(link);
     ui.tab->showPage(win);
@@ -347,7 +347,7 @@ QStringList TabbedBrowser::sources() const
     QStringList lst;
     int cnt = ui.tab->count();
     for(int i=0; i<cnt; i++) {
-        lst.append(((QTextBrowser*) ui.tab->widget(i))->source());
+        lst.append(((QTextBrowser*) ui.tab->widget(i))->source().toString());
     }
     return lst;
 }
