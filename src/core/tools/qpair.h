@@ -26,41 +26,50 @@ struct QPair
     typedef T1 first_type;
     typedef T2 second_type;
 
-    QPair()
-        : first(T1()), second(T2())
-    {}
-    QPair(const T1& t1, const T2& t2)
-        : first(t1), second(t2)
-    {}
+    QPair() : first(T1()), second(T2()) { qInit(first); qInit(second); }
+    QPair(const T1 &t1, const T2 &t2) : first(t1), second(t2) {}
 
-    QPair<T1, T2>& operator=(const QPair<T1, T2>& other)
-    {
-        if (this != &other) {
-            first = other.first;
-            second = other.second;
-        }
-        return *this;
-    }
+    QPair &operator=(const QPair &other)
+    { first = other.first; second = other.second; return *this; }
 
     T1 first;
     T2 second;
 };
 
 template <class T1, class T2>
-Q_OUTOFLINE_TEMPLATE bool operator==(const QPair<T1, T2>& x, const QPair<T1, T2>& y)
+Q_INLINE_TEMPLATE bool operator==(const QPair<T1, T2> &p1, const QPair<T1, T2> &p2)
+{ return p1.first == p2.first && p1.second == p2.second; }
+
+template <class T1, class T2>
+Q_INLINE_TEMPLATE bool operator!=(const QPair<T1, T2> &p1, const QPair<T1, T2> &p2)
+{ return !(p1 == p2); }
+
+template <class T1, class T2>
+Q_INLINE_TEMPLATE bool operator<(const QPair<T1, T2> &p1, const QPair<T1, T2> &p2)
 {
-    return x.first == y.first && x.second == y.second;
+    return p1.first < p2.first || (!(p2.first < p1.first) && p1.second < p2.second);
 }
 
 template <class T1, class T2>
-Q_OUTOFLINE_TEMPLATE bool operator<(const QPair<T1, T2>& x, const QPair<T1, T2>& y)
+Q_INLINE_TEMPLATE bool operator>(const QPair<T1, T2> &p1, const QPair<T1, T2> &p2)
 {
-    return x.first < y.first ||
-           (!(y.first < x.first) && x.second < y.second);
+    return p2 < p1;
 }
 
 template <class T1, class T2>
-Q_OUTOFLINE_TEMPLATE QPair<T1, T2> qMakePair(const T1& x, const T2& y)
+Q_INLINE_TEMPLATE bool operator<=(const QPair<T1, T2> &p1, const QPair<T1, T2> &p2)
+{
+    return !(p2 < p1);
+}
+
+template <class T1, class T2>
+Q_INLINE_TEMPLATE bool operator>=(const QPair<T1, T2> &p1, const QPair<T1, T2> &p2)
+{
+    return !(p1 < p2);
+}
+
+template <class T1, class T2>
+Q_OUTOFLINE_TEMPLATE QPair<T1, T2> qMakePair(const T1 &x, const T2 &y)
 {
     return QPair<T1, T2>(x, y);
 }
