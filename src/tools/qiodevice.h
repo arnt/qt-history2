@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.h#5 $
+** $Id: //depot/qt/main/src/tools/qiodevice.h#6 $
 **
 ** Definition of QIODevice class
 **
@@ -56,6 +56,9 @@
 #define IO_AbortError		6		// abort error
 #define IO_TimeOutError		7		// time out
 
+#undef	TB
+#define TB(x) ((ioMode & (x)) == x)
+
 
 class QIODevice					// IO device class
 {
@@ -67,8 +70,6 @@ public:
     int		 mode()	  const { return ioMode & IO_ModeMask; }
     int		 state()  const { return ioMode & IO_StateMask; }
 
-#undef	TB
-#define TB(x) ((ioMode & (x)) == x)
     bool	 isDirectAccess()     const { return TB(IO_Direct); }
     bool	 isSequentialAccess() const { return TB(IO_Sequential); }
     bool	 isCombinedAccess()   const { return TB(IO_Combined); }
@@ -80,7 +81,6 @@ public:
     bool	 isReadable()	      const { return TB(IO_ReadOnly); }
     bool	 isWritable()	      const { return TB(IO_WriteOnly); }
     bool	 isReadWrite()	      const { return TB(IO_ReadWrite); }
-#undef	TB
     bool	 isInactive()	      const { return state() == 0; }
     bool	 isOpen()	      const { return state() == IO_Open; }
 
@@ -117,6 +117,9 @@ private:
     int		 ioMode;			// IO mode
     int		 ioSt;				// IO status
 };
+
+
+#undef	TB
 
 
 #endif // QIODEV_H
