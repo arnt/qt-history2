@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#16 $
 **
 ** Implementation of QLabel widget class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#16 $";
 #endif
 
 /*! \class QLabel qlabel.h
@@ -123,7 +123,7 @@ void QLabel::setLabel( double d )
   AlignCenter, AlignHCenter, AlignTop, AlignBottom, AlignVCenter,
   SingleLine, DontClip, ExpandTabs, ShowPrefix, WordBreak,
   GrayText</code> and <code>DontPrint.</code>  QPainter::drawText()
-  documents these in more detail, and <qwindefs.h> define them. */
+  documents these in more detail, and qwindefs.h defines them. */
 
 void QLabel::setAlignment( int alignment )
 {
@@ -152,6 +152,9 @@ void QLabel::setAutoResizing( bool enable )
     }
 }
 
+/*! Adjusts the size of the label.  If you've called
+  setAutoResizing(TRUE) you'll never need to think about this. \sa
+  setAutoResizing(). */
 void QLabel::adjustSize()
 {
     QFontMetrics fm( font() );
