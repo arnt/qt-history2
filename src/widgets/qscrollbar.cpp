@@ -579,6 +579,8 @@ void QScrollBar::contextMenuEvent( QContextMenuEvent *e )
 {
     if(clickedAt)
 	e->consume();
+    else
+	e->ignore();
 }
 
 /*!
