@@ -313,7 +313,8 @@ private:
  * Class: QWSClient
  *
  *********************************************************************/
-class QWSMouseEvent;
+
+struct QWSMouseEvent;
 
 typedef QMap<int, QWSCursor*> QWSCursorMap;
 
