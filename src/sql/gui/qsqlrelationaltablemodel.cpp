@@ -65,6 +65,20 @@ void QSqlRelationalTableModelPrivate::clearChanges()
 
   QSqlRelationalTableModel acts like QSqlTableModel, but allows columns to
   be set as foreign keys into other database tables.
+
+  The following example assumes that there are two tables called \c people and
+  \c titles. The \c titles table has two columns called \c id and \c title.
+  The \c people table's 4th column is a foreign index into the \c titles table:
+
+  \code
+    QSqlTableModel model;
+    model.setTable("people");
+    model.setRelation(3, QSqlRelation("titles", "id", "title"));
+    model.select();
+  \endcode
+
+  Instead of displaying the id of the title, the model will display the value
+  stored in the \c title column of the \c titles table.
  */
 
 
@@ -102,6 +116,18 @@ QVariant QSqlRelationalTableModel::data(const QModelIndex &item, int role) const
     return QSqlTableModel::data(item, role);
 }
 
+/*!
+    Sets the data for the item \a index for the role \a role to \a value.
+    Depending on the edit strategy, the value might be applied to the database at once or
+    cached in the model.
+
+    Returns true if the value could be set or false on error, for example if \a index is
+    out of bounds.
+
+    For relational columns, \a value has to be the index, not the display value.
+
+    \sa editStrategy(), data(), submitChanges(), revertRow()
+ */
 bool QSqlRelationalTableModel::setData(const QModelIndex &item, int role, const QVariant &value)
 {
     if (role == DisplayRole && item.column() > 0 && item.column() < d->relations.count()) {
@@ -112,6 +138,9 @@ bool QSqlRelationalTableModel::setData(const QModelIndex &item, int role, const 
     return QSqlTableModel::setData(item, role, value);
 }
 
+/*!
+    Lets the specified \a column be a foreign index specified by \a relation.
+ */
 void QSqlRelationalTableModel::setRelation(int column, const QSqlRelation &relation)
 {
     if (d->relations.size() <= column)
@@ -119,6 +148,9 @@ void QSqlRelationalTableModel::setRelation(int column, const QSqlRelation &relat
     d->relations[column].rel = relation;
 }
 
+/*!
+    Returns the relation for the column \a column.
+ */
 QSqlRelation QSqlRelationalTableModel::relation(int column) const
 {
     return d->relations.value(column).rel;
