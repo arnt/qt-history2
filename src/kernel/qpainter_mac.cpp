@@ -1882,12 +1882,12 @@ void QPainter::drawText(int x, int y, const QString &str, int pos, int len, QPai
 	Q_ASSERT(fe);
 
 	int textFlags = 0;
-	if(cfont.d->underline) 
-	    textFlags |= QFontEngine::Underline;
-	if(cfont.d->overline) 
-	    textFlags |= QFontEngine::Overline;
-	if(cfont.d->strikeOut) 
-	    textFlags |= QFontEngine::StrikeOut;
+	if(cfont.d->underline)
+	    textFlags |= Qt::Underline;
+	if(cfont.d->overline)
+	    textFlags |= Qt::Overline;
+	if(cfont.d->strikeOut)
+	    textFlags |= Qt::StrikeOut;
 	fe->draw(this, x + si->x,  y + si->y - ascent, engine, si, textFlags);
     }
 }

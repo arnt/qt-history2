@@ -49,11 +49,11 @@ void QFontEngine::draw( QPainter *p, int x, int y, const QTextEngine *engine, co
     if ( textFlags ) {
 	int lw = lineThickness();
 	p->gfx->setBrush( p->cpen.color() );
-	if ( textFlags & Underline )
+	if ( textFlags & Qt::Underline )
 	    p->gfx->fillRect( x, y+underlinePosition(), si->width, lw );
-	if ( textFlags & StrikeOut )
+	if ( textFlags & Qt::StrikeOut )
 	    p->gfx->fillRect( x, y-ascent()/3, si->width, lw );
-	if ( textFlags & Overline )
+	if ( textFlags & Qt::Overline )
 	    p->gfx->fillRect( x, y-ascent()-1, si->width, lw );
 	p->gfx->setBrush( p->cbrush );
     }

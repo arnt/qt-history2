@@ -338,10 +338,10 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 	p->map( x, y, &x, &y );
     }
 
-    if ( textFlags & Underline || textFlags & StrikeOut || scale != 1. || angle ) {
+    if ( textFlags & Qt::Underline || textFlags & Qt::StrikeOut || scale != 1. || angle ) {
 	LOGFONT lf = logfont;
-	lf.lfUnderline = (textFlags & Underline);
-	lf.lfStrikeOut = (textFlags & StrikeOut);
+	lf.lfUnderline = (textFlags & Qt::Underline);
+	lf.lfStrikeOut = (textFlags & Qt::StrikeOut);
 	if ( angle ) {
 	    lf.lfOrientation = -angle;
 	    lf.lfEscapement = -angle;
@@ -427,12 +427,12 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 	}
     }
 
-    if ( textFlags & Underline || textFlags & StrikeOut )
+    if ( textFlags & Qt::Underline || textFlags & Qt::StrikeOut )
 	DeleteObject( SelectObject( hdc, hfont ) );
 
-    if ( textFlags & StrikeOut ) {
+    if ( textFlags & Qt::Overline ) {
 	int lw = lineThickness();
-	int yp = y - ascent()/3;
+	int yp = y - ascent() -1;
 	Rectangle( hdc, xo, yp, x, yp + lw );
 
     }

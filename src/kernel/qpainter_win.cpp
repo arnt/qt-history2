@@ -2363,9 +2363,9 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	SelectObject( hdc, fe->hfont );
 
 	int textFlags = 0;
-	if ( cfont.d->underline ) textFlags |= QFontEngine::Underline;
-	if ( cfont.d->overline ) textFlags |= QFontEngine::Overline;
-	if ( cfont.d->strikeOut ) textFlags |= QFontEngine::StrikeOut;
+	if ( cfont.d->underline ) textFlags |= Qt::Underline;
+	if ( cfont.d->overline ) textFlags |= Qt::Overline;
+	if ( cfont.d->strikeOut ) textFlags |= Qt::StrikeOut;
 
 	fe->draw( this, xpos, ypos, engine, si, textFlags );
 	fe->hdc = oldDC;

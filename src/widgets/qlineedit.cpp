@@ -1798,6 +1798,14 @@ void QLineEdit::drawContents( QPainter *p )
     // draw text, selections and cursors
     p->setPen( cg.text() );
     bool supressCursor = d->readOnly, hasRightToLeft = d->isRightToLeft();
+    int textflags = 0;
+    if ( font().underline() )
+	textflags |= Qt::Underline;
+    if ( font().strikeOut() )
+	textflags |= Qt::StrikeOut;
+    if ( font().overline() )
+	textflags |= Qt::Overline;
+
     for ( int i = 0; i < d->textLayout.numItems(); i++ ) {
 	QTextItem ti = d->textLayout.itemAt( i );
 	hasRightToLeft |= ti.isRightToLeft();
@@ -1813,14 +1821,14 @@ void QLineEdit::drawContents( QPainter *p )
 					     lineRect.bottom() ) ).normalize();
 	    p->save();
   	    p->setClipRegion( QRegion( lineRect ) - highlight, QPainter::CoordPainter );
- 	    p->drawTextItem( topLeft, ti );
+ 	    p->drawTextItem( topLeft, ti, textflags );
  	    p->setClipRect( lineRect & highlight, QPainter::CoordPainter );
 	    p->fillRect( highlight, cg.highlight() );
  	    p->setPen( cg.highlightedText() );
-	    p->drawTextItem( topLeft, ti );
+	    p->drawTextItem( topLeft, ti, textflags );
 	    p->restore();
 	} else {
-	    p->drawTextItem( topLeft, ti );
+	    p->drawTextItem( topLeft, ti, textflags );
 	}
 
 	// input method edit area
@@ -1836,7 +1844,7 @@ void QLineEdit::drawContents( QPainter *p )
 	    QColor imCol;
 	    imCol.setHsv( h1, s1, ( v1 + v2 ) / 2 );
 	    p->fillRect( highlight, imCol );
-	    p->drawTextItem( topLeft, ti );
+	    p->drawTextItem( topLeft, ti, textflags );
 	    p->restore();
 	}
 
@@ -1848,7 +1856,7 @@ void QLineEdit::drawContents( QPainter *p )
 	    p->setClipRect( lineRect & highlight, QPainter::CoordPainter );
 	    p->fillRect( highlight, cg.text() );
 	    p->setPen( paletteBackgroundColor() );
-	    p->drawTextItem( topLeft, ti );
+	    p->drawTextItem( topLeft, ti, textflags );
 	    p->restore();
 	}
 
@@ -1861,7 +1869,7 @@ void QLineEdit::drawContents( QPainter *p )
 	    p->setClipRect( lineRect & highlight, QPainter::CoordPainter );
 	    p->fillRect( highlight, cg.text() );
 	    p->setPen( paletteBackgroundColor() );
-	    p->drawTextItem( topLeft, ti );
+	    p->drawTextItem( topLeft, ti, textflags );
 	    p->restore();
 	    supressCursor = TRUE;
 	}

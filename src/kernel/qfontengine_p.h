@@ -62,12 +62,6 @@ public:
     virtual QOpenType *openType() const { return 0; }
 #endif
 
-    enum TextFlags {
-	Underline = 0x01,
-	Overline  = 0x02,
-	StrikeOut = 0x04
-    };
-
     virtual void draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags ) = 0;
 
     virtual glyph_metrics_t boundingBox( const glyph_t *glyphs,

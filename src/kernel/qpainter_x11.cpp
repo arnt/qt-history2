@@ -3084,9 +3084,9 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
     // for painting.
 
     int textFlags = 0;
-    if ( cfont.d->underline ) textFlags |= QFontEngine::Underline;
-    if ( cfont.d->overline ) textFlags |= QFontEngine::Overline;
-    if ( cfont.d->strikeOut ) textFlags |= QFontEngine::StrikeOut;
+    if ( cfont.d->underline ) textFlags |= Qt::Underline;
+    if ( cfont.d->overline ) textFlags |= Qt::Overline;
+    if ( cfont.d->strikeOut ) textFlags |= Qt::StrikeOut;
 
     if ( bg_mode == OpaqueMode )
 	qt_draw_background( this, x, y-ascent, right-left, ascent+descent);

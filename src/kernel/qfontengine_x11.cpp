@@ -26,16 +26,16 @@ extern void qt_draw_transformed_rect( QPainter *p, int x, int y, int w, int h, b
 static void drawLines( QPainter *p, QFontEngine *fe, int baseline, int x1, int w, int textFlags )
 {
     int lw = fe->lineThickness();
-    if ( textFlags & QFontEngine::Underline ) {
+    if ( textFlags & Qt::Underline ) {
     	int pos = fe->underlinePosition();
 	qt_draw_transformed_rect( p, x1, baseline+pos, w, lw, TRUE );
     }
-    if ( textFlags & QFontEngine::Overline ) {
+    if ( textFlags & Qt::Overline ) {
 	int pos = fe->ascent()+1;
 	if ( !pos ) pos = 1;
 	qt_draw_transformed_rect( p, x1, baseline-pos, w, lw, TRUE );
     }
-    if ( textFlags & QFontEngine::StrikeOut ) {
+    if ( textFlags & Qt::StrikeOut ) {
 	int pos = fe->ascent()/3;
 	if ( !pos ) pos = 1;
 	qt_draw_transformed_rect( p, x1, baseline-pos, w, lw, TRUE );

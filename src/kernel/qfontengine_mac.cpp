@@ -89,7 +89,7 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine,
     glyph_t *glyphs = engine->glyphs( si );
     advance_t *advances = engine->advances( si );
     offset_t *offsets = engine->offsets( si );
-    
+
     p->updateBrush();
     if(p->backgroundMode() == Qt::OpaqueMode) {
 	glyph_metrics_t br = boundingBox(glyphs, advances, offsets, si->num_glyphs);
@@ -128,7 +128,7 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine,
     }
     if(w && textFlags != 0) {
 	int lineWidth = p->fontMetrics().lineWidth();
-	if(textFlags & Underline) {
+	if(textFlags & Qt::Underline) {
 	    Rect r;
 	    SetRect(&r, x, (y + 2) - (lineWidth / 2),
 		    x + w, (y + 2) + (lineWidth / 2));
@@ -136,7 +136,7 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine,
 		r.bottom++;
 	    PaintRect(&r);
 	}
-	if(textFlags & Overline) {
+	if(textFlags & Qt::Overline) {
 	    int spos = ascent() + 1;
 	    Rect r;
 	    SetRect(&r, x, (y - spos) - (lineWidth / 2),
@@ -145,7 +145,7 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine,
 		r.bottom++;
 	    PaintRect(&r);
 	}
-	if(textFlags & StrikeOut) {
+	if(textFlags & Qt::StrikeOut) {
 	    int spos = ascent() / 3;
 	    if(!spos)
 		spos = 1;

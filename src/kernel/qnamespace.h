@@ -118,7 +118,12 @@ public:
 	ShowPrefix	= 0x0400,
 	WordBreak	= 0x0800,
 	BreakAnywhere = 0x1000,
-	DontPrint	= 0x2000,		// internal
+#ifndef Q_QDOC
+	DontPrint	= 0x2000,
+	Underline = 0x01000000,
+	Overline  = 0x02000000,
+	StrikeOut = 0x04000000,
+#endif
 	NoAccel = 0x4000
     };
 

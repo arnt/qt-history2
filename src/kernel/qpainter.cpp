@@ -384,7 +384,6 @@ typedef QPtrStack<QWMatrix> QWMatrixStack;
 	boundaries.
     \value BreakAnywhere Breaks lines anywhere, even within words.
     \value NoAccel Same as ShowPrefix but doesn't draw the underlines.
-    \value DontPrint (internal)
 
     You can use as many modifier flags as you want, except that \c
     SingleLine and \c WordBreak cannot be combined.
@@ -2957,7 +2956,7 @@ void qt_format_text( const QFont& font, const QRect &_r,
 		continue;
 	    int textFlags = 0;
 	    if ( !noaccel && numUnderlines > cUlChar && ti.from() == underlinePositions[cUlChar] ) {
-		textFlags = QFontEngine::Underline;
+		textFlags = Qt::Underline;
 		cUlChar++;
 	    }
 #ifdef Q_WS_X11
