@@ -184,9 +184,9 @@ static const char * const link_xpm[] = {
 ".............aXXXXXXXXXa",
 ".............aaaaaaaaaaa"};
 
-//#ifndef QT_NO_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
 
-#define QDND_DEBUG
+//#define QDND_DEBUG
 
 #ifdef QDND_DEBUG
 QString dragActionsToString(QDrag::DropActions actions)
