@@ -52,8 +52,6 @@ bool QGLFormat::hasOpenGLOverlays()
     return true;
 }
 
-
-
 /*****************************************************************************
   QGLContext AGL-specific code
  *****************************************************************************/
@@ -225,25 +223,31 @@ void QGLContext::updatePaintDevice()
     if(d->paintDevice->devType() == QInternal::Widget) {
         QWidget *w = (QWidget *)d->paintDevice;
         aglSetDrawable((AGLContext)cx, GetWindowPort((WindowPtr)d->paintDevice->handle()));
+        qDebug("setting on %s %p", w->className(), (WindowPtr)d->paintDevice->handle());
+
         if(!w->isTopLevel()) {
             if(!aglIsEnabled((AGLContext)cx, AGL_BUFFER_RECT))
                 aglEnable((AGLContext)cx, AGL_BUFFER_RECT);
-            if(aglIsEnabled((AGLContext)cx, AGL_CLIP_REGION))
-                aglDisable((AGLContext)cx, AGL_CLIP_REGION);
 
-            QRegion clp = qt_cast<QGLWidget*>(w)->d_func()->clippedRegion();
+            QRegion clp = w->d_func()->clippedRegion();
+            QVector<QRect> rs = clp.rects();
+            for(int i = 0; i < rs.count(); i++)
+                qDebug("%d %d %d %d", rs[i].x(), rs[i].y(), rs[i].width(), rs[i].height());
+
             if(clp.isEmpty()) {
                 GLint offs[4] = { 0, 0, 0, 0 };
                 aglSetInteger((AGLContext)cx, AGL_BUFFER_RECT, offs);
+                if(aglIsEnabled((AGLContext)cx, AGL_CLIP_REGION))
+                    aglDisable((AGLContext)cx, AGL_CLIP_REGION);
             } else {
                 QPoint mp(posInWindow(w));
                 int window_height = w->topLevelWidget()->height();
-                window_height -= window_height - qt_cast<QGLWidget*>(w->topLevelWidget())->d_func()->clippedRegion(false).boundingRect().height(); //mask?
+                window_height -= window_height - w->topLevelWidget()->d_func()->clippedRegion(false).boundingRect().height(); //mask?
                 GLint offs[4] = { mp.x(), window_height - (mp.y() + w->height()), w->width(), w->height() };
                 aglSetInteger((AGLContext)cx, AGL_BUFFER_RECT, offs);
                 aglSetInteger((AGLContext)cx, AGL_CLIP_REGION, (const GLint *)clp.handle(true));
                 if(!aglIsEnabled((AGLContext)cx, AGL_CLIP_REGION))
-                    aglEnable((AGLContext)cx, AGL_CLIP_REGION); //re-enable it..
+                    aglEnable((AGLContext)cx, AGL_CLIP_REGION);
             }
         }
     } else if(d->paintDevice->devType() == QInternal::Pixmap) {
@@ -341,9 +345,9 @@ void QGLWidget::init(QGLContext *context, const QGLWidget* shareWidget)
 {
     d->glcx = d->olcx = 0;
     d->autoSwap = true;
-    { //just make it black..
+    { //just make it black (for now)..
         QPalette p = palette(); 
-        p.setColor(backgroundRole(), black); 
+        p.setColor(QPalette::Background, black); 
         setPalette(p);
     }
 
