@@ -89,6 +89,59 @@ struct SWCursorData {
 static int optype;
 static int lastop;
 
+// Return a value for how close a is to b
+// Lower is better
+static inline int match(QRgb a,QRgb b)
+{
+    int ret;
+
+#if defined(QWS_DEPTH_8)
+    int h1,s1,v1;
+    int h2,s2,v2;
+    /*
+    QColor tmp1(a);
+    QColor tmp2(b);
+    tmp1.hsv(&h1,&s1,&v1);
+    tmp2.hsv(&h2,&s2,&v2);
+    */
+    h1=qRed(a);
+    s1=qGreen(a);
+    v1=qBlue(a);
+    h2=qRed(b);
+    s2=qGreen(b);
+    v2=qBlue(b);
+    ret=abs(h1-h2);
+    ret+=abs(s1-s2);
+    ret+=abs(v1-v2);
+#else
+    ret=abs(qGray(a)-qGray(b));
+#endif
+
+    return ret;
+}
+
+inline unsigned int closestMatch(int r,int g,int b)
+{
+    QRgb * clut=qt_screen->clut();
+    int clutcols=qt_screen->numCols();
+    if(r>255 || g>255 || b>255 || r<0 || g<0 || b<0)
+	abort();
+
+    QRgb tomatch=qRgb(r,g,b);
+    int loopc;
+    unsigned int hold=0xfffff;
+    unsigned int tmp;
+    int pos=0;
+    for(loopc=0;loopc<clutcols;loopc++) {
+	tmp=match(clut[loopc],tomatch);
+	if(tmp<hold) {
+	    hold=tmp;
+	    pos=loopc;
+	}
+    }
+    return pos;
+}
+
 QScreenCursor::QScreenCursor()
 {
 }
@@ -355,8 +408,13 @@ void QScreenCursor::drawCursor()
 	}
     } else if (depth == 8) {
 	unsigned char *dptr = (unsigned char *)dest;
-	unsigned int srcval;
+        unsigned int srcval;
 	int av,r,g,b;
+	QRgb * screenclut=qt_screen->clut();
+	// Cache lookups for non alpha-blended colours
+	int cr,cg,cb;
+	cr=-1;
+	int cc=0;
 	for (int row = startRow; row < endRow; row++)
 	{
 	    for (int col = startCol; col < endCol; col++)
@@ -364,10 +422,22 @@ void QScreenCursor::drawCursor()
 		srcval = clut[*(srcptr+col)];
 		av = srcval >> 24;
 		if (av == 0xff) {
-		    r = (srcval & 0xff0000) >> 21;
-		    g = (srcval & 0xff00) >> 14;
-		    b = (srcval & 0xff) >> 5;
-		    *(dptr+col) = (r << 5) | (g << 3) | b;
+		    r = (srcval & 0xff0000) >> 16;
+		    g = (srcval & 0xff00) >> 8;
+		    b = srcval & 0xff;
+		    if(cr==r && cg==g && cb==b) {
+			*(dptr+col)=cc;
+		    } else {
+#if defined(QWS_DEPTH_8GRAYSCALE)
+			cc=qGray(r,g,b);
+#elif defined(QWS_DEPTH_8DIRECT)
+			cc=((r >> 5) << 5) | ((g>> 6) << 3) |
+				(b >> 5);
+#else
+			cc=closestMatch(r,g,b);
+#endif
+			*(dptr+col) = cc;
+		    }
 		}
 		else if (av != 0) {
 		    // This is absolutely silly - but we can so we do.
@@ -375,14 +445,21 @@ void QScreenCursor::drawCursor()
 		    g = (srcval & 0xff00) >> 8;
 		    b = srcval & 0xff;
 
-		    unsigned short hold = *(dptr+col);
-		    int or=(hold & 0xe0) >> 5;
-		    int og=(hold & 0x18) >> 3;
-		    int ob=(hold & 0x07);
-		    or=or << 5;
-		    og=og << 6;
-		    ob=ob << 5;
-
+		    unsigned char hold = *(dptr+col);
+		    int or,og,ob;
+#if defined(QWS_DEPTH_8GRAYSCALE)
+		    or=hold;
+		    og=hold;
+		    ob=hold;
+#elif defined(QWS_DEPTH_8DIRECT)
+		    or=((hold & 0xe0) >> 5) << 5;
+		    og=((hold & 0x18) >> 3) << 6;
+		    ob=(hold & 0x07) << 5;
+#else
+		    or=qRed(screenclut[hold]);
+		    og=qGreen(screenclut[hold]);
+		    ob=qBlue(screenclut[hold]);
+#endif
 		    r-=or;
 		    g-=og;
 		    b-=ob;
@@ -393,11 +470,14 @@ void QScreenCursor::drawCursor()
 		    g+=og;
 		    b+=ob;
 
-		    r=r >> 5;
-		    g=g >> 6;
-		    b=b >> 5;
-
-		    *(dptr+col) = (r << 5) | (g << 3) | b;
+#if defined(QWS_DEPTH_8GRAYSCALE)
+		    *(dptr+col)=qGray(r,g,b);
+#elif defined(QWS_DEPTH_8DIRECT)
+		    *(dptr+col)=((r >> 5) << 5) | ((g>> 6) << 3) |
+				(b >> 5);
+#else
+		    *(dptr+col) = closestMatch(r,g,b);
+#endif
 		}
 	    }
 	    srcptr += data->width;
@@ -1042,58 +1122,6 @@ static inline void
 qgfx_vga16_set_write_planes(int mask)
 {
     qgfx_vga_io_w_fast( 0x3C4, 2, mask );
-}
-
-// Return a value for how close a is to b
-// Lower is better
-static inline int match(QRgb a,QRgb b)
-{
-    int ret;
-
-#if defined(QWS_DEPTH_8)
-    int h1,s1,v1;
-    int h2,s2,v2;
-    /*
-    QColor tmp1(a);
-    QColor tmp2(b);
-    tmp1.hsv(&h1,&s1,&v1);
-    tmp2.hsv(&h2,&s2,&v2);
-    */
-    h1=qRed(a);
-    s1=qGreen(a);
-    v1=qBlue(a);
-    h2=qRed(b);
-    s2=qGreen(b);
-    v2=qBlue(b);
-    ret=abs(h1-h2);
-    ret+=abs(s1-s2);
-    ret+=abs(v1-v2);
-#else
-    ret=abs(qGray(a)-qGray(b));
-#endif
-
-    return ret;
-}
-
-template <const int depth, const int type>
-inline unsigned int QGfxRaster<depth,type>::closestMatch(int r,int g,int b)
-{
-    if(r>255 || g>255 || b>255 || r<0 || g<0 || b<0)
-	abort();
-
-    QRgb tomatch=qRgb(r,g,b);
-    int loopc;
-    unsigned int hold=0xfffff;
-    unsigned int tmp;
-    int pos=0;
-    for(loopc=0;loopc<clutcols;loopc++) {
-	tmp=match(clut[loopc],tomatch);
-	if(tmp<hold) {
-	    hold=tmp;
-	    pos=loopc;
-	}
-    }
-    return pos;
 }
 
 template<const int depth,const int type>
@@ -3115,7 +3143,7 @@ void QGfxRaster<depth,type>::drawRect( int rx,int ry,int w,int h )
 	    *(sp+5)=pixel;
 	    *(sp+6)=pixel;
 	    *(sp+7)=pixel;
-	    
+	
 	    int add=linestep();
 	    add-=(frontadd+(count * 8)+backadd);
 
@@ -3847,17 +3875,12 @@ bool QScreen::initCard()
 	    screenclut[loopc]=qRgb(loopc,loopc,loopc);
 #else
 	    int a,b,c;
-	    /*
 	    a=((loopc & 0xe0) >> 5) << 5;
 	    b=((loopc & 0x18) >> 3) << 6;
 	    c=(loopc & 0x07) << 5;
 	    a=a | 0x3f;
 	    b=b | 0x3f;
 	    c=c | 0x3f;
-	    */
-	    a=rand() & 0xff;
-	    b=rand() & 0xff;
-	    c=rand() & 0xff;
 	    cmap.red[loopc]=a << 8;
 	    cmap.green[loopc]=b << 8;
 	    cmap.blue[loopc]=c << 8;

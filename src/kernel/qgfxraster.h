@@ -231,7 +231,6 @@ public:
     virtual void setBrush( const QBrush & );
 
     void buildSourceClut(QRgb *,int);
-    unsigned int closestMatch(int,int,int);
 
 protected:
 
