@@ -1288,15 +1288,15 @@ void QDateEdit::setDate( const QDate& date )
 	d->m = 0;
 	d->d = 0;
 	d->dayCache = 0;
-	return;
+    } else {
+	if ( date > maxValue() || date < minValue() )
+	    return;
+	d->y = date.year();
+	d->m = date.month();
+	d->d = date.day();
+	d->dayCache = d->d;
+	emit valueChanged( date );
     }
-    if ( date > maxValue() || date < minValue() )
-	return;
-    d->y = date.year();
-    d->m = date.month();
-    d->d = date.day();
-    d->dayCache = d->d;
-    emit valueChanged( date );
     d->changed = FALSE;
     d->ed->repaint( d->ed->rect(), FALSE );
 }
@@ -1794,14 +1794,14 @@ void QTimeEdit::setTime( const QTime& time )
 	d->h = 0;
 	d->m = 0;
 	d->s = 0;
-	return;
+    } else {
+	if ( time > maxValue() || time < minValue() )
+	    return;
+	d->h = time.hour();
+	d->m = time.minute();
+	d->s = time.second();
+	emit valueChanged( time );
     }
-    if ( time > maxValue() || time < minValue() )
-	return;
-    d->h = time.hour();
-    d->m = time.minute();
-    d->s = time.second();
-    emit valueChanged( time );
     d->changed = FALSE;
     d->ed->repaint( d->ed->rect(), FALSE );
 }
