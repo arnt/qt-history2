@@ -1087,7 +1087,7 @@ static inline bool qt_mac_update_cg(QCoreGraphicsGCPrivate *paint_d)
   QCoreGraphicsGC member functions
  *****************************************************************************/
 
-QCoreGraphicsGC::QCoreGraphicsGC(const QPaintDevice *pdev)
+QCoreGraphicsGC::QCoreGraphicsGC(const QPaintDevice *pdev) : QQuickDrawGC(pdev)
 {
     d = new QCoreGraphicsGCPrivate;
     d->pdev = const_cast<QPaintDevice*>(pdev);

@@ -94,7 +94,7 @@ private:
 
 #ifdef USE_CORE_GRAPHICS
 class QCoreGraphicsGCPrivate;
-class QCoreGraphicsGC : public QAbstractGC
+class QCoreGraphicsGC : public QQuickDrawGC //for now we include QuickDraw to get things working, we *must* remove it later ### --Sam
 {
 public:
     QCoreGraphicsGC(const QPaintDevice *);
