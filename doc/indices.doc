@@ -13,20 +13,18 @@
 /*! 
 
 \page index.html
-
-\title Qt Reference Documentation
-
-<table cellpadding=2 cellspacing=1 border=0 width=100% bgcolor=#e5e5e5>
-<tr bgcolor=white><td colspan=3 align=center>
 \if defined(commercial)
-<h1>Qt Reference Documentation (Commercial Edition)</h1><br></td></tr>
+\title Qt Reference Documentation (Commercial Edition)
 \endif
 \if !defined(commercial)
-<h1>Qt Reference Documentation (Free Edition)</h1></td>
-<tr bgcolor=white><td colspan=3 align=center><br><b>Notice</b>: This edition is
+\title Qt Reference Documentation (Free Edition)
+\endif
+<table cellpadding=2 cellspacing=1 border=0 width=100% bgcolor=#e5e5e5>
+\if !defined(commercial)
+<tr bgcolor=white><td colspan=3 align=center><b>Notice</b>: This edition is
 for the development of \link freeeditions.html Free and Open
 Source\endlink software only; see \link commercialeditions.html
-Commercial Editions\endlink.<br><br></td></tr>
+Commercial Editions\endlink.</td></tr>
 \endif
 <tr>
 <th bgcolor=#a2c511 width=33%>
