@@ -212,7 +212,7 @@ The @Func convert() slot is called when the user clicks the @Button
 Convert button. It opens the connection and sends a @F CONV request
 (e.g. @F CONV @F 100 @F EUR @F{USD}) to port 123 on the server
 @F{ccp.banca-monica.nu}. @Class QSocket automatically uses
-@Class QDns to resolve @F cpp.banca-monica.nu to its IP address. All
+@Class QDns to resolve @F ccp.banca-monica.nu to its IP address. All
 these operations are non-blocking to keep the user interface
 responsive.
   qdns @Index { QDns }

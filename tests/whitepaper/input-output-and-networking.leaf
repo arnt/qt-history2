@@ -203,7 +203,7 @@ The \Func convert() slot is called when the user clicks the \Button
 Convert button. It opens the connection and sends a \c CONV request
 (e.g. \c CONV \c 100 \c EUR \c USD) to port 123 on the server \c
 ccp.banca-monica.nu. \Class QSocket automatically uses \Class QDns to
-resolve \c cpp.banca-monica.nu to its IP address. All these
+resolve \c ccp.banca-monica.nu to its IP address. All these
 operations are non-blocking to keep the user interface responsive.
 
   \skipto ::updateTargetAmount()
