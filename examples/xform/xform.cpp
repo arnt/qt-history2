@@ -367,7 +367,7 @@ void ShowXForm::paintEvent( QPaintEvent * )
 	// ### need QPicture::boundingRect()
 	p.scale(0.25,0.25);
 	p.translate(-230,-180);
-	p.drawPicture( picture );
+	p.drawPicture( 0, 0, picture );
     }
 }
 
