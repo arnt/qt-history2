@@ -306,7 +306,7 @@ static short        mouseGlobalXPos, mouseGlobalYPos; // global mouse press posi
 extern QWidgetList *qt_modal_stack;                // stack of modal widgets
 
 // window where mouse buttons have been pressed
-static Window pressed_window = None;
+static Window pressed_window = XNone;
 
 static QWidget     *popupButtonFocus = 0;
 static QWidget     *popupOfPopupButtonFocus = 0;
