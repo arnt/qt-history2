@@ -1799,7 +1799,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
     int r = marg;
     const QPixmap * icon = pixmap( column );
 
-    p->fillRect( 0, 0, width, height(), cg.brush( QColorGroup::Base ) );
+    p->fillRect( 0, 0, width, height(), cg.brush( QPalette::backgroundRoleFromMode( lv->viewport()->backgroundMode() ) ) );
 
     // (lars) what does this do???
 #if 0 // RS: ####
@@ -2585,12 +2585,12 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
   painter p.  \a rect is is widget coordinates, ready to be fed to \a
   p.
 
-  The default function fills \a rect with the colorGroup()'s base brush.
+  The default function fills \a rect with the viewport()->backgroundBrush()
 */
 
 void QListView::paintEmptyArea( QPainter * p, const QRect & rect )
 {
-    p->fillRect( rect, colorGroup().brush( QColorGroup::Base ) );
+    p->fillRect( rect, viewport()->backgroundBrush() );
 }
 
 
@@ -5430,7 +5430,7 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
     if ( !lv )
 	return;
 
-    p->fillRect( 0, 0, width, height(), cg.brush( QColorGroup::Base ) );
+    p->fillRect( 0, 0, width, height(), cg.brush( QPalette::backgroundRoleFromMode( lv->viewport()->backgroundMode() ) ) );
 
     if ( column != 0 ) {
 	// The rest is text, or for subclasses to change.

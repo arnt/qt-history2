@@ -151,6 +151,10 @@ public:
     bool	isCopyOf( const QPalette & );
 
     int		serialNumber() const	{ return data->ser_no; }
+    
+    
+    static QColorGroup::ColorRole foregroundRoleFromMode( Qt::BackgroundMode mode );
+    static QColorGroup::ColorRole backgroundRoleFromMode( Qt::BackgroundMode mode);
 
 private:
     void	detach();

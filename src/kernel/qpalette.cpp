@@ -1011,6 +1011,62 @@ QBrush &QPalette::directBrush( ColorGroup gr, QColorGroup::ColorRole r ) const
 }
 
 
+/*!\internal*/
+QColorGroup::ColorRole QPalette::foregroundRoleFromMode( Qt::BackgroundMode mode )
+{
+    switch (mode) {
+    case Qt::PaletteButton:
+	return QColorGroup::ButtonText;
+    case Qt::PaletteBase:
+	return QColorGroup::Text;
+    case Qt::PaletteBackground:
+    default:
+	return QColorGroup::Foreground;
+    }
+}
+
+/*!\internal*/
+QColorGroup::ColorRole QPalette::backgroundRoleFromMode( Qt::BackgroundMode mode)
+{
+    switch (mode) {
+    case Qt::PaletteForeground:
+	return QColorGroup::Foreground;
+    case Qt::PaletteButton:
+	return QColorGroup::Button;
+    case Qt::PaletteLight:
+	return QColorGroup::Light;
+    case Qt::PaletteMidlight:
+	return QColorGroup::Midlight;
+    case Qt::PaletteDark:
+	return QColorGroup::Dark;
+    case Qt::PaletteMid:
+	return QColorGroup::Mid;
+    case Qt::PaletteText:
+	return QColorGroup::Text;
+    case Qt::PaletteBrightText:
+	return QColorGroup::BrightText;
+    case Qt::PaletteButtonText:
+	return QColorGroup::ButtonText;
+    case Qt::PaletteBase:
+	return QColorGroup::Base;
+    case Qt::PaletteShadow:
+	return QColorGroup::Shadow;
+    case Qt::PaletteHighlight:
+	return QColorGroup::Highlight;
+    case Qt::PaletteHighlightedText:
+	return QColorGroup::HighlightedText;
+    case Qt::PaletteLink:
+	return QColorGroup::Link;
+    case Qt::PaletteLinkVisited:
+	return QColorGroup::LinkVisited;
+    case Qt::PaletteBackground:
+    default:
+	return QColorGroup::Background;
+    }
+}
+
+
+
 
 /*! \base64 palette.png
 

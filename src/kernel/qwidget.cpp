@@ -1909,58 +1909,6 @@ QWidget *QWidget::topLevelWidget() const
     return w;
 }
 
-static QColorGroup::ColorRole foregroundRoleFromMode( Qt::BackgroundMode mode )
-{
-    switch (mode) {
-    case Qt::PaletteButton:
-	return QColorGroup::ButtonText;
-    case Qt::PaletteBase:
-	return QColorGroup::Text;
-    case Qt::PaletteBackground:
-    default:
-	return QColorGroup::Foreground;
-    }
-}
-
-static QColorGroup::ColorRole backgroundRoleFromMode( Qt::BackgroundMode mode)
-{
-    switch (mode) {
-    case Qt::PaletteForeground:
-	return QColorGroup::Foreground;
-    case Qt::PaletteButton:
-	return QColorGroup::Button;
-    case Qt::PaletteLight:
-	return QColorGroup::Light;
-    case Qt::PaletteMidlight:
-	return QColorGroup::Midlight;
-    case Qt::PaletteDark:
-	return QColorGroup::Dark;
-    case Qt::PaletteMid:
-	return QColorGroup::Mid;
-    case Qt::PaletteText:
-	return QColorGroup::Text;
-    case Qt::PaletteBrightText:
-	return QColorGroup::BrightText;
-    case Qt::PaletteButtonText:
-	return QColorGroup::ButtonText;
-    case Qt::PaletteBase:
-	return QColorGroup::Base;
-    case Qt::PaletteShadow:
-	return QColorGroup::Shadow;
-    case Qt::PaletteHighlight:
-	return QColorGroup::Highlight;
-    case Qt::PaletteHighlightedText:
-	return QColorGroup::HighlightedText;
-    case Qt::PaletteLink:
-	return QColorGroup::Link;
-    case Qt::PaletteLinkVisited:
-	return QColorGroup::LinkVisited;
-    case Qt::PaletteBackground:
-    default:
-	return QColorGroup::Background;
-    }
-}
-
 
 /*! \property QWidget::foregroundColor
     \brief the foreground color of the widget
@@ -1978,7 +1926,7 @@ const QColor &QWidget::foregroundColor() const
 {
 #ifndef QT_NO_PALETTE
     BackgroundMode mode = extra ? (BackgroundMode) extra->bg_mode_visual : PaletteBackground;
-    return palette().color( QPalette::Active, foregroundRoleFromMode(mode) );
+    return palette().color( QPalette::Active, QPalette::foregroundRoleFromMode(mode) );
 #else
     return Qt::black;
 #endif
@@ -1989,7 +1937,7 @@ void QWidget::setForegroundColor( const QColor & color )
 #ifndef QT_NO_PALETTE
     BackgroundMode mode = extra ? (BackgroundMode) extra->bg_mode_visual : PaletteBackground;
     QPalette pal = palette();
-    QColorGroup::ColorRole role = foregroundRoleFromMode( mode );
+    QColorGroup::ColorRole role = QPalette::foregroundRoleFromMode( mode );
     pal.setColor( QPalette::Active, role, color );
     pal.setColor( QPalette::Inactive, role, color );
     pal.setColor( QPalette::Disabled, role, color );
@@ -2017,6 +1965,7 @@ void QWidget::setEraseColor( const QColor & color )
 {
     setBackgroundModeDirect( FixedColor );
     setBackgroundColorDirect( color );
+    update();
 }
 
 /*!
@@ -2039,6 +1988,7 @@ void QWidget::setErasePixmap( const QPixmap &pixmap )
     // This function is called with a null pixmap by setBackgroundEmpty().
     setBackgroundPixmapDirect( pixmap );
     setBackgroundModeDirect( FixedPixmap );
+    update();
 }
 
 void QWidget::setBackgroundFromMode()
@@ -2270,7 +2220,7 @@ const QColor & QWidget::backgroundColor() const
     case X11ParentRelative:
 	return eraseColor();
     default:
-	QColorGroup::ColorRole role = backgroundRoleFromMode( mode );
+	QColorGroup::ColorRole role = QPalette::backgroundRoleFromMode( mode );
 	return colorGroup().color( role );
     }
 #else
@@ -2291,7 +2241,7 @@ void QWidget::setBackgroundColor( const QColor &color )
 	break;
     default:
 	QPalette pal = palette();
-	QColorGroup::ColorRole role = backgroundRoleFromMode( mode );
+	QColorGroup::ColorRole role = QPalette::backgroundRoleFromMode( mode );
 	pal.setColor( QPalette::Active, role, color );
 	pal.setColor( QPalette::Inactive, role, color );
 	pal.setColor( QPalette::Disabled, role, color );
@@ -2331,7 +2281,7 @@ const QPixmap *QWidget::backgroundPixmap() const
     case X11ParentRelative:
 	return erasePixmap();
     default:
-	QColorGroup::ColorRole role = backgroundRoleFromMode( mode );
+	QColorGroup::ColorRole role = QPalette::backgroundRoleFromMode( mode );
 	return palette().brush( QPalette::Active, role ).pixmap();
     }
 #else
@@ -2352,7 +2302,7 @@ void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 	break;
     default:
 	QPalette pal = palette();
-	QColorGroup::ColorRole role = backgroundRoleFromMode( mode );
+	QColorGroup::ColorRole role = QPalette::backgroundRoleFromMode( mode );
 	pal.setBrush( QPalette::Active, role, QBrush( pal.color( QPalette::Active, role ), pixmap ) );
 	pal.setBrush( QPalette::Inactive, role, QBrush( pal.color( QPalette::Inactive, role ), pixmap ) );
 	pal.setBrush( QPalette::Disabled, role, QBrush( pal.color( QPalette::Disabled, role ), pixmap ) );
@@ -2382,7 +2332,7 @@ const QBrush& QWidget::backgroundBrush() const
     case X11ParentRelative:
 	return noBrush;
     default:
-	QColorGroup::ColorRole role = backgroundRoleFromMode( mode );
+	QColorGroup::ColorRole role = QPalette::backgroundRoleFromMode( mode );
 	return colorGroup().brush( role );
     }
 #else

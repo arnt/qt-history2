@@ -3446,7 +3446,7 @@ void QListBox::viewportPaintEvent( QPaintEvent * e )
     if ( r.isEmpty() )
 	return;
     p.setClipRegion( r );
-    p.fillRect( 0, 0, w, h, g.brush( QColorGroup::Base ) );
+    p.fillRect( 0, 0, w, h, viewport()->backgroundBrush() );
 }
 
 

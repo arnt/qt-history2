@@ -539,7 +539,7 @@ void QTableItem::paint( QPainter *p, const QColorGroup &cg,
 {
     p->fillRect( 0, 0, cr.width(), cr.height(),
 		 selected ? cg.brush( QColorGroup::Highlight )
-			  : cg.brush( QColorGroup::Base ) );
+			  : table()->viewport()->backgroundBrush() );
 
     int w = cr.width();
     int h = cr.height();
@@ -1187,7 +1187,7 @@ void QCheckTableItem::paint( QPainter *p, const QColorGroup &cg,
 {
     p->fillRect( 0, 0, cr.width(), cr.height(),
 		 selected ? cg.brush( QColorGroup::Highlight )
-			  : cg.brush( QColorGroup::Base ) );
+			  : table()->viewport()->backgroundBrush() );
 
 //     int w = cr.width();
 //     int h = cr.height();
@@ -2212,7 +2212,7 @@ void QTable::paintCell( QPainter* p, int row, int col,
 	itm->paint( p, cg, cr, selected );
 	p->restore();
     } else {
-	p->fillRect( 0, 0, w, h, selected ? cg.brush( QColorGroup::Highlight ) : cg.brush( QColorGroup::Base ) );
+	p->fillRect( 0, 0, w, h, selected ? cg.brush( QColorGroup::Highlight ) : viewport()->backgroundBrush() );
     }
 
     if ( sGrid ) {
@@ -2278,7 +2278,7 @@ void QTable::paintEmptyArea( QPainter *p, int cx, int cy, int cw, int ch )
     // And draw the rectangles (transformed as needed)
     QMemArray<QRect> r = reg.rects();
     for ( int i = 0; i < (int)r.count(); ++i)
-	p->fillRect( r[ i ], colorGroup().brush( QColorGroup::Base ) );
+	p->fillRect( r[ i ], viewport()->backgroundBrush() );
 }
 
 /*! Returns the QTableItem representing the contents of the cell at \a

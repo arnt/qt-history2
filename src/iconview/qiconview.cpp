@@ -2621,7 +2621,8 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     setMouseTracking( TRUE );
     viewport()->setMouseTracking( TRUE );
 
-    viewport()->setBackgroundMode( PaletteBase );
+    viewport()->setBackgroundMode( PaletteBase);
+    setBackgroundMode( PaletteBackground, PaletteBase );
     viewport()->setFocusProxy( this );
     viewport()->setFocusPolicy( QWidget::WheelFocus );
 
@@ -5194,15 +5195,16 @@ void QIconView::initDragEnter( QDropEvent *e )
   This function is called to draw the rectangle \a r of the background using
   the painter \a p.
 
-  The default implementation fills \a r with the colorGroup()'s base brush.
-  Subclasses may reimplement this to draw custom backgrounds.
+  The default implementation fills \a r with the viewport's
+  backgroundBrush().  Subclasses may reimplement this to draw custom
+  backgrounds.
 
   \sa contentsX() contentsY() drawContents()
 */
 
 void QIconView::drawBackground( QPainter *p, const QRect &r )
 {
-    p->fillRect( r, colorGroup().brush( QColorGroup::Base ) );
+    p->fillRect( r, viewport()->backgroundBrush() );
 }
 
 /*!
