@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#79 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#80 $
 **
 ** Implementation of QLabel widget class
 **
@@ -135,6 +135,7 @@ QLabel::QLabel( const char *text, QWidget *parent, const char *name, WFlags f )
     align      = AlignLeft | AlignVCenter | ExpandTabs;
     extraMargin= -1;
     autoresize = FALSE;
+    extra      = 0;
 }
 
 
@@ -171,6 +172,7 @@ QLabel::QLabel( QWidget *buddy,  const char *text,
     align      = ShowPrefix | AlignLeft | AlignVCenter | ExpandTabs;
     extraMargin= -1;
     autoresize = FALSE;
+    extra      = 0;
     setBuddy( buddy );
     setText( text );
 }
