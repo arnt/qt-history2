@@ -111,7 +111,7 @@ class QDesignerTabWidget : public QTabWidget
     Q_PROPERTY( QString pageTitle READ pageTitle WRITE setPageTitle STORED false DESIGNABLE true )
     Q_PROPERTY( QCString pageName READ pageName WRITE setPageName STORED false DESIGNABLE true )
 public:
-    QDesignerTabWidget( QWidget *parent, const char *name ) : QTabWidget( parent, name ) {}
+    QDesignerTabWidget( QWidget *parent, const char *name );
 
     int currentPage() const;
     void setCurrentPage( int i );
@@ -123,6 +123,14 @@ public:
     int count() const;
     QTabBar *tabBar() const { return QTabWidget::tabBar(); }
 
+    bool eventFilter( QObject*, QEvent* );
+
+protected:
+    void moveCurrentPage( QPoint newpos );
+
+private:
+    QPoint pressPoint;
+    bool mousePressed;
 };
 
 class QDesignerWizard : public QWizard

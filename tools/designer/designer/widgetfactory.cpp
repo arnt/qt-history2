@@ -132,6 +132,71 @@ int QDesignerTabWidget::count() const
     return tabBar()->count();
 }
 
+QDesignerTabWidget::QDesignerTabWidget( QWidget *parent, const char *name )
+    : QTabWidget( parent, name ), mousePressed( FALSE )
+{
+    tabBar()->setAcceptDrops( true );
+    tabBar()->installEventFilter( this );
+}
+
+bool QDesignerTabWidget::eventFilter( QObject *o, QEvent *e )
+{
+    if ( o != tabBar() ) return FALSE;
+
+    QMouseEvent *me;
+    QDragEnterEvent *de;
+
+    switch ( e->type() ) {
+        case QEvent::MouseButtonPress:
+            mousePressed = true;
+            me = (QMouseEvent*)e;
+            pressPoint = me->pos();
+            break;
+        case QEvent::MouseMove:
+            me = (QMouseEvent*)e;
+            if ( mousePressed && ( pressPoint - me->pos()).manhattanLength() > QApplication::startDragDistance() ) {
+                QTextDrag *drg = new QTextDrag( "tab move" , this );
+                mousePressed = false;
+                drg->dragCopy();
+            }
+            break;
+        case QEvent::DragMove:
+            de = (QDragEnterEvent*) e;
+            if ( QTextDrag::canDecode( de ) )
+                de->accept();
+            break;
+        case QEvent::Drop:
+            de = (QDragEnterEvent*) e;
+            if ( QTextDrag::canDecode( de ) ) {
+                QString text;
+                QTextDrag::decode( de, text );
+                if ( text == "tab move" ) {
+                    moveCurrentPage( de->pos() );
+                    de->accept();
+                }
+            }
+        default:
+            break;
+    }
+    return FALSE;
+}
+
+void QDesignerTabWidget::moveCurrentPage( QPoint newpos )
+{
+    int index = 0;
+    for ( ; index < tabBar()->count(); index++ ) {
+        if ( tabBar()->tabAt( index )->r.contains( newpos ) )
+            break;
+    }
+
+    // move current page
+    QWidget *p = QTabWidget::currentPage();
+    if ( !p ) return;
+
+    QString l = QTabWidget::tabLabel( QTabWidget::currentPage() );
+    removePage( p );
+    insertTab( p, l, index );
+}
 
 int QDesignerWizard::currentPageNum() const
 {
