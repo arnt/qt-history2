@@ -516,7 +516,7 @@
     */
     #define QT_NO_COMBOBOX
 #endif    
-#if defined(QT_NO_COMPLEXWIDGETS) || defined(QT_NO_DRAGANDDROP) || defined(QT_NO_HEADER)
+#if defined(QT_NO_COMPLEXWIDGETS) || defined(QT_NO_HEADER)
     /*!
 	QIconView
     */

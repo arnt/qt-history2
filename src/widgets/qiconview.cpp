@@ -1764,9 +1764,11 @@ void QIconViewItem::paintFocus( QPainter *p, const QColorGroup &cg )
   method.
 */
 
+#ifndef QT_NO_DRAGANDDROP
 void QIconViewItem::dropped( QDropEvent *, const QValueList<QIconDragItem> & )
 {
 }
+#endif
 
 /*!
   This method is called, when a drag entered the item's bounding rect.
@@ -3204,7 +3206,7 @@ void QIconView::ensureItemVisible( QIconViewItem *item )
 {
     if ( !item )
 	return;
-    
+
     if ( d->updateTimer && d->updateTimer->isActive() ||
 	 d->fullRedrawTimer && d->fullRedrawTimer->isActive() )
 	slotUpdate();
@@ -3939,7 +3941,9 @@ void QIconView::contentsMouseMoveEvent( QMouseEvent *e )
 	if ( ( d->dragStartPos - e->pos() ).manhattanLength() > QApplication::startDragDistance() ) {
 	    d->mousePressed = FALSE;
 	    d->cleared = FALSE;
+#ifndef QT_NO_DRAGANDDROP
 	    startDrag();
+#endif
 	    if ( d->tmpCurrentItem )
 		repaintItem( d->tmpCurrentItem );
 	}
@@ -3966,6 +3970,7 @@ void QIconView::contentsMouseDoubleClickEvent( QMouseEvent *e )
   \reimp
 */
 
+#ifndef QT_NO_DRAGANDDROP
 void QIconView::contentsDragEnterEvent( QDragEnterEvent *e )
 {
     d->dragging = TRUE;
@@ -4126,6 +4131,7 @@ void QIconView::contentsDropEvent( QDropEvent *e )
     }
     d->isIconDrag = FALSE;
 }
+#endif
 
 /*!
   \reimp
@@ -4473,6 +4479,7 @@ void QIconView::drawRubber( QPainter *p )
   \sa QIconDrag
 */
 
+#ifndef QT_NO_DRAGANDDROP
 QDragObject *QIconView::dragObject()
 {
     if ( !d->currentItem )
@@ -4536,6 +4543,8 @@ void QIconView::startDrag()
 	if ( drag->target() != viewport() )
 	    emit moved();
 }
+
+#endif
 
 /*!
   Inserts an item in the grid of the iconview. You should never need
@@ -4688,6 +4697,7 @@ void QIconView::drawDragShapes( const QPoint &pos )
   (e.g. shapes of icons which are dragged), etc.
 */
 
+#ifndef QT_NO_DRAGANDDROP
 void QIconView::initDragEnter( QDropEvent *e )
 {
     if ( QIconDrag::canDecode( e ) ) {
@@ -4702,6 +4712,7 @@ void QIconView::initDragEnter( QDropEvent *e )
     }
 
 }
+#endif
 
 /*!
   This method is called to draw the rectangle \a r of the background using

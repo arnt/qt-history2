@@ -196,7 +196,9 @@ protected:
     virtual void calcRect( const QString &text_ = QString::null );
     virtual void paintItem( QPainter *p, const QColorGroup &cg );
     virtual void paintFocus( QPainter *p, const QColorGroup &cg );
+#ifndef QT_NO_DRAGANDDROP
     virtual void dropped( QDropEvent *e, const QValueList<QIconDragItem> &lst );
+#endif
     virtual void dragEntered();
     virtual void dragLeft();
     void setItemRect( const QRect &r );
@@ -385,7 +387,9 @@ signals:
     void mouseButtonPressed( int button, QIconViewItem* item, const QPoint& pos );
     void mouseButtonClicked( int button, QIconViewItem* item, const QPoint& pos );
 
+#ifndef QT_NO_DRAGANDDROP
     void dropped( QDropEvent *e, const QValueList<QIconDragItem> &lst );
+#endif
     void moved();
     void onItem( QIconViewItem *item );
     void onViewport();
@@ -407,10 +411,14 @@ protected:
     virtual void contentsMouseReleaseEvent( QMouseEvent *e );
     virtual void contentsMouseMoveEvent( QMouseEvent *e );
     virtual void contentsMouseDoubleClickEvent( QMouseEvent *e );
+
+#ifndef QT_NO_DRAGANDDROP
     virtual void contentsDragEnterEvent( QDragEnterEvent *e );
     virtual void contentsDragMoveEvent( QDragMoveEvent *e );
     virtual void contentsDragLeaveEvent( QDragLeaveEvent *e );
     virtual void contentsDropEvent( QDropEvent *e );
+#endif
+
     virtual void resizeEvent( QResizeEvent* e );
     virtual void keyPressEvent( QKeyEvent *e );
     virtual void focusInEvent( QFocusEvent *e );
@@ -418,8 +426,10 @@ protected:
     virtual void enterEvent( QEvent *e );
 
     virtual void drawRubber( QPainter *p );
+#ifndef QT_NO_DRAGANDDROP
     virtual QDragObject *dragObject();
     virtual void startDrag();
+#endif
     virtual void insertInGrid( QIconViewItem *item );
     virtual void drawBackground( QPainter *p, const QRect &r );
 
@@ -432,7 +442,9 @@ protected:
 
 private:
     virtual void drawDragShapes( const QPoint &pnt );
+#ifndef QT_NO_DRAGANDDROP
     virtual void initDragEnter( QDropEvent *e );
+#endif
     void drawContents( QPainter* );
     void findItemByName( const QString &text );
     void handleItemChange( QIconViewItem *old, bool shift, bool control );
