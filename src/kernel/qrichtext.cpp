@@ -2548,19 +2548,23 @@ void QTextDocument::doLayout( QPainter *p, int w )
     flow_->setWidth( w );
     cw = w;
     vw = w;
-    fCollection->setPainter( p );
+    if ( is_printer( p ) )
+	fCollection->setPainter( p );
     QTextParag *parag = fParag;
     while ( parag ) {
 	parag->invalidate( 0 );
-	parag->setPainter( p, TRUE );
+	if ( is_printer( p ) )
+	    parag->setPainter( p, TRUE );
 	parag->format();
 	parag = parag->next();
     }
 
-    fCollection->setPainter( 0 );
+    if ( is_printer( p ) )
+	fCollection->setPainter( 0 );
     parag = fParag;
     while ( parag ) {
-	parag->setPainter( 0, FALSE );
+	if ( is_printer( p ) )
+	    parag->setPainter( 0, FALSE );
 	parag = parag->next();
     }
 }
