@@ -221,93 +221,103 @@ MakefileGenerator::setProjectFile(QMakeProject *p)
         processPrlFiles();
 }
 
+QStringList
+MakefileGenerator::findFilesInVPATH(QStringList l, VPATHMIssingFiles missing, const QString &vpath_var)
+{
+    QStringList vpath;
+    QMap<QString, QStringList> &v = project->variables();
+    for(int val_it = 0; val_it < l.count(); ) {
+        bool remove_file = false;
+        QString &val = l[val_it];
+        if(!val.isEmpty()) {
+            QString file = fileFixify(val, qmake_getpwd(), Option::output_dir);
+            if (file.at(0) == '\"' && file.at(file.length() - 1) == '\"')
+                file = file.mid(1, file.length() - 2);
+
+            if(exists(file)) {
+                ++val_it;
+                continue;
+            }
+            bool found = false;
+            if(QDir::isRelativePath(val)) {
+                if(vpath.isEmpty()) {
+                    if(!vpath_var.isEmpty())
+                        vpath = v[vpath_var];
+                    vpath += v["VPATH"] + v["QMAKE_ABSOLUTE_SOURCE_PATH"] + v["DEPENDPATH"];
+                }
+                for(QStringList::Iterator vpath_it = vpath.begin();
+                    vpath_it != vpath.end(); ++vpath_it) {
+                    QString real_dir = Option::fixPathToLocalOS((*vpath_it));
+                    if(exists(real_dir + QDir::separator() + val)) {
+                        QString dir = (*vpath_it);
+                        if(dir.right(Option::dir_sep.length()) != Option::dir_sep)
+                            dir += Option::dir_sep;
+                        val = fileFixify(dir + val);
+                        found = true;
+                        debug_msg(1, "Found file through vpath %s -> %s",
+                                  file.toLatin1().constData(), val.toLatin1().constData());
+                        break;
+                    }
+                }
+            }
+            if(!found) {
+                QString dir, regex = val, real_dir;
+                if(regex.lastIndexOf(Option::dir_sep) != -1) {
+                    dir = regex.left(regex.lastIndexOf(Option::dir_sep) + 1);
+                    real_dir = fileFixify(Option::fixPathToLocalOS(dir),
+                                          qmake_getpwd(), Option::output_dir);
+                    regex = regex.right(regex.length() - dir.length());
+                }
+                if(real_dir.isEmpty() || exists(real_dir)) {
+                    QStringList files = QDir(real_dir).entryList(QStringList(regex));
+                    if(files.isEmpty()) {
+                        debug_msg(1, "%s:%d Failure to find %s in vpath (%s)",
+                                  __FILE__, __LINE__,
+                                  val.toLatin1().constData(), vpath.join("::").toLatin1().constData());
+                        if(missing == VPATH_RemoveMissingFiles)
+                            remove_file = true;
+                        else if(missing == VPATH_WarnMissingFiles)
+                            warn_msg(WarnLogic, "Failure to find: %s", val.toLatin1().constData());
+                    } else {
+                        l.removeAt(val_it);
+                        for(int i = (int)files.count()-1; i >= 0; i--)
+                            l.insert(val_it, fileFixify(dir + files[i]));
+                        val_it += files.count();
+                    }
+                } else {
+                    debug_msg(1, "%s:%d Cannot match %s%c%s, as %s does not exist.",
+                              __FILE__, __LINE__, real_dir.toLatin1().constData(),
+                              QDir::separator().toLatin1(),
+                              regex.toLatin1().constData(), real_dir.toLatin1().constData());
+                    if(missing == VPATH_RemoveMissingFiles)
+                        remove_file = true;
+                    else if(missing == VPATH_WarnMissingFiles)
+                        warn_msg(WarnLogic, "Failure to find: %s", val.toLatin1().constData());
+                }
+            }
+        }
+        if(remove_file)
+            l.removeAt(val_it);
+        else
+            ++val_it;
+    }
+    return l;
+}
+
 void
 MakefileGenerator::initCompiler(const MakefileGenerator::Compiler &comp)
 {
     QMap<QString, QStringList> &v = project->variables();
+    QStringList &l = v[comp.variable_in];
     // find all the relevant file inputs
-    QStringList &l = v[comp.variable_in], vpath;
     if(!init_compiler_already.contains(comp.variable_in)) {
         init_compiler_already.insert(comp.variable_in, true);
-        for(int val_it = 0; val_it < l.count(); ) {
-            bool remove_file = false;
-            QString &val = l[val_it];
-            if(!val.isEmpty()) {
-                QString file = fileFixify(val, qmake_getpwd(), Option::output_dir);
-                if (file.at(0) == '\"' && file.at(file.length() - 1) == '\"')
-                    file = file.mid(1, file.length() - 2);
-
-                if(exists(file)) {
-                    ++val_it;
-                    continue;
-                }
-                bool found = false;
-                if(QDir::isRelativePath(val)) {
-                    if(vpath.isEmpty())
-                        vpath = v["VPATH_" + comp.variable_in] + v["VPATH"] +
-                                v["QMAKE_ABSOLUTE_SOURCE_PATH"] + v["DEPENDPATH"];
-
-                    for(QStringList::Iterator vpath_it = vpath.begin();
-                        vpath_it != vpath.end(); ++vpath_it) {
-                        QString real_dir = Option::fixPathToLocalOS((*vpath_it));
-                        if(exists(real_dir + QDir::separator() + val)) {
-                            QString dir = (*vpath_it);
-                            if(dir.right(Option::dir_sep.length()) != Option::dir_sep)
-                                dir += Option::dir_sep;
-                            val = fileFixify(dir + val);
-                            found = true;
-                            debug_msg(1, "Found file through vpath %s -> %s",
-                                      file.toLatin1().constData(), val.toLatin1().constData());
-                            break;
-                        }
-                    }
-                }
-                if(!found) {
-                    QString dir, regex = val, real_dir;
-                    if(regex.lastIndexOf(Option::dir_sep) != -1) {
-                        dir = regex.left(regex.lastIndexOf(Option::dir_sep) + 1);
-                        real_dir = fileFixify(Option::fixPathToLocalOS(dir),
-                                              qmake_getpwd(), Option::output_dir);
-                        regex = regex.right(regex.length() - dir.length());
-                    }
-                    if(real_dir.isEmpty() || exists(real_dir)) {
-                        QStringList files = QDir(real_dir).entryList(QStringList(regex));
-                        if(files.isEmpty()) {
-                            debug_msg(1, "%s:%d Failure to find %s in vpath (%s)",
-                                      __FILE__, __LINE__,
-                                      val.toLatin1().constData(), vpath.join("::").toLatin1().constData());
-                            if((comp.flags & Compiler::CompilerRemoveNoExist))
-                                remove_file = true;
-                            else
-                                warn_msg(WarnLogic, "Failure to find: %s", val.toLatin1().constData());
-                        } else {
-                            l.removeAt(val_it);
-                            for(int i = (int)files.count()-1; i >= 0; i--)
-                                l.insert(val_it, fileFixify(dir + files[i]));
-                            val_it += files.count();
-                        }
-                    } else {
-                        debug_msg(1, "%s:%d Cannot match %s%c%s, as %s does not exist.",
-                                  __FILE__, __LINE__, real_dir.toLatin1().constData(),
-                                  QDir::separator().toLatin1(),
-                                  regex.toLatin1().constData(), real_dir.toLatin1().constData());
-                        if((comp.flags & Compiler::CompilerRemoveNoExist))
-                            remove_file = true;
-                        else
-                            warn_msg(WarnLogic, "Failure to find: %s", val.toLatin1().constData());
-                    }
-                }
-            }
-            if(remove_file)
-                l.removeAt(val_it);
-            else
-                ++val_it;
-        }
+        l = findFilesInVPATH(l, (comp.flags & Compiler::CompilerRemoveNoExist) ?
+                             VPATH_RemoveMissingFiles : VPATH_WarnMissingFiles, "VPATH_" + comp.variable_in);
     }
     //add to dependency engine
     if(!(comp.flags & Compiler::CompilerNoCheckDeps))
-        addSourceFiles(l, QMakeSourceFileInfo::SEEK_DEPS,
-                       (QMakeSourceFileInfo::SourceFileType)comp.type);
+        addSourceFiles(l, QMakeSourceFileInfo::SEEK_DEPS, (QMakeSourceFileInfo::SourceFileType)comp.type);
 }
 
 void
@@ -1212,7 +1222,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs, bool n
             target += tmp.join(" ");
         }
         //masks
-        tmp = project->variables()[(*it) + ".files"];
+        tmp = findFilesInVPATH(project->variables()[(*it) + ".files"], VPATH_IgnoreMissingFiles);
         if(!tmp.isEmpty()) {
             if(!target.isEmpty())
                 target += "\n";
@@ -1290,7 +1300,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs, bool n
         }
 
         if(!target.isEmpty()) {
-            if(noBuild)
+            if(noBuild || project->variables()[(*it) + ".CONFIG"].indexOf("no_build") != -1)
                 t << "install_" << (*it) << ": ";
             else if(project->isActiveConfig("build_all"))
                 t << "install_" << (*it) << ": all ";

@@ -92,6 +92,8 @@ protected:
         uint flags, type;
     };
     void initCompiler(const Compiler &comp);
+    enum VPATHMIssingFiles { VPATH_WarnMissingFiles, VPATH_IgnoreMissingFiles, VPATH_RemoveMissingFiles };
+    QStringList findFilesInVPATH(QStringList l, VPATHMIssingFiles missing, const QString &var="");
 
     //subclasses can use these to query information about how the generator was "run"
     QString buildArgs();
