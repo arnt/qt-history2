@@ -34,7 +34,7 @@
 ** not clear to you.
 **
 **********************************************************************/
-
+#define DEBUG
 // REVISED: arnt
 
 #include "qwidget.h"
@@ -50,6 +50,7 @@
 #include "qtextstream.h"
 #include "qdir.h" // Font Guessing
 #include <ctype.h>
+#include <locale.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
@@ -499,8 +500,12 @@ static bool fillFontDef( const QCString &xlfd, QFontDef *fd,
     if ( qstrcmp( tokens[CharsetRegistry], "iso8859" ) == 0 ) {
 	int tmp = 999;
 	if ( sscanf( tokens[CharsetEncoding], "%u", &tmp ) == 1 &&
-	     tmp >= 1 && tmp <= 15 )
+	     tmp >= 1 && tmp <= 15 ) {
 	    fd->charSet = c8859[tmp-1];
+	    if ( tmp == 8 || tmp == 6 ) { // hebrew and arabic
+		*encodingName += "-I";
+	    }
+	}
     } else if( qstrcmp( tokens[CharsetRegistry], "koi8" ) == 0 &&
 	       (qstrcmp( tokens[CharsetEncoding], "r" ) == 0 ||
 		qstrcmp( tokens[CharsetEncoding], "1" ) == 0) ) {
@@ -1071,7 +1076,36 @@ void QFont::initFontInfo() const
 
     if (  d->exactMatch ) {
 	if ( PRIV->needsSet() ) {
-	    f->cmapper = QTextCodec::codecForLocale();
+	    QCString locale = setlocale(LC_CTYPE, 0);
+	    bool useLocale = FALSE;
+	    
+	    switch (charSet()) {
+	    case Set_Ja:
+		if (locale.left(2) != "ja")
+		    f->cmapper = QTextCodec::codecForName("eucJP");
+		break;
+		
+	    case Set_Ko:
+		if (locale.left(2) != "ko")
+		    f->cmapper = QTextCodec::codecForName("eucKR");
+		break;
+
+	    case Set_Zh:
+		if (locale.left(2) != "zh")
+		    f->cmapper = QTextCodec::codecForName("GBK");
+		break;
+		
+	    case Set_Zh_TW:
+		if (locale.left(5) != "zh_TW")
+		    f->cmapper = QTextCodec::codecForName("Big5");
+		break;
+		
+	    case Set_Th_TH: // ### need a codec?
+	    default:
+		useLocale = TRUE;
+	    }
+	    
+	    if (useLocale) f->cmapper = QTextCodec::codecForLocale();
 #ifndef QT_NO_CODECS
 	} else if ( charSet() == JIS_X_0208 ) {
 	    f->cmapper = new QFontJis0208Codec;
@@ -1085,6 +1119,8 @@ void QFont::initFontInfo() const
 	} else {
 	    QCString encoding;
 	    encoding = encodingName( charSet() );
+	    if( charSet() == ISO_8859_8 || charSet() == ISO_8859_6 )
+		encoding += "-I";
 	    f->cmapper = QTextCodec::codecForName( encoding );
 	}
 	f->s = d->req;
@@ -1103,11 +1139,11 @@ void QFont::initFontInfo() const
 	    f->cmapper = new QFontKsc5601Codec;
 	} else if ( encoding.left(7) == "gb2312." ) {
 	    f->cmapper = new QFontGB2312Codec;
-	} else if ( encoding.left(5) == "big5." ) {
+	} else if ( encoding.left(4) == "big5" ) {
 	    f->cmapper = new QFontBig5Codec;
 	} else
 #endif //QT_NO_CODECS
-	f->cmapper = QTextCodec::codecForName( encoding );
+	    f->cmapper = QTextCodec::codecForName( encoding );
     } else {
 	f->cmapper = 0;
 	resetFontDef( &f->s );
@@ -1127,6 +1163,74 @@ inline int maxIndex(XFontStruct *f)
 	( ( (f->max_byte1 - f->min_byte1) *
 	    (f->max_char_or_byte2 - f->min_char_or_byte2 + 1) ) +
 	  f->max_char_or_byte2 - f->min_char_or_byte2 );
+}
+
+
+static QCString setLocaleForCharSet(QFont::CharSet charset)
+{
+    QCString oldlocale;
+    int i = 0;
+
+    switch (charset) {
+    case QFont::Set_Ja:
+	{
+	    oldlocale = setlocale(LC_CTYPE, NULL);
+	    if (oldlocale.left(2) == "ja") return (const char *) 0;
+	    
+	    const char *locales[] =
+	    { "ja", "ja_JP", "ja_JP.EUC", "ja_JP.sjis", "ja_JP.ujis", "ja_JP.PCK",
+		  "ja_JP.UTF-8", "ja_JP.SJIS", "ja_JP.Shift_JIS", 0 };
+	    
+	    while (setlocale(LC_CTYPE, locales[i]) == NULL) i++;
+	    
+	    break;
+	}
+	
+    case QFont::Set_Ko:
+	{
+	    oldlocale = setlocale(LC_CTYPE, NULL);
+	    if (oldlocale.left(2) == "ko") return (const char *) 0;
+	    
+	    const char *locales[] =
+	    { "ko", "ko_KR", "ko_KR.EUC", 0 };
+	    
+	    while (setlocale(LC_CTYPE, locales[i]) == NULL) i++;
+		
+	    break;   
+	}
+	
+    case QFont::Set_Zh: // assume GBK and/or EUC
+	{
+	    oldlocale = setlocale(LC_CTYPE, NULL);
+	    if (oldlocale.left(2) == "zh") return (const char *) 0;
+	    
+	    const char *locales[] =
+	    { "zh", "zh_CN", "zh.GBK", "zh_CN.GBK", "zh_CN.GB2312", "zh_CN.EUC", 0 };
+	    
+	    while (setlocale(LC_CTYPE, locales[i]) == NULL) i++;
+	    
+	    break;
+	}
+	
+    case QFont::Set_Zh_TW: // assume Big5 and/or EUC
+	{
+	    oldlocale = setlocale(LC_CTYPE, NULL);
+	    if (oldlocale.left(5) == "zh_TW") return (const char *) 0;
+	    
+	    const char *locales[] =
+	    { "zh_TW", "zh_TW.BIG5", "zh_TW.Big5", "zh_TW.EUC", 0 };
+	    
+	    while (setlocale(LC_CTYPE, locales[i]) == NULL) i++;
+	    
+	    break;
+	}
+	
+    case QFont::Set_Th_TH:
+    default:
+	;
+    }
+    
+    return oldlocale;
 }
 
 
@@ -1179,16 +1283,29 @@ void QFont::load() const
 	if ( !s ) {
 	    char** missing=0;
 	    int nmissing;
-		//debug("fontSet : %s\n",n.data());
+	    //qDebug("fontSet : %s\n",n.data());
+
+	    // set the locale for the charset of the application, this will
+	    // allow applications in (for example) Latin1 environment display
+	    // Korean or Japanese characters
+
+	    QCString oldlocale = setLocaleForCharSet(charSet());
 	    s = XCreateFontSet( QPaintDevice::x11AppDisplay(), n,
 				&missing, &nmissing, 0 );
 	    if ( missing ) {
-		XFreeStringList(missing);
 #if defined(DEBUG)
 		for(int i=0; i<nmissing; i++)
-		    debug("Qt: missing charset %s",missing[i]);
+		    qDebug("Qt: missing charset %s",missing[i]);
 #endif
+		XFreeStringList(missing);
 	    }
+            
+	    // restore locale for application
+	    if (! oldlocale.isNull() && ! oldlocale.isEmpty()) {
+		// qDebug("restoring locale '%s'", (const char *) oldlocale);
+		setlocale(LC_CTYPE, (const char *) oldlocale);
+	    }
+	    
 	    d->fin->set = s;
 	    // [not cached]
 	    initFontInfo();
@@ -1196,7 +1313,7 @@ void QFont::load() const
     } else {
 	XFontStruct *f = d->fin->f;
 	if ( !f ) {					// font not loaded
-		//debug("font : %s\n",n.data());
+	    //debug("font : %s\n",n.data());
 	    f = XLoadQueryFont( QPaintDevice::x11AppDisplay(), n );
 	    if ( !f ) {
 		f = XLoadQueryFont( QPaintDevice::x11AppDisplay(),
@@ -1339,6 +1456,11 @@ int QFont_Private::fontMatchScore( const char *fontName, QCString &buffer,
     } else if ( charSet() == TSCII ) {
 	if ( qstrcmp( tokens[CharsetRegistry], "tscii" ) == 0 &&
 	     qstrcmp( tokens[CharsetEncoding], "0" ) == 0 )
+	    score |= CharSetScore;
+	else
+	    exactMatch = FALSE;
+    } else if ( charSet() == TIS620 ) {
+	if ( qstrcmp( tokens[CharsetRegistry], "tis620" ) == 0 )
 	    score |= CharSetScore;
 	else
 	    exactMatch = FALSE;
@@ -1596,12 +1718,12 @@ bool QFont_Private::fontmapping(const QString& filename)
 		    if ( !fontGuessingList )
 			fontGuessingList = new QList<FontGuessingPair>;
 		    FontGuessingPair *fontGuessingPair;
-		    fontGuessingPair = new FontGuessingPair;	
+		    fontGuessingPair = new FontGuessingPair;
 		    fontGuessingPair->charset = chsetlst;
 		    fontGuessingPair->family = familylst;
 		    fontGuessingList->append(fontGuessingPair);
 #if DBG // to debug
-		    printf( "charset = [%s], from = [%s], to = [%s]\n", 
+		    printf( "charset = [%s], from = [%s], to = [%s]\n",
 		  		fontGuessingPair->charset[0].ascii(),
 		  		fontGuessingPair->family[1].ascii() );
 #endif
@@ -1609,7 +1731,7 @@ bool QFont_Private::fontmapping(const QString& filename)
 	    }
 	} /* while */
 	f.close();
-	return TRUE;		
+	return TRUE;
     } else
 	return FALSE;
 }
@@ -1638,10 +1760,10 @@ QCString QFont_Private::bestMatchFontSetMember( const QString& family,
 		for ( int i = 0; i < (int)(fontGuessingPair->family.count())-1; ++i ) {
 		    char s[1024];
 		    sprintf( s, "-*-%s-%s-%s-*-*-*-%d-%d-%d-*-*-%s,",
-				fontGuessingPair->family[i+1].latin1(),		
+				fontGuessingPair->family[i+1].latin1(),
 				wt, slant, size, xdpi, ydpi,
 				fontGuessingPair->charset[i].latin1() );
-				bestName.append(s);	
+				bestName.append(s);
 		}
 		return bestName;
 	    }
