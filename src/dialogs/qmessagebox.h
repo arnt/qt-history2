@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.h#31 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.h#32 $
 **
 ** Definition of QMessageBox class
 **
@@ -32,7 +32,7 @@ public:
 		 WFlags f=0 );
    ~QMessageBox();
 
-    enum { OK = 1, Cancel = 2, Yes = 3, No = 4, Abort = 5, Retry = 6,
+    enum { Ok = 1, Cancel = 2, Yes = 3, No = 4, Abort = 5, Retry = 6,
 	   Ignore = 7, ButtonMask = 0x07,
 	   Default = 0x100, Escape = 0x200, FlagMask = 0x300 };
 

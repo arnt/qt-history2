@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#51 $
+** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#52 $
 **
 ** Implementation of QMessageBox class
 **
@@ -16,7 +16,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#51 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#52 $");
 
 
 // Message box icons, from page 210 of the Windows style guide.
@@ -104,7 +104,7 @@ static const unsigned char critical_gif_data[] = {
   </ul>
   The message box has a different icon for each of the severity levels.
 
-  Complexity is one button (OK, sometimes Dismiss for Motif
+  Complexity is one button (Ok, sometimes Dismiss for Motif
   applications) for a simple messages, or two or even three buttons
   for questions.
 
@@ -122,7 +122,7 @@ static const unsigned char critical_gif_data[] = {
 
   The Microsoft Windows User Interface Guidelines strongly recommends
   using the application name as window caption.  The message box has
-  just one button, OK, and its text tells the user both what happened
+  just one button, Ok, and its text tells the user both what happened
   and what the program will do about it.  Since the application is
   able to make do, the message box is just information, not a warning
   or a critical error.
@@ -255,7 +255,7 @@ static const unsigned char critical_gif_data[] = {
 
   The button types are:
   <ul>
-  <li> \c OK - the default for single-button message boxes
+  <li> \c Ok - the default for single-button message boxes
   <li> \c Cancel - note that this is \e not automatically Escape
   <li> \c Yes
   <li> \c No
@@ -267,7 +267,7 @@ static const unsigned char critical_gif_data[] = {
   Button types can be combined with two modifiers by using OR:
   <ul>
   <li> \c Default - makes pressing Enter or Return be equivalent with
-  clicking this button.  Normally used with OK, Yes or similar.
+  clicking this button.  Normally used with Ok, Yes or similar.
   <li> \c Escape - makes pressing Escape be equivalent with this button.
   Normally used with Abort, Cancel or similar.
   </ul>
@@ -325,7 +325,7 @@ static const char *mb_texts[] = {
 QMessageBox::QMessageBox( QWidget *parent, const char *name )
     : QDialog( parent, name, TRUE )
 {
-    init( OK, 0, 0 );
+    init( Ok, 0, 0 );
 }
 
 
@@ -343,7 +343,7 @@ QMessageBox::QMessageBox( QWidget *parent, const char *name )
 
   Each button can have one of the following values:
   <ul>
-  <li>\c QMessageBox::OK
+  <li>\c QMessageBox::Ok
   <li>\c QMessageBox::Cancel
   <li>\c QMessageBox::Yes
   <li>\c QMessageBox::No
@@ -452,13 +452,13 @@ void QMessageBox::init( int button0, int button1, int button2 )
 	}
 	b &= ButtonMask;
 	if ( b == 0 ) {
-	    if ( i == 0 )			// no buttons, add an OK button
-		b = OK;
+	    if ( i == 0 )			// no buttons, add an Ok button
+		b = Ok;
 	} else if ( b < 0 || b > LastButton ) {
 #if defined(CHECK_RANGE)
 	    ::warning( "QMessageBox: Invalid button specifier" );
 #endif
-	    b = OK;
+	    b = Ok;
 	} else {
 	    if ( i > 0 && mbd->button[i-1] == 0 ) {
 #if defined(CHECK_RANGE)
@@ -680,7 +680,7 @@ void QMessageBox::setIconPixmap( const QPixmap &pixmap )
 
 const char *QMessageBox::buttonText() const
 {
-    return buttonText( OK );
+    return buttonText( Ok );
 }
 
 /*!
@@ -689,7 +689,7 @@ const char *QMessageBox::buttonText() const
 
 void QMessageBox::setButtonText( const char *text )
 {
-    setButtonText( OK, text ? text : "OK" );
+    setButtonText( Ok, text ? text : "OK" );
 }
 
 
@@ -699,7 +699,7 @@ void QMessageBox::setButtonText( const char *text )
 
   Example:
   \code
-    QMessageBox mb( QMessageBox::OK, QMessageBox::Cancel, 0 );
+    QMessageBox mb( QMessageBox::Ok, QMessageBox::Cancel, 0 );
     mb.buttonText( QMessageBox::Cancel );  // returns "Cancel"
     mb.buttonText( QMessageBox::Ignore );  // returns 0
   \endcode
@@ -721,8 +721,8 @@ const char *QMessageBox::buttonText( int button ) const
 
   Example:
   \code
-    QMessageBox mb( QMessageBox::OK, QMessageBox::Cancel, 0 );
-    mb.setButtonText( QMessageBox::OK, "All Right" );
+    QMessageBox mb( QMessageBox::Ok, QMessageBox::Cancel, 0 );
+    mb.setButtonText( QMessageBox::Ok, "All Right" );
     mb.setButtonText( QMessageBox::Yes, "Yo" );	  // ignored
   \endcode
 
@@ -856,14 +856,14 @@ int QMessageBox::message( const char *caption,
 			  QWidget    *parent,
 			  const char *name )
 {
-    QMessageBox *mb = new QMessageBox( caption, text, NoIcon, OK, 0, 0,
+    QMessageBox *mb = new QMessageBox( caption, text, NoIcon, Ok, 0, 0,
 				       parent, name );
     CHECK_PTR( mb );
     if ( buttonText )
-	mb->setButtonText( OK, buttonText );
+	mb->setButtonText( Ok, buttonText );
     int retcode = mb->exec();
     delete mb;
-    return retcode == OK;
+    return retcode == Ok;
 }
 
 
@@ -992,7 +992,7 @@ void QMessageBox::about( QWidget *parent, const char *caption,
 {
     QMessageBox *mb = new QMessageBox( caption, text,
 				       Information,
-				       OK + Default, 0, 0, 
+				       Ok + Default, 0, 0, 
 				       parent, "simple about box" );
     CHECK_PTR( mb );
     QPixmap i;
