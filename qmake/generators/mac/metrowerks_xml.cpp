@@ -154,7 +154,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 		    }
 		}
 	    } else if(variable == "CODEWARRIOR_WARNING") {
-		t << project->isActiveConfig("warn_on");
+		t << (int)project->isActiveConfig("warn_on");
 	    } else {
 		t << var(variable);
 	    }
