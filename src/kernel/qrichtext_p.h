@@ -434,7 +434,7 @@ public:
     virtual bool up( QTextCursor *, QTextDocument *&doc, QTextParagraph *&parag, int &idx, int &ox, int &oy );
 
     void setParagraph( QTextParagraph *p ) { parag = p; }
-    QTextParagraph *paragrapth() const { return parag; }
+    QTextParagraph *paragraph() const { return parag; }
 
     QTextDocument *parent;
     QTextParagraph *parag;
