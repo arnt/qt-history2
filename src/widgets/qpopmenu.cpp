@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#80 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#81 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -18,7 +18,7 @@
 #include "qscrbar.h"				// qDrawArrow
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#80 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#81 $");
 
 
 // Motif style parameters
@@ -430,7 +430,7 @@ static QString accel_str( int k )
     }
     if ( (k & ALT) == ALT ) {
 	if ( s.isEmpty() )
-	    s = "A|t";
+	    s = "Alt";
 	else
 	    s += "+Alt";
     }
