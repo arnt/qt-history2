@@ -85,15 +85,14 @@ static const XlfdEncoding xlfd_encoding[] = {
     { "iso8859-11", 30, 2259, make_tag('i','s','o','8'), make_tag('9','-','1','1') },
     { "mulelao-1", 31, -4242, make_tag('m','u','l','e'), make_tag('a','o','-','1') },
     { "ethiopic-unicode", 32, 0, make_tag('e','t','h','i'), make_tag('c','o','d','e') },
-    { "iso10646-1", 33, 0, make_tag('i','s','o','1'), make_tag('4','6','-','1') },
-    { "unicode-*", 34, 0, make_tag('u','n','i','c'), 0 },
-    { "*-symbol", 35, 0, 0, make_tag('m','b','o','l') },
-    { "*-fontspecific", 36, 0, 0, make_tag('i','f','i','c') },
-    { "fontspecific-*", 37, 0, make_tag('f','o','n','t'), 0 },
+    { "unicode-*", 33, 0, make_tag('u','n','i','c'), 0 },
+    { "*-symbol", 34, 0, 0, make_tag('m','b','o','l') },
+    { "*-fontspecific", 35, 0, 0, make_tag('i','f','i','c') },
+    { "fontspecific-*", 36, 0, make_tag('f','o','n','t'), 0 },
     { 0, 0, 0, 0, 0 }
 };
 
-static const char scripts_for_xlfd_encoding[38][59] = {
+static const char scripts_for_xlfd_encoding[37][59] = {
     // iso8859-1
     { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -211,7 +210,7 @@ static const char scripts_for_xlfd_encoding[38][59] = {
       1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0 },
     // iso8859-8
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
@@ -324,13 +323,6 @@ static const char scripts_for_xlfd_encoding[38][59] = {
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0 },
-    // iso10646-1
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0 },
     // unicode-*
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,

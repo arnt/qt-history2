@@ -25,7 +25,7 @@ koi8-r 2084 Cyrillic
 iso8859-7 10 Greek
 #
 # Arabic
-iso10646-1 0 Arabic
+iso10646-1 0 Arabic,Unicode
 #
 # Hebrew
 iso8859-8 85 Hebrew
@@ -63,8 +63,8 @@ mulelao-1 -4242 Lao
 # Ethiopic
 ethiopic-unicode 0 Ethiopic
 #
-# Unicode
-iso10646-1 0 Unicode
+# Unicode - NOTE: iso10646-1 is listed above with Arabic
+# iso10646-1 0 Unicode 
 unicode-* 0 Unicode
 #
 # Other
