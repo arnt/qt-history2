@@ -78,11 +78,9 @@ classes for the benefit of applications that rely on Qt's item-based
 item view and table classes. They are not intended to be subclassed,
 but simply exist to provide a familiar interface to the equivalent classes
 in Qt 3.
-Examples of such classes include \c QListWidget, \c QTreeWidget, and
-\c QTableWidget; these offer compatibility with the \c QListBox,
+Examples of such classes include \l QListWidget, \l QTreeWidget, and
+\l QTableWidget; these offer compatibility with the \c QListBox,
 \c QListView, and \c QTable classes from Qt 3.
-\expire 2004-08-01
-These classes are not provided with the current release of Qt.
 
 \section1 The model/view components
 
@@ -95,6 +93,7 @@ by a section showing how you can create new components.
 \i \l{model-view-view.html}{View Classes}
 \i \l{model-view-selection.html}{Handling Selections}
 \i \l{model-view-delegate.html}{Delegate Classes}
+\i \l{model-view-convenience.html}{Convenience Classes}
 \endlist
 
 
@@ -125,7 +124,7 @@ and to provide a standard representation of that data to the other
 components in the framework. In Qt, the standard interface to item models
 is defined by the \l QAbstractItemModel class. This class exposes a
 table-like interface to other components, regardless of how the data
-is actually stored in the model, or presented to the user. It also
+is actually stored in the model or presented to the user. It also
 notifies any attached views of changes to the model through the signals
 and slots mechanism.
 
@@ -160,7 +159,10 @@ properties in detail.
 \section2 Rows and columns
 
 In its most basic form, an item model can be accessed as a simple table
-in which items are located by their row and column numbers. 
+in which items are located by their row and column numbers. This does
+not mean that the data in the model has to be stored in a tabular
+structure; the use of row and column numbers is only a convention to
+allow components to interoperate.
 We can retrieve information about any given item by specifying its row
 and column numbers to the model, and we receive an index that
 represents the item:
@@ -187,7 +189,7 @@ specifying the relevant row and column numbers to the model.
 \section2 Parents of items
 
 A simple tabular model is ideal for representing items in a table, or
-for representing lists of items (i.e., where there is only one
+for representing lists of items (i.e. where there is only one
 column). However, structures such as tree views require a more
 flexible interface to the items in the model. As a result, each item
 can also be the parent of another table of items, in much the same way
@@ -200,7 +202,7 @@ refer to an item is through a model index, so a parent model index must
 also be given:
 
 \code
-QModelIndex index = model->index(row, column, parent, ...);
+QModelIndex index = model->index(row, column, parent);
 \endcode
 
 The following diagram shows the row numbers, column numbers, and parent
@@ -214,16 +216,17 @@ The model index of the highlighted top-level item is represented by the
 item.
 Top-level items in a model do not have a parent model index
 to refer to, so we ensure that the model knows that we are referring to
-a top-level item by specifying a default (and invalid) model index.
+a top-level item by specifying a \c Null model index.
 This is a convention used by the model/view classes.
 We can obtain the model indexes for both items shown in the diagram:
 
 \code
-QModelIndex topLevelIndex = model->index(2, 1, QModelIndex(), ...); // 'X'
-QModelIndex childIndex = model->index(3, 4, topLevelIndex, ...);
+QModelIndex topLevelIndex = model->index(2, 1, QModelIndex::Null); // 'X'
+QModelIndex childIndex = model->index(3, 4, topLevelIndex);
 \endcode
 
-Note that we used QModelIndex() to construct an invalid model index.
+Note that we used \c QModelIndex::Null to construct an invalid model
+index.
 
 \section2 Item roles
 
@@ -236,24 +239,24 @@ Typically, items contain data for a number of different roles.
 \img modelview-roles.png
 
 The role indicates to the model which type of data is being referred to.
+Views can display the roles in different ways, so it is important to
+supply appropriate information for each role.
 We will examine roles in more detail when we
 \l{model-view-subclassing-model.html}{create an example model}.
 
 \section2 Summary of concepts
 
 Model indexes contain information about the location of items within a
-model; they are constructed by models at the request of other components,
-such as views and delegates.
-Each model index refers to an item at a given row and column, and
-is of a particular type that indicates what the item's data is used
-for. If a valid parent index is specified when an index is constructed,
+model. Items are referred to by their row and column numbers.
+Model indexes are constructed by models at the request of other
+components, such as views and delegates.
+
+If a valid parent index is specified when an index is constructed,
 the index refers to a child of the corresponding parent item; otherwise
 the index refers to a top-level item in the model.
 
-Where the item \l{QModelIndex::Type}{type} distinguishes between items
-in a view and the headers, the \l{QAbstractItemModel::Role}{role}
-distinguishes between the different kinds of data associated with an
-item.
+The \l{QAbstractItemModel::Role}{role} distinguishes between the
+different kinds of data associated with an item.
 
 
 \section1 Using an existing model
@@ -1230,4 +1233,8 @@ items.
     \l{model-view-model.html}{[Model Classes]}
     \l{model-view-programming.html}{[Up]}
     \l{model-view-view.html}{[View Classes]}
+*/
+
+/*!
+    \page model-view-convenience.html
 */
