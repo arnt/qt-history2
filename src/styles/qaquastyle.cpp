@@ -64,6 +64,7 @@
 #include "qlineedit.h"
 #include "qcombobox.h"
 #include "qptrstack.h"
+#include "qmainwindow.h"
 #ifdef Q_WS_MAC
 #  include <string.h>
 #  include <qt_mac.h>
@@ -1156,9 +1157,11 @@ int QAquaStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	ret = 10;
 	break;
     case PM_DefaultFrameWidth:
-	if(widget && 
-	   (widget->isTopLevel() || !widget->parentWidget() || widget->parentWidget()->isTopLevel()) &&  
-	   (widget->inherits("QScrollView") || widget->inherits("QWorkspaceChild"))) 
+	if(widget &&
+	   (widget->isTopLevel() || !widget->parentWidget() || 
+	    (widget->parentWidget()->inherits("QMainWindow") && 
+	     ((QMainWindow*)widget->parentWidget())->centralWidget() == widget)) &&
+	    (widget->inherits("QScrollView") || widget->inherits("QWorkspaceChild")))
 	    ret = 0;
 	else if(widget && widget->inherits("QLineEdit")) 
 	    ret = 2;
@@ -1748,7 +1751,6 @@ QRect QAquaStyle::querySubControlMetrics(ComplexControl control,
 					    SubControl sc,
 					    const QStyleOption& opt) const
 {
-    QRect rect;
     switch(control) {
     case CC_ComboBox: {
 	QRect rect = QWindowsStyle::querySubControlMetrics(control, w, sc, opt);

@@ -70,6 +70,7 @@ public:
 #include <qregexp.h>
 #include "qwidgetlist.h"
 #include <qguardedptr.h>
+#include "qmainwindow.h"
 #include "private/qaquastyle_p.h"
 
 /* I need these to simulate the pushbutton pulse */
@@ -1234,8 +1235,10 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	break;
     case PM_DefaultFrameWidth:
 	if(widget &&
-	   (widget->isTopLevel() || !widget->parentWidget() || widget->parentWidget()->isTopLevel()) &&
-	   (widget->inherits("QScrollView") || widget->inherits("QWorkspaceChild")))
+	   (widget->isTopLevel() || !widget->parentWidget() || 
+	    (widget->parentWidget()->inherits("QMainWindow") && 
+	     ((QMainWindow*)widget->parentWidget())->centralWidget() == widget)) &&
+	    (widget->inherits("QScrollView") || widget->inherits("QWorkspaceChild")))
 	    ret = 0;
 	else if(widget && widget->inherits("QLineEdit"))
 	    GetThemeMetric(kThemeMetricEditTextFrameOutset, &ret);
