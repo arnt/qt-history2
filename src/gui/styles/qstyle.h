@@ -661,6 +661,9 @@ public:
         // bool - Auto Raise for title bars
         SH_TitleBar_AutoRaise,
 
+        // int - the popup delay for menus attached to tool buttons
+        SH_ToolButton_PopupDelay,
+
         // do not add any values below/greater than this
         SH_CustomBase = 0xf0000000
     };

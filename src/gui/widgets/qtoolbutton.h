@@ -31,7 +31,6 @@ class Q_GUI_EXPORT QToolButton : public QAbstractButton
     Q_PROPERTY(QToolButton::ToolButtonPopupMode popupMode READ popupMode WRITE setPopupMode)
     Q_PROPERTY(Qt::ToolButtonStyle toolButtonStyle READ toolButtonStyle WRITE setToolButtonStyle)
     Q_PROPERTY(Qt::IconSize iconSize READ iconSize WRITE setIconSize)
-    Q_PROPERTY(int popupDelay READ popupDelay WRITE setPopupDelay)
     Q_PROPERTY(bool autoRaise READ autoRaise WRITE setAutoRaise)
     Q_OVERRIDE(Qt::BackgroundMode backgroundMode DESIGNABLE true)
 
@@ -59,9 +58,6 @@ public:
 
     void setPopupMode(QToolButton::ToolButtonPopupMode mode);
     QToolButton::ToolButtonPopupMode popupMode();
-
-    void setPopupDelay(int delay);
-    int popupDelay() const;
 
     void setAutoRaise(bool enable);
     bool autoRaise() const;
@@ -121,6 +117,8 @@ public:
     inline QT_COMPAT bool usesTextLabel() const { return toolButtonStyle() != Qt::ToolButtonIconOnly; }
     inline QT_COMPAT TextPosition textPosition() const
     { return toolButtonStyle() == Qt::ToolButtonTextUnderIcon ? BelowIcon : BesideIcon; }
+    QT_COMPAT void setPopupDelay(int delay);
+    QT_COMPAT int popupDelay() const;
 
 public slots:
     QT_MOC_COMPAT void setUsesBigPixmap(bool enable) { enable ? setIconSize(Qt::LargeIconSize) : setIconSize(Qt::SmallIconSize); }

@@ -2653,6 +2653,10 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
         ret = 0;
         break;
 
+    case SH_ToolButton_PopupDelay:
+        ret = 600;
+        break;
+
     default:
         ret = 0;
         break;

@@ -1473,7 +1473,10 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
      \value SH_TitleBar_AutoRaise A boolean indicating whether
      controls on a title bar ought to update when the mouse is over them.
 
-    \omitvalue SH_UnderlineAccelerator
+     \value SH_ToolButton_PopupDelay An int indicating the popup delay in milliseconds
+     for menus attached to tool buttons.
+
+     \omitvalue SH_UnderlineAccelerator
 
     \sa styleHint()
 */

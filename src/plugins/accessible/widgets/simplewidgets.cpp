@@ -198,7 +198,7 @@ QToolButton *QAccessibleToolButton::toolButton() const
 */
 bool QAccessibleToolButton::isSplitButton() const
 {
-    return toolButton()->menu() && !toolButton()->popupDelay();
+    return toolButton()->menu() && toolButton()->popupMode() == QToolButton::MenuButtonPopupMode;
 }
 
 /*! \reimp */

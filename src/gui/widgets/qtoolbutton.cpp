@@ -182,7 +182,7 @@ QToolButton::QToolButton(Qt::ArrowType type, QWidget *parent)
 
 void QToolButtonPrivate::init()
 {
-    delay = 600;
+    delay = q->style()->styleHint(QStyle::SH_ToolButton_PopupDelay, 0, q);
     menu = 0;
     autoRaise = false;
     arrow = Qt::LeftArrow;
@@ -763,15 +763,11 @@ void QToolButtonPrivate::popupTimerDone()
         q->setAutoRepeat(true);
 }
 
+#ifdef QT_COMPAT
 /*!
-    \property QToolButton::popupDelay
+    \fn void QToolButton::setPopupDelay(int delay)
 
-    \brief the time delay between pressing the button and the moment
-    the associated menu pops up in milliseconds.
-
-    Usually this is around half a second.
-
-    \sa setMenu()
+    Use the style hint QStyle::SH_ToolButton_PopupDelay instead.
 */
 void QToolButton::setPopupDelay(int delay)
 {
@@ -780,10 +776,16 @@ void QToolButton::setPopupDelay(int delay)
     update();
 }
 
+/*!
+    \fn int QToolButton::popupDelay()
+
+    Use the style hint QStyle::SH_ToolButton_PopupDelay instead.
+*/
 int QToolButton::popupDelay() const
 {
     return d->delay;
 }
+#endif
 
 /*! \enum QToolButton::ToolButtonPopupMode
 
@@ -792,9 +794,11 @@ int QToolButton::popupDelay() const
 
     \value InstantPopupMode The menu is displayed, without delay, when
     the tool button is pressed.
+
     \value DelayedPopupMode After pressing and holding the tool button
-    down for a certain amount of time (the timeout is style
-    dependant), the menu is displayed.
+    down for a certain amount of time (the timeout is style dependant,
+    see QStyle::SH_ToolButton_PopupDelay), the menu is displayed.
+
     \value MenuButtonPopupMode In this mode the tool button displays a
     special arrow to indicate that a menu is present. The menu is
     displayed when the arrow part of the button is pressed.
