@@ -60,6 +60,7 @@ aix-g++
 aix-xlc
 hpux-acc
 hpux-g++
+openunix-cc
 
 If you try to use Qt 3.0 on an an unsupported version of Unix, please
 contact us at support@trolltech.com so that we can assist you.
