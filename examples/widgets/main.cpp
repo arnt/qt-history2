@@ -14,6 +14,7 @@
 #include <qcdestyle.h>
 #include <qwindowsstyle.h>
 #include <qplatinumstyle.h>
+#include <qsgistyle.h>
 
 class MyWidgetView : public WidgetView
 {
@@ -26,7 +27,7 @@ public:
 
     void button1Clicked() {
 	s++;
-	switch (s%4){
+	switch (s%5){
 	case 0:
 	    qApp->setStyle(new QMotifStyle);
 	    break;
@@ -38,6 +39,9 @@ public:
 	    break;
 	case 3:
 	    qApp->setStyle(new QPlatinumStyle);
+	    break;
+	case 4:
+	    qApp->setStyle(new QSGIStyle);
 	    break;
 	}
 	WidgetView::button1Clicked();
