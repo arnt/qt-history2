@@ -25,6 +25,7 @@
 #include "qstyle.h"
 #include "qstyleoption.h"
 #include "qtextstream.h"
+#include "qvarlengtharray.h"
 #include "qvector.h"
 #include "private/qlayoutengine_p.h"
 #include "private/qsplitter_p.h"
@@ -1006,18 +1007,18 @@ void QSplitter::moveSplitter(QCOORD p, int id)
     p = d->adjustPos(p, id, &farMin, &min, &max, &farMax);
     int oldP = d->pick(s->rect.topLeft());
 
-    int poss[d->list.count()];
-    int ws[d->list.count()];
+    QVarLengthArray<int> poss(d->list.count());
+    QVarLengthArray<int> ws(d->list.count());
     bool upLeft;
 
     if (isRightToLeft() && d->orient == Qt::Horizontal) {
         int qs = p + s->rect.width();
-        d->doMove(false, qs, id - 1, -1, (p > max), poss, ws);
-        d->doMove(true, qs, id, -1, (p < min), poss, ws);
+        d->doMove(false, qs, id - 1, -1, (p > max), poss.data(), ws.data());
+        d->doMove(true, qs, id, -1, (p < min), poss.data(), ws.data());
         upLeft = (qs > oldP);
     } else {
-        d->doMove(false, p, id, +1, (p > max), poss, ws);
-        d->doMove(true, p, id - 1, +1, (p < min), poss, ws);
+        d->doMove(false, p, id, +1, (p > max), poss.data(), ws.data());
+        d->doMove(true, p, id - 1, +1, (p < min), poss.data(), ws.data());
         upLeft = (p < oldP);
     }
 
