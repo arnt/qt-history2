@@ -1288,6 +1288,8 @@ static QString guessTypes( const TYPEDESC &tdesc, ITypeInfo *info, const QDict<Q
 	str = "Q_LLONG";
 	break;
     case VT_R4:
+	str = "float";
+	break;
     case VT_R8:
 	str = "double";
 	break;
@@ -1442,6 +1444,9 @@ static inline void QStringToQUType( const QString& fulltype, QUParameter *param,
 	param->type = &static_QUType_QString;
     } else if ( type == "double" ) {
 	param->type = &static_QUType_double;
+    } else if ( type == "float" ) {
+	param->type = &static_QUType_double;
+	param->typeExtra = (void*)4; // byte size if not default
     } else if ( type == "QVariant" ) {
 	param->type = &static_QUType_QVariant;
     } else if ( type == "QColor" ) {
@@ -2475,6 +2480,9 @@ QMetaObject *MetaObjectGenerator::metaObject( QMetaObject *parentObject )
 	i = pi;
 	while ((i = slotname.find("char", i)) != -1)
 	    slotname.replace(i, 4, "int");
+	i = pi;
+	while ((i = slotname.find("float", i)) != -1)
+	    slotname.replace(i, 4, "double");
 
 	slot_data[index].name = new char[slotname.length()+1];
 	slot_data[index].name = qstrcpy( (char*)slot_data[index].name, slotname );
@@ -2504,6 +2512,9 @@ QMetaObject *MetaObjectGenerator::metaObject( QMetaObject *parentObject )
 	i = pi;
 	while ((i = signalname.find("char", i)) != -1)
 	    signalname.replace(i, 4, "int");
+	i = pi;
+	while ((i = signalname.find("float", i)) != -1)
+	    signalname.replace(i, 4, "double");
 
 	signal_data[index].name = new char[signalname.length()+1];
 	signal_data[index].name = qstrcpy( (char*)signal_data[index].name, signalname );
