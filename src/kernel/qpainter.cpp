@@ -1629,10 +1629,11 @@ QPointArray QPainter::xForm( const QPointArray &av ) const
 {
     QPointArray a = av;
 #if QT_FEATURE_TRANSFORMATIONS
-    if ( txop != TxNone ) {
+    if ( txop != TxNone )
 #else
-    if ( xlatex || xlatey ) {
+    if ( xlatex || xlatey )
 #endif
+    {
 	a = a.copy();
 	int x, y, i;
 	for ( i=0; i<(int)a.size(); i++ ) {
@@ -1744,10 +1745,11 @@ QPointArray QPainter::xFormDev( const QPointArray &ad ) const
 {
     QPointArray a = ad;
 #if QT_FEATURE_TRANSFORMATIONS
-    if ( txop != TxNone ) {
+    if ( txop != TxNone )
 #else
-    if ( xlatex || xlatey ) {
+    if ( xlatex || xlatey )
 #endif
+    {
 	a = a.copy();
 	int x, y, i;
 	for ( i=0; i<(int)a.size(); i++ ) {
@@ -1956,10 +1958,11 @@ void QPainter::drawImage( int x, int y, const QImage & image,
 #ifdef _WS_QWS_
     //### Hackish
  #if QT_FEATURE_TRANSFORMATIONS
-    if ( gfx && (txop==TxNone||txop==TxTranslate) && !testf(ExtDev) ) {
+    if ( gfx && (txop==TxNone||txop==TxTranslate) && !testf(ExtDev) )
  #else
-    if ( gfx && !testf(ExtDev) ) {
+    if ( gfx && !testf(ExtDev) )
  #endif
+    {
         if(sw<0)
 	    sw=image.width();
         if(sh<0)
