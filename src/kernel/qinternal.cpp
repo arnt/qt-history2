@@ -402,6 +402,11 @@ bool QSharedDoubleBuffer::begin( QWidget* widget, int x, int y, int w, int h )
 	    pix->fill( wid, rx, ry );
 	}
 	p = new QPainter( pix, wid );
+	// newly created painters should be translated to the origin
+	// of the widget, so that paint methods can draw onto the double
+	// buffered painter in widget coordinates.
+	p->setBrushOrigin( -rx, -ry );
+	p->translate( -rx, -ry );
     } else {
 	if ( external_p ) {
 	    state |= ExternalPainter;
@@ -414,15 +419,6 @@ bool QSharedDoubleBuffer::begin( QWidget* widget, int x, int y, int w, int h )
 	    wid->erase( rx, ry, rw, rh );
 	}
     }
-
-    if ( ! ( state & ExternalPainter ) ) {
-	// newly created painters should be translated to the origin
-	// of the widget, so that paint methods can draw onto the double
-	// buffered painter in widget coordinates.
-	p->setBrushOrigin( -rx, -ry );
-	p->translate( -rx, -ry );
-    }
-
     return TRUE;
 }
 
