@@ -64,7 +64,7 @@ SOURCES +=  designerapp.cpp \
 RESOURCES += designer.qrc
 
 mac {
-    RC_FILE      = designer.icns
+    ICON = designer.icns
     QMAKE_INFO_PLIST = Info_mac.plist
     TARGET = Designer
 }

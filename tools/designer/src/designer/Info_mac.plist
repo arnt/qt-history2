@@ -18,8 +18,6 @@
                         <key>CFBundleTypeExtensions</key>
                         <array>
                                 <string>ui</string>
-				<string>pro</string>
-				<string>pri</string>
                         </array>
 			<key>CFBundleTypeIconFile</key>
 			<string>@ICON@</string>
