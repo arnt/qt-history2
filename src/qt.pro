@@ -130,7 +130,7 @@ nis {
 !nis:DEFINES += QT_NO_NIS
 
 largefile {
-	!mac:unix:DEFINES += _FILE_OFFSET_BITS=64
+	unix:!mac:!darwin:DEFINES += _FILE_OFFSET_BITS=64
 }
 
 #here for compatability, should go away ####
