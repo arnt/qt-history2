@@ -481,20 +481,34 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QString &type, b
 	}
 	break;
 #endif // QAX_SERVER
-    case 1000:
-	arg.vt = VT_DISPATCH;
-	arg.pdispVal = *(IDispatch**)qvar.constData();
-	if ( arg.pdispVal )
-	    arg.pdispVal->AddRef();
+    case QVariant::UserType:
+	{
+	    QVariant::UserData userData(qvar.toUserType());
+	    if (userData.description() == "IDispatch**") {
+		arg.vt = VT_DISPATCH;
+		arg.pdispVal = *(IDispatch**)qvar.constData();
+		if ( arg.pdispVal )
+		    arg.pdispVal->AddRef();
+	    } else if (userData.description() == "IDispatch*") {
+		arg.vt = VT_DISPATCH;
+		arg.pdispVal = (IDispatch*)qvar.constData();
+		if ( arg.pdispVal )
+		    arg.pdispVal->AddRef();
+	    } else if (userData.description() == "IUnknown**") {
+		arg.vt = VT_UNKNOWN;
+		arg.punkVal = *(IUnknown**)qvar.constData();
+		if ( arg.punkVal )
+		    arg.punkVal->AddRef();
+	    } else if (userData.description() == "IUnknown*") {
+		arg.vt = VT_UNKNOWN;
+		arg.punkVal = (IUnknown*)qvar.constData();
+		if ( arg.punkVal )
+		    arg.punkVal->AddRef();
+	    } else {
+		return false;
+	    }
+	}
 	break;
-
-    case 1001:
-	arg.vt = VT_UNKNOWN;
-	arg.punkVal = *(IUnknown**)qvar.constData();
-	if ( arg.punkVal )
-	    arg.punkVal->AddRef();
-	break;
-
     default:
 	return false;
     }
