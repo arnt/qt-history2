@@ -48,9 +48,12 @@ protected:
     void connectionsChanged();
     void addSlotClicked();
     void receiverChanged( const QString &s );
+    void updateConnectButtonState();
 
 private:
     bool ignoreSlot( const char* ) const;
+    bool hasConnection( const QString &snder, const QString &signal,
+			const QString &rcvr, const QString &slot );
     struct MyConnection
     {
 	QCString signal, slot;

@@ -162,6 +162,7 @@ ConnectionEditor::~ConnectionEditor()
 
 void ConnectionEditor::signalChanged()
 {
+    updateConnectButtonState();
     QCString signal = signalBox->currentText().latin1();
     if ( !signal.data() )
 	return;
@@ -241,6 +242,8 @@ void ConnectionEditor::connectClicked()
     if ( signalBox->currentItem() == -1 ||
 	 slotBox->currentItem() == -1 )
 	return;
+    if ( hasConnection( sender->name(), signalBox->currentText(), receiver->name(), slotBox->currentText() ) )
+	return;
     MyConnection conn;
     conn.signal = signalBox->currentText();
     conn.slot = slotBox->currentText();
@@ -253,6 +256,7 @@ void ConnectionEditor::connectClicked()
     connectionView->setCurrentItem( i );
     connectionView->setSelected( i, TRUE );
     connections.insert( i, conn );
+    connectButton->setEnabled( FALSE );
 }
 
 void ConnectionEditor::disconnectClicked()
@@ -322,6 +326,8 @@ void ConnectionEditor::cancelClicked()
 void ConnectionEditor::slotsChanged()
 {
     connectButton->setEnabled( slotBox->currentItem() != -1 );
+    if ( connectButton->isEnabled() )
+	updateConnectButtonState();
 }
 
 void ConnectionEditor::connectionsChanged()
@@ -354,4 +360,32 @@ void ConnectionEditor::receiverChanged( const QString &s )
     signalChanged();
     buttonAddSlot->setEnabled( receiver == formWindow->mainContainer() );
     connectButton->setEnabled( slotBox->currentItem() != -1 );
+    if ( connectButton->isEnabled() )
+	updateConnectButtonState();
+}
+
+void ConnectionEditor::updateConnectButtonState()
+{
+    QString snder = sender->name();
+    QString rcvr = receiver->name();
+    QString signal = signalBox->currentText();
+    QString slot = slotBox->currentText();
+
+    connectButton->setEnabled( !hasConnection( snder, signal, rcvr, slot ) );
+}
+
+bool ConnectionEditor::hasConnection( const QString &snder, const QString &signal,
+				      const QString &rcvr, const QString &slot )
+{
+    QListViewItemIterator it( connectionView );
+    while ( it.current() ) {
+	if ( it.current()->text( 0 ) == snder &&
+	     it.current()->text( 1 ) == signal &&
+	     it.current()->text( 2 ) == rcvr &&
+	     it.current()->text( 3 ) == slot ) {
+	    return TRUE;
+	}
+	++it;
+    }
+    return FALSE;
 }
