@@ -52,13 +52,11 @@
 
 #ifndef QT_H
 #  include "qapplication.h"
-#  include "qptrdict.h"
 #  include "qptrlist.h"
 #endif // QT_H
 
 #include <errno.h>
 
-static QPtrDict<QThreadPrivate> *qt_thread_dict = 0;
 static QMutexPool *qt_thread_mutexpool = 0;
 
 class QGlobalThreadInitializer
@@ -66,22 +64,19 @@ class QGlobalThreadInitializer
 public:
     inline QGlobalThreadInitializer()
     {
-	qt_thread_dict = new QPtrDict<QThreadPrivate>;
 	qt_thread_mutexpool = new QMutexPool( FALSE );
     }
 
     inline ~QGlobalThreadInitializer()
     {
-	delete qt_thread_dict;
 	delete qt_thread_mutexpool;
-	qt_thread_dict = 0;
 	qt_thread_mutexpool = 0;
     }
 };
 QGlobalThreadInitializer qt_global_thread_initializer;
 
-extern "C" { static void *start_thread( void *arg ); }
-extern "C" { static void finish_thread( void * ); }
+extern "C" { static void *start_thread( void *_arg ); }
+extern "C" { static void finish_thread( void *arg ); }
 
 
 class QThreadPrivate {
@@ -91,6 +86,7 @@ public:
     bool finished : 1;
     bool running  : 1;
     bool orphan   : 1;
+    void *args[2];
 
     QThreadPrivate();
 
@@ -103,28 +99,28 @@ inline QThreadPrivate::QThreadPrivate()
 }
 
 extern "C" {
-    static void *start_thread( void *arg )
+    static void *start_thread( void *_arg )
     {
-	pthread_cleanup_push( finish_thread, 0 );
+	void **arg = (void **) _arg;
+
+	pthread_cleanup_push( finish_thread, arg[1] );
 	pthread_testcancel();
 
-	QThreadPrivate::start( (QThread *) arg );
+	QThreadPrivate::start( (QThread *) arg[0] );
 
 	pthread_cleanup_pop( TRUE );
 
 	return 0;
     }
 
-    static void finish_thread( void * )
+    static void finish_thread( void *arg )
     {
-	QThreadPrivate *d = 0;
-	{
-	    QMutexLocker locker( qt_global_mutexpool->get( qt_thread_dict ) );
-	    d = qt_thread_dict->take( (void *) QThread::currentThread() );
-	}
+	QThreadPrivate *d = (QThreadPrivate *) arg;
 
 	if ( ! d ) {
-	    qWarning( "QThread: internal error: data missing for running thread." );
+#ifdef QT_CHECK_STATE
+	    qWarning( "QThread: internal error: zero data for running thread." );
+#endif // QT_CHECK_STATE
 	    return;
 	}
 
@@ -134,6 +130,8 @@ extern "C" {
 	d->thread_id = 0;
 
 	d->thread_done.wakeAll();
+
+	d->args[0] = d->args[1] = 0;
 
 	if ( d->orphan )
 	    delete d;
@@ -419,12 +417,6 @@ QThread::QThread()
 QThread::~QThread()
 {
     QMutexLocker locker( qt_thread_mutexpool->get( d ) );
-
-    if ( d->thread_id ) {
-	QMutexLocker dict_locker( qt_global_mutexpool->get( qt_thread_dict ) );
-	qt_thread_dict->remove( (void *) d->thread_id );
-    }
-
     if ( d->running && !d->finished ) {
 #ifdef QT_CHECK_STATE
 	qWarning("QThread object destroyed while thread is still running.");
@@ -433,7 +425,6 @@ QThread::~QThread()
 	d->orphan = TRUE;
 	return;
     }
-
 
     delete d;
 }
@@ -461,7 +452,7 @@ void QThread::start()
     if ( d->running ) {
 #ifdef QT_CHECK_STATE
 	qWarning( "Attempt to start a thread already running" );
-#endif
+#endif // QT_CHECK_STATE
 
 	d->thread_done.wait( locker.mutex() );
     }
@@ -474,17 +465,15 @@ void QThread::start()
     pthread_attr_init( &attr );
     pthread_attr_setinheritsched( &attr, PTHREAD_INHERIT_SCHED );
     pthread_attr_setdetachstate( &attr, PTHREAD_CREATE_DETACHED );
-    ret = pthread_create( &d->thread_id, &attr, start_thread, (void *) this );
+    d->args[0] = this;
+    d->args[1] = d;
+    ret = pthread_create( &d->thread_id, &attr, start_thread, d->args );
     pthread_attr_destroy( &attr );
 
-    if ( !ret ) {
-	QMutexLocker dict_locker( qt_global_mutexpool->get( qt_thread_dict ) );
-	qt_thread_dict->insert( (void *) d->thread_id, d );
-    } else {
 #ifdef QT_CHECK_STATE
+    if ( ret )
 	qWarning( "QThread::start: thread creation error: %s", strerror( ret ) );
-#endif
-    }
+#endif // QT_CHECK_STATE
 }
 
 /*!
