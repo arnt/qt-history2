@@ -762,6 +762,7 @@ bool QDB2Result::exec()
     setActive( TRUE );
     d->valueCache.resize( count );
 
+#if QT_VERSION >= 0x030200
     //get out parameters
     if ( extension()->index.count() > 0 ) {
 	QMap<int, QString>::Iterator it;
@@ -827,6 +828,7 @@ bool QDB2Result::exec()
 	    tmpStorage.removeFirst();
 	}
     }
+#endif    
     return TRUE;
 }
 
