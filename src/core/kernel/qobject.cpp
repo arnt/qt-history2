@@ -1325,6 +1325,17 @@ void QObjectPrivate::refSender(QObject *sender)
 
     if (!created) {
         senders->lock.acquire();
+        if (!senders->active && senders->senders != senders->stack) {
+            // deallocate the separate senders array (keeping the
+            // structure and array in a single memory block
+            senders = (Senders *)
+                      qRealloc(senders, sizeof(Senders)
+                               + (senders->count - 1) * sizeof(Senders::Sender));
+            ::memcpy(senders->stack, senders->senders,
+                     senders->count * sizeof(Senders::Sender));
+            qFree(senders->senders);
+            senders->senders = senders->stack;
+        }
         while (i < senders->count) {
             if (senders->senders[i].sender == sender) {
                 ++senders->senders[i].ref;
@@ -1423,7 +1434,7 @@ QObject *QObjectPrivate::setCurrentSender(Senders *senders, QObject *sender, boo
     Resets current sender, dereferences senders list, and frees it
     when no longer referenced.
  */
-void QObjectPrivate::resetCurrentSender(Senders *&senders, QObject *sender, bool was_active)
+void QObjectPrivate::resetCurrentSender(Senders *senders, QObject *sender, bool was_active)
 {
     Q_ASSERT(senders);
 
@@ -1436,16 +1447,6 @@ void QObjectPrivate::resetCurrentSender(Senders *&senders, QObject *sender, bool
         qFree(senders);
     } else {
         senders->active = was_active;
-        if (senders->senders != senders->stack) {
-            senders = (Senders *)
-                      qRealloc(senders, sizeof(Senders)
-                               + (senders->count - 1) * sizeof(Senders::Sender));
-            ::memcpy(senders->stack, senders->senders,
-                     senders->count * sizeof(Senders::Sender));
-            qFree(senders->senders);
-            senders->senders = senders->stack;
-        }
-
         senders->current = 0;
         if (sender) {
             // only if the new current sender is still in the list
@@ -1582,25 +1583,37 @@ void QObjectPrivate::addConnection(int signal, QObject *receiver, int member, in
 
     if (!created) {
         connections->lock.acquire();
-
-        if (connections->dirty && !connections->active) {
-            // some items in the connection list have null-receivers
-            // due to disconnect, indicated by the dirty flag.  The
-            // list is not active currently, which gives us a splendid
-            // opportunity to compress it.
-            int j = 0;
-            while (i < connections->count) {
-                while (j < connections->count && !connections->connections[j].receiver)
-                    ++j;
-                if (j < connections->count)
-                    connections->connections[i] = connections->connections[j++];
-                else
-                    connections->connections[i].receiver = 0;
-                ++i;
+        if (!connections->active) {
+            if (connections->connections != connections->stack) {
+                // deallocate the separate connections array (keeping
+                // the structure and array in a single memory block
+                connections =
+                    (Connections *)
+                    qRealloc(connections, sizeof(Connections)
+                             + (connections->count - 1) * sizeof(Connections::Connection));
+                ::memcpy(connections->stack, connections->connections,
+                         connections->count * sizeof(Connections::Connection));
+                qFree(connections->connections);
+                connections->connections = connections->stack;
             }
-            connections->dirty = false;
+            if (connections->dirty) {
+                // some items in the connection list have null-receivers
+                // due to disconnect, indicated by the dirty flag.  The
+                // list is not active currently, which gives us a splendid
+                // opportunity to compress it.
+                int j = 0;
+                while (i < connections->count) {
+                    while (j < connections->count && !connections->connections[j].receiver)
+                        ++j;
+                    if (j < connections->count)
+                        connections->connections[i] = connections->connections[j++];
+                    else
+                        connections->connections[i].receiver = 0;
+                    ++i;
+                }
+                connections->dirty = false;
+            }
         }
-
         // pick the first spare item from the end, otherwise grow the list
         i = connections->count;
         if (!connections->active) {
@@ -1693,7 +1706,7 @@ void QObjectPrivate::setActive(Connections *connections, bool *was_active)
     Note: The connections lock MUST be LOCKED before calling this
     function.  The lock will be UNLOCKED when this function returns.
 */
-void QObjectPrivate::resetActive(Connections *&connections, bool was_active)
+void QObjectPrivate::resetActive(Connections *connections, bool was_active)
 {
     if (!was_active && connections->orphaned) {
         if (connections->connections != connections->stack)
@@ -1702,16 +1715,6 @@ void QObjectPrivate::resetActive(Connections *&connections, bool was_active)
         qFree(connections);
     } else {
         connections->active = was_active;
-        if (connections->connections != connections->stack) {
-            connections = (Connections *)
-                          qRealloc(connections, sizeof(Connections)
-                                   + (connections->count - 1) * sizeof(Connections::Connection));
-            ::memcpy(connections->stack, connections->connections,
-                     connections->count * sizeof(Connections::Connection));
-            qFree(connections->connections);
-            connections->connections = connections->stack;
-        }
-
         connections->lock.release();
     }
 }
@@ -2355,35 +2358,22 @@ void QMetaObject::activate(QObject * const obj, int signal_index, void **argv)
             try {
                 c->receiver->qt_metacall((Call)((c->member & 1) + 1), c->member >> 1, argv);
             } catch (...) {
-                QObjectPrivate::resetCurrentSender((senders->orphaned || !c->receiver
-                                                    ? senders :
-                                                    c->receiver->d->senders),
-                                                   sender, was_senders_active);
-
+                QObjectPrivate::resetCurrentSender(senders, sender, was_senders_active);
                 connections->lock.acquire();
-                QObjectPrivate::resetActive((connections->orphaned
-                                             ? connections
-                                             : obj->d->connections),
-                                            was_connections_active);
+                QObjectPrivate::resetActive(connections, was_connections_active);
 
                 throw;
             }
 #endif
-            QObjectPrivate::resetCurrentSender((senders->orphaned || !c->receiver
-                                                ? senders :
-                                                c->receiver->d->senders),
-                                               sender, was_senders_active);
 
+            QObjectPrivate::resetCurrentSender(senders, sender, was_senders_active);
             connections->lock.acquire();
             if (connections->orphaned)
                 break;
         }
     }
 
-    QObjectPrivate::resetActive((connections->orphaned
-                                 ? connections
-                                 : obj->d->connections),
-                                was_connections_active);
+    QObjectPrivate::resetActive(connections, was_connections_active);
 }
 
 /*!\internal

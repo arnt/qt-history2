@@ -79,7 +79,7 @@ public:
     void removeReceiver(QObject *receiver);
 
     static void setActive(Connections *connections, bool *was_active);
-    static void resetActive(Connections *&connections, bool was_active);
+    static void resetActive(Connections *connections, bool was_active);
 
     // slot connections
     struct Senders
@@ -102,7 +102,7 @@ public:
     void removeSender(QObject *sender);
 
     static QObject *setCurrentSender(Senders *senders, QObject *sender, bool *was_active);
-    static void resetCurrentSender(Senders *&senders, QObject *sender, bool was_active);
+    static void resetCurrentSender(Senders *senders, QObject *sender, bool was_active);
 
     QList<QPointer<QObject> > eventFilters;
 
