@@ -250,8 +250,8 @@ font uses over 1 MB of memory.
 \section1 The font definition file
 
 When Qt/Embedded applications run, they look for a file called
-\c $QTDIR/etc/fonts/fontdir or
-\c /usr/local/qt-embedded/etc/fonts/fontdir. This file defines the
+\c $QTDIR/lib/fonts/fontdir or
+\c /usr/local/qt-embedded/lib/fonts/fontdir. This file defines the
 fonts available to the application. It has the following format:
 \quote
    \e name \e file \e renderer \e italic \e weight \e size \e flags
@@ -262,7 +262,7 @@ where
 \header \i Field \i Value
 \row \i \e name \i \c Helvetica, \c Times, etc.
 \row \i \e file \i \c helvR0810.bdf, \c verdana.ttf, etc.
-\row \i \e renderer \i \c BDF or \c TTF
+\row \i \e renderer \i \c BDF or \c FT
 \row \i \e italic \i \c y or \c n
 \row \i \e weight \i \c 50 is normal, \c 75 is bold, etc.
 \row \i \e size \i \c 0 for scalable or pointsize times 10 (e.g., \c 120
