@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#302 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#303 $
 **
 ** Implementation of QFileDialog class
 **
@@ -856,7 +856,7 @@ QFileListView::QFileListView( QWidget *parent, QFileDialog *dlg )
 		this, SLOT( changeSortColumn( int ) ) );
     connect( header(), SIGNAL( sectionClicked( int ) ),
 	     this, SLOT( changeSortColumn2( int ) ) );
-    
+
     viewport()->setAcceptDrops( TRUE );
     sortcolumn = 0;
     ascending = TRUE;
@@ -868,7 +868,7 @@ void QFileListView::setSorting( int column, bool increasing )
 	QListView::setSorting( column, increasing );
 	return;
     }
-    
+
     sortAscending = ascending = increasing;
     sortcolumn = column;
     switch ( column ) {
@@ -2082,9 +2082,7 @@ bool QFileDialog::showHiddenFiles() const
 
 void QFileDialog::rereadDir()
 {
-    d->url.listEntries( d->url.nameFilter() , bShowHiddenFiles ? QDir::All | QDir::Hidden : QDir::DefaultFilter,
-			QDir::DirsFirst | ( sortFilesBy != 0x16 ? sortFilesBy : QDir::Name ) );
-
+    d->url.listEntries();
 }
 
 
@@ -3610,7 +3608,6 @@ void QFileDialog::urlFinished( int action )
 	    ui.setSize( 0 );
 	    insertEntry( ui );
 	}
-	// ### hack
 	resortDir();
     } else if ( ( action == QUrl::ActCopyFiles || action == QUrl::ActMoveFiles ) &&
 		d->progressDia ) {
@@ -3648,81 +3645,22 @@ void QFileDialog::insertEntry( const QUrlInfo &inf )
     } else if ( inf.name() == "." )
 	return;
 
-    if ( d->url.isLocalFile() ) {
-	QFileDialogPrivate::File * i = 0;
-	QFileDialogPrivate::MCItem *i2 = 0;
-	i = new QFileDialogPrivate::File( d, &inf, files );
-	i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i );
+    // check for hidden files
+    if ( !bShowHiddenFiles && inf.name() != ".." &&
+	 inf.name()[ 0 ] == QChar( '.' ) )
+	return;
+    
+    QFileDialogPrivate::File * i = 0;
+    QFileDialogPrivate::MCItem *i2 = 0;
+    i = new QFileDialogPrivate::File( d, &inf, files );
+    i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i );
 
-	if ( d->mode == ExistingFiles && inf.isDir() ) {
-	    i->setSelectable( FALSE );
-	    i2->setSelectable( FALSE );
-	}
-	
-	i->i = i2;
-    } else {
-	if ( !bShowHiddenFiles && inf.name() != ".." &&
-	     inf.name() [ 0 ] == QChar( '.' ) )
-	    return;
-	
-	QFileDialogPrivate::File * i = 0;
-	QFileDialogPrivate::MCItem *i2 = 0;
-
-	if ( sortFilesBy == QDir::Unsorted ) {
-	    i = new QFileDialogPrivate::File( d, &inf, files );
-	    i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i );
-	} else {
-	    QListViewItemIterator it( files );	
-	    QListViewItem *after = it.current();
-
-	    bool iterate = TRUE;
-	    if ( it.current() ) {
-		if ( inf.isDir() ) {
-		    if ( !( ( QFileDialogPrivate::File * )it.current() )->info.isDir() ) {
-			after = 0;
-			iterate = FALSE;
-		    }
-		} else {
-		    for ( ; it.current() &&
-			      ( ( QFileDialogPrivate::File * )it.current() )->info.isDir() ; ++it)
-			after = it.current();
-		}
-	    }
-	
-	    if ( iterate ) { 	
-		for ( ; it.current(); ++it ) {
-		    after = it.current();
-		    if ( inf.isDir() && !( ( QFileDialogPrivate::File * )it.current() )->info.isDir() &&
-			 after ) {
-			QListViewItemIterator i( after );
-			--i;
-			if ( i.current() )
-			    after = i.current();
-			break;
-		    }
-		    if ( QUrlInfo::greaterThan(	( ( QFileDialogPrivate::File * )it.current() )->info, inf,
-						sortFilesBy ) ) {
-			break;
-		    }
-		}
-	    }
-	
-	    i = new QFileDialogPrivate::File( d, &inf, files, after );
-	    if ( after )
-		i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i,
-						     ( ( QFileDialogPrivate::File * )after )->i );
-	    else
-		i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i );
-	}
-	
-	if ( d->mode == ExistingFiles && inf.isDir() ) {
-	    i->setSelectable( FALSE );
-	    i2->setSelectable( FALSE );
-	}
-	
-	i->i = i2;
-	// #### todo
+    if ( d->mode == ExistingFiles && inf.isDir() ) {
+	i->setSelectable( FALSE );
+	i2->setSelectable( FALSE );
     }
+	
+    i->i = i2;
 }									
 
 void QFileDialog::removeEntry( const QString &filename )
@@ -3834,14 +3772,14 @@ static int cmpInfo( const void *n1, const void *n2 )
 
     QUrlInfo *i1 = ( QUrlInfo *)n1;
     QUrlInfo *i2 = ( QUrlInfo *)n2;
-    
+
     if ( QUrlInfo::equal( *i1, *i2, sortFilesBy ) )
 	return 0;
     else if ( QUrlInfo::greaterThan( *i1, *i2, sortFilesBy ) )
 	return 1;
     else if ( QUrlInfo::lessThan( *i1, *i2, sortFilesBy ) )
 	return -1;
-    
+
     // can't happen...
     return 0;
 }
@@ -3852,53 +3790,50 @@ static int cmpInfo( const void *n1, const void *n2 )
 
 void QFileDialog::resortDir()
 {
-    int numFiles = 0, numDirs = 0;
-    int i = 0, j = 0;
-    
-    QListViewItemIterator it( files );
-    for ( i = 0; it.current(); ++it, ++i ) {
-	if ( ( ( QFileDialogPrivate::File *)it.current() )->info.isDir() )
-	    ++numDirs;
-	else
-	    ++numFiles;
-    }
-    
-    QUrlInfo *filelist = new QUrlInfo[ numFiles ];
-    QUrlInfo *dirlist = new QUrlInfo[ numDirs ];
-    QFileDialogPrivate::File *item = 0;
-    
-    it = QListViewItemIterator( files );
-    for ( i = 0, j = 0; it.current(); ++it ) {
-	if ( ( ( QFileDialogPrivate::File *)it.current() )->info.isDir() )
-	    dirlist[ i++ ] = ( ( QFileDialogPrivate::File *)it.current() )->info;
-        else
-	    filelist[ j++ ] = ( ( QFileDialogPrivate::File *)it.current() )->info;
-    }
+    int num = d->moreFiles->count();
+    int i = 0;
 
-    qsort( filelist, numFiles, sizeof( QUrlInfo ), cmpInfo );
-    qsort( dirlist, numDirs, sizeof( QUrlInfo ), cmpInfo );
-    
+    QUrlInfo *items = new QUrlInfo[ num ];
+    QFileDialogPrivate::File *item = 0;
+    QFileDialogPrivate::MCItem *item2 = 0;
+
+    QListViewItemIterator it( files );
+    for ( i = 0; it.current(); ++it )
+	items[ i++ ] = ( ( QFileDialogPrivate::File *)it.current() )->info;
+
+    qsort( items, num, sizeof( QUrlInfo ), cmpInfo );
+
     files->clear();
     d->moreFiles->clear();
     files->setSorting( -1 );
-    
+
     if ( !sortAscending ) {
-	for ( i = numFiles - 1; i >= 0; --i ) {
-	    item = new QFileDialogPrivate::File( d, &filelist[ i ], files );
-	    ( void )new QFileDialogPrivate::MCItem( d->moreFiles, item );
+	for ( i = num - 1; i >= 0; --i ) {
+	    if ( items[ i ].isDir() )
+		continue;
+	    item = new QFileDialogPrivate::File( d, &items[ i ], files );
+	    item2 = new QFileDialogPrivate::MCItem( d->moreFiles, item );
 	}
-	for ( i = numDirs - 1; i >= 0; --i ) {
-	    item = new QFileDialogPrivate::File( d, &dirlist[ i ], files );
-	    ( void )new QFileDialogPrivate::MCItem( d->moreFiles, item );
+	for ( i = num - 1; i >= 0; --i ) {
+	    if ( !items[ i ].isDir() )
+		continue;
+	    item = new QFileDialogPrivate::File( d, &items[ i ], files );
+	    item2 = new QFileDialogPrivate::MCItem( d->moreFiles, item );
 	}
     } else {
-	for ( i = 0; i < numDirs; ++i ) {
-	    item = new QFileDialogPrivate::File( d, &dirlist[ i ], files );
-	    ( void )new QFileDialogPrivate::MCItem( d->moreFiles, item );
+	for ( i = 0; i < num; ++i ) {
+	    if ( !items[ i ].isDir() )
+		continue;
+	    item = new QFileDialogPrivate::File( d, &items[ i ], files );
+	    item2 = new QFileDialogPrivate::MCItem( d->moreFiles, item );
 	}
-	for ( i = 0; i < numFiles; ++i ) {
-	    item = new QFileDialogPrivate::File( d, &filelist[ i ], files );
-	    ( void )new QFileDialogPrivate::MCItem( d->moreFiles, item );
+	for ( i = 0; i < num; ++i ) {
+	    if ( items[ i ].isDir() )
+		continue;
+	    item = new QFileDialogPrivate::File( d, &items[ i ], files );
+	    item2 = new QFileDialogPrivate::MCItem( d->moreFiles, item );
 	}
     }
+    
+    delete [] items;
 }
