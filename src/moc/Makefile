@@ -13,12 +13,17 @@ LIBDIR	=	$(BASEDIR)/lib
 CFLAGS	=	-O2
 CC	=	gcc
 
+# $Source: /tmp/cvs/qt/src/moc/Makefile,v $
+#
+
+# More defines
+
 LEX	=	flex
 YACC	=	yacc -d
 
 ####### Files
 
-SOURCES =	moc.l		moc.y
+SOURCES =	moc.l moc.y moc.cpp
 LEXOUT	=	lex.yy.c
 YACCOUT =	y.tab.c
 YACCHDR =	y.tab.h
@@ -59,7 +64,7 @@ depend:
 
 clean:
 	rm -f *.o *.bak *.BAK *~ *% #*
-	rm -f $(TARGET) $(LEXOUT) $(YACCOUT) $(YACCHDR) $(TMPCPP)
+	rm -f $(TARGET) $(YACCOUT) $(YACCHDR)
 
 ####### Lex/yacc etc.
 
@@ -69,9 +74,6 @@ $(LEXOUT): moc.l
 $(TMPCPP): moc.y $(LEXOUT)
 	$(YACC) moc.y
 	mv $(YACCOUT) $(TMPCPP)
-
-$(OBJ): $(TMPCPP)
-	$(CC) -c $(CFLAGS) $(FLEXFLAGS) -I$(INCDIR) $<
 
 ####### Tools needed for moc
 
