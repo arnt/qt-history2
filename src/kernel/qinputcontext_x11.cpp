@@ -3,7 +3,7 @@
 **
 ** Implementation of QInputContext class
 **
-** Copyright (C) 2000-2001 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -33,17 +33,16 @@
 **
 **********************************************************************/
 
-
 #include "qplatformdefs.h"
-
+#include "qinputcontext_p.h"
 #include "qapplication.h"
 #include "qwidget.h"
-#include "qinputcontext_p.h"
 
 #include <stdlib.h>
 #include <limits.h>
 
-int compose_keycode = 0;
+
+static int compose_keycode = 0;
 
 #if !defined(QT_NO_XIM)
 
