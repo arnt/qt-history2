@@ -84,7 +84,7 @@ ExampleWidget::ExampleWidget( QWidget *parent, const char *name )
     // vertically. It will stretch horizontally because there are no
     // widgets beside it to take up horizontal stretch.
     //    topLayout->addWidget( bigWidget, 10 );
-    topLayout->addWidget( bigWidget ); //###
+    topLayout->addWidget( bigWidget ); 
 
     // Make a grid that will hold a vertical table of QLabel/QLineEdit
     // pairs next to a large QMultiLineEdit.
