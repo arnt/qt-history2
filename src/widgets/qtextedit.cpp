@@ -65,9 +65,9 @@
 
 #ifndef QT_NO_ACCEL
 #include <qkeysequence.h>
-#define ACCEL_KEY(k) QString(QKeySequence( Qt::CTRL | Qt::Key_ ## k ))
+#define ACCEL_KEY(k) "\t" + QString(QKeySequence( Qt::CTRL | Qt::Key_ ## k ))
 #else
-#define ACCEL_KEY(k) QString("Ctrl+" #k)
+#define ACCEL_KEY(k) "\t" + QString("Ctrl+" #k)
 #endif
 
 struct QUndoRedoInfoPrivate
