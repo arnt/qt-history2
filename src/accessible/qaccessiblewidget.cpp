@@ -197,18 +197,21 @@ QAccessible::Relation QAccessibleWidget::relationTo(int child, const QAccessible
 int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterface **target) const
 {
     *target = 0;
-    if (entry < 1) entry = 1;
     QObject *targetObject = 0;
+
+    QObjectList childList = widget()->queryList( "QWidget", 0, FALSE, FALSE );
+    bool complexWidget = childList.count() < childCount();
 
     switch (relation) {
     case Self:
 	const_cast<QAccessibleWidget*>(this)->queryInterface(IID_QAccessible, (QUnknownInterface**)target);
 	return 0;
     case Child:
-	{
-	    QObjectList cl = widget()->queryList( "QWidget", 0, FALSE, FALSE );
-	    if (cl.count() >= entry)
-		targetObject = cl.at(entry - 1);
+	if (complexWidget) {
+	    return entry;
+	}else {
+	    if (childList.count() >= entry)
+		targetObject = childList.at(entry - 1);
 	}
 	break;
     case Ancestor:
@@ -249,10 +252,32 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 	}
 	break;
     case QAccessible::Left:
+	if (complexWidget && entry) {
+	    if (entry < 2 || widget()->height() > widget()->width() + 20) // looks vertical
+		return -1;
+	    return entry - 1;
+	}
+	// fall through
     case QAccessible::Right:
+	if (complexWidget && entry) {
+	    if (entry >= childCount() || widget()->height() > widget()->width() + 20) // looks vertical
+		return -1;
+	    return entry + 1;
+	}
+	// fall through
     case QAccessible::Above:
+	if (complexWidget && entry) {
+	    if (entry < 2 || widget()->width() > widget()->height() + 20) // looks horizontal
+		return - 1;
+	    return entry - 1;
+	}
+	// fall through
     case QAccessible::Below:
-	{
+	if (complexWidget && entry) {
+	    if (entry >= childCount() || widget()->width() > widget()->height()  + 20) // looks horizontal
+		return - 1;
+	    return entry + 1;
+	} else {
 	    QWidget *start = widget();
 	    QWidget *parentWidget = start->parentWidget();
 	    if (!parentWidget)
