@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.h#31 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.h#32 $
 **
 ** Definition of QRadioButton class
 **
@@ -55,8 +55,10 @@ private:
     uint    noHit : 1;
 
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QRadioButton( const QRadioButton & );
     QRadioButton &operator=( const QRadioButton & );
+#endif
 };
 
 

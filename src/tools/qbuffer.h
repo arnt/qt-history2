@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.h#18 $
+** $Id: //depot/qt/main/src/tools/qbuffer.h#19 $
 **
 ** Definition of QBuffer class
 **
@@ -64,8 +64,10 @@ private:
     uint  a_inc;
 
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QBuffer( const QBuffer & );
     QBuffer &operator=( const QBuffer & );
+#endif
 };
 
 

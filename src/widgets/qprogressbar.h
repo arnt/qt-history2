@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.h#13 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.h#14 $
 **
 ** Definition of QProgressBar class
 **
@@ -60,8 +60,10 @@ private:
     QString	progress_str;
 
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QProgressBar( const QProgressBar & );
     QProgressBar &operator=( const QProgressBar & );
+#endif
 };
 
 

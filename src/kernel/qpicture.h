@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.h#25 $
+** $Id: //depot/qt/main/src/kernel/qpicture.h#26 $
 **
 ** Definition of QPicture class
 **
@@ -58,8 +58,10 @@ private:
     bool	formatOk;
 
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QPicture( const QPicture & );
     QPicture &operator=( const QPicture & );
+#endif
 };
 
 

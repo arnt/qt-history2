@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.h#39 $
+** $Id: //depot/qt/main/src/tools/qtextstream.h#40 $
 **
 ** Definition of QTextStream class
 **
@@ -156,8 +156,10 @@ private:
     QTextStream &writeBlock( const QChar* p, uint len );
 
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QTextStream( const QTextStream & );
     QTextStream &operator=( const QTextStream & );
+#endif
 };
 
 typedef QTextStream QTS;

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.h#59 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.h#60 $
 **
 ** Definition of QComboBox class
 **
@@ -138,8 +138,10 @@ private:
     QComboData	*d;
 
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QComboBox( const QComboBox & );
     QComboBox &operator=( const QComboBox & );
+#endif
 };
 
 

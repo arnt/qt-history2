@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#34 $
 **
 ** Implementation of QMetaObject class
 **
@@ -26,6 +26,7 @@
 #include "qobjectdict.h"
 #include "qstrlist.h"
 
+
 /* not documented
   \class QMetaObject qmetaobject.h
 
@@ -50,6 +51,18 @@ QObjectDictionary *objectDict = 0;		// global object dictionary
   Internal dictionary for fast access to class members
  *****************************************************************************/
 
+template class Q_EXPORT QDict<QMetaData>;
+
+class Q_EXPORT QMemberDict : public QDict<QMetaData>
+{
+public:
+    QMemberDict(int size=17,bool cs=TRUE,bool ck=TRUE) :
+	QDict<QMetaData>(size,cs,ck) {}
+    QMemberDict( const QMemberDict &dict ) : QDict<QMetaData>(dict) {}
+   ~QMemberDict() { clear(); }
+    QMemberDict &operator=(const QMemberDict &dict)
+	{ return (QMemberDict&)QDict<QMetaData>::operator=(dict); }
+};
 
 /*
   Calculate optimal dictionary size for n entries using prime numbers,

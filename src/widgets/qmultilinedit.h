@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#44 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#45 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -163,8 +163,10 @@ private:
     void	turnMarkOff();
 
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QMultiLineEdit( const QMultiLineEdit & );
     QMultiLineEdit &operator=( const QMultiLineEdit & );
+#endif
 };
 
 inline bool QMultiLineEdit::isReadOnly() const { return readOnly; }

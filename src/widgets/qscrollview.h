@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.h#25 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.h#26 $
 **
 ** Definition of QScrollView class
 **
@@ -121,8 +121,10 @@ private slots:
     void vslide(int);
 
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QScrollView( const QScrollView & );
     QScrollView &operator=( const QScrollView & );
+#endif
     void changeFrameRect(const QRect&);
 };
 

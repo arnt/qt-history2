@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#128 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#129 $
 **
 ** Global type declarations and definitions
 **
@@ -228,6 +228,18 @@
 
 #if defined(DEFAULT_MACROCLASS) && defined(DEFAULT_TEMPLATECLASS)
 #error "Define DEFAULT_MACROCLASS or DEFAULT_TEMPLATECLASS, not both!"
+#endif
+
+
+//
+// Create Qt DLL if QT_DLL is defined (Windows only)
+//
+
+#if defined(QT_DLL)
+#define Q_EXPORT __declspec(dllexport)
+#else
+#define Q_EXPORT
+#define Q_DISABLE_COPY
 #endif
 
 
@@ -462,6 +474,5 @@ void qObsolete( const char *obj, const char *oldfunc );
 void qObsolete( const char *message );
 #endif
 
-#define Q_EXPORT
 
 #endif // QGLOBAL_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.h#27 $
+** $Id: //depot/qt/main/src/widgets/qslider.h#28 $
 **
 ** Definition of QSlider class
 **
@@ -123,8 +123,10 @@ private:
     Orientation orient;
 
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QSlider( const QSlider & );
     QSlider &operator=( const QSlider & );
+#endif
 };
 
 inline bool QSlider::tracking() const

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#66 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#67 $
 **
 ** Definition of QListBox widget class
 **
@@ -65,8 +65,10 @@ private:
     friend class QListBox;
 
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QListBoxItem( const QListBoxItem & );
     QListBoxItem &operator=( const QListBoxItem & );
+#endif
 };
 
 
@@ -79,8 +81,10 @@ public:
     int	  height( const QListBox * ) const;
     int	  width( const QListBox * )  const;
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QListBoxText( const QListBoxText & );
     QListBoxText &operator=( const QListBoxText & );
+#endif
 };
 
 
@@ -97,8 +101,10 @@ protected:
 private:
     QPixmap pm;
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QListBoxPixmap( const QListBoxPixmap & );
     QListBoxPixmap &operator=( const QListBoxPixmap & );
+#endif
 };
 
 
@@ -237,8 +243,10 @@ private:
     static QListBox * changedListBox;
 
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QListBox( const QListBox & );
     QListBox &operator=( const QListBox & );
+#endif
 };
 
 

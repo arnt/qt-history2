@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsemimodal.h#6 $
+** $Id: //depot/qt/main/src/kernel/qsemimodal.h#7 $
 **
 ** Definition of QSemiModal class
 **
@@ -50,8 +50,10 @@ private:
     uint	did_resize : 1;
 
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QSemiModal( const QSemiModal & );
     QSemiModal &operator=( const QSemiModal & );
+#endif
 };
 
 

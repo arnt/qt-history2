@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketnotifier.h#18 $
+** $Id: //depot/qt/main/src/kernel/qsocketnotifier.h#19 $
 **
 ** Definition of QSocketNotifier class
 **
@@ -56,8 +56,10 @@ private:
     bool	snenabled;
 
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QSocketNotifier( const QSocketNotifier & );
     QSocketNotifier &operator=( const QSocketNotifier & );
+#endif
 };
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#56 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#57 $
 **
 ** Definition of QMenuData class
 **
@@ -71,8 +71,10 @@ private:
     uint	is_dirty     : 1;		// dirty (update) flag
 
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QMenuItem( const QMenuItem & );
     QMenuItem &operator=( const QMenuItem & );
+#endif
 };
 
 #include "qlist.h"

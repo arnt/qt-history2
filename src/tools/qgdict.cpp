@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#60 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#61 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -27,6 +27,7 @@
 #include "qdatastream.h"
 #include <ctype.h>
 
+
 /*!
   \class QGDict qgdict.h
   \brief The QGDict class is an internal class for implementing QDict and QIntDict.
@@ -47,6 +48,18 @@
 static const int op_find = 0;
 static const int op_insert = 1;
 static const int op_replace = 2;
+
+
+class QGDItList : public QList<QGDictIterator>
+{
+public:
+    QGDItList() : QList<QGDictIterator>() {}
+    QGDItList( const QGDItList &list ) : QList<QGDictIterator>(list) {}
+   ~QGDItList() { clear(); }
+    QGDItList &operator=(const QGDItList &list)
+	{ return (QGDItList&)QList<QGDictIterator>::operator=(list); }
+};
+
 
 /*****************************************************************************
   Default implementation of virtual functions

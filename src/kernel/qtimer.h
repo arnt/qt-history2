@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.h#23 $
+** $Id: //depot/qt/main/src/kernel/qtimer.h#24 $
 **
 ** Definition of QTimer class
 **
@@ -55,8 +55,10 @@ private:
     bool	single;
 
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QTimer( const QTimer & );
     QTimer &operator=( const QTimer & );
+#endif
 };
 
 

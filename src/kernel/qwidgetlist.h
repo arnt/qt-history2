@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidgetlist.h#3 $
+** $Id: //depot/qt/main/src/kernel/qwidgetlist.h#4 $
 **
 ** Definition of QWidgetList
 **
@@ -30,7 +30,26 @@
 #endif // QT_H
 
 
-typedef QList<QWidget> QWidgetList;
-typedef QListIterator<QWidget> QWidgetListIt;
+template class Q_EXPORT QList<QWidget>;
+template class Q_EXPORT QListIterator<QWidget>;
+
+class Q_EXPORT QWidgetList : public QList<QWidget>
+{
+public:
+    QWidgetList() : QList<QWidget>() {}
+    QWidgetList( const QWidgetList &list ) : QList<QWidget>(list) {}
+   ~QWidgetList() { clear(); }
+    QWidgetList &operator=(const QWidgetList &list)
+	{ return (QWidgetList&)QList<QWidget>::operator=(list); }
+};
+
+class Q_EXPORT QWidgetListIt : public QListIterator<QWidget>
+{
+public:
+    QWidgetListIt( const QWidgetList &list ) : QListIterator<QWidget>(list) {}
+    QWidgetListIt &operator=(const QWidgetListIt &list)
+	{ return (QWidgetListIt&)QListIterator<QWidget>::operator=(list); }
+};
+
 
 #endif // QWIDGETLIST_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidgetintdict.h#3 $
+** $Id: //depot/qt/main/src/kernel/qwidgetintdict.h#4 $
 **
 ** Definition of QWidgetIntDict
 **
@@ -30,8 +30,26 @@
 #endif // QT_H
 
 
-typedef QIntDict<QWidget> QWidgetIntDict;
-typedef QIntDictIterator<QWidget> QWidgetIntDictIt;
+template class Q_EXPORT QIntDict<QWidget>;
+template class Q_EXPORT QIntDictIterator<QWidget>;
+
+class Q_EXPORT QWidgetIntDict : public QIntDict<QWidget>
+{
+public:
+    QWidgetIntDict(int size=17) : QIntDict<QWidget>(size) {}
+    QWidgetIntDict( const QWidgetIntDict &dict ) : QIntDict<QWidget>(dict) {}
+   ~QWidgetIntDict() { clear(); }
+    QWidgetIntDict &operator=(const QWidgetIntDict &dict)
+	{ return (QWidgetIntDict&)QIntDict<QWidget>::operator=(dict); }
+};
+
+class Q_EXPORT QWidgetIntDictIt : public QIntDictIterator<QWidget>
+{
+public:
+    QWidgetIntDictIt( const QWidgetIntDict &dict ) : QIntDictIterator<QWidget>(dict) {}
+    QWidgetIntDictIt &operator=(const QWidgetIntDictIt &dict)
+	{ return (QWidgetIntDictIt&)QIntDictIterator<QWidget>::operator=(dict); }
+};
 
 
 #endif // QWIDINTDICT_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfocusdata.h#6 $
+** $Id: //depot/qt/main/src/kernel/qfocusdata.h#7 $
 **
 ** Definition of internal QFocusData class
 **
@@ -25,8 +25,7 @@
 #define QFOCUSDATA_H
 
 #ifndef QT_H
-#include "qlist.h"
-#include "qwidget.h"
+#include "qwidgetlist.h"
 #endif // QT_H
 
 
@@ -44,8 +43,8 @@ private:
     friend class QWidget;
     QFocusData()
 	: it(focusWidgets) {}
-    QList<QWidget> focusWidgets;
-    QListIterator<QWidget> it;
+    QWidgetList	  focusWidgets;
+    QWidgetListIt it;
 };
 
 #endif // QFOCUSDATA_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#21 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#22 $
 **
 ** Definition of layout classes
 **
@@ -73,8 +73,10 @@ private:
 
     QLayoutData *extraData;
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QLayout( const QLayout & );
     QLayout &operator=( const QLayout & );
+#endif
 
 };
 
@@ -115,8 +117,10 @@ private:
     bool    pristine;
 
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QBoxLayout( const QBoxLayout & );
     QBoxLayout &operator=( const QBoxLayout & );
+#endif
 
 };
 
@@ -190,8 +194,10 @@ private:
     int cc;
 
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QGridLayout( const QGridLayout & );
     QGridLayout &operator=( const QGridLayout & );
+#endif
 };
 
 

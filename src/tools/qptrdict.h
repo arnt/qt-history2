@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qptrdict.h#6 $
+** $Id: //depot/qt/main/src/tools/qptrdict.h#7 $
 **
 ** Definition of QPtrDict template/macro class
 **
@@ -29,7 +29,7 @@
 #endif // QT_H
 
 
-template<class type> class QPtrDict : public QGDict
+template<class type> class Q_EXPORT QPtrDict : public QGDict
 {
 public:
     QPtrDict(int size=17) : QGDict(size,0,0,TRUE) {}
@@ -58,7 +58,7 @@ private:
 };
 
 
-template<class type> class QPtrDictIterator : public QGDictIterator
+template<class type> class Q_EXPORT QPtrDictIterator : public QGDictIterator
 {
 public:
     QPtrDictIterator(const QPtrDict<type> &d) :QGDictIterator((QGDict &)d) {}

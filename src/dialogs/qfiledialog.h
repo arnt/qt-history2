@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#35 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#36 $
 **
 ** Definition of QFileDialog class
 **
@@ -38,7 +38,7 @@ class QWidget;
 #endif // QT_H
 
 
-class Q_EXPORT QFileIconProvider: public QObject
+class Q_EXPORT QFileIconProvider : public QObject
 {
     Q_OBJECT
 public:
@@ -159,8 +159,10 @@ private:
     QPushButton *cancelB;
 
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QFileDialog( const QFileDialog & );
     QFileDialog &operator=( const QFileDialog & );
+#endif
 };
 
 

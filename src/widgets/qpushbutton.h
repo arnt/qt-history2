@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.h#40 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.h#41 $
 **
 ** Definition of QPushButton class
 **
@@ -77,8 +77,10 @@ private:
     uint	hasMenuArrow	: 1;
 
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QPushButton( const QPushButton & );
     QPushButton &operator=( const QPushButton & );
+#endif
 };
 
 

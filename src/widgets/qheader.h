@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.h#24 $
+** $Id: //depot/qt/main/src/widgets/qheader.h#25 $
 **
 ** Definition of QHeader widget class (table header)
 **
@@ -117,8 +117,10 @@ private:
     QHeaderData *data;
 
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QHeader( const QHeader & );
     QHeader &operator=( const QHeader & );
+#endif
 };
 
 

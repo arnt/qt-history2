@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard.h#17 $
+** $Id: //depot/qt/main/src/kernel/qclipboard.h#18 $
 **
 ** Definition of QClipboard class
 **
@@ -61,8 +61,10 @@ protected:
     friend class QDragManager;
 
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QClipboard( const QClipboard & );
     QClipboard &operator=( const QClipboard & );
+#endif
 };
 
 

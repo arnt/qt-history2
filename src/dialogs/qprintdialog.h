@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.h#20 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.h#21 $
 **
 ** Definition of print dialog.
 **
@@ -69,8 +69,10 @@ private:
     QGroupBox * setupPaper();
 
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QPrintDialog( const QPrintDialog & );
     QPrintDialog &operator=( const QPrintDialog & );
+#endif
 };
 
 

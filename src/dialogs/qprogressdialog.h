@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogressdialog.h#19 $
+** $Id: //depot/qt/main/src/dialogs/qprogressdialog.h#20 $
 **
 ** Definition of QProgressDialog class
 **
@@ -84,8 +84,10 @@ private:
     QProgressData *d;
 
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QProgressDialog( const QProgressDialog & );
     QProgressDialog &operator=( const QProgressDialog & );
+#endif
 };
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignal.h#15 $
+** $Id: //depot/qt/main/src/kernel/qsignal.h#16 $
 **
 ** Definition of QSignal class
 **
@@ -50,8 +50,10 @@ private:
     Q_OBJECT_FAKE
 
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QSignal( const QSignal & );
     QSignal &operator=( const QSignal & );
+#endif
 };
 
 

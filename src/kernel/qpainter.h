@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#113 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#114 $
 **
 ** Definition of QPainter class
 **
@@ -313,8 +313,10 @@ protected:
 		     char **internal, QPainter* painter );
 
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QPainter( const QPainter & );
     QPainter &operator=( const QPainter & );
+#endif
 };
 
 

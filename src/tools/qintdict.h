@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qintdict.h#17 $
+** $Id: //depot/qt/main/src/tools/qintdict.h#18 $
 **
 ** Definition of QIntDict template/macro class
 **
@@ -28,7 +28,8 @@
 #include "qgdict.h"
 #endif // QT_H
 
-template<class type> class QIntDict : public QGDict
+
+template<class type> class Q_EXPORT QIntDict : public QGDict
 {
 public:
     QIntDict(int size=17) : QGDict(size,0,0,TRUE) {}
@@ -56,7 +57,7 @@ private:
     void  deleteItem( GCI d )	{ if ( del_item ) delete (type *)d; }
 };
 
-template<class type> class QIntDictIterator : public QGDictIterator
+template<class type> class Q_EXPORT QIntDictIterator : public QGDictIterator
 {
 public:
     QIntDictIterator(const QIntDict<type> &d) :QGDictIterator((QGDict &)d) {}

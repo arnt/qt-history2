@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#163 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#164 $
 **
 ** Definition of QWidget class
 **
@@ -77,8 +77,12 @@ public:
     QRect	 rect()		const;
     QRect	 childrenRect() const;
 
-    QSize	 minimumSize()	const;
-    QSize	 maximumSize()	const;
+    QSize	 minimumSize()	 const;
+    QSize	 maximumSize()	 const;
+    int		 minimumWidth()  const;
+    int		 minimumHeight() const;
+    int		 maximumWidth()  const;
+    int		 maximumHeight() const;
     virtual void	 setMinimumSize( const QSize & );
     virtual void	 setMinimumSize( int minw, int minh );
     virtual void	 setMaximumSize( const QSize & );
@@ -386,8 +390,10 @@ private:
     friend class QETWidget;
 
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QWidget( const QWidget & );
     QWidget &operator=( const QWidget & );
+#endif
 };
 
 
@@ -439,14 +445,26 @@ inline int QWidget::height() const
 inline QRect QWidget::rect() const
 { return QRect(0,0,crect.width(),crect.height()); }
 
-inline void QWidget::setSizeIncrement( const QSize &s )
-{ setSizeIncrement(s.width(),s.height()); }
+inline int QWidget::minimumWidth() const
+{ return minimumSize().width(); }
+
+inline int QWidget::minimumHeight() const
+{ return minimumSize().height(); }
+
+inline int QWidget::maximumWidth() const
+{ return minimumSize().width(); }
+
+inline int QWidget::maximumHeight() const
+{ return minimumSize().height(); }
 
 inline void QWidget::setMinimumSize( const QSize &s )
 { setMinimumSize(s.width(),s.height()); }
 
 inline void QWidget::setMaximumSize( const QSize &s )
 { setMaximumSize(s.width(),s.height()); }
+
+inline void QWidget::setSizeIncrement( const QSize &s )
+{ setSizeIncrement(s.width(),s.height()); }
 
 inline const QColor &QWidget::backgroundColor() const
 { return bg_col; }

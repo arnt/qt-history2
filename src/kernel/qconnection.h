@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qconnection.h#18 $
+** $Id: //depot/qt/main/src/kernel/qconnection.h#19 $
 **
 ** Definition of QConnection class
 **
@@ -32,7 +32,7 @@
 typedef void (QObject::*QMember)();		// pointer to member function
 
 
-class Q_EXPORT QConnection				// signal coupling
+class Q_EXPORT QConnection
 {
 public:
     QConnection( const QObject *, QMember, const char *memberName );
@@ -52,8 +52,10 @@ private:
     int	     nargs;
 
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QConnection( const QConnection & );
     QConnection &operator=( const QConnection & );
+#endif
 };
 
 

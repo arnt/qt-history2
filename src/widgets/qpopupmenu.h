@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#48 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#49 $
 **
 ** Definition of QPopupMenu class
 **
@@ -121,8 +121,10 @@ private:
     int		maxPMWidth;
 
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QPopupMenu( const QPopupMenu & );
     QPopupMenu &operator=( const QPopupMenu & );
+#endif
 };
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#164 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#165 $
 **
 ** Implementation of QObject class
 **
@@ -24,6 +24,7 @@
 #include "qobject.h"
 #include "qobjectlist.h"
 #include "qobjectdict.h"
+#include "qsignalslotimp.h"
 #include "qregexp.h"
 #include <ctype.h>
 #if defined(DEBUG)

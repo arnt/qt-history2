@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanager.h#17 $
+** $Id: //depot/qt/main/src/kernel/qgmanager.h#18 $
 **
 ** Definition of QGManager class (workhorse for QLayout classes)
 **
@@ -90,8 +90,10 @@ private:
     bool frozen;
 
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QGManager( const QGManager & );
     QGManager &operator=( const QGManager & );
+#endif
 };
 
 

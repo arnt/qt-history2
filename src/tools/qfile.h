@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.h#29 $
+** $Id: //depot/qt/main/src/tools/qfile.h#30 $
 **
 ** Definition of QFile class
 **
@@ -82,8 +82,10 @@ private:
     void	init();
 
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QFile( const QFile & );
     QFile &operator=( const QFile & );
+#endif
 };
 
 

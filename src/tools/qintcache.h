@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qintcache.h#16 $
+** $Id: //depot/qt/main/src/tools/qintcache.h#17 $
 **
 ** Definition of QIntCache template/macro class
 **
@@ -29,7 +29,7 @@
 #endif // QT_H
 
 
-template<class type> class QIntCache : public QGCache
+template<class type> class Q_EXPORT QIntCache : public QGCache
 {
 public:
     QIntCache( const QIntCache<type> &c ) : QGCache(c) {}
@@ -38,28 +38,28 @@ public:
    ~QIntCache()	     { clear(); }
     QIntCache<type> &operator=( const QIntCache<type> &c )
 			{ return (QIntCache<type>&)QGCache::operator=(c); }
-    int	  maxCost()   const  { return QGCache::maxCost(); }
-    int	  totalCost() const  { return QGCache::totalCost(); }
-    void  setMaxCost( int m) { QGCache::setMaxCost(m); }
-    uint  count()     const  { return QGCache::count(); }
-    uint  size()      const  { return QGCache::size(); }
-    bool  isEmpty()   const  { return QGCache::count() == 0; }
-    bool  insert( long k, const type *d, long c=1, int p=0 )
+    int	  maxCost()   const	{ return QGCache::maxCost(); }
+    int	  totalCost() const	{ return QGCache::totalCost(); }
+    void  setMaxCost( int m)	{ QGCache::setMaxCost(m); }
+    uint  count()     const	{ return QGCache::count(); }
+    uint  size()      const	{ return QGCache::size(); }
+    bool  isEmpty()   const	{ return QGCache::count() == 0; }
+    bool  insert( long k, const type *d, int c=1, int p=0 )
 			{ return QGCache::insert((const char*)k,(GCI)d,c,p); }
-    bool  remove( long k )   { return QGCache::remove((const char*)k); }
-    type *take( long k )     { return (type *)QGCache::take((const char*)k);}
-    void  clear()		      { QGCache::clear(); }
+    bool  remove( long k )	{ return QGCache::remove((const char*)k); }
+    type *take( long k )    { return (type *)QGCache::take((const char*)k);}
+    void  clear()	    { QGCache::clear(); }
     type *find( long k, bool ref=TRUE ) const
 			{ return (type *)QGCache::find( (const char*)k,ref);}
     type *operator[]( long k ) const
 			{ return (type *)QGCache::find( (const char*)k); }
     void  statistics() const { QGCache::statistics(); }
 private:
-    void  deleteItem( GCI d ){ if ( del_item ) delete (type *)d; }
+    void  deleteItem( GCI d )	{ if ( del_item ) delete (type *)d; }
 };
 
 
-template<class type> class QIntCacheIterator : public QGCacheIterator
+template<class type> class Q_EXPORT QIntCacheIterator : public QGCacheIterator
 {
 public:
     QIntCacheIterator( const QIntCache<type> &c )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.h#34 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.h#35 $
 **
 ** Definition of QMenuBar class
 **
@@ -99,8 +99,10 @@ private:
     uint	windowsaltactive : 1;
 
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QMenuBar( const QMenuBar & );
     QMenuBar &operator=( const QMenuBar & );
+#endif
 };
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#273 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#274 $
 **
 ** Implementation of QWidget class
 **
@@ -1191,7 +1191,8 @@ QRect QWidget::childrenRect() const
   The widget cannot be resized to a smaller size than the minimum widget
   size.
 
-  \sa setMinimumSize() maximumSize(), sizeIncrement()
+  \sa maximumWidth(), maximumHeight(), setMinimumSize(),
+  maximumSize(), sizeIncrement()
 */
 
 QSize QWidget::minimumSize() const
@@ -1205,7 +1206,8 @@ QSize QWidget::minimumSize() const
   The widget cannot be resized to a larger size than the maximum widget
   size.
 
-  \sa setMaximumSize(), minimumSize(), sizeIncrement()
+  \sa maximumWidth(), maximumHeight(), setMaximumSize(),
+  minimumSize(), sizeIncrement()
 */
 
 QSize QWidget::maximumSize() const
@@ -1213,6 +1215,40 @@ QSize QWidget::maximumSize() const
     return extra ? QSize(extra->maxw,extra->maxh)
 		 : QSize(QCOORD_MAX,QCOORD_MAX);
 }
+
+
+/*!
+  \fn int QWidget::minimumWidth() const
+
+  Returns the widget's minimum width.
+
+  \sa minimumSize(), minimumHeight()
+*/
+
+/*!
+  \fn int QWidget::minimumHeight() const
+
+  Returns the widget's minimum height.
+
+  \sa minimumSize(), minimumWidth()
+*/
+
+/*!
+  \fn int QWidget::maximumWidth() const
+
+  Returns the widget's maximum width.
+
+  \sa maximumSize(), maximumHeight()
+*/
+
+/*!
+  \fn int QWidget::maximumHeight() const
+
+  Returns the widget's maximum height.
+
+  \sa maximumSize(), maximumWidth()
+*/
+
 
 /*!
   Returns the widget size increment.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.h#37 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.h#38 $
 **
 ** Definition of QLCDNumber class
 **
@@ -94,8 +94,10 @@ private:
     QBitArray points;
 
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QLCDNumber( const QLCDNumber & );
     QLCDNumber &operator=( const QLCDNumber & );
+#endif
 };
 
 inline bool QLCDNumber::smallDecimalPoint() const

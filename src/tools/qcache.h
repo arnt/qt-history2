@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcache.h#14 $
+** $Id: //depot/qt/main/src/tools/qcache.h#15 $
 **
 ** Definition of QCache template/macro class
 **
@@ -29,7 +29,7 @@
 #endif // QT_H
 
 
-template<class type> class QCache : public QGCache
+template<class type> class Q_EXPORT QCache : public QGCache
 {
 public:
     QCache( const QCache<type> &c ) : QGCache(c) {}
@@ -50,7 +50,7 @@ public:
     type *take( const char *k )	      { return (type *)QGCache::take(k); }
     void  clear()		      { QGCache::clear(); }
     type *find( const char *k, bool ref=TRUE ) const
-				       { return (type *)QGCache::find(k,ref);}
+				      { return (type *)QGCache::find(k,ref);}
     type *operator[]( const char *k ) const
 				      { return (type *)QGCache::find(k);}
     void  statistics() const	      { QGCache::statistics(); }
@@ -60,7 +60,7 @@ private:
 
 
 
-template<class type> class QCacheIterator : public QGCacheIterator
+template<class type> class Q_EXPORT QCacheIterator : public QGCacheIterator
 {
 public:
     QCacheIterator( const QCache<type> &c ):QGCacheIterator((QGCache &)c) {}

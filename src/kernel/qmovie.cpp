@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#42 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#43 $
 **
 ** Implementation of movie classes
 **
@@ -850,7 +850,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char *member)
 ** QMoviePrivate meta object code from reading C++ file 'standard input'
 **
 ** Created: Fri Aug 21 01:55:09 1998
-**      by: The Qt Meta Object Compiler ($Revision: 1.42 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.43 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -902,7 +902,7 @@ void QMoviePrivate::initMetaObject()
 	signal_tbl, 3 );
 }
 
-#include <qlist.h>
+#include <qsignalslotimp.h>
 
 // SIGNAL sizeChanged
 void QMoviePrivate::sizeChanged( const QSize& t0 )

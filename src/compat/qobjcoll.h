@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/compat/qobjcoll.h#1 $
+** $Id: //depot/qt/main/src/compat/qobjcoll.h#2 $
 **
 ** Definition of QObject and QMetaObject collections
 **
@@ -16,4 +16,3 @@
 #include <qobjectdict.h>
 
 #endif // QOBJCOLL_H
-

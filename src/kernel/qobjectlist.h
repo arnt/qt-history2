@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjectlist.h#3 $
+** $Id: //depot/qt/main/src/kernel/qobjectlist.h#4 $
 **
 ** Definition of QObjectList
 **
@@ -32,8 +32,26 @@
 
 // QObject collections
 
-typedef QList<QObject> QObjectList;
-typedef QListIterator<QObject> QObjectListIt;
+template class Q_EXPORT QList<QObject>;
+template class Q_EXPORT QListIterator<QObject>;
+
+class Q_EXPORT QObjectList : public QList<QObject>
+{
+public:
+    QObjectList() : QList<QObject>() {}
+    QObjectList( const QObjectList &list ) : QList<QObject>(list) {}
+   ~QObjectList() { clear(); }
+    QObjectList &operator=(const QObjectList &list)
+	{ return (QObjectList&)QList<QObject>::operator=(list); }
+};
+
+class Q_EXPORT QObjectListIt : public QListIterator<QObject>
+{
+public:
+    QObjectListIt( const QObjectList &list ) : QListIterator<QObject>(list) {}
+    QObjectListIt &operator=(const QObjectListIt &list)
+	{ return (QObjectListIt&)QListIterator<QObject>::operator=(list); }
+};
 
 
 #endif // QOBJECTLIST_H

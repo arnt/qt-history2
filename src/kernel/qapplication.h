@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#85 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#86 $
 **
 ** Definition of QApplication class
 **
@@ -174,8 +174,10 @@ private:
     friend class QETWidget;
 
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QApplication( const QApplication & );
     QApplication &operator=( const QApplication & );
+#endif
 };
 
 

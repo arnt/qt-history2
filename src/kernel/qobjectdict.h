@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjectdict.h#3 $
+** $Id: //depot/qt/main/src/kernel/qobjectdict.h#4 $
 **
 ** Definition of QObjectDictionary
 **
@@ -30,12 +30,24 @@
 #endif // QT_H
 
 
-// QMetaObject collections
+// QMetaObject collection
 
-typedef QDict<QMetaObject> QObjectDictionary;
-typedef QObjectDictionary QObjectDict;
+template class Q_EXPORT QDict<QMetaObject>;
 
-extern QObjectDictionary *objectDict;		// global object dictionary
-						// defined in qmetaobject.cpp
+class Q_EXPORT QObjectDictionary : public QDict<QMetaObject>
+{
+public:
+    QObjectDictionary(int size=17,bool cs=TRUE,bool ck=TRUE) :
+	QDict<QMetaObject>(size,cs,ck) {}
+    QObjectDictionary( const QObjectDictionary &dict ) : QDict<QMetaObject>(dict) {}
+   ~QObjectDictionary() { clear(); }
+    QObjectDictionary &operator=(const QObjectDictionary &dict)
+	{ return (QObjectDictionary&)QDict<QMetaObject>::operator=(dict); }
+};
+
+// Global object dictionary defined in qmetaobject.cpp
+
+extern Q_EXPORT QObjectDictionary *objectDict;
+
 
 #endif // QOBJECTDICT_H

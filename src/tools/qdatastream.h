@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatastream.h#28 $
+** $Id: //depot/qt/main/src/tools/qdatastream.h#29 $
 **
 ** Definition of QDataStream class
 **
@@ -85,8 +85,10 @@ private:
     bool	 noswap;
 
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QDataStream( const QDataStream & );
     QDataStream &operator=( const QDataStream & );
+#endif
 };
 
 

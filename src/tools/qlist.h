@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qlist.h#23 $
+** $Id: //depot/qt/main/src/tools/qlist.h#24 $
 **
 ** Definition of QList template/macro class
 **
@@ -28,7 +28,8 @@
 #include "qglist.h"
 #endif // QT_H
 
-template<class type> class QList : public QGList
+
+template<class type> class Q_EXPORT QList : public QGList
 {
 public:
     QList()				{}
@@ -74,7 +75,7 @@ private:
     void  deleteItem( GCI d ) { if ( del_item ) delete (type *)d; }
 };
 
-template<class type> class QListIterator : public QGListIterator
+template<class type> class Q_EXPORT QListIterator : public QGListIterator
 {
 public:
     QListIterator(const QList<type> &l) :QGListIterator((QGList &)l) {}

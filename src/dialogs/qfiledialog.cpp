@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#123 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#124 $
 **
 ** Implementation of QFileDialog class
 **
@@ -30,8 +30,6 @@
 #include "qlistview.h"
 #include "qapplication.h"
 #include "qlayout.h"
-#include "qlistview.h"
-#include "qpixmap.h"
 #include "qbitmap.h"
 #include "qpopupmenu.h"
 #include "qwidgetstack.h"

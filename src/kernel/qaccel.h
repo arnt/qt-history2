@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.h#33 $
+** $Id: //depot/qt/main/src/kernel/qaccel.h#34 $
 **
 ** Definition of QAccel class
 **
@@ -75,8 +75,10 @@ private:
     QAccelPrivate * d;
 
 private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QAccel( const QAccel & );
     QAccel &operator=( const QAccel & );
+#endif
 };
 
 
