@@ -507,8 +507,9 @@ QPixmap QTableItem::pixmap() const
 
 QString QTableItem::text() const
 {
-    if ( edType == Always ) //### why only always?
-	((QTableItem*)this)->setContentFromEditor(table()->cellWidget(rw,cl));
+    QWidget *w = table()->cellWidget( rw, cl );
+    if ( w )
+	( (QTableItem*)this )->setContentFromEditor( w );
     return txt;
 }
 
