@@ -17,7 +17,7 @@
 /*
   If you change this, make sure to change tokenizer.h as well.
 */
-static const char kwords[][12] = {
+static const char kwords[][16] = {
     "char", "class", "const", "double", "enum", "inline", "int", "long",
     "operator", "private", "protected", "public", "short", "signals", "signed",
     "slots", "static", "struct", "template", "typedef", "union", "unsigned",
@@ -497,7 +497,8 @@ bool Tokenizer::popSkipping()
 /*
   Returns TRUE if the condition evaluates as true, otherwise FALSE.  The
   condition is represented by a string.  Unsophisticated parsing techniques are
-  used.
+  used.  The preprocessing method could be named StriNg Oriented PreProcessing,
+  as SNOBOL stands for StriNg Oriented symBOlic Language.
 */
 bool Tokenizer::isTrue( const QString& condition ) const
 {
