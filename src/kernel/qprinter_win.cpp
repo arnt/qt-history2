@@ -1627,7 +1627,7 @@ static bool pageSizeForId( int dmid, QPrinterPageSizeWinPrivate *priv )
 	}
 	HANDLE hPrinter;
 	bool found = FALSE;
-	if( OpenPrinter( get_default_name(), &hPrinter, 0 ) ) {
+	if( OpenPrinter( (TCHAR*)get_default_name(), &hPrinter, 0 ) ) {
 	    DWORD needed;
 	    DWORD returned;
 	    if( !forms )
@@ -1667,7 +1667,7 @@ QPrinterPageSize QPrinterPageSize::pageSize( const QString &name )
 	}
 	HANDLE hPrinter;
 	QPrinterPageSize ps;
-	if( OpenPrinter( get_default_name(), &hPrinter, 0 ) ) {
+	if( OpenPrinter( (TCHAR*)get_default_name(), &hPrinter, 0 ) ) {
 	    DWORD needed;
 	    DWORD returned;
 	    if( !forms )
@@ -1724,7 +1724,7 @@ QStringList QPrinterPageSize::pageSizeNames()
 	}
 	HANDLE hPrinter;
 	QStringList lst;
-	if( OpenPrinter( get_default_name(), &hPrinter, 0 ) ) {
+	if( OpenPrinter( (TCHAR*)get_default_name(), &hPrinter, 0 ) ) {
 	    DWORD needed;
 	    DWORD returned;
 	    if( !forms )
@@ -1765,7 +1765,7 @@ QPrinterPageSize QPrinterPageSize::definePageSize( const QString &name,
 	form.ImageableArea.bottom = dim.height() * FORMFACTOR;
 
 	HANDLE hPrinter;
-	if( OpenPrinter( get_default_name(), &hPrinter, 0 ) ) {
+	if( OpenPrinter( (TCHAR*)get_default_name(), &hPrinter, 0 ) ) {
 	    if( !addForm )
 		qWarning( "QPrinterPageSize::definePageSize(), "
 			  "could not resolve function 'addForm'" );
@@ -1817,7 +1817,7 @@ void QPrinterPageSize::undefinePageSize( const QString &name )
     QT_WA( {
 	resolveLibraries();
 	HANDLE hPrinter;
-	if( OpenPrinter( get_default_name(), &hPrinter, 0 ) ) {
+	if( OpenPrinter( (TCHAR*)get_default_name(), &hPrinter, 0 ) ) {
 	    if( !deleteForm ) {
 		qWarning( "QPrinterPageSize::undefinePageSize(), "
 			  "could not resolve function deleteForm" );
