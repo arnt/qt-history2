@@ -28,16 +28,32 @@ void SetupWizardImpl::cleanDone()
 #if defined(EVAL) || defined(EDU)
     prepareEnvironment();
 #  if defined(Q_OS_WIN32)
-    if( qWinVersion() & WV_NT_based ) {
-#  elif defined(Q_OS_UNIX)
-    if (true) {
-#  endif
-	buildPage->compileProgress->show();
-	buildPage->restartBuild->show();
+    QStringList mkSpecs = QStringList::split( ' ', "win32-msvc win32-borland win32-g++ macx-g++ win32-msvc.net win32-g++ win32-watcom" );
+    QStringList args;
+    args << ( QEnvironment::getEnv( "QTDIR" ) + "\\bin\\configure.exe" );
+    args << "-spec";
+    args << mkSpecs[ globalInformation.sysId() ];
+    if ( globalInformation.sysId() == GlobalInformation::MSVC )
+	args << "-dsp";
+    else if ( globalInformation.sysId() == GlobalInformation::MSVCNET )
+	args << "-vcproj";
 
-	buildPage->compileProgress->setProgress( 0 );
-        buildPage->compileProgress->setTotalSteps( int(double(filesToCompile) * 1.8) );
-	configDone();
+    if( qWinVersion() & WV_NT_based ) {
+	logOutput( "Execute configure...\n" );
+	logOutput( args.join( " " ) + "\n" );
+
+	configure.setWorkingDirectory( QEnvironment::getEnv( "QTDIR" ) );
+	configure.setArguments( args );
+	// Start the configure process
+	buildPage->compileProgress->setTotalSteps( int(double(filesToCompile) * 2.6) );
+	buildPage->restartBuild->setText( "Stop configure" );
+	buildPage->restartBuild->setEnabled( TRUE );
+	buildPage->restartBuild->show();
+	buildPage->compileProgress->show();
+	if( !configure.start() ) {
+	    logOutput( "Could not start configure process" );
+	    emit wizardPageFailed( indexOf(currentPage()) );
+	}
     } else { // no proper process handling on DOS based systems - create a batch file instead
 	logOutput( "Generating batch file...\n" );
 	QDir installDir;
@@ -52,6 +68,7 @@ void SetupWizardImpl::cleanDone()
 	    if ( installDir.absPath()[1] == ':' )
 		outStream << installDir.absPath().left(2) << endl;
 	    outStream << "cd %QTDIR%" << endl;
+	    outStream << args.join( " " ) << endl;
 	    if( !globalInformation.reconfig() ) {
 		QStringList makeCmds = QStringList::split( ' ', "nmake make gmake make nmake mingw32-make nmake make" );
 		outStream << makeCmds[ globalInformation.sysId() ].latin1() << endl;
@@ -63,6 +80,14 @@ void SetupWizardImpl::cleanDone()
 	buildPage->compileProgress->setTotalSteps( buildPage->compileProgress->totalSteps() );
 	showPage( finishPage );
     }
+#  elif defined(Q_OS_UNIX)
+    buildPage->compileProgress->show();
+    buildPage->restartBuild->show();
+
+    buildPage->compileProgress->setProgress( 0 );
+    buildPage->compileProgress->setTotalSteps( int(double(filesToCompile) * 1.8) );
+    configDone();
+#  endif
 #else
     QStringList args;
     QStringList entries;
