@@ -1,5 +1,5 @@
 TEMPLATE = app
-CONFIG -= moc
+CONFIG -= moc qt
 QT =
 INCLUDEPATH += .
 
