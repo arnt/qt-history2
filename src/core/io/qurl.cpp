@@ -23,6 +23,8 @@
 
 //#define Q4URL_DEBUG
 
+Q_CORE_EXPORT bool qt_resolve_symlinks = true; //### this can sit here for now but needs to go some where else
+
 class QUrlPrivate
 {
 public:
