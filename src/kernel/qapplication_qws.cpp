@@ -117,6 +117,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 extern "C" int select( int, void *, void *, void *, struct timeval * );
 
 #ifdef DEBUG
+/*
 extern "C" void dumpmem(const char* m)
 {
     static int init=0;
@@ -134,6 +135,7 @@ extern "C" void dumpmem(const char* m)
     }
     fclose(f);
 }
+*/
 #endif
 
 /*****************************************************************************
