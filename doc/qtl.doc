@@ -188,7 +188,7 @@ values of two variables:
 \endcode
 
 <a name="qCount"></a>Another template function is qCount().  It counts
-the number of occurences of a value within a container.  For example:
+the number of occurrences of a value within a container.  For example:
 
 \code
 	QValueList<int> l;
@@ -200,7 +200,7 @@ the number of occurences of a value within a container.  For example:
 	qCount( l.begin(), l.end(), 1, c ); // c == 3
 \endcode	
 
-<a name="qFind"></a>Another template function is qFind.  It find the first occurence of a
+<a name="qFind"></a>Another template function is qFind.  It find the first occurrence of a
 value within a container. For example:
 
 \code

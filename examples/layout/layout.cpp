@@ -23,7 +23,6 @@ class ExampleWidget : public QWidget
 public:
     ExampleWidget( QWidget *parent = 0, const char *name = 0 );
     ~ExampleWidget();
-private:
 };
 
 ExampleWidget::ExampleWidget( QWidget *parent, const char *name )
@@ -45,7 +44,7 @@ ExampleWidget::ExampleWidget( QWidget *parent, const char *name )
     topLayout->setMenuBar( menubar );
 
     // Make an hbox that will hold a row of buttons.
-    QBoxLayout *buttons = new QHBoxLayout( topLayout);
+    QBoxLayout *buttons = new QHBoxLayout( topLayout );
     int i;
     for ( i = 1; i <= 4; i++ ) {
 	QPushButton* but = new QPushButton( this );
@@ -85,7 +84,7 @@ ExampleWidget::ExampleWidget( QWidget *parent, const char *name )
     // vertically. It will stretch horizontally because there are no
     // widgets beside it to take up horizontal stretch.
     //    topLayout->addWidget( bigWidget, 10 );
-    topLayout->addWidget( bigWidget); //###
+    topLayout->addWidget( bigWidget ); //###
 
     // Make a grid that will hold a vertical table of QLabel/QLineEdit
     // pairs next to a large QMultiLineEdit.
@@ -124,12 +123,12 @@ ExampleWidget::ExampleWidget( QWidget *parent, const char *name )
     // The labels will take the space they need. Let the remaining
     // horizontal space be shared so that the multiline edit gets
     // twice as much as the line edit.
-        grid->setColStretch( linedCol, 10 );
-        grid->setColStretch( multiCol, 20 );
+    grid->setColStretch( linedCol, 10 );
+    grid->setColStretch( multiCol, 20 );
 
     // Add a widget at the bottom.
     QLabel* sb = new QLabel( this );
-    sb->setText("Let's pretend this is a status bar");
+    sb->setText( "Let's pretend this is a status bar" );
     sb->setFrameStyle( QFrame::Panel | QFrame::Sunken );
     // This widget will use all horizontal space, and have a fixed height.
 
@@ -140,6 +139,8 @@ ExampleWidget::ExampleWidget( QWidget *parent, const char *name )
     topLayout->addWidget( sb );
 
     topLayout->activate();
+
+    dumpObjectTree(); // ###
 }
 
 ExampleWidget::~ExampleWidget()

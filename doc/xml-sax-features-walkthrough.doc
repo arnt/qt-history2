@@ -218,7 +218,7 @@ takes a \l QListView as an argument,
 \printline startElement
 \printuntil QXmlAttributes 
 
-the function to execute at the occurence of element start tags
+the function to execute at the occurrence of element start tags
 (inherited from \l QXmlContentHandler), and
 
 \printline endElement

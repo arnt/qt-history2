@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#71 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#72 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -5742,8 +5742,8 @@ QDomDocument::~QDomDocument()
 
   If a parse error occurs, this function returns TRUE, otherwise FALSE. If \a
   errorMsg, \a errorLine resp. \a errorColumn is non-null, then in the case of
-  a parse error, the error message, the line number where the error occured
-  resp. the column number where the error occured is stored in the
+  a parse error, the error message, the line number where the error occurred
+  resp. the column number where the error occurred is stored in the
   corresponding variable.
 
   If \a namespaceProcessing is TRUE, the function QDomNode::prefix() returns

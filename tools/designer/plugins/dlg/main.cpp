@@ -1,5 +1,8 @@
-#include <filterinterface.h>
+/*
+  main.cpp
+*/
 
+#include <filterinterface.h>
 #include <qapplication.h>
 
 #include "dlg2ui.h"

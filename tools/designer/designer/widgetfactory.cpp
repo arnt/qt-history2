@@ -1281,10 +1281,11 @@ bool QLayoutWidget::event( QEvent *e )
 
 void QLayoutWidget::updateSizePolicy()
 {
-    if ( !children() || children()->count() == 0 ) {
+    if ( TRUE || !children() || children()->count() == 0 ) {
 	sp = QWidget::sizePolicy();
 	return;
     }
+
 
     QObjectListIt it( *children() );
     QObject *o;
@@ -1295,8 +1296,7 @@ void QLayoutWidget::updateSizePolicy()
 	if ( !o->inherits( "QWidget" ) || ( (QWidget*)o )->testWState( WState_ForceHide ) )
 	    continue;
 	QWidget *w = (QWidget*)o;
-	if ( w->sizePolicy().horData() == QSizePolicy::Expanding ||
-	     w->sizePolicy().horData() == QSizePolicy::MinimumExpanding )
+	if ( w->sizePolicy().mayGrowHorizontally() )
 	    ht = QSizePolicy::Expanding;
 	else if ( w->sizePolicy().horData() == QSizePolicy::Fixed && ht != QSizePolicy::Expanding )
 	    ht = QSizePolicy::Fixed;

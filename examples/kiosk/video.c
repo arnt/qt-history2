@@ -1840,7 +1840,7 @@ ParseMacroBlock(VidStream *vid_stream)
     unsigned int ind;				       
     show_bits11(ind);				       
     DecodeMBAddrInc(addr_incr);
-    if (mb_addr_inc[ind].num_bits==0) addr_incr = 1;  /* error occured */
+    if (mb_addr_inc[ind].num_bits==0) addr_incr = 1;  /* error occurred */
     if (addr_incr == MB_ESCAPE) {
       vid_stream->mblock.mb_address += 33;
       addr_incr = MB_STUFFING;

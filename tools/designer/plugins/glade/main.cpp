@@ -65,7 +65,7 @@ unsigned long GladeFilter::release()
 QStringList GladeFilter::featureList() const
 {
     QStringList list;
-    list << "GNOME Glade Files (*.glade)" ;
+    list << "Glade Files (*.glade)" ;
     return list;
 }
 

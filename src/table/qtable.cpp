@@ -4683,7 +4683,7 @@ void QTable::editCell( int row, int col, bool replace )
   \l QDragEnterEvent \a e, i.e. when the user pressed the mouse
   button to drag something.
 
-  The focus is moved to the cell where the QDragEnterEvent occured.
+  The focus is moved to the cell where the QDragEnterEvent occurred.
 */
 
 void QTable::contentsDragEnterEvent( QDragEnterEvent *e )
@@ -4701,7 +4701,7 @@ void QTable::contentsDragEnterEvent( QDragEnterEvent *e )
 /*! This event handler is called whenever a QTable object receives a
   \l QDragMoveEvent \a e, i.e. when the user actually drags the mouse.
 
-  The focus is moved to the cell where the QDragMoveEvent occured.
+  The focus is moved to the cell where the QDragMoveEvent occurred.
 */
 
 void QTable::contentsDragMoveEvent( QDragMoveEvent *e )

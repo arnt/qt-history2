@@ -515,7 +515,7 @@ Unfortunately we face a tiny problem: remember that (a highly unusual
 thing to do in a real world application) the labels of the three
 buttons are drawn in different fonts. Whilst the automatic layout
 accounts for the fact all three buttons have the same width, the uncommon
-occurence of different character heights leads to different button heights.
+occurrence of different character heights leads to different button heights.
 
 To make the application window look nice we have to help it a little.
 

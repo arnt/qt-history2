@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/clientserver/client/client.cpp#1 $
+** $Id: //depot/qt/main/examples/clientserver/client/client.cpp#2 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -104,7 +104,7 @@ private slots:
 
     void socketError( int e )
     {
-	infoText->append( tr("Error number %1 occured\n").arg(e) );
+	infoText->append( tr("Error number %1 occurred\n").arg(e) );
     }
 
 private:

@@ -112,7 +112,7 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
 
   The behavior of a write notifier that is left in enabled state
   after having emitting the first activated() signal (and no "would
-  block" error has occured) is undefined. Depending on the operating
+  block" error has occurred) is undefined. Depending on the operating
   system, it may fire on every pass of the event loop or not at all.
 
   If you need a time-out for your sockets you can use either

@@ -112,7 +112,7 @@ because each of the \e titles should be displayed in a different manner --
 even though they have the same name.
 
 The solution would be to have some means of identifying the 
-first occurence of \e title as the title of a book, i.e. 
+first occurrence of \e title as the title of a book, i.e. 
 to use the \e title element of a 
 book namespace to distinguish it from for example the chapter title, e.g.:
 \code

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#97 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#98 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -7055,7 +7055,7 @@ void QXmlSimpleReader::reportParseError( const QString& error )
 /*
   This private function is called when a parsing function encounters an
   unexpected EOF. It decides what to do (depending on incremental parsing or
-  not). \a where is a pointer to the function where the error occured and \a
+  not). \a where is a pointer to the function where the error occurred and \a
   state is the parsing state in this function.
 */
 void QXmlSimpleReader::unexpectedEof( ParseFunction where, int state )
@@ -7075,7 +7075,7 @@ void QXmlSimpleReader::unexpectedEof( ParseFunction where, int state )
   This private function is called when a parse...() function returned FALSE. It
   determines if there was an error or if incremental parsing simply went out of
   data and does the right thing for the case. \a where is a pointer to the
-  function where the error occured and \a state is the parsing state in this
+  function where the error occurred and \a state is the parsing state in this
   function.
 */
 void QXmlSimpleReader::parseFailed( ParseFunction where, int state )

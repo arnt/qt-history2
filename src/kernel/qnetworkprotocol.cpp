@@ -252,7 +252,7 @@ public:
 
   \value StDone  The operation has been processed succesfully.
 
-  \value StFailed  The operation has been processed but an error occured.
+  \value StFailed  The operation has been processed but an error occurred.
 
   \value StStopped  The operation has been processed but has been
   stopped before it finished, and is waiting for being prcessed.
@@ -293,7 +293,7 @@ public:
   When an operation fails (finishes without success), the QNetworkOperation
   of the operation returns an error code which is one of the following values:
 
-  \value NoError  No error occured.
+  \value NoError  No error occurred.
 
   \value ErrValid  The URL you are operating on is not valid.
 
@@ -311,17 +311,17 @@ public:
   \value ErrHostNotFound  The specified host (in the URL) couldn't be
   found.
 
-  \value ErrListChildren  An error occured while listing the children.
+  \value ErrListChildren  An error occurred while listing the children.
 
-  \value ErrMkdir  An error occured when creating a directory.
+  \value ErrMkdir  An error occurred when creating a directory.
 
-  \value ErrRemove  An error occured while removing a child.
+  \value ErrRemove  An error occurred while removing a child.
 
-  \value ErrRename   An error occured while renaming a child.
+  \value ErrRename   An error occurred while renaming a child.
 
-  \value ErrGet  An error occured while getting (retrieving) data.
+  \value ErrGet  An error occurred while getting (retrieving) data.
 
-  \value ErrPut  An error occured while putting (uploading) data.
+  \value ErrPut  An error occurred while putting (uploading) data.
 
   \value ErrFileNotExisting  A file which is needed by the operation
   doesn't exist.
@@ -1127,7 +1127,7 @@ QString QNetworkOperation::protocolDetail() const
     return d->protocolDetail;
 }
 
-/*! Returns the error code for the last error that occured.
+/*! Returns the error code for the last error that occurred.
 */
 
 int QNetworkOperation::errorCode() const

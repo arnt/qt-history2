@@ -191,11 +191,11 @@ static bool isTrue( const QString& val )
     return val.lower() == QString( "true" );
 }
 
-static AttributeMap attribute( const QString& attr, const QString& val )
+static AttributeMap attribute( const QString& name, const QString& val )
 {
-    AttributeMap am;
-    am.insert( attr, val );
-    return am;
+    AttributeMap attr;
+    attr.insert( name, val );
+    return attr;
 }
 
 static QString entitize( const QString& str )
@@ -1794,12 +1794,8 @@ QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
 	QString qtClass = gtk2qtClass( gtkClass, childWidgets );
 	bool unknown = FALSE;
 
-	if ( qtClass == QString("QDialog") ) {
-	    // this might be a bad idea
-	    if ( type.endsWith(QString("_TOPLEVEL")) )
-		qtClass = QString( "QWidget" );
-	} else if ( qtClass == QString("QFrame") && !label.isEmpty() ) {
-	    qtClass = QString( "QGroupBox" );
+	if ( qtClass == QString("QFrame") && !label.isEmpty() ) {
+	    qtClass = QString( "QButtonGroup" );
 	} else if ( qtClass == QString("QListView") && !showTitles &&
 		    gtkClass.endsWith(QString("List")) ) {
 	    qtClass = QString( "QListBox" );
@@ -2039,7 +2035,7 @@ QStringList Glade2Ui::convertGladeFile( const QString& fileName )
 	n = n.nextSibling();
     }
 
-    QProgressDialog fremskritt( QString("Converting GNOME Glade files..."),
+    QProgressDialog fremskritt( QString("Converting Glade files..."),
 				QString("Abort Conversion"), numWidgets, 0,
 				"fremskritt", TRUE );
 
@@ -2178,11 +2174,11 @@ QStringList Glade2Ui::convertGladeFile( const QString& fileName )
 
 		QMap<QString, QString>::Iterator s = yySlots.begin();
 		while ( s != yySlots.end() ) {
-		    AttributeMap am;
-		    am.insert( QString("access"), *s );
-		    am.insert( QString("language"), QString("C++") );
-		    am.insert( QString("returntype"), QString("void") );
-		    emitSimpleValue( QString("slot"), s.key(), am );
+		    AttributeMap attr;
+		    attr.insert( QString("access"), *s );
+		    attr.insert( QString("language"), QString("C++") );
+		    attr.insert( QString("returntype"), QString("void") );
+		    emitSimpleValue( QString("slot"), s.key(), attr );
 		    ++s;
 		}
 		emitClosing( QString("connections") );
