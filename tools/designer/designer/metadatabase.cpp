@@ -797,7 +797,7 @@ void MetaDataBase::changeFunction( QObject *o, const QString &function, const QS
     }
 }
 
-void MetaDataBase::changeFunctionAttributes( QObject *o, const QCString &function,
+void MetaDataBase::changeFunctionAttributes( QObject *o, const QString &oldName, const QString &newName,
 					     const QString &specifier, const QString &access,
 					     const QString &type, const QString &language,
 					     const QString &returnType )
@@ -812,7 +812,8 @@ void MetaDataBase::changeFunctionAttributes( QObject *o, const QCString &functio
 
     for ( QValueList<Function>::Iterator it = r->functionList.begin(); it != r->functionList.end(); ++it ) {
 	Function f = *it;
-	if ( normalizeFunction( f.function ) == normalizeFunction( function ) ) {
+	if ( normalizeFunction( f.function ) == normalizeFunction( oldName ) ) {
+	    (*it).function = newName;
 	    (*it).specifier = specifier;
 	    (*it).access = access;
 	    (*it).type = type;

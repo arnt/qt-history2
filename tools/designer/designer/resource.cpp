@@ -389,7 +389,7 @@ bool Resource::load( FormFile *ff, QIODevice* dev )
 		    MetaDataBase::addFunction( formwindow, function.function, function.specifier,
 					       function.access, "slot", function.language, function.returnType );
 		else
-		    MetaDataBase::changeFunctionAttributes( formwindow, function.function,
+		    MetaDataBase::changeFunctionAttributes( formwindow, function.function, function.function,
 							    function.specifier, function.access,
 							    "slot", function.language,
 							    function.returnType );
@@ -419,7 +419,7 @@ bool Resource::load( FormFile *ff, QIODevice* dev )
 					       function.access, function.type, function.language,
 					       function.returnType );
 		else
-		    MetaDataBase::changeFunctionAttributes( formwindow, function.function,
+		    MetaDataBase::changeFunctionAttributes( formwindow, function.function, function.function,
 							    function.specifier, function.access,
 							    function.type, function.language, function.returnType );
 	    }
@@ -2090,7 +2090,7 @@ void Resource::loadConnections( const QDomElement &e )
 		MetaDataBase::addFunction( formwindow, slot.function, slot.specifier,
 				       slot.access, "slot", slot.language, slot.returnType );
 	    else
-		MetaDataBase::changeFunctionAttributes( formwindow, slot.function,
+		MetaDataBase::changeFunctionAttributes( formwindow, slot.function, slot.function,
 							slot.specifier, slot.access,
 							"slot", slot.language, slot.returnType );
 	}
@@ -2733,7 +2733,7 @@ void Resource::loadExtraSource( FormWindow *formwindow, const QString &currFileN
 	if ( MetaDataBase::hasFunction( formwindow, (*fit).name.latin1() ) ) {
 	    QString access = (*fit).access;
 	    if ( !MainWindow::self || !MainWindow::self->currProject()->isCpp() )
-		MetaDataBase::changeFunction( formwindow, (*fit).name.latin1(), (*fit).name.latin1(),
+		MetaDataBase::changeFunction( formwindow, (*fit).name, (*fit).name,
 					      QString::null );
 	} else {
 	    QString access = (*fit).access;

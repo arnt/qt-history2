@@ -181,7 +181,7 @@ public:
     static bool hasSlot( QObject *o, const QCString &slot, bool onlyCustom = FALSE );
     static void changeFunction( QObject *o, const QString &function, const QString &newName,
 				const QString &returnType );
-    static void changeFunctionAttributes( QObject *o, const QCString &function,
+    static void changeFunctionAttributes( QObject *o, const QString &oldName, const QString &newName,
 				      const QString &specifier, const QString &access,
 				      const QString &type, const QString &language,
 				      const QString &returnType );

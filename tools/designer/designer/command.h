@@ -100,7 +100,7 @@ public:
 	AddToolBar,
 	RemoveToolBar,
 	AddFunction,
-	RenameFunction,
+	ChangeFunctionAttrib,
 	RemoveFunction,
 	AddVariable,
 	SetVariables,
@@ -578,21 +578,24 @@ private:
     QString returnType;
 };
 
-class RenameFunctionCommand : public Command
+class ChangeFunctionAttribCommand : public Command
 {
 public:
-    RenameFunctionCommand( const QString &name, FormWindow *fw, const QString &on, const QString& nn,
-			   const QString &ort, const QString &nrt );
+    ChangeFunctionAttribCommand( const QString &name, FormWindow *fw, MetaDataBase::Function f,
+				 const QString &on, const QString &os, const QString &oa,
+				 const QString &ot, const QString &ol, const QString &ort );
 
     void execute();
     void unexecute();
-    Type type() const { return RenameFunction; }
+    Type type() const { return ChangeFunctionAttrib; }
 
 private:
-    QString oldName;
-    QString newName;
-    QString oldReturnType;
-    QString newReturnType;
+    QString oldName, newName;
+    QString oldSpec, newSpec;
+    QString oldAccess, newAccess;
+    QString oldType, newType;
+    QString oldLang, newLang;
+    QString oldReturnType, newReturnType;
 };
 
 class RemoveFunctionCommand : public Command

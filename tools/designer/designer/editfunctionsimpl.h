@@ -61,8 +61,11 @@ private:
 	QString oldRetTyp;
 	QString retTyp;
 	QString spec;
+	QString oldSpec;
 	QString access;
+	QString oldAccess;
 	QString type;
+	QString oldType;
     };
 
     void changeItem( QListViewItem *item, Attribute a, const QString &nV );

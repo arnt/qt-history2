@@ -1126,15 +1126,25 @@ void AddFunctionCommand::unexecute()
 
 // ------------------------------------------------------------
 
-RenameFunctionCommand::RenameFunctionCommand( const QString &name, FormWindow *fw, const QString &on,
-					      const QString& nn, const QString &ort, const QString &nrt )
-    : Command( name, fw ), oldName( on ), newName( nn ), oldReturnType( ort ), newReturnType( nrt )
+ChangeFunctionAttribCommand::ChangeFunctionAttribCommand( const QString &name, FormWindow *fw, MetaDataBase::Function f,
+							  const QString &on, const QString &os,
+							  const QString &oa, const QString &ot, const QString &ol,
+							  const QString &ort )
+    : Command( name, fw ), oldName( on ), oldSpec( os ), oldAccess( oa ),
+      oldType( ot ), oldLang( ol ), oldReturnType( ort )
 {
+	    newName = f.function;
+	    newSpec = f.specifier;
+	    newAccess = f.access;
+	    newType = f.type;
+	    newLang = f.language;
+	    newReturnType = f.returnType;
 }
 
-void RenameFunctionCommand::execute()
+void ChangeFunctionAttribCommand::execute()
 {
-    MetaDataBase::changeFunction( formWindow(), oldName, newName, newReturnType );
+    MetaDataBase::changeFunctionAttributes( formWindow(), oldName, newName, newSpec, newAccess,
+					    newType, newLang, newReturnType );
     formWindow()->formFile()->functionNameChanged( oldName, newName );
     formWindow()->formFile()->functionRetTypeChanged( newName, oldReturnType, newReturnType );
     formWindow()->mainWindow()->functionsChanged();
@@ -1142,9 +1152,10 @@ void RenameFunctionCommand::execute()
 	formWindow()->formFile()->setModified( TRUE );
 }
 
-void RenameFunctionCommand::unexecute()
+void ChangeFunctionAttribCommand::unexecute()
 {
-    MetaDataBase::changeFunction( formWindow(), newName, oldName, oldReturnType );
+    MetaDataBase::changeFunctionAttributes( formWindow(), newName, oldName, oldSpec, oldAccess,
+					    oldType, oldLang, oldReturnType );
     formWindow()->formFile()->functionNameChanged( newName, oldName );
     formWindow()->formFile()->functionRetTypeChanged( oldName, newReturnType, oldReturnType );
     formWindow()->mainWindow()->functionsChanged();

@@ -60,12 +60,15 @@ EditFunctions::EditFunctions( QWidget *parent, FormWindow *fw, bool justSlots )
 	FunctItem fui;
 	fui.id = id;
 	fui.oldName = (*it).function;
-	fui.newName = (*it).function;
+	fui.newName = fui.oldName;
 	fui.oldRetTyp = (*it).returnType;
-	fui.retTyp = (*it).returnType;
-	fui.spec = (*it).specifier;
-	fui.access = (*it).access;
-	fui.type = (*it).type;
+	fui.retTyp = fui.oldRetTyp;
+	fui.oldSpec = (*it).specifier;
+	fui.spec = fui.oldSpec;
+	fui.oldAccess = (*it).access;
+	fui.access = fui.oldAccess;
+	fui.oldType = (*it).type;
+	fui.type = fui.oldType;
 	functList.append( fui );
 
 	functionIds.insert( i, id );
@@ -159,11 +162,13 @@ void EditFunctions::okClicked()
 							function.type, formWindow->project()->language(),
 							function.returnType ) );
 	    if ( MetaDataBase::normalizeFunction( (*it).newName ) != MetaDataBase::normalizeFunction( (*it).oldName ) ||
+		 (*it).spec != (*it).oldSpec || (*it).access != (*it).oldAccess || (*it).type != (*it).oldType ||
 		 (*it).retTyp != (*it).oldRetTyp )
-		commands.append( new RenameFunctionCommand( tr( "Rename function" ),
-							    formWindow, MetaDataBase::normalizeFunction( (*it).oldName ),
-							    MetaDataBase::normalizeFunction( (*it).newName ),
-							    (*it).oldRetTyp, (*it).retTyp ) );
+		commands.append( new ChangeFunctionAttribCommand( tr( "Change function attributes" ),
+								  formWindow, function,
+								  MetaDataBase::normalizeFunction( (*it).oldName ),
+								  (*it).oldSpec, (*it).oldAccess, (*it).oldType,
+								  formWindow->project()->language(), (*it).oldRetTyp ) );
 	    lst.append( function.function );
 	}
     }
@@ -261,12 +266,15 @@ void EditFunctions::functionAdd( const QString &access, const QString &type )
     FunctItem fui;
     fui.id = id;
     fui.oldName = i->text( 0 );
-    fui.newName = i->text( 0 );
+    fui.newName = fui.oldName;
     fui.oldRetTyp = i->text( 1 );
-    fui.retTyp = i->text( 1 );
-    fui.spec = i->text( 2 );
-    fui.access = i->text( 3 );
-    fui.type = i->text( 4 );
+    fui.retTyp = fui.oldName;
+    fui.oldSpec = i->text ( 2 );
+    fui.spec = fui.oldSpec;
+    fui.oldAccess = i->text( 3 );
+    fui.access = fui.oldAccess;
+    fui.oldType = i->text( 4 );
+    fui.type = fui.oldType;
     functList.append( fui );
     functionIds.insert( i, id );
     id++;
