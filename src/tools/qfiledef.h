@@ -1,19 +1,17 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfiledef.h#1 $
+** $Id: //depot/qt/main/src/tools/qfiledef.h#2 $
 **
-**                    ***   INTERNAL HEADER FILE   ***
+**		      ***   INTERNAL HEADER FILE   ***
 **
-**              This file is NOT a part of the Qt interface!
+**		This file is NOT a part of the Qt interface!
 **
-** QFile, QFileInfo and QDir related macros and includes,
-** used by qfile.cpp, qfileinf.cpp and qdir.cpp
+** Common macros and system include files for QFile, QFileInfo and QDir.
+** This file is included by qfile.cpp, qfileinf.cpp and qdir.cpp
 **
-** Author  : Eirik Eng
-** Created : 950809
+** Author  : Haavard Nord
+** Created : 930812
 **
-** Copied from the QFile class written by Haavad Nord.
-**
-** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -41,6 +39,7 @@
 #undef LSEEK
 #undef READ
 #undef WRITE
+#undef ACCESS
 #undef OPEN_RDONLY
 #undef OPEN_WRONLY
 #undef OPEN_CREAT
@@ -58,9 +57,10 @@
 #endif
 #define OPEN	::_open
 #define CLOSE	::_close
-#define LSEEK	_lseek
-#define READ	_read
-#define WRITE	_write
+#define LSEEK	::_lseek
+#define READ	::_read
+#define WRITE	::_write
+#define ACCESS	::_access
 #define OPEN_RDONLY	_O_RDONLY
 #define OPEN_WRONLY	_O_WRONLY
 #define OPEN_RDWR	_O_RDWR
@@ -83,6 +83,7 @@
 #define LSEEK	::lseek
 #define READ	::read
 #define WRITE	::write
+#define ACCESS	::access
 #define OPEN_RDONLY	O_RDONLY
 #define OPEN_WRONLY	O_WRONLY
 #define OPEN_RDWR	O_RDWR
