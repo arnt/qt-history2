@@ -5,5 +5,4 @@ HEADERS		= cannon.h \
 SOURCES		= cannon.cpp \
 		  lcdrange.cpp \
 		  main.cpp
-unix:LIBS		+= -lm
 TARGET		= t11
