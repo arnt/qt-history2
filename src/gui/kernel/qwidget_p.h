@@ -312,7 +312,7 @@ public:
 #endif
 
 #if defined(Q_WS_X11) || defined (Q_WS_WIN) || defined(Q_WS_MAC)
-    void setWSGeometry();
+    void setWSGeometry(bool dontShow=false);
     inline QPoint mapToWS(const QPoint &p) const { return p - data.wrect.topLeft(); }
     inline QPoint mapFromWS(const QPoint &p) const { return p + data.wrect.topLeft(); }
     inline QRect mapToWS(const QRect &r) const { QRect rr(r); rr.translate(-data.wrect.topLeft()); return rr; }

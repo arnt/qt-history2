@@ -1964,7 +1964,7 @@ static void do_size_hints(QWidget* widget, QWExtra *x)
   parentWRect is the geometry of the parent's X rect, measured in
   parent's coord sys
  */
-void QWidgetPrivate::setWSGeometry()
+void QWidgetPrivate::setWSGeometry(bool dontShow)
 {
 
     /*
@@ -2051,7 +2051,7 @@ void QWidgetPrivate::setWSGeometry()
         if (object->isWidgetType()) {
             QWidget *w = static_cast<QWidget *>(object);
             if (!w->isWindow())
-                w->d->setWSGeometry();
+                w->d->setWSGeometry(jump);
         }
     }
 
@@ -2061,11 +2061,28 @@ void QWidgetPrivate::setWSGeometry()
     if (jump) //avoid flicker when jumping
         XSetWindowBackgroundPixmap(dpy, data.winid, XNone);
     XMoveResizeWindow(dpy, data.winid, xrect.x(), xrect.y(), xrect.width(), xrect.height());
+
+    //to avoid flicker, we have to show children after the helper widget has moved
+    if (jump) {
+        for (int i = 0; i < children.size(); ++i) {
+            QObject *object = children.at(i);
+            if (object->isWidgetType()) {
+                QWidget *w = static_cast<QWidget *>(object);
+                if (!w->testAttribute(Qt::WA_OutsideWSRange) && !w->testAttribute(Qt::WA_Mapped) && w->isShown()) {
+                    w->setAttribute(Qt::WA_Mapped);
+                    XMapWindow(dpy, w->data->winid);
+                }
+            }
+        }
+    }
+
+
     if  (jump) {
         updateSystemBackground();
         XClearArea(dpy, data.winid, 0, 0, wrect.width(), wrect.height(), True);
     }
-    if (mapWindow) {
+
+    if (mapWindow && !dontShow) {
             q->setAttribute(Qt::WA_Mapped);
             XMapWindow(dpy, data.winid);
     }
