@@ -896,8 +896,12 @@ void QFileDialog::accept()
     case ExistingFiles:
         for (int i = 0; i < files.count(); ++i) {
             QFileInfo info(files.at(i));
-            if (!info.exists() || info.isDir())
+            if (!info.exists())
                 return;
+            if (info.isDir()) {
+                setDirectory(info.absoluteFilePath());
+                return;
+            }
         }
         emit filesSelected(files);
         QDialog::accept();
@@ -1590,6 +1594,7 @@ void QFileDialogPrivate::setRoot(const QModelIndex &index)
 {
     bool block = d->selections->blockSignals(true);
     d->selections->clear();
+    d->fileName->clear();
     setCurrent(d->model->index(0, 0, index));
     lview->setRoot(index);
     tview->setRoot(index);
