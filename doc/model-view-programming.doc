@@ -9,18 +9,19 @@
 
 Qt 4 introduces a new set of item view classes that use a Model/View
 architecture to manage the relationship between raw data and the way it
-is presented to the user. The separation of functionality that this
+is presented to the user. The separation of functionality this
 architecture introduces gives developers greater flexibility and
-access to more features than was previously possible. In this document,
-we give a brief introduction to the Model/View paradigm, outline the
-concepts involved, describe the architecture of the item view system, 
-and show some example uses.
+access to more features than was previously possible. 
+In this document, we give a brief introduction to the Model/View paradigm,
+outline the concepts involved, describe the architecture of the item view
+system, and show some example uses.
 
 \section1 The Model/View architecture
 
 Model-View-Controller (MVC) is a design pattern originating from
 Smalltalk that is often used when building user interfaces.
-In \l{#Gamma}{Design Patterns}, Gamma et al. write:
+In \l{model-view-programming.html#Gamma}{Design Patterns}, Gamma et al.
+write:
 
 \quote
 MVC consists of three kinds of objects. The Model is the application
@@ -43,18 +44,19 @@ input methods to be defined in addition to those provided by the view,
 but does not introduce additional complexity by default.
 
 Generally, the Model/View classes can be separated into the three groups
-described above: model classes, view classes, and delegate classes. Each
-of these components are defined by \e abstract classes that provide
-common interfaces and, in some cases, default implementations of features.
+described above: models, views, and delegates. Each of these components
+are defined by \e abstract classes that provide common interfaces and,
+in some cases, default implementations of features.
 Abstract classes are meant to be subclassed in order to provide the full
-set of functionality expected by other components, and for the purposes of
-specialization.
+set of functionality expected by other components; this also allows
+specialized components to be written.
 For example, all item models are based on the \l QAbstractItemModel
 class. This class can be used to provide models to views that represent
 data in the form of tables and lists. However, the \l QAbstractListModel
 and \l QAbstractTableModel classes are better starting points for new list
-and table models because they provide default implementation for common
-functions.
+and table models because they provide default implementations for common
+functions. Each of these classes could be subclassed to provide models
+that support specialized kinds of lists and tables.
 
 \e Generic, complete implementations are provided for different kinds of
 view widgets based on the \l QAbstractItemView class. \l QGenericListView
@@ -74,6 +76,26 @@ classes; these offer compatibility with the \c QListView and \c QTable
 classes from Qt 3.
 
 
+\section1 Concepts
+
+In the Model/View architecture, the model's purpose is to manage data,
+and to provide a representation of that data to the other components
+in the framework. To ensure that representation of the data in the model
+is kept separate from the way it is accessed, the concept of a
+\e{model index} is introduced. Each item of data stored in the model can
+be accessed by providing the model with the corresponding model index.
+As a result, only the model needs to know how items are stored, and the
+type of data managed by the model can be defined fairly generally.
+
+Model indices are created by the model when another component needs
+to refer to an item stored within. They provide a \e temporary reference
+to an item, and can be used to retrieve or modify its value. Since models
+may reorganize their internal structure from time to time, model indices
+may become invalid, and should not be stored. If a long-term reference to
+a model item is required, a \e{persistent model index} must be used. This
+provides a reference to the item that the model keeps up-to-date.
+
+
 \section1 The Model/View classes
 
 The following sections describe the way in which the Model/View pattern
@@ -89,7 +111,8 @@ is used in Qt.
 \section1 References
 
 \target Gamma
-\bold{Design Patterns - Elements of Reusable Object-Oriented Software},
+\l{http://www.amazon.com/exec/obidos/ASIN/0201633612/103-8144203-3273444}
+{Design Patterns - Elements of Reusable Object-Oriented Software},
 by Gamma, Helm, Johnson, and Vlissides, ISBN 0-201-63361-2, provides
 more information on the MVC paradigm, explaining MVC and its
 sub-patterns in detail.
@@ -252,9 +275,7 @@ several new features.
 
 \section1 Introduction
 
-In the Model/View architecture, the model's purpose is to manage data,
-and to provide a representation of that data to the other components
-in the framework. In Qt, the standard interface for accessing data within
+In Qt, the standard interface for accessing data within
 a model is provided by the \l QAbstractItemModel class.
 Whenever the model is updated, this class notifies any attached views
 through the signals and slots mechanism.
