@@ -130,25 +130,55 @@ The possible events are:
 
 <h2>Commands from Clients</h2>
 
-All commands have this basic structure:
+All simple commands have this basic structure:
 
 <pre>
-struct QWSCommand {
-  int type;
-  int rawLen;
-  struct CommandSpecific {
-    ...
-  } simpleData;
-}
+struct QWS&lt;Your&gt;Command : public QWSCommand {
+    QWS&lt;Your&gt;Command() :
+	QWSCommand( id_of_command, sizeof( simpleData ), (char*)&simpleData ) {}
+
+    struct SimpleData {
+        ...
+    } simpleData;
+};
+</pre>
+
+If you do not only have basic data types in the command, but also data
+which size is not known form the beginning (like an array), a command looks
+like this:
+
+<pre>
+struct QWS&lt;Your&gt;Command : public QWSCommand {
+    QWS&lt;Your&gt;Command() :
+	QWSCommand( id_of_command, sizeof( simpleData ), (char*)&simpleData ) {}
+
+    void setData( char *d, int len, bool allocateMem = TRUE ) {
+	QWSCommand::setData( d, len, allocateMem );
+	arrayData = rawDataPtr;
+    }
+
+    struct SimpleData {
+        ...
+    } simpleData;
+
+    struct ArrayData {
+        ...
+    } *arrayData;
+
+};
+
+Using this you can transfer arrays of any datatype (like char* and so on)
+in commands.
+
 </pre>
 
 During processing, clients may send the following commands.
 
 <dl>
-  <dt>QWSCreate
+  <dt>QWSCreateCommand
     <dd>
-    <pre>
-    int type = QWSCommand::Create;</pre>
+    Type: <i>QWSCommand::Create</i>
+    <p>
     This command is sent by the client to create an object identifier.
     The client will
     eventually receive a QWSCreationEvent containing an identifier.
@@ -156,23 +186,27 @@ During processing, clients may send the following commands.
     an object identifier, such as for a window identifier, it cannot
     be reused for other purposes.
     </p>
-  <dt>QWSDestroy
+  <dt>QWSDestroyCommand
     <dd>
+    Type: <i>QWSCommand::Destroy</i>
     <pre>
-    int type = QWSCommand::Destroy;
-    int objectid;</pre>
+    struct SimpleData {
+        int objectid;
+    } simleData;</pre>
     This command is sent by the client to destroy an object identifier,
     including any object (such as a window) so identified.
     </p>
-  <dt>QWSRegion
+  <dt>QWSRegionCommand
     <dd>
+    Type: <i>QWSCommand::Region</i>
     <pre>
-    int type = QWSCommand::Region;
-    int windowid;
-    int nrectangles;
-    struct {
+    struct SimpleData {
+        int windowid;
+        int nrectangles;
+    } simpleData;
+    struct Rectangle {
 	int x, y, width, height;
-    } rectangles[nrectangles]; </pre>
+    } rectangles[ simpleData.nrectangles ]; </pre>
     This command is sent by the client to request that the region covered by
     the window be changed to the given set of rectangles. Note that the client
     must not paint in the requested area immediately; instead, it should delay
@@ -181,6 +215,46 @@ During processing, clients may send the following commands.
     subset of the requested pixels).
     <p>
     The <i>rectangles</i> must be in <a href=#yxbanded>YXBanded</a> format.
+    </p>
+  <dt>QWSAddPropertyCommand
+    <dd>
+    Type: <i>QWSCommand::AddProperty</i>
+    <pre>
+    struct SimpleData {
+        int windowid, property;
+    } simleData;</pre>
+    This command is sent by the client to add a property identified by <i>property</i>
+    on the window with the id <i>windowid</i>.
+    </p>
+  <dt>QWSSetPropertyCommand
+    <dd>
+    Type <i>QWSCommand::SetProperty</i>
+    <pre>
+    struct SimpleData {
+        int windowid, property, mode;
+    } simleData;
+    char *data;</pre>
+    This command is sent by the client to set a property identified by <i>property</i>
+    on the window with the id <i>windowid</i>. The property has to be added first,
+    if it doesn't exist already. <i>mode</i> can be one of
+    <ul>
+      <li><i>QWSProperty::PropReplace</i> - If the <i>property</i> already contains data, the new data is
+      is replaced by the new one 
+      <li><i>QWSProperty::PropPrepend</i> - If the <i>property</i> already contains data, the new data is
+      is prepended 
+      <li><i>QWSProperty::PropAppend</i> - If the <i>property</i> already contains data, the new data is
+      is appended 
+    </ul>
+    </p>
+  <dt>QWSRemovePropertyCommand
+    <dd>
+    Type: <i>QWSCommand::RemoveProperty</i>
+    <pre>
+    struct SimpleData {
+        int windowid, property;
+    } simleData;</pre>
+    This command is sent by the client to remove the property identified by <i>property</i>
+    from the window with the id <i>windowid</i>.
     </p>
 </dl>
 
