@@ -29,8 +29,6 @@
 #include <ocidl.h>
 #include <ctype.h>
 
-static QMetaObject *tempMetaObj = 0;
-
 #define NotDesignable	0x00001000
 #define NotScriptable	0x00004000
 #define NotStored	0x00010000
@@ -392,6 +390,7 @@ public:
 
     QMap<QString, bool> *propWritable;
     QAxMetaObject *metaobj;
+    QMetaObject *staticMetaObject;
 };
 
 #ifndef QAXPRIVATE_DECL
@@ -1073,302 +1072,6 @@ long QAxBase::queryInterface( const QUuid &uuid, void **iface ) const
     return E_NOTIMPL;
 }
 
-static QString guessTypes( const TYPEDESC &tdesc, ITypeInfo *info, const QHash<QString, QMetaEnum*>& enumlist, const QString &function );
-
-static inline QString usertypeToQString( const TYPEDESC &tdesc, ITypeInfo *info, const QHash<QString, QMetaEnum*>& enumlist, const QString &function )
-{
-    HREFTYPE usertype = tdesc.hreftype;
-    if ( tdesc.vt != VT_USERDEFINED )
-	return QString::null;
-
-    QString typeName;
-    ITypeInfo *usertypeinfo = 0;
-    info->GetRefTypeInfo( usertype, &usertypeinfo );
-    if ( usertypeinfo ) {
-	ITypeLib *usertypelib = 0;
-	UINT index;
-	usertypeinfo->GetContainingTypeLib( &usertypelib, &index );
-	if ( usertypelib ) {
-	    // get type name
-	    BSTR usertypename = 0;
-	    usertypelib->GetDocumentation( index, &usertypename, 0, 0, 0 );
-	    QString userTypeName = BSTRToQString( usertypename );
-	    SysFreeString( usertypename );
-
-	    // known enum?
-	    QMetaEnum *metaEnum = enumlist[userTypeName];
-	    if ( metaEnum )
-		typeName = userTypeName;
-	    else if ( userTypeName == "OLE_COLOR" || userTypeName == "VB_OLE_COLOR" )
-		typeName = "QColor";
-	    else if ( userTypeName == "IFontDisp" || userTypeName == "IFontDisp*" || userTypeName == "IFont" || userTypeName == "IFont*" )
-		typeName = "QFont";
-	    else if ( userTypeName == "Picture" || userTypeName == "Picture*" )
-		typeName = "QPixmap";
-
-	    if ( typeName.isEmpty() ) {
-		TYPEATTR *typeattr = 0;
-		usertypeinfo->GetTypeAttr( &typeattr );
-		if ( typeattr ) {
-		    if ( typeattr->typekind == TKIND_ALIAS )
-			userTypeName = guessTypes( typeattr->tdescAlias, usertypeinfo, enumlist, function );
-		    else if ( typeattr->typekind == TKIND_DISPATCH || typeattr->typekind == TKIND_COCLASS )
-			userTypeName = "IDispatch";
-		}
-
-		usertypeinfo->ReleaseTypeAttr( typeattr );
-		typeName = userTypeName;
-	    }
-	    usertypelib->Release();
-	}
-	usertypeinfo->Release();
-    }
-    return typeName;
-}
-
-static QString guessTypes( const TYPEDESC &tdesc, ITypeInfo *info, const QHash<QString, QMetaEnum*>& enumlist, const QString &function )
-{
-    QString str;
-    switch ( tdesc.vt ) {
-    case VT_VOID:
-	str = "void";
-	break;
-    case VT_BSTR:
-	str = "QString";
-	break;
-    case VT_BOOL:
-	str = "bool";
-	break;
-    case VT_I1:
-	str = "char";
-	break;
-    case VT_I2:
-	str = "short";
-	break;
-    case VT_I4:
-    case VT_INT:
-	str = "int";
-	break;
-    case VT_UI1:
-    case VT_UI2:
-    case VT_UI4:
-    case VT_UINT:
-	str = "uint";
-	break;
-    case VT_CY:
-	str = "Q_LLONG";
-	break;
-    case VT_R4:
-	str = "float";
-	break;
-    case VT_R8:
-	str = "double";
-	break;
-    case VT_DATE:
-	str = "QDateTime";
-	break;
-    case VT_DISPATCH:
-	str = "IDispatch*";
-	break;
-    case VT_VARIANT:
-	str = "QVariant";
-	break;
-    case VT_UNKNOWN:
-	str = "IUnknown*";
-	break;
-    case VT_HRESULT:
-	str = "HRESULT";
-	break;
-    case VT_PTR:
-	str = guessTypes( *tdesc.lptdesc, info, enumlist, function );
-	switch( tdesc.lptdesc->vt ) {
-	case VT_BSTR:
-	case VT_I1:
-	case VT_I2:
-	case VT_I4:
-	case VT_UI1:
-	case VT_UI2:
-	case VT_UI4:
-	case VT_BOOL:
-	case VT_R4:
-	case VT_R8:
-	case VT_INT:
-	case VT_UINT:
-	case VT_CY:
-	    str += "&";
-	    break;
-	case VT_PTR:
-	    if ( str == "QFont" || str == "QPixmap" ) {
-		str += "&";
-		break;
-	    }
-	    // FALLTHROUGH
-	default:
-	    if ( str == "QColor" )
-		str += "&";
-	    else if ( str == "QDateTime" )
-		str += "&";
-	    else if ( str == "QList<QVariant>" )
-		str += "&";
-	    else if ( str == "QByteArray" )
-		str += "&";
-	    else if ( str == "QStringList" )
-		str += "&";
-	    else if ( str == "QVariant" )
-		str = "const QVariant&";
-	    else if ( !str.isEmpty() && enumlist[str] )
-		str += "&";
-	    else if ( !str.isEmpty() && str != "QFont" && str != "QPixmap" )
-		str += "*";
-	}
-	break;
-    case VT_SAFEARRAY:
-	if ( tdesc.lpadesc->tdescElem.vt == VT_UI1 ) {
-	    str = "QByteArray";
-	    break;
-	} else if (tdesc.lpadesc->tdescElem.vt == VT_BSTR) {
-	    str = "QStringList";
-	    break;
-	}
-	str = guessTypes( tdesc.lpadesc->tdescElem, info, enumlist, function );
-	if ( !str.isEmpty() )
-	    str = "QList<" + str + ">";
-	break;
-    case VT_CARRAY:
-	str = guessTypes( tdesc.lpadesc->tdescElem, info, enumlist, function );
-	if ( !str.isEmpty() ) {
-	    for ( int index = 0; index < tdesc.lpadesc->cDims; ++index )
-		str += "[" + QString::number( tdesc.lpadesc->rgbounds[index].cElements ) + "]";
-	}
-	break;
-    case VT_USERDEFINED:
-	str = usertypeToQString( tdesc, info, enumlist, function );
-	break;
-
-    default:
-	break;
-    }
-
-    if ( tdesc.vt & VT_BYREF )
-	str += "&";
-
-    return str;
-}
-
-static inline QString constRefify( const QString& type )
-{
-    QString crtype;
-
-    if ( type == "QString" )
-	crtype = "const QString&";
-    else if ( type == "QDateTime" )
-	crtype = "const QDateTime&";
-    else if ( type == "QVariant" )
-	crtype = "const QVariant&";
-    else if ( type == "QColor" )
-	crtype = "const QColor&";
-    else if ( type == "QFont" )
-	crtype = "const QFont&";
-    else if ( type == "QPixmap" )
-	crtype = "const QPixmap&";
-    else if ( type == "QList<QVariant>" )
-	crtype = "const QList<QVariant>&";
-    else if ( type == "QByteArray" )
-	crtype = "const QByteArray&";
-    else if ( type == "QStringList" )
-	crtype = "const QStringList&";
-    else
-	crtype = type;
-
-    return crtype;
-}
-
-static inline void QStringToQUType( const QString& fulltype, QUParameter *param, const QHash<QString, QMetaEnum*> &enumDict )
-{
-/* XXX
-    QString type = fulltype;
-    if ( type.startsWith( "const " ) )
-	type = type.mid( 6 );
-    if ( type.right(1) == "&" )
-	type.truncate( type.length()-1 );
-
-    param->typeExtra = 0;
-    if ( type == "int" || type == "long" ) {
-	param->type = &static_QUType_int;
-    } else if ( type == "short" ) {
-	param->type = &static_QUType_int;
-	param->typeExtra = (void*)2; // byte size if not default
-    } else if ( type == "char" ) {
-	param->type = &static_QUType_int;
-	param->typeExtra = (void*)1;
-    } else if ( type == "uint" ) {
-	param->type = &static_QUType_varptr;
-	param->typeExtra = new char(QVariant::UInt);
-    } else if ( type == "Q_LLONG" ) {
-	param->type = &static_QUType_varptr;
-	param->typeExtra = new char(QVariant::LongLong);
-    } else if ( type == "Q_ULLONG" ) {
-	param->type = &static_QUType_varptr;
-	param->typeExtra = new char(QVariant::ULongLong);
-    } else if ( type == "bool" ) {
-	param->type = &static_QUType_bool;
-    } else if ( type == "QString" ) {
-	param->type = &static_QUType_QString;
-    } else if ( type == "double" ) {
-	param->type = &static_QUType_double;
-    } else if ( type == "float" ) {
-	param->type = &static_QUType_double;
-	param->typeExtra = (void*)4; // byte size if not default
-    } else if ( type == "QVariant" ) {
-	param->type = &static_QUType_QVariant;
-    } else if ( type == "QColor" ) {
-	param->type = &static_QUType_varptr;
-	param->typeExtra = new char(QVariant::Color);
-    } else if ( type == "QDateTime" ) {
-	param->type = &static_QUType_varptr;
-	param->typeExtra = new char(QVariant::DateTime);
-    } else if ( type == "QFont" ) {
-	param->type = &static_QUType_varptr;
-	param->typeExtra = new char(QVariant::Font);
-    } else if ( type == "QPixmap" ) {
-	param->type = &static_QUType_varptr;
-	param->typeExtra = new char(QVariant::Pixmap);
-    } else if ( type == "QList<QVariant>" ) {
-	param->type = &static_QUType_varptr;
-	param->typeExtra = new char(QVariant::List);
-    } else if ( type == "QByteArray" ) {
-	param->type = &static_QUType_varptr;
-	param->typeExtra = new char(QVariant::ByteArray);
-    } else if ( type == "QStringList" ) {
-	param->type = &static_QUType_varptr;
-	param->typeExtra = new char(QVariant::StringList);
-    } else if ( enumDict[type] ) {
-	QMetaEnum *enumData = enumDict[type];
-	param->type = &static_QUType_enum;
-	QUEnum *uEnum = new QUEnum;
-	uEnum->count = enumData->count;
-	uEnum->name = enumData->name;
-	uEnum->set = enumData->set;
-	uEnum->items = new QUEnumItem[uEnum->count];
-	for ( uint item = 0; item < uEnum->count; ++item ) {
-	    QUEnumItem *uEnumItem = (QUEnumItem *)uEnum->items+item;
-	    uEnumItem->key = enumData->items[item].key;
-	    uEnumItem->value = enumData->items[item].value;
-	}
-	param->typeExtra = uEnum;
-    } else {
-	param->type = &static_QUType_ptr;
-	QString ptype = type;
-	param->typeExtra = new char[ ptype.length() + 1 ];
-	param->typeExtra = qstrcpy( (char*)param->typeExtra, ptype );
-    }
-*/
-}
-
-class QUMethod
-{
-};
-
 class MetaObjectGenerator
 {
 public:
@@ -1384,6 +1087,262 @@ public:
     QMetaObject *tryCache();
 
 private:
+    QString constRefify( const QString& type )
+    {
+	QString crtype;
+
+	if ( type == "QString" )
+	    crtype = "const QString&";
+	else if ( type == "QDateTime" )
+	    crtype = "const QDateTime&";
+	else if ( type == "QVariant" )
+	    crtype = "const QVariant&";
+	else if ( type == "QColor" )
+	    crtype = "const QColor&";
+	else if ( type == "QFont" )
+	    crtype = "const QFont&";
+	else if ( type == "QPixmap" )
+	    crtype = "const QPixmap&";
+	else if ( type == "QList<QVariant>" )
+	    crtype = "const QList<QVariant>&";
+	else if ( type == "QByteArray" )
+	    crtype = "const QByteArray&";
+	else if ( type == "QStringList" )
+	    crtype = "const QStringList&";
+	else
+	    crtype = type;
+
+	return crtype;
+    }
+
+    QString usertypeToQString( const TYPEDESC &tdesc, ITypeInfo *info, const QString &function )
+    {
+	HREFTYPE usertype = tdesc.hreftype;
+	if ( tdesc.vt != VT_USERDEFINED )
+	    return QString::null;
+
+	QString typeName;
+	ITypeInfo *usertypeinfo = 0;
+	info->GetRefTypeInfo( usertype, &usertypeinfo );
+	if ( usertypeinfo ) {
+	    ITypeLib *usertypelib = 0;
+	    UINT index;
+	    usertypeinfo->GetContainingTypeLib( &usertypelib, &index );
+	    if ( usertypelib ) {
+		// get type name
+		BSTR usertypename = 0;
+		usertypelib->GetDocumentation( index, &usertypename, 0, 0, 0 );
+		QString userTypeName = BSTRToQString( usertypename );
+		SysFreeString( usertypename );
+
+		if (hasEnum(userTypeName)) // known enum?
+		    typeName = userTypeName;
+		else if ( userTypeName == "OLE_COLOR" || userTypeName == "VB_OLE_COLOR" )
+		    typeName = "QColor";
+		else if ( userTypeName == "IFontDisp" || userTypeName == "IFontDisp*" || userTypeName == "IFont" || userTypeName == "IFont*" )
+		    typeName = "QFont";
+		else if ( userTypeName == "Picture" || userTypeName == "Picture*" )
+		    typeName = "QPixmap";
+
+		if ( typeName.isEmpty() ) {
+		    TYPEATTR *typeattr = 0;
+		    usertypeinfo->GetTypeAttr( &typeattr );
+		    if ( typeattr ) {
+			if ( typeattr->typekind == TKIND_ALIAS )
+			    userTypeName = guessTypes( typeattr->tdescAlias, usertypeinfo, function );
+			else if ( typeattr->typekind == TKIND_DISPATCH || typeattr->typekind == TKIND_COCLASS )
+			    userTypeName = "IDispatch";
+		    }
+
+		    usertypeinfo->ReleaseTypeAttr( typeattr );
+		    typeName = userTypeName;
+		}
+		usertypelib->Release();
+	    }
+	    usertypeinfo->Release();
+	}
+	return typeName;
+    }
+
+    QString guessTypes( const TYPEDESC &tdesc, ITypeInfo *info, const QString &function )
+    {
+	QString str;
+	switch ( tdesc.vt ) {
+	case VT_VOID:
+	    str = "void";
+	    break;
+	case VT_BSTR:
+	    str = "QString";
+	    break;
+	case VT_BOOL:
+	    str = "bool";
+	    break;
+	case VT_I1:
+	    str = "char";
+	    break;
+	case VT_I2:
+	    str = "short";
+	    break;
+	case VT_I4:
+	case VT_INT:
+	    str = "int";
+	    break;
+	case VT_UI1:
+	case VT_UI2:
+	case VT_UI4:
+	case VT_UINT:
+	    str = "uint";
+	    break;
+	case VT_CY:
+	    str = "Q_LLONG";
+	    break;
+	case VT_R4:
+	    str = "float";
+	    break;
+	case VT_R8:
+	    str = "double";
+	    break;
+	case VT_DATE:
+	    str = "QDateTime";
+	    break;
+	case VT_DISPATCH:
+	    str = "IDispatch*";
+	    break;
+	case VT_VARIANT:
+	    str = "QVariant";
+	    break;
+	case VT_UNKNOWN:
+	    str = "IUnknown*";
+	    break;
+	case VT_HRESULT:
+	    str = "HRESULT";
+	    break;
+	case VT_PTR:
+	    str = guessTypes( *tdesc.lptdesc, info, function );
+	    switch( tdesc.lptdesc->vt ) {
+	    case VT_BSTR:
+	    case VT_I1:
+	    case VT_I2:
+	    case VT_I4:
+	    case VT_UI1:
+	    case VT_UI2:
+	    case VT_UI4:
+	    case VT_BOOL:
+	    case VT_R4:
+	    case VT_R8:
+	    case VT_INT:
+	    case VT_UINT:
+	    case VT_CY:
+		str += "&";
+		break;
+	    case VT_PTR:
+		if ( str == "QFont" || str == "QPixmap" ) {
+		    str += "&";
+		    break;
+		}
+		// FALLTHROUGH
+	    default:
+		if ( str == "QColor" )
+		    str += "&";
+		else if ( str == "QDateTime" )
+		    str += "&";
+		else if ( str == "QList<QVariant>" )
+		    str += "&";
+		else if ( str == "QByteArray" )
+		    str += "&";
+		else if ( str == "QStringList" )
+		    str += "&";
+		else if ( str == "QVariant" )
+		    str = "const QVariant&";
+		else if ( !str.isEmpty() /*&& enumlist[str]*/ )
+		    str += "&";
+		else if ( !str.isEmpty() && str != "QFont" && str != "QPixmap" )
+		    str += "*";
+	    }
+	    break;
+	case VT_SAFEARRAY:
+	    if ( tdesc.lpadesc->tdescElem.vt == VT_UI1 ) {
+		str = "QByteArray";
+		break;
+	    } else if (tdesc.lpadesc->tdescElem.vt == VT_BSTR) {
+		str = "QStringList";
+		break;
+	    }
+	    str = guessTypes( tdesc.lpadesc->tdescElem, info, function );
+	    if ( !str.isEmpty() )
+		str = "QList<" + str + ">";
+	    break;
+	case VT_CARRAY:
+	    str = guessTypes( tdesc.lpadesc->tdescElem, info, function );
+	    if ( !str.isEmpty() ) {
+		for ( int index = 0; index < tdesc.lpadesc->cDims; ++index )
+		    str += "[" + QString::number( tdesc.lpadesc->rgbounds[index].cElements ) + "]";
+	    }
+	    break;
+	case VT_USERDEFINED:
+	    str = usertypeToQString( tdesc, info, function );
+	    break;
+
+	default:
+	    break;
+	}
+
+	if ( tdesc.vt & VT_BYREF )
+	    str += "&";
+
+	return str;
+    }
+
+    void addClassInfo(const QString &key, const QString &value)
+    {
+	qDebug("Adding class info: %s | %s", key.latin1(), value.latin1());
+    }
+
+    bool hasClassInfo(const QString &key)
+    {
+	return FALSE;
+    }
+
+    void addSignal(const QString &type, const QString &prototype, const QString &parameters, int flags)
+    {
+	qDebug("Adding signal: %s | %s | %s | %d", type.latin1(), prototype.latin1(), parameters.latin1(), flags);
+    }
+
+    bool hasSignal(const QString &prototype)
+    {
+	return FALSE;
+    }
+
+    void addSlot(const QString &type, const QString &prototype, const QString &parameters, int flags)
+    {
+	qDebug("Adding slot: %s | %s | %s | %d", type.latin1(), prototype.latin1(), parameters.latin1(), flags);
+    }
+
+    bool hasSlot(const QString &prototype)
+    {
+	return FALSE;
+    }
+
+    void addProperty(const QString &type, const QString &name, int flags)
+    {
+	qDebug("Adding property: %s | %s | %d", type.latin1(), name.latin1(), flags);
+    }
+
+    bool hasProperty(const QString &name)
+    {
+	return FALSE;
+    }
+
+    void addEnumValue(const QString &enumname, const QString &key, int value)
+    {
+	qDebug("Adding enum value: %s | %s | %d", enumname.latin1(), key.latin1(), value);
+    }
+
+    bool hasEnum(const QString &enumname)
+    {
+	return FALSE;
+    }
+
     QAxBase *that;
     QAxBasePrivate *d;
 
@@ -1394,21 +1353,12 @@ private:
     QSettings iidnames;
     QString cacheKey;
     QString debugInfo;
-    QHash<QString, QUMethod*> slotlist; // QUMethods deleted
-    QHash<QString, QUMethod*> signallist; // QUMethods deleted
-    QHash<QString, QMetaProperty*> proplist;
-#ifndef QAX_NO_CLASSINFO
-    QHash<QString, QString*> infolist;
-#endif
-    QHash<QString, QMetaEnum*> enumlist;
-    QHash<QString, QMetaEnum*> enumDict;	    // dict for fast lookup when generation property/parameter information
-    QMetaEnum *enum_data;
 
     QUuid iid_propNotifySink;
 };
 
 MetaObjectGenerator::MetaObjectGenerator( QAxBase *ax, QAxBasePrivate *dptr )
-: that( ax ), d( dptr ), typeinfo(0), typelib(0), enum_data(0)
+: that( ax ), d( dptr ), typeinfo(0), typelib(0)
 {
     if ( d->useClassInfo )
 	iidnames.insertSearchPath( QSettings::Windows, "/Classes" );
@@ -1423,17 +1373,6 @@ MetaObjectGenerator::~MetaObjectGenerator()
 {
     if ( typeinfo ) typeinfo->Release();
     if ( typelib ) typelib->Release();
-    qDeleteAll(proplist);
-    proplist.clear();
-    qDeleteAll(infolist);
-    infolist.clear();
-    qDeleteAll(enumlist);
-    enumlist.clear();
-
-#ifndef QAX_NO_CLASSINFO
-    if ( !!debugInfo && d->useClassInfo )
-	infolist.insert( "debugInfo", new QString( debugInfo ) );
-#endif
 }
 
 void MetaObjectGenerator::readClassInfo()
@@ -1454,12 +1393,12 @@ void MetaObjectGenerator::readClassInfo()
 	    coClassID = clsid.toString().toUpper();
 #ifndef QAX_NO_CLASSINFO
 	    // UUID
-	    if ( d->useClassInfo && !infolist.find( "CoClass" ) ) {
+	    if (d->useClassInfo && !hasClassInfo("CoClass")) {
 		QString coClassIDstr = iidnames.readEntry( "/CLSID/" + coClassID + "/Default", coClassID );
-		infolist.insert( "CoClass", new QString( coClassIDstr.isEmpty() ? coClassID : coClassIDstr ) );
-		QString version( "%1.%1" );
+		addClassInfo("CoClass", coClassIDstr.isEmpty() ? coClassID : coClassIDstr);
+		QString version( "%1.%2" );
 		version = version.arg( typeattr->wMajorVerNum ).arg( typeattr->wMinorVerNum );
-		infolist.insert( "Version", new QString( version ) );
+		addClassInfo("Version", version);
 	    }
 #endif
 	    info->ReleaseTypeAttr( typeattr );
@@ -1531,6 +1470,7 @@ void MetaObjectGenerator::readEnumInfo()
     if ( !typelib )
 	return;
 
+    int enum_serial = 0;
     UINT index = typelib->GetTypeInfoCount();
     for ( UINT i = 0; i < index; ++i ) {
 	TYPEKIND typekind;
@@ -1549,22 +1489,13 @@ void MetaObjectGenerator::readEnumInfo()
 		enumName = BSTRToQString( enumname );
 		SysFreeString( enumname );
 	    } else {
-		enumName = QString( "enum%1" ).arg( enumlist.count() );
+		enumName = QString( "enum%1" ).arg(++enum_serial);
 	    }
 
 	    // Get the attributes of the enum type
 	    TYPEATTR *typeattr = 0;
 	    enuminfo->GetTypeAttr( &typeattr );
 	    if ( typeattr ) {
-		// Create the QMetaEnum
-		QMetaEnum * metaEnum = new QMetaEnum;
-		/*
-		metaEnum->name = new char[enumName.length() + 1];
-		metaEnum->name = qstrcpy( (char*)metaEnum->name, enumName );
-		metaEnum->items = typeattr->cVars ? new QMetaEnum::Item[typeattr->cVars] : 0;
-		metaEnum->count = typeattr->cVars;
-		metaEnum->set = FALSE;*/
-
 		// Get all values of the enumeration
 		for ( UINT vd = 0; vd < (UINT)typeattr->cVars; ++vd ) {
 		    VARDESC *vardesc = 0;
@@ -1583,44 +1514,21 @@ void MetaObjectGenerator::readEnumInfo()
 			} else {
 			    valueName = QString( "value%1" ).arg( vd );
 			}
-			// Add to QMetaEnum
-			/* XXX
-			QMetaEnum::Item *items = (QMetaEnum::Item*)metaEnum->items;
-			items[vd].value = value;
-			items[vd].key = new char[valueName.length()+1];
-			items[vd].key = qstrcpy( (char*)metaEnum->items[vd].key, valueName );
-			*/
+			// Store value
+			addEnumValue(enumName, valueName, value);
 		    }
 		    enuminfo->ReleaseVarDesc( vardesc );
 		}
-		// Add QMetaEnum to dict
-		enumlist.insert( enumName, metaEnum );
 	    }
 	    enuminfo->ReleaseTypeAttr( typeattr );
 	    enuminfo->Release();
 	}
     }
-
-    /* XXX
-    // setup enum data array
-    index = 0;
-    enum_data = enumlist.count() ? new QMetaEnum[enumlist.count()] : 0;
-    QDictIterator<QMetaEnum> enum_it( enumlist );
-    while ( enum_it.current() ) {
-	QMetaEnum metaEnum = *enum_it.current();
-	enum_data[index].name = metaEnum.name;
-	enum_data[index].count = metaEnum.count;
-	enum_data[index].items = metaEnum.items;
-	enum_data[index].set = metaEnum.set;
-	enumDict.insert( enum_it.currentKey(), enum_data+index );
-	++index;
-	++enum_it;
-    }
-    */
 }
 
 void MetaObjectGenerator::readFuncInfo()
 {
+    int interface_serial = 0;
     while ( typeinfo ) {
 	ushort nFuncs = 0;
 	ushort nVars = 0;
@@ -1643,8 +1551,7 @@ void MetaObjectGenerator::readFuncInfo()
 		    QUuid uuid( typeattr->guid );
 		    QString uuidstr = uuid.toString().toUpper();
 		    uuidstr = iidnames.readEntry( "/Interface/" + uuidstr + "/Default", uuidstr );
-		    static int interfacecount = 0;
-		    infolist.insert( QString("Interface %1").arg(++interfacecount), new QString( uuidstr ) );
+		    		    addClassInfo(QString("Interface %1").arg(++interface_serial), uuidstr);
 		}
 #endif
 		typeinfo->ReleaseTypeAttr( typeattr );
@@ -1701,7 +1608,7 @@ void MetaObjectGenerator::readFuncInfo()
 		    prototype = function + "(";
 
 		    // get return value
-		    returnType = guessTypes( typedesc, typeinfo, enumDict, function );
+		    returnType = guessTypes( typedesc, typeinfo, function );
 
 		    if ( returnType != "void" ) {
 			if ( funcdesc->invkind == INVOKE_FUNC || returnType != "HRESULT" ) {
@@ -1723,7 +1630,7 @@ void MetaObjectGenerator::readFuncInfo()
 		TYPEDESC tdesc = funcdesc->lprgelemdescParam[ p - offset ].tdesc;
 		PARAMDESC pdesc = funcdesc->lprgelemdescParam[ p - offset ].paramdesc;
 
-		QString ptype = guessTypes( tdesc, typeinfo, enumDict, function );
+		QString ptype = guessTypes( tdesc, typeinfo, function );
 		if ( pdesc.wParamFlags & PARAMFLAG_FRETVAL ) {
 		    returnType = ptype;
 		    paramTypes << returnType;
@@ -1964,7 +1871,7 @@ void MetaObjectGenerator::readFuncInfo()
 
 	    // get variable type
 	    TYPEDESC typedesc = vardesc->elemdescVar.tdesc;
-	    QString variableType = guessTypes( typedesc, typeinfo, enumDict, variableName );
+	    QString variableType = guessTypes( typedesc, typeinfo, variableName );
 
 /* XXX
 	    if ( !(vardesc->wVarFlags & VARFLAG_FHIDDEN) ) {
@@ -2100,6 +2007,7 @@ void MetaObjectGenerator::readFuncInfo()
 
 void MetaObjectGenerator::readEventInfo()
 {
+    int event_serial = 0;
     IConnectionPointContainer *cpoints = 0;
     if ( d->useEventSink )
 	d->ptr->QueryInterface( IID_IConnectionPointContainer, (void**)&cpoints );
@@ -2130,8 +2038,7 @@ void MetaObjectGenerator::readEventInfo()
 		if ( d->useClassInfo ) {
   		    QString uuidstr = connuuid.toString().toUpper();
   		    uuidstr = iidnames.readEntry( "/Interface/" + uuidstr + "/Default", uuidstr );
-  		    static int eventcount = 0;
-  		    infolist.insert( QString("Event Interface %1").arg(++eventcount), new QString( uuidstr ) );
+  		    addClassInfo(QString("Event Interface %1").arg(++event_serial), uuidstr);
 		}
 #endif
 
@@ -2202,7 +2109,7 @@ void MetaObjectGenerator::readEventInfo()
 			    // function name
 			    if ( !p ) {
 				function = paramName;
-				returnType = guessTypes( typedesc, eventinfo, enumDict, function );
+				returnType = guessTypes( typedesc, eventinfo, function );
 				prototype = function + "(";
 				continue;
 			    }
@@ -2211,7 +2118,7 @@ void MetaObjectGenerator::readEventInfo()
 			    bool optional = p > funcdesc->cParams - funcdesc->cParamsOpt;
 
 			    TYPEDESC tdesc = funcdesc->lprgelemdescParam[p - ( (funcdesc->invkind == INVOKE_FUNC) ? 1 : 0 ) ].tdesc;
-			    QString ptype = guessTypes( tdesc, eventinfo, enumDict, function );
+			    QString ptype = guessTypes( tdesc, eventinfo, function );
 
 			    paramTypes << ptype;
 			    parameters << paramName;
@@ -2223,9 +2130,9 @@ void MetaObjectGenerator::readEventInfo()
 			}
 			if ( !!prototype )
 			    prototype += ")";
-
-			if ( !signallist.find( prototype ) ) {
 /* XXX
+
+			if ( !signal_list.indexOf( prototype ) ) {
 			    QUMethod *signal = new QUMethod;
 			    signal->name = new char[function.length()+1];
 			    signal->name = qstrcpy( (char*)signal->name, function );
@@ -2249,8 +2156,8 @@ void MetaObjectGenerator::readEventInfo()
 			    }
 			    signal->parameters = params;
 			    signallist.insert( prototype, signal );
-*/
 			}
+*/
 			if ( eventSink )
 			    eventSink->addSignal( funcdesc->memid, prototype );
 
@@ -2322,7 +2229,7 @@ QMetaObject *MetaObjectGenerator::metaObject( const QMetaObject *parentObject )
 
 #ifndef QAX_NO_CLASSINFO
     if ( !!debugInfo && d->useClassInfo )
-	infolist.insert( "debugInfo", new QString( debugInfo ) );
+	addClassInfo("debugInfo", debugInfo);
 #endif
 /*
     // setup slot data
@@ -2431,12 +2338,42 @@ QMetaObject *MetaObjectGenerator::metaObject( const QMetaObject *parentObject )
     }
 #endif
 */
+
+    // revision + classname + table + zero terminator
+    int int_data_size = 1+1+2+2+2+2+2+1;
+
+    int_data_size += 0; //XXX calculate required array size...
+    uint *int_data = new uint[ + int_data_size];
+    int_data[0] = 1; // revision number
+    int_data[1] = 0; // classname index
+    int_data[2] = 0; // XXX num_classinfo
+    int_data[3] = 12; // idx_classinfo
+    int_data[4] = 0; // XXX num_signals
+    int_data[5] = int_data[3] + int_data[2] * 2; // idx_signals
+    int_data[6] = 0; // XXX num_slots
+    int_data[7] = int_data[5] + int_data[4] * 5; // idx_slots
+    int_data[8] = 0; // XXX num_properties
+    int_data[9] = int_data[7] + int_data[6] * 5; // idx_properties
+    int_data[10] = 0; // XXX num_enums
+    int_data[11] = int_data[9] + int_data[8] * 3; // idx_enums
+
+    int_data[int_data_size - 1] = 0; // eod;
+    
+    // data + zero-terminator
+    int string_data_size = strlen(that->qObject()->className()) + 1;
+    char *string_data = new char[string_data_size];
+    memset(string_data, 0, sizeof(string_data));
+    strcpy(string_data, that->qObject()->className());
+
+    string_data[string_data_size-1] = 0; // zero-terminator
+
     // put the metaobject together
     d->metaobj = new QAxMetaObject;
-    d->metaobj->d.data = 0;
-    d->metaobj->d.stringdata = 0;
-    d->metaobj->d.superdata = 0;
-/*XXX
+    d->metaobj->d.data = int_data;
+    d->metaobj->d.stringdata = string_data;
+    d->metaobj->d.superdata = parentObject;
+
+/*
     if ( !cacheKey.isEmpty() ) {
 	mo_cache->insert( cacheKey, d->metaobj );
 	d->cachedMetaObject = TRUE;
@@ -2482,12 +2419,6 @@ static const char qt_meta_stringdata_QAxBase[] = {
     "name,argc,argv\0signal(QString,int,void*)\0QString\0control\0"
 };
 
-const QMetaObject QAxBase::staticMetaObject = {
-    { &QObject::staticMetaObject,
-      qt_meta_stringdata_QAxBase,
-      qt_meta_data_QAxBase }
-};
-
 
 /*!
     \reimp
@@ -2513,9 +2444,15 @@ const QMetaObject *QAxBase::metaObject() const
 #endif
 
     // return the default meta object if not yet initialized
-    if ( !d->ptr || !d->useMetaObject )
-	return &staticMetaObject;
-
+    if ( !d->ptr || !d->useMetaObject ) {
+	if (!d->staticMetaObject) {
+	    d->staticMetaObject = new QMetaObject;
+	    d->staticMetaObject->d.data = qt_meta_data_QAxBase;
+	    d->staticMetaObject->d.stringdata = qt_meta_stringdata_QAxBase;
+	    d->staticMetaObject->d.superdata = parentMetaObject();
+	}
+	return d->staticMetaObject;
+    }
     MetaObjectGenerator generator( (QAxBase*)this, d );
     return generator.metaObject( parentObject );
 }

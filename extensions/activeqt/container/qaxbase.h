@@ -112,7 +112,6 @@ private:
     bool initializeLicensedHelper(void *factory, const QString &key, IUnknown **ptr);
     QAxBasePrivate *d;
 
-    static const QMetaObject staticMetaObject;
     virtual const QMetaObject *parentMetaObject() const = 0;
     bool internalInvoke( const QString &name, void *out, QVariant var[], QString &type );
 
