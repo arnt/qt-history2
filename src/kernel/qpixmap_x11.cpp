@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#134 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#135 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -22,7 +22,7 @@
 *****************************************************************************/
 
 // Uncomment the next line to enable the MIT Shared Memory extension
-// #define MITSHM
+#define MITSHM
 
 #include "qbitmap.h"
 #include "qimage.h"
@@ -80,12 +80,12 @@ static void qt_cleanup_mitshm()
     shmctl( xshminfo.shmid, IPC_RMID, 0 );
 }
 
-bool qt_create_mitshm_buffer( QPaintDevice* dev, int w, int h )
+
+static bool qt_create_mitshm_buffer( const QPaintDevice* dev, int w, int h )
 {
     static int major, minor;
     static Bool pixmaps_ok;
     Display *dpy = dev->x11Display();
-    int scr	 = dev->x11Screen();
     int dd	 = dev->x11Depth();
     Visual *vis	 = (Visual*)dev->x11Visual();
 
@@ -131,7 +131,7 @@ bool qt_create_mitshm_buffer( QPaintDevice* dev, int w, int h )
 
 #else
 
-bool qt_create_mitshm_buffer( QPaintDevice*, int, int )
+static bool qt_create_mitshm_buffer( QPaintDevice*, int, int )
 {
     return FALSE;
 }

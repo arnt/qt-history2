@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#92 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#93 $
 **
 ** Implementation of QPixmap class
 **
@@ -39,7 +39,7 @@
   the other being QImage.  QPixmap is designed and optimized for
   drawing; QImage is designed and optimized for I/O and for direct
   pixel access/manipulation.  There are (slow) functions to convert
-  between QImage and QPixmp; convertToImage() and convertFromImage().
+  between QImage and QPixmap; convertToImage() and convertFromImage().
 
   One common use of the QPixmap class is to enable smooth updating of
   widgets.  Whenever something complex needs to be drawn, you can use
