@@ -1015,8 +1015,16 @@ static void delete_d( const QFtp* foo )
     \ingroup io
     \module network
 
-    This class is derived from QNetworkProtocol. QFtp is not normally
-    used directly, but rather through a QUrlOperator, for example:
+    This class provides two different interfaces: one is the QNetworkProtocol
+    interface that allows you to use FTP through the QUrlOperator abstraction.
+    The other is a direct interface to FTP that allows you to have more control
+    over the connection and even allows you low-level access to the FTP
+    protocol.
+
+    Don't mix the two interfaces, since the behavior is not well-defined.
+
+    If you want to use QFtp with the QNetworkProtocol interface, you do not use
+    it directly, but rather through a QUrlOperator, for example:
 
     \code
     QUrlOperator op( "ftp://ftp.trolltech.com" );
@@ -1027,10 +1035,121 @@ static void delete_d( const QFtp* foo )
     register the class, you must call qInitNetworkProtocols() before
     using a QUrlOperator with QFtp.
 
-    If you really need to use QFtp directly, don't forget to set its
-    QUrlOperator with setUrl().
+    The rest of the documentation describes the direct interface to FTP. The
+    class works asynchronous, which means that no functions are blocking. They
+    return immediately and in case that an operation can't be executed
+    immediately, it is scheduled and executed later (you have to enter the
+    event loop for this). The results for such operations are reported through
+    signals.
 
-    \sa \link network.html Qt Network Documentation \endlink QNetworkProtocol, QUrlOperator
+    The operations that can be scheduled (they are called "commands" in the
+    rest of the documentation) are the following: connectToHost(), login(),
+    close(), list(), cd(), get(), put(), remove(), mkdir(), rmdir(), rename()
+    and rawCommand().
+
+    All of these commands return a unique identifier that allows you to keep
+    track of the command that is currently executed. When the execution of a
+    command starts, the commandStarted() signal with the identifier is emitted
+    and when the command is finished, the commandFinished() signal is emitted
+    with the identifier and a bool value that tells if the command was finished
+    with an error.
+
+    In some cases, you might want to have a sequence of commands, e.g. if you
+    want to connect and login to a FTP server, you can do this by simply
+    writing:
+
+    \code
+    ftp->connectToHost( "ftp.trolltech.com" );
+    ftp->login();
+    \endcode
+
+    In this case you schedule the two FTP commands. When the last scheduled
+    command has finished, the done() signal is emitted with a bool argument
+    that tells you if the sequence was finished with an error.
+
+    In case of an error in one of the command, the list of all pending commands
+    (i.e. scheduled, but not yet executed commands) is cleared and no signals
+    are emitted for them.
+
+    Some commands, e.g. list(), emit additional signals to report the result of
+    the command.
+
+    If you want to download the INSTALL file from Trolltech's FTP server, you
+    can do this by:
+
+    \code
+    ftp->connectToHost( "ftp.trolltech.com" );
+    ftp->login();
+    ftp->cd( "qt" );
+    ftp->get( "INSTALL" );
+    ftp->close();
+    \endcode
+
+    For this example the following sequence of signals is emitted (with small
+    variations, depending on network traffic, etc.):
+
+    \code
+    start( 1 )
+    stateChanged( HostLookup )
+    stateChanged( Connecting )
+    stateChanged( Connected )
+    finished( 1, FALSE )
+
+    start( 2 )
+    stateChanged( LoggedIn )
+    finished( 2, FALSE )
+
+    start( 3 )
+    finished( 3, FALSE )
+
+    start( 4 )
+    dataTransferProgress( 0, 3798 )
+    dataTransferProgress( 2896, 3798 )
+    readyRead()
+    dataTransferProgress( 3798, 3798 )
+    readyRead()
+    finished( 4, FALSE )
+
+    start( 5 )
+    stateChanged( Closing )
+    stateChanged( Unconnected )
+    finished( 5, FALSE )
+
+    done( FALSE )
+    \endcode
+
+    The dataTransferProgress() signal in the above example is useful if you
+    want to show a \link QProgressBar progressbar \endlink to inform the user
+    about the progress of the download. The readyRead() signal tells you that
+    there is data ready to be read. The amount of data can be queried then with
+    the bytesAvailable() function and it can be read with the readBlock() or
+    readAll() function.
+
+    If the login fails for the above example, the signals would look like:
+
+    \code
+    start( 1 )
+    stateChanged( HostLookup )
+    stateChanged( Connecting )
+    stateChanged( Connected )
+    finished( 1, FALSE )
+
+    start( 2 )
+    finished( 2, TRUE )
+
+    done( TRUE )
+    \endcode
+
+    You can then get details about the error with the error() and errorString()
+    functions.
+
+    The functions currentId() and currentCommand() allow you to get more
+    information about the currently executed command.
+
+    The functions hasPendingCommands() and clearPendingCommands() allow you to
+    query and modify the list of pending commands.
+
+    \sa \link network.html Qt Network Documentation \endlink QNetworkProtocol, QUrlOperator QHttp
 */
 
 /*!
