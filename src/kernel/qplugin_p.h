@@ -79,7 +79,7 @@ bool qt_free_library( void* handle )
 
 void* qt_resolve_symbol( void* handle, const char* f )
 {
-    return dlsym( h, f );
+    return dlsym( handle, f );
 }
 #endif
 
