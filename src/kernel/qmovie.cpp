@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#50 $
 **
 ** Implementation of movie classes
 **
@@ -200,6 +200,7 @@ QMoviePrivate::~QMoviePrivate()
     delete pump;
     delete decoder;
     delete source;
+    delete frametimer;
 }
 
 bool QMoviePrivate::isNull() const
@@ -851,7 +852,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char *member)
 ** QMoviePrivate meta object code from reading C++ file 'standard input'
 **
 ** Created: Fri Aug 21 01:55:09 1998
-**      by: The Qt Meta Object Compiler ($Revision: 1.49 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.50 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
