@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#18 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#19 $
 **
 ** Implementation of QFontDialog
 **
@@ -35,6 +35,22 @@
 #include "qlabel.h"
 #include "qkeycode.h"
 #include "qapplication.h"
+#include "qfontdatabase.h"
+
+//
+//  W A R N I N G
+//  -------------
+//
+//  This class is under development and is currently unstable.
+//
+//  It is very unlikely that this code will be available in the final
+//  Qt 2.0 release.  It will be available soon after then, but a number
+//  of important API changes still need to be made.
+//
+//  Thus, it is important that you do NOT use this code in an application
+//  unless you are willing for your application to be dependent on the
+//  snapshot releases of Qt.
+//
 
 /*notready
   \class QFontDialog qfontdialog.h
@@ -47,6 +63,7 @@
 
 struct QFontDialogPrivate
 {
+    QFontDialogPrivate(){};
     QLabel * familyAccel;
     QLineEdit * familyEdit;
     QListBox * familyList;
@@ -69,16 +86,21 @@ struct QFontDialogPrivate
     QLineEdit * sampleEdit;
 
     QLabel * scriptAccel;
-    QComboBox * script;
+    QComboBox * scriptCombo;
 
     QPushButton * ok;
     QPushButton * cancel;
 
     QBoxLayout * buttonLayout;
-    QBoxLayout * topLevelLayout;
     QBoxLayout * effectsLayout;
     QBoxLayout * sampleLayout;
     QBoxLayout * sampleEditLayout;
+
+    QFontDatabase fdb;
+    QFontFamily   family;
+    QFontCharSet  charSet;
+    QFontStyle    style;
+
 };
 
 
@@ -90,6 +112,7 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
 			  bool modal, WFlags f )
     : QDialog( parent, name, modal, f )
 {
+    d = new QFontDialogPrivate;
     // grid
     d->familyEdit = new QLineEdit( this, "font family I" );
     d->familyEdit->setFocusPolicy( StrongFocus );
@@ -97,6 +120,7 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->familyList->setFocusPolicy( NoFocus );
     d->familyList->setAutoScrollBar( FALSE );
     d->familyList->setScrollBar( TRUE );
+
     d->familyAccel
 	= new QLabel( d->familyEdit, "&Font", this, "family accelerator" );
     d->familyAccel->setMargin( 2 );
@@ -149,10 +173,10 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->sample->setTitle( "Sample" );
     d->sampleEdit = new QLineEdit( d->sample, "r/w sample text" );
     d->sampleEdit->setText( "AaBbYyZz" );
-    d->script = new QComboBox( TRUE, sampleStuff, "font encoding" );
-    d->script->setFocusPolicy( StrongFocus );
+    d->scriptCombo = new QComboBox( TRUE, sampleStuff, "font encoding" );
+    d->scriptCombo->setFocusPolicy( StrongFocus );
     d->scriptAccel
-	= new QLabel( d->script, "Scr&ipt", sampleStuff, "encoding label" );
+	= new QLabel( d->scriptCombo, "Scr&ipt", sampleStuff,"encoding label");
     d->scriptAccel->setMargin( 2 );
 
     d->sampleLayout = new QBoxLayout( sampleStuff, QBoxLayout::Down, 0 );
@@ -160,18 +184,15 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->sampleLayout->addSpacing( 5 );
     d->sampleLayout->addStretch( 10 );
     d->sampleLayout->addWidget( d->scriptAccel, 0, AlignLeft );
-    d->sampleLayout->addWidget( d->script, 0, AlignLeft );
+    d->sampleLayout->addWidget( d->scriptCombo, 0, AlignLeft );
 
     // layout for sampleEdit
     d->sampleEditLayout = new QBoxLayout( d->sample, QBoxLayout::Down, 12 );
     d->sampleEditLayout->addSpacing( 6 );
     d->sampleEditLayout->addWidget( d->sampleEdit );
 
-    // top-level and grid layout
-    d->topLevelLayout = new QBoxLayout( this, QBoxLayout::Down, 12 );
-    QGridLayout * mainGrid = new QGridLayout( 5, 7, 0 );
-
-    d->topLevelLayout->addLayout( mainGrid );
+    // grid layout
+    QGridLayout * mainGrid = new QGridLayout( this, 5, 7, 0 );
 
     mainGrid->addWidget( d->familyAccel, 0, 0 );
     mainGrid->addWidget( d->familyEdit, 1, 0 );
@@ -185,17 +206,9 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     mainGrid->addWidget( d->sizeEdit, 1, 4 );
     mainGrid->addWidget( d->sizeList, 2, 4 );
 
-    mainGrid->setRowStretch( 2, 4 );
-    mainGrid->setRowStretch( 4, 2 );
-    // next numbers must match with those in updateGeometry()
-    mainGrid->setColStretch( 0, 94 );
-    mainGrid->addColSpacing( 1, 14 );
-    mainGrid->setColStretch( 2, 64 );
-    mainGrid->addColSpacing( 3, 14 );
-    mainGrid->setColStretch( 4, 32 );
-    mainGrid->addColSpacing( 5, 14 );
-
-    mainGrid->addRowSpacing( 3, 18 );
+    mainGrid->addColSpacing( 1, 6 );
+    mainGrid->addColSpacing( 3, 6 );
+    mainGrid->addRowSpacing( 0,22 );
 
     mainGrid->addWidget( d->effects, 4, 0 );
 
@@ -216,10 +229,10 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     connect( d->cancel, SIGNAL(clicked()), SLOT(reject()) );
     d->buttonLayout->addWidget( d->cancel, 0, AlignLeft );
 
-    d->buttonLayout->addStretch( 1 );
-
     connect( d->familyList, SIGNAL(highlighted(const QString&)),
 	     SLOT(familyHighlighted(const QString&)) );
+    connect( d->scriptCombo, SIGNAL(activated(const QString&)),
+	     SLOT(scriptHighlighted(const QString&)) );
     connect( d->styleList, SIGNAL(highlighted(const QString&)),
 	     SLOT(styleHighlighted(const QString&)) );
     connect( d->sizeList, SIGNAL(highlighted(const QString&)),
@@ -232,8 +245,12 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     connect( d->sizeEdit, SIGNAL(returnPressed()),
 	     SLOT(sizeSelected()) );
 
-    resize( 1, 1 );
-    updateGeometry();
+    connect( d->strikeout, SIGNAL(clicked()),
+	     SLOT(updateSample()) );
+    connect( d->underline, SIGNAL(clicked()),
+	     SLOT(updateSample()) );
+
+    resize( 500, 300 );
 
     d->familyEdit->installEventFilter( this );
     d->styleEdit->installEventFilter( this );
@@ -243,8 +260,8 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->sizeList->installEventFilter( this );
 
     d->familyEdit->setFocus();
+    updateFamilies();
 }
-
 
 /*! Deletes the font dialog and frees up its storage. */
 
@@ -254,111 +271,133 @@ QFontDialog::~QFontDialog()
     d = 0;
 }
 
+/*!
+  Opens a modal file dialog and returns the font selected by the user.
 
-/*!  Display the font dialog, making sure that the contents are up to
-  date.
+  \a def is the default selected font.
+
+  The \a ok parameter is set to TRUE if the user clicked OK, and FALSE if
+  the user clicked Cancel.
+
+  If the user clicks Cancel the \a def font is returned.
+  
+  This static function is less capable than the full QFontDialog object,
+  but is convenient and easy to use.
+
+  Example:
+  \code
+    // start at the current working directory and with *.cpp as filter
+    bool ok;
+    QFont f = QFontDialog::getFont( &ok, QFont( "Times", 12 ), this );
+    if ( ok ) {
+        // the user selected a valid font
+    } else {
+        // the user cancelled the dialog
+    }
+  \endcode
+
 */
-
-void QFontDialog::show()
+QFont QFontDialog::getFont( bool *ok, const QFont &def,
+			    QWidget *parent = 0, const char* name = 0)
 {
-    updateFontFamilies();
-    if ( d->familyList->currentItem() < 0 )
-	d->familyList->setCurrentItem( 0 );
-    updateFontStyles();
-    if ( d->styleList->currentItem() < 0 )
-	d->styleList->setCurrentItem( 0 );
-    updateFontSizes();
-    if ( d->sizeList->currentItem() < 0 )
-	d->sizeList->setCurrentItem( 0 );
-    updateGeometry();
-    QDialog::show();
+#if 1
+    return getFont( ok, &def, parent, name );
+#else
+    return getFont( ok, 0, parent, name );
+#endif
 }
 
+/*!
+  Opens a modal file dialog and returns the font selected by the user.
+
+  The \a ok parameter is set to TRUE if the user clicked OK, and FALSE if
+  the user clicked Cancel.
+
+  If the user clicks Cancel the Qt default font is returned.
+  
+  This static function is less capable than the full QFontDialog object,
+  but is convenient and easy to use.
+
+  Example:
+  \code
+    // start at the current working directory and with *.cpp as filter
+    bool ok;
+    QFont f = QFontDialog::getFont( &ok, this );
+    if ( ok ) {
+        // the user selected a valid font
+    } else {
+        // the user cancelled the dialog
+    }
+  \endcode
+
+*/
+QFont QFontDialog::getFont( bool *ok, QWidget *parent = 0,const char* name = 0)
+{
+    return getFont( ok, 0, parent, name );
+}
+
+QFont QFontDialog::getFont( bool *ok, const QFont *def,
+			    QWidget *parent = 0, const char* name = 0)
+{
+    QFont result;
+    if ( def )
+	result = *def;
+
+    QFontDialog *dlg = new QFontDialog( parent, name, TRUE );
+    if ( def )
+    dlg->setFont( *def );
+    dlg->setCaption( "Font" );
+    if ( dlg->exec() == QDialog::Accepted ) {
+	result = dlg->font();
+	if ( ok )
+	    *ok = TRUE;
+    } else {
+	if ( ok )
+	    *ok = FALSE;
+    }
+    delete dlg;
+    return result;
+}
 
 /*! Returns a pointer to the "font families" list box.  This is usable
   mainly if you reimplement updateFontFamilies();
 */
 
-QListBox * QFontDialog::fontFamilyListBox() const
+QListBox * QFontDialog::familyListBox() const
 {
     return d->familyList;
 }
-
-
-/*!  Update the contents of the "font families" list box.  This
-  function can be reimplemented if you have special requirements.
-*/
-
-void QFontDialog::updateFontFamilies()
-{
-    QListBox * l = fontFamilyListBox();
-    if ( l->count() == 0 ) {
-	l->insertItem( "Times" );
-	l->insertItem( "Helvetica" );
-	l->insertItem( "Courier" );
-	l->insertItem( "Palatino" );
-	l->insertItem( "Gill Sans" );
-    }
-}
-
 
 /*! Returns a pointer to the "font style" list box.  This is usable
   mainly if you reimplement updateFontStyles();
 */
 
-QListBox * QFontDialog::fontStyleListBox() const
+QListBox * QFontDialog::styleListBox() const
 {
     return d->styleList;
 }
 
-
-/*!  Update the contents of the "font style" list box.  This
-  function can be reimplemented if you have special requirements.
+/*! Returns a pointer to the "font style" list box.  This is usable
+  mainly if you reimplement updateFontStyles();
 */
 
-void QFontDialog::updateFontStyles()
+QComboBox * QFontDialog::scriptCombo() const
 {
-    QListBox * l = fontStyleListBox();
-    if ( l->count() == 0 ) {
-	l->insertItem( "Roman" );
-	l->insertItem( "Italic" );
-	l->insertItem( "Oblique" );
-    }
+    return d->scriptCombo;
 }
-
 
 /*! Returns a pointer to the "font size" list box.  This is usable
   mainly if you reimplement updateFontSizes();
 */
 
-QListBox * QFontDialog::fontSizeListBox() const
+QListBox * QFontDialog::sizeListBox() const
 {
     return d->sizeList;
 }
 
-
-/*!  Update the contents of the "font size" list box.  This
-  function can be reimplemented if you have special requirements.
-*/
-
-void QFontDialog::updateFontSizes()
+void QFontDialog::scriptSelected()
 {
-    QListBox * l = fontSizeListBox();
-    if ( l->count() == 0 ) {
-	l->insertItem( "10" );
-	l->insertItem( "12" );
-	l->insertItem( "14" );
-	l->insertItem( "16" );
-	l->insertItem( "18" );
-	l->insertItem( "20" );
-	l->insertItem( "24" );
-	l->insertItem( "30" );
-	l->insertItem( "36" );
-	l->insertItem( "48" );
-	l->insertItem( "72" );
-    }
 }
-
 
 /*!  Update the available font styles and sizes to fit the newly
   highlighted family.
@@ -366,89 +405,25 @@ void QFontDialog::updateFontSizes()
 
 void QFontDialog::familySelected()
 {
-    updateFontStyles();
-    updateFontSizes();
 }
 
-
-/*!  Update the available font families and sizes to fit the newly
+/*!  Update the available sizes to fit the newly
   highlighted style.
 */
 
 void QFontDialog::styleSelected()
 {
-    updateFontFamilies();
-    updateFontSizes();
 }
 
 
-/*!  Update the available font families and styles to fit the newly
-  highlighted size.
-*/
-
 void QFontDialog::sizeSelected()
 {
-    updateFontFamilies();
-    updateFontStyles();
 }
 
 
 /*!
 
 */
-
-void QFontDialog::updateGeometry()
-{
-    int w1 = 188;
-    int w2 = 128;
-    int w3 = 64;
-
-    int h1 = d->familyAccel->sizeHint().height();
-    int h2 = d->familyEdit->sizeHint().height();
-    int h3 = 108 - h2;
-
-    d->familyAccel->setMinimumSize( w1, h1 );
-    d->familyEdit->setMinimumSize( w1, h2 );
-    d->familyList->setMinimumSize( w1, h3 );
-
-    d->styleEdit->setMinimumSize( w2, h2 );
-    d->sizeEdit->setMinimumSize( w3, h2 );
-
-    d->familyAccel->setMaximumSize( QCOORD_MAX, h1 );
-    d->familyEdit->setMaximumSize( QCOORD_MAX, h2 );
-
-    QSize br( d->cancel->sizeHint() );
-    if ( br.width() < 80 )
-	br.setWidth( 80 );
-    if ( br.height() < 28 )
-	br.setHeight( 28 );
-    d->ok->setFixedSize( br );
-    d->cancel->setFixedSize( br );
-
-    d->strikeout->setFixedSize( d->strikeout->sizeHint() );
-    d->underline->setFixedSize( d->underline->sizeHint() );
-    d->colorAccel->setFixedSize( d->colorAccel->sizeHint() );
-
-    br = d->color->sizeHint();
-    d->color->setMinimumSize( br );
-    br.setWidth( QCOORD_MAX );
-    d->color->setMaximumSize( br );
-
-    d->sampleEdit->setMinimumHeight( 30 ); // ### deviates from the book
-    d->scriptAccel->setFixedSize( d->scriptAccel->sizeHint() );
-
-    br = d->script->sizeHint();
-    d->script->setMinimumSize( br );
-    br.setWidth( QCOORD_MAX );
-    d->script->setMaximumSize( br );
-
-    d->buttonLayout->activate();
-    d->effectsLayout->activate();
-    d->sampleLayout->activate();
-    d->sampleEditLayout->activate();
-    d->topLevelLayout->activate();
-}
-
 
 /*!  Event filter to make up, down, pageup and pagedown work correctly
   in the line edits.
@@ -507,27 +482,113 @@ bool QFontDialog::eventFilter( QObject * o , QEvent * e )
 }
 
 
+
+/*!  Update the contents of the "font script" combo box.  This
+  function can be reimplemented if you have special requirements.
+*/
+
+void QFontDialog::updateFamilies()
+{
+    d->familyList->insertStrList( d->fdb.familyNames() );
+    if ( d->familyList->count() != 0 )
+	d->familyList->setCurrentItem( 0 );
+}
+
+/*!  Update the contents of the "font script" combo box.  This
+  function can be reimplemented if you have special requirements.
+*/
+
+void QFontDialog::updateScripts()
+{
+    d->scriptCombo->clear();
+    d->scriptCombo->insertStrList( d->family.charSetNames() );
+    if ( d->scriptCombo->count() != 0 ) {
+	// Avoid bug in QComboBox
+	scriptHighlighted( d->scriptCombo->text( 0 ) );
+    }
+}
+
+/*!  Update the contents of the "font style" list box.  This
+  function can be reimplemented if you have special requirements.
+*/
+void QFontDialog::updateStyles()
+{
+    d->styleList->clear();
+    d->styleList->insertStrList( d->charSet.styleNames() );
+    if ( d->styleList->count() != 0 )
+	d->styleList->setCurrentItem( 0 );  // Will call updateSizes
+    // updateSizes();
+}
+
+void QFontDialog::updateSizes()
+{
+    QArray<int> sizes = d->style.pointSizes();
+    d->sizeList->setAutoUpdate( FALSE );
+    d->sizeList->clear();
+    int i;
+    QString tmp;
+    for( i = 0 ; i < d->style.nSizes() ; i++ ) {
+	tmp.sprintf( "%i", sizes[i] );
+	d->sizeList->insertItem( tmp );
+    }
+    if ( d->sizeList->count() != 0 )
+	d->sizeList->setCurrentItem( 0 );
+    d->sizeList->setAutoUpdate( TRUE );
+    d->sizeList->repaint();
+}
+
 /*!
 
 */
 
-void QFontDialog::familyHighlighted( const QString &t )
+void QFontDialog::familyHighlighted( const QString &s )
 {
-    d->familyEdit->setText( t );	
+    d->familyEdit->setText( s );
     if ( style() == WindowsStyle && d->familyEdit->hasFocus() )
 	d->familyEdit->selectAll();
-}
 
+    QFontFamily tmp = d->fdb.family( s );
+    if ( tmp.isNull() ) {
+	warning( "QFontDialog::updateFamilies: Internal error, cannot find family" );
+	return;
+    }
+    d->family = tmp;
+    updateScripts();
+}
 
 /*!
 
 */
 
-void QFontDialog::styleHighlighted( const QString &t )
+void QFontDialog::scriptHighlighted( const QString &s )
 {
-    d->styleEdit->setText( t );	
+    QFontCharSet tmp = d->family.charSet( s );
+    if ( tmp.isNull() ) {
+	warning( "QFontCharSet::updateScripts: Internal error, cannot find script." );
+	return;
+    }
+    d->charSet = tmp;
+
+    updateStyles();
+}
+
+/*!
+
+*/
+
+void QFontDialog::styleHighlighted( const QString &s )
+{
+    QFontStyle tmp = d->charSet.style( s );
+    if ( tmp.isNull() ) {
+	warning( "QFontCharSet::updateScripts: Internal error, cannot find script." );
+	return;
+    }
+    d->style = tmp;
+
+    d->styleEdit->setText( s );	
     if ( style() == WindowsStyle && d->styleEdit->hasFocus() )
 	d->styleEdit->selectAll();
+    updateSizes();
 }
 
 
@@ -535,9 +596,50 @@ void QFontDialog::styleHighlighted( const QString &t )
 
 */
 
-void QFontDialog::sizeHighlighted( const QString &t )
+void QFontDialog::sizeHighlighted( const QString &s )
 {
-    d->sizeEdit->setText( t );
+    d->sizeEdit->setText( s );
     if ( style() == WindowsStyle && d->sizeEdit->hasFocus() )
 	d->sizeEdit->selectAll();
+    updateSample();
+}
+
+void QFontDialog::setFont( const QFont &f )
+{
+    // ### Quick hack
+    familyHighlighted( f.family() );
+    QFontCharSet charSet = d->family.charSet( f.charSet() );
+    if ( charSet.isNull() )
+	return;
+    d->charSet = charSet;
+    updateStyles();
+
+#if 0
+    QFontStyle style = QFontStyle( f );
+    d->style = style;
+#endif
+
+    QString tmp;
+    tmp.sprintf( "%i", f.pointSize() );
+    d->sizeEdit->setText( tmp );
+}
+
+QFont QFontDialog::font() const
+{
+    QString tmp = d->sizeEdit->text();
+    int pSize = tmp.toInt();
+    if ( pSize == 0 )
+	pSize = 12;
+    QFont f = d->style.font( pSize );
+    if ( d->strikeout->isChecked() )
+	f.setStrikeOut( TRUE );
+    if ( d->underline->isChecked() )
+	f.setUnderline( TRUE );
+    return f;
+}
+
+void QFontDialog::updateSample()
+{
+    d->sampleEdit->setFont( font() );
+    d->sampleEdit->resize( d->sampleEdit->sizeHint() );
 }

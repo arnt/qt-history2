@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.h#9 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.h#10 $
 **
 ** Definition of QFontDialog
 **
@@ -26,12 +26,28 @@
 #ifndef QFONTDIALOG_H
 #define QFONTDIALOG_H
 
+//
+//  W A R N I N G
+//  -------------
+//
+//  This class is under development and is currently unstable.
+//
+//  It is very unlikely that this code will be available in the final
+//  Qt 2.0 release.  It will be available soon after then, but a number
+//  of important API changes still need to be made.
+//
+//  Thus, it is important that you do NOT use this code in an application
+//  unless you are willing for your application to be dependent on the
+//  snapshot releases of Qt.
+//
+
 #ifndef QT_H
 #include "qdialog.h"
 #include "qfont.h"
 #endif // QT_H
 
 class  QListBox;
+class  QComboBox;
 struct QFontDialogPrivate;
 
 
@@ -43,33 +59,47 @@ public:
 		 WFlags f=0 );
    ~QFontDialog();
 
-    void show();
+    static QFont getFont( bool *ok, const QFont &def,
+			    QWidget *parent = 0, const char* name = 0);
 
-    bool eventFilter( QObject *, QEvent * );
+    static QFont getFont( bool *ok, QWidget *parent = 0, const char* name = 0);
+
+
+    QFont font() const;
+    void setFont( const QFont &font );
 
 protected:
-    QListBox * fontFamilyListBox() const;
-    virtual void updateFontFamilies();
+    bool eventFilter( QObject *, QEvent * );
 
-    QListBox * fontStyleListBox() const;
-    virtual void updateFontStyles();
+    QListBox * familyListBox() const;
+    virtual void updateFamilies();
 
-    QListBox * fontSizeListBox() const;
-    virtual void updateFontSizes();
+    QListBox * styleListBox() const;
+    virtual void updateStyles();
 
-    void updateGeometry();
+    QListBox * sizeListBox() const;
+    virtual void updateSizes();
+
+    QComboBox * scriptCombo() const;
+    virtual void updateScripts();
 
 protected slots:
     void familySelected();
+    void scriptSelected();
     void styleSelected();
     void sizeSelected();
 
 private slots:
     void familyHighlighted( const QString &);
+    void scriptHighlighted( const QString &);
     void styleHighlighted( const QString &);
     void sizeHighlighted( const QString &);
+    void updateSample();
 
 private:
+    static QFont getFont( bool *ok, const QFont *def,
+			  QWidget *parent = 0, const char* name = 0);
+
     QFontDialogPrivate * d;
 };
 

@@ -216,7 +216,8 @@ unix:SOURCES    = kernel/qapplication_x11.cpp \
 		  kernel/qpaintdevice_x11.cpp \
 		  kernel/qpainter_x11.cpp \
 		  kernel/qregion_x11.cpp \
-		  kernel/qwidget_x11.cpp
+		  kernel/qwidget_x11.cpp \
+		  dialogs/qfontdialog.cpp
 
 unix:SOURCES   += dialogs/qprintdialog.cpp \
 		  kernel/qpsprinter.cpp \
@@ -349,7 +350,10 @@ SOURCES	       += tools/qbitarray.cpp \
 		  dialogs/qwizard.cpp
 
 unix:HEADERS   += $$DIALOGS_H/qprintdialog.h \
-		  $$KERNEL_H/qpsprinter.h
+		  $$DIALOGS_H/qfontdialog.h \
+		  $$KERNEL_H/qpsprinter.h \
+		  $$KERNEL_H/qfontdatabase.h
+
 
 png:SOURCES    += 3rdparty/libpng/png.c \
 		  3rdparty/libpng/pngerror.c \
