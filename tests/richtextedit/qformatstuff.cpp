@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.cpp#4 $
+** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.cpp#5 $
 **
 ** Definition of the QtTextView class
 **
@@ -34,13 +34,13 @@ QtTextCharFormat::QtTextCharFormat()
 }
 
 QtTextCharFormat::QtTextCharFormat( const QtTextCharFormat &format )
-    : _font( format._font ), _color( format._color ),
+    : font_( format.font_ ), color_( format.color_ ),
       key( format.key ), ref( 1 )
 {
 }
 
 QtTextCharFormat::QtTextCharFormat( const QFont &f, const QColor &c )
-    : _font( f ), _color( c ), ref( 1 )
+    : font_( f ), color_( c ), ref( 1 )
 {
     key = QString( "%1_%2_%3_%4_%5_%6_%7_%8" ).
           arg( c.red() ).arg( c.green() ).arg( c.blue() ).
@@ -53,14 +53,23 @@ QtTextCharFormat::~QtTextCharFormat()
 {
 }
 
+
+QtTextCharFormat &QtTextCharFormat::operator=( const QtTextCharFormat &fmt )
+{
+    font_ = fmt.font_;
+    color_ = fmt.color_;
+    key = fmt.key;
+    ref = 1;
+}
+
 QColor QtTextCharFormat::color() const
 {
-    return _color;
+    return color_;
 }
 
 QFont QtTextCharFormat::font() const
 {
-    return _font;
+    return font_;
 }
 
 int QtTextCharFormat::addRef()
@@ -73,21 +82,21 @@ int QtTextCharFormat::removeRef()
     return --ref;
 }
 
-QtTextCharFormat QtTextCharFormat::makeTextFormat( const QStyleSheetItem &item )
+QtTextCharFormat QtTextCharFormat::makeTextFormat( const QStyleSheetItem *item )
 {
     QtTextCharFormat format = *this;
-    if ( item.fontWeight() != QStyleSheetItem::Undefined )
-        format._font.setWeight( item.fontWeight() );
-    if ( item.fontSize() != QStyleSheetItem::Undefined )
-        format._font.setPointSize( item.fontSize() );
-    if ( !item.fontFamily().isEmpty() )
-        format._font.setFamily( item.fontFamily() );
-    if ( item.color().isValid() )
-        format._color = item.color();
-    if ( item.definesFontItalic() )
-        format._font.setItalic( item.fontItalic() );
-    if ( item.definesFontUnderline() )
-        format._font.setUnderline( item.fontUnderline() );
+    if ( item->fontWeight() != QStyleSheetItem::Undefined )
+        format.font_.setWeight( item->fontWeight() );
+    if ( item->fontSize() != QStyleSheetItem::Undefined )
+        format.font_.setPointSize( item->fontSize() );
+    if ( !item->fontFamily().isEmpty() )
+        format.font_.setFamily( item->fontFamily() );
+    if ( item->color().isValid() )
+        format.color_ = item->color();
+    if ( item->definesFontItalic() )
+        format.font_.setItalic( item->fontItalic() );
+    if ( item->definesFontUnderline() )
+        format.font_.setUnderline( item->fontUnderline() );
 
     return format;
 }
@@ -126,7 +135,7 @@ void QtTextFormatCollection::unregisterFormat( ushort index )
         cKey.remove( key );
         cIndex.remove( index );
         cKeyIndex.remove( key );
-        qDebug( "unregisterFormat (%s): removed index %d, refcount of format: %d", 
+        qDebug( "unregisterFormat (%s): removed index %d, refcount of format: %d",
                 f->key.latin1(), index, ref );
         if ( ref <= 0 )
             delete f;
@@ -134,8 +143,8 @@ void QtTextFormatCollection::unregisterFormat( ushort index )
 
 }
 
-QtTextCharFormat *QtTextFormatCollection::format( ushort index )
+QtTextCharFormat QtTextFormatCollection::format( ushort index )
 {
-    return cIndex[ index ];
+    return *cIndex[ index ];
 }
 

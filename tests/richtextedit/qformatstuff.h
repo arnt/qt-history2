@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.h#3 $
+** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.h#4 $
 **
 ** Definition of the QtTextView class
 **
@@ -42,8 +42,9 @@ public:
     QtTextCharFormat( const QtTextCharFormat &format );
     QtTextCharFormat( const QFont &f, const QColor &c );
     virtual ~QtTextCharFormat();
+    QtTextCharFormat &QtTextCharFormat::operator=( const QtTextCharFormat &fmt );
 
-    QtTextCharFormat makeTextFormat( const QStyleSheetItem &item );
+    QtTextCharFormat makeTextFormat( const QStyleSheetItem *item );
 
     QColor color() const;
     QFont font() const;
@@ -54,8 +55,8 @@ public:
     int removeRef();
 
 protected:
-    QFont _font;
-    QColor _color;
+    QFont font_;
+    QColor color_;
     QString key;
     int ref;
 
@@ -80,7 +81,7 @@ public:
 
     ushort registerFormat( const QtTextCharFormat &format );
     void unregisterFormat( ushort index );
-    QtTextCharFormat *format( ushort index );
+    QtTextCharFormat format( ushort index );
 
 protected:
     QMap< QString, QtTextCharFormat* > cKey;
