@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#201 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#202 $
 **
 ** Implementation of QApplication class
 **
@@ -1299,7 +1299,7 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
     }
     if ( receiver == 0 ) {
 #if defined(CHECK_NULL)
-	warning( "QApplication::postEvent: Unexpeced null receiver" );
+	warning( "QApplication::postEvent: Unexpected null receiver" );
 #endif
 	return;
     }
