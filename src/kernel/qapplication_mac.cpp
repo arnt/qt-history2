@@ -1322,7 +1322,7 @@ int QApplication::macProcessEvent(MSG * m)
 	if(widget && (er->modifiers & 0x01)) {
 	    setActiveWindow(widget);
 	} else {
-	    if(widget == active_window)
+	    if(!inPopupMode() && widget == active_window)
 		setActiveWindow(NULL);
 	    while(inPopupMode())
 		activePopupWidget()->close();
