@@ -125,7 +125,7 @@ public:
 // Window creation
     HWND create(HWND hWndParent, RECT& rcPos );
     HMENU createPopup( QPopupMenu *popup, HMENU oldMenu = 0 );
-    void createMenu( IOleInPlaceFrame *spInPlaceFrame, QMenuBar *menuBar );
+    void createMenu( QMenuBar *menuBar );
 
     static LRESULT CALLBACK ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -352,6 +352,7 @@ private:
     IOleAdviseHolder *m_spOleAdviseHolder;
     IOleClientSite *m_spClientSite;
     IOleInPlaceSiteWindowless *m_spInPlaceSite;
+    IOleInPlaceFrame *m_spInPlaceFrame;
     ITypeInfo *m_spTypeInfo;
     IStorage *m_spStorage;
 
@@ -782,6 +783,7 @@ QAxServerBase::QAxServerBase( const QString &classname )
     m_spOleAdviseHolder = 0;
     m_spClientSite = 0;
     m_spInPlaceSite = 0;
+    m_spInPlaceFrame = 0;
     m_spTypeInfo = 0;
     m_spStorage = 0;
 
@@ -823,6 +825,8 @@ QAxServerBase::~QAxServerBase()
     m_spOleAdviseHolder = 0;
     if ( m_spClientSite ) m_spClientSite->Release();
     m_spClientSite = 0;
+    if ( m_spInPlaceFrame ) m_spInPlaceFrame->Release();
+    m_spInPlaceFrame = 0;
     if ( m_spInPlaceSite ) m_spInPlaceSite->Release();
     m_spInPlaceSite = 0;
     if ( m_spTypeInfo ) m_spTypeInfo->Release();
@@ -1287,12 +1291,12 @@ HMENU QAxServerBase::createPopup( QPopupMenu *popup, HMENU oldMenu )
 /*!
     Creates a Win32 menubar.
 */
-void QAxServerBase::createMenu( IOleInPlaceFrame *spInPlaceFrame, QMenuBar *menuBar )
+void QAxServerBase::createMenu( QMenuBar *menuBar )
 {
     hmenuShared = ::CreateMenu();
     OLEMENUGROUPWIDTHS menuWidths;
     memset( &menuWidths, 0, sizeof(OLEMENUGROUPWIDTHS) );
-    spInPlaceFrame->InsertMenus( hmenuShared, &menuWidths );
+    m_spInPlaceFrame->InsertMenus( hmenuShared, &menuWidths );
 
     for ( uint i = 0; i < menuBar->count(); ++i ) {
 	int qid = menuBar->idAt( i );
@@ -1321,8 +1325,8 @@ void QAxServerBase::createMenu( IOleInPlaceFrame *spInPlaceFrame, QMenuBar *menu
     menuWidths.width[1] = menuBar->count()+1;
 
     HOLEMENU holemenu = OleCreateMenuDescriptor( hmenuShared, &menuWidths );
-    spInPlaceFrame->SetMenu( hmenuShared, holemenu, m_hWnd );
-    spInPlaceFrame->GetWindow( &hwndMenuOwner );
+    m_spInPlaceFrame->SetMenu( hmenuShared, holemenu, m_hWnd );
+    m_spInPlaceFrame->GetWindow( &hwndMenuOwner );
 }
 
 /*!
@@ -1472,7 +1476,74 @@ void QAxServerBase::updateGeometry()
     }
 }
 
-
+static bool checkHRESULT( HRESULT hres )
+{
+    const char *name = 0;
+    switch( hres ) {
+    case S_OK:
+	return TRUE;
+    case DISP_E_BADPARAMCOUNT:
+#if defined(QT_CHECK_STATE)
+	qWarning( "QAxBase: Error calling IDispatch member %s: Bad parameter count.", name );
+#endif
+	return FALSE;
+    case DISP_E_BADVARTYPE:
+#if defined(QT_CHECK_STATE)
+	qWarning( "QAxBase: Error calling IDispatch member %s: Bad variant type.", name );
+#endif
+	return FALSE;
+    case DISP_E_EXCEPTION:
+#if defined(QT_CHECK_STATE)
+	    qWarning( "QAxBase: Error calling IDispatch member %s: Exception thrown by server.", name );
+#endif
+	return FALSE;
+    case DISP_E_MEMBERNOTFOUND:
+#if defined(QT_CHECK_STATE)
+	qWarning( "QAxBase: Error calling IDispatch member %s: Member not found.", name );
+#endif
+	return FALSE;
+    case DISP_E_NONAMEDARGS:
+#if defined(QT_CHECK_STATE)
+	qWarning( "QAxBase: Error calling IDispatch member %s: No named arguments.", name );
+#endif
+	return FALSE;
+    case DISP_E_OVERFLOW:
+#if defined(QT_CHECK_STATE)
+	qWarning( "QAxBase: Error calling IDispatch member %s: Overflow.", name );
+#endif
+	return FALSE;
+    case DISP_E_PARAMNOTFOUND:
+#if defined(QT_CHECK_STATE)
+	qWarning( "QAxBase: Error calling IDispatch member %s: Parameter not found.", name );
+#endif
+	return FALSE;
+    case DISP_E_TYPEMISMATCH:
+#if defined(QT_CHECK_STATE)
+	qWarning( "QAxBase: Error calling IDispatch member %s: Type mismatch.", name );
+#endif
+	return FALSE;
+    case DISP_E_UNKNOWNINTERFACE:
+#if defined(QT_CHECK_STATE)
+	qWarning( "QAxBase: Error calling IDispatch member %s: Unknown interface.", name );
+#endif
+	return FALSE;
+    case DISP_E_UNKNOWNLCID:
+#if defined(QT_CHECK_STATE)
+	qWarning( "QAxBase: Error calling IDispatch member %s: Unknown locale ID.", name );
+#endif
+	return FALSE;
+    case DISP_E_PARAMNOTOPTIONAL:
+#if defined(QT_CHECK_STATE)
+	qWarning( "QAxBase: Error calling IDispatch member %s: Non-optional parameter missing.", name );
+#endif
+	return FALSE;
+    default:
+#if defined(QT_CHECK_STATE)
+	qWarning( "QAxBase: Error calling IDispatch member %s: Unknown error.", name );
+#endif
+	return FALSE;
+    }
+}
 /*!
     Catches all signals emitted by the Qt widget and fires the respective COM event.
 
@@ -1481,6 +1552,16 @@ void QAxServerBase::updateGeometry()
 */
 bool QAxServerBase::qt_emit( int isignal, QUObject* _o )
 {
+    if ( isignal == -1 && sender() && m_spInPlaceSite ) {
+	if ( (QStatusBar*)((QObject*)sender())->qt_cast( "QStatusBar" ) != statusBar )
+	    return TRUE;
+
+	QString message = static_QUType_QString.get( _o+1 );
+	m_spInPlaceFrame->SetStatusText( QStringToBSTR(message) );
+
+	return TRUE;
+    }
+
     if ( freezeEvents )
 	return TRUE;
 
@@ -2532,16 +2613,17 @@ HRESULT QAxServerBase::UIDeactivate()
 
     HWND hwndParent;
     if (m_spInPlaceSite->GetWindow(&hwndParent) == S_OK) {
-	IOleInPlaceFrame *spInPlaceFrame = 0;
+	if ( m_spInPlaceFrame ) m_spInPlaceFrame->Release();
+	m_spInPlaceFrame = 0;
 	IOleInPlaceUIWindow *spInPlaceUIWindow = 0;
 
-	m_spInPlaceSite->GetWindowContext(&spInPlaceFrame, &spInPlaceUIWindow, &rcPos, &rcClip, &frameInfo);
-	if (spInPlaceUIWindow) {
+	m_spInPlaceSite->GetWindowContext(&m_spInPlaceFrame, &spInPlaceUIWindow, &rcPos, &rcClip, &frameInfo);
+	if ( spInPlaceUIWindow ) {
 	    spInPlaceUIWindow->SetActiveObject(0, 0);
 	    spInPlaceUIWindow->Release();
 	}
-	if (spInPlaceFrame) {
-	    spInPlaceFrame->SetMenu( 0, 0, m_hWnd );
+	if ( m_spInPlaceFrame ) {
+	    m_spInPlaceFrame->SetMenu( 0, 0, m_hWnd );
 	    if ( hmenuShared ) {
 		DestroyMenu( hmenuShared );
 		menuMap.clear();
@@ -2549,8 +2631,9 @@ HRESULT QAxServerBase::UIDeactivate()
 	    hwndMenuOwner = 0;
 	    menuBar = 0;
 	    statusBar = 0;
-	    spInPlaceFrame->SetActiveObject(0, 0);
-	    spInPlaceFrame->Release();
+	    m_spInPlaceFrame->SetActiveObject(0, 0);
+	    m_spInPlaceFrame->Release();
+	    m_spInPlaceFrame = 0;
 	}
     }
     // we don't need to explicitly release the focus here since somebody
@@ -2801,12 +2884,13 @@ HRESULT QAxServerBase::internalActivate()
     // as well as some information about the parent
     OLEINPLACEFRAMEINFO frameInfo;
     RECT rcPos, rcClip;
-    IOleInPlaceFrame *spInPlaceFrame = 0;
+    if ( m_spInPlaceFrame ) m_spInPlaceFrame->Release();
+    m_spInPlaceFrame = 0;
     IOleInPlaceUIWindow *spInPlaceUIWindow = 0;
     frameInfo.cb = sizeof(OLEINPLACEFRAMEINFO);
     HWND hwndParent;
     if ( m_spInPlaceSite->GetWindow(&hwndParent) == S_OK ) {
-	m_spInPlaceSite->GetWindowContext(&spInPlaceFrame, &spInPlaceUIWindow, &rcPos, &rcClip, &frameInfo);
+	m_spInPlaceSite->GetWindowContext(&m_spInPlaceFrame, &spInPlaceUIWindow, &rcPos, &rcClip, &frameInfo);
 
 	if (m_hWndCD) {
 	    ::ShowWindow(m_hWndCD, SW_SHOW);
@@ -2840,7 +2924,8 @@ HRESULT QAxServerBase::internalActivate()
 	isUIActive = TRUE;
 	hr = m_spInPlaceSite->OnUIActivate();
 	if ( FAILED(hr) ) {
-	    if ( spInPlaceFrame ) spInPlaceFrame->Release();
+	    if ( m_spInPlaceFrame ) m_spInPlaceFrame->Release();
+	    m_spInPlaceFrame = 0;
 	    if ( spInPlaceUIWindow ) spInPlaceUIWindow->Release();
 	    return hr;
 	}
@@ -2851,20 +2936,21 @@ HRESULT QAxServerBase::internalActivate()
 		::SetFocus( hwnd );
 	}
 
-	if ( spInPlaceFrame ) {
-	    spInPlaceFrame->SetActiveObject( this, QStringToBSTR(class_name) );
+	if ( m_spInPlaceFrame ) {
+	    m_spInPlaceFrame->SetActiveObject( this, QStringToBSTR(class_name) );
 	    menuBar = activeqt ? (QMenuBar*)activeqt->child( 0, "QMenuBar" ) : 0;
 	    if ( menuBar ) {
-		createMenu( spInPlaceFrame, menuBar );
+		createMenu( menuBar );
 		menuBar->hide();
 	    }
 	    statusBar = activeqt ? (QStatusBar*)activeqt->child( 0, "QStatusBar" ) : 0;
 	    if ( statusBar ) {
+		int index = statusBar->metaObject()->findSignal( "messageChanged(const QString&)" );
+		connectInternal( statusBar, index, (QObject*)this, 2, -1 );
 		statusBar->hide();
 	    }
 
-	    spInPlaceFrame->SetBorderSpace(0);
-	    spInPlaceFrame->Release();
+	    m_spInPlaceFrame->SetBorderSpace(0);
 	}
 	if ( spInPlaceUIWindow ) {
 	    spInPlaceUIWindow->SetActiveObject( this, QStringToBSTR(class_name) );
