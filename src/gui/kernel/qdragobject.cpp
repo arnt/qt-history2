@@ -1955,17 +1955,20 @@ bool QColorDrag::decode(QMimeSource *e, QColor &col)
     short r = rgba[0];
     short g = rgba[1];
     short b = rgba[2];
+    short a = rgba[3];
 
     // data is in network order
     r = ntohs(r);
     g = ntohs(g);
     b = ntohs(b);
+    a = ntohs(a);
 
     r = (r >> 8) & 0xff;
     g = (g >> 8) & 0xff;
     b = (b >> 8) & 0xff;
+    a = (a >> 8) & 0xff;
 
-    col.setRgb(r, g, b);
+    col.setRgba(r, g, b, a);
     return true;
 }
 
