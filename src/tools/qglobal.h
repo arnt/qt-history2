@@ -472,6 +472,7 @@ Q_EXPORT bool qSysInfo( int *wordSize, bool *bigEndian );
 #    pragma warning(disable: 4514)
 #    pragma warning(disable: 4800)
 #    pragma warning(disable: 4097)
+#    pragma warning(disable: 4706)
 #  elif defined(_CC_BOR_)
 #    pragma option -w-inl
 #    pragma option -w-aus
