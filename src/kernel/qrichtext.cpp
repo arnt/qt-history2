@@ -1254,6 +1254,8 @@ void QTextDocument::init()
 
     selectionColors[ Standard ] = QApplication::palette().color( QPalette::Active, QColorGroup::Highlight );
     selectionText[ Standard ] = TRUE;
+    selectionText[ IMSelectionText ] = TRUE;
+    selectionText[ IMCompositionText ] = FALSE;
     commandHistory = new QTextCommandHistory( 100 );
     tStopWidth = formatCollection()->defaultFormat()->width( 'x' ) * 8;
 }
@@ -4486,11 +4488,22 @@ void QTextParagraph::drawString( QPainter &painter, const QString &s, int start,
     }
 
     if ( selection >= 0 )  {
-	if ( !hasdoc || document()->invertSelectionText( selection ) )
+	QColor color = ( hasdoc ?
+			 document()->selectionColor( selection ) :
+			 cg.color( QColorGroup::Highlight ) );
+	if ( selection == QTextDocument::IMCompositionText ) {
+	    int h1, s1, v1, h2, s2, v2;
+	    cg.color( QColorGroup::Base ).hsv( &h1, &s1, &v1 );
+	    cg.color( QColorGroup::Background ).hsv( &h2, &s2, &v2 );
+	    color.setHsv( h1, s1, ( v1 + v2 ) / 2 );
+	    painter.setPen( cg.color( QColorGroup::Text ) );
+	} else if ( selection == QTextDocument::IMSelectionText ) {
+	    color = cg.color( QColorGroup::Foreground );
 	    painter.setPen( cg.color( QColorGroup::HighlightedText ) );
-	painter.fillRect( xstart, y, w, h,
-			  (selection == QTextDocument::Standard || !hasdoc) ?
-			  cg.color( QColorGroup::Highlight ) : document()->selectionColor( selection ) );
+	} else if ( !hasdoc || document()->invertSelectionText( selection ) ) {
+	    painter.setPen( cg.color( QColorGroup::HighlightedText ) );
+	}
+	painter.fillRect( xstart, y, w, h, color );
     }
 
     QPainter::TextDirection dir = rightToLeft ? QPainter::RTL : QPainter::LTR;
