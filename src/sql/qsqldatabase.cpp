@@ -70,6 +70,7 @@ public:
     static QSqlDatabase* database( const QString& name, bool open );
     static QSqlDatabase* addDatabase( QSqlDatabase* db, const QString & name );
     static void          removeDatabase( const QString& name );
+    static bool          contains( const QString& name );
 
 protected:
     static QSqlDatabaseManager* instance();
@@ -125,12 +126,13 @@ QSqlDatabaseManager* QSqlDatabaseManager::instance()
 
 QSqlDatabase* QSqlDatabaseManager::database( const QString& name, bool open )
 {
+    if ( !contains( name ) ) {
+	qWarning("Warning: QSqlDatabaseManager unable to find database " + name );
+	return 0;
+    }
+    
     QSqlDatabaseManager* sqlConnection = instance();
     QSqlDatabase* db = sqlConnection->dbDict.find( name );
-#ifdef QT_CHECK_RANGE
-    if ( !db )
-	qWarning("Warning: QSqlDatabaseManager unable to find database " + name );
-#endif
     if ( db && !db->isOpen() && open ) {
 	db->open();
 #ifdef QT_CHECK_RANGE
@@ -141,6 +143,19 @@ QSqlDatabase* QSqlDatabaseManager::database( const QString& name, bool open )
     return db;
 }
 
+/*! Returns TRUE if the list of database connections contains \a name,
+  otherwise FALSE is returned.
+  
+ */
+
+bool QSqlDatabaseManager::contains( const QString& name )
+{
+   QSqlDatabaseManager* sqlConnection = instance();    
+   QSqlDatabase* db = sqlConnection->dbDict.find( name );   
+   if ( db )
+       return TRUE;
+   return FALSE;
+}
 
 
 /*!  Adds a database to the SQL connection manager.  The database is
@@ -277,27 +292,6 @@ void QSqlDatabase::removeDatabase( const QString& name )
     QSqlDatabaseManager::removeDatabase( name );
 }
 
-/*!  Creates a QSqlDatabase with name \a databaseName that uses the
-     driver described by \a type.  If the \a type is not recognized,
-     the database will have no functionality.
-
-     Available types are:
-
-     <ul>
-     <li>QODBC - ODBC (Open Database Connectivity) Driver
-     <li>QOCI - Oracle Call Interface Driver
-     <li>QPSQL6 - PostgreSQL v6.x Driver
-     <li>QPSQL7 - PostgreSQL v7.x Driver
-     <li>QMYSQL - MySQL Driver
-     </ul>
-*/
-
-QSqlDatabase::QSqlDatabase( const QString& type, const QString& name, QObject * parent, const char * objname )
-: QObject(parent, objname)
-{
-    init( type, name );
-}
-
 /*! Returns a list of all available database drivers.
 */
 
@@ -317,12 +311,44 @@ QStringList QSqlDatabase::drivers()
     l << "QOCI";
 #endif
 #ifndef QT_NO_PLUGIN
-    QInterfaceManager<QSqlDriverInterface> *plugIns;    
+    QInterfaceManager<QSqlDriverInterface> *plugIns;
     plugIns = new QInterfaceManager<QSqlDriverInterface>( "QSqlDriverInterface", QString((char*)getenv( "QTDIR" )) + "/lib" ); //###
     l += plugIns->featureList();
     delete plugIns;
 #endif
     return l;
+}
+
+/*! Returns TRUE if the list of database connections contains \a name,
+  otherwise FALSE is returned.
+  
+ */
+
+bool QSqlDatabase::contains( const QString& name )
+{
+    return QSqlDatabaseManager::contains( name );
+}
+
+
+/*!  Creates a QSqlDatabase with name \a databaseName that uses the
+     driver described by \a type.  If the \a type is not recognized,
+     the database will have no functionality.
+
+     Available types are:
+
+     <ul>
+     <li>QODBC - ODBC (Open Database Connectivity) Driver
+     <li>QOCI - Oracle Call Interface Driver
+     <li>QPSQL6 - PostgreSQL v6.x Driver
+     <li>QPSQL7 - PostgreSQL v7.x Driver
+     <li>QMYSQL - MySQL Driver
+     </ul>
+*/
+
+QSqlDatabase::QSqlDatabase( const QString& type, const QString& name, QObject * parent, const char * objname )
+: QObject(parent, objname)
+{
+    init( type, name );
 }
 
 /*!

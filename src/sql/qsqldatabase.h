@@ -61,6 +61,7 @@ public:
     static QSqlDatabase* addDatabase( const QString& type, const QString& name = defaultDatabase );
     static QSqlDatabase* database( const QString& name = defaultDatabase, bool open = TRUE );
     static void          removeDatabase( const QString& name );
+    static bool          contains( const QString& name = defaultDatabase );
     static QStringList   drivers();
 
     ~QSqlDatabase();
