@@ -715,7 +715,8 @@ void MetaDataBase::removeFunction( QObject *o, const QCString &function, const Q
 	return;
     }
     for ( QValueList<Function>::Iterator it = r->functionList.begin(); it != r->functionList.end(); ++it ) {
-	if ( (*it).function == function &&
+	if ( MetaDataBase::normalizeFunction( (*it).function ) ==
+	     MetaDataBase::normalizeFunction( function ) &&
 	     (*it).specifier == specifier &&
 	     (*it).access == access &&
 	     (*it).type == type &&
