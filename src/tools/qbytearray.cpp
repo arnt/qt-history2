@@ -603,8 +603,8 @@ QByteArray& QByteArray::prepend(char c)
 	realloc(qAllocMore(d->size + 1, sizeof(Data)));
     memmove(d->data+1, d->data, d->size);
     d->data[0] = c;
-    d->data[d->size] = '\0';
     ++d->size;
+    d->data[d->size] = '\0';
     return *this;
 }
 
