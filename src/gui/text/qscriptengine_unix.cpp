@@ -2942,7 +2942,7 @@ const q_scriptEngine qt_scriptEngines[] = {
     { basic_shape, basic_attributes },
 
         // Unicode,
-    { basic_shape, basic_attributes },
+    { unicode_shape, basic_attributes },
     //Tagalog,
     { basic_shape, basic_attributes },
     //Hanunoo,

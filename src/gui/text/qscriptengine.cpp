@@ -318,6 +318,39 @@ static void basic_attributes(int /*script*/, const QString &text, int from, int 
     }
 }
 
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+static bool unicode_shape(QShaperItem *item)
+{
+    QString s = item->string->mid(item->from, item->length);
+    QChar *c = (QChar *)s.unicode();
+    for (int i = 0; i < item->length; ++i) {
+        ushort uc = c[i].unicode();
+        if (uc >= 0x200e && uc < 0x2070) {
+            if (uc < 0x2010
+                || (uc >= 0x2028 && uc <= 0x202f)
+                || uc >= 0x206a)
+                c[i] = QChar(0x20);
+        }
+    }
+    if (!item->font->stringToCMap(s.unicode(), item->length, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
+        return false;
+    const QChar *cc = item->string->unicode() + item->from;
+    for (int i = 0; i < item->length; ++i) {
+        ushort uc = cc[i].unicode();
+        if (uc >= 0x200e && uc < 0x2070) {
+            if (uc < 0x2010
+                || (uc >= 0x2028 && uc <= 0x202f)
+                || uc >= 0x206a)
+                item->glyphs[i].advance = QPointF();
+        }
+    }
+
+    heuristicSetGlyphAttributes(item);
+    if (!(item->flags & QTextEngine::WidthOnly))
+        qt_heuristicPosition(item);
+    return true;
+}
+#endif
 
 
 // --------------------------------------------------------------------------------------------------------------------------------------------
