@@ -86,6 +86,7 @@
 #include "qcategorywidget.h"
 #include "widgetaction.h"
 #include "assistproc.h"
+#include "propertyobject.h"
 
 static bool mblockNewForms = FALSE;
 extern QMap<QWidget*, QString> *qwf_functions;
@@ -1048,7 +1049,16 @@ void MainWindow::showProperties( QObject *o )
     setupHierarchyView();
     FormWindow *fw = (FormWindow*)isAFormWindowChild( w );
     if ( fw ) {
-	propertyEditor->setWidget( w, fw );
+	if ( fw->numSelectedWidgets() > 1 ) {
+	    QWidgetList wl = fw->selectedWidgets();
+	    if ( wl.first() != w ) {
+		wl.removeRef( w );
+		wl.insert( 0, w );
+	    }
+	    propertyEditor->setWidget( new PropertyObject( wl ), fw );
+	} else {
+	    propertyEditor->setWidget( w, fw );
+	}
 	hierarchyView->setFormWindow( fw, w );
     } else {
 	propertyEditor->setWidget( 0, 0 );

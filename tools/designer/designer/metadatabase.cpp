@@ -26,6 +26,7 @@
 #include "parser.h"
 #include "widgetdatabase.h"
 #include "formfile.h"
+#include "propertyobject.h"
 
 #include <qapplication.h>
 #include <qobject.h>
@@ -148,6 +149,10 @@ void MetaDataBase::removeEntry( QObject *o )
 void MetaDataBase::setPropertyChanged( QObject *o, const QString &property, bool changed )
 {
     setupDataBase();
+    if ( o->isA( "PropertyObject" ) ) {
+	( (PropertyObject*)o )->mdPropertyChanged( property, changed );
+	return;
+    }
     MetaDataBaseRecord *r = db->find( (void*)o );
     if ( !r ) {
 	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
@@ -185,6 +190,8 @@ void MetaDataBase::setPropertyChanged( QObject *o, const QString &property, bool
 bool MetaDataBase::isPropertyChanged( QObject *o, const QString &property )
 {
     setupDataBase();
+    if ( o->isA( "PropertyObject" ) )
+	return ( (PropertyObject*)o )->mdIsPropertyChanged( property );
     MetaDataBaseRecord *r = db->find( (void*)o );
     if ( !r ) {
 	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
@@ -212,6 +219,10 @@ QStringList MetaDataBase::changedProperties( QObject *o )
 void MetaDataBase::setPropertyComment( QObject *o, const QString &property, const QString &comment )
 {
     setupDataBase();
+    if ( o->isA( "PropertyObject" ) ) {
+	( (PropertyObject*)o )->mdSetPropertyComment( property, comment );
+	return;
+    }
     MetaDataBaseRecord *r = db->find( (void*)o );
     if ( !r ) {
 	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
@@ -225,6 +236,8 @@ void MetaDataBase::setPropertyComment( QObject *o, const QString &property, cons
 QString MetaDataBase::propertyComment( QObject *o, const QString &property )
 {
     setupDataBase();
+    if ( o->isA( "PropertyObject" ) )
+	return ( (PropertyObject*)o )->mdPropertyComment( property );
     MetaDataBaseRecord *r = db->find( (void*)o );
     if ( !r ) {
 	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
@@ -250,6 +263,8 @@ void MetaDataBase::setFakeProperty( QObject *o, const QString &property, const Q
 QVariant MetaDataBase::fakeProperty( QObject * o, const QString &property)
 {
     setupDataBase();
+    if ( o->isA( "PropertyObject" ) )
+	return ( (PropertyObject*)o )->mdFakeProperty( property );
     MetaDataBaseRecord *r = db->find( (void*)o );
     if ( !r ) {
 	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
@@ -1001,6 +1016,10 @@ MetaDataBase::CustomWidget::CustomWidget( const CustomWidget &w )
 void MetaDataBase::setCursor( QWidget *w, const QCursor &c )
 {
     setupDataBase();
+    if ( w->isA( "PropertyObject" ) ) {
+	( (PropertyObject*)w )->mdSetCursor( c );
+	return;
+    }
     MetaDataBaseRecord *r = db->find( (void*)w );
     if ( !r ) {
 	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
@@ -1014,6 +1033,8 @@ void MetaDataBase::setCursor( QWidget *w, const QCursor &c )
 QCursor MetaDataBase::cursor( QWidget *w )
 {
     setupDataBase();
+    if ( w->isA( "PropertyObject" ) )
+	return ( (PropertyObject*)w )->mdCursor();
     MetaDataBaseRecord *r = db->find( (void*)w );
     if ( !r ) {
 	w->unsetCursor();
@@ -1137,6 +1158,10 @@ void MetaDataBase::setPixmapKey( QObject *o, int pixmap, const QString &arg )
     if ( !o )
 	return;
     setupDataBase();
+    if ( o->isA( "PropertyObject" ) ) {
+	( (PropertyObject*)o )->mdSetPixmapKey( pixmap, arg );
+	return;
+    }
     MetaDataBaseRecord *r = db->find( (void*)o );
     if ( !r ) {
 	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
@@ -1153,6 +1178,8 @@ QString MetaDataBase::pixmapKey( QObject *o, int pixmap )
     if ( !o )
 	return QString::null;
     setupDataBase();
+    if ( o->isA( "PropertyObject" ) )
+	return ( (PropertyObject*)o )->mdPixmapKey( pixmap );
     MetaDataBaseRecord *r = db->find( (void*)o );
     if ( !r ) {
 	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
@@ -1613,6 +1640,10 @@ void MetaDataBase::setExportMacro( QObject *o, const QString &macro )
     if ( !o )
 	return;
     setupDataBase();
+    if ( o->isA( "PropertyObject" ) ) {
+	( (PropertyObject*)o )->mdSetExportMacro( macro );
+	return;
+    }
     MetaDataBaseRecord *r = db->find( (void*)o );
     if ( !r ) {
 	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
@@ -1628,6 +1659,8 @@ QString MetaDataBase::exportMacro( QObject *o )
     if ( !o )
 	return "";
     setupDataBase();
+    if ( o->isA( "PropertyObject" ) )
+	return ( (PropertyObject*)o )->mdExportMacro();
     MetaDataBaseRecord *r = db->find( (void*)o );
     if ( !r ) {
 	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
