@@ -129,14 +129,36 @@ static bool inMenu = FALSE;
     Menu items may be removed with removeItem() and enabled or disabled
     with \link QMenuData::setItemEnabled() setItemEnabled()\endlink.
 
-    QMenuBar on Qt/Mac is a wrapper for using the system-wide
-    menubar. However if you have multiple menubars in one dialog the
-    outermost menubar (normally inside a widget with \l WType_TopLevel) will
-    be used for the global menubar.
-
   <img src=qmenubar-m.png> <img src=qmenubar-w.png>
 
+
+    QMenuBar on Qt/Mac is a wrapper for using the system-wide
+    menubar. However, if you have multiple menubars in one dialog the
+    outermost menubar (normally inside a widget with \l
+    WType_TopLevel) will be used for the global menubar. 
+
+    Qt/Mac also provides a menubar merging feature, with this your
+    QMenubar will be brought closer to conforming to accepted Mac OS X
+    menubar layout. The merging functionality is based on string
+    matching the title of a QPopupMenu entry, if an entry is moved the
+    regularly connected slots will still fire as if it was in the
+    original place. The table below outlines the strings looked for
+    and where the entry is placed if matched:
+
+    \table
+    \header \i String matches \i Placement \i Notes
+    \row \i about.* \i Application Menu | About <application name> 
+         \i If this entry is not found no About item will appear in the Application Menu
+    \row \i config, options, setup, settings, preferences \i Application Menu | Settings
+         \i If this entry is not found the Settings item will be disabled
+    \row \i quit, exit \i Application Menu | Quit <application name>
+         \i If this entry is not found a default Quit item will be created to call 
+	    QApplication::quit()
+    \endtable
+
   \sa QPopupMenu QAccel QAction
+      \link http://developer.apple.com/techpubs/macosx/Carbon/HumanInterfaceToolbox/Aqua/aqua.html
+            Aqua Style Guidelines \endlink
       \link guibooks.html#fowler GUI Design Handbook: Menu Bar \endlink
 */
 
