@@ -399,7 +399,7 @@ public:
     void clearWFlags(Qt::WFlags f)        { QWidget::clearWFlags(f); }
     bool translateMouseEvent(const XEvent *);
     bool translateKeyEventInternal(const XEvent *, int& count, QString& text, int& state, int &code,
-                                    QEvent::Type &type, bool willRepeat=false, bool statefulTranslation=true);
+                                   QEvent::Type &type, bool /*willRepeat*/=false, bool statefulTranslation=true);
     bool translateKeyEvent(const XEvent *, bool grab);
     bool translatePaintEvent(const XEvent *);
     bool translateConfigEvent(const XEvent *);
@@ -4310,7 +4310,7 @@ static QChar keysymToUnicode(unsigned char byte3, unsigned char byte4)
 #endif
 
 bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QString& text, int& state,
-                                           int& code, QEvent::Type &type, bool willRepeat, bool statefulTranslation)
+                                          int& code, QEvent::Type &type, bool /*willRepeat*/, bool statefulTranslation)
 {
     QTextCodec *mapper = qt_input_mapper;
     // some XmbLookupString implementations don't return buffer overflow correctly,
@@ -4345,7 +4345,7 @@ bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QStri
     // Implementation for X11R5 and newer, using XIM
 
     int               keycode = event->xkey.keycode;
-    Status     status;
+//    Status     status;
 
     bool mb=false;
     // commit string handling is done by
