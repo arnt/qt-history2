@@ -43,8 +43,12 @@
 #define _ATL_APARTMENT_THREADED
 #define STRICT
 
-#include "qaxserverbase.h"
 #include "qaxbindable.h"
+#include "qaxfactory.h"
+#include "../shared/types.h"
+
+#include <atlbase.h>
+#include "qaxserverbase.h"
 
 #ifdef DEBUG
 const DWORD dwTimeOut = 1000;
@@ -60,93 +64,8 @@ EXTERN_C int __cdecl main( int, char ** );
 EXTERN_C int main( int, char ** );
 #endif
 CExeModule _Module;
+ITypeLib *typeLibrary = 0;
 
-extern bool qax_ownQApp;
-
-extern HHOOK hhook;
-LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
-{
-    if ( qApp )
-	qApp->sendPostedEvents();
-
-    return CallNextHookEx( hhook, nCode, wParam, lParam );
-}
-
-
-// COM Factory class, mapping COM requests to ActiveQt requests.
-// One instance of this class for each ActiveX the server can provide.
-class QClassFactory : public IClassFactory
-{
-public:
-    QClassFactory( CLSID clsid )
-	: ref( 0 )
-    {
-	// COM only knows the CLSID, but QAxFactory is class name based...
-	QStringList keys = _Module.factory()->featureList();
-	for ( QStringList::Iterator  key = keys.begin(); key != keys.end(); ++key ) {
-	    if ( _Module.factory()->classID( *key ) == clsid ) {
-		className = *key;
-		break;
-	    }
-	}
-    }
-
-    // IUnknown
-    unsigned long WINAPI AddRef()
-    {
-	return ++ref;
-    }
-    unsigned long WINAPI Release()
-    {
-	if ( !--ref ) {
-	    delete this;
-	    return 0;
-	}
-	return ref;
-    }
-    HRESULT WINAPI QueryInterface( REFIID iid, LPVOID *iface )
-    {
-	*iface = 0;
-	if ( iid == IID_IUnknown )
-	    *iface = (IUnknown*)this;
-	else if ( iid == IID_IClassFactory )
-	    *iface = (IClassFactory*)this;
-	else
-	    return E_NOINTERFACE;
-
-	AddRef();
-	return S_OK;
-    }
-
-    // IClassFactory
-    HRESULT WINAPI CreateInstance( IUnknown *pUnkOuter, REFIID iid, void **ppObject )
-    {
-	// Make sure a QApplication instance is present (inprocess case)
-	if ( !qApp ) {
-	    qax_ownQApp = TRUE;
-	    int argc = 0;
-	    (void)new QApplication( argc, 0 );
-	    hhook = SetWindowsHookEx( WH_GETMESSAGE, FilterProc, 0, GetCurrentThreadId() );
-	}
-
-	// Create the ActiveX wrapper
-	QAxServerBase *activeqt = new QAxServerBase( className );
-	return activeqt->QueryInterface( iid, ppObject );
-    }
-    HRESULT WINAPI LockServer( BOOL fLock )
-    {
-	if ( fLock )
-	    _Module.Lock();
-	else
-	    _Module.Unlock();
-
-	return S_OK;
-    }
-
-protected:
-    unsigned long ref;
-    QString className;
-};
 
 // Passed to CreateThread to monitor the shutdown event
 static DWORD WINAPI MonitorProc(void* pv)
@@ -198,6 +117,7 @@ bool CExeModule::StartMonitor()
 }
 
 extern QUnknownInterface *ucm_instantiate();
+extern HRESULT __stdcall GetClassObject( void *pv, const GUID &iid, void **ppUnk );
 
 QAxFactoryInterface *CExeModule::factory()
 {
@@ -217,15 +137,6 @@ static HRESULT WINAPI CreateInstance( void *pUnkOuter, REFIID iid, void **ppUnk 
     return nRes;
 }
 
-// Create a QClassFactory object for class \a iid
-HRESULT WINAPI GetClassObject( void *pv, REFIID iid, void **ppUnk )
-{
-    HRESULT nRes = E_OUTOFMEMORY;
-    QClassFactory *factory = new QClassFactory( iid );
-    if ( factory )
-	nRes = factory->QueryInterface( IID_IClassFactory, ppUnk );
-    return nRes;
-}
 
 // Dummy method for object map
 static void WINAPI ObjectMain( bool /*bStarting*/ )
@@ -940,81 +851,52 @@ extern "C" int WINAPI WinMain(HINSTANCE hInstance,
 	} else {
 	    HRESULT hRes = CoInitialize(NULL);
 
-	    _ASSERTE(SUCCEEDED(hRes));
+	    QString libFile( module_filename );
+	    BSTR oleLibFile = QStringToBSTR( libFile );
+	    LoadTypeLibEx( oleLibFile, REGKIND_NONE, &typeLibrary );
+	    SysFreeString( oleLibFile );
+
 	    QStringList keys = _Module.factory()->featureList();
 	    if ( !keys.count() )
 		return nRet;
-	    _ATL_OBJMAP_ENTRY *ObjectMap = new _ATL_OBJMAP_ENTRY[ keys.count() + 1 ];
-	    memset( ObjectMap+keys.count(), 0, sizeof(_ATL_OBJMAP_ENTRY) );
-	    int object = 0;
-	    for ( QStringList::Iterator key = keys.begin(); key != keys.end(); ++key ) {
-		GUID *clsid = new GUID;
-		*clsid = _Module.factory()->classID( *key );
-		ObjectMap[object].pclsid = clsid;
-		ObjectMap[object].pfnUpdateRegistry = UpdateRegistry;
-		ObjectMap[object].pfnGetClassObject = GetClassObject;
-		ObjectMap[object].pfnCreateInstance = CreateInstance;
-		ObjectMap[object].pCF = NULL;
-		ObjectMap[object].dwRegister = 0;
-		ObjectMap[object].pfnGetObjectDescription = GetObjectDescription;
-		ObjectMap[object].pfnGetCategoryMap = GetCategoryMap;
-		ObjectMap[object].pfnObjectMain = ObjectMain;
-		++object;
-	    }
 
 	    const IID TypeLib = _Module.factory()->typeLibID();
-	    _Module.Init(ObjectMap, hInstance, &TypeLib );
+	    _Module.Init(0, hInstance, &TypeLib );
 	    _Module.dwThreadID = GetCurrentThreadId();
-
 	    _Module.StartMonitor();
 
-	    _ATL_OBJMAP_ENTRY* pEntry = _Module.m_pObjMap;
-	    while ( pEntry->pclsid )
-	    {
+	    int object = 0;
+	    DWORD *dwRegister = new DWORD[keys.count()];
+	    QStringList::Iterator key;
+
+	    object = 0;
+	    for ( key = keys.begin(); key != keys.end(); ++key, ++object ) {
 		IUnknown* p = 0;
-		HRESULT hRes = GetClassObject( pEntry->pfnCreateInstance, *pEntry->pclsid, (void**) &p );
-		if (SUCCEEDED(hRes))
-		    hRes = CoRegisterClassObject( *pEntry->pclsid, p, CLSCTX_LOCAL_SERVER, REGCLS_MULTIPLEUSE, &pEntry->dwRegister );
+		CLSID clsid = _Module.factory()->classID( *key );
+
+		HRESULT hRes = GetClassObject( CreateInstance, clsid, (void**) &p );
+		if ( SUCCEEDED(hRes) )
+		    hRes = CoRegisterClassObject( clsid, p, CLSCTX_LOCAL_SERVER, REGCLS_MULTIPLEUSE, dwRegister+object );
 		if ( p )
 		    p->Release();
-
-		++pEntry;
 	    }
 
 	    is_server = TRUE;
 	    nRet = main( argc, argv.data() );
 
-	    pEntry = _Module.m_pObjMap;
-	    while ( pEntry->pclsid )
-	    {
-		    pEntry->RevokeClassObject();
-		    ++pEntry;
+	    object = 0;
+	    for ( key = keys.begin(); key != keys.end(); ++key, ++object ) {
+		CoRevokeClassObject( dwRegister[object] );
 	    }
+
 	    Sleep(dwPause); //wait for any threads to finish
 
 	    _Module.Term();
-	    if ( QAxServerBase::typeInfoHolderList ) {
-		QPtrListIterator<CComTypeInfoHolder> it( *QAxServerBase::typeInfoHolderList );
-		while ( it.current() ) {
-		    CComTypeInfoHolder *pth = it.current();
-		    delete (GUID*)pth->m_pguid;
-		    pth->m_pguid = 0;
-		    delete (GUID*)pth->m_plibid;
-		    pth->m_plibid = 0;
-		    ++it;
-		}
-	    }
-	    delete QAxServerBase::typeInfoHolderList;
-	    QAxServerBase::typeInfoHolderList = 0;
+
+	    if ( typeLibrary )
+		typeLibrary->Release();
 
 	    CoUninitialize();
-
-	    object = 0;
-	    while ( ObjectMap[object].pclsid ) {
-		delete (GUID*)ObjectMap[object].pclsid;
-		object++;
-	    }
-	    delete[] ObjectMap;
 	}
 	delete[] cmdp;
     }

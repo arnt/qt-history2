@@ -25,14 +25,17 @@
 **
 **********************************************************************/
 
-#include "qaxserverbase.h"
 #include <qapplication.h>
 #include <qwidgetlist.h>
 
+#include <atlbase.h>
+#include "qaxserverbase.h"
+#include "../shared/types.h"
+
 // in qaxservermain.cpp
-extern CExeModule _Module;
 extern char module_filename[MAX_PATH];
 extern bool is_server;
+extern ITypeLib *typeLibrary;
 
 extern HRESULT __stdcall UpdateRegistry(int bRegister);
 extern HRESULT __stdcall GetClassObject( void *pv, const GUID &iid, void **ppUnk );
@@ -105,13 +108,22 @@ STDAPI DllCanUnloadNow()
 BOOL WINAPI DllMain( HINSTANCE hInstance, DWORD dwReason, LPVOID lpvReserved )
 {
     GetModuleFileNameA( hInstance, module_filename, MAX_PATH-1 );
+
     is_server = TRUE;
 
     if ( dwReason == DLL_PROCESS_ATTACH || dwReason == DLL_THREAD_ATTACH ) {
         const IID TypeLib = _Module.factory()->typeLibID();
 	_Module.Init(0, hInstance, &TypeLib );
 	qt_win_use_simple_timers = TRUE;
+
+	QString libFile( module_filename );
+	BSTR oleLibFile = QStringToBSTR( libFile );
+	LoadTypeLibEx( oleLibFile, REGKIND_NONE, &typeLibrary );
+	SysFreeString( oleLibFile );
     } else {
+	if ( typeLibrary )
+	    typeLibrary->Release();
+
 	_Module.Term();
     }
 

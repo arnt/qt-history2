@@ -31,7 +31,7 @@
 #include <qwidget.h>
 #include <private/qcom_p.h>
 
-class QAxServerBase;
+struct IAxServerBase;
 
 class QAxBindable
 {
@@ -51,7 +51,7 @@ protected:
     void propertyChanged( const char *property );
 
 private:
-    QAxServerBase *activex;
+    IAxServerBase *activex;
 };
 
 #endif // QAXBINDABLE_H

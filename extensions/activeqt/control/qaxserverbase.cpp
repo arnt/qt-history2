@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: $
 **
-** Implementation of the QAxServerBase classes
+** Declaration and implementation of QAxServerBase and helper classes
 **
 ** Copyright (C) 2001-2002 Trolltech AS.  All rights reserved.
 **
@@ -25,21 +25,273 @@
 **
 **********************************************************************/
 
-#include "qaxserverbase.h"
-#include "qaxbindable.h"
-
 #include <qapplication.h>
-#include <qwhatsthis.h>
+#include <qintdict.h>
+#include <qmetaobject.h>
 #include <qpainter.h>
 #include <qpaintdevicemetrics.h>
 #include <qptrdict.h>
+#include <qwhatsthis.h>
+#include <qt_windows.h>
+
+#include "qaxfactory.h"
+#include "qaxbindable.h"
+
+#include <atlbase.h>
+#include "qaxserverbase.h"
 
 #include "../shared/types.h"
 
-
-QPtrList<CComTypeInfoHolder> *QAxServerBase::typeInfoHolderList = 0;
 GUID IID_IAxServerBase = { 0xbd2ec165, 0xdfc9, 0x4319, { 0x8b, 0x9b, 0x60, 0xa5, 0x74, 0x78, 0xe9, 0xe3} };
+extern ITypeLib *typeLibrary;
 
+/*!
+    \class QAxServerBase qaxserverbase.cpp
+    \internal
+*/
+class QAxServerBase : 
+    public QObject,
+    public IAxServerBase,
+    public IDispatch,
+    public IOleObject,
+    public IOleControl,
+#ifdef QAX_VIEWOBJECTEX
+    public IViewObjectEx,
+#else
+    public IViewObject2,
+#endif
+    public IOleInPlaceObject,
+    public IProvideClassInfo2,
+    public IConnectionPointContainer,
+    public IPersistPropertyBag,
+    public ISpecifyPropertyPages,
+    public IPropertyPage2
+{
+public:
+    typedef QMap<QUuid,IConnectionPoint*> ConnectionPoints;
+    typedef QMap<QUuid,IConnectionPoint*>::Iterator ConnectionPointsIterator;
+
+    QAxServerBase( const QString &classname );
+
+    ~QAxServerBase();
+
+// Window creation
+    HWND Create(HWND hWndParent, RECT& rcPos );
+    
+    static LRESULT CALLBACK StartWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+// IUnknown
+    unsigned long WINAPI AddRef()
+    {
+	return ++ref;
+    }
+    unsigned long WINAPI Release()
+    {
+	if ( !--ref ) {
+	    delete this;
+	    return 0;
+	}
+	return ref;
+    }
+    HRESULT WINAPI QueryInterface( REFIID iid, void **iface );
+
+// IAxServerBase
+    QObject *qObject()
+    {
+        return this;
+    }
+    QWidget *widget()
+    {
+	return activeqt;
+    }
+
+    void emitPropertyChanged( long dispId );
+    bool emitRequestPropertyChange( long dispId );
+    void readMetaData();
+    QIntDict<QMetaProperty> *propertyList();
+
+// IDispatch
+    STDMETHOD(GetTypeInfoCount)(UINT* pctinfo);
+    STDMETHOD(GetTypeInfo)(UINT itinfo, LCID lcid, ITypeInfo** pptinfo);
+    STDMETHOD(GetIDsOfNames)(REFIID riid, LPOLESTR* rgszNames, UINT cNames, LCID lcid, DISPID* rgdispid);
+    STDMETHOD(Invoke)(DISPID dispidMember, REFIID riid,
+		LCID lcid, WORD wFlags, DISPPARAMS* pdispparams, VARIANT* pvarResult,
+		EXCEPINFO* pexcepinfo, UINT* puArgErr);
+
+// IProvideClassInfo
+    STDMETHOD(GetClassInfo)(ITypeInfo** pptinfo);
+
+// IProvideClassInfo2
+    STDMETHOD(GetGUID)(DWORD dwGuidKind, GUID* pGUID);
+
+// IOleObject
+    STDMETHOD(Advise)( IAdviseSink* pAdvSink, DWORD* pdwConnection );
+    STDMETHOD(Close)( DWORD dwSaveOption );
+    STDMETHOD(DoVerb)( LONG iVerb, LPMSG lpmsg, IOleClientSite* pActiveSite, LONG lindex, HWND hwndParent, LPCRECT lprcPosRect );
+    STDMETHOD(EnumAdvise)( IEnumSTATDATA** ppenumAdvise );
+    STDMETHOD(EnumVerbs)( IEnumOLEVERB** ppEnumOleVerb );
+    STDMETHOD(GetClientSite)( IOleClientSite** ppClientSite );
+    STDMETHOD(GetClipboardData)( DWORD dwReserved, IDataObject** ppDataObject );
+    STDMETHOD(GetExtent)( DWORD dwDrawAspect, SIZEL* psizel );
+    STDMETHOD(GetMiscStatus)(DWORD dwAspect, DWORD *pdwStatus);
+    STDMETHOD(GetMoniker)( DWORD dwAssign, DWORD dwWhichMoniker, IMoniker** ppmk );
+    STDMETHOD(GetUserClassID)( CLSID* pClsid );
+    STDMETHOD(GetUserType)(DWORD dwFormOfType, LPOLESTR *pszUserType);
+    STDMETHOD(InitFromData)( IDataObject* pDataObject, BOOL fCreation, DWORD dwReserved );
+    STDMETHOD(IsUpToDate)();
+    STDMETHOD(SetClientSite)( IOleClientSite* pClientSite );
+    STDMETHOD(SetColorScheme)( LOGPALETTE* pLogPal );
+    STDMETHOD(SetExtent)( DWORD dwDrawAspect, SIZEL* psizel );
+    STDMETHOD(SetHostNames)( LPCOLESTR szContainerApp, LPCOLESTR szContainerObj );
+    STDMETHOD(SetMoniker)( DWORD dwWhichMoniker, IMoniker* ppmk );
+    STDMETHOD(Unadvise)( DWORD dwConnection );
+    STDMETHOD(Update)();
+
+// IViewObject
+    STDMETHOD(Draw)( DWORD dwAspect, LONG lIndex, void *pvAspect, DVTARGETDEVICE *ptd, 
+		    HDC hicTargetDevice, HDC hdcDraw, LPCRECTL lprcBounds, LPCRECTL lprcWBounds,
+		    BOOL(__stdcall*pfnContinue)(DWORD), DWORD dwContinue );
+    STDMETHOD(GetColorSet)( DWORD dwDrawAspect, LONG lindex, void *pvAspect, DVTARGETDEVICE *ptd,
+		    HDC hicTargetDev, LOGPALETTE **ppColorSet );
+    STDMETHOD(Freeze)( DWORD dwAspect, LONG lindex, void *pvAspect, DWORD *pdwFreeze );
+    STDMETHOD(Unfreeze)( DWORD dwFreeze );
+    STDMETHOD(SetAdvise)( DWORD aspects, DWORD advf, IAdviseSink *pAdvSink );
+    STDMETHOD(GetAdvise)( DWORD *aspects, DWORD *advf, IAdviseSink **pAdvSink );
+
+// IViewObject2
+    STDMETHOD(GetExtent)( DWORD dwAspect, LONG lindex, DVTARGETDEVICE *ptd, LPSIZEL lpsizel );
+
+#ifdef QAX_VIEWOBJECTEX
+    // IViewObjectEx
+    STDMETHOD(GetRect)( DWORD dwAspect, LPRECTL pRect );
+    STDMETHOD(GetViewStatus)( DWORD *pdwStatus );
+    STDMETHOD(QueryHitPoint)( DWORD dwAspect, LPCRECT pRectBounds, POINT ptlLoc, LONG lCloseHint, DWORD *pHitResult );
+    STDMETHOD(QueryHitRect)( DWORD dwAspect, LPCRECT pRectBounds, LPCRECT prcLoc, LONG lCloseHint, DWORD *pHitResult );
+    STDMETHOD(GetNaturalExtent)( DWORD dwAspect, LONG lindex, DVTARGETDEVICE *ptd, HDC hicTargetDev, DVEXTENTINFO *pExtentInfo, LPSIZEL pSizel );
+    DECLARE_VIEW_STATUS()
+#endif
+
+// IOleControl
+    STDMETHOD(FreezeEvents)(BOOL);
+    STDMETHOD(GetControlInfo)(LPCONTROLINFO);
+    STDMETHOD(OnAmbientPropertyChange)(DISPID);
+    STDMETHOD(OnMnemonic)(LPMSG);
+
+// IOleWindow
+    STDMETHOD(GetWindow)(HWND *pHwnd);
+    STDMETHOD(ContextSensitiveHelp)(BOOL fEnterMode);
+
+// IOleInPlaceObject
+    STDMETHOD(InPlaceDeactivate)();
+    STDMETHOD(UIDeactivate)();
+    STDMETHOD(SetObjectRects)(LPCRECT lprcPosRect, LPCRECT lprcClipRect);
+    STDMETHOD(ReactivateAndUndo)();
+
+
+// IConnectionPointContainer
+    STDMETHOD(EnumConnectionPoints)(IEnumConnectionPoints**);
+    STDMETHOD(FindConnectionPoint)(REFIID, IConnectionPoint**);
+
+// IPersist
+    STDMETHOD(GetClassID)(GUID*clsid) 
+    {
+	*clsid = _Module.factory()->classID( class_name );
+	return S_OK;
+    }
+
+// IPersistPropertyBag
+    STDMETHOD(InitNew)(VOID);
+    STDMETHOD(Load)(IPropertyBag *, IErrorLog *);
+    STDMETHOD(Save)(IPropertyBag *, BOOL, BOOL);
+
+// IPersistStorage
+    STDMETHOD(IsDirty)(VOID);
+
+// ISpecifyPropertyPages
+    STDMETHOD(GetPages)( CAUUID *pPages );
+
+// IPropertyPage
+    STDMETHOD(SetPageSite)( IPropertyPageSite *pPageSite );
+    STDMETHOD(Activate)( HWND hWndParent, LPCRECT pRect, BOOL bModal );
+    STDMETHOD(Deactivate)();
+    STDMETHOD(GetPageInfo)( PROPPAGEINFO *pPageInfo );
+    STDMETHOD(SetObjects)( ULONG cObjects, IUnknown **ppUnk );
+    STDMETHOD(Show)( UINT nCmdShow );
+    STDMETHOD(Move)( LPCRECT pRect );
+    STDMETHOD(IsPageDirty)();
+    STDMETHOD(Apply)();
+    STDMETHOD(Help)( LPCOLESTR pszHelpDir );
+    STDMETHOD(TranslateAccelerator)( MSG *pMsg );
+
+// IPropertyPage2
+    STDMETHOD(EditProperty)( DISPID prop );
+
+/* IPersistStorage
+    STDMETHOD(InitNew)(IStorage *pStg ) { return E_NOTIMPL; }
+    STDMETHOD(Load)(IStorage *pStg ) { return E_NOTIMPL; }
+    STDMETHOD(Save)(IStorage *pStg, BOOL fSameAsLoad ) { return E_NOTIMPL; }
+    STDMETHOD(SaveCompleted)( IStorage *pStgNew ) { return E_NOTIMPL; }
+    STDMETHOD(HandsOffStorage)() { return E_NOTIMPL; }
+*/
+
+    bool qt_emit( int, QUObject* );
+
+    bool eventFilter( QObject *o, QEvent *e );
+private:
+    void update();
+    void updateGeometry();    
+    bool internalCreate();
+    HRESULT internalActivate();
+
+    friend class QAxBindable;
+    friend class QAxPropertyPage;
+
+    QWidget* activeqt;
+    ConnectionPoints points;
+
+    unsigned initNewCalled	:1;
+    unsigned dirtyflag		:1;
+    unsigned hasStockEvents	:1;
+    unsigned m_bWindowOnly	:1;
+    unsigned m_bAutoSize	:1;
+    unsigned m_bInPlaceActive	:1;
+    unsigned m_bUIActive	:1;
+    unsigned m_bWndLess		:1;
+    unsigned m_bInPlaceSiteEx	:1;
+    unsigned m_bWasOnceWindowless:1;
+    unsigned m_bRequiresSave	:1;
+    unsigned m_bNegotiatedWnd	:1;
+    short m_nFreezeEvents;
+
+    HWND m_hWnd;
+    union {
+	HWND& m_hWndCD;
+	HWND* m_phWndCD;
+    };
+
+    SIZE m_sizeExtent;
+    SIZE m_sizeNatural;
+    RECT m_rcPos;
+    unsigned long ref;
+
+    QString class_name;
+
+    QIntDict<QMetaData>* slotlist;
+    QMap<int,DISPID>* signallist;
+    QIntDict<QMetaProperty>* proplist;
+    QMap<int, DISPID>* proplist2;
+
+    CComPtr<IAdviseSink> m_spAdviseSink;
+    CComPtr<IOleAdviseHolder> m_spOleAdviseHolder;
+    CComPtr<IDispatch> m_spAmbientDispatch;
+    CComPtr<IOleClientSite> m_spClientSite;
+    CComPtr<IOleInPlaceSiteWindowless> m_spInPlaceSite;
+    CComPtr<ITypeInfo> m_spTypeInfo;
+
+    IPropertyPageSite *propPageSite;
+    QAxPropertyPage *propPage;
+    QPtrList<IAxServerBase> propObjects;
+};
 
 /*
     Helper class to enumerate all supported event interfaces.
@@ -283,6 +535,104 @@ private:
 };
 
 
+extern bool qax_ownQApp;
+extern HHOOK hhook;
+LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
+{
+    if ( qApp )
+	qApp->sendPostedEvents();
+
+    return CallNextHookEx( hhook, nCode, wParam, lParam );
+}
+
+// COM Factory class, mapping COM requests to ActiveQt requests.
+// One instance of this class for each ActiveX the server can provide.
+class QClassFactory : public IClassFactory
+{
+public:
+    QClassFactory( CLSID clsid )
+	: ref( 0 )
+    {
+	// COM only knows the CLSID, but QAxFactory is class name based...
+	QStringList keys = _Module.factory()->featureList();
+	for ( QStringList::Iterator  key = keys.begin(); key != keys.end(); ++key ) {
+	    if ( _Module.factory()->classID( *key ) == clsid ) {
+		className = *key;
+		break;
+	    }
+	}
+    }
+
+    // IUnknown
+    unsigned long WINAPI AddRef()
+    {
+	return ++ref;
+    }
+    unsigned long WINAPI Release()
+    {
+	if ( !--ref ) {
+	    delete this;
+	    return 0;
+	}
+	return ref;
+    }
+    HRESULT WINAPI QueryInterface( REFIID iid, LPVOID *iface )
+    {
+	*iface = 0;
+	if ( iid == IID_IUnknown )
+	    *iface = (IUnknown*)this;
+	else if ( iid == IID_IClassFactory )
+	    *iface = (IClassFactory*)this;
+	else
+	    return E_NOINTERFACE;
+
+	AddRef();
+	return S_OK;
+    }
+
+    // IClassFactory
+    HRESULT WINAPI CreateInstance( IUnknown *pUnkOuter, REFIID iid, void **ppObject )
+    {
+	if ( pUnkOuter )
+	    return CLASS_E_NOAGGREGATION;
+
+	// Make sure a QApplication instance is present (inprocess case)
+	if ( !qApp ) {
+	    qax_ownQApp = TRUE;
+	    int argc = 0;
+	    (void)new QApplication( argc, 0 );
+	    hhook = SetWindowsHookEx( WH_GETMESSAGE, FilterProc, 0, GetCurrentThreadId() );
+	}
+	
+	// Create the ActiveX wrapper
+	QAxServerBase *activeqt = new QAxServerBase( className );
+	return activeqt->QueryInterface( iid, ppObject );
+    }
+    HRESULT WINAPI LockServer( BOOL fLock )
+    {
+	if ( fLock )
+	    _Module.Lock();
+	else
+	    _Module.Unlock();
+
+	return S_OK;
+    }
+
+protected:
+    unsigned long ref;
+    QString className;
+};
+
+// Create a QClassFactory object for class \a iid
+HRESULT WINAPI GetClassObject( void *pv, REFIID iid, void **ppUnk )
+{
+    HRESULT nRes = E_OUTOFMEMORY;
+    QClassFactory *factory = new QClassFactory( iid );
+    if ( factory )
+	nRes = factory->QueryInterface( IID_IClassFactory, ppUnk );
+    return nRes;
+}
+
 /*!
     \class QAxServerBase qaxserverbase.h
     \brief The QAxServerBase class is a ActiveX control hosting a QWidget.
@@ -321,34 +671,7 @@ QAxServerBase::QAxServerBase( const QString &classname )
     m_rcPos.left = m_rcPos.top = 0;
     m_rcPos.right = m_rcPos.bottom = 20;
 
-
     _Module.Lock();
-    if ( !typeInfoHolderList ) {
-	typeInfoHolderList = new QPtrList<CComTypeInfoHolder>;
-	typeInfoHolderList->setAutoDelete( TRUE );
-    }
-
-    _tih = new CComTypeInfoHolder();
-    _tih->m_pguid = new GUID( _Module.factory()->interfaceID( class_name ) );
-    _tih->m_plibid = new GUID( _Module.factory()->typeLibID() );
-    _tih->m_wMajor = 1;
-    _tih->m_wMinor = 0;
-    _tih->m_dwRef = 0;
-    _tih->m_pInfo = 0;
-    _tih->m_pMap = 0;
-    _tih->m_nCount = 0;
-    typeInfoHolderList->append( _tih );
-
-    _tih2 = new CComTypeInfoHolder();
-    _tih2->m_pguid = new GUID( _Module.factory()->classID( class_name ) );
-    _tih2->m_plibid = new GUID( _Module.factory()->typeLibID() );
-    _tih2->m_wMajor = 1;
-    _tih2->m_wMinor = 0;
-    _tih2->m_dwRef = 0;
-    _tih2->m_pInfo = 0;
-    _tih2->m_pMap = 0;
-    _tih2->m_nCount = 0;
-    typeInfoHolderList->append( _tih2 );
 
     points[IID_IPropertyNotifySink] = new QAxConnection( this, IID_IPropertyNotifySink );
     points[_Module.factory()->eventsID(class_name)] = new QAxConnection( this, _Module.factory()->eventsID(class_name) );
@@ -466,6 +789,7 @@ bool QAxServerBase::internalCreate()
 	return FALSE;
     QAxBindable *axb = (QAxBindable*)activeqt->qt_cast( "QAxBindable" );
     if ( axb ) {
+	// no addref; this is aggregated
 	axb->activex = this;
 	hasStockEvents = axb->hasStockEvents();
     }
@@ -766,6 +1090,15 @@ void QAxServerBase::readMetaData()
 }
 
 /*!
+    Returns a list of properties.
+*/
+QIntDict<QMetaProperty>* QAxServerBase::propertyList()
+{
+    readMetaData();
+    return proplist;
+}
+
+/*!
     \internal
     Updates the view, or asks the client site to do so.
 */
@@ -903,7 +1236,7 @@ bool QAxServerBase::qt_emit( int isignal, QUObject* _o )
     Call IPropertyNotifySink of connected clients.
     \a dispId specifies the ID of the property that changed.
 */
-bool QAxServerBase::emitRequestPropertyChange( DISPID dispId )
+bool QAxServerBase::emitRequestPropertyChange( long dispId )
 {
     CComPtr<IConnectionPoint> cpoint;
     FindConnectionPoint( IID_IPropertyNotifySink, &cpoint );
@@ -939,7 +1272,7 @@ bool QAxServerBase::emitRequestPropertyChange( DISPID dispId )
     Call IPropertyNotifySink of connected clients. 
     \a dispId specifies the ID of the property that changed.
 */
-void QAxServerBase::emitPropertyChanged( DISPID dispId )
+void QAxServerBase::emitPropertyChanged( long dispId )
 {
     CComPtr<IConnectionPoint> cpoint;
     FindConnectionPoint( IID_IPropertyNotifySink, &cpoint );
@@ -967,7 +1300,91 @@ void QAxServerBase::emitPropertyChanged( DISPID dispId )
     }
 }
 
+//**** IProvideClassInfo
+/*!
+    Provide the ITypeInfo implementation for the COM class.
+*/
+HRESULT QAxServerBase::GetClassInfo(ITypeInfo** pptinfo)
+{
+    if ( !pptinfo )
+	return E_POINTER;
+
+    if ( !typeLibrary )
+	return DISP_E_BADINDEX;
+
+    return typeLibrary->GetTypeInfoOfGuid( _Module.factory()->classID( class_name ), pptinfo );
+}
+
+//**** IProvideClassInfo2
+/*!
+    Provide the ID of the event interface.
+*/
+HRESULT QAxServerBase::GetGUID(DWORD dwGuidKind, GUID* pGUID)
+{
+    if ( !pGUID )
+	return E_POINTER;
+    
+    if ( dwGuidKind == GUIDKIND_DEFAULT_SOURCE_DISP_IID ) {
+	*pGUID = _Module.factory()->eventsID( class_name );
+	return S_OK;
+    }
+    *pGUID = GUID_NULL;
+    return E_FAIL;
+}
+
 //**** IDispatch
+/*!
+    Returns the number of class infos for this IDispatch.
+*/
+HRESULT QAxServerBase::GetTypeInfoCount(UINT* pctinfo)
+{
+    if ( !pctinfo )
+	return E_POINTER;
+
+    *pctinfo = typeLibrary ? 1 : 0;
+    return S_OK;
+}
+
+/*!
+    Provides the ITypeInfo for this IDispatch implementation.
+*/
+HRESULT QAxServerBase::GetTypeInfo(UINT itinfo, LCID lcid, ITypeInfo** pptinfo)
+{
+    if ( !pptinfo )
+	return E_POINTER;
+
+    if ( !typeLibrary )
+	return DISP_E_BADINDEX;
+
+    if ( m_spTypeInfo ) {
+	*pptinfo = m_spTypeInfo;
+	(*pptinfo)->AddRef();
+    }
+
+    HRESULT res = typeLibrary->GetTypeInfoOfGuid( _Module.factory()->interfaceID( class_name ), pptinfo );
+    m_spTypeInfo = *pptinfo;
+
+    return res;
+}
+
+/*!
+    Provides the names of the methods implemented in this IDispatch implementation.
+*/
+HRESULT QAxServerBase::GetIDsOfNames(REFIID riid, LPOLESTR* rgszNames, UINT cNames,
+				     LCID lcid, DISPID* rgdispid)
+{
+    if ( !rgszNames || !rgdispid )
+	return E_POINTER;
+
+    if ( !typeLibrary )
+	return DISP_E_UNKNOWNNAME;
+
+    if ( !m_spTypeInfo )
+	typeLibrary->GetTypeInfoOfGuid( _Module.factory()->interfaceID( class_name ), &m_spTypeInfo );	
+
+    return m_spTypeInfo->GetIDsOfNames( rgszNames, cNames, rgdispid );
+}
+
 /*!
     Map the COM call to the Qt slot/property for \a dispidMember.
 */

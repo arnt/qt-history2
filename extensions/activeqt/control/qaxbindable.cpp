@@ -26,6 +26,11 @@
 **********************************************************************/
 
 #include "qaxbindable.h"
+
+#include <qintdict.h>
+#include <qmetaobject.h>
+
+#include <qt_windows.h> //IUnknown
 #include "qaxserverbase.h"
 
 /*!
@@ -97,11 +102,9 @@ bool QAxBindable::requestPropertyChange( const char *property )
 {
     if ( !activex )
 	return TRUE;
-    if ( !activex->proplist )
-	activex->readMetaData();
 
     DISPID dispId = -1;
-    QIntDictIterator <QMetaProperty> it( *activex->proplist );
+    QIntDictIterator <QMetaProperty> it( *activex->propertyList() );
     while ( it.current() && dispId < 0 ) {
 	QMetaProperty *mp = it.current();
 	if ( !qstrcmp( property, mp->name() ) )
@@ -125,11 +128,8 @@ void QAxBindable::propertyChanged( const char *property )
     if ( !activex )
 	return;
 
-    if ( !activex->proplist )
-	activex->readMetaData();
-
     DISPID dispId = -1;
-    QIntDictIterator <QMetaProperty> it( *activex->proplist );
+    QIntDictIterator <QMetaProperty> it( *activex->propertyList() );
     while ( it.current() && dispId < 0 ) {
 	QMetaProperty *mp = it.current();
 	if ( !qstrcmp( property, mp->name() ) )
