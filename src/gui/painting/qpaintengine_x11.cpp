@@ -1273,10 +1273,6 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRect
         if (mono_dst) {
             XSetBackground(d->dpy, d->gc, qGray(d->bg_brush.color().rgb()) > 127 ? 0 : 1);
             XSetForeground(d->dpy, d->gc, qGray(d->cpen.color().rgb()) > 127 ? 0 : 1);
-        } else if (d->pdev->devType() == QInternal::Pixmap && d->pdev->depth() == 32
-                   && X11->use_xrender) {
-            XSetBackground(d->dpy, d->gc, d->bg_brush.color().rgba());
-            XSetForeground(d->dpy, d->gc, d->cpen.color().rgba());
         } else {
             QColormap cmap = QColormap::instance(d->scrn);
             XSetBackground(d->dpy, d->gc, cmap.pixel(d->bg_brush.color()));
