@@ -523,8 +523,7 @@ QQuickDrawPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, c
             drawW = pixmap.width() - xOff; // Cropping first column
             if(xPos + drawW > rRight)    // Cropping last column
                 drawW = rRight - xPos;
-            drawPixmap(QRect(xPos, yPos, drawW, drawH), pixmap, QRect(xOff, yOff, drawW, drawH),
-                       mode);
+            drawPixmap(QRect(xPos, yPos, drawW, drawH), pixmap, QRect(xOff, yOff, drawW, drawH));
             xPos += drawW;
             xOff = 0;
         }
@@ -1473,7 +1472,8 @@ QCoreGraphicsPaintEngine::handle() const
 }
 
 void
-QCoreGraphicsPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap)
+QCoreGraphicsPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, 
+					  const QPointF &p)
 {
     Q_ASSERT(isActive());
 
