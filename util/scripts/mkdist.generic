@@ -164,6 +164,7 @@ else
   fi
   mv ${DISTDIR}/qt/doc/html ${DISTDIR}/qt
   cd ${DISTDIR}
+  mv -f ${DISTDIR}/qt/gif/*.png ${DISTDIR}/qt/html
   mv -f ${DISTDIR}/qt/gif/*.gif ${DISTDIR}/qt/html
   mv -f ${DISTDIR}/qt/gif/*.jpg ${DISTDIR}/qt/html
 #   mv -f ${DISTDIR}/qt/doc/.qdoc-links ${DISTDIR}
@@ -265,7 +266,7 @@ if [ "${platform}" = "win" ]; then
   echo "Converting Unix text files to DOS..." >&2
   cd ${DISTDIR}
   find qt -type f -print | fmt -1 | \
-	egrep -v '\.(gif|jpg|bmp|any|pic|ppm|exe|zip)$' | xargs ${curdir}/unix_to_dos
+	egrep -v '\.(gif|png|jpg|bmp|any|pic|ppm|exe|zip)$' | xargs ${curdir}/unix_to_dos
 fi
 
 if [ "${platform}" = "x11" ]; then
