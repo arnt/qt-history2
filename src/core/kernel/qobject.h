@@ -207,8 +207,6 @@ protected:
 
 protected:
     QObject(QObjectPrivate &d, QObject *parent);
-private:
-    void setParent_helper(QObject *);
 
 protected:
     QObjectData *d_ptr;

@@ -1730,9 +1730,9 @@ QVariant QLineEdit::inputMethodQuery(Qt::InputMethodQuery property) const
 
 void QLineEdit::focusInEvent(QFocusEvent *e)
 {
-    if (e->reason() == QFocusEvent::Tab ||
-         e->reason() == QFocusEvent::Backtab  ||
-         e->reason() == QFocusEvent::Shortcut)
+    if (e->reason() == Qt::TabFocusReason ||
+         e->reason() == Qt::BacktabFocusReason  ||
+         e->reason() == Qt::ShortcutFocusReason)
         d->maskData ? d->moveCursor(d->nextMaskBlank(0)) : selectAll();
     if (!d->cursorTimer) {
         int cft = QApplication::cursorFlashTime();
@@ -1754,14 +1754,14 @@ void QLineEdit::focusInEvent(QFocusEvent *e)
 
 void QLineEdit::focusOutEvent(QFocusEvent *e)
 {
-    if (e->reason() != QFocusEvent::ActiveWindow &&
-         e->reason() != QFocusEvent::Popup)
+    if (e->reason() != Qt::ActiveWindowFocusReason &&
+         e->reason() != Qt::PopupFocusReason)
         deselect();
     d->setCursorVisible(false);
     if (d->cursorTimer > 0)
         killTimer(d->cursorTimer);
     d->cursorTimer = 0;
-    if (e->reason() != QFocusEvent::Popup)
+    if (e->reason() != Qt::PopupFocusReason)
         emit lostFocus();
 #ifdef Q_WS_MAC
     if(d->echoMode == Password || d->echoMode == NoEcho)

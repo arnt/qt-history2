@@ -637,7 +637,7 @@ QObject::~QObject()
     QCoreApplication::removePostedEvents(this);
 
     if (d->parent)                                // remove it from parent object
-        setParent_helper(0);
+        d->setParent_helper(0);
 
     delete d;
     d_ptr = 0;
@@ -1329,16 +1329,16 @@ QObject *qt_qFindChild_helper(const QObject *parent, const QString &name, const 
 void QObject::setParent(QObject *parent)
 {
     Q_ASSERT(!d->isWidget);
-    setParent_helper(parent);
+    d->setParent_helper(parent);
 }
 
 
-void QObject::setParent_helper(QObject *parent)
+void QObjectPrivate::setParent_helper(QObject *parent)
 {
     if (parent == d->parent)
         return;
-    if (d->parent && !d->parent->d->wasDeleted && d->parent->d->children.removeAll(this)) {
-        QChildEvent e(QEvent::ChildRemoved, this);
+    if (d->parent && !d->parent->d->wasDeleted && d->parent->d->children.removeAll(q)) {
+        QChildEvent e(QEvent::ChildRemoved, q);
         QCoreApplication::sendEvent(d->parent, &e);
     }
     d->parent = parent;
@@ -1346,17 +1346,17 @@ void QObject::setParent_helper(QObject *parent)
         // object hierarchies are constrained to a single thread
         Q_ASSERT_X(d->thread == d->parent->d->thread, "QObject::setParent",
                    "New parent must be in the same thread as the previous parent");
-        d->parent->d->children.append(this);
+        d->parent->d->children.append(q);
         if (!d->isWidget) {
-            QChildEvent e(QEvent::ChildAdded, this);
+            QChildEvent e(QEvent::ChildAdded, q);
             QCoreApplication::sendEvent(d->parent, &e);
 #ifdef QT_COMPAT
-            QCoreApplication::postEvent(d->parent, new QChildEvent(QEvent::ChildInserted, this));
+            QCoreApplication::postEvent(d->parent, new QChildEvent(QEvent::ChildInserted, q));
 #endif
         }
 #ifdef QT_COMPAT
         else {
-            QCoreApplication::postEvent(d->parent, new QChildEvent(QEvent::ChildInserted, this));
+            QCoreApplication::postEvent(d->parent, new QChildEvent(QEvent::ChildInserted, q));
         }
 #endif
     }

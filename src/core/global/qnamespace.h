@@ -290,6 +290,8 @@ public:
         WindowActive     = 0x00000008
     };
 
+    Q_DECLARE_FLAGS(WindowStates, WindowState);
+
     // documented in qwidget.cpp
     enum WidgetAttribute {
         WA_Disabled,
@@ -1132,6 +1134,17 @@ public:
         SmoothTransformation
     };
 
+    enum FocusReason {
+        MouseFocusReason,
+        TabFocusReason,
+        BacktabFocusReason,
+        ActiveWindowFocusReason,
+        PopupFocusReason,
+        ShortcutFocusReason,
+        MenuBarFocusReason,
+        OtherFocusReason
+    };
+
     enum InputMethodQuery {
         ImMicroFocus,
         ImFont,
@@ -1177,6 +1190,7 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::Alignment)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::ImageConversionFlags)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::DockWindowAreas)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::ToolBarAreas)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WindowStates)
 
 class Q_CORE_EXPORT QInternal {
 public:

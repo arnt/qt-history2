@@ -693,7 +693,7 @@ void QAbstractSpinBox::wheelEvent(QWheelEvent *e)
 void QAbstractSpinBox::focusInEvent(QFocusEvent *e)
 {
     d->edit->event(e);
-    if (QFocusEvent::reason() == QFocusEvent::Tab || QFocusEvent::reason() == QFocusEvent::Backtab) {
+    if (e->reason() == Qt::TabFocusReason || e->reason() == Qt::BacktabFocusReason) {
         selectAll();
     }
     QWidget::focusInEvent(e);

@@ -3710,7 +3710,7 @@ bool Q3ListView::eventFilter(QObject * o, QEvent * e)
                     return true;
                 }
             } else if (e->type() == QEvent::FocusOut) {
-                if (((QFocusEvent*)e)->reason() != QFocusEvent::Popup) {
+                if (((QFocusEvent*)e)->reason() != Qt::PopupFocusReason) {
                     QCustomEvent *e = new QCustomEvent(9999);
                     QApplication::postEvent(o, e);
                     return true;
@@ -4653,17 +4653,17 @@ void Q3ListView::doAutoScroll(const QPoint &cursorPos)
     \reimp
 */
 
-void Q3ListView::focusInEvent(QFocusEvent*)
+void Q3ListView::focusInEvent(QFocusEvent *e)
 {
     d->inMenuMode = false;
     if (d->focusItem) {
         repaintItem(d->focusItem);
-    } else if (firstChild() && QFocusEvent::reason() != QFocusEvent::Mouse) {
+    } else if (firstChild() && e->reason() != Qt::MouseFocusReason) {
         d->focusItem = firstChild();
         emit currentChanged(d->focusItem);
         repaintItem(d->focusItem);
     }
-    if (QFocusEvent::reason() == QFocusEvent::Mouse) {
+    if (e->reason() == Qt::MouseFocusReason) {
         d->ignoreEditAfterFocus = true;
         d->startEdit = false;
     }
@@ -4687,13 +4687,13 @@ QVariant Q3ListView::inputMethodQuery(Qt::InputMethodQuery query) const
     \reimp
 */
 
-void Q3ListView::focusOutEvent(QFocusEvent*)
+void Q3ListView::focusOutEvent(QFocusEvent *e)
 {
-    if (QFocusEvent::reason() == QFocusEvent::Popup && d->buttonDown)
+    if (e->reason() == Qt::PopupFocusReason && d->buttonDown)
         d->buttonDown = false;
     if (style()->styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this)) {
         d->inMenuMode =
-            QFocusEvent::reason() == QFocusEvent::Popup
+            e->reason() == Qt::PopupFocusReason
             || (qApp->focusWidget() && qApp->focusWidget()->inherits("QMenuBar"));
         if (!d->inMenuMode) {
             viewport()->repaint();

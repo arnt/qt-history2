@@ -939,10 +939,10 @@ static uint effectiveState(uint state)
     return 0;
 }
 
-void QWidget::setWindowState(uint newstate)
+void QWidget::setWindowState(Qt::WindowStates newstate)
 {
     data->in_set_window_state = 1;
-    uint oldstate = effectiveState(data->widget_state);
+    Qt::WindowStates oldstate = effectiveState(data->widget_state);
 
     data->widget_state &= ~(Qt::WState_Minimized | Qt::WState_Maximized | Qt::WState_FullScreen);
     if (newstate & Qt::WindowMinimized)
@@ -957,7 +957,7 @@ void QWidget::setWindowState(uint newstate)
     bool needShow = false;
     if (isTopLevel() && state != oldstate) {
         d->createTLExtra();
-        if (oldstate == 0) { //normal
+        if (oldstate == Qt::WindowNoState) { //normal
             d->topData()->normalGeometry = geometry();
         } else if (oldstate == Qt::WState_FullScreen) {
             setParent(0, d->topData()->savedFlags);
@@ -1770,7 +1770,7 @@ void QWidget::clearMask()
 /*!
     \internal
 */
-unsigned char * QWidget::scanLine(int i) const
+unsigned char * QWidget::qwsScanLine(int i) const
 {
     // Should add widget x() here, maybe
     unsigned char * base=qwsDisplay()->frameBuffer();
@@ -1782,7 +1782,7 @@ unsigned char * QWidget::scanLine(int i) const
 /*!
     \internal
 */
-int QWidget::bytesPerLine() const
+int QWidget::qwsBytesPerLine() const
 {
     return qt_screen->linestep();
 }

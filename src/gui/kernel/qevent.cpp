@@ -596,10 +596,6 @@ Qt::KeyboardModifiers QKeyEvent::modifiers() const
     The event handlers QWidget::focusInEvent() and
     QWidget::focusOutEvent() receive focus events.
 
-    Use setReason() to set the reason for all focus events, and
-    resetReason() to reset the reason for all focus events to the
-    previously defined reason before the last setReason() call.
-
     \sa QWidget::setFocus(), QWidget::setFocusPolicy()
 */
 
@@ -609,71 +605,20 @@ Qt::KeyboardModifiers QKeyEvent::modifiers() const
     The \a type parameter must be either \c QEvent::FocusIn or \c
     QEvent::FocusOut.
 */
-QFocusEvent::QFocusEvent(Type type)
-    : QEvent(type)
+QFocusEvent::QFocusEvent(Type type, Qt::FocusReason reason)
+    : QEvent(type), m_reason(reason)
 {}
 
 QFocusEvent::~QFocusEvent()
 {
 }
 
-
-QFocusEvent::Reason QFocusEvent::m_reason = QFocusEvent::Other;
-QFocusEvent::Reason QFocusEvent::prev_reason = QFocusEvent::Other;
-
-
-/*!
-    \enum QFocusEvent::Reason
-
-    This enum specifies why the focus changed.
-
-    \value Mouse         A mouse action occurred.
-    \value Tab           The Tab key was pressed.
-    \value Backtab       A Backtab occurred. The input for this may
-                         include the Shift or Control keys;
-                         e.g. Shift+Tab.
-    \value ActiveWindow  The window system made this window either
-                         active or inactive.
-    \value Popup         The application opened/closed a popup that
-                         grabbed/released the keyboard focus.
-    \value Shortcut           The user typed a label's buddy shortcut
-    \value MenuBar         The menu bar took focus.
-    \value Other         Another reason, usually application-specific.
-
-    See the \link focus.html keyboard focus overview \endlink for more
-    about the keyboard focus.
-*/
-
 /*!
     Returns the reason for this focus event.
-
-    \sa setReason()
  */
-QFocusEvent::Reason QFocusEvent::reason()
+Qt::FocusReason QFocusEvent::reason()
 {
     return m_reason;
-}
-
-/*!
-    Sets the reason for all future focus events to \a reason.
-
-    \sa reason(), resetReason()
- */
-void QFocusEvent::setReason(Reason reason)
-{
-    prev_reason = m_reason;
-    m_reason = reason;
-}
-
-/*!
-    Resets the reason for all future focus events to the value before
-    the last setReason() call.
-
-    \sa reason(), setReason()
- */
-void QFocusEvent::resetReason()
-{
-    m_reason = prev_reason;
 }
 
 /*!

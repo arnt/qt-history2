@@ -458,7 +458,7 @@ void Q3IconViewItemLineEdit::keyPressEvent(QKeyEvent *e)
 void Q3IconViewItemLineEdit::focusOutEvent(QFocusEvent *e)
 {
     Q_UNUSED(e) // I need this to get rid of a Borland warning
-    if (e->reason() != QFocusEvent::Popup)
+    if (e->reason() != Qt::PopupFocusReason)
         item->cancelRenameItem();
 }
 #endif
@@ -5215,13 +5215,13 @@ bool Q3IconView::neighbourItem(Direction dir,
     \reimp
 */
 
-void Q3IconView::focusInEvent(QFocusEvent*)
+void Q3IconView::focusInEvent(QFocusEvent *e)
 {
     d->mousePressed = false;
     d->inMenuMode = false;
     if (d->currentItem) {
         repaintItem(d->currentItem);
-    } else if (d->firstItem && QFocusEvent::reason() != QFocusEvent::Mouse) {
+    } else if (d->firstItem && e->reason() != Qt::MouseFocusReason) {
         d->currentItem = d->firstItem;
         emit currentChanged(d->currentItem);
         repaintItem(d->currentItem);
@@ -5235,11 +5235,11 @@ void Q3IconView::focusInEvent(QFocusEvent*)
     \reimp
 */
 
-void Q3IconView::focusOutEvent(QFocusEvent*)
+void Q3IconView::focusOutEvent(QFocusEvent *e)
 {
     if (style()->styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this)) {
         d->inMenuMode =
-            QFocusEvent::reason() == QFocusEvent::Popup ||
+            e->reason() == Qt::PopupFocusReason ||
             (qApp->focusWidget() && qApp->focusWidget()->inherits("QMenuBar"));
         if (!d->inMenuMode)
             repaintSelectedItems();

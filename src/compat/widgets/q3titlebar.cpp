@@ -130,7 +130,7 @@ public:
 
 inline int Q3TitleBarPrivate::titleBarState() const
 {
-    uint state = window ? window->windowState() : 0;
+    uint state = window ? window->windowState() : Qt::WindowNoState;
     return (int)state;
 }
 

@@ -659,7 +659,7 @@ void QWidgetPrivate::qt_clean_root_win()
         for(int i = 0; i < qt_root_win_widgets.count(); i++) {
             QWidget *w = qt_root_win_widgets.at(i);
             if((HIViewRef)w->winId() == root_hiview)
-                w->setWinId(0); //at least now we'll just crash
+                w->d->setWinId(0); //at least now we'll just crash
         }
     }
     qt_root_win_widgets.clear();
@@ -697,7 +697,7 @@ bool QWidgetPrivate::qt_recreate_root_win() {
         for(int i = 0; i < qt_root_win_widgets.count(); i++) { //reset points
             QWidget *w = qt_root_win_widgets.at(i);
             if((HIViewRef)w->winId() == old_root_hiview)
-                w->setWinId((WId)root_hiview);
+                w->d->setWinId((WId)root_hiview);
         }
     }
     //cleanup old window
@@ -828,14 +828,14 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         else
             clearWState(Qt::WState_Visible);
         data->crect.setRect((int)bounds.origin.x, (int)bounds.origin.y, (int)bounds.size.width, (int)bounds.size.height);
-        setWinId((WId)hiview);
+        d->setWinId((WId)hiview);
     } else if(desktop) {                        // desktop widget
         if(!qt_root_win)
             QWidgetPrivate::qt_create_root_win();
         qt_root_win_widgets.append(this);
         if(HIViewRef hiview = HIViewGetRoot(qt_root_win)) {
             CFRetain((HIViewRef)hiview);
-            setWinId((WId)hiview);
+            d->setWinId((WId)hiview);
         }
     } else if(isTopLevel()) {
         Rect r;
@@ -1038,14 +1038,14 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
             HIRect bounds = CGRectMake(0, 0, win_rect.right-win_rect.left, win_rect.bottom-win_rect.top);
             HIViewSetFrame(hiview, &bounds);
             HIViewSetVisible(hiview, true);
-            setWinId((WId)hiview);
+            d->setWinId((WId)hiview);
         }
     } else {
         data->fstrut_dirty = false; // non-toplevel widgets don't have a frame, so no need to update the strut
         if(HIViewRef hiview = qt_mac_create_widget((HIViewRef)parentWidget()->winId())) {
             HIRect bounds = CGRectMake(data->crect.x(), data->crect.y(), data->crect.width(), data->crect.height());
             HIViewSetFrame(hiview, &bounds);
-            setWinId((WId)hiview);
+            d->setWinId((WId)hiview);
         }
     }
 
@@ -1061,7 +1061,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 
 void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
 {
-    deactivateWidgetCleanup();
+    d->deactivateWidgetCleanup();
     qt_mac_event_release(this);
     qt_mac_unicode_cleanup(this);
     if(isDesktop() && destroyWindow)
@@ -1098,72 +1098,72 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
             }
         }
     }
-    setWinId(0);
+    d->setWinId(0);
 }
 
-void QWidget::setParent_sys(QWidget *parent, Qt::WFlags f)
+void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
 {
     QCursor oldcurs;
-    bool setcurs=testAttribute(Qt::WA_SetCursor);
+    bool setcurs=q->testAttribute(Qt::WA_SetCursor);
     if(setcurs) {
-        oldcurs = cursor();
-        unsetCursor();
+        oldcurs = q->cursor();
+        q->unsetCursor();
     }
 
     EventHandlerRef old_window_event = 0;
     HIViewRef old_id = 0;
-    if(!isDesktop()) {
-        old_id = (HIViewRef)winId();
+    if(!q->isDesktop()) {
+        old_id = (HIViewRef)q->winId();
         old_window_event = d->window_event;
     }
-    QWidget* oldtlw = topLevelWidget();
+    QWidget* oldtlw = q->topLevelWidget();
 
     //recreate and seutp flags
     setWinId(0);
-    QObject::setParent_helper(parent);
-    bool     dropable = acceptDrops();
-    bool     enable = isEnabled();
-    Qt::FocusPolicy fp = focusPolicy();
-    QSize    s            = size();
-    QString capt = windowTitle();
-    data->widget_flags = f;
-    clearWState(Qt::WState_Created | Qt::WState_Visible | Qt::WState_Hidden | Qt::WState_ExplicitShowHide);
-    create();
-    if(isTopLevel() || (!parent || parent->isVisible()))
-        setWState(Qt::WState_Hidden);
+    QObjectPrivate::setParent_helper(parent);
+    bool     dropable = q->acceptDrops();
+    bool     enable = q->isEnabled();
+    Qt::FocusPolicy fp = q->focusPolicy();
+    QSize    s = q->size();
+    QString capt = q->windowTitle();
+    data.widget_flags = f;
+    q->clearWState(Qt::WState_Created | Qt::WState_Visible | Qt::WState_Hidden | Qt::WState_ExplicitShowHide);
+    q->create();
+    if(q->isTopLevel() || (!parent || parent->isVisible()))
+        q->setWState(Qt::WState_Hidden);
     if(dropable)
-        setAcceptDrops(false);
+        q->setAcceptDrops(false);
 
     //reparent children
-    QObjectList chlist = children();
+    QObjectList chlist = q->children();
     for (int i = 0; i < chlist.size(); ++i) {
         QObject *obj = chlist.at(i);
         if(obj->isWidgetType()) {
             QWidget *w = (QWidget *)obj;
             if(!w->isTopLevel())
-                HIViewAddSubview((HIViewRef)winId(), (HIViewRef)w->winId());
+                HIViewAddSubview((HIViewRef)q->winId(), (HIViewRef)w->winId());
         }
     }
 
     //get new hd, now move
-    setGeometry(0, 0, s.width(), s.height());
+    q->setGeometry(0, 0, s.width(), s.height());
 
     //reset flags and show (if neccesary)
-    setEnabled(enable);
-    setFocusPolicy(fp);
-    setAcceptDrops(dropable);
+    q->setEnabled(enable);
+    q->setFocusPolicy(fp);
+    q->setAcceptDrops(dropable);
     if(!capt.isNull()) {
-        d->topData()->caption = QString::null;
-        setWindowTitle(capt);
+        topData()->caption = QString::null;
+        q->setWindowTitle(capt);
     }
     if(setcurs)
-        setCursor(oldcurs);
+        q->setCursor(oldcurs);
 
     //cleanup
     if(old_window_event)
         RemoveEventHandler(old_window_event);
     if(old_id) { //don't need old window anymore
-        WindowPtr window = (oldtlw == this) ? qt_mac_window_for(old_id) : 0;
+        WindowPtr window = (oldtlw == q) ? qt_mac_window_for(old_id) : 0;
         HIViewRemoveFromSuperview(old_id);
         CFRelease(old_id);
         if(window)
@@ -1423,71 +1423,71 @@ void QWidget::repaint(const QRegion &rgn)
 #endif
 }
 
-void QWidget::show_sys()
+void QWidgetPrivate::show_sys()
 {
-    if(isDesktop()) //desktop is always visible
+    if(q->isDesktop()) //desktop is always visible
         return;
 
-    if (testAttribute(Qt::WA_OutsideWSRange))
+    if (q->testAttribute(Qt::WA_OutsideWSRange))
         return;
 
-    if(isTopLevel()) {
+    if(q->isTopLevel()) {
         QDesktopWidget *dsk = QApplication::desktop();
         if(!d->topData()->is_moved && dsk) {
-            int movex = x(), movey = y();
-            QRect r = frameGeometry();
-            QRect avail = dsk->availableGeometry(dsk->screenNumber(this));
+            int movex = q->x(), movey = q->y();
+            QRect r = q->frameGeometry();
+            QRect avail = dsk->availableGeometry(dsk->screenNumber(q));
                 if(r.bottom() > avail.bottom())
                     movey = avail.bottom() - r.height();
                 if(r.right() > avail.right())
                     movex = avail.right() - r.width();
-                move(qMax(avail.left(), movex), qMax(avail.top(), movey));
+                q->move(qMax(avail.left(), movex), qMax(avail.top(), movey));
         }
     }
-    data->fstrut_dirty = true;
-    if(isTopLevel()) {
-        WindowPtr window = qt_mac_window_for(this);
-        SizeWindow(window, width(), height(), true);
-        if(qt_mac_is_macsheet(this)) {
-            qt_event_request_showsheet(this);
-        } else if(qt_mac_is_macdrawer(this)) {
+    data.fstrut_dirty = true;
+    if(q->isTopLevel()) {
+        WindowPtr window = qt_mac_window_for(q);
+        SizeWindow(window, q->width(), q->height(), true);
+        if(qt_mac_is_macsheet(q)) {
+            qt_event_request_showsheet(q);
+        } else if(qt_mac_is_macdrawer(q)) {
             OpenDrawer(window, kWindowEdgeDefault, false);
         } else {
             ShowHide(window, true);
             d->toggleDrawers(true);
         }
-        if(windowState() & Qt::WindowMinimized) //show in collapsed state
+        if(q->windowState() & Qt::WindowMinimized) //show in collapsed state
             CollapseWindow(window, true);
-        qt_event_request_activate(this);
-    } else if(!parentWidget() || parentWidget()->isVisible()) {
-        HIViewSetVisible((HIViewRef)winId(), true);
+        qt_event_request_activate(q);
+    } else if(!q->parentWidget() || q->parentWidget()->isVisible()) {
+        HIViewSetVisible((HIViewRef)q->winId(), true);
         qt_event_request_window_change();
     }
 }
 
-void QWidget::hide_sys()
+void QWidgetPrivate::hide_sys()
 {
-    if(isDesktop()) //you can't hide the desktop!
+    if(q->isDesktop()) //you can't hide the desktop!
         return;
 
-    if(isTopLevel()) {
-        WindowPtr window = qt_mac_window_for(this);
-        if(qt_mac_is_macsheet(this)) {
+    if(q->isTopLevel()) {
+        WindowPtr window = qt_mac_window_for(q);
+        if(qt_mac_is_macsheet(q)) {
             WindowPtr parent = 0;
             if(GetSheetWindowParent(window, &parent) != noErr || !parent)
                 ShowHide(window, false);
             else
                 HideSheetWindow(window);
-        } else if(qt_mac_is_macdrawer(this)) {
+        } else if(qt_mac_is_macdrawer(q)) {
             CloseDrawer(window, false);
         } else {
             ShowHide(window, false);
             d->toggleDrawers(false);
         }
-        if(isActiveWindow() && !isPopup()) {
+        if(q->isActiveWindow() && !q->isPopup()) {
             QWidget *w = 0;
-            if(parentWidget())
-                w = parentWidget()->topLevelWidget();
+            if(q->parentWidget())
+                w = q->parentWidget()->topLevelWidget();
             if(!w || (!w->isVisible() && !w->isMinimized())) {
                 for(WindowPtr wp = GetFrontWindowOfClass(kDocumentWindowClass, true);
                     wp; wp = GetNextWindowOfClass(wp, kDocumentWindowClass, true)) {
@@ -1499,16 +1499,16 @@ void QWidget::hide_sys()
                 qt_event_request_activate(w);
         }
     } else {
-        HIViewSetVisible((HIViewRef)winId(), false);
+        HIViewSetVisible((HIViewRef)q->winId(), false);
         qt_event_request_window_change();
     }
     deactivateWidgetCleanup();
-    qt_mac_event_release(this);
+    qt_mac_event_release(q);
 }
 
-void QWidget::setWindowState(uint newstate)
+void QWidget::setWindowState(Qt::WindowStates newstate)
 {
-    uint oldstate = windowState();
+    Qt::WindowStates oldstate = windowState();
 
     bool needShow = false;
     if(isTopLevel()) {
@@ -1581,7 +1581,7 @@ void QWidget::setWindowState(uint newstate)
                 }
                 if(QTLWExtra *tlextra = d->topData()) {
                     if(data->fstrut_dirty)
-                        updateFrameStrut();
+                        d->updateFrameStrut();
                     bounds.left += tlextra->fleft;
                     if(bounds.right < avail.x()+avail.width())
                         bounds.right = qMin((uint)avail.x()+avail.width(), bounds.right+tlextra->fleft);
@@ -1818,17 +1818,17 @@ void QWidgetPrivate::setWSGeometry()
 }
 
 
-void QWidget::setGeometry_sys(int x, int y, int w, int h, bool isMove)
+void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 {
-    if(isTopLevel() && isMove)
+    if(q->isTopLevel() && isMove)
         d->topData()->is_moved = 1;
-    if(isDesktop())
+    if(q->isDesktop())
         return;
     if(QWExtra *extra = d->extraData()) {        // any size restrictions?
-        if(isTopLevel()) {
-            WindowPtr window = qt_mac_window_for(this);
-            QWidgetPrivate::qt_mac_update_sizer(this);
-            if(testWFlags(Qt::WStyle_Maximize)) {
+        if(q->isTopLevel()) {
+            WindowPtr window = qt_mac_window_for(q);
+            qt_mac_update_sizer(q);
+            if(q->testWFlags(Qt::WStyle_Maximize)) {
                 if(extra->maxw && extra->maxh && extra->maxw == extra->minw
                         && extra->maxh == extra->minh)
                     ChangeWindowAttributes(window, kWindowNoAttributes, kWindowFullZoomAttribute);
@@ -1854,36 +1854,36 @@ void QWidget::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         }
     }
 
-    if (isTopLevel()) {
+    if (q->isTopLevel()) {
         w = qMax(1, w);
         h = qMax(1, h);
     }
 
-    QPoint oldp = pos();
-    QSize  olds = size();
+    QPoint oldp = q->pos();
+    QSize  olds = q->size();
     const bool isResize = (olds != QSize(w, h));
-    if(!isTopLevel() && !isResize && QPoint(x, y) == oldp)
+    if(!q->isTopLevel() && !isResize && QPoint(x, y) == oldp)
         return;
-    if(isResize && isMaximized())
-        clearWState(Qt::WState_Maximized);
-    const bool visible = isVisible();
-    data->crect = QRect(x, y, w, h);
+    if(isResize && q->isMaximized())
+        q->clearWState(Qt::WState_Maximized);
+    const bool visible = q->isVisible();
+    data.crect = QRect(x, y, w, h);
 
-    if(isTopLevel()) {
+    if(q->isTopLevel()) {
         //update the widget also..
         HIRect bounds = CGRectMake(0, 0, w, h);
-        HIViewSetFrame((HIViewRef)winId(), &bounds);
+        HIViewSetFrame((HIViewRef)q->winId(), &bounds);
         qt_event_request_window_change();
 
 #if 0
-        WindowPtr window = qt_mac_window_for(this);
+        WindowPtr window = qt_mac_window_for(q);
         if(isMove)
             MoveWindow(window, x, y, false);
         if(isResize)
             SizeWindow(window, w, h, true);
 #else
         Rect r; SetRect(&r, x, y, x+w, y+h);
-        SetWindowBounds(qt_mac_window_for(this), kWindowContentRgn, &r);
+        SetWindowBounds(qt_mac_window_for(q), kWindowContentRgn, &r);
 #endif
     } else {
         d->setWSGeometry();
@@ -1891,18 +1891,18 @@ void QWidget::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 
     if(isMove || isResize) {
         if(!visible) {
-            if(isMove && pos() != oldp)
-                setAttribute(Qt::WA_PendingMoveEvent, true);
+            if(isMove && q->pos() != oldp)
+                q->setAttribute(Qt::WA_PendingMoveEvent, true);
             if(isResize)
-                setAttribute(Qt::WA_PendingResizeEvent, true);
+                q->setAttribute(Qt::WA_PendingResizeEvent, true);
         } else {
             if(isResize) { //send the resize event..
-                QResizeEvent e(size(), olds);
-                QApplication::sendEvent(this, &e);
+                QResizeEvent e(q->size(), olds);
+                QApplication::sendEvent(q, &e);
             }
-            if(isMove && pos() != oldp) { //send the move event..
-                QMoveEvent e(pos(), oldp);
-                QApplication::sendEvent(this, &e);
+            if(isMove && q->pos() != oldp) { //send the move event..
+                QMoveEvent e(q->pos(), oldp);
+                QApplication::sendEvent(q, &e);
             }
         }
     }
@@ -2066,18 +2066,18 @@ bool QWidget::acceptDrops() const
     return d->macDropEnabled;
 }
 
-void QWidget::updateFrameStrut() const
+void QWidgetPrivate::updateFrameStrut() const
 {
-    QWidget *that = (QWidget *) this; //mutable
-    if(!data->fstrut_dirty) {
-        that->data->fstrut_dirty = isVisible();
+    QWidgetPrivate *that = const_cast<QWidgetPrivate*>(this);
+    if(!data.fstrut_dirty) {
+        that->data.fstrut_dirty = q->isVisible();
         return;
     }
-    that->data->fstrut_dirty = false;
-    QTLWExtra *top = that->d->topData();
+    that->data.fstrut_dirty = false;
+    QTLWExtra *top = that->topData();
     top->fleft = top->fright = top->ftop = top->fbottom = 0;
-    if(!isDesktop() && isTopLevel()) {
-        WindowPtr window = qt_mac_window_for(this);
+    if(!q->isDesktop() && q->isTopLevel()) {
+        WindowPtr window = qt_mac_window_for(q);
         Rect window_r, content_r;
         //get bounding rects
         RgnHandle rgn = qt_mac_get_rgn();

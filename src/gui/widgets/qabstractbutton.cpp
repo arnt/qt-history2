@@ -344,11 +344,9 @@ void QAbstractButtonPrivate::moveFocus(int key)
 
     if (candidate) {
         if (key == Qt::Key_Up || key == Qt::Key_Left)
-            QFocusEvent::setReason(QFocusEvent::Backtab);
+            candidate->setFocus(Qt::BacktabFocusReason);
         else
-            QFocusEvent::setReason(QFocusEvent::Tab);
-        candidate->setFocus();
-        QFocusEvent::resetReason();
+            candidate->setFocus(Qt::TabFocusReason);
     }
 }
 
@@ -863,9 +861,7 @@ void QAbstractButton::keyPressEvent(QKeyEvent *e)
             if (hasFocus()) // nothing happend, propagate
                 e->ignore();
         } else {
-            QFocusEvent::setReason(next ? QFocusEvent::Tab : QFocusEvent::Backtab);
             focusNextPrevChild(next);
-            QFocusEvent::resetReason();
         }
         break;
     case Qt::Key_Escape:
@@ -924,7 +920,7 @@ void QAbstractButton::focusInEvent(QFocusEvent *e)
 void QAbstractButton::focusOutEvent(QFocusEvent *e)
 {
     Q_D(QAbstractButton);
-    if (e->reason() != QFocusEvent::Popup)
+    if (e->reason() != Qt::PopupFocusReason)
         d->down = false;
     QWidget::focusOutEvent(e);
 }

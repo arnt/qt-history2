@@ -711,9 +711,7 @@ bool QLabel::event(QEvent *e)
                     w->isEnabled() &&
                     w->isVisible() &&
                     w->focusPolicy() != Qt::NoFocus) {
-                    QFocusEvent::setReason(QFocusEvent::Shortcut);
-                    w->setFocus();
-                    QFocusEvent::resetReason();
+                    w->setFocus(Qt::ShortcutFocusReason);
                 }
             }
             return true;

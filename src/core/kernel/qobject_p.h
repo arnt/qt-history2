@@ -55,6 +55,8 @@ public:
 
     QList<QPointer<QObject> > eventFilters;
 
+    void setParent_helper(QObject *);
+
 #ifndef QT_NO_USERDATA
     QList<QObjectUserData *> userData;
 #endif

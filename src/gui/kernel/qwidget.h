@@ -316,15 +316,16 @@ public:
     inline bool isLeftToRight() const { return layoutDirection() == Qt::LeftToRight; }
 
 public slots:
-    void setFocus();
+    inline void setFocus() { setFocus(Qt::OtherFocusReason); }
 
 public:
     bool isActiveWindow() const;
     void activateWindow();
     void clearFocus();
 
+    void setFocus(Qt::FocusReason reason);
     Qt::FocusPolicy focusPolicy() const;
-    void setFocusPolicy(Qt::FocusPolicy);
+    void setFocusPolicy(Qt::FocusPolicy policy);
     bool hasFocus() const;
     static void setTabOrder(QWidget *, QWidget *);
     void setFocusProxy(QWidget *);
@@ -399,8 +400,8 @@ public:
     bool isMaximized() const;
     bool isFullScreen() const;
 
-    uint windowState() const;
-    void setWindowState(uint windowState);
+    Qt::WindowStates windowState() const;
+    void setWindowState(Qt::WindowStates state);
 
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;
@@ -454,11 +455,12 @@ public:
     Qt::WState testWState(Qt::WState s) const;
     Qt::WFlags testWFlags(Qt::WFlags f) const;
     static QWidget *find(WId);
-    static QWidgetMapper *wmapper();
-
-    QWidget *childAt(int x, int y) const;
-    inline QWidget *childAt(const QPoint &p) const
-    { return childAt(p.x(), p.y()); }
+#ifdef QT_COMPAT
+    static QT_COMPAT QWidgetMapper *wmapper();
+#endif
+    inline QWidget *childAt(int x, int y) const
+    { return childAt(QPoint(x, y)); }
+    QWidget *childAt(const QPoint &p) const;
 
 #if defined(Q_WS_X11)
     const QX11Info &x11Info() const;
@@ -530,8 +532,8 @@ protected:
 #endif
 #if defined(Q_WS_QWS)
     virtual bool qwsEvent(QWSEvent *);
-    virtual unsigned char *scanLine(int) const;
-    virtual int bytesPerLine() const;
+    virtual unsigned char *qwsScanLine(int) const;
+    virtual int qwsBytesPerLine() const;
 #endif
 
     virtual void updateMask();
@@ -566,48 +568,8 @@ protected:
 protected:
     QWidget(QWidgetPrivate &d, QWidget* parent, Qt::WFlags f);
 private:
-    void setWinId(WId);
-    void showChildren(bool spontaneous);
-    void hideChildren(bool spontaneous);
-    void setParent_sys(QWidget *parent, Qt::WFlags);
-    void deactivateWidgetCleanup();
-    void setGeometry_sys(int, int, int, int, bool);
-    void show_recursive();
-    void show_helper();
-    void show_sys();
-    void hide_sys();
-    void hide_helper();
-    void setEnabled_helper(bool);
-    void updateFrameStrut() const;
 
     bool testAttribute_helper(Qt::WidgetAttribute) const;
-
-#if defined(Q_WS_QWS)
-    void updateOverlappingChildren() const;
-    void setChildrenAllocatedDirty();
-    void setChildrenAllocatedDirty(const QRegion &r, const QWidget *dirty=0);
-    bool isAllocatedRegionDirty() const;
-    void updateRequestedRegion(const QPoint &gpos);
-    QRegion requestedRegion() const;
-    QRegion allocatedRegion() const;
-    QRegion paintableRegion() const;
-
-#ifndef QT_NO_CURSOR
-    void updateCursor(const QRegion &r) const;
-#endif
-
-    // used to accumulate dirty region when children moved/resized.
-    QRegion dirtyChildren;
-    bool isSettingGeometry;
-    friend class QWSManager;
-    friend class QWSManagerPrivate;
-    friend class QDecoration;
-    friend class QWSPaintEngine;
-#endif
-    static int instanceCounter;  // Current number of widget instances
-    static int maxInstances;     // Maximum number of widget instances
-
-    static QWidgetMapper *mapper;
 
     friend class QApplication;
     friend class QApplicationPrivate;
@@ -875,9 +837,6 @@ inline int QWidget::height() const
 
 inline QWidget *QWidget::parentWidget() const
 { return static_cast<QWidget *>(QObject::parent()); }
-
-inline QWidgetMapper *QWidget::wmapper()
-{ return mapper; }
 
 inline Qt::WState QWidget::getWState() const
 { return QFlag(data->widget_state); }

@@ -407,7 +407,7 @@ void QPushButton::keyPressEvent(QKeyEvent *e)
 */
 void QPushButton::focusInEvent(QFocusEvent *e)
 {
-    if (e->reason() != QFocusEvent::Popup && d->autoDefault && !d->defaultButton) {
+    if (e->reason() != Qt::PopupFocusReason && d->autoDefault && !d->defaultButton) {
         d->defaultButton = true;
 #ifndef QT_NO_DIALOG
         QDialog *dlg = qt_cast<QDialog*>(topLevelWidget());
@@ -423,7 +423,7 @@ void QPushButton::focusInEvent(QFocusEvent *e)
 */
 void QPushButton::focusOutEvent(QFocusEvent *e)
 {
-    if (e->reason() != QFocusEvent::Popup && d->autoDefault && d->defaultButton) {
+    if (e->reason() != Qt::PopupFocusReason && d->autoDefault && d->defaultButton) {
 #ifndef QT_NO_DIALOG
         QDialog *dlg = qt_cast<QDialog*>(topLevelWidget());
         if (dlg)

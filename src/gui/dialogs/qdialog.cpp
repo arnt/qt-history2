@@ -501,9 +501,7 @@ void QDialog::keyPressEvent(QKeyEvent *e)
             }
             // call ours, since c++ blocks us from calling the one
             // belonging to focusWidget().
-            QFocusEvent::setReason(QFocusEvent::Backtab);
             focusNextPrevChild(false);
-            QFocusEvent::resetReason();
             break;
         case Qt::Key_Down:
         case Qt::Key_Right:
@@ -513,9 +511,7 @@ void QDialog::keyPressEvent(QKeyEvent *e)
                 e->ignore();
                 break;
             }
-            QFocusEvent::setReason(QFocusEvent::Tab);
             focusNextPrevChild(true);
-            QFocusEvent::resetReason();
             break;
         default:
             e->ignore();
@@ -592,7 +588,7 @@ void QDialog::show()
 #endif
 
     if (!testAttribute(Qt::WA_Moved)) {
-        uint state = windowState();
+        Qt::WindowStates state = windowState();
         adjustPosition(parentWidget());
         setAttribute(Qt::WA_Moved, false); // not really an explicit position
         if (state != windowState())
@@ -632,10 +628,8 @@ void QDialog::show()
         }
     }
     if (fw) {
-        QFocusEvent e(QEvent::FocusIn);
-        QFocusEvent::setReason(QFocusEvent::Tab);
+        QFocusEvent e(QEvent::FocusIn, Qt::TabFocusReason);
         QApplication::sendEvent(fw, &e);
-        QFocusEvent::resetReason();
     }
 
 #ifndef QT_NO_ACCESSIBILITY
@@ -647,7 +641,7 @@ void QDialog::show()
 void QDialog::showEvent(QShowEvent *event)
 {
     if (!event->spontaneous() && !testAttribute(Qt::WA_Moved)) {
-	uint state = windowState();
+	Qt::WindowStates  state = windowState();
         adjustPosition(parentWidget());
         setAttribute(Qt::WA_Moved, false); // not really an explicit position
 	if (state != windowState())

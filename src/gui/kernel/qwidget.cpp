@@ -288,7 +288,6 @@ QWidgetPrivate::~QWidgetPrivate()
 
     \row \i Internal kernel<br>functions \i
         focusNextPrevChild(),
-        wmapper(),
         clearWFlags(),
         getWFlags(),
         setWFlags(),
@@ -452,7 +451,7 @@ QWidgetPrivate::~QWidgetPrivate()
 */
 
 
-QWidgetMapper *QWidget::mapper = 0;                // app global widget mapper
+QWidgetMapper *QWidgetPrivate::mapper = 0;                // app global widget mapper
 
 
 /*****************************************************************************
@@ -844,8 +843,8 @@ void QWidgetPrivate::init(Qt::WFlags f)
     q->setAttribute(Qt::WA_PendingMoveEvent);
     q->setAttribute(Qt::WA_PendingResizeEvent);
 
-    if (++QWidget::instanceCounter > QWidget::maxInstances)
-        QWidget::maxInstances = QWidget::instanceCounter;
+    if (++QWidgetPrivate::instanceCounter > QWidgetPrivate::maxInstances)
+        QWidgetPrivate::maxInstances = QWidgetPrivate::instanceCounter;
 
     // send and post remaining QObject events
     if (q->parent()) {
@@ -917,28 +916,28 @@ QWidget::~QWidget()
 
     destroy();                                        // platform-dependent cleanup
 
-    --instanceCounter;
+    --QWidgetPrivate::instanceCounter;
 
     QEvent e(QEvent::Destroy);
     QCoreApplication::sendEvent(this, &e);
 }
 
-int QWidget::instanceCounter = 0;  // Current number of widget instances
-int QWidget::maxInstances = 0;     // Maximum number of widget instances
+int QWidgetPrivate::instanceCounter = 0;  // Current number of widget instances
+int QWidgetPrivate::maxInstances = 0;     // Maximum number of widget instances
 
-void QWidget::setWinId(WId id)                // set widget identifier
+void QWidgetPrivate::setWinId(WId id)                // set widget identifier
 {
-    if (!mapper)                                // mapper destroyed
+    if (!d->mapper)                                // mapper destroyed
         return;
-    if (data->winid)
-        mapper->remove(data->winid);
+    if (data.winid)
+        d->mapper->remove(data.winid);
 
-    data->winid = id;
+    q->data->winid = id;
 #if defined(Q_WS_X11)
     d->hd = id; // X11: hd == ident
 #endif
     if (id)
-        mapper->insert(data->winid, this);
+        d->mapper->insert(data.winid, q);
 }
 
 void QWidgetPrivate::createTLExtra()
@@ -1229,10 +1228,10 @@ void QPixmap::fill( const QWidget *widget, const QPoint &offset )
   visible widgets.
 */
 
-void QWidget::deactivateWidgetCleanup()
+void QWidgetPrivate::deactivateWidgetCleanup()
 {
     // If this was the active application window, reset it
-    if (qApp->activeWindow() == this)
+    if (qApp->activeWindow() == q)
         qApp->setActiveWindow(0);
     // If the is the active mouse press widget, reset it
 #ifdef Q_WS_MAC
@@ -1240,7 +1239,7 @@ void QWidget::deactivateWidgetCleanup()
 #else
     extern QWidget *qt_button_down;
 #endif
-    if (this == qt_button_down)
+    if (q == qt_button_down)
         qt_button_down = 0;
 }
 
@@ -1256,18 +1255,8 @@ void QWidget::deactivateWidgetCleanup()
 
 QWidget *QWidget::find(WId id)
 {
-    return mapper ? mapper->value(id, 0) : 0;
+    return QWidgetPrivate::mapper ? QWidgetPrivate::mapper->value(id, 0) : 0;
 }
-
-/*!
-  \fn QWidgetMapper *QWidget::wmapper()
-  \internal
-  Returns a pointer to the widget mapper.
-
-  The widget mapper is an internal dictionary that is used to map from
-  window identifiers/handles to widget pointers.
-  \sa find(), id()
-*/
 
 /*!
     \fn Qt::WFlags QWidget::getWFlags() const
@@ -1508,9 +1497,9 @@ bool QWidget::isMaximized() const
 
   \sa Qt::WindowState setWindowState()
  */
-uint QWidget::windowState() const
+Qt::WindowStates QWidget::windowState() const
 {
-    uint state = 0;
+    Qt::WindowStates state = 0;
     if (testWState(Qt::WState_Minimized))
         state |= Qt::WindowMinimized;
     if (testWState(Qt::WState_Maximized))
@@ -1789,31 +1778,31 @@ QList<QAction*> QWidget::actions() const
 void QWidget::setEnabled(bool enable)
 {
     setAttribute(Qt::WA_ForceDisabled, !enable);
-    setEnabled_helper(enable);
+    d->setEnabled_helper(enable);
 }
 
-void QWidget::setEnabled_helper(bool enable)
+void QWidgetPrivate::setEnabled_helper(bool enable)
 {
-    if (enable && !isTopLevel() && parentWidget() && !parentWidget()->isEnabled())
+    if (enable && !q->isTopLevel() && q->parentWidget() && !q->parentWidget()->isEnabled())
         return; // nothing we can do
 
-    if (enable != testAttribute(Qt::WA_Disabled))
+    if (enable != q->testAttribute(Qt::WA_Disabled))
         return; // nothing to do
 
-    setAttribute(Qt::WA_Disabled, !enable);
+    q->setAttribute(Qt::WA_Disabled, !enable);
     d->updateSystemBackground();
 
-    if (!enable && topLevelWidget()->focusWidget() == this) {
-        bool parentIsEnabled = (!parentWidget()||parentWidget()->isEnabled());
-        if (!parentIsEnabled || !focusNextPrevChild(true))
-            clearFocus();
+    if (!enable && q->topLevelWidget()->focusWidget() == q) {
+        bool parentIsEnabled = (!q->parentWidget() || q->parentWidget()->isEnabled());
+        if (!parentIsEnabled || !q->focusNextPrevChild(true))
+            q->clearFocus();
     }
 
     Qt::WidgetAttribute attribute = enable ? Qt::WA_ForceDisabled : Qt::WA_Disabled;
     for (int i = 0; i < d->children.size(); ++i) {
         QWidget *w = static_cast<QWidget *>(d->children.at(i));
         if (w->isWidgetType() && !w->testAttribute(attribute))
-            w->setEnabled_helper(enable);
+            w->d->setEnabled_helper(enable);
     }
 #if defined(Q_WS_X11)
     if (testAttribute(Qt::WA_SetCursor)) {
@@ -1827,9 +1816,9 @@ void QWidget::setEnabled_helper(bool enable)
     QInputContext::enable(this, data->im_enabled && enable);
 #endif
     QEvent e(QEvent::EnabledChange);
-    QApplication::sendEvent(this, &e);
+    QApplication::sendEvent(q, &e);
 #ifdef QT_COMPAT
-    enabledChange(!enable); // compatibility
+    q->enabledChange(!enable); // compatibility
 #endif
 }
 
@@ -1902,7 +1891,7 @@ QRect QWidget::frameGeometry() const
 {
     if (isTopLevel() && ! isPopup()) {
         if (data->fstrut_dirty)
-            updateFrameStrut();
+            d->updateFrameStrut();
         QTLWExtra *top = d->topData();
         return QRect(data->crect.x() - top->fleft,
                      data->crect.y() - top->ftop,
@@ -1927,7 +1916,7 @@ int QWidget::x() const
 {
     if (isTopLevel() && ! isPopup()) {
         if (data->fstrut_dirty)
-            updateFrameStrut();
+            d->updateFrameStrut();
         return data->crect.x() - d->topData()->fleft;
     }
     return data->crect.x();
@@ -1947,7 +1936,7 @@ int QWidget::y() const
 {
     if (isTopLevel() && ! isPopup()) {
         if (data->fstrut_dirty)
-            updateFrameStrut();
+            d->updateFrameStrut();
         return data->crect.y() - d->topData()->ftop;
     }
     return data->crect.y();
@@ -1980,7 +1969,7 @@ QPoint QWidget::pos() const
 {
     if (isTopLevel() && ! isPopup()) {
         if (data->fstrut_dirty)
-            updateFrameStrut();
+            d->updateFrameStrut();
         QTLWExtra *top = d->topData();
         return QPoint(data->crect.x() - top->fleft, data->crect.y() - top->ftop);
     }
@@ -2572,6 +2561,9 @@ void QWidget::setBackgroundMode(Qt::BackgroundMode m, Qt::BackgroundMode)
     setBackgroundRole(role);
 #endif // QT_NO_PALETTE
 }
+
+QT_COMPAT QWidgetMapper *QWidget::wmapper() { return QWidgetPrivate::mapper; }
+
 #endif
 
 
@@ -3025,7 +3017,9 @@ bool QWidget::hasFocus() const
 /*!
     Gives the keyboard input focus to this widget (or its focus
     proxy) if this widget or one of its parents is the \link
-    isActiveWindow() active window\endlink.
+    isActiveWindow() active window\endlink. The \a reason argument will
+    be passed into any focus event sent from this function, it is used
+    to give an explanation of what caused the widget to get focus.
 
     First, a focus out event is sent to the focus widget (if any) to
     tell it that it is about to lose the focus. Then a focus in event
@@ -3047,7 +3041,7 @@ bool QWidget::hasFocus() const
     grabMouse()
 */
 
-void QWidget::setFocus()
+void QWidget::setFocus(Qt::FocusReason reason)
 {
     if (!isEnabled())
         return;
@@ -3120,12 +3114,12 @@ void QWidget::setFocus()
 
         if (prev != f) {
             if (prev) {
-                QFocusEvent out(QEvent::FocusOut);
+                QFocusEvent out(QEvent::FocusOut, reason);
                 QApplication::sendEvent(prev, &out);
             }
 
             if (qApp->focusWidget() == f) {
-                QFocusEvent in(QEvent::FocusIn);
+                QFocusEvent in(QEvent::FocusIn, reason);
                 QApplication::sendEvent(f, &in);
             }
         }
@@ -3224,7 +3218,7 @@ bool QWidget::focusNextPrevChild(bool next)
     }
     if (w == f)
         return false;
-    w->setFocus();
+    w->setFocus(next ? Qt::TabFocusReason : Qt::BacktabFocusReason);
     return true;
 }
 
@@ -3476,7 +3470,7 @@ QSize QWidget::frameSize() const
 {
     if (isTopLevel() && !isPopup()) {
         if (data->fstrut_dirty)
-            updateFrameStrut();
+            d->updateFrameStrut();
         QWidget *that = (QWidget *) this;
         QTLWExtra *top = that->d->topData();
         return QSize(data->crect.width() + top->fleft + top->fright,
@@ -3496,9 +3490,9 @@ void QWidget::move(const QPoint &p)
 {
     QPoint oldp = pos();
     setAttribute(Qt::WA_Moved);
-    setGeometry_sys(p.x() + geometry().x() - QWidget::x(),
-                    p.y() + geometry().y() - QWidget::y(),
-                    width(), height(), true);
+    d->setGeometry_sys(p.x() + geometry().x() - QWidget::x(),
+                       p.y() + geometry().y() - QWidget::y(),
+                       width(), height(), true);
     if (oldp != pos())
         d->updateInheritedBackground();
 }
@@ -3513,7 +3507,7 @@ void QWidget::resize(const QSize &s)
 {
     setAttribute(Qt::WA_Resized);
     QSize olds = size();
-    setGeometry_sys(geometry().x(), geometry().y(), s.width(), s.height(), false);
+    d->setGeometry_sys(geometry().x(), geometry().y(), s.width(), s.height(), false);
     if (testAttribute(Qt::WA_ContentsPropagated) &&  olds != size())
         d->updatePropagatedBackground();
 }
@@ -3524,7 +3518,7 @@ void QWidget::setGeometry(const QRect &r)
     QSize olds = size();
     setAttribute(Qt::WA_Resized);
     setAttribute(Qt::WA_Moved);
-    setGeometry_sys(r.x(), r.y(), r.width(), r.height(), true);
+    d->setGeometry_sys(r.x(), r.y(), r.width(), r.height(), true);
 
     if (testAttribute(Qt::WA_ContentsPropagated) && olds != size())
         d->updatePropagatedBackground();
@@ -3714,7 +3708,7 @@ void QWidget::show()
         return;
 
     bool wasResized = testAttribute(Qt::WA_Resized);
-    uint initialWindowState = windowState();
+    Qt::WindowStates initialWindowState = windowState();
 
     if (isTopLevel()
         && !testAttribute(Qt::WA_SetWindowIcon)
@@ -3761,7 +3755,7 @@ void QWidget::show()
     }
 
     if (isTopLevel() || parentWidget()->isVisible())
-        show_helper();
+        d->show_helper();
 
     QEvent showToParentEvent(QEvent::ShowToParent);
     QApplication::sendEvent(this, &showToParentEvent);
@@ -3772,18 +3766,17 @@ void QWidget::show()
    Makes the widget visible in the isVisible() meaning of the word.
    It is only called for toplevels or widgets with visible parents.
  */
-void QWidget::show_recursive()
+void QWidgetPrivate::show_recursive()
 {
-
     // polish if necessary
-    ensurePolished();
+    q->ensurePolished();
 
 #ifdef QT_COMPAT
-    QApplication::sendPostedEvents(this, QEvent::ChildInserted);
+    QApplication::sendPostedEvents(q, QEvent::ChildInserted);
 #endif
 #ifndef QT_NO_LAYOUT
-    if (!isTopLevel() && parentWidget()->d->layout)
-        parentWidget()->d->layout->activate();
+    if (!q->isTopLevel() && q->parentWidget()->d->layout)
+        q->parentWidget()->d->layout->activate();
 #endif
 #ifndef QT_NO_LAYOUT
     // activate our layout before we and our children become visible
@@ -3794,39 +3787,39 @@ void QWidget::show_recursive()
     show_helper();
 }
 
-void QWidget::show_helper()
+void QWidgetPrivate::show_helper()
 {
-    data->in_show = true; // qws optimization
+    data.in_show = true; // qws optimization
     // make sure we receive pending move and resize events
-    if (testAttribute(Qt::WA_PendingMoveEvent)) {
-        QMoveEvent e(data->crect.topLeft(), data->crect.topLeft());
-        QApplication::sendEvent(this, &e);
-        setAttribute(Qt::WA_PendingMoveEvent, false);
+    if (q->testAttribute(Qt::WA_PendingMoveEvent)) {
+        QMoveEvent e(data.crect.topLeft(), data.crect.topLeft());
+        QApplication::sendEvent(q, &e);
+        q->setAttribute(Qt::WA_PendingMoveEvent, false);
     }
-    if (testAttribute(Qt::WA_PendingResizeEvent)) {
-        QResizeEvent e(data->crect.size(), data->crect.size());
-        QApplication::sendEvent(this, &e);
-        setAttribute(Qt::WA_PendingResizeEvent, false);
+    if (q->testAttribute(Qt::WA_PendingResizeEvent)) {
+        QResizeEvent e(data.crect.size(), data.crect.size());
+        QApplication::sendEvent(q, &e);
+        q->setAttribute(Qt::WA_PendingResizeEvent, false);
     }
 
     // become visible before showing all children
-    setWState(Qt::WState_Visible);
+    q->setWState(Qt::WState_Visible);
 
     // finally show all children recursively
-    showChildren(false);
+    d->showChildren(false);
 
 #ifdef QT_COMPAT
-    if (parentWidget())
-        QApplication::sendPostedEvents(parentWidget(),
+    if (q->parentWidget())
+        QApplication::sendPostedEvents(q->parentWidget(),
                                         QEvent::ChildInserted);
 #endif
 
 
     // popup handling: new popups and tools need to be raised, and
     // exisiting popups must be closed.
-    if (isTopLevel()) {
-        if (testWFlags(Qt::WStyle_Tool|testWFlags(Qt::WType_Popup)))
-            raise();
+    if (q->isTopLevel()) {
+        if (q->testWFlags(Qt::WStyle_Tool|q->testWFlags(Qt::WType_Popup)))
+            q->raise();
         else
             while (QApplication::activePopupWidget()) {
                 if (!QApplication::activePopupWidget()->close())
@@ -3838,62 +3831,62 @@ void QWidget::show_helper()
     // stores the correct old focus widget even if it's stolen in the
     // showevent
 #if defined(Q_WS_WIN)
-    if (testWFlags(Qt::WType_Popup))
-        qApp->openPopup(this);
+    if (q->testWFlags(Qt::WType_Popup))
+        qApp->openPopup(q);
 #endif
 
     // send the show event before showing the window
     QShowEvent showEvent;
-    QApplication::sendEvent(this, &showEvent);
+    QApplication::sendEvent(q, &showEvent);
 
 
 #ifndef QT_NO_WIDGET_TOPEXTRA
     // make sure toplevels have an icon
     //#### just use application icon instead
-    if (isTopLevel()){
-        QPixmap pm = windowIcon();
+    if (q->isTopLevel()){
+        QPixmap pm = q->windowIcon();
         if (!pm.isNull()) {
-            QWidget *mw = (QWidget *)parent();
+            QWidget *mw = (QWidget *)q->parent();
             if (mw)
                 pm = mw->windowIcon();
             if (!pm.isNull())
-                setWindowIcon(pm);
+                q->setWindowIcon(pm);
             else {
                 mw = mw ? mw->topLevelWidget() : 0;
                 if (mw)
                     pm = mw->windowIcon();
                 if (!pm.isNull())
-                    setWindowIcon(pm);
+                    q->setWindowIcon(pm);
                 else {
                     mw = qApp ? qApp->mainWidget() : 0;
                     if (mw)
                         pm = mw->windowIcon();
                     if (!pm.isNull())
-                        setWindowIcon(pm);
+                        q->setWindowIcon(pm);
                 }
             }
         }
     }
 #endif
 
-    if (testWFlags(Qt::WShowModal))
+    if (q->testWFlags(Qt::WShowModal))
         // qt_enter_modal *before* show, otherwise the initial
         // stacking might be wrong
-        qt_enter_modal(this);
+        qt_enter_modal(q);
 
-    setAttribute(Qt::WA_Mapped);
-    show_sys();
+    q->setAttribute(Qt::WA_Mapped);
+    d->show_sys();
 
 #if !defined(Q_WS_WIN)
-    if (testWFlags(Qt::WType_Popup))
-        qApp->openPopup(this);
+    if (q->testWFlags(Qt::WType_Popup))
+        qApp->openPopup(q);
 #endif
 
 #ifndef QT_NO_ACCESSIBILITY
-    QAccessible::updateAccessibility(this, 0, QAccessible::ObjectShow);
+    QAccessible::updateAccessibility(q, 0, QAccessible::ObjectShow);
 #endif
 
-    data->in_show = false;  // reset qws optimization
+    data.in_show = false;  // reset qws optimization
 }
 
 /*!
@@ -3911,7 +3904,7 @@ void QWidget::hide()
         return;
     setWState(Qt::WState_Hidden);
     if (testWState(Qt::WState_ExplicitShowHide))
-        hide_helper();
+        d->hide_helper();
     else
         setWState(Qt::WState_ExplicitShowHide);
     QEvent hideToParentEvent(QEvent::HideToParent);
@@ -3920,51 +3913,51 @@ void QWidget::hide()
 
 /*!\internal
  */
-void QWidget::hide_helper()
+void QWidgetPrivate::hide_helper()
 {
-    if (testWFlags(Qt::WType_Popup))
-        qApp->closePopup(this);
+    if (q->testWFlags(Qt::WType_Popup))
+        qApp->closePopup(q);
 
     // Move test modal here.  Otherwise, a modal dialog could get
     // destroyed and we lose all access to its parent because we haven't
     // left modality.  (Eg. modal Progress Dialog)
-    if (testWFlags(Qt::WShowModal))
-        qt_leave_modal(this);
+    if (q->testWFlags(Qt::WShowModal))
+        qt_leave_modal(q);
 
 #if defined(Q_WS_WIN)
     if (isTopLevel() && !isPopup() && parentWidget() && isActiveWindow())
         parentWidget()->activateWindow();        // Activate parent
 #endif
 
-    setAttribute(Qt::WA_Mapped, false);
-    hide_sys();
+    q->setAttribute(Qt::WA_Mapped, false);
+    d->hide_sys();
 
-    bool wasVisible = testWState(Qt::WState_Visible);
+    bool wasVisible = q->testWState(Qt::WState_Visible);
 
     if (wasVisible) {
-        clearWState(Qt::WState_Visible);
+        q->clearWState(Qt::WState_Visible);
 
         // next bit tries to move the focus if the focus widget is now
         // hidden.
-        if (qApp && qApp->focusWidget() == this)
-            focusNextPrevChild(true);
+        if (qApp && qApp->focusWidget() == q)
+            q->focusNextPrevChild(true);
     }
 
     QHideEvent hideEvent;
-    QApplication::sendEvent(this, &hideEvent);
+    QApplication::sendEvent(q, &hideEvent);
     hideChildren(false);
 
 #ifndef QT_NO_ACCESSIBILITY
     if (wasVisible)
-        QAccessible::updateAccessibility(this, 0, QAccessible::ObjectHide);
+        QAccessible::updateAccessibility(q, 0, QAccessible::ObjectHide);
 #endif
 #ifndef QT_NO_LAYOUT
     // invalidate layout similar to updateGeometry()
-    if (!isTopLevel() && parentWidget()) {
-        if (parentWidget()->d->layout)
-            parentWidget()->d->layout->update();
+    if (!q->isTopLevel() && q->parentWidget()) {
+        if (q->parentWidget()->d->layout)
+            q->parentWidget()->d->layout->update();
         if (wasVisible)
-            QApplication::postEvent(parentWidget(),
+            QApplication::postEvent(q->parentWidget(),
                                     new QEvent(QEvent::LayoutRequest));
     }
 #endif
@@ -3986,7 +3979,7 @@ void QWidget::setHidden(bool hide)
         show();
 }
 
-void QWidget::showChildren(bool spontaneous)
+void QWidgetPrivate::showChildren(bool spontaneous)
 {
     for (int i = 0; i < d->children.size(); ++i) {
         register QObject *object = d->children.at(i);
@@ -3999,19 +3992,19 @@ void QWidget::showChildren(bool spontaneous)
             continue;
         if (spontaneous) {
             widget->setAttribute(Qt::WA_Mapped);
-            widget->showChildren(true);
+            widget->d->showChildren(true);
             QShowEvent e;
             QApplication::sendSpontaneousEvent(widget, &e);
         } else {
             if (widget->testWState(Qt::WState_ExplicitShowHide))
-                widget->show_recursive();
+                widget->d->show_recursive();
             else
                 widget->show();
         }
     }
 }
 
-void QWidget::hideChildren(bool spontaneous)
+void QWidgetPrivate::hideChildren(bool spontaneous)
 {
     for (int i = 0; i < d->children.size(); ++i) {
         register QObject *object = d->children.at(i);
@@ -4024,7 +4017,7 @@ void QWidget::hideChildren(bool spontaneous)
             widget->setAttribute(Qt::WA_Mapped, false);
         else
             widget->clearWState(Qt::WState_Visible);
-        widget->hideChildren(spontaneous);
+        widget->d->hideChildren(spontaneous);
         QHideEvent e;
         if (spontaneous)
             QApplication::sendSpontaneousEvent(widget, &e);
@@ -4473,14 +4466,10 @@ bool QWidget::event(QEvent *e)
             if (k->key() == Qt::Key_Backtab ||
                  (k->key() == Qt::Key_Tab &&
                   (k->modifiers() & Qt::ShiftModifier))) {
-                QFocusEvent::setReason(QFocusEvent::Backtab);
                 res = focusNextPrevChild(false);
-                QFocusEvent::resetReason();
 
             } else if (k->key() == Qt::Key_Tab) {
-                QFocusEvent::setReason(QFocusEvent::Tab);
                 res = focusNextPrevChild(true);
-                QFocusEvent::resetReason();
             }
             if (res)
                 break;
@@ -4607,7 +4596,7 @@ bool QWidget::event(QEvent *e)
 
     case QEvent::ShowWindowRequest:
         if (isShown())
-            show_sys();
+            d->show_sys();
         break;
 
     case QEvent::ApplicationFontChange:
@@ -5694,26 +5683,6 @@ int QWidget::heightForWidth(int w) const
     in the widget's own coordinate system. If there is no visible
     child widget at the specified position, returns 0.
 */
-QWidget *QWidget::childAt(int x, int y) const
-{
-    if (!rect().contains(x, y))
-        return 0;
-    for (int i = d->children.size(); i > 0 ;) {
-        --i;
-        QWidget *w = static_cast<QWidget *>(d->children.at(i));
-        if (w->isWidgetType() && !w->isTopLevel() && !w->isHidden() && w->geometry().contains(x, y)) {
-            if (QWidget *t = w->childAt(x - w->x(), y - w->y()))
-                return t;
-            // if WMouseNoMask is set the widget mask is ignored, if
-            // the widget has no mask then the WMouseNoMask flag has no
-            // effect
-            if (w->testWFlags(Qt::WMouseNoMask) || w->mask().contains(QPoint(x, y))
-                || w->mask().isEmpty())
-                return w;
-        }
-    }
-    return 0;
-}
 
 /*!
     \fn QWidget *QWidget::childAt(const QPoint & p) const
@@ -5723,6 +5692,28 @@ QWidget *QWidget::childAt(int x, int y) const
     Returns the visible child widget at point \a p in the widget's own
     coordinate system.
 */
+
+QWidget *QWidget::childAt(const QPoint &p) const
+{
+    if (!rect().contains(p))
+        return 0;
+    for (int i = d->children.size(); i > 0 ;) {
+        --i;
+        QWidget *w = static_cast<QWidget *>(d->children.at(i));
+        if (w->isWidgetType() && !w->isTopLevel() && !w->isHidden() && w->geometry().contains(p)) {
+            if (QWidget *t = w->childAt(p.x() - w->x(), p.y() - w->y()))
+                return t;
+            // if WMouseNoMask is set the widget mask is ignored, if
+            // the widget has no mask then the WMouseNoMask flag has no
+            // effect
+            if (w->testWFlags(Qt::WMouseNoMask) || w->mask().contains(p)
+                || w->mask().isEmpty())
+                return w;
+        }
+    }
+    return 0;
+}
+
 
 /*!
     Notifies the layout system that this widget has changed and may
@@ -5787,7 +5778,7 @@ void QWidget::setParent(QWidget *parent, Qt::WFlags f)
 {
     bool resized = testAttribute(Qt::WA_Resized);
     QWidget *oldtlw = q->topLevelWidget();
-    setParent_sys(parent, f);
+    d->setParent_sys(parent, f);
     d->reparentFocusWidgets(oldtlw);
     setAttribute(Qt::WA_Resized, resized);
     d->resolveFont();
@@ -6058,6 +6049,19 @@ bool QWidget::testAttribute_helper(Qt::WidgetAttribute attribute) const
   opaque windows.
 */
 
+/*!
+  \property QWidget::windowModified
+
+  \brief If the window is in a modified state.
+
+  A modified window is a window whose content has changed but has not
+  been saved to disk.  This flag will have different effects varied by
+  the platform. On Mac OS X the close button will have a modified
+  look, on Windows will have an '*' (asterisk) appended to its
+  titlebar text.
+
+  This feature is only present on Mac OS X and Windows.
+*/
 
 /*!
   \property QWidget::toolTip

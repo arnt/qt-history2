@@ -1025,9 +1025,9 @@ void QWidget::repaint(const QRegion& rgn)
 }
 
 
-void QWidget::setWindowState(uint newstate)
+void QWidget::setWindowState(Qt::WindowStates newstate)
 {
-    uint oldstate = windowState();
+    Qt::WindowStates oldstate = windowState();
 
     int max = SW_MAXIMIZE;
     int min = SW_MINIMIZE;

@@ -185,20 +185,22 @@ protected:
 class Q_GUI_EXPORT QFocusEvent : public QEvent
 {
 public:
-    QFocusEvent(Type type);
+    QFocusEvent(Type type, Qt::FocusReason reason=Qt::OtherFocusReason);
     ~QFocusEvent();
 
     inline bool gotFocus() const { return type() == FocusIn; }
     inline bool lostFocus() const { return type() == FocusOut; }
 
-    enum Reason { Mouse, Tab, Backtab, ActiveWindow, Popup, Shortcut, MenuBar, Other };
-    static Reason reason();
-    static void setReason(Reason reason);
-    static void resetReason();
+#ifdef QT_COMPAT
+    enum Reason { Mouse=Qt::MouseFocusReason, Tab=Qt::TabFocusReason,
+                  Backtab=Qt::BacktabFocusReason, MenuBar=Qt::MenuBarFocusReason,
+                  ActiveWindow=Qt::ActiveWindowFocusReason, Other=Qt::OtherFocusReason,
+                  Popup=Qt::PopupFocusReason, Shortcut=Qt::ShortcutFocusReason };
+#endif
+    Qt::FocusReason reason();
 
 private:
-    static Reason m_reason;
-    static Reason prev_reason;
+    Qt::FocusReason m_reason;
 };
 
 

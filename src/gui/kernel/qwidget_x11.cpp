@@ -1585,10 +1585,10 @@ void QWidget::repaint(const QRegion& rgn)
         d->updatePropagatedBackground(&rgn);
 }
 
-void QWidget::setWindowState(uint newstate)
+void QWidget::setWindowState(Qt::WindowStates newstate)
 {
     bool needShow = false;
-    uint oldstate = windowState();
+    Qt::WindowStates oldstate = windowState();
     if (isTopLevel()) {
         // Ensure the initial size is valid, since we store it as normalGeometry below.
         if (!testAttribute(Qt::WA_Resized) && !isVisible())

@@ -511,8 +511,8 @@ void QTextBrowser::mouseReleaseEvent(QMouseEvent *ev)
 void QTextBrowser::focusOutEvent(QFocusEvent *ev)
 {
     Q_D(QTextEdit);
-    if (QFocusEvent::reason() != QFocusEvent::ActiveWindow
-        && QFocusEvent::reason() != QFocusEvent::Popup) {
+    if (ev->reason() != Qt::ActiveWindowFocusReason
+        && ev->reason() != Qt::PopupFocusReason) {
         d->focusIndicator.clearSelection();
         d->viewport->update();
     }

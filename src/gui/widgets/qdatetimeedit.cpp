@@ -773,10 +773,10 @@ void QDateTimeEdit::focusInEvent(QFocusEvent *e)
 {
     QAbstractSpinBox::focusInEvent(e);
     QDateTimeEditPrivate::Section s;
-    switch(QFocusEvent::reason()) {
-    case QFocusEvent::Shortcut:
-    case QFocusEvent::Tab: s = d->sections.first().section; break;
-    case QFocusEvent::Backtab: s = d->sections.at(d->sections.size() - 1).section; break;
+    switch(e->reason()) {
+    case Qt::ShortcutFocusReason:
+    case Qt::TabFocusReason: s = d->sections.first().section; break;
+    case Qt::BacktabFocusReason: s = d->sections.at(d->sections.size() - 1).section; break;
     default: return;
     }
 
@@ -789,20 +789,18 @@ void QDateTimeEdit::focusInEvent(QFocusEvent *e)
 
 bool QDateTimeEdit::focusNextPrevChild(bool next)
 {
-    if (QFocusEvent::reason() == QFocusEvent::Tab || QFocusEvent::reason() == QFocusEvent::Backtab) {
-	const QDateTimeEditPrivate::Section newSection = d->nextPrevSection(d->currentsection, next).section;
-	switch (newSection) {
-	case QDateTimeEditPrivate::NoSection:
-	case QDateTimeEditPrivate::FirstSection:
-	case QDateTimeEditPrivate::LastSection:
-	    break;
-	default:
-	    if (newSection != QDateTimeEditPrivate::NoSection) {
-		d->currentsection = newSection;
-		d->setSelected(newSection);
-		return true;
-	    }
-	}
+    const QDateTimeEditPrivate::Section newSection = d->nextPrevSection(d->currentsection, next).section;
+    switch (newSection) {
+    case QDateTimeEditPrivate::NoSection:
+    case QDateTimeEditPrivate::FirstSection:
+    case QDateTimeEditPrivate::LastSection:
+        break;
+    default:
+        if (newSection != QDateTimeEditPrivate::NoSection) {
+            d->currentsection = newSection;
+            d->setSelected(newSection);
+            return true;
+        }
     }
     return QAbstractSpinBox::focusNextPrevChild(next);
 }

@@ -2473,12 +2473,10 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                         app->setActiveWindow(tlw);
                     }
                 }
-                QFocusEvent::setReason(QFocusEvent::ActiveWindow);
                 if(widget->focusWidget())
-                    widget->focusWidget()->setFocus();
+                    widget->focusWidget()->setFocus(Qt::ActiveWindowFocusReason);
                 else
-                    widget->setFocus();
-                QFocusEvent::resetReason();
+                    widget->setFocus(Qt::ActiveWindowFocusReason);
                 QMenuBar::macUpdateMenuBar();
             }
         } else if(ekind == kEventWindowDeactivated) {
@@ -2693,16 +2691,14 @@ void QApplication::openPopup(QWidget *popup)
     // popups are not focus-handled by the window system (the first
     // popup grabbed the keyboard), so we have to do that manually: A
     // new popup gets the focus
-    QFocusEvent::setReason(QFocusEvent::Popup);
     if(popup->focusWidget()) {
-        popup->focusWidget()->setFocus();
+        popup->focusWidget()->setFocus(Qt::PopupFocusReason);
     } else if (QApplicationPrivate::popupWidgets->count() == 1) { // this was the first popup
         if (QWidget *fw = focusWidget()) {
-            QFocusEvent e(QEvent::FocusOut);
+            QFocusEvent e(QEvent::FocusOut, Qt::PopupFocusReason);
             sendEvent(fw, &e);
         }
     }
-    QFocusEvent::resetReason();
 }
 
 /*!
@@ -2725,16 +2721,14 @@ void QApplication::closePopup(QWidget *popup)
         delete QApplicationPrivate::popupWidgets;
         QApplicationPrivate::popupWidgets = 0;
         if (QApplicationPrivate::active_window) {
-            QFocusEvent::setReason(QFocusEvent::Popup);
             if (QWidget *fw = QApplicationPrivate::active_window->focusWidget()) {
                 if (fw != focusWidget()) {
-                    fw->setFocus();
+                    fw->setFocus(Qt::PopupFocusReason);
                 } else {
-                    QFocusEvent e(QEvent::FocusIn);
+                    QFocusEvent e(QEvent::FocusIn, Qt::PopupFocusReason);
                     sendEvent(fw, &e);
                 }
             }
-            QFocusEvent::resetReason();
         }
     } else {
         // popups are not focus-handled by the window system (the
@@ -2742,10 +2736,8 @@ void QApplication::closePopup(QWidget *popup)
         // manually: A popup was closed, so the previous popup gets
         // the focus.
         QApplicationPrivate::active_window = QApplicationPrivate::popupWidgets->last();
-        QFocusEvent::setReason(QFocusEvent::Popup);
         if (QWidget *fw = QApplicationPrivate::active_window->focusWidget())
-            fw->setFocus();
-        QFocusEvent::resetReason();
+            fw->setFocus(Qt::PopupFocusReason);
     }
 }
 
@@ -2889,7 +2881,7 @@ bool QApplicationPrivate::qt_mac_apply_settings()
     if(defaultcodec != QLatin1String("none")) {
         QTextCodec *codec = QTextCodec::codecForName(defaultcodec.toLatin1().constData());
         if(codec)
-            qApp->setDefaultCodec(codec);
+            QTextCodec::setCodecForTr(codec);
     }
 
     if(qt_is_gui_used) {

@@ -3979,7 +3979,7 @@ bool Q3Table::eventFilter(QObject *o, QEvent *e)
 	} break;
     case QEvent::FocusOut: {
         QWidget *editorWidget = cellWidget(editRow, editCol);
-	if (isEditing() && editorWidget && o == editorWidget && ((QFocusEvent*)e)->reason() != QFocusEvent::Popup) {
+	if (isEditing() && editorWidget && o == editorWidget && ((QFocusEvent*)e)->reason() != Qt::PopupFocusReason) {
 	    Q3TableItem *itm = item(editRow, editCol);
 	    if (!itm || itm->editType() == Q3TableItem::OnTyping) {
 		endEdit(editRow, editCol, true, edMode != Editing);
@@ -4223,12 +4223,12 @@ void Q3Table::focusInEvent(QFocusEvent*)
 /*! \reimp
 */
 
-void Q3Table::focusOutEvent(QFocusEvent*)
+void Q3Table::focusOutEvent(QFocusEvent *e)
 {
     updateCell(curRow, curCol);
     if (style()->styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this)) {
 	d->inMenuMode =
-	    QFocusEvent::reason() == QFocusEvent::Popup ||
+	    e->reason() == Qt::PopupFocusReason ||
 	    (qApp->focusWidget() && qApp->focusWidget()->inherits("QMenuBar"));
 	if (!d->inMenuMode)
 	    repaintSelections();

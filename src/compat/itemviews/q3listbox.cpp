@@ -2460,12 +2460,12 @@ void Q3ListBox::keyPressEvent(QKeyEvent *e)
 
 /*!\reimp
 */
-void Q3ListBox::focusInEvent(QFocusEvent*)
+void Q3ListBox::focusInEvent(QFocusEvent *e)
 {
     d->mousePressRow = -1;
     d->mousePressColumn = -1;
     d->inMenuMode = false;
-    if (QFocusEvent::reason() != QFocusEvent::Mouse && !d->current && d->head) {
+    if (e->reason() != Qt::MouseFocusReason && !d->current && d->head) {
         d->current = d->head;
         Q3ListBoxItem *i = d->current;
         QString tmp;
@@ -2488,11 +2488,11 @@ void Q3ListBox::focusInEvent(QFocusEvent*)
 
 /*!\reimp
 */
-void Q3ListBox::focusOutEvent(QFocusEvent*)
+void Q3ListBox::focusOutEvent(QFocusEvent *e)
 {
     if (style()->styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this)) {
         d->inMenuMode =
-            QFocusEvent::reason() == QFocusEvent::Popup ||
+            e->reason() == Qt::PopupFocusReason ||
             (qApp->focusWidget() && qApp->focusWidget()->inherits("QMenuBar"));
         if (!d->inMenuMode)
             repaintSelection();

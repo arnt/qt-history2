@@ -199,6 +199,45 @@ public:
 
     static int pointToRect(const QPoint &p, const QRect &r);
 
+    void setWinId(WId);
+    void showChildren(bool spontaneous);
+    void hideChildren(bool spontaneous);
+    void setParent_sys(QWidget *parent, Qt::WFlags);
+    void deactivateWidgetCleanup();
+    void setGeometry_sys(int, int, int, int, bool);
+    void show_recursive();
+    void show_helper();
+    void show_sys();
+    void hide_sys();
+    void hide_helper();
+    void setEnabled_helper(bool);
+    void updateFrameStrut() const;
+
+#if defined(Q_WS_QWS)
+    void updateOverlappingChildren() const;
+    void setChildrenAllocatedDirty();
+    void setChildrenAllocatedDirty(const QRegion &r, const QWidget *dirty=0);
+    bool isAllocatedRegionDirty() const;
+    void updateRequestedRegion(const QPoint &gpos);
+    QRegion requestedRegion() const;
+    QRegion allocatedRegion() const;
+    QRegion paintableRegion() const;
+
+#ifndef QT_NO_CURSOR
+    void updateCursor(const QRegion &r) const;
+#endif
+    // used to accumulate dirty region when children moved/resized.
+    QRegion dirtyChildren;
+    bool isSettingGeometry;
+    friend class QWSManager;
+    friend class QWSManagerPrivate;
+    friend class QDecoration;
+    friend class QWSPaintEngine;
+#endif
+
+    static int instanceCounter;  // Current number of widget instances
+    static int maxInstances;     // Maximum number of widget instances
+
     QWidgetData data;
 
     QWExtra *extra;
@@ -211,6 +250,7 @@ public:
 #if defined(Q_WS_X11) && !defined(QT_NO_IM)
     QPointer<QInputContext> ic;
 #endif
+    static QWidgetMapper *mapper;
 
     int leftmargin, topmargin, rightmargin, bottommargin;
     // ### TODO: reorganize private/extra/topextra to save memory

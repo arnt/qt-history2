@@ -1927,7 +1927,7 @@ void QTextEdit::focusOutEvent(QFocusEvent *e)
     Q_D(QTextEdit);
     if (d->cursorBlinkTimer.isActive())
         d->setBlinkingCursorEnabled(false);
-    if (e->reason() != QFocusEvent::Popup)
+    if (e->reason() != Qt::PopupFocusReason)
         d->cursorOn = false;
     QViewport::focusOutEvent(e);
 }

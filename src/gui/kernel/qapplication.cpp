@@ -790,7 +790,7 @@ QApplication::QApplication(Display *dpy, int argc, char **argv,
 
 void QApplication::initialize()
 {
-    QWidget::mapper = new QWidgetMapper;
+    QWidgetPrivate::mapper = new QWidgetMapper;
 #ifndef QT_NO_PALETTE
     (void) palette();  // trigger creation of application palette
 #endif
@@ -893,9 +893,9 @@ QApplication::~QApplication()
 #endif
 
     // delete widget mapper
-    if (QWidget::mapper) {
-        QWidgetMapper * myMapper = QWidget::mapper;
-        QWidget::mapper = 0;
+    if (QWidgetPrivate::mapper) {
+        QWidgetMapper * myMapper = QWidgetPrivate::mapper;
+        QWidgetPrivate::mapper = 0;
         for (QWidgetMapper::Iterator it = myMapper->begin(); it != myMapper->end(); ++it) {
             register QWidget *w = *it;
             if (!w->parent())                        // widget is a parent
@@ -932,7 +932,7 @@ QApplication::~QApplication()
     qt_cleanup();
 
     if (QApplicationPrivate::widgetCount)
-        qDebug("Widgets left: %i    Max widgets: %i \n", QWidget::instanceCounter, QWidget::maxInstances);
+        qDebug("Widgets left: %i    Max widgets: %i \n", QWidgetPrivate::instanceCounter, QWidgetPrivate::maxInstances);
 #ifndef QT_NO_SESSIONMANAGER
     delete d->session_manager;
     d->session_manager = 0;
@@ -1116,7 +1116,7 @@ QStyle *QApplication::style()
     if (QApplicationPrivate::is_app_running && !QApplicationPrivate::is_app_closing
         && (*QApplicationPrivate::app_pal != app_pal_copy)) {
         QEvent e(QEvent::ApplicationPaletteChange);
-        for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
+        for (QWidgetMapper::ConstIterator it = QWidgetPrivate::mapper->constBegin(); it != QWidgetPrivate::mapper->constEnd(); ++it) {
             register QWidget *w = *it;
             sendEvent(w, &e);
         }
@@ -1163,7 +1163,7 @@ void QApplication::setStyle(QStyle *style)
     // clean up the old style
     if (old) {
         if (QApplicationPrivate::is_app_running && !QApplicationPrivate::is_app_closing) {
-            for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
+            for (QWidgetMapper::ConstIterator it = QWidgetPrivate::mapper->constBegin(); it != QWidgetPrivate::mapper->constEnd(); ++it) {
                 register QWidget *w = *it;
                 if (!w->testWFlags(Qt::WType_Desktop) &&        // except desktop
                      w->testWState(Qt::WState_Polished)) { // has been polished
@@ -1188,7 +1188,7 @@ void QApplication::setStyle(QStyle *style)
     // re-polish existing widgets if necessary
     if (old) {
         if (QApplicationPrivate::is_app_running && !QApplicationPrivate::is_app_closing) {
-            for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
+            for (QWidgetMapper::ConstIterator it = QWidgetPrivate::mapper->constBegin(); it != QWidgetPrivate::mapper->constEnd(); ++it) {
                 register QWidget *w = *it;
                 if (!w->testWFlags(Qt::WType_Desktop)) {        // except desktop
                     if (w->testWState(Qt::WState_Polished))
@@ -1483,8 +1483,8 @@ void QApplication::setPalette(const QPalette &palette, const char* className)
 
     if (QApplicationPrivate::is_app_running && !QApplicationPrivate::is_app_closing) {
         QEvent e(QEvent::ApplicationPaletteChange);
-        for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin();
-             it != QWidget::mapper->constEnd(); ++it) {
+        for (QWidgetMapper::ConstIterator it = QWidgetPrivate::mapper->constBegin();
+             it != QWidgetPrivate::mapper->constEnd(); ++it) {
             register QWidget *w = *it;
             if (all || (!className && w->isTopLevel()) || w->inherits(className)) // matching class
                 sendEvent(w, &e);
@@ -1552,8 +1552,8 @@ void QApplication::setFont(const QFont &font, const char* className)
     }
     if (QApplicationPrivate::is_app_running && !QApplicationPrivate::is_app_closing) {
         QEvent e(QEvent::ApplicationFontChange);
-        for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin();
-             it != QWidget::mapper->constEnd(); ++it) {
+        for (QWidgetMapper::ConstIterator it = QWidgetPrivate::mapper->constBegin();
+             it != QWidgetPrivate::mapper->constEnd(); ++it) {
             register QWidget *w = *it;
             if (all || (!className && w->isTopLevel()) || w->inherits(className)) // matching class
                 sendEvent(w, &e);
@@ -1590,8 +1590,8 @@ void QApplication::setWindowIcon(const QPixmap &pixmap)
         qt_mac_set_app_icon(pixmap);
 #endif
         QEvent e(QEvent::ApplicationWindowIconChange);
-        for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin();
-             it != QWidget::mapper->constEnd(); ++it) {
+        for (QWidgetMapper::ConstIterator it = QWidgetPrivate::mapper->constBegin();
+             it != QWidgetPrivate::mapper->constEnd(); ++it) {
             register QWidget *w = *it;
             if (w->isTopLevel())
                 sendEvent(w, &e);
@@ -1623,9 +1623,9 @@ void QApplication::setWindowIcon(const QPixmap &pixmap)
 QWidgetList QApplication::topLevelWidgets()
 {
     QWidgetList list;
-    if (QWidget::mapper) {
-        for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin();
-             it != QWidget::mapper->constEnd(); ++it) {
+    if (QWidgetPrivate::mapper) {
+        for (QWidgetMapper::ConstIterator it = QWidgetPrivate::mapper->constBegin();
+             it != QWidgetPrivate::mapper->constEnd(); ++it) {
             QWidget *w = *it;
             if (w->isTopLevel())
                 list.append(w);
@@ -1653,9 +1653,9 @@ QWidgetList QApplication::topLevelWidgets()
 QWidgetList QApplication::allWidgets()
 {
     QWidgetList list;
-    if (QWidget::mapper) {
-        for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin();
-             it != QWidget::mapper->constEnd(); ++it)
+    if (QWidgetPrivate::mapper) {
+        for (QWidgetMapper::ConstIterator it = QWidgetPrivate::mapper->constBegin();
+             it != QWidgetPrivate::mapper->constEnd(); ++it)
             list.append(*it);
     }
     return list;
@@ -1970,9 +1970,8 @@ void QApplication::setActiveWindow(QWidget* act)
     }
 
     // then focus events
-    QFocusEvent::setReason(QFocusEvent::ActiveWindow);
     if (!QApplicationPrivate::active_window && QApplicationPrivate::focus_widget) {
-        QFocusEvent out(QEvent::FocusOut);
+        QFocusEvent out(QEvent::FocusOut, Qt::ActiveWindowFocusReason);
         QWidget *tmp = QApplicationPrivate::focus_widget;
         QApplicationPrivate::focus_widget = 0;
 #ifdef Q_WS_WIN
@@ -1984,11 +1983,10 @@ void QApplication::setActiveWindow(QWidget* act)
     } else if (QApplicationPrivate::active_window) {
         QWidget *w = QApplicationPrivate::active_window->focusWidget();
         if (w /*&& w->focusPolicy() != QWidget::NoFocus*/)
-            w->setFocus();
+            w->setFocus(Qt::ActiveWindowFocusReason);
         else
             QApplicationPrivate::active_window->focusNextPrevChild(true);
     }
-    QFocusEvent::resetReason();
 
     if (!QApplicationPrivate::active_window) {
         // (re)start the timer to discard the global double buffer
@@ -2719,9 +2717,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                     QWidget *fw = w;
                     while (fw) {
                         if (fw->isEnabled() && (fw->focusPolicy() & Qt::ClickFocus)) {
-                            QFocusEvent::setReason(QFocusEvent::Mouse);
-                            fw->setFocus();
-                            QFocusEvent::resetReason();
+                            fw->setFocus(Qt::MouseFocusReason);
                             break;
                         }
                         if (fw->isTopLevel())
@@ -2781,9 +2777,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                 QWidget *fw = w;
                 while (fw) {
                     if (fw->isEnabled() && (fw->focusPolicy() & Qt::WheelFocus) == Qt::WheelFocus) {
-                        QFocusEvent::setReason(QFocusEvent::Mouse);
-                        fw->setFocus();
-                        QFocusEvent::resetReason();
+                        fw->setFocus(Qt::MouseFocusReason);
                         break;
                     }
                     if (fw->isTopLevel())

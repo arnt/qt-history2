@@ -1411,7 +1411,7 @@ bool QMacStylePrivate::eventFilter(QObject *o, QEvent *e)
     if (o->isWidgetType() && animationFocusWidget && focusable(static_cast<QWidget *>(o))
         && ((e->type() == QEvent::FocusOut && animationFocusWidget == o)
             || (e->type() == QEvent::FocusIn && animationFocusWidget != o)))  { //restore it
-        if (static_cast<QFocusEvent *>(e)->reason() != QFocusEvent::Popup)
+        if (static_cast<QFocusEvent *>(e)->reason() != Qt::PopupFocusReason)
             focusOnWidget(0);
     }
     if (o && o->isWidgetType() && e->type() == QEvent::FocusIn) {
