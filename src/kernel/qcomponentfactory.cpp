@@ -100,7 +100,7 @@ QRESULT QComponentFactory::createInstance( const QUuid &cid, const QUuid &iid, Q
 
     settings.insertSearchPath( QSettings::Windows, "/Classes" );
     QString file = settings.readEntry( "/CLSID/" + cid.toString() + "/InprocServer32/Default", QString::null, &ok );
-    if ( !ok || !QFile::exists( file ) )
+    if ( !ok )// #### || !QFile::exists( file ) )
 	return QE_NOCOMPONENT;
 
     QLibrary *library = new QLibrary( file );
