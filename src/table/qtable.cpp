@@ -2222,7 +2222,7 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	     curRow <= s->bottomRow() &&
 	     curCol >= s->leftCol() &&
 	     curCol <= s->rightCol() ) {
-	    currentInSelection = TRUE;
+	    currentInSelection = s->topRow() != curRow || s->bottomRow() != curRow || s->leftCol() != curCol || s->rightCol() != curCol;
 	    break;
 	}
     }
@@ -2266,7 +2266,7 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	    // Translate painter and draw the cell
 	    p->translate( colp, rowp );
 	    bool selected = isSelected( r, c );
-	    if ( selected && !currentInSelection && r == curRow && c == curCol  && focusStl == SpreadSheet )
+	    if ( selected && !currentInSelection && r == curRow && c == curCol  )
 		selected = FALSE;
 	    paintCell( p, r, c, QRect( colp, rowp, colw, rowh ), selected );
 	    p->translate( -colp, -rowp );
@@ -2927,7 +2927,7 @@ void QTable::contentsMousePressEvent( QMouseEvent* e )
 	setCurrentCell( tmpRow, tmpCol, FALSE );
     } else if ( ( e->state() & ControlButton ) == ControlButton ) {
 	if ( selMode != NoSelection ) {
-	    if ( selMode == Single )
+	    if ( selMode == Single || selMode == SingleRow && !isSelected( tmpRow, tmpCol, FALSE ) )
 		clearSelection();
 	    currentSel = new QTableSelection();
 	    selections.append( currentSel );
@@ -2935,24 +2935,28 @@ void QTable::contentsMousePressEvent( QMouseEvent* e )
 		currentSel->init( tmpRow, tmpCol );
 	    } else {
 		currentSel->init( tmpRow, 0 );
-		shouldClearSelection = TRUE;
+		currentSel->expandTo( tmpRow, numCols() - 1 );
+		repaintSelections( 0, currentSel );
 	    }
 	    emit selectionChanged();
 	}
 	setCurrentCell( tmpRow, tmpCol, FALSE );
     } else {
 	setCurrentCell( tmpRow, tmpCol, FALSE );
-	if ( isSelected( tmpRow, tmpCol ) ) {
+	if ( isSelected( tmpRow, tmpCol, FALSE ) ) {
 	    shouldClearSelection = TRUE;
 	} else {
 	    clearSelection();
 	    if ( selMode != NoSelection ) {
 		currentSel = new QTableSelection();
 		selections.append( currentSel );
-		if ( !isRowSelection( selectionMode() ) )
+		if ( !isRowSelection( selectionMode() ) ) {
 		    currentSel->init( tmpRow, tmpCol );
-		else
+		} else {
 		    currentSel->init( tmpRow, 0 );
+		    currentSel->expandTo( tmpRow, numCols() - 1 );
+		    repaintSelections( 0, currentSel );
+		}
 		emit selectionChanged();
 	    }
 	}
