@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#140 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#141 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#140 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#141 $");
 
 
 /*!
@@ -1644,6 +1644,16 @@ bool QImage::isGrayscale() const
     return FALSE;
 }
 
+inline int qAlpha(QRgb c)
+{
+    return c>>24;
+}
+
+inline QRgb qRgba(int r, int g, int b, int a)
+{
+    return qRgb(r,g,b) | a<<24;
+}
+
 static
 void pnmscale(const QImage& src, QImage& dst)
 {
@@ -1660,6 +1670,7 @@ void pnmscale(const QImage& src, QImage& dst)
     float xscale, yscale;
     long sxscale, syscale;
     register long fracrowtofill, fracrowleft;
+    long* as;
     long* rs;
     long* gs;
     long* bs;
@@ -1678,6 +1689,15 @@ void pnmscale(const QImage& src, QImage& dst)
 
     if ( newrows != rows )	/* shortcut Y scaling if possible */
 	tempxelrow = new QRgb[cols];
+
+    if ( src.hasAlphaBuffer() ) {
+	dst.setAlphaBuffer(TRUE);
+	as = new long[cols];
+	for ( col = 0; col < cols; ++col )
+	    as[col] = HALFSCALE;
+    } else {
+	as = 0;
+    }
     rs = new long[cols];
     gs = new long[cols];
     bs = new long[cols];
@@ -1688,44 +1708,35 @@ void pnmscale(const QImage& src, QImage& dst)
 	rs[col] = gs[col] = bs[col] = HALFSCALE;
     fracrowtofill = SCALE;
 
-    for ( row = 0; row < newrows; ++row )
-	{
+    for ( row = 0; row < newrows; ++row ) {
 	/* First scale Y from xelrow into tempxelrow. */
-	if ( newrows == rows )	/* shortcut Y scaling if possible */
-	    {
+	if ( newrows == rows ) {
+	    /* shortcut Y scaling if possible */
 	    tempxelrow = xelrow = (QRgb*)src.scanLine(rowsread++);
-	    }
-	else
-	    {
-	    while ( fracrowleft < fracrowtofill )
-		{
-		if ( needtoreadrow )
-		    if ( rowsread < rows )
-			{
-			xelrow = (QRgb*)src.scanLine(rowsread++);
-			/* needtoreadrow = 0; */
-			}
-		for ( col = 0, xP = xelrow; col < cols; ++col, ++xP )
-		    {
+	} else {
+	    while ( fracrowleft < fracrowtofill ) {
+		if ( needtoreadrow && rowsread < rows )
+		    xelrow = (QRgb*)src.scanLine(rowsread++);
+		for ( col = 0, xP = xelrow; col < cols; ++col, ++xP ) {
+		    if (as)
+			as[col] += fracrowleft * qAlpha( *xP );
 		    rs[col] += fracrowleft * qRed( *xP );
 		    gs[col] += fracrowleft * qGreen( *xP );
 		    bs[col] += fracrowleft * qBlue( *xP );
-		    }
+		}
 		fracrowtofill -= fracrowleft;
 		fracrowleft = syscale;
 		needtoreadrow = 1;
-		}
+	    }
 	    /* Now fracrowleft is >= fracrowtofill, so we can produce a row. */
-	    if ( needtoreadrow )
-		if ( rowsread < rows )
-		    {
-		    xelrow = (QRgb*)src.scanLine(rowsread++);
-		    needtoreadrow = 0;
-		    }
+	    if ( needtoreadrow && rowsread < rows ) {
+		xelrow = (QRgb*)src.scanLine(rowsread++);
+		needtoreadrow = 0;
+	    }
 	    for ( col = 0, xP = xelrow, nxP = tempxelrow;
 		  col < cols; ++col, ++xP, ++nxP )
-		{
-		register long r, g, b;
+	    {
+		register long a, r, g, b;
 
 		r = rs[col] + fracrowtofill * qRed( *xP );
 		g = gs[col] + fracrowtofill * qGreen( *xP );
@@ -1736,41 +1747,45 @@ void pnmscale(const QImage& src, QImage& dst)
 		if ( g > maxval ) g = maxval;
 		b /= SCALE;
 		if ( b > maxval ) b = maxval;
-		*nxP = qRgb( r, g, b );
-		rs[col] = gs[col] = bs[col] = HALFSCALE;
+		if (as) {
+		    a = as[col] + fracrowtofill * qAlpha( *xP );
+		    a /= SCALE;
+		    if ( a > maxval ) a = maxval;
+		    *nxP = qRgba( r, g, b, a );
+		    as[col] = HALFSCALE;
+		} else {
+		    *nxP = qRgb( r, g, b );
 		}
+		rs[col] = gs[col] = bs[col] = HALFSCALE;
+	    }
 	    fracrowleft -= fracrowtofill;
-	    if ( fracrowleft == 0 )
-		{
+	    if ( fracrowleft == 0 ) {
 		fracrowleft = syscale;
 		needtoreadrow = 1;
-		}
-	    fracrowtofill = SCALE;
 	    }
+	    fracrowtofill = SCALE;
+	}
 
 	/* Now scale X from tempxelrow into dst and write it out. */
-	if ( newcols == cols )	/* shortcut X scaling if possible */
+	if ( newcols == cols ) {
+	    /* shortcut X scaling if possible */
 	    memcpy(dst.scanLine(rowswritten++), tempxelrow, newcols*4);
-	else
-	    {
-	    register long r, g, b;
+	} else {
+	    register long a, r, g, b;
 	    register long fraccoltofill, fraccolleft;
 	    register int needcol;
 
 	    nxP = (QRgb*)dst.scanLine(rowswritten++);
 	    fraccoltofill = SCALE;
-	    r = g = b = HALFSCALE;
+	    a = r = g = b = HALFSCALE;
 	    needcol = 0;
-	    for ( col = 0, xP = tempxelrow; col < cols; ++col, ++xP )
-		{
+	    for ( col = 0, xP = tempxelrow; col < cols; ++col, ++xP ) {
 		fraccolleft = sxscale;
-		while ( fraccolleft >= fraccoltofill )
-		    {
-		    if ( needcol )
-			{
+		while ( fraccolleft >= fraccoltofill ) {
+		    if ( needcol ) {
 			++nxP;
-			r = g = b = HALFSCALE;
-			}
+			a = r = g = b = HALFSCALE;
+		    }
 		    r += fraccoltofill * qRed( *xP );
 		    g += fraccoltofill * qGreen( *xP );
 		    b += fraccoltofill * qBlue( *xP );
@@ -1780,44 +1795,65 @@ void pnmscale(const QImage& src, QImage& dst)
 		    if ( g > maxval ) g = maxval;
 		    b /= SCALE;
 		    if ( b > maxval ) b = maxval;
-		    *nxP = qRgb( r, g, b );
+		    if (as) {
+			a += fraccoltofill * qAlpha( *xP );
+			a /= SCALE;
+			if ( a > maxval ) a = maxval;
+			*nxP = qRgba( r, g, b, a );
+		    } else {
+			*nxP = qRgb( r, g, b );
+		    }
 		    fraccolleft -= fraccoltofill;
 		    fraccoltofill = SCALE;
 		    needcol = 1;
-		    }
-		if ( fraccolleft > 0 )
-		    {
-		    if ( needcol )
-			{
+		}
+		if ( fraccolleft > 0 ) {
+		    if ( needcol ) {
 			++nxP;
-			r = g = b = HALFSCALE;
+			a = r = g = b = HALFSCALE;
 			needcol = 0;
-			}
+		    }
+		    if (as)
+			a += fraccolleft * qAlpha( *xP );
 		    r += fraccolleft * qRed( *xP );
 		    g += fraccolleft * qGreen( *xP );
 		    b += fraccolleft * qBlue( *xP );
 		    fraccoltofill -= fraccolleft;
-		    }
 		}
-	    if ( fraccoltofill > 0 )
-		{
+	    }
+	    if ( fraccoltofill > 0 ) {
 		--xP;
+		if (as)
+		    a += fraccolleft * qAlpha( *xP );
 		r += fraccoltofill * qRed( *xP );
 		g += fraccoltofill * qGreen( *xP );
 		b += fraccoltofill * qBlue( *xP );
-		}
-	    if ( ! needcol )
-		{
+	    }
+	    if ( ! needcol ) {
 		r /= SCALE;
 		if ( r > maxval ) r = maxval;
 		g /= SCALE;
 		if ( g > maxval ) g = maxval;
 		b /= SCALE;
 		if ( b > maxval ) b = maxval;
-		*nxP = qRgb( r, g, b );
+		if (as) {
+		    a /= SCALE;
+		    if ( a > maxval ) a = maxval;
+		    *nxP = qRgba( r, g, b, a );
+		} else {
+		    *nxP = qRgb( r, g, b );
 		}
 	    }
 	}
+    }
+
+    if ( newrows != rows )
+	delete [] tempxelrow;
+    delete [] as;
+    delete [] rs;
+    delete [] gs;
+    delete [] bs;
+
 #undef SCALE
 #undef HALFSCALE
 }
@@ -1825,11 +1861,13 @@ void pnmscale(const QImage& src, QImage& dst)
 /*!
   \fn QImage QImage::smoothScale(int width, int height) const
 
-  Returns a copy of the image smoothly scaled to the \a width by \a height
-  pixels.  For 32-bpp images and 1-bpp or 8-bpp color images, the result
-  will be 32-bpp, while all-gray images (including black-and-white 1-bpp)
-  will produce 8-bit grayscale images with the palette spanning 256 grays
-  from black to white.
+  Returns a copy of the image smoothly scaled to \a width by \a height
+  pixels.  For 32-bpp images, and 1-bpp/8-bpp color images, the result
+  will be 32-bpp, while
+  \link allGray() all-gray \endlink images (including black-and-white 1-bpp)
+  will produce 8-bit
+  \link isGrayscale() grayscale \endlink images with the palette spanning
+  256 grays from black to white.
 
   This function uses code based on:
 
@@ -1851,7 +1889,7 @@ QImage QImage::smoothScale(int w, int h) const
 	// 32-bpp to 32-bpp
 	pnmscale(*this,img);
 	return img;
-    } else if (allGray()) {
+    } else if (allGray() && !hasAlphaBuffer()) {
 	// Inefficient
 	return convertDepth(32).smoothScale(w,h).convertDepth(8);
     } else {
