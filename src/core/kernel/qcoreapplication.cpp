@@ -68,7 +68,7 @@ void qRemovePostRoutine(QtCleanUpFunction p)
     }
 }
 
-void qt_call_post_routines()
+void Q_CORE_EXPORT qt_call_post_routines()
 {
     if (postRList) {
         QVFuncList::Iterator it = postRList->begin();
