@@ -42,7 +42,6 @@
 #define d d_func()
 #define q q_func()
 
-int  qt_widget_tlw_gravity = 1;
 
 // Paint event clipping magic
 extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
