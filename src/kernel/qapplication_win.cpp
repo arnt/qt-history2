@@ -3319,10 +3319,12 @@ void  QApplication::setCursorFlashTime( int msecs )
 
 int QApplication::cursorFlashTime()
 {
-    int blink = GetCaretBlinkTime();
-    if ( blink != 0 )
+    int blink = (int)GetCaretBlinkTime();
+    if ( !blink )
+	return cursor_flash_time;
+    if (blink > 0)
 	return 2*blink;
-    return cursor_flash_time;
+    return 0;
 }
 
 void QApplication::setDoubleClickInterval( int ms )
