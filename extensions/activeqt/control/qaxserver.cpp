@@ -729,7 +729,7 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
         if (slot.access() != QMetaMember::Public)
             continue;
 
-        if (slot.isCloned()) {
+        if (slot.attributes() & QMetaMember::Cloned) {
             ++numDefArgs;
             continue;
         }
