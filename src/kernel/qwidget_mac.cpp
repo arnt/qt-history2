@@ -208,7 +208,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	     crect.right(), crect.bottom());
 
     if ( !testWFlags(WStyle_Customize) )
-	setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu  );
+	setWFlags( WStyle_Customize | WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu  );
 
     if ( window ) {				// override the old window
 	if ( destroyOldWindow && own_id )
@@ -233,7 +233,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	Rect r; 
 	SetRect(&r, crect.left(), crect.top(), crect.right(), crect.bottom());
 
-
 	WindowClass wclass = kSheetWindowClass;
 	if(testWFlags( WStyle_Tool ) || testWFlags(WType_Popup) ) 
 	    wclass = kSheetWindowClass;
@@ -246,6 +245,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 
 	WindowAttributes wattr = kWindowNoAttributes;
 	if( testWFlags(WStyle_Customize) ) {
+	    qDebug("%d", __LINE__);
 	    if ( testWFlags(WStyle_NormalBorder) || testWFlags( WStyle_DialogBorder) ) {
 		if(wclass == kDocumentWindowClass ) 
 		    wattr |= kWindowStandardDocumentAttributes;	
