@@ -352,6 +352,7 @@ void HtmlGenerator::generateClassNode( const ClassNode *classe,
     sections = marker->classSections( classe, CodeMarker::Summary );
     s = sections.begin();
     while ( s != sections.end() ) {
+	out() << "<a name=\"" << registerRef( (*s).name ) << "\"/>\n";
 	out() << "<h3>" << protect( (*s).name ) << "</h3>\n";
 
 	if ( !(*s).members.isEmpty() ) {
@@ -392,11 +393,11 @@ void HtmlGenerator::generateClassNode( const ClassNode *classe,
 		} else {
 		    out() << (*s).pluralMember;
 		}
-		out() << " inherited from "
-		      << highlightedCode(
-				 marker->markedUpFullName((*p).first, 0),
-							  classe );
-		out() << "</li>\n";
+		out() << " inherited from <a href=\"" << fileName( (*p).first )
+		      << "#" << cleanRef( (*s).name ) << "\">"
+		      << protect( plainCode(marker->markedUpFullName(
+						    (*p).first, classe)) )
+		      << "</a></li>\n";
 		++p;
 	    }
 	    out() << "</ul>\n";
@@ -609,6 +610,8 @@ QString HtmlGenerator::cleanRef( const QString& ref )
 	     (ref[i] >= '0' && ref[i] <= '9') || ref[i] == '-' ||
 	     ref[i] == '_' || ref[i] == ':' || ref[i] == '.' ) {
 	    clean += ref[i];
+	} else if ( ref[i].isSpace() ) {
+	    clean += "-";
 	} else if ( ref[i] == '!' ) {
 	    clean += "-not";
 	} else if ( ref[i] == '&' ) {
