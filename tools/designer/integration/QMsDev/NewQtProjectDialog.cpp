@@ -25,6 +25,7 @@ NewQtProjectDialog::NewQtProjectDialog(CWnd* pParent /*=NULL*/)
 	m_dialog = TRUE;
 #if defined(QT_NON_COMMERCIAL)
 	m_shared = TRUE;
+	m_static = FALSE;
 #endif
 	m_name = _T("NewProject");
 	m_location = _T("");
@@ -44,6 +45,7 @@ void NewQtProjectDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_PROJECTNAME, m_name);
 	DDX_Check(pDX, IDC_APPDIALOG, m_dialog);
 	DDX_Check(pDX, IDC_QTSHARED, m_shared);
+	DDX_Check(pDX, IDC_QTSTATIC, m_static);
 	//}}AFX_DATA_MAP
 #else
 	//{{AFX_DATA_MAP(NewQtProjectDialog)
@@ -79,8 +81,16 @@ BEGIN_MESSAGE_MAP(NewQtProjectDialog, CDialog)
 #endif
 END_MESSAGE_MAP()
 
+extern bool getGlobalQtSettings( CString &, bool & );
+
 BOOL NewQtProjectDialog::OnInitDialog()
 {
+    CString libname;
+    bool shared;
+    bool threaded = getGlobalQtSettings( libname, shared );
+    m_shared = shared;
+    m_static = !shared;
+
     CDialog::OnInitDialog();
     c_mdi.EnableWindow( !m_dialog );
     char cwd[256];
@@ -97,15 +107,16 @@ BOOL NewQtProjectDialog::OnInitDialog()
 // Behandlungsroutinen für Nachrichten NewQtProjectDialog 
 
 #if defined(QT_NON_COMMERCIAL)
-
 void NewQtProjectDialog::OnQtShared()
 {
     m_shared = TRUE;
+    m_static = FALSE;
 }
 
 void NewQtProjectDialog::OnQtStatic()
 {
     m_shared = FALSE;
+    m_static = TRUE;
 }
 #endif
 

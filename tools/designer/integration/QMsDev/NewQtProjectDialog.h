@@ -14,6 +14,7 @@ class NewQtProjectDialog : public CDialog
 {
 // Konstruktion
 public:
+	BOOL m_static;
 	BOOL m_dialog;
 	BOOL m_shared;
 	NewQtProjectDialog(CWnd* pParent = NULL);   // Standardkonstruktor

@@ -286,7 +286,7 @@ int CCommands::getConfigurations(CComQIPtr<IBuildProject, &IID_IBuildProject> pr
     return S_OK;
 }
 
-bool CCommands::getGlobalSettings( CString &libname )
+bool getGlobalQtSettings( CString &libname, bool &shared )
 {
     CFileFind qtLib;
     CString qtFile = "";
@@ -305,9 +305,21 @@ bool CCommands::getGlobalSettings( CString &libname )
 	if ( (LPCTSTR)qtLib.GetFileName().Left(5).Compare( "qt-mt" )==0 ) {
 	    qtThread = (LPCTSTR)qtLib.GetFileName();
 	    threadver = qtThread.Mid( 5, 3 );
+	    if ( threadver.Left(1) == "." ) {
+		shared = FALSE;
+		threadver.Empty();
+	    } else {
+		shared = TRUE;
+	    }
 	} else if ( !(qtLib.GetFileName().Compare( "qtmain.lib" ) == 0) ) {
 	    qtFile = (LPCTSTR)qtLib.GetFileName();
 	    filever = qtFile.Mid( 2, 3 );
+	    if ( filever.Left(1) == "." ) {
+		shared = FALSE;
+		filever.Empty();
+	    } else {
+		shared = TRUE;
+	    }
 	}
 	
 	if ( threadver.Compare( filever ) > 0 && threadver.Compare( libver ) > 0 ) {
@@ -337,7 +349,8 @@ bool CCommands::getGlobalSettings( CString &libname )
 void CCommands::addSharedSettings( CComPtr<IConfiguration> pConfig )
 {
     CString libname;
-    bool useThreads = getGlobalSettings( libname );    
+    bool shared;
+    bool useThreads = getGlobalQtSettings( libname, shared );
     
     const CComBSTR compiler("cl.exe");
     const CComBSTR linker("link.exe");
@@ -375,7 +388,8 @@ void CCommands::addSharedSettings( CComPtr<IConfiguration> pConfig )
 void CCommands::addStaticSettings( CComPtr<IConfiguration> pConfig )
 {
     CString libname;
-    bool useThreads = getGlobalSettings( libname );    
+    bool shared;
+    bool useThreads = getGlobalQtSettings( libname, shared );
 
     const CComBSTR compiler("cl.exe");
     const CComBSTR linker("link.exe");
@@ -603,14 +617,9 @@ STDMETHODIMP CCommands::QMsDevUseQt()
     if ( getActiveProject( pProject ) != S_OK )
 	return S_FALSE;
 
-    VERIFY_OK(m_pApplication->EnableModeless(VARIANT_FALSE));
-    int result = ::MessageBox(NULL, "Do you want to use Qt in a shared library?", "Question", MB_YESNOCANCEL | MB_ICONQUESTION );
-    VERIFY_OK(m_pApplication->EnableModeless(VARIANT_TRUE));
-
-    if ( result == IDCANCEL )
-	return S_OK;
-
-    // TODO:Get the highest qt library version in $(QTDIR)\lib
+    CString libname;
+    bool shared;
+    bool threaded = getGlobalQtSettings( libname, shared );
 
     // Get the list of configurations in the active project
     CComQIPtr<IConfigurations, &IID_IConfigurations> pConfigs;
@@ -618,6 +627,7 @@ STDMETHODIMP CCommands::QMsDevUseQt()
 	return S_FALSE;
 
     // Add the specific settings to compiler and linker
+    // TODO: read .qtwinconfig
     
     const CComBSTR compiler("cl.exe");
     const CComBSTR ipath("/I_$(QTDIR)\\include");
@@ -629,7 +639,7 @@ STDMETHODIMP CCommands::QMsDevUseQt()
 	CComPtr<IConfiguration> pConfig;
 	VERIFY_OK(pConfigs->Item(Varc, &pConfig));
 	VERIFY_OK(pConfig->AddToolSettings( compiler, ipath, CComVariant(VARIANT_FALSE) ));
-	if ( result == IDYES )
+	if ( shared )
 	    addSharedSettings( pConfig );
 	else
 	    addStaticSettings( pConfig );
@@ -768,7 +778,7 @@ STDMETHODIMP CCommands::QMsDevGenerateQtProject()
 		break;
 	    }
 	} while ( !eof );
-    } 
+    }
     catch ( CFileException* e ) {
 	char err[256];
 	e->GetErrorMessage( (char*)&err, 255, NULL );
@@ -778,7 +788,7 @@ STDMETHODIMP CCommands::QMsDevGenerateQtProject()
     }
 
     m_pApplication->PrintToOutputWindow( CComBSTR("Running qmake...") );
-    if ( system( "qmake "+file+" -o "+filename+".dsp"+" -t "+tFile ) )
+    if ( system( "qmake "+file+" -t "+tFile ) )
 	m_pApplication->PrintToOutputWindow( CComBSTR("FAILED TO RUN QMAKE!") );
     else
 	::MessageBox(NULL, "Created Developer Studio Project for Qt Project "+file+"\n"
@@ -858,7 +868,7 @@ STDMETHODIMP CCommands::QMsDevNewQtProject()
 	    addStaticSettings( pConfig );
 	}
 #endif      
-   }
+    }
 
     CString projectName = dialog.m_name;
     dialog.m_name.MakeLower();
