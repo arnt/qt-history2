@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#126 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#127 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -15,6 +15,7 @@
 #include "qwidget.h"
 #include "qbitmap.h"
 #include "qpmcache.h"
+#include "qcache.h"
 #include "qlist.h"
 #include "qintdict.h"
 #include <ctype.h>
@@ -24,7 +25,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#126 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#127 $")
 
 
 // --------------------------------------------------------------------------
@@ -101,7 +102,7 @@ inline double qcos( double a ) { return qsincos(a,TRUE); }
 
 
 // --------------------------------------------------------------------------
-// QPainter internal GC cache
+// QPainter internal GC cache (simple)
 //
 
 struct QGC {
@@ -110,7 +111,7 @@ struct QGC {
     char mono;
 };
 
-const	    gc_array_size = 32;
+const	    gc_array_size = 128;
 static QGC  gc_array[gc_array_size];
 static bool gc_array_init = FALSE;
 
@@ -154,6 +155,7 @@ static GC alloc_painter_gc( Display *dpy, Drawable hd, bool monochrome=FALSE )
 static void free_painter_gc( Display *dpy, GC gc )
 {
 #if defined(SLOW_GC_ALLOC)
+    ASSERT( dpy != 0 );
     XFreeGC( dpy, gc );
     return;
 #else
@@ -188,6 +190,90 @@ static void cleanup_painter_gc( Display *dpy )
 
 
 // --------------------------------------------------------------------------
+// QPainter internal GC cache for pens and brushes (advanced)
+//
+
+struct QGCData					// GC pen/brush cache item
+{
+    QGCData( const char *k, Display *d, GC g )
+		{ key=qstrdup(k); dpy=d; gc=g; }
+   ~QGCData()	{ delete [] key; free_painter_gc(0,gc); }
+    char    *key;
+    Display *dpy;
+    GC	      gc;
+};
+
+typedef declare(QCacheM,QGCData) QGCCache;
+static QGCCache *gc_cache = 0;
+
+static void init_gc_cache()
+{
+    if ( !gc_cache ) {
+	gc_cache = new QGCCache( 64, 211, TRUE, FALSE );
+	CHECK_PTR( gc_cache );
+    }
+}
+
+static void cleanup_gc_cache()
+{
+    delete gc_cache;
+    gc_cache = 0;
+}
+
+
+static char *append_str( char *s, const char *d )
+{
+    while ( *d )
+	*s++ = *d++;
+    return s;
+}
+
+static GC alloc_pen( bool *hit, char **penKey, QPainter *p,
+		     Display *dpy,bool mono )
+{
+    if ( !gc_cache )
+	init_gc_cache();
+    char key[80];
+    char *k = key;
+    QString s;
+    *k++ = 'p';
+#define KEY_ADD_NUM(x)	k=append_str(k,s.setNum(x)); *k++ = '_'
+
+    const QPen &pen = p->pen();
+    KEY_ADD_NUM( pen.style() );
+    KEY_ADD_NUM( pen.width() );
+    KEY_ADD_NUM( pen.color().pixel() );
+//    KEY_ADD_NUM( p->font().serialNumber() );
+    KEY_ADD_NUM( p->backgroundColor().pixel() );
+    KEY_ADD_NUM( p->backgroundMode() );
+    KEY_ADD_NUM( p->rasterOp() );
+    *--k = '\0';
+
+#undef KEY_ADD_NUM
+
+    QGCData *d = gc_cache->find( key );
+    if ( !d ) {
+	debug( "  creating new pen" );
+	GC gc = alloc_painter_gc( dpy, p->handle(), mono );
+	d = new QGCData( key, dpy, gc );
+	*hit = FALSE;
+	gc_cache->insert( d->key, d );
+    }
+    else
+	*hit = TRUE;
+    *penKey = d->key;
+    return d->gc;
+}
+
+static void free_pen( char *key )
+{    
+    if ( !gc_cache )
+	return;
+    ASSERT( key != 0 );
+}
+
+
+// --------------------------------------------------------------------------
 // QPainter member functions
 //
 
@@ -197,6 +283,7 @@ static void cleanup_painter_gc( Display *dpy )
 
 void QPainter::initialize()
 {
+    init_gc_cache();
 }
 
 /*!
@@ -205,6 +292,7 @@ void QPainter::initialize()
 
 void QPainter::cleanup()
 {
+    cleanup_gc_cache();
     cleanup_painter_gc( qt_xdisplay() );
 }
 
@@ -271,6 +359,7 @@ QPainter::QPainter()
     tabarray = 0;
     tabarraylen = 0;
     ps_stack = 0;
+    penKey = brushKey = 0;
 }
 
 /*!
@@ -451,6 +540,35 @@ void QPainter::updatePen()			// update after changed pen
 	if ( !pdev->cmd(PDC_SETPEN,this,param) || !hd )
 	    return;
     }
+
+    bool cacheIt = !testf(ClipOn);
+
+    if ( cacheIt ) {
+	if ( gc ) {
+	    if ( testf(OptPen) )
+		free_pen( penKey );
+	    else
+		free_painter_gc( dpy, gc );
+	}
+	setf(OptPen);
+	bool hit;
+	gc = alloc_pen( &hit, &penKey, this, dpy, testf(MonoDev) );
+	if ( hit )
+	    return;
+    }
+    else {
+	if ( gc ) {
+	    if ( testf(OptPen) ) {
+		free_pen( penKey );
+		gc = alloc_painter_gc( dpy, hd, testf(MonoDev) );
+	    }
+	}
+	else
+	    gc = alloc_painter_gc( dpy, hd, testf(MonoDev) );
+	clearf(OptPen);
+    }
+
+    debug( "setup pen" );
     char *dashes = 0;				// custom pen dashes
     int dash_len = 0;				// length of dash list
     int s = LineSolid;
@@ -554,9 +672,7 @@ static uchar *pat_tbl[] = {
 	    sz = 16;
     }
     if ( !gc_brush ) {				// brush not yet created
-	bool mono = pdev->devType() == PDT_PIXMAP &&
-		    ((QPixmap*)pdev)->depth() == 1;
-	gc_brush = alloc_painter_gc( dpy, hd, mono );
+	gc_brush = alloc_painter_gc( dpy, hd, testf(MonoDev) );
 	XSetLineAttributes( dpy, gc_brush, 0, LineSolid, CapButt, JoinMiter );
 	if ( rop != CopyROP ) {			// update raster op for brush
 	    RasterOp r = (RasterOp)rop;
@@ -609,7 +725,8 @@ static uchar *pat_tbl[] = {
   techniques like using one painter to write text on several paint
   devices in order to use the same font and color will \e not work.
 
-  \sa QPaintDevice, end() */
+  \sa QPaintDevice, end()
+*/
 
 bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 {
@@ -668,7 +785,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 
     if ( pdev->devType() == PDT_WIDGET ) {	// device is a widget
 	QWidget *w = (QWidget*)pdev;
-	gc = alloc_painter_gc( dpy, w->handle() );
+//	gc = alloc_painter_gc( dpy, w->handle() );
 	cfont = w->font();			// use widget font
 	bg_col = w->backgroundColor();		// use widget bg color
 	ww = vw = w->width();			// default view size
@@ -677,11 +794,13 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	if ( reinit ) {
 	    cbrush = QBrush( NoBrush );
 	}
+#if 0
 	if ( w->testWFlags(WPaintUnclipped) ) { // paint direct on device
 	    updateBrush();
 	    XSetSubwindowMode( w->display(), gc, IncludeInferiors );
 	    XSetSubwindowMode( w->display(), gc_brush, IncludeInferiors );
 	}
+#endif
     }
     else if ( pdev->devType() == PDT_PIXMAP ) { // device is a pixmap
 	QPixmap *pm = (QPixmap*)pdev;
@@ -693,7 +812,9 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	    return FALSE;
 	}
 	bool mono = pm->depth() == 1;		// monochrome bitmap
-	gc = alloc_painter_gc( dpy, hd, mono ); // create GC
+	if ( mono )
+	    setf( MonoDev );
+//	gc = alloc_painter_gc( dpy, hd, mono ); // create GC
 	ww = vw = pm->width();			// default view size
 	wh = vh = pm->height();
 	if ( reinit ) {
@@ -715,15 +836,20 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
     }
     else
 	ww = wh = vw = vh = 1024;
-    if ( gc ) {					// widget or pixmap
-	XSetBackground( dpy, gc, bg_col.pixel() );
-	bg_mode = TransparentMode;
-	rop = CopyROP;
-    }
-    else {					// external devices
+    if ( testf(ExtDev) ) {			// external device
 	setBackgroundColor( bg_col );		// default background color
 	setBackgroundMode( TransparentMode );	// default background mode
 	setRasterOp( CopyROP );			// default raster operation
+    }
+    else {					// widget or pixmap
+	bg_mode = TransparentMode;
+	rop = CopyROP;
+	updatePen();
+#if 0
+	XSetBackground( dpy, gc, bg_col.pixel() );
+	bg_mode = TransparentMode;
+	rop = CopyROP;
+#endif
     }
     return TRUE;
 }
@@ -757,11 +883,16 @@ bool QPainter::end()				// end painting
 	free_painter_gc( dpy, gc_brush );
     }
     if ( gc ) {					// restore pen gc
-	if ( testf(ClipOn) )
-	    XSetClipMask( dpy, gc, None );
-	if ( rop != CopyROP )
-	    XSetFunction( dpy, gc, GXcopy );
-	free_painter_gc( dpy, gc );
+	if ( testf(OptPen) ) {
+	    free_pen( penKey );
+	}
+	else {
+	    if ( testf(ClipOn) )
+		XSetClipMask( dpy, gc, None );
+	    if ( rop != CopyROP )
+		XSetFunction( dpy, gc, GXcopy );
+	    free_painter_gc( dpy, gc );
+	}
     }
     flags = 0;
     pdev->devFlags &= ~PDF_PAINTACTIVE;
@@ -848,6 +979,7 @@ void QPainter::setBackgroundMode( BGMode m )	// set background mode
   <li> \c NotEraseROP:	dst = src AND dst
   <li> \c NotROP:	dst = NOT dst
   </ul>
+
   \sa rasterOp()
 */
 
@@ -873,7 +1005,7 @@ void QPainter::setRasterOp( RasterOp r )	// set raster operation
 	if ( !pdev->cmd(PDC_SETROP,this,param) || !hd )
 	    return;
     }
-    XSetFunction( dpy, gc, ropCodes[rop] );
+    updatePen();
     if ( gc_brush )
 	XSetFunction( dpy, gc_brush, ropCodes[rop] );
 }
