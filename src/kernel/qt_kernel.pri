@@ -89,6 +89,7 @@ kernel {
 		  $$KERNEL_H/qwidgetintdict.h \
 		  $$KERNEL_H/qwidgetlist.h \
 		  $$KERNEL_H/qwindowdefs.h \
+		  $$KERNEL_H/qwinfunctions.h \
 		  $$KERNEL_H/qwmatrix.h \
 		  $$KERNEL_H/qvariant.h \
 		  $$KERNEL_P/qrichtext_p.h \
@@ -112,7 +113,8 @@ kernel {
 		  $$KERNEL_CPP/qsound_win.cpp \
 		  $$KERNEL_CPP/qthread_win.cpp \
 		  $$KERNEL_CPP/qwidget_win.cpp \
-		  $$KERNEL_CPP/qole_win.c
+		  $$KERNEL_CPP/qole_win.c \
+		  $$KERNEL_CPP/qwinfunctions.cpp
 	
 	unix:x11 {
 	      SOURCES += $$KERNEL_CPP/qapplication_x11.cpp \
