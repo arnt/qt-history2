@@ -106,9 +106,8 @@ const int INV_TIMER = -1;			// invalid timer id
 */
 
 QTimer::QTimer( QObject *parent, const char *name )
-    : QObject( parent, name )
+    : QObject( parent, name ), id(INV_TIMER), single(0), nulltimer(0)
 {
-    id = INV_TIMER;
 }
 
 /*!
@@ -147,11 +146,12 @@ QTimer::~QTimer()
 
 int QTimer::start( int msec, bool sshot )
 {
-    if ( id >=0 && !msec && sshot == single )
+    if ( id >=0 && nulltimer && !msec && sshot )
 	return id;
     if ( id != INV_TIMER )			// stop running timer
 	stop();
     single = sshot;
+    nulltimer = ( !msec && sshot );
     return id = startTimer( msec );
 }
 

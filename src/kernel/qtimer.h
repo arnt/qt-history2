@@ -65,8 +65,9 @@ protected:
     bool	event( QEvent * );
 
 private:
-    int		id;
-    bool	single;
+    int id;
+    uint single : 1;
+    uint nulltimer : 1;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
