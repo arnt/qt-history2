@@ -406,13 +406,15 @@ QImage QPixmap::convertToImage() const
 	((QPixmap*)this)->freeCell();
     GetDIBits( qt_display_dc(), DATA_HBM, 0, h, image.bits(), bmi,
 	       DIB_RGB_COLORS );
-    if ( data->hasAlpha ) {
+    if ( data->hasAlpha && d==32 ) {
 	// Windows has premultiplied alpha, so revert it
 	image.setAlphaBuffer( TRUE );
 	int l = image.numBytes();
 	uchar *b = image.bits();
 	// ### is it right to assume that we have 32bpp?
 	for ( int i=0; i+3<l; i+=4 ) {
+	    if ( b[i+3] == 0 )
+		continue;
 	    b[i]   = ((int)b[i]  *255)/b[i+3];
 	    b[i+1] = ((int)b[i+1]*255)/b[i+3];
 	    b[i+2] = ((int)b[i+2]*255)/b[i+3];
@@ -611,7 +613,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	( QApplication::winVersion() == Qt::WV_98 ||
 	  QApplication::winVersion() == Qt::WV_2000 );
 
-    if ( data->hasAlpha ) {
+    if ( data->hasAlpha && d==32 ) {
 	// Windows expects premultiplied alpha
 	int l = image.numBytes();
 	uchar *b = new uchar[l];
