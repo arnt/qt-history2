@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#258 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#259 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -59,7 +59,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#258 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#259 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -2555,6 +2555,21 @@ static KeySym KeyTbl[] = {			// keyboard mapping table
     0,			0
 };
 
+
+static QIntDict<int> * keyDict = 0;
+static QIntDict<QString> * asciiDict = 0;
+
+static void deleteKeyDicts()
+{
+    if ( keyDict )
+	delete keyDict;
+    keyDict = 0;
+    if ( asciiDict )
+	delete asciiDict;
+    asciiDict = 0;
+}
+
+
 bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 {
     int	   type;
@@ -2562,10 +2577,21 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     char   ascii[16];
     int	   count = 0;
     int	   state;
-    KeySym key;
+    KeySym key = 0;
     Status status;
 
+    if ( !keyDict ) {
+	keyDict = new QIntDict<int>( 13 );
+	keyDict->setAutoDelete( FALSE );
+	asciiDict = new QIntDict<QString>( 13 );
+	asciiDict->setAutoDelete( TRUE );
+	qAddPostRoutine( deleteKeyDicts );
+    }
+
     type = (event->type == KeyPress) ? Event_KeyPress : Event_KeyRelease;
+
+    int keycode = event->xkey.keycode;
+    static int composingKeycode;
 
     if ( type == Event_KeyPress ) {
 	QWExtra * xd = extraData();
@@ -2578,18 +2604,39 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 					XIMPreeditNothing + XIMStatusNothing,
 					XNClientWindow, winId(),
 					0 );
-	if ( !XFilterEvent( (XEvent*)event, winId() ) ) {
-	    count = XmbLookupString( (XIC)(xd->xic), &((XEvent*)event)->xkey,
-				     ascii, 16, &key, &status );
+	if ( XFilterEvent( (XEvent*)event, winId() ) ) {
+	    composingKeycode = keycode; // ### this is not documented in xlib
+	    return TRUE;
 	}
+
+	count = XmbLookupString( (XIC)(xd->xic), &((XEvent*)event)->xkey,
+				 ascii, 16, &key, &status );
+
+	if ( count && !keycode ) {
+	    keycode = composingKeycode;
+	    composingKeycode = 0;
+	}
+
+	keyDict->replace( keycode, (int*)key );
+	if ( count < 15 )
+	    ascii[count] = '\0';
+	if ( count )
+	    asciiDict->replace( keycode, new QString(ascii) );
     } else {
-	// ### hack
-	// this can be used for releases, unlike XmbBlahBlah
-	count = XLookupString( &((XEvent*)event)->xkey, ascii, 16, &key, 0 );
+	key = (int)keyDict->find( keycode );
+	if ( !key )
+	    return TRUE;
+	keyDict->take( keycode );
+	QString * s = asciiDict->find( keycode );
+	if ( s ) {
+	    asciiDict->take( keycode );
+	    qstrcpy( ascii, *s );
+	    count = qstrlen( ascii );
+	    delete s;
+	}
     }
 
     state = translateButtonState( event->xkey.state );
-
 
     // commentary in X11/keysymdef says that X codes match ASCII, so it
     // is safe to use the locale functions to process X codes
@@ -2615,21 +2662,21 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     }
 #if defined(DEBUG)
     if ( debug_level > 0
-      && type==Event_KeyPress
-      && code==Key_D
-      && (state&ControlButton)
-      && (state&AltButton) )
-    {
-	QWidgetList *list   = qApp->topLevelWidgets();
-	QWidget     *widget = list->first();
-	while ( widget ) {
-	    debug("Top-level widget %p", widget);
-	    widget->dumpObjectTree();
-	    widget = list->next();
+	 && type==Event_KeyPress
+	 && code==Key_D
+	 && (state&ControlButton)
+	 && (state&AltButton) )
+	{
+	    QWidgetList *list   = qApp->topLevelWidgets();
+	    QWidget     *widget = list->first();
+	    while ( widget ) {
+		debug("Top-level widget %p", widget);
+		widget->dumpObjectTree();
+		widget = list->next();
+	    }
+	    delete list;
+	    return TRUE;
 	}
-	delete list;
-	return TRUE;
-    }
 #endif
     QKeyEvent e( type, code, count > 0 ? ascii[0] : 0, state );
     if ( popupWidgets ) {			// in popup mode
