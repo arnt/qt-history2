@@ -4194,7 +4194,7 @@ QString QTextEdit::selectedText() const
 	return optimSelectedText();
     else
 #endif
-	return doc->selectedText( QTextDocument::Standard, TRUE );
+	return doc->selectedText( QTextDocument::Standard, textFormat() == RichText );
 }
 
 bool QTextEdit::handleReadOnlyKeyEvent( QKeyEvent *e )
