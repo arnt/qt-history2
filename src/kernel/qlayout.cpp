@@ -460,7 +460,6 @@ void QGridLayoutData::addData( QGridBox *box, bool r, bool c )
     
 
     if ( c ) {
-	//we always copy cStretch to colData
 	if ( !cStretch[box->col] )
 	    colData[box->col].stretch = QMAX(colData[box->col].stretch,
 					     box->hStretch() );
@@ -513,9 +512,10 @@ void QGridLayoutData::addData( QGridBox *box, bool r, bool c )
 
 static void distributeMultiBox( QMemArray<QLayoutStruct> &chain, int spacing,
 				int start, int end,
-				int minSize, int sizeHint )
+				int minSize, int sizeHint,
+				QMemArray<int> &stretchArray, int stretch )
 {
-    //distribute the sizes somehow.
+    //distribute the sizes and stretch somehow.
 
     int i;
     int w = 0;
@@ -528,6 +528,8 @@ static void distributeMultiBox( QMemArray<QLayoutStruct> &chain, int spacing,
 	max += chain[i].maximumSize;
 	exp = exp || chain[i].expansive;
 	chain[i].empty = FALSE;
+	if ( stretchArray[i] == 0 )
+	    chain[i].stretch = QMAX(chain[i].stretch,stretch);
     }
     w += spacing * ( end - start );
     wh += spacing * ( end - start );
@@ -622,13 +624,15 @@ void QGridLayoutData::setupLayoutData( int spacing )
 		addData( box, TRUE, FALSE );
 	    } else {
 		distributeMultiBox( rowData, spacing, r1, r2,
-				    min.height(), hint.height() );
+				    min.height(), hint.height(), 
+				    rStretch, box->vStretch() );
 	    }
 	    if ( c1 == c2 ) {
 		addData( box, FALSE, TRUE );
 	    } else {
 		distributeMultiBox( colData, spacing, c1, c2,
-				    min.width(), hint.width() );
+				    min.width(), hint.width(),
+				    cStretch, box->hStretch() );
 	    }
 	}
     }
@@ -705,7 +709,8 @@ void QGridLayoutData::setupHfwLayoutData( int spacing )
 			min.setHeight( hfwh );
 		}
 		distributeMultiBox( rData, spacing, r1, r2,
-				    min.height(), hint.height() );
+				    min.height(), hint.height(),
+				    rStretch, box->vStretch() );
 	    }
 	}
     }
