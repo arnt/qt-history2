@@ -1048,8 +1048,6 @@ QApplication::~QApplication()
     qt_explicit_app_style = FALSE;
     qt_app_has_font = FALSE;
     app_tracking = 0;
-    is_app_running = FALSE;
-    is_app_closing = FALSE;
     obey_desktop_settings = TRUE;
     cursor_flash_time = 1000;
     mouse_double_click_time = 400;
