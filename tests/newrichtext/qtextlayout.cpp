@@ -326,6 +326,12 @@ QTextLayout::Result QTextLayout::addCurrentItem()
 	}
     }
 
+    bool breakIsWS = FALSE;
+    if ( attrs[lastBreak + current.position].whiteSpace ) {
+	lastBreak++;
+	breakIsWS = TRUE;
+    }
+
     if ( lastBreak == 0 ) {
 // 	qDebug("   -> Error" );
 	return Error;
@@ -346,6 +352,9 @@ QTextLayout::Result QTextLayout::addCurrentItem()
 	split->logClusters[i] -= splitGlyph;
 
     shaped->num_glyphs = splitGlyph;
+    if ( breakIsWS )
+	shaped->num_glyphs--;
+
     d->items[d->currentItem+1].shaped = split;
     d->items[d->currentItem+1].width = current.width - w;
     current.width = w;

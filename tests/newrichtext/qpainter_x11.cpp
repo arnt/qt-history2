@@ -48,6 +48,7 @@
 #include "qpaintdevicemetrics.h"
 #include "qt_x11.h"
 
+#include "qtextlayout.h"
 #include "qtextengine.h"
 
 #include <math.h>
@@ -3182,6 +3183,48 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
             XFillRectangle( dpy, hd, gc, xpos, y-fm.strikeOutPos(), x-xpos, lw );
         }
     }
+}
+
+
+void QPainter::drawTextItem( int x,  int y, const QTextItem &ti )
+{
+    if ( testf(DirtyFont) ) {
+	updateFont();
+    }
+    if ( testf(ExtDev|VxF|WxF) ) {
+	drawText( x+ti.x(), y+ti.y(), ti.engine->string, ti.from(), ti.length(),
+		  (ti.engine->items[ti.item].analysis.bidiLevel %2) ? QPainter::RTL : QPainter::LTR );
+	return;
+    }
+
+    QScriptItem si = ti.engine->items[ti.item];
+
+    QFont::Script script = (QFont::Script)si.analysis.script;
+    QFontEngine *fe = si.fontEngine;
+    assert( fe );
+    QShapedItem *shaped = ti.engine->shape( ti.item );
+
+    x += ti.x();
+    y += ti.y();
+
+    bool rightToLeft = si.analysis.bidiLevel % 2;
+
+    fe->draw( this, x,  y, shaped->glyphs, shaped->advances,
+		  shaped->offsets, shaped->num_glyphs, rightToLeft );
+
+    if ( cfont.underline() || cfont.strikeOut() ) {
+        QFontMetrics fm = fontMetrics();
+        int lw = fm.lineWidth();
+
+        // draw underline effect
+        if ( cfont.underline() )
+            XFillRectangle( dpy, hd, gc, x, y+fm.underlinePos(), si.width, lw );
+
+        // draw strikeout effect
+        if ( cfont.strikeOut() )
+            XFillRectangle( dpy, hd, gc, x, y-fm.strikeOutPos(), si.width, lw );
+    }
+
 }
 
 /*!

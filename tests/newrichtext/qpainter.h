@@ -54,6 +54,7 @@ class QGfx;
 class QTextCodec;
 class QTextParag;
 class QPaintDevice;
+class QTextItem;
 #if defined( Q_WS_MAC )
 class QMacSavedPortInfo;
 #endif
@@ -259,6 +260,7 @@ public:
 			  const QString&, int len = -1, QRect *br=0,
 			  QTextParag **intern=0 );
 
+    void drawTextItem( int x,  int y, const QTextItem &ti );
     //#####    void	drawText( const QPoint &, const QString &, int flags, int rotation = 0);
 
   // Text drawing functions

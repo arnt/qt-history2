@@ -109,7 +109,7 @@ QTextEngine::QTextEngine( const QString &str, QFontPrivate *f )
 QTextEngine::~QTextEngine()
 {
     if ( fnt ) fnt->deref();
-    delete charAttributes;
+    delete [] charAttributes;
 }
 
 
