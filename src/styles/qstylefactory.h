@@ -8,7 +8,7 @@
 class QString;
 class QStyle;
 
-class QStyleFactory
+class Q_EXPORT QStyleFactory
 {
 public:
     static QStyle *create( const QString& );

@@ -7,7 +7,7 @@
 
 class QStyle;
 
-class QStyleInterface : public QUnknownInterface
+class Q_EXPORT QStyleInterface : public QUnknownInterface
 {
 public:
     QStyleInterface( QUnknownInterface *parent = 0, const char * name = 0) 
