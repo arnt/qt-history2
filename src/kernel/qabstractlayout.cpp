@@ -1,4 +1,3 @@
-//depot/qt/main/src/kernel/qabstractlayout.cpp#175 - integrate change 65819 (text)
 /****************************************************************************
 ** $Id: $
 **
