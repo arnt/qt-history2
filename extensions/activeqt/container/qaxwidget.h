@@ -60,7 +60,7 @@ private:
 };
 
 #if defined Q_CC_MSVC && _MSC_VER < 1300
-template <> inline QAxWidget *qt_cast_helper<QAxWidget*>(const QObject *o, QAxWidget *)
+template <> inline QAxWidget *qobject_cast_helper<QAxWidget*>(const QObject *o, QAxWidget *)
 #else
 template <> inline QAxWidget *qobject_cast<QAxWidget*>(const QObject *o)
 #endif
@@ -70,7 +70,7 @@ template <> inline QAxWidget *qobject_cast<QAxWidget*>(const QObject *o)
 }
 
 #if defined Q_CC_MSVC && _MSC_VER < 1300
-template <> inline QAxWidget *qt_cast_helper<QAxWidget*>(QObject *o, QAxWidget *)
+template <> inline QAxWidget *qobject_cast_helper<QAxWidget*>(QObject *o, QAxWidget *)
 #else
 template <> inline QAxWidget *qobject_cast<QAxWidget*>(QObject *o)
 #endif
