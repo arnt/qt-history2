@@ -61,7 +61,7 @@ enum { Tok_Boi, Tok_Ampersand, Tok_Aster, Tok_LeftParen, Tok_RightParen,
   getToken(), to add some qDebug() statements in there and then to
   #define getToken() myGetToken().
 */
-static QString yyIn; // the input stream
+static QString *yyIn; // the input stream
 static int yyPos; // the position of the current token in yyIn
 static int yyCurPos; // the position of the next lookahead character
 static char *yyLexBuf; // the lexeme buffer
@@ -85,7 +85,7 @@ static inline void readChar()
     if ( yyCurPos < 0 )
 	yyCh = EOF;
     else
-	yyCh = yyIn[yyCurPos].unicode();
+	yyCh = (*yyIn)[yyCurPos].unicode();
     yyCurPos--;
 }
 
@@ -94,8 +94,9 @@ static inline void readChar()
 */
 static void startTokenizer( const QString& in )
 {
-    yyIn = in;
-    yyPos = yyIn.length() - 1;
+    yyIn = new QString;
+    *yyIn = in;
+    yyPos = yyIn->length() - 1;
     yyCurPos = yyPos;
     yyLexBuf = new char[YYLexBufSize];
     yyLex = yyLexBuf + YYLexBufSize - 1;
@@ -109,6 +110,7 @@ static void startTokenizer( const QString& in )
 */
 static void stopTokenizer()
 {
+    delete yyIn;
     delete[] yyLexBuf;
     yyLexBuf = 0;
 }
@@ -165,9 +167,9 @@ static int getToken()
 		  qDebug()'s here and there.
 		*/
 		if ( yyCurPos >= 0 ) {
-		    int lineStart = yyIn.findRev( QChar('\n'), yyCurPos ) + 1;
-		    QString line = yyIn.mid( lineStart,
-					     yyCurPos - lineStart + 2 );
+		    int lineStart = yyIn->findRev( QChar('\n'), yyCurPos ) + 1;
+		    QString line = yyIn->mid( lineStart,
+					      yyCurPos - lineStart + 2 );
 		    int commentStart = line.find( QString("//") );
 		    if ( commentStart != -1 ) {
 			yyCurPos = lineStart + commentStart - 1;
@@ -396,7 +398,7 @@ static int yyTok; // the current token
 static bool isCtorOrDtor( const QString& thingy )
 {
     // e.g., Alpha<a>::Beta<Bar<b, c> >::~Beta
-    static QRegExp xtor( QString(
+    QRegExp xtor( QString(
 	    "(?:([A-Z_a-z][0-9A-Z_a-z]*)" // class name
 	       "(?:<(?:[^>]|<[^>]*>)*>)*" // template arguments
 	       "::)+"                     // many in a row
@@ -735,17 +737,17 @@ static void matchTranslationUnit( QValueList<CppFunction> *flist )
 	startBody = yyPos;
 	CppFunction func = matchFunctionPrototype( FALSE );
 	if ( !func.scopedName().isEmpty() ) {
-	    QString body = yyIn.mid( startBody, endBody - startBody );
+	    QString body = yyIn->mid( startBody, endBody - startBody );
 	    setBody( &func, body );
 	    body = func.body(); // setBody() can change the body
 
 	    /*
 	      Compute important line numbers.
 	    */
-	    int functionStartLineNo = 1 + QConstString( yyIn.unicode(), yyPos )
+	    int functionStartLineNo = 1 + QConstString( yyIn->unicode(), yyPos )
 					  .string().contains( QChar('\n') );
 	    int startLineNo = functionStartLineNo +
-		    QConstString( yyIn.unicode() + yyPos, startBody - yyPos )
+		    QConstString( yyIn->unicode() + yyPos, startBody - yyPos )
 		    .string().contains( QChar('\n') );
 	    int endLineNo = startLineNo + body.contains( QChar('\n') );
 
