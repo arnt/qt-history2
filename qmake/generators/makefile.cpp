@@ -656,8 +656,16 @@ MakefileGenerator::writeObj(QTextStream &t, const QString &obj, const QString &s
 	if((*sit).isEmpty())
 	    continue;
 
-	t << (*sit) << ": " << findDependencies((*sit)).join(" \\\n\t\t") << endl
-	  << (*oit) << ": " << (*sit);
+	QString sdep, odep = (*sit) + " ";
+	QStringList deps = findDependencies((*sit));
+	for(QStringList::Iterator dit = deps.begin(); dit != deps.end(); dit++) {
+	    if((*dit).right(Option::moc_ext.length()) == Option::moc_ext)
+		odep += (*dit) + " ";
+	    else
+		sdep += (*dit) + " ";
+	}
+	t << (*sit) << ": " << sdep << endl
+	  << (*oit) << ": " << odep ;
 
 	QString comp, cimp;
 	if((*sit).right(qstrlen(Option::cpp_ext)) == Option::cpp_ext) {
