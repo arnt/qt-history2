@@ -971,7 +971,7 @@ void MainWindow::setupPropertyEditor()
 {
     DockWidget *dw = new DockWidget;
     dw->setResizeEnabled( TRUE );
-    dw->setCloseEnabled( TRUE );
+    dw->setCloseMode( QDockWidget::Always );
     connect( dw, SIGNAL( showMe( bool ) ),
 	     this, SLOT( windowPropertyEditor( bool ) ) );
     propertyEditor = new PropertyEditor( dw );
@@ -1001,7 +1001,7 @@ void MainWindow::setupHierarchyView()
 	return;
     DockWidget *dw = new DockWidget;
     dw->setResizeEnabled( TRUE );
-    dw->setCloseEnabled( TRUE );
+    dw->setCloseMode( QDockWidget::Always );
     connect( dw, SIGNAL( showMe( bool ) ),
 	     this, SLOT( windowHierarchyView( bool ) ) );
     hierarchyView = new HierarchyView( dw );
@@ -1026,7 +1026,7 @@ void MainWindow::setupFormList()
 {
     DockWidget *dw = new DockWidget;
     dw->setResizeEnabled( TRUE );
-    dw->setCloseEnabled( TRUE );
+    dw->setCloseMode( QDockWidget::Always );
     connect( dw, SIGNAL( showMe( bool ) ),
 	     this, SLOT( windowFormList( bool ) ) );
     formList = new FormList( dw, this );
