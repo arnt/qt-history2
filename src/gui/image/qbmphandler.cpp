@@ -464,7 +464,7 @@ static bool read_dib(QDataStream &s, int offset, int startpos, QImage &image)
 }
 
 // this is also used in qmime_win.cpp
-bool qt_write_dib(QDataStream &s, QImage image)
+bool Q_GUI_EXPORT qt_write_dib(QDataStream &s, QImage image)
 {
     int        nbits;
     int        bpl_bmp;
@@ -575,7 +575,7 @@ bool qt_write_dib(QDataStream &s, QImage image)
 }
 
 // this is also used in qmime_win.cpp
-bool qt_read_dib(QDataStream &s, QImage image)
+bool Q_GUI_EXPORT qt_read_dib(QDataStream &s, QImage &image)
 {
     return read_dib(s,-1,-BMP_FILEHDR_SIZE,image);
 }
