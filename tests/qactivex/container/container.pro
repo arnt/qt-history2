@@ -4,15 +4,15 @@ HEADERS		= qaxbase.h qaxwidget.h qaxobject.h ../shared/types.h
 SOURCES		= qaxbase.cpp qaxwidget.cpp qaxobject.cpp ../shared/types.cpp
 FORMS		= qactivexselect.ui
 
-DESTDIR		= $(QTDIR)/lib
-DLLDESTDIR	= $(QTDIR)/bin
+DESTDIR		= $$QT_BUILD_TREE/lib
+DLLDESTDIR	= $$QT_BUILD_TREE/bin
 TARGET		= qaxcontainer
 
 shared {
     CONFIG	+= plugin
     SOURCES	+= plugin.cpp
-    DLLDESTDIR	+= $(QTDIR)/plugins/designer
-    INCLUDEPATH	+= $(QTDIR)/tools/designer/interfaces
+    DLLDESTDIR	+= $$QT_BUILD_TREE/plugins/designer
+    INCLUDEPATH	+= $$QT_SOURCE_TREE/tools/designer/interfaces
 }
 
 win32-borland:INCLUDEPATH += $(BCB)/include/Atl

@@ -13,7 +13,7 @@ contains(styles,windows) {
     DESTDIR         = ../../../plugins/styles
 
     target.path=$$plugins.path/styles
-    isEmpty(target.path):target.path=$$QT_PREFIX/plugins/styles
+
     INSTALLS += target
 }
 

@@ -5,4 +5,4 @@ SOURCES	    = main.cpp
 FORMS	    = mainwindow.ui 
 
 INCLUDEPATH += ../../container
-LIBS	    += $(QTDIR)/lib/qaxcontainer.lib
+LIBS	    += $$QT_BUILD_TREE/lib/qaxcontainer.lib

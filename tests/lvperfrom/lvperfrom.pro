@@ -4,4 +4,4 @@ HEADERS		=
 SOURCES		= main.cpp
 TARGET		= lvperf 
 INTERFACES 	= form.ui
-TMAKE_UIC 	=  $(QTDIR)/bin/uic
+TMAKE_UIC 	=  $$QT_BUILD_TREE/bin/uic

@@ -4,4 +4,4 @@ HEADERS		=
 SOURCES		= main.cpp
 DESTDIR		= ../../../plugins/designer
 TARGET		= styleswitch
-INCLUDEPATH	+= $(QTDIR)/tools/designer/interfaces
+INCLUDEPATH	+= $$QT_SOURCE_TREE/tools/designer/interfaces
