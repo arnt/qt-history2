@@ -869,17 +869,19 @@ bool QAction::addTo( QWidget* w )
 	}
     // Makes only sense when called by QActionGroup::addTo
     } else if ( w->inherits( "QComboBox" ) ) {
+	QActionPrivate::ComboItem *ci = new QActionPrivate::ComboItem;
+	ci->combo = (QComboBox*)w;
+	connect( ci->combo, SIGNAL( destroyed() ), this, SLOT( objectDestroyed() ) );
+	ci->id = ci->combo->count();
 	if ( qstrcmp( name(), "qt_separator_action" ) ) {
-	    QActionPrivate::ComboItem *ci = new QActionPrivate::ComboItem;
-	    ci->combo = (QComboBox*)w;
-	    connect( ci->combo, SIGNAL( destroyed() ), this, SLOT( objectDestroyed() ) );
-	    ci->id = ci->combo->count();
 	    if ( d->iconset )
 		ci->combo->insertItem( d->iconset->pixmap(), text() );
 	    else
 		ci->combo->insertItem( text() );
-	    d->comboitems.append( ci );
+	} else {
+	    ci->id = -1;
 	}
+	d->comboitems.append( ci );
     } else {
 	qWarning( "QAction::addTo(), unknown object" );
 	return FALSE;
@@ -1745,7 +1747,13 @@ void QActionGroup::childEvent( QChildEvent *e )
 */
 void QActionGroup::internalComboBoxActivated( int index )
 {
-    QAction *a = d->actions.at( index );
+    QAction *a = 0;
+    for ( int i = 0; i <= index && i < (int)d->actions.count(); ++i ) {
+	a = d->actions.at( i );
+	if ( a && !qstrcmp( a->name(), "qt_separator_action" ) )
+	    index++;
+    }
+    a = d->actions.at( index );
     if ( a ) {
 	if ( a != d->selected ) {
 	    d->selected = a;
@@ -1767,11 +1775,19 @@ void QActionGroup::internalComboBoxActivated( int index )
 */
 void QActionGroup::internalToggle( QAction *a )
 {
-    for ( QPtrListIterator<QComboBox> it( d->comboboxes); it.current(); ++it ) {
-	int index = d->actions.find( a );
-	if ( index != -1 )
-	    it.current()->setCurrentItem( index );
+    int index = d->actions.find( a );
+    if ( index == -1 )
+	return;
+
+    int lastItem = index;
+    for ( int i = 0; i < lastItem; i++ ) {
+	QAction *action = d->actions.at( i );
+	if ( !qstrcmp( action->name(), "qt_separator_action" ) )
+	    index--;
     }
+
+    for ( QPtrListIterator<QComboBox> it( d->comboboxes); it.current(); ++it )
+	    it.current()->setCurrentItem( index );
 }
 
 /*! \internal
