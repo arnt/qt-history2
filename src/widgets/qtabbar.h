@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.h#32 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.h#33 $
 **
 ** Definition of QTabBar class
 **
@@ -108,13 +108,14 @@ protected:
     void keyPressEvent( QKeyEvent * );
 
     QList<QTab> * tabList();
-    
+
 private slots:
     void scrollTabs();	
 
 private:
     QList<QTab> * l;
     QList<QTab> * lstatic;
+    void makeVisible( QTab* t  );
     void updateArrowButtons();
     QTabPrivate * d;
 

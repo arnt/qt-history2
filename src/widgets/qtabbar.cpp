@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#87 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#88 $
 **
 ** Implementation of QTabBar class
 **
@@ -54,7 +54,7 @@ QTab::~QTab()
 
 class QArrowButton : public QPushButton
 {
-public: 
+public:
     QArrowButton( Qt::ArrowType, QWidget *parent, const char *name=0 );
     ~QArrowButton();
 protected:
@@ -97,7 +97,7 @@ struct QTabPrivate {
     QTabBar::Shape s;
     QArrowButton* rightB;
     QArrowButton* leftB;
-    QTab*  offset;
+    bool  scrolls;
 };
 
 
@@ -185,11 +185,13 @@ QTabBar::QTabBar( QWidget * parent, const char *name )
     d->focus = 0;
     d->a = new QAccel( this, "tab accelerators" );
     d->s = RoundedAbove;
+    d->scrolls = FALSE;
     d->leftB = new QArrowButton( LeftArrow, this );
-    d->offset = 0;
+    d->leftB->setFocusPolicy( NoFocus );
     connect( d->leftB, SIGNAL( clicked() ), this, SLOT( scrollTabs() ) );
     d->leftB->hide();
     d->rightB = new QArrowButton( RightArrow, this );
+    d->rightB->setFocusPolicy( NoFocus );
     connect( d->rightB, SIGNAL( clicked() ), this, SLOT( scrollTabs() ) );
     d->rightB->hide();
     l = new QList<QTab>;
@@ -510,7 +512,19 @@ void QTabBar::paintEvent( QPaintEvent * e )
 	    paint( &p, t, n == 0 );
 	t = n;
     } while ( t != 0 );
-
+    
+    if ( d->scrolls && lstatic->first()->r.left() < 0 ) {
+	int h = height();
+	p.fillRect( 0, 3, 4, h-3,
+		    QBrush( colorGroup().brush( QColorGroup::Background ) ));
+	QPointArray a;
+	a.setPoints( 5,  0,2,  3,h/4, 0,h/2, 3,3*h/4, 0,h );
+	p.setPen( colorGroup().light() );
+	p.drawPolyline( a );
+	a.translate( 1, 0 );
+	p.setPen( colorGroup().midlight() );
+	p.drawPolyline( a );
+    }
 }
 
 
@@ -567,19 +581,7 @@ void QTabBar::mouseReleaseEvent( QMouseEvent * e )
     QTab * t = d->pressed;
     d->pressed = 0;
     if ( t != 0 && t == selectTab( e->pos() ) && t->enabled ) {
-	QRect r = l->last()->r;
-	if ( l->findRef( t ) >= 0 )
-	    l->append( l->take() );
-
-	d->focus = t->id;
-	updateMask();
-	if ( t->r.intersects( r ) ) {
-	    repaint( r.unite( t->r ) );
-	} else {
-	    repaint( r );
-	    repaint( t->r );
-	}
-	emit selected( t->id );
+	setCurrentTab( t );
     }
 }
 
@@ -652,6 +654,7 @@ void QTabBar::setCurrentTab( QTab * tab )
 	    repaint( r );
 	    repaint( tab->r );
 	}
+	makeVisible( tab );
 	emit selected( tab->id );
     }
 }
@@ -709,20 +712,7 @@ void QTabBar::keyPressEvent( QKeyEvent * e )
 
     // if the focus moved, repaint and signal
     if ( old != d->focus ) {
-	QTab * t = l->last();
-	QRect r( 0,0, -1, -1 );
-	if ( t )
-	    r = t->r;
-	while ( t && t->id != d->focus )
-	    t = l->prev();
-	if ( t ) {
-	    l->append( l->take() );
-	    r = r.unite( t->r );
-	    updateMask();
-	    if ( r.isValid() )
-		repaint( r );
-	    emit selected( t->id );
-	}
+	setCurrentTab( d->focus );
     }
 }
 
@@ -780,12 +770,12 @@ void QTabBar::layoutTabs()
 {
     if ( lstatic->isEmpty() )
 	return;
-    
+
     QTab* t = lstatic->first();
     QRect r( t->r );
     while ( (t = lstatic->next()) != 0 )
 	r = r.unite( t->r );
-    
+
     int hframe, vframe, overlap;
     style().tabbarMetrics( this, hframe, vframe, overlap );
     QFontMetrics fm = fontMetrics();
@@ -873,48 +863,62 @@ void QTabBar::resizeEvent( QResizeEvent * )
 
 void QTabBar::scrollTabs()
 {
-    QTab * t = lstatic->first();
-    QTab* oldOffset = d->offset;
-    if ( d->offset )
-	while ( t != d->offset )
-	    t = lstatic->next();
-    if ( !t )
-	return;
-    if ( sender() == d->leftB ) {
-	d->offset = lstatic->prev(); 
-    } else {
-	d->offset = lstatic->next(); 
+    QTab* left;
+    QTab* right;
+    for ( QTab* t = lstatic->first(); t; t = lstatic->next() ) {
+	if ( t->r.left() < 0 && t->r.right() > 0 )
+	    left = t;
+	if ( t->r.left() < d->leftB->x() )
+	    right = t;
     }
-    if ( !d->offset )
-	d->offset = oldOffset;
+	
+    if ( sender() == d->leftB )
+	makeVisible( left );
+    else  if ( sender() == d->rightB )
+	makeVisible( right );
+}
+
+void QTabBar::makeVisible( QTab* tab  )
+{
+    bool tooFarLeft = ( tab && tab->r.left() < 0 );
+    bool tooFarRight = ( tab && tab->r.right() >= d->leftB->x() );
+    
+    if ( !d->scrolls || ( !tooFarLeft && ! tooFarRight ) )
+	return; 
     
     layoutTabs();
     
-    if ( d->offset ) {
-	int offset = d->offset->r.left();
-	if ( lstatic->last()->r.right() - offset < d->leftB->x()-1 ) {
-	    offset = lstatic->last()->r.right() - d->leftB->x() + 1;
-	    d->rightB->setEnabled( FALSE );
-	} else {
-	    d->rightB->setEnabled( TRUE );
-	}
-	for ( t = lstatic->first(); t; t = lstatic->next() ) {
-	    t->r.moveBy( -offset, 0 );
-	}
+    int offset = 0;
+    
+    if ( tooFarLeft ) 
+	offset = tab == lstatic->first() ? 0 : tab->r.left() - 8;
+    else if ( tooFarRight ) {
+	offset = tab->r.right() - d->leftB->x() + 1;
     }
-    d->leftB->setEnabled( d->offset != lstatic->first() );
+    
+    for ( QTab* t = lstatic->first(); t; t = lstatic->next() )
+	t->r.moveBy( -offset, 0 );
+
+    d->leftB->setEnabled( offset != 0 );
+    d->rightB->setEnabled( lstatic->last()->r.right() >= d->leftB->x() );
+	
+    
     repaint( TRUE );
 }
 
 void QTabBar::updateArrowButtons()
 {
-    if ( lstatic->last()->r.right() > width() ) {
+    bool b = lstatic->last()->r.right() > width() ;
+    if ( d->scrolls == b )
+	return;
+    d->scrolls = b;
+    if ( d->scrolls ) {
+	d->leftB->setEnabled( FALSE );
+	d->rightB->setEnabled( TRUE );
 	d->leftB->show();
 	d->rightB->show();
     } else {
 	d->leftB->hide();
 	d->rightB->hide();
     }
-    d->leftB->setEnabled( FALSE );
-    d->rightB->setEnabled( TRUE );
 }
