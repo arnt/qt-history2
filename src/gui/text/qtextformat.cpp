@@ -66,7 +66,7 @@ public:
     Q_INT32 type;
 
     inline bool operator==(const QTextFormatPrivate &rhs) const {
-        if (type != rhs.type || hash() != rhs.hash())
+        if (hash() != rhs.hash() || type != rhs.type)
             return false;
 
         return props == rhs.props;
@@ -88,7 +88,14 @@ public:
 private:
     PropertyMap props;
 
-    uint hash() const;
+    inline uint hash() const
+    {
+        if (!hashDirty)
+            return hashValue;
+        return recalcHash();
+    }
+
+    uint recalcHash() const;
 
     mutable bool hashDirty;
     mutable uint hashValue;
@@ -222,11 +229,8 @@ QDataStream &operator>>(QDataStream &stream, QTextFormatProperty &prop)
     return stream;
 }
 
-uint QTextFormatPrivate::hash() const
+uint QTextFormatPrivate::recalcHash() const
 {
-    if (!hashDirty)
-        return hashValue;
-
     hashValue = 0;
     for (PropertyMap::ConstIterator it = props.begin();
          it != props.end(); ++it)
