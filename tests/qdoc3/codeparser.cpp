@@ -5,14 +5,17 @@
 #include "codeparser.h"
 #include "node.h"
 
-#define COMMAND_DEPRECATED              Doc::alias( "deprecated" )
-#define COMMAND_INGROUP                 Doc::alias( "ingroup" )
-#define COMMAND_INMODULE                Doc::alias( "inmodule" )
-#define COMMAND_OBSOLETE                Doc::alias( "obsolete" )
-#define COMMAND_PRELIMINARY             Doc::alias( "preliminary" )
-#define COMMAND_PRIVATE                 Doc::alias( "private" )
-#define COMMAND_PROTECTED               Doc::alias( "protected" )
-#define COMMAND_PUBLIC                  Doc::alias( "public" )
+#define COMMAND_DEPRECATED              Doc::alias("deprecated")
+#define COMMAND_INGROUP                 Doc::alias("ingroup")
+#define COMMAND_INMODULE                Doc::alias("inmodule")
+#define COMMAND_NONREENTRANT            Doc::alias("nonreentrant")
+#define COMMAND_OBSOLETE                Doc::alias("obsolete")
+#define COMMAND_PRELIMINARY             Doc::alias("preliminary")
+#define COMMAND_PRIVATE                 Doc::alias("private")
+#define COMMAND_PROTECTED               Doc::alias("protected")
+#define COMMAND_PUBLIC                  Doc::alias("public")
+#define COMMAND_REENTRANT               Doc::alias("reentrant")
+#define COMMAND_THREADSAFE              Doc::alias("threadsafe")
 
 QList<CodeParser *> CodeParser::parsers;
 
@@ -26,7 +29,7 @@ CodeParser::~CodeParser()
     parsers.remove( this );
 }
 
-void CodeParser::initializeParser( const Config& /* config */ )
+void CodeParser::initializeParser(const Config & /* config */)
 {
 }
 
@@ -81,10 +84,10 @@ CodeParser *CodeParser::parserForLanguage( const QString& language )
 
 Set<QString> CodeParser::commonMetaCommands()
 {
-    return Set<QString>() << COMMAND_DEPRECATED << COMMAND_INGROUP
-			  << COMMAND_INMODULE << COMMAND_OBSOLETE
-			  << COMMAND_PRELIMINARY << COMMAND_PRIVATE
-			  << COMMAND_PROTECTED << COMMAND_PUBLIC;
+    return Set<QString>() << COMMAND_DEPRECATED << COMMAND_INGROUP << COMMAND_INMODULE
+			  << COMMAND_NONREENTRANT << COMMAND_OBSOLETE << COMMAND_PRELIMINARY
+                          << COMMAND_PRIVATE << COMMAND_PROTECTED << COMMAND_PUBLIC
+                          << COMMAND_REENTRANT << COMMAND_THREADSAFE;
 }
 
 void CodeParser::processCommonMetaCommand( const Location& /* location */,
@@ -100,6 +103,8 @@ void CodeParser::processCommonMetaCommand( const Location& /* location */,
 	/* ... */
     } else if ( command == COMMAND_OBSOLETE ) {
 	node->setStatus( Node::Obsolete );
+    } else if ( command == COMMAND_NONREENTRANT ) {
+	node->setThreadSafeness(Node::NonReentrant);
     } else if ( command == COMMAND_PRELIMINARY ) {
 	node->setStatus( Node::Preliminary );
     } else if ( command == COMMAND_PRIVATE ) {
@@ -108,5 +113,9 @@ void CodeParser::processCommonMetaCommand( const Location& /* location */,
 	node->setAccess( Node::Protected );
     } else if ( command == COMMAND_PUBLIC ) {
 	node->setAccess( Node::Public );
+    } else if (command == COMMAND_REENTRANT) {
+	node->setThreadSafeness(Node::Reentrant);
+    } else if (command == COMMAND_THREADSAFE) {
+	node->setThreadSafeness(Node::ThreadSafe);
     }
 }

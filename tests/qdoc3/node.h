@@ -19,9 +19,8 @@ class Node
 public:
     enum Type { Namespace, Class, Fake, Enum, Typedef, Function, Property };
     enum Access { Public, Protected, Private };
-
-    // the order is important
-    enum Status { Obsolete, Deprecated, Preliminary, Commendable };
+    enum Status { Obsolete, Deprecated, Preliminary, Commendable }; // don't reorder
+    enum ThreadSafeness { UnspecifiedSafeness, NonReentrant, Reentrant, ThreadSafe };
 
     virtual ~Node();
 
@@ -29,6 +28,7 @@ public:
     void setLocation( const Location& location ) { loc = location; }
     void setDoc( const Doc& doc, bool replace = false );
     void setStatus( Status status ) { sta = status; }
+    void setThreadSafeness(ThreadSafeness safeness) { saf = safeness; }
 
     virtual bool isInnerNode() const = 0;
     Type type() const { return typ; }
@@ -40,6 +40,8 @@ public:
     const Doc& doc() const { return d; }
     Status status() const { return sta; }
     Status inheritedStatus() const;
+    ThreadSafeness threadSafeness() const;
+    ThreadSafeness inheritedThreadSafeness() const;
 
 protected:
     Node( Type type, InnerNode *parent, const QString& name );
@@ -48,6 +50,7 @@ private:
     Type typ : 3;
     Access acc : 2;
     Status sta : 2;
+    ThreadSafeness saf : 2;
     InnerNode *par;
     QString nam;
     Location loc;

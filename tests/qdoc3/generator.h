@@ -28,10 +28,10 @@ public:
     Generator();
     virtual ~Generator();
 
-    virtual void initializeGenerator( const Config& config );
+    virtual void initializeGenerator(const Config &config);
     virtual void terminateGenerator();
     virtual QString format() = 0;
-    virtual void generateTree( const Tree *tree, CodeMarker *marker ) = 0;
+    virtual void generateTree(const Tree *tree, CodeMarker *marker) = 0;
 
     static void initialize( const Config& config );
     static void terminate();
@@ -56,6 +56,8 @@ protected:
 				   CodeMarker *marker );
     virtual void generateInheritedBy( const ClassNode *classe,
 				      CodeMarker *marker );
+    void generateThreadSafeness( const Node *node, CodeMarker *marker );
+    void generateStatus( const Node *node, CodeMarker *marker );
 
     const QString& outputDir() { return outDir; }
     QString indent( int level, const QString& markedCode );
@@ -75,7 +77,6 @@ private:
     const Atom *generateAtomList( const Atom *atom, const Node *relative,
 				  CodeMarker *marker, bool generate,
 				  int& numGeneratedAtoms );
-    void generateStatus( const Node *node, CodeMarker *marker );
     void generateOverload( const Node *node, CodeMarker *marker );
     void generateReimplementedFrom( const FunctionNode *func,
 				    CodeMarker *marker );

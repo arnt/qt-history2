@@ -544,6 +544,8 @@ void Config::load( Location location, const QString& fileName )
 
 		for ( ;; ) {
 		    if ( text[i] == '\\' ) {
+			int metaCharPos;
+
 			SKIP_CHAR();
 			if ( text[i] == '\n' ) {
 			    SKIP_CHAR();
@@ -551,6 +553,9 @@ void Config::load( Location location, const QString& fileName )
 				    text[i].unicode() < '8' ) {
 			    word += QChar( text[i].digitValue() );
 			    SKIP_CHAR();
+			} else if ( (metaCharPos = QString("abfnrtv").find(text[i])) != -1 ) {
+			    word += "\a\b\f\n\r\t\v"[metaCharPos];
+                            SKIP_CHAR();
 			} else {
 			    PUT_CHAR();
 			}

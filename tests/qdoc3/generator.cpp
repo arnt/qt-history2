@@ -20,19 +20,24 @@ QStringList Generator::imageFiles;
 QStringList Generator::imageDirs;
 QString Generator::outDir;
 
-Generator::Generator()
-    : amp( "&amp;" ), lt( "&lt;" ), gt( "&gt;" ), quot( "&quot;" ),
-      tag( "</?@[^>]*>" )
+static Text stockLink(const QString &target)
 {
-    generators.prepend( this );
+    return Text() << Atom(Atom::Link, target) << Atom(Atom::FormattingLeft, ATOM_FORMATTING_LINK)
+		  << target << Atom(Atom::FormattingRight, ATOM_FORMATTING_LINK);
+}
+
+Generator::Generator()
+    : amp("&amp;"), lt("&lt;"), gt("&gt;"), quot("&quot;"), tag("</?@[^>]*>")
+{
+    generators.prepend(this);
 }
 
 Generator::~Generator()
 {
-    generators.remove( this );
+    generators.remove(this);
 }
 
-void Generator::initializeGenerator( const Config& /* config */ )
+void Generator::initializeGenerator(const Config & /* config */)
 {
 }
 
@@ -40,45 +45,49 @@ void Generator::terminateGenerator()
 {
 }
 
-void Generator::initialize( const Config& config )
+void Generator::initialize(const Config &config)
 {
-    Set<QString> outputFormats = config.getStringSet( CONFIG_OUTPUTFORMATS );
+    Set<QString> outputFormats = config.getStringSet(CONFIG_OUTPUTFORMATS);
     if ( !outputFormats.isEmpty() ) {
-	outDir = config.getString( CONFIG_OUTPUTDIR );
+	outDir = config.getString(CONFIG_OUTPUTDIR);
 	if ( outDir.isEmpty() )
-	    config.lastLocation().fatal( tr("No output directory specified in"
-					    " configuration file") );
+	    config.lastLocation().fatal(tr("No output directory specified in configuration file"));
 	QDir dirInfo;
 	if ( dirInfo.exists(outDir) ) {
 	    if ( !Config::removeDirContents(outDir) )
-		config.lastLocation().error( tr("Cannot empty output directory"
-						" '%1'")
-					     .arg(outDir) );
+		config.lastLocation().error(tr("Cannot empty output directory '%1'").arg(outDir));
 	} else {
 	    if ( !dirInfo.mkdir(outDir) )
-		config.lastLocation().fatal( tr("Cannot create output directory"
-						" '%1'")
-					     .arg(outDir) );
+		config.lastLocation().fatal(tr("Cannot create output directory '%1'").arg(outDir));
 	}
     }
 
-    QList<Generator *>::ConstIterator g = generators.begin();
-    while ( g != generators.end() ) {
-	(*g)->initializeGenerator( config );
-	++g;
-    }
+    imageFiles = config.getStringList(CONFIG_IMAGES);
+    imageDirs = config.getStringList(CONFIG_IMAGEDIRS);
 
-    imageFiles = config.getStringList( CONFIG_IMAGES );
-    imageDirs = config.getStringList( CONFIG_IMAGEDIRS );
-
-    QString imagesDotFileExtensions = CONFIG_IMAGES + Config::dot +
-				      CONFIG_FILEEXTENSIONS;
+    QString imagesDotFileExtensions = CONFIG_IMAGES + Config::dot + CONFIG_FILEEXTENSIONS;
     Set<QString> formats = config.subVars( imagesDotFileExtensions );
     Set<QString>::ConstIterator f = formats.begin();
     while ( f != formats.end() ) {
-	imgFileExts[*f] = config.getStringList( imagesDotFileExtensions +
-						Config::dot + *f );
+	imgFileExts[*f] = config.getStringList(imagesDotFileExtensions + Config::dot + *f);
 	++f;
+    }
+
+    QList<Generator *>::ConstIterator g = generators.begin();
+    while (g != generators.end()) {
+	(*g)->initializeGenerator(config);
+        QStringList extraImages = config.getStringList(CONFIG_EXTRAIMAGES + Config::dot
+						       + (*g)->format());
+	QStringList::ConstIterator e = extraImages.begin();
+        while (e != extraImages.end()) {
+	    QString userFriendlyFilePath;
+	    QString filePath = Config::findFile(config.lastLocation(), imageFiles, imageDirs, *e,
+						imgFileExts[(*g)->format()], userFriendlyFilePath);
+	    Config::copyFile(config.lastLocation(), filePath, userFriendlyFilePath,
+			     (*g)->outputDir());
+	    ++e;
+	}
+	++g;
     }
 
     QRegExp secondParamAndAbove( "[\2-\7]" );
@@ -97,16 +106,13 @@ void Generator::initialize( const Config& config )
 		int numOccs = def.contains( "\1" );
 
 		if ( numParams != 1 ) {
-		    config.lastLocation().warning( tr("Formatting '%1' must"
-						    " have exactly one"
-						    " parameter (found %2)")
-						 .arg(*n).arg(numParams) );
+		    config.lastLocation().warning(tr("Formatting '%1' must have exactly one"
+						     " parameter (found %2)")
+						 .arg(*n).arg(numParams));
 		} else if ( numOccs > 1 ) {
-		    config.lastLocation().fatal( tr("Formatting '%1' must"
-						    " contain exactly one"
-						    " occurrence of '\\1'"
-						    " (found %2)")
-						 .arg(*n).arg(numOccs) );
+		    config.lastLocation().fatal(tr("Formatting '%1' must contain exactly one"
+						    " occurrence of '\\1' (found %2)")
+						.arg(*n).arg(numOccs));
 		} else {
 		    int paramPos = def.find( "\1" );
 		    fmtLeftMaps[*f].insert( *n, def.left(paramPos) );
@@ -191,8 +197,6 @@ void Generator::generateText( const Text& text, const Node *relative,
 
 void Generator::generateBody( const Node *node, CodeMarker *marker )
 {
-    if ( node->status() != Node::Commendable )
-	generateStatus( node, marker );
     if ( node->type() == Node::Function ) {
 	const FunctionNode *func = (const FunctionNode *) node;
 	if ( func->isOverload() && func->metaness() != FunctionNode::Ctor )
@@ -203,7 +207,7 @@ void Generator::generateBody( const Node *node, CodeMarker *marker )
 	QString name = plainCode( marker->markedUpFullName(node, 0) );
 	node->location().warning( tr("No documentation for '%1'").arg(name) );
     }
-    generateText( node->doc().body(), node, marker );
+    generateText(node->doc().body(), node, marker);
 
     if ( node->type() == Node::Enum ) {
 	const EnumNode *enume = (const EnumNode *) node;
@@ -438,14 +442,12 @@ QString Generator::imageFileName( const Location& location,
 				  const QString& fileBase )
 {
     QString userFriendlyFilePath;
-    QString filePath = Config::findFile( location, imageFiles, imageDirs,
-					 fileBase, imgFileExts[format()],
-					 userFriendlyFilePath );
-    if ( filePath.isEmpty() )
+    QString filePath = Config::findFile(location, imageFiles, imageDirs, fileBase,
+					imgFileExts[format()], userFriendlyFilePath);
+    if (filePath.isEmpty())
 	return "";
 
-    return Config::copyFile( location, filePath, userFriendlyFilePath,
-			     outputDir() );
+    return Config::copyFile(location, filePath, userFriendlyFilePath, outputDir());
 }
 
 void Generator::setImageFileExtensions( const QStringList& extensions )
@@ -485,33 +487,90 @@ QString Generator::trimmedTrailing(const QString &string)
 void Generator::generateStatus( const Node *node, CodeMarker *marker )
 {
     Text text;
+
     switch ( node->status() ) {
     case Node::Commendable:
 	break;
     case Node::Preliminary:
-	text << Atom::ParaLeft
-	     << Atom( Atom::FormattingLeft, ATOM_FORMATTING_BOLD ) << "This "
-	     << typeString( node )
-	     << " is under development and is subject to change."
-	     << Atom( Atom::FormattingRight, ATOM_FORMATTING_BOLD )
-	     << Atom::ParaRight;
+	text << Atom::ParaLeft << Atom( Atom::FormattingLeft, ATOM_FORMATTING_BOLD ) << "This "
+	     << typeString( node ) << " is under development and is subject to change."
+	     << Atom( Atom::FormattingRight, ATOM_FORMATTING_BOLD ) << Atom::ParaRight;
 	break;
     case Node::Deprecated:
-	text << Atom::ParaLeft
-	     << Atom( Atom::FormattingLeft, ATOM_FORMATTING_BOLD ) << "This "
+	text << Atom::ParaLeft << Atom( Atom::FormattingLeft, ATOM_FORMATTING_BOLD ) << "This "
 	     << typeString( node ) << " is deprecated."
-	     << Atom( Atom::FormattingRight, ATOM_FORMATTING_BOLD )
-	     << Atom::ParaRight;
+             << Atom( Atom::FormattingRight, ATOM_FORMATTING_BOLD ) << Atom::ParaRight;
 	break;
     case Node::Obsolete:
-	text << Atom::ParaLeft
-	     << Atom( Atom::FormattingLeft, ATOM_FORMATTING_BOLD ) << "This "
+	text << Atom::ParaLeft << Atom( Atom::FormattingLeft, ATOM_FORMATTING_BOLD ) << "This "
 	     << typeString( node ) << " is obsolete."
 	     << Atom( Atom::FormattingRight, ATOM_FORMATTING_BOLD )
-	     << " It is provided to keep old source code working.  We strongly"
-	     << " advise against using it in new code." << Atom::ParaRight;
+	     << " It is provided to keep old source code working. We strongly advise against using "
+             << "it in new code." << Atom::ParaRight;
     }
-    generateText( text, node, marker );
+    generateText(text, node, marker);
+}
+
+void Generator::generateThreadSafeness(const Node *node, CodeMarker *marker)
+{
+    Text text;
+    Text theStockLink;
+    Node::ThreadSafeness parent = node->parent()->inheritedThreadSafeness();
+
+    switch (node->threadSafeness()) {
+    case Node::UnspecifiedSafeness:
+	break;
+    case Node::NonReentrant:
+	text << Atom::ParaLeft << Atom(Atom::FormattingLeft, ATOM_FORMATTING_BOLD) << "Warning:"
+             << Atom(Atom::FormattingRight, ATOM_FORMATTING_BOLD) << " This "
+             << typeString(node) << " is not " << stockLink("reentrant") << "." << Atom::ParaRight;
+	break;
+    case Node::Reentrant:
+    case Node::ThreadSafe:
+	text << Atom::ParaLeft << Atom(Atom::FormattingLeft, ATOM_FORMATTING_BOLD);
+        if (parent == Node::ThreadSafe) {
+	    text << "Warning:";
+	} else {
+	    text << "Note:";
+        }
+        text << Atom(Atom::FormattingRight, ATOM_FORMATTING_BOLD) << " ";
+
+	if (node->threadSafeness() == Node::ThreadSafe)
+	    theStockLink = stockLink("thread-safe");
+	else
+	    theStockLink = stockLink("reentrant");
+
+        if (node->isInnerNode()) {
+	    const InnerNode *innerNode = static_cast<const InnerNode *>(node);
+	    text << "All the functions in this " << typeString(node) << " are "
+		 << theStockLink;
+
+	    NodeList except;
+            NodeList::ConstIterator c = innerNode->childNodes().begin();
+            while (c != innerNode->childNodes().end()) {
+		if ((*c)->threadSafeness() != Node::UnspecifiedSafeness)
+		    except.append(*c);
+		++c;
+            }
+	    if (except.isEmpty()) {
+		text << ".";
+	    } else {
+		text << ", except ";
+
+                NodeList::ConstIterator e = except.begin();
+                int index = 0;
+                while (e != except.end()) {
+		    appendFullName(text, *e, innerNode, marker);
+                    text << separator(index++, except.count());
+		    ++e;
+                }
+            }
+	} else {
+            text << typeString(node) << " is " << theStockLink << ".";
+        }
+        text << Atom::ParaRight;
+    }
+    generateText(text, node, marker);
 }
 
 void Generator::generateOverload( const Node *node, CodeMarker *marker )
@@ -589,9 +648,8 @@ void Generator::appendFullName( Text& text, const Node *apparentNode,
 {
     if ( actualNode == 0 )
 	actualNode = apparentNode;
-    text << Atom( Atom::LinkNode, CodeMarker::stringForNode(actualNode) )
-	 << Atom( Atom::FormattingLeft, ATOM_FORMATTING_LINK )
-	 << Atom( Atom::String,
-		  plainCode( marker->markedUpFullName(apparentNode, relative)) )
-	 << Atom( Atom::FormattingRight, ATOM_FORMATTING_LINK );
+    text << Atom(Atom::LinkNode, CodeMarker::stringForNode(actualNode))
+	 << Atom(Atom::FormattingLeft, ATOM_FORMATTING_LINK)
+	 << Atom(Atom::String, plainCode(marker->markedUpFullName(apparentNode, relative)))
+	 << Atom(Atom::FormattingRight, ATOM_FORMATTING_LINK);
 }

@@ -41,7 +41,7 @@ static const struct {
 
 static QDict<Tree> trees;
 
-static Tree *treeForLanguage( const QString& lang )
+static Tree *treeForLanguage(const QString &lang)
 {
     Tree *tree = trees[lang];
     if ( tree == 0 ) {
@@ -67,16 +67,15 @@ static void printVersion()
     Location::information( tr("qdoc version 3.0") );
 }
 
-static void processQdocFile( const QString& fileName )
+static void processQdocFile(const QString &fileName)
 {
     QList<QTranslator *> translators;
 
     Config config( tr("qdoc") );
 
     int i = 0;
-    while ( defaults[i].key != 0 ) {
-	config.setStringList( defaults[i].key,
-			      QStringList() << defaults[i].value );
+    while (defaults[i].key) {
+	config.setStringList(defaults[i].key, QStringList() << defaults[i].value);
 	i++;
     }
 
@@ -111,6 +110,7 @@ static void processQdocFile( const QString& fileName )
 
     QString lang = config.getString( CONFIG_LANGUAGE );
     Tree *tree = treeForLanguage( lang );
+    tree->setVersion(config.getString(CONFIG_VERSION));
     CodeParser *codeParser = CodeParser::parserForLanguage( lang );
     if ( codeParser == 0 )
 	config.lastLocation().fatal( tr("Cannot parse language '%1'")
@@ -153,6 +153,7 @@ static void processQdocFile( const QString& fileName )
 	generator->generateTree( tree, marker );
 	++of;
     }
+    tree->setVersion("");
 
     Generator::terminate();
     CodeParser::terminate();

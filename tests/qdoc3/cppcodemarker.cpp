@@ -13,32 +13,30 @@ CppCodeMarker::~CppCodeMarker()
 {
 }
 
-bool CppCodeMarker::recognizeCode( const QString& /* code */ )
+bool CppCodeMarker::recognizeCode(const QString & /* code */)
 {
     return FALSE;
 }
 
-bool CppCodeMarker::recognizeExtension( const QString& ext )
+bool CppCodeMarker::recognizeExtension(const QString& ext)
 {
-    return ext == "c" || ext == "c++" || ext == "cc" || ext == "cpp" ||
-	   ext == "cxx" || ext == "ch" || ext == "h" || ext == "h++" ||
-	   ext == "hh" || ext == "hpp" || ext == "hxx";
+    return ext == "c" || ext == "c++" || ext == "cc" || ext == "cpp" || ext == "cxx" || ext == "ch"
+	   || ext == "h" || ext == "h++" || ext == "hh" || ext == "hpp" || ext == "hxx";
 }
 
-bool CppCodeMarker::recognizeLanguage( const QString& lang )
+bool CppCodeMarker::recognizeLanguage(const QString &lang)
 {
     return lang == "C" || lang == "C++";
 }
 
-QString CppCodeMarker::markedUpCode( const QString& code,
-				     const Node *relative,
-				     const QString& dirPath )
+QString CppCodeMarker::markedUpCode(const QString& code, const Node *relative,
+				    const QString& dirPath)
 {
-    return addMarkUp( protect(code), relative, dirPath );
+    return addMarkUp(protect(code), relative, dirPath);
 }
 
-QString CppCodeMarker::markedUpSynopsis( const Node *node, const Node *relative,
-					 SynopsisStyle style )
+QString CppCodeMarker::markedUpSynopsis(const Node *node, const Node *relative,
+					SynopsisStyle style)
 {
     const FunctionNode *func;
     const PropertyNode *property;
@@ -47,12 +45,12 @@ QString CppCodeMarker::markedUpSynopsis( const Node *node, const Node *relative,
     QString name;
 
     name = taggedNode( node );
-    if ( style == Summary )
+    if ( style != Detailed )
 	name = linkTag( node, name );
     name = "<@name>" + name + "</@name>";
-    if ( style == Detailed && !node->parent()->name().isEmpty() &&
-	 node->type() != Node::Property )
-	name.prepend( taggedNode(node->parent()) + "::" );
+
+    if (style == Detailed && !node->parent()->name().isEmpty() && node->type() != Node::Property)
+	name.prepend(taggedNode(node->parent()) + "::");
 
     switch ( node->type() ) {
     case Node::Namespace:
@@ -124,10 +122,6 @@ QString CppCodeMarker::markedUpSynopsis( const Node *node, const Node *relative,
     case Node::Property:
 	property = (const PropertyNode *) node;
 	synopsis = property->dataType() + " " + name;
-	if (style == Summary) {
-	    if (!property->setter())
-		extra += " (read only)";
-	}
 	break;
     default:
 	synopsis = name;
@@ -158,13 +152,12 @@ QString CppCodeMarker::markedUpName( const Node *node )
     return name;
 }
 
-QString CppCodeMarker::markedUpFullName( const Node *node,
-					 const Node * /* relative */ )
+QString CppCodeMarker::markedUpFullName(const Node *node, const Node *relative)
 {
     QString fullName;
     for ( ;; ) {
 	fullName.prepend( markedUpName(node) );
-	if ( node->parent()->name().isEmpty() )
+	if ( node->parent() == relative || node->parent()->name().isEmpty() )
 	    break;
 	node = node->parent();
 	fullName.prepend( "<@op>::</@op>" );
@@ -186,11 +179,7 @@ QString CppCodeMarker::markedUpIncludes( const QStringList& includes )
 
 QString CppCodeMarker::functionBeginRegExp( const QString& funcName )
 {
-    return "^[ \t]*" +
-#if QT_VERSION >= 0x030100
-	   QRegExp::escape
-#endif
-	   ( funcName ) + "[^\n]*(\n[ \t][^\n]*)*\\{";
+    return "^[ \t]*" + QRegExp::escape(funcName) + "[^\n]*(\n[ \t][^\n]*)*\\{";
 
 }
 
@@ -204,34 +193,35 @@ QList<ClassSection> CppCodeMarker::classSections(const ClassNode *classe, Synops
     QList<ClassSection> sections;
 
     if ( style == Summary ) {
-	FastClassSection privateFunctions( classe, "Private Functions",
-					   "function", "functions" );
-	FastClassSection privateSlots( classe, "Private Slots", "slot",
-				       "slots" );
-	FastClassSection privateTypes( classe, "Private Types", "type",
-				       "types" );
-	FastClassSection properties( classe, "Properties", "property",
-				     "properties" );
-	FastClassSection protectedFunctions( classe, "Protected Functions",
-					     "function", "functions" );
-	FastClassSection protectedSlots( classe, "Protected Slots", "slot",
-					 "slots" );
-	FastClassSection protectedTypes( classe, "Protected Types", "type",
-					 "types" );
-	FastClassSection publicFunctions( classe, "Public Functions",
-					  "function", "functions" );
-	FastClassSection publicSignals( classe, "Signals", "signal",
-					"signals" );
-	FastClassSection publicSlots( classe, "Public Slots", "slot", "slots" );
-	FastClassSection publicTypes( classe, "Public Types", "type", "types" );
-	FastClassSection relatedNonMemberFunctions( classe,
-		"Related Non-member Functions", "function", "functions" );
-	FastClassSection staticPrivateMembers( classe,
-		"Static Private Members" );
-	FastClassSection staticProtectedMembers( classe,
-		"Static Protected Members" );
-	FastClassSection staticPublicMembers( classe, "Static Public Members" );
-
+	FastClassSection privateFunctions(classe, "Private Functions", "private function",
+					  "private functions");
+	FastClassSection privateSlots(classe, "Private Slots", "private slot", "private slots");
+	FastClassSection privateTypes(classe, "Private Types", "private type", "private types");
+	FastClassSection protectedFunctions(classe, "Protected Functions", "protected function",
+					    "protected functions");
+	FastClassSection protectedSlots(classe, "Protected Slots", "protected slot",
+					"protected slots");
+	FastClassSection protectedTypes(classe, "Protected Types", "protected type",
+					"protected types");
+	FastClassSection publicFunctions(classe, "Public Functions", "public function",
+					 "public functions");
+	FastClassSection publicSignals(classe, "Signals", "signal", "signals" );
+	FastClassSection publicSlots(classe, "Public Slots", "public slot", "public slots");
+	FastClassSection publicTypes(classe, "Public Types", "public type", "public types");
+	FastClassSection readOnlyProperties(classe, "Read-Only Properties", "read-only property",
+					    "read-only properties");
+	FastClassSection relatedNonMemberFunctions(classe, "Related Non-member Functions",
+						   "related non-member function",
+                                                   "related non-member functions");
+	FastClassSection staticPrivateMembers(classe, "Static Private Members",
+					      "static private member", "static private members");
+	FastClassSection staticProtectedMembers(classe, "Static Protected Members",
+						"static protected member",
+                                                "static protected members");
+	FastClassSection staticPublicMembers(classe, "Static Public Members",
+					     "static public member", "static public members");
+	FastClassSection writableProperties(classe, "Writable Properties", "writable property",
+					    "writable properties");
 
 	QStack<const ClassNode *> stack;
 	stack.push( classe );
@@ -260,7 +250,12 @@ QList<ClassSection> CppCodeMarker::classSections(const ClassNode *classe, Synops
 		    } else if ( isStatic ) {
 		        insert( staticPublicMembers, *c, style );
 		    } else if ( (*c)->type() == Node::Property ) {
-		        insert( properties, *c, style );
+			const PropertyNode *property = static_cast<const PropertyNode *>(*c);
+                        if (property->setter()) {
+			    insert( writableProperties, *c, style );
+			} else {
+			    insert( readOnlyProperties, *c, style );
+                        }
 		    } else if ( (*c)->type() == Node::Function ) {
 		        insert( publicFunctions, *c, style );
 		    } else {
@@ -299,7 +294,8 @@ QList<ClassSection> CppCodeMarker::classSections(const ClassNode *classe, Synops
 	    }
 	}
 
-	append( sections, properties );
+	append( sections, writableProperties );
+	append( sections, readOnlyProperties );
 	append( sections, publicTypes );
 	append( sections, publicFunctions );
 	append( sections, publicSlots );
@@ -309,10 +305,12 @@ QList<ClassSection> CppCodeMarker::classSections(const ClassNode *classe, Synops
 	append( sections, protectedFunctions );
 	append( sections, protectedSlots );
 	append( sections, staticProtectedMembers );
+#if 0
 	append( sections, privateTypes );
 	append( sections, privateFunctions );
 	append( sections, privateSlots );
 	append( sections, staticPrivateMembers );
+#endif
 	append( sections, relatedNonMemberFunctions );
     } else if (style == Detailed) {
 	FastClassSection memberFunctions(classe, "Member Function Documentation");
@@ -345,12 +343,12 @@ QList<ClassSection> CppCodeMarker::classSections(const ClassNode *classe, Synops
 	QStack<const ClassNode *> stack;
 	stack.push( classe );
 
-	while ( !stack.isEmpty() ) {
+	while (!stack.isEmpty()) {
 	    const ClassNode *ancestorClass = stack.pop();
 
 	    NodeList::ConstIterator c = ancestorClass->childNodes().begin();
-	    while ( c != ancestorClass->childNodes().end() ) {
-		if ( (*c)->access() == Node::Public )
+	    while (c != ancestorClass->childNodes().end()) {
+		if ((*c)->access() != Node::Private && (*c)->type() != Node::Property)
 		    insert( all, *c, style );
 		++c;
 	    }

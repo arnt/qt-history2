@@ -53,9 +53,10 @@ public:
 
     int getToken();
 
-    const Location& location() const { return yyTokLoc; }
+    const Location &location() const { return yyTokLoc; }
     QString previousLexeme() const { return QString( yyPrevLex ); }
     QString lexeme() const { return QString( yyLex ); }
+    QString version() const { return yyVersion; }
     int braceDepth() const { return yyBraceDepth; }
     int parenDepth() const { return yyParenDepth; }
     int bracketDepth() const { return yyBracketDepth; }
@@ -97,6 +98,8 @@ private:
     int yyParenDepth;
     int yyBracketDepth;
     int yyCh;
+
+    QString yyVersion;
 };
 
 inline int Tokenizer::getChar() {

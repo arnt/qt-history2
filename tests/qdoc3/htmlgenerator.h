@@ -8,6 +8,7 @@
 #include <qmap.h>
 #include <qregexp.h>
 
+#include "config.h"
 #include "pagegenerator.h"
 
 #if 0
@@ -28,6 +29,7 @@ public:
     virtual void initializeGenerator( const Config& config );
     virtual void terminateGenerator();
     virtual QString format();
+    virtual void generateTree(const Tree *tree, CodeMarker *marker);
 
 protected:
     virtual void startText( const Node *relative, CodeMarker *marker );
@@ -78,6 +80,16 @@ private:
     bool inLink;
     QString link;
     QRegExp funcLeftParen;
+    QString style;
+    QString postHeader;
+    QString footer;
+    QString address;
+    QString version;
 };
+
+#define HTMLGENERATOR_ADDRESS           "address"
+#define HTMLGENERATOR_FOOTER            "footer"
+#define HTMLGENERATOR_POSTHEADER        "postheader"
+#define HTMLGENERATOR_STYLE             "style"
 
 #endif

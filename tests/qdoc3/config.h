@@ -73,6 +73,7 @@ private:
 #define CONFIG_DOCS                     "docs"
 #define CONFIG_EXAMPLEDIRS              "exampledirs"
 #define CONFIG_EXAMPLES                 "examples"
+#define CONFIG_EXTRAIMAGES              "extraimages"
 #define CONFIG_FALSEHOODS               "falsehoods"
 #define CONFIG_FORMATTING               "formatting"
 #define CONFIG_HEADERDIRS               "headerdirs"

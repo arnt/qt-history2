@@ -191,11 +191,7 @@ QString QsCodeMarker::markedUpIncludes( const QStringList& /* includes */ )
 
 QString QsCodeMarker::functionBeginRegExp( const QString& funcName )
 {
-    return "^function[ \t].*\\b" +
-#if QT_VERSION >= 0x030100
-	   QRegExp::escape
-#endif
-	   ( funcName );
+    return "^function[ \t].*\\b" + QRegExp::escape( funcName );
 }
 
 QString QsCodeMarker::functionEndRegExp( const QString& /* funcName */ )
@@ -207,14 +203,13 @@ QList<ClassSection> QsCodeMarker::classSections( const ClassNode *classe, Synops
 {
     QList<ClassSection> sections;
     if ( style == Summary ) {
-	FastClassSection enums( classe, "Enums" );
-	FastClassSection functions( classe, "Functions", "function",
-				    "functions" );
-	FastClassSection readOnlyProperties( classe, "Read-only Properties",
-					     "property", "properties" );
-	FastClassSection signalz( classe, "Signals", "signal", "signals" );
-	FastClassSection writableProperties( classe, "Writable Properties",
-					     "property", "properties" );
+	FastClassSection enums(classe, "Enums", "enum", "enums");
+	FastClassSection functions(classe, "Functions", "function", "functions");
+	FastClassSection readOnlyProperties(classe, "Read-Only Properties", "property",
+					    "properties");
+	FastClassSection signalz(classe, "Signals", "signal", "signals");
+	FastClassSection writableProperties(classe, "Writable Properties", "property",
+					    "properties");
 
 	QStack<const ClassNode *> stack;
 	stack.push( classe );

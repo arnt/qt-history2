@@ -43,7 +43,7 @@ void PageGenerator::endSubPage()
     delete outStreamStack.pop();
 }
 
-QTextStream& PageGenerator::out()
+QTextStream &PageGenerator::out()
 {
     return *outStreamStack.top();
 }

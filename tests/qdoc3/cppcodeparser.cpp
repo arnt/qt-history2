@@ -13,23 +13,23 @@
 
 /* qmake ignore Q_OBJECT */
 
-#define COMMAND_CLASS                   Doc::alias( "class" )
-#define COMMAND_ENUM                    Doc::alias( "enum" )
-#define COMMAND_FILE                    Doc::alias( "file" )
-#define COMMAND_FN                      Doc::alias( "fn" )
-#define COMMAND_GROUP                   Doc::alias( "group" )
-#define COMMAND_INHEADERFILE            Doc::alias( "inheaderfile" )
-#define COMMAND_MODULE                  Doc::alias( "module" )
-#define COMMAND_NAMESPACE               Doc::alias( "namespace" )
-#define COMMAND_OVERLOAD                Doc::alias( "overload" )
-#define COMMAND_PAGE                    Doc::alias( "page" )
-#define COMMAND_PROPERTY                Doc::alias( "property" )
-#define COMMAND_REIMP                   Doc::alias( "reimp" )
-#define COMMAND_RELATED                 Doc::alias( "related" )
-#define COMMAND_TYPEDEF                 Doc::alias( "typedef" )
+#define COMMAND_CLASS                   Doc::alias("class")
+#define COMMAND_ENUM                    Doc::alias("enum")
+#define COMMAND_FILE                    Doc::alias("file")
+#define COMMAND_FN                      Doc::alias("fn")
+#define COMMAND_GROUP                   Doc::alias("group")
+#define COMMAND_INHEADERFILE            Doc::alias("inheaderfile")
+#define COMMAND_MODULE                  Doc::alias("module")
+#define COMMAND_NAMESPACE               Doc::alias("namespace")
+#define COMMAND_OVERLOAD                Doc::alias("overload")
+#define COMMAND_PAGE                    Doc::alias("page")
+#define COMMAND_PROPERTY                Doc::alias("property")
+#define COMMAND_REIMP                   Doc::alias("reimp")
+#define COMMAND_RELATED                 Doc::alias("related")
+#define COMMAND_TYPEDEF                 Doc::alias("typedef")
 
 CppCodeParser::CppCodeParser()
-    : varComment( "/\\*\\s([a-zA-Z_0-9]+)\\s\\*/" ), sep( "(?:<[^>]+>)?::" )
+    : varComment("/\\*\\s([a-zA-Z_0-9]+)\\s\\*/"), sep("(?:<[^>]+>)?::")
 {
     reset( 0 );
 }
@@ -63,7 +63,7 @@ QString CppCodeParser::language()
 
 QString CppCodeParser::headerFileNameFilter()
 {
-    return "*.h *.h++ *.hh *.hpp *.hxx";
+    return "*.ch *.h *.h++ *.hh *.hpp *.hxx";
 }
 
 QString CppCodeParser::sourceFileNameFilter()
@@ -74,9 +74,9 @@ QString CppCodeParser::sourceFileNameFilter()
 void CppCodeParser::parseHeaderFile( const Location& location,
 				     const QString& filePath, Tree *tree )
 {
-    FILE *in = fopen( QFile::encodeName(filePath), "r" );
-    if ( in == 0 ) {
-	location.error( tr("Cannot open C++ header file '%1'").arg(filePath) );
+    FILE *in = fopen(QFile::encodeName(filePath), "r");
+    if (!in) {
+	location.error(tr("Cannot open C++ header file '%1'").arg(filePath));
 	return;
     }
 
@@ -86,14 +86,16 @@ void CppCodeParser::parseHeaderFile( const Location& location,
     tokenizer = &fileTokenizer;
     readToken();
     matchDeclList( tree->root() );
-    fclose( in );
+    if (!fileTokenizer.version().isEmpty())
+	tree->setVersion(fileTokenizer.version());
+    fclose(in);
 }
 
 void CppCodeParser::parseSourceFile( const Location& location,
 				     const QString& filePath, Tree *tree )
 {
     FILE *in = fopen( QFile::encodeName(filePath), "r" );
-    if ( in == 0 ) {
+    if (!in) {
 	location.error( tr("Cannot open C++ source file '%1'").arg(filePath) );
 	return;
     }

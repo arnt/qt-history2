@@ -348,20 +348,17 @@ int Tokenizer::getToken()
     return Tok_Eoi;
 }
 
-void Tokenizer::initialize( const Config& config )
+void Tokenizer::initialize(const Config &config)
 {
-    QString versionSym = config.getString( CONFIG_VERSIONSYM );
+    QString versionSym = config.getString(CONFIG_VERSIONSYM);
 
     comment = new QRegExp( "/(?:\\*.*\\*/|/.*\n|/[^\n]*$)" );
     comment->setMinimal( TRUE );
     versionX = new QRegExp( "$cannot possibly match^" );
-    if ( !versionSym.isEmpty() )
-	versionX->setPattern( "[ \t]*(?:" +
-#if QT_VERSION >= 0x030100
-			QRegExp::escape
-#endif
-			(versionSym) + ")[ \t]+\"([^\"]*)\"[ \t]*" );
-    definedX = new QRegExp( "defined ?\\( ?([A-Z_0-9a-z]+) ?\\)" );
+    if (!versionSym.isEmpty())
+	versionX->setPattern("[ \t]*(?:" + QRegExp::escape(versionSym)
+			     + ")[ \t]+\"([^\"]*)\"[ \t]*");
+    definedX = new QRegExp("defined ?\\( ?([A-Z_0-9a-z]+) ?\\)");
 
     QStringList d = config.getStringList( CONFIG_DEFINES );
     d += "qdoc";
@@ -501,10 +498,8 @@ int Tokenizer::getTokenAfterPreprocessor()
 		popSkipping();
 	    }
 	} else if ( directive == QString("define") ) {
-#if 0
-	    if ( versionX->exactMatch(condition) )
-		config->setVersion( versionX->cap(1) );
-#endif
+	    if (versionX->exactMatch(condition))
+		yyVersion = versionX->cap(1);
 	}
     }
 

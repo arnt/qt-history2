@@ -12,26 +12,40 @@ Node::~Node()
 
 void Node::setDoc( const Doc& doc, bool replace )
 {
-    if ( !d.isEmpty() && !replace ) {
-	doc.location().warning( tr("Overrides a previous doc") );
-	d.location().warning( tr("(The previous doc is here)") );
+    if (!d.isEmpty() && !replace) {
+	doc.location().warning(tr("Overrides a previous doc"));
+	d.location().warning(tr("(The previous doc is here)"));
     }
     d = doc;
 }
 
 Node::Node( Type type, InnerNode *parent, const QString& name )
-    : typ( type ), acc( Public ), sta( Commendable ), par( parent ), nam( name )
+    : typ(type), acc(Public), sta(Commendable), saf(UnspecifiedSafeness), par(parent), nam(name)
 {
-    if ( par != 0 )
-	par->addChild( this );
+    if (par)
+	par->addChild(this);
 }
 
 Node::Status Node::inheritedStatus() const
 {
     Status parentStatus = Commendable;
-    if ( par != 0 )
+    if ( par )
 	parentStatus = inheritedStatus();
     return QMIN( sta, parentStatus );
+}
+
+Node::ThreadSafeness Node::threadSafeness() const
+{
+    if (par && saf == par->inheritedThreadSafeness())
+	return UnspecifiedSafeness;
+    return saf;
+}
+
+Node::ThreadSafeness Node::inheritedThreadSafeness() const
+{
+    if (par && saf == UnspecifiedSafeness)
+	return par->inheritedThreadSafeness();
+    return saf;
 }
 
 InnerNode::~InnerNode()

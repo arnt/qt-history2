@@ -1,9 +1,14 @@
-  * make "List of all members" entries into links
-  * make "[5 members inherited from foo]" work
+  * make types be links in Detailed synopses
+  * make \sa and \link work
+  * make automatic links to function in text work
+  * make automatic links in code work
 
-  * optimize qdoc
+  * implement \reentrant & stuff
+  * ignore "friends" (e.g. QChar operator==())
+  * implement \mainclass
   * implement \table
   * implement qbook
   * implement ASCII-art inheritance tree
   * implement links
-  * implement page header and footer
+
+  * make it run faster
