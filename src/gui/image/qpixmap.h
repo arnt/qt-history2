@@ -37,9 +37,10 @@ public:
     QPixmap(int w, int h, int depth = -1, Optimization = DefaultOptim);
     QPixmap(const QSize &, int depth = -1, Optimization = DefaultOptim);
 #ifndef QT_NO_IMAGEIO
-    QPixmap(const QString& fileName, const char *format = 0, 
+    QPixmap(const QString& fileName, const char *format = 0,
             Qt::ImageConversionFlags flags = Qt::AutoColor, Optimization = DefaultOptim);
 #endif
+    QPixmap(const char * const xpm[]);
     QPixmap(const QPixmap &);
     ~QPixmap();
 
@@ -134,7 +135,6 @@ public:
 #ifndef QT_NO_IMAGEIO
     enum ColorMode { Auto, Color, Mono };
     QT_COMPAT_CONSTRUCTOR QPixmap(const QString& fileName, const char *format, ColorMode mode);
-    QT_COMPAT_CONSTRUCTOR QPixmap(const char * const xpm[]);
     QT_COMPAT bool load(const QString& fileName, const char *format, ColorMode mode);
     QT_COMPAT bool loadFromData(const uchar *buf, uint len, const char* format, ColorMode mode);
 #endif
@@ -144,10 +144,6 @@ public:
         { return fromImage(img, flags); }
     inline QT_COMPAT operator QImage() const { return toImage(); }
     inline QT_COMPAT QPixmap xForm(const QMatrix &matrix) const { return transform(matrix); }
-#elif defined (Q_WS_QWS)
-    // Keep constructor on Qt/Embedded until we
-    // have a better solution to pixmap resources
-    QPixmap(const char * const xpm[]);
 #endif
 
 protected:
