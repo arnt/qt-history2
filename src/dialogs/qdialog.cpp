@@ -276,6 +276,19 @@ void QDialog::setDefault( QPushButton *pushButton )
 
 /*!
   \internal
+  This function sets the default default pushbutton to \a pushButton.
+  This function is called by QPushButton::setDefault().
+*/
+void QDialog::setMainDefault( QPushButton *pushButton )
+{
+#ifndef QT_NO_PUSHBUTTON
+    d->mainDef = 0;
+    setDefault(pushButton);
+#endif
+}
+
+/*!
+  \internal
   Hides the default button indicator. Called when non auto-default
   push button get focus.
  */

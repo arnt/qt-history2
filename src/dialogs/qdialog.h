@@ -85,6 +85,7 @@ protected:
 
 private:
     void	setDefault( QPushButton * );
+    void	setMainDefault( QPushButton * );
     void	hideDefault();
 #ifdef Q_OS_TEMP
     void	hideSpecial();

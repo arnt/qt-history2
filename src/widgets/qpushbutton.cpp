@@ -365,13 +365,12 @@ void QPushButton::setDefault( bool enable )
     defButton = enable;
 #ifndef QT_NO_DIALOG
     if ( defButton && qt_cast<QDialog*>(topLevelWidget()) )
- 	((QDialog*)topLevelWidget())->setDefault( this );
+ 	((QDialog*)topLevelWidget())->setMainDefault( this );
 #endif
     update();
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
 #endif
-
 }
 
 
@@ -548,14 +547,13 @@ void QPushButton::updateMask()
 */
 void QPushButton::focusInEvent( QFocusEvent *e )
 {
-    if ( autoDefButton )
-	setDefault( TRUE );
-#if 0
-    else {
-	if ( qt_cast<QDialog*>(topLevelWidget()) )
-	    ((QDialog*)topLevelWidget())->hideDefault();
-    }
+    if (autoDefButton && !defButton) {
+	defButton = TRUE;
+#ifndef QT_NO_DIALOG
+	if ( defButton && qt_cast<QDialog*>(topLevelWidget()) )
+ 	    ((QDialog*)topLevelWidget())->setDefault( this );
 #endif
+    }
     QButton::focusInEvent( e );
 }
 
