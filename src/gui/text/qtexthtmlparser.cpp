@@ -1141,7 +1141,7 @@ QTextCodec *QTextHtmlParser::codecForStream(const QByteArray &ba)
         if (pos != -1) {
             int pos2 = ba.indexOf('\"', pos+1);
             QByteArray cs = ba.mid(pos, pos2-pos);
-            qDebug("found charset: %s", cs.data());
+//            qDebug("found charset: %s", cs.data());
             c = QTextCodec::codecForName(cs);
         }
     }
