@@ -5499,8 +5499,10 @@ QSessionManager::QSessionManager(QApplication * app, QString &id, QString& key)
 
 QSessionManager::~QSessionManager()
 {
-    if (smcConnection)
-      SmcCloseConnection(smcConnection, 0, 0);
+    if (smcConnection){
+        IceProcessMessages(SmcGetIceConnection(smcConnection), 0, 0);
+        SmcCloseConnection(smcConnection, 0, 0);
+    }
     smcConnection = 0;
     delete sm_receiver;
 }
