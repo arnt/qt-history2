@@ -817,7 +817,7 @@ public:
 	}
     }
     void toFirst() {
-	multi = ( data->things.count() == 0 );
+	multi = FALSE;
 	idx = 0;
     }
     QLayoutItem *next() {
