@@ -187,7 +187,7 @@ public:
     QWExtra *extra;
     QWidget *focus_next;
     QWidget *focus_child;
-    QList<QAction*> *actions;
+    QList<QAction*> actions;
 #ifndef QT_NO_LAYOUT
     QLayout *layout;
 #endif

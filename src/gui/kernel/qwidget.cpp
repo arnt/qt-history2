@@ -53,7 +53,7 @@
 
 
 QWidgetPrivate::QWidgetPrivate() :
-        QObjectPrivate(), extra(0), focus_child(0), actions(0)
+        QObjectPrivate(), extra(0), focus_child(0)
 #ifndef QT_NO_LAYOUT
         ,layout(0)
 #endif
@@ -74,7 +74,6 @@ QWidgetPrivate::QWidgetPrivate() :
 
 QWidgetPrivate::~QWidgetPrivate()
 {
-    delete actions;
     if (extra)
         deleteExtra();
 }
@@ -1678,11 +1677,9 @@ bool QWidget::isEnabledTo(QWidget* ancestor) const
 void
 QWidget::addAction(QAction *action)
 {
-    if(!d->actions)
-        d->actions = new QList<QAction*>();
-    else if(d->actions->indexOf(action) != -1)
+    if(d->actions.contains(action))
         return;
-    d->actions->append(action);
+    d->actions.append(action);
     QObject::connect(action, SIGNAL(dataChanged()), this, SLOT(actionChanged()));
     QActionEvent e(QEvent::ActionAdded, action);
     QApplication::sendEvent(this, &e);
@@ -1709,14 +1706,10 @@ QWidget::addActions(QList<QAction*> actions)
 void
 QWidget::insertAction(QAction *before, QAction *action)
 {
-    if(!d->actions) {
-        d->actions = new QList<QAction*>();
-        d->actions->append(action);
-    } else {
-        int before_int = d->actions->indexOf(before);
-        d->actions->removeAll(action);
-        d->actions->insert(before_int, action);
-    }
+    if(d->actions.contains(action))
+        d->actions.removeAll(action);
+    int before_int = d->actions.indexOf(before);
+    d->actions.insert(before_int, action);
     QObject::connect(action, SIGNAL(dataChanged()), this, SLOT(actionChanged()));
     QActionEvent e(QEvent::ActionAdded, action, before);
     QApplication::sendEvent(this, &e);
@@ -1744,7 +1737,7 @@ QWidget::insertActions(QAction *before, QList<QAction*> actions)
 void
 QWidget::removeAction(QAction *action)
 {
-    if (d->actions && d->actions->removeAll(action)) {
+    if (d->actions.removeAll(action)) {
         QObject::disconnect(action, SIGNAL(dataChanged()), this, SLOT(actionChanged()));
         QActionEvent e(QEvent::ActionRemoved, action);
         QApplication::sendEvent(this, &e);
@@ -1757,9 +1750,7 @@ QWidget::removeAction(QAction *action)
 QList<QAction*>
 QWidget::actions() const
 {
-    if(d->actions)
-        return *d->actions;
-    return QList<QAction*>();
+    return d->actions;
 }
 
 void
@@ -5262,8 +5253,8 @@ void QWidget::closeEvent(QCloseEvent *e)
 
 void QWidget::contextMenuEvent(QContextMenuEvent *e)
 {
-    if(d->actions) {
-        QMenu::exec(*d->actions, e->globalPos());
+    if(d->actions.count()) {
+        QMenu::exec(d->actions, e->globalPos());
         e->accept();
     } else {
         e->ignore();
