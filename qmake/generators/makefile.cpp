@@ -969,9 +969,12 @@ MakefileGenerator::writePrlFile()
 	if(dot != -1)
 	    prl = prl.left(dot);
 	prl += Option::prl_ext;
+        if(!project->isEmpty("QMAKE_BUNDLE_NAME"))
+            prl.prepend(project->first("QMAKE_BUNDLE_NAME") + Option::dir_sep);
 	if(!project->isEmpty("DESTDIR"))
 	    prl.prepend(var("DESTDIR"));
 	QString local_prl = Option::fixPathToLocalOS(fileFixify(prl, qmake_getpwd(), Option::output_dir));
+        createDir(fileInfo(local_prl).path());
 	QFile ft(local_prl);
 	if(ft.open(QIODevice::WriteOnly)) {
 	    project->variables()["ALL_DEPS"].append(prl);

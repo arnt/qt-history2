@@ -42,12 +42,14 @@ contains(QT_CONFIG, largefile):CONFIG += largefile
 
 #mac frameworks
 mac:contains(QT_CONFIG, qt_framework) {
-   QMAKE_FRAMEWORK_BUNDLE_NAME = $$TARGET
-   CONFIG += lib_bundle qt_no_framework_direct_includes
-   FRAMEWORK_HEADERS.version = Versions
-   FRAMEWORK_HEADERS.files = $$SYNCQT.HEADER_FILES $$SYNCQT.HEADER_CLASSES
-   FRAMEWORK_HEADERS.path = Headers
-   QMAKE_BUNDLE_DATA += FRAMEWORK_HEADERS
+   !debug_and_release|build_pass {
+      QMAKE_FRAMEWORK_BUNDLE_NAME = $$TARGET
+      CONFIG += lib_bundle qt_no_framework_direct_includes qt_force_framework
+      FRAMEWORK_HEADERS.version = Versions
+      FRAMEWORK_HEADERS.files = $$SYNCQT.HEADER_FILES $$SYNCQT.HEADER_CLASSES
+      FRAMEWORK_HEADERS.path = Headers
+      QMAKE_BUNDLE_DATA += FRAMEWORK_HEADERS
+   }
 }
 
 mac {

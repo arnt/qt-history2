@@ -650,7 +650,17 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
             const QStringList &bundle_data = project->variables()["QMAKE_BUNDLE_DATA"];
             for(int i = 0; i < bundle_data.count(); i++) {
                 const QStringList &files = project->variables()[bundle_data[i] + ".files"];
-                QString path = Option::fixPathToTargetOS(bundle_dir + project->first(bundle_data[i] + ".path"));
+                QString path = bundle_dir;
+                if(!project->isEmpty(bundle_data[i] + ".version")) {
+                    QString version = project->first(bundle_data[i] + ".version") + "/" +
+                                      project->first("VER_MAJ") + "." + project->first("VER_MIN") + "/";
+                    t << Option::fixPathToLocalOS(path + project->first(bundle_data[i] + ".path")) << ": " << "\n\t"
+                      << mkdir_p_asstring(path) << "\n\t"
+                      << "@$(SYMLINK) " << version << project->first(bundle_data[i] + ".path") << " " << path << endl;
+                    path += version;
+                }
+                path += project->first(bundle_data[i] + ".path");
+                path = Option::fixPathToLocalOS(path);
                 for(int file = 0; file < files.count(); file++) {
                     const QString dst = path + Option::dir_sep + fileInfo(files[file]).fileName();
                     t << dst << ": " << files[file] << "\n\t"
@@ -1014,6 +1024,43 @@ void UnixMakefileGenerator::init2()
                 rpath_destdir = Option::fixPathToTargetOS(rpath_destdir, false);
             }
             project->variables()["QMAKE_LFLAGS"] += project->first("QMAKE_LFLAGS_RPATH") + rpath_destdir;
+        }
+    }
+
+    if(!project->isEmpty("QMAKE_BUNDLE_NAME")) {
+        QString plist = fileFixify(project->first("QMAKE_INFO_PLIST"));
+        if(plist.isEmpty())
+            plist = specdir() + QDir::separator() + "Info.plist." + project->first("TEMPLATE");
+        if(exists(Option::fixPathToLocalOS(plist))) {
+            if(project->isEmpty("QMAKE_INFO_PLIST"))
+                project->variables()["QMAKE_INFO_PLIST"].append(plist);
+            project->variables()["QMAKE_INFO_PLIST_OUT"].append(project->first("DESTDIR") +
+                                                                project->first("QMAKE_BUNDLE_NAME") +
+                                                                "/Contents/Info.plist");
+            project->variables()["ALL_DEPS"] += project->first("QMAKE_INFO_PLIST_OUT");
+            if(!project->isEmpty("ICON") && project->first("TEMPLATE") == "app")
+                project->variables()["ALL_DEPS"] += project->first("DESTDIR") +
+                                                    project->first("QMAKE_BUNDLE_NAME") +
+                                                    "/Contents/Resources/" + project->first("ICON").section('/', -1);
+            if(!project->isEmpty("QMAKE_BUNDLE_DATA")) {
+                QString bundle_dir = project->first("DESTDIR") + project->first("QMAKE_BUNDLE_NAME") + "/";
+                QStringList &alldeps = project->variables()["ALL_DEPS"];
+                const QStringList &bundle_data = project->variables()["QMAKE_BUNDLE_DATA"];
+                for(int i = 0; i < bundle_data.count(); i++) {
+                    const QStringList &files = project->variables()[bundle_data[i] + ".files"];
+                    QString path = bundle_dir;
+                    if(!project->isEmpty(bundle_data[i] + ".version")) {
+                        alldeps += Option::fixPathToLocalOS(path + Option::dir_sep +
+                                                            project->first(bundle_data[i] + ".path"));
+                        path += project->first(bundle_data[i] + ".version") + "/" +
+                                project->first("VER_MAJ") + "." + project->first("VER_MIN") + "/";
+                    }
+                    path += project->first(bundle_data[i] + ".path");
+                    path = Option::fixPathToLocalOS(path);
+                    for(int file = 0; file < files.count(); file++)
+                        alldeps += path + Option::dir_sep + fileInfo(files[file]).fileName();
+                }
+            }
         }
     }
 }

@@ -148,7 +148,6 @@ UnixMakefileGenerator::init()
     if(project->isActiveConfig("compile_libtool"))
         Option::obj_ext = ".lo"; //override the .o
 
-    MakefileGenerator::init();
     if(project->isActiveConfig("macx") &&
        !project->isEmpty("TARGET") && !project->isActiveConfig("compile_libtool") &&
        ((project->first("TEMPLATE") == "app" && project->isActiveConfig("app_bundle")) ||
@@ -171,36 +170,11 @@ UnixMakefileGenerator::init()
                 bundle += ".framework";
             project->variables()["QMAKE_BUNDLE_NAME"] = QStringList(bundle);
         }
-
-        QString plist = fileFixify(project->first("QMAKE_INFO_PLIST"));
-        if(plist.isEmpty())
-            plist = specdir() + QDir::separator() + "Info.plist." + project->first("TEMPLATE");
-        if(exists(Option::fixPathToLocalOS(plist))) {
-            if(project->isEmpty("QMAKE_INFO_PLIST"))
-                project->variables()["QMAKE_INFO_PLIST"].append(plist);
-            project->variables()["QMAKE_INFO_PLIST_OUT"].append(project->first("DESTDIR") +
-                                                                project->first("QMAKE_BUNDLE_NAME") +
-                                                                "/Contents/Info.plist");
-            project->variables()["ALL_DEPS"] += project->first("QMAKE_INFO_PLIST_OUT");
-            if(!project->isEmpty("ICON") && project->first("TEMPLATE") == "app")
-               project->variables()["ALL_DEPS"] += project->first("DESTDIR") +
-                                                   project->first("QMAKE_BUNDLE_NAME") +
-                                                   "/Contents/Resources/" + project->first("ICON").section('/', -1);
-            if(!project->isEmpty("QMAKE_BUNDLE_DATA")) {
-                const QStringList &bundle_data = project->variables()["QMAKE_BUNDLE_DATA"];
-                for(int i = 0; i < bundle_data.count(); i++) {
-                    const QStringList &files = project->variables()[bundle_data[i] + ".files"];
-                    QString path = Option::fixPathToTargetOS(project->first("DESTDIR") +
-                                                             project->first("QMAKE_BUNDLE_NAME") + "/" +
-                                                             project->first(bundle_data[i] + ".path"));
-                    for(int file = 0; file < files.count(); file++)
-                        project->variables()["ALL_DEPS"] += path + Option::dir_sep + fileInfo(files[file]).fileName();
-                }
-            }
-        }
     } else { //no bundling here
         project->variables()["QMAKE_BUNDLE_NAME"].clear();
     }
+
+    MakefileGenerator::init();
 
     if(!project->isEmpty("QMAKE_INTERNAL_INCLUDED_FILES"))
         project->variables()["DISTFILES"] += project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"];
@@ -218,7 +192,8 @@ UnixMakefileGenerator::init()
             for(QStringList::Iterator objit = objs.begin(); objit != objs.end(); ++objit) {
                 if((++obj_cnt) >= max_files) {
                     if(lib_cnt) {
-                        lib.sprintf("lib%s-tmp%d.a", project->first("QMAKE_ORIG_TARGET").toLatin1().constData(), lib_cnt);
+                        lib.sprintf("lib%s-tmp%d.a",
+                                    project->first("QMAKE_ORIG_TARGET").toLatin1().constData(), lib_cnt);
                         ar_sublibs << lib;
                         obj_cnt = 0;
                     }
