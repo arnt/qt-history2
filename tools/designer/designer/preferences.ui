@@ -59,7 +59,7 @@
                     <cstring>pageGeneral</cstring>
                 </property>
                 <attribute name="title">
-                    <string>&amp;General</string>
+                    <string>General</string>
                 </attribute>
                 <grid>
                     <property name="name">
