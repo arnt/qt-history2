@@ -45,7 +45,7 @@ public:
 };
 
 QAuServerWindows::QAuServerWindows(QObject* parent) :
-    QAuServer(parent,"Windows Audio Server"), current(0)
+    QAuServer(parent), current(0)
 {
     mutex = CreateMutexA(0, 0, 0);
     event = CreateEventA(0, false, false, 0);
@@ -120,7 +120,7 @@ DWORD WINAPI SoundPlayProc(LPVOID param)
 		PlaySoundA( QFile::encodeName(filename).data(), 0,
 		    SND_FILENAME|SND_SYNC );
 	    } );
-	    
+
 	    if (guarded_sound)
 		server->decLoop(guarded_sound);
 	}
