@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/opengl/qglcolormap.cpp#4 $
+** $Id: //depot/qt/main/src/opengl/qglcolormap.cpp#5 $
 **
 ** Implementation of QGLColormap class
 **
@@ -222,15 +222,11 @@ QColor QGLColormap::entryColor( int idx ) const
 
 /*!
   Returns TRUE if the colormap is valid, otherwise FALSE.
-  
-  The most common reason for a colormap to be invalid under X11, is
-  that the X server does not support the visual class that is needed
-  for a read/write colormap. An empty colormap (no color values set) is
-  also considered to be invalid.
+  A colormap with no color values set is considered to be empty.
 */
 bool QGLColormap::isEmpty() const
 {
-    return (d != 0) && (d->cells.size() > 0);
+    return (d == 0) || (d->cells.size() == 0)  || (d->cmapHandle == 0);
 }
 
 
@@ -240,4 +236,44 @@ bool QGLColormap::isEmpty() const
 int QGLColormap::size() const
 {
     return d != 0 ? d->cells.size() : 0;
+}
+
+/*!
+  Returns the index of the color \a color. If \a color is not in the
+  map, -1 is returned.
+*/
+int QGLColormap::find( QRgb color ) const
+{
+    if ( d )
+	return d->cells.find( color );
+    return -1;
+}
+
+/*!
+  Returns the index of the color that is the closest match to color 
+  \a color.
+*/
+int QGLColormap::findNearest( QRgb color ) const
+{
+    int idx = find( color );
+    if ( idx >= 0 )
+	return idx;
+    int mapSize = size();
+    int mindist = 200000;
+    int r = qRed( color );
+    int g = qGreen( color );
+    int b = qBlue( color );
+    int rx, gx, bx, dist;
+    for ( int i=0; i < mapSize; i++ ) {
+	QRgb ci = d->cells[i];
+	rx = r - qRed( ci );
+	gx = g - qGreen( ci );
+	bx = b - qBlue( ci );
+	dist = rx*rx + gx*gx + bx*bx;	// calculate distance
+	if ( dist < mindist ) {		// minimal?
+	    mindist = dist;
+	    idx = i;
+	}
+    }
+    return idx;
 }

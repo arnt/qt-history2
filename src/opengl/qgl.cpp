@@ -1700,7 +1700,12 @@ void QGLWidget::qglColor( const QColor& c ) const
     if ( ctx ) {
 	if ( ctx->format().rgba() )
 	    glColor3ub( c.red(), c.green(), c.blue() );
-	else
+	else if ( !cmap.isEmpty() ) { // QGLColormap in use?
+	    int i = cmap.find( c.rgb() );
+	    if ( i < 0 )
+		i = cmap.findNearest( c.rgb() );
+	    glIndexi( i );
+	} else
 	    glIndexi( ctx->colorIndex( c ) );
     }
 }
@@ -1721,7 +1726,12 @@ void QGLWidget::qglClearColor( const QColor& c ) const
 	if ( ctx->format().rgba() )
 	    glClearColor( (GLfloat)c.red() / 255.0, (GLfloat)c.green() / 255.0,
 			  (GLfloat)c.blue() / 255.0, (GLfloat) 0.0 );
-	else
+	else if ( !cmap.isEmpty() ) { // QGLColormap in use?
+	    int i = cmap.find( c.rgb() );
+	    if ( i < 0 )
+		i = cmap.findNearest( c.rgb() );
+	    glClearIndex( i );
+	} else
 	    glClearIndex( ctx->colorIndex( c ) );
     }
 }

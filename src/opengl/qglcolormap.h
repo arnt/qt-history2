@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/opengl/qglcolormap.h#3 $
+** $Id: //depot/qt/main/src/opengl/qglcolormap.h#4 $
 **
 ** Definition of QGLColormap class
 **
@@ -69,6 +69,8 @@ public:
     void   setEntry( int idx, const QColor & color );
     QRgb   entryRgb( int idx ) const;
     QColor entryColor( int idx ) const;
+    int    find( QRgb color ) const;
+    int    findNearest( QRgb color ) const;
     
 private:
     class Private : public QShared
