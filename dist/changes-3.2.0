@@ -71,6 +71,15 @@ improved, including a walkthrough which covers the complete migration
 of a real-world Motif example to Qt. The process contains four
 intermediate steps where the application utilizes both toolkits.
 
+ActiveQt Extension
+------------------
+
+Type handling has been extended on both the container and the server
+side. New supported types are byte arrays and 64bit integers.
+The QAxServer module supports QObject subclasses as return and parameter
+types of slots, and allows error reporting through COM exceptions.
+The Designer integration has been extended to support property dialogs 
+implemented by the control server.
 
 Qt Designer
 -----------
@@ -88,7 +97,7 @@ Qt Assistant
 *			   Library					   *
 ****************************************************************************
 
--QAction / QActionGroup
+- QAction / QActionGroup
 	Simplified constructors; it no longer is necessary to specify
 	texts for buttons and menu items separately.
 	For action groups we fixed the enable/disable behaviour. If
@@ -103,6 +112,14 @@ Qt Assistant
 - QAssistentClient
 	New function setArguments() to invoke Assistent in different
 	modes.
+
+- QAxBase
+	New function asVariant() to pass a COM object through 
+	dynamicCall().
+
+- QAxBindable
+	New function reportError() to send error information to the 
+	ActiveX	client.
 
 - QColor
 	New static function colorNames() to retrieve a list of all
