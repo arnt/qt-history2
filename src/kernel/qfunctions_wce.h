@@ -1,6 +1,7 @@
-#ifndef __QFUNCTIONS_WCE_H__
-#define __QFUNCTIONS_WCE_H__
+#ifndef QFUNCTIONS_WCE_H
+#define QFUNCTIONS_WCE_H
 
+#ifdef Q_OS_TEMP
 
 #ifndef QT_H
 #endif // QT_H
@@ -211,11 +212,6 @@ HANDLE GetCurrentThread(void);
 /////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////
 
-typedef struct tagNCCALCSIZE_PARAMS {
-    RECT       rgrc[3];
-    PWINDOWPOS lppos;
-} NCCALCSIZE_PARAMS, *LPNCCALCSIZE_PARAMS;
-
 // Missing typedefs
 #ifndef _TIME_T_DEFINED
 typedef unsigned long time_t;
@@ -230,42 +226,6 @@ typedef LPVOID  LPCHOOSEFONT;
 typedef LPVOID  LPPAGESETUPDLG;
 #endif // _WIN32_WCE < 210
 typedef UINT    UWORD;
-
-// Missing headers
-#include "prsht.h"    
-
-// Missing string functions aliases
-#ifndef _istlead
-#define _istlead(ch) (FALSE)  
-#endif
-#ifndef _vsnwprintf
-#define _vsnwprintf(a,b,c,d) vswprintf(a,c,d)
-#endif
-
-/*
-#define lstrcmpA     strcmp
-#define lstrcatA     strcat
-#define _ttoi        _wtoi
-#define _itot        _itow
-#define _ltot        _ltow
-#define _ultot       _ultow
-#define lstrlenA     strlen
-#define lstrcpyA     strcpy
-*/
-#define lstrcpyn     _tcsncpy
-/*
-#define _tcstol      wcstol
-#define _tcstoul     wcstoul
-#define _tcstod      wcstod
-#define strtod       wcstod
-#define _tcsdec      _wcsdec
-#define _tcsinc      _wcsinc
-*/
-
-__inline wchar_t * __cdecl _wcsdec(const wchar_t * start, const wchar_t * current)
-	{ return (wchar_t *) ( (start>=current) ? NULL : (current-1) ); }
-__inline wchar_t * __cdecl _wcsinc(const wchar_t * _pc) { return (wchar_t *)(_pc+1); }
-__inline size_t    __cdecl _tclen( const wchar_t *_cpc) { return 2; } // for UNICODE
 
 // Missing definitions: not necessary equal to their Win32 values 
 // (the goal is to just have a clean compilation of MFC)
@@ -309,14 +269,6 @@ __inline size_t    __cdecl _tclen( const wchar_t *_cpc) { return 2; } // for UNI
 #ifndef DCX_CACHE
 #define DCX_CACHE                 (0x00000002L)
 #endif
-/*
-#ifndef INTERNET_HANDLE_TYPE_GOPHER_FILE
-#define INTERNET_HANDLE_TYPE_GOPHER_FILE -1
-#endif
-#ifndef INTERNET_SERVICE_GOPHER
-#define INTERNET_SERVICE_GOPHER   0
-#endif
-*/
 #define WAIT_OBJECT_0             0x00000000L
 #define PRF_CHILDREN              0x00000010L
 #define PRF_CLIENT                0x00000004L
@@ -415,7 +367,7 @@ __inline size_t    __cdecl _tclen( const wchar_t *_cpc) { return 2; } // for UNI
 	#define IDC_NO              MAKEINTRESOURCE(32648)
 	#define IDC_APPSTARTING     MAKEINTRESOURCE(32650)
 	#define IDC_HELP            MAKEINTRESOURCE(32651)
-	#define IDC_HAND			MAKEINTRESOURCE(32649)
+	#define IDC_HAND	    MAKEINTRESOURCE(32649)
 #endif 
 
 #if defined(_MIPS_)
@@ -431,6 +383,97 @@ extern "C" void _asm(char *, ...);
 #if (_WIN32_WCE < 300)
 #define GMEM_SHARE                0
 #endif // _WIN32_WCE
+
+// WinCE: CESYSGEN prunes the following FRP defines, 
+// and INTERNET_TRANSFER_TYPE_ASCII breaks in wininet.h
+#undef FTP_TRANSFER_TYPE_ASCII
+#define FTP_TRANSFER_TYPE_ASCII 0x00000001
+#undef FTP_TRANSFER_TYPE_BINARY
+#define FTP_TRANSFER_TYPE_BINARY 0x00000002
+
+#define MM_TEXT 1
+typedef DWORD OLE_COLOR;
+#define WS_OVERLAPPEDWINDOW 0 
+
+#ifndef MF_BITMAP
+#define MF_BITMAP 0x00000004L
+#endif
+
+#ifndef WS_EX_CAPTIONOKBTN
+#define WS_EX_CAPTIONOKBTN 0x80000000L
+#endif
+
+#ifndef WS_EX_NODRAG
+#define WS_EX_NODRAG       0x40000000L
+#endif
+
+#define FR_DOWN                         0x00000001
+#define FR_WHOLEWORD                    0x00000002
+#define FR_MATCHCASE                    0x00000004
+#define FR_FINDNEXT                     0x00000008
+#define FR_REPLACE                      0x00000010
+#define FR_REPLACEALL                   0x00000020
+#define FR_DIALOGTERM                   0x00000040
+#define FR_SHOWHELP                     0x00000080
+#define FR_ENABLEHOOK                   0x00000100
+#define FR_ENABLETEMPLATE               0x00000200
+#define FR_NOUPDOWN                     0x00000400
+#define FR_NOMATCHCASE                  0x00000800
+#define FR_NOWHOLEWORD                  0x00001000
+#define FR_ENABLETEMPLATEHANDLE         0x00002000
+#define FR_HIDEUPDOWN                   0x00004000
+#define FR_HIDEMATCHCASE                0x00008000
+#define FR_HIDEWHOLEWORD                0x00010000
+typedef UINT (APIENTRY *LPFRHOOKPROC) (HWND, UINT, WPARAM, LPARAM);
+
+#ifndef POCKET_PC
+HGLOBAL GlobalAlloc(UINT uFlags, DWORD dwBytes);
+HGLOBAL GlobalFree(HGLOBAL hMem);
+HGLOBAL GlobalReAlloc(HGLOBAL hMem, DWORD dwBytes, UINT uFlags);
+DWORD   GlobalSize(HGLOBAL hMem);
+LPVOID  GlobalLock(HGLOBAL hMem);
+BOOL    GlobalUnlock(HGLOBAL hMem);
+HGLOBAL GlobalHandle(LPCVOID pMem);
+UINT    GlobalFlags(HGLOBAL hMem);
+#endif
+
+/*
+typedef struct tagNCCALCSIZE_PARAMS {
+    RECT       rgrc[3];
+    PWINDOWPOS lppos;
+} NCCALCSIZE_PARAMS, *LPNCCALCSIZE_PARAMS;
+
+
+// The WinCE OS headers #defines the following, 
+// but it interferes with MFC member functions.
+#undef TrackPopupMenu
+#undef DrawIcon
+#undef SendDlgItemMessage
+#undef SetDlgItemText
+#undef GetDlgItemText
+#undef LoadCursor
+
+// ATLCONV.H support
+#ifndef _ASSERTE
+#define _ASSERTE ASSERT
+#endif
+
+
+typedef struct tagFINDREPLACEW 
+{
+   DWORD        lStructSize;        // size of this struct 0x20
+   HWND         hwndOwner;          // handle to owner's window
+   HINSTANCE    hInstance;          // instance handle of.EXE that
+                                    //   contains cust. dlg. template
+   DWORD        Flags;              // one or more of the FR_??
+   LPWSTR       lpstrFindWhat;      // ptr. to search string
+   LPWSTR       lpstrReplaceWith;   // ptr. to replace string
+   WORD         wFindWhatLen;       // size of find buffer
+   WORD         wReplaceWithLen;    // size of replace buffer
+   LPARAM       lCustData;          // data passed to hook fn.
+   LPFRHOOKPROC lpfnHook;           // ptr. to hook fn. or NULL
+   LPCWSTR      lpTemplateName;     // custom template name
+} FINDREPLACE, *LPFINDREPLACE;
 
 #if defined(_WIN32_WCE_PSPC) && (_WIN32_WCE == 201)
 	#define OFN_READONLY         0 
@@ -459,20 +502,6 @@ extern "C" void _asm(char *, ...);
 #include <wininet.h>
 #endif
 
-// The WinCE OS headers #defines the following, 
-// but it interferes with MFC member functions.
-#undef TrackPopupMenu
-#undef DrawIcon
-#undef SendDlgItemMessage
-#undef SetDlgItemText
-#undef GetDlgItemText
-#undef LoadCursor
-
-// ATLCONV.H support
-#ifndef _ASSERTE
-#define _ASSERTE ASSERT
-#endif
-
 #define wce_T2CA(lpszSrc) \
 	(lpszSrc ? wce_T2CAHelper((LPSTR)_alloca((_tcslen(lpszSrc)+1)*2), lpszSrc) : NULL)
 
@@ -491,96 +520,22 @@ extern "C" void _asm(char *, ...);
 )
 #endif // _WIN32_WCE_NO_OLE
 
-/*
-typedef struct tagHELPINFO     
-{
-}  HELPINFO;
-typedef void* LPHELPINFO;
-*/
+// Missing headers
+#include "prsht.h"    
 
-// WinCE: CESYSGEN prunes the following FRP defines, 
-// and INTERNET_TRANSFER_TYPE_ASCII breaks in wininet.h
-#undef FTP_TRANSFER_TYPE_ASCII
-#define FTP_TRANSFER_TYPE_ASCII 0x00000001
-#undef FTP_TRANSFER_TYPE_BINARY
-#define FTP_TRANSFER_TYPE_BINARY 0x00000002
-
-#define MM_TEXT 1
-typedef DWORD OLE_COLOR;
-#define WS_OVERLAPPEDWINDOW 0 
-
-#ifndef MF_BITMAP
-#define MF_BITMAP 0x00000004L
+// Missing string functions aliases
+#ifndef _istlead
+#define _istlead(ch) (FALSE)  
 #endif
-
-#ifndef WS_EX_CAPTIONOKBTN
-#define WS_EX_CAPTIONOKBTN 0x80000000L
+#ifndef _vsnwprintf
+#define _vsnwprintf(a,b,c,d) vswprintf(a,c,d)
 #endif
+#define lstrcpyn     _tcsncpy
 
-#ifndef WS_EX_NODRAG
-#define WS_EX_NODRAG       0x40000000L
-#endif
-
-/*
-// Forward declarations
-class  CWnd;
-class  CFrameWnd;
-struct CCreateContext;
-class  CPropertySheet;
-void   ATLConnectSinks(CWnd *pCtrl);
-void   AdjustPropertySheetSize(CPropertySheet *pSheet);
-*/
-
-#define FR_DOWN                         0x00000001
-#define FR_WHOLEWORD                    0x00000002
-#define FR_MATCHCASE                    0x00000004
-#define FR_FINDNEXT                     0x00000008
-#define FR_REPLACE                      0x00000010
-#define FR_REPLACEALL                   0x00000020
-#define FR_DIALOGTERM                   0x00000040
-#define FR_SHOWHELP                     0x00000080
-#define FR_ENABLEHOOK                   0x00000100
-#define FR_ENABLETEMPLATE               0x00000200
-#define FR_NOUPDOWN                     0x00000400
-#define FR_NOMATCHCASE                  0x00000800
-#define FR_NOWHOLEWORD                  0x00001000
-#define FR_ENABLETEMPLATEHANDLE         0x00002000
-#define FR_HIDEUPDOWN                   0x00004000
-#define FR_HIDEMATCHCASE                0x00008000
-#define FR_HIDEWHOLEWORD                0x00010000
-typedef UINT (APIENTRY *LPFRHOOKPROC) (HWND, UINT, WPARAM, LPARAM);
-
-typedef struct tagFINDREPLACEW 
-{
-   DWORD        lStructSize;        // size of this struct 0x20
-   HWND         hwndOwner;          // handle to owner's window
-   HINSTANCE    hInstance;          // instance handle of.EXE that
-                                    //   contains cust. dlg. template
-   DWORD        Flags;              // one or more of the FR_??
-   LPWSTR       lpstrFindWhat;      // ptr. to search string
-   LPWSTR       lpstrReplaceWith;   // ptr. to replace string
-   WORD         wFindWhatLen;       // size of find buffer
-   WORD         wReplaceWithLen;    // size of replace buffer
-   LPARAM       lCustData;          // data passed to hook fn.
-   LPFRHOOKPROC lpfnHook;           // ptr. to hook fn. or NULL
-   LPCWSTR      lpTemplateName;     // custom template name
-} FINDREPLACE, *LPFINDREPLACE;
-
-#ifndef _TM_DEFINED
-#define _TM_DEFINED
-struct tm {
-        int tm_sec;     /* seconds after the minute - [0,59] */
-        int tm_min;     /* minutes after the hour - [0,59] */
-        int tm_hour;    /* hours since midnight - [0,23] */
-        int tm_mday;    /* day of the month - [1,31] */
-        int tm_mon;     /* months since January - [0,11] */
-        int tm_year;    /* years since 1900 */
-        int tm_wday;    /* days since Sunday - [0,6] */
-        int tm_yday;    /* days since January 1 - [0,365] */
-        int tm_isdst;   /* daylight savings time flag */
-        };
-#endif // _TM_DEFINED
-
+__inline wchar_t * __cdecl _wcsdec(const wchar_t * start, const wchar_t * current)
+	{ return (wchar_t *) ( (start>=current) ? NULL : (current-1) ); }
+__inline wchar_t * __cdecl _wcsinc(const wchar_t * _pc) { return (wchar_t *)(_pc+1); }
+__inline size_t    __cdecl _tclen( const wchar_t *_cpc) { return 2; } // for UNICODE
 
 long	GetMessageTime();
 time_t	mktime(struct tm* );
@@ -592,17 +547,6 @@ HICON   ExtractIcon(HINSTANCE hInst, LPCWSTR lpszExeFileName, UINT nIconIndex);
 int     MulDiv(int nNumber, int nNumerator, int nDenominator);
 HINSTANCE GetModuleHandleA(LPCSTR lpModuleName);
 short   GetFileTitle(LPCTSTR lpszFile, LPTSTR lpszTitle, WORD cbBuf);
-
-#ifndef POCKET_PC
-HGLOBAL GlobalAlloc(UINT uFlags, DWORD dwBytes);
-HGLOBAL GlobalFree(HGLOBAL hMem);
-HGLOBAL GlobalReAlloc(HGLOBAL hMem, DWORD dwBytes, UINT uFlags);
-DWORD   GlobalSize(HGLOBAL hMem);
-LPVOID  GlobalLock(HGLOBAL hMem);
-BOOL    GlobalUnlock(HGLOBAL hMem);
-HGLOBAL GlobalHandle(LPCVOID pMem);
-UINT    GlobalFlags(HGLOBAL hMem);
-#endif
 
 DWORD   GetVersion();
 void*   calloc(size_t num, size_t size);
@@ -626,7 +570,6 @@ PSTR    T2CAHelper(LPSTR lpszDest, LPCTSTR lpszSrc);
 BOOL    CheckEmulationLibs(HINSTANCE hInstance);
 int     GetClipboardFormatNameA(UINT format, LPSTR lpszFormatName, int cchMaxCount);
 void    WaitMessage();
-//int     wsprintfA(LPSTR szBuf, LPCSTR szFormat, UINT nArg);
 BOOL    IsBadStringPtrA(LPCSTR lpsz, UINT ucchMax);
 BOOL    IsBadStringPtrW(LPCWSTR lpsz, UINT ucchMax);
 void    ReportDebugBreak(TCHAR *szFile, int nLine);
@@ -659,8 +602,6 @@ int     GetMenuItemCount(HMENU hMenu);
 int     GetMenuString(HMENU hMenu, UINT uIDItem, LPWSTR lpString, int nMaxCount, UINT uFlag);
 UINT    GetMenuState(HMENU hMenu, UINT uId, UINT uFlags);
 BOOL    InvalidateRgn(HWND hWnd, HRGN hRgn, BOOL bErase);
-//BOOL    PreCreateWindow(CREATESTRUCT& cs);
-//void    PostCreateWindow(CREATESTRUCT& cs, HWND hWnd, HMENU nIDorHMenu);
 int     GetScrollPos(HWND hWnd, int nBar);
 BOOL    GetScrollRange(HWND hWnd, int nBar, LPINT lpMinPos, LPINT lpMaxPos);
 void    ScrollChildren(HWND hWnd, int cx, int cy);
@@ -679,23 +620,11 @@ LONG    RegSetValue(HKEY hKey, LPCWSTR lpSubKey, DWORD dwType, LPCWSTR lpData, D
 LONG    RegCreateKey(HKEY hKey, LPCWSTR lpSubKey, PHKEY phkResult);
 LONG    RegEnumKey(HKEY hKey, DWORD dwIndex, LPTSTR lpName, DWORD cbName);
 LONG    RegQueryValue(HKEY hKey, LPCWSTR lpSubKey, LPWSTR lpValue, PLONG   lpcbValue);
-#if !defined(_WIN32_WCE_NO_WININET)
-//BOOL	InternetSetOptionEx(HINTERNET hInternet, DWORD dwOption, LPVOID lpBuffer, DWORD dwBufferLength, DWORD);
-#endif // _WIN32_WCE_NO_WININET
 HWND	FindText(LPFINDREPLACE lpfr);
 HWND	ReplaceText(LPFINDREPLACE lpfr);
 UINT	WINAPI CoTaskMemSize(LPVOID);
 LRESULT CALLBACK IMMWndProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lParam);
-//void    ReleaseStgMedium(LPSTGMEDIUM lpstgMedium);
-//void    OleUninitialize();
-//SCODE   OleInitialize(LPVOID pvReserved);
-//HRESULT CoDisconnectObject(IUnknown*, unsigned long);
-//HRESULT CreateStreamOnHGlobal(HGLOBAL hGlobal, BOOL fDeleteOnRelease, LPSTREAM* ppstm);
-//HRESULT OleLoadFromStream (LPSTREAM pStm, REFIID iidInterface, LPVOID FAR* ppvObj);
-//HRESULT OleSaveToStream(LPPERSISTSTREAM pPStm, LPSTREAM pStm);
-//HRESULT CLSIDFromProgID(LPCOLESTR, LPCLSID);
 void    UnregisterOleWindowClasses();
-//LPVOID  CoTaskMemRealloc(LPVOID pv, ULONG cbOld, ULONG cb);
 HRESULT OleTranslateColor(OLE_COLOR clr, HPALETTE hpal, COLORREF* lpcolorref);
 HRESULT OleCreateFontIndirect(void* lpFontDesc, REFIID riid, LPVOID* lplpvObj);
 HRESULT RegGetMiscStatus(REFCLSID clsid, DWORD *pdwStatus);
@@ -724,7 +653,20 @@ BOOL    LPtoDP(HDC hdc, LPPOINT lpPoints, int nCount);
 BOOL    DrawIcon(HDC hDC, int X, int Y, HICON hIcon);
 HCURSOR LoadCursor(HINSTANCE hInstance,LPCWSTR lpCursorName);
 HBITMAP CreateBitmapIndirect(LPBITMAP lpBitmap);
-//void *  memcpy(void *, const void *, size_t);
 
+*/
 
-#endif // __QFUNCTIONS_WCE_H__
+void *_expand(void* pvMemBlock, size_t iSize);
+void *calloc(size_t num, size_t size);
+BOOL GetViewportOrgEx(HDC hdc, LPPOINT lpPoint);
+BOOL GetViewportExtEx(HDC hdc, LPSIZE lpSize);
+BOOL GetWindowOrgEx(HDC hdc, LPPOINT lpPoint);
+BOOL GetWindowExtEx(HDC hdc, LPSIZE lpSize);
+void _endthreadex(unsigned nExitCode);
+unsigned long _beginthreadex(void *security, unsigned stack_size, 
+		    unsigned (__stdcall *start_address)(void *),
+		    void *arglist, unsigned initflag, unsigned *thrdaddr);
+
+#endif // Q_OS_TEMP
+
+#endif // QFUNCTIONS_WCE_H
