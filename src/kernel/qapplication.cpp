@@ -807,7 +807,7 @@ void QApplication::initialize( int argc, char **argv )
 	     !(app_style = QStyleFactory::create( "Aqua" ) ) &&
 	     !(app_style = QStyleFactory::create( "SGI" ) ) &&
 	     !(app_style = QStyleFactory::create( "Compact" ) ) &&
-	     !(app_style = QStyleFactory::create( QStyleFactory::keys().begin() ) ) )
+	     !(app_style = QStyleFactory::create( QStyleFactory::keys()[0]  ) ) )
 	    qFatal( "No %s style available!", style.latin1() );
     }
 #endif
