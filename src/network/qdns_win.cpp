@@ -38,6 +38,19 @@ struct qt_addrinfo
     qt_addrinfo *ai_next;
 };
 
+typedef int (__stdcall *getaddrinfoProto)(const char *, const char *, const qt_addrinfo *, qt_addrinfo **);
+typedef int (__stdcall *freeaddrinfoProto)(qt_addrinfo *);
+static getaddrinfoProto local_getaddrinfo;
+static freeaddrinfoProto local_freeaddrinfo;
+
+void resolveLibrary()
+{
+    // Attempt to resolve getaddrinfo(); without it we'll have to fall
+    // back to gethostbyname(), which has no IPv6 support.
+    local_getaddrinfo = (getaddrinfoProto) QLibrary::resolve("ws2_32.dll", "getaddrinfo");
+    local_freeaddrinfo = (freeaddrinfoProto) QLibrary::resolve("ws2_32.dll", "freeaddrinfo");
+}
+
 /*
     Performs a blocking call to gethostbyname or getaddrinfo, stores
     the results in a QDnsHostInfo structure and emits the
@@ -47,17 +60,11 @@ QDnsHostInfo QDnsAgent::getHostByName(const QString &hostName)
 {
     QWindowsSockInit winSock;
 
+    if (!local_getaddrinfo)
+        resolveLibrary();
+
     QDnsHostInfo results;
     results.d->hostName = hostName;
-
-    // Attempt to resolve getaddrinfo(); without it we'll have to fall
-    // back to gethostbyname(), which has no IPv6 support.
-    typedef int (__stdcall *getaddrinfoProto)(const char *, const char *, const qt_addrinfo *, qt_addrinfo **);
-    typedef int (__stdcall *freeaddrinfoProto)(qt_addrinfo *);
-    getaddrinfoProto local_getaddrinfo;
-    freeaddrinfoProto local_freeaddrinfo;
-    local_getaddrinfo = (getaddrinfoProto) QLibrary::resolve("ws2_32.dll", "getaddrinfo");
-    local_freeaddrinfo = (freeaddrinfoProto) QLibrary::resolve("ws2_32.dll", "freeaddrinfo");
 
 #if defined(QDNS_DEBUG)
     qDebug("QDnsAgent::run(%p): looking up \"%s\" (IPv6 support is %s)",
