@@ -111,7 +111,7 @@ struct QAtomic {
     }
 
     inline void operator=(int x)
-    { q_atomic_set_int(&atomic, x); }
+    { atomic = x; }
 };
 
 #define Q_ATOMIC_INIT(a) { (a) }
