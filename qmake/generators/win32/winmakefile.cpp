@@ -178,7 +178,7 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
     for(int x = 0; targs[x] != QString::null; x++) {
         t << targs[x] << ": qmake_all";
 	if(targs[x] == "clean")
-	    t << varGlue("QMAKE_CLEAN","\n\t-del ","\n\t-del ", "");
+	    t << varGlue("QMAKE_CLEAN","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ", "");
 	if (!subdirs.isEmpty()) {
 	    for( it.toFirst(); it.current(); ++it) {
 		int subLevels = (*it)->directory.count(Option::dir_sep) + 1;

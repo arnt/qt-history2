@@ -222,7 +222,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     if(project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty()) {
 	QStringList dlldirs = project->variables()["DLLDESTDIR"];
 	for ( QStringList::Iterator dlldir = dlldirs.begin(); dlldir != dlldirs.end(); ++dlldir ) {
-	    t << "\n\t" << "-copy $(TARGET) " << *dlldir;
+	    t << "\n\t" << "-$(COPY_FILE) $(TARGET) " << *dlldir;
 	}
     }
     QString targetfilename = project->variables()["TARGET"].first();
@@ -273,23 +273,23 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
       << dist_files.join(" ") << " " << var("TRANSLATIONS") << " " << var("IMAGES") << endl << endl;
 
     t << "uiclean:"
-      << varGlue("UICDECLS" ,"\n\t-del ","\n\t-del ","")
-      << varGlue("UICIMPLS" ,"\n\t-del ","\n\t-del ","") << endl;
+      << varGlue("UICDECLS" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","")
+      << varGlue("UICIMPLS" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","") << endl;
 
     t << "mocclean:"
-      << varGlue("SRCMOC" ,"\n\t-del ","\n\t-del ","")
-      << varGlue("OBJMOC" ,"\n\t-del ","\n\t-del ","") << endl;
+      << varGlue("SRCMOC" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","")
+      << varGlue("OBJMOC" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","") << endl;
 
     t << "clean: uiclean mocclean"
-      << varGlue("OBJECTS","\n\t-del ","\n\t-del ","")
-      << varGlue("QMAKE_CLEAN","\n\t-del ","\n\t-del ","\n")
-      << varGlue("CLEAN_FILES","\n\t-del ","\n\t-del ","\n");
+      << varGlue("OBJECTS","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","")
+      << varGlue("QMAKE_CLEAN","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","\n")
+      << varGlue("CLEAN_FILES","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","\n");
     if ( project->isActiveConfig("activeqt")) {
-	t << ("\n\t-del tmp\\" + targetfilename + ".*");
-	t << "\n\t-del tmp\\dump.*";
+	t << ("\n\t-$(DEL_FILE) tmp\\" + targetfilename + ".*");
+	t << "\n\t-$(DEL_FILE) tmp\\dump.*";
     }
     if(!project->isEmpty("IMAGES"))
-	t << varGlue("QMAKE_IMAGE_COLLECTION", "\n\t-del ", "\n\t-del ", "");
+	t << varGlue("QMAKE_IMAGE_COLLECTION", "\n\t-$(DEL_FILE) ", "\n\t-$(DEL_FILE) ", "");
     t << endl;
 
     // user defined targets
@@ -312,7 +312,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     t << endl << endl;
 
     t << "distclean: clean"
-      << "\n\t-del $(TARGET)"
+      << "\n\t-$(DEL_FILE) $(TARGET)"
       << endl << endl;
 }
 

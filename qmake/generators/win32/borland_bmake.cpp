@@ -169,7 +169,7 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
 	t << "\n\t" << "$(LINK) @&&|" << "\n\t"
 	  << "$(LFLAGS) $(OBJECTS) $(OBJMOC),$(TARGET),,$(LIBS),$(DEF_FILE),$(RES_FILE)";
     } else {
-	t << "\n\t-del $(TARGET)"
+	t << "\n\t-$(DEL_FILE) $(TARGET)"
 	  << "\n\t" << "$(LIB) $(TARGET) @&&|" << " \n+"
 	  << project->variables()["OBJECTS"].join(" \\\n+") << " \\\n+"
 	  << project->variables()["OBJMOC"].join(" \\\n+");
@@ -182,7 +182,7 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
     if(project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty()) {
 	QStringList dlldirs = project->variables()["DLLDESTDIR"];
 	for ( QStringList::Iterator dlldir = dlldirs.begin(); dlldir != dlldirs.end(); ++dlldir ) {
-	    t << "\n\t" << "-copy $(TARGET) " << *dlldir;
+	    t << "\n\t" << "-$(COPY_FILE) $(TARGET) " << *dlldir;
 	}
     }
     QString targetfilename = project->variables()["TARGET"].first();
@@ -232,7 +232,7 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
       << dist_files.join(" ") << " " << var("TRANSLATIONS") << " " << var("IMAGES") << endl << endl;
 
     t << "uiclean:";
-    QString uiclean = varGlue("UICDECLS" ,"\n\t-del ","\n\t-del ","") + varGlue("UICIMPLS" ,"\n\t-del ","\n\t-del ","");
+    QString uiclean = varGlue("UICDECLS" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","") + varGlue("UICIMPLS" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","");
     if ( uiclean.isEmpty() ) {
 	// Borland make does not like an empty command section
 	uiclean = "\n\t@cd .";
@@ -240,7 +240,7 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
     t << uiclean << endl;
 
     t << "mocclean:";
-    QString mocclean = varGlue("SRCMOC" ,"\n\t-del ","\n\t-del ","") + varGlue("OBJMOC" ,"\n\t-del ","\n\t-del ","");
+    QString mocclean = varGlue("SRCMOC" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","") + varGlue("OBJMOC" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","");
     if ( mocclean.isEmpty() ) {
 	// Borland make does not like an empty command section
 	mocclean = "\n\t@cd .";
@@ -248,15 +248,15 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
     t << mocclean << endl;
 
     t << "clean: uiclean mocclean"
-      << varGlue("OBJECTS","\n\t-del ","\n\t-del ","")
-      << varGlue("QMAKE_CLEAN","\n\t-del ","\n\t-del ","")
-      << varGlue("CLEAN_FILES","\n\t-del ","\n\t-del ","");
+      << varGlue("OBJECTS","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","")
+      << varGlue("QMAKE_CLEAN","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","")
+      << varGlue("CLEAN_FILES","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","");
     if ( project->isActiveConfig("activeqt")) {
-	t << ("\n\t-del tmp\\" + targetfilename + ".*");
-	t << "\n\t-del tmp\\dump.*";
+	t << ("\n\t-$(DEL_FILE) tmp\\" + targetfilename + ".*");
+	t << "\n\t-$(DEL_FILE) tmp\\dump.*";
     }
     if(!project->isEmpty("IMAGES"))
-	t << varGlue("QMAKE_IMAGE_COLLECTION", "\n\t-del ", "\n\t-del ", "");
+	t << varGlue("QMAKE_IMAGE_COLLECTION", "\n\t-$(DEL_FILE) ", "\n\t-$(DEL_FILE) ", "");
     t << endl;
 
     // user defined targets
@@ -280,7 +280,7 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
     t << endl << endl;
 
     t << "distclean: clean"
-      << "\n\t-del $(TARGET)"
+      << "\n\t-$(DEL_FILE) $(TARGET)"
       << endl << endl;
 }
 

@@ -430,8 +430,8 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			"InputPath=.\\" + (*it) + "\n\n"
 				    "\"" + fname + "\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
 				    "\t" + lexpath + (*it) + "\\\n"
-				    "\tdel " + fname + "\\\n"
-				    "\tcopy lex.yy.c " + fname + "\n\n" +
+				    "\t$(DEL_FILE) " + fname + "\\\n"
+				    "\t$(COPY_FILE) lex.yy.c " + fname + "\n\n" +
 				    "# End Custom Build\n\n";
 		    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Release\"" << build
 		      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Debug\"" << build
@@ -463,9 +463,9 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			"InputPath=.\\" + (*it) + "\n\n"
 				    "\"" + fname + Option::cpp_ext.first() + "\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
 				    "\t" + yaccpath + (*it) + "\\\n"
-				    "\tdel " + fname + Option::h_ext.first() + "\\\n"
+				    "\t$(DEL_FILE) " + fname + Option::h_ext.first() + "\\\n"
 				    "\tmove y.tab.h " + fname + Option::h_ext.first() + "\n\n" +
-				    "\tdel " + fname + Option::cpp_ext.first() + "\\\n"
+				    "\t$(DEL_FILE) " + fname + Option::cpp_ext.first() + "\\\n"
 				    "\tmove y.tab.c " + fname + Option::cpp_ext.first() + "\n\n" +
 				    "# End Custom Build\n\n";
 
@@ -855,7 +855,7 @@ DspMakefileGenerator::init()
 	if ( dlldirs.count() )
 	    copyDllStep += "\t";
 	for ( QStringList::Iterator dlldir = dlldirs.begin(); dlldir != dlldirs.end(); ++dlldir ) {
-	    copyDllStep += "copy \"$(TargetPath)\" \"" + *dlldir + "\"\t";
+	    copyDllStep += "$(COPY_FILE) \"$(TargetPath)\" \"" + *dlldir + "\"\t";
 	}
     }
 
