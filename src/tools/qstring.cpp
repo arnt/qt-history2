@@ -13984,7 +13984,7 @@ int QString::find( const QString& str, int index, bool cs ) const
     if ( !sl )
 	return index;
 
-    if ( l > 200 || sl > 5 ) {
+    if ( l > 200 && sl > 5 ) {
 	// we use the Boyer-Moore algorithm, in this case the overhead for the 
 	// hash table should usually pay off.
 	uint skiptable[0x100];
