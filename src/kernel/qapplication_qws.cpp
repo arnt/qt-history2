@@ -232,7 +232,7 @@ QQueue<QWSCommand> *qt_get_server_queue()
     return &outgoing;
 }
 
-static void qt_server_enqueue( const QWSCommand *command )
+void qt_server_enqueue( const QWSCommand *command )
 {
     QWSCommand *copy = QWSCommand::factory( command->type );
     copy->copyFrom( command );
@@ -1751,7 +1751,7 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 		    QPaintDevice::qwsDisplay()->selectCursor(widget, ArrowCursor);
 		}
 	    }
-#endif	
+#endif
 	    widget = w;
 	}
     }
@@ -1865,16 +1865,16 @@ void QApplication::processEvents( int maxtime )
 	    break;
     }
 }
-   
+
 
 /*!
   This virtual function is only implemented under Qt/Embedded.
- 
+
   If you create an application that inherits QApplication and
   reimplement this function, you get direct access to all QWS
   (Q Window System) events that the are received from the QWS
   master process.
-        
+
   Return TRUE if you want to stop the event from being processed, or
   return FALSE for normal event dispatching.
 */
@@ -2714,7 +2714,7 @@ void QETWidget::restrictRegion( QRegion r )
 	totalr &= r;
 	topData()->decor_allocated_region = totalr & topData()->qwsManager->region();
     } else
-#endif	
+#endif
 	{
 	totalr &= r;
     }
@@ -2770,7 +2770,7 @@ bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *even
 	exposed.setRects( event->rectangles, event->simpleData.nrectangles );
 /*
 	for ( int i = 0; i < event->simpleData.nrectangles; i++ )
-	    qDebug( "exposed: %d, %d %dx%d", 
+	    qDebug( "exposed: %d, %d %dx%d",
 		event->rectangles[i].x(),
 		event->rectangles[i].y(),
 		event->rectangles[i].width(),
