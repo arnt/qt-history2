@@ -15,6 +15,17 @@ styles {
 	}
 
 	!macx-*:styles -= aqua mac
+	contains( styles, mac ) {
+		HEADERS +=$$STYLES_H/qmacstyle_mac.h
+		SOURCES +=$$STYLES_CPP/qmacstyle_mac.cpp
+
+		!contains( styles, aqua ) {
+			message( mac requires aqua )
+			styles += aqua
+		}
+	}
+	!contains( styles, mac ):DEFINES += QT_NO_STYLE_MAC
+
 	contains( styles, aqua ) {
 		HEADERS +=$$STYLES_H/qaquastyle.h
 		SOURCES +=$$STYLES_CPP/qaquastyle.cpp
@@ -25,17 +36,6 @@ styles {
 		}
 	}
 	!contains( styles, aqua):DEFINES += QT_NO_STYLE_AQUA
-
-	contains( styles, mac ) {
-		HEADERS +=$$STYLES_H/qmacstyle_mac.h
-		SOURCES +=$$STYLES_CPP/qmacstyle_mac.cpp
-
-		!contains( styles, windows ) {
-			message( mac requires windows )
-			styles += windows
-		}
-	}
-	!contains( styles, mac ):DEFINES += QT_NO_STYLE_MAC
 
 	contains( styles, cde ) {
 		HEADERS +=$$STYLES_H/qcdestyle.h

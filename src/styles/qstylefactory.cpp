@@ -51,10 +51,8 @@
 #ifndef QT_NO_STYLE_AQUA
 #include "qaquastyle.h"
 #endif
-#if 0
-#ifdef Q_WS_MAC
+#ifndef QT_NO_STYLE_MAC
 #include "qmacstyle_mac.h"
-#endif
 #endif
 #include <stdlib.h>
 
@@ -116,7 +114,6 @@ QStyle *QStyleFactory::create( const QString& key )
         return new QWindowsStyle;
     else
 #endif
-
 #ifndef QT_NO_STYLE_MOTIF
     if ( style == "motif" )
         return new QMotifStyle;
@@ -151,11 +148,9 @@ QStyle *QStyleFactory::create( const QString& key )
     if ( style == "aqua" )
         return new QAquaStyle;
 #endif
-#if 0
-#ifdef Q_WS_MAC
+#ifndef QT_NO_STYLE_MAC
     if( style == "macintosh" )
 	return new QMacStyle;
-#endif
 #endif
 
 #ifndef QT_NO_COMPONENT

@@ -334,7 +334,7 @@ if [ -z "$MODULES" ]; then
 fi
 AVAIL_MODULES=$MODULES
 QMAKE_VARS="$QMAKE_VARS \"QT_PRODUCT=$Products\""
-QMAKE_VARS="$QMAKE_VARS \"styles += windows motif aqua platinum sgi cde motifplus\""
+QMAKE_VARS="$QMAKE_VARS \"styles += windows motif aqua mac platinum sgi cde motifplus\""
 
 # Defaults
 DO_INCREMENT=auto

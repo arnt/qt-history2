@@ -39,10 +39,10 @@
 #define QMACSTYLE_H
 
 #ifndef QT_H
-#include "qmotifstyle.h"
+#include "qaquastyle.h"
 #endif // QT_H
 
-#ifdef Q_WS_MAC
+#if defined( Q_WS_MAC ) && !defined( QT_NO_STYLE_AQUA )
 
 class QPalette;
 
@@ -53,16 +53,21 @@ class QPalette;
 #endif
 
 
-class Q_EXPORT_STYLE_MAC QMacStyle : public QMotifStyle
+class Q_EXPORT_STYLE_MAC QMacStyle : public QAquaStyle
 {
     Q_OBJECT
 public:
     QMacStyle( );
     virtual ~QMacStyle();
 
-    void scrollBarMetrics( const QScrollBar*, int&, int&, int&, int& ) const;
-    void drawScrollBarControls( QPainter*,  const QScrollBar*, int sliderStart,
-                                uint controls, uint activeControl );
+    // new stuff
+    void drawPrimitive( PrimitiveElement pe,
+			QPainter *p,
+			const QRect &r,
+			const QColorGroup &cg,
+			SFlags flags = Style_Default,
+			const QStyleOption& = QStyleOption::Default ) const;
+
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
