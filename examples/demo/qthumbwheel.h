@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/qthumbwheel.h#1 $
+** $Id: //depot/qt/main/examples/demo/qthumbwheel.h#2 $
 **
 ** Definition of QThumbWheel class
 **
@@ -45,7 +45,7 @@
 
 #ifndef QT_NO_THUMBWHEEL
 
-class Q_EXPORT QThumbWheel : public QFrame, public QRangeControl
+class QThumbWheel : public QFrame, public QRangeControl
 {
     Q_OBJECT
 
