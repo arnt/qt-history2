@@ -65,7 +65,8 @@ private:
 RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
 void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
 
-static inline const Rect *qt_glb_mac_rect(const QRect &qr, const QPaintDevice *pd=NULL)
+static inline const Rect *qt_glb_mac_rect(const QRect &qr, const QPaintDevice *pd=NULL, 
+					  const QRect &rect=QRect())
 {
     static Rect r;
     QPoint tl(qr.topLeft());
@@ -73,8 +74,9 @@ static inline const Rect *qt_glb_mac_rect(const QRect &qr, const QPaintDevice *p
 	QWidget *w = (QWidget*)pd;
 	tl = w->mapTo(w->topLevelWidget(), tl);
     }
-    //Qt says be inclusive!
-    SetRect(&r, tl.x(), tl.y(), tl.x() + qr.width() - 1, tl.y() + qr.height() - 1);
+    tl += rect.topLeft();
+    SetRect(&r, tl.x(), tl.y(), tl.x() + qr.width() - 1 -rect.width(), 
+	    tl.y() + qr.height() - 1 - rect.height());
     return &r;
 }
 
@@ -99,20 +101,14 @@ void QMacStyle::polish( QApplication* app )
 {
     QPalette pal = app->palette();
 
-    QPixmap px(200, 200);
-#if 0
+    QPixmap px(200, 200, 32);
     {
 	QPainter p(&px);
 	((QMacPainter *)&p)->noop();
-	NormalizeThemeDrawingState();
-	PaintRect(qt_glb_mac_rect(QRect(0, 0, px.width(), px.height())));
+	SetThemeBackground(kThemeBrushDialogBackgroundActive, px.depth(), true);
+	EraseRect(qt_glb_mac_rect(QRect(-5, -5, px.width()+10, px.height()+10)));
     }
-#else
-    RGBColor rgb;
-    GetThemeBrushAsColor(kThemeBrushDialogBackgroundActive, 32, true, &rgb);
-    px.fill(QColor(rgb.red / 256, rgb.green / 256, rgb.blue / 256));
-#endif
-    QBrush background( Qt::black, px );
+    QBrush background( Qt::blue, px );
     pal.setBrush( QColorGroup::Background, background );
     pal.setBrush( QColorGroup::Button, background );
 
@@ -325,8 +321,8 @@ void QMacStyle::drawControl( ControlElement element,
     case CE_PushButton: {
 	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
 	((QMacPainter *)p)->noop();
-	DrawThemeButton(qt_glb_mac_rect(r, p->device()), kThemePushButton,
-			&info, NULL, NULL, NULL, 30);
+	DrawThemeButton(qt_glb_mac_rect(r, p->device(), QRect(3, 3, 6, 6)), kThemePushButton,
+			&info, NULL, NULL, NULL, 0);
 	break; }
     default:
 	QWindowsStyle::drawControl(element, p, widget, r, cg, how, opt);
@@ -474,7 +470,7 @@ void QMacStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    twa = kThemeWindowHasFullZoom | kThemeWindowHasCloseBox | kThemeWindowHasCollapseBox;
 	else if(tbar->testWFlags( WStyle_SysMenu)) 
 	    twa = kThemeWindowHasCloseBox;
-	const Rect *rect = qt_glb_mac_rect(tbar->parentWidget()->rect(), p->device());
+	const Rect *rect = qt_glb_mac_rect(r, p->device());
 	((QMacPainter *)p)->noop();
 #if 0
 	if(sub & SC_TitleBarCloseButton) 
