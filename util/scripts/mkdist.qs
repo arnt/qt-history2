@@ -693,7 +693,7 @@ function qdoc(packageDir, edition)
     var dir = new Dir(packageDir);
     dir.setCurrent();
     System.setenv("QTDIR", packageDir);
-    execute([qdocCommand, qdocDir + "/test/qt-" + edition + ".qdoc"]);
+    execute([qdocCommand, qdocDir + "/test/qt-" + edition + ".qdocconf"]);
 }
 
 /************************************************************
