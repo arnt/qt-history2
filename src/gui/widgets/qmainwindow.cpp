@@ -105,13 +105,12 @@ void QMainWindow::setCorner(Qt::Corner corner, Qt::DockWindowArea area)
 }
 
 Qt::DockWindowArea QMainWindow::corner(Qt::Corner corner) const
-{ 
-    return d->layout->corners[corner]; 
-}
+{ return d->layout->corners[corner]; }
 
 void QMainWindow::setDockWindowState(const QString &state)
 {
     Q_ASSERT_X(false, "QMainWindow::setDockWindowState", "unimplemented");
+    Q_UNUSED(state);
 }
 
 QString QMainWindow::dockWindowState() const
@@ -129,12 +128,12 @@ void QMainWindow::childEvent(QChildEvent *event)
 	if ((menubar = qt_cast<QMenuBar *>(event->child()))) {
 	    QMenuBar *mb = d->layout->menuBar();
 	    Q_ASSERT(mb == 0 || mb == menubar);
-	    if (!mb) 
+	    if (!mb)
                 d->layout->setMenuBar(menubar);
 	} else if ((statusbar = qt_cast<QStatusBar *>(event->child()))) {
 	    QStatusBar *sb = d->layout->statusBar();
 	    Q_ASSERT(sb == 0 || sb == statusbar);
-	    if (!sb) 
+	    if (!sb)
                 d->layout->setStatusBar(statusbar);
 	}
     }
@@ -142,6 +141,4 @@ void QMainWindow::childEvent(QChildEvent *event)
 
 /*! \reimp */
 bool QMainWindow::event(QEvent *event)
-{ 
-    return QWidget::event(event); 
-}
+{ return QWidget::event(event); }
