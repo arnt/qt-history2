@@ -829,6 +829,7 @@ QRect QWindowsXPStyle::subRect( SubRect r, const QWidget *widget ) const
 	return QWindowsStyle::subRect( r, widget );
     
     switch ( r ) {
+/*
     case SR_CheckBoxIndicator:
 	{
 	    XPThemeData theme( widget, L"BUTTON" );
@@ -856,7 +857,7 @@ QRect QWindowsXPStyle::subRect( SubRect r, const QWidget *widget ) const
 	    }
 	}
 	break;
-	
+*/
     default:
 	break;
     }
