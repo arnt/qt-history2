@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#90 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#91 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -58,8 +58,8 @@ public:
 	setFrameStyle( QFrame::Plain | QFrame::Box );
 	setLineWidth( 1 );
 	setAlignment( AlignLeft | AlignTop );
-	setText(text);
 	polish();
+	setText(text);
 	adjustSize();
     }
 };
@@ -985,7 +985,7 @@ void QToolTipGroup::setDelay( bool enable )
 ** QTipLabel meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Sun Aug 23 21:50:26 1998
-**      by: The Qt Meta Object Compiler ($Revision: 2.85 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.86 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
