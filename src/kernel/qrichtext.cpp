@@ -3214,14 +3214,15 @@ QTextParagraph *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch
  floating:
     if ( parag->rect().y() + parag->rect().height() < parag->document()->height() ) {
 	if ( !parag->document()->parent() ) {
-	    p->fillRect( 0, parag->rect().y() + parag->rect().height(), parag->document()->width(),
-			 parag->document()->height() - ( parag->rect().y() + parag->rect().height() ),
-			 cg.brush( QColorGroup::Base ) );
+	    QRect fillRect = QRect( 0, parag->rect().y() + parag->rect().height(), parag->document()->width(),
+		parag->document()->height() - ( parag->rect().y() + parag->rect().height() ) );
+	    if ( QRect( cx, cy, cw, ch ).intersects( fillRect ) )
+		p->fillRect( fillRect, cg.brush( QColorGroup::Base ) );
 	}
- 	if ( !flow()->isEmpty() ) {
- 	    QRect cr( cx, cy, cw, ch );
- 	    flow()->drawFloatingItems( p, cr.x(), cr.y(), cr.width(), cr.height(), cg, FALSE );
- 	}
+	if ( !flow()->isEmpty() ) {
+	    QRect cr( cx, cy, cw, ch );
+	    flow()->drawFloatingItems( p, cr.x(), cr.y(), cr.width(), cr.height(), cg, FALSE );
+	}
     }
 
     if ( buf_pixmap && buf_pixmap->height() > 300 ) {
