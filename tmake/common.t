@@ -6,6 +6,9 @@ SYSCONF_CFLAGS_X11	= #$ ExpandGlue('TMAKE_INCDIR_X11', '-I', ' -I', '');
 SYSCONF_CFLAGS_QT	= #$ ExpandGlue('TMAKE_INCDIR_QT', '-I', ' -I', '');
 SYSCONF_CFLAGS_OPENGL	= #$ ExpandGlue('TMAKE_INCDIR_OPENGL', '-I', ' -I', '');
 
+# Compiline YACC output
+SYSCONF_CFLAGS_YACC     = #$ Expand('TMAKE_CFLAGS_YACC');
+
 # Linking with support libraries
 # X11
 SYSCONF_LFLAGS_X11	= #$ ExpandGlue('TMAKE_LIBDIR_X11', '-L', ' -L', '');

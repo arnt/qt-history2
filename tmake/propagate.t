@@ -71,10 +71,10 @@
     if ( Config("yacc") ) {
 	Project('TMAKE_CFLAGS *= $(SYSCONF_CFLAGS_YACC)' );
     }
+    Project('TMAKE_CFLAGS *= $(SYSCONF_CFLAGS)' );
     if ( Project('TEMPLATE') eq "lib" ) {
 	Project('TMAKE_CFLAGS *= $(SYSCONF_CFLAGS_LIB)' );
     } else {
-	Project('TMAKE_CFLAGS *= $(SYSCONF_CFLAGS)' );
 	Project('TMAKE_LFLAGS *= $(SYSCONF_LFLAGS)' );
 	Project('TMAKE_LIBS *= $(SYSCONF_LIBS)' );
     }
