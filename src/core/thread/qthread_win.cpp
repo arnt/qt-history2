@@ -30,37 +30,52 @@
 
 #define d d_func()
 
-static DWORD qt_tls_index = TLS_OUT_OF_INDEXES;
+static DWORD qt_current_data_tls_index = TLS_OUT_OF_INDEXES;
+static DWORD qt_current_thread_tls_index = TLS_OUT_OF_INDEXES;
 void qt_create_tls()
 {
-    if (qt_tls_index != TLS_OUT_OF_INDEXES) return;
+    if (qt_current_thread_tls_index != TLS_OUT_OF_INDEXES) return;
 
     static QMutex mutex;
     mutex.lock();
-    qt_tls_index = TlsAlloc();
+    qt_current_data_tls_index = TlsAlloc();
+    qt_current_thread_tls_index = TlsAlloc();
     mutex.unlock();
 }
+
+
+
+
+/*
+  QThreadData
+*/
+
+QThreadData *QThreadData::current()
+{
+    qt_create_tls();
+    return reinterpret_cast<QThreadData *>(TlsGetValue(qt_current_data_tls_index));
+}
+
+void QThreadData::setCurrent(QThreadData *data)
+{
+    qt_create_tls();
+    TlsSetValue(qt_current_data_tls_index, data);
+}
+
+
 
 
 /**************************************************************************
  ** QThreadPrivate
  *************************************************************************/
 
-// QThreadPrivate *QThreadPrivate::current()
-// {
-//     QThreadPrivate *ret = 0;
-//     if (qt_tls_index != TLS_OUT_OF_INDEXES)
-//         ret = (QThreadPrivate *)TlsGetValue(qt_tls_index);
-//     if (!ret)
-//         return &main_instance;
-//     return ret;
-// }
-
 unsigned int __stdcall QThreadPrivate::start(void *arg)
 {
-    TlsSetValue(qt_tls_index, arg);
+    TlsSetValue(qt_current_thread_tls_index, arg);
 
     QThread *thr = reinterpret_cast<QThread *>(arg);
+    QThreadData::setCurrent(thr->d->data);
+
     emit thr->started();
     thr->run();
     finish(arg);
@@ -80,8 +95,8 @@ void QThreadPrivate::finish(void *arg, bool lockAnyway)
     thr->d->terminated = false;
     emit thr->finished();
 
-    QThreadStorageData::finish(thr->d->tls);
-    thr->d->tls = 0;
+    QThreadStorageData::finish(thr->d->data.tls);
+    thr->d->data.tls = 0;
 
     if (!thr->d->waiters) {
         CloseHandle(thr->d->handle);
@@ -106,7 +121,7 @@ Qt::HANDLE QThread::currentThread()
 
 QThread *QThread::currentQThread()
 {
-    return reinterpret_cast<QThread*>(TlsGetValue(qt_tls_index));
+    return reinterpret_cast<QThread*>(TlsGetValue(qt_current_thread_tls_index));
 }
 
 void QThread::sleep(unsigned long secs)

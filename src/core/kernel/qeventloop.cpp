@@ -124,7 +124,12 @@ QEventLoop::QEventLoop(QObject *parent)
 {
     init();
 
-    QThreadPrivate::setEventLoop(thread(), this);
+    QThreadData *data = QThreadData::current();
+    Q_ASSERT_X(data != 0, "QEventLoop",
+               "QEventLoop can only be used with threads started with QThread");
+    Q_ASSERT_X(!data->eventLoop, "QEventLoop",
+               "Cannot have more than one event loop per thread");
+    data->eventLoop = this;
 }
 
 
@@ -135,7 +140,12 @@ QEventLoop::QEventLoop(QEventLoopPrivate &priv, QObject *parent)
 {
     init();
 
-    QThreadPrivate::setEventLoop(thread(), this);
+    QThreadData *data = QThreadData::current();
+    Q_ASSERT_X(data != 0, "QEventLoop",
+               "QEventLoop can only be used with threads started with QThread");
+    Q_ASSERT_X(!data->eventLoop, "QEventLoop",
+               "Cannot have more than one event loop per thread");
+    data->eventLoop = this;
 }
 
 
@@ -144,7 +154,10 @@ QEventLoop::QEventLoop(QEventLoopPrivate &priv, QObject *parent)
 */
 QEventLoop::~QEventLoop()
 {
-    QThreadPrivate::setEventLoop(thread(), 0);
+    QThreadData *data = QThreadData::current();
+    Q_ASSERT_X(data != 0, "QEventLoop",
+               "QEventLoop can only be used with threads started with QThread");
+    data->eventLoop = 0;
 
     cleanup();
 }
@@ -161,7 +174,10 @@ QEventLoop::~QEventLoop()
     \sa QApplication::eventLoop()
  */
 QEventLoop *QEventLoop::instance(QThread *thread)
-{ return QThreadPrivate::eventLoop(thread); }
+{
+    QThreadData *data = thread ? QThreadData::get(thread) : QThreadData::current();
+    return data ? data->eventLoop : 0;
+}
 
 /*!
     Enters the main event loop and waits until exit() is called.

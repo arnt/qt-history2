@@ -24,8 +24,39 @@
 
 #include "qmutexpool_p.h"
 #include "qthread_p.h"
+
 #define d d_func()
 #define q q_func()
+
+
+
+
+/*
+  QThreadData
+*/
+
+static pthread_once_t current_data_key_once = PTHREAD_ONCE_INIT;
+static pthread_key_t current_data_key;
+static void create_current_data_key()
+{ pthread_key_create(&current_data_key, NULL); }
+
+QThreadData *QThreadData::current()
+{
+    pthread_once(&current_data_key_once, create_current_data_key);
+    return reinterpret_cast<QThreadData *>(pthread_getspecific(current_data_key));
+}
+
+void QThreadData::setCurrent(QThreadData *data)
+{
+    pthread_once(&current_data_key_once, create_current_data_key);
+    pthread_setspecific(current_data_key, data);
+}
+
+
+
+/*
+   QThreadPrivate
+*/
 
 #if defined(Q_C_CALLBACKS)
 extern "C" {
@@ -50,6 +81,8 @@ void *QThreadPrivate::start(void *arg)
     pthread_testcancel();
 
     QThread *thr = reinterpret_cast<QThread *>(arg);
+    QThreadData::setCurrent(&thr->d->data);
+
     emit thr->started();
     thr->run();
     pthread_cleanup_pop(1);
@@ -68,8 +101,8 @@ void QThreadPrivate::finish(void *arg)
     thr->d->terminated = false;
     emit thr->finished();
 
-    QThreadStorageData::finish(thr->d->tls);
-    thr->d->tls = 0;
+    QThreadStorageData::finish(thr->d->data.tls);
+    thr->d->data.tls = 0;
 
     thr->d->thread_id = 0;
     thr->d->thread_done.wakeAll();

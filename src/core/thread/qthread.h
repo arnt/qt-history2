@@ -20,10 +20,13 @@
 
 #include <limits.h>
 
+class QThreadData;
 class QThreadPrivate;
 
 class Q_CORE_EXPORT QThread : public QObject
 {
+    friend class QThreadData;
+
     Q_OBJECT
     Q_DECLARE_PRIVATE(QThread)
 

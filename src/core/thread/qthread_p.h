@@ -44,6 +44,21 @@ public:
     { }
 };
 
+class Q_CORE_EXPORT QThreadData
+{
+public:
+    QThreadData();
+
+    static QThreadData *current();
+    static void setCurrent(QThreadData *data);
+
+    static QThreadData *get(QThread *thread);
+
+    QEventLoop *eventLoop;
+    QPostEventList postEventList;
+    void **tls;
+};
+
 class Q_CORE_EXPORT QThreadPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QThread)
@@ -76,15 +91,7 @@ public:
     static void finish(void *, bool lockAnyway=true);
 #endif // Q_OS_WIN32
 
-    QEventLoop *eventloop;
-    static void setEventLoop(QThread *thread, QEventLoop *eventLoop);
-    static QEventLoop *eventLoop(QThread *thread);
-
-    QPostEventList postedEvents;
-    static QPostEventList *postEventList(QThread *thread);
-
-    void **tls;
-    static void **&threadLocalStorage(QThread *thread);
+    QThreadData data;
 };
 
 #endif // QTHREAD_P_H

@@ -26,6 +26,18 @@
 
 
 
+/*
+  QThreadData
+*/
+
+QThreadData::QThreadData()
+    : eventLoop(0), tls(0)
+{ }
+
+QThreadData *QThreadData::get(QThread *thread)
+{ return thread ? &thread->d->data : 0; }
+
+
 
 /*
   QThreadPrivate
@@ -33,7 +45,7 @@
 
 QThreadPrivate::QThreadPrivate()
     : QObjectPrivate(), running(false), finished(false), terminated(false),
-      stackSize(0), eventloop(0), tls(0)
+      stackSize(0)
 {
 #if defined (Q_OS_UNIX)
     thread_id = 0;
@@ -44,67 +56,12 @@ QThreadPrivate::QThreadPrivate()
 #endif
 }
 
-/*
-    Sets the eventloop for the specified thread.
-*/
-static QEventLoop *globalEventLoop = 0;
-void QThreadPrivate::setEventLoop(QThread *thread, QEventLoop *eventLoop)
-{
-    if (!thread) {
-        if (eventLoop)
-            Q_ASSERT_X(!globalEventLoop, "QEventLoop",
-                       "Cannot have more than one event loop per application");
-        globalEventLoop = eventLoop;
-        return;
-    }
-    if (eventLoop)
-        Q_ASSERT_X(!thread->d->eventloop, "QEventLoop",
-                   "Cannot have more than one event loop per thread");
-    thread->d->eventloop = eventLoop;
-}
-
-/*
-    Returns the eventloop for the specified thread.
-*/
-QEventLoop *QThreadPrivate::eventLoop(QThread *thread)
-{
-    if (thread)
-        return thread->d->eventloop;
-    return globalEventLoop;
-}
-
-/*
-    Returns the eventloop for the specified thread.
-*/
-Q_GLOBAL_STATIC(QPostEventList, globalPostEventList)
-QPostEventList *QThreadPrivate::postEventList(QThread *thread)
-{
-    if (thread)
-        return &thread->d->postedEvents;
-    static QStaticSpinLock spinlock = 0;
-    QSpinLockLocker locker(spinlock);
-    return globalPostEventList();
-}
-
-/*
-   Returns the tls for the specified thread.
-*/
-void **&QThreadPrivate::threadLocalStorage(QThread *thread)
-{
-    if (!thread) {
-        static void **globalTLS = 0;
-        return globalTLS;
-    }
-    return thread->d->tls;
-}
-
 Q_GLOBAL_STATIC(QMutexPool, mutexpool)
 QMutex *QThreadPrivate::mutex() const
 {
     QMutexPool * const pool = mutexpool();
     return pool ? pool->get(this) : 0;
 }
-
 
 
 
@@ -310,6 +267,4 @@ void QThread::cleanup()
     extern QMutexPool *static_qt_global_mutexpool;
     delete static_qt_global_mutexpool;
     static_qt_global_mutexpool = 0;
-
-    QThreadStorageData::finish(QThreadPrivate::threadLocalStorage(0));
 }

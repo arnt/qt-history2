@@ -2539,9 +2539,9 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
 
 #ifdef QT_COMPAT
     if (e->type() == QEvent::ChildRemoved && receiver->d->hasPostedChildInsertedEvents) {
-        QPostEventList *postedEvents = QThreadPrivate::postEventList(receiver->thread());
-        if (postedEvents) {
-            QMutexLocker locker(&postedEvents->mutex);
+        QThreadData *data = QThreadData::current();
+       if (data) {
+            QMutexLocker locker(&data->postEventList.mutex);
 
             // the QObject destructor calls QObject::removeChild, which calls
             // QCoreApplication::sendEvent() directly.  this can happen while the event
@@ -2551,8 +2551,8 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             // if this is a child remove event and the child insert
             // hasn't been dispatched yet, kill that insert
             QObject * c = ((QChildEvent*)e)->child();
-            for (int i = 0; i < postedEvents->size(); ++i) {
-                const QPostEvent &pe = postedEvents->at(i);
+            for (int i = 0; i < data->postEventList.size(); ++i) {
+                const QPostEvent &pe = data->postEventList.at(i);
                 if (pe.event && pe.receiver == receiver) {
                     if (pe.event->type() == QEvent::ChildInserted
                         && ((QChildEvent*)pe.event)->child() == c) {
