@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#201 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#202 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -61,7 +61,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 #undef bzero
 extern "C" void bzero(void *, size_t len);
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#201 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#202 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -551,7 +551,8 @@ GC qt_xget_temp_gc( bool monochrome )		// get temporary GC
 
 void QApplication::setMainWidget( QWidget *mainWidget )
 {
-    main_widget = mainWidget;			// set main widget
+    extern int qwidget_tlw_gravity;		// in qwid_x11.cpp
+    main_widget = mainWidget;
     if ( main_widget ) {			// give WM command line
 	XSetWMProperties( main_widget->x11Display(), main_widget->winId(),
 			  0, 0, app_argv, app_argc, 0, 0, 0 );
@@ -561,16 +562,28 @@ void QApplication::setMainWidget( QWidget *mainWidget )
 	    int x, y;
 	    int w, h;
 	    int m = XParseGeometry( mwGeometry, &x, &y, (uint*)&w, (uint*)&h );
-	    if ( (m & XValue) == 0 )	  x = main_widget->geometry().x();
-	    if ( (m & YValue) == 0 )	  y = main_widget->geometry().y();
-	    if ( (m & WidthValue) == 0 )  w = main_widget->width();
-	    if ( (m & HeightValue) == 0 ) h = main_widget->height();
 	    QSize minSize = main_widget->minimumSize();
 	    QSize maxSize = main_widget->maximumSize();
+	    if ( (m & XValue) == 0 )
+		x = main_widget->geometry().x();
+	    if ( (m & YValue) == 0 )
+		y = main_widget->geometry().y();
+	    if ( (m & WidthValue) == 0 )
+		w = main_widget->width();
+	    if ( (m & HeightValue) == 0 )
+		h = main_widget->height();
 	    w = QMIN(w,maxSize.width());
 	    h = QMIN(h,maxSize.height());
 	    w = QMAX(w,minSize.width());
 	    h = QMAX(h,minSize.height());
+	    if ( (m & XNegative) ) {
+		x = desktop()->width()  + x - w;
+		qwidget_tlw_gravity = 3;
+	    }
+	    if ( (m & YNegative) ) {
+		y = desktop()->height() + y - h;
+		qwidget_tlw_gravity = (m & XNegative) ? 9 : 7;
+	    }
 	    main_widget->setGeometry( x, y, w, h );
 	}
     }

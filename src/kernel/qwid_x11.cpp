@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#161 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#162 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#161 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#162 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -943,6 +943,15 @@ void QWidget::lower()
 }
 
 
+/*
+  The global variable qwidget_tlw_gravity defines the window gravity of
+  the next top level window to be created. We do this when setting the
+  main widget's geometry and the "-geometry" command line option contains
+  a negative position.
+*/
+
+int qwidget_tlw_gravity = 1;
+
 static void do_size_hints( Display *dpy, WId winid, QWExtra *x, XSizeHints *s )
 {
     if ( x ) {
@@ -965,7 +974,8 @@ static void do_size_hints( Display *dpy, WId winid, QWExtra *x, XSizeHints *s )
 	}
     }
     s->flags |= PWinGravity;
-    s->win_gravity = 1;				// NorthWest
+    s->win_gravity = qwidget_tlw_gravity;	// usually NorthWest (1)
+    qwidget_tlw_gravity = 1;			// reset in case it was set
     XSetWMNormalHints( dpy, winid, s );
 }
 
