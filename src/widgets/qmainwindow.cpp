@@ -940,7 +940,7 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
     case QMainWindow::Left:
 	dl = d->left;
 	if ( d->lLeft )
-	    dy = d->lLeft->geometry().y();
+	    dy = d->lLeft->geometry().y() + ( d->top && !d->top->isEmpty() ? 8 : 0 );
 	if ( d->lLeft && d->lastTopHeight != -1 && !dy )
 	    dy = d->lastTopHeight;
 	else
@@ -949,7 +949,7 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
     case QMainWindow::Right:
 	dl = d->right;
 	if ( d->lRight )
-	    dy = d->lRight->geometry().y();
+	    dy = d->lRight->geometry().y() + ( d->top && !d->top->isEmpty() ? 8 : 0 );
 	if ( d->lRight && d->lastTopHeight != -1 && !dy )
 	    dy = d->lastTopHeight;
 	else
