@@ -121,22 +121,8 @@ QFontPrivate::QFontPrivate( const QFontPrivate &other )
 
 QFontPrivate::~QFontPrivate()
 {
-    if ( engineData ) {
+    if ( engineData )
 	engineData->deref();
-#ifdef Q_WS_WIN
-	if (paintdevice && !engineData->count) {
-	    for ( int i = 0; i < QFont::LastPrivateScript; i++ ) {
-		if ( engineData->engines[i] ) {
-		    engineData->engines[i]->deref();
-		    if (!engineData->engines[i]->count)
-			delete engineData->engines[i];
-		    engineData->engines[i] = 0;
-		}
-	    }
-	    delete engineData;
-	}
-#endif
-    }
     engineData = 0;
 }
 
@@ -3021,6 +3007,70 @@ void QFontCache::decreaseCost( uint cost )
     FC_DEBUG( "  COST: decreased %u kb, total_cost %u kb, max_cost %u kb",
 	    cost, total_cost, max_cost );
 }
+
+#ifdef Q_WS_WIN
+void QFontCache::cleanupPrinterFonts()
+{
+    FC_DEBUG( "QFontCache::cleanupPrinterFonts" );
+
+    {
+	FC_DEBUG( "  CLEAN engine data:" );
+
+	// clean out all unused engine datas
+	EngineDataCache::Iterator it = engineDataCache.begin(),
+				 end = engineDataCache.end();
+	while ( it != end ) {
+	    if ( it.key().screen == 0 ) {
+		++it;
+		continue;
+	    }
+
+	    if( it.data()->count > 0 ) {
+		for(int i = 0; i < QFont::LastPrivateScript; ++i) {
+		    if( it.data()->engines[i] ) {
+			it.data()->engines[i]->deref();
+			it.data()->engines[i] = 0;
+		    }
+		}
+		++it;
+	    } else {
+
+		EngineDataCache::Iterator rem = it++;
+
+		decreaseCost( sizeof( QFontEngineData ) );
+
+		FC_DEBUG( "    %p", rem.data() );
+
+		delete rem.data();
+		engineDataCache.remove( rem );
+	    }
+	}
+    }
+
+    EngineCache::Iterator it = engineCache.begin(),
+			 end = engineCache.end();
+    while( it != end ) {
+	if ( it.data().data->count > 0 || it.key().screen == 0) {
+	    ++it;
+	    continue;
+	}
+
+	FC_DEBUG( "    %p: timestamp %4u hits %2u ref %2d/%2d, type '%s'",
+		  it.data().data, it.data().timestamp, it.data().hits,
+		  it.data().data->count, it.data().data->cache_count,
+		  it.data().data->name() );
+
+	if ( --it.data().data->cache_count == 0 ) {
+	    FC_DEBUG( "    DELETE: last occurence in cache" );
+
+	    decreaseCost( it.data().data->cache_cost );
+	    delete it.data().data;
+	}
+
+	engineCache.remove( it++ );
+    }
+}
+#endif
 
 void QFontCache::timerEvent( QTimerEvent * )
 {

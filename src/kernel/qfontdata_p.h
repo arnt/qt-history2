@@ -217,7 +217,11 @@ public:
     QFontEngine *findEngine( const Key &key );
     void insertEngine( const Key &key, QFontEngine *engine );
 
-private:
+#ifdef Q_WS_WIN
+    void cleanupPrinterFonts();
+#endif
+
+    private:
     void increaseCost( uint cost );
     void decreaseCost( uint cost );
     void timerEvent( QTimerEvent *event );

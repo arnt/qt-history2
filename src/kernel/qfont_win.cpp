@@ -128,21 +128,17 @@ void QFontPrivate::load( QFont::Script script )
     req.pointSize = 0;
 
     if ( ! engineData ) {
-	if (paintdevice) {
+	QFontCache::Key key( req, QFont::NoScript, (int)paintdevice );
+
+	// look for the requested font in the engine data cache
+	engineData = QFontCache::instance->findEngineData( key );
+
+	if ( ! engineData) {
+	    // create a new one
 	    engineData = new QFontEngineData;
+	    QFontCache::instance->insertEngineData( key, engineData );
 	} else {
-	    QFontCache::Key key( req, QFont::NoScript, screen );
-
-	    // look for the requested font in the engine data cache
-	    engineData = QFontCache::instance->findEngineData( key );
-
-	    if ( ! engineData) {
-		// create a new one
-		engineData = new QFontEngineData;
-		QFontCache::instance->insertEngineData( key, engineData );
-	    } else {
-		engineData->ref();
-	    }
+	    engineData->ref();
 	}
     }
 

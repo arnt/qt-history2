@@ -913,6 +913,8 @@ bool QPainter::end()
 	delete pfont;
 	pfont = 0;
     }
+    if( testf(ExtDev) )
+	QFontCache::instance->cleanupPrinterFonts();
 
     flags = 0;
     pdev->painters--;
