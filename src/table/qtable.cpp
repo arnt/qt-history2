@@ -4638,7 +4638,7 @@ void QTable::setRowLabels( const QStringList &labels )
     int i = 0;
     for ( QStringList::ConstIterator it = labels.begin();
 	  it != labels.end() && i < numRows(); ++i, ++it )
-	leftHeader->setLabel( 0, *it );
+	leftHeader->setLabel( i, *it );
 }
 
 /*! Sets the section labels of the horizontalHeader() to \a labels */
@@ -4648,7 +4648,7 @@ void QTable::setColumnLabels( const QStringList &labels )
     int i = 0;
     for ( QStringList::ConstIterator it = labels.begin();
 	  it != labels.end() && i < numCols(); ++i, ++it )
-	topHeader->setLabel( 0, *it );
+	topHeader->setLabel( i, *it );
 }
 
 /*!
