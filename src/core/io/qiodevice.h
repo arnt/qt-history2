@@ -44,7 +44,8 @@ public:
         ReadWrite = ReadOnly | WriteOnly,
         Append = 0x0004,
         Truncate = 0x0008,
-        Translate = 0x0010
+        Translate = 0x0010,
+        Unbuffered = 0x0020
     };
     Q_DECLARE_FLAGS(OpenMode, OpenModeFlag)
 
