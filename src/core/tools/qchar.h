@@ -156,7 +156,6 @@ public:
     static QChar fromLatin1(char c);
 
     inline bool isNull() const { return ucs == 0; }
-    inline bool operator!() const { return ucs == 0; }
     bool isPrint() const;
     bool isPunct() const;
     bool isSpace() const;

@@ -640,7 +640,7 @@ QChar QTextHtmlParser::parseEntity()
     }
 
     QChar resolved = resolveEntity(entity);
-    if (!!resolved)
+    if (!resolved.isNull())
 	return resolved;
     if (entity.length() > 1 && entity.at(0) == QLatin1Char('#')) {
 	int num = entity.mid(1).toInt();

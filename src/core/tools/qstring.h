@@ -70,7 +70,6 @@ public:
     void squeeze();
 
     inline const QChar *unicode() const;
-    inline operator const QChar*() const;
     inline QChar *data();
     inline const QChar *data() const;
     inline const QChar *constData() const;
@@ -306,6 +305,9 @@ public:
 #endif
 #ifndef QT_NO_CAST_TO_ASCII
     inline operator const char *() const { return ascii(); }
+private:
+    operator QNoImplicitIntegralCast() const;
+public:
 #endif
 
     typedef QChar *Iterator;
@@ -408,10 +410,6 @@ public:
     bool isRightToLeft() const { if (!d->clean) updateProperties(); return (bool)d->righttoleft; }
 
 private:
-#if defined (QT_NO_CAST_TO_ASCII) && defined (Q_DISABLE_COPY)
-    // Having these here gives decent error messages
-    operator const char *() const;
-#endif
 #if defined (QT_NO_CAST_FROM_ASCII) && defined (Q_DISABLE_COPY)
     QString &operator+=(const char *s);
     QString &operator+=(const QByteArray &s);
@@ -420,7 +418,6 @@ private:
     QString &operator=(const char  *ch);
     QString &operator=(const QByteArray &a);
 #endif
-    operator QNoImplicitIntegralCast() const;
     struct Data {
 	QAtomic ref;
 	int alloc, size;
@@ -496,8 +493,6 @@ inline const QChar QString::operator[](uint i) const
 inline bool QString::isEmpty() const
 { return d->size == 0; }
 inline const QChar *QString::unicode() const
-{ return (const QChar*) d->data; }
-inline QString::operator const QChar*() const
 { return (const QChar*) d->data; }
 inline const QChar *QString::data() const
 { return (const QChar*) d->data; }
@@ -595,7 +590,6 @@ public:
     inline QCharRef operator=(int rc) { return operator=(QChar(rc)); }
 
     // each function...
-    inline bool operator!() const { return ((QChar)*this).isNull(); }
     inline bool isNull() const { return ((QChar)*this).isNull(); }
     inline bool isPrint() const { return ((QChar)*this).isPrint(); }
     inline bool isPunct() const { return ((QChar)*this).isPunct(); }
