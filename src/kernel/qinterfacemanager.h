@@ -71,8 +71,8 @@ public:
 
 	QStringList plugins = QDir(path).entryList( filter );
 
-	for ( uint p = 0; p < plugins.count(); p++ ) {
-	    QString lib = path + "/" + plugins[p];
+	for ( QStringList::Iterator p = plugins.begin(); p != plugins.end(); ++p ) {
+	    QString lib = path + "/" + *p;
 	    addLibrary( lib );
 	}
     }
