@@ -2210,7 +2210,7 @@ if [ "$CFG_STL" = "auto" ]; then
 	    echo "STL support cannot be enabled due to functionality tests!"
 	    echo " Turn on verbose messaging (-v) to $0 to see the final report."
 	    echo " If you believe this message is in error you may use the continue"
-	    echo " switch (-k) to $0 to continue."
+	    echo " switch (-continue) to $0 to continue."
 	    exit 101
 	else
 	    CFG_STL=no
@@ -2227,7 +2227,7 @@ if [ "$CFG_LARGEFILE" = "auto" ]; then
 	    echo "Large file support cannot be enabled due to functionality tests!"
 	    echo " Turn on verbose messaging (-v) to $0 to see the final report."
 	    echo " If you believe this message is in error you may use the continue"
-	    echo " switch (-k) to $0 to continue."
+	    echo " switch (-continue) to $0 to continue."
 	    exit 101
 	else
 	    CFG_LARGEFILE=no
