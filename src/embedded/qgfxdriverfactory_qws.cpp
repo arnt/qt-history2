@@ -38,7 +38,7 @@
 #include "qgfxdriverfactory_qws.h"
 
 #include "qapplication.h"
-#include "qgfxlinuxfb_qws.h"
+#include "qgfxlinuxfb_qws.h" 
 #include "qgfxtransformed_qws.h"
 #include "qgfxmach64_qws.h"
 #include "qgfxvoodoo_qws.h"
@@ -47,6 +47,7 @@
 #include "qgfxvnc_qws.h"
 #include "qgfxvga16_qws.h"
 #include "qgfxshadowfb_qws.h"
+#include "qgfxrepeater_qws.h"
 #include "qwsgfx_qnx6.h"
 #include <stdlib.h>
 
@@ -145,7 +146,11 @@ QScreen *QGfxDriverFactory::create( const QString& key, int displayId )
     if ( driver == "shadowfb" )
 	return new QShadowFbScreen( displayId );
 #endif
-
+#ifndef QT_NO_QWS_REPEATER
+    if ( driver == "repeater" )
+	return new QRepeaterScreen( displayId );
+#endif
+    
 #if (!defined(Q_OS_WIN32) && !defined(Q_OS_WIN64)) || defined(QT_MAKEDLL)
 #ifndef QT_NO_COMPONENT
     if ( !instance )
@@ -212,7 +217,11 @@ QStringList QGfxDriverFactory::keys()
     if ( !list.contains( "ShadowFb" ) )
 	list << "ShadowFb";
 #endif
-
+#ifndef QT_NO_QWS_REPEATER
+     if ( !list.contains( "Repeater" ) )
+	list << "Repeater";   
+#endif
+     
 #if (!defined(Q_OS_WIN32) && !defined(Q_OS_WIN64)) || defined(QT_MAKEDLL)
 #ifndef QT_NO_COMPONENT
     if ( !instance )
