@@ -98,6 +98,7 @@ static QSvgTypeMap *qSvgTypeMap=0; // element types
 static QMap<QString,QString> *qSvgColMap=0; // recognized color keyword names
 
 /*!
+  \internal
   \class QSvgDevice qsvgdevice.h
   \ingroup xml-tools
 
