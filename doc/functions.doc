@@ -13,12 +13,12 @@
 ****************************************************************************/
 
 /*!
-\page functions.html
+    \page functions.html
 
-\title Member Function Index
+    \title Member Function Index
 
-Here is the list of all the documented member functions in the Qt
-API with links to the class documentation for each function.
+    Here is the list of all the documented member functions in the Qt
+    API with links to the class documentation for each function.
 
-\functionindex
+    \generatelist functionindex
 */

@@ -13,11 +13,11 @@
 ****************************************************************************/
 
 /*!
-\page annotated.html
+    \page annotated.html
 
-\title Annotated Class Index
+    \title Annotated Class Index
 
-Qt's classes with brief descriptions:
+    Qt's classes with brief descriptions:
 
-\annotatedclasslist
+    \generatelist annotatedclasses
 */

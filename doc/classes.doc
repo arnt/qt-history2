@@ -13,24 +13,24 @@
 ****************************************************************************/
 
 /*!
-  \page classes.html
+    \page classes.html
 
-  \title Qt's Classes
+    \title Qt's Classes
 
-  For a shorter list that only includes the most frequently used
-  classes, see \link mainclasses.html Qt's Main Classes \endlink.
+    For a shorter list that only includes the most frequently used
+    classes, see \link mainclasses.html Qt's Main Classes \endlink.
 
-  \classlist
+    \generatelist classes
 */
 
 /*!
-  \page mainclasses.html
+    \page mainclasses.html
 
-  \title Qt's Main Classes
+    \title Qt's Main Classes
 
-  These are the most frequently used Qt classes.
-  For the complete list (including XML, networking and container
-  classes), see \link classes.html Qt's Classes \endlink.
+    These are the most frequently used Qt classes.
+    For the complete list (including XML, networking and container
+    classes), see \link classes.html Qt's Classes \endlink.
 
-  \mainclasslist
+    \generatelist mainclasses
 */

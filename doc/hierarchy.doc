@@ -13,12 +13,12 @@
 ****************************************************************************/
 
 /*!
-\page hierarchy.html
+    \page hierarchy.html
 
-\title Class Inheritance Hierarchy
+    \title Class Inheritance Hierarchy
 
-This list shows the C++ class inheritance relations between the
-classes in the Qt API.
+    This list shows the C++ class inheritance relations between the
+    classes in the Qt API.
 
-\classhierarchy
+    \generatelist classhierarchy
 */
