@@ -38,10 +38,10 @@ protected:
     void resizeEvent(QResizeEvent *event);
 
 private:
-    bool dragging;
     QRect itemBr, itemBrOrig;
     QPixmap buffer;
     QList<Item *> items;
+    Item *selectedItem;
 };
 
 #endif

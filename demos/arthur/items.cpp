@@ -118,7 +118,8 @@ private:
 Items::Items(QWidget *parent)
     : DemoWidget(parent)
 {
-    srand(QTime::currentTime().msec());
+    selectedItem = 0;
+      srand(QTime::currentTime().msec());
     for (int i = 0; i < 500; ++i) {
         items.append(new Item(QPoint(50+rand()%380, 50+rand()%380), Item::Rectangle,
                               QColor(120+rand()%136,120+rand()%136,120+rand()%136)));
@@ -126,10 +127,11 @@ Items::Items(QWidget *parent)
                               QColor(120+rand()%136,120+rand()%136,120+rand()%136)));
     }
 
-    Item *item = new Item(QPoint(), Item::Path, QColor(120, 255, 120, 200));
-    item->translate(QPoint(591/2, 600/2) - item->boundingRect().center());
-    items.append(item);
-    dragging = false;
+#if 0
+     Item *item = new Item(QPoint(), Item::Path, QColor(120, 255, 120, 200));
+     item->translate(QPoint(591/2, 600/2) - item->boundingRect().center());
+     items.append(item);
+#endif
 }
 
 Items::~Items()
@@ -143,14 +145,12 @@ void Items::paintEvent(QPaintEvent *)
     QPainter p(this);
     p.drawPixmap(0, 0, buffer);
 
-    if (dragging) {
-        items.last()->draw(&p, true);
-    }
+    if (selectedItem)
+        selectedItem->draw(&p, true);
 }
 
 void Items::mousePressEvent(QMouseEvent *event)
 {
-    dragging = true;
     for (int i = items.size()-1; i >= 0; --i) {
         if (items.at(i)->boundingRect().contains(event->pos())) {
             items.last()->setSelected(false);
@@ -158,6 +158,7 @@ void Items::mousePressEvent(QMouseEvent *event)
             items[i]->setOffset(event->pos());
             itemBr = items.at(i)->boundingRect();
             items.move(i, items.size()-1);
+            selectedItem = items.last();
             break;
         }
     }
@@ -174,18 +175,23 @@ void Items::mousePressEvent(QMouseEvent *event)
 
 void Items::mouseMoveEvent(QMouseEvent *event)
 {
-    items.last()->translate(event->pos());
-    itemBr = items.last()->boundingRect();
-    update();
+    if (selectedItem) {
+        selectedItem->translate(event->pos());
+        itemBr = selectedItem->boundingRect();
+        update();
+    }
 }
 
 void Items::mouseReleaseEvent(QMouseEvent *)
 {
-    dragging = false;
-    drawItems(itemBr);
-    if (!itemBrOrig.isEmpty())
-        drawItems(itemBrOrig);
-    itemBrOrig = itemBr;
+    if (selectedItem) {
+        selectedItem->setSelected(false);
+        drawItems(itemBr | selectedItem->boundingRect());
+        selectedItem = 0;
+        if (!itemBrOrig.isEmpty())
+            drawItems(itemBrOrig);
+        itemBrOrig = itemBr;
+    }
     update();
 }
 
