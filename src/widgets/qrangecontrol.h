@@ -168,6 +168,7 @@ protected:
     void styleChange( QStyle& );
     void paintEvent( QPaintEvent * );
     void enableChanged( bool old );
+    void windowActivationChange( bool );
 
 private slots:
     void timerDone();

@@ -214,6 +214,17 @@ void QSpinWidget::timerDoneEx()
 }
 
 
+void QSpinWidget::windowActivationChange( bool active )
+{
+    if ( !active && d->buttonDown ) {
+	d->stopTimer();
+	update();
+	d->buttonDown = 0;	
+    }    
+}
+
+
+
 /*!
     The event is passed in \a e.
 */
