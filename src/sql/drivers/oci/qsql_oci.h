@@ -53,6 +53,7 @@ protected:
     int size();
     int numRowsAffected();
     QSqlRecord record() const;
+    QCoreVariant lastInsertId() const;
 
 private:
     QOCIPrivate*        d;

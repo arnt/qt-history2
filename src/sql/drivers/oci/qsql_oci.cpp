@@ -16,7 +16,9 @@
 #include <qcoreapplication.h>
 #include <qcorevariant.h>
 #include <qdatetime.h>
+#include <qmetatype.h>
 #include <qregexp.h>
+#include <qshareddata.h>
 #include <qsqlerror.h>
 #include <qsqlfield.h>
 #include <qsqlindex.h>
@@ -38,6 +40,34 @@ QByteArray qMakeOraDate(const QDateTime& dt);
 QDateTime qMakeDate(const char* oraDate);
 QString qOraWarn(const QOCIPrivate* d);
 void qOraWarning(const char* msg, const QOCIPrivate* d);
+
+class QOCIRowId: public QSharedData
+{
+public:
+    QOCIRowId(OCIEnv *env);
+    ~QOCIRowId();
+
+    OCIRowid *id;
+
+private:
+    QOCIRowId(const QOCIRowId &other): QSharedData(other) { Q_ASSERT(false); }
+};
+
+QOCIRowId::QOCIRowId(OCIEnv *env)
+    : id(0)
+{
+    OCIDescriptorAlloc ((dvoid *) env, (dvoid **) &id, (ub4) OCI_DTYPE_ROWID,
+                        (size_t) 0, (dvoid **) 0);
+}
+
+QOCIRowId::~QOCIRowId()
+{
+    if (id)
+        OCIDescriptorFree((dvoid *)id, (ub4) OCI_DTYPE_ROWID);
+}
+
+typedef QSharedDataPointer<QOCIRowId> QOCIRowIdPointer;
+Q_DECLARE_METATYPE(QOCIRowIdPointer)
 
 class QOCIPrivate
 {
@@ -1230,6 +1260,20 @@ QSqlRecord QOCIResult::record() const
     cols->getOraFields(inf);
     return inf;
 }
+
+QCoreVariant QOCIResult::lastInsertId() const
+{
+    if (isActive()) {
+        QOCIRowIdPointer ptr(new QOCIRowId(d->env));
+
+        int r = OCIAttrGet((dvoid*) d->sql, OCI_HTYPE_STMT, ptr.constData()->id,
+                           (ub4 *) 0, OCI_ATTR_ROWID, (OCIError *) d->err);
+        if (r == OCI_SUCCESS)
+            return qVariant(ptr);
+    }
+    return QCoreVariant();
+}
+
 
 ////////////////////////////////////////////////////////////////////////////
 
