@@ -1,6 +1,6 @@
 TEMPLATE	= app
 CONFIG		= qt warn_on release
-HEADERS		= *.h
+HEADERS		= 
 SOURCES		= bex.cpp \
 		  cex.cpp \
 		  gex.cpp \

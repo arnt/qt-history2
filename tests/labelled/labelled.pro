@@ -1,5 +1,5 @@
-TEMPLATE    =	app
-CONFIG      =	qt warn_on release
-SOURCES	    =	labelled.cpp
-HEADERS	    =	labelled.h
-TARGET      =	labelled
+TEMPLATE	= app
+CONFIG		= qt warn_on release
+HEADERS		= labelled.h
+SOURCES		= labelled.cpp
+TARGET		= labelled
