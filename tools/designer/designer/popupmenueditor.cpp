@@ -535,10 +535,8 @@ void PopupMenuEditor::cut( int index )
     
     clipboardOperation = Cut;
     clipboardItem = itemList.at( index );
-    RemoveActionFromPopupCommand * cmd = new RemoveActionFromPopupCommand( "Cut Item",
-									   formWnd,
-									   this,
-									   index );
+    RemoveActionFromPopupCommand * cmd =
+	new RemoveActionFromPopupCommand( "Cut Item", formWnd, this, index );
     formWnd->commandHistory()->addCommand( cmd );
     cmd->execute();
 }
@@ -986,148 +984,44 @@ void PopupMenuEditor::keyPressEvent( QKeyEvent * e )
 	switch ( e->key() ) {
 
 	case Qt::Key_Delete:
-
 	    hideCurrentItemMenu();
 	    deleteCurrentItem();
 	    showCurrentItemMenu();
 	    break;
 
 	case Qt::Key_Backspace:
-	{
-	    if ( currentIndex >= itemList.count() ) {
-		break; // currentIndex is addItem or addSeparator
-	    }
-	    PopupMenuEditorItem * i = currentItem();
-	    hideCurrentItemMenu();
-	    if ( i->isSeparator() ) {
-		break;
-	    } else if ( currentField == 0 ) {
-		QIconSet icons( 0 );
-		SetActionIconsCommand * cmd = new SetActionIconsCommand( "Remove icon",
-									 formWnd,
-									 i->anyAction(),
-									 this,
-									 icons );
-		formWnd->commandHistory()->addCommand( cmd );
-		cmd->execute();
-	    } else if ( currentField == 2 ) {
-		i->anyAction()->setAccel( 0 );
-	    }
-	    resizeToContents();
-	    showCurrentItemMenu();
+	    clearCurrentField();
 	    break;
-	}
 	
 	case Qt::Key_Up:
-	    
-	    if ( currentIndex > 0 ) {
-		hideCurrentItemMenu();
-		if ( e->state() & Qt::ControlButton ) {
-		    ExchangeActionInPopupCommand * cmd =
-			new ExchangeActionInPopupCommand( "Move Item Up",
-							  formWnd,
-							  this,
-							  currentIndex,
-							  currentIndex - 1 );
-		    formWnd->commandHistory()->addCommand( cmd );
-		    cmd->execute();
-		    safeDec();
-		} else {
-		    safeDec();
-		}
-		showCurrentItemMenu();
-	    } else if ( parentMenu ) {
-		parentMenu->update(); //FIXME
-		parentMenu->setFocus();
-	    }
+	    navigateUp( e->state() & Qt::ControlButton );
 	    break;
 	    
 	case Qt::Key_Down:
-	    
-	    hideCurrentItemMenu();
-	    if ( e->state() & Qt::ControlButton ) { // Ctrl pressed
-		if ( currentIndex < ( itemList.count() - 1 ) ) { // safe index
-		    ExchangeActionInPopupCommand * cmd =
-			new ExchangeActionInPopupCommand( "Move Item Down",
-							  formWnd,
-							  this,
-							  currentIndex,
-							  currentIndex + 1 );
-		    formWnd->commandHistory()->addCommand( cmd );
-		    cmd->execute();
-		    safeInc();
-		}
-	    } else { // ! Ctrl
-		safeInc();
-	    }
-	    if ( currentIndex >= itemList.count() ) {
-		currentField = 1;
-	    }
-	    showCurrentItemMenu();
+	    navigateDown( e->state() & Qt::ControlButton );
 	    break;
 
 	case Qt::Key_Left:
-
-	    if ( currentItem()->isSeparator() ||
-		 currentIndex >= itemList.count() ||
-		 currentField == 0 ) {
-		if ( parentMenu ) {
-		    hideCurrentItemMenu();
-		    parentMenu->setFocus();
-		    parentMenu->update();
-		} else if ( !currentItem()->isSeparator() ) {
-		    currentField = 2;
-		}
-	    } else {
-		currentField--;
-	    }
+	    navigateLeft();
 	    break;
 	    
 	case Qt::Key_Right:
-
-	    if ( !currentItem()->isSeparator() && currentIndex < itemList.count() ) {
-		if ( currentField == 2 ) {
-		    focusCurrentItemMenu();
-		} else {
-		    currentField++;
-		    currentField %= 3;
-		}
-	    }
+	    navigateRight();
 	    break;
 	    
 	case Qt::Key_PageUp:
-
 	    currentIndex = 0;
 	    break;
 	    
 	case Qt::Key_PageDown:
-	    
 	    currentIndex = itemList.count();
 	    break;
 
 	case Qt::Key_Enter:
 	case Qt::Key_Return:
 	case Qt::Key_F2:
-	{
-	    PopupMenuEditorItem * i = currentItem();
-
-	    if ( i == &addSeparator ) {
-		i = createItem( new QSeparatorAction( 0 ) );
-		i->setSeparator( TRUE );
-	    } else if ( i->isSeparator() ) {
-		break;
-	    } else if ( currentField == 0 ) {
-		loadIconPixmap();
-	    } else if ( currentField == 1 ) {
-		showLineEdit();
-		break;
-	    } else { // currentField == 2
-		setAccelerator( e->key(), e->state() );
-	    }
-	    showCurrentItemMenu();
-	    break;
-	}
-	    
+	    enterEditMode( e );
+	    // move on
 	case Qt::Key_Alt:
 	case Qt::Key_Shift:
 	case Qt::Key_Control:
@@ -1160,9 +1054,8 @@ void PopupMenuEditor::keyPressEvent( QKeyEvent * e )
 	    }
 	    
 	default:
-
 	    if (  currentItem()->isSeparator() ) {
-		break;
+		return;
 	    }
 	    if ( currentField == 1 ) {
 		showLineEdit();
@@ -1182,33 +1075,7 @@ void PopupMenuEditor::keyPressEvent( QKeyEvent * e )
 	switch ( e->key() ) {
 	case Qt::Key_Enter:
 	case Qt::Key_Return:
-	{
-	    PopupMenuEditorItem * i = 0;    
-	    if ( currentIndex >= itemList.count() ) {
-		QAction * a = formWnd->mainWindow()->actioneditor()->newActionEx();
-		i = createItem( a );
-		// Do not put rename on cmd stack (no undo/redo)
-		RenameActionCommand rename( "Rename Item", formWnd, i->anyAction(), this, lineEdit->text() );
-		rename.execute();
-	    } else {
-		i = itemList.at( currentIndex );
-		RenameActionCommand * cmd = new RenameActionCommand( "Rename Item",
-								     formWnd,
-								     i->anyAction(),
-								     this,
-								     lineEdit->text() );
-		formWnd->commandHistory()->addCommand( cmd );
-		cmd->execute();
-	    }
-
-	    resizeToContents();
-
-	    if ( i->isSeparator() ) {
-		hideCurrentItemMenu();
-	    } else {
-		showCurrentItemMenu();		
-	    }
-	}
+	    leaveEditMode();
 	case Qt::Key_Escape:   
 	    lineEdit->hide();
 	    setFocus();
@@ -1632,5 +1499,158 @@ void PopupMenuEditor::safeInc()
 	do  {
 	    currentIndex++;
 	} while ( currentIndex < max && !currentItem()->isVisible() ); // skip invisible items
+    }
+}
+
+void PopupMenuEditor::clearCurrentField()
+{
+    if ( currentIndex >= itemList.count() ) {
+	return; // currentIndex is addItem or addSeparator
+    }
+    PopupMenuEditorItem * i = currentItem();
+    hideCurrentItemMenu();
+    if ( i->isSeparator() ) {
+	return;
+    } else if ( currentField == 0 ) {
+	QIconSet icons( 0 );
+	SetActionIconsCommand * cmd = new SetActionIconsCommand( "Remove icon",
+								 formWnd,
+								 i->anyAction(),
+								 this,
+								 icons );
+	formWnd->commandHistory()->addCommand( cmd );
+	cmd->execute();
+    } else if ( currentField == 2 ) {
+	i->anyAction()->setAccel( 0 );
+    }
+    resizeToContents();
+    showCurrentItemMenu();
+    return;
+}
+
+void PopupMenuEditor::navigateUp( bool ctrl )
+{
+    if ( currentIndex > 0 ) {
+	hideCurrentItemMenu();
+	if ( ctrl ) {
+	    ExchangeActionInPopupCommand * cmd =
+		new ExchangeActionInPopupCommand( "Move Item Up",
+						  formWnd,
+						  this,
+						  currentIndex,
+						  currentIndex - 1 );
+	    formWnd->commandHistory()->addCommand( cmd );
+	    cmd->execute();
+	    safeDec();
+	} else {
+	    safeDec();
+	}
+	showCurrentItemMenu();
+    } else if ( parentMenu ) {
+	parentMenu->update(); //FIXME
+	parentMenu->setFocus();
+    }
+}
+
+void PopupMenuEditor::navigateDown( bool ctrl )
+{	    
+    hideCurrentItemMenu();
+    if ( ctrl ) {
+	if ( currentIndex < ( itemList.count() - 1 ) ) { // safe index
+	    ExchangeActionInPopupCommand * cmd =
+		new ExchangeActionInPopupCommand( "Move Item Down",
+						  formWnd,
+						  this,
+						  currentIndex,
+						  currentIndex + 1 );
+	    formWnd->commandHistory()->addCommand( cmd );
+	    cmd->execute();
+	    safeInc();
+	}
+    } else { // ! Ctrl
+	safeInc();
+    }
+    if ( currentIndex >= itemList.count() ) {
+	currentField = 1;
+    }
+    showCurrentItemMenu();
+}
+
+void PopupMenuEditor::navigateLeft()
+{
+    if ( currentItem()->isSeparator() ||
+	 currentIndex >= itemList.count() ||
+	 currentField == 0 ) {
+	if ( parentMenu ) {
+	    hideCurrentItemMenu();
+	    parentMenu->setFocus();
+	    parentMenu->update();
+	} else if ( !currentItem()->isSeparator() ) {
+	    currentField = 2;
+	}
+    } else {
+	currentField--;
+    }
+}
+
+void PopupMenuEditor::navigateRight()
+{
+    if ( !currentItem()->isSeparator() && currentIndex < itemList.count() ) {
+	if ( currentField == 2 ) {
+	    focusCurrentItemMenu();
+	} else {
+	    currentField++;
+	    currentField %= 3;
+	}
+    }
+}
+
+void PopupMenuEditor::enterEditMode( QKeyEvent * e )
+{
+    PopupMenuEditorItem * i = currentItem();
+    
+    if ( i == &addSeparator ) {
+	i = createItem( new QSeparatorAction( 0 ) );
+	i->setSeparator( TRUE );
+    } else if ( i->isSeparator() ) {
+	return;
+    } else if ( currentField == 0 ) {
+	loadIconPixmap();
+    } else if ( currentField == 1 ) {
+	showLineEdit();
+	return;
+    } else { // currentField == 2
+	setAccelerator( e->key(), e->state() );
+    }
+    showCurrentItemMenu();
+    return;
+}
+
+void PopupMenuEditor::leaveEditMode()
+{
+    PopupMenuEditorItem * i = 0;    
+    if ( currentIndex >= itemList.count() ) {
+	QAction * a = formWnd->mainWindow()->actioneditor()->newActionEx();
+	i = createItem( a );
+	// Do not put rename on cmd stack (no undo/redo)
+	RenameActionCommand rename( "Rename Item", formWnd, i->anyAction(), this, lineEdit->text() );
+	rename.execute();
+    } else {
+	i = itemList.at( currentIndex );
+	RenameActionCommand * cmd = new RenameActionCommand( "Rename Item",
+							     formWnd,
+							     i->anyAction(),
+							     this,
+							     lineEdit->text() );
+	formWnd->commandHistory()->addCommand( cmd );
+	cmd->execute();
+    }
+    
+    resizeToContents();
+    
+    if ( i->isSeparator() ) {
+	hideCurrentItemMenu();
+    } else {
+	showCurrentItemMenu();		
     }
 }

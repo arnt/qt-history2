@@ -167,6 +167,14 @@ protected:
     void safeDec();
     void safeInc();
 
+    void clearCurrentField();
+    void navigateUp( bool ctrl );
+    void navigateDown( bool ctrl );
+    void navigateLeft();
+    void navigateRight();
+    void enterEditMode( QKeyEvent * e );
+    void leaveEditMode();
+
 private:
     FormWindow * formWnd;
     QLineEdit * lineEdit;
