@@ -515,8 +515,6 @@ static unsigned int __stdcall start_thread(void* that )
 
 void QThreadPrivate::internalRun( QThread* that )
 {
-    that->d->finished = FALSE;
-    that->d->running = TRUE;
     that->run();
     that->d->finished = TRUE;
     that->d->running = FALSE;
@@ -607,6 +605,8 @@ void QThread::start()
 	wait();
     }
 
+    d->running = TRUE;
+    d->finished = FALSE;
     d->handle = (HANDLE)_beginthreadex( NULL, NULL, start_thread,
 	this, 0, &(d->id) );
 
