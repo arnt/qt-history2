@@ -201,8 +201,8 @@ typedef QTextStream QTS;
 
 class Q_EXPORT QTextIStream : public QTextStream {
 public:
-    QTextIStream( QString* s ) :
-	QTextStream(s,IO_ReadOnly) { }
+    QTextIStream( const QString* s ) :
+	QTextStream((QString*)s,IO_ReadOnly) { }
     QTextIStream( QByteArray ba ) :
 	QTextStream(ba,IO_ReadOnly) { }
     QTextIStream( FILE *f ) :
