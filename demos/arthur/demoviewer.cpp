@@ -59,8 +59,8 @@ void ItemDelegate::paint(QPainter *painter,
     QColor base = QApplication::palette().color(QPalette::Button);
     QColor pen = QApplication::palette().color(QPalette::ButtonText);
 
-    QColor g1 = base.light();
-    QColor g2 = base.dark();
+    QColor g1 = base.light(120);
+    QColor g2 = base.dark(120);
 
     bool selected = (options.state & QStyle::State_Selected) != 0;
 
@@ -73,7 +73,12 @@ void ItemDelegate::paint(QPainter *painter,
     }
 
     QRect r = options.rect;
-    painter->fillRect(r, QBrush(r.topLeft(), g1, r.bottomLeft(), g2));
+    r.setBottom(r.top() +  (selected?1:2)*r.height()/3);
+    painter->fillRect(r, QBrush(r.topLeft(), g1, r.bottomLeft(), base));
+    r = options.rect;
+    r.setTop(r.top() +  (selected?1:2)*r.height()/3);
+    painter->fillRect(r, QBrush(r.topLeft(), base, r.bottomLeft(), g2));
+    r = options.rect;
 
     painter->setPen(pen);
     QRect textRect = r;
