@@ -2546,12 +2546,20 @@ QRegion::QRegion( const QRegion &r )
 */
 QRegion::QRegion( const QBitmap & bm )
 {
-    data = new QRegionData;
-    Q_CHECK_PTR( data );
-    data->is_null = FALSE;
-    data->rgn = 0;
-    data->xrectangles = 0;
-    data->region = qt_bitmapToRegion(bm);
+    if ( bm.isNull() ) {
+	if ( !empty_region ) {			// avoid too many allocs
+	    qAddPostRoutine( cleanup_empty_region );
+	    empty_region = new QRegion( TRUE );
+	    Q_CHECK_PTR( empty_region );
+	}
+	data = empty_region->data;
+	data->ref();
+    } else {
+	data = new QRegionData;
+	Q_CHECK_PTR( data );
+	data->is_null = FALSE;
+	data->rgn = qt_x11_bitmapToRegion(bm);
+    }
 }
 
 /*!

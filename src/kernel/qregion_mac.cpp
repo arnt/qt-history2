@@ -345,15 +345,25 @@ static RgnHandle qt_mac_bitmapToRegion(const QBitmap& bitmap)
 
 QRegion::QRegion(const QBitmap &bm)
 {
-    data = qt_mac_get_rgn_data();
-    data->is_null = FALSE;
-    data->is_rect = FALSE;
+    if ( bm.isNull() ) {
+	if ( !empty_region ) {			// avoid too many allocs
+	    qAddPostRoutine( cleanup_empty_region );
+	    empty_region = new QRegion( TRUE );
+	    Q_CHECK_PTR( empty_region );
+	}
+	data = empty_region->data;
+	data->ref();
+    } else {
+	data = qt_mac_get_rgn_data();
+	data->is_null = FALSE;
+	data->is_rect = FALSE;
 #if 0 //this should work, but didn't
-    data->rgn = qt_mac_get_rgn();
-    BitMapToRegion(data->rgn, GetPortBitMapForCopyBits((GWorldPtr)bm.handle()));
+	data->rgn = qt_mac_get_rgn();
+	BitMapToRegion(data->rgn, (BitMap *)*GetGWorldPixMap((GWorldPtr)bm.handle()));
 #else
-    data->rgn = qt_mac_bitmapToRegion(bm);
+	data->rgn = qt_mac_bitmapToRegion(bm);
 #endif
+    }
 }
 
 
