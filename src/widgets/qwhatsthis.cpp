@@ -149,6 +149,7 @@ public:
 
 public slots:
     void hide();
+    inline void widgetDestroyed() { widget = 0; }
 
 protected:
     void mousePressEvent( QMouseEvent* );
@@ -248,7 +249,7 @@ QWhatsThat::QWhatsThat( QWidget* w, const QString& txt, QWidget* parent, const c
 #endif
 
     if ( widget )
-	connect( widget, SIGNAL( destroyed() ), this, SLOT( hide() ) );
+	connect( widget, SIGNAL( destroyed() ), this, SLOT( widgetDestroyed() ) );
 
 
     QRect r;
