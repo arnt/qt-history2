@@ -84,6 +84,21 @@ public:
 */
 
 /*!
+  \enum Qt::GUIStyle
+
+  \obsolete
+
+  This enum only exists to keep existing source working and will be removed before
+  the Qt 3.0 release.
+
+  \value WindowsStyle
+  \value MotifStyle
+  \value MacStyle
+  \value Win3Style
+  \value PMStyle
+*/
+
+/*!
   Constructs a QStyle that provides the style \a s.  This determines
   the default behavior of the virtual functions.
 */
@@ -229,22 +244,6 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 	       flags, g, enabled, pixmap, text, len, penColor );
 }
 
-/*! \enum Qt::GUIStyle
-    \value WindowsStyle
-    \value MotifStyle
-    \value MacStyle, \e obsolete
-    \value Win3Style, \e obsolete
-    \value PMStyle, \e obsolete
-*/
-/*!
-    \enum Qt::UIEffect
-    \value UI_General
-    \value UI_AnimateMenu
-    \value UI_FadeMenu
-    \value UI_AnimateCombo
-    \value UI_AnimateTooltip
-    \value UI_FadeTooltip
-*/
 /*!
   \enum QStyle::PrimitiveOperation
 
@@ -373,40 +372,63 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
   <p align=center>
   <table cellpadding=2 cellspacing=2 border=0>
+    <tr bgcolor=#A2C511>
+      <th>PrimitiveOperation</th>
+      <th>Data</th>
+      <th>Cast</th>
+      <th>Notes</th>
+    </tr>
     <tr bgcolor=#e5e5e5>
-      <td valign=top width=30%><b>PO_FocusRect</td>
-      <td valign=top width=20%>data[0]</td>
-      <td valign=top width=20%>const QColor *</td>
-      <td valign=top width=30%>pointer to the background color the on which focus rect is
-          being drawn </td>
+      <td valign=top><b>PO_FocusRect</td>
+      <td valign=top>data[0]</td>
+      <td valign=top>const QColor *</td>
+      <td valign=top>pointer to the background color the on which focus rect is
+          being drawn.</td>
     </tr>
     <tr bgcolor=#ffffff>
-      <td valign=top><b>PO_Panel, PO_PanelPopup, PO_PanelMenuBar, PO_PanelDockWindow</b>
-      </td>
+      <td valign=top><b>PO_Panel</b></td>
       <td valign=top>data[0]</td>
       <td valign=top>int *</td>
       <td valign=top>line width for drawing the panel.</td>
     </tr>
     <tr bgcolor=#e5e5e5>
+      <td valign=top><b>PO_PanelPopup</b></td>
+      <td valign=top>data[0]</td>
+      <td valign=top>int *</td>
+      <td valign=top>line width for drawing the panel.</td>
+    </tr>
+    <tr bgcolor=#ffffff>
+      <td valign=top><b>PO_PanelMenuBar</b></td>
+      <td valign=top>data[0]</td>
+      <td valign=top>int *</td>
+      <td valign=top>line width for drawing the panel.</td>
+    </tr>
+    <tr bgcolor=#e5e5e5>
+      <td valign=top><b>PO_PanelDockWindow</b></td>
+      <td valign=top>data[0]</td>
+      <td valign=top>int *</td>
+      <td valign=top>line width for drawing the panel.</td>
+    </tr>
+    <tr bgcolor=#ffffff>
       <td valign=top><b>PO_GroupBoxFrame</b></td>
       <td valign=top>data[0]</td>
       <td valign=top>int *</td>
       <td valign=top>frame shape for the group box.  See the documentation for QFrame
           for more details.</td>
     </tr>
-    <tr bgcolor=#e5e5e5>
+    <tr bgcolor=#ffffff>
       <td valign=top></td>
       <td valign=top>data[1]</td>
       <td valign=top>int *</td>
       <td valign=top>frame shadow for the group box.</td>
     </tr>
-    <tr bgcolor=#e5e5e5>
+    <tr bgcolor=#ffffff>
       <td valign=top></td>
       <td valign=top>data[2]</td>
       <td valign=top>int *</td>
       <td valign=top>line width for the group box.</td>
     </tr>
-    <tr bgcolor=#e5e5e5>
+    <tr bgcolor=#ffffff>
       <td valign=top></td>
       <td valign=top>data[3]</td>
       <td valign=top>int *</td>
@@ -478,46 +500,115 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   The \a how argument is used to control how the ControlElement is drawn.  Multiple
   flags can be used.
 
-  The \a widget argument is a pointer to a widget.  The widget can be cast to the
-  appropriate type based on the value of \a element:
-
-  \list
-    \i \e CE_PushButton, \e CE_PushButtonLabel - \a widget can be cast to a QPushButton.
-    \i \e CE_CheckBox, \e CE_CheckBoxLabel - \a widget can be cast to a QCheckBox.
-    \i \e CE_RadioButton, \e CE_RadioButtonLabel - \a widget can be cast to a
-       QRadioButton.
-    \i \e CE_TabBarTab, \e CE_TabBarLabel - \a widget can be cast to a QTabBar.
-    \i \e CE_ProgressBarGroove, \e CE_ProgressBarContents, \e CE_ProgressBarLabel
-       - \a widget can be cast to a QProgressBar.
-    \i \e CE_PopupMenuItem - \a widget can be cast to a QPopupMenu.
-    \i \e CE_MenuBarItem - \a widget can be cast to a QMenuBar.
-  \endlist
-
-  The \a data argument can be used to pass extra information required when drawing
-  the ControlElement.  Note that \a data can be zero even for ControlElements that make
-  use of the extra data.  When data is non-zero, the data is used as follows:
+  The \a widget argument is a pointer to a QWidget or one of its subclasses.  The
+  widget can be cast to the appropriate type based on the value of \a element. The
+  \a data argument can be used to pass extra information required when drawing the
+  ControlElement.  Note that \a data can be zero even for ControlElements that make
+  use of the extra data.  See the table below for the appropriate \a widget and
+  \a data casts:
 
   <p align=center>
   <table cellpadding=2 cellspacing=2 border=0 width=100%>
+    <tr bgcolor=#A2C511>
+      <th>ControlElement</th>
+      <th>Widget Cast</th>
+      <th>Data</th>
+      <th>Data Cast</th>
+      <th>Notes</th>
+    </tr>
     <tr bgcolor=#e5e5e5>
-      <td valign=top width=30%><b>CE_TabBarLabel</b></td>
-      <td valign=top width=20%>data[0]</td>
-      <td valign=top width=20%>QTab *</td>
-      <td valign=top width=30%>pointer to the QTab being drawn.</td>
+      <td valign=top><b>CE_PushButton</b></td>
+      <td valign=top>const QPushButton *</b></td>
+      <td valign=top>data unused.</td>
+      <td valign=top></td>
+      <td valign=top></td>
+    </tr>
+    <tr bgcolor=#ffffff>
+      <td valign=top><b>CE_PushButtonLabel</b></td>
+      <td valign=top>const QPushButton *</b></td>
+      <td valign=top>data unused.</td>
+      <td valign=top></td>
+      <td valign=top></td>
+    </tr>
+    <tr bgcolor=#e5e5e5>
+      <td valign=top><b>CE_CheckBox</b></td>
+      <td valign=top>const QCheckBox *</b></td>
+      <td valign=top>data unused.</td>
+      <td valign=top></td>
+      <td valign=top></td>
+    </tr>
+    <tr bgcolor=#ffffff>
+      <td valign=top><b>CE_CheckboxLabel</b></td>
+      <td valign=top>const QCheckBox *</b></td>
+      <td valign=top>data unused.</td>
+      <td valign=top></td>
+      <td valign=top></td>
+    </tr>
+    <tr bgcolor=#e5e5e5>
+      <td valign=top><b>CE_RadioButton</b></td>
+      <td valign=top>const QRadioButton *</b></td>
+      <td valign=top>data unused.</td>
+      <td valign=top></td>
+      <td valign=top></td>
+    </tr>
+    <tr bgcolor=#ffffff>
+      <td valign=top><b>CE_RadioButtonLabel</b></td>
+      <td valign=top>const QRadioButton *</b></td>
+      <td valign=top>data unused.</td>
+      <td valign=top></td>
+      <td valign=top></td>
+    </tr>
+    <tr bgcolor=#e5e5e5>
+      <td valign=top><b>CE_TabBarTab</b></td>
+      <td valign=top>const QTabBar *</b></td>
+      <td valign=top>data unused.</td>
+      <td valign=top></td>
+      <td valign=top></td>
+    </tr>
+    <tr bgcolor=#ffffff>
+      <td valign=top><b>CE_TabBarLabel</b></td>
+      <td valign=top>const QTabBar *</td>
+      <td valign=top>data[0]</td>
+      <td valign=top>QTab *</td>
+      <td valign=top>pointer to the QTab being drawn.</td>
+    </tr>
+    <tr bgcolor=#e5e5e5>
+      <td valign=top><b>CE_ProgressBarGroove</b></td>
+      <td valign=top>const QProgressBar *</b></td>
+      <td valign=top>data unused.</td>
+      <td valign=top></td>
+      <td valign=top></td>
+    </tr>
+    <tr bgcolor=#ffffff>
+      <td valign=top><b>CE_ProgressBarContents</b></td>
+      <td valign=top>const QProgressBar *</b></td>
+      <td valign=top>data unused.</td>
+      <td valign=top></td>
+      <td valign=top></td>
+    </tr>
+    <tr bgcolor=#e5e5e5>
+      <td valign=top><b>CE_ProgressBarLabel</b></td>
+      <td valign=top>const QProgressBar *</b></td>
+      <td valign=top>data unused.</td>
+      <td valign=top></td>
+      <td valign=top></td>
     </tr>
     <tr bgcolor=#ffffff>
       <td valign=top><b>CE_PopupMenuItem</b></td>
+      <td valign=top>const QPopupMenu *</td>
       <td valign=top>data[0]</td>
       <td valign=top>QMenuItem *</td>
       <td valign=top>pointer to the menu item being drawn.</td>
     </tr>
     <tr bgcolor=#ffffff>
       <td valign=top></td>
+      <td valign=top></td>
       <td valign=top>data[1]</td>
       <td valign=top>int *</td>
       <td valign=top>width of the tab column where key accelerators are drawn.</td>
     </tr>
     <tr bgcolor=#ffffff>
+      <td valign=top></td>
       <td valign=top></td>
       <td valign=top>data[2]</td>
       <td valign=top>int *</td>
@@ -526,6 +617,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     </tr>
     <tr bgcolor=#e5e5e5>
       <td valign=top><b>CE_MenuBarItem</b></td>
+      <td valign=top>const QMenuBar *</td>
       <td valign=top>data[0]</td>
       <td valign=top>QMenuItem *</td>
       <td valign=top>pointer to the menu item being drawn.</td>
@@ -549,38 +641,135 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 /*!
   \enum QStyle::SubRect
 
+  This enum represents a sub-area of a widget.  Style implementations would use these
+  areas to draw the different parts of a widget.
 
-  \value SR_PushButtonContents
-  \value SR_PushButtonFocusRect
+  \value SR_PushButtonContents  area containing the label (iconset with text or pixmap).
+  \value SR_PushButtonFocusRect  area for the focus rect (usually larger than the
+         contents rect).
 
-  \value SR_CheckBoxIndicator
-  \value SR_CheckBoxContents
-  \value SR_CheckBoxFocusRect
+  \value SR_CheckBoxIndicator  area for the state indicator (eg. check mark).
+  \value SR_CheckBoxContents  area for the label (text or pixmap).
+  \value SR_CheckBoxFocusRect  area for the focus indicator.
 
-  \value SR_RadioButtonIndicator
-  \value SR_RadioButtonContents
-  \value SR_RadioButtonFocusRect
+  \value SR_RadioButtonIndicator  area for the state indicator.
+  \value SR_RadioButtonContents  area for the label.
+  \value SR_RadioButtonFocusRect  area for the focus indicator.
 
-  \value SR_ComboBoxFocusRect
+  \value SR_ComboBoxFocusRect  area for the focus indicator.
 
-  \value SR_SliderFocusRect
+  \value SR_SliderFocusRect  area for the focus indicator.
 
-  \value SR_DockWindowHandleRect
+  \value SR_DockWindowHandleRect  area for the tear-off handle.
 
-  \value SR_ProgressBarGroove
-  \value SR_ProgressBarContents
-  \value SR_ProgressBarLabel
+  \value SR_ProgressBarGroove  area for the groove.
+  \value SR_ProgressBarContents  area for the progress indicator.
+  \value SR_ProgressBarLabel  area for the text label.
+
+  \sa subRect()
 */
 
 /*!
-  \fn QRect QStyle::subRect( SubRect r, const QWidget *widget ) const;
+  \fn QRect QStyle::subRect( SubRect subrect, const QWidget *widget ) const;
 
-  document me!
+  Returns the sub-area \a subrect for \a widget.
+
+  The \a widget argument is a pointer to a QWidget or one of its subclasses.  The
+  widget can be cast to the appropriate type based on the value of \a subrect.  See
+  the table below for the appropriate \a widget casts:
+
+  <p align=center>
+  <table cellpadding=2 cellspacing=2 border=0 width=100%>
+    <tr bgcolor=#A2C511>
+      <th>SubRect</th>
+      <th>Widget Cast</th>
+      <th>Notes</th>
+    </tr>
+    <tr bgcolor=#e5e5e5>
+      <td valign=top>SR_PushButtonContents</td>
+      <td valign=top>const QPushButton *</td>
+      <td valign=top></td>
+    </tr>
+    <tr bgcolor=#ffffff>
+      <td valign=top>SR_PushButtonFocusRect</td>
+      <td valign=top>const QPushButton *</td>
+      <td valign=top></td>
+    </tr>
+    <tr bgcolor=#e5e5e5>
+      <td valign=top>SR_CheckBoxIndicator</td>
+      <td valign=top>const QCheckBox *</td>
+      <td valign=top></td>
+    </tr>
+    <tr bgcolor=#ffffff>
+      <td valign=top>SR_CheckBoxContents</td>
+      <td valign=top>const QCheckBox *</td>
+      <td valign=top></td>
+    </tr>
+    <tr bgcolor=#e5e5e5>
+      <td valign=top>SR_CheckBoxFocusRect</td>
+      <td valign=top>const QCheckBox *</td>
+      <td valign=top></td>
+    </tr>
+    <tr bgcolor=#ffffff>
+      <td valign=top>SR_RadioButtonIndicator</td>
+      <td valign=top>const QRadioButton *</td>
+      <td valign=top></td>
+    </tr>
+    <tr bgcolor=#e5e5e5>
+      <td valign=top>SR_RadioButtonContents</td>
+      <td valign=top>const QRadioButton *</td>
+      <td valign=top></td>
+    </tr>
+    <tr bgcolor=#ffffff>
+      <td valign=top>SR_RadioButtonFocusRect</td>
+      <td valign=top>const QRadioButton *</td>
+      <td valign=top></td>
+    </tr>
+    <tr bgcolor=#e5e5e5>
+      <td valign=top>SR_ComboBoxFocusRect</td>
+      <td valign=top>const QComboBox *</td>
+      <td valign=top></td>
+    </tr>
+    <tr bgcolor=#ffffff>
+      <td valign=top>SR_DockWindowHandleRect</td>
+      <td valign=top>const QWidget *</td>
+      <td valign=top>The tear-off handle for QDockWindow is a private class.  You can
+          gain access to the QDockWindow by using the QWidget::parentWidget() function.
+	  For example:
+   \code
+   if (! widget->parentWidget())
+       return;
+   const QDockWindow *dw = (const QDockWindow *) widget->parentWidget();
+   \endcode
+      </td>
+    </tr>
+    <tr bgcolor=#e5e5e5>
+      <td valign=top>SR_ProgressBarGroove</td>
+      <td valign=top>const QProgressBar *</td>
+      <td valign=top></td>
+    </tr>
+    <tr bgcolor=#ffffff>
+      <td valign=top>SR_ProgressBarContents</td>
+      <td valign=top>const QProgressBar *</td>
+      <td valign=top></td>
+    </tr>
+    <tr bgcolor=#e5e5e5>
+      <td valign=top>SR_ProgressBarLabel</td>
+      <td valign=top>const QProgressBar *</td>
+      <td valign=top></td>
+    </tr>
+  </table>
+  </p>
+
+  \sa SubRect
 */
 
 /*!
   \enum QStyle::ComplexControl
 
+  This enum represents a ComplexControl.  A ComplexControl is different from a
+  ControlElement.  ComplexControls have different behavior depending upon where
+  the user clicks or which keys are pressed.
 
   \value CC_SpinWidget
   \value CC_ComboBox
@@ -589,53 +778,69 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \value CC_ToolButton
   \value CC_TitleBar
   \value CC_ListView
+
+  \sa SubControl
 */
 
 /*!
   \enum QStyle::SubControl
 
+  This enum represents a SubControl within a ComplexControl.
 
-  \value SC_None
+  \value SC_None   special value that matches no other SubControl.
 
-  \value SC_ScrollBarAddLine
-  \value SC_ScrollBarSubLine
-  \value SC_ScrollBarAddPage
-  \value SC_ScrollBarSubPage
-  \value SC_ScrollBarFirst
-  \value SC_ScrollBarLast
-  \value SC_ScrollBarSlider
-  \value SC_ScrollBarGroove
 
-  \value SC_SpinWidgetUp
-  \value SC_SpinWidgetDown
-  \value SC_SpinWidgetFrame
-  \value SC_SpinWidgetEditField
-  \value SC_SpinWidgetButtonField
+  \value SC_ScrollBarAddLine  scrollbar add line (ie. down/right arrow).
+  \value SC_ScrollBarSubLine  scrollbar sub line (ie. up/left arrow).
+  \value SC_ScrollBarAddPage  scrollbar add page (ie. page down).
+  \value SC_ScrollBarSubPage  scrollbar sub page (ie. page up).
+  \value SC_ScrollBarFirst  scrollbar first line (ie. home).
+  \value SC_ScrollBarLast  scrollbar last line (ie. end).
+  \value SC_ScrollBarSlider  scrollbar slider handle.
+  \value SC_ScrollBarGroove  special subcontrol which contains the area in which the
+         slider handle may move.
 
-  \value SC_ComboBoxEditField
-  \value SC_ComboBoxArrow
 
-  \value SC_SliderGroove
-  \value SC_SliderHandle
-  \value SC_SliderTickmarks
+  \value SC_SpinWidgetUp  spinwidget up/increase.
+  \value SC_SpinWidgetDown  spinwidget down/decrease.
+  \value SC_SpinWidgetFrame  spinwidget frame.
+  \value SC_SpinWidgetEditField  spinwidget edit field.
+  \value SC_SpinWidgetButtonField  spinwidget button field.
 
-  \value SC_ToolButton
-  \value SC_ToolButtonMenu
 
-  \value SC_TitleBarSysMenu
-  \value SC_TitleBarMinButton
-  \value SC_TitleBarMaxButton
-  \value SC_TitleBarCloseButton
-  \value SC_TitleBarLabel
-  \value SC_TitleBarNormalButton
-  \value SC_TitleBarShadeButton
-  \value SC_TitleBarUnshadeButton
+  \value SC_ComboBoxEditField  combobox edit field.
+  \value SC_ComboBoxArrow  combobox arrow
 
-  \value SC_ListView
-  \value SC_ListViewBranch
-  \value SC_ListViewExpand
 
-  \value SC_All
+  \value SC_SliderGroove  special subcontrol which contains the area in which the
+         slider handle may move.
+  \value SC_SliderHandle  slider handle.
+  \value SC_SliderTickmarks  slider tickmarks.
+
+
+  \value SC_ToolButton  tool button.
+  \value SC_ToolButtonMenu subcontrol for opening a popup menu in a tool button.
+
+
+  \value SC_TitleBarSysMenu  system menu button (ie. restore, close, etc.).
+  \value SC_TitleBarMinButton  minimize button.
+  \value SC_TitleBarMaxButton  maximize button.
+  \value SC_TitleBarCloseButton  close button.
+  \value SC_TitleBarLabel  window title label.
+  \value SC_TitleBarNormalButton  normal (restore) button.
+  \value SC_TitleBarShadeButton  shade button.
+  \value SC_TitleBarUnshadeButton  unshade button.
+
+
+  \value SC_ListView  ???
+  \value SC_ListViewBranch  ???
+  \value SC_ListViewExpand  expand item (ie. show/hide child items).
+
+
+  \value SC_All  special value that matches all SubControls.
+
+
+  \sa ComplexControl
 */
 
 /*!
@@ -771,6 +976,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \value SP_TitleBarNormalButton
   \value SP_TitleBarShadeButton
   \value SP_TitleBarUnshadeButton
+
+
   \value SP_DockWindowCloseButton
 */
 
