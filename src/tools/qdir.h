@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.h#13 $
+** $Id: //depot/qt/main/src/tools/qdir.h#14 $
 **
 ** Definition of QDir class
 **
@@ -136,8 +136,7 @@ public:
 private:
     void	init();
     bool	readDirEntries( const QString &nameFilter,
-				int FilterSpec = DefaultFilter,
-				int SortSpec   = DefaultSort  );
+				int FilterSpec, int SortSpec  );
 
     QString	dPath;
     QStrList   *fList;
