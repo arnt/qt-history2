@@ -1,0 +1,167 @@
+#!/usr/bin/perl -w
+
+$P4 = "/local/bin/p4";
+
+if ( ( ! -f $P4 ) || ( ! -x $P4 ) ) {
+    die "$P4 is either not a file or not executable\n";
+}
+
+if ( $#ARGV != 0 ) {
+    die "p4i takes a single change number as argument\n";
+} else {
+    $change = $ARGV[0];
+}
+
+@branchFiles=();
+open( P4, "$P4 describe -s $change |") || die "Couldn't exec $P4: $!\n";
+@changeDescription = <P4>;
+close( P4 );
+
+# This is pretty evil; essentially it picks out the "affected files" lines and
+# pushes the filename of each onto @branchFiles.
+grep {
+    if ( /^\.\.\. (\/\/depot.*)\#([0-9]+)/ ) {
+	push ( @branchFiles, $1 );
+    }
+} @changeDescription;
+
+# Check all files in same branch
+$abort=0;
+@pathComponents = split ( /\//, $branchFiles[0] );
+# The leading "//" will split into two empty fields, so we use 4 instead of 2
+# here.
+$branch=$pathComponents[4];
+print "Merging from $branch to main\n";
+
+foreach $file ( @branchFiles ) {
+    @pathComponents = split ( /\//, $file );
+    if ( $pathComponents[4] != $branch ) {
+	print STDERR "File $file on branch $pathComponents[4], not $branch\n";
+	$abort=1;
+    }
+}
+
+if ( $abort ) {
+    die "Exiting; not all files on the same branch";
+}
+
+@mainFiles=();
+foreach $file ( @branchFiles ) {
+    @pathComponents = split ( /\//, $file );
+    $pathComponents[4]="main";
+    $mainfile = join ("/", @pathComponents );
+    push ( @mainFiles, $mainfile );
+}
+
+# Check all files are closed
+$files=join( " ", @mainFiles );
+print "Checking files are closed: $files\n";
+# Unbelievable... p4 writes this file list to stderr!?
+open( P4, "$P4 opened $files 2>&1 |") || die "Couldn't exec $P4: $!\n";
+while ( $line = <P4> ) {
+    chomp( $line );
+    ($file, $message) = split( / - /, $line );
+    if ( $message ne "file(s) not opened on this client." ) {
+	print STDERR "File $file is open; \"$message\"\n";
+	$abort = 1;
+    }
+}
+close( P4 );
+
+if ( $abort ) {
+    die "Exiting; not all files were closed.\n";
+}
+
+# Check all files are up-to-date
+
+print "Checking files are up-to-date: $files\n";
+open( P4, "$P4 sync -n $files 2>&1 |") || die "Couldn't exec $P4: $!\n";
+while ( $line = <P4> ) {
+    chomp( $line );
+    ($file, $message) = split( / - /, $line );
+    if ( $message ne "file(s) up-to-date." ) {
+	print STDERR "File $file is not up-to-date; \"$message\"\n";
+	$abort = 1;
+    }
+}
+close( P4 );
+
+if ( $abort ) {
+    die "Exiting; not all files up-to-date.\n";
+}
+
+# Now do the integrate
+
+print "Integrating: $files\n";
+for ( $count=0; $count < @branchFiles; $count++ ) {
+    open( P4, "$P4 integrate $branchFiles[$count] $mainFiles[$count] |") || die "Couldn't exec $P4: $!\n";
+    while ( $line = <P4> ) {
+	chomp( $line );
+	# Discard revisions here.
+	$line =~ s/\#[0-9]+//g;
+	if ( $line ne "$mainFiles[$count] - integrate from $branchFiles[$count]" ) {
+	    print STDERR "$P4 returned unexpected line \"$line\"\n";
+	    $abort=1;
+	}
+    }
+    close( P4 );
+}
+
+if ( $abort ) {
+    die "p4 integrate failed on some file(s)";
+}
+
+# Now the complicated bit. Doing the resolution.
+ 
+# First we want to be able to handle the files by name rather than in a list.
+%filesToResolve = ();
+foreach $file (@mainFiles) {
+    $filesToResolve{$file}=1;
+}
+
+#foreach $key ( keys( %filesToResolve ) ) {
+#    print "key: $key\n";
+#}
+
+@filesToResolve = @mainFiles;
+while ( @filesToResolve ) {
+    $files = join( " ", @filesToResolve );
+    open( P4, "$P4 resolve -am $files |") || die "Couldn't exec $P4: $!\n";
+    while ( $line = <P4> ) {
+	chomp( $line );
+	if ( $line =~ /^\/\// ) {
+	    ($file, $message) = split( / - /, $line);
+	    if ( $message eq "resolve skipped." ) {
+		push ( @skippedFiles, $file );
+		print "File $file skipped: $message\n";
+	    } else {
+		#$filesToResolve{$file} = undef;
+		print "File $file accepted\n";
+	    }
+	}
+    }
+    close( P4 );
+    if ( $#skippedFiles > -1 ) {
+	print "Skipped these files: ".join( "\n", @skippedFiles )."\n";
+	print "Please resolve these files manually, and then press enter.\n";
+	$line = <STDIN>;
+    }
+    @filesToResolve = @skippedFiles;
+    @skippedFiles = ();
+}
+
+# Ok. Now, we can submit.
+
+open( P4, "| $P4 submit -i" ) || die "Couldn't exec $P4: $!\n";
+
+print P4 "Change: new\n";
+print P4 "Description:\n";
+print P4 "\tp4i integration\n";
+print P4 "\tIntegrate change $change from $branch to main.\n";
+print P4 "\tDescription for change $change:\n\n";
+print P4 "\t: ".join( "\t: ", @changeDescription )."\n";
+print P4 "Files:\n\t".join( "\n\t", @mainFiles )."\n";
+
+close( P4 );
+
+print "Done.\n";
