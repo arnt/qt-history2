@@ -609,8 +609,9 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
                 sectioningUnit = (Doc::SectioningUnit)params.at(1).toInt();
             }
 
-	    generateTableOfContents(node, marker, sectioningUnit, numColumns,
-                                    relative);
+            if (node)
+	        generateTableOfContents(node, marker, sectioningUnit, numColumns,
+                                        relative);
         }
 	break;
     case Atom::Target:
@@ -884,7 +885,7 @@ void HtmlGenerator::generateHeader(const QString& title, const Node *node,
         if (node->links().contains(Node::PreviousLink)) {
             linkPair = node->links()[Node::PreviousLink];
             linkNode = findNodeForTarget(linkPair.first, node, marker);
-            if (linkNode == node)
+            if (!linkNode || linkNode == node)
                 anchorPair = linkPair;
             else
                 anchorPair = anchorForNode(linkNode);
@@ -902,7 +903,7 @@ void HtmlGenerator::generateHeader(const QString& title, const Node *node,
         if (node->links().contains(Node::ContentsLink)) {
             linkPair = node->links()[Node::ContentsLink];
             linkNode = findNodeForTarget(linkPair.first, node, marker);
-            if (linkNode == node)
+            if (!linkNode || linkNode == node)
                 anchorPair = linkPair;
             else
                 anchorPair = anchorForNode(linkNode);
@@ -920,7 +921,7 @@ void HtmlGenerator::generateHeader(const QString& title, const Node *node,
         if (node->links().contains(Node::NextLink)) {
             linkPair = node->links()[Node::NextLink];
             linkNode = findNodeForTarget(linkPair.first, node, marker);
-            if (linkNode == node)
+            if (!linkNode || linkNode == node)
                 anchorPair = linkPair;
             else
                 anchorPair = anchorForNode(linkNode);
@@ -938,7 +939,7 @@ void HtmlGenerator::generateHeader(const QString& title, const Node *node,
         if (node->links().contains(Node::IndexLink)) {
             linkPair = node->links()[Node::IndexLink];
             linkNode = findNodeForTarget(linkPair.first, node, marker);
-            if (linkNode == node)
+            if (!linkNode || linkNode == node)
                 anchorPair = linkPair;
             else
                 anchorPair = anchorForNode(linkNode);
@@ -948,7 +949,7 @@ void HtmlGenerator::generateHeader(const QString& title, const Node *node,
         if (node->links().contains(Node::StartLink)) {
             linkPair = node->links()[Node::StartLink];
             linkNode = findNodeForTarget(linkPair.first, node, marker);
-            if (linkNode == node)
+            if (!linkNode || linkNode == node)
                 anchorPair = linkPair;
             else
                 anchorPair = anchorForNode(linkNode);
@@ -2012,10 +2013,8 @@ const Node *HtmlGenerator::findNodeForTarget(const QString &target,
         }
     }
 
-    if (!node) {
+    if (!node)
         relative->doc().location().warning(tr("Cannot link to '%1'").arg(target));
-        return relative;
-    }
 
     return node;
 }
