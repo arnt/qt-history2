@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#4 $
 **
 ** Implementation of QButton class
 **
@@ -15,6 +15,10 @@
 #include "qpainter.h"
 #include "qscrbar.h"				// qDrawMotifArrow
 #include "qapp.h"
+
+#if defined(DEBUG)
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#4 $";
+#endif
 
 
 // Motif colors
