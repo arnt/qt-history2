@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#24 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#25 $
 **
 ** Implementation of QSlider class
 **
@@ -15,7 +15,7 @@
 #include "qtimer.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#24 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#25 $");
 
 
 static const int motifBorder = 2;
@@ -828,7 +828,7 @@ void QSlider::setValue( int value )
   Moves the slider one pageStep() upwards.
 */
 
-void QSlider::pageUp()
+void QSlider::addStep()
 {
     addPage();
 }
@@ -838,7 +838,7 @@ void QSlider::pageUp()
   Moves the slider one pageStep() downwards.
 */
 
-void QSlider::pageDown()
+void QSlider::subtractStep()
 {
     subtractPage();
 }
@@ -853,9 +853,9 @@ void QSlider::repeatTimeout()
     ASSERT( timer );
     timer->disconnect();
     if ( state == TimingDown )
-	connect( timer, SIGNAL(timeout()), SLOT(pageDown()) );
+	connect( timer, SIGNAL(timeout()), SLOT(subtractStep()) );
     else if ( state == TimingUp )
-	connect( timer, SIGNAL(timeout()), SLOT(pageUp()) );
+	connect( timer, SIGNAL(timeout()), SLOT(addStep()) );
     timer->start( repeatTime, FALSE );   
 }
 
@@ -960,7 +960,7 @@ void QSlider::drawTicks( QPainter *p, int d, int w, int i ) const
   \sa tickmarks(), setTickInterval()
 */
 
-void QSlider::setTickmarks( TickState s )
+void QSlider::setTickmarks( TickSetting s )
 {
     ticks = s;
     initTicks();
@@ -968,7 +968,7 @@ void QSlider::setTickmarks( TickState s )
 }
 
 /*!
-  \fn QSlider::TickState tickmarks()
+  \fn QSlider::TickSetting tickmarks()
   Returns the way tickmarks are displayed by the slider.
   \sa setTickmarks()
 */

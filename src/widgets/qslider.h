@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.h#15 $
+** $Id: //depot/qt/main/src/widgets/qslider.h#16 $
 **
 ** Definition of QSlider class
 **
@@ -25,8 +25,8 @@ class QSlider : public QWidget, public QRangeControl
     Q_OBJECT
 public:
     enum Orientation { Horizontal, Vertical };
-    enum TickState { NoMarks = 0, Above = 1, Left = Above, 
-		     Below = 2, Right = Below, Both = 3 };
+    enum TickSetting { NoMarks = 0, Above = 1, Left = Above, 
+		       Below = 2, Right = Below, Both = 3 };
 
     QSlider( QWidget *parent=0, const char *name=0 );
     QSlider( Orientation, QWidget *parent=0, const char *name=0 );
@@ -42,16 +42,16 @@ public:
     QRect	sliderRect() const;
     QSize	sizeHint() const;
 
-    virtual void setTickmarks( TickState );
-    QSlider::TickState tickmarks() { return ticks; }
+    virtual void setTickmarks( TickSetting );
+    QSlider::TickSetting tickmarks() { return ticks; }
 
     virtual void setTickInterval( int );
     int 	tickInterval() const { return tickInt; }
 
 public slots:
     void	setValue( int );
-    void	pageUp();
-    void	pageDown();
+    void	addStep();
+    void	subtractStep();
 
 signals:
     void	valueChanged( int value );
@@ -102,7 +102,7 @@ private:
     State	state;
     bool	track;
     QCOORD	tickOffset;
-    TickState	ticks;
+    TickSetting	ticks;
     int		tickInt;
     Orientation orient;
 
