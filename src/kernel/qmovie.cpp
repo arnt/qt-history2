@@ -496,7 +496,7 @@ void QMoviePrivate::receive(const uchar* b, int bytecount)
     // Append unused to buffer
     int buffer_end = buf_usage;
     buf_usage += bytecount;
-    Q_ASSERT(bytecount < buf_size);
+    Q_ASSERT(bytecount <= buf_size);
     memcpy(buffer + buffer_end, b, bytecount);
 }
 
