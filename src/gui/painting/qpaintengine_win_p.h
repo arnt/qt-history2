@@ -63,6 +63,8 @@ public:
     HWND hwnd;
     HDC hdc;
 
+    QImage dontDeletePixels;
+
     QtGpGraphics *graphics;
     QtGpBitmap *bitmapDevice;
     QtGpPen *pen;
@@ -96,6 +98,7 @@ public:
         usesWidgetDC(false),
         antialiased(false),
         forceGdi(false),
+        forceGdiplus(false),
         alphaColor(false),
         rasterOp(Qt::CopyROP),
         pStyle(Qt::SolidLine),
@@ -125,6 +128,7 @@ public:
 
     uint antialiased:1;         // True if antialiased render hint is set.
     uint forceGdi:1;            // Used in drawTextItem to block GDI+
+    uint forceGdiplus:1;        // Used in drawPixmap to force GDI+, foceGdi has presedence
     uint alphaColor:1;          // Set if pen has alpha color
 
     Qt::RasterOp rasterOp;
@@ -155,7 +159,7 @@ public:
       use GDI+ for rendering
     */
     inline bool requiresGdiplus() {
-        return !forceGdi && (antialiased || alphaColor);
+        return !forceGdi && (antialiased || alphaColor || forceGdiplus);
     }
 
     /*!

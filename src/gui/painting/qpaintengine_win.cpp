@@ -1070,7 +1070,9 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
                || stretch) {
         // Try to use GDI+ since we don't support alpha in GDI at the moment, and
         // rotated/sheared masked pixmaps looks bad.
+        d->forceGdiplus = true;
         d->beginGdiplus();
+        d->forceGdiplus = false;
         if (d->usesGdiplus()) {
             updateState(state);
             d->gdiplusEngine->drawPixmap(r, pixmap, sr, imask);
@@ -1653,10 +1655,10 @@ typedef int (__stdcall *PtrGdipFillPath) (QtGpGraphics *, QtGpBrush *, QtGpPath 
 typedef int (__stdcall *PtrGdipDrawRectangleI) (QtGpGraphics *, QtGpPen *, int x, int y, int w, int h);
 typedef int (__stdcall *PtrGdipDrawEllipseI) (QtGpGraphics *, QtGpPen *, int x, int y, int w, int h);
 typedef int (__stdcall *PtrGdipDrawImageRectRectI) (QtGpGraphics *, QtGpImage *,
-                                                        int x, int y, int w, int h,
-                                                        int sx, int sy, int sw, int sh,
-                                                        int srcUnit, const void *attr, void *callback,
-                                                        void *callBackData);
+                                                    int x, int y, int w, int h,
+                                                    int sx, int sy, int sw, int sh,
+                                                    int srcUnit, const void *attr, void *callback,
+                                                    void *callBackData);
 typedef int (__stdcall *PtrGdipDrawLineI) (QtGpGraphics *, QtGpPen *, int x1, int y1, int x2, int y2);
 typedef int (__stdcall *PtrGdipDrawPath) (QtGpGraphics *, QtGpPen *, QtGpPath *);
 
@@ -1688,6 +1690,8 @@ typedef int (__stdcall *PtrGdipCreateBitmapFromHBITMAP)(HBITMAP, HPALETTE, QtGpB
 typedef int (__stdcall *PtrGdipCreateBitmapFromScan0)(int w, int h, int stride, int format,
                                                       BYTE *scan0, QtGpBitmap **);
 typedef int (__stdcall *PtrGdipGetImageGraphicsContext)(QtGpImage *, QtGpGraphics **);
+typedef int (__stdcall *PtrGdipGetImageWidth)(QtGpImage *, uint *);
+typedef int (__stdcall *PtrGdipGetImageHeight)(QtGpImage *, uint *);
 typedef int (__stdcall *PtrGdipDisposeImage)(QtGpImage *);
 }
 
@@ -1734,7 +1738,9 @@ static PtrGdipClosePathFigure GdipClosePathFigure = 0;       // Path::CloseFigur
 
 static PtrGdipCreateBitmapFromHBITMAP GdipCreateBitmapFromHBITMAP = 0;  // Bitmap::Bitmap(hbm, hpalette)
 static PtrGdipCreateBitmapFromScan0 GdipCreateBitmapFromScan0 = 0;      // Bitmap::Bitmap(w, h .. bits)
-static PtrGdipGetImageGraphicsContext GdipGetImageGraphicsContext = 0;     // Graphics Image.getContext();
+static PtrGdipGetImageGraphicsContext GdipGetImageGraphicsContext = 0;  // Graphics Image.getContext();
+static PtrGdipGetImageWidth GdipGetImageWidth = 0;
+static PtrGdipGetImageHeight GdipGetImageHeight = 0;
 static PtrGdipDisposeImage GdipDisposeImage = 0;                        // Image::~Image()
 
 static void qt_resolve_gdiplus()
@@ -1804,7 +1810,9 @@ static void qt_resolve_gdiplus()
         = (PtrGdipCreateBitmapFromScan0) lib.resolve("GdipCreateBitmapFromScan0");
     GdipGetImageGraphicsContext =
         (PtrGdipGetImageGraphicsContext) lib.resolve("GdipGetImageGraphicsContext");
-    GdipDisposeImage            = (PtrGdipDisposeImage) lib.resolve("GdipDisposeImage");
+    GdipGetImageWidth           = (PtrGdipGetImageWidth)       lib.resolve("GdipGetImageWidth");
+    GdipGetImageHeight          = (PtrGdipGetImageHeight)      lib.resolve("GdipGetImageHeight");
+    GdipDisposeImage            = (PtrGdipDisposeImage)        lib.resolve("GdipDisposeImage");
 
     if (GdiplusStartup
         && GdiplusShutdown
@@ -1842,6 +1850,8 @@ static void qt_resolve_gdiplus()
         && GdipCreateBitmapFromHBITMAP
         && GdipCreateBitmapFromScan0
         && GdipGetImageGraphicsContext
+        && GdipGetImageWidth
+        && GdipGetImageHeight
         && GdipDisposeImage
         ) {
         qt_gdiplus_support = true;
@@ -1882,7 +1892,7 @@ static const int qt_hatchstyle_map[] = {
     { 5 }       // Qt::DiagCrossPattern
 };
 
-static QtGpBitmap *qt_convert_to_gdipbitmap(const QPixmap *pixmap);
+static QtGpBitmap *qt_convert_to_gdipbitmap(const QPixmap *pixmap, QImage *ref = 0);
 
 QGdiplusPaintEngine::QGdiplusPaintEngine(QPaintDevice *dev)
     : QPaintEngine(*(new QGdiplusPaintEnginePrivate),
@@ -1912,7 +1922,7 @@ bool QGdiplusPaintEngine::begin(QPaintDevice *pdev, QPainterState *, bool)
         //     d->graphics = new Graphis(hdc);
         GdipCreateFromHDC(d->hdc, &d->graphics);
     } else if (pdev->devType() == QInternal::Pixmap) {
-        d->bitmapDevice = qt_convert_to_gdipbitmap(static_cast<QPixmap*>(pdev));
+        d->bitmapDevice = qt_convert_to_gdipbitmap(static_cast<QPixmap*>(pdev), &d->dontDeletePixels);
         GdipGetImageGraphicsContext(d->bitmapDevice, &d->graphics);
     } else {
         qDebug() << "QGdiplusPaintEngine::begin(), unsupported paint device..." << pdev->devType();
@@ -2285,7 +2295,8 @@ void QGdiplusPaintEngine::drawConvexPolygon(const QPointArray &pa, int index, in
 void QGdiplusPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bool imask)
 {
     Q_UNUSED(imask);
-    QtGpBitmap *bitmap = qt_convert_to_gdipbitmap(&pm);
+    QImage backupPixels;
+    QtGpBitmap *bitmap = qt_convert_to_gdipbitmap(&pm, &backupPixels);
     GdipDrawImageRectRectI(d->graphics, bitmap,
                            r.x(), r.y(), r.width(), r.height(),
                            sr.x(), sr.y(), sr.width(), sr.height(),
@@ -2367,30 +2378,30 @@ void QGdiplusPaintEngine::cleanup()
     GdiplusShutdown(gdiplusToken);
 }
 
-static QtGpBitmap *qt_convert_to_gdipbitmap(const QPixmap *pixmap)
+static QtGpBitmap *qt_convert_to_gdipbitmap(const QPixmap *pixmap, QImage *image)
 {
     QtGpBitmap *bitmap = 0;
     if (!pixmap->hasAlpha()) {
         GdipCreateBitmapFromHBITMAP(pixmap->hbm(), HPALETTE(0), &bitmap);
         return bitmap;
     } else { // 1 bit masks or 8 bit alpha...
-        QImage image = pixmap->convertToImage();
+        *image = pixmap->convertToImage();
         int pf;
-        int depth = image.depth();
+        int depth = image->depth();
 
         if (depth == 32) {
             pf = (10 | (32 << 8) | 0x00260000); // PixelFormat32bppARGB;
         } else if (depth == 16) {
             pf = (7 | (16 << 8) | 0x00060000);  // PixelFormat16bppARGB1555;
         } else if (depth == 8) {
-            image = image.convertDepth(32);
+            *image = image->convertDepth(32);
             pf = (10 | (32 << 8) | 0x00260000); // PixelFormat32bppARGB;
         } else {
-            qDebug() << "QGdiplusPaintEngine::drawPixmap(), unsupported depth:" << image.depth();
+            qDebug() << "QGdiplusPaintEngine::drawPixmap(), unsupported depth:" << image->depth();
             return 0;
         }
-        GdipCreateBitmapFromScan0(pixmap->width(), pixmap->height(), image.bytesPerLine(),
-                                  pf, image.bits(), &bitmap);
+        GdipCreateBitmapFromScan0(pixmap->width(), pixmap->height(), image->bytesPerLine(),
+                                  pf, image->bits(), &bitmap);
     }
     return bitmap;
 }
