@@ -1821,8 +1821,8 @@ class QCanvasItemExtra {
     \ingroup images
 
     A variety of QCanvasItem subclasses provide immediately usable
-    behaviour. This class is a pure abstract superclass providing the
-    behaviour that is shared among all the concrete canvas item classes.
+    behavior. This class is a pure abstract superclass providing the
+    behavior that is shared by all the concrete canvas item classes.
     QCanvasItem is not intended for direct subclassing. It is much easier
     to subclass one of its subclasses, e.g. QCanvasPolygonalItem (the
     commonest base class), QCanvasRectangle, QCanvasSprite, QCanvasEllipse
@@ -1943,6 +1943,8 @@ QCanvasItemExtra& QCanvasItem::extra()
 
     Returns the horizontal position of the canvas item. Note that
     subclasses often have an origin other than the top-left corner.
+
+    \sa QCanvas::onCanvas()
 */
 
 /*!
@@ -1950,6 +1952,8 @@ QCanvasItemExtra& QCanvasItem::extra()
 
     Returns the vertical position of the canvas item. Note that
     subclasses often have an origin other than the top-left corner.
+
+    \sa QCanvas::onCanvas()
 */
 
 /*!
@@ -1957,6 +1961,8 @@ QCanvasItemExtra& QCanvasItem::extra()
 
     Returns the z index of the canvas item, which is used for visual
     order: higher-z items obscure (are in front of) lower-z items.
+
+    \sa isVisible()
 */
 
 /*!
@@ -2137,13 +2143,13 @@ void QCanvasItem::setCanvas(QCanvas* c)
     Returns the canvas containing the canvas item.
 */
 
-/*! Shorthand for setVisible(true). */
+/*! The same as setVisible(true). */
 void QCanvasItem::show()
 {
     setVisible(true);
 }
 
-/*! Shorthand for setVisible(false). */
+/*! The same as setVisible(false). */
 void QCanvasItem::hide()
 {
     setVisible(false);
@@ -2433,7 +2439,7 @@ static bool collision_double_dispatch(const QCanvasSprite* s1,
     displayed, at any one time. The images can be passed in the
     constructor or set or changed later with setSequence(). If you
     subclass QCanvasSprite you can change the frame that is displayed
-    periodically, e.g. whenever QCanvasItem::advance(1) is called to
+    periodically, e.g. whenever QCanvasItem::advance(1) is called, to
     create the effect of animation.
 
     The current frame can be set with setFrame() or with move(). The
@@ -2450,13 +2456,13 @@ static bool collision_double_dispatch(const QCanvasSprite* s1,
     frame.
 
     Use leftEdge() and rightEdge() to retrieve the current frame's
-    left-hand and right-hand x-coordinates respectively. Use
-    bottomEdge() and topEdge() to retrieve the current frame's bottom
-    and top y-coordinates respectively. These functions have an overload
-    which will accept an integer frame number to retrieve the
-    coordinates of a particular frame.
+    left-hand and right-hand x-coordinates. Use bottomEdge() and
+    topEdge() to retrieve the current frame's bottom and top
+    y-coordinates. These functions have an overload which will accept
+    an integer frame number to retrieve the coordinates of a
+    particular frame.
 
-    QCanvasSprite draws very quickly, at the expense of memory.
+    QCanvasSprite draws very fast, at the expense of memory.
 
     The current frame's image can be drawn on a painter with draw().
 
@@ -2590,7 +2596,7 @@ bool QCanvasText::collidesWith( const QCanvasSprite* s,
     with the canvas as parameter, even though its coordinates place it
     beyond the edge of the canvas's area. Collision detection only
     works for canvas items which are wholly or partly within the
-    canvas's area.
+    canvas's area; see QCanvas::onCanvas().
 
     Note that if items have a velocity (see \l setVelocity()), then
     collision testing is done based on where the item \e will be when
@@ -2875,7 +2881,6 @@ QCanvasPixmap::~QCanvasPixmap()
     \ingroup graphics
     \ingroup images
 
-
     This class is used by QCanvasSprite to hold an array of pixmaps.
     It is used to implement animated sprites, i.e. images that change
     over time, with each pixmap in the array holding one frame.
@@ -3100,7 +3105,7 @@ bool QCanvasPixmapArray::isValid() const
 // ### wouldn't it be better to put empty QCanvasPixmaps in there instead of
 // initializing the additional elements in the array to 0? Lars
 /*!
-    Replaces the pixmap at index \a i with pixmap \a p.
+    Replaces the pixmap at index position \a i with pixmap \a p.
 
     The array takes ownership of \a p and will delete \a p when the
     array itself is deleted.
@@ -3328,7 +3333,7 @@ void QCanvasSprite::removeFromChunks()
 }
 
 /*!
-    The width of the sprite for the current frame's image.
+    Returns the width of the sprite for the current frame's image.
 
     \sa frame()
 */
@@ -3340,7 +3345,7 @@ int QCanvasSprite::width() const
 }
 
 /*!
-    The height of the sprite for the current frame's image.
+    Returns the height of the sprite for the current frame's image.
 
     \sa frame()
 */
@@ -3370,18 +3375,18 @@ void QCanvasSprite::draw(QPainter& painter)
     \ingroup graphics
     \ingroup images
 
-    A QCanvasView is widget which provides a view of a QCanvas.
-
-    If you want users to be able to interact with a canvas view,
-    subclass QCanvasView. You might then reimplement
-    QScrollView::contentsMousePressEvent(). For example:
+    If you want users to be able to interact with a canvas view, you
+    will need to subclass QCanvasView. You might then reimplement some
+    of the event handlers, for example,
+    QScrollView::contentsMousePressEvent():
 
     \code
-    void MyCanvasView::contentsMousePressEvent(QMouseEvent* e)
+    void MyCanvasView::contentsMousePressEvent(QMouseEvent* evt)
     {
-        QCanvasItemList l = canvas()->collisions(e->pos());
-        for (QCanvasItemList::Iterator it=l.begin(); it!=l.end(); ++it) {
-            if ((*it)->rtti() == QCanvasRectangle::RTTI)
+        QCanvasItemList lst = canvas()->collisions(evt->pos());
+        QCanvasItemList::ConstIterator i = lst.constBegin();
+        for (; i != lst.constEnd(); ++i) {
+            if ((*i)->rtti() == QCanvasRectangle::RTTI)
                 qDebug("A QCanvasRectangle lies somewhere at this point");
         }
     }
@@ -3398,10 +3403,10 @@ void QCanvasSprite::draw(QPainter& painter)
     QWMatrix wm;
     wm.scale(2, 2);   // Zooms in by 2 times
     wm.rotate(90);    // Rotates 90 degrees counter clockwise
-                        // around the origin.
+                      // around the origin.
     wm.translate(0, -canvas->height());
-                        // moves the canvas down so what was visible
-                        // before is still visible.
+                      // moves the canvas down so what was visible
+                      // before is still visible.
     myCanvasView->setWorldMatrix(wm);
     \endcode
 
@@ -3417,7 +3422,7 @@ void QCanvasSprite::draw(QPainter& painter)
 
     \code
     QRect rc = QRect(myCanvasView->contentsX(), myCanvasView->contentsY(),
-                        myCanvasView->visibleWidth(), myCanvasView->visibleHeight());
+                     myCanvasView->visibleWidth(), myCanvasView->visibleHeight());
     QRect canvasRect = myCanvasView->inverseWorldMatrix().mapRect(rc);
     \endcode
 
@@ -3521,8 +3526,8 @@ const QWMatrix &QCanvasView::inverseWorldMatrix() const
     zooms out by 2 times, then the inverse of this matrix is one that
     will zoom in by 2 times).
 
-    When you use this, you should note that the performance of the
-    QCanvasView will decrease considerably.
+    Using this function will considerably reduce the speed of the
+    canvas view.
 
     Returns false if \a wm is not invertable; otherwise returns true.
 
@@ -3636,7 +3641,8 @@ QSize QCanvasView::sizeHint() const
     bounding rectangle can be far too large -- a diagonal line being
     the worst case, and there are many other cases which are also bad.
     QCanvasPolygonalItem provides polygon-based bounding rectangle
-    handling, etc., which is much faster for non-rectangular items.
+    handling, etc., which is both faster and more accurate for
+    non-rectangular items.
 
     Derived classes should try to define as small an area as possible
     to maximize efficiency, but the polygon must \e definitely be
@@ -3711,7 +3717,7 @@ QCanvasPolygonalItem::QCanvasPolygonalItem(QCanvas* canvas) :
 
 /*!
     Note that all subclasses \e must call hide() in their destructor
-    since hide() needs to be able to access areaPoints().
+    since hide() must be able to access areaPoints().
 */
 QCanvasPolygonalItem::~QCanvasPolygonalItem()
 {
@@ -4130,7 +4136,7 @@ void QCanvasPolygon::moveBy(double dx, double dy)
 
     The beziers are not necessarily joined "smoothly". To ensure this,
     set control points appropriately (general reference texts about
-    beziers will explain this in detail).
+    beziers explain this in detail).
 
     Like any other canvas item splines can be moved with
     QCanvasItem::move() and QCanvasItem::moveBy(), or by setting
@@ -4318,7 +4324,7 @@ void QCanvasLine::setPen(QPen p)
 }
 
 /*!
-    \fn QPoint QCanvasLine::startPoint () const
+    \fn QPoint QCanvasLine::startPoint() const
 
     Returns the start point of the line.
 
@@ -4326,7 +4332,7 @@ void QCanvasLine::setPen(QPen p)
 */
 
 /*!
-    \fn QPoint QCanvasLine::endPoint () const
+    \fn QPoint QCanvasLine::endPoint() const
 
     Returns the end point of the line.
 
@@ -4672,7 +4678,7 @@ void QCanvasEllipse::setSize(int width, int height)
     \fn int QCanvasEllipse::angleStart() const
 
     Returns the start angle in 16ths of a degree. Initially
-    this will be 0.
+    this is 0.
 
     \sa setAngles(), angleLength()
 */
@@ -4681,7 +4687,7 @@ void QCanvasEllipse::setSize(int width, int height)
     \fn int QCanvasEllipse::angleLength() const
 
     Returns the length angle (the extent of the ellipse segment) in
-    16ths of a degree. Initially this will be 360 * 16 (a complete
+    16ths of a degree. Initially this is 360 x 16 (a complete
     ellipse).
 
     \sa setAngles(), angleStart()
@@ -4692,7 +4698,7 @@ void QCanvasEllipse::setSize(int width, int height)
     the extent of the segment is \a length (the angle length) from the
     \a start. The angles are specified in 16ths of a degree. By
     default the ellipse will start at 0 and have an angle length of
-    360 * 16 (a complete ellipse).
+    360 x 16 (a complete ellipse).
 
     \sa angleStart(), angleLength()
 */
@@ -5009,9 +5015,9 @@ void QCanvasText::removeFromChunks()
         // Find an item, e.g. with QCanvasItem::collisions().
         ...
         if (item->rtti() == MySprite::RTTI) {
-            MySprite* s = (MySprite*)item;
-            if (s->isDamagable()) s->loseHitPoints(1000);
-            if (s->isHot()) myself->loseHitPoints(1000);
+            MySprite* sprite = (MySprite*)item;
+            if (sprite->isDamagable()) sprite->loseHitPoints(1000);
+            if (sprite->isHot()) myself->loseHitPoints(1000);
             ...
         }
     \endcode

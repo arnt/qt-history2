@@ -4759,20 +4759,50 @@ ushort QString::toUShort(bool *ok, int base) const
 
     Returns 0.0 if the conversion fails.
 
-    If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
-    false; otherwise *\a{ok} is set to true.
+    If \a ok is not 0: if a conversion error occurs, \a *ok is set to
+    FALSE; otherwise \a *ok is set to TRUE.
 
-    Example:
     \code
-        QString str1 = "1234.56";
-        str1.toDouble();            // returns 1234.56
-
-        bool ok;
-        QString str2 = "R2D2";
-        str2.toDouble(&ok);         // returns 0.0, sets ok to false
+	QString string( "1234.56" );
+	double a = string.toDouble();   // a == 1234.56
     \endcode
 
-    \sa number(), toFloat(), toInt()
+    This function tries to interpret the string according to the
+    current locale. The current locale is determined from the
+    system at application startup and can be changed by calling
+    QLocale::setDefault(). If the string cannot be interpreted
+    according to the current locale, this function falls back
+    on the "C" locale.
+
+    \code
+	bool ok;
+	double d;
+
+        QLocale::setDefault(QLocale::C);
+	d = QString( "1234,56" ).toDouble(&ok); // ok == false
+	d = QString( "1234.56" ).toDouble(&ok); // ok == true, d == 1234.56
+
+	QLocale::setDefault(QLocale::German);
+	d = QString( "1234,56" ).toDouble(&ok); // ok == true, d == 1234.56
+	d = QString( "1234.56" ).toDouble(&ok); // ok == true, d == 1234.56
+    \endcode
+
+    Due to the ambiguity between the decimal point and thousands group
+    separator in various locales, this function does not handle
+    thousands group separators. If you need to convert such numbers,
+    see QLocale::toDouble().
+
+    \code
+	bool ok;
+        QLocale::setDefault(QLocale::C);
+	double d = QString( "1,234,567.89" ).toDouble(&ok); // ok == false
+    \endcode
+
+    \warning If the string contains trailing whitespace this function
+    will fail, and set \a *ok to false if \a ok is not 0. Leading
+    whitespace is ignored.
+
+    \sa number() QLocale::setDefault() QLocale::toDouble() trimmed()
 */
 
 double QString::toDouble(bool *ok) const
@@ -5423,9 +5453,34 @@ QString QString::arg(const QString &a, int fieldWidth) const
 
     \overload
 
-    \a base is the base to use when converting the integer \a a into a
-    string. \a base must be between 2 and 36, with 8 giving octal, 10
-    decimal, and 16 hexadecimal numbers.
+    The \a fieldWidth value specifies the minimum amount of space that
+    \a a is padded to. A positive value will produce a right-aligned
+    number, whereas a negative value will produce a left-aligned
+    number.
+
+    \a a is expressed in base \a base, which is 10 by default and must
+    be between 2 and 36.
+
+    The '%' can be followed by an 'L', in which case the sequence is
+    replaced with a localized representation of \a a. The conversion
+    uses the default locale. The default locale is determined from the
+    system's locale settings at application startup. It can be changed
+    using QLocale::setDefault(). The 'L' flag is ignored if \a base is
+    not 10.
+
+    \code
+	QString str;
+	str = QString( "Decimal 63 is %1 in hexadecimal" )
+		.arg( 63, 0, 16 );
+	// str == "Decimal 63 is 3f in hexadecimal"
+
+	QLocale::setDefault(QLocale::English, QLocale::UnitedStates);
+	str = QString( "%1 %L2 %L3" )
+		.arg( 12345 )
+		.arg( 12345 )
+		.arg( 12345, 0, 16 );
+	// str == "12345 12,345 3039"
+    \endcode
 */
 
 /*! \fn QString QString::arg(ulong a, int fieldWidth, int base) const

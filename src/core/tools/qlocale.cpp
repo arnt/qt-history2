@@ -1749,17 +1749,45 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
     int s2 = egyptian.toInt(s2);
     \endcode
 
-    Additionally, QLocale supports the concept of a default locale,
-    which can be set with the static member setDefault(). This
-    allows a locale to be set globally for the entire application. If
-    setDefault() is not called, the default locale is determined from
-    the system's locale settings.
+    QLocale supports the concept of a default locale, which is
+    determined from the system's locale settings at application
+    startup. The default locale can be changed by calling the
+    static member setDefault(). The default locale has the
+    following effects:
+
+    \list
+    \i If a QLocale object is constructed with the default constructor,
+       it will use the default locale's settings.
+    \i QString::toDouble() interprets the string according to the default
+       locale. If this fails, it falls back on the "C" locale.
+    \i QString::arg() uses the default locale to format a number when
+       its position specifier in the format string contains an 'L',
+       e.g. "%L1".
+    \endlist
 
     \code
     QLocale::setDefault(QLocale::Hebrew, QLocale::Israel);
 
     QLocale hebrew; // Constructs a default QLocale
     QString s1 = hebrew.toString(15714.3, 'e');
+
+    bool ok;
+    double d;
+
+    QLocale::setDefault(QLocale::C);
+    d = QString( "1234,56" ).toDouble(&ok); // ok == false
+    d = QString( "1234.56" ).toDouble(&ok); // ok == true, d == 1234.56
+
+    QLocale::setDefault(QLocale::German);
+    d = QString( "1234,56" ).toDouble(&ok); // ok == true, d == 1234.56
+    d = QString( "1234.56" ).toDouble(&ok); // ok == true, d == 1234.56
+
+    QLocale::setDefault(QLocale::English, QLocale::UnitedStates);
+    str = QString( "%1 %L2 %L3" )
+	    .arg( 12345 )
+	    .arg( 12345 )
+	    .arg( 12345, 0, 16 );
+    // str == "12345 12,345 3039"
     \endcode
 
     When a language/country pair is specified in the constructor, one
@@ -1792,6 +1820,8 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
 
     All the methods in QLocale, with the exception of setDefault(),
     are reentrant.
+
+    \sa QString::toDouble() QString::arg()
 
     The double-to-string and string-to-double conversion functions are
     covered by the following licenses:
@@ -2437,6 +2467,8 @@ QString QLocale::countryToString(Country country)
     If \a ok is not 0, reports failure by setting
     *ok to false and success by setting *ok to true.
 
+    This function ignores leading and trailing whitespace.
+
     \sa toString()
 */
 
@@ -2457,6 +2489,8 @@ short QLocale::toShort(const QString &s, bool *ok) const
 
     If \a ok is not 0, reports failure by setting
     *ok to false and success by setting *ok to true.
+
+    This function ignores leading and trailing whitespace.
 
     \sa toString()
 */
@@ -2479,6 +2513,8 @@ ushort QLocale::toUShort(const QString &s, bool *ok) const
     If \a ok is not 0, reports failure by setting *ok to false and
     success by setting *ok to true.
 
+    This function ignores leading and trailing whitespace.
+
     \sa toString()
 */
 
@@ -2499,6 +2535,8 @@ int QLocale::toInt(const QString &s, bool *ok) const
 
     If \a ok is not 0, reports failure by setting
     *ok to false and success by setting *ok to true.
+
+    This function ignores leading and trailing whitespace.
 
     \sa toString()
 */
@@ -2521,6 +2559,8 @@ uint QLocale::toUInt(const QString &s, bool *ok) const
     If \a ok is not 0, reports failure by setting
     *ok to false and success by setting *ok to true.
 
+    This function ignores leading and trailing whitespace.
+
     \sa toString()
 */
 
@@ -2541,6 +2581,8 @@ Q_LONG QLocale::toLong(const QString &s, bool *ok) const
 
     If \a ok is not 0, reports failure by setting
     *ok to false and success by setting *ok to true.
+
+    This function ignores leading and trailing whitespace.
 
     \sa toString()
 */
@@ -2563,6 +2605,8 @@ Q_ULONG QLocale::toULong(const QString &s, bool *ok) const
     If \a ok is not 0, reports failure by setting
     *ok to false and success by setting *ok to true.
 
+    This function ignores leading and trailing whitespace.
+
     \sa toString()
 */
 
@@ -2578,6 +2622,8 @@ Q_LLONG QLocale::toLongLong(const QString &s, bool *ok) const
 
     If \a ok is not 0, reports failure by setting
     *ok to false and success by setting *ok to true.
+
+    This function ignores leading and trailing whitespace.
 
     \sa toString()
 */
@@ -2595,6 +2641,8 @@ Q_ULLONG QLocale::toULongLong(const QString &s, bool *ok) const
     If \a ok is not 0, reports failure by setting
     *ok to false and success by setting *ok to true.
 
+    This function ignores leading and trailing whitespace.
+
     \sa toString()
 */
 
@@ -2610,7 +2658,33 @@ float QLocale::toFloat(const QString &s, bool *ok) const
     If \a ok is not 0, reports failure by setting
     *ok to false and success by setting *ok to true.
 
-    \sa toString()
+    Unlike QString::toDouble(), this function does not fall back to
+    the "C" locale if the string cannot be interpreted in this
+    locale.
+
+    \code
+	bool ok;
+	double d;
+
+        QLocale c(QLocale::C);
+	d = c.toDouble( "1234.56", &ok );  // ok == true, d == 1234.56
+	d = c.toDouble( "1,234.56", &ok ); // ok == true, d == 1234.56
+	d = c.toDouble( "1234,56", &ok );  // ok == false
+
+	QLocale german(QLocale::German);
+	d = german.toDouble( "1234,56", &ok );  // ok == true, d == 1234.56
+	d = german.toDouble( "1.234,56", &ok ); // ok == true, d == 1234.56
+	d = german.toDouble( "1234.56", &ok );  // ok == false
+
+	d = german.toDouble( "1.234", &ok );    // ok == true, d == 1234.0
+    \endcode
+
+    Notice that the last conversion returns 1234.0, because '.' is the
+    thousands group separator in the German locale.
+
+    This function ignores leading and trailing whitespace.
+
+    \sa toString() QString::toDouble()
 */
 
 double QLocale::toDouble(const QString &s, bool *ok) const
