@@ -32,7 +32,6 @@ private:
     void actionTriggered();  //private slot
     void actionChanged();    //private slot
     void actionHovered();    //private slot
-    void actionDeleted();    //private slot
 };
 
 
@@ -64,13 +63,6 @@ void QActionGroupPrivate::actionHovered()
     QAction *action = qt_cast<QAction*>(q->sender());
     Q_ASSERT_X(action != 0, "QWidgetGroup::actionHovered", "internal error");
     emit q->hovered(action);
-}
-
-void QActionGroupPrivate::actionDeleted()
-{
-    QAction *action = qt_cast<QAction*>(q->sender());
-    Q_ASSERT_X(action != 0, "QWidgetGroup::actionDeleted", "internal error");
-    q->removeAction(action);
 }
 
 /*!
@@ -158,7 +150,6 @@ QAction *QActionGroup::addAction(QAction* a)
         QObject::connect(a, SIGNAL(triggered()), this, SLOT(actionTriggered()));
         QObject::connect(a, SIGNAL(changed()), this, SLOT(actionChanged()));
         QObject::connect(a, SIGNAL(hovered()), this, SLOT(actionHovered()));
-        QObject::connect(a, SIGNAL(deleted()), this, SLOT(actionDeleted()));
     }
     if(!a->d->forceDisabled) {
         a->setEnabled(d->enabled);
@@ -213,7 +204,6 @@ void QActionGroup::removeAction(QAction *action)
         QObject::disconnect(action, SIGNAL(triggered()), this, SLOT(actionTriggered()));
         QObject::disconnect(action, SIGNAL(changed()), this, SLOT(actionChanged()));
         QObject::disconnect(action, SIGNAL(hovered()), this, SLOT(actionHovered()));
-        QObject::disconnect(action, SIGNAL(deleted(QObject*)), this, SLOT(actionDeleted()));
         action->d->group = 0;
     }
 }

@@ -44,22 +44,15 @@ class Q_GUI_EXPORT QAction : public QObject
     Q_PROPERTY(bool visible READ isVisible WRITE setVisible)
 
 public:
-    QAction(QActionGroup* parent);
-    QAction(QWidget* parent=0);
-    QAction(const QString &menuText, QWidget* parent=0);
-    QAction(const QIconSet &icon, const QString &menuText, QWidget* parent=0);
-    QAction(const QString &menuText, QActionGroup* parent);
-    QAction(const QIconSet &icon, const QString &menuText, QActionGroup* parent);
+    QAction(QObject* parent = 0);
+    QAction(const QString &menuText, QObject* parent=0);
+    QAction(const QIconSet &icon, const QString &menuText, QObject* parent=0);
 
 #ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QAction(QWidget* parent, const char* name);
-    QT_COMPAT_CONSTRUCTOR QAction(QActionGroup* parent, const char* name);
-    QT_COMPAT_CONSTRUCTOR QAction(const QString &menuText, const QKeySequence &shortcut, QWidget* parent, const char* name);
+    QT_COMPAT_CONSTRUCTOR QAction(QObject* parent, const char* name);
+    QT_COMPAT_CONSTRUCTOR QAction(const QString &menuText, const QKeySequence &shortcut, QObject* parent, const char* name);
     QT_COMPAT_CONSTRUCTOR QAction(const QIconSet &icon, const QString &menuText, const QKeySequence &shortcut,
-                                  QWidget* parent, const char* name);
-    QT_COMPAT_CONSTRUCTOR QAction(const QString &menuText, const QKeySequence &shortcut, QActionGroup* parent, const char* name);
-    QT_COMPAT_CONSTRUCTOR QAction(const QIconSet &icon, const QString &menuText, const QKeySequence &shortcut,
-                                  QActionGroup* parent, const char* name);
+                                  QObject* parent, const char* name);
 #endif
     ~QAction();
 
@@ -83,7 +76,6 @@ public:
     void setWhatsThis(const QString &what);
     QString whatsThis() const;
 
-    void setMenu(QMenu *menu);
     QMenu *menu() const;
 
     void setSeparator(bool b);
@@ -136,7 +128,6 @@ public slots:
     void setVisible(bool);
 
 signals:
-    void deleted();
     void changed();
     void triggered();
     void hovered();
@@ -152,6 +143,9 @@ private:
 #endif
     friend class QWidget;
     friend class QActionGroup;
+    friend class QMenu;
+    friend class QMenuBar;
+    friend class QShortcutMap;
 #if defined(Q_DISABLE_COPY)  // Disabled copy constructor and operator=
     QAction(const QAction &);
     QAction &operator=(const QAction &);

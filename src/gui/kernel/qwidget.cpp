@@ -48,6 +48,7 @@
 #endif
 
 #include "qwidget_p.h"
+#include "qaction_p.h"
 #define d d_func()
 #define q q_func()
 
@@ -854,11 +855,17 @@ QWidget::~QWidget()
         qWarning("%s (%s): deleted while being painted", className(), name());
 #endif
 
+    // remove all actions from this widget
+    for (int i = 0; i < d->actions.size(); ++i) {
+        QActionPrivate *apriv = d->actions.at(i)->d;
+        apriv->widgets.removeAll(this);
+    }
+    d->actions.clear();
+
     // Remove all shortcuts grabbed by this
     // widget, unless application is closing
-    if (!qApp->is_app_closing
-        && testAttribute(Qt::WA_GrabbedShortcut))
-        qApp->d->shortcutMap.removeShortcut(0, this, 0, QKeySequence());
+    if (!qApp->is_app_closing && testAttribute(Qt::WA_GrabbedShortcut))
+        qApp->d->shortcutMap.removeShortcut(0, this, QKeySequence());
 
     // delete layout while we still are a valid widget
 #ifndef QT_NO_LAYOUT
@@ -1663,17 +1670,9 @@ bool QWidget::isEnabledTo(QWidget* ancestor) const
 
     \sa removeAction() QMenu
 */
-void
-QWidget::addAction(QAction *action)
+void QWidget::addAction(QAction *action)
 {
-    if(!action) {
-        qWarning("Attempt to add null action!");
-        return;
-    }
-    if(d->actions.contains(action))
-        return;
-    d->actions.append(action);
-    d->setupAction(0, action);
+    insertAction(0, action);
 }
 
 /*!
@@ -1681,21 +1680,20 @@ QWidget::addAction(QAction *action)
 
     \sa removeAction() QMenu addAction()
 */
-void
-QWidget::addActions(QList<QAction*> actions)
+void QWidget::addActions(QList<QAction*> actions)
 {
     for(int i = 0; i < actions.count(); i++)
-        addAction(actions[i]);
+        insertAction(0, actions.at(i));
 }
 
 /*!
     Inserts the action \a action to this widget's list of actions,
-    before the action \a before.
+    before the action \a before. It appends the action if \a before is 0 or
+    \a before is not a valid action for this widget.
 
     \sa addAction()
 */
-void
-QWidget::insertAction(QAction *before, QAction *action)
+void QWidget::insertAction(QAction *before, QAction *action)
 {
     if(!action) {
         qWarning("Attempt to insert null action!");
@@ -1703,58 +1701,45 @@ QWidget::insertAction(QAction *before, QAction *action)
     }
     if(d->actions.contains(action))
         d->actions.removeAll(action);
-    int before_int = d->actions.indexOf(before);
-    if (before_int < 0)
-        before = (d->actions.count() ? d->actions.at(0) : 0);
-    d->actions.insert(before_int, action);
-    d->setupAction(before, action);
-}
-
-/*!
-    Inserts the actions \a actions to this widget's list of actions,
-    before the action \a before.
-
-    \sa removeAction() QMenu insertAction()
-*/
-void
-QWidget::insertActions(QAction *before, QList<QAction*> actions)
-{
-    for(int i = actions.count()-1; i >= 0; i--) {
-        QAction *act = actions[i];
-        insertAction(before, actions[i]);
-        before = act;
+    int pos = d->actions.indexOf(before);
+    if (pos < 0) {
+        before = 0;
+        pos = d->actions.size();
     }
-}
+    d->actions.insert(pos, action);
 
-/*!
-    \internal
-    Called when an action is added or inserted to connect signals
-    and setup the shortcuts properly.
-*/
-void QWidgetPrivate::setupAction(QAction *before, QAction *action)
-{
-    QObject::connect(action, SIGNAL(changed()), q, SLOT(actionChanged()));
-    QObject::connect(action, SIGNAL(deleted()), q, SLOT(actionDeleted()));
-    if (!action->shortcut().isEmpty()) {
-        q->setAttribute(Qt::WA_GrabbedShortcut);
-        Q_ASSERT(qApp);
-        qApp->d->shortcutMap.addShortcut(q,  action,  action->shortcut(),  Qt::ShortcutOnActiveWindow);
-    }
+    QActionPrivate *apriv = action->d;
+    apriv->widgets.append(this);
+
     QActionEvent e(QEvent::ActionAdded, action, before);
     QApplication::sendEvent(q, &e);
 }
 
 /*!
+    Inserts the actions \a actions to this widget's list of actions,
+    before the action \a before. It appends the action if \a before is 0 or
+    \a before is not a valid action for this widget.
+
+    \sa removeAction() QMenu insertAction()
+*/
+void QWidget::insertActions(QAction *before, QList<QAction*> actions)
+{
+    for(int i = 0; i < actions.count(); ++i)
+        insertAction(before, actions.at(i));
+}
+
+/*!
     Removes the action \a action from this widget's list of actions.
 */
-void
-QWidget::removeAction(QAction *action)
+void QWidget::removeAction(QAction *action)
 {
+    if (!action)
+        return;
+
+    QActionPrivate *apriv = action->d;
+    apriv->widgets.removeAll(this);
+
     if (d->actions.removeAll(action)) {
-        QObject::disconnect(action, SIGNAL(changed()), this, SLOT(actionChanged()));
-        QObject::disconnect(action, SIGNAL(deleted()), this, SLOT(actionDeleted()));
-        Q_ASSERT(qApp);
-        qApp->d->shortcutMap.removeShortcut(0, this,  action);
         QActionEvent e(QEvent::ActionRemoved, action);
         QApplication::sendEvent(this, &e);
     }
@@ -1763,29 +1748,9 @@ QWidget::removeAction(QAction *action)
 /*!
     Returns the (possibly empty) list of this widget's actions.
 */
-QList<QAction*>
-QWidget::actions() const
+QList<QAction*> QWidget::actions() const
 {
     return d->actions;
-}
-
-void
-QWidgetPrivate::actionChanged()
-{
-    QAction *action = qt_cast<QAction*>(q->sender());
-    Q_ASSERT_X(action != 0, "QWidget::actionChanged", "internal error");
-    Q_ASSERT(qApp);
-    qApp->d->shortcutMap.changeMonitor(action, action->shortcut(), action->isVisible() && action->isEnabled());
-    QActionEvent e(QEvent::ActionChanged, action);
-    QApplication::sendEvent(q, &e);
-}
-
-void
-QWidgetPrivate::actionDeleted()
-{
-    QAction *action = qt_cast<QAction*>(q->sender());
-    Q_ASSERT_X(action != 0, "QWidget::actionDeleted", "internal error");
-    q->removeAction(action);
 }
 
 /*!
@@ -6419,19 +6384,9 @@ int QWidget::grabShortcut(const QKeySequence &key, Qt::ShortcutContext context)
     if (key.isEmpty())
         return 0;
     setAttribute(Qt::WA_GrabbedShortcut);
-    return qApp->d->shortcutMap.addShortcut(this, 0, key, context);
+    return qApp->d->shortcutMap.addShortcut(this, key, context);
 }
 
-int QWidgetPrivate::grabShortcut(const QObject *monitor, const QKeySequence &key,
-                                 Qt::ShortcutContext context)
-{
-    Q_ASSERT(qApp);
-    Q_ASSERT(monitor);
-    if (key.isEmpty())
-        return 0;
-    q->setAttribute(Qt::WA_GrabbedShortcut);
-    return qApp->d->shortcutMap.addShortcut(q, monitor, key, context);
-}
 
 /*!
     Removes the shortcut with the given \a id from Qt's shortcut

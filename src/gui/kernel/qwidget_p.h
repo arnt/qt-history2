@@ -248,11 +248,6 @@ public:
     CGContextRef cg_hd;
 #endif
 
-    int grabShortcut(const QObject *monitor, const QKeySequence &key, Qt::ShortcutContext context);
-    void setupAction(QAction *before, QAction *action);
-    void actionChanged();  //private slot
-    void actionDeleted();  //private slot
-
 #if defined(Q_WS_X11) || defined (Q_WS_WIN) || defined(Q_WS_MAC)
     void setWSGeometry();
     inline QPoint mapToWS(const QPoint &p) const { return p - data.wrect.topLeft(); }

@@ -34,28 +34,8 @@
 
 
 #ifdef QT_COMPAT
+#include <qmenudata.h>
 #include <private/qaction_p.h>
-struct QHackedAccessAction {
-    QActionPrivate *d_ptr;
-};
-
-int qt_get_menuitem_id(QAction *action)
-{
-    Q_ASSERT(action);
-    return reinterpret_cast<QHackedAccessAction*>(action)->d_ptr->id;
-}
-
-int qt_get_menuitem_signalvalue(QAction *action)
-{
-    Q_ASSERT(action);
-    return reinterpret_cast<QHackedAccessAction*>(action)->d_ptr->param;
-}
-
-void qt_set_menuitem_signalvalue(QAction *action, int param)
-{
-    Q_ASSERT(action);
-    reinterpret_cast<QHackedAccessAction*>(action)->d_ptr->param = param;
-}
 #endif // QT_COMPAT
 
 #define d d_func()
@@ -85,10 +65,7 @@ public:
     void syncWithMenu(QMenu *, QActionEvent *act)
     {
         if(act->type() == QEvent::ActionAdded) {
-            if (act->before())
-                insertAction(act->before(), act->action());
-            else
-                addAction(act->action());
+            insertAction(act->before(), act->action());
         } else if(act->type() == QEvent::ActionRemoved)
             removeAction(act->action());
     }
@@ -340,6 +317,47 @@ QMenuAction *QMenuPrivate::actionAt(QPoint p) const
     }
     return 0;
 }
+
+
+QAction *QMenu::menuAction() const
+{
+    return d->menuAction;
+}
+
+/*!
+  \property QMenu::title
+
+  \brief The title of the menu
+
+  This is equivalent to the QAction::menuText property of the menuAction().
+*/
+QString QMenu::title() const
+{
+    return d->menuAction->menuText();
+}
+
+void QMenu::setTitle(const QString &text)
+{
+    d->menuAction->setMenuText(text);
+}
+
+/*!
+  \property QMenu::icon
+
+  \brief The icon of the menu
+
+  This is equivalent to the QAction::icon property of the menuAction().
+*/
+QIconSet QMenu::icon() const
+{
+    return d->menuAction->icon();
+}
+
+void QMenu::setIcon(const QIconSet &icon)
+{
+    d->menuAction->setIcon(icon);
+}
+
 
 //actually performs the scrolling
 void QMenuPrivate::scrollMenu(uint dir)
@@ -652,7 +670,8 @@ QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
     passed the popup menu will be deleted when that parent is
     destroyed (as with any other QObject).
 */
-QMenu::QMenu(QWidget *parent) : QWidget(*new QMenuPrivate, parent, Qt::WType_TopLevel|Qt::WType_Popup)
+QMenu::QMenu(QWidget *parent)
+    : QWidget(*new QMenuPrivate, parent, Qt::WType_TopLevel|Qt::WType_Popup)
 {
     setFocusPolicy(Qt::StrongFocus);
     setMouseTracking(style().styleHint(QStyle::SH_Menu_MouseTracking));
@@ -660,6 +679,34 @@ QMenu::QMenu(QWidget *parent) : QWidget(*new QMenuPrivate, parent, Qt::WType_Top
         d->scroll = new QMenuPrivate::QMenuScroller;
         d->scroll->scrollFlags = QMenuPrivate::QMenuScroller::ScrollNone;
     }
+    d->menuAction = new QAction(this);
+    d->menuAction->d->menu = this;
+#ifdef QT_COMPAT
+    QObject::connect(this, SIGNAL(activated(QAction*)), this, SLOT(compatActivated(QAction*)));
+    QObject::connect(this, SIGNAL(highlighted(QAction*)), this, SLOT(compatHighlighted(QAction*)));
+#endif
+}
+
+/*!
+    Constructs a menu with a \a title and a \a parent.
+
+    Although a popup menu is always a top-level widget, if a parent is
+    passed the popup menu will be deleted when that parent is
+    destroyed (as with any other QObject).
+
+    \sa title
+*/
+QMenu::QMenu(const QString &title, QWidget *parent)
+    : QWidget(*new QMenuPrivate, parent, Qt::WType_TopLevel|Qt::WType_Popup)
+{
+    setFocusPolicy(Qt::StrongFocus);
+    setMouseTracking(style().styleHint(QStyle::SH_Menu_MouseTracking));
+    if(style().styleHint(QStyle::SH_Menu_Scrollable, this)) {
+        d->scroll = new QMenuPrivate::QMenuScroller;
+        d->scroll->scrollFlags = QMenuPrivate::QMenuScroller::ScrollNone;
+    }
+    d->menuAction = new QAction(title, this);
+    d->menuAction->d->menu = this;
 #ifdef QT_COMPAT
     QObject::connect(this, SIGNAL(activated(QAction*)), this, SLOT(compatActivated(QAction*)));
     QObject::connect(this, SIGNAL(highlighted(QAction*)), this, SLOT(compatHighlighted(QAction*)));
@@ -751,36 +798,42 @@ QAction *QMenu::addAction(const QIconSet &icon, const QString &text, const QObje
 }
 
 /*!
-    This convenience function creates a new action with some \a
-    text, and a submenu specified by \a menu. The function adds the newly
-    created action to the menu's list of actions, and returns it.
-     \sa QWidget::addAction()
+    This convenience function adds \a menu as a submenu to this menu.
+    It returns the menus menuAction().
+    \sa QWidget::addAction() QMenu::menuAction()
 */
-QAction *QMenu::addMenu(const QString &text, QMenu *menu)
+QAction *QMenu::addMenu(QMenu *menu)
 {
-    QAction *action = new QAction(text, this);
-    action->setMenu(menu);
+    QAction *action = menu->menuAction();
     addAction(action);
     return action;
 }
 
 /*!
-    \overload
+  Appends a new QMenu with \a title to the menu. The menu
+  takes ownership of the menu. Returns the new menu.
 
-    This convenience function creates a new action with an \a icon,
-    some \a text, and a submenu specified by \a menu. The function adds
-    the newly created action to the menu's list of actions, and
-    returns it.
-
-    \sa QWidget::addAction()
+  \sa QWidget::addAction() QMenu::menuAction()
 */
-QAction *QMenu::addMenu(const QIconSet &icon, const QString &text, QMenu *menu)
+QMenu *QMenu::addMenu(const QString &title)
 {
-    QAction *action = new QAction(text, this);
-    action->setMenu(menu);
-    action->setIcon(icon);
-    addAction(action);
-    return action;
+    QMenu *menu = new QMenu(title, this);
+    addAction(menu->menuAction());
+    return menu;
+}
+
+/*!
+  Appends a new QMenu with \a icon and \a title to the menu. The menu
+  takes ownership of the menu. Returns the new menu.
+
+  \sa QWidget::addAction() QMenu::menuAction()
+*/
+QMenu *QMenu::addMenu(const QIconSet &icon, const QString &title)
+{
+    QMenu *menu = new QMenu(title, this);
+    menu->setIcon(icon);
+    addAction(menu->menuAction());
+    return menu;
 }
 
 /*!
@@ -800,36 +853,14 @@ QAction *QMenu::addSeparator()
 }
 
 /*!
-    This convenience function creates a new action with the text \a
-    text, and submenu \a menu. The function inserts the newly created
-    action into this menu's list of actions before action \a before
-    and returns it.
+    This convenience function inserts \a menu before action \a before
+    and returns the menus menuAction().
 
     \sa QWidget::insertAction() addMenu()
 */
-QAction *QMenu::insertMenu(QAction *before, const QString &text, QMenu *menu)
+QAction *QMenu::insertMenu(QAction *before, QMenu *menu)
 {
-    QAction *action = new QAction(text, this);
-    action->setMenu(menu);
-    insertAction(before, action);
-    return action;
-}
-
-/*!
-    \overload
-
-    This convenience function creates a new action with an icon \a icon, the text \a
-    text, and submenu \a menu. The function inserts the newly created
-    action into this menu's list of actions before action \a before
-    and returns it.
-
-    \sa QWidget::insertAction() addMenu()
-*/
-QAction *QMenu::insertMenu(QAction *before, const QIconSet &icon, const QString &text, QMenu *menu)
-{
-    QAction *action = new QAction(text, this);
-    action->setMenu(menu);
-    action->setIcon(icon);
+    QAction *action = menu->menuAction();
     insertAction(before, action);
     return action;
 }
@@ -1630,23 +1661,19 @@ void QMenu::keyPressEvent(QKeyEvent *e)
             int clashCount = 0;
             QMenuAction *first = 0, *currentSelected = 0, *firstAfterCurrent = 0;
             {
-                QChar c = e->text()[0].toUpper();
+                QChar c = e->text().at(0).toUpper();
                 for(int i = 0; i < d->actionItems.size(); ++i) {
                     register QMenuAction *act = d->actionItems.at(i);
-                    QString s = act->action->menuText();
-                    if(!s.isEmpty()) {
-                        int ampersand = s.indexOf('&');
-                        if(ampersand >= 0) {
-                            if(s[ampersand+1].toUpper() == c) {
-                                clashCount++;
-                                if(!first)
-                                    first = act;
-                                if(act == d->currentAction)
-                                    currentSelected = act;
-                                else if (!firstAfterCurrent && currentSelected)
-                                    firstAfterCurrent = act;
-                            }
-                        }
+                    QKeySequence sequence = QKeySequence::mnemonic(act->action->menuText());
+                    int key = sequence[0] & 0xffff;
+                    if(key == c.unicode()) {
+                        clashCount++;
+                        if(!first)
+                            first = act;
+                        if(act == d->currentAction)
+                            currentSelected = act;
+                        else if (!firstAfterCurrent && currentSelected)
+                            firstAfterCurrent = act;
                     }
                 }
             }
@@ -1797,8 +1824,6 @@ void QMenu::internalDelayedPopup()
     QPoint pos(mapToGlobal(QPoint(width(), actionRect.top())));
     d->activeMenu = d->currentAction->action->menu();
     d->activeMenu->d->causedPopup = this;
-    if(d->activeMenu->parent() != this)
-        d->activeMenu->setParent(this, d->activeMenu->getWFlags());
 
     bool on_left = false;     //find "best" position
     const QSize menuSize(d->activeMenu->sizeHint() + d->activeMenu->contentsMarginSize());
@@ -1874,19 +1899,17 @@ void QMenu::internalDelayedPopup()
 */
 
 #ifdef QT_COMPAT
-#include "qmenudata.h"
+
 int QMenu::insertAny(const QIconSet *icon, const QString *text, const QObject *receiver, const char *member,
                           const QKeySequence *shortcut, const QMenu *popup, int id, int index)
 {
-    QAction *act = new QAction(this);
+    QAction *act = popup ? popup->menuAction() : new QAction(this);
     if(id != -1)
         static_cast<QMenuItem*>(act)->setId(id);
     if(icon)
         act->setIcon(*icon);
     if(text)
-        act->setText(*text);
-    if(popup)
-        act->setMenu(const_cast<QMenu*>(popup));
+        act->setMenuText(*text);
     if(shortcut)
         act->setShortcut(*shortcut);
     if(receiver && member)
@@ -1926,9 +1949,10 @@ QMenuItem *QMenu::findPopup( QMenu *popup, int *index )
     for (int i = 0; i < list.size(); ++i) {
         QAction *act = list.at(i);
         if (act->menu() == popup) {
+            QMenuItem *item = static_cast<QMenuItem *>(act);
             if (index)
-                *index = qt_get_menuitem_id(act);
-            return static_cast<QMenuItem*>(act);
+                *index = act->d->id;
+            return item;
         }
     }
     return 0;
@@ -1938,7 +1962,7 @@ QMenuItem *QMenu::findPopup( QMenu *popup, int *index )
 bool QMenu::setItemParameter(int id, int param)
 {
     if(QAction *act = findActionForId(id)) {
-        qt_set_menuitem_signalvalue(act, param);
+        act->d->param = param;
         return true;
     }
     return false;
@@ -1947,7 +1971,7 @@ bool QMenu::setItemParameter(int id, int param)
 int QMenu::itemParameter(int id) const
 {
     if(QAction *act = findActionForId(id))
-        return qt_get_menuitem_signalvalue(act);
+        return act->d->param;
     return id;
 }
 
@@ -1970,6 +1994,6 @@ int QMenu::findIdForAction(QAction *act) const
 {
     if(!act)
         return -1;
-    return qt_get_menuitem_id(act);
+    return act->d->id;
 }
 #endif // QT_COMPAT

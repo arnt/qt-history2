@@ -720,10 +720,6 @@ private:
     void erase_helper(int x, int y, int w, int h);
 #endif
 
-private:
-    Q_PRIVATE_SLOT(d, void actionChanged());
-    Q_PRIVATE_SLOT(d, void actionDeleted());
-
 protected:
 #ifndef QT_NO_STYLE
     virtual void styleChange(QStyle&) { }

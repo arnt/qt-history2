@@ -1043,7 +1043,7 @@ void QFileDialog::lookInChanged(const QString &text)
         int key = d->lookInEdit->lastKeyPressed();
         if (key == QDir::separator())
             return;
-        
+
         QModelIndex result;
         if (!text.isEmpty()) {
             int s = text.lastIndexOf(QDir::separator());
@@ -1061,7 +1061,7 @@ void QFileDialog::lookInChanged(const QString &text)
                 }
             }
         }
-        
+
         if (result.isValid() && key != Qt::Key_Delete && key != Qt::Key_Backspace) {
             QString completed = d->model->path(result);
             int start = completed.length();
@@ -1130,8 +1130,8 @@ void QFileDialog::populateContextMenu(QMenu *menu, const QModelIndex &index) con
     } else {
         // view context menu
         menu->addAction(d->reloadAction);
-        QMenu *sort = new QMenu();
-        menu->addMenu("Sort", sort);
+        QMenu *sort = new QMenu(tr("Sort"));
+        menu->addMenu(sort);
         sort->addAction(d->sortByNameAction);
         sort->addAction(d->sortBySizeAction);
         sort->addAction(d->sortByDateAction);

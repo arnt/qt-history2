@@ -17,6 +17,8 @@
 #include "qapplication.h"
 #include "qevent.h"
 #include "qlist.h"
+#include <private/qshortcutmap_p.h>
+#include <private/qapplication_p.h>
 
 #define d d_func()
 #define q q_func()
@@ -29,20 +31,37 @@ QActionPrivate::QActionPrivate() : group(0), icons(0), enabled(1), forceDisabled
     param = id = --qt_static_action_id;
     act_signal = 0;
 #endif
+    shortcutId = 0;
 }
 
 QActionPrivate::~QActionPrivate()
 {
     delete icons;
-    delete menu;
 }
 
 void QActionPrivate::sendDataChanged()
 {
-    emit q->changed();
     QActionEvent e(QEvent::ActionChanged, q);
+    for (int i = 0; i < widgets.size(); ++i) {
+        QWidget *w = widgets.at(i);
+        QApplication::sendEvent(w, &e);
+    }
     QApplication::sendEvent(q, &e);
+
+    emit q->changed();
 }
+
+void QActionPrivate::redoGrab(QShortcutMap &map)
+{
+    if (shortcutId)
+        map.removeShortcut(shortcutId, q);
+    if (shortcut.isEmpty())
+        return;
+    shortcutId = map.addShortcut(q, shortcut, Qt::ShortcutOnActiveWindow);
+    if (!enabled)
+        map.setShortcutEnabled(false, shortcutId, q);
+}
+
 
 /*!
     \class QAction qaction.h
@@ -108,30 +127,22 @@ void QActionPrivate::sendDataChanged()
 */
 
 /*!
-    Constructs an action for a \a parent action group. The action will
-    be automatically inserted into the \a parent.
+    Constructs an action with \a parent. If \a parent is an action
+    group the action will be automatically inserted into the group.
 */
-QAction::QAction(QActionGroup* parent)
+QAction::QAction(QObject* parent)
     : QObject(*(new QActionPrivate), parent)
 {
-    d->group = parent;
-    if(parent)
-        parent->addAction(this);
+    d->group = qt_cast<QActionGroup *>(parent);
+    if (d->group)
+        d->group->addAction(this);
 }
 
-/*!
-    Constructs an action for a \a parent widget. The action will \e not
-    be automatically inserted into the widget.
-*/
-QAction::QAction(QWidget* parent)
-    : QObject(*(new QActionPrivate), parent)
-{
-}
 
 /*!
-    Constructs an action with some \a menuText for the \a parent action
-    group. The action will be automatically inserted into the
-    action group.
+    Constructs an action with some \a menuText and \a parent. If \a
+    parent is an action group the action will be automatically
+    inserted into the group.
 
     The action uses a stripped version of \a menuText (e.g. "\&Menu
     Option..." becomes "Menu Option") as descriptive text for
@@ -141,19 +152,19 @@ QAction::QAction(QWidget* parent)
     setToolTip().
 
 */
-QAction::QAction(const QString &menuText, QActionGroup* parent)
+QAction::QAction(const QString &menuText, QObject* parent)
     : QObject(*(new QActionPrivate), parent)
 {
     d->menuText = menuText;
-    d->group = parent;
-    if(parent)
-        parent->addAction(this);
+    d->group = qt_cast<QActionGroup *>(parent);
+    if (d->group)
+        d->group->addAction(this);
 }
 
 /*!
-    Constructs an action with an \a icon and some \a menuText for the
-    \a parent action group. The action will be automatically inserted
-    into the action group.
+    Constructs an action with an \a icon and some \a menuText and \a
+    parent. If \a parent is an action group the action will be
+    automatically inserted into the group.
 
     The action uses a stripped version of \a menuText (e.g. "\&Menu
     Option..." becomes "Menu Option") as descriptive text for
@@ -162,52 +173,14 @@ QAction::QAction(const QString &menuText, QActionGroup* parent)
     tool tips unless you specify a different test using
     setToolTip().
 */
-QAction::QAction(const QIconSet &icon, const QString &menuText, QActionGroup* parent)
+QAction::QAction(const QIconSet &icon, const QString &menuText, QObject* parent)
     : QObject(*(new QActionPrivate), parent)
 {
     d->icons = new QIconSet(icon);
     d->menuText = menuText;
-    d->group = parent;
-    if(parent)
-        parent->addAction(this);
-}
-
-/*!
-    Constructs an action with some \a menuText for the \a parent widget.
-    The action will \e not be automatically inserted into the widget.
-
-    The action uses a stripped version of \a menuText (e.g. "\&Menu
-    Option..." becomes "Menu Option") as descriptive text for
-    toolbuttons. You can override this by setting a specific
-    description with setText(). The same text will be used for
-    tool tips unless you specify a different test using
-    setToolTip().
-
-*/
-QAction::QAction(const QString &menuText, QWidget* parent)
-    : QObject(*(new QActionPrivate), parent)
-{
-    d->menuText = menuText;
-}
-
-/*!
-    Constructs an action with the given \a icon and \a menuText for the
-    \a parent widget. The action will \e not be automatically inserted
-    into the widget.
-
-    The action uses a stripped version of \a menuText (e.g. "\&Menu
-    Option..." becomes "Menu Option") as descriptive text for
-    toolbuttons. You can override this by setting a specific
-    description with setText(). The same text will be used for
-    tool tips unless you specify a different test using
-    setToolTip().
-
-*/
-QAction::QAction(const QIconSet &icon, const QString &menuText, QWidget* parent)
-    : QObject(*(new QActionPrivate), parent)
-{
-    d->menuText = menuText;
-    d->icons = new QIconSet(icon);
+    d->group = qt_cast<QActionGroup *>(parent);
+    if (d->group)
+        d->group->addAction(this);
 }
 
 /*!
@@ -234,6 +207,7 @@ void QAction::setShortcut(const QKeySequence &shortcut)
         return;
 
     d->shortcut = shortcut;
+    d->redoGrab(qApp->d->shortcutMap);
     d->sendDataChanged();
 }
 
@@ -267,61 +241,38 @@ QFont QAction::font() const
 }
 
 #ifdef QT_COMPAT
-QAction::QAction(QWidget* parent, const char* name)
+QAction::QAction(QObject* parent, const char* name)
  : QObject(*(new QActionPrivate), parent)
 {
     setObjectName(name);
+    d->group = qt_cast<QActionGroup *>(parent);
+    if (d->group)
+        d->group->addAction(this);
 }
 
-QAction::QAction(QActionGroup* parent, const char* name)
- : QObject(*(new QActionPrivate), parent)
-{
-    setObjectName(name);
-    d->group = parent;
-    if(parent)
-        parent->addAction(this);
-}
 
-QAction::QAction(const QString &text, const QKeySequence &shortcut, QWidget* parent, const char* name)
+QAction::QAction(const QString &text, const QKeySequence &shortcut, QObject* parent, const char* name)
  : QObject(*(new QActionPrivate), parent)
 {
     setObjectName(name);
     d->text = text;
     setShortcut(shortcut);
+    d->group = qt_cast<QActionGroup *>(parent);
+    if (d->group)
+        d->group->addAction(this);
 }
 
 QAction::QAction(const QIconSet &icon, const QString &text, const QKeySequence &shortcut,
-                 QWidget* parent, const char* name)
+                 QObject* parent, const char* name)
  : QObject(*(new QActionPrivate), parent)
 {
     setObjectName(name);
     d->text = text;
     setShortcut(shortcut);
     d->icons = new QIconSet(icon);
-}
-
-QAction::QAction(const QString &text, const QKeySequence &shortcut, QActionGroup* parent, const char* name)
- : QObject(*(new QActionPrivate), parent)
-{
-    setObjectName(name);
-    d->text = text;
-    setShortcut(shortcut);
-    d->group = parent;
-    if(parent)
-        parent->addAction(this);
-}
-
-QAction::QAction(const QIconSet &icon, const QString &text, const QKeySequence &shortcut,
-                 QActionGroup* parent, const char* name)
- : QObject(*(new QActionPrivate), parent)
-{
-    setObjectName(name);
-    d->text = text;
-    setShortcut(shortcut);
-    d->icons = new QIconSet(icon);
-    d->group = parent;
-    if(parent)
-        parent->addAction(this);
+    d->group = qt_cast<QActionGroup *>(parent);
+    if (d->group)
+        d->group->addAction(this);
 }
 #endif
 
@@ -330,9 +281,15 @@ QAction::QAction(const QIconSet &icon, const QString &text, const QKeySequence &
 */
 QAction::~QAction()
 {
-    /* We need to be able to tell when a QAction is about to be destroyed (ie before the QObject::~QObject)
-       so that the QAction can properly be removed */
-    emit deleted();
+    for (int i = 0; i < d->widgets.size(); ++i) {
+        QWidget *w = d->widgets.at(i);
+        w->removeAction(this);
+    }
+    if (d->group)
+        d->group->removeAction(this);
+
+    if (d->shortcutId && qApp)
+        qApp->d->shortcutMap.removeShortcut(d->shortcutId, this);
 }
 
 /*!
@@ -389,20 +346,6 @@ QIconSet QAction::icon() const
     if(d->icons)
         return *d->icons;
     return QIconSet();
-}
-
-/*!
-  Set the submenu of this action to the \a menu given.
-
-  \sa QAction::menu()
-*/
-void QAction::setMenu(QMenu *menu)
-{
-    if (d->menu == menu)
-        return;
-
-    d->menu = menu;
-    d->sendDataChanged();
 }
 
 /*!
@@ -689,6 +632,7 @@ void QAction::setEnabled(bool b)
 
     d->enabled = b;
     d->forceDisabled = !b;
+    d->redoGrab(qApp->d->shortcutMap);
     d->sendDataChanged();
 }
 

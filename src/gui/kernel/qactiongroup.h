@@ -68,7 +68,6 @@ private:
     Q_PRIVATE_SLOT(d, void actionTriggered());
     Q_PRIVATE_SLOT(d, void actionChanged());
     Q_PRIVATE_SLOT(d, void actionHovered());
-    Q_PRIVATE_SLOT(d, void actionDeleted());
 
 private:
 #if defined(Q_DISABLE_COPY)  // Disabled copy constructor and operator=

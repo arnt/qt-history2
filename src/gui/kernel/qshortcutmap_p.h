@@ -24,6 +24,7 @@ class QKeyEvent;
 struct QShortcutEntry;
 class QShortcutMapPrivate;
 class QWidget;
+class QAction;
 
 class QShortcutMap
 {
@@ -32,10 +33,10 @@ public:
     QShortcutMap();
     ~QShortcutMap();
 
-    int addShortcut(const QWidget *owner, const QObject *monitor, const QKeySequence &key, Qt::ShortcutContext context);
-    int removeShortcut(int id, const QWidget *owner, const QObject *monitor, const QKeySequence &key = QKeySequence());
-    int setShortcutEnabled(bool enable, int id, const QWidget *owner, const QObject *monitor, const QKeySequence &key = QKeySequence());
-    int changeMonitor(const QObject *monitor, const QKeySequence &key, bool enabled);
+    int addShortcut(const QObject *owner, const QKeySequence &key, Qt::ShortcutContext context);
+    int removeShortcut(int id, const QObject *owner, const QKeySequence &key = QKeySequence());
+    int setShortcutEnabled(bool enable, int id, const QObject *owner, const QKeySequence &key = QKeySequence());
+    int changeShortcut(const QObject *owner, const QKeySequence &key, bool enabled);
 
 
     void resetState();
@@ -49,6 +50,8 @@ public:
 #endif
 
 private:
+    bool checkWidgetContext(QWidget *w, QWidget *active_window);
+    bool correctContext(QAction *a, QWidget *active_window);
     QShortcutMapPrivate *d_ptr;
 
     QKeySequence::SequenceMatch find(QKeyEvent *e);

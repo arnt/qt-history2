@@ -33,9 +33,12 @@ private:
 
     Q_PROPERTY(bool tearOffEnabled READ isTearOffEnabled WRITE setTearOffEnabled)
     Q_PROPERTY(bool checkable READ isCheckable WRITE setCheckable)
+    Q_PROPERTY(QString title READ title WRITE setTitle)
+    Q_PROPERTY(QIconSet icon READ icon WRITE setIcon)
 
 public:
     QMenu(QWidget *parent = 0);
+    QMenu(const QString &title, QWidget *parent = 0);
     ~QMenu();
 
 #ifdef Q_NO_USING_KEYWORD
@@ -47,12 +50,14 @@ public:
     QAction *addAction(const QIconSet &icon, const QString &text);
     QAction *addAction(const QString &text, const QObject *receiver, const char* member, const QKeySequence &shortcut = 0);
     QAction *addAction(const QIconSet &icon, const QString &text, const QObject *receiver, const char* member, const QKeySequence &shortcut = 0);
-    QAction *addMenu(const QIconSet &icon, const QString &text, QMenu *menu);
-    QAction *addMenu(const QString &text, QMenu *menu);
+
+    QAction *addMenu(QMenu *menu);
+    QMenu *addMenu(const QString &title);
+    QMenu *addMenu(const QIconSet &icon, const QString &title);
+
     QAction *addSeparator();
 
-    QAction *insertMenu(QAction *before, const QIconSet &icon, const QString &text, QMenu *menu);
-    QAction *insertMenu(QAction *before, const QString &text, QMenu *menu);
+    QAction *insertMenu(QAction *before, QMenu *menu);
     QAction *insertSeparator(QAction *before);
 
     void clear();
@@ -77,6 +82,14 @@ public:
 
     QRect actionGeometry(QAction *) const;
     QAction *actionAtPos(const QPoint &, bool ignoreSeparator = true) const;
+
+    QAction *menuAction() const;
+
+    QString title() const;
+    void setTitle(const QString &title);
+
+    QIconSet icon() const;
+    void setIcon(const QIconSet &icon);
 
 #ifdef Q_WS_MAC
     MenuRef macMenu(MenuRef merge=0);

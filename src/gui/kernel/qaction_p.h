@@ -46,6 +46,10 @@ public:
     uint checked : 1;
     uint separator : 1;
 
+    QList<QWidget *> widgets;
+
+    void redoGrab(QShortcutMap &map);
+
 #ifdef QT_COMPAT //for menubar/menu compat
     QMenuItemEmitter *act_signal;
     int id, param;

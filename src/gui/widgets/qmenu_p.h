@@ -115,6 +115,8 @@ public:
     //default action
     QPointer<QAction> defaultAction;
 
+    QAction *menuAction;
+
     //firing of events
     void activateAction(QAction *, QAction::ActionEvent);
 

@@ -311,6 +311,8 @@ private:
     friend class QDialog;
     friend class QAccelManager;
     friend class QTranslator;
+    friend class QShortcut;
+    friend class QAction;
 #if defined(Q_WS_QWS)
     friend class QInputContext;
 #endif

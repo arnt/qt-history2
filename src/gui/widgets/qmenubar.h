@@ -38,10 +38,15 @@ public:
 #endif
     QAction *addAction(const QString &text);
     QAction *addAction(const QString &text, const QObject *receiver, const char* member);
-    QAction *addMenu(const QString &title, QMenu *menu);
+
+    QAction *addMenu(QMenu *menu);
+    QMenu *addMenu(const QString &title);
+    QMenu *addMenu(const QIconSet &icon, const QString &title);
+
+
     QAction *addSeparator();
 
-    QAction *insertMenu(QAction *before, const QString &title, QMenu *menu);
+    QAction *insertMenu(QAction *before, QMenu *menu);
 
     void clear();
 

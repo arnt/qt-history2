@@ -17,6 +17,9 @@
 #include <qevent.h>
 #include <qwhatsthis.h>
 #include <qmenu.h>
+#include <qapplication.h>
+#include <private/qapplication_p.h>
+#include <private/qshortcutmap_p.h>
 
 #define d d_func()
 #define q q_func()
@@ -103,24 +106,24 @@ public:
     bool sc_enabled;
     int sc_id;
     QString sc_whatsthis;
-    void redoGrab();
-
+    void redoGrab(QShortcutMap &map);
 };
 
-void QShortcutPrivate::redoGrab()
+void QShortcutPrivate::redoGrab(QShortcutMap &map)
 {
     QWidget *parent = q->parentWidget();
-    while (qt_cast<QMenu*>(parent))
-        parent = parent->parentWidget();
     if (!parent) {
         qWarning("QShortcut: no widget parent defined");
         return;
     }
+
     if (sc_id)
-        parent->releaseShortcut(sc_id);
-    sc_id = parent->d->grabShortcut(q, sc_sequence, sc_context);
+        map.removeShortcut(sc_id, q);
+    if (sc_sequence.isEmpty())
+        return;
+    sc_id = map.addShortcut(q, sc_sequence, sc_context);
     if (!sc_enabled)
-        parent->setShortcutEnabled(sc_id, false);
+        map.setShortcutEnabled(false, sc_id, q);
 }
 
 /*!
@@ -152,7 +155,7 @@ QShortcut::QShortcut(const QKeySequence &key, QWidget *parent,
     Q_ASSERT(parent != 0);
     d->sc_context = context;
     d->sc_sequence = key;
-    d->redoGrab();
+    d->redoGrab(qApp->d->shortcutMap);
     if (member)
         connect(this, SIGNAL(activated()), parent, member);
     if (ambiguousMember)
@@ -164,9 +167,8 @@ QShortcut::QShortcut(const QKeySequence &key, QWidget *parent,
 */
 QShortcut::~QShortcut()
 {
-    QWidget *parent = parentWidget();
-    parent->releaseShortcut(d->sc_id);
-    parent->removeEventFilter(this);
+    if (qApp)
+        qApp->d->shortcutMap.removeShortcut(d->sc_id, this);
 }
 
 /*!
@@ -193,7 +195,7 @@ void QShortcut::setKey(const QKeySequence &key)
     if (d->sc_sequence == key)
         return;
     d->sc_sequence = key;
-    d->redoGrab();
+    d->redoGrab(qApp->d->shortcutMap);
 }
 
 /*!
@@ -224,7 +226,7 @@ void QShortcut::setEnabled(bool enable)
     if (d->sc_enabled == enable)
         return;
     d->sc_enabled = enable;
-    parentWidget()->setShortcutEnabled(d->sc_id, enable);
+    qApp->d->shortcutMap.setShortcutEnabled(enable, d->sc_id, this);
 }
 
 /*!
@@ -256,7 +258,7 @@ void QShortcut::setContext(Qt::ShortcutContext context)
     if(d->sc_context == context)
         return;
     d->sc_context = context;
-    d->redoGrab();
+    d->redoGrab(qApp->d->shortcutMap);
 }
 
 /*!
@@ -313,8 +315,7 @@ bool QShortcut::event(QEvent *e)
     bool handled = false;
     if (d->sc_enabled && e->type() == QEvent::Shortcut) {
         QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
-        if (se->shortcutId() == d->sc_id
-            && se->key() == d->sc_sequence){
+        if (se->shortcutId() == d->sc_id && se->key() == d->sc_sequence){
 #ifndef QT_NO_WHATSTHIS
             if (QWhatsThis::inWhatsThisMode()) {
                 QWhatsThis::showText(QCursor::pos(), d->sc_whatsthis);

@@ -24,6 +24,11 @@
 #include <qmainwindow.h>
 #include <qtoolbar.h>
 
+#ifdef QT_COMPAT
+#include <private/qaction_p.h>
+#include <qmenudata.h>
+#endif
+
 #include "qmenu_p.h"
 #include "qmenubar_p.h"
 #define d d_func()
@@ -120,8 +125,6 @@ void QMenuBarPrivate::popupAction(QMenuAction *action, bool activateFirst)
         closePopupMode = 0;
         activeMenu = action->action->menu();
         activeMenu->d->causedPopup = q;
-        if(activeMenu->parent() != q)
-            activeMenu->setParent(q, activeMenu->getWFlags());
 
         QRect dh = QApplication::desktop()->availableGeometry();
         QRect adjustedActionRect = actionRect(action);
@@ -422,7 +425,7 @@ QMenuBar::~QMenuBar()
 */
 QAction *QMenuBar::addAction(const QString &text)
 {
-    QAction *ret = new QAction(text);
+    QAction *ret = new QAction(text, this);
     addAction(ret);
     return ret;
 }
@@ -446,21 +449,42 @@ QAction *QMenuBar::addAction(const QString &text, const QObject *receiver, const
 }
 
 /*!
-  Appends an action with text \a text and menu \a menu to the list of
-  actions.
+  Appends a new QMenu with \a title to the menubar. The menubar
+  takes ownership of the menu. Returns the new menu.
 
-  This convenience function will create a new QAction, setting its
-  text and menu, append it to the list of actions, and finally
-  return the newly created action.
-
-  \sa QWidget::addAction()
+  \sa QWidget::addAction() QMenu::menuAction()
 */
-QAction *QMenuBar::addMenu(const QString &text, QMenu *menu)
+QMenu *QMenuBar::addMenu(const QString &title)
 {
-    QAction *ret = new QAction(text, this);
-    ret->setMenu(menu);
-    addAction(ret);
-    return ret;
+    QMenu *menu = new QMenu(title, this);
+    addAction(menu->menuAction());
+    return menu;
+}
+
+/*!
+  Appends a new QMenu with \a icon and \a title to the menubar. The menubar
+  takes ownership of the menu. Returns the new menu.
+
+  \sa QWidget::addAction() QMenu::menuAction()
+*/
+QMenu *QMenuBar::addMenu(const QIconSet &icon, const QString &title)
+{
+    QMenu *menu = new QMenu(title, this);
+    menu->setIcon(icon);
+    addAction(menu->menuAction());
+    return menu;
+}
+
+/*!
+  Appends \a menu to the menubar. Returns the menu's menuAction().
+
+  \sa QWidget::addAction() QMenu::menuAction()
+*/
+QAction *QMenuBar::addMenu(QMenu *menu)
+{
+    QAction *action = menu->menuAction();
+    addAction(action);
+    return action;
 }
 
 /*!
@@ -468,27 +492,23 @@ QAction *QMenuBar::addMenu(const QString &text, QMenu *menu)
 */
 QAction *QMenuBar::addSeparator()
 {
-    QAction *ret = new QAction;
+    QAction *ret = new QAction(this);
     ret->setSeparator(true);
     addAction(ret);
     return ret;
 }
 
 /*!
-  Inserts an action with text \a text and menu \a menu into the list
-  of actions before \a before.
-
-  This convenience function will create a new QAction, insert it to
-  the list of actions, and finally return the newly created action.
+  This convenience function inserts \a menu before action \a before
+  and returns the menus menuAction().
 
   \sa QWidget::insertAction() addMenu()
 */
-QAction *QMenuBar::insertMenu(QAction *before, const QString &text, QMenu *menu)
+QAction *QMenuBar::insertMenu(QAction *before, QMenu *menu)
 {
-    QAction *ret = new QAction(text, this);
-    ret->setMenu(menu);
-    insertAction(before, ret);
-    return ret;
+    QAction *action = menu->menuAction();
+    insertAction(before, action);
+    return action;
 }
 
 /*!
@@ -1144,7 +1164,6 @@ void QMenuBar::setRightWidget(QWidget *w)
 
 
 #ifdef QT_COMPAT
-#include "qmenudata.h"
 int QMenuBar::frameWidth() const
 {
     return style().pixelMetric(QStyle::PM_MenuBarFrameWidth, this);
@@ -1153,15 +1172,13 @@ int QMenuBar::frameWidth() const
 int QMenuBar::insertAny(const QIconSet *icon, const QString *text, const QObject *receiver, const char *member,
                         const QKeySequence *shortcut, const QMenu *popup, int id, int index)
 {
-    QAction *act = new QAction;
+    QAction *act = popup ? popup->menuAction() : new QAction(this);
     if(id != -1)
         static_cast<QMenuItem*>(act)->setId(id);
     if(icon)
         act->setIcon(*icon);
     if(text)
         act->setText(*text);
-    if(popup)
-        act->setMenu(const_cast<QMenu*>(popup));
     if(shortcut)
         act->setShortcut(*shortcut);
     if(receiver && member)
@@ -1175,7 +1192,7 @@ int QMenuBar::insertAny(const QIconSet *icon, const QString *text, const QObject
 
 int QMenuBar::insertSeparator(int index)
 {
-    QAction *act = new QAction;
+    QAction *act = new QAction(this);
     act->setSeparator(true);
     if(index == -1)
         addAction(act);
@@ -1184,14 +1201,10 @@ int QMenuBar::insertSeparator(int index)
     return findIdForAction(act);
 }
 
-extern void qt_set_menuitem_signalvalue(QAction *action, int param);
-extern int qt_get_menuitem_signalvalue(QAction *action);
-extern int qt_get_menuitem_id(QAction *action);
-
 bool QMenuBar::setItemParameter(int id, int param)
 {
     if(QAction *act = findActionForId(id)) {
-        qt_set_menuitem_signalvalue(act, param);
+        act->d->param = param;
         return true;
     }
     return false;
@@ -1200,7 +1213,7 @@ bool QMenuBar::setItemParameter(int id, int param)
 int QMenuBar::itemParameter(int id) const
 {
     if(QAction *act = findActionForId(id))
-        return qt_get_menuitem_signalvalue(act);
+        return act->d->param;
     return id;
 }
 
@@ -1227,6 +1240,6 @@ void QMenuBar::compatHighlighted(QAction *act)
 
 int QMenuBar::findIdForAction(QAction *act) const
 {
-    return qt_get_menuitem_id(act);
+    return act->d->id;
 }
 #endif
