@@ -308,6 +308,7 @@
 #      define Q_CC_INTEL
 /* The new UnixWare 7 compiler is based on EDG and does define __EDG__ */
 #    elif defined(__USLC__)
+#      define Q_CC_EDG
 #      define Q_CC_USLC
 /* Never tested! */
 #    elif defined(CENTERLINE_CLPP) || defined(OBJECTCENTER)
