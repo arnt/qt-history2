@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#12 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#13 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -26,7 +26,7 @@
 #include <X11/Xmu/StdCmap.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#12 $");
+RCSTAG("$Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#13 $");
 
 
 #if defined(_CC_MSVC_)
@@ -1072,10 +1072,17 @@ void QGLWidget::setFormat( const QGLFormat &format )
 */
 
 struct CMapEntry {
-    CMapEntry( Colormap m ) : cmap(m) {}
-   ~CMapEntry() { XFreeColormap(QPaintDevice::x__Display(),cmap); }
+    CMapEntry( Colormap m, bool a ) : cmap(m), alloc(a) {}
+   ~CMapEntry();
     Colormap cmap;
+    bool     alloc;
 };
+
+CMapEntry::~CMapEntry()
+{
+    if ( alloc )
+	XFreeColormap( QPaintDevice::x__Display(), cmap );
+}
 
 static bool		    cmap_init = FALSE;
 static QIntDict<CMapEntry> *cmap_dict = 0;
@@ -1100,16 +1107,18 @@ static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
 	qAddPostRoutine( cleanup_cmaps );
     }
 
-    CMapEntry *x = cmap_dict->find( (long)vi->visualid+1 );
+    CMapEntry *x = cmap_dict->find( (long)vi->visualid );
     if ( x )					// found colormap for visual
 	return x->cmap;
 
     Colormap cmap = 0;
+    bool alloc = FALSE;
     XStandardColormap *c;
     int n, i;
 
     if ( vi->visual==DefaultVisual(dpy,vi->screen) )
 	return DefaultColormap( dpy, vi->screen );
+
     if ( mesa_gl ) {				// we're using MesaGL
 	Atom hp_cmaps = XInternAtom( dpy, "_HP_RGB_SMOOTH_MAP_LIST", TRUE );
 	if ( hp_cmaps && vi->visual->c_class == TrueColor && vi->depth == 8 ) {
@@ -1125,6 +1134,7 @@ static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
 	    }
 	}
     }
+#if !defined(_OS_SOLARIS_)
     if ( !cmap ) {
 	if ( XmuLookupStandardColormap(dpy,vi->screen,vi->visualid,vi->depth,
 				       XA_RGB_DEFAULT_MAP,FALSE,TRUE) ) {
@@ -1140,11 +1150,14 @@ static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
 	    }
 	}
     }
-    if ( !cmap )				// no shared cmap found
+#endif
+    if ( !cmap ) {				// no shared cmap found
 	cmap = XCreateColormap( dpy, RootWindow(dpy,vi->screen), vi->visual,
 				AllocNone );
-    x = new CMapEntry( cmap );			// associate cmap with visualid
-    cmap_dict->insert( (long)vi->visualid+1, x );
+	alloc = TRUE;
+    }
+    x = new CMapEntry( cmap, alloc );		// associate cmap with visualid
+    cmap_dict->insert( (long)vi->visualid, x );
     return cmap;
 }
 
@@ -1208,10 +1221,11 @@ void QGLWidget::setContext( QGLContext *context )
     bool visible = isVisible();
     if ( visible )
 	hide();
+
     XVisualInfo *vi = (XVisualInfo*)glcx->vi;
-    Colormap cmap = choose_cmap( dpy, vi );	// find shared colormap
     XSetWindowAttributes a;
-    a.colormap = cmap;
+
+    a.colormap = choose_cmap( dpy, vi );	// find best colormap
     a.background_pixel = backgroundColor().pixel();
     a.border_pixel = black.pixel();
     Window p = RootWindow( dpy, DefaultScreen(dpy) );
@@ -1220,13 +1234,41 @@ void QGLWidget::setContext( QGLContext *context )
     Window w = XCreateWindow( dpy, p,  x(), y(), width(), height(),
 			      0, vi->depth, InputOutput,  vi->visual,
 			      CWBackPixel|CWBorderPixel|CWColormap, &a );
+
+    Window *cmw;
+    Window *cmwret;
+    int count;
+    if ( XGetWMColormapWindows(dpy,topLevelWidget()->winId(),&cmwret,&count) ){
+	cmw = new Window[count+1];
+        memcpy( (char *)cmw, (char *)cmwret, sizeof(Window)*count );
+	XFree( (char *)cmwret );
+	int i;
+	for ( i=0; i<count; i++ ) {
+	    if ( cmw[i] == winId() ) {		// replace old window
+		cmw[i] = w;
+		break;
+	    }
+	}
+	if ( i >= count )			// append new window
+	    cmw[count++] = w;
+    } else {
+	count = 1;
+	cmw = new Window[count];
+	cmw[0] = w;
+    }
+
 #if defined(GLX_MESA_release_buffers)
     glXReleaseBuffersMESA( dpy, winId() );
 #endif
     create( w );
     clearWFlags( WState_Visible );		// workaround for Qt 1.30 bug
+
+    XSetWMColormapWindows( dpy, topLevelWidget()->winId(), cmw, count );
+    delete [] cmw;
+
     if ( visible )
 	show();
+    XFlush( dpy );
 #endif // Q_GLX
 }
 
