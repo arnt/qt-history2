@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#7 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#8 $
 **
 ** Implementation of QFile class
 **
@@ -27,7 +27,7 @@
 #include <limits.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#8 $";
 #endif
 
 
@@ -293,7 +293,7 @@ bool QFile::open( int m )			// open file
 	    ok = FALSE;
     }
     else {					// buffered file I/O
-	char *perm;
+	char *perm = 0;
 	char perm2[4];
 	bool try_create = FALSE;
 	if ( flags() & IO_Append ) {		// append to end of file?
