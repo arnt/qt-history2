@@ -1129,13 +1129,16 @@ void QWorkspace::cascade()
 
     setUpdatesEnabled( FALSE );
     QListIterator<QWorkspaceChild> it( widgets );
+    int children = d->windows.count() - 1;
     while ( it.current () ) {
 	QWorkspaceChild *child = it.current();
 	++it;
 	child->setUpdatesEnabled( FALSE );
 	QSize prefSize = child->windowWidget()->sizeHint() + QSize( 0, child->baseSize().height() );
 	if ( !child->windowWidget()->sizeHint().isValid() )
-	    prefSize = QSize( width() - d->windows.count() * xoffset, height() - d->windows.count() * yoffset );
+	    prefSize = QSize( width() - children * xoffset, height() - children * yoffset );
+
+	prefSize = prefSize.boundedTo( QSize( size().width() - xoffset * children, size().height() - yoffset * children ) );
 
 	int w = prefSize.width();
 	int h = prefSize.height();
