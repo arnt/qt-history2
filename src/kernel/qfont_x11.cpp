@@ -2268,12 +2268,12 @@ static QChar sampleCharacter(QFont::Script script)
     case QFont::CanadianAboriginal:        row = 0x14; cell = 0x10; break;
     case QFont::Mongolian:                 row = 0x18; cell = 0x00; break;
 
-    case QFont::CurrencySymbols:           row = 0x20; cell = 0xa0; break;
-    case QFont::LetterlikeSymbols:         row = 0x21; cell = 0x00; break;
-    case QFont::NumberForms:               row = 0x21; cell = 0x60; break;
+    case QFont::CurrencySymbols:           row = 0x20; cell = 0xaa; break;
+    case QFont::LetterlikeSymbols:         row = 0x21; cell = 0x22; break;
+    case QFont::NumberForms:               row = 0x21; cell = 0x5b; break;
     case QFont::MathematicalOperators:     row = 0x22; cell = 0x2b; break;
     case QFont::TechnicalSymbols:          row = 0x24; cell = 0x40; break;
-    case QFont::GeometricSymbols:          row = 0x25; cell = 0x00; break;
+    case QFont::GeometricSymbols:          row = 0x25; cell = 0xa1; break;
     case QFont::MiscellaneousSymbols:      row = 0x26; cell = 0x00; break;
     case QFont::EnclosedAndSquare:         row = 0x24; cell = 0x60; break;
     case QFont::Braille:                   row = 0x28; cell = 0x00; break;
