@@ -962,9 +962,10 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 
     d->macDropEnabled = false;
     if(HIViewRef destroy_hiview = (HIViewRef)destroyid) {
-        if(isTopLevel())
-            DisposeWindow(qt_mac_window_for(destroy_hiview));
+        WindowPtr window = isTopLevel() ? qt_mac_window_for(destroy_hiview) : 0;
         CFRelease(destroy_hiview);
+        if(window)
+            DisposeWindow(window);
     }
     qt_mac_unicode_init(this);
 }
@@ -998,11 +999,13 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
         if(destroyWindow) {
             if(d->window_event)
                 RemoveEventHandler(d->window_event);
-            if(isTopLevel()) {
-                RemoveWindowProperty(qt_mac_window_for(this), kWidgetCreatorQt, kWidgetPropertyQWidget);
-                DisposeWindow(qt_mac_window_for(this));
-            } else if(HIViewRef hiview = (HIViewRef)winId()) {
+            if(HIViewRef hiview = (HIViewRef)winId()) {
+                WindowPtr window = isTopLevel() ? qt_mac_window_for(hiview) : 0;
                 CFRelease(hiview);
+                if(window) {
+                    RemoveWindowProperty(qt_mac_window_for(this), kWidgetCreatorQt, kWidgetPropertyQWidget);
+                    DisposeWindow(window);
+                }
             }
         }
     }
@@ -1071,10 +1074,11 @@ void QWidget::setParent_sys(QWidget *parent, Qt::WFlags f)
     if(old_window_event)
         RemoveEventHandler(old_window_event);
     if(old_id) { //don't need old window anymore
-        if(oldtlw == this)
-            DisposeWindow(qt_mac_window_for(old_id));
+        WindowPtr window = (oldtlw == this) ? qt_mac_window_for(old_id) : 0;
         HIViewRemoveFromSuperview(old_id);
         CFRelease(old_id);
+        if(window)
+            DisposeWindow(window);
     }
 }
 
