@@ -1050,9 +1050,9 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    delete [] tmp_bits;
 	data->w = w;  data->h = h;  data->d = 1;
 
-	if ( image.hasAlphaBuffer() ) {
+	if ( img.hasAlphaBuffer() ) {
 	    QBitmap m;
-	    m = image.createAlphaMask( conversion_flags );
+	    m = img.createAlphaMask( conversion_flags );
 	    setMask( m );
 	}
 	return TRUE;
