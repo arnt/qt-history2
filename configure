@@ -730,13 +730,26 @@ then
     echo '   which is "'`pwd`'".'
     echo
     echo '   Please read the INSTALL file for instructions on how to set $QTDIR'
-    echo '   correctly. If you have set $QTDIR in your .profile or .login, you '
+    echo '   correctly. If you have set $QTDIR in your .profile or .login, you'
     echo '   will need to log out and log in again to make the setting effective.'
     echo
     echo
     exit 1
 fi
 rm -f .test.qt.
+
+# let's also test that $QTDIR/bin is in the PATH
+if ! echo "$PATH" | grep $QTDIR/bin >/dev/null
+then
+    echo '   The environment variable $PATH is not set correctly. It should'
+    echo '   include $QTDIR/bin.'
+    echo
+    echo '   Please read the INSTALL file for instructions on how to set $PATH'
+    echo '   correctly. If you have set $PATH in your .profile or .login, you'
+    echo '   will need to log out and log in again to make the setting effective.'
+    echo
+    exit 1
+fi
 
 # if the source tree is different from the build tree,
 # symlink or copy part of the sources
