@@ -5412,15 +5412,15 @@ int QWidget::heightForWidth( int w ) const
 */
 QWidget *QWidget::childAt(int x, int y) const
 {
-    if ( !rect().contains( x, y ) )
+    if (!rect().contains(x, y))
 	return 0;
     for (int i = d->children.size(); i > 0 ; ) {
 	--i;
 	QWidget *w = static_cast<QWidget *>(d->children.at(i));
-	QWidget *t;
-	if ( w->isWidgetType() && !w->isTopLevel() && !w->isHidden() ) {
-	    if ( ( t = w->childAt( x - w->x(), y - w->y()) ) )
-		return t?t:w;
+	if ( w->isWidgetType() && !w->isTopLevel() && !w->isHidden() && w->geometry().contains(x, y)) {
+	    if (QWidget *t = w->childAt(x - w->x(), y - w->y()))
+		return t;
+	    return w;
 	}
     }
     return 0;
