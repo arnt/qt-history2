@@ -82,7 +82,7 @@ QLibraryPrivate::QLibraryPrivate(QLibrary *lib)
     MyPrototype myFunction;
 
     QLibrary myLib("mylib");
-    myFunction = (MyProtoype) myLib.resolve("mysymbol");
+    myFunction = (MyPrototype) myLib.resolve("mysymbol");
     if (myFunction) {
         myFunction();
     }
