@@ -275,20 +275,24 @@ QFSFileEngine::mkdir(const QString &name, QDir::Recursion recurse) const
                 QT_STATBUF st;
                 QT_WA({
                     if(QT_TSTAT((TCHAR*)chunk.utf16(), (QT_STATBUF4TSTAT*)&st) != -1) {
-                        if((st.st_mode & S_IFMT) != S_IFDIR)
+                        if((st.st_mode & S_IFMT) != S_IFDIR) {
                             return false;
+			}
                     } else if(::_wmkdir((TCHAR*)chunk.utf16()) == -1) {
-                        if (errno != EEXIST)
+                        if (errno != EEXIST) {
                             return false;
+			}
                     }
                 } , {
                     if(QT_STAT(QFSFileEnginePrivate::win95Name(chunk), &st) != -1) {
                         if((st.st_mode & S_IFMT) != S_IFDIR) {
                             return false;
-                        } else if(_mkdir(QFSFileEnginePrivate::win95Name(chunk)) == -1)
-                            if (errno != EEXIST)
-                                return false;
-                    }
+			}
+		    } else if(_mkdir(QFSFileEnginePrivate::win95Name(chunk)) == -1) { 
+			if (errno != EEXIST) {
+			    return false;
+			}
+		    }
                 });
             }
         }
