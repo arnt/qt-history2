@@ -1018,23 +1018,23 @@ public:
 #endif
 #ifdef Q_WS_WIN
     enum WinVersion {
-        Qt::WV_32s      = 0x0001,
-        Qt::WV_95       = 0x0002,
-        Qt::WV_98       = 0x0003,
-        Qt::WV_Me       = 0x0004,
-        Qt::WV_DOS_based= 0x000f,
+        WV_32s      = 0x0001,
+        WV_95       = 0x0002,
+        WV_98       = 0x0003,
+        WV_Me       = 0x0004,
+        WV_DOS_based= 0x000f,
 
-        Qt::WV_NT       = 0x0010,
-        Qt::WV_2000     = 0x0020,
-        Qt::WV_XP       = 0x0030,
-        Qt::WV_2003     = 0x0040,
-        Qt::WV_NT_based = 0x00f0,
+        WV_NT       = 0x0010,
+        WV_2000     = 0x0020,
+        WV_XP       = 0x0030,
+        WV_2003     = 0x0040,
+        WV_NT_based = 0x00f0,
 
-        Qt::WV_CE       = 0x0100,
-        Qt::WV_CENET    = 0x0200,
-        Qt::WV_CE_based = 0x0f00
+        WV_CE       = 0x0100,
+        WV_CENET    = 0x0200,
+        WV_CE_based = 0x0f00
     };
-    static const WinVersion Qt::WindowsVersion;
+    static const WinVersion WindowsVersion;
 #endif
 #ifdef Q_WS_MAC
     enum MacVersion {
