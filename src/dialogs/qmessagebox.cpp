@@ -54,6 +54,21 @@
 #endif
 
 
+// Internal class - don't touch
+
+class QMessageBoxLabel : public QLabel
+{
+    Q_OBJECT
+public:
+    QMessageBoxLabel( QWidget* parent ) : QLabel( parent, "messageBoxText")
+    {
+	setAlignment( AlignAuto );
+    }
+};
+#include "qmessagebox.moc"
+
+
+
 // the Qt logo, for aboutQt
 /* XPM */
 static const char * const qtlogo_xpm[] = {
@@ -549,9 +564,8 @@ void QMessageBox::init( int button0, int button1, int button2 )
 #endif
 
     }
-    label = new QLabel( this, "text" );
+    label = new QMessageBoxLabel( this );
     Q_CHECK_PTR( label );
-    label->setAlignment( AlignAuto );
 
     if ( (button2 && !button1) || (button1 && !button0) ) {
 #if defined(QT_CHECK_RANGE)

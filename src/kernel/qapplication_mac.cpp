@@ -206,6 +206,112 @@ void qt_mac_clear_mouse_state()
     qt_button_down = 0;
 }
 
+static void qt_mac_get_os_settings()
+{
+    { //setup the global peltte
+	QColor qc;
+	RGBColor c;
+	QPalette pal = QApplication::palette();
+	if(!GetThemeBrushAsColor(-3, 32, true, &c))
+	    pal.setBrush(QPalette::Active, QColorGroup::Highlight, 
+			 QColor(c.red / 256, c.green / 256, c.blue / 256));
+	if(!GetThemeBrushAsColor(-4, 32, true, &c))
+	    pal.setBrush(QPalette::Inactive, QColorGroup::Highlight, 
+			 QColor(c.red / 256, c.green / 256, c.blue / 256));
+	if(!GetThemeBrushAsColor(kThemeBrushButtonActiveDarkShadow, 32, true, &c))
+	    pal.setBrush(QPalette::Active, QColorGroup::Shadow, 
+			 QColor(c.red / 256, c.green / 256, c.blue / 256));
+	if(!GetThemeBrushAsColor(kThemeBrushButtonInactiveDarkShadow, 32, true, &c))
+	    pal.setBrush(QPalette::Inactive, QColorGroup::Shadow, 
+			 QColor(c.red / 256, c.green / 256, c.blue / 256));
+	if(!GetThemeTextColor(kThemeTextColorDialogActive, 32, true, &c)) {
+	    qc = QColor(c.red / 256, c.green / 256, c.blue / 256);		
+	    pal.setColor(QPalette::Active, QColorGroup::Text, qc);
+	    pal.setColor(QPalette::Active, QColorGroup::Foreground, qc);
+	    pal.setColor(QPalette::Active, QColorGroup::HighlightedText, qc);
+	}
+	if(!GetThemeTextColor(kThemeTextColorDialogInactive, 32, true, &c)) {
+	    qc = QColor(c.red / 256, c.green / 256, c.blue / 256);		
+	    pal.setColor(QPalette::Inactive, QColorGroup::Text, qc);
+	    pal.setColor(QPalette::Inactive, QColorGroup::Foreground, qc);
+	    pal.setColor(QPalette::Inactive, QColorGroup::HighlightedText, qc);
+	}
+	pal.setDisabled(pal.inactive());
+	QApplication::setPalette(pal);
+    }
+    { //setup the fonts
+	struct {
+	    const char *qt_class;
+	    short font_key;
+	} mac_widget_fonts[] = {
+	    { "QPushButton", kThemePushButtonFont },
+	    { "QListView", kThemeViewsFont },
+	    { "QListBox", kThemeViewsFont },
+	    { "QTitleBar", kThemeWindowTitleFont },
+	    { "QMenuBar", kThemeMenuTitleFont },
+	    { "QPopupMenu", kThemeMenuItemFont },
+	    { "QHeader", kThemeSmallSystemFont },
+	    { "QTipLabel", kThemeSmallSystemFont },
+	    { "QMessageBoxLabel", kThemeEmphasizedSystemFont },
+	    { "QLabel", kThemeLabelFont },
+	    { NULL, 0 } };
+	Str255 f_name;
+	SInt16 f_size;
+	Style f_style;
+	for(int i = 0; mac_widget_fonts[i].qt_class; i++) {
+	    GetThemeFont(mac_widget_fonts[i].font_key, smSystemScript, f_name, &f_size, &f_style);
+	    QApplication::setFont(QFont(p2qstring(f_name), f_size,
+					(f_style & ::bold) ? QFont::Bold : QFont::Normal,
+					(bool)(f_style & ::italic)), TRUE, mac_widget_fonts[i].qt_class);
+	}
+    }
+    { //setup the palette
+	struct {
+	    const char *qt_class;
+	    ThemeBrush active, inactive;
+	} mac_widget_colours[] = {
+	    { "QToolButton", kThemeTextColorBevelButtonActive, kThemeTextColorBevelButtonInactive },
+	    { "QButton", kThemeTextColorPushButtonActive, kThemeTextColorPushButtonInactive },
+	    { "QComboBox", kThemeTextColorPopupButtonActive, kThemeTextColorPopupButtonInactive },
+	    { "QListView", kThemeTextColorListView, kThemeTextColorDialogInactive },
+	    { "QListBox", kThemeTextColorListView, kThemeTextColorDialogInactive },
+	    { "QMessageBoxLabel", kThemeTextColorAlertActive, kThemeTextColorAlertInactive },
+	    { "QTabBar", kThemeTextColorTabFrontActive, kThemeTextColorTabFrontInactive },
+	    { "QLabel", kThemeTextColorPlacardActive, kThemeTextColorPlacardInactive },
+	    { "QPopupMenu", kThemeTextColorPopupLabelActive, kThemeTextColorPopupLabelInactive },
+	    { NULL, 0, 0 } };
+	QColor qc;
+	RGBColor c;
+	for(int i = 0; mac_widget_colours[i].qt_class; i++) {
+	    QPalette pal = QApplication::palette();
+	    if(!GetThemeTextColor(mac_widget_colours[i].active, 32, true, &c)) {
+		qc = QColor(c.red / 256, c.green / 256, c.blue / 256);		
+		pal.setColor(QPalette::Active, QColorGroup::Text, qc);
+		pal.setColor(QPalette::Active, QColorGroup::Foreground, qc);
+		pal.setColor(QPalette::Active, QColorGroup::HighlightedText, qc);
+	    }
+	    if(!GetThemeTextColor(mac_widget_colours[i].inactive, 32, true, &c)) {
+		qc = QColor(c.red / 256, c.green / 256, c.blue / 256);		
+		pal.setColor(QPalette::Inactive, QColorGroup::Text, qc);
+		pal.setColor(QPalette::Disabled, QColorGroup::Text, qc);
+		pal.setColor(QPalette::Inactive, QColorGroup::Foreground, qc);
+		pal.setColor(QPalette::Disabled, QColorGroup::Foreground, qc);
+		pal.setColor(QPalette::Inactive, QColorGroup::HighlightedText, qc);
+		pal.setColor(QPalette::Disabled, QColorGroup::HighlightedText, qc);
+	    }
+	    if(!strcmp(mac_widget_colours[i].qt_class, "QPopupMenu")) { //more things get set for the popupmenu
+		GetThemeTextColor(kThemeTextColorMenuItemActive, 32, true, &c);
+		pal.setBrush(QColorGroup::ButtonText, QColor(c.red / 256, c.green / 256, c.blue / 256));
+		GetThemeTextColor(kThemeTextColorMenuItemSelected, 32, true, &c);
+		pal.setBrush(QColorGroup::HighlightedText, QColor(c.red / 256, c.green / 256, c.blue / 256));
+		GetThemeTextColor(kThemeTextColorMenuItemDisabled, 32, true, &c);
+		pal.setBrush(QColorGroup::Text, QColor(c.red / 256, c.green / 256, c.blue / 256));
+	    }
+	    QApplication::setPalette(pal, TRUE, mac_widget_colours[i].qt_class);
+	}
+    }
+}
+
 /* Event masks */
 // internal Qt types
 const UInt32 kEventClassQt = 'cute';
@@ -486,6 +592,8 @@ void qt_init(int* argcptr, char **argv, QApplication::Type)
 	qt_mac_port_mutex = new QMutex(TRUE);
 #endif
 	RegisterAppearanceClient();
+	if(QApplication::desktopSettingsAware())
+	    qt_mac_get_os_settings();
 
 	if(!app_proc_handler) {
 	    app_proc_handlerUPP = NewEventHandlerUPP(QApplication::globalEventProcessor);
@@ -1942,6 +2050,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	} else if(ekind == kEventWindowShown) {
 	    widget->topLevelWidget()->setActiveWindow();
 	} else if(ekind == kEventWindowActivated) {
+	    if(QApplication::desktopSettingsAware())
+		qt_mac_get_os_settings();
 	    if(QApplication::app_style) {
 		//I shouldn't have to do this, but the StyleChanged isn't happening as I expected
 		//so this is in for now, FIXME!
@@ -2027,9 +2137,13 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 #endif
 	break;
     case kAppearanceEventClass:
-	if(ekind == kAEAppearanceChanged && QApplication::app_style) {
-	    QEvent ev(QEvent::Style);
-	    QApplication::sendSpontaneousEvent(QApplication::app_style, &ev);
+	if(ekind == kAEAppearanceChanged) {
+	    if(QApplication::desktopSettingsAware())
+		qt_mac_get_os_settings();
+	    if(QApplication::app_style) {
+		QEvent ev(QEvent::Style);
+		QApplication::sendSpontaneousEvent(QApplication::app_style, &ev);
+	    }
 	} else {
 	    handled_event = FALSE;
 	}

@@ -279,7 +279,6 @@ void QMacStyle::polish(QApplication* app)
     QBrush background(pc, px);
     pal.setBrush(QColorGroup::Background, background);
     pal.setBrush(QColorGroup::Button, background);
-    qt_mac_update_palette(pal, TRUE);
     app->setPalette(pal, TRUE);
 }
 
@@ -292,7 +291,6 @@ void QMacStyle::polish(QWidget* w)
 	w->backgroundPixmap()->serialNumber() == 
        qApp->palette().brush(QPalette::Active, QColorGroup::Background).pixmap()->serialNumber()) 
 	w->setBackgroundOrigin(QWidget::WindowOrigin);
-    qt_mac_polish_font(w, qt_aqua_size_constrain(w));
     d->addWidget(w);
 
 #ifdef QMAC_DO_SECONDARY_GROUPBOXES
@@ -1830,12 +1828,7 @@ QSize QMacStyle::sizeFromContents(ContentsType contents, const QWidget *widget,
 /*! \reimp */
 bool QMacStyle::event(QEvent *e)
 {
-    if(e->type() == QEvent::Style) {
-	    QPalette pal = qApp->palette();
-	    if(qt_mac_update_palette(pal, FALSE))
-		qApp->setPalette(pal, TRUE);
-    }
-    return FALSE;
+    return QWindowsStyle::event(e);
 }
 
 #endif

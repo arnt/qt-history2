@@ -49,10 +49,6 @@
 # include <qwidget.h>
 #endif // QT_H
 
-#ifdef Q_WS_MAC
-#define QMAC_QAQUA_MODIFY_TEXT_COLOURS
-#endif
-
 class QAquaFocusWidget : public QWidget
 {
     Q_OBJECT
@@ -131,16 +127,5 @@ enum QAquaWidgetSize { QAquaSizeLarge, QAquaSizeSmall, QAquaSizeUnknown };
 QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg, 
 				       QStyle::ContentsType ct=QStyle::CT_CustomBase, 
 				       QSize szHint=QSize(-1, -1), QSize *insz=NULL);
-
-/* 
-  Setup the palette to comply with Aqua Style Guidelines
-*/
-bool qt_mac_update_palette(QPalette &pal, bool do_init);
-
-/* 
-  Setup the font to comply with Aqua Style Guidelines
-*/
-QCString p2qstring(const unsigned char *c); //qglobal.cpp
-void qt_mac_polish_font(QWidget *w, QAquaWidgetSize size=QAquaSizeLarge);
 
 #endif /* QAQUASTYLE_P_H */

@@ -241,7 +241,6 @@ void QAquaStyle::polish(QApplication* app)
     QPalette pal = app->palette();
     pal.setBrush(QColorGroup::Background, background);
     pal.setBrush(QColorGroup::Button, background);
-    qt_mac_update_palette(pal, TRUE);
     app->setPalette(pal, TRUE);
 }
 
@@ -254,7 +253,6 @@ void QAquaStyle::polish(QWidget * w)
 	w->backgroundPixmap()->serialNumber() == 
        qApp->palette().brush(QPalette::Active, QColorGroup::Background).pixmap()->serialNumber()) 
 	w->setBackgroundOrigin(QWidget::WindowOrigin);
-    qt_mac_polish_font(w, qt_aqua_size_constrain(w));
     d->addWidget(w);
 #ifdef Q_WS_MAC
     if(w->inherits("QPopupMenu"))
@@ -1947,10 +1945,6 @@ void QAquaStyle::appearanceChanged()
 	    aquaMode = m;
 	    changed = TRUE;
 	}
-
-	QPalette pal = qApp->palette();
-	if(qt_mac_update_palette(pal, FALSE))
-	    qApp->setPalette(pal, TRUE);
 
 	ThemeScrollBarArrowStyle arrows;
 	GetThemeScrollBarArrowStyle(&arrows);
