@@ -1157,7 +1157,7 @@ void QPrinter::reinit()
 	    DEVMODEA* dm = (DEVMODEA*)GlobalLock( hdevmode );
 	    if ( dm ) {
 		writeDevmodeA( dm );
-		hdcTmp = CreateDCA( "WINSPOOL", dm->dmDeviceName, 0, dm );
+		hdcTmp = CreateDCA( "WINSPOOL", (LPCSTR)dm->dmDeviceName, 0, dm );
 	    }
 	}
 #endif
