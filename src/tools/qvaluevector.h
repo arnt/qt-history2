@@ -489,15 +489,6 @@ protected:
 };
 
 
-#ifndef QT_NO_STL
-template <class T>
-inline bool operator<( const QValueVector<T>& x, const QValueVector<T>& y )
-{
-    return std::lexicographical_compare( x.begin(), x.end(),
-					 y.begin(), y.end() );
-}
-#endif
-
 #ifndef QT_NO_DATASTREAM
 template<class T>
 inline QDataStream& operator>>( QDataStream& s, QValueVector<T>& v )
