@@ -571,10 +571,6 @@ void QTabWidget::setUpLayout(bool onlyCheck)
         d->dirty = true;
         return; // we'll do it later
     }
-    int tabx, taby, stacky, exth, overlap;
-    exth = style()->pixelMetric(QStyle::PM_TabBarBaseHeight, 0, this);
-    overlap = style()->pixelMetric(QStyle::PM_TabBarBaseOverlap, 0, this);
-
 
     QStyleOptionTabWidgetFrame option = d->getStyleOption();
 
