@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#74 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#75 $
 **
 ** Definition of QFileDialog class
 **
@@ -216,6 +216,8 @@ public:
     QString selectedFile() const;
     void setSelection( const QString &);
 
+    QStringList selectedFiles() const;
+    
     QString dirPath() const;
 
     void setDir( const QDir & );

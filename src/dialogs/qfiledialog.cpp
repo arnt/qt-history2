@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#299 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#300 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1812,12 +1812,41 @@ QFileDialog::~QFileDialog()
   absolute path name.  The returned string is a null string if no file
   name was selected.
 
-  \sa QString::isNull()
+  \sa QString::isNull(), QFileDialog::selectedFiles()
 */
 
 QString QFileDialog::selectedFile() const
 {
     return d->currentFileName;
+}
+
+/*!
+  Returns a list of selected files. This is only useful,
+  if the mode of the filedialog is ExistingFiles. Else
+  the list will only contain one entry, which is the
+  the selecedFile. If no files were selected, this list
+  is empty.
+  
+  \sa QFileDialog::selecedFile(), QStringList::isEmpty()
+*/
+
+QStringList QFileDialog::selectedFiles() const
+{
+    QStringList lst;
+        
+    if ( mode() == ExistingFiles ) {
+	QListViewItem * i = files->firstChild();
+	while( i ) {
+	    if ( i->isSelected() ) {
+		QString u = QUrl( url(), ((QFileDialogPrivate::File*)i)->info.name() );
+		lst << u;
+	    }
+	    i = i->nextSibling();
+	}
+    } else
+	lst << selectedFile();
+    
+    return lst;
 }
 
 /*!
@@ -1827,6 +1856,7 @@ QString QFileDialog::selectedFile() const
   \internal
   Only for external use.  Not useful inside QFileDialog.
 */
+
 void QFileDialog::setSelection( const QString & filename )
 {
     d->oldUrl = d->url;
