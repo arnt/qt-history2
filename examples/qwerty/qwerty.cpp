@@ -70,7 +70,12 @@ Editor::Editor( QWidget * parent , const char * name )
     e = new QMultiLineEdit( this, "editor" );
     connect( e, SIGNAL( textChanged() ), this, SLOT( textChanged() ) );
 
-    // Unifont only comes in one pixel size
+    // We use Unifont - if you have it installed you'll see all
+    // Unicode character glyphs.
+    //
+    // Unifont only comes in one pixel size, so we cannot let
+    // it change pixel size as the display DPI changes.
+    //
     QFont unifont("unifont",16,50); unifont.setPixelSize(16);
     e->setFont( unifont );
 
