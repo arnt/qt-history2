@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.h#16 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.h#17 $
 **
 ** Defintion of  QSplitter class
 **
@@ -27,26 +27,28 @@
 #include "qframe.h"
 #endif // QT_H
 
-class QInternalSplitter;
+class QSplitterHandle;
+class QSplitterData;
+class QSplitterLayoutStruct;
 
 class Q_EXPORT QSplitter : public QFrame
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
     enum ResizeMode { Stretch, KeepSize };
 
     QSplitter( QWidget *parent=0, const char *name=0 );
     QSplitter( Orientation, QWidget *parent=0, const char *name=0 );
-
+    ~QSplitter();
     virtual void setOrientation( Orientation );
     Orientation orientation() const { return orient; }
 
     virtual void setResizeMode( QWidget *w, ResizeMode );
 
-    bool event( QEvent * );
+    //    bool event( QEvent * );
 
     virtual void setOpaqueResize( bool = TRUE );
-    bool opaqueResize() const { return opaque; }
+    bool opaqueResize() const;
 
     void moveToFirst( QWidget * );
     void moveToLast( QWidget * );
@@ -59,31 +61,27 @@ public:
     QSizePolicy sizePolicy() const;
 
 protected:
-    void childInsertEvent( QChildEvent * );
-    void childRemoveEvent( QChildEvent * );
+    void childEvent( QChildEvent * );
+
     void layoutHintEvent( QEvent * );
     void resizeEvent( QResizeEvent * );
 
-    void moveSplitter( QCOORD pos );
+    void moveSplitter( QCOORD pos, int id );
     virtual void drawSplitter( QPainter*, QCOORD x, QCOORD y,
 			       QCOORD w, QCOORD h );
 
-    int adjustPos( int );
+    int adjustPos( int , int );
     virtual void setRubberband( int );
-    // virtual int border2()
 
 private:
     void init();
     void recalc( bool update = FALSE );
     int hit( QPoint p );
     void doResize();
-    QWidget *splitterWidget();
-
-    void startMoving();
-    void moveTo( QPoint );
-    void stopMoving( );
-
-
+    void storeSizes();
+    QSplitterLayoutStruct *addWidget( QWidget*, bool first = FALSE );
+    void recalcId();
+    
     // Josef Wagmann <josef.wagmann@passau.netsurf.de> wants access to these
     QCOORD pick( const QPoint &p ) const
     { return orient == Horizontal ? p.x() : p.y(); }
@@ -95,20 +93,19 @@ private:
     QCOORD trans( const QSize &s ) const
     { return orient == Vertical ? s.width() : s.height(); }
 
-    QCOORD newpos() const;
+    //    QCOORD newpos() const;
 
+#if 0
     QWidget *w1;
     QWidget *w2;
-    int moving;
-    //    bool w1show;
-    //    bool w2show;
     QWidget *fixedWidget;
-    QInternalSplitter *d;
-    bool opaque;
-
+    QSplitterHandle *d;
+#else
+    QSplitterData *data;
+#endif    
     Orientation orient;
     QCOORD bord; //half border
-    friend class QInternalSplitter;
+    friend class QSplitterHandle;
 };
 
 
