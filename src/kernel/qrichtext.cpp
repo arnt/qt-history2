@@ -5038,7 +5038,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
     int len = parag->length();
     if ( doc )
 	x = doc->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), x, 4 );
-    int dw = parag->documentVisibleWidth() - ( doc ? ( left != x ? 0 : doc->rightMargin() ) : -4 );
+    int dw = parag->documentVisibleWidth() - ( doc ? ( left != x ? 0 : doc->rightMargin() ) : 0 );
 
     int curLeft = x;
     int rm = parag->rightMargin();
