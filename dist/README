@@ -1,4 +1,4 @@
-This is Qt version 3.1.0-beta1. 
+This is Qt version 3.1.0-beta2. 
 
 Qt is a multiplatform C++ GUI application framework.
 
@@ -42,7 +42,7 @@ How to get the release:
 
 Qt Free Edition: Download the .tar.gz archive from
 ftp.trolltech.com. For faster download times, use ftpsearch and search
-for qt-x11-free-3.1.0-beta1.tar.gz to find it on a mirror ftp site
+for qt-x11-free-3.1.0-b2.tar.gz to find it on a mirror ftp site
 near you.
 
 Qt Professional Edition, Qt Enterprise Edition: Holders of valid
