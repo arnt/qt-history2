@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#44 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -29,7 +29,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#43 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#44 $")
 
 
 /*****************************************************************************
@@ -216,8 +216,7 @@ static bool obtain_obj( void **ref, HANDLE *obj, uint pix, QHDCObj **cache,
 	    cache[k-1] = prev;
 	    cache[k-2] = h;
 	}
-    }
-    else {					// create new pen/brush
+    } else {					// create new pen/brush
 #if defined(CACHE_STAT)
 	c_numcreates++;
 #endif
@@ -701,7 +700,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 	SetROP2( hdc, R2_COPYPEN );		// set raster operation
 	SetTextAlign( hdc, TA_BASELINE );	// baseline-aligned text
 	SetStretchBltMode( hdc, COLORONCOLOR ); // pixmap stretch mode
-	if ( QColor::hPal() ) {			// realize global palette
+	if ( QColor::hPal() && dt != PDT_PRINTER ) {
 	    SelectPalette( hdc, QColor::hPal(), FALSE );
 	    RealizePalette( hdc );
 	}
@@ -1718,12 +1717,13 @@ void QPainter::drawQuadBezier( const QPointArray &a, int index )
 	return;
     }
     QPointArray pa( a );
-    if ( index != 0 || a.size() > 4 ) {
-	pa = QPointArray( 4 );
-	for ( int i=0; i<4; i++ )
-	    pa.setPoint( i, a.point(index+i) );
-    }
     if ( testf(ExtDev|VxF|WxF) ) {
+	if ( index != 0 || a.size() > 4 ) {
+	    pa = QPointArray( 4 );
+	    for ( int i=0; i<4; i++ )
+		pa.setPoint( i, a.point(index+i) );
+	    index = 0;
+	}
 	if ( testf(ExtDev) ) {
 	    QPDevCmdParam param[1];
 	    param[0].ptarr = (QPointArray*)&pa;
