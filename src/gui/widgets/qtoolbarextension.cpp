@@ -1,4 +1,5 @@
 #include "qtoolbarextension_p.h"
+#include <qpixmap.h>
 
 // ### move this into the style code and make the extension stylable
 // ### (sizeHint() as well)

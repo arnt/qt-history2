@@ -3,6 +3,7 @@
 #include <qstyle.h>
 #include <qstyleoption.h>
 #include <qtoolbar.h>
+#include <qpainter.h>
 
 QToolBarSeparator::QToolBarSeparator(Qt::Orientation orientation, QToolBar *parent)
     : QWidget(parent), orient(orientation)

@@ -3,6 +3,9 @@
 #include <qstyle.h>
 #include <qstyleoption.h>
 #include <qtoolbar.h>
+#include <qapplication.h>
+#include <qpainter.h>
+#include <qevent.h>
 
 #include <private/qmainwindowlayout_p.h>
 
