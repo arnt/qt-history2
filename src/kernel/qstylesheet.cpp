@@ -694,7 +694,6 @@ void QStyleSheetItem::setMargin(Margin m, int v)
 	d->margin[1] = v;
 	d->margin[2] = v;
 	d->margin[3] = v;
-	d->margin[4] = v;
     } else if (m == MarginVertical ) {
 	d->margin[MarginTop] = v;
 	d->margin[MarginBottom] = v;
