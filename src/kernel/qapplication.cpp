@@ -481,7 +481,12 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 	}
     }
 
+#ifdef Q_WS_MAC
+    static char* empty = "\0";
+    argv[j] = empty;
+#else
     argv[j] = 0;
+#endif
     *argcptr = j;
 }
 
