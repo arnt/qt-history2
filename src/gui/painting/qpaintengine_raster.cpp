@@ -15,6 +15,7 @@
 #include <private/qpainter_p.h>
 #include <private/qtextengine_p.h>
 #include <private/qpixmap_p.h>
+#include <private/qfontengine_p.h>
 
 #include "qpaintengine_raster_p.h"
 
@@ -1029,6 +1030,127 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
 }
 #endif
 
+#ifdef Q_WS_X11
+void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
+{
+    const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
+
+#ifdef QT_DEBUG_DRAW
+    printf(" - QRasterPaintEngine::drawTextItem(), (%.2f,%.2f), string=%s\n",
+           p.x(), p.y(), QString::fromRawData(ti.chars, ti.num_chars).toLatin1().data());
+#endif
+    Q_D(QRasterPaintEngine);
+
+    if (ti.fontEngine->type() == QFontEngine::Freetype) {
+        bool aa = d->antialiased;
+        d->antialiased = true;
+        QPaintEngine::drawTextItem(p, ti);
+        d->antialiased = aa;
+        return;
+    }
+
+    // xlfd: draw into bitmap, convert to image and rasterize that
+
+    // Decide on which span func to use
+    FillData fillData = d->fillForBrush(d->pen.brush(), 0);
+    if (!fillData.callback)
+        return;
+
+    QRectF logRect(p.x(), p.y() - ti.ascent, ti.width, ti.ascent + ti.descent);
+    QRect devRect = d->matrix.mapRect(logRect).toRect();
+
+    if(devRect.width() == 0 || devRect.height() == 0)
+        return;
+
+    int w = qRound(ti.width);
+    int h = qRound(ti.ascent + ti.descent + 1);
+    QBitmap bm(w, h);
+    {
+        QPainter painter(&bm);
+        painter.fillRect(0, 0, w, h, Qt::color0);
+        painter.setPen(Qt::color1);
+
+        QTextItemInt item;
+        item.flags = 0;
+        item.descent = ti.descent;
+        item.ascent = ti.ascent;
+        item.width = ti.width;
+        item.chars = 0;
+        item.num_chars = 0;
+        item.glyphs = ti.glyphs;
+        item.num_glyphs = ti.num_glyphs;
+        item.fontEngine = ti.fontEngine;
+        item.f = 0;
+//        qDebug() << "w" << w << "h" << h << "y" << metrics.y;
+
+        painter.drawTextItem(QPointF(0, ti.ascent), item);
+        if (d->txop > QPainterPrivate::TxTranslate)
+            bm = bm.transformed(QImage::trueMatrix(d->matrix, w, h));
+    }
+
+    QImage image = bm.toImage();
+    Q_ASSERT(image.depth() == 1);
+
+    const int spanCount = 256;
+    QT_FT_Span spans[spanCount];
+    int n = 0;
+
+    // Boundaries
+    int ymax = qMin(devRect.y() + devRect.height(), d->rasterBuffer->height());
+    int ymin = qMax(devRect.y(), 0);
+    int xmax = qMin(devRect.x() + devRect.width(), d->rasterBuffer->width());
+    int xmin = qMax(devRect.x(), 0);
+
+    bool bitorder = image.bitOrder();
+    for (int y = ymin; y < ymax; ++y) {
+        uchar *src = image.scanLine(y - devRect.y());
+        if (bitorder == QImage::LittleEndian) {
+            for (int x = 0; x < xmax - xmin; ++x) {
+                bool set = src[x >> 3] & (0x1 << (x & 7));
+                if (set) {
+                    QT_FT_Span span = { xmin + x, 1, 255 };
+                    while (x < w-1 && src[(x+1) >> 3] & (0x1 << ((x+1) & 7))) {
+                        ++x;
+                        ++span.len;
+                    }
+
+                    spans[n] = span;
+                    ++n;
+                }
+                if (n == spanCount) {
+                    fillData.callback(y, n, spans, fillData.data);
+                    n = 0;
+                }
+            }
+        } else {
+            for (int x = 0; x < xmax - xmin; ++x) {
+                bool set = src[x >> 3] & (0x80 >> (x & 7));
+                if (set) {
+                    QT_FT_Span span = { xmin + x, 1, 255 };
+                    while (x < w-1 && src[(x+1) >> 3] & (0x80 >> ((x+1) & 7))) {
+                        ++x;
+                        ++span.len;
+                    }
+
+                    spans[n] = span;
+                    ++n;
+                }
+                if (n == spanCount) {
+                    fillData.callback(y, n, spans, fillData.data);
+                    n = 0;
+                }
+            }
+        }
+        if (n) {
+            fillData.callback(y, n, spans, fillData.data);
+            n = 0;
+        }
+    }
+
+}
+
+
+#else
 
 void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 {
@@ -1101,6 +1223,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     return;
 #endif // Q_WS_WIN
 }
+#endif
 
 enum LineDrawMode {
     LineDrawClipped,
