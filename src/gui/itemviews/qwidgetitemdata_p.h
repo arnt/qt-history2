@@ -25,8 +25,9 @@
 // We mean it.
 //
 
-struct QWidgetItemData
+class QWidgetItemData
 {
+public:
     QWidgetItemData() : role(-1) {}
     QWidgetItemData(int r, QVariant v) : role(r), value(v) {}
     int role;
