@@ -24,6 +24,8 @@ class Q_GUI_EXPORT QGenericTreeView : public QAbstractItemView
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QGenericTreeView)
+    Q_PROPERTY(bool showRootDecoration READ showRootDecoration WRITE setShowRootDecoration)
+    Q_PROPERTY(int indentation READ indentation WRITE setIndentation)
 
 public:
     QGenericTreeView(QAbstractItemModel *model, QWidget *parent = 0);

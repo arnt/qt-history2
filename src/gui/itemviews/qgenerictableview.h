@@ -24,6 +24,7 @@ class Q_GUI_EXPORT QGenericTableView : public QAbstractItemView
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QGenericTableView)
+    Q_PROPERTY(bool showGrid READ showGrid WRITE setShowGrid)
 
 public:
     QGenericTableView(QAbstractItemModel *model, QWidget *parent = 0);

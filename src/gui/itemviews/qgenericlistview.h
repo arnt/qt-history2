@@ -24,11 +24,20 @@ class Q_GUI_EXPORT QGenericListView : public QAbstractItemView
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QGenericListView)
-
+    Q_ENUMS(Movement Flow IconSize ResizeMode LayoutMode)
+    Q_PROPERTY(Movement movement READ movement WRITE setMovement)
+    Q_PROPERTY(Flow flow READ flow WRITE setFlow)
+    Q_PROPERTY(bool isWrapping READ isWrapping WRITE setWrapping)
+    Q_PROPERTY(IconSize iconSize READ iconSize WRITE setIconSize)
+    Q_PROPERTY(ResizeMode resizeMode READ resizeMode WRITE setResizeMode)
+    Q_PROPERTY(LayoutMode layoutMode READ layoutMode WRITE setLayoutMode)
+    Q_PROPERTY(int spacing READ spacing WRITE setSpacing)
+    Q_PROPERTY(QSize gridSize READ gridSize WRITE setGridSize)
+        
 public:
-    enum Flow { LeftToRight, TopToBottom };
     enum Movement { Static, Free, Snap };
-    enum Size { Automatic, Small, Large };
+    enum Flow { LeftToRight, TopToBottom };
+    enum IconSize { Automatic, Small, Large };
     enum ResizeMode { Fixed, Adjust };
     enum LayoutMode { Instant, Delayed };
 
@@ -39,19 +48,19 @@ public:
     Movement movement() const;
 
     void setFlow(Flow flow);
-    QGenericListView::Flow flow() const;
+    Flow flow() const;
 
     void setWrapping(bool enable);
     bool isWrapping() const;
 
-    void setIconSize(Size size);
-    QGenericListView::Size iconSize() const;
+    void setIconSize(IconSize size);
+    IconSize iconSize() const;
 
     void setResizeMode(ResizeMode mode);
-    QGenericListView::ResizeMode resizeMode() const;
+    ResizeMode resizeMode() const;
 
     void setLayoutMode(LayoutMode mode);
-    QGenericListView::LayoutMode layoutMode() const;
+    LayoutMode layoutMode() const;
 
     void setSpacing(int space);
     int spacing() const;

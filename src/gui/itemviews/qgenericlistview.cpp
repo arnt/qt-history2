@@ -300,16 +300,16 @@ bool QGenericListView::isWrapping() const
     return d->wrap;
 }
 
-void QGenericListView::setIconSize(Size size)
+void QGenericListView::setIconSize(IconSize size)
 {
-    d->size = size;
+    d->iconSize = size;
     if (isVisible())
         doItemsLayout();
 }
 
-QGenericListView::Size QGenericListView::iconSize() const
+QGenericListView::IconSize QGenericListView::iconSize() const
 {
-    return d->size;
+    return d->iconSize;
 }
 
 void QGenericListView::setResizeMode(ResizeMode mode)
@@ -426,7 +426,7 @@ void QGenericListView::mouseMoveEvent(QMouseEvent *e)
                        d->pressedPosition.y() - verticalOffset());
         QRect rect(mapToGlobal(topLeft), mapToGlobal(e->pos()));
         d->rubberBand->setGeometry(rect.normalize());
-        if (!d->rubberBand->isVisible() && d->size == Large) {
+        if (!d->rubberBand->isVisible() && d->iconSize == Large) {
             d->rubberBand->show();
             d->rubberBand->raise();
         }
@@ -534,7 +534,7 @@ void QGenericListView::startDrag()
 QItemOptions QGenericListView::viewOptions() const
 {
     QItemOptions options = QAbstractItemView::viewOptions();
-    if (d->size == Automatic ? d->wrap : d->size == Small) {
+    if (d->iconSize == Automatic ? d->wrap : d->iconSize == Small) {
         options.smallItem = true;
         options.decorationPosition = QApplication::reverseLayout()
                                      ? QItemOptions::Right : QItemOptions::Left;
@@ -1066,7 +1066,7 @@ QGenericListViewPrivate::QGenericListViewPrivate()
     : QAbstractItemViewPrivate(),
       flow(QGenericListView::TopToBottom),
       movement(QGenericListView::Static),
-      size(QGenericListView::Small),
+      iconSize(QGenericListView::Small),
       resizeMode(QGenericListView::Fixed),
       layoutMode(QGenericListView::Instant),
       wrap(false),
