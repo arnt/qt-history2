@@ -15,6 +15,7 @@
 #include "qapplication.h"
 #include "qdesktopwidget.h"
 #include "qevent.h"
+#include "qeventloop.h"
 #include "qclipboard.h"
 #include "qcursor.h"
 #include "qdatetime.h"
@@ -241,7 +242,6 @@ QRgb qt_colorref2qrgb(COLORREF col)
   Internal variables and functions
  *****************************************************************************/
 
-extern Q_CORE_EXPORT bool qt_winEventFilter(MSG* msg, long &res);
 extern Q_CORE_EXPORT char      appName[];
 extern Q_CORE_EXPORT char      appFileName[];
 extern Q_CORE_EXPORT HINSTANCE appInst;                        // handle to app instance
@@ -1132,9 +1132,9 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
     QT_NC_WNDPROC
 #endif
 
-    {
+    if (QEventLoop::instance()) {
         LRESULT res;
-        if (qt_winEventFilter(&msg, res))                // send through app filter
+        if (QEventLoop::instance()->winEventFilter(&msg, &res))                // send through app filter
             RETURN(res);
     }
 

@@ -22,8 +22,6 @@
 #define d d_func()
 #define q q_func()
 
-extern bool qt_winEventFilter(MSG* msg, long &res);
-
 void QGuiEventLoop::init()
 {
 
@@ -103,6 +101,9 @@ bool QGuiEventLoop::processEvents(ProcessEventsFlags flags)
 
 void QGuiEventLoop::winProcessEvent(void *message)
 {
+    if (d->process_event_handler && d->process_event_handler(message))
+        return;
+
     MSG *msg = (MSG*)message;
 
     bool handled = false;
@@ -112,7 +113,7 @@ void QGuiEventLoop::winProcessEvent(void *message)
     } else if (msg->message && (!msg->hwnd || !QWidget::find(msg->hwnd))) {
         // broadcast, or message for a non-Qt widget
 	long res = 0;
-	handled = qt_winEventFilter(msg, res);
+	handled = winEventFilter(msg, &res);
     }
 
     if (!handled) {
