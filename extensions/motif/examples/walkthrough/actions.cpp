@@ -49,7 +49,6 @@ static char *rcsid = "$TOG: actions.c /main/7 1997/05/02 10:01:40 dbl $";
 
 // Qt includes
 #include <qmessagebox.h>
-#include <qmotifwidget.h>
 
 #include <stdlib.h>
 #include <ctype.h>
@@ -74,7 +73,7 @@ extern "C" {
 #include "page.h"
 
 extern Page pages[];
-Widget editDialog = 0, deleteDialog = 0;
+// Widget editDialog = 0, deleteDialog = 0;
 
 void SetPage(int);
 void AdjustPages(int, int);
@@ -94,7 +93,7 @@ void SaveIt(Widget, char *, XmPushButtonCallbackStruct *);
 } // extern "C"
 
 void
-NewPage(Widget w, XtPointer i, XmPushButtonCallbackStruct *cs)
+NewPage(Widget, XtPointer, XmPushButtonCallbackStruct *)
 {
   Arg args[2];
 
@@ -114,10 +113,10 @@ NewPage(Widget w, XtPointer i, XmPushButtonCallbackStruct *cs)
 
 // DeletePage using QMessageBox
 void
-DeletePage(Widget w, XtPointer client_data,
-	   XmPushButtonCallbackStruct */*unused*/)
+DeletePage(Widget, XtPointer client_data,
+	   XmPushButtonCallbackStruct *)
 {
-  QMotifWidget *toplevel = (QMotifWidget *) client_data;
+  QWidget *toplevel = (QWidget *) client_data;
   int result =
     QMessageBox::information( toplevel, "Page Delete Dailog",
 			      "Do you want to delete this page?",
@@ -157,12 +156,12 @@ DeletePage(Widget w, XtPointer client_data,
 
 // EditPage using custom QDialog
 void
-EditPage(Widget w, XtPointer client_data,
-	 XmPushButtonCallbackStruct */*unused*/)
+EditPage(Widget, XtPointer client_data,
+	 XmPushButtonCallbackStruct *)
 {
   if (pages[currentPage] == NULL) return;
 
-  QMotifWidget *toplevel = (QMotifWidget *) client_data;
+  QWidget *toplevel = (QWidget *) client_data;
   PageEditDialog pedlg( toplevel, "page edit dialog", TRUE );
 
   if (pages[currentPage] -> label != NULL)
@@ -256,7 +255,7 @@ EditPage(Widget w, XtPointer client_data,
 }
 
 void
-SaveIt(Widget w, char *i, XmPushButtonCallbackStruct *e)
+SaveIt(Widget, char *, XmPushButtonCallbackStruct *)
 {
   SaveDB(options.todoFile);
 }
@@ -304,7 +303,7 @@ SetPage(int pageNumber)
 }
 
 void
-PageChange(Widget w, XtPointer i, XmNotebookCallbackStruct *cs)
+PageChange(Widget, XtPointer, XmNotebookCallbackStruct *cs)
 {
   if (modified && pages[currentPage] != NULL) {
     if (pages[currentPage] -> page != NULL)
