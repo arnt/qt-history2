@@ -11,7 +11,7 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>370</width>
+            <width>382</width>
             <height>170</height>
         </rect>
     </property>
@@ -28,7 +28,7 @@
     <grid>
         <property stdset="1">
             <name>margin</name>
-            <number>5</number>
+            <number>11</number>
         </property>
         <property stdset="1">
             <name>spacing</name>
@@ -84,10 +84,7 @@
                     <property stdset="1">
                         <name>font</name>
                         <font>
-                            <family>helvetica</family>
-                            <pointsize>18</pointsize>
                             <bold>1</bold>
-                            <italic>1</italic>
                         </font>
                     </property>
                 </widget>
@@ -103,6 +100,13 @@
                     <property stdset="1">
                         <name>sizeType</name>
                         <enum>Expanding</enum>
+                    </property>
+                    <property>
+                        <name>sizeHint</name>
+                        <size>
+                            <width>20</width>
+                            <height>20</height>
+                        </size>
                     </property>
                     <property>
                         <name>sizeHint</name>
@@ -281,6 +285,13 @@
                             <height>20</height>
                         </size>
                     </property>
+                    <property>
+                        <name>sizeHint</name>
+                        <size>
+                            <width>20</width>
+                            <height>20</height>
+                        </size>
+                    </property>
                 </spacer>
                 <widget>
                     <class>QPushButton</class>
@@ -326,6 +337,7 @@
             <verdata>0</verdata>
         </sizepolicy>
         <pixmap>image1</pixmap>
+        <signal>activated(int)</signal>
     </customwidget>
     <customwidget>
         <class>QDateEdit</class>
@@ -345,11 +357,18 @@
 <images>
     <image>
         <name>image0</name>
-        <data format="XPM.GZ" length="1298">789c9dd2c16ac3300c00d07bbec2c4b7309a6e3bac50f6091b3d16ca0eb292d21ebac1961d4ad9bf2fb2235b769c042a4290e021c572ea4aed776faaaa8b9f0eba332a3cc1b7aa9adfcbe57af878bd15e5f393ea9f17f5583e14e54aa17afffa6c29d722873ed76b1b541a576e86b2a172e3cb96cae39131ba92c28e58083b7a21ee33b06cc08c5062008c19a1c8583146c2f4024d0e79e37a64119b614a16793383bc893b010a148c408051276118413a4e1a8b482428329a3714a3d8e45790de690e09d350242b80d8342d85440422e38844c0dfc9868947309c3498401c02dedfa411ff746a70d920e27d7de49ee5b9a64cd8cf8ce13dd37d4c9ae1beb47d4d191d6c62feb6c53feaf7240f</data>
+        <data format="XPM.GZ" length="1286">789cb5d2516b83301007f0773f45f0de64e8da4211463fc2c61e07a30f49ac740f6ed0b98731faddeb255e72895161d043247ff8713117ab42bcbd3e8ba2cabe7bd97f68a1cff2228ae6a7eb7edf8f87bf2cdf6dc5f0ecc5267fc8f25268f1f2f579c2350c6b78348551da588f5163ac5d6c30b62d6165239669bb52f733b06e404e506400a49ca0c0183145cc0c42c91472c6f6482232e32e49e4cc027226ec048a216f18021574628610c4db7163108a0805a6a409852834e911c4779a42cc68ac6804101add6071842030967004f49d64883804e349bdf1c422a0f9cd1af64fc746ad1ba5d4fffaf039f373cd193f9f054373c6fb9835e37d95e635674a6f23737dca6ef6242723</data>
     </image>
     <image>
         <name>image1</name>
         <data format="XPM.GZ" length="646">789c6dd2c10ac2300c00d07bbf2234b7229d1ddec44f503c0ae2a154410f53d0ed20e2bf6bdb656dd6861dd23d9a66591b0587fd1654235ebded6f0edcd53e419d87ae7b1f4f9b8f906d0bfe012317426a70b07bdc2f3ec77f8ed6b89559061a0343d06a124cc105596482585094bc0ae599b04646c9018926491b2205e140c485cace25755c175d0a967b622ff900b8cc9c7d29af594ea722d589167f813aa852ba07d94b9dce296e883fe7bb163f23896753</data>
     </image>
 </images>
+<tabstops>
+    <tabstop>winnerWins</tabstop>
+    <tabstop>loserWins</tabstop>
+    <tabstop>sets</tabstop>
+    <tabstop>actionButton</tabstop>
+    <tabstop>closeButton</tabstop>
+</tabstops>
 </UI>

@@ -41,6 +41,7 @@ private:
     TeamEditor    * teamEditor;
     Statistics    * statistics;
     HighscoreList * highscore;
+    QWidget       * matchBase;
     QSqlTable     * matchTable;
     MatchView     matchView;
     MatchCursor   matchCursor;

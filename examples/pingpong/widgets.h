@@ -18,9 +18,9 @@ class TeamPicker : public QComboBox
 
 public:
     TeamPicker( QWidget * parent = 0, const char * name = 0 );
-    int teamId() const;
+    int  teamId() const;
     void setTeamId( int id );
-
+        
 private:
     QMap< int, int > index2Id;
 };
@@ -36,7 +36,11 @@ protected slots:
     void updateTeamMembers( const QSqlRecord * record );
     void addPlayer();
     void removePlayer();
-
+    void updateForm(){ emit formUpdated(); }
+    
+signals:
+    void formUpdated();
+    
 private:
     Player2TeamView   player2teamView;
     Player2TeamCursor player2teamCursor;

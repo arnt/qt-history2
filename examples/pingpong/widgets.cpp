@@ -218,8 +218,8 @@ HighscoreList::HighscoreList( QWidget * parent = 0, const char * name = 0 )
     : QWidget( parent, name )
 {
     QGridLayout * g = new QGridLayout( this );
-    g->setSpacing( 5 );
-    g->setMargin( 5 );
+    g->setSpacing( 6 );
+    g->setMargin( 11 );
     
     list = new QListView( this );
     list->addColumn( "No." );

@@ -12,8 +12,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>478</width>
-            <height>338</height>
+            <width>474</width>
+            <height>336</height>
         </rect>
     </property>
     <property stdset="1">
@@ -188,6 +188,7 @@
         </sizepolicy>
         <pixmap>image0</pixmap>
         <signal>currentChanged( const QSqlRecord * )</signal>
+        <signal>cursorChanged( QSqlCursor::Mode )</signal>
     </customwidget>
 </customwidgets>
 <images>
@@ -197,12 +198,6 @@
     </image>
 </images>
 <connections>
-    <connection>
-        <sender>addButton</sender>
-        <signal>clicked()</signal>
-        <receiver>TeamEditorBase</receiver>
-        <slot>addPlayer()</slot>
-    </connection>
     <connection>
         <sender>removeButton</sender>
         <signal>clicked()</signal>
@@ -215,8 +210,14 @@
         <receiver>TeamEditorBase</receiver>
         <slot>updateTeamMembers( const QSqlRecord * )</slot>
     </connection>
-    <slot access="public">addPlayer()</slot>
-    <slot access="public">updateTeamMembers( const QSqlRecord * )</slot>
+    <connection>
+        <sender>addButton</sender>
+        <signal>clicked()</signal>
+        <receiver>TeamEditorBase</receiver>
+        <slot>addPlayer()</slot>
+    </connection>
     <slot access="public">removePlayer()</slot>
+    <slot access="public">updateTeamMembers( const QSqlRecord * )</slot>
+    <slot access="public">addPlayer()</slot>
 </connections>
 </UI>
