@@ -386,10 +386,6 @@ public:
     int exec( qdb::Environment* env )
     {
 	qdb::List list = env->stack()->pop().toList();
-	if ( !list.count() ) {
-	    error( env, "no fields defined" );
-	    return 0;
-	}
 	env->addFileDriver( 0, p1.toString() );
 	qdb::FileDriver* drv = env->fileDriver( 0 );
 	return drv->create( list );
@@ -410,11 +406,7 @@ public:
     {
 	env->addFileDriver( p1.toInt(), p2.toString() );
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
-	if ( !drv->open() ) {
-	    error( env, "unable to open file:" + p2.toString() );
-	    return 0;
-	}
-	return 1;
+	return drv->open();
     }
 };
 
@@ -430,10 +422,6 @@ public:
     int exec( qdb::Environment* env )
     {
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
-	if ( !drv->isOpen() ) {
-	    error( env, "file not open" );
-	    return 0;
-	}
 	return drv->close();
     }
 };
@@ -466,10 +454,6 @@ public:
     int exec( qdb::Environment* env )
     {
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
-	if ( !drv->isOpen() ) {
-	    error( env, "file not open" );
-	    return 0;
-	}
 	return drv->insert( env->stack()->pop().toList() );
     }
 };
@@ -487,10 +471,6 @@ public:
     int exec( qdb::Environment* env )
     {
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
-	if ( !drv->isOpen() ) {
-	    error( env, "file not open" );
-	    return 0;
-	}
 	return drv->mark();
     }
 };
@@ -508,10 +488,6 @@ public:
     int exec( qdb::Environment* env )
     {
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
-	if ( !drv->isOpen() ) {
-	    error( env, "file not open" );
-	    return 0;
-	}
 	return drv->deleteMarked();
     }
 };
@@ -544,10 +520,6 @@ public:
     int exec( qdb::Environment* env )
     {
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
-	if ( !drv->isOpen() ) {
-	    error( env, "file not open" );
-	    return 0;
-	}
 	bool b = drv->updateMarked( env->stack()->pop().toList() );
 	return b;
     }
@@ -568,10 +540,6 @@ public:
     int exec( qdb::Environment* env )
     {
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
-	if ( !drv->isOpen() ) {
-	    error( env, "file not open" );
-	    return 0;
-	}
 	if ( !drv->next() )
 	    env->program()->setCounter( p2.toInt() );
 	return TRUE;
@@ -609,15 +577,9 @@ public:
     int exec( qdb::Environment* env )
     {
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
-	if ( !drv->isOpen() ) {
-	    error( env, "file not open" );
-	    return 0;
-	}
 	QVariant v;
-	if ( !drv->field( p2.toInt(), v ) ) {
-	    error( env, "unable to get field value" );
+	if ( !drv->field( p2.toInt(), v ) )
 	    return FALSE;
-	}
 	env->stack()->push( v );
 	return TRUE;
     }
@@ -647,21 +609,13 @@ public:
     int exec( qdb::Environment* env )
     {
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
-	if ( !drv->isOpen() ) {
-	    error( env, "file not open" );
-	    return 0;
-	}
 	QVariant v;
 	if ( p2.type() == QVariant::String || p2.type() == QVariant::CString ) {
-	    if ( !drv->fieldDescription( p2.toString(), v ) ) {
-		error( env, "unable to get field description" );
+	    if ( !drv->fieldDescription( p2.toString(), v ) )
 		return FALSE;
-	    }
 	} else {
-	    if ( !drv->fieldDescription( p2.toInt(), v ) ) {
-		error( env, "unable to get field description" );
+	    if ( !drv->fieldDescription( p2.toInt(), v ) )
 		return FALSE;
-	    }
 	}
 	env->stack()->push( v );
 	return TRUE;
@@ -690,10 +644,6 @@ public:
     int exec( qdb::Environment* env )
     {
 	qdb::List list = env->stack()->pop().toList();
-	if ( !list.count() ) {
-	    error( env, "no values" );
-	    return 0;
-	}
 	return env->resultSet( p1.toInt() )->append( list );
     }
 };
@@ -767,10 +717,6 @@ public:
     int exec( qdb::Environment* env )
     {
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
-	if ( !drv->isOpen() ) {
-	    error( env, "file not open" );
-	    return 0;
-	}
 	bool b = drv->nextMarked();
 	if ( !b )
 	    env->program()->setCounter( p2.toInt() );
@@ -807,10 +753,6 @@ public:
     int exec( qdb::Environment* env )
     {
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
-	if ( !drv->isOpen() ) {
-	    error( env, "file not open" );
-	    return 0;
-	}
 	bool b = drv->update( env->stack()->pop().toList() );
 	return b;
     }
@@ -857,10 +799,6 @@ public:
     int exec( qdb::Environment* env )
     {
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
-	if ( !drv->isOpen() ) {
-	    error( env, "file not open" );
-	    return 0;
-	}
 	bool b = drv->rangeMark( env->stack()->pop().toList() );
 	return b;
     }
@@ -895,10 +833,6 @@ public:
     int exec( qdb::Environment* env )
     {
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
-	if ( !drv->isOpen() ) {
-	    error( env, "file not open" );
-	    return 0;
-	}
 	bool b = drv->createIndex( env->stack()->pop().toList(), p2.toBool() );
 	return b;
     }
@@ -919,11 +853,7 @@ public:
     {
 	env->addFileDriver( p1.toInt(), p2.toString() );
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
-	if ( !drv->drop() ) {
-	    error( env, "unable to drop file:" + p2.toString() );
-	    return 0;
-	}
-	return 1;
+	return drv->drop();
     }
 };
 
@@ -959,13 +889,7 @@ public:
     QString name() const { return "sort"; }
     int exec( qdb::Environment* env )
     {
-	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
-	if ( !drv->isOpen() ) {
-	    error( env, "file not open" );
-	    return 0;
-	}
-	bool b = env->resultSet( p1.toInt() )->sort( env->stack()->pop().toList() );
-	return b;
+	return env->resultSet( p1.toInt() )->sort( env->stack()->pop().toList() );
     }
 };
 
@@ -983,11 +907,7 @@ public:
     int exec( qdb::Environment* env )
     {
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
-	if ( !drv->clearMarked() ) {
-	    error( env, "unable to clear marks" );
-	    return 0;
-	}
-	return 1;
+	return drv->clearMarked();
     }
 };
 
