@@ -58,12 +58,12 @@ SUBDIRS     =	aclock \
 !contains(QT_PRODUCT,qt-professional): SUBDIRS += demo
 
 canvas:SUBDIRS +=   canvas
-opengl:SUBDIRS +=   box \
-		    gear \
-		    glpixmap \
-		    overlay \
-		    sharedbox \
-		    texture
+opengl:SUBDIRS +=   opengl/box \
+		    opengl/gear \
+		    opengl/glpixmap \
+		    opengl/overlay \
+		    opengl/sharedbox \
+		    opengl/texture
 nas:SUBDIRS += 	    sound
 iconview:SUBDIRS += fileiconview \
 		    iconview
