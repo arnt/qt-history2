@@ -38,7 +38,6 @@ QWidget * QSqlEditorFactory::createEditor( QWidget * parent, const QVariant & v 
 {
     QWidget * w = 0;
     switch( v.type() ){
-
 	case QVariant::Invalid:
 	    w = 0;
 	    break;
@@ -87,9 +86,6 @@ QWidget * QSqlEditorFactory::createEditor( QWidget * parent, const QVariant & v 
 	    w = new QLineEdit( parent );
 	    break;
     }
-#ifdef CHECK_RANGE
-    CHECK_PTR( w );
-#endif
     return w;
 }
 
