@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#144 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#145 $
 **
 ** Implementation of QPushButton class
 **
@@ -99,6 +99,39 @@ QPushButton::QPushButton( const QString &text, QWidget *parent,
     setText( text );
 }
 
+
+/*!
+  Constructs a push button as arrow button. The ArrowType \a type
+  defines the arrow direction. Possible values are LeftArrow,
+  RightArrow, UpArrow and DownArrow.
+
+  The \a parent and \a name arguments are sent to the QWidget constructor.
+*/
+QPushButton::QPushButton( ArrowType type, QWidget *parent, const char *name )
+    : QButton( parent, name )
+{
+    init();
+    
+    setAutoRepeat( TRUE );
+    // abuse text due to the lack of a bit flag ### fix 3.0
+    switch ( type ) {
+    case LeftArrow:
+	setText("left");
+	break;
+    case RightArrow:
+	setText("right");
+	break;
+    case UpArrow:
+	setText("up");
+	break;
+    default: //LeftArrow:
+	setText("down");
+	break;
+    }
+    hasArrow = TRUE;
+}
+
+
 void QPushButton::init()
 {
     defButton = FALSE;
@@ -107,6 +140,7 @@ void QPushButton::init()
     lastEnabled = FALSE;
     hasMenuArrow = FALSE;
     autoDefButton = TRUE;
+    hasArrow = FALSE;
     setBackgroundMode( PaletteButton );
 }
 
@@ -204,7 +238,7 @@ void QPushButton::setDefault( bool enable )
 {
     if ( (defButton && enable) || !(defButton || enable) )
 	return;					// no change
-    QWidget *p = topLevelWidget();     //### bug now that dialogs have parents
+    QWidget *p = topLevelWidget();
     if ( !p->inherits("QDialog") )		// not a dialog
 	return;
     defButton = enable;
@@ -223,6 +257,9 @@ QSize QPushButton::sizeHint() const
 {
     int w = 0;
     int h = 0;
+    if ( hasArrow )
+	return QSize( 16, 16 );
+    
     if ( pixmap() ) {
 	QPixmap *pm = (QPixmap *)pixmap();
 	w = pm->width()	 + 6;
@@ -352,6 +389,28 @@ void QPushButton::drawButton( QPainter *paint )
 
 void QPushButton::drawButtonLabel( QPainter *paint )
 {
+    if ( hasArrow ) {
+	int x, y, w, h;
+	rect().rect( &x, &y, &w, &h );
+	if ( isDown() || isOn() ){
+	    int sx = 0;
+	    int sy = 0;
+	    style().getButtonShift(sx, sy);
+	    x+=sx;
+	    y+=sy;
+	}
+	int fw = style().defaultFrameWidth();
+	x += fw;  y += fw;  w -= 2*fw;  h -= 2*fw;
+	ArrowType arrow = DownArrow;
+	if ( text()[0] == 'l' )
+	    arrow = LeftArrow;
+	else if ( text()[0] == 'r' )
+	    arrow = RightArrow;
+	else if ( text()[0] == 'u' )
+	    arrow = UpArrow;
+	style().drawArrow( paint, arrow, isDown(), x, y, w, h, colorGroup(), isEnabled() );
+	return;
+    }
     style().drawPushButtonLabel( this, paint );
 }
 

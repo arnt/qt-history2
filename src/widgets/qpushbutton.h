@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.h#53 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.h#54 $
 **
 ** Definition of QPushButton class
 **
@@ -37,6 +37,7 @@ class Q_EXPORT QPushButton : public QButton
 public:
     QPushButton( QWidget *parent, const char *name=0 );
     QPushButton( const QString &text, QWidget *parent, const char* name=0 );
+    QPushButton( ArrowType type, QWidget *parent, const char *name=0 );
 
     QSize	sizeHint() const;
     QSizePolicy sizePolicy() const;
@@ -80,6 +81,7 @@ private:
     uint	lastDef		: 1;
     uint	lastEnabled	: 1;
     uint	hasMenuArrow	: 1;
+    uint	hasArrow	: 1;
 
     friend class QDialog;
 
