@@ -42,10 +42,16 @@ IFontDisp *QFontToIFont( const QFont &font )
     fdesc.fStrikethrough = font.strikeOut();
     fdesc.fUnderline = font.underline();
     fdesc.lpstrName = QStringToBSTR( font.family() );
-    fdesc.sWeight = font.weight();
-    
+    fdesc.sWeight = font.weight() * 10;
+
     IFontDisp *f;
     OleCreateFontIndirect( &fdesc, IID_IFontDisp, (void**)&f );
+
+    IFont *ifont;
+    f->QueryInterface( IID_IFont, (void**)&ifont );
+    QFont verify = IFontToQFont( ifont );
+    ifont->Release();
+    Q_ASSERT( verify == font );
     return f;
 }
 
@@ -67,7 +73,7 @@ QFont IFontToQFont( IFont *f )
     f->get_Strikethrough( &strike );
     f->get_Underline( &underline );
     f->get_Weight( &weight );
-    QFont font( BSTRToQString(name), size.Lo/10000, weight, italic );
+    QFont font( BSTRToQString(name), size.Lo/9750, weight / 97, italic );
     font.setBold( bold );
     font.setStrikeOut( strike );
     font.setUnderline( underline );
