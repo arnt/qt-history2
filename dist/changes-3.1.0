@@ -10,9 +10,9 @@ the changes between Qt 3.1 beta2 and Qt 3.1 final.
 *			    General					   *
 ****************************************************************************
 
-- Improved building Qt on MSVC.NET.
+- Improved support for building Qt on MSVC.NET.
 
-- Support XIM on Solaris.
+- Support for XIM on Solaris.
 
 
 ****************************************************************************
@@ -21,18 +21,18 @@ the changes between Qt 3.1 beta2 and Qt 3.1 final.
 
 - QAccel
 	Corrected illegal accelerator state when using multiple
-	keysequences. (Resulted in no accels being triggered when in
-	partial match). Only triggers on enabled accelerators and
-	their enabled items. Eats all keys in a keysequence, not just
-	the first and last.
+	keysequences. (Resulted in no accelerator being triggered when
+	there's a partial match). Only triggers on enabled
+	accelerators and their enabled items. Eats all keys in a
+	keysequence, not just the first and last.
 
 - QCString
 	Speed-optimized replace().
 
 - QDataStream
-	Applies for printable data streams only: If the version number
+	Applies to printable data streams only: If the version number
 	of the device is less than 4, use the same streaming format
-	was used in Qt 2.3 and earlier.
+	that was used in Qt 2.3 and earlier.
 
 - QDataTable
 	Respect read-only columns. Make it possible to swap columns.
@@ -47,11 +47,11 @@ the changes between Qt 3.1 beta2 and Qt 3.1 final.
 
 - QFontMetrics:
 	Windows only: Fixed QFontMetrics::boundingRect( QChar c ) to
-	work for non true type fonts.
+	work for non-TrueType fonts.
 
 - QHeader
 	Optimized the sectionSizeHint() calculation, which in turn 
-	speeds up all size/label calculations for QHeader.
+	speeds up all QHeader size/label calculations.
 
 - QIconFactory
 	Avoid infinite loops when recursively calling
@@ -62,7 +62,7 @@ the changes between Qt 3.1 beta2 and Qt 3.1 final.
 	when repainting.
 
 - QKeySequence
-	Treat unicode characters in string defined sequences
+	Treat Unicode characters in string defined sequences
 	correctly. So, now letters like Æ, Ø and Å should work as
 	accelerators, even through translation files.
 
@@ -70,9 +70,9 @@ the changes between Qt 3.1 beta2 and Qt 3.1 final.
 	alignmentRect() respects the layout's maximum size.
 
 - QLineEdit
-	Added signal lostFocus(). Doubleclicking only uses spaces as
-	word bounderies for the selection now, not dots, commans,
-	etc. Support doubleclick+mousemove selection.
+	Added a lostFocus() signal. Double-clicking only uses spaces
+	as word bounderies for the selection now, not dots, commas,
+	etc. Support double-click+mousemove selection.
 
 - QListBox:
 	Fixed the item which is passed into the contextMenuRequested()
@@ -82,14 +82,14 @@ the changes between Qt 3.1 beta2 and Qt 3.1 final.
 - QListView
 	Shift selection in Extended mode now follows Windows
 	Shift-selection standard. Erase empty area when drawing
-	listviews without columns. Only drops on items that have drop
-	enabled accept drops.
+	listviews without columns. Only drops on drop-enabled items
+	that accept drops.
 
 - QListViewItem
 	Optimized size claculation for multi-line items.
 
 - QMainWindow
-	Base the minimumSizeHint() on the sizeHint()s of the left and
+	Base the minimumSizeHint() on the sizeHint()s of the left hand
 	dock area (instead of the minimumSize()).
 
 - QMenuBar
@@ -98,12 +98,13 @@ the changes between Qt 3.1 beta2 and Qt 3.1 final.
 
 - QObject:
 	Fixed return value of disconnect(). Fixed disconnect()ing
-	SIGNALs from SIGNALs and disconnect()ing multiple euqally
-	named SLOTs from a SIGNAL.
+	SIGNALs from SIGNALs and disconnect()ing multiple SLOTs with
+	the same name from a SIGNAL.
 
 - QProcess
-	Unix only: Don't eat the filedescriptors if a lot of processes
-	(with short runtime) are started immediately after each other.
+	Unix only: Don't eat the file descriptors if a lot of
+	processes (with short runtimes) are started immediately after
+	each other.
 
 - QPSQLDriver
 	Make the driver compile with the standard PostgreSQL source
@@ -119,8 +120,8 @@ the changes between Qt 3.1 beta2 and Qt 3.1 final.
 	view.
 
 - QSpinBox
-	Fixed setValue() so that input yet not interpreted is ignored
-	when setting a new value.
+	Fixed setValue() so that any not-yet-interpreted input is
+	ignored when setting a new value.
 
 - QString
 	Support QTextCodec::codecForCStrings(). Support
@@ -135,7 +136,7 @@ the changes between Qt 3.1 beta2 and Qt 3.1 final.
 	setColumnLabels() and setRowLabels().
 
 - QTableItem (and subclasses)
-	Supports now global struts. (see QApplication::globalStrut()).
+	Now supports global struts. (see QApplication::globalStrut()).
 
 - QTDSDriver
 	Added support for binary datatypes.
@@ -145,12 +146,12 @@ the changes between Qt 3.1 beta2 and Qt 3.1 final.
 
 - QTextEdit
 	Fixed a painting error which resulted in areas of the textedit
-	not being erased correctly. Make sure to repaint is updated
-	after changing the underline-links setting. Renamed
-	'allowTabs' property to 'tabChangesFocus' (inverted
-	value). Added a new property 'autoFormatting'. When exporting
-	HTML also quote quotes. Fixed a background erasing bug which
-	messed up the view.
+	not being erased correctly. Make sure repainting is done after
+	changing the underline-links setting. Renamed 'allowTabs'
+	property to 'tabChangesFocus' (inverted value). Added a new
+	property 'autoFormatting'. When exporting HTML also quote
+	quotes. Fixed a background erasing bug which messed up the
+	view.
 
 - QUrl
 	Recognize Windows drive letters not only in the form of "c:/"
@@ -163,27 +164,27 @@ the changes between Qt 3.1 beta2 and Qt 3.1 final.
 *			   Qt Designer					   *
 ****************************************************************************
 
-- Displays now the classname of "gray box" custom widgets in the gray
-box on the form.
+- Now displays the classname of "gray box" custom widgets in the gray
+  box on the form.
 
 - Accept tildes (~) in the project settings.
 
-- A new commandline tool conv2ui (in qt/tools/designer/tools) has been
-added, to convert dialog description files from different file formats
-to .ui files without the need to invoke Qt Designer. This tool uses
-the same plugins as Qt Designer for loading other dialog desription
-files.
+- A new command line tool conv2ui (in qt/tools/designer/tools) has
+  been added, to convert dialog description files from different file
+  formats to .ui files without the need to invoke Qt Designer. This
+  tool uses the same plugins as Qt Designer for loading other dialog
+  description files.
 
 - A import filter for .kdevdlg files has been added.
 
-- Actions in the action editor are now sortable
+- Actions in the action editor are now sortable.
 
-- Improved usibility of more dialogs (in-place renaming, drag'n'drop,
-etc.)
+- Improved usability of more dialogs (in-place renaming, drag'n'drop,
+  etc.)
 
-- Preserver creation order of forward declarations, variables, etc.
+- Preserve creation order of forward declarations, variables, etc.
 
-- Save comments also for actions.
+- Save comments for actions.
 
 - uic: Fixed generating code for QStringList properties.
 
