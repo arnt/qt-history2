@@ -503,7 +503,7 @@ void QGenericListView::dropEvent(QDropEvent *e)
             QModelIndex index = indices.at(i);
             QRect rect = itemRect(index);
             d->viewport->update(d->mapToViewport(rect));
-            moveItem(index.row(), rect.topLeft() + delta);
+            d->moveItem(index.row(), rect.topLeft() + delta);
             d->viewport->update(itemViewportRect(index));
         }
         stopAutoScroll();
@@ -529,6 +529,11 @@ void QGenericListView::startDrag()
     QAbstractItemView::startDrag();
     // clear dragged items
     d->draggedItems.clear();
+}
+
+bool QGenericListView::isDragEnabled(const QModelIndex &) const
+{
+    return d->movement == Free;
 }
 
 QStyleOptionViewItem QGenericListView::viewOptions() const
@@ -1015,37 +1020,6 @@ void QGenericListView::doDynamicLayout(const QRect &bounds, int first, int last)
         d->viewport->update();
 }
 
-bool QGenericListView::supportsDragAndDrop() const
-{
-    return true;
-}
-
-void QGenericListView::insertItem(int index, QGenericListViewItem &item)
-{
-    d->tree.insertItem(item, item.rect(), index);
-}
-
-void QGenericListView::removeItem(int index)
-{
-    d->tree.removeItem(d->tree.item(index).rect(), index);
-}
-
-void QGenericListView::moveItem(int index, const QPoint &dest)
-{
-    // does not impact on the bintree itself or the contents rect
-    QGenericListViewItem *item = d->tree.itemPtr(index);
-    QRect rect = item->rect();
-    d->tree.moveItem(dest, rect, index);
-
-    // resize the contents area
-    rect = item->rect();
-    int w = item->x + rect.width();
-    int h = item->y + rect.height();
-    w = w > d->contentsSize.width() ? w : d->contentsSize.width();
-    h = h > d->contentsSize.height() ? h : d->contentsSize.height();
-    resizeContents(w, h);
-}
-
 void QGenericListView::updateGeometries()
 {
     QModelIndex index = model()->index(0, 0, root());
@@ -1073,7 +1047,7 @@ QGenericListViewPrivate::QGenericListViewPrivate()
       resizeMode(QGenericListView::Fixed),
       layoutMode(QGenericListView::Instant),
       wrap(false),
-      spacing(3),
+      spacing(0),
       arrange(false),
       layoutStart(0),
       translate(0),
@@ -1353,6 +1327,32 @@ void QGenericListViewPrivate::initStaticLayout(int &x, int &y, int first,
             y = bounds.top() + spacing;
         }
     }
+}
+
+void QGenericListViewPrivate::insertItem(int index, QGenericListViewItem &item)
+{
+    tree.insertItem(item, item.rect(), index);
+}
+
+void QGenericListViewPrivate::removeItem(int index)
+{
+    tree.removeItem(tree.item(index).rect(), index);
+}
+
+void QGenericListViewPrivate::moveItem(int index, const QPoint &dest)
+{
+    // does not impact on the bintree itself or the contents rect
+    QGenericListViewItem *item = tree.itemPtr(index);
+    QRect rect = item->rect();
+    d->tree.moveItem(dest, rect, index);
+
+    // resize the contents area
+    rect = item->rect();
+    int w = item->x + rect.width();
+    int h = item->y + rect.height();
+    w = w > contentsSize.width() ? w : contentsSize.width();
+    h = h > contentsSize.height() ? h : contentsSize.height();
+    q->resizeContents(w, h);
 }
 
 QPoint QGenericListViewPrivate::snapToGrid(const QPoint &pos) const

@@ -44,7 +44,8 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         autoScrollTimer(0),
         autoScrollMargin(16),
         autoScrollInterval(50),
-        autoScrollCount(0)
+        autoScrollCount(0),
+        dragEnabled(false)
 {
 }
 
@@ -662,7 +663,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
 
     if (index.isValid()) {
         if (state() != Selecting) {
-            bool dnd = model()->isDragEnabled(index) && supportsDragAndDrop();
+            bool dnd = model()->isDragEnabled(index) && isDragEnabled(index);
             bool selected = d->selectionModel->isSelected(index);
             if (dnd && selected) {
                 setState(Dragging);
@@ -1371,17 +1372,6 @@ void QAbstractItemView::currentChanged(const QModelIndex &old, const QModelIndex
 }
 
 /*!
-    Returns true if this view supports drag and drop; otherwise
-    returns false.
-
-    The base class implementation returns false.
-*/
-bool QAbstractItemView::supportsDragAndDrop() const
-{
-    return false;
-}
-
-/*!
     Returns a new drag object that contains the model indexes of all
     the model's selected items.
 
@@ -1402,6 +1392,14 @@ void QAbstractItemView::startDrag()
     if (!obj)
         return;
     obj->drag();
+}
+
+/*!
+  Returns true if the view allows the item to be dragged, otherwise false.
+*/
+bool QAbstractItemView::isDragEnabled(const QModelIndex &) const
+{
+    return false;
 }
 
 /*!

@@ -17,7 +17,6 @@
 #include <qabstractitemview.h>
 #endif
 
-class QGenericListViewItem;
 class QGenericListViewPrivate;
 
 class Q_GUI_EXPORT QGenericListView : public QAbstractItemView
@@ -99,6 +98,7 @@ protected:
 
     QDragObject *dragObject();
     void startDrag();
+    bool isDragEnabled(const QModelIndex &) const;
 
     QStyleOptionViewItem viewOptions() const;
     void paintEvent(QPaintEvent *e);
@@ -110,13 +110,6 @@ protected:
 
     void setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command);
     QRect selectionViewportRect(const QItemSelection &selection) const;
-
-    bool supportsDragAndDrop() const;
-
-    int itemIndex(QGenericListViewItem *item) const;
-    void insertItem(int index, QGenericListViewItem &item);
-    void removeItem(int index);
-    void moveItem(int index, const QPoint &dest);
 
     void updateGeometries();
 };

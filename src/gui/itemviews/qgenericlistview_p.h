@@ -118,6 +118,10 @@ public:
                             const QRect &bounds, int spacing, int delta);
     void initStaticLayout(int &x, int &y, int first, const QRect &bounds, int spacing);
 
+    void insertItem(int index, QGenericListViewItem &item);
+    void removeItem(int index);
+    void moveItem(int index, const QPoint &dest);
+
     QPoint snapToGrid(const QPoint &pos) const;
     QRect mapToViewport(const QRect &rect) const;
 

@@ -30,8 +30,8 @@ class Q_GUI_EXPORT QAbstractItemView : public QViewport
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QAbstractItemView)
-    Q_PROPERTY(int keyboardInputInterval READ keyboardInputInterval WRITE setKeyboardInputInterval)
     Q_PROPERTY(bool autoScroll READ autoScroll WRITE setAutoScroll)
+    Q_PROPERTY(int keyboardInputInterval READ keyboardInputInterval WRITE setKeyboardInputInterval)
     Q_PROPERTY(QAbstractItemDelegate::BeginEditFlags beginEditActions READ beginEditActions WRITE setBeginEditActions)
     Q_ENUMS(SelectionMode SelectionBehaviour)
 
@@ -148,9 +148,9 @@ protected:
                                                                  QEvent::Type type = QEvent::None,
                                                                  Qt::Key key = Qt::Key_unknown) const;
 
-    virtual bool supportsDragAndDrop() const;
     virtual QDragObject *dragObject();
     virtual void startDrag();
+    virtual bool isDragEnabled(const QModelIndex &index) const;
 
     virtual QStyleOptionViewItem viewOptions() const;
 
