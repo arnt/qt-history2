@@ -144,6 +144,7 @@ MainWindow::MainWindow( bool asClient )
       previewing( FALSE )
 {
     appInterface = new DesignerApplicationInterfaceImpl;
+    appInterface->addRef();
 
     // ### we need a better test to find if we have Quick installed or not
     QString dir = getenv( "QTDIR" );
@@ -236,6 +237,7 @@ MainWindow::MainWindow( bool asClient )
 
 MainWindow::~MainWindow()
 {
+    appInterface->release();
     delete actionPluginManager;
     delete editorPluginManager;
 }
