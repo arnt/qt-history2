@@ -41,7 +41,6 @@ inline int q_cas_32(int *volatile ptr, int expected, int newval)
 
 inline void *q_cas_ptr(void *volatile *ptr, void *expected, void *newval)
 {
-    Q_ASSERT_X(sizeof(newval) == 4, "QAtomic", "64-bit PowerPC not yet supported");
     void *ret;
     asm ("1:\tlwarx %0, 0, %2\n\t"
          "cmplw %3, %0\n\t"
@@ -50,12 +49,12 @@ inline void *q_cas_ptr(void *volatile *ptr, void *expected, void *newval)
          "bne- 1b\n\t"
          "b 3f\n\t"
          "2:\n\t"
-         "stwcx. %0, 0, %2\n\t"          
+         "stwcx. %0, 0, %2\n\t"
          "3:\n\t"
          : "=&r" (ret), "+m" (*ptr)
          : "r" (ptr), "r" (expected), "r" (newval)
          : "cc", "memory");
-    return ret;  
+    return ret;
 }
 
 #else
