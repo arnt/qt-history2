@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#2 $
 **
 ** Implementation of QColor class for Windows + NT
 **
@@ -15,35 +15,12 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor_win.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor_win.cpp#2 $";
 #endif
 
 
 // --------------------------------------------------------------------------
-// Global colors
-//
-
-const QColor black;
-const QColor white;
-const QColor darkGray;
-const QColor gray;
-const QColor lightGray;
-const QColor red;
-const QColor green;
-const QColor blue;
-const QColor cyan;
-const QColor magenta;
-const QColor yellow;
-const QColor darkRed;
-const QColor darkGreen;
-const QColor darkBlue;
-const QColor darkCyan;
-const QColor darkMagenta;
-const QColor darkYellow;
-
-
-// --------------------------------------------------------------------------
-// QColor member functions
+// QColor special member functions
 //
 
 HANDLE QColor::hpal = 0;			// application global palette
@@ -53,6 +30,10 @@ inline ulong _RGB( uint r, uint g, uint b )
     return (uchar)r | ((ushort)g << 8) | ((ulong)b << 16);
 }
 
+
+// --------------------------------------------------------------------------
+// QColor static member functions
+//
 
 void QColor::initialize()			// called from startup routines
 {
@@ -119,10 +100,20 @@ uint QColor::realizePal( QWidget *widget )	// realize palette
 }
 
 
+// --------------------------------------------------------------------------
+// QColor member functions
+//
+
 QColor::QColor()				// default RGB=0,0,0
 {
     rgb = RGB_INVALID;
     pix = 0;
+}
+
+QColor::QColor( const QColor &c )		// copy color
+{
+     rgb = c.rgb;
+     pix = c.pix;
 }
 
 QColor::QColor( int r, int g, int b )		// specify RGB
@@ -136,6 +127,10 @@ QColor::QColor( const char *name )		// load color from database
     warning( "QColor::QColor: Named colors currently unsupported" );
 #endif
     pix = rgb = _RGB(255,255,255);
+}
+
+QColor::~QColor()
+{
 }
 
 
