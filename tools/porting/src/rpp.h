@@ -1,18 +1,17 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
 #ifndef RPP_H
 #define RPP_H
-// rpp - a modern C/C++ Preprocessor in Qt
-//
-// please, don't `delete' the items of the Model.
-// in future i'll use a memory-pool, so there is no reason
-// to use `delete' ;)
-//
-// for more info look at research/rxx/ast.* and research/rxx/smallobject.*
-//
-//
-// rpp is based on the paper
-//  `Opening Up The C/C++ Preprocessor Black Box"
-//
-// http://www.inf.u-szeged.hu/~beszedes/research/vidacsl_opening.pdf
 
 #include <iostream>
 #include <cctype>
