@@ -1879,17 +1879,13 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	    int state = textLayout.endLine( 0, height, tf, &ascent, &descent,
 					    &lineLeft, &lineRight );
 
-	    if ( state != QTextLayout::LineEmpty || linesep ) {
-		//qDebug("finalizing line: lw=%d ascent = %d, descent=%d lineleft=%d lineright=%d", lineWidth+add, ascent, descent,lineLeft, lineRight  );
-		left = QMIN( left, lineLeft );
-		right = QMAX( right, lineRight );
-		height += ascent + descent + 1;
-		add = 0;
-		if ( linesep )
-		    textLayout.nextItem();
-	    } else {
-		add += 10;
-	    }
+	    //qDebug("finalizing line: lw=%d ascent = %d, descent=%d lineleft=%d lineright=%d", lineWidth+add, ascent, descent,lineLeft, lineRight  );
+	    left = QMIN( left, lineLeft );
+	    right = QMAX( right, lineRight );
+	    height += ascent + descent + 1;
+	    add = 0;
+	    if ( linesep )
+		textLayout.nextItem();
 	}
     }
 
