@@ -5445,10 +5445,9 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	    c->customItem()->resize( parag->painter(), dw );
 	    if ( x != left || w != dw )
 		fullWidth = FALSE;
-	    if ( !fullWidth ||
-		 c->customItem()->isNested() &&
-		 !( (QTextTable*)c->customItem() )->isStretching() &&
-		 ( (QTextTable*)c->customItem() )->geometry().width() < w ) {
+	    if ( c->customItem()->isNested() && // it's a table
+		 ( !fullWidth || !( (QTextTable*)c->customItem() )->isStretching()  ) &&
+		 ((QTextTable*)c->customItem() )->geometry().width() < w ) {
 		if ( align & Qt::AlignHCenter )
 		    x = ( w - ( (QTextTable*)c->customItem() )->geometry().width() ) / 2;
 		else if ( align & Qt::AlignRight )
