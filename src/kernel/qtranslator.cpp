@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#35 $
 **
 ** Localization database support.
 **
@@ -260,7 +260,24 @@ void QTranslatorPrivate::Message::write( QTranslator::SaveMode m,
 
   The most common use of QTranslator is expected to be loading one
   from a file, installing it using QApplication::installTranslator(),
-  and using it via QObject::tr().
+  and using it via QObject::tr(). Like this:
+  \code
+  main( int argc, char** argv )
+  {
+    QApplication app( argc, argv );
+ 
+    QTranslator translator( 0 );
+    translator.load( "trfile.qm", "." );
+    app.installTranslator( &translator );
+ 
+    MyWidget m;
+    app.setMainWidget( &m );
+    m.show();
+ 
+    return app.exec();
+  }                
+  \endcode
+  
 
   Slightly more advanced usage of QTranslator includes direct lookup
   using find(), adding new translations using insert() and removing
