@@ -273,7 +273,6 @@ HRESULT WINAPI UpdateRegistry(BOOL bRegister)
 	    settings.writeEntry( "/CLSID/" + classId + "/.", className + " Class" );
 	    if ( file.right( 3 ).lower() == "exe" )
 		settings.writeEntry( "/CLSID/" + classId + "/AppID", appId );
-
 	    settings.writeEntry( "/CLSID/" + classId + "/Control/.", QString::null );
 	    settings.writeEntry( "/CLSID/" + classId + "/Insertable/.", QString::null );
 	    if ( file.right( 3 ).lower() == "dll" )

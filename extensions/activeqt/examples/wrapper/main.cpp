@@ -101,14 +101,6 @@ public:
 
 QAXFACTORY_EXPORT( ActiveQtFactory, "{3B756301-0075-4E40-8BE8-5A81DE2426B7}", "{AB068077-4924-406a-BBAF-42D91C8727DD}" )
 
-int main( int argc, char **argv )
+void main()
 {
-    QApplication app( argc, argv );
-
-    if ( !QAxFactory::isServer() ) {
-	QMessageBox::critical( 0, "Cannot Run stand alone!", "This executable is a server for ActiveX controls.\nIt cannot be run stand alone." );
-	return -1;
-    }
-
-    return app.exec();
 }
