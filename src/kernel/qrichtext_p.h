@@ -1606,6 +1606,7 @@ public:
 
     void updateDefaultFormat( const QFont &font, const QColor &c, QStyleSheet *sheet );
     QDict<QTextFormat> dict() const { return cKey; }
+    QDict<QTextFormat> &dictRef() { return cKey; }
 
     QPaintDevice *paintDevice() const { return paintdevice; }
     void setPaintDevice( QPaintDevice * );
