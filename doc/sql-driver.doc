@@ -57,11 +57,11 @@ responsible for the low-level communication with the DBMS.
 
 The currently available drivers shipped with Qt are:
 \list
-\i QMYSQL3 - MySQL Driver
-\i QOCI8 - Oracle Call Interface Driver
-\i QODBC3 - ODBC (Open Database Connectivity) Driver
-\i QPSQL7 - PostgreSQL v6.x and v7.x Driver
-\i QTDS7 - Sybase Adaptive Server and Microsoft SQL Server Driver
+\i \link #QMYSQL3 QMYSQL3\endlink - MySQL Driver
+\i \link #QOCI8 QOCI8\endlink - Oracle Call Interface Driver
+\i \link #QODBC3 QODBC3\endlink - ODBC (Open Database Connectivity) Driver
+\i \link #QPSQL7 QPSQL7\endlink - PostgreSQL v6.x and v7.x Driver
+\i \link #QTDS7 QTDS7\endlink - Sybase Adaptive Server and Microsoft SQL Server Driver
 \endlist
 
 The Qt configure script automatically detects the available client
@@ -73,13 +73,19 @@ files if they are not in the standard paths, so it may be necessary to
 specify these paths using the "-I" and "-L" switches. If your MySQL
 include files are installed in /usr/local/mysql (or in C:\\mysql\\include
 on Windows), then pass the following parameter to configure:
-"-I/usr/local/mysql" (or "-IC:\mysql\include" for Windows).
+"-I/usr/local/mysql" (or "-IC:\\mysql\\include" for Windows).
 
 Note that the parameter -I doesn't allow spaces in filenames, so use
 the 8.3 name instead, i.e. use "C:\\progra~1\\mysql" instead of
 "C:\\program files\\mysql".
 
-See the sections below if you want to build the sql drivers manually.
+You should always use client libraries that have been compiled with the same
+compiler as you are using for your project. If you cannot get a source distibution
+to compile the client libraries yourself, you have to make sure that the
+pre-compiled library is compatible with your compiler, otherwise you will get
+a lot of "undefined symbols" errors. Some compilers have tools to convert libraries,
+e.g. Borland ships the tool "COFF2OMF.EXE" to convert libraries that
+have been generated with Microsoft Visual C++.
 
 \target QMYSQL3
 \section1 QMYSQL3 - MySQL 3.x
@@ -126,13 +132,8 @@ qmake -o Makefile "INCLUDEPATH+=C:\\MYSQL\\INCLUDE" "LIBS+=C:\\MYSQL\\LIB\\OPT\\
 nmake
 \endcode
 
-If you are using a Borland compiler, replace "nmake" with "make" in the
+If you are not using a Microsoft compiler, replace "nmake" with "make" in the
 statement above.
-
-Note that the pre-compiled LIBMYSQL.LIB has been generated with Microsoft
-Visual C++ so other compilers cannot link against it. Either recompile the
-whole library yourself or use the appropriate tools to convert the lib
-(COFF2OMF.EXE for Borland C++).
 
 \target QOCI8
 \section1 QOCI8 - Oracle Call Interface
@@ -197,17 +198,40 @@ installed in C:\oracle):
 
 \code
 cd %QTDIR%\plugins\src\sqldrivers\oci
-qmake -o Makefile "INCLUDEPATH+=C:\oracle\oci\include" oci.pro
+qmake -o Makefile "INCLUDEPATH+=C:\\oracle\\oci\\include" oci.pro
 nmake
 \endcode
 
-If you are using a Borland compiler, replace "nmake" with "make" in the
+If you are not using a Microsoft compiler, replace "nmake" with "make" in the
 statement above.
 
 \target QODBC3
 \section1 QODBC3 - Open Database Connectivity
 
 \keyword QODBC3
+
+\section2 General informations
+
+ODBC (Open Database Connectivity) is a general interface that allows you
+to connect to multiple DBMS using a common interface. The QODBC3 driver
+allows you to connect to an ODBC driver manager and access his datasources.
+Note that you also need to install and configure ODBC drivers for the
+ODBC driver manager that is installed on your system. The QODBC3 plugin
+then allows you to use these data sources in your Qt project.
+
+On Windows systems after 95 an ODBC driver manager should be installed
+by default, for Unix systems there are some implementations which have to
+be installed first. Note that every client that uses your application
+is required to have an ODBC driver manager installed, otherwise the
+QODBC3 plugin will not work.
+
+The QODBC3 Plugin needs an ODBC compilant driver manager version 2.0 or
+greater to work. Some ODBC drivers claim to be version 2.0 compilant,
+but do not offer all needed functionality. The QODBC3 plugin therefore
+checks whether the data source can be used after a connection has been
+established and refuses to work if the check fails. If you don't
+like this behaviour, you can remove the \c{#define ODBC_CHECK_DRIVER}
+line from the file \c{qsql_odbc.cpp}. Do this at your own risk!
 
 \section2 How to build the plugin on Unix/Linux
 
@@ -231,12 +255,12 @@ The ODBC header and include files should already be installed in the
 right directories. You just have to build the plugin as follows:
 
 \code
-cd %QTDIR%\plugins\src\sqldrivers\odbc
+cd %QTDIR%\\plugins\\src\\sqldrivers\\odbc
 qmake -o Makefile odbc.pro
 nmake
 \endcode
 
-If you are using a Borland compiler, replace "nmake" with "make" in the
+If you are not using a Microsoft compiler, replace "nmake" with "make" in the
 statement above.
 
 \target QPSQL7
