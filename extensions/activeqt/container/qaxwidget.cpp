@@ -1594,7 +1594,7 @@ const QMetaObject *QAxWidget::parentMetaObject() const
 /*!
     \reimp
 */
-void *QAxWidget::qt_metacast(const char *cname) const
+void *QAxWidget::qt_metacast(const char *cname)
 {
     if (!qstrcmp(cname, "QAxWidget")) return (void*)this;
     if (!qstrcmp(cname, "QAxBase")) return (QAxBase*)this;

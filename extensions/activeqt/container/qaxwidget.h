@@ -24,7 +24,7 @@ class QAxWidget : public QWidget, public QAxBase
 {
 public:
     const QMetaObject *metaObject() const;
-    void* qt_metacast(const char*) const;
+    void* qt_metacast(const char*);
     int qt_metacall(QMetaObject::Call, int, void **);
     QObject* qObject() const { return (QWidget*)this; }
     const char *className() const;
@@ -69,7 +69,7 @@ template <> inline QAxWidget *qt_cast_helper<QAxWidget*>(const QObject *o, QAxWi
 template <> inline QAxWidget *qt_cast<QAxWidget*>(const QObject *o)
 #endif
 {
-    void *result = o ? o->qt_metacast("QAxWidget") : 0;
+    void *result = o ? const_cast<QObject *>(o)->qt_metacast("QAxWidget") : 0;
     return (QAxWidget*)(result);
 }
 

@@ -108,7 +108,7 @@ const QMetaObject *QAxObject::parentMetaObject() const
 /*!
     \reimp
 */
-void *QAxObject::qt_metacast(const char *cname) const
+void *QAxObject::qt_metacast(const char *cname)
 {
     if (!qstrcmp(cname, "QAxObject")) return (void*)this;
     if (!qstrcmp(cname, "QAxBase")) return (QAxBase*)this;

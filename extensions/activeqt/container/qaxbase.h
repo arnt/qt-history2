@@ -131,7 +131,7 @@ template <> inline QAxBase *qt_cast_helper<QAxBase*>(const QObject *o, QAxBase *
 template <> inline QAxBase *qt_cast<QAxBase*>(const QObject *o)
 #endif
 {
-    void *result = o ? o->qt_metacast("QAxBase") : 0;
+    void *result = o ? const_cast<QObject *>(o)->qt_metacast("QAxBase") : 0;
     return (QAxBase*)(result);
 }
 
