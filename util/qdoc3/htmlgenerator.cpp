@@ -1417,7 +1417,11 @@ void HtmlGenerator::generateSectionList(const Section& section, const Node *rela
 		out() << "</ul></td><td valign=\"top\"><ul>\n";
 
 	    out() << "<li><div class=\"fn\"/>";
+            if (style == CodeMarker::Accessors)
+                out() << "<b>";
 	    generateSynopsis( *m, relative, marker, style );
+            if (style == CodeMarker::Accessors)
+                out() << "</b>";
 	    out() << "</li>\n";
 	    i++;
 	    ++m;
@@ -1778,7 +1782,7 @@ void HtmlGenerator::generateDetailedMember(const Node *node, const InnerNode *re
 
 	if (!section.members.isEmpty()) {
 	    out() << "<p>Access functions:</p>\n";
-	    generateSectionList(section, node, marker, CodeMarker::Summary);
+	    generateSectionList(section, node, marker, CodeMarker::Accessors);
 	}
     } else if (node->type() == Node::Enum) {
         const EnumNode *enume = static_cast<const EnumNode *>(node);

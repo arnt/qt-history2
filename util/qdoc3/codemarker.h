@@ -46,7 +46,7 @@ struct FastSection
 class CodeMarker
 {
 public:
-    enum SynopsisStyle { Summary, Detailed, SeparateList };
+    enum SynopsisStyle { Summary, Detailed, SeparateList, Accessors };
     enum Status { Compat, Obsolete, Okay };
 
     CodeMarker();

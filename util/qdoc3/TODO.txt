@@ -4,7 +4,6 @@ From Jasmin:
   * be smart about const & non-const when comparing functions
 
   * expand QObjectList -> QList<QObject *>
-  * Don't use "..." in enums for just one value
   * #include <const_iterator> is wrong
   * Drop return type in "List of all members" pages.
   * \enum Qt::ScrollBarPolicy (qviewport.cpp contains documentation for  \enum Qt::ScrollBarPolicy, and it 
@@ -16,9 +15,6 @@ From Jasmin:
 From Matthias:
 
   * Q_OVERRIDE() fix
-  * list (?)
-  * try italics
-  * list properties
 
 --
 

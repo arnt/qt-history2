@@ -114,7 +114,7 @@ QString CppCodeMarker::markedUpSynopsis(const Node *node, const Node *relative,
 	if ( func->isConst() )
 	    synopsis += " const";
 
-	if ( style == Summary ) {
+	if ( style == Summary || style == Accessors ) {
 	    if ( func->virtualness() != FunctionNode::NonVirtual )
 		synopsis.prepend( "virtual " );
 	    if ( func->virtualness() == FunctionNode::PureVirtual )
@@ -345,9 +345,7 @@ QList<Section> CppCodeMarker::sections(const InnerNode *inner, SynopsisStyle sty
 		        } else if ( (*c)->type() == Node::Property ) {
                             insert(properties, *c, style, status);
 		        } else if ( (*c)->type() == Node::Function ) {
-		            FunctionNode *function = static_cast<FunctionNode *>(*c);
-                            if (!function->associatedProperty())
-		                insert(publicFunctions, *c, style, status);
+                            insert(publicFunctions, *c, style, status);
 		        } else {
 		            insert(publicTypes, *c, style, status);
 		        }
