@@ -1,7 +1,6 @@
-#include <qtextcodecinterface.h>
+#include <qtextcodecplugin.h>
 #include <qtextcodec.h>
 #include <qptrlist.h>
-#include <qapplication.h>
 
 #include <qeucjpcodec.h>
 #include <qjiscodec.h>
@@ -9,23 +8,14 @@
 #include <private/qfontcodecs_p.h>
 
 
-class JPTextCodecs : public QTextCodecFactoryInterface
+class JPTextCodecs : public QTextCodecPlugin
 {
 public:
     JPTextCodecs();
-    virtual ~JPTextCodecs();
 
-    // unknown interface
-    QRESULT queryInterface(const QUuid &, QUnknownInterface **);
-    Q_REFCOUNT;
-
-    // feature list interface
-    QStringList featureList() const;
-
-    // text codec interface
+    QStringList keys() const;
     QTextCodec *createForMib( int );
     QTextCodec *createForName( const QString & );
-
 
 private:
     QPtrList<QTextCodec> codecs;
@@ -37,30 +27,7 @@ JPTextCodecs::JPTextCodecs()
 }
 
 
-JPTextCodecs::~JPTextCodecs()
-{
-}
-
-
-QRESULT JPTextCodecs::queryInterface(const QUuid &uuid, QUnknownInterface **iface)
-{
-    *iface = 0;
-
-    if (uuid == IID_QUnknown )
-	*iface = (QUnknownInterface *) this;
-    else if (uuid == IID_QFeatureList )
-	*iface = (QFeatureListInterface *) this;
-    else if (uuid == IID_QTextCodecFactory )
-	*iface = (QTextCodecFactoryInterface*) this;
-    else
-	return QE_NOINTERFACE;
-
-    (*iface)->addRef();
-    return QS_OK;
-}
-
-
-QStringList JPTextCodecs::featureList() const
+QStringList JPTextCodecs::keys() const
 {
     QStringList list;
     list << "eucJP" << "JIS7" << "SJIS" << "jisx0208.1983-0";
@@ -141,7 +108,4 @@ QTextCodec *JPTextCodecs::createForName( const QString &name )
 }
 
 
-Q_EXPORT_COMPONENT()
-{
-    Q_CREATE_INSTANCE( JPTextCodecs );
-}
+Q_EXPORT_PLUGIN( JPTextCodecs );
