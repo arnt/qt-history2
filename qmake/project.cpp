@@ -265,27 +265,23 @@ QMakeProject::parse(QString t, QMap<QString, QStringList> &place)
     var = varMap(var); //backwards compatability
 
     QStringList vallist;  /* vallist is the broken up list of values */
-    if((var == "DEPENDPATH" || var == "INCLUDEPATH") && vals.find(';') != -1) {
-	QRegExp rp("([^;]*);");
-	for(int x = 0; (x = rp.search(vals, 0)) != -1; ) {
-	    vallist.append("\"" + rp.cap(1) + "\"");
-	    vals.remove(x, rp.matchedLength());
+    {
+	int last = 0;
+	QChar quote = 0;
+	for(int x = 0; x < (int)vals.length(); x++) {
+	    if(vals[x] == quote) {
+		quote = 0;
+	    } else if(vals[x] == '\'' || vals[x] == '"') {
+		quote = vals[x];
+	    } else if(!quote &&
+		      ((vals[x] == ';' && (var == "DEPENDPATH" || var == "INCLUDEPATH")) || vals[x] == ' ')) {
+		vallist << vals.mid(last, x - last);
+		last = x+1;
+	    }
 	}
-	if(!vals.isEmpty()) {
-	    vallist.append("\"" + vals + "\"");
-	    vals = "";
-	}
+	if(last != (int)vals.length())
+	    vallist << vals.mid(last);
     }
-    if(vals.find('"') != -1) { //strip out quoted entities
-	QRegExp quoted("( |^)(\"[^\"]*\")( |$)");
-	for(int x = 0; (x = quoted.search(vals, 0)) != -1; ) {
-	    vallist.append(quoted.cap(2));
-	    vals.remove(x, quoted.matchedLength());
-	}
-    }
-
-    //now split on space
-    vallist += QStringList::split(' ', vals);
     if(!vallist.grep("=").isEmpty())
 	warn_msg(WarnParser, "Detected possible line continuation: {%s} %s:%d",
 		 var.latin1(), parser.file.latin1(), parser.line_no);
