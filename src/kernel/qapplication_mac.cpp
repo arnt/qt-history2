@@ -1324,13 +1324,20 @@ int QApplication::macProcessEvent(MSG * m)
 	    }
 	    qt_button_down = widget;
 	    if ( widget ) {
+		QWidget* w = widget;
+		while ( w->focusProxy() )
+		    w = w->focusProxy();
+		if ( w->focusPolicy() & QWidget::ClickFocus ) {
+		    QFocusEvent::setReason( QFocusEvent::Mouse);
+		    w->setFocus();
+		    QFocusEvent::resetReason();
+		}
+
 		QPoint p( er->where.h, er->where.v );
 		QPoint plocal(widget->mapFromGlobal( p ));
 		mouse_button_state = QMouseEvent::LeftButton; //FIXME
 		QMouseEvent qme( QEvent::MouseButtonPress, plocal, p, mouse_button_state, 0);
 		QApplication::sendEvent( widget, &qme );
-		
-		qDebug("I have send the event to %s %s", widget->name(), widget->className());
 	    }
 	}
 	else do_mouse_down( er ); //do resize/move stuff
