@@ -1,0 +1,89 @@
+/****************************************************************
+**
+** Qt tutorial 12
+**
+****************************************************************/
+#include <qapplication.h>
+#include <qpushbutton.h>
+#include <qscrollbar.h>
+#include <qlcdnumber.h>
+#include <qfont.h>
+#include <qlayout.h>
+
+#include "lcdrange.h"
+#include "cannon.h"
+
+
+class MyWidget : public QWidget
+{
+public:
+    MyWidget( QWidget *parent=0, const char *name=0 );
+};
+
+
+MyWidget::MyWidget( QWidget *parent, const char *name )
+        : QWidget( parent, name )
+{
+    setMinimumSize( 500, 355 );
+
+    QPushButton *quit = new QPushButton( "Quit", this, "quit" );
+    quit->setFont( QFont( "Times", 18, QFont::Bold ) );
+
+    connect( quit, SIGNAL(clicked()), qApp, SLOT(quit()) );
+
+    LCDRange *angle  = new LCDRange( "ANGLE", this, "angle" );
+    angle->setRange( 5, 70 );
+
+    LCDRange *force  = new LCDRange( "FORCE", this, "force" );
+    force->setRange( 10, 50 );
+
+    QPushButton *shoot = new QPushButton( "Shoot", this, "shoot" );
+    shoot->setFont( QFont( "Times", 18, QFont::Bold ) );
+
+    CannonField *cannonField = new CannonField( this, "cannonField" );
+    cannonField->setBackgroundColor( QColor( 250, 250, 200) );
+
+    connect( angle,SIGNAL(valueChanged(int)), cannonField,SLOT(setAngle(int)));
+    connect( cannonField,SIGNAL(angleChanged(int)), angle,SLOT(setValue(int)));
+
+    connect( force,SIGNAL(valueChanged(int)), cannonField,SLOT(setForce(int)));
+    connect( cannonField,SIGNAL(forceChanged(int)), force,SLOT(setValue(int)));
+
+    connect( shoot, SIGNAL(clicked()), cannonField, SLOT(shoot()) );
+
+    QGridLayout *grid = new QGridLayout( this, 2, 2, 10 );
+    grid->addWidget( quit, 0, 0 );
+    grid->addWidget( cannonField, 1, 1 );
+
+    QVBoxLayout *leftBox = new QVBoxLayout;
+    grid->addLayout( leftBox, 1, 0 );
+    leftBox->addWidget( angle );
+    leftBox->addWidget( force );
+
+    QHBoxLayout *topBox = new QHBoxLayout;
+    grid->addLayout( topBox, 0, 1 );
+    topBox->addWidget( shoot );
+    topBox->addStretch( 1 );
+
+    angle->setValue( 60 );
+    force->setValue( 25 );
+}
+
+int main( int argc, char **argv )
+{
+    QApplication::setColorSpec( QApplication::CustomColor );
+    QApplication a( argc, argv );
+
+    MyWidget w;
+    w.setGeometry( 100, 100, 500, 355 );
+    a.setMainWidget( &w );
+    w.show();
+    return a.exec();
+}
+
+
+
+
+
+
+
