@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#7 $
 **
 ** Implementation of QAccel class
 **
@@ -17,7 +17,7 @@
 #include "qsignal.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qaccel.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qaccel.cpp#7 $";
 #endif
 
 
@@ -34,9 +34,8 @@ number that identifies this particular accelerator item.  Accelerator items
 can also be individually connected, so that two different keys will
 activate two different slots (see connectItem()).
 
-A QAccel object works for its parent widget and all children of this parent
-widget.
-*/
+A QAccel object handles key events to its parent widget and all
+children of this parent widget. */
 
 struct QAccelItem {				// accelerator item
     QAccelItem( int k, int i ) { key=k; id=i; enabled=TRUE; signal=0; }
@@ -122,7 +121,7 @@ void QAccel::disable()
 
 /*!
 \fn bool QAccel::isDisabled() const
-Returns TRUE is the accelerator is disabled (grayed out, if you wish).
+Returns TRUE is the accelerator is disabled.
 */
 
 
@@ -141,8 +140,8 @@ Inserts an accelerator item.
 \arg \e key is a key code plus a combination of SHIFT, CTRL and ALT.
 \arg \e id is the accelerator item id.
 
-If \e id is negative, then the item will be assigned an identifer (the
-number of accelerator items already defined, at present).
+If \e id is negative, then the item will be assigned a unique
+identifier.
 
 \code
 QAccel *a = new QAccel( mainView );	\/ mainView is a top level widget
@@ -202,8 +201,7 @@ int QAccel::findKey( long key ) const
 
 
 /*!  Returns TRUE if the accelerator items with the identifier \e id
-  is disabled (grayed out, except that accelerator items aren't
-  actually visible).  Returns FALSE if the item is enabled or cannot
+  is disabled.  Returns FALSE if the item is enabled or cannot
   be found. */
 
 bool QAccel::isItemDisabled( int id ) const
