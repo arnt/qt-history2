@@ -43,10 +43,9 @@
 #include "qt_x11.h"
 
 
-// NOT REVISED
 /*!
   \class QPaintDevice qpaintdevice.h
-  \brief The base class of objects that can be painted.
+  \brief The QPaintDevice is the base class of objects that can be painted.
 
   \ingroup drawing
 
@@ -555,53 +554,30 @@ static GC cache_mask_gc( Display *dpy, Drawable hd, int mask_no, Pixmap mask )
 
 /*!
   \relates QPaintDevice
-  This function copies a block of pixels from one paint device to another
-  (bitBlt means bit block transfer).
 
-  \arg \e dst is the paint device to copy to.
-  \arg \e dx and \e dy are the positions to copy to.
-  \arg \e src is the paint device to copy from.
-  \arg \e sx and \e sy are the positions to copy from.
-  \arg \e sw and \e sh are the width and height of the block to be copied.
-  \arg \e rop defines the raster operation to be used when copying.
+  Copies a block of pixels from \a src to \a dst, perhaps merging each
+  pixel according to \a rop.  \a sx, \a sy is the top-left pixel in \a
+  src (0, 0 by default), \a dx, \a dy is the top-left position in \a
+  dst and \a sw, \a sh is the size of the copied block (all of \a src
+  by default).
 
-  If \e sw is 0 or \e sh is 0, bitBlt will do nothing.
+  The most common values for \a rop are CopyROP and XorROP; the \l
+  Qt::RasterOp documentation defines all the possible values.
 
-  If \e sw is negative, bitBlt calculates <code>sw = src->width -
-  sx.</code> If \e sh is negative, bitBlt calculates <code>sh =
-  src->height - sy.</code>
+  If \a ignoreMask is TRUE (the default is FALSE) and \a src is a
+  masked QPixmap, the entire blit is masked by \a src->mask().
 
-  The \e rop argument can be one of the following:
-  <ul>
-  <li> \c CopyROP:     dst = src
-  <li> \c OrROP:       dst = src OR dst
-  <li> \c XorROP:      dst = src XOR dst
-  <li> \c NotAndROP:   dst = (NOT src) AND dst
-  <li> \c NotCopyROP:  dst = NOT src
-  <li> \c NotOrROP:    dst = (NOT src) OR dst
-  <li> \c NotXorROP:   dst = (NOT src) XOR dst
-  <li> \c AndROP       dst = src AND dst
-  <li> \c NotROP:      dst = NOT dst
-  <li> \c ClearROP:    dst = 0
-  <li> \c SetROP:      dst = 1
-  <li> \c NopROP:      dst = dst
-  <li> \c AndNotROP:   dst = src AND (NOT dst)
-  <li> \c OrNotROP:    dst = src OR (NOT dst)
-  <li> \c NandROP:     dst = NOT (src AND dst)
-  <li> \c NorROP:      dst = NOT (src OR dst)
-  </ul>
+  If \a src, \a dst, \a sw or \a sh is 0, bitBlt does nothing.  If \a
+  sw or \a sh is negative bitBlt copies starting at \a sx / \a sy and
+  ending at the right end / bottom of \a src.
 
-  The \e ignoreMask argument (default FALSE) applies where \e src is
-  a QPixmap with a \link QPixmap::setMask() mask\endlink.
-  If \e ignoreMask is TRUE, bitBlt ignores the pixmap's mask.
+  \a src must be a QWidget or QPixmap. You cannot blit from
+  a QPrinter, for example. bitBlt() does nothing if you attempt to
+  blit from an unsupported device.
 
-  BitBlt has two restrictions:
-  <ol>
-  <li> The \e src device must be QWidget or QPixmap.  You cannot copy pixels
-  from a picture or a printer (external device).
-  <li> The \e src device may not have pixel depth greater than \e dst.
-  You cannot copy from an 8-bit pixmap to a 1-bit pixmap.
-  </ol>
+  bitBlt() also does not with if \a src has a greated depth than \e
+  dst.  If you need to e.g. draw a 24-bit pixmap on an 8-bit widget,
+  you must use drawPixmap().
 */
 
 void bitBlt( QPaintDevice *dst, int dx, int dy,

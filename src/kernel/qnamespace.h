@@ -205,7 +205,7 @@ public:
 	WType_Modal		= WType_Dialog | WShowModal,
 	WStyle_Dialog 		= WType_Dialog,
 	WStyle_NoBorderEx	= WStyle_NoBorder
-#endif	
+#endif
     };
 
     // Image conversion flags.  The unusual ordering is caused by
@@ -530,8 +530,7 @@ public:
 	CopyROP,
 	OrROP,
 	XorROP,
-	NotAndROP,
-	EraseROP=NotAndROP,
+	NotAndROP, EraseROP=NotAndROP,
 	NotCopyROP,
 	NotOrROP,
 	NotXorROP,

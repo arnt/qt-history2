@@ -130,18 +130,11 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
 */
 
 
-/*!
-  Constructs a socket notifier with a \e parent and a \e name.
+/*!  Constructs a socket notifier with a \e parent and a \e name that
+  watches \a socket for \a type events, and enables it.
 
-  \arg \e socket is the socket to be monitored.
-  \arg \e type specifies the socket operation to be detected;
-    \c QSocketNotifier::Read, \c QSocketNotifier::Write, or
-    \c QSocketNotifier::Exception.
-
-  The \e parent and \e name arguments are sent to the QObject constructor.
-
-  The socket notifier is initially enabled.  It is generally advisable to
-  explicitly enable or disable it, especially for write notifiers.
+  It is generally advisable to explicitly enable or disable it,
+  especially for write notifiers.
 
   \sa setEnabled(), isEnabled()
 */

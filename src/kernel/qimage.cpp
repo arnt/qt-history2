@@ -535,7 +535,7 @@ QImage QImage::copy() const
 	    image.data->misc = new QImageDataMisc;
 	    *image.data->misc = misc();
 	}
-#endif	
+#endif
     }
     return image;
 }
@@ -730,7 +730,7 @@ void QImage::reset()
     setNumColors( 0 );
 #ifndef QT_NO_IMAGE_TEXT
     delete data->misc;
-#endif    
+#endif
     reinit();
 }
 
@@ -779,7 +779,7 @@ void QImage::fill( uint pixel )
 		*p++ = fill;
 	}
 #endif	// QT_NO_IMAGE_16_BIT
-#ifndef QT_NO_IMAGE_TRUECOLOR	
+#ifndef QT_NO_IMAGE_TRUECOLOR
     } else if ( depth() == 32 ) {
 	if ( hasAlphaBuffer() ) {
 	    pixel &= 0x00ffffff;
@@ -799,7 +799,7 @@ void QImage::fill( uint pixel )
 		    *p++ = pixel;
 	    }
 	}
-#endif // QT_NO_IMAGE_TRUECOLOR	
+#endif // QT_NO_IMAGE_TRUECOLOR
     }
 }
 
@@ -1073,7 +1073,7 @@ void QImage::reinit()
     data->alpha = FALSE;
 #ifndef QT_NO_IMAGE_TEXT
     data->misc = 0;
-#endif    
+#endif
     data->dpmx = 0;
     data->dpmy = 0;
     data->offset = QPoint(0,0);
@@ -1604,7 +1604,7 @@ static bool dither_to_1( const QImage *src, QImage *dst,
 			    p += 4;
 			}
 		    }
-#endif		    
+#endif
 		}
 	    }
 
@@ -1761,7 +1761,7 @@ static bool dither_to_1( const QImage *src, QImage *dst,
 		    }
 		}
 	    }
-	} else 
+	} else
 #endif //QT_NO_IMAGE_TRUECOLOR
 	    if ( d == 8 ) {
 	    uchar** line = src->jumpTable();
@@ -1934,7 +1934,7 @@ int QImage::pixelIndex( int x, int y ) const
 #ifndef QT_NO_IMAGE_TRUECOLOR
 #ifndef QT_NO_IMAGE_16_BIT
     case 16:
-#endif	
+#endif
     case 32:
 #if defined(QT_CHECK_RANGE)
 	qWarning( "QImage::pixelIndex: Not applicable for %d-bpp images "
@@ -2095,7 +2095,7 @@ bool isGray(QRgb c)
 */
 bool QImage::allGray() const
 {
-#ifndef QT_NO_IMAGE_TRUECOLOR    
+#ifndef QT_NO_IMAGE_TRUECOLOR
     if (depth()==32) {
 	int p = width()*height();
 	QRgb* b = (QRgb*)bits();
@@ -2110,8 +2110,8 @@ bool QImage::allGray() const
 	    if (!is16BitGray(*b++))
 		return FALSE;
 #endif
-    } else 
-#endif //QT_NO_IMAGE_TRUECOLOR	
+    } else
+#endif //QT_NO_IMAGE_TRUECOLOR
 	{
 	if (!data->ctbl) return TRUE;
 	for (int i=0; i<numColors(); i++)
@@ -2613,12 +2613,12 @@ QImage QImage::mirror(bool horizontal, bool vertical) const
     int h = height();
     if (w <= 1 && h <= 1 || (!horizontal && !vertical))
         return *this;
-        
+
     // Create result image, copy colormap
     QImage result(w, h, depth(), numColors(), bitOrder());
     memcpy(result.colorTable(), colorTable(), numColors()*sizeof(QRgb));
     result.setAlphaBuffer(hasAlphaBuffer());
-    
+
     if (depth() == 1)
         w = (w+7)/8;
     int dxi = horizontal ? -1 : 1;
@@ -2660,7 +2660,7 @@ QImage QImage::mirror(bool horizontal, bool vertical) const
         }
     }
 #endif
-    
+
     // special handling of 1 bit images for horizontal mirroring
     if (horizontal && depth() == 1) {
         int shift = width() % 8;
@@ -2694,8 +2694,8 @@ QImage QImage::mirror(bool horizontal, bool vertical) const
             }
         }
     }
-    
-    return result;    
+
+    return result;
 }
 
 /*!
@@ -2736,7 +2736,7 @@ QImage QImage::swapRGB() const
 	} else if ( depth() == 16 ) {
 	    qWarning( "QImage::swapRGB not implemented for 16bpp" );
 #endif
-	} else 
+	} else
 #endif //QT_NO_IMAGE_TRUECOLOR
 	    {
 	    uint* p = (uint*)colorTable();
@@ -3215,30 +3215,35 @@ static QImageHandler *get_image_handler( const char *format )
 }
 
 
-/*!
-  Defines a image IO handler for a specified image format.
-  An image IO handler is responsible for reading and writing images.
+/*! Defines an image I/O handler for the image format called \a
+  format, which is recognized using the regular expression \a header,
+  read using \a readImage and written using \a writeImage.
 
-  \arg \e format is the name of the format.
-  \arg \e header is a regular expression that recognizes the image header.
-  \arg \e flags is "T" for text formats such as PBM; generally you will
-	  want to use 0.
-  \arg \e read_image is a function to read an image of this format.
-  \arg \e write_image is a function to write an image of this format.
+  \a flags is a string of single-character flags for this format. The
+  only flag defined currently is T (upper case), so the only legal
+  value for \a flags are "T" and the empty string.  The "T" flag means
+  that the image file is a text file, and Qt should treat all newline
+  conventions as equivalent.  (XPM files and some PPM files are text
+  file.)
 
-  Both read_image and write_image are of type image_io_handler, which is
-  a function pointer.
-
+  \a format is used to select a handler to write a QImage; \a header
+  is used to select a handler to read an image file.
+  
+  If \a readImage is a null pointer, the QImageIO will not be able to
+  read images in \a format.  If \a writeImage is a null pointer, the
+  QImageIO will not be able to write images in \a format. If both are
+  null, the QImageIO object is valid but pointless.
+  
   Example:
   \code
     void readGIF( QImageIO *image )
     {
-      // read the image, using the image->ioDevice()
+      // read the image using the image->ioDevice()
     }
 
     void writeGIF( QImageIO *image )
     {
-      // write the image, using the image->ioDevice()
+      // write the image using the image->ioDevice()
     }
 
     // add the GIF image handler
@@ -3250,24 +3255,25 @@ static QImageHandler *get_image_handler( const char *format )
 			       writeGIF );
   \endcode
 
-  Prior to comparison with the regular expression the file header is
-  converted to change all 0 bytes into 1 bytes. This is done because 0
-  is such a common header byte, yet regular expressions cannot match it.
-
-  For image formats supporting incremental display such as sequences
-  of animated frames, see the QImageFormatType class.
+  Before the regexp test, all the 0 bytes in the file header are
+  converted to 1 bytes. This is done because while Qt was still
+  ASCII-based, QRegExp could not handle 0 bytes in strings.
+  
+  (Note that if one handlerIO supports writing a format and another
+  supports reading it, Qt supports both reading and writing. If two
+  handlers support the same operation, Qt chooses one arbitrarily.)
 */
 
 void QImageIO::defineIOHandler( const char *format,
 				const char *header,
 				const char *flags,
-				image_io_handler read_image,
-				image_io_handler write_image )
+				image_io_handler readImage,
+				image_io_handler writeImage )
 {
     qt_init_image_handlers();
     QImageHandler *p;
     p = new QImageHandler( format, header, flags,
-			   read_image, write_image );
+			   readImage, writeImage );
     Q_CHECK_PTR( p );
     imageHandlers->insert( 0, p );
 }
@@ -3898,7 +3904,7 @@ bool read_dib( QDataStream& s, int offset, int startpos, QImage& image )
 	red_shift = 16;
 	blue_scale = green_scale = red_scale = 1;
     } else if (comp == BMP_RGB && nbits == 16)  // don't support RGB values for 15/16 bpp
-	return FALSE; 
+	return FALSE;
 
     // offset can be bogus, be careful
     if (offset>=0 && startpos + offset > d->at() )
@@ -5270,7 +5276,7 @@ void bitBlt( QImage* dst, int dx, int dy, const QImage* src,
 	    }
 	}
 	break;
-#endif // QT_NO_IMAGE_TRUECOLOR	
+#endif // QT_NO_IMAGE_TRUECOLOR
     }
 }
 
@@ -5394,8 +5400,7 @@ QString QImage::text(const char* key, const char* lang) const
 }
 
 /*!
-    Returns the string recorded for the keyword and language \a kl,
-    or in a default language if \a lang is 0.
+    Returns the string recorded for the keyword and language \a kl.
 */
 QString QImage::text(const QImageTextKeyLang& kl) const
 {
