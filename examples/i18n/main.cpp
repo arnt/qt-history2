@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/i18n/main.cpp#4 $
+** $Id: //depot/qt/main/examples/i18n/main.cpp#5 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -11,6 +11,7 @@
 #include <qapplication.h>
 #include <qtranslator.h>
 #include <qfileinfo.h>
+#include <qmessagebox.h>
 
 #include "mywidget.h"
 
@@ -18,18 +19,26 @@ main( int argc, char** argv )
 {
     QApplication app( argc, argv );
 
+    QString lang;
     if ( argc != 2 ) {
-	qWarning( "\n\nUsage: %s <language> (where <language> can be 'de', 'en', 'no'...)\n", argv[0] );
-        return 0;
+	int i = QMessageBox::information(0, "Language?", "Which language?",
+		    "Deutsch", "English", "Norsk" );
+	switch ( i ) {
+	  case 0: lang = "de"; break;
+	  case 1: lang = "en"; break;
+	  case 2: lang = "no"; break;
+	}
+    } else {
+	lang = argv[1];
     }
-    QString lang( argv[1] );
 
     QString lfile = "mywidget_" + lang + ".qm";
 
     QFileInfo fi( lfile );
     if ( !fi.exists() ) {
-    	qWarning( "\n%s: cannot find translation for language '%s'" 
-		  " (try 'de', 'en' or 'no')\n", argv[0], argv[1] );
+    	QMessageBox::warning( 0, "File error",
+		  QString("Cannot find translation for language: "+lang+
+		  "\n(try 'de', 'en' or 'no')") );
 	return 0;
     }
 
