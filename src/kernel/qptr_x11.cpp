@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#232 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#233 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#232 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#233 $");
 
 
 /*****************************************************************************
@@ -497,6 +497,22 @@ QPainter::QPainter( const QPaintDevice *pd )
 {
     init();
     begin( pd );
+}
+
+
+
+/*!
+  Constructs a painter that begins painting the paint device \a pd
+  immediately, with the default arguments taken from \a copyAttributes.
+  
+  \sa begin()
+*/
+
+QPainter::QPainter( const QPaintDevice *pd,
+		    const QWidget *copyAttributes )
+{
+    init();
+    begin( pd, copyAttributes );
 }
 
 /*!
