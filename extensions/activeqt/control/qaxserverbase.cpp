@@ -2361,8 +2361,7 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
                 argv_pointer[p + 1] = 0;
 		if (varp[p + 1].isValid()) {
                     if (varp[p + 1].type() == QVariant::UserType) {
-                        argv_pointer[p + 1] = varp[p + 1].toUserType().data();
-                        argv[p + 1] = argv_pointer + p + 1;
+                        argv[p + 1] = varp[p + 1].data();
                     } else if (ptype == "QVariant") {
                         argv[p + 1] = varp + p + 1;
                     } else {
@@ -2412,7 +2411,8 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 		}
                 if (!type.isEmpty() && pvarResult) {
                     if (!varp[0].isValid())
-                        varp[0] = QVariant::UserData(argv_pointer[0], type);
+                        qVariantSet(varp[0], argv_pointer[0], type);
+//                        varp[0] = QVariant::UserData(argv_pointer[0], type);
 		    ok = QVariantToVARIANT(varp[0], *pvarResult, type);
                 }
 	    }

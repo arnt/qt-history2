@@ -507,20 +507,19 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const char *type, bool
 #endif // QAX_SERVER
     case QVariant::UserType:
         {
-            QVariant::UserData userData(qvar.toUserType());
+            QByteArray subType = qvar.typeName();
 #ifdef QAX_SERVER
-            QByteArray subType = userData.description();
             if (subType.endsWith('*'))
                 subType.truncate(subType.length() - 1);
 #endif
-            if (userData.description() == "IDispatch*") {
+            if (!qstrcmp(qvar.typeName(), "IDispatch*")) {
                 arg.vt = VT_DISPATCH;
-                arg.pdispVal = (IDispatch*)userData.data();
+                arg.pdispVal = *(IDispatch**)qvar.data();
                 if (arg.pdispVal)
                     arg.pdispVal->AddRef();
-            } else if (userData.description() == "IUnknown*") {
+            } else if (!qstrcmp(qvar.typeName(), "IUnknown*")) {
                 arg.vt = VT_UNKNOWN;
-                arg.punkVal = (IUnknown*)userData.data();
+                arg.punkVal = *(IUnknown**)qvar.data();
                 if (arg.punkVal)
                     arg.punkVal->AddRef();
 #ifdef QAX_SERVER
@@ -529,7 +528,7 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const char *type, bool
                 if (!qvar.constData()) {
                     arg.pdispVal = 0;
                 } else {
-                    qAxFactory()->createObjectWrapper(static_cast<QObject*>(userData.data()), &arg.pdispVal);
+                    qAxFactory()->createObjectWrapper(*static_cast<QObject**>(qvar.data()), &arg.pdispVal);
                 }
 #endif
             } else {
@@ -781,10 +780,13 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const char *type)
                 if (iface) {
                     QObject *qObj = iface->qObject();
                     iface->Release();
-                    var = QVariant::UserData(qObj, qObj->className());                    
+                    qVariantSet(var, qObj, qObj->className());
                 } else
 #endif
-                    var = QVariant::UserData(disp, type);
+                {
+                    if (type)
+                        qVariantSet(var, disp, type);
+                }
             }
         }
         break;
@@ -796,7 +798,7 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const char *type)
                 unkn = *arg.ppunkVal;
             else
                 unkn = arg.punkVal;
-            var = QVariant(QVariant::UserData(unkn, "IUnknown*"));
+            qVariantSet(var, unkn, "IUnknown*");
         }
         break;
     case VT_ARRAY|VT_VARIANT:
