@@ -128,7 +128,7 @@ public:
 	    pm.save( filename, "PPM" );
 	} else {
 	    QPixmap ppm(r.width()+2*margin, r.height()+2*margin);
-	    ppm.fill(QApplication::palette()->normal().background());
+	    ppm.fill(QApplication::palette().normal().background());
 	    QPainter p;
 	    p.begin(&ppm);
 	    p.drawPixmap(margin,margin,pm);

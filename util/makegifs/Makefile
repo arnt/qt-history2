@@ -34,6 +34,7 @@ TARGET	=	makeppms
 ####### Build rules
 
 all:
+	@echo "make pngs  - generate widget pngs in $(QTDIR)/gif/"
 	@echo "make gifs  - generate widget gifs in $(QTDIR)/gif/"
 	@echo "make $(TARGET)  - generate ppm generator"
 
@@ -41,6 +42,11 @@ gifs: $(TARGET)
 	./$(TARGET)
 	for i in *.ppm; do ppmquant 256 $$i | \
 	    ppmtogif >$(QTDIR)/gif/$${i%ppm}gif; rm $$i; done
+
+pngs: $(TARGET)
+	./$(TARGET)
+	for i in *.ppm; do cat $$i | \
+	    pnmtopng >$(QTDIR)/gif/$${i%ppm}png; rm $$i; done
 
 $(TARGET): $(SRCMETA) $(OBJECTS) $(OBJMETA)
 	$(CC) $(OBJECTS) $(OBJMETA) -o $(TARGET) $(LFLAGS)
