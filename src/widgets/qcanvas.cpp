@@ -593,9 +593,9 @@ void QCanvas::retune(int chunksze, int mxclusters)
 */
 
 /*!
-\fn int QCanvas::chunkSize() const
-Returns the chunk size of the sprite field as set at construction.
-\sa retune()
+  \fn int QCanvas::chunkSize() const
+  Returns the chunk size of the canvas as set at construction.
+  \sa retune()
 */
 
 /*!
@@ -1215,7 +1215,9 @@ QCanvasItems can be moved, hidden, and tested for collision with
 other items. They have selected, enabled, and active state flags
 which subclasses may use to adjust appearance or behavior.
 
-For details of collision detection, see collisions().
+For details of collision detection, see collisions(). Other functions
+related to collision detection are collidesWith(), and the
+QCanvas::collisions() functions.
 */
 
 /*!
@@ -1851,7 +1853,13 @@ bool QCanvasText::collidesWith(  const QCanvasSprite* s,
   In inexact mode, the items returned are only \i near the item and
   should be tested using collidesWith() if they are interesting collision
   candidates. By using this, you can ignore some items for which collisions
-  are not interesting. rtti() can be useful for such filtering.
+  are not interesting.
+
+  The returned list is just a list of QCanvasItems, but often you will need
+  to cast the items to more useful types. The safe way to do that is to
+  use rtti() before casting. This provides some of the functionality of
+  standard C++ dynamic cast operation even on compilers where that is not
+  available.
 
   Note that while a QCanvasItem may be `on' a QCanvas even if it's
   coordinates place it far off the edge of the area of the QCanvas,
@@ -2140,7 +2148,7 @@ void QCanvasPixmapArray::reset()
 */
 bool QCanvasPixmapArray::readPixmaps(const QString& datafilenamepattern, int fc)
 {
-    return readPixmaps(datafilenamepattern,fc);
+    return readPixmaps(datafilenamepattern,fc,FALSE);
 }
 /*!
   When testing sprite collision detection
@@ -2398,31 +2406,52 @@ void QCanvasSprite::draw(QPainter& painter)
     painter.drawPixmap(absX(),absY(),*image());
 }
 
-// XXX XXX XXX current documentation point
-
 /*!
   \class QCanvasView qcanvas.h
-  \brief A QWidget which views a QCanvas, and has scrollbars.
+  \brief A QWidget which views a QCanvas.
 
-  This is where QCanvas meets a QWidget - this class displays
-  a QCanvas.
+  Displays a view of a QCanvas, with scrollbars available as
+  for all QScrollView subclasses. There can be more than one
+  view of a canvas.
+
+  The view of a canvas is the object which the user can see and
+  interact with, hence any interactivity will be based on events
+  from a view. For example, by subclassing QCanvasView and overriding
+  QScrollView::contentsMousePressEvent(), an application can allow the
+  user to interact with items on the canvas.
+
+  \code
+void MyCanvasView::contentsMousePressEvent(QMouseEvent* e)
+{
+    QCanvasItemList list = canvas()->collisions(e->pos());
+    if ( !list.isEmpty() ) {
+	QCanvasItem* item = list.first();
+
+	// Process the top item
+	...
+    }
+}
+  \endcode
+
+  Most of the functionality of QCanvasView is the functionality
+  available for all QScrollView subclasses.
 */
 
 /*!
-  Construct a QCanvasView which views the given QCanvas.  The
-  usual QWidget parameters may also be passed.
+  Constructs a QCanvasView which views \a canvas.  The
+  usual QWidget parameters may also be supplied.
 */
-QCanvasView::QCanvasView(QCanvas* v, QWidget* parent, const char* name, WFlags f) :
+QCanvasView::QCanvasView(QCanvas* canvas, QWidget* parent, const char* name, WFlags f) :
     QScrollView(parent,name,f)
 {
     viewing = 0;
-    setCanvas(v);
-    viewport()->setBackgroundColor(v->backgroundColor());
+    setCanvas(canvas);
+    viewport()->setBackgroundColor(viewing->backgroundColor());
     connect(this,SIGNAL(contentsMoving(int,int)),this,SLOT(cMoving(int,int)));
 }
 
 /*!
-  Destructs the view.
+  Destructs the view. The associated canvas is \i not deleted.
 */
 QCanvasView::~QCanvasView()
 {
@@ -2430,51 +2459,40 @@ QCanvasView::~QCanvasView()
 }
 
 /*!
-  Changes the QCanvas which the QCanvasView is viewing to \a c.
+  \fn QCanvas* QCanvasView::canvas() const
+
+  Returns the canvas which the view is currently viewing.
 */
-void QCanvasView::setCanvas(QCanvas* c)
+
+
+/*!
+  Changes the QCanvas which the QCanvasView is viewing to \a canvas.
+*/
+void QCanvasView::setCanvas(QCanvas* canvas)
 {
     if (viewing) {
 	viewing->removeView(this);
     }
-    viewing=c;
+    viewing=canvas;
     if (viewing) {
 	viewing->addView(this);
     }
     resizeContents(viewing->width(),viewing->height());
 }
 
-/*!
-\fn void  QCanvasView::beginPainter(QPainter & )
-Called to initialize the QPainter - normally calls QPainter::begin().
-*/
-/*!
-\fn void  QCanvasView::flush (const QRect & area)
-Called just before the painter is ended.
-*/
-
-/*!
-\fn bool QCanvasView::preferDoubleBuffering () const
-
-Return TRUE if double-buffering is best for this class of widget.
-If any view viewing an area prefers double-buffering, that area will
-be double buffered for all views.
-*/
-
 
 static bool repaint_from_moving = FALSE;
 
 void QCanvasView::cMoving(int x, int y)
 {
+    // A little kludge to smooth up repaints when scrolling
     int dx = x - contentsX();
     int dy = y - contentsY();
     repaint_from_moving = QABS(dx) < width()/8 && QABS(dy) < height()/8;
 }
 
 /*!
-(override)
-
-Repaint the appropriate area of the QCanvas which this
+Repaints the appropriate area of the QCanvas which this
 QCanvasView is viewing.
 */
 void QCanvasView::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
@@ -2489,42 +2507,46 @@ void QCanvasView::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
 }
 
 /*!
-\class QCanvasPolygonalItem qcanvas.h
-\brief A QCanvasItem which renders itself in a polygonal area.
+  \class QCanvasPolygonalItem qcanvas.h
+  \brief A QCanvasItem which renders itself in a polygonal area.
 
-QCanvasPolygonalItem is an abstract class that is useful for all items
-which cover a polygonal area of chunks on the field.
-Sprites, the other branch of QCanvasItem derivatives usually
-cover
-a simple rectangular area and are dealt with specially, but typical
-geometric shapes such as lines and circles would be quite inefficiently
-bounded by rectangular areas - a diagonal line from one corner of the
-field area to the other bound be bounded by a rectangle covering
-the entire area! QCanvasPolygonalItem objects allow the area to be
-defined by a polygon - a sequence of points indicating the chunks
-bounding the area covered by the item.
+  QCanvasPolygonalItem is an abstract class that is useful for all items
+  which cover a polygonal area of the canvas.
+  QCanvasSprite and QCanvasText, the other branches of QCanvasItem derivatives
+  usually cover a simple rectangular area and are dealt with specially,
+  but typical geometric shapes such as lines and circles would be too
+  inefficiently bounded by rectangular areas - a diagonal line from one
+  corner of the canvas area to the other bound be bounded by a rectangle covering
+  the entire area! QCanvasPolygonalItem objects allow the area to be
+  defined by a polygon - a sequence of points
+  bounding the area covered by the item.
 
-Derived classes should try to define as small as possible an area
-to maximize efficiency, but must \e definately be contained completely
-within the polygonal area.  Calculating the exact requirements will
-generally be difficult, and hence a certain amount of over-estimation
-could be expected.
+  Derived classes should try to define as small as possible an area
+  to maximize efficiency, but must \e definately be contained completely
+  within the polygonal area.  Calculating the exact requirements may
+  be difficult, but a small amount of over-estimation is better than
+  any under-estimation, which will give drawing errors.
+
+  All subclasses must call addToChunks()
+  in their constructor once numAreaPoints() and getAreaPoints() are valid,
+  and must call hide() in their
+  destructor while those functions are still valid.
 */
 
 /*!
-Construct a QCanvasPolygonalItem.
-Derived classes should call addToChunks()
-in their constructor once numAreaPoints() and getAreaPoints() are valid.
+  Construct a QCanvasPolygonalItem.
+  Derived classes should call addToChunks()
+  in their constructor once numAreaPoints() and getAreaPoints() are valid.
 */
 QCanvasPolygonalItem::QCanvasPolygonalItem()
 {
 }
 
 /*!
-Destruct the QCanvasPolygonalItem.  Derived classes \e must remove the area
-from any chunks, as this destructor cannot call the virtual methods
-required to do so.  That is, they must call hide() in their
-destructor.
+  Destruct the QCanvasPolygonalItem.  Derived classes \e must remove the area
+  from any chunks, as this destructor cannot call the virtual methods
+  required to do so.  That is, they must call hide() in their
+  destructor.
 */
 QCanvasPolygonalItem::~QCanvasPolygonalItem()
 {
@@ -2840,6 +2862,7 @@ QPointArray QCanvasPolygon::areaPoints() const
 QCanvasRectangle::QCanvasRectangle() :
     w(32), h(32)
 {
+    addToChunks();
 }
 
 QCanvasRectangle::QCanvasRectangle(const QRect& r) :
@@ -3194,11 +3217,14 @@ upon the object based on its rtti value.
 For example:
 
 \code
-    if (field.at(p)->rtti() == MySprite::rtti()) {
-    MySprite* s = (MySprite*)field.at(p);
-    if (s->isDamagable()) s->loseHitPoints(1000);
-    if (s->isHot()) myself->loseHitPoints(1000);
+    QCanvasItem* item;
+    // Find an item, eg. with QCanvasItem::collisions().
     ...
+    if (item->rtti() == MySprite::rtti()) {
+        MySprite* s = (MySprite*)item;
+        if (s->isDamagable()) s->loseHitPoints(1000);
+        if (s->isHot()) myself->loseHitPoints(1000);
+        ...
     }
 \endcode
 */
