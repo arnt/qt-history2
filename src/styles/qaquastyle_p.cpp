@@ -623,6 +623,7 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
 	else
 	    ret = QSize(minw, 17 + shadow_height);
 #endif
+#if 0 //Not sure we are applying the rules correctly for RadioButtons/CheckBoxes --Sam
     } else if(ct == QStyle::CT_RadioButton) {
 	QRadioButton *rdo = (QRadioButton*)widg;
         // Exception for case where multiline radiobutton text requires no size constrainment
@@ -650,6 +651,7 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
 	    ret = QSize(-1, 18 + shadow_height);
 	else 
 	    ret = QSize(-1, 16 + shadow_height);
+#endif
 #endif
     } else if(ct == QStyle::CT_ComboBox) {
 #ifdef Q_WS_MAC
