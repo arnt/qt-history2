@@ -985,8 +985,7 @@ void QTextDocumentPrivate::scan_frames(int pos, int charsRemoved, int charsAddde
             Q_ASSERT(false);
         }
     }
-// ###FIXME . how to detect the end of a table?
-//    Q_ASSERT(f == frame);
+    Q_ASSERT(f == frame);
 }
 
 void QTextDocumentPrivate::insert_frame(QTextFrame *f)
