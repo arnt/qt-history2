@@ -1030,9 +1030,9 @@ static void drawSGIPrefix( QPainter *p, int x, int y, int w, int h, QString* miT
 		
 		    uint ulw = p->fontMetrics().width(*miText, amp+1) - ulx;
 
-		    p->drawLine( x+ulx, y+h-4, x+ulx+ulw, y+h-4 );
-		    p->drawLine( x+ulx, y+h-3, x+ulx+ulw/2, y+h-3 );
-		    p->drawLine( x+ulx, y+h-2, x+ulx+ulw/4, y+h-2 );
+		    p->drawLine( x+ulx, y+h-5, x+ulx+ulw, y+h-5 );
+		    p->drawLine( x+ulx, y+h-4, x+ulx+ulw/2, y+h-4 );
+		    p->drawLine( x+ulx, y+h-3, x+ulx+ulw/4, y+h-3 );
 		}
 	    }
 	    amp++;
@@ -1177,8 +1177,12 @@ void QSGIStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
 
     if ( !!mi->text() ) {
 	QString* text = new QString(mi->text());
-	drawSGIPrefix( p, x, y, w, h, text );
-	p->drawText( x, y, w+1, h, AlignVCenter|DontClip|SingleLine, *text, text->length() );
+	int sw = p->fontMetrics().width( mi->text() );
+	int ls = w+1 - sw;
+	QRect br = p->fontMetrics().boundingRect( x, y-2, w+1, h, 
+		AlignCenter|DontClip|SingleLine, mi->text() );
+	drawSGIPrefix( p, x+ls, y-2, w+1, h, text );
+	p->drawText( x, y-2, w+1, h, AlignCenter|DontClip|SingleLine, *text, text->length() );
 	delete text;
     }
 }

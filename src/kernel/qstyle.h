@@ -235,6 +235,9 @@ public:
 				    const QPalette& pal,
 				    bool act, bool enabled,
 				    int x, int y, int w, int h) = 0;
+    void drawMenuBarItem( QPainter* p, int x, int y, int w, int h, //### virtual in 3.0
+				    QMenuItem* mi, QColorGroup& g,
+				    bool enabled );
 
     // Binary compatibility contortions, to become virtual in 3.0
     QSize scrollBarExtent(); // ### const 3.0
