@@ -23,6 +23,10 @@ public:
     int indentation() const;
     void setIndentation(int i);
 
+    int editColumn() const;
+    void setEditColumn(int column);
+    
+
     int columnViewportPosition(int column) const;
     int columnWidth(int column) const;
     int columnAt(int x) const;

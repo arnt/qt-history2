@@ -68,7 +68,7 @@ public:
     inline QModelIndex bottomRight(const QModelIndex &parent = 0) const
 	{ return index(rowCount(parent) - 1, columnCount(parent) - 1, parent); }
     inline QModelIndex sibling(int row, int column, const QModelIndex &idx) const
-	{ return index(row, column, parent(idx)); }
+	{ return index(row, column, parent(idx), idx.type()); }
 
     virtual int rowCount(const QModelIndex &parent = 0) const = 0;
     virtual int columnCount(const QModelIndex &parent = 0) const = 0;

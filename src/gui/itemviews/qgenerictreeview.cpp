@@ -106,6 +106,16 @@ void QGenericTreeView::setIndentation(int i)
     d->indent = i;
 }
 
+int QGenericTreeView::editColumn() const
+{
+    return d->editColumn;
+}
+
+void QGenericTreeView::setEditColumn(int column)
+{
+    d->editColumn = column;
+}
+
 int QGenericTreeView::columnViewportPosition(int column) const
 {
     return d->header->sectionPosition(column) - d->header->offset();
@@ -244,6 +254,9 @@ void QGenericTreeView::drawRow(QPainter *painter, QItemOptions *options, const Q
     int y = options->itemRect.y();
     QModelIndex parent = model()->parent(index);
     QGenericHeader *header = d->header;
+    
+    QModelIndex current = selectionModel()->currentItem();
+    bool focus = hasFocus() && current.isValid();
 
     if (column == 0 && !header->isSectionHidden(column)) {
 	pos = header->sectionPosition(column);
@@ -251,14 +264,13 @@ void QGenericTreeView::drawRow(QPainter *painter, QItemOptions *options, const Q
 	options->selected = selectionModel()->isSelected(index);
 	options->itemRect.moveLeft(x + pos);
 	options->itemRect.setWidth(width - x);
-	options->focus = (hasFocus() && selectionModel()->currentItem() == index);
+	options->focus = (focus && current == index);
 	painter->fillRect(pos, y, width - pos, height, base);
 	drawBranches(painter, QRect(pos, y, d->indent, options->itemRect.height()), index);
 	itemDelegate()->paint(painter, *options, index);
 	++column;
     }
 
-    options->focus = false;
     QModelIndex i = index;
     for (; column <= d->right; ++column) {
 	if (header->isSectionHidden(column))
@@ -267,6 +279,7 @@ void QGenericTreeView::drawRow(QPainter *painter, QItemOptions *options, const Q
 	i = model()->index(i.row(), column, parent);
 	width = header->sectionSize(column);
 	options->itemRect.setRect(pos, y, width, height);
+	options->focus = (focus && current == i);
 	options->selected = selectionModel()->isSelected(i);
 	painter->fillRect(pos, y, width, height, base);
 	itemDelegate()->paint(painter, *options, i);
@@ -324,7 +337,7 @@ QModelIndex QGenericTreeView::itemAt(int x, int y) const
 {
     int vi = d->item(y, verticalScrollBar()->value());
     QModelIndex mi = d->modelIndex(vi);
-    int column = d->header->sectionAt(x);
+    int column = d->editColumn;//d->header->sectionAt(x);
     QModelIndex parent = model()->parent(mi);
     return model()->index(mi.row(), column, parent);
 }
@@ -865,6 +878,9 @@ QModelIndex QGenericTreeViewPrivate::modelIndex(int i) const
 {
     if (i < 0 || i >= items.count())
 	return QModelIndex();
+    QModelIndex index = items.at(i).index;
+    if (index.column() != editColumn)
+	return index = q->model()->sibling(index.row(), editColumn, index);
     return items.at(i).index;
 }
 
