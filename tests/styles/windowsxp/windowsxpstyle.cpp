@@ -388,7 +388,7 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveOperation op,
 
     case PO_ButtonDropDown:
         name = L"TOOLBAR";
-        partId = TP_SPLITBUTTON;
+        partId = TP_SPLITBUTTONDROPDOWN;
         if ( !flags & PStyle_Enabled )
 	    stateId = 4;
         else if ( flags & PStyle_Sunken )
@@ -888,7 +888,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 	}
 	break;
 
-    case CC_ToolButton:
+/*    case CC_ToolButton:
 	{
 	    XPThemeData theme;
 	    theme.name = L"TOOLBAR";
@@ -914,7 +914,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 	    }
 	}
 	break;
-
+*/
     case CC_TitleBar:
 	{
 	    XPThemeData theme;
