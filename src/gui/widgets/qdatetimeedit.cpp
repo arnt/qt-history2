@@ -50,7 +50,8 @@ public:
     QDateTimeEditPrivate();
 
 
-    void emitSignals(const QCoreVariant &old);
+    void emitSignals();
+    void setValue(const QCoreVariant &val, EmitPolicy ep);
     QCoreVariant mapTextToValue(QString *str, QValidator::State *state) const;
     QString mapValueToText(const QCoreVariant &n) const;
     void editorCursorPositionChanged(int lastpos, int newpos);
@@ -854,17 +855,16 @@ QDateTimeEditPrivate::QDateTimeEditPrivate()
     \reimp
 */
 
-void QDateTimeEditPrivate::emitSignals(const QCoreVariant &old)
+void QDateTimeEditPrivate::emitSignals()
 {
-    QAbstractSpinBoxPrivate::emitSignals(old);
+    QAbstractSpinBoxPrivate::emitSignals();
     if (value.toDate().isValid()) {
-        emit q->dateTimeChanged(value.toDateTime());
-        if ((display & DateSectionMask) != 0 && old.toDate() != value.toDate())
-            emit q->dateChanged(value.toDate());
+	emit q->dateTimeChanged(value.toDateTime());
+	if ((display & DateSectionMask) != 0)
+	    emit q->dateChanged(value.toDate());
+	if ((display & TimeSectionMask) != 0)
+	    emit q->timeChanged(value.toTime());
     }
-
-    if ((display & TimeSectionMask) != 0 && old.toTime() != value.toTime())
-        emit q->timeChanged(value.toTime());
 }
 
 /*!
@@ -1884,6 +1884,31 @@ QString QDateTimeEditPrivate::stateName(int s)
     case QValidator::Intermediate: return "Intermediate";
     case QValidator::Acceptable: return "Acceptable";
     default: return "Unknown state " + QString::number(s);
+    }
+}
+
+void QDateTimeEditPrivate::setValue(const QCoreVariant &val, EmitPolicy ep)
+{
+    const QCoreVariant old = value;
+    value = bound(val);
+    pendingemit = false;
+    update();
+    if (value.toDate().isValid()) {
+	if (ep == AlwaysEmit) {
+	    emitSignals();
+	} else {
+	    bool dateTimeEmitted = false;
+	    if (ep == EmitIfChanged && ((display & DateSectionMask) != 0 && old.toDate() != value.toDate())) {
+		emit q->dateChanged(value.toDate());
+		emit q->dateTimeChanged(value.toDateTime());
+		dateTimeEmitted = true;
+	    }
+	    if (ep == EmitIfChanged && ((display & TimeSectionMask) != 0 && old.toTime() != value.toTime())) {
+		emit q->timeChanged(value.toTime());
+		if (!dateTimeEmitted)
+		    emit q->dateTimeChanged(value.toDateTime());
+	    }
+	}
     }
 }
 

@@ -21,7 +21,7 @@ class QSpinBoxPrivate : public QAbstractSpinBoxPrivate
     Q_DECLARE_PUBLIC(QSpinBox);
 public:
     QSpinBoxPrivate();
-    void emitSignals(const QCoreVariant &old);
+    void emitSignals();
     QCoreVariant mapTextToValue(QString *str, QValidator::State *state) const;
     QString mapValueToText(const QCoreVariant &n) const;
 };
@@ -31,7 +31,7 @@ class QDoubleSpinBoxPrivate : public QAbstractSpinBoxPrivate
     Q_DECLARE_PUBLIC(QDoubleSpinBox);
 public:
     QDoubleSpinBoxPrivate();
-    void emitSignals(const QCoreVariant &old);
+    void emitSignals();
     QCoreVariant mapTextToValue(QString *str, QValidator::State *state) const;
     QString mapValueToText(const QCoreVariant &n) const;
 
@@ -933,9 +933,9 @@ QSpinBoxPrivate::QSpinBoxPrivate()
     \reimp
 */
 
-void QSpinBoxPrivate::emitSignals(const QCoreVariant &old)
+void QSpinBoxPrivate::emitSignals()
 {
-    QAbstractSpinBoxPrivate::emitSignals(old);
+    QAbstractSpinBoxPrivate::emitSignals();
     emit q->valueChanged(edit->displayText());
     emit q->valueChanged(value.toInt());
 }
@@ -981,9 +981,9 @@ QDoubleSpinBoxPrivate::QDoubleSpinBoxPrivate()
     \reimp
 */
 
-void QDoubleSpinBoxPrivate::emitSignals(const QCoreVariant &old)
+void QDoubleSpinBoxPrivate::emitSignals()
 {
-    QAbstractSpinBoxPrivate::emitSignals(old);
+    QAbstractSpinBoxPrivate::emitSignals();
     pendingemit = false;
     emit q->valueChanged(edit->displayText());
     emit q->valueChanged(value.toDouble());
