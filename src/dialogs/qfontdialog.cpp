@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#44 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#45 $
 **
 ** Implementation of QFontDialog
 **
@@ -206,6 +206,8 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
 	= new QLabel( d->scriptCombo, tr("Scr&ipt"), this,"encoding label");
     d->scriptAccel->setIndent( 2 );
 
+    d->usingStandardSizes = FALSE;
+
 #if 0
     connect( d->familyList, SIGNAL(highlighted(const QString&)),
 	     SLOT(familyHighlighted(const QString&)) );
@@ -303,7 +305,6 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->sizeList->installEventFilter( this );
 
     d->familyEdit->setFocus();
-    d->usingStandardSizes = FALSE;
 }
 
 /*! Deletes the font dialog and frees up its storage. */
