@@ -355,8 +355,8 @@ public:
 #ifndef QT_NO_STL
     inline explicit QString(const std::string &s);
     inline std::string toStdString() const;
-    explicit QString(const std::wstring &s);
-    std::wstring toStdWString() const;
+    inline explicit QString(const std::wstring &s);
+    inline std::wstring toStdWString() const;
 #endif
 
     // compatibility
@@ -482,6 +482,10 @@ private:
     void updateProperties() const;
     QString multiArg(int numArgs, const QString &a1, const QString &a2,
                      const QString &a3 = QString(), const QString &a4 = QString()) const;
+#ifndef QT_NO_STL
+    int toWCharArray(wchar_t *array) const;
+    void fromWCharArray(const wchar_t *, int);
+#endif
     friend class QCharRef;
     friend class QTextCodec;
 };
@@ -772,6 +776,19 @@ inline QString::QString(const std::string &s)
 {
     ++d->ref;
     *this = fromAscii(s.c_str());
+}
+inline std::wstring QString::toStdWString() const
+{
+    std::wstring str;
+    str.resize(length());
+    str.resize(toWCharArray(&(*str.begin())));
+    return str;
+}
+inline QString::QString(const std::wstring &s)
+    : d(&shared_null)
+{
+    ++d->ref;
+    fromWCharArray(s.c_str(), s.length());
 }
 #endif
 

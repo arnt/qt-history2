@@ -574,12 +574,12 @@ inline int QString::grow(int size)
 
     \sa fromUtf16(), fromLatin1(), fromLocal8Bit(), fromUtf8()
 */
-QString::QString(const std::wstring &s)
+void QString::fromWCharArray(const wchar_t *a, int l)
 {
     if (sizeof(wchar_t) == sizeof(QChar)) {
-        *this = fromUtf16((ushort *)s.c_str());
+        *this = fromUtf16((ushort *)a);
     } else {
-        resize(s.length()*2); // worst case
+        resize(l*2); // worst case
         QChar *uc = data();
         for (uint i = 0; i < s.length(); ++i) {
             uint u = s[i];
@@ -612,12 +612,14 @@ QString::QString(const std::wstring &s)
 
     \sa utf16(), toAscii(), toLatin1(), toUtf8(), toLocal8Bit()
 */
-std::wstring QString::toStdWString() const
+
+int QString::toWCharArray(wchar_t *array) const
 {
     if (sizeof(wchar_t) == sizeof(QChar)) {
-        return std::wstring((wchar_t *)utf16());
+        memcpy(array, utf16(), sizeof(wchar_t)*length());
+        return length();
     } else {
-        std::wstring std_string;
+        wchar_t *a = array;
         const unsigned short *uc = utf16();
         for (int i = 0; i < length(); ++i) {
             uint u = uc[i];
@@ -628,9 +630,10 @@ std::wstring QString::toStdWString() const
                     u = (u - 0xd800)*0x400 + (low - 0xdc00) + 0x10000;
                 }
             }
-            std_string += wchar_t(u);
+            *a = wchar_t(u);
+            ++a;
         }
-        return std_string;
+        return a - array;
     }
 }
 #endif
