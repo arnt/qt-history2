@@ -29,6 +29,8 @@ Nntp::Nntp()
 	     this, SLOT( closed() ) );
     connect( commandSocket, SIGNAL( readyRead() ),
 	     this, SLOT( readyRead() ) );
+    connect( commandSocket, SIGNAL( error() ),
+	     this, SLOT( error() ) );
     commandSocket->setMode( QSocket::Ascii );
 }
 
@@ -65,7 +67,7 @@ void Nntp::operationListChildren( QNetworkOperation * )
 void Nntp::operationGet( QNetworkOperation *op )
 {
     // for  reading and article let's also switch to ASCII mode,
-    // as we want to read it line after line. 
+    // as we want to read it line after line.
     commandSocket->setMode( QSocket::Ascii );
 
     // get the dirPath of the URL (this is our news group)
@@ -73,7 +75,7 @@ void Nntp::operationGet( QNetworkOperation *op )
     QUrl u( op->arg1() );
     QString dirPath = u.dirPath(), file = u.fileName();
     dirPath = dirPath.replace( QRegExp( "/" ), "" );
-    
+
     // go to the group in which the article is
     QString cmd;
     cmd = "group " + dirPath + "\r\n";
@@ -88,11 +90,11 @@ void Nntp::operationGet( QNetworkOperation *op )
 bool Nntp::checkConnection( QNetworkOperation * )
 {
     // we are connected, return TRUE
-    if ( !commandSocket->host().isEmpty() && connectionReady )
+    if ( commandSocket->isOpen() && connectionReady )
 	return TRUE;
 
     // seems that there is no chance to connect
-    if ( !commandSocket->host().isEmpty() )
+    if ( commandSocket->isOpen() )
 	return FALSE;
 
     // start connecting
@@ -105,7 +107,7 @@ bool Nntp::checkConnection( QNetworkOperation * )
 void Nntp::close()
 {
     // close the command socket
-    if ( !commandSocket->host().isEmpty() ) {
+    if ( commandSocket->isOpen() ) {
  	commandSocket->writeBlock( "quit\r\n", strlen( "quit\r\n" ) );
  	commandSocket->close();
     }
@@ -189,7 +191,7 @@ void Nntp::parseGroups()
 	    return;
 	}
 	
-	// if the code of the server response is 215 or 211 
+	// if the code of the server response is 215 or 211
 	// the next line will be the first group or article (depending on what we read).
 	// So let others know that we start reading now...
 	if ( s.left( 3 ) == "215" || s.left( 3 ) == "211" ) {
@@ -221,7 +223,7 @@ void Nntp::readArticle()
 {
     if ( !commandSocket->canReadLine() )
 	return;
-    
+
     // read an article one line after the other
     while ( commandSocket->canReadLine() ) {
 	QString s = commandSocket->readLine();
@@ -250,5 +252,18 @@ void Nntp::readArticle()
 	
 	// emit the new data of the article which we read
 	emit data( QCString( s.ascii() ), operationInProgress() );
+    }
+}
+
+void Nntp::error()
+{
+    // this signal is called if connecting to the server failed
+    if ( operationInProgress() ) {
+	QString msg = tr( "Host not found or couldn't connect to: \n" + url()->host() );
+	operationInProgress()->setState( StFailed );
+	operationInProgress()->setProtocolDetail( msg );
+	operationInProgress()->setErrorCode( (int)ErrHostNotFound );
+	clearOperationQueue();
+	emit finished( operationInProgress() );
     }
 }

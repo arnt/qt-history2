@@ -505,6 +505,8 @@ void QSocket::close()
 {
     if ( !isOpen() || d->state != Idle )	// already closed
 	return;
+    if ( !d->rsn || !d->wsn )
+	return;
 #if defined(QSOCKET_DEBUG)
     qDebug( "QSocket: close socket" );
 #endif

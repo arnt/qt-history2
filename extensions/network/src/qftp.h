@@ -78,6 +78,7 @@ protected slots:
     void dataClosed();
     void dataReadyRead();
     void dataBytesWritten( int nbytes );
+    void error();
     
 };
 

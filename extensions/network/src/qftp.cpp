@@ -1,3 +1,4 @@
+
 /****************************************************************************
 ** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#53 $
 **
@@ -44,18 +45,18 @@
   used with QUrlOperator. In fact, you normally will not
   use the QFtp class directly, but rather use it through
   the QUrlOperator like
-  
+
   \code
   QUrlOperator op( "ftp://ftp.troll.no" );
   op.listChildren();
   \endcode
-  
+
   If you really need to use QFtp directly, don't forget
   to set the QUrlOperator on which it works using
   setUrl().
-  
+
   See also the <a href="network.html">Qt Network Documentation</a>
-  
+
   \sa QNetworkProtocol, QUrlOperator
 */
 
@@ -79,6 +80,8 @@ QFtp::QFtp()
 	     this, SLOT( closed() ) );
     connect( commandSocket, SIGNAL( readyRead() ),
 	     this, SLOT( readyRead() ) );
+    connect( commandSocket, SIGNAL( error() ),
+	     this, SLOT( error() ) );
     connect( dataSocket, SIGNAL( hostFound() ),
 	     this, SLOT( dataHostFound() ) );
     connect( dataSocket, SIGNAL( connected() ),
@@ -119,6 +122,8 @@ void QFtp::operationMkDir( QNetworkOperation *op )
 {
     op->setState( StInProgress );
     QString cmd( "MKD " + op->arg1() + "\r\n" );
+    if ( QUrl::isRelativeUrl( op->arg1() ) )
+	cmd = "MKD " + QUrl( *url(), op->arg1() ).path() + "\r\n";
     commandSocket->writeBlock( cmd, cmd.length() );
 }
 
@@ -139,14 +144,9 @@ void QFtp::operationRemove( QNetworkOperation *op )
 
 void QFtp::operationRename( QNetworkOperation *op )
 {
-    op->setState( StInProgress );
-    QString oldname = op->arg1();
-    QString newname = op->arg2();
-
-    QString cmd( "RNFR " + oldname + "\r\n" );
-    commandSocket->writeBlock( cmd, cmd.length() );
-    cmd = "RNTO " + newname + "\r\n";
-    commandSocket->writeBlock( cmd, cmd.length() );
+    QString path = url()->path().isEmpty() ? QString( "/" ) : url()->path();
+    QString cmd = "CWD " + path + "\r\n";
+    commandSocket->writeBlock( cmd.latin1(), cmd.length() );
 }
 
 /*!
@@ -174,27 +174,15 @@ void QFtp::operationPut( QNetworkOperation *op )
 
 bool QFtp::checkConnection( QNetworkOperation *op )
 {
-    if ( !commandSocket->host().isEmpty() && connectionReady &&
-	 !passiveMode )
+    if ( commandSocket->isOpen() && connectionReady && !passiveMode )
 	return TRUE;
 
-    if ( !commandSocket->host().isEmpty() )
+    if ( commandSocket->isOpen() )
 	return FALSE;
 
     connectionReady = FALSE;
     commandSocket->connectToHost( url()->host(),
 				  url()->port() != -1 ? url()->port() : 21 );
-#if 0
-    if ( commandSocket->connectToHost( url()->host(), url()->port() != -1 ? url()->port() : 21 ) ) {
-	if ( !dataSocket->host().isEmpty() )
-	    dataSocket->close();
-    } else {
-	QString msg = tr( "Host not found: \n" + url()->host() );
-	op->setState( StFailed );
-	op->setProtocolDetail( msg );
-	op->setErrorCode( (int)ErrHostNotFound );
-    }
-#endif
 
     return FALSE;
 }
@@ -205,10 +193,10 @@ bool QFtp::checkConnection( QNetworkOperation *op )
 
 void QFtp::close()
 {
-    if ( !dataSocket->host().isEmpty() ) {
+    if ( dataSocket->isOpen() ) {
 	dataSocket->close();
     }
-    if ( !commandSocket->host().isEmpty() ) {
+    if ( commandSocket->isOpen() ) {
  	commandSocket->writeBlock( "quit\r\n", strlen( "quit\r\n" ) );
  	commandSocket->close();
     }
@@ -414,7 +402,7 @@ void QFtp::readyRead()
 }
 
 /*!
-  Handles responses from the server which which say that 
+  Handles responses from the server which which say that
   currently something couldn't be done and it should be tried later again.
 */
 
@@ -472,7 +460,7 @@ void QFtp::okGoOn( int code, const QCString &data )
 	int i = s.find( "(" );
 	int i2 = s.find( ")" );
 	s = s.mid( i + 1, i2 - i - 1 );
-	if ( !dataSocket->host().isEmpty() )
+	if ( dataSocket->isOpen() )
 	    dataSocket->close();
 	QStringList lst = QStringList::split( ',', s );
 	int port = ( lst[ 4 ].toInt() << 8 ) + lst[ 5 ].toInt();
@@ -490,9 +478,19 @@ void QFtp::okGoOn( int code, const QCString &data )
 	    passiveMode = TRUE;
 	} else if ( operationInProgress() &&
 		    operationInProgress()->operation() == OpRename ) { // rename successfull
-	    operationInProgress()->setState( StDone );
-	    emit itemChanged( operationInProgress() );
-	    emit finished( operationInProgress() );
+	    if ( operationInProgress()->state() == StWaiting ) {
+		operationInProgress()->setState( StInProgress );
+		QString oldname = operationInProgress()->arg1();
+		QString newname = operationInProgress()->arg2();
+		QString cmd( "RNFR " + oldname + "\r\n" );
+		commandSocket->writeBlock( cmd, cmd.length() );
+		cmd = "RNTO " + newname + "\r\n";
+		commandSocket->writeBlock( cmd, cmd.length() );
+	    } else {
+		operationInProgress()->setState( StDone );
+		emit itemChanged( operationInProgress() );
+		emit finished( operationInProgress() );
+	    }
 	} else if ( operationInProgress() &&
 		    operationInProgress()->operation() == OpRemove ) { // remove or cwd successful
 	    if ( operationInProgress()->state() == StWaiting ) {
@@ -790,6 +788,8 @@ void QFtp::reinitCommandSocket()
 		this, SLOT( closed() ) );
     disconnect( commandSocket, SIGNAL( readyRead() ),
 		this, SLOT( readyRead() ) );
+    disconnect( commandSocket, SIGNAL( error() ),
+		this, SLOT( error() ) );
     delete commandSocket;
     commandSocket = new QSocket( this );
     connect( commandSocket, SIGNAL( hostFound() ),
@@ -800,4 +800,20 @@ void QFtp::reinitCommandSocket()
 	     this, SLOT( closed() ) );
     connect( commandSocket, SIGNAL( readyRead() ),
 	     this, SLOT( readyRead() ) );
+    connect( commandSocket, SIGNAL( error() ),
+	     this, SLOT( error() ) );
+}
+
+void QFtp::error()
+{
+    if ( dataSocket->isOpen() )
+	dataSocket->close();
+    if ( operationInProgress() ) {
+	QString msg = tr( "Host not found or couldn't connect to: \n" + url()->host() );
+	operationInProgress()->setState( StFailed );
+	operationInProgress()->setProtocolDetail( msg );
+	operationInProgress()->setErrorCode( (int)ErrHostNotFound );
+	clearOperationQueue();
+	emit finished( operationInProgress() );
+    }
 }
