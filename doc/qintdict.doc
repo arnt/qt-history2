@@ -168,8 +168,8 @@
 
     Insert item \a item into the dictionary using key \a key.
 
-    The key does not have to be unique. If multiple items are inserted
-    with the same key, only the most recent item will be accessible.
+    Multiple items can have the same key, in which case only the last
+    item will be accessible using \l operator[]().
 
     \a item may not be 0.
 

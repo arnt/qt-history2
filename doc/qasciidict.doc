@@ -184,9 +184,8 @@
 
     Inserts the \a key with the \a item into the dictionary.
 
-    The key does not have to be a unique dictionary key. If multiple
-    items are inserted with the same key, only the last item will be
-    visible.
+    Multiple items can have the same key, in which case only the last
+    item will be accessible using \l operator[]().
 
     \a item may not be 0.
 
