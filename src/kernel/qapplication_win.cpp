@@ -3350,6 +3350,9 @@ bool QETWidget::translateCloseEvent( const MSG & )
 
 void QETWidget::eraseWindowBackground(HDC hdc)
 {
+    if (testAttribute(WA_NoSystemBackground))
+	return;
+
     const QWidget *w = this;
     QPoint offset;
     while (w->d->isBackgroundInherited()) {
