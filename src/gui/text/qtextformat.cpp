@@ -291,6 +291,8 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QTextFormat &fmt)
     \value FontFixedPitch
 
     \value TextColor
+    \value TextBackgroundColor
+    \value TextUnderlineColor
     \value TextVerticalAlignment
 
     \value IsAnchor
