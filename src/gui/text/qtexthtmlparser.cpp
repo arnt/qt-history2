@@ -693,6 +693,8 @@ void QTextHtmlParser::parse() {
                 if (wsm == QStyleSheetItem::WhiteSpacePre) {
                     if (c == QLatin1Char('\n'))
                         c = QChar::LineSeparator;
+                    else if (c == QLatin1Char('\r'))
+                        continue;
                 } else { // non-pre mode: collapse whitespace except nbsp
                     while (pos < len && txt.at(pos).isSpace()
                            && txt.at(pos) != QChar::Nbsp)
