@@ -291,8 +291,14 @@ QFile::fileName() const
 void
 QFile::setFileName(const QString &name)
 {
-    if(d->fileEngine)
-        d->fileEngine->setFileName(name);
+    if (isOpen()) {
+        qWarning("QFile::setFileName: file is already opened");
+        return;
+    }
+    if(d->fileEngine) {
+        delete d->fileEngine;
+        d->fileEngine = 0;
+    }
     d->fileName = name;
 }
 
