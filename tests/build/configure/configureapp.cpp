@@ -35,6 +35,7 @@ ConfigureApp::ConfigureApp( int& argc, char** argv ) : QApplication( argc, argv 
     dictionary[ "JPEG" ] = "no";
     dictionary[ "MNG" ] = "no";
     dictionary[ "BUILD_QMAKE" ] = "yes";
+    dictionary[ "DSPFILES" ] = "yes";
 
     if( QEnvironment::getEnv( "MKSPEC" ) == QString( "win32-msvc" ) )
 	dictionary[ "MAKE" ] = "nmake";
@@ -137,6 +138,10 @@ void ConfigureApp::parseCmdLine()
 	    ++args;
             qmakeDefines += (*args);
         }
+	else if( (*args) == "-no-dsp" )
+	    dictionary[ "DSPFILES" ] = "no";
+	else if( (*args) == "-dsp" )
+	    dictionary[ "DSPFILES" ] = "yes";
 
 	// Scan to see if any specific modules and drivers are enabled or disabled
 	for( QStringList::Iterator module = modules.begin(); module != modules.end(); ++module ) {
@@ -200,6 +205,8 @@ bool ConfigureApp::displayHelp()
 	cout << "-system-mng         Enable MNG support." << endl;
 	cout << "-no-jpeg          * Disable JPEG support." << endl;
 	cout << "-system-jpeg        Enable JPEG support." << endl << endl;
+	cout << "-no-dsp             Disable the generation of VC++ .DSP-files." << endl;
+	cout << "-dsp                Enable the generation of VC++ .DSP-files." << endl;
 	cout << "-D <define>         Add <define> to the list of defines." << endl;
 	cout << "-enable-*           Enable the specified module." << endl;
 	cout << "-disable-*          Disable the specified module." << endl << endl;
@@ -395,9 +402,11 @@ void ConfigureApp::findProjects( const QString& dirName )
 		    else
 			makeList += "Makefile";
 
-		    makeList += dirName;
-		    makeList += fi->fileName();
-		    makeList += fi->fileName().left( fi->fileName().length() - 4 ) + ".dsp";
+		    if( dictionary[ "DSPFILES" ] == "yes" ) {
+			makeList += dirName;
+			makeList += fi->fileName();
+			makeList += fi->fileName().left( fi->fileName().length() - 4 ) + ".dsp";
+		    }
 		}
 	    }
 	}
