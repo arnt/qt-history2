@@ -73,6 +73,8 @@ MainWindow::MainWindow()
     mdbShell->show();
 #endif
     readSettings();
+
+    statusBar();
 }
 
 MainWindow::~MainWindow()
@@ -157,15 +159,15 @@ void MainWindow::windowChanged()
         m_showGrid->setChecked(fw->hasFeature(AbstractFormWindow::GridFeature));
         m_readOnly->setChecked(!fw->hasFeature(AbstractFormWindow::EditFeature));
         m_widgetEditMode->setChecked(fw->editMode() == AbstractFormWindow::WidgetEditMode);
-        m_connectionEditMode->setChecked(fw->editMode() == AbstractFormWindow::ConnectionEditMode);        
+        m_connectionEditMode->setChecked(fw->editMode() == AbstractFormWindow::ConnectionEditMode);
     } else {
         //### re-enable when the bug in QAbstractItemView::reset() is fixed
         if (ObjectInspector *objectInspector = core->objectInspector())
             objectInspector->setFormWindow(0);
-            
+
         if (AbstractPropertyEditor *propertyEditor = core->propertyEditor())
             propertyEditor->setObject(0);
-            
+
         enableFormActions(false);
     }
 }
@@ -198,22 +200,22 @@ void MainWindow::selectionChanged()
 {
     if (AbstractFormWindow *fw = m_formManager->activeFormWindow()) {
         QWidget *sel = fw->cursor()->selectedWidget(0);
-        
+
         if (ObjectInspector *objectInspector = core->objectInspector())
             objectInspector->setFormWindow(fw);
-            
+
         if (AbstractPropertyEditor *propertyEditor = core->propertyEditor()) {
-            propertyEditor->setObject(sel); 
+            propertyEditor->setObject(sel);
         }
-            
+
         enableFormActions(true);
     } else {
         if (ObjectInspector *objectInspector = core->objectInspector())
             objectInspector->setFormWindow(0);
-            
-        if (AbstractPropertyEditor *propertyEditor = core->propertyEditor())        
+
+        if (AbstractPropertyEditor *propertyEditor = core->propertyEditor())
             propertyEditor->setObject(0);
-            
+
         enableFormActions(false);
     }
 }
@@ -318,7 +320,7 @@ void MainWindow::setupMenuBar()
     editModeGrp->addAction(m_widgetEditMode);
     editModeGrp->addAction(m_connectionEditMode);
     connect(editModeGrp, SIGNAL(triggered(QAction*)), this, SLOT(editMode(QAction*)));
-        
+
     m_readOnly = menu->addAction(tr("Read-Only"));
     m_readOnly->setCheckable(true);
     m_readOnly->setVisible(false);
@@ -329,7 +331,7 @@ void MainWindow::setupMenuBar()
     m_actionPE = menu->addAction(tr("&Property Editor"));
     m_actionPE->setShortcut(Qt::CTRL + Qt::Key_I);
     m_actionPE->setCheckable(true);
-    
+
     PropertyEditorView *tmpPE = qt_cast<PropertyEditorView *>(core->propertyEditor()->topLevelWidget());
     Q_ASSERT(tmpPE);
     connect(m_actionPE, SIGNAL(checked(bool)), this, SLOT(showPropertyEditor(bool)));
@@ -392,7 +394,7 @@ void MainWindow::editMode(QAction *action)
             fw->setEditMode(AbstractFormWindow::WidgetEditMode);
         else
             fw->setEditMode(AbstractFormWindow::ConnectionEditMode);
-    }    
+    }
 }
 
 void MainWindow::newForm()
@@ -608,7 +610,7 @@ void MainWindow::closeEvent(QCloseEvent *ev)
             case QMessageBox::Cancel:
                 ev->ignore();
                 return;
-                
+
             case QMessageBox::Yes: {
                 foreach (AbstractFormWindow *fw, dirtyForms) {
                     fw->show();
@@ -620,7 +622,7 @@ void MainWindow::closeEvent(QCloseEvent *ev)
                     }
                 }
             } break;
-                
+
             case QMessageBox::No: {
                 foreach (AbstractFormWindow *fw, dirtyForms)
                     fw->setDirty(false);
@@ -823,10 +825,10 @@ void MainWindow::updateWindowMenu()
         connect(m_actionWindowList, SIGNAL(triggered(QAction *)),
                 this, SLOT(activateFormWindow(QAction *)));
     }
-    
+
     qDeleteAll(m_showWindowActions.keys());
     m_showWindowActions.clear();
-    
+
     int totalWindows = m_formManager->formWindowCount();
     if (totalWindows && !m_actionWindowSeparator) {
         m_actionWindowSeparator = m_menuWindow->addSeparator();

@@ -26,7 +26,6 @@ HEADERS += widgetbox.h \
         widgetbox_global.h
 MOCABLES += widgetbox.cpp
 
-QMAKE_MOD_RCC = rcc_resource
 RESOURCES += widgetbox.qrc
 
 # DEFINES -= QT_COMPAT_WARNINGS

@@ -4,6 +4,7 @@
 
 #ifndef Q_WS_WIN
 extern int qInitResources_formeditor();
+extern int qInitResources_widgetbox();
 #endif // Q_WS_WIN
 
 int main(int argc, char *argv[])
@@ -61,6 +62,7 @@ int main(int argc, char *argv[])
 
 #ifndef Q_WS_WIN
     qInitResources_formeditor();
+    qInitResources_widgetbox();
 #endif // Q_WS_WIN
 
     MainWindow mw;
@@ -74,6 +76,6 @@ int main(int argc, char *argv[])
     }/* else {
         mw.newForm();
     }*/
-    
+
     return app.exec();
 }
