@@ -59,6 +59,8 @@ public:
     QSize dimension;
 };
 
+const char *qprinter_name_for_pagesize( QPrinter::PageSize ps );
+QPrinter::PageSize qprinter_pagesize_for_name( const QString &name );
 
 #endif
 #endif
