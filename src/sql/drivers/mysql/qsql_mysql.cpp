@@ -349,6 +349,7 @@ bool QMYSQLDriver::open( const QString & db,
 	    return FALSE;
     }
     setOpen( TRUE );
+    setOpenError( FALSE );
     return TRUE;
 }
 

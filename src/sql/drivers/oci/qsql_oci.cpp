@@ -2033,6 +2033,7 @@ bool QOCIDriver::open( const QString & db,
     if ( d->serverVersion == 0 )
 	d->serverVersion = -1;
     setOpen( TRUE );
+    setOpenError( FALSE );
     d->user = user.upper();
     
     QSqlQuery q = createQuery();

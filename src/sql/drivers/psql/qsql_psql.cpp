@@ -620,6 +620,7 @@ bool QPSQLDriver::open( const QString & db,
     setDatestyle( d->connection );
 
     setOpen( TRUE );
+    setOpenError( FALSE );
     return TRUE;
 }
 

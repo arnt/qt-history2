@@ -1261,6 +1261,7 @@ bool QODBCDriver::open( const QString & db,
     d->checkUnicode();
 
     setOpen( TRUE );
+    setOpenError( FALSE );
     return TRUE;
 }
 

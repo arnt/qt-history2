@@ -518,6 +518,7 @@ bool QTDSDriver::open( const QString & db,
 	return FALSE;
     }
     setOpen( TRUE );
+    setOpenError( FALSE );
     dbName = db;
     hostName = host;
     return TRUE;
