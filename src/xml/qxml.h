@@ -429,7 +429,7 @@ public:
 class QM_EXPORT QXmlEntityResolver
 {
 public:
-    virtual bool resolveEntity( const QString& publicId, const QString& systemId, QXmlInputSource* ret ) = 0;
+    virtual bool resolveEntity( const QString& publicId, const QString& systemId, QXmlInputSource*& ret ) = 0;
     virtual QString errorString() = 0;
 };
 
@@ -481,7 +481,7 @@ public:
     bool notationDecl( const QString& name, const QString& publicId, const QString& systemId );
     bool unparsedEntityDecl( const QString& name, const QString& publicId, const QString& systemId, const QString& notationName );
 
-    bool resolveEntity( const QString& publicId, const QString& systemId, QXmlInputSource* ret );
+    bool resolveEntity( const QString& publicId, const QString& systemId, QXmlInputSource*& ret );
 
     bool startDTD( const QString& name, const QString& publicId, const QString& systemId );
     bool endDTD();

@@ -1272,7 +1272,7 @@ finished:
   QXmlLexicalHandler
 */
 /*!
-  \fn bool QXmlEntityResolver::resolveEntity( const QString& publicId, const QString& systemId, QXmlInputSource* ret )
+  \fn bool QXmlEntityResolver::resolveEntity( const QString& publicId, const QString& systemId, QXmlInputSource*& ret )
 
   The reader will call this function before he opens any external entity,
   except the top-level document entity. The application may request the reader
@@ -1611,7 +1611,7 @@ bool QXmlDefaultHandler::unparsedEntityDecl( const QString&, const QString&,
   provided in the XML document.
 */
 bool QXmlDefaultHandler::resolveEntity( const QString&, const QString&,
-	QXmlInputSource* ret )
+	QXmlInputSource*& ret )
 {
     ret = 0;
     return TRUE;
