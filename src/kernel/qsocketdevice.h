@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketdevice.h#1 $
+** $Id: //depot/qt/main/src/kernel/qsocketdevice.h#2 $
 **
 ** Definition of QSocketDevice class
 **
@@ -101,6 +101,10 @@ public:
     int		 readBlock( char *data, uint maxlen );
     int		 writeBlock( const char *data, uint len );
 
+    int		getch() { return 0; }
+    int		putch( int ) { return 0; }
+    int		ungetch(int) { return 0; }
+
 #if defined(_OS_WIN32_)
     static bool	initWinSock();
 #endif
@@ -108,6 +112,12 @@ public:
 private:
     Type	 sock_type;
     int		 sock_fd;
+
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QSocketDevice( const QSocketDevice & );
+    QSocketDevice &operator=( const QSocketDevice & );
+#endif
 };
 
 

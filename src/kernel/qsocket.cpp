@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocket.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qsocket.cpp#3 $
 **
 ** Implementation of QSocket class
 **
@@ -24,180 +24,189 @@
 *****************************************************************************/
 
 #include "qsocket.h"
+#include "qlist.h"
+#include "qsocketdevice.h"
 
-#if defined(_OS_WIN32_)
-#include "qt_windows.h"
-#endif
-
-#if defined(UNIX)
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-#include <fcntl.h>
-#include <netinet/in.h>
+// gethostbyname
 #include <netdb.h>
-#include <errno.h>
-#endif
 
 
-#if defined(_OS_WIN32_)
-static void cleanupWinSock()
+class QSocketPrivate {
+public:
+    QSocketPrivate();
+    void init();
+
+    QSocket::State	state;			// connection state
+    QSocket::Mode	mode;			// mode for reading
+    QString		host;			// host name
+    int			port;			// host port
+    QSocketDevice      *socket;			// connection socket
+    QSocketNotifier    *rsn, *wsn;		// socket notifiers
+    QList<QByteArray>	rba, wba;		// list of read/write bufs
+    int			rsize, wsize;		// read/write total buf size
+    int			rindex, windex;		// read/write index
+};
+
+QSocketPrivate::QSocketPrivate()
+    : state(QSocket::Idle), mode(QSocket::Binary), host(""), port(0),
+      socket(0), rsn(0), wsn(0), rsize(0), wsize(0), rindex(0), windex(0)
 {
-    winsock_init = FALSE;
-    WSACleanup();
+    rba.setAutoDelete( TRUE );
+    wba.setAutoDelete( TRUE );
 }
 
-static bool initWinSock()
+void QSocketPrivate::init()
 {
-    static bool init = FALSE;
-    if ( !init ) {
-	init = TRUE;
-	qAddPostRoutine( cleanupWinSock );
-	WSAData wsadata;
-	bool error = WSAStartup(MAKEWORD(1,1),&wsadata) != 0;
-	if ( error ) {
-#if defined(CHECK_NULL)
-	    warning( "QSocket: WinSock initialization failed" );
-#endif
-	    return FALSE;
-	}
+    state = QSocket::Idle;
+    mode = QSocket::Binary;
+    host = "";
+    port = 0;
+    if ( socket ) {
+	delete socket;
+	socket = 0;
     }
-    return TRUE;
-}
-#endif // _OS_WIN32_
-
-
-#if defined(_OS_WIN32_)
-/*!
-  Windows only: This function initializes the winsock API.  You do not
-  need to call this function if you use the standard QSocket constructor
-  which creates a socket for you.  Returns TRUE if the winsock API
-  initialization was successful.
-*/
-
-bool QSocket::initWinSock()
-{
-    return ::initWinSock();
-}
-#endif
-
-
-/*!
-  Creates a QSocket object for a stream or datagram socket.
-
-  The \a type argument must be either
-  \c QSocket::Stream for a reliable, connection-oriented TCP socket, or
-  \c QSocket::Datagram for an unreliable, connectionless UDP socket.
-*/
-
-QSocket::QSocket( Type type )
-    : sock_fd(-1)
-{
-#if defined(_OS_WIN32_)
-    ::initWinSock();
-#endif
-    int s;
-    switch ( sock_type ) {			// create a socket
-	case Stream:
-	    s = ::socket( AF_INET, SOCK_STREAM, 0 );
-	    break;
-	case Datagram:
-	    s = ::socket( AF_INET, SOCK_DGRAM, 0 );
-	    break;
-	default:
-#if defined(CHECK_RANGE)
-	    warning( "QSocket::QSocket: Invalid socket type %d", sock_type );
-#endif
-	    s = -1;
-	    break;
+    if ( rsn ) {
+	delete rsn;
+	rsn = 0;
     }
-    if ( s != -1 )
-	setSocket( s, type );
+    if ( wsn ) {
+	delete wsn;
+	wsn = 0;
+    }
+    rba.clear();
+    wba.clear();
+    rsize = wsize = 0;
+    rindex = windex = 0;
 }
 
 
 /*!
-  Creates a QSocket object for an existing socket.
+  Creates a QSocket object in \c Idle state.
 
-  The \a type argument must match the actual socket type;
-  \c QSocket::Stream for a reliable, connection-oriented TCP socket, or
-  \c QSocket::Datagram for an unreliable, connectionless UDP socket.
+  This socket can be used to make a connection to a host using
+  the connectToHost() function.
 */
 
-QSocket::QSocket( int socket, Type type )
-    : sock_fd(-1)
+QSocket::QSocket()
 {
-    setSocket( socket, type );
+    d = new QSocketPrivate;
 }
 
 
 /*!
-  \fn bool QSocket::isValid() const
-
-  Returns TRUE if this is a valid socket or FALSE if it is an invalid
-  socket (socket() == -1).
-
-  \sa socket()
+  Creates a QSocket object for an existing connection using \a socket.
 */
 
-/*!
-  \fn QSocket::Type QSocket::type() const
-
-  Returns the socket type;
-  \c QSocket::Stream for a reliable, connection-oriented TCP socket, or
-  \c QSocket::Datagram for an unreliable, connectionless UDP socket.
-
-  \sa socket()
-*/
-
-/*!
-  \fn int QSocket::socket() const
-
-  Returns the socket number, or -1 if it is an invalid socket.
-
-  \sa isValid(), type()
-*/
-
-
-/*!
-  Sets an existing socket.
-
-  The \a type argument must match the actual socket type;
-  \c QSocket::Stream for a reliable, connection-oriented TCP socket, or
-  \c QSocket::Datagram for an unreliable, connectionless UDP socket.
-
-  If the previous socket is valid, this function will first call
-  close() to close it.
-
-  \sa isValid(), close()
-*/
-
-void QSocket::setSocket( int socket, Type type )
+QSocket::QSocket( int socket )
 {
-    if ( sock_fd != -1 )			// close any open socket
-	close();
-    sock_type = type;
-    sock_fd = socket;
+    d = new QSocketPrivate;
+    d->socket = new QSocketDevice( socket, QSocketDevice::Stream );
+    d->socket->setNonblocking( TRUE );
+    d->socket->setOption( QSocketDevice::ReuseAddress, TRUE );
+    d->state = Connection;
+    d->mode = Binary;
+    d->rsn = new QSocketNotifier(d->socket->socket(), QSocketNotifier::Read);
+    d->wsn = new QSocketNotifier(d->socket->socket(), QSocketNotifier::Write);
+    connect( d->rsn, SIGNAL(activated(int)), SLOT(sn_read()) );
+    d->rsn->setEnabled( TRUE );
+    connect( d->wsn, SIGNAL(activated(int)), SLOT(sn_write()) );
+    // Initialize the IO device flags
+    open( IO_ReadWrite );
     setFlags( IO_Sequential );
     setStatus( IO_Ok );
+}
+
+
+QSocket::~QSocket()
+{
+    if ( state() != Idle )
+	close();
+    delete d;
+}
+
+
+QSocket::State QSocket::state() const
+{
+    return d->state;
+}
+
+
+QSocket::Mode QSocket::mode() const
+{
+    return d->mode;
+}
+
+
+void QSocket::setMode( Mode mode )
+{
+    if ( d->mode == mode )
+	return;
+    d->mode = mode;
+}
+
+
+void QSocket::connectToHost( const QString &host, int port )
+{
+    if ( d->mode != Idle )
+	close();
+    // Re-initialize
+    d->init();
+    d->state = HostLookup;
+    d->mode = Binary;
+    d->host = host;
+    d->port = port;
+    // Host lookup - no async DNS yet
+    struct hostent *hp;
+    hp = gethostbyname( d->host );
+    if ( !hp ) {
+	d->state = Idle;
+	return;
+    }
+    // Now prepare a connection
+    d->state = Connecting;
+    d->socket = new QSocketDevice;
+    d->socket->setOption( QSocketDevice::ReuseAddress, TRUE );
+    d->socket->setNonblocking( TRUE );
+    QSocketAddress a( port, 0 ); // (int)*((struct in_addr *)(hp->h_addr_list[0])) );
+    d->socket->connect( a );
+    // Create and setup read/write socket notifiers
+    // The socket write notifier will fire when the connection succeeds
+    d->rsn = new QSocketNotifier(d->socket->socket(), QSocketNotifier::Read);
+    d->rsn->setEnabled( TRUE );
+    d->wsn = new QSocketNotifier(d->socket->socket(), QSocketNotifier::Write);
+    d->wsn->setEnabled( TRUE );
+    connect( d->rsn, SIGNAL(activated(int)), SLOT(sn_read()) );
+    connect( d->wsn, SIGNAL(activated(int)), SLOT(sn_write()) );    
+    // Initialize the IO device flags
     open( IO_ReadWrite );
+    setFlags( IO_Sequential );
+    setStatus( IO_Ok );
+}
+
+
+QString QSocket::host() const
+{
+    return d->host;
+}
+
+
+int QSocket::port() const
+{
+    return d->port;
 }
 
 
 /*!
   Opens the socket using the specified QIODevice file mode.  This function
-  is called from the QSocket constructors and from the setSocket() function
-  and you should not call it yourself.
-
+  is called automatically when needed and you should not call it yourself.
   \sa close().
 */
 
-bool QSocket::open( int mode )
+bool QSocket::open( int m )
 {
-    if ( isOpen() || !isValid() )
+    if ( isOpen() || d->socket == 0 )
 	return FALSE;
-    setMode( mode & (IO_ReadWrite) );
+    QIODevice::setMode( m & IO_ReadWrite );
     setState( IO_Open );
     return TRUE;
 }
@@ -205,21 +214,65 @@ bool QSocket::open( int mode )
 
 /*!
   Closes the socket and sets the socket identifier to -1 (invalid).
-
   \sa open()
 */
 
 void QSocket::close()
 {
-    if ( sock_fd == -1 || !isOpen() )		// already closed
+    if ( !isOpen() )				// already closed
 	return;
-#if defined(_OS_WIN32_)
-    ::closesocket( sock_fd );
-#else
-    ::close( sock_fd );
-#endif
-    sock_fd = -1;
+    if ( d->socket )
+	d->socket->close();
+    d->init();					// reinitialize
 }
+
+
+bool QSocket::skipReadBuf( int nbytes, char *copyInto )
+{
+    if ( nbytes <= 0 || nbytes > d->rsize )
+	return FALSE;
+    int copyPtr = 0;
+    d->rsize -= nbytes;    
+    while ( TRUE ) {
+	QByteArray *a = d->rba.first();
+	if ( d->rindex + nbytes >= (int)a->size() ) {
+	    if ( copyInto ) {
+	    }
+	    nbytes -= a->size() - d->rindex;	// got rid of whole buffer
+	    d->rba.remove();
+	    d->rindex = 0;
+	    if ( nbytes == 0 )
+		return TRUE;
+	} else {
+	    d->rindex += nbytes;
+	    return TRUE;
+	}
+    }
+    return FALSE;
+}
+
+
+bool QSocket::skipWriteBuf( int nbytes )
+{
+    if ( nbytes <= 0 || nbytes > d->wsize )
+	return FALSE;
+    d->wsize -= nbytes;
+    while ( TRUE ) {
+	QByteArray *a = d->wba.first();
+	if ( d->windex + nbytes >= (int)a->size() ) {
+	    nbytes -= a->size() - d->windex;	// got rid of whole buffer
+	    d->wba.remove();
+	    d->windex = 0;
+	    if ( nbytes == 0 )
+		return TRUE;
+	} else {
+	    d->windex += nbytes;
+	    return TRUE;
+	}
+    }
+    return FALSE;
+}
+
 
 
 /*!
@@ -233,20 +286,18 @@ void QSocket::flush()
 
 
 /*!
-  Implementation of the abstract virtual QIODevice::size() function.
-  The size is meaningless for a socket, therefore this function returns 0.
+  Returns the number of bytes that can be read.
 */
 
 uint QSocket::size() const
 {
-    return 0;
+    return d->rsize;
 }
 
 
 /*!
-  Implementation of the abstract virtual QIODevice::at() function.
-  The read/write index is meaningless for a socket, therefore
-  this function returns 0.
+  Returns the current read index.  Since QSocket is a sequential
+  device, the current read index is always zero.
 */
 
 int QSocket::at() const
@@ -256,293 +307,36 @@ int QSocket::at() const
 
 
 /*!
-  Implementation of the abstract virtual QIODevice::at(int) function.
-  The read/write index is meaningless for a socket, therefore
-  this function does nothing and returns TRUE.
+  Moves the read index forward and returns TRUE if the operation
+  was successful.
 */
 
-bool QSocket::at( int )
+bool QSocket::at( int index )
 {
+    if ( index < 0 || index >= d->rsize )
+	return FALSE;
+    skipReadBuf( index, 0 );			// throw away data 0..index-1
     return TRUE;
 }
 
 
 /*!
-  Implementation of the abstract virtual QIODevice::atEnd() function.
-  The read/write index is meaningless for a socket, therefore
-  this always returns FALSE.
+  Returns TRUE if there is no more data to read, otherwise FALSE.
 */
 
 bool QSocket::atEnd() const
 {
-    return FALSE;
+    return d->rsize == 0;
 }
 
 
 /*!
-  Returns TRUE if the socket is in nonblocking mode, or FALSE if it
-  is in blocking mode or if the socket is invalid.
-
-  \warning On Windows, this function always returns FALSE since the
-  ioctlsocket() function is broken.
-
-  \sa setNonblockingMode(), isValid()
-*/
-
-bool QSocket::nonblockingMode() const
-{
-    if ( !isValid() )
-	return FALSE;
-#if defined(_OS_WIN32_)
-    return FALSE;
-#else
-    int s = fcntl(sock_fd, F_GETFL, 0);
-    return s >= 0 && ((s & FNDELAY) != 0);
-#endif
-}
-
-
-/*!
-  Makes the socket nonblocking if \a enable is TRUE or blocking if
-  \a enable is FALSE.
-
-  Sockets are blocking by default, but you are recommended to enable
-  nonblocking socket operations, especially for GUI programs that need
-  to be responsive.
-
-  \warning On Windows, this function does nothing since the
-  ioctlsocket() function is broken.  Whenever you use a QSocketNotifier
-  on Windows, the socket is immediately made nonblocking automatically.
-
-  \sa nonblockingMode(), isValid()
-*/
-
-void QSocket::setNonblockingMode( bool enable )
-{
-    if ( !isValid() )
-	return;
-#if defined(_OS_WIN32_)
-    // Do nothing
-#else
-    int s = fcntl(sock_fd, F_GETFL, 0);
-    if ( s >= 0 ) {
-	if ( enable )
-	    s |= FNDELAY;
-	else
-	    s &= ~FNDELAY;
-	fcntl( sock_fd, F_SETFL, s );
-    }
-#endif
-}
-
-
-/*!
-  Returns a socket option.
-*/
-
-int QSocket::option( Option opt ) const
-{
-    if ( !isValid() )
-	return -1;
-    int n = -1;
-    int v = -1;
-    switch ( opt ) {
-	case Broadcast:
-	    n = SO_BROADCAST;
-	    break;
-	case Debug:
-	    n = SO_DEBUG;
-	    break;
-	case DontRoute:
-	    n = SO_DONTROUTE;
-	    break;
-	case KeepAlive:
-	    n = SO_KEEPALIVE;
-	    break;
-	case Linger:
-	    n = SO_LINGER;
-	    break;
-	case OobInline:
-	    n = SO_OOBINLINE;
-	    break;
-	case ReceiveBuffer:
-	    n = SO_RCVBUF;
-	    break;
-	case ReuseAddress:
-	    n = SO_REUSEADDR;
-	    break;
-	case SendBuffer:
-	    n = SO_SNDBUF;
-	    break;
-    }
-    if ( n != -1 ) {
-	if ( n == SO_LINGER ) {			// special handling for linger
-	    struct linger l;
-	    int len = sizeof(l);
-	    ::getsockopt( sock_fd, SOL_SOCKET, n, (char*)&l, (int*)&len );
-	    if ( l.l_onoff )
-		v = l.l_linger;
-	    else
-		v = -2;
-	} else {
-	    int len = sizeof(v);
-	    if ( ::getsockopt(sock_fd,SOL_SOCKET,n,(char*)&v,(int*)&len) < 0 )
-		return -1;			// error
-	}
-    }
-    return v;
-}
-
-
-/*!
-  Sets a socket option.
-*/
-
-void QSocket::setOption( Option opt, int v )
-{
-    if ( !isValid() )
-	return;
-    int n = -1;
-    switch ( opt ) {
-	case Broadcast:
-	    n = SO_BROADCAST;
-	    break;
-	case Debug:
-	    n = SO_DEBUG;
-	    break;
-	case DontRoute:
-	    n = SO_DONTROUTE;
-	    break;
-	case KeepAlive:
-	    n = SO_KEEPALIVE;
-	    break;
-	case Linger:
-	    n = SO_LINGER;
-	    break;
-	case OobInline:
-	    n = SO_OOBINLINE;
-	    break;
-	case ReceiveBuffer:
-	    n = SO_RCVBUF;
-	    break;
-	case ReuseAddress:
-	    n = SO_REUSEADDR;
-	    break;
-	case SendBuffer:
-	    n = SO_SNDBUF;
-	    break;
-    }
-    if ( n != -1 ) {
-	if ( n == SO_LINGER ) {			// special handling for linger
-	    struct linger l;
-	    if ( v >= 0 ) {
-		l.l_onoff = TRUE;
-		l.l_linger = v;
-	    } else {
-		l.l_onoff = FALSE;
-		l.l_linger = 0;
-	    }
-	    ::setsockopt( sock_fd, SOL_SOCKET, n, (char*)&l, sizeof(l));
-	} else {
-	    ::setsockopt( sock_fd, SOL_SOCKET, n, (char*)&v, sizeof(v));
-	}
-    }
-}
-
-
-/*!
-  ### TODO: Documentation.
-*/
-
-bool QSocket::connect( const QSocketAddress *addr )
-{
-    if ( !isValid() )
-	return FALSE;
-    return ::connect(sock_fd, (struct sockaddr*)addr->data(),
-		     addr->length()) == 0;
-}
-
-
-/*!
-  Assigns a name to an unnamed socket.  Returns TRUE if the operation
-  was successful, otherwise FALSE.
-
-  bind() is used by servers for setting up incoming connections.
-  Call bind() before listen(). 
-*/
-
-bool QSocket::bind( const QSocketAddress *name )
-{
-    if ( !isValid() )
-	return FALSE;
-    return ::bind(sock_fd, (struct sockaddr*)name->data(),
-		  name->length()) == 0;
-}
-
-
-/*!
-  Specifies how many pending connections a server socket can have.
-  Returns TRUE if the operation was successful, otherwise FALSE.
-
-  The listen() call only applies to sockets of \link setType()
-  type\endlink \c Stream, not \c Datagram sockets.  listen() must be
-  called after bind() and before accept(). It is common to use a
-  \a backlog value of 50 on most Unix systems.
-
-  \sa bind(), accept()
-*/
-
-bool QSocket::listen( int backlog )
-{
-    if ( !isValid() )
-	return FALSE;
-    return ::listen(sock_fd, backlog);
-}
-
-
-/*!
-  Extracts the first connection from the queue of pending connections
-  for this socket and returns a new socket identifier.  Returns -1
-  if the operation failed.
-
-  Returns the address of the connecting entity in \a addr.
-
-  \sa bind(), listen()
-*/
-
-int QSocket::accept( QSocketAddress *addr )
-{
-    if ( !isValid() )
-	return FALSE;
-    struct sockaddr a;
-    int l = sizeof(struct sockaddr);
-    int s = ::accept( sock_fd, (struct sockaddr*)&a, &l );
-    addr->setData( &a, l );
-    return s;
-}
-
-
-/*!
-  Returns the number of bytes available for reading, or -1 if an
-  error occurred.
+  Returns the number of bytes available for reading, same as size().
 */
 
 int QSocket::bytesAvailable() const
 {
-    if ( !isValid() )
-	return -1;
-#if defined(UNIX)
-    int nbytes = 0;
-    if ( ::ioctl(sock_fd, FIONREAD, (char*)&nbytes) < 0 )
-	return -1;
-    return nbytes;
-#endif
-#if defined(_OS_WIN32_)
-    u_long nbytes;
-    if ( ::ioctlsocket(sock_fd, FIONREAD, &nbytes) < 0 )
-	return -1;
-    return nbytes;
-#endif
+    return d->rsize;
 }
 
 
@@ -558,29 +352,16 @@ int QSocket::readBlock( char *data, uint maxlen )
 	warning( "QSocket::readBlock: Null pointer error" );
 #endif
     }
-#if defined(CHECK_STATE)
-    if ( !isValid() ) {
-	warning( "QSocket::readBlock: Invalid socket" );
-	return -1;
-    }
     if ( !isOpen() ) {
-	warning( "QSocket::readBlock: Device is not open" );
+#if defined(CHECK_STATE)
+	warning( "QSocket::readBlock: Socket is not open" );
+#endif
 	return -1;
     }
-    if ( !isReadable() ) {
-	warning( "QSocket::readBlock: Read operation not permitted" );
-	return -1;
-    }
-#else
-    if ( !isValid() || !isOpen() || !isReadable() )
-	return -1;
-#endif
-#if defined(_OS_WIN32_)
-    return ::recv( sock_fd, data, maxlen, 0 );
-#endif
-#if defined(UNIX)
-    return ::read( sock_fd, data, maxlen );
-#endif
+    if ( (int)maxlen >= d->rsize )
+	maxlen = d->rsize;
+    skipReadBuf( maxlen, data );
+    return maxlen;
 }
 
 
@@ -595,97 +376,71 @@ int QSocket::writeBlock( const char *data, uint len )
 #if defined(CHECK_NULL)
 	warning( "QSocket::writeBlock: Null pointer error" );
 #endif
-    }
-#if defined(CHECK_STATE)
-    if ( !isValid() ) {
-	warning( "QSocket::writeBlock: Invalid socket" );
 	return -1;
     }
     if ( !isOpen() ) {
-	warning( "QSocket::writeBlock: Device is not open" );
+#if defined(CHECK_STATE)
+	warning( "QSocket::writeBlock: Socket is not open" );
+#endif
 	return -1;
     }
-    if ( !isWritable() ) {
-	warning( "QSocket::writeBlock: Write operation not permitted" );
-	return -1;
+    if ( len == 0 )
+	return 0;
+    QByteArray *a = d->wba.last();
+    if ( a && a->size() + len < 128 ) {		// small buffer, resize
+	int i = a->size();
+	a->resize( i+len );
+	memcpy( a->data()+i, data, len );
+    } else {					// append new buffer
+	a = new QByteArray( len );
+	d->wba.append( a );
     }
-#else
-    if ( !isValid() || !isOpen() || !isWritable() )
-	return -1;
+    d->wsize += len;
+    d->wsn->setEnabled( TRUE );			// there's data to write
+    return len;
+}
+
+
+void QSocket::sn_read()
+{
+    int nbytes = d->socket->bytesAvailable();
+    if ( nbytes == 0 ) {			// connection closed
+	d->state = Idle;
+	emit closed();
+    } else if ( nbytes > 0 ) {			// data to be read
+	QByteArray *a = new QByteArray( nbytes );
+	int nread = d->socket->readBlock( a->data(), nbytes );
+	if ( nread != nbytes ) {		// unexpected
+#if defined(CHECK_RANGE)
+	    warning( "QSocket::sn_read: Unexpected short read" );
 #endif
-#if defined(_OS_WIN32_)
-    return ::send( sock_fd, data, len, 0 );
-#endif
-#if defined(UNIX)
-    return ::write( sock_fd, data, len );
-#endif
+	    a->resize( nread );
+	}
+	d->rba.append( a );
+	d->rsize += nread;
+	emit readyRead();
+    }
 }
 
 
-/*****************************************************************************
-  QSocketAddress member functions
- *****************************************************************************/
-
-void QSocketAddress::setData( void *data, int len )
+void QSocket::sn_write()
 {
-    if ( ptr )
-	delete [] ptr;
-    ptr = new char[len];
-    memcpy( ptr, data, len );
-}
-
-
-QSocketAddress::QSocketAddress()
-    : ptr(0)
-{
-    struct sockaddr_in a;
-    memset( &a, 0, sizeof(a) );
-    a.sin_family = AF_INET;
-    setData( &a, sizeof(a) );
-}
-
-
-QSocketAddress::QSocketAddress( int port, uint ip4Addr )
-    : ptr(0)
-{
-    struct sockaddr_in a;
-    memset( &a, 0, sizeof(a) );
-    a.sin_family = AF_INET;
-    a.sin_port = ntohs( port );
-    a.sin_addr.s_addr = ntohl( ip4Addr );
-    setData( &a, sizeof(a) );
-}
-
-
-QSocketAddress::QSocketAddress( const QSocketAddress &a )
-    : ptr(0)
-{
-    setData( a.ptr, a.len );
-}
-
-
-QSocketAddress & QSocketAddress::operator=( const QSocketAddress &a )
-{
-    setData( a.ptr, a.len );
-    return *this;
-}
-
-
-int QSocketAddress::port() const
-{
-    return htons(((struct sockaddr_in*)ptr)->sin_port);
-}
-
-
-uint QSocketAddress::ip4Addr() const
-{
-    return htonl(((struct sockaddr_in*)ptr)->sin_addr.s_addr);
-}
-
-
-bool QSocketAddress::operator==( const QSocketAddress &a )
-{
-    if ( a.len != len )
-	return FALSE;
-    return memcmp(ptr,a.ptr,len) == 0;
+    if ( d->state == Connecting ) {		// connection established
+	emit connected();
+    } else if ( d->state == Connection ) {
+	emit readyWrite();
+    }
+    if ( d->wsize > 0 ) {
+	QByteArray *a = d->wba.first();
+	int nwritten = d->socket->writeBlock( a->data() + d->windex,
+					      a->size() - d->windex );
+	if ( nwritten == (int)a->size() - d->windex ) {
+	    d->wba.remove();
+	    d->windex = 0;
+	} else {
+	    d->windex += nwritten;
+	}
+	d->wsize -= nwritten;
+    }
+    d->wsn->setEnabled( d->wsize > 0 );		// write if there's data
 }

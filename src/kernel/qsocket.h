@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocket.h#3 $
+** $Id: //depot/qt/main/src/kernel/qsocket.h#4 $
 **
 ** Definition of QSocket class
 **
@@ -27,104 +27,72 @@
 #define QSOCKET_H
 
 #ifndef QT_H
-#include "qiodevice.h"
+#include "qsocketdevice.h"
+#include "qsocketnotifier.h"
 #endif // QT_H
 
 
-class QSocketAddress
+class QSocketPrivate;
+
+
+class QSocket : public QObject, public QIODevice
 {
+    Q_OBJECT
 public:
-    QSocketAddress();
-    QSocketAddress( int port, uint ip4Addr=0 );
-    QSocketAddress( const QSocketAddress & );
-
-    QSocketAddress & operator=( const QSocketAddress & );
-
-    int		 port()    const;
-    uint	 ip4Addr() const;
-
-    bool	 operator==( const QSocketAddress & );
-
-protected:
-    void	*data()    const { return ptr; }
-    int		 length()  const { return len; }
-    void	 setData( void *, int );
-
-private:
-    char *ptr;
-    int   len;
-
-    friend class QSocket;
-};
-
-
-class QSocket : public QIODevice
-{
-public:
-    enum Type { Stream, Datagram };
-
-    QSocket( Type type = Stream );
-    QSocket( int socket, Type type );
+    QSocket();
+    QSocket( int socket );
    ~QSocket();
 
-    bool	 isValid() const;
-    Type	 type() const;
-    int		 socket() const;
-    virtual void setSocket( int socket, Type type );
+    enum State { Idle, HostLookup, Connecting, Connection };
+    State	 state() const;
 
+    enum Mode { Binary, Ascii };
+    Mode	 mode() const;
+    void	 setMode( Mode );
+
+    void	 connectToHost( const QString &host, int port );
+    QString	 host() const;
+    int		 port() const;
+
+    // Implementation of QIODevice abstract virtual functions
     bool	 open( int mode );
     void	 close();
     void	 flush();
-
-    // Implementation of QIODevice abstract virtual functions
     uint	 size() const;
     int		 at() const;
     bool	 at( int );
     bool	 atEnd() const;    
 
-    bool	 nonblockingMode() const;
-    virtual void setNonblockingMode( bool );
-
-    enum Option { Broadcast, Debug, DontRoute, KeepAlive, Linger,
-		  OobInline, ReceiveBuffer, ReuseAddress, SendBuffer };
-
-    int		 option( Option ) const;
-    virtual void setOption( Option, int );
-
-    bool	 connect( const QSocketAddress * );
-
-    virtual bool bind( const QSocketAddress *addr );
-    virtual bool listen( int backlog );
-    virtual int	 accept( QSocketAddress *addr );
-
     int		 bytesAvailable() const;
     int		 readBlock( char *data, uint maxlen );
     int		 writeBlock( const char *data, uint len );
 
-#if defined(_OS_WIN32_)
-    static bool	initWinSock();
-#endif
+signals:
+    void	 hostFound();
+    void	 connected();
+    void	 closed();
+    void	 readyRead();
+    void	 readyWrite();
+
+protected slots:
+    virtual void sn_read();
+    virtual void sn_write();
+
+protected:
+    QSocketDevice *socketDevice();
 
 private:
-    Type	 sock_type;
-    int		 sock_fd;
+    QSocketPrivate *d;
+
+    bool	 skipReadBuf( int nbytes, char * );
+    bool	 skipWriteBuf( int nbytes );
+
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QSocket( const QSocket & );
+    QSocket &operator=( const QSocket & );
+#endif
 };
-
-
-inline bool QSocket::isValid() const
-{
-    return sock_type != -1;
-}
-
-inline QSocket::Type QSocket::type() const
-{
-    return sock_type;
-}
-
-inline int QSocket::socket() const
-{
-    return sock_fd;
-}
 
 
 #endif // QSOCKET_H

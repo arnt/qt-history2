@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketnotifier.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qsocketnotifier.cpp#23 $
 **
 ** Implementation of QSocketNotifier class
 **
@@ -107,6 +107,8 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
   Note that on XFree86 for OS/2, select() only works in the thread in
   which main() is running, therefore you should use that thread for GUI
   operations.
+
+  \sa QSocket, QServerSocket, QSocketDevice
 */
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketdevice.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qsocketdevice.cpp#2 $
 **
 ** Implementation of QSocketDevice class
 **
@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qsocketdevice.h"
+#include <string.h>
 
 #if defined(_OS_WIN32_)
 #include "qt_windows.h"
@@ -202,7 +203,7 @@ bool QSocketDevice::open( int mode )
 {
     if ( isOpen() || !isValid() )
 	return FALSE;
-    setMode( mode & (IO_ReadWrite) );
+    setMode( mode & IO_ReadWrite );
     setState( IO_Open );
     return TRUE;
 }
@@ -459,12 +460,12 @@ void QSocketDevice::setOption( Option opt, int v )
   ### TODO: Documentation.
 */
 
-bool QSocketDevice::connect( const QSocketAddress *addr )
+bool QSocketDevice::connect( const QSocketAddress &addr )
 {
     if ( !isValid() )
 	return FALSE;
-    return ::connect(sock_fd, (struct sockaddr*)addr->data(),
-		     addr->length()) == 0;
+    return ::connect(sock_fd, (struct sockaddr*)addr.data(),
+		     addr.length()) == 0;
 }
 
 
@@ -476,12 +477,12 @@ bool QSocketDevice::connect( const QSocketAddress *addr )
   Call bind() before listen(). 
 */
 
-bool QSocketDevice::bind( const QSocketAddress *name )
+bool QSocketDevice::bind( const QSocketAddress &name )
 {
     if ( !isValid() )
 	return FALSE;
-    return ::bind(sock_fd, (struct sockaddr*)name->data(),
-		  name->length()) == 0;
+    return ::bind(sock_fd, (struct sockaddr*)name.data(),
+		  name.length()) == 0;
 }
 
 
@@ -562,6 +563,7 @@ int QSocketDevice::readBlock( char *data, uint maxlen )
 #if defined(CHECK_NULL)
 	warning( "QSocketDevice::readBlock: Null pointer error" );
 #endif
+	return -1;
     }
 #if defined(CHECK_STATE)
     if ( !isValid() ) {
@@ -600,6 +602,7 @@ int QSocketDevice::writeBlock( const char *data, uint len )
 #if defined(CHECK_NULL)
 	warning( "QSocketDevice::writeBlock: Null pointer error" );
 #endif
+	return -1;
     }
 #if defined(CHECK_STATE)
     if ( !isValid() ) {

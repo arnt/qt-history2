@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketnotifier.h#20 $
+** $Id: //depot/qt/main/src/kernel/qsocketnotifier.h#21 $
 **
 ** Definition of QSocketNotifier class
 **
@@ -40,22 +40,22 @@ public:
     QSocketNotifier( int socket, Type, QObject *parent=0, const char *name=0 );
    ~QSocketNotifier();
 
-    int		socket()	const;
-    Type	type()		const;
+    int		 socket()	const;
+    Type	 type()		const;
 
-    bool	isEnabled()	const;
-    virtual void	setEnabled( bool );
+    bool	 isEnabled()	const;
+    virtual void setEnabled( bool );
 
 signals:
-    void	activated( int socket );
+    void	 activated( int socket );
 
 protected:
-    bool	event( QEvent * );
+    bool	 event( QEvent * );
 
 private:
-    int		sockfd;
-    Type	sntype;
-    bool	snenabled;
+    int		 sockfd;
+    Type	 sntype;
+    bool	 snenabled;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
