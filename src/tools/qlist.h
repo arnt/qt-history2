@@ -455,8 +455,8 @@ QBool QList<T>::contains(const T &t) const
     Node *i = (Node*) p.end();
     while (i-- != b)
 	if (i->t() == t)
-	    return true;
-    return false;
+	    return QBool(true);
+    return QBool(false);
 }
 
 template <typename T>

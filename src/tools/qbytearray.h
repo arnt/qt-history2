@@ -289,9 +289,9 @@ inline void QByteArray::push_back(const char *c)
 inline void QByteArray::push_back(const QByteArray &a)
 { append(a); }
 inline QBool QByteArray::contains(const QByteArray &a) const
-{ return find(a) != -1; }
+{ return QBool(find(a) != -1); }
 inline QBool QByteArray::contains(char c) const
-{ return find(c) != -1; }
+{ return QBool(find(c) != -1); }
 inline QByteArray &QByteArray::operator=(const QByteArray & a)
 {
     Data *x = a.d; ++x->ref;

@@ -980,15 +980,11 @@ class QBool
 {
     bool b;
 public:
-    inline QBool(bool b):b(b){};
+    inline explicit QBool(bool b):b(b){};
     inline operator bool() const {return b;}
     inline bool operator!() const {return !b;}
 };
-inline bool operator==(QBool b1, bool b2) { return (bool)b1 == b2; }
-inline bool operator==(bool b1, QBool b2) { return b1 == (bool)b2; }
 inline bool operator==(QBool b1, QBool b2) { return (bool)b1 == (bool)b2; }
-inline bool operator!=(QBool b1, bool b2) { return (bool)b1 != b2; }
-inline bool operator!=(bool b1, QBool b2) { return b1 != (bool)b2; }
 inline bool operator!=(QBool b1, QBool b2) { return (bool)b1 != (bool)b2; }
 #else
 typedef bool QBool;
