@@ -920,7 +920,7 @@ void ClassDecl::fillInDocsForThis()
 		if ( func->name() == (*q)->readFunction() ) {
 		    if ( func->parameters().count() == 0 ) {
 			if ( whether )
-			    html = QString( "Returns TRUE if %1, otherwise"
+			    html = QString( "Returns TRUE if %1; otherwise"
 					    " returns FALSE" )
 				   .arg( brief.mid(8) );
 			else
@@ -935,8 +935,9 @@ void ClassDecl::fillInDocsForThis()
 				 .find((*q)->dataType().toString()) != -1 ) {
 			html = QString( "Sets " ) + brief;
 			if ( !func->parameters().first().name().isEmpty() )
-			    html += QString( " to " ) +
-				    func->parameters().first().name();
+			    html += QString( " to <em>" ) +
+				    func->parameters().first().name() +
+				    QString( "</em>" );
 		    }
 		}
 

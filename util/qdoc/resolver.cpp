@@ -22,7 +22,7 @@ bool Resolver::warnChangedSinceLastRun( const Location& /* loc */,
     return FALSE;
 }
 
-QString Resolver::relatedProperty( const QString& name ) const
+QString Resolver::relatedProperty( const QString& /* name */ ) const
 {
     return QString::null;
 }
