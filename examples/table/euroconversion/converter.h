@@ -18,7 +18,7 @@ private slots:
     void processValueChange( int, int );
 
 private:
-    double calculate( double );
+    double calculate( const double );
     int inputcurrency;
     QComboTableItem * currencies;
 

@@ -19,7 +19,7 @@ public:
     MyWidgetView( QWidget *parent=0, const char *name=0 )
 	:WidgetView(parent, name), s(0)
     {
-	setToolBarsMovable( true );
+	setToolBarsMovable( TRUE );
     }
 
     void button1Clicked() 
