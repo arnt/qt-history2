@@ -197,8 +197,15 @@ void TableEditor::newColumnClicked()
 {
 #ifndef QT_NO_TABLE
     table->setNumCols( table->numCols() + 1 );
-    table->horizontalHeader()->setLabel( table->numCols() - 1, QString::number( table->numCols() ) );
-    listColumns->insertItem( QString::number( table->numCols() ) );
+    QMap<QString, bool> m;
+    for ( int i = 0; i < table->numCols() - 1; ++i )
+	m.insert( table->horizontalHeader()->label( i ), TRUE );
+    int n = table->numCols() - 1;
+    QString t = QString::number( n );
+    while ( m.find( t ) != m.end() )
+	t = QString::number( ++n );
+    table->horizontalHeader()->setLabel( table->numCols() - 1, t );
+    listColumns->insertItem( t );
     QListBoxItem *i = listColumns->item( listColumns->count() - 1 );
     listColumns->setCurrentItem( i );
     listColumns->setSelected( i, TRUE );
@@ -215,8 +222,15 @@ void TableEditor::newRowClicked()
 {
 #ifndef QT_NO_TABLE
     table->setNumRows( table->numRows() + 1 );
-    table->verticalHeader()->setLabel( table->numRows() - 1, QString::number( table->numRows() ) );
-    listRows->insertItem( QString::number( table->numRows() ) );
+    QMap<QString, bool> m;
+    for ( int i = 0; i < table->numRows() - 1; ++i )
+	m.insert( table->verticalHeader()->label( i ), TRUE );
+    int n = table->numRows() - 1;
+    QString t = QString::number( n );
+    while ( m.find( t ) != m.end() )
+	t = QString::number( ++n );
+    table->verticalHeader()->setLabel( table->numRows() - 1, t );
+    listRows->insertItem( t );
     QListBoxItem *i = listRows->item( listRows->count() - 1 );
     listRows->setCurrentItem( i );
     listRows->setSelected( i, TRUE );
