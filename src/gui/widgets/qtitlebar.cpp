@@ -26,7 +26,6 @@
 #include "qstyleoption.h"
 #include "qtimer.h"
 #include "qtooltip.h"
-#include "qwindowsstyle.h"
 #ifndef QT_NO_WORKSPACE
 #include "qworkspace.h"
 #endif
@@ -529,7 +528,8 @@ void QTitleBar::cutText()
         return;
 
     QString txt = d->window->windowTitle();
-    if (qt_cast<QWindowsStyle *>(&style()) && d->window && d->window->isWindowModified())
+    if (style().styleHint(QStyle::SH_TitlebarModifyNotification, 0, this) && d->window
+        && d->window->isWindowModified())
         txt += " *";
 
     QString cuttext = txt;

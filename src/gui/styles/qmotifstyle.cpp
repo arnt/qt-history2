@@ -2544,6 +2544,9 @@ int QMotifStyle::styleHint(StyleHint hint,
     case SH_GUIStyle:
         ret = Qt::MotifStyle;
         break;
+    case SH_DrawMenuBarSeparator:
+        ret = true;
+        break;
 
     // #ifndef QT_NO_PALETTE
     // case SH_ScrollBar_BackgroundRole:

@@ -187,11 +187,9 @@ void QMenuBarPrivate::calcActionRects(int max_width, int start, QMap<QAction*, Q
 
         //calc what I think the size is..
         if(action->isSeparator()) {
-            /* ### FIX THIS  Need a real style hint -- TWS
-            if(qt_cast<QMotifStyle *>(&q->style()))
+            if (q->style().styleHint(QStyle::SH_DrawMenuBarSeparator))
                 separator = actionRects.count();
             continue; //we don't really position these!
-            */
         } else {
             QString s = action->text();
             int w = fm.width(s);

@@ -689,6 +689,11 @@ public:
 #ifdef QT_COMPAT
         SH_UnderlineAccelerator = SH_UnderlineShortcut,
 #endif
+        // bool - if the menubar should have a menubar or not.
+        SH_DrawMenuBarSeparator,
+
+        // bool - If the titlebar should show a * for modified Windows
+        SH_TitlebarModifyNotification,
 
         // do not add any values below/greater than this
         SH_CustomBase = 0xf0000000
