@@ -2475,6 +2475,7 @@ void FormWindow::setMainContainer( QWidget *w )
 		MetaDataBase::setEventFunctions( mainContainer(), this, project()->language(), it.key(), QStringList( *it ) );
 	}
     }
+    MainWindow::self->addScriptObject( mainContainer() );
 }
 
 bool FormWindow::savePixmapInline() const

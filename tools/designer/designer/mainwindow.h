@@ -66,6 +66,9 @@ class ReplaceDialog;
 class GotoLineDialog;
 class SourceFile;
 class FormFile;
+#if defined(APP_SCRIPTING)
+class QuickEngine;
+#endif
 
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
 #include <qtoolbar.h>
@@ -170,6 +173,11 @@ public:
     void popupProjectMenu( const QPoint &pos );
     QObject *findRealObject( QObject *o );
 
+    void addScriptObject( QObject *obj );
+#if defined(APP_SCRIPTING)
+    QuickEngine *scriptInterpreter() const { return scriptEngine; }
+#endif
+
 public slots:
     void showProperties( QObject *w );
     void updateProperties( QObject *w );
@@ -261,6 +269,8 @@ public slots:
     void helpAboutQt();
     void helpRegister();
 
+    void scriptsManage();
+
 private slots:
     void activeWindowChanged( QWidget *w );
     void updateUndoRedo( bool, bool, const QString &, const QString & );
@@ -296,6 +306,7 @@ private:
     void setupPreviewActions();
     void setupHelpActions();
     void setupRMBMenus();
+    void setupScriptActions();
 
     void setupPropertyEditor();
     void setupHierarchyView();
@@ -331,6 +342,8 @@ private:
     QWidget *findRealForm( QWidget *w );
 
     QString whatsThisFrom( const QString &key );
+
+    void initScriptEngine();
 
 private slots:
     void doSlotsChanged();
@@ -432,6 +445,10 @@ private:
     QGuardedPtr<QWidget> previewedForm;
     QPopupMenu *projectMenu;
     QString menuHelpFile;
+
+#if defined(APP_SCRIPTING)
+    QuickEngine *scriptEngine;
+#endif
 
 public:
     QString lastSaveFilter;
