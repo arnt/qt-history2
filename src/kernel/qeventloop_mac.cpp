@@ -605,12 +605,9 @@ int QEventLoop::macHandleSelect(timeval *tm)
 	// if select says data is ready on any socket, then set the socket notifier
 	// to pending
 	for(int i=0; i<3; i++) {
-	    if(!d->sn_vec[i].list)
-		continue;
-
 	    QList<QSockNot *> &list = d->sn_vec[i].list;
-	    for (int i = 0; i < list.size(); ++i) {
-		QSockNot *sn = list.at(i);
+	    for (int j = 0; j < list.size(); ++j) {
+		QSockNot *sn = list->at(j);
 		if(FD_ISSET(sn->fd, &d->sn_vec[i].select_fds))
 		    setSocketNotifierPending(sn->obj);
 	    }
