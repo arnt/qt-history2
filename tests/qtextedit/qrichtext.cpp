@@ -2854,9 +2854,9 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	}
 
 	//if something (format, etc.) changed, draw what we have so far
-// 	if ( lastDirection != chr->rightToLeft || chr->rightToLeft ||
-// 	     lastY != cy || chr->format() != lastFormat || buffer == "\t" || chr->c == '\t' ||
-// 	     selectionChange || chr->isCustom ) {
+	if ( lastDirection != chr->rightToLeft || chr->rightToLeft ||
+	     lastY != cy || chr->format() != lastFormat || buffer == "\t" || chr->c == '\t' ||
+	     selectionChange || chr->isCustom ) {
 	    drawParagBuffer( painter, buffer, startX, lastY, lastBaseLine, bw, h, drawSelections,
 			     lastFormat, i, selectionStarts, selectionEnds, cg );
 	    if ( !chr->isCustom ) {
@@ -2882,10 +2882,10 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 		    bw = 0;
 		}
 	    }
-// 	} else {
-// 	    buffer += chr->c;
-// 	    bw += cw;
-// 	}
+	} else {
+	    buffer += chr->c;
+	    bw += cw;
+	}
 	lastBaseLine = baseLine;
 	lastDirection = chr->rightToLeft;
     }
