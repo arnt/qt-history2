@@ -2427,7 +2427,8 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	bool use_core = TRUE;
 
 #ifndef QT_NO_XFTFREETYPE
-	if (qt_has_xft && ! (request.styleStrategy & QFont::PreferBitmap) ) {
+	if (qt_has_xft && ! (request.styleStrategy & QFont::PreferBitmap) &&
+            ! request.rawMode ) {
 	    xftmatch = findXftFont(sample, &match);
 
 	    if (xftmatch) {
@@ -2449,7 +2450,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 
 		if (! match && script == QFontPrivate::defaultScript)
 		    name = lastResortFont();
-		else
+		else if ( script != QFontPrivate::defaultScript )
 		    name = QString::null;
 	    } else {
 		name = findFont(script, &match);
