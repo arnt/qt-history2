@@ -1,50 +1,50 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbasic.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qbasic.cpp#6 $
 **
 **  Studies in Geometry Management
 **
 **  Author:   Paul Olav Tvete
 **  Created:  960406
 **
-** Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1996 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
 #include <qlist.h>
 
-#include <qrect.h> 
-#include <qevent.h> 
-#include <qpoint.h> 
+#include <qrect.h>
+#include <qevent.h>
+#include <qpoint.h>
 #include "qbasic.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#5 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#6 $")
 
 
 
 /*!
   \class QBasicManager qbasic.h
   \brief The QBasicManager class provides one-dimensional geometry management.
-  
+
   This class is not for the faint of heart. The QGeomManager class is
   available for normal application programming.
 
   */
 
 
-static inline bool horz( QBasicManager::Direction dir ) 
-{ 
+static inline bool horz( QBasicManager::Direction dir )
+{
     return dir == QBasicManager::RightToLeft || dir == QBasicManager::LeftToRight;
 }
 struct WidgetInfo {
-    QRect geom; 
+    QRect geom;
     QWidget *widget;
 };
 
 typedef QIntDict<WidgetInfo> wDict;
 
 
-WidgetInfo *lookup( QWidget * w, wDict & table, 
+WidgetInfo *lookup( QWidget * w, wDict & table,
 		    bool create = FALSE )
 {
     WidgetInfo *wi = table[ (long) w ];
@@ -72,18 +72,18 @@ static void setWinfo( QWidget * w, wDict &dict, QBasicManager::Direction d, int 
 }
 
 
-class QChain 
+class QChain
 {
 public:
 
     QChain( QBasicManager::Direction d ) { dir = d; }
 
-    bool add( QChain *s, int stretch ) 
-    { 
+    bool add( QChain *s, int stretch )
+    {
 	if ( addC(s) ) {
-	    s->sstretch = stretch; 
+	    s->sstretch = stretch;
 	    return TRUE;
-	} else 
+	} else
 	    return FALSE;
     }
 
@@ -109,11 +109,11 @@ private:
 class SpaceChain : public QChain
 {
 public:
-    SpaceChain( QBasicManager::Direction d, int min, int max ) 
+    SpaceChain( QBasicManager::Direction d, int min, int max )
 	: QChain( d ), minsize( min ), maxsize( max ) {}
     // needs direction for consistency check.....
     bool addC( QChain * ) { return FALSE; }
-    
+
 
     void distribute( wDict&, int, int ) {}
 
@@ -128,11 +128,11 @@ private:
 class WidChain : public QChain
 {
 public:
-    WidChain( QBasicManager::Direction d,  QWidget * w ) 
+    WidChain( QBasicManager::Direction d,  QWidget * w )
 	: QChain( d ), widget ( w ) {}
     bool addC( QChain * ) { return FALSE; }
-    
-    int minSize() 
+
+    int minSize()
     {
 	int wid = 0;
 	int h = 0;
@@ -142,7 +142,7 @@ public:
 	else
 	    return h;
     }
-    int maxSize()  
+    int maxSize()
     {
 	int wid = QBasicManager::unlimited;
 	int h = QBasicManager::unlimited;
@@ -152,8 +152,8 @@ public:
 	else
 	    return h;
     }
-    void distribute( wDict & wd, int pos, int space ) { 
-	setWinfo( widget, wd, direction(),  pos, space ); 
+    void distribute( wDict & wd, int pos, int space ) {
+	setWinfo( widget, wd, direction(),  pos, space );
     }
 
 private:
@@ -165,14 +165,14 @@ class ParChain : public QChain
 {
 public:
 
-    ParChain( QBasicManager::Direction  d ) 
-	: QChain( d ) 
+    ParChain( QBasicManager::Direction	d )
+	: QChain( d )
     {
     }
 
     ~ParChain() {}
     bool addC( QChain *s );
-    
+
     void recalc();
 
     void distribute( wDict &, int, int );
@@ -199,7 +199,7 @@ public:
     ~SerChain() {}
 
     bool addC( QChain *s );
-    
+
     void recalc();
 
     void distribute( wDict &, int, int);
@@ -220,8 +220,8 @@ private:
 
 void ParChain::distribute( wDict & wd, int pos, int space )
 {
-    uint i;
-    for ( i = 0; i < chain.size(); i++ ) {
+    int i;
+    for ( i = 0; i < (int)chain.size(); i++ ) {
 	chain[i]->distribute(  wd, pos, space );
     }
 }
@@ -239,25 +239,25 @@ void SerChain::distribute( wDict & wd, int pos, int space )
        direction() == QBasicManager::Up;
 
     int available = space - minSize();
-    if ( available < 0 ) 
+    if ( available < 0 )
 	available = 0;
     int sf = sumStretch();
 
     QArray<int> size( chain.size() );
-    uint i;
-    for ( i = 0; i < chain.size(); i++ ) 
+    int i;
+    for ( i = 0; i < (int)chain.size(); i++ )
 	size[i] = 0;
     bool doAgain = TRUE;
     int numChains = chain.size();
     while ( doAgain && numChains ) {
 	doAgain = FALSE;
-	for ( i = 0; i < chain.size(); i++ ) {
+	for ( i = 0; i < (int)chain.size(); i++ ) {
 	    if ( size[i] == chain[i]->maxSize() )
 		continue;
 	    int siz = chain[i]->minSize();
 	    if ( sf )
 		siz += ( available * chain[i]->stretch() ) / sf;
-	    else 
+	    else
 		siz += available  / numChains;
 	    if ( siz >= chain[i]->maxSize() ) {
 		size[i] = chain[i]->maxSize();
@@ -272,7 +272,7 @@ void SerChain::distribute( wDict & wd, int pos, int space )
     }
     if ( backwards )
 	pos += space;
-    for ( i = 0; i < chain.size(); i++ ) {
+    for ( i = 0; i < (int)chain.size(); i++ ) {
 	if ( backwards ) {
 	    pos -= size[i];
 	    chain[i]->distribute( wd, pos, size[i] );
@@ -280,28 +280,26 @@ void SerChain::distribute( wDict & wd, int pos, int space )
 	    chain[i]->distribute( wd, pos, size[i] );
 	    pos += size[i];
 	}
-		   
-    }	
-    
+
+    }
+
 }
 
-void ParChain::recalc() 
-{ 
-    uint i;
-    for ( i = 0; i < chain.size(); i ++ ) 
+void ParChain::recalc()
+{
+    for ( int i = 0; i < (int)chain.size(); i ++ )
 	chain[i]->recalc();
-    maxsize = minMax(); 
-    minsize = maxMin(); 
+    maxsize = minMax();
+    minsize = maxMin();
 }
 
 
 int ParChain::maxMin()
 {
     int max = 0;
-    uint i;
-    for ( i = 0; i < chain.size(); i ++ ) {
+    for ( int i = 0; i < (int)chain.size(); i ++ ) {
 	int m = chain[i]->minSize();
-	if ( m  > max )
+	if ( m	> max )
 	    max = m;
     }
     return max;
@@ -310,8 +308,7 @@ int ParChain::maxMin()
 int ParChain::minMax()
 {
     int min = QBasicManager::unlimited;
-    uint i;
-    for ( i = 0; i < chain.size(); i ++ ) {
+    for ( int i = 0; i < (int)chain.size(); i ++ ) {
 	int m = chain[i]->maxSize();
 	if ( m < min )
 	    min = m;
@@ -319,21 +316,19 @@ int ParChain::minMax()
     return min;
 }
 
-void SerChain::recalc() 
-{ 
-    uint i;
-    for ( i = 0; i < chain.size(); i ++ ) 
+void SerChain::recalc()
+{
+    for ( int i = 0; i < (int)chain.size(); i ++ )
 	chain[i]->recalc();
-    minsize = sumMin(); 
-    maxsize = sumMax(); 
+    minsize = sumMin();
+    maxsize = sumMax();
 }
 
 
 int SerChain::sumStretch()
 {
     int s = 0;
-    uint i;
-    for ( i = 0; i < chain.size(); i ++ )
+    for ( int i = 0; i < (int)chain.size(); i ++ )
 	 s += chain[i]->stretch();
     return s;
 }
@@ -341,8 +336,7 @@ int SerChain::sumStretch()
 int SerChain::sumMin()
 {
     int s = 0;
-    uint i;
-    for ( i = 0; i < chain.size(); i ++ )
+    for ( int i = 0; i < (int)chain.size(); i ++ )
 	s += chain[i]->minSize();
     return s;
 }
@@ -350,8 +344,7 @@ int SerChain::sumMin()
 int SerChain::sumMax()
 {
     int s = 0;
-    uint i;
-    for ( i = 0; i < chain.size(); i ++ )
+    for ( int i = 0; i < (int)chain.size(); i ++ )
 	s += chain[i]->maxSize();
     if ( s > QBasicManager::unlimited )
 	s = QBasicManager::unlimited;
@@ -364,7 +357,7 @@ bool SerChain::addC( QChain *s )
 {
      if ( horz( s->direction() ) != horz( direction() ) )
 	return FALSE;
-    uint n = chain.size();
+    int n = chain.size();
     chain.resize( n + 1 );
     chain[n] = s;
     return TRUE;
@@ -374,7 +367,7 @@ bool ParChain::addC( QChain *s )
 {
      if ( horz( s->direction() ) != horz( direction() ) )
 	return FALSE;
-    uint n = chain.size();
+    int n = chain.size();
     chain.resize( n + 1 );
     chain[n] = s;
     return TRUE;
@@ -386,7 +379,7 @@ QBasicManager::QBasicManager( QWidget *parent, const char *name )
     main = parent;
 
     xC = new ParChain( LeftToRight );
-    yC = new ParChain(  Down );
+    yC = new ParChain(	Down );
 
     if ( parent )
 	parent->installEventFilter( this );
@@ -395,7 +388,7 @@ QBasicManager::QBasicManager( QWidget *parent, const char *name )
 
 QChain * QBasicManager::newParChain( Direction d )
 {
-    QChain * c = new ParChain( d ); 
+    QChain * c = new ParChain( d );
     CHECK_PTR(c);
     return c;
 }
@@ -403,7 +396,7 @@ QChain * QBasicManager::newParChain( Direction d )
 
 QChain * QBasicManager::newSerChain( Direction d )
 {
-    QChain * c = new SerChain( d ); 
+    QChain * c = new SerChain( d );
     CHECK_PTR(c);
     return c;
 }
@@ -430,7 +423,7 @@ bool QBasicManager::addSpacing( QChain *d, int minSize, int stretch, int maxSize
 
 bool QBasicManager::eventFilter( QObject *o, QEvent *e )
 {
-    if ( !o->inherits( "QWidget" )) 
+    if ( !o->inherits( "QWidget" ))
 	return FALSE;
 
     QWidget *w = (QWidget*)o;
@@ -438,10 +431,10 @@ bool QBasicManager::eventFilter( QObject *o, QEvent *e )
     if ( e->type() == Event_Resize ) {
 	QResizeEvent *r = (QResizeEvent*)e;
 	resizeHandle( w, r->size() );
-	return TRUE;                        // eat event
+	return TRUE;			    // eat event
     }
 
-    return FALSE;                           // standard event processing
+    return FALSE;			    // standard event processing
 }
 
 void QBasicManager::resizeHandle( QWidget *, const QSize & )
@@ -450,14 +443,14 @@ void QBasicManager::resizeHandle( QWidget *, const QSize & )
 }
 
 
-bool QBasicManager::doIt() 
+bool QBasicManager::doIt()
 {
     yC->recalc();
     xC->recalc();
-    
+
     int ys = yC->minSize() + 2*border;
     int xs = xC->minSize() + 2*border;
-	     
+
     if (  main->width() < xs && main->height() < ys )
 	main->resize( xs , ys );
     else if (  main->width() < xs )
@@ -473,7 +466,7 @@ bool QBasicManager::doIt()
     xs = xC->maxSize() + 2*border;
     if ( xs > QBasicManager::unlimited )
 	xs = QBasicManager::unlimited;
-	     
+
     if (  main->width() > xs && main->height() > ys )
 	main->resize( xs , ys );
     else if (  main->width() > xs )
@@ -484,7 +477,7 @@ bool QBasicManager::doIt()
     main->setMaximumSize( xs, ys );
 
 
-    resizeAll(); 
+    resizeAll();
 
     return TRUE;
 
