@@ -45,9 +45,9 @@
 #include "qwindowdefs.h"
 #include "qplatformdefs.h"
 
-// almost always the same. If not, specify in qplatformdefs.h.
+// Almost always the same. If not, specify in qplatformdefs.h.
 #if !defined(QT_SOCKOPTLEN_T)
-#define QT_SOCKOPTLEN_T QT_SOCKLEN_T
+# define QT_SOCKOPTLEN_T QT_SOCKLEN_T
 #endif
 
 // Tru64 redefines accept() to _accept() when _XOPEN_SOURCE_EXTENDED is
@@ -58,8 +58,8 @@ inline int qt_socket_accept(int s, struct sockaddr *addr, QT_SOCKLEN_T *addrlen)
 # undef accept
 #endif
 
-// Solaris 2.6 redefines connect to __xnet_connect when _XOPEN_SOURCE_EXTENDED
-// is defined.  This breaks our sources.
+// Solaris redefines connect to __xnet_connect when _XOPEN_SOURCE_EXTENDED is
+// defined.  This breaks our sources.
 inline int qt_socket_connect(int s, const struct sockaddr *addr, QT_SOCKLEN_T addrlen)
 { return ::connect(s, addr, addrlen); }
 #if defined(connect)
@@ -788,7 +788,7 @@ Q_LONG QSocketDevice::writeBlock( const char * data, Q_ULONG len,
     if ( !host.isIp4Addr() ) {
 	qWarning( "QSocketDevice: IPv6 is not supported by this version" );
 	e = Impossible;
-	return FALSE;
+	return -1;
     }
     struct sockaddr_in aa;
     memset( &aa, 0, sizeof(aa) );
