@@ -291,7 +291,7 @@ static const int QT_BUFFER_LENGTH = 8196;	// internal buffer length
 const unsigned char * p_str(const char * c, int len=-1)
 {
     const int maxlen = 255;
-    static unsigned char ret[maxlen+2];
+    unsigned char ret[maxlen+2];
 
     if(len == -1)
 	len = qstrlen(c);

@@ -11258,6 +11258,7 @@ static const Q_UINT16 symmetricPairs[] = {
     0xFF5B, 0xFF5D, 0xFF5D, 0xFF5B, 0xFF62, 0xFF63, 0xFF63, 0xFF62,
 };
 
+// ### shouldn't this be const?
 static int symmetricPairsSize =
    sizeof(symmetricPairs)/sizeof(symmetricPairs[0]);
 
@@ -11801,6 +11802,7 @@ QChar QChar::mirroredChar() const
 }
 
 #ifndef QT_NO_UNICODETABLES
+// ### REMOVE ME 4.0
 static QString shared_decomp;
 #endif
 /*!
@@ -11820,6 +11822,8 @@ const QString &QChar::decomposition() const
     QString s;
     Q_UINT16 c;
     while((c = decomposition_map[pos++]) != 0) s += QChar(c);
+    // ### In 4.0, return s, and not shared_decomp.  shared_decomp
+    // prevents this function from being reentrant.
     shared_decomp = s;
     return shared_decomp;
 #else
@@ -12872,7 +12876,7 @@ void QString::truncate( uint newLen )
 
 void QString::setLength( uint newLen )
 {
-    if ( d->count != 1 || newLen > d->maxl || 
+    if ( d->count != 1 || newLen > d->maxl ||
 	 ( newLen * 4 < d->maxl && d->maxl > 4 ) ) {
 	// detach, grow or shrink
 	Q2HELPER(stat_copy_on_write++)
@@ -13087,10 +13091,6 @@ bool QString::findArg( int& pos, int& len ) const
     return lowest != 0;
 }
 
-#if !defined( QT_NO_COMPONENT ) && !defined( QT_LITE_COMPONENT ) && !defined(QT_NO_REGEXP)
-static QCleanupHandler<QRegExp> qt_regexp_cleanup;
-#endif
-
 /*!
   Safely builds a formatted string from the format string \a cformat and an
   arbitrary list of arguments.  The format string supports all
@@ -13131,21 +13131,15 @@ QString &QString::sprintf( const char* cformat, ... )
     }
     QString format = fromLatin1( cformat );
 
-    static QRegExp *escape = 0;
-    if (!escape) {
-	escape = new QRegExp( "%#?0?-? ?\\+?'?[0-9*]*\\.?[0-9*]*h?l?L?q?Z?" );
-#if !defined( QT_NO_COMPONENT ) && !defined( QT_LITE_COMPONENT )
-	qt_regexp_cleanup.add( &escape );
-#endif
-    }
+    QRegExp escape( "%#?0?-? ?\\+?'?[0-9*]*\\.?[0-9*]*h?l?L?q?Z?" );
     QString result;
     uint last = 0;
     int pos;
     int len = 0;
 
     for (;;) {
-	pos = escape->search( format, last );
-	len = escape->matchedLength();
+	pos = escape.search( format, last );
+	len = escape.matchedLength();
 	// Non-escaped text
 	if ( pos > (int)last )
 	    result += format.mid( last, pos - last );
@@ -15345,6 +15339,9 @@ const char* QString::latin1() const
 */
 QCString QString::utf8() const
 {
+    // ### reentrancy problem.  depending on the compiler, 2 threads
+    // could try to initialize codec at the same time, possibly causing
+    // problems with the codec list initialization...
     static QTextCodec* codec = QTextCodec::codecForMib(106);
     return codec
 	    ? codec->fromUnicode(*this)
@@ -15366,6 +15363,9 @@ QCString QString::utf8() const
 */
 QString QString::fromUtf8( const char* utf8, int len )
 {
+    // ### reentrancy problem.  depending on the compiler, 2 threads
+    // could try to initialize codec at the same time, possibly causing
+    // problems with the codec list initialization...
     static QTextCodec* codec = QTextCodec::codecForMib( 106 );
     if ( len < 0 ) len = qstrlen( utf8 );
     return codec ? codec->toUnicode( utf8, len ) : fromLatin1( utf8, len );

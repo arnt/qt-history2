@@ -169,7 +169,7 @@ public:
     Joining joining() const;
     bool mirrored() const;
     QChar mirroredChar() const;
-    const QString &decomposition() const;
+    const QString &decomposition() const; // ### return just QString in 4.0
     Decomposition decompositionTag() const;
     unsigned char combiningClass() const;
 
@@ -719,7 +719,8 @@ inline QString::~QString()
     if ( d->deref() ) {
         if ( d == shared_null )
             shared_null = 0;
-        d->deleteSelf();
+	else
+	    d->deleteSelf();
     }
 }
 

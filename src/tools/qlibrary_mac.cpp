@@ -31,6 +31,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef QT_THREAD_SUPPORT
+#  include <private/qmutexpool_p.h>
+#endif // QT_THREAD_SUPPORT
+
 /*
   The platform dependent implementations of
   - loadLibrary
@@ -87,7 +91,7 @@ static void qt_mac_library_undefined(const char *symbolname)
     exit(666);
 }
 
-static void qt_mac_library_error(NSLinkEditErrors err, int line, const char *fileName, 
+static void qt_mac_library_error(NSLinkEditErrors err, int line, const char *fileName,
 				 const char *error)
 {
     qDebug("qlibrary_mac.cpp: %d: %d: %s (%s)", err, line, fileName, error);
@@ -101,6 +105,11 @@ bool QLibraryPrivate::loadLibrary()
 	return TRUE;
 
 #ifdef DO_MAC_LIBRARY
+
+#ifdef QT_THREAD_SUPPORT
+    // protect glibs_loaded creation/access
+    QMutexLocker locker( qt_global_mutexpool->get( (int)&glibs_loaded ) );
+#endif // QT_THREAD_SUPPORT
 
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
     static bool first = TRUE;
@@ -125,7 +134,7 @@ bool QLibraryPrivate::loadLibrary()
     NSObjectFileImage img;
     if( NSCreateObjectFileImageFromFile( filename, &img)  != NSObjectFileImageSuccess )
 	return FALSE;
-    if((pHnd = (void *)NSLinkModule(img, filename, 
+    if((pHnd = (void *)NSLinkModule(img, filename,
 				    NSLINKMODULE_OPTION_PRIVATE|NSLINKMODULE_OPTION_RETURN_ON_ERROR))) {
 	glibs_ref *i = new glibs_ref;
 	i->handle = pHnd;
@@ -148,12 +157,18 @@ bool QLibraryPrivate::freeLibrary()
 	return TRUE;
 
 #ifdef DO_MAC_LIBRARY
+
+#ifdef QT_THREAD_SUPPORT
+    // protect glibs_loaded access
+    QMutexLocker locker( qt_global_mutexpool->get( (int)&glibs_loaded ) );
+#endif // QT_THREAD_SUPPORT
+
     if(glibs_loaded) {
 	for(QDictIterator<glibs_ref> it(*glibs_loaded); it.current(); ++it) {
 	    if( it.current()->handle == pHnd && !(--it.current()->count)) {
 		glibs_loaded->remove(it.currentKey());
 
-		NSUnLinkModule(pHnd, 
+		NSUnLinkModule(pHnd,
 			       NSUNLINKMODULE_OPTION_KEEP_MEMORY_MAPPED|
 			       NSUNLINKMODULE_OPTION_RESET_LAZY_REFERENCES);
 

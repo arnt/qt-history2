@@ -48,6 +48,10 @@
 #include "qtl.h"
 #include "qptrvector.h"
 
+#ifdef QT_THREAD_SUPPORT
+#include "qmutexpool_p.h"
+#endif // QT_THREAD_SUPPORT
+
 #undef QT_TRANSLATE_NOOP
 #define QT_TRANSLATE_NOOP( context, sourceText ) sourceText
 
@@ -3135,6 +3139,11 @@ static QRegExpEngine *newEngine( const QString& pattern, bool caseSensitive )
 {
 #ifndef QT_NO_REGEXP_OPTIM
     if ( engineCache != 0 ) {
+
+#  ifdef QT_THREAD_SUPPORT
+	QMutexLocker locker( qt_global_mutexpool->get( &engineCache ) );
+#  endif // QT_THREAD_SUPPORT
+
 	QRegExpEngine *eng = engineCache->take( pattern );
 	if ( eng == 0 || eng->caseSensitive() != caseSensitive ) {
 	    delete eng;
@@ -3151,6 +3160,11 @@ static void derefEngine( QRegExpEngine *eng, const QString& pattern )
 {
     if ( eng != 0 && eng->deref() ) {
 #ifndef QT_NO_REGEXP_OPTIM
+
+#  ifdef QT_THREAD_SUPPORT
+	QMutexLocker locker( qt_global_mutexpool->get( &engineCache ) );
+#  endif // QT_THREAD_SUPPORT
+
 	if ( engineCache == 0 ) {
 	    engineCache = new QCache<QRegExpEngine>;
 	    engineCache->setAutoDelete( TRUE );

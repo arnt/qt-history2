@@ -37,6 +37,7 @@ tools {
 		  $$TOOLS_H/qmap.h \
 		  $$TOOLS_H/qmutex.h \
 		  $$TOOLS_P/qmutex_p.h \
+		  $$TOOLS_P/qmutexpool_p.h \
 		  $$TOOLS_P/qpluginmanager_p.h \
 		  $$TOOLS_H/qptrcollection.h \
 		  $$TOOLS_H/qptrdict.h \
@@ -110,6 +111,7 @@ tools {
 		  $$TOOLS_CPP/qiodevice.cpp \
 		  $$TOOLS_CPP/qlibrary.cpp \
 		  $$TOOLS_CPP/qmap.cpp \
+		  $$TOOLS_CPP/qmutexpool.cpp \
 		  $$TOOLS_CPP/qptrcollection.cpp \
 		  $$TOOLS_CPP/qregexp.cpp \
 		  $$TOOLS_CPP/qstring.cpp \

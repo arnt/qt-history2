@@ -43,38 +43,36 @@
 #include <private/qpluginmanager_p.h>
 #include "qtextcodecinterface_p.h"
 
+#ifdef QT_THREAD_SUPPORT
+#  include <private/qmutexpool_p.h>
+#endif // QT_THREAD_SUPPORT
+
 #include <stdlib.h>
 
 
-class QTextCodecFactoryPrivate : public QObject
+static QPluginManager<QTextCodecFactoryInterface> *manager = 0;
+
+static void create_manager()
 {
-public:
-    QTextCodecFactoryPrivate();
-    ~QTextCodecFactoryPrivate();
+    if ( manager ) // already created
+	return;
 
-    static QPluginManager<QTextCodecFactoryInterface> *manager;
-};
+#ifdef QT_THREAD_SUPPORT
+    // protect manager creation
+    QMutexLocker locker( qt_global_mutexpool->get( &manager ) );
 
+    // we check the manager pointer again to make sure that another thread
+    // has not created the manager before us.
 
-static QTextCodecFactoryPrivate *instance = 0;
-QPluginManager<QTextCodecFactoryInterface> *QTextCodecFactoryPrivate::manager = 0;
+    if ( manager ) // already created
+	return;
+#endif
 
-
-QTextCodecFactoryPrivate::QTextCodecFactoryPrivate()
-    : QObject(qApp)
-{
     manager =
 	new QPluginManager<QTextCodecFactoryInterface>(IID_QTextCodecFactory,
-						   QApplication::libraryPaths(), "/codecs",
-						   FALSE);
-
-}
-
-
-QTextCodecFactoryPrivate::~QTextCodecFactoryPrivate()
-{
-    delete manager;
-    manager = 0;
+						       QApplication::libraryPaths(), "/codecs",
+						       FALSE);
+    Q_CHECK_PTR( manager );
 }
 
 #endif // QT_NO_COMPONENT
@@ -86,11 +84,11 @@ QTextCodec *QTextCodecFactory::createForName(const QString &name)
 
 #ifndef QT_NO_COMPONENT
 
-    if (! instance)
-	instance = new QTextCodecFactoryPrivate;
+    // make sure the manager is created
+    create_manager();
 
     QInterfacePtr<QTextCodecFactoryInterface> iface;
-    QTextCodecFactoryPrivate::manager->queryInterface(name, &iface );
+    manager->queryInterface(name, &iface );
 
     if (iface)
 	codec = iface->createForName(name);
@@ -107,11 +105,11 @@ QTextCodec *QTextCodecFactory::createForMib(int mib)
 
 #ifndef QT_NO_COMPONENT
 
-    if (! instance)
-	instance = new QTextCodecFactoryPrivate;
+    // make sure the manager is created
+    create_manager();
 
     QInterfacePtr<QTextCodecFactoryInterface> iface;
-    QTextCodecFactoryPrivate::manager->queryInterface("MIB-" + QString::number(mib), &iface );
+    manager->queryInterface("MIB-" + QString::number(mib), &iface );
 
     if (iface)
 	codec = iface->createForMib(mib);

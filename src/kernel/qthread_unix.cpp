@@ -49,6 +49,7 @@
 #include "qmutex.h"
 #include "qwaitcondition.h"
 #include "qptrlist.h"
+#include <private/qmutexpool_p.h>
 
 #ifndef QT_H
 #if defined( QWS ) || defined( Q_WS_MACX )
@@ -74,7 +75,6 @@ extern "C" { static void *start_thread(void *t); }
 class QThreadPrivate {
 public:
     pthread_t thread_id;
-    QMutex mutex;
     QWaitCondition thread_done;      // Used for QThread::wait()
     bool finished, running;
 
@@ -134,7 +134,7 @@ public:
 
 	QThread *there = thrDict->find(QThread::currentThread());
 	if (there) {
-            QMutexLocker locker( &there->d->mutex );
+            QMutexLocker locker( qt_global_mutexpool->get( there->d ) );
 
 	    there->d->running = FALSE;
 	    there->d->finished = TRUE;
@@ -420,7 +420,7 @@ QThread::~QThread()
 {
 #ifdef QT_CHECK_STATE
     {
-        QMutexLocker locker( &d->mutex );
+	QMutexLocker locker( qt_global_mutexpool->get( d ) );
         if( d->running && !d->finished ) {
             qWarning("QThread object destroyed while thread is still running.");
             return;
@@ -441,7 +441,7 @@ void QThread::exit()
 
     QThread *there = thrDict->find(QThread::currentThread());
     if (there) {
-        QMutexLocker( &there->d->mutex );
+	QMutexLocker locker( qt_global_mutexpool->get( there->d ) );
 
 	there->d->running = FALSE;
 	there->d->finished = TRUE;
@@ -463,16 +463,16 @@ void QThread::exit()
 */
 void QThread::start()
 {
-    QMutexLocker locker( &d->mutex );
+    QMutexLocker locker( qt_global_mutexpool->get( d ) );
 
     if (d->running) {
 #ifdef QT_CHECK_STATE
 	qWarning("Attempt to start a thread already running");
 #endif
 
-        d->mutex.unlock();
+        locker.mutex()->unlock();
         wait();
-        d->mutex.lock();
+        locker.mutex()->lock();
     }
 
     d->init(this);
@@ -495,10 +495,10 @@ void QThread::start()
 */
 bool QThread::wait(unsigned long time)
 {
-    QMutexLocker locker( &d->mutex );
+    QMutexLocker locker( qt_global_mutexpool->get( d ) );
     if (d->finished || ! d->running)
 	return TRUE;
-    return d->thread_done.wait( &d->mutex, time);
+    return d->thread_done.wait( locker.mutex(), time);
 }
 
 
@@ -507,7 +507,7 @@ bool QThread::wait(unsigned long time)
 */
 bool QThread::finished() const
 {
-    QMutexLocker locker( &d->mutex );
+    QMutexLocker locker( qt_global_mutexpool->get( d ) );
     return d->finished;
 }
 
@@ -517,7 +517,7 @@ bool QThread::finished() const
 */
 bool QThread::running() const
 {
-    QMutexLocker locker( &d->mutex );
+    QMutexLocker locker( qt_global_mutexpool->get( d ) );
     return d->running;
 }
 

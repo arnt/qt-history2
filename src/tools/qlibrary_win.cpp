@@ -30,6 +30,10 @@
 #include <qmap.h>
 #include <private/qlibrary_p.h>
 
+#ifdef QT_THREAD_SUPPORT
+#  include <private/qmutexpool_p.h>
+#endif // QT_THREAD_SUPPORT
+
 #ifndef QT_H
 #include "qfile.h"
 #endif // QT_H
@@ -56,6 +60,11 @@ bool QLibraryPrivate::loadLibrary()
     if ( pHnd )
 	return TRUE;
 
+#ifdef QT_THREAD_SUPPORT
+    // protect map creation/access
+    QMutexLocker locker( qt_global_mutexpool->get( (int)&map ) );
+#endif // QT_THREAD_SUPPORT
+
     if ( !map )
 	map = new QMap<QString, LibInstance*>;
 
@@ -63,7 +72,7 @@ bool QLibraryPrivate::loadLibrary()
     if ( map->find(filename) != map->end() ) {
 	LibInstance *lib = (*map)[filename];
 	lib->refCount++;
-	pHnd = lib->instance;	
+	pHnd = lib->instance;
     }
     else {
 #ifdef Q_OS_TEMP
@@ -94,6 +103,12 @@ bool QLibraryPrivate::freeLibrary()
 {
     if ( !pHnd )
 	return TRUE;
+
+#ifdef QT_THREAD_SUPPORT
+    // protect map access
+    QMutexLocker locker( qt_global_mutexpool->get( (int)&map ) );
+#endif // QT_THREAD_SUPPORT
+
     bool ok = FALSE;
     QMap<QString, LibInstance*>::iterator it;
     for ( it = map->begin(); it != map->end(); ++it ) {
@@ -113,13 +128,13 @@ bool QLibraryPrivate::freeLibrary()
 		ok = TRUE;
 	    break;
 	}
-    }   
+    }
     if ( ok )
-	pHnd = 0;   
+	pHnd = 0;
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
     else
 	qSystemWarning( "Failed to unload library!" );
-#endif   
+#endif
     return ok;
 }
 

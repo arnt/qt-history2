@@ -45,6 +45,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef QT_THREAD_SUPPORT
+#  include <private/qmutexpool_p.h>
+#endif // QT_THREAD_SUPPORT
+
 #define USE_MALLOC				// comment to use new/delete
 
 #undef NEW
@@ -651,6 +655,11 @@ void QGArray::sort( uint sz )
     int numItems = size() / sz;
     if ( numItems < 2 )
 	return;
+
+#ifdef QT_THREAD_SUPPORT
+    QMutexLocker locker( qt_global_mutexpool->get( &cmp_item_size ) );
+#endif // QT_THREAD_SUPPORT
+
     cmp_item_size = sz;
     qsort( shd->data, numItems, sz, cmp_arr );
 }
@@ -664,6 +673,11 @@ int QGArray::bsearch( const char *d, uint sz ) const
     int numItems = size() / sz;
     if ( !numItems )
 	return -1;
+
+#ifdef QT_THREAD_SUPPORT
+    QMutexLocker locker( qt_global_mutexpool->get( &cmp_item_size ) );
+#endif // QT_THREAD_SUPPORT
+
     cmp_item_size = sz;
     char* r = (char*)::bsearch( d, shd->data, numItems, sz, cmp_arr );
     if ( !r )

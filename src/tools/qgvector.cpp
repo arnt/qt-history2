@@ -42,6 +42,10 @@
 #include "qdatastream.h"
 #include <stdlib.h>
 
+#ifdef QT_THREAD_SUPPORT
+#  include <private/qmutexpool_p.h>
+#endif // QT_THREAD_SUPPORT
+
 #define USE_MALLOC				// comment to use new/delete
 
 #undef NEW
@@ -386,6 +390,11 @@ void QGVector::sort()				// sort vector
 	    break;
 	}
     }
+
+#ifdef QT_THREAD_SUPPORT
+    QMutexLocker locker( qt_global_mutexpool->get( &sort_vec ) );
+#endif // QT_THREAD_SUPPORT
+
     sort_vec = (QGVector*)this;
     qsort( vec, count(), sizeof(Item), cmp_vec );
     sort_vec = 0;
