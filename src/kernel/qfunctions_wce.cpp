@@ -209,15 +209,10 @@ int _fstat( int handle, struct _stat *buffer )
     return -1;
 }
 
-void findDataToStat( WIN32_FIND_DATA *data, struct _stat *buffer ) 
-{ 
-}
-
 int _wstat( const WCHAR *path, struct _stat *buffer ) 
 {
-    HANDLE    ff;
     WIN32_FIND_DATA finfo;
-    ff = FindFirstFile( path, &finfo );
+    HANDLE ff = FindFirstFile( path, &finfo );
     if ( ff == INVALID_HANDLE_VALUE )
 	return -1;
 
