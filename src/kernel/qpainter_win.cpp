@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#129 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#130 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -830,7 +830,7 @@ bool QPainter::end()
     }
 
     flags = 0;
-    pdev->painter--;
+    pdev->painters--;
     pdev = 0;
     hdc	 = 0;
     return TRUE;
