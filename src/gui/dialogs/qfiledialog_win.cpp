@@ -322,8 +322,8 @@ QString qt_win_get_open_file_name(const QFileDialogArgs &args,
     }
     QT_WA({
         // Use Unicode strings and API
-        OPENFILENAME* ofn = qt_win_make_OFN(args.parent, isel,
-                                            *initialDirectory, title,
+        OPENFILENAME* ofn = qt_win_make_OFN(args.parent, args.selection,
+                                            args.directory, args.caption,
                                             qt_win_filter(args.filter),
 					    QFileDialog::ExistingFile);
         if (idx)
@@ -335,8 +335,8 @@ QString qt_win_get_open_file_name(const QFileDialogArgs &args,
         qt_win_clean_up_OFN(&ofn);
     } , {
         // Use ANSI strings and API
-        OPENFILENAMEA* ofn = qt_win_make_OFNA(args.parent, isel,
-                                              *initialDirectory, title,
+        OPENFILENAMEA* ofn = qt_win_make_OFNA(args.parent, args.selection,
+                                              args.directory, args.caption,
                                               qt_win_filter(args.filter),
 					      QFileDialog::ExistingFile);
         if (idx)
@@ -404,8 +404,8 @@ QString qt_win_get_save_file_name(const QFileDialogArgs &args,
     }
     QT_WA({
         // Use Unicode strings and API
-        OPENFILENAME *ofn = qt_win_make_OFN(args.parent, isel,
-                                            *initialDirectory, title,
+        OPENFILENAME *ofn = qt_win_make_OFN(args.parent, args.selection,
+                                            args.directory, args.caption,
                                             qt_win_filter(args.filter),
 					    QFileDialog::AnyFile);
         if (idx)
@@ -417,8 +417,8 @@ QString qt_win_get_save_file_name(const QFileDialogArgs &args,
         qt_win_clean_up_OFN(&ofn);
     } , {
         // Use ANSI strings and API
-        OPENFILENAMEA *ofn = qt_win_make_OFNA(args.parent, isel,
-                                              *initialDirectory, title,
+        OPENFILENAMEA *ofn = qt_win_make_OFNA(args.parent, args.selection,
+                                              args.directory, args.caption,
                                               qt_win_filter(args.filter),
 					      QFileDialog::AnyFile);
         if (idx)
@@ -486,8 +486,8 @@ QStringList qt_win_get_open_file_names(const QFileDialogArgs &args,
         qt_enter_modal(args.parent);
     }
     QT_WA({
-        OPENFILENAME* ofn = qt_win_make_OFN(args.parent, isel,
-                                            *initialDirectory, title,
+        OPENFILENAME* ofn = qt_win_make_OFN(args.parent, args.selection,
+                                            args.directory, title,
                                             qt_win_filter(args.filter),
 					    QFileDialog::ExistingFiles);
         if (idx)
@@ -518,8 +518,8 @@ QStringList qt_win_get_open_file_names(const QFileDialogArgs &args,
         }
         qt_win_clean_up_OFN(&ofn);
     } , {
-        OPENFILENAMEA* ofn = qt_win_make_OFNA(args.parent, isel,
-                                              *initialDirectory, title,
+        OPENFILENAMEA* ofn = qt_win_make_OFNA(args.parent, args.selection,
+                                              args.directory, args.caption,
                                               qt_win_filter(args.filter),
 					      QFileDialog::ExistingFiles);
         if (idx)

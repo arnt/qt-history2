@@ -107,8 +107,8 @@ public:
 
     // static stuff
     static QString encodeFileName(const QString &filename);
-    static QString workingDirectory(const QString &path);
-    static QString initialSelection(const QString &path);
+    static QString workingDirectory(const QString &path, bool encode = true);
+    static QString initialSelection(const QString &path, bool encode = true);
 
     // data
     QDirModel *model;
