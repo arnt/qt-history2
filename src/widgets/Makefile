@@ -15,7 +15,8 @@ CC	=	gcc
 
 #######	Files
 
-INTERNAL=	qheader.h 	qheader.cpp	qspinbox.h	qspinbox.cpp
+INTERNAL=	qheader.h 	qheader.cpp	qspinbox.h	qspinbox.cpp  \
+		qvalidator.h	qvalidator.cpp	qscrollview.h	qscrollview.cpp
 HEADERS =	qbttngrp.h	qbutton.h	qchkbox.h	qcombo.h      \
 		qframe.h	qgrpbox.h	qlabel.h	qlcdnum.h     \
 		qlined.h	qlistbox.h	qmenubar.h	qmenudta.h    \
@@ -43,7 +44,7 @@ SRCMETA =	mbttngrp.cpp	mbutton.cpp	mchkbox.cpp	mcombo.cpp    \
 		mpushbt.cpp	mradiobt.cpp	mscrbar.cpp	mtablevw.cpp  \
 		mmlined.cpp	mtooltip.cpp	mslider.cpp	mheader.cpp   \
 		mtabbar.cpp	mspinbox.cpp	mprogbar.cpp	mscrollview.cpp \
-		minputvalidator.cpp
+		mvalidator.cpp
 OBJMETA =	mbttngrp.o	mbutton.o	mchkbox.o	mcombo.o      \
 		mframe.o	mgrpbox.o	mlabel.o	mlcdnum.o     \
 		mlined.o	mlistbox.o	mmenubar.o	mpopmenu.o    \
@@ -169,9 +170,7 @@ mprogbar.cpp: qprogbar.h
 mscrollview.cpp: qscrollview.h
 	moc qscrollview.h -o mscrollview.cpp
 
-minputvalidator.cpp: qvalidator.h
-	moc qvalidator.h -o minputvalidator.cpp
+mvalidator.cpp: qvalidator.h
+	moc qvalidator.h -o mvalidator.cpp
 
 -include .depend
-
-
