@@ -60,11 +60,7 @@ static bool registerServer( const QString &input )
 	return FALSE;
     }
     typedef HRESULT(__stdcall* RegServerProc)();
-#if defined(Q_CC_GNU)
-    RegServerProc DllRegisterServer = (RegServerProc)GetProcAddress( hdll, (char *)3 );
-#else
     RegServerProc DllRegisterServer = (RegServerProc)GetProcAddress( hdll, "DllRegisterServer" );
-#endif
     if ( !DllRegisterServer ) {
 	fprintf(stderr, "Library file %s doesn't appear to be a COM library\n", (const char*)input.local8Bit());
 	return FALSE;
@@ -85,11 +81,7 @@ static bool unregisterServer( const QString &input )
 	return FALSE;
     }
     typedef HRESULT(__stdcall* RegServerProc)();
-#if defined(Q_CC_GNU)
-    RegServerProc DllUnregisterServer = (RegServerProc)GetProcAddress( hdll, (char *)4 );
-#else
     RegServerProc DllUnregisterServer = (RegServerProc)GetProcAddress( hdll, "DllUnregisterServer" );
-#endif
     if ( !DllUnregisterServer ) {
 	fprintf(stderr, "Library file %s doesn't appear to be a COM library\n", (const char*)input.local8Bit());
 	return FALSE;
@@ -213,11 +205,7 @@ int main( int argc, char **argv )
 	    return 3;
 	}
 	typedef HRESULT(__stdcall* DumpIDLProc)(const QString&, const QString&);
-#if defined(Q_CC_GNU)
-	DumpIDLProc DumpIDL = (DumpIDLProc)GetProcAddress( hdll, (char *)5 );
-#else
 	DumpIDLProc DumpIDL = (DumpIDLProc)GetProcAddress( hdll, "DumpIDL" );
-#endif
 	if ( !DumpIDL ) {
 	    fprintf(stderr, "Couldn't resolve 'DumpIDL' symbol in %s\n", (const char*)input.local8Bit());
 	    return 3;

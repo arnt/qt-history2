@@ -93,7 +93,7 @@ STDAPI DllCanUnloadNow()
 }
 
 
-BOOL WINAPI DllMain( HINSTANCE hInstance, DWORD dwReason, LPVOID lpvReserved )
+EXTERN_C BOOL WINAPI DllMain( HINSTANCE hInstance, DWORD dwReason, LPVOID lpvReserved )
 {
     GetModuleFileNameA( hInstance, qAxModuleFilename, MAX_PATH-1 );
     qAxInstance = hInstance;
