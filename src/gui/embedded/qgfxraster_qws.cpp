@@ -1822,7 +1822,7 @@ void QGfxRaster<depth,type>::drawThickPolyline(const QPointArray &points, int in
 
     pixel = penPixel;
     setSourcePen();
-    int alphaValue = (srccol & 0xff000000) >> 24;
+    int alphaValue = qAlpha(penColor);
     setAlphaSource(alphaValue);
     setAlphaType(alphaValue == 255 ? IgnoreAlpha : SolidAlpha);
 
