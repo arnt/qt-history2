@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#64 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#65 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -30,7 +30,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#64 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#65 $";
 #endif
 
 
@@ -1513,7 +1513,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event )
 	    ascii[0] = 0;
 	}
     }
-#if defined(DEBUG)
+#if 0 //defined(DEBUG)
     if ( code == 0 ) {				// cannot translate keysym
 	debug( "translateKey: No translation for X keysym %s (0x%x)",
 	       XKeysymToString(XLookupKeysym(&((XEvent*)event)->xkey,0)),
