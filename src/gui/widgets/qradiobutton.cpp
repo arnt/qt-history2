@@ -147,7 +147,8 @@ bool QRadioButton::hitButton(const QPoint &pos) const
 {
     QStyleOptionButton opt = getStyleOption(this);
     QRect r =
-        QStyle::visualRect(style().subRect(QStyle::SR_RadioButtonFocusRect, &opt, this), this);
+        QStyle::visualRect(style().subRect(QStyle::SR_RadioButtonFocusRect, &opt, fontMetrics(),
+                                            this), this);
     if (qApp->reverseLayout()) {
         r.setRight(width());
     } else {
@@ -165,7 +166,8 @@ bool QRadioButton::hitButton(const QPoint &pos) const
 void QRadioButton::drawBevel(QPainter *p)
 {
     QStyleOptionButton opt = getStyleOption(this);
-    opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_RadioButtonIndicator, &opt, this),
+    opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_RadioButtonIndicator, &opt,
+                                                  fontMetrics(), this),
                                   this);
     style().drawControl(QStyle::CE_RadioButton, &opt, p, this);
 }
@@ -179,8 +181,8 @@ void QRadioButton::drawBevel(QPainter *p)
 void QRadioButton::drawLabel(QPainter *p)
 {
     QStyleOptionButton opt = getStyleOption(this);
-    opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_RadioButtonContents, &opt, this),
-                                  this);
+    opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_RadioButtonContents, &opt,
+                                                  fontMetrics(), this), this);
     style().drawControl(QStyle::CE_RadioButtonLabel, &opt, p, this);
 }
 
@@ -211,17 +213,19 @@ void QRadioButton::paintEvent(QPaintEvent *)
 void QRadioButton::updateMask()
 {
     QStyleOptionButton opt = getStyleOption(this);
-    opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_RadioButtonIndicator, &opt, this),
-                                  this);
+    opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_RadioButtonIndicator, &opt,
+                                                  fontMetrics(), this), this);
     QBitmap bm(width(), height());
     bm.fill(Qt::color0);
     QPainter p(&bm);
     style().drawControlMask(QStyle::CE_RadioButton, &opt, &p, this);
     if (!text().isEmpty() || !icon().isNull()) {
+        const QFontMetrics &fm = fontMetrics();
         QRect crect = QStyle::visualRect(style().subRect(QStyle::SR_RadioButtonContents, &opt,
-                                                         this), this);
+                                                         fm, this), this);
         QRect frect =
-            QStyle::visualRect(style().subRect(QStyle::SR_RadioButtonFocusRect, &opt, this), this);
+            QStyle::visualRect(style().subRect(QStyle::SR_RadioButtonFocusRect, &opt, fm,
+                                               this), this);
         QRect label(crect.unite(frect));
         p.fillRect(label, Qt::color1);
     }

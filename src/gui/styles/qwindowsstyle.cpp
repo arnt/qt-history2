@@ -1701,7 +1701,8 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
 }
 
 /*! \reimp */
-QRect QWindowsStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *w) const
+QRect QWindowsStyle::subRect(SubRect sr, const QStyleOption *opt, const QFontMetrics &fm,
+                             const QWidget *w) const
 {
     QRect r;
     switch (sr) {
@@ -1710,7 +1711,7 @@ QRect QWindowsStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget 
         r = opt->rect;
         break;
     default:
-        r = QCommonStyle::subRect(sr, opt, w);
+        r = QCommonStyle::subRect(sr, opt, fm, w);
     }
     return r;
 }
@@ -1788,7 +1789,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
 
                 if (slider->state & Style_HasFocus) {
                     QStyleOptionFocusRect fropt(0);
-                    fropt.rect = subRect(SR_SliderFocusRect, slider, widget);
+                    fropt.rect = subRect(SR_SliderFocusRect, slider, p->fontMetrics(), widget);
                     fropt.palette = slider->palette;
                     fropt.state = Style_Default;
                     drawPrimitive(PE_FocusRect, &fropt, p, widget);
@@ -2132,7 +2133,8 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
 
                 if (cmb->state & Style_HasFocus && !cmb->editable) {
                     QStyleOptionFocusRect focus(0);
-                    focus.rect = QStyle::visualRect(subRect(SR_ComboBoxFocusRect, cmb, widget),
+                    focus.rect = QStyle::visualRect(subRect(SR_ComboBoxFocusRect, cmb,
+                                                            p->fontMetrics(), widget),
                                                     widget);
                     focus.palette = cmb->palette;
                     focus.state = Style_FocusAtBorder;

@@ -690,7 +690,8 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 QStyleOptionFocusRect fropt(0);
                 fropt.state = btn->state;
                 fropt.palette = btn->palette;
-                fropt.rect = visualRect(subRect(SR_PushButtonFocusRect, btn, widget), widget);
+                fropt.rect = visualRect(subRect(SR_PushButtonFocusRect, btn, p->fontMetrics(),
+                                                widget), widget);
                 drawPrimitive(PE_FocusRect, &fropt, p, widget);
             }
         }
@@ -749,7 +750,9 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 fropt.state = btn->state;
                 fropt.palette = btn->palette;
                 fropt.rect = visualRect(subRect(isRadio ? SR_RadioButtonFocusRect
-                                                        : SR_CheckBoxFocusRect, btn, widget),
+                                                        : SR_CheckBoxFocusRect, btn,
+                                                        p->fontMetrics(),
+                                                        widget),
                                                 widget);
                 drawPrimitive(PE_FocusRect, &fropt, p, widget);
             }
@@ -1082,7 +1085,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
         break;
     case CE_ToolBarButton:
         if (const QStyleOptionButton * const button = qt_cast<const QStyleOptionButton *>(opt)) {
-            const QRect cr = subRect(SR_ToolBarButtonContents, opt, widget);
+            const QRect cr = subRect(SR_ToolBarButtonContents, opt, p->fontMetrics(), widget);
 
             QIconSet::Mode iconMode = (button->state & Style_Enabled)
                                       ? QIconSet::Normal
@@ -1113,7 +1116,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
 
             if (button->features & QStyleOptionButton::HasMenu) {
                 QStyleOption mopt(0);
-                mopt.rect = subRect(SR_ToolBarButtonMenu, opt, widget);
+                mopt.rect = subRect(SR_ToolBarButtonMenu, opt, p->fontMetrics(), widget);
                 mopt.palette = button->palette;
                 mopt.state = QStyle::Style_Enabled;
                 if (button->state & (Style_Down | Style_MouseOver | Style_Open))
@@ -1155,7 +1158,8 @@ void QCommonStyle::drawControlMask(ControlElement ce, const QStyleOption *opt, Q
     options \a opt. The widget \a w is optional and may contain a widget
     that is useful for drawing the sub-rectangle.
 */
-QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *w) const
+QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QFontMetrics &fm,
+                            const QWidget *w) const
 {
     QRect r;
     switch (sr) {
@@ -1196,7 +1200,7 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
 
     case SR_CheckBoxContents:
         {
-            QRect ir = subRect(SR_CheckBoxIndicator, opt, w);
+            QRect ir = subRect(SR_CheckBoxIndicator, opt, fm, w);
             r.setRect(ir.right() + 6, opt->rect.y(), opt->rect.width() - ir.width() - 6,
                       opt->rect.height());
         }
@@ -1205,17 +1209,16 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
     case SR_CheckBoxFocusRect:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             if (btn->text.isEmpty()) {
-                r = subRect(SR_CheckBoxIndicator, opt, w);
+                r = subRect(SR_CheckBoxIndicator, opt, fm, w);
                 r.addCoords(1, 1, -1, -1);
                 break;
             }
-            QRect cr = subRect(SR_CheckBoxContents, opt, w);
+            QRect cr = subRect(SR_CheckBoxContents, opt, fm, w);
 
             if (!btn->icon.isNull()) {
                 r = itemRect(cr, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic,
                              btn->icon.pixmap(QIconSet::Small, QIconSet::Normal));
             } else {
-                QFontMetrics fm = w->fontMetrics();
                 r = itemRect(fm, cr, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic,
                              btn->state & Style_Enabled, btn->text);
             }
@@ -1234,7 +1237,7 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
 
     case SR_RadioButtonContents:
         {
-            QRect ir = subRect(SR_RadioButtonIndicator, opt, w);
+            QRect ir = subRect(SR_RadioButtonIndicator, opt, fm, w);
             r.setRect(ir.right() + 6, opt->rect.y(),
                       opt->rect.width() - ir.width() - 6, opt->rect.height());
             break;
@@ -1243,17 +1246,16 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
     case SR_RadioButtonFocusRect:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             if (!btn->icon.isNull() && btn->text.isEmpty()) {
-                r = subRect(SR_RadioButtonIndicator, opt, w);
+                r = subRect(SR_RadioButtonIndicator, opt, fm, w);
                 r.addCoords(1, 1, -1, -1);
                 break;
             }
-            QRect cr = subRect(SR_RadioButtonContents, opt, w);
+            QRect cr = subRect(SR_RadioButtonContents, opt, fm, w);
 
             if(!btn->icon.isNull()) {
                 r = itemRect(cr, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic,
                              btn->icon.pixmap(QIconSet::Small, QIconSet::Normal));
             } else {
-                QFontMetrics fm = w->fontMetrics();
                 r = itemRect(fm, cr, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic,
                              btn->state & Style_Enabled, btn->text);
             }
@@ -1276,7 +1278,6 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
     case SR_ProgressBarContents:
     case SR_ProgressBarLabel:
         if (const QStyleOptionProgressBar *pb = qt_cast<const QStyleOptionProgressBar *>(opt)) {
-            QFontMetrics fm(w ? w->fontMetrics() : QApplication::fontMetrics());
             int textw = 0;
             if (pb->features & QStyleOptionProgressBar::PercentageVisible)
                 textw = fm.width("100%") + 6;
@@ -2420,7 +2421,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, c
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             bool isRadio = (ct == CT_RadioButton);
             QRect irect = subRect(isRadio ? SR_RadioButtonIndicator : SR_CheckBoxIndicator,
-                                  btn, widget);
+                                  btn, fm, widget);
             int h = pixelMetric(isRadio ? PM_ExclusiveIndicatorHeight : PM_IndicatorHeight, btn,
                                 widget);
             int margins = (!btn->icon.isNull() && btn->text.isEmpty()) ? 0 : 10;

@@ -427,17 +427,19 @@ void QProgressBar::paintEvent(QPaintEvent *)
     drawFrame(p);
 
     QStyleOptionProgressBar opt = getStyleOption(this);
-    opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_ProgressBarGroove, &opt, this), this);
+    const QFontMetrics &fm = fontMetrics();
+    opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_ProgressBarGroove, &opt, fm, this),
+                                  this);
 
     style().drawControl(QStyle::CE_ProgressBarGroove, &opt, p, this);
     opt.rect = rect();
-    opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_ProgressBarContents, &opt, this),
+    opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_ProgressBarContents, &opt, fm, this),
                                   this);
     style().drawControl(QStyle::CE_ProgressBarContents, &opt, p, this);
 
     if (percentageVisible()) {
         opt.rect = rect();
-        opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_ProgressBarLabel, &opt, this),
+        opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_ProgressBarLabel, &opt, fm, this),
                                       this);
         style().drawControl(QStyle::CE_ProgressBarLabel, &opt, p, this);
     }

@@ -34,7 +34,8 @@ public:
                      const QWidget *w = 0) const;
     void drawControlMask(ControlElement element, const QStyleOption *opt, QPainter *p,
                          const QWidget *w = 0) const;
-    QRect subRect(SubRect r, const QStyleOption *opt, const QWidget *widget = 0) const;
+    QRect subRect(SubRect r, const QStyleOption *opt, const QFontMetrics &fm,
+                  const QWidget *widget = 0) const;
     void drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p,
                             const QWidget *w = 0) const;
     void drawComplexControlMask(ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p,

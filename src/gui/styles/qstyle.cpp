@@ -787,10 +787,12 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 */
 
 /*!
-    \fn QRect QStyle::subRect(SubRect subrect, const QStyleOption *opt, const QWidget *widget = 0) const = 0
+    \fn QRect QStyle::subRect(SubRect subrect, const QStyleOption *opt, const QFontMetrics &fm, const QWidget *widget = 0) const = 0
 
     Returns the sub-area \a subrect as described in \a opt in logical
     coordinates.
+
+    The \a fm argument may be helpful in determining the size of the sub-area.
 
     The \a widget argument is optional and may contain a widget that
     may aid determining the subRect.

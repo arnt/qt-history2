@@ -401,7 +401,7 @@ QDialogButtons::layoutButtons()
             w->show();
             QStyleOption opt(0);
             opt.init(this);
-            w->setGeometry(style().subRect(rects[i], &opt, this));
+            w->setGeometry(style().subRect(rects[i], &opt, fontMetrics(), this));
         }
     }
 }

@@ -130,7 +130,8 @@ QSize QToolBarButton::minimumSizeHint() const
 bool QToolBarButton::hitButton(const QPoint &pos) const
 {
     const QStyleOptionButton opt = d->getStyleOption();
-    const QRect buttonRect = style().subRect(QStyle::SR_ToolBarButtonContents, &opt, this);
+    const QRect buttonRect = style().subRect(QStyle::SR_ToolBarButtonContents, &opt, fontMetrics(),
+                                             this);
     return buttonRect.contains(pos);
 }
 
@@ -138,7 +139,8 @@ void QToolBarButton::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton && d->menu) {
         const QStyleOptionButton opt = d->getStyleOption();
-        const QRect menuRect = style().subRect(QStyle::SR_ToolBarButtonMenu, &opt, this);
+        const QRect menuRect = style().subRect(QStyle::SR_ToolBarButtonMenu, &opt, fontMetrics(),
+                                               this);
         if (menuRect.contains(event->pos())) {
             showMenu();
             return;

@@ -282,7 +282,8 @@ public:
         SR_CustomBase = 0xf0000000
     };
 
-    virtual QRect subRect(SubRect r, const QStyleOption *opt, const QWidget *widget = 0) const = 0;
+    virtual QRect subRect(SubRect r, const QStyleOption *opt, const QFontMetrics &fm,
+                          const QWidget *widget = 0) const = 0;
 
 
     enum ComplexControl {

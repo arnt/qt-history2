@@ -382,7 +382,7 @@ void QPushButton::drawBevel(QPainter *paint)
 void QPushButton::drawLabel(QPainter *paint)
 {
     QStyleOptionButton opt = d->getStyleOption();
-    opt.rect = style().subRect(QStyle::SR_PushButtonContents, &opt, this);
+    opt.rect = style().subRect(QStyle::SR_PushButtonContents, &opt, fontMetrics(), this);
     style().drawControl(QStyle::CE_PushButtonLabel, &opt, paint, this);
 }
 

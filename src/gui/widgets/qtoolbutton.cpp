@@ -449,8 +449,8 @@ void QToolButton::drawBevel(QPainter *p)
 void QToolButton::drawLabel(QPainter *p)
 {
     QStyleOptionToolButton opt = d->getStyleOption();
-    opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_ToolButtonContents, &opt, this),
-                                  this);
+    opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_ToolButtonContents, &opt,
+                                                  fontMetrics(), this), this);
     style().drawControl(QStyle::CE_ToolButtonLabel, &opt, p, this);
 }
 

@@ -322,7 +322,7 @@ public:
                               const QWidget *w = 0) const;
     void HIThemeDrawControl(QStyle::ControlElement element, const QStyleOption *opt, QPainter *p,
                             const QWidget *w = 0) const;
-    QRect HIThemeSubRect(QStyle::SubRect r, const QStyleOption *opt,
+    QRect HIThemeSubRect(QStyle::SubRect r, const QStyleOption *opt, const QFontMetrics &fm,
                          const QWidget *widget = 0) const;
     void HIThemeDrawComplexControl(QStyle::ComplexControl cc, const QStyleOptionComplex *opt,
                                    QPainter *p, const QWidget *w = 0) const;
@@ -335,7 +335,7 @@ public:
                                   const QSize &contentsSize, const QFontMetrics &fm,
                                   const QWidget *w = 0) const;
     int HIThemePixelMetric(QStyle::PixelMetric metric, const QStyleOption *opt,
-                            const QWidget *widget) const;
+                           const QWidget *widget) const;
 
     // Appearance Manager-based functions
     void AppManPolish(QWidget *w);
@@ -343,19 +343,21 @@ public:
     void AppManPolish(QApplication *app);
 
     void AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
-                       const QWidget *w = 0) const;
+                             const QWidget *w = 0) const;
     void AppManDrawControl(QStyle::ControlElement element, const QStyleOption *opt, QPainter *p,
-                     const QWidget *w = 0) const;
-    QRect AppManSubRect(QStyle::SubRect r, const QStyleOption *opt, const QWidget *widget = 0) const;
-    void AppManDrawComplexControl(QStyle::ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p,
-                            const QWidget *w = 0) const;
-    QStyle::SubControl AppManQuerySubControl(QStyle::ComplexControl cc, const QStyleOptionComplex *opt,
-                               const QPoint &pt, const QWidget *w = 0) const;
-    QRect AppManQuerySubControlMetrics(QStyle::ComplexControl cc, const QStyleOptionComplex *opt, QStyle::SubControl sc,
-                                 const QWidget *w = 0) const;
-    QSize AppManSizeFromContents(QStyle::ContentsType ct, const QStyleOption *opt, const QSize &contentsSize,
-                           const QFontMetrics &fm, const QWidget *widget = 0) const;
-
+                           const QWidget *w = 0) const;
+    QRect AppManSubRect(QStyle::SubRect r, const QStyleOption *opt, const QFontMetrics &fm,
+                        const QWidget *widget = 0) const;
+    void AppManDrawComplexControl(QStyle::ComplexControl cc, const QStyleOptionComplex *opt,
+                                  QPainter *p, const QWidget *w = 0) const;
+    QStyle::SubControl AppManQuerySubControl(QStyle::ComplexControl cc,
+                                             const QStyleOptionComplex *opt, const QPoint &pt,
+                                             const QWidget *w = 0) const;
+    QRect AppManQuerySubControlMetrics(QStyle::ComplexControl cc, const QStyleOptionComplex *opt,
+                                       QStyle::SubControl sc, const QWidget *w = 0) const;
+    QSize AppManSizeFromContents(QStyle::ContentsType ct, const QStyleOption *opt,
+                                 const QSize &contentsSize, const QFontMetrics &fm,
+                                 const QWidget *widget = 0) const;
     int AppManPixelMetric(QStyle::PixelMetric metric, const QStyleOption *opt,
                           const QWidget *widget) const;
 
@@ -1985,7 +1987,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
         break;
     case QStyle::CE_ToolBarButton:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
-            const QRect cr = q->subRect(QStyle::SR_ToolBarButtonContents, btn, w);
+            const QRect cr = q->subRect(QStyle::SR_ToolBarButtonContents, btn, p->fontMetrics(), w);
             QIconSet::Mode iconMode = (btn->state & QStyle::Style_Enabled) ? QIconSet::Normal
                                                                    : QIconSet::Disabled;
             if (btn->state & QStyle::Style_Down)
@@ -2004,7 +2006,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
             }
             if (btn->features & QStyleOptionButton::HasMenu) {
                 QStyleOption arrowOpt(0);
-                arrowOpt.rect = q->subRect(QStyle::SR_ToolBarButtonMenu, btn, w);
+                arrowOpt.rect = q->subRect(QStyle::SR_ToolBarButtonMenu, btn, p->fontMetrics(), w);
                 arrowOpt.rect.setY(arrowOpt.rect.y() + arrowOpt.rect.height() / 2);
                 arrowOpt.rect.setHeight(arrowOpt.rect.height() / 2);
                 arrowOpt.state = btn->state;
@@ -2019,7 +2021,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
 }
 
 QRect QMacStylePrivate::HIThemeSubRect(QStyle::SubRect sr, const QStyleOption *opt,
-                                       const QWidget *widget) const
+                                       const QFontMetrics &fm, const QWidget *widget) const
 {
     QRect r;
     switch (sr) {
@@ -2050,7 +2052,7 @@ QRect QMacStylePrivate::HIThemeSubRect(QStyle::SubRect sr, const QStyleOption *o
     case QStyle::SR_ToolBarButtonContents:
     case QStyle::SR_ToolBarButtonMenu:
     default:
-        r = q->QWindowsStyle::subRect(sr, opt, widget);
+        r = q->QWindowsStyle::subRect(sr, opt, fm, widget);
         break;
     }
     return r;
@@ -3631,7 +3633,8 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
         break;
     case QStyle::CE_ToolBarButton:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
-            const QRect cr = q->subRect(QStyle::SR_ToolBarButtonContents, btn, widget);
+            const QRect cr = q->subRect(QStyle::SR_ToolBarButtonContents, btn, p->fontMetrics(),
+                                        widget);
             QIconSet::Mode iconMode = (btn->state & QStyle::Style_Enabled) ? QIconSet::Normal
                                                                    : QIconSet::Disabled;
             if (btn->state & QStyle::Style_Down)
@@ -3650,7 +3653,8 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
             }
             if (btn->features & QStyleOptionButton::HasMenu) {
                 QStyleOption arrowOpt(0);
-                arrowOpt.rect = q->subRect(QStyle::SR_ToolBarButtonMenu, btn, widget);
+                arrowOpt.rect = q->subRect(QStyle::SR_ToolBarButtonMenu, btn, p->fontMetrics(),
+                                           widget);
                 arrowOpt.rect.setY(arrowOpt.rect.y() + arrowOpt.rect.height() / 2);
                 arrowOpt.rect.setHeight(arrowOpt.rect.height() / 2);
                 arrowOpt.state = btn->state;
@@ -3664,7 +3668,8 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
     }
 }
 
-QRect QMacStylePrivate::AppManSubRect(QStyle::SubRect sr, const QStyleOption *opt, const QWidget *widget) const
+QRect QMacStylePrivate::AppManSubRect(QStyle::SubRect sr, const QStyleOption *opt,
+                                      const QFontMetrics &fm, const QWidget *widget) const
 {
     QRect r = QRect();
     switch (sr) {
@@ -3687,10 +3692,10 @@ QRect QMacStylePrivate::AppManSubRect(QStyle::SubRect sr, const QStyleOption *op
         break;
     case QStyle::SR_ToolBarButtonContents:
     case QStyle::SR_ToolBarButtonMenu:
-        r = q->QWindowsStyle::subRect(sr, opt, widget);
+        r = q->QWindowsStyle::subRect(sr, opt, fm, widget);
         break;
     default:
-        r = q->QWindowsStyle::subRect(sr, opt, widget);
+        r = q->QWindowsStyle::subRect(sr, opt, fm, widget);
         break;
     }
     return r;
@@ -5082,11 +5087,12 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
 }
 
 /*! \reimp */
-QRect QMacStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *w) const
+QRect QMacStyle::subRect(SubRect sr, const QStyleOption *opt, const QFontMetrics &fm,
+                         const QWidget *w) const
 {
     if (d->useHITheme)
-	return d->HIThemeSubRect(sr, opt, w);
-    return d->AppManSubRect(sr, opt, w);
+	return d->HIThemeSubRect(sr, opt, fm, w);
+    return d->AppManSubRect(sr, opt, fm, w);
 }
 
 /*! \reimp */
