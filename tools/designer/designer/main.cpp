@@ -100,7 +100,7 @@ public:
     QDesignerApplication( int argc, char** argv )
 	: QApplication( argc, argv )
     {
-	DESIGNER_OPENFILE = RegisterWindowMessage("QT_DESIGNER_OPEN_FILE");
+	DESIGNER_OPENFILE = RegisterWindowMessage(LPCTSTR("QT_DESIGNER_OPEN_FILE"));
     }
 
 protected:
@@ -216,7 +216,7 @@ int main( int argc, char *argv[] )
 		if ( !GetProcessVersion( pidStr.toUInt() ) ) {		
 		    creatPid = TRUE;
 		} else {
-		    SendMessage( HWND_BROADCAST, RegisterWindowMessage("QT_DESIGNER_OPEN_FILE"), 0, 0 );
+		    SendMessage( HWND_BROADCAST, RegisterWindowMessage(LPCTSTR("QT_DESIGNER_OPEN_FILE")), 0, 0 );
 		    return 0;
 		}
 #endif
