@@ -3305,7 +3305,9 @@ int QTable::addSelection( const QTableSelection &s )
 {
     if ( !s.isActive() )
 	return -1;
-    QTableSelection *sel = new QTableSelection( s );
+    QTableSelection *sel = new QTableSelection( s.anchorRow(), s.anchorCol(), 
+				    QMIN(s.bottomRow(), numRows()-1), QMIN(s.rightCol(), numCols()-1) );
+
     selections.append( sel );
 
     repaintSelections( 0, sel, TRUE, TRUE );
