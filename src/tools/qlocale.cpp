@@ -1127,6 +1127,457 @@ static const uint country_name_index[] = {
   2566  // Zimbabwe
 };
 
+static const char language_code_list[] =
+"  " // Default
+"  " // C
+"ab" // Abkhazian
+"om" // Afan
+"aa" // Afar
+"af" // Afrikaans
+"sq" // Albanian
+"am" // Amharic
+"ar" // Arabic
+"hy" // Armenian
+"as" // Assamese
+"ay" // Aymara
+"az" // Azerbaijani
+"ba" // Bashkir
+"eu" // Basque
+"bn" // Bengali
+"dz" // Bhutani
+"bh" // Bihari
+"bi" // Bislama
+"br" // Breton
+"bg" // Bulgarian
+"my" // Burmese
+"be" // Byelorussian
+"km" // Cambodian
+"ca" // Catalan
+"zh" // Chinese
+"co" // Corsican
+"hr" // Croatian
+"cs" // Czech
+"da" // Danish
+"nl" // Dutch
+"en" // English
+"eo" // Esperanto
+"et" // Estonian
+"fo" // Faroese
+"fj" // Fiji
+"fi" // Finnish
+"fr" // French
+"fy" // Frisian
+"gd" // Gaelic
+"gl" // Galician
+"ka" // Georgian
+"de" // German
+"el" // Greek
+"kl" // Greenlandic
+"gn" // Guarani
+"gu" // Gujarati
+"ha" // Hausa
+"he" // Hebrew
+"hi" // Hindi
+"hu" // Hungarian
+"is" // Icelandic
+"id" // Indonesian
+"ia" // Interlingua
+"ie" // Interlingue
+"iu" // Inuktitut
+"ik" // Inupiak
+"ga" // Irish
+"it" // Italian
+"ja" // Japanese
+"jv" // Javanese
+"kn" // Kannada
+"ks" // Kashmiri
+"kk" // Kazakh
+"rw" // Kinyarwanda
+"ky" // Kirghiz
+"ko" // Korean
+"ku" // Kurdish
+"rn" // Kurundi
+"lo" // Laothian
+"la" // Latin
+"lv" // Latvian
+"ln" // Lingala
+"lt" // Lithuanian
+"mk" // Macedonian
+"mg" // Malagasy
+"ms" // Malay
+"ml" // Malayalam
+"mt" // Maltese
+"mi" // Maori
+"mr" // Marathi
+"mo" // Moldavian
+"mn" // Mongolian
+"na" // Nauru
+"ne" // Nepali
+"no" // Norwegian
+"oc" // Occitan
+"or" // Oriya
+"ps" // Pashto
+"fa" // Persian
+"pl" // Polish
+"pt" // Portuguese
+"pa" // Punjabi
+"qu" // Quechua
+"rm" // RhaetoRomance
+"ro" // Romanian
+"ru" // Russian
+"sm" // Samoan
+"sg" // Sangho
+"sa" // Sanskrit
+"sr" // Serbian
+"sh" // SerboCroatian
+"st" // Sesotho
+"tn" // Setswana
+"sn" // Shona
+"sd" // Sindhi
+"si" // Singhalese
+"ss" // Siswati
+"sk" // Slovak
+"sl" // Slovenian
+"so" // Somali
+"es" // Spanish
+"su" // Sundanese
+"sw" // Swahili
+"sv" // Swedish
+"tl" // Tagalog
+"tg" // Tajik
+"ta" // Tamil
+"tt" // Tatar
+"te" // Telugu
+"th" // Thai
+"bo" // Tibetan
+"ti" // Tigrinya
+"to" // Tonga
+"ts" // Tsonga
+"tr" // Turkish
+"tk" // Turkmen
+"tw" // Twi
+"ug" // Uigur
+"uk" // Ukrainian
+"ur" // Urdu
+"uz" // Uzbek
+"vi" // Vietnamese
+"vo" // Volapuk
+"cy" // Welsh
+"wo" // Wolof
+"xh" // Xhosa
+"yi" // Yiddish
+"yo" // Yoruba
+"za" // Zhuang
+"zu" // Zulu
+;
+
+static const char country_code_list[] =
+"  " // Default
+"AF" // Afghanistan
+"AL" // Albania
+"DZ" // Algeria
+"AS" // AmericanSamoa
+"AD" // Andorra
+"AO" // Angola
+"AI" // Anguilla
+"AQ" // Antarctica
+"AG" // AntiguaAndBarbuda
+"AR" // Argentina
+"AM" // Armenia
+"AW" // Aruba
+"AU" // Australia
+"AT" // Austria
+"AZ" // Azerbaijan
+"BS" // Bahamas
+"BH" // Bahrain
+"BD" // Bangladesh
+"BB" // Barbados
+"BY" // Belarus
+"BE" // Belgium
+"BZ" // Belize
+"BJ" // Benin
+"BM" // Bermuda
+"BT" // Bhutan
+"BO" // Bolivia
+"BA" // BosniaAndHerzegowina
+"BW" // Botswana
+"BV" // BouvetIsland
+"BR" // Brazil
+"IO" // BritishIndianOceanTerritory
+"BN" // BruneiDarussalam
+"BG" // Bulgaria
+"BF" // BurkinaFaso
+"BI" // Burundi
+"KH" // Cambodia
+"CM" // Cameroon
+"CA" // Canada
+"CV" // CapeVerde
+"KY" // CaymanIslands
+"CF" // CentralAfricanRepublic
+"TD" // Chad
+"CL" // Chile
+"CN" // China
+"CX" // ChristmasIsland
+"CC" // CocosIslands
+"CO" // Colombia
+"KM" // Comoros
+"CD" // DemocraticRepublicOfCongo
+"CG" // PeoplesRepublicOfCongo
+"CK" // CookIslands
+"CR" // CostaRica
+"CI" // IvoryCoast
+"HR" // Croatia
+"CU" // Cuba
+"CY" // Cyprus
+"CZ" // CzechRepublic
+"DK" // Denmark
+"DJ" // Djibouti
+"DM" // Dominica
+"DO" // DominicanRepublic
+"TL" // EastTimor
+"EC" // Ecuador
+"EG" // Egypt
+"SV" // ElSalvador
+"GQ" // EquatorialGuinea
+"ER" // Eritrea
+"EE" // Estonia
+"ET" // Ethiopia
+"FK" // FalklandIslands
+"FO" // FaroeIslands
+"FJ" // Fiji
+"FI" // Finland
+"FR" // France
+"FX" // MetropolitanFrance
+"GF" // FrenchGuiana
+"PF" // FrenchPolynesia
+"TF" // FrenchSouthernTerritories
+"GA" // Gabon
+"GM" // Gambia
+"GE" // Georgia
+"DE" // Germany
+"GH" // Ghana
+"GI" // Gibraltar
+"GR" // Greece
+"GL" // Greenland
+"GD" // Grenada
+"GP" // Guadeloupe
+"GU" // Guam
+"GT" // Guatemala
+"GN" // Guinea
+"GW" // GuineaBissau
+"GY" // Guyana
+"HT" // Haiti
+"HM" // HeardAndMcDonaldIslands
+"HN" // Honduras
+"HK" // HongKong
+"HU" // Hungary
+"IS" // Iceland
+"IN" // India
+"ID" // Indonesia
+"IR" // Iran
+"IQ" // Iraq
+"IE" // Ireland
+"IL" // Israel
+"IT" // Italy
+"JM" // Jamaica
+"JP" // Japan
+"JO" // Jordan
+"KZ" // Kazakhstan
+"KE" // Kenya
+"KI" // Kiribati
+"KP" // DemocraticRepublicOfKorea
+"KR" // RepublicOfKorea
+"KW" // Kuwait
+"KG" // Kyrgyzstan
+"LA" // Lao
+"LV" // Latvia
+"LB" // Lebanon
+"LS" // Lesotho
+"LR" // Liberia
+"LY" // LibyanArabJamahiriya
+"LI" // Liechtenstein
+"LT" // Lithuania
+"LU" // Luxembourg
+"MO" // Macau
+"MK" // Macedonia
+"MG" // Madagascar
+"MW" // Malawi
+"MY" // Malaysia
+"MV" // Maldives
+"ML" // Mali
+"MT" // Malta
+"MH" // MarshallIslands
+"MQ" // Martinique
+"MR" // Mauritania
+"MU" // Mauritius
+"YT" // Mayotte
+"MX" // Mexico
+"FM" // Micronesia
+"MD" // Moldova
+"MC" // Monaco
+"MN" // Mongolia
+"MS" // Montserrat
+"MA" // Morocco
+"MZ" // Mozambique
+"MM" // Myanmar
+"NA" // Namibia
+"NR" // Nauru
+"NP" // Nepal
+"NL" // Netherlands
+"AN" // NetherlandsAntilles
+"NC" // NewCaledonia
+"NZ" // NewZealand
+"NI" // Nicaragua
+"NE" // Niger
+"NG" // Nigeria
+"NU" // Niue
+"NF" // NorfolkIsland
+"MP" // NorthernMarianaIslands
+"NO" // Norway
+"OM" // Oman
+"PK" // Pakistan
+"PW" // Palau
+"PS" // PalestinianTerritory
+"PA" // Panama
+"PG" // PapuaNewGuinea
+"PY" // Paraguay
+"PE" // Peru
+"PH" // Philippines
+"PN" // Pitcairn
+"PL" // Poland
+"PT" // Portugal
+"PR" // PuertoRico
+"QA" // Qatar
+"RE" // Reunion
+"RO" // Romania
+"RU" // RussianFederation
+"RW" // Rwanda
+"KN" // SaintKittsAndNevis
+"LC" // StLucia
+"VC" // StVincentAndTheGrenadines
+"WS" // Samoa
+"SM" // SanMarino
+"ST" // SaoTomeAndPrincipe
+"SA" // SaudiArabia
+"SN" // Senegal
+"SC" // Seychelles
+"SL" // SierraLeone
+"SG" // Singapore
+"SK" // Slovakia
+"SI" // Slovenia
+"SB" // SolomonIslands
+"SO" // Somalia
+"ZA" // SouthAfrica
+"GS" // SouthGeorgiaAndTheSouthSandwichIslands
+"ES" // Spain
+"LK" // SriLanka
+"SH" // StHelena
+"PM" // StPierreAndMiquelon
+"SD" // Sudan
+"SR" // Suriname
+"SJ" // SvalbardAndJanMayenIslands
+"SZ" // Swaziland
+"SE" // Sweden
+"CH" // Switzerland
+"SY" // SyrianArabRepublic
+"TW" // Taiwan
+"TJ" // Tajikistan
+"TZ" // Tanzania
+"TH" // Thailand
+"TG" // Togo
+"TK" // Tokelau
+"TO" // Tonga
+"TT" // TrinidadAndTobago
+"TN" // Tunisia
+"TR" // Turkey
+"TM" // Turkmenistan
+"TC" // TurksAndCaicosIslands
+"TV" // Tuvalu
+"UG" // Uganda
+"UA" // Ukraine
+"AE" // UnitedArabEmirates
+"GB" // UnitedKingdom
+"US" // UnitedStates
+"UM" // UnitedStatesMinorOutlyingIslands
+"UY" // Uruguay
+"UZ" // Uzbekistan
+"VU" // Vanuatu
+"VA" // VaticanCityState
+"VE" // Venezuela
+"VN" // VietNam
+"VG" // BritishVirginIslands
+"VI" // USVirginIslands
+"WF" // WallisAndFutunaIslands
+"EH" // WesternSahara
+"YE" // Yemen
+"YU" // Yugoslavia
+"ZM" // Zambia
+"ZW" // Zimbabwe
+;
+
+static QLocale::Language codeToLanguage(const QString &code)
+{
+    if (code.length() != 2)
+    	return QLocale::C;
+
+    ushort uc1 = code.unicode()[0].unicode();
+    ushort uc2 = code.unicode()[1].unicode();
+
+    const char *c = language_code_list;
+    for (; *c != 0; c += 2) {
+    	if (uc1 == (unsigned char)c[0] && uc2 == (unsigned char)c[1])
+	    return (QLocale::Language) ((c - language_code_list)/2);
+    }
+    
+    return QLocale::C;
+}
+
+static QLocale::Country codeToCountry(const QString &code)
+{
+    if (code.length() != 2)
+    	return QLocale::DefaultCountry;
+
+    ushort uc1 = code.unicode()[0].unicode();
+    ushort uc2 = code.unicode()[1].unicode();
+
+    const char *c = country_code_list;
+    for (; *c != 0; c += 2) {
+    	if (uc1 == (unsigned char)c[0] && uc2 == (unsigned char)c[1])
+	    return (QLocale::Country) ((c - country_code_list)/2);
+    }
+    
+    return QLocale::DefaultCountry;
+}
+
+static QString languageToCode(QLocale::Language language)
+{
+    if (language == QLocale::DefaultLanguage)
+    	return QString::null;
+    
+    if (language == QLocale::C)
+    	return "C";
+
+    QString code;
+    code.setLength(2);
+    const char *c = language_code_list + 2*(uint)language;
+    code[0] = c[0];
+    code[1] = c[1];
+    return code;    
+}
+
+static QString countryToCode(QLocale::Country country)
+{
+    if (country == QLocale::DefaultCountry)
+    	return QString::null;
+
+    QString code;
+    code.setLength(2);
+    const char *c = country_code_list + 2*(uint)country;
+    code[0] = c[0];
+    code[1] = c[1];
+    return code;    
+}
+
 const QLocalePrivate *QLocale::default_d = 0;
 
 QString QLocalePrivate::infinity() const
@@ -1219,6 +1670,17 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
 
     Use language() and country() to determine the actual language and
     country values used.
+
+    An alternative method for constructing a QLocale object is by
+    specifying the unix locale name.
+    
+    \code
+    QLocale hebrew("he");
+    QLocale swiss("de_CH");
+    \endcode
+    
+    This constructor converts the unix locale name to a language/country
+    pair, it does not use the system locale database present on unix.
 
     All the methods in QLocale, with the exception of setDefaultLocale(),
     are reentrant.
@@ -1621,6 +2083,69 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
 */
 
 /*!
+    Constructs a QLocale object with the specified \a unix_locale_name,
+    which has the unix locale format
+    "language[_country][.codeset][@modifier]" or "C", where:
+    
+    \list
+    \i language is a lowercase, two-letter, ISO 639 language code,
+    \i territory is an uppercase, two-letter, ISO 3166 country code,
+    \i and codeset and modifier are ignored.
+    \endlist
+    
+    If the string violates the unix locale format, or language
+    is not a valid ISO 369 code, the "C" locale is used instead. If
+    country is not present, or is not a valid ISO 3166 code, the most 
+    appropriate country is chosen for the specified language.
+
+    The language and country codes are converted to their respective
+    Langauge and Country enums. After this conversion is performed,
+    the constructor behaves exactly like QLocale(Country, Language).
+
+    This constructor is considerably slower than QLocale(Country, Language).
+
+    \sa unixLocaleName()
+*/
+
+QLocale::QLocale(const QString &unix_locale_name)
+{
+    Language lang = C;
+    Country cntry = DefaultCountry;
+    
+    uint l = unix_locale_name.length();
+    
+    do {
+	if (l < 2)
+    	    break;
+	
+	const QChar *uc = unix_locale_name.unicode();
+	if (l > 2 
+	    	&& uc[2] != '_' 
+		&& uc[2] != '.' 
+		&& uc[2] != '@')
+	    break;
+    
+    	lang = codeToLanguage(unix_locale_name.mid(0, 2));
+	if (lang == C)
+	    break;
+	
+	if (l == 2 || uc[2] == '.' || uc[2] == '@')
+	    break;
+    		
+    	// we have uc[2] == '_'
+	if (l < 5)
+	    break;
+	
+	if (l > 5 && uc[5] != '.' && uc[5] != '@')
+	    break;
+	
+	cntry = codeToCountry(unix_locale_name.mid(3, 2));
+    } while (false);
+    
+    d = findLocale(lang, cntry);
+}
+
+/*!
     Constructs a QLocale object with the specified \a language and \a
     country. If \a language is \c DefaultLanguage and \a country is \c
     DefaultCountry, the values set with setDefaultLocale() are used,
@@ -1687,6 +2212,34 @@ QLocale::Language QLocale::language() const
 QLocale::Country QLocale::country() const
 {
     return (Country)d->countryId();
+}
+
+/*!
+    Returns the language and country of this locale as a unix
+    locale string of the form "language_country", where
+    language is a lowercase, two-letter, ISO 639 language code
+    and country is an uppercase, two-letter, ISO 3166 country code.
+    
+    \sa QLocale()
+*/
+
+QString QLocale::unixLocaleName() const
+{
+    Language l = language();
+    
+    QString result = languageToCode(l);
+
+    if (l == C)
+    	return result;
+    
+    Country c = country();
+    if (c == DefaultCountry)
+    	return result;
+    
+    result.append('_');
+    result.append(countryToCode(c));
+    
+    return result;
 }
 
 /*!

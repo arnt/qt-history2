@@ -414,10 +414,12 @@ public:
 	LastCountry = Zimbabwe
     };
 
+    QLocale(const QString &unix_locale_name);
     QLocale(Language language = DefaultLanguage,
 	    Country country = DefaultCountry);
     Language language() const;
     Country country() const;
+    QString unixLocaleName() const;
 
     short toShort(const QString &s, bool *ok = 0) const;
     ushort toUShort(const QString &s, bool *ok = 0) const;
