@@ -1570,7 +1570,7 @@ bool QAxServerBase::qt_emit( int isignal, QUObject* _o )
 			c->pUnk->QueryInterface( IID_QAxEvents, (void**)&disp );
 			if ( disp ) {
 			    disp->Invoke( eventId, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_METHOD, &dispParams, 0, 0, &argErr );
-			    for ( p = 0; p < signalcount; ++p ) {
+			    if ( signal && signal->method ) for ( p = 0; p < signalcount; ++p ) {
 				const QUParameter *param = signal->method->parameters + p;
 				if ( param->inOut & QUParameter::Out ) {
 				    QUObject *obj = _o + p + 1;
