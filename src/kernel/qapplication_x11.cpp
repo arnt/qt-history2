@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#520 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#521 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -4294,7 +4294,7 @@ static void sm_saveYourselfCallback( SmcConn smcConn, SmPointer clientData,
 static void sm_performSaveYourself( QSessionManager* sm )
 {
     // tell the session manager about our program in best POSIX style
-    sm_setProperty( SmProgram, qApp->argv()[0] );
+    sm_setProperty( SmProgram, QString( qApp->argv()[0] ) );
     // tell the session manager about our user as well.
     sm_setProperty( SmUserID, QString::fromLatin1( getlogin() ) );
 
