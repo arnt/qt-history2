@@ -655,7 +655,6 @@ FormDefinitionView::FormDefinitionView( QWidget *parent, FormWindow *fw )
     connect( this, SIGNAL( itemRenamed( QListViewItem *, int, const QString & ) ),
 	     this, SLOT( renamed( QListViewItem * ) ) );
     popupOpen = FALSE;
-    QAccel *a = new QAccel( MainWindow::self );
 }
 
 void FormDefinitionView::setup()
@@ -668,7 +667,16 @@ void FormDefinitionView::setup()
 	folderPixmap = new QPixmap( folder_xpm );
     }
 
-    clear();
+    QListViewItem *i = firstChild();
+    while ( i ) {
+	if ( i->rtti() == HierarchyItem::DefinitionParent ) {
+	    QListViewItem *a = i;
+	    i = i->nextSibling();
+	    delete a;
+	    continue;
+	}
+	i = i->nextSibling();
+    }
 
     LanguageInterface *lIface = MetaDataBase::languageInterface( formWindow->project()->language() );
     if ( lIface ) {
@@ -688,11 +696,33 @@ void FormDefinitionView::setup()
 	lIface->release();
     }
     setupVariables();
-    refresh( FALSE );
+    refresh();
 }
 
 void FormDefinitionView::setupVariables()
 {
+    bool pubOpen, protOpen, privOpen;
+    pubOpen = protOpen = privOpen = TRUE;
+    QListViewItem *i = firstChild();
+    while ( i ) {
+	if ( i->rtti() == HierarchyItem::VarParent ) {
+	    QListViewItem *a = i;
+	    i = i->firstChild();
+	    while ( i ) {
+		if ( i->rtti() == HierarchyItem::VarPublic )
+		    pubOpen = i->isOpen();
+		else if ( i->rtti() == HierarchyItem::VarProtected )
+		    protOpen = i->isOpen();
+		else if ( i->rtti() == HierarchyItem::VarPrivate )
+		    privOpen = i->isOpen();
+		i = i->nextSibling();
+	    }
+	    delete a;
+	    break;
+	}
+	i = i->nextSibling();
+    }
+
     HierarchyItem *itemVar = new HierarchyItem( HierarchyItem::VarParent, this,
 						tr( "Class Variables" ), QString::null, QString::null );
     itemVar->setPixmap( 0, *folderPixmap );
@@ -726,40 +756,53 @@ void FormDefinitionView::setupVariables()
 	}
     }
     itemVar->setOpen( TRUE );
-    itemVarPriv->setOpen( TRUE );
-    itemVarProt->setOpen( TRUE );
-    itemVarPubl->setOpen( TRUE );
+    itemVarPriv->setOpen( privOpen );
+    itemVarProt->setOpen( protOpen );
+    itemVarPubl->setOpen( pubOpen );
 }
 
-void FormDefinitionView::refresh( bool doDelete )
+void FormDefinitionView::refresh()
 {
-    if ( popupOpen )
+    if ( popupOpen || !formWindow || !formWindow->project()->isCpp() )
 	return;
-    if ( !formWindow )
-	return;
-    if ( !formWindow->project()->isCpp() )
-	return;
+
+    bool fuPub, fuProt, fuPriv, slPub, slProt, slPriv;
+    fuPub = fuProt = fuPriv = slPub = slProt = slPriv = TRUE;
     QListViewItem *i = firstChild();
     while ( i ) {
-	if ( doDelete && i->rtti() == HierarchyItem::SlotParent ) {
-	    QListViewItem* a = i;
-	    i = i->nextSibling();
+        if ( i->rtti() == HierarchyItem::SlotParent ||
+	     i->rtti() == HierarchyItem::FunctParent ) {
+	    QListViewItem *a = i;
+	    i = i->firstChild();
+	    while ( i ) {
+		switch( i->rtti() ) {
+		case HierarchyItem::FunctPublic:
+		    fuPub = i->isOpen();
+		case HierarchyItem::FunctProtected:
+		    fuProt = i->isOpen();
+		    break;
+		case HierarchyItem::FunctPrivate:
+		    fuPriv = i->isOpen();
+		    break;
+		case HierarchyItem::SlotPublic:
+		    slPub = i->isOpen();
+		    if ( slPub )
+		    break;
+		case HierarchyItem::SlotProtected:
+		    slProt = i->isOpen();
+		    break;
+		case HierarchyItem::SlotPrivate:
+		    slPriv = i->isOpen();
+		}
+		i = i->nextSibling();
+	    }
+	    i = a->nextSibling();
 	    delete a;
 	    continue;
 	}
 	i = i->nextSibling();
     }
 
-    i = firstChild();
-    while ( i ) {
-	if ( doDelete && i->rtti() == HierarchyItem::FunctParent ) {
-	    QListViewItem* a = i;
-	    i = i->nextSibling();
-	    delete a;
-	    continue;
-	}
-	i = i->nextSibling();
-    }
 
     itemFunct = new HierarchyItem( HierarchyItem::FunctParent,
 				   this, tr( "Functions" ), QString::null, QString::null );
@@ -772,24 +815,22 @@ void FormDefinitionView::refresh( bool doDelete )
     itemFunctPubl = new HierarchyItem( HierarchyItem::FunctPublic, itemFunct,
 				       tr( "public" ), QString::null, QString::null );
 
-    if ( formWindow->project()->isCpp() ) {
-	itemSlots = new HierarchyItem( HierarchyItem::SlotParent,
-				       this, tr( "Slots" ), QString::null, QString::null );
-	itemSlots->setPixmap( 0, *folderPixmap );
-	itemPrivate = new HierarchyItem( HierarchyItem::SlotPrivate, itemSlots, tr( "private" ),
-					 QString::null, QString::null );
-	itemProtected = new HierarchyItem( HierarchyItem::SlotProtected, itemSlots, tr( "protected" ),
-					   QString::null, QString::null );
-	itemPublic = new HierarchyItem( HierarchyItem::SlotPublic, itemSlots, tr( "public" ),
-					QString::null, QString::null );
-    }
+    itemSlots = new HierarchyItem( HierarchyItem::SlotParent,
+				   this, tr( "Slots" ), QString::null, QString::null );
+    itemSlots->setPixmap( 0, *folderPixmap );
+    itemPrivate = new HierarchyItem( HierarchyItem::SlotPrivate, itemSlots, tr( "private" ),
+				     QString::null, QString::null );
+    itemProtected = new HierarchyItem( HierarchyItem::SlotProtected, itemSlots, tr( "protected" ),
+				       QString::null, QString::null );
+    itemPublic = new HierarchyItem( HierarchyItem::SlotPublic, itemSlots, tr( "public" ),
+				    QString::null, QString::null );
 
     QValueList<MetaDataBase::Function> functionList = MetaDataBase::functionList( formWindow );
     QValueList<MetaDataBase::Function>::Iterator it = --( functionList.end() );
     if ( !functionList.isEmpty() && itemFunct ) {
 	for (;;) {
 	    QListViewItem *item = 0;
-	    if ( (*it).type == "slot" &&  formWindow->project()->isCpp() ) {
+	    if ( (*it).type == "slot" ) {
 		if ( (*it).access == "protected" )
 		    item = new HierarchyItem( HierarchyItem::Slot, itemProtected, (*it).function,
 					      QString::null, QString::null );
@@ -818,18 +859,14 @@ void FormDefinitionView::refresh( bool doDelete )
     }
 
     itemFunct->setOpen( TRUE );
-    itemFunctPriv->setOpen( TRUE );
-    itemFunctProt->setOpen( TRUE );
-    itemFunctPubl->setOpen( TRUE );
+    itemFunctPriv->setOpen( fuPub );
+    itemFunctProt->setOpen( fuProt );
+    itemFunctPubl->setOpen( fuPriv );
 
-    if ( formWindow->project()->isCpp() ) {
-        itemPrivate->setOpen( TRUE );
-	itemProtected->setOpen( TRUE );
-	itemPublic->setOpen( TRUE );
-	itemSlots->setOpen( TRUE );
-    } else {
-	itemFunctProt->setVisible( FALSE );
-    }
+    itemSlots->setOpen( TRUE );
+    itemPublic->setOpen( slPub );
+    itemProtected->setOpen( slProt );
+    itemPrivate->setOpen( slPriv );
 }
 
 
@@ -1019,7 +1056,7 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	    dia.setList( entries );
 	    dia.exec();
 	    lIface->setDefinitionEntries( i->text( 0 ), dia.items(), MainWindow::self->designerInterface() );
-	    refresh( TRUE );
+	    refresh();
 	    formWindow->commandHistory()->setModified( TRUE );
 	}
     } else if ( res == NEW ) {

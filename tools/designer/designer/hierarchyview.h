@@ -148,7 +148,7 @@ public:
 
     void setup();
     void setupVariables();
-    void refresh( bool doDelete = TRUE );
+    void refresh();
     void setCurrent( QWidget *w );
 
 protected:
