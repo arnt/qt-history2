@@ -594,8 +594,7 @@ void QDockWindowTitleBar::mousePressEvent( QMouseEvent *e )
     hadDblClick = FALSE;
     offset = e->pos();
     dockWindow->startRectDraw( mapToGlobal( e->pos() ), !opaque );
-    if ( !opaque )
-	qApp->installEventFilter( dockWindow );
+    grabMouse();
 }
 
 void QDockWindowTitleBar::mouseMoveEvent( QMouseEvent *e )
@@ -608,8 +607,6 @@ void QDockWindowTitleBar::mouseMoveEvent( QMouseEvent *e )
     ctrlDown = ( e->state() & ControlButton ) == ControlButton;
     e->accept();
     dockWindow->handleMove( e->pos() - offset, e->globalPos(), !opaque );
-    if ( opaque )
-	dockWindow->updatePosition( e->globalPos() );
 }
 
 void QDockWindowTitleBar::mouseReleaseEvent( QMouseEvent *e )
@@ -623,7 +620,7 @@ void QDockWindowTitleBar::mouseReleaseEvent( QMouseEvent *e )
     qApp->removeEventFilter( dockWindow );
     if ( oldFocus )
 	oldFocus->setFocus();
-    qApp->removeEventFilter( dockWindow );
+    releaseMouse();
     if ( !mousePressed )
 	return;
     dockWindow->endRectDraw( !opaque );
@@ -1036,6 +1033,18 @@ void QDockWindow::handleMove( const QPoint &pos, const QPoint &gp, bool drawRect
 	    dr.moveBy(-topLevelWidget()->geometry().x(), -topLevelWidget()->geometry().y());
 #endif
 	    unclippedPainter->drawRect( dr );
+	} else {
+	    QPoint mp( mapToGlobal( pos ));
+	    if(place() == InDock) {
+		undock();
+		if(titleBar) {
+		    mp = QPoint(titleBar->width() / 2, titleBar->height() / 2);
+		    QMouseEvent me(QEvent::MouseButtonPress, mp, LeftButton, 0);
+		    QApplication::sendEvent(titleBar, &me);
+		    mp = titleBar->mapToGlobal( mp );
+		}
+	    }
+	    move( mp );
 	}
 	state = OutsideDock;
 	return;

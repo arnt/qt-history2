@@ -59,7 +59,7 @@
 #include "qdockarea.h"
 #include "qstringlist.h"
 #include "qstyle.h"
-#ifdef Q_WS_MAC
+#ifdef Q_WS_MACX
 #  include "qt_mac.h"
 #endif
 
@@ -884,12 +884,14 @@ void QHideToolTip::maybeTip( const QPoint &pos )
 QMainWindow::QMainWindow( QWidget * parent, const char * name, WFlags f )
     : QWidget( parent, name, f )
 {
-#ifdef Q_WS_MAC
+    d = new QMainWindowPrivate;
+#ifdef Q_WS_MACX
     if(isTopLevel())
 	ChangeWindowAttributes((WindowPtr)handle(), 1L << 6, 0); //hide toolbars thingie
-#endif
-    d = new QMainWindowPrivate;
+    d->opaque = TRUE;
+#else
     d->opaque = FALSE;
+#endif
     installEventFilter( this );
     d->topDock = new QDockArea( Horizontal, QDockArea::Normal, this, "qt_top_dock" );
     d->topDock->installEventFilter( this );
