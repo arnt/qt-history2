@@ -21,6 +21,7 @@
 class QShortcutPrivate : public QObjectPrivate
 {
 public:
+    QShortcutPrivate() : sc_enabled(true), sc_id(0) {}
     QKeySequence sc_sequence;
     bool sc_enabled;
     int sc_id;
