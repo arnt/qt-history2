@@ -45,7 +45,7 @@ Main::Main(QWidget* parent, const char* name, int f)
     QLabel* mainPre = new QLabel(QString::fromLatin1("The main spinbox:"), 
 				 this );
     mainPre->setMinimumSize( mainPre->sizeHint() );
-    mainBox = new QSpinBox( 0, 10, 1, this );
+    mainBox = new QSpinBox( 0, 10, 1, this, "main" );
     mainBox->setMinimumSize( mainBox->sizeHint() );
     connect( mainBox, SIGNAL(valueChanged(int)), this, SLOT( showValue(int) ) );
 
