@@ -48,7 +48,6 @@
 #include "qapplication.h"
 #include "qtimer.h"
 
-
 const int coord_limit = 4000;
 static const int autoscroll_margin = 16;
 static const int initialScrollTime = 30;
@@ -491,8 +490,11 @@ flag explicitly.
 QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
     QFrame( parent, name, f & (~WNorthWestGravity) & (~WRepaintNoErase) )
 {
-    d = new QScrollViewData(this,WResizeNoErase |
-	    (f&WPaintClever) | (f&WRepaintNoErase) | (f&WNorthWestGravity) );
+    WFlags flags = WResizeNoErase | (f&WPaintClever) | (f&WRepaintNoErase) | (f&WNorthWestGravity);
+//    if ( QApplication::reverseLayout() )
+//	flags |= WWinNorthEastGravity;
+    d = new QScrollViewData( this, flags );
+			    
 #ifndef QT_NO_DRAGANDDROP
     connect( &d->autoscroll_timer, SIGNAL( timeout() ),
 	     this, SLOT( doDragAutoScroll() ) );
@@ -898,6 +900,8 @@ void QScrollView::resizeEvent( QResizeEvent* event )
     // disabled. This makes it possible for subclasses to implement
     // dynamic wrapping without a horizontal scrollbar showing up all
     // the time when making a window smaller.
+    if ( QApplication::reverseLayout() )
+	scrollBy( -event->size().width() + event->oldSize().width(), 0 );
     if ( u )
 	updateScrollBars();
     d->hideOrShowAll(this);
@@ -1192,13 +1196,12 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
     if (!d) return FALSE; // we are destructing
     if ( obj == &d->viewport || obj == d->clipped_viewport ) {
 	switch ( e->type() ) {
-
 	/* Forward many events to viewport...() functions */
 	case QEvent::Paint:
 	    viewportPaintEvent( (QPaintEvent*)e );
 	    break;
 	case QEvent::Resize:
-	    viewportResizeEvent( (QResizeEvent*)e );
+	    viewportResizeEvent( (QResizeEvent *) e);
 	    break;
 	case QEvent::MouseButtonPress:
 	    viewportMousePressEvent( (QMouseEvent*)e );
@@ -1705,11 +1708,15 @@ void QScrollView::center( int x, int y, float xmargin, float ymargin )
 */
 void QScrollView::moveContents(int x, int y)
 {
-    if ( -x+visibleWidth() > contentsWidth() )
-	x=QMIN(0,-contentsWidth()+visibleWidth());
+    if( QApplication::reverseLayout() )
+	if ( -x  < 0 )
+	    x=QMAX(0,-contentsWidth()+visibleWidth());
+    else
+	if ( -x+visibleWidth() > contentsWidth() )
+	    x=QMIN(0,-contentsWidth()+visibleWidth());
     if ( -y+visibleHeight() > contentsHeight() )
 	y=QMIN(0,-contentsHeight()+visibleHeight());
-
+    
     int dx = x - d->vx;
     int dy = y - d->vy;
 
@@ -1739,13 +1746,6 @@ void QScrollView::moveContents(int x, int y)
     }
     d->hideOrShowAll(this, TRUE );
 }
-
-#if QT_VERSION >= 300
-#if defined(_CC_GNU_)
-#warning "Should rename contents{X,Y,Width,Height} to viewport{...}"
-#endif
-// Because it's the viewport rectangle that is "moving", not the contents.
-#endif
 
 #if QT_VERSION >= 300
 #if defined(_CC_GNU_)
