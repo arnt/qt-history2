@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.h#5 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.h#6 $
 **
 ** Definition of QScrollView class
 **
@@ -69,6 +69,12 @@ protected:
 
     QWidget*	viewport();
 
+    void setMargins(int left, int top, int right, int bottom);
+    int leftMargin() const;
+    int topMargin() const;
+    int rightMargin() const;
+    int bottomMargin() const;
+
 private:
     void moveView(int x, int y);
 
@@ -81,6 +87,7 @@ private slots:
 private:	// Disabled copy constructor and operator=
     QScrollView( const QScrollView & ) {}
     QScrollView &operator=( const QScrollView & ) { return *this; }
+    void changeFrameRect(const QRect&);
 };
 
 #endif

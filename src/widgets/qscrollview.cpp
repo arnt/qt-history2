@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#13 $
 **
 ** Implementation of QScrollView class
 **
@@ -27,6 +27,7 @@ struct QScrollViewData {
 	viewed( 0 ),
 	vx( 0 ), vy( 0 ), vwidth( 1 ), vheight( 1 )
     {
+	l_marg = r_marg = t_marg = b_marg = 0;
 	viewport.setBackgroundMode( QWidget::PaletteDark );
 	vMode = QScrollView::Auto;
 	hMode = QScrollView::Auto;
@@ -41,6 +42,7 @@ struct QScrollViewData {
     QWidget*	viewed;
     QWidget*	corner;
     int		vx, vy, vwidth, vheight; // for drawContents-style usage
+    int		l_marg, r_marg, t_marg, b_marg;
 
     QScrollView::ScrollBarMode	vMode		: 2;
     QScrollView::ScrollBarMode	hMode		: 2;
@@ -122,6 +124,10 @@ void QScrollView::vslide( int pos )
 void QScrollView::updateScrollBars()
 {
     int fw = frameWidth();
+    int lmarg = fw+d->l_marg;
+    int rmarg = fw+d->r_marg;
+    int tmarg = fw+d->t_marg;
+    int bmarg = fw+d->b_marg;
 
     int w = width();
     int h = height();
@@ -135,8 +141,8 @@ void QScrollView::updateScrollBars()
 
     if ( !d->viewed || d->viewed->isVisible() ) {
 	// Do we definately need the scrollbar?
-	needh = w-fw*2 < viewWidth();
-	needv = h-fw*2 < viewHeight();
+	needh = w-lmarg-rmarg < viewWidth();
+	needv = h-tmarg-bmarg < viewHeight();
 
 	// Do we intend to show the scrollbar?
 	if (d->hMode == AlwaysOn) showh = TRUE;
@@ -147,10 +153,10 @@ void QScrollView::updateScrollBars()
 	else showv = needv;
 
 	// Given other scrollbar will be shown, NOW do we need one?
-	if ( showh && h-sbDim-fw*2 < viewHeight() ) {
+	if ( showh && h-sbDim-tmarg-bmarg < viewHeight() ) {
 	    needv=TRUE; if (d->vMode == Auto) showv=TRUE;
 	}
-	if ( showv && w-sbDim-fw*2 < viewWidth() ) {
+	if ( showv && w-sbDim-lmarg-rmarg < viewWidth() ) {
 	    needh=TRUE; if (d->hMode == Auto) showh=TRUE;
 	}
     } else {
@@ -162,18 +168,18 @@ void QScrollView::updateScrollBars()
 
     // Hide unneeded scrollbar, calculate viewport size
     if ( showh ) {
-	porth=h-sbDim-fw*2;
+	porth=h-sbDim-tmarg-bmarg;
     } else {
 	if (!needh) hslide( 0 ); // move widget to left
 	d->hbar.hide();
-	porth=h-fw*2;
+	porth=h-tmarg-bmarg;
     }
     if ( showv ) {
-	portw=w-sbDim-fw*2;
+	portw=w-sbDim-lmarg-rmarg;
     } else {
 	if (!needv) vslide( 0 ); // move widget to top
 	d->vbar.hide();
-	portw=w-fw*2;
+	portw=w-lmarg-rmarg;
     }
 
     // Configure scrollbars that we will show
@@ -204,15 +210,15 @@ void QScrollView::updateScrollBars()
 	bottom=h;
     }
     if ( showv ) {
-	d->viewport.setGeometry( fw, fw, w-sbDim-fw*2, bottom-fw*2 );
-	setFrameRect(QRect(0, 0, w-sbDim, bottom));
+	d->viewport.setGeometry( lmarg, tmarg, w-sbDim-lmarg-rmarg, bottom-tmarg-bmarg );
+	changeFrameRect(QRect(0, 0, w-sbDim, bottom));
 	if (cornerWidget())
 	    d->vbar.setGeometry( w-sbDim, 0, sbDim, h-sbDim );
 	else
 	    d->vbar.setGeometry( w-sbDim, 0, sbDim, bottom );
     } else {
-	setFrameRect(QRect(0, 0, w, bottom));
-	d->viewport.setGeometry( fw, fw, w-fw*2, bottom-fw*2 );
+	changeFrameRect(QRect(0, 0, w, bottom));
+	d->viewport.setGeometry( lmarg, tmarg, w-lmarg-rmarg, bottom-tmarg-bmarg );
     }
     if ( d->corner )
 	d->corner->setGeometry( w-sbDim, h-sbDim, sbDim, sbDim );
@@ -713,3 +719,52 @@ QWidget* QScrollView::viewport()
 {
     return &d->viewport;
 }
+
+void QScrollView::changeFrameRect(const QRect& r)
+{
+    QRect oldr = frameRect();
+    if (oldr != r) {
+	setFrameRect(r);
+	update(oldr);
+    }
+}
+
+/*!
+  Sets the margins around the scrolling area.  This is useful for applications
+  such as spreadsheets with `locked' rows and columns.  The marginal space
+  is \e inside the frameRect() and is left blank - override drawContents()
+  or put widgets in the unused area.
+
+  By default all margins are zero.
+
+  \sa frameChanged()
+*/
+void QScrollView::setMargins(int left, int top, int right, int bottom)
+{
+    d->l_marg = left;
+    d->t_marg = top;
+    d->r_marg = right;
+    d->b_marg = bottom;
+    updateScrollBars();
+}
+
+/*!
+  Returns the current left margin.
+  \sa setMargins()
+*/
+int QScrollView::leftMargin() const	{ return d->l_marg; }
+/*!
+  Returns the current top margin.
+  \sa setMargins()
+*/
+int QScrollView::topMargin() const	{ return d->t_marg; }
+/*!
+  Returns the current right margin.
+  \sa setMargins()
+*/
+int QScrollView::rightMargin() const	{ return d->r_marg; }
+/*!
+  Returns the current bottom margin.
+  \sa setMargins()
+*/
+int QScrollView::bottomMargin() const	{ return d->b_marg; }
