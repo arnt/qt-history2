@@ -695,7 +695,7 @@ void QTextPieceTable::documentChange(int from, int length)
     }
     int start = qMin(from, docChangeFrom);
     int end = qMax(from + length, docChangeFrom + docChangeLength);
-    int diff = end - start - length;
+    int diff = qMax(0, end - from - length);
     docChangeFrom = start;
     docChangeOldLength += diff;
     docChangeLength += diff;
