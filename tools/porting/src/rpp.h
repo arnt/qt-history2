@@ -1011,10 +1011,26 @@ private:
 
 };
 
+/*
+    T must be a subclass of Item, parent must implment
+    the ItemComposite interface
+*/
 template <typename T>
-T *createNode(TypedPool<Item> *memPool, Item *parent);
+T *createNode(TypedPool<Item> *memPool, Item *parent)
+{
+    Q_ASSERT(parent);
+    T* node = new (memPool->allocate(sizeof(T))) T(parent);
+    Q_ASSERT(node);
+    return node;
+}
+
 template <typename T>
-T *createNode(TypedPool<Item> *memPool);
+T *createNode(TypedPool<Item> *memPool)
+{
+    T* node = new (memPool->allocate(sizeof(T))) T(0);
+    Q_ASSERT(node);
+    return node;
+}
 
 
 QByteArray visitGetText(Item *item);
