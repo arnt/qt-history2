@@ -176,18 +176,44 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		if(project->variables()["FORMS"].isEmpty())
 		    continue;
 		
-		QString uiDir;
-		if(!project->variables()["UI_DIR"].isEmpty())
-		    uiDir = project->first("UI_DIR");
-		else
-		    uiDir = "";
+		QString uiSourcesDir;
+		QString uiHeadersDir;
+		if(!project->variables()["UI_DIR"].isEmpty()) {
+		    uiSourcesDir = project->first("UI_DIR");
+		    uiHeadersDir = project->first("UI_DIR");
+		} else {
+		    if ( !project->variables()["UI_SOURCES_DIR"].isEmpty() )
+			uiSourcesDir = project->first("UI_SOURCES_DIR");
+		    else
+			uiSourcesDir = "";
+		    if ( !project->variables()["UI_HEADERS_DIR"].isEmpty() )
+			uiHeadersDir = project->first("UI_HEADERS_DIR");
+		    else
+			uiHeadersDir = "";
+		}
+
 		QStringList &list = project->variables()["FORMS"];
 		QString ext = variable == "MSVCDSP_FORMSOURCES" ? ".cpp" : ".h";
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 		    QString base = (*it);
 		    int dot = base.findRev(".");
-		    base.replace( dot, base.length() - dot, ext );
-		    t << "# Begin Source File\n\nSOURCE=" << uiDir << base << "\n# End Source File" << endl;
+  		    base.replace( dot, base.length() - dot, ext );
+		    QString fname = base;
+
+		    int lbs = fname.findRev( "\\" );
+		    QString fpath; 
+		    if ( lbs != -1 )
+			fpath = fname.left( lbs + 1 );
+		    fname = fname.right( fname.length() - lbs - 1 );
+
+		    t << "# Begin Source File\n\nSOURCE=";
+		    if ( ext == ".cpp" && !uiSourcesDir.isEmpty() )
+			t << uiSourcesDir << fname;
+		    else if ( ext == ".h" && !uiHeadersDir.isEmpty() )
+			t << uiHeadersDir << fname;
+		    else
+			t << base;
+		    t << "\n# End Source File" << endl;
 		}
 	    }
 	    else if(variable == "MSVCDSP_TRANSLATIONS" ) {
@@ -347,19 +373,29 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    else
 			mocFile = fpath;
 
-		    QString uiDir;
-		    if(!project->variables()["UI_DIR"].isEmpty())
-			uiDir = project->first("UI_DIR");
-		    else
-			uiDir = fpath;
+		    QString uiSourcesDir;
+		    QString uiHeadersDir;
+		    if(!project->variables()["UI_DIR"].isEmpty()) {
+			uiSourcesDir = project->first("UI_DIR");
+			uiHeadersDir = project->first("UI_DIR");
+		    } else {
+			if ( !project->variables()["UI_SOURCES_DIR"].isEmpty() )
+			    uiSourcesDir = project->first("UI_SOURCES_DIR");
+			else
+			    uiSourcesDir = fpath;
+			if ( !project->variables()["UI_HEADERS_DIR"].isEmpty() )
+			    uiHeadersDir = project->first("UI_HEADERS_DIR");
+			else
+			    uiHeadersDir = fpath;
+		    }
 
 		    t << "USERDEP_" << base << "=\"$(QTDIR)\\bin\\moc.exe\" \"$(QTDIR)\\bin\\uic.exe\"" << endl << endl;
 
 		    QString build = "\n\n# Begin Custom Build - Uic'ing " + base + "...\n"
 			"InputPath=.\\" + base + "\n\n" "BuildCmds= \\\n\t" + uicpath + base +
-			" -o " + uiDir + fname + ".h \\\n" "\t" + uicpath  + base +
-			" -i " + fname + ".h -o " + uiDir + fname + ".cpp \\\n"
-			"\t" + mocpath + uiDir + fname + ".h -o " + mocFile + "moc_" + fname + ".cpp \\\n";
+			" -o " + uiHeadersDir + fname + ".h \\\n" "\t" + uicpath  + base +
+			" -i " + fname + ".h -o " + uiSourcesDir + fname + ".cpp \\\n"
+			"\t" + mocpath + uiHeadersDir + fname + ".h -o " + mocFile + "moc_" + fname + ".cpp \\\n";
 		    
 		    if ( !imagesBuildDone && !project->variables()["IMAGES"].isEmpty() ) {
 			QString imagesBuild;
@@ -371,9 +407,9 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			    + project->first("QMAKE_IMAGE_COLLECTION") + " \\\n"); 
 		    } 
 		    
-		    build.append("\n\"" + uiDir + fname + ".h\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\""  "\n"
+		    build.append("\n\"" + uiHeadersDir + fname + ".h\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\""  "\n"
 			"\t$(BuildCmds)\n\n"
-			"\"" + uiDir + fname + ".cpp\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
+			"\"" + uiSourcesDir + fname + ".cpp\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
 			"\t$(BuildCmds)\n\n"
 			"\"" + mocFile + "moc_" + fname + ".cpp\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
 			"\t$(BuildCmds)\n\n");
