@@ -242,5 +242,10 @@ QSqlFieldInfoList QSqlDriver::table( const QString& name ) const
     return view( "select * from " + name + " where 0=1;" );
 }
 
+QStringList QSqlDriver::tables() const
+{
+    return QStringList();
+}
+
 #endif // QT_NO_SQL
 

@@ -4,6 +4,7 @@
 #ifndef QT_H
 #include "qobject.h"
 #include "qstring.h"
+#include "qstringlist.h"
 #include "qsqlerror.h"
 #include "qsqlresultinfo.h"
 #include "qsql.h"
@@ -11,7 +12,7 @@
 
 #if !defined(QT_NO_SQL)
 
-class QSqlViewBase
+class QSqlViewBase // ### possibly useless?
 {
 public:
     QSqlViewBase();
@@ -23,14 +24,14 @@ private:
     QSqlFieldInfoList fieldList;
 };
 
-class QSqlView : public QSqlViewBase
+class QSqlView : public QSqlViewBase // ### possibly useless?
 {
 public:
     QSqlView( const QString& sql, const QSqlDriver* db );
     ~QSqlView();
 };
 
-class QSqlTable : public QSqlViewBase
+class QSqlTable : public QSqlViewBase // ### possibly useless?
 {
 public:
     QSqlTable( const QString& name, const QSqlDriver* db );
@@ -64,6 +65,7 @@ public:
     QSql	query( const QString & sqlquery ) const;
     QSqlView    view( const QString & sql ) const;
     QSqlTable   table( const QString & name ) const;
+    QStringList tables() const;
     int		exec( const QString & sql ) const;
     QSql	createResult() const;
     bool	transaction();

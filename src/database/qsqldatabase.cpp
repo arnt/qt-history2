@@ -5,7 +5,7 @@
 #include "qsqldriverplugin.h"
 #include "qsqlresult.h"
 #include "qsqldriver.h"
-#include <stdlib.h> //### for getenv, get rid of this
+#include <stdlib.h> //### for getenv, get rid of this soon!
 
 class QNullResult : public QSqlResult
 {
@@ -117,9 +117,9 @@ void QSqlDatabase::init( const QString& type )
     QPlugIn* pi = d->plugIns->plugIn( type );
     //    QPlugIn* pi;
     //    if ( d->plugIns->selectFeature( type ) )
-    //    	pi = d->plugIns->plugIn( type );
+    //	pi = d->plugIns->plugIn( type );
     if ( pi && pi->queryPlugInInterface() == "QSqlDriverInterface" )
-    	d->driver = ((QSqlDriverPlugIn*)pi)->create( type );
+     	d->driver = ((QSqlDriverPlugIn*)pi)->create( type );
     if ( !d->driver ) {
 #ifdef CHECK_RANGE
 	qWarning("QSqlDatabase warning: driver not loaded");
@@ -363,6 +363,11 @@ QSqlView QSqlDatabase::view( const QString & sql ) const
 QSqlTable QSqlDatabase::table( const QString & name ) const
 {
     return QSqlTable( name, d->driver );
+}
+
+QStringList QSqlDatabase::tables() const
+{
+    return d->driver->tables();
 }
 
 ////////////////////////////////////////////////////////////////
