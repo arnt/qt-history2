@@ -1364,6 +1364,7 @@ a slot.
 
 \quotefile colortool/mainform.ui.h
 \skipto MainForm::changedColor
+\printuntil isWebColor
 \printuntil }
 
 This function looks up the color name in the colors map and retrieves
