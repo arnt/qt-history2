@@ -14,8 +14,8 @@ the value editor dialog and re-<guibutton>Apply</guibutton>, or, close
 the dialog and click the <guibutton>Undo</guibutton> toolbar button (or
 press <keycap>Ctrl+Z</keycap>). If you undo too much you can always
 click <guibutton>Redo</guibutton> (or press <keycap>Ctrl+Y</keycap>).
-First we'll briefly detour to describe the Choose a Pixmap dialog since
-this is used by many of the value editors. 
+First we'll briefly describe the Choose a Pixmap dialog since this is
+used by many of the value editors. 
 </para>
 
 <sect1 id="sharedpixmaps">
@@ -65,12 +65,12 @@ Inline', then click \ok.
 </figure>
 This value editor allows us to hard-code list items. We can always
 change them in code. A list item consists of some text or a
-pixmap or both. Item's are added by clicking the <guibutton>New
+pixmap or both. Items are added by clicking the <guibutton>New
 Item</guibutton> button and deleted by clicking <guibutton>Delete
 Item</guibutton>. The order of items can be changed by clicking an item
 in the list to select it and clicking the up and down blue arrows to move
 the selected item. If you want a pixmap click the ellipsis
-(<guibutton>...</guibutton>) button which will pop up the Choose a
+button which will pop up the Choose a
 Pixmap dialog. You can either choose one of the pixmaps shown or click
 <guibutton>Add</guibutton> to add one from somewhere in your filesystem.
 To remove a pixmap click the item, then click the scissors button. 
@@ -86,7 +86,7 @@ The same value editor is used for list boxes and combo boxes.
 <title>Edit List View Dialog</title>
 \img[listview]
 </figure>
-This editor allows us to hard-code columns and list items. We can
+This editor allows us to hard-code columns and list view items. We can
 change the list view dynamically in code. A list
 view consists of one or more columns of data. The first column may have
 a tree structure with items having sub-items and so on. The dialog
@@ -98,7 +98,7 @@ name the columns we require.
 We'll describe the Columns tab first. To add a new column click the
 <guibutton>New Column</guibutton> button and enter a name in the Text
 line edit. You can add a pixmap to the column by clicking the ellipsis
-(<guibutton>...</guibutton>) button and choosing a pixmap from the
+button and choosing a pixmap from the
 Choose a Pixmap dialog. The scissors button is used to delete the
 pixmap, and the blue up and down arrow buttons are used to move the
 highlighted column up and down in the column list. 
@@ -111,7 +111,7 @@ that you want to be the sub-item's <emphasis>parent</emphasis> then click
 the item's text. Since there may be more than one column the Column spin
 box is used to choose which column the text you enter will go into.
 Items can also have pixmaps which are added by clicking the ellipsis
-button and choosing a pixmap and deleted by clicking the scissors
+button and choosing a pixmap. They can be deleted by clicking the scissors
 button. Items and sub-items can be deleted by clicking them, then
 clicking the <guibutton>Delete Item</guibutton> button. The up and down
 blue arrow buttons  move the selected item up and down amongst the other
@@ -190,13 +190,14 @@ cells must be inserted through code.
 <title>Edit Iconview Dialog</title>
 \img[iconview]
 </figure>
-This dialog is used to add labelled icons to an icon view. New items are
-added by clicking <guibutton>New Item</guibutton>, then typing in their
-text in the Text line edit. Items can also be added or deleted in code.
-You can either use the default icon or choose your own by clicking the
-ellipsis button to invoke the Choose a Pixmap dialog. The pixmap can be
-deleted by clicking the scissors button, and the item can be delected by
-clicking it then clicking <guibutton>Delete Item</guibutton>. 
+This dialog is used to add icons with text labels to an icon view. New
+items are added by clicking <guibutton>New Item</guibutton>, then typing
+in their text in the Text line edit. Items can also be added or deleted
+in code. You can either use the default icon or choose your own by
+clicking the ellipsis button to invoke the Choose a Pixmap dialog. The
+pixmap can be deleted by clicking the scissors button, and the item can
+be deleted by clicking it then clicking <guibutton>Delete
+Item</guibutton>. 
 </para>
 </sect1>
 </chapter>
