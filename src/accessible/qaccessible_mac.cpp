@@ -216,20 +216,19 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 		QObject *child_object = NULL;
 		if(object) {
 		    QAccessibleInterface *iface;
-		    if(QAccessible::queryAccessibleInterface(object, &iface) == QS_OK) {
-			QPoint p(where.h, where.v);
-			if(object->isWidgetType())
-			    p = ((QWidget*)object)->mapFromGlobal(p);
-			int child = iface->childAt(p.x(), p.y());
+		    if(QAccessible::queryAccessibleInterface(object, &iface)) {
+			int child = iface->childAt(where.h, where.v);
 			if(child > 0) {
 			    QAccessibleInterface *child_iface;
 			    if(iface->navigate(Child, child, &child_iface) != -1) {
-				child_object = child_iface->object();
-				child_iface->release();
+				if(child_iface) {
+				    child_object = child_iface->object();
+				    child_iface->release();
+				}
 			    }
 			}
 			iface->release();
-		    } else if(object->isWidgetType()) {
+		    } else if(object->isWidgetType()) { //just as a backup plan!
 			QWidget *widget = (QWidget*)object;
 			child_object = widget->childAt(widget->mapFromGlobal(QPoint(where.h, where.v)));
 		    } 
@@ -246,7 +245,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 		    return err;
 	    } else if(ekind == kEventAccessibleGetAllAttributeNames) {
 		QAccessibleInterface *iface;
-		if(QAccessible::queryAccessibleInterface(object, &iface) == QS_OK) {
+		if(QAccessible::queryAccessibleInterface(object, &iface)) {
 		    CFMutableArrayRef attrs;
 		    GetEventParameter(event, kEventParamAccessibleAttributeNames, typeCFMutableArrayRef, NULL,
 				      sizeof(attrs), NULL, &attrs);
@@ -275,7 +274,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 		}
 	    } else if(ekind == kEventAccessibleGetNamedAttribute) {
 		QAccessibleInterface *iface;
-		if(QAccessible::queryAccessibleInterface(object, &iface) == QS_OK) {
+		if(QAccessible::queryAccessibleInterface(object, &iface)) {
 		    CFStringRef str;
 		    GetEventParameter(event, kEventParamAccessibleAttributeName, typeCFStringRef, NULL,
 				      sizeof(str), NULL, &str);
@@ -285,9 +284,11 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 			AXUIElementRef *children = (AXUIElementRef *)malloc(sizeof(AXUIElementRef) * children_count);
 			for(int i = 0; i < children_count; i++) {
 			    if(iface->navigate(Child, i, &child_iface) != -1) {
-				QObject *child = child_iface->object();
-				children[i] = qt_mac_find_uielement(child);
-				child_iface->release();
+				if(child_iface) {
+				    QObject *child = child_iface->object();
+				    children[i] = qt_mac_find_uielement(child);
+				    child_iface->release();
+				}
 			    }
 			}
 			CFArrayRef arr = CFArrayCreate(NULL, (const void **)children, children_count, NULL);
@@ -295,10 +296,12 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 		    } else if(CFStringCompare(str, kAXParentAttribute, 0) == kCFCompareEqualTo) {
 			QAccessibleInterface *parent_iface;
 			if(iface->navigate(Ancestor, 1, &parent_iface) != -1) {
-			    QObject *parent = parent_iface->object();
-			    AXUIElementRef element = qt_mac_find_uielement(parent);
-			    SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFTypeRef, sizeof(element), &element);
-			    parent_iface->release();
+			    if(parent_iface) {
+				QObject *parent = parent_iface->object();
+				AXUIElementRef element = qt_mac_find_uielement(parent);
+				SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFTypeRef, sizeof(element), &element);
+				parent_iface->release();
+			    }
 			}
 		    } else if(CFStringCompare(str, kAXPositionAttribute, 0) == kCFCompareEqualTo) {
 			QPoint qpoint(iface->rect(0).topLeft());
@@ -339,7 +342,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 			else if(qrole == Grip)
 			    role = kAXGrowAreaAttribute;
 			else if(qrole == Window || qrole == Dialog || qrole == AlertMessage || qrole == ToolTip ||
-				qrole == HelpBalloon)
+				qrole == HelpBalloon || qrole == Client)
 			    role = kAXWindowRole;
 			else if(qrole == PopupMenu)
 			    role = kAXMenuRole;
@@ -431,8 +434,10 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 			for(int i = 0; i < sel.count(); i++) {
 			    QAccessibleInterface *child_iface;
 			    if(iface->navigate(Child, sel[i], &child_iface) != -1) {
-				arr[i] = qt_mac_find_uielement(child_iface->object());
-				child_iface->release();
+				if(child_iface) {
+				    arr[i] = qt_mac_find_uielement(child_iface->object());
+				    child_iface->release();
+				}
 			    }
 			}
 			CFArrayRef cfList = CFArrayCreate(NULL, (const void **)arr, sel.count(), NULL);
@@ -481,7 +486,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 		}
 	    } else if(ekind == kEventAccessibleSetNamedAttribute) {
 		QAccessibleInterface *iface;
-		if(QAccessible::queryAccessibleInterface(object, &iface) == QS_OK) {
+		if(QAccessible::queryAccessibleInterface(object, &iface)) {
 		    CFStringRef str;
 		    GetEventParameter(event, kEventParamAccessibleAttributeName, typeCFStringRef, NULL,
 				      sizeof(str), NULL, &str);
@@ -514,7 +519,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 		}
 	    } else if(ekind == kEventAccessibleIsNamedAttributeSettable) {
 		QAccessibleInterface *iface;
-		if(QAccessible::queryAccessibleInterface(object, &iface) == QS_OK) {
+		if(QAccessible::queryAccessibleInterface(object, &iface)) {
 		    CFStringRef str;
 		    GetEventParameter(event, kEventParamAccessibleAttributeName, typeCFStringRef, NULL,
 				      sizeof(str), NULL, &str);
@@ -529,7 +534,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 		}
 	    } else if(ekind == kEventAccessibleGetAllActionNames) {
 		QAccessibleInterface *iface;
-		if(QAccessible::queryAccessibleInterface(object, &iface) == QS_OK) {
+		if(QAccessible::queryAccessibleInterface(object, &iface)) {
 		    const int actCount = iface->actionCount(0);
 		    CFStringRef *arr = (CFStringRef *)malloc(sizeof(AXUIElementRef) * actCount);
 		    for(int i = 0; i < actCount; i++) {
@@ -542,7 +547,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 		}
 	    } else if(ekind == kEventAccessiblePerformNamedAction) {
 		QAccessibleInterface *iface;
-		if(QAccessible::queryAccessibleInterface(object, &iface) == QS_OK) {
+		if(QAccessible::queryAccessibleInterface(object, &iface)) {
 		    CFStringRef act;
 		    GetEventParameter(event, kEventParamAccessibleActionName, typeCFStringRef, NULL,
 				      sizeof(act), NULL, &act);
@@ -576,7 +581,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 		}
 	    } else if(ekind == kEventAccessibleGetNamedActionDescription) {
 		QAccessibleInterface *iface;
-		if(QAccessible::queryAccessibleInterface(object, &iface) == QS_OK) {
+		if(QAccessible::queryAccessibleInterface(object, &iface)) {
 		    CFStringRef act;
 		    GetEventParameter(event, kEventParamAccessibleActionName, typeCFStringRef, NULL,
 				      sizeof(act), NULL, &act);
