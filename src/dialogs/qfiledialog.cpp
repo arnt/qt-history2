@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#375 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#376 $
 **
 ** Implementation of QFileDialog class
 **
@@ -2496,7 +2496,7 @@ void QFileDialog::okClicked()
 	    d->ignoreReturn = FALSE;
 	    return;
 	}
-	d->currentFileName = d->url.dirPath();
+	d->currentFileName = d->url.toString();//dirPath();
 	accept();
 	return;
     }
@@ -3936,7 +3936,7 @@ void QFileDialog::dataTransferProgress( int bytesDone, int bytesTotal, QNetworkO
     if ( d->progressDia ) {
 	if ( d->progressDia->totalSteps() != bytesTotal )
 	    d->progressDia->setTotalSteps( bytesTotal );
-    
+
 	if ( op->operation() == QNetworkProtocol::OpGet )
 	    d->progressDia->setLabelText( tr( "Read: %1" ).arg( op->arg1() ) );
 	else if ( op->operation() == QNetworkProtocol::OpPut )
