@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qkoi8codec.cpp#4 $
+** $Id: //depot/qt/main/src/tools/qkoi8codec.cpp#5 $
 **
 ** Implementation of QKoi8Codec class
 **
@@ -42,7 +42,7 @@ while (<IN>) {
 @a = sort grep {/25../} keys %unicode_to_koi8;
 $max = pop @a; $max =~ s/25//; $max=hex $max; $max++;
 print "static const int n_unicode_to_koi8_25 = $max;\n";
-print "static const char unicode_to_koi8_25[$max] = {\n\t";
+print "static const uchar unicode_to_koi8_25[$max] = {\n\t";
 for $u (0x2500..(0x2500+$max-1)) {
     $uni = sprintf("%04x",$u);
     if ( $koi8 = $unicode_to_koi8{$uni} ) {
@@ -56,7 +56,7 @@ print "};\n\n";
 @a = sort grep {/04../} keys %unicode_to_koi8;
 $max = pop @a; $max =~ s/04//; $max=hex $max; $max++;
 print "static const int n_unicode_to_koi8_04 = $max;\n";
-print "static const char unicode_to_koi8_04[$max] = {\n\t";
+print "static const uchar unicode_to_koi8_04[$max] = {\n\t";
 for $u (0x0400..(0x0400+$max-1)) {
     $uni = sprintf("%04x",$u);
     if ( $koi8 = $unicode_to_koi8{$uni} ) {
@@ -78,7 +78,7 @@ __END__
 */
 
 static const int n_unicode_to_koi8_25 = 161;
-static const char unicode_to_koi8_25[161] = {
+static const uchar unicode_to_koi8_25[161] = {
 	0x80,unkn,0x81,unkn,unkn,unkn,unkn,unkn,
 	unkn,unkn,unkn,unkn,0x82,unkn,unkn,unkn,
 	0x83,unkn,unkn,unkn,0x84,unkn,unkn,unkn,
@@ -102,7 +102,7 @@ static const char unicode_to_koi8_25[161] = {
 	0x94,};
 
 static const int n_unicode_to_koi8_04 = 82;
-static const char unicode_to_koi8_04[82] = {
+static const uchar unicode_to_koi8_04[82] = {
 	unkn,0xB3,unkn,unkn,unkn,unkn,unkn,unkn,
 	unkn,unkn,unkn,unkn,unkn,unkn,unkn,unkn,
 	0xE1,0xE2,0xF7,0xE7,0xE4,0xE5,0xF6,0xFA,
