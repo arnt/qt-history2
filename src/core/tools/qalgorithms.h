@@ -30,9 +30,9 @@ template <typename BiIterator, typename T>
 inline void qSortHelper(BiIterator begin, BiIterator end, const T &dummy);
 
 template <typename BiIterator, typename T, typename LessThan>
-Q_OUTOFLINE_TEMPLATE void qStableSortHelper(BiIterator start, BiIterator end, const T &t, LessThan lessThan);
+Q_OUTOFLINE_TEMPLATE void qStableSortHelper2(BiIterator, BiIterator, LessThan, T *);
 template <typename BiIterator, typename T>
-inline void qStableSortHelper(BiIterator begin, BiIterator end, const T &dummy);
+inline void qStableSortHelper(BiIterator, BiIterator, const T &);
 
 }
 
@@ -288,14 +288,14 @@ inline void qSortHelper(BiIterator begin, BiIterator end, const T &dummy)
 
 
 template <typename BiIterator, typename T, typename LessThan>
-Q_OUTOFLINE_TEMPLATE void qStableSortHelper(BiIterator start, BiIterator end, LessThan lessThan, T *buf)
+Q_OUTOFLINE_TEMPLATE void qStableSortHelper2(BiIterator start, BiIterator end, LessThan lessThan, T * buf)
 {
     if(end - start < 2)
        return;
 
     BiIterator middle = start + (end - start) / 2;
-    qStableSortHelper(start, middle, lessThan, buf);
-    qStableSortHelper(middle, end, lessThan, buf);
+    qStableSortHelper2(start, middle, lessThan, buf);
+    qStableSortHelper2(middle, end, lessThan, buf);
 
     BiIterator pos = start;
     T *bufPos = buf;
@@ -303,10 +303,10 @@ Q_OUTOFLINE_TEMPLATE void qStableSortHelper(BiIterator start, BiIterator end, Le
         *bufPos++ = *pos++;
     };
 
-    T* bufEnd = bufPos;
-    T* bufMiddle = buf  + (bufEnd - buf) /2;
-    T* b1 = buf;
-    T* b2 = bufMiddle;
+    T *bufEnd = bufPos;
+    T *bufMiddle = buf  + (bufEnd - buf) /2;
+    T *b1 = buf;
+    T *b2 = bufMiddle;
 
     pos = start;
     while(b1 < bufMiddle && b2 < bufEnd) {
@@ -332,7 +332,7 @@ Q_OUTOFLINE_TEMPLATE void qStableSortHelper(BiIterator start, BiIterator end, co
 
     int size = end - start;
     T *buf = new T[size];
-    qStableSortHelper(start, end, lessThan, buf);
+    qStableSortHelper2(start, end, lessThan, buf);
     delete[] buf;
 }
 
