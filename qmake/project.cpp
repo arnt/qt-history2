@@ -68,7 +68,7 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
     }
     else if(!(scope_flag & (0x01 << scope_block))) {
 	for(int i = s.contains('{'); i; i--)
-	    scope_flag &= ~(0x01 << (++scope_block));	    
+	    scope_flag &= ~(0x01 << (++scope_block));
 	if(Option::debug_level >= 1)
 	    printf("Project Parser: %s:%d : Ignored due to block being false.\n", file.latin1(), line_count);
 	return TRUE;
@@ -97,7 +97,7 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 			QCString error;
 			error.sprintf("Function missing right paren: %s", scope.latin1());
 			yyerror(error);
-			return FALSE; 
+			return FALSE;
 		    }
 		    QString func = scope.left(lparen);
 		    QStringList args = QStringList::split(',', scope.mid(lparen+1, rparen - lparen - 1));
@@ -123,7 +123,7 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 		    scope_flag &= ~(0x01 << (++scope_block));
 
 		if(Option::debug_level >= 1)
-		    printf("Project Parser: %s:%d : Entering block %d (%d).\n", file.latin1(), line_count, 
+		    printf("Project Parser: %s:%d : Entering block %d (%d).\n", file.latin1(), line_count,
 			   scope_block, !scope_failed);
 	    }
 	}
@@ -305,7 +305,7 @@ QMakeProject::isActiveConfig(const QString &x)
 	return TRUE;
     else if(Option::mode == Option::WIN_MODE && x == "win32")
 	return TRUE;
-    return vars["CONFIG"].findIndex(x) != -1;
+    return ( vars["CONFIG"].findIndex(x) != -1 ) || ( cache["CONFIG"].findIndex(x) != -1 ) ;
 }
 
 bool
