@@ -76,7 +76,15 @@ public:
     void clear();
     void itemChanged(QTableWidgetItem *item);
 
+    inline QTableWidgetItem *createItem() const
+        { return creator->createItem(); }
+    inline QTableWidgetItemCreatorBase *itemCreator() const
+        { return creator; }
+    inline void setItemCreator(QTableWidgetItemCreatorBase *c)
+        { delete creator; creator = c; }
+
 private:
+    QTableWidgetItemCreatorBase *creator;
     QVector<QTableWidgetItem*> table;
     QVector<QTableWidgetItem*> vertical;
     QVector<QTableWidgetItem*> horizontal;
@@ -85,10 +93,13 @@ private:
 
 QTableModel::QTableModel(int rows, int columns, QTableWidget *parent)
     : QAbstractTableModel(parent),
-      table(rows * columns), vertical(rows), horizontal(columns) {}
+      creator(new QTableWidgetItemCreator<QTableWidgetItem>()),
+      table(rows * columns), vertical(rows), horizontal(columns)
+{}
 
 QTableModel::~QTableModel()
 {
+    delete creator;
     clear();
 }
 
@@ -336,7 +347,7 @@ bool QTableModel::setData(const QModelIndex &index, const QVariant &value, int r
     if (!view)
         return false;
 
-    itm = view->createItem();
+    itm = createItem();
     itm->setData(role, value);
     view->setItem(index.row(), index.column(), itm);
     return true;
@@ -1226,7 +1237,7 @@ void QTableWidget::setVerticalHeaderLabels(const QStringList &labels)
     for (int i = 0; i < model->rowCount() && i < labels.count(); ++i) {
         item = model->verticalHeaderItem(i);
         if (!item) {
-            item = createItem();
+            item = model->createItem();
             setVerticalHeaderItem(i, item);
         }
         item->setText(labels.at(i));
@@ -1243,7 +1254,7 @@ void QTableWidget::setHorizontalHeaderLabels(const QStringList &labels)
     for (int i = 0; i < model->columnCount() && i < labels.count(); ++i) {
         item = model->horizontalHeaderItem(i);
         if (!item) {
-            item = createItem();
+            item = model->createItem();
             setHorizontalHeaderItem(i, item);
         }
         item->setText(labels.at(i));
@@ -1403,7 +1414,7 @@ QList<QTableWidgetItem*> QTableWidget::selectedItems(bool fillEmptyCells)
         QModelIndex index = indexes.at(i);
         QTableWidgetItem *item = d->model()->item(index);
         if (!item && index.isValid() && fillEmptyCells)
-            setItem(index.row(), index.column(), item = createItem());
+            setItem(index.row(), index.column(), item = d->model()->createItem());
         if (item)
             items.append(item);
     }
@@ -1483,6 +1494,16 @@ void QTableWidget::ensureVisible(const QTableWidgetItem *item)
     QTableView::ensureVisible(index);
 }
 
+QTableWidgetItemCreatorBase *QTableWidget::itemCreator() const
+{
+    return d->model()->itemCreator();
+}
+
+void QTableWidget::setItemCreator(QTableWidgetItemCreatorBase *creator)
+{
+    d->model()->setItemCreator(creator);
+}
+
 /*!
   Inserts an empty row into the table at \a row.
 */
@@ -1523,16 +1544,6 @@ void QTableWidget::clear()
 {
     selectionModel()->clear();
     d->model()->clear();
-}
-
-/*!
-  Returns a new QTableWidgetItem.
-  This is called whenever the table widget creates a new item internally.
-*/
-
-QTableWidgetItem *QTableWidget::createItem() const
-{
-    return new QTableWidgetItem();
 }
 
 /*!

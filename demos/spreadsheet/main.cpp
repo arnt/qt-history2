@@ -158,8 +158,6 @@ public:
 
     QItemSelectionModel::SelectionFlags selectionCommand(const QModelIndex &index,
                                                          const QEvent *event) const;
-protected:
-    QTableWidgetItem *createItem() const;
 };
 
 QItemSelectionModel::SelectionFlags SpreadSheetTable::selectionCommand(const QModelIndex &index,
@@ -170,11 +168,6 @@ QItemSelectionModel::SelectionFlags SpreadSheetTable::selectionCommand(const QMo
     if (me && (me->buttons() & Qt::RightButton || me->buttons() & Qt::MidButton))
         return QItemSelectionModel::NoUpdate;
     return QTableWidget::selectionCommand(index, event);
-}
-
-QTableWidgetItem *SpreadSheetTable::createItem() const
-{
-    return new SpreadSheetItem();
 }
 
 class SpreadSheet : public QMainWindow
@@ -237,6 +230,7 @@ SpreadSheet::SpreadSheet(int rows, int cols, QWidget *parent)
     connect(clearAction, SIGNAL(triggered()), this, SLOT(clear()));
 
     table = new SpreadSheetTable(rows, cols, this);
+    table->setItemCreator(new QTableWidgetItemCreator<SpreadSheetItem>);
     for (int c = 0; c < cols; ++c) {
         QString character(QChar('A' + c));
         table->setHorizontalHeaderItem(c, new QTableWidgetItem(character));

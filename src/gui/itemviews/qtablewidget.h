@@ -118,6 +118,19 @@ private:
     QAbstractItemModel::ItemFlags itemFlags;
 };
 
+class Q_GUI_EXPORT QTableWidgetItemCreatorBase
+{
+public:
+    virtual ~QTableWidgetItemCreatorBase() {}
+    virtual QTableWidgetItem *createItem() const = 0;
+};
+
+template <class T>
+class QTableWidgetItemCreator : public QTableWidgetItemCreatorBase
+{
+    inline QTableWidgetItem *createItem() const { return new T; }
+};
+
 class QTableWidgetPrivate;
 
 class Q_GUI_EXPORT QTableWidget : public QTableView
@@ -183,6 +196,9 @@ public:
 
     bool isItemVisible(const QTableWidgetItem *item) const;
 
+    QTableWidgetItemCreatorBase *itemCreator() const;
+    void setItemCreator(QTableWidgetItemCreatorBase *factory);
+
 #ifdef Q_NO_USING_KEYWORD
     void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
         { QTableView::selectionChanged(selected, deselected); }
@@ -219,7 +235,6 @@ signals:
     void itemChanged(QTableWidgetItem *item);
 
 protected:
-    virtual QTableWidgetItem *createItem() const;
     void setModel(QAbstractItemModel *model);
     void setup();
 

@@ -20,7 +20,7 @@
 
 class QWidget;
 
-class QItemEditorCreatorBase
+class Q_GUI_EXPORT QItemEditorCreatorBase
 {
 public:
     virtual ~QItemEditorCreatorBase() {}
@@ -42,9 +42,7 @@ private:
     QByteArray propertyName;
 };
 
-class QItemEditorCreatorBase;
-
-class QItemEditorFactory
+class Q_GUI_EXPORT QItemEditorFactory
 {
 public:
     inline QItemEditorFactory() {}
