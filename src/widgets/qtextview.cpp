@@ -2766,7 +2766,7 @@ void QTextView::setFont( const QFont &f )
     doc->setMinimumWidth( -1, 0 );
 
     // ### that is a bit hacky
-    static bool diff = 1;
+    static short diff = 1;
     diff *= -1;
     doc->setWidth( doc->width() + diff );
 

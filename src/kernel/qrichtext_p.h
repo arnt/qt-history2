@@ -662,6 +662,7 @@ struct Q_EXPORT QTextDocumentSelection
 template class Q_EXPORT QMap<int, QColor>;
 template class Q_EXPORT QMap<int, bool>;
 template class Q_EXPORT QMap<int, QTextDocumentSelection>;
+template class Q_EXPORT QList<QTextDocument>;
 // MOC_SKIP_END
 #endif
 
