@@ -133,12 +133,13 @@ public:
 
 #if defined(Q_WS_X11) || defined(Q_WS_WIN)
     QFontEngine *engines[QFont::LastPrivateScript];
-
-    enum { widthCacheSize = 0x500 };
-    uchar widthCache[widthCacheSize];
 #else
     QFontEngine *engine;
 #endif // Q_WS_X11 || Q_WS_WIN
+#ifndef Q_WS_MAC
+    enum { widthCacheSize = 0x500 };
+    uchar widthCache[widthCacheSize];
+#endif
 };
 
 

@@ -177,17 +177,63 @@ int QFontMetrics::rightBearing(QChar ch) const
 
 int QFontMetrics::charWidth( const QString &str, int pos ) const
 {
-    QTextEngine layout( str,  d );
-    layout.itemize( QTextEngine::WidthOnly );
-    return layout.width( pos, 1 );
+    if ( pos < 0 || pos > (int)str.length() )
+	return 0;
+
+    const QChar &ch = str.unicode()[ pos ];
+    if ( ch.unicode() < QFontEngineData::widthCacheSize &&
+	 d->engineData && d->engineData->widthCache[ ch.unicode() ] )
+	return d->engineData->widthCache[ ch.unicode() ];
+
+    if ( ::isMark( ch.unicode() ) )
+	return 0;
+
+    QFont::Script script;
+    SCRIPT_FOR_CHAR( script, ch );
+
+    int width;
+
+    if ( script >= QFont::Arabic && script <= QFont::Khmer ) {
+	// complex script shaping. Have to do some hard work
+	int from = QMAX( 0,  pos - 8 );
+	int to = QMIN( (int)str.length(), pos + 8 );
+	QConstString cstr( str.unicode()+from, to-from);
+	QTextEngine layout( cstr.string(), d );
+	layout.itemize( QTextEngine::WidthOnly );
+	width = layout.width( pos-from, 1 );
+    } else {
+	QFontEngine *engine = d->engineForScript( script );
+#ifdef QT_CHECK_STATE
+	Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
+	glyph_t glyphs[8];
+	advance_t advances[8];
+	int nglyphs = 7;
+	engine->stringToCMap( &ch, 1, glyphs, advances, &nglyphs );
+	width = advances[0];
+    }
+    if ( ch.unicode() < QFontEngineData::widthCacheSize && width < 0x100 )
+	d->engineData->widthCache[ ch.unicode() ] = width;
+    return width;
 }
 
 int QFontMetrics::width( QChar ch ) const
 {
+    unsigned short uc = ch.unicode();
+    if ( uc < QFontEngineData::widthCacheSize &&
+	 d->engineData && d->engineData->widthCache[ uc ] )
+	return d->engineData->widthCache[ uc ];
+
     if ( ch.category() == QChar::Mark_NonSpacing ) return 0;
 
     QFontEngine *engine = d->engineForScript( QFont::NoScript );
-    return memorymanager->lockGlyphMetrics( engine->handle(), ch.unicode() )->advance;
+    int width = memorymanager->lockGlyphMetrics( engine->handle(), ch.unicode() )->advance;
+
+    if ( ch.unicode() < QFontEngineData::widthCacheSize && width < 0x100 )
+	d->engineData->widthCache[ ch.unicode() ] = width;
+
+    return width;
 }
 
 // ### should maybe use the common method aswell, but since that one is quite a bit slower

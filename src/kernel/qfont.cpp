@@ -142,10 +142,12 @@ QFontEngineData::QFontEngineData()
 {
 #if defined(Q_WS_X11) || defined(Q_WS_WIN)
     memset( engines, 0, QFont::LastPrivateScript * sizeof( QFontEngine * ) );
-    memset( widthCache, 0, widthCacheSize*sizeof( uchar ) );
 #else
     engine = 0;
 #endif // Q_WS_X11 || Q_WS_WIN
+#ifndef Q_WS_MAC
+    memset( widthCache, 0, widthCacheSize*sizeof( uchar ) );
+#endif
 }
 
 QFontEngineData::~QFontEngineData()
