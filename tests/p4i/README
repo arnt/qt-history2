@@ -9,4 +9,5 @@ Currently I'll just do it with a map like this, I think:
 $targetBranch{"3.0"}="3.1";
 $targetBranch{"3.1"}="main";
 
-Makes it nice and simple to add new ones in the future...
+Makes it nice and simple to add new ones in the future... Hopefully, at least.
+Still it only works on Qt.
