@@ -1433,6 +1433,8 @@ void QTextEdit::removeSelectedText( int selNum )
 				   cursor->y() + cursor->parag()->rect().y() - contentsY() + frameWidth(), 0, h, TRUE, &f );
 	    }
 	}
+    } else {
+	viewport()->repaint( TRUE );
     }
 }
 
