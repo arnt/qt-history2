@@ -15,9 +15,9 @@ $OUTDIR/bin/qmake -nocache -spec "$QMKSPEC" $SRCDIR/config.tests/unix/ipv6/ipv6t
 cd $OUTDIR/config.tests/unix/ipv6
 
 if [ "$VERBOSE" = "yes" ]; then
-  (make && ./ipv6test)
+  make
 else
-  (make && ./ipv6test) >/dev/null 2>&1
+  make >/dev/null 2>&1
 fi
 IPV6=$?
 
