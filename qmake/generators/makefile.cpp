@@ -1288,7 +1288,7 @@ QString MakefileGenerator::buildArgs()
 		ret += " -Wparser";
 	//other options
 	if(!Option::user_template.isEmpty())
-	    ret += "-t " + Option::user_template;
+	    ret += " -t " + Option::user_template;
 	if(!Option::mkfile::do_cache)
 	    ret += " -nocache";
 	if(!Option::mkfile::do_deps)
