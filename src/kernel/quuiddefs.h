@@ -6,8 +6,17 @@
 #endif // QT_H
 
 #include <memory.h>
-#if defined(Q_OS_WIN32)
-#include <guiddef.h>
+
+//This is a definition of GUID as present on many platforms
+#ifndef GUID_DEFINED
+#define GUID_DEFINED
+typedef struct _GUID
+{
+    uint   data1;
+    ushort data2;
+    ushort data3;
+    uchar  data4[ 8 ];
+} GUID;
 #endif
 
 struct Q_EXPORT QUuid
@@ -55,7 +64,6 @@ struct Q_EXPORT QUuid
 	return !( *this == uuid );
     }
 
-#if defined(Q_OS_WIN32)
     // On Windows we have a type GUID that is used by the platform API, so we 
     // provide convenience operators to cast from and to this type.
     QUuid( const GUID &guid )
@@ -85,8 +93,6 @@ struct Q_EXPORT QUuid
     {
 	return !( *this == guid );
     }
-
-#endif
 
     uint   data1;
     ushort data2;
