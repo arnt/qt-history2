@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#54 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#53 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#54 $";
 #endif
 
 
@@ -1011,10 +1011,6 @@ void QPainter::updateXForm()			// update xform params
     wdy  = d2i_round((double)m.dy() *65536.0);
     bool invertible;
     m = m.invert( &invertible );		// invert matrix
-#if defined(CHECK_RANGE)
-    if ( !invertible )
-	warning( "QPainter::updateXForm: World xform matrix not invertible" );
-#endif
     im11 = d2i_round((double)m.m11()*65536.0);
     im12 = d2i_round((double)m.m12()*65536.0);
     im21 = d2i_round((double)m.m21()*65536.0);
