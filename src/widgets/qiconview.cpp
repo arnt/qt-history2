@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#128 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#129 $
 **
 ** Definition of QIconView widget class
 **
@@ -1227,6 +1227,8 @@ QIconSet::Size QIconViewItem::viewMode() const
 }
 
 /*!
+  \fn bool QIconViewItem::acceptDrop( const QMimeSource *mime ) const
+
   Returns TRUE, of the item accepts the QMimeSource \a mime (so it could
   be dropped on the item), else FALSE is returned.
 
@@ -1236,10 +1238,8 @@ QIconSet::Size QIconViewItem::viewMode() const
   \sa QFileIconViewItem::acceptDrop()
 */
 
-bool QIconViewItem::acceptDrop( const QMimeSource *mime ) const
+bool QIconViewItem::acceptDrop( const QMimeSource * ) const
 {
-    if ( mime )
-	;
     return FALSE;
 }
 
@@ -1476,6 +1476,8 @@ void QIconViewItem::paintFocus( QPainter *p )
 }
 
 /*!
+  \fn void QIconViewItem::dropped( QDropEvent *e )
+
   This method is called, when something was dropped on the item. \a e
   gives you all information about the drop.
 
@@ -1485,10 +1487,8 @@ void QIconViewItem::paintFocus( QPainter *p )
   \sa QFileIconViewItem::dropped()
 */
 
-void QIconViewItem::dropped( QDropEvent *e )
+void QIconViewItem::dropped( QDropEvent * )
 {
-    if ( e )
-	;
 }
 
 /*!
