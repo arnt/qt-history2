@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#99 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#100 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#99 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#100 $");
 
 
 Q_DECLARE(QListM, QListBoxItem);
@@ -25,6 +25,8 @@ Q_DECLARE(QListM, QListBoxItem);
 class QLBItemList : public QListM(QListBoxItem) // internal class
 {
     int compareItems( GCI i1, GCI i2);
+public:
+    int timerId;				//### bincomp
 };
 
 int QLBItemList::compareItems( GCI i1, GCI i2)
@@ -403,6 +405,7 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
     goingDown	  = FALSE;
     itemList	  = new QLBItemList;
     CHECK_PTR( itemList );
+    itemList->timerId = 0;
     setCellWidth( 0 );
     QFontMetrics fm = fontMetrics();
     setCellHeight( fm.lineSpacing() + 1 );
@@ -1224,7 +1227,7 @@ void QListBox::mouseReleaseEvent( QMouseEvent *e )
     if ( doDrag )
 	mouseMoveEvent( e );
     if ( isTiming ) {
-	killTimers();
+	killTimer( itemList->timerId );
 	isTiming = FALSE;
     }
 }
@@ -1253,7 +1256,7 @@ void QListBox::mouseMoveEvent( QMouseEvent *e )
 	int itemClicked = findItem( e->pos().y() );
 	if ( itemClicked != -1 ) {
 	    if ( isTiming ) {
-		killTimers();
+		killTimer( itemList->timerId );
 		isTiming = FALSE;
 	    }
 	    setCurrentItem( itemClicked );	// already current -> return
@@ -1267,7 +1270,7 @@ void QListBox::mouseMoveEvent( QMouseEvent *e )
 		scrollDown = TRUE;
 	    if ( !isTiming ) {
 		isTiming = TRUE;
-		startTimer( 100 );
+		itemList->timerId = startTimer( 100 );
 	    }
 	}
     }
