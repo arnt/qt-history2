@@ -656,6 +656,8 @@ void QTreeView::doItemsLayout()
 {
     QStyleOptionViewItem option = viewOptions();
     QModelIndex index = model()->index(0, 0, root());
+    if (!index.isValid())
+        return;
     d->itemHeight = itemDelegate()->sizeHint(fontMetrics(), option, model(), index).height();
     d->layout(-1);
     updateGeometries();
