@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#50 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#51 $
 
 $snapshotversion=200;
 $base = "/tmp/striptree-$$";
@@ -143,13 +143,13 @@ cd ../..
 
 # Package Windows-only source files separately
 # REMAINING ISSUES: Borland vs. MSVC++ makefiles
-WINFILES='src/Makefile.win32-dll '`find src -name '*_win*'; find include -name '*_win*'`
+WINFILES='src/Makefile.win32-dll '`find src -name '*_win.*'; find include -name '*_win.*'`
 rm -f \$WINZIP
 WINZIP=/local/qt/dist/qtwin$snapshotversion-`date +%Y%m%d`-snapshot.zip
 rm -f
 zip -9 \$WINZIP \$WINFILES
 rm \$WINFILES
-rm -rf $base/cvs/qt/*/*/*_win*
+rm -rf $base/cvs/qt/*/*/*_win.*
 
 # THERE SHOULD BE NO WINDOWS STUFF AFTER THIS POINT
 
@@ -207,8 +207,8 @@ rm -f src/Makefile.win32-dll,v
 rm -f src/*.pro,v
 # Real source should be packaged and deleted by now, but
 # this gets anything left in the Attic, etc.
-find $base/cvs/qt -name '*_win*' | xargs rm -f
-find $base/cvs/qt -name '*_os2*' | xargs rm -f
+find $base/cvs/qt -name '*_win.*' | xargs -r rm -f
+find $base/cvs/qt -name '*_os2.*' | xargs -r rm -f
 chmod a+x $base/cvs/qt/bin/*,v
 find $base/cvs/qt -type d -print | xargs -r chmod 1777
 ";
