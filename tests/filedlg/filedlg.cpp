@@ -16,28 +16,70 @@
 #include <qtoolbutton.h>
 #include <qmultilineedit.h>
 
+#include <qimage.h>
+
 /* XPM */
-static const char *fileopen[] = {
-    "    16    13        5            1",
-    ". c #040404",
-    "# c #808304",
-    "a c None",
-    "b c #f3f704",
-    "c c #f3f7f3",
-    "aaaaaaaaa...aaaa",
-    "aaaaaaaa.aaa.a.a",
-    "aaaaaaaaaaaaa..a",
-    "a...aaaaaaaa...a",
-    ".bcb.......aaaaa",
-    ".cbcbcbcbc.aaaaa",
-    ".bcbcbcbcb.aaaaa",
-    ".cbcb...........",
-    ".bcb.#########.a",
-    ".cb.#########.aa",
-    ".b.#########.aaa",
-    "..#########.aaaa",
-    "...........aaaaa"
+static const char *image_xpm[] = {
+"17 15 9 1",
+" 	c #7F7F7F",
+".	c #FFFFFF",
+"X	c #00B6FF",
+"o	c #BFBFBF",
+"O	c #FF6C00",
+"+	c #000000",
+"@	c #0000FF",
+"#	c #6CFF00",
+"$	c #FFB691",
+"             ..XX",
+" ........o   .XXX",
+" .OOOOOOOo.  XXX+",
+" .O@@@@@@+++XXX++",
+" .O@@@@@@O.XXX+++",
+" .O@@@@@@OXXX+++.",
+" .O######XXX++...",
+" .O#####XXX++....",
+" .O##$#$XX+o+....",
+" .O#$$$$$+.o+....",
+" .O##$$##O.o+....",
+" .OOOOOOOO.o+....",
+" ..........o+....",
+" ooooooooooo+....",
+"+++++++++++++...."
 };
+
+class ImageIconProvider : public QFileIconProvider
+{
+    Q_OBJECT
+    QStrList fmts;
+    QPixmap imagepm;
+
+public:
+    ImageIconProvider( QWidget *parent=0, const char *name=0 );
+    ~ImageIconProvider();
+
+    const QPixmap * pixmap( const QFileInfo &fi );
+};
+
+ImageIconProvider::ImageIconProvider( QWidget *parent=0, const char *name=0 ) :
+    QFileIconProvider( parent, name ),
+    imagepm(image_xpm)
+{
+    fmts = QImage::inputFormats();
+}
+
+ImageIconProvider::~ImageIconProvider()
+{
+}
+
+const QPixmap * ImageIconProvider::pixmap( const QFileInfo &fi )
+{
+    QString ext = fi.extension().upper();
+    if ( fmts.contains(ext) ) {
+	return &imagepm;
+    } else {
+	return QFileIconProvider::pixmap(fi);
+    }
+}
 
 Main::Main(QWidget* parent, const char* name, int f) :
     QWidget(parent, name, f)
@@ -177,7 +219,7 @@ public:
  	addWidgets( new QLabel( "Choose Something", this ),
  		    new QComboBox( TRUE, this ),
  		    new QPushButton( "Press Me", this ) );
-	QPixmap p( fileopen );
+	QPixmap p( image_xpm );
 	QToolButton *b = new QToolButton( this );
 	b->setIconSet( p );
 	addToolButton( b, TRUE );
@@ -199,6 +241,8 @@ main(int argc, char** argv)
     QApplication app(argc, argv);
     qInitNetworkProtocols();
 
+    QFileDialog::setIconProvider( new ImageIconProvider );
+    
     Main m;
     m.show();
 

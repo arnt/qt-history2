@@ -859,7 +859,7 @@ struct QFileDialogPrivate {
 
     UrlInfoList sortedList;
     QList<File> pendingItems;
-    
+
     QFileListBox * moreFiles;
 
     QFileDialog::Mode mode;
@@ -888,6 +888,7 @@ struct QFileDialogPrivate {
     bool ignoreReturn;
     bool ignoreStop;
     QSizeGrip *sizeGrip;
+
     QTimer *mimeTypeTimer;
     
 };
@@ -4333,7 +4334,6 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
 	    insertEntry( ui, 0 );
 	}
 	resortDir();
-	d->mimeTypeTimer->start( 10 );
     } else if ( op->operation() == QNetworkProtocol::OpGet ) {
     } else if ( op->operation() == QNetworkProtocol::OpPut ) {
  	rereadDir();
@@ -4569,6 +4569,7 @@ void QFileDialog::resortDir()
 	}
 	d->pendingItems.append( item );
     }
+    d->mimeTypeTimer->start( 1 );
 }
 
 /*!
@@ -4600,6 +4601,10 @@ void QFileDialog::removeProgressDia()
     d->progressDia = 0;
 }
 
+/*!
+  \internal
+*/
+
 void QFileDialog::doMimeTypeLookup()
 {
     if ( !iconProvider() ) {
@@ -4607,12 +4612,12 @@ void QFileDialog::doMimeTypeLookup()
 	d->mimeTypeTimer->stop();
 	return;
     }
-    
+
     d->mimeTypeTimer->stop();
     if ( d->pendingItems.count() == 0 ) {
 	return;
     }
-    
+
     QRect r;
     for ( uint i = 0; i < 5; ++i ) {
 	QFileDialogPrivate::File *item = d->pendingItems.first();
@@ -4624,7 +4629,7 @@ void QFileDialog::doMimeTypeLookup()
 	else
 	    fi.setFile( item->info.name() ); // #####
 	QPixmap *p = (QPixmap*)iconProvider()->pixmap( fi );
-	if ( p != item->pixmap( 0 ) ) {
+	if ( p != item->pixmap( 0 ) && p != fifteenTransparentPixels ) {
 	    item->mimePixmap = p;
 	    if ( files->isVisible() )
 		item->repaint();
