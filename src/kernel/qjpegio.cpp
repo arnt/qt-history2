@@ -120,7 +120,11 @@ boolean qt_fill_input_buffer(j_decompress_ptr cinfo)
     } else {
 	src->bytes_in_buffer = num_read;
     }
+#if defined(_OS_UNIXWARE7_)
+    return B_TRUE;
+#else
     return TRUE;
+#endif
 }
 
 static
@@ -188,7 +192,11 @@ void read_jpeg_image(QImageIO* iio)
     jerr.error_exit = my_error_exit;
 
     if (!setjmp(jerr.setjmp_buffer)) {
+#if defined(_OS_UNIXWARE7_)
+	(void) jpeg_read_header(&cinfo, B_TRUE);
+#else
 	(void) jpeg_read_header(&cinfo, TRUE);
+#endif
 
 	(void) jpeg_start_decompress(&cinfo);
 
@@ -274,7 +282,11 @@ boolean qt_empty_output_buffer(j_compress_ptr cinfo)
     dest->next_output_byte = dest->buffer;
     dest->free_in_buffer = max_buf;
 
+#if defined(_OS_UNIXWARE7_)
+    return B_TRUE;
+#else
     return TRUE;
+#endif
 }
 
 static
@@ -354,10 +366,28 @@ void write_jpeg_image(QImageIO* iio)
 	}
 
 	jpeg_set_defaults(&cinfo);
+	int quality = qt_jpeg_quality;
+	if ( iio->parameters() ) {
+	    bool ok = FALSE;
+	    int iq = QString::fromLatin1( iio->parameters() ).toInt( &ok );
+	    if ( ok && iq >= 0 ) {
+		if ( iq > 100 ) {
+#if defined(CHECK_RANGE)
+		    qWarning( "JPEG: image quality %d out of range", iq );
+#endif
+		    iq = 100;
+		}
+		quality = iq;
+	    }
+	}
 	int quality = iio->quality() >= 0 ? QMAX(iio->quality(),100) : 75;
+#if defined(_OS_UNIXWARE7_)
+	jpeg_set_quality(&cinfo, quality, B_TRUE /* limit to baseline-JPEG values */);
+	jpeg_start_compress(&cinfo, B_TRUE);
+#else
 	jpeg_set_quality(&cinfo, quality, TRUE /* limit to baseline-JPEG values */);
-
 	jpeg_start_compress(&cinfo, TRUE);
+#endif
 
 	row_pointer[0] = new uchar[cinfo.image_width*cinfo.input_components];
 	int w = cinfo.image_width;
