@@ -35,6 +35,8 @@
 #include <string.h>
 
 const unsigned char * p_str(const QString &s); //qglobal.cpp
+extern void qt_init_app_proc_handler();      //qapplication_mac.cpp
+extern void qt_release_app_proc_handler();   //qapplication_mac.cpp
 
 QRgb macGetRgba( QRgb initial, bool *ok, QWidget *parent, const char* )
 {
@@ -70,7 +72,9 @@ QRgb macGetRgba( QRgb initial, bool *ok, QWidget *parent, const char* )
     Boolean rval = FALSE;
     {
 	QMacBlockingFunction block;
+	qt_release_app_proc_handler();
 	rval = GetColor(place, pstr, &rgb, &rgbout);
+	qt_init_app_proc_handler();
     }
 #else
     ColorPickerInfo     cpInfo;

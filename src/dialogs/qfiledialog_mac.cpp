@@ -55,6 +55,9 @@ static void cleanup_str_buffer()
 }
 
 extern const char qt_file_dialog_filter_reg_exp[]; // defined in qfiledialog.cpp
+extern void qt_init_app_proc_handler();      //qapplication_mac.cpp
+extern void qt_release_app_proc_handler();   //qapplication_mac.cpp
+
 
 // Returns the wildcard part of a filter.
 struct qt_mac_filter_name {
@@ -316,6 +319,7 @@ QStringList QFileDialog::macGetOpenFileNames( const QString &filter, QString *,
 	    return retstrl;
 	}
     }
+    qt_release_app_proc_handler();
     NavDialogRun(dlg);
     if(options.modality == kWindowModalityWindowModal) { //simulate modality
 	QWidget modal_widg(parent, __FILE__ "__modal_dlg", 
@@ -325,6 +329,8 @@ QStringList QFileDialog::macGetOpenFileNames( const QString &filter, QString *,
 	    qApp->processEvents();
 	qt_leave_modal(&modal_widg);
     }
+    qt_init_app_proc_handler();
+
     if (!(NavDialogGetUserAction(dlg) & 
 	  (kNavUserActionOpen | kNavUserActionChoose | kNavUserActionNewFolder))) {
 	NavDialogDispose(dlg);
@@ -432,6 +438,7 @@ QString QFileDialog::macGetSaveFileName( const QString &, const QString &,
 	qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
 	return retstr;
     }
+    qt_release_app_proc_handler();
     NavDialogRun(dlg);
     if(options.modality == kWindowModalityWindowModal) { //simulate modality
 	QWidget modal_widg(parent, __FILE__ "__modal_dlg", 
@@ -441,6 +448,8 @@ QString QFileDialog::macGetSaveFileName( const QString &, const QString &,
 	    qApp->processEvents();
 	qt_leave_modal(&modal_widg);
     }
+    qt_init_app_proc_handler();
+
     if(NavDialogGetUserAction(dlg) != kNavUserActionSaveAs) {
 	NavDialogDispose(dlg);
 	return retstr;
