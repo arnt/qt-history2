@@ -677,7 +677,7 @@ private:
     void emitBlockFormatAttributes(const QTextBlockFormat &format);
     bool emitCharFormatStyle(const QTextCharFormat &format);
     void emitTextLength(const char *attribute, const QTextLength &length);
-
+    void emitAlignment(Qt::Alignment alignment);
     void emitAttribute(const char *attribute, const QString &value);
 
     QString html;
@@ -805,6 +805,16 @@ void QTextHtmlExporter::emitTextLength(const char *attribute, const QTextLength 
         html += QLatin1String("\"");
 }
 
+void QTextHtmlExporter::emitAlignment(Qt::Alignment alignment)
+{
+    if (alignment == Qt::AlignRight)
+        html += QLatin1String(" align='right'");
+    else if (alignment == Qt::AlignHCenter)
+        html += QLatin1String(" align='center'");
+    else if (alignment == Qt::AlignJustify)
+        html += QLatin1String(" align='justify'");
+}
+
 void QTextHtmlExporter::emitFragment(const QTextFragment &fragment)
 {
     const QTextCharFormat format = fragment.charFormat();
@@ -836,7 +846,7 @@ void QTextHtmlExporter::emitFragment(const QTextFragment &fragment)
     else
         html.truncate(html.size() - qstrlen(styleTag.latin1()));
 
-    const QString txt = fragment.text();
+    QString txt = fragment.text();
     if (txt.count() == 1 && txt.at(0) == QChar::ObjectReplacementCharacter) {
         Q_ASSERT(format.isImageFormat());
         QTextImageFormat imgFmt = format.toImageFormat();
@@ -854,11 +864,15 @@ void QTextHtmlExporter::emitFragment(const QTextFragment &fragment)
 
         html += QLatin1String(" />");
     } else {
-        // split for [\n{LineSeparator}]
-        QString s = QString::fromLatin1("[\\na]");
-        s[3] = QChar::LineSeparator;
+        Q_ASSERT(!txt.contains(QChar::ObjectReplacementCharacter));
 
-        QStringList lines = QText::escape(txt).split(QRegExp(s));
+        txt = QText::escape(txt);
+
+        // split for [\n{LineSeparator}]
+        QString forcedLineBreakRegExp = QString::fromLatin1("[\\na]");
+        forcedLineBreakRegExp[3] = QChar::LineSeparator;
+
+        const QStringList lines = txt.split(QRegExp(forcedLineBreakRegExp));
         for (int i = 0; i < lines.count(); ++i) {
             if (i > 0)
                 html += QLatin1String("<br />"); // space on purpose for compatibility with Netscape, Lynx & Co.
@@ -875,13 +889,7 @@ void QTextHtmlExporter::emitFragment(const QTextFragment &fragment)
 
 void QTextHtmlExporter::emitBlockFormatAttributes(const QTextBlockFormat &format)
 {
-    Qt::Alignment align = format.alignment();
-    if (align == Qt::AlignRight)
-        html += QLatin1String(" align='right'");
-    else if (align == Qt::AlignHCenter)
-        html += QLatin1String(" align='center'");
-    else if (align == Qt::AlignJustify)
-        html += QLatin1String(" align='justify'");
+    emitAlignment(format.alignment());
 
     QTextBlockFormat::Direction dir = format.direction();
     if (dir == QTextBlockFormat::LeftToRight)
@@ -929,8 +937,8 @@ void QTextHtmlExporter::emitTable(const QTextTable *table)
         emitAttribute("border", QString::number(format.border()));
 
     // ### style="float: ..."
-    // ### align
 
+    emitAlignment(format.alignment());
     emitTextLength("width", format.width());
 
     if (format.hasProperty(QTextFormat::TableCellSpacing))
