@@ -459,6 +459,8 @@ void QToolBar::show()
     QDockWindow::show();
     if ( mw )
 	mw->triggerLayout( FALSE );
+    if ( d->extension->isVisible() )
+	d->extension->raise();
 }
 
 
