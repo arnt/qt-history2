@@ -55,7 +55,7 @@ QString Q_EXPORT qacc_stripAmp(const QString &text)
     const QChar *ch = text.unicode();
     int length = text.length();
     QString str;
-    str.setLength(length);
+    str.reserve(length);
     while (length > 0) {
 	if (*ch == '&') {
 	    ++ch;
