@@ -1020,7 +1020,7 @@ int QDate::daysTo( const QDate &d ) const
 
 QDate QDate::currentDate()
 {
-    return currentDate( Qt::DateTimeSpec::LocalTime );
+    return currentDate( Qt::LocalTime );
 }
 
 /*!
@@ -1034,7 +1034,7 @@ QDate QDate::currentDate( Qt::DateTimeSpec f )
 {
     QDate d;
     switch ( f ) {
-	case Qt::DateTimeSpec::LocalTime:
+	case Qt::LocalTime:
 	    {
 #if defined(Q_OS_WIN32)
 		SYSTEMTIME t;
@@ -1050,7 +1050,7 @@ QDate QDate::currentDate( Qt::DateTimeSpec f )
 		return d;
 #endif
 	    }
-	case Qt::DateTimeSpec::UniversalTime:
+	case Qt::UniversalTime:
 	    {
 #if defined(Q_OS_WIN32)
 		SYSTEMTIME t;
@@ -1628,8 +1628,8 @@ int QTime::msecsTo( const QTime &t ) const
 */
 
 QTime QTime::currentTime()
-{ 
-    return currentTime( Qt::DateTimeSpec::LocalTime );
+{
+    return currentTime( Qt::LocalTime );
 }
 
 /*!
@@ -1645,14 +1645,14 @@ QTime QTime::currentTime( Qt::DateTimeSpec f )
 {
     QTime t;
     switch ( f ) {
-	case Qt::DateTimeSpec::LocalTime:
+	case Qt::LocalTime:
 	    {
-		currentTime( &t, Qt::DateTimeSpec::LocalTime );
+		currentTime( &t, Qt::LocalTime );
 		return t;
 	    }
-	case Qt::DateTimeSpec::UniversalTime:
+	case Qt::UniversalTime:
 	    {
-		currentTime( &t, Qt::DateTimeSpec::UniversalTime );
+		currentTime( &t, Qt::UniversalTime );
 		return t;
 	    }
 	    break;
@@ -1701,7 +1701,7 @@ QTime QTime::fromString( const QString& s, Qt::DateFormat f )
 
 bool QTime::currentTime( QTime *ct )
 {
-    return currentTime( ct, Qt::DateTimeSpec::LocalTime );
+    return currentTime( ct, Qt::LocalTime );
 }
 
 
@@ -1711,7 +1711,7 @@ bool QTime::currentTime( QTime *ct )
   Fetches the current time, for the DateTimeSpec \a f, and returns TRUE
   if the time is within one minute after midnight, otherwise FALSE. The
   return value is used by QDateTime::currentDateTime() to ensure that
-  the date there is correct. The default DateTimeSpec is LocalTime. 
+  the date there is correct. The default DateTimeSpec is LocalTime.
 
   \sa Qt::DateTimeSpec
 */
@@ -1725,7 +1725,7 @@ bool QTime::currentTime( QTime *ct, Qt::DateTimeSpec f )
     }
 
     switch( f ) {
-	case Qt::DateTimeSpec::LocalTime:
+	case Qt::LocalTime:
 	    {
 #if defined(Q_OS_WIN32)
 		SYSTEMTIME t;
@@ -1750,7 +1750,7 @@ bool QTime::currentTime( QTime *ct, Qt::DateTimeSpec f )
 		return (t->tm_hour== 0 && t->tm_min == 0);
 #endif
 	    }
-	case Qt::DateTimeSpec::UniversalTime:
+	case Qt::UniversalTime:
 	    {
 #if defined(Q_OS_WIN32)
 		SYSTEMTIME t;
@@ -2386,7 +2386,7 @@ bool QDateTime::operator>=( const QDateTime &dt ) const
 
 QDateTime QDateTime::currentDateTime()
 {
-    return currentDateTime( Qt::DateTimeSpec::LocalTime );
+    return currentDateTime( Qt::LocalTime );
 }
 
 /*!
@@ -2400,7 +2400,7 @@ QDateTime QDateTime::currentDateTime( Qt::DateTimeSpec f )
 {
     QDateTime dt;
     switch ( f ) {
-	case Qt::DateTimeSpec::LocalTime:
+	case Qt::LocalTime:
 	    {
 		QDate d = QDate::currentDate();
 		QTime t;
@@ -2411,12 +2411,12 @@ QDateTime QDateTime::currentDateTime( Qt::DateTimeSpec f )
 		dt.setTime( t );
 		return dt;
 	    }
-	case Qt::DateTimeSpec::UniversalTime:
+	case Qt::UniversalTime:
 	    {
-		QDate d = QDate::currentDate( Qt::DateTimeSpec::UniversalTime );
+		QDate d = QDate::currentDate( Qt::UniversalTime );
 		QTime t;
-		if ( QTime::currentTime(&t, Qt::DateTimeSpec::UniversalTime) )
-		    d = QDate::currentDate( Qt::DateTimeSpec::UniversalTime );
+		if ( QTime::currentTime(&t, Qt::UniversalTime) )
+		    d = QDate::currentDate( Qt::UniversalTime );
 
 		dt.setDate( d );
 		dt.setTime( t );
