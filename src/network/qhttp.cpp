@@ -226,7 +226,7 @@ QHttpRequestHeader QHttpNormalRequest::requestHeader()
  * (like a QHttpNormalRequest, but for the convenience
  * functions put(), get() and head() -- i.e. set the
  * host header field correctly before sending the
- * command)
+ * request)
  *
  ****************************************************/
 
@@ -996,28 +996,111 @@ QString QHttpRequestHeader::toString() const
     with the identifier and a bool value that tells if the request was finished
     with an error.
 
-
-#### th following is not meged yet:
-
     To make an HTTP request you must set up suitable HTTP headers. The
     following example demonstrates, how to request the main HTML page
     from the Trolltech home page (i.e. the URL
     http://www.trolltech.com/index.html):
+
     \code
     QHttpRequestHeader header( "GET", "/index.html" );
     header.setValue( "Host", "www.trolltech.com" );
     http->setHost( "www.trolltech.com" );
-    http->request( "www.trolltech.com", 80, header );
+    http->request( header );
     \endcode
-    \omit WE SHOULD SHOW A CONNECTION\endomit
 
-    This only makes the request. If a part of the response arrived, the
-    signal readyRead() is emitted. After the last chunk is reported,
-    the requestFinished() signal is emitted. This allows you to process the
-    document as chunks are received, without having to wait for the
-    complete transmission to be finished.
+    For the common HTTP requests \c GET, \c POST and \c HEAD, QHttp offers the
+    convenience functions get(), post() and head(). They already use a
+    reasonable header and if you don't have to set special header fields, they
+    are easier to use. The above example can also be written as:
 
-    \sa \link network.html Qt Network Documentation \endlink QNetworkProtocol, QUrlOperator
+    \code
+    http->setHost( "www.trolltech.com" );
+    http->get( "/index.html" );
+    \endcode
+
+    For this example the following sequence of signals is emitted (with small
+    variations, depending on network traffic, etc.):
+
+    \code
+    requestStarted( 1 )
+    requestFinished( 1, FALSE )
+
+    requestStarted( 2 )
+    stateChanged( Connecting )
+    stateChanged( Sending )
+    dataSendProgress( 77, 77 )
+    stateChanged( Reading )
+    responseHeaderReceived( QResponseHeader header )
+    dataReadProgress( 5388, 0 )
+    readyRead( QResponseHeader header )
+    dataReadProgress( 18300, 0 )
+    readyRead( QResponseHeader header )
+    stateChanged( Connected )
+    requestFinished( 2, FALSE )
+
+    done( FALSE )
+
+    stateChanged( Closing )
+    stateChanged( Unconnected )
+    \endcode
+
+    The dataSendProgress() and dataReadProgress() signals in the above example
+    are useful if you want to show a \link QProgressBar progressbar \endlink to
+    inform the user about the progress of the download. The second argument is
+    the total size of data. In certain cases it is not possible to know the
+    total amount in advance. In this case the second argument is 0, which (when
+    connected to the QProgressBar::setProgress() signal) results in a busy
+    indicator instead of a normal progress bar.
+
+    When the response header is read, it is reported with the
+    responseHeaderReceived() signal.
+
+    The readyRead() signal tells you that there is data ready to be read. The
+    amount of data can be queried then with the bytesAvailable() function and
+    it can be read with the readBlock() or readAll() function.
+
+    In case of an error in one of the request, the list of all pending requests
+    (i.e. scheduled, but not yet executed requests) is cleared and no signals
+    are emitted for them.
+
+    E.g., if you have the following sequence of reqeusts
+
+    \code
+    http->setHost( "www.foo.bar" );
+    http->get( "/index.html" );
+    http->post( "register.html", data );
+    \endcode
+
+    and the get() request fails because the host lookup fails, then the post()
+    request is never executed and the signals would look like:
+
+    \code
+    requestStarted( 1 )
+    requestFinished( 1, FALSE )
+
+    requestStarted( 2 )
+    stateChanged( HostLookup )
+    requestFinished( 2, TRUE )
+
+    done( TRUE )
+
+    stateChanged( Unconnected )
+    \endcode
+
+    You can then get details about the error with the error() and errorString()
+    functions. Please note that only unexpected behaviour, like network failure
+    is considered as an error. If the server response contains an error status,
+    like a 404 response, this is reported as a normal response case. So you
+    should always check the \link QHttpResponseHeader::statusCode() status code
+    \endlink of the response header.
+
+    The functions currentId() and currentRequest() allow you to get more
+    information about the currently executed request.
+
+    The functions hasPendingRequests() and clearPendingRequests() allow you to
+    query and modify the list of pending requests.
+
+    \sa \link network.html Qt Network Documentation \endlink QNetworkProtocol, QUrlOperator QFtp
 */
 
 /*!
