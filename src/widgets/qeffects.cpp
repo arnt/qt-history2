@@ -81,7 +81,6 @@ protected:
 
 protected slots:
     void render();
-    void goodBye();
 
 private:
     QPixmap pm;
@@ -262,7 +261,7 @@ void QAlphaWidget::render()
 		    widget->clearWState( WState_Visible ); // prevent update in setBackgroundMode
 		    widget->setBackgroundMode( bgm );
 		    widget->setWState( WState_Visible );
-		} 
+		}
 		if ( erc.isValid() ) {
 		    widget->setEraseColor( erc );
 		} else if ( erp ) {
@@ -274,20 +273,12 @@ void QAlphaWidget::render()
 	    }
 	}
 	q_blend = 0;
-	QTimer::singleShot( 0, this, SLOT(goodBye()) );
+	deleteLater();
     } else {
 	alphaBlend();
 	pm = mixed;
 	repaint( FALSE );
     }
-}
-
-/*
-  Delete this after timout
-*/
-void QAlphaWidget::goodBye()
-{
-    delete this;
 }
 
 /*
@@ -345,7 +336,6 @@ protected:
 
 private slots:
     void scroll();
-    void goodBye();
 
 private:
     QGuardedPtr<QAccessWidget> widget;
@@ -581,7 +571,7 @@ void QRollEffect::scroll()
 		    widget->clearWState( WState_Visible ); // prevent update in setBackgroundMode
 		    widget->setBackgroundMode( bgm );
 		    widget->setWState( WState_Visible );
-		} 
+		}
 		if ( erc.isValid() ) {
 		    widget->setEraseColor( erc );
 		} else if ( erp ) {
@@ -590,17 +580,13 @@ void QRollEffect::scroll()
 	    }
 	}
 	q_roll = 0;
-	QTimer::singleShot( 0, this, SLOT(goodBye()) );
+	deleteLater();
     }
 }
 
 /*
   Delete this after timeout
 */
-void QRollEffect::goodBye()
-{
-    delete this;
-}
 
 #include "qeffects.moc"
 
