@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#13 $
 **
 ** Implementation of QPointArray class
 **
@@ -22,7 +22,7 @@ double qsincos( double, bool calcCos );		// def. in qptr_x11.cpp
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpointarray.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpointarray.cpp#13 $";
 #endif
 
 
@@ -42,7 +42,7 @@ QPointArray::QPointArray( const QRect &r, bool closed )
     }
 }
 
-QPointArray::QPointArray( int nPoints, const QCOOT *points )
+QPointArray::QPointArray( int nPoints, const QCOORD *points )
 {
     setPoints( nPoints, points );
 }
@@ -77,7 +77,7 @@ void QPointArray::point( uint i, int *x, int *y ) const
 QPoint QPointArray::point( uint i ) const	// get i'th point in array
 {
     QPointData p = QArrayM(QPointData)::at( i );
-    return QPoint( (QCOOT)p.x, (QCOOT)p.y );
+    return QPoint( (QCOORD)p.x, (QCOORD)p.y );
 }
 
 void QPointArray::setPoint( uint i, int x, int y )
@@ -88,7 +88,7 @@ void QPointArray::setPoint( uint i, int x, int y )
     QArrayM(QPointData)::at( i ) = p;
 }
 
-bool QPointArray::setPoints( int nPoints, const QCOOT *points )
+bool QPointArray::setPoints( int nPoints, const QCOORD *points )
 {
     if ( !resize(nPoints) )
 	return FALSE;
@@ -120,7 +120,7 @@ bool QPointArray::setPoints( int nPoints, int firstx, int firsty,
     return TRUE;
 }
 
-bool QPointArray::putPoints( int index, int nPoints, const QCOOT *points )
+bool QPointArray::putPoints( int index, int nPoints, const QCOORD *points )
 {
     if ( index + nPoints > size() ) {		// extend array
 	if ( !resize( index + nPoints ) )
@@ -162,7 +162,7 @@ bool QPointArray::putPoints( int index, int nPoints, int firstx, int firsty,
 QPoint QPointArray::at( uint i ) const		// get i'th point in array
 {
     QPointData p = QArrayM(QPointData)::at( i );
-    return QPoint( (QCOOT)p.x, (QCOOT)p.y );
+    return QPoint( (QCOORD)p.x, (QCOORD)p.y );
 }
 
 

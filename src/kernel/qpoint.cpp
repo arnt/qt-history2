@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qpoint.cpp#5 $
 **
 ** Implementation of QPoint class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpoint.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpoint.cpp#5 $";
 #endif
 
 
@@ -23,7 +23,7 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qpoint.cpp#4 $";
 // QPoint member functions
 //
 
-QPoint::QPoint( QCOOT xpos, QCOOT ypos )
+QPoint::QPoint( QCOORD xpos, QCOORD ypos )
 {
     xp=xpos; yp=ypos;
 }
@@ -45,7 +45,7 @@ QPoint &QPoint::operator*=( int c )
 
 QPoint &QPoint::operator*=( float c )
 {
-    xp=(QCOOT)(xp*c); yp=(QCOOT)(yp*c); return *this;
+    xp=(QCOORD)(xp*c); yp=(QCOORD)(yp*c); return *this;
 }
 
 QPoint &QPoint::operator/=( int c )
@@ -67,7 +67,7 @@ QPoint &QPoint::operator/=( float c )
 #endif
 	return *this;
     }
-    xp=(QCOOT)(xp/c); yp=(QCOOT)(yp/c); return *this;
+    xp=(QCOORD)(xp/c); yp=(QCOORD)(yp/c); return *this;
 }
 
 bool operator==( const QPoint & p1, const QPoint & p2 )
@@ -102,12 +102,12 @@ QPoint operator*( int c, const QPoint &p )
 
 QPoint operator*( const QPoint &p, float c )
 {
-    return QPoint( (QCOOT)(p.xp*c), (QCOOT)(p.yp*c) );
+    return QPoint( (QCOORD)(p.xp*c), (QCOORD)(p.yp*c) );
 }
 
 QPoint operator*( float c, const QPoint &p )
 {
-    return QPoint( (QCOOT)(p.xp*c), (QCOOT)(p.yp*c) );
+    return QPoint( (QCOORD)(p.xp*c), (QCOORD)(p.yp*c) );
 }
 
 QPoint operator/( const QPoint &p, int c )
@@ -129,7 +129,7 @@ QPoint operator/( const QPoint &p, float c )
 #endif
 	return p;
     }
-    return QPoint( (QCOOT)(p.xp/c), (QCOOT)(p.yp/c) );
+    return QPoint( (QCOORD)(p.xp/c), (QCOORD)(p.yp/c) );
 }
 
 QPoint operator-( const QPoint &p )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qsize.cpp#5 $
 **
 ** Implementation of QSize class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qsize.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qsize.cpp#5 $";
 #endif
 
 
@@ -23,7 +23,7 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qsize.cpp#4 $";
 // QSize member functions
 //
 
-QSize::QSize( QCOOT w, QCOOT h )
+QSize::QSize( QCOORD w, QCOORD h )
 {
     wd=w; ht=h;
 }
@@ -35,7 +35,7 @@ QSize &QSize::operator*=( int c )
 
 QSize &QSize::operator*=( float c )
 {
-    wd=(QCOOT)(wd*c); ht=(QCOOT)(ht*c); return *this;
+    wd=(QCOORD)(wd*c); ht=(QCOORD)(ht*c); return *this;
 }
 
 QSize &QSize::operator/=( int c )
@@ -57,7 +57,7 @@ QSize &QSize::operator/=( float c )
 #endif
 	return *this;
     }
-    wd=(QCOOT)(wd/c); ht=(QCOOT)(ht/c); return *this;
+    wd=(QCOORD)(wd/c); ht=(QCOORD)(ht/c); return *this;
 }
 
 bool operator==( const QSize &s1, const QSize &s2 )
@@ -82,12 +82,12 @@ QSize operator*( int c, const QSize &s )
 
 QSize operator*( const QSize &s, float c )
 {
-    return QSize( (QCOOT)(s.wd*c), (QCOOT)(s.ht*c) );
+    return QSize( (QCOORD)(s.wd*c), (QCOORD)(s.ht*c) );
 }
 
 QSize operator*( float c, const QSize &s )
 {
-    return QSize( (QCOOT)(s.wd*c), (QCOOT)(s.ht*c) );
+    return QSize( (QCOORD)(s.wd*c), (QCOORD)(s.ht*c) );
 }
 
 QSize operator/( const QSize &s, int c )
@@ -109,7 +109,7 @@ QSize operator/( const QSize &s, float c )
 #endif
 	return s;
     }
-    return QSize( (QCOOT)(s.wd/c), (QCOOT)(s.ht/c) );
+    return QSize( (QCOORD)(s.wd/c), (QCOORD)(s.ht/c) );
 }
 
 

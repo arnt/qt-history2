@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#34 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#35 $
 **
 ** Definition of QPainter class
 **
@@ -236,8 +236,8 @@ private:
     int		tabstops;			// tab stops
     int	       *tabarray;			// array of tab positions
     int		tabarraylen;			// len of tab array
-    QCOOT	wx, wy, ww, wh;			// window rect
-    QCOOT	vx, vy, vw, vh;			// viewport rect
+    QCOORD	wx, wy, ww, wh;			// window rect
+    QCOORD	vx, vy, vw, vh;			// viewport rect
     Q2DMatrix	wxmat;				// world xform matrix
 #if defined(_WS_MAC_) || defined(_WS_WIN16_) || defined(_WS_X11_)
     long	wm11, wm12, wm21, wm22, wdx, wdy;

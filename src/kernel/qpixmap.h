@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#15 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#16 $
 **
 ** Definition of QPixMap class
 **
@@ -63,7 +63,7 @@ protected:
     long   metric( int ) const;			// get metric information
 
 private:
-    QCOOT  pw, ph;				// pixmap width,height
+    QCOORD pw, ph;				// pixmap width,height
     int	   pd;					// pixmap depth
     uint   dirty : 1;
     uint   optim : 1;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#10 $
 **
 ** Implementation of QRect class
 **
@@ -15,18 +15,18 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qrect.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qrect.cpp#10 $";
 #endif
 
 #undef min
 #undef max
 
-static inline QCOOT min( QCOOT a, QCOOT b )	// replaces min macro
+static inline QCOORD min( QCOORD a, QCOORD b )	// replaces min macro
 {
     return a < b ? a : b;
 }
 
-static inline QCOOT max( QCOOT a, QCOOT b )	// replaces max macro
+static inline QCOORD max( QCOORD a, QCOORD b )	// replaces max macro
 {
     return a > b ? a : b;
 }
@@ -52,7 +52,7 @@ QRect::QRect( const QPoint &topleft, const QSize &size )
     y2 = y1+size.height()-1;
 }
 
-QRect::QRect( QCOOT left, QCOOT top, QCOOT width, QCOOT height )
+QRect::QRect( QCOORD left, QCOORD top, QCOORD width, QCOORD height )
 {
     x1 = left;
     y1 = top;
@@ -77,7 +77,7 @@ bool QRect::isValid() const
 
 void QRect::fixup()
 {
-    QCOOT t;
+    QCOORD t;
     if ( x2 < x1 ) {				// swap bad x values
 	t = x1;
 	x1 = x2;
@@ -90,32 +90,32 @@ void QRect::fixup()
     }
 }
 
-void QRect::setLeft( QCOOT pos )
+void QRect::setLeft( QCOORD pos )
 {
     x1=pos;
 }
 
-void QRect::setTop( QCOOT pos )
+void QRect::setTop( QCOORD pos )
 {
     y1=pos;
 }
 
-void QRect::setX( QCOOT x )
+void QRect::setX( QCOORD x )
 {
     x1 = x;
 }
 
-void QRect::setY( QCOOT y )
+void QRect::setY( QCOORD y )
 {
     y1 = y;
 }
 
-void QRect::setRight( QCOOT pos )
+void QRect::setRight( QCOORD pos )
 {
     x2=pos;
 }
 
-void QRect::setBottom( QCOOT pos )
+void QRect::setBottom( QCOORD pos )
 {
     y2=pos;
 }
@@ -195,8 +195,8 @@ void QRect::setBottomLeft( const QPoint &p )
 
 void QRect::setCenter( const QPoint &p )
 {
-    QCOOT w = x2 - x1;
-    QCOOT h = y2 - y1;
+    QCOORD w = x2 - x1;
+    QCOORD h = y2 - y1;
     x1 = p.x() - w/2;
     y1 = p.y() - h/2;
     x2 = x1 + w;
@@ -232,12 +232,12 @@ QSize QRect::size() const
     return QSize( x2-x1+1, y2-y1+1 );
 }
 
-QCOOT QRect::width() const
+QCOORD QRect::width() const
 {
     return x2-x1+1;
 }
 
-QCOOT QRect::height() const
+QCOORD QRect::height() const
 {
     return y2-y1+1;
 }

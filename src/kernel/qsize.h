@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.h#4 $
+** $Id: //depot/qt/main/src/kernel/qsize.h#5 $
 **
 ** Definition of QSize class
 **
@@ -20,19 +20,19 @@ class QSize					// size class
 {
 public:
     QSize()	{}				// undefined init values
-    QSize( QCOOT w, QCOOT h );			// set w=width, h=height
+    QSize( QCOORD w, QCOORD h );		// set w=width, h=height
 
     bool   isNull()	const	{ return wd==0 && ht==0; }
     bool   isEmpty()	const	{ return wd<1 || ht<1; }
     bool   isValid()	const	{ return wd>=0 && ht>=0; }
 
-    QCOOT  width()	const	{ return wd; }	// get width
-    QCOOT  height()	const	{ return ht; }	// get height
-    void   setWidth( QCOOT w ) 	{ wd=(QCOOT)w; }// set width
-    void   setHeight( QCOOT h )	{ ht=(QCOOT)h; }// set height
+    QCOORD width()	const	{ return wd; }	// get width
+    QCOORD height()	const	{ return ht; }	// get height
+    void   setWidth( QCOORD w ) { wd=(QCOORD)w;}// set width
+    void   setHeight( QCOORD h ){ ht=(QCOORD)h;}// set height
 
-    QCOOT &rwidth()		{ return wd; }	// get reference to width
-    QCOOT &rheight()		{ return ht; }	// get reference to height
+    QCOORD &rwidth()		{ return wd; }	// get reference to width
+    QCOORD &rheight()		{ return ht; }	// get reference to height
 
     QSize &operator*=( int c );			// multiply with scalar
     QSize &operator*=( float c );		// multiply with scalar float
@@ -49,8 +49,8 @@ public:
     friend QSize  operator/( const QSize &, float );
 
 private:
-    QCOOT wd;					// width
-    QCOOT ht;					// height
+    QCOORD wd;					// width
+    QCOORD ht;					// height
 };
 
 
@@ -68,7 +68,7 @@ QDataStream &operator>>( QDataStream &, QSize & );
 // QSize member functions
 //
 
-inline QSize::QSize( QCOOT w, QCOOT h )
+inline QSize::QSize( QCOORD w, QCOORD h )
 {
     wd=w; ht=h;
 }
@@ -80,7 +80,7 @@ inline QSize &QSize::operator*=( int c )
 
 inline QSize &QSize::operator*=( float c )
 {
-    wd=(QCOOT)(wd*c); ht=(QCOOT)(ht*c); return *this;
+    wd=(QCOORD)(wd*c); ht=(QCOORD)(ht*c); return *this;
 }
 
 inline QSize &QSize::operator/=( int c )
@@ -90,7 +90,7 @@ inline QSize &QSize::operator/=( int c )
 
 inline QSize &QSize::operator/=( float c )
 {
-    wd=(QCOOT)(wd/c); ht=(QCOOT)(ht/c); return *this;
+    wd=(QCOORD)(wd/c); ht=(QCOORD)(ht/c); return *this;
 }
 
 inline bool operator==( const QSize &s1, const QSize &s2 )
@@ -115,12 +115,12 @@ inline QSize operator*( int c, const QSize &s )
 
 inline QSize operator*( const QSize &s, float c )
 {
-    return QSize( (QCOOT)(s.wd*c), (QCOOT)(s.ht*c) );
+    return QSize( (QCOORD)(s.wd*c), (QCOORD)(s.ht*c) );
 }
 
 inline QSize operator*( float c, const QSize &s )
 {
-    return QSize( (QCOOT)(s.wd*c), (QCOOT)(s.ht*c) );
+    return QSize( (QCOORD)(s.wd*c), (QCOORD)(s.ht*c) );
 }
 
 inline QSize operator/( const QSize &s, int c )
@@ -130,7 +130,7 @@ inline QSize operator/( const QSize &s, int c )
 
 inline QSize operator/( const QSize &s, float c )
 {
-    return QSize( (QCOOT)(s.wd/c), (QCOOT)(s.ht/c) );
+    return QSize( (QCOORD)(s.wd/c), (QCOORD)(s.ht/c) );
 }
 
 #endif // inline functions

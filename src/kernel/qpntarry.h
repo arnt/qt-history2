@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpntarry.h#8 $
+** $Id: //depot/qt/main/src/kernel/qpntarry.h#9 $
 **
 ** Definition of QPointArray class
 **
@@ -73,7 +73,7 @@ public:
     QPointArray( uint size ) : QArrayM(QPointData)( size ) {}
     QPointArray( const QPointArray &a ) : QArrayM(QPointData)( a ) {}
     QPointArray( const QRect &r, bool closed=FALSE );
-    QPointArray( int nPoints, const QCOOT *points );
+    QPointArray( int nPoints, const QCOORD *points );
 
     QPointArray	 &operator=( const QPointArray &a )
 	{ return (QPointArray&)assign( a ); }
@@ -90,9 +90,9 @@ public:
     QPoint  point( uint i ) const;
     void    setPoint( uint i, int x, int y );
     void    setPoint( uint i, const QPoint &p );
-    bool    setPoints( int nPoints, const QCOOT *points );
+    bool    setPoints( int nPoints, const QCOORD *points );
     bool    setPoints( int nPoints, int firstx, int firsty, ... );
-    bool    putPoints( int index, int nPoints, const QCOOT *points );
+    bool    putPoints( int index, int nPoints, const QCOORD *points );
     bool    putPoints( int index, int nPoints, int firstx, int firsty, ... );
 
     QPoint  at( uint i ) const;			// access point
