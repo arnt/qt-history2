@@ -1,0 +1,8 @@
+Here is a list of changes in Qt from 0.92 to 0.93.
+
+
+QPainter:
+---------
+  drawShade* moved to qdrawutl.h
+	- now global functions that take a QPainter * and QColorGroup
+	- added drawWinPanel and drawWinButton for Windows 95 look
