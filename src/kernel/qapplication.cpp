@@ -2735,7 +2735,7 @@ void QApplication::setActiveWindow( QWidget* act )
     if ( active_window ) {
 	QWidgetList deacts;
 #ifndef QT_NO_STYLE
-	if ( style().styleHint(QStyle::SH_Widget_ShareActivation, active_window, NULL) ) {
+	if ( style().styleHint(QStyle::SH_Widget_ShareActivation, active_window ) ) {
 	    QWidgetList *list = topLevelWidgets();
 	    if ( list ) {
 		for ( QWidget *w = list->first(); w; w = list->next() ) {

@@ -1585,6 +1585,7 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
 /*! \reimp */
 int QMotifPlusStyle::styleHint(StyleHint hint,
 			       const QWidget *widget,
+			       const QStyleOption &opt,
 			       QStyleHintReturn *returnData) const
 {
     int ret;
@@ -1593,7 +1594,7 @@ int QMotifPlusStyle::styleHint(StyleHint hint,
 	ret = 1;
 	break;
     default:
-	ret = QMotifStyle::styleHint(hint, widget, returnData);
+	ret = QMotifStyle::styleHint(hint, widget, opt, returnData);
 	break;
     }
     return ret;

@@ -2220,7 +2220,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 
 
 /*! \reimp */
-int QCommonStyle::styleHint(StyleHint sh, const QWidget *, QStyleHintReturn *) const
+int QCommonStyle::styleHint(StyleHint sh, const QWidget *, const QStyleOption &, QStyleHintReturn *) const
 {
     int ret;
 

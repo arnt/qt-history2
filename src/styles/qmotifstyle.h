@@ -111,8 +111,8 @@ public:
 
     QPixmap stylePixmap(StylePixmap, const QWidget * = 0, const QStyleOption& = QStyleOption::Default) const;
 
-    int styleHint(StyleHint sh, const QWidget *, QStyleHintReturn* =0) const;
-
+    int styleHint(StyleHint sh, const QWidget *, const QStyleOption & = QStyleOption::Default,
+		  QStyleHintReturn* = 0) const;
 
 private:
     bool highlightCols;

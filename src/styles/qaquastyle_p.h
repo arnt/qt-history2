@@ -7852,7 +7852,7 @@ static const char * const aqua_sldr_dis_pty_xpm[] = {
 "....._+--,)_.....",
 "______(&+)(______"};
 /* XPM */
-static const char * const aqua_sldr_grv_mid_xpm[] = {
+static const char * const aqua_sldr_hgrv_mid_xpm[] = {
 "20 7 8 1",
 "       c None",
 ".      c #525252",
@@ -7870,7 +7870,7 @@ static const char * const aqua_sldr_grv_mid_xpm[] = {
 "%%%%%%%%%%%%%%%%%%%%",
 "&&&&&&&&&&&&&&&&&&&&"};
 /* XPM */
-static const char * const aqua_sldr_grv_tip_left_xpm[] = {
+static const char * const aqua_sldr_hgrv_tip_left_xpm[] = {
 "4 7 18 1",
 "       c None",
 ".      c #E7E7E7",
@@ -7898,7 +7898,7 @@ static const char * const aqua_sldr_grv_tip_left_xpm[] = {
 ",;$'",
 ")!~'"};
 /* XPM */
-static const char * const aqua_sldr_grv_tip_right_xpm[] = {
+static const char * const aqua_sldr_hgrv_tip_right_xpm[] = {
 "4 7 22 1",
 "       c None",
 ".      c #424242",
@@ -12257,71 +12257,35 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
 	// Up
 	QWMatrix wm;
 	wm.rotate( 180.0 );
-	px = act_down.xForm( wm );
-        QPixmapCache::insert( "$qt_aqua_sldr_act_pty_up_" + sizestr, px );
-	px = dis_down.xForm( wm );
-        QPixmapCache::insert( "$qt_aqua_sldr_dis_pty_up_" + sizestr, px );
+        QPixmapCache::insert("$qt_aqua_sldr_act_pty_up_" + sizestr, act_down.xForm(wm));
+        QPixmapCache::insert("$qt_aqua_sldr_dis_pty_up_" + sizestr, dis_down.xForm(wm));
 	
 	// Left
 	wm.reset();
 	wm.rotate( 90.0 );
-	px = act_down.xForm( wm );
-        QPixmapCache::insert( "$qt_aqua_sldr_act_pty_left_" + sizestr, px );
-	px = dis_down.xForm( wm );
-        QPixmapCache::insert( "$qt_aqua_sldr_dis_pty_left_" + sizestr, px );
+        QPixmapCache::insert("$qt_aqua_sldr_act_pty_left_" + sizestr, act_down.xForm(wm));
+        QPixmapCache::insert("$qt_aqua_sldr_dis_pty_left_" + sizestr, dis_down.xForm(wm));
 	
 	// Right
 	wm.reset();
 	wm.rotate( -90.0 );
-	px = act_down.xForm( wm );
-        QPixmapCache::insert( "$qt_aqua_sldr_act_pty_right_" + sizestr, px );
-	px = dis_down.xForm( wm );
-        QPixmapCache::insert( "$qt_aqua_sldr_dis_pty_right_" + sizestr, px );
+        QPixmapCache::insert("$qt_aqua_sldr_act_pty_right_" + sizestr, act_down.xForm(wm));
+        QPixmapCache::insert("$qt_aqua_sldr_dis_pty_right_" + sizestr, dis_down.xForm(wm));
     }
 
-    if( s.contains("sldr_grv") ){
-	QPixmap lpart( (const char **) aqua_sldr_grv_tip_left_xpm );
-	QPixmap mpart( (const char **) aqua_sldr_grv_mid_xpm );
-	QPixmap rpart( (const char **) aqua_sldr_grv_tip_right_xpm );
-	
-        QPixmapCache::insert( "$qt_aqua_sldr_grv_tip_left_down", lpart );
-        QPixmapCache::insert( "$qt_aqua_sldr_grv_tip_right_down", rpart );
-        QPixmapCache::insert( "$qt_aqua_sldr_grv_mid_down", mpart );
+    if( s.contains("sldr_hgrv") || s.contains("sldr_vgrv") ) {
+	QPixmap lpart( (const char **) aqua_sldr_hgrv_tip_left_xpm );
+	QPixmap mpart( (const char **) aqua_sldr_hgrv_mid_xpm );
+	QPixmap rpart( (const char **) aqua_sldr_hgrv_tip_right_xpm );
+        QPixmapCache::insert( "$qt_aqua_sldr_hgrv_tip_left", lpart );
+        QPixmapCache::insert( "$qt_aqua_sldr_hgrv_tip_right", rpart );
+        QPixmapCache::insert( "$qt_aqua_sldr_hgrv_mid", mpart );
 	
 	QWMatrix wm;
-	wm.rotate( 180.0 );
-	px = lpart.xForm( wm );
-	im = px;
-	px = im.mirror( TRUE, FALSE );
-        QPixmapCache::insert( "$qt_aqua_sldr_grv_tip_left_up", px );	
-	px = mpart.xForm( wm );
-        QPixmapCache::insert( "$qt_aqua_sldr_grv_mid_up", px );
-	px = rpart.xForm( wm );
-	im = px;
-	px = im.mirror( TRUE, FALSE );
-        QPixmapCache::insert( "$qt_aqua_sldr_grv_tip_right_up", px );
-
-	wm.reset();
-	wm.rotate( 90.0 );
-	px = lpart.xForm( wm );
-	im = px;
-	px = im.mirror( FALSE, TRUE );
-        QPixmapCache::insert( "$qt_aqua_sldr_grv_tip_left_left", px );	
-	px = mpart.xForm( wm );
-        QPixmapCache::insert( "$qt_aqua_sldr_grv_mid_left", px );
-	px = rpart.xForm( wm );
-	im = px;
-	px = im.mirror( FALSE, TRUE );
-        QPixmapCache::insert( "$qt_aqua_sldr_grv_tip_right_left", px );
-
-	wm.reset();
 	wm.rotate( -90.0 );
-	px = lpart.xForm( wm );
-        QPixmapCache::insert( "$qt_aqua_sldr_grv_tip_left_right", px );	
-	px = mpart.xForm( wm );
-        QPixmapCache::insert( "$qt_aqua_sldr_grv_mid_right", px );
-	px = rpart.xForm( wm );
-        QPixmapCache::insert( "$qt_aqua_sldr_grv_tip_right_right", px );
+        QPixmapCache::insert("$qt_aqua_sldr_vgrv_tip_left", lpart.xForm( wm ));	
+        QPixmapCache::insert("$qt_aqua_sldr_vgrv_mid", mpart.xForm(wm));
+        QPixmapCache::insert("$qt_aqua_sldr_vgrv_tip_right", rpart.xForm(wm));
     }
 
     // Combobox buttons

@@ -1767,6 +1767,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 /*! \reimp */
 int QWindowsStyle::styleHint( StyleHint hint,
 			      const QWidget *widget,
+			      const QStyleOption &opt, 
 			      QStyleHintReturn *returnData ) const
 {
     int ret;
@@ -1795,7 +1796,7 @@ int QWindowsStyle::styleHint( StyleHint hint,
 	break;
 
     default:
-	ret = QCommonStyle::styleHint(hint, widget, returnData);
+	ret = QCommonStyle::styleHint(hint, widget, opt, returnData);
 	break;
     }
 

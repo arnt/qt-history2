@@ -1570,10 +1570,10 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 */
 
 /*!
-  \fn int QStyle::styleHint( StyleHint stylehint, const QWidget *widget = 0, QStyleHintReturn *returnData = 0 ) const;
+  \fn int QStyle::styleHint( StyleHint stylehint, const QWidget *widget = 0, const QStyleOption &opt = QStyleOption::Default, QStyleHintReturn *returnData = 0 ) const;
 
   Returns the style hint \a stylehint for \a widget.  Currently, \a
-  widget and \a returnData are unused, and are provided only for
+  widget, \a opt, and \a returnData are unused, and are provided only for
   future development considerations.
 
   For an explanation of the return value see \l StyleHint.

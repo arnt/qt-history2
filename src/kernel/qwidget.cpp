@@ -3068,7 +3068,7 @@ bool QWidget::isActiveWindow() const
     if(tlw == qApp->activeWindow() || ( isVisible() && tlw->isPopup() ))
 	return TRUE;
 #ifndef QT_NO_STYLE
-    if(style().styleHint(QStyle::SH_Widget_ShareActivation, this, NULL)) {
+    if(style().styleHint(QStyle::SH_Widget_ShareActivation, this )) {
 	if(tlw->isDialog() && tlw->testWFlags(WShowModal) &&
 	   tlw->parentWidget() && tlw->parentWidget()->isActiveWindow())
 	   return TRUE;

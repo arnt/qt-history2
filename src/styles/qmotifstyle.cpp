@@ -2180,6 +2180,7 @@ QPixmap QMotifStyle::stylePixmap(StylePixmap sp,
 /*! \reimp */
 int QMotifStyle::styleHint(StyleHint hint,
 			   const QWidget *widget,
+			   const QStyleOption &opt,
 			   QStyleHintReturn *returnData) const
 {
     int ret;
@@ -2215,7 +2216,7 @@ int QMotifStyle::styleHint(StyleHint hint,
 	break;
 
     default:
-	ret = QCommonStyle::styleHint(hint, widget, returnData);
+	ret = QCommonStyle::styleHint(hint, widget, opt, returnData);
 	break;
     }
 

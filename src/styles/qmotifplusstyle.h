@@ -100,8 +100,8 @@ public:
 
     int pixelMetric(PixelMetric metric, const QWidget *widget = 0) const;
 
-    int styleHint(StyleHint sh, const QWidget *, QStyleHintReturn *) const;
-
+    int styleHint(StyleHint sh, const QWidget *, const QStyleOption & = QStyleOption::Default,
+		  QStyleHintReturn* = 0) const;
 
 protected:
     bool eventFilter(QObject *, QEvent *);

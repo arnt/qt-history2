@@ -65,6 +65,7 @@
 #include "qaquastyle_p.h"
 #include "qguardedptr.h"
 #include "qlineedit.h"
+#include "qcombobox.h"
 #ifdef Q_WS_MAC
 #  include <string.h>
 #  include <qt_mac.h>
@@ -392,6 +393,8 @@ void QAquaStyle::polish( QWidget * w )
 	w->font().setPixelSize(10);
 	((QTitleBar*)w)->setAutoRaise(TRUE);
     }
+    if( w->inherits("QPopupMenu")  && w->parentWidget() && w->parentWidget()->inherits("QComboBox") ) 
+	((QPopupMenu*)w)->setFrameStyle(QFrame::NoFrame);
 }
 
 /*! \reimp */
@@ -423,6 +426,8 @@ void QAquaStyle::unPolish( QWidget * w )
 
     if( w->inherits("QTitleBar") )
 	((QTitleBar*)w)->setAutoRaise(FALSE);
+    if( w->inherits("QPopupMenu")  && w->parentWidget() && w->parentWidget()->inherits("QComboBox") ) 
+	((QPopupMenu*)w)->setFrameStyle( QFrame::PopupPanel | QFrame::Raised );
 
     if ( !w->isTopLevel() ) {
         if( !w->inherits("QSplitter") && w->backgroundPixmap() &&
@@ -441,8 +446,8 @@ void QAquaStyle::unPolish( QWidget * w )
 void QAquaStyle::timerEvent( QTimerEvent * te )
 {
     if( te->timerId() == d->buttonTimerId ) {
-	if( d->defaultButton != 0 && (d->defaultButton->isDefault() ||
-				      d->defaultButton->autoDefault()) ) 
+	if( d->defaultButton != 0 && d->defaultButton->isEnabled() && 
+	    (d->defaultButton->isDefault() || d->defaultButton->autoDefault()) ) 
 	    d->defaultButton->repaint( FALSE );
     } else if( te->timerId() == d->progressTimerId ) {
 	if( !d->progressBars.isEmpty() ) {
@@ -883,11 +888,15 @@ void QAquaStyle::drawControl( ControlElement element,
 	if ( !mi )
 	    break;
 
+	QComboBox *combo = NULL;
+	if(popupmenu->parentWidget() && popupmenu->parentWidget()->inherits("QComboBox"))
+	    combo = (QComboBox*)popupmenu->parentWidget();
 	const QColorGroup & g = cg;
 	QColorGroup itemg = g;
 	bool dis = !mi->isEnabled();
 	int tab = opt.tabWidth();
 	int maxpmw = opt.maxIconWidth();
+	bool checked = combo ? mi->id() == popupmenu->idAt(combo->currentItem()) : mi->isChecked();
 	bool checkable = popupmenu->isCheckable();
 	bool act = how & Style_Active;
 	int x, y, w, h;
@@ -906,17 +915,21 @@ void QAquaStyle::drawControl( ControlElement element,
 	QBrush fill = act? QBrush( Qt::black, selectedBackground ) :
 				g.brush( QColorGroup::Button );
 	p->fillRect( x, y, w, h, fill);
-
-	if ( !mi )
-	    return;
-
 	bool reverse = QApplication::reverseLayout();
 
 	int xpos = x;
 	if ( reverse )
 	    xpos += w - checkcol;
-	if ( mi->isChecked() ) {
-	    // Do nothing
+	if ( checked ) {
+	    int mw = checkcol + aquaItemFrame;
+	    int mh = h - 2*aquaItemFrame;
+	    SFlags cflags = Style_Default;
+	    if (! dis)
+		cflags |= Style_Enabled;
+	    if (act)
+		cflags |= Style_On;
+	    drawPrimitive( PE_CheckMark, p, QRect(x + aquaItemFrame + 2, y + aquaItemFrame,
+						  mw-4, mh), itemg, cflags, opt );
 	} else if ( !act ) {
 	    p->fillRect(xpos, y, checkcol , h,
 			g.brush( QColorGroup::Button ));
@@ -1097,7 +1110,7 @@ void QAquaStyle::drawControl( ControlElement element,
 
 	QString hstr = QString::number( h - y );
 	if( (!d->buttonState.stop_pulse || d->buttonState.stop_pulse == btn || !d->buttonState.stop_pulse->isDown()) &&
-	    (btn->isDefault() || btn->autoDefault()) && (d->defaultButton == btn) ) {
+	    btn->isEnabled() && (btn->isDefault() || btn->autoDefault()) && (d->defaultButton == btn) ) {
 	    int & alt = d->buttonState.frame;
 	    int & dir = d->buttonState.dir;
 	    if( alt > 0 && !(how & Style_Down) ){
@@ -1316,6 +1329,8 @@ QSize QAquaStyle::sizeFromContents( ContentsType contents,
 	if (checkable || maxpmw > 0)
 	    w += 2;
 	w += 12;
+	if(widget->parentWidget() && widget->parentWidget()->inherits("QComboBox")) 
+	    w = QMAX(w, widget->parentWidget()->width() - 20);
 	sz = QSize(w, h);
 #endif
 	break; }
@@ -1580,24 +1595,15 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	if ( sub & SC_SliderGroove ) {
 	    int offset = 3;
 	    QPixmap sldr_l, sldr_mid, sldr_r;
-	    QString dir;
+	    QString dir("h");
 	    QSlider * s = (QSlider *) widget;
-	    if ( s->orientation() == Horizontal ){
-		if ( s->tickmarks() == QSlider::Above ) {
-		    dir = "up";
-		    offset = 10;
-		} else
-		    dir = "down";
-	    } else if ( s->orientation() == Horizontal ){
-		if ( s->tickmarks() == QSlider::Above ) {
-		    dir = "left";
-		    offset = 10;
-		} else
-		    dir = "right";
-	    }
-	    qAquaPixmap( "sldr_grv_tip_left_" + dir, sldr_l );
-	    qAquaPixmap( "sldr_grv_mid_" + dir, sldr_mid );
-	    qAquaPixmap( "sldr_grv_tip_right_" + dir, sldr_r );
+	    if ( s->orientation() == Vertical )
+		dir = "v";
+	    if ( s->tickmarks() == QSlider::Above ) 
+		offset = 10;
+	    qAquaPixmap( "sldr_" + dir + "grv_tip_left", sldr_l );
+	    qAquaPixmap( "sldr_" + dir + "grv_mid", sldr_mid );
+	    qAquaPixmap( "sldr_" + dir + "grv_tip_right", sldr_r );
 
 	    if ( s->orientation() == Horizontal ){
 		p->drawPixmap( r.x(), r.y() + offset, sldr_l );
@@ -1871,7 +1877,7 @@ QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
 /*!
   \reimp
 */
-int QAquaStyle::styleHint(StyleHint sh, const QWidget *w, QStyleHintReturn *d) const
+int QAquaStyle::styleHint(StyleHint sh, const QWidget *w, const QStyleOption &opt,QStyleHintReturn *d) const
 {
     int ret = 0;
     switch(sh) {
@@ -1894,7 +1900,7 @@ int QAquaStyle::styleHint(StyleHint sh, const QWidget *w, QStyleHintReturn *d) c
 	ret = Qt::AlignHCenter;
 	break;
     default:
-	ret = QWindowsStyle::styleHint(sh, w, d);
+	ret = QWindowsStyle::styleHint(sh, w, opt, d);
 	break;
     }
     return ret;

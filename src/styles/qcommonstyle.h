@@ -108,7 +108,7 @@ public:
 			    const QSize &contentsSize,
 			    const QStyleOption& = QStyleOption::Default ) const;
 
-    int styleHint(StyleHint sh, const QWidget *, QStyleHintReturn *) const;
+    int styleHint(StyleHint sh, const QWidget *, const QStyleOption &, QStyleHintReturn *) const;
 
     QPixmap stylePixmap( StylePixmap sp,
 			 const QWidget *widget = 0,
