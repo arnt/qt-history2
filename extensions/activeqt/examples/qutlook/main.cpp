@@ -21,7 +21,6 @@ int main(int argc, char ** argv)
 
     AddressView view;
     view.setWindowTitle("Qt Example - Looking at Outlook");
-    a.setMainWidget(&view);
     view.show();
 
     return a.exec();
