@@ -532,7 +532,7 @@ Q_OUTOFLINE_TEMPLATE QVector<T> QVector<T>::mid(int pos, int length) const
     QVector<T> copy;
     if (pos + length > size())
         length = size() - pos;
-    for (int i=pos; pos<pos + length; ++i)
+    for (int i = pos; i < pos + length; ++i)
         copy += at(i);
     return copy;
 }

@@ -356,7 +356,7 @@ Q_OUTOFLINE_TEMPLATE QList<T> QList<T>::mid(int pos, int length) const
     QList<T> copy;
     if (pos + length > size())
         length = size() - pos;
-    for (int i=pos; pos<pos + length; ++i)
+    for (int i = pos; i < pos + length; ++i)
         copy += at(i);
     return copy;
 }
