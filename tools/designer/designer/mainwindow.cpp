@@ -610,17 +610,19 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
 
     QWidget *w = QWidgetFactory::create( &buffer );
     if ( w ) {
+	if ( palet ) {
+	    if ( style )
+		style->polish( *palet );
+	    w->setPalette( *palet );
+	}
+
 	if ( style )
 	    w->setStyle( style );
-	if ( palet )
-	    w->setPalette( *palet );
-
+	
 	QObjectList *l = w->queryList( "QWidget" );
 	for ( QObject *o = l->first(); o; o = l->next() ) {
 	    if ( style )
 		( (QWidget*)o )->setStyle( style );
-	    if ( palet )
-		( (QWidget*)o )->setPalette( *palet );
 	    if ( !databaseAutoEdit )
 		o->setProperty( "autoEdit", QVariant( FALSE, 0 ) );
 	}
