@@ -713,7 +713,8 @@ DspMakefileGenerator::init()
     project->variables()["MSVCDSP_DEFINES"].append(varGlue("DEFINES","/D ","" " /D ",""));
     project->variables()["MSVCDSP_DEFINES"].append(varGlue("PRL_EXPORT_DEFINES","/D ","" " /D ",""));
 
-
+    if (!project->variables()["RES_FILE"].isEmpty())
+	project->variables()["QMAKE_LIBS"] += project->variables()["RES_FILE"];
 
     QStringList &libs = project->variables()["QMAKE_LIBS"];
     for(QStringList::Iterator libit = libs.begin(); libit != libs.end(); ++libit) {
