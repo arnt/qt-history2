@@ -167,7 +167,7 @@ QStyle *QStyleFactory::create( const QString& key )
 #endif
 #ifndef QT_NO_STYLE_POCKETPC
     if ( style == "pocketpc" )
-        ret = new QPocketPCStyle;
+	ret = new QPocketPCStyle;
 #endif
 #if !defined( QT_NO_STYLE_MAC ) && defined( Q_WS_MAC )
     if( style.left(9) == "macintosh" )
