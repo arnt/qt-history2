@@ -37,7 +37,7 @@
 
 #ifndef QT_NO_QWS_KEYBOARD
 
-#ifndef QT_NO_QWS_KBDPC101
+#ifndef QT_NO_QWS_KBD_PC101
 
 typedef struct QWSKeyMap {
     ushort key_code;
@@ -69,7 +69,7 @@ protected:
     int prevkey;
 };
 
-#endif // QT_NO_QWS_KBDPC101
+#endif // QT_NO_QWS_KBD_PC101
 
 #endif // QT_NO_QWS_KEYBOARD
 

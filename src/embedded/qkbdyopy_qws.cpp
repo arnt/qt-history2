@@ -37,7 +37,7 @@
 
 #include "qkbdyopy_qws.h"
 
-#ifdef QT_QWS_YOPY
+#ifndef QT_NO_QWS_KBD_YOPY
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -195,5 +195,5 @@ void QWSYopyKbPrivate::readKeyboardData()
 
 #include "qkbdyopy_qws.moc"
 
-#endif // QT_QWS_YOPY
+#endif // QT_NO_QWS_KBD_YOPY
 

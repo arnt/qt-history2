@@ -102,7 +102,7 @@ static void vtSwitchHandler(int /*sig*/)
 // Tty keyboard
 //
 
-#ifndef QT_NO_QWS_KBDTTY
+#ifndef QT_NO_QWS_KBD_TTY
 
 class QWSTtyKbPrivate : public QObject
 {
@@ -226,7 +226,7 @@ void QWSTtyKbPrivate::readKeyboardData()
 	handler->doKey(buf[loop]);
 }
 
-#endif // QT_NO_QWS_KBDTTY
+#endif // QT_NO_QWS_KBD_TTY
 
 #include "qkbdtty_qws.moc"
 

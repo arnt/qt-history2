@@ -37,7 +37,7 @@
 
 #ifndef QT_NO_QWS_KEYBOARD
 
-#ifndef QT_NO_QWS_KBDUSB
+#ifndef QT_NO_QWS_KBD_USB
 
 class QWSUsbKbPrivate;
 
@@ -51,7 +51,7 @@ private:
     QWSUsbKbPrivate *d;
 };
 
-#endif
+#endif // QT_NO_QWS_KBD_USB
 
 #endif // QT_NO_QWS_KEYBOARD
 

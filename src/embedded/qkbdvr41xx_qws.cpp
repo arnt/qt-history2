@@ -32,7 +32,7 @@
 
 #include "qkbdvr41xx_qws.h"
 
-#ifdef QT_QWS_CASSIOPEIA
+#ifndef QT_NO_QWS_KBD_VR41
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -166,5 +166,5 @@ void QWSVr41xxKbPrivate::readKeyboardData()
 
 #include "qkbdvr41xx_qws.moc"
 
-#endif // QT_QWS_CASSIOPEIA
+#endif // QT_NO_QWS_KBD_VR41
 

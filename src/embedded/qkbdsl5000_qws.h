@@ -35,7 +35,7 @@
 
 #include "qkbdtty_qws.h"
 
-#ifdef QT_QWS_SHARP
+#ifndef QT_NO_QWS_KBD_SHARP
 
 class QWSSL5000KbPrivate;
 
@@ -55,7 +55,7 @@ private:
     QWSSL5000KbPrivate *d;
 };
 
-#endif // QT_QWS_SHARP
+#endif // QT_NO_QWS_KBD_SHARP
 
 #endif // QKBDTTY_QWS_H
 

@@ -35,7 +35,7 @@
 
 #include "qkbd_qws.h"
 
-#ifdef QT_QWS_CASSIOPEIA
+#ifndef QT_NO_QWS_KBD_VR41
 
 class QWSVr41xxKbPrivate;
 
@@ -49,7 +49,7 @@ private:
     QWSVr41xxKbPrivate *d;
 };
 
-#endif // QT_QWS_CASSIOPEIA
+#endif // QT_NO_QWS_KBD_VR41 
 
 #endif // QKBDVR41XX_QWS_H
 

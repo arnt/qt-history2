@@ -101,6 +101,7 @@ embedded {
 		    kbd-drivers += tty
 		}
 	}
+	else:DEFINES += QT_NO_QWS_KBD_SL5000
 
 	contains( kbd-drivers, tty ) {
 		HEADERS +=$$EMBEDDED_H/qkbdtty_qws.h
@@ -109,7 +110,7 @@ embedded {
 		    kbd-drivers += pc101
 		}
 	}
-	else:DEFINES += QT_NO_QWS_KBDTTY
+	else:DEFINES += QT_NO_QWS_KBD_TTY
 
 	contains( kbd-drivers, usb ) {
 		HEADERS +=$$EMBEDDED_H/qkbdusb_qws.h
@@ -118,23 +119,25 @@ embedded {
 		    kbd-drivers += pc101
 		}
 	}
-	else:DEFINES += QT_NO_QWS_KBDUSB
+	else:DEFINES += QT_NO_QWS_KBD_USB
 
 	contains( kbd-drivers, pc101 ) {
 		HEADERS +=$$EMBEDDED_H/qkbdpc101_qws.h
 		SOURCES +=$$EMBEDDED_CPP/qkbdpc101_qws.cpp
 	}
-	else:DEFINES += QT_NO_QWS_KBDPC101
+	else:DEFINES += QT_NO_QWS_KBD_PC101
 
 	contains( kbd-drivers, yopy ) {
 		HEADERS +=$$EMBEDDED_H/qkbdyopy_qws.h
 		SOURCES +=$$EMBEDDED_CPP/qkbdyopy_qws.cpp
 	}
+	else:DEFINES += QT_NO_QWS_KBD_YOPY
 
 	contains( kbd-drivers, vr41xx ) {
 		HEADERS +=$$EMBEDDED_H/qkbdvr41xx_qws.h
 		SOURCES +=$$EMBEDDED_CPP/qkbdvr41xx_qws.cpp
 	}
+	else:DEFINES += QT_NO_QWS_KBD_VR41
 
 #
 # Mouse drivers

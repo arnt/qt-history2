@@ -35,7 +35,7 @@
 
 #include "qkbd_qws.h"
 
-#ifdef QT_QWS_YOPY
+#ifndef QT_NO_QWS_KBD_YOPY
 
 class QWSYopyKbPrivate;
 
@@ -49,6 +49,6 @@ private:
     QWSYopyKbPrivate *d;
 };
 
-#endif // QT_QWS_YOPY
+#endif // QT_NO_QWS_KBD_YOPY
 
 #endif // QKBDYOPY_QWS_H

@@ -32,7 +32,7 @@
 
 #include "qkbdsl5000_qws.h"
 
-#ifdef QT_QWS_SHARP
+#ifndef QT_NO_QWS_KBD_SL5000
 
 #include "qwindowsystem_qws.h"
 #include "qwsutils_qws.h"
@@ -342,5 +342,5 @@ void QWSSL5000KeyboardHandler::doKey(uchar code)
 }
 
 
-#endif
+#endif // QT_NO_QWS_KBD_SL5000
 
