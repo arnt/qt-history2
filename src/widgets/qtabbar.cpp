@@ -393,7 +393,7 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
     }
 
    if ( t->enabled && isEnabled()  ) {
-	p->setPen( palette().normal().text() );
+	p->setPen( colorGroup().text() );
 	p->drawText( r, AlignCenter | ShowPrefix, t->label );
     } else if ( style() == MotifStyle ) {
 	p->setPen( palette().disabled().text() );

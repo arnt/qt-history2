@@ -85,10 +85,10 @@ public:
     static void	     setGlobalMouseTracking( bool enable );
 
     static QPalette  palette( const QWidget* = 0 );
-    static void	     setPalette( const QPalette &, bool updateAllWidgets=FALSE,
+    static void	     setPalette( const QPalette &, bool informWidgets=FALSE,
 				 const char* className = 0 );
     static QFont     font( const QWidget* = 0 );
-    static void	     setFont( const QFont &, bool updateAllWidgets=FALSE,
+    static void	     setFont( const QFont &, bool informWidgets=FALSE,
 			      const char* className = 0 );
     static QFontMetrics fontMetrics();
 

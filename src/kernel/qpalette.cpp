@@ -317,8 +317,8 @@ bool QColorGroup::operator==( const QColorGroup &g ) const
   \ingroup shared
   \ingroup drawing
 
-  A palette consists of three color groups: a \e normal, a \e disabled
-  and an \e active color group.	 All \link QWidget widgets\endlink
+  A palette consists of three color groups: a \e active, a \e disabled
+  and an \e inactive color group.	 All \link QWidget widgets\endlink
   contain a palette, and all the widgets in Qt use their palette to draw
   themselves.  This makes the user interface consistent and easily
   configurable.
@@ -380,6 +380,7 @@ QPalette::QPalette( const QColor &button )
     data->active   = data->normal;
     data->disabled = QColorGroup( disfg, btn, btn.light(150), btn.dark(),
 				  btn.dark(150), disfg, Qt::white, base, bg );
+    data->inactive = data->active;
 }
 
 /*!
@@ -409,22 +410,24 @@ QPalette::QPalette( const QColor &button, const QColor &background )
     data->active   = data->normal;
     data->disabled = QColorGroup( disfg, btn, btn.light(150), btn.dark(),
 				  btn.dark(150), disfg, Qt::white, base, bg );
+    data->inactive = data->active;
 }
 
 /*!
-  Constructs a palette that consists of the three color groups \e normal,
-  \e disabled and \e active.
+  Constructs a palette that consists of the three color groups \e active,
+  \e disabled and \e inactive.
 */
 
-QPalette::QPalette( const QColorGroup &normal, const QColorGroup &disabled,
-		    const QColorGroup &active )
+QPalette::QPalette( const QColorGroup &active, const QColorGroup &disabled,
+		    const QColorGroup &inactive )
 {
     data = new QPalData;
     CHECK_PTR( data );
     data->ser_no   = palette_count++;
-    data->normal   = normal;
-    data->disabled = disabled;
     data->active   = active;
+    data->normal   = data->active;
+    data->disabled = disabled;
+    data->inactive   = inactive;
 }
 
 /*!
@@ -493,11 +496,15 @@ void QPalette::setColor(ColorGroup gr,QColorGroup::ColorRole r,const QColor &c)
 /*!
   Sets the brush in \a gr used for color role \a r to \a b.
 */
-void QPalette::setBrush(ColorGroup gr,QColorGroup::ColorRole r,const QBrush &b)
+void QPalette::setBrush(ColorGroup gr, QColorGroup::ColorRole r,const QBrush &b)
 {
     detach();
     data->ser_no = palette_count++;
+    if ( gr == Normal )
+	gr = Active; // #### remove 3.0
     directBrush( gr, r ) = b;
+    if ( gr == Active )
+	data->normal = data->active; // ##### remove 3.0
 }
 
 /*!
@@ -549,32 +556,31 @@ void QPalette::detach()
 }
 
 
-/*!
+/*!\obsolete 
+  
   \fn const QColorGroup & QPalette::normal() const
-  Returns the normal color group of this palette.
-  \sa QColorGroup, disabled(), active(), setNormal()
+  
+  Use active() instead.
 */
 
-/*!
-  Sets the \c normal color group to \e g.
-  \sa normal()
+/*!\obsolete
+  
+  Use setActive() instead.
 */
 
 void QPalette::setNormal( const QColorGroup &g )
 {
-    detach();
-    data->ser_no = palette_count++;
-    data->normal = g;
+    setActive( g );
 }
 
 /*!
   \fn const QColorGroup & QPalette::disabled() const
   Returns the disabled color group of this palette.
-  \sa QColorGroup, normal(), active(), setDisabled()
+  \sa QColorGroup, setDisabled(), active(), inactive()
 */
 
 /*!
-  Sets the \c disabled color group to \e g.
+  Sets the \c Disabled color group to \e g.
   \sa disabled()
 */
 
@@ -588,11 +594,11 @@ void QPalette::setDisabled( const QColorGroup &g )
 /*!
   \fn const QColorGroup & QPalette::active() const
   Returns the active color group of this palette.
-  \sa QColorGroup, normal(), disabled(), setActive()
+  \sa QColorGroup, setActive(), inactive(), disabled()
 */
 
 /*!
-  Sets the \c active color group to \e g.
+  Sets the \c Active color group to \e g.
   \sa active()
 */
 
@@ -601,6 +607,25 @@ void QPalette::setActive( const QColorGroup &g )
     detach();
     data->ser_no = palette_count++;
     data->active = g;
+    data->normal = data->active; //#### alias
+}
+
+/*!
+  \fn const QColorGroup & QPalette::inactive() const
+  Returns the inactive color group of this palette.
+  \sa QColorGroup,  setInactive(), active(), disabled()
+*/
+
+/*!
+  Sets the \c Inactive color group to \e g.
+  \sa active()
+*/
+
+void QPalette::setInactive( const QColorGroup &g )
+{
+    detach();
+    data->ser_no = palette_count++;
+    data->inactive = g;
 }
 
 
@@ -740,11 +765,11 @@ void readV1ColorGroup( QDataStream &s, QColorGroup &g,
 	case QPalette::Disabled:
 	    n = p.disabled();
 	    break;
-	case QPalette::Active:
-	    n = p.active();
+	case QPalette::Inactive:
+	    n = p.inactive();
 	    break;
 	default:
-	    n = p.normal();
+	    n = p.active();
 	    break;
     }
     n.setColor( QColorGroup::Foreground, fg );
@@ -764,15 +789,15 @@ void readV1ColorGroup( QDataStream &s, QColorGroup &g,
 
 QDataStream &operator>>( QDataStream &s, QPalette &p )
 {
-    QColorGroup normal, disabled, active;
+    QColorGroup active, disabled, inactive;
     if ( s.version() == 1 ) {
-	readV1ColorGroup( s, normal, QPalette::Normal );
-	readV1ColorGroup( s, disabled, QPalette::Disabled );
 	readV1ColorGroup( s, active, QPalette::Active );
+	readV1ColorGroup( s, disabled, QPalette::Disabled );
+	readV1ColorGroup( s, inactive, QPalette::Inactive );
     } else {
-	s >> normal >> disabled >> active;
+	s >> active >> disabled >> inactive;
     }
-    QPalette newpal( normal, disabled, active );
+    QPalette newpal( active, disabled, inactive );
     p = newpal;
     return s;
 }
@@ -806,13 +831,14 @@ QBrush &QPalette::directBrush( ColorGroup gr, QColorGroup::ColorRole r ) const
     }
     switch( gr ) {
     case Normal:
-	return data->normal.br[r];
+    case Active:
+	return data->active.br[r];
 	//break;
     case Disabled:
 	return data->disabled.br[r];
 	//break;
-    case Active:
-	return data->active.br[r];
+    case Inactive:
+	return data->inactive.br[r];
 	//break;
     default:
 	break;

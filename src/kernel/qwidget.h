@@ -82,8 +82,6 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( QColorGroup colorGroup READ colorGroup )
     Q_PROPERTY( QPalette palette READ palette WRITE setPalette )
     Q_PROPERTY( QFont font READ font WRITE setFont )
-    Q_PROPERTY( PropagationMode fontPropagation READ fontPropagation WRITE setFontPropagation )
-    Q_PROPERTY( PropagationMode palettePropagation READ palettePropagation WRITE setPalettePropagation )
     Q_PROPERTY( QCursor cursor READ cursor WRITE setCursor RESET unsetCursor )
     Q_PROPERTY( QString caption READ caption WRITE setCaption )
     Q_PROPERTY( QPixmap icon READ icon WRITE setIcon )
@@ -104,7 +102,7 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( bool acceptDrops READ acceptDrops WRITE setAcceptDrops )
     Q_PROPERTY( bool autoMask READ autoMask WRITE setAutoMask );
     Q_PROPERTY( bool customWhatsThis READ customWhatsThis )
-	
+
 public:
     QWidget( QWidget *parent=0, const char *name=0, WFlags f=0 );
     ~QWidget();
@@ -205,22 +203,22 @@ public:
     const QColorGroup & colorGroup() const;
     const QPalette &	palette()    const;
     virtual void	setPalette( const QPalette & );
-    void setPalette( const QPalette &, bool fixed );
+    void		unsetPalette();
 
     QFont		font() const;
     virtual void	setFont( const QFont & );
-    void		setFont( const QFont &, bool fixed );
+    void		unsetFont();
     QFontMetrics	fontMetrics() const;
     QFontInfo	 	fontInfo() const;
 
     enum PropagationMode { NoChildren, AllChildren,
 			   SameFont, SamePalette = SameFont };
 
-    PropagationMode	fontPropagation() const;
-    virtual void	setFontPropagation( PropagationMode );
+    PropagationMode	fontPropagation() const; // obsolete, remove 3.0
+    virtual void	setFontPropagation( PropagationMode ); // obsolete, remove 3.0
 
-    PropagationMode	palettePropagation() const;
-    virtual void	setPalettePropagation( PropagationMode );
+    PropagationMode	palettePropagation() const; // obsolete, remove 3.0
+    virtual void	setPalettePropagation( PropagationMode ); // obsolete, remove 3.0
 
     const QCursor      &cursor() const;
     virtual void	setCursor( const QCursor & );
@@ -367,7 +365,7 @@ public:
 
     // whats this help
     virtual bool customWhatsThis() const;
-				
+
     QWidget *		parentWidget() const;
     bool		testWState( uint n ) const;
     bool		testWFlags( WFlags n ) const;
@@ -484,9 +482,11 @@ private:
     WId		 winid;
     uint	 widget_state;
     uint	 widget_flags;
-    uint	 propagate_font    : 2;
-    uint	 propagate_palette : 2;
-    uint	 focus_policy      : 4;
+    uint	 propagate_font : 2; // obsolete
+    uint	 propagate_palette : 2; // obsolete
+    uint	 focus_policy : 4;
+    uint 	own_font :1;
+    uint 	own_palette :1;
     QPoint	 fpos;
     QRect	 crect;
     QColor	 bg_col;
@@ -516,6 +516,10 @@ private:	// Disabled copy constructor and operator=
     QWidget( const QWidget & );
     QWidget &operator=( const QWidget & );
 #endif
+
+public: // obsolete functions to dissappear or to become inline in 3.0
+    void setPalette( const QPalette &, bool iReallyMeanIt );
+    void setFont( const QFont &, bool iReallyMeanIt );
 };
 
 

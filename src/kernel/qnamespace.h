@@ -114,10 +114,10 @@ public:
 	WState_Polished		= 0x00002000,
 	WState_DND		= 0x00004000,
 	WState_Modal		= 0x00008000,
-	WState_PaletteSet	= 0x00010000,
-	WState_PaletteFixed	= 0x00020000,
-	WState_FontSet		= 0x00040000,
-	WState_FontFixed	= 0x00080000,
+	WState_Reserved1	= 0x00010000,
+	WState_Reserved2	= 0x00020000,
+	WState_Reserved3	= 0x00040000,
+	WState_Reserved4	= 0x00080000,
 	WState_Withdrawn	= 0x00100000,
 	WState_ForceDisabled	= 0x00200000
     };

@@ -935,17 +935,12 @@ QPalette QApplication::palette(const QWidget* w)
 
 
 /*!
-  Changes the default application palette to \e palette.
-
-  If \e updateAllWidgets is TRUE, then the palette of all existing
-  widgets is set to \e palette.
-
-  If a className is passed, then the palette is only set for widgets
-  that inherit this class in the sense of QObject::inherits()
-
-  Widgets created after this call get \e   palette as their
-  \link QWidget::palette() palette\endlink when they
-  access it.
+  Changes the default application palette to \e palette.  If \e informWidgets
+  is TRUE, then existing widgets are informed about the change and thus
+  may adjust themselves to the new application setting.  Otherwise the
+  change only affects newly created widgets.  If \a className is
+  passed, the change applies only to classes that inherit \a className
+  (as reported by QObject::inherits()).
 
   The palette may be changed according to the current GUI style in
   QStyle::polish().
@@ -953,7 +948,7 @@ QPalette QApplication::palette(const QWidget* w)
   \sa QWidget::setPalette(), palette(), QStyle::polish()
 */
 
-void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets,
+void QApplication::setPalette( const QPalette &palette, bool informWidgets,
 			       const char* className )
 {
     QPalette pal = palette;
@@ -978,15 +973,14 @@ void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets,
 	}
 	app_palettes->insert( className, new QPalette( pal ) );
     }
-    if ( updateAllWidgets && is_app_running && !is_app_closing ) {
+    if ( informWidgets && is_app_running && !is_app_closing ) {
+	QCustomEvent e( QEvent::ApplicationPaletteChange, 0 );
 	QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
 	register QWidget *w;
 	while ( (w=it.current()) ) {		// for all widgets...
 	    ++it;
-	    if ( (!className || w->inherits(className))   // matching class
-		 && !w->testWFlags(WType_Desktop) 	  // except desktop
-		 && !w->testWState(WState_PaletteFixed) ) // except fixed
-		w->setPalette( QApplication::palette(w) );
+	    if ( (!className && w->isTopLevel() ) || w->inherits(className) ) // matching class
+		sendEvent( w, &e );
 	}
     }
 }
@@ -1022,11 +1016,11 @@ QFont QApplication::font( const QWidget *w )
 }
 
 /*!  Changes the default application font to \e font.  If \e
-  updateAllWidgets is TRUE, then the font of all existing widgets is
-  set to \e font, otherwise the change only affects newly created
-  widgets.  If \a classNAme is passed, the change applies only to
-  classes that inherit \a className (as reported by
-  QObject::inherits()).
+  informWidgets is TRUE, then existing widgets are informed about the
+  change and thus may adjust themselves to the new application
+  setting.  Otherwise the change only affects newly created widgets.
+  If \a className is passed, the change applies only to classes that
+  inherit \a className (as reported by QObject::inherits()).
 
   On application start-up, the default font depends on the window
   system.  It can vary both with window system version and with
@@ -1037,7 +1031,7 @@ QFont QApplication::font( const QWidget *w )
   \sa font(), fontMetrics(), QWidget::setFont()
 */
 
-void QApplication::setFont( const QFont &font, bool updateAllWidgets,
+void QApplication::setFont( const QFont &font, bool informWidgets,
 			    const char* className )
 {
     if ( !className ) {
@@ -1059,15 +1053,14 @@ void QApplication::setFont( const QFont &font, bool updateAllWidgets,
 	CHECK_PTR( fnt );
 	app_fonts->insert(className, fnt);
     }
-    if ( updateAllWidgets && is_app_running && !is_app_closing ) {
+    if ( informWidgets && is_app_running && !is_app_closing ) {
+	QCustomEvent e( QEvent::ApplicationFontChange, 0 );
 	QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
 	register QWidget *w;
 	while ( (w=it.current()) ) {		// for all widgets...
 	    ++it;
-	    if ( (!className || w->inherits(className)) // matching class
-		 && !w->testWFlags(WType_Desktop)	// except desktop
-		 && !w->testWState(WState_FontFixed) )  // except fixed
-		w->setFont( QApplication::font(w) );
+	    if ( (!className && w->isTopLevel() ) || w->inherits(className) ) // matching class
+		sendEvent( w, &e );
 	}
     }
 }
@@ -1083,23 +1076,11 @@ void QApplication::setFont( const QFont &font, bool updateAllWidgets,
   Instead, based on meta information like QObject::className()
   you are able to customize any kind of widgets.
 
-  The default implementation sets a class specific font or palette if
-  available and no font or palette has been set yet. Then it calls
-  QStyle::polish().
-
   \sa QStyle::polish(), QWidget::polish(), setPalette(), setFont()
 */
 
 void QApplication::polish( QWidget *w )
 {
-    if ( !w->testWState( WState_PaletteSet ) ) {
-	if ( !palette( w ).isCopyOf( palette() ) )
-	    w->setPalette( palette( w ) );
-    }
-    if ( !w->testWState( WState_FontSet ) ) {
-	if ( !font( w ).isCopyOf( font() ) )
-	    w->setFont( font( w ) );
-    }
 
 #if 0
     if ( qdevel && w->isTopLevel() )
@@ -1982,7 +1963,7 @@ void QApplication::removePostedEvent( QEvent *  event )
   from the platform specific event handlers.
 
   It sets the activeWindow() and focusWidget() attributes and sends
-  proper WindowActivated/WindowDeactivated and FocusIn/FocusOut events
+  proper WindowActivate/WindowDeactivate and FocusIn/FocusOut events
   to all appropriate widgets.
 
   \sa activeWindow()
@@ -1994,17 +1975,27 @@ void QApplication::setActiveWindow( QWidget* act )
     if ( active_window == window )
 	return;
 
+    QWidget* old_active = active_window;
+    
     // first the activation / deactivation events
-    if ( active_window ) {
-	QWidget *tmp = active_window;
+    if ( old_active ) {
 	active_window = 0;
-	QCustomEvent e( QEvent::WindowDeactivated, 0 );
-	QApplication::sendEvent( tmp, &e );
+	QCustomEvent e( QEvent::WindowDeactivate, 0 );
+	QApplication::sendEvent( old_active, &e );
     }
     active_window = window;
     if ( active_window ) {
-	QCustomEvent e( QEvent::WindowActivated, 0 );
+	QCustomEvent e( QEvent::WindowActivate, 0 );
 	QApplication::sendEvent( active_window, &e );
+    }
+
+    QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
+    register QWidget *w;
+    while ( (w=it.current()) ) {		// for all widgets...
+	++it;
+	if ( (w->topLevelWidget() == old_active || w->topLevelWidget()==active_window )
+	     && w->palette().active() != w->palette().inactive() )
+	    w->update();
     }
 
     // then focus events

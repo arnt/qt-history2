@@ -71,13 +71,17 @@ public:
 	ShowMaximized = 21,		       	// widget is shown maximized
 	ShowMinimized = 22,		       	// widget is shown minimized
 	ShowNormal = 23,	       		// widget is shown normal
-	WindowActivated = 24,	       		// window was activated
-	WindowDeactivated = 25,	       		// window was deactivated
+	WindowActivate = 24,	       		// window was activated
+	WindowDeactivate = 25,	       		// window was deactivated
 	Accel = 30,				// accelerator event
 	Wheel = 31,				// wheel event
 	AccelAvailable = 32,			// accelerator available event
 	CaptionChange = 33,			// caption changed
 	IconChange = 34,			// icon changed
+	ParentFontChange = 35,			// parent font changed
+	ApplicationFontChange = 36,		// application font changed
+	ParentPaletteChange = 37,		// parent font changed
+	ApplicationPaletteChange = 38,		// application palette changed
 	Clipboard = 40,				// internal clipboard event
 	SockAct = 50,				// socket activation
 	DragEnter = 60,				// drag moves into widget
@@ -210,7 +214,7 @@ public:
     bool   gotFocus()	const { return type() == FocusIn; }
     bool   lostFocus()	const { return type() == FocusOut; }
 
-    enum Reason { Mouse, Tab, ActiveWindow, Shortcut, Other };
+    enum Reason { Mouse, Tab, ActiveWindow, Popup, Shortcut, Other };
     static Reason reason();
     static void setReason( Reason reason );
     static void resetReason();

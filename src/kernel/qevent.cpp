@@ -703,6 +703,7 @@ QFocusEvent::Reason QFocusEvent::prev_reason = QFocusEvent::Other;
   <li> \c Tab - the focus change happened because of a Tab press
         (possibly including shift/control)
   <li> \c ActiveWindow - the window system made this window (in)active
+  <li> \c Popup - the application opened/closed a popup that grabbed/released focus
   <li> \c Shortcut - the focus change happened because of a keyboard shortcut
   <li> \c Other - any other reason, usually application-specific
   </ul>

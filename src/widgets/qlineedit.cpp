@@ -610,7 +610,8 @@ void QLineEdit::focusOutEvent( QFocusEvent * e )
 	copy();
 #endif
     }
-    if ( e->reason() != QFocusEvent::ActiveWindow )
+    if ( e->reason() != QFocusEvent::ActiveWindow 
+	 && e->reason() != QFocusEvent::Popup )
 	deselect();
     d->dragTimer.stop();
     if ( cursorOn )

@@ -945,11 +945,9 @@ void QMotifStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, in
 				     const QPalette& pal,
 				     bool act, bool enabled, int x, int y, int w, int h)
 {
-    const QColorGroup & g = pal.normal();
+    const QColorGroup & g = pal.active();
     bool dis	  = !enabled;
-    QColorGroup itemg = dis ? pal.disabled()
-			: act ? pal.active()
-			: pal.normal();
+    QColorGroup itemg = dis ? pal.disabled() : pal.active();
 
     if ( checkable )
 	maxpmw = QMAX( maxpmw, motifCheckMarkSpace );

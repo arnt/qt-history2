@@ -99,13 +99,13 @@ public:
     QPalette();
     QPalette( const QColor &button );
     QPalette( const QColor &button, const QColor &background );
-    QPalette( const QColorGroup &normal, const QColorGroup &disabled,
-	      const QColorGroup &active );
+    QPalette( const QColorGroup &active, const QColorGroup &disabled,
+	      const QColorGroup &inactive );
     QPalette( const QPalette & );
    ~QPalette();
     QPalette &operator=( const QPalette & );
 
-    enum ColorGroup { Normal, Disabled, Active, NColorGroups };
+    enum ColorGroup { Normal, Disabled, Active, Inactive, NColorGroups };
 
     const QColor &color( ColorGroup, QColorGroup::ColorRole ) const;
     const QBrush &brush( ColorGroup, QColorGroup::ColorRole ) const;
@@ -117,13 +117,15 @@ public:
 
     QPalette	copy() const;
 
-    const QColorGroup &normal()	  const { return data->normal; }
+    const QColorGroup &active() const { return data->active; }
     const QColorGroup &disabled() const { return data->disabled; }
-    const QColorGroup &active()	  const { return data->active; }
+    const QColorGroup &inactive() const { return data->inactive; }
+    const QColorGroup &normal() const { return data->normal; } // obsolete
 
-    void	setNormal( const QColorGroup & );
-    void	setDisabled( const QColorGroup & );
     void	setActive( const QColorGroup & );
+    void	setDisabled( const QColorGroup & );
+    void	setInactive( const QColorGroup & );
+    void	setNormal( const QColorGroup & ); // obsolete
 
     bool	operator==( const QPalette &p ) const;
     bool	operator!=( const QPalette &p ) const
@@ -134,13 +136,14 @@ public:
 
 private:
     void	detach();
-    QBrush &directBrush( ColorGroup, QColorGroup::ColorRole ) const;
+    QBrush 	&directBrush( ColorGroup, QColorGroup::ColorRole ) const;
 
     struct QPalData : public QShared {
-	QColorGroup normal;
+	QColorGroup normal; // ##### alias for active due to inline functions above, remove 3.0
 	QColorGroup disabled;
 	QColorGroup active;
 	int	    ser_no;
+	QColorGroup inactive;
     } *data;
 };
 

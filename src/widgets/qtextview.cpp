@@ -106,7 +106,8 @@ public:
     QtTriple selend;
     uint selection :1;
     uint dirty :1;
-    uint dragSelection :1;
+    uint dragselection :1;
+    uint ownpalette : 1;
 };
 
 
@@ -138,7 +139,7 @@ QTextView::QTextView( const QString& text, const QString& context,
 void QTextView::init()
 {
     d = new QTextViewData;
-    d->mypapcolgrp = palette().normal();
+    d->mypapcolgrp = palette().active();
     d->papcolgrp = d->mypapcolgrp;
     d->mylinkcol = blue;
     d->paplinkcol = d->mylinkcol;
@@ -156,7 +157,8 @@ void QTextView::init()
     d->textformat = AutoText;
     d->dirty = TRUE;
     d->selection = FALSE;
-    d->dragSelection = FALSE;
+    d->dragselection = FALSE;
+    d->ownpalette = FALSE;
 
     viewport()->setBackgroundMode( PaletteBase );
     viewport()->setFocusProxy( this );
@@ -390,6 +392,7 @@ void QTextView::setPaper( const QBrush& pap)
 {
     d->mypapcolgrp.setBrush( QColorGroup::Base, pap );
     d->papcolgrp.setBrush( QColorGroup::Base, pap );
+    d->ownpalette = TRUE;
     viewport()->update();
 }
 
@@ -405,6 +408,7 @@ void QTextView::setPaperColorGroup( const QColorGroup& colgrp)
 {
     d->mypapcolgrp = colgrp;
     d->papcolgrp = colgrp;
+    d->ownpalette = TRUE;
     viewport()->update();
 }
 
@@ -472,14 +476,10 @@ QString QTextView::documentTitle() const
 */
 int QTextView::heightForWidth( int w ) const
 {
-//     QRichText doc ( d->txt, viewport()->font(), d->contxt,
-// 		    8, mimeSourceFactory(), styleSheet() );
-//     {
-// 	QPainter p( this );
-// 	doc.setWidth(&p, w);
-//     }
-//     return doc.height;
-    return w;
+    QRichText doc( d->txt, viewport()->font(), d->contxt,
+		   8, mimeSourceFactory(), styleSheet() );
+    doc.doLayout( 0, w );
+    return doc.height;
 }
 
 /*!
@@ -517,6 +517,10 @@ const QBrush& QTextView::paper() const
 void QTextView::drawContentsOffset(QPainter* p, int ox, int oy,
 				 int cx, int cy, int cw, int ch)
 {
+    if ( !d->ownpalette && d->mypapcolgrp == d->papcolgrp ) {
+	d->mypapcolgrp = colorGroup();
+	d->papcolgrp = d->mypapcolgrp;
+    }
     QTextOptions to(&paper(), d->paplinkcol, d->linkunderline );
     to.offsetx = ox;
     to.offsety = oy;
@@ -611,7 +615,7 @@ void QTextView::viewportMousePressEvent( QMouseEvent* e )
 	d->selorigin = it.position();
 	d->selstart = d->selorigin;
 	d->selend = d->selstart;
-	d->dragSelection = TRUE;
+	d->dragselection = TRUE;
     } else {
 	d->dragTimer->start( QApplication::startDragTime(), TRUE );
     }
@@ -624,14 +628,14 @@ void QTextView::viewportMouseReleaseEvent( QMouseEvent* e )
 {
     if ( e->button() == LeftButton ) {
 	d->scrollTimer->stop();
-	if ( d->dragSelection ) {
+	if ( d->dragselection ) {
 #if defined(_WS_X11_)
 	    copy();
 #else
 	if ( style() == MotifStyle )
 	    copy();
 #endif
-	d->dragSelection = FALSE;
+	d->dragselection = FALSE;
 	} else {
 	    clearSelection();
 	}
@@ -730,7 +734,7 @@ void QTextView::selectAll()
 void QTextView::viewportMouseMoveEvent( QMouseEvent* e)
 {
     if (e->state() & LeftButton ) {
-	if (d->dragSelection ) {
+	if (d->dragselection ) {
 	    doSelection( e->pos() );
 	    ensureVisible( d->cursor.x(), d->cursor.y() );
 	} else if ( d->dragTimer->isActive() ) {
@@ -793,8 +797,10 @@ void QTextView::keyPressEvent( QKeyEvent * e)
 void QTextView::paletteChange( const QPalette & p )
 {
     QScrollView::paletteChange( p );
-    d->mypapcolgrp = palette().normal();
-    d->papcolgrp = d->mypapcolgrp;
+    if ( !d->ownpalette ) {
+	d->mypapcolgrp = palette().active();
+	d->papcolgrp = d->mypapcolgrp;
+    }
 }
 
 

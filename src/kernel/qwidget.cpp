@@ -151,10 +151,6 @@
 	setMouseTracking(),
 	isUpdatesEnabled(),
 	setUpdatesEnabled(),
-	setFontPropagation(),
-	fontPropagation(),
-	setPalettePropagation(),
-	palettePropagation().
 
   <li> Look and feel:
 	style(),
@@ -478,18 +474,14 @@ inline bool QWidgetMapper::remove( WId id )
 // helper function - borland needs it.
 static QPalette default_palette( QWidget *parent )
 {
-    while ( parent && parent->palettePropagation() == QWidget::NoChildren )
-	parent = parent->parentWidget();
     return parent ? parent->palette()           // use parent's palette
-	   : QApplication::palette();
+	: QApplication::palette();
 }
 // helper function - borland needs it.
 static QFont default_font( QWidget *parent )
 {
-    while ( parent && parent->fontPropagation() == QWidget::NoChildren )
-	parent = parent->parentWidget();
     return parent ? parent->font()           // use parent's font
-	   : QApplication::font();
+	: QApplication::font();
 }
 
 
@@ -519,10 +511,6 @@ static QFont default_font( QWidget *parent )
   <dt>WState_Modal<dd> Only for WType_Modal. Defines whether the widget is
         actually performing  modality when shown. Modality can be switched on/off with
         this flag.
-  <dt>WState_PaletteSet<dd> The palette has been set.
-  <dt>WState_PaletteFixed<dd> The widget has a fixed palette.
-  <dt>WState_FontSet<dd> The font has been set.
-  <dt>WState_FontFixed<dd> The widget has a fixed font.
   <dt> WState_Withdrawn<dd> The widget is withdrawn, i.e. hidden from the
 	   window system by the program itself.
   </dl>
@@ -677,9 +665,9 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     winid = 0;					// default attributes
     widget_state = WState_Withdrawn;
     widget_flags = f;
-    propagate_font = SameFont;
-    propagate_palette = SamePalette;
     focus_policy = 0;
+    own_font = 0;
+    own_palette = 0;
     lay_out = 0;
     extra = 0;					// no extra widget info
     bg_col = pal.normal().background();		// default background color
@@ -1956,21 +1944,21 @@ void QWidget::backgroundPixmapChange( const QPixmap & )
   The color group is determined by the state of the widget.
 
   A disabled widget returns the QPalette::disabled() color group, a
-  widget with keyboard focus returns the QPalette::active() color
-  group and all normal widgets return the QPalette::normal() color
-  group.
+  widget in the window with keyboard focus returns the
+  QPalette::active() color group and all inactive  widgets return the
+  QPalette::inactive() color group.
 
   \sa palette(), setPalette()
 */
 
 const QColorGroup &QWidget::colorGroup() const
 {
-    if ( testWState(WState_Disabled) )
+    if ( !isEnabled() )
 	return palette().disabled();
-    else if ( qApp->focus_widget == this && focusPolicy() != NoFocus )
+    else if ( isActiveWindow() )
 	return palette().active();
     else
-	return palette().normal();
+	return palette().inactive();
 }
 
 /*!
@@ -1978,77 +1966,75 @@ const QColorGroup &QWidget::colorGroup() const
   Returns the widget palette.
 
   As long as no special palette has been set, this is either a special
-  palette for the widget class, the palette of the parent widget or
-  the default application palette.
+  palette for the widget class, the parent's palette or - if this
+  widget is a toplevel widget - the default application palette.
 
   \sa setPalette(), colorGroup(), QApplication::palette()
 */
 
 
 /*! \enum QWidget::PropagationMode
+  
+  \obsolete
 
-  This enum determines how fonts and palette changes are propagated to
+  This enum used to determine how fonts and palette changes are propagated to
   children of a widget.
 
-  If a widget's propagation mode is \c NoChildren, changes to that
-  widget's font or palette do not affect the widget's children.  IF it
-  is \c AllChildren, all children are affected.  If it is \c SameFont
-  or \c SamePalette (mostly the default mode) then changes affect
-  those child widget for which no separate font/palette has been set,
-  but no other children.
-
-  \sa setFont() setPalette()
 */
 
 /*!
-  Sets the widget palette to \e p.
+  Sets the widget palette to \e palette and informs all children about the change.
 
-  If \a palettePropagation() is \c AllChildren or \c SamePalette,
-  setPalette() calls setPalette() for children of the object, or those
-  with whom the object shares the palette, respectively.  The default
-  for QWidget is \a SameChildren.
-
-  \sa QApplication::setPalette(), palette(), paletteChange(),
-  colorGroup(), setBackgroundColor(), setPalettePropagation()
+  \sa QApplication::setPalette(), palette(), paletteChange(), unsetPalette(),
+  colorGroup()
 */
 
-void QWidget::setPalette( const QPalette &p )
+void QWidget::setPalette( const QPalette &palette )
 {
-    QPalette old = palette();
-    setWState( WState_PaletteSet );
-    pal = p;
+    own_palette = TRUE;
+    if ( pal == palette )
+	return;
+    QPalette old = pal;
+    pal = palette;
     setBackgroundFromMode();
     paletteChange( old );
-    PropagationMode m = palettePropagation();
-    if ( m != NoChildren && children() ) {
+    if ( children() ) {
+	QCustomEvent e( QEvent::ParentPaletteChange, 0 );
 	QObjectListIt it( *children() );
 	QWidget *w;
 	while( (w=(QWidget *)it.current()) != 0 ) {
 	    ++it;
-	    if ( w->isWidgetType() &&
-		 ( m == AllChildren ||
-		   old.isCopyOf( w->pal ) ) )
-		w->setPalette( pal );
+	    if ( w->isWidgetType() )
+		QApplication::sendEvent( w, &e );
 	}
     }
     update();
 }
 
 
-/*!
-  Like setPalette(const QPalette&) but has an additional flag to
-  indicate whether the palette should be fixed for the widget,
-  ie. that QApplication::setPalette() should not touch this setting.
-  This Function calls setPalette(const QPalette&).
+/*!  
+  Unsets the palette for this widget. The widget will use its natural
+  default palette from now on.  
+  
+\sa setPalette()
+ */
+void QWidget::unsetPalette()
+{
+    if ( own_palette ) {
+	setPalette( QApplication::palette( this ).isCopyOf( QApplication::palette() )?
+		 default_palette( parentWidget() ) : QApplication::palette( this ) );
+	own_palette = FALSE;
+    }
+}
+
+/*!\obsolete
+  
+  Use setPalette( const QPalette& p ) instead.
 */
 
-void QWidget::setPalette( const QPalette &p, bool fixed )
+void QWidget::setPalette( const QPalette &p, bool )
 {
     setPalette( p );
-    if ( fixed )
-	setWState( WState_PaletteFixed );
-    else
-	clearWState( WState_PaletteFixed );
 }
 
 /*!
@@ -2077,14 +2063,16 @@ void QWidget::paletteChange( const QPalette & )
   fontInfo() tells you what font is actually being used.
 
   As long as no special font has been set, this is either a special
-  font for the widget class or the default application font.
+  font for the widget class, the parent's font or - if this widget is
+  a toplevel widget - the default application font.
 
   \sa setFont(), fontInfo(), fontMetrics(), QApplication::font()
 */
 
 
-/*!
-  Sets the font for the widget.
+/*!  
+  Sets the font for the widget and informs all children about the
+  change.
 
   The fontInfo() function reports the actual font that is being used by the
   widget.
@@ -2095,51 +2083,57 @@ void QWidget::paletteChange( const QPalette & )
     setFont( f );
   \endcode
 
-  If \a fontPropagation() is \c AllChildren or \c SameFont, setFont()
-  calls setFont() for children of the object, or those with whom the
-  object shares the font, respectively.  The default for QWidget
-  is \a SameChildren.
-
-  \sa font(), fontChange(), fontInfo(), fontMetrics(), setFontPropagation()
+  \sa font(), fontChange(), fontInfo(), fontMetrics(), unsetFont()
 */
 
 void QWidget::setFont( const QFont &font )
 {
-    QFont old = QWidget::font();
+    own_font = TRUE;
+    if ( fnt == font )
+	return;
+    QFont old = fnt;
     fnt = font;
     fnt.handle();				// force load font
-    setWState(WState_FontSet);			// indicate initialized
     fontChange( old );
-    PropagationMode m = fontPropagation();
-    if ( m != NoChildren && children() ) {
+    if ( children() ) {
+	QCustomEvent e( QEvent::ParentFontChange, 0 );
 	QObjectListIt it( *children() );
 	QWidget *w;
 	while( (w=(QWidget *)it.current()) != 0 ) {
 	    ++it;
-	    if ( w->isWidgetType() &&
-		 ( m == AllChildren ||
-		   old.isCopyOf( w->fnt ) ) )
-		 w->setFont( fnt );
+	    if ( w->isWidgetType() )
+		QApplication::sendEvent( w, &e );
 	}
     }
     if ( hasFocus() )
 	setFontSys();
 }
 
-/*!
-  Like setFont(const QFont&) but has an additional flag to indicate
-  whether the font should be fix for the widget, ie. that
-  QApplication::setFont() should not touch the setting.  This function
-  calls setFont(const QFont&).
+/*!  
+  Unsets the font for this widget. The widget will use its natural
+  default font from now on.  This is either a special font for the
+  widget class, the parent's font or - if this widget is a toplevel
+  widget - the default application font.
+
+\sa setFont()
+ */
+void QWidget::unsetFont()
+{
+    if ( own_font ) {
+	setFont( QApplication::font( this ).isCopyOf( QApplication::font() )?
+		 default_font( parentWidget() ) : QApplication::font( this ) );
+	own_font = FALSE;
+    }
+}
+
+/*!\obsolete
+  
+  Use setFont( const QFont& font) instead.
 */
 
-void QWidget::setFont( const QFont &font, bool fixed )
+void QWidget::setFont( const QFont &font, bool )
 {
     setFont( font );
-    if ( fixed )
-	setWState( WState_FontFixed );
-    else
-	clearWState( WState_FontFixed );
 }
 
 /*!
@@ -2590,16 +2584,20 @@ void QWidget::setKeyCompression(bool compress)
 }
 
 
-/*!
-  Returns TRUE if the top-level widget containing this widget is the
-  active window.
+/*!  
+  Returns TRUE if this widget is in the active window, i.e. the
+  window that has keyboard focus.
+  
+  When popup windows are visible, this function returns TRUE for both
+  the active window and the popup.
 
-  \sa setActiveWindow(), topLevelWidget()
+  \sa setActiveWindow(), QApplication::activeWindow()
 */
 
 bool QWidget::isActiveWindow() const
 {
-    return topLevelWidget() == qApp->activeWindow();
+    return (topLevelWidget() == qApp->activeWindow() )|| 
+	     ( isVisible() && topLevelWidget()->isPopup() );
 }
 
 
@@ -3253,15 +3251,23 @@ void QWidget::sendHideEventsToChildren( bool spontaneous )
   guarantee since the initialization of the subclasses might not be
   finished.
 
-  The default implementation sets the \c WState_Polished widget state
-  and calls QApplication::polish().
-
+  After this function, the wiget has a proper font and palette and
+  QApplication::polish() has been called.
+  
   \sa constPolish(), QApplication::polish()
 */
 
 void QWidget::polish()
 {
     if ( !testWState(WState_Polished) ) {
+	if ( !own_font && QApplication::font( this ).isCopyOf( QApplication::font() ) ) {
+	    setFont( QApplication::font( this ) );
+	    own_font = FALSE;
+	}
+	if ( !own_palette && QApplication::palette( this ).isCopyOf( QApplication::palette() ) ) {
+	    setPalette( QApplication::palette( this ) );
+	    own_palette = FALSE;
+	}
 	setWState(WState_Polished);
 	qApp->polish( this );
 	QApplication::sendPostedEvents( this, QEvent::ChildInserted );
@@ -3716,6 +3722,21 @@ bool QWidget::event( QEvent *e )
 	case QEvent::ChildInserted:
 	case QEvent::ChildRemoved:
 	    childEvent( (QChildEvent*) e);
+	    break;
+	case QEvent::ParentFontChange:
+	case QEvent::ApplicationFontChange:
+	    if ( !own_font && !isDesktop() ) {
+		setFont( QApplication::font( this ).isCopyOf( QApplication::font() )?
+			 default_font( parentWidget() ) : QApplication::font( this ) );
+		own_font = FALSE;
+	    }
+	case QEvent::ParentPaletteChange:
+	case QEvent::ApplicationPaletteChange:
+	    if ( !own_palette && !isDesktop() ) {
+		setPalette( QApplication::palette( this ).isCopyOf( QApplication::palette() )?
+			 default_palette( parentWidget() ) : QApplication::palette( this ) );
+		own_palette = FALSE;
+	    }
 	    break;
         default:
 	    if ( e->type() >= QEvent::User ) {
@@ -4238,63 +4259,45 @@ bool QWidget::x11Event( XEvent * )
 #endif
 
 
-/*!
-  Returns the font propagation mode of this widget.  The default
-  font propagation mode is \c SameFont, but you can set it to \a
-  NoChildren or \a AllChildren.
+/*!\obsolete
+  
+  The return value is meaningless
 
   \sa setFontPropagation()
 */
 
 QWidget::PropagationMode QWidget::fontPropagation() const
 {
-    return (PropagationMode)propagate_font;
+    return SameFont;
 }
 
 
-/*!
-  Sets the font propagation mode to \a m.
+/*!\obsolete
 
-  if \a m is \c NoChildren, setFont() does not change any children's
-  fonts.  If it is \c SameFont (the default), setFont() changes the font
-  of the children that have the exact same font as this widget (see \l
-  QFont::isCopyOf() for details).  If it is \c AllChildren, setFont()
-  changes the font of all children.
-
-  \sa fontPropagation() setFont() setPalettePropagation() */
-
-void QWidget::setFontPropagation( PropagationMode m )
+  Calling this function has no effect.
+*/
+void QWidget::setFontPropagation( PropagationMode )
 {
-    propagate_font = (int)m;
 }
 
 
-/*!  Returns the palette propagation mode of this widget.  The default
-  palette propagation mode is \c SamePalette, but you can set it to \a
-  NoChildren or \a AllChildren.
+/*!  \obsolete
 
-  \sa setPalettePropagation()
+  The return value is meaningless
 */
 
 QWidget::PropagationMode QWidget::palettePropagation() const
 {
-    return (PropagationMode)propagate_palette;
+    return SamePalette;
 }
 
 
-/*!  Sets the palette propagation mode to \a m.
-
-  if \a m is \c NoChildren, setPalette() does not change any children's
-  palettes.  If it is \c SamePalette (the default), setPalette() changes
-  the palette of the children that have the exact same palette as this
-  widget (see \l QPalette::isCopyOf() for details).  If it is \c
-  AllChildren, setPalette() changes the palette of all children.
-
-  \sa palettePropagation() setPalette() setFontPropagation() */
-
-void QWidget::setPalettePropagation( PropagationMode m )
+/*!  \obsolete
+ 
+  Calling this function has no effect.
+*/
+void QWidget::setPalettePropagation( PropagationMode )
 {
-    propagate_palette = (int)m;
 }
 
 /*!
