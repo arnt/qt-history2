@@ -246,6 +246,12 @@ Atom		*qt_net_supported_list	= 0;
 // list of virtual root windows
 Window		*qt_net_virtual_root_list	= 0;
 
+// current focus model
+static const int FocusModel_Unknown = -1;
+static const int FocusModel_Other = 0;
+static const int FocusModel_PointerRoot = 1;
+static int qt_focus_model = -1;
+
 // TRUE if Qt is compiled w/ XRender support and XRender exists on the connected
 // Display
 bool	qt_use_xrender	= FALSE;
@@ -1394,6 +1400,17 @@ void qt_get_net_virtual_roots()
 	    qt_net_virtual_root_list[i] = a[i];
 	qt_net_virtual_root_list[nitems] = 0;
     }
+}
+
+static void qt_check_focus_model()
+{
+    Window fw = None;
+    int unused;
+    XGetInputFocus( appDpy, &fw, &unused );
+    if ( fw == PointerRoot )
+	qt_focus_model = FocusModel_PointerRoot;
+    else
+	qt_focus_model = FocusModel_Other;
 }
 
 
@@ -3511,6 +3528,12 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    break;
 	widget->createInputContext();
 	setActiveWindow( widget );
+	if ( qt_focus_model == FocusModel_PointerRoot ) {
+	    // We got real input focus from somewhere, but we were in PointerRoot
+	    // mode, so we don't trust this event.  Check the focus model to make
+	    // sure we know what focus mode we are using...
+	    qt_check_focus_model();
+	}
     }
 	break;
 
@@ -3538,6 +3561,13 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	     event->xcrossing.detail == NotifyVirtual  ||
 	     event->xcrossing.detail == NotifyNonlinearVirtual )
 	    break;
+	if ( event->xcrossing.focus &&
+	     !widget->isDesktop() && !widget->isActiveWindow() ) {
+	    if ( qt_focus_model == FocusModel_Unknown ) // check focus model
+		qt_check_focus_model();
+	    if ( qt_focus_model == FocusModel_PointerRoot ) // PointerRoot mode
+		setActiveWindow( widget );
+	}
 	qt_dispatchEnterLeave( widget, QWidget::find( curWin ) );
 	curWin = widget->winId();
 	widget->translateMouseEvent( event ); //we don't get MotionNotify, emulate it
@@ -3569,7 +3599,21 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		  ev.xcrossing.detail == NotifyNonlinearVirtual )
 		continue;
 	    enter = QWidget::find( ev.xcrossing.window );
+	    if ( ev.xcrossing.focus &&
+		 enter && !enter->isDesktop() && !enter->isActiveWindow() ) {
+		if ( qt_focus_model == FocusModel_Unknown ) // check focus model
+		    qt_check_focus_model();
+		if ( qt_focus_model == FocusModel_PointerRoot ) // PointerRoot mode
+		    setActiveWindow( enter );
+	    }
 	    break;
+	}
+
+	if ( ( ! enter || enter->isDesktop() ) &&
+	     event->xcrossing.focus && widget == active_window &&
+	     qt_focus_model == FocusModel_PointerRoot // PointerRoot mode
+	     ) {
+	    setActiveWindow( 0 );
 	}
 
 	if ( !curWin )
@@ -3619,6 +3663,16 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	} else
 	    // store the parent. Useful for many things, embedding for instance.
 	    widget->topData()->parentWinId = event->xreparent.parent;
+	if ( widget->isTopLevel() && qt_focus_model != FocusModel_Unknown ) {
+	    // toplevel reparented...
+	    QWidget *newparent = QWidget::find( event->xreparent.parent );
+	    if ( ! newparent || newparent->isDesktop() ) {
+		// we dont' know about the new parent (or we've been
+		// reparented to root), perhaps a window manager
+		// has been (re)started?  reset the focus model to unknown
+		qt_focus_model = FocusModel_Unknown;
+	    }
+	}
 	break;
 
     case SelectionRequest: {
