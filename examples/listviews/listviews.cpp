@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/listviews/listviews.cpp#4 $
+** $Id: //depot/qt/main/examples/listviews/listviews.cpp#5 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -50,7 +50,7 @@ FolderListItem::FolderListItem( QListView *parent, Folder *f )
     setText( 0, f->folderName() );
 
     if ( myFolder->children() )
-        insertSubFolders( myFolder->children() );
+	insertSubFolders( myFolder->children() );
 }
 
 FolderListItem::FolderListItem( FolderListItem *parent, Folder *f )
@@ -61,14 +61,14 @@ FolderListItem::FolderListItem( FolderListItem *parent, Folder *f )
     setText( 0, f->folderName() );
 
     if ( myFolder->children() )
-        insertSubFolders( myFolder->children() );
+	insertSubFolders( myFolder->children() );
 }
 
 void FolderListItem::insertSubFolders( const QObjectList *lst )
 {
     Folder *f;
     for ( f = ( Folder* )( ( QObjectList* )lst )->first(); f; f = ( Folder* )( ( QObjectList* )lst )->next() )
-        (void)new FolderListItem( this, f );
+	(void)new FolderListItem( this, f );
 }
 
 // -----------------------------------------------------------------
@@ -83,13 +83,13 @@ MessageListItem::MessageListItem( QListView *parent, Message *m )
 }
 
 void MessageListItem::paintCell( QPainter *p, const QColorGroup &cg,
-                                 int column, int width, int alignment )
+				 int column, int width, int alignment )
 {
     QColorGroup _cg( cg );
     QColor c = _cg.text();
 
     if ( myMessage->state() == Message::Unread )
-        _cg.setColor( QColorGroup::Text, Qt::red );
+	_cg.setColor( QColorGroup::Text, Qt::red );
 
     QListViewItem::paintCell( p, _cg, column, width, alignment );
 
@@ -118,12 +118,14 @@ ListViews::ListViews( QWidget *parent, const char *name )
     messages->addColumn( "Sender" );
     messages->addColumn( "Subject" );
     messages->addColumn( "Date" );
+    messages->setColumnAlignment( 1, Qt::AlignRight );
     messages->setAllColumnsShowFocus( TRUE );
     vsplitter->setResizeMode( messages, QSplitter::KeepSize );
 
     message = new QLabel( vsplitter );
     message->setAlignment( Qt::AlignTop );
-
+    message->setBackgroundMode( PaletteBase );
+    
     connect( folders, SIGNAL( selectionChanged( QListViewItem* ) ), this, SLOT( slotFolderChanged( QListViewItem* ) ) );
     connect( messages, SIGNAL( selectionChanged( QListViewItem* ) ), this, SLOT( slotMessageChanged( QListViewItem* ) ) );
 
@@ -146,40 +148,40 @@ void ListViews::initFolders()
     unsigned int mcount = 1;
 
     for ( unsigned int i = 1; i < 20; i++ ) {
-        QString str;
-        str.sprintf( "Folder %d", i );
-        Folder *f = new Folder( 0L, str );
-        for ( unsigned int j = 1; j < 5; j++ ) {
-            QString str2;
-            str2.sprintf( "Sub Folder %d", j );
-            Folder *f2 = new Folder( f, str2 );
-            for ( unsigned int k = 1; k < 3; k++ ) {
-                QString str3;
-                str3.sprintf( "Sub Sub Folder %d", k );
-                Folder *f3 = new Folder( f2, str3 );
-                initFolder( f3, mcount );
-            }
-        }
-        lstFolders.append( f );
+	QString str;
+	str = QString( "Folder %1" ).arg( i );
+	Folder *f = new Folder( 0L, str );
+	for ( unsigned int j = 1; j < 5; j++ ) {
+	    QString str2;
+	    str2 = QString( "Sub Folder %1" ).arg( j );
+	    Folder *f2 = new Folder( f, str2 );
+	    for ( unsigned int k = 1; k < 3; k++ ) {
+		QString str3;
+		str3 = QString( "Sub Sub Folder %1" ).arg( k );
+		Folder *f3 = new Folder( f2, str3 );
+		initFolder( f3, mcount );
+	    }
+	}
+	lstFolders.append( f );
     }
 }
 
 void ListViews::initFolder( Folder *folder, unsigned int &count )
 {
     for ( unsigned int i = 0; i < 15; i++, count++ ) {
-        QString str;
-        str.sprintf( "Message %d  ", count );
-        QDateTime dt = QDateTime::currentDateTime();
-        dt = dt.addSecs( 60 * count );
-        MessageHeader mh( "Troll Tech <info@troll.no>  ", str, dt );
+	QString str;
+	str = QString( "Message %1  " ).arg( count );
+	QDateTime dt = QDateTime::currentDateTime();
+	dt = dt.addSecs( 60 * count );
+	MessageHeader mh( "Troll Tech <info@troll.no>  ", str, dt );
 
-        QString body;
-        body.sprintf( "This is the message number %d of this application, \n"
-                      "which shows how to use QListViews, QListViewItems, \n"
-                      "QSplitters and so on. The code should show how easy\n"
-                      "this can be done in Qt.", count );
-        Message *msg = new Message( mh, body );
-        folder->addMessage( msg );
+	QString body;
+	body = QString( "This is the message number %1 of this application, \n"
+			"which shows how to use QListViews, QListViewItems, \n"
+			"QSplitters and so on. The code should show how easy\n"
+			"this can be done in Qt." ).arg( count );
+	Message *msg = new Message( mh, body );
+	folder->addMessage( msg );
     }
 }
 
@@ -188,7 +190,7 @@ void ListViews::setupFolders()
     folders->clear();
 
     for ( Folder* f = lstFolders.first(); f; f = lstFolders.next() )
-        (void)new FolderListItem( folders, f );
+	(void)new FolderListItem( folders, f );
 }
 
 void ListViews::slotFolderChanged( QListViewItem *i )
@@ -199,8 +201,8 @@ void ListViews::slotFolderChanged( QListViewItem *i )
     FolderListItem *item = ( FolderListItem* )i;
 
     for ( Message* msg = item->folder()->firstMessage(); msg;
-		msg = item->folder()->nextMessage() )
-        (void)new MessageListItem( messages, msg );
+	  msg = item->folder()->nextMessage() )
+	(void)new MessageListItem( messages, msg );
 }
 
 void ListViews::slotMessageChanged( QListViewItem *i )
@@ -213,12 +215,15 @@ void ListViews::slotMessageChanged( QListViewItem *i )
     Message *msg = item->message();
 
     QString text;
-    text.sprintf( "From: %s\n"
-                  "Subject: %s\n"
-                  "Date: %s\n\n"
-                  "%s",
-                  msg->header().sender().ascii(), msg->header().subject().ascii(),
-                  msg->header().datetime().toString().ascii(), msg->body().ascii() );
+    QString tmp = msg->header().sender();
+    tmp = tmp.replace( QRegExp( "[<]" ), "&lt;" );
+    tmp = tmp.replace( QRegExp( "[>]" ), "&gt;" );
+    text = QString( "<b><i>From:</i></b> <font color=blue>%1</font><br>"
+		    "<b><i>Subject:</i></b> <big><big><b>%2</b></big></big><br>"
+		    "<b><i>Date:</i></b> %3<br><br>"
+		    "%4" ).
+	   arg( tmp ).arg( msg->header().subject() ).
+	   arg( msg->header().datetime().toString() ).arg( msg->body() );
 
     message->setText( text );
 

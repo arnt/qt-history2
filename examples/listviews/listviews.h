@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/listviews/listviews.h#3 $
+** $Id: //depot/qt/main/examples/listviews/listviews.h#4 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -30,7 +30,7 @@ class MessageHeader
 {
 public:
     MessageHeader( const QString &_sender, const QString &_subject, const QDateTime &_datetime )
-        : msender( _sender ), msubject( _subject ), mdatetime( _datetime )
+	: msender( _sender ), msubject( _subject ), mdatetime( _datetime )
     {}
 
     MessageHeader( const MessageHeader &mh );
@@ -52,14 +52,14 @@ class Message
 {
 public:
     enum State { Read = 0,
-                 Unread};
+		 Unread};
 
     Message( const MessageHeader &mh, const QString &_body )
-        : mheader( mh ), mbody( _body ), mstate( Unread )
+	: mheader( mh ), mbody( _body ), mstate( Unread )
     {}
 
     Message( const Message &m )
-        : mheader( m.mheader ), mbody( m.mbody ), mstate( m.mstate )
+	: mheader( m.mheader ), mbody( m.mbody ), mstate( m.mstate )
     {}
 
     MessageHeader header() { return mheader; }
@@ -125,7 +125,7 @@ public:
     MessageListItem( QListView *parent, Message *m );
 
     virtual void paintCell( QPainter *p, const QColorGroup &cg,
-                           int column, int width, int alignment );
+			    int column, int width, int alignment );
 
     Message *message() { return myMessage; }
 
