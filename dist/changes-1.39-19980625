@@ -1,34 +1,4 @@
 
-doc/indices.doc    2.17  agulbra  +4 -4
-doc/misc.doc    2.29  agulbra  +4 -4
-doc/qcache.doc    2.4  agulbra  +598 -304
-doc/qdict.doc    2.5  agulbra  +4 -3
-
-  documented QCache/QIntCache and the iterators, fixed some types
-
-
-doc/indices.doc    2.18  agulbra  +7 -7
-extensions/imageio/doc/index.doc    1.6  agulbra  +3 -3
-extensions/nsplugin/doc/annotated.doc    1.2  agulbra  +2 -2
-extensions/nsplugin/doc/classes.doc    1.2  agulbra  +2 -2
-extensions/opengl/src/qgl.cpp    1.20  agulbra  +5 -6
-extensions/xt/doc/annotated.doc    1.2  agulbra  +2 -2
-extensions/xt/doc/classes.doc    1.2  agulbra  +2 -2
-src/tools/qtextstream.cpp    2.16  agulbra  +1 -2
-
-  finished merge of qt/extensions documentation in one directory.
-
-
-doc/qcache.doc    2.5  hanord  +2 -2
-
-  Fixed typo
-
-
-doc/qcache.doc    2.6  hanord  +6 -4
-
-  More doc
-
-
 examples/application/application.cpp    1.14  agulbra  +32 -18
 
   use QWhatsThis
@@ -38,44 +8,6 @@ examples/application/application.cpp    1.15  warwick  +7 -6
 examples/application/application.h    1.5  warwick  +2 -1
 
   Use persistent QPrinter.
-
-
-examples/dragdrop-tricky/GNUmakefile    1.1  warwick  initial checkin
-examples/dragdrop-tricky/Makefile    1.1  warwick  initial checkin
-examples/dragdrop-tricky/dragdrop.pro    1.1  warwick  initial checkin
-examples/dragdrop-tricky/dropsite.cpp    1.1  warwick  initial checkin
-examples/dragdrop-tricky/dropsite.h    1.1  warwick  initial checkin
-examples/dragdrop-tricky/main.cpp    1.1  warwick  initial checkin
-examples/dragdrop-tricky/tricky.h    1.1  warwick  initial checkin
-
-  Lotsa-templates drag'n'drop.
-
-
-examples/dragdrop-tricky/GNUmakefile    1.2  agulbra  +1 -1
-examples/dragdrop-tricky/Makefile    1.2  agulbra  +1 -1
-examples/dragdrop-tricky/dragdrop.pro    1.2  agulbra  +0 -0
-examples/dragdrop-tricky/dropsite.cpp    1.2  agulbra  +2 -2
-examples/dragdrop-tricky/dropsite.h    1.2  agulbra  +1 -1
-examples/dragdrop-tricky/main.cpp    1.2  agulbra  +1 -1
-examples/dragdrop-tricky/tricky.h    1.2  agulbra  +1 -1
-
-  no more
-
-
-examples/dragdrop/dropsite.cpp    1.11  warwick  +4 -4
-examples/dragdrop/dropsite.cpp    1.10  warwick  +8 -10
-src/kernel/qdragobject.cpp    2.31  warwick  +45 -9
-src/kernel/qdragobject.h    2.18  warwick  +6 -5
-src/widgets/qlineedit.cpp    2.87  warwick  +3 -3
-
-  Rename.
-
-
-examples/dragdrop/dropsite.cpp    1.12  paul  +76 -22
-examples/dragdrop/dropsite.h    1.5  paul  +14 -2
-examples/dragdrop/main.cpp    1.7  paul  +8 -3
-
-  How to make your own dragobject class
 
 
 examples/dragdrop/dropsite.cpp    1.8  warwick  +44 -24
@@ -109,41 +41,13 @@ examples/examples.pro    2.9  agulbra  +1 -0
 
 examples/movies/main.cpp    1.13  agulbra  +9 -2
 
-  add use of setFilters().  will probably make some people ask for .avi
-  support soonish.
-
-
-examples/splitter/GNUmakefile    1.1  warwick  initial checkin
-examples/splitter/Makefile    1.1  warwick  initial checkin
-examples/splitter/splitter.pro    1.2  warwick  +0 -0
-
-  Commit GNUmakefile Makefile, not splitter.pro.
+  add use of setFilters().  
 
 
 examples/splitter/splitter.cpp    1.1  paul  initial checkin
 examples/splitter/splitter.pro    1.1  paul  initial checkin
 
   Simple QSplitter example
-
-
-examples/splitter/splitter.cpp    1.2  warwick  +15 -6
-
-  Demonstrate 3-widget split.
-
-
-examples/splitter/splitter.cpp    1.3  warwick  +2 -1
-
-  Tidy.
-
-
-examples/splitter/splitter.cpp    1.4  warwick  +1 -1
-
-  Make ONE of the splitters non-opaque.
-
-
-src/dialogs/qfiledialog.cpp    2.78  agulbra  +4 -3
-
-  hm.
 
 
 src/dialogs/qprintdialog.cpp    2.29  warwick  +57 -60
@@ -156,71 +60,7 @@ src/kernel/qdnd_x11.cpp    2.37  agulbra  +22 -23
 src/kernel/qdragobject.cpp    2.32  agulbra  +5 -25
 src/kernel/qdragobject.h    2.19  agulbra  +1 -4
 
-  protect another little bit against the other application crashing
-
-
-src/kernel/qdnd_win.cpp    2.16  warwick  +98 -59
-src/kernel/qdropsite.cpp    2.2  warwick  +3 -3
-src/kernel/qwidget_win.cpp    2.61  warwick  +1 -2
-
-  Update for X11 changes.
-
-
-src/kernel/qdnd_win.cpp    2.17  warwick  +22 -5
-src/kernel/qdnd_x11.cpp    2.36  warwick  +5 -3
-src/kernel/qdragobject.cpp    2.30  warwick  +63 -7
-src/kernel/qdragobject.h    2.17  warwick  +10 -3
-
-  Renaming; make space in API for Copy vs. Move
-
-
-src/kernel/qdnd_x11.cpp    2.28  agulbra  +47 -18
-
-  updated to match windows version
-
-
-src/kernel/qdnd_x11.cpp    2.29  agulbra  +35 -39
-src/kernel/qdragobject.cpp    2.27  agulbra  +2 -28
-src/kernel/qdragobject.h    2.14  agulbra  +1 -4
-
-  multi-type drops should work properly as soon as the clipboard "0 is
-  really 1" bug is gone.  some doc.  added code to react immediately and
-  properly to requests for unsupported types.
-
-
-src/kernel/qdnd_x11.cpp    2.30  agulbra  +10 -3
-src/kernel/qdragobject.cpp    2.28  agulbra  +2 -1
-src/kernel/qdragobject.h    2.15  agulbra  +2 -1
-
-  avoid extraneous drop events
-
-
-src/kernel/qdnd_x11.cpp    2.32  agulbra  +13 -12
-src/kernel/qdnd_x11.cpp    2.31  agulbra  +33 -8
-
-  support accept/ignore rectangles properly.
-
-
-src/kernel/qdnd_x11.cpp    2.34  agulbra  +7 -2
-src/widgets/qlineedit.cpp    2.86  agulbra  +13 -13
-
-  isAccepted() of one drag enter/move is the default state for the next
-  (until the target changes).
-
-
-src/kernel/qdnd_x11.cpp    2.35  warwick  +20 -13
-
-  Fix lost-leaves.
-
-
-src/kernel/qdragobject.cpp    2.33  warwick  +3 -3
-
-  fix
-
-
-src/kernel/qevent.h    2.20  agulbra  +9 -3
-
-  added no-answer-necessary rectangle to drag move event
+  Completely reworked drag'n'drop.
 
 
 src/kernel/qimage.cpp    2.99  agulbra  +7 -6
@@ -228,39 +68,12 @@ src/kernel/qimage.cpp    2.98  agulbra  +18 -14
 src/kernel/qmovie.cpp    1.38  agulbra  +8 -7
 src/kernel/qmovie.cpp    1.37  agulbra  +12 -3
 
-  warn about unisys $#@! and about possible removal of gif support in a
-  future version of qt.
-
-
-src/kernel/qmovie.cpp    1.36  warwick  +3 -3
-src/widgets/qlistview.cpp    2.127  agulbra  +20 -5
-src/widgets/qsplitter.cpp    1.22  warwick  +13 -7
-src/widgets/qsplitter.cpp    1.21  paul  +15 -6
-src/widgets/qsplitter.cpp    1.20  paul  +9 -1
-src/widgets/qtooltip.cpp    2.50  agulbra  +21 -6
-
-  doc
-
-
-src/qt.pro    2.31  warwick  +0 -1
-
-  tidy
+  discuss patent issues
 
 
 src/widgets/qlineedit.cpp    2.82  agulbra  +2 -3
 
-  reject drags that don't providee text/plain
-
-
-src/widgets/qlineedit.cpp    2.83  agulbra  +4 -4
-
-  use enter event and accept drops in the entire rectangle.
-
-
-src/widgets/qlineedit.cpp    2.84  agulbra  +8 -1
-
-  ...and the drop should happen in the right place.  oooh, this is so
-  polished :)
+  reject drags that don't provide text/plain
 
 
 src/widgets/qlistview.cpp    2.122  warwick  +3 -3
