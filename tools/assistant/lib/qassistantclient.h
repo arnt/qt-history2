@@ -54,6 +54,7 @@ private slots:
     void socketConnectionClosed();
     void readPort();
     void socketError( int );
+    void readStdError();
 
 private:
     QSocket *socket;

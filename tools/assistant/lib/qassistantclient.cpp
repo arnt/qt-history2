@@ -201,6 +201,8 @@ void QAssistantClient::openAssistant()
     }
     connect( proc, SIGNAL( readyReadStdout() ),
 	     this, SLOT( readPort() ) );
+    connect( proc, SIGNAL( readyReadStderr() ),
+	     this, SLOT( readStdError() ) );
 }
 
 void QAssistantClient::readPort()
@@ -283,6 +285,16 @@ void QAssistantClient::socketError( int i )
 	emit error( tr( "Could not connect to Assistant: Host not found" ) );
     else
 	emit error( tr( "Communication error" ) );
+}
+
+void QAssistantClient::readStdError()
+{
+    QString errmsg;
+    while ( proc->canReadLineStderr() ) {
+	errmsg += proc->readLineStderr();
+	errmsg += "\n";
+    }
+    emit error( tr( errmsg ) );
 }
 
 /*!
