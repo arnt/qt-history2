@@ -21,7 +21,7 @@ The doctype of a \c .ui file is simply "UI", so the doctype tag is:
 The root element is a "UI", which encloses the entire contents:
 
 \code
-<UI version="3.0" stdsetdef="1">
+<UI version="3.1" stdsetdef="1">
 ...
 </UI>
 \endcode
@@ -39,6 +39,7 @@ types:
 (old-style)
 \i \link exportmacro exportmacro\endlink - Windows-specific
 \i \link forwards forwards\endlink - forward declarations
+\i \link functions functions\endlink - function declarations
 \i \link images images\endlink - embedded images: only for \c .ui files than include embedded images; images are normally stored in a separate \c images directory
 \i \link includes includes\endlink - include files
 \i \link layoutdefaults layoutdefaults\endlink - default values for layout attributes
@@ -49,7 +50,6 @@ types:
 presence ndicates that the pixmaps are handled by the \c .pro file
 \i \link signals signals\endlink - signal declarations
 \i \link slots slots\endlink - slot declarations
-\i \link functions functions\endlink - function declarations
 \i \link tabstops tabstops\endlink - the form's tab order
 \i \link toolbars toolbars\endlink - toolbars, for \l QMainWindow forms
 \i \link variables variables\endlink - class variables
@@ -247,6 +247,27 @@ declaration is listed as it should appear in the generated C++ code.
 </forwards>
 \endcode
 
+\target functions
+\section2 functions
+
+The \c functions element contains a list of functions. Functions are 
+standard C++ functions. It is possible to specify various attributes
+to create a function's signature, for example:
+
+\list 
+\i access: \c private, \c protected or \c public. Default: \c public
+\i returnType: the return datatype of the function. Default: \c void
+\i specifier: \c{non virtual}, \c virtual or \c{pure virtual}. Default: \c virtual
+\i language: specifies the programming language. Default: \c C++
+\endlist
+
+\code
+<functions>
+    <function access="private" specifier="non virtual">isValid()</function>
+    <function access="public" returnType="QString">getMessage()</function>
+</functions>
+\endcode
+
 \target images
 \section2 images
 
@@ -391,31 +412,17 @@ All the signals are listed Within a \c{<signals>} tag.
 \target slots
 \section2 slots
 
-See \l functions.
-
-\target functions
-\section2 functions
-
-The \c functions element contains a list of functions. Functions can
-either be standard C++ functions or slots. It is possible to specify
-various attributes to create a function's signature, for example:
-
-\list 
-\i type: \c slot or \c function
-\i access: \c private, \c protected or \c public. Default: \c public
-\i returnType: the return datatype of the function. Default: \c void
-\i specifier: \c{non virtual}, \c virtual or \c{pure virtual}. Default: \c virtual
-\i language: specifies the programming language. Default: \c C++
-\endlist
+The \c slots element contains a list of slots. Each \c slot
+element provides a slot's prototype.
 
 \code
-<functions>
-    <function type="slot" access="protected">calculateFields()</function>
-    <function type="slot" access="private">startCounter()</function>
-    <function type="function" access="private" specifier="non virtual">isValid()</function>
-    <function type="function" access="public" returnType="QString">getMessage()</function>
-</functions>
+<slots>
+    <slot access="public" specifier="virtual" language="C++" 
+	returnType="void">changeAlignment(QAction* align)</slot>
+</slots>
 \endcode
+
+For available attributes see \l functions.
 
 \target tabstops
 \section2 tabstops
@@ -503,11 +510,13 @@ and any non-default property values for the relevant widget.
 \section2 variables
 
 Module variables are held in the \c{<variables>} tag. Variable type
-names often include \< and \>, which must be stored as entities.
+names often include \< and \>, which must be stored as entities. It
+is also possible to specify the access type - either \c public, 
+\c protected or \c private. Default is \c protected.
 
 \code
 <variables>
-    <variable>SettingsDialog * settings;</variable>
+    <variable access="private">SettingsDialog * settings;</variable>
     <variable>QMap&lt;int, QString&gt; bookmarks;</variable>
     <variable>HelpWindow *browser;</variable>
     <variable>HelpDialog *helpDock;</variable>
@@ -529,7 +538,7 @@ contains a single hbox, which also has some non-default properties,
 and which contains a single \l QTextBrowser widget.
 
 \code
-<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<!DOCTYPE UI><UI version="3.1" stdsetdef="1">
 <class>WinIntroPage</class>
 <widget class="QWidget">
     <property name="name">
