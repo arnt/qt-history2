@@ -1042,6 +1042,44 @@ void QSqlTable::refresh( QSqlCursor* cursor, const QSqlIndex& idx )
 {
     if ( !cursor )
 	return;
+
+    // ## correct?
+    clearCellWidget( currentRow(), currentColumn() );
+    switch ( d->mode ) {
+    case Insert:
+	endInsert();
+	break;
+    case Update:
+	endUpdate();
+	break;
+    default:
+	break;
+    }
+    ensureVisible( 0, 0 );
+    verticalScrollBar()->setValue(0);
+    setNumRows(0);
+    //    setNumCols(0);
+    d->haveAllRows = FALSE;
+    d->continuousEdit = FALSE;
+    //    d->colIndex.clear();
+    //d->colReadOnly.clear();
+    d->mode =  QSqlTable::None;
+    d->editRow = -1;
+    d->editCol = -1;
+    d->insertRowLast = -1;
+    d->insertHeaderLabelLast = QString::null;
+    d->cancelMode = FALSE;
+    d->lastAt = -1;
+    if ( sorting() )
+	horizontalHeader()->setSortIndicator( -1 );
+    //    if ( d->autoDelete )
+    //	delete d->cursor;
+    //    d->ftr = QString::null;
+    //    d->srt.clear();
+    // ##
+
+
+
     bool seekPrimary = (idx.count() ? TRUE : FALSE );
     QSqlIndex pi;
     if ( seekPrimary )
@@ -1599,7 +1637,6 @@ void QSqlTable::setSize( QSqlCursor* sql )
 void QSqlTable::setCursor( QSqlCursor* cursor, bool autoPopulate, bool autoDelete )
 {
     setUpdatesEnabled( FALSE );
-    reset();
     if ( cursor ) {
 	d->cursor = cursor;
 	if ( autoPopulate )

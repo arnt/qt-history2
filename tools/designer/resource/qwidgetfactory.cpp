@@ -180,6 +180,7 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 		c = new QSqlCursor( (*it)[ 1 ], conn );
 	    QValueList<Field> fieldMap = *widgetFactory->fieldMaps.find( table );
 	    table->setCursor( c, fieldMap.isEmpty(), TRUE );
+	    ((QTable*)table)->setNumCols( 0 );
 	    if ( !fieldMap.isEmpty() ) {
 		    int i = 0;
 		    for ( QValueList<Field>::Iterator fit = fieldMap.begin(); fit != fieldMap.end(); ++fit, ++i ) {
