@@ -3498,7 +3498,7 @@ int QFontMetrics::width( const QString &str, int len ) const
 
     // this algorithm is similar to the one used for painting
     bool simple = str.simpleText();
-    QString shaped = str ? str : QComplexText::shapedString( str, 0, len, QPainter::Auto, this );
+    QString shaped = simple ? str : QComplexText::shapedString( str, 0, len, QPainter::Auto, this );
     if ( !simple )
 	len = shaped.length();
 
