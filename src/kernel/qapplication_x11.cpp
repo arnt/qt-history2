@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#475 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#476 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -719,7 +719,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 
 	char *p;
 	int argc = *argcptr;
-	int i, j;
+	int j;
 
       // Install default error handlers
 
@@ -734,7 +734,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
       // Get command line params
 
 	j = 1;
-	for ( i=1; i<argc; i++ ) {
+	for ( int i=1; i<argc; i++ ) {
 	    if ( argv[i] && *argv[i] != '-' ) {
 		argv[j++] = argv[i];
 		continue;
@@ -959,20 +959,20 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	// if the preferred input style couldn't be found, look for
 	// Nothing and failing that, None.
 	for ( i = 0; !done && i < styles->count_styles; i++ ) {
-	    if ( styles->supported_styles[i] == (XIMPreeditNothing | 
+	    if ( styles->supported_styles[i] == (XIMPreeditNothing |
 						 XIMStatusNothing) ) {
 	        qt_xim_style = XIMPreeditNothing | XIMStatusNothing;
 		done = TRUE;
 	    }
 	}
 	for ( i = 0; !done && i < styles->count_styles; i++ ) {
-	    if ( styles->supported_styles[i] == (XIMPreeditNone | 
+	    if ( styles->supported_styles[i] == (XIMPreeditNone |
 						 XIMStatusNone) ) {
 	        qt_xim_style = XIMPreeditNone | XIMStatusNone;
 		done = TRUE;
 	    }
 	}
-	for (int i = 0; i < styles->count_styles; i++) {
+	for ( i = 0; i < styles->count_styles; i++) {
 	    if (styles->supported_styles[i] == xim_preferred_style) {
 	        qt_xim_style = xim_preferred_style;
 		break;
