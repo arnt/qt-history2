@@ -379,9 +379,10 @@ QImage QPixmap::convertToImage() const
 	    mygfx->setLineStep(image.bytesPerLine());
 	    mygfx->blt(0,0,width(),height(),0,0);
 	} else {
-	    qFatal("No image gfx for convertToImage!");
+	    qWarning("No image gfx for convertToImage!");
 	}
 	delete mygfx;
+	image.setAlphaBuffer(data->hasAlpha);
     }
 
     if ( mono ) {				// bitmap
