@@ -3263,7 +3263,8 @@ void QListView::contentsMouseReleaseEvent( QMouseEvent * e )
 
     if ( d->selectionMode == Extended &&
 	 d->focusItem == d->pressedItem &&
-	 d->pressedSelected && d->focusItem ) {
+	 d->pressedSelected && d->focusItem && 
+ 	 e->button() == LeftButton) {
 	bool block = signalsBlocked();
 	blockSignals( TRUE );
 	clearSelection();
