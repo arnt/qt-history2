@@ -53,10 +53,11 @@ void create_db()
     customerView.insert();
 
     db->exec("create table product "
-	     "(id number primary key,"
+	     "(id numeric(10) primary key,"
 	     "name char(30),"
 	     "pic char(255));");
     QSqlView productView( "product" );
+    productView.setMode( SQL_Writable );
     productView["id"] = 1;
     productView["name"] = "Widget";
     productView["pic"] = "";
@@ -90,6 +91,7 @@ void create_db()
 	     "quantity numeric(10),"
 	     "total numeric(15,2));");
     QSqlView invoiceitemView( "invoiceitem" );
+    invoiceitemView.setMode( SQL_Writable );
     invoiceitemView["id"] = 1;
     invoiceitemView["invoiceid"] = 1;
     invoiceitemView["productid"] = 1;
