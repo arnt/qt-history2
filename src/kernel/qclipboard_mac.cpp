@@ -222,7 +222,7 @@ QByteArray QClipboardWatcher::encodedData( const char* fmt ) const
 
     //special case again..
     for(int sm = 0; scrap_map[sm].qt_type; sm++) {
-	if(!strcmp(fmt, scrap_map[sm].qt_type)) {
+	if(!qstrcmp(fmt, scrap_map[sm].qt_type)) {
 	    GetScrapFlavorSize(scrap, scrap_map[sm].mac_type, &flavorsize);
 	    buffer = (char *)malloc(buffersize = flavorsize);
 	    GetScrapFlavorData(scrap, kScrapFlavorTypeText, &flavorsize, buffer);
@@ -252,7 +252,7 @@ QByteArray QClipboardWatcher::encodedData( const char* fmt ) const
 	
 	UInt32 mimesz;
 	memcpy(&mimesz, buffer, sizeof(mimesz));
-	if(!strncasecmp(buffer+sizeof(mimesz), fmt, mimesz)) {
+	if(!qstrnicmp(buffer+sizeof(mimesz), fmt, mimesz)) {
 	    int len = flavorsize-(mimesz+sizeof(mimesz));
 	    memcpy(buffer, buffer+(mimesz+sizeof(mimesz)), len);
 	    ret.assign(buffer, len);
@@ -325,7 +325,7 @@ void QClipboard::setData( QMimeSource *src )
     const char *fmt;
     for(int i = 0; (fmt = src->format(i)); i++) {
 	for(int sm = 0; scrap_map[sm].qt_type; sm++) {     //handle text/plain specially so other apps can get it
-	    if(!strcmp(fmt, scrap_map[sm].qt_type)) {
+	    if(!qstrcmp(fmt, scrap_map[sm].qt_type)) {
 		ar = src->encodedData(scrap_map[sm].qt_type);
 		PutScrapFlavor(scrap, scrap_map[sm].mac_type, 0, ar.size(), ar.data());
 		continue;

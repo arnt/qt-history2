@@ -123,7 +123,7 @@ bool QDropEvent::provides( const char *fmt ) const
 {
     const char *fmt2 = NULL;
     for ( int i = 0; (fmt2 = format( i ) ); i++ ) {
-	if (!strncasecmp( fmt, fmt2, strlen( fmt )) )
+	if (!qstrnicmp( fmt, fmt2, strlen( fmt )) )
 	    return TRUE;
     }
     return FALSE;
@@ -163,7 +163,7 @@ QByteArray QDropEvent::encodedData( const char *fmt ) const
 	}
 
 	for(int sm = 0; scrap_map[sm].qt_type; sm++) {
-	    if ( info == scrap_map[sm].mac_type && !strcmp(fmt, scrap_map[sm].qt_type) ) {
+	    if ( info == scrap_map[sm].mac_type && !qstrcmp(fmt, scrap_map[sm].qt_type) ) {
 		if ( GetFlavorDataSize( current_dropobj, ref, info, &flavorsize ) ) {
 		    qDebug( "Failure to get GetFlavorDataSize for %d", (int)info );
 		    return 0;
@@ -189,7 +189,7 @@ QByteArray QDropEvent::encodedData( const char *fmt ) const
 	GetFlavorData( current_dropobj, ref, info, buffer, &flavorsize, 0 );
 	UInt32 mimesz;
 	memcpy( &mimesz, buffer, sizeof(mimesz) );
-	if( !strncasecmp( buffer+sizeof(mimesz), fmt, mimesz ) ) {
+	if( !qstrnicmp( buffer+sizeof(mimesz), fmt, mimesz ) ) {
 	    int size = flavorsize - (mimesz + sizeof(mimesz));
 	    memcpy( buffer, buffer + mimesz + sizeof(mimesz), size );
 	    ret.assign( buffer, size );
@@ -320,7 +320,7 @@ bool QDragManager::drag( QDragObject *o, QDragObject::DragMode mode )
     const char *fmt;
     for ( int i = 0; (fmt = o->format(i)); i++ ) {
 	for(int sm = 0; scrap_map[sm].qt_type; sm++) {     //handle text/plain specially so other apps can get it
-	    if(!strcmp(fmt, scrap_map[sm].qt_type)) {
+	    if(!qstrcmp(fmt, scrap_map[sm].qt_type)) {
 		ar = o->encodedData(scrap_map[sm].qt_type);
 		AddDragItemFlavor( theDrag, (ItemReference)1, scrap_map[sm].mac_type, ar.data(), ar.size(), 0 );
 		continue;
