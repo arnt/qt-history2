@@ -2175,9 +2175,9 @@ uint QVariant::toUInt( bool * ok ) const
 }
 
 /*!
-    Returns the variant as as a long long int if the variant has
-    type() LongLong, ULongLong, any type allowing a toInt()
-    conversion; otherwise returns 0.
+    Returns the variant as a long long int if the variant has type()
+    LongLong, ULongLong, any type allowing a toInt() conversion;
+    otherwise returns 0.
 
     If \a ok is non-null: \a *ok is set to TRUE if the value could be
     converted to an int; otherwise \a *ok is set to FALSE.
