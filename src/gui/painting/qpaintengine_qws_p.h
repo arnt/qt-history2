@@ -56,9 +56,9 @@ public:
     void updateMatrix(const QMatrix &matrix);
     void updateClipRegion(const QRegion &region, Qt::ClipOperation op);
 
-    void drawLine(const QLineF &line);
-    void drawRect(const QRectF &r);
-    void drawPoint(const QPointF &p);
+    void drawLines(const QLineF *lines, int lineCount);
+    void drawRects(const QRectF *rects, int rectCount);
+    void drawPoints(const QPointF *p, int pointCount);
     void drawEllipse(const QRectF &r);
     void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
 

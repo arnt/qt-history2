@@ -515,66 +515,59 @@ void QOpenGLPaintEngine::updateRenderHints(QPainter::RenderHints hints)
     }
 }
 
-void QOpenGLPaintEngine::drawLine(const QLineF &line)
-{
-    dgl->makeCurrent();
-    dgl->qglColor(d->cpen.color());
-    glBegin(GL_LINES);
-    {
-        glVertex2d(qToDouble(line.x1()), qToDouble(line.y1()));
-        glVertex2d(qToDouble(line.x2()), qToDouble(line.y2()));
-    }
-    glEnd();
-}
-
-void QOpenGLPaintEngine::drawRect(const QRectF &r)
+void QOpenGLPaintEngine::drawRects(const QRectF *rects, int rectCount)
 {
     dgl->makeCurrent();
 
-    double x = qToDouble(r.x());
-    double y = qToDouble(r.y());
-    double w = qToDouble(r.width());
-    double h = qToDouble(r.height());
-    if (d->cbrush.style() == Qt::LinearGradientPattern) {
-	painter()->save();
-	painter()->setClipRect(r, Qt::IntersectClip);
-	syncState();
-	qt_fill_linear_gradient(r, d->cbrush);
-	painter()->restore();
-	if (d->cpen.style() == Qt::NoPen)
-	    return;
-    } else if (d->cbrush.style() != Qt::NoBrush) {
-        dgl->qglColor(d->cbrush.color());
-        glRectf(x, y, x+w, y+h);
-        if (d->cpen.style() == Qt::NoPen)
-            return;
-    }
-
-    if (d->cpen.style() != Qt::NoPen) {
-        // Specify the outline as 4 separate lines since a quad or a
-        // polygon won't give us exactly what we want
-        dgl->qglColor(d->cpen.color());
-        glBegin(GL_LINES);
-        {
-            glVertex2d(x, y);
-            glVertex2d(x+w, y);
-            glVertex2d(x+w, y-1);
-            glVertex2d(x+w, y+h);
-            glVertex2d(x+w, y+h);
-            glVertex2d(x, y+h);
-            glVertex2d(x, y+h);
-            glVertex2d(x, y);
+    // ### this could be done faster I'm sure...
+    for (int i=0; i<rectCount; ++i) {
+        QRectF r = rects[i];
+        double x = qToDouble(r.x());
+        double y = qToDouble(r.y());
+        double w = qToDouble(r.width());
+        double h = qToDouble(r.height());
+        if (d->cbrush.style() == Qt::LinearGradientPattern) {
+            painter()->save();
+            painter()->setClipRect(r, Qt::IntersectClip);
+            syncState();
+            qt_fill_linear_gradient(r, d->cbrush);
+            painter()->restore();
+            if (d->cpen.style() == Qt::NoPen)
+                return;
+        } else if (d->cbrush.style() != Qt::NoBrush) {
+            dgl->qglColor(d->cbrush.color());
+            glRectf(x, y, x+w, y+h);
+            if (d->cpen.style() == Qt::NoPen)
+                return;
         }
-        glEnd();
+
+        if (d->cpen.style() != Qt::NoPen) {
+            // Specify the outline as 4 separate lines since a quad or a
+            // polygon won't give us exactly what we want
+            dgl->qglColor(d->cpen.color());
+            glBegin(GL_LINES);
+            {
+                glVertex2d(x, y);
+                glVertex2d(x+w, y);
+                glVertex2d(x+w, y-1);
+                glVertex2d(x+w, y+h);
+                glVertex2d(x+w, y+h);
+                glVertex2d(x, y+h);
+                glVertex2d(x, y+h);
+                glVertex2d(x, y);
+            }
+            glEnd();
+        }
     }
 }
 
-void QOpenGLPaintEngine::drawPoint(const QPointF &p)
+void QOpenGLPaintEngine::drawPoints(const QPointF *p, int pointCount)
 {
     dgl->makeCurrent();
     glBegin(GL_POINTS);
     {
-        glVertex2d(qToDouble(p.x()), qToDouble(p.y()));
+        for (int i=0; i<pointCount; ++i)
+            glVertex2d(qToDouble(p[i].x()), qToDouble(p[i].y()));
     }
     glEnd();
 }

@@ -1672,7 +1672,7 @@ void QPainter::drawLine(const QLineF &l)
             return;
         }
     }
-    d->engine->drawLine(line);
+    d->engine->drawLines(&line, 1);
 }
 
 /*!
@@ -1728,7 +1728,7 @@ void QPainter::drawRect(const QRectF &r)
             return;
         }
     }
-    d->engine->drawRect(rect);
+    d->engine->drawRects(&rect, 1);
 }
 
 /*!
@@ -1759,12 +1759,12 @@ void QPainter::drawRects(const QRectF *rects, int rectCount)
 
     if (d->state->txop == QPainterPrivate::TxTranslate
         && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
-        // ### Don't alloc for every conversion.
         for (int i=0; i<rectCount; ++i) {
-            d->engine->drawRect(QRectF(rects[i].x() + d->state->matrix.dx(),
-                                       rects[i].y() + d->state->matrix.dy(),
-                                       rects[i].width(),
-                                       rects[i].height()));
+            QRectF r(rects[i].x() + d->state->matrix.dx(),
+                     rects[i].y() + d->state->matrix.dy(),
+                     rects[i].width(),
+                     rects[i].height());
+            d->engine->drawRects(&r, 1);
         }
     } else if (d->engine->emulationSpecifier) {
         for (int i=0; i<rectCount; ++i)
@@ -1812,7 +1812,7 @@ void QPainter::drawPoint(const QPointF &p)
             return;
         }
     }
-    d->engine->drawPoint(pt);
+    d->engine->drawPoints(&pt, 1);
 }
 
 /*! \fn void QPainter::drawPoint(int x, int y)
@@ -1864,8 +1864,9 @@ void QPainter::drawPoints(const QPointF *points, int pointCount)
             && d->state->txop == QPainterPrivate::TxTranslate) {
             // ### use drawPoints function
             for (int i=0; i<pointCount; ++i) {
-                d->engine->drawPoint(QPointF(points[i].x() + d->state->matrix.dx(),
-                                             points[i].y() + d->state->matrix.dy()));
+                QPointF pt(points[i].x() + d->state->matrix.dx(),
+                           points[i].y() + d->state->matrix.dy());
+                d->engine->drawPoints(&pt, 1);
             }
         } else {
             QPainterPath path;

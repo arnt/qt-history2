@@ -52,12 +52,6 @@ public:
     void updateClipPath(const QPainterPath &path, Qt::ClipOperation op);
     void updateRenderHints(QPainter::RenderHints hints);
 
-    void drawLine(const QLineF &line);
-    void drawRect(const QRectF &r);
-    void drawPoint(const QPointF &p);
-    void drawEllipse(const QRectF &r);
-    void drawPolygon(const QPointF *, int pointCount, PolygonDrawMode mode);
-
     void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr, Qt::PixmapDrawingMode mode);
     void drawTextItem(const QPointF &p, const QTextItem &textItem);
 

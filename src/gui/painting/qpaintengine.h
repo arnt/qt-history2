@@ -120,16 +120,22 @@ public:
     virtual void updateRenderHints(QPainter::RenderHints hints);
     virtual void updateClipPath(const QPainterPath &path, Qt::ClipOperation op);
 
-    virtual void drawEllipse(const QRectF &r);
-    virtual void drawLine(const QLineF &line);
+    virtual void drawRects(const QRect *rects, int rectCount);
+    virtual void drawRects(const QRectF *rects, int rectCount);
+
+    virtual void drawLines(const QLine *lines, int lineCount);
     virtual void drawLines(const QLineF *lines, int lineCount);
+
+    virtual void drawEllipse(const QRectF &r);
+    virtual void drawEllipse(const QRect &r);
+
     virtual void drawPath(const QPainterPath &path);
-    virtual void drawPoint(const QPointF &pf);
+
     virtual void drawPoints(const QPointF *points, int pointCount);
+    virtual void drawPoints(const QPoint *points, int pointCount);
+
     virtual void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
     virtual void drawPolygon(const QPoint *points, int pointCount, PolygonDrawMode mode);
-    virtual void drawRect(const QRectF &rf);
-    virtual void drawRects(const QRectF *rects, int rectCount);
 
     virtual void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
                             Qt::PixmapDrawingMode mode = Qt::ComposePixmap) = 0;

@@ -1291,7 +1291,7 @@ static void drawLine_bresenham(const QLineF &line, qt_span_func span_func, void 
     }
 }
 
-void QRasterPaintEngine::drawLine(const QLineF &l)
+void QRasterPaintEngine::drawLines(const QLineF *lines, int lineCount)
 {
 #ifdef QT_DEBUG_DRAW
     qDebug("\n - QRasterPaintEngine::drawLine(), x1=%.2f, y1=%.2f, x2=%.2f, y2=%.2f",
@@ -1304,83 +1304,22 @@ void QRasterPaintEngine::drawLine(const QLineF &l)
         && (d->pen.widthF() == 0
             || (d->pen.widthF() <= 1 && d->txop <= QPainterPrivate::TxTranslate))) {
 
-        QLineF line = l * d->matrix;
-        LineDrawMode mode = clipLine(&line, QRect(QPoint(0, 0), d->deviceRect.size()));
+        for (int i=0; i<lineCount; ++i) {
+            QLineF line = lines[i] * d->matrix;
+            LineDrawMode mode = clipLine(&line, QRect(QPoint(0, 0), d->deviceRect.size()));
 
-        if (mode == LineDrawClipped)
-            return;
+            if (mode == LineDrawClipped)
+                continue;
 
-        if (mode == LineDrawNormal && d->pen.capStyle() != Qt::FlatCap)
-            mode = LineDrawIncludeLastPixel;
+            if (mode == LineDrawNormal && d->pen.capStyle() != Qt::FlatCap)
+                mode = LineDrawIncludeLastPixel;
 
-        FillData fillData = d->fillForBrush(QBrush(d->pen.brush()), 0);
-        drawLine_bresenham(line, fillData.callback, fillData.data, mode);
+            FillData fillData = d->fillForBrush(QBrush(d->pen.brush()), 0);
+            drawLine_bresenham(line, fillData.callback, fillData.data, mode);
+        }
         return;
     }
-    QPaintEngine::drawLine(l);
-}
-
-
-void QRasterPaintEngine::drawRect(const QRectF &r)
-{
-#ifdef QT_DEBUG_DRAW
-    qDebug(" - QRasterPaintEngine::drawRect(), x=%.2f, y=%.2f, width=%.2f, height=%.2f",
-           r.x(), r.y(), r.width(), r.height());
-#endif
-#if 0
-    Q_D(QRasterPaintEngine);
-    if (0 &&
-        !d->antialiased
-        && d->txop <= QPainterPrivate::TxTranslate) {
-
-        QRectF rect(r);
-        rect.translate(d->matrix.dx(), d->matrix.dy());
-
-        FillData fillData = d->fillForBrush(d->brush, 0);
-
-        FillData clipData = { d->rasterBuffer, fillData.callback, fillData.data };
-        void *data = d->clipEnabled ? (void *)&clipData : (void *) fillData.data;
-        qt_span_func func = d->clipEnabled ? qt_span_fill_clipped : fillData.callback;
-
-        int x1 = qMax(qRound(rect.x()), 0);
-        int x2 = qMin(qRound(rect.width() + rect.x()), d->rasterBuffer->width());
-
-        QT_FT_Span span;
-        span.x = x1;
-        span.len = x2 - x1;
-        span.coverage = 255;
-
-        int y1 = qMax(qRound(rect.y()), 0);
-        int y2 = qMin(qRound(rect.height() + rect.y()), d->rasterBuffer->height());;
-
-        // draw the fill
-        if (fillData.callback) {
-            for (int y=y1; y<y2; ++y) {
-                func(y, 1, &span, data);
-            }
-        }
-
-        // draw the outline...
-        if (d->pen.style() != Qt::NoPen) {
-
-            QMatrix oldMatrix = d->matrix;
-            d->matrix = QMatrix();
-
-            drawLine(QLineF(x1, y1, x2, y1));
-            drawLine(QLineF(x1, y2, x2, y2));
-            // To avoid duplicate pixels.
-            ++y1;
-            --y2;
-            drawLine(QLineF(x1, y1, x1, y2));
-            drawLine(QLineF(x2, y1, x2, y2));
-
-            d->matrix = oldMatrix;
-        }
-    } else
-#endif
-        {
-        QPaintEngine::drawRect(r);
-    }
+    QPaintEngine::drawLines(lines, lineCount);
 }
 
 void QRasterPaintEngine::drawEllipse(const QRectF &rect)

@@ -329,55 +329,61 @@ void QWSPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperati
         clearf(ClipOn);
 }
 
-void QWSPaintEngine::drawLine(const QLineF &line)
+void QWSPaintEngine::drawLine(const QLineF *lines, int lineCount)
 {
     if (state->pen.style() == Qt::NoPen)
         return;
-    d->gfx->drawLine(qRound(line.x1()), qRound(line.y1()), qRound(line.x2()), qRound(line.y2()));
+    for (int i=0; i<lineCount; ++i)
+        d->gfx->drawLine(qRound(line.x1()), qRound(line.y1()), qRound(line.x2()), qRound(line.y2()));
 }
 
-void QWSPaintEngine::drawRect(const QRectF &r)
+void QWSPaintEngine::drawRect(const QRectF *rects, int rectCount)
 {
-    int w = qRound(r.width());
-    int h = qRound(r.height());
-    if (!w && !h)
-        return;
-    int x1 = qRound(r.x());
-    int y1 = qRound(r.y());
+    for (int i=0; i<rectCount; ++i) {
+        QRectF r = rects[i];
 
-    if (state->pen.style() != Qt::NoPen) {
-        if (state->pen.width() > 1) {
-            QPolygon a(QRect(x1,y1,w,h), true);
-            drawPolyInternal(a);
+        int w = qRound(r.width());
+        int h = qRound(r.height());
+        if (!w && !h)
             return;
+        int x1 = qRound(r.x());
+        int y1 = qRound(r.y());
+
+        if (state->pen.style() != Qt::NoPen) {
+            if (state->pen.width() > 1) {
+                QPolygon a(QRect(x1,y1,w,h), true);
+                drawPolyInternal(a);
+                return;
+            }
+            int x2 = x1 + w;
+            int y2 = y1 + h;
+            bool paintBottom = y1 < y2;
+            bool paintLeft   = y1 < y2 - 1;
+            bool paintRight  = x1 < x2 && paintLeft;
+
+            d->gfx->drawLine(x1, y1, x2, y1); // Top
+            if (paintBottom)
+                d->gfx->drawLine(x1, y2, x2, y2); // Bottom
+            if (paintLeft)
+                d->gfx->drawLine(x1, y1+1, x1, y2-1); // Left
+            if (paintRight)
+                d->gfx->drawLine(x2, y1+1, x2, y2-1); // Right
+
+            x1 += 1;
+            y1 += 1;
+            w -= 1;
+            h -= 1;
         }
-        int x2 = x1 + w;
-        int y2 = y1 + h;
-        bool paintBottom = y1 < y2;
-        bool paintLeft   = y1 < y2 - 1;
-        bool paintRight  = x1 < x2 && paintLeft;
 
-        d->gfx->drawLine(x1, y1, x2, y1); // Top
-        if (paintBottom)
-            d->gfx->drawLine(x1, y2, x2, y2); // Bottom
-        if (paintLeft)
-            d->gfx->drawLine(x1, y1+1, x1, y2-1); // Left
-        if (paintRight)
-            d->gfx->drawLine(x2, y1+1, x2, y2-1); // Right
-
-        x1 += 1;
-        y1 += 1;
-        w -= 1;
-        h -= 1;
+        if (w > 0 && h > 0)
+            d->gfx->fillRect(x1, y1, w, h);
     }
-
-    if (w > 0 && h > 0)
-        d->gfx->fillRect(x1, y1, w, h);
 }
 
-void QWSPaintEngine::drawPoint(const QPointF &p)
+void QWSPaintEngine::drawPoints(const QPointF *points, int pointCount)
 {
-    d->gfx->drawPoint(qRound(p.x()), qRound(p.y()));
+    for (int i=0; i<pointCount; ++i)
+        d->gfx->drawPoint(qRound(p.x()), qRound(p.y()));
 }
 
 void QWSPaintEngine::drawPolyInternal(const QPolygon &a, bool close)

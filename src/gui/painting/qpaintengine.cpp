@@ -20,6 +20,8 @@
 #include <qdebug.h>
 #include <private/qtextengine_p.h>
 
+#include <qvarlengtharray.h>
+
 qreal QTextItem::descent() const
 {
     const QTextItemInt *ti = static_cast<const QTextItemInt *>(this);
@@ -334,15 +336,34 @@ void QPaintEngine::drawPolygon(const QPoint *points, int pointCount, PolygonDraw
     \sa begin() isActive()
 */
 
+
 /*!
     Draws the first \a pointCount points in the buffer \a points
 */
-
 void QPaintEngine::drawPoints(const QPointF *points, int pointCount)
 {
-    for (int i=0; i<pointCount; ++i)
-        drawPoint(points[i]);
+    updateBrush(QBrush(state->pen.color()), QPointF());
+    updatePen(QPen(Qt::NoPen));
+    for (int i=0; i<pointCount; ++i) {
+        QRectF r(points[i].x(), points[i].y(), 1, 1);
+        drawRects(&r, 1);
+    }
+    setDirty(DirtyPen|DirtyBrush);
 }
+
+
+/*!
+    Draws the first \a pointCount points in the buffer \a points
+*/
+void QPaintEngine::drawPoints(const QPoint *points, int pointCount)
+{
+    QVarLengthArray<QPointF> floatPoints(pointCount);
+    for (int i=0; i<pointCount; ++i)
+        floatPoints[i] = QPointF(points[i]);
+    drawPoints(floatPoints.constData(), pointCount);
+}
+
+
 
 /*!
     \fn void QPaintEngine::drawEllipse(const QRectF &rect)
@@ -354,7 +375,6 @@ void QPaintEngine::drawPoints(const QPointF *points, int pointCount)
 
     \sa drawPolygon
 */
-
 void QPaintEngine::drawEllipse(const QRectF &rect)
 {
     QPainterPath path;
@@ -369,13 +389,12 @@ void QPaintEngine::drawEllipse(const QRectF &rect)
 }
 
 /*!
-    Draws the first \a lineCount lines in the buffer \a lines
+    The default implementation of this function calls the floating
+    point version of this function
 */
-
-void QPaintEngine::drawLines(const QLineF *lines, int lineCount)
+void QPaintEngine::drawEllipse(const QRect &rect)
 {
-    for (int i=0; i<lineCount; ++i)
-        drawLine(lines[i]);
+    drawEllipse(QRectF(rect));
 }
 
 /*!
@@ -805,60 +824,6 @@ void QPaintEngine::drawPath(const QPainterPath &)
 }
 
 /*!
-    The default implementation splits \a line into two points and
-    calls the integer version of drawLine().
-*/
-void QPaintEngine::drawLine(const QLineF &line)
-{
-    if (hasFeature(PainterPaths)) {
-        QPainterPath path(line.p1());
-        path.lineTo(line.p2());
-        updateBrush(QBrush(), QPointF(0, 0));
-        drawPath(path);
-        setDirty(QPaintEngine::DirtyBrush);
-    } else {
-        QPointF pts[2] = { line.p1(), line.p2() };
-        drawPolygon(pts, 2, PolylineMode);
-    }
-}
-
-/*!
-    \overload
-
-    The default implementation converts \a rf to an integer rectangle
-    and calls the integer version of drawRect().
-*/
-void QPaintEngine::drawRect(const QRectF &rf)
-{
-    if (hasFeature(PainterPaths)) {
-        QPainterPath path;
-        path.addRect(rf);
-        drawPath(path);
-    } else {
-        QPointF pts[4] = { QPointF(rf.x(), rf.y()),
-                           QPointF(rf.x() + rf.width(), rf.y()),
-                           QPointF(rf.x() + rf.width(), rf.y() + rf.height()),
-                           QPointF(rf.y(), rf.y() + rf.height()) };
-        drawPolygon(pts, 4, ConvexMode);
-    }
-}
-
-/*!
-    \overload
-
-    The default implementation converts \a pf to an integer point and
-    calls the integer version of drawPoint().
-*/
-void QPaintEngine::drawPoint(const QPointF &pf)
-{
-    updateBrush(QBrush(state->pen.color()), QPointF());
-    updatePen(QPen(Qt::NoPen));
-    drawRect(QRectF(pf.x(), pf.y(), 1, 1));
-    setDirty(DirtyPen|DirtyBrush);
-}
-
-
-/*!
     This function draws the text item \a textItem at position \a p. The
     default implementation of this function converts the text to a
     QPainterPath and paints the resulting path.
@@ -935,13 +900,84 @@ void QPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 }
 
 /*!
-  Draws the first \a rectCount rectangles in the buffer \a rects.
+    The default implementation splits the list of lines in \a lines
+    into \a lineCount separate calls to drawPath() or drawPolygon()
+    depending on the feature set of the paint engine.
+*/
+void QPaintEngine::drawLines(const QLineF *lines, int lineCount)
+{
+    if (hasFeature(PainterPaths)) {
+        updateBrush(QBrush(), QPointF(0, 0));
+        for (int i=0; i<lineCount; ++i) {
+            QPainterPath path(lines[i].p1());
+            path.lineTo(lines[i].p2());
+            drawPath(path);
+        }
+        setDirty(QPaintEngine::DirtyBrush);
+    } else {
+        for (int i=0; i<lineCount; ++i) {
+            QPointF pts[2] = { lines[i].p1(), lines[i].p2() };
+            drawPolygon(pts, 2, PolylineMode);
+        }
+    }
+}
+
+/*!
+    \overload
+
+    The default implementation converts the first \a lineCount lines
+    in \a lines to a QLineF and calls the floating point version of
+    this function.
+*/
+void QPaintEngine::drawLines(const QLine *lines, int lineCount)
+{
+    QVarLengthArray<QLineF, 32> floatLines(lineCount);
+    for (int i=0; i<lineCount; ++i)
+        floatLines[i] = QLineF(lines[i]);
+    drawLines(floatLines.constData(), lineCount);
+}
+
+
+/*!
+    \overload
+
+    The default implementation converts the first \a rectCount
+    rectangles in the buffer \a rects to a QRectF and calls the
+    floating point version of this function.
+*/
+void QPaintEngine::drawRects(const QRect *rects, int rectCount)
+{
+    QVarLengthArray<QRectF, 32> floatRects(rectCount);
+    for (int i=0; i<rectCount; ++i)
+        floatRects[i] = QRectF(rects[i]);
+    drawRects(floatRects.constData(), rectCount);
+}
+
+/*!
+    Draws the first \a rectCount rectangles in the buffer \a
+    rects. The default implementation of this function calls drawPath
+    or drawPolygon depending on the feature set of the paint engine.
 */
 void QPaintEngine::drawRects(const QRectF *rects, int rectCount)
 {
-    for (int i=0; i<rectCount; ++i)
-        drawRect(rects[i]);
+    if (hasFeature(PainterPaths)) {
+        for (int i=0; i<rectCount; ++i) {
+            QPainterPath path;
+            path.addRect(rects[i]);
+            drawPath(path);
+        }
+    } else {
+        for (int i=0; i<rectCount; ++i) {
+            QRectF rf = rects[i];
+            QPointF pts[4] = { QPointF(rf.x(), rf.y()),
+                               QPointF(rf.x() + rf.width(), rf.y()),
+                               QPointF(rf.x() + rf.width(), rf.y() + rf.height()),
+                               QPointF(rf.y(), rf.y() + rf.height()) };
+            drawPolygon(pts, 4, ConvexMode);
+        }
+    }
 }
+
 
 /*!
   Returns the set of supported renderhints.

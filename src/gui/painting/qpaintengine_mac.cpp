@@ -242,86 +242,61 @@ QQuickDrawPaintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperation
     }
 }
 
-void
-QQuickDrawPaintEngine::drawLine(const QLineF &line)
-{
-    Q_ASSERT(isActive());
-    setupQDPort();
-    if(d->clip.paintable.isEmpty())
-        return;
-    setupQDPen();
-    MoveTo(qRound(line.x1())+d->offx,qRound(line.y1())+d->offy);
-    LineTo(qRound(line.x2())+d->offx,qRound(line.y2())+d->offy);
-}
-
-void
-QQuickDrawPaintEngine::drawRect(const QRectF &in_r)
+void QQuickDrawPaintEngine::drawRects(const QRectF *rects, int rectCount)
 {
     Q_ASSERT(isActive());
     setupQDPort();
     if(d->clip.paintable.isEmpty())
         return;
 
-    QRect r = in_r.toRect().intersect(d->polygonClipper.boundingRect()).normalize();
+    for (int i=0; i<rectCount; ++i) {
+        QRect r = rects[i].toRect().intersect(d->polygonClipper.boundingRect()).normalize();
 
-    Rect rect;
-    SetRect(&rect, qRound(r.x())+d->offx, qRound(r.y())+d->offy,
-            qRound(r.x() + r.width())+d->offx, qRound(r.y() + r.height())+d->offy);
-    if(d->current.brush.style() != Qt::NoBrush) {
-        setupQDBrush();
-        if(d->current.brush.style() == Qt::SolidPattern) {
-            PaintRect(&rect);
-        } else {
-            QPixmap pm;
-            if(d->brush_style_pix) {
-                pm = *d->brush_style_pix;
-                if(d->current.bg.mode == Qt::OpaqueMode) {
-                    ::RGBColor f;
-                    f.red = d->current.bg.brush.color().red()*256;
-                    f.green = d->current.bg.brush.color().green()*256;
-                    f.blue = d->current.bg.brush.color().blue()*256;
-                    RGBForeColor(&f);
-                    PaintRect(&rect);
-                }
+        Rect rect;
+        SetRect(&rect, qRound(r.x())+d->offx, qRound(r.y())+d->offy,
+                qRound(r.x() + r.width())+d->offx, qRound(r.y() + r.height())+d->offy);
+        if(d->current.brush.style() != Qt::NoBrush) {
+            setupQDBrush();
+            if(d->current.brush.style() == Qt::SolidPattern) {
+                PaintRect(&rect);
             } else {
-                pm = d->current.brush.texture();
-            }
-            if(!pm.isNull()) {
-                //save the clip
-                bool clipon = testf(ClipOn);
-                QRegion clip = d->current.clip;
+                QPixmap pm;
+                if(d->brush_style_pix) {
+                    pm = *d->brush_style_pix;
+                    if(d->current.bg.mode == Qt::OpaqueMode) {
+                        ::RGBColor f;
+                        f.red = d->current.bg.brush.color().red()*256;
+                        f.green = d->current.bg.brush.color().green()*256;
+                        f.blue = d->current.bg.brush.color().blue()*256;
+                        RGBForeColor(&f);
+                        PaintRect(&rect);
+                    }
+                } else {
+                    pm = d->current.brush.texture();
+                }
+                if(!pm.isNull()) {
+                    //save the clip
+                    bool clipon = testf(ClipOn);
+                    QRegion clip = d->current.clip;
 
-                //create the region
-                QRegion newclip(r);
-                if(clipon)
-                    newclip &= clip;
-                setClippedRegionInternal(&newclip);
+                    //create the region
+                    QRegion newclip(r);
+                    if(clipon)
+                        newclip &= clip;
+                    setClippedRegionInternal(&newclip);
 
-                //draw the brush
-                drawTiledPixmap(r, pm, QPoint(r.x(), r.y()) - d->current.bg.origin, Qt::ComposePixmap);
+                    //draw the brush
+                    drawTiledPixmap(r, pm, QPoint(r.x(), r.y()) - d->current.bg.origin, Qt::ComposePixmap);
 
-                //restore the clip
-                setClippedRegionInternal(clipon ? &clip : 0);
+                    //restore the clip
+                    setClippedRegionInternal(clipon ? &clip : 0);
+                }
             }
         }
-    }
-    if(d->current.pen.style() != Qt::NoPen) {
-        setupQDPen();
-        FrameRect(&rect);
-    }
-}
-
-void
-QQuickDrawPaintEngine::drawPoint(const QPointF &pt)
-{
-    Q_ASSERT(isActive());
-    if(d->current.pen.style() != Qt::NoPen) {
-        setupQDPort();
-        if(d->clip.paintable.isEmpty())
-            return;
-        setupQDPen();
-        MoveTo(qRound(pt.x()) + d->offx, qRound(pt.y()) + d->offy);
-        Line(0, 0);
+        if(d->current.pen.style() != Qt::NoPen) {
+            setupQDPen();
+            FrameRect(&rect);
+        }
     }
 }
 
@@ -1347,17 +1322,6 @@ QCoreGraphicsPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOp
 }
 
 void
-QCoreGraphicsPaintEngine::drawLine(const QLineF &line)
-{
-    Q_ASSERT(isActive());
-
-    CGContextBeginPath(d->hd);
-    CGContextMoveToPoint(d->hd, line.x1(), line.y1()+1);
-    CGContextAddLineToPoint(d->hd, line.x2(), line.y2()+1);
-    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke);
-}
-
-void
 QCoreGraphicsPaintEngine::drawPath(const QPainterPath &p)
 {
     CGMutablePathRef path = qt_mac_compose_path(p, d->penOffset() ? .5 : 0);
@@ -1372,33 +1336,26 @@ QCoreGraphicsPaintEngine::drawPath(const QPainterPath &p)
 }
 
 void
-QCoreGraphicsPaintEngine::drawRect(const QRectF &r)
+QCoreGraphicsPaintEngine::drawRect(const QRectF *rects, int rectCount)
 {
     Q_ASSERT(isActive());
 
-    CGMutablePathRef path = 0;
-    if(d->current.brush.style() == Qt::LinearGradientPattern) {
-        path = CGPathCreateMutable();
-        CGPathAddRect(path, 0, qt_mac_compose_rect(r, d->penOffset()));
-    } else {
-        CGContextBeginPath(d->hd);
-        CGContextAddRect(d->hd, qt_mac_compose_rect(r, d->penOffset()));
+    for (int i=0; i<rectCount; ++i) {
+        QRectF r =rects[i];
+
+        CGMutablePathRef path = 0;
+        if(d->current.brush.style() == Qt::LinearGradientPattern) {
+            path = CGPathCreateMutable();
+            CGPathAddRect(path, 0, qt_mac_compose_rect(r, d->penOffset()));
+        } else {
+            CGContextBeginPath(d->hd);
+            CGContextAddRect(d->hd, qt_mac_compose_rect(r, d->penOffset()));
+        }
+        d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill|QCoreGraphicsPaintEnginePrivate::CGStroke,
+                    path);
+        if(path)
+            CGPathRelease(path);
     }
-    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill|QCoreGraphicsPaintEnginePrivate::CGStroke,
-                path);
-    if(path)
-        CGPathRelease(path);
-}
-
-void
-QCoreGraphicsPaintEngine::drawPoint(const QPointF &p)
-{
-    Q_ASSERT(isActive());
-
-    CGContextBeginPath(d->hd);
-    CGContextMoveToPoint(d->hd, p.x(), p.y()+1);
-    CGContextAddLineToPoint(d->hd, p.x(), p.y()+1);
-    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke);
 }
 
 void
