@@ -167,6 +167,9 @@ public:
     inline void removeFirst() { Q_ASSERT(!isEmpty()); erase( begin() ); }
     inline void removeLast() { Q_ASSERT(!isEmpty()); erase( --end() ); }
 
+    const T value(int i) const;
+    const T value(int i, const T &defaultValue) const;
+
     // stl compatibility
     typedef Iterator iterator;
     typedef ConstIterator const_iterator;
@@ -350,6 +353,22 @@ Q_INLINE_TEMPLATE void QList<T>::setAutoDelete(bool enable)
 		 "QList<T>::setAutoDelete", "Cannot delete non pointer types");
     detach();
     d->autoDelete = enable ? this : 0;
+}
+
+template<typename T>
+Q_OUTOFLINE_TEMPLATE const T QList<T>::value(int i) const
+{
+    if(i < 0 || i >= p.size()) {
+	T t;
+	qInit(t);
+	return t;
+    }
+    return ((Node*) p.at(i))->t();
+}
+template<typename T>
+Q_OUTOFLINE_TEMPLATE const T QList<T>::value(int i, const T& defaultValue) const
+{
+    return ((i < 0 || i >= p.size()) ? defaultValue : ((Node*) p.at(i))->t());
 }
 
 template <typename T>

@@ -96,6 +96,9 @@ public:
     inline T& last() { Q_ASSERT(!isEmpty()); return *(end()-1); }
     inline const T& last() const { Q_ASSERT(!isEmpty()); return *(end()-1); }
 
+    const T value(int i) const;
+    const T value(int i, const T &defaultValue) const;
+
     // stl compatibility
     typedef T value_type;
     typedef value_type* pointer;
@@ -268,6 +271,22 @@ void QVector<T>::realloc(int size, int alloc)
 	if (!--x.d->ref)
 	    free(x.d);
     }
+}
+
+template<typename T>
+Q_OUTOFLINE_TEMPLATE const T QVector<T>::value(int i) const
+{
+    if(i < 0 || i >= p.size()) {
+	T t;
+	qInit(t);
+	return t;
+    }
+    return d->array[i];
+}
+template<typename T>
+Q_OUTOFLINE_TEMPLATE const T QVector<T>::value(int i, const T& defaultValue) const
+{
+    return ((i < 0 || i >= p.size()) ? defaultValue : d->array[i]);
 }
 
 template <typename T>
