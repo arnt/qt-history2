@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#31 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#32 $
 **
 ** Implementation of QGArray class
 **
@@ -27,20 +27,15 @@
 #include "qstring.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#31 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#32 $");
 
 
-#if !defined(CHECK_MEMORY)
 #define USE_MALLOC				// comment to use new/delete
-#endif
 
 #undef NEW
 #undef DELETE
 
 #if defined(USE_MALLOC)
-#if !defined(_OS_MAC_) && !defined(VXWORKS) && !defined(UNIX)
-#include <malloc.h>
-#endif
 #define NEW(type,size)	((type*)malloc(size*sizeof(type)))
 #define DELETE(array)	(free((char*)array))
 #else

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.cpp#15 $
+** $Id: //depot/qt/main/src/tools/qgvector.cpp#16 $
 **
 ** Implementation of QGVector class
 **
@@ -29,20 +29,15 @@
 #include "qdstream.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgvector.cpp#15 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qgvector.cpp#16 $");
 
 
-#if !defined(CHECK_MEMORY)
 #define USE_MALLOC				// comment to use new/delete
-#endif
 
 #undef NEW
 #undef DELETE
 
 #if defined(USE_MALLOC)
-#if !defined(_OS_MAC_) && !defined(VXWORKS) && !defined(UNIX)
-#include <malloc.h>
-#endif
 #define NEW(type,size)	((type*)malloc(size*sizeof(type)))
 #define DELETE(array)	(free((char*)array))
 #else
