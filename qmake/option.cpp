@@ -97,6 +97,16 @@ QString Option::mkfile::cachefile;
 QStringList Option::mkfile::project_files;
 QString Option::mkfile::qmakespec_commandline;
 
+static Option::QMAKE_MODE default_mode(QString progname)
+{
+    int s = progname.findRev(Option::dir_sep);
+    if(s != -1)
+	progname = progname.right(progname.length() - (s + 1));
+    if(progname == "qmakegen")
+	return Option::QMAKE_GENERATE_PROJECT;
+    return Option::QMAKE_GENERATE_MAKEFILE;
+}
+
 QString project_builtin_regx();
 bool usage(const char *a0)
 {
@@ -108,11 +118,11 @@ bool usage(const char *a0)
 	    "mode for qmake, but you may use this to test qmake on an existing project\n"
 	    "\n"
 	    "Mode:\n"
-	    "\t-project       Put qmake into project file generation mode\n"
+	    "\t-project       Put qmake into project file generation mode%s\n"
 	    "\t               In this mode qmake interprets files as files to\n"
 	    "\t               be built,\n"
 	    "\t               defaults to %s\n"
-	    "\t-makefile      Put qmake into makefile generation mode (default)\n"
+	    "\t-makefile      Put qmake into makefile generation mode%s\n"
 	    "\t               In this mode qmake interprets files as project files to\n"
 	    "\t               be processed, if skipped qmake will try to find a project\n"
 	    "\t               file in your current working directory\n"
@@ -137,7 +147,7 @@ bool usage(const char *a0)
 	    "\t-help          This help\n"
 	    "\t-v             Version information\n"
 	    "\t-after         All variable assignments after this will be\n"
-	    "\t               parsed after [files]        [makefile mode only]\n"
+	    "\t               parsed after [files]\n"
 	    "\t-cache file    Use file as cache           [makefile mode only]\n"
 	    "\t-spec spec     Use spec as QMAKESPEC       [makefile mode only]\n"
 	    "\t-nocache       Don't use a cache file      [makefile mode only]\n"
@@ -145,17 +155,10 @@ bool usage(const char *a0)
 	    "\t-nomoc         Don't generate moc targets  [makefile mode only]\n"
 	    "\t-nopwd         Don't look for files in pwd [ project mode only]\n"
 	    "\t-norecursive   Don't do a recursive search [ project mode only]\n"
-	    ,a0, project_builtin_regx().latin1());
+	    ,a0, 
+	    default_mode(a0) == Option::QMAKE_GENERATE_PROJECT  ? " (default)" : "", project_builtin_regx().latin1(),
+	    default_mode(a0) == Option::QMAKE_GENERATE_MAKEFILE ? " (default)" : "");
     return FALSE;
-}
-static Option::QMAKE_MODE default_mode(QString progname)
-{
-    int s = progname.findRev(Option::dir_sep);
-    if(s != -1)
-	progname = progname.right(progname.length() - (s + 1));
-    if(progname == "qmakegen")
-	return Option::QMAKE_GENERATE_PROJECT;
-    return Option::QMAKE_GENERATE_MAKEFILE;
 }
 
 bool
