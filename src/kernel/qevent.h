@@ -212,7 +212,7 @@ public:
 		  int pressure, int xTilt, int yTilt, const QPair<int,int> &uId )
 	: QEvent( TabletMove ), mPos( pos ), mGPos( globalPos ), mDev( device ),
 	  mPress( pressure ), mXT( xTilt ), mYT( yTilt ), mType( uId.first ),
-	  mPhy( uId.second )
+	  mPhy( uId.second ), mbAcc(TRUE)
     {}
     int pressure()	const { return mPress; }
     int xTilt()		const { return mXT; }

@@ -493,7 +493,7 @@ Qt::ButtonState QMouseEvent::stateAfter() const
 #ifndef QT_NO_WHEELEVENT
 QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation orient )
     : QEvent(Wheel), p(pos), d(delta), s((ushort)state),
-      accpt(FALSE), o(orient)
+      accpt(TRUE), o(orient)
 {
     g = QCursor::pos();
 }
@@ -1509,7 +1509,7 @@ void QFocusEvent::resetReason()
 */
 
 QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int state )
-    : QEvent( ContextMenu ), p( pos ), accpt(TRUE), consum(FALSE),
+    : QEvent( ContextMenu ), p( pos ), accpt(TRUE), consum(TRUE),
     reas( reason ), s((ushort)state)
 {
     gp = QCursor::pos();
@@ -1879,7 +1879,8 @@ QTabletEvent::QTabletEvent( Type t, const QPoint &pos, const QPoint &globalPos, 
       mXT( xTilt ),
       mYT( yTilt ),
       mType( uId.first ),
-      mPhy( uId.second )
+      mPhy( uId.second ),
+      mbAcc(TRUE)
 {}
 
 /*!

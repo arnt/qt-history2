@@ -1117,34 +1117,34 @@ void QScrollView::resizeEvent( QResizeEvent* event )
 /*!
     \reimp
 */
-void  QScrollView::mousePressEvent( QMouseEvent * e)
+void  QScrollView::mousePressEvent( QMouseEvent * e) //#### remove for 4.0
 {
-    e->accept();
+    e->ignore();
 }
 
 /*!
     \reimp
 */
-void  QScrollView::mouseReleaseEvent( QMouseEvent *e )
+void  QScrollView::mouseReleaseEvent( QMouseEvent *e ) //#### remove for 4.0
 {
-    e->accept();
+    e->ignore();
 }
 
 
 /*!
     \reimp
 */
-void  QScrollView::mouseDoubleClickEvent( QMouseEvent *e )
+void  QScrollView::mouseDoubleClickEvent( QMouseEvent *e ) //#### remove for 4.0
 {
-    e->accept();
+    e->ignore();
 }
 
 /*!
     \reimp
 */
-void  QScrollView::mouseMoveEvent( QMouseEvent *e )
+void  QScrollView::mouseMoveEvent( QMouseEvent *e ) //#### remove for 4.0
 {
-    e->accept();
+    e->ignore();
 }
 
 /*!
@@ -1162,7 +1162,7 @@ void QScrollView::wheelEvent( QWheelEvent *e )
 	else  if (e->orientation() == Vertical && verticalScrollBar() )
 	    QApplication::sendEvent( verticalScrollBar(), e);
     } else {
-	e->accept();
+	e->ignore();
     }
 }
 #endif
