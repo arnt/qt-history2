@@ -394,10 +394,12 @@ QPixmap::QPixmap(int w, int h, const uchar *bits, bool isXbitmap)
 
 void QPixmap::detach()
 {
-    if (data->uninit || data->count == 1)
-        data->uninit = false;
-    else
-        *this = copy();
+    if ( data->count == 1 ) {
+        data->uninit = FALSE;
+        return;
+    }
+    *this = copy();
+    data->uninit = FALSE;
 
     // reset the cache data
     if (data->ximage) {
