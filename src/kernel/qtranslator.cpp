@@ -1,13 +1,28 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#31 $
 **
 ** Localization database support.
 **
-** Created : 979899
+** Created : 980906
 **
-** Copyright (C) 1997 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1998-1999 by Troll Tech AS.	 All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Troll Tech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees holding valid Qt Professional Edition licenses may use this
+** file in accordance with the Qt Professional Edition License Agreement
+** provided with the Qt Professional Edition.
+**
+** See http://www.troll.no/pricing.html or email sales@troll.no for
+** information about the Professional Edition licensing, or see
+** http://www.troll.no/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
+
 
 #include "qtranslator.h"
 #include "qfileinfo.h"

@@ -1,3 +1,28 @@
+/****************************************************************************
+** $Id: //depot/qt/main/src/tools/qdom.h#2 $
+**
+** Experimental code
+**
+** Created : 990524
+**
+** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Troll Tech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees holding valid Qt Professional Edition licenses may use this
+** file in accordance with the Qt Professional Edition License Agreement
+** provided with the Qt Professional Edition.
+**
+** See http://www.troll.no/pricing.html or email sales@troll.no for
+** information about the Professional Edition licensing, or see
+** http://www.troll.no/qpl/ for QPL licensing information.
+**
+*****************************************************************************/
+
 #ifndef QDOM_H
 #define QDOM_H
 
@@ -20,7 +45,7 @@ struct QDOM
     static const unsigned short NOT_SUPPORTED_ERR  = 9;
     static const unsigned short INUSE_ATTRIBUTE_ERR = 10;
   };
-  
+
   class Exception : public Namespace
   {
   public:

@@ -1,13 +1,28 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdial.h#8 $
+** $Id: //depot/qt/main/src/widgets/qdial.h#9 $
 **
-** Definition of something or other
+** Definition of the dial widget
 **
-** Created : 979899
+** Created : 990104
 **
-** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1999 by Troll Tech AS.  All rights reserved.
 **
-****************************************************************************/
+** This file is part of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Troll Tech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees holding valid Qt Professional Edition licenses may use this
+** file in accordance with the Qt Professional Edition License Agreement
+** provided with the Qt Professional Edition.
+**
+** See http://www.troll.no/pricing.html or email sales@troll.no for
+** information about the Professional Edition licensing, or see
+** http://www.troll.no/qpl/ for QPL licensing information.
+**
+*****************************************************************************/
+
 
 #ifndef QDIAL_H
 #define QDIAL_H
@@ -79,7 +94,7 @@ private:
 
     int valueFromPoint( const QPoint & ) const;
     double angle( const QPoint &, const QPoint & ) const;
-    
+
 private: // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QDial( const QDial & );
