@@ -202,7 +202,6 @@ Q3ProgressBar *Q3ProgressDialog::bar() const
 }
 
 
-#ifdef QT_COMPAT
 /*!
   \obsolete
   Constructs a progress dialog.
@@ -273,7 +272,6 @@ Q3ProgressDialog::Q3ProgressDialog(const QString &labelText,
     setModal(modal);
     init(creator, labelText, cancelButtonText, totalSteps);
 }
-#endif
 
 /*!
   Constructs a progress dialog.

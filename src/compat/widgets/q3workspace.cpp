@@ -262,7 +262,6 @@ Q3Workspace::Q3Workspace(QWidget *parent)
     d->init();
 }
 
-#ifdef QT_COMPAT
 /*!
     Use one of the constructors that doesn't take the \a name
     argument and then use setObjectName() instead.
@@ -273,7 +272,6 @@ Q3Workspace::Q3Workspace(QWidget *parent, const char *name)
     setObjectName(name);
     d->init();
 }
-#endif
 
 /*!
     \internal
@@ -464,7 +462,6 @@ QWidget * Q3Workspace::addWindow(QWidget *w, Qt::WFlags flags)
 /*! \reimp */
 void Q3Workspace::childEvent(QChildEvent * e)
 {
-#ifdef QT_COMPAT
     if (e->type() == QEvent::ChildInserted && e->child()->isWidgetType()) {
         QWidget* w = static_cast<QWidget*>(e->child());
         if (!w || w->testWFlags(Qt::WSubWindow)
@@ -473,7 +470,6 @@ void Q3Workspace::childEvent(QChildEvent * e)
             return;
         addWindow(w, reinterpret_cast<Q3Workspace*>(w)->getWFlags());
     } else
-#endif
         if (e->removed()) {
             if (d->windows.removeAll(static_cast<Q3WorkspaceChild*>(e->child()))) {
                 d->focus.removeAll(static_cast<Q3WorkspaceChild*>(e->child()));

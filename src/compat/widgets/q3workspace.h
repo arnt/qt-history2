@@ -30,9 +30,7 @@ class Q_COMPAT_EXPORT Q3Workspace : public QWidget
 
 public:
     Q3Workspace(QWidget* parent=0);
-#ifdef QT_COMPAT
     Q3Workspace(QWidget* parent, const char* name);
-#endif
     ~Q3Workspace();
 
     enum WindowOrder { CreationOrder, StackingOrder };

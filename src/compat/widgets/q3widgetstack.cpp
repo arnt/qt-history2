@@ -14,8 +14,8 @@
 #include "q3widgetstack.h"
 #include "qlayout.h"
 #include "private/qlayoutengine_p.h"
-
 #include "qapplication.h"
+
 using namespace Qt;
 
 class Q3WidgetStackPrivate {
@@ -521,11 +521,7 @@ void Q3WidgetStack::childEvent(QChildEvent * e)
 */
 bool Q3WidgetStack::event(QEvent* e)
 {
-    if (e->type() == QEvent::LayoutRequest
-#ifdef QT_COMPAT
-        || e->type() == QEvent::LayoutHint
-#endif
-       )
+    if (e->type() == QEvent::LayoutRequest || e->type() == QEvent::LayoutHint )
         updateGeometry(); // propgate layout hints to parent
     return QFrame::event(e);
     return Q3Frame::event(e);

@@ -19,7 +19,6 @@
 
 #ifndef QT_NO_LISTBOX
 
-
 class Q3ListBoxPrivate;
 class Q3ListBoxItem;
 class QString;
@@ -250,9 +249,7 @@ protected:
 
     void doLayout() const;
 
-#ifdef QT_COMPAT
     int findItem(int yPos) const { return index(itemAt(QPoint(0,yPos))); }
-#endif
 
 protected slots:
     void clearInputString();
@@ -303,10 +300,8 @@ public:
     bool isSelected() const { return s; }
     bool isCurrent() const;
 
-#ifdef QT_COMPAT
     bool selected() const { return isSelected(); }
     bool current() const { return isCurrent(); }
-#endif
 
     Q3ListBox *listBox() const;
 

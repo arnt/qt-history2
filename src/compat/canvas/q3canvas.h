@@ -22,7 +22,6 @@
 #include "q3valuelist.h"
 #include "q3pointarray.h"
 
-
 class Q3CanvasSprite;
 class Q3CanvasPolygonalItem;
 class Q3CanvasRectangle;
@@ -97,7 +96,6 @@ public:
     virtual void setActive(bool yes);
     bool isActive() const
 	{ return (bool)act; }
-#ifdef QT_COMPAT
     bool visible() const
 	{ return (bool)vis; }
     bool selected() const
@@ -106,7 +104,6 @@ public:
 	{ return (bool)ena; }
     bool active() const
 	{ return (bool)act; }
-#endif
 
     enum RttiValues {
 	Rtti_Item = 0,

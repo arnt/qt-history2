@@ -10,6 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #include "qglobal.h"
 #if defined(Q_CC_BOR)
 // needed for qsort() because of a std namespace problem on Borland
@@ -1054,7 +1055,7 @@ uint Q3ListBox::count() const
 }
 
 // ### fix before Qt 4.0
-#if defined(QT_COMPAT) && 0
+#if 0
 /*!
     Inserts the string list \a list into the list at position \a
     index.
@@ -1108,7 +1109,7 @@ void Q3ListBox::insertStringList(const QStringList & list, int index)
 
 
 // ### fix before Qt 4.0
-#if defined(QT_COMPAT) && 0
+#if 0
 /*!
     \overload
 
@@ -3708,8 +3709,6 @@ QRect Q3ListBox::itemRect(Q3ListBoxItem *item) const
 }
 
 
-#ifdef QT_COMPAT
-
 /*!
   Using this method is quite inefficient. We suggest to use insertItem()
   for inserting and sort() afterwards.
@@ -3767,8 +3766,6 @@ int Q3ListBox::inSort(const QString& text)
     insertItem(lbi, c);
     return c;
 }
-
-#endif
 
 
 /*! \reimp */

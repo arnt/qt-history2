@@ -33,13 +33,11 @@ public:
 
     void	activate();
 
-#ifdef QT_COMPAT
     bool	isBlocked()	 const		{ return QObject::signalsBlocked(); }
     void	block(bool b)		{ QObject::blockSignals(b); }
 #ifndef QT_NO_VARIANT
     void	setParameter(int value);
     int		parameter() const;
-#endif
 #endif
 
 #ifndef QT_NO_VARIANT
@@ -60,6 +58,5 @@ private:
 #endif
 
 };
-
 
 #endif // Q3SIGNAL_H

@@ -106,9 +106,9 @@ private slots:
     void internalActivation();
     void toolButtonToggled(bool);
     void objectDestroyed();
-    QT_MOC_COMPAT void menuStatusText(int id);
+    void menuStatusText(int id);
     void showStatusText(const QString&);
-    QT_MOC_COMPAT void clearStatusText();
+    void clearStatusText();
 
 private:
     Q_DISABLE_COPY(Q3Action)

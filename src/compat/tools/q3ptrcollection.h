@@ -43,8 +43,6 @@ protected:
 };
 
 
-#ifdef QT_COMPAT
-#define QCollection QPtrCollection
-#endif
+#define QCollection Q3PtrCollection
 
 #endif // Q3PTRCOLLECTION_H
