@@ -750,7 +750,6 @@ bool QTitleBarLabel::event( QEvent* e )
 
 void QTitleBarLabel::setActive( bool a )
 {
-    bool act = a;
     if ( a ) {
 	textc = atextc;
 	leftc = aleftc;
