@@ -87,8 +87,8 @@ class MessageCompiler : public QMessageParser
 public:
     MessageCompiler();
     ~MessageCompiler();
-    saveAsMessageFile( const QString &outFileName );
-    saveAsTextFile( const QString &outFileName );
+    void saveAsMessageFile( const QString &outFileName );
+    void saveAsTextFile( const QString &outFileName );
 protected:
     void add( const char*, const char*, const char* );
 private:
@@ -111,7 +111,7 @@ MessageCompiler::~MessageCompiler()
 
 void MessageCompiler::add( const char *scope, const char *key , const char *trans )
 {
-    mess.insert( mess.hash(scope, key), trans );
+    mess.insert( scope, key, trans );
 }
 
 
@@ -131,9 +131,10 @@ void MessageCompiler::add( const char *scope, const char *key , const char *tran
 
 main(int argc, char** argv)
 {
+    QApplication::setDesktopSettingsAware(TRUE);
     QApplication::setColorSpec( QApplication::ManyColor );
     QApplication app(argc, argv);
-    QApplication::setFont( QFont("Helvetica") );
+    QApplication::setFont( QFont("Helvetica",13) );
 
     //QMessageFileSignaller mess(0);
     //app.installMessageFile(&mess);
@@ -150,6 +151,7 @@ main(int argc, char** argv)
 
     QTranslator mf(0);
     mf.load("test.tr",".");
+    mf.save("t.tr");
     app.installTranslator(&mf);
 
     //    int hash = mf.hash("Main","Quit");
