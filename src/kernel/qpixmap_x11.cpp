@@ -959,7 +959,10 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     int	 dd  = defaultDepth();
     bool force_mono = (dd == 1 || isQBitmap() ||
 		       (conversion_flags & ColorMode_Mask)==MonoOnly );
+
+#ifndef QT_NO_XRENDER
     bool recreate_rendhd = (rendhd != 0);
+#endif // QT_NO_XRENDER
 
     if ( data->mask ) {				// get rid of the mask
 	delete data->mask;

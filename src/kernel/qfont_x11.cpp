@@ -1064,6 +1064,11 @@ void QFontPrivate::drawText( Display *dpy, int screen, Qt::HANDLE hd, Qt::HANDLE
 			     const QColor& bgcolor, int x, int y,
 			     const QFontPrivate::TextRun *cache )
 {
+    Q_UNUSED(screen);
+    Q_UNUSED(rendhd);
+    Q_UNUSED(pen);
+    Q_UNUSED(bgcolor);
+
     Qt::HANDLE fid_last = 0;
 
     while ( cache ) {
