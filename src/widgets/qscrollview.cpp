@@ -316,7 +316,7 @@ void QScrollViewData::autoResizeHint(QScrollView* sv)
     } else if ( policy == QScrollView::AutoOneFit ) {
 	QSVChildRec* r = children.first();
 	if (r) {
-	    QSize sh = r->child->minimumSizeHint();
+	    QSize sh = r->child->sizeHint();
 	    sh = sh.boundedTo( r->child->maximumSize() );
 	    sv->resizeContents( sh.width(), sh.height() );
 	}
@@ -328,7 +328,7 @@ void QScrollViewData::viewportResized( int w, int h )
     if ( policy == QScrollView::AutoOneFit ) {
 	QSVChildRec* r = children.first();
 	if (r) {
-	    QSize sh = r->child->minimumSizeHint();
+	    QSize sh = r->child->sizeHint();
 	    sh = sh.boundedTo( r->child->maximumSize() );
 	    r->child->resize( QMAX(w,sh.width()), QMAX(h,sh.height()) );
 	}
