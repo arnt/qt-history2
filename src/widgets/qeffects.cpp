@@ -129,7 +129,7 @@ void QAlphaWidget::run( int time )
     duration = time;
 
     if ( duration < 0 )
-	duration = 200;
+	duration = 150;
 
     if ( !widget )
 	return;
@@ -479,7 +479,7 @@ void QRollEffect::run( int time )
 
     if ( duration < 0 )
 	duration = QMIN( QMAX((totalWidth - currentWidth) +
-			      (totalHeight - currentHeight), 100 ), 300 );
+			      (totalHeight - currentHeight), 75 ), 150 );
     connect( &anim, SIGNAL(timeout()), this, SLOT(scroll()));
 
     widget->setWState( WState_Visible );
@@ -493,7 +493,7 @@ void QRollEffect::run( int time )
 
     showWidget = TRUE;
     done = FALSE;
-    anim.start( 0 );
+    anim.start( 1 );
     checkTime.start();
 }
 
