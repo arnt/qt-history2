@@ -550,7 +550,7 @@ int	   tmpYYStart2;			// Used to store the lexers current mode
 					//  (if tmpYYStart is already used)
 
 // if the format revision changes, you MUST change it in qmetaobject.h too
-const int formatRevision = 40;		// moc output format revision
+const int formatRevision = 41;		// moc output format revision
 
 // if the flags change, you HAVE to change it in qmetaobject.h too
 enum Flags  {
@@ -1530,7 +1530,6 @@ class parser_reg {
     bool	  noInclude;		// no #include <filename>
     bool	  generatedCode;		// no code generated
     bool	  mocError;			// moc parsing error occurred
-    bool       hasVariantIncluded;	//whether or not qvariant.h was included yet
     QByteArray  stringDataArray;		// name of the shared string data array
     QByteArray  className;				// name of parsed class
     QByteArray  superClassName;			// name of first super class
@@ -1566,7 +1565,6 @@ parser_reg::parser_reg() : funcs(TRUE)
     noInclude     = FALSE;		// no #include <filename>
     generatedCode = FALSE;		// no code generated
     mocError = FALSE;			// moc parsing error occurred
-    hasVariantIncluded = FALSE;
 }
 
 
@@ -2395,136 +2393,118 @@ void generateMetacall()
 	for (p = g->props.first(); p && !isPropFunction(p->stored); p = g->props.next());
 	bool needStored = (p != 0);
 	needAnything |= needStored;
+	if (!needAnything)
+	    goto skip_properties;
 
-	if ( needAnything ) {
-	    fprintf(out, "\n#ifndef QT_NO_PROPERTIES\n");
-	    if (!g->slots.isEmpty() || !g->signals.isEmpty())
+	fprintf(out, "\n#ifndef QT_NO_PROPERTIES\n");
+	if (!g->slots.isEmpty() || !g->signals.isEmpty())
 		fprintf(out, "      else ");
-	    else
-		fprintf(out, "    ");
+	else
+	    fprintf(out, "    ");
 
-	    fprintf(out, "if (_f >= 2 && _f <= 7) { // properties\n");
-	    if (needGet || needSet)
-		fprintf(out, "        QVariant *_v = (QVariant*) _o[0];\n");
-	    if (needDesignable || needScriptable || needStored)
-		fprintf(out, "        bool *_b = (bool*) _o[0];\n");
-	    fprintf(out, "        if (_id >= 0) switch (_f) {\n");
-	    if (needGet) {
-		fprintf(out, "        case 2: switch (_id) { // get\n");
-		int propindex = -1;
-		for (p = g->props.first(); p; p = g->props.next()) {
-		    ++propindex;
-		    if (!p->getfunc)
-			continue;
-		    if (p->gspec == Property::Pointer)
-			fprintf(out, "            case %d: if (%s()) *_v = QVariant(%s*%s()%s); break;\n",
-				 propindex,
-				 p->getfunc->name.data(),
-				 !isVariantType(p->type) ? "(int)" : "",
-				 (const char *)p->getfunc->name,
-				 p->type == "bool" ? ", 0" : "");
-		    else
-			fprintf(out, "            case %d: *_v = QVariant(%s%s()%s); break;\n",
-				 propindex,
-				 !isVariantType(p->type) ? "(int)" : "",
-				 (const char *)p->getfunc->name,
-				 p->type == "bool" ? ", 0" : "");
-		}
-		fprintf(out, "        } break;\n");
+	fprintf(out, "if (_f >= 2 && _f <= 7) { // properties\n");
+	if (needGet || needSet || needDesignable || needScriptable || needStored)
+	    fprintf(out, "        void *_v = _o[0];\n");
+	fprintf(out, "        if (_id >= 0) switch (_f) {\n");
+	if (needGet) {
+	    fprintf(out, "        case 2: switch (_id) { // get\n");
+	    int propindex = -1;
+	    for (p = g->props.first(); p; p = g->props.next()) {
+		++propindex;
+		if (!p->getfunc)
+		    continue;
+		if (p->gspec == Property::Pointer)
+		    fprintf(out, "            case %d: _o[0] = (void*)%s(); break;\n",
+			    propindex,
+			    (const char *)p->getfunc->name );
+		else if (p->gspec == Property::Reference)
+		    fprintf(out, "            case %d: _o[0] = (void*)&%s(); break;\n",
+			    propindex,
+			    (const char *)p->getfunc->name );
+		else
+		    fprintf(out, "            case %d: *(%s*)_v = %s(); break;\n",
+			    propindex,
+			    !isVariantType(p->type) ? "int" : (const char *)p->type,
+			    (const char *)p->getfunc->name );
 	    }
-	    if (needSet) {
-		fprintf(out, "        case 3: switch (_id) { // set\n");
-		int propindex = -1;
-		for (p = g->props.first(); p; p = g->props.next()) {
-		    ++propindex;
-		    if (p->setfunc) {
-			fprintf(out, "            case %d: %s(", propindex,
-				 (const char *)p->setfunc->name);
-			QByteArray type = p->type;
-			if (p->oredEnum)
-			    type = p->enumsettype;
-			if (type == "uint")
-			    fprintf(out, "_v->asUInt()");
-			else if (type == "unsigned int")
-			    fprintf(out, "(uint)_v->asUInt()");
-			else if (type == "QMap<QString,QVariant>")
-			    fprintf(out, "_v->asMap()");
-			else if (type == "QValueList<QVariant>")
-			    fprintf(out, "_v->asList()");
-			else if (type == "Q_LLONG")
-			    fprintf(out, "_v->asLongLong()");
-			else if (type == "Q_ULLONG")
-			    fprintf(out, "_v->asULongLong()");
-			else if (isVariantType(type)) {
-			    if (type[0] == 'Q')
-				type = type.mid(1);
-			    else
-				type[0] = toupper(type[0]);
-			    fprintf(out, "_v->as%s()", (const char *)type);
-			} else {
-			    fprintf(out, "(%s&)((QVariant*)_o[0])->asInt()", (const char *)type);
-			}
-			fprintf(out, "); break;\n");
-		    }
+	    fprintf(out, "        } break;\n");
+	}
+	if (needSet) {
+	    fprintf(out, "        case 3: switch (_id) { // set\n");
+	    int propindex = -1;
+	    for (p = g->props.first(); p; p = g->props.next()) {
+		++propindex;
+		if (p->setfunc) {
+		    fprintf(out, "            case %d: %s(*(%s*)_v); break;\n",
+			    propindex,
+			    (const char *)p->setfunc->name,
+			    p->oredEnum
+			    ? (const char *)p->enumsettype
+			    : (const char *)p->type);
 		}
-		fprintf(out, "        } break;\n");
 	    }
-	    if (needReset) {
-		fprintf(out, "        case 4: switch (_id) { // reset\n");
-		int propindex = -1;
-		for (p = g->props.first(); p; p = g->props.next()) {
-		    ++propindex;
-		    if (p->reset.isEmpty())
-			continue;
-		    fprintf(out, "            case %d: %s(); break;\n",
-			     propindex, (const char *)p->reset);
-		}
-		fprintf(out, "        } break;\n");
-	    }
-	    if (needDesignable) {
-		fprintf(out, "        case 5: switch (_id) { // query designable\n");
-		int propindex = -1;
-		for (p = g->props.first(); p; p = g->props.next()) {
-		    ++propindex;
-		    if (!isPropFunction(p->designable))
-			continue;
-		    fprintf(out, "            case %d: *_b = %s(); break;\n",
-			     propindex, (const char *)p->designable);
-		}
-		fprintf(out, "        } break;\n");
-	    }
-	    if (needScriptable) {
-		fprintf(out, "        case 6: switch (_id) { // query scriptable\n");
-		int propindex = -1;
-		for (p = g->props.first(); p; p = g->props.next()) {
-		    ++propindex;
-		    if (!isPropFunction(p->scriptable))
-			continue;
-		    fprintf(out, "            case %d: *_b = %s(); break;\n",
-			     propindex, (const char *)p->scriptable);
-		}
-		fprintf(out, "        } break;\n");
-	    }
-	    if (needStored) {
-		fprintf(out, "        case 7: switch (_id) { // query stored\n");
-		int propindex = -1;
-		for (p = g->props.first(); p; p = g->props.next()) {
-		    ++propindex;
-		    if (!isPropFunction(p->stored))
-			continue;
-		    fprintf(out, "            case %d: *_b = %s(); break;\n",
-			     propindex, (const char *)p->stored);
-		}
-		fprintf(out, "        } break;\n");
-	    }
+	    fprintf(out, "        } break;\n");
+	}
 
-	    fprintf(out,
-		     "        }\n"
-		     "        _id -= %d;\n"
-		     "    }", g->props.count());
-	    fprintf(out, "\n#endif // QT_NO_PROPERTIES");
-	}	
+	if (needReset) {
+	    fprintf(out, "        case 4: switch (_id) { // reset\n");
+	    int propindex = -1;
+	    for (p = g->props.first(); p; p = g->props.next()) {
+		++propindex;
+		if (p->reset.isEmpty())
+		    continue;
+		fprintf(out, "            case %d: %s(); break;\n",
+			propindex, (const char *)p->reset);
+	    }
+	    fprintf(out, "        } break;\n");
+	}
+
+	if (needDesignable) {
+	    fprintf(out, "        case 5: switch (_id) { // query designable\n");
+	    int propindex = -1;
+	    for (p = g->props.first(); p; p = g->props.next()) {
+		++propindex;
+		if (!isPropFunction(p->designable))
+		    continue;
+		fprintf(out, "            case %d: *(bool*)_v = %s(); break;\n",
+			 propindex, (const char *)p->designable);
+	    }
+	    fprintf(out, "        } break;\n");
+	}
+
+	if (needScriptable) {
+	    fprintf(out, "        case 6: switch (_id) { // query scriptable\n");
+	    int propindex = -1;
+	    for (p = g->props.first(); p; p = g->props.next()) {
+		++propindex;
+		if (!isPropFunction(p->scriptable))
+		    continue;
+		fprintf(out, "            case %d: *(bool*)_v = %s(); break;\n",
+			 propindex, (const char *)p->scriptable);
+	    }
+	    fprintf(out, "        } break;\n");
+	}
+
+	if (needStored) {
+	    fprintf(out, "        case 7: switch (_id) { // query stored\n");
+	    int propindex = -1;
+	    for (p = g->props.first(); p; p = g->props.next()) {
+		++propindex;
+		if (!isPropFunction(p->stored))
+		    continue;
+		fprintf(out, "            case %d: *(bool*)_v = %s(); break;\n",
+			 propindex, (const char *)p->stored);
+	    }
+	    fprintf(out, "        } break;\n");
+	}
+
+	fprintf(out,
+		"        }\n"
+		"        _id -= %d;\n"
+		"    }", g->props.count());
+	fprintf(out, "\n#endif // QT_NO_PROPERTIES");
     }
+ skip_properties:
     if (!g->slots.isEmpty() || !g->signals.isEmpty() || !g->props.isEmpty())
 	fprintf(out, "\n    ");
     fprintf(out,"return _id;\n};\n");
@@ -2660,7 +2640,7 @@ void generateProps()
 		    continue;
 		if (f->args && !f->args->isEmpty()) // and must not take any arguments
 		    continue;
-		QByteArray tmp = f->type;
+		QByteArray tmp = f->rawType;
 		Property::Specification spec = Property::Unspecified;
 		if (p->type == "QByteArray" && (tmp == "const char*" || tmp == "const char *")) {
 		    tmp = "QByteArray";
@@ -3039,13 +3019,6 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf(out, "#endif\n\n");
     } else {
 	fprintf(out, "\n\n");
-    }
-
-    if (!g->hasVariantIncluded) {
-	if (!g->props.isEmpty()) {
-	    fprintf(out, "#include <%sqvariant.h>\n", (const char*)g->qtPath);
-	    g->hasVariantIncluded = TRUE;
-	}
     }
 
     bool isQObject =  g->className == "QObject" ;

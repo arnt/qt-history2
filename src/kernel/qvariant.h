@@ -119,6 +119,7 @@ public:
 
     QVariant();
     ~QVariant();
+    QVariant( Type type, void *v = 0 );
     QVariant( const QVariant& );
 #ifndef QT_NO_DATASTREAM
     QVariant( QDataStream& s );
@@ -264,7 +265,7 @@ public:
     void load( QDataStream& );
     void save( QDataStream& ) const;
 #endif
-    static const char* typeToName( Type typ );
+    static const char* typeToName( Type type );
     static Type nameToType( const char* name );
 
 #ifndef QT_NO_COMPAT
@@ -279,11 +280,13 @@ private:
     public:
 	Private();
 	Private( Private* );
+	Private( Type );
+	Private( Type, void * );
 	~Private();
 
 	void clear();
 
-	Type typ;
+	Type type;
 	union
 	{
 	    uint u;
@@ -301,16 +304,17 @@ private:
 
 public:
     void* rawAccess( void* ptr = 0, Type typ = Invalid, bool deepCopy = FALSE );
+    void* data();
 };
 
 inline QVariant::Type QVariant::type() const
 {
-    return d->typ;
+    return d->type;
 }
 
 inline bool QVariant::isValid() const
 {
-    return (d->typ != Invalid);
+    return (d->type != Invalid);
 }
 
 #ifndef QT_NO_DATASTREAM

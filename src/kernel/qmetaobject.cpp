@@ -1190,13 +1190,27 @@ QMetaEnum QMetaProperty::enumerator() const
 */
 QVariant QMetaProperty::read(const QObject *obj) const
 {
-    QVariant value;
     if (!obj || !mobj[Read])
-	return value;
-    void *argv[] = { &value };
+	return QVariant();
+
+    QVariant::Type t = QVariant::Int;
+    if (!isEnumType()) {
+	int handle = priv(mobj[Read]->d.data)->propertyData + 3*idx[Read];
+	int flags = mobj[Read]->d.data[handle + 2];
+	t = (QVariant::Type)(flags >> 24);
+	if ( t == QVariant::Invalid )
+	    t = QVariant::nameToType( mobj[Read]->d.stringdata
+				      + mobj[Read]->d.data[handle + 1] );
+	if (t == QVariant::Invalid)
+	    return QVariant();
+    }
+    QVariant value(t);
+    void *argv[] = { value.data() };
     const_cast<QObject*>(obj)->qt_metacall(2 + Read,
 		     idx[Read] + mobj[Read]->propertyOffset(),
 		     argv);
+    if (argv[0] != value.data())
+	return QVariant(t, argv[0]);
     return value;
 }
 
@@ -1219,19 +1233,19 @@ bool QMetaProperty::write(QObject *obj, const QVariant &value) const
 	} else if (v.type() != QVariant::Int && v.type() != QVariant::UInt) {
 	    return false;
 	}
+	v.cast(QVariant::Int);
     } else {
 	int handle = priv(mobj[Write]->d.data)->propertyData + 3*idx[Write];
 	int flags = mobj[Write]->d.data[handle + 2];
-	const char *type = mobj[Write]->d.stringdata
-			   + mobj[Write]->d.data[handle + 1];
 	QVariant::Type t = (QVariant::Type)(flags >> 24);
 	if ( t == QVariant::Invalid )
-	    t = QVariant::nameToType(type);
-	if (t != QVariant::Invalid && !v.canCast(t))
+	    t = QVariant::nameToType( mobj[Write]->d.stringdata
+				      + mobj[Write]->d.data[handle + 1] );
+	if (t != QVariant::Invalid && !v.cast(t))
 	    return false;
     }
 
-    void *argv[] = { &v };
+    void *argv[] = { v.data() };
     obj->qt_metacall(2 + Write,
 		     idx[Write] + mobj[Write]->propertyOffset(),
 		     argv);

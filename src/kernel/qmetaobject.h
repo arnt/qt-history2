@@ -43,7 +43,7 @@
 #endif // QT_H
 
 #ifndef Q_MOC_OUTPUT_REVISION
-#define Q_MOC_OUTPUT_REVISION 40
+#define Q_MOC_OUTPUT_REVISION 41
 #endif
 
 class QVariant;
