@@ -566,7 +566,7 @@ void QTreeModel::emitRowsInserted(QTreeWidgetItem *item)
 */
 
 QTreeWidgetItem::QTreeWidgetItem()
-    : par(0), view(0), columns(0), edit(true), select(true)
+    : par(0), view(0), columns(0), editable(true), selectable(true)
 {
 }
 
@@ -578,7 +578,7 @@ QTreeWidgetItem::QTreeWidgetItem()
 */
 
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *v)
-    : par(0), view(v), columns(0), edit(true), select(true)
+    : par(0), view(v), columns(0), editable(true), selectable(true)
 {
     if (view)
         view->append(this);
@@ -589,7 +589,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *v)
 */
 
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent)
-    : par(parent), view(parent->view), columns(0), edit(true), select(true)
+    : par(parent), view(parent->view), columns(0), editable(true), selectable(true)
 {
     if (parent)
         parent->children.push_back(this);
@@ -618,6 +618,55 @@ void QTreeWidgetItem::setColumnCount(int count)
 }
 
 /*!
+
+*/
+
+QString QTreeWidgetItem::text(int column) const
+{
+    const QVector<Data> column_values = values.at(column);
+    for (int i = 0; i < column_values.count(); ++i)
+        if (column_values.at(i).role == QAbstractItemModel::DisplayRole)
+            return column_values.at(i).value.toString();
+    return QString::null;
+}
+
+QIconSet QTreeWidgetItem::icon(int column) const
+{
+    const QVector<Data> column_values = values.at(column);
+    for (int i = 0; i < column_values.count(); ++i)
+        if (column_values.at(i).role == QAbstractItemModel::DecorationRole)
+            return column_values.at(i).value.toIcon();
+    return QIconSet();
+}
+
+void QTreeWidgetItem::setText(int column, const QString &text)
+{
+    if (column >= columns)
+        setColumnCount(column + 1);
+    QVector<Data> column_values = values.at(column);
+    for (int i = 0; i < column_values.count(); ++i)
+        if (column_values.at(i).role == QAbstractItemModel::DisplayRole) {
+            values[column][i].value = text;
+            return;
+        }
+    values[column].append(Data(QAbstractItemModel::DisplayRole, text));
+}
+
+void QTreeWidgetItem::setIcon(int column, const QIconSet &icon)
+{
+    if (column >= columns)
+        setColumnCount(column + 1);
+    QVector<Data> column_values = values.at(column);
+    for (int i = 0; i < column_values.count(); ++i)
+        if (column_values.at(i).role == QAbstractItemModel::DecorationRole) {
+            values[column][i].value = icon;
+            return;
+        }
+    values[column].append(Data(QAbstractItemModel::DecorationRole, icon));
+}
+
+
+/*!
     Returns the data stored in the \a column with the given \a role.
 
   \sa QAbstractItemModel::Role
@@ -627,11 +676,12 @@ QVariant QTreeWidgetItem::data(int column, int role) const
 {
     if (column < 0 || column >= columns)
         return QVariant();
-    const QVector<Data> column_values = values.at(column);
     role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
-    for (int i = 0; i < column_values.count(); ++i) {
-        if (column_values.at(i).role == role)
-            return column_values.at(i).value;
+    switch (role) {
+    case QAbstractItemModel::DisplayRole:
+        return text(column);
+    case QAbstractItemModel::DecorationRole:
+        return icon(column);
     }
     return QVariant();
 }
@@ -645,17 +695,15 @@ QVariant QTreeWidgetItem::data(int column, int role) const
 
 void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
 {
-    if (column >= columns)
-        setColumnCount(column + 1);
-    QVector<Data> column_values = values.at(column);
     role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
-    for (int i = 0; i < column_values.count(); ++i) {
-        if (column_values.at(i).role == role) {
-            values[column][i].value = value;
-            return;
-        }
+    switch (role) {
+    case QAbstractItemModel::DisplayRole:
+        setText(column, value.toString());
+        break;
+    case QAbstractItemModel::DecorationRole:
+        setIcon(column, value.toIconSet());
+        break;
     }
-    values[column].append(Data(role, value));
 }
 
 class QTreeWidgetPrivate : public QTreeViewPrivate

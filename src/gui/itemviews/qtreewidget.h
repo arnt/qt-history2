@@ -39,26 +39,22 @@ public:
     inline int childCount() const { return children.count(); }
 
     inline int columnCount() const { return columns; }
-    inline QString text(int column) const
-        { return data(column, QAbstractItemModel::DisplayRole).toString(); }
-    inline QIconSet icon(int column) const
-        { return data(column, QAbstractItemModel::DecorationRole).toIcon(); }
-
-    inline bool isEditable() const { return edit; }
-    inline bool isSelectable() const { return select; }
-
     void setColumnCount(int count);
-    inline void setText(int column, const QString &text)
-        { setData(column, QAbstractItemModel::DisplayRole, text); }
-    inline void setIcon(int column, const QIconSet &icon)
-        { setData(column, QAbstractItemModel::DecorationRole, icon); }
 
-    inline void setEditable(bool editable) { edit = editable; }
-    inline void setSelectable(bool selectable) { select = selectable; }
+    inline bool isEditable() const { return editable; }
+    inline bool isSelectable() const { return selectable; }
+    inline void setEditable(bool enable) { editable = enable; }
+    inline void setSelectable(bool enable) { selectable = enable; }
 
     inline bool operator ==(const QTreeWidgetItem &other) const
         { return par == other.par && children == other.children; }
     inline bool operator !=(const QTreeWidgetItem &other) const { return !operator==(other); }
+
+    // these functions are intended to be reimplemented
+    virtual QString text(int column) const;
+    virtual QIconSet icon(int column) const;
+    virtual void setText(int column, const QString &text);
+    virtual void setIcon(int column, const QIconSet &icon);
 
     QVariant data(int column, int role) const;
     void setData(int column, int role, const QVariant &value);
@@ -70,11 +66,8 @@ private:
     QList<QTreeWidgetItem*> children;
 
     struct Data {
-        Data() {}
-        Data(int r, QVariant v) {
-            role = r;
-            value = v;
-        }
+        Data() : role(-1) {}
+        Data(int r, QVariant v) : role(r), value(v) {}
         int role;
         QVariant value;
     };
@@ -82,8 +75,8 @@ private:
     QVector< QVector<Data> > values;
     QTreeWidget *view;
     int columns;
-    uint edit : 1;
-    uint select : 1;
+    uint editable : 1;
+    uint selectable : 1;
 };
 
 class QTreeWidgetPrivate;
