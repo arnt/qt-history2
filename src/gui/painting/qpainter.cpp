@@ -2996,7 +2996,8 @@ void QPainter::drawPolyline(const QPointF *points, int pointCount)
     uint lineEmulation = d->engine->emulationSpecifier
                          & (QPaintEngine::CoordTransform
                             | QPaintEngine::PenWidthTransform
-                            | QPaintEngine::AlphaStroke);
+                            | QPaintEngine::AlphaStroke
+                            | QPaintEngine::LineAntialiasing);
 
     if (lineEmulation) {
         // ###
