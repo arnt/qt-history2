@@ -1443,7 +1443,7 @@ void  QTreeViewPrivate::updateHorizontalScrollbar(int itemWidth)
     int count = model->columnCount(q->root());
 
     // if we have no viewport or no columns, there is nothing to do
-    if (width <= 0 || count <= 0 | itemWidth <= 0) {
+    if (width <= 0 || count <= 0 || itemWidth <= 0) {
         q->horizontalScrollBar()->setRange(0, 0);
         return;
     }
