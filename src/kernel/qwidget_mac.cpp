@@ -551,7 +551,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 		    else if(wclass == kFloatingWindowClass) 
 			wclass = kToolbarWindowClass;
 		} else {
-		    wattr |= kResizeableAttribute;
+		    wattr |= kWindowResizableAttribute;
 		}
 		if( testWFlags( WStyle_Maximize ) ) 
 		    wattr |= kWindowFullZoomAttribute;
