@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Windowsystem-specific pages
 **
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **
@@ -64,7 +64,7 @@ When compiling for this platform, the macro \c{Q_WS_WIN} is defined.
 if you have queries.}
 
 \target macosx
-\section1 Qt/MacOSX
+\section1 Qt/Mac
 
 When compiling for this platform, the macro \c{Q_WS_MACX} is defined.
 
