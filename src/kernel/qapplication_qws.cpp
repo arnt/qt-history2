@@ -2001,7 +2001,7 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 	    bool inWmRegion = FALSE;
 	    
 #ifndef QT_NO_QWS_MANAGER
-	    inWmRegion = widget->topData()->decor_allocated_region.contains(dp);
+	    inWmRegion = widget->d->topData()->decor_allocated_region.contains(dp);
 #endif
 	    if ( inWmRegion ) {
 		// The cursor is in our WM region.
@@ -2014,8 +2014,8 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 		// Update Cursor.
 		if ( !gw || gw != w || qt_last_cursor == 0xffffffff ) {
 		    QCursor *curs = app_cursor;
-		    if (!curs && w->extraData()) {
-			curs = w->extraData()->curs;
+		    if (!curs && w->d->extraData()) {
+			curs = w->d->extraData()->curs;
 		    }
 		    QWidget *pw = w;
 		    // If this widget has no cursor set, try parent.
@@ -2023,8 +2023,8 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 			pw = pw->parentWidget();
 			if (!pw)
 			    break;
-			if (pw->extraData())
-			    curs = pw->extraData()->curs;
+			if (pw->d->extraData())
+			    curs = pw->d->extraData()->curs;
 		    }
 		    if ( !qws_overrideCursor ) {
 			if (curs)

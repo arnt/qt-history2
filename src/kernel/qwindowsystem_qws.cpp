@@ -2561,7 +2561,7 @@ void QWSServer::emergency_cleanup()
 }
 
 #ifndef QT_NO_QWS_KEYBOARD
-static QPtrList<QWSServer::KeyboardFilter> *keyFilters = 0;
+static QList<QWSServer::KeyboardFilter*> *keyFilters = 0;
 
 /*!
   \internal
@@ -2570,12 +2570,10 @@ void QWSServer::processKeyEvent(int unicode, int keycode, int modifiers, bool is
   bool autoRepeat)
 {
     if ( keyFilters ) {
-        QListIterator<QWSServer::KeyboardFilter> it(*keyFilters);
-	QWSServer::KeyboardFilter *keyFilter;
-	while ((keyFilter=it.current())) {
+	for (int i = 0; i < keyFilters->size(); ++i) {
+	    QWSServer::KeyboardFilter *keyFilter = keyFilters->at(i);
             if ( keyFilter->filter( unicode, keycode, modifiers, isPress, autoRepeat ) )
 	        return;
-	    ++it;
 	}
     }
     sendKeyEvent( unicode, keycode, modifiers, isPress, autoRepeat );
@@ -2595,11 +2593,11 @@ void QWSServer::processKeyEvent(int unicode, int keycode, int modifiers, bool is
 void QWSServer::setKeyboardFilter( KeyboardFilter *f )
 {
      if ( !keyFilters )
-        keyFilters = new QList<QWSServer::KeyboardFilter>;
+        keyFilters = new QList<QWSServer::KeyboardFilter*>;
      if ( f ) {
         keyFilters->prepend(f);
      } else {
-        delete keyFilters->take(0);
+        delete keyFilters->takeAt(0);
      }
 }
 #endif
