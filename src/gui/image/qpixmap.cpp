@@ -782,10 +782,10 @@ QBitmap QPixmap::createHeuristicMask(bool clipTight) const
 bool QPixmap::load(const QString &fileName, const char *format, Qt::ImageConversionFlags flags)
 {
 #ifndef QT_NO_PIXMAP_RETAIN
-    const QString retain_key = QString("load_filename_") + fileName;
-    if(QRetainedPixmap *retain = qt_retained_pixmaps()->object(retain_key)) {
-        if(retain->isOutOfDate()) {
-            qt_retained_pixmaps()->remove(retain_key);
+    QString absoluteFilePath = QFileInfo(fileName).absoluteFilePath();
+    if (QRetainedPixmap *retain = qt_retained_pixmaps()->object(absoluteFilePath)) {
+        if (retain->isOutOfDate()) {
+            qt_retained_pixmaps()->remove(absoluteFilePath);
             delete retain;
         } else {
             *this = *retain;
@@ -798,16 +798,16 @@ bool QPixmap::load(const QString &fileName, const char *format, Qt::ImageConvers
     if (result) {
         result = fromImage(io.image(), flags);
 #ifndef QT_NO_PIXMAP_RETAIN
-        if(result) {
+        if (result) {
             QRetainedPixmap *keeper = 0;
-            if(fileName[0] != QLatin1Char(':'))
-                keeper = new QRetainedPixmapFile(fileName, *this);
+            if (fileName.at(0) != QLatin1Char(':'))
+                keeper = new QRetainedPixmapFile(absoluteFilePath, *this);
             else
                 keeper = new QRetainedPixmap(*this);
             int cost = width()*height()*depth()/8;
-            if(data->optim == LoadOptim)
+            if (data->optim == LoadOptim)
                 cost /= 4;
-            qt_retained_pixmaps()->insert(retain_key, keeper, cost);
+            qt_retained_pixmaps()->insert(absoluteFilePath, keeper, cost);
         }
 #endif
     }
