@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#56 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#57 $
 **
 ** Implementation of QToolButton class
 **
@@ -34,12 +34,17 @@
 #include "qtoolbar.h"
 #include "qimage.h"
 #include "qiconset.h"
+#include "qtimer.h"
+#include "qpopupmenu.h"
 
 static QToolButton * threeDeeButton = 0;
 
 
 class QToolButtonPrivate
 {
+public:
+    QPopupMenu* popup;
+    QTimer* popupTimer;
 };
 
 
@@ -74,7 +79,9 @@ QToolButton::QToolButton( QWidget * parent, const char *name )
 
 void QToolButton::init()
 {
-    d = 0;
+    d = new QToolButtonPrivate;
+    d->popup = 0;
+    d->popupTimer = 0;
     bpID = bp.serialNumber();
     spID = sp.serialNumber();
 
@@ -346,7 +353,7 @@ void QToolButton::toggle()
 
 void QToolButton::drawButton( QPainter * p )
 {
-    if ( uses3D() || (isOn()&&!son) ) {
+    if ( uses3D() || isDown() || (isOn()&&!son) ) {
 #if 0	
 	QPointArray a;
 	a.setPoints( 3, 0, height()-1, 0, 0, width()-1, 0 );
@@ -552,4 +559,86 @@ QIconSet QToolButton::iconSet( bool on ) const
     QPixmap tmp1;
     QIconSet tmp2( tmp1, QIconSet::Small );
     return tmp2;
+}
+
+
+/*!
+  Associates the popup menu \a popup with this toolbutton.
+  
+  The popup will be shown each time the toolbutton has been pressed
+  down for a certain amount of time. A typical application example is
+  the "back" button in a web browser's toolbar. If the user clicks it,
+  the browser simply browses back to the previous page. If the user
+  holds the button down for a while, they receive a menu containing
+  the current history list.
+  
+  Ownership of the popup menu is not transferred.
+  
+  \sa popup()
+ */
+void QToolButton::setPopup( QPopupMenu* popup )
+{
+    if ( popup && !d->popup) {
+	connect( this, SIGNAL( pressed() ), this, SLOT( popupPressed() ) );
+	d->popupTimer = new QTimer( this );
+	connect( d->popupTimer, SIGNAL( timeout() ), this, SLOT( popupTimerDone() ) );
+    }
+    d->popup = popup;
+}
+
+/*!
+  Returns the associated popup menu or 0 if no popup menu has been
+  defined.
+  
+  \sa setPopup()
+ */
+QPopupMenu* QToolButton::popup() const
+{
+    return d->popup;
+}
+
+
+void QToolButton::popupPressed()
+{
+    if ( d->popupTimer )
+	d->popupTimer->start(600, TRUE );
+}
+
+void QToolButton::popupTimerDone() 
+{
+    if ( isDown() && d->popup ) {
+	bool horizontal = TRUE;
+	bool topLeft = TRUE;
+	if ( parentWidget() && parentWidget()->inherits("QToolBar") ) {
+	    if ( ( (QToolBar*) parentWidget() )->orientation() == Vertical ) {
+		horizontal = FALSE;
+		if ( mapToGlobal( rect().center() ).x() > 
+		     topLevelWidget()->x() + topLevelWidget()->width()/2 )
+		    topLeft = FALSE;
+	    } else if ( mapToGlobal( rect().center() ).y() > 
+			topLevelWidget()->y() + topLevelWidget()->height()/2 )
+		topLeft = FALSE;
+	}
+	if ( horizontal ) {
+	    if ( topLeft )
+		d->popup->exec( mapToGlobal( rect().bottomLeft() ) );
+	    else {
+		QSize s( d->popup->sizeHint() );
+		QPoint p = mapToGlobal( rect().topLeft() );
+		p.ry() -= s.height();
+		d->popup->exec( p );
+	    }
+	}
+	else {
+	    if ( topLeft )
+		d->popup->exec( mapToGlobal( rect().topRight() ) );
+	    else {
+		QSize s( d->popup->sizeHint() );
+		QPoint p = mapToGlobal( rect().topLeft() );
+		p.rx() -= s.width();
+		d->popup->exec( p );
+	    }
+	}
+	setDown( FALSE );
+    }
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.h#16 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.h#17 $
 **
 ** Definition of a buttom customized for tool bar use
 **
@@ -63,6 +63,9 @@ public:
     bool usesBigPixmap() const { return ubp; }
     bool usesTextLabel() const { return utl; }
     QString textLabel() const { return tl; }
+    
+    void setPopup( QPopupMenu* popup );
+    QPopupMenu* popup() const;
 
 public slots:
     virtual void setUsesBigPixmap( bool enable );
@@ -83,6 +86,10 @@ protected:
 
     bool uses3D() const;
 
+private slots:
+    void popupTimerDone();
+    void popupPressed();
+    
 private:
     void init();
 
