@@ -37,6 +37,7 @@
 #define QPAIR_H
 
 #ifndef QT_H
+#include "qdatastream.h"
 #endif // QT_H
 
 template <class T1, class T2>
@@ -65,10 +66,8 @@ inline bool operator==( const QPair<T1, T2>& x, const QPair<T1, T2>& y )
 template <class T1, class T2>
 inline bool operator<( const QPair<T1, T2>& x, const QPair<T1, T2>& y )
 {
-    // x < y is TRUE if:
-    // x.first is less than y.first,
-    // or if x.second is less that y.second and x.first is the same as y.first
-    return x.first < y.first ||	( !( y.first < x.first ) && x.second < y.second );
+    return x.first < y.first ||
+	   ( !( y.first < x.first ) && x.second < y.second );
 }
 
 template <class T1, class T2>
@@ -76,5 +75,21 @@ inline QPair<T1, T2> qMakePair( const T1& x, const T2& y )
 {
     return QPair<T1, T2>( x, y );
 }
+
+#ifndef QT_NO_DATASTREAM
+template <class T1, class T2>
+inline QDataStream& operator>>( QDataStream& s, QPair<T1, T2>& p )
+{
+    s >> p.first >> p.second;
+    return s;
+}
+
+template <class T1, class T2>
+inline QDataStream& operator<<( QDataStream& s, const QPair<T1, T2>& p )
+{
+    s << p.first << p.second;
+    return s;
+}
+#endif
 
 #endif

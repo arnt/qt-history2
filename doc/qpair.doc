@@ -117,6 +117,18 @@
 	For example, (0, 1) < (0, 4) and (0, 4) < (1, 0).
 */
 
-/*! \fn inline QPair<T1, T2> qMakePair( const T1& x, const T2& y )
+/*! \fn QPair<T1, T2> qMakePair( const T1& x, const T2& y )
     Convenience wrapper for the QPair constructor.
+*/
+
+/*! \fn QDataStream& operator>>( QDataStream& s, QPair<T1, T2>& p )
+
+    Reads a pair \a p from the stream \a s. The types T1 and T2 must
+    implement the streaming operator as well.
+*/
+
+/*! \fn QDataStream& operator<<( QDataStream& s, const QPair<T1, T2>& p )
+
+    Writes the pair \a p to the stream \a s. The types T1 and T2 must
+    implement the streaming operator as well.
 */
