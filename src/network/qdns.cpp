@@ -142,7 +142,7 @@ public:
 
     void take( QDnsRR * );
 
-    void sweep();
+    void sweep( Q_UINT32 thisSweep );
 
     bool isEmpty() const { return rrs == 0 || rrs->isEmpty(); }
 
@@ -651,7 +651,10 @@ void QDnsAnswer::parse()
 	    }
 	    if ( rr ) {
 		rr->deleteTime = 0;
-		rr->expireTime = query->started + ttl;
+		if ( ttl > 0 )
+		    rr->expireTime = query->started + ttl;
+		else
+		    rr->expireTime = query->started + 20;
 		if ( rrno < ancount ) {
 		    answers++;
 		    rr->deleteTime = rr->expireTime;
@@ -917,7 +920,7 @@ QDnsManager::~QDnsManager()
 	globalManager = 0;
 }
 
-static Q_UINT32 lastSweep;
+static Q_UINT32 lastSweep = 0;
 
 void QDnsManager::cleanCache()
 {
@@ -932,7 +935,7 @@ void QDnsManager::cleanCache()
 
     while( (d=it.current()) != 0 ) {
 	++it;
-	d->sweep(); // after this, d may be empty
+	d->sweep( thisSweep ); // after this, d may be empty
 	if ( !again )
 	    again = !d->isEmpty();
     }
@@ -1034,6 +1037,7 @@ void QDnsManager::transmitQuery( int i )
 	QDnsAnswer answer( q );
 	answer.notify();
 	delete q;
+	QTimer::singleShot( 1000*10, QDnsManager::manager(), SLOT(cleanCache()) );
 	// and don't process anything more
 	return;
     }
@@ -1349,7 +1353,7 @@ QList<QDnsRR> * QDnsDomain::cached( const QDns * r )
 }
 
 
-void QDnsDomain::sweep()
+void QDnsDomain::sweep( Q_UINT32 thisSweep )
 {
     if ( !rrs )
 	return;
@@ -1358,7 +1362,7 @@ void QDnsDomain::sweep()
     rrs->first();
     while( (rr=rrs->current()) != 0 ) {
 	if ( !rr->deleteTime )
-	    rr->deleteTime = lastSweep; // will hit next time around
+	    rr->deleteTime = thisSweep; // will hit next time around
 
 #if defined(QDNS_DEBUG)
 	qDebug( "QDns::sweep: %s type %d expires %u %u - %s / %s",
@@ -1368,8 +1372,8 @@ void QDnsDomain::sweep()
 #endif
 	if ( rr->current == FALSE ||
 	     rr->t == QDns::None ||
-	     rr->deleteTime <= lastSweep ||
-	     rr->expireTime <= lastSweep )
+	     rr->deleteTime <= thisSweep ||
+	     rr->expireTime <= thisSweep )
 	    rrs->remove();
 	else
 	    rrs->next();
