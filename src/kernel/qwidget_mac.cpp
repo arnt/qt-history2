@@ -509,7 +509,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
     if ( window ) {				// override the old window
 	if ( destroyOldWindow && own_id )
 	    destroyw = hd;
-	own_id = 1; //it has become mine!
+	own_id = 0; //it has become mine!
 	id = window;
 	hd = (void *)id;
 	setWinId(id);
