@@ -257,8 +257,8 @@ public:
     // documented in qstyle.cpp
 #ifdef QT_NO_COMPAT
     enum GUIStyle {
-	WindowsStyle,
-	MotifStyle
+	WindowsStyle = 1,     // ### Qt 4.0: either remove the obsolete enums or clean up compat vs.
+	MotifStyle = 4        // ### QT_NO_COMPAT by reordering or combination into one enum.
     };
 #else
     enum GUIStyle {
