@@ -40,6 +40,7 @@
 #include <qptrvector.h>
 #include <qmemarray.h>
 #include <qstringlist.h>
+#include <qregexp.h>
 #include <stdlib.h>
 
 #define QOCI_DYNAMIC_CHUNK_SIZE  255
@@ -49,23 +50,24 @@ class QOCIPrivate
 {
 public:
     QOCIPrivate()
-	: env(0), err(0), svc(0), sql(0), transaction( FALSE )
+	: env(0), err(0), svc(0), sql(0), transaction( FALSE ), serverVersion(-1)
     {}
     OCIEnv           *env;
     OCIError         *err;
     OCISvcCtx        *svc;
     OCIStmt          *sql;
     bool             transaction;
+    int		     serverVersion;
 };
 
 struct OraFieldInfo
 {
     QString        name;
     QVariant::Type type;
-    ub4            oraType;
-    sb1	   oraScale;
+    ub4		   oraType;
+    sb1		   oraScale;
     ub4            oraLength;
-    sb2	   oraPrecision;
+    sb2		   oraPrecision;
 };
 
 QString qOraWarn( const QOCIPrivate* d)
@@ -84,7 +86,7 @@ QString qOraWarn( const QOCIPrivate* d)
 
 QSqlError qMakeError( const QString& err, int type, const QOCIPrivate* p )
 {
-    return QSqlError("QOCI8: " + err, qOraWarn(p), type );
+    return QSqlError("QOCI: " + err, qOraWarn(p), type );
 }
 
 QVariant::Type qDecodeOCIType( const QString& ocitype, int ocilen, int ociprec, int ociscale )
@@ -499,7 +501,7 @@ bool QOCIResult::reset ( const QString& query )
     rowCache.clear();
     fs.clear();
     if ( d->sql ) {
-	r = OCIHandleFree( d->sql,OCI_HTYPE_STMT );
+	r = OCIHandleFree( d->sql, OCI_HTYPE_STMT );
 #ifdef QT_CHECK_RANGE
 	if ( r != 0 )
 	    qWarning( "QOCIResult::reset: unable to free statement handle: " + qOraWarn( d ) );
@@ -816,6 +818,376 @@ int QOCIResult::numRowsAffected()
 
 ////////////////////////////////////////////////////////////////////////////
 
+#ifdef QOCI_USES_VERSION_9
+QOCI9Result::QOCI9Result( const QOCIDriver * db, QOCIPrivate* p )
+: QSqlResult(db),
+  cols(0)
+{
+    d = new QOCIPrivate();
+    (*d) = (*p);
+}
+
+QOCI9Result::~QOCI9Result()
+{
+    if ( d->sql ) {
+	int r = OCIHandleFree( d->sql,OCI_HTYPE_STMT );
+#ifdef QT_CHECK_RANGE
+	if ( r != 0 )
+	    qWarning( "~QOCI9Result: unable to free statement handle: " + qOraWarn( d ) );
+#endif
+    }
+    delete d;
+    delete cols;
+}
+
+OCIStmt* QOCI9Result::statement()
+{
+    return d->sql;
+}
+
+bool QOCI9Result::reset ( const QString& query )
+{
+    int r(0);
+    if ( cols ) {
+	delete cols;
+	cols = 0;
+    }
+    fs.clear();
+    if ( d->sql ) {
+	r = OCIHandleFree( d->sql, OCI_HTYPE_STMT );
+#ifdef QT_CHECK_RANGE
+	if ( r != 0 )
+	    qWarning( "QOCI9Result::reset: unable to free statement handle: " + qOraWarn( d ) );
+#endif
+    }
+    if ( query.isNull() || query.length() == 0 )
+	return FALSE;
+    r = OCIHandleAlloc( (dvoid *) d->env,
+			(dvoid **) &d->sql,
+			OCI_HTYPE_STMT,
+			0,
+			0);
+    if ( r != 0 ) {
+#ifdef QT_CHECK_RANGE
+	qWarning( "QOCI9Result::reset: unable to alloc statement: " + qOraWarn( d ) );
+#endif
+	return FALSE;
+    }
+    QString cleanQuery ( query );
+    int delim = cleanQuery.findRev( ";" );
+    int len = cleanQuery.length()-1;
+    if ( delim > -1 && delim == len )
+	cleanQuery.replace( cleanQuery.length()-1, 1, "" );
+    r = OCIStmtPrepare( d->sql,
+			d->err,
+			(unsigned char*)cleanQuery.local8Bit().data(),
+			cleanQuery.length(),
+			OCI_NTV_SYNTAX,
+			OCI_DEFAULT );
+    if ( r != 0 ) {
+#ifdef QT_CHECK_RANGE
+	qWarning( "QOCI9Result::reset: unable to prepare statement: " + qOraWarn( d ) );
+#endif
+	return FALSE;
+    }
+    ub2 stmtType;
+    r = OCIAttrGet( d->sql,
+			OCI_HTYPE_STMT,
+			(dvoid*)&stmtType,
+			NULL,
+			OCI_ATTR_STMT_TYPE,
+			d->err );
+    if ( stmtType == OCI_STMT_SELECT )
+    {
+	ub4 mode = OCI_STMT_SCROLLABLE_READONLY;
+	if ( isForwardOnly() ) {
+	    mode = OCI_DEFAULT;
+	}
+	r = OCIStmtExecute( d->svc,
+			    d->sql,
+			    d->err,
+			    0,
+			    0,
+			    (CONST OCISnapshot *) NULL,
+			    (OCISnapshot *) NULL,
+			    mode );
+	if ( r != 0 ) {
+#ifdef QT_CHECK_RANGE
+	    qWarning( "OCI9Result::reset: unable to execute statement: " + qOraWarn( d ) );
+#endif
+	    setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
+	    return FALSE;
+	}
+	ub4 parmCount = 0;
+	int r = OCIAttrGet( d->sql, OCI_HTYPE_STMT, (dvoid*)&parmCount, NULL, OCI_ATTR_PARAM_COUNT, d->err );
+	if ( r == 0 ) {
+	    cols = new QOCIResultPrivate( parmCount, d );
+	}
+	OCIParam* param = 0;
+	sb4 parmStatus = 0;
+	ub4 count = 1;
+	parmStatus = OCIParamGet( d->sql,
+				  OCI_HTYPE_STMT,
+				  d->err,
+				  (void**)&param,
+				  count );
+	while ( parmStatus == OCI_SUCCESS ) {
+	    OraFieldInfo ofi = qMakeOraField( d, param );
+	    QSqlField fi( ofi.name, ofi.type );
+	    fs.append( fi );
+	    count++;
+	    parmStatus = OCIParamGet( d->sql,
+				      OCI_HTYPE_STMT,
+				      d->err,
+				      (void**)&param,
+				      count );
+	}
+	setSelect( TRUE );
+    } else { /* non-SELECT */
+	r = OCIStmtExecute( d->svc, d->sql, d->err, 1,0,
+				(CONST OCISnapshot *) NULL,
+				(OCISnapshot *) NULL,
+				d->transaction ? OCI_DEFAULT : OCI_COMMIT_ON_SUCCESS  );
+	if ( r != 0 ) {
+#ifdef QT_CHECK_RANGE
+	    qWarning( "OCI9Result::reset: unable to execute statement: " + qOraWarn( d ) );
+#endif
+	    setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
+	    return FALSE;
+	}
+	setSelect( FALSE );
+    }
+    setAt( QSql::BeforeFirst );
+    setActive( TRUE);
+    return TRUE;
+}
+
+bool QOCI9Result::cacheNext( int r )
+{
+    QMap< int, QCString > binMap;
+    if ( r == OCI_NEED_DATA ) { /* piecewise */
+	QCString       bin;
+	OCIDefine*     dfn;
+	ub4            typep;
+	ub1            in_outp;
+	ub4            iterp;
+	ub4            idxp;
+	ub1            piecep;
+	sword          status;
+	text           col [QOCI_DYNAMIC_CHUNK_SIZE+1];
+	int            fieldNum = -1;
+	bool           nullField;
+	for ( ; ; ) {
+	    r = OCIStmtGetPieceInfo( d->sql, d->err, (dvoid**) &dfn, &typep,
+				     &in_outp, &iterp, &idxp, &piecep );
+	    if ( r != OCI_SUCCESS )
+		qWarning( "QOCI9Result::cacheNext: unable to get piece info: " + qOraWarn(d) );
+	    fieldNum = cols->fieldFromDefine( dfn );
+	    int chunkSize = QOCI_DYNAMIC_CHUNK_SIZE;
+	    nullField = FALSE;
+	    r  = OCIStmtSetPieceInfo( dfn, OCI_HTYPE_DEFINE,
+				      d->err, (void *)col,
+				      (ub4 *)&chunkSize, piecep, NULL, NULL);
+	    if ( r != OCI_SUCCESS )
+		qWarning( "QOCI9Result::cacheNext: unable to set piece info: " + qOraWarn(d) );
+
+	    status = OCIStmtFetch ( d->sql, d->err, 1, OCI_FETCH_NEXT, OCI_DEFAULT );
+	    if ( status == -1 ) {
+		sb4 errcode;
+		OCIErrorGet((dvoid *)d->err, (ub4) 1, (text *) NULL, &errcode, NULL, 0, OCI_HTYPE_ERROR);
+		switch ( errcode ) {
+		case 1405: /* NULL */
+		    nullField = TRUE;
+		    break;
+		default:
+		    qWarning( "QOCI9Result::cacheNext: unable to fetch next: " + qOraWarn(d) );
+		    break;
+		}
+	    }
+	    if ( status == OCI_NO_DATA ) {
+		break;
+	    }
+	    if ( nullField ) {
+		binMap[ fieldNum ] = QCString();
+	    }
+	    else {
+		if ( chunkSize ) {
+		    QCString tmp( (char*)col, chunkSize+1 );
+		    binMap[ fieldNum ] += tmp;
+		} else {
+		    binMap[ fieldNum ] = QCString();
+		}
+	    }
+	    if ( status == OCI_SUCCESS_WITH_INFO ||
+		 status == OCI_NEED_DATA ) {
+	    } else
+		break;
+	}
+    }
+    if( r == OCI_ERROR ) {
+	sb4 errcode;
+	OCIErrorGet((dvoid *)d->err,
+		    (ub4) 1,
+		    (text *) NULL,
+		    &errcode,
+		    NULL,
+		    0,
+		    OCI_HTYPE_ERROR);
+	switch ( errcode ) {
+	case 1406:
+	    qWarning( "QOCI Warning: data truncated for " + lastQuery() );
+	    r = 0; /* ignore it */
+	    break;
+	default:
+	    qWarning( "QOCI9Result::cacheNext: " + qOraWarn(d) );
+	}
+    }
+    if ( r == 0 ) {
+	for ( int i = 0; i < cols->size(); ++i ) {
+	    QVariant v;
+	    if ( binMap.contains( i ) ) {
+		v = QVariant( binMap[i] );
+	    } else {
+		v = QVariant( cols->value( i ) );
+	    }
+	    fs.setValue( i, v );
+	    if ( cols->isNull( i ) )
+		fs.field( i )->setNull();
+	}
+    } else {
+	setAt( QSql::AfterLast );
+    }
+    return r == 0;
+}
+
+bool QOCI9Result::fetchNext()
+{
+    int r;
+    if ( !isForwardOnly() ) {
+	r = OCIStmtFetch2 ( d->sql, d->err, 1, OCI_FETCH_NEXT, (sb4) 1, OCI_DEFAULT );
+    } else {
+	r = OCIStmtFetch ( d->sql, d->err, 1, OCI_FETCH_NEXT, OCI_DEFAULT );
+    }
+    if ( cacheNext( r ) ) {
+	setAt( at() + 1 );
+	return TRUE;
+    }
+    return FALSE;
+}
+
+bool QOCI9Result::fetch( int i )
+{
+    if ( !isForwardOnly() ) {
+	int r = OCIStmtFetch2( d->sql, d->err, 1, OCI_FETCH_ABSOLUTE, (sb4) i + 1, OCI_DEFAULT );
+	if ( cacheNext( r ) ) {
+	    setAt( i );
+	    return TRUE;
+	}
+	return FALSE;
+    } else {
+	while ( at() < i ) {
+	    if ( !fetchNext() )
+		return FALSE;
+	}
+	if ( at() == i ) {
+	    return TRUE;
+	}
+    }
+    return FALSE;
+}
+
+bool QOCI9Result::fetchFirst()
+{
+    if ( isForwardOnly() ) {
+	if ( at() == QSql::BeforeFirst )
+	    return fetchNext();
+    } else {
+	int r = OCIStmtFetch2( d->sql, d->err, 1, OCI_FETCH_FIRST, (sb4) 1, OCI_DEFAULT );
+	if ( cacheNext( r ) ) {
+	    setAt( 0 );
+	    return TRUE;
+	}
+    }
+    return FALSE;
+}
+
+bool QOCI9Result::fetchLast()
+{
+    if ( isForwardOnly() ) {
+	int i = at();
+	while ( fetchNext() )
+	    i++; /* brute force */
+	if ( at() == QSql::AfterLast ) {
+	    setAt( i );
+	    return TRUE;
+	}
+    } else {
+	int r = OCIStmtFetch2( d->sql, d->err, 1, OCI_FETCH_LAST, (sb4) 0, OCI_DEFAULT );
+	if ( cacheNext( r ) ) {
+	    ub4 currentPos;
+	    ub4 sz = sizeof( currentPos );
+	    r = OCIAttrGet( (CONST void *) d->sql,
+			    OCI_HTYPE_STMT,
+			    (void *) &currentPos,
+			    (ub4 *) &sz,
+			    OCI_ATTR_CURRENT_POSITION,
+			    d->err );
+	    if ( r != 0 ) {
+#ifdef QT_CHECK_RANGE
+		qWarning( "QOCI9Result::fetchLast(): Cannot get current position" );
+#endif
+		setAt( QSql::AfterLast );
+		return FALSE;
+	    }
+	    setAt( currentPos  );
+	    return TRUE;
+	}
+    }
+    return FALSE;
+}
+
+bool QOCI9Result::fetchPrev()
+{
+    if ( !isForwardOnly() ) {
+	int r = OCIStmtFetch2 ( d->sql, d->err, 1, OCI_FETCH_PRIOR, (sb4) 1, OCI_DEFAULT );
+	if ( cacheNext( r ) ) {
+	    setAt( at() - 1 );
+	    return TRUE;
+	}
+    }
+    return FALSE;
+}
+
+QVariant QOCI9Result::data( int field )
+{
+    return fs.value( field );
+}
+
+bool QOCI9Result::isNull( int field )
+{
+    return fs.field( field )->isNull();
+}
+
+int QOCI9Result::size()
+{
+    return -1;
+}
+
+int QOCI9Result::numRowsAffected()
+{
+    int rowCount;
+    OCIAttrGet( d->sql,
+		OCI_HTYPE_STMT,
+		&rowCount,
+		NULL,
+		OCI_ATTR_ROW_COUNT,
+		d->err);
+    return rowCount;
+}
+#endif //QOCI_USES_VERSION_9
+////////////////////////////////////////////////////////////////////////////
+
+
 QOCIDriver::QOCIDriver( QObject * parent, const char * name )
 : QSqlDriver(parent, (name ? name : "QOCI"))
 {
@@ -825,8 +1197,7 @@ QOCIDriver::QOCIDriver( QObject * parent, const char * name )
 void QOCIDriver::init()
 {
     d = new QOCIPrivate();
-#if 0 
-    // This call only works with Oracle >= 8.1.x
+#ifdef QOCI_USES_VERSION_9
     int r = OCIEnvCreate( &d->env,
 			    OCI_DEFAULT | OCI_OBJECT,
 			    NULL,
@@ -918,6 +1289,20 @@ bool QOCIDriver::open( const QString & db,
 	setLastError( qMakeError("Unable to logon", QSqlError::Connection, d ) );
 	return FALSE;
     }
+
+    // get server version
+    text c[512];
+    r = OCIServerVersion( d->svc, d->err, (text*)&c, 512, OCI_HTYPE_SVCCTX );
+#ifdef QT_CHECKRANGE
+    if ( r != 0 ) {
+	qWarning( "QOCIDriver::open: could not get Oracle server version." );
+    }
+#endif
+    QRegExp vers("([0-9]+)\\.[0-9\\.]+[0-9]");
+    if ( vers.search( QString::fromUtf8( (char*)c, 512 ) ) >= 0 )
+	d->serverVersion = vers.cap( 1 ).toInt();
+    if ( d->serverVersion == 0 )
+	d->serverVersion = -1;
     setOpen( TRUE );
     return TRUE;
 }
@@ -941,6 +1326,10 @@ void QOCIDriver::cleanup()
 
 QSqlQuery QOCIDriver::createQuery() const
 {
+#ifdef QOCI_USES_VERSION_9
+    if ( d->serverVersion >= 9 )
+	return QSqlQuery( new QOCI9Result( this, d ) );
+#endif
     return QSqlQuery( new QOCIResult( this, d ) );
 }
 
@@ -1014,6 +1403,7 @@ QStringList QOCIDriver::tables( const QString& ) const
     if ( !isOpen() )
 	return tl;
     QSqlQuery t = createQuery();
+    t.setForwardOnly( TRUE );
     t.exec( "select table_name from user_tables;" );
     while ( t.next() ) {
 	tl.append( t.value(0).toString() );
@@ -1027,6 +1417,7 @@ QSqlRecord QOCIDriver::record( const QString& tablename ) const
     if ( !isOpen() )
 	return fil;
     QSqlQuery t = createQuery();
+    t.setForwardOnly( TRUE );
     QString stmt ("select column_name, data_type, data_length, data_precision, data_scale "
 		  "from user_tab_columns "
 		  "where table_name='%1'" );
@@ -1060,6 +1451,7 @@ QSqlRecordInfo QOCIDriver::recordInfo( const QString& tablename ) const
     if ( !isOpen() )
 	return fil;
     QSqlQuery t = createQuery();
+    t.setForwardOnly( TRUE );
     QString stmt ("select column_name, data_type, data_length, data_precision, data_scale, nullable, data_default "
 		  "from user_tab_columns "
 		  "where table_name='%1'" );
@@ -1088,6 +1480,7 @@ QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
     if ( !isOpen() )
 	return idx;
     QSqlQuery t = createQuery();
+    t.setForwardOnly( TRUE );
     QString stmt ("select b.column_name, b.data_type, c.index_name "
 		  "from user_constraints a, user_tab_columns b, user_ind_columns c "
 		  "where a.constraint_type='P' "

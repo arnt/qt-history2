@@ -41,8 +41,15 @@
 #include <qsqlfield.h>
 #include <qsqldriver.h>
 #include <qstring.h>
+#include <private/qsqloptioninterface_p.h>
 
 #include <oci.h>
+
+// Check if OCI supports scrollable cursors (Oracle version >= 9)
+#ifdef OCI_STMT_SCROLLABLE_READONLY
+#define QOCI_USES_VERSION_9
+#endif
+
 
 class QOCIPrivate;
 class QOCIResultPrivate;
@@ -78,6 +85,35 @@ private:
     bool                cached;
     bool                cacheNext();
 };
+
+#ifdef QOCI_USES_VERSION_9
+class QOCI9Result : public QSqlResult
+{
+    friend class QOCIDriver;
+public:
+    QOCI9Result( const QOCIDriver * db, QOCIPrivate* p );
+    ~QOCI9Result();
+    OCIStmt*    statement();
+
+protected:
+    bool	fetchNext();
+    bool	fetchPrev();
+    bool	fetchFirst();
+    bool	fetchLast();
+    bool	fetch(int i);
+    bool	reset ( const QString& query );
+    QVariant	data( int field );
+    bool	isNull( int field );
+    int         size();
+    int         numRowsAffected();
+
+private:
+    QOCIPrivate*	d;
+    QOCIResultPrivate*  cols;
+    QSqlRecord          fs;
+    bool                cacheNext( int r );
+};
+#endif //QOCI_USES_VERSION_9
 
 class QOCIDriver : public QSqlDriver
 {
