@@ -371,3 +371,12 @@ void SourceEditor::updateTimeStamp()
     }
 }
 
+bool SourceEditor::saveAs()
+{
+    if ( obj && obj->inherits( "FormWindow" ) ) {
+	return ( (FormWindow*)(QObject*)obj )->saveAs();
+    } else if ( obj && obj->inherits( "SourceFile" ) ) {
+	return ( (SourceFile*)(QObject*)obj )->saveAs();
+    }
+    return FALSE;
+}

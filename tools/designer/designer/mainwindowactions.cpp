@@ -1266,18 +1266,18 @@ bool MainWindow::fileSaveProject()
     currentProject->save();
     statusBar()->message( tr( "Project '%1' saved.").arg( currentProject->projectName() ), 3000 );
     return TRUE;
-
-    //#### TODO reggie: this needs to check return values, ensure that
-    //saveAs() works properly if there is no real filename, update
-    //timestamps and and and ...
 }
 
 bool MainWindow::fileSaveAs()
 {
     statusBar()->message( tr( "Enter a filename..." ) );
-    if ( !formWindow() )
-	return FALSE;
-    return formWindow()->saveAs();
+
+    QWidget *w = qworkspace->activeWindow();
+    if ( w->inherits( "FormWindow" ) )
+	return ( (FormWindow*)w )->saveAs();
+    else if ( w->inherits( "SourceEditor" ) )
+	return ( (SourceEditor*)w )->saveAs();
+    return FALSE;
 }
 
 void MainWindow::fileSaveAll()

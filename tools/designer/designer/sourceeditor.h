@@ -45,6 +45,7 @@ public:
     void setFunction( const QString &func, const QString &clss = QString::null );
     void setClass( const QString &clss );
     void save();
+    bool saveAs();
     void setModified( bool b );
     bool isModified() const;
 
