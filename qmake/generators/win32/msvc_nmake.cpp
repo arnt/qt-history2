@@ -174,7 +174,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
       << varGlue("QMAKE_CLEAN","\n\t-del ","\n\t-del ","")
       << varGlue("CLEAN_FILES","\n\t-del ","\n\t-del ","");
     if(project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty()) {
-	t << "\n\t-del" << var("DLLDESTDIR") << "\\$(TARGET)";
+	t << "\n\t-del " << var("DLLDESTDIR") << "\\$(TARGET)";
     }
     t << endl << endl;
 }
