@@ -679,13 +679,13 @@ then
 	"
 	;;
      HP-UX:*)
-	#PLATFORM=hpux-acc
+	PLATFORM=hpux-acc
 	#PLATFORM=hpux-cc
 	#PLATFORM=hpux-n64
 	#PLATFORM=hpux-o64
-	PLATFORM=hpux-g++
+	#PLATFORM=hpux-g++
 	PLATFORM_NOTES="
-	    - Also available for HP-UX: hpux-acc hpux-cc hpux-n64 hpux-o64
+	    - Also available for HP-UX: hpux-g++ hpux-cc hpux-n64 hpux-o64
 	"
 	;;
      OSF1:*)
