@@ -88,7 +88,14 @@ only. It is provided free of charge under the terms of the
 */
 
 /*! \page commonproblems.html
-\title Common Problems
+\title Common Problems and Special Use Cases
+
+This document describes how to use more than one Qt version on one
+machine and how to use Qt on X11 without a window manager. In addition
+it explains the most common source of link errors with Qt.
+
+Other frequently asked questions can be found in the
+\link http://www.trolltech.com/developer/faq/ FAQ index \endlink .
 
 <h2>Link error, complaining about a lack of \c vtbl, \c _vtbl, \c
 __vtbl or similar </h2>

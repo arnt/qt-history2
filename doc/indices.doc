@@ -59,7 +59,8 @@ What´s New
 <td>
 <ul>
 <li> \link aboutqt.html About Qt \endlink
-<li> \link commonproblems.html Common Problems \endlink
+<li> \link commonproblems.html Common Problems and Special Use Cases\endlink
+<li> \link http://www.trolltech.com/developer/faq/ FAQs\endlink
 <li> \link winsystem.html  Windowsystem-specific notes \endlink
 <li> \link buyhowto.html How to buy Qt \endlink
 </ul>
