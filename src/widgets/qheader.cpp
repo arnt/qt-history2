@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#16 $
 **
 **  Table header
 **
@@ -216,7 +216,7 @@ void QHeader::init( int n )
     a2l.resize(n+1);
     l2a.resize(n+1);
     for ( int i = 0; i < n ; i ++ ) {
-	labels[i] = "Uninitialized";
+	labels[i] = 0;
 	sizes[i] = 88;
 	a2l[i] = i;
 	l2a[i] = i;
@@ -366,34 +366,23 @@ void QHeader::moveAround( int fromIdx, int toIdx )
 {
     if ( fromIdx == toIdx )
 	return;
-    debug( "moving from %d to %d", fromIdx, toIdx );
     int i;
 
     int idx = a2l[fromIdx];
-    //    const char *p = labels[fromIdx];
-    //    int s = sizes[fromIdx];
     if ( fromIdx < toIdx ) {
 	for ( i = fromIdx; i < toIdx - 1; i++ ) {
-	    //    sizes[i] = sizes[i+1];
-	    //    labels[i] = labels[i+1];
 	    int t;
 	    a2l[i] = t = a2l[i+1];
 	    l2a[t] = t;
 	}
-	//	sizes[toIdx-1] = s;
-	//	labels[toIdx-1] = p;
 	a2l[toIdx-1] = idx;
 	l2a[idx] = toIdx-1;
     } else {
 	for ( i = fromIdx; i > toIdx ; i-- ) {
-	    //	    sizes[i] = sizes[i-1];
-	    //	    labels[i] = labels[i-1];
 	    int t;
 	    a2l[i] = t = a2l[i-1];
 	    l2a[t] = t;
 	}
-	//	sizes[toIdx] = s;
-	//	labels[toIdx] = p;
 	a2l[toIdx] = idx;
 	l2a[idx] = toIdx;
     }
@@ -429,7 +418,9 @@ void QHeader::paintCell( QPainter *p, int row, int col )
     else
 	qDrawShadePanel( p, fr, colorGroup(), down );
 
-    const char *s = labels[mapToLogical(i)];
+    int logIdx = mapToLogical(i);
+
+    const char *s = labels[logIdx];
     int d = 0;
     if ( style() == WindowsStyle  &&
 	 i==handleIdx && ( state == Pressed || state == Moving ) )
@@ -442,8 +433,17 @@ void QHeader::paintCell( QPainter *p, int row, int col )
 	m.translate( 0, -width() ); //###########  
 	p->setWorldMatrix( m );  
     }
-    p->drawText ( r, AlignLeft| AlignVCenter|SingleLine, s );
-    
+
+    if ( s ) {
+	p->drawText ( r, AlignLeft| AlignVCenter|SingleLine, s );
+    } else {
+	QString str;
+	if ( orient == Horizontal )
+	    str.sprintf( "Col %d", logIdx );
+	else
+	    str.sprintf( "Row %d", logIdx );
+	p->drawText ( r, AlignLeft| AlignVCenter|SingleLine, str );
+    }
 }
 
 void QHeader::mousePressEvent( QMouseEvent *m )
@@ -481,7 +481,7 @@ void QHeader::mouseReleaseEvent( QMouseEvent *m )
 	break;
     case Sliding:
 	// setCursor( arrowCursor ); // We're probably still there...
-	emit sizeChange( 0, 0 ); //##########
+	emit sizeChange( 0, 0 ); //######################################
 	break;
     case Moving: {
 	setCursor( arrowCursor );
@@ -542,7 +542,8 @@ void QHeader::mouseMoveEvent( QMouseEvent *m )
 		int oldPos = pPos( handleIdx );
 		int delta = s - oldPos;
 		sizes[mapToLogical(handleIdx - 1)] += delta;
-		repaint(oldPos-2, 0, width(), height()); //###################################
+		int repaintPos = QMIN( oldPos, s ); 
+		repaint(repaintPos-2, 0, width(), height());
 		/*
 		int us, uw;
 		if ( oldPos < s ) {
