@@ -634,7 +634,8 @@ void DocEmitter::emitHtml() const
     rootSection.title = config->product() + " Reference Documentation";
     rootSection.ref = "index.html";
     generateXmlSections( rootSection,
-			 config->product().lower().replace(" ", "-") + ".xml",
+			 config->product().lower()
+			 .replace(QRegExp("[\\s/]"), "-") + ".xml",
 			 config->product().lower() + "/reference" );
 }
 
