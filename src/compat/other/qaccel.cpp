@@ -407,19 +407,15 @@ bool QAccelManager::dispatchAccelEvent(QWidget* w, QKeyEvent* e)
     int hasShift = (e->state()&Qt::ShiftButton)?1:0;
     bool identicalDisabled = false;
     bool matchFound = false;
-    qDebug("Search old system for shortcut");
     do {
         matchFound = false;
         for (int i = 0; i < accels.size(); ++i) {
             accel = accels.at(i);
-            qDebug("Accel: %p", &accel);
             if (correctSubWindow(w, accel)) {
-                qDebug("    correct subwindow");
                 if (accel->enabled) {
                     for (int j = accel->aitems.size(); j > 0;) {
                         --j;
                         item = accel->aitems.at(j);
-                        qDebug("        Item: %s", ((QString)item->key).latin1());
                         result = match(&pe, item, tocheck);
                         if (QKeySequence::ExactMatch == result) {
                             if (item->enabled) {
@@ -492,7 +488,6 @@ bool QAccelManager::dispatchAccelEvent(QWidget* w, QKeyEvent* e)
         currentState = QKeySequence::NoMatch; // Free sequence keylock
         intermediate = QKeySequence();
         lastaccel->activate(lastitem);
-        qDebug("activate(lastitem)");
         e->accept();
         return true;
     }
@@ -515,7 +510,6 @@ bool QAccelManager::dispatchAccelEvent(QWidget* w, QKeyEvent* e)
             mainStatusBar->message(message, 2000);
 #endif
         lastaccel->activateAmbiguously(lastitem);
-        qDebug("activateAmbiguously(lastitem)");
     } else { // start (or wrap) with the first matching
         intermediate = QKeySequence();
         currentState = QKeySequence::NoMatch; // Free sequence keylock
@@ -527,7 +521,6 @@ bool QAccelManager::dispatchAccelEvent(QWidget* w, QKeyEvent* e)
             mainStatusBar->message(message, 2000);
 #endif
         firstaccel->activateAmbiguously(firstitem);
-        qDebug("activateAmbiguously(firstitem)");
     }
     e->accept();
     return true;
@@ -841,7 +834,6 @@ void QAccelPrivate::activate(QAccelItem* item)
         return;
     }
 #endif
-    qDebug("QAccelPrivate::activate(item)");
     if (item->signal)
         item->signal->activate();
     else
@@ -850,7 +842,6 @@ void QAccelPrivate::activate(QAccelItem* item)
 
 void QAccelPrivate::activateAmbiguously(QAccelItem* item)
 {
-    qDebug("QAccelPrivate::activateAmbiguously(item)");
     if (item->signal)
         item->signal->activate();
     else
