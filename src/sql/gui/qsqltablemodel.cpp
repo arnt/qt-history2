@@ -857,13 +857,11 @@ bool QSqlTableModel::insertRows(int row, const QModelIndex &parent, int count)
     case OnManualSubmit:
         if (!d->cache.isEmpty()) {
             QMap<int, QSqlTableModelPrivate::ModifiedRow>::Iterator it = d->cache.end();
-            while ((--it).key() >= row) {
+            while (it != d->cache.begin() && (--it).key() >= row) {
                 int oldKey = it.key();
                 const QSqlTableModelPrivate::ModifiedRow oldValue = it.value();
                 d->cache.erase(it);
                 it = d->cache.insert(oldKey + count, oldValue);
-                if (it == d->cache.begin())
-                    break;
             }
         }
 
