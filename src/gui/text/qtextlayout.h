@@ -108,7 +108,7 @@ public:
     enum LayoutMode {
         MultiLine = 0,
         NoBidi = 1,
-        SingleLine = 2,
+        SingleLine = 2
     };
 
     void clearLines();
