@@ -199,9 +199,12 @@ QFocusFrame::eventFilter(QObject *o, QEvent *e)
         case QEvent::StyleChange:
             hide();
             break;
-        case QEvent::Show:
         case QEvent::ParentChange:
             d->update();
+            break;
+        case QEvent::Show:
+            d->update();
+            show();
             break;
         case QEvent::PaletteChange:
             setPalette(d->widget->palette());
