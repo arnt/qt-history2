@@ -50,6 +50,15 @@ NmakeMakefileGenerator::writeMakefile(QTextStream &t)
     return FALSE;
 }
 
+QStringList
+&NmakeMakefileGenerator::findDependencies(const QString &file)
+{
+    QStringList &aList = MakefileGenerator::findDependencies(file);
+    if (!project->variables()["PRECOMPH"].isEmpty())
+	aList.append(project->first("PCH"));
+    return aList;
+}
+
 void
 NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 {
@@ -157,6 +166,32 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
 	t << " " << (*cppit);
     t << endl << endl;
+
+    bool usePCH = !project->variables()["PRECOMPH"].isEmpty();
+    QString precomph = project->first("PRECOMPH");
+    QString precompcpp = project->variables()["PRECOMPCPP"].join(" "); // Can be more than one .cpp file
+    QString pch = precomph; pch.replace(".h", ".pch");
+    bool deletePCHcpp = precompcpp.isEmpty();
+    if (usePCH) {
+	// Add PCH to project (used in findDependencies)
+	project->variables()["PCH"] += pch;
+	// Add PCH to cleanup
+	project->variables()["QMAKE_CLEAN"] += pch;
+	// Manipulate rules to use precompiled header
+	project->variables()["QMAKE_RUN_CC"]		= QStringList::split(' ', project->variables()["QMAKE_RUN_CC"].join(" ").replace("-c", "-c -Yu" + precomph));
+	project->variables()["QMAKE_RUN_CC_IMP"]	= QStringList::split(' ', project->variables()["QMAKE_RUN_CC_IMP"].join(" ").replace("-c", "-c -Yu" + precomph));
+	project->variables()["QMAKE_RUN_CC_IMP_BATCH"]	= QStringList::split(' ', project->variables()["QMAKE_RUN_CC_IMP_BATCH"].join(" ").replace("-c", "-c -Yu" + precomph));
+	project->variables()["QMAKE_RUN_CXX"]		= QStringList::split(' ', project->variables()["QMAKE_RUN_CXX"].join(" ").replace("-c", "-c -Yu" + precomph));
+	project->variables()["QMAKE_RUN_CXX_IMP"]	= QStringList::split(' ', project->variables()["QMAKE_RUN_CXX_IMP"].join(" ").replace("-c", "-c -Yu" + precomph));
+	project->variables()["QMAKE_RUN_CXX_IMP_BATCH"]	= QStringList::split(' ', project->variables()["QMAKE_RUN_CXX_IMP_BATCH"].join(" ").replace("-c", "-c -Yu" + precomph));
+	if(deletePCHcpp) {
+	    precompcpp = project->first("TARGET") + "_pch";
+	    project->variables()["QMAKE_CLEAN"] += precompcpp + ".obj";
+	    project->variables()["QMAKE_CLEAN"] += precompcpp + ".cpp";
+	    precompcpp += ".cpp";
+	}
+    }
+
     if(!project->isActiveConfig("no_batch")) {
 	// Batchmode doesn't use the non implicit rules QMAKE_RUN_CXX & QMAKE_RUN_CC
 	project->variables().remove("QMAKE_RUN_CXX");
@@ -341,6 +376,13 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     t << "distclean: clean"
       << "\n\t-$(DEL_FILE) $(TARGET)"
       << endl << endl;
+
+    // precompiled header
+    if(usePCH) {
+	t << pch << ": " << precomph << " " << precompcpp << "\n\t" << "$(CXX) -c -Yc" << precomph << " $(CXXFLAGS) $(INCPATH) " << precompcpp << endl << endl;
+	if (deletePCHcpp)
+	    t << precompcpp << ":\n\t" << "@echo #include \"" << precomph << "\" > " << precompcpp << endl << endl;
+    }
 }
 
 
