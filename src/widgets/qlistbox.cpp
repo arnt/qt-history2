@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#63 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#64 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#63 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#64 $")
 
 
 declare(QListM, QListBoxItem);
@@ -68,7 +68,7 @@ static inline bool checkIndex( const char *method, int count, int index )
   \ingroup abstract
 
   This class is the abstract base class of all list box items. If you
-  need to insert animated cartoons into a QListBox, you must inherit
+  need to insert customized items into a QListBox, you must inherit
   this class and reimplement paint(), height() and width().
 
   The following shows how to define a list box item which shows a
