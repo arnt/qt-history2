@@ -3064,7 +3064,7 @@ QFocusData * QWidget::focusData( bool create )
   safe to turn the compression on.
 
   Qt performs key event compression only for printable characters.
-  Modifier keys, cursor movement keys, functon keys and miscellaneous
+  Modifier keys, cursor movement keys, function keys and miscellaneous
   action keys (e.g. Escape, Return, Backspace, PrintScreen) will stop key
   event compression, even if there are more compressible key events
   available.
