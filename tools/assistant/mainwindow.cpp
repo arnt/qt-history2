@@ -64,7 +64,7 @@ MainWindow::MainWindow()
     updateProfileSettings();
 
     dw = new QDockWidget(this);
-    dw->setAllowedAreas(Qt::AllDockWidgetAreas);
+    dw->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     dw->setWindowTitle(tr("Sidebar"));
     helpDock = new HelpDialog(dw, this);
     dw->setWidget(helpDock);
