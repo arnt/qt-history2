@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#if defined(Q_CC_MSVC) && !defined(Q_CC_MSVC_NET) && !defined(Q_OS_TEMP)
+#if defined(Q_CC_MSVC) && !defined(Q_OS_TEMP)
 #include <crtdbg.h>
 #endif
 
