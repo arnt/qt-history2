@@ -660,7 +660,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		break;
 	    case PdcSetClipRegion:
 		s >> rgn >> i_8;
-		painter->setClipRegion( rgn, (QPainter::CoordinateMode)i_8 );
+		painter->setClipRegion( rgn );
 		break;
 	    default:
 		qWarning( "QPicture::play: Invalid command %d", c );

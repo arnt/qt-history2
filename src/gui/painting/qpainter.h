@@ -43,7 +43,6 @@ class QTextItem;
 class Q_GUI_EXPORT QPainter : public Qt
 {
 public:
-    enum CoordinateMode { CoordDevice, CoordPainter };
     enum TextDirection { Auto, RTL, LTR };
     enum RenderHint {
 	LineAntialiasing = 1
@@ -90,10 +89,10 @@ public:
     void setBackground(const QBrush &bg);
     const QBrush &background() const;
 
-    QRegion clipRegion(CoordinateMode = CoordDevice) const;
-    void setClipRect(const QRect &, CoordinateMode = CoordDevice);
-    void setClipRect(int x, int y, int w, int h, CoordinateMode = CoordDevice);
-    void setClipRegion(const QRegion &, CoordinateMode = CoordDevice);
+    QRegion clipRegion() const;
+    void setClipRect(const QRect &);
+    void setClipRect(int x, int y, int w, int h);
+    void setClipRegion(const QRegion &);
     void setClipping(bool enable);
     bool hasClipping() const;
 
@@ -347,9 +346,9 @@ inline void QPainter::drawChord(int x, int y, int w, int h, int a, int alen)
     drawChord(QRect(x, y, w, h), a, alen);
 }
 
-inline void QPainter::setClipRect(int x, int y, int w, int h, CoordinateMode mode)
+inline void QPainter::setClipRect(int x, int y, int w, int h)
 {
-    setClipRect(QRect(x, y, w, h), mode);
+    setClipRect(QRect(x, y, w, h));
 }
 
 inline void QPainter::setWindow(const QRect &r)

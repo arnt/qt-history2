@@ -663,16 +663,8 @@ void QPainter::setClipping( bool enable )
     \sa setClipRegion(), setClipRect(), setClipping() QPainter::CoordinateMode
 */
 
-QRegion QPainter::clipRegion(CoordinateMode m) const
+QRegion QPainter::clipRegion() const
 {
-    if (m == CoordPainter && (d->state->VxF || d->state->WxF))
-	return d->state->matrix.invert() * d->state->clipRegion;
-
-    if (!d->redirection_offset.isNull()) {
-	QRegion rgn(d->state->clipRegion);
-	rgn.translate(d->redirection_offset);
-	return rgn;
-    }
     return d->state->clipRegion;
 }
 
@@ -697,9 +689,9 @@ QRegion QPainter::clipRegion(CoordinateMode m) const
 
     Sets the clip region of the rectange \a rect.
 */
-void QPainter::setClipRect( const QRect &rect, CoordinateMode mode ) // ### inline?
+void QPainter::setClipRect(const QRect &rect) // ### inline?
 {
-    setClipRegion(QRegion(rect), mode);
+    setClipRegion(QRegion(rect));
 }
 
 /*!
@@ -713,20 +705,16 @@ void QPainter::setClipRect( const QRect &rect, CoordinateMode mode ) // ### inli
     \sa setClipRect(), clipRegion(), setClipping() CoordinateMode
 */
 
-void QPainter::setClipRegion(const QRegion &r, CoordinateMode m)
+void QPainter::setClipRegion(const QRegion &r)
 {
-    Q_ASSERT(d->engine);
-    if (m == CoordPainter && (d->state->VxF || d->state->WxF)) {
-	d->state->clipRegion = d->state->matrix * r;
-    } else {
-	d->state->clipRegion = r;
-	if (!d->redirection_offset.isNull())
-	    d->state->clipRegion.translate(-d->redirection_offset);
+    if (!isActive()) {
+	qWarning("QPainter::setClipRegion(); painter not active");
+	return;
     }
+    d->state->clipRegion = d->state->matrix * r;
     d->state->clipEnabled = true;
     if (d->engine)
 	d->engine->setDirty(QPaintEngine::DirtyClip);
-    d->engine->updateState(d->state);
 }
 
 
@@ -3248,16 +3236,16 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	    reg.translate( painter->d->state->xlatex, painter->d->state->xlatey );
 #endif
  	    if (painter->hasClipping())
- 		reg &= painter->clipRegion(QPainter::CoordPainter);
+ 		reg &= painter->clipRegion();
 
 	    painterHasClip = painter->hasClipping();
-	    painterClipRegion = painter->clipRegion(QPainter::CoordPainter);
+	    painterClipRegion = painter->clipRegion();
 	    restoreClipping = true;
-	    painter->setClipRegion(reg, QPainter::CoordPainter);
+	    painter->setClipRegion(reg);
 	} else {
 	    if ( painter->hasClipping() ){
 		painterHasClip = painter->hasClipping();
-		painterClipRegion = painter->clipRegion(QPainter::CoordPainter);
+		painterClipRegion = painter->clipRegion();
 		restoreClipping = true;
 		painter->setClipping( false );
 	    }
@@ -3282,7 +3270,7 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	}
 
 	if ( restoreClipping ) {
-	    painter->setClipRegion(painterClipRegion, QPainter::CoordPainter);
+	    painter->setClipRegion(painterClipRegion);
 	    painter->setClipping( painterHasClip );
 	}
     }

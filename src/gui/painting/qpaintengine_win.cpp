@@ -1290,24 +1290,8 @@ void QWin32PaintEngine::updateXForm(QPainterState *state)
 
 void QWin32PaintEngine::updateClipRegion(QPainterState *state)
 {
-    if (!isActive())
-	return;
-
-//     if ( !isActive() || enable == testf(ClipOn) )
-// 	return;
-
     if (state->clipEnabled) {
 	QRegion rgn = state->clipRegion;
-// 	rgn.translate(-redirection_offset);
-// 	if ( pdev == dirty_hack_paintDevice() )
-// 	rgn = rgn.intersect( *(QPainter::dirty_hack_paintRegion()) );
-
-	if (state->VxF || state->WxF) {
-	    if (state->txop == QPainter::TxTranslate)
-		rgn.translate(state->worldMatrix.dx(), state->worldMatrix.dy());
-	    else
-		rgn = state->worldMatrix * rgn;
-	}
 
 	// Setting an empty region as clip region on Win just dmainisables clipping completely.
 	// To workaround this and get the same semantics on Win and Unix, we set a 1x1 pixel
@@ -1315,12 +1299,8 @@ void QWin32PaintEngine::updateClipRegion(QPainterState *state)
 	if ( rgn.isEmpty() )
 	    rgn = QRect(-0x1000000, -0x1000000, 1, 1);
 	SelectClipRgn(d->hdc, rgn.handle());
-    }
-    else {
-// 	if (pdev == paintEventDevice)
-// 	SelectClipRgn(d->hdc, paintEventClipRegion->handle());
-// 	else
-	    SelectClipRgn(d->hdc, 0);
+    } else {
+	SelectClipRgn(d->hdc, 0);
     }
 
 }

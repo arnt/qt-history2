@@ -574,7 +574,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 	    p->save();
             QRegion cr = QRect(x, y, w, h);
 	    if (p->hasClipping())
-		cr &= p->clipRegion(QPainter::CoordPainter);
+		cr &= p->clipRegion();
 	    p->setClipRegion(cr);
 	}
     }

@@ -402,7 +402,7 @@ static void drawSelection(QPainter *p, QPalette *pal, QTextLayout::SelectionType
 			  const QRect &rect, const QTextLine &line, const QPoint &pos, int selectionIdx)
 {
     p->save();
-    p->setClipRect(rect, QPainter::CoordPainter);
+    p->setClipRect(rect);
     QColor bg;
     QColor text;
     switch(type) {

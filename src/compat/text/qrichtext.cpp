@@ -4853,8 +4853,8 @@ void Q3TextParagraph::drawString( QPainter &painter, const QString &str, int sta
 			r.setRight(fullSelectionWidth);
 		    QRegion reg(r);
 		    if ( painter.hasClipping() )
-			reg &= painter.clipRegion(QPainter::CoordPainter);
-		    painter.setClipRegion(reg, QPainter::CoordPainter);
+			reg &= painter.clipRegion();
+		    painter.setClipRegion(reg);
 		}
 		int xleft = xstart;
 		if ( extendLeft ) {

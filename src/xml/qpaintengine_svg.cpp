@@ -789,7 +789,7 @@ bool QSVGPaintEngine::play(QPainter *pt)
     // SVG doesn't respect x and y. But we want a proper bounding rect.
     d->brect.setWidth(int(width) - x);
     d->brect.setHeight(int(height) - y);
-    pt->setClipRect(d->brect, QPainter::CoordPainter);
+    pt->setClipRect(d->brect);
 
     if (attr.contains("viewBox")) {
 	QRegExp re(QString::fromLatin1("\\s*(\\S+)\\s*,?\\s*(\\S+)\\s*,?"
@@ -1062,7 +1062,7 @@ bool QSVGPaintEnginePrivate::play(const QDomNode &node, QPainter *pt)
 		r.setY(lenToInt(childAttr, "y"));
 		r.setWidth(lenToInt(childAttr, "width"));
 		r.setHeight(lenToInt(childAttr, "height"));
-		pt->setClipRect(r, QPainter::CoordPainter);
+		pt->setClipRect(r);
 	    } else if (child.nodeName() == "ellipse") {
 		QRect r;
 		int x = lenToInt(childAttr, "cx");
@@ -1074,7 +1074,7 @@ bool QSVGPaintEnginePrivate::play(const QDomNode &node, QPainter *pt)
 		r.setWidth(width * 2);
 		r.setHeight(height * 2);
 		QRegion rgn(r, QRegion::Ellipse);
-		pt->setClipRegion(rgn, QPainter::CoordPainter);
+		pt->setClipRegion(rgn);
 	    }
 	    break;
 	}
