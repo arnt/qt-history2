@@ -30,34 +30,34 @@
 /*
    The operating system, must be one of: (Q_OS_x)
 
-     DARWIN     - Darwin OS (synonym for Q_OS_MAC)
-     MSDOS        - MS-DOS and Windows
-     OS2        - OS/2
-     OS2EMX        - XFree86 on OS/2 (not PM)
-     WIN32        - Win32 (Windows 95/98/ME and Windows NT/2000/XP)
-     CYGWIN        - Cygwin
-     SOLARIS        - Sun Solaris
-     HPUX        - HP-UX
-     ULTRIX        - DEC Ultrix
-     LINUX        - Linux
-     FREEBSD        - FreeBSD
-     NETBSD        - NetBSD
-     OPENBSD        - OpenBSD
-     BSDI        - BSD/OS
-     IRIX        - SGI Irix
-     OSF        - HP Tru64 UNIX
-     SCO        - SCO OpenServer 5
-     UNIXWARE        - UnixWare 7, Open UNIX 8
-     AIX        - AIX
-     HURD        - GNU Hurd
-     DGUX        - DG/UX
-     RELIANT        - Reliant UNIX
-     DYNIX        - DYNIX/ptx
-     QNX        - QNX
-     QNX6        - QNX RTP 6.1
-     LYNX        - LynxOS
-     BSD4        - Any BSD 4.4 system
-     UNIX        - Any UNIX BSD/SYSV system
+     DARWIN   - Darwin OS (synonym for Q_OS_MAC)
+     MSDOS    - MS-DOS and Windows
+     OS2      - OS/2
+     OS2EMX   - XFree86 on OS/2 (not PM)
+     WIN32    - Win32 (Windows 95/98/ME and Windows NT/2000/XP)
+     CYGWIN   - Cygwin
+     SOLARIS  - Sun Solaris
+     HPUX     - HP-UX
+     ULTRIX   - DEC Ultrix
+     LINUX    - Linux
+     FREEBSD  - FreeBSD
+     NETBSD   - NetBSD
+     OPENBSD  - OpenBSD
+     BSDI     - BSD/OS
+     IRIX     - SGI Irix
+     OSF      - HP Tru64 UNIX
+     SCO      - SCO OpenServer 5
+     UNIXWARE - UnixWare 7, Open UNIX 8
+     AIX      - AIX
+     HURD     - GNU Hurd
+     DGUX     - DG/UX
+     RELIANT  - Reliant UNIX
+     DYNIX    - DYNIX/ptx
+     QNX      - QNX
+     QNX6     - QNX RTP 6.1
+     LYNX     - LynxOS
+     BSD4     - Any BSD 4.4 system
+     UNIX     - Any UNIX BSD/SYSV system
 */
 
 #if defined(__APPLE__) && defined(__GNUC__)
@@ -119,9 +119,9 @@
 #  define Q_OS_QNX
 #elif defined(_SEQUENT_)
 #  define Q_OS_DYNIX
-#elif defined(_SCO_DS)                   /* SCO OpenServer 5 + GCC */
+#elif defined(_SCO_DS) /* SCO OpenServer 5 + GCC */
 #  define Q_OS_SCO
-#elif defined(__USLC__)                  /* all SCO platforms + UDK or OUDK */
+#elif defined(__USLC__) /* all SCO platforms + UDK or OUDK */
 #  define Q_OS_UNIXWARE
 #elif defined(__svr4__) && defined(i386) /* Open UNIX 8 + GCC */
 #  define Q_OS_UNIXWARE
@@ -152,28 +152,28 @@
 /*
    The compiler, must be one of: (Q_CC_x)
 
-     SYM        - Digital Mars C/C++ (used to be Symantec C++)
-     MPW        - MPW C++
-     MWERKS        - Metrowerks CodeWarrior
-     MSVC        - Microsoft Visual C/C++, Intel C++ for Windows
-     BOR        - Borland/Turbo C++
-     WAT        - Watcom C++
-     GNU        - GNU C++
-     COMEAU        - Comeau C++
-     EDG        - Edison Design Group C++
-     OC                - CenterLine C++
-     SUN        - Forte Developer, or Sun ONE Studio C++
-     MIPS        - MIPSpro C++
-     DEC        - DEC C++
-     HP                - HPUX C++
-     HPACC        - HPUX ANSI C++
-     USLC        - SCO OUDK, UDK, and UnixWare 2.X C++
-     CDS        - Reliant C++
-     KAI        - KAI C++
-     INTEL        - Intel C++ for Linux, Intel C++ for Windows
-     HIGHC        - MetaWare High C/C++
-     PGI        - Portland Group C++
-     GHS        - Green Hills Optimizing C++ Compilers
+     SYM      - Digital Mars C/C++ (used to be Symantec C++)
+     MPW      - MPW C++
+     MWERKS   - Metrowerks CodeWarrior
+     MSVC     - Microsoft Visual C/C++, Intel C++ for Windows
+     BOR      - Borland/Turbo C++
+     WAT      - Watcom C++
+     GNU      - GNU C++
+     COMEAU   - Comeau C++
+     EDG      - Edison Design Group C++
+     OC       - CenterLine C++
+     SUN      - Forte Developer, or Sun ONE Studio C++
+     MIPS     - MIPSpro C++
+     DEC      - DEC C++
+     HP       - HPUX C++
+     HPACC    - HPUX ANSI C++
+     USLC     - SCO OUDK, UDK, and UnixWare 2.X C++
+     CDS      - Reliant C++
+     KAI      - KAI C++
+     INTEL    - Intel C++ for Linux, Intel C++ for Windows
+     HIGHC    - MetaWare High C/C++
+     PGI      - Portland Group C++
+     GHS      - Green Hills Optimizing C++ Compilers
 
    Should be sorted most to least authoritative.
 */
@@ -283,14 +283,14 @@
 
    C++ product                C product
 
-            C Set 3.1         C Compiler 3.0
-                  ...         ...
+   C Set 3.1                  C Compiler 3.0
+   ...                        ...
    C++ Compiler 3.6.6         C Compiler 4.3
-                  ...         ...
+   ...                        ...
    Visual Age C++ 4.0         ...
-                  ...         ...
+   ...                        ...
    Visual Age C++ 5.0         C Compiler 5.0
-                  ...         ...
+   ...                        ...
    Visual Age C++ 6.0         C Compiler 6.0
 
    Now:
@@ -490,13 +490,13 @@
 /*
    The window system, must be one of: (Q_WS_x)
 
-     MACX        - Mac OS X
-     MAC9        - Mac OS 9
-     QWS        - Qt/Embedded
-     WIN32        - Windows
-     X11        - X Window System
-     PM                - unsupported
-     WIN16        - unsupported
+     MACX     - Mac OS X
+     MAC9     - Mac OS 9
+     QWS      - Qt/Embedded
+     WIN32    - Windows
+     X11      - X Window System
+     PM       - unsupported
+     WIN16    - unsupported
 */
 
 #if defined(Q_OS_MSDOS)
@@ -604,32 +604,32 @@ typedef const char *pcchar;
 // Size-dependent types (architechture-dependent byte order)
 //
 
-typedef signed char                Q_INT8;                // 8 bit signed
-typedef unsigned char                Q_UINT8;        // 8 bit unsigned
-typedef short                        Q_INT16;        // 16 bit signed
-typedef unsigned short                Q_UINT16;        // 16 bit unsigned
-typedef int                        Q_INT32;        // 32 bit signed
-typedef unsigned int                Q_UINT32;        // 32 bit unsigned
+typedef signed char Q_INT8;         // 8 bit signed
+typedef unsigned char Q_UINT8;      // 8 bit unsigned
+typedef short Q_INT16;              // 16 bit signed
+typedef unsigned short Q_UINT16;    // 16 bit unsigned
+typedef int Q_INT32;                // 32 bit signed
+typedef unsigned int Q_UINT32;      // 32 bit unsigned
 #if defined(Q_OS_WIN64)
-typedef __int64                        Q_LONG;                // word up to 64 bit signed
-typedef unsigned __int64        Q_ULONG;        // word up to 64 bit unsigned
+typedef __int64 Q_LONG;             // word up to 64 bit signed
+typedef unsigned __int64 Q_ULONG;   // word up to 64 bit unsigned
 #else
-typedef long                        Q_LONG;                // word up to 64 bit signed
-typedef unsigned long                Q_ULONG;        // word up to 64 bit unsigned
+typedef long Q_LONG;                // word up to 64 bit signed
+typedef unsigned long Q_ULONG;      // word up to 64 bit unsigned
 #endif
 #if defined(Q_OS_WIN) && !defined(Q_CC_GNU)
-#  define Q_INT64_C(c)                 c ## i64        // signed 64 bit constant
-#  define Q_UINT64_C(c)                c ## ui64        // unsigned 64 bit constant
-typedef __int64                        Q_INT64;        // 64 bit signed
-typedef unsigned __int64        Q_UINT64;        // 64 bit unsigned
+#  define Q_INT64_C(c) c ## i64    // signed 64 bit constant
+#  define Q_UINT64_C(c) c ## ui64  // unsigned 64 bit constant
+typedef __int64 Q_INT64;            // 64 bit signed
+typedef unsigned __int64 Q_UINT64;  // 64 bit unsigned
 #else
-#  define Q_INT64_C(c)                 c ## LL                // signed 64 bit constant
-#  define Q_UINT64_C(c)                c ## ULL        // unsigned 64 bit constant
-typedef long long                Q_INT64;        // 64 bit signed
-typedef unsigned long long        Q_UINT64;        // 64 bit unsigned
+#  define Q_INT64_C(c) c ## LL     // signed 64 bit constant
+#  define Q_UINT64_C(c) c ## ULL   // unsigned 64 bit constant
+typedef long long Q_INT64;          // 64 bit signed
+typedef unsigned long long Q_UINT64;// 64 bit unsigned
 #endif
-typedef Q_INT64                        Q_LLONG;        // signed long long
-typedef Q_UINT64                Q_ULLONG;        // unsigned long long
+typedef Q_INT64 Q_LLONG;            // signed long long
+typedef Q_UINT64 Q_ULLONG;          // unsigned long long
 
 typedef int QNoImplicitIntegralCast;
 
@@ -696,7 +696,7 @@ typedef int QNoImplicitIntegralCast;
 // Utility macros and inline functions
 //
 
-#define QABS(a)        ((a) >= 0  ? (a) : -(a))
+#define QABS(a) ((a) >= 0  ? (a) : -(a))
 
 inline int qRound(double d)
 { return d >= 0.0 ? int(d + 0.5) : int(d - int(d-1) + 0.5) + int(d-1); }
@@ -937,8 +937,8 @@ class QDataStream;
 #      define Q_COMPAT_EXPORT Q_DECL_IMPORT
 #    endif
 #    define Q_TEMPLATEDLL
-#    undef  Q_DISABLE_COPY        /* avoid unresolved externals */
-#  elif defined(QT_DLL)                /* use a Qt DLL library */
+#    undef  Q_DISABLE_COPY /* avoid unresolved externals */
+#  elif defined(QT_DLL) /* use a Qt DLL library */
 #    define Q_CORE_EXPORT Q_DECL_IMPORT
 #    define Q_GUI_EXPORT Q_DECL_IMPORT
 #    define Q_SQL_EXPORT Q_DECL_IMPORT
@@ -948,13 +948,13 @@ class QDataStream;
 #    define Q_XML_EXPORT Q_DECL_IMPORT
 #    define Q_COMPAT_EXPORT Q_DECL_IMPORT
 #    define Q_TEMPLATEDLL
-#    undef  Q_DISABLE_COPY        /* avoid unresolved externals */
+#    undef  Q_DISABLE_COPY /* avoid unresolved externals */
 #  endif
 #elif defined(Q_OS_LINUX) && defined(Q_CC_BOR)
 #  define Q_TEMPLATEDLL
-#  undef  Q_DISABLE_COPY        /* avoid unresolved externals */
+#  undef  Q_DISABLE_COPY /* avoid unresolved externals */
 #else
-#  undef QT_MAKEDLL                /* ignore these for other platforms */
+#  undef QT_MAKEDLL /* ignore these for other platforms */
 #  undef QT_DLL
 #endif
 
@@ -1018,41 +1018,41 @@ public:
 #endif
 #ifdef Q_WS_WIN
     enum WinVersion {
-        WV_32s                 = 0x0001,
-        WV_95                 = 0x0002,
-        WV_98                = 0x0003,
-        WV_Me                = 0x0004,
-        WV_DOS_based        = 0x000f,
+        WV_32s      = 0x0001,
+        WV_95       = 0x0002,
+        WV_98       = 0x0003,
+        WV_Me       = 0x0004,
+        WV_DOS_based= 0x000f,
 
-        WV_NT                 = 0x0010,
-        WV_2000         = 0x0020,
-        WV_XP                = 0x0030,
-        WV_2003                = 0x0040,
-        WV_NT_based        = 0x00f0,
+        WV_NT       = 0x0010,
+        WV_2000     = 0x0020,
+        WV_XP       = 0x0030,
+        WV_2003     = 0x0040,
+        WV_NT_based = 0x00f0,
 
-        WV_CE           = 0x0100,
-        WV_CENET        = 0x0200,
-        WV_CE_based        = 0x0f00
+        WV_CE       = 0x0100,
+        WV_CENET    = 0x0200,
+        WV_CE_based = 0x0f00
     };
     static const WinVersion WindowsVersion;
 #endif
 #ifdef Q_WS_MAC
     enum MacVersion {
         //Unknown
-        MV_Unknown      = 0x0000,
+        MV_Unknown  = 0x0000,
 
         //Version numbers
-        MV_9            = 0x0001,
-        MV_10_DOT_0     = 0x0002,
-        MV_10_DOT_1     = 0x0003,
-        MV_10_DOT_2     = 0x0004,
-        MV_10_DOT_3     = 0x0005,
+        MV_9        = 0x0001,
+        MV_10_DOT_0 = 0x0002,
+        MV_10_DOT_1 = 0x0003,
+        MV_10_DOT_2 = 0x0004,
+        MV_10_DOT_3 = 0x0005,
 
         //Code names
-        MV_CHEETAH      = MV_10_DOT_0,
-        MV_PUMA         = MV_10_DOT_1,
-        MV_JAGUAR       = MV_10_DOT_2,
-        MV_PANTHER      = MV_10_DOT_3
+        MV_CHEETAH  = MV_10_DOT_0,
+        MV_PUMA     = MV_10_DOT_1,
+        MV_JAGUAR   = MV_10_DOT_2,
+        MV_PANTHER  = MV_10_DOT_3
     };
     static const MacVersion MacintoshVersion;
 #endif
@@ -1116,13 +1116,13 @@ inline QT_COMPAT int qWinVersion() { return QSysInfo::WindowsVersion; }
 #  define QT_DEBUG
 #endif
 
-Q_CORE_EXPORT void qDebug(const char *, ...)        // print debug message
+Q_CORE_EXPORT void qDebug(const char *, ...) // print debug message
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
     __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
 
-Q_CORE_EXPORT void qWarning(const char *, ...)        // print warning message
+Q_CORE_EXPORT void qWarning(const char *, ...) // print warning message
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
     __attribute__ ((format (printf, 1, 2)))
 #endif
@@ -1136,13 +1136,13 @@ class QNoDebug;
 #  define qWarning if(1); else qWarning
 #endif
 
-Q_CORE_EXPORT void qSystemWarning(const char *, ...)        // print system message
+Q_CORE_EXPORT void qSystemWarning(const char *, ...) // print system message
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
     __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
 
-Q_CORE_EXPORT void qFatal(const char *, ...)        // print fatal message and exit
+Q_CORE_EXPORT void qFatal(const char *, ...) // print fatal message and exit
 #if defined(Q_CC_GNU)
     __attribute__ ((format (printf, 1, 2)))
 #endif
@@ -1322,18 +1322,18 @@ enum { // TYPEINFO flags
     Q_MOVABLE_TYPE   = 2
 };
 
-#define Q_DECLARE_TYPEINFO(TYPE, FLAGS)                                                        \
-template <>                                                                                \
-class QTypeInfo<TYPE>                                                                        \
-{                                                                                        \
-public:                                                                                        \
-    enum {                                                                                \
-        isComplex = ((FLAGS & Q_PRIMITIVE_TYPE) == 0),                                        \
-        isStatic  = ((FLAGS & (Q_MOVABLE_TYPE|Q_PRIMITIVE_TYPE)) == 0),                        \
-        isLarge   = (sizeof(TYPE)>sizeof(void*)),                                        \
-        isPointer = false                                                                \
-    };                                                                                        \
-    static inline const char *name() { return #TYPE; }                                        \
+#define Q_DECLARE_TYPEINFO(TYPE, FLAGS) \
+template <> \
+class QTypeInfo<TYPE> \
+{ \
+public: \
+    enum { \
+        isComplex = ((FLAGS & Q_PRIMITIVE_TYPE) == 0), \
+        isStatic  = ((FLAGS & (Q_MOVABLE_TYPE|Q_PRIMITIVE_TYPE)) == 0), \
+        isLarge   = (sizeof(TYPE)>sizeof(void*)), \
+        isPointer = false \
+    }; \
+    static inline const char *name() { return #TYPE; } \
 }
 
 /*
