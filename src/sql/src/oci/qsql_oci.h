@@ -32,6 +32,7 @@ private:
     QOCIPrivate* 	d;
     QOCIResultPrivate*  cols;
     RowsetCache     	rowCache;
+    QSqlFieldList       fs;
     bool                cached;
     bool                cacheNext();
 };
