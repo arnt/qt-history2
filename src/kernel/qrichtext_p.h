@@ -1505,10 +1505,10 @@ inline int QTextFormat::minRightBearing() const
 }
 
 inline int QTextFormat::width( const QChar &c ) const
-{
+{	
     if ( !painter || !painter->isActive() ) {
 	if ( c == '\t' )
-	    return 30;
+	    return fm.width( 'x' ) * 8;
 	int w;
 	if ( c.row() )
 	    w = fm.width( c );

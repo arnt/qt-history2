@@ -1793,12 +1793,16 @@ void QTextDocument::doLayout( QPainter *p, int w )
     cw = w;
     vw = w;
     invalidate();
-    fCollection->setPainter( p );
+    if ( !par )
+	fCollection->setPainter( p );
     QTextParag *parag = fParag;
     while ( parag ) {
+	parag->invalidate( 0 );
 	parag->format();
 	parag = parag->next();
     }
+    if ( !par )
+	fCollection->setPainter( 0 );
 }
 
 QPixmap *QTextDocument::bufferPixmap( const QSize &s )
@@ -4211,6 +4215,7 @@ void QTextFormat::setColor( const QColor &c )
 void QTextFormat::setPainter( QPainter *p )
 {
     painter = p;
+    update();
 }
 
 static int makeLogicFontSize( int s )
@@ -5049,6 +5054,7 @@ void QTextTable::adjustToPainter( QPainter* p)
 	cell->adjustToPainter();
 
     width = 0;
+    painter = 0;
 }
 
 void QTextTable::verticalBreak( int  yt, QTextFlow* flow )
@@ -5462,7 +5468,7 @@ bool QTextTableCell::isEmpty() const
 void QTextTableCell::setGeometry( const QRect& r)
 {
     if ( r.width() != cached_width )
-	richtext->doLayout( 0, r.width() ); // ### should pass painter() here, but this has to be removed from the formatCollection nad formats when the painter is dead
+	richtext->doLayout( painter(), r.width() );
     cached_width = r.width();
     richtext->setWidth( r.width() );
     geom = r;
@@ -5484,7 +5490,7 @@ int QTextTableCell::heightForWidth( int w ) const
 
     if ( cached_width != w ) {
  	QTextTableCell* that = (QTextTableCell*) this;
-	that->richtext->doLayout( 0, w ); // ### should pass painter() here, but this has to be removed from the formatCollection nad formats when the painter is dead
+	that->richtext->doLayout( painter(), w );
 	that->cached_width = w;
     }
     return richtext->height();
@@ -5495,9 +5501,9 @@ void QTextTableCell::adjustToPainter()
     if ( hasFixedWidth )
 	return;
 
-    richtext->doLayout( 0, QWIDGETSIZE_MAX ); // ### should pass painter() here, but this has to be removed from the formatCollection nad formats when the painter is dead
+    richtext->doLayout( painter(), QWIDGETSIZE_MAX );
     maxw = richtext->widthUsed() + 6;
-    richtext->doLayout( 0, 0 ); // ### should pass painter() here, but this has to be removed from the formatCollection nad formats when the painter is dead
+    richtext->doLayout( painter(), 0 );
     minw = richtext->widthUsed();
 }
 
@@ -5509,7 +5515,7 @@ QPainter* QTextTableCell::painter() const
 void QTextTableCell::draw( int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg )
 {
     if ( cached_width != geom.width() ) {
-	richtext->doLayout( 0, geom.width() ); // ### should pass painter() here, but this has to be removed from the formatCollection nad formats when the painter is dead
+	richtext->doLayout( painter(), geom.width() );
 	cached_width = geom.width();
     }
     QColorGroup g( cg );
