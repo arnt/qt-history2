@@ -1,6 +1,6 @@
 TEMPLATE	= app
 include(../include/shared.pri)
-SOURCES	        += qdb.cpp
+SOURCES	        += main.cpp
 LIBS		+= -lqdb
 LIBPATH		+= ../lib
 INCLUDEPATH	+= ../include

@@ -7,11 +7,11 @@
 #include <qtextstream.h>
 #include <qvaluestack.h>
 
-class Environment : public qdb::Environment
+class QDb : public qdb::Environment
 {
 public:
-    Environment();
-    virtual ~Environment();
+    QDb();
+    virtual ~QDb();
 
     void setOutput( QTextStream& stream ) { out = &stream; }
     QTextStream& output() { return *out; }

@@ -5,7 +5,7 @@
 
 */
 
-Environment::Environment()
+QDb::QDb()
     : stdOut( stdout, IO_WriteOnly )
 {
     out = &stdOut;
@@ -16,17 +16,17 @@ Environment::Environment()
 
 */
 
-Environment::~Environment()
+QDb::~QDb()
 {
     reset();
 }
 
-void Environment::addDriver( int id, const QString& fileName )
+void QDb::addDriver( int id, const QString& fileName )
 {
     drivers[id] = FileDriver( this, fileName );
 }
 
-void Environment::addResult( int id )
+void QDb::addResult( int id )
 {
     results[id] = ResultSet( this );
 }
@@ -38,7 +38,7 @@ void Environment::addResult( int id )
 
 */
 
-FileDriver& Environment::fileDriver( int id )
+FileDriver& QDb::fileDriver( int id )
 {
     return drivers[id];
 }
@@ -48,7 +48,7 @@ FileDriver& Environment::fileDriver( int id )
 
 */
 
-QValueStack<QVariant>& Environment::stack()
+QValueStack<QVariant>& QDb::stack()
 {
     return stck;
 }
@@ -58,13 +58,13 @@ QValueStack<QVariant>& Environment::stack()
 
 */
 
-Program& Environment::program()
+Program& QDb::program()
 {
     return pgm;
 }
 
 
-bool Environment::parse( const QString& /*commands*/, bool verbose )
+bool QDb::parse( const QString& /*commands*/, bool verbose )
 {
     //## jasmin todo
     if ( verbose )
@@ -76,7 +76,7 @@ bool Environment::parse( const QString& /*commands*/, bool verbose )
 
 */
 
-bool Environment::execute( bool verbose )
+bool QDb::execute( bool verbose )
 {
     if ( verbose )
 	output() << "executing..." << endl;
@@ -97,7 +97,7 @@ bool Environment::execute( bool verbose )
 
 */
 
-void Environment::reset()
+void QDb::reset()
 {
     stck.clear();
     pgm.clear();
@@ -112,12 +112,12 @@ void Environment::reset()
 
 */
 
-ResultSet& Environment::resultSet( int id )
+ResultSet& QDb::resultSet( int id )
 {
     return results[id];
 }
 
-bool Environment::save( QIODevice *dev )
+bool QDb::save( QIODevice *dev )
 {
     if ( !dev || !dev->isOpen() )
 	return FALSE;
@@ -140,7 +140,7 @@ bool Environment::save( QIODevice *dev )
     return TRUE;
 }
 
-bool Environment::save( const QString& filename )
+bool QDb::save( const QString& filename )
 {
     QFile f( filename );
     if ( !f.open( IO_WriteOnly ) )
@@ -169,7 +169,7 @@ static QString asListing( QVariant& v )
     return s;
 }
 
-bool Environment::saveListing( QTextStream& stream )
+bool QDb::saveListing( QTextStream& stream )
 {
     stream << "Program Listing" << endl;
     pgm.resetCounter();
@@ -188,7 +188,7 @@ bool Environment::saveListing( QTextStream& stream )
 }
 
 
-bool Environment::saveListing( const QString& filename )
+bool QDb::saveListing( const QString& filename )
 {
     QFile f( filename );
     if ( !f.open( IO_WriteOnly ) )
