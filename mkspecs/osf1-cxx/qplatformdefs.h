@@ -4,28 +4,19 @@
 // Get Qt defines/settings
 #include "qglobal.h"
 
-// Set any POSIX/XOPEN defines at the top of this file to turn on
-// specific APIs
-#define _POSIX_C_SOURCE 199506L
-#define _XOPEN_SOURCE 500
-#define _XOPEN_SOURCE_EXTENDED 1
-
-// this is required to get O_NDELAY, but I don't know why. The Tru64
-// headers have a commend about O_NDELAY and O_NONBLOCK having different
-// behaviours in future versions, but it seems wierd to have O_NDELAY
-// protected by _OSF_SOURCE
-#define _OSF_SOURCE
 
 #include <unistd.h>
 #include <sys/types.h>
-
 // We are hot - unistd.h should have turned on all the specific
 // APIs we requested
+
 
 #ifdef QT_THREAD_SUPPORT
 #  include <pthread.h>
 #endif
 
+
+#include <ctype.h>
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -36,12 +27,12 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <strings.h>
+//#include <strings.h>
 #include <time.h>
 
 #include <netinet/in.h>
 
-#include <sys/fcntl.h>
+//#include <sys/fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/ipc.h>
 #include <sys/time.h>
@@ -82,7 +73,19 @@
 #define QT_SIGNAL_ARGS		int
 #define QT_SIGNAL_IGNORE	SIG_IGN
 
-#define QT_SOCKLEN_T	size_t
+#if defined(_XOPEN_SOURCE) && defined(_OSF_SOURCE)
+// Not available in the <unistd.h> header of Tru64 4.0F.
+// Fixed on Tru64 5.0A so we copy/paste from there...
+extern "C" int usleep(useconds_t);
+#endif
+
+#if defined(_POSIX_PII_SOCKET)
+#  define QT_SOCKLEN_T socklen_t
+#elif defined(_XOPEN_SOURCE_EXTENDED)
+#  define QT_SOCKLEN_T size_t
+#else
+#  define QT_SOCKLEN_T int
+#endif
 
 #define QT_NREAD	I_NREAD
 
