@@ -87,16 +87,15 @@
 /QS {                                % stroke command
   PSt 0 ne                         % != NO_PEN
   { 
-    LWi SW                         % set line width
     gsave
-      PCol SC                        % set pen color
+      LWi SW                         % set line width
       true GPS 0 setdash S           % draw line pattern
       OMo PSt 1 ne and               % opaque mode and not solid line?
+      { 
+	BkCol SC
+	false GPS dup 0 get setdash S % fill in opaque pattern
+      } if
     grestore
-    { 
-      BkCol SC
-      false GPS dup 0 get setdash S % fill in opaque pattern
-    } if
   } if
 } D
 
@@ -266,82 +265,88 @@
 {
   gsave
     translate
-    dup false ne { 
-      % have a mask, see if we can use it
-      /languagelevel where {
+    1 index 1 eq { % bitmap
+      false eq { % no mask, draw solid background
 	pop
-	languagelevel 3 ge 
-      } { false } ifelse
-    } { 
-      false 
-    } ifelse
-    {
-      % languagelevel3, we can use image mask and dicts
-
-      % store the image mask
-      /ma exch d
-      % select colorspace according to 8|24 bit depth and set the decode array /dc
-      dup
-      1 eq {
-	pop
-	/dc [0 1] d
-	/DeviceGray
-	/bpp 1 d
-      } {
-        8 eq {
-	  /dc [0 1] d
-	  /DeviceGray
-        } {
-	  /dc [0 1 0 1 0 1] d
-	  /DeviceRGB
-        } ifelse
-	/bpp 8 d
-      } ifelse
-      setcolorspace
-      % the image data
-      /im exch d
-      % transformation matrix
-      /mt exch d
-      % width and height
-      /h exch def
-      /w exch def
-      % the image dict
-      /id
-      7 dict dup begin
-	/ImageType 1 d
-	/Width		        w d
-	/Height		        h d
-	/ImageMatrix            mt d
-	/DataSource		im d
-	/BitsPerComponent	bpp d
-	/Decode		        dc d
-      end d
-      % the mask dictionary
-      /md
-      7 dict dup begin
-	/ImageType		1 d
-	/Width		        w d
-	/Height		        h d
-	/ImageMatrix            mt d
-	/DataSource		ma d
-	/BitsPerComponent	1 d
-	/Decode		        [0 1] d
-      end d
-      % and the combined image dict
-      4 dict dup begin
-	/ImageType 3 d
-	/DataDict id d
-	/MaskDict md d
-	/InterleaveType 3 d
-      end 
-      image
-    } {
-      pop % no mask or can't use it, get rid of it
-      dup 1 eq { % bitmap
+	true 3 1 roll % width height false matrix image
+	4 index
+	4 index
+	false
+	4 index
+	4 index
+	imagemask
+	BkCol SC
+	imagemask
+      } { 
 	pop
 	false 3 1 roll % width height false matrix image
 	imagemask
+      } ifelse
+    } { 
+      dup false ne { 
+	% have a mask, see if we can use it
+	/languagelevel where {
+	  pop
+	  languagelevel 3 ge 
+	} { false } ifelse
+      } { 
+	false 
+      } ifelse
+
+      {
+	% languagelevel3, we can use image mask and dicts
+
+	% store the image mask
+	/ma exch d
+	% select colorspace according to 8|24 bit depth and set the decode array /dc
+	dup
+	8 eq {
+	  /dc [0 1] d
+	  /DeviceGray
+	} {
+	  /dc [0 1 0 1 0 1] d
+	  /DeviceRGB
+	} ifelse
+	setcolorspace
+	% the image data
+	/im exch d
+	% transformation matrix
+	/mt exch d
+	% width and height
+	/h exch def
+	/w exch def
+	% the image dict
+	/id
+	7 dict dup begin
+	  /ImageType 1 d
+	  /Width		        w d
+	  /Height		        h d
+	  /ImageMatrix            mt d
+	  /DataSource		im d
+	  /BitsPerComponent	8 d
+	  /Decode		        dc d
+	end d
+	% the mask dictionary
+	/md
+	7 dict dup begin
+	  /ImageType		1 d
+	  /Width		        w d
+	  /Height		        h d
+	  /ImageMatrix            mt d
+	  /DataSource		ma d
+	  /BitsPerComponent	1 d
+	  /Decode		        [0 1] d
+	end d
+	% and the combined image dict
+	4 dict dup begin
+	  /ImageType 3 d
+	  /DataDict id d
+	  /MaskDict md d
+	  /InterleaveType 3 d
+	end 
+	image
       } {
+	pop % no mask or can't use it, get rid of it
 	8 % width height image 8|24 8 matrix
 	4 1 roll
 	8 eq { % grayscale
@@ -460,7 +465,6 @@
   -1 0 RL
   0  1 RL
   CP
-  PCol SC
   fill
 } D
 
@@ -616,6 +620,7 @@
   /LWi ED
   /PSt ED
   LWi 0 eq { 0.25 /LWi ED } if % ### 3.0 remove this line
+  PCol SC
 } D
 
 /P1 {                                % PdcSetPen [R G B]
@@ -707,14 +712,12 @@
 /Tl { % draw underline/strikeout line: () w x y lw ->Tl-> () w x
   gsave 
     setlinewidth
-    PCol SC
     NP 1 index exch MT
     1 index 0 rlineto stroke
   grestore
 } D
 
 /XYT {  % [string [x/y displacement array] width x]
-  PCol SC % really need to kill these SCs
   ty MT % pops x
 
   /xyshow where { % interpreter has xyshow
@@ -733,7 +736,6 @@
 } D
 
 /AT {
-  PCol SC % really need to kill these SCs
   ty MT % pops x
   1 index % string cwidth string
   dup length 2 div exch % string cwidth length string     !have to divide by 2 since we use unicode!
