@@ -1556,8 +1556,11 @@ void QWidget::showMaximized()
 	    bounds.right -= tlextra->fright;
 	    bounds.bottom -= tlextra->fbottom;
 	}
+	QRect orect(geometry().x(), geometry().y(), width(), height()), 
+	    nrect(bounds.left, bounds.top, bounds.right - bounds.left, bounds.bottom - bounds.top);
+	if(orect.size() == nrect.size())
+	    return; //nah.. no real point..
 
-	QRect orect(geometry().x(), geometry().y(), width(), height());
 	Rect oldr;
 	SetRect(&oldr, orect.x(), orect.y(), orect.right(), orect.bottom());
 	SetWindowUserState((WindowPtr)hd, &oldr);
@@ -1566,12 +1569,9 @@ void QWidget::showMaximized()
 	ZoomWindow((WindowPtr)hd, inZoomOut, FALSE);
 	qt_dirty_wndw_rgn("showMaxim",this, mac_rect(rect()));
 
-	crect.setRect(bounds.left, bounds.top, bounds.right - bounds.left,
-		       bounds.bottom - bounds.top);
-
+	crect = nrect;
 	if(isVisible()) {
 	    dirtyClippedRegion(TRUE);
-
 	    //issue a resize
 	    QResizeEvent qre(size(), orect.size());
 	    QApplication::sendEvent(this, &qre);
@@ -1692,8 +1692,13 @@ void QWidget::internalSetGeometry(int x, int y, int w, int h, bool isMove)
     if(isDesktop())
 	return;
     if(extra) {				// any size restrictions?
-	if(isTopLevel())
+	if(isTopLevel()) {
 	    qt_mac_update_sizer(this);
+	    if(extra->maxw && extra->maxh && extra->maxw == extra->minw && extra->maxh == extra->minh) 
+		ChangeWindowAttributes((WindowRef)handle(), 0, kWindowFullZoomAttribute);
+	    else
+		ChangeWindowAttributes((WindowRef)handle(), kWindowFullZoomAttribute, 0);
+	}
 	w = QMIN(w,extra->maxw);
 	h = QMIN(h,extra->maxh);
 	w = QMAX(w,extra->minw);
