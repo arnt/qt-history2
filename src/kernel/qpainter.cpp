@@ -2616,6 +2616,8 @@ void qt_format_text( const QFont& font, const QRect &r,
 			cin++;
 			skip++;
 			l--;
+		    } else if ( l == 1 ) {
+			skip++;
 		    }
 		}
 		*cout = *cin;
@@ -2704,9 +2706,10 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    }
 	}
 
-    } else {
-
+    }
 #ifndef QT_NO_RICHTEXT
+    else {
+
 #if defined(QT_FORMAT_TEXT_DEBUG)
 	qDebug("textflags: %d %d %d %d alignment: %d/%d", wordbreak, expandtabs, singleline, showprefix, tf&Qt::AlignHorizontal_Mask, tf&Qt::AlignVertical_Mask);
 #endif
