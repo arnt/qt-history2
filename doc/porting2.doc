@@ -656,7 +656,7 @@ movie was set, you might have trouble.  This is unlikely.
 
 <h3><a name=QDialog>QDialog</a></h3>
 
-<p> The semantics of the parent pointer changed for non-modal dialogs:
+<p> The semantics of the parent pointer changed for modeless dialogs:
 In Qt-2.x, dialogs are always top level windows. The parent, however,
 takes the ownership of the dialog, i.e. it will delete the dialog at
 destruction if it has not been explicitly deleted

@@ -127,7 +127,7 @@ public:
   operation. Use setAutoReset() and setAutoClose() to change this
   behavior.
 
-  There are two ways of using QProgressDialog: modal and non-modal.
+  There are two ways of using QProgressDialog: modal and modeless.
 
   Using a modal QProgressDialog is simpler for the programmer, but you
   must call qApp->processEvents() to keep the event loop running
@@ -148,12 +148,12 @@ for ( int i = 0; i < numFiles; i++ ) {
 progress.setProgress( numFiles );
 \endcode
 
-  A non-modal progress dialog is suitable for operations that take
+  A modeless progress dialog is suitable for operations that take
   place in the background, where the user is able to interact with the
   application. Such operations are typically based on QTimer (or
   QObject::timerEvent()), QSocketNotifier, or QUrlOperator; or performed
   in a separate thread. A QProgressBar in the status bar of your main window
-  is often an alternative to a non-modal progress dialog.
+  is often an alternative to a modeless progress dialog.
 
   You need to have an event loop to be running, connect the
   cancelled() signal to a slot that stops the operation, and call \l

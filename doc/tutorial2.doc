@@ -1418,6 +1418,8 @@ The \c chart application is ripe for further development and
 experimentation. You might consider implementing some of the following
 ideas:
 \list
+\i Use a QValidator subclass to ensure that only valid doubles are
+entered as values.
 \i Adding more chart types, e.g. line graph, area graph and hi-lo
 graph.
 \i Allowing the user to set top, bottom left and right margins.

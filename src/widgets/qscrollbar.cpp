@@ -938,7 +938,7 @@ int QScrollBar::lineStep() const
 
 /*!
   \property QScrollBar::pageStep
-  \brief the current line step
+  \brief the current page step
 
   When setting pageStep, the virtual stepChange() function will be called
   if the new page step is different from the previous setting.

@@ -2202,7 +2202,7 @@ extern const char qt_file_dialog_filter_reg_exp[] =
 /*!
   Constructs a file dialog called \a name, with the parent, \a parent.
   If \a modal is TRUE then the file dialog is modal; otherwise it is
-  non-modal.
+  modeless.
 */
 
 QFileDialog::QFileDialog( QWidget *parent, const char *name, bool modal )
@@ -2221,7 +2221,7 @@ QFileDialog::QFileDialog( QWidget *parent, const char *name, bool modal )
 /*!
   Constructs a file dialog called \a name with the parent, \a parent.
   If \a modal is TRUE then the file dialog is modal; otherwise it is
-  non-modal.
+  modeless.
 
   If \a dirName is specified then it will be used as the dialog's
   working directory, i.e. it will be the directory that is shown when
@@ -2320,7 +2320,7 @@ void QFileDialog::init()
     d->stack = new QWidgetStack( d->splitter, "files and more files" );
 
     d->splitter->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
-    
+
     files = new QFileDialogQFileListView( d->stack, this );
     QFontMetrics fm = fontMetrics();
     files->addColumn( tr("Name") );

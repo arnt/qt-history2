@@ -95,11 +95,11 @@
   return the appropriate value. Alternatively you can connect to the
   done() slot, passing it \c Accepted or \c Rejected.
 
-  \i A <b>non-modal</b> dialog is a dialog that operates independently of
+  \i A <b>modeless</b> dialog is a dialog that operates independently of
   other windows in the same application. Find and replace dialogs in
   word-processors are often modeless to allow the user to interact with
   both the application's main window and the dialog. Call show() to
-  display a non-modal dialog. show() returns immediately so the flow of
+  display a modeless dialog. show() returns immediately so the flow of
   control will continue in the calling code. In practice you will often
   call show() and come to the end of the function in which show() is
   called with control returning to the main event loop.
