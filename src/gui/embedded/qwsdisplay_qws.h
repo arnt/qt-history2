@@ -23,7 +23,7 @@
 #include "QtCore/qlist.h"
 
 // Class forward definitions
-class QWSRegionManager;
+//class QWSRegionManager;
 class QWSEvent;
 class QWSMouseEvent;
 class QWSQCopMessageEvent;
@@ -54,7 +54,7 @@ public:
     bool eventPending() const;
     QWSEvent *getEvent();
     QGfx * screenGfx();
-    QWSRegionManager *regionManager() const;
+//    QWSRegionManager *regionManager() const;
 
     uchar* frameBuffer() const;
     int width() const;
@@ -76,7 +76,8 @@ public:
 
     void setIdentity(const QString &appName);
     void nameRegion(int winId, const QString& n, const QString &c);
-    void requestRegion(int winId, QRegion);
+    void requestRegion(int winId, int shmid, QRegion);
+    void repaintRegion(int winId, QRegion);
     void moveRegion(int winId, int dx, int dy);
     void destroyRegion(int winId);
     void requestFocus(int winId, bool get);

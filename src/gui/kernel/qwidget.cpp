@@ -926,6 +926,7 @@ void QWidgetPrivate::createTLExtra()
         x->savedFlags = 0;
 #if defined(Q_WS_QWS)
         x->inPaintTransaction = false;
+        x->backingStore = 0;
 #if !defined(QT_NO_QWS_MANAGER)
         x->qwsManager = 0;
 #endif

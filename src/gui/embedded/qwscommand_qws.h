@@ -199,6 +199,7 @@ struct QWSRegionCommand : public QWSCommand
 
     struct SimpleData {
         int windowid;
+        int shmid;
         int nrectangles;
     } simpleData;
 
@@ -298,7 +299,8 @@ struct QWSRepaintRegionCommand : public QWSCommand
     }
 
     struct SimpleData {
-        int numrects;
+        int windowid;
+        int nrectangles;
     } simpleData;
 
     QRect * rectangles;

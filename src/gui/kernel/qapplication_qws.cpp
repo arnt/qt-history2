@@ -38,7 +38,7 @@
 #include "private/qlock_p.h"
 #include "qmemorymanager_qws.h"
 #include "qwsmanager_qws.h"
-#include "qwsregionmanager_qws.h"
+//#include "qwsregionmanager_qws.h"
 #include "qwindowsystem_qws.h"
 #include "qwsdisplay_qws.h"
 #include "private/qwsinputcontext_p.h"
@@ -298,7 +298,7 @@ public:
 
     ~Data()
     {
-        delete rgnMan; rgnMan = 0;
+//        delete rgnMan; rgnMan = 0;
         delete memorymanager; memorymanager = 0;
         qt_screen->disconnect();
         delete qt_screen; qt_screen = 0;
@@ -328,7 +328,7 @@ public:
 
     //####public data members
 
-    QWSRegionManager *rgnMan;
+//    QWSRegionManager *rgnMan;
     uchar *sharedRam;
 #if !defined(Q_NO_QSHM) && !defined(QT_NO_QWS_MULTIPROCESS)
     QSharedMemory shm;
@@ -397,7 +397,7 @@ public:
 #endif
     void fillQueue();
     void waitForConnection();
-    void waitForRegionAck();
+//    void waitForRegionAck();
     void waitForCreation();
 #ifndef QT_NO_COP
     void waitForQCopResponse();
@@ -576,11 +576,11 @@ void QWSDisplay::Data::init()
     memorymanager=new QMemoryManager(qt_screen->base()+screensize+4096,
         qt_screen->totalSize()-(screensize+4096),0);
 
-#ifndef QT_NO_QWS_MULTIPROCESS
-    rgnMan = new QWSRegionManager(pipe, csocket);
-#else
-    rgnMan = new QWSRegionManager(pipe, 0); //####### not necessary
-#endif
+// #ifndef QT_NO_QWS_MULTIPROCESS
+//     rgnMan = new QWSRegionManager(pipe, csocket);
+// #else
+//     rgnMan = new QWSRegionManager(pipe, 0); //####### not necessary
+// #endif
 #ifndef QT_NO_QWS_MULTIPROCESS
     if (csocket)
         csocket->flush();
@@ -764,7 +764,7 @@ void QWSDisplay::Data::waitForConnection()
     exit(1);
 }
 
-
+#if 0
 void QWSDisplay::Data::waitForRegionAck()
 {
     for (;;) {
@@ -783,6 +783,7 @@ void QWSDisplay::Data::waitForRegionAck()
     queue.prepend(region_ack);
     region_ack = 0;
 }
+#endif
 
 void QWSDisplay::Data::waitForCreation()
 {
@@ -837,11 +838,12 @@ QWSDisplay::~QWSDisplay()
     delete lock;
     lock = 0;
 }
-
+#if 0
 QWSRegionManager *QWSDisplay::regionManager() const
 {
     return dd->rgnMan;
 }
+#endif
 
 bool QWSDisplay::eventPending() const
 {
@@ -909,7 +911,8 @@ void QWSDisplay::setProperty(int winId, int property, int mode,
 void QWSDisplay::repaintRegion(QRegion & r)
 {
     QWSRepaintRegionCommand cmd;
-    cmd.simpleData.numrects=r.rects().count();
+    cmd.simpleData.winId = -1;
+    cmd.simpleData.nrectangles=r.rects().count();
     cmd.setData((char *)r.rects().data(),
                  r.rects().count() * sizeof(QRect), false);
     d->sendCommand(cmd);
@@ -963,7 +966,7 @@ void QWSDisplay::setAltitude(int winId, int alt, bool fixed)
     } else {
         d->sendCommand(cmd);
     }
-    d->waitForRegionAck();
+//    d->waitForRegionAck();
 }
 
 void QWSDisplay::requestFocus(int winId, bool get)
@@ -998,10 +1001,10 @@ void QWSDisplay::nameRegion(int winId, const QString& n, const QString &c)
         d->sendCommand(cmd);
 }
 
-void QWSDisplay::requestRegion(int winId, QRegion r)
+void QWSDisplay::requestRegion(int winId, int shmid, QRegion r)
 {
     if (d->directServerConnection()) {
-        qwsServer->request_region(winId, r);
+        qwsServer->request_region(winId, shmid, r);
     } else {
         //by sending the event, I promise not to paint outside the region
 
@@ -1016,13 +1019,42 @@ void QWSDisplay::requestRegion(int winId, QRegion r)
 
         QWSRegionCommand cmd;
         cmd.simpleData.windowid = winId;
+        cmd.simpleData.shmid = shmid;
         cmd.simpleData.nrectangles = ra.count();
         cmd.setData(reinterpret_cast<char *>(ra.data()), ra.count() * sizeof(QRect), false);
         d->sendCommand(cmd);
     }
-    if (!r.isEmpty())
-        d->waitForRegionAck();
+
+    // if (!r.isEmpty())
+    //    d->waitForRegionAck();
 }
+
+void QWSDisplay::repaintRegion(int winId, QRegion r)
+{
+#if 0
+    if (d->directServerConnection()) {
+        qwsServer->repaint_region(winId, r);
+    } else
+#endif
+    {
+        QVector<QRect> ra = r.rects();
+
+        /*
+          for (int i = 0; i < ra.size(); i++) {
+          QRect r(ra[i]);
+          qDebug("rect: %d %d %d %d", r.x(), r.y(), r.right(), r.bottom());
+          }
+        */
+
+        QWSRepaintRegionCommand cmd;
+        cmd.simpleData.windowid = winId;
+        //cmd.simpleData.shmid = shmid;
+        cmd.simpleData.nrectangles = ra.count();
+        cmd.setData(reinterpret_cast<char *>(ra.data()), ra.count() * sizeof(QRect), false);
+        d->sendCommand(cmd);
+    }
+}
+
 
 void QWSDisplay::moveRegion(int winId, int dx, int dy)
 {
@@ -1044,7 +1076,7 @@ void QWSDisplay::moveRegion(int winId, int dx, int dy)
         d->sendCommand(cmd);
     }
     d->offsetPendingExpose(winId, QPoint(cmd.simpleData.dx, cmd.simpleData.dy));
-    d->waitForRegionAck();
+//    d->waitForRegionAck();
 }
 
 void QWSDisplay::destroyRegion(int winId)
@@ -3050,6 +3082,8 @@ void QETWidget::repaintDecoration(QRegion r, bool post)
 
 void QETWidget::updateRegion()
 {
+    qWarning("QETWidget::updateRegion() not implemented");
+#if 0
     if ((windowType() == Qt::Desktop))
        return;
     if (!isVisible())
@@ -3070,10 +3104,14 @@ void QETWidget::updateRegion()
     r = qt_screen->mapToDevice(r, QSize(qt_screen->width(), qt_screen->height()));
 
     qwsDisplay()->requestRegion(winId(), r);
+#endif
 }
+
 
 bool QETWidget::translateRegionModifiedEvent(const QWSRegionModifiedEvent *event)
 {
+    qDebug("QETWidget::translateRegionModifiedEvent");
+#if 0
     QWSRegionManager *rgnMan = qt_fbdpy->regionManager();
 
     if (data->alloc_region_index < 0) {
@@ -3109,6 +3147,7 @@ bool QETWidget::translateRegionModifiedEvent(const QWSRegionModifiedEvent *event
 
         d->bltToScreen(exposed);
     }
+#endif
     return true;
 }
 

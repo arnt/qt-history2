@@ -26,17 +26,18 @@
 #include "qevent.h"
 #include "qcursor.h"
 #include "qwsdisplay_qws.h"
-#include "qwsregionmanager_qws.h"
 #include "qdesktopwidget.h"
 
 #include <private/qwidget_p.h>
+#include <private/qwidget_qws_p.h>
 
-#include <private/qpaintengine_qws_p.h>
 #include "qdecorationfactory_qws.h"
 
 #include "qlayout.h"
 
 #include "qwsmanager_p.h"
+
+#include <qdebug.h>
 
 #define d d_func()
 #define q q_func()
@@ -341,7 +342,7 @@ void QWSManager::paintEvent(QPaintEvent *)
     repaintRegion(QDecoration::All, QDecoration::Normal);
 }
 
-bool QWSManagerPrivate:: doPaint(int decorationRegion, QDecoration::DecorationState state )
+bool QWSManagerPrivate::doPaint(int decorationRegion, QDecoration::DecorationState state)
 {
     bool result = false;
     if (!d->managed->isVisible())
@@ -352,22 +353,29 @@ bool QWSManagerPrivate:: doPaint(int decorationRegion, QDecoration::DecorationSt
 //    d->managed->setAttribute(Qt::WA_WState_InPaintEvent);
 
     QTLWExtra *topextra = d->managed->d->extra->topextra;
-    QPixmap *buf = &topextra->backingStore;
+    QPixmap *buf = topextra->backingStore->pixmap();
     if (buf->isNull()) {
-        qDebug("QWSManager::repaintRegion empty buf");
+        qDebug("QWSManager::doPaint empty buf");
         d->managed->setAttribute(Qt::WA_WState_InPaintEvent, false);
         return false;
     }
     QPainter painter;
     painter.begin(buf);
-    painter.setClipRegion(dec.region(d->managed, d->managed->rect().translated(-topextra->backingStoreOffset )));
+    QRegion clipRgn = dec.region(d->managed, d->managed->rect().translated(-topextra->backingStoreOffset ));
+#if 0
+    qDebug() << "QWSManagerPrivate::doPaint"
+             << "rect" << d->managed->rect()
+             << "backingStoreOffset" << topextra->backingStoreOffset
+             << "clipRgn" << clipRgn;
+#endif
+    painter.setClipRegion(clipRgn);
     painter.translate(-topextra->backingStoreOffset);
 
     result = dec.paint(&painter, d->managed, decorationRegion, state);
     painter.end();
 
     d->managed->setAttribute(Qt::WA_WState_InPaintEvent, false);
-
+    return result;
 }
 
 bool QWSManager::repaintRegion(int decorationRegion, QDecoration::DecorationState state)

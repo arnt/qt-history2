@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include "qgfxrasterbase_qws.h"
-#include "qwsregionmanager_qws.h"
+//#include "qwsregionmanager_qws.h"
 #include "qcolormap.h"
 
 // Used for synchronisation with accelerated drivers
@@ -405,9 +405,12 @@ void QGfxRasterBase::setWidgetDeviceRegion(const QRegion &r)
 
 void QGfxRasterBase::setGlobalRegionIndex(int idx)
 {
+    qDebug("QGfxRasterBase::setGlobalRegionIndex");
+#if 0
     globalRegionIndex = idx;
     globalRegionRevision = qt_fbdpy->regionManager()->revision(idx);
     currentRegionRevision = *globalRegionRevision;
+#endif
 }
 
 /*!
@@ -441,10 +444,13 @@ void QGfxRasterBase::setDashes(char *dashList, int n)
 
 void QGfxRasterBase::fixClip()
 {
+    qDebug("QGfxRasterBase::fixClip");
+#if 0
     currentRegionRevision = *globalRegionRevision;
     QRegion rgn = qt_fbdpy->regionManager()->region(globalRegionIndex);
     widgetrgn &= rgn;
     update_clip();
+#endif
 }
 
 /*!

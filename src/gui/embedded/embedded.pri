@@ -27,7 +27,6 @@ embedded {
 		    embedded/qwsmanager_qws.h \
 		    embedded/qwsmanager_p.h \
 		    embedded/qwsproperty_qws.h \
-		    embedded/qwsregionmanager_qws.h \
 		    embedded/qwssocket_qws.h \
 		    embedded/qwsutils_qws.h
 
@@ -50,7 +49,6 @@ embedded {
 		    embedded/qwsevent_qws.cpp \
 		    embedded/qwsmanager_qws.cpp \
 		    embedded/qwsproperty_qws.cpp \
-		    embedded/qwsregionmanager_qws.cpp \
 		    embedded/qwssocket_qws.cpp
 
 	contains(QT_CONFIG, ft) {

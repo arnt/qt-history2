@@ -29,7 +29,7 @@
 #include "qscreen_qws.h"
 #include "qwsmanager_qws.h"
 #include <private/qwsmanager_p.h>
-#include "qwsregionmanager_qws.h"
+//#include "qwsregionmanager_qws.h"
 
 #include <qgfxraster_qws.h>
 
@@ -37,6 +37,14 @@
 #include "qdebug.h"
 
 #include "qwidget_p.h"
+#include "qwidget_qws_p.h"
+
+
+#include <sys/types.h>
+#include <sys/shm.h>
+
+
+
 #define d d_func()
 #define q q_func()
 
@@ -567,6 +575,11 @@ void QWidget::update(const QRect &r)
  */
 void QWidgetPrivate::bltToScreen(const QRegion &globalrgn)
 {
+//    qDebug("QWidgetPrivate::bltToScreen");
+
+
+    q->qwsDisplay()->repaintRegion(data.winid, globalrgn);
+#if 0
     static QGfx *gfx = 0;
     if ( !gfx)
         gfx = qt_screen->screenGfx();
@@ -580,7 +593,7 @@ void QWidgetPrivate::bltToScreen(const QRegion &globalrgn)
 //     cliprgn.translate(globalpos);
 
     QTLWExtra *topextra = win->d->extra->topextra;
-    QPixmap *buf = &topextra->backingStore;
+    QPixmap *buf = topextra->backingStore->pixmap();
     QPoint bsoffs = topextra->backingStoreOffset;
 
     QPoint topLeft = win->pos();
@@ -613,6 +626,7 @@ void QWidgetPrivate::bltToScreen(const QRegion &globalrgn)
     buf->save(fn, "PNG");
     qDebug() << "bltToScreen" << i << fn << globalrgn;
     ++i;
+#endif
 #endif
 }
 
@@ -687,12 +701,14 @@ void QWidgetPrivate::doPaint(const QRegion &rgn)
 
     QWidget *tlw = q->window();
     QTLWExtra *topextra = tlw->d->extra->topextra;
+    QPixmap *bs = topextra->backingStore->pixmap();
     QPoint redirectionOffset = topextra->backingStoreOffset + q->mapFrom(tlw,QPoint(0,0));
-    QPainter::setRedirected(q, &topextra->backingStore, redirectionOffset);
+
+    QPainter::setRedirected(q, bs, redirectionOffset);
 
     QRegion clipRegion(rgn);
     clipRegion.translate(-redirectionOffset);
-    topextra->backingStore.paintEngine()->setSystemClip(clipRegion);
+    bs->paintEngine()->setSystemClip(clipRegion);
 
     if (!q->testAttribute(Qt::WA_NoBackground) && !q->testAttribute(Qt::WA_NoSystemBackground)) {
         const QPalette &pal = q->palette();
@@ -711,7 +727,7 @@ void QWidgetPrivate::doPaint(const QRegion &rgn)
     QApplication::sendSpontaneousEvent(q, &e);
 
     // Clear the clipping again
-    topextra->backingStore.paintEngine()->setSystemClip(QRegion());
+    bs->paintEngine()->setSystemClip(QRegion());
 
     QPainter::restoreRedirected(q);
 
@@ -728,27 +744,100 @@ void QWidgetPrivate::doPaint(const QRegion &rgn)
 }
 
 
+QWSBackingStore::QWSBackingStore()
+    :pix(0), shmid(-1), shmaddr(0)
+{
+}
+
+QWSBackingStore::~QWSBackingStore()
+{
+    detach();
+}
+
+QSize QWSBackingStore::size() const
+{
+    return pix ? pix->size() : QSize(0,0);
+}
+
+QPixmap *QWSBackingStore::pixmap()
+{
+    return pix;
+}
+void QWSBackingStore::detach()
+{
+    delete pix;
+    pix =0;
+    if (shmid != -1) {
+        shmctl(shmid, IPC_RMID, 0);
+        shmdt(shmaddr);
+        shmid = -1;
+        shmaddr = 0;
+    }
+}
+
+void QWSBackingStore::create(QSize s)
+{
+    if (size() == s)
+        return;
+    detach();
+    pix = new QPixmap;
+    if (s.isNull())
+        return;
+    int extradatasize = 0;//2 * sizeof(int); //store height and width ???
+    int datasize = 4 * s.width() * s.height() + extradatasize;
+    shmid = shmget(IPC_PRIVATE, datasize,  IPC_CREAT|0600);
+    shmaddr = shmat(shmid,0,0);
+    QImage img(static_cast<uchar*>(shmaddr)+extradatasize, s.width(), s.height(),
+               QImage::Format_ARGB32_Premultiplied);
+    *pix = QPixmap::fromImage(img);
+}
+
+void QWSBackingStore::attach(int id, QSize s)
+{
+    if (shmid == id && s == size())
+        return;
+    detach();
+    shmid = id;
+    pix = new QPixmap;
+    if (id == -1)
+        return;
+    shmaddr = shmat(shmid,0,0);
+    if (shmaddr == (void*)-1)
+        return;
+    // IPC_RMID only marks for deletion, so we know that the segment will be removed on exit
+    // we do it in attach instead of create in order to allow on-demand (single use) backing store
+    shmctl(shmid, IPC_RMID, 0);
+
+    int extradatasize = 0;
+    QImage img(static_cast<uchar*>(shmaddr)+extradatasize, s.width(), s.height(),
+               QImage::Format_ARGB32_Premultiplied);
+    *pix = QPixmap::fromImage(img);
+}
+
+
+
 void QWidgetPrivate::requestWindowRegion(const QRegion &r)
 {
     QRegion deviceregion = qt_screen->mapToDevice(r, QSize(qt_screen->width(), qt_screen->height()));
-    q->qwsDisplay()->requestRegion(data.winid, deviceregion);
     Q_ASSERT(extra && extra->topextra);
     QRect br = r.boundingRect();
-    if (extra->topextra->backingStore.size() != br.size()) {
-        extra->topextra->backingStore = QPixmap(br.size());
-#if 0 //DEBUG
-        extra->topextra->backingStore.fill(QColor(Qt::yellow));
-        qDebug() << "backingStore size" << br.size() << "offset" << br.topLeft() - q->geometry().topLeft();
-#endif
+    if (!extra->topextra->backingStore)
+        extra->topextra->backingStore = new QWSBackingStore;
+
+    QWSBackingStore *bs = extra->topextra->backingStore;
+
+    if (bs->size() != br.size()) {
+        bs->create(br.size());
     }
     extra->topextra->backingStoreOffset = br.topLeft() - q->geometry().topLeft();
     paintHierarchy(r);
-
 #ifndef QT_NO_QWS_MANAGER
-        if (extra && extra->topextra && extra->topextra->qwsManager) {
-            extra->topextra->qwsManager->d->doPaint();
-        }
+    if (extra && extra->topextra && extra->topextra->qwsManager) {
+        extra->topextra->qwsManager->d->doPaint();
+    }
 #endif
+
+    q->qwsDisplay()->requestRegion(data.winid, bs->memoryId(), deviceregion);
 }
 
 void QWidgetPrivate::show_sys()

@@ -16,7 +16,7 @@
 #ifdef Q_WS_QWS
 #ifndef QT_NO_DIRECTPAINTER
 #include <qgfxraster_qws.h>
-#include <private/qpaintengine_qws_p.h>
+//#include <private/qpaintengine_qws_p.h>
 
 // gain access to some internal QGfx functionality you'll need.
 class QDirectPainterGfx : public QGfxRasterBase {

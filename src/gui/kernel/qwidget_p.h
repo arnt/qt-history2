@@ -47,8 +47,10 @@
 // Extra QWidget data
 //  - to minimize memory usage for members that are seldom used.
 //  - top-level widgets have extra extra data to reduce cost further
-
+#if defined(Q_WS_QWS)
 class QWSManager;
+class QWSBackingStore;
+#endif
 #if defined(Q_WS_WIN)
 class QOleDropTarget;
 #endif
@@ -100,7 +102,7 @@ struct QTLWExtra {
     QWSManager *qwsManager;
 #endif
 #if defined Q_WS_QWS
-    QPixmap backingStore;
+    QWSBackingStore *backingStore;
     QPoint backingStoreOffset;
 
     QRegion dirtyRegion;

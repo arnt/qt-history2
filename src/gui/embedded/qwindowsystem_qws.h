@@ -38,6 +38,8 @@ class QTcpServer;
 
 class QVariant;
 
+class QWSBackingStore;
+
 class QWSInternalWindowInfo
 {
 public:
@@ -68,10 +70,10 @@ public:
     const QString &caption() const { return rgnCaption; }
     QWSClient* client() const { return c; }
     QRegion requestedRegion() const { return requested_region; }
-    QRegion allocatedRegion() const { return allocated_region; }
+//    QRegion allocatedRegion() const { return allocated_region; }
     bool isVisible() const { return !requested_region.isEmpty(); }
-    bool isPartiallyObscured() const { return requested_region!=allocated_region; }
-    bool isFullyObscured() const { return allocated_region.isEmpty(); }
+//    bool isPartiallyObscured() const { return requested_region!=allocated_region; }
+    bool isFullyObscured() const { return false; /* ### allocated_region.isEmpty();*/ }
 
     void raise();
     void lower();
@@ -86,37 +88,39 @@ private:
     void setName(const QString &n);
     void setCaption(const QString &c);
 
-    void addAllocation(QWSRegionManager *, const QRegion &);
-    void removeAllocation(QWSRegionManager *, const QRegion &);
+//    void addAllocation(QWSRegionManager *, const QRegion &);
+//    void removeAllocation(QWSRegionManager *, const QRegion &);
 
-    int  allocationIndex() const { return alloc_region_idx; }
-    void setAllocationIndex(int i) { alloc_region_idx = i; modified = true; }
-    void updateAllocation();
+//    int  allocationIndex() const { return alloc_region_idx; }
+//    void setAllocationIndex(int i) { alloc_region_idx = i; modified = true; }
+//    void updateAllocation();
 
-    void setNeedAck(bool n) { needAck = n; }
+//    void setNeedAck(bool n) { needAck = n; }
 
     void focus(bool get);
     int focusPriority() const { return last_focus_time; }
     void operation(QWSWindowOperationEvent::Operation o);
     void shuttingDown() { last_focus_time=0; }
 
+    void bltToScreen(const QRegion&);
 private:
     int id;
     QString rgnName;
     QString rgnCaption;
-    int alloc_region_idx;
+//    int alloc_region_idx;
     bool modified;
-    bool needAck;
+//    bool needAck;
     bool onTop;
     QWSClient* c;
     QRegion requested_region;
-    QRegion allocated_region;
+//    QRegion allocated_region;
     QRegion exposed;
     int last_focus_time;
+    QWSBackingStore *backingStore;
     QWSWindowData *d;
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT QRegion requested() const { return requested_region; }
-    inline QT3_SUPPORT QRegion allocation() const { return allocated_region; }
+//    inline QT3_SUPPORT QRegion allocation() const { return allocated_region; }
 #endif
 };
 
@@ -306,7 +310,7 @@ private:
     void move_region(const QWSRegionMoveCommand *);
     void set_altitude(const QWSChangeAltitudeCommand *);
     void request_focus(const QWSRequestFocusCommand *);
-    void request_region(int, QRegion);
+    void request_region(int, int, QRegion);
     void destroy_region(const QWSRegionDestroyCommand *);
     void name_region(const QWSRegionNameCommand *);
     void set_identity(const QWSIdentifyCommand *);
@@ -446,7 +450,7 @@ private:
 #endif
 
     QList<QWSCommandStruct*> commandQueue;
-    QWSRegionManager *rgnMan;
+//    QWSRegionManager *rgnMan;
 
     // Window management
     QList<QWSWindow*> windows; // first=topmost
@@ -457,8 +461,10 @@ private:
     void raiseWindow(QWSWindow *, int = 0);
     void lowerWindow(QWSWindow *, int = -1);
     void exposeRegion(QRegion , int index = 0);
-    void notifyModified(QWSWindow *active = 0);
-    void syncRegions(QWSWindow *active = 0);
+//    void notifyModified(QWSWindow *active = 0);
+//    void syncRegions(QWSWindow *active = 0);
+
+    void compose(int index, QRegion exposed, QRegion &blend, int changing);
 
     void setCursor(QWSCursor *curs);
 
