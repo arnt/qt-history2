@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#77 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#78 $
 **
 ** Definition of QListView widget class
 **
@@ -272,7 +272,7 @@ protected:
 protected slots:
     void updateContents();
     void doAutoScroll();
-  
+
 private slots:
     void changeSortColumn( int );
     void updateDirtyItems();
@@ -341,23 +341,26 @@ class Q_EXPORT QListViewItemIterator
   friend class QListViewItem;
 
 public:
+  QListViewItemIterator();
   QListViewItemIterator(QListViewItem *item);
-  QListViewItemIterator(const QListViewItemIterator& it);
+  QListViewItemIterator(const QListViewItemIterator &it);
   QListViewItemIterator(QListView *lv);
 
+  QListViewItemIterator &operator=(const QListViewItemIterator &it);
+  
   ~QListViewItemIterator();
 
   QListViewItemIterator& operator++();
   const QListViewItemIterator operator++(int);
-
-  QListViewItem *current() const { return curr; }
+  QListViewItemIterator &operator+=(int j);
+  
+  QListViewItem *current() const;
 
 protected:
   QListViewItem *curr;
   QListView *listView;
 
 private:
-  QListViewItemIterator();
   void addToListView();
   void currentRemoved();
 

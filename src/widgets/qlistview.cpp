@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#223 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#224 $
 **
 ** Implementation of QListView widget class
 **
@@ -4186,11 +4186,61 @@ void QListView::removeItem( QListViewItem * i )
  **********************************************************************/
 
 
+/*!
+  \class QListViewItemIterator qlistview.h
+  \brief The QListViewItemIterator class provides an iterator for collections of 
+  QListViewItems (QListViews)
+
+  Construct an instance of a QListViewItemIterator with either a QListView* or
+  a QListViewItem* as argument, to operate on the tree of QListViewItems.
+  
+  Example:
+  \code
+  \endcode
+
+  Program output:
+  \code
+  \endcode
+
+  Using a QListViewItemIterator is a convinient way to traverse the tree
+  of QListViewItems of a QListView. It makes especially operating on a 
+  hirarchical QListView easy.
+  Also multiple QListViewItemIterators can operate on the tree of
+  QListViewItems. A QListView knows about all iterators which are operating
+  on its QListViewItems. So when a QListViewItem gets removed, all iterators 
+  that point to this item get updated and point to the new current item after
+  that.
+  
+  \sa QListView, QListViewItem
+*/
+
+/*!
+  \fn QListViewItemIterator::QListViewItemIterator()
+  Default constructor. Constructs and empty iterator.
+*/
+
+QListViewItemIterator::QListViewItemIterator()
+  : curr(0L), listView(0L)
+{
+}
+
+/*!
+  \fn QListViewItemIterator::QListViewItemIterator(QListViewItem *item)
+  Constructs an iterator for the QListView of the \e item. The current iterator item is
+  set to point on the \e item.
+*/
+
 QListViewItemIterator::QListViewItemIterator(QListViewItem *item)
   : curr(item), listView(item ? item->listView() : 0L)
 {
   addToListView();
 }
+
+/*!
+  \fn QListViewItemIterator::QListViewItemIterator(const QListViewItemIterator& it)
+  Constructs an iterator for the same QListView as \e it. The current iterator item is
+  set to point on the current item of \e it.
+*/
 
 QListViewItemIterator::QListViewItemIterator(const QListViewItemIterator& it)
   : curr(it.curr), listView(it.listView)
@@ -4198,11 +4248,48 @@ QListViewItemIterator::QListViewItemIterator(const QListViewItemIterator& it)
   addToListView();
 }
 
+/*!
+  \fn QListViewItemIterator::QListViewItemIterator(QListView *lv)
+  Constructs an iterator for the QListView \e lv. The current iterator item is
+  set to point on the first child (QListViewItem) of \e lv.
+*/
+
 QListViewItemIterator::QListViewItemIterator(QListView *lv)
   : curr(lv->firstChild()), listView(lv)
 {
   addToListView();
 }
+
+/*!
+  \fn QListViewItemIterator &QListViewItemIterator::operator=(const QListViewItemIterator &it)
+  Assignment. Makes a copy \e it and returns a reference to its iterator.
+*/
+
+QListViewItemIterator &QListViewItemIterator::operator=(const QListViewItemIterator &it)
+{
+  if (listView)
+    {
+      if (listView->d->iterators->removeRef(this))
+	{
+	  if (listView->d->iterators->count() == 0)
+	    {
+	      delete listView->d->iterators;
+	      listView->d->iterators = 0L;
+	    }
+	}
+    }
+
+  listView = it.listView;
+  addToListView();
+  curr = it.curr;
+
+  return *this;
+}
+
+/*!
+  \fn QListViewItemIterator::~QListViewItemIterator()
+  Destroys the iterator.
+*/
 
 QListViewItemIterator::~QListViewItemIterator()
 {
@@ -4218,6 +4305,13 @@ QListViewItemIterator::~QListViewItemIterator()
 	}
     }
 }
+
+/*!
+  \fn QListViewItemIterator& QListViewItemIterator::operator++()
+  Prefix ++ makes the next item in the QListViewItem tree of the QListView
+  of the iterator the current item and returns it. If the current item was the last item
+  in the QListView or null, null is returned.
+*/
 
 QListViewItemIterator& QListViewItemIterator::operator++()
 {
@@ -4245,6 +4339,12 @@ QListViewItemIterator& QListViewItemIterator::operator++()
   return *this;
 }
 
+/*!
+  \fn const QListViewItemIterator QListViewItemIterator::operator++(int)
+  Postfix ++ makes the next item in the QListViewItem tree of the QListView
+  of the iterator the current item and returns the item, which was the current one before.
+*/
+
 const QListViewItemIterator QListViewItemIterator::operator++(int)
 {
   QListViewItemIterator oldValue = *this;
@@ -4252,10 +4352,36 @@ const QListViewItemIterator QListViewItemIterator::operator++(int)
   return oldValue;
 }
 
-QListViewItemIterator::QListViewItemIterator()
-  : curr(0L), listView(0L)
+/*!
+  \fn QListViewItemIterator &QListViewItemIterator::operator+=(int j)
+  Sets the current item to the item \e j positions after the current item
+  in the QListViewItem hirarchie. If this item is beyond the last item, the
+  current item is set to null.
+  The new current item (or null, if the new current item is null) is returned.
+*/
+
+QListViewItemIterator &QListViewItemIterator::operator+=(int j)
 {
+  while (curr && j--)
+    ++(*this);
+  
+  return *this;
 }
+
+/*!
+  \fn QListViewItem *QListViewItemIterator::current() const 
+  Returns a pointer to the current item of the iterator.
+*/
+
+QListViewItem *QListViewItemIterator::current() const 
+{ 
+  return curr; 
+}
+
+/*!
+  \fn void QListViewItemIterator::addToListView()
+  Adds the iterator to the list of iterators of the iterator's QListViewItem.
+*/
 
 void QListViewItemIterator::addToListView()
 {
@@ -4269,6 +4395,12 @@ void QListViewItemIterator::addToListView()
       listView->d->iterators->append(this);
     }
 }
+
+/*!
+  \fn void QListViewItemIterator::currentRemoved()
+  This methode is called to notify the iterator that the current item gets deleted,
+  and lets the current item point to another (valid) item.
+*/
 
 void QListViewItemIterator::currentRemoved()
 {
