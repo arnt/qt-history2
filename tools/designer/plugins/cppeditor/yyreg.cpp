@@ -142,6 +142,7 @@ static int getToken()
 	    case '-':
 	    case '?':
 	    case '|':
+		readChar();
 		return Tok_Something;
 	    case '"':
 	    case '\'':
