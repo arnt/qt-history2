@@ -18,6 +18,6 @@ include(codecs/codecs.pri)
 include(object/object.pri)
 include(other/other.pri)
 
-mac:LIBS += -framework CoreServices -framework CoreFoundation
+mac:LIBS += -framework CoreServices -framework CoreFoundation -framework ApplicationServices
 
 win32:DEFINES-=QT_NO_CAST_TO_ASCII
