@@ -735,7 +735,7 @@ void PropertyTextItem::setValue()
 
 void PropertyTextItem::getText()
 {
-    QString txt = TextEditor::getText( listview, value().toString() );
+    QString txt = MultiLineEditor::getText( listview, value().toString() );
     if ( !txt.isEmpty() ) {
 	setText( 1, txt );
 	PropertyItem::setValue( txt );

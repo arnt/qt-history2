@@ -1319,7 +1319,7 @@ void WidgetFactory::editWidget( int id, QWidget *parent, QWidget *editWidget, Fo
     if ( className == "QMultiLineEdit" || className == "QTextEdit" ) {
 	MultiLineEditor *e = new MultiLineEditor( parent, editWidget, fw );
 	e->exec();
-	delete e;
+	//delete e;
 	return;
     }
 #ifndef QT_NO_TABLE

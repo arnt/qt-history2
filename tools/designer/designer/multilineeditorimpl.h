@@ -21,41 +21,73 @@
 #ifndef MULTILINEEDITORIMPL_H
 #define MULTILINEEDITORIMPL_H
 
+#include <qaction.h>
+#include <qtextedit.h>
+#include <private/qrichtext_p.h>
 #include "multilineeditor.h"
 
 class FormWindow;
+class QToolBar;
+class QTextDocument;
 class QMultiLineEdit;
+
+class TextEdit : public QTextEdit
+{
+    Q_OBJECT
+
+public:
+    TextEdit( QWidget *parent = 0, const char *name = 0 );
+    QTextDocument *document() const { return QTextEdit::document(); }
+    QTextParag *paragraph();
+    
+};
+
+class ToolBarItem : public QAction
+{
+    Q_OBJECT
+
+public:
+    ToolBarItem( QWidget *parent, QWidget *toolBar, 
+                 const QString &label, const QString &tagstr, 
+		 const QIconSet &icon, const QKeySequence &key = 0 );
+    ~ToolBarItem();
+signals:
+    void clicked( const QString &t );
+
+protected slots:
+    void wasActivated();
+private:
+    QString tag;    
+};     
+
 
 class MultiLineEditor : public MultiLineEditorBase
 {
     Q_OBJECT
 
 public:
-    MultiLineEditor( QWidget *parent, QWidget *editWidget, FormWindow *fw );
+    MultiLineEditor( QWidget *parent, QWidget *editWidget, FormWindow *fw, const QString &text = QString::null );
+    static QString getText( QWidget *parent, const QString &text );
+    QString getStaticText();
+    int exec();
 
 protected slots:
     void okClicked();
     void applyClicked();
+    void cancelClicked();
+    void insertTags( const QString& );
+    void insertBR();
+    void showFontDialog();
 
 private:
+    TextEdit *textEdit;
     QMultiLineEdit *mlined;
-    FormWindow *formwindow;
-
-};
-
-class TextEditor : public MultiLineEditorBase
-{
-    Q_OBJECT
-
-public:
-    TextEditor( QWidget *parent, const QString &text );
-
-    static QString getText( QWidget *parent, const QString &text );
-    
-protected slots:
-    void okClicked();
-    void applyClicked();
-
+    FormWindow *formwindow;    
+    QToolBar *basicToolBar;
+    QToolBar *fontToolBar;  
+    int res;     
+    QString staticText;
+    bool callStatic;
 };
 
 #endif

@@ -183,6 +183,8 @@ public:
     void showGUIStuff( bool b );
     void writeConfig();
 
+    void openProject( const QString &fn );
+
 public slots:
     void showProperties( QObject *w );
     void updateProperties( QObject *w );
@@ -304,6 +306,8 @@ private slots:
 
     void emitProjectSignals();
 
+    void showStartDialog();
+
 private:
     void setupMDI();
     void setupMenuBar();
@@ -343,7 +347,6 @@ private:
     bool openEditor( QWidget *w, FormWindow *fw );
     void rebuildCustomWidgetGUI();
     void checkTempFiles();
-    void openProject( const QString &fn );
 
     void addRecentlyOpened( const QString &fn, QStringList &lst );
     QWidget *findRealForm( QWidget *w );

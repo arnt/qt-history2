@@ -228,53 +228,44 @@ void SourceTemplateItem::setProject( Project *pro )
 	iconView()->insertItem( this );
 }
 
-
-
-NewForm::NewForm( QWidget *parent, const QStringList& projects,
-		  const QString& currentProject, const QString &templatePath )
-    : NewFormBase( parent, 0, TRUE )
+void NewForm::insertTemplates( QIconView *tView, 
+			       const QString &templatePath )
 {
-    connect( helpButton, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
-
-    projectCombo->insertStringList( projects );
-    projectCombo->setCurrentText( currentProject );
-
     QStringList::Iterator it;
     QStringList languages = MetaDataBase::languages();
     if ( !MainWindow::self->singleProjectMode() ) {
 	for ( it = languages.begin(); it != languages.end(); ++it ) {
-	    ProjectItem *pi = new ProjectItem( templateView, *it + " " + tr( "Project" ) );
+	    ProjectItem *pi = new ProjectItem( tView, *it + " " + tr( "Project" ) );
 	    allItems.append( pi );
 	    pi->setLanguage( *it );
 	    pi->setPixmap( PixmapChooser::loadPixmap( "project.xpm" ) );
 	    pi->setDragEnabled( FALSE );
 	}
     }
-
     QIconViewItem *cur = 0;
-    FormItem *fi = new FormItem( templateView,tr( "Dialog" ) );
+    FormItem *fi = new FormItem( tView,tr( "Dialog" ) );
     allItems.append( fi );
     fi->setFormType( FormItem::Dialog );
     fi->setPixmap( PixmapChooser::loadPixmap( "newform.xpm" ) );
     fi->setDragEnabled( FALSE );
     cur = fi;
     if ( !MainWindow::self->singleProjectMode() ) {
-	fi = new FormItem( templateView,tr( "Wizard" ) );
+	fi = new FormItem( tView,tr( "Wizard" ) );
 	allItems.append( fi );
 	fi->setFormType( FormItem::Wizard );
 	fi->setPixmap( PixmapChooser::loadPixmap( "newform.xpm" ) );
 	fi->setDragEnabled( FALSE );
-	fi = new FormItem( templateView, tr( "Widget" ) );
+	fi = new FormItem( tView, tr( "Widget" ) );
 	allItems.append( fi );
 	fi->setFormType( FormItem::Widget );
 	fi->setPixmap( PixmapChooser::loadPixmap( "newform.xpm" ) );
 	fi->setDragEnabled( FALSE );
-	fi = new FormItem( templateView, tr( "Main Window" ) );
+	fi = new FormItem( tView, tr( "Main Window" ) );
 	allItems.append( fi );
 	fi->setFormType( FormItem::MainWindow );
 	fi->setPixmap( PixmapChooser::loadPixmap( "newform.xpm" ) );
 	fi->setDragEnabled( FALSE );
-
+	
 	QString templPath = templatePath;
 	QStringList templRoots;
 	if ( templPath.isEmpty() || !QFileInfo( templPath ).exists() ) {
@@ -306,7 +297,7 @@ NewForm::NewForm( QWidget *parent, const QStringList& projects,
 			continue;
 		    QString name = fi->baseName();
 		    name = name.replace( QRegExp( "_" ), " " );
-		    CustomFormItem *ci = new CustomFormItem( templateView, name );
+		    CustomFormItem *ci = new CustomFormItem( tView, name );
 		    allItems.append( ci );
 		    ci->setDragEnabled( FALSE );
 		    ci->setPixmap( PixmapChooser::loadPixmap( "newform.xpm" ) );
@@ -323,7 +314,7 @@ NewForm::NewForm( QWidget *parent, const QStringList& projects,
 	    iface->preferedExtensions( extensionMap );
 	    for ( QMap<QString, QString>::Iterator eit = extensionMap.begin();
 		  eit != extensionMap.end(); ++eit ) {
-		SourceFileItem * si = new SourceFileItem( templateView, *eit );
+		SourceFileItem * si = new SourceFileItem( tView, *eit );
 		allItems.append( si );
 		si->setExtension( eit.key() );
 		si->setLanguage( *it );
@@ -340,7 +331,7 @@ NewForm::NewForm( QWidget *parent, const QStringList& projects,
 	    SourceTemplateInterface *siface = MainWindow::self->sourceTemplateInterface( *sit );
 	    if ( !siface )
 		continue;
-	    SourceTemplateItem * si = new SourceTemplateItem( templateView, *sit );
+	    SourceTemplateItem * si = new SourceTemplateItem( tView, *sit );
 	    allItems.append( si );
 	    si->setTemplate( *sit );
 	    si->setLanguage( siface->language( *sit ) );
@@ -350,12 +341,30 @@ NewForm::NewForm( QWidget *parent, const QStringList& projects,
 	}
     }
 
-    templateView->viewport()->setFocus();
-    projectChanged( projectCombo->currentText() );
-    templateView->setCurrentItem( cur );
+    tView->viewport()->setFocus();
+    tView->setCurrentItem( cur );
 
     if ( MainWindow::self->singleProjectMode() )
 	adjustSize();
+}
+
+NewForm::NewForm()
+{
+
+}
+
+NewForm::NewForm( QWidget *parent, const QStringList& projects,
+		  const QString& currentProject, const QString &templatePath )
+    : NewFormBase( parent, 0, TRUE )
+{
+    connect( helpButton, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
+
+    projectCombo->insertStringList( projects );
+    projectCombo->setCurrentText( currentProject );
+    
+    insertTemplates( templateView, templatePath );
+    
+    projectChanged( projectCombo->currentText() );
 }
 
 void NewForm::accept()
@@ -386,4 +395,9 @@ void NewForm::itemChanged( QIconViewItem *item )
 {
     labelProject->setEnabled( item->rtti() != NewItem::ProjectType );
     projectCombo->setEnabled( item->rtti() != NewItem::ProjectType );
+}
+
+QPtrList<QIconViewItem> NewForm::allViewItems()
+{
+    return allItems;
 }

@@ -1,225 +1,168 @@
-<!DOCTYPE UI><UI>
-<class>MultiLineEditorBase</class><comment>*********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
-**
-** This file is part of Qt Designer.
-**
-** This file may be distributed and/or modified under the terms of the
-** GNU General Public License version 2 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
-** See http://www.trolltech.com/gpl/ for GPL licensing information.
-**
-** Contact info@trolltech.com if any conditions of this licensing are
-** not clear to you.
-**
-*********************************************************************</comment>
-<widget>
-    <class>QDialog</class>
-    <property stdset="1">
-        <name>name</name>
+<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<class>MultiLineEditorBase</class>
+<widget class="QMainWindow">
+    <property name="name">
         <cstring>MultiLineEditorBase</cstring>
     </property>
-    <property stdset="1">
-        <name>geometry</name>
+    <property name="geometry">
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>421</width>
-            <height>275</height>
+            <width>485</width>
+            <height>307</height>
         </rect>
     </property>
-    <property stdset="1">
-        <name>caption</name>
+    <property name="caption">
         <string>Edit Multiline Edit</string>
     </property>
-    <property stdset="1">
-        <name>sizeGripEnabled</name>
-        <bool>true</bool>
+    <property name="whatsThis" stdset="0">
+        <string>&lt;b&gt;Multiline Edit&lt;/b&gt;&lt;p&gt;This is a simple richtext editor. For an easier working, it provides the most common html tags in form of toolbar items respectively shortcuts. By clicking on such an icon, the regarding tag will be written to the editor and you can insert your text. If you have already written a text and want to format it, just mark it and click on the wished tag button. For a better visualization this editor supports also a simple html syntax highlighting.</string>
     </property>
-    <property>
-        <name>whatsThis</name>
-        <string>&lt;b&gt;Edit Multiline Edit&lt;/b&gt;&lt;p&gt;Enter the text and click the &lt;b&gt;OK&lt;/b&gt;-Button to apply the changes.&lt;/p&gt;</string>
-    </property>
-    <vbox>
-        <property stdset="1">
-            <name>margin</name>
+    <hbox>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <property name="margin">
             <number>11</number>
         </property>
-        <property stdset="1">
-            <name>spacing</name>
+        <property name="spacing">
             <number>6</number>
         </property>
-        <widget>
-            <class>QLabel</class>
-            <property stdset="1">
-                <name>name</name>
-                <cstring>TextLabel1</cstring>
-            </property>
-            <property stdset="1">
-                <name>text</name>
-                <string>&amp;Text:</string>
-            </property>
-            <property>
-                <name>buddy</name>
-                <cstring>preview</cstring>
-            </property>
-        </widget>
-        <widget>
-            <class>QMultiLineEdit</class>
-            <property stdset="1">
-                <name>name</name>
-                <cstring>preview</cstring>
-            </property>
-            <property stdset="1">
-                <name>wordWrap</name>
-                <enum>WidgetWidth</enum>
-            </property>
-            <property>
-                <name>whatsThis</name>
-                <string>Enter your text here.</string>
-            </property>
-        </widget>
-        <widget>
-            <class>QLayoutWidget</class>
-            <property stdset="1">
-                <name>name</name>
-                <cstring>Layout1</cstring>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>Layout4</cstring>
             </property>
             <hbox>
-                <property stdset="1">
-                    <name>margin</name>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <property name="margin">
                     <number>0</number>
                 </property>
-                <property stdset="1">
-                    <name>spacing</name>
+                <property name="spacing">
                     <number>6</number>
                 </property>
-                <widget>
-                    <class>QPushButton</class>
-                    <property stdset="1">
-                        <name>name</name>
-                        <cstring>buttonHelp</cstring>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>Layout3</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>text</name>
-                        <string>&amp;Help</string>
-                    </property>
-                    <property stdset="1">
-                        <name>autoDefault</name>
-                        <bool>true</bool>
-                    </property>
-                </widget>
-                <spacer>
-                    <property>
-                        <name>name</name>
-                        <cstring>Horizontal Spacing2</cstring>
-                    </property>
-                    <property stdset="1">
-                        <name>orientation</name>
-                        <enum>Horizontal</enum>
-                    </property>
-                    <property stdset="1">
-                        <name>sizeType</name>
-                        <enum>Expanding</enum>
-                    </property>
-                    <property>
-                        <name>sizeHint</name>
-                        <size>
-                            <width>20</width>
-                            <height>20</height>
-                        </size>
-                    </property>
-                </spacer>
-                <widget>
-                    <class>QPushButton</class>
-                    <property stdset="1">
-                        <name>name</name>
-                        <cstring>buttonApply</cstring>
-                    </property>
-                    <property stdset="1">
-                        <name>text</name>
-                        <string>&amp;Apply</string>
-                    </property>
-                    <property stdset="1">
-                        <name>autoDefault</name>
-                        <bool>true</bool>
-                    </property>
-                    <property>
-                        <name>whatsThis</name>
-                        <string>Apply all changes.</string>
-                    </property>
-                </widget>
-                <widget>
-                    <class>QPushButton</class>
-                    <property stdset="1">
-                        <name>name</name>
-                        <cstring>buttonOk</cstring>
-                    </property>
-                    <property stdset="1">
-                        <name>text</name>
-                        <string>&amp;OK</string>
-                    </property>
-                    <property stdset="1">
-                        <name>autoDefault</name>
-                        <bool>true</bool>
-                    </property>
-                    <property stdset="1">
-                        <name>default</name>
-                        <bool>true</bool>
-                    </property>
-                    <property>
-                        <name>whatsThis</name>
-                        <string>Close the dialog and apply all the changes.</string>
-                    </property>
-                </widget>
-                <widget>
-                    <class>QPushButton</class>
-                    <property stdset="1">
-                        <name>name</name>
-                        <cstring>buttonCancel</cstring>
-                    </property>
-                    <property stdset="1">
-                        <name>text</name>
-                        <string>&amp;Cancel</string>
-                    </property>
-                    <property stdset="1">
-                        <name>autoDefault</name>
-                        <bool>true</bool>
-                    </property>
-                    <property>
-                        <name>whatsThis</name>
-                        <string>Close the dialog and discard any changes.</string>
-                    </property>
+                    <vbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <property name="margin">
+                            <number>0</number>
+                        </property>
+                        <property name="spacing">
+                            <number>6</number>
+                        </property>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>OkButton</cstring>
+                            </property>
+                            <property name="text">
+                                <string>&amp;OK</string>
+                            </property>
+                            <property name="on">
+                                <bool>false</bool>
+                            </property>
+                            <property name="autoDefault">
+                                <bool>true</bool>
+                            </property>
+                            <property name="default">
+                                <bool>true</bool>
+                            </property>
+                        </widget>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>applyButton</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Apply</string>
+                            </property>
+                        </widget>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>cancelButton</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Cancel</string>
+                            </property>
+                        </widget>
+                        <spacer>
+                            <property name="name" stdset="0">
+                                <cstring>Spacer3</cstring>
+                            </property>
+                            <property name="orientation">
+                                <enum>Vertical</enum>
+                            </property>
+                            <property name="sizeType">
+                                <enum>Expanding</enum>
+                            </property>
+                            <property name="sizeHint">
+                                <size>
+                                    <width>20</width>
+                                    <height>20</height>
+                                </size>
+                            </property>
+                        </spacer>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>helpButton</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Help</string>
+                            </property>
+                        </widget>
+                    </vbox>
                 </widget>
             </hbox>
         </widget>
-    </vbox>
+    </hbox>
 </widget>
+<menubar>
+    <property name="name">
+        <cstring>menuBar</cstring>
+    </property>
+    <item text="File" name="fileMenu">
+    </item>
+</menubar>
+<toolbars>
+</toolbars>
 <connections>
     <connection>
-        <sender>buttonCancel</sender>
-        <signal>clicked()</signal>
-        <receiver>MultiLineEditorBase</receiver>
-        <slot>reject()</slot>
-    </connection>
-    <connection>
-        <sender>buttonOk</sender>
+        <sender>OkButton</sender>
         <signal>clicked()</signal>
         <receiver>MultiLineEditorBase</receiver>
         <slot>okClicked()</slot>
     </connection>
     <connection>
-        <sender>buttonApply</sender>
+        <sender>applyButton</sender>
         <signal>clicked()</signal>
         <receiver>MultiLineEditorBase</receiver>
         <slot>applyClicked()</slot>
     </connection>
-    <slot access="protected">applyClicked()</slot>
-    <slot access="protected">okClicked()</slot>
+    <connection>
+        <sender>cancelButton</sender>
+        <signal>clicked()</signal>
+        <receiver>MultiLineEditorBase</receiver>
+        <slot>cancelClicked()</slot>
+    </connection>
+    <connection>
+        <sender>helpButton</sender>
+        <signal>clicked()</signal>
+        <receiver>MultiLineEditorBase</receiver>
+        <slot>helpClicked()</slot>
+    </connection>
 </connections>
+<includes>
+    <include location="local" impldecl="in implementation">multilineeditor.ui.h</include>
+</includes>
+<slots>
+    <slot access="">applyClicked()</slot>
+    <slot access="">okClicked()</slot>
+    <slot access="">cancelClicked()</slot>
+    <slot access="">helpClicked()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
 </UI>

@@ -230,7 +230,6 @@ MainWindow::MainWindow( bool asClient, bool single )
 
     set_splash_status( "Loading User Settings..." );
     readConfig();
-
     // hack to make WidgetFactory happy (so it knows QWidget and QDialog for resetting properties)
     QWidget *w = WidgetFactory::create( WidgetDatabase::idFromClassName( "QWidget" ), this, 0, FALSE );
     delete w;
@@ -242,14 +241,13 @@ MainWindow::MainWindow( bool asClient, bool single )
     delete w;
     w = WidgetFactory::create( WidgetDatabase::idFromClassName( "QFrame" ), this, 0, FALSE );
     delete w;
-
     setAppropriate( (QDockWindow*)actionEditor->parentWidget(), FALSE );
     actionEditor->parentWidget()->hide();
 
     assistant = new AssistProc( this, "Internal Assistant", assistantPath() );
-
     statusBar()->setSizeGripEnabled( TRUE );
     set_splash_status( "Initialization Done." );
+    QTimer::singleShot( 0, this, SLOT( showStartDialog() ));
 }
 
 MainWindow::~MainWindow()
@@ -958,13 +956,18 @@ void MainWindow::helpContents()
 	source = QString( WidgetFactory::classNameOf( propertyEditor->widget() ) ).lower() + ".html#details";
     }
 
-    if ( !source.isEmpty() )
-	if ( assistant ) assistant->sendRequest( source+'\n' );
+    if ( !source.isEmpty() ) {
+	if ( assistant ) {
+	    QString path = QString( getenv( "QTDIR" )) + "/doc/html/";   
+	    assistant->sendRequest( path+source+'\n' );
+	}
+    }
 }
 
 void MainWindow::helpManual()
 {
-    if ( assistant ) assistant->sendRequest( "designer-manual.html\n" );
+    if ( assistant ) 
+	assistant->sendRequest( QString( getenv( "QTDIR" )) + "/doc/html/designer-manual.html\n" );
 }
 
 void MainWindow::helpAbout()
@@ -1742,7 +1745,7 @@ void MainWindow::handleRMBProperties( int id, QMap<QString, int> &props, QWidget
 	bool ok = FALSE;
 	QString text;
 	if ( w->inherits( "QTextView" ) || w->inherits( "QLabel" ) ) {
-	    text = TextEditor::getText( this, w->property("text").toString() );
+	    text = MultiLineEditor::getText( this, w->property("text").toString() );
 	    ok = !text.isEmpty();
 	} else {
 	    text = QInputDialog::getText( tr("Text"), tr( "New text" ), QLineEdit::Normal, w->property("text").toString(), &ok, this );
@@ -2170,7 +2173,6 @@ void MainWindow::readConfig()
 	} else {
 	    qworkspace->setBackgroundColor( QColor( (QRgb)config.readNumEntry( keybase + "Background/Color" ) ) );
 	}
-
 	sGrid = config.readBoolEntry( keybase + "Grid/Show", TRUE );
 	snGrid = config.readBoolEntry( keybase + "Grid/Snap", TRUE );
 	grd.setX( config.readNumEntry( keybase + "Grid/x", 10 ) );
@@ -2190,11 +2192,9 @@ void MainWindow::readConfig()
 		move( r.topLeft() );
 	    }
 	}
-
 	setUsesTextLabel( config.readBoolEntry( keybase + "View/TextLabels", FALSE ) );
 	setUsesBigPixmaps( FALSE /*config.readBoolEntry( "BigIcons", FALSE )*/ ); // ### disabled for now
     }
-
     num = config.readNumEntry( keybase + "CustomWidgets/num" );
     for ( int j = 0; j < num; ++j ) {
 	MetaDataBase::CustomWidget *w = new MetaDataBase::CustomWidget;
@@ -2266,7 +2266,6 @@ void MainWindow::readConfig()
 	ts >> *this;
 	f.close();
     }
-
     rebuildCustomWidgetGUI();
 }
 
@@ -2560,7 +2559,7 @@ bool MainWindow::openEditor( QWidget *w, FormWindow *f )
 	bool ok = FALSE;
 	QString text;
 	if ( w->inherits( "QTextView" ) || w->inherits( "QLabel" ) ) {
-	    text = TextEditor::getText( this, w->property("text").toString() );
+	    text = MultiLineEditor::getText( this, w->property("text").toString() );
 	    ok = !text.isEmpty();
 	} else {
 	    text = QInputDialog::getText( tr("Text"), tr( "New text" ), QLineEdit::Normal, w->property("text").toString(), &ok, this );
@@ -2766,7 +2765,7 @@ void MainWindow::showDialogHelp()
     QWidget *w = (QWidget*)sender();
     w = w->topLevelWidget();
 
-    QString link = "designer-manual-12.html#";
+    QString link = QString( getenv( "QTDIR" )) + "/doc/html/designer-manual-12.html#";
 
     if ( w->inherits( "NewFormBase" ) )
 	link += "dialog-file-new";

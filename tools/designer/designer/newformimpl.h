@@ -139,9 +139,12 @@ class NewForm : public NewFormBase
     Q_OBJECT
 
 public:
+    NewForm();
     NewForm( QWidget *parent, const QStringList& projects,
 	     const QString& currentProject, const QString &templatePath );
+    void insertTemplates( QIconView*, const QString& );
     void accept();
+    QPtrList<QIconViewItem> allViewItems();
 
 protected slots:
     void projectChanged( const QString &project );

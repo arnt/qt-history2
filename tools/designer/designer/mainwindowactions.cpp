@@ -66,6 +66,7 @@
 #endif
 #include "widgetaction.h"
 #include "qcategorywidget.h"
+#include "startdialogimpl.h"
 
 static const char * whatsthis_image[] = {
     "16 16 3 1",
@@ -1205,17 +1206,16 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension, cons
 	if ( fn.isEmpty() ) {
 	    if ( !inProject ) {
 		QString f = QFileDialog::getOpenFileName( QString::null, filters, this, 0,
-							  (inProject ? tr("Add") : tr("Open" )),
-							  &lastOpenFilter );
+							  tr("Open" ), &lastOpenFilter );
 		filenames << f;
 	    } else {
 		filenames = QFileDialog::getOpenFileNames( filters, QString::null, this, 0,
-							  (inProject ? tr("Add") : tr("Open" )),
-							  &lastOpenFilter );
+							   tr("Add"), &lastOpenFilter );
 	    }
 	} else {
 	    filenames << fn;
 	}
+	
 	for ( QStringList::Iterator fit = filenames.begin(); fit != filenames.end(); ++fit ) {
 	    QString filename = *fit;
 	    if ( !filename.isEmpty() ) {
@@ -2065,4 +2065,19 @@ void MainWindow::toolsCustomWidget()
     edit.exec();
     rebuildCustomWidgetGUI();
     statusBar()->clear();
+}
+
+void MainWindow::showStartDialog()
+{
+    if ( singleProjectMode() )
+	return;
+    for ( int i = 1; i < qApp->argc(); ++i ) {
+	QString arg = qApp->argv()[i];
+	if ( arg[0] != '-' )
+	    return;
+    }
+    StartDialog *sd = new StartDialog( this, projectNames(), currentProject->projectName(), templatePath() );
+    sd->setRecentlyFiles( recentlyFiles );
+    sd->setRecentlyProjects( recentlyProjects );        
+    sd->exec();
 }

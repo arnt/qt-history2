@@ -40,7 +40,7 @@ bool AssistProc::run( const QString &path )
 
     clearArguments();
     addArgument( assistantPath );
-    addArgument( "stdin" );
+    addArgument( "-stdin" );
 
     if ( !start() ) {
 	qWarning( QString("Assistant [exe]: Couldn't start \'%1\', please check path.").arg(assistantPath) );
