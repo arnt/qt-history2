@@ -1459,7 +1459,7 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h, const QColor &bgCol
 
 void QPainter::drawWinFocusRect( int x, int y, int w, int h )
 {
-    drawWinFocusRect( x, y, w, h, TRUE, color0 );
+    drawWinFocusRect( x, y, w, h, bg_brush.color());
 }
 
 
