@@ -35,8 +35,8 @@
 #ifndef QT_NO_QWS_VFB
 
 #include <stdlib.h>
-#include <sys/ipc.h>
 #include <sys/types.h>
+#include <sys/ipc.h>
 #include <sys/shm.h>
 #include <sys/stat.h>
 #include <unistd.h>
