@@ -776,8 +776,13 @@ bool QPixmap::hasAlphaChannel() const
 }
 
 IconRef qt_mac_create_iconref(const QPixmap &px) {
-    //create pict
+    QMacSavedPortInfo pi; //save the current state
+
+    //create icon
+    IconFamilyHandle iconFamily = (IconFamilyHandle)NewHandle(0);
+    //create data
     Rect r; SetRect(&r, 0, 0, px.width(), px.height());    
+#if 1
     PicHandle pic = OpenPicture(&r);
     {
 	GWorldPtr world;
@@ -787,14 +792,65 @@ IconRef qt_mac_create_iconref(const QPixmap &px) {
 		 GetPortBitMapForCopyBits((GWorldPtr)world), &r, &r, srcCopy, 0);
     }
     ClosePicture();
-    //create icon
-    IconFamilyHandle iconFamily = (IconFamilyHandle)NewHandle(0);
     SetIconFamilyData(iconFamily, 'PICT', (Handle)pic);
-#if 0
-    if(px.mask()) 
-	SetIconFamilyData(iconFamily, kThumbnail8BitMask, (Handle)GetGWorldPixMap((GWorldPtr)px.mask()->handle()));
-#endif
     KillPicture(pic);
+#else
+    {
+	const int thw = 128;
+	Handle data = NewHandle(thw*thw);
+	HLock(data);
+	GWorldPtr offscreen;
+	Rect offr; SetRect(&offr, 0, 0, thw, thw);
+	NewGWorldFromPtr(&offscreen, 32, &offr, NULL, NULL, 0, *data, thw);
+	SetGWorld(offscreen, NULL);
+	CopyBits(GetPortBitMapForCopyBits((GWorldPtr)px.handle()),
+		 GetPortBitMapForCopyBits(offscreen), &r, &offr, srcCopy, NULL);
+
+	qDebug("%d: %ld", __LINE__, SetIconFamilyData(iconFamily, kThumbnail32BitData, data));
+	DisposeGWorld(offscreen);
+	DisposeHandle(data);
+    }
+#endif
+    //create mask
+    if(0 && px.mask()) { 
+#if 1
+	const int thw = 128;
+	Handle mask = NewHandle(thw*thw);
+	GWorldPtr offscreen;
+	CTabHandle cTab = GetCTable(40);
+	Rect offr; SetRect(&offr, 0, 0, thw, thw);
+	NewGWorldFromPtr(&offscreen, 8, &offr, cTab, NULL, 0, *mask, thw);
+	SetGWorld(offscreen, NULL);
+	CopyBits(GetPortBitMapForCopyBits((GWorldPtr)px.mask()->handle()),
+		 GetPortBitMapForCopyBits(offscreen), &r, &offr, srcCopy, NULL);
+	{
+	    px.mask()->save("/Users/sam/orig.png", "PNG");
+	    QPixmap tmp(32, thw, thw);
+	    CopyBits(GetPortBitMapForCopyBits(offscreen), 
+		     GetPortBitMapForCopyBits((GWorldPtr)tmp.handle()), &offr, &offr, srcCopy, NULL);
+	    qDebug("%d", tmp.save("/Users/sam/foo.png", "PNG"));
+	}
+	{
+	    QPixmap tmp(32, thw, thw);
+	    QImage i;
+	    i = *px.mask();
+	    i = i.smoothScale(128, 128);
+	    QPixmap tmp2 = i;
+	    CopyBits(GetPortBitMapForCopyBits((GWorldPtr)tmp2.handle()), 
+		     GetPortBitMapForCopyBits((GWorldPtr)tmp.handle()), &offr, &offr, srcCopy, NULL);
+	    qDebug("%d", tmp.save("/Users/sam/directorig.png", "PNG"));
+	}
+	SetIconFamilyData(iconFamily, kThumbnail8BitMask, mask);
+	DisposeGWorld(offscreen);
+	DisposeHandle(mask);
+#else
+	QImage im;
+	im = *px.mask();
+	im = im.smoothScale(128, 128).convertDepth(8);
+	SetIconFamilyData(iconFamily, kThumbnail8BitMask, (Handle)im.bits());
+#endif
+    }
+
     IconRef ret;
     const OSType kFakeCreator = 'CUTE', kFakeType = 'QICO';
     RegisterIconRefFromIconFamily(kFakeCreator, kFakeType, iconFamily, &ret);
