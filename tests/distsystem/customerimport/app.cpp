@@ -36,10 +36,11 @@ void ImportApp::doImport()
 		    QString customerName = internCursor.value( "customername" ).toString();
 		    QString customerAddress = internCursor.value( "address" ).toString();
 
-		    customerAddress.replace( QRegExp( "[\\r,\\n]" ), " " );
+//		    customerAddress.replace( QRegExp( "[\r\n ]" ), " " );
 		    QSqlCursor axaptaCursor( "CustTable", true, axaptaDB );
 
-		    axaptaCursor.select( "Name = '" + customerName + "' and replace( replace( Address, chr( 13 ), ' '), chr( 10 ), ' ' ) = '" + customerAddress + "' and dataareaid = 'ts3'" );
+		    axaptaCursor.select( "Name = '" + customerName + "' and Address = '" + customerAddress + "' and dataareaid = 'ts3'" );
+//		    axaptaCursor.select( "Name = '" + customerName + "' and replace( replace( replace( Address, ' ' ), chr( 13 ), ' '), chr( 10 ), ' ' ) = '" + customerAddress + "' and dataareaid = 'ts3'" );
 		    axaptaCursor.first();
 		    if( axaptaCursor.isValid() ) {
 			    // We found a record, hooray :)
@@ -63,8 +64,8 @@ void ImportApp::doImport()
 				QString simpleAxaptaAddress = axaptaCursor.value( "ADDRESS" ).toString();
 				QString simpleInternAddress = customerAddress;
 
-				simpleAxaptaAddress.replace( QRegExp( "[\\r,\\n]" ), " " );
-				simpleInternAddress.replace( QRegExp( "[\\r,\\n]" ), " " );
+				simpleAxaptaAddress.replace( QRegExp( "[\r\n ]" ), " " );
+				simpleInternAddress.replace( QRegExp( "[\r\n ]" ), " " );
 				log << customerID << " ... MAYBE (Name OK, but address mismatch) A: \"" << simpleAxaptaAddress << "\" I: \"" << simpleInternAddress << "\"" << endl;
 			    }
 			    else
