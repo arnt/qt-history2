@@ -916,9 +916,11 @@ STDMETHODIMP CCommands::QMsDevNewQtProject()
 	    readme.Replace( "$QMSDEVFILELIST", "" );
 	    readme.Replace( "$QMSDEVQTFILELIST", "moc_"+classheader+".cpp\n" );
 	} else {
-	    readme.Replace( "$QMSDEVUITYPE", "Basic interface" );
-	    readme.Replace( "$QMSDEVFILELIST", "" );
-	    readme.Replace( "$QMSDEVQTFILELIST", "moc_"+classheader+".cpp\n" );
+	    readme.Replace( "$QMSDEVUITYPE", "Main Window interface" );
+	    readme.Replace( "$QMSDEVFILELIST", classheader+"base.ui\n\tA main window.\n"
+					       "\tUse the Qt GUI Designer change the layout.\n" );
+	    readme.Replace( "$QMSDEVQTFILELIST", classheader+"base.h\n"+classheader+"base.cpp\nmoc_"+
+						 classheader+"base.cpp\nmoc_"+classheader+".cpp\n" );
 	}
 
 	infoFile.WriteString( replaceTemplateStrings(readme, classheader, 
@@ -955,27 +957,20 @@ STDMETHODIMP CCommands::QMsDevNewQtProject()
 	    addUIC( pProject, uiFileName );
 	    addMOC( pProject, hFileName );
 	    runDesigner( baseDir + uiFileName );
-	} else {
+	} else if ( dialog.m_mdi ) {
 	    CString hFileName;
 	    CString iFileName;
 	    hFileName = classheader+".h";
 	    iFileName = classheader+".cpp";
-
+	    
 	    CStdioFile hFile( baseDir + hFileName, CFile::modeCreate | CFile::modeWrite );
 	    CStdioFile iFile( baseDir + iFileName, CFile::modeCreate | CFile::modeWrite );
-	    if ( dialog.m_mdi ) {
-		m_pApplication->PrintToOutputWindow( CComBSTR("\tcreating MDI interface...") );
-		hFile.WriteString( replaceTemplateStrings(mdi_h, classheader, 
-							  classname, instancename, instancecall, projectName) );
-		iFile.WriteString( replaceTemplateStrings(mdi_cpp, classheader, 
-							  classname, instancename, instancecall, projectName) );
-	    } else {
-		m_pApplication->PrintToOutputWindow( CComBSTR("\tcreating basic main window...") );
-		hFile.WriteString( replaceTemplateStrings(window_h, classheader, 
-							  classname, instancename, instancecall, projectName) );
-		iFile.WriteString( replaceTemplateStrings(window_cpp, classheader, 
-							  classname, instancename, instancecall, projectName) );
-	    }
+	    m_pApplication->PrintToOutputWindow( CComBSTR("\tcreating MDI interface...") );
+	    hFile.WriteString( replaceTemplateStrings(mdi_h, classheader, 
+		classname, instancename, instancecall, projectName) );
+	    iFile.WriteString( replaceTemplateStrings(mdi_cpp, classheader, 
+		classname, instancename, instancecall, projectName) );
+
 	    hFile.Close();
 	    iFile.Close();
 
@@ -984,6 +979,36 @@ STDMETHODIMP CCommands::QMsDevNewQtProject()
 	    pProject->AddFile( CComBSTR(iFileName), CComVariant(VARIANT_TRUE) );
 	    m_pApplication->PrintToOutputWindow( CComBSTR("\tadding build steps...") );
 	    addMOC( pProject, hFileName);
+	} else {
+	    CString uiFileName(dialog.m_name+"mainwindowbase.ui");
+	    m_pApplication->PrintToOutputWindow( CComBSTR("\tcreating basic main window UI...") );
+	    
+	    CStdioFile uiFile( baseDir + uiFileName, CFile::modeCreate | CFile::modeWrite );
+	    uiFile.WriteString( replaceTemplateStrings(mainwinbase_ui, classheader, 
+		classname, instancename, instancecall, projectName) );
+	    uiFile.Close();
+	    
+	    CString hFileName(classheader+".h");
+	    CString iFileName(classheader+".cpp");
+	    m_pApplication->PrintToOutputWindow( CComBSTR("\tcreating basic main window implementation...") );
+	    CStdioFile hFile( baseDir + hFileName, CFile::modeCreate | CFile::modeWrite );
+	    hFile.WriteString( replaceTemplateStrings(window_h, classheader, 
+		classname, instancename, instancecall, projectName) );
+	    hFile.Close();
+	    
+	    CStdioFile iFile( baseDir + iFileName, CFile::modeCreate | CFile::modeWrite );
+	    iFile.WriteString( replaceTemplateStrings(window_cpp, classheader, 
+		classname, instancename, instancecall, projectName) );
+	    iFile.Close();
+	    
+	    m_pApplication->PrintToOutputWindow( CComBSTR("\tadding files...") );
+	    pProject->AddFile( CComBSTR(uiFileName), CComVariant(VARIANT_TRUE) );
+	    pProject->AddFile( CComBSTR(hFileName), CComVariant(VARIANT_TRUE) );
+	    pProject->AddFile( CComBSTR(iFileName), CComVariant(VARIANT_TRUE) );
+	    m_pApplication->PrintToOutputWindow( CComBSTR("\tadding build steps...") );
+	    addUIC( pProject, uiFileName );
+	    addMOC( pProject, hFileName );
+	    runDesigner( baseDir + uiFileName );
 	}
     }
     catch ( CFileException* e )

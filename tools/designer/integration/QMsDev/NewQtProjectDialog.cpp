@@ -122,15 +122,25 @@ void NewQtProjectDialog::OnQtStatic()
 
 void NewQtProjectDialog::OnProjectLookup() 
 {
-    CFileDialog fd( TRUE, NULL, NULL, OFN_HIDEREADONLY, NULL, NULL );
-    if ( fd.DoModal() == IDOK ) {
-	m_location = fd.GetPathName();
-	int endpath = m_location.ReverseFind( '\\' );
-	if ( endpath != -1 )
-	    m_location = m_location.Left( endpath );
+    TCHAR path[MAX_PATH];
+    BROWSEINFO bi;
+    ZeroMemory(&bi, sizeof(BROWSEINFO));
+    bi.hwndOwner = 0;
+    bi.lpszTitle = "Select a directory";
+    bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_STATUSTEXT;
+    LPITEMIDLIST pItemIDList = SHBrowseForFolder(&bi);
+    if (pItemIDList) {
+	SHGetPathFromIDList(pItemIDList, path);
+	IMalloc *pMalloc;
+	if (SHGetMalloc(&pMalloc) != NOERROR)
+	    return;
+	else {
+	    pMalloc->Free(pItemIDList);
+	    pMalloc->Release();
+	}
 
-	if ( m_location.GetAt( m_location.GetLength()-1 ) != '\\' )
-	    m_location+='\\';
+	m_location = CString( path );
+	m_location+='\\';
 
 	CString name;
 	c_name.GetWindowText( name );

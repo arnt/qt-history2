@@ -351,3 +351,28 @@ const char readme_txt[] = {
     "\n"
 };
 
+const char mainwinbase_ui[] = {
+    "<!DOCTYPE UI><UI version=\"3.0\" stdsetdef=\"1\">\n"
+    "<class>Form2</class>\n"
+    "<widget class=\"QMainWindow\">\n"
+    "\t<property name=\"name\">\n"
+    "\t\t<cstring>Form2</cstring>\n"
+    "\t</property>\n"
+    "\t<property name=\"geometry\">\n"
+    "\t\t<rect>\n"
+    "\t\t\t<x>0</x>\n"
+    "\t\t\t<y>0</y>\n"
+    "\t\t\t<width>600</width>\n"
+    "\t\t\t<height>480</height>\n"
+    "\t\t</rect>\n"
+    "\t</property>\n"
+    "\t<property name=\"caption\">\n"
+    "\t<string>Form2</string>\n"
+    "\t</property>\n"
+    "</widget>\n"
+    "<toolbars>\n"
+    "</toolbars>\n"
+    "<layoutdefaults spacing=\"6\" margin=\"11\"/>\n"
+    "</UI>"
+};
+
