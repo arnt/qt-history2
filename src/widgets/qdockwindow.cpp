@@ -1830,7 +1830,7 @@ void QDockWindow::undock( QWidget *w )
 	adjustSize();
     if ( !w ) {
 	if ( !parentWidget() || parentWidget()->isVisible() ) {
-	    clearWState(WState_Resized); // Ensures size is recalculated.
+	    setAttribute(WA_Resized, false); // Ensures size is recalculated.
 	    show();
 	}
     } else {
