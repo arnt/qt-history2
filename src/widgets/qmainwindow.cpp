@@ -588,9 +588,6 @@ QMainWindow::QMainWindow( QWidget * parent, const char * name, WFlags f )
     : QWidget( parent, name, f )
 {
     d = new QMainWindowPrivate;
-    d->timer = new QTimer( this );
-    connect( d->timer, SIGNAL(timeout()),
-	     this, SLOT(setUpLayout()) );
     d->hideDock = new HideDock( this, d );
 }
 
@@ -1266,11 +1263,6 @@ static QMainWindowPrivate::ToolBar *findCoveringToolbar( QMainWindowPrivate::Too
 void QMainWindow::setUpLayout()
 {
     //### Must rewrite!
-
-    if ( d->tll ) { //just refresh...
-	d->tll->activate();
-	return;
-    }
     if ( !d->mb ) {
 	// slightly evil hack here.  reconsider this after 2.0
 	QObjectList * l
@@ -1288,7 +1280,6 @@ void QMainWindow::setUpLayout()
 	delete l;
     }
 
-    d->timer->stop();
     delete d->tll;
     d->tll = new QBoxLayout( this, QBoxLayout::Down );
 
@@ -1331,16 +1322,14 @@ void QMainWindow::setUpLayout()
 	// make the sb stay on top of tool bars if there isn't enough space
 	d->sb->raise();
     }
-    //debug( "act %d, %d", x(), y() );
-    d->tll->activate();
-
 }
 
 
 /*!  \reimp */
 void QMainWindow::show()
 {
-    setUpLayout();
+    if ( !d->tll)
+	setUpLayout();
     QWidget::show();
 }
 
@@ -1464,14 +1453,11 @@ void QMainWindow::childEvent( QChildEvent* e)
     }
 }
 
-/*!
-  Monitors events to ensure layout is updated.
+/*!\reimp
 */
 
-bool QMainWindow::event( QEvent * e )
+bool QMainWindow::event( QEvent * e ) //### remove 3.0
 {
-    if ( e->type() == QEvent::LayoutHint )
-	triggerLayout();
     return QWidget::event( e );
 }
 
@@ -1613,8 +1599,10 @@ void QMainWindow::triggerLayout( bool deleteLayout )
     if ( deleteLayout ) {
 	delete d->tll;
 	d->tll = 0;
+	if ( isVisible() )
+	    setUpLayout();
     }
-    d->timer->start( 0, TRUE );
+    QApplication::postEvent( this, new QEvent( QEvent::LayoutHint) );
 }
 
 static QRect findRectInDockingArea( QMainWindowPrivate *d, QMainWindow *mw,
@@ -2053,7 +2041,6 @@ void QMainWindow::whatsThis()
 
 void QMainWindow::styleChange( QStyle& old )
 {
-    setUpLayout();
     QWidget::styleChange( old );
 }
 

@@ -3051,18 +3051,11 @@ void QWidget::show()
 	return; // nothing we can do
 
     QApplication::sendPostedEvents( this, QEvent::ChildInserted );
-    QApplication::sendPostedEvents( this, QEvent::Move );
-    QApplication::sendPostedEvents( this, QEvent::Resize );
-
-    bool sendLayoutHint = testWState( WState_Withdrawn ) && !isTopLevel();
-    clearWState( WState_Withdrawn );
-    setWState( WState_Visible );
-
-     if ( parentWidget() )
-	 QApplication::sendPostedEvents( parentWidget(),
-					 QEvent::ChildInserted );
-
+    
     if ( isTopLevel() && !testWState( WState_Resized ) )  {
+	// do this before sending the posted resize events. Otherwise
+	// the layout would catch the resize event and may expand the
+	// minimum size.
 	QSize s = sizeHint();
 	QSizePolicy::ExpandData exp;
 	if ( layout() ) {
@@ -3074,9 +3067,9 @@ void QWidget::show()
 		s.setHeight( heightForWidth( s.width() ) );
 	    exp = sizePolicy().expanding();
 	}
-	if ( exp & QSizePolicy::Horizontal )
+ 	if ( exp & QSizePolicy::Horizontal )
 	    s.setWidth( QMAX( s.width(), 200 ) );
-	if ( exp & QSizePolicy::Vertical )
+ 	if ( exp & QSizePolicy::Vertical )
 	    s.setHeight( QMAX( s.height(), 150 ) );
 	QWidget * d = QApplication::desktop();
 	s.setWidth( QMIN( s.width(), d->width()*2/3 ) );
@@ -3084,6 +3077,18 @@ void QWidget::show()
 	if ( !s.isEmpty() )
 	    resize( s );
     }
+    
+    QApplication::sendPostedEvents( this, QEvent::Move );
+    QApplication::sendPostedEvents( this, QEvent::Resize );
+
+    bool sendLayoutHint = testWState( WState_Withdrawn ) && !isTopLevel();
+    clearWState( WState_Withdrawn );
+    setWState( WState_Visible );
+
+     if ( parentWidget() )
+	 QApplication::sendPostedEvents( parentWidget(),
+					 QEvent::ChildInserted );
+
     if ( extra ) {
 	int w = crect.width();
 	int h = crect.height();
