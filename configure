@@ -257,6 +257,7 @@ CFG_MNG=auto
 CFG_LIBMNG=qt
 CFG_XRENDER=auto
 CFG_FREETYPE=auto
+CFG_FONTCONFIG=no
 CFG_QWS_FREETYPE=yes
 CFG_SQL_AVAILABLE=
 CFG_SQL_AUTODETECTED=
@@ -1514,7 +1515,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 	mkdir -p $outpath/config.tests/x11
 	if $x11tests/xfreetype.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath $L_FLAGS $I_FLAGS; then
 	    if [ "$CFG_FREETYPE" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
-		echo "XftFreeType support cannot be enabled due to functionality tests!"
+		echo "Xft support cannot be enabled due to functionality tests!"
 		echo " Turn on verbose messaging (-v) to $0 to see the final report."
 		echo " If you believe this message is in error you may use the continue"
 		echo " switch (-continue) to $0 to continue."
@@ -1531,6 +1532,11 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 	QMAKE_VARS="$QMAKE_VARS \"INCLUDEPATH+=`cat $outpath/config.tests/x11/xfreetype.inc`\""
     fi
     rm -f $outpath/config.tests/x11/xfreetype.inc
+    # add Xft specific libraries
+    if [ "$CFG_FREETYPE" = "yes" ] && [ -f $outpath/config.tests/x11/xft2 ]; then
+	CFG_FONTCONFIG="yes"
+    fi
+    rm -f $outpath/config.tests/x11/xft2
     # add Xft specific config options
     if [ "$CFG_FREETYPE" = "yes" ] && [ -f $outpath/config.tests/x11/xfreetype.cfg ]; then
 	QMAKE_CONFIG="$QMAKE_CONFIG `cat $outpath/config.tests/x11/xfreetype.cfg`"
@@ -2437,6 +2443,11 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 	# up as a dependency if libXft isn't a shared library, so we have to add
 	# libfreetype as well as libXt to the program/lib link command
 	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11+=-lXft -lfreetype\""
+    fi
+    if [ "$CFG_FONTCONFIG" = "yes" ]; then
+	# the new Xft2 library has a dependency on libfontconfig, so we need to
+	# add it for the same reasons that we add -lfreetype above.
+        QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11+=-lfontconfig\""
     fi
     if [ "$CFG_TABLET" = "yes" ]; then
 	QMAKE_CONFIG="$QMAKE_CONFIG tablet"

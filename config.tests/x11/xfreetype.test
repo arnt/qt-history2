@@ -30,6 +30,7 @@ done
 # cleanup...
 rm -f $OUTDIR/config.tests/x11/xfreetype.cfg
 rm -f $OUTDIR/config.tests/x11/xfreetype.inc
+rm -f $OUTDIR/config.tests/x11/xft2
 
 # check for the XftFreeType library
 XDIRS=`sed -n -e '/^QMAKE_LIBDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $XCONFIG`
@@ -77,6 +78,7 @@ if [ "$XFREETYPE" = "yes" ]; then
     for INCDIR in $INCDIRS; do
 	if [ -f $INCDIR/$INC ]; then
 	    XFTCOMPAT_H=$INCDIR/$INC
+	    [ "$XFTNAMEUNPARSE" = "no" ] && echo "yes" > $OUTDIR/config.tests/x11/xft2
 	    [ "$VERBOSE" = "yes" ] && echo "  Found $INC in $INCDIR"
 	    break
 	fi
