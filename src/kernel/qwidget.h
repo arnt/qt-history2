@@ -413,7 +413,8 @@ public:
 
 #if defined(_WS_QWS_)
     virtual QGfx * graphicsContext(bool clip_children=TRUE) const;
-#else
+#endif
+#if defined(_WS_MAC_)
     RgnHandle clippedRegion();
 #endif
 
