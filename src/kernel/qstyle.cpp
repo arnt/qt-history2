@@ -1482,6 +1482,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 	values above this are reserved for custom use. Therefore,
 	custom values must be greater than this value.
 
+    \value PM_PopupMenuFrameHorizontalExtra additional border, e.g. for panels
+    \value PM_PopupMenuFrameVerticalExtra additional border, e.g. for panels
+
     \sa pixelMetric()
 */
 
