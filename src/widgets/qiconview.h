@@ -52,7 +52,7 @@ class QKeyEvent;
 class QFocusEvent;
 class QShowEvent;
 
-struct QIconViewPrivate;
+class QIconViewPrivate;
 struct QIconViewItemPrivate;
 class QIconViewItem;
 class QIconViewItemLineEdit;
@@ -287,7 +287,7 @@ private:
 class Q_EXPORT QIconView : public QScrollView
 {
     friend class QIconViewItem;
-    friend struct QIconViewPrivate;
+    friend class QIconViewPrivate;
 
     Q_OBJECT
     // #### sorting and soring direction dont work

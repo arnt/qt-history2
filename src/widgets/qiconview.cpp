@@ -108,8 +108,9 @@ static QPixmap *unknown_icon = 0;
  *
  *****************************************************************************/
 
-struct QIconViewPrivate
+class QIconViewPrivate
 {
+public:
     QIconViewItem *firstItem, *lastItem;
     unsigned int count;
     bool mousePressed, startDrag;
