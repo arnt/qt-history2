@@ -1139,6 +1139,16 @@ void QTreeWidget::setHeaderItem(QTreeWidgetItem *item)
 
 /*!
 */
+void QTreeWidget::setHeaderLabels(const QStringList &labels)
+{
+    QTreeModel *model = d->model();
+    QTreeWidgetItem *item = model->header;
+    for (int i = 0; i < labels.count(); ++i)
+        item->setText(i, labels.at(i));
+}
+
+/*!
+*/
 
 QTreeWidgetItem *QTreeWidget::currentItem() const
 {

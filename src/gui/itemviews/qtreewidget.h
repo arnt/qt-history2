@@ -138,6 +138,8 @@ public:
     QTreeWidgetItem *headerItem();
     void setHeaderItem(QTreeWidgetItem *item);
 
+    void setHeaderLabels(const QStringList &labels);
+
     QTreeWidgetItem *currentItem() const;
     void setCurrentItem(QTreeWidgetItem *item);
 
