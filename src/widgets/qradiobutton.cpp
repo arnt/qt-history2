@@ -89,6 +89,12 @@
   placed in the same QButtonGroup.
 */
 
+/*! \property QRadioButton::autoMask
+    \brief whether the radio button is automatically masked
+
+    \sa QWidget::setAutoMask()
+*/
+
 /*!
   Constructs a radio button with no text.
 

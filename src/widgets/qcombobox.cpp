@@ -225,7 +225,7 @@
 /*! \property QComboBox::autoMask
     \brief whether the combobox is automatically masked
 
-    \sa QWidget::setAutoMask
+    \sa QWidget::setAutoMask()
 */
 
 /*! \property QComboBox::autoResize

@@ -41,7 +41,7 @@
 /*!
   \class QMetaData qmetaobject.h
 
-  \brief The QMetaData struct provides information about  a member function that is known by the meta object system.
+  \brief The QMetaData struct provides information about  a member function that is known to the meta object system.
 
   \internal
 

@@ -159,6 +159,12 @@
   item in a dialog when the dialog is first shown.
 */
 
+/*! \property QPushButton::autoMask
+    \brief whether the button is automatically masked
+
+    \sa QWidget::setAutoMask()
+*/
+
 /*! \property QPushButton::default
     \brief whether the push button is the default button
 

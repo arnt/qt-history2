@@ -100,7 +100,7 @@
 /*! \property QCheckBox::autoMask
     \brief whether the checkbox is automatically masked
 
-    \sa QWidget::setAutoMask
+    \sa QWidget::setAutoMask()
 */
 
 /*! \property QCheckBox::tristate

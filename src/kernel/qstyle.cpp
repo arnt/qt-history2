@@ -300,6 +300,15 @@ public:
 */
 
 /*!
+    \enum QStyle::StyleOptionDefault
+
+    This enum value can be passed as the optional argument to any
+    QStyle function.
+
+    \value Default
+*/
+
+/*!
   Constructs a QStyle.
 */
 QStyle::QStyle()

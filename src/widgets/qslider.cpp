@@ -318,6 +318,12 @@ void QSlider::setOrientation( Orientation orientation )
     update();
 }
 
+/*!
+    \fn int QSlider::sliderStart() const
+
+    Returns the start position of the slider.
+*/
+
 
 /*!
   Returns the slider handle rectangle. (This is the visual marker that

@@ -543,6 +543,12 @@ QWidget * QTabWidget::currentPage() const
     return d->stack->visibleWidget();
 }
 
+/*! \property QTabWidget::autoMask
+    \brief whether the tab widget is automatically masked
+
+    \sa QWidget::setAutoMask()
+*/
+
 /*! \property QTabWidget::currentPage
     \brief the index position of the current tab page
 

@@ -591,7 +591,10 @@ void QToolButton::setTextLabel( const QString &newLabel )
     setTextLabel( newLabel, TRUE );
 }
 
-/*!  Sets the label of this button to \a newLabel and automatically
+/*!
+    \overload
+
+    Sets the label of this button to \a newLabel and automatically
   sets it as tool tip too if \a tipToo is TRUE.
 */
 

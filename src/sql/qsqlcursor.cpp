@@ -1295,6 +1295,7 @@ void QSqlCursor::append( const QSqlField& field )
     append( QSqlFieldInfo( field ) );
 }
 /*! \internal
+\overload
   cursors should be filled with QSqlFieldInfos...
 */
 void QSqlCursor::insert( int pos, const QSqlField& field )
