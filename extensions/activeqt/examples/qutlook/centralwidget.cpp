@@ -23,8 +23,29 @@
 #include <qtextstream.h>
 #include <qaxobject.h>
 
+ABListViewItem::ABListViewItem( QListView *listview, 
+				QString firstName, 
+				QString lastName, 
+				QString address, 
+				QString eMail, 
+				QAxObject *contact )
+: QListViewItem( listview, firstName, lastName, address, eMail ), contact_item( contact )
+{
+}
+
+ABListViewItem::~ABListViewItem()
+{
+    delete contact_item;
+}
+
+QAxObject *ABListViewItem::contactItem() const
+{
+    return contact_item;
+}
+
+
 ABCentralWidget::ABCentralWidget( QWidget *parent, const char *name )
-    : QWidget( parent, name )
+    : QWidget( parent, name ), outlook( 0 ), outlookSession( 0 )
 {
     mainGrid = new QGridLayout( this, 2, 1, 5, 5 );
 
@@ -34,6 +55,12 @@ ABCentralWidget::ABCentralWidget( QWidget *parent, const char *name )
 
     mainGrid->setRowStretch( 0, 0 );
     mainGrid->setRowStretch( 1, 1 );
+}
+
+ABCentralWidget::~ABCentralWidget()
+{
+    if ( outlookSession )
+	outlookSession->dynamicCall( "Logoff()" );
 }
 
 void ABCentralWidget::save( const QString &filename )
@@ -205,23 +232,29 @@ void ABCentralWidget::setupListView()
 
 void ABCentralWidget::setupOutlook()
 {
-    outlook = new QAxObject( "Outlook.Application", this );
+    if ( !outlook ) {
+	outlook = new QAxObject( "Outlook.Application", this );
 
-    // Get a session object
-    QAxObject *session = outlook->querySubObject( "Session" );
-    if ( !session )
-	return;
-    // Login; doesn't hurt if you are already running and logged on...
-    session->dynamicCall( "Logon()" );
+	// Get a session object
+	outlookSession = outlook->querySubObject( "Session" );
+	if ( !outlookSession )
+	    return;
+	// Login; doesn't hurt if you are already running and logged on...
+	outlookSession->dynamicCall( "Logon()" );
+    }
 
     // Get the default folder for contacts
-    QAxObject *defFolder = session->querySubObject( "GetDefaultFolder(OlDefaultFolders)", "olFolderContacts" );
+    QAxObject *defFolder = outlookSession->querySubObject( "GetDefaultFolder(OlDefaultFolders)", "olFolderContacts" );
     if ( !defFolder )
 	return;
 
     // Get all items
     QAxObject *items = defFolder->querySubObject( "Items" );
     if ( items ) {
+	connect( items, SIGNAL(ItemAdd(IDispatch*)), this, SLOT(entryAdded(IDispatch*)) );
+	connect( items, SIGNAL(ItemChange(IDispatch*)), this, SLOT(entryChanged()) );
+	connect( items, SIGNAL(ItemRemove()), this, SLOT(entryRemoved()) );
+
 	QAxObject *item = items->querySubObject( "GetFirst" );
 	while ( item ) {
 	    QString firstName = item->property( "FirstName" ).toString();
@@ -229,25 +262,55 @@ void ABCentralWidget::setupOutlook()
 	    QString address = item->property( "HomeAddress" ).toString();
 	    QString email = item->property( "Email1Address" ).toString();
 
-	    (void)new QListViewItem( listView, firstName, lastName, address, email );
-	    delete item;
+	    (void)new ABListViewItem( listView, firstName, lastName, address, email, item );
+	    // the listviewitem takes ownership
+	    item->parent()->removeChild( item );
+
 	    item = items->querySubObject( "GetNext" );
-	};
+	}
     }
-    session->dynamicCall( "Logoff()" );
-    delete session;
+}
+
+void ABCentralWidget::entryAdded( IDispatch *disp )
+{
+    QAxObject *item = new QAxObject( (IUnknown*)disp );
+    QString firstName = item->property( "FirstName" ).toString();
+    QString lastName = item->property( "LastName" ).toString();
+    QString address = item->property( "HomeAddress" ).toString();
+    QString email = item->property( "Email1Address" ).toString();
+
+    (void)new ABListViewItem( listView, firstName, lastName, address, email, item );
+}
+
+void ABCentralWidget::entryChanged()
+{
+    QListViewItemIterator it( listView );
+    while ( it.current() ) {
+	ABListViewItem *lvitem = (ABListViewItem*)it.current();
+	++it;
+	QAxObject *contactItem = lvitem->contactItem();
+	QString firstName = contactItem->property( "FirstName" ).toString();
+	QString lastName = contactItem->property( "LastName" ).toString();
+	QString address = contactItem->property( "HomeAddress" ).toString();
+	QString email = contactItem->property( "Email1Address" ).toString();
+	
+	lvitem->setText( 0, firstName );
+	lvitem->setText( 1, lastName );
+	lvitem->setText( 2, address );
+	lvitem->setText( 3, email );
+    }
+}
+
+void ABCentralWidget::entryRemoved()
+{
+    listView->clear();
+    setupOutlook();
 }
 
 void ABCentralWidget::addEntry()
 {
     if ( !iFirstName->text().isEmpty() || !iLastName->text().isEmpty() ||
          !iAddress->text().isEmpty() || !iEMail->text().isEmpty() ) {
-        QListViewItem *item = new QListViewItem( listView );
-        item->setText( 0, iFirstName->text() );
-        item->setText( 1, iLastName->text() );
-        item->setText( 2, iAddress->text() );
-        item->setText( 3, iEMail->text() );
-
 	QAxObject *contactItem = outlook->querySubObject( "CreateItem(OlItemType)", "olContactItem" );
 	if ( contactItem ) {
 	    contactItem->setProperty( "FirstName", iFirstName->text() );
@@ -255,8 +318,10 @@ void ABCentralWidget::addEntry()
 	    contactItem->setProperty( "HomeAddress", iAddress->text() );
 	    contactItem->setProperty( "Email1Address", iEMail->text() );
 	    contactItem->dynamicCall( "Save()" );
+
+	    ABListViewItem *item = new ABListViewItem( listView, iFirstName->text(),
+		iLastName->text(), iAddress->text(), iEMail->text(), contactItem );
 	}
-	delete contactItem;
     }
 
     iFirstName->setText( "" );
@@ -267,46 +332,23 @@ void ABCentralWidget::addEntry()
 
 void ABCentralWidget::changeEntry()
 {
-    QListViewItem *item = listView->currentItem();
+    ABListViewItem *item = (ABListViewItem*)listView->currentItem();
 
     if ( item &&
          ( !iFirstName->text().isEmpty() || !iLastName->text().isEmpty() ||
            !iAddress->text().isEmpty() || !iEMail->text().isEmpty() ) ) {
 
-	// Get a session object
-	QAxObject *session = outlook->querySubObject( "Session" );
-	if ( !session )
-	    return;
-	// Login; doesn't hurt if you are already running and logged on...
-	session->dynamicCall( "Logon()" );
-	
-	// Get the default folder for contacts
-	QAxObject *defFolder = session->querySubObject( "GetDefaultFolder(OlDefaultFolders)", "olFolderContacts" );
-	if ( !defFolder )
-	    return;
+	QAxObject *contactItem = item->contactItem();
+	contactItem->setProperty( "FirstName", iFirstName->text() );
+	contactItem->setProperty( "LastName", iLastName->text() );
+	contactItem->setProperty( "HomeAddress", iAddress->text() );
+	contactItem->setProperty( "Email1Address", iEMail->text() );
+	contactItem->dynamicCall( "Save()" );
 
-	// Get all items
-	QAxObject *items = defFolder->querySubObject( "Items" );
-	if ( !items )
-	    return;
-
-	QAxObject *contactItem = items->querySubObject( "Find(const QString&)", 
-	    "[LastName] = " + item->text( 1 ) +
-	    "AND [FirstName] = " + item->text( 0 ) );
-	if ( contactItem ) {
-	    contactItem->setProperty( "FirstName", iFirstName->text() );
-	    contactItem->setProperty( "LastName", iLastName->text() );
-	    contactItem->setProperty( "HomeAddress", iAddress->text() );
-	    contactItem->setProperty( "Email1Address", iEMail->text() );
-	    contactItem->dynamicCall( "Save()" );
-
-	    item->setText( 0, iFirstName->text() );
-	    item->setText( 1, iLastName->text() );
-	    item->setText( 2, iAddress->text() );
-	    item->setText( 3, iEMail->text() );
-	}
-	session->dynamicCall( "Logoff()" );
-	delete session;
+	item->setText( 0, iFirstName->text() );
+	item->setText( 1, iLastName->text() );
+	item->setText( 2, iAddress->text() );
+	item->setText( 3, iEMail->text() );
     }
 }
 

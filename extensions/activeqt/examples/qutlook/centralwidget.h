@@ -13,15 +13,28 @@
 
 #include <qwidget.h>
 #include <qstring.h>
+#include <qlistview.h>
 
 class QTabWidget;
 class QListView;
 class QGridLayout;
 class QLineEdit;
 class QPushButton;
-class QListViewItem;
 class QCheckBox;
 class QAxObject;
+struct IDispatch;
+
+class ABListViewItem : public QListViewItem
+{
+public:
+    ABListViewItem( QListView *listview, QString firstName, QString lastName, QString address, QString eMail, QAxObject *contact );
+    ~ABListViewItem();
+
+    QAxObject *contactItem() const;
+
+private:
+    QAxObject *contact_item;
+};
 
 class ABCentralWidget : public QWidget
 {
@@ -29,6 +42,7 @@ class ABCentralWidget : public QWidget
 
 public:
     ABCentralWidget( QWidget *parent, const char *name = 0 );
+    ~ABCentralWidget();
 
     void save( const QString &filename );
     void load( const QString &filename );
@@ -44,10 +58,16 @@ protected slots:
     void toggleEMail();
     void findEntries();
 
+    void entryAdded( IDispatch* );
+    void entryChanged();    
+    void entryRemoved();
+
 protected:
     void setupTabWidget();
     void setupListView();
     void setupOutlook();
+
+    QAxObject *outlook, *outlookSession;
 
     QGridLayout *mainGrid;
     QTabWidget *tabWidget;
@@ -57,7 +77,6 @@ protected:
         *sFirstName, *sLastName, *sAddress, *sEMail;
     QCheckBox *cFirstName, *cLastName, *cAddress, *cEMail;
 
-    QAxObject *outlook;
 };
 
 #endif
