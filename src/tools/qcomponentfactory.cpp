@@ -41,6 +41,7 @@
 #include "qsettings.h"
 #include "qlibrary.h"
 #include "qdir.h"
+#include "qapplication.h"
 
 /*!
   \class QComponentFactory qcomponentfactory.h
@@ -124,6 +125,25 @@
   \endcode
 */
 
+static QPtrList<QLibrary> *libraries = 0;
+
+static void cleanup()
+{
+    delete libraries;
+    libraries = 0;
+}
+
+static QPtrList<QLibrary> *liblist()
+{
+    if ( !libraries ) {
+	libraries = new QPtrList<QLibrary>();
+	libraries->setAutoDelete( TRUE );
+	qAddPostRoutine( cleanup );
+    }
+    return libraries;
+}
+
+
 QRESULT QComponentFactory::createInstance( const QString &cid, const QUuid &iid, QUnknownInterface** iface, QUnknownInterface *outer )
 {
     QSettings settings;
@@ -157,13 +177,12 @@ QRESULT QComponentFactory::createInstance( const QString &cid, const QUuid &iid,
 	res = library->queryInterface( iid, iface );
     }
     QLibraryInterface *libiface = 0;
-    if ( library->queryInterface( IID_QLibrary, (QUnknownInterface**)&libiface ) != QS_OK ) {
-	delete library;
+    if ( library->queryInterface( IID_QLibrary, (QUnknownInterface**)&libiface ) != QS_OK || !qApp ) {
+	delete library; // only deletes the object, thanks to QLibrary::Manual
     } else {
 	libiface->release();
-	// ### TODO: insert library into some magic cleanup list
-	// library->setPolicy( QLibrary::Delayed );
-	delete library;
+	library->setPolicy( QLibrary::Delayed );
+	liblist()->prepend( library );
     }
     return res;
 }
