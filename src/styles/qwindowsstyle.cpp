@@ -60,7 +60,7 @@
 // NOT REVISED
 /*!
   \class QWindowsStyle qwindowsstyle.h
-  \brief The QWindowsStyle class provides Microsoft Windows look and feel
+  \brief The QWindowsStyle class provides Microsoft Windows look and feel.
   \ingroup appearance
 
   This class implements the look and feel known from the Windows

@@ -601,14 +601,6 @@ void QTextStream::skipWhiteSpace()
 
 
 /*!
-  \fn Encoding QTextStream::encoding() const
-
-  Returns the encoding mode of the stream.
-
-  \sa setEncoding()
-*/
-
-/*!
   Tries to read len characters from the stream and stores them in \a buf.
   Returns the number of characters really read.
   Attention: There will no QEOF appended if the read reaches the end of
@@ -2204,7 +2196,7 @@ QTextStream &reset( QTextStream &s )
 
 /*!
   \class QTextIStream qtextstream.h
-  \brief A convenience class for input streams.
+  \brief QTextIStream is a convenience class for input streams.
 
   For simple tasks code should be simple.  Hence, this
   class is a shorthand to avoid passing the \e mode argument
@@ -2239,7 +2231,7 @@ QTextStream &reset( QTextStream &s )
 
 /*!
   \class QTextOStream qtextstream.h
-  \brief A convenience class for output streams.
+  \brief QTextOStream is a convenience class for output streams.
 
   For simple tasks, code should be simple.  Hence this
   class is a shorthand to avoid passing the \e mode argument

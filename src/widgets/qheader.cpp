@@ -493,7 +493,7 @@ int QHeader::findLine( int c )
 
   Use moveSection() instead!
 
-  Moves the section that is currently displayed at index \a fromIndex
+  Moves the section that is currently displayed at index \a fromIdx
   to index \a toIdx.
 */
 
@@ -1406,7 +1406,7 @@ int QHeader::sectionPos( int section ) const
 }
 
 /*!
-  Returns the \a section which contains the position \a pos given in pixels.
+  Returns the index which contains the position \a pos given in pixels.
 
   \sa offset()
 */

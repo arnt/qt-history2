@@ -53,7 +53,7 @@ public:
 /*!
   \class QSqlPropertyMap qsqlpropertymap.h
   \module sql
-  \brief This class is used to map widgets to SQL fields
+  \brief The QSqlPropertyMap class is used to map widgets to SQL fields.
 
   The SQL module uses Qt <a href="properties.html">object properties</a>
   to insert and extract values from editor widgets.
