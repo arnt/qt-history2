@@ -29,6 +29,8 @@ public:
 
     DWORD threadId;
 
+    bool interrupt;
+
     int numZeroTimers;
     void activateZeroTimers();
     bool activateTimer(uint id);
@@ -46,7 +48,7 @@ public:
 };
 
 QEventDispatcherWin32Private::QEventDispatcherWin32Private()
-    : threadId(GetCurrentThreadId()), numZeroTimers(0), sn_win(0)
+    : threadId(GetCurrentThreadId()), interrupt(false), numZeroTimers(0), sn_win(0)
 {
 }
 
@@ -274,17 +276,11 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
 
     QCoreApplication::sendPostedEvents();
 
-    bool shortcut = false;
-#if 0
-    bool shortcut = d->exitloop || d->quitnow;
-#endif
+    bool shortcut = d->interrupt;
 
     QThreadData *data = QThreadData::current();
     bool canWait = (data->postEventList.size() == 0
-#if 0
-                    && !d->exitloop
-                    && !d->quitnow
-#endif
+                    && !d->interrupt
                     && (flags & QEventLoop::WaitForMoreEvents));
 
     if (flags & QEventLoop::ExcludeUserInputEvents) {
@@ -316,9 +312,7 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
     // process all messages, unless userinput is blocked, then we process only one
     if (flags & QEventLoop::ExcludeUserInputEvents) {
         winProcessEvent(&msg);
-#if 0
-        shortcut = d->exitloop || d->quitnow;
-#endif
+        shortcut = d->interrupt;
     } else {
         // ### Don't send two timers in a row, since it could potentially block
         // other events from being fired.
@@ -328,9 +322,7 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
             if (msg.message == WM_TIMER)
                 lastWasTimer = true;
             message = winPeekMessage(&msg, 0, 0, 0, PM_REMOVE);
-#if 0
-            shortcut = d->exitloop || d->quitnow;
-#endif
+            shortcut = d->interrupt;
         }
 
         if (lastWasTimer)
@@ -340,9 +332,7 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
     // don't wait if there are pending socket notifiers
     canWait = d->sn_pending_list.isEmpty() && canWait;
 
-#if 0
-    shortcut = d->exitloop || d->quitnow;
-#endif
+    shortcut = d->interrupt;
 
     // wait for next message if allowed to block
     if (canWait && !shortcut) {
@@ -359,6 +349,10 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
 
     QCoreApplication::sendPostedEvents();
 
+    if (d->interrupt) {
+        d->interrupt = false;
+        return false;
+    }
     return true;
 }
 
@@ -559,6 +553,13 @@ void QEventDispatcherWin32::wakeUp()
     Q_D(QEventDispatcherWin32);
     QT_WA({ PostThreadMessageW(d->threadId, WM_NULL, 0, 0); } ,
           { PostThreadMessageA(d->threadId, WM_NULL, 0, 0); });
+}
+
+void QEventDispatcherWin32::interrupt()
+{
+    Q_D(QEventDispatcherWin32);
+    d->interrupt = true;
+    wakeUp();
 }
 
 void QEventDispatcherWin32::flush()
