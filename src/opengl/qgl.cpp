@@ -2014,7 +2014,7 @@ int QGLWidget::displayListBase( const QFont & fnt, int listBase )
 	return 0;
     }
 
-#ifdef Q_WS_WIN // always regenerate disp. lists for pixmaps under Windows
+#if defined(Q_WS_WIN) || defined(Q_WS_MAC) // always regenerate disp. lists for pixmaps under Windows/Mac
     bool regenerate = glcx->deviceIsPixmap();
     QString key = fnt.key() + QString::number( (int)regenerate );
 #else
