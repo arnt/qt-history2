@@ -2910,7 +2910,7 @@ else
     done
     for mkfile in "${outpath}/Makefile" "${outpath}/GNUmakefile"; do
 	[ -f "$mkfile" ] && chmod +w "$mkfile"
-	qmake "QT_PROJECTS=$QT_PROJECTS" ${relpath}/projects.pro -o $mkfile
+	$outpath/bin/qmake "QT_PROJECTS=$QT_PROJECTS" ${relpath}/projects.pro -o $mkfile
     done
 fi
 
@@ -3044,6 +3044,7 @@ for file in .projects .projects.3; do
 	case $a in
 	*-kde.pro|*qtmain.pro) continue ;;
 	*/qmake/qmake.pro) continue ;;
+	*projects.pro) continue ;;
 	*-pro.pro)
 	    [ "x$Edition" != "xpro" ] && continue
 	;;
