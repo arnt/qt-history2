@@ -20,6 +20,35 @@
 #define q q_func()
 
 /*
+    A Dock Window:
+
+    [+] is the float button
+    [X] is the close button
+
+    +-------------------------------+
+    | Dock Window Title       [+][X]|
+    +-------------------------------+
+    |                               |
+    | place to put the single       |
+    | QDockWindow child (this space |
+    | does not yet have a name)     |
+    |                               |
+    |                               |
+    |                               |
+    |                               |
+    |                               |
+    |                               |
+    |                               |
+    |                               |
+    |                               |
+    +-------------------------------+
+
+*/
+
+
+
+
+/*
   Tool window title
 */
 
@@ -411,7 +440,8 @@ class QDockWindowPrivate : public QFramePrivate
 
 public:
     inline QDockWindowPrivate(QMainWindow *parent)
-	: QFramePrivate(), mainWindow(parent), closable(true), movable(true), floatable(true),
+	: QFramePrivate(), mainWindow(parent), widget(0),
+          closable(true), movable(true), floatable(true),
           area(Qt::DockWindowAreaLeft), allowedAreas(~0u & Qt::DockWindowAreaMask),
           top(0), box(0), title(0), resizer(0)
     { }
@@ -420,6 +450,7 @@ public:
     void place(Qt::DockWindowArea area, Qt::Orientation direction, bool extend);
 
     QMainWindow *mainWindow;
+    QWidget *widget;
 
     bool closable;
     bool movable;
@@ -441,7 +472,7 @@ void QDockWindowPrivate::init() {
     d->top->setSpacing(2);
 
     d->title = new QDockWindowTitle(q);
-    d->top->addWidget(d->title);
+    d->top->insertWidget(0, d->title);
 
     d->box = new QVBoxLayout(d->top);
 
@@ -467,7 +498,7 @@ void QDockWindowPrivate::place(Qt::DockWindowArea area, Qt::Orientation directio
 
 
 
-/*! 
+/*!
     \class QDockWindow
 
     \brief The QDockWindow class provides a widget that can be docked
@@ -476,9 +507,55 @@ void QDockWindowPrivate::place(Qt::DockWindowArea area, Qt::Orientation directio
 
     \ingroup application
 
-    The documentation for QDockWindow is not yet complete.  Please
-    read the \link mainwindow.html Main Window Overview\endlink
-    instead.
+    QDockWindow provides the concept of dock windows, also know as
+    tool palettes or utility windows.  Dock windows are secondary
+    windows placed in the \e {dock window area} around the \link
+    QMainWindow::centerWidget() center widget\endlink in a
+    QMainWindow.
+
+    ### \e {mainwindow diagram showing the various areas of the
+    mainwindow should go here - see below}
+
+    Dock windows can be moved inside their current area, moved into
+    new areas and floated (e.g. undocked) by the end-user.  The
+    QDockWindow API allows the programmer to restrict the dock windows
+    ability to move, float and close, as well as the areas in which
+    they can be placed.
+
+    \section1 Appearance
+
+    A QDockWindow consists of a title bar and the content area.  The
+    titlebar displays the dock windows \link QWidget::windowTitle()
+    window title\endlink, a \e float button and a \e close button.
+    Depending on the state of the QDockWindow, the \e float and \e
+    close buttons may be either disabled or not shown at all.
+
+    The visual appearance of the title bar and buttons is \link QStyle
+    style \endlink dependent.
+
+    ### \e {screenshot of QDockWindow in a few styles should go here}
+
+    \section1 Behavior
+
+    \list
+
+    \i behaviour of QDockWindow while docked in QMainWindow:
+
+    \i behaviour of QDockWindow while floated:
+
+    \i behaviour while dragging QDockWindow:
+
+        \list
+
+        \i to an unoccupied dock window area:
+
+        \i to an occupied dock window area:
+
+        \i to top-level:
+
+        \endlist
+
+    \endlist
 
     \sa QMainWindow
 */
@@ -517,6 +594,14 @@ QDockWindow::~QDockWindow()
 { }
 
 /*!
+    Returns the main window for this dock window.
+
+    \sa setParent()
+*/
+QMainWindow *QDockWindow::mainWindow() const
+{ return d->mainWindow; }
+
+/*!
     Sets the main window for this dock window to \a parent.
 
     \sa mainWindow()
@@ -525,12 +610,28 @@ void QDockWindow::setParent(QMainWindow *parent)
 { QFrame::setParent(parent); }
 
 /*!
-    Returns the main window for this dock window.
+    Returns the widget for the dock window. This function returns zero
+    if the widget has not been set.
 
-    \sa setParent()
+    \sa setWidget()
 */
-QMainWindow *QDockWindow::mainWindow() const
-{ return d->mainWindow; }
+QWidget *QDockWindow::widget() const
+{ return d->widget; }
+
+/*!
+    Sets the widget for the dock window to \a widget.
+
+    \sa widget()
+*/
+void QDockWindow::setWidget(QWidget *widget)
+{
+    Q_ASSERT_X(widget != 0, "QDockWindow::setWidget", "parameter cannot be zero");
+    Q_ASSERT_X(d->widget == 0, "QDockWindow::setWidget", "widget already set");
+    Q_ASSERT_X(widget->parentWidget() == this, "QDockWindow::setWidget",
+               "widget parent must be the dock window");
+    d->widget = widget;
+    d->box->insertWidget(1, widget);
+}
 
 /*! \property QDockWindow::closable
     \brief whether the user can close the dock window.
@@ -731,20 +832,6 @@ void QDockWindow::changeEvent(QEvent *event)
         break;
     }
     QFrame::changeEvent(event);
-}
-
-/*! \reimp */
-void QDockWindow::childEvent(QChildEvent *event)
-{
-    QWidget *child = qt_cast<QWidget *>(event->child());
-    if (!child || child->isTopLevel()) return;
-
-    if (event->added()) {
-	if (d->box)
-	    d->box->addWidget(child);
-	else
-	    ; // the title was added
-    }
 }
 
 /*! \reimp */

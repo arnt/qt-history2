@@ -23,8 +23,11 @@ public:
     QDockWindow(QMainWindow *parent, Qt::DockWindowArea area, Qt::WFlags flags = 0);
     ~QDockWindow();
 
-    void setParent(QMainWindow *parent);
     QMainWindow *mainWindow() const;
+    void setParent(QMainWindow *parent);
+
+    QWidget *widget() const;
+    void setWidget(QWidget *widget);
 
     void setClosable(bool closable = true);
     bool isClosable() const;
@@ -52,7 +55,6 @@ public:
 
 protected:
     void changeEvent(QEvent *event);
-    void childEvent(QChildEvent *event);
     void closeEvent(QCloseEvent *event);
     bool event(QEvent *event);
 };
