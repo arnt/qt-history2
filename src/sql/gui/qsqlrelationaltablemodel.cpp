@@ -66,96 +66,126 @@ void QSqlRelationalTableModelPrivate::clearChanges()
 #define d d_func()
 
 /*!
-  \class QSqlRelationalTableModel
-  \brief The QSqlRelationalTableModel class provides an editable data model
-  for a single database table. In addition, columns can be set as foreign
-  keys into another table.
+    \class QSqlRelationalTableModel
+    \brief The QSqlRelationalTableModel class provides an editable
+    data model for a single database table, with foreign key support.
 
-  \ingroup database
-  \module sql
+    \ingroup database
+    \module sql
 
-  QSqlRelationalTableModel acts like QSqlTableModel, but allows columns to
-  be set as foreign keys into other database tables.
+    QSqlRelationalTableModel acts like QSqlTableModel, but allows
+    columns to be set as foreign keys into other database tables.
 
-  The following example assumes that there are two tables called \c people and
-  \c titles. The \c titles table has two columns called \c id and \c title.
-  The \c people table's 4th column is a foreign index into the \c titles table:
+    \table
+    \row \o \inlineimage noforeignkeys.png
+         \o \inlineimage foreignkeys.png
+    \endtable
 
-  \code
-    QSqlTableModel model;
-    model.setTable("people");
-    model.setRelation(3, QSqlRelation("titles", "id", "title"));
-    model.select();
-  \endcode
+    The screenshot on the left shows a plain QSqlTableModel in a
+    QTableView. Foreign keys (\c city and \c country) aren't resolved
+    to human-readable values. The screenshot on the right shows a
+    QSqlRelationalTableModel, with foreign keys resolved into
+    human-readable text strings.
 
-  Instead of displaying the id of the title, the model will display the value
-  stored in the \c title column of the \c titles table.
- */
+    The following code snippet shows how the QSqlRelationalTableModel
+    was set up:
+
+    \quotefromfile sql/relationaltablemodel/relationaltablemodel.cpp
+    \skipto model->setTable
+    \printline model->setTable
+    \skipto setRelation
+    \printline setRelation
+    \printline setRelation
+
+    The setRelation() function calls establish a relationship between
+    two tables. The first call specifies that column 2 in table \c
+    employee is a foreign key that maps with field \c id of table \c
+    city, and that the view should present the \c{city}'s \c name
+    field to the user. The second call does something similar with
+    column 3.
+
+    If you use a read-write QSqlRelationalTableModel, you probably
+    want to use QSqlRelatinalDelegate on the view. Unlike the default
+    delegate, QSqlRelationalDelegate provides a combobox for fields
+    that are foreign keys into other tables. To use the class, simply
+    call QAbstractItemView::setItemDelegate() on the view with an
+    instance of QSqlRelationalDelegate:
+
+    \quotefromfile sql/relationaltablemodel/relationaltablemodel.cpp
+    \skipto QTableView *view = new
+    \printuntil setItemDelegate
+
+    The \c{sql/relationaltablemodel} example illustrates how to use
+    QSqlRelationalTableModel in conjunction with
+    QSqlRelationalDelegate to provide tables with foreigh key
+    support.
+
+    \image relationaltable.png
+
+    \sa QSqlRelation, QSqlRelationalDelegate
+*/
 
 
 /*!
-  Creates an empty QSqlRelationalTableModel and sets the parent to \a parent
-  and the database connection to \a db. If \a db is not valid, the
-  default database connection will be used.
- */
+    Creates an empty QSqlRelationalTableModel and sets the parent to \a parent
+    and the database connection to \a db. If \a db is not valid, the
+    default database connection will be used.
+*/
 QSqlRelationalTableModel::QSqlRelationalTableModel(QObject *parent, QSqlDatabase db)
     : QSqlTableModel(*new QSqlRelationalTableModelPrivate, parent, db)
 {
 }
 
 /*!
-  Destroys the object and frees any allocated resources.
- */
+    Destroys the object and frees any allocated resources.
+*/
 QSqlRelationalTableModel::~QSqlRelationalTableModel()
 {
 }
 
 /*!
-  \fn QVariant QSqlRelationalTableModel::data(const QModelIndex &index, int role) const
-
-  Returns the data stored under the given \a role for the item referred to
-  by \a index.
-  Returns an invalid variant if \a index is out of bounds.
- */
-QVariant QSqlRelationalTableModel::data(const QModelIndex &item, int role) const
+    \reimp
+*/
+QVariant QSqlRelationalTableModel::data(const QModelIndex &index, int role) const
 {
-    if (role == DisplayRole && item.column() > 0 && item.column() < d->relations.count()) {
-        const QVariant v = d->relations.at(item.column()).displayValues.value(item.row());
+    if (role == DisplayRole && index.column() > 0 && index.column() < d->relations.count()) {
+        const QVariant v = d->relations.at(index.column()).displayValues.value(index.row());
         if (v.isValid())
             return v;
     }
 
-    return QSqlTableModel::data(item, role);
+    return QSqlTableModel::data(index, role);
 }
 
 /*!
-    \fn bool QSqlRelationalTableModel::setData(const QModelIndex &index, int role, const QVariant &value)
+    Sets the data for the \a role in the item with the specified \a
+    index to the \a value given. Depending on the edit strategy, the
+    value might be applied to the database at once, or it may be
+    cached in the model.
 
-    Sets the data for the \a role in the item with the specified \a index
-    to the \a value given.
-    Depending on the edit strategy, the value might be applied to the database at
-    once, or it may be cached in the model.
+    Returns true if the value could be set, or false on error (for
+    example, if \a index is out of bounds).
 
-    Returns true if the value could be set, or false on error (for example, if
-    \a index is out of bounds).
-
-    For relational columns, \a value has to be the index, not the display value.
+    For relational columns, \a value must be the index, not the
+    display value.
 
     \sa editStrategy(), data(), submitChanges(), revertRow()
- */
-bool QSqlRelationalTableModel::setData(const QModelIndex &item, const QVariant &value, int role)
+*/
+bool QSqlRelationalTableModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if (role == DisplayRole && item.column() > 0 && item.column() < d->relations.count()) {
-        d->relations[item.column()].displayValues[item.row()] = value;
+    if (role == DisplayRole && index.column() > 0 && index.column() < d->relations.count()) {
+        d->relations[index.column()].displayValues[index.row()] = value;
         return true;
     }
 
-    return QSqlTableModel::setData(item, value, role);
+    return QSqlTableModel::setData(index, value, role);
 }
 
 /*!
     Lets the specified \a column be a foreign index specified by \a relation.
- */
+
+    \sa relation()
+*/
 void QSqlRelationalTableModel::setRelation(int column, const QSqlRelation &relation)
 {
     if (d->relations.size() <= column)
@@ -164,13 +194,19 @@ void QSqlRelationalTableModel::setRelation(int column, const QSqlRelation &relat
 }
 
 /*!
-    Returns the relation for the column \a column.
- */
+    Returns the relation for the column \a column, or an invalid
+    relation if no relation is set.
+
+    \sa setRelation(), QSqlRelation::isValid()
+*/
 QSqlRelation QSqlRelationalTableModel::relation(int column) const
 {
     return d->relations.value(column).rel;
 }
 
+/*!
+    \reimp
+*/
 QString QSqlRelationalTableModel::selectStatement() const
 {
     QString query;
@@ -216,10 +252,18 @@ QString QSqlRelationalTableModel::selectStatement() const
         where.chop(5);
     qAppendWhereClause(query, where, filter());
 
-//    qDebug("query: %s", query.ascii());
     return query;
 }
 
+/*!
+    Returns a QSqlTableModel object for accessing the table for which
+    \a column is a foreign key, or 0 if there is no relation for the
+    given \a column.
+
+    The returned object is owned by the QSqlRelationalTableModel.
+
+    \sa setRelation(), relation()
+*/
 QSqlTableModel *QSqlRelationalTableModel::relationModel(int column) const
 {
     Relation relation = d->relations.value(column);
@@ -236,6 +280,9 @@ QSqlTableModel *QSqlRelationalTableModel::relationModel(int column) const
     return childModel;
 }
 
+/*!
+    \reimp
+*/
 void QSqlRelationalTableModel::revertRow(int row)
 {
     for (int i = 0; i < d->relations.count(); ++i)
@@ -243,6 +290,9 @@ void QSqlRelationalTableModel::revertRow(int row)
     QSqlTableModel::revertRow(row);
 }
 
+/*!
+    \reimp
+*/
 void QSqlRelationalTableModel::clear()
 {
     d->clearChanges();
@@ -250,6 +300,9 @@ void QSqlRelationalTableModel::clear()
     QSqlTableModel::clear();
 }
 
+/*!
+    \reimp
+*/
 bool QSqlRelationalTableModel::select()
 {
     d->clearChanges();

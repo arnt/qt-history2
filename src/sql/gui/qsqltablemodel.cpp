@@ -196,6 +196,10 @@ QSqlRecord QSqlTableModelPrivate::primaryValues(int row)
     The \c{sql/tablemodel} example illustrates how to use
     QSqlTableModel as the data source for a QTableView.
 
+    QSqlTableModel provides no direct support for foreign keys. Use
+    the QSqlRelationalTableModel and QSqlRelationalDelegate if you
+    want to resolve foreign keys.
+
     \sa QSqlRelationalTableModel, QSqlQuery, {Model/View Programming}
 */
 
@@ -307,8 +311,7 @@ bool QSqlTableModel::select()
 }
 
 /*!
-    Returns the data for the item at position \a index for the role
-    \a role. Returns an invalid variant if \a index is out of bounds.
+    \reimp
 */
 QVariant QSqlTableModel::data(const QModelIndex &index, int role) const
 {
@@ -346,8 +349,7 @@ QVariant QSqlTableModel::data(const QModelIndex &index, int role) const
 }
 
 /*!
-    Returns the header data for the given \a role in the \a section of the
-    header with the specified \a orientation.
+    \reimp
 */
 QVariant QSqlTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
@@ -399,12 +401,12 @@ bool QSqlTableModel::isDirty(const QModelIndex &index) const
 }
 
 /*!
-    Sets the data for the item \a index for the role \a role to \a value.
-    Depending on the edit strategy, the value might be applied to the database at once or
-    cached in the model.
+    Sets the data for the item \a index for the role \a role to \a
+    value. Depending on the edit strategy, the value might be applied
+    to the database at once or cached in the model.
 
-    Returns true if the value could be set or false on error, for example if \a index is
-    out of bounds.
+    Returns true if the value could be set or false on error, for
+    example if \a index is out of bounds.
 
     \sa editStrategy(), data(), submit(), submitAll(), revertRow()
 */
@@ -459,10 +461,9 @@ bool QSqlTableModel::setData(const QModelIndex &index, const QVariant &value, in
 }
 
 /*!
-    This function simply calls QSqlQueryModel::setQuery(). You
-    should normally not call it on a QSqlTableModel. Instead,
-    use setTable(), setSort(), setFilter(), etc., to set up
-    the query.
+    This function simply calls QSqlQueryModel::setQuery(\a query).
+    You should normally not call it on a QSqlTableModel. Instead, use
+    setTable(), setSort(), setFilter(), etc., to set up the query.
 
     \sa selectStatement()
 */
@@ -795,9 +796,12 @@ bool QSqlTableModel::isSortable() const
     This will immediately select data, use setSort()
     to set a sort order without populating the model with data.
 
+    The \a parent index is ignored, because the model doesn't support
+    parent-child relationships.
+
     \sa setSort(), isSortable(), select(), orderByClause()
 */
-void QSqlTableModel::sort(int column, Qt::SortOrder order, const QModelIndex &)
+void QSqlTableModel::sort(int column, Qt::SortOrder order, const QModelIndex & /* parent */)
 {
     d->sortColumn = column;
     d->sortOrder = order;
@@ -880,7 +884,11 @@ QString QSqlTableModel::selectStatement() const
 }
 
 /*!
-    Removes the given \a column from the \a parent model.
+    Removes \a count columns from the \a parent model, starting at
+    index \a column.
+
+    Returns if the columns were successfully removed; otherwise
+    returns false.
 
     \sa removeRows()
 */
@@ -941,9 +949,9 @@ bool QSqlTableModel::removeRows(int row, int count, const QModelIndex &parent)
 }
 
 /*!
-    Inserts an empty row at position \a row. Note that \a parent
-    must invalid, since this model does not support parent-child
-    relations.
+    Inserts \a count empty rows at position \a row. Note that \a
+    parent must be invalid, since this model does not support
+    parent-child relations.
 
     Only one row at a time can be inserted when using the
     OnFieldChange or OnRowChange update strategies.
