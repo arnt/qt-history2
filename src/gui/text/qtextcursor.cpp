@@ -1009,6 +1009,8 @@ bool QTextCursor::operator<(const QTextCursor &rhs) const
     if (!rhs.d)
 	return false;
 
+    Q_ASSERT_X(d->pieceTable == rhs.d->pieceTable, "QTextCursor::operator<", "cannot compare cusors attached to different documents");
+
     return d->position < rhs.d->position;
 }
 
@@ -1019,6 +1021,8 @@ bool QTextCursor::operator<=(const QTextCursor &rhs) const
 
     if (!rhs.d)
 	return false;
+
+    Q_ASSERT_X(d->pieceTable == rhs.d->pieceTable, "QTextCursor::operator<=", "cannot compare cusors attached to different documents");
 
     return d->position <= rhs.d->position;
 }
@@ -1042,6 +1046,8 @@ bool QTextCursor::operator>=(const QTextCursor &rhs) const
     if (!rhs.d)
 	return true;
 
+    Q_ASSERT_X(d->pieceTable == rhs.d->pieceTable, "QTextCursor::operator>=", "cannot compare cusors attached to different documents");
+
     return d->position >= rhs.d->position;
 }
 
@@ -1052,6 +1058,8 @@ bool QTextCursor::operator>(const QTextCursor &rhs) const
 
     if (!rhs.d)
 	return true;
+
+    Q_ASSERT_X(d->pieceTable == rhs.d->pieceTable, "QTextCursor::operator>", "cannot compare cusors attached to different documents");
 
     return d->position > rhs.d->position;
 }
