@@ -58,6 +58,14 @@
 ] d
 /defM matrix d
 
+% -- level3 true/false
+/level3 {
+  /languagelevel where {
+    pop
+    languagelevel 3 ge 
+  } { false } ifelse
+} D
+
 % LArr for the Pen styles is defined in emitHeader because of scaling
 
 % GPS: GetPenStyle 
@@ -280,10 +288,7 @@
     } { 
       dup false ne { 
 	% have a mask, see if we can use it
-	/languagelevel where {
-	  pop
-	  languagelevel 3 ge 
-	} { false } ifelse
+	level3
       } { 
 	false 
       } ifelse
@@ -353,6 +358,37 @@
   grestore    
 } d
 
+
+% create a linear gradient pattern
+% x1 y1 x2 y2 color1 color2 SetLinGrad --
+/SetLinGrad {
+  level3 {
+    /c2 exch def
+    /c1 exch def
+    /y2 exch def
+    /x2 exch def
+    /y1 exch def
+    /x1 exch def
+    /LinGrad 2 dict dup begin
+      /PatternType 2 d
+      /Shading 5 dict dup begin
+	/ShadingType 2 d
+	/ColorSpace [/DeviceRGB] d
+	/Coords [x1 y1 x2 y2] d
+	/Extend [true true] d
+	/Function 5 dict dup begin
+	  /FunctionType 2 d
+	  /Domain [0 1] d
+	  /C0 c1 d
+	  /C1 c2 d
+	  /N 1 d
+	end d
+      end d
+    end
+    matrix makepattern def
+  } { pop } ifelse
+  /BSt 15 d
+} D
 
 
 
@@ -425,8 +461,14 @@
       } if
       S
     } if
+    BSt 15 eq
+    {
+      level3 {
+	LinGrad setpattern
+	WFi { fill } { eofill } ifelse
+      } if
+    } if
     BSt 24 eq                         % CustomPattern
-    
     {
     } if
   grestore

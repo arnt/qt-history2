@@ -92,75 +92,81 @@ static const char *const ps_header =
 "/bs{bitshift}D/scs{setcolorspace}D/DB{dict dup begin}D/DE{end d}D/ie{ifelse}\n"
 "D/BSt 0 d/LWi 1 d/PSt 1 d/Cx 0 d/Cy 0 d/WFi false d/OMo false d/BCol[1 1 1]d\n"
 "/PCol[0 0 0]d/BkCol[1 1 1]d/BDArr[0.94 0.88 0.63 0.50 0.37 0.12 0.06]d/defM\n"
-"matrix d/GPS{PSt 1 ge PSt 5 le and{{LArr PSt 1 sub 2 mul get}{LArr PSt 2 mul\n"
-"1 sub get}ie}{[]}ie}D/QS{PSt 0 ne{gsave LWi SW true GPS 0 SD S OMo PSt 1 ne\n"
-"and{BkCol SC false GPS dup 0 get SD S}if grestore}if}D/r28{{CR dup 32 gt{\n"
-"exit}if pop}loop 3{CR}repeat 0 4{7 bs exch dup 128 gt{84 sub}if 42 sub 127\n"
-"and add}repeat}D/rA 0 d/rL 0 d/rB{rL 0 eq{/rA r28 d/rL 28 d}if dup rL gt{rA\n"
-"exch rL sub rL exch/rA 0 d/rL 0 d rB exch bs add}{dup rA 16#fffffff 3 -1\n"
-"roll bs not and exch dup rL exch sub/rL ED neg rA exch bs/rA ED}ie}D/uc{/rL\n"
-"0 d 0{dup 2 i length ge{exit}if 1 rB 1 eq{3 rB dup 3 ge{1 add dup rB 1 i 5\n"
-"ge{1 i 6 ge{1 i 7 ge{1 i 8 ge{128 add}if 64 add}if 32 add}if 16 add}if 3 add\n"
-"exch pop}if 3 add exch 10 rB 1 add{dup 3 i lt{dup}{2 i}ie 4 i 3 i 3 i sub 2\n"
-"i getinterval 5 i 4 i 3 -1 roll putinterval dup 4 -1 roll add 3 1 roll 4 -1\n"
-"roll exch sub dup 0 eq{exit}if 3 1 roll}loop pop pop}{3 rB 1 add{2 copy 8 rB\n"
-"put 1 add}repeat}ie}loop pop}D/sl D0/QCIgray D0/QCIcolor D0/QCIindex D0/QCI{\n"
+"matrix d/level3{/languagelevel where{pop languagelevel 3 ge}{false}ie}D/GPS{\n"
+"PSt 1 ge PSt 5 le and{{LArr PSt 1 sub 2 mul get}{LArr PSt 2 mul 1 sub get}ie\n"
+"}{[]}ie}D/QS{PSt 0 ne{gsave LWi SW true GPS 0 SD S OMo PSt 1 ne and{BkCol SC\n"
+"false GPS dup 0 get SD S}if grestore}if}D/r28{{CR dup 32 gt{exit}if pop}loop\n"
+"3{CR}repeat 0 4{7 bs exch dup 128 gt{84 sub}if 42 sub 127 and add}repeat}D\n"
+"/rA 0 d/rL 0 d/rB{rL 0 eq{/rA r28 d/rL 28 d}if dup rL gt{rA exch rL sub rL\n"
+"exch/rA 0 d/rL 0 d rB exch bs add}{dup rA 16#fffffff 3 -1 roll bs not and\n"
+"exch dup rL exch sub/rL ED neg rA exch bs/rA ED}ie}D/uc{/rL 0 d 0{dup 2 i\n"
+"length ge{exit}if 1 rB 1 eq{3 rB dup 3 ge{1 add dup rB 1 i 5 ge{1 i 6 ge{1 i\n"
+"7 ge{1 i 8 ge{128 add}if 64 add}if 32 add}if 16 add}if 3 add exch pop}if 3\n"
+"add exch 10 rB 1 add{dup 3 i lt{dup}{2 i}ie 4 i 3 i 3 i sub 2 i getinterval\n"
+"5 i 4 i 3 -1 roll putinterval dup 4 -1 roll add 3 1 roll 4 -1 roll exch sub\n"
+"dup 0 eq{exit}if 3 1 roll}loop pop pop}{3 rB 1 add{2 copy 8 rB put 1 add}\n"
+"repeat}ie}loop pop}D/sl D0/QCIgray D0/QCIcolor D0/QCIindex D0/QCI{\n"
 "/colorimage where{pop false 3 colorimage}{exec/QCIcolor ED/QCIgray QCIcolor\n"
 "length 3 idiv string d 0 1 QCIcolor length 3 idiv 1 sub{/QCIindex ED/x\n"
 "QCIindex 3 mul d QCIgray QCIindex QCIcolor x get 0.30 mul QCIcolor x 1 add\n"
 "get 0.59 mul QCIcolor x 2 add get 0.11 mul add add cvi put}for QCIgray image\n"
 "}ie}D/di{gsave TR 1 i 1 eq{false eq{pop true 3 1 roll 4 i 4 i false 4 i 4 i\n"
 "imagemask BkCol SC imagemask}{pop false 3 1 roll imagemask}ie}{dup false ne{\n"
-"/languagelevel where{pop languagelevel 3 ge}{false}ie}{false}ie{/ma ED 8 eq{\n"
-"/dc[0 1]d/DeviceGray}{/dc[0 1 0 1 0 1]d/DeviceRGB}ie scs/im ED/mt ED/h ED/w\n"
-"ED/id 7 DB/ImageType 1 d/Width w d/Height h d/ImageMatrix mt d/DataSource im\n"
-"d/BitsPerComponent 8 d/Decode dc d DE/md 7 DB/ImageType 1 d/Width w d/Height\n"
-"h d/ImageMatrix mt d/DataSource ma d/BitsPerComponent 1 d/Decode[0 1]d DE 4\n"
-"DB/ImageType 3 d/DataDict id d/MaskDict md d/InterleaveType 3 d end image}{\n"
-"pop 8 4 1 roll 8 eq{image}{QCI}ie}ie}ie grestore}d/BF{gsave BSt 1 eq{BCol SC\n"
-"WFi{fill}{eofill}ie}if BSt 2 ge BSt 8 le and{BDArr BSt 2 sub get/sc ED BCol{\n"
-"1. exch sub sc mul 1. exch sub}forall 3 array astore SC WFi{fill}{eofill}ie}\n"
-"if BSt 9 ge BSt 14 le and{WFi{clip}{eoclip}ie defM SM pathbbox 3 i 3 i TR 4\n"
-"2 roll 3 2 roll exch sub/h ED sub/w ED OMo{NP 0 0 MT 0 h RL w 0 RL 0 h neg\n"
-"RL CP BkCol SC fill}if BCol SC 0.3 SW NP BSt 9 eq BSt 11 eq or{0 4 h{dup 0\n"
-"exch MT w exch LT}for}if BSt 10 eq BSt 11 eq or{0 4 w{dup 0 MT h LT}for}if\n"
-"BSt 12 eq BSt 14 eq or{w h gt{0 6 w h add{dup 0 MT h sub h LT}for}{0 6 w h\n"
-"add{dup 0 exch MT w sub w exch LT}for}ie}if BSt 13 eq BSt 14 eq or{w h gt{0\n"
-"6 w h add{dup h MT h sub 0 LT}for}{0 6 w h add{dup w exch MT w sub 0 exch LT\n"
-"}for}ie}if S}if BSt 24 eq{}if grestore}D/mat matrix d/ang1 D0/ang2 D0/w D0/h\n"
-"D0/x D0/y D0/ARC{/ang2 ED/ang1 ED/h ED/w ED/y ED/x ED mat CM pop x w 2 div\n"
-"add y h 2 div add TR 1 h w div neg scale ang2 0 ge{0 0 w 2 div ang1 ang1\n"
-"ang2 add arc}{0 0 w 2 div ang1 ang1 ang2 add arcn}ie mat SM}D/C D0/P{NP MT\n"
-"0.5 0.5 rmoveto 0 -1 RL -1 0 RL 0 1 RL CP fill}D/M{/Cy ED/Cx ED}D/L{NP Cx Cy\n"
-"MT/Cy ED/Cx ED Cx Cy LT QS}D/DL{NP MT LT QS}D/HL{1 i DL}D/VL{2 i exch DL}D/R\n"
-"{/h ED/w ED/y ED/x ED NP x y MT 0 h RL w 0 RL 0 h neg RL CP BF QS}D/xr D0/yr\n"
-"D0/rx D0/ry D0/rx2 D0/ry2 D0/RR{/yr ED/xr ED/h ED/w ED/y ED/x ED xr 0 le yr\n"
-"0 le or{x y w h R}{xr 100 ge yr 100 ge or{x y w h E}{/rx xr w mul 200 div d\n"
-"/ry yr h mul 200 div d/rx2 rx 2 mul d/ry2 ry 2 mul d NP x rx add y MT x y\n"
-"rx2 ry2 180 -90 x y h add ry2 sub rx2 ry2 270 -90 x w add rx2 sub y h add\n"
-"ry2 sub rx2 ry2 0 -90 x w add rx2 sub y rx2 ry2 90 -90 ARC ARC ARC ARC CP BF\n"
-"QS}ie}ie}D/E{/h ED/w ED/y ED/x ED mat CM pop x w 2 div add y h 2 div add TR\n"
-"1 h w div scale NP 0 0 w 2 div 0 360 arc mat SM BF QS}D/A{16 div exch 16 div\n"
-"exch NP ARC QS}D/PIE{/ang2 ED/ang1 ED/h ED/w ED/y ED/x ED NP x w 2 div add y\n"
-"h 2 div add MT x y w h ang1 16 div ang2 16 div ARC CP BF QS}D/CH{16 div exch\n"
-"16 div exch NP ARC CP BF QS}D/BZ{curveto QS}D/BC{/BkCol ED}D/BR{/BCol ED/BSt\n"
-"ED}D/NB{0[0 0 0]BR}D/PE{setlinejoin setlinecap/PCol ED/LWi ED/PSt ED LWi 0\n"
-"eq{0.25/LWi ED}if PCol SC}D/P1{1 0 3 2 roll 0 0 PE}D/ST{defM SM concat}D/MF{\n"
-"true exch true exch{exch pop exch pop dup 0 get dup findfont dup/FontName\n"
-"get 3 -1 roll eq{exit}if}forall exch dup 1 get/fxscale ED 2 get/fslant ED\n"
-"exch/fencoding ED[fxscale 0 fslant 1 0 0]makefont fencoding false eq{}{dup\n"
-"maxlength dict begin{1 i/FID ne{def}{pop pop}ifelse}forall/Encoding\n"
-"fencoding d currentdict end}ie definefont pop}D/MFEmb{findfont dup length\n"
-"dict begin{1 i/FID ne{d}{pop pop}ifelse}forall/Encoding ED currentdict end\n"
-"definefont pop}D/DF{findfont/fs 3 -1 roll d[fs 0 0 fs -1 mul 0 0]makefont d}\n"
-"D/ty 0 d/Y{/ty ED}D/Tl{gsave SW NP 1 i exch MT 1 i 0 RL S grestore}D/XYT{ty\n"
-"MT/xyshow where{pop pop xyshow}{exch pop 1 i dup length 2 div exch\n"
-"stringwidth pop 3 -1 roll exch sub exch div exch 0 exch ashow}ie}D/AT{ty MT\n"
-"1 i dup length 2 div exch stringwidth pop 3 -1 roll exch sub exch div exch 0\n"
-"exch ashow}D/QI{/C save d pageinit/Cx 0 d/Cy 0 d/OMo false d}D/QP{C restore\n"
-"showpage}D/SPD{/setpagedevice where{1 DB 3 1 roll d end setpagedevice}{pop\n"
-"pop}ie}D/CLS{gsave NP}D/ACR{/h ED/w ED/y ED/x ED x y MT 0 h RL w 0 RL 0 h\n"
-"neg RL CP}D/CLO{grestore}D\n";
+"level3}{false}ie{/ma ED 8 eq{/dc[0 1]d/DeviceGray}{/dc[0 1 0 1 0 1]d\n"
+"/DeviceRGB}ie scs/im ED/mt ED/h ED/w ED/id 7 DB/ImageType 1 d/Width w d\n"
+"/Height h d/ImageMatrix mt d/DataSource im d/BitsPerComponent 8 d/Decode dc\n"
+"d DE/md 7 DB/ImageType 1 d/Width w d/Height h d/ImageMatrix mt d/DataSource\n"
+"ma d/BitsPerComponent 1 d/Decode[0 1]d DE 4 DB/ImageType 3 d/DataDict id d\n"
+"/MaskDict md d/InterleaveType 3 d end image}{pop 8 4 1 roll 8 eq{image}{QCI}\n"
+"ie}ie}ie grestore}d/SetLinGrad{level3{/c2 ED/c1 ED/y2 ED/x2 ED/y1 ED/x1 ED\n"
+"/LinGrad 2 DB/PatternType 2 d/Shading 5 DB/ShadingType 2 d/ColorSpace\n"
+"[/DeviceRGB]d/Coords[x1 y1 x2 y2]d/Extend[true true]d/Function 5 DB\n"
+"/FunctionType 2 d/Domain[0 1]d/C0 c1 d/C1 c2 d/N 1 d DE end d end matrix\n"
+"makepattern d}{pop}ie/BSt 15 d}D/BF{gsave BSt 1 eq{BCol SC WFi{fill}{eofill}\n"
+"ie}if BSt 2 ge BSt 8 le and{BDArr BSt 2 sub get/sc ED BCol{1. exch sub sc\n"
+"mul 1. exch sub}forall 3 array astore SC WFi{fill}{eofill}ie}if BSt 9 ge BSt\n"
+"14 le and{WFi{clip}{eoclip}ie defM SM pathbbox 3 i 3 i TR 4 2 roll 3 2 roll\n"
+"exch sub/h ED sub/w ED OMo{NP 0 0 MT 0 h RL w 0 RL 0 h neg RL CP BkCol SC\n"
+"fill}if BCol SC 0.3 SW NP BSt 9 eq BSt 11 eq or{0 4 h{dup 0 exch MT w exch\n"
+"LT}for}if BSt 10 eq BSt 11 eq or{0 4 w{dup 0 MT h LT}for}if BSt 12 eq BSt 14\n"
+"eq or{w h gt{0 6 w h add{dup 0 MT h sub h LT}for}{0 6 w h add{dup 0 exch MT\n"
+"w sub w exch LT}for}ie}if BSt 13 eq BSt 14 eq or{w h gt{0 6 w h add{dup h MT\n"
+"h sub 0 LT}for}{0 6 w h add{dup w exch MT w sub 0 exch LT}for}ie}if S}if BSt\n"
+"15 eq{level3{LinGrad setpattern WFi{fill}{eofill}ie}if}if BSt 24 eq{}if\n"
+"grestore}D/mat matrix d/ang1 D0/ang2 D0/w D0/h D0/x D0/y D0/ARC{/ang2 ED\n"
+"/ang1 ED/h ED/w ED/y ED/x ED mat CM pop x w 2 div add y h 2 div add TR 1 h w\n"
+"div neg scale ang2 0 ge{0 0 w 2 div ang1 ang1 ang2 add arc}{0 0 w 2 div ang1\n"
+"ang1 ang2 add arcn}ie mat SM}D/C D0/P{NP MT 0.5 0.5 rmoveto 0 -1 RL -1 0 RL\n"
+"0 1 RL CP fill}D/M{/Cy ED/Cx ED}D/L{NP Cx Cy MT/Cy ED/Cx ED Cx Cy LT QS}D/DL\n"
+"{NP MT LT QS}D/HL{1 i DL}D/VL{2 i exch DL}D/R{/h ED/w ED/y ED/x ED NP x y MT\n"
+"0 h RL w 0 RL 0 h neg RL CP BF QS}D/xr D0/yr D0/rx D0/ry D0/rx2 D0/ry2 D0/RR\n"
+"{/yr ED/xr ED/h ED/w ED/y ED/x ED xr 0 le yr 0 le or{x y w h R}{xr 100 ge yr\n"
+"100 ge or{x y w h E}{/rx xr w mul 200 div d/ry yr h mul 200 div d/rx2 rx 2\n"
+"mul d/ry2 ry 2 mul d NP x rx add y MT x y rx2 ry2 180 -90 x y h add ry2 sub\n"
+"rx2 ry2 270 -90 x w add rx2 sub y h add ry2 sub rx2 ry2 0 -90 x w add rx2\n"
+"sub y rx2 ry2 90 -90 ARC ARC ARC ARC CP BF QS}ie}ie}D/E{/h ED/w ED/y ED/x ED\n"
+"mat CM pop x w 2 div add y h 2 div add TR 1 h w div scale NP 0 0 w 2 div 0\n"
+"360 arc mat SM BF QS}D/A{16 div exch 16 div exch NP ARC QS}D/PIE{/ang2 ED\n"
+"/ang1 ED/h ED/w ED/y ED/x ED NP x w 2 div add y h 2 div add MT x y w h ang1\n"
+"16 div ang2 16 div ARC CP BF QS}D/CH{16 div exch 16 div exch NP ARC CP BF QS\n"
+"}D/BZ{curveto QS}D/BC{/BkCol ED}D/BR{/BCol ED/BSt ED}D/NB{0[0 0 0]BR}D/PE{\n"
+"setlinejoin setlinecap/PCol ED/LWi ED/PSt ED LWi 0 eq{0.25/LWi ED}if PCol SC\n"
+"}D/P1{1 0 3 2 roll 0 0 PE}D/ST{defM SM concat}D/MF{true exch true exch{exch\n"
+"pop exch pop dup 0 get dup findfont dup/FontName get 3 -1 roll eq{exit}if}\n"
+"forall exch dup 1 get/fxscale ED 2 get/fslant ED exch/fencoding ED[fxscale 0\n"
+"fslant 1 0 0]makefont fencoding false eq{}{dup maxlength dict begin{1 i/FID\n"
+"ne{def}{pop pop}ifelse}forall/Encoding fencoding d currentdict end}ie\n"
+"definefont pop}D/MFEmb{findfont dup length dict begin{1 i/FID ne{d}{pop\n"
+"pop}ifelse}forall/Encoding ED currentdict end definefont pop}D/DF{findfont\n"
+"/fs 3 -1 roll d[fs 0 0 fs -1 mul 0 0]makefont d}D/ty 0 d/Y{/ty ED}D/Tl{gsave\n"
+"SW NP 1 i exch MT 1 i 0 RL S grestore}D/XYT{ty MT/xyshow where{pop pop\n"
+"xyshow}{exch pop 1 i dup length 2 div exch stringwidth pop 3 -1 roll exch\n"
+"sub exch div exch 0 exch ashow}ie}D/AT{ty MT 1 i dup length 2 div exch\n"
+"stringwidth pop 3 -1 roll exch sub exch div exch 0 exch ashow}D/QI{/C save d\n"
+"pageinit/Cx 0 d/Cy 0 d/OMo false d}D/QP{C restore showpage}D/SPD{\n"
+"/setpagedevice where{1 DB 3 1 roll d end setpagedevice}{pop pop}ie}D/CLS{\n"
+"gsave NP}D/ACR{/h ED/w ED/y ED/x ED x y MT 0 h RL w 0 RL 0 h neg RL CP}D/CLO\n"
+"{grestore}D\n";
 
 static const char * const agl =
 ".notdef\0space\0exclam\0quotedbl\0numbersign\0dollar\0percent\0ampersand\0"
@@ -5611,19 +5617,19 @@ void QPSPrintEngine::updateBrush(const QBrush &brush, const QPoint &/*origin*/)
 #endif
         return;
     }
-    if (brush.style() == Qt::LinearGradientPattern) {
-#if defined(CHECK_RANGE)
-        qWarning("QPrinter: LinearGradient brush not supported");
-#endif
-        return;
-    }
     d->cbrush = brush;
     // we special-case for nobrush since this is a very common case
     if (d->cbrush.style() == Qt::NoBrush)
         d->pageStream << "NB\n";
-    else
+    else if (brush.style() == Qt::LinearGradientPattern) {
+        d->pageStream << POINT(brush.gradientStart())
+                      << POINT(brush.gradientStop())
+                      << color(brush.color())
+                      << color(brush.gradientColor()) << " SetLinGrad\n";
+    } else {
         d->pageStream << (int)d->cbrush.style() << ' '
                       << color(d->cbrush.color()) << "BR\n";
+    }
 }
 
 void QPSPrintEngine::updateFont(const QFont &)
@@ -6089,7 +6095,7 @@ QPrinter::PaperSource QPSPrintEngine::paperSource() const
 
 QList<int> QPSPrintEngine::supportedResolutions() const
 {
-    return QList<int>() << 72 << 600;
+    return QList<int>() << 72 << 1200;
 }
 
 QRect QPSPrintEngine::paperRect() const
@@ -6125,7 +6131,6 @@ int QPSPrintEngine::numCopies() const
 int  QPSPrintEngine::metric(int metricType) const
 {
     int val;
-    int res = d->resolution;
     QRect r = paperRect();
     switch (metricType) {
     case QPaintDeviceMetrics::PdmWidth:
@@ -6135,20 +6140,20 @@ int  QPSPrintEngine::metric(int metricType) const
         val = r.height();
         break;
     case QPaintDeviceMetrics::PdmDpiX:
-        val = res;
+        val = d->resolution;
         break;
     case QPaintDeviceMetrics::PdmDpiY:
-        val = res;
+        val = d->resolution;
         break;
     case QPaintDeviceMetrics::PdmPhysicalDpiX:
     case QPaintDeviceMetrics::PdmPhysicalDpiY:
         val = 1200;
         break;
     case QPaintDeviceMetrics::PdmWidthMM:
-        val = qRound(r.width()*25.4/res);
+        val = qRound(r.width()*25.4/d->resolution);
         break;
     case QPaintDeviceMetrics::PdmHeightMM:
-        val = qRound(r.height()*25.4/res);
+        val = qRound(r.height()*25.4/d->resolution);
         break;
     case QPaintDeviceMetrics::PdmNumColors:
         val = INT_MAX;
