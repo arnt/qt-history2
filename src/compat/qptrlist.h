@@ -139,7 +139,7 @@ template<class type>
 QPtrList<type>::QPtrList(const QList<type *> &l)
     : QGList()
 {
-    for (int i = 0; i < l.size(); ++l)
+    for (int i = 0; i < l.size(); ++i)
 	append(l.at(i));
 }
 
