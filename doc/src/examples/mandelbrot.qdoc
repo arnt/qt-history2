@@ -7,11 +7,10 @@
     event loop.
 
     The heavy computation here is the Mandelbrot set, probably the
-    world's most famous fractal. While there nowadays exists some
-    sophisticated programs such as \l{http://xaos.theory.org/}{XaoS}
-    that provide real-time zooming in the Mandelbrot set, the
-    standard Mandelbrot algorithm is just slow enough for our
-    purposes.
+    world's most famous fractal. These days, while sophisticated
+    programs such as \l{http://xaos.theory.org/}{XaoS} that provide
+    real-time zooming in the Mandelbrot set, the standard Mandelbrot
+    algorithm is just slow enough for our purposes.
 
     \image mandelbrot.png Screenshot of the Mandelbrot example
 
@@ -225,7 +224,7 @@
     The interesting part of the constructor is the
     qRegisterMetaType() and QObject::connect() calls. Let's start
     with the \l{QObject::connect()}{connect()} call.
-    
+
     Although it looks like a standard signal-slot connection between
     two \l{QObject}s, because the objects \e live in different
     threads, the connection is actually a
