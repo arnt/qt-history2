@@ -96,7 +96,7 @@
   A dialog can also provide a QSizeGrip in the lower-right corner.  By
   default, this is disabled. You can enable it with
   setSizeGripEnabled(TRUE);
-  
+
   \sa QTabDialog QWidget QSemiModal
   <a href="guibooks.html#fowler">GUI Design Handbook: Dialogs, Standard.</a>
 */
@@ -110,7 +110,7 @@ public:
     QDialogPrivate()
 	: mainDef(0), orientation(Horizontal),extension(0)
 #ifndef QT_NO_SIZEGRIP
-	,resizer(0) 
+	,resizer(0)
 #endif	
 	{
     }
@@ -119,9 +119,9 @@ public:
     Orientation orientation;
     QWidget* extension;
     QSize size, min, max;
-#ifndef QT_NO_SIZEGRIP    
+#ifndef QT_NO_SIZEGRIP
     QSizeGrip* resizer;
-#endif    
+#endif
 };
 
 
@@ -286,6 +286,13 @@ void QDialog::done( int r )
     // flag when overloading close...
     hide();
     setResult( r );
+    
+    // evil evil evil, but keeps the WDestructiveClose
+    // semantics. There should not be much of a difference whether the
+    // users types Alt-F4 or Escape. Without that, destructive-close
+    // dialogs were more or less useless without subclassing.
+    if ( testWFlags(WDestructiveClose) ) 
+	delete this; 
 }
 
 /*!
@@ -697,7 +704,7 @@ bool QDialog::isSizeGripEnabled() const
     return !!d->resizer;
 #else
     return FALSE;
-#endif    
+#endif
 }
 
 /*!
@@ -713,7 +720,7 @@ void QDialog::setSizeGripEnabled(bool enabled)
 	if ( enabled ) {
 	    d->resizer = new QSizeGrip( this, "QDialog::resizer" );
 	    d->resizer->adjustSize();
-	    d->resizer->move( rect().bottomRight() -d->resizer->rect().bottomRight() ); 
+	    d->resizer->move( rect().bottomRight() -d->resizer->rect().bottomRight() );
 	    d->resizer->raise();
 	    d->resizer->show();
 	} else {
@@ -732,7 +739,7 @@ void QDialog::resizeEvent( QResizeEvent * )
 {
 #ifndef QT_NO_SIZEGRIP
     if ( d->resizer )
-	d->resizer->move( rect().bottomRight() -d->resizer->rect().bottomRight() ); 
+	d->resizer->move( rect().bottomRight() -d->resizer->rect().bottomRight() );
 #endif
 }
 
