@@ -78,10 +78,6 @@ public:
     QColor bg_col;
     uchar bg_mode;
     Qt::RasterOp rop;
-//     uchar pu;
-//     QPoint bro;
-//     QFont cfont;
-//     QFont *pfont;         // font used for metrics (might be different for printers)
     QPen cpen;
     QBrush cbrush;
     QBrush bg_brush;
@@ -96,6 +92,7 @@ public:
     void *wm_stack;
     uint clip_serial;
     QX11Info *xinfo;
+    QPoint bg_origin;
 };
 
 #endif // QX11PAINTENGINE_P_H

@@ -5711,7 +5711,7 @@ void QPSPrinter::updatePen(const QPen &pen)
 
 void QPSPrinter::updateBrush(const QBrush &brush, const QPoint &origin)
 {
-    if (ps->brush.style() == Qt::CustomPattern) {
+    if (brush.style() == Qt::CustomPattern) {
 #if defined(CHECK_RANGE)
         qWarning("QPrinter: Pixmap brush not supported");
 #endif
@@ -5737,7 +5737,7 @@ void QPSPrinter::updateRasterOp(Qt::RasterOp rop)
     qWarning("raster ops not supported on Postscript driver");
 }
 
-void QPSPrinter::updateBackground(Qt::BMMode bgMode, const QBrush &bgBrush)
+void QPSPrinter::updateBackground(Qt::BGMode bgMode, const QBrush &bgBrush)
 {
     d->bkColor = bgBrush;
     d->dirtyBkColor = true;

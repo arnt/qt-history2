@@ -197,12 +197,15 @@ private:
     inline QPainterState *painterState() const { return state; }
     void updateInternal(QPainterState *state, bool updateGC = true);
 
-    friend class QWrapperPaintEngine;
-    friend class QPainter;
+    friend class QFontEngineBox;
     friend class QFontEngineWin;
+    friend class QFontEngineXft;
+    friend class QFontEngineXLFD;
+    friend class QPSPrinter;
+    friend class QPainter;
     friend class QWin32PaintEngine;
     friend class QWin32PaintEnginePrivate;
-    friend class QPSPrinter;
+    friend class QWrapperPaintEngine;
 };
 
 class QWrapperPaintEngine : public QPaintEngine

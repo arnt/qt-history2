@@ -141,7 +141,7 @@ void QFontEngineBox::draw(QPaintEngine *p, int x, int y, const QTextItem &si, in
         }
     } else {
         if (p->painterState()->txop == QPainter::TxTranslate)
-            p->painterState()->painter->map(x, y, &x, &y);
+            p->painter()->map(x, y, &x, &y);
         XRectangle rects[64];
 
         int gl = 0;
@@ -374,7 +374,7 @@ void QFontEngineXLFD::draw(QPaintEngine *p, int xpos, int ypos, const QTextItem 
 
     Qt::HANDLE font_id = _fs->fid;
     if (p->painterState()->txop == QPainter::TxTranslate)
-        p->painterState()->painter->map(xpos, ypos, &xpos, &ypos);
+        p->painter()->map(xpos, ypos, &xpos, &ypos);
 
     Q26Dot6 x(xpos);
     Q26Dot6 y(ypos);
@@ -1351,7 +1351,7 @@ void QFontEngineXft::draw(QPaintEngine *p, int xpos, int ypos, const QTextItem &
     }
 
     if (p->painterState()->txop == QPainter::TxTranslate)
-        p->painterState()->painter->map(xpos, ypos, &xpos, &ypos);
+        p->painter()->map(xpos, ypos, &xpos, &ypos);
 
     Q26Dot6Offset pos;
     pos.x = xpos;
@@ -1361,7 +1361,7 @@ void QFontEngineXft::draw(QPaintEngine *p, int xpos, int ypos, const QTextItem &
 
     const QColor &pen = static_cast<QX11PaintEngine *>(p)->d->cpen.color();
 
-    XftDraw *draw = static_cast<Q_HackPaintDevice *>(p->painterState()->painter->device())->xftDrawHandle();
+    XftDraw *draw = static_cast<Q_HackPaintDevice *>(p->painter()->device())->xftDrawHandle();
     XftColor col;
     col.color.red = pen.red () | pen.red() << 8;
     col.color.green = pen.green () | pen.green() << 8;
@@ -1370,15 +1370,15 @@ void QFontEngineXft::draw(QPaintEngine *p, int xpos, int ypos, const QTextItem &
     col.pixel = pen.pixel();
 #ifdef FONTENGINE_DEBUG
     qDebug("===== drawing %d glyphs reverse=%s ======", si.num_glyphs, si.right_to_left?"true":"false");
-    p->painterState()->painter->save();
-    p->painterState()->painter->setBrush(Qt::white);
+    p->painter()->save();
+    p->painter()->setBrush(Qt::white);
     glyph_metrics_t ci = boundingBox(glyphs, si.num_glyphs);
-    p->painterState()->painter->drawRect(x + ci.x, y + ci.y, ci.width, ci.height);
-    p->painterState()->painter->drawLine(x + ci.x, y, ci.width, y);
-    p->painterState()->painter->drawRect(x + ci.x, y + 100 + ci.y, ci.width, ci.height);
-    p->painterState()->painter->drawLine(x + ci.x, y + 100, ci.width, y + 100);
+    p->painter()->drawRect(x + ci.x, y + ci.y, ci.width, ci.height);
+    p->painter()->drawLine(x + ci.x, y, ci.width, y);
+    p->painter()->drawRect(x + ci.x, y + 100 + ci.y, ci.width, ci.height);
+    p->painter()->drawLine(x + ci.x, y + 100, ci.width, y + 100);
     qDebug("bounding rect=%d %d (%d/%d)", ci.x, ci.y, ci.width, ci.height);
-    p->painterState()->painter->restore();
+    p->painter()->restore();
 #endif
 
     if (textFlags != 0)
@@ -1387,8 +1387,8 @@ void QFontEngineXft::draw(QPaintEngine *p, int xpos, int ypos, const QTextItem &
     QVarLengthArray<XftGlyphSpec,256> glyphSpec(si.num_glyphs);
 
 #ifdef FONTENGINE_DEBUG
-    p->painterState()->painter->save();
-    p->painterState()->painter->setPen(Qt::red);
+    p->painter()->save();
+    p->painter()->setPen(Qt::red);
 #endif
 
     int nGlyphs = 0;
@@ -1444,7 +1444,7 @@ void QFontEngineXft::draw(QPaintEngine *p, int xpos, int ypos, const QTextItem &
             }
 #ifdef FONTENGINE_DEBUG
             glyph_metrics_t ci = boundingBox(glyphs[i].glyph);
-            p->painterState()->painter->drawRect(x + ci.x + glyphs[i].offset.x, y + 100 + ci.y + glyphs[i].offset.y, ci.width, ci.height);
+            p->painter()->drawRect(x + ci.x + glyphs[i].offset.x, y + 100 + ci.y + glyphs[i].offset.y, ci.width, ci.height);
             qDebug("bounding ci[%d]=%d %d (%d/%d) / %d %d   offs=(%d/%d) advance=(%d/%d)", i, ci.x, ci.y, ci.width, ci.height,
                    ci.xoff, ci.yoff, glyphs[i].offset.x, glyphs[i].offset.y, glyphs[i].advance.x, glyphs[i].advance.y);
 #endif
@@ -1480,7 +1480,7 @@ void QFontEngineXft::draw(QPaintEngine *p, int xpos, int ypos, const QTextItem &
     }
 
 #ifdef FONTENGINE_DEBUG
-    p->painterState()->painter->restore();
+    p->painter()->restore();
 #endif
 
     int i = 0;

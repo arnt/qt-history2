@@ -446,7 +446,7 @@ void qt_erase_background(Qt::HANDLE hd, int screen,
 void qt_draw_transformed_rect(QPaintEngine *pe,  int x, int y, int w,  int h, bool fill)
 {
     QX11PaintEngine *p = static_cast<QX11PaintEngine *>(pe);
-    QPainter *pp = painter();;
+    QPainter *pp = p->painter();
 
     XPoint points[5];
     int xp = x,  yp = y;
@@ -873,6 +873,7 @@ QPixmap qt_pixmapForBrush(int brushStyle, bool invert); //in qbrush.cpp
 void QX11PaintEngine::updateBrush(const QBrush &brush, const QPoint &origin)
 {
     d->cbrush = brush;
+    d->bg_origin = origin;
 
     int  bs = d->cbrush.style();
     int x = 0, y = 0;
@@ -944,7 +945,7 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPoint &origin)
             XSetTile(d->dpy, d->gc_brush, pm.handle());
             s = FillTiled;
         }
-        XSetTSOrigin(d->dpy, d->gc_brush, ps->bgOrigin.x(), ps->bgOrigin.y());
+        XSetTSOrigin(d->dpy, d->gc_brush, origin.x(), origin.y());
     }
     XSetFillStyle(d->dpy, d->gc_brush, s);
 }
@@ -964,7 +965,7 @@ void QX11PaintEngine::setRasterOp(RasterOp r)
     if (d->penRef)
         updatePen(d->cpen);                            // get non-cached pen GC
     if (d->brushRef)
-        updateBrush(d->cbrush);                          // get non-cached brush GC
+        updateBrush(d->cbrush, d->bg_origin);                          // get non-cached brush GC
     XSetFunction(d->dpy, d->gc, ropCodes[d->rop]);
     XSetFunction(d->dpy, d->gc_brush, ropCodes[d->rop]);
 }
@@ -1376,7 +1377,7 @@ void QX11PaintEngine::updateRasterOp(Qt::RasterOp rop)
     if (d->penRef)
         updatePen(d->cpen);                            // get non-cached pen GC
     if (d->brushRef)
-        updateBrush(d->cbrush);                        // get non-cached brush GC
+        updateBrush(d->cbrush, d->bg_origin);                        // get non-cached brush GC
     XSetFunction(d->dpy, d->gc, ropCodes[d->rop]);
     XSetFunction(d->dpy, d->gc_brush, ropCodes[d->rop]);
 }
@@ -1390,7 +1391,7 @@ void QX11PaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
     if (!d->penRef)
         updatePen(d->cpen);                            // update pen setting
     if (!d->brushRef)
-        updateBrush(d->cbrush);                        // update brush setting
+        updateBrush(d->cbrush, d->bg_origin);                        // update brush setting
 }
 
 void QX11PaintEngine::updateXForm(const QWMatrix &)
@@ -1411,7 +1412,7 @@ void QX11PaintEngine::updateClipRegion(const QRegion &clipRegion, bool clipEnabl
         if (d->penRef)
             updatePen(d->cpen);
         if (d->brushRef)
-            updateBrush(d->cbrush);
+            updateBrush(d->cbrush, d->bg_origin);
         x11SetClipRegion(d->dpy, d->gc, d->gc_brush, d->rendhd, d->crgn);
     } else {
         if (d->pdev == paintEventDevice && paintEventClipRegion) {
@@ -1422,7 +1423,7 @@ void QX11PaintEngine::updateClipRegion(const QRegion &clipRegion, bool clipEnabl
     }
 }
 
-void QX11PaintEngine::updateFont(const QFont &font)
+void QX11PaintEngine::updateFont(const QFont &)
 {
     clearf(DirtyFont);
     if (d->penRef)
