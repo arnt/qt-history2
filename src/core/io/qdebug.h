@@ -56,19 +56,6 @@ public:
     inline QDebug &operator<<(const QLatin1String &t) { stream->ts << t.latin1(); return maybeSpace(); }
     inline QDebug &operator<<(const QByteArray & t) { stream->ts << t; return maybeSpace(); }
     inline QDebug &operator<<(const void * t) { stream->ts << t; return maybeSpace(); }
-    template <class T>
-    inline QDebug &operator<<(const QList<T> &list)
-    {
-        (*this) << '(';
-        for (Q_TYPENAME QList<T>::size_type i = 0; i < list.count(); ++i) {
-            if (i)
-                (*this) << ',';
-            (*this) << list.at(i);
-        }
-        (*this) << ')';
-        return *this;
-    }
-
     inline QDebug &operator<<(QTextStreamFunction f) {
         stream->ts << f;
         return *this;
@@ -77,6 +64,21 @@ public:
     inline QDebug &operator<<(QTextStreamManipulator m)
         { stream->ts << m; return *this; }
 };
+
+template <class T>
+inline QDebug &operator<<(QDebug &debug, const QList<T> &list)
+{
+    debug << '(';
+    for (Q_TYPENAME QList<T>::size_type i = 0; i < list.count(); ++i) {
+        if (i)
+            debug << ',';
+        debug << list.at(i);
+    }
+    debug << ')';
+    return debug;
+}
+
+
 inline Q_CORE_EXPORT QDebug qDebug() { return QDebug(); }
 
 #else
