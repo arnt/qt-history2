@@ -108,8 +108,8 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     either of the two channels by calling readAllStandardOutput() or
     readAllStandardError().
 
-    Note that the terminology for the process and for QProcess are
-    reversed: The process's output channels correspond to QProcess's
+    The terminology for the channels can be misleading. Be aware that
+    the process's output channels correspond to QProcess's
     \e read channels, whereas the process's input channels correspond
     to QProcess's \e write channels. This is because what we read
     using QProcess is the process's output, and what we write becomes
