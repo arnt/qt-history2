@@ -482,28 +482,21 @@ static Q_INT64 read_int_ascii( QDataStream *s )
     }
     buf[n] = '\0';
 
-#if defined(Q_OS_TEMP)
-    return strtol( buf, (char**)0, 10 );
-#elif defined(Q_OS_WIN)
-    return _atoi64( buf );
-#elif defined(Q_OS_HPUX)
-#  if defined(__LP64__)
-    return strtol(buf, (char**)0, 10);
-#  else
-    return __strtoll( buf, (char**)0, 10 );
-#  endif
-#elif defined(Q_OS_DARWIN) && defined(QT_MACOSX_VERSION) && QT_MACOSX_VERSION < 0x1020
-    return strtoq( buf, (char**)0, 10 );
-#elif defined(Q_OS_OSF)
-    return strtol( buf, (char**)0, 10 );
-#elif defined(Q_OS_LINUX)
-#  if defined(__LP64__)
-    return strtol(buf, (char**)0, 10);
-#  else
-    return strtoll(buf, (char**)0, 10);
-#  endif
+#if defined(__LP64__)
+    // sizeof(long) == 8
+    return strtol(buf, (char **)0, 10);
 #else
+#  if defined(Q_OS_TEMP)
+    return strtol( buf, (char**)0, 10 );
+#  elif defined(Q_OS_WIN)
+    return _atoi64( buf );
+#  elif defined(Q_OS_HPUX)
+    return __strtoll( buf, (char**)0, 10 );
+#  elif defined(Q_OS_DARWIN) && defined(QT_MACOSX_VERSION) && QT_MACOSX_VERSION < 0x1020
+    return strtoq( buf, (char**)0, 10 );
+#  else
     return strtoll( buf, (char**)0, 10 );	// C99 function
+#  endif
 #endif
 }
 
