@@ -3513,9 +3513,12 @@ int QApplication::x11ProcessEvent( XEvent* event )
     }
 	break;
 
-    case UnmapNotify:			// window hidden
+    case UnmapNotify:				// window hidden
 	if ( widget->isTopLevel() &&
-	     widget->testWState(WState_Visible | WState_ForceHide) == WState_Visible) {
+	     widget->testWState(WState_Visible | WState_ForceHide) == WState_Visible ) {
+	    // the window was hidden by some user interaction, now with QWidget::hide()
+	    // we need to update the state and notify all children
+	    widget->clearWState(WState_Visible);
 	    QHideEvent e;
 	    QApplication::sendSpontaneousEvent( widget, &e );
 	    widget->hideChildren( TRUE );
@@ -3524,7 +3527,10 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     case MapNotify:				// window shown
 	if ( widget->isTopLevel() &&
-	     ! widget->testWState(WState_Visible | WState_ForceHide)) {
+	     widget->testWState(WState_Visible | WState_ForceHide) == 0 ) {
+	    // the window was hidden by some user interaction, now with QWidget::show()
+	    // we need to update the state and notify all children
+	    widget->setWState(WState_Visible);
 	    widget->showChildren( TRUE );
 	    QShowEvent e;
 	    QApplication::sendSpontaneousEvent( widget, &e );
