@@ -2279,7 +2279,7 @@ QPSPrinterFontTTF::QPSPrinterFontTTF(const QFont &f, QByteArray& d)
           qWarning("TrueType font does not have a format 2.0 'post' table");
           qWarning("post format is %d.%d",post_format.whole,post_format.fraction);
           // Sivan Feb 2001: no longer defective.
-          // defective = true;
+          // defective = TRUE;
       }
   }
 #endif

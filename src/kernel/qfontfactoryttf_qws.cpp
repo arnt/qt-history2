@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QFontFactory for Truetype class for Embedded Qt
 **
 ** Created : 940721
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -246,7 +246,7 @@ void QFontFactoryFT::load(QDiskFont * qdf) const
     if(err) {
 	qFatal("Error %d opening face",err);
     }
-    qdf->loaded=true;
+    qdf->loaded=TRUE;
 }
 
 void QFontFactoryFT::unload(QDiskFont * qdf)

@@ -5,7 +5,7 @@
 **
 ** Created : 991025
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -901,7 +901,7 @@ QWSServer::QWSServer( int flags, QObject *parent, const char *name ) :
 #else
     QObject( parent, name ),
 #endif
-    disablePainting(false)
+    disablePainting(FALSE)
 {
     d = new QWSServerData;
     Q_ASSERT( !qwsServer );
@@ -1307,14 +1307,14 @@ void QWSServer::enablePainting(bool e)
 // ### don't like this
     if (e)
     {
-	disablePainting = false;
+	disablePainting = FALSE;
 	setWindowRegion( 0, QRegion() );
 	showCursor();
 	syncRegions();
     }
     else
     {
-	disablePainting = true;
+	disablePainting = TRUE;
 	hideCursor();
 	setWindowRegion( 0, QRegion(0,0,swidth,sheight) );
 	syncRegions();
@@ -1471,7 +1471,7 @@ void QWSServer::setMouseHandler(QWSMouseHandler* mh)
 QPtrList<QWSInternalWindowInfo> * QWSServer::windowList()
 {
     QPtrList<QWSInternalWindowInfo> * ret=new QPtrList<QWSInternalWindowInfo>;
-    ret->setAutoDelete(true);
+    ret->setAutoDelete(TRUE);
     QWSWindow * window;
     for(window=qwsServer->windows.first();window!=0;
 	window=qwsServer->windows.next()) {
@@ -1990,7 +1990,7 @@ void QWSServer::invokeSelectCursor( QWSSelectCursorCommand *cmd, QWSClient *clie
     else
 	setCursor(curs);
 
-    cursorNeedsUpdate = true;
+    cursorNeedsUpdate = TRUE;
 }
 #endif
 

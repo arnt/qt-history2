@@ -169,7 +169,7 @@ public:
 	filename=savefile + suffix;
 	widget->setCaption(widgetname);
 	widget->show();
-	done = false;
+	done = FALSE;
 	startTimer(800);
 	while ( !done ) {
 	    qApp->processEvents();
@@ -1090,7 +1090,7 @@ int main( int argc, char **argv )
     QApplication a( argc, argv );
     QFileDialog::setIconProvider( new ImageIconProvider );
 
-    bool first = true;
+    bool first = TRUE;
     QString suffix = "-m.png";
     QApplication::setStyle( new QMotifStyle );
 
@@ -1158,7 +1158,7 @@ wd.depict( new eg(), ofile, wname, TRUE );
 	
 	if ( !first ) break;
 
-	first = false;
+	first = FALSE;
 	QApplication::setStyle( new QWindowsStyle );
 	suffix = "-w.png";
     }

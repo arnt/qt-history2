@@ -31,7 +31,7 @@ static const char *terminalName = "/dev/tty0";
 static int kbdFD = -1;
 static struct termios origTermData;
 static QSocketNotifier *kbNotifier = 0;
-static bool vtActive = true;
+static bool vtActive = TRUE;
 static int  vtQws = 0;
 
 static QWSServer *server = 0;
@@ -141,22 +141,22 @@ static KeyMap keyMap[] = {
 void vtSwitchHandler(int sig)
 {
     if (vtActive) {
-	server->enablePainting(false);
+	server->enablePainting(FALSE);
 	if (ioctl(kbdFD, VT_RELDISP, 1) == 0) {
 	    printf("VT switched out\n");
-	    vtActive = false;
+	    vtActive = FALSE;
 	    server->closeMouse();
 	}
 	else {
-	    server->enablePainting(true);
+	    server->enablePainting(TRUE);
 	}
 	usleep(200000);
     }
     else {
 	if (ioctl(kbdFD, VT_RELDISP, VT_ACKACQ) == 0) {
 	    printf("VT switched in\n");
-	    server->enablePainting(true);
-	    vtActive = true;
+	    server->enablePainting(TRUE);
+	    vtActive = TRUE;
 	    server->openMouse();
 	    server->refresh();
 	}
@@ -240,7 +240,7 @@ void QWSServer::readKeyboardData()
     static int shift = 0;
     static int alt   = 0;
     static int ctrl  = 0;
-    static bool extended = false;
+    static bool extended = FALSE;
 
     unsigned char buf[81];
     int n;
@@ -249,17 +249,17 @@ void QWSServer::readKeyboardData()
     for ( int loop = 0; loop < n; loop++ ) {
 	int ch = buf[loop];
 	int keyCode = Qt::Key_unknown;
-	bool release = false;
+	bool release = FALSE;
 
 
 	if (ch == 224) {
 	    // extended
-	    extended = true;
+	    extended = TRUE;
 	    continue;
 	}
 
 	if (ch & 0x80) {
-	    release = true;
+	    release = TRUE;
 	    ch &= 0x7f;
 	}
 
@@ -358,7 +358,7 @@ void QWSServer::readKeyboardData()
 	    int modifiers = alt | ctrl | shift;
 	    sendKeyEvent( unicode, modifiers, !release, FALSE );
 	}
-	extended = false;
+	extended = FALSE;
     }
 }
 

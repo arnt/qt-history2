@@ -1,4 +1,3 @@
-
 /****************************************************************************
 ** $Id$
 **
@@ -46,7 +45,7 @@ QWSQnx4KeyboardHandler::QWSQnx4KeyboardHandler() {
     shift = 0;
     alt   = 0;
     ctrl  = 0;
-    extended = false;
+    extended = FALSE;
     prevuni = 0;
     prevkey = 0;
 

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of Qt/Embedded Yopy keyboard drivers
 **
 ** Created : 991025
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -142,7 +142,7 @@ void QWSyopyButtonsHandler::readKeyboardData()
         }
 
 	if ( k >= 0 ) {
-		qwsServer->processKeyEvent( 0, k, 0, press, false );
+		qwsServer->processKeyEvent( 0, k, 0, press, FALSE );
 	}
     }
 }

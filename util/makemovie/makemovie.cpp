@@ -28,7 +28,7 @@
 
 #define FRAME_DELAY 30
 #define MAX_CLUSTERS 16
-bool demo_mode = false;
+bool demo_mode = FALSE;
 
 class QMovieFrame {
 public:
@@ -65,7 +65,7 @@ QDataStream& operator>>(QDataStream& str, QMovieFrame& frame)
 QDataStream& operator>>(QDataStream& str, QMovieFrames& frames)
 {
     frames.clear();
-    frames.setAutoDelete( true );
+    frames.setAutoDelete( TRUE );
 
     Q_INT32 count;
     str >> count;
@@ -308,14 +308,14 @@ int main(int argc, char** argv)
     }
 
     if ( argc >= 2 && strcmp( argv[1], "-demo" ) == 0 )
-      demo_mode = true;
+      demo_mode = TRUE;
 
     QPtrList<QMovieFrame> frames;
 
-    bool load_mode = false;
+    bool load_mode = FALSE;
     if ( argc >= 2 && strcmp( argv[1], "-load" ) == 0 )
     {
-      load_mode = true;
+      load_mode = TRUE;
       if ( argc != 3 )
       {
 	printf("moviemaker: Syntax:\n");

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QFontFactory for Truetype class for Embedded Qt
 **
 ** Created : 940721
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -233,10 +233,10 @@ the information in the file. It also constructs any defined font factories.
 
 QFontManager::QFontManager()
 {
-    factories.setAutoDelete(true);
-    diskfonts.setAutoDelete(true);
-    diskfonts.setAutoDelete(true);
-    cachedfonts.setAutoDelete(true);
+    factories.setAutoDelete(TRUE);
+    diskfonts.setAutoDelete(TRUE);
+    diskfonts.setAutoDelete(TRUE);
+    cachedfonts.setAutoDelete(TRUE);
 
 #ifndef QT_NO_FREETYPE
     factories.append(new QFontFactoryFT());

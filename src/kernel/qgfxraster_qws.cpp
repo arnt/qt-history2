@@ -3,6 +3,7 @@
 **
 ** Implementation of QGfxRaster (unaccelerated graphics context) class for
 ** Embedded Qt
+**
 ** Created : 940721
 **
 ** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
@@ -57,6 +58,7 @@ typedef unsigned int __u32;
 
 // Pull this private function in from qglobal.cpp
 extern unsigned int qt_int_sqrt( unsigned int n );
+
 
 #define QGfxRaster_Generic 0
 #define QGfxRaster_VGA16   1
@@ -2452,7 +2454,7 @@ void QGfxRaster<depth,type>::setSource(unsigned char * c,int w,int h,int l,
     srclinestep=l;
     srcdepth=d;
     srcbits=c;
-    src_little_endian=true;
+    src_little_endian=TRUE;
     setSourceWidgetOffset(0,0);
     srcwidth=w;
     srcheight=h;
@@ -2482,11 +2484,21 @@ void QGfxRaster<depth,type>::buildSourceClut(QRgb * cols,int numcols)
 {
     if (!cols) {
 	useBrush();
-	srcclut[0]=pixel;
-	transclut[0]=pixel;
+	if ( qt_screen->depth() == 16 && depth==32 ) {
+	    srcclut[0]=qt_conv16ToRgb(pixel);
+	    transclut[0]=qt_conv16ToRgb(pixel);
+	} else {
+	    srcclut[0]=pixel;
+	    transclut[0]=pixel;
+	}
 	usePen();
-	srcclut[1]=pixel;
-	transclut[1]=pixel;
+	if ( qt_screen->depth() == 16 && depth==32 ) {
+	    srcclut[1]=qt_conv16ToRgb(pixel);
+	    transclut[1]=qt_conv16ToRgb(pixel);
+	} else {
+	    srcclut[1]=pixel;
+	    transclut[1]=pixel;
+	}
 	return;
     }
 

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id$
 **
-** Definition of VcprojGenerator class.
+** Definition of ________ class.
 **
 ** Copyright (C) 2002 Trolltech AS.  All rights reserved.
 **

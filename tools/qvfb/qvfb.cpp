@@ -126,7 +126,7 @@ void QVFb::createMenu(QMenuData *menu)
     menu->insertItem( "&File", file );
 
     viewMenu = new QPopupMenu( this );
-    viewMenu->setCheckable( true );
+    viewMenu->setCheckable( TRUE );
     cursorId = viewMenu->insertItem( "Show &Cursor", this, SLOT(toggleCursor()) );
     enableCursor(TRUE);
     viewMenu->insertItem( "&Refresh Rate...", this, SLOT(changeRate()) );

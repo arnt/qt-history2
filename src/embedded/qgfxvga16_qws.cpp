@@ -76,9 +76,9 @@ static unsigned char *db_line_ptrs[480];
 // ### Might want to put in shared memory
 static unsigned char closestMatchLUT[16][16][16]; // this takes 4096 bytes
 
-static bool closestMatchLUTinitialised = false;
-static bool set_back_buffer = true;
-static bool force_set_pixel = false;
+static bool closestMatchLUTinitialised = FALSE;
+static bool set_back_buffer = TRUE;
+static bool force_set_pixel = FALSE;
 
 
 #ifndef QT_NO_QWS_CURSOR
@@ -90,8 +90,8 @@ public:
     virtual void set( const QImage &image, int hotx, int hoty );
     virtual void move( int x, int y );
     void drawCursor(QRect &r);
-    virtual bool supportsAlphaCursor() { return false; }
-    static bool enabled() { return true; }
+    virtual bool supportsAlphaCursor() { return FALSE; }
+    static bool enabled() { return TRUE; }
 private:
     void restoreUnder();
 };
@@ -210,7 +210,7 @@ static void initialiseColorLookupTable(void)
 	for (int _g = 0; _g < 256; _g += 16)
 	    for (int _b = 0; _b < 256; _b += 16)
 		closestMatchLUT[_r >> 4][_g >> 4][_b >> 4] = closestMatch(_r, _g, _b);
-    closestMatchLUTinitialised = true;
+    closestMatchLUTinitialised = TRUE;
 }
 
 
@@ -219,7 +219,7 @@ static void initialiseColorLookupTable(void)
 
 static unsigned int closestMatchUsingTable(int r,int g,int b)
 {
-    if (closestMatchLUTinitialised == false) {
+    if (closestMatchLUTinitialised == FALSE) {
 	initialiseColorLookupTable();
     }
     return closestMatchLUT[(r >> 4) & 0x0F][(g >> 4) & 0x0F][(b >> 4) & 0x0F];
@@ -259,7 +259,7 @@ class VGA16_CriticalSection    // Mutex for serialising VGA16 access
 // is set to is different.
 //
 #define MAKE_VGA16_FUNC(funcname, reg, port) \
-    static inline void set_##funcname##_vga16(unsigned char value, bool force = true) \
+    static inline void set_##funcname##_vga16(unsigned char value, bool force = TRUE) \
     { \
 	if ((1) || (force) || (vga_register_values[((port - 0x3C0) * 16) + reg] != value)) { \
 	outw((value << 8) | reg, port); \
@@ -334,9 +334,9 @@ class QGfxVga16 : public QGfxRasterBase , private QPolygonScanner
 	void drawrect_4(unsigned int x1, unsigned int y1, 
     	    unsigned int x2, unsigned int y2, unsigned char col);
 	unsigned int get_pixel_4_32(unsigned int x, unsigned int y);
-	void himageline_4(unsigned int y, unsigned int x1, unsigned int x2, unsigned char *srcdata, bool reverse = false);
+	void himageline_4(unsigned int y, unsigned int x1, unsigned int x2, unsigned char *srcdata, bool reverse = FALSE);
 
-	GFX_INLINE unsigned int get_value_32(int sdepth, unsigned char **srcdata, bool reverse = false);
+	GFX_INLINE unsigned int get_value_32(int sdepth, unsigned char **srcdata, bool reverse = FALSE);
 	GFX_INLINE void calcPacking(void * m,int x1,int x2, int & frontadd,int & backadd,int & count);
 	GFX_INLINE void hline( int x1,int x2,int y);
 	GFX_INLINE void hAlphaLineUnclipped( int x1,int x2,unsigned int y,unsigned char *srcdata,unsigned char *alphas);
@@ -1733,7 +1733,7 @@ void QGfxVga16::blt( int rx,int ry,int w,int h,int sx,int sy )
 			    srcptr=find_pointer(srcbits,(x-rx)+sx,
 					 j+sy, x2-x, srclinestep,
 					 monobitcount, monobitval,
-					 !src_little_endian, false);
+					 !src_little_endian, FALSE);
 			} else {
 			    srcptr = srcline + (x-rx+sx)*srcdepth/8;
 			}
@@ -1745,10 +1745,10 @@ void QGfxVga16::blt( int rx,int ry,int w,int h,int sx,int sy )
 			maskp=find_pointer(alphabits,(x-rx)+sx,
 					   j+sy, x2-x, alphalinestep,
 					   amonobitcount,amonobitval,
-					   alphatype==BigEndianMask, false);
+					   alphatype==BigEndianMask, FALSE);
 			// Fall through
 		      case IgnoreAlpha:
-			himageline_4( ry, x, x2, srcptr, false);
+			himageline_4( ry, x, x2, srcptr, FALSE);
 			break;
 		      case InlineAlpha:
 		      case SolidAlpha:
@@ -1847,6 +1847,7 @@ void QGfxVga16::tiledBlt( int rx,int ry,int w,int h )
     
     VGA16_GFX_END
 }
+
 
 
 
@@ -1975,7 +1976,7 @@ bool QVga16Screen::initDevice()
     // clear the shared memory
     memset(screen_double_buffer, 0, 640*480/2);
 		
-    return true;
+    return TRUE;
 }
 
 int QVga16Screen::initCursor(void* e, bool init)
@@ -2136,11 +2137,11 @@ void QVga16Cursor::drawCursor(QRect &r)
 	gfx->setSource( cursor );
 	gfx->setAlphaType(QGfx::InlineAlpha);
 
-	set_back_buffer = false;
-	force_set_pixel = true;
+	set_back_buffer = FALSE;
+	force_set_pixel = TRUE;
 	gfx->blt(x,y,data->width,data->height,0,0);
-	force_set_pixel = false;
-	set_back_buffer = true;
+	force_set_pixel = FALSE;
+	set_back_buffer = TRUE;
 	
 	qt_sw_cursor = TRUE;
     }
@@ -2149,4 +2150,3 @@ void QVga16Cursor::drawCursor(QRect &r)
 #endif // QT_NO_QWS_CURSOR
 
 #endif // QT_NO_QWS_VGA16
-

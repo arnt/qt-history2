@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of Qt/FB central server
 **
 ** Created : 991025
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit Professional Edition.
 **
@@ -253,7 +253,7 @@ struct QWSCommandStruct
 QWSServer::QWSServer( int sw, int sh, int simulate_depth, int flags,
 		      QObject *parent, const char *name ) :
     QServerSocket(QTFB_PORT,16,parent,name),
-    disablePainting(false), pending_region_acks(0)
+    disablePainting(FALSE), pending_region_acks(0)
 {
     focusw = 0;
     mouseGrabber = 0;
@@ -579,12 +579,12 @@ void QWSServer::enablePainting(bool e)
 {
     if (e)
     {
-	disablePainting = false;
+	disablePainting = FALSE;
 	setWindowRegion( 0, QRegion() );
     }
     else
     {
-	disablePainting = true;
+	disablePainting = TRUE;
 	setWindowRegion( 0, QRegion(0,0,swidth,sheight) );
     }
 }
@@ -909,7 +909,7 @@ void QWSServer::invokeSelectCursor( QWSSelectCursorCommand *cmd, QWSClient *clie
 
     // ### set cursor in hardware
 
-    cursorNeedsUpdate = true;
+    cursorNeedsUpdate = TRUE;
 }
 
 /*!

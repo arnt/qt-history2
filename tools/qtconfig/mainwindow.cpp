@@ -368,8 +368,8 @@ MainWindow::MainWindow()
 	aacheckbox->setChecked( FALSE );
     }
 #else
-    xftcheckbox->setEnabled(false);
-    aacheckbox->setEnabled(false);
+    xftcheckbox->setEnabled( FALSE );
+    aacheckbox->setEnabled( FALSE );
 #endif
 
     fontembeddingcheckbox->setChecked( settings.readBoolEntry("/qt/embedFonts", TRUE) );

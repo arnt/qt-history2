@@ -569,7 +569,7 @@ int QQnxScreen::initCursor(void *e, bool init) {
     extern bool qws_sw_cursor;
     qws_sw_cursor = FALSE; //?
 
-    if(qws_sw_cursor==true) {
+    if(qws_sw_cursor==TRUE) {
 	miscFuncList.disable_hw_cursor(&adapter);
 	return QScreen::initCursor(e,init);
     }

@@ -336,6 +336,7 @@ void QGfxVoodoo<depth,type>::fillRect(int rx,int ry,int w,int h)
     // Stop anyone else trying to access optype/lastop/the graphics engine
     // to avoid synchronization problems with other processes
 
+
     // This is used by the software mouse cursor to prevent corruption
     // of the cursor if a drawing operation is performed under it.
     // GFX_START/END can be omitted if you know you'll only ever use
@@ -485,27 +486,27 @@ inline void QGfxVoodoo<depth,type>::blt(int rx,int ry,int w,int h, int sx, int s
 
 	if(yp>yp2) {
 	    // Down, reverse
-	    down=true;
+	    down=TRUE;
 	    if(xp>xp2) {
 		// Right, reverse
-		right=true;
+		right=TRUE;
 		dirmask|=0x4000 | 0x8000;
 	    } else {
 		// Left, normal
-		right=false;
+		right=FALSE;
 		dirmask|=0x8000;
 	    }
 	} else {
 	    // Up, normal
 	    // Down, reverse
-	    down=false;
+	    down=FALSE;
 	    if(xp>xp2) {
 		// Right, reverse
 		dirmask|=0x4000;
-		right=true;
+		right=TRUE;
 	    } else {
 		// Left, normal
-		right=false;
+		right=FALSE;
 	    }
 	}
 
@@ -636,7 +637,7 @@ template<const int depth,const int type>
 void QGfxVoodoo<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 {
     if(ncliprect<1 || cpen.style()!=SolidLine
-       || x1+xoffs<0 || y1+yoffs<0 || x2+xoffs<0 || y2+yoffs<0 || true) {
+       || x1+xoffs<0 || y1+yoffs<0 || x2+xoffs<0 || y2+yoffs<0 || TRUE) {
 	QGfxRaster<depth,type>::drawLine(x1,y1,x2,y2);
 	return;
     }
@@ -713,9 +714,9 @@ public:
     virtual void saveUnder() {}
     virtual void drawCursor() {}
     virtual void draw() {}
-    virtual bool supportsAlphaCursor() { return false; }
+    virtual bool supportsAlphaCursor() { return FALSE; }
 
-    static bool enabled() { return false; }
+    static bool enabled() { return FALSE; }
 
 
     void regw(volatile unsigned int, unsigned long);
@@ -786,7 +787,7 @@ bool QVoodooScreen::connect( const QString &spec )
 	return FALSE;
     }
 
-    canaccel=false;
+    canaccel=FALSE;
 
     // This is the 256-byte PCI config space information for the
     // card pointed to by QWS_CARD_SLOT, as read from /proc/bus/pci
@@ -798,7 +799,7 @@ bool QVoodooScreen::connect( const QString &spec )
     const unsigned char* config = qt_probe_bus();
 
     if(!config)
-	return false;
+	return FALSE;
 
     unsigned short int * manufacturer=(unsigned short int *)config;
     if(*manufacturer!=0x121a) {
@@ -862,7 +863,7 @@ bool QVoodooScreen::connect( const QString &spec )
 
     // Yes, we detected the card correctly so can safely make accelerated
     // gfxen
-    canaccel=true;
+    canaccel=TRUE;
 
     return TRUE;
 }
@@ -892,7 +893,7 @@ bool QVoodooScreen::initDevice()
     regw(COMMANDEXTRA,0);
     */
 
-    return true;
+    return TRUE;
 }
 
 void QVoodooScreen::shutdownDevice()
@@ -905,11 +906,11 @@ int QVoodooScreen::initCursor(void* e, bool init)
 #ifndef QT_NO_QWS_CURSOR
     extern bool qws_sw_cursor;
 
-    if(qws_sw_cursor==true) {
+    if(qws_sw_cursor==TRUE) {
 	return QLinuxFbScreen::initCursor(e,init);
     }
     qt_screencursor=new QVoodooCursor();
-    qt_screencursor->init(0,false);
+    qt_screencursor->init(0,FALSE);
 #endif
     return 0;
 }

@@ -5,7 +5,7 @@
 **
 ** Created : 990721
 **
-** Copyright (C) 1999-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1999-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -40,7 +40,7 @@
 #include <stdlib.h>
 
 #ifndef QT_NO_QWS_CURSOR
-bool qt_sw_cursor=false;
+bool qt_sw_cursor=FALSE;
 QScreenCursor * qt_screencursor=0;
 #endif
 QScreen * qt_screen=0;
