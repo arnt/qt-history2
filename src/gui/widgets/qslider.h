@@ -61,8 +61,8 @@ private:
 
 #ifdef QT_COMPAT
 public:
-    QSlider(QWidget *parent = 0, const char *name = 0);
-    QSlider(Orientation, QWidget *parent = 0, const char *name = 0);
+    QSlider(QWidget *parent, const char *name);
+    QSlider(Orientation, QWidget *parent, const char *name);
     QSlider(int minValue, int maxValue, int pageStep, int value, Orientation orientation,
                       QWidget *parent = 0, const char *name = 0);
 public slots:
