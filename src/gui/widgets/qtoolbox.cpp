@@ -55,7 +55,7 @@ class QToolBoxButton : public QAbstractButton
 {
 public:
     QToolBoxButton(QWidget *parent, const char *name)
-        : QButton(parent, name), selected(false)
+        : QAbstractButton(parent, name), selected(false)
     {
         setBackgroundRole(QPalette::Background);
         setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
@@ -65,8 +65,6 @@ public:
     inline void setSelected(bool b) { selected = b; update(); }
     inline void setTextLabel(const QString &text) { label = text; update(); }
     inline QString textLabel() const { return label; }
-    inline void setIconSet(const QIconSet &is) { icon = is; update(); }
-    inline QIconSet iconSet() const { return icon; }
 
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
@@ -77,7 +75,6 @@ protected:
 private:
     bool selected;
     QString label;
-    QIconSet icon;
 };
 
 
@@ -92,7 +89,7 @@ public:
         QString toolTip;
 
         inline void setTextLabel(const QString &text) { button->setTextLabel(text); }
-        inline void setIconSet(const QIconSet &is) { button->setIconSet(is); }
+        inline void setIcon(const QIconSet &is) { button->setIcon(is); }
         inline void setToolTip(const QString &tip)
         {
             toolTip = tip;
@@ -164,8 +161,8 @@ void QToolBoxPrivate::updateTabs()
 QSize QToolBoxButton::sizeHint() const
 {
     QSize iconSize(8, 8);
-    if (!icon.isNull())
-        iconSize += icon.pixmap(QIconSet::Small, QIconSet::Normal).size() + QSize(2, 0);
+    if (!icon().isNull())
+        iconSize += icon().pixmap(QIconSet::Small, QIconSet::Normal).size() + QSize(2, 0);
     QSize textSize = fontMetrics().size(Qt::ShowPrefix, label) + QSize(0, 8);
 
     QSize total(iconSize.width() + textSize.width(), qMax(iconSize.height(), textSize.height()));
@@ -174,9 +171,9 @@ QSize QToolBoxButton::sizeHint() const
 
 QSize QToolBoxButton::minimumSizeHint() const
 {
-    if (icon.isNull())
+    if (icon().isNull())
         return QSize();
-    return QSize(8, 8) + icon.pixmap(QIconSet::Small, QIconSet::Normal).size();
+    return QSize(8, 8) + icon().pixmap(QIconSet::Small, QIconSet::Normal).size();
 }
 
 void QToolBoxButton::paintEvent(QPaintEvent *)
@@ -196,7 +193,7 @@ void QToolBoxButton::paintEvent(QPaintEvent *)
         flags |= QStyle::Style_Down;
     style().drawControl(QStyle::CE_ToolBoxTab, p, parentWidget(), rect(), pal, flags);
 
-    QPixmap pm = icon.pixmap(QIconSet::Small, isEnabled() ? QIconSet::Normal : QIconSet::Disabled);
+    QPixmap pm = icon().pixmap(QIconSet::Small, isEnabled() ? QIconSet::Normal : QIconSet::Disabled);
 
     QRect cr = style().subRect(QStyle::SR_ToolBoxTabContents, this);
     QRect tr, ir;
@@ -341,11 +338,11 @@ QToolBox::~QToolBox()
 /*!
     Inserts the \a widget at position \a index, or at the bottom
     of the toolbox if \a index is out of range. The new item's label
-    is set to \a label, and the \a iconSet is displayed to the left of
+    is set to \a label, and the \a icon is displayed to the left of
     the \a label. Returns the new item's index.
 */
 
-int QToolBox::insertItem(int index, QWidget *widget, const QIconSet &iconSet,
+int QToolBox::insertItem(int index, QWidget *widget, const QIconSet &icon,
                            const QString &label)
 {
     if (!widget)
@@ -365,7 +362,7 @@ int QToolBox::insertItem(int index, QWidget *widget, const QIconSet &iconSet,
     c.sv->setFrameStyle(QFrame::NoFrame);
 
     c.setTextLabel(label);
-    c.setIconSet(iconSet);
+    c.setIcon(icon);
 
     if (index < 0 || index >= (int)d->pageList.count()) {
         index = d->pageList.count();
@@ -478,7 +475,7 @@ void QToolBox::widgetDestroyed(QObject *object)
 void QToolBox::removeItem(int index)
 {
     if (QWidget *w = widget(index)) {
-        disconnect(w, SIGNAL(destroyed(QObject*)), this, SLOT(itemDestroyed(QObject*)));
+        disconnect(w, SIGNAL(destroyed(QObject*)), this, SLOT(widgetDestroyed(QObject*)));
         w->setParent(this);
         // destroy internal data
         widgetDestroyed(w);
@@ -569,14 +566,14 @@ void QToolBox::setItemLabel(int index, const QString &label)
 }
 
 /*!
-    Sets the icon of the item at position \a index to \a iconSet.
+    Sets the icon of the item at position \a index to \a icon.
 */
 
-void QToolBox::setItemIconSet(int index, const QIconSet &iconSet)
+void QToolBox::setItemIcon(int index, const QIconSet &icon)
 {
     QToolBoxPrivate::Page *c = d->page(index);
     if (c)
-        c->setIconSet(iconSet);
+        c->setIcon(icon);
 }
 
 /*!
@@ -616,10 +613,10 @@ QString QToolBox::itemLabel(int index) const
     icon if \a index is out of range.
 */
 
-QIconSet QToolBox::itemIconSet(int index) const
+QIconSet QToolBox::itemIcon(int index) const
 {
     QToolBoxPrivate::Page *c = d->page(index);
-    return (c ? c->button->iconSet() : QIconSet());
+    return (c ? c->button->icon() : QIconSet());
 }
 
 /*!

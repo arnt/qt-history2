@@ -35,9 +35,9 @@ public:
     ~QToolBox();
 
     int addItem(QWidget *widget, const QString &label);
-    int addItem(QWidget *widget, const QIconSet &iconSet, const QString &label);
+    int addItem(QWidget *widget, const QIconSet &icon, const QString &label);
     int insertItem(int index, QWidget *widget, const QString &label);
-    int insertItem(int index, QWidget *widget, const QIconSet &iconSet, const QString &label);
+    int insertItem(int index, QWidget *widget, const QIconSet &icon, const QString &label);
 
     void removeItem(int index);
 
@@ -47,8 +47,8 @@ public:
     void setItemLabel(int index, const QString &label);
     QString itemLabel(int index) const;
 
-    void setItemIconSet(int index, const QIconSet &iconSet);
-    QIconSet itemIconSet(int index) const;
+    void setItemIcon(int index, const QIconSet &icon);
+    QIconSet itemIcon(int index) const;
 
     void setItemToolTip(int index, const QString &toolTip);
     QString itemToolTip(int index) const;
@@ -84,6 +84,8 @@ private:
 public:
     inline QT_COMPAT QWidget *currentItem() const { return widget(currentIndex()); }
     inline QT_COMPAT void setCurrentItem(QWidget *item) { setCurrentIndex(indexOf(item)); }
+    inline QT_COMPAT void setItemIconSet(int index, const QIconSet &icon) { setItemIcon(index, icon); }
+    inline QT_COMPAT QIconSet itemIconSet(int index) const { return itemIcon(index); }
     inline QT_COMPAT int removeItem(QWidget *item)
     { int i = indexOf(item); removeItem(i); return i; }
     inline QT_COMPAT QWidget *item(int index) const { return widget(index); }
