@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#3 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -168,7 +168,7 @@ void QSpinBox::setCurrent( int i )
 
 void QSpinBox::next()
 {
-    if ( l != 0 && c < (int)(l->count())-1 )
+    if ( l != 0 && c < count()-1 )
 	setCurrent( c + 1 );
     else if ( wrapping() )
 	setCurrent( 0 );
@@ -189,7 +189,7 @@ void QSpinBox::previous()
     if ( c > 0 )
 	setCurrent( c - 1 );
     else if ( wrapping() && l != 0 )
-	setCurrent( l->count() - 1 );
+	setCurrent( count() - 1 );
 }
 
 
@@ -357,6 +357,16 @@ void QSpinBox::doResize( const QSize & s )
 
 void QSpinBox::enableButtons()
 {
-    up->setEnabled( l && ( wrapping() || c < (int)l->count()-1 ) );
+    up->setEnabled( l && ( wrapping() || c < count()-1 ) );
     down->setEnabled( l && ( wrapping() || c > 0 ) );
+}
+
+
+/*!
+  Returns the number of items in the spin box.
+*/
+
+int QSpinBox::count() const
+{
+    return l ? (int)(l->count()) : 0 ;
 }

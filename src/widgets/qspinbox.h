@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.h#3 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.h#4 $
 **
 ** Definition of QSpinBox widget class
 **
@@ -31,6 +31,7 @@ public:
 
     virtual const char * text( int index ) const;
     int current() const { return c; }
+    virtual int count() const;
 
     void setWrapping( bool wrap );
     bool wrapping() const { return w; }
