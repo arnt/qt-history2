@@ -201,6 +201,8 @@ EditorPage::EditorPage( QWidget * parent, const char * name )
 		p.active().color( QColorGroup::Base ) );
     p.setColor( QPalette::Inactive, QColorGroup::Background,
 		p.inactive().color( QColorGroup::Base ) );
+    p.setColor( QPalette::Disabled, QColorGroup::Background, 
+		p.disabled().color( QColorGroup::Base ) );
     setPalette( p );
 
     srcTextLbl = new QLabel( tr("Source text"), this, "source text label" );
@@ -208,11 +210,11 @@ EditorPage::EditorPage( QWidget * parent, const char * name )
     p.setColor( QPalette::Active, QColorGroup::Background, palette().active().base() );
     p.setColor( QPalette::Inactive, QColorGroup::Background, palette().inactive().base() );
     srcTextLbl->setPalette( p );
+
     transLbl   = new QLabel( tr("Translation"), this, "translation label" );
     p = transLbl->palette();
     p.setColor( QPalette::Active, QColorGroup::Background, palette().active().base() );
     p.setColor( QPalette::Inactive, QColorGroup::Background, palette().inactive().base() );
-    p.setColor( QPalette::Disabled, QColorGroup::Background, palette().disabled().base() );
     transLbl->setPalette( p );
 
     QFont fnt = font();
