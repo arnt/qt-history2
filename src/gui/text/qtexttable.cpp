@@ -96,7 +96,7 @@ int QTextTableCell::columnSpan() const
 /*!
   Returns if a QTextCursor pointing to the start of the cell.
 */
-QTextCursor QTextTableCell::first() const
+QTextCursor QTextTableCell::firstCursorPosition() const
 {
     return QTextCursor(d->pieceTable, firstPosition());
 }
@@ -104,7 +104,7 @@ QTextCursor QTextTableCell::first() const
 /*!
   Returns if a QTextCursor pointing to the end of the cell.
 */
-QTextCursor QTextTableCell::last() const
+QTextCursor QTextTableCell::lastCursorPosition() const
 {
     return QTextCursor(d->pieceTable, lastPosition());
 }

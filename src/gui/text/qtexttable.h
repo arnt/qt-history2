@@ -30,8 +30,8 @@ public:
 
     inline bool isValid() const { return d != 0; }
 
-    QTextCursor first() const;
-    QTextCursor last() const;
+    QTextCursor firstCursorPosition() const;
+    QTextCursor lastCursorPosition() const;
     int firstPosition() const;
     int lastPosition() const;
 

@@ -72,8 +72,8 @@ public:
     void setFormat(const QTextFrameFormat &format) { QTextObject::setFormat(format); }
     QTextFrameFormat format() const { return QTextObject::format().toFrameFormat(); }
 
-    QTextCursor first() const;
-    QTextCursor last() const;
+    QTextCursor firstCursorPosition() const;
+    QTextCursor lastCursorPosition() const;
     int firstPosition() const;
     int lastPosition() const;
 

@@ -125,7 +125,7 @@ QTextFrame *QTextFrame::parentFrame()
 /*!
   The first cursor position inside the frame
 */
-QTextCursor QTextFrame::first() const
+QTextCursor QTextFrame::firstCursorPosition() const
 {
     return QTextCursor(d->pieceTable, firstPosition());
 }
@@ -133,7 +133,7 @@ QTextCursor QTextFrame::first() const
 /*!
   The last cursor position inside the frame
 */
-QTextCursor QTextFrame::last() const
+QTextCursor QTextFrame::lastCursorPosition() const
 {
     return QTextCursor(d->pieceTable, lastPosition());
 }
