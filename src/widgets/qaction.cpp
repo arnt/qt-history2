@@ -360,7 +360,9 @@ QAction::QAction( const QString& text, const QString& menuText, int accel, QObje
     init();
 }
 
-
+/*!
+  \internal
+*/
 void QAction::init()
 {
     if ( parent() && parent()->inherits("QActionGroup") ) {
@@ -708,6 +710,9 @@ bool QAction::isEnabled() const
     return d->enabled;
 }
 
+/*!
+  \internal
+*/
 void QAction::internalActivation()
 {
     if ( isToggleAction() )
@@ -715,6 +720,9 @@ void QAction::internalActivation()
     emit activated();
 }
 
+/*!
+  \internal
+*/
 void QAction::toolButtonToggled( bool on )
 {
     if ( !isToggleAction() )
@@ -905,6 +913,9 @@ bool QAction::removeFrom( QWidget* w )
     return TRUE;
 }
 
+/*!
+  \internal
+*/
 void QAction::objectDestroyed()
 {
     const QObject* obj = sender();
@@ -1397,7 +1408,9 @@ bool QActionGroup::removeFrom( QWidget* w )
     return TRUE;
 }
 
-
+/*!
+  \internal
+*/
 void QActionGroup::childToggled( bool b )
 {
     if ( !isExclusive() )
@@ -1421,6 +1434,9 @@ void QActionGroup::childToggled( bool b )
     }
 }
 
+/*!
+  \internal
+*/
 void QActionGroup::childDestroyed()
 {
     d->actions.removeRef( (QAction*) sender() );
@@ -1554,6 +1570,9 @@ void QActionGroup::childEvent( QChildEvent *e )
   \sa setExclusive(), isOn()
 */
 
+/*!
+  \internal
+*/
 void QActionGroup::internalComboBoxActivated( int index )
 {
     QAction *a = d->actions.at( index );
@@ -1574,6 +1593,9 @@ void QActionGroup::internalComboBoxActivated( int index )
     }
 }
 
+/*!
+  \internal
+*/
 void QActionGroup::internalToggle( QAction *a )
 {
     for ( QListIterator<QComboBox> it( d->comboboxes); it.current(); ++it ) {
@@ -1583,6 +1605,9 @@ void QActionGroup::internalToggle( QAction *a )
     }
 }
 
+/*!
+  \internal
+*/
 void QActionGroup::objectDestroyed()
 {
     const QObject* obj = sender();
