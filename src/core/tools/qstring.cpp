@@ -2581,7 +2581,8 @@ QString QString::section(const QRegExp &reg, int start, int end, int flags) cons
         return QString();
 
     QRegExp sep(reg);
-    sep.setCaseSensitive(!(flags & SectionCaseInsensitiveSeps));
+    sep.setCaseSensitivity((flags & SectionCaseInsensitiveSeps) ? CaseInsensitive
+                                                                : CaseSensitive);
 
     QList<section_chunk> l;
     int n = length(), m = 0, last_m = 0, last = 0, last_len = 0;

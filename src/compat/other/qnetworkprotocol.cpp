@@ -1579,7 +1579,7 @@ int QFtpProtocol::supportedOperations() const
 void QFtpProtocol::npListInfo(const QUrlInfo & i)
 {
     if (url()) {
-        QRegExp filt(url()->nameFilter(), QString::CaseInsensitive, true);
+        QRegExp filt(url()->nameFilter(), QString::CaseInsensitive, QRegExp::Wildcard);
         if (i.isDir() || filt.search(i.name()) != -1) {
             emit newChild(i, operationInProgress());
         }

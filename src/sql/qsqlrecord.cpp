@@ -22,6 +22,7 @@
 #include "qnamespace.h"
 #include "qatomic.h"
 #include "qdebug.h"
+#include "qstringlist.h"
 
 #include "qsqlfield.h"
 
