@@ -37,17 +37,17 @@ void PingpongFrontEnd::init()
     // Toolbar
     QToolBar * toolbar = new QToolBar( this );
     insertResultAc = new QAction( "Insert result", QPixmap( "new.png" ),
-				  "&Insert result", CTRL+Key_I, this, 0 );
+                                  "&Insert result", CTRL+Key_I, this, 0 );
     connect( insertResultAc, SIGNAL( activated() ), SLOT( insertMatch() ) );
     insertResultAc->addTo( toolbar );
 
     updateResultAc = new QAction( "Update result", QPixmap( "edit.png" ),
-				  "&Update result", CTRL+Key_U, this, 0 );
+                                  "&Update result", CTRL+Key_U, this, 0 );
     connect( updateResultAc, SIGNAL( activated() ), SLOT( updateMatch() ) );
     updateResultAc->addTo( toolbar );
 
     deleteResultAc = new QAction( "Delete result", QPixmap( "delete.png" ),
-				  "&Delete result", CTRL+Key_D, this, 0 );
+                                  "&Delete result", CTRL+Key_D, this, 0 );
     connect( deleteResultAc, SIGNAL( activated() ), SLOT( deleteMatch() ) );
     deleteResultAc->addTo( toolbar );
 
@@ -66,7 +66,7 @@ void PingpongFrontEnd::init()
     // Layout the central widget
     tab = new QTabWidget( this );
     connect( tab, SIGNAL( currentChanged( QWidget * ) ),
-	     SLOT( updateIcons( QWidget * ) ) );
+             SLOT( updateIcons( QWidget * ) ) );
 
     matchBase = new QWidget( tab );
     QGridLayout * matchLayout = new QGridLayout( matchBase );
@@ -85,14 +85,14 @@ void PingpongFrontEnd::init()
     tab->addTab( teamEditor, "Team editor" );
 
     connect( matchTable, SIGNAL( cursorChanged( QSqlCursor::Mode ) ),
-	     statistics, SLOT( update() ) );
+             statistics, SLOT( update() ) );
     connect( matchTable, SIGNAL( cursorChanged( QSqlCursor::Mode ) ),
-	     highscore, SLOT( update() ) );
+             highscore, SLOT( update() ) );
     setCentralWidget( tab );
 
     // Set up the initial match table
     matchView.select( matchView.index( "date" ) );
-    matchTable->setCursor( &matchView, FALSE );
+    matchTable->setCursor( &matchView, FALSE);
     matchTable->addColumn( matchView.field( "date" ) );
     matchTable->addColumn( matchView.field( "winner" ) );
     matchTable->addColumn( matchView.field( "winnerwins" ) );
@@ -101,16 +101,19 @@ void PingpongFrontEnd::init()
     matchTable->addColumn( matchView.field( "sets" ) );
     matchTable->setSorting( TRUE );
     matchTable->setReadOnly( TRUE );
+    matchTable->refresh();
+
+    teamEditor->refreshTables();
 }
 
 void PingpongFrontEnd::insertMatch()
 {
      MatchDialog dlg( matchCursor.primeInsert(), MatchDialog::Insert, this );
      if( dlg.exec() == QDialog::Accepted ){
- 	matchCursor.insert();
- 	matchTable->refresh();
-	highscore->update();
-	statistics->update();
+        matchCursor.insert();
+        matchTable->refresh();
+        highscore->update();
+        statistics->update();
      }
 }
 
@@ -118,17 +121,17 @@ void PingpongFrontEnd::updateMatch()
 {
     QSqlRecord r = matchTable->currentFieldSelection();
     if ( !r.count() )
-	return;
+        return;
     matchCursor.setValue( "id", r.value( "id" ) );
     matchCursor.select( matchCursor.primaryIndex(), matchCursor.primaryIndex() );
     if ( matchCursor.next() ) {
-	MatchDialog dlg( matchCursor.editBuffer(), MatchDialog::Update, this );
-	if( dlg.exec() == QDialog::Accepted ){
-	    matchCursor.update();
-	    matchTable->refresh();
-	    highscore->update();
-	    statistics->update();
-	}
+        MatchDialog dlg( matchCursor.editBuffer(), MatchDialog::Update, this );
+        if( dlg.exec() == QDialog::Accepted ){
+            matchCursor.update();
+            matchTable->refresh();
+            highscore->update();
+            statistics->update();
+        }
     }
 }
 
@@ -136,37 +139,37 @@ void PingpongFrontEnd::deleteMatch()
 {
     QSqlRecord r = matchTable->currentFieldSelection();
     if ( !r.count() )
-	return;
+        return;
 
     matchCursor.setValue( "id", r.value( "id" ) );
     matchCursor.select( matchCursor.primaryIndex(), matchCursor.primaryIndex() );
     if ( matchCursor.next() ) {
-	MatchDialog dlg( matchCursor.editBuffer(), MatchDialog::Delete, this );
-	if( dlg.exec() == QDialog::Accepted ){
-	    matchCursor.del();
-	    matchTable->refresh();
-	    highscore->update();
-	    statistics->update();
-	}
+        MatchDialog dlg( matchCursor.editBuffer(), MatchDialog::Delete, this );
+        if( dlg.exec() == QDialog::Accepted ){
+            matchCursor.del();
+            matchTable->refresh();
+            highscore->update();
+            statistics->update();
+        }
     }
 }
 
 void PingpongFrontEnd::updateIcons( QWidget * w )
 {
     if( w == matchBase ){
-	insertResultAc->setEnabled( TRUE );
-	updateResultAc->setEnabled( TRUE );
-	deleteResultAc->setEnabled( TRUE );
+        insertResultAc->setEnabled( TRUE );
+        updateResultAc->setEnabled( TRUE );
+        deleteResultAc->setEnabled( TRUE );
     } else {
-	insertResultAc->setEnabled( FALSE );
-	updateResultAc->setEnabled( FALSE );
-	deleteResultAc->setEnabled( FALSE );
+        insertResultAc->setEnabled( FALSE );
+        updateResultAc->setEnabled( FALSE );
+        deleteResultAc->setEnabled( FALSE );
     }
 }
 
 void PingpongFrontEnd::editTeams()
 {
     if( tab->currentPage() != teamEditor ){
-	tab->showPage( teamEditor );
+        tab->showPage( teamEditor );
     }
 }
