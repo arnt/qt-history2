@@ -3291,7 +3291,7 @@ void QListView::setColumnWidth( int column, int w )
     int oldw = d->h->sectionSize( column );
     if ( column < d->h->count() && oldw != w ) {
  	d->h->resizeSection( column, w );
-	d->h->sizeChange( column, oldw, w);
+	emit d->h->sizeChange( column, oldw, w);
 	viewport()->update();
     }
 }
@@ -6492,7 +6492,6 @@ void QCheckListItem::paintCell( QPainter * p, const QPalette & pal,
 	parentControl = TRUE;
 
     QFontMetrics fm( lv->fontMetrics() );
-    const QPixmap * icon = pixmap( column );
     int boxsize = lv->style().pixelMetric( myType == RadioButtonController ? QStyle::PM_CheckListControllerSize :
 					   QStyle::PM_CheckListButtonSize, lv);
     int marg = lv->itemMargin();
@@ -7846,7 +7845,7 @@ void QListView::adjustColumn( int col )
     d->h->adjustHeaderSize( oldw - w );
     if (oldw != w) {
 	d->h->resizeSection( col, w );
-	d->h->sizeChange( col, oldw, w);
+	emit d->h->sizeChange( col, oldw, w);
     }
 }
 
