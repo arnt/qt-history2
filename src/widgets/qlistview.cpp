@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#210 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#211 $
 **
 ** Implementation of QListView widget class
 **
@@ -987,19 +987,23 @@ void QListViewItem::setText( int column, const QString &text )
     if ( column < 0 )
 	return;
 
+
     QListViewPrivate::ItemColumnInfo * l
 	= (QListViewPrivate::ItemColumnInfo*) columns;
     if ( !l ) {
 	l = new QListViewPrivate::ItemColumnInfo;
 	columns = (void*)l;
     }
-    while( column ) {
+    for( int c=0; c<column; c++ ) {
 	if ( !l->next )
 	    l->next = new QListViewPrivate::ItemColumnInfo;
 	l = l->next;
-	column--;
     }
+    if ( l->text == text )
+	return;
+
     l->text = text;
+    widthChanged( column );
     repaint();
 }
 
@@ -1021,16 +1025,27 @@ void QListViewItem::setPixmap( int column, const QPixmap & pm )
 	l = new QListViewPrivate::ItemColumnInfo;
 	columns = (void*)l;
     }
-    while( column ) {
+    
+    for( int c=0; c<column; c++ ) {
 	if ( !l->next )
 	    l->next = new QListViewPrivate::ItemColumnInfo;
 	l = l->next;
-	column--;
     }
-    if ( l->pm )
-	*(l->pm) = pm;
-    else
-	l->pm = new QPixmap( pm );
+
+    if ( ( pm.isNull() && ( !l->pm || l->pm->isNull() ) ) ||
+	 ( l->pm && pm.serialNumber() == l->pm->serialNumber() ) )
+	return;
+
+    if ( pm.isNull() ) {
+	delete l->pm;
+	l->pm = 0;
+    } else {
+	if ( l->pm )
+	    *(l->pm) = pm;
+	else
+	    l->pm = new QPixmap( pm );
+    }
+    widthChanged( column );
     repaint();
 }
 
@@ -1134,10 +1149,10 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
   \sa listView() widthChanged() QListView::setColumnWidthMode()
   QListView::itemMargin()
 */
-int QListViewItem::width(const QFontMetrics& fm,
-			 const QListView* lv, int c) const
+int QListViewItem::width( const QFontMetrics& fm,
+			  const QListView* lv, int c ) const
 {
-    int w = fm.width(text(c)) + lv->itemMargin() * 2;
+    int w = fm.width( text( c ) ) + lv->itemMargin() * 2;
     const QPixmap * pm = pixmap( c );
     if ( pm )
 	w += pm->width() + lv->itemMargin(); // ### correct margin stuff?
@@ -1145,9 +1160,7 @@ int QListViewItem::width(const QFontMetrics& fm,
 }
 
 
-/*!  \fn void QListViewItem::paintFocus( QPainter *p, const QColorGroup & cg, const QRect & r )
-
-  Paints a focus indication on the rectangle \a r using painter \a p
+/*!  Paints a focus indication on the rectangle \a r using painter \a p
   and colors \a cg.
 
   \a p is already clipped.
@@ -1155,10 +1168,10 @@ int QListViewItem::width(const QFontMetrics& fm,
   \sa paintCell() paintBranches() QListView::setAllColumnsShowFocus()
 */
 
-void QListViewItem::paintFocus( QPainter *p, const QColorGroup &g,
+void QListViewItem::paintFocus( QPainter *p, const QColorGroup &cg,
 				const QRect & r )
 {
-    listView()->style().drawFocusRect(p, r, g, isSelected()? &g.highlight() : &g.base(), isSelected() );
+    listView()->style().drawFocusRect( p, r, cg, isSelected()? & cg.highlight() : & cg.base(), isSelected() );
 }
 
 
@@ -1900,8 +1913,8 @@ int QListView::addColumn( const QString &label, int width )
 */
 void QListView::setColumnText( int column, const QString &label )
 {
-    ASSERT( column < d->h->count() );
-    d->h->setLabel( column, label );
+    if ( column < d->h->count() )
+	d->h->setLabel( column, label );
 }
 
 /*!
@@ -1911,8 +1924,7 @@ void QListView::setColumnText( int column, const QString &label )
 */
 void QListView::setColumnWidth( int column, int w )
 {
-    ASSERT( column < d->h->count() );
-    if ( d->h->cellSize( column ) != w ) {
+    if ( column < d->h->count() && d->h->cellSize( column ) != w ) {
 	d->h->setCellSize( column, w );
 	d->h->update(); // ##### paul, QHeader::setCellSize should do this.
     }
@@ -2352,16 +2364,11 @@ QListViewItem* QListViewItem::parent () const
 */
 int QListViewItem::height() const
 {
-#ifdef QT_ARNT_CONFIRMED
-    // ##### Arnt, shouldn't we do this, now that height() can
-    // ##### be changed (it was inline in 1.4x).
-
     QListViewItem * that = (QListViewItem *)this;
     if ( !that->configured ) {
 	that->configured = TRUE;
 	that->setup(); // ### virtual non-const function called in const
     }
-#endif
 
     return ownHeight;
 }
@@ -2375,9 +2382,9 @@ int QListViewItem::height() const
 
   \sa width()
 */
-void QListViewItem::widthChanged(int c) const
+void QListViewItem::widthChanged( int c ) const
 {
-    listView()->widthChanged(this, c);
+    listView()->widthChanged( this, c );
 }
 
 /*! \fn void QListView::selectionChanged()
@@ -2718,9 +2725,9 @@ void QListView::keyPressEvent( QKeyEvent * e )
     case Key_Right:
 	if ( i->isOpen() && i->childItem )
 	    i = i->childItem;
-	else if (  !i->isOpen() && (i->isExpandable() || i->childCount()) )
+	else if ( !i->isOpen() && (i->isExpandable() || i->childCount()) )
 	    setOpen( i, TRUE );
-	else
+	else if ( contentsX() + viewport()->width() < contentsWidth() )
 	    horizontalScrollBar()->addLine();
 	d->currentPrefix.truncate( 0 );
 	e->accept();
@@ -2736,7 +2743,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	    setOpen( i, FALSE );
 	else if ( i->parentItem && i->parentItem != d->r )
 	    i = i->parentItem;
-	else
+	else if ( contentsX() );
 	    horizontalScrollBar()->subtractLine();
 	d->currentPrefix.truncate( 0 );
 	e->accept();
@@ -3197,34 +3204,26 @@ void QListView::reconfigureItems()
   Ensures the width mode of column \a c is updated according
   to the width of \a item.
 */
-void QListView::widthChanged(const QListViewItem* item, int c)
+void QListView::widthChanged( const QListViewItem* item, int c )
 {
-    ASSERT( c < d->h->count() );
+    if ( c >= d->h->count() )
+	return;
 
-    if ( c < 0 ) {
-	// Can we stop early?
-	int col = 0;
-	while ( col < d->h->count() && d->column[col]->wmode == Manual )
-	    col++;
-	if ( col == d->h->count() )
-	    return; // All have mode Manual
-    }
-
-    if ( c < 0 || d->column[c]->wmode == Maximum ) {
-	QFontMetrics fm = fontMetrics();
-	int col = c < 0 ? 0 : c;
-	int indent = treeStepSize() * item->depth();
-	if ( rootIsDecorated() )
-	    indent += treeStepSize();
-	do {
-	    int w = item->width( fm, this, col ) + indent;
-	    if ( w > columnWidth(col) )
+    QFontMetrics fm = fontMetrics();
+    int col = c < 0 ? 0 : c;
+    while ( col == c || ( c < 0 && col < d->h->count() ) ) {
+	if ( d->column[col]->wmode == Maximum ) {
+	    int w = item->width( fm, this, col );
+	    if ( col == 0 ) {
+		int indent = treeStepSize() * item->depth();
+		if ( rootIsDecorated() )
+		    indent += treeStepSize();
+		w += indent;
+	    }
+	    if ( w > columnWidth( col ) )
 		setColumnWidth( col, w );
-	    if ( c >= 0 )
-		break; // Only one
-	    indent = 0; // Only col 0 has indent
-	    col++;
-	} while ( col < d->h->count() );
+	}
+	col++;
     }
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#72 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#73 $
 **
 ** Definition of QListView widget class
 **
@@ -100,7 +100,7 @@ public:
     virtual void setSelected( bool );
     bool isSelected() const { return selected; }
 
-    virtual void paintCell( QPainter *,  const QColorGroup & cg,
+    virtual void paintCell( QPainter *, const QColorGroup & cg,
 			    int column, int width, int alignment );
     virtual void paintBranches( QPainter * p, const QColorGroup & cg,
 				int w, int y, int h, GUIStyle s );
