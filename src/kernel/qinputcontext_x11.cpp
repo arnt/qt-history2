@@ -403,6 +403,9 @@ void QInputContext::setXFontSet(QFont *f)
     if (f && font == *f) // nothing to do
 	return;
 
+    if (!f && fontset) // save the server roundtrip
+        return;
+
     if (fontset)
 	XFreeFontSet(QPaintDevice::x11AppDisplay(),
 		     fontset);
