@@ -16,6 +16,7 @@
 #include <qframe.h>
 #include <qsplitter.h>
 #include <qapplication.h>
+#include <qfiledialog.h>
 
 //
 //  DatabaseFrontEnd class
@@ -322,21 +323,26 @@ DatabaseApp::DatabaseApp( QWidget * parent, const char * name )
 void DatabaseApp::init()
 {
     setCaption( "Database example" );
-    setMinimumSize( 640, 480 );
-
     DatabaseFrontEnd * frontend = new DatabaseFrontEnd( this );
     setCentralWidget( frontend );
 
     // Setup menus
-    QPopupMenu * p = new QPopupMenu( this );
-    p->insertItem( "Customer &Report", this, SLOT( customerReport() ), CTRL+Key_R );    
-    p->insertSeparator();
-    p->insertItem( "&Quit", qApp, SLOT( quit() ), CTRL+Key_Q );
-    menuBar()->insertItem( "&File", p );
-    p = new QPopupMenu( this );
-    p->insertItem( "&Create database", this, SLOT( createDatabase()), CTRL+Key_O );
-    p->insertItem( "&Drop database", this, SLOT( dropDatabase()), CTRL+Key_D );
-    menuBar()->insertItem( "&Tools", p );
+    QPopupMenu * menu = new QPopupMenu( this );
+    menu->insertItem( "Customer &report..", this, SLOT( customerReport() ), 
+		   CTRL+Key_R );    
+    menu->insertSeparator();
+    menu->insertItem( "&Quit", qApp, SLOT( quit() ), CTRL+Key_Q );
+    menuBar()->insertItem( "&File", menu );
+    
+    menu = new QPopupMenu( this );
+    menu->insertItem( "&Create database", this, SLOT( createDatabase()), 
+		   CTRL+Key_O );
+    menu->insertItem( "&Drop database", this, SLOT( dropDatabase()),
+		      CTRL+Key_D );
+    menuBar()->insertItem( "&Tools", menu );
+
+    resize( 700, 400 );
+    frontend->setMinimumSize( 640, 400 );
 }
 
 void DatabaseApp::createDatabase()
@@ -351,9 +357,14 @@ void DatabaseApp::dropDatabase()
 
 void DatabaseApp::customerReport()
 {
+    QString fname = QFileDialog::getSaveFileName( "report.html", "*.html", 
+						  this );
     /* report customers and invoices */
-    QFile output( "report.html" );
-    if ( output.open( IO_WriteOnly ) ) {
+    if( !fname.isEmpty() ) {
+	QFile output( fname );
+	if ( !output.open( IO_WriteOnly ) )
+	    return;
+	
         QTextStream t( &output );
 	t << "<html>";
 	t << "<head>";
