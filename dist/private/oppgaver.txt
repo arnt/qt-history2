@@ -70,6 +70,8 @@ Bugs:
 -----
     QComboBox resize
 
+    Default plassering av barnewidgets
+
 Ferdigstilling:
 ---------------
 
@@ -116,6 +118,9 @@ Ferdigstilling:
 
     Tabbing bug
 
+Eksempler:
+----------
+    sheet.h
 
 Gjort:
 ------
