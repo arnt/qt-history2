@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#38 $
 **
 ** Implementation of QPixmap class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#37 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#38 $")
 
 
 /*----------------------------------------------------------------------------
@@ -65,17 +65,32 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#37 $")
   The QPixmap class is optimized by the use of implicit sharing, so it
   is quite practical to pass QPixmap objects as arguments.
 
-  \sa QBitmap, QImage, QImageIO, QPaintDevice, QLabel, QButton */
-
-
-/*----------------------------------------------------------------------------
-  Detaches the pixmap from shared data.
+  \sa QBitmap, QImage, QImageIO
  ----------------------------------------------------------------------------*/
 
-void QPixmap::detach()				// detach shared pixmap
+/*----------------------------------------------------------------------------
+  Special-purpose function that detaches the pixmap from shared pixmap data.
+
+  A pixmap is automatically detached by Qt whenever its contents is about
+  to change.  This is done in all QPixmap member functions that modify the
+  pixmap (fill(), resize(), convertFromImage() and load()), in bitBlt()
+  for the destination pixmap and in QPainter::begin() on a pixmap.
+
+  It is possible to modify a pixmap without letting Qt know.
+  You can first obtain the \link handle() system-dependent handle\endlink
+  and then call system-specific functions (for instance BitBlt under Windows)
+  that modifies the pixmap contents.  In this case, you can call detach()
+  to cut the pixmap loose from other pixmaps that share data with this one.
+
+  detach() returns immediately if there is just a single reference or if
+  the pixmap has not been initialized yet.  Calling fill() will initialize
+  the pixmap.
+ ----------------------------------------------------------------------------*/
+
+void QPixmap::detach()
 {
-    if ( data->optim )				// detach is called before
-	data->dirty = TRUE;			//   pixmap is changed
+    if ( data->optim )
+	data->dirty = TRUE;
     if ( data->uninit || data->count == 1 ) {
 	data->uninit = FALSE;
 	return;
