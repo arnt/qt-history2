@@ -8,9 +8,9 @@ All drivers
 QOCI
 - must map to proper data types when defining fields!
 - caching:  maybe implement a 'cache-to-disk' mechanism, otherwise big queries get way out of hand
-- optimize fetchNext() - no need to keep asking for field info unless the query changes. duh.
-- pull the caching code out of fetchNext() and stick it in reset() where it can be optimized better.  Then all the fetch*() methods are in-memory only.
-- or... never cache anything until the first fetch() <= this will optimize copying QSql around before it is actually used.
+- [done] optimize fetchNext() - no need to keep asking for field info unless the query changes. duh.
+- [done] pull the caching code out of fetchNext() and stick it in reset() where it can be optimized better.  Then all the fetch*() methods are in-memory only.
+- [done] or... never cache anything until the first fetch() <= this will optimize copying QSql around before it is actually used.
 - transaction support
 - fix QOCIResultPrivate to use proper field size when creating memory
 
