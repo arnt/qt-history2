@@ -386,6 +386,56 @@ QDate QDate::addDays( int ndays ) const
 }
 
 /*!
+  Returns a QDate object containing a date \a nmonths later than the
+  date of this object (or earlier if \a nmonths is negative).
+
+*/
+
+QDate QDate::addMonths( int nmonths ) const
+{
+    int y, m, d;
+    int a = 0;
+    jul2greg( jd, y, m, d );
+    
+    while ( nmonths != 0 ) {
+        if ( nmonths < 0 && nmonths + 12 <= 0 ) {
+            y--;
+            nmonths+=12;
+        } else if ( nmonths < 0 ) {
+            m+= nmonths;
+            nmonths = 0;
+        } else if ( nmonths - 12 >= 0 ) {
+            y++;
+            nmonths-=12;
+        } else {
+            m+= nmonths;
+            nmonths = 0;
+        }
+    }
+    
+    QDate date(y, m, d);
+    return date;
+    
+}
+
+/*!
+  Returns a QDate object containing a date \a nyears later than the
+  date of this object (or earlier if \a nyears is negative).
+
+*/
+
+QDate QDate::addYears( int nyears ) const
+{
+    int y, m, d;
+    jul2greg( jd, y, m, d );
+    y += nyears;    
+    QDate date(y, m, d);
+    return date;
+}
+        
+
+
+/*!
   Returns the number of days from this date to \a d (which is negative
   if \a d is earlier than this date).
 
@@ -1272,7 +1322,7 @@ QString QDateTime::toString( Qt::DateFormat f ) const
   than the datetime of this object (or earlier if \a ndays is
   negative).
 
-  \sa daysTo(), addSecs()
+  \sa daysTo(), addMonths(), addYears(), addSecs()
 */
 
 QDateTime QDateTime::addDays( int ndays ) const
@@ -1281,11 +1331,37 @@ QDateTime QDateTime::addDays( int ndays ) const
 }
 
 /*!
+  Returns a QDateTime object containing a datetime \a nmonths months later
+  than the datetime of this object (or earlier if \a nmonths is
+  negative).
+
+  \sa daysTo(), addDays(), addYears(), addSecs()
+*/
+
+QDateTime QDateTime::addMonths( int nmonths ) const
+{
+    return QDateTime( d.addMonths(nmonths), t );
+}
+
+/*!
+  Returns a QDateTime object containing a datetime \a nyears years later
+  than the datetime of this object (or earlier if \a nyears is
+  negative).
+
+  \sa daysTo(), addDays(), addMonths(), addSecs()
+*/
+
+QDateTime QDateTime::addYears( int nyears ) const
+{
+    return QDateTime( d.addYears(nyears), t );
+}
+
+/*!
   Returns a QDateTime object containing a datetime \a nsecs seconds
   later than the datetime of this object (or earlier if \a nsecs is
   negative).
 
-  \sa secsTo(), addDays()
+  \sa secsTo(), addDays(), addMonths(), addYears()
 */
 
 QDateTime QDateTime::addSecs( int nsecs ) const

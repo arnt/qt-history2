@@ -73,6 +73,8 @@ public:
     bool   setYMD( int y, int m, int d );
 
     QDate  addDays( int days )		const;
+    QDate  addMonths( int months )      const;
+    QDate  addYears( int years )        const;
     int	   daysTo( const QDate & )	const;
 
     bool   operator==( const QDate &d ) const { return jd == d.jd; }
@@ -177,6 +179,8 @@ public:
     QString toString( Qt::DateFormat f = Qt::TextDate )	const;
 
     QDateTime addDays( int days )	const;
+    QDateTime addMonths( int months )   const;
+    QDateTime addYears( int years )     const;
     QDateTime addSecs( int secs )	const;
     int	   daysTo( const QDateTime & )	const;
     int	   secsTo( const QDateTime & )	const;
