@@ -1192,8 +1192,7 @@ void MainWindow::fileOpen()
 		    statusBar()->message( tr( "No import filter available for %1").arg( filename ), 3000 );
 		    return;
 		}
-		QPlugIn* plugin = manager.plugIn( filter );
-		statusBar()->message( tr( "Importing %1 using import filter %2...").arg( filename ).arg(plugin->name()) );
+		statusBar()->message( tr( "Importing %1 using import filter ...").arg( filename ) );
 		QStringList list = iface->import( filter, filename );
 		if ( list.isEmpty() ) {
 		    statusBar()->message( tr( "Nothing to load in %1").arg( filename ), 3000 );
