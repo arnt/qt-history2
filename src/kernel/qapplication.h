@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#25 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#26 $
 **
 ** Definition of QApplication class
 **
@@ -46,7 +46,8 @@ public:
     void	    exit_loop();
     static void	    quit( int retcode = 0 );	// quit application
 
-    QWidget	   *mainWidget() const { return main_widget; }
+    QWidget	   *mainWidget()    const { return main_widget; }
+    QWidget	   *focusWidget()   const { return focus_widget; }
 
     static bool	    sendEvent( QObject *receiver, QEvent *event )
 	{ return qApp->notify( receiver, event ); }
@@ -72,6 +73,7 @@ private:
     static QCursor *appCursor;			// application cursor
     static bool	    starting_up;
     static bool	    closing_down;
+    static QWidget *focus_widget;		// keyboard input focus
 
 public:
 #if defined(_WS_MAC_)
