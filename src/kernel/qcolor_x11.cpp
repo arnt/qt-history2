@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#88 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#89 $
 **
 ** Implementation of QColor class for X11
 **
@@ -229,10 +229,6 @@ void QColor::initialize()
 	  case 216:
 	    // 6:6:6
 	    col_div_r = col_div_g = col_div_b = (255/(6-1));
-	    break;
-	  case 108:
-	    // 3:3:3
-	    col_div_r = col_div_g = col_div_b = (255/(3-1));
 	    break;
 	  default: {
 	    // 2:3:1 proportions, solved numerically
