@@ -560,7 +560,7 @@ void P4Interface::p4Refresh()
     if ( !appInterface )
         return;
 
-    P4Info::files.clear();
+    P4Info::files()->clear();
 
     QList<DesignerProject> projects = appInterface->projectList();
     QListIterator<DesignerProject> pit( projects );
@@ -625,7 +625,7 @@ void P4Interface::formChanged()
 	return;
     }
 
-    P4Info* p4i = P4Info::files[filename];
+    P4Info* p4i = P4Info::files()->find( filename );
     if ( !p4i ) {
 	P4FStat* fs = new P4FStat( filename );
 	connect( fs, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );

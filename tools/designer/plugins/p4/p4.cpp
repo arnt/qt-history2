@@ -10,9 +10,17 @@
 #include "diffdialog.h"
 #include "submitdialog.h"
 
-QDict<P4Info> P4Info::files = QDict<P4Info>(53);
-QString P4Info::userName = QString();
-QString P4Info::clientName = QString();
+QDict<P4Info> *P4Info::_files = 0;
+QString *P4Info::userName = 0;
+QString *P4Info::clientName = 0;
+
+QDict<P4Info> *P4Info::files()
+{
+    if ( !P4Info::_files )
+	P4Info::_files = new QDict<P4Info>(53);
+
+    return P4Info::_files;
+}
 
 P4Action::P4Action( const QString &filename )
     : QObject(), file( filename ), process( 0 )
@@ -91,9 +99,9 @@ void P4Init::processExited()
 {
     QStringList entries = QStringList::split( '\n', data() );
     QStringList userEntry = entries.grep( "user name:", FALSE );
-    P4Info::userName = QStringList::split( ' ', userEntry[0] )[2];
+    P4Info::userName = new QString( QStringList::split( ' ', userEntry[0] )[2] );
     QStringList clientEntry = entries.grep( "client name:", FALSE );
-    P4Info::clientName = QStringList::split( ' ', clientEntry[0] )[2];
+    P4Info::clientName = new QString( QStringList::split( ' ', clientEntry[0] )[2] );
 }
 
 P4FStat::P4FStat( const QString& filename )
@@ -109,10 +117,10 @@ bool P4FStat::execute()
 void P4FStat::processExited()
 {
     bool wasIgnore = FALSE;
-    P4Info *old = P4Info::files[ fileName() ];
+    P4Info *old = P4Info::files()->find( fileName() );
     if ( old ) {
 	wasIgnore = old->ignoreEdit;
-	P4Info::files.remove( fileName() );
+	P4Info::files()->remove( fileName() );
 	delete old;
     }
 
@@ -164,7 +172,7 @@ void P4FStat::processExited()
 	    }
 	}
     }
-    P4Info::files.insert( fileName(), p4i );
+    P4Info::files()->insert( fileName(), p4i );
 
     emit finished( fileName(), p4i );
     delete this;
@@ -192,7 +200,7 @@ P4Edit::P4Edit( const QString &filename, bool s )
 
 bool P4Edit::execute()
 {
-    P4Info* p4i = P4Info::files[fileName()];
+    P4Info* p4i = P4Info::files()->find( fileName() );
     if ( !p4i ) {
 	P4FStat* fstat = new P4FStat( fileName() );
 	connect( fstat, SIGNAL(finished( const QString&, P4Info* )), this, SLOT(fStatResults(const QString&,P4Info*) ) );
@@ -210,8 +218,8 @@ void P4Edit::processExited()
 
 void P4Edit::fStatResults( const QString& filename, P4Info *p4i)
 {
-    P4Info::files.remove( filename );
-    P4Info::files.insert( filename, p4i );
+    P4Info::files()->remove( filename );
+    P4Info::files()->insert( filename, p4i );
     if ( !p4i->controlled ) {
 	if ( silent )
 	    QMessageBox::information( 0, tr( "P4 Edit" ), tr( "Opening the file<pre>%1</pre>for edit failed!" ).arg( fileName() ) );
@@ -243,7 +251,7 @@ bool P4Submit::execute()
 {
     SubmitDialog *dialog = new SubmitDialog( qApp->mainWidget(), 0, TRUE );
 
-    QDictIterator<P4Info> it( P4Info::files );
+    QDictIterator<P4Info> it( *P4Info::files() );
     while ( it.current() ) {
 	if ( it.current()->controlled && it.current()->action != P4Info::None ) {
 	    QCheckListItem* item = new QCheckListItem( dialog->fileList, it.currentKey(), QCheckListItem::CheckBox );
@@ -272,8 +280,8 @@ bool P4Submit::execute()
     QString description = dialog->description->text().replace( QRegExp("\\n"), "\n\t" );
 
     QString buffer = "Change:\tnew\n\n";
-    buffer += "Client:\t" + P4Info::clientName + "\n\n";
-    buffer += "User:\t" + P4Info::userName + "\n\n";
+    buffer += "Client:\t" + *P4Info::clientName + "\n\n";
+    buffer += "User:\t" + *P4Info::userName + "\n\n";
     buffer += "Status:\tnew\n\n";
     buffer += "Description:\n\t";
     buffer += description + "\n\n";
@@ -286,7 +294,7 @@ bool P4Submit::execute()
 	++lvit;
 	if ( !item->isOn() )
 	    continue;
-	P4Info* p4i = P4Info::files[ item->text( 0 ) ];
+	P4Info* p4i = P4Info::files()->find( item->text( 0 ) );
 	if ( !p4i )
 	    continue;
 	buffer += "\t" + p4i->depotFile + "\n";
@@ -311,7 +319,7 @@ P4Revert::P4Revert( const QString &filename )
 
 bool P4Revert::execute()
 {
-    P4Info *p4i = P4Info::files[fileName()];
+    P4Info *p4i = P4Info::files()->find( fileName() );
     if ( p4i && p4i->action == P4Info::Edit ) {
 	if ( QMessageBox::information( 0, tr( "P4 Revert" ), tr( "<p>Reverting will <b>overwrite</b> all changes to the local file<pre>%1</pre></p>"
 						"<p>Proceed with revert?</p>" ).
@@ -350,7 +358,7 @@ P4Delete::P4Delete( const QString &filename )
 
 bool P4Delete::execute()
 {
-    P4Info *p4i = P4Info::files[fileName()];
+    P4Info *p4i = P4Info::files()->find( fileName() );
     if ( p4i ) {
 	if ( QMessageBox::information( 0, tr( "P4 Delete" ), tr( "<p>This will delete the <b>local</b> file <pre>%1</pre></p>"
 						"<p>The <b>depot</b> file<pre>%2</pre>will be deleted by the next sync.</p>"

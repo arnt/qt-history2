@@ -33,9 +33,11 @@ struct P4Info
     bool uptodate : 1;
     bool ignoreEdit : 1;
 
-    static QString userName;
-    static QString clientName;
-    static QDict<P4Info> files;
+    static QString *userName;
+    static QString *clientName;
+    static QDict<P4Info> *_files;
+
+    static QDict<P4Info> *files();
 };
 
 
