@@ -68,7 +68,7 @@ do
 	if [ "x$F_REASON" = "xthreads" ]
 	then
 	   echo
-	   echo "NOTE: $FOUND_LIB is threaded!"
+	   echo "WARNING: $FOUND_LIB is threaded!"
 	   echo "The Qt OpenGL module requires Qt to be configured with -thread."
 	else
 	   [ "$VERBOSE" = "yes" ] && echo "  Could not find $L lib anywhere in $LIBDIRS"
