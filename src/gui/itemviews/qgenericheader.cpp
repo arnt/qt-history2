@@ -34,8 +34,8 @@ public:
         { return QApplication::reverseLayout() && orientation == Qt::Horizontal; }
 
     enum State { NoState, ResizeSection, MoveSection, SelectSection } state;
+    
     int offset;
-
     Qt::Orientation orientation;
     Qt::SortOrder sortIndicatorOrder;
     int sortIndicatorSection;
@@ -88,8 +88,7 @@ QGenericHeader::QGenericHeader(QAbstractItemModel *model, Qt::Orientation o, QWi
     d->orientation = o;
     setFrameStyle(NoFrame);
 
-    setMouseTracking(true);
-    setFocusPolicy(Qt::NoFocus);
+    d->viewport->setMouseTracking(true);
 
     if (d->orientation == Qt::Horizontal) {
         initializeSections(0, model->columnCount(root()) - 1);
@@ -535,7 +534,7 @@ void QGenericHeader::resizeSections()
         }
         if (mode == Interactive) {
             secSize = sectionSize(secs[i].section);
-        } else {//if (mode == QGenericHeader::Custom)
+        } else {// mode == QGenericHeader::Custom
             // FIXME: get the size of the section from the contents;  this is just a temprary solution
             QAbstractItemView *par = ::qt_cast<QAbstractItemView*>(parent());
             if (par)
