@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#42 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#43 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -65,6 +65,7 @@ struct QPrintDialogPrivate
     QButtonGroup * colorMode;
     QPrinter::ColorMode colorMode2;
 
+    QSpinBox * copies;
     int numCopies;
 };
 
@@ -715,7 +716,7 @@ QGroupBox * QPrintDialog::setupOptions()
 
     d->colorMode = new QButtonGroup( this );
     d->colorMode->hide();
-    connect( d->pageOrder, SIGNAL(clicked(int)),
+    connect( d->colorMode, SIGNAL(clicked(int)),
 	     this, SLOT(colorModeSelected(int)) );
 
     d->printAllButton = new QRadioButton( tr("Print all"), g, "print all" );
@@ -726,7 +727,7 @@ QGroupBox * QPrintDialog::setupOptions()
     d->printRangeButton = new QRadioButton( tr("Print Range:"),
 					    g, "print range" );
     d->printRangeButton->setMinimumSize( d->printRangeButton->sizeHint() );
-    d->printRange->insert( d->printRangeButton, 0 );
+    d->printRange->insert( d->printRangeButton, 1 );
     tll->addWidget( d->printRangeButton );
 
     QBoxLayout * horiz = new QBoxLayout( QBoxLayout::LeftToRight );
@@ -808,11 +809,11 @@ QGroupBox * QPrintDialog::setupOptions()
     QLabel * l = new QLabel( tr("Number of copies"), g, "Number of copies" );
     horiz->addWidget( l );
 
-    QSpinBox * spin = new QSpinBox( 1, 99, 1, g, "copies" );
-    spin->setValue( 1 );
-    spin->setMinimumSize( spin->sizeHint() );
-    horiz->addWidget( spin, 1 );
-    connect( spin, SIGNAL(valueChanged(int)),
+    d->copies = new QSpinBox( 1, 99, 1, g, "copies" );
+    d->copies->setValue( 1 );
+    d->copies->setMinimumSize( d->copies->sizeHint() );
+    horiz->addWidget( d->copies, 1 );
+    connect( d->copies, SIGNAL(valueChanged(int)),
 	     this, SLOT(setNumCopies(int)) );
 
     QSize s = d->firstPageLabel->sizeHint()
@@ -868,29 +869,29 @@ QGroupBox * QPrintDialog::setupPaper()
     // paper size
     rb = new QRadioButton( "A4 (210 x 297 mm)", g, "A4" );
     rb->setMinimumSize( rb->sizeHint() );
-    d->paperSize->insert( rb, 3 ); // 3
+    d->paperSize->insert( rb, 0 );
     rb->setChecked( TRUE );
     d->pageSize = QPrinter::A4;
     tll->addWidget( rb );
 
     rb = new QRadioButton( "B5", g, "B5" );
     rb->setMinimumSize( rb->sizeHint() );
-    d->paperSize->insert( rb, 0 );
+    d->paperSize->insert( rb, 1 );
     tll->addWidget( rb );
 
     rb = new QRadioButton( "Letter (8½ x 11in)", g, "Letter" );
     rb->setMinimumSize( rb->sizeHint() );
-    d->paperSize->insert( rb, 4 );
+    d->paperSize->insert( rb, 2 );
     tll->addWidget( rb );
 
     rb = new QRadioButton( "Legal", g, "Letter" );
     rb->setMinimumSize( rb->sizeHint() );
-    d->paperSize->insert( rb, 1 );
+    d->paperSize->insert( rb, 3 );
     tll->addWidget( rb );
 
     rb = new QRadioButton( "Executive", g, "Letter" );
     rb->setMinimumSize( rb->sizeHint() );
-    d->paperSize->insert( rb, 2 );
+    d->paperSize->insert( rb, 4 );
     tll->addWidget( rb );
 
     tll->activate();
@@ -946,23 +947,7 @@ void QPrintDialog::landscapeSelected( int id )
 
 void QPrintDialog::paperSizeSelected( int id )
 {
-    switch( id ) {
-    case 0:
-	d->pageSize = QPrinter::B5;
-	break;
-    case 1:
-	d->pageSize = QPrinter::Legal;
-	break;
-    case 2:
-	d->pageSize = QPrinter::Executive;
-	break;
-    case 3:
-	d->pageSize = QPrinter::A4;
-	break;
-    case 4:
-	d->pageSize = QPrinter::Letter;
-	break;
-    }
+    d->pageSize = QPrinter::PageSize(id);
 }
 
 
@@ -1008,6 +993,11 @@ void QPrintDialog::okClicked()
     d->printer->setPageSize( d->pageSize );
     d->printer->setPageOrder( d->pageOrder2 );
     d->printer->setColorMode( d->colorMode2 );
+    d->printer->setNumCopies( d->numCopies );
+    if ( d->printAllButton->isEnabled() )
+	d->printer->setFromTo( d->printer->minPage(), d->printer->maxPage() );
+    else
+	d->printer->setFromTo( d->firstPage->value(), d->lastPage->value() );
 
     accept();
 }
@@ -1024,14 +1014,14 @@ void QPrintDialog::printRangeSelected( int id )
 void QPrintDialog::setFirstPage( int fp )
 {
     if ( d->printer )
-	d->lastPage->setRange( fp, d->printer->maxPage() );
+	d->lastPage->setRange( fp, QMAX(fp,d->printer->maxPage()) );
 }
 
 
 void QPrintDialog::setLastPage( int lp )
 {
     if ( d->printer )
-	d->firstPage->setRange( d->printer->minPage(), lp );
+	d->firstPage->setRange( QMIN(lp,d->printer->minPage()), lp );
 }
 
 
@@ -1048,6 +1038,8 @@ void QPrintDialog::setPrinter( QPrinter * p, bool pickUpSettings )
 	// top to botton in the old dialog.
 	// printer or file
 	d->printerOrFile->setButton( p->outputToFile() );
+	printerOrFileSelected( p->outputToFile() );
+
 	// printer name
 	if ( p->printerName() ) {
 	    QListViewItem * i = d->printers->firstChild();
@@ -1055,48 +1047,53 @@ void QPrintDialog::setPrinter( QPrinter * p, bool pickUpSettings )
 		i = i->nextSibling();
 	    if ( i )
 		d->printers->setSelected( i, TRUE );
-		
 	}
+
 	// print command does not exist any more
+
 	// file name
 	d->fileName->setText( p->outputFileName() );
+
 	// orientation
 	d->orient->setButton( (int)p->orientation() );
+	orientSelected( p->orientation() );
+
 	// page size
-	switch( p->pageSize() ) {
-	case QPrinter::B5:
-	    d->paperSize->setButton( 0 );
-	    break;
-	case QPrinter::Legal:
-	    d->paperSize->setButton( 1 );
-	    break;
-	case QPrinter::Executive:
-	    d->paperSize->setButton( 2 );
-	    break;
-	case QPrinter::A4:
-	default:
-	    d->paperSize->setButton( 3 );
-	    break;
-	case QPrinter::Letter:
-	    d->paperSize->setButton( 4 );
-	    break;
-	}	
-	// also some new stuff.
+	d->paperSize->setButton( p->pageSize() );
+	paperSizeSelected( p->pageSize() );
+
+	// New stuff (Options)
+
+	// page order
 	d->pageOrder->setButton( (int)p->pageOrder() );
-	// more new stuff can be set, but it'll be difficult to get
-	// right.
+	pageOrderSelected( p->pageOrder() );
+
+	// color mode
+	d->colorMode->setButton( (int)p->colorMode() );
+	colorModeSelected( p->colorMode() );
+
+	// number of copies
+	d->copies->setValue( p->numCopies() );
+	setNumCopies( p->numCopies() );
     }
 
     if ( p && p->maxPage() ) {
 	d->printRangeButton->setEnabled( TRUE );
-	d->firstPage->setEnabled( TRUE );
 	d->firstPage->setRange( p->minPage(), p->maxPage() );
-	d->lastPage->setEnabled( TRUE );
 	d->lastPage->setRange( p->minPage(), p->maxPage() );
-	d->firstPageLabel->setEnabled( TRUE );
-	d->lastPageLabel->setEnabled( TRUE );
-	d->firstPage->setValue( p->minPage() );
-	d->lastPage->setValue( p->maxPage() );
+	// page range
+	int some = p->maxPage()
+		&& p->fromPage() && p->toPage()
+		&& (p->fromPage() != p->minPage()
+		    || p->toPage() != p->maxPage());
+	if ( p->fromPage() ) {
+	    setFirstPage( p->fromPage() );
+	    setLastPage( p->toPage() );
+	    d->firstPage->setValue(p->fromPage());
+	    d->lastPage->setValue(p->toPage());
+	}
+	d->printRange->setButton( some );
+	printRangeSelected( some );
     } else {
 	d->printRange->setButton( 0 );	
 	d->printRangeButton->setEnabled( FALSE );
