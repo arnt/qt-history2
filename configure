@@ -321,7 +321,7 @@ while [ "$#" -gt 0 ]; do
 	VAL=no
 	;;
     #Qt style yes options
-    -incremental|-qvfb|-profile|-shared|-static|-sm|-thread|-xinerama|-tablet|-stl|-freetype|-big-codecs|-xrender|-xft|-xkb|-nis|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast)
+    -incremental|-qvfb|-profile|-shared|-static|-sm|-thread|-xinerama|-tablet|-stl|-freetype|-big-codecs|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast)
 	VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
 	VAL=yes
 	;;
