@@ -18,6 +18,8 @@ class QRubberBand;
 
 #include <private/qviewport_p.h>
 #include <qdatetime.h>
+#include <qevent.h>
+#include <qmime.h>
 #include <qmap.h>
 
 class QAbstractItemViewPrivate : public QViewportPrivate
@@ -49,6 +51,16 @@ public:
         case QAbstractItemView::SelectColumns: return QItemSelectionModel::Columns;
         case QAbstractItemView::SelectItems: default: return QItemSelectionModel::NoUpdate;
         }
+    }
+
+    inline bool canDecode(QDropEvent *e) const {
+        QStringList modelTypes = model->mimeTypes();
+        const QMimeData *mime = e->mimeData();
+        for (int i = 0; i < modelTypes.count(); ++i)
+            if (mime->hasFormat(modelTypes.at(i))
+                && (e->proposedAction() & model->supportedDropActions()))
+                return true;
+        return false;
     }
 
     mutable QAbstractItemModel *model;

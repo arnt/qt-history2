@@ -644,13 +644,39 @@ bool QDirModel::lessThan(const QModelIndex &left, const QModelIndex &right) cons
 }
 
 /*!
+
+*/
+
+QStringList QDirModel::mimeTypes() const
+{
+    QStringList types;
+    types << "text/uri-list";
+    return types;
+}
+
+/*!
+
+*/
+
+QMimeData *QDirModel::mimeData(const QModelIndexList &indexes) const
+{
+    QList<QUrl> urls;
+    QList<QModelIndex>::const_iterator it = indexes.begin();
+    for (; it != indexes.end(); ++it)
+        urls << QUrl::fromLocalFile(path(*it));
+    QMimeData *data = new QMimeData();
+    data->setUrls(urls);
+    return data;
+}
+
+/*!
     Returns true if this directory model (whose parent is \a parent),
     can decode drop event \a e.
 */
 
-bool QDirModel::setMimeData(const QMimeData *data,
-                            QDrag::DropAction action,
-                            const QModelIndex &parent)
+bool QDirModel::dropMimeData(const QMimeData *data,
+                             QDrag::DropAction action,
+                             const QModelIndex &parent)
 {
     if (!parent.isValid()) {
         qWarning("decode: the parent index is invalid");
@@ -703,15 +729,9 @@ bool QDirModel::setMimeData(const QMimeData *data,
 
 */
 
-QMimeData *QDirModel::mimeData(const QModelIndexList &indexes) const
+QDrag::DropActions QDirModel::supportedDropActions() const
 {
-    QList<QUrl> urls;
-    QList<QModelIndex>::const_iterator it = indexes.begin();
-    for (; it != indexes.end(); ++it)
-        urls << QUrl::fromLocalFile(path(*it));
-    QMimeData *data = new QMimeData();
-    data->setUrls(urls);
-    return data;
+    return QDrag::CopyAction | QDrag::MoveAction; // FIXME: LinkAction is not supported yet
 }
 
 /*!

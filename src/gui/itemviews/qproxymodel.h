@@ -44,8 +44,10 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     bool setHeaderData(int section, Qt::Orientation orientation, int role, const QVariant &value);
 
+    QStringList mimeTypes() const;
     QMimeData *mimeData(const QModelIndexList &indexes) const;
-    bool setMimeData(const QMimeData *data, QDrag::DropAction action, const QModelIndex &parent);
+    bool dropMimeData(const QMimeData *data, QDrag::DropAction action, const QModelIndex &parent);
+    QDrag::DropActions supportedDropActions() const;
 
     bool insertRows(int row, const QModelIndex &parent, int count);
     bool insertColumns(int column, const QModelIndex &parent, int count);

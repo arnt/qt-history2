@@ -1027,10 +1027,10 @@ void QAbstractItemView::contextMenuEvent(QContextMenuEvent *e)
 
     \sa dropEvent() startDrag()
 */
-void QAbstractItemView::dragEnterEvent(QDragEnterEvent *)
+void QAbstractItemView::dragEnterEvent(QDragEnterEvent *e)
 {
-//     if (model()->canDecode(e))
-//         e->accept();
+    if (d->canDecode(e))
+        e->acceptProposedAction();
 }
 
 /*!
@@ -1042,12 +1042,8 @@ void QAbstractItemView::dragEnterEvent(QDragEnterEvent *)
 */
 void QAbstractItemView::dragMoveEvent(QDragMoveEvent *e)
 {
-//    if (!model()->canDecode(e)) {
-//         e->ignore();
-//         return;
-//     }
-//     e->accept();
-
+    if (d->canDecode(e))
+        e->acceptProposedAction();
     if (d->shouldAutoScroll(e->pos()))
         startAutoScroll();
 }
@@ -1062,8 +1058,11 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *e)
 void QAbstractItemView::dropEvent(QDropEvent *e)
 {
     QModelIndex index = itemAt(e->pos());
-//     if (model()->setMimeData(e->mimeData(), (index.isValid() ? index : root())))
-//         e->accept();
+    if (model()->supportedDropActions() & e->proposedAction()) {
+        QModelIndex parent = index.isValid() ? index : root();
+        if (model()->dropMimeData(e->mimeData(), e->proposedAction(), parent))
+            e->acceptProposedAction();
+    }
 }
 
 /*!

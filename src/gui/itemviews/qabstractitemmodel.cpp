@@ -13,6 +13,7 @@
 
 #include "qabstractitemmodel.h"
 #include <qdatastream.h>
+#include <qstringlist.h>
 #include <qmap.h>
 #include <qsize.h>
 #include <qmime.h>
@@ -816,6 +817,16 @@ bool QAbstractItemModel::setItemData(const QModelIndex &index, const QMap<int, Q
 /*!
 
 */
+QStringList QAbstractItemModel::mimeTypes() const
+{
+    QStringList types;
+    types << "application/x-qabstractitemmodeldatalist";
+    return types;
+}
+
+/*!
+
+*/
 QMimeData *QAbstractItemModel::mimeData(const QModelIndexList &indexes) const
 {
     if (indexes.count() <= 0)
@@ -834,8 +845,8 @@ QMimeData *QAbstractItemModel::mimeData(const QModelIndexList &indexes) const
         }
     }
 
-    static const QString format =  "application/x-qabstractitemmodeldatalist";
     QMimeData *data = new QMimeData();
+    QString format = mimeTypes().at(0);
     data->setData(format, encoded);
     return data;
 }
@@ -843,33 +854,37 @@ QMimeData *QAbstractItemModel::mimeData(const QModelIndexList &indexes) const
 /*!
 
 */
-bool QAbstractItemModel::setMimeData(const QMimeData *data, QDrag::DropAction action,
-                                     const QModelIndex &parent)
+bool QAbstractItemModel::dropMimeData(const QMimeData *data, QDrag::DropAction action,
+                                      const QModelIndex &parent)
 {
-    Q_UNUSED(data);
-    Q_UNUSED(action);
-    Q_UNUSED(parent);
-//     static const QString format =  "application/x-qabstractitemmodeldatalist";
-//     if (!data->hasFormat(format))
-//         return false;
-//     QByteArray encoded = data->data(format);
-//     QDataStream stream(&encoded, QIODevice::ReadOnly);
-//     int row = rowCount(parent);
-//     int count, role;
-//     QVariant value;
-//     QModelIndex idx;
-//     while (!stream.atEnd()) {
-//         insertRows(row, parent, 1); // append row
-//         idx = index(row, 0, parent); // only insert in col 0
-//         stream >> count;
-//         for (int i = 0; i < count; ++i) {
-//             stream >> role;
-//             stream >> value;
-//             setData(idx, role, value);
-//         }
-//     }
-//     return true;
-    return false;
+//     Q_UNUSED(data);
+//     Q_UNUSED(action);
+//     Q_UNUSED(parent);
+    QString format = mimeTypes().at(0);
+    if (!data->hasFormat(format))
+        return false;
+    QByteArray encoded = data->data(format);
+    QDataStream stream(&encoded, QIODevice::ReadOnly);
+    int row = rowCount(parent);
+    int count, role;
+    QVariant value;
+    QModelIndex idx;
+    while (!stream.atEnd()) {
+        insertRows(row, parent, 1); // append row
+        idx = index(row, 0, parent); // only insert in col 0
+        stream >> count;
+        for (int i = 0; i < count; ++i) {
+            stream >> role;
+            stream >> value;
+            setData(idx, role, value);
+        }
+    }
+    return true;
+}
+
+QDrag::DropActions QAbstractItemModel::supportedDropActions() const
+{
+    return QDrag::CopyAction;
 }
 
 /*!

@@ -690,10 +690,10 @@ void QListView::resizeEvent(QResizeEvent *e)
 */
 void QListView::dragMoveEvent(QDragMoveEvent *e)
 {
-//     if (!model()->canDecode(e)) {
-//         e->ignore();
-//         return;
-//     }
+    if (!d->canDecode(e)) {
+        e->ignore();
+        return;
+    }
 
     QPoint pos = e->pos();
     if (d->shouldAutoScroll(pos))
@@ -804,9 +804,10 @@ void QListView::startDrag()
 /*!
   \reimp
 */
-bool QListView::isDragEnabled(const QModelIndex &) const
+bool QListView::isDragEnabled(const QModelIndex &index) const
 {
-    return d->movement == Free;
+    bool dragEnabled = model()->flags(index) & QAbstractItemModel::ItemIsDragEnabled;
+    return d->movement == Free || dragEnabled;
 }
 
 /*!

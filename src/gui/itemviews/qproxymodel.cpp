@@ -14,6 +14,7 @@
 #include "qproxymodel.h"
 #include <private/qabstractitemmodel_p.h>
 #include <qsize.h>
+#include <qstringlist.h>
 
 #define d d_func()
 #define q q_func()
@@ -213,15 +214,25 @@ bool QProxyModel::setHeaderData(int section, Qt::Orientation orientation,
     return d->model->setHeaderData(section, orientation, role, value);
 }
 
+QStringList QProxyModel::mimeTypes() const
+{
+    return d->model->mimeTypes();
+}
+
 QMimeData *QProxyModel::mimeData(const QModelIndexList &indexes) const
 {
     return d->model->mimeData(indexes);
 }
 
-bool QProxyModel::setMimeData(const QMimeData *data, QDrag::DropAction action,
+bool QProxyModel::dropMimeData(const QMimeData *data, QDrag::DropAction action,
                               const QModelIndex &parent)
 {
-    return d->model->setMimeData(data, action, parent);
+    return d->model->dropMimeData(data, action, parent);
+}
+
+QDrag::DropActions QProxyModel::supportedDropActions() const
+{
+    return d->model->supportedDropActions();
 }
 
 /*!

@@ -171,9 +171,11 @@ public:
     virtual QMap<int, QVariant> itemData(const QModelIndex &index) const;
     virtual bool setItemData(const QModelIndex &index, const QMap<int, QVariant> &roles);
 
+    virtual QStringList mimeTypes() const;
     virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
-    virtual bool setMimeData(const QMimeData *data, QDrag::DropAction action,
-                             const QModelIndex &parent);
+    virtual bool dropMimeData(const QMimeData *data, QDrag::DropAction action,
+                              const QModelIndex &parent);
+    virtual QDrag::DropActions supportedDropActions() const;
 
     virtual bool insertRows(int row, const QModelIndex &parent, int count);
     virtual bool insertColumns(int column, const QModelIndex &parent, int count);
