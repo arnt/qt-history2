@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#321 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#322 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -1808,6 +1808,7 @@ bool QApplication::processNextEvent( bool canWait )
     }
     FD_SET( app_Xfd, &app_readfds );
 
+    XFlush( appDpy );
     int nsel;
     nsel = select( QMAX(app_Xfd,sn_highest)+1,
 		   (void *) (&app_readfds),
@@ -1922,7 +1923,9 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	if ( widget->isEnabled() &&
 	     event->type == ButtonPress &&
 	     event->xbutton.button == Button1 &&
-	     (widget->focusPolicy() & QWidget::ClickFocus) )
+	     (widget->focusProxy()
+	      ? (widget->focusProxy()->focusPolicy() & QWidget::ClickFocus)
+	      : (widget->focusPolicy() & QWidget::ClickFocus) ) )
 	    widget->setFocus();
 	widget->translateMouseEvent( event );
 	break;
