@@ -1,5 +1,5 @@
 /****************************************************************************
- ** $Id: //depot/qt/main/tests/qml/qml.h#14 $
+ ** $Id: //depot/qt/main/tests/qml/qml.h#15 $
  **
  ** Definition of something or other
  **
@@ -22,103 +22,105 @@
 #include <qtimer.h>
 #include <qcolor.h>
 
-class QMLStyle 
+class QMLStyle
 {
- public:
-  QMLStyle( const QString& name );
-  ~QMLStyle();
+public:
+    QMLStyle( const QString& name );
+    ~QMLStyle();
 
-  static const QMLStyle& nullStyle();
+    static const QMLStyle& nullStyle();
 
-  QString name() const;
+    QString name() const;
 
-  enum Display {display_block, display_inline, display_list_item, display_none};
-  Display display() const;
-  void setDisplay(Display d);
+    enum Display {display_block, display_inline, display_list_item, display_none};
+    Display display() const;
+    void setDisplay(Display d);
 
-  enum FontStyle {style_undefined, style_normal, style_italic, style_oblique};
-  FontStyle fontStyle() const;
-  void setFontStyle(FontStyle s);
+    enum FontStyle {style_undefined, style_normal, style_italic, style_oblique};
+    FontStyle fontStyle() const;
+    void setFontStyle(FontStyle s);
 
-  enum FontWeight {weight_undefined = -1,
-		   weight_normal = QFont::Normal,
-		   weight_bold = QFont::Bold,
-		   weight_bolder = QFont::Black,
-		   weight_lighter = QFont::Light};
+    enum FontWeight {weight_undefined = -1,
+		     weight_normal = QFont::Normal,
+		     weight_bold = QFont::Bold,
+		     weight_bolder = QFont::Black,
+		     weight_lighter = QFont::Light};
 
-  int fontWeight() const;
-  void setFontWeight(int w);
+    int fontWeight() const;
+    void setFontWeight(int w);
 
-  int fontSize() const;
-  void setFontSize(int s);
+    int fontSize() const;
+    void setFontSize(int s);
 
-  int numberOfColumns() const;
-  void setNumberOfColumns(int ncols);
+    int numberOfColumns() const;
+    void setNumberOfColumns(int ncols);
 
-  QColor color( const QColor & ) const;
-  void setColor( const QColor &);
-  inline bool hasColor() const { return col != 0; }
+    QColor color( const QColor & ) const;
+    void setColor( const QColor &);
+    inline bool hasColor() const { return col != 0; }
 
-  bool isActive() const;
-  void setActive(bool act);
+    bool isActive() const;
+    void setActive(bool act);
 
 
- private:
-  void init();
-  Display disp;
-  FontStyle fontstyle;
-  int fontweight;
-  int fontsize;
-  QMLStyle *parentstyle;
-  QString stylename;
-  int ncolumns;
-  QColor* col;
-  bool active;
+private:
+    void init();
+    Display disp;
+    FontStyle fontstyle;
+    int fontweight;
+    int fontsize;
+    QMLStyle *parentstyle;
+    QString stylename;
+    int ncolumns;
+    QColor* col;
+    bool active;
 };
 
-class QMLContext 
+class QMLProvider
 {
- public:
-  QMLContext();
-  virtual ~QMLContext();
+public:
+    QMLProvider();
+    virtual ~QMLProvider();
 
-  void setImage(const QString& name, const QPixmap& pm);
-  void setDocument(const QString& name, const QString& contents);
+    static QMLProvider& defaultProvider();
 
-  virtual QPixmap image(const QString &name) const;
-  virtual QString document(const QString &name) const;
+    void setImage(const QString& name, const QPixmap& pm);
+    void setDocument(const QString& name, const QString& contents);
 
- private:
-  QDict<QPixmap>images;
-  QDict<QString>documents;
+    virtual QPixmap image(const QString &name) const;
+    virtual QString document(const QString &name) const;
+
+private:
+    QDict<QPixmap>images;
+    QDict<QString>documents;
 };
 
 class QMLNode;
 class QMLContainer;
-class QMLStyleSheet 
+class QMLStyleSheet
 {
- public:
-  QMLStyleSheet();
-  virtual ~QMLStyleSheet();
+public:
+    QMLStyleSheet();
+    virtual ~QMLStyleSheet();
 
-  QMLStyle& defaultStyle() const;
-  static QMLStyleSheet& defaultSheet();
+    QMLStyle& defaultStyle() const;
+    static QMLStyleSheet& defaultSheet();
 
-  void insert( QMLStyle* style);
-  const QMLStyle& style(const char* name) const;
+    void insert( QMLStyle* style);
+    const QMLStyle& style(const char* name) const;
 
-  virtual QMLContainer* tag( const QMLStyle &,
-			     const QDict<QString>&attr, 
-			     const QMLContext& context ) const;
+    virtual QMLContainer* tag( const QMLStyle &,
+			       const QDict<QString>&attr,
+			       const QMLProvider& provider ) const;
 
-  virtual QMLNode* emptyTag( const QMLStyle &,
-			     const QDict<QString>&attr, 
-			     const QMLContext& context ) const;
+    virtual QMLNode* emptyTag( const QMLStyle &,
+			       const QDict<QString>&attr,
+			       const QMLProvider& provider ) const;
 
- private:
-  void init();
-  QDict <QMLStyle> styles;
-  QMLStyle* defaultstyle;
+private:
+    void init();
+    QDict <QMLStyle> styles;
+    QMLStyle* defaultstyle;
 
 };
 
@@ -126,182 +128,182 @@ class QMLStyleSheet
 class QMLContainer;
 class QMLBox;
 
-class QMLNode  
+class QMLNode
 {
- public:
-  QMLNode();
-  ~QMLNode();
-  QMLNode* next;
+public:
+    QMLNode();
+    ~QMLNode();
+    QMLNode* next;
 
-  QMLNode* depthFirstSearch(QMLNode* tag, QMLContainer* &parent, bool down = TRUE);
-  QMLNode* nextLayout(QMLNode* tag, QMLContainer* &parent);
-  QMLNode* nextLeaf(QMLNode* tag, QMLContainer* &parent);
+    QMLNode* depthFirstSearch(QMLNode* tag, QMLContainer* &parent, bool down = TRUE);
+    QMLNode* nextLayout(QMLNode* tag, QMLContainer* &parent);
+    QMLNode* nextLeaf(QMLNode* tag, QMLContainer* &parent);
 
-  QChar c;
+    QChar c;
 
-  inline bool isSpace() const {return c.isSpace();}
-  inline bool isNull() const {return c == QChar::null;}
+    inline bool isSpace() const {return c.isSpace();}
+    inline bool isNull() const {return c == QChar::null;}
 
-  QMLContainer* parent() const;
-  QMLBox* box() const;
-  QMLNode* previousSibling() const;
-  QMLNode* lastSibling() const;
-  QMLNode* nextSibling() const;
+    QMLContainer* parent() const;
+    QMLBox* box() const;
+    QMLNode* previousSibling() const;
+    QMLNode* lastSibling() const;
+    QMLNode* nextSibling() const;
 
-  uint isSimpleNode: 1;
-  uint isLastSibling:1;
-  uint isContainer:1;
-  uint isBox:1;
-  uint isSelected: 1;
-  uint isSelectionDirty: 1;
+    uint isSimpleNode: 1;
+    uint isLastSibling:1;
+    uint isContainer:1;
+    uint isBox:1;
+    uint isSelected: 1;
+    uint isSelectionDirty: 1;
 };
 
-class QMLCustomNode : public QMLNode 
+class QMLCustomNode : public QMLNode
 {
- public:
-  QMLCustomNode();
-  virtual ~QMLCustomNode();
+public:
+    QMLCustomNode();
+    virtual ~QMLCustomNode();
 
-  virtual void draw(QPainter* p, int x, int y,
-		    int ox, int oy, int cx, int cy, int cw, int ch) = 0;
+    virtual void draw(QPainter* p, int x, int y,
+		      int ox, int oy, int cx, int cy, int cw, int ch) = 0;
 
-  int width;
-  int height;
+    int width;
+    int height;
 };
 
-class QMLImage : public QMLCustomNode 
+class QMLImage : public QMLCustomNode
 {
- public:
-  QMLImage(const QDict<QString>&attr, const QMLContext& context);
-  ~QMLImage();
+public:
+    QMLImage(const QDict<QString>&attr, const QMLProvider& provider);
+    ~QMLImage();
 
-  void draw(QPainter* p, int x, int y,
-	    int ox, int oy, int cx, int cy, int cw, int ch);
- private:
-  QPixmap pm;  
+    void draw(QPainter* p, int x, int y,
+	      int ox, int oy, int cx, int cy, int cw, int ch);
+private:
+    QPixmap pm;
 };
 
 
 // internal class for qmlbox, also used in qmlcursor.
-class QMLRow 
+class QMLRow
 {
- public:
-  QMLRow();
-  QMLRow(QMLContainer* box, QPainter* p, QMLNode* &t, QMLContainer* &par, int w);
-  ~QMLRow();
-  int x;
-  int y;
-  int width;
-  int height;
-  int base;
-  bool intersects(int xr, int yr, int wr, int hr);
-  void draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch,
-	    QRegion& backgroundRegion, const QColorGroup& cg,
-	    bool onlyDirty = FALSE, bool onlySelection = FALSE);
-  QMLNode* hitTest(QMLContainer* box, QPainter* p, int obx, int oby, int xarg, int yarg);
+public:
+    QMLRow();
+    QMLRow(QMLContainer* box, QPainter* p, QMLNode* &t, QMLContainer* &par, int w);
+    ~QMLRow();
+    int x;
+    int y;
+    int width;
+    int height;
+    int base;
+    bool intersects(int xr, int yr, int wr, int hr);
+    void draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch,
+	      QRegion& backgroundRegion, const QColorGroup& cg,
+	      bool onlyDirty = FALSE, bool onlySelection = FALSE);
+    QMLNode* hitTest(QMLContainer* box, QPainter* p, int obx, int oby, int xarg, int yarg);
 
 
-  bool locate(QMLContainer* box, QPainter* p, QMLNode* node, int &lx, int &ly, int &lh);
+    bool locate(QMLContainer* box, QPainter* p, QMLNode* node, int &lx, int &ly, int &lh);
 
-  bool dirty;
+    bool dirty;
 
-  QMLNode* start;
-  QMLNode* end;
-  QMLContainer* parent;
+    QMLNode* start;
+    QMLNode* end;
+    QMLContainer* parent;
 
 };
 
 
 inline bool QMLRow::intersects(int xr, int yr, int wr, int hr)
 {
-  return ( QMAX( x, xr ) <= QMIN( x+width, xr+wr ) &&
-	   QMAX( y, yr ) <= QMIN( y+height, yr+hr ) );
+    return ( QMAX( x, xr ) <= QMIN( x+width, xr+wr ) &&
+	     QMAX( y, yr ) <= QMIN( y+height, yr+hr ) );
 
 }
 
-class QMLContainer : public QMLNode 
+class QMLContainer : public QMLNode
 {
- public:
-  QMLContainer( const QMLStyle &stl);
-  QMLContainer( const QMLStyle &stl, const QDict<QString>& attr );
-  virtual ~QMLContainer();
-  inline QFont font() const;
-  inline QColor color(const QColor&) const;
-  QMLContainer* parent;
-  const QMLStyle* style;
-  QMLNode* child;
+public:
+    QMLContainer( const QMLStyle &stl);
+    QMLContainer( const QMLStyle &stl, const QDict<QString>& attr );
+    virtual ~QMLContainer();
+    inline QFont font() const;
+    inline QColor color(const QColor&) const;
+    QMLContainer* parent;
+    const QMLStyle* style;
+    QMLNode* child;
 
-  QMLBox* box() const;
-  QMLBox* parentBox() const;
+    QMLBox* box() const;
+    QMLBox* parentBox() const;
 
-  QMLNode* lastChild() const;
+    QMLNode* lastChild() const;
 
-  void reparentSubtree();
+    void reparentSubtree();
 
-  virtual QMLContainer* copy() const;
+    virtual QMLContainer* copy() const;
 
-  void split(QMLNode* node);
+    void split(QMLNode* node);
 
-  const QDict<QString>& attributes() const;
-  
-  const QMLContainer* activeContainer() const;
-  
- protected:
-  void setAttributes(const QDict<QString>& attr );
+    const QDict<QString>& attributes() const;
 
- private:
-  int fontWeight() const;
-  QMLStyle::FontStyle fontStyle() const;
-  int fontSize() const;
+    const QMLContainer* activeContainer() const;
 
-  void createFont();
+protected:
+    void setAttributes(const QDict<QString>& attr );
 
-  QFont* fnt;
-  QDict<QString>* attributes_;
+private:
+    int fontWeight() const;
+    QMLStyle::FontStyle fontStyle() const;
+    int fontSize() const;
+
+    void createFont();
+
+    QFont* fnt;
+    QDict<QString>* attributes_;
 };
 
 
 inline QFont QMLContainer::font() const
 {
-  if (!fnt) {
-    QMLContainer* that = (QMLContainer*) this;
-    that->createFont();
-  }
-  return *fnt;
+    if (!fnt) {
+	QMLContainer* that = (QMLContainer*) this;
+	that->createFont();
+    }
+    return *fnt;
 }
 
 
 inline QColor QMLContainer::color(const QColor& c) const
 {
-  if (style->hasColor())
-    return style->color(c);
-  return parent?parent->color(c):c;
+    if (style->hasColor())
+	return style->color(c);
+    return parent?parent->color(c):c;
 }
 
-class QMLBox : public QMLContainer 
+class QMLBox : public QMLContainer
 {
- public:
-  QMLBox( const QMLStyle &stl);
-  QMLBox( const QMLStyle &stl, const QDict<QString>& attr );
-  ~QMLBox();
+public:
+    QMLBox( const QMLStyle &stl);
+    QMLBox( const QMLStyle &stl, const QDict<QString>& attr );
+    ~QMLBox();
 
-  void draw(QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch,
-	    QRegion& backgroundRegion, const QColorGroup& cg, bool onlyDirty = FALSE, bool onlySelection = FALSE);
-  void resize (QPainter* p, int newWidth, bool forceResize = FALSE);
+    void draw(QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch,
+	      QRegion& backgroundRegion, const QColorGroup& cg, bool onlyDirty = FALSE, bool onlySelection = FALSE);
+    void resize (QPainter* p, int newWidth, bool forceResize = FALSE);
 
-  void update(QPainter* p, QMLRow* r = 0);
+    void update(QPainter* p, QMLRow* r = 0);
 
-  QMLContainer* copy() const;
+    QMLContainer* copy() const;
 
-  QList<QMLRow> rows;
+    QList<QMLRow> rows;
 
-  int width;
-  int height;
+    int width;
+    int height;
 
-  //    QMLNode* locate(int x, int y);
-  QMLRow*  locate(QPainter* p, QMLNode* node, int &lx, int &ly, int &lh, int&lry, int &lrh);
+    //    QMLNode* locate(int x, int y);
+    QMLRow*  locate(QPainter* p, QMLNode* node, int &lx, int &ly, int &lh, int&lry, int &lrh);
 
-  QMLNode* hitTest(QPainter* p, int obx, int oby, int xarg, int yarg);
+    QMLNode* hitTest(QPainter* p, int obx, int oby, int xarg, int yarg);
 
 };
 
@@ -309,187 +311,189 @@ class QMLBox : public QMLContainer
 
 class QMLDocument : public QMLBox
 {
- public:
-  QMLDocument( const QString &doc);
-  QMLDocument( const QString &doc, const QMLContext& context);
-  QMLDocument( const QString &doc,  const QMLContext& context, const QMLStyleSheet& sheet);
-  ~QMLDocument();
+public:
+    QMLDocument( const QString &doc);
+    QMLDocument( const QString &doc, const QMLProvider& provider);
+    QMLDocument( const QString &doc,  const QMLProvider& provider, const QMLStyleSheet& sheet);
+    ~QMLDocument();
 
 
-  bool isValid() const;
+    bool isValid() const;
 
-  void dump();
+    void dump();
 
-  static QString firstTag( const QString& doc);
+    static QString firstTag( const QString& doc);
 
- private:
-  void init( const QString& doc );
+private:
+    void init( const QString& doc );
 
-  void parse (QMLContainer* current, QMLNode* lastChild, const QString& doc, int& pos);
-  bool eatSpace(const QString& doc, int& pos);
-  bool eat(const QString& doc, int& pos, const QChar& c);
-  bool lookAhead(const QString& doc, int& pos, const QChar& c);
-  QString parseOpenTag(const QString& doc, int& pos, QDict<QString> &attr);
-  bool eatCloseTag(const QString& doc, int& pos, const QString& open);
-  QString parseWord(const QString& doc, int& pos, bool lower = FALSE);
-  QString parsePlainText(const QString& doc, int& pos);
-  bool hasPrefix(const QString& doc, int pos, const QChar& c);
-  bool valid;
-  QChar* openChar;
-  QChar* closeChar;
-  QChar* slashChar;
-  QChar* quoteChar;
-  QChar* equalChar;
-  const QMLStyleSheet* sheet_;
-  const QMLContext* context_;
+    void parse (QMLContainer* current, QMLNode* lastChild, const QString& doc, int& pos);
+    bool eatSpace(const QString& doc, int& pos);
+    bool eat(const QString& doc, int& pos, const QChar& c);
+    bool lookAhead(const QString& doc, int& pos, const QChar& c);
+    QString parseOpenTag(const QString& doc, int& pos, QDict<QString> &attr);
+    bool eatCloseTag(const QString& doc, int& pos, const QString& open);
+    QString parseWord(const QString& doc, int& pos, bool lower = FALSE);
+    QString parsePlainText(const QString& doc, int& pos);
+    bool hasPrefix(const QString& doc, int pos, const QChar& c);
+    bool valid;
+    QChar* openChar;
+    QChar* closeChar;
+    QChar* slashChar;
+    QChar* quoteChar;
+    QChar* equalChar;
+    const QMLStyleSheet* sheet_;
+    const QMLProvider* provider_;
 
 };
 
 class QMLCursor;
 
-class QMLView : public QScrollView, public QMLContext 
+class QMLView : public QScrollView
 {
-  Q_OBJECT
- public:
-  QMLView(QWidget *parent=0, const char *name=0);
-  QMLView( const QString& doc, QWidget *parent=0, const char *name=0);
-  ~QMLView();
+    Q_OBJECT
+public:
+    QMLView(QWidget *parent=0, const char *name=0);
+    QMLView( const QString& doc, QWidget *parent=0, const char *name=0);
+    ~QMLView();
 
-  virtual void setContents( const QString& contents);
-  virtual QString contents();
+    virtual void setContents( const QString& contents);
+    virtual QString contents() const;
 
-  QMLStyleSheet& styleSheet() const;
-  void setStyleSheet( QMLStyleSheet* styleSheet );
+    QMLStyleSheet& styleSheet() const;
+    void setStyleSheet( QMLStyleSheet* styleSheet );
 
-  void setPaperColorGroup( const QColorGroup& colgrp);
-  void setPaperPixmap( const QPixmap& pm);
+    void setPaperColorGroup( const QColorGroup& colgrp);
+    void setPaperPixmap( const QPixmap& pm);
 
-  const QColorGroup &paperColorGroup() const;
+    const QColorGroup &paperColorGroup() const;
 
+    void setProvider( QMLProvider* newProvider );
+    QMLProvider& provider() const;
+    
+    QString title() const;
 
-  QString title() const;
+    int heightForWidth( int w ) const;
 
-  int heightForWidth( int w ) const;
+protected:
+    void drawContentsOffset(QPainter*, int ox, int oy,
+			    int cx, int cy, int cw, int ch);
+    void resizeEvent(QResizeEvent*);
+    void viewportMousePressEvent( QMouseEvent* );
+    void viewportMouseReleaseEvent( QMouseEvent* );
+    void viewportMouseMoveEvent( QMouseEvent* );
+    void keyPressEvent( QKeyEvent * );
 
- protected:
-  void drawContentsOffset(QPainter*, int ox, int oy,
-			  int cx, int cy, int cw, int ch);
-  void resizeEvent(QResizeEvent*);
-  void viewportMousePressEvent( QMouseEvent* );
-  void viewportMouseReleaseEvent( QMouseEvent* );
-  void viewportMouseMoveEvent( QMouseEvent* );
-  void keyPressEvent( QKeyEvent * );
+protected:
 
- protected:
+    QMLDocument& currentDocument() const;
+    void paletteChange( const QPalette & );
 
-  QMLDocument& currentDocument() const;
-  void paletteChange( const QPalette & );
-
- private:
-  QMLStyleSheet* sheet_;
-  QMLDocument* doc_;
-  QString txt;
-  QColorGroup mypapcolgrp;
-  QColorGroup papcolgrp;
-  void init();
-  void createDocument();
-  void* v1;
-  void* d;
-
+private:
+    QMLStyleSheet* sheet_;
+    QMLDocument* doc_;
+    QMLProvider* provider_;
+    QString txt;
+    QColorGroup mypapcolgrp;
+    QColorGroup papcolgrp;
+    void init();
+    void createDocument();
+    void* v1;
+    void* d;
 };
 
 inline QMLDocument& QMLView::currentDocument() const
 {
-  if (!doc_){
-    QMLView* that = (QMLView*) this;
-    that->createDocument();
-  }
-  return *doc_;
+    if (!doc_){
+	QMLView* that = (QMLView*) this;
+	that->createDocument();
+    }
+    return *doc_;
 }
 
 
-class QMLEdit : public QMLView 
+class QMLEdit : public QMLView
 {
-  Q_OBJECT
- public:
-  QMLEdit(QWidget *parent=0, const char *name=0);
-  ~QMLEdit();
+    Q_OBJECT
+public:
+    QMLEdit(QWidget *parent=0, const char *name=0);
+    ~QMLEdit();
 
-  void setContents( const QString& contents );
-  QString contents();
+    void setContents( const QString& contents );
+    QString contents();
 
- protected:
-  void drawContentsOffset(QPainter*, int ox, int oy,
-			  int cx, int cy, int cw, int ch);
-  void viewportMousePressEvent( QMouseEvent* );
-  void viewportMouseReleaseEvent( QMouseEvent* );
-  void viewportMouseMoveEvent( QMouseEvent* );
-  void keyPressEvent( QKeyEvent * );
-  void resizeEvent(QResizeEvent*);
+protected:
+    void drawContentsOffset(QPainter*, int ox, int oy,
+			    int cx, int cy, int cw, int ch);
+    void viewportMousePressEvent( QMouseEvent* );
+    void viewportMouseReleaseEvent( QMouseEvent* );
+    void viewportMouseMoveEvent( QMouseEvent* );
+    void keyPressEvent( QKeyEvent * );
+    void resizeEvent(QResizeEvent*);
 
-  void showCursor();
-  void hideCursor();
+    void showCursor();
+    void hideCursor();
 
-  private slots:
-    void cursorTimerDone();
+private slots:
+void cursorTimerDone();
 
- private:
-  bool cursor_hidden;
-  QTimer* cursorTimer;
-  QMLCursor* cursor;
+private:
+    bool cursor_hidden;
+    QTimer* cursorTimer;
+    QMLCursor* cursor;
 
-  void updateSelection(int oldY=-1, int newY=-1);
+    void updateSelection(int oldY=-1, int newY=-1);
 
-  void updateScreen();
-  void* d;
+    void updateScreen();
+    void* d;
 };
 
 
-class QMLBrowser : public QMLView 
+class QMLBrowser : public QMLView
 {
-  Q_OBJECT
- public:
-  QMLBrowser( QWidget *parent=0, const char *name=0 );
-  ~QMLBrowser();
+    Q_OBJECT
+public:
+    QMLBrowser( QWidget *parent=0, const char *name=0 );
+    ~QMLBrowser();
 
-  virtual void setDocument(const QString& name);
+    virtual void setDocument(const QString& name);
 
-  void setContents( const QString& contents );
+    void setContents( const QString& contents );
 
-  QPixmap image(const QString &name) const;
-  QString document(const QString &name) const;
+//     QPixmap image(const QString &name) const;
+//     QString document(const QString &name) const;
 
-  void setPath( const QString &path );
+    void setPath( const QString &path );
 
- public slots:
-    void backward();
+public slots:
+void backward();
     void forward();
-  
- signals:
+
+signals:
     void backwardAvailable( bool );
     void forwardAvailable( bool );
     void highlighted( const QString& );
     void contentsChanged();
 
- protected:
-  void viewportMousePressEvent( QMouseEvent* );
-  void viewportMouseReleaseEvent( QMouseEvent* );
-  void viewportMouseMoveEvent( QMouseEvent* );
+protected:
+    void viewportMousePressEvent( QMouseEvent* );
+    void viewportMouseReleaseEvent( QMouseEvent* );
+    void viewportMouseMoveEvent( QMouseEvent* );
 
- private:
-  void popupDefinition( const QString& contents, const QPoint& pos );
+private:
+    void popupDefinition( const QString& contents, const QPoint& pos );
 
-  QString searchPath;
-  uint goBackwards : 1;
-  void* d;
-  const QMLContainer* activeContainer(const QPoint& pos);
-  const QMLContainer* buttonDown;
-  const QMLContainer* highlight;
-  QPoint lastClick;
+    QString searchPath;
+    uint goBackwards : 1;
+    void* d;
+    const QMLContainer* activeContainer(const QPoint& pos);
+    const QMLContainer* buttonDown;
+    const QMLContainer* highlight;
+    QPoint lastClick;
 };
 
 /*
-class QHelp : public QDialog 
+class QHelp : public QDialog
 {
 
 };
@@ -500,28 +504,28 @@ class QHelp : public QDialog
  */
 inline QMLNode* QMLNode::depthFirstSearch(QMLNode* tag, QMLContainer* &parent, bool down)
 {
-  if (down) {
-    if (tag->isContainer && ((QMLContainer*)tag)->child){
-      parent = (QMLContainer*)tag;
-      return ((QMLContainer*)tag)->child;
+    if (down) {
+	if (tag->isContainer && ((QMLContainer*)tag)->child){
+	    parent = (QMLContainer*)tag;
+	    return ((QMLContainer*)tag)->child;
+	}
+	//  	return depthFirstSearch(tag, parent, FALSE);
     }
-    //  	return depthFirstSearch(tag, parent, FALSE);
-  }
-  //      else 
-  {
-    if (tag == this){
-      return 0;
+    //      else
+    {
+	if (tag == this){
+	    return 0;
+	}
+	if (!tag->isLastSibling && tag->next){
+	    return tag->next;
+	}
+	QMLContainer* p = (QMLContainer*)tag->next;
+	if (p){
+	    parent = p->parent;
+	    return depthFirstSearch(p, parent, FALSE);
+	}
     }
-    if (!tag->isLastSibling && tag->next){
-      return tag->next;
-    }
-    QMLContainer* p = (QMLContainer*)tag->next;
-    if (p){
-      parent = p->parent;
-      return depthFirstSearch(p, parent, FALSE);
-    }
-  }
-  return 0;
+    return 0;
 }
 
 
@@ -531,76 +535,76 @@ inline QMLNode* QMLNode::depthFirstSearch(QMLNode* tag, QMLContainer* &parent, b
 */
 
 inline QMLNode* QMLNode::nextLayout(QMLNode* tag, QMLContainer* &parent){
-  QMLNode* t;
+    QMLNode* t;
 
-  if (tag != this && tag->isBox)
-    t = depthFirstSearch(tag, parent, FALSE);
-  else
-    t = depthFirstSearch(tag, parent);
-  if (t) {
-    if (t->isContainer && !t->isBox)
-      return nextLayout(t, parent);
-  }
-  return t;
+    if (tag != this && tag->isBox)
+	t = depthFirstSearch(tag, parent, FALSE);
+    else
+	t = depthFirstSearch(tag, parent);
+    if (t) {
+	if (t->isContainer && !t->isBox)
+	    return nextLayout(t, parent);
+    }
+    return t;
 }
 
 inline QMLNode* QMLNode::nextLeaf(QMLNode* tag, QMLContainer* &parent){
-  do {
-    tag = depthFirstSearch(tag, parent);
+    do {
+	tag = depthFirstSearch(tag, parent);
 
-  } while (tag && tag->isContainer);
+    } while (tag && tag->isContainer);
 
-  return tag;
+    return tag;
 }
 
 
 
 inline QMLNode* QMLNode::lastSibling() const
 {
-  QMLNode* n = (QMLNode*) this;
+    QMLNode* n = (QMLNode*) this;
 
-  while (n && !n->isLastSibling)
-    n = n->next;
-  return n;
+    while (n && !n->isLastSibling)
+	n = n->next;
+    return n;
 }
 
 inline QMLContainer* QMLNode::parent() const
 {
-  if (isContainer)
-    return ((QMLContainer*)this)->parent;
-  else {
-    QMLNode* n = lastSibling();
-    if (n) return (QMLContainer*)n->next;
-  }
-  return 0;
+    if (isContainer)
+	return ((QMLContainer*)this)->parent;
+    else {
+	QMLNode* n = lastSibling();
+	if (n) return (QMLContainer*)n->next;
+    }
+    return 0;
 }
 
 inline QMLBox* QMLNode::box() const
 {
-  QMLContainer* par = parent();
-  if (!par)
-    return 0;
-  else
-    return par->box();
+    QMLContainer* par = parent();
+    if (!par)
+	return 0;
+    else
+	return par->box();
 }
 
 inline QMLNode* QMLNode::previousSibling() const
 {
-  QMLContainer* par = parent();
-  QMLNode* result = par->child;
-  if (result == this)
-    return 0;
-  while (result->next && result->next != this)
-    result = result->next;
-  return result;
+    QMLContainer* par = parent();
+    QMLNode* result = par->child;
+    if (result == this)
+	return 0;
+    while (result->next && result->next != this)
+	result = result->next;
+    return result;
 }
 
 
 inline QMLNode* QMLNode::nextSibling() const
 {
-  if (isLastSibling)
-    return 0;
-  return next;
+    if (isLastSibling)
+	return 0;
+    return next;
 }
 
 
