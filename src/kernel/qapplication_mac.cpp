@@ -13,9 +13,6 @@
 ****************************************************************************/
 
 
-#include "private/qapplication_p.h"
-#include "private/qcolor_p.h"
-#include "private/qguieventloop_p.h"
 #include "qapplication.h"
 #include "qbitarray.h"
 #include "qbuffer.h"
@@ -43,6 +40,11 @@
 #include "qvariant.h"
 #include "qwidget.h"
 
+#include "private/qapplication_p.h"
+#include "private/qcolor_p.h"
+#include "private/qguieventloop_p.h"
+#include "private/qwidget_p.h"
+
 #ifndef QT_NO_MAINWINDOW
 # include "qmainwindow.h"
 #endif
@@ -65,7 +67,6 @@
 #include <sys/select.h>
 
 #include <string.h>
-#include "private/qwidget_p.h"
 #define d d_func()
 #define q q_func()
 
