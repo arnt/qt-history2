@@ -22,6 +22,10 @@ QMAKE_CONFIG=""
 QWS_QVFB=prompted
 QWS_DEPTHS=prompted
 HELP=
+#platform
+X11_PLATFORM=no
+MAC_PLATFORM=no
+QWS_PLATFORM=no
 
 if [ "$relpath" != `pwd` ]
 then
@@ -184,7 +188,7 @@ else
     if [ -f $relpath/LICENSE ]
     then
 	echo
-	if [ -d $relpath/mkspecs/qws/ ] #fixme
+	if [ "$QWS_PLATFORM" = "yes" ] 
 	then
 	    EMB="/Embedded"
 	else
@@ -786,6 +790,11 @@ then
     exit 2
 fi
 
+#now look at the configs and figure out what platform we are config'd for
+[ ! -z "`grep QMAKE_LIBS_X11 $XQMAKESPEC/qmake.conf | awk '{print $3;}'`" ] && X11_PLATFORM=yes
+[ -d /System/Library/Frameworks/Carbon.framework ] && MAC_PLATFORM=yes
+[ -d $relpath/mkspecs/qws ] && QWS_PLATFORM=yes
+
 # Find default thread option for target
 if grep >/dev/null '^QMAKE_LIBS_THREAD' $XQMAKESPEC/qmake.conf
 then
@@ -811,9 +820,9 @@ fi
 # Tests
 
 #x11
-if [ ! -z "`grep QMAKE_LIBS_X11 $XQMAKESPEC/qmake.conf | awk '{print $3;}'`" ]
+if [ "$X11_PLATFORM" = "yes" ]
 then
-    x11tests=$relpath/config.tests/x11
+   x11tests=$relpath/config.tests/x11
 
    #opengl
    if echo $MODULES | grep opengl >/dev/null
@@ -983,6 +992,7 @@ Installation options:
 
 EOF
 
+if [ "$X11_PLATFORM" = "yes" ]; then
     if [ "x$SM" = "xno" ]
     then
 	SMY=" "
@@ -1017,7 +1027,6 @@ EOF
 	XRY="*"
 	XRN=" "
     fi
-
     cat << EOF
 
 Qt/X11 only:
@@ -1041,7 +1050,9 @@ Qt/X11 only:
                          Requires X11/Xft/XftFreetype.h and libXft.
 
 EOF
+fi
 
+if [ "$QWS_PLATFORM" = "yes" ]; then
     cat << EOF
 
 Qt/Embedded only:
@@ -1065,7 +1076,7 @@ Qt/Embedded only:
     -vnc ............... Enable VNC server (requires network module).
 
 EOF
-
+fi
 
    [ "x$ERROR" = "xyes" ] && exit 1
    exit 0
@@ -1246,7 +1257,6 @@ then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}-mt"
     QMAKE_CONFIG="$QMAKE_CONFIG thread"
 fi
-
 if [ "x$EMBEDDED" != "xno" ]
 then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}-emb-$EMBEDDED"
@@ -1264,14 +1274,17 @@ QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\" \"MOC_DIR=.moc/$QMAKE
 [ "x$JPEG" = "xsystem" ] && QMAKE_CONFIG="$QMAKE_CONFIG system-jpeg"
 [ "x$MNG" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG mng"
 [ "x$FT" = "xyes" -a "x$EMBEDDED" != "xno" ] && QMAKE_CONFIG="$QMAKE_CONFIG ft"
-[ "x$SM" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG sm"
-[ "x$XINERAMA" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG xinerama"
-[ "x$XRENDER" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG xrender"
-[ "x$XFTFREETYPE" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG xftfreetype"
+if [ "$X11_PLATFORM" = "yes" ]; then
+    [ "x$SM" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG sm"
+    [ "x$XINERAMA" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG xinerama"
+    [ "x$XRENDER" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG xrender"
+    [ "x$XFTFREETYPE" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG xftfreetype"
+    [ "x$KDE" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG kde"
+fi
 [ "x$GIF" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG gif"
 [ "x$ZLIB" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG zlib"
 [ "x$LIBPNG" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG png"
-[ "x$KDE" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG kde"
+
 [ "x$BIG_CODECS" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG bigcodecs"
 [ -z "$QMAKE_PROJECTS" ] && QMAKE_PROJECTS=`find $relpath/. -name '*.pro' -print | sed 's-/\./-/-'`
 [ '!' -z "$D_FLAGS" ] && QMAKE_VARS="$QMAKE_VARS \"DEFINES+=$D_FLAGS\""
@@ -1404,16 +1417,18 @@ fi
 [ "x$DO_INCREMENT" = "xyes" ] && [ ! -z "$INCREMENTAL" ] && echo "Incremental.......... $INCREMENTAL"
 echo "Configuration........ $QMAKE_CONFIG"
 echo "STL support.......... $STL"
-echo "Embedded support..... $EMBEDDED"
 echo "Thread support....... $THREAD"
 echo "GIF support.......... $GIF"
 echo "MNG support.......... $MNG"
 echo "JPEG support......... $JPEG"
 echo "NAS sound support.... $NAS_SOUND"
-echo "Session management... $SM"
-echo "Xinerama support..... $XINERAMA"
-echo "XRender support ..... $XRENDER"
-echo "XftFreeType support . $XFTFREETYPE"
+[ "$QWS_PLATFORM" = "yes" ] && echo "Embedded support..... $EMBEDDED"
+if [ "$X11_PLATFORM" = "yes" ]; then
+    echo "Session management... $SM"
+    echo "Xinerama support..... $XINERAMA"
+    echo "XRender support ..... $XRENDER"
+    echo "XftFreeType support . $XFTFREETYPE"
+fi
 echo
 
 #do the qmake..

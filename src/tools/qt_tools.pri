@@ -2,7 +2,7 @@
 
 tools {
 	TOOLS_P		= tools
-	HEADERS +=  $$TOOLS_H/qarray.h \
+	HEADERS +=  $$TOOLS_H/qptrarray.h \
 		  $$TOOLS_H/qasciicache.h \
 		  $$TOOLS_H/qasciidict.h \
 		  $$TOOLS_H/qbitarray.h \
@@ -33,18 +33,18 @@ tools {
 		  $$TOOLS_H/qmap.h \
 		  $$TOOLS_H/qpluginmanager.h \
 		  $$TOOLS_H/qptrdict.h \
-		  $$TOOLS_H/qqueue.h \
+		  $$TOOLS_H/qptrqueue.h \
 		  $$TOOLS_H/qregexp.h \
 		  $$TOOLS_H/qsettings.h \
 		  $$TOOLS_H/qshared.h \
 		  $$TOOLS_H/qsortedlist.h \
-		  $$TOOLS_H/qstack.h \
+		  $$TOOLS_H/qptrstack.h \
 		  $$TOOLS_H/qstring.h \
 		  $$TOOLS_H/qstringlist.h \
 		  $$TOOLS_H/qstrlist.h \
 		  $$TOOLS_H/qstrvec.h \
 		  $$TOOLS_H/qtextstream.h \
-		  $$TOOLS_H/qvector.h \
+		  $$TOOLS_H/qptrvector.h \
 	          $$TOOLS_H/qvaluelist.h \
 		  $$TOOLS_H/ucom.h \
 		  $$TOOLS_H/qcom.h \
