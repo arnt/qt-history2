@@ -100,6 +100,7 @@ struct QWExtra {
     QTLWExtra *topextra;			// only useful for TLWs
 #if defined(Q_WS_WIN)
     QOleDropTarget *dropTarget;			// drop target
+    uint shown_mode : 8;			// widget show mode
 #endif
 #if defined(Q_WS_X11)
     WId xDndProxy;				// XDND forwarding to embedded windows
