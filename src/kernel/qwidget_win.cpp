@@ -1271,11 +1271,7 @@ void QWidget::scroll( int dx, int dy )
 {
     if ( testWState( WState_BlockUpdates ) && !children() )
 	return;
-#ifndef Q_OS_TEMP
-    ScrollWindow( winId(), dx, dy, 0, 0 );
-#else
     ScrollWindowEx( winId(), dx, dy, 0, 0, 0, 0, SW_INVALIDATE | SW_SCROLLCHILDREN );
-#endif // Q_OS_TEMP
     UpdateWindow( winId() );
 }
 
@@ -1288,11 +1284,7 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
     wr.left = r.left();
     wr.bottom = r.bottom()+1;
     wr.right = r.right()+1;
-#ifndef Q_OS_TEMP
-    ScrollWindow( winId(), dx, dy, &wr, &wr );
-#else
-    ScrollWindowEx( winId(), dx, dy, &wr, &wr, 0, 0, SW_INVALIDATE | SW_SCROLLCHILDREN );
-#endif // Q_OS_TEMP
+    ScrollWindowEx( winId(), dx, dy, &wr, &wr, 0, 0, SW_INVALIDATE );
     UpdateWindow( winId() );
 }
 
