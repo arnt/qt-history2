@@ -656,6 +656,7 @@ void QGLOverlayWidget::mousePressEvent( QMouseEvent* e )
 
 void QGLOverlayWidget::mouseMoveEvent( QMouseEvent* e )
 {
+    qDebug( "oglw got move!" );
     QApplication::sendEvent( realWidget, e );
 }
 
@@ -678,6 +679,7 @@ void QGLOverlayWidget::mouseDoubleClickEvent( QMouseEvent* e )
 void QGLWidget::init( const QGLFormat& format, const QGLWidget* shareWidget )
 {
     glcx = 0;
+    olw = 0;
     autoSwap = TRUE;
     if ( shareWidget )
 	setContext( new QGLContext( format, this ), shareWidget->context() );
@@ -701,9 +703,6 @@ void QGLWidget::init( const QGLFormat& format, const QGLWidget* shareWidget )
 	    glcx->glFormat.setOverlay( FALSE );
 	}
     }
-    else {
-	olw = 0;
-    }
 }
 
 
@@ -711,8 +710,7 @@ void QGLWidget::setMouseTracking( bool enable )
 {
     if ( olw )
 	olw->setMouseTracking( enable );
-    else
-	QWidget::setMouseTracking( enable );
+    QWidget::setMouseTracking( enable );
 }
 
 
