@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.h#42 $
+** $Id: //depot/qt/main/src/kernel/qregion.h#43 $
 **
 ** Definition of QRegion class
 **
@@ -84,8 +84,6 @@ public:
 #if defined(_WS_WIN_)
     QRegion winRegion( HANDLE );
     HANDLE  handle() const { return data->rgn; }
-#elif defined(_WS_PM_)
-    HANDLE  handle() const { return data->rgn; }
 #elif defined(_WS_X11_)
     Region  handle() const { return data->rgn; }
 #endif
@@ -105,16 +103,11 @@ private:
     struct QRegionData : public QShared {
 #if defined(_WS_WIN_)
 	HANDLE rgn;
-#elif defined(_WS_PM_)
-	HANDLE rgn;
 #elif defined(_WS_X11_)
 	Region rgn;
 #endif
 	bool   is_null;
     } *data;
-#if defined(_WS_PM_)
-    static HPS hps;
-#endif
 };
 
 

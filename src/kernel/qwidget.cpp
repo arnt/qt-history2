@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#280 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#281 $
 **
 ** Implementation of QWidget class
 **
@@ -3433,26 +3433,6 @@ bool QWidget::winEvent( MSG * )
     return FALSE;
 }
 
-#elif defined(_WS_PM_)
-
-/*!
-  This special event handler can be reimplemented in a subclass to receive
-  native OS/2 Presentation Manager events.
-
-  If the event handler returns FALSE, this native event is passed back to
-  Qt, which translates the event into a Qt event and sends it to the
-  widget.  If the event handler returns TRUE, the event is stopped.
-
-  \warning This function is not portable.
-
-  QApplication::pmEventFilter()
-*/
-
-bool QWidget::pmEvent( QMSG * )
-{
-    return FALSE;
-}
-
 #elif defined(_WS_X11_)
 
 /*!
@@ -3569,11 +3549,11 @@ void QWidget::updateResizedBorder( QResizeEvent* e, int bw )
   task of recalculating the mask easier. When setting auto mask to
   TRUE, updateMask() will be called whenever the widget is resized or
   changes its focus state.
-  
+
   Note: When you re-implement resizeEvent(), focusInEvent() or
   focusOutEvent() in your custom widgets and still want to ensure that
   the auto mask calculation works, you will have to add
-  
+
     \code
     if ( autoMask() )
           updateMask();
@@ -3611,7 +3591,7 @@ bool QWidget::autoMask() const
   changes state in a way that the shape mask has to be recalculated.
 
   The default implementation does nothing.
-  
+
   \sa setAutoMask(), updateMask(), setMask(), clearMask()
   */
 void QWidget::updateMask()

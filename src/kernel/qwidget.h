@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#168 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#169 $
 **
 ** Definition of QWidget class
 **
@@ -79,30 +79,30 @@ public:
 
     QSize	 minimumSize()	 const;
     QSize	 maximumSize()	 const;
-    int		 minimumWidth()  const;
+    int		 minimumWidth()	 const;
     int		 minimumHeight() const;
-    int		 maximumWidth()  const;
+    int		 maximumWidth()	 const;
     int		 maximumHeight() const;
-    virtual void	 setMinimumSize( const QSize & );
-    virtual void	 setMinimumSize( int minw, int minh );
-    virtual void	 setMaximumSize( const QSize & );
-    virtual void	 setMaximumSize( int maxw, int maxh );
-    virtual void	 setMinimumWidth( int minw );
-    virtual void	 setMinimumHeight( int minh );
-    virtual void	 setMaximumWidth( int maxw );
-    virtual void	 setMaximumHeight( int maxh );
-    virtual void	 setMask(QBitmap);
-    virtual void	 setMask(const QRegion&);
+    void	 setMinimumSize( const QSize & );
+    virtual void setMinimumSize( int minw, int minh );
+    void	 setMaximumSize( const QSize & );
+    virtual void setMaximumSize( int maxw, int maxh );
+    void	 setMinimumWidth( int minw );
+    void	 setMinimumHeight( int minh );
+    void	 setMaximumWidth( int maxw );
+    void	 setMaximumHeight( int maxh );
+    virtual void setMask(QBitmap);
+    virtual void setMask(const QRegion&);
     void	 clearMask();
 
     QSize	 sizeIncrement() const;
-    virtual void	 setSizeIncrement( const QSize & );
-    virtual void	 setSizeIncrement( int w, int h );
+    void	 setSizeIncrement( const QSize & );
+    virtual void setSizeIncrement( int w, int h );
 
-    virtual void	 setFixedSize( const QSize & );
-    virtual void	 setFixedSize( int w, int h );
-    virtual void	 setFixedWidth( int w );
-    virtual void	 setFixedHeight( int h );
+    void	setFixedSize( const QSize & );
+    void	setFixedSize( int w, int h );
+    void	setFixedWidth( int w );
+    void	setFixedHeight( int h );
 
   // Widget coordinate mapping
 
@@ -143,10 +143,10 @@ public:
 			   SameFont, SamePalette = SameFont };
 
     PropagationMode fontPropagation() const;
-    virtual void	 setFontPropagation( PropagationMode );
+    virtual void setFontPropagation( PropagationMode );
 
     PropagationMode palettePropagation() const;
-    virtual void	 setPalettePropagation( PropagationMode );
+    virtual void setPalettePropagation( PropagationMode );
 
     const QCursor &cursor() const;
     virtual void setCursor( const QCursor & );
@@ -169,15 +169,15 @@ public:
     { NoFocus = 0, TabFocus = 0x1, ClickFocus = 0x2, StrongFocus = 0x3 };
 
     bool	 isActiveWindow() const;
-    virtual void	 setActiveWindow();
+    virtual void setActiveWindow();
     bool	 isFocusEnabled() const;
     FocusPolicy	 focusPolicy() const;
-    virtual void	 setFocusPolicy( FocusPolicy );
+    virtual void setFocusPolicy( FocusPolicy );
     bool	 hasFocus() const;
-    virtual void	 setFocus();
+    virtual void setFocus();
     void	 clearFocus();
-    static void  setTabOrder( QWidget *, QWidget * );
-    virtual void	 setFocusProxy( QWidget * );
+    static void	 setTabOrder( QWidget *, QWidget * );
+    virtual void setFocusProxy( QWidget * );
     QWidget *	 focusProxy() const;
 
   // Grab functions
@@ -224,7 +224,7 @@ public slots:
     virtual void resize( int w, int h );
     void	 resize( const QSize & );
     virtual void setGeometry( int x, int y, int w, int h );
-    virtual void	 setGeometry( const QRect & );
+    virtual void setGeometry( const QRect & );
 
 public:
     virtual QSize sizeHint() const;
@@ -248,11 +248,11 @@ public:
 
   // Misc. functions
 
-    QWidget     *focusWidget() const;
+    QWidget	*focusWidget() const;
 
   // drag and drop
 
-    virtual void	 setAcceptDrops( bool on );
+    virtual void setAcceptDrops( bool on );
     bool	 acceptDrops() const;
 
     virtual void setAutoMask(bool);
@@ -298,10 +298,6 @@ protected:
     virtual bool macEvent( MSG * );		// Macintosh event
 #elif defined(_WS_WIN_)
     virtual bool winEvent( MSG * );		// Windows event
-#elif defined(_WS_PM_)
-    virtual bool pmEvent( QMSG * );		// OS/2 PM event
-#elif defined(_WS_X11_)
-    virtual bool x11Event( XEvent * );		// X11 event
 #endif
 
     virtual void updateMask();
@@ -337,13 +333,7 @@ protected:
 
     QWExtra	*extraData();
 
-#if defined(_WS_PM_)
-    int		 convertYPos( int );
-    void	 reposChildren();
-    WId		 frm_wnd;
-#endif
-
-    QFocusData  *focusData();
+    QFocusData	*focusData();
 
     void updateResizedBorder( QResizeEvent*, int bw );
 
@@ -366,8 +356,8 @@ private:
     void	 cancelMove();
     void	 cancelResize();
     void	 sendDeferredEvents();
-    void 	 reparentFocusWidgets( QWidget *parent );
-    QFocusData  *focusData( bool create );
+    void	 reparentFocusWidgets( QWidget *parent );
+    QFocusData	*focusData( bool create );
     virtual void	 setBackgroundFromMode();
     virtual void	 setBackgroundColorDirect( const QColor & );
     virtual void	 setBackgroundModeDirect( BackgroundMode );
@@ -387,8 +377,8 @@ private:
     QWidget	*focusChild; // ### unused now
     static void	 createMapper();
     static void	 destroyMapper();
-    static QWidgetList   *wList();
-    static QWidgetList   *tlwList();
+    static QWidgetList	 *wList();
+    static QWidgetList	 *tlwList();
     static QWidgetMapper *mapper;
     friend class QApplication;
     friend class QPainter;

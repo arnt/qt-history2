@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#114 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#115 $
 **
 ** Definition of QPainter class
 **
@@ -293,11 +293,6 @@ protected:
     QWinFont   *winFont;
     void       *textMetric();
     void	nativeXForm( bool );
-#elif defined(_WS_PM_)
-    HPS		hps;				// presentation space
-    int		dh;				// device height
-    long	lctrl;				// outline/fill control
-    void	updateCtrl();			// update lctrl
 #elif defined(_WS_X11_)
     Display    *dpy;				// current display
     WId		hd;				// handle to drawable
@@ -420,8 +415,6 @@ inline HANDLE QPainter::handle() const
 {
 #if defined(_WS_WIN_)
     return hdc;
-#elif defined(_WS_PM_)
-    return hps;
 #elif defined(_WS_X11_)
     return hd;
 #endif

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.h#34 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.h#35 $
 **
 ** Definition of QPointArray class
 **
@@ -34,7 +34,7 @@
   QPointData struct; platform dependent element i QPointArray
  *****************************************************************************/
 
-#if defined(_WS_WIN32_) || defined(_WS_PM_)
+#if defined(_WS_WIN32_)
 typedef long Qpnta_t;
 #else
 typedef short Qpnta_t;

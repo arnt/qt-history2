@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#88 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#89 $
 **
 ** Definition of QPixmap class
 **
@@ -95,10 +95,6 @@ public:
 			      int conversion_flags=0 );
     bool	save( const QString& fileName, const char* format ) const;
 
-#if defined(_WS_WIN_) || defined(_WS_PM_)
-    HANDLE	hbm()		const;
-#endif
-
     int		serialNumber()	const;
 
     enum Optimization { NoOptim, NormalOptim, BestOptim };
@@ -107,7 +103,7 @@ public:
     void		setOptimization( Optimization );
     static Optimization defaultOptimization();
     static void		setDefaultOptimization( Optimization );
-    
+
 #if 1
     bool	isOptimized()	const;
     void	optimize( bool );
@@ -142,9 +138,6 @@ protected:
 	HANDLE	hbm;
 	void   *bits;
 	QPixmap *maskpm;
-#elif defined(_WS_PM_)
-	HANDLE	hdcmem;
-	HANDLE	hbm;
 #elif defined(_WS_X11_)
 	void   *ximage;
 	void   *maskgc;
@@ -196,7 +189,7 @@ inline bool QPixmap::selfMask() const
     return data->selfmask;
 }
 
-#if defined(_WS_WIN_) || defined(_WS_PM_)
+#if defined(_WS_WIN_)
 inline HANDLE QPixmap::hbm() const
 {
     return data->hbm;

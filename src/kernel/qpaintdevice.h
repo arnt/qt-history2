@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#55 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#56 $
 **
 ** Definition of QPaintDevice class
 **
@@ -86,8 +86,6 @@ protected:
 
 #if defined(_WS_WIN_)
     HDC	     hdc;				// device context
-#elif defined(_WS_PM_)
-    HPS	     hps;				// presentation space
 #elif defined(_WS_X11_)
     static Display *dpy;			// display (common to all)
     HANDLE   hd;				// handle to drawable
@@ -153,8 +151,6 @@ inline bool QPaintDevice::paintingActive() const
 
 #if defined(_WS_WIN_)
 inline HANDLE	QPaintDevice::handle()	const { return hdc; }
-#elif defined(_WS_PM_)
-inline HANDLE	QPaintDevice::handle()	const { return hps; }
 #elif defined(_WS_X11_)
 inline HANDLE	QPaintDevice::handle()	const { return hd; }
 #endif

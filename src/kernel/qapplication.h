@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#88 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#89 $
 **
 ** Definition of QApplication class
 **
@@ -128,8 +128,6 @@ public:
     virtual bool     macEventFilter( MSG * );
 #elif defined(_WS_WIN_)
     virtual bool     winEventFilter( MSG * );
-#elif defined(_WS_PM_)
-    virtual bool     pmEventFilter( QMSG * );
 #elif defined(_WS_X11_)
     virtual bool     x11EventFilter( XEvent * );
     int              x11ProcessEvent( XEvent* );
