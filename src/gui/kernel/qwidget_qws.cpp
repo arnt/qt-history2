@@ -712,7 +712,6 @@ void QWidgetPrivate::doPaint(const QRegion &rgn)
 
         if (hasBackground && bgBrush.style() != Qt::NoBrush) {
             QPainter p(q); // We shall use it only once
-            p.setClipRegion(rgn); //### why doesn't setSystemClip work???
             p.fillRect(q->rect(), bgBrush);
         }
     }

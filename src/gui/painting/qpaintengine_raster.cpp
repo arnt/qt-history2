@@ -483,6 +483,13 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
             qWarning("QRasterPaintEngine::begin(), only 32 bit pixmaps are supported at this time");
             return false;
         }
+        // is this the right place to do clipping ???
+        //### shouldn't this clipping be platform independent ???
+        QRegion sysClip = systemClip();
+        if (!sysClip.isEmpty()) {
+            d->baseClip.addRegion(sysClip);
+            // qDebug() << "adding to clip:" << sysClip;
+        }
         d->flushOnEnd = false; // Direct access so no flush.
         d->rasterBuffer->prepare(pix);
         if (pix->hasAlphaChannel())
