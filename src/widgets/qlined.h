@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.h#10 $
+** $Id: //depot/qt/main/src/widgets/qlined.h#11 $
 **
 ** Definition of QLineEdit widget class
 **
@@ -24,43 +24,42 @@ public:
     QLineEdit( QWidget *parent=0, const char *name=0 );
    ~QLineEdit();
 
-    char   *text() const;
-    void    setMaxLength( int );
-    int	    maxLength() const;
+    char       *text() const;
+    void	setMaxLength( int );
+    int		maxLength()	const;
 
 public slots:
-    void    setText( const char * );
+    void	setText( const char * );
 
 signals:
-    void    textChanged( char * );
+    void	textChanged( char * );
 
 protected:
-    void    mousePressEvent( QMouseEvent * );
-    void    keyPressEvent( QKeyEvent * );
-    void    focusInEvent( QFocusEvent * );
-    void    focusOutEvent( QFocusEvent * );
-    void    paintEvent( QPaintEvent * );
-    void    timerEvent( QTimerEvent * );
-    void    resizeEvent( QResizeEvent * );
+    void	mousePressEvent( QMouseEvent * );
+    void	keyPressEvent( QKeyEvent * );
+    void	focusInEvent( QFocusEvent * );
+    void	focusOutEvent( QFocusEvent * );
+    void	paintEvent( QPaintEvent * );
+    void	timerEvent( QTimerEvent * );
+    void	resizeEvent( QResizeEvent * );
 
 private:
-    void    paint( bool frame = FALSE );
-    void    pixmapPaint();
-    void    paintText( QPainter *, const QSize &, bool frame = FALSE );
-    bool    cursorLeft();
-    bool    cursorRight();
-    bool    backspace();
-    bool    remove();
-    bool    home();
-    bool    end();
+    void	paint( bool frame = FALSE );
+    void	pixmapPaint();
+    void	paintText( QPainter *, const QSize &, bool frame = FALSE );
+    void	cursorLeft();
+    void	cursorRight();
+    void	backspace();
+    void	del();
+    void	home();
+    void	end();
 
-    QString t;
-    QPixmap *pm;
-    uint    cursorPos;
-    uint    offset;
-    uint    maxLen;
-    uint    cursorOn:1;
-    uint    inTextFocus:1;
+    QString	tbuf;
+    QPixmap    *pm;
+    uint	cursorPos;
+    uint	offset;
+    uint	maxLen;
+    uint	cursorOn	: 1;
 };
 
 

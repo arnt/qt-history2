@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#24 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#25 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -17,31 +17,31 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlined.cpp#24 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlined.cpp#25 $";
 #endif
 
 /*!
 \class QLineEdit qlined.h
-
-\brief QLineEdit is a simple line editor, suitable e.g. for asking the
-user for his name.
+\brief The QLineEdit widget is a simple line editor for inputting text.
 
 The default key bindings are described in keyPressEvent(); they cannot
-be customized except by inheriting the class.  When the user clicks on
-the text, the cursor will be moved to the point being clicked at.
+be customized except by inheriting the class.
 
+\todo inherit QFrame
 \todo cleaner focus
 \todo clipboard, cut, paste
-\todo mark and delete */
+\todo mark and delete
+*/
+
 
 /*!
 \fn void QLineEdit::textChanged( char * )
-
-This signal is emitted every time the text has changed.  The argument
+This signal is emitted every time the text has changed.	 The argument
 is the new text.
 */
 
-static const int blinkTime = 500;
+
+static const int blinkTime = 500;		// text cursor blink time
 
 #define LEFT_MARGIN 4
 #define RIGHT_MARGIN 4
@@ -52,8 +52,8 @@ static const int blinkTime = 500;
 static uint xPosToCursorPos( char *s, const QFontMetrics &fm, 
 			     uint xPos, uint width )
 {
-    char	 *tmp;
-    int		  dist;
+    char *tmp;
+    int	  dist;
 
     if( xPos > width )
 	xPos = width;
@@ -71,28 +71,25 @@ static uint showLastPartOffset( char *s, const QFontMetrics &fm, int width )
 {
     if ( !s || s[0] == '\0' )
 	return 0;
-
-    char	 *tmp = &s[strlen( s ) - 1];
-
+    char *tmp = &s[strlen( s ) - 1];
     do {
 	width -= fm.width( tmp--, 1 );
     } while ( tmp >=s && width >=0 );
-
     return width < 0 ? tmp - s + 2 : 0;
 }
 
 
 /*!
-Creates a new line editor inside widget \e parent, named \e name.
-Both \e parent and name are as usual - in fact both are passed straight
-to the QWidget constructor.
+Constructs a line editor with an empty edit buffer.
 
-This constructor sets the cursor position to the start of the line,
-the maximum length to 32767 characters, and the current contents of
-the line to "".
+The cursor position is set to the start of the line, the maximum buffer
+size to 32767 characters, and the buffer contents to "".
+
+The \e parent and \e name arguments are sent to the QWidget constructor.
 */
+
 QLineEdit::QLineEdit( QWidget *parent, const char *name )
-	: QWidget( parent, name )
+    : QWidget( parent, name )
 {
     initMetaObject();
     pm		= 0;
@@ -100,55 +97,69 @@ QLineEdit::QLineEdit( QWidget *parent, const char *name )
     offset	= 0;
     maxLen	= 32767;
     cursorOn	= TRUE;
-    inTextFocus = FALSE;
-    t		= "";
+    tbuf	= "";
     setAcceptFocus( TRUE );
 }
 
-/*! Cleans up when a QLineEdit dies. */
+/*!
+Destroys the line editor.
+*/
+
 QLineEdit::~QLineEdit()
 {
     delete pm;
 }
 
-/*!  Replaces the text currently in the line with \e s.  If necessary
-the string is truncated to fit maxLength(). */
-void QLineEdit::setText( const char *s )
+/*!
+Sets the line editor text to \e text.
+
+If necessary the text is truncated to fit maxLength().
+
+\sa text().
+*/
+
+void QLineEdit::setText( const char *text )
 {
-    if ( t == s )				// no change
+    if ( tbuf == text )				// no change
 	return;
-    t = s;
-    if ( t.length() > maxLen )
-	t.resize( maxLen+1 );
+    tbuf = text;
+    if ( tbuf.length() > maxLen )
+	tbuf.resize( maxLen+1 );
     cursorPos = 0;
     offset    = 0;
     paint();
-    emit textChanged( t.data() );
+    emit textChanged( tbuf.data() );
 }
 
-  /*! 
-  Returns a pointer to the text currently in the line.  
+/*! 
+Returns a pointer to the text currently in the line.  
 
- If you need to store the text, you should make a copy of it. This can
- convienently be done with a QString object:
-  \code
-  QString s = linEd->text();  \/ makes a copy and stores it in s
-  \endcode
-  */
+If you need to store the text, you should make a copy of it. This can
+conveniently be done with a QString object:
+\code
+  QString s = lineEd->text();  // makes a copy and stores it in s
+\endcode
+
+\sa setText().
+*/
 
 char *QLineEdit::text() const
 {
-    return t.data();
+    return tbuf.data();
 }
 
 
-/*! Set the maximum length of the text in the editor.  If the text is
-currently too long, it is chopped off at the limit. */
+/*!
+Set the maximum length of the text in the editor.  If the text is
+currently too long, it is chopped off at the limit.
+\sa maxLength().
+*/
+
 void QLineEdit::setMaxLength( int m )
 {
     maxLen = (uint) m;
-    if ( t.length() > maxLen ) {
-	t.resize( maxLen + 1 );                       // Include \0
+    if ( tbuf.length() > maxLen ) {
+	tbuf.resize( maxLen + 1 );		// include \0
 	if ( cursorPos > maxLen ) {
 	    offset = maxLen;
 	    end();
@@ -157,13 +168,19 @@ void QLineEdit::setMaxLength( int m )
     }
 }
 
-/*! Returns the current maximum length of the text in the editor. */
+/*!
+Returns the current maximum length of the text in the editor.
+\sa setMaxLength().
+*/
+
 int QLineEdit::maxLength() const
 {
     return maxLen;
 }
 
-/*! This function contains the guts of the line editor.
+/*!
+The key press event handler converts a key press to some line editor
+action.
 
 Here are the default key bindings:
 <dl compact>
@@ -183,92 +200,88 @@ Here are the default key bindings:
 
 <strong><a href=mailto:qt-bugs@troll.no>Comments solicited</a></strong>
 
-All other keys insert themselves into the line.
+All other keys with valid ASCII codes insert themselves into the line.
 
 \todo shift-arrow stuff
 */
+
 void QLineEdit::keyPressEvent( QKeyEvent *e )
 {
     if ( e->ascii() >= 32 && e->key() != Key_Delete ) {
-	if ( t.length() < maxLen ) {
-	    t.insert( cursorPos, e->ascii() );
-	    cursorRight();
-	    paint();
-	    emit textChanged( t.data() );
+	if ( tbuf.length() < maxLen ) {
+	    tbuf.insert( cursorPos, e->ascii() );
+	    cursorRight();			// will repaint
+	    emit textChanged( tbuf.data() );
 	}
 	return;
     }
-    bool p = FALSE;
-    switch ( e->key() ) {
-	case Key_Left:
-		 p = cursorLeft();
-		 break;
-	case Key_Right:
-		 p = cursorRight();
-		 break;
-	case Key_Backspace:
-		 p = backspace();
-		 if ( p )
-		     emit textChanged( t.data() );
-		 break;
-	case Key_Home:
-		 p = home();
-		 break;
-	case Key_End:
-		 p = end();
-		 break;
-	case Key_Delete:
-		 p = remove();
-		 if ( p )
-		     emit textChanged( t.data() );
-		 break;
-	case Key_A:
-		 if ( e->state() == ControlButton )
-		     p = home();
-		 break;
-	case Key_B:
-		 if ( e->state() == ControlButton )
-		     p = cursorLeft();
-		 break;
-	case Key_D:
-		 if ( e->state() == ControlButton ) {
-		     p = remove();
-		     if ( p )
-			 emit textChanged( t.data() );
-		 }
-		 break;
-	case Key_E:
-		 if ( e->state() == ControlButton )
-		     p = end();
-		 break;
-	case Key_F:
-		 if ( e->state() == ControlButton )
-		     p = cursorRight();
-		 break;
-	case Key_H:
-		 if ( e->state() == ControlButton ) {
-		     p = backspace();
-		     if ( p )
-			 emit textChanged( t.data() );
-		 }
-		 break;
-	default:
-		 e->ignore();
-		 break;
+    int unknown = 0;
+    if ( e->state() == 0 ) {
+	switch ( e->key() ) {
+	    case Key_Left:
+		cursorLeft();
+		break;
+	    case Key_Right:
+		cursorRight();
+		break;
+	    case Key_Backspace:
+		backspace();
+		break;
+	    case Key_Home:
+		home();
+		break;
+	    case Key_End:
+		end();
+		break;
+	    case Key_Delete:
+		del();
+		break;
+	    default:
+		unknown++;
+	}
     }
-    if ( p )
-	paint();
+    else if ( e->state() == ControlButton ) {
+	switch ( e->key() ) {
+	    case Key_A:
+		home();
+		break;
+	    case Key_B:
+		cursorLeft();
+		break;
+	    case Key_D:
+		del();
+		break;
+	    case Key_E:
+		end();
+		break;
+	    case Key_F:
+		cursorRight();
+		break;
+	    case Key_H:
+		backspace();
+		break;
+	    default:
+		unknown++;
+	}
+    }
+    else
+	unknown++;
+
+    if ( unknown ) {				// unknown key
+	debug( "unknown" );
+	e->ignore();
+	return;
+    }
 }
 
-/*! This event occurs whenever the mouse enters the line editor.  It
-  starts the blink timer, etc. */
+
+/*!
+\internal
+Starts cursor blinking.
+*/
 
 void QLineEdit::focusInEvent( QFocusEvent * )
 {
-    if ( inTextFocus )
-        return;
-    inTextFocus = TRUE;
-//    debug( "IN focus" );
     pm = new QPixmap( width(), height() );   // used for flicker-free update
     CHECK_PTR( pm );
     startTimer( blinkTime );
@@ -276,23 +289,20 @@ void QLineEdit::focusInEvent( QFocusEvent * )
     paint();
 }
 
-/*!  This event occurs whenever the mouse leaves the line editor.  It
-  stops the editor's cursor from blinking, etc. */
+/*!
+\internal
+Stops text cursor blinking.
+*/
 
 void QLineEdit::focusOutEvent( QFocusEvent * )
 {
-    if ( !inTextFocus )
-        return;
-    inTextFocus = FALSE;
-//    debug( "OUT focus" );
     killTimers();
     delete pm;
-    pm       = 0;
+    pm	     = 0;
     cursorOn = TRUE;
     paint();
 }
 
-/*!  This event occurs whenever the widget needs repainting. */
 
 void QLineEdit::paintEvent( QPaintEvent * )
 {
@@ -300,33 +310,32 @@ void QLineEdit::paintEvent( QPaintEvent * )
 }
 
 
-/*!  This event is used to implement the blinking text cursor. */
+/*!
+\internal
+This event is used to implement the blinking text cursor.
+*/
 
 void QLineEdit::timerEvent( QTimerEvent * )
 {
-    if ( inTextFocus ) {
+    if ( hasFocus() ) {
 	cursorOn = !cursorOn;
 	paint();
     }
 }
 
-/*!  This event occurs whenever the widget is resized; if necessary it
-  will move the cursor, scroll the text and repaint. */
 
 void QLineEdit::resizeEvent( QResizeEvent *e )
 {
-    if ( inTextFocus ) {
+    if ( hasFocus() ) {
 	delete pm;
 	pm = new QPixmap( e->size().width(), e->size().height() );
     }
     paint();
 }
 
-/*! Handles mouse clicks.
-
-At present, this event handler only moves the text cursor to the mouse
-position and accepts the focus.
-
+/*!
+\internal
+Sets the text cursor.
 \todo drag-to-mark, paste
 */
 
@@ -334,41 +343,43 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 {
     killTimers();
     cursorPos = offset +
-	xPosToCursorPos( &t[ offset ], fontMetrics(),
+	xPosToCursorPos( &tbuf[offset], fontMetrics(),
 			 e->pos().x() - LEFT_MARGIN,
 			 width() - LEFT_MARGIN - RIGHT_MARGIN );
     cursorOn = TRUE;
     startTimer( blinkTime );
     paint();
-#if 0
-    if ( !inTextFocus )
-        focusInEvent( 0 );   // will call paint()
-    else
-        paint();
-#endif
 }
 
-/*! Repaints the line editor as needed.  If the line editor is in
-  focus, the line is painted using a pixmap buffer. If not, a faster
-  but flickering drawing method is used. */
+
+/*!
+\internal
+Repaints the line editor as needed. If the line editor is in
+focus, the line is painted using a pixmap buffer. If not, a faster
+but flickering drawing method is used.
+*/
+
 void QLineEdit::paint( bool frame )
 {
-    QPainter p;
-
-    if ( inTextFocus ) {
+    if ( hasFocus() ) {
 	pixmapPaint();
     } else {
+	QPainter p;
 	p.begin( this );
 	if ( !frame )
 	    p.eraseRect( LEFT_MARGIN, TOP_MARGIN,
 			 width()  - LEFT_MARGIN - RIGHT_MARGIN,
-			 height() - TOP_MARGIN  - BOTTOM_MARGIN );
+			 height() - TOP_MARGIN	- BOTTOM_MARGIN );
 	paintText( &p, size(), frame );
 	p.end();
     }
 }
 
-/*! Paints the line editor slowly, prettily and without flicker */
+/*!
+\internal
+Paints the line editor in a pixmap and then blts the pixmap onto the screen.
+*/
+
 void QLineEdit::pixmapPaint()
 {
     QPainter p;
@@ -381,13 +392,16 @@ void QLineEdit::pixmapPaint()
 }
 
 
-/*! Paints the line editor quickly, efficently and without the
-  slightest thought about flicker or other bourgeois problems */
+/*!
+\internal
+Paints the line editor.
+*/
+
 void QLineEdit::paintText( QPainter *p, const QSize &sz, bool frame)
 {
-    QColorGroup  g  = colorGroup();
+    QColorGroup	 g  = colorGroup();
     QFontMetrics fm = fontMetrics();
-    char *displayText = &t[ offset ];
+    char *displayText = &tbuf[offset];
 
     if ( frame )
 	p->drawShadePanel( 0, 0, sz.width(), sz.height(),
@@ -412,7 +426,7 @@ void QLineEdit::paintText( QPainter *p, const QSize &sz, bool frame)
 	uint curPos = LEFT_MARGIN +
 		      fm.width( displayText, cursorPos - offset ) - 1;
 	if ( style() == MotifStyle ) {
-	    if ( !inTextFocus ) {
+	    if ( !hasFocus() ) {
 		p->pen().setStyle( DotLine );
 		p->setBackgroundMode( OpaqueMode );
 	    }
@@ -421,7 +435,8 @@ void QLineEdit::paintText( QPainter *p, const QSize &sz, bool frame)
 			 curPos	  , sz.height() - BOTTOM_MARGIN );
 	    p->drawLine( curPos - 2, sz.height() - BOTTOM_MARGIN,
 			 curPos + 2, sz.height() - BOTTOM_MARGIN );
-	} else {
+	}
+	else if ( hasFocus() ) {
 	    p->drawLine( curPos	  , TOP_MARGIN,
 			 curPos	  , sz.height() - BOTTOM_MARGIN );
 	}
@@ -429,13 +444,12 @@ void QLineEdit::paintText( QPainter *p, const QSize &sz, bool frame)
 }
 
 
-  /*! Moves the cursor leftwards one character, restarts the blink
-  timer, and returns TRUE.
+/*!
+Moves the cursor leftwards one character.
+\sa cursorRight().
+*/
 
-  Returns FALSE if the cursor is already at the leftmost position.
-  */
-
-bool QLineEdit::cursorLeft()
+void QLineEdit::cursorLeft()
 {
     if ( cursorPos != 0 ) {
 	killTimers();
@@ -444,68 +458,70 @@ bool QLineEdit::cursorLeft()
 	if ( cursorPos < offset )
 	    offset = cursorPos;
 	startTimer( blinkTime );
-	return TRUE;
+	paint();
     }
-    return FALSE;
 }
 
-  /*! Moves the cursor rightwards one character, restarts the blink
-  timer, and returns TRUE.
+/*!
+Moves the cursor rightwards one character.
+\sa cursorLeft().
+*/
 
-  Returns FALSE if the cursor is already at the rightmost position.
-  */
-
-
-bool QLineEdit::cursorRight()
+void QLineEdit::cursorRight()
 {
-    QFontMetrics fm = fontMetrics();
-
-    if ( strlen( t ) > cursorPos ) {
+    if ( strlen(tbuf) > cursorPos ) {
+	QFontMetrics fm = fontMetrics();
 	killTimers();
 	cursorOn = TRUE;
 	cursorPos++;
 	int surplusWidth = width() - LEFT_MARGIN - RIGHT_MARGIN
-			   - fm.width( &t[ offset ], cursorPos - offset);
+			   - fm.width( &tbuf[ offset ], cursorPos - offset);
 	if ( surplusWidth < 0 ) {
 	    while ( surplusWidth < 0 && offset < cursorPos - 1 ) {
-		surplusWidth += fm.width( &t[ offset ], 1 );
+		surplusWidth += fm.width( &tbuf[ offset ], 1 );
 		offset++;
 	    }
 	}
 	startTimer( blinkTime );
-	return TRUE;
+	paint();
     }
-    return FALSE;
 }
 
 
-  /*! If it can delete leftwards, does that and returns TRUE, othewise
-  it returns FALSE
-  */
-bool QLineEdit::backspace()
-{
-    return cursorLeft() ? remove() : FALSE;
-}
+/*!
+Deletes the character on the left side of the text cursor and
+moves the cursor one position to the left.
+\sa del().
+*/
 
-
-  /*! If it can delete rightwards, does that and returns TRUE, othewise
-  it returns FALSE
-  */
-bool QLineEdit::remove()
+void QLineEdit::backspace()
 {
-    if ( cursorPos != strlen(t) ) {
-	t.remove( cursorPos, 1 );
-	return TRUE;
+    if ( cursorPos > 0 ) {
+	cursorLeft();
+	del();
     }
-    return FALSE;
 }
 
-  /*! Moves the text cursor to the left end of the line, restarts the
-  blink timer, and returns TRUE.  Or, if the cursor is already there,
-  returns FALSE.
-  */
+/*!
+Deletes the character on the right side of the text cursor.
+\sa backspace().
+*/
 
-bool QLineEdit::home()
+void QLineEdit::del()
+{
+    if ( cursorPos != strlen(tbuf) ) {
+	tbuf.remove( cursorPos, 1 );
+	paint();
+	emit textChanged( tbuf.data() );
+    }
+}
+
+/*!
+Moves the text cursor to the left end of the line.
+\sa end()
+*/
+
+void QLineEdit::home()
 {
     if ( cursorPos != 0 ) {
 	killTimers();
@@ -513,28 +529,25 @@ bool QLineEdit::home()
 	offset	  = 0;
 	cursorOn = TRUE;
 	startTimer( blinkTime );
-	return TRUE;
+	paint();
     }
-    return FALSE;
 }
 
+/*!
+Moves the text cursor to the right end of the line.
+\sa home().
+*/
 
-  /*! Moves the text cursor to the right end of the line, restarts the
-  blink timer, and returns TRUE.  Or, if the cursor is already there,
-  returns FALSE. 
-  */
-
-bool QLineEdit::end()
+void QLineEdit::end()
 {
-    if ( cursorPos != strlen(t) ) {
+    int tlen = strlen( tbuf );
+    if ( cursorPos != tlen ) {
 	killTimers();
-	offset += showLastPartOffset( &t[offset], fontMetrics(),
-		      width() - LEFT_MARGIN - RIGHT_MARGIN );
-	cursorPos = strlen( t );
+	offset += showLastPartOffset( &tbuf[offset], fontMetrics(),
+				      width() - LEFT_MARGIN - RIGHT_MARGIN );
+	cursorPos = tlen;
 	cursorOn = TRUE;
 	startTimer( blinkTime );
-	return TRUE;
+	paint();
     }
-    return FALSE;
 }
-
