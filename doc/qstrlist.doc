@@ -1,1 +1,3 @@
-typedef declare(QListIteratorM,char)	QStrListIt;
+
+typedef QListIteratorT<char>		QStrListIterator;
+
