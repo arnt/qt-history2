@@ -59,6 +59,7 @@ protected:
     virtual bool drag(DragMode);
 
 private:
+    friend class QDragMime;
     Q_DISABLE_COPY(Q3DragObject)
 };
 

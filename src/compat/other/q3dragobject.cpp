@@ -43,12 +43,12 @@ class Q3DragObjectPrivate : public QObjectPrivate
     Q_DECLARE_PUBLIC(Q3DragObject)
 public:
     Q3DragObjectPrivate(): hot(0,0) {}
-    ~Q3DragObjectPrivate() { delete data; }
+    ~Q3DragObjectPrivate();
     QPixmap pixmap;
     QPoint hot;
     // store default cursors
     QPixmap *pm_cursor;
-    QMimeData *data;
+    QDragMime *data;
 };
 
 class Q3TextDragPrivate : public Q3DragObjectPrivate
@@ -90,6 +90,7 @@ class QDragMime : public QMimeData
 {
 public:
     QDragMime(Q3DragObject *parent) : QMimeData() { dragObject = parent; }
+    ~QDragMime();
 
     QByteArray data(const QString &mimetype) const;
     bool hasFormat(const QString &mimetype) const;
@@ -98,6 +99,13 @@ public:
     Q3DragObject *dragObject;
 };
 
+QDragMime::~QDragMime()
+{
+    if (dragObject) {
+        dragObject->d_func()->data = 0;
+        delete dragObject;
+    }
+}
 QByteArray QDragMime::data(const QString &mimetype) const
 {
     return dragObject->encodedData(mimetype.latin1());
@@ -118,6 +126,14 @@ QStringList QDragMime::formats() const
         ++i;
     }
     return f;
+}
+
+Q3DragObjectPrivate::~Q3DragObjectPrivate()
+{
+    if (data) {
+        data->dragObject = 0;
+        delete data;
+    }
 }
 
 /*!
