@@ -1502,10 +1502,6 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    }
 
 	    if ( ticks & QSlider::Below ) {
-		int avail = (sl->orientation() == Horizontal) ? sl->height() :
-			    sl->width();
-		avail -= tickOffset + thickness;
-
 		if (sl->orientation() == Horizontal)
 		    p->fillRect(0, tickOffset + thickness, sl->width(), tickOffset,
 				cg.brush(QColorGroup::Background));
