@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#40 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#41 $
 **
 ** Global type declarations and definitions
 **
@@ -49,11 +49,13 @@
 #define _OS_ULTRIX_
 #elif defined(linux) || defined(__linux) || defined(__linux__)
 #define _OS_LINUX_
+#elif defined(sgi) || defined(__sgi)
+#define _OS_IRIX_
 #else
 #error "Qt has not been ported to this OS - talk to qt-bugs@troll.no"
 #endif
 
-#if defined(_OS_SUN_) || defined(_OS_SOLARIS_) || defined(_OS_HPUX_) || defined(_OS_ULTRIX_) || defined(_OS_LINUX_)
+#if defined(_OS_SUN_) || defined(_OS_SOLARIS_) || defined(_OS_HPUX_) || defined(_OS_ULTRIX_) || defined(_OS_LINUX_) || defined(_OS_IRIX_)
 #if !defined(UNIX)
 #define UNIX
 #endif
@@ -255,8 +257,12 @@ bool qSysInfo( int *wordSize, bool *bigEndian );
 // Avoid compiler warning "function defined but not used" (gcc only)
 //
 
-#if !defined(NOT_USED_FN) && defined(_CC_GCC_)
+#if defined(NOT_USED_FN)
+// user provided
+#elif __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 7)
 #define NOT_USED_FN __attribute__ ((unused))
+#else
+#define NOT_USED_FN
 #endif
 
 //
@@ -265,7 +271,7 @@ bool qSysInfo( int *wordSize, bool *bigEndian );
 
 #if !defined(DEBUG)
 #define RCSTAG(string)
-#elif defined(_CC_GNU_)
+#elif __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 7)
 #define RCSTAG(string) static char ident[] __attribute__ ((unused)) = string;
 #else
 #define RCSTAG(string)
