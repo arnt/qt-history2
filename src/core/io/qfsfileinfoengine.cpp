@@ -18,6 +18,11 @@
 #define d d_func()
 #define q q_func()
 
+QFileInfoEngine::QFileInfoEngine(QFileInfoEnginePrivate &dd)  : d_ptr(&dd)
+{ 
+    d->q_ptr = this;
+}
+
 QFileInfoEngine::~QFileInfoEngine() 
 { 
     delete d_ptr; 
@@ -25,7 +30,7 @@ QFileInfoEngine::~QFileInfoEngine()
 }
 
 //**************** QFSFileInfoEnginePrivate
-QFSFileInfoEnginePrivate::QFSFileInfoEnginePrivate(QFSFileInfoEngine *qq) : QFileInfoEnginePrivate(qq) 
+QFSFileInfoEnginePrivate::QFSFileInfoEnginePrivate() : QFileInfoEnginePrivate() 
 { 
     tried_stat = false;
     init();
@@ -57,7 +62,7 @@ void QFSFileInfoEnginePrivate::slashify()
 }
 
 //**************** QFSFileInfoEngine
-QFSFileInfoEngine::QFSFileInfoEngine(const QString &file) : QFileInfoEngine(*new QFSFileInfoEnginePrivate(this))
+QFSFileInfoEngine::QFSFileInfoEngine(const QString &file) : QFileInfoEngine(*new QFSFileInfoEnginePrivate)
 {
     d->file = file;
     d->slashify();
@@ -67,6 +72,7 @@ void
 QFSFileInfoEngine::setFileName(const QString &file)
 {
     d->file = file;
+    d->tried_stat = false;
     d->slashify();
 }
 

@@ -36,6 +36,11 @@
 #define d d_func()
 #define q q_func()
 
+QFileEngine::QFileEngine(QFileEnginePrivate &dd)  : d_ptr(&dd)
+{ 
+    d->q_ptr = this;
+}
+
 QFileEngine::~QFileEngine() 
 { 
     delete d_ptr; 
@@ -43,7 +48,7 @@ QFileEngine::~QFileEngine()
 }
 
 //**************** QFSFileEnginePrivate
-QFSFileEnginePrivate::QFSFileEnginePrivate(QFSFileEngine *qq) : QFileEnginePrivate(qq) 
+QFSFileEnginePrivate::QFSFileEnginePrivate() : QFileEnginePrivate()
 { 
     cachedCharRead = -1;
     fd = -1;
@@ -51,7 +56,7 @@ QFSFileEnginePrivate::QFSFileEnginePrivate(QFSFileEngine *qq) : QFileEnginePriva
 }
 
 //**************** QFSFileEngine
-QFSFileEngine::QFSFileEngine() : QFileEngine(*new QFSFileEnginePrivate(this))
+QFSFileEngine::QFSFileEngine() : QFileEngine(*new QFSFileEnginePrivate)
 {
 
 }

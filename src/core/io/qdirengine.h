@@ -29,7 +29,7 @@ protected:
 private:
     Q_DECLARE_PRIVATE(QDirEngine)
 public:
-    QDirEngine(QDirEnginePrivate &dd) : d_ptr(&dd) { }
+    QDirEngine(QDirEnginePrivate &);
     virtual ~QDirEngine();
 
     virtual bool setPath(const QString &path, bool force) = 0;

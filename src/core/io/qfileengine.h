@@ -25,7 +25,7 @@ protected:
 private:
     Q_DECLARE_PRIVATE(QFileEngine)
 public:
-    QFileEngine(QFileEnginePrivate &dd) : d_ptr(&dd) { }
+    QFileEngine(QFileEnginePrivate &);
     virtual ~QFileEngine();
 
     virtual bool isOpen() const = 0;

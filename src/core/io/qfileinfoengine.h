@@ -24,7 +24,7 @@ protected:
 private:
     Q_DECLARE_PRIVATE(QFileInfoEngine)
 public:
-    QFileInfoEngine(QFileInfoEnginePrivate &dd) : d_ptr(&dd) { }
+    QFileInfoEngine(QFileInfoEnginePrivate &);
     virtual ~QFileInfoEngine();
 
     enum FileInfo { 

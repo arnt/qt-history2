@@ -20,11 +20,10 @@ class QFileInfoEngine;
 class QFileInfoEnginePrivate
 {
 protected:
-    QFileInfoEngine *q_ptr;
-private:
     Q_DECLARE_PUBLIC(QFileInfoEngine)
+    QFileInfoEngine *q_ptr;
 protected:
-    inline QFileInfoEnginePrivate(QFileInfoEngine *qq) : q_ptr(qq) { }
+    inline QFileInfoEnginePrivate() : q_ptr(0) { }
     ~QFileInfoEnginePrivate() { q_ptr = 0; }
 };
 
@@ -34,7 +33,7 @@ class QFSFileInfoEnginePrivate : public QFileInfoEnginePrivate
 {
     Q_DECLARE_PUBLIC(QFSFileInfoEngine)
 protected:
-    QFSFileInfoEnginePrivate(QFSFileInfoEngine *qq);
+    QFSFileInfoEnginePrivate();
 
     void init();
     void slashify();

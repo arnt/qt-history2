@@ -17,6 +17,11 @@
 #define d d_func()
 #define q q_func()
 
+QDirEngine::QDirEngine(QDirEnginePrivate &dd)  : d_ptr(&dd)
+{ 
+    d->q_ptr = this;
+}
+
 QDirEngine::~QDirEngine() 
 { 
     delete d_ptr; 
@@ -24,13 +29,13 @@ QDirEngine::~QDirEngine()
 }
 
 //**************** QFSDirEnginePrivate
-QFSDirEnginePrivate::QFSDirEnginePrivate(QFSDirEngine *qq) : QDirEnginePrivate(qq) 
+QFSDirEnginePrivate::QFSDirEnginePrivate() : QDirEnginePrivate() 
 { 
 
 }
 
 //**************** QFSDirEngine
-QFSDirEngine::QFSDirEngine(const QString &path)  : QDirEngine(*new QFSDirEnginePrivate(this))
+QFSDirEngine::QFSDirEngine(const QString &path)  : QDirEngine(*new QFSDirEnginePrivate)
 {
     d->path = path;
 }

@@ -18,11 +18,10 @@ class QFileEngine;
 class QFileEnginePrivate
 {
 protected:
-    QFileEngine *q_ptr;
-private:
     Q_DECLARE_PUBLIC(QFileEngine)
+    QFileEngine *q_ptr;
 protected:
-    inline QFileEnginePrivate(QFileEngine *qq) : q_ptr(qq) { }
+    inline QFileEnginePrivate() : q_ptr(0) { }
     ~QFileEnginePrivate() { q_ptr = 0; }
 };
 
@@ -31,7 +30,7 @@ class QFSFileEnginePrivate : public QFileEnginePrivate
 {
     Q_DECLARE_PUBLIC(QFSFileEngine)
 protected:
-    QFSFileEnginePrivate(QFSFileEngine *qq);
+    QFSFileEnginePrivate();
 
     void init();
     int sysOpen(const QString &, int flags);

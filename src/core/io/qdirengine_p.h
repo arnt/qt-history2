@@ -18,11 +18,10 @@ class QDirEngine;
 class QDirEnginePrivate
 {
 protected:
-    QDirEngine *q_ptr;
-private:
     Q_DECLARE_PUBLIC(QDirEngine)
+    QDirEngine *q_ptr;
 protected:
-    inline QDirEnginePrivate(QDirEngine *qq) : q_ptr(qq) { }
+    inline QDirEnginePrivate() : q_ptr(0) { }
     ~QDirEnginePrivate() { q_ptr = 0; }
 };
 
@@ -31,7 +30,7 @@ class QFSDirEnginePrivate : public QDirEnginePrivate
 {
     Q_DECLARE_PUBLIC(QFSDirEngine)
 protected:
-    QFSDirEnginePrivate(QFSDirEngine *qq);
+    QFSDirEnginePrivate();
 
     bool sysExists(const QString &path) const;
 
