@@ -1892,7 +1892,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 	PaintRect( &r );
     }
     updatePen();
-    cfont.d->drawText(x, y, str, len);
+    cfont.d->drawText(x, y, str, len, pdev, &d->cache.paintreg);
 }
 
 QPoint QPainter::pos() const

@@ -173,7 +173,7 @@ public:
 
 #if defined( Q_WS_MAC )
 
-#if defined( Q_WS_MACX ) && !defined( MACOSX_102 )
+#if defined( Q_WS_MACX )
 # define QMAC_FONT_ATSUI
 #endif
 #include "qt_mac.h"
@@ -411,7 +411,7 @@ public:
 
 #if defined( Q_WS_MAC )
     void macSetFont(QPaintDevice *);
-    void drawText( int x, int y, QString s, int len );
+    void drawText(int x, int y, QString s, int len, QPaintDevice *dev, const QRegion *rgn);
     void computeLineWidth();
     void load();
     QFontStruct *fin;

@@ -43,6 +43,8 @@
 #endif
 #ifdef QMAC_FONT_ANTIALIAS
 # ifdef QMAC_FONT_ATSUI
+#  include "qpixmap.h"
+#  include "qpaintdevicemetrics.h"
 #  include <ApplicationServices/ApplicationServices.h>
 # else
 #  define kQDUseCGTextRendering (1 << 1)
@@ -330,8 +332,13 @@ const unsigned char * p_str(const QString &); //qglobal.cpp
 enum text_task { GIMME_WIDTH=0x01, GIMME_DRAW=0x02, GIMME_EXISTS=0x04 };
 #if defined( QMAC_FONT_ATSUI )
 static int do_text_task(const QFontPrivate *d, const QChar *s, int pos,
-			int use_len, int len, uchar task, int =-1, int y=-1)
+			int use_len, int len, uchar task, int =-1, int y=-1,
+			QPaintDevice *dev=NULL, const QRegion *rgn=NULL)
 {
+#if !defined( QMAC_FONT_ANTIALIAS )
+    Q_UNUSED(dev);
+    Q_UNUSED(rgn);
+#endif
     if(task & GIMME_EXISTS) {
 	if(task != GIMME_EXISTS)
 	    qWarning("GIMME_EXISTS must appear by itself!");
@@ -385,28 +392,41 @@ static int do_text_task(const QFontPrivate *d, const QChar *s, int pos,
     ByteCount valueSizes[arr_guess];
     ATSUAttributeValuePtr values[arr_guess];
     tags[arr] = kATSULineLayoutOptionsTag;
-    ATSLineLayoutOptions layopts = kATSLineHasNoOpticalAlignment | kATSLineFractDisable;
+    ATSLineLayoutOptions layopts = kATSLineHasNoOpticalAlignment | kATSLineFractDisable | 
+				   kATSLineDisableAutoAdjustDisplayPos;
 #ifndef MACOSX_102
     layopts |= kATSLineIsDisplayOnly;
 #endif
     valueSizes[arr] = sizeof(layopts);
     values[arr] = &layopts;
     arr++;
-#ifdef QMAC_FONT_ANTIALIAS
+#if defined( QMAC_FONT_ANTIALIAS )
     tags[arr] = kATSUCGContextTag; //cgcontext
-    Rect clipr;
-    CGrafPtr port;
-    RgnHandle clip = NewRgn();
-    CGContextRef ctx;
-    GetPort(&port);
-    GetPortClipRegion(port, clip);
-    GetPortBounds(port, &clipr);
-    if(OSStatus err = QDBeginCGContext(port, &ctx)) {
+    CGrafPtr port = NULL;
+    CGContextRef ctx = NULL;
+    if(dev) {
+	if(dev->devType() == QInternal::Widget) 
+	    port = GetWindowPort((WindowPtr)dev->handle());
+	else 
+	    port = (CGrafPtr)dev->handle();
+    } else {
+	static QPixmap *p = NULL;
+	if(!p)
+	    p = new QPixmap(1, 1, 32);
+	port = (CGrafPtr)p->handle();
+    }
+    RgnHandle rgnh = NULL;
+    if(rgn && !rgn->isNull() && !rgn->isEmpty()) 
+	rgnh = rgn->handle(TRUE);
+    if(QDBeginCGContext(port, &ctx)) {
 	qDebug("Whoa, that is a major problem! %s:%d", __FILE__, __LINE__);
 	ATSUDisposeTextLayout(alayout);
 	return 0;
     }
-    ClipCGContextToRegion(ctx, &clipr, clip);
+    Rect clipr;
+    GetPortBounds(port, &clipr);
+    if(rgnh) 
+	ClipCGContextToRegion(ctx, &clipr, rgnh);
     valueSizes[arr] = sizeof(ctx);
     values[arr] = &ctx;
     arr++;
@@ -416,7 +436,7 @@ static int do_text_task(const QFontPrivate *d, const QChar *s, int pos,
     if(OSStatus e = ATSUSetLayoutControls(alayout, arr, tags, valueSizes, values)) {
 	qDebug("%ld: This shouldn't happen %s:%d", e, __FILE__, __LINE__);
 	ATSUDisposeTextLayout(alayout);
-#ifdef QMAC_FONT_ANTIALIAS
+#if defined( QMAC_FONT_ANTIALIAS )
 	QDEndCGContext(port, &ctx);
 #endif
 	return 0;
@@ -444,7 +464,7 @@ static int do_text_task(const QFontPrivate *d, const QChar *s, int pos,
     }
     if(task & GIMME_DRAW) {
 	ATSUDrawText(alayout, kATSUFromTextBeginning, kATSUToTextEnd, 
-#ifdef QMAC_FONT_ANTIALIAS
+#if defined( QMAC_FONT_ANTIALIAS )
 		     kATSUUseGrafPortPenLoc, FixRatio((clipr.bottom-clipr.top)-y, 1)
 #else
 		     kATSUUseGrafPortPenLoc, kATSUUseGrafPortPenLoc
@@ -453,25 +473,25 @@ static int do_text_task(const QFontPrivate *d, const QChar *s, int pos,
     }
     //cleanup
     ATSUDisposeTextLayout(alayout);
-#ifdef QMAC_FONT_ANTIALIAS
+#if defined( QMAC_FONT_ANTIALIAS )
     QDEndCGContext(port, &ctx);
 #endif
     return ret;
 }
 static inline int do_text_task(const QFontPrivate *d, QString s, int pos, int len, uchar task,
-    int x=-1, int y=-1)
+			       int x=-1, int y=-1, QPaintDevice *dev=NULL, const QRegion *rgn=NULL)
 {
     if(!len)
 	return 0;
     else if(pos + len > (int)s.length())
 	len = s.length() - pos;
-    return do_text_task(d, s.unicode(), pos, len, s.length(), task, x, y);
+    return do_text_task(d, s.unicode(), pos, len, s.length(), task, x, y, dev, rgn);
 }
 
 static inline int do_text_task(const QFontPrivate *d, const QChar &c, uchar task,
-    int x=-1, int y=-1)
+			       int x=-1, int y=-1, QPaintDevice *dev=NULL, const QRegion *rgn=NULL)
 {
-    return do_text_task(d, &c, 0, 1, 1, task, x, y);
+    return do_text_task(d, &c, 0, 1, 1, task, x, y, dev, rgn);
 }
 
 #else
@@ -845,7 +865,7 @@ void QFontPrivate::computeLineWidth()
 	lineWidth = nlw;
 }
 
-void QFontPrivate::drawText(int x, int y, QString s, int len)
+void QFontPrivate::drawText(int x, int y, QString s, int len, QPaintDevice *dev, const QRegion *rgn)
 {
     MoveTo(x, y);
     if(len < 1)
@@ -861,7 +881,11 @@ void QFontPrivate::drawText(int x, int y, QString s, int len)
     else if(do_debug)
 	task |= GIMME_WIDTH;
 #endif
+#ifdef QMAC_FONT_ATSUI
+    int w = do_text_task(this, s, 0, len, task, x, y, dev, rgn);
+#else
     int w = do_text_task(this, s, 0, len, task, x, y);
+#endif
     
 #ifdef DEBUG_FONTMETRICS
     if(do_debug) {
