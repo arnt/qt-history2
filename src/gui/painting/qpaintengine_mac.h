@@ -71,7 +71,7 @@ public:
     static void cleanup();
 
 protected:
-    QQuickDrawPaintEngine(QPaintEnginePrivate &dptr, QPaintDevice *, GCCaps devcaps);
+    QQuickDrawPaintEngine(QPaintEnginePrivate &dptr, QPaintDevice *, PaintEngineFeatures devcaps);
     void drawPolyInternal(const QPointArray &a, bool close=true);
     void setClippedRegionInternal(QRegion *);
 

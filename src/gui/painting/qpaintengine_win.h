@@ -83,7 +83,7 @@ public:
     void setRenderHint(QPainter::RenderHint hint, bool enable);
 
 protected:
-    QWin32PaintEngine(QWin32PaintEnginePrivate &dptr, QPaintDevice *target, GCCaps caps);
+    QWin32PaintEngine(QWin32PaintEnginePrivate &dptr, QPaintDevice *target, PaintEngineFeatures caps);
 
 private:
     void drawPolyInternal(const QPointArray &a, bool close);

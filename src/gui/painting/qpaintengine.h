@@ -48,7 +48,7 @@ class Q_GUI_EXPORT QPaintEngine : public Qt
 {
     Q_DECLARE_PRIVATE(QPaintEngine)
 public:
-    enum Capability {
+    enum Features {
         CoordTransform          = 0x0001,               // Points are transformed
         PenWidthTransform       = 0x0002,               // Pen width is transformed
         PatternTransform        = 0x0004,               // Brush patterns
@@ -58,7 +58,7 @@ public:
         DrawRects               = 0x0040,               // Can draw rectangles
         UsesFontEngine          = 0x10000000            // Internal use, QWidget and QPixmap
     };
-    Q_DECLARE_FLAGS(GCCaps, Capability);
+    Q_DECLARE_FLAGS(PaintEngineFeatures, Features);
 
     enum DirtyFlags {
         DirtyPen                = 0x0001,
@@ -72,7 +72,7 @@ public:
         AllDirty                = 0xffff
     };
 
-    QPaintEngine(GCCaps devcaps=0);
+    QPaintEngine(PaintEngineFeatures features=0);
     virtual ~QPaintEngine();
 
     bool isActive() const { return active; }
@@ -176,20 +176,20 @@ public:
     inline void setDirty(DirtyFlags df) { dirtyFlag|=df; changeFlag|=df; }
     inline void unsetDirty(DirtyFlags df) { dirtyFlag &= (uint)(~df); }
 
-    bool hasCapability(Capability cap) const { return (gccaps & cap) != 0; }
+    bool hasFeature(Features feature) const { return (gccaps & feature) != 0; }
 
     inline void updateState(QPainterState *state, bool updateGC = true);
     inline QPainterState *painterState() const { return state; }
 
 protected:
-    QPaintEngine(QPaintEnginePrivate &data, GCCaps devcaps=0);
+    QPaintEngine(QPaintEnginePrivate &data, PaintEngineFeatures devcaps=0);
 
     uint dirtyFlag;
     uint changeFlag;
     uint active : 1;
     uint flags;
     QPainterState *state;
-    GCCaps gccaps;
+    PaintEngineFeatures gccaps;
 
     QPaintEnginePrivate *d_ptr;
 
@@ -273,6 +273,6 @@ inline void QPaintEngine::updateState(QPainterState *newState, bool updateGC)
         updateInternal(newState, updateGC);
 }
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(QPaintEngine::GCCaps);
+Q_DECLARE_OPERATORS_FOR_FLAGS(QPaintEngine::PaintEngineFeatures);
 #endif // QPAINTENGINE_H
 

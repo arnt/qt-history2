@@ -96,12 +96,13 @@ void qt_clear_paintevent_clipping(QPaintDevice *dev)
   QQuickDrawPaintEngine member functions
  *****************************************************************************/
 QQuickDrawPaintEngine::QQuickDrawPaintEngine(QPaintDevice *pdev)
-    : QPaintEngine(*(new QQuickDrawPaintEnginePrivate), GCCaps(UsesFontEngine|PixmapScale))
+    : QPaintEngine(*(new QQuickDrawPaintEnginePrivate), PaintEngineFeatures(UsesFontEngine|PixmapScale))
 {
     d->pdev = pdev;
 }
 
-QQuickDrawPaintEngine::QQuickDrawPaintEngine(QPaintEnginePrivate &dptr, QPaintDevice *pdev, GCCaps devcaps)
+QQuickDrawPaintEngine::QQuickDrawPaintEngine(QPaintEnginePrivate &dptr, QPaintDevice *pdev,
+                                             PaintEngineFeatures devcaps)
     : QPaintEngine(dptr, devcaps)
 {
     d->pdev = pdev;
@@ -827,7 +828,7 @@ QQuickDrawPaintEngine::setupQDBrush()
         d->brush_style_pix->fill(d->current.brush.color());
     } else if(bs == CustomPattern) {
         if(d->current.brush.pixmap()->isQBitmap()) {
-            d->brush_style_pix = new QPixmap(d->current.brush.pixmap()->width(), 
+            d->brush_style_pix = new QPixmap(d->current.brush.pixmap()->width(),
                                              d->current.brush.pixmap()->height());
             d->brush_style_pix->setMask(*((QBitmap*)d->current.brush.pixmap()));
             d->brush_style_pix->fill(d->current.brush.color());
@@ -1031,13 +1032,13 @@ static void qt_mac_color_gradient_function(void *info, const float *in, float *o
 
 QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintDevice *pdev)
     : QQuickDrawPaintEngine(*(new QCoreGraphicsPaintEnginePrivate), pdev,
-                            GCCaps(/*CoordTransform|PenWidthTransform|PixmapTransform|*/PixmapScale|UsesFontEngine|LinearGradientSupport))
+                            PaintEngineFeatures(/*CoordTransform|PenWidthTransform|PixmapTransform|*/PixmapScale|UsesFontEngine|LinearGradientSupport))
 {
     d->pdev = pdev;
 }
 
 QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintEnginePrivate &dptr, QPaintDevice *pdev)
-    : QQuickDrawPaintEngine(dptr, pdev, GCCaps(/*CoordTransform|PenWidthTransform|PixmapTransform|*/PixmapScale|UsesFontEngine|LinearGradientSupport))
+    : QQuickDrawPaintEngine(dptr, pdev, PaintEngineFeatures(/*CoordTransform|PenWidthTransform|PixmapTransform|*/PixmapScale|UsesFontEngine|LinearGradientSupport))
 {
     d->pdev = pdev;
 }
@@ -1265,7 +1266,7 @@ void
 QCoreGraphicsPaintEngine::updateRasterOp(QPainterState *ps)
 {
     Q_ASSERT(isActive());
-    if(ps->rasterOp != CopyROP) 
+    if(ps->rasterOp != CopyROP)
         qt_mac_cg_no_rasterop();
 }
 
@@ -1311,7 +1312,7 @@ void
 QCoreGraphicsPaintEngine::setRasterOp(RasterOp r)
 {
     Q_ASSERT(isActive());
-    if(r != CopyROP) 
+    if(r != CopyROP)
         qt_mac_cg_no_rasterop();
 }
 

@@ -301,7 +301,7 @@ void QFontEngineWin::draw(QPaintEngine *p, int x, int y, const QTextItem &si, in
             angle = 3600 - angle;
 
         transform = true;
-    } else if (!p->hasCapability(QPaintEngine::CoordTransform) && state->txop == QPainter::TxTranslate) {
+    } else if (!p->hasFeature(QPaintEngine::CoordTransform) && state->txop == QPainter::TxTranslate) {
         state->painter->map(x, y, &x, &y);
     }
 

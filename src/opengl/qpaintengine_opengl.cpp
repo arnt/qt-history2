@@ -46,7 +46,7 @@ public:
 
 QOpenGLPaintEngine::QOpenGLPaintEngine(const QPaintDevice *)
     : QPaintEngine(*(new QOpenGLPaintEnginePrivate),
-                   GCCaps(CoordTransform | PenWidthTransform | PixmapTransform))
+                   PaintEngineFeatures(CoordTransform | PenWidthTransform | PixmapTransform))
 {
 }
 

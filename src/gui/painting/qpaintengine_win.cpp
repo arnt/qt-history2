@@ -344,7 +344,7 @@ static inline bool obtain_brush(void **ref, HBRUSH *brush, uint pix)
 #define release_brush        release_obj
 
 QWin32PaintEngine::QWin32PaintEngine(QWin32PaintEnginePrivate &dptr, QPaintDevice *target,
-                                     GCCaps caps)
+                                     PaintEngineFeatures caps)
     :
 #ifndef NO_NATIVE_XFORM
       QPaintEngine(dptr, caps)
@@ -361,13 +361,13 @@ QWin32PaintEngine::QWin32PaintEngine(QWin32PaintEnginePrivate &dptr, QPaintDevic
 QWin32PaintEngine::QWin32PaintEngine(QPaintDevice *target)
     :
 #ifndef NO_NATIVE_XFORM
-      QPaintEngine(*(new QWin32PaintEnginePrivate), GCCaps(CoordTransform
+      QPaintEngine(*(new QWin32PaintEnginePrivate), PaintEngineFeatures(CoordTransform
                                                            | PenWidthTransform
                                                            | PixmapTransform
                                                            | PixmapScale
                                                            | UsesFontEngine))
 #else
-      QPaintEngine(*(new QWin32PaintEnginePrivate), GCCaps(UsesFontEngine))
+      QPaintEngine(*(new QWin32PaintEnginePrivate), PaintEngineFeatures(UsesFontEngine))
 #endif
 
 {
@@ -1896,7 +1896,7 @@ static QtGpBitmap *qt_convert_to_gdipbitmap(const QPixmap *pixmap, QImage *ref =
 
 QGdiplusPaintEngine::QGdiplusPaintEngine(QPaintDevice *dev)
     : QPaintEngine(*(new QGdiplusPaintEnginePrivate),
-                   GCCaps(CoordTransform
+                   PaintEngineFeatures(CoordTransform
                           | PenWidthTransform
                           | PatternTransform
                           | PixmapTransform

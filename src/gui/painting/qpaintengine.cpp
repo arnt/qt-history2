@@ -21,7 +21,7 @@
 #define d d_ptr()
 #define q q_ptr()
 
-QPaintEngine::QPaintEngine(GCCaps caps)
+QPaintEngine::QPaintEngine(PaintEngineFeatures caps)
     : dirtyFlag(0),
       changeFlag(0),
       active(0),
@@ -32,7 +32,7 @@ QPaintEngine::QPaintEngine(GCCaps caps)
     d_ptr->q_ptr = this;
 }
 
-QPaintEngine::QPaintEngine(QPaintEnginePrivate &dptr, GCCaps caps)
+QPaintEngine::QPaintEngine(QPaintEnginePrivate &dptr, PaintEngineFeatures caps)
     : dirtyFlag(0),
       changeFlag(0),
       active(0),
@@ -107,7 +107,7 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
 void QPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
 {
     bool useFontEngine = true;
-    if (hasCapability(QPaintEngine::UsesFontEngine)) {
+    if (hasFeature(QPaintEngine::UsesFontEngine)) {
         if (state->txop > QPainter::TxTranslate) {
             useFontEngine = false;
             QFontEngine *fe = ti.fontEngine;

@@ -1117,7 +1117,7 @@ void QPainter::drawLine(const QPoint &p1, const QPoint &p2)
 
     d->engine->updateState(d->state);
 
-    if ((d->state->WxF || d->state->VxF) && !d->engine->hasCapability(QPaintEngine::CoordTransform)) {
+    if ((d->state->WxF || d->state->VxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
         d->engine->drawLine(xForm(p1), xForm(p2));
         return;
     }
@@ -1148,7 +1148,7 @@ void QPainter::drawRect(const QRect &r)
     d->engine->updateState(d->state);
 
     if (d->state->brush.style() == LinearGradientPattern
-        && !d->engine->hasCapability(QPaintEngine::LinearGradientSupport)) {
+        && !d->engine->hasFeature(QPaintEngine::LinearGradientSupport)) {
         QPixmap pm(r.width(), r.height());
         qt_fill_linear_gradient(r, &pm, d->state->brush);
         drawPixmap(r.x(), r.y(), pm);
@@ -1163,7 +1163,7 @@ void QPainter::drawRect(const QRect &r)
     }
 
     if ((d->state->VxF || d->state->WxF)
-        && !d->engine->hasCapability(QPaintEngine::CoordTransform)) {
+        && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
         if (d->state->txop == TxRotShear) {
             drawPolygon(QPointArray(rect));
             return;
@@ -1187,10 +1187,10 @@ void QPainter::drawRects(const QList<QRect> &rects)
 
     d->engine->updateState(d->state);
 
-    if ((!d->engine->hasCapability(QPaintEngine::DrawRects)
-         || !d->engine->hasCapability(QPaintEngine::LinearGradientSupport)
+    if ((!d->engine->hasFeature(QPaintEngine::DrawRects)
+         || !d->engine->hasFeature(QPaintEngine::LinearGradientSupport)
          || ((d->state->VxF || d->state->WxF)
-             && !d->engine->hasCapability(QPaintEngine::CoordTransform)))
+             && !d->engine->hasFeature(QPaintEngine::CoordTransform)))
 
         ) {
         for (int i=0; i<rects.size(); ++i)
@@ -1213,7 +1213,7 @@ void QPainter::drawPoint(const QPoint &p)
     d->engine->updateState(d->state);
 
     if ((d->state->VxF || d->state->WxF)
-        && !d->engine->hasCapability(QPaintEngine::CoordTransform)) {
+        && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
         d->engine->drawPoint(xForm(p));
         return;
     }
@@ -1251,7 +1251,7 @@ void QPainter::drawPoints(const QPointArray &pa, int index, int npoints)
     if (!isActive() || npoints < 1 || index < 0)
         return;
 
-    if ((d->state->VxF || d->state->WxF) && !d->engine->hasCapability(QPaintEngine::CoordTransform)) {
+    if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
         QPointArray a = xForm(pa, index, npoints);
         index = 0;
         npoints = a.size();
@@ -1519,14 +1519,14 @@ void QPainter::drawRoundRect(const QRect &r, int xRnd, int yRnd)
     QRect rect = r.normalize();
 
     if (d->state->brush.style() == LinearGradientPattern
-        && !d->engine->hasCapability(QPaintEngine::LinearGradientSupport)) {
+        && !d->engine->hasFeature(QPaintEngine::LinearGradientSupport)) {
         QT_FILL_GRADIENT(rect,
                          drawRoundRect(0, 0, r.width(), r.height(), xRnd, yRnd),
                          drawRoundRect(r, xRnd, yRnd));
 
     }
 
-    if ((d->state->VxF || d->state->WxF) && !d->engine->hasCapability(QPaintEngine::CoordTransform)) {
+    if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
         if (d->state->txop == TxRotShear) {
             int x = rect.x();
             int y = rect.y();
@@ -1588,14 +1588,14 @@ void QPainter::drawEllipse(const QRect &r)
     QRect rect = r.normalize();
 
     if (d->state->brush.style() == LinearGradientPattern
-        && !d->engine->hasCapability(QPaintEngine::LinearGradientSupport)) {
+        && !d->engine->hasFeature(QPaintEngine::LinearGradientSupport)) {
         QT_FILL_GRADIENT(rect,
                          drawEllipse(0, 0, rect.width(), rect.height()),
                          drawEllipse(rect));
 
     }
 
-    if ((d->state->VxF || d->state->WxF) && !d->engine->hasCapability(QPaintEngine::CoordTransform)) {
+    if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
         if (d->state->txop == TxRotShear) {
             QPointArray a;
             a.makeArc(rect.x(), rect.y(), rect.width(), rect.height(), 0, 360*16, d->state->matrix);
@@ -1642,7 +1642,7 @@ void QPainter::drawArc(const QRect &r, int a, int alen)
 
     QRect rect = r.normalize();
 
-    if ((d->state->VxF || d->state->WxF) && !d->engine->hasCapability(QPaintEngine::CoordTransform)) {
+    if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
         if (d->state->txop == TxRotShear) {
             QPointArray pa;
             pa.makeArc(rect.x(), rect.y(), rect.width(), rect.height(), a, alen, d->state->matrix);
@@ -1692,14 +1692,14 @@ void QPainter::drawPie(const QRect &r, int a, int alen)
     QRect rect = r.normalize();
 
     if (d->state->brush.style() == LinearGradientPattern
-        && !d->engine->hasCapability(QPaintEngine::LinearGradientSupport)) {
+        && !d->engine->hasFeature(QPaintEngine::LinearGradientSupport)) {
         QT_FILL_GRADIENT(rect,
                          drawPie(0, 0, rect.width(), rect.height(), a, alen),
                          drawPie(rect, a, alen));
 
     }
 
-    if ((d->state->VxF || d->state->WxF) && !d->engine->hasCapability(QPaintEngine::CoordTransform)) {
+    if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
         if (d->state->txop == TxRotShear) {                // rotate/shear
             // arc polyline
             QPointArray pa;
@@ -1750,14 +1750,14 @@ void QPainter::drawChord(const QRect &r, int a, int alen)
     QRect rect = r.normalize();
 
     if (d->state->brush.style() == LinearGradientPattern
-        && !d->engine->hasCapability(QPaintEngine::LinearGradientSupport)) {
+        && !d->engine->hasFeature(QPaintEngine::LinearGradientSupport)) {
         QT_FILL_GRADIENT(rect,
                          drawChord(0, 0, rect.width(), rect.height(), a, alen),
                          drawChord(rect, a, alen));
 
     }
 
-    if ((d->state->VxF || d->state->WxF) && !d->engine->hasCapability(QPaintEngine::CoordTransform)) {
+    if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
         if (d->state->txop == TxRotShear) {                // rotate/shear
             QPointArray pa;
             pa.makeArc(rect.x(), rect.y(), rect.width()-1, rect.height()-1, a, alen, d->state->matrix); // arc polygon
@@ -1797,7 +1797,7 @@ void QPainter::drawLineSegments(const QPointArray &a, int index, int nlines)
     if (!isActive() || nlines < 1 || index < 0)
         return;
 
-    if ((d->state->VxF || d->state->WxF) && !d->engine->hasCapability(QPaintEngine::CoordTransform)) {
+    if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
         QPointArray pa = xForm(a, index, nlines*2);
         if (pa.size() != a.size()) {
             index  = 0;
@@ -1833,7 +1833,7 @@ void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
     if (!isActive() || npoints < 2 || index < 0)
         return;
 
-    if ((d->state->VxF || d->state->WxF) && !d->engine->hasCapability(QPaintEngine::CoordTransform)) {
+    if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
         QPointArray ar = xForm(a, index, npoints);
         d->engine->drawPolyline(ar, index, npoints);
         return;
@@ -1874,7 +1874,7 @@ void QPainter::drawPolygon(const QPointArray &a, bool winding, int index, int np
         return;
 
     if (d->state->brush.style() == LinearGradientPattern
-        && !d->engine->hasCapability(QPaintEngine::LinearGradientSupport)) {
+        && !d->engine->hasFeature(QPaintEngine::LinearGradientSupport)) {
         QRect bounds = a.boundingRect();
         QPointArray copy(a);
         copy.translate(-bounds.x(), -bounds.y());
@@ -1884,7 +1884,7 @@ void QPainter::drawPolygon(const QPointArray &a, bool winding, int index, int np
 
     }
 
-    if ((d->state->VxF || d->state->WxF) && !d->engine->hasCapability(QPaintEngine::CoordTransform)) {
+    if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
         QPointArray ar = xForm(a, index, npoints);
         d->engine->drawPolygon(ar, winding, index, npoints);
         return;
@@ -1915,7 +1915,7 @@ void QPainter::drawConvexPolygon(const QPointArray &a, int index, int npoints)
     if (!isActive() || npoints < 2 || index < 0)
         return;
 
-    if ((d->state->VxF || d->state->WxF) && !d->engine->hasCapability(QPaintEngine::CoordTransform)) {
+    if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
         QPointArray ar = xForm(a, index, npoints);
         d->engine->drawConvexPolygon(ar, index, npoints);
         return;
@@ -1943,7 +1943,7 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index)
         return;
     }
 
-    if ((d->state->VxF || d->state->WxF) && !d->engine->hasCapability(QPaintEngine::CoordTransform)) {
+    if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
         QPointArray pa = xForm(a, index, a.size()-index);
         d->engine->drawCubicBezier(pa, index);
         return;
@@ -2049,8 +2049,8 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bo
     if (sw <= 0 || sh <= 0)
         return;
 
-    if (((d->state->VxF || d->state->WxF) && !d->engine->hasCapability(QPaintEngine::PixmapTransform)) ||
-        ((r.width() != sr.width() || r.height() != sr.height()) && !d->engine->hasCapability(QPaintEngine::PixmapScale))) {
+    if (((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) ||
+        ((r.width() != sr.width() || r.height() != sr.height()) && !d->engine->hasFeature(QPaintEngine::PixmapScale))) {
         QPixmap source(sw, sh);
         {
             QPainter p(&source);
@@ -2425,7 +2425,7 @@ void QPainter::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap
         sy = sy % sh;
 
     if ((d->state->VxF || d->state->WxF)
-        && !d->engine->hasCapability(QPaintEngine::PixmapTransform)) {
+        && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
         QPixmap pm(w, h);
         QPainter p(&pm);
         // Recursive call ok, since the pixmap is not transformed...
