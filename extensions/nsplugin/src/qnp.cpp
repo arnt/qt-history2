@@ -1,3 +1,15 @@
+/****************************************************************************
+** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#12 $
+**
+** Implementation of Qt extension classes for Netscape Plugin support.
+**
+** Created : 970601
+**
+** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
+**
+*****************************************************************************/
+
+
 // Remaining _WS_X11_ considerations:
 //   - What if !piApp upon NPP_NewStream?  Are we safe?
 //      - Yes, but users need to know of this:  that no GUI can be
@@ -59,20 +71,6 @@ extern "C" {
 #include "npapi.h"
 
 #ifdef _WS_X11_
-/* ### debugging in ns3 needs a REAL stderr */
-#if 0
-static
-FILE* out()
-{
-    static FILE* f = 0;
-    if (!f)
-	return stderr;
-	//f = fdopen(4,"w"); // 2>&4 needed on cmd line for this
-    return f;
-}
-#define PLUGIN_TRACE
-#endif
-
 #undef XP_UNIX
 #include "npunix.c"
 #endif
@@ -128,8 +126,6 @@ struct _NPInstance
 };
 
 
-
-//struct AA { AA() { fprintf(stderr,"AAAA\n"); } } aa;
 
 // The single global plugin
 static QNPlugin *qNP=0;
@@ -266,7 +262,6 @@ public:
     ~PluginSDK_QApplication()
     {
 	piApp = 0;
-//if (npwidgets.count()) abort();
     }
 
 #endif
@@ -407,15 +402,9 @@ static void np_do_timers( void*, void* )
 
 
 
-
-
-
-
-
-
-/*******************************************************************************
+/******************************************************************************
  * Plug-in Calls - these are called by Netscape
- ******************************************************************************/
+ *****************************************************************************/
 
 
 // Instance state information about the plugin.
@@ -545,24 +534,6 @@ NPP_New(NPMIMEType /*pluginType*/,
     char* argv[],
     NPSavedData* /*saved*/)
 {
-/*
-    {
-	uchar* ndata;
-	ndata = ((NS_Private*)(instance->ndata))->a;
-	printf("New %p->ndata->a = %p:\n", instance, ndata);
-	for (int i=0; i<64; i++) {
-	    printf("%2x ",ndata[i]);
-	    if (i%8==7) printf("\n");
-	}
-	ndata = (uchar*)((NS_Private*)instance->ndata)->b;
-	printf("New %p->ndata->b = %p:\n", instance, ndata);
-	for (int i=0; i<64; i++) {
-	    printf("%2x ",ndata[i]);
-	    if (i%8==7) printf("\n");
-	}
-    }
-*/
-
     NPError result = NPERR_NO_ERROR;
     _NPInstance* This;
 
@@ -653,13 +624,6 @@ NPP_SetWindow(NPP instance, NPWindow* window)
 
     This = (_NPInstance*) instance->pdata;
 
-    /*
-     * PLUGIN DEVELOPERS:
-     *    Before setting window to point to the
-     *    new window, you may wish to compare the new window
-     *    info to the previous window (if any) to note window
-     *    size changes, etc.
-     */    
     if (!window) {
 
 	if (This->widget) {
@@ -782,17 +746,6 @@ NPP_NewStream(NPP instance,
 }
 
 
-/* PLUGIN DEVELOPERS:
- *    These next 2 functions are directly relevant in a plug-in which
- *    handles the data in a streaming manner. If you want zero bytes
- *    because no buffer space is YET available, return 0. As long as
- *    the stream has not been written to the plugin, Navigator will
- *    continue trying to send bytes.  If the plugin doesn't want them,
- *    just return some large number from NPP_WriteReady(), and
- *    ignore them in NPP_Write().  For a NP_ASFILE stream, they are
- *    still called but can safely be ignored using this strategy.
- */
-
 int32 STREAMBUFSIZE = 0X0FFFFFFF; /* If we are reading from a file in NPAsFile
                                    * mode so we can take any size stream in our
                                    * write call (since we ignore it) */
@@ -886,23 +839,6 @@ NPP_Print(NPP instance, NPPrint* printInfo)
         // _NPInstance* This = (_NPInstance*) instance->pdata;
     
         if (printInfo->mode == NP_FULL) {
-            /*
-             * PLUGIN DEVELOPERS:
-             *    If your plugin would like to take over
-             *    printing completely when it is in full-screen mode,
-             *    set printInfo->pluginPrinted to TRUE and print your
-             *    plugin as you see fit.  If your plugin wants Netscape
-             *    to handle printing in this case, set
-             *    printInfo->pluginPrinted to FALSE (the default) and
-             *    do nothing.  If you do want to handle printing
-             *    yourself, printOne is true if the print button
-             *    (as opposed to the print menu) was clicked.
-             *    On the Macintosh, platformPrint is a THPrint; on
-             *    Windows, platformPrint is a structure
-             *    (defined in npapi.h) containing the printer name, port,
-             *    etc.
-             */
-
             // void* platformPrint =
             //     printInfo->print.fullPrint.platformPrint;
             // NPBool printOne =
@@ -912,17 +848,6 @@ NPP_Print(NPP instance, NPPrint* printInfo)
             printInfo->print.fullPrint.pluginPrinted = FALSE;
         }
         else {    /* If not fullscreen, we must be embedded */
-            /*
-             * PLUGIN DEVELOPERS:
-             *    If your plugin is embedded, or is full-screen
-             *    but you returned false in pluginPrinted above, NPP_Print
-             *    will be called with mode == NP_EMBED.  The NPWindow
-             *    in the printInfo gives the location and dimensions of
-             *    the embedded plugin on the printed page.  On the
-             *    Macintosh, platformPrint is the printer port; on
-             *    Windows, platformPrint is the handle to the printing
-             *    device context.
-             */
 
             // NPWindow* printWindow =
             //     &(printInfo->print.embedPrint.window);
@@ -1073,8 +998,6 @@ void qt_XDestroyWindow( const QWidget* qw, Display *display, Window window )
 
 
 
-
-
 #ifdef _WS_WIN_
 
 BOOL   WINAPI   DllMain (HANDLE hInst, 
@@ -1100,14 +1023,6 @@ int main(int argc, char** argv)
 }
 
 #endif
-
-
-
-
-
-
-
-
 
 
 
@@ -1311,10 +1226,6 @@ void QNPWidget::unsetWindow()
     destroy( FALSE, TRUE ); // Browser will the window, but not the subwindows
 #endif
 }
-
-
-
-
 
 
 
@@ -1736,11 +1647,9 @@ int QNPStream::write( int len, void* buffer )
 
 
 
-
-
-/*******************************************************************************
+/******************************************************************************
  * The plugin itself - only one ever exists, created by QNPlugin::create()
- ******************************************************************************/
+ *****************************************************************************/
 
 
 /*!

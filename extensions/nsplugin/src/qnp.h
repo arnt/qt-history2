@@ -1,7 +1,18 @@
-#ifndef QNPBIND_H
-#define QNPBIND_H
+/****************************************************************************
+** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.h#9 $
+**
+** Definition of Qt extension classes for Netscape Plugin support.
+**
+** Created : 970601
+**
+** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
+**
+*****************************************************************************/
 
-#include <qwidget.h>
+#ifndef QNP_H
+#define QNP_H
+
+#include "qwidget.h"
 
 
 struct _NPInstance;
@@ -126,5 +137,4 @@ protected:
 };
 
 
-
-#endif
+#endif  // QNP_H
