@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#61 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#62 $
 **
 ** Implementation of QRegExp class
 **
@@ -62,7 +62,7 @@
     e.g. [a-zA-Z0-9\.] matches upper and lower case ASCII letters, digits,
     and dot, and [^z] matches everything except lower-case z.
   </ul>
-  
+
   When writing regular expressions in C++ code, remember that the C++
   preprocessor processes \ characters.  So in order to match e.g. a "."
   character, you must write "\\." in C++ source, not "\.".
@@ -364,19 +364,15 @@ static inline bool iswordchar( int x ) //###
 
 /*!
   \internal
-  Match character class 
+  Match character class
 */
 
 bool matchcharclass( uint *rxd, QChar c )
 {
     uint *d = rxd;
     uint clcode = *d & MCD;
-    bool neg;
-    if ( clcode == CCL )
-	neg = FALSE;
-    else if ( clcode == CCN )
-	neg = TRUE;
-    else
+    bool neg = clcode == CCN;
+    if ( clcode != CCL && clcode != CCN)
 	warning("QRegExp: coding error!");
     uint numFields = *d & MVL;
     uint cval = (((uint)(c.row)) << 8) | ((uint)c.cell);
@@ -407,7 +403,7 @@ bool matchcharclass( uint *rxd, QChar c )
   Recursively match string.
 */
 
-const QChar *QRegExp::matchstr( uint *rxd, const QChar *str, uint strlength, 
+const QChar *QRegExp::matchstr( uint *rxd, const QChar *str, uint strlength,
 				const QChar *bol ) const
 {
     const QChar *p = str;
@@ -863,7 +859,7 @@ void QRegExp::compile()
 		}
 		uint numFields = 0;
 		while ( pl ) {
-		    if ( ( pl>2 ) && ((char)*p == (uint)'-') && 
+		    if ( ( pl>2 ) && ((char)*p == (uint)'-') &&
 			 ((char)*(p+1) != (uint)']') ) {
 			// Found a range
 			uint cch2 = char_val( &p, &pl ); // Read the '-'
