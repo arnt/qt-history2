@@ -119,20 +119,18 @@ static Movie get_movie(const QString &filename, QPixmap *offscreen)
     short movieResFile;
     Movie aMovie = nil;
 
-    QString macFilename;
-    if(QDir::isRelativePath(macFilename)) {
-	macFilename.prepend(QDir::currentDirPath() + ":");
-//	macFilename.prepend(volumename + ":");
-	//FIXME: prepend the volume name to the macFilename 
-    } else {
-	macFilename = filename.mid(1);
-    }
-    while ( macFilename.find( "/" ) != -1 )
-	macFilename.replace( macFilename.find( "/" ), 1, ":" );
-    err = FSpLocationFromFullPath( macFilename.length(), macFilename.latin1(),
-				   &fileSpec ); 
-    if ( err != noErr ) 
+    FSRef fref;
+    QCString utfs = filename.utf8();
+    err = FSPathMakeRef((const UInt8 *)utfs.data(), &fref, NULL);
+    if(err != noErr) {
+	qDebug("bogus %d", __LINE__);
 	return NULL;
+    }
+    err = FSGetCatalogInfo(&fref, kFSCatInfoNone, NULL, NULL, &fileSpec, NULL);
+    if ( err != noErr ) {
+	qDebug("bogus %d", __LINE__);
+	return NULL;
+    }
 
     // If a movie soundtrack is played then the movie will be played on
     // the current graphics port. So create an offscreen graphics port.
