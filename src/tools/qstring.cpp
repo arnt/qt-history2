@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#33 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#34 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -11,7 +11,6 @@
 **
 *****************************************************************************/
 
-#define	 NO_WARNINGS
 #define	 QSTRING_C
 #include "qstring.h"
 #include "qdstream.h"
@@ -21,7 +20,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#33 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#34 $";
 #endif
 
 

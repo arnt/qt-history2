@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.cpp#9 $
+** $Id: //depot/qt/main/src/tools/qgvector.cpp#10 $
 **
 ** Implementation of QGVector class
 **
@@ -23,7 +23,6 @@
 *****************************************************************************/
 
 #define	 QGVECTOR_CPP
-#define	 NO_WARNINGS
 #include "qgvector.h"
 #include "qglist.h"
 #include "qstring.h"
@@ -31,7 +30,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgvector.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgvector.cpp#10 $";
 #endif
 
 

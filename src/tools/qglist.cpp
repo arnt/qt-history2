@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#11 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#12 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -10,13 +10,12 @@
 **
 *****************************************************************************/
 
-#define	 NO_WARNINGS
 #include "qglist.h"
 #include "qgvector.h"
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qglist.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qglist.cpp#12 $";
 #endif
 
 

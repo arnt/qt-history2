@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#10 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#11 $
 **
 ** Global functions
 **
@@ -10,14 +10,13 @@
 **
 *****************************************************************************/
 
-#define	 NO_WARNINGS
 #include "qglobal.h"
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qglobal.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qglobal.cpp#11 $";
 #endif
 
 
