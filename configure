@@ -1508,6 +1508,9 @@ fi
 # determine the system architecture
 ARCH=$UNAME_MACHINE
 case $ARCH in
+i?86)
+    ARCH=i386
+    ;;
 sun4u)
     ARCH=sparc64
     ;;
