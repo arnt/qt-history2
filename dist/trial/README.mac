@@ -55,7 +55,7 @@ In order to compile the example programs from source you should:
    In .profile (if your shell is bash, ksh, zsh or sh), add the 
    following lines:
 
-   QTDIR=<where_you_installed_Qt>/QtMacEval
+   QTDIR=<where_you_installed_Qt>
    QMAKESPEC=macx-g++
    PATH=$QTDIR/bin:$PATH
    DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$QTDIR/lib
@@ -64,7 +64,7 @@ In order to compile the example programs from source you should:
 
    In .login (in case your shell is csh or tcsh), add the following lines:
 
-   setenv QTDIR <where_you_installed_Qt>/QtMacEval
+   setenv QTDIR <where_you_installed_Qt>
    setenv QMAKESPEC macx-g++
    setenv PATH $QTDIR/bin:$PATH
    setenv DYLD_LIBRARY_PATH $DYLD_LIBRARY_PATH:$QTDIR/lib
