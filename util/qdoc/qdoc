@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#156 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#157 $
 #
 # this is a massive hack, written very quickly
 #
@@ -632,62 +632,62 @@ sub writepages {
 
     foreach $file ( keys %pages ) {
 	$doc = $pages{$file};
-	$doc =~ s-\\link\s+([^\s\(]+)(?:[\(\)]*)\s*(.*?)\s*\\endlink-
-	    if (defined($anchor{$1})) {
-		sprintf("<a href=\"%s\">%s</a>", $anchor{$1}, $2);
-	    } else {
-		print "No link to '", $1, "' for '", $2, "'\n";
-		sprintf("%s", $2);
-	    }
-	-egsx;
-
-	# refer to function or class by name
-	$doc =~ s-\\l\s+([^\s\(\.\,\)]+(?:\.h)?)((?:[\(\)]*))-
-	    if (defined($anchor{$1})) {
-		sprintf("<a href=\"%s\">%s</a>", $anchor{$1}, &html($1 . $2));
-	    } else {
-		if (defined($anchor{$class . $1})) {
-		    sprintf("<a href=\"%s\">%s</a>", 
-			    $anchor{$class . $1}, &html($1 . $2));
-		} elsif (defined($anchor{"::".$1})) {
-		    sprintf("<a href=\"%s\">%s</a>", 
-			    $anchor{"::" . $1}, &html($1 . $2));
-		} else {
-		    print "No link to '", $1, "'\n";
-		    sprintf("%s", $1 . $2);
-		}
-	    }
-	-egsx;
-
-	$doc =~ s-\\internal\s-<p>Internal comments:<p>\n-s;
-
-	$doc =~ s/\\\&/&amp;/gs;
-	$doc =~ s/\\</&lt;/gs;
-	$doc =~ s/\\>/&gt;/gs;
-
-	$doc =~ s!\\code\b(.*?)\\endcode!&processcode($1)!esg;
-
-	$doc = &codeincludes($doc);
-
-	$doc =~ s!\\classhierarchy!&classhierarchy()!es;
-	$doc =~ s!\\classlist!&classlist()!es;
-	$doc =~ s!\\annotatedclasslist!&annotatedclasslist()!es;
-	$doc =~ s!\\headerfilelist!&headerfilelist()!es;
-	$doc =~ s!\\functionindex!&functionindex()!es;
-
-	$doc =~ s@\\version\b@$version@gs;
-
-	$doc =~ s!\\e\s+(\S+)!<em>$1</em>!gs;
-	$doc =~ s!\\c\s+(\S+)!<code>$1</code>!gs;
-
-	$doc =~ s/\n\s*\n/\n<p>\n/gs;
-	$doc =~ s/<linebreak>//gs;
-	$doc =~ s/<p>\s*<p>/<p>/gs;
-
-	open(O, "> $outputdir/$file") ||
-	    die "can't open $outputdir/$file";
 	if ( $file =~ /\.html$/ ) {
 	    print O $doctype, "<html><head><meta name=\"robots\" content=\"noindex\">", $doc, "\n";
+	    $doc =~ s-\\link\s+([^\s\(]+)(?:[\(\)]*)\s*(.*?)\s*\\endlink-
+		if (defined($anchor{$1})) {
+		    sprintf("<a href=\"%s\">%s</a>", $anchor{$1}, $2);
+		} else {
+		    print "No link to '", $1, "' for '", $2, "'\n";
+		    sprintf("%s", $2);
+		}
+	    -egsx;
+	    
+	    # refer to function or class by name
+	    $doc =~ s-\\l\s+([^\s\(\.\,\)]+(?:\.h)?)((?:[\(\)]*))-
+		if (defined($anchor{$1})) {
+		    sprintf("<a href=\"%s\">%s</a>", $anchor{$1}, &html($1 . $2));
+		} else {
+		    if (defined($anchor{$class . $1})) {
+			sprintf("<a href=\"%s\">%s</a>", 
+				$anchor{$class . $1}, &html($1 . $2));
+		    } elsif (defined($anchor{"::".$1})) {
+			sprintf("<a href=\"%s\">%s</a>", 
+				$anchor{"::" . $1}, &html($1 . $2));
+		    } else {
+			print "No link to '", $1, "'\n";
+			sprintf("%s", $1 . $2);
+		    }
+		}
+	    -egsx;
+	    
+	    $doc =~ s-\\internal\s-<p>Internal comments:<p>\n-s;
+	    
+	    $doc =~ s/\\\&/&amp;/gs;
+	    $doc =~ s/\\</&lt;/gs;
+	    $doc =~ s/\\>/&gt;/gs;
+	    
+	    $doc =~ s!\\code\b(.*?)\\endcode!&processcode($1)!esg;
+	    
+	    $doc = &codeincludes($doc);
+	    
+	    $doc =~ s!\\classhierarchy!&classhierarchy()!es;
+	    $doc =~ s!\\classlist!&classlist()!es;
+	    $doc =~ s!\\annotatedclasslist!&annotatedclasslist()!es;
+	    $doc =~ s!\\headerfilelist!&headerfilelist()!es;
+	    $doc =~ s!\\functionindex!&functionindex()!es;
+	    
+	    $doc =~ s@\\version\b@$version@gs;
+	    
+	    $doc =~ s!\\e\s+(\S+)!<em>$1</em>!gs;
+	    $doc =~ s!\\c\s+(\S+)!<code>$1</code>!gs;
+	    
+	    $doc =~ s/\n\s*\n/\n<p>\n/gs;
+	    $doc =~ s/<linebreak>//gs;
+	    $doc =~ s/<p>\s*<p>/<p>/gs;
+	    
+	    open(O, "> $outputdir/$file") ||
+		die "can't open $outputdir/$file";
 	} else {
 	    print O $doc, "\n";
 	}
