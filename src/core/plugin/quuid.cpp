@@ -105,7 +105,7 @@ QUuid::QUuid(const QString &text)
     if (text[(int)text.length()-1] != QLatin1Char('}'))
         temp += QLatin1Char('}');
 
-    data1 = temp.mid(1, 8).toULong(&ok, 16);
+    data1 = temp.mid(1, 8).toULongLong(&ok, 16);
     if (!ok) {
         *this = QUuid();
         return;
