@@ -2823,6 +2823,9 @@ fi
 if [ "$CFG_IPV6" = "yes" ]; then
     QT_CONFIG="$QT_CONFIG ipv6"
 fi
+if [ "$CFG_GETADDRINFO" = "yes" ]; then
+    QT_CONFIG="$QT_CONFIG getaddrinfo"
+fi
 if [ "$CFG_LIBMNG" = "system" ]; then
     QT_CONFIG="$QT_CONFIG system-mng"
 fi
