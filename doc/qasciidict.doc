@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qasciidict.doc,v 2.1 1999/06/23 17:06:07 hanord Exp $
+** $Id: qasciidict.doc,v 2.2 1999/06/23 18:48:41 hanord Exp $
 **
 ** QAsciiDict and QAsciiDictIterator class documentation
 **
@@ -39,7 +39,7 @@
   A dictionary is a collection that associates an item with a key.
   The key is used for inserting and looking up an item.  QAsciiDict has
   \c char* keys.  QAsciiDict cannot handle Unicode keys, instead use the
-  QDict template which uses QString keys.  A QDict has the same performace
+  QDict template which uses \l QString keys.  A QDict has the same performace
   as a QAsciiDict.
 
   The dictionary has very fast insertion and lookup.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qdict.doc,v 2.11 1999/06/23 17:06:07 hanord Exp $
+** $Id: qdict.doc,v 2.12 1999/06/23 18:48:42 hanord Exp $
 **
 ** QDict and QDictIterator class documentation
 **
@@ -38,7 +38,7 @@
 
   A dictionary is a collection that associates an item with a key.
   The key is used for inserting and looking up an item. QDict has
-  \c QString keys, which are Unicode strings.  If you want to use
+  \l QString keys, which are Unicode strings.  If you want to use
   non-Unicode, plain 8-bit \c char* keys, use the QAsciiDict template.
   A QDict has the same performace as a QAsciiDict.
 
@@ -177,7 +177,6 @@
 /*!
   \fn QDict::~QDict()
   Removes all items from the dictionary and destroys it.
-
   All iterators that access this dictionary will be reset.
 
   \sa setAutoDelete()

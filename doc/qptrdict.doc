@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qptrdict.doc,v 2.7 1999/06/09 10:19:41 paul Exp $
+** $Id: qptrdict.doc,v 2.8 1999/06/23 18:48:44 hanord Exp $
 **
 ** QPtrDict and QPtrDictIterator class documentation
 **
@@ -148,7 +148,7 @@
   QCollection::deleteItem() is called.  QPtrDict's default implementation
   is to delete the item if auto-deletion is enabled.
 
-  \sa QPtrDictIterator, QDict,
+  \sa QPtrDictIterator, QDict, QAsciiDict, QIntDict,
       \link collection.html Collection Classes\endlink
 */
 
