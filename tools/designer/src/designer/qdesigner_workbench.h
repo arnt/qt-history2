@@ -129,6 +129,7 @@ private:
     QMenu *m_formMenu;
     QMenu *m_toolMenu;
     QMenu *m_windowMenu;
+    QMenu *m_helpMenu;
 
     QMenuBar *m_globalMenuBar;
     QToolBar *m_toolToolBar;

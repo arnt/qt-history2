@@ -148,6 +148,11 @@ void QDesignerWorkbench::initialize()
         m_windowMenu->addAction(action);
     }
 
+    m_helpMenu = m_globalMenuBar->addMenu(tr("&Help"));
+    foreach (QAction *action, m_actionManager->helpActions()->actions()) {
+        m_helpMenu->addAction(action);
+    }
+
     m_windowMenu->addSeparator();
 
     addToolWindow(new QDesignerWidgetBox(this));

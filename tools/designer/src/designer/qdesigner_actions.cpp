@@ -27,7 +27,9 @@
 #include <abstractformeditorplugin.h>
 #include <qdesigner_formbuilder.h>
 #include <qtundo.h>
+#include <qassistantclient.h>
 
+#include <QtCore/QLibraryInfo>
 #include <QtCore/QBuffer>
 
 #include <QtGui/QAction>
@@ -42,7 +44,7 @@
 
 QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     : QObject(workbench),
-      m_workbench(workbench)
+      m_workbench(workbench), m_assistantClient(0)
 {
     Q_ASSERT(m_workbench != 0);
 
@@ -69,6 +71,9 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
 
     m_toolActions = new QActionGroup(this);
     m_toolActions->setExclusive(true);
+
+    m_helpActions = new QActionGroup(this);
+    m_helpActions->setExclusive(false);
 
 
 //
@@ -253,6 +258,39 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     m_windowActions->addAction(m_bringToFrontAction);
 
 //
+// Help actions
+//
+
+    m_mainHelpAction = new QAction(tr("Qt Designer &Help"));
+    connect(m_mainHelpAction, SIGNAL(triggered()), this, SLOT(showDesignerHelp()));
+#ifdef Q_WS_MAC
+    m_mainHelpAction->setShortcut(Qt::CTRL + Qt::Key_Question);
+#else
+    m_mainHelpAction->setShortcut(Qt::Key_F1);
+#endif
+    m_helpActions->addAction(m_mainHelpAction);
+
+    sep = new QAction(this);
+    sep->setSeparator(true);
+    m_helpActions->addAction(sep);
+
+    m_whatsNewAction = new QAction(tr("What's New in Qt Designer?"));
+    connect(m_whatsNewAction, SIGNAL(triggered()), this, SLOT(showWhatsNew()));
+    m_helpActions->addAction(m_whatsNewAction);
+
+    // On Mac OS X, the about items are merged in so this separator is redundant.
+#ifndef Q_WS_MAC
+    sep = new QAction(this);
+    sep->setSeparator(true);
+    m_helpActions->addAction(sep);
+#endif
+    m_aboutDesignerAction = new QAction(tr("About Qt Designer"));
+    connect(m_aboutDesignerAction, SIGNAL(triggered()), this, SLOT(aboutDesigner()));
+    m_helpActions->addAction(m_aboutDesignerAction);
+    m_aboutQtAction = new QAction(tr("About Qt"));
+    connect(m_aboutQtAction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+    m_helpActions->addAction(m_aboutQtAction);
+//
 // connections
 //
     fixActionContext();
@@ -283,6 +321,9 @@ QActionGroup *QDesignerActions::formActions() const
 
 QActionGroup *QDesignerActions::windowActions() const
 { return m_windowActions; }
+
+QActionGroup *QDesignerActions::helpActions() const
+{ return m_helpActions; }
 
 QAction *QDesignerActions::newFormAction() const
 { return m_newFormAction; }
@@ -334,6 +375,18 @@ QAction *QDesignerActions::bringToFrontAction() const
 
 QAction *QDesignerActions::preferences() const
 { return m_preferences; }
+
+QAction *QDesignerActions::mainHelpAction() const
+{ return m_mainHelpAction; }
+
+QAction *QDesignerActions::whatsNewAction() const
+{ return m_whatsNewAction; }
+
+QAction *QDesignerActions::aboutQtAction() const
+{ return m_aboutQtAction; }
+
+QAction *QDesignerActions::aboutDesignerAction() const
+{ return m_aboutDesignerAction; }
 
 QAction *QDesignerActions::layoutHorizontallyAction() const
 { return m_layoutHorizontallyAction; }
@@ -422,7 +475,7 @@ bool QDesignerActions::saveForm(AbstractFormWindow *fw)
 void QDesignerActions::closeForm()
 {
     if (AbstractFormWindow *fw = core()->formWindowManager()->activeFormWindow())
-        fw->window()->close();
+        fw->parentWidget()->close();
 }
 
 void QDesignerActions::saveFormAs()
@@ -703,4 +756,42 @@ QAction *QDesignerActions::minimizeAction() const
 QAction *QDesignerActions::bringAllToFront() const
 {
     return m_bringToFrontAction;
+}
+
+void QDesignerActions::showDesignerHelp()
+{
+    showHelp("designer-manual.html");
+}
+
+void QDesignerActions::showWhatsNew()
+{
+    showHelp("qt4-designer.html");
+}
+
+void QDesignerActions::showHelp(const QString &url)
+{
+    if (!m_assistantClient)
+        m_assistantClient
+            = new QAssistantClient(QLibraryInfo::location(QLibraryInfo::BinariesPath), this);
+    m_assistantClient->showPage(QLibraryInfo::location(QLibraryInfo::DocumentationPath)
+                                + "/html/" + url);
+}
+
+void QDesignerActions::aboutDesigner()
+{
+    QString text = tr("<h3>%1</h3>"
+            "<br/><br/>Version %2"
+            "<br/>Qt Designer is a graphical user interface designer "
+            "for Qt applications.<br/><br/>"
+            "<br/>Copyright 2000-2004 Trolltech AS. All rights reserved."
+            "<br/><br/>The program is provided AS IS with NO WARRANTY OF ANY KIND,"
+            " INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A"
+            " PARTICULAR PURPOSE.<br/> ")
+        .arg(tr("Qt Designer")).arg(QT_VERSION_STR);
+    QMessageBox mb(core()->topLevel());
+    mb.setWindowTitle(tr("About Qt Designer"));
+    mb.setText(text);
+    mb.setIconPixmap(QPixmap(":/trolltech/designer/images/designer.png"));
+    mb.exec();
+
 }

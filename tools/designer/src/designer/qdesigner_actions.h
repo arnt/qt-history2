@@ -24,6 +24,7 @@ class QAction;
 class QActionGroup;
 class AbstractFormEditor;
 class AbstractFormWindow;
+class QAssistantClient;
 
 class QDesignerActions: public QObject
 {
@@ -45,6 +46,7 @@ public:
     QActionGroup *formActions() const;
     QActionGroup *windowActions() const;
     QActionGroup *toolActions() const;
+    QActionGroup *helpActions() const;
 
 //
 // file actions
@@ -98,6 +100,14 @@ public:
     QAction *minimizeAction() const;
     QAction *bringAllToFront() const;
 
+//
+// help actions
+//
+    QAction *mainHelpAction() const;
+    QAction *whatsNewAction() const;
+    QAction *aboutQtAction() const;
+    QAction *aboutDesignerAction() const;
+
 public slots:
     void activeFormWindowChanged(AbstractFormWindow *formWindow);
     void createForm();
@@ -118,17 +128,22 @@ private slots:
     void handlePreferenceChange();
     void minimizeForm();
     void bringAllToFront();
+    void showDesignerHelp();
+    void showWhatsNew();
+    void aboutDesigner();
 
 private:
     bool saveFormAs(AbstractFormWindow *fw);
     void fixActionContext();
     void updateRecentFileActions();
     void addRecentFile(const QString &fileName);
+    void showHelp(const QString &help);
 
 private:
     enum { MaxRecentFiles = 10 };
     QDesignerWorkbench *m_workbench;
     AbstractFormEditor *m_core;
+    QAssistantClient *m_assistantClient;
 
     QActionGroup *m_fileActions;
     QActionGroup *m_recentFilesActions;
@@ -136,6 +151,7 @@ private:
     QActionGroup *m_formActions;
     QActionGroup *m_windowActions;
     QActionGroup *m_toolActions;
+    QActionGroup *m_helpActions;
 
     QAction *m_editWidgetsAction;
 
@@ -170,6 +186,11 @@ private:
 
     QAction *m_minimizeAction;
     QAction *m_bringAllToFrontAction;
+
+    QAction *m_mainHelpAction;
+    QAction *m_whatsNewAction;
+    QAction *m_aboutQtAction;
+    QAction *m_aboutDesignerAction;
 };
 
 #endif // QDESIGNER_ACTIONS_H
