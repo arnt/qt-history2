@@ -130,7 +130,7 @@ QJisCodec::QJisCodec() : conv(QJpUnicodeConv::newConverter(QJpUnicodeConv::Defau
 /*! \internal */
 QJisCodec::~QJisCodec()
 {
-    delete conv;
+    delete (QJpUnicodeConv*)conv;
     conv = 0;
 }
 
