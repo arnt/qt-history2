@@ -946,7 +946,7 @@ void QMessageBox::keyPressEvent( QKeyEvent *e )
             return;
         }
     }
-
+#ifndef QT_NO_ACCEL
     if ( !( e->state() & AltButton ) ) {
 	QObjectList *list = queryList( "QPushButton" );
 	QObjectListIt it( *list );
@@ -963,7 +963,7 @@ void QMessageBox::keyPressEvent( QKeyEvent *e )
 	}
 	delete list;
     }
-
+#endif
     QDialog::keyPressEvent( e );
 }
 

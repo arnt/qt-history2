@@ -513,7 +513,17 @@ QString QInputDialog::getItem( const QString &caption, const QString &label, con
 
 void QInputDialog::textChanged( const QString &s )
 {
-    d->ok->setEnabled( !s.isEmpty() );
+    bool on;
+
+    if ( d->lineEdit->validator() ) {
+	QString str = d->lineEdit->text();
+	int index = d->lineEdit->cursorPosition();
+	on = ( d->lineEdit->validator()->validate(str, index) ==
+	       QValidator::Acceptable );
+    } else {
+	on = !s.isEmpty();
+    }
+    d->ok->setEnabled( on );
 }
 
 /*!

@@ -1546,14 +1546,14 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	}
 	break;
 #endif // QT_NO_SLIDER
-
+#ifndef QT_NO_LISTVIEW
     case CC_ListView:
 	if ( controls & SC_ListView ) {
 	    QListView *listview = (QListView*)widget;
 	    p->fillRect( r, listview->viewport()->backgroundBrush() );
 	}
 	break;
-
+#endif //QT_NO_LISTVIEW
     default:
 	break;
     }
@@ -1884,7 +1884,7 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl control,
 	    break;
 	}
 #endif
-
+#ifndef QT_NO_SCROLLBAR
     case CC_ScrollBar:
 	{
 	    QRect r;
@@ -1902,7 +1902,7 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl control,
 
 	    break;
 	}
-
+#endif
     case CC_TitleBar:
 	{
 #ifndef QT_NO_TITLEBAR
@@ -1985,7 +1985,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
     case PM_DefaultFrameWidth:
 	ret = 2;
 	break;
-
+#ifndef QT_NO_SCROLLBAR
     case PM_ScrollBarExtent:
 	if ( !widget ) {
 	    ret = 16;
@@ -1997,7 +1997,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 	    ret = QMAX( 16, s );
 	}
 	break;
-
+#endif
     case PM_MaximumDragDistance:
 	ret = -1;
 	break;
