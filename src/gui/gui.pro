@@ -11,9 +11,9 @@ QCONFIG = core
 
 
 #platforms
-x11:include(base/x11.pri)
-mac:include(base/mac.pri)
-win32:include(base/win.pri)
+x11:include(kernel/x11.pri)
+mac:include(kernel/mac.pri)
+win32:include(kernel/win.pri)
 embedded:include(embedded/embedded.pri)
 
 #modules
