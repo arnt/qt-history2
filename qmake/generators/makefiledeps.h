@@ -73,6 +73,7 @@ public:
     enum SourceFileSeek { SEEK_DEPS=0x01, SEEK_MOCS=0x02 };
     void addSourceFiles(const QStringList &, uchar seek, SourceFileType type=TYPE_C);
     void addSourceFile(const QString &, uchar seek, SourceFileType type=TYPE_C);
+    bool containsSourceFile(const QString &, SourceFileType type=TYPE_C);
 
     int included(const QString &file);
     QStringList dependencies(const QString &file);

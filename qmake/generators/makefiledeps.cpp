@@ -292,6 +292,13 @@ void QMakeSourceFileInfo::addSourceFile(const QString &f, uchar seek,
         findDeps(file);
 }
 
+bool QMakeSourceFileInfo::containsSourceFile(const QString &f, SourceFileType type)
+{
+    if(SourceFile *file = files->lookupFile(QMakeLocalFileName(f)))
+        return (file->type == type || file->type == TYPE_UNKNOWN || type == TYPE_UNKNOWN);
+    return false;
+}
+
 char *QMakeSourceFileInfo::getBuffer(int s) {
     if(!spare_buffer || spare_buffer_size < s)
         spare_buffer = (char *)realloc(spare_buffer, spare_buffer_size=s);
