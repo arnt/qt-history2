@@ -48,6 +48,9 @@ class QWidgetList;
 class Q_EXPORT QCategoryBar : public QWidget
 {
     Q_OBJECT
+    Q_PROPERTY( int currentPage READ currentIndex WRITE setCurrentPage )
+    Q_PROPERTY( int count READ count )
+    Q_PROPERTY( bool scrollEffectEnabled READ isScrollEffectEnabled WRITE setScrollEffectEnabled )
 
 public:
     QCategoryBar( QWidget *parent = 0, const char *name = 0 );
@@ -75,6 +78,8 @@ public:
 
     int count() const;
 
+    bool isScrollEffectEnabled() const;
+
 public slots:
     virtual void setCurrentPage( int index );
     virtual void setCurrentPage( QWidget *page );
@@ -83,6 +88,7 @@ public slots:
     virtual void setCategoryLabel( QWidget *page, const QString &label );
     virtual void setCategoryIconSet( QWidget *page, const QIconSet &iconSet );
     virtual void setCategoryToolTip( QWidget *page, const QString &toolTip );
+    virtual void setScrollEffectEnabled( bool enable );
 
 signals:
     void currentChanged( QWidget *page );

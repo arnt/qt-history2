@@ -85,6 +85,7 @@ public:
 	    lastButton = 0;
 	    categories = new QPtrList<Category>;
 	    categories->setAutoDelete( TRUE );
+	    scrollEffect = TRUE;
 	}
 
     ~QCategoryBarPrivate()
@@ -137,6 +138,7 @@ public:
     QVBoxLayout *layout;
     QWidget *currentPage;
     QCategoryButton *lastButton;
+    bool scrollEffect;
 };
 
 
@@ -291,46 +293,49 @@ void QCategoryBar::buttonClicked()
 	return;
 
 
-    // ### this stuff needs more work (tweak parameters and also
-    // ### resize the old and new current page accordingly, so it will
-    // ### look nicer)
-    int direction = 0;
+    if ( d->scrollEffect ) {
+	// ### This implementation can be improved by resizing the old
+	// ### and new current page accordingly. This will improve the
+	// ### visual effect
+	int direction = 0;
 
-    QWidgetList buttons;
-    for ( QCategoryBarPrivate::Category *c = d->categories->first(); c;
-	  c = d->categories->next() ) {
-	if ( c->button == tb ) {
-	    buttons.append( c->button );
-	    if ( direction < 0 )
-		break;
-	    direction = 8;
-	} else if ( c->button == d->lastButton ) {
-	    if ( direction > 0 )
-		break;
-	    direction = -8;
-	} else if ( direction != 0 ) {
-	    buttons.append( c->button );
-	}
-    }
-
-    int dist = 0;
-    int h = d->currentPage->parentWidget()->height() - d->lastButton->height();
-
-    QTime t;
-    t.start();
-
-    while ( dist < h ) {
-	if ( t.elapsed() > 1 ) {
-	    QWidgetListIt it( buttons );
-	    while ( it.current() ) {
-		it.current()->raise();
-		it.current()->move( it.current()->x(), it.current()->y() + direction );
-		++it;
+	QWidgetList buttons;
+	for ( QCategoryBarPrivate::Category *c = d->categories->first(); c;
+	      c = d->categories->next() ) {
+	    if ( c->button == tb ) {
+		buttons.append( c->button );
+		if ( direction < 0 )
+		    break;
+		direction = 8;
+	    } else if ( c->button == d->lastButton ) {
+		if ( direction > 0 )
+		    break;
+		direction = -8;
+	    } else if ( direction != 0 ) {
+		buttons.append( c->button );
 	    }
-	    dist += QABS( direction );
-	    t.restart();
 	}
-	qApp->eventLoop()->processEvents( QEventLoop::ExcludeUserInput );
+
+	int dist = 0;
+	int h = d->currentPage->parentWidget()->height() - d->lastButton->height();
+
+	QTime t;
+	t.start();
+
+	while ( dist < h ) {
+	    if ( t.elapsed() > 1 ) {
+		QWidgetListIt it( buttons );
+		while ( it.current() ) {
+		    it.current()->raise();
+		    it.current()->move( it.current()->x(),
+					it.current()->y() + direction );
+		    ++it;
+		}
+		dist += QABS( direction );
+		t.restart();
+	    }
+	    qApp->eventLoop()->processEvents( QEventLoop::ExcludeUserInput );
+	}
     }
 
     setCurrentPage( page );
@@ -524,3 +529,14 @@ QString QCategoryBar::categoryToolTip( QWidget *page ) const
     QCategoryBarPrivate::Category *c = d->category( page );
     return c ? c->toolTip : QString::null;
 }
+
+bool QCategoryBar::isScrollEffectEnabled() const
+{
+    return d->scrollEffect;
+}
+
+void QCategoryBar::setScrollEffectEnabled( bool enable )
+{
+    d->scrollEffect = enable;
+}
+
