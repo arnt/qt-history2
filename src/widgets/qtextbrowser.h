@@ -41,7 +41,6 @@
 #ifndef QT_H
 #include "qptrlist.h"
 #include "qpixmap.h"
-#include "qscrollview.h"
 #include "qcolor.h"
 #include "qtextedit.h"
 #endif // QT_H
