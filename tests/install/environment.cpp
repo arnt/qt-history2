@@ -151,7 +151,7 @@ QString QEnvironment::getRegistryString( QString keyName, QString valueName, int
 	}
     }
     else {
-	if( RegOpenKeyExA( HKEY_CURRENT_USER, keyName.local8Bit(), 0, KEY_READ, &key ) == ERROR_SUCCESS ) {
+	if( RegOpenKeyExA( scopeKeys[ scope ], keyName.local8Bit(), 0, KEY_READ, &key ) == ERROR_SUCCESS ) {
 	    if( RegQueryValueExA( key, valueName.local8Bit(), NULL, NULL, NULL, &valueSize ) == ERROR_SUCCESS ) {
 		buffer.resize( valueSize );
 		if( RegQueryValueExA( key, valueName.local8Bit(), NULL, NULL, (unsigned char*)buffer.data(), &valueSize ) == ERROR_SUCCESS ) {

@@ -16,6 +16,7 @@ public:
     virtual void licenseAccepted();
     virtual void clickedFolderPath();
     virtual void clickedDevSysPath();
+//    virtual void clickedEnvironmentButton();
 
     virtual void showPage( QWidget* );
     QApplication* app;
@@ -27,6 +28,7 @@ private:
     QProcess configure;
     QProcess make;
     QProcess integrator;
+    QProcess env;
     QCheckListItem* debugMode;
     QCheckListItem* buildType;
     QCheckListItem* threadModel;
@@ -42,15 +44,16 @@ private:
     void saveSettings();
     void saveSet( QListView* list );
 protected slots:
-    void configDone();
-    void makeDone();
-    void integratorDone();
-    void readConfigureOutput();
-    void readConfigureError();
-    void readMakeOutput();
-    void readMakeError();
-    void readIntegratorOutput();
-    void readIntegratorError();
+    virtual void configDone();
+    virtual void makeDone();
+    virtual void integratorDone();
+    virtual void readConfigureOutput();
+    virtual void readConfigureError();
+    virtual void readMakeOutput();
+    virtual void readMakeError();
+    virtual void readIntegratorOutput();
+    virtual void readIntegratorError();
+//    virtual void envDone();
 
 private:
 #if defined (USE_ARCHIVES)

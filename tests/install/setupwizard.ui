@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>505</width>
-            <height>339</height>
+            <width>493</width>
+            <height>345</height>
         </rect>
     </property>
     <property name="caption">
@@ -703,7 +703,7 @@
             </property>
             <widget class="QLabel">
                 <property name="name">
-                    <cstring>page6Pixmap</cstring>
+                    <cstring>page7Pixmap</cstring>
                 </property>
                 <property name="sizePolicy">
                     <sizepolicy>
@@ -779,7 +779,7 @@
             </property>
             <widget class="QLabel">
                 <property name="name">
-                    <cstring>page7Pixmap</cstring>
+                    <cstring>page8Pixmap</cstring>
                 </property>
                 <property name="sizePolicy">
                     <sizepolicy>
@@ -868,6 +868,7 @@
     <slot access="public" language="C++">clickedPath()</slot>
     <slot access="public" language="C++">clickedSystem(int)</slot>
     <slot access="public" language="C++">licenseAccepted()</slot>
+    <slot access="public" language="C++">clickedEnvironmentButton()</slot>
     <slot access="public" language="C++">pageChanged(const QString&amp;)</slot>
 </connections>
 <tabstops>

@@ -1,6 +1,7 @@
 #include "setupwizardimpl.h"
 #include "environment.h"
 #include "confirmdlg.h"
+#include "environmentdlg.h"
 #include <qfiledialog.h>
 #include <qlineedit.h>
 #include <qlabel.h>
@@ -35,6 +36,7 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
     setNextEnabled( introPage, false );
     setBackEnabled( progressPage, false );
     setNextEnabled( progressPage, false );
+//    setNextEnabled( environmentPage, false );
     setBackEnabled( buildPage, false );
     setNextEnabled( buildPage, false );
     setFinishEnabled( finishPage, true );
@@ -83,6 +85,23 @@ void SetupWizardImpl::clickedSystem( int sys )
 {
     sysID = sys;
 }
+
+/*
+void SetupWizardImpl::clickedEnvironmentButton()
+{
+    QStringList args;
+
+    args += QEnvironment::getRegistryString( "Software\\Mmicrosoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual C++", "ProductDir", QEnvironment::LocalMachine );
+    env.setArguments( args );
+    connect( &env, SIGNAL( processExited() ), this, SLOT( envDone() ) );
+    env.start();
+}
+
+void SetupWizardImpl::envDone()
+{
+    setNextEnabled( environmentPage, true );
+}
+*/
 
 void SetupWizardImpl::licenseAccepted( )
 {
@@ -362,7 +381,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
     SetupWizard::showPage( newPage );
 
     if( newPage == introPage ) {
-	QFile licenseFile( QString( tmpPath.data() ) + "\\LICENSE" );
+	QFile licenseFile( "LICENSE" );
 	if( licenseFile.open( IO_ReadOnly ) ) {
 	    QByteArray fileData;
 	    QFileInfo fi( licenseFile );
@@ -384,6 +403,13 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	devSysLabel->setText( devSys[ sysID ] );
 	devSysPath->setEnabled( sysID == 0 );
 	devSysPathButton->setEnabled( sysID == 0 );
+	QString devdir = QEnvironment::getEnv( "MSDevDir" );
+	if( !devdir.length() ) {
+	    EnvironmentWarnDlg dlg;
+
+	    dlg.exec();
+	    reject();
+	}
 	if( sysID == 0 )
 	    devSysPath->setText( QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual Studio", "ProductDir", QEnvironment::LocalMachine ) );
 	if( int( qWinVersion() ) & int( Qt::WV_NT_based ) )   // On NT we also have a common folder
@@ -461,6 +487,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    }
 	
 #endif
+	    createDir( installPath->text() + "\\plugins\\designer" );
 	    filesCopied = true;
 	    logFiles( "All files have been copied,\nThis log has been saved to the installation directory.\n", true );
 	}
@@ -568,6 +595,14 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    --sqlsrcDirIterator;
 	}
     }
+/*
+    else if( newPage == environmentPage ) {
+	QString vsCommonDir = QEnvironment::getEnv( "VSCommonDir" );
+
+	if( vsCommonDir.length() )
+	    next();
+    }
+*/
     else if( newPage == buildPage ) {
 	QStringList args;
 	QStringList entries;
