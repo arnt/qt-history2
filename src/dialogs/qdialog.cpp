@@ -417,21 +417,22 @@ bool QDialog::eventFilter( QObject *o, QEvent *e )
 void QDialog::polish()
 {
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    if ( !icon() || icon()->isNull() ) {
+    const QPixmap *pm = icon();
+    if ( !pm || pm->isNull() ) {
 	QWidget *mw = (QWidget *)parent();
-	const QPixmap *px = mw ? mw->icon() : 0;
-    	if ( px && !px->isNull() )
-	    setIcon( *px );
+	pm = mw ? mw->icon() : 0;
+    	if ( pm && !pm->isNull() )
+	    setIcon( *pm );
 	else {
 	    mw = mw ? mw->topLevelWidget() : 0;
-	    px = mw ? mw->icon() : 0;
-	    if ( px && !px->isNull() )
-		setIcon( *px );
+	    pm = mw ? mw->icon() : 0;
+	    if ( pm && !pm->isNull() )
+		setIcon( *pm );
 	    else {
 		mw = qApp ? qApp->mainWidget() : 0;
-		px = mw ? mw->icon() : 0;
-		if ( px && !px->isNull() )
-		    setIcon( *px );
+		pm = mw ? mw->icon() : 0;
+		if ( pm && !pm->isNull() )
+		    setIcon( *pm );
 	    }
 	}
     }
