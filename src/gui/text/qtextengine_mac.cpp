@@ -41,7 +41,7 @@ void QTextEngine::shapeText( int item ) const
     si.width = 0;
     QGlyphLayout *glyphs = this->glyphs( &si );
     for ( int i = 0; i < si.num_glyphs; i++ )
-	si.width += glyphs[i].advance;
+	si.width += glyphs[i].advance.x;
 
     return;
 }

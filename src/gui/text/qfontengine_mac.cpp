@@ -88,10 +88,13 @@ QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, in
     *nglyphs = len;
     for(int i = 0; i < len; i++) {
 	glyphs[i].glyph = str[i].unicode();
-	if(str[i].unicode() < widthCacheSize && widthCache[str[i].unicode()])
-	    glyphs[i].advance = widthCache[str[i].unicode()];
-	else
-	    glyphs[i].advance = doTextTask(str+i, 0, 1, 1, WIDTH);
+	if(str[i].unicode() < widthCacheSize && widthCache[str[i].unicode()]) {
+	    glyphs[i].advance.x = widthCache[str[i].unicode()];
+	    glyphs[i].advance.y = 0;
+	} else {
+	    glyphs[i].advance.x = doTextTask(str+i, 0, 1, 1, WIDTH);
+	    glyphs[i].advance.y = 0;
+	}
     }
     return NoError;
 }
@@ -171,7 +174,7 @@ QFontEngineMac::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int tex
 	for(int i = 0; i < si.num_glyphs; i++) {
 	    glyphs--;
 	    w += doTextTask((QChar*)&glyphs->glyph, 0, 1, 1, task, x, y, p);
-	    x += glyphs->advance;
+	    x += glyphs->advance.x;
 	}
     } else {
 	QVarLengthArray<ushort> g(si.num_glyphs);
@@ -196,7 +199,7 @@ QFontEngineMac::boundingBox(const QGlyphLayout *glyphs, int numGlyphs)
     int w = 0;
     const QGlyphLayout *end = glyphs + numGlyphs;
     while(end > glyphs)
-	w += (--end)->advance;
+	w += (--end)->advance.x;
     return glyph_metrics_t(0, -(ascent()), w, ascent()+descent()+1, w, 0);
 }
 
@@ -585,8 +588,10 @@ QFontEngine::Error QFontEngineBox::stringToCMap(const QChar *,  int len, QGlyphL
 	glyphs[i].glyph = 0;
     *nglyphs = len;
 
-    for(int i = 0; i < len; i++)
-	(glyphs++)->advance = _size;
+    for(int i = 0; i < len; i++) {
+	(glyphs++)->advance.x = _size;
+	(glyphs++)->advance.y = 0;
+    }
 
     return NoError;
 }
