@@ -222,7 +222,7 @@ void QPainterPrivate::draw_helper_fill_pattern(const void *data, Qt::FillRule fi
         break;
     default: {
         QPixmap pattern;
-        if (state->brush.style() == Qt::CustomPattern)
+        if (state->brush.style() == Qt::TexturePattern)
             pattern = state->brush.texture();
         else
             pattern = qt_pixmapForBrush(state->brush.style(), true);
@@ -231,7 +231,7 @@ void QPainterPrivate::draw_helper_fill_pattern(const void *data, Qt::FillRule fi
             pattern.setMask(*static_cast<QBitmap *>(&pattern));
 
         if (state->bgMode == Qt::OpaqueMode
-            && state->brush.style() != Qt::CustomPattern
+            && state->brush.style() != Qt::TexturePattern
             && state->brush.style() != Qt::LinearGradientPattern) {
             q->fillRect(bounds, state->bgBrush);
         }

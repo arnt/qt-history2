@@ -143,7 +143,7 @@ QBrushData *QBrush::shared_default = 0;
 void QBrush::init(const QColor &color, Qt::BrushStyle style)
 {
     switch(style) {
-    case Qt::CustomPattern:
+    case Qt::TexturePattern:
         d = new QTexturedBrushData;
         static_cast<QTexturedBrushData *>(d)->pixmap = QPixmap();
         break;
@@ -186,7 +186,7 @@ QBrush::QBrush(const QPixmap &pixmap)
 {
 // ## if pixmap was image, we could pick a nice color rather than
 // assuming black.
-    init(Qt::black, Qt::CustomPattern);
+    init(Qt::black, Qt::TexturePattern);
     setTexture(pixmap);
 }
 
@@ -236,7 +236,7 @@ QBrush::QBrush(Qt::GlobalColor color, Qt::BrushStyle style)
 
 QBrush::QBrush(const QColor &color, const QPixmap &pixmap)
 {
-    init(color, Qt::CustomPattern);
+    init(color, Qt::TexturePattern);
     setTexture(pixmap);
 }
 
@@ -253,7 +253,7 @@ QBrush::QBrush(const QColor &color, const QPixmap &pixmap)
 */
 QBrush::QBrush(Qt::GlobalColor color, const QPixmap &pixmap)
 {
-    init(color, Qt::CustomPattern);
+    init(color, Qt::TexturePattern);
     setTexture(pixmap);
 }
 
@@ -298,7 +298,7 @@ QBrush::~QBrush()
 void QBrush::cleanUp(QBrushData *x)
 {
     switch (x->style) {
-    case Qt::CustomPattern:
+    case Qt::TexturePattern:
         delete static_cast<QTexturedBrushData*>(x);
         break;
     case Qt::LinearGradientPattern:
@@ -317,10 +317,10 @@ void QBrush::detach(Qt::BrushStyle newStyle)
 
     QBrushData *x;
     switch(newStyle) {
-    case Qt::CustomPattern:
+    case Qt::TexturePattern:
         x = new QTexturedBrushData;
         static_cast<QTexturedBrushData*>(x)->pixmap =
-            d->style == Qt::CustomPattern ? static_cast<QTexturedBrushData *>(d)->pixmap : 0;
+            d->style == Qt::TexturePattern ? static_cast<QTexturedBrushData *>(d)->pixmap : 0;
         break;
     case Qt::LinearGradientPattern:
         x = new QLinGradBrushData;
@@ -382,7 +382,7 @@ QBrush &QBrush::operator=(const QBrush &b)
     \row \i Qt::BDiagPattern \i diagonal lines (directed /) pattern.
     \row \i Qt::FDiagPattern \i diagonal lines (directed \) pattern.
     \row \i Qt::DiagCrossPattern \i diagonal crossing lines pattern.
-    \row \i Qt::CustomPattern \i set when a pixmap pattern is being used.
+    \row \i Qt::TexturePattern \i set when a pixmap pattern is being used.
     \endtable
 
     On Windows, dense and custom patterns cannot be transparent.
@@ -397,8 +397,8 @@ void QBrush::setStyle(Qt::BrushStyle s)
 {
     if (d->style == s)
         return;
-    if (s == Qt::CustomPattern)
-        qWarning("QBrush::setStyle: CustomPattern is for internal use");
+    if (s == Qt::TexturePattern)
+        qWarning("QBrush::setStyle: TexturePattern is for internal use");
     detach(s);
     d->style = s;
 }
@@ -453,7 +453,7 @@ void QBrush::setColor(const QColor &c)
 */
 QPixmap *QBrush::pixmap() const
 {
-    if (d->style != Qt::CustomPattern)
+    if (d->style != Qt::TexturePattern)
         return 0;
     QTexturedBrushData *data  = static_cast<QTexturedBrushData*>(d);
     return data->pixmap.isNull() ? 0 : &data->pixmap;
@@ -470,13 +470,13 @@ QPixmap *QBrush::pixmap() const
 */
 QPixmap QBrush::texture() const
 {
-    return d->style == Qt::CustomPattern
+    return d->style == Qt::TexturePattern
                      ? static_cast<const QTexturedBrushData*>(d)->pixmap : QPixmap();
 }
 
 /*!
     Sets the brush pixmap to \a pixmap. The style is set to \c
-    Qt::CustomPattern.
+    Qt::TexturePattern.
 
     The current brush color will only have an effect for monochrome
     pixmaps, i.e. for QPixmap::depth() == 1.
@@ -489,7 +489,7 @@ QPixmap QBrush::texture() const
 void QBrush::setTexture(const QPixmap &pixmap)
 {
     if (!pixmap.isNull()) {
-        detach(Qt::CustomPattern);
+        detach(Qt::TexturePattern);
         QTexturedBrushData *data = static_cast<QTexturedBrushData *>(d);
         data->pixmap = pixmap;
         if (data->pixmap.optimization() == QPixmap::MemoryOptim)
@@ -572,7 +572,7 @@ bool QBrush::operator==(const QBrush &b) const
         return true;
     if (b.d->style == d->style && b.d->color == d->color) {
         switch (d->style) {
-        case Qt::CustomPattern: {
+        case Qt::TexturePattern: {
             QPixmap us = static_cast<QTexturedBrushData *>(d)->pixmap;
             QPixmap them = static_cast<QTexturedBrushData *>(b.d)->pixmap;
             return ((us.isNull() && them.isNull()) || us.serialNumber() == them.serialNumber());
@@ -637,7 +637,7 @@ QDebug operator<<(QDebug dbg, const QBrush &b)
 QDataStream &operator<<(QDataStream &s, const QBrush &b)
 {
     s << (Q_UINT8)b.style() << b.color();
-    if (b.style() == Qt::CustomPattern) {
+    if (b.style() == Qt::TexturePattern) {
 #ifndef QT_NO_IMAGEIO
         s << b.texture();
 #else
@@ -666,7 +666,7 @@ QDataStream &operator>>(QDataStream &s, QBrush &b)
     QColor color;
     s >> style;
     s >> color;
-    if (style == Qt::CustomPattern) {
+    if (style == Qt::TexturePattern) {
 #ifndef QT_NO_IMAGEIO
         QPixmap pm;
         s >> pm;

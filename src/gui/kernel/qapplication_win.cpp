@@ -210,7 +210,7 @@ void qt_erase_background(HDC hdc, int x, int y, int w, int h,
                          const QBrush &brush, int off_x, int off_y,
                          QWidget *widget)
 {
-    if (brush.style() == Qt::CustomPattern && brush.texture().isNull())        // empty background
+    if (brush.style() == Qt::TexturePattern && brush.texture().isNull())        // empty background
         return;
     HPALETTE oldPal = 0;
     HPALETTE hpal = QColormap::hPal();
@@ -222,7 +222,7 @@ void qt_erase_background(HDC hdc, int x, int y, int w, int h,
         QPainter p(widget);
         p.fillRect(x, y, w, h, brush);
         return;
-    } else if (brush.style() == Qt::CustomPattern) {
+    } else if (brush.style() == Qt::TexturePattern) {
         QPixmap texture = brush.texture();
         qt_draw_tiled_pixmap(hdc, x, y, w, h, &texture, off_x, off_y);
     } else {

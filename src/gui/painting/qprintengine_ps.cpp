@@ -5780,7 +5780,7 @@ void QPSPrintEngine::updatePen(const QPen &pen)
 void QPSPrintEngine::updateBrush(const QBrush &brush, const QPointF &/*origin*/)
 {
     // ### use brush origin!
-    if (brush.style() == Qt::CustomPattern) {
+    if (brush.style() == Qt::TexturePattern) {
 #if defined(CHECK_RANGE)
         qWarning("QPrinter: Pixmap brush not supported");
 #endif

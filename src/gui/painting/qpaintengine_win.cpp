@@ -1182,8 +1182,8 @@ void QWin32PaintEngine::updateBrush(const QBrush &brush, const QPointF &bgOrigin
         d->hbrush = CreateSolidBrush(d->bColor);
 #ifndef Q_OS_TEMP
     } else if ((d->brushStyle >= Qt::Dense1Pattern && d->brushStyle <= Qt::Dense7Pattern) ||
-                (d->brushStyle == Qt::CustomPattern)) {
-        if (d->brushStyle == Qt::CustomPattern) {
+                (d->brushStyle == Qt::TexturePattern)) {
+        if (d->brushStyle == Qt::TexturePattern) {
             // The brush pixmap can never be a multi cell pixmap
             d->hbrushbm = brush.texture().hbm();
             d->pixmapBrush = true;
@@ -1227,7 +1227,7 @@ void QWin32PaintEngine::updateBrush(const QBrush &brush, const QPointF &bgOrigin
     }
 #else
     } else {
-        if (d->brushStyle == Qt::CustomPattern) {
+        if (d->brushStyle == Qt::TexturePattern) {
             // The brush pixmap can never be a multi cell pixmap
             d->hbrushbm = brush.pixmap()->hbm();
             d->pixmapBrush = true;
@@ -2293,7 +2293,7 @@ void QGdiplusPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
         d->temporaryBrush = true;
         break;
     }
-    case Qt::CustomPattern: {
+    case Qt::TexturePattern: {
 //         QPixmap *pm = brush.pixmap();
 //         if (pm) {
 //             Bitmap *bm = new Bitmap(pm->hbm(), (HPALETTE)0);
@@ -2303,7 +2303,7 @@ void QGdiplusPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
         break;
     }
     default: // HatchBrush
-        Q_ASSERT(brush.style() > Qt::SolidPattern && brush.style() < Qt::CustomPattern);
+        Q_ASSERT(brush.style() > Qt::SolidPattern && brush.style() < Qt::TexturePattern);
 //         d->brush = new HatchBrush(qt_hatchstyle_map[brush.style()],
 //                                   conv(brush.color()),
 //                                   conv(bgBrush.color()));

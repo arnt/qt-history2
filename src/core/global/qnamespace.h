@@ -835,7 +835,10 @@ public:
         FDiagPattern,
         DiagCrossPattern,
         LinearGradientPattern,
-        CustomPattern=24
+	TexturePattern = 24
+#ifdef QT_COMPAT
+        , CustomPattern = TexturePattern
+#endif
     };
 
 #if defined(QT_COMPAT)
