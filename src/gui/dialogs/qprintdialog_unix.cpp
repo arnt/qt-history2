@@ -1591,7 +1591,7 @@ void QPrintDialogUnixPrivate::init()
     tll->addLayout(horiz);
 
     bool rightalign =
-        bool(q->style().styleHint(QStyle::SH_PrintDialog_RightAlignButtons, q));
+        bool(q->style().styleHint(QStyle::SH_PrintDialog_RightAlignButtons, 0, q));
 
     if (rightalign)
         horiz->addStretch(1);
