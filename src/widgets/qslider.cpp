@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#30 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#31 $
 **
 ** Implementation of QSlider class
 **
@@ -15,7 +15,7 @@
 #include "qtimer.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#30 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#31 $");
 
 
 static const int motifBorder = 2;
@@ -472,11 +472,11 @@ void QSlider::paintSlider( QPainter *p, const QRect &r )
     case MotifStyle:
 	qDrawShadePanel( p, r, g, FALSE, 2, &fill );
 	if ( orient == Horizontal ) {
-	    QCOORD mid = ( r.left() + r.right() ) / 2;
+	    QCOORD mid = ( r.left() + r.right() + 1) / 2;
 	    qDrawShadeLine( p, mid,  r.top(), mid,  r.bottom() - 1,
 			    g, TRUE, 1);
 	} else {
-	    QCOORD mid = ( r.top() + r.bottom() ) / 2;
+	    QCOORD mid = ( r.top() + r.bottom() + 1) / 2;
 	    qDrawShadeLine( p, r.left(), mid,  r.right() - 1, mid,
 			    g, TRUE, 1);
 	}
@@ -930,7 +930,7 @@ void QSlider::drawTicks( QPainter *p, int d, int w, int i ) const
 {
     p->setPen( colorGroup().foreground() );
     int v = minValue();
-    int fudge = slideLength() / 2 - 1;
+    int fudge = slideLength() / 2 + 1;
     while ( v <= maxValue() + 1 ) {
 	int pos = positionFromValue( v ) + fudge;
 	if ( orient == Horizontal )
