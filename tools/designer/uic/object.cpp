@@ -282,16 +282,21 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 	 WidgetInterface *iface = 0;
 	 widgetManager()->queryInterface( objClass, &iface );
 	 int id = WidgetDatabase::idFromClassName( objClass );
-	 if ( WidgetDatabase::isContainer( id ) && iface && WidgetDatabase::isCustomPluginWidget( id ) ) {
+	 if ( WidgetDatabase::isContainer( id ) && WidgetDatabase::isCustomPluginWidget( id ) && iface ) {
 	     QWidgetContainerInterfacePrivate *iface2 = 0;
 	     iface->queryInterface( IID_QWidgetContainer, (QUnknownInterface**)&iface2 );
 	     if ( iface2 ) {
+		 bool supportsPages = iface2->supportsPages( objClass );
 		 for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
 		     if ( tags.contains( n.tagName()  ) ) {
-			 QString page = createObjectImpl( n, objClass, objName );
-			 QString comment;
-			 QString label = DomTool::readAttribute( n, "label", "", comment ).toString();
-			 out << indent << iface2->createCode( objClass, objName, page, label ) << endl;
+			 if ( supportsPages ) {
+			     QString page = createObjectImpl( n, objClass, objName );
+			     QString comment;
+			     QString label = DomTool::readAttribute( n, "label", "", comment ).toString();
+			     out << indent << iface2->createCode( objClass, objName, page, label ) << endl;
+			 } else {
+			     createObjectImpl( n, objClass, objName );
+			 }
 		     }
 		 }
 		 iface2->release();
