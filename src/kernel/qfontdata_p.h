@@ -362,17 +362,16 @@ public:
     };
 
 #ifndef QT_NO_XFTFREETYPE
-    XftPattern *findXftFont(const QChar &, bool *) const;
-    XftPattern *bestXftPattern(const QString &, const QString &, const QChar &) const;
+    XftPattern *findXftFont(const QChar &, bool *, double *scale) const;
+    XftPattern *bestXftPattern(const QString &, const QString &, const QChar &, double *scale) const;
 #endif // QT_NO_XFTFREETYPE
-    QCString findFont(QFont::Script, bool *) const;
-    QCString findXftFont(QFont::Script, bool *) const;
+    QCString findFont(QFont::Script, bool *, double *) const;
     QCString bestFamilyMember(QFont::Script, const QString &, const QString &,
-			      const QString &, int *) const;
-    QCString bestMatch(const char *, int *, QFont::Script) const;
+			      const QString &, int *, double *) const;
+    QCString bestMatch(const char *, int *, QFont::Script, double *) const;
     int fontMatchScore(const char *, QCString &, float *, int *, bool *,
-		       bool *, QFont::Script) const;
-    void initFontInfo(QFont::Script);
+		       bool *, QFont::Script, double *) const;
+    void initFontInfo(QFont::Script, double scale);
     void load(QFont::Script = QFont::NoScript, bool = TRUE);
     bool loadUnicode(QFont::Script, const QChar &);
     void computeLineWidth();
