@@ -72,8 +72,9 @@
   There are two different ways to start a process. If you just want to
   run a program, optionally passing data to its standard input at the
   beginning, use one of the launch() functions. If you want full
-  control of the program's standard input, standard output and
-  standard error, use the start() function.
+  control of the program's standard input (especially if you don't know all
+  data you want to send to standard input at the beginning), use the start()
+  function.
 
   If you use start() you can write to the program's standard input
   using writeToStdin() and you can close the standard input with
@@ -542,6 +543,10 @@ bool QProcess::scanNewline( bool stdOut, QByteArray *store )
   If the start was successful, this signal is emitted after all the
   data has been written to standard input. If the start failed, then
   this signal is emitted immediately.
+
+  This signal is especially useful if you want to know when you can safely
+  delete the QProcess object for the case that you are not intrested in reading
+  from standard output or standard error.
 
   \sa launch() QObject::deleteLater()
 */
