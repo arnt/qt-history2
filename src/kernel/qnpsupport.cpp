@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnpsupport.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qnpsupport.cpp#17 $
 **
 ** Low-level support for Netscape Plugins under X11.
 **
@@ -118,24 +118,24 @@ void qt_np_remove_timeoutcb( SameAsXtTimerCallbackProc cb )
 
 int qt_event_handler( XEvent* event )
 {
-    QApplication::sendPostedEvents();
+    qt_x11SendPostedEvents();
     if ( qApp->x11ProcessEvent( event ) == -1
-	&& !QApplication::activePopupWidget()
-	&& !QApplication::activeModalWidget()
-    ) {
-        // Qt did not recognize the event
+	 && !QApplication::activePopupWidget()
+	 && !QApplication::activeModalWidget()
+	 ) {
+	// Qt did not recognize the event
 	return qt_np_cascade_event_handler[event->type]( event );
     } else {
-        // Qt recognized the event (it may not have actually used it
-        // in a widget, but that is irrelevant here).
+	// Qt recognized the event (it may not have actually used it
+	// in a widget, but that is irrelevant here).
 	if ( event->type == LeaveNotify && qt_np_leave_cb
-	  && !QApplication::activePopupWidget()
-          && !QApplication::activeModalWidget())
-	{
-	    XLeaveWindowEvent* e = (XLeaveWindowEvent*)event;
-	    qt_np_leave_cb(e);
-	}
-        if ( islist ) {
+	     && !QApplication::activePopupWidget()
+	     && !QApplication::activeModalWidget())
+	    {
+		XLeaveWindowEvent* e = (XLeaveWindowEvent*)event;
+		qt_np_leave_cb(e);
+	    }
+	if ( islist ) {
 	    qt_activate_timers();
 	    timeval *tm = qt_wait_timer();
 	    if (tm) {
@@ -143,9 +143,11 @@ int qt_event_handler( XEvent* event )
 		qt_np_set_timer(interval);
 	    }
 	}
-        qt_reset_color_avail();
-	QApplication::sendPostedEvents();
-        return True;
+	qt_reset_color_avail();
+	qt_x11SendPostedEvents();
+	// send the event to Xt in any case (think about XGrabPointer with ownerEvents TRUE
+	(void) qt_np_cascade_event_handler[event->type]( event );
+	return True;
     }
 }
 
