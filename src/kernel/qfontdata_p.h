@@ -357,7 +357,7 @@ public:
     };
 
 #ifndef QT_NO_XFTFREETYPE
-    XftPattern *findXftFont(const QChar &) const;
+    XftPattern *findXftFont(const QChar &, bool *) const;
     XftPattern *bestXftPattern(const QString &, const QString &) const;
 #endif // QT_NO_XFTFREETYPE
     QCString findFont(QFont::Script, bool *) const;

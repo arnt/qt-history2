@@ -508,7 +508,7 @@ bool QFontPrivate::fillFontDef( const QCString &xlfd, QFontDef *fd,
 //     else {
 // 	fd->pixelSize = ( fd->pointSize * QPaintDevice::x11AppDpiY() ) / 720;
 //      }
- 
+
     fd->underline     = FALSE;
     fd->strikeOut     = FALSE;
     fd->hintSetByUser = FALSE;
@@ -1247,7 +1247,7 @@ bool QFontPrivate::inFont( const QChar &ch )
 
 // returns an XftPattern for the font or zero if no found supporting the script could
 // be found
-XftPattern *QFontPrivate::findXftFont(const QChar &sample) const
+XftPattern *QFontPrivate::findXftFont(const QChar &sample, bool *exact) const
 {
     // look for foundry/family
     QString familyName;
@@ -1274,8 +1274,12 @@ XftPattern *QFontPrivate::findXftFont(const QChar &sample) const
 	}
     }
 
+    *exact = TRUE;
+
     if (match)
-	return match;
+    	return match;
+
+    *exact = FALSE;
 
     // try font substitutions
     QStringList list = QFont::substitutes(request.family);
@@ -1901,7 +1905,7 @@ int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
 	    reqPSize = request.pointSize;
 	else
 	    reqPSize = int( (10*request.pixelSize * QPaintDevice::x11AppDpiY()) / 72. + 0.5 );
-	
+
 	if ( reqPSize != 0 ) {
 	    diff = (float)QABS(pSize - reqPSize);
 	    percentDiff = diff/reqPSize*100.0F;
@@ -1976,7 +1980,8 @@ void QFontPrivate::computeLineWidth()
 // fill the actual fontdef with data from the loaded font
 void QFontPrivate::initFontInfo(QFont::Script script)
 {
-    if (script != defaultScript || ! actual.dirty) return;
+    if (script != QFont::Unicode && script != defaultScript && ! actual.dirty)
+	return;
 
     actual.lbearing = SHRT_MIN;
     actual.rbearing = SHRT_MIN;
@@ -1984,10 +1989,13 @@ void QFontPrivate::initFontInfo(QFont::Script script)
     if (exactMatch) {
 	actual = request;
 	actual.dirty = FALSE;
+
 	if ( actual.pointSize == -1 )
-	    actual.pointSize = int( (actual.pixelSize * QPaintDevice::x11AppDpiY()) / 72. + 0.5 );
+	    actual.pointSize = int( (actual.pixelSize * 10 *
+				     QPaintDevice::x11AppDpiY()) / 72. + 0.5);
 	else
-	    actual.pixelSize = actual.pointSize * 72 / (10 * QPaintDevice::x11AppDpiY() );
+	    actual.pixelSize = (actual.pointSize * 72 /
+				(10 * QPaintDevice::x11AppDpiY()));
 
 	return;
     }
@@ -1999,6 +2007,13 @@ void QFontPrivate::initFontInfo(QFont::Script script)
 	actual.family = QString::fromLatin1(x11data.fontstruct[script]->name);
 	actual.rawMode = TRUE;
 	exactMatch = FALSE;
+
+	if ( actual.pointSize == -1 )
+	    actual.pointSize = int( (actual.pixelSize * 10 *
+				     QPaintDevice::x11AppDpiY()) / 72. + 0.5 );
+	else
+	    actual.pixelSize = (actual.pointSize * 72 /
+				(10 * QPaintDevice::x11AppDpiY() ));
     }
 
     actual.underline = request.underline;
@@ -2284,7 +2299,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 
 #ifndef QT_NO_XFTFREETYPE
 	if (qt_has_xft) {
-	    xftmatch = findXftFont(sample);
+	    xftmatch = findXftFont(sample, &match);
 
 	    if (xftmatch) {
 		use_core = FALSE;
