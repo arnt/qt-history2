@@ -554,7 +554,7 @@ void QTreeModel::emitRowsRemoved(QTreeWidgetItem *item)
 /*!
     \fn QString QTreeWidgetItem::text(int column) const
 
-    Returns the text in the specified \column.
+    Returns the text in the specified \a column.
 
     \sa setText()
 */
