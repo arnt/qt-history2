@@ -24,6 +24,7 @@
 #include "formwindow.h"
 #include "command.h"
 #include "metadatabase.h"
+#include "propertyobject.h"
 #include <widgetdatabase.h>
 #include "widgetfactory.h"
 #include "globaldefs.h"
@@ -2925,19 +2926,19 @@ void PropertyList::setupProperties()
     }
 #endif
 
-    if ( w->inherits( "CustomWidget" ) ) {
-	MetaDataBase::CustomWidget *cw = ( (CustomWidget*)w )->customWidget();
-	if ( cw ) {
-	    for ( QValueList<MetaDataBase::Property>::Iterator it = cw->lstProperties.begin(); it != cw->lstProperties.end(); ++it ) {
-		if ( unique.contains( QString( (*it).property ) ) )
-		    continue;
-		unique.insert( QString( (*it).property ), TRUE );
-		addPropertyItem( item, (*it).property, type_to_variant( (*it).type ) );
-		setPropertyValue( item );
-		if ( MetaDataBase::isPropertyChanged( editor->widget(), (*it).property ) )
-		    item->setChanged( TRUE, FALSE );
+    if ( w->inherits("PropertyObject") ) {
+	const QWidgetList wl = ( (PropertyObject*)w )->widgetList();
+	QPtrListIterator<QWidget> wIt( wl );
+	while ( *wIt ) {
+	    if ( (*wIt)->inherits("CustomWidget") ) {
+		MetaDataBase::CustomWidget *cw = ( (CustomWidget*)*wIt )->customWidget();
+		setupCusWidgetProperties( cw, unique, item );
 	    }
+	    ++wIt;
 	}
+    } else if ( w->inherits( "CustomWidget" ) ) {
+	MetaDataBase::CustomWidget *cw = ( (CustomWidget*)w )->customWidget();
+	setupCusWidgetProperties( cw, unique, item );
     }
 
     setCurrentItem( firstChild() );
@@ -2951,6 +2952,25 @@ void PropertyList::setupProperties()
     }
 
     updateEditorSize();
+}
+
+void PropertyList::setupCusWidgetProperties( MetaDataBase::CustomWidget *cw,
+					     QMap<QString, bool> &unique,
+					     PropertyItem *&item )
+{
+    if ( !cw )
+	return;
+
+    for ( QValueList<MetaDataBase::Property>::Iterator it = 
+	  cw->lstProperties.begin(); it != cw->lstProperties.end(); ++it ) {
+	if ( unique.contains( QString( (*it).property ) ) )
+	    continue;
+	unique.insert( QString( (*it).property ), TRUE );
+	addPropertyItem( item, (*it).property, type_to_variant( (*it).type ) );
+	setPropertyValue( item );
+	if ( MetaDataBase::isPropertyChanged( editor->widget(), (*it).property ) )
+	    item->setChanged( TRUE, FALSE );
+    }
 }
 
 bool PropertyList::addPropertyItem( PropertyItem *&item, const QCString &name, QVariant::Type t )

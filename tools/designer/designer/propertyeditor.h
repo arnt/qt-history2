@@ -29,6 +29,7 @@
 #include <qtabwidget.h>
 #include <qmodules.h>
 #include "hierarchyview.h"
+#include "metadatabase.h"
 
 class PropertyList;
 class PropertyEditor;
@@ -595,6 +596,9 @@ protected:
 
 private:
     void readPropertyDocs();
+    void setupCusWidgetProperties( MetaDataBase::CustomWidget *cw,
+				   QMap<QString, bool> &unique,
+				   PropertyItem *&item );
     QString whatsThisText( QListViewItem *i );
 
 private:
