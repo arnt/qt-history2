@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#154 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#155 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -228,7 +228,7 @@ QPainter::~QPainter()
   \code
     void MyWidget::paintEvent( QPaintEvent * )
     {
-	QPixmap pm(rect());
+	QPixmap pm(size());
 	QPainter p;
 	p.begin(&pm, this);
 	// ... potential flickering paint operation ...
