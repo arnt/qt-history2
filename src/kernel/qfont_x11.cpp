@@ -2094,11 +2094,13 @@ void QFontPrivate::initFontInfo(QFont::Script script)
 	    XftPatternGetInteger (pattern, XFT_SPACING, 0, &spacing_value);
 	    if (weight_value == XFT_WEIGHT_LIGHT)
 		weight_value = QFont::Light;
-	    else if (weight_value == XFT_WEIGHT_DEMIBOLD)
+	    else if (weight_value <= XFT_WEIGHT_MEDIUM)
+		weight_value = QFont::Normal;
+	    else if (weight_value <= XFT_WEIGHT_DEMIBOLD)
 		weight_value = QFont::DemiBold;
-	    else if (weight_value < XFT_WEIGHT_BOLD)
+	    else if (weight_value <= XFT_WEIGHT_BOLD)
 		weight_value = QFont::Bold;
-	    else if ( weight_value == XFT_WEIGHT_BLACK)
+	    else if ( weight_value <= XFT_WEIGHT_BLACK)
 		weight_value = QFont::Black;
 	    else
 		weight_value = QFont::Normal;
@@ -2406,27 +2408,11 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
     XftPattern *xftmatch = 0;
 #endif // QT_NO_XFTFREETYPE
 
-    // Look for font name in fontNameDict based on QFont::key()
     QString k(key() + script_table[script].list[script_table[script].index]);
     if ( paintdevice )
 	k += "/" + QString::number(QPaintDeviceMetrics( paintdevice ).logicalDpiY());
 
-    // Look in fontCache for font
-    qfs = fontCache->find(k);
-    if (qfs) {
-	// Found font in either cache or dict...
-	x11data.fontstruct[script] = qfs;
-
-	if (qfs != (QFontStruct *) -1) {
-	    qfs->ref();
-	    initFontInfo(script);
-	}
-
-	request.dirty = FALSE;
-
-	return;
-    }
-
+    // Look for font name in fontNameDict based on QFont::key()
     QXFontName *qxfn = fontNameDict->find(k);
     if (! qxfn) {
 	// if we don't find the name in the dict, we need to find a font name
@@ -2506,6 +2492,22 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 
     exactMatch = qxfn->exactMatch;
     fontname = qxfn->name;
+
+    // Look in fontCache for font
+    qfs = fontCache->find(k);
+    if (qfs) {
+	// Found font in either cache or dict...
+	x11data.fontstruct[script] = qfs;
+
+	if (qfs != (QFontStruct *) -1) {
+	    qfs->ref();
+	    initFontInfo(script);
+	}
+
+	request.dirty = FALSE;
+
+	return;
+    }
 
 #ifndef QT_NO_XFTFREETYPE
     // with XftFreeType support - we always load a font using Unicode, so we never
