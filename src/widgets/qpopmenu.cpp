@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#113 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#114 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#113 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#114 $");
 
 
 // Motif style parameters
@@ -633,7 +633,7 @@ void QPopupMenu::setFirstItemActive()
     actItem = 0;
     while ( (mi=it.current()) ) {
 	++it;
-	if ( !mi->isSeparator() && mi->isEnabled() ) {
+	if ( !mi->isSeparator() ) {
 	    repaint( FALSE );
 	    return;
 	}
@@ -1453,7 +1453,9 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    ((QMenuBar*)top)->tryKeyEvent( this, e );
     }
 
-    if ( d && actItem >= 0 ) {			// highlight next/prev
+    if ( d && actItem < 0 ) {
+	setFirstItemActive();
+    } else if ( d ) {				// highlight next/prev
 	register int i = actItem;
 	int c = mitems->count();
 	int n = c;
