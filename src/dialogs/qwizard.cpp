@@ -443,7 +443,7 @@ void QWizard::help()
 	return;
 
 #if 0
-    QWizardPage *wpage = ::qt_cast<QWizardPage>(page);
+    QWizardPage *wpage = ::qt_cast<QWizardPage*>(page);
     if ( wpage )
 	emit wpage->helpClicked();
 #endif
