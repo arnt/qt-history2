@@ -247,7 +247,7 @@ static int	 heartBeat	= 0;		// heatbeat timer
 // Session management
 static bool	sm_blockUserInput    = FALSE;
 static bool	sm_smActive	     = FALSE;
-extern SessionManager* qt_session_manager_self;
+extern QSessionManager* qt_session_manager_self;
 static bool	sm_cancel;
 
 // one day in the future we will be able to have static objects in libraries....
@@ -2585,9 +2585,10 @@ void qt_leave_modal( QWidget *widget )
 	    qt_dispatchEnterLeave( w, QWidget::find( curWin ) ); // send synthetic enter event
 	    curWin = w? w->winId() : 0;
 	}
+	ignoreNextMouseReleaseEvent = TRUE;
     }
     app_do_modal = qt_modal_stack != 0;
-    ignoreNextMouseReleaseEvent = TRUE;
+    
 }
 
 static bool qt_blocked_modal( QWidget *widget )

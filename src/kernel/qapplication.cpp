@@ -3238,16 +3238,17 @@ int QApplication::enter_loop()
     }
 
     app_exit_loop = old_app_exit_loop || quit_now;
-    loop_level--;
 
-    if ( !loop_level ) {
+    if ( loop_level <= 1 ) {
 	quit_now = FALSE;
 	emit aboutToQuit();
 
 	// send deferred deletes
 	sendPostedEvents( 0, QEvent::DeferredDelete );
     }
-
+    
+    loop_level--;
+    
     return 0;
 }
 
