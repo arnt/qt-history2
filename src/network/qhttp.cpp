@@ -1923,30 +1923,32 @@ void QHttp::slotReadyRead()
 	    } else {
 		arr = new QByteArray( d->socket.readAll() );
 	    }
-	    n = arr->size();
 
-	    if ( d->toDevice ) {
-		d->toDevice->writeBlock( arr->data(), n );
-		delete arr;
-		d->bytesDone += n;
+	    if ( arr ) {
+		n = arr->size();
+		if ( d->toDevice ) {
+		    d->toDevice->writeBlock( arr->data(), n );
+		    delete arr;
+		    d->bytesDone += n;
 #if defined(QHTTP_DEBUG)
-		qDebug( "QHttp::slotReadyRead(): read %d bytes (%d bytes done)", n, d->bytesDone );
+		    qDebug( "QHttp::slotReadyRead(): read %d bytes (%d bytes done)", n, d->bytesDone );
 #endif
-		if ( d->response.hasContentLength() )
-		    emit dataReadProgress( d->bytesDone, d->response.contentLength() );
-		else
-		    emit dataReadProgress( d->bytesDone, 0 );
-	    } else {
-		d->rba.append( arr );
-		d->rsize += n;
+		    if ( d->response.hasContentLength() )
+			emit dataReadProgress( d->bytesDone, d->response.contentLength() );
+		    else
+			emit dataReadProgress( d->bytesDone, 0 );
+		} else {
+		    d->rba.append( arr );
+		    d->rsize += n;
 #if defined(QHTTP_DEBUG)
-		qDebug( "QHttp::slotReadyRead(): read %d bytes (%d bytes done)", n, d->bytesDone + bytesAvailable() );
+		    qDebug( "QHttp::slotReadyRead(): read %d bytes (%d bytes done)", n, d->bytesDone + bytesAvailable() );
 #endif
-		if ( d->response.hasContentLength() )
-		    emit dataReadProgress( d->bytesDone + bytesAvailable(), d->response.contentLength() );
-		else
-		    emit dataReadProgress( d->bytesDone + bytesAvailable(), 0 );
-		emit readyRead( d->response );
+		    if ( d->response.hasContentLength() )
+			emit dataReadProgress( d->bytesDone + bytesAvailable(), d->response.contentLength() );
+		    else
+			emit dataReadProgress( d->bytesDone + bytesAvailable(), 0 );
+		    emit readyRead( d->response );
+		}
 	    }
 	}
 
