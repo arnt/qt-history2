@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#46 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#47 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -24,6 +24,8 @@
 #include "qbuttongroup.h"
 #include "qbutton.h"
 #include "qlist.h"
+#include "qkeycode.h"
+#include "qradiobutton.h"
 
 /*!
   \class QButtonGroup qbuttongroup.h
@@ -200,8 +202,10 @@ int QButtonGroup::insert( QButton *button, int id )
     connect( button, SIGNAL(released()), SLOT(buttonReleased()) );
     connect( button, SIGNAL(clicked()) , SLOT(buttonClicked()) );
     connect( button, SIGNAL(toggled(bool)) , SLOT(buttonToggled(bool)) );
-    if ( button->inherits("QRadioButton") )
+    if ( button->inherits("QRadioButton") ) {
 	setExclusive( TRUE );
+	button->installEventFilter( this );
+    }
     return bi->id;
 }
 
@@ -218,6 +222,7 @@ void QButtonGroup::remove( QButton *button )
 	    buttons->remove();
 	    button->setGroup(0);
 	    button->disconnect( this );
+	    button->removeEventFilter( this );
 	    break;
 	}
     }
@@ -233,10 +238,9 @@ void QButtonGroup::remove( QButton *button )
 
 QButton *QButtonGroup::find( int id ) const
 {
-    for ( QButtonItem *i=buttons->first(); i; i=buttons->next() ) {
+    for ( QButtonItem *i=buttons->first(); i; i=buttons->next() )
 	if ( i->id == id )
 	    return i->button;
-    }
     return 0;
 }
 
@@ -357,4 +361,49 @@ void QButtonGroup::setButton( int id )
     QButton * b = find( id );
     if ( b )
 	b->setOn( TRUE );
+}
+
+
+/*!  Handles key up/key down on behalf of the buttons. */
+
+bool QButtonGroup::eventFilter( QObject * o, QEvent * e )
+{
+    if ( isExclusive() &&
+	 e && ( e->type() == QEvent::KeyPress ||
+		e->type() == QEvent::KeyRelease ) &&
+	 o && o->inherits( "QRadioButton" ) ) {
+	QKeyEvent * ke = (QKeyEvent *)e;
+	if ( ke->key() == Key_Up || ke->key() == Key_Down ) {
+	    ke->accept();
+	    if ( e->type() == QEvent::KeyRelease )
+		return TRUE; // block it
+	    QButtonItem * pi = buttons->last();
+	    QButtonItem * i = buttons->first();
+	    if ( pi->button->hasFocus() && ke->key() == Key_Down ) {
+		i->button->setFocus();
+		((QRadioButton *)i->button)->setChecked( TRUE );
+		return TRUE;
+	    }
+	    while( i && !i->button->hasFocus() ) {
+		pi = i;
+		i = buttons->next();
+	    }
+	    if ( i && i->button->hasFocus() ) {
+		if ( ke->key() == Key_Up ) {
+		    pi->button->setFocus();
+		    ((QRadioButton *)pi->button)->setChecked( TRUE );
+		    return TRUE;
+		} else {
+		    i = buttons->next();
+		    if ( !i )
+			i = buttons->first();
+		    i->button->setFocus();
+		    ((QRadioButton *)i->button)->setChecked( TRUE );
+		    return TRUE;
+		}
+	    }
+	    ke->ignore();
+	}
+    }
+    return FALSE;
 }
