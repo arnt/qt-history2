@@ -29,7 +29,7 @@ void Paths::paintEvent(QPaintEvent *)
     fillBackground(&p);
 
     if (attributes->antialias)
-        p.setRenderHint(QPainter::LineAntialiasing);
+        p.setRenderHint(QPainter::Antialiasing);
 
     p.setPen(QPen(QColor(63, 63, 127, attributes->alpha ? 191 : 255), 5));
     p.setBrush(QColor(191, 191, 255, attributes->alpha ? 127 : 255));

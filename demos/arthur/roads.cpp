@@ -40,7 +40,7 @@ void Roads::paintEvent(QPaintEvent *)
         fillBackground(&bp);
 
         if (attributes->antialias)
-            bp.setRenderHint(QPainter::LineAntialiasing);
+            bp.setRenderHint(QPainter::Antialiasing);
 
         QRect roadRect(0, 0, 400, 400);
 
@@ -60,7 +60,7 @@ void Roads::paintEvent(QPaintEvent *)
     p.drawPixmap(0, 0, backBuffer);
 
     if (attributes->antialias)
-        p.setRenderHint(QPainter::LineAntialiasing);
+        p.setRenderHint(QPainter::Antialiasing);
 
 
     p.translate(r.topLeft());

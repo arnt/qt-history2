@@ -95,7 +95,7 @@ void drawPrimitives(DemoWidget *dw, QPainter *p, int count, double distance, int
 void drawShadedCube(DemoWidget *dw, QPainter *p, int iterations, int spread, int step)
 {
     if (dw->attribs()->antialias)
-        p->setRenderHint(QPainter::LineAntialiasing);
+        p->setRenderHint(QPainter::Antialiasing);
 
     if (dw->attribs()->alpha)
         p->setPen(QColor(0, 0, 0, 63));

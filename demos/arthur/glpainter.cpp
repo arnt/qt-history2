@@ -138,7 +138,7 @@ void GLWidget::paintEvent(QPaintEvent *)
     QPainter p(this);
 
     if (dw->attribs()->antialias)
-        p.setRenderHint(QPainter::LineAntialiasing);
+        p.setRenderHint(QPainter::Antialiasing);
     p.setBrush(QBrush(QPoint(0,0), Qt::white,
                       QPoint(width(), height()), Qt::black));
     p.drawRect(0, 0, width(), height());
