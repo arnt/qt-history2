@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignal.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qsignal.cpp#13 $
 **
 ** Implementation of QSignal class
 **
@@ -14,7 +14,7 @@
 #include "qmetaobj.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qsignal.cpp#12 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qsignal.cpp#13 $")
 
 /*----------------------------------------------------------------------------
   \class QSignal qsignal.h
@@ -108,10 +108,7 @@ QSignal::QSignal( QObject *parent, const char *name )
   calls QObject::setName().
  ----------------------------------------------------------------------------*/
 
-/*----------------------------------------------------------------------------
-  Returns the class name, which is "QSignal" for all instances of this
-  class.
- ----------------------------------------------------------------------------*/
+/* NOTE: should not be documented */
 
 const char *QSignal::className() const
 {
