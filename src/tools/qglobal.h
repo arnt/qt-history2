@@ -98,9 +98,6 @@
 #define _OS_RELIANTUNIX_
 #elif defined(linux) || defined(__linux) || defined(__linux__)
 #define _OS_LINUX_
-#if defined(__alpha__) || defined(__alpha)
-#define _OS_ALPHA_LINUX_
-#endif
 #elif defined(__FreeBSD__)
 #define _OS_FREEBSD_
 #elif defined(__NetBSD__)

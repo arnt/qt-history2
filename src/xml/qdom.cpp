@@ -48,6 +48,12 @@
 #include <string.h>
 #include <stdlib.h>
 
+#if defined(_OS_LINUX_)
+#  if defined(__alpha__) || defined(__alpha)
+#    define Q_BROKEN_ALPHA
+#  endif
+#endif
+
 // template class QDict<QDOM_NodePrivate>;
 
 // NOT REVISED
@@ -2218,6 +2224,8 @@ QDOM_NodePrivate* QDOM_DocumentTypePrivate::appendChild( QDOM_NodePrivate* newCh
 
 void QDOM_DocumentTypePrivate::save( QTextStream& s, int ) const
 {
+    if ( name.isEmpty() )
+	return;
     s << "<!DOCTYPE " << name << " ";
 
     // qDebug("--------- 3 DocType %i %i", entities->map.count(), notations->map.count() );
@@ -4794,7 +4802,7 @@ bool QDOM_DocumentPrivate::setContent( QXmlInputSource& source )
     reader.setContentHandler( &hnd );
     reader.setErrorHandler( &hnd );
     reader.setLexicalHandler( &hnd );
-#if defined(_OS_ALPHA_LINUX_) // #### very ugly hack, ws should really be able to get rid of that
+#if defined(Q_BROKEN_ALPHA) // #### very ugly hack, ws should really be able to get rid of that
     reader.setFeature( "http://xml.org/sax/features/namespaces", TRUE );
 #else
     reader.setFeature( "http://xml.org/sax/features/namespaces", FALSE );
