@@ -65,7 +65,7 @@ public:
 	idleTimer( 0 )
     { pending.setAutoDelete( TRUE ); }
 
-    QSocket* socket;
+    QSocket socket;
     QPtrList<QHttpRequest> pending;
 
     QHttp::State state;
@@ -1011,19 +1011,17 @@ void QHttp::init()
 	     SLOT(clientStateChanged(int)) );
 
     // new API
-    d->socket = new QSocket( this );
-
-    connect( d->socket, SIGNAL( connected() ),
+    connect( &d->socket, SIGNAL( connected() ),
 	    this, SLOT( slotConnected() ) );
-    connect( d->socket, SIGNAL( connectionClosed() ),
+    connect( &d->socket, SIGNAL( connectionClosed() ),
 	    this, SLOT( slotClosed() ) );
-    connect( d->socket, SIGNAL( delayedCloseFinished() ),
+    connect( &d->socket, SIGNAL( delayedCloseFinished() ),
 	    this, SLOT( slotClosed() ) );
-    connect( d->socket, SIGNAL( readyRead() ),
+    connect( &d->socket, SIGNAL( readyRead() ),
 	    this, SLOT( slotReadyRead() ) );
-    connect( d->socket, SIGNAL( error( int ) ),
+    connect( &d->socket, SIGNAL( error( int ) ),
 	    this, SLOT( slotError( int ) ) );
-    connect( d->socket, SIGNAL( bytesWritten( int ) ),
+    connect( &d->socket, SIGNAL( bytesWritten( int ) ),
 	    this, SLOT( slotBytesWritten( int ) ) );
 
     d->idleTimer = startTimer( 0 );
@@ -1045,14 +1043,14 @@ void QHttp::close()
     setState( Closing );
 
     // Already closed ?
-    if ( !d->socket->isOpen() ) {
+    if ( !d->socket.isOpen() ) {
 	d->idleTimer = startTimer( 0 );
     } else {
 	// Close now.
-	d->socket->close();
+	d->socket.close();
 
 	// Did close succeed immediately ?
-	if ( d->socket->state() == QSocket::Idle ) {
+	if ( d->socket.state() == QSocket::Idle ) {
 	    // Prepare to emit the requestFinished() signal.
 	    d->idleTimer = startTimer( 0 );
 	}
@@ -1299,7 +1297,7 @@ QHttp::QHttp( const QString &hostname, Q_UINT16 port, QObject* parent, const cha
 void QHttp::abort()
 {
     clearPendingRequests();
-    d->socket->clearPendingData();
+    d->socket.clearPendingData();
     close();
 }
 
@@ -1311,12 +1309,9 @@ void QHttp::abort()
 */
 Q_ULONG QHttp::bytesAvailable() const
 {
-    if ( d->socket ) {
-	if ( d->response.hasContentLength() )
-	    return QMIN( d->response.contentLength()-d->bytesDone, d->socket->bytesAvailable() );
-	return d->socket->bytesAvailable();
-    }
-    return 0;
+    if ( d->response.hasContentLength() )
+	return QMIN( d->response.contentLength()-d->bytesDone, d->socket.bytesAvailable() );
+    return d->socket.bytesAvailable();
 }
 
 /*!
@@ -1327,25 +1322,22 @@ Q_ULONG QHttp::bytesAvailable() const
 */
 Q_LONG QHttp::readBlock( char *data, Q_ULONG maxlen )
 {
-    if ( d->socket ) {
-	if ( d->response.hasContentLength() ) {
-	    uint n = QMIN( bytesAvailable(), maxlen );
-	    Q_LONG read = d->socket->readBlock( data, n );
-	    d->bytesDone += read;
+    if ( d->response.hasContentLength() ) {
+	uint n = QMIN( bytesAvailable(), maxlen );
+	Q_LONG read = d->socket.readBlock( data, n );
+	d->bytesDone += read;
 #if defined(QHTTP_DEBUG)
-	    qDebug( "QHttp::readBlock(): read %d bytes (%d bytes done)", (int)read, d->bytesDone );
+	qDebug( "QHttp::readBlock(): read %d bytes (%d bytes done)", (int)read, d->bytesDone );
 #endif
-	    return read;
-	} else {
-	    Q_LONG read = d->socket->readBlock( data, maxlen );
-	    d->bytesDone += read;
+	return read;
+    } else {
+	Q_LONG read = d->socket.readBlock( data, maxlen );
+	d->bytesDone += read;
 #if defined(QHTTP_DEBUG)
-	    qDebug( "QHttp::readBlock(): read %d bytes (%d bytes done)", (int)read, d->bytesDone );
+	qDebug( "QHttp::readBlock(): read %d bytes (%d bytes done)", (int)read, d->bytesDone );
 #endif
-	    return read;
-	}
+	return read;
     }
-    return -1;
 }
 
 /*!
@@ -1355,27 +1347,24 @@ Q_LONG QHttp::readBlock( char *data, Q_ULONG maxlen )
 */
 QByteArray QHttp::readAll()
 {
-    if ( d->socket ) {
-	if ( d->response.hasContentLength() ) {
-	    uint n = bytesAvailable();
-	    QByteArray tmp( n );
-	    Q_LONG read = d->socket->readBlock( tmp.data(), n );
-	    tmp.resize( read );
-	    d->bytesDone += read;
+    if ( d->response.hasContentLength() ) {
+	uint n = bytesAvailable();
+	QByteArray tmp( n );
+	Q_LONG read = d->socket.readBlock( tmp.data(), n );
+	tmp.resize( read );
+	d->bytesDone += read;
 #if defined(QHTTP_DEBUG)
-	    qDebug( "QHttp::readAll(): read %d bytes (%d bytes done)", tmp.size(), d->bytesDone );
+	qDebug( "QHttp::readAll(): read %d bytes (%d bytes done)", tmp.size(), d->bytesDone );
 #endif
-	    return tmp;
-	} else {
-	    QByteArray tmp = d->socket->readAll();
-	    d->bytesDone += tmp.size();
+	return tmp;
+    } else {
+	QByteArray tmp = d->socket.readAll();
+	d->bytesDone += tmp.size();
 #if defined(QHTTP_DEBUG)
-	    qDebug( "QHttp::readAll(): read %d bytes (%d bytes done)", tmp.size(), d->bytesDone );
+	qDebug( "QHttp::readAll(): read %d bytes (%d bytes done)", tmp.size(), d->bytesDone );
 #endif
-	    return tmp;
-	}
+	return tmp;
     }
-    return QByteArray();
 }
 
 /*!
@@ -1624,8 +1613,8 @@ void QHttp::sendRequest()
 
     // Do we need to setup a new connection or can we reuse an
     // existing one ?
-    if ( d->socket->peerName() != d->hostname || d->socket->state() != QSocket::Connection ) {
-	d->socket->connectToHost( d->hostname, d->port );
+    if ( d->socket.peerName() != d->hostname || d->socket.state() != QSocket::Connection ) {
+	d->socket.connectToHost( d->hostname, d->port );
     }
 
 }
@@ -1696,13 +1685,13 @@ void QHttp::slotConnected()
 
     QString str = d->header.toString();
     d->bytesTotal = str.length();
-    d->socket->writeBlock( str.latin1(), d->bytesTotal );
+    d->socket.writeBlock( str.latin1(), d->bytesTotal );
 
     if ( d->postDevice ) {
 	d->bytesTotal += d->postDevice->size();
     } else {
 	d->bytesTotal += d->buffer.size();
-	d->socket->writeBlock( d->buffer.data(), d->buffer.size() );
+	d->socket.writeBlock( d->buffer.data(), d->buffer.size() );
 	d->buffer = QByteArray(); // save memory
     }
 }
@@ -1717,7 +1706,7 @@ void QHttp::slotError( int err )
 		finishedWithError( tr("Connection refused"), ConnectionRefused );
 		break;
 	    case QSocket::ErrHostNotFound:
-		finishedWithError( tr("Host %1 not found").arg(d->socket->peerName()), HostNotFound );
+		finishedWithError( tr("Host %1 not found").arg(d->socket.peerName()), HostNotFound );
 		break;
 	    default:
 		finishedWithError( tr("HTTP request failed"), UnknownError );
@@ -1736,7 +1725,7 @@ void QHttp::slotBytesWritten( int written )
     if ( !d->postDevice )
 	return;
 
-    if ( d->socket->bytesToWrite() == 0 ) {
+    if ( d->socket.bytesToWrite() == 0 ) {
 	int max = QMIN( 4096, d->postDevice->size() - d->postDevice->at() );
 	QByteArray arr( max );
 
@@ -1750,7 +1739,7 @@ void QHttp::slotBytesWritten( int written )
 	    d->postDevice = 0;
 	}
 
-	d->socket->writeBlock( arr.data(), max );
+	d->socket.writeBlock( arr.data(), max );
     }
 }
 
@@ -1767,8 +1756,8 @@ void QHttp::slotReadyRead()
     if ( d->readHeader ) {
 	bool end = FALSE;
 	QString tmp;
-	while ( !end && d->socket->canReadLine() ) {
-	    tmp = d->socket->readLine();
+	while ( !end && d->socket.canReadLine() ) {
+	    tmp = d->socket.readLine();
 	    if ( tmp == "\r\n" )
 		end = TRUE;
 	    else
@@ -1798,7 +1787,7 @@ void QHttp::slotReadyRead()
 	if ( n > 0 ) {
 	    if ( d->toDevice ) {
 		QByteArray arr( n );
-		n = d->socket->readBlock( arr.data(), n );
+		n = d->socket.readBlock( arr.data(), n );
 		d->toDevice->writeBlock( arr.data(), n );
 		d->bytesDone += n;
 		if ( d->response.hasContentLength() )
