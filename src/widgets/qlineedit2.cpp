@@ -972,7 +972,11 @@ void QLineEdit::imComposeEvent( QIMEvent *e )
     if (d->preeditLength > 0)
 	d->parag->remove(d->preeditStart, d->preeditLength);
     d->cursor->setIndex( d->preeditStart );
+    int insertLength = d->parag->length();
     insert( e->text() );
+    if (insertLength == d->parag->length() )
+	return;
+
     d->preeditLength = e->text().length();
 
     d->parag->setSelection( QTextDocument::IMCompositionText,
@@ -2600,6 +2604,9 @@ void QLineEdit::delOrBackspace( bool backspace )
 		    cursorBackward( FALSE, 1 );
 		    d->undoRedoInfo.index = d->cursor->index();
 		}
+		// we return in case the paragraph is empty
+		if ( d->cursor->paragraph()->length() == 0 )
+		    return;
 		QChar ch = d->cursor->paragraph()->at( d->cursor->index() )->c;
 		if ( backspace ) {
 		    d->undoRedoInfo.text.prepend( ch );

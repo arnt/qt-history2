@@ -4339,6 +4339,9 @@ int QTextParagraph::leftGap() const
     if ( !isValid() )
 	( (QTextParagraph*)this )->format();
 
+    if ( str->length() == 0)
+	return 0;
+
     int line = 0;
     int x = str->length() ? str->at(0).x : 0;  /* set x to x of first char */
     if ( str->isBidi() ) {

@@ -107,6 +107,8 @@ void QTextFormatter::setWrapAtColumn( int c ) { wrapColumn = c; }
 
 int QTextCursor::x() const
 {
+    if ( idx >= para->length() )
+	return 0;
     QTextStringChar *c = para->at( idx );
     int curx = c->x;
     if ( !c->rightToLeft &&
@@ -148,7 +150,10 @@ void QTextCursor::gotoPosition( QTextParagraph* p, int index )
 #if defined(QT_CHECK_RANGE)
 	qWarning( "QTextCursor::gotoParagraph Index: %d out of range", index );
 #endif
-	index = index < 0 ? 0 : para->length() - 1;
+	if ( index < 0 || para->length() == 0 )
+	    index = 0;
+	else
+	    index = para->length() - 1;
     }
 
     tmpIndex = -1;
