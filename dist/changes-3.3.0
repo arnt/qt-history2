@@ -224,6 +224,9 @@ IRIX MIPSpro o32 mode.
 	isIp4Addr() and ip4Addr(), replacing them with isIPv4Address()
 	and toIPv4Address().
 
+- QIconView
+	Improved keyboard search to behave like QListView.
+
 - QListView
 	Improved alignment for text in QListViewItems. Right aligned
 	text now has the ellipsis on the left.
