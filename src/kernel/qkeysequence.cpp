@@ -479,7 +479,7 @@ QString QKeySequence::encodeString(int key)
     key &= ~(SHIFT | CTRL | ALT | META);
     QString p;
 
-    if (key < Key_Escape) {
+    if (key && key < Key_Escape) {
 	if (key < 0x10000) {
 	    p = QChar(key & 0xffff).upper();
 	} else {
@@ -490,7 +490,7 @@ QString QKeySequence::encodeString(int key)
 	p = QAccel::tr("F%1").arg(key - Key_F1 + 1);
     } else if (key > Key_Space && key <= Key_AsciiTilde) {
 	p.sprintf("%c", key);
-    } else {
+    } else if (key) {
 	int i=0;
 	while (keyname[i].name) {
 	    if (key == keyname[i].key) {
