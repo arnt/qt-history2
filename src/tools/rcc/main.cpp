@@ -75,7 +75,7 @@ processResourceFile(const QString &resource, QTextStream &out, QStringList *crea
                         QDir dir;
                         if(!file.exists()) {
                             dir = QDir(file.path(), file.fileName());
-                            dir.setFilter(QDir::AllDirs);
+                            dir.setFilter(QDir::Files|QDir::AllDirs);
                         } else {
                             dir = QDir(file.filePath(), "*");
                         }
@@ -124,7 +124,7 @@ processResourceFile(const QString &resource, QTextStream &out, QStringList *crea
                 const QString location = QDir::cleanPath(resource_root + "/" +
                                                          prefix + "/" + files[file].name);
                 if(verbose)
-                    qDebug("Read file %s(@%s) [Compressed %d%%]", inputQFile.fileName().latin1(),
+                    fprintf(stderr, "Read file %s(@%s) [Compressed %d%%]", inputQFile.fileName().latin1(),
                            location.latin1(), compressRatio);
 
                 QByteArray resource_name;
