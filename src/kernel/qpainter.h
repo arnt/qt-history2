@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#24 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#25 $
 **
 ** Definition of QPainter class
 **
@@ -55,10 +55,10 @@ public:
 
   // Drawing tools
 
-    QFontMetrics fontMetrics()  const { return QFontMetrics(cfont); }
+    QFontMetrics fontMetrics()	const { return QFontMetrics(cfont); }
     QFontInfo	 fontInfo()	const { return QFontInfo(cfont); }
 
-    QFont      &font();                          // get/set font
+    QFont      &font();				// get/set font
     void	setFont( const QFont & );
     QPen       &pen() { return cpen; }		// get/set pen
     void	setPen( const QPen & );
@@ -194,7 +194,7 @@ public:
     void	setTabStops( int );
     int	       *tabArray() const	{ return tabarray; }
     void	setTabArray( int * );
-    
+
 private:
     static void changedPen( const QPen *, bool );
     static void changedBrush( const QBrush *, bool );
@@ -206,7 +206,7 @@ private:
 
     enum { IsActive=0x01, DirtyFont=0x02, DirtyPen=0x04, DirtyBrush=0x08,
 	   VxF=0x10, WxF=0x20, ClipOn=0x40, ExtDev=0x80, SafePolygon=0x100,
-           IsStartingUp=0x200 };
+	   IsStartingUp=0x200 };
     ushort	flags;				// painter flags
     bool	testf( ushort b ) const	{ return (flags&b)!=0; }
     void	setf( ushort b )	{ flags |= b; }
