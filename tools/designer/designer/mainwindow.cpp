@@ -1401,6 +1401,8 @@ void MainWindow::activeWindowChanged( QWidget *w )
     if ( !w ) {
 	emit formWindowChanged();
 	emit hasActiveForm( FALSE );
+	propertyEditor->clear();
+	hierarchyView->clear();
 	updateUndoRedo( FALSE, FALSE, QString::null, QString::null );
     }
 
