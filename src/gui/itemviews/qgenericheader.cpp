@@ -167,7 +167,7 @@ int QGenericHeader::sectionSizeHint(int section) const
 
 void QGenericHeader::paintEvent(QPaintEvent *e)
 {
-    QPainter painter(d->viewport);
+    QPainter painter(&d->backBuffer, d->viewport);
     QRect area = e->rect();
 
     int offset = this->offset();
@@ -217,6 +217,10 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
             paintSection(&painter, &options, item);
         }
     }
+
+    painter.end();
+    painter.begin(d->viewport);
+    painter.drawPixmap(0, 0, d->backBuffer);
 }
 
 void QGenericHeader::paintSection(QPainter *painter, QItemOptions *options, const QModelIndex &item)
