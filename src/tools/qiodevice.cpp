@@ -133,8 +133,8 @@
   to just LF.  (This can often be set by the application in the call
   to open().)
 
-  \i  Accessibility.  Some files cannot be written. For example,
-  isReadable(), isWritable, and isReadWrite() tell the application
+  \i  Permissions.  Some files cannot be written. For example,
+  isReadable(), isWritable() and isReadWrite() tell the application
   whether it can read from and write to a given device.  (This can
   often be set by the application in the call to open().)
 
@@ -153,16 +153,16 @@
     {
     public:
 	MyDevice();
-       ~MyDevice();
+	~MyDevice();
 
 	bool open( int mode );
 	void close();
 	void flush();
 
 	uint size() const;
-	int  at() const;	// not a pure virtual function
-	bool at( int );		// not a pure virtual function
-	bool atEnd() const;	// not a pure virtual function
+	int  at() const;	// non-pure virtual
+	bool at( int );		// non-pure virtual
+	bool atEnd() const;	// non-pure virtual
 
 	int readBlock( char *data, uint maxlen );
 	int writeBlock( const char *data, uint len );
@@ -174,8 +174,8 @@
     };
   \endcode
 
-  The three non-pure virtual functions can be ignored if your device
-  is sequential (e.g., an RS-232 port).
+  The three non-pure virtual functions need not be reimplemented
+  for sequential devices.
 
   \sa QDataStream, QTextStream
 */
@@ -341,17 +341,27 @@ QIODevice::~QIODevice()
   or readBlock() or writeBlock() return -1, this function can be called to
   find out the reason why the operation did not succeed.
 
+  \keyword IO_Ok
+  \keyword IO_ReadError
+  \keyword IO_WriteError
+  \keyword IO_FatalError
+  \keyword IO_OpenError
+  \keyword IO_ConnectError
+  \keyword IO_AbortError
+  \keyword IO_TimeOutError
+  \keyword IO_OnCloseError
+
   The status codes are:
   \list
-  \i \c IO_Ok The operation was successful.
-  \i \c IO_ReadError Could not read from the device.
-  \i \c IO_WriteError Could not write to the device.
-  \i \c IO_FatalError A fatal unrecoverable error occurred.
-  \i \c IO_OpenError Could not open the device.
-  \i \c IO_ConnectError Could not connect to the device.
-  \i \c IO_AbortError The operation was unexpectedly aborted.
-  \i \c IO_TimeOutError The operation timed out.
-  \i \c IO_OnCloseError An unspecified error happened on close.
+  \i \c IO_Ok - The operation was successful.
+  \i \c IO_ReadError - Could not read from the device.
+  \i \c IO_WriteError - Could not write to the device.
+  \i \c IO_FatalError - A fatal unrecoverable error occurred.
+  \i \c IO_OpenError - Could not open the device.
+  \i \c IO_ConnectError - Could not connect to the device.
+  \i \c IO_AbortError - The operation was unexpectedly aborted.
+  \i \c IO_TimeOutError - The operation timed out.
+  \i \c IO_OnCloseError - An unspecified error happened on close.
   \endlist
 
   \sa resetStatus()

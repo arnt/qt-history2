@@ -79,21 +79,29 @@ bool QFile::remove( const QString &fileName )
   Opens the file specified by the file name currently set, using the mode \a m.
   Returns TRUE if successful, otherwise FALSE.
 
+  \keyword IO_Raw
+  \keyword IO_ReadOnly
+  \keyword IO_WriteOnly
+  \keyword IO_ReadWrite
+  \keyword IO_Append
+  \keyword IO_Truncate
+  \keyword IO_Translate
+
   The mode parameter \a m must be a combination of the following flags:
-  <ul>
-  <li>\c IO_Raw specified raw (non-buffered) file access.
-  <li>\c IO_ReadOnly opens the file in read-only mode.
-  <li>\c IO_WriteOnly opens the file in write-only mode (and truncates).
-  <li>\c IO_ReadWrite opens the file in read/write mode, equivalent to
-  \c (IO_ReadOnly|IO_WriteOnly).
-  <li>\c IO_Append opens the file in append mode. This mode is very useful
+  \list
+  \i \c IO_Raw specified raw (non-buffered) file access.
+  \i \c IO_ReadOnly opens the file in read-only mode.
+  \i \c IO_WriteOnly opens the file in write-only mode (and truncates).
+  \i \c IO_ReadWrite opens the file in read/write mode, equivalent to
+     \c (IO_ReadOnly | IO_WriteOnly).
+  \i \c IO_Append opens the file in append mode. This mode is very useful
   when you want to write something to a log file. The file index is set to
   the end of the file. Note that the result is undefined if you position the
   file index manually using at() in append mode.
-  <li>\c IO_Truncate truncates the file.
-  <li>\c IO_Translate enables carriage returns and linefeed translation
+  \i \c IO_Truncate truncates the file.
+  \i \c IO_Translate enables carriage returns and linefeed translation
   for text files under MS-DOS, Windows and OS/2.
-  </ul>
+  \endlist
 
   The raw access mode is best when I/O is block-operated using 4kB block size
   or greater. Buffered access works better when reading small portions of
