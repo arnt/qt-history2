@@ -3332,7 +3332,7 @@ void QTable::selectCells( int start_row, int start_col, int end_row, int end_col
 
 void QTable::selectRow( int row )
 {
-    QTableSelection sel( row, 0, row, numCols() );
+    QTableSelection sel( row, 0, row, numCols() - 1 );
     addSelection( sel );
 }
 
@@ -3343,7 +3343,7 @@ void QTable::selectRow( int row )
 
 void QTable::selectColumn( int col )
 {
-    QTableSelection sel( 0, col, numRows(), col );
+    QTableSelection sel( 0, col, numRows() - 1, col );
     addSelection( sel );
 }
 
