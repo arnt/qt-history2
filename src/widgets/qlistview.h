@@ -581,10 +581,12 @@ public:
     QListViewItem *current() const;
 
 protected:
-    QListViewItemIteratorPrivate *d;
+    QListViewItem *curr;
     QListView *listView;
 
 private:
+    QListViewItemIteratorPrivate* d() const;
+    void init( int flags );
     void addToListView();
     void currentRemoved();
     bool matchesFlags( const QListViewItem* ) const;

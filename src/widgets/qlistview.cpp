@@ -66,16 +66,15 @@ static QCleanupHandler<QBitmap> qlv_cleanup_bitmap;
 
 struct QListViewItemIteratorPrivate
 {
-    QListViewItemIteratorPrivate( QListViewItem *c, uint f ) : curr( c ), flags( f )
+    QListViewItemIteratorPrivate( uint f ) : flags( f )
 	{
 	    // nothing yet
 	}
 
-    QListViewItem *curr;
     uint flags;
-//     QListView *listView;
 };
 
+static QPtrDict<QListViewItemIteratorPrivate> *qt_iteratorprivate_dict = 0;
 
 struct QListViewPrivate
 {
@@ -3077,7 +3076,7 @@ void QListView::clear()
     if ( d->iterators ) {
 	QListViewItemIterator *i = d->iterators->first();
 	while ( i ) {
-	    i->d->curr = 0;
+	    i->curr = 0;
 	    i = d->iterators->next();
 	}
     }
@@ -7021,9 +7020,9 @@ bool QListView::isRenaming() const
 */
 
 QListViewItemIterator::QListViewItemIterator()
-    :  listView( 0 )
+    :  curr( 0 ), listView( 0 )
 {
-    d = new QListViewItemIteratorPrivate( 0, 0 );
+    init( 0 );
 }
 
 /*!
@@ -7032,9 +7031,9 @@ QListViewItemIterator::QListViewItemIterator()
 */
 
 QListViewItemIterator::QListViewItemIterator( QListViewItem *item )
-    :  listView( 0 )
+    :  curr( item ), listView( 0 )
 {
-    d = new QListViewItemIteratorPrivate( item, 0 );
+    init( 0 );
 
     if ( item ) {
 	item->enforceSortOrderBackToRoot();
@@ -7053,17 +7052,17 @@ QListViewItemIterator::QListViewItemIterator( QListViewItem *item )
 */
 
 QListViewItemIterator::QListViewItemIterator( QListViewItem *item, int iteratorFlags )
-    :  listView( 0 )
+    :  curr( item ), listView( 0 )
 {
-    d = new QListViewItemIteratorPrivate( item, iteratorFlags );
+    init( iteratorFlags );
 
     // go to next matching item if the current don't match
-    if ( d->curr && !matchesFlags( d->curr ) )
+    if ( curr && !matchesFlags( curr ) )
 	++( *this );
 
-    if ( d->curr ) {
-	d->curr->enforceSortOrderBackToRoot();
-	listView = d->curr->listView();
+    if ( curr ) {
+	curr->enforceSortOrderBackToRoot();
+	listView = curr->listView();
     }
     addToListView();
 }
@@ -7076,9 +7075,10 @@ QListViewItemIterator::QListViewItemIterator( QListViewItem *item, int iteratorF
 */
 
 QListViewItemIterator::QListViewItemIterator( const QListViewItemIterator& it )
-    : listView( it.listView )
+    : curr( it.curr ), listView( it.listView )
 {
-    d = new QListViewItemIteratorPrivate( it.d->curr, 0 );
+    init( 0 );
+
     addToListView();
 }
 
@@ -7089,9 +7089,10 @@ QListViewItemIterator::QListViewItemIterator( const QListViewItemIterator& it )
 */
 
 QListViewItemIterator::QListViewItemIterator( QListView *lv )
-    : listView( lv )
+    : curr( lv->firstChild() ), listView( lv )
 {
-    d = new QListViewItemIteratorPrivate( lv->firstChild(), 0 );
+    init( 0 );
+
     addToListView();
 }
 
@@ -7104,11 +7105,12 @@ QListViewItemIterator::QListViewItemIterator( QListView *lv )
 */
 
 QListViewItemIterator::QListViewItemIterator( QListView *lv, int iteratorFlags )
-    : listView( lv )
+    : curr ( lv->firstChild() ), listView( lv )
 {
-    d = new QListViewItemIteratorPrivate( lv->firstChild(), iteratorFlags );
+    init( iteratorFlags );
+
     addToListView();
-    if ( !matchesFlags( d->curr ) )
+    if ( !matchesFlags( curr ) )
 	++( *this );
 }
 
@@ -7132,11 +7134,14 @@ QListViewItemIterator &QListViewItemIterator::operator=( const QListViewItemIter
 
     listView = it.listView;
     addToListView();
-    d->curr = it.d->curr;
-    d->flags = it.d->flags;
+    curr = it.curr;
+
+    // sets flags to be the same as the input iterators flags
+    if ( d() && it.d() )
+	d()->flags = it.d()->flags;
 
     // go to next matching item if the current don't match
-    if ( d->curr && !matchesFlags( d->curr ) )
+    if ( curr && !matchesFlags( curr ) )
 	++( *this );
 
     return *this;
@@ -7156,7 +7161,15 @@ QListViewItemIterator::~QListViewItemIterator()
 	    }
 	}
     }
-    delete d;
+    // removs the d-ptr from the dict ( autodelete on), and deletes the
+    // ptrdict if it becomes empty
+    if ( qt_iteratorprivate_dict ) {
+	qt_iteratorprivate_dict->remove( this );
+	if ( qt_iteratorprivate_dict->isEmpty() ) {
+	    delete qt_iteratorprivate_dict;
+	    qt_iteratorprivate_dict = 0;
+	}
+    }
 }
 
 /*!
@@ -7167,20 +7180,20 @@ QListViewItemIterator::~QListViewItemIterator()
 
 QListViewItemIterator &QListViewItemIterator::operator++()
 {
-    if ( !d->curr )
+    if ( !curr )
 	return *this;
 
-    QListViewItem *item = d->curr->firstChild();
+    QListViewItem *item = curr->firstChild();
     if ( !item ) {
-	while ( (item = d->curr->nextSibling()) == 0  ) {
-	    d->curr = d->curr->parent();
-	    if ( d->curr == 0 )
+	while ( (item = curr->nextSibling()) == 0  ) {
+	    curr = curr->parent();
+	    if ( curr == 0 )
 		break;
 	}
     }
-    d->curr = item;
+    curr = item;
     // if the next one doesn't match the flags we try one more ahead
-    if ( d->curr && !matchesFlags( d->curr ) )
+    if ( curr && !matchesFlags( curr ) )
 	++( *this );
     return *this;
 }
@@ -7207,7 +7220,7 @@ const QListViewItemIterator QListViewItemIterator::operator++( int )
 
 QListViewItemIterator &QListViewItemIterator::operator+=( int j )
 {
-    while ( d->curr && j-- )
+    while ( curr && j-- )
 	++( *this );
 
     return *this;
@@ -7221,65 +7234,65 @@ QListViewItemIterator &QListViewItemIterator::operator+=( int j )
 
 QListViewItemIterator &QListViewItemIterator::operator--()
 {
-    if ( !d->curr )
+    if ( !curr )
 	return *this;
 
-    if ( !d->curr->parent() ) {
+    if ( !curr->parent() ) {
 	// we are in the first depth
-       if ( d->curr->listView() ) {
-	    if ( d->curr->listView()->firstChild() != d->curr ) {
+       if ( curr->listView() ) {
+	    if ( curr->listView()->firstChild() != curr ) {
 		// go the previous sibling
-		QListViewItem *i = d->curr->listView()->firstChild();
-		while ( i && i->siblingItem != d->curr )
+		QListViewItem *i = curr->listView()->firstChild();
+		while ( i && i->siblingItem != curr )
 		    i = i->siblingItem;
 
-		d->curr = i;
+		curr = i;
 
 		if ( i && i->firstChild() ) {
 		    // go to the last child of this item
-		    QListViewItemIterator it( d->curr->firstChild() );
+		    QListViewItemIterator it( curr->firstChild() );
 		    for ( ; it.current() && it.current()->parent(); ++it )
-			d->curr = it.current();
+			curr = it.current();
 		}
 
-		if ( d->curr && !matchesFlags( d->curr ) )
+		if ( curr && !matchesFlags( curr ) )
 		    --( *this );
 
 		return *this;
 	    } else {
 		//we are already the first child of the list view, so it's over
-		d->curr = 0;
+		curr = 0;
 		return *this;
 	    }
 	} else
 	    return *this;
     } else {
-	QListViewItem *parent = d->curr->parent();
+	QListViewItem *parent = curr->parent();
 
-	if ( d->curr != parent->firstChild() ) {
+	if ( curr != parent->firstChild() ) {
 	    // go to the previous sibling
 	    QListViewItem *i = parent->firstChild();
-	    while ( i && i->siblingItem != d->curr )
+	    while ( i && i->siblingItem != curr )
 		i = i->siblingItem;
 
-	    d->curr = i;
+	    curr = i;
 
 	    if ( i && i->firstChild() ) {
 		// go to the last child of this item
-		QListViewItemIterator it( d->curr->firstChild() );
+		QListViewItemIterator it( curr->firstChild() );
 		for ( ; it.current() && it.current()->parent() != parent; ++it )
-		    d->curr = it.current();
+		    curr = it.current();
 	    }
 
-	    if ( d->curr && !matchesFlags( d->curr ) )
+	    if ( curr && !matchesFlags( curr ) )
 		--( *this );
 
 	    return *this;
 	} else {
 	    // make our parent the current item
-	    d->curr = parent;
+	    curr = parent;
 
-	    if ( d->curr && !matchesFlags( d->curr ) )
+	    if ( curr && !matchesFlags( curr ) )
 		--( *this );
 
 	    return *this;
@@ -7309,7 +7322,7 @@ const QListViewItemIterator QListViewItemIterator::operator--( int )
 
 QListViewItemIterator &QListViewItemIterator::operator-=( int j )
 {
-    while ( d->curr && j-- )
+    while ( curr && j-- )
 	--( *this );
 
     return *this;
@@ -7322,9 +7335,9 @@ QListViewItemIterator &QListViewItemIterator::operator-=( int j )
 
 QListViewItem* QListViewItemIterator::operator*()
 {
-    if ( d->curr != 0 && !matchesFlags( d->curr ) )
-	qWarning( "QListViewItemIterator::operator*() d->curr out of sync" );
-    return d->curr;
+    if ( curr != 0 && !matchesFlags( curr ) )
+	qWarning( "QListViewItemIterator::operator*() curr out of sync" );
+    return curr;
 }
 
 /*!
@@ -7333,10 +7346,32 @@ QListViewItem* QListViewItemIterator::operator*()
 
 QListViewItem *QListViewItemIterator::current() const
 {
-    if ( d->curr != 0 && !matchesFlags( d->curr ) )
-	qWarning( "QListViewItemIterator::current() d->curr out of sync" );
-    return d->curr;
+    if ( curr != 0 && !matchesFlags( curr ) )
+	qWarning( "QListViewItemIterator::current() curr out of sync" );
+    return curr;
 }
+
+QListViewItemIteratorPrivate* QListViewItemIterator::d() const
+{
+    return qt_iteratorprivate_dict ?
+	qt_iteratorprivate_dict->find( (void *)this ) : 0;
+}
+
+void QListViewItemIterator::init( int iteratorFlags )
+{
+    // makes new global ptrdict if it doesn't exist
+    if ( !qt_iteratorprivate_dict ) {
+	qt_iteratorprivate_dict = new QPtrDict<QListViewItemIteratorPrivate>;
+	qt_iteratorprivate_dict->setAutoDelete( TRUE );
+    }
+
+    // sets flag, or inserts new QListViewItemIteratorPrivate with flag
+    if ( d() )
+	d()->flags = iteratorFlags;
+    else
+	qt_iteratorprivate_dict->insert( this, new QListViewItemIteratorPrivate( iteratorFlags ) );
+}
+
 
 /*!
     Adds this iterator to its QListView's list of iterators.
@@ -7361,17 +7396,17 @@ void QListViewItemIterator::addToListView()
 
 void QListViewItemIterator::currentRemoved()
 {
-    if ( !d->curr ) return;
+    if ( !curr ) return;
 
-    if ( d->curr->parent() )
-	d->curr = d->curr->parent();
-    else if ( d->curr->nextSibling() )
-	d->curr = d->curr->nextSibling();
+    if ( curr->parent() )
+	curr = curr->parent();
+    else if ( curr->nextSibling() )
+	curr = curr->nextSibling();
     else if ( listView && listView->firstChild() &&
-	      listView->firstChild() != d->curr )
-	d->curr = listView->firstChild();
+	      listView->firstChild() != curr )
+	curr = listView->firstChild();
     else
-	d->curr = 0;
+	curr = 0;
 }
 
 /*
@@ -7382,36 +7417,38 @@ bool QListViewItemIterator::matchesFlags( const QListViewItem *item ) const
     if ( !item )
 	return FALSE;
 
-    if ( d->flags == 0 )
+    int flags = d() ? d()->flags : 0;
+
+    if ( flags == 0 )
   	return TRUE;
 
-    if ( d->flags & Visible && !item->isVisible() )
+    if ( flags & Visible && !item->isVisible() )
 	return FALSE;
-    if ( d->flags & Invisible && item->isVisible() )
+    if ( flags & Invisible && item->isVisible() )
 	return FALSE;
-    if ( d->flags & Selected && !item->isSelected() )
+    if ( flags & Selected && !item->isSelected() )
 	return FALSE;
-    if ( d->flags & Unselected && item->isSelected() )
+    if ( flags & Unselected && item->isSelected() )
 	return FALSE;
-    if ( d->flags & Selectable && !item->isSelectable() )
+    if ( flags & Selectable && !item->isSelectable() )
 	return FALSE;
-    if ( d->flags & NotSelectable && item->isSelectable() )
+    if ( flags & NotSelectable && item->isSelectable() )
 	return FALSE;
-    if ( d->flags & DragEnabled && !item->dragEnabled() )
+    if ( flags & DragEnabled && !item->dragEnabled() )
 	return FALSE;
-    if ( d->flags & DragDisabled && item->dragEnabled() )
+    if ( flags & DragDisabled && item->dragEnabled() )
 	return FALSE;
-    if ( d->flags & DropEnabled && !item->dropEnabled() )
+    if ( flags & DropEnabled && !item->dropEnabled() )
 	return FALSE;
-    if ( d->flags & DropDisabled && item->dropEnabled() )
+    if ( flags & DropDisabled && item->dropEnabled() )
 	return FALSE;
-    if ( d->flags & Expandable && !item->isExpandable() )
+    if ( flags & Expandable && !item->isExpandable() )
 	return FALSE;
-    if ( d->flags & NotExpandable && item->isExpandable() )
+    if ( flags & NotExpandable && item->isExpandable() )
 	return FALSE;
-    if ( d->flags & Checked && !isChecked( item ) )
+    if ( flags & Checked && !isChecked( item ) )
 	return FALSE;
-    if ( d->flags & NotChecked && isChecked( item ) )
+    if ( flags & NotChecked && isChecked( item ) )
 	return FALSE;
 
     return TRUE;
@@ -7684,9 +7721,9 @@ void QListView::windowActivationChange( bool oldActive )
 }
 
 /*!
-    Hides the column specified at \a column.  This is a convenience function that 
+    Hides the column specified at \a column.  This is a convenience function that
     calls setColumnWidth( column, 0 ).
-    
+
     \sa setColumnWidth
 */
 
