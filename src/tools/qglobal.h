@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#119 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#120 $
 **
 ** Global type declarations and definitions
 **
@@ -92,6 +92,8 @@
 #define _OS_GNU_
 #elif defined(DGUX)
 #define _OS_DGUX_
+#elif defined(sco)
+#define _OS_UNIXWARE7
 #else
 #error "Qt has not been ported to this OS - talk to qt-bugs@troll.no"
 #endif
@@ -227,7 +229,7 @@
 #define HAS_BOOL_TYPE
 #elif defined(_CC_COMEAU_)
 #define HAS_BOOL_TYPE
-#elif defined(sgi) && (_COMPILER_VERSION >= 710)
+#elif defined(sgi) && ( (_COMPILER_VERSION >= 710) || defined(_BOOL) )
 #define HAS_BOOL_TYPE
 #elif defined(__DECCXX) && (__DECCXX_VER >= 60060005)
 #define HAS_BOOL_TYPE
