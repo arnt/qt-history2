@@ -28,6 +28,8 @@
 #include <qurl.h>
 #include <qobjectlist.h>
 #include <qfeatures.h>
+#include <qtextcodec.h>
+#include <qdom.h>
 
 #ifndef QT_NO_SQL
 #include <qsqlrecord.h>
@@ -209,7 +211,6 @@ void Project::removeUiFile( const QString &f, FormWindow *fw )
 void Project::setDatabaseDescription( const QString &db )
 {
     dbFile = db;
-    save();
 }
 
 void Project::setDescription( const QString &s )
@@ -494,8 +495,23 @@ QStringList Project::databaseFieldList( const QString &connection, const QString
     return QStringList();
 }
 
-static bool inSaveConnections = FALSE;
+static QString makeIndent( int indent )
+{
+    QString s;
+    s.fill( ' ', indent * 4 );
+    return s;
+}
 
+static void saveSingleProperty( QTextStream &ts, const QString& name, const QString& value, int indent )
+{
+    ts << makeIndent( indent ) << "<property name=\"" << name << "\">" << endl;
+    ++indent;
+    ts << makeIndent( indent ) << "<string>" << value << "</string>" << endl;
+    --indent;
+    ts << makeIndent( indent ) << "</property>" << endl;
+}
+
+static bool inSaveConnections = FALSE;
 void Project::saveConnections()
 {
     if ( inSaveConnections )
@@ -506,23 +522,70 @@ void Project::saveConnections()
 	setDatabaseDescription( makeAbsolute( fi.baseName() + ".db" ) );
     }
 
-    Config conf( dbFile );
-    conf.setGroup( "Connections" );
-    conf.writeEntry( "Connections", databaseConnectionList(), ',' );
+    /* .db xml */
+    QFile f( dbFile );
+    if ( f.open( IO_WriteOnly ) ) {
+	QTextStream ts( &f );
+	ts.setCodec( QTextCodec::codecForName( "UTF-8" ) );
+	ts << "<!DOCTYPE DB><DB version=\"1.0\">" << endl;
 
-    for ( Project::DatabaseConnection *conn = dbConnections.first(); conn; conn = dbConnections.next() ) {
-	conf.setGroup( conn->name );
-	conf.writeEntry( "Tables", conn->tables, ',' );
-	for ( QStringList::Iterator it = conn->tables.begin(); it != conn->tables.end(); ++it )
-	    conf.writeEntry( "Fields[" + *it + "]", conn->fields[ *it ], ',' );
-	conf.writeEntry( "Driver", conn->driver );
-	conf.writeEntry( "DatabaseName", conn->dbName );
-	conf.writeEntry( "Username", conn->username );
-	conf.writeEntry( "Hostname", conn->hostname );
+	/* db connections */
+	int indent = 0;
+	for ( Project::DatabaseConnection *conn = dbConnections.first();
+	      conn;
+	      conn = dbConnections.next() ) {
+
+	    ts << makeIndent( indent ) << "<connection>" << endl;
+	    ++indent;
+	    saveSingleProperty( ts, "name", conn->name, indent );
+	    saveSingleProperty( ts, "driver", conn->driver, indent );
+	    saveSingleProperty( ts, "database", conn->dbName, indent );
+	    saveSingleProperty( ts, "username", conn->username, indent );
+	    saveSingleProperty( ts, "hostname", conn->hostname, indent );
+
+	    /* connection tables */
+	    for ( QStringList::Iterator it = conn->tables.begin();
+		  it != conn->tables.end(); ++it ) {
+		ts << makeIndent( indent ) << "<table>" << endl;
+		++indent;
+		saveSingleProperty( ts, "name", (*it), indent );
+
+		/* tables fields */
+		for ( QStringList::Iterator it2 = conn->fields[ *it ].begin();
+		  it2 != conn->fields[ *it ].end(); ++it2 ) {
+		    ts << makeIndent( indent ) << "<field>" << endl;
+		    ++indent;
+		    saveSingleProperty( ts, "name", (*it2), indent );
+		    --indent;
+		    ts << makeIndent( indent ) << "</field>" << endl;
+		}
+
+		--indent;
+		ts << makeIndent( indent ) << "</table>" << endl;
+	    }
+
+	    --indent;
+	    ts << makeIndent( indent ) << "</connection>" << endl;
+	}
+
+	ts << "</DB>" << endl;
+	f.close();
     }
 
-    conf.write();
     inSaveConnections = FALSE;
+}
+
+static QDomElement loadSingleProperty( QDomElement e, const QString& name )
+{
+    QDomElement n;
+    for ( n = e.firstChild().toElement();
+	  !n.isNull();
+	  n = n.nextSibling().toElement() ) {
+	if ( n.tagName() == "property" && n.toElement().attribute("name") == name )
+	    return n;
+    }
+    qDebug("loaded single property " + name + ":" + n.firstChild().firstChild().toText().data());
+    return n;
 }
 
 void Project::loadConnections()
@@ -530,26 +593,59 @@ void Project::loadConnections()
     if ( !QFile::exists( dbFile ) )
 	return;
 
-    Config conf( dbFile );
-    conf.setGroup( "Connections" );
+    QFile f( dbFile );
+    if ( f.open( IO_ReadOnly ) ) {
+	QDomDocument doc;
+	if ( doc.setContent( &f ) ) {
+	    QDomElement e;
+	    e = doc.firstChild().toElement();
 
-    QStringList conns = conf.readListEntry( "Connections", ',' );
-    for ( QStringList::Iterator it = conns.begin(); it != conns.end(); ++it ) {
-	DatabaseConnection *conn = new DatabaseConnection( this );
-	conn->name = *it;
-	conf.setGroup( *it );
-	conn->tables = conf.readListEntry( "Tables", ',' );
-	for ( QStringList::Iterator it2 = conn->tables.begin(); it2 != conn->tables.end(); ++it2 ) {
-	    QStringList lst = conf.readListEntry( "Fields[" + *it2 + "]", ',' );
-	    conn->fields.insert( *it2, lst );
+	    /* connections */
+	    QDomNodeList connections = e.toElement().elementsByTagName( "connection" );
+	    for ( uint i = 0; i <  connections.length(); i++ ) {
+		QDomElement connection = connections.item(i).toElement();
+		QDomElement connectionName = loadSingleProperty( connection, "name" );
+		QDomElement connectionDriver = loadSingleProperty( connection, "driver" );
+		QDomElement connectionDatabase = loadSingleProperty( connection,
+								     "database" );
+		QDomElement connectionUsername = loadSingleProperty( connection,
+								     "username" );
+		QDomElement connectionHostname = loadSingleProperty( connection,
+								     "hostname" );
+		DatabaseConnection *conn = new DatabaseConnection( this );
+		conn->name = connectionName.firstChild().firstChild().toText().data();
+		conn->driver = connectionDriver.firstChild().firstChild().toText().data();
+		conn->dbName = connectionDatabase.firstChild().firstChild().toText().data();
+		conn->username = connectionUsername.firstChild().firstChild().toText().data();
+		conn->password = "";
+		conn->hostname = connectionHostname.firstChild().firstChild().toText().data();
+
+		/* connection tables */
+		QDomNodeList tables = connection.toElement().elementsByTagName( "table" );
+		for ( uint j = 0; j <  tables.length(); j++ ) {
+		    QDomElement table = tables.item(j).toElement();
+		    QDomElement tableName = loadSingleProperty( table, "name" );
+		    conn->tables.append( tableName.firstChild().firstChild().toText().data() );
+
+		    /* table fields */
+		    QStringList fieldList;
+		    QDomNodeList fields = table.toElement().elementsByTagName( "field" );
+		    for ( uint k = 0; k <  fields.length(); k++ ) {
+			QDomElement field = fields.item(k).toElement();
+			QDomElement fieldName = loadSingleProperty( field, "name" );
+			fieldList.append( fieldName.firstChild().firstChild().toText().data() );
+		    }
+		    conn->fields.insert( tableName.firstChild().firstChild().toText().data(),
+					 fieldList );
+		}
+
+		dbConnections.append( conn );
+	    }
 	}
-	conn->driver = conf.readEntry( "Driver" );
-	conn->dbName = conf.readEntry( "DatabaseName" );
-	conn->username = conf.readEntry( "Username" );
-	conn->password = "";
-	conn->hostname = conf.readEntry( "Hostname" );
-	dbConnections.append( conn );
+	f.close();
     }
+
+    return;
 }
 
 /*! Opens the database \a connection.  The connection remains open and
@@ -638,7 +734,7 @@ QString Project::formName( const QString &uifile )
 		    className = line.mid( start + 7, end - ( start + 7 ) );
 		    break;
 		}
-	    }	
+	    }
 	}
 	if ( !className.isEmpty() )
 	    return className;
