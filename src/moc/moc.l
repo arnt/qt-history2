@@ -38,6 +38,28 @@
 %{
 #ifdef MOC_YACC_CODE
 
+#ifdef MOC_MWERKS_PLUGIN
+#define isascii(c)   ((int)( (unsigned int) (c) <= (unsigned char)0x7F ))
+const char *buf_buffer = NULL;
+long buf_size_total = 0, buf_index = 0;
+#define YY_INPUT(buf, result, max_size) \
+     { \
+          if(buf_index < buf_size_total ) { \
+              while(!isascii(buf_buffer[buf_index++])); \
+              int ms = ((max_size < buf_size_total) ? max_size : buf_size_total); \
+              for(result = 0; result < ms; result++) { \
+                 char c = buf_buffer[buf_index + result]; \
+                 if(!isascii(c)) { \
+                    buf_index++; \
+                    break; \
+                 } \
+                 buf[result] = c == '\r' ? '\n' : c; \
+              } \
+              buf_index += result; \
+          } else result = YY_NULL; \
+     } 
+#endif
+
 #include "qstring.h"
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#223 $
+** $Id: //depot/qt/main/src/moc/moc.y#224 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -1304,6 +1304,7 @@ int yyparse();
 
 void replace( char *s, char c1, char c2 );
 
+#ifndef MOC_MWERKS_PLUGIN
 int main( int argc, char **argv )
 {
     init();
@@ -1443,7 +1444,104 @@ int main( int argc, char **argv )
     cleanup();
     return ret;
 }
+#else
+bool qt_is_gui_used = FALSE;
+#include <ctype.h>
+#include <stdio.h>
+#include <string.h>
+#include <Files.h>
+#include <Strings.h>
+#include <Errors.h>
+#include "CWPluginErrors.h"
+#include <CWPlugins.h>
+#include "DropInCompilerLinker.h"
+#include "Aliases.h"
 
+const unsigned char *p_str(const char *);
+
+CWPluginContext g_ctx;
+
+int do_moc( CWPluginContext ctx, const QCString &fin, const QCString &fout, CWFileSpec *dspec, bool i)
+{
+    init();
+    
+    g_ctx = ctx;
+    g->noInclude = i;
+    g->fileName = fin;
+    g->outputFile = fout;
+
+    if ( !g->fileName.isEmpty() && !g->outputFile.isEmpty() &&
+	 g->includeFile.isEmpty() && g->includePath.isEmpty() ) {
+	g->includeFile = combinePath(g->fileName,g->outputFile);
+    }
+    if ( g->includeFile.isEmpty() )
+	g->includeFile = g->fileName.copy();
+    if ( !g->includePath.isEmpty() ) {
+	if ( g->includePath.right(1) != "/" )
+	    g->includePath += '/';
+	g->includeFile = g->includePath + g->includeFile;
+    }
+
+    CWFileInfo fi;
+    memset(&fi, 0, sizeof(fi));
+	fi.fullsearch = true;
+	fi.dependencyType = cwNormalDependency;
+	fi.isdependentoffile = kCurrentCompiledFile;
+    if(CWFindAndLoadFile( ctx, fin.data(), &fi) != cwNoErr) {
+        cleanup();
+        return 4;
+    }
+    
+    if(dspec) {
+        memcpy(dspec, &fi.filespec, sizeof(fi.filespec));
+        const unsigned char *f = p_str(fout.data());
+        memcpy(dspec->name, f, f[0]+1);
+    }
+    buf_index = 0;
+    buf_size_total = fi.filedatalength;
+    buf_buffer = fi.filedata;    
+
+    QCString inpath("");
+    AliasHandle alias;
+    Str63 str;
+    AliasInfoType x = 1;
+    char tmp[sizeof(Str63)+2];
+    if(NewAlias( NULL, &fi.filespec, &alias) != noErr) {
+        cleanup();
+        return 5;
+    }
+    
+    while(1) {
+         GetAliasInfo(alias, x++, str);
+         if(!str[0])
+            break;
+         strncpy((char *)tmp, (const char *)str+1, str[0]);
+         tmp[str[0]] = '\0';
+         inpath.prepend(":");
+         inpath.prepend((char *)tmp);
+    }
+    inpath.prepend("MacOS 9:"); //FIXME
+    inpath += fout;
+	    
+    unlink(inpath.data());
+    out = fopen(inpath.data(), "w+");
+    if(!out) {
+        cleanup();
+        return 3;
+    }
+
+    yyparse();
+    if(out != stdout)
+      fclose(out);
+   
+    if(!g->generatedCode) 
+        unlink(inpath.data());
+        
+    int ret = !(displayWarnings || g->mocError) ? 2 : 1;
+    cleanup();
+    return ret;
+}
+#endif
 void replace( char *s, char c1, char c2 )
 {
     if ( !s )
@@ -1788,7 +1886,13 @@ void addExpressionChar( const char c )
 void yyerror( const char *msg )			// print yacc error message
 {
     g->mocError = TRUE;
+#ifndef MOC_MWERKS_PLUGIN
     fprintf( stderr, "%s:%d: Error: %s\n", g->fileName.data(), lineNo, msg );
+#else
+    char	msg2[200];
+    sprintf(msg2, "%s:%d Error: %s", g->fileName.data(), lineNo, msg);
+    CWReportMessage(g_ctx, NULL, msg2, NULL, messagetypeError, 0);
+#endif
 }
 
 void moc_err( const char *s )
@@ -2660,7 +2764,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#223 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#224 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
