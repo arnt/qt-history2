@@ -2958,6 +2958,9 @@ QSize QWidget::frameSize() const
 
 void QWidget::setFRect( const QRect &r )
 {
+    if ( !isTopLevel() )
+	fleft = fright = ftop = fbottom = 0;
+
     if ( extra && extra->topextra ) {
 	crect.moveTopLeft(crect.topLeft() + QPoint(fleft, ftop));
 
@@ -2970,7 +2973,6 @@ void QWidget::setFRect( const QRect &r )
 				       crect.height() + ftop + fbottom);
     } else {
 	// One rect is both the same.
-	fleft = fright = ftop = fbottom = 0;
 	crect = r;
     }
 }
@@ -2988,12 +2990,13 @@ void QWidget::setFRect( const QRect &r )
 
 void QWidget::setCRect( const QRect &r )
 {
+    if ( !isTopLevel() )
+	fleft = fright = ftop = fbottom = 0;
+
     crect = r;
     if (extra && extra->topextra)
 	extra->topextra->fsize = QSize(crect.width() + fleft + fright,
 				       crect.height() + ftop + fbottom);
-    else
-	fleft = fright = ftop = fbottom = 0;
 }
 
 
