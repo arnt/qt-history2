@@ -74,7 +74,7 @@ public:
 	 maxLogLines(-1),
 	 logOffset(0),
 #endif
-	 autoFormatting( QTextEdit::AutoAll )
+	 autoFormatting( (uint)QTextEdit::AutoAll )
     {
 	for ( int i=0; i<7; i++ )
 	    id[i] = 0;
@@ -1088,8 +1088,10 @@ bool QTextEdit::event( QEvent *e )
 {
     if ( e->type() == QEvent::AccelOverride && !isReadOnly() ) {
 	QKeyEvent* ke = (QKeyEvent*) e;
-	if ( ke->state() == NoButton || ke->state() == ShiftButton
-	     || ke->state() == Keypad ) {
+	switch(ke->state()) {
+	case NoButton:
+	case Keypad:
+	case ShiftButton:
 	    if ( ke->key() < Key_Escape ) {
 		ke->accept();
 	    } else if ( ke->state() == NoButton
@@ -1108,7 +1110,12 @@ bool QTextEdit::event( QEvent *e )
 		    break;
 		}
 	    }
-	} else if ( ke->state() & ControlButton ) {
+	    break;
+
+	case ControlButton:
+    	case ControlButton|ShiftButton:
+	case ControlButton|Keypad:
+	case ControlButton|ShiftButton|Keypad:
 	    switch ( ke->key() ) {
 	    case Key_Tab:
 	    case Key_Backtab:
@@ -1146,7 +1153,9 @@ bool QTextEdit::event( QEvent *e )
 	    default:
 		break;
 	    }
-	} else {
+	    break;
+
+	default:
 	    switch ( ke->key() ) {
 #if defined (Q_WS_WIN)
 	    case Key_Insert:
@@ -1155,6 +1164,7 @@ bool QTextEdit::event( QEvent *e )
 	    default:
 		break;
 	    }
+	    break;
 	}
     }
 
@@ -3875,6 +3885,10 @@ bool QTextEdit::find( const QString &expr, bool cs, bool wo, bool forward,
 	ensureCursorVisible();
     }
     drawCursor( TRUE );
+    if (found) {
+	emit cursorPositionChanged( cursor );
+	emit cursorPositionChanged( cursor->paragraph()->paragId(), cursor->index() );
+    }
     return found;
 }
 
@@ -5463,6 +5477,16 @@ void QTextEdit::setFont( const QFont &f )
     if ( d->optimMode ) {
 	QScrollView::setFont( f );
 	doc->setDefaultFormat( f, doc->formatCollection()->defaultFormat()->color() );
+	// recalculate the max string width
+	QFontMetrics fm(f);
+	int i, sw;
+	d->od->maxLineWidth = 0;
+	for ( i = 0; i < d->od->numLines; i++ ) {
+	    sw = fm.width(d->od->lines[LOGOFFSET(i)]);
+	    if (d->od->maxLineWidth < sw)
+		d->od->maxLineWidth = sw;
+	}
+	resizeContents(d->od->maxLineWidth + 4, d->od->numLines * fm.lineSpacing() + 1);
 	return;
     }
 #endif
