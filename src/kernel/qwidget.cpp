@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#438 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#439 $
 **
 ** Implementation of QWidget class
 **
@@ -1770,15 +1770,12 @@ void QWidget::backgroundPixmapChange( const QPixmap & )
 
 const QColorGroup &QWidget::colorGroup() const
 {
-    if ( !testWState(WState_PaletteSet) ){
-	palette();				// initialize palette
-    }
     if ( testWState(WState_Disabled) )
-	return pal.disabled();
+	return palette().disabled();
     else if ( qApp->focus_widget == this && focusPolicy() != NoFocus )
-	return pal.active();
+	return palette().active();
     else
-	return pal.normal();
+	return palette().normal();
 }
 
 /*!
