@@ -29,7 +29,7 @@
 #ifdef Q_WS_X11
 extern bool qt_has_xft;
 #endif
-extern bool qt_resolve_symlinks;
+extern bool Q_EXPORT qt_resolve_symlinks;
 
 
 static const char *appearance_text =
