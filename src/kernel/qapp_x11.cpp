@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#11 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#11 $";
 #endif
 
 
@@ -275,6 +275,7 @@ int QApplication::exec( QWidget *mainWidget )	// main event loop
 		    XRefreshKeyboardMapping( &event.xmapping );
 		    break;
 
+		case GraphicsExpose:
 		case Expose:			// paint event
 		    widget->translatePaintEvent( &event );
 		    break;
@@ -283,8 +284,12 @@ int QApplication::exec( QWidget *mainWidget )	// main event loop
 		    widget->translateConfigEvent( &event );
 		    break;
 
-		case FocusIn:			// focus change
-		case FocusOut:
+		case FocusIn:			// got focus
+		    evt_type = Event_FocusIn;
+		    break;
+
+		case FocusOut:			// lost focus
+		    evt_type = Event_FocusOut;
 		    break;
 
 		case EnterNotify:		// enter window
