@@ -4052,19 +4052,40 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	    int r,g,b;
 	    if (av == 255) {
 		unsigned char *stmp = (unsigned char *)&srcval;
+#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
+		stmp++;
+		r = *stmp++;
+		g = *stmp++;
+		b = *stmp;
+#else
 		b = *stmp++;
 		g = *stmp++;
 		r = *stmp;
+#endif
 	    } else {
 		unsigned char *tmp=(unsigned char *)alphaptr;
+#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
+		stmp++;
+		r = *stmp++;
+		g = *stmp++;
+		b = *stmp;
+#else
 		b = *tmp++;
 		g = *tmp++;
 		r = *tmp;
+#endif
 		if (av) {
 		    unsigned char *stmp = (unsigned char *)&srcval;
+#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
+		    stmp++;
+		    r += ((*stmp++-r) * av) >> 8;
+		    g += (((*stmp++)-g) * av) >> 8;
+		    b += (((*stmp)-b) * av) >> 8;
+#else
 		    b += (((*stmp++)-b) * av) >> 8;
 		    g += (((*stmp++)-g) * av) >> 8;
 		    r += ((*stmp-r) * av) >> 8;
+#endif
 		}
 	    }
 	    *(alphaptr++) = qt_convRgbTo16(r,g,b);
@@ -4105,8 +4126,13 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	    }
 	} else {
 	    // Duffs device.
+#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
+	    #define DUFF_WRITE_WORD put=(*(alphaptr++) << 16); put|=(*alphaptr++); \
+				*myptr2++ = put;
+#else
 	    #define DUFF_WRITE_WORD put=*(alphaptr++); put|=(*(alphaptr++) << 16); \
 	                       *myptr2++ = put;
+#endif
 	    PackType *myptr2 = (PackType*)myptr;
 	    myptr += count * 2;
 	    PackType *end2 = (PackType*)myptr;
