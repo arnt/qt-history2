@@ -1715,6 +1715,7 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len, QP
     QFontPrivate::TextRun *cache = new QFontPrivate::TextRun();
     cfont.d->textWidth( shaped, 0, len, cache );
     cfont.d->drawText( gfx, x, y, cache );
+    delete cache;
 
     //if ( cfont.underline() || cfont.strikeOut() ) {
 	//QFontMetrics fm = fontMetrics();
