@@ -12,7 +12,7 @@ win32 {
     }
 }
 DESTDIR		= $$QMAKE_LIBDIR_QT
-DLLDESTDIR	= ../bin
+DLLDESTDIR	= $$QT_INSTALL_PREFIX/bin
 
 CONFIG		+= qt warn_on depend_includepath
 CONFIG          += qmake_cache target_qt
