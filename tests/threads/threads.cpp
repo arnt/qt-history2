@@ -36,7 +36,6 @@ void MyThread::run()
 	QCustomEvent * wibble=new QCustomEvent(6666);
 	wibble->setData((void *)n);
 	QThread::postEvent(mywidget,wibble);
-	sleep(1);
 	n++;
     }
 }
