@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurlinfo.h#11 $
+** $Id: //depot/qt/main/src/kernel/qurlinfo.h#12 $
 **
 ** Implementation of QUrlInfo class
 **
@@ -61,7 +61,9 @@ public:
     virtual void setSize( uint s );
     virtual void setWritable( bool b );
     virtual void setReadable( bool b );
-
+    virtual void setPermissions( int p );
+    virtual void setLastModified( const QDateTime &dt );
+    
     QString name() const;
     int permissions() const;
     QString owner() const;

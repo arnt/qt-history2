@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#52 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#53 $
 **
 ** Implementation of Network Extension Library
 **
@@ -180,9 +180,19 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
 	return;
     }
 
-    info.setWritable( TRUE );
-    info.setReadable( TRUE );
-
+    static int user = 0;
+    static int group = 1;
+    static int other = 2;
+    static int readable = 0;
+    static int writable = 1;
+    static int executable = 2;
+    
+    bool perms[ 3 ][ 3 ] = {
+	{ tmp[ 1 ] == 'r', tmp[ 2 ] == 'w', tmp[ 3 ] == 'x' },
+	{ tmp[ 4 ] == 'r', tmp[ 5 ] == 'w', tmp[ 6 ] == 'x' },
+	{ tmp[ 7 ] == 'r', tmp[ 8 ] == 'w', tmp[ 9 ] == 'x' }
+    };
+    
     // owner
     tmp = lst[ 2 ];
     info.setOwner( tmp );
@@ -191,12 +201,58 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
     tmp = lst[ 3 ];
     info.setGroup( tmp );
 
+    // ### not correct
+    info.setWritable( ( url()->user() == info.owner() && perms[ user ][ writable ] ) || 
+	perms[ other ][ writable ] );
+    info.setReadable( ( url()->user() == info.owner() && perms[ user ][ readable ] ) || 
+	perms[ other ][ readable ] );
+
+    int p = 0;
+    if ( perms[ user ][ readable ] )
+	p |= QFileInfo::ReadUser;
+    if ( perms[ user ][ writable ] )
+	p |= QFileInfo::WriteUser;
+    if ( perms[ user ][ executable ] )
+	p |= QFileInfo::ExeUser;
+    if ( perms[ group ][ readable ] )
+	p |= QFileInfo::ReadGroup;
+    if ( perms[ group ][ writable ] )
+	p |= QFileInfo::WriteGroup;
+    if ( perms[ group ][ executable ] )
+	p |= QFileInfo::ExeGroup;
+    if ( perms[ other ][ readable ] )
+	p |= QFileInfo::ReadOther;
+    if ( perms[ other ][ writable ] )
+	p |= QFileInfo::WriteOther;
+    if ( perms[ other ][ executable ] )
+	p |= QFileInfo::ExeOther;
+    info.setPermissions( p );
+    
     // size
     tmp = lst[ 4 ];
     info.setSize( tmp.toInt() );
 
     // date, time #### todo
-
+    QDate date;
+    int m = 1, d;
+    for ( unsigned int i = 1; i <= 12; ++i ) {
+	if ( date.monthName( i ) == lst[ 5 ] ) {
+	    m = i;
+	    break;
+	}
+    }
+    d = lst[ 6 ].toInt();
+    
+    if ( lst[ 7 ].contains( ":" ) ) {
+	QTime time( lst[ 7 ].left( 2 ).toInt(), lst[ 7 ].right( 2 ).toInt() );
+	date = QDate( QDate::currentDate().year(), m, d );
+	info.setLastModified( QDateTime( date, time ) );
+    } else {
+	int y = lst[ 7 ].toInt();
+	date = QDate( y, m, d );
+	info.setLastModified( QDateTime( date, QTime() ) );
+    }
+    
     // name
     if ( info.isSymLink() )
 	info.setName( lst[ 8 ].stripWhiteSpace() );
@@ -464,20 +520,24 @@ void QFtp::dataConnected()
 	QString cmd = "STOR " + QUrl( operationInProgress()->arg1() ).path() + "\r\n";
 	commandSocket->writeBlock( cmd.latin1(), cmd.length() );
 	if ( operationInProgress()->rawArg2().size() <= QFTP_MAX_BYTES ) {
-	    dataSocket->writeBlock( operationInProgress()->rawArg2(),
-				    operationInProgress()->rawArg2().size() );
-	    emit dataTransferProgress( operationInProgress()->rawArg2().size(),
-				       operationInProgress()->rawArg2().size(),
-				       operationInProgress() );
-	    QTimer::singleShot( 0, this, SLOT( dataClosed() ) );
+	    if ( dataSocket && dataSocket->isOpen() ) {
+		dataSocket->writeBlock( operationInProgress()->rawArg2(),
+					operationInProgress()->rawArg2().size() );
+		emit dataTransferProgress( operationInProgress()->rawArg2().size(),
+					   operationInProgress()->rawArg2().size(),
+					   operationInProgress() );
+		QTimer::singleShot( 0, this, SLOT( dataClosed() ) );
+	    }
 	} else {
-	    putOffset = 0;
-	    putToWrite = QFTP_MAX_BYTES;
-	    putWritten = 0;
-	    emit dataTransferProgress( 0, operationInProgress()->rawArg2().size(),
-				       operationInProgress() );
-	    dataSocket->writeBlock( operationInProgress()->rawArg2(), QFTP_MAX_BYTES );
-	    putOffset += QFTP_MAX_BYTES;
+	    if ( dataSocket && dataSocket->isOpen() ) {
+		putOffset = 0;
+		putToWrite = QFTP_MAX_BYTES;
+		putWritten = 0;
+		emit dataTransferProgress( 0, operationInProgress()->rawArg2().size(),
+					   operationInProgress() );
+		dataSocket->writeBlock( operationInProgress()->rawArg2(), QFTP_MAX_BYTES );
+		putOffset += QFTP_MAX_BYTES;
+	    }
 	}
     } break;
     }
@@ -551,7 +611,8 @@ void QFtp::dataReadyRead()
 
 void QFtp::dataBytesWritten( int nbytes )
 {
-    if ( operationInProgress() && operationInProgress()->operation() == OpPut ) {
+    if ( operationInProgress() && operationInProgress()->operation() == OpPut && 
+	dataSocket && dataSocket->isOpen() ) {
 	putWritten += nbytes;
 	if ( putToWrite < 0 || putWritten < putToWrite )
 	    return;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurlinfo.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qurlinfo.cpp#18 $
 **
 ** Implementation of QUrlInfo class
 **
@@ -223,6 +223,24 @@ void QUrlInfo::setGroup( const QString &s )
 void QUrlInfo::setSize( uint s )
 {
     d->size = s;
+}
+
+/*!
+  Sets the permissions of the URL to \a p.
+*/
+
+void QUrlInfo::setPermissions( int p )
+{
+    d->permissions = p;
+}
+
+/*!
+  Sets the last mofification date of the URL to \a dt.
+*/
+
+void QUrlInfo::setLastModified( const QDateTime &dt )
+{
+    d->lastModified = dt;
 }
 
 /*!
