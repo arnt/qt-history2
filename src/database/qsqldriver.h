@@ -30,6 +30,7 @@ public:
     virtual QSqlFieldInfoList table( const QString& name ) const;
     virtual QStringList tables( const QString& user ) const;
     virtual QSqlIndex   primaryIndex( const QString& tablename ) const;
+    virtual QSqlFieldInfoList fields( const QString& tablename ) const;
     QSqlError	    lastError() const;
     virtual bool    open( const QString & db,
     			const QString & user = QString::null,

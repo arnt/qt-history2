@@ -243,7 +243,8 @@ QSqlFieldInfoList QSqlDriver::table( const QString& name ) const
 }
 
 /*!
-  Returns a list of tables in the database.
+  Returns a list of tables in the database.  The default
+  implementation returns an empty list.
 */
 
 QStringList QSqlDriver::tables( const QString& user ) const
@@ -255,7 +256,7 @@ QStringList QSqlDriver::tables( const QString& user ) const
 /*!
   Returns the primary index for table \a tablename.  If no
   such index exists, the QSqlIndex that is returned will be
-  empty.
+  empty.  The default implementation returns an empty index.
 
 */
 
@@ -265,7 +266,23 @@ QSqlIndex QSqlDriver::primaryIndex( const QString& tablename ) const
     Q_CONST_UNUSED( tablename );
 }
 
+
+/*!
+  Returns a list of fields for table \a tablename.  If no
+  such table exists, an empty list is returned.  The default
+  implementation returns an empty list.
+
+*/
+
+QSqlFieldInfoList QSqlDriver::fields( const QString& tablename ) const
+{
+    return QSqlFieldInfoList();
+    Q_CONST_UNUSED( tablename );
+}
+
+
 #endif // QT_NO_SQL
+
 
 
 

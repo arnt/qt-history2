@@ -68,6 +68,7 @@ public:
     QSqlTable   table( const QString & name ) const;
     QStringList tables() const;
     QSqlIndex   primaryIndex( const QString& tablename ) const;
+    QSqlFieldInfoList fields( const QString& tablename ) const;
     int		exec( const QString & sql ) const;
     QSql	createResult() const;
     bool	transaction();

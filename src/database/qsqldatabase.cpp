@@ -381,6 +381,19 @@ QSqlIndex QSqlDatabase::primaryIndex( const QString& tablename ) const
     return d->driver->primaryIndex( tablename );
 }
 
+
+/*!
+  Returns a list of fields for table \a tablename.  If not such
+  table exists, an empty list is returned.
+
+*/
+
+QSqlFieldInfoList QSqlDatabase::fields( const QString& tablename ) const
+{
+    return d->driver->fields( tablename );
+}
+
+
 ////////////////////////////////////////////////////////////////
 
 /*!
@@ -440,5 +453,4 @@ QSqlTable::~QSqlTable()
 }
 
 #endif // QT_NO_SQL
-
 
