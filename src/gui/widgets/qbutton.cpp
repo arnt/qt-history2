@@ -410,6 +410,9 @@ QButton::~QButton()
     The QButtonGroup::clicked() signal does the same job, if you want
     to connect several buttons to the same slot.
 
+    \warning Don't launch a model dialog in response to this signal
+    for a button that has \c autoRepeat turned on.
+
     \sa pressed(), released(), toggled() autoRepeat down
 */
 

@@ -245,23 +245,27 @@ QWidgetFactory::~QWidgetFactory()
 }
 
 /*!
+    Loads the \e{Qt Designer} user interface description file \a
+    uiFile and returns the top-level widget in that description. \a
+    parent and \a name are passed to the constructor of the top-level
+    widget.
 
-    Loads the \e{Qt Designer} user interface description file \a uiFile
-  and returns the top-level widget in that description. \a parent and
-  \a name are passed to the constructor of the top-level widget.
+    This function also performs signal and slot connections, tab
+    ordering, etc., as described in the .ui file. In \e{Qt Designer}
+    it is possible to add custom slots to a form and connect to them.
+    If you want these connections to be made, you must create a class
+    derived from QObject, which implements all these slots. Then pass
+    an instance of the object as \a connector to this function. If you
+    do this, the connections to the custom slots will be done using
+    the \a connector as slot.
 
-  This function also performs signal and slot connections, tab
-  ordering, etc., as described in the .ui file. In \e{Qt Designer} it
-  is possible to add custom slots to a form and connect to them. If
-  you want these connections to be made, you must create a class
-  derived from QObject, which implements all these slots. Then pass an
-  instance of the object as \a connector to this function. If you do
-  this, the connections to the custom slots will be done using the \a
-  connector as slot.
+    Note that if you create a QMainWindow with a widget factory it
+    will already have a centralWidget(); so if you want to create your
+    own central widget you must delete the default one first.
 
-  If something fails, 0 is returned.
+    Returns a pointer to the widget that's created, or 0 if creation fails.
 
-  The ownership of the returned widget is passed to the caller.
+    Ownership of the returned widget is passed to the caller.
 */
 
 QWidget *QWidgetFactory::create( const QString &uiFile, QObject *connector,
