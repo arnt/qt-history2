@@ -1157,7 +1157,7 @@ See also \link #DEPENDPATH DEPENDPATH \endlink.
 \section3 DEPENDPATH
 
 This variable contains the list of all directories to look in to
-resolve dependancies. This will be used when crawling through
+resolve dependencies. This will be used when crawling through
 'included' files.
 
 
@@ -1566,7 +1566,7 @@ See also \link #Extensions File Extensions \endlink.
 This variable changes the extention used on included moc files. 
 
 See also \link #Extensions File Extensions \endlink, 
-         \link #LibDepend Library Dependancies \endlink.
+         \link #LibDepend Library Dependencies \endlink.
 
 
 
@@ -1820,20 +1820,20 @@ file, the .pro file, or the command line. If neither \c -path or \c
 will silently ignore this step of processing.
 
 \target LibDepend
-\section2 Library Dependancies
+\section2 Library Dependencies
 
 Often when linking against a library \e qmake relies on the underlying
 platform to know what other libraries this library links against, and
 lets the platform pull them in. In many cases, however, this is not
 sufficent. For example when statically linking a library there are no
-libraries linked against, and therefore to dependancies to those
+libraries linked against, and therefore no dependencies to those
 libraries are created - however an application that later links
 against this library will need to know where to find the symbols that
 the linked in library will require. To help with this situation \e
-qmake will follow a libraries dependancies when it feels appropriate,
+qmake will follow a library's dependencies when it feels appropriate,
 however this behaviour must be enabled in \e qmake. To enable requires
 two steps. First, you must enable it in the library - to do this you
-must tell \e qmake that it is to save information about this library:
+must tell \e qmake to save information about this library:
 
 \code
   CONFIG += create_prl
@@ -1845,7 +1845,7 @@ others. When this option is enabled \e qmake will create a file
 library. This metafile is itself just a qmake project file, but with
 all internal variables. You are free to view this file, and if deleted
 \e qmake will know to recreate it when necesary (either when the .pro
-file is later read, or if a dependant library (described below) has
+file is later read, or if a dependent library (described below) has
 changed). When installing this library (by using target in INSTALLS,
 above) \e qmake will automatically copy the .prl file to your install
 path.
@@ -1862,7 +1862,7 @@ and find their meta information. With this meta information \e qmake
 will figure out what is relevant to linking, specifically it will add
 to your list of DEFINES as well as LIBS. Once \e qmake has processed
 this file, it will then look through the newly introduced LIBS and
-find their dependant .prl files, and continue until all libraries have
+find their dependent .prl files, and continue until all libraries have
 been resolved. At this point the makefile is created as usual, and the
 libraries are linked explicity against your program.
 
@@ -1870,7 +1870,7 @@ The internals of the .prl file are left closed so they can easily
 change later. It is not designed to be changed by hand however, and
 should only be created by \e qmake - these .prl files should also not
 be transfered from operating system to operating system as they may be
-platform dependant (like a makefile)
+platform dependent (like a makefile).
 
 \target Extensions
 \section2 File Extensions
@@ -1891,7 +1891,7 @@ The variables are as follows:
 \i QMAKE_EXT_MOC - This modifies the extension placed on included moc files.
 \i QMAKE_EXT_UI - This modifies the extension used for designer UI files (usually in FORMS).
 \i QMAKE_EXT_PRL - This modifies the extension placed on 
-                   \link #LibDepend library dependancy files \endlink.
+                   \link #LibDepend library dependency files \endlink.
 \i QMAKE_EXT_LEX - This changes the suffix used in files (usually in LEXSOURCES).
 \i QMAKE_EXT_YACC - This changes the suffix used in files (usually in YACCSOURCES).
 \i QMAKE_EXT_OBJ - This changes the suffix used on generated object files.
