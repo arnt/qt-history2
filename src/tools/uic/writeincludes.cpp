@@ -37,6 +37,7 @@ void WriteIncludes::accept(DomUI *node)
 
     m_includes.insert("qapplication.h", true);
     m_includes.insert("qvariant.h", true);
+    m_includes.insert("qmimefactory.h", true); //compat
 
     if (uic->databaseInfo()->connections().size()) {
         m_includes.insert("qsqldatabase.h", true);

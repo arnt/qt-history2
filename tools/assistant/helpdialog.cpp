@@ -43,6 +43,7 @@
 #include <qtimer.h>
 #include <qurl.h>
 #include <qvalidator.h>
+#include <qmimefactory.h>
 
 #include <stdlib.h>
 #include <limits.h>
@@ -799,7 +800,7 @@ void HelpDialog::insertContents()
             ContentItem item = *it;
             if (item.depth == 0) {
                 newEntry = new HelpNavigationContentsItem(ui.listContents, 0);
-                newEntry->setPixmap(0, QPixmap::fromMimeSource("book.png"));
+                newEntry->setPixmap(0, qPixmapFromMimeSource("book.png"));
                 newEntry->setText(0, item.title);
                 newEntry->setLink(item.reference);
                 stack.push(newEntry);
