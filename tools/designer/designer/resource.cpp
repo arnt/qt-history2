@@ -1231,12 +1231,6 @@ void Resource::saveProperty( QObject *w, const QString &name, const QVariant &va
 	break;
     case QVariant::UInt:
 	unum = value.toUInt();
-	if ( w && w->inherits( "QLayout" ) ) {
-	    if ( name == "spacing" )
-		unum = MetaDataBase::spacing( WidgetFactory::layoutParent( (QLayout*)w ) );
-	    else if ( name == "margin" )
-		unum = MetaDataBase::margin( WidgetFactory::layoutParent( (QLayout*)w ) );
-	}
 	ts << makeIndent( indent ) << "<number>" << QString::number( unum ) << "</number>" << endl;
 	break;
     case QVariant::Rect: {
