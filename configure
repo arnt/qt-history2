@@ -264,6 +264,7 @@ GIF=no
 THREAD=auto
 SM=auto
 XINERAMA=auto
+BIG_CODECS=auto
 ZLIB=yes
 LIBPNG=yes
 JPEG=no
@@ -419,6 +420,12 @@ while [ -n "$1" ]; do
 	;;
    -system-nas-sound)
 	NAS_SOUND=yes
+	;;
+   -no-big-codecs)
+	BIG_CODECS=no
+	;;
+   -big-codecs)
+	BIG_CODECS=yes
 	;;
    -enable-kde2)
 	if [ '!' -f $KDEDIR/bin/dcopserver ]
@@ -760,6 +767,12 @@ then
     done
 fi
 
+# Compile in big text codecs by default
+if [ $BIG_CODECS = auto ]
+then
+    BIG_CODECS=yes
+fi
+
 case "$QCONFIG" in
   local|qpe)
     # Not known to be sufficient for anything.
@@ -1008,6 +1021,7 @@ QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\" \"MOC_DIR=.moc/$QMAKE
 [ "x$ZLIB" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG zlib"
 [ "x$LIBPNG" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG png"
 [ "x$KDE" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG kde"
+[ "x$BIG_CODECS" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG bigcodecs"
 [ -z "$QMAKE_PROJECTS" ] && QMAKE_PROJECTS=`find $relpath/. -name '*.pro' -print | sed 's-/\./-/-'`
 [ '!' -z "$D_FLAGS" ] && QMAKE_VARS="$QMAKE_VARS \"DEFINES+=$D_FLAGS\""
 if [ '!' -z "$l_FLAGS" ] || [ '!' -z "$L_FLAGS" ]
