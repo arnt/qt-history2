@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#491 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#492 $
 **
 ** Implementation of QWidget class
 **
@@ -3905,6 +3905,22 @@ void QWidget::focusOutEvent( QFocusEvent * )
 	    updateMask();
     }
 }
+
+
+/*!
+  Returns the currently set micro focus hint for this widget.
+  
+  \sa setMicroFocusHint()
+ */
+QRect QWidget::microFocusHint() const
+{
+    if ( !extra || extra->micro_focus_hint.isEmpty() )
+	return QRect(width()/2, 0, 1, height() );
+    else
+	return extra->micro_focus_hint;
+}
+
+
 
 /*!
   This event handler can be reimplemented in a subclass to receive

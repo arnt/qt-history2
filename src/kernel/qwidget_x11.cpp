@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#414 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#415 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -574,11 +574,12 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
   used for user Accessibility focus handling.  If \a text is TRUE, it also
   sets the IME composition window in Far East Asian language input systems.
 
-  In the X11 version of Qt, if \a text is TRUE,
-  this method sets the XIM "spot" point for
-  complex language input handling.
+  In the X11 version of Qt, if \a text is TRUE, this method sets the
+  XIM "spot" point for complex language input handling.
+  
+  \sa microFocusHint()
 */
-void QWidget::setMicroFocusHint(int x, int y, int /*width*/, int height, bool text)
+void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text)
 {
 #ifndef NO_XIM
     if ( text ) {
@@ -596,6 +597,8 @@ void QWidget::setMicroFocusHint(int x, int y, int /*width*/, int height, bool te
 	}
     }
 #endif
+    if ( QRect( x, y, width, height ) != microFocusHint() )
+	extraData()->micro_focus_hint.setRect( x, y, width, height );
 }
 
 #ifndef NO_XIM

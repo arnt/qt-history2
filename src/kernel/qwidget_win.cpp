@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#241 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#242 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -445,6 +445,9 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text)
 	ImmSetCompositionWindow( imc, &cf );
 	ImmReleaseContext( winId(), imc );
     }
+    
+    if ( QRect( x, y, width, height ) != microFocusHint() )
+	extraData()->micro_focus_hint.setRect( x, y, width, height );
 }
 
 #if 0
@@ -786,7 +789,7 @@ void QWidget::showWindow()
     }
     UpdateWindow( winId() );
 }
- 
+
 
 /*
   \internal

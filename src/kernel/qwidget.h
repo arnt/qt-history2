@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#249 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#250 $
 **
 ** Definition of QWidget class
 **
@@ -294,6 +294,7 @@ public:
     // Misc. functions
 
     QWidget *		focusWidget() const;
+    QRect 		microFocusHint() const;
 
     // drag and drop
 
@@ -674,6 +675,7 @@ struct QWExtra {
 #endif
     char     bg_mode;				// background mode
     QStyle* style;
+    QRect micro_focus_hint;				// micro focus hint
 };
 
 
