@@ -17,7 +17,7 @@
 # define ENUM_DYLD_BOOL
  enum DYLD_BOOL { DYLD_FALSE, DYLD_TRUE };
  extern "C" {
-//# include "mach-o/dyld.h"
+# include "mach-o/dyld.h"
  }
 #endif
 #include "qglobal.h"
