@@ -614,7 +614,7 @@ void QDnsAnswer::parse()
 
 class QDnsUgleHack: public QDns {
 public:
-    void ugle() { emit resultsReady(); }
+    void ugle();
 };
 
 
@@ -634,10 +634,6 @@ void QDnsAnswer::notify()
 	if ( notified.find( (void*)dns ) == 0 &&
 	     q->dns->find( (void*)dns ) != 0 ) {
 	    notified.insert( (void*)dns, (void*)42 );
-#if defined( DEBUG_QDNS )
-	    qDebug( "DNS Manager: status change for %s (type %d)",
-		    dns->label().ascii(), dns->recordType() );
-#endif
 	    ((QDnsUgleHack*)dns)->ugle();
 	}
     }
@@ -700,6 +696,18 @@ void QDnsManager::add( QDns * q )
 void QDnsManager::remove( QDns * q )
 {
     manager()->qdns->take( q );
+}
+
+void QDnsUgleHack::ugle()
+{
+    if ( !isWorking() ) {
+#if defined( DEBUG_QDNS )
+	qDebug( "DNS Manager: status change for %s (type %d)",
+		label().ascii(), recordType() );
+#endif
+	QDnsManager::remove( this );
+	emit resultsReady();
+    }
 }
 
 
@@ -1044,6 +1052,7 @@ QList<QDnsRR> * QDnsDomain::cached( const QDns * r )
 	if ( d->rrs )
 	    d->rrs->first();
 	QDnsRR * rr;
+	bool answer = FALSE;
 	while( d->rrs && (rr=d->rrs->current()) != 0 ) {
 	    if ( rr->t == QDns::Cname && r->recordType() != QDns::Cname &&
 		 !rr->nxdomain && cnamecount < 16 ) {
@@ -1067,13 +1076,15 @@ QList<QDnsRR> * QDnsDomain::cached( const QDns * r )
 		if ( rr->t == r->recordType() ) {
 		    if ( rr->nxdomain )
 			nxdomain = TRUE;
+		    else
+			answer = TRUE;
 		    l->append( rr );
 		}
 		d->rrs->next();
 	    }
 	}
 	// if we found a positive result, return quickly
-	if ( !nxdomain && l->count() ) {
+	if ( answer && l->count() ) {
 #if defined(DEBUG_QDNS)
 	    qDebug( "found %d records for %s",
 		    l->count(), r->label().ascii() );
@@ -1096,8 +1107,11 @@ QList<QDnsRR> * QDnsDomain::cached( const QDns * r )
 		      m->queries[q]->t != r->recordType() ||
 		      m->queries[q]->l != s ) )
 		q++;
-	    // yes we do - we haven't done it before
-	    if ( q == m->queries.size() ) {
+	    // we haven't done it before, so maybe we should.  but
+	    // wait - if it's an unqualified name, only ask when all
+	    // the other alternatives are exhausted.
+	    if ( q == m->queries.size() && ( s.find( '.' ) >= 0 ||
+					     l->count() >= n.count()-1 ) ) {
 		QDnsQuery * query = new QDnsQuery;
 		query->id = ++::id;
 		query->t = r->recordType();
@@ -1205,7 +1219,6 @@ QDns::QDns( const QString & label, RecordType rr )
 {
     d = 0;
     t = rr;
-    QDnsManager::add( this );
     setLabel( label );
 }
 
@@ -1244,6 +1257,7 @@ void QDns::setLabel( const QString & label )
 		dots++;
 	}
 	if ( dots < maxDots ) {
+	    (void)QDnsManager::manager();
 	    QStrListIterator it( *domains );
 	    const char * dom;
 	    while( (dom=it.current()) != 0 ) {
@@ -1342,8 +1356,11 @@ bool QDns::isWorking() const
 	l->next();
     }
 
-    // are there any domains we didn't find an nxdomain for?
-    return queries > 0;
+    if ( queries <= 0 )
+	return FALSE;
+    // we're now working, so make sure we get told.
+    QDnsManager::add( this );
+    return TRUE;
 }
 
 
