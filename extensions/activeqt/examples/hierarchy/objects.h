@@ -13,18 +13,18 @@
 #ifndef OBJECTS_H
 #define OBJECTS_H
 
-#include <qwidget.h>
+#include <qvbox.h>
 
 class QVBoxLayout;
 class QSubWidget;
 
-class QParentWidget : public QWidget
+class QParentWidget : public QVBox
 {
     Q_OBJECT
     Q_CLASSINFO("ClassID", "{d574a747-8016-46db-a07c-b2b4854ee75c}");
     Q_CLASSINFO("InterfaceID", "{4a30719d-d9c2-4659-9d16-67378209f822}");
 public:
-    QParentWidget( QWidget *parent = 0, const char *name = 0, WFlags f = 0 );
+    QParentWidget(QWidget *parent = 0);
 
     QSize sizeHint() const;
 
@@ -47,7 +47,7 @@ class QSubWidget : public QWidget
     Q_CLASSINFO("ToSuperClass", "QSubWidget");
     
 public:
-    QSubWidget( QWidget *parent = 0, const char *name = 0, WFlags f = 0 );
+    QSubWidget(QWidget *parent = 0, const QString &name = QString());
 
     void setLabel( const QString &text );
     QString label() const;

@@ -16,10 +16,9 @@
 #include <qpainter.h>
 
 /* Implementation of QParentWidget */
-QParentWidget::QParentWidget(QWidget *parent, const char *name, WFlags f)
-: QWidget(parent, name, f)
+QParentWidget::QParentWidget(QWidget *parent)
+: QVBox(parent)
 {
-    vbox = new QVBoxLayout(this);
 }
 
 void QParentWidget::createSubWidget(const QString &name)
@@ -40,9 +39,10 @@ QSize QParentWidget::sizeHint() const
 }
 
 /* Implementation of QSubWidget */
-QSubWidget::QSubWidget(QWidget *parent, const char *name, WFlags f)
-: QWidget(parent, name, f)
+QSubWidget::QSubWidget(QWidget *parent, const QString &name)
+: QWidget(parent)
 {
+    setObjectName(name);
 }
 
 void QSubWidget::setLabel(const QString &text)
@@ -67,5 +67,5 @@ void QSubWidget::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
     painter.setPen(palette().text());
-    painter.drawText(rect(), AlignCenter, lbl);
+    painter.drawText(rect(), Qt::AlignCenter, lbl);
 }
