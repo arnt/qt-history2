@@ -222,7 +222,7 @@ void QAbstractSpinBox::setTracking(bool t)
         // value is 0
     \endcode
 
-q    By default, wrapping is turned off.
+    By default, wrapping is turned off.
 
     \sa QSpinBox::minimum(), QSpinBox::maximum()
 */
@@ -912,10 +912,8 @@ void QAbstractSpinBoxPrivate::calculateSizeHints() const
         int w = 0;
         QString s;
         s = prefix + mapValueToText(minimum) + suffix + QLatin1Char(' ');
-        s.truncate(18);
         w = qMax(w, fm.width(s));
         s = prefix + mapValueToText(maximum) + suffix + QLatin1Char(' ');
-        s.truncate(18);
         w = qMax(w, fm.width(s));
         if (specialvaluetext.size()) {
             s = specialvaluetext;
@@ -1174,7 +1172,7 @@ QCoreVariant QAbstractSpinBoxPrivate::getZeroVariant() const
     switch (type) {
     case QCoreVariant::Int: ret = QCoreVariant((int)0); break;
     case QCoreVariant::Double: ret = QCoreVariant((double)0); break;
-    case QCoreVariant::DateTime: ret = QCoreVariant(QDateTime(QDate(1999, 12, 31), QTime())); break;
+    case QCoreVariant::DateTime: ret = QCoreVariant(QDateTime(QDate(1999, 1, 1), QTime())); break;
     default: break;
     }
     return ret;
