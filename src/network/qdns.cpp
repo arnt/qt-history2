@@ -96,10 +96,6 @@ void QDns::getHostByName(const QString &name, QObject *receiver,
     qDebug("QDns::getHostByName(\"%s\", %p, %s)", name.latin1(), receiver, member ? member + 1 : 0);
 #endif
 
-#if defined Q_OS_WIN32
-    QSocketDevice bust; // makes sure WSAStartup was callled
-#endif
-
     // Don't start a thread if we don't have to do any lookup.
     QHostAddress addr;
     if (addr.setAddress(name)) {
@@ -135,6 +131,9 @@ void QDns::getHostByName(const QString &name, QObject *receiver,
 
     qRegisterMetaType<QDnsHostInfo>("QDnsHostInfo");
 
+#if defined Q_OS_WIN32
+    QSocketDevice bust; // makes sure WSAStartup was callled
+#endif
 
     // Support for IDNA by first splitting the name into labels, then
     // running the punycode decoder on each part, then merging
@@ -157,6 +156,81 @@ void QDns::getHostByName(const QString &name, QObject *receiver,
 #else
     agent->run();
 #endif
+}
+
+/*! \overload
+
+    Performs a blocking name lookup. Execution of the program is
+    suspended until the results of the lookup are ready. Returns the
+    result of the lookup.
+*/
+QDnsHostInfo QDns::getHostByName(const QString &name)
+{
+#if defined QDNS_DEBUG
+    qDebug("QDns::getHostByName(\"%s\")", name.latin1());
+#endif
+
+    // If the address string is an IP address, don't do a lookup.
+    QHostAddress addr;
+    if (addr.setAddress(name)) {
+        QDnsHostInfo info;
+        info.d->addrs << addr;
+        return info;
+    }
+
+#if defined Q_OS_WIN32
+    QSocketDevice bust; // makes sure WSAStartup was callled
+#endif
+
+    // Support for IDNA by first splitting the name into labels, then
+    // running the punycode decoder on each part, then merging
+    // together before passing the name to the lookup agent.
+    QString lookup;
+    const unsigned short delimiters[] = {0x2e, 0x3002, 0xff0e, 0xff61, 0};
+    QStringList labels = name.split(QRegExp("[" + QString::fromUtf16(delimiters) + "]"));
+    for (int i = 0; i < labels.count(); ++i) {
+        if (i != 0) lookup += '.';
+        QString label = QUnicodeTables::normalize(labels.at(i), QUnicodeTables::NormalizationMode_KC, QChar::Unicode_3_1);
+        lookup += QString::fromAscii(QUrl::toPunycode(label));
+    }
+
+    return QDnsAgent::getHostByName(name);
+}
+
+/*! \internal
+    Pops a query off the queries list, performs a blocking call to
+    QDnsAgent::getHostByName(), and emits the resultsReady()
+    signal. Then starts over until the queries list is empty.
+*/
+void QDnsAgent::run()
+{
+    for (;;) {
+        QDnsQuery query;
+        {
+            // the queries list is shared between threads. lock all
+            // access to it.
+            QMutexLocker locker(&mutex);
+            if (queries.isEmpty())
+                break;
+            query = queries.takeFirst();
+        }
+
+        if (!query.receiver)
+            continue;
+
+#if defined(QDNS_DEBUG)
+        qDebug("QDnsAgent::run(%p): looking up \"%s\"", this, query.hostName.latin1());
+#endif
+
+        QDnsHostInfo results = getHostByName(query.hostName);
+
+        if (query.receiver) {
+            QByteArray arr(query.member + 1);
+            arr.resize(arr.indexOf('('));
+            qInvokeSlot(query.receiver, arr, Qt::QueuedConnection,
+                        QGenericArgument("QDnsHostInfo", &results));
+        }
+    }
 }
 
 /*! \class QDnsHostInfo

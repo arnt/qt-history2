@@ -21,12 +21,14 @@
 class QString;
 class QObject;
 class QDnsHostInfoPrivate;
+class QDnsHostInfo;
 
 class Q_NETWORK_EXPORT QDns
 {
 public:
     static void getHostByName(const QString &name,
                               QObject *receiver, const char *member);
+    static QDnsHostInfo getHostByName(const QString &name);
 };
 
 class Q_NETWORK_EXPORT QDnsHostInfo
@@ -47,6 +49,7 @@ public:
 
     friend class QDnsAgent;
     friend void QDns::getHostByName(const QString &, QObject *, const char *);
+    friend QDnsHostInfo QDns::getHostByName(const QString &);
 
 private:
     QDnsHostInfoPrivate *d;

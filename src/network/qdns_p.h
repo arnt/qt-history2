@@ -46,6 +46,7 @@ public:
     inline QDnsAgent() {}
 
     void run();
+    static QDnsHostInfo getHostByName(const QString &hostName);
 
     inline void addHostName(const QString &name,
                             QObject *receiver, const char *member)
