@@ -53,7 +53,8 @@ public:
 		    Maximum = MayShrink,
 		    Preferred = MayGrow|MayShrink ,
 		    MinimumExpanding = MayGrow|ExpMask,
-		    Expanding = MayGrow|MayShrink|ExpMask
+		    Expanding = MayGrow|MayShrink|ExpMask,
+		    Ignored = ExpMask //magic value
     };
 
     enum ExpandData { NoDirection = 0,
@@ -74,10 +75,10 @@ public:
     SizeType horData() const { return (SizeType)( data & HMask ); }
     SizeType verData() const { return (SizeType)(( data & VMask ) >> HSize); }
 
-    bool mayShrinkHorizontally() const { return horData() & MayShrink; }
-    bool mayShrinkVertically() const { return verData() & MayShrink; }
-    bool mayGrowHorizontally() const { return horData() & MayGrow; }
-    bool mayGrowVertically() const { return verData() & MayGrow; }
+    bool mayShrinkHorizontally() const { return horData() & MayShrink || horData() == Ignored; }
+    bool mayShrinkVertically() const { return verData() & MayShrink || verData() == Ignored; }
+    bool mayGrowHorizontally() const { return horData() & MayGrow || horData() == Ignored; }
+    bool mayGrowVertically() const { return verData() & MayGrow || verData() == Ignored; }
 
     ExpandData expanding() const
     {

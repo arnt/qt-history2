@@ -502,11 +502,17 @@ QSize QSpacerItem::sizeHint() const
 QSize QWidgetItem::sizeHint() const
 {
     QSize s;
-    if ( isEmpty() )
+    if ( isEmpty() ) {
 	s = QSize( 0, 0 );
-    else
-	s = wid->sizeHint().boundedTo( wid->maximumSize() )
+    } else {
+	s = wid->sizeHint();
+	if ( wid->sizePolicy().horData() == QSizePolicy::Ignored )
+	    s.setWidth( 1 );
+	if ( wid->sizePolicy().verData() == QSizePolicy::Ignored )
+	    s.setHeight( 1 );
+	s = s.boundedTo( wid->maximumSize() )
 	    .expandedTo( wid->minimumSize() ).expandedTo( QSize(1, 1) );
+    }
     return s;
 }
 
