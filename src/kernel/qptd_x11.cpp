@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#40 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#39 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#40 $";
 #endif
 
 
@@ -43,7 +43,7 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#39 $";
   This example shows how to draw on a paint device:
   \code
     void MyWidget::paintEvent( QPaintEvent * ) {
-        QPainter p;				// our painter
+	QPainter p;				// our painter
 	p.begin( this );			// start painting widget
 	p.setPen( red );			// blue outline
 	p.setBrush( yellow );			// yellow fill
@@ -315,7 +315,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	}
 	mono = copy_plane && single_plane;
 	copy_plane ^= single_plane;
-	((QPixmap*)dst)->detach();   // we will change (possibly) shared pixmap
+	((QPixmap*)dst)->detach();		// changes shared pixmap
     }
     GC	      gc = qt_xget_temp_gc( mono );
     XGCValues gcvals;

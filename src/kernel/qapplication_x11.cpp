@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#82 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#83 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -31,7 +31,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#82 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#83 $";
 #endif
 
 
@@ -369,13 +369,13 @@ static int trapIOErrors( Display * )		// default X11 IO error handler
 
     void cleanup_ptr()
     {
-        delete global_ptr;
+	delete global_ptr;
     }
 
     void init_ptr()
     {
-        global_ptr = new int[100];		// allocate data
-        qAddPostRoutine( cleanup_ptr );		// delete later
+	global_ptr = new int[100];		// allocate data
+	qAddPostRoutine( cleanup_ptr );		// delete later
     }
   \endcode
 */
@@ -695,11 +695,11 @@ QETWidget *qPRFindWidget( Window oldwin )
 
     int main( int argc, char **argv )
     {
-        QApplication app( argc, argv );		// create app object
-        QPushButton  hi( "Hello, world" );	// create a push button
+	QApplication app( argc, argv );		// create app object
+	QPushButton  hi( "Hello, world" );	// create a push button
 	app.setMainWidget( &hi );		// define as main widget
-        hi.show();				// show button
-        return a.exec();			// run main event loop
+	hi.show();				// show button
+	return a.exec();			// run main event loop
     }
   \endcode
 
@@ -828,13 +828,12 @@ int QApplication::enter_loop()			// local event loop
 		    }
 		    break;
 
-		case FocusOut: {		// lost focus
+		case FocusOut:			// lost focus
 		    if ( focus_widget ) {
 			QFocusEvent out( Event_FocusOut );
 			QWidget *w = focus_widget;
 			focus_widget = 0;
 			QApplication::sendEvent( w, &out );
-		    }
 		    }
 		    break;
 
@@ -1524,7 +1523,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 #include <X11/keysymdef.h>
 #include "qkeycode.h"
 
-static KeySym KeyTbl[] = {				// keyboard mapping table
+static KeySym KeyTbl[] = {			// keyboard mapping table
     XK_Escape,		Key_Escape,		// misc keys
     XK_Tab,		Key_Tab,
     XK_BackSpace,	Key_Backspace,

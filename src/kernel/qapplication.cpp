@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#51 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#50 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#51 $";
 #endif
 
 
@@ -30,7 +30,7 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#50 $";
   An application object must be created before any widgets can be created!
 
   Only one single QApplication object should be created, and this is
-  normally done in the main() function.  When a QApplication object has
+  normally done in the main() function.	 When a QApplication object has
   been created, \c qApp (defined as <code>extern QApplication
   *qApp</code>) will refer to this object.
 
@@ -41,16 +41,16 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#50 $";
 
     int main( int argc, char **argv )
     {
-        QApplication app( argc, argv );		// create app object
-        QPushButton  hi( "Hello, world" );	// create a push button
+	QApplication app( argc, argv );		// create app object
+	QPushButton  hi( "Hello, world" );	// create a push button
 	app.setMainWidget( &hi );		// define as main widget
-        hi.show();				// show button
-        return a.exec();			// run main event loop
+	hi.show();				// show button
+	return a.exec();			// run main event loop
     }
   \endcode
 
   <strong>Important</strong><br>
-  Notice that the QApplication object must be created before the widget is
+  Notice that the QApplication object must be created before any widget can be
   defined!
 
   \header qkeycode.h
@@ -132,7 +132,7 @@ static void destroy_palettes()
   <ul>
   <li> -display \e display, Sets the X display (default is $DISPLAY).
   <li> -geometry \e geometry, Sets the client geometry of the
-  	\link exec main widget. \endlink
+	\link setMainWidget() main widget\endlink.
   <li> -fn or -font \e font, Defines the application font.
   <li> -bg or -background \e color, Sets the default background color.
   <li> -fg or -foreground \e color, Sets the default foreground color.
@@ -219,7 +219,7 @@ void QApplication::setStyle( GUIStyle style )	// set application GUI style
 
 
 /*!
-  Returns a pointer to the default application palette.  There will always
+  Returns a pointer to the default application palette.	 There will always
   be an application palette, i.e. the returned pointer will never be 0.
 */
 
@@ -288,7 +288,7 @@ void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets )
 
 /*!
   \fn QFont *QApplication::font()
-  Returns the default application font.  There will always be an application
+  Returns the default application font.	 There will always be an application
   font, i.e. the returned pointer will never be 0.
   \sa setFont().
 */
@@ -303,7 +303,7 @@ void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets )
   created after this call will have this font.
 */
 
-void QApplication::setFont( const QFont &font,  bool updateAllWidgets )
+void QApplication::setFont( const QFont &font,	bool updateAllWidgets )
 {						// set application font
     if ( app_font )
 	delete app_font;

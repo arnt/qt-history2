@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#33 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#32 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#33 $";
 #endif
 
 /*!
@@ -96,6 +96,9 @@ Implicit data sharing is easy to implement for classes that can detect
 change through member functions, but impossible to implement for classes
 that export pointers to internal data.
 */
+
+
+extern bool qt_image_can_turn_scanlines();
 
 
 // --------------------------------------------------------------------------
@@ -1603,6 +1606,7 @@ static void read_bmp_image( QImageIO *iio )	// read BMP image data
     BMP_INFOHDR bi;
     int		startpos = d->at();
     QImage	image;
+    bool	turn = qt_image_can_turn_scanlines();
 
     s.setByteOrder( QDataStream::LittleEndian );// Intel byte order
     s >> bf;					// read BMP file header
@@ -1627,6 +1631,7 @@ static void read_bmp_image( QImageIO *iio )	// read BMP image data
 #endif
     int w = bi.biWidth,	 h = bi.biHeight,  nbits = bi.biBitCount;
     int t = bi.biSize,	 comp = bi.biCompression;
+
     if ( !(nbits == 1 || nbits == 4 || nbits == 8 || nbits == 24) ||
 	 bi.biPlanes != 1 || comp > BMP_RLE4 )
 	return;					// weird BMP image
@@ -1662,7 +1667,14 @@ static void read_bmp_image( QImageIO *iio )	// read BMP image data
 
     int	 padlen;
     char padbuf[8];
-    uchar **line = image.jumpTable();
+    uchar **line;
+    if ( turn ) {
+	line = (uchar **)malloc( h*sizeof(uchar*) );
+	for ( int i=0; i<h; i++ )
+	    line[i] = image.scanline(h-i-1);
+    }
+    else
+	line = image.jumpTable();
 
     if ( nbits == 1 ) {				// 1 bit BMP image
 	w = (w+7)/8;
@@ -1812,6 +1824,10 @@ static void read_bmp_image( QImageIO *iio )	// read BMP image data
 		d->readBlock( padbuf, padlen );
 	}
     }
+
+    if ( turn )
+	free( line );
+
     iio->setImage( image );
     iio->setStatus( 0 );			// image ok
 }

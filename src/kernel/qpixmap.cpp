@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#26 $
 **
 ** Implementation of QPixmap class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#25 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#26 $";
 #endif
 
 
@@ -38,13 +38,13 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#25 $";
   \code
     void MyWidget::paintEvent( QPaintEvent * )
     {
-        QPixmap  pm( size() );			// create pixmap
-        QPainter p;				// our painter
-        pm.fill( backgroundColor() );		// initialize pixmap
-        p.begin( &pm );				// start painting pixmap
-        ...					// draw something
-        p.end();				// painting done
-        bitBlt( this, 0,0, &pm, 0,0, -1,-1 );	// copy pixmap to widget
+	QPixmap	 pm( size() );			// create pixmap
+	QPainter p;				// our painter
+	pm.fill( backgroundColor() );		// initialize pixmap
+	p.begin( &pm );				// start painting pixmap
+	...					// draw something
+	p.end();				// painting done
+	bitBlt( this, 0,0, &pm, 0,0, -1,-1 );	// copy pixmap to widget
     }
   \endcode
 
@@ -203,6 +203,24 @@ const char *QPixmap::imageFormat( const char *fileName )
 }
 
 
+static bool can_turn_scanlines = FALSE;
+static bool did_turn_scanlines = FALSE;
+
+bool qt_image_can_turn_scanlines()
+{
+    if ( can_turn_scanlines ) {
+	did_turn_scanlines = TRUE;
+	return TRUE;
+    }
+    return FALSE;
+}
+
+bool qt_image_did_turn_scanlines()
+{
+    return did_turn_scanlines;
+}
+
+
 /*!
   Loads an image from the file \e fileName into the pixmap.
   Returns TRUE if successful, or FALSE if the image could not be loaded.
@@ -221,12 +239,18 @@ bool QPixmap::load( const char *fileName, const char *format )
     QImageIO io;
     io.setFileName( fileName );
     io.setFormat( format );
+#if defined(_WS_WIN_)
+    can_turn_scanlines = TRUE;
+#endif
+    bool result = io.read();
     if ( io.read() ) {
 	detach();
-	convertFromImage( io.image() );
-	return TRUE;
+	result = convertFromImage( io.image() );
     }
-    return FALSE;
+#if defined(_WS_WIN_)
+    can_turn_scanlines = did_turn_scanlines = FALSE;
+#endif
+    return result;
 }
 
 /*!

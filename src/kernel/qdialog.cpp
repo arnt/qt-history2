@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#10 $
 **
 ** Implementation of QDialog class
 **
@@ -17,7 +17,7 @@
 #include "qobjcoll.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qdialog.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qdialog.cpp#10 $";
 #endif
 
 
@@ -26,7 +26,7 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qdialog.cpp#9 $";
   \brief The QDialog class is the base class of dialog windows.
 
   A dialog window is a window for getting some input from the
-  user.  It offers mechanisms such as default buttons.
+  user.	 It offers mechanisms such as default buttons.
 
   The dialog window can either be modeless or modal.  A modeless
   dialog is a normal window, while a modal window must be finished

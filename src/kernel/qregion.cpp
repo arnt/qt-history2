@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qregion.cpp#2 $
 **
 ** Implementation of QRegion class
 **
 ** Author  : Haavard Nord
 ** Created : 950726
 **
-** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qregion.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qregion.cpp#2 $";
 #endif
 
 
@@ -41,7 +41,7 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qregion.cpp#1 $";
     {
 	QPainter p;				// our painter
 	QRegion r1( QRect(100,100,200,80),	// r1 = elliptic region
-                    QRegion::Ellipse );
+		    QRegion::Ellipse );
 	QRegion r2( QRect(100,120,90,30) );	// r2 = rectangular region
 	QRegion r3 = r1.intersect( r2 );	// r3 = intersection
 	p.begin( this );			// start painting widget

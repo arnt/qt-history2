@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#40 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#39 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#40 $";
 #endif
 
 
@@ -128,7 +128,7 @@ typedef declare(QDictM,QXFontName) QFontNameDict;
 static QFontCache    *fontCache	     = 0;	// cache of loaded fonts
 static QFontDict     *fontDict	     = 0;	// dict of all loaded fonts
 static QFontNameDict *fontNameDict   = 0;	// dict of matched font names
-QFont 		     *QFont::defFont = 0;	// default font
+QFont		     *QFont::defFont = 0;	// default font
 
 
 /*****************************************************************************
@@ -215,7 +215,7 @@ QFont::QFont( bool )				// create default font
 // If d->req.dirty is not TRUE the font must have been loaded
 // and we can safely assume that d->xfd is a valid pointer:
 
-#define DIRTY_FONT	(d->req.dirty   || d->xfd->dirty())
+#define DIRTY_FONT	(d->req.dirty	|| d->xfd->dirty())
 #define DIRTY_METRICS	(f.d->req.dirty || f.d->xfd->dirty())
 
 
@@ -349,7 +349,7 @@ void QFont::updateFontInfo() const
 {
     if ( DIRTY_FONT )
 	loadFont();
-    if ( exactMatch() ) { 			// match: copy font description
+    if ( exactMatch() ) {			// match: copy font description
 	d->act = d->req;
 	return;
     }
@@ -530,7 +530,7 @@ int QFont_Private::fontMatchScore( char	 *fontName, QString &buffer,
 	    exactMatch = FALSE;
     }
 
-    int	pSize;
+    int pSize;
 
     if ( *scalable ) {
 	pSize = deciPointSize();	// scalable font
@@ -682,7 +682,7 @@ QString QFont_Private::findFont( bool *exact )
     QString bestName;
     int	    score;
     const char *fam = family();			// fam = font family name
-    
+
     if ( fam == 0 || fam[0] == '\0' ) {		// null or empty string
 	familyName = defaultFamily();
 	*exact	   = FALSE;
@@ -995,7 +995,7 @@ static bool parseXFontName( QString &fontName, char **tokens )
 	tokens[0] = 0;
 	return FALSE;
     }
-    int   i;
+    int	  i;
     char *tmp = fontName.data() + 1;
     for ( i=0; i<fontFields && tmp && tmp[0]; i++ ) {
 	tokens[i] = tmp;
@@ -1086,7 +1086,7 @@ static int computeLineWidth( const char *fontName )
     int score = pSize*weight;		// ad hoc algorithm
     int lw = ( score ) / 700;
     if ( lw < 2 && score >= 1050 )	// looks better with thicker line
-	lw = 2;			   	//   for small pointsizes
+	lw = 2;				//   for small pointsizes
     return lw ? lw : 1;
 }
 
@@ -1128,7 +1128,7 @@ static int getWeight( const char *weightString, bool adjustScore )
 	    return (int) QFont::Black;
     }
     if ( adjustScore )
-	return (int) QFont::Normal - 2;	// - 2, we hope it's close to normal
+	return (int) QFont::Normal - 2; // - 2, we hope it's close to normal
     else
 	return (int) QFont::Normal;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#15 $
 **
 ** Implementation of QBitmap class
 **
@@ -14,7 +14,7 @@
 #include "qimage.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qbitmap.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qbitmap.cpp#15 $";
 #endif
 
 
@@ -134,7 +134,7 @@ QBitmap &QBitmap::operator=( const QPixmap &pixmap )
 	if ( pixmap.isQBitmap() ) {		// another QBitmap
 	    QPixmap::operator=(pixmap);		// shallow assignment
 	}
-        else {					// not a QBitmap, but 1-bit
+	else {					// not a QBitmap, but 1-bit
 	    QBitmap bm( pixmap.size() );
 	    bitBlt( &bm, 0,0, &pixmap, 0,0,-1,-1 );
 	    bm.data->optim = data->optim;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#77 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#78 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#77 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#78 $";
 #endif
 
 
@@ -696,7 +696,7 @@ void QWidget::raise()				// raise widget
 }
 
 /*!
-  Lowers the widget to the bottom of the windows stack.  Only the
+  Lowers the widget to the bottom of the windows stack.	 Only the
   parent window will be behind this one afterwards.
   \sa raise()
 */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#25 $
 **
 ** Implementation of QColor class for X11
 **
@@ -17,7 +17,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#24 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#25 $";
 #endif
 
 
@@ -283,10 +283,8 @@ void QColor::setNamedColor( const char *name )	// load color from database
 void QColor::setRGB( int r, int g, int b )	// set RGB value
 {
 #if defined(CHECK_RANGE)
-    if ( (uint)r > 255 || (uint)g > 255 || (uint)b > 255 ) {
-	warning( "QColor::setRGB:  RGB parameters out of range" );
-	return;
-    }
+    if ( (uint)r > 255 || (uint)g > 255 || (uint)b > 255 )
+	warning( "QColor::setRGB: RGB parameter(s) out of range" );
 #endif
     rgb = QRGB(r,g,b);
     if ( lazyAlloc() || !g_cmap )

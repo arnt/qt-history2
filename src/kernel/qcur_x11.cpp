@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcur_x11.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qcur_x11.cpp#20 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -11,10 +11,9 @@
 *****************************************************************************/
 
 #include "qcursor.h"
-#include "qapp.h"
 #include "qbitmap.h"
+#include "qapp.h"
 #include "qdstream.h"
-#include "qmemchk.h"
 #define	 GC GC_QQQ
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -22,7 +21,7 @@
 #include <X11/cursorfont.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcur_x11.cpp#19 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcur_x11.cpp#20 $";
 #endif
 
 
@@ -286,7 +285,7 @@ QPoint QCursor::hotSpot() const
 /*!
   Returns the window system cursor handle.
 
-  \warning 
+  \warning
   Portable in principle, but if you use it you are probably about to do
   something non-portable. Be careful.
 */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#106 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#107 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#106 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#107 $";
 #endif
 
 
@@ -689,11 +689,11 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	bg_col = w->backgroundColor();		// use widget bg color
 	ww = vw = w->width();			// default view size
 	wh = vh = w->height();
-	cpen = QPen( w->foregroundColor() );	// use widget fg color	
+	cpen = QPen( w->foregroundColor() );	// use widget fg color
 	if ( reinit ) {
 	    cbrush = QBrush( NoBrush );
 	}
-	if ( w->testWFlags(WPaintUnclipped) ) {	// paint direct on device
+	if ( w->testWFlags(WPaintUnclipped) ) { // paint direct on device
 	    updateBrush();
 	    XSetSubwindowMode( w->display(), gc, IncludeInferiors );
 	    XSetSubwindowMode( w->display(), gc_brush, IncludeInferiors );
@@ -842,14 +842,14 @@ void QPainter::setBackgroundMode( BGMode m )	// set background mode
 
   The \e r parameter must be one of:
   <ul>
-  <li> \c CopyROP:      dst = src.
+  <li> \c CopyROP:	dst = src.
   <li> \c OrROP:	dst = dst OR src.
   <li> \c XorROP:	dst = dst XOR src.
-  <li> \c EraseROP:     dst = (NOT src) AND dst
-  <li> \c NotCopyROP:   dst = NOT src
-  <li> \c NotOrROP:     dst = (NOT src) OR dst
-  <li> \c NotXorROP:    dst = (NOT src) XOR dst
-  <li> \c NotEraseROP:  dst = src AND dst
+  <li> \c EraseROP:	dst = (NOT src) AND dst
+  <li> \c NotCopyROP:	dst = NOT src
+  <li> \c NotOrROP:	dst = (NOT src) OR dst
+  <li> \c NotXorROP:	dst = (NOT src) XOR dst
+  <li> \c NotEraseROP:	dst = src AND dst
   <li> \c NotROP:	dst = NOT dst
   </ul>
   \sa rasterOp()
@@ -1585,7 +1585,7 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
   \code
     QPainter p;
     p.begin( myWidget );
-    p.drawArc( 10,10, 70,100, 100*16, 160*16 );	// draws a "(" arc
+    p.drawArc( 10,10, 70,100, 100*16, 160*16 ); // draws a "(" arc
     p.end();
   \endcode
   \sa drawPie(), drawChord()
@@ -1678,7 +1678,7 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
 		pa.makeArc( x, y, w, h, a, alen ); // arc polyline
 		int n = pa.size();
 		pa.resize( n+2 );
-		pa.setPoint( n, x+w/2, y+h/2 );	// add legs
+		pa.setPoint( n, x+w/2, y+h/2 ); // add legs
 		pa.setPoint( n+1, pa.at(0) );
 		pa = xForm( pa );		// xform polygon
 		uint tmpf = flags;
@@ -2070,7 +2070,7 @@ void QPainter::drawBezier( const QPointArray &a, int index, int npoints )
 
   Notice that drawing 1-bit depth (monochrome) pixmaps using
   \e TransparentMode background mode might be slow on some X servers,
-  because a clip mask has to be set up.  Using \e OpaqueMode will
+  because a clip mask has to be set up.	 Using \e OpaqueMode will
   draw faster.
 
   \sa bitBlt(), setBackgroundMode()

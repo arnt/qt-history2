@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qcursor.cpp#7 $
 **
 ** Implementation of QCursor class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor.cpp#7 $";
 #endif
 
 
@@ -82,7 +82,7 @@ QDataStream &operator>>( QDataStream &s, QCursor &c )
     s >> shape;					// read shape id from stream
     if ( shape == BitmapCursor ) {		// read bitmap cursor
 	QBitmap bm, bmm;
-	QPoint  hot;
+	QPoint	hot;
 	s >> bm >> bmm >> hot;
 	c = QCursor( bm, bmm, hot.x(), hot.y() );
     }
