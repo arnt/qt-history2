@@ -27,7 +27,7 @@ public:
     using EditorCompletion::doObjectCompletion;
 #endif
     bool doObjectCompletion( const QString &object );
-    QValueList<QStringList> functionParameters( const QString &func, QChar &, QString &prefix, QString &postfix );
+    QList<QStringList> functionParameters( const QString &func, QChar &, QString &prefix, QString &postfix );
     void setContext( QObject *this_ );
 
 private:

@@ -36,7 +36,7 @@ private:
 
     QTextFormat *lastFormat;
     int lastFormatId;
-    QIntDict<QTextFormat> formats;
+    QHash<int, QTextFormat*> formats;
 
 };
 

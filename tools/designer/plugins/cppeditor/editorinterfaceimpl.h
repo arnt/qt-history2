@@ -61,8 +61,8 @@ public:
     void setMode( Mode ) {}
 
     int numLines() const;
-    void breakPoints( QValueList<uint> & ) const {}
-    void setBreakPoints( const QValueList<uint> & ) {}
+    void breakPoints( QList<uint> & ) const {}
+    void setBreakPoints( const QList<uint> & ) {}
     void onBreakPointChange( QObject *receiver, const char *slot );
     void clearStackFrame() {}
     void setStackFrame( int ) {}

@@ -13,6 +13,7 @@
 #ifndef QCPPSYNTAXHIGHLIGHTER_H
 #define QCPPSYNTAXHIGHLIGHTER_H
 
+#include <qhash.h>
 #include <private/qrichtext_p.h>
 #include <conf.h>
 
@@ -44,7 +45,7 @@ private:
 
     QTextFormat *lastFormat;
     int lastFormatId;
-    QIntDict<QTextFormat> formats;
+    QHash<int, QTextFormat*> formats;
 
 };
 

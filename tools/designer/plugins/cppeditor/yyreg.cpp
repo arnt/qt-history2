@@ -403,8 +403,8 @@ static bool isCtorOrDtor( const QString& thingy )
   Skips over any template arguments with balanced angle brackets, and
   returns the skipped material as a string.
 
-  Before: QMap < QString , QValueList < QString > > @ m ;
-  After: QMap @ < QString , QValueList < QString > > m ;
+  Before: QMap < QString , QList < QString > > @ m ;
+  After: QMap @ < QString , QList < QString > > m ;
 */
 static QString matchTemplateAngles()
 {
@@ -714,7 +714,7 @@ static void setBody( CppFunction *func, const QString& somewhatBody )
   prototype backwards. First it finds "void bar() {". Then it works
   up and finds "void foo() {".
 */
-static void matchTranslationUnit( QValueList<CppFunction> *flist )
+static void matchTranslationUnit( QList<CppFunction> *flist )
 {
     int endBody = -1;
     int startBody;
@@ -757,7 +757,7 @@ static void matchTranslationUnit( QValueList<CppFunction> *flist )
 /*
   Extracts C++ function from source code and put them in a list.
 */
-void extractCppFunctions( const QString& code, QValueList<CppFunction> *flist )
+void extractCppFunctions( const QString& code, QList<CppFunction> *flist )
 {
     startTokenizer( code );
     yyTok = getToken();

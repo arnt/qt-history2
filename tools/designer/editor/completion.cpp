@@ -169,7 +169,7 @@ void EditorCompletion::addCompletionEntry( const QString &s, QTextDocument *, bo
     }
 }
 
-QValueList<CompletionEntry> EditorCompletion::completionList( const QString &s, QTextDocument *doc ) const
+QList<CompletionEntry> EditorCompletion::completionList( const QString &s, QTextDocument *doc ) const
 {
     if ( doc )
 	( (EditorCompletion*)this )->updateCompletionMap( doc );
@@ -177,9 +177,9 @@ QValueList<CompletionEntry> EditorCompletion::completionList( const QString &s, 
     QChar key( s[ 0 ] );
     QMap<QChar, QStringList>::ConstIterator it = completionMap.find( key );
     if ( it == completionMap.end() )
-	return QValueList<CompletionEntry>();
+	return QList<CompletionEntry>();
     QStringList::ConstIterator it2 = (*it).begin();
-    QValueList<CompletionEntry> lst;
+    QList<CompletionEntry> lst;
     int len = s.length();
     for ( ; it2 != (*it).end(); ++it2 ) {
 	CompletionEntry c;
@@ -267,7 +267,7 @@ bool EditorCompletion::doCompletion()
 
     searchString = s;
 
-    QValueList<CompletionEntry> lst( completionList( s, doc ) );
+    QList<CompletionEntry> lst( completionList( s, doc ) );
     if ( lst.count() > 1 ) {
 	QTextStringChar *chr = cursor->paragraph()->at( cursor->index() );
 	int h = cursor->paragraph()->lineHeightOfChar( cursor->index() );
@@ -276,7 +276,7 @@ bool EditorCompletion::doCompletion()
 	cursor->paragraph()->lineHeightOfChar( cursor->index(), &dummy, &y );
 	y += cursor->paragraph()->rect().y();
 	completionListBox->clear();
-	for ( QValueList<CompletionEntry>::ConstIterator it = lst.begin(); it != lst.end(); ++it )
+	for ( QList<CompletionEntry>::ConstIterator it = lst.begin(); it != lst.end(); ++it )
 	    (void)new CompletionItem( completionListBox, (*it).text, (*it).type, (*it).postfix,
 				      (*it).prefix, (*it).postfix2 );
 	cList = lst;
@@ -490,7 +490,7 @@ bool EditorCompletion::continueComplete()
 {
     if ( searchString.isEmpty() ) {
 	completionListBox->clear();
-	for ( QValueList<CompletionEntry>::ConstIterator it = cList.begin(); it != cList.end(); ++it )
+	for ( QList<CompletionEntry>::ConstIterator it = cList.begin(); it != cList.end(); ++it )
 	    (void)new CompletionItem( completionListBox, (*it).text, (*it).type,
 				      (*it).postfix, (*it).prefix, (*it).postfix2 );
 	completionListBox->setCurrentItem( 0 );
@@ -509,15 +509,15 @@ bool EditorCompletion::continueComplete()
     if ( txt1 == txt2 && !i->next() )
 	return FALSE;
 
-    QValueList<CompletionEntry> res;
-    for ( QValueList<CompletionEntry>::ConstIterator it = cList.begin(); it != cList.end(); ++it ) {
+    QList<CompletionEntry> res;
+    for ( QList<CompletionEntry>::ConstIterator it = cList.begin(); it != cList.end(); ++it ) {
 	if ( (*it).text.left( searchString.length() ) == searchString )
 	    res << *it;
     }
     if ( res.isEmpty() )
 	return FALSE;
     completionListBox->clear();
-    for ( QValueList<CompletionEntry>::ConstIterator it2 = res.begin(); it2 != res.end(); ++it2 )
+    for ( QList<CompletionEntry>::ConstIterator it2 = res.begin(); it2 != res.end(); ++it2 )
 	(void)new CompletionItem( completionListBox, (*it2).text, (*it2).type,
 				  (*it2).postfix, (*it2).prefix, (*it2).postfix2 );
     completionListBox->setCurrentItem( 0 );
@@ -580,7 +580,7 @@ bool EditorCompletion::doArgumentHint( bool useIndex )
 
     QChar sep;
     QString pre, post;
-    QValueList<QStringList> argl = functionParameters( function, sep, pre, post );
+    QList<QStringList> argl = functionParameters( function, sep, pre, post );
     if ( argl.isEmpty() )
 	return FALSE;
 
@@ -589,7 +589,7 @@ bool EditorCompletion::doArgumentHint( bool useIndex )
     int num = 0;
     if ( !functionLabel->isVisible() )
 	functionLabel->setNumFunctions( argl.count() );
-    for ( QValueList<QStringList>::Iterator vit = argl.begin(); vit != argl.end(); ++vit, ++num ) {
+    for ( QList<QStringList>::Iterator vit = argl.begin(); vit != argl.end(); ++vit, ++num ) {
 	QStringList args = *vit;
 	int argNum = 0;
 	int inParen = 0;
@@ -656,16 +656,16 @@ bool EditorCompletion::doArgumentHint( bool useIndex )
     return TRUE;
 }
 
-QValueList<QStringList> EditorCompletion::functionParameters( const QString &, QChar &, QString &, QString & )
+QList<QStringList> EditorCompletion::functionParameters( const QString &, QChar &, QString &, QString & )
 {
-    return QValueList<QStringList>();
+    return QList<QStringList>();
 }
 
 void EditorCompletion::setContext( QObject * )
 {
 }
 
-void EditorCompletion::showCompletion( const QValueList<CompletionEntry> &lst )
+void EditorCompletion::showCompletion( const QList<CompletionEntry> &lst )
 {
     QTextCursor *cursor = curEditor->textCursor();
     QTextStringChar *chr = cursor->paragraph()->at( cursor->index() );
@@ -675,7 +675,7 @@ void EditorCompletion::showCompletion( const QValueList<CompletionEntry> &lst )
     cursor->paragraph()->lineHeightOfChar( cursor->index(), &dummy, &y );
     y += cursor->paragraph()->rect().y();
     completionListBox->clear();
-    for ( QValueList<CompletionEntry>::ConstIterator it = lst.begin(); it != lst.end(); ++it )
+    for ( QList<CompletionEntry>::ConstIterator it = lst.begin(); it != lst.end(); ++it )
 	(void)new CompletionItem( completionListBox, (*it).text, (*it).type,
 				  (*it).postfix, (*it).prefix, (*it).postfix2 );
     cList = lst;

@@ -41,7 +41,7 @@ bool CppEditorCompletion::doObjectCompletion( const QString &objName )
     if ( !obj )
 	return FALSE;
 
-    QValueList<CompletionEntry> lst;
+    QList<CompletionEntry> lst;
 
     QObjectList ol = obj->children();
     for (int i = 0; i < ol.size(); ++i) {
@@ -94,14 +94,14 @@ bool CppEditorCompletion::doObjectCompletion( const QString &objName )
     return TRUE;
 }
 
-QValueList<QStringList> CppEditorCompletion::functionParameters( const QString &expr, QChar &separator,
+QList<QStringList> CppEditorCompletion::functionParameters( const QString &expr, QChar &separator,
 						     QString &prefix, QString &postfix )
 {
     Q_UNUSED( prefix );
     Q_UNUSED( postfix );
     separator = ',';
     if ( !ths )
-	return QValueList<QStringList>();
+	return QList<QStringList>();
     QString func;
     QString objName;
     int i = -1;
@@ -162,7 +162,7 @@ QValueList<QStringList> CppEditorCompletion::functionParameters( const QString &
     }
 
     if ( !obj )
-	return QValueList<QStringList>();
+	return QList<QStringList>();
 
     int slotCount = obj->metaObject()->slotCount();
     for (int i = 0; i < slotCount; ++i) {
@@ -175,7 +175,7 @@ QValueList<QStringList> CppEditorCompletion::functionParameters( const QString &
 	    f = f.left( f.find( ")" ) );
 	    QStringList lst = QStringList::split( ',', f );
 	    if ( !lst.isEmpty() ) {
-		QValueList<QStringList> l;
+		QList<QStringList> l;
 		l << lst;
 		return l;
 	    }
@@ -186,12 +186,12 @@ QValueList<QStringList> CppEditorCompletion::functionParameters( const QString &
 	obj->metaObject()->
 	property( obj->metaObject()->indexOfProperty( func[ 3 ].lower() + func.mid( 4 ) ) );
     if ( prop ) {
-	QValueList<QStringList> l;
+	QList<QStringList> l;
 	l << QStringList( prop.type() );
 	return l;
     }
 
-    return QValueList<QStringList>();
+    return QList<QStringList>();
 }
 
 void CppEditorCompletion::setContext( QObject *this_ )

@@ -14,7 +14,7 @@
 #define YYREG_H
 
 #include <qstringlist.h>
-#include <qvaluelist.h>
+#include <qlist.h>
 
 class CppFunction
 {
@@ -60,7 +60,7 @@ private:
     int lineno2;
 };
 
-void extractCppFunctions( const QString& code, QValueList<CppFunction> *flist );
+void extractCppFunctions( const QString& code, QList<CppFunction> *flist );
 QString canonicalCppProto( const QString& proto );
 
 #endif

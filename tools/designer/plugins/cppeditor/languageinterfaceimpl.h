@@ -25,8 +25,8 @@ public:
 
     QRESULT queryInterface( const QUuid&, QUnknownInterface** );
 
-    void functions( const QString &code, QValueList<Function> *funcs ) const;
-    void connections( const QString &, QValueList<Connection> * ) const {};
+    void functions( const QString &code, QList<Function> *funcs ) const;
+    void connections( const QString &, QList<Connection> * ) const {};
     QString createFunctionStart( const QString &className, const QString &func,
 				 const QString &returnType, const QString &access );
     QStringList definitions() const;
@@ -42,9 +42,9 @@ public:
     QString projectKeyForExtension( const QString &extension ) const;
     QString cleanSignature( const QString &sig ) { return sig; } // #### implement me
     void loadFormCode( const QString &, const QString &,
-		       QValueList<Function> &,
+		       QList<Function> &,
 		       QStringList &,
-		       QValueList<Connection> & );
+		       QList<Connection> & );
     QString formCodeExtension() const { return ".h"; }
     bool canConnect( const QString &signal, const QString &slot );
     void compressProject( const QString &, const QString &, bool ) {}
@@ -56,8 +56,9 @@ public:
 			QString * ) {}
     void removeConnection( const QString &, const QString &,
 			   const QString &, const QString &,
-			   QString * ) {}
-    QStrList signalNames( QObject *obj ) const;
+		
+	   QString * ) {}
+    QList<char*> signalNames( QObject *obj ) const;
 
 private:
     QUnknownInterface *parent;

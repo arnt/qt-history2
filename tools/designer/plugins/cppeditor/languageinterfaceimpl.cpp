@@ -63,11 +63,11 @@ public:
     static QCString normalizeSignalSlot( const char *signalSlot ) { return QObject::normalizeSignalSlot( signalSlot ); }
 };
 
-void LanguageInterfaceImpl::functions( const QString &code, QValueList<Function> *functionMap ) const
+void LanguageInterfaceImpl::functions( const QString &code, QList<Function> *functionMap ) const
 {
-    QValueList<CppFunction> l;
+    QList<CppFunction> l;
     extractCppFunctions( code, &l );
-    for ( QValueList<CppFunction>::Iterator it = l.begin(); it != l.end(); ++it ) {
+    for ( QList<CppFunction>::Iterator it = l.begin(); it != l.end(); ++it ) {
 	Function func;
 	func.name = (*it).prototype();
 	func.name.remove( 0, (*it).returnType().length() );
@@ -195,9 +195,9 @@ bool LanguageInterfaceImpl::canConnect( const QString &signal, const QString &sl
 }
 
 void LanguageInterfaceImpl::loadFormCode( const QString &, const QString &filename,
-					       QValueList<Function> &functions,
+					       QList<Function> &functions,
 					       QStringList &,
-					       QValueList<Connection> & )
+					       QList<Connection> & )
 {
     QFile f( filename );
     if ( !f.open( IO_ReadOnly ) )
@@ -213,12 +213,12 @@ void LanguageInterfaceImpl::preferedExtensions( QMap<QString, QString> &extensio
     extensionMap.insert( "h", "C++ Header File" );
 }
 
-QStrList LanguageInterfaceImpl::signalNames( QObject *obj ) const
+QList<char*> LanguageInterfaceImpl::signalNames( QObject *obj ) const
 {
-    QStrList sigs;
+    QList<char*> sigs;
     int signalCount = obj->metaObject()->signalCount();
     for (int i = 0; i < signalCount; ++i)
-	sigs.append(obj->metaObject()->signal(i).signature());
+	sigs.append((char*)obj->metaObject()->signal(i).signature());
     sigs.remove( "destroyed()" );
     return sigs;
 }

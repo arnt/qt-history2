@@ -16,7 +16,7 @@
 #include <qstring.h>
 #include <qstringlist.h>
 #include <qobject.h>
-#include <qvaluelist.h>
+#include <qlist.h>
 #include <qmap.h>
 
 class QTextDocument;
@@ -51,7 +51,7 @@ public:
     ~EditorCompletion();
 
     virtual void addCompletionEntry( const QString &s, QTextDocument *doc, bool strict );
-    virtual QValueList<CompletionEntry> completionList( const QString &s, QTextDocument *doc ) const;
+    virtual QList<CompletionEntry> completionList( const QString &s, QTextDocument *doc ) const;
     virtual void updateCompletionMap( QTextDocument *doc );
 
     bool eventFilter( QObject *o, QEvent *e );
@@ -62,7 +62,7 @@ public:
     virtual bool doArgumentHint( bool useIndex );
 
     virtual void addEditor( Editor *e );
-    virtual QValueList<QStringList> functionParameters( const QString &func, QChar &, QString &prefix, QString &postfix );
+    virtual QList<QStringList> functionParameters( const QString &func, QChar &, QString &prefix, QString &postfix );
 
     virtual void setContext( QObject *this_ );
 
@@ -70,7 +70,7 @@ public:
 
 protected:
     virtual bool continueComplete();
-    virtual void showCompletion( const QValueList<CompletionEntry> &lst );
+    virtual void showCompletion( const QList<CompletionEntry> &lst );
     virtual void completeCompletion();
 
 protected:
@@ -80,7 +80,7 @@ protected:
     int completionOffset;
     Editor *curEditor;
     QString searchString;
-    QValueList<CompletionEntry> cList;
+    QList<CompletionEntry> cList;
     QMap<QChar, QStringList> completionMap;
     bool enabled;
     QTextDocument *lastDoc;
