@@ -176,7 +176,7 @@ public:
     void	setFixedSize( int w, int h );
     void	setFixedWidth( int w );
     void	setFixedHeight( int h );
-    
+
     // Widget coordinate mapping
 
     QPoint	 mapToGlobal( const QPoint & )	 const;
@@ -435,7 +435,7 @@ protected:
 #elif defined(_WS_X11_)
     virtual bool x11Event( XEvent * );		// X11 event
 #elif defined(_WS_QWS_)
-    virtual bool qwsEvent( QWSEvent * );	
+    virtual bool qwsEvent( QWSEvent * );
     virtual unsigned char * scanLine(int) const;
     virtual int bytesPerLine() const;
 #endif
@@ -796,6 +796,8 @@ struct QTLWExtra {
 
 #define QWIDGETSIZE_MAX 32767
 
+// dear user: you can see this struct, but it is internal. do not touch.
+
 struct QWExtra {
     Q_INT16  minw, minh;			// minimum size
     Q_INT16  maxw, maxh;			// maximum size
@@ -816,6 +818,7 @@ struct QWExtra {
     QStyle* style;
     QRect micro_focus_hint;                     // micro focus hint
     QSizePolicy size_policy;
+    void * posted_events;			// in qapplication
 };
 
 

@@ -43,7 +43,7 @@ public:
 	//       it's probably because you're trying to include X11, which
 	//	 has a mess of #defines in it.  Put the messy X11 includes
 	//	 *AFTER* the nice clean Qt includes.
-	//
+
 	None = 0,				// invalid event
 
 
@@ -247,6 +247,7 @@ protected:
     QRect rec;
     QRegion reg;
     bool erase;
+    friend QApplication;
 };
 
 
@@ -259,6 +260,7 @@ public:
     const QPoint &oldPos()const { return oldp;}
 protected:
     QPoint p, oldp;
+    friend QApplication;
 };
 
 
@@ -271,6 +273,7 @@ public:
     const QSize &oldSize()const { return olds;}
 protected:
     QSize s, olds;
+    friend QApplication;
 };
 
 

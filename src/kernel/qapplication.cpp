@@ -29,6 +29,7 @@
 #include "qwidget.h"
 #include "qwidgetlist.h"
 #include "qwidgetintdict.h"
+#include "qptrdict.h"
 
 #include "qwindowsstyle.h"
 #include "qmotifstyle.h"
@@ -288,6 +289,8 @@ struct QPostEvent {
 typedef QList<QPostEvent>	  QPostEventList;
 typedef QListIterator<QPostEvent> QPostEventListIt;
 static QPostEventList *postedEvents = 0;	// list of posted events
+
+QPtrDict<QObject> * postedEventReceivers = 0;
 
 static void cleanupPostedEvents();
 
@@ -1514,9 +1517,9 @@ bool QApplication::notify( QObject *receiver, QEvent *event )
 	    if ( pe->event && pe->receiver == receiver &&
 		 pe->event->type() == QEvent::ChildInserted &&
 		 ((QChildEvent*)pe->event)->child() == c ) {
-		postedEvents->take( postedEvents->findRef( pe ) );
 		pe->event->posted = FALSE;
-		delete pe;
+		delete pe->event;
+		pe->event = 0;
 		return TRUE;
 	    }
 	}
@@ -1818,40 +1821,69 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
 	return;
     }
 
+    QPostEventList ** l = &postedEvents;
+
+    // use an object-specific list, if there is one.
+    if ( receiver->isWidgetType() ) {
+	if ( !((QWidget*)receiver)->extra )
+	    ((QWidget*)receiver)->createExtra();
+	if ( ((QWidget*)receiver)->extra->posted_events == 0 )
+	    ((QWidget*)receiver)->extra->posted_events
+		= (void*) new QList<QPostEvent>;
+	l = (QPostEventList**)&(((QWidget*)receiver)->extra->posted_events);
+    }
+
+    // if this is one of the compressible events, do compression
+    if ( event->type() == QEvent::Paint ||
+	 event->type() == QEvent::LayoutHint ||
+	 event->type() == QEvent::Resize ||
+	 event->type() == QEvent::Move ) {
+	(*l)->first();
+	QPostEvent * cur = 0;
+	while ( (cur=(*l)->current()) != 0 && 
+		( cur->receiver != receiver ||
+		  cur->event == 0 ||
+		  cur->event->type() != event->type() ||
+		  !cur->event->posted ) )
+	    (*l)->next();
+	if ( (*l)->current() != 0 ) {
+	    if ( cur->event->type() == QEvent::Paint ) {
+		QPaintEvent * p = (QPaintEvent*)(cur->event);
+		p->reg = p->reg.unite( ((QPaintEvent *)event)->reg );
+		p->rec = p->rec.unite( ((QPaintEvent *)event)->rec );
+		if ( ((QPaintEvent *)event)->erase )
+		    p->erase = TRUE;
+		delete event;
+		return;
+	    } else if ( cur->event->type() == QEvent::LayoutHint ) {
+		delete event;
+		return;
+	    } else if ( cur->event->type() ==  QEvent::Resize ) {
+		((QResizeEvent *)(cur->event))->s = ((QResizeEvent *)event)->s;
+		delete event;
+		return;
+	    } else if ( cur->event->type() ==  QEvent::Move ) {
+		((QMoveEvent *)(cur->event))->p = ((QMoveEvent *)event)->p;
+		delete event;
+		return;
+	    }
+	}
+    }
+
+    // if no compression could be done, just append something
     receiver->pendEvent = TRUE;
     event->posted = TRUE;
-    postedEvents->append( new QPostEvent(receiver,event) );
+    QPostEvent * pe = new QPostEvent( receiver, event );
+    if ( l != &postedEvents )
+	(*l)->append( pe );
+    postedEvents->append( pe );
 }
 
 
-/*!  Dispatches all posted events. */
+/*! Dispatches all posted events. */
 void QApplication::sendPostedEvents()
 {
-    if ( !postedEvents )
-	return;
-    int abortAfter = 16*postedEvents->count();
-    QPostEventListIt it( * postedEvents );
-    QPostEvent *pe;
-    while ( (pe=it.current()) ) {
-	++it;
-	if ( pe->event &&
-	     ( pe->event->type() == QEvent::LayoutHint ||
-	       pe->event->type() == QEvent::ChildInserted ||
-	       pe->event->type() == QEvent::Move ||
-	       pe->event->type() == QEvent::Resize ||
-	       pe->event->type() == QEvent::Paint ) ) {
-	    // uglehack: get rid of this sort of event now, by calling
-	    // the more-specific function
-	    sendPostedEvents( pe->receiver, pe->event->type() );
-	} else {
-	    postedEvents->take( postedEvents->findRef( pe ) );
-	    QApplication::sendEvent( pe->receiver, pe->event );
-	    pe->event->posted = FALSE;
-	    delete pe;
-	}
-	if ( abortAfter-- < 1 )
-	    return; // if a posted events generates another, don't freeze.
-    }
+    sendPostedEvents( 0, 0 );
 }
 
 
@@ -1867,102 +1899,102 @@ void QApplication::sendPostedEvents()
 
 void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 {
-    if ( receiver == 0 ) {			// serious error
+    if ( !postedEvents || receiver && !receiver->pendEvent )
+	return;
+
+    // illegal combination:
+    if ( !receiver && event_type ) {
 #if defined(CHECK_NULL)
-	qWarning( "QApplication::sendPostedEvents: Unexpected null receiver" );
+	qWarning( "QApplication::sendPostedEvents(): Cannot send events of a "
+		  "specific type\n\t\t\t\t (%d) to all receivers.",
+		  event_type );
 #endif
 	return;
     }
 
-    if ( !receiver->pendEvent || !postedEvents )
-	return;
-    QPostEventListIt it(*postedEvents);
+    QPostEventList ** l = &postedEvents;
+
+    // override that with an object-specific list, if possible
+    if ( receiver && receiver->isWidgetType() &&
+	 ((QWidget*)receiver)->extra &&
+	 ((QWidget*)receiver)->extra->posted_events )
+	l = (QPostEventList**)&(((QWidget*)receiver)->extra->posted_events);
+
+    QPostEventListIt it( **l );
     QPostEvent *pe;
+    if ( !postedEventReceivers ||
+	 postedEventReceivers->size() < postedEvents->count() ) {
+	int s = postedEvents->count() * 3 / 2;
+	if ( s < 787 )
+	    s = 787;
+	if ( postedEventReceivers )
+	    postedEventReceivers->resize( s );
+	else
+	    postedEventReceivers = new QPtrDict<QObject>( s );
+    }
 
-    // For accumulating compressed events
-    QPoint oldpos, newpos;
-    QSize oldsize, newsize;
-    QRegion paintRegion;
-    QRegion erasePaintRegion;
-    bool first=TRUE;
-    bool pendEvent = FALSE;
-    receiver->pendEvent = FALSE;
+    bool morePostedEvents = FALSE; // applies iff receiver != 0
 
-    while ( (pe = it.current()) ) {
+    while ( (pe=it.current()) != 0 ) {
 	++it;
-
-	if ( pe->event && pe->receiver == receiver ) {
-	    if ( pe->event->type() != event_type ) {
-		pendEvent = TRUE;
-	    } else {
-		postedEvents->take( postedEvents->findRef( pe ) );
+	if ( pe->receiver == 0 ) {
+	    // insane
+	} else if ( pe->event == 0 ) {
+	    // it was delivered earlier, so we just remember the
+	    // receiver for later housecleaning
+	    postedEventReceivers->replace( pe->receiver, pe->receiver );
+	} else if ( receiver == 0 || receiver == pe->receiver ) {
+	    // it's for the right receiver
+	    if ( event_type == 0 || event_type == pe->event->type() ) {
+		// and it's even the right type!
 		pe->event->posted = FALSE;
-		switch ( event_type ) {
-		case QEvent::Move:
-		    if ( first ) {
-			oldpos = ((QMoveEvent*)pe->event)->oldPos();
-			first = FALSE;
-		    }
-		    newpos = ((QMoveEvent*)pe->event)->pos();
-		    break;
-		case QEvent::Resize:
-		    if ( first ) {
-			oldsize = ((QResizeEvent*)pe->event)->oldSize();
-			first = FALSE;
-		    }
-		    newsize = ((QResizeEvent*)pe->event)->size();
-		    break;
-		case QEvent::LayoutHint:
-		    first = FALSE;
-		    break;
-		case QEvent::Paint:
-		    if ( ((QPaintEvent*)pe->event)->erased() )
-			erasePaintRegion = erasePaintRegion.unite( ((QPaintEvent*)pe->event)->region() );
-		    else
-			paintRegion = paintRegion.unite( ((QPaintEvent*)pe->event)->region() );
-		    first = FALSE;
-		    break;
-		default:
-		    sendEvent( receiver, pe->event );
+		postedEventReceivers->replace( pe->receiver, pe->receiver );
+		if ( pe->event->type() == QEvent::Paint &&
+		     pe->receiver->isWidgetType() ) {
+		    QWidget * w = (QWidget*)(pe->receiver);
+		    QPaintEvent * p = (QPaintEvent*)(pe->event);
+		    if ( w->isVisible() )
+			w->repaint( p->reg, p->erase );
+		} else {
+		    QApplication::sendEvent( pe->receiver, pe->event );
 		}
-		delete pe;
+		delete pe->event;
+		pe->event = 0;
+	    } else if ( receiver ) {
+		// not the right type, so we know there are still
+		// events pending for the receiver we're looking at
+		morePostedEvents = TRUE;
 	    }
 	}
     }
 
-    if ( !first ) {
-	if ( event_type == QEvent::LayoutHint ) {
-	    QEvent e( QEvent::LayoutHint );
-	    sendEvent( receiver, &e );
-	} else if ( event_type == QEvent::Move ) {
-	    QMoveEvent e(newpos, oldpos);
-	    sendEvent( receiver, &e );
-	} else if ( event_type == QEvent::Resize ) {
-	    QResizeEvent e(newsize, oldsize);
-	    sendEvent( receiver, &e );
-	} else if ( event_type == QEvent::Paint ) {
-	    if ( receiver->isWidgetType() &&
-		 ((QWidget*)receiver)->isVisible() ) {
-		QWidget* w = (QWidget*)receiver;
-		if ( !erasePaintRegion.isEmpty() )
-		    w->repaint( erasePaintRegion, TRUE );
-		if ( !paintRegion.isEmpty() )
-		    w->repaint( paintRegion, FALSE );
-	    } else if ( !receiver->isWidgetType() ) {
-		// eg. Window Manager decorations in Qt/Embedded
-		if ( !erasePaintRegion.isEmpty() ) {
-		    QPaintEvent e( erasePaintRegion, TRUE );
-		    sendEvent( receiver, &e );
-		}
-		if ( !paintRegion.isEmpty() ) {
-		    QPaintEvent e( paintRegion, FALSE );
-		    sendEvent( receiver, &e );
+
+    if ( !receiver || !morePostedEvents || !postedEventReceivers ) {
+	QPtrDictIterator<QObject> it( *postedEventReceivers );
+	QObject * o;
+	while( (o=it.current()) != 0 ) {
+	    ++it;
+	    if ( o ) {
+		o->pendEvent = FALSE;
+		if ( o->isWidgetType() ) {
+		    QWidget * w = (QWidget*)o;
+		    if ( w->extra ) {
+			delete (QPostEventList*)(w->extra->posted_events);
+			w->extra->posted_events = 0;
+		    }
 		}
 	    }
 	}
+	if ( postedEventReceivers->size() > postedEvents->count() * 4 ) {
+	    delete postedEventReceivers;
+	    postedEventReceivers = 0;
+	} else {
+	    postedEventReceivers->clear();
+	}
     }
 
-    receiver->pendEvent = receiver->pendEvent || pendEvent;
+    if ( !receiver )
+	postedEvents->clear();
 }
 
 
@@ -1970,6 +2002,8 @@ static void cleanupPostedEvents()		// cleanup list
 {
     delete postedEvents;
     postedEvents = 0;
+    delete postedEventReceivers;
+    postedEventReceivers = 0;
 }
 
 
@@ -1987,14 +2021,22 @@ void QApplication::removePostedEvents( QObject *receiver )
     if ( !postedEvents || !receiver || !receiver->pendEvent )
 	return;
 
-    QPostEventListIt it( *postedEvents );
+    QPostEventList ** l = &postedEvents;
+
+    // override that with an object-specific list, if possible
+    if ( receiver && receiver->isWidgetType() &&
+	 ((QWidget*)receiver)->extra &&
+	 ((QWidget*)receiver)->extra->posted_events )
+	l = (QPostEventList**)&(((QWidget*)receiver)->extra->posted_events);
+
+    QPostEventListIt it( **l );
     QPostEvent * pe;
     while( (pe = it.current()) != 0 ) {
 	++it;
-	if ( pe->receiver == receiver ) {
-	    postedEvents->take( postedEvents->findRef( pe ) );
+	if ( pe->receiver == receiver && pe->event ) {
 	    pe->event->posted = FALSE;
-	    delete pe;
+	    delete pe->event;
+	    pe->event = 0;
 	}
     }
 }
@@ -2003,6 +2045,8 @@ void QApplication::removePostedEvents( QObject *receiver )
 /*!
   Removes \a event from the queue of posted events, and emits a
   warning message if appropriate.
+
+  \warning This function can be \e really slow.  Avoid using it, if possible.
 */
 
 void QApplication::removePostedEvent( QEvent *  event )
@@ -2015,8 +2059,6 @@ void QApplication::removePostedEvent( QEvent *  event )
     while( (pe = it.current()) != 0 ) {
 	++it;
 	if ( pe->event == event ) {
-	    postedEvents->take( postedEvents->findRef( pe ) );
-	    event->posted = FALSE;
 #if defined(DEBUG)
 	    const char *n;
 	    switch ( event->type() ) {
@@ -2087,7 +2129,9 @@ void QApplication::removePostedEvent( QEvent *  event )
 		     pe->receiver ? pe->receiver->name() : "object" );
 	    // note the beautiful uglehack if !pe->receiver :)
 #endif
-	    delete pe;
+	    event->posted = FALSE;
+	    delete pe->event;
+	    pe->event = 0;
 	    return;
 	}
     }

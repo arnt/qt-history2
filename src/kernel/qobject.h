@@ -80,7 +80,7 @@ public:
     const QObjectList *children() const { return childObjects; }
 
     static const QObjectList *objectTrees();
-    
+
     QObjectList	      *queryList( const char *inheritsClass = 0,
 				  const char *objName = 0,
 				  bool regexpMatch = TRUE,
@@ -165,6 +165,8 @@ private:
     QSignalDict *connections;
     QObjectList *senderObjects;
     QObjectList *eventFilters;
+    // ### 3.0 todo: add d pointer
+
     QObject	*sigSender;
 
     friend class QApplication;
@@ -178,8 +180,8 @@ private:	// Disabled copy constructor and operator=
     QObject( const QObject & );
     QObject &operator=( const QObject & );
 #endif
-    
-public: 
+
+public:
     // obsolete
     QStringList  superClasses( bool includeThis = FALSE ) const; // obsolete, remove 3.0
 };

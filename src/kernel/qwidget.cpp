@@ -936,7 +936,9 @@ void QWidget::createExtra()
 	extra->topextra = 0;
 	extra->bg_mode = PaletteBackground;
 	extra->style = 0;
-	extra->size_policy = QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
+	extra->size_policy = QSizePolicy( QSizePolicy::Preferred,
+					  QSizePolicy::Preferred );
+	extra->posted_events = 0;
 	createSysExtra();
     }
 }
@@ -4683,7 +4685,7 @@ void QWidget::updateGeometry()
     if ( !isTopLevel() )
 	QApplication::postEvent( parentWidget(),
 				 new QEvent( QEvent::LayoutHint ) );
-}	
+}
 
 
 
