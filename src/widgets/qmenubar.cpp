@@ -404,7 +404,7 @@ void QMenuBar::performDelayedContentsChanged()
 
 void QMenuBar::menuStateChanged()
 {
-    // here the part that can't be delayed
+    if( pendingDelayedStateChanges )
         return;
     pendingDelayedStateChanges = 1;
     if( !pendingDelayedContentsChanges ) // if the timer hasn't been started yet
