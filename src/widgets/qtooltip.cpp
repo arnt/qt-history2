@@ -347,11 +347,7 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 	hideTipAndSleep();
 
     if ( !qApp
-#ifndef Q_WS_X11
-	 || !qApp->activeWindow()
-#endif
 	 || !obj || !obj->isWidgetType() // isWidgetType() catches most stuff
-	 || !e
 	 || e->type() == QEvent::Paint
 	 || e->type() == QEvent::Timer
 	 || e->type() == QEvent::SockAct
