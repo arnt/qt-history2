@@ -233,52 +233,6 @@ This bug is almost impossible to fix; since the
 does not expand
 #include or #define, it cannot find out which one of the base classes is a
 QObject.
-.SS "QObject may not be virtually inherited"
-You can not use virtual inheritance in the QObject branch of the
-inheritance tree. The following example shows one wrong and one
-correct class declaration:
-.PP
-.in +4
-.nf
-class Wrong: virtual public QObject, virtual public Other {
-    [...]
-};
-
-class Right: public QObject, virtual public Other {
-    [...]
-};
-.fi
-.in -4
-.SS "Virtual functions cannot be slots when using multiple inheritance"
-This problem occurs if you are using multiple inheritance. If you
-reimplement a virtual function as a slot
-.B and
-that function was originally declared in a class that does not inherit
-QObject, your program may crash when a signal triggers the slot.
-(This only happens with some compilers.)
-.PP
-The following example shows one wrong and two correct slot definitions.
-.PP
-.in +4
-.nf
-class BaseClass {
-    [...]
-    virtual void setValue( int );
-};
-
-class SubClass: public QObject, public BaseClass {
-    [...]
-public slots:
-    void setValue( int ); // illegal
-    void slotSetValue( int i ) { setValue(i); } // ok
-    void setName( const char* ); // ok
-};
-.fi
-.in -4
-.PP
-(For those interested in C++ internals: The cause of this problem is
-that a slot is internally represented as a function pointer, and
-invoked on a QObject pointer. )
 .SS "Function pointers can not be arguments to signals or slots."
 In most cases where you would consider that, we think inheritance is a
 better alternative.  Here is an example of illegal syntax:
