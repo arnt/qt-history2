@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#190 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#191 $
 **
 ** Implementation of QFileDialog class
 **
@@ -259,10 +259,10 @@ struct QFileDialogPrivate {
     struct File: public QListViewItem {
         File( QFileDialogPrivate * dlgp,
               const QFileInfo * fi, QListViewItem * parent )
-            : QListViewItem( parent ), info( *fi ), d(dlgp) { setup(); }
+            : QListViewItem( parent ), info( *fi ), d(dlgp), i( 0 ) { setup(); }
         File( QFileDialogPrivate * dlgp,
               const QFileInfo * fi, QListView * parent )
-            : QListViewItem( parent ), info( *fi ), d(dlgp) { setup(); }
+            : QListViewItem( parent ), info( *fi ), d(dlgp), i( 0 ) { setup(); }
 
         QString text( int column ) const;
         QString key( int column, bool ) const;
@@ -270,6 +270,7 @@ struct QFileDialogPrivate {
 
         QFileInfo info;
         QFileDialogPrivate * d;
+        QListBoxItem *i;
     };
 
     class MCItem: public QListBoxItem {
@@ -281,6 +282,10 @@ struct QFileDialogPrivate {
         int width( const QListBox * ) const;
         void paint( QPainter * );
         QListViewItem * i;
+        void setSelectable( bool s );
+        bool isSelectable();
+    private:
+        bool selectable;
     };
 
     QFileListBox * moreFiles;
@@ -346,6 +351,19 @@ void QFileListBox::keyPressEvent( QKeyEvent *e )
     QListBox::keyPressEvent( e );
 }
 
+void QFileListBox::setSelected( QListBoxItem *i, bool s )
+{
+    if ( i && s && !( (QFileDialogPrivate::MCItem *)i )->isSelectable() )
+        return;
+    
+    QListBox::setSelected( i, s );
+}
+
+void QFileListBox::setSelected( int i, bool s ) 
+{
+    QListBox::setSelected( i, s );
+}
+
 void QFileListBox::viewportMousePressEvent( QMouseEvent *e )
 {
     bool didRename = renaming;
@@ -368,7 +386,7 @@ void QFileListBox::viewportMousePressEvent( QMouseEvent *e )
     if ( itemAt( e->pos() ) != item( i ) )
         return;
 
-    if ( !didRename && i == currentItem() && currentItem() != -1 &&
+    if ( !didRename && i == currentItem() && currentItem() != -1 && filedialog->mode() != QFileDialog::ExistingFiles &&
          QFileInfo( filedialog->dirPath() ).isWritable() && item( currentItem() )->text() != ".." )
         renameTimer.start( QApplication::doubleClickInterval(), TRUE );
 }
@@ -388,6 +406,7 @@ void QFileListBox::doubleClickTimeout()
 void QFileListBox::startRename()
 {
     int i = currentItem();
+    setSelected( i, TRUE );
     QRect r = itemRect( item( i ) );
     int d = item( i )->pixmap() ?
             item( i )->pixmap()->width() + 5 : 25;
@@ -498,7 +517,7 @@ void QFileListView::viewportMousePressEvent( QMouseEvent *e )
     if ( itemAt( e->pos() ) != i )
         return;
 
-    if ( !didRename && i == currentItem() && currentItem() &&
+    if ( !didRename && i == currentItem() && currentItem() && filedialog->mode() != QFileDialog::ExistingFiles &&
          QFileInfo( filedialog->dirPath() ).isWritable() && currentItem()->text( 0 ) != ".." )
         renameTimer.start( QApplication::doubleClickInterval(), TRUE );
 }
@@ -518,6 +537,7 @@ void QFileListView::doubleClickTimeout()
 void QFileListView::startRename()
 {
     QListViewItem *i = currentItem();
+    setSelected( i, TRUE );
 
     QRect r = itemRect( i );
     int d = i->pixmap( 0 ) ?
@@ -675,12 +695,21 @@ QString QFileDialogPrivate::File::key( int column, bool ascending ) const
 
 
 QFileDialogPrivate::MCItem::MCItem( QListBox * lb, QListViewItem * item )
-    : QListBoxItem()
+    : QListBoxItem(), selectable( TRUE )
 {
     i = item;
     lb->insertItem( this );
 }
 
+void QFileDialogPrivate::MCItem::setSelectable( bool s )
+{
+    selectable = s;
+}
+
+bool QFileDialogPrivate::MCItem::isSelectable()
+{
+    return selectable;
+}
 
 QString QFileDialogPrivate::MCItem::text() const
 {
@@ -844,6 +873,8 @@ void QFileDialog::init()
     files->setMinimumSize( 50, 25 + 2*fm.lineSpacing() );
 
     connect( files, SIGNAL(selectionChanged(QListViewItem *)),
+             this, SLOT(updateFileNameEdit(QListViewItem *)) );
+    connect( files, SIGNAL(currentChanged(QListViewItem *)),
              this, SLOT(updateFileNameEdit(QListViewItem *)) );
     connect( files, SIGNAL(doubleClicked(QListViewItem *)),
              this, SLOT(selectDirectoryOrFile(QListViewItem *)) );
@@ -1250,11 +1281,13 @@ void QFileDialog::rereadDir()
         if ( fi->fileName() != QString::fromLatin1(".") &&
              ( !cwd.isRoot() ||
                fi->fileName() != QString::fromLatin1("..") ) ) {
-            QListViewItem * i
-                = new QFileDialogPrivate::File( d, fi, files );
+            QFileDialogPrivate::File * i = new QFileDialogPrivate::File( d, fi, files );
             if ( mode() == ExistingFiles && fi->isDir() )
                 i->setSelectable( FALSE );
-            (void)new QFileDialogPrivate::MCItem( d->moreFiles, i );
+            QFileDialogPrivate::MCItem *i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i );
+            if ( mode() == ExistingFiles && fi->isDir() )
+                i2->setSelectable( FALSE );
+            i->i = i2;
         }
 
     }
@@ -1663,6 +1696,7 @@ void QFileDialog::updateFileNameEdit( QListViewItem * newItem )
     if ( mode() == ExistingFiles ) {
         bool ok = files->isSelected( newItem );
         QListViewItem * i = files->firstChild();
+        d->moreFiles->setSelected( ( (QFileDialogPrivate::File *)newItem )->i, newItem->isSelected() );
         while( i && !ok ) {
             ok = i->isSelected();
             i = i->nextSibling();
@@ -1769,6 +1803,9 @@ void QFileDialog::popupContextMenu( QListViewItem *item, const QPoint & p,
     } else if ( !QFileInfo( dirPath() + "/" + item->text( 0 ) ).isFile() )
         m.setItemEnabled( del, FALSE );
 
+    if ( mode() == QFileDialog::ExistingFiles )
+        m.setItemEnabled( rename, FALSE );
+    
     m.move( p );
     int res = m.exec();
 
@@ -1805,6 +1842,9 @@ void QFileDialog::popupContextMenu( QListBoxItem *item, const QPoint & p )
         m.setItemEnabled( del, FALSE );
     } else if ( !QFileInfo( dirPath() + "/" + item->text() ).isFile() )
         m.setItemEnabled( del, FALSE );
+
+    if ( mode() == QFileDialog::ExistingFiles )
+        m.setItemEnabled( rename, FALSE );
 
     m.move( p );
     int res = m.exec();
@@ -2046,12 +2086,15 @@ void QFileDialog::setMode( Mode newMode )
         QString sel = d->currentFileName;
         if ( newMode == Directory ) {
             files->setMultiSelection( FALSE );
+            d->moreFiles->setMultiSelection( FALSE );
             if ( sel.isNull() )
                 sel = QString::fromLatin1(".");
         } else if ( newMode == ExistingFiles ) {
             files->setMultiSelection( TRUE );
+            d->moreFiles->setMultiSelection( TRUE );
         } else {
             files->setMultiSelection( FALSE );
+            d->moreFiles->setMultiSelection( FALSE );
         }
         rereadDir();
         QFileInfo f ( cwd, sel );
@@ -2246,15 +2289,15 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
         QApplication::sendEvent( files->lined, e );
         ((QKeyEvent *)e)->accept();
         return TRUE;
-    } else if ( mode() == ExistingFiles &&
-         e->type() == QEvent::MouseButtonDblClick &&
-         ( o == files || o == d->moreFiles || o == files->viewport() ||
-           o == d->moreFiles->viewport() ) ) {
-        QListViewItem * i = files->firstChild();
-        while( i && !i->isSelected() )
-            i = i->nextSibling();
-        if ( i )
-            return TRUE;
+//     } else if ( mode() == ExistingFiles &&
+//          e->type() == QEvent::MouseButtonDblClick &&
+//          ( o == files || o == d->moreFiles || o == files->viewport() ||
+//            o == d->moreFiles->viewport() ) ) {
+//         QListViewItem * i = files->firstChild();
+//         while( i && !i->isSelected() )
+//             i = i->nextSibling();
+//         if ( i )
+//             return TRUE;
     } else if ( e->type() == QEvent::KeyPress &&
                 ((QKeyEvent *)e)->key() == Key_Backspace &&
                 ( o == files ||

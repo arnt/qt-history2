@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#49 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#50 $
 **
 ** Definition of QFileDialog class
 **
@@ -81,7 +81,9 @@ public:
     void clear();
     void show();
     void startRename();
-
+    void setSelected( QListBoxItem *i, bool s );
+    void setSelected( int i, bool s );
+    
 protected:
     void viewportMousePressEvent( QMouseEvent *e );
     void viewportMouseDoubleClickEvent( QMouseEvent *e );
@@ -93,7 +95,7 @@ public slots:
 
 private slots:
     void doubleClickTimeout();
-    
+
 private:
     QRenameEdit *lined;
     QFileDialog *filedialog;
@@ -125,13 +127,13 @@ public slots:
 
 private slots:
     void doubleClickTimeout();
-
+    
 private:
     QRenameEdit *lined;
     QFileDialog *filedialog;
     bool renaming;
     QTimer renameTimer;
-
+    
 };
 
 class Q_EXPORT QFileDialog : public QDialog
