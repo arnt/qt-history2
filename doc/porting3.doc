@@ -629,7 +629,7 @@ The \l QToolButton class used to distinguish between "on" and "off"
 icons. In 3.0, this mechanism was moved into the \l QIconSet class
 (see \l QIconSet::State).
 
-The old \l QToolButton::onIconSet and \l QToolButton::offIconSet
+The old QToolButton::onIconSet and QToolButton::offIconSet
 properties are still provided so that old source will compile, but
 their semantics have changed: they are now synonyms for \l
 QToolButton::iconSet. If you used that distinction in Qt 2.x, you will

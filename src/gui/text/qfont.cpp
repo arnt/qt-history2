@@ -501,6 +501,9 @@ QFontEngineData::~QFontEngineData()
     \value Buhid
     \value Tagbanwa
 
+    \value Limbu (Unicode 4.0)
+    \value TaiLe (Unicode 4.0)
+
     \value KatakanaHalfWidth
 
     \value Unicode includes all the above scripts.
@@ -2254,6 +2257,8 @@ int QFontMetrics::width( const QString &str, int len ) const
 }
 
 /*! \fn int QFontMetrics::width( QChar ch ) const
+
+    \overload
 
     <img src="bearings.png" align=right>
 

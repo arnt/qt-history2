@@ -1483,12 +1483,6 @@ bool QSVGPaintEngine::save(QIODevice *dev)
 }
 
 /*!
-    \fn QRect QSvgDevice::boundingRect() const
-
-    Returns the bounding rectangle of the SVG.
-*/
-
-/*!
     Sets the bounding rectangle of the SVG to rectangle \a r.
 */
 
@@ -1498,7 +1492,7 @@ void QSVGPaintEngine::setBoundingRect(const QRect &r)
 }
 
 /*!
-    Returns the bounding SVG rectangle \a r.
+    Returns the SVG's bounding rectangle.
 */
 
 QRect QSVGPaintEngine::boundingRect() const

@@ -94,8 +94,7 @@ public:
     listChildren(), a name filter can be set with setNameFilter().
 
     A QUrlOperator can be used like this, for example to download a
-    file (and assuming that the FTP protocol is \link
-    qInitNetworkProtocols() registered\endlink):
+    file (and assuming that the FTP protocol is registered):
     \code
     QUrlOperator *op = new QUrlOperator();
     op->copy( QString("ftp://ftp.trolltech.com/qt/source/qt-2.1.0.tar.gz"),

@@ -994,7 +994,7 @@ white, so setting a non-white brush color is highly recommended!
 \skipto file.close
 \printline
 
-\skipto setCaption
+\skipto setWindowTitle
 \printuntil }
 
 Loading a data set is very easy. We open the file and create a text
@@ -1067,7 +1067,7 @@ elements vector pointer and the number of decimal places to display to
 member variables so that they are accessible by all SetDataForm's
 member functions.
 
-\skipto setCaption
+\skipto setWindowTitle
 \printuntil resize
 
 We set a caption for the dialog and resize it.

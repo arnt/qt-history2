@@ -717,7 +717,7 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
     areas.) In QMainWindow a right-click popup menu (the dock window
     menu) is available which lists dock windows and can be used to
     show or hide them. (The popup menu only lists dock windows that
-    have a \link setCaption() caption\endlink.)
+    have a \link setWindowTitle() caption\endlink.)
 
     When you construct a dock window you \e must pass it a QDockArea
     or a QMainWindow as its parent if you want it docked. Pass 0 for
