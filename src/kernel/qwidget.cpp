@@ -3069,7 +3069,7 @@ bool QWidget::isActiveWindow() const
 	return TRUE;
 #ifndef QT_NO_STYLE
     if(style().styleHint(QStyle::SH_Widget_ShareActivation, this, NULL)) {
-	if(tlw->isDialog() && !tlw->testWFlags(WShowModal) &&
+	if(tlw->isDialog() && tlw->testWFlags(WShowModal) &&
 	   tlw->parentWidget() && tlw->parentWidget()->isActiveWindow())
 	   return TRUE;
 	QWidget *w = qApp->activeWindow();

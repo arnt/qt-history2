@@ -223,7 +223,8 @@ public:
     //blinking buttons
     struct buttonState {
     public:
-        buttonState() : frame(0), dir(1) {}
+        buttonState() : stop_pulse(0), frame(0), dir(1) {}
+	QPushButton *stop_pulse;
         int frame;
         int dir;
     };
@@ -314,9 +315,8 @@ void QAquaStyle::polish( QWidget * w )
         if( btn->isDefault() || btn->autoDefault() ){
 	    QObject::connect(btn, SIGNAL(destroyed(QObject*)), d, SLOT(objDestroyed(QObject*)));
             btn->installEventFilter( this );
-            if( d->buttonTimerId == -1 ){
+            if( d->buttonTimerId == -1 )
                 d->buttonTimerId = startTimer( 50 );
-            }
         }
     }
 
@@ -338,9 +338,8 @@ void QAquaStyle::polish( QWidget * w )
 
     if( w->inherits("QProgressBar") ){
 	d->progressBars.append((QProgressBar*)w);
-	if( d->progressTimerId == -1 ){
+	if( d->progressTimerId == -1 )
 	    d->progressTimerId = startTimer( 50 );
-	}
     }
 
     if ( !w->isTopLevel() ) {
@@ -435,9 +434,9 @@ void QAquaStyle::unPolish( QWidget * w )
 */
 void QAquaStyle::timerEvent( QTimerEvent * te )
 {
-    if( te->timerId() == d->buttonTimerId ){
+    if( te->timerId() == d->buttonTimerId ) {
 	if( d->defaultButton != 0 && (d->defaultButton->isDefault() ||
-				      d->defaultButton->autoDefault()) )
+				      d->defaultButton->autoDefault()) ) 
 	    d->defaultButton->repaint( FALSE );
     } else if( te->timerId() == d->progressTimerId ) {
 	if( !d->progressBars.isEmpty() ) {
@@ -468,6 +467,9 @@ bool QAquaStyle::eventFilter( QObject * o, QEvent * e )
 	}
     } else if( e->type() == QEvent::Hide && d->defaultButton == o ) {
 	d->defaultButton = NULL;
+    } else if( (e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseButtonRelease) &&
+	       o->inherits("QPushButton") ) {
+	d->buttonState.stop_pulse = (e->type() == QEvent::MouseButtonPress) ? (QPushButton*)o : NULL;
     } else if( o && (e->type() == QEvent::FocusOut || e->type() == QEvent::Show) &&
 	       o->inherits("QPushButton") ) {
 	QPushButton *btn = (QPushButton *)o;
@@ -486,7 +488,7 @@ bool QAquaStyle::eventFilter( QObject * o, QEvent * e )
 		d->defaultButton = 0;
 		if( tmp )
 		    tmp->repaint( FALSE );
-		if(pb->topLevelWidget()->isActiveWindow())
+		if(pb->topLevelWidget()->isActiveWindow()) 
 		    d->defaultButton = pb;
 		break;
 	    }
@@ -1086,10 +1088,11 @@ void QAquaStyle::drawControl( ControlElement element,
 	}
 
 	QString hstr = QString::number( h - y );
-	if( (btn->isDefault() || btn->autoDefault()) && (d->defaultButton == btn) ) {
+	if( (!d->buttonState.stop_pulse || d->buttonState.stop_pulse == btn) &&
+	    (btn->isDefault() || btn->autoDefault()) && (d->defaultButton == btn) ) {
 	    int & alt = d->buttonState.frame;
 	    int & dir = d->buttonState.dir;
-	    if( alt > 0 ){
+	    if( alt > 0 && !(how & Style_Down) ){
 		QString num = QString::number( alt );
 		qAquaPixmap( "btn_def_left" + num + "_" + hstr, left );
 		qAquaPixmap( "btn_def_mid" + num + "_" + hstr, mid );
@@ -1101,6 +1104,9 @@ void QAquaStyle::drawControl( ControlElement element,
 	    }
 	    // Pause animation if button is down
 	    if( how & Style_Down ) {
+		dir = 1;
+		alt = 0;
+	    } else {
 		if( (dir == 1) && (alt == 9) ) dir = -1;
 		if( (dir == -1) && (alt == 0) ) dir = 1;
 		alt += dir;
@@ -1123,7 +1129,7 @@ void QAquaStyle::drawControl( ControlElement element,
 	    qAquaPixmap( "btn_def_mir_left_" + hstr, left );
 	    qAquaPixmap( "btn_def_mir_mid_" + hstr, mid );
 	    qAquaPixmap( "btn_def_mir_right_" + hstr, right );
-	} else if ( how & Style_Raised ) {
+	} else if( how & Style_Raised ) {
 	    qAquaPixmap( "btn_nrm_left_" + hstr, left );
 	    qAquaPixmap( "btn_nrm_mid_" + hstr, mid );
 	    qAquaPixmap( "btn_nrm_right_" + hstr, right );
