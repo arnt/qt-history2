@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#26 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#27 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -104,7 +104,21 @@ QWidgetStack::~QWidgetStack()
 
 void QWidgetStack::addWidget( QWidget * w, int id )
 {
+    if (!w)
+	return;
+    
     dict->insert( id+1, w );
+    
+    // preserve existing focus
+    QWidget * f = w->focusWidget();
+    while( f && f != w )
+	f = f->parentWidget();
+    if ( f ) {
+	if ( !focusWidgets )
+	    focusWidgets = new QPtrDict<QWidget>( 17 );
+	focusWidgets->replace( w, w->focusWidget() );
+    }
+    
     if ( w->parent() != this )
 	w->reparent( this, 0, QPoint(0,0), FALSE );
 }
@@ -147,7 +161,7 @@ void QWidgetStack::raiseWidget( QWidget * w )
 
     BackgroundMode bgMode = backgroundMode();
     setBackgroundMode( NoBackground );
-    
+
     topWidget = w;
     if ( !isVisible() )
 	return;
@@ -203,7 +217,7 @@ void QWidgetStack::raiseWidget( QWidget * w )
 				   ((QButton*)fc)->group() == b->group() ) )
 				fb = b;
 			    else if ( !fc )
-				fc = f;
+				fc = (QWidget*)wc;
 			}
 		    }
 		}
@@ -223,7 +237,7 @@ void QWidgetStack::raiseWidget( QWidget * w )
     const QObjectList * c = children();
     QObjectListIt it( *c );
     QObject * o;
-    
+
     while( (o=it.current()) != 0 ) {
 	++it;
 	if ( o->isWidgetType() && o != w )
@@ -233,7 +247,7 @@ void QWidgetStack::raiseWidget( QWidget * w )
 	f->setFocus();
 
     w->show();
-    
+
     setBackgroundMode( bgMode );
 }
 
