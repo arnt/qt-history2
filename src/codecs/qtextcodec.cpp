@@ -1033,9 +1033,9 @@ QString QTextCodec::toUnicode(const char* chars, int len) const
   uc from Unicode to the encoding of the subclass.  If \a lenInOut
   is negative or too large, the length of \a uc is used instead.
 
-  The value returned is owned by the caller, which is
-  responsible for deleting it with \c{delete []}.  The length of the
-  resulting Unicode character sequence is returned in \a lenInOut.
+  Converts \a lenInOut characters (not bytes) from \a uc, producing
+  a QCString.  \a lenInOut will be set to the
+  \link QCString::length() length\endlink of the result (in bytes).
 
   The default implementation makes an encoder with makeEncoder() and
   converts the input with that.  Note that the default makeEncoder()
