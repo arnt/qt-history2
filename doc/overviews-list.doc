@@ -63,6 +63,7 @@
     \i \link bughowto.html How to Report A Bug \endlink
     \i \link focus.html Keyboard Focus Overview \endlink
     \i \link nsplugin.html Qt-based LiveConnect Plugins \endlink
+    \i \link activeqt.html ActiveX support \endlink
     \i \link mailinglists.html Mailing Lists \endlink
     \i \link opengl-x11-overlays.html OpenGL Overlays (X11)\endlink
     \i \link appicon.html Setting the Application Icon \endlink

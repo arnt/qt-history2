@@ -122,6 +122,8 @@ Overviews
 \i \link table.html   Table \endlink
 \i \link workspace.html   Workspace \endlink
 \i \link xml.html   XML \endlink
+\i \link qaxserver.html   QAxServer \endlink
+\i \link qaxcontainer.html   QAxContainer \endlink
 \endlist
 </td>
 <td valign=top>
@@ -366,6 +368,7 @@ in a line-by-line coverage please refer to the
 \list
 \i \link nsplugin-examples.html Qt-based plugins for web browsers \endlink
 \i \link xt-motif-examples.html Xt/Motif support extension \endlink
+\i \link activeqt-examples.html ActiveX support extension \endlink
 \endlist
 
 \section1 Miscellaneous Examples

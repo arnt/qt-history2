@@ -57,6 +57,8 @@ with each Edition.
 \i \link table.html Table Module\endlink
 \i \link workspace.html Workspace (MDI) Module\endlink
 \i \link xml.html XML Module\endlink
+\i \link qaxserver.html QAxServer Module\endlink
+\i \link qaxcontainer.html QAxContainer Module\endlink
 \endlist
 
 */
