@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#191 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#192 $
 **
 ** Implementation of QApplication class
 **
@@ -624,7 +624,7 @@ QPalette *QApplication::palette(const QWidget* w)
 #endif
     if (w && app_palettes) {
 	QDictIterator<QPalette> it(*app_palettes);
-	register const char* name;
+	QString name;
 	while ( (name=it.currentKey()) ) {
 	    if ( w->isA(name) ) {
 		return it.current();
@@ -702,7 +702,7 @@ QFont *QApplication::font( const QWidget* w)
 {
     if (w && app_fonts) {
 	QDictIterator<QFont> it(*app_fonts);
-	register const char* name;
+	QString name;
 	while ( (name=it.currentKey()) ) {
 	    if ( w->isA(name) ) {
 		return it.current();
