@@ -268,7 +268,7 @@ QSqlRecord QSQLiteResult::record() const
 
 QVariant QSQLiteResult::handle() const
 {
-    return QVariant::fromValue(d->stmt);
+    return qVariantFromValue(d->stmt);
 }
 
 /////////////////////////////////////////////////////////
@@ -469,6 +469,6 @@ QSqlRecord QSQLiteDriver::record(const QString &tbl) const
 
 QVariant QSQLiteDriver::handle() const
 {
-    return QVariant::fromValue(d->access);
+    return qVariantFromValue(d->access);
 }
 

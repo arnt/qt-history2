@@ -1074,7 +1074,7 @@ QOCIResult::~QOCIResult()
 
 QVariant QOCIResult::handle() const
 {
-    return QVariant::fromValue(d->sql);
+    return qVariantFromValue(d->sql);
 }
 
 bool QOCIResult::reset (const QString& query)
@@ -1780,6 +1780,6 @@ QString QOCIDriver::formatValue(const QSqlField &field, bool) const
 
 QVariant QOCIDriver::handle() const
 {
-    return QVariant::fromValue(d->env);
+    return qVariantFromValue(d->env);
 }
 

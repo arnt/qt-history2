@@ -280,7 +280,7 @@ QSqlRecord QSQLite2Result::record() const
 
 QVariant QSQLite2Result::handle() const
 {
-    return QVariant::fromValue(d->currentMachine);
+    return qVariantFromValue(d->currentMachine);
 }
 
 /////////////////////////////////////////////////////////
@@ -490,6 +490,6 @@ QSqlRecord QSQLite2Driver::record(const QString &tbl) const
 
 QVariant QSQLite2Driver::handle() const
 {
-    return QVariant::fromValue(d->access);
+    return qVariantFromValue(d->access);
 }
 

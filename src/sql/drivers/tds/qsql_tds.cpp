@@ -293,7 +293,7 @@ void QTDSResult::cleanup()
 
 QVariant QTDSResult::handle() const
 {
-    return QVariant::fromValue(d->dbproc);
+    return qVariantFromValue(d->dbproc);
 }
 
 bool QTDSResult::gotoNext(QSqlCachedResult::ValueCache &values, int index)
@@ -488,7 +488,7 @@ QTDSDriver::QTDSDriver(LOGINREC* rec, const QString& host, const QString &db, QO
 
 QVariant QTDSDriver::handle() const
 {
-    return QVariant::fromValue(d->login);
+    return qVariantFromValue(d->login);
 }
 
 void QTDSDriver::init()
