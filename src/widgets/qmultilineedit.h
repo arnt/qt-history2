@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#16 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#17 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -50,20 +50,20 @@ public:
     QSize minimumSizeHint() const;
     QSizePolicy sizePolicy() const;
 
-    virtual void	setFont( const QFont &font );
+    virtual void setFont( const QFont &font );
     virtual void insertLine( const QString &s, int line = -1 );
     virtual void insertAt( const QString &s, int line, int col, bool mark = FALSE );
     virtual void removeLine( int line );
 
-    void 	cursorPosition( int *line, int *col ) const;
-    virtual void	setCursorPosition( int line, int col, bool mark = FALSE );
-    void	getCursorPosition( int *line, int *col ) const;
-    bool	atBeginning() const;
-    bool	atEnd() const;
+    void cursorPosition( int *line, int *col ) const;
+    virtual void setCursorPosition( int line, int col, bool mark = FALSE );
+    void getCursorPosition( int *line, int *col ) const;
+    bool atBeginning() const;
+    bool atEnd() const;
 
-    virtual void	setFixedVisibleLines( int lines );
+    virtual void setFixedVisibleLines( int lines );
 
-    int 	maxLineWidth() const;
+    int maxLineWidth() const;
 
     void setAlignment( int flags );
     int alignment() const;
@@ -81,6 +81,8 @@ public:
     virtual void setEchoMode( EchoMode );
     EchoMode echoMode() const;
 
+    void setMaxLength(int);
+    int maxLength() const;
     virtual void setMaxLineLength(int);
     int maxLineLength() const;
     virtual void setMaxLines(int);
@@ -89,13 +91,30 @@ public:
     int hMargin() const;
     virtual void setSelection( int row_from, int col_from, int row_to, int col_t );
 
-q_properties:
-    bool	autoUpdate()	const;
-    virtual void	setAutoUpdate( bool );
 
-    bool	isReadOnly() const;
-    bool	isOverwriteMode() const;
+    // word wrap
+    enum Wrapping {
+	NoWrap = 0,
+	DynamicWrap = 1,
+	FixedWidthWrap = 2,
+	FixedColumnWrap = 3,
+	BreakWithinWords = 0x0100
+    };
+
+    void setWordWrap( int mode );
+    int wordWrap() const;
+    void setWrapColumnOrWidth( int );
+    int wrapColumnOrWidth() const;
+	
+
+q_properties:
+    bool autoUpdate()	const;
+    virtual void setAutoUpdate( bool );
+
+    bool isReadOnly() const;
+    bool isOverwriteMode() const;
     QString text() const;
+    int length() const;
 
 public slots:
     virtual void       setText( const QString &);
@@ -172,12 +191,16 @@ private slots:
 
 private:
     struct QMultiLineEditRow {
-	QMultiLineEditRow( QString string, int width ):s(string), w(width){};
+	QMultiLineEditRow( QString string, int width, bool nl = TRUE )
+	    :s(string), w(width), newline( nl )
+	{
+	};
 	QString s;
 	int w;
+	bool newline;
     };
     QList<QMultiLineEditRow> *contents;
-    QMultiLineData *mlData;
+    QMultiLineData *d;
 
     bool	readOnly;
     bool	dummy;
@@ -228,6 +251,10 @@ private:
     void	cursorRight( bool mark, bool clear_mark, bool wrap );
     void	cursorUp( bool mark, bool clear_mark );
     void	cursorDown( bool mark, bool clear_mark );
+
+    void	wrapLine( int line, int removed = 0);
+    void	rebreakParagraph( int line, int removed = 0 );
+    void	rebreakAll();
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
