@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#116 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#117 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#116 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#117 $")
 
 
 /*----------------------------------------------------------------------------
@@ -595,7 +595,8 @@ QSize QWidget::minimumSize() const
 
 QSize QWidget::maximumSize() const
 {
-    return extra ? QSize(extra->maxw,extra->maxh) : QSize(0,0);
+    return extra ? QSize(extra->maxw,extra->maxh)
+		 : QSize(QCOORD_MAX,QCOORD_MAX);
 }
 
 /*----------------------------------------------------------------------------
