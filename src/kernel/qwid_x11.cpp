@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#195 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#196 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#195 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#196 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -1405,6 +1405,20 @@ void QWidget::erase( int x, int y, int w, int h )
 
 void QWidget::scroll( int dx, int dy )
 {
+    scroll( dx, dy, TRUE, FALSE, FALSE );
+}
+
+/*!
+  This is an extended version of the normal QWidget::scroll().  It allows
+  additional hinting over how the scroll is repainted.  
+  If \a repaint_immediately is TRUE, repaint() is used rather than update().
+  \a erase is passed on the repaint().
+
+  Note that the hints are ignored under Win32, as the repaints are done
+  immediately anyway.
+*/
+void QWidget::scroll( int dx, int dy, bool repaint_immediately, bool erase )
+{
     int x1, y1, x2, y2, w=crect.width(), h=crect.height();
     if ( dx > 0 ) {
 	x1 = 0;
@@ -1424,9 +1438,13 @@ void QWidget::scroll( int dx, int dy )
 	y2 = 0;
 	h += dy;
     }
+
+    if ( dx == 0 && dy == 0 )
+	return;
+
     XCopyArea( dpy, winid, winid, qt_xget_readonly_gc(), x1, y1, w, h, x2, y2);
-    qt_insert_sip( this, dx, dy );
-    if ( children() ) {				// scroll children
+
+    if ( children() ) {	// scroll children
 	QPoint pd( dx, dy );
 	QObjectListIt it(*children());
 	register QObject *object;
@@ -1439,14 +1457,23 @@ void QWidget::scroll( int dx, int dy )
 	    ++it;
 	}
     }
+
     if ( dx ) {
 	x1 = x2 == 0 ? w : 0;
-	XClearArea( dpy, winid, x1, 0, crect.width()-w, crect.height(), TRUE);
+	if ( repaint_immediately )
+	    repaint( x1, 0, crect.width()-w, crect.height(), erase );
+	else
+	    XClearArea( dpy, winid, x1, 0, crect.width()-w, crect.height(), TRUE);
     }
     if ( dy ) {
 	y1 = y2 == 0 ? h : 0;
-	XClearArea( dpy, winid, 0, y1, crect.width(), crect.height()-h, TRUE);
+	if ( repaint_immediately )
+	    repaint( 0, y1, crect.width(), crect.height()-h, erase );
+	else
+	    XClearArea( dpy, winid, 0, y1, crect.width(), crect.height()-h, TRUE);
     }
+
+    qt_insert_sip( this, dx, dy );
 }
 
 
