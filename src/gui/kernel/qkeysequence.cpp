@@ -345,7 +345,7 @@ struct ModifKeyName {
 /*!
     Constructs a single key from the string \str.
  */
-int QKeySequence::decodeString(const QString& str)
+int QKeySequence::decodeString(const QString &str)
 {
     int ret = 0;
     QString accel = str.toLower();
@@ -506,7 +506,7 @@ QString QKeySequence::encodeString(int key)
     and \c Qt::NoMatch if the sequences have nothing in common.
     Returns \c Qt::NoMatch if \a seq is shorter.
 */
-Qt::SequenceMatch QKeySequence::matches(const QKeySequence& seq) const
+Qt::SequenceMatch QKeySequence::matches(const QKeySequence &seq) const
 {
     uint userN = count(),
           seqN = seq.count();
@@ -579,12 +579,12 @@ int QKeySequence::operator[](uint index) const
 
 
 /*!
-    Assignment operator. Assigns \a keysequence to this
+    Assignment operator. Assigns \a other key sequence to this
     object.
  */
-QKeySequence &QKeySequence::operator=(const QKeySequence & keysequence)
+QKeySequence &QKeySequence::operator=(const QKeySequence &other)
 {
-    QKeySequencePrivate *x = keysequence.d;
+    QKeySequencePrivate *x = other.d;
     ++x->ref;
     x = qAtomicSetPtr(&d, x);
     if (!--x->ref)
@@ -594,48 +594,55 @@ QKeySequence &QKeySequence::operator=(const QKeySequence & keysequence)
 
 
 /*!
-    Returns true if \a keysequence is equal to this key
-    sequence; otherwise returns false.
- */
-
-
-bool QKeySequence::operator==(const QKeySequence& keysequence) const
-{
-    return (d->key[0] == keysequence.d->key[0] &&
-            d->key[1] == keysequence.d->key[1] &&
-            d->key[2] == keysequence.d->key[2] &&
-            d->key[3] == keysequence.d->key[3]);
-}
-
-
-/*!
-    Returns true if \a keysequence is not equal to this key sequence;
+    Returns true if this key sequence is equal to \a other;
     otherwise returns false.
-*/
-bool QKeySequence::operator!= (const QKeySequence& keysequence) const
+ */
+bool QKeySequence::operator==(const QKeySequence &other) const
 {
-    return !(*this == keysequence);
+    return (d->key[0] == other.d->key[0] &&
+            d->key[1] == other.d->key[1] &&
+            d->key[2] == other.d->key[2] &&
+            d->key[3] == other.d->key[3]);
 }
+
 
 /*!
     Provides an arbitrary comparison of this key sequence and
-    \a keysequence. All that is guaranteed is that the operator
-    returns FALSE if both key sequences are equal and that
-    (ks1 \< ks2) == !( ks2 \< ks1) if the key sequences are not
-    equal.
+    \a other key sequence. All that is guaranteed is that the
+    operator returns FALSE if both key sequences are equal and
+    that (ks1 \< ks2) == !( ks2 \< ks1) if the key sequences
+    are not equal.
 
-    This function is useful in some circumstances, for example if you
-    want to use QKeySequence objects as keys in a QMap.
+    This function is useful in some circumstances, for example
+    if you want to use QKeySequence objects as keys in a QMap.
 
-    \sa operator==() operator!=()
+    \sa operator==() operator!=() operator>() operator<=() operator>=()
 */
-bool QKeySequence::operator< (const QKeySequence &keysequence) const
+bool QKeySequence::operator< (const QKeySequence &other) const
 {
-    return (d->key[0] < keysequence.d->key[0] ||
-            d->key[1] < keysequence.d->key[1] ||
-            d->key[2] < keysequence.d->key[2] ||
-            d->key[3] < keysequence.d->key[3]);
+    for (int i = 0; i < 4; ++i)
+        if (d->key[i] != other.d->key[i])
+            return d->key[i] < other.d->key[i];
+    return false;
 }
+
+/*! \fn bool QKeySequence::operator> (const QKeySequence &other) const
+    Returns true if this key sequence is larger than \a other key
+    sequence; otherwise returns false.
+    \sa operator==() operator!=() operator<() operator<=() operator>=()
+*/
+
+/*! \fn bool QKeySequence::operator<= (const QKeySequence &other) const
+    Returns true if this key sequence is smaller or equal to \a other
+    key sequence; otherwise returns false.
+    \sa operator==() operator!=() operator<() operator>() operator>=()
+*/
+
+/*! \fn bool QKeySequence::operator>= (const QKeySequence &other) const
+    Returns true if this key sequence is larger or equal to \a other
+    key sequence; otherwise returns false.
+    \sa operator==() operator!=() operator<() operator>() operator<=()
+*/
 
 /*****************************************************************************
   QKeySequence stream functions

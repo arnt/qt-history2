@@ -46,15 +46,22 @@ public:
 
     uint count() const;
     bool isEmpty() const;
-    Qt::SequenceMatch matches(const QKeySequence &ks) const;
+    Qt::SequenceMatch matches(const QKeySequence &seq) const;
 
     operator QString() const;
     operator int() const;
     int operator[](uint i) const;
-    QKeySequence &operator=(const QKeySequence &ks);
-    bool operator==(const QKeySequence &ks) const;
-    bool operator!= (const QKeySequence &ks) const;
+    QKeySequence &operator=(const QKeySequence &other);
+    bool operator==(const QKeySequence &other) const;
+    inline bool operator!= (const QKeySequence &other) const 
+    { return !(*this == other); }
     bool operator< (const QKeySequence &ks) const;
+    inline bool operator> (const QKeySequence &other) const
+    { return other < *this; }
+    inline bool operator<= (const QKeySequence &other) const
+    { return !(other < *this); }
+    inline bool operator>= (const QKeySequence &other) const
+    { return !(*this < other); }
 
 private:
     static int decodeString(const QString &ks);
