@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#125 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#126 $
 **
 ** Definition of QApplication class
 **
@@ -32,6 +32,7 @@
 
 #include "qasciidict.h"
 #include "qpalette.h"
+#include "qtranslator.h"
 #endif // QT_H
 
 class QSessionManager;
