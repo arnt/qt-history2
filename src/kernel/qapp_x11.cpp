@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#301 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#302 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -86,7 +86,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#301 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#302 $");
 
 
 /*****************************************************************************
@@ -2705,11 +2705,17 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		XUngrabPointer( dpy, CurrentTime );
 		XFlush( dpy );
 	    }
-	    if ( qt_button_down != this )			// unexpected event
-		return FALSE;
-	    type = Event_MouseButtonRelease;
+	    bool unexpected = FALSE;
+	    if ( qt_button_down != this && !popupWidgets )
+		unexpected = TRUE;
+
 	    if ( (state & (LeftButton|MidButton|RightButton)) == 0 )
 		qt_button_down = 0;
+
+	    if ( unexpected )
+		return FALSE;			// unexpected event
+
+	    type = Event_MouseButtonRelease;
 	}
     }
     mouseActWindow = winId();			// save mouse event params
