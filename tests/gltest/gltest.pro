@@ -14,8 +14,10 @@ SOURCES		= glalpha.cpp \
 		  gldepth.cpp \
 		  glaccum.cpp \
 		  glcontrolwidget.cpp \
-		  main.cpp \
-		  glinfo.cpp
+		  main.cpp 
+unix:SOURCES	+= glinfo_x11.cpp
+win:SOURCES	+= glinfo_win.h
 TARGET		= gltest
 DEPENDPATH	= ../include
 INTERFACES	= gltest.ui
+unix:DEFINES		+= QT_NO_XINERAMA QT_NO_XINPUT QT_NO_XRENDER

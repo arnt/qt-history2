@@ -13,7 +13,13 @@
 
 #include <qstring.h>
 #include <qstringlist.h>
-#include <X11/Xlib.h>
+
+#if defined(Q_WS_WIN)
+# include <qt_windows.h>
+#endif
+
+#if defined(Q_WS_X11)
+#include <qt_x11.h>
 
 struct visual_attribs {
     /* X visual attribs */
@@ -40,6 +46,7 @@ struct visual_attribs {
     int numSamples, numMultisample;
     int visualCaveat;
 };
+#endif
 
 class GLInfo
 {
@@ -51,9 +58,11 @@ public:
 protected:
     QString *infotext;
     QStringList *viewlist;
+#if defined(Q_WS_X11)
     void print_screen_info(Display *dpy, int scrnum);
     void print_extension_list(const char *ext);
     void print_visual_info(Display *dpy, int scrnum);
+#endif
 };
 
 #endif
