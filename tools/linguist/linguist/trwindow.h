@@ -179,7 +179,6 @@ private:
     Action *cutAct;
     Action *copyAct;
     Action *pasteAct;
-    Action *deleteAct;
     Action *selectAllAct;
     Action *findAct;
     Action *findAgainAct;

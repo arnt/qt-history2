@@ -1239,7 +1239,6 @@ void TrWindow::showNewCurrent( QListViewItem *item )
 	doneAndNextAct->setEnabled( FALSE );
     }
     
-    deleteAct->setEnabled( messageIsShown );
     selectAllAct->setEnabled( messageIsShown );
 }
 
@@ -1749,8 +1748,6 @@ void TrWindow::setupMenuBar()
     pasteAct->setEnabled( FALSE );
     connect( me, SIGNAL(pasteAvailable(bool)),
 	     pasteAct, SLOT(setEnabled(bool)) );
-    deleteAct = new Action( editp, tr("&Delete"), me, SLOT(del()), Key_Delete );
-    deleteAct->setEnabled( FALSE );
     selectAllAct = new Action( editp, tr("Select &All"), me, SLOT(selectAll()),
 			       QAccel::stringToKey(tr("Ctrl+A")) );
     selectAllAct->setEnabled( FALSE );
@@ -1858,8 +1855,6 @@ void TrWindow::setupMenuBar()
 			      " clipboard.") );
     pasteAct->setWhatsThis( tr("Paste the clipboard text into the"
 			       " translation.") );
-    deleteAct->setWhatsThis( tr("Delete the selection or the character on the"
-				" right of the cursor.") );
     selectAllAct->setWhatsThis( tr("Select the whole translation text.") );
     findAct->setWhatsThis( tr("Search for some text in the translation "
 				"source file.") );
@@ -1922,7 +1917,6 @@ void TrWindow::setupToolBars()
     cutAct->addToToolbar( editt, tr("Cut"), "editcut" );
     copyAct->addToToolbar( editt, tr("Copy"), "editcopy" );
     pasteAct->addToToolbar( editt, tr("Paste"), "editpaste" );
-    deleteAct->addToToolbar( editt, tr("Delete"), "editdelete" );
     editt->addSeparator();
     findAct->addToToolbar( editt, tr("Find"), "searchfind" );
 #if notyet
