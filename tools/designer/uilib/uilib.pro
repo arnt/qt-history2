@@ -27,4 +27,4 @@ unix {
 	INSTALLS        += target
 }
 
-mac:QMAKE_LFLAGS_PREBIND = -prebind -seg1addr 0xB3000000
+mac:QMAKE_LFLAGS_PREBIND = -prebind -seg1addr 0xB9000000
