@@ -667,7 +667,7 @@ void QFileListBox::viewportMouseDoubleClickEvent( QMouseEvent *e )
 void QFileListBox::viewportMouseMoveEvent( QMouseEvent *e )
 {
     renameTimer->stop();
-    if ( ( e->pos() - pressPos ).manhattanLength() > 8 && mousePressed ) {
+    if ( e->pos() != pressPos && mousePressed ) {
 	if ( !itemAt( e->pos() ) )
 	     return;
 	QListBoxItem *item = currentItem() != -1 ?
@@ -1091,7 +1091,7 @@ void QFileListView::viewportMouseReleaseEvent( QMouseEvent *e )
 void QFileListView::viewportMouseMoveEvent( QMouseEvent *e )
 {
     renameTimer->stop();
-    if ( ( e->pos() - pressPos ).manhattanLength() > 8 && mousePressed ) {
+    if ( e->pos() != pressPos && mousePressed ) {
 	if ( !itemAt( e->pos() ) )
 	     return;
 	QListViewItem *item = currentItem() ?
