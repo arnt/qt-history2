@@ -634,13 +634,13 @@ QStringList QSettingsPrivate::sysEntryList( const QString &key ) const
 
     DWORD count;
     DWORD maxlen;
+    
     QT_WA( {
 	RegQueryInfoKeyW( handle, NULL, NULL, NULL, NULL, NULL, NULL, &count, &maxlen, NULL, NULL, NULL );
-	maxlen++;
     } , {
 	RegQueryInfoKeyA( handle, NULL, NULL, NULL, NULL, NULL, NULL, &count, &maxlen, NULL, NULL, NULL );
     } );
-
+    maxlen++;
     DWORD index = 0;
 
     TCHAR *vnameT = new TCHAR[ maxlen ];
