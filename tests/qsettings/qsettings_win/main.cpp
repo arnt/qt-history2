@@ -4,12 +4,15 @@ int main ( int argc, char **argv )
 {
     {
 	QSettings settings;
-	settings.setPath( "trolltech.com", "QSettings", QSettings::User );
+	settings.setPath( "trolltech.com", "QSettings" );
 
 	settings.writeEntry( "/string", "String" );
 	settings.writeEntry( "/int", 0xffff );
 	settings.writeEntry( "/bool", true );
 	settings.writeEntry( "/double", 3.1415927 );
+	QStringList list;
+	list << "a" << "b" << "c";
+	settings.writeEntry( "/list", list );
 
 	settings.resetGroup();
 
@@ -25,10 +28,13 @@ int main ( int argc, char **argv )
 
     {
 	QSettings settings;
-	qDebug( settings.readEntry( "/Trolltech/QSettings/string" ) );
-	qDebug( "%d", settings.readNumEntry( "/Trolltech/QSettings/int" ) );
-	qDebug( "%d", settings.readBoolEntry( "/Trolltech/QSettings/bool" ) );
-	qDebug( "%g", settings.readDoubleEntry( "/Trolltech/QSettings/double" ) );
+	settings.insertSearchPath( QSettings::Windows, "/Trolltech/QSettings" );
+	qDebug( "%s", settings.readEntry( "/string" ).latin1() );
+	qDebug( "%d", settings.readNumEntry( "/int" ) );
+	qDebug( "%d", settings.readBoolEntry( "/bool" ) );
+	qDebug( "%g", settings.readDoubleEntry( "/double" ) );
+	QStringList list = settings.readListEntry( "/list" );
+	qDebug( "%s", list.join(" ").latin1() );
 	bool ok;
 	QString str = settings.readEntry( "/Trolltech/QSettings/foo", QString::null, &ok );
 	if ( ok )
@@ -38,6 +44,7 @@ int main ( int argc, char **argv )
 	settings.removeEntry( "/Trolltech/QSettings/bool" );
 	settings.removeEntry( "/Trolltech/QSettings/double" );
 	settings.removeEntry( "/Trolltech/QSettings/int" );
+	settings.removeEntry( "/Trolltech/QSettings/list" );
     }
 
     return 0;
