@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#21 $
+** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#22 $
 **
 ** Implementation of the QtTextView class
 **
@@ -657,9 +657,7 @@ Qt::TextFormat QtTextView::textFormat() const
   Sets the text format to \a format. Possible choices are
   <ul>
   <li> \c PlainText - all characters are displayed verbatimely,
-  including all blanks and linebreaks. Word wrap is availbe
-  with the \c WordBreak alignment flag (see setAlignment() for
-  details).
+  including all blanks and linebreaks. 
   <li> \c RichText - rich text rendering. The available
   styles are defined in the default stylesheet
   QStyleSheet::defaultSheet().
@@ -800,7 +798,7 @@ void QtTextEdit::keyPressEvent( QKeyEvent * e )
     };
     if ( p.isActive() )
 	p.end();
-    
+
     QRect geom ( d->cursor->caretGeometry() );
     ensureVisible( geom.center().x(), geom.center().y(), geom.width()/2, geom.height()/2 );
     showCursor();
@@ -992,6 +990,7 @@ void QtTextEdit::viewportMouseReleaseEvent( QMouseEvent * )
 
 void QtTextEdit::viewportMouseMoveEvent( QMouseEvent * e)
 {
+    qDebug("mouseMoveEvent %d", e->state() );
      if (e->state() & LeftButton ) {
  	hideCursor();
 	QPainter p(viewport());
@@ -1004,9 +1003,9 @@ void QtTextEdit::viewportMouseMoveEvent( QMouseEvent * e)
 	int newy = d->cursor->y();
 	int newx = d->cursor->x();
 	int newh = d->cursor->height;
-	    
+	
 	QtTextCursor start( richText() ), end( richText() );
-	    
+	
 	if (oldy < newy || (oldy == newy && oldx <= newx) ) {
 	    start = oldc;
 	    end = *d->cursor;
@@ -1024,8 +1023,8 @@ void QtTextEdit::viewportMouseMoveEvent( QMouseEvent * e)
 	    start.rightOneItem( &p );
 	}
 	p.end();
-	repaintContents( 0, QMIN(oldy, newy), 
-			 contentsWidth(), 
+	repaintContents( 0, QMIN(oldy, newy),
+			 contentsWidth(),
 			 QMAX(oldy+oldh, newy+newh)-QMIN(oldy,newy),
 			 FALSE);
 	QRect geom ( d->cursor->caretGeometry() );
