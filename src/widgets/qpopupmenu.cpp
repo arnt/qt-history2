@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#256 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#257 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -265,7 +265,7 @@ void QPopupMenu::frameChanged()
 void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 {
     //avoid circularity
-    if ( isVisible() )
+    if ( isVisible() || !isEnabled() )
 	return;
 
     if (parentMenu && parentMenu->actItem == -1){
