@@ -83,8 +83,8 @@ static void paint_children(QWidget * p,QRegion r, bool now=FALSE, bool force_era
     if(!p || r.isEmpty() || !p->isVisible() || qApp->closingDown() || qApp->startingUp())
 	return;
 
-    QRegion pa(p->clippedRegion());
     QPoint point(posInWindow(p));
+    QRegion pa(p->clippedRegion());
     pa.translate( -point.x(), -point.y() );
     pa &= r;
     if(!pa.isEmpty()) {
@@ -957,57 +957,68 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	SizeWindow( (WindowPtr)winid, w, h, 1);
 
     if(isMove || isResize) {
-	if ( isMove )
-	    QApplication::postEvent( this, new QMoveEvent( pos(), oldp ) );
-	if ( isResize )
-	    QApplication::postEvent( this, new QResizeEvent( size(), olds ) );
-
-	if(isVisible() && !isTopLevel()) {//make sure everything is painted right..
-	    QRegion bltregion;
-	    QWidget *parent = parentWidget() && !isTopLevel() ? parentWidget() : this;
-	    QPoint tp(posInWindow(parent));
-	    int px = tp.x(), py = tp.y();
-
-	    if( isMove && !oldregion.isEmpty() ) {
-		//save the window state, and do the grunt work
-		int ow = olds.width(), oh = olds.height();
-		QMacSavedPortInfo saveportstate(this);
-		::RGBColor f;
-		f.red = f.green = f.blue = 0;
-		RGBForeColor( &f );
-		f.red = f.green = f.blue = ~0;
-		RGBBackColor( &f );
-
-		//calculate new and old rectangles
-		int nx = px + x, ny = py + y;
-		Rect newr; SetRect(&newr,nx, ny, nx + ow, ny + oh);
-		int ox = px + oldp.x(), oy = py + oldp.y();
-		Rect oldr; SetRect(&oldr, ox, oy, ox+ow, oy+oh);
-
-		//setup the old clipped region..
-		QRegion rgn = oldregion;
-		rgn.translate(pos().x() - oldp.x(), pos().y() - oldp.y());
-		rgn &= clippedRegion(FALSE);
-		{   //can't blt that which is dirty
-		    RgnHandle r = NewRgn();
-		    GetWindowRegion((WindowPtr)hd, kWindowUpdateRgn, r);
-		    if(!EmptyRgn(r)) {
-			QRegion dirty(r);
-			dirty.translate(-topLevelWidget()->x(), -topLevelWidget()->y());
-			rgn -= dirty;
-		    }
-		}
-		SetClip((RgnHandle)rgn.handle());
-		if(!isResize || testWFlags(WNorthWestGravity))
-		    bltregion = rgn;
-
-		//now do the blt
-		BitMap *scrn = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)handle()));
-		CopyBits(scrn, scrn, &oldr, &newr, srcCopy, 0);
+	if(!isVisible()) {
+	    if ( isMove )
+		QApplication::postEvent( this, new QMoveEvent( pos(), oldp ) );
+	    if ( isResize )
+		QApplication::postEvent( this, new QResizeEvent( size(), olds ) );
+	} else {
+	    if ( isMove ) {
+		QMoveEvent e( pos(), oldp );
+		QApplication::sendEvent( this, &e );
 	    }
-	    //finally issue "expose" events if necesary
-	    QRegion upd = (oldregion + clippedRegion(FALSE)) - bltregion;
-	    InvalWindowRgn((WindowPtr)handle(), (RgnHandle)upd.handle());
+	    //send the resize event..
+	    if ( isResize ) {
+		QResizeEvent e( size(), olds );
+		QApplication::sendEvent( this, &e );
+	    }
+	    if(!isTopLevel()) {//make sure everything is painted right..
+		QRegion bltregion;
+		QWidget *parent = parentWidget() && !isTopLevel() ? parentWidget() : this;
+		QPoint tp(posInWindow(parent));
+		int px = tp.x(), py = tp.y();
+
+		if( isMove && !oldregion.isEmpty() ) {
+		    //save the window state, and do the grunt work
+		    int ow = olds.width(), oh = olds.height();
+		    QMacSavedPortInfo saveportstate(this);
+		    ::RGBColor f;
+		    f.red = f.green = f.blue = 0;
+		    RGBForeColor( &f );
+		    f.red = f.green = f.blue = ~0;
+		    RGBBackColor( &f );
+
+		    //calculate new and old rectangles
+		    int nx = px + x, ny = py + y;
+		    Rect newr; SetRect(&newr,nx, ny, nx + ow, ny + oh);
+		    int ox = px + oldp.x(), oy = py + oldp.y();
+		    Rect oldr; SetRect(&oldr, ox, oy, ox+ow, oy+oh);
+
+		    //setup the old clipped region..
+		    QRegion rgn = oldregion;
+		    rgn.translate(pos().x() - oldp.x(), pos().y() - oldp.y());
+		    rgn &= clippedRegion(FALSE);
+		    {   //can't blt that which is dirty
+			RgnHandle r = NewRgn();
+			GetWindowRegion((WindowPtr)hd, kWindowUpdateRgn, r);
+			if(!EmptyRgn(r)) {
+			    QRegion dirty(r);
+			    dirty.translate(-topLevelWidget()->x(), -topLevelWidget()->y());
+			    rgn -= dirty;
+			}
+		    }
+		    SetClip((RgnHandle)rgn.handle());
+		    if(!isResize || testWFlags(WNorthWestGravity))
+			bltregion = rgn;
+
+		    //now do the blt
+		    BitMap *scrn = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)handle()));
+		    CopyBits(scrn, scrn, &oldr, &newr, srcCopy, 0);
+		}
+		//finally issue "expose" events if necesary
+		QRegion upd = (oldregion + clippedRegion(FALSE)) - bltregion;
+		InvalWindowRgn((WindowPtr)handle(), (RgnHandle)upd.handle());
+	    }
 	}
     }
 }
@@ -1109,7 +1120,7 @@ void QWidget::erase( const QRegion& reg )
 
     bool unclipped = testWFlags( WPaintUnclipped );
     clearWFlags( WPaintUnclipped );
-    QPainter p(this);
+    QPainter p(this );
     if ( unclipped )
 	setWFlags( WPaintUnclipped );
 
