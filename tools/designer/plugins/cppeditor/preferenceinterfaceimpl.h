@@ -28,6 +28,7 @@ class PreferenceInterfaceImpl : public PreferenceInterface
 {
 public:
     PreferenceInterfaceImpl();
+    ~PreferenceInterfaceImpl();
 
     QUnknownInterface *queryInterface( const QUuid& );
     unsigned long addRef();

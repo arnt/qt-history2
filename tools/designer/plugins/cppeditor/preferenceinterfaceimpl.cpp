@@ -27,6 +27,11 @@ PreferenceInterfaceImpl::PreferenceInterfaceImpl()
     cppEditorSyntax = 0;
 }
 
+PreferenceInterfaceImpl::~PreferenceInterfaceImpl()
+{
+    delete cppEditorSyntax;
+}
+
 QUnknownInterface *PreferenceInterfaceImpl::queryInterface( const QUuid &uuid )
 {
     QUnknownInterface *iface = 0;
