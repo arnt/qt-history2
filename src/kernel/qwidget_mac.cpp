@@ -162,17 +162,8 @@ OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef window, RgnHandle, RgnHand
     QWidget *widget = (QWidget *)w;
     if(!widget)
 	widget = QWidget::find( (WId)window );
-    if ( widget ) {
-#if 0
-	bool unclipped = widget->testWFlags( Qt::WPaintUnclipped );
-	widget->setWFlags( Qt::WPaintUnclipped );
-#endif
-	widget->erase(0, 0, widget->width(), widget->height());
-#if 0
-	if ( !unclipped )
-	    widget->clearWFlags( Qt::WPaintUnclipped );
-#endif
-    }
+    if ( widget ) 
+	widget->repaint();
     return 0;
 }
 
@@ -761,7 +752,6 @@ void QWidget::showWindow()
 
 	//now actually show it
 	ShowHide( (WindowPtr)hd, 1 );
-	repaint(); //once the window is shown make sure I've been refreshed
 	setActiveWindow();
     } else {
 	update();
