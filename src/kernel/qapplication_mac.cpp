@@ -782,8 +782,8 @@ void QApplication::restoreOverrideCursor()
     if(!cursorStack)				// no cursor stack
 	return;
     cursorStack->removeLast();
+    app_cursor = cursorStack->last();
     if(cursorStack->isEmpty()) {
-	app_cursor = NULL;
 	delete cursorStack;
 	cursorStack = NULL;
     }
