@@ -67,6 +67,9 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "SQL_PSQL" ]	    = "no";
     dictionary[ "SQL_TDS" ]	    = "no";
 
+    dictionary[ "BUILD_TUTORIALS" ] = "yes";
+    dictionary[ "BUILD_EXAMPLES" ]  = "yes";
+
     QString tmp = dictionary[ "QMAKESPEC" ];
     tmp = tmp.mid( tmp.findRev( "\\" ) + 1 );
     dictionary[ "QMAKESPEC" ] = tmp;
@@ -327,6 +330,10 @@ void Configure::parseCmdLine()
 		}
 	    }
 	}
+	else if( (*args) == "-no-examples" )
+	    dictionary[ "BUILD_EXAMPLES" ] = "no";
+	else if( (*args) == "-no-tutorials" )
+	    dictionary[ "BUILD_TUTORIALS" ] = "no";
 
 	else {
 	    dictionary[ "HELP" ] = "yes";
@@ -463,6 +470,9 @@ bool Configure::displayHelp()
 	cout << "-no-style-*	     Don't build the specified style" << endl;
 	cout << "                    where style is one of windows, motif, cde, sgi, motifplus, platinum" << endl << endl;
 
+	cout << "-no-examples	     Disable the building of examples" << endl;
+	cout << "-no-tutorials	     Disable the building of tutorials" << endl;
+
 	cout << "-redo               Run configure with the same parameters as last time." << endl << endl;
 	return true;
     }
@@ -538,6 +548,11 @@ void Configure::generateOutputVars()
 	qmakeConfig += "tablet";
     else if( dictionary[ "TABLET" ] == "no" )
 	qmakeConfig += "no-tablet";
+
+    if( dictionary[ "BUILD_EXAMPLES" ] == "no" )
+	qmakeConfig += "no-examples";
+    if( dictionary[ "BUILD_TUTORIALS" ] == "no" )
+	qmakeConfig += "no-tutorials";
 
     if ( dictionary[ "STYLE_WINDOWS" ] == "yes" )
 	qmakeStyles += "windows";
