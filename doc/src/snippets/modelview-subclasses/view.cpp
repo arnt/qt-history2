@@ -122,10 +122,8 @@ void LinearView::horizontalScrollbarAction(int action)
 */
 
 /*!
-    \fn void LinearView::setSelection(const QRect &rectangle, QItemSelectionModel::SelectionFlags command)
-
-    Select the items in the model that lie within the given \a rectangle, using
-    the specified selection \a command.
+    Select the items in the model that lie within the rectangle specified by
+    \a rect, using the selection \a command.
 */
 
 void LinearView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
