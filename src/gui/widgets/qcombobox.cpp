@@ -375,7 +375,6 @@ QComboBox::QComboBox(QWidget *parent) :
     QWidget(*new QComboBoxPrivate(), parent, 0)
 {
     d->init();
-    setModel(new QStandardItemModel(0, 1, this));
 }
 
 #ifdef QT_COMPAT
@@ -387,7 +386,6 @@ QComboBox::QComboBox(QWidget *parent, const char *name) :
     QWidget(*new QComboBoxPrivate(), parent, 0)
 {
     d->init();
-    setModel(new QStandardItemModel(0, 1, this));
     setObjectName(name);
 }
 
@@ -399,7 +397,6 @@ QComboBox::QComboBox(bool rw, QWidget *parent, const char *name) :
     QWidget(*new QComboBoxPrivate(), parent, 0)
 {
     d->init();
-    setModel(new QStandardItemModel(0, 1, this));
     setEditable(rw);
     setObjectName(name);
 }
@@ -508,9 +505,9 @@ QComboBox::QComboBox(QComboBoxPrivate &dd, QWidget *parent) :
 void QComboBoxPrivate::init()
 {
     QListView *l = new QListView(0);
-    model = l->model();
     container = new ItemViewContainer(l, q);
     container->setParent(q, Qt::WType_Popup);
+    q->setModel(new QStandardItemModel(0, 1, q));
     q->setFocusPolicy(Qt::TabFocus);
     q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     q->setCurrentItem(0);
