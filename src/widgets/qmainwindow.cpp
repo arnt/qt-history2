@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#24 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#25 $
 **
 ** Implementation of QMainWindow class
 **
@@ -502,7 +502,7 @@ static void addToolBarToLayout( QMainWindowPrivate::ToolBarDock * dock,
 	    anyToolBars = TRUE;
 	}
     } while ( (t=dock->next()) != 0 );
-    
+
     if ( anyToolBars && style == MotifStyle )
 	dockLayout->addSpacing( 2 );
 
@@ -545,11 +545,9 @@ void QMainWindow::setUpLayout()
 	mwl->addWidget( centralWidget(), 1 );
     else
 	mwl->addStretch( 1 );
-    debug( "1" );
     addToolBarToLayout( d->right, mwl,
 			QBoxLayout::Down, QBoxLayout::LeftToRight, FALSE,
 			d->justify, style() );
-    debug( "2" );
     addToolBarToLayout( d->bottom, d->tll,
 			QBoxLayout::LeftToRight, QBoxLayout::Up, TRUE,
 			d->justify, style() );
@@ -754,7 +752,7 @@ void QMainWindow::triggerLayout()
   the funky docking.
 */
 
-void QMainWindow::moveToolBar( QToolBar * t, QMouseEvent * e )
+void QMainWindow::moveToolBar( QToolBar * , QMouseEvent * )
 {
 #if 0
     // again. nice code, shame about bugs.
