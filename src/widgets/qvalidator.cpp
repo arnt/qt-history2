@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#15 $
 **
 ** Implementation of validator classes.
 **
@@ -14,7 +14,7 @@
 
 #include <limits.h> // *_MIN, *_MAX
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qvalidator.cpp#14 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qvalidator.cpp#15 $");
 
 
 /*!
@@ -63,10 +63,10 @@ QValidator::~QValidator()
 /*!
   \fn QValidator::State QValidator::validate( QString & input, int & pos )
 
-  This pure virtual function returns \c Invalid if \a input is valid
+  This pure virtual function returns \c Invalid if \a input is invalid
   according to this validator's rules, \c Valid if it is likely that a
   little more editing will make the input acceptable (e.g. the user
-  types '4' into a widget which accepts 10-99) and \a Acceptable if
+  types '4' into a widget which accepts 10-99) and \c Acceptable if
   the input is completely acceptable.
 
   The function can change \a input and \a pos (the cursor position) if
