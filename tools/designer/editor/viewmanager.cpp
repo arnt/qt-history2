@@ -3,7 +3,9 @@
 #include "markerwidget.h"
 #include <qlayout.h>
 #include <qrichtext_p.h>
+#include <qdockarea.h>
 #include "paragdata.h"
+#include <qobjectlist.h>
 
 ViewManager::ViewManager( QWidget *parent, const char *name )
     : QWidget( parent, name ), curView( 0 )
@@ -11,7 +13,15 @@ ViewManager::ViewManager( QWidget *parent, const char *name )
     layout = new QHBoxLayout( this );
     markerWidget = new MarkerWidget( this );
     markerWidget->setFixedWidth( 20 );
+    dockArea = new QDockArea( Qt::Vertical, QDockArea::Normal, this );
+    layout->addWidget( dockArea );
+    dockArea->setMinimumWidth( 2 );
     layout->addWidget( markerWidget );
+
+    QObjectList *l = topLevelWidget()->queryList( "QDockWindow" );
+    for ( QObject *o = l->first(); o; o = l->next() )
+	dockArea->setAcceptDockWindow( ( (QDockWindow*)o ), TRUE );
+    delete l;
 }
 
 void ViewManager::addView( QWidget *view )

@@ -7,6 +7,7 @@
 class QChildEvent;
 class MarkerWidget;
 class QHBoxLayout;
+class QDockArea;
 
 class EDITOR_EXPORT ViewManager : public QWidget
 {
@@ -28,6 +29,7 @@ private:
     QWidget *curView;
     MarkerWidget *markerWidget;
     QHBoxLayout *layout;
+    QDockArea *dockArea;
 
 };
 
