@@ -3252,14 +3252,7 @@ void QTextEdit::cut()
 {
     if ( isReadOnly() )
 	return;
-#ifndef QT_NO_DRAGANDDROP
-    QTextDrag *drag = dragObject();
-    if ( !drag )
-	return;
-#ifndef QT_NO_MIMECLIPBOARD
-    QApplication::clipboard()->setData( drag, d->clipboard_mode );
-#endif
-#endif //QT_NO_DRAGANDDROP
+    normalCopy();
     removeSelectedText();
     updateMicroFocusHint();
 }
