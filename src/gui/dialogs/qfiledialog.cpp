@@ -1350,8 +1350,8 @@ void QFileDialogPrivate::setup(const QString &directory,
     int filter = filterSpec(fileMode);
     int sorting = QDir::Name|QDir::IgnoreCase|QDir::DirsFirst;
     int selMode = selectionMode(fileMode);
-    QStringList firstFilter = qt_clean_filter_list(nameFilter.first()).first();
-    model = new QDirModel(QString::null, firstFilter, filter, sorting, q);
+    QStringList cleanedFilter = qt_clean_filter_list(nameFilter.first());
+    model = new QDirModel(QString::null, cleanedFilter, filter, sorting, q);
     selections = new QItemSelectionModel(model, model);
     QModelIndex current = directory.isEmpty() ? QModelIndex() : model->index(directory);
 
