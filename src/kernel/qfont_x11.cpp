@@ -1484,6 +1484,16 @@ XftPattern *QFontPrivate::bestXftPattern(const QString &familyName,
 				      sizeFormat, XftTypeDouble, size_value,
 				      0);
     }
+    if ( request.styleStrategy & ( QFont::PreferAntialias | QFont::NoAntialias) ) {
+	bool requestAA;
+	if ( request.styleStrategy & QFont::PreferAntialias )
+	    requestAA = TRUE;
+	else
+	    requestAA = FALSE;
+	qDebug("requesting AA: %d", requestAA );
+	XftPatternAddBool( pattern, XFT_ANTIALIAS, (request.styleStrategy & QFont::PreferAntialias) );
+    } else 
+	qDebug("not caring about AA, style strat = %d", request.styleStrategy);
 
     if (pattern) {
 	result = XftFontMatch(QPaintDevice::x11AppDisplay(),

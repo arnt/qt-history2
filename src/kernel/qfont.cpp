@@ -882,8 +882,6 @@ QFont::StyleHint QFont::styleHint() const
     If these aren't set explicitly the style hint will default to 
     \c AnyStyle and the style strategy to \c PreferDefault.
   
-  Currently Qt under X11 only supports bitmap fonts.
-
   \sa StyleHint, styleHint(), StyleStrategy, styleStrategy(), QFontInfo
 */
 void QFont::setStyleHint( StyleHint hint, StyleStrategy strategy )
@@ -896,6 +894,20 @@ void QFont::setStyleHint( StyleHint hint, StyleStrategy strategy )
     d->request.hintSetByUser = TRUE;
     d->request.dirty = TRUE;
 }
+
+/*! 
+  Sets a style strategy for the font.
+  
+  \sa QFont::StyleStrategy
+*/
+void QFont::setStyleStrategy( StyleStrategy s )
+{
+    if ( s == (StyleStrategy)d->request.styleStrategy ) return;
+    detach();
+    d->request.styleStrategy = s;
+    d->request.dirty = TRUE;
+}
+
 
 
 /*! 

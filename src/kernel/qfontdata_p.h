@@ -72,7 +72,7 @@ class QCharStruct;
 struct QFontDef {
     QFontDef()
 	: pixelSize(0), pointSize(0), lbearing(SHRT_MIN), rbearing(SHRT_MIN),
-	  styleHint(QFont::AnyStyle), styleStrategy(QFont::PreferDefault),
+	  styleStrategy(QFont::PreferDefault), styleHint(QFont::AnyStyle), 
 	  weight(0), italic(FALSE), underline(FALSE), strikeOut(FALSE),
 	  fixedPitch(FALSE), hintSetByUser(FALSE), rawMode(FALSE), dirty(TRUE)
     { ; }
@@ -85,8 +85,8 @@ struct QFontDef {
     short lbearing;
     short rbearing;
 
+    ushort styleStrategy;
     uchar styleHint;
-    uchar styleStrategy;
     uchar weight;
 
     bool italic;

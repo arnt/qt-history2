@@ -122,6 +122,7 @@ public:
     StyleHint styleHint() const;
     StyleStrategy styleStrategy() const;
     void setStyleHint( StyleHint, StyleStrategy = PreferDefault );
+    void setStyleStrategy( StyleStrategy s );
 
     // is raw mode still needed?
     bool rawMode() const;
