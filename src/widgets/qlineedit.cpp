@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#19 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlineedit.cpp#18 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlineedit.cpp#19 $";
 #endif
 
 /*!
@@ -26,17 +26,16 @@ static char ident[] = "$Id: //depot/qt/main/src/widgets/qlineedit.cpp#18 $";
 \brief QLineEdit is a simple line editor, suitable e.g. for asking the
 user for his name.
 
-The default key bindings are described in keyPressEvent() (they belong
-there since that's where the code is).  When the user clicks on the
-text, the cursor will jump to where the text is.
+The default key bindings are described in keyPressEvent(); they cannot
+be customized except by inheriting the class.  When the user clicks on
+the text, the cursor will jump to where the text is.
 
 \todo cleaner focus
 \todo clipboard, cut, paste
-\todo mark and delete
-*/
+\todo mark and delete */
 
 /*!
-\fn void textChanged( char * );
+\fn void QLineEdit::textChanged( char * )
 
 This signal is emitted every time the text has changed.  The argument
 is the new text.
@@ -254,6 +253,8 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	paint();
 }
 
+/*! This event occurs whenever the mouse enters the line editor.  It
+  starts the blink timer, etc. */
 
 void QLineEdit::focusInEvent( QFocusEvent * )
 {
@@ -268,6 +269,9 @@ void QLineEdit::focusInEvent( QFocusEvent * )
     paint();
 }
 
+/*!  This event occurs whenever the mouse leaves the line editor.  It
+  stops the editor's cursor from blinking, etc. */
+
 void QLineEdit::focusOutEvent( QFocusEvent * )
 {
     if ( !inTextFocus )
@@ -281,12 +285,15 @@ void QLineEdit::focusOutEvent( QFocusEvent * )
     paint();
 }
 
+/*!  This event occurs whenever the widget needs repainting. */
 
 void QLineEdit::paintEvent( QPaintEvent * )
 {
     paint( TRUE );
 }
 
+
+/*!  This event is used to implement the blinking text cursor. */
 
 void QLineEdit::timerEvent( QTimerEvent * )
 {
@@ -296,7 +303,8 @@ void QLineEdit::timerEvent( QTimerEvent * )
     }
 }
 
-
+/*!  This even occurs whenever the widget is resized; if necessary it
+  will move the cursor, scroll the text and repaint. */
 void QLineEdit::resizeEvent( QResizeEvent *e )
 {
     if ( inTextFocus ) {
@@ -459,7 +467,7 @@ bool QLineEdit::cursorRight()
 }
 
 
-  /*! If it can delete leftwards, does that and returns TRUE, othewise
+/*! If it can delete leftwards, does that and returns TRUE, othewise
   it returns FALSE */
 bool QLineEdit::backspace()
 {
@@ -467,7 +475,7 @@ bool QLineEdit::backspace()
 }
 
 
-  /*! If it can delete rightwards, does that and returns TRUE, othewise
+/*! If it can delete rightwards, does that and returns TRUE, othewise
   it returns FALSE */
 bool QLineEdit::remove()
 {
@@ -478,7 +486,7 @@ bool QLineEdit::remove()
     return FALSE;
 }
 
-  /*! Moves the text cursor to the left end of the line, restarts the
+/*! Moves the text cursor to the left end of the line, restarts the
   blink timer, and returns TRUE.  Or, if the cursor was already there,
   returns FALSE. */
 
@@ -513,3 +521,4 @@ bool QLineEdit::end()
     }
     return FALSE;
 }
+
