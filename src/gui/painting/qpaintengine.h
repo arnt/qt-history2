@@ -185,6 +185,7 @@ protected:
 
     uint dirtyFlag;
     uint active : 1;
+    uint selfDestruct : 1;
     uint flags;
     QPainterState *state;
     PaintEngineFeatures gccaps;
@@ -197,6 +198,9 @@ private:
     inline QPainterState *painterState() const { return state; }
     void updateInternal(QPainterState *state, bool updateGC = true);
 
+    void setAutoDestruct(bool autoDestruct) { selfDestruct = autoDestruct; }
+    bool autoDestruct() const { return selfDestruct; }
+
     friend class QFontEngineBox;
     friend class QFontEngineMac;
     friend class QFontEngineWin;
@@ -205,6 +209,7 @@ private:
     friend class QFontEngineXLFD;
     friend class QPSPrintEngine;
     friend class QPainter;
+    friend class QWidget;
     friend class QWin32PaintEngine;
     friend class QWin32PaintEnginePrivate;
     friend class QWrapperPaintEngine;

@@ -1953,7 +1953,13 @@ QPaintEngine *QWidget::paintEngine() const
     if (!qt_widget_paintengine) {
         qt_widget_paintengine = new QWin32PaintEngine(const_cast<QWidget*>(this));
         qt_paintengine_cleanup_handler.set(&qt_widget_paintengine);
-
     }
+
+    if (qt_widget_paintengine->isActive()) {
+        QPaintEngine *extraEngine = new QWin32PaintEngine(const_cast<QWidget *>(this));
+        extraEngine->setAutoDestruct(true);
+        return extraEngine;
+    }
+
     return qt_widget_paintengine;
 }

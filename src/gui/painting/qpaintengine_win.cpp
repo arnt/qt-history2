@@ -312,7 +312,7 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
     if (isActive()) {                                // already active painting
         qWarning("QWin32PaintEngine::begin: Painter is already active."
                "\n\tYou must end() the painter before a second begin()\n");
-//         return true;
+        return true;
     }
 
     d->penAlphaColor = false;

@@ -955,7 +955,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 
     d->macDropEnabled = false;
     if(HIViewRef destroy_hiview = (HIViewRef)destroyid) {
-        if(isTopLevel()) 
+        if(isTopLevel())
             DisposeWindow(qt_mac_window_for(destroy_hiview));
         CFRelease(destroy_hiview);
     }
@@ -1068,7 +1068,7 @@ void QWidget::reparent_sys(QWidget *parent, Qt::WFlags f, const QPoint &p, bool 
     if(old_window_event)
         RemoveEventHandler(old_window_event);
     if(old_id) { //don't need old window anymore
-        if(oldtlw == this) 
+        if(oldtlw == this)
             DisposeWindow(qt_mac_window_for(old_id));
         HIViewRemoveFromSuperview(old_id);
         CFRelease(old_id);
@@ -2049,6 +2049,16 @@ QPaintEngine *QWidget::paintEngine() const
 #endif
             qt_widget_paintengine = new QQuickDrawPaintEngine(const_cast<QWidget *>(this));
         qt_paintengine_cleanup_handler.set(&qt_widget_paintengine);
+    }
+    if (qt_widget_paintengine->isActive()) {
+        QPaintEngine *engine =
+#if !defined(QMAC_NO_COREGRAPHICS)
+        !getenv("QT_MAC_USE_QUICKDRAW")
+            ? new QCoreGraphicsPaintEngine(const_cast<QWidget *>(this)) :
+#endif
+            new QQuickDrawPaintEngine(const_cast<QWidget *>(this));
+        engine->setAutoDestruct(true);
+        return engine;
     }
     return qt_widget_paintengine;
 }

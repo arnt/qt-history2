@@ -24,6 +24,7 @@
 QPaintEngine::QPaintEngine(PaintEngineFeatures caps)
     : dirtyFlag(0),
       active(0),
+      selfDestruct(false),
       state(0),
       gccaps(caps),
       d_ptr(new QPaintEnginePrivate)
@@ -34,6 +35,7 @@ QPaintEngine::QPaintEngine(PaintEngineFeatures caps)
 QPaintEngine::QPaintEngine(QPaintEnginePrivate &dptr, PaintEngineFeatures caps)
     : dirtyFlag(0),
       active(0),
+      selfDestruct(false),
       state(0),
       gccaps(caps),
       d_ptr(&dptr)

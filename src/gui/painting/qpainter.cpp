@@ -506,6 +506,8 @@ bool QPainter::begin(QPaintDevice *pd)
         return false;
     }
 
+    Q_ASSERT(d->engine->isActive());
+
     if (!d->redirection_offset.isNull())
         updateXForm();
 
@@ -551,6 +553,11 @@ bool QPainter::end()
 
     bool ended = d->engine->end();
     d->engine->updateState(0);
+
+    if (d->engine->autoDestruct()) {
+        delete d->engine;
+    }
+
     if (ended)
         d->engine = 0;
 
