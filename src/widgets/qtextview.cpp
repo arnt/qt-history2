@@ -1589,6 +1589,11 @@ void QTextView::setFormat( QTextFormat *f, int flags )
 void QTextView::setPalette( const QPalette &p )
 {
     QScrollView::setPalette( p );
+    if ( textFormat() == PlainText ) {
+	QTextFormat *f = doc->formatCollection()->defaultFormat();
+	f->setColor( colorGroup().color( QColorGroup::Text ) );
+	viewport()->repaint( FALSE );
+    }
 }
 
 void QTextView::setParagType( QStyleSheetItem::DisplayMode dm, QStyleSheetItem::ListStyle listStyle )
