@@ -41,6 +41,7 @@ QPicture
 QSpinBox
   Don't use buttons in the box, and make it styleable.
 
+
 Specific enhancements
 ---------------------
 
@@ -62,6 +63,9 @@ Drag and Drop
     Can't drag from ClearCase.
     Asks useless question when dropping Netscape's "Location".
     Can't paste from Netscape.
+
+QTextStream (rms)
+  There is still need to optimize speed, especially readLine().
 
 
 Feature Requests
