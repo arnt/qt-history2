@@ -435,7 +435,7 @@ void QTextLayout::setPalette(const QPalette &p, PaletteFlags f)
     d->textColorFromPalette = (f & UseTextColor);
 }
 
-
+#if 0
 void QTextLayout::setPreeditArea(int position, const QString &preeditText, const QList<QInputMethodEvent::Attribute> &attributes)
 {
     if (preeditText.isEmpty()) {
@@ -463,6 +463,8 @@ QString QTextLayout::preeditAreaText() const
 {
     return d->preedit ? d->preedit->text : QString();
 }
+#endif
+
 
 /*!
     \fn void QTextLayout::setLayoutMode(LayoutMode mode)

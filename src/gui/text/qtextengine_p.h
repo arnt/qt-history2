@@ -360,7 +360,7 @@ public:
     struct Preedit {
         int position;
         QString text;
-        QList<QInputMethodEvent::Attribute> attributes;
+//        QList<QInputMethodEvent::Attribute> attributes;
     };
     Preedit *preedit;
 private:

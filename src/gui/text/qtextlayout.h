@@ -99,10 +99,12 @@ public:
     };
     void setPalette(const QPalette &, PaletteFlags f = None);
 
+#if 0
     void setPreeditArea(int position, const QString &preeditText, const QList<QInputMethodEvent::Attribute> &attributes);
     bool hasPreeditArea() const;
     int preeditAreaPosition() const;
     QString preeditAreaText() const;
+#endif
 
     enum LayoutModeFlags {
         MultiLine = 0,
