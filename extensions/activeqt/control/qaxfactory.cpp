@@ -285,17 +285,13 @@ QObject *QAxFactory::createObject(const QString &key, QObject *parent, const cha
     Reimplement this function to return the QMetaObject corresponding to
     \a key, or 0 if this factory doesn't support the value of \a key.
 
-    The default implementation returns the QMetaObject for the class.
+    The default implementation returns 0.
 
     \a key.
 */
 const QMetaObject *QAxFactory::metaObject(const QString &key) const
 {
-    QObject *object = const_cast<QAxFactory*>(this)->createObject(key, 0, 0);
-    const QMetaObject *mo = object ? object->metaObject() : 0;
-    delete object;
-    
-    return mo;
+    return 0;
 }
 
 /*!
