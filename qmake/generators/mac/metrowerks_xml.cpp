@@ -146,7 +146,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 		if(!list.isEmpty()) {
 		    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 			QString p = (*it);
-			if(p.right(1) != '/')
+			if(p.right(1) != "/")
 			    p += "/";
 			if(QDir::isRelativePath(p))
 			    p.prepend(Option::output_dir + '/');
