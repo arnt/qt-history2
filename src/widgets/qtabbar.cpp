@@ -779,7 +779,7 @@ void QTabBar::mouseReleaseEvent( QMouseEvent *e )
 void QTabBar::show()
 {
     //  ensures that one tab is selected.
-    QTab * t = l->last();
+    QTab * t = l->isEmpty() ? 0 : l->last();
     QWidget::show();
 
     if ( t )
@@ -804,7 +804,7 @@ void QTabBar::show()
 
 int QTabBar::currentTab() const
 {
-    const QTab *t = l->last();
+    const QTab *t = l->isEmpty() ? 0 : l->last();
     return t ? t->id : -1;
 }
 
@@ -895,7 +895,7 @@ void QTabBar::keyPressEvent( QKeyEvent * e )
 		if (!t || t->enabled)
 		    break;
 	    }
-	    
+
 	    if (t)
 		d->focus = t->id;
 	}
@@ -962,7 +962,7 @@ QTab * QTabBar::tab( int id ) const
 QTab * QTabBar::tabAt( int index ) const
 {
     QTab * t;
-    t = lstatic->at( index );
+    t = (index < 0 || index >= lstatic->size()) ? 0 : lstatic->at(index);
     return t;
 }
 
@@ -1223,7 +1223,7 @@ void QTabBar::makeVisible( QTab* tab  )
 
 void QTabBar::updateArrowButtons()
 {
-    bool b = lstatic->last() &&	( lstatic->last()->r.right() > width() );
+    bool b = !lstatic->isEmpty() && (lstatic->last()->r.right() > width());
     d->scrolls = b;
     if ( d->scrolls ) {
 	d->leftB->setEnabled( FALSE );
