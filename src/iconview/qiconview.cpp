@@ -379,9 +379,10 @@ void QIconViewItemLineEdit::keyPressEvent( QKeyEvent *e )
     }
 }
 
-void QIconViewItemLineEdit::focusOutEvent( QFocusEvent * )
+void QIconViewItemLineEdit::focusOutEvent( QFocusEvent *e )
 {
-    item->cancelRenameItem();
+    if ( e->reason() != QFocusEvent::Popup )
+	item->cancelRenameItem();
 }
 
 #ifndef QT_NO_DRAGANDDROP
