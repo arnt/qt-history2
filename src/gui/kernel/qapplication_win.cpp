@@ -3106,11 +3106,11 @@ struct Qt_TabletInfo {
     UINT yMax;
 };
 typedef QHash<UINT, Qt_TabletInfo> TabletCursorInfo;
-Q_GLOBAL_STATIC(TabletCursorInfo, tabletCursorInfo)
+Q_GLOBAL_STATIC(TabletCursorInfo, tCursorInfo)
 
 // the following is adapted from the wintab syspress example (public domain)
 /* -------------------------------------------------------------------------- */
-static void tabletInit(UINT wActiveCursor, HCTX hTab)
+static void tabletInit(UINT wActiveCsr, HCTX hTab)
 {
     /* browse WinTab's many info items to discover pressure handling. */
     if (ptrWTInfo && ptrWTGet) {
@@ -3136,16 +3136,16 @@ static void tabletInit(UINT wActiveCursor, HCTX hTab)
         Qt_TabletInfo ti;
         ptrWTInfo(WTI_DEVICES + lc.lcDevice, DVC_NPRESSURE, &np);
         ti.prsMin = np.axMin;
-        ti.prsMax = mp.axMax;
+        ti.prsMax = np.axMax;
 
         ptrWTInfo(WTI_DEVICES + lc.lcDevice, DVC_X, &np);
         ti.xMin = np.axMin;
-        ti.xMax = mp.axMax;
+        ti.xMax = np.axMax;
 
         ptrWTInfo(WTI_DEVICES + lc.lcDevice, DVC_Y, &np);
         ti.yMin = np.axMin;
-        ti.yMax = mp.axMax;
-        tabletCursorInfo->insert(wActiveCsr, ti);
+        ti.yMax = np.axMax;
+        tCursorInfo()->insert(wActiveCsr, ti);
     }
 }
 
@@ -3186,9 +3186,9 @@ bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
         ptNew.x = (UINT)localPacketBuf[i].pkX;
         ptNew.y = (UINT)localPacketBuf[i].pkY;
         prsNew = 0;
-        if (!tabletCursorInfo->contains(localPacketBuf[i].cursor))
-            tabletInit(localPacketBuf[i].cursor, qt_tablet_context);
-        Qt_TabletInfo ti = tabletCursorInfo->value();
+        if (!tCursorInfo()->contains(localPacketBuf[i].pkCursor))
+            tabletInit(localPacketBuf[i].pkCursor, qt_tablet_context);
+        Qt_TabletInfo ti = tCursorInfo()->value(localPacketBuf[i].pkCursor);
         if (btnNew) {
             prsNew = localPacketBuf[i].pkNormalPressure;
         } else if (button_pressed) {
