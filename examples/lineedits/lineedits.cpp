@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/lineedits/lineedits.cpp#1 $
+** $Id: //depot/qt/main/examples/lineedits/lineedits.cpp#2 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -34,7 +34,6 @@ LineEdits::LineEdits( QWidget *parent, const char *name )
 
     // Create a Label
     QLabel *l1 = new QLabel( "Echo Mode: ", row1 );
-    l1->setMaximumWidth( l1->sizeHint().width() );
 
     // Create a Combobox with three items...
     combo1 = new QComboBox( FALSE, row1 );
@@ -54,9 +53,8 @@ LineEdits::LineEdits( QWidget *parent, const char *name )
 
     // and the second label
     QLabel *l2 = new QLabel( "Validator: ", row2 );
-    l2->setMaximumWidth( l2->sizeHint().width() );
 
-    // A second Combobox with agaon three items...
+    // A second Combobox with again three items...
     combo2 = new QComboBox( FALSE, row2 );
     combo2->insertItem( "No Validator", -1 );
     combo2->insertItem( "Integer Validator", -1 );
@@ -65,7 +63,25 @@ LineEdits::LineEdits( QWidget *parent, const char *name )
     connect( combo2, SIGNAL( activated( int ) ), this, SLOT( slotValidatorChanged( int ) ) );
 
     // and the second LineEdit
-    lined2 = new QLineEdit( this );
+    lined3 = new QLineEdit( this );
+
+    // yet another widget which is used for layouting
+    QHBox *row3 = new QHBox( this );
+    row3->setMargin( 5 );
+
+    // we need a label for this too
+    QLabel *l3 = new QLabel( "Alignment: ", row3 );
+
+    // A combo box for setting alignment
+    combo3 = new QComboBox( FALSE, row3 );
+    combo3->insertItem( "Left", -1 );
+    combo3->insertItem( "Centered", -1 );
+    combo3->insertItem( "Right", -1 );
+    // ...and again the activated() SIGNAL gets connected with a SLOT
+    connect( combo3, SIGNAL( activated( int ) ), this, SLOT( slotAlignmentChanged( int ) ) );
+
+    // and the lineedit
+    lined3 = new QLineEdit( this );
 
     // give the first LineEdit the focus at the beginning
     lined1->setFocus();
@@ -74,31 +90,32 @@ LineEdits::LineEdits( QWidget *parent, const char *name )
 /*
  * SLOT slotEchoChanged( int i )
  *
- * i contains the number of the item which the user has been chosen in the 
- * first Combobox. According to this value, we set the Echo-Mode for the 
- * first LineEdit. 
+ * i contains the number of the item which the user has been chosen in the
+ * first Combobox. According to this value, we set the Echo-Mode for the
+ * first LineEdit.
  */
 
 void LineEdits::slotEchoChanged( int i )
 {
-    switch ( i )
-    {
-    case 0: lined1->setEchoMode( QLineEdit::Normal );
+    switch ( i ) {
+    case 0:
+	lined1->setEchoMode( QLineEdit::Normal );
         break;
-    case 1: lined1->setEchoMode( QLineEdit::Password );
+    case 1:
+	lined1->setEchoMode( QLineEdit::Password );
         break;
-    case 2: lined1->setEchoMode( QLineEdit::NoEcho );
+    case 2:
+	lined1->setEchoMode( QLineEdit::NoEcho );
         break;
     }
 
-    lined1->repaint( TRUE );
     lined1->setFocus();
 }
 
 /*
  * SLOT slotValidatorChanged( int i )
- * 
- * i contains the number of the item which the user has been chosen in the 
+ *
+ * i contains the number of the item which the user has been chosen in the
  * second Combobox. According to this value, we set a validator for the
  * second LineEdit. A validator checks in a LineEdit each character which
  * the user enters and accepts it if it is valid, else the character gets
@@ -107,17 +124,45 @@ void LineEdits::slotEchoChanged( int i )
 
 void LineEdits::slotValidatorChanged( int i )
 {
-    switch ( i )
-    {
-    case 0: lined2->setValidator( 0L );
+    switch ( i ) {
+    case 0:
+	lined2->setValidator( 0L );
         break;
-    case 1: lined2->setValidator( new QIntValidator( lined2 ) );
+    case 1:
+	lined2->setValidator( new QIntValidator( lined2 ) );
         break;
-    case 2: lined2->setValidator( new QDoubleValidator( -999.0, 999.0, 2, lined2 ) );
+    case 2:
+	lined2->setValidator( new QDoubleValidator( -999.0, 999.0, 2, 
+						    lined2 ) );
         break;
     }
 
     lined2->setText( "" );
-    lined2->repaint( TRUE );
     lined2->setFocus();
+}
+
+
+/*
+ * SLOT slotAlignmentChanged( int i )
+ *
+ * i contains the number of the item which the user has been chosen in
+ * the second Combobox.  According to this value, we set an alignment
+ * third LineEdit.
+ */
+
+void LineEdits::slotAlignmentChanged( int i )
+{
+    switch ( i ) {
+    case 0:
+	lined3->setAlignment( QLineEdit::AlignLeft );
+        break;
+    case 1:
+	lined3->setAlignment( QLineEdit::AlignCenter );
+        break;
+    case 2:
+	lined3->setAlignment( QLineEdit::AlignRight );
+        break;
+    }
+
+    lined3->setFocus();
 }

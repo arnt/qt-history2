@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/lineedits/lineedits.h#1 $
+** $Id: //depot/qt/main/examples/lineedits/lineedits.h#2 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -24,13 +24,13 @@ public:
     LineEdits( QWidget *parent = 0, const char *name = 0 );
 
 protected:
-    QLineEdit *lined1, *lined2;
-    QComboBox *combo1, *combo2;
+    QLineEdit *lined1, *lined2, *lined3;
+    QComboBox *combo1, *combo2, *combo3;
 
 protected slots:
     void slotEchoChanged( int );
     void slotValidatorChanged( int );
-
+    void slotAlignmentChanged( int );
 };
 
 #endif
