@@ -1842,7 +1842,7 @@ void QAbstractItemView::startDrag()
         }
         rect = rect.intersect(d->viewport->rect());
         QPixmap pixmap(rect.size());
-        pixmap.fill(palette().base());
+        pixmap.fill(palette().base().color());
         QPainter painter(&pixmap);
         QStyleOptionViewItem option = viewOptions();
         for (int j = 0; j < indexes.count(); ++j) {
@@ -1857,7 +1857,7 @@ void QAbstractItemView::startDrag()
         QDrag *drag = new QDrag(this);
         drag->setPixmap(pixmap);
         drag->setMimeData(model()->mimeData(indexes));
-        if (drag->start() == QDrag::MoveAction || true)
+        if (drag->start() == QDrag::MoveAction)
             d->removeSelectedRows();
     }
 }
