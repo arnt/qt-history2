@@ -45,39 +45,16 @@
 */
 #if defined(Q_OS_MACX)
 
-#define DO_MAC_LIBRARY
+#include "qt_mac.h"
 #include "qdict.h"
 
-#ifdef DO_MAC_LIBRARY
-//is this gross or what!?! God I love the preprocessor..
-#define OLD_T TRUE
-#define OLD_F FALSE
-#undef TRUE
-#define TRUE DYLD_TRUE
-#undef FALSE
-#define FALSE DYLD_FALSE
-#define ENUM_DYLD_BOOL
-enum DYLD_BOOL { DYLD_TRUE=1, DYLD_FALSE=0 };
-extern "C" {
-#include "mach-o/dyld.h"
-}
-#undef bool
-#undef TRUE
-#define TRUE OLD_T
-#undef FALSE
-#define FALSE OLD_F
-#endif
-
-#ifdef DO_MAC_LIBRARY
 struct glibs_ref {
     QString name;
     int count;
     void *handle;
 };
 static QDict<glibs_ref> *glibs_loaded = 0;
-#endif
 
-#ifdef DO_MAC_LIBRARY
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
 static NSModule qt_mac_library_multiple(NSSymbol sym, NSModule o, NSModule)
 {
@@ -97,14 +74,11 @@ static void qt_mac_library_error(NSLinkEditErrors err, int line, const char *fil
     qDebug("qlibrary_mac.cpp: %d: %d: %s (%s)", err, line, fileName, error);
 }
 #endif
-#endif
 
 bool QLibraryPrivate::loadLibrary()
 {
     if ( pHnd )
 	return TRUE;
-
-#ifdef DO_MAC_LIBRARY
 
 #ifdef QT_THREAD_SUPPORT
     // protect glibs_loaded creation/access
@@ -146,7 +120,6 @@ bool QLibraryPrivate::loadLibrary()
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
     qDebug( "Failed to load library %s!", filename.latin1() );
 #endif
-#endif
     pHnd = NULL;
     return FALSE;
 }
@@ -155,8 +128,6 @@ bool QLibraryPrivate::freeLibrary()
 {
     if ( !pHnd )
 	return TRUE;
-
-#ifdef DO_MAC_LIBRARY
 
 #ifdef QT_THREAD_SUPPORT
     // protect glibs_loaded access
@@ -176,7 +147,6 @@ bool QLibraryPrivate::freeLibrary()
 	    }
 	}
     }
-#endif
     pHnd = 0;
     return TRUE;
 }
@@ -186,7 +156,6 @@ void* QLibraryPrivate::resolveSymbol( const char *symbol )
     if ( !pHnd )
 	return 0;
     void *ret = NULL;
-#ifdef DO_MAC_LIBRARY
     QCString symn2;
     symn2.sprintf("_%s", symbol);
     ret = NSAddressOfSymbol(NSLookupSymbolInModule(pHnd, symn2));
@@ -194,11 +163,10 @@ void* QLibraryPrivate::resolveSymbol( const char *symbol )
     if(!ret)
 	qDebug( "Couldn't resolve symbol \"%s\"", symbol );
 #endif
-#endif
     return ret;
 }
 
-#elif defined(Q_OS_MAC9)
+#else
 
 bool QLibraryPrivate::loadLibrary()
 {

@@ -38,7 +38,7 @@
 #include <qdict.h>
 #include <qapplication.h>
 #include <qpainter.h>
-#if defined( Q_WS_MACX ) && defined( QMAC_FONT_ATSUI )
+#ifdef Q_WS_MACX
 # define QMAC_FONT_ANTIALIAS
 #endif
 #ifdef QMAC_FONT_ANTIALIAS
@@ -47,7 +47,6 @@
 # else
 #  define kQDUseCGTextRendering (1 << 1)
 #  define kQDUseCGTextMetrics (1 << 2)
-   extern "C" UInt32 SwapQDTextFlags(UInt32);
 # endif
 #endif
 #include <stdlib.h>
@@ -941,9 +940,12 @@ void QFont::initialize()
 {
     if(!QFontPrivate::fontCache) 
 	QFontPrivate::fontCache = new QFontCache();
-    Q_CHECK_PTR(QFontPrivate::fontCache);
-#if defined( QMAC_FONT_ANTIALIAS ) && !defined( QMAC_FONT_ATSUI )
-    SwapQDTextFlags(kQDUseCGTextMetrics | kQDUseCGTextRendering);
+    Q_CHECK_PTR( QFontPrivate::fontCache );
+#if defined( Q_WS_MACX ) && defined( QMAC_FONT_ANTIALIAS ) && !defined( QMAC_FONT_ATSUI )
+    if(NSIsSymbolNameDefined("_SwapQDTextFlags")) {
+	if(NSSymbol sym = NSLookupAndBindSymbol("_SwapQDTextFlags")) 
+	    (*(UInt32 (*)(UInt32))NSAddressOfSymbol(sym))(kQDUseCGTextMetrics | kQDUseCGTextRendering);
+    }
 #endif
     
     if(qApp) {
