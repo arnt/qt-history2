@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#54 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#53 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#54 $");
 
 
 extern uchar *qt_get_bitflip_array();		// defined in qimage.cpp
@@ -422,10 +422,15 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	bool conv8 = FALSE;
 	if ( (conversion_flags & ColorMode_Mask) == ColorOnly ) {			// native depth wanted
 	    conv8 = d == 1;
-	} else if ( d == 1 && image.numColors() == 2 ) {
-	    QRgb c0 = image.color(0);		// Auto: convert to best
-	    QRgb c1 = image.color(1);
-	    conv8 = QMIN(c0,c1) != 0 || QMAX(c0,c1) != qRgb(255,255,255);
+	} else if ( d == 1 ) {
+	    if ( image.numColors() == 2 ) {
+		QRgb c0 = image.color(0);	// Auto: convert to best
+		QRgb c1 = image.color(1);
+		conv8 = QMIN(c0,c1) != 0 || QMAX(c0,c1) != qRgb(255,255,255);
+	    } else {
+		// eg. 1-colour monochrome images (they do exist).
+		conv8 = TRUE;
+	    }
 	}
 	if ( conv8 ) {
 	    image = image.convertDepth( 8, conversion_flags );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#109 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#110 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -27,7 +27,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#109 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#110 $");
 
 
 /*****************************************************************************
@@ -811,10 +811,15 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	if ( (conversion_flags & ColorMode_Mask) == ColorOnly )
 	{					// native depth wanted
 	    conv8 = d == 1;
-	} else if ( d == 1 && image.numColors() == 2 ) {
-	    QRgb c0 = image.color(0);		// mode==Auto: convert to best
-	    QRgb c1 = image.color(1);
-	    conv8 = QMIN(c0,c1) != 0 || QMAX(c0,c1) != qRgb(255,255,255);
+	} else if ( d == 1 ) {
+	    if ( image.numColors() == 2 ) {
+		QRgb c0 = image.color(0);	// Auto: convert to best
+		QRgb c1 = image.color(1);
+		conv8 = QMIN(c0,c1) != 0 || QMAX(c0,c1) != qRgb(255,255,255);
+	    } else {
+		// eg. 1-colour monochrome images (they do exist).
+		conv8 = TRUE;
+	    }
 	}
 	if ( conv8 ) {
 	    image = image.convertDepth( 8, conversion_flags );
