@@ -167,7 +167,7 @@ QString qax_generateDocumentation(QAxBase *that, QAxBasePrivate *d)
 	for (int islot = mo->slotOffset(); islot < slotCount; ++islot) {
 	    const QMetaMember slot = mo->slot(islot);
 
-            if (slot.isCloned()) {
+            if (slot.attributes() & QMetaMember::Cloned) {
                 ++defArgCount;
                 continue;
             }

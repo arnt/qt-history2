@@ -1203,13 +1203,13 @@ private:
             ResolveDesignable	= 0x00002000,
             Scriptable		= 0x00004000,
             ResolveScriptable	= 0x00008000,
-            Stored			= 0x00010000,
-            ResolveStored		= 0x00020000,
+            Stored              = 0x00010000,
+            ResolveStored       = 0x00020000,
             Editable		= 0x00040000,
-            ResolveEditable		= 0x00080000,
+            ResolveEditable     = 0x00080000,
             // And our own
-            RequestingEdit		= 0x00100000,
-            Bindable		= 0x00200000
+            RequestingEdit      = 0x00100000,
+            Bindable            = 0x00200000
     };
     
     QList<QByteArray> paramList(const char *proto)
@@ -1884,7 +1884,7 @@ void MetaObjectGenerator::readFuncsInfo(ITypeInfo *typeinfo, ushort nFuncs)
                     defargs = pnames.contains("=0");
                     int flags = QMetaMember::Public;
                     if (cloned)
-                        flags |= 0x10;
+                        flags |= QMetaMember::Cloned;
                     cloned |= defargs;
                     addSlot(type, prototype, pnames.replace("=0", ""), flags);
                     
