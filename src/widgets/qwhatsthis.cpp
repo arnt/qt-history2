@@ -21,9 +21,8 @@
 #include "qpixmap.h"
 #include "qpainter.h"
 #include "qtimer.h"
-#include "qptrdict.h"
+#include "qhash.h"
 #include "qtoolbutton.h"
-#include "qshared.h"
 #include "qcursor.h"
 #include "qbitmap.h"
 #include "qtooltip.h"
@@ -186,10 +185,10 @@ public:
     void leaveWhatsThisMode();
 
     // variables
-    QWhatsThat * whatsThat;
-    QPtrDict<WhatsThisItem> * dict;
-    QPtrDict<QWidget> * tlw;
-    QPtrDict<QWhatsThisButton> * buttons;
+    QWhatsThat *whatsThat;
+    QHash<void *, WhatsThisItem *> *dict;
+    QHash<void *, QWidget *> *tlw;
+    QHash<void *, QWhatsThisButton *> *buttons;
     State state;
 
 private slots:
@@ -307,7 +306,7 @@ void QWhatsThat::mouseReleaseEvent( QMouseEvent* e )
 	    href = a;
 	anchor = QString::null;
 	if ( widget && wt && wt->dict ) {
-	    QWhatsThisPrivate::WhatsThisItem * i = wt->dict->find( widget );
+	    QWhatsThisPrivate::WhatsThisItem * i = wt->dict->value((void *)widget);
 	    if ( i  && i->whatsthis && !i->whatsthis->clicked( href ) )
 		return;
 	}
@@ -460,10 +459,10 @@ QWhatsThisPrivate::QWhatsThisPrivate()
     : QObject( 0, "global what's this object" )
 {
     whatsThat = 0;
-    dict = new QPtrDict<QWhatsThisPrivate::WhatsThisItem>;
-    tlw = new QPtrDict<QWidget>;
+    dict = new QHash<void *, WhatsThisItem *>;
+    tlw = new QHash<void *, QWidget *>;
     wt = this;
-    buttons = new QPtrDict<QWhatsThisButton>;
+    buttons = new QHash<void *, QWhatsThisButton *>;
     state = Inactive;
 }
 
@@ -478,13 +477,13 @@ QWhatsThisPrivate::~QWhatsThisPrivate()
     delete buttons;
 
     // then delete the complex one.
-    QPtrDictIterator<WhatsThisItem> it( *dict );
+    QHash<void *, WhatsThisItem*>::Iterator it = dict->begin();
     WhatsThisItem * i;
     QWidget * w;
-    while( (i=it.current()) != 0 ) {
-	w = (QWidget *)it.currentKey();
+    while( it != dict->end() ) {
+	w = (QWidget *)it.key();
 	++it;
-	dict->take( w );
+	dict->take(w);
 	delete i;
     }
     delete dict;
@@ -509,7 +508,7 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 	    QMouseEvent* me = (QMouseEvent*) e;
 	    QPoint p = me->pos();
 	    while( w && !i ) {
-		i = dict->find( w );
+		i = dict->value((void *)w);
 		if ( !i ) {
 		    p += w->pos();
 		    w = w->parentWidget( TRUE );
@@ -600,11 +599,10 @@ void QWhatsThisPrivate::enterWhatsThisMode()
 void QWhatsThisPrivate::leaveWhatsThisMode()
 {
     if ( state == Waiting ) {
-	QPtrDictIterator<QWhatsThisButton> it( *(wt->buttons) );
-	QWhatsThisButton * b;
-	while( (b=it.current()) != 0 ) {
+	QHash<void *, QWhatsThisButton *>::Iterator it = wt->buttons->begin();
+	while (it != wt->buttons->end()) {
+	    ((QWhatsThisButton*)*it)->setOn(FALSE);
 	    ++it;
-	    b->setOn( FALSE );
 	}
 #ifndef QT_NO_CURSOR
 	QApplication::restoreOverrideCursor();
@@ -699,13 +697,13 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
 
 QWhatsThisPrivate::WhatsThisItem* QWhatsThisPrivate::newItem( QWidget * widget )
 {
-    WhatsThisItem * i = dict->find( (void *)widget );
+    WhatsThisItem * i = dict->value((void *)widget);
     if ( i )
 	QWhatsThis::remove( widget );
     i = new WhatsThisItem;
     dict->insert( (void *)widget, i );
     QWidget * t = widget->topLevelWidget();
-    if ( !tlw->find( (void *)t ) ) {
+    if ( !tlw->value((void *)t) ) {
 	tlw->insert( (void *)t, t );
 	t->installEventFilter( this );
     }
@@ -754,7 +752,7 @@ void QWhatsThis::add( QWidget * widget, const QString &text )
 void QWhatsThis::remove( QWidget * widget )
 {
     QWhatsThisPrivate::setUpWhatsThis();
-    QWhatsThisPrivate::WhatsThisItem * i = wt->dict->find( (void *)widget );
+    QWhatsThisPrivate::WhatsThisItem * i = wt->dict->value((void *)widget);
     if ( !i )
 	return;
 
@@ -781,7 +779,7 @@ QString QWhatsThis::textFor( QWidget * w, const QPoint& pos, bool includeParents
     QWhatsThisPrivate::WhatsThisItem * i = 0;
     QPoint p = pos;
     while( w && !i ) {
-	i = wt->dict->find( w );
+	i = wt->dict->value((void *)w);
 	if ( !includeParents )
 	    break;
 	if ( !i ) {
