@@ -21,7 +21,7 @@
 
 #if defined(Q_CC_GNU) || (defined(Q_OS_UNIX) && defined(Q_CC_INTEL))
 
-inline int q_cas_32(int *volatile ptr, int expected, int newval)
+inline int q_cas_32(volatile int *ptr, int expected, int newval)
 {
     asm("lock cmpxchgl %1,%2"
 	: "=a" (newval)
@@ -30,7 +30,7 @@ inline int q_cas_32(int *volatile ptr, int expected, int newval)
     return newval;
 }
 
-inline void *q_cas_ptr(void *volatile *ptr, void *expected, void *newval)
+inline void *q_cas_ptr(void * volatile *ptr, void *expected, void *newval)
 {
     asm("lock cmpxchgl %1,%2"
 	: "=a" (newval)
@@ -41,7 +41,7 @@ inline void *q_cas_ptr(void *volatile *ptr, void *expected, void *newval)
 
 #elif defined(Q_OS_WIN) && (defined(Q_CC_MSVC) || defined(Q_CC_INTEL))
 
-inline int q_cas_32(int *volatile pointer, int expected, int newval)
+inline int q_cas_32(volatile int *pointer, int expected, int newval)
 {
     __asm {
 	mov EBX,pointer
@@ -53,7 +53,7 @@ inline int q_cas_32(int *volatile pointer, int expected, int newval)
     return newval;
 }
 
-inline void *q_cas_ptr(void *volatile *pointer, void *expected, void *newval)
+inline void *q_cas_ptr(void * volatile *pointer, void *expected, void *newval)
 {
     __asm {
 	mov EBX,pointer
@@ -69,7 +69,7 @@ inline void *q_cas_ptr(void *volatile *pointer, void *expected, void *newval)
 
 // compiler doesn't support inline assembly
 extern "C" {
-    int q_cas_32(int * volatile ptr, int expected, int newval);
+    int q_cas_32(volatile int *ptr, int expected, int newval);
     void *q_cas_ptr(void * volatile *ptr, void *expected, void *newval);
 }
 

@@ -55,7 +55,7 @@ q_cas_32_failed:
 .size q_cas_32,.-q_cas_32
 
 /*! \internal
- *  \function void *q_cas_ptr(volatile void **ptr, void *expected, void *newval)
+ *  \function void *q_cas_ptr(void * volatile *ptr, void *expected, void *newval)
  *
  * Atomic compare-and-set for pointers.
  *

@@ -1,3 +1,17 @@
+/****************************************************************************
+**
+** Definition of QAtomic.
+**
+** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
+**
+** This file is part of the tools module of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #ifndef QATOMIC_H
 #define QATOMIC_H
 
@@ -25,7 +39,7 @@ struct QAtomic {
 
     inline bool operator++()
     {
-	int * volatile const p = &atomic;
+	volatile int * const p = &atomic;
         register int expected = *p, newval, result;
 	for (;;) {
             newval = expected + 1;
@@ -39,7 +53,7 @@ struct QAtomic {
 
     inline bool operator--()
     {
-	int * volatile const p = &atomic;
+	volatile int * const p = &atomic;
 	register int expected = *p, newval, result;
 	for (;;) {
             newval = expected - 1;
@@ -53,26 +67,20 @@ struct QAtomic {
 
     inline bool operator==(int x) const
     {
-	const int * volatile const ptr = &atomic;
+	const volatile int * const ptr = &atomic;
 	return *ptr == x;
     }
 
     inline bool operator!=(int x) const
     {
-	const int * volatile const ptr = &atomic;
+	const volatile int * const ptr = &atomic;
 	return *ptr != x;
     }
 
     inline void operator=(int x)
     {
-	int * volatile const p = &atomic;
-        register int expected = *p, result;
-        for (;;) {
-            result = q_cas_32(p, expected, x);
-            if (result == expected) break;
-
-            expected = result;
-        }
+	volatile int * const ptr = &atomic;
+	*ptr = x;
     }
 };
 

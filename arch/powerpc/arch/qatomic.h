@@ -16,7 +16,7 @@
 #define QATOMIC_P_H
 
 extern "C" {
-    int q_cas_32(int * volatile ptr, int expected, int newval);
+    int q_cas_32(volatile int *ptr, int expected, int newval);
     void *q_cas_ptr(void * volatile *ptr, void *expected, void *newval);
 }
 
