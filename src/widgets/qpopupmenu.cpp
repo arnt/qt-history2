@@ -1617,10 +1617,9 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
     if ( parentMenu && parentMenu->isPopupMenu ) {
 	QPopupMenu* p = (QPopupMenu*)parentMenu;
 	int myIndex;
-	QPoint pPos;
 
 	p->findPopup( this, &myIndex );
-	pPos = p->mapFromParent( mapToGlobal( e->pos() ) );
+	QPoint pPos = p->mapFromParent( e->globalPos() );
 	if ( p->actItem != myIndex && !p->rect().contains( pPos ) )
 	    p->setActiveItem( myIndex );
     }
@@ -1644,7 +1643,8 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	    }
 	    if(!d->scroll.scrolltimer->isActive())
 		d->scroll.scrolltimer->start(40);
-	} else if ( !rect().contains( e->pos() ) && !tryMenuBar( e ) ) {
+	} else if ( lastActItem > 0 ||
+		    ( !rect().contains( e->pos() ) && !tryMenuBar( e ) ) ) {
 	    popupSubMenuLater(style().styleHint(QStyle::SH_PopupMenu_SubMenuPopupDelay,
 						this), this);
 	}
@@ -1655,7 +1655,7 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 
 	register QMenuItem *mi = mitems->at( item );
 
-	if ( mi ->widget() ) {
+	if ( mi->widget() ) {
 	    QWidget* widgetAt = QApplication::widgetAt( e->globalPos(), TRUE );
 	    if ( widgetAt && widgetAt != this ) {
 		// Don't send the event to the popupmenu, since this would mean
