@@ -48,8 +48,7 @@ VPATH += $$QT_SOURCE_TREE/src/core/global \
          $$QT_SOURCE_TREE/src/compat/tools
 
 unix {
-   SOURCES += qfile_unix.cpp qfileinfo_unix.cpp qdir_unix.cpp \
-              qlibrary_unix.cpp
+   SOURCES += qfile_unix.cpp qfileinfo_unix.cpp qdir_unix.cpp 
    mac {
      SOURCES += qsettings_mac.cpp qurl.cpp
    }
