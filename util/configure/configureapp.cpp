@@ -32,9 +32,6 @@ Configure::Configure( int& argc, char** argv )
     for ( i = 1; i < argc; i++ )
 	configCmdLine += argv[ i ];
 
-    for ( i=0; i<3; i++ )
-	makeList[i].setAutoDelete( TRUE );
-
     dictionary[ "QCONFIG" ]	    = "full";
     dictionary[ "EMBEDDED" ]	    = "no";
 
@@ -66,7 +63,7 @@ Configure::Configure( int& argc, char** argv )
 	    }
 	}
 	profile.close();
-    }    
+    }
 
     if (version.isEmpty())
 	version = QString("%1.%2.%3").arg(QT_VERSION>>16).arg(((QT_VERSION>>8)&0xff)).arg(QT_VERSION&0xff);
@@ -148,6 +145,12 @@ Configure::Configure( int& argc, char** argv )
 
     buildModulesList();
 #endif
+}
+
+Configure::~Configure()
+{
+    for (int i=0; i<3; ++i)
+	delete makeList[i];
 }
 
 #if !defined(EVAL)
@@ -1415,7 +1418,7 @@ void Configure::findProjects( const QString& dirName )
 	excludeTable["qcompat.pro"]    = true;
 	excludeTable["qnetwork.pro"]   = true;
 	excludeTable["qopengl.pro"]    = true;
-	excludeTable["qsqlkernel.pro"] = true;
+	excludeTable["qsql.pro"]       = true;
 	excludeTable["qgui.pro"]       = true;
 	excludeTable["qtkernel.pro"]   = true;
 	excludeTable["qtlibs.pro"]     = true;

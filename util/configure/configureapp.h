@@ -9,6 +9,7 @@ class Configure
 {
 public:
     Configure( int& argc, char** argv );
+    ~Configure();
 
     void parseCmdLine();
 #if !defined(EVAL)
