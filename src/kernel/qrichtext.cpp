@@ -2539,7 +2539,7 @@ QTextCursor *QTextDocument::redo( QTextCursor *c )
 }
 
 bool QTextDocument::find( const QString &expr, bool cs, bool wo, bool forward,
-			      int *parag, int *index, QTextCursor *cursor )
+			  int *parag, int *index, QTextCursor *cursor )
 {
     QTextParag *p = forward ? fParag : lParag;
     if ( parag )
@@ -2565,13 +2565,17 @@ bool QTextDocument::find( const QString &expr, bool cs, bool wo, bool forward,
 	    }
 	}
 	first = FALSE;
-	int res = forward ? s.find( expr, start, cs ) : s.findRev( expr, start, cs );
-	if ( res != -1 ) {
+
+	for ( ;; ) {
+	    int res = forward ? s.find( expr, start, cs ) : s.findRev( expr, start, cs );
+	    if ( res == -1 )
+		break;
+
 	    bool ok = TRUE;
 	    if ( wo ) {
 		int end = res + expr.length();
-		if ( ( res == 0 || s[ res ].isSpace() || s[ res ].isPunct() ) &&
-		     ( end == (int)s.length() - 1 || s[ end ].isSpace() || s[ end ].isPunct() ) )
+		if ( ( res == 0 || s[ res - 1 ].isSpace() || s[ res - 1 ].isPunct() ) &&
+		     ( end == (int)s.length() || s[ end ].isSpace() || s[ end ].isPunct() ) )
 		    ok = TRUE;
 		else
 		    ok = FALSE;
@@ -2587,6 +2591,13 @@ bool QTextDocument::find( const QString &expr, bool cs, bool wo, bool forward,
 		if ( index )
 		    *index = res;
 		return TRUE;
+	    }
+	    if ( forward ) {
+		start = res + 1;
+	    } else {
+		if ( res == 0 )
+		    break;
+		start = res - 1;
 	    }
 	}
 	p = forward ? p->next() : p->prev();
@@ -3152,9 +3163,9 @@ int QTextFormat::width( const QChar &c ) const
 
 int QTextFormat::width( const QString &str, int pos ) const
 {
-    int w;
+    int w = 0;
     if ( str[ pos ].unicode() == 0xad )
-	return 0;
+	return w;
     if ( !painter || !painter->isActive() ) {
 	if ( ha == AlignNormal ) {
 	    w = fm.charWidth( str, pos );
