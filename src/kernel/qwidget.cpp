@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#319 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#320 $
 **
 ** Implementation of QWidget class
 **
@@ -53,9 +53,14 @@
   A widget without a parent, called a top-level widget, is a window
   with a frame and a title bar (though it is also possible to create
   top level widgets without such decoration by the use of <a
-  href="#widgetflags">widget flags</a>).  A widget with a parent is a
-  child window in its parent.  You usually cannot distinguish a child
-  widget from its parent visually.
+  href="#widgetflags">widget flags</a>).  In Qt, QMainWindow and the
+  various subclasses of QDialog are the most common top-level windows.
+
+  A widget with a parent is a child window in its parent.  You usually
+  cannot distinguish a child widget from its parent visually.  Most
+  other widgets in Qt are useful only as child widgets.  (You \e can
+  make a e.g. button into a top-level widget, but most people prefer
+  to put their buttons in e.g. dialogs.)
 
   QWidget has many member functions, but some of them have little
   direct functionality - for example it has a font but never uses it
@@ -81,13 +86,12 @@
 	setIconText(),
 	isActiveWindow(),
 	setActiveWindow(),
-	iconify().
+	showMinimized().
 
   <li> Window contents:
 	update(),
 	repaint(),
 	erase(),
-	drawRect(),
 	scroll().
 
   <li> Geometry:
@@ -144,7 +148,6 @@
 
   <li> Look and feel:
 	style(),
-	setStyle(),
 	cursor(),
 	setCursor()
 	font(),
@@ -236,7 +239,7 @@
   If it is 0 (the default), the new widget will be a top-level window.
   If not, it will be a child of \e parent, and be constrained by \e
   parent's geometry.
-  <li><code>QString name = 0</code> is the widget name of the new
+  <li><code>const char * name = 0</code> is the widget name of the new
   widget.  The widget name is little used at the moment - the
   dumpObjectTree() debugging function uses it, and you can access it using
   name().  It will become more important when our visual GUI builder is
@@ -621,7 +624,7 @@ void QWidget::sendDeferredEvents()
 */
 
 QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
-    : QObject( parent, name ), QPaintDevice( PDT_WIDGET ),
+    : QObject( parent, name ), QPaintDevice( QPaintDevice::Widget ),
       pal( parent ? parent->palette()		// use parent's palette
            : *qApp->palette() )			// use application palette
 {
@@ -706,7 +709,6 @@ QWidget::~QWidget()
 	delete childObjects;
 	childObjects = 0;
     }
-
 
     if ( extra )
 	deleteExtra();
@@ -2766,7 +2768,7 @@ bool qt_modal_state();				// --- "" ---
   change some settings before a widget is shown, use showEvent()
   instead. If you need to do some delayed initialization use polish().
 
-  \sa showEvent, hide(), iconify(), isVisible(), polish()
+  \sa showEvent, hide(), showMinimized(), isVisible(), polish()
 */
 
 void QWidget::show()
@@ -2829,7 +2831,7 @@ void QWidget::show()
   do something after a widget is hidden, use \link hideEvent()
   instead.
 
-  \sa \hideEvent(), show(), iconify(), isVisible()
+  \sa \hideEvent(), show(), showMinimized(), isVisible()
 */
 
 void QWidget::hide()
