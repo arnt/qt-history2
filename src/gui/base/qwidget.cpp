@@ -29,6 +29,7 @@
 #include "qstyle.h"
 #include "qmetaobject.h"
 #include "qguardedptr.h"
+#include "qmenu.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
@@ -54,6 +55,7 @@
 
 QWidgetPrivate::~QWidgetPrivate()
 {
+    delete actions;
     if ( extra )
 	deleteExtra();
 }
@@ -1620,6 +1622,62 @@ bool QWidget::isEnabledTo( QWidget* ancestor ) const
     return !w->testAttribute(WA_ForceDisabled);
 }
 
+void 
+QWidget::addAction(QAction *action)
+{
+    if(!d->actions)
+	d->actions = new QList<QAction*>();
+    else if(d->actions->indexOf(action) != -1)
+	return;
+    d->actions->append(action);
+    QObject::connect(action, SIGNAL(dataChanged()), this, SLOT(actionChanged()));
+    QActionEvent e(QEvent::ActionAdded, action);
+    QApplication::sendEvent(this, &e);
+}
+ 
+void 
+QWidget::insertAction(QAction *before, QAction *action)
+{
+    if(!d->actions) {
+	d->actions = new QList<QAction*>();
+	d->actions->append(action);
+	QObject::connect(action, SIGNAL(dataChanged()), this, SLOT(actionChanged()));
+	QActionEvent e(QEvent::ActionAdded, action, before);
+	QApplication::sendEvent(this, &e);
+	return;
+    }
+    int before_int = d->actions->indexOf(before);
+    d->actions->remove(action);
+    d->actions->insert(before_int, action);
+}
+ 
+void 
+QWidget::removeAction(QAction *action)
+{
+    if(d->actions && d->actions->remove(action)) {
+	QObject::disconnect(action, SIGNAL(dataChanged()), this, SLOT(actionChanged()));
+	QActionEvent e(QEvent::ActionRemoved, action);
+	QApplication::sendEvent(this, &e);
+    }
+}
+
+QList<QAction*> 
+QWidget::actions() const
+{
+    if(d->actions)
+	return *d->actions;
+    return QList<QAction*>();
+}
+
+void 
+QWidget::actionChanged()
+{
+    QAction *action = qt_cast<QAction*>(sender());
+    if(!action)
+	qWarning("not possible..");
+    QActionEvent e(QEvent::ActionChanged, action);
+    QApplication::sendEvent(this, &e);
+}
 
 /*!
   \fn bool QWidget::isEnabledToTLW() const
@@ -4400,10 +4458,9 @@ bool QWidget::event( QEvent *e )
     case QEvent::ContextMenu: {
 	QContextMenuEvent *c = (QContextMenuEvent *)e;
 	contextMenuEvent( c );
-	if ( !c->isAccepted() )
+	if ( !c->isAccepted() ) 
 	    return d->compositeEvent((QContextMenuEvent*)e);
-    }
-	break;
+    	break; }
 
 #ifndef QT_NO_DRAGANDDROP
     case QEvent::Drop:
@@ -4603,7 +4660,11 @@ bool QWidget::event( QEvent *e )
 	d->topData()->fleft = 0;
 	d->topData()->fbottom = 0;
 	break;
-
+    case QEvent::ActionAdded:
+    case QEvent::ActionRemoved:
+    case QEvent::ActionChanged:
+	actionEvent((QActionEvent*)e);
+	break;
     default:
 	return QObject::event( e );
     }
@@ -5000,6 +5061,11 @@ void QWidget::resizeEvent( QResizeEvent * )
 	updateMask();
 }
 
+void QWidget::actionEvent( QActionEvent * )
+{
+
+}
+
 /*!
     This event handler, for event \a e, can be reimplemented in a
     subclass to receive widget close events.
@@ -5026,7 +5092,12 @@ void QWidget::closeEvent( QCloseEvent *e )
 
 void QWidget::contextMenuEvent( QContextMenuEvent *e )
 {
-    e->ignore();
+    if(d->actions) {
+	Q4Menu::exec(*d->actions, e->globalPos());
+	e->accept();
+    } else {
+	e->ignore();
+    }
 }
 
 

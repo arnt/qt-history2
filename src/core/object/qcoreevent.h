@@ -116,10 +116,15 @@ public:
         AccessibleQueryHelp = 113,              // query help text
         AccessibleQueryDescription = 114,       // query description text
 
+	ActionChanged = 115,
+	ActionAdded = 116,
+	ActionRemoved = 117,
+
 #ifdef QT_COMPAT
 	CaptionChange = WindowTitleChange,
 	IconChange = WindowIconChange,
 #endif
+
 	User = 1000,				// first user event id
 	MaxUser = 65535				// last user event id
 

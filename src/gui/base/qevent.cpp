@@ -1172,7 +1172,7 @@ void QFocusEvent::resetReason()
     example, on Windows, pressing the menu button or releasing the
     right mouse button will cause this event to be sent.
 
-    When this event occurs it is customary to show a QPopupMenu with a
+    When this event occurs it is customary to show a Q4Menu with a
     context menu, if this is relevant to the context.
 
     Context menu events contain a special accept flag that indicates
@@ -1180,7 +1180,7 @@ void QFocusEvent::resetReason()
     not accept the event, then whatever triggered the event will be
     handled as a regular input event if possible.
 
-    \sa QPopupMenu
+    \sa Q4Menu
 */
 
 /*!

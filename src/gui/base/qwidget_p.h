@@ -139,7 +139,7 @@ class Q_GUI_EXPORT QWidgetPrivate : public QObjectPrivate
 
 public:
     QWidgetPrivate() :
-	QObjectPrivate(), extra(0), focus_child(0)
+	QObjectPrivate(), extra(0), focus_child(0), actions(0)
 #ifndef QT_NO_LAYOUT
         ,layout(0)
 #endif
@@ -216,6 +216,7 @@ public:
     QWExtra *extra;
     QWidget *focus_next;
     QWidget *focus_child;
+    QList<QAction*> *actions;
 #ifndef QT_NO_LAYOUT
     QLayout *layout;
 #endif

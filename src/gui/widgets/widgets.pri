@@ -25,6 +25,7 @@ HEADERS += widgets/qbuttongroup.h \
 	widgets/qlistbox.h \
 	widgets/qlistview.h \
 	widgets/qmainwindow.h \
+        widgets/qmenu.h \
 	widgets/qmenubar.h \
 	widgets/qmenudata.h \
 	widgets/qpopupmenu.h \
@@ -82,6 +83,7 @@ SOURCES += widgets/qbuttongroup.cpp \
 	widgets/qlistbox.cpp \
 	widgets/qlistview.cpp \
 	widgets/qmainwindow.cpp \
+        widgets/qmenu.cpp \
 	widgets/qmenubar.cpp \
 	widgets/qmenudata.cpp \
 	widgets/qpopupmenu.cpp \

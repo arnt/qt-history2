@@ -24,6 +24,7 @@
 #include "qpair.h"
 #include "qstring.h"
 #include "qcoreevent.h"
+#include "qaction.h"
 #endif // QT_H
 
 
@@ -453,6 +454,16 @@ public:
     QString tip() const { return s; }
 private:
     QString s;
+};
+
+class Q_GUI_EXPORT QActionEvent : public QEvent
+{
+    QAction *act, *bef;
+public:
+    QActionEvent(int type, QAction *action, QAction *before=0) : QEvent((QEvent::Type)type), act(action), bef(before) { }
+
+    QAction *action() const { return act; }
+    QAction *before() const { return bef; }
 };
 
 

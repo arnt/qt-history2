@@ -37,7 +37,9 @@
 class QLayout;
 class QWSRegionManager;
 class QStyle;
+class QAction;
 
+class QActionEvent;
 class QMouseEvent;
 class QWheelEvent;
 class QKeyEvent;
@@ -429,12 +431,16 @@ public:
     QRect               microFocusHint() const;
 
     // drag and drop
-
     bool		acceptDrops() const;
     void setAcceptDrops( bool on );
 
-    // transparency and pseudo transparency
+    //actions
+    void addAction(QAction *action);
+    void insertAction(QAction *before, QAction *action);
+    void removeAction(QAction *action);
+    QList<QAction*> actions() const;
 
+    // transparency and pseudo transparency
     void setAutoMask(bool);
     bool		autoMask() const;
 
@@ -522,6 +528,7 @@ protected:
     virtual void imComposeEvent( QIMEvent * );
     virtual void imEndEvent( QIMEvent * );
     virtual void tabletEvent( QTabletEvent * );
+    virtual void actionEvent( QActionEvent * );
 
 #ifndef QT_NO_DRAGANDDROP
     virtual void dragEnterEvent( QDragEnterEvent * );
@@ -720,6 +727,9 @@ public:
 private:
     void drawText_helper(int x, int y, const QString &);
     void erase_helper(int x, int y, int w, int h);
+
+private slots:
+    void actionChanged();
 
 #endif
 protected:

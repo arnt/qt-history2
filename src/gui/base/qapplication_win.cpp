@@ -412,7 +412,7 @@ static void qt_set_windows_resources()
 	smallTitleFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfSmCaptionFont,TRUE);
     } );
 
-    QApplication::setFont( menuFont, "QPopupMenu" );
+    QApplication::setFont( menuFont, "Q4Menu" );
     QApplication::setFont( menuFont, "QMenuBar" );
     QApplication::setFont( messageFont, "QMessageBox" );
     QApplication::setFont( statusFont, "QTipLabel" );
@@ -514,7 +514,7 @@ static void qt_set_windows_resources()
 	if ( QSysInfo::WindowsVersion != QSysInfo::WV_NT && QSysInfo::WindowsVersion != QSysInfo::WV_95 )
 	    menu.setColor( QPalette::Inactive, QPalette::ButtonText,
 			  pal.color(QPalette::Inactive, QPalette::Dark));
-	QApplication::setPalette( menu, "QPopupMenu");
+	QApplication::setPalette( menu, "Q4Menu");
 
 	if ( QSysInfo::WindowsVersion == QSysInfo::WV_XP ) {
 	    BOOL isFlat;

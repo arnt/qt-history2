@@ -49,8 +49,8 @@
     Example:
     \code
 	QPushButton p("&Exit", parent); // automatic shortcut ALT+Key_E
-	QPopupMenu *fileMenu = new fileMenu(parent);
-	fileMenu->insertItem("Undo", parent, SLOT(undo()), CTRL+Key_Z);
+	Q4Menu *fileMenu = new fileMenu(parent);
+	fileMenu->addAction("Undo", parent, SLOT(undo()), CTRL+Key_Z);
     \endcode
 
     A QAccel contains a list of accelerator items that can be

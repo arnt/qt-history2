@@ -16,7 +16,7 @@
 #define QACTION_H
 
 #ifndef QT_H
-#include "qobject.h"
+#include "qwidget.h"
 #include "qiconset.h"
 #include "qstring.h"
 #include "qkeysequence.h"
@@ -24,171 +24,147 @@
 
 #ifndef QT_NO_ACTION
 
+class Q4Menu;
+class QActionGroup;
 class QActionPrivate;
 class QActionGroupPrivate;
-class QStatusBar;
-class QPopupMenu;
-class QToolTipGroup;
-class QWidget;
 
 class Q_GUI_EXPORT QAction : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY( bool toggleAction READ isToggleAction WRITE setToggleAction)
-    Q_PROPERTY( bool on READ isOn WRITE setOn )
-    Q_PROPERTY( bool enabled READ isEnabled WRITE setEnabled )
-    Q_PROPERTY( QIconSet iconSet READ iconSet WRITE setIconSet )
-    Q_PROPERTY( QString text READ text WRITE setText )
-    Q_PROPERTY( QString menuText READ menuText WRITE setMenuText )
-    Q_PROPERTY( QString toolTip READ toolTip WRITE setToolTip )
-    Q_PROPERTY( QString statusTip READ statusTip WRITE setStatusTip )
-    Q_PROPERTY( QString whatsThis READ whatsThis WRITE setWhatsThis )
+    Q_DECLARE_PRIVATE(QAction);
+
+    Q_PROPERTY(bool checked READ isChecked WRITE setChecked)
+    Q_PROPERTY(bool checkable READ isCheckable WRITE setCheckable)
+    Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
+    Q_PROPERTY(QIconSet icon READ icon WRITE setIcon)
+    Q_PROPERTY(QString text READ text WRITE setText)
+    Q_PROPERTY(QString toolTip READ toolTip WRITE setToolTip)
+    Q_PROPERTY(QString statusTip READ statusTip WRITE setStatusTip)
+    Q_PROPERTY(QString whatsThis READ whatsThis WRITE setWhatsThis)
 #ifndef QT_NO_ACCEL
-    Q_PROPERTY( QKeySequence accel READ accel WRITE setAccel )
+    Q_PROPERTY(QKeySequence accel READ accel WRITE setAccel)
 #endif
-    Q_PROPERTY( bool visible READ isVisible WRITE setVisible )
+    Q_PROPERTY(bool visible READ isVisible WRITE setVisible)
 
 public:
-    QAction( QObject* parent, const char* name = 0 );
+    QAction(QActionGroup* parent);
+    QAction(QWidget* parent=0);
+    QAction(const QString& text, Q4Menu *menu, QWidget* parent=0);
+    QAction(const QString& text, QWidget* parent=0);
+    QAction(const QIconSet& icon, const QString& text, QWidget* parent=0);
+    QAction(const QString& text, Q4Menu *menu, QActionGroup* parent);
+    QAction(const QString& text, QActionGroup* parent);
+    QAction(const QIconSet& icon, const QString& text, QActionGroup* parent);
 #ifndef QT_NO_ACCEL
-    QAction( const QString& menuText, QKeySequence accel,
-	     QObject* parent, const char* name = 0 );
-    QAction( const QIconSet& icon, const QString& menuText, QKeySequence accel,
-	     QObject* parent, const char* name = 0 );
-
-    QAction( const QString& text, const QIconSet& icon, const QString& menuText, QKeySequence accel,
-	     QObject* parent, const char* name = 0, bool toggle = FALSE ); // obsolete
-    QAction( const QString& text, const QString& menuText, QKeySequence accel, QObject* parent,
-	     const char* name = 0, bool toggle = FALSE ); // obsolete
+    QAction(const QString& text, QKeySequence accel, QWidget* parent=0);
+    QAction(const QIconSet& icon, const QString& text, QKeySequence accel,
+	      QWidget* parent=0);
+    QAction(const QString& text, QKeySequence accel, QActionGroup* parent);
+    QAction(const QIconSet& icon, const QString& text, QKeySequence accel,
+	      QActionGroup* parent);
 #endif
-    QAction( QObject* parent, const char* name , bool toggle ); // obsolete
     ~QAction();
 
-    virtual void setIconSet( const QIconSet& );
-    QIconSet iconSet() const;
-    virtual void setText( const QString& );
+    void setActionGroup(QActionGroup *group);
+    QActionGroup *actionGroup() const;
+    void setIcon(const QIconSet&);
+    QIconSet icon() const;
+    void setText(const QString&);
     QString text() const;
-    virtual void setMenuText( const QString& );
-    QString menuText() const;
-    virtual void setToolTip( const QString& );
+    void setToolTip(const QString&);
     QString toolTip() const;
-    virtual void setStatusTip( const QString& );
+    void setStatusTip(const QString&);
     QString statusTip() const;
-    virtual void setWhatsThis( const QString& );
+    void setWhatsThis(const QString&);
     QString whatsThis() const;
+    void setMenu(Q4Menu *);
+    Q4Menu *menu() const;
+    void setSeparator(bool b);
+    bool isSeparator() const;
 #ifndef QT_NO_ACCEL
-    virtual void setAccel( const QKeySequence& key );
+    void setAccel(const QKeySequence& key);
     QKeySequence accel() const;
 #endif
-    virtual void setToggleAction( bool );
-
-    bool isToggleAction() const;
-    bool isOn() const;
+    void setCheckable(bool);
+    bool isCheckable() const;
+    bool isChecked() const;
     bool isEnabled() const;
     bool isVisible() const;
-    virtual bool addTo( QWidget* );
-    virtual bool removeFrom( QWidget* );
+
+    enum ActionEvent { Trigger, Hover };
+    void activate(ActionEvent event);
 
 protected:
-    virtual void addedTo( QWidget *actionWidget, QWidget *container );
-    virtual void addedTo( int index, QPopupMenu *menu );
+    void sendDataChanged();
+    virtual void addedTo(QWidget *) {} // can this go away? 
 
 public slots:
-    void activate();
-    void toggle();
-    virtual void setOn( bool );
-    virtual void setEnabled( bool );
-    void setDisabled( bool );
-    virtual void setVisible( bool );
-
-signals:
-    void activated();
-    void toggled( bool );
+    void setChecked(bool);
+    void setEnabled(bool);
+    inline void setDisabled(bool b) { setEnabled(!b); }
+    void setVisible(bool);
 
 private slots:
-    void internalActivation();
-    void toolButtonToggled( bool );
-    void objectDestroyed();
-    void menuStatusText( int id );
-    void showStatusText( const QString& );
-    void clearStatusText();
+    void sendAccelActivated(); 
+
+signals:
+    void dataChanged();
+    void triggered();
+    void hovered();
 
 private:
-    void init();
-
-    friend class QActionPrivate;
-    friend class QActionGroup;
-    friend class QActionGroupPrivate;
-    QActionPrivate* d;
-
 #if defined(Q_DISABLE_COPY)  // Disabled copy constructor and operator=
-    QAction( const QAction & );
-    QAction &operator=( const QAction & );
+    QAction(const QAction &);
+    QAction &operator=(const QAction &);
 #endif
 };
 
-class Q_GUI_EXPORT QActionGroup : public QAction
+class Q_GUI_EXPORT QActionGroup : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY( bool exclusive READ isExclusive WRITE setExclusive )
-    Q_PROPERTY( bool usesDropDown READ usesDropDown WRITE setUsesDropDown )
+    Q_DECLARE_PRIVATE(QActionGroup);
+
+    Q_PROPERTY(bool exclusive READ isExclusive WRITE setExclusive)
 
 public:
-    QActionGroup( QObject* parent, const char* name = 0 );
-    QActionGroup( QObject* parent, const char* name , bool exclusive  ); // obsolete
+    QActionGroup(QObject* parent);
     ~QActionGroup();
-    void setExclusive( bool );
+
+    QAction *addAction(QAction* a);
+#ifndef QT_NO_ACCEL
+    QAction *addAction(const QString& text, QKeySequence accel);
+    QAction *addAction(const QIconSet& icon, const QString& text, QKeySequence accel);
+#endif
+    void removeAction(QAction *a);
+    QList<QAction*> actionList() const; 
+
+    QAction *checked() const;
     bool isExclusive() const;
-    void add( QAction* a);
-    void addSeparator();
-    bool addTo( QWidget* );
-    bool removeFrom( QWidget* );
-    void setEnabled( bool );
-    void setToggleAction( bool toggle );
-    void setOn( bool on );
-    void setVisible( bool );
+    bool isEnabled() const;
+    bool isVisible() const;
 
-    void setUsesDropDown( bool enable );
-    bool usesDropDown() const;
-
-    void setIconSet( const QIconSet& );
-    void setText( const QString& );
-    void setMenuText( const QString& );
-    void setToolTip( const QString& );
-    void setWhatsThis( const QString& );
+public slots:
+    void setEnabled(bool);
+    inline void setDisabled(bool b) { setEnabled(!b); }
+    void setVisible(bool);
+    void setExclusive(bool);
 
 protected:
-    void childEvent( QChildEvent* );
-    virtual void addedTo( QWidget *actionWidget, QWidget *container, QAction *a );
-    virtual void addedTo( int index, QPopupMenu *menu, QAction *a );
-    virtual void addedTo( QWidget *actionWidget, QWidget *container );
-    virtual void addedTo( int index, QPopupMenu *menu );
+    void childEvent(QChildEvent*);
 
 signals:
-    void selected( QAction* );
-    void activated(QAction *);
+    void triggered(QAction *);
+    void hovered(QAction *);
 
 private slots:
-    void childToggled( bool );
-    void childActivated();
-    void childDestroyed();
-    void internalComboBoxActivated( int );
-    void internalComboBoxHighlighted( int );
-    void internalToggle( QAction* );
-    void objectDestroyed();
-
-private:
-    QActionGroupPrivate* d;
-
-#ifdef QT_COMPAT
-public:
-    QT_COMPAT void insert( QAction* a ) { add( a ); }
-#endif
+     void internalTriggered();
+     void internalHovered();
 
 private:
 #if defined(Q_DISABLE_COPY)  // Disabled copy constructor and operator=
-    QActionGroup( const QActionGroup & );
-    QActionGroup &operator=( const QActionGroup & );
+    QActionGroup(const QActionGroup &);
+    QActionGroup &operator=(const QActionGroup &);
 #endif
 };
 

@@ -523,7 +523,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	}
 
 	// ### need a better way to do this
-	if (inherits("QPopupMenu")) {
+	if (inherits("Q4Menu")) {
 	    // menu netwm type
 	    net_wintypes[curr_wintype++] = ATOM(_NET_WM_WINDOW_TYPE_MENU);
 	} else if (inherits("QToolBar")) {
