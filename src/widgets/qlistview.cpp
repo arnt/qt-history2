@@ -4151,7 +4151,8 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
 	d->startEdit = TRUE;
     d->ignoreEditAfterFocus = FALSE;
 
-    if ( currentItem() && currentItem()->renameBox ) {
+    if ( currentItem() && currentItem()->renameBox &&
+	 !itemRect( currentItem() ).contains( e->pos() ) ) {
 	d->startEdit = FALSE;
 	if ( d->defRenameAction == Reject )
 	    currentItem()->cancelRename( currentItem()->renameCol );
