@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#62 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#63 $
 **
 ** Implementation of QButton widget class
 **
@@ -16,7 +16,7 @@
 #include "qkeycode.h"
 #include "qtimer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#62 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#63 $");
 
 static const int autoRepeatPeriod = 200;
 
@@ -552,10 +552,10 @@ void QButton::timerSlot()
 
 void QButton::autoRepeatSlot()
 {
-    if ( !mlbDown )
-	return;
-    QTimer::singleShot( autoRepeatPeriod, this, SLOT(autoRepeatSlot()) );
-    emit clicked();
+    if ( mlbDown && isEnabled() && autoRepeat() ) {
+	QTimer::singleShot( autoRepeatPeriod, this, SLOT(autoRepeatSlot()) );
+	emit clicked();
+    }
 }
 
 
