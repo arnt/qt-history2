@@ -209,8 +209,8 @@ void FormWindow::initSlots()
 		   "// has to be written into a 'void <ClassName>::init()' function,\n"
 		   "// which has to be added as a slot to the form.\n"
 		   "// Code that should be called from the destructor of the form,\n"
-		   "// has to be written into a 'void <ClassName>::destroy()' function,\n";
-		   "// which has to be added as a slot to the form.\n"
+		   "// has to be written into a 'void <ClassName>::destroy()' function,\n"
+		   "// which has to be added as a slot to the form.\n";
 	    MetaDataBase::setFormCode( this, code );
 	}
     }
