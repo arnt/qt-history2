@@ -979,6 +979,16 @@ QPixmap QComboBox::pixmap(int row) const
 }
 
 /*!
+   Returns the data for the given \a role in the given \a row in the
+   combobox, or QVariant::Invalid if there is no data for this role.
+*/
+QVariant QComboBox::data(int role, int row) const
+{
+    QModelIndex index = model()->index(row, 0, root());
+    return model()->data(index, role);
+}
+
+/*!
     Inserts the strings from the \a list into the combobox as separate items,
     starting at the \a row specified.
 */
@@ -1100,6 +1110,17 @@ void QComboBox::setItemIcon(const QIcon &icon, int row)
     QModelIndex item = model()->index(row, 0, root());
     if (item.isValid()) {
         model()->setData(item, QAbstractItemModel::DecorationRole, icon);
+    }
+}
+
+/*!
+    Sets the data \a role for the item on the given \a row in the combobox to the value \a variant.
+*/
+void QComboBox::setItemData(int role, const QVariant &value, int row)
+{
+    QModelIndex item = model()->index(row, 0, root());
+    if (item.isValid()) {
+        model()->setData(item, role, value);
     }
 }
 

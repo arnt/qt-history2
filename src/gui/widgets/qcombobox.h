@@ -98,6 +98,7 @@ public:
 
     QString text(int row) const;
     QPixmap pixmap(int row) const;
+    QVariant data(int role, int row) const;
 
     void insertStringList(const QStringList &list, int row = -1);
     void insertItem(const QString &text, int row = -1);
@@ -108,6 +109,7 @@ public:
 
     void setItemText(const QString &text, int row);
     void setItemIcon(const QIcon &icon, int row);
+    void setItemData(int role, const QVariant &value, int row);
     void setItem(const QIcon &icon, const QString &text, int row);
 
     QListView *listView() const;
