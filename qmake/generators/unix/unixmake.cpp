@@ -248,7 +248,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	QString outdir = project->variables()["MOC_DIR"].first();
 	QString qt_dot_h = Option::fixPathToLocalOS(project->variables()["PRECOMPH"].first());
 	t << "###### Combined headers" << endl << endl;
-	t << outdir << "allmoc.cpp: " << qt_dot_h << " " << " \\\n\t\t"
+	//XXX
+	t << outdir << "allmoc.cpp: " << qt_dot_h << " "
 	  << varList("HEADERS_ORIG") << "\n\t"
 	  << "echo '#include \"" << qt_dot_h << "\"' >" << outdir << "allmoc.cpp" << "\n\t"
 	  << "$(CXX) -E -DQT_MOC_CPP $(CXXFLAGS) $(INCPATH) >" << outdir << "allmoc.h " << outdir << "allmoc.cpp" << "\n\t"

@@ -607,7 +607,7 @@ MakefileGenerator::writeObj(QTextStream &t, const QString &obj, const QString &s
 	if((*sit).isEmpty()) 
 	    continue;
 
-	t << (*oit) << ": " << (*sit) << " \\\n\t\t"
+	t << (*oit) << ": " << (*sit) << " "
 	  << depends[(*sit)].join(" \\\n\t\t");
 
 	QString comp, cimp;
@@ -669,8 +669,8 @@ MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj)
 	QString src(dirName + fi.baseName() + Option::cpp_ext );
 
 	QString &hdr = mocablesFromMOC[src];
-	t << (*oit) << ": " << src << " \\\n\t\t"
-	  << hdr << " \\\n\t\t"
+	t << (*oit) << ": " << src << " "
+	  << hdr << " "
 	  << depends[hdr].join(" \\\n\t\t");
 	if ( !project->variables()["OBJECTS_DIR"].isEmpty() ||
 	     !project->variables()["MOC_DIR"].isEmpty() ||
@@ -706,7 +706,7 @@ MakefileGenerator::writeYaccSrc(QTextStream &t, const QString &src)
 	QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::yacc_mod + Option::cpp_ext;
 	QString decl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::yacc_mod + Option::h_ext;
 
-	t << impl << ": " << (*it) << " \\\n\t\t"
+	t << impl << ": " << (*it) << " "
 	  << depends[(*it)].join(" \\\n\t\t") << "\n\t"
 	  << "$(YACC) $(YACCFLAGS) " << (*it) << "\n\t"
 	  << "-$(DEL) " << impl << " " << decl << "\n\t"
@@ -724,7 +724,7 @@ MakefileGenerator::writeLexSrc(QTextStream &t, const QString &src)
 	QFileInfo fi((*it));
 	QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::lex_mod + Option::cpp_ext;
 
-	t << impl << ": " << (*it) << " \\\n\t\t"
+	t << impl << ": " << (*it) << " "
 	  << depends[(*it)].join(" \\\n\t\t") << "\n\t"
 	  << "$(LEX) $(LEXFLAGS) " << (*it) << "\n\t"
 	  << "-$(DEL) " << impl << " " << "\n\t"
@@ -879,9 +879,14 @@ MakefileGenerator::writeMakeQmake(QTextStream &t)
 	fileAbsolute(pfile);
     }
 
-    t << "qmake " << ofile << ": " << pfile << " \\\n\t\t"
-      << project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"].join(" \\\n\t\t") << "\n\t"
-      << "qmake " << args << " " << pfile;
+    if(!ofile.isEmpty()) {
+	t << ofile << ": " << pfile << " "
+	  << project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"].join(" \\\n\t\t") << "\n\t"
+	  << "qmake " << args << " " << pfile <<  " -o " << ofile << endl;
+    }
+
+    t << "qmake: " << "\n\t"
+      << "@qmake " << args << " " << pfile;
     if (!ofile.isEmpty())
 	t << " -o " << ofile;
     t << endl << endl;
