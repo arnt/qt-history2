@@ -107,7 +107,7 @@ FILETIME time_tToFt( time_t tt )
 // File I/O ---------------------------------------------------------
 int errno = 0;
 
-DWORD GetLogicalDrives(VOID)
+DWORD GetLogicalDrives( VOID )
 { 
     return 1; 
 }
@@ -124,11 +124,6 @@ WCHAR *_wgetcwd( WCHAR *buffer, int maxlen )
 WCHAR *_wgetdcwd( int drive, WCHAR *buffer, int maxlen ) 
 { 
     return wcscpy( buffer, L"\\" );
-}
-
-int _wchdir( const WCHAR *dirname )
-{ 
-    return -1;
 }
 
 int _wmkdir( const WCHAR *dirname )
@@ -197,22 +192,14 @@ int _wopen( const WCHAR *filename, int oflag, int pmode )
     }
 
     int retval = (int)_wfopen( filename, flag );
-
-    // Return code for error should be -1 instead of NULL
-    if ( retval == NULL )
-	return -1;
-    return retval;
+    return (retval == NULL) ? -1 : retval;
 } 
-
-int _fstat( int handle, struct _stat *buffer ) 
-{ 
-    return -1;
-}
 
 int _wstat( const WCHAR *path, struct _stat *buffer ) 
 {
     WIN32_FIND_DATA finfo;
     HANDLE ff = FindFirstFile( path, &finfo );
+
     if ( ff == INVALID_HANDLE_VALUE )
 	return -1;
 
@@ -223,6 +210,7 @@ int _wstat( const WCHAR *path, struct _stat *buffer )
     buffer->st_size  = finfo.nFileSizeLow; // ### missing high!
     buffer->st_mode  = (finfo.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ? _S_IFDIR : _S_IFREG;
     buffer->st_mode |= (finfo.dwFileAttributes & FILE_ATTRIBUTE_READONLY) ? _O_RDONLY : _O_RDWR;
+
     return (FindClose(ff) == 0);
 }
 
@@ -243,12 +231,9 @@ int _write( int handle, const void *buffer, unsigned int count )
 
 int _close( int handle ) 
 { 
+    if ( !handle )
+	return 0;
     return fclose( (FILE*)handle );
-}
-
-int _qt_fileno( FILE *filehandle ) 
-{ 
-    return (int)filehandle;
 }
 
 FILE *_fdopen(int handle, const char *mode) 

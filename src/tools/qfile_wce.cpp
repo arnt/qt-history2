@@ -123,19 +123,6 @@ bool QFile::open( int m )
 	    oflags |= QT_OPEN_ASYNC;
 #endif
 	fd = ::_wopen( (TCHAR*)fn.ucs2(), oflags, 0666 );
-
-	if ( fd != -1 ) {			// open successful
-	    QT_STATBUF st;
-	    QT_FSTAT( fd, &st );
-	    if ( (st.st_mode& QT_STAT_MASK) == QT_STAT_DIR ) {
-		ok = FALSE;
-	    } else {
-		length = (int)st.st_size;
-		ioIndex  = (flags() & IO_Append) == 0 ? 0 : length;
-	    }
-	} else {
-	    ok = FALSE;
-	}
     } else {					// buffered file I/O
 	QCString perm;
 	char perm2[4];
@@ -181,19 +168,21 @@ bool QFile::open( int m )
 		break;
 	    }
 	}
-	if ( fh ) {
-	    QT_STATBUF st;
-	    QT_FSTAT( QT_FILENO(fh), &st );
-	    if ( (st.st_mode& QT_STAT_MASK) == QT_STAT_DIR ) {
-		ok = FALSE;
-	    } else {
-		length = (int)st.st_size;
-		ioIndex  = (flags() & IO_Append) == 0 ? 0 : length;
-	    }
-	} else {
-	    ok = FALSE;
-	}
     }
+
+    if ( (fh || fd) && !fn.isEmpty() ) { // open successful
+	QT_STATBUF st;
+	QT_TSTAT( (TCHAR*)fn.ucs2(), &st );
+	if ( (st.st_mode& QT_STAT_MASK) == QT_STAT_DIR ) {
+	    ok = FALSE;
+	} else {
+	    length = (int)st.st_size;
+	    ioIndex  = (flags() & IO_Append) == 0 ? 0 : length;
+	}
+    } else {
+	ok = FALSE;
+    }
+
     if ( ok ) {
 	setState( IO_Open );
     } else {
@@ -222,7 +211,12 @@ bool QFile::open( int m, FILE *f )
     fh = f;
     ext_f = TRUE;
     QT_STATBUF st;
-    QT_FSTAT( QT_FILENO(fh), &st );
+
+    // ### Should be able to stat stdin, stdout, stderr
+    if ( !fn.isEmpty() )
+	QT_TSTAT( (TCHAR*)fn.ucs2(), (QT_STATBUF4TSTAT*)&st );
+    else 
+	qWarning( "Trying to stat file, without a filename!" );
     ioIndex = (int)ftell( fh );
     if ( (st.st_mode & QT_STAT_MASK) != QT_STAT_REG ) {
 	// non-seekable
@@ -249,7 +243,11 @@ bool QFile::open( int m, int f )
     fd = f;
     ext_f = TRUE;
     QT_STATBUF st;
-    QT_FSTAT( fd, &st );
+    // ### Should be able to stat stdin, stdout, stderr
+    if ( !fn.isEmpty() )
+	QT_TSTAT( (TCHAR*)fn.ucs2(), (QT_STATBUF4TSTAT*)&st );
+    else 
+	qWarning( "Trying to stat file, without a filename!" );
     ioIndex  = (int)QT_LSEEK(fd, 0, SEEK_CUR);
     if ( (st.st_mode & QT_STAT_MASK) != QT_STAT_REG ) {
 	// non-seekable
@@ -264,12 +262,12 @@ bool QFile::open( int m, int f )
 QIODevice::Offset QFile::size() const
 {
     QT_STATBUF st;
-    int ret = 0;
-    if ( isOpen() ) {
-	ret = QT_FSTAT( fh ? QT_FILENO(fh) : fd, &st );
-    } else {
+    int ret = -1;
+    // ### Should be able to stat stdin, stdout, stderr
+    if ( !fn.isEmpty() )
 	ret = QT_TSTAT( (TCHAR*)fn.ucs2(), (QT_STATBUF4TSTAT*)&st );
-    }
+    else 
+	qWarning( "Trying to stat file, without a filename!" );
     if ( ret == -1 )
 	return 0;
     return st.st_size;
@@ -389,7 +387,7 @@ int QFile::handle() const
     if ( !isOpen() )
 	return -1;
     else if ( fh )
-	return QT_FILENO( fh );
+	return (int)fh;
     else
 	return fd;
 }
