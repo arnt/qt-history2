@@ -39,14 +39,6 @@ src-install: sub-src
 sub-src: src-moc .qmake.cache FORCE
 	cd src && $(MAKE)
 
-#Tools
-tools-uninstall: .qmake.cache
-	cd tools && $(MAKE) uninstall
-tools-install: sub-tools
-	cd tools && $(MAKE) install
-sub-tools: sub-plugins FORCE
-	cd tools && $(MAKE)
-
 #qmake
 qmake-uninstall: .qmake.cache
 	cd qmake && $(MAKE) uninstall
@@ -54,6 +46,14 @@ qmake-install: src-qmake
 	cd qmake && $(MAKE) install
 src-qmake: symlinks FORCE
 	cd qmake && $(MAKE)
+
+#tools
+tools-uninstall: .qmake.cache
+	cd tools && $(MAKE) uninstall
+tools-install: sub-tools
+	cd tools && $(MAKE) install
+sub-tools: sub-plugins FORCE
+	cd tools && $(MAKE)
 
 #plugins
 plugins-uninstall: .qmake.cache
@@ -66,9 +66,11 @@ sub-plugins: sub-src .qmake.cache FORCE
 #tutorials
 sub-tutorial: sub-src FORCE
 	cd tutorial && $(MAKE)
+
 #examples
 sub-examples: sub-tools FORCE
 	cd examples && $(MAKE)
+
 #docs
 doc: FORCE
 	qdoc util/qdoc/qdoc.conf

@@ -29,39 +29,33 @@ sub-src: src-moc .qmake.cache $(FORCEDEP)
 src-qmake: symlinks $(FORCEDEP)
 	cd qmake && $(MAKE) -f Makefile.win32-g++
 
-#Tools
+#tools
 sub-tools: sub-plugins $(FORCEDEP)
 	cd tools && $(MAKE)
 
-#Plugins
+#plugins
 sub-plugins: sub-src .qmake.cache $(FORCEDEP)
 	cd plugins\src && $(MAKE)
-
-#examples
-sub-examples: sub-tools $(FORCEDEP)
-	cd examples && $(MAKE) $(CONTINUEONERROR)
 
 #tutorials
 sub-tutorial: sub-src $(FORCEDEP)
 	cd tutorial && $(MAKE) $(CONTINUEONERROR)
 
+#examples
+sub-examples: sub-tools $(FORCEDEP)
+	cd examples && $(MAKE) $(CONTINUEONERROR)
+
 sub-extensions: sub-src $(FORCEDEP)
 	cd extensions && $(MAKE) $(CONTINUEONERROR)
 
-.qmake.cache:
-	@echo
-	@echo '  Qt must first be configured using the "configure" script.'
-	@echo
-
 clean:
-	cd qmake && $(MAKE) $(CONTINUEONERROR) clean
-	cd tools &&	$(MAKE) $(CONTINUEONERROR) clean
+	cd tools && $(MAKE) $(CONTINUEONERROR) clean
 	cd src && $(MAKE) $(CONTINUEONERROR) clean && $(MAKE) -f Makefile.main $(CONTINUEONERROR) clean
 	cd tutorial && $(MAKE) $(CONTINUEONERROR) clean
 	cd examples && $(MAKE) $(CONTINUEONERROR) clean
 	cd extensions && $(MAKE) $(CONTINUEONERROR) clean
 	cd plugins\src && $(MAKE) $(CONTINUEONERROR) clean
-
+	cd qmake && $(MAKE) -f Makefile.win32-g++ $(CONTINUEONERROR) clean
 
 distclean: clean
 	-del .qmake.cache
@@ -71,6 +65,4 @@ distclean: clean
 	@echo '  Qt must first be configured using the "configure" script.'
 	@echo
 
-
 FORCE:
-
