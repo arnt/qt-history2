@@ -18,14 +18,20 @@
 #include <qstringlist.h>
 #include <qtextstream.h>
 #include <qstring.h>
+#include <qstack.h>
 #include <qmap.h>
 
 class QMakeProperty;
 
 class QMakeProject
 {
-    enum TestStatus { TestNone, TestFound, TestSeek } test_status;
-    int scope_block, scope_flag;
+    struct ScopeBlock {
+	enum TestStatus { TestNone, TestFound, TestSeek };
+	ScopeBlock() : ignore(FALSE), else_status(TestNone) { }
+	ScopeBlock(bool i) : ignore(i), else_status(TestNone) { }
+	uint ignore : 1, else_status : 2;
+    };
+    QStack<ScopeBlock> scope_blocks;
 
     QString pfile, cfile;
     QMakeProperty *prop;
@@ -43,7 +49,7 @@ public:
     QMakeProject(QMakeProperty *);
 
     enum { ReadCache=0x01, ReadConf=0x02, ReadCmdLine=0x04, ReadProFile=0x08, 
-	   ReadPostFiles=0x16, ReadFeatures=0x32, ReadAll=0xFF };
+	   ReadPostFiles=0x10, ReadFeatures=0x20, ReadAll=0xFF };
     bool read(const QString &project, const QString &pwd, uchar cmd=ReadAll);
     bool read(uchar cmd=ReadAll);
 

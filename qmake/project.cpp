@@ -185,30 +185,28 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
     if(s.isEmpty()) /* blank_line */
 	return TRUE;
 
-    if(s.stripWhiteSpace().startsWith("}")) {
-	debug_msg(1, "Project Parser: %s:%d : Leaving block %d", parser.file.latin1(),
-		  parser.line_no, scope_block);
-	test_status = ((scope_flag & (0x01 << scope_block)) ? TestFound : TestSeek);
-	scope_block--;
-	s = s.mid(1).stripWhiteSpace();
-	if(s.isEmpty())
-	    return TRUE;
-    }
-    if(!(scope_flag & (0x01 << scope_block))) {
+    if(scope_blocks.top().ignore) {
+	bool continue_parsing = FALSE;
 	/* adjust scope for each block which appears on a single line */
-	int open_brace = s.count('{'), close_brace = s.count('}');
-	if(open_brace >= close_brace) {
-	    for(int i = open_brace - close_brace; i; i--)
-		scope_flag &= ~(0x01 << (++scope_block));
-	} else if(close_brace) {
-	    scope_block -= (close_brace - open_brace);
-	} else {
-	    warn_msg(WarnParser, "Possible braces mismatch %s:%d",
-		     parser.file.latin1(), parser.line_no);
+	for(int i = 0; i < s.length(); i++) {
+	    if(s[i] == '{') {
+		scope_blocks.push(ScopeBlock(TRUE));		
+	    } else if(s[i] == '}') {
+		scope_blocks.pop();
+		if(!scope_blocks.top().ignore) {
+		    debug_msg(1, "Project Parser: %s:%d : Leaving block %d", parser.file.latin1(),
+			      parser.line_no, scope_blocks.count()+1);
+		    s = s.mid(i+1).stripWhiteSpace();
+		    continue_parsing = !s.isEmpty();
+		    break;
+		}
+	    }
 	}
-	debug_msg(1, "Project Parser: %s:%d : Ignored due to block being false.",
-		  parser.file.latin1(), parser.line_no);
-	return TRUE;
+	if(!continue_parsing) {
+	    debug_msg(1, "Project Parser: %s:%d : Ignored due to block being false.",
+		      parser.file.latin1(), parser.line_no);
+	    return TRUE;
+	}
     }
 
     QString scope, var, op;
@@ -216,7 +214,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 #define SKIP_WS(d) while(*d && (*d == ' ' || *d == '\t')) d++
     const char *d = s.latin1();
     SKIP_WS(d);
-    bool scope_failed = FALSE, else_line = FALSE, or_op=FALSE;
+    bool scope_failed = FALSE, else_line = FALSE, or_op=FALSE, start_scope=FALSE;
     int parens = 0, scope_count=0;
     while(*d) {
 	if(!parens) {
@@ -251,12 +249,12 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 
 	    bool test = scope_failed;
 	    if(scope.lower() == "else") {
-		if(scope_count != 1 || test_status == TestNone) {
+		if(scope_count != 1 || scope_blocks.top().else_status == ScopeBlock::TestNone) {
 		    qmake_error_msg("Unexpected " + scope + " ('" + s + "')");
 		    return FALSE;
 		}
 		else_line = TRUE;
-		test = (test_status == TestSeek);
+		test = (scope_blocks.top().else_status == ScopeBlock::TestSeek);
 		debug_msg(1, "Project Parser: %s:%d : Else%s %s.", parser.file.latin1(), parser.line_no,
 			  scope == "else" ? "" : QString(" (" + scope + ")").latin1(),
 			  test ? "considered" : "excluded");
@@ -281,7 +279,8 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 			if ( *d == ')' && !*(d+1) ) {
 			    if(invert_test)
 				test = !test;
-			    test_status = (test ? TestFound : TestSeek);
+			    scope_blocks.top().else_status = 
+				(test ? ScopeBlock::TestFound : ScopeBlock::TestSeek);
 			    return TRUE;  /* assume we are done */
 			}
 		    } else {
@@ -297,21 +296,16 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 	    if(test == or_op)
 		scope_failed = !test;
 	    or_op = (*d == '|');
-	    if(*d == '{') { /* scoping block */
-		if(!scope_failed)
-		    scope_flag |= (0x01 << (++scope_block));
-		else
-		    scope_flag &= ~(0x01 << (++scope_block));
-		debug_msg(1, "Project Parser: %s:%d : Entering block %d (%d).", parser.file.latin1(),
-			  parser.line_no, scope_block, !scope_failed);
-	    }
+
+	    if(*d == '{') /* scoping block */
+		start_scope = TRUE;
 	} else if(!parens && *d == '}') {
-	    if(!scope_block) {
+	    if(!scope_blocks.count()) {
 		warn_msg(WarnParser, "Possible braces mismatch %s:%d", parser.file.latin1(), parser.line_no);
 	    } else {
 		debug_msg(1, "Project Parser: %s:%d : Leaving block %d", parser.file.latin1(),
-			  parser.line_no, scope_block);
-		--scope_block;
+			  parser.line_no, scope_blocks.count());
+		scope_blocks.pop();
 	    }
 	} else {
 	    var += *d;
@@ -319,10 +313,18 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 	d++;
     }
     var = var.stripWhiteSpace();
-    if(!scope_count || (scope_count == 1 && else_line))
-	test_status = TestNone;
-    else if(!else_line || test_status != TestFound)
-	test_status = (scope_failed ? TestSeek : TestFound);
+
+    if(!else_line || (else_line && !scope_failed)) 
+	scope_blocks.top().else_status = (!scope_failed ? ScopeBlock::TestFound : ScopeBlock::TestSeek);
+    if(start_scope) {
+	ScopeBlock next_scope(scope_failed);
+	next_scope.else_status = (scope_failed ? ScopeBlock::TestSeek : ScopeBlock::TestFound);
+	scope_blocks.push(ScopeBlock(scope_failed));
+	debug_msg(1, "Project Parser: %s:%d : Entering block %d (%d).", parser.file.latin1(),
+		  parser.line_no, scope_blocks.count(), scope_failed);
+    }
+    if((!scope_count && !var.isEmpty()) || (scope_count == 1 && else_line)) 
+	scope_blocks.top().else_status = ScopeBlock::TestNone;
     if(scope_failed)
 	return TRUE; /* oh well */
     if(!*d) {
@@ -339,11 +341,10 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
     SKIP_WS(d);
     QString vals(d); /* vals now contains the space separated list of values */
     int rbraces = vals.count('}'), lbraces = vals.count('{');
-    if(scope_block && rbraces - lbraces == 1) {
+    if(scope_blocks.count() > 1 && rbraces - lbraces == 1) {
 	debug_msg(1, "Project Parser: %s:%d : Leaving block %d", parser.file.latin1(),
-		  parser.line_no, scope_block);
-	test_status = ((scope_flag & (0x01 << scope_block)) ? TestFound : TestSeek);
-	scope_block--;
+		  parser.line_no, scope_blocks.count());
+	scope_blocks.pop();
 	vals.truncate(vals.length()-1);
     } else if(rbraces != lbraces) {
 	warn_msg(WarnParser, "Possible braces mismatch {%s} %s:%d",
@@ -484,10 +485,9 @@ QMakeProject::read(const QString &file, QMap<QString, QStringList> &place)
 	parser.from_file = TRUE;
 	parser.file = filename;
 	parser.line_no = 0;
-	/* scope blocks start at true */
-	test_status = TestNone;
-	scope_flag = 0x01;
-	scope_block = 0;
+	/* scope_blocks starts with one non-ignoring entity */
+	scope_blocks.clear();
+	scope_blocks.push(ScopeBlock());
 	QTextStream t( &qfile );
 	ret = read(t, place);
 	if(!using_stdin)
@@ -634,10 +634,24 @@ QMakeProject::read(uchar cmd)
     }
 
     if(cmd & ReadFeatures) {
-	QStringList &configs = vars["CONFIG"];
-	debug_msg(1, "Processing CONFIG features");
-	for(QStringList::Iterator it = configs.begin(); it != configs.end(); ++it)
-	    doProjectInclude((*it), TRUE, vars);
+	QStringList configs = vars["CONFIG"], processed = configs;
+	while(1) {
+	    debug_msg(1, "Processing CONFIG features");
+	    for(QStringList::ConstIterator it = configs.begin(); it != configs.end(); ++it) 
+		doProjectInclude((*it), TRUE, vars);
+	    /* Process the CONFIG again to see if anything has been added (presumably by the feature files)
+	       We cannot handle them being removed, but we want to process those that are added! */
+	    configs.clear();
+	    QStringList new_configs = vars["CONFIG"];
+	    for(QStringList::ConstIterator it = new_configs.begin(); it != new_configs.end(); ++it) {
+		if(processed.findIndex((*it)) == -1) {
+		    configs.append((*it));
+		    processed.append((*it));
+		}
+	    }
+	    if(configs.isEmpty())
+		break;
+	}
 	doProjectInclude("feature_default", TRUE, vars); //final to do the last setup
     }
 
@@ -903,9 +917,7 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
 	file = file.right(file.length() - di - 1);
     }
     parser_info pi = parser;
-    int sb = scope_block;
-    int sf = scope_flag;
-    TestStatus sc = test_status;
+    QStack<ScopeBlock> sc = scope_blocks;
     bool r = FALSE;
     if(!seek_var.isNull()) {
 	QMap<QString, QStringList> tmp;
@@ -920,9 +932,7 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
 	warn_msg(WarnParser, "%s:%d: Failure to include file %s.",
 		 pi.file.latin1(), pi.line_no, orig_file.latin1());
     parser = pi;
-    test_status = sc;
-    scope_flag = sf;
-    scope_block = sb;
+    scope_blocks = sc;
     QDir::setCurrent(oldpwd);
     return r;
 }
@@ -1082,7 +1092,7 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
 	    exit(3);
 	}
 	return ret;
-    } else if(func == "error" || func == "message") {
+    } else if(func == "error" || func == "message" || func == "warning") {
 	if(args.count() != 1) {
 	    fprintf(stderr, "%s:%d: %s(message) requires one argument.\n", parser.file.latin1(),
 		    parser.line_no, func.latin1());
@@ -1097,9 +1107,9 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
 	doVariableReplace(msg, place);
 	fixEnvVariables(msg);
 	fprintf(stderr, "Project %s: %s\n", func.upper().latin1(), msg.latin1());
-	if(func == "message")
-	    return TRUE;
-	exit(2);
+	if(func == "error")
+	    exit(2);
+	return TRUE;
     } else {
 	fprintf(stderr, "%s:%d: Unknown test function: %s\n", parser.file.latin1(), parser.line_no,
 		func.latin1());
