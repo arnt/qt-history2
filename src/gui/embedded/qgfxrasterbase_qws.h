@@ -192,7 +192,6 @@ public:
     virtual void setPen(const QPen &);
     virtual void setBrush(const QBrush &);
     virtual void setBrushOrigin(int x, int y);
-    virtual void setBrushPixmap(const QPixmap *p) { cbrushpixmap=p; }
 
     virtual void setClipRegion(const QRegion &, Qt::ClipOperation);
     virtual void setClipDeviceRegion(const QRegion &);
@@ -391,7 +390,7 @@ protected:
     QWSPolygonScanner::Edge stitchedges;
     QPoint brushorig;
     bool patternedbrush;
-    const QPixmap *cbrushpixmap;
+    QPixmap cbrushpixmap;
 
     bool dashedLines;
     char *dashes;

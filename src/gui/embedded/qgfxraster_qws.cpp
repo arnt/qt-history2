@@ -3119,12 +3119,11 @@ void QGfxRaster<depth,type>::fillRect(int rx,int ry,int w,int h) //widget coordi
 #endif // QWS_EXPERIMENTAL_FASTPATH
     if((cbrush.style()!=Qt::NoBrush) &&
         (cbrush.style()!=Qt::SolidPattern)) {
-        Q_ASSERT(cbrushpixmap != 0);
-        srcwidth=cbrushpixmap->width();
-        srcheight=cbrushpixmap->height();
-        if(cbrushpixmap->depth()==1) {
+        srcwidth=cbrushpixmap.width();
+        srcheight=cbrushpixmap.height();
+        if(cbrushpixmap.depth()==1) {
             if(opaque) {
-                setSource(cbrushpixmap);
+                setSource(&cbrushpixmap);
                 setAlphaType(IgnoreAlpha);
                 pixel = brushPixel;
                 srcclut[1]=pixel;
@@ -3140,11 +3139,11 @@ void QGfxRaster<depth,type>::fillRect(int rx,int ry,int w,int h) //widget coordi
                 srccol=pixel;
                 srctype=SourcePen;
                 setAlphaType(LittleEndianMask);
-                setAlphaSource(cbrushpixmap->scanLine(0),
-                               cbrushpixmap->bytesPerLine());
+                setAlphaSource(cbrushpixmap.scanLine(0),
+                               cbrushpixmap.bytesPerLine());
             }
         } else {
-            setSource(cbrushpixmap);
+            setSource(&cbrushpixmap);
             setAlphaType(IgnoreAlpha);
         }
         tiledBlt(rx,ry,w,h);
@@ -3305,12 +3304,11 @@ void QGfxRaster<depth,type>::drawPolygon(const QPointArray &pa, bool winding, in
     (*gfx_optype)=0;
     if (cbrush.style()!=Qt::NoBrush) {
         if (cbrush.style()!=Qt::SolidPattern) {
-            Q_ASSERT(cbrushpixmap != 0);
-            srcwidth=cbrushpixmap->width();
-            srcheight=cbrushpixmap->height();
-            if(cbrushpixmap->depth()==1) {
+            srcwidth=cbrushpixmap.width();
+            srcheight=cbrushpixmap.height();
+            if(cbrushpixmap.depth()==1) {
                 if(opaque) {
-                    setSource(cbrushpixmap);
+                    setSource(&cbrushpixmap);
                     setAlphaType(IgnoreAlpha);
                     pixel = brushPixel;
                     srcclut[1]=pixel;
@@ -3326,11 +3324,11 @@ void QGfxRaster<depth,type>::drawPolygon(const QPointArray &pa, bool winding, in
                     srccol=pixel;
                     srctype=SourcePen;
                     setAlphaType(LittleEndianMask);
-                    setAlphaSource(cbrushpixmap->scanLine(0),
-                                   cbrushpixmap->bytesPerLine());
+                    setAlphaSource(cbrushpixmap.scanLine(0),
+                                   cbrushpixmap.bytesPerLine());
                 }
             } else {
-                setSource(cbrushpixmap);
+                setSource(&cbrushpixmap);
                 setAlphaType(IgnoreAlpha);
             }
         } else { // SolidPattern

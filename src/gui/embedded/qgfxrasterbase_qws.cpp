@@ -86,7 +86,6 @@ QGfxRasterBase::QGfxRasterBase(unsigned char *b, int w, int h) :
 
     patternedbrush=false;
     srccol = 0;
-    cbrushpixmap=0;
 
     regionClip=false;
     QRect wr(0,0,w,h);
@@ -234,10 +233,9 @@ void QGfxRasterBase::setBrush(const QBrush &b)
 
     int brush_style = cbrush.style();
     if (brush_style >= Qt::Dense1Pattern && brush_style <= Qt::DiagCrossPattern) {
-        QPixmap *pm = new QPixmap(qt_pixmapForBrush(brush_style, false));
-        setBrushPixmap(pm);
+        cbrushpixmap = qt_pixmapForBrush(brush_style, false);
     } else {
-        setBrushPixmap(&cbrush.texture());
+        cbrushpixmap = cbrush.texture();
     }
 
     if((cbrush.style() != Qt::NoBrush) && (cbrush.style() != Qt::SolidPattern))

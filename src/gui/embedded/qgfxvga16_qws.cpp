@@ -1486,9 +1486,9 @@ void QGfxVga16::fillRect(int rx,int ry,int w,int h)
     if((cbrush.style()!=QBrush::NoBrush) &&
         (cbrush.style()!=QBrush::SolidPattern)) {
         Q_ASSERT(cbrushpixmap != 0);
-        srcwidth=cbrushpixmap->width();
-        srcheight=cbrushpixmap->height();
-        if(cbrushpixmap->depth()==1) {
+        srcwidth=cbrushpixmap.width();
+        srcheight=cbrushpixmap.height();
+        if(cbrushpixmap.depth()==1) {
             if(opaque) {
                 setSource(cbrushpixmap);
                 setAlphaType(IgnoreAlpha);
@@ -1504,8 +1504,8 @@ void QGfxVga16::fillRect(int rx,int ry,int w,int h)
                 srccol=pixel;
                 srctype=SourcePen;
                 setAlphaType(LittleEndianMask);
-                setAlphaSource(cbrushpixmap->scanLine(0),
-                               cbrushpixmap->bytesPerLine());
+                setAlphaSource(cbrushpixmap.scanLine(0),
+                               cbrushpixmap.bytesPerLine());
             }
         } else {
             setSource(cbrushpixmap);
