@@ -82,8 +82,9 @@ static void axTakeServer( HWND hWnd )
 }
 
 
-/*!
+/*
     \class QAxServerBase qaxserverbase.cpp
+    \brief The QAxServerBase class is an ActiveX control hosting a QWidget.
     \internal
 */
 class QAxServerBase : 
@@ -676,12 +677,6 @@ HRESULT WINAPI GetClassObject( void *pv, REFIID iid, void **ppUnk )
     return nRes;
 }
 
-/*!
-    \class QAxServerBase qaxserverbase.h
-    \brief The QAxServerBase class is a ActiveX control hosting a QWidget.
-
-    \internal
-*/
 
 /*!
     Constructs a QAxServerBase object wrapping the QWidget \a
@@ -885,7 +880,7 @@ bool QAxServerBase::internalCreate()
     return TRUE;
 }
 
-/*!
+/*
     Message handler. \a hWnd is always the ActiveX widget hosting the Qt widget. 
     \a uMsg is handled as follows
     \list

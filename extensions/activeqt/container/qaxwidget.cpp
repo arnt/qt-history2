@@ -157,7 +157,7 @@ LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
 }
 
 
-/*! \class QAxHostWindow qaxwidget.cpp
+/*  \class QAxHostWindow qaxwidget.cpp
     \brief The QAxHostWindow class implements the client site interfaces.
     \internal
 */
