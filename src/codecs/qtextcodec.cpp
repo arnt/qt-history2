@@ -1,4 +1,4 @@
-/****************************************************************************
+﻿/****************************************************************************
 ** $Id$
 **
 ** Implementation of QTextCodec class
@@ -918,10 +918,11 @@ QTextCodec* QTextCodec::codecForName( const char* name, int accuracy )
     }
 
 #if !defined(QT_NO_COMPONENT) && !defined(QT_LITE_COMPONENT)
-    if ( !localeMapper )
-	(void)codecForLocale();
-    if ( !result )
+    if ( !result ) {
+	if ( !localeMapper )
+	    (void)codecForLocale();
 	result = QTextCodecFactory::createForName(name);
+    }
 #endif // !QT_NO_COMPONENT !QT_LITE_COMPONENT
 
     return result;
