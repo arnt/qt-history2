@@ -2,7 +2,8 @@ TEMPLATE = subdirs
 CONFIG += ordered
 
 #must be built absolutely first!
-!qt_one_lib:SUBDIRS += qnetwork.pro qtkernel.pro 
+!win32:!qt_one_lib:SUBDIRS += qnetwork.pro
+!qt_one_lib:SUBDIRS += qtkernel.pro 
 
 #must be built second!
 SUBDIRS += qt_gui.pro
