@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#25 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#26 $
 **
 ** Implementation of QML classes
 **
@@ -35,6 +35,7 @@
 #include <qlayout.h>
 #include <qbitmap.h>
 #include <qtimer.h>
+#include <qimage.h>
 
 class QMLStyleData
 {
@@ -1154,12 +1155,23 @@ QMLCustomNode::~QMLCustomNode()
 QMLImage::QMLImage(const QDict<QString> &attr, QMLProvider &provider)
     : QMLCustomNode()
 {
+    width = height = 0;
+    if ( attr["width"] )
+	width = attr["width"]->toInt();
+    if ( attr["height"] )
+	height = attr["height"]->toInt();
+    
     reg = 0;
     QString* imageName = attr["source"];
     if (!imageName)
 	imageName = attr["src"];
     if (imageName) {
 	pm = provider.image( *imageName );
+	
+	if (!pm.isNull() && (pm.width() != width || pm.height() != height) ){
+	    pm.convertFromImage( pm.convertToImage().smoothScale(width, height) );
+	}
+	
 	pm.setMask( pm.createHeuristicMask() );
 	width = pm.width();
 	height = pm.height();
@@ -1169,12 +1181,9 @@ QMLImage::QMLImage(const QDict<QString> &attr, QMLProvider &provider)
 	    reg = new QRegion( all.subtract( mask ) );
 	}
     }
-    if (pm.isNull()) {
+    
+    if ( pm.isNull() && (width*height)==0 ) {
 	width = height = 50;
-	if ( attr["width"] )
-	    width = attr["width"]->toInt();
-	if ( attr["height"] )
-	    width = attr["height"]->toInt();
     }
 }
 
