@@ -161,8 +161,8 @@ void QPicturePaintEngine::updateRasterOp(QPainterState *ps)
 void QPicturePaintEngine::updateBackground(QPainterState *ps)
 {
     int pos;
-    SERIALIZE_CMD(PdcSetBrush);
-    d->s << ps->bgBrush;
+    SERIALIZE_CMD(PdcSetBkColor);
+    d->s << ps->bgBrush.color();
     writeCmdLength(pos, QRect(), false);
 
     SERIALIZE_CMD(PdcSetBkMode);
