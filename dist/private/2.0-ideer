@@ -22,3 +22,5 @@ AKSESSENDRINGER
 - QObject::eventFilter protected overalt
 
 - QObject::parent public
+
+- QWidget::setEnabled() og tusen andre nye slots
