@@ -1012,7 +1012,7 @@ QString QUrl::path( bool correct ) const
 		d->cleanPath = QDir::cleanDirPath( d->cleanPath );
 		if ( share ) {
 		    check = FALSE;
-		    d->cleanPath.prepend( "/" );
+		    d->cleanPath.prepend( "//" );
 		}
 	    }
 #endif
@@ -1218,7 +1218,7 @@ void QUrl::decode( QString& url )
     int i = 0;
     while ( i < oldlen ) {
 	uchar c = (uchar)curl[ i++ ];
-	if ( c == '%' && c < oldlen - 2 ) {
+	if ( c == '%' && i <= oldlen - 2 ) {
 	    c = hex_to_int( (uchar)curl[ i ] ) * 16 + hex_to_int( (uchar)curl[ i + 1 ] );
 	    i += 2;
 	}
