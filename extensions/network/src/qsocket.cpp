@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocket.cpp#4 $
+** $Id: //depot/qt/main/extensions/network/src/qsocket.cpp#5 $
 **
 ** Implementation of Network Extension Library
 **
@@ -964,7 +964,8 @@ void QSocket::sn_read()
 	    d->ready_read_timer = startTimer( 1000 );
 	emit readyRead();
     }
-    d->firstTime = FALSE;
+    if ( d )
+	d->firstTime = FALSE;
 }
 
 
