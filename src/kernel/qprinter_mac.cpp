@@ -58,9 +58,10 @@
 
 class QPrinterPrivate
 {
+public:
     QPrinter::PageRange pageRange;
-    uint pageRangeEnabled;
-}
+    Q_UINT32 pageRangeEnabled;
+};
 
 QPrinter::QPrinter(PrinterMode m) : QPaintDevice(QInternal::Printer | QInternal::ExternalDevice)
 {
@@ -412,12 +413,11 @@ void QPrinter::margins(uint *top, uint *left, uint *bottom, uint *right) const
 
 void QPrinter::setPageRangeEnabled( uint mask )
 {
-    d->pageRangeEnabled = mask & ( All | Selection | Range ) )
-    if( !( d->pageRangeEnabled & d->pageRange ) )
+    d->pageRangeEnabled = mask & (All | Selection | Range);
+    if(!(d->pageRangeEnabled & d->pageRange))
 	d->pageRange = All;
-    if( ( mask & Range ) && min_pg==0 && max_pg==0 ) {
+    if((mask & Range) && !min_pg && !max_pg)
 	max_pg = 9999;
-    }
 }
 
 uint QPrinter::pageRangeEnabled() const
@@ -425,9 +425,9 @@ uint QPrinter::pageRangeEnabled() const
     return d->pageRangeEnabled;
 }
 
-void QPrinter::setPageRange( QPrinter::PageRange range )
+void QPrinter::setPageRange(QPrinter::PageRange range)
 {
-    if( d->pageRangeEnabled & range )
+    if(d->pageRangeEnabled & range)
 	d->pageRange = range;
 }
 
