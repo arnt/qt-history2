@@ -97,12 +97,15 @@ bootstrap { #Qt code
 
     unix {
         SOURCES += qfileengine_unix.cpp
-        mac:SOURCES += qcore_mac.cpp qcoresettings_mac.cpp
+        mac {
+          SOURCES += qcore_mac.cpp qcoresettings_mac.cpp
+          QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.2 #enables weak linking for 10.2 (exported)
+          LIBS += -framework CoreServices
+        }
     } else:win32 {
 	SOURCES += qfileengine_win.cpp qcoresettings_win.cpp
         win32-msvc*:LIBS += ole32.lib advapi32.lib
     }
-    macx-*: LIBS += -framework CoreServices
 
     qnx {
         CFLAGS += -fhonor-std
