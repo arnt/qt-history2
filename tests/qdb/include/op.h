@@ -953,8 +953,6 @@ public:
   field name (string)
   field type (QVariant::Type)
 
-  See also 'PushFieldDesc' which can provide the above information.
-
 */
 
 class CreateResult : public Op
