@@ -1209,7 +1209,7 @@ void PopupMenuEditor::keyPressEvent( QKeyEvent * e )
 void PopupMenuEditor::focusOutEvent( QFocusEvent * )
 {
     QWidget * w = qApp->focusWidget();
-    if ( ! ( w->inherits( "PopupMenuEditor" ) || w->inherits( "MenuBarEditor" ) ) ) {
+    if ( !w || !( w->inherits( "PopupMenuEditor" ) || w->inherits( "MenuBarEditor" ) ) ) {
 	hideCurrentItemMenu();
 	hide();
     }
