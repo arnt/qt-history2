@@ -278,12 +278,12 @@ Qt::WindowsVersion qt_winver = (Qt::WindowsVersion)qWinVersion();
 
     \relates QApplication
 
-    Calls the message handler with the warning message \a msg, and
-    exits.  If no message handler has been installed, the message is
-    printed to stderr. Under Windows, the message is sent to the
-    debugger.  This function does nothing if \c QT_NO_DEBUG was
-    defined during compilation; it does not exit if the environment
-    variable \c QT_NO_FATAL_WARNINGS is defined.
+    Calls the message handler with the warning message \a msg. If no
+    message handler has been installed, the message is printed to
+    stderr. Under Windows, the message is sent to the debugger.  This
+    function does nothing if \c QT_NO_DEBUG was defined during
+    compilation; it exits if the environment variable \c
+    QT_FATAL_WARNINGS is defined.
 
     This function takes a format string and a list of arguments,
     similar to the C printf() function.
@@ -430,7 +430,7 @@ void qWarning( const char *msg, ... )
 #endif
     }
 
-    static bool fatalWarnings = (getenv("QT_NO_FATAL_WARNINGS") == 0);
+    static bool fatalWarnings = (getenv("QT_FATAL_WARNINGS") != 0);
     if (!fatalWarnings)
 	return;
 
