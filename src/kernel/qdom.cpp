@@ -10,6 +10,32 @@
 
 // NOT REVISED
 
+/**
+ * TODO:
+ * If the document dies, remove all pointers to it from children
+ * which can not be deleted at this time.
+ *
+ * If a node dies and has direct children which can not be deleted,
+ * then remove the pointer to the parent.
+ *
+ * Handle QDomDocumentFragment on insertion correctly.
+ *
+ * createElement and friends create double reference counts.
+ */
+
+/**
+ * Reference counting:
+ *
+ * Some simple rules:
+ * 1) If an intern object returns a pointer to another intern object
+ *    then the reference count of the returned object is not increased.
+ * 2) If an extern object is created and gets a pointer to some intern
+ *    object, then the extern object increases the intern objects reference count.
+ * 3) If an extern object is deleted, then it decreases the reference count
+ *    on its associated intern object and deletes it if nobody else hold references
+ *    on the intern object.
+ */
+
 /**************************************************************
  *
  * QDOMConsumer
@@ -457,19 +483,21 @@ QDOM_NodePrivate::QDOM_NodePrivate( QDOM_NodePrivate* n, bool deep )
 
 QDOM_NodePrivate::~QDOM_NodePrivate()
 {
-  QDOM_NodePrivate* p = m_firstChild;
-  QDOM_NodePrivate* n;
+    QDOM_NodePrivate* p = m_firstChild;
+    QDOM_NodePrivate* n;
 
-  while( p )
-  {
-    n = p->nextSibling();
-    if ( p->deref() )
-      delete p;
-    p = n;
-  }
+    while( p )
+    {
+	n = p->nextSibling();
+	if ( p->deref() )
+	    delete p;
+	else
+	    p->m_parentNode = 0;
+	p = n;
+    }
 
-  m_firstChild = 0;
-  m_lastChild = 0;
+    m_firstChild = 0;
+    m_lastChild = 0;
 }
 
 void QDOM_NodePrivate::clear()
@@ -514,11 +542,59 @@ QDOM_NodePrivate* QDOM_NodePrivate::insertBefore( QDOM_NodePrivate* newChild, QD
     return 0;
 
   // Error check
+  if ( newChild == refChild )
+      return 0;
+
+  // Error check
   if ( refChild && refChild->parentNode() != this )
     return 0;
 
+  // Special handling for inserting a fragment. We just insert
+  // all elements of the fragment instead of the fragment itself.
+  if ( newChild->isDocumentFragment() )
+  {
+      // Fragment is empty ?
+      if ( newChild->m_firstChild == 0 )
+	  return newChild;
+
+      // New parent
+      QDOM_NodePrivate* n = newChild->m_firstChild;
+      while( n )
+      {
+	  n->m_parentNode = this;
+	  n = n->m_nextSibling;
+      }
+
+      // Insert at the beginning ?
+      if ( !refChild || refChild->m_previousSibling == 0 )
+      {
+	  if ( m_firstChild )
+	      m_firstChild->m_previousSibling = newChild->m_lastChild;
+	  newChild->m_lastChild->m_nextSibling = m_firstChild;
+	  if ( !m_lastChild )
+	      m_lastChild = newChild->m_lastChild;
+	  m_firstChild = newChild->m_firstChild;
+      }
+      // Insert in the middle
+      else
+      {
+	  newChild->m_lastChild->m_nextSibling = refChild;
+	  newChild->m_firstChild->m_previousSibling = refChild->previousSibling();
+	  refChild->m_previousSibling->m_nextSibling = newChild->m_firstChild;
+	  refChild->m_previousSibling = newChild->m_lastChild;
+      }
+
+      // No need to increase the reference since QDomDocumentFragment
+      // does not decrease the reference.
+
+      // Remove the nodes from the fragment
+      newChild->m_firstChild = 0;
+      newChild->m_lastChild = 0;
+      return newChild;
+  }
+
   // No more errors can occure now, so we take
-  // ownership of the node
+  // ownership of the node.
   newChild->ref();
 
   if ( newChild->parentNode() )
@@ -562,6 +638,58 @@ QDOM_NodePrivate* QDOM_NodePrivate::insertAfter( QDOM_NodePrivate* newChild, QDO
   if ( !newChild )
     return 0;
 
+  // Error check
+  if ( newChild == refChild )
+      return 0;
+
+  // Error check
+  if ( refChild && refChild->parentNode() != this )
+    return 0;
+
+  // Special handling for inserting a fragment. We just insert
+  // all elements of the fragment instead of the fragment itself.
+  if ( newChild->isDocumentFragment() )
+  {
+      // Fragment is empty ?
+      if ( newChild->m_firstChild == 0 )
+	  return newChild;
+
+      // New parent
+      QDOM_NodePrivate* n = newChild->m_firstChild;
+      while( n )
+      {
+	  n->m_parentNode = this;
+	  n = n->m_nextSibling;
+      }
+
+      // Insert at the end
+      if ( !refChild || refChild->m_nextSibling == 0 )
+      {
+	  if ( m_lastChild )
+	      m_lastChild->m_nextSibling = newChild->m_firstChild;
+	  newChild->m_firstChild->m_previousSibling = m_lastChild;
+	  if ( !m_firstChild )
+	      m_firstChild = newChild->m_firstChild;
+	  m_lastChild = newChild->m_lastChild;	
+      }
+      // Insert in the middle
+      else
+      {
+	  newChild->m_firstChild->m_previousSibling = refChild;
+	  newChild->m_lastChild->m_nextSibling = refChild->nextSibling();
+	  refChild->m_nextSibling->m_previousSibling = newChild->m_lastChild;
+	  refChild->m_nextSibling = newChild->m_firstChild;
+      }
+
+      // No need to increase the reference since QDomDocumentFragment
+      // does not decrease the reference.
+
+      // Remove the nodes from the fragment
+      newChild->m_firstChild = 0;
+      newChild->m_lastChild = 0;
+      return newChild;
+  }
+
   // Release new node from its current parent
   if ( newChild->parentNode() )
     newChild->parentNode()->removeChild( newChild );
@@ -583,10 +711,6 @@ QDOM_NodePrivate* QDOM_NodePrivate::insertAfter( QDOM_NodePrivate* newChild, QDO
     m_lastChild = newChild;
     return newChild;
   }
-
-  // Error check
-  if ( refChild->parentNode() != this )
-    return 0;
 
   if ( refChild->nextSibling() == 0 )
   {
@@ -612,6 +736,61 @@ QDOM_NodePrivate* QDOM_NodePrivate::replaceChild( QDOM_NodePrivate* newChild, QD
   // Error check
   if ( oldChild->parentNode() != this )
     return 0;
+
+  // Error check
+  if ( !newChild || !oldChild )
+      return 0;
+
+  // Error check
+  if ( newChild == oldChild )
+      return 0;
+
+    // Special handling for inserting a fragment. We just insert
+  // all elements of the fragment instead of the fragment itself.
+  if ( newChild->isDocumentFragment() )
+  {
+      // Fragment is empty ?
+      if ( newChild->m_firstChild == 0 )
+	  return newChild;
+
+      // New parent
+      QDOM_NodePrivate* n = newChild->m_firstChild;
+      while( n )
+      {
+	  n->m_parentNode = this;
+	  n = n->m_nextSibling;
+      }
+
+
+      if ( oldChild->nextSibling() )
+	  oldChild->nextSibling()->m_previousSibling = newChild->m_lastChild;
+      if ( oldChild->previousSibling() )
+	  oldChild->previousSibling()->m_nextSibling = newChild->m_firstChild;
+
+      newChild->m_lastChild->m_nextSibling = oldChild->nextSibling();
+      newChild->m_firstChild->m_previousSibling = oldChild->previousSibling();
+
+      if ( m_firstChild == oldChild )
+	  m_firstChild = newChild->m_firstChild;
+      if ( m_lastChild == oldChild )
+	  m_lastChild = newChild->m_lastChild;
+
+      oldChild->m_parentNode = 0;
+      oldChild->m_nextSibling = 0;
+      oldChild->m_previousSibling = 0;
+
+      // No need to increase the reference since QDomDocumentFragment
+      // does not decrease the reference.
+
+      // Remove the nodes from the fragment
+      newChild->m_firstChild = 0;
+      newChild->m_lastChild = 0;
+
+      // We are no longer interested in the old node
+      if ( oldChild ) oldChild->deref();
+
+      return oldChild;
+  }
 
   // No more errors can occure now, so we take
   // ownership of the node
@@ -804,7 +983,9 @@ QDomNode::QDomNode( const QDomNode& n )
 }
 
 /*!
-  Internal function
+  Internal function.
+
+  It creates a new reference on an internal node object.
 */
 QDomNode::QDomNode( QDOM_NodePrivate* n )
 {
@@ -1079,11 +1260,15 @@ QDomNode QDomNode::cloneNode( bool deep ) const
 
 /*!
   Inserts the node \e newChild before the child node \e refChild.
-  \e refChild has to be a direct child of this node.
+  \e refChild has to be a direct child of this node. If \e refChild
+  is null then \e newChild is inserted as first child.
 
   If \e newChild is currently child of another parent, then it is reparented.
   If \e newChild is currently a child of this QDomNode, then its position in
   the list of children is changed.
+
+  If \e newChild is a QDomDocumentFragment, then the children of the fragment
+  are removed from the fragment and inserted after \e refChild.
 
   Returns a new reference to \e newChild on success or an empty node on failure.
 */
@@ -1096,11 +1281,15 @@ QDomNode QDomNode::insertBefore( const QDomNode& newChild, const QDomNode& refCh
 
 /*!
   Inserts the node \e newChild after the child node \e refChild.
-  \e refChild has to be a direct child of this node.
+  \e refChild has to be a direct child of this node. If \e refChild
+  is null then \e newChild is appended as last child.
 
   If \e newChild is currently child of another parent, then it is reparented.
   If \e newChild is currently a child of this QDomNode, then its position in
   the list of children is changed.
+
+  If \e newChild is a QDomDocumentFragment, then the children of the fragment
+  are removed from the fragment and inserted after \e refChild.
 
   Returns a new reference to \e newChild on success or an empty node on failure.
 */
@@ -1118,6 +1307,9 @@ QDomNode QDomNode::insertAfter( const QDomNode& newChild, const QDomNode& refChi
   If \e newChild is currently child of another parent, then it is reparented.
   If \e newChild is currently a child of this QDomNode, then its position in
   the list of children is changed.
+
+  If \e newChild is a QDomDocumentFragment, then the children of the fragment
+  are removed from the fragment and inserted after \e refChild.
 
   Returns a new reference to \e oldChild on success or a null node an failure.
 */
@@ -1830,13 +2022,13 @@ QDomNode::NodeType QDomDocumentType::nodeType() const
 }
 
 /*!
-  This method is overloads QDomNode::isDocumentType().
+  This method overloads QDomNode::isDocumentType().
 
   \sa nodeType() QDomNode::toDocumentType()
 */
 bool QDomDocumentType::isDocumentType() const
 {
-  return true;
+  return TRUE;
 }
 
 #undef IMPL
@@ -1897,39 +2089,81 @@ QDOM_NodePrivate* QDOM_DocumentFragmentPrivate::cloneNode( bool deep)
 
 #define IMPL ((QDOM_DocumentFragmentPrivate*)impl)
 
+/*!
+  \class QDomDocumentFragment qdom.h
+  \brief QDomDocumentFragment is used to hold a list of children during complex tree operations
+
+  \ingroup dom
+
+  In some situations you may want to group several nodes in a list and insert
+  them all together as children of some node. In these cases QDomDocumentFragment can
+  be used as a temporary container for this list of children.
+
+  The most important feature of QDomDocumentFragment is, that it is treated in a special
+  way by QDomNode::insertAfter(), QDomNode::insertBefore() and QDomNode::replaceChild().
+  Instead of inserting the fragment itself, all children of the fragment are inserted.
+*/
+
+/*!
+ This constructor creates a QDomDocumentFragment which references no internal
+ object. That means that isNull() will return TRUE.
+*/
 QDomDocumentFragment::QDomDocumentFragment()
 {
 }
 
+/*!
+  Internal function
+*/
 QDomDocumentFragment::QDomDocumentFragment( QDOM_DocumentFragmentPrivate* n )
   : QDomNode( n )
 {
 }
 
+/*!
+ This copy constructor does not really create a copy of the QDomDocumentType
+ since QDomDocumentType is explicit shared. Instead it creates a new
+ reference to the internal object.
+*/
 QDomDocumentFragment::QDomDocumentFragment( const QDomDocumentFragment& x )
   : QDomNode( x )
 {
 }
 
+/*!
+  This assignment operator causes the QDomDocumentType instance to reference
+  another internal object. This does not really create a copy since QDomDocumentType is
+  explicit shared.
+*/
 QDomDocumentFragment& QDomDocumentFragment::operator= ( const QDomDocumentFragment& x )
 {
   return (QDomDocumentFragment&) QDomNode::operator=( x );
 }
 
+/*!
+  The destructor does not by default destroy the referenced internal object.
+  The internal representation is deleted when no QDomDocumentType instance
+  references it any more.
+*/
 QDomDocumentFragment::~QDomDocumentFragment()
 {
 }
 
+/*!
+  Returns QDomNode::DocumentFragment
+
+  \sa isDocumentFragment() QDomNode::toDocumentFragment()
+*/
 QDomNode::NodeType QDomDocumentFragment::nodeType() const
 {
   return QDomNode::DocumentFragmentNode;
 }
 
-/* QDomNode QDomDocumentFragment::cloneNode( bool deep) const
-{
-  return QDomNode( new QDOM_DocumentFragmentPrivate( IMPL, deep ) );
-  } */
+/*!
+  This method overloads QDomNode::isDocumentFragment().
 
+  \sa nodeType() QDomNode::toDocumentFragment()
+*/
 bool QDomDocumentFragment::isDocumentFragment() const
 {
   return TRUE;
@@ -2650,15 +2884,15 @@ bool QDomElement::hasAttribute( const QString& name ) const
   Returns the text contained in children of the tag.
   If the tag has child tag, then the text() method is called
   for this children, too.
-  
+
   Example:
   \code
   <h1>Hello <b>Qt</b> <![CDATA[<xml is cool>]]></h1>
   \endcode
-  
+
   If this QDomElement represents the <h1> tag, then text()
   will return "Hello Qt <xml is cool>".
-  
+
   Comments are ignored by this method. It evaluates only
   QDomText and QDomCDATASection and does a recursion on
   QDomElement.
@@ -3002,7 +3236,7 @@ QDOM_NodePrivate* QDOM_CDATASectionPrivate::cloneNode( bool deep)
 
 void QDOM_CDATASectionPrivate::save( QTextStream& s ) const
 {
-  s << "<[CDATA[" << m_value << "]]>";
+  s << "<![CDATA[" << m_value << "]]>";
 }
 
 /**************************************************************
@@ -3694,42 +3928,58 @@ QDOM_ElementPrivate* QDOM_DocumentPrivate::documentElement()
 
 QDOM_ElementPrivate* QDOM_DocumentPrivate::createElement( const QString& tagName )
 {
-  return new QDOM_ElementPrivate( this, 0, tagName );
+    QDOM_ElementPrivate* e = new QDOM_ElementPrivate( this, 0, tagName );
+    e->deref();
+    return e;
 }
 
 QDOM_DocumentFragmentPrivate* QDOM_DocumentPrivate::createDocumentFragment()
 {
-  return new QDOM_DocumentFragmentPrivate( this, 0 );
+    QDOM_DocumentFragmentPrivate* f = new QDOM_DocumentFragmentPrivate( this, 0 );
+    f->deref();
+    return f;
 }
 
 QDOM_TextPrivate* QDOM_DocumentPrivate::createTextNode( const QString& data )
 {
-  return new QDOM_TextPrivate( this, 0, data );
+    QDOM_TextPrivate* t = new QDOM_TextPrivate( this, 0, data );
+    t->deref();
+    return t;
 }
 
 QDOM_CommentPrivate* QDOM_DocumentPrivate::createComment( const QString& data )
 {
-  return new QDOM_CommentPrivate( this, 0, data );
+    QDOM_CommentPrivate* c = new QDOM_CommentPrivate( this, 0, data );
+    c->deref();
+    return c;
 }
 
 QDOM_CDATASectionPrivate* QDOM_DocumentPrivate::createCDATASection( const QString& data )
 {
-  return new QDOM_CDATASectionPrivate( this, 0, data );
+    QDOM_CDATASectionPrivate* c = new QDOM_CDATASectionPrivate( this, 0, data );
+    c->deref();
+    return c;
 }
 
 QDOM_ProcessingInstructionPrivate* QDOM_DocumentPrivate::createProcessingInstruction( const QString& target, const QString& data )
 {
-  return new QDOM_ProcessingInstructionPrivate( this, 0, target, data );
+    QDOM_ProcessingInstructionPrivate* p = new QDOM_ProcessingInstructionPrivate( this, 0, target, data );
+    p->deref();
+    return p;
 }
 
 QDOM_AttrPrivate* QDOM_DocumentPrivate::createAttribute( const QString& name )
 {
-  return new QDOM_AttrPrivate( this, 0, name );
+    QDOM_AttrPrivate* a = new QDOM_AttrPrivate( this, 0, name );
+    a->deref();
+    return a;
 }
 
 QDOM_EntityReferencePrivate* QDOM_DocumentPrivate::createEntityReference( const QString& name )
 {
-  return new QDOM_EntityReferencePrivate( this, 0, name );
+    QDOM_EntityReferencePrivate* e = new QDOM_EntityReferencePrivate( this, 0, name );
+    e->deref();
+    return e;
 }
 
 void QDOM_DocumentPrivate::save( QTextStream& s ) const
@@ -4041,7 +4291,7 @@ QDomAttr QDomNode::toAttr()
 {
   if ( impl && impl->isAttr() )
   {
-    impl->ref();
+      // impl->ref();
     return QDomAttr( ((QDOM_AttrPrivate*)impl) );
   }
   return QDomAttr();
@@ -4051,7 +4301,7 @@ QDomCDATASection QDomNode::toCDATASection()
 {
   if ( impl && impl->isCDATASection() )
   {
-    impl->ref();
+      // impl->ref();
     return QDomCDATASection( ((QDOM_CDATASectionPrivate*)impl) );
   }
   return QDomCDATASection();
@@ -4061,7 +4311,7 @@ QDomDocumentFragment QDomNode::toDocumentFragment()
 {
   if ( impl && impl->isDocumentFragment() )
   {
-    impl->ref();
+      // impl->ref();
     return QDomDocumentFragment( ((QDOM_DocumentFragmentPrivate*)impl) );
   }
   return QDomDocumentFragment();
@@ -4071,7 +4321,7 @@ QDomDocument QDomNode::toDocument()
 {
   if ( impl && impl->isDocument() )
   {
-    impl->ref();
+      // impl->ref();
     return QDomDocument( ((QDOM_DocumentPrivate*)impl) );
   }
   return QDomDocument();
@@ -4081,7 +4331,7 @@ QDomDocumentType QDomNode::toDocumentType()
 {
   if ( impl && impl->isDocumentType() )
   {
-    impl->ref();
+      // impl->ref();
     return QDomDocumentType( ((QDOM_DocumentTypePrivate*)impl) );
   }
   return QDomDocumentType();
@@ -4091,7 +4341,7 @@ QDomElement QDomNode::toElement()
 {
   if ( impl && impl->isElement() )
   {
-    impl->ref();
+      // impl->ref();
     return QDomElement( ((QDOM_ElementPrivate*)impl) );
   }
   return QDomElement();
@@ -4101,7 +4351,7 @@ QDomEntityReference QDomNode::toEntityReference()
 {
   if ( impl && impl->isEntityReference() )
   {
-    impl->ref();
+      // impl->ref();
     return QDomEntityReference( ((QDOM_EntityReferencePrivate*)impl) );
   }
   return QDomEntityReference();
@@ -4111,7 +4361,7 @@ QDomText QDomNode::toText()
 {
   if ( impl && impl->isText() )
   {
-    impl->ref();
+      // impl->ref();
     return QDomText( ((QDOM_TextPrivate*)impl) );
   }
   return QDomText();
@@ -4121,7 +4371,7 @@ QDomEntity QDomNode::toEntity()
 {
   if ( impl && impl->isEntity() )
   {
-    impl->ref();
+      // impl->ref();
     return QDomEntity( ((QDOM_EntityPrivate*)impl) );
   }
   return QDomEntity();
@@ -4131,7 +4381,7 @@ QDomNotation QDomNode::toNotation()
 {
   if ( impl && impl->isNotation() )
   {
-    impl->ref();
+      // impl->ref();
     return QDomNotation( ((QDOM_NotationPrivate*)impl) );
   }
   return QDomNotation();
@@ -4141,7 +4391,7 @@ QDomProcessingInstruction QDomNode::toProcessingInstruction()
 {
   if ( impl && impl->isProcessingInstruction() )
   {
-    impl->ref();
+      // impl->ref();
     return QDomProcessingInstruction( ((QDOM_ProcessingInstructionPrivate*)impl) );
   }
   return QDomProcessingInstruction();
@@ -4151,7 +4401,7 @@ QDomCharacterData QDomNode::toCharacterData()
 {
   if ( impl && impl->isCharacterData() )
   {
-    impl->ref();
+      // impl->ref();
     return QDomCharacterData( ((QDOM_CharacterDataPrivate*)impl) );
   }
   return QDomCharacterData();
@@ -4190,7 +4440,6 @@ bool QDomConsumer::tagStart( const QString& name )
     if ( name != doc->doctype()->nodeName() )
       return FALSE;
   }
-  // printf("Start=%s\n",name.ascii() );
 
   QDOM_NodePrivate* n = doc->createElement( name );
   node->appendChild( n );
@@ -4201,7 +4450,6 @@ bool QDomConsumer::tagStart( const QString& name )
 
 bool QDomConsumer::tagEnd( const QString& name )
 {
-    // qDebug("End=%s\n",name.ascii());
   if ( node == doc )
     return FALSE;
 
@@ -4269,7 +4517,7 @@ bool QDomConsumer::processingInstruction( const QString& name, const QString& va
 
 bool QDomConsumer::doctype( const QString& name )
 {
-  printf("DOCTYPE %s\n", name.ascii());
+  qDebug("DOCTYPE %s", name.latin1());
   doc->doctype()->m_name = name;
 
   return TRUE;
