@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangecontrol.cpp#24 $
+** $Id: //depot/qt/main/src/widgets/qrangecontrol.cpp#25 $
 **
 ** Implementation of QRangeControl class
 **
@@ -50,7 +50,7 @@
   <li> The line step.  This is the smaller of two natural steps
   QRangeControl provides, and typically corresponds to the user
   pressing an arrow key.  Returned by lineStep(), set using
-  setSteps(), and the addLine() and substractLine() allow easy
+  setSteps(), and the addLine() and subtractLine() allow easy
   movement of the current value by lineStep().
 
   <li> The page step.  This is the larger of two natural steps
@@ -65,7 +65,7 @@
   Note that unity (1) may be viewed as a third step size.  setValue()
   lets you set the current value to any integer in the allowed range,
   not just minValue()+n*lineStep() for integer values of n.  Some
-  widget may allow the user to set any value at all, others may just
+  widgets may allow the user to set any value at all, others may just
   provide multiples of lineStep()/pageStep().  The choice is up to you.
 
   QRangeControl provides three virtual functions that are well-suited
@@ -98,8 +98,8 @@ QRangeControl::QRangeControl()
   minValue or greater than \a maxValue, whose line step size is \a
   lineStep and page step size is \a pageStep, and whose value is
   initially \a value.
-  
-  \s value is forced to be within the legal range.
+
+  \a value is forced to be within the legal range.
 */
 
 QRangeControl::QRangeControl( int minValue, int maxValue,
@@ -159,7 +159,7 @@ void QRangeControl::setValue( int value )
   Sets the range control value directly without calling valueChange().
 
   Forces the new value to be within the legal range.
-  
+
   \sa setValue()
 */
 
