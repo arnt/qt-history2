@@ -279,7 +279,8 @@ QDragObject::QDragObject( QWidget * dragSource, const char * name )
 }
 
 
-/*!  Deletes the drag object and frees up the storage used. */
+/*! Destroys the drag object, cancelling any drag-and-drop operation
+  in which it is involved, and frees up the storage used. */
 
 QDragObject::~QDragObject()
 {

@@ -47,7 +47,7 @@ struct QSpinBoxPrivate
   \class QSpinBox qspinbox.h
 
   \brief The QSpinBox class provides a spin box widget, sometimes called
-  up-down widget, little arrows widget or spin button.
+	  up-down widget, little arrows widget or spin button.
 
   \ingroup realwidgets
 
@@ -70,14 +70,15 @@ struct QSpinBoxPrivate
   is 99, clicking Up will give 0.  Use setWrapping() if you want
   circular behavior.
 
-  The displayed value can be appended and/or prepended with an
+  The displayed value can be prepended and/or appended with an
   arbitrary string indicating for example the unit of measurement.
   See setPrefix() and setSuffix().
 
-  Normally, the spin box displays up- and down arrows in the buttons.
-  In cases where this is not clear (perhaps most cases), you can use
-  setButtonSymbols() to change the display to show + and - symbols.
-  (The + and - keys always work.)
+  Normally, the spin box displays up and down arrows in the buttons.
+  You can use setButtonSymbols() to change the display to
+  show + and - symbols, if this is clearer for your intended purpose.
+  In either case, the + and - keys and up and down arrow keys
+  always work.
 
   It is often desirable to give the user a special, often default,
   choice in addition to the range of numeric values.  See
@@ -121,7 +122,7 @@ struct QSpinBoxPrivate
 
 /*!
   Creates a spin box with the default QRangeControl range and step
-  value.
+  values.
 
   \sa minValue(), maxValue(), setRange(), lineStep(), setSteps()
 */
@@ -136,7 +137,8 @@ QSpinBox::QSpinBox( QWidget * parent , const char *name )
 
 /*!
   Creates a spin box with range from \a minValue to \a maxValue
-  inclusive, with step value \a step.  The value is set to \a minValue.
+  inclusive, with step amount \a step.  The value is initially
+  set to \a minValue.
 
   \sa minValue(), maxValue(), setRange(), lineStep(), setSteps()
 */
@@ -194,7 +196,7 @@ void QSpinBox::initSpinBox()
 }
 
 /*!
-  Deletes the spin box, freeing all memory and other resources.
+  Destroys the spin box, freeing all memory and other resources.
 */
 
 QSpinBox::~QSpinBox()

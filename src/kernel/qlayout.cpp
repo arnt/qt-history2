@@ -914,7 +914,7 @@ QGridLayout::QGridLayout( int nRows, int nCols,
 
 
 /*!
-  Deletes this grid. Geometry management is terminated if
+  Destroys the grid layout. Geometry management is terminated if
   this is a top-level grid.
 */
 

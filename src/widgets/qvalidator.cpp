@@ -120,7 +120,7 @@ QValidator::QValidator( QWidget * parent, const char *name )
 
 
 /*!
-  Deletes the validator and frees any storage and other resources
+  Destroys the validator, freeing any storage and other resources
   used.
 */
 
@@ -208,7 +208,8 @@ QIntValidator::QIntValidator( int bottom, int top,
 
 
 /*!
-  Deletes the validator and frees up any storage used.
+  Destroys the validator, freeing any storage and other resources
+  used.
 */
 
 QIntValidator::~QIntValidator()
@@ -318,7 +319,7 @@ QDoubleValidator::QDoubleValidator( double bottom, double top, int decimals,
 
 
 /*!
-  Deletes the validator and frees any storage and other resources
+  Destroys the validator, freeing any storage and other resources
   used.
 */
 

@@ -506,7 +506,7 @@ void QListViewItem::init()
 }
 
 
-/*!  Deletes this item and all children of it, freeing up all
+/*!  Destroys the item, deleting all its children, freeing up all
   allocated resources.
 */
 
@@ -1783,8 +1783,8 @@ bool QListView::showSortIndicator() const
     return d->sortIndicator;
 }
 
-/*!  Deletes the list view and all items in it, and frees all
-  allocated resources.  */
+/*!  Destroys the listview, deleting all items in it,
+  and frees all allocated resources.  */
 
 QListView::~QListView()
 {

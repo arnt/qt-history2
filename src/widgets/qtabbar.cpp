@@ -166,7 +166,7 @@ QTabBar::QTabBar( QWidget * parent, const char *name )
 
 
 /*!
-  Deletes the tab control and free the memory it used.
+  Destroys the tab control, freeing memory used.
 */
 
 QTabBar::~QTabBar()
