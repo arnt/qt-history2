@@ -1,9 +1,12 @@
-#    Xbase project source code
+#    LocalSQL
 #
-#    This file contains the Doxygen config for XBase SQL
+#    This file contains the Doxygen config for LocalSQL
 #
-#    Copyright (C) 2000 Dave Berton (db@trolltech.com)
-#                       Jasmin Blanchette (jasmin@trolltech.com)
+#    Copyright (C) 2001 Trolltech AS
+#
+#    Contact:
+#            Dave Berton (db@trolltech.com)
+#            Jasmin Blanchette (jasmin@trolltech.com)
 #
 #    This library is free software; you can redistribute it and/or
 #    modify it under the terms of the GNU Lesser General Public

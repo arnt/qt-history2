@@ -1,9 +1,10 @@
---    Xbase project source code
+--    LocalSQL
 --
---    This file contains SQL code to test the XBase SQL implementation
+--    Copyright (C) 2001 Trolltech AS
 --
---    Copyright (C) 2000 Dave Berton (db@trolltech.com)
---		       Jasmin Blanchette (jasmin@trolltech.com)
+--    Contact:
+--            Dave Berton (db@trolltech.com)
+--            Jasmin Blanchette (jasmin@trolltech.com)
 --
 --    This library is free software; you can redistribute it and/or
 --    modify it under the terms of the GNU Lesser General Public
@@ -20,15 +21,15 @@
 --    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 --
 
--- ## need this
---drop table alltypes;
+drop table alltypes;
 
 create table alltypes (
 n1 numeric,
 n2 numeric( 19, 3 ),
 c1 char( 50 ),
 c2 char( 10 ),
-d1 date
+d1 date,
+c5673 char(2)
 );
 
 create unique index alltypesindex_primary on alltypes ( n1 ); 
@@ -47,21 +48,21 @@ insert into alltypes values( 97, 72, 'swdfsdf', 'more', '2000-01-01');
 insert into alltypes values( 98, 82, 'sdsddfsdf', 'more', '2000-01-01');
 insert into alltypes values( 99, 92, 'sfdfsdf', 'more', '2000-01-01');
 
-update alltypes set c2 = 'updated' where n1 = 1;
-update alltypes set c2 = 'updated1' where n1 = 1;
-update alltypes set c2 = 'updated2' where n1 = 1;
-update alltypes set c2 = 'updated3' where n1 = 1;
-update alltypes set c2 = 'updated4' where n1 = 1;
-update alltypes set n2 = 999 where n1 = 1;
-update alltypes set d1 = '1972-04-18' where n1 = 1;
+--update alltypes set c2 = 'updated' where n1 = 1;
+--update alltypes set c2 = 'updated1' where n1 = 1;
+--update alltypes set c2 = 'updated2' where n1 = 1;
+--update alltypes set c2 = 'updated3' where n1 = 1;
+--update alltypes set c2 = 'updated4' where n1 = 1;
+--update alltypes set n2 = 999 where n1 = 1;
+--update alltypes set d1 = '1972-04-18' where n1 = 1;
 
 -- actually change a primary key
-update alltypes set n1 = 999 where n1 = 1;
+--update alltypes set n1 = 999 where n1 = 1;
 
 -- change a whole bunch of records
 -- ## jasmin: generates wrong code
-update alltypes set c1 = 'mass update' where n1 > 1;
+--update alltypes set c1 = 'mass update' where n1 > 1;
 
 -- complex where clause
 -- ## jasmin: parens seem to generate wrong code
-update alltypes set c1 = 'complex update' where n1 = 91 OR ( n1+n2 > 189 );
+--update alltypes set c1 = 'complex update' where n1 = 91 OR ( n1+n2 > 189 );

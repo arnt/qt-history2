@@ -1,10 +1,11 @@
-#    Xbase project source code
-#
-#    This file contains the qmake project for building the XBase SQL 
+#    This file contains the qmake project for building the LocalSQL 
 #    command line program
 #
-#    Copyright (C) 2000 Dave Berton (db@trolltech.com)
-#                       Jasmin Blanchette (jasmin@trolltech.com)
+#    Copyright (C) 2001 Trolltech AS
+#
+#    Contact:
+#            Dave Berton (db@trolltech.com)
+#            Jasmin Blanchette (jasmin@trolltech.com)
 #
 #    This library is free software; you can redistribute it and/or
 #    modify it under the terms of the GNU Lesser General Public
@@ -34,7 +35,3 @@ TARGET          = lsql
 target.path=$$QDB_INSTALL_BINPATH
 isEmpty(target.path):target.path=/usr/local/bin
 INSTALLS += target
-
-
-
-

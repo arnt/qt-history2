@@ -1,10 +1,10 @@
-#    Xbase project source code
+#    LocalSQL
 #
-#    This file contains shared qmake project settings for building
-#    the XBase SQL library
+#    Copyright (C) 2001 Trolltech AS
 #
-#    Copyright (C) 2000 Dave Berton (db@trolltech.com)
-#                       Jasmin Blanchette (jasmin@trolltech.com)
+#    Contact:
+#            Dave Berton (db@trolltech.com)
+#            Jasmin Blanchette (jasmin@trolltech.com)
 #
 #    This library is free software; you can redistribute it and/or
 #    modify it under the terms of the GNU Lesser General Public
