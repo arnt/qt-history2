@@ -6,7 +6,7 @@
 
 #include "rc2ui.h"
 
-class RCFilter : public FilterInterface
+class RCFilter : public ImportFilterInterface
 {
 public:
     RCFilter();
@@ -34,8 +34,8 @@ QUnknownInterface *RCFilter::queryInterface( const QGuid &guid )
 
     if ( guid == IID_QUnknownInterface )
 	iface = (QUnknownInterface*)this;
-    if ( guid == IID_FilterInterface )
-	iface = (FilterInterface*)this;
+    if ( guid == IID_ImportFilterInterface )
+	iface = (ImportFilterInterface*)this;
 
     if ( iface )
 	iface->addRef();
