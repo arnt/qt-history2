@@ -271,6 +271,12 @@ QRegion QPainter::clipRegion(CoordinateMode m) const
 {
     if (m == CoordPainter && (ds->VxF || ds->WxF))
 	return ds->matrix.invert() * ds->clipRegion;
+
+    if (!d->redirection_offset.isNull()) {
+	QRegion rgn(ds->clipRegion);
+	rgn.translate(d->redirection_offset);
+	return rgn;
+    }
     return ds->clipRegion;
 }
 
@@ -283,10 +289,13 @@ void QPainter::setClipRect( const QRect &rect, CoordinateMode mode ) // ### inli
 void QPainter::setClipRegion(const QRegion &r, CoordinateMode m)
 {
     Q_ASSERT(dgc);
-    if (m == CoordPainter && (ds->VxF || ds->WxF))
+    if (m == CoordPainter && (ds->VxF || ds->WxF)) {
 	ds->clipRegion = ds->matrix * r;
-    else
+    } else {
 	ds->clipRegion = r;
+	if (!d->redirection_offset.isNull())
+	    ds->clipRegion.translate(-d->redirection_offset);
+    }
     ds->clipEnabled = true;
     if (dgc)
 	dgc->setDirty(QAbstractGC::DirtyClip);
@@ -1897,7 +1906,7 @@ void qt_format_text( const QFont& font, const QRect &_r,
  		reg &= painter->clipRegion(QPainter::CoordPainter);
 
 	    painterHasClip = painter->hasClipping();
-	    painterClipRegion = painter->clipRegion();
+	    painterClipRegion = painter->clipRegion(QPainter::CoordPainter);
 	    restoreClipping = true;
 	    painter->setClipRegion(reg, QPainter::CoordPainter);
 	} else {
