@@ -417,8 +417,8 @@ void MarkerWidget::contextMenuEvent( QContextMenuEvent *e )
 {
     QPopupMenu m( 0, "editor_breakpointsmenu" );
 
-    int toggleBreakPoint;
-//    int editBreakpoints;
+    int toggleBreakPoint = 0;
+//    int editBreakpoints = 0;
 
     QTextParagraph *p = ( (Editor*)viewManager->currentView() )->document()->firstParagraph();
     int yOffset = ( (Editor*)viewManager->currentView() )->contentsY();
