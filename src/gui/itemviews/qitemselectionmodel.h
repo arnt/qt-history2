@@ -99,7 +99,7 @@ public:
 	SelectRows
     };
 
-    QItemSelectionModel(QGenericItemModel *m);
+    QItemSelectionModel(QGenericItemModel *model, QObject *parent = 0);
     virtual ~QItemSelectionModel();
 
     virtual void select(const QModelIndex &item,
@@ -130,6 +130,7 @@ signals:
     void currentChanged(const QModelIndex &oldItem, const QModelIndex &newItem);
 
 protected:
+    QItemSelectionModel(QItemSelectionModelPrivate &dd, QGenericItemModel *model, QObject *parent = 0);
     void exchange(QItemSelection &oldSelection, const QItemSelection &newSelection, bool alterRanges = true);
     void toggle(const QItemSelection &selection, bool emitSelectionChanged = true);
     void mergeCurrentSelection();

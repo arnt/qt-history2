@@ -6,6 +6,7 @@
 class QAbstractItemViewPrivate : public QViewportPrivate
 {
     Q_DECLARE_PUBLIC(QAbstractItemView);
+    
 public:
     QAbstractItemViewPrivate();
     virtual ~QAbstractItemViewPrivate();
@@ -42,10 +43,6 @@ public:
     int startEditActions;
 
     QModelIndex root;
-//     int leftMargin;
-//     int topMargin;
-//     int rightMargin;
-//     int bottomMargin;
     int horizontalFactor;
     int verticalFactor;
 };

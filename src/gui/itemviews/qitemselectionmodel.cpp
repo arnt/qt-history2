@@ -1,5 +1,8 @@
 #include "qitemselectionmodel.h"
-#include <private/qobject_p.h>
+
+#include <private/qitemselectionmodel_p.h>
+#define d d_func()
+#define q q_func()
 
 QModelIndexList QItemSelectionRange::items(const QGenericItemModel *model) const
 {
@@ -82,10 +85,6 @@ static void split(QItemSelectionRange &range, const QItemSelectionRange &other, 
 	result->append(QItemSelectionRange(parent, top, other_right + 1, bottom, right));
 }
 
-#include <private/qitemselectionmodel_p.h>
-#define d d_func()
-#define q q_func()
-
 QItemSelection QItemSelectionModelPrivate::expandRows(const QItemSelection &selection) const
 {
     if (selection.size() == 0)
@@ -106,8 +105,14 @@ QItemSelection QItemSelectionModelPrivate::expandRows(const QItemSelection &sele
   \brief QItemSelectionModel keeps a list of QItemSelection objects.
 */
 
-QItemSelectionModel::QItemSelectionModel(QGenericItemModel *model)
-    : QObject(*new QItemSelectionModelPrivate, 0)
+QItemSelectionModel::QItemSelectionModel(QGenericItemModel *model, QObject *parent)
+    : QObject(*new QItemSelectionModelPrivate, parent)
+{
+    d->model = model;
+}
+
+QItemSelectionModel::QItemSelectionModel(QItemSelectionModelPrivate &dd, QGenericItemModel *model, QObject *parent)
+    : QObject(dd, parent)
 {
     d->model = model;
 }

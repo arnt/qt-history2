@@ -74,7 +74,8 @@ QAbstractItemViewPrivate::~QAbstractItemViewPrivate()
 
 void QAbstractItemViewPrivate::init()
 {
-    q->setSelectionModel(new QItemSelectionModel(model));
+    q->setSelectionModel(new QItemSelectionModel(model, q));
+    q->setItemDelegate(new QItemDelegate(model, q));
 
     QObject::connect(model, SIGNAL(contentsChanged(QModelIndex,QModelIndex)),
                      q, SLOT(contentsChanged(QModelIndex,QModelIndex)));
@@ -265,10 +266,7 @@ void QAbstractItemView::viewportMouseReleaseEvent(QMouseEvent *e)
 {
     QPoint pos = e->pos();
     QModelIndex item  = itemAt(pos);
-    selectionModel()->select(item,
-			     selectionUpdateMode(e->state(),
-						 item,
-						 e->type()),
+    selectionModel()->select(item, selectionUpdateMode(e->state(), item, e->type()),
 			     selectionBehavior());
     d->pressedItem = QModelIndex();
     d->pressedState = NoButton;
@@ -391,16 +389,23 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
     }
 
     switch (e->key()) {
-    case Key_F2:
-	if (startEdit(currentItem(), QAbstractItemDelegate::EditKeyPressed, e))
-	    return;
-	break;
-    case Key_Escape: // keys to ignore
+	// keys to ignore
+    case Key_Down:
+    case Key_Up:
+    case Key_Left:
+    case Key_Right:
+    case Key_Home:
+    case Key_End:
+    case Key_PageUp:
+    case Key_PageDown:
+    case Key_Escape:
     case Key_Enter:
     case Key_Return:
+    case Key_Shift:
+    case Key_Control:
 	break;
     case Key_Space:
-	// if (startEdit(currentItem(), QAbstractItemDelegate::NoAction, e)) {
+//	if (startEdit(currentItem(), QAbstractItemDelegate::NoAction, e)) {
 // 		return;
 // 	} else {
     {
@@ -410,9 +415,12 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
 	    return;
 	}
 	break;
+    case Key_F2:
+	if (startEdit(currentItem(), QAbstractItemDelegate::EditKeyPressed, e))
+	    return;
+	break;
     default:
-	if (e->text()[0].isPrint() && // FIXME: ???
-	    startEdit(currentItem(), QAbstractItemDelegate::AnyKeyPressed, e))
+	if (startEdit(currentItem(), QAbstractItemDelegate::AnyKeyPressed, e))
 	    return;
 	break;
     }
@@ -434,7 +442,6 @@ bool QAbstractItemView::startEdit(const QModelIndex &item,
 				  QAbstractItemDelegate::StartEditAction action,
 				  QEvent *event)
 {
-//    QAbstractItemDelegate::EditType editType = itemDelegate()->editType(item);
     if (d->shouldEdit(item, action) && d->createEditor(item, action, event))
 	setState(Editing);
 //     if (event && delegate->editType() == QAbstractItemDelegate::NoWidget)
@@ -599,8 +606,6 @@ void QAbstractItemView::contentsRemoved(const QModelIndex &, const QModelIndex &
 
 QAbstractItemDelegate *QAbstractItemView::itemDelegate() const
 {
-    if (!d->delegate)
-	d->delegate = new QItemDelegate(model()); // FIXME: memleak
     return d->delegate;
 }
 
@@ -701,12 +706,13 @@ void QAbstractItemView::fetchMore()
 
 void QAbstractItemView::updateItem(const QModelIndex &item)
 {
-    d->viewport->update(itemViewportRect(item));
+    QRect rect = itemViewportRect(item);
+    if (rect.isValid())
+    	d->viewport->update(itemViewportRect(item));
 }
 
 void QAbstractItemView::updateRow(const QModelIndex &item)
 {
-    qDebug("updateRow");
     QModelIndex parent = model()->parent(item);
     int row = item.row();
     int columns = model()->columnCount(parent);

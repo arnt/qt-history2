@@ -145,14 +145,22 @@ void QGenericTableView::drawGrid(QPainter *p, int x, int y, int w, int h) const
     p->setPen(old);
 }
 
-void QGenericTableView::paintEvent(QPaintEvent *)
+void QGenericTableView::paintEvent(QPaintEvent *e)
 {
     QPainter painter(d->viewport);
+    QRect area = e->rect();
 
+#if 0
+    int colfirst = columnAt(0);
+    int collast = columnAt(viewport()->width());
+    int rowfirst = rowAt(0);
+    int rowlast = rowAt(viewport()->height());
+#else
     int colfirst = columnAt(0);
     int collast = columnAt(d->viewport->width());
     int rowfirst = rowAt(0);
     int rowlast = rowAt(d->viewport->height());
+#endif
     bool showGrid = d->showGrid;
 
     QModelIndex bottomRight = model()->bottomRight(root());

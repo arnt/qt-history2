@@ -18,7 +18,6 @@ class Q_GUI_EXPORT QAbstractItemView : public QViewport
     Q_DECLARE_PRIVATE(QAbstractItemView);
 
 public:
-
     QAbstractItemView(QGenericItemModel *model, QWidget *parent = 0);
     ~QAbstractItemView();
 
@@ -62,11 +61,8 @@ protected slots:
     virtual void contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     virtual void contentsRemoved(const QModelIndex &parent,
 				 const QModelIndex &topLeft, const QModelIndex &bottomRight);
-
     virtual void selectionChanged(const QItemSelection &deselected, const QItemSelection &selected);
-
     virtual void currentChanged(const QModelIndex &old, const QModelIndex &current);
-
     virtual void startItemsLayout();
     virtual bool doItemsLayout(int num);
     virtual void updateCurrentEditor();

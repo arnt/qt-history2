@@ -4,11 +4,13 @@
 #ifndef QT_H
 #include <qobject.h>
 #include <qpalette.h>
-#include <qgenericitemmodel.h>
+#include <qrect.h>
 #endif
 
 class QPainter;
 class QAbstractItemView;
+class QGenericItemModel;
+class QModelIndex;
 
 class Q_GUI_EXPORT QItemOptions
 {
@@ -18,19 +20,6 @@ public:
 	  focus(false), disabled(false), smallItem(true), editing(false),
 	  iconAlignment(Qt::AlignLeft|Qt::AlignVCenter),
 	  textAlignment(Qt::AlignLeft|Qt::AlignVCenter) {}
-	  //iconPosition(Left), textPosition(Center) {}
-
-//     enum Position {
-// 	Center = 0,
-// 	Top = 1,
-// 	Left = 2,
-// 	Bottom = 4,
-// 	Right = 8,
-// 	TopLeft = Top|Left,
-// 	TopRight = Top|Right,
-// 	BottomLeft = Bottom|Left,
-// 	BottomRight = Bottom|Right
-//     };
 
     QPalette palette;
     QRect itemRect;
@@ -42,15 +31,19 @@ public:
     uint editing : 1;
     int iconAlignment;
     int textAlignment;
-//     Position iconPosition;
-//     Position textPosition;
 };
+
+class QAbstractItemDelegatePrivate;
 
 class Q_GUI_EXPORT QAbstractItemDelegate : public QObject
 {
+    Q_DECLARE_PRIVATE(QAbstractItemDelegate);
+    
 public:
-    QAbstractItemDelegate(QGenericItemModel *model) : m(model) {}
-    virtual ~QAbstractItemDelegate() {}
+    QAbstractItemDelegate(QGenericItemModel *model, QObject *parent = 0);
+    virtual ~QAbstractItemDelegate();
+
+    QGenericItemModel *model() const;
 
     enum EditType {
 	NoEditType,
@@ -76,31 +69,14 @@ public:
 
     // editing
     virtual EditType editType(const QModelIndex &item) const;
-    virtual QWidget *createEditor(StartEditAction action, QWidget *parent,
-				  const QItemOptions &options, const QModelIndex &item) const;
+    virtual QWidget *createEditor(StartEditAction action, QWidget *parent, const QItemOptions &options,
+				  const QModelIndex &item) const;
     virtual void setContentFromEditor(QWidget *editor, const QModelIndex &item) const;
     virtual void updateEditorContents(QWidget *editor, const QModelIndex &item) const;
     virtual void updateEditorGeometry(QWidget *editor, const QItemOptions &options, const QModelIndex &item) const;
-
-    inline const QGenericItemModel *itemModel() const { return m; }
-
-    // non-widget editors
-//     virtual void event( QEvent *e, QItemOptions *options, const QModelIndex &item );
-//     virtual void keyPressEvent( QKeyEvent *e, QItemOptions *options, const QModelIndex &item );
-//     virtual void keyReleaseEvent( QKeyEvent *e, QItemOptions *options, const QModelIndex &item );
-//     virtual void mousePressEvent( QMouseEvent *e, QItemOptions *options, const QModelIndex &item );
-//     virtual void mouseReleaseEvent( QMouseEvent *e, QItemOptions *options, const QModelIndex &item );
-//     virtual void mouseDoubleClickEvent( QMouseEvent *e, QItemOptions *options, const QModelIndex &item );
-//     virtual void mouseMoveEvent( QMouseEvent *e, QItemOptions *options, const QModelIndex &item );
-//     virtual void dragEnterEvent( QDragEnterEvent *e, QItemOptions *options, const QModelIndex &item );
-//     virtual void dragMoveEvent( QDragMoveEvent *e, QItemOptions *options, const QModelIndex &item );
-//     virtual void dropEvent( QDropEvent *e, QItemOptions *options, const QModelIndex &item );
-
+    
 protected:
-    inline QGenericItemModel *model() const { return m; }
-
-private:
-    QGenericItemModel *m;
+    QAbstractItemDelegate(QAbstractItemDelegatePrivate &, QGenericItemModel* model, QObject *parent = 0);
 };
 
 #endif

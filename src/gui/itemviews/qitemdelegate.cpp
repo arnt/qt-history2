@@ -8,8 +8,8 @@
 #include <qpoint.h>
 #include <qrect.h>
 
-QItemDelegate::QItemDelegate(QGenericItemModel *model)
-    : QAbstractItemDelegate(model), spacing(4)
+QItemDelegate::QItemDelegate(QGenericItemModel *model, QObject *parent)
+    : QAbstractItemDelegate(model, parent), spacing(4)
 {
 }
 
@@ -102,11 +102,16 @@ void QItemDelegate::drawText(QPainter *painter, const QItemOptions &options, con
     } else {
 	painter->setPen(options.palette.text());
     }
-    if (options.iconAlignment & Qt::AlignLeft) // FIXME: spacing hack
-	painter->drawText(QRect(rect.x() + spacing, rect.y(), rect.width() - spacing, rect.height()),
-			  options.textAlignment, text);
-    else
+    if (options.iconAlignment & Qt::AlignLeft) {// FIXME: spacing hack
+	painter->drawRect(QRect(rect.x() + spacing, rect.y(), rect.width() - spacing, rect.height()));
+ 	painter->drawText(QRect(rect.x() + spacing, rect.y(), rect.width() - spacing, rect.height()),
+ 			  options.textAlignment, text);
+    } else {
+	painter->drawRect(rect);
 	painter->drawText(rect, options.textAlignment, text);
+    }
+    if (text.isNull() || text.length() == 0)
+	qDebug("NO STRING");
     painter->setPen(old);
 }
 
@@ -130,23 +135,23 @@ void QItemDelegate::drawFocus(QPainter *painter, const QItemOptions &options, co
 	QApplication::style().drawPrimitive(QStyle::PE_FocusRect, painter, rect, options.palette);
 }
 
-void QItemDelegate::doLayout(const QItemOptions &options, QRect *iconRect, QRect *textRect, bool bound) const
+void QItemDelegate::doLayout(const QItemOptions &options, QRect *iconRect, QRect *textRect, bool hint) const
 {
     if (iconRect && textRect) {
 	int x = options.itemRect.left();
 	int y = options.itemRect.top();
 	if (options.iconAlignment & Qt::AlignLeft) {
-	    int height = bound ? options.itemRect.height() : qMax(textRect->height(), iconRect->height());
+	    int height = hint ? options.itemRect.height() : qMax(textRect->height(), iconRect->height());
 	    QRect leftRect(x, y, iconRect->width(), height);
 	    QRect rightRect(x + iconRect->width(), y, textRect->width(), height);
 	    iconRect->moveCenter(leftRect.center());
 	    textRect->setRect(rightRect.x(), rightRect.y(),
-			      bound ? options.itemRect.width() - leftRect.width() :
+			      hint ? options.itemRect.width() - leftRect.width() :
 			      rightRect.width() + spacing, rightRect.height());
 	    return;
 	}
 	if (options.iconAlignment & Qt::AlignTop) {
-	    int width = bound ? options.itemRect.width() : qMax(textRect->width(), iconRect->width());
+	    int width = hint ? options.itemRect.width() : qMax(textRect->width(), iconRect->width());
 	    QRect topRect(x, y, width, iconRect->height());
 	    QRect bottomRect(x, y + iconRect->height(), width, textRect->height());
 	    iconRect->moveCenter(topRect.center());

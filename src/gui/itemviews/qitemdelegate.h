@@ -8,7 +8,7 @@
 class Q_GUI_EXPORT QItemDelegate : public QAbstractItemDelegate
 {
 public:
-    QItemDelegate(QGenericItemModel *model);
+    QItemDelegate(QGenericItemModel *model, QObject *parent = 0);
     virtual ~QItemDelegate();
 
     // painting
@@ -28,7 +28,7 @@ protected:
     void drawIcon(QPainter *painter, const QItemOptions &options, const QRect &rect, const QIconSet &icons) const;
     void drawFocus(QPainter *painter, const QItemOptions &options, const QRect &rect) const;
 
-    void doLayout(const QItemOptions &options, QRect *iconRect, QRect *textRect, bool bound) const;
+    void doLayout(const QItemOptions &options, QRect *iconRect, QRect *textRect, bool hint) const;
     QSize textSize(const QFontMetrics &fontMetrics, const QItemOptions &options, const QString &text) const;
     QSize iconSize(const QItemOptions &options, const QIconSet &icons) const;
 

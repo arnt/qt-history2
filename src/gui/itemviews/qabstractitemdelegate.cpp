@@ -1,4 +1,10 @@
 #include "qabstractitemdelegate.h"
+#include <qgenericitemmodel.h>
+
+//#include <private/qabstractitemdelegate_p.h>
+#include "qabstractitemdelegate_p.h"
+#define d d_func()
+#define q q_func()
 
 /*!
   \class QAbstractItemDelegate qabstractitemdelegate.h
@@ -20,10 +26,31 @@
   editor in case the data of the item changed while being edited.
 
   The other way is to not create a widget but handle user events
-  directly. For that keyPressEvent(), keyReleaseEvent(),
-  mousePressEvent(), mouseMoveEvent(), mouseReleaseEvent() and
-  mouseDoubleClickEvent() can be reimplemented.
+  directly. For that event() can be reimplemented.
 */
+
+QAbstractItemDelegate::QAbstractItemDelegate(QGenericItemModel *model, QObject *parent)
+    : QObject(*(new QAbstractItemDelegatePrivate), parent)
+{
+    d->model = model;
+}
+
+QAbstractItemDelegate::QAbstractItemDelegate(QAbstractItemDelegatePrivate &dd, QGenericItemModel *model,
+					     QObject *parent)
+    : QObject(dd, parent)
+{
+    d->model = model;
+}
+
+QAbstractItemDelegate::~QAbstractItemDelegate()
+{
+
+}
+
+QGenericItemModel *QAbstractItemDelegate::model() const
+{
+    return d->model;
+}
 
 QAbstractItemDelegate::EditType QAbstractItemDelegate::editType(const QModelIndex &) const
 {

@@ -244,7 +244,10 @@ bool QGenericTreeView::isOpen(const QModelIndex &item) const
 
 void QGenericTreeView::paintEvent(QPaintEvent *e)
 {
-//    QRect area = e->rect();
+//     static int fr = 0;
+//     qDebug("paint %d", fr++);
+    
+    QRect area = e->rect();
     QPainter painter(viewport());
 
     d->left = 0;//qMax(d->header->sectionAt(contentsX()), 0);
