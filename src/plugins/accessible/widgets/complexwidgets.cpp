@@ -164,7 +164,7 @@ QRect QAccessibleTabBar::rect(int child) const
         rec = tabBar()->tabRect(child - 1);
     } else {
         QWidget *widget = button(child);
-        rec = widget->geometry();
+        rec = widget ? widget->geometry() : QRect();
     }
     return QRect(tp.x() + rec.x(), tp.y() + rec.y(), rec.width(), rec.height());
 }
@@ -225,7 +225,7 @@ int QAccessibleTabBar::state(int child) const
 
     if (child > tb->count()) {
         QWidget *bt = button(child);
-        if (!bt->isEnabled())
+        if (bt && !bt->isEnabled())
             st |= Unavailable;
         return st;
     }

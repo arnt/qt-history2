@@ -85,11 +85,11 @@ QString QAccessibleMenu::text(Text t, int child) const
     case Name:
         if (!child)
             return menu()->windowTitle();
-        return qacc_stripAmp(menu()->actions()[child-1]->text());
+        return qacc_stripAmp(menu()->actions().at(child-1)->text());
     case Help:
-        return menu()->actions()[child-1]->whatsThis();
+        return child ? menu()->actions().at(child-1)->whatsThis() : tx;
     case Accelerator:
-        return (QString)menu()->actions()[child-1]->shortcut();
+        return child ? static_cast<QString>(menu()->actions().at(child-1)->shortcut()) : tx;
     default:
         break;
     }
