@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#242 $
+** $Id: //depot/qt/main/src/moc/moc.y#243 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -2634,7 +2634,7 @@ void generateClass()		      // generate C++ source code for a class
     const char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     const char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#242 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#243 $)\n**\n";
     const char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     const char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2715,7 +2715,8 @@ void generateClass()		      // generate C++ source code for a class
 //
 // Generate static cleanup object variable
 //
-    char *cname = strdup( (const char*)qualifiedClassName() );
+    char *cname = strcpy( new char[qualifiedClassName().length()+1],
+                          (const char*)qualifiedClassName() );
     for ( int cnpos = 0; cnpos < qualifiedClassName().length(); cnpos++ ) {
 	if ( cname[cnpos] == ':' )
 	    cname[cnpos] = '_';
@@ -2809,7 +2810,7 @@ void generateClass()		      // generate C++ source code for a class
 // Setup cleanup handler and return meta object
 //
     fprintf( out, "    cleanUp_%s.setMetaObject( metaObj );\n", cname );
-    delete cname;
+    delete[] cname;
 
     fprintf( out, "    return metaObj;\n}\n" );
 
