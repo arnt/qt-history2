@@ -1113,7 +1113,7 @@ QDataStream& operator<< ( QDataStream& s, const QVariant::Type p )
   
   \sa asString()
 */
-QString QVariant::toString() const
+const QString QVariant::toString() const
 {
     if ( d->typ == CString )
 	return QString::fromLatin1( toCString() );
@@ -1133,7 +1133,7 @@ QString QVariant::toString() const
   
   \sa asCString()
 */
-QCString QVariant::toCString() const
+const QCString QVariant::toCString() const
 {
     if ( d->typ == CString )
 	return *((QCString*)d->value.ptr);
@@ -1153,7 +1153,7 @@ QCString QVariant::toCString() const
   
   \sa asStringList()
 */
-QStringList QVariant::toStringList() const
+const QStringList QVariant::toStringList() const
 {
     if ( d->typ == StringList )
 	return *((QStringList*)d->value.ptr);
@@ -1182,7 +1182,7 @@ QStringList QVariant::toStringList() const
   
   \sa asMap()
 */
-QMap<QString,QVariant> QVariant::toMap() const
+const QMap<QString,QVariant> QVariant::toMap() const
 {
     if ( d->typ == Custom )
 	return d->custom_type->castTo( d->value.ptr, Map ).toMap();
@@ -1200,7 +1200,7 @@ QMap<QString,QVariant> QVariant::toMap() const
   
   \sa asFont()
 */
-QFont QVariant::toFont() const
+const QFont QVariant::toFont() const
 {
     if ( d->typ == Custom )
 	return d->custom_type->castTo( d->value.ptr, Font ).toFont();
@@ -1218,7 +1218,7 @@ QFont QVariant::toFont() const
   
   \sa asPixmap()
 */
-QPixmap QVariant::toPixmap() const
+const QPixmap QVariant::toPixmap() const
 {
     if ( d->typ == Custom )
 	return d->custom_type->castTo( d->value.ptr, Pixmap ).toPixmap();
@@ -1236,7 +1236,7 @@ QPixmap QVariant::toPixmap() const
   
   \sa asImage()
 */
-QImage QVariant::toImage() const
+const QImage QVariant::toImage() const
 {
     if ( d->typ == Custom )
 	return d->custom_type->castTo( d->value.ptr, Image ).toImage();
@@ -1254,7 +1254,7 @@ QImage QVariant::toImage() const
   
   \sa asBrush()
 */
-QBrush QVariant::toBrush() const
+const QBrush QVariant::toBrush() const
 {
     if ( d->typ == Custom )
 	return d->custom_type->castTo( d->value.ptr, Brush ).toBrush();
@@ -1272,7 +1272,7 @@ QBrush QVariant::toBrush() const
   
   \sa asPoint()
 */
-QPoint QVariant::toPoint() const
+const QPoint QVariant::toPoint() const
 {
     if ( d->typ == Custom )
 	return d->custom_type->castTo( d->value.ptr, Point ).toPoint();
@@ -1290,7 +1290,7 @@ QPoint QVariant::toPoint() const
   
   \sa asRect()
 */
-QRect QVariant::toRect() const
+const QRect QVariant::toRect() const
 {
     if ( d->typ == Custom )
 	return d->custom_type->castTo( d->value.ptr, Rect ).toRect();
@@ -1308,7 +1308,7 @@ QRect QVariant::toRect() const
   
   \sa asSize()
 */
-QSize QVariant::toSize() const
+const QSize QVariant::toSize() const
 {
     if ( d->typ == Custom )
 	return d->custom_type->castTo( d->value.ptr, Size ).toSize();
@@ -1326,7 +1326,7 @@ QSize QVariant::toSize() const
   
   \sa asColor()
 */
-QColor QVariant::toColor() const
+const QColor QVariant::toColor() const
 {
     if ( d->typ == Custom )
 	return d->custom_type->castTo( d->value.ptr, Color ).toColor();
@@ -1344,7 +1344,7 @@ QColor QVariant::toColor() const
   
   \sa asPalette()
 */
-QPalette QVariant::toPalette() const
+const QPalette QVariant::toPalette() const
 {
     if ( d->typ == Custom )
 	return d->custom_type->castTo( d->value.ptr, Palette ).toPalette();
@@ -1362,7 +1362,7 @@ QPalette QVariant::toPalette() const
   
   \sa asColorGroup()
 */
-QColorGroup QVariant::toColorGroup() const
+const QColorGroup QVariant::toColorGroup() const
 {
     if ( d->typ == Custom )
 	return d->custom_type->castTo( d->value.ptr, ColorGroup ).toColorGroup();
@@ -1380,7 +1380,7 @@ QColorGroup QVariant::toColorGroup() const
   
   \sa asIconSet()
 */
-QIconSet QVariant::toIconSet() const
+const QIconSet QVariant::toIconSet() const
 {
     if ( d->typ == Custom )
 	return d->custom_type->castTo( d->value.ptr, IconSet ).toIconSet();
@@ -1398,7 +1398,7 @@ QIconSet QVariant::toIconSet() const
   
   \sa asPointArray()
 */
-QPointArray QVariant::toPointArray() const
+const QPointArray QVariant::toPointArray() const
 {
     if ( d->typ == Custom )
 	return d->custom_type->castTo( d->value.ptr, PointArray ).toPointArray();
@@ -1416,7 +1416,7 @@ QPointArray QVariant::toPointArray() const
   
   \sa asBitmap()
 */
-QBitmap QVariant::toBitmap() const
+const QBitmap QVariant::toBitmap() const
 {
     if ( d->typ == Custom )
 	return d->custom_type->castTo( d->value.ptr, Bitmap ).toBitmap();
@@ -1434,7 +1434,7 @@ QBitmap QVariant::toBitmap() const
   
   \sa asRegion()
 */
-QRegion QVariant::toRegion() const
+const QRegion QVariant::toRegion() const
 {
     if ( d->typ == Custom )
 	return d->custom_type->castTo( d->value.ptr, Region ).toRegion();
@@ -1452,7 +1452,7 @@ QRegion QVariant::toRegion() const
   
   \sa asCustom()
 */
-QCursor QVariant::toCursor() const
+const QCursor QVariant::toCursor() const
 {
     if ( d->typ == Custom )
 	return d->custom_type->castTo( d->value.ptr, Cursor ).toCursor();
@@ -1584,7 +1584,7 @@ double QVariant::toDouble() const
   
   \sa asList()
 */
-QValueList<QVariant> QVariant::toList() const
+const QValueList<QVariant> QVariant::toList() const
 {
     if ( d->typ == List )
 	return *((QValueList<QVariant>*)d->value.ptr);
