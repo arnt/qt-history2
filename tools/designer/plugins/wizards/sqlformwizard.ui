@@ -55,7 +55,7 @@
                     <string></string>
                 </property>
                 <property name="pixmap">
-                    <pixmap>qtwizards_table_1</pixmap>
+                    <pixmap>qtwizards_table_1.png</pixmap>
                 </property>
             </widget>
             <widget class="QLayoutWidget">
@@ -194,7 +194,7 @@
                     <string></string>
                 </property>
                 <property name="pixmap">
-                    <pixmap>qtwizards_table_2</pixmap>
+                    <pixmap>qtwizards_table_2.png</pixmap>
                 </property>
             </widget>
             <widget class="QLayoutWidget" row="1" column="1">
@@ -236,7 +236,7 @@
                             <string></string>
                         </property>
                         <property name="pixmap">
-                            <pixmap>right</pixmap>
+                            <pixmap>right.png</pixmap>
                         </property>
                         <property name="toolTip" stdset="0">
                             <string>Move field to list of displayed fields</string>
@@ -253,7 +253,7 @@
                             <string></string>
                         </property>
                         <property name="pixmap">
-                            <pixmap>left</pixmap>
+                            <pixmap>left.png</pixmap>
                         </property>
                         <property name="toolTip" stdset="0">
                             <string>remove field from list of displayed fields</string>
@@ -287,7 +287,7 @@
                             <string></string>
                         </property>
                         <property name="pixmap">
-                            <pixmap>up</pixmap>
+                            <pixmap>up.png</pixmap>
                         </property>
                         <property name="toolTip" stdset="0">
                             <string>Move Field up</string>
@@ -329,7 +329,7 @@
                             <string></string>
                         </property>
                         <property name="pixmap">
-                            <pixmap>down</pixmap>
+                            <pixmap>down.png</pixmap>
                         </property>
                         <property name="toolTip" stdset="0">
                             <string>Move field down</string>
@@ -649,7 +649,7 @@
                     <string></string>
                 </property>
                 <property name="pixmap">
-                    <pixmap>qtwizards_table_3</pixmap>
+                    <pixmap>qtwizards_table_3.png</pixmap>
                 </property>
             </widget>
             <widget class="QLayoutWidget">
@@ -1177,7 +1177,7 @@
                     <string></string>
                 </property>
                 <property name="pixmap">
-                    <pixmap>qtwizards_table_4</pixmap>
+                    <pixmap>qtwizards_table_4.png</pixmap>
                 </property>
             </widget>
             <spacer row="3" column="1">
@@ -1610,7 +1610,7 @@
                     <string></string>
                 </property>
                 <property name="pixmap">
-                    <pixmap>qtwizards_table_2</pixmap>
+                    <pixmap>qtwizards_table_2.png</pixmap>
                 </property>
             </widget>
             <widget class="QLayoutWidget" row="1" column="1">
@@ -1807,7 +1807,7 @@ name like "qt%"
                             <string></string>
                         </property>
                         <property name="pixmap">
-                            <pixmap>right</pixmap>
+                            <pixmap>right.png</pixmap>
                         </property>
                         <property name="toolTip" stdset="0">
                             <string>Move field to the right list</string>
@@ -1824,7 +1824,7 @@ name like "qt%"
                             <string></string>
                         </property>
                         <property name="pixmap">
-                            <pixmap>left</pixmap>
+                            <pixmap>left.png</pixmap>
                         </property>
                         <property name="toolTip" stdset="0">
                             <string>remove field from the right list</string>
@@ -1858,7 +1858,7 @@ name like "qt%"
                             <string></string>
                         </property>
                         <property name="pixmap">
-                            <pixmap>up</pixmap>
+                            <pixmap>up.png</pixmap>
                         </property>
                         <property name="toolTip" stdset="0">
                             <string>move field up</string>
@@ -1875,7 +1875,7 @@ name like "qt%"
                             <string></string>
                         </property>
                         <property name="pixmap">
-                            <pixmap>down</pixmap>
+                            <pixmap>down.png</pixmap>
                         </property>
                         <property name="toolTip" stdset="0">
                             <string>move field down</string>
@@ -2237,7 +2237,7 @@ name like "qt%"
                     <string></string>
                 </property>
                 <property name="pixmap">
-                    <pixmap>qtwizards_table_3</pixmap>
+                    <pixmap>qtwizards_table_3.png</pixmap>
                 </property>
             </widget>
             <spacer row="5" column="5">
@@ -2748,7 +2748,7 @@ name like "qt%"
                     <string></string>
                 </property>
                 <property name="pixmap">
-                    <pixmap>qtwizards_table_1</pixmap>
+                    <pixmap>qtwizards_table_1.png</pixmap>
                 </property>
             </widget>
             <widget class="QLabel" row="3" column="1" rowspan="1" colspan="3">

@@ -32,7 +32,7 @@
         <string>Main Window Wizard</string>
     </property>
     <property name="icon">
-        <pixmap>logo</pixmap>
+        <pixmap>logo.png</pixmap>
     </property>
     <property name="layoutMargin" stdset="0">
     </property>
@@ -86,7 +86,7 @@
                     <string></string>
                 </property>
                 <property name="pixmap">
-                    <pixmap>qtwizards_menu_1</pixmap>
+                    <pixmap>qtwizards_menu_1.png</pixmap>
                 </property>
             </widget>
             <widget class="QGroupBox" row="1" column="1">
@@ -363,7 +363,7 @@
                     <string></string>
                 </property>
                 <property name="pixmap">
-                    <pixmap>up</pixmap>
+                    <pixmap>up.png</pixmap>
                 </property>
             </widget>
             <widget class="QLabel" row="2" column="3">
@@ -385,7 +385,7 @@
                     <string></string>
                 </property>
                 <property name="pixmap">
-                    <pixmap>down</pixmap>
+                    <pixmap>down.png</pixmap>
                 </property>
             </widget>
             <widget class="QListBox" row="3" column="1" rowspan="7" colspan="1">
@@ -457,7 +457,7 @@
                     <string></string>
                 </property>
                 <property name="pixmap">
-                    <pixmap>left</pixmap>
+                    <pixmap>left.png</pixmap>
                 </property>
             </widget>
             <widget class="QLabel" row="0" column="0" rowspan="10" colspan="1">
@@ -476,7 +476,7 @@
                     <string></string>
                 </property>
                 <property name="pixmap">
-                    <pixmap>qtwizards_menu_2</pixmap>
+                    <pixmap>qtwizards_menu_2.png</pixmap>
                 </property>
             </widget>
             <widget class="QPushButton" row="4" column="2">
@@ -487,7 +487,7 @@
                     <string></string>
                 </property>
                 <property name="pixmap">
-                    <pixmap>right</pixmap>
+                    <pixmap>right.png</pixmap>
                 </property>
             </widget>
             <spacer row="3" column="2">
@@ -576,7 +576,7 @@
                     <string></string>
                 </property>
                 <property name="pixmap">
-                    <pixmap>qtwizards_menu_3</pixmap>
+                    <pixmap>qtwizards_menu_3.png</pixmap>
                 </property>
             </widget>
             <widget class="QLabel" row="1" column="1">
