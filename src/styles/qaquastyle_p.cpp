@@ -30,6 +30,7 @@
 #include <qlistview.h>
 #ifdef Q_WS_MAC
 #  include <qt_mac.h>
+#  include <qmacstyle_mac.h>
 #endif
 #include <stdlib.h>
 
@@ -410,6 +411,17 @@ void QAquaAnimate::setFocusWidget(QWidget *w)
 }
 bool QAquaAnimate::focusable(QWidget *w)
 {
+#ifdef Q_WS_MAC
+    QStyle *style = &qApp->style();
+    if (style->inherits("QMacStyle")) {
+	QMacStyle::FocusRectPolicy p = ((QMacStyle*)style)->focusRectPolicy(w);
+	if (p == QMacStyle::FocusDisabled)
+	    return false;
+	if (p == QMacStyle::FocusEnabled)
+	    return true;
+    }
+#endif
+    
     return (w && w->parentWidget(TRUE) && 
 	    (w->inherits("QSpinWidget") || w->inherits("QDateTimeEditor") || w->inherits("QComboBox") || 
 	     (w->inherits("QLineEdit") && w->parentWidget()->inherits("QSpinWidget")) ||

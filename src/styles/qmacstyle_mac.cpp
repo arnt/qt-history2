@@ -165,6 +165,7 @@ public:
     struct ListViewItemState {
 	QMap<QListViewItem*, int> lvis;
     } lviState;
+    QMap<QWidget*, QMacStyle::FocusRectPolicy> focusMap;
     QMacStylePrivate();
     ~QMacStylePrivate();
 protected:
@@ -2196,6 +2197,28 @@ QSize QMacStyle::sizeFromContents(ContentsType contents, const QWidget *widget,
 bool QMacStyle::event(QEvent *e)
 {
     return QWindowsStyle::event(e);
+}
+
+void QMacStyle::setFocusRectPolicy( QWidget *w, FocusRectPolicy policy )
+{
+    d->focusMap.replace( w, policy );
+    connect( w, SIGNAL(destroyed(QObject*)), SLOT(focusMapWidgetDestroyed(QObject*)));
+    if (w->hasFocus()) {
+	w->clearFocus();
+	w->setFocus();
+    }
+}
+
+QMacStyle::FocusRectPolicy QMacStyle::focusRectPolicy( QWidget *w )
+{
+    if (d->focusMap.contains(w))
+	return d->focusMap[w];
+    return FocusDefault;
+}
+
+void QMacStyle::focusMapWidgetDestroyed( QObject *obj )
+{
+    d->focusMap.remove( (QWidget*)obj );
 }
 
 #endif
