@@ -1,7 +1,7 @@
 #include <QtGui>
 #include <QtNetwork>
 
-#include <cstdlib>
+#include <stdlib.h>
 
 #include "server.h"
 
