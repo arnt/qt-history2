@@ -219,7 +219,12 @@ void QTextBlockGroup::blockInserted(const QTextBlock &block)
 void QTextBlockGroup::blockRemoved(const QTextBlock &block)
 {
     Q_D(QTextBlockGroup);
+    Q_Q(QTextBlockGroup);
     d->blocks.removeAll(block);
+    if (d->blocks.isEmpty()) {
+        q->document()->docHandle()->deleteObject(q);
+        return;
+    }
 }
 
 /*!
@@ -527,7 +532,7 @@ void QTextFramePrivate::remove_me()
     Q_Q(QTextFrame);
     if (fragment_start == 0 && fragment_end == 0
         && !parentFrame) {
-        qobject_cast<QTextDocument *>(q->parent())->docHandle()->deleteObject(q);
+        q->document()->docHandle()->deleteObject(q);
         return;
     }
 
