@@ -105,7 +105,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     bool do_incremental = (project->isActiveConfig("incremental") &&
                            !project->variables()["QMAKE_INCREMENTAL"].isEmpty() &&
                            (!project->variables()["QMAKE_APP_FLAG"].isEmpty() ||
-                            (!project->isActiveConfig("staticlib") && !project->isActiveConfig("plugin")))),
+                            (!project->isActiveConfig("staticlib")))),
          src_incremental=false, moc_incremental=false;
 
     t << "####### Compiler, tools and options" << endl << endl;
