@@ -220,7 +220,7 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
 		     "that contains a QMovie." );
 
     // Create a group of check boxes
-    bg = new QButtonGroup( central, "checkGroup" );
+    bg = new QButtonGroup( central );
     bg->setTitle( "Check Boxes" );
     grid->addWidget( bg, 1, 0 );
 
@@ -260,11 +260,11 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     rb->setText( "&AM" );
     rb->setChecked( TRUE );
     vbox->addWidget(rb);
-    QToolTip::add( rb, "radio button 1" );
+    QToolTip::add( rb );
     rb = new QRadioButton( bg );
     rb->setText( "F&M" );
     vbox->addWidget(rb);
-    QToolTip::add( rb, "radio button 2" );
+    QToolTip::add( rb );
     rb = new QRadioButton( bg );
     rb->setText( "&Short Wave" );
     vbox->addWidget(rb);
@@ -648,10 +648,10 @@ bool WidgetView::eventFilter( QObject *obj, QEvent *event )
 	    QString str = "The clicked widget is a\n";
 	    str += obj->className();
 	    str += "\nThe widget's name is\n";
-	    if ( obj->objectName() )
-		str += obj->objectName();
-	    else
+	    if ( obj->objectName().isEmpty() )
 		str += "<no name>";
+	    else
+		str += obj->objectName();
 	    identify_now = FALSE;		// don't do it in message box
 	    QMessageBox::information( (QWidget*)obj, "Identify Widget", str );
 	    identify_now = TRUE;		// allow it again
