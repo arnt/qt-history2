@@ -19,8 +19,6 @@ Feature Requests
 
 Changing page-order in tabwidget using a special editor dialog
 
-Use QSettings for config ASA this is done
-
 Fake property stretchFactor for widgets in a layout (Reggie)
 
 Support for namespaces
