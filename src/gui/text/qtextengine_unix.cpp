@@ -63,21 +63,8 @@ void QTextEngine::shapeText(int item) const
     layoutData->used += si.num_glyphs;
 
     QGlyphLayout *g = shaper_item.glyphs;
-    // ############ general solution needed
-#if defined(Q_WS_X11) && !defined(QT_NO_XFT)
-    if (this->font(si).d->kerning && font->type() == QFontEngine::Xft) {
-        FT_Face face = static_cast<QFontEngineXft *>(font)->freetypeFace();
-        if (FT_HAS_KERNING(face)) {
-            for (int i = 0; i < si.num_glyphs-1; ++i) {
-                FT_Vector kerning;
-                FT_Get_Kerning(face, g[i].glyph, g[i+1].glyph,
-                               option.usesDesignMetrics() ? FT_KERNING_UNFITTED : FT_KERNING_DEFAULT, &kerning);
-                g[i].advance.rx() += qreal(kerning.x) / qreal(64);
-                g[i].advance.ry() += qreal(kerning.y) / qreal(64);
-            }
-        }
-    }
-#endif
+    if (this->font(si).d->kerning)
+        font->doKerning(si.num_glyphs, g, option.usesDesignMetrics() ? QTextEngine::DesignMetrics : QFlag(0));
 
     si.width = 0;
     QGlyphLayout *end = g + si.num_glyphs;

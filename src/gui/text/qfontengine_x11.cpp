@@ -590,7 +590,7 @@ bool QFontEngineXft::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
 
 void QFontEngineXft::recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::ShaperFlags flags) const
 {
-    if (1 || flags & QTextEngine::DesignMetrics) {
+    if (flags & QTextEngine::DesignMetrics) {
         FT_Face face = XftLockFace(_font);
         for (int i = 0; i < len; i++) {
             FT_UInt glyph = glyphs[i].glyph;
@@ -634,6 +634,20 @@ void QFontEngineXft::recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::
         if (_scale != 1.) {
             for (int i = 0; i < len; i++)
                 glyphs[i].advance.rx() *= _scale;
+        }
+    }
+}
+
+void QFontEngineXft::doKerning(int num_glyphs, QGlyphLayout *g, QTextEngine::ShaperFlags flags) const
+{
+    FT_Face face = XftLockFace(_font);
+    if (FT_HAS_KERNING(face)) {
+        uint f = (flags == QTextEngine::DesignMetrics ? FT_KERNING_UNFITTED : FT_KERNING_DEFAULT);
+        for (int i = 0; i < num_glyphs-1; ++i) {
+            FT_Vector kerning;
+            FT_Get_Kerning(face, g[i].glyph, g[i+1].glyph, f, &kerning);
+            g[i].advance.rx() += kerning.x / 64.;
+            g[i].advance.ry() += kerning.y / 64.;
         }
     }
 }

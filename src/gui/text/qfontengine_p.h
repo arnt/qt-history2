@@ -94,6 +94,7 @@ public:
 
     virtual QOpenType *openType() const { return 0; }
     virtual void recalcAdvances(int , QGlyphLayout *, QTextEngine::ShaperFlags) const {}
+    virtual void doKerning(int , QGlyphLayout *, QTextEngine::ShaperFlags) const {}
 
 #if !defined(Q_WS_X11) && !defined(Q_WS_WIN)
     virtual void draw(QPaintEngine *p, int x, int y, const QTextItem &si) = 0;
@@ -379,6 +380,8 @@ public:
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
+    void recalcAdvances(int , QGlyphLayout *, QTextEngine::ShaperFlags) const;
+    void doKerning(int , QGlyphLayout *, QTextEngine::ShaperFlags) const;
     void addOutlineToPath(qreal, qreal, const QGlyphLayout *, int, QPainterPath *);
 
     qreal ascent() const;
