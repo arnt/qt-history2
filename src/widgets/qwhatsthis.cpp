@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#19 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#20 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -725,18 +725,20 @@ QWhatsThis::~QWhatsThis()
 }
 
 
-/*! \fn const char * QWhatsThistext( const QPoint & ) const
+/*! \fn QString QWhatsThis::text( const QPoint & ) const
+  
+  Not yet.
 
- */
+*/
 
 
-/*!  Enters What's This? queston mode.  What's This will install a
-  special cursor and take over mouse input until the user click
-  somewhere, then show any help avaiable and switch out of What's This
-  mode.
-
-  Finally, What's This removes its cursor and help window.  At this
-  point the left mouse button is not pressed.
+/*!  Enters What's This? question mode and returns immediately.
+  
+  What's This will install a special cursor and take over mouse input
+  until the user click somewhere, then show any help avaiable and
+  switch out of What's This mode.  Finally, What's This removes its
+  cursor and help window and restores ordinary event processing.  At
+  this point the left mouse button is not pressed.
 */
 
 void QWhatsThis::enterWhatsThisMode()
