@@ -33,16 +33,16 @@
     QPixmap::isNull() which has depth 0.
 
     When drawing in a QBitmap (or QPixmap with depth 1), we recommend
-    using the QColor objects \c Qt::color0 and \c Qt::color1.
-    Painting with \c Qt::color0 sets the bitmap bits to 0, and painting
-    with \c Qt::color1 sets the bits to 1. For a bitmap, 0-bits indicate
+    using the QColor objects Qt::color0 and Qt::color1.
+    Painting with Qt::color0 sets the bitmap bits to 0, and painting
+    with Qt::color1 sets the bits to 1. For a bitmap, 0-bits indicate
     background (or transparent pixels) and 1-bits indicate foreground (or
-    opaque pixels). Using the \c black and \c white QColor objects make no
+    opaque pixels). Using the Qt::black and Qt::white colors makes no
     sense because the QColor::pixel() value is not necessarily 0 for
     black and 1 for white.
 
     The QBitmap can be transformed (translated, scaled, sheared, and
-    rotated) using xForm().
+    rotated) using transform().
 
     Just like the QPixmap class, QBitmap is optimized by the use of
     \link shclass.html implicit sharing\endlink, so it is very
@@ -285,10 +285,10 @@ QBitmap &QBitmap::operator=(const QImage &image)
 /*!
     Returns a transformed copy of this bitmap using the \a matrix given.
 
-    This function does exactly the same as QPixmap::xForm(), except
+    This function does exactly the same as QPixmap::transform(), except
     that it returns a QBitmap instead of a QPixmap.
 
-    \sa QPixmap::xForm()
+    \sa QPixmap::transform()
 */
 
 QBitmap QBitmap::transform(const QMatrix &matrix) const
@@ -308,6 +308,6 @@ QBitmap QBitmap::transform(const QMatrix &matrix) const
 /*!
     \fn QBitmap QBitmap::xForm(const QMatrix &matrix) const
 
-    Use transform() instead.
+    Use transform(\a matrix) instead.
 */
 #endif
