@@ -30,7 +30,6 @@ DO_WIN=yes
 DO_X11=yes
 DO_MAC=yes
 DO_EMBEDDED=yes
-DO_US=yes
 DO_PKG=no
 #other
 DO_QMAKE=no
@@ -92,7 +91,6 @@ showhelp()
     echo "  -no-pkg          / -do-pkg           : Toggle pkg build for CD"
     echo "  -no-commercial   / -do-commercial    : Toggle commercial build"
     echo "  -no-free         / -do-free          : Toggle free build"
-    echo "  -no-us           / -do-us            : Toggle US builds"
     echo
 
     echo "Platforms:"
@@ -189,7 +187,6 @@ while [ -n "$1" ]; do
    free)DO_FREE=$VAL;;
    #platforms
    pkg)  DO_PKG=$VAL  ;;
-   us)  DO_US=$VAL  ;;
    win) DO_WIN=$VAL ;;
    x11) DO_X11=$VAL ;;
    mac) DO_MAC=$VAL ;;
@@ -629,11 +626,15 @@ copy_platform_files() {
 	    *.qws) o_file=`basename $a | sed "s,\.qws,,"` ;;
 	    *) [ -e "${a}.qws" ] && continue ;;
 	    esac
+	    if [ "$edition" = "commercial" ]; then
+		[ $o_file = "LICENSE" ] && o_file=".LICENSE"
+		[ $o_file = "LICENSE-US" ] && o_file=".LICENSE-US"
+	    fi
 	else
 	    echo $o_file | grep '.qws$' >/dev/null 2>&1 && continue
 	fi
 	case $edition in
-	commercial|commercial-US)
+	commercial)
 	    if [ "$platform" = "win" ]; then
 		[ `basename $a` = "LICENSE" ] && continue
 		[ `basename $a` = "LICENSE-US" ] && continue
@@ -669,7 +670,6 @@ for plat in mac win x11 embedded; do
     platformname=$plat
     plat2=$plat
     plat3=$plat
-    pack_US=$DO_US #do us!
     case $plat in
     mac)
 	[ "x$DO_MAC" = "xyes" ] || continue
@@ -693,12 +693,11 @@ for plat in mac win x11 embedded; do
     status "****** Packing for platform: $plat ****" "1"
 
     PLAT_RM_FILE=${TMP_FILE}-plat-${plat}
-    for edition in commercial free commercial-US; do
+    for edition in commercial free; do
 	dist_for_edition=$edition
 	case $edition in
-	commercial|commercial-US)
+	commercial)
 	    dist_for_edition="commercial"
-	    [ "$edition" = "commercial-US" ] && [ "$pack_US" = "no" ] && continue
 	    [ "x$DO_COMMERCIAL" = "xyes" ] || continue
 	    ;;
 	free)
@@ -920,8 +919,7 @@ for plat in mac win x11 embedded; do
 	   x11) opts="-unix" ;;
 	   *) opts="-${plat}" ;;
 	   esac
-	   [ "$edition" = "commercial-US" ] && opts="$opts -us"
-	   $QPKG_PATH $opts -o "$OUT_TREE/${PLATNAME}" "${PLATNAME}"
+	   $QPKG_PATH $opts -desc $VERSION_STR -o "$OUT_TREE/${PLATNAME}.arq" ${PLATNAME}/* >& /dev/null
 	fi
 	)
 	status "" "-1"
