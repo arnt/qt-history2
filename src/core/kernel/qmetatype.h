@@ -25,9 +25,12 @@ class QDataStream;
 class Q_CORE_EXPORT QMetaType {
 public:
     enum {
-        Void, VoidStar, Long, Int, Short,
-        Char, ULong, UInt, UShort, UChar, Bool,
-        Float, Double, QChar, QByteArray, QString,
+        // these are merged with QCoreVariant
+        Void = 0, QString = 3, Int = 16, UInt = 17,
+        Bool = 18, Double = 19, QByteArray = 29,
+
+        VoidStar = 64, Long, Short, Char, ULong,
+        UShort, UChar, Float, QChar,
         User = 256
     };
 
