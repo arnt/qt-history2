@@ -18,8 +18,6 @@
 #include <private/qunicodetables_p.h>
 #include "qfontdatabase.h"
 #include "qstrlist.h"
-#include "qcache.h"
-#include "qdict.h"
 #include "qtextcodec.h"
 #include "qapplication.h"
 #include "qfile.h"

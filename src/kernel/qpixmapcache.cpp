@@ -55,7 +55,7 @@
 
     The cache associates a pixmap with a string (key). If two pixmaps
     are inserted into the cache using equal keys, then the last pixmap
-    will hide the first pixmap. The QDict and QCache classes do
+    will hide the first pixmap. The QHash and QCache classes do
     exactly the same.
 
     The cache becomes full when the total size of all pixmaps in the

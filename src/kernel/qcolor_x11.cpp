@@ -45,7 +45,7 @@ struct QColorData {
     int	 context;				// allocation context
 };
 
-typedef QHash<QRgb, QColorData> QColorDict;
+typedef QHash<QRgb, QColorData> QColorHash;
 static int	current_alloc_context = 0;	// current color alloc context
 
 class QColorScreenData {
@@ -61,7 +61,7 @@ public:
 	color_reduce = FALSE;
     }
 
-    QColorDict colorDict;		// dict of allocated colors
+    QColorHash colorHash;		// dict of allocated colors
     bool colors_avail;			// X colors available
     bool g_truecolor;			// truecolor visual
     Visual *g_vis;			// visual
@@ -336,8 +336,8 @@ uint QColor::alloc( int screen )
 	    d.d32.pix = pix;
 	return pix;
     }
-    QColorDict::Iterator it = sd->colorDict.find(d.argb);
-    if (it != sd->colorDict.end()) {
+    QColorHash::Iterator it = sd->colorHash.find(d.argb);
+    if (it != sd->colorHash.end()) {
 	// found color in dictionary
 	QColorData &c = *it;
 	pix = c.pix;
@@ -495,7 +495,7 @@ uint QColor::alloc( int screen )
     QColorData c;			// insert into color dict
     c.pix	   = pix;
     c.context = current_alloc_context;
-    sd->colorDict.insert(d.argb, c);	// store color in dict
+    sd->colorHash.insert(d.argb, c);	// store color in dict
     return pix;
 }
 
@@ -727,8 +727,8 @@ void QColor::destroyAllocContext( int context )
 	memset( freeing, FALSE, screendata[screen]->g_cells*sizeof(bool) );
 	int i = 0;
 	uint rgbv;
-	QColorDict::Iterator it = screendata[screen]->colorDict.begin();
-	for (; it != screendata[screen]->colorDict.end(); ++it) {
+	QColorHash::Iterator it = screendata[screen]->colorHash.begin();
+	for (; it != screendata[screen]->colorHash.end(); ++it) {
 	    QColorData d = *it;
 	    rgbv = (uint)it.key();
 	    if ( (d.context || context == -1) &&
@@ -739,7 +739,7 @@ void QColor::destroyAllocContext( int context )
 		    freeing[d.pix] = TRUE;
 		}
 		// remove from dict
-		screendata[screen]->colorDict.remove(rgbv);
+		screendata[screen]->colorHash.remove(rgbv);
 	    }
 	}
 	if ( i )
