@@ -453,7 +453,7 @@ QString QSqlDriver::formatValue( const QSqlField* field, bool trimStrings ) cons
 		QByteArray ba = field->value().toByteArray();
 		QString res;
 		static const char hexchars[] = "0123456789abcdef";
-		for ( uint i = 0; i < ba.size(); ++i ) {
+		for ( int i = 0; i < ba.size(); ++i ) {
 		    uchar s = (uchar) ba[(int)i];
 		    res += hexchars[s >> 4];
 		    res += hexchars[s & 0x0f];
@@ -472,7 +472,7 @@ QString QSqlDriver::formatValue( const QSqlField* field, bool trimStrings ) cons
 
 /*!
     \overload
-    
+
     Open a database connection on database \a db, using user name \a
     user, password \a password, host \a host, port \a port and
     connection options \a connOpts.
