@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#44 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#45 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -595,14 +595,18 @@ QtFileIconView::QtFileIconView( const QString &dir, bool isdesktop,
     setGridX( 100 );
     setResizeMode( Adjust );
 
-    connect( this, SIGNAL( doubleClicked( QIconViewItem * ) ), this, SLOT( itemDoubleClicked( QIconViewItem * ) ) );
-    connect( this, SIGNAL( dropped( QDropEvent * ) ), this, SLOT( slotDropped( QDropEvent * ) ) );
-    connect( this, SIGNAL( itemRightClicked( QIconViewItem * ) ), this, SLOT( slotItemRightClicked( QIconViewItem * ) ) );
-    connect( this, SIGNAL( viewportRightClicked() ), this, SLOT( slotViewportRightClicked() ) );
+    connect( this, SIGNAL( doubleClicked( QIconViewItem * ) ),
+	     this, SLOT( itemDoubleClicked( QIconViewItem * ) ) );
+    connect( this, SIGNAL( dropped( QDropEvent * ) ), 
+	     this, SLOT( slotDropped( QDropEvent * ) ) );
+    connect( this, SIGNAL( itemRightPressed( QIconViewItem * ) ),
+	     this, SLOT( slotItemRightClicked( QIconViewItem * ) ) );
+    connect( this, SIGNAL( viewportRightPressed() ), 
+	     this, SLOT( slotViewportRightClicked() ) );
 
     setReorderItemsWhenInsert( TRUE );
     setResortItemsWhenInsert( TRUE );
-    
+
     QFont f( font() );
     f.setUnderline( TRUE );
     setSingleClickConfiguration( new QFont( f ), new QColor( Qt::red ),
@@ -676,6 +680,13 @@ void QtFileIconView::readDir( const QDir &dir )
 	    item->setKey( QString( "000000%1" ).arg( fi->fileName() ) );
 	else
 	    item->setKey( fi->fileName() );
+
+	if ( fi->isSymLink() ) {
+	    QFont f = font();
+	    f.setItalic( TRUE );
+	    item->setFont( f );
+	}
+		
 	
 	if ( !allowRenameSet ) {
 	    if ( !QFileInfo( fi->absFilePath() ).isWritable() ||
