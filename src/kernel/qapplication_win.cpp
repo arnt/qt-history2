@@ -2153,9 +2153,10 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    if ( !QWidget::find( (HWND)wParam ) ) { // we don't get focus, so unset it now
 		if ( !widget->hasFocus() ) // work around Windows bug after minimizing/restoring
 		    widget = (QETWidget*)qApp->focusWidget();
-		if ( !widget || ::IsChild( widget->winId(), ::GetFocus() ) )
+		HWND focus = ::GetFocus();
+		if ( !widget || (focus && ::IsChild( widget->winId(), focus )) ) {
 		    result = FALSE;
-		else {
+		} else {
 		    widget->clearFocus();
 		    result = TRUE;
 		}
