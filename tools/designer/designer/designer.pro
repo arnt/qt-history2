@@ -46,7 +46,8 @@ HEADERS	= command.h \
 		  outputwindow.h \
 		  ../shared/widgetdatabase.h \
 		  ../shared/parser.h \
-		  config.h
+		  config.h \
+		  pixmapcollection.h
 
 SOURCES	= command.cpp \
 		  formwindow.cpp \
@@ -90,7 +91,8 @@ SOURCES	= command.cpp \
 		  outputwindow.cpp \
 		  ../shared/widgetdatabase.cpp \
 		  ../shared/parser.cpp \
-		  config.cpp
+		  config.cpp \
+		  pixmapcollection.cpp
 
 TARGET	= designer
 INCLUDEPATH	= ../shared ../util ../resource ../../../src/3rdparty/zlib/

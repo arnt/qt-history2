@@ -306,7 +306,7 @@ void PixmapView::previewUrl( const QUrl &u )
     }
 }
 
-QPixmap qChoosePixmap( QWidget *parent, FormWindow *fw, const QPixmap &old )
+QPixmap qChoosePixmap( QWidget *parent, FormWindow *fw, const QPixmap &old, QString *fn )
 {
 #if defined(DESIGNER)
     if ( !fw || fw->savePixmapInline() ) {
@@ -333,6 +333,8 @@ QPixmap qChoosePixmap( QWidget *parent, FormWindow *fw, const QPixmap &old )
 	fd.setCaption( qApp->translate( "qChoosePixmap", "Choose a Pixmap..." ) );
 	if ( fd.exec() == QDialog::Accepted ) {
 	    QPixmap pix( fd.selectedFile() );
+	    if ( fn )
+		*fn = fd.selectedFile();
 	    MetaDataBase::setPixmapArgument( fw, pix.serialNumber(), fd.selectedFile() );
 	    return pix;
 	}

@@ -60,7 +60,7 @@ private:
 
 };
 
-QPixmap qChoosePixmap( QWidget *parent, FormWindow *fw = 0, const QPixmap &old = QPixmap() );
+QPixmap qChoosePixmap( QWidget *parent, FormWindow *fw = 0, const QPixmap &old = QPixmap(), QString *fn = 0 );
 
 class PixmapChooser
 {

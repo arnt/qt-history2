@@ -38,7 +38,7 @@ class FormWindow;
 class QObjectList;
 struct DesignerProject;
 struct DesignerDatabase;
-
+class PixmapCollection;
 class Project;
 
 #ifndef QT_NO_SQL
@@ -160,6 +160,8 @@ public:
     void setImageFile( const QString &f );
     QString imageFile() const;
 
+    PixmapCollection *pixmapCollection() const { return pixCollection; }
+
 private:
     void parse();
     void clear();
@@ -182,6 +184,7 @@ private:
     QStringList csList;
     QInterfaceManager<ProjectSettingsInterface> *projectSettingsPluginManager;
     QString imgFile;
+    PixmapCollection *pixCollection;
 
 };
 

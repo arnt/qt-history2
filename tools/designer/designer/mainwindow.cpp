@@ -2032,6 +2032,7 @@ void MainWindow::editProjectSettings()
 void MainWindow::editPixmapCollection()
 {
     PixmapCollectionEditor dia( this, 0, TRUE );
+    dia.setProject( currentProject );
     dia.exec();
 }
 

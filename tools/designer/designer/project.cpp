@@ -22,6 +22,7 @@
 #include "formwindow.h"
 #include "config.h"
 #include "designerappiface.h"
+#include "pixmapcollection.h"
 
 #include <qfile.h>
 #include <qtextstream.h>
@@ -123,6 +124,7 @@ DesignerDatabase *DatabaseConnection::iFace()
 Project::Project( const QString &fn, const QString &pName, QInterfaceManager<ProjectSettingsInterface> *pm )
     : proName( pName ), projectSettingsPluginManager( pm )
 {
+    pixCollection = new PixmapCollection;
     iface = 0;
     lang = "C++";
     setFileName( fn );

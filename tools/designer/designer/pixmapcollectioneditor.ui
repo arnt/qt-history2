@@ -1,5 +1,11 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>PixmapCollectionEditor</class>
+<include location="global" impldecl="in implementation">qfileinfo.h</include>
+<include location="local" impldecl="in implementation">project.h</include>
+<include location="local" impldecl="in implementation">pixmapchooser.h</include>
+<include location="local" impldecl="in implementation">pixmapcollection.h</include>
+<forward>class Project;</forward>
+<variable>Project *project;</variable>
 <widget class="QDialog">
     <property name="name">
         <cstring>PixmapCollectionEditor</cstring>
@@ -8,8 +14,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>391</width>
-            <height>320</height>
+            <width>390</width>
+            <height>287</height>
         </rect>
     </property>
     <property name="caption">
@@ -90,6 +96,12 @@
             <property name="name">
                 <cstring>viewPixmaps</cstring>
             </property>
+            <property name="resizeMode">
+                <enum>Adjust</enum>
+            </property>
+            <property name="itemsMovable">
+                <bool>false</bool>
+            </property>
         </widget>
         <widget class="QLayoutWidget">
             <property name="name">
@@ -168,5 +180,49 @@
     <slot access="protected" language="C++">destroy()</slot>
     <slot access="protected" language="C++">addPixmap()</slot>
     <slot access="protected" language="C++">removePixmap()</slot>
+    <slot access="public" language="C++">updateView()</slot>
+    <slot access="public" language="C++">setProject( Project *pro )</slot>
 </connections>
+<functions>
+    <function name="init()" >{
+    project = 0;
+}</function>
+    <function name="destroy()" >{
+    
+}</function>
+    <function name="addPixmap()" >{
+    if ( !project )
+	return;
+    
+    QString f;
+    QPixmap pix = qChoosePixmap( this, 0, QPixmap(), &amp;f ); 
+    if ( pix.isNull() )
+	return;
+    PixmapCollection::Pixmap pixmap;
+    pixmap.pix = pix;
+    pixmap.name = QFileInfo( f ).baseName();
+    project-&gt;pixmapCollection()-&gt;addPixmap( pixmap );
+    updateView();
+}</function>
+    <function name="removePixmap()" >{
+}</function>
+    <function name="updateView()" >{
+    if ( !project )
+	return;
+ 
+    viewPixmaps-&gt;clear();
+    
+    QValueList&lt;PixmapCollection::Pixmap&gt; pixmaps = project-&gt;pixmapCollection()-&gt;pixmaps();
+    for ( QValueList&lt;PixmapCollection::Pixmap&gt;::Iterator it = pixmaps.begin(); it != pixmaps.end(); ++it ) {
+	QIconViewItem *item = new QIconViewItem( viewPixmaps, (*it).name, (*it).pix );
+	item-&gt;setRenameEnabled( TRUE );
+	item-&gt;setDragEnabled( FALSE );
+	item-&gt;setDropEnabled( FALSE );
+    }
+}</function>
+    <function name="setProject(Project*)" >{
+    project = pro;
+    updateView();
+}</function>
+</functions>
 </UI>
