@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>603</width>
-            <height>400</height>
+            <width>579</width>
+            <height>388</height>
         </rect>
     </property>
     <property name="caption">
@@ -346,6 +346,12 @@
                                 <property name="text">
                                     <string>&amp;Setup Database Connections...</string>
                                 </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Click here to manage your database connections</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>Here you can add, modify and delete your database connections</string>
+                                </property>
                             </widget>
                             <spacer>
                                 <property name="name">
@@ -394,10 +400,16 @@
                         <property name="name">
                             <cstring>listBoxTable</cstring>
                         </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>Displays all tables inside the selected Database</string>
+                        </property>
                     </widget>
                     <widget class="QListBox" row="2" column="0">
                         <property name="name">
                             <cstring>listBoxConnection</cstring>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>Displays a list of available connections on your system</string>
                         </property>
                     </widget>
                 </grid>
@@ -745,6 +757,12 @@
                         <property name="pixmap">
                             <pixmap>image0</pixmap>
                         </property>
+                        <property name="toolTip" stdset="0">
+                            <string>Move field to list of displayed fields</string>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>Click here to add the selected field to the list of fields that will be displayed.</string>
+                        </property>
                     </widget>
                     <widget class="QPushButton" row="3" column="1">
                         <property name="name">
@@ -755,6 +773,12 @@
                         </property>
                         <property name="pixmap">
                             <pixmap>image1</pixmap>
+                        </property>
+                        <property name="toolTip" stdset="0">
+                            <string>remove field from list of displayed fields</string>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>Click here to remove the selected field from the list of fields that will be displayed.</string>
                         </property>
                     </widget>
                     <spacer row="1" column="1">
@@ -784,6 +808,12 @@
                         <property name="pixmap">
                             <pixmap>image2</pixmap>
                         </property>
+                        <property name="toolTip" stdset="0">
+                            <string>Move Field up</string>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>Click here to move the selected field in the displayed fields list up.</string>
+                        </property>
                     </widget>
                     <spacer row="7" column="1">
                         <property name="name">
@@ -806,6 +836,9 @@
                         <property name="name">
                             <cstring>listBoxField</cstring>
                         </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>This is a list of all available fields in your selected table. Fields in this list will not be displayed.</string>
+                        </property>
                     </widget>
                     <widget class="QPushButton" row="6" column="1">
                         <property name="name">
@@ -817,10 +850,19 @@
                         <property name="pixmap">
                             <pixmap>image3</pixmap>
                         </property>
+                        <property name="toolTip" stdset="0">
+                            <string>Move field down</string>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>Click here to move the selected field in the displayed fields list down.</string>
+                        </property>
                     </widget>
                     <widget class="QListBox" row="1" column="2" rowspan="7" colspan="1">
                         <property name="name">
                             <cstring>listBoxSelectedField</cstring>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>All fields in this list will be displayed.</string>
                         </property>
                     </widget>
                     <widget class="QLabel" row="0" column="2">
@@ -1167,6 +1209,12 @@
                         <property name="checked">
                             <bool>true</bool>
                         </property>
+                        <property name="toolTip" stdset="0">
+                            <string>Activates the navigation bar</string>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>Activates the navigation bar</string>
+                        </property>
                     </widget>
                     <widget class="QGroupBox">
                         <property name="name">
@@ -1201,6 +1249,12 @@
                                 <property name="checked">
                                     <bool>true</bool>
                                 </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Toggles whether the "Previous" button will be displayed</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>Toggles whether the "Previous" button will be displayed</string>
+                                </property>
                             </widget>
                             <widget class="QCheckBox" row="1" column="0">
                                 <property name="name">
@@ -1211,6 +1265,12 @@
                                 </property>
                                 <property name="checked">
                                     <bool>true</bool>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Toggles whether the "Next" button will be displayed</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>Toggles whether the "Next" button will be displayed</string>
                                 </property>
                             </widget>
                             <widget class="QCheckBox" row="0" column="1">
@@ -1223,6 +1283,12 @@
                                 <property name="checked">
                                     <bool>true</bool>
                                 </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Toggles whether the "First" button will be displayed</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>Toggles whether the "First" button will be displayed</string>
+                                </property>
                             </widget>
                             <widget class="QCheckBox" row="1" column="1">
                                 <property name="name">
@@ -1233,6 +1299,12 @@
                                 </property>
                                 <property name="checked">
                                     <bool>true</bool>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Toggles whether the "Last" button will be displayed</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>Toggles whether the "Last" button will be displayed</string>
                                 </property>
                             </widget>
                         </grid>
@@ -1246,6 +1318,12 @@
                         </property>
                         <property name="checked">
                             <bool>true</bool>
+                        </property>
+                        <property name="toolTip" stdset="0">
+                            <string>Activates the edit bar</string>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>Activates the edit bar</string>
                         </property>
                     </widget>
                     <widget class="QGroupBox">
@@ -1281,6 +1359,12 @@
                                 <property name="checked">
                                     <bool>true</bool>
                                 </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>User can insert new rows</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>User can insert new rows</string>
+                                </property>
                             </widget>
                             <widget class="QCheckBox" row="1" column="0">
                                 <property name="name">
@@ -1292,6 +1376,12 @@
                                 <property name="checked">
                                     <bool>true</bool>
                                 </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>user can edit existing rows</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>user can edit existing rows</string>
+                                </property>
                             </widget>
                             <widget class="QCheckBox" row="0" column="1">
                                 <property name="name">
@@ -1302,6 +1392,12 @@
                                 </property>
                                 <property name="checked">
                                     <bool>true</bool>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>user can delete rows</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>user can delete rows</string>
                                 </property>
                             </widget>
                         </grid>
@@ -1668,6 +1764,12 @@
                         <property name="text">
                             <string>&amp;Read-Only</string>
                         </property>
+                        <property name="toolTip" stdset="0">
+                            <string>Table will be read-only</string>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>Activate this to prevent editing, deleting and adding of rows</string>
+                        </property>
                     </widget>
                     <widget class="QGroupBox">
                         <property name="name">
@@ -1693,6 +1795,12 @@
                                 <property name="text">
                                     <string>Confirm &amp;Inserts</string>
                                 </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Query user on inserting rows</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>User will be asked for confirmation if he inserts a new row</string>
+                                </property>
                             </widget>
                             <widget class="QCheckBox" row="1" column="0">
                                 <property name="name">
@@ -1701,6 +1809,12 @@
                                 <property name="text">
                                     <string>Confirm &amp;Updates</string>
                                 </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Query user on editing rows</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>User will be asked for confirmation if he edits a row</string>
+                                </property>
                             </widget>
                             <widget class="QCheckBox" row="3" column="0">
                                 <property name="name">
@@ -1708,6 +1822,12 @@
                                 </property>
                                 <property name="text">
                                     <string>Confirm &amp;Cancels</string>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Query user on canceling</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>User will be asked for confirmation if he cancels an action</string>
                                 </property>
                             </widget>
                             <widget class="QCheckBox" row="2" column="0">
@@ -1719,6 +1839,12 @@
                                 </property>
                                 <property name="checked">
                                     <bool>true</bool>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Query user on deleting rows</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>User will be asked for confirmation if he deletes a row</string>
                                 </property>
                             </widget>
                         </grid>
@@ -1734,6 +1860,12 @@
                 </property>
                 <property name="checked">
                     <bool>true</bool>
+                </property>
+                <property name="toolTip" stdset="0">
+                    <string>User may change sorting</string>
+                </property>
+                <property name="whatsThis" stdset="0">
+                    <string>User may change sorting of data by clicking on a field in the top row of the table</string>
                 </property>
             </widget>
         </grid>
@@ -2133,6 +2265,12 @@
                         <property name="name">
                             <cstring>editFilter</cstring>
                         </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>Enter a valid SQL WHERE statement, for example:
+name like "qt%"
+(name like "q%") and (version &gt; 3)
+((version &gt; 3) and (price &gt; 1000)) or (name like "%embed%")</string>
+                        </property>
                     </widget>
                 </vbox>
             </widget>
@@ -2161,6 +2299,9 @@
                     <widget class="QListBox">
                         <property name="name">
                             <cstring>listBoxSortedField</cstring>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>Data will be sorted according to the selected fields.</string>
                         </property>
                     </widget>
                 </vbox>
@@ -2206,6 +2347,12 @@
                         <property name="pixmap">
                             <pixmap>image0</pixmap>
                         </property>
+                        <property name="toolTip" stdset="0">
+                            <string>Move field to the right list</string>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>Klick here to add the currently selected field from the available fields list to the sorting criteria</string>
+                        </property>
                     </widget>
                     <widget class="QPushButton">
                         <property name="name">
@@ -2216,6 +2363,12 @@
                         </property>
                         <property name="pixmap">
                             <pixmap>image1</pixmap>
+                        </property>
+                        <property name="toolTip" stdset="0">
+                            <string>remove field from the right list</string>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>Klick here to remove the currently selected field from the sorting criteria</string>
                         </property>
                     </widget>
                     <spacer>
@@ -2245,6 +2398,12 @@
                         <property name="pixmap">
                             <pixmap>image2</pixmap>
                         </property>
+                        <property name="toolTip" stdset="0">
+                            <string>move field up</string>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>Move selected field in the sort by list up</string>
+                        </property>
                     </widget>
                     <widget class="QPushButton">
                         <property name="name">
@@ -2255,6 +2414,12 @@
                         </property>
                         <property name="pixmap">
                             <pixmap>image3</pixmap>
+                        </property>
+                        <property name="toolTip" stdset="0">
+                            <string>move field down</string>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>Move selected field in the sort by list down</string>
                         </property>
                     </widget>
                     <spacer>
@@ -2285,7 +2450,10 @@
                             <pixmap>image4</pixmap>
                         </property>
                         <property name="toolTip" stdset="0">
-                            <string>Change field sort</string>
+                            <string>Change field sort from ASC to DESC and back</string>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>Changes the field sort order from ascending to descending for the selected field in the sort by list.</string>
                         </property>
                     </widget>
                 </vbox>
@@ -2315,6 +2483,9 @@
                     <widget class="QListBox">
                         <property name="name">
                             <cstring>listBoxSortField</cstring>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>This is the list of all available fields in the selected table</string>
                         </property>
                     </widget>
                 </vbox>
@@ -2649,6 +2820,9 @@
                         <property name="checked">
                             <bool>true</bool>
                         </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>Create labels to the left of data entry fields.</string>
+                        </property>
                     </widget>
                     <widget class="QLabel" row="3" column="1">
                         <property name="name">
@@ -2719,6 +2893,9 @@
                         <property name="text">
                             <string>Labels on &amp;top</string>
                         </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>Create labels above data entry fields.</string>
+                        </property>
                     </widget>
                 </grid>
             </widget>
@@ -2732,6 +2909,12 @@
                 <property name="checked">
                     <bool>true</bool>
                 </property>
+                <property name="toolTip" stdset="0">
+                    <string>Create a BoxLayout around the whole widget</string>
+                </property>
+                <property name="whatsThis" stdset="0">
+                    <string>If you select this a BoxLayout will be created for the whole widget</string>
+                </property>
             </widget>
             <widget class="QCheckBox" row="3" column="1" rowspan="1" colspan="2">
                 <property name="name">
@@ -2742,6 +2925,12 @@
                 </property>
                 <property name="checked">
                     <bool>true</bool>
+                </property>
+                <property name="toolTip" stdset="0">
+                    <string>Create a BoxLayout around the buttons</string>
+                </property>
+                <property name="whatsThis" stdset="0">
+                    <string>If you select this the designer will arrange all buttons inside an BoxLayout</string>
                 </property>
             </widget>
             <widget class="QCheckBox" row="2" column="1" rowspan="1" colspan="4">
@@ -2754,6 +2943,12 @@
                 <property name="checked">
                     <bool>true</bool>
                 </property>
+                <property name="toolTip" stdset="0">
+                    <string>Create a BoxLayout around the fields</string>
+                </property>
+                <property name="whatsThis" stdset="0">
+                    <string>If you select this the designer will arrange all fields inside an BoxLayout</string>
+                </property>
             </widget>
             <widget class="QSpinBox" row="0" column="2">
                 <property name="name">
@@ -2764,6 +2959,12 @@
                 </property>
                 <property name="value">
                     <number>2</number>
+                </property>
+                <property name="toolTip" stdset="0">
+                    <string>Enter the number of desired columns</string>
+                </property>
+                <property name="whatsThis" stdset="0">
+                    <string>Enter the number of desired columns</string>
                 </property>
             </widget>
             <widget class="QLabel" row="0" column="1">
@@ -3139,6 +3340,14 @@
                 </property>
                 <property name="text">
                     <string>&amp;AutoEditing</string>
+                </property>
+                <property name="toolTip" stdset="0">
+                    <string>Discard changes when user klicks into another row</string>
+                </property>
+                <property name="whatsThis" stdset="0">
+                    <string>This property holds whether the table automatically applies edits. When the user begins an insert or update in the table there are two possible outcomes when they navigate to another record
+1.the insert or update is is performed -- this occurs if AutoEditing is on 
+2.the insert or update is abandoned -- this occurs if AutoEditing is off</string>
                 </property>
             </widget>
         </grid>
