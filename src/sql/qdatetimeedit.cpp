@@ -633,6 +633,8 @@ void QDateEdit::init()
     d->min = QDate( 1752, 9, 14 );
     d->max = QDate( 8000, 12, 31 );
     d->changed = FALSE;
+
+    setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
 }
 
 /*! Destroys the object and frees any allocated resources.
@@ -714,11 +716,11 @@ void QDateEdit::resizeEvent( QResizeEvent * )
 QSize QDateEdit::sizeHint() const
 {
     QFontMetrics fm( font() );
+    int fw = style().pixelMetric( QStyle::PM_DefaultFrameWidth, this ); 
     int h = fm.height();
-    int w = fm.width( '9' ) * 10 + d->controls->upRect().width() +
-	    style().pixelMetric( QStyle::PM_DefaultFrameWidth, this ) * 4;
+    int w = fm.width( '9' ) * 10 + d->controls->upRect().width() + fw * 4;
 
-    return QSize( w, h + 2 ).expandedTo( QApplication::globalStrut() );
+    return QSize( w, h + fw * 2 ).expandedTo( QApplication::globalStrut() );
 }
 
 
@@ -1423,6 +1425,8 @@ void QTimeEdit::init()
     d->min = QTime( 0, 0, 0 );
     d->max = QTime( 23, 59, 59 );
     d->changed = FALSE;
+
+    setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
 }
 
 /*! Destroys the object and frees any allocated resources.
@@ -1905,12 +1909,12 @@ void QTimeEdit::resizeEvent( QResizeEvent * )
 QSize QTimeEdit::sizeHint() const
 {
     QFontMetrics fm( font() );
+    int fw = style().pixelMetric( QStyle::PM_DefaultFrameWidth, this ); 
     int h = fm.height();
     int w = fm.width( '9' ) * 6 + fm.width( d->ed->separator() ) * 2 +
-	    d->controls->upRect().width() +
-	    style().pixelMetric( QStyle::PM_DefaultFrameWidth, this ) * 4;
+	    d->controls->upRect().width() + fw * 4;
 
-    return QSize( w, h + 2 ).expandedTo( QApplication::globalStrut() );
+    return QSize( w, h + fw * 2 ).expandedTo( QApplication::globalStrut() );
 }
 
 /*! 
