@@ -366,7 +366,8 @@ void QCursor::update() const
 	sh = (unsigned short*)IDC_APPSTARTING;
 	break;
     case PointingHandCursor:
-	if ( qWinVersion() == Qt::WV_2000 || qWinVersion() == Qt::WV_XP ) {
+	if ( (qWinVersion() & WV_DOS_based) > WV_95 ||
+	     (qWinVersion() & WV_NT_based) > WV_NT ) {
 	    sh = (unsigned short*)IDC_HAND;
 	    break;
 	}

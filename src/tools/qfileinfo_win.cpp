@@ -283,7 +283,7 @@ Q_KERNEL_EXPORT int qt_ntfs_permission_lookup = 1;
 
 QString QFileInfo::owner() const
 {
-    if ( ( qt_ntfs_permission_lookup > 0 ) && ( qWinVersion() == Qt::WV_2000 || qWinVersion() == Qt::WV_XP ) ) {
+    if ( ( qt_ntfs_permission_lookup > 0 ) && ((qWinVersion()&Qt::WV_NT_based) > Qt::WV_NT ) ) {
 	PSID pOwner = 0;
 	PSECURITY_DESCRIPTOR pSD;
 	QString name;
@@ -319,7 +319,7 @@ uint QFileInfo::ownerId() const
 
 QString QFileInfo::group() const
 {
-    if ( ( qt_ntfs_permission_lookup > 0 ) && ( qWinVersion() == Qt::WV_2000 || qWinVersion() == Qt::WV_XP ) ) {
+    if ( ( qt_ntfs_permission_lookup > 0 ) && ((qWinVersion()&Qt::WV_NT_based) > Qt::WV_NT ) ) {
 	PSID pGroup = 0;
 	PSECURITY_DESCRIPTOR pSD;
 	QString name;
@@ -354,7 +354,7 @@ uint QFileInfo::groupId() const
 
 bool QFileInfo::permission( int p ) const
 {
-    if ( ( qt_ntfs_permission_lookup > 0 ) && ( qWinVersion() == Qt::WV_2000 || qWinVersion() == Qt::WV_XP ) ) {
+    if ( ( qt_ntfs_permission_lookup > 0 ) && ((qWinVersion()&Qt::WV_NT_based) > Qt::WV_NT ) ) {
 	PSID pOwner = 0;
 	PSID pGroup = 0;
 	PACL pDacl;

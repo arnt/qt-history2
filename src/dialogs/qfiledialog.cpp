@@ -2565,7 +2565,7 @@ void QFileDialog::init()
 
     d->previewContents = new QToolButton( this, "preview info view" );
 #if defined(Q_WS_WIN) && !defined(Q_OS_TEMP)
-    if ( qWinVersion() == Qt::WV_2000 || qWinVersion() == Qt::WV_XP  )
+    if ( (qWinVersion() & WV_NT_based) > Qt::WV_NT )
 #else
     if ( !qstrcmp(style().className(), "QWindowsStyle") )
 #endif
