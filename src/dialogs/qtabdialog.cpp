@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#30 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#31 $
 **
 ** Implementation of QTabDialog class
 **
@@ -15,7 +15,7 @@
 #include "qpainter.h"
 #include "qpixmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#30 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#31 $");
 
 
 /*!
@@ -339,8 +339,9 @@ void QTabDialog::showTab( int i )
 	d->children[i]->setGeometry( childRect() );
 	d->children[i]->show();
 	d->children[i]->raise();
-    } else {
-	debug ( "showtab" );
+	for ( int t = 0; t< (int)d->children.size(); t++ )
+	    if ( i != t )
+		d->children[t]->hide();
     }
 }
 
