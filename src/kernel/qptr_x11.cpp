@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#159 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#160 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#159 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#160 $")
 
 
 /*****************************************************************************
@@ -360,12 +360,17 @@ static inline void release_gc( void *ref )
 
 
 /*****************************************************************************
-  QPainter tables
+  QPainter tables etc.
  *****************************************************************************/
 
 static short ropCodes[] = {
     GXcopy, GXor, GXxor, GXandInverted,
     GXcopyInverted, GXorInverted, GXequiv, GXand, GXinvert };
+
+const TxNone	  = 0;				// transformation code
+const TxTranslate = 1;
+const TxScale	  = 2;
+const TxRotShear  = 3;
 
 
 /*****************************************************************************
@@ -456,6 +461,7 @@ QPainter::QPainter()
     tabarraylen = 0;
     ps_stack = 0;
     gc = gc_brush = 0;
+    txop = txinv = 0;
     penRef = brushRef = 0;
 }
 
@@ -836,6 +842,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 	bg_mode = TransparentMode;		// default background mode
 	rop = CopyROP;				// default ROP
 	wxmat.reset();				// reset world xform matrix
+	txop = txinv = 0;
 	if ( dt != PDT_WIDGET ) {
 	    QFont  defaultFont;			// default drawing tools
 	    QPen   defaultPen;
@@ -1103,6 +1110,11 @@ void QPainter::setBrushOrigin( int x, int y )
 }
 
 
+/*----------------------------------------------------------------------------
+  \internal
+  Updates an internal integer transformation matrix.
+ ----------------------------------------------------------------------------*/
+
 void QPainter::updateXForm()			// update xform params
 {
     QWMatrix m;
@@ -1120,8 +1132,44 @@ void QPainter::updateXForm()			// update xform params
     wm22 = qRound((double)m.m22()*65536.0);
     wdx	 = qRound((double)m.dx() *65536.0);
     wdy	 = qRound((double)m.dy() *65536.0);
+
+    txinv = FALSE;				// no inverted matrix
+    txop  = TxNone;
+    if ( wm12 == 0 && wm21 == 0 ) {
+	if ( wm11 == 65536 && wm22 == 65536 ) {
+	    if ( wdx != 0 || wdy != 0 )
+		txop = TxTranslate;
+	}
+	else
+	    txop = TxScale;
+    }
+    else
+	txop = TxRotShear;
+}
+
+
+/*----------------------------------------------------------------------------
+  \internal
+  Updates an internal integer inverse transformation matrix.
+ ----------------------------------------------------------------------------*/
+
+void QPainter::updateInvXForm()			// update inv-xform params
+{
+#if defined(CHECK_STATE)
+    ASSERT( txinv == FALSE );
+#endif
+    txinv = TRUE;				// creating inverted matrix
     bool invertible;
-    m = m.invert( &invertible );		// invert matrix
+    QWMatrix m;
+    if ( testf(VxF) ) {
+	m.translate( vx, vy );
+	m.scale( 1.0*vw/ww, 1.0*vh/wh );
+	m.translate( -wx, -wy );
+	m = wxmat * m;
+    }
+    else
+	m = wxmat;
+    m = wxmat.invert( &invertible );		// invert matrix
     im11 = qRound((double)m.m11()*65536.0);
     im12 = qRound((double)m.m12()*65536.0);
     im21 = qRound((double)m.m21()*65536.0);
@@ -1131,34 +1179,112 @@ void QPainter::updateXForm()			// update xform params
 }
 
 
-// xForm macros, use with care...
+/*----------------------------------------------------------------------------
+  \internal
+  Maps a point from logical coordinates to device coordinates.
+ ----------------------------------------------------------------------------*/
 
-#define VXFORM_P(x,y)						\
-    { x = (vw*(x-wx))/ww + vx; y = (vh*(y-wy))/wh + vy; }
+void QPainter::map( int x, int y, int *rx, int *ry ) const
+{
+     switch ( txop ) {
+	case TxNone:
+	    *rx = x;  *ry = y;
+	    break;
+        case TxTranslate:
+	    *rx = x + wdx/65536;
+	    *ry = y + wdy/65536;
+	    break;
+        case TxScale:
+	    *rx = wm11*x + wdx;
+	    *rx = *rx > 0 ? (*rx + 32768)/65536 : (*rx - 32768)/65536;
+	    *ry = wm22*y + wdy;
+	    *ry = *ry > 0 ? (*ry + 32768)/65536 : (*ry - 32768)/65536;
+	    break;
+	default:
+	    *rx = wm11*x + wm21*y+wdx;
+	    *rx = *rx > 0 ? (*rx + 32768)/65536 : (*rx - 32768)/65536;
+	    *ry = wm12*x + wm22*y+wdy;
+	    *ry = *ry > 0 ? (*ry + 32768)/65536 : (*ry - 32768)/65536;
+	    break;
+    }
+}
 
-#define VXFORM_R(x,y,w,h)					\
-    { x = (vw*(x-wx))/ww + vx; y = (vh*(y-wy))/wh + vy;		\
-      w = (vw*w)/ww; h = (vh*h)/wh;				\
-      if ( w < 0 ) { w = -w; x -= w; }				\
-      if ( h < 0 ) { h = -h; y -= h; } }
+/*----------------------------------------------------------------------------
+  \internal
+  Maps a rectangle from logical coordinates to device coordinates.
+  Cannot handle rotation and/or shear.
+ ----------------------------------------------------------------------------*/
 
-#define WXFORM_P(x,y)						\
-    { int xx = wm11*x+wm21*y+wdx;				\
-      xx += xx>0 ? 32768 : -32768;				\
-      y = wm12*x+wm22*y+wdy;					\
-      y += y>0 ? 32768 : -32768;				\
-      x = xx/65536;  y /= 65536; }
+void QPainter::map( int x, int y, int w, int h,
+		    int *rx, int *ry, int *rw, int *rh ) const
+{
+     switch ( txop ) {
+	case TxNone:
+	    *rx = x;  *ry = y;
+	    *rw = w;  *rh = h;
+	    break;
+        case TxTranslate:
+	    *rx = x + wdx/65536;
+	    *ry = y + wdy/65536;
+	    *rw = w;  *rh = h;
+	    break;
+        case TxScale:
+	    *rx = wm11*x + wdx;
+	    *rx = *rx > 0 ? (*rx + 32768)/65536 : (*rx - 32768)/65536;
+	    *ry = wm22*y + wdy;
+	    *ry = *ry > 0 ? (*ry + 32768)/65536 : (*ry - 32768)/65536;
+	    *rw = wm11*w;
+	    *rw = *rw > 0 ? (*rw + 32768)/65536 : (*rw - 32768)/65536;
+	    *rh = wm22*h;
+	    *rh = *rh > 0 ? (*rh + 32768)/65536 : (*rh - 32768)/65536;
+	    break;
+	default:
+#if defined(CHECK_STATE)
+	    warning( "QPainter::map: Internal error" );
+#endif
+	    break;
+    }
+}
 
-#define WXFORM_R(x,y,w,h)					\
-    { x = wm11*x+wdx;						\
-      y = wm22*y+wdy;						\
-      w = wm11*w;						\
-      h = wm22*h;						\
-      x += x>0 ? 32768 : -32768;				\
-      y += y>0 ? 32768 : -32768;				\
-      w += w>0 ? 32768 : -32768;				\
-      h += h>0 ? 32768 : -32768;				\
-      x/=65536; y/=65536; w/=65536; h/=65536; }
+/*----------------------------------------------------------------------------
+  \internal
+  Maps a point from device coordinates to logical coordinates.
+ ----------------------------------------------------------------------------*/
+
+void QPainter::mapInv( int x, int y, int *rx, int *ry ) const
+{
+#if defined(CHECK_STATE)
+    if ( !txinv )
+	warning( "QPainter::mapInv: Internal error" );
+#endif
+    *rx = im11*x + im21*y+idx;
+    *rx = *rx > 0 ? (*rx + 32768)/65536 : (*rx - 32768)/65536;
+    *ry = im12*x + im22*y+idy;
+    *ry = *ry > 0 ? (*ry + 32768)/65536 : (*ry - 32768)/65536;
+}
+
+/*----------------------------------------------------------------------------
+  \internal
+  Maps a rectangle from device coordinates to logical coordinates.
+  Cannot handle rotation and/or shear.
+ ----------------------------------------------------------------------------*/
+
+void QPainter::mapInv( int x, int y, int w, int h,
+		       int *rx, int *ry, int *rw, int *rh ) const
+{
+#if defined(CHECK_STATE)
+    if ( !txinv || txop == TxRotShear )
+	warning( "QPainter::mapInv: Internal error" );
+#endif
+    *rx = im11*x + idx;
+    *rx = *rx > 0 ? (*rx + 32768)/65536 : (*rx - 32768)/65536;
+    *ry = im22*y + idy;
+    *ry = *ry > 0 ? (*ry + 32768)/65536 : (*ry - 32768)/65536;
+    *rw = im11*w;
+    *rw = *rw > 0 ? (*rw + 32768)/65536 : (*rw - 32768)/65536;
+    *rh = im22*h;
+    *rh = *rh > 0 ? (*rh + 32768)/65536 : (*rh - 32768)/65536;
+}
 
 
 /*----------------------------------------------------------------------------
@@ -1169,14 +1295,11 @@ void QPainter::updateXForm()			// update xform params
  ----------------------------------------------------------------------------*/
 
 QPoint QPainter::xForm( const QPoint &pv ) const
-{						// map point, virtual -> device
+{    
+    if ( txop == TxNone )
+	return pv;
     int x=pv.x(), y=pv.y();
-    if ( testf(WxF) ) {				// world xform
-	WXFORM_P( x, y );
-    }
-    else if ( testf(VxF) ) {			// view xform
-	VXFORM_P( x, y );
-    }
+    map( x, y, &x, &y );
     return QPoint( x, y );
 }
 
@@ -1191,27 +1314,20 @@ QPoint QPainter::xForm( const QPoint &pv ) const
  ----------------------------------------------------------------------------*/
 
 QRect QPainter::xForm( const QRect &rv ) const
-{						// map rect, virtual -> device
-    if ( !testf(VxF|WxF) )
+{
+    if ( txop == TxNone )
 	return rv;
-    int x, y, w, h;
-    rv.rect( &x, &y, &w, &h );
-    if ( testf(WxF) ) {				// world xform
-	if ( wm12 == 0 && wm21 == 0 ) {		// scaling+translation only
-	    WXFORM_R(x,y,w,h);
-	}
-	else {					// return bounding rect
-	    QPointArray a( rv );
-	    a = xForm( a );
-	    return a.boundingRect();
-	}
+    if ( txop == TxRotShear ) {			// rotation/shear
+	QPointArray a( rv );
+	a = xForm( a );
+	return a.boundingRect();
     }
-    else if ( testf(VxF) ) {			// view xform
-	VXFORM_P(x,y);
-	w = (vw*w)/ww;
-	h = (vh*h)/wh;
+    else {					// translation/scale
+	int x, y, w, h;
+	rv.rect( &x, &y, &w, &h );
+	map( x, y, w, h, &x, &y, &w, &h );
+	return QRect( x, y, w, h );
     }
-    return QRect( x, y, w, h );
 }
 
 /*----------------------------------------------------------------------------
@@ -1221,17 +1337,14 @@ QRect QPainter::xForm( const QRect &rv ) const
  ----------------------------------------------------------------------------*/
 
 QPointArray QPainter::xForm( const QPointArray &av ) const
-{						// map point array, v -> d
-    if ( !testf(VxF|WxF) )
+{
+    if ( txop == TxNone )
 	return av;
     QPointArray a = av.copy();
-    int x, y;
-    for ( int i=0; i<(int)a.size(); i++ ) {
+    int x, y, i;
+    for ( i=0; i<(int)a.size(); i++ ) {
 	a.point( i, &x, &y );
-	if ( testf(WxF) )
-	    WXFORM_P( x, y )
-	else if ( testf(VxF) )
-	    VXFORM_P( x, y )
+	map( x, y, &x, &y );
 	a.setPoint( i, x, y );
     }
     return a;
@@ -1244,20 +1357,15 @@ QPointArray QPainter::xForm( const QPointArray &av ) const
  ----------------------------------------------------------------------------*/
 
 QPoint QPainter::xFormDev( const QPoint &pd ) const
-{						// map point, device -> virtual
+{
+    if ( txop == TxNone )
+	return pd;
+    if ( !txinv ) {
+	QPainter *that = (QPainter*)this;	// mutable
+	that->updateInvXForm();
+    }
     int x=pd.x(), y=pd.y();
-    if ( testf(WxF) ) {
-	int xx = im11*x+im21*y+idx;
-	xx += xx > 0 ? 32768 : -32768;
-	int yy = im12*x+im22*y+idy;
-	yy += yy > 0 ? 32768 : -32768;
-	x = xx/65536;
-	y = yy/65536;
-    }
-    else if ( testf(VxF) ) {
-	x = (ww*(x-vx))/vw + wx;
-	y = (wh*(y-vy))/vh + wy;
-    }
+    mapInv( x, y, &x, &y );
     return QPoint( x, y );
 }
 
@@ -1272,29 +1380,24 @@ QPoint QPainter::xFormDev( const QPoint &pd ) const
  ----------------------------------------------------------------------------*/
 
 QRect QPainter::xFormDev( const QRect &rd ) const
-{						// map rect, device -> virtual
-    if ( !testf(VxF|WxF) )
+{
+    if ( txop == TxNone )
 	return rd;
-    int x, y, w, h;
-    rd.rect( &x, &y, &w, &h );
-    if ( testf(WxF) ) {
-	int x1 = im11*x+im21*y+idx;
-	int y1 = im12*x+im22*y+idy;
-	int x2 = im11*(x+w-1)+im21*(y+h-1)+idx;
-	int y2 = im12*(x+w-1)+im22*(y+h-1)+idy;
-	x1 += x1>0 ? 32768 : -32768;
-	y1 += y1>0 ? 32768 : -32768;
-	x2 += x2>0 ? 32768 : -32768;
-	y2 += y2>0 ? 32768 : -32768;
-	x=x1/65536; y=y1/65536; w=(x2-x1)/65536+1; h=(y2-y1)/65536+1;
+    if ( !txinv ) {
+	QPainter *that = (QPainter*)this;	// mutable
+	that->updateInvXForm();
     }
-    else if ( testf(VxF) ) {
-	x = (ww*(x-vx))/vw + wx;
-	y = (wh*(y-vy))/vh + wy;
-	w = (ww*w)/vw;
-	h = (wh*h)/vh;
+    if ( txop == TxRotShear ) {			// rotation/shear
+	QPointArray a( rd );
+	a = xFormDev( a );
+	return a.boundingRect();
     }
-    return QRect( x, y, w, h );
+    else {					// translation/scale
+	int x, y, w, h;
+	rd.rect( &x, &y, &w, &h );
+	mapInv( x, y, w, h, &x, &y, &w, &h );
+	return QRect( x, y, w, h );
+    }
 }
 
 /*----------------------------------------------------------------------------
@@ -1304,25 +1407,14 @@ QRect QPainter::xFormDev( const QRect &rd ) const
  ----------------------------------------------------------------------------*/
 
 QPointArray QPainter::xFormDev( const QPointArray &ad ) const
-{						// map point array, d -> v
-    if ( !testf(VxF|WxF) )
+{
+    if ( txop == TxNone )
 	return ad;
     QPointArray a = ad.copy();
-    int x, y;
-    for ( int i=0; i<(int)a.size(); i++ ) {
+    int x, y, i;
+    for ( i=0; i<(int)a.size(); i++ ) {
 	a.point( i, &x, &y );
-	if ( testf(WxF) ) {
-	    int xx = im11*x+im21*y+idx;
-	    xx += xx > 0 ? 32768 : -32768;
-	    y = im12*x+im22*y+idy;
-	    y += y > 0 ? 32768 : -32768;
-	    x = xx/65536;
-	    y /= 65536;
-	}
-	else if ( testf(VxF) ) {
-	    x = (ww*(x-vx))/vw + wx;
-	    y = (wh*(y-vy))/vh + wy;
-	}
+	mapInv( x, y, &x, &y );
 	a.setPoint( i, x, y );
     }
     return a;
@@ -1419,12 +1511,7 @@ void QPainter::drawPoint( int x, int y )
 	    if ( !pdev->cmd(PDC_DRAWPOINT,this,param) || !hd )
 		return;
 	}
-	if ( testf(WxF) ) {
-	    WXFORM_P( x, y );
-	}
-	else if ( testf(VxF) ) {
-	    VXFORM_P( x, y );
-	}
+	map( x, y, &x, &y );
     }
     XDrawPoint( dpy, hd, gc, x, y );
 }
@@ -1446,12 +1533,7 @@ void QPainter::moveTo( int x, int y )
 	    if ( !pdev->cmd(PDC_MOVETO,this,param) || !hd )
 		return;
 	}
-	if ( testf(WxF) ) {
-	    WXFORM_P( x, y );
-	}
-	else if ( testf(VxF) ) {
-	    VXFORM_P( x, y );
-	}
+	map( x, y, &x, &y );
     }
     curPt = QPoint( x, y );
 }
@@ -1474,12 +1556,7 @@ void QPainter::lineTo( int x, int y )
 	    if ( !pdev->cmd(PDC_LINETO,this,param) || !hd )
 		return;
 	}
-	if ( testf(WxF) ) {
-	    WXFORM_P( x, y );
-	}
-	else if ( testf(VxF) ) {
-	    VXFORM_P( x, y );
-	}
+	map( x, y, &x, &y );
     }
     if ( cpen.style() != NoPen )
 	XDrawLine( dpy, hd, gc, curPt.x(), curPt.y(), x, y );
@@ -1498,21 +1575,14 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
     if ( testf(ExtDev|VxF|WxF) ) {
 	if ( testf(ExtDev) ) {
 	    QPDevCmdParam param[2];
-	    QPoint p1( x1, y1 ),
-		   p2( x2, y2 );
+	    QPoint p1(x1, y1), p2(x2, y2);
 	    param[0].point = &p1;
 	    param[1].point = &p2;
 	    if ( !pdev->cmd(PDC_DRAWLINE,this,param) || !hd )
 		return;
 	}
-	if ( testf(WxF) ) {
-	    WXFORM_P( x1, y1 );
-	    WXFORM_P( x2, y2 );
-	}
-	else if ( testf(VxF) ) {
-	    VXFORM_P( x1, y1 );
-	    VXFORM_P( x2, y2 );
-	}
+	map( x1, y1, &x1, &y1 );
+	map( x2, y2, &x2, &y2 );
     }
     if ( cpen.style() != NoPen )
 	XDrawLine( dpy, hd, gc, x1, y1, x2, y2 );
@@ -1554,22 +1624,16 @@ void QPainter::drawRect( int x, int y, int w, int h )
 	    if ( !pdev->cmd(PDC_DRAWRECT,this,param) || !hd )
 		return;
 	}
-	if ( testf(WxF) ) {			// world transform
-	    if ( wm12 == 0 && wm21 == 0 ) {	// scaling+translation only
-		WXFORM_R(x,y,w,h);
-	    }
-	    else {
-		QPointArray a( QRect(x,y,w,h) );// rectangle polygon
-		a = xForm( a );			// xform polygon
-		uint tmpf = flags;
-		flags = IsActive | SafePolygon; // fake flags to speed up
-		drawPolygon( a );
-		flags = tmpf;
-		return;
-	    }
+	if ( txop == TxRotShear ) {		// rotate/shear polygon
+	    QPointArray a( QRect(x,y,w,h) );
+	    a = xForm( a );
+	    uint tmpf = flags;
+	    flags = IsActive | SafePolygon;	// fake flags to speed up
+	    drawPolygon( a );
+	    flags = tmpf;
+	    return;
 	}
-	else if ( testf(VxF) )
-	    VXFORM_R( x, y, w, h );
+	map( x, y, w, h, &x, &y, &w, &h );
     }
     if ( w <= 0 || h <= 0 ) {
 	if ( w == 0 || h == 0 )
@@ -1622,61 +1686,53 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
 	    if ( !pdev->cmd(PDC_DRAWROUNDRECT,this,param) || !hd )
 		return;
 	}
-	if ( testf(WxF) ) {			// world transform
-	    if ( wm12 == 0 && wm21 == 0 ) {	// scaling+translation only
-		WXFORM_R(x,y,w,h);
+	if ( txop == TxRotShear ) {		// rotate/shear polygon
+	    QPointArray a;
+	    if ( w <= 0 || h <= 0 )
+		fix_neg_rect( &x, &y, &w, &h );
+	    w--;
+	    h--;
+	    int rxx = w*xRnd/200;
+	    int ryy = h*yRnd/200;
+	    int rxx2 = 2*rxx;
+	    int ryy2 = 2*ryy;
+	    int xx, yy;
+	    a.makeEllipse( x, y, rxx2, ryy2 );
+	    int s = a.size()/4;
+	    int i = 0;
+	    while ( i < s ) {
+		a.point( i, &xx, &yy );
+		xx += w - rxx2;
+		a.setPoint( i++, xx, yy );
 	    }
-	    else {
-		QPointArray a;
-		if ( w <= 0 || h <= 0 )
-		    fix_neg_rect( &x, &y, &w, &h );
-		w--;
-		h--;
-		int rxx = w*xRnd/200;
-		int ryy = h*yRnd/200;
-		int rxx2 = 2*rxx;
-		int ryy2 = 2*ryy;
-		int xx, yy;
-		a.makeEllipse( x, y, rxx2, ryy2 );
-		int s = a.size()/4;
-		int i = 0;
-		while ( i < s ) {
-		    a.point( i, &xx, &yy );
-		    xx += w - rxx2;
-		    a.setPoint( i++, xx, yy );
-		}
-		i = 2*s;
-		while ( i < 3*s ) {
-		    a.point( i, &xx, &yy );
-		    yy += h - ryy2;
-		    a.setPoint( i++, xx, yy );
-		}
-		while ( i < 4*s ) {
-		    a.point( i, &xx, &yy );
-		    xx += w - rxx2;
-		    yy += h - ryy2;
-		    a.setPoint( i++, xx, yy );
-		}
-		a = xForm( a );			// xform polygon
-		uint tmpf = flags;
-		flags = IsActive | SafePolygon; // fake flags to speed up
-		drawPolygon( a );
-		flags = tmpf;
-		return;
+	    i = 2*s;
+	    while ( i < 3*s ) {
+		a.point( i, &xx, &yy );
+		yy += h - ryy2;
+		a.setPoint( i++, xx, yy );
 	    }
+	    while ( i < 4*s ) {
+		a.point( i, &xx, &yy );
+		xx += w - rxx2;
+		yy += h - ryy2;
+		a.setPoint( i++, xx, yy );
+	    }
+	    a = xForm( a );
+	    uint tmpf = flags;
+	    flags = IsActive | SafePolygon;	// fake flags to speed up
+	    drawPolygon( a );
+	    flags = tmpf;
+	    return;
 	}
-	else if ( testf(VxF) )
-	    VXFORM_R( x, y, w, h );
+	map( x, y, w, h, &x, &y, &w, &h );
     }
+    w--;
+    h--;
     if ( w <= 0 || h <= 0 ) {
+	if ( w == 0 || h == 0 )
+	    return;
 	fix_neg_rect( &x, &y, &w, &h );
     }
-    else {
-	w--;
-	h--;
-    }
-    if ( w == 0 || h == 0 )
-	return;
     int rx = (w*xRnd)/200;
     int ry = (h*yRnd)/200;
     int rx2 = 2*rx;
@@ -1751,23 +1807,17 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
 	    if ( !pdev->cmd(PDC_DRAWELLIPSE,this,param) || !hd )
 		return;
 	}
-	if ( testf(WxF) ) {			// world transform
-	    if ( wm12 == 0 && wm21 == 0 ) {	// scaling+translation only
-		WXFORM_R(x,y,w,h);
-	    }
-	    else {
-		QPointArray a;
-		a.makeEllipse( x, y, w, h );
-		a = xForm( a );
-		uint tmpf = flags;
-		flags = IsActive | SafePolygon; // fake flags to avoid overhead
-		drawPolygon( a );
-		flags = tmpf;
-		return;
-	    }
+	if ( txop == TxRotShear ) {		// rotate/shear polygon
+	    QPointArray a;
+	    a.makeEllipse( x, y, w, h );
+	    a = xForm( a );
+	    uint tmpf = flags;
+	    flags = IsActive | SafePolygon;	// fake flags to avoid overhead
+	    drawPolygon( a );
+	    flags = tmpf;
+	    return;
 	}
-	else if ( testf(VxF) )
-	    VXFORM_R( x, y, w, h );
+	map( x, y, w, h, &x, &y, &w, &h );
     }
     w--;
     h--;
@@ -1822,23 +1872,17 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
 	    if ( !pdev->cmd(PDC_DRAWARC,this,param) || !hd )
 		return;
 	}
-	if ( testf(WxF) ) {			// world transform
-	    if ( wm12 == 0 && wm21 == 0 ) {	// scaling+translation only
-		WXFORM_R(x,y,w,h);
-	    }
-	    else {
-		QPointArray pa;
-		pa.makeArc( x, y, w, h, a, alen ); // arc polyline
-		pa = xForm( pa );		// xform polyline
-		uint tmpf = flags;
-		flags = IsActive | SafePolygon; // fake flags to speed up
-		drawPolygon( pa );
-		flags = tmpf;
-		return;
-	    }
+	if ( txop == TxRotShear ) {		// rotate/shear
+	    QPointArray pa;
+	    pa.makeArc( x, y, w, h, a, alen );	// arc polyline
+	    pa = xForm( pa );			// xform polyline
+	    uint tmpf = flags;
+	    flags = IsActive | SafePolygon;	// fake flags to speed up
+	    drawPolygon( pa );
+	    flags = tmpf;
+	    return;
 	}
-	else if ( testf(VxF) )
-	    VXFORM_R( x, y, w, h );
+	map( x, y, w, h, &x, &y, &w, &h );
     }
     w--;
     h--;
@@ -1880,27 +1924,21 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
 	    if ( !pdev->cmd(PDC_DRAWPIE,this,param) || !hd )
 		return;
 	}
-	if ( testf(WxF) ) {			// world transform
-	    if ( wm12 == 0 && wm21 == 0 ) {	// scaling+translation only
-		WXFORM_R(x,y,w,h);
-	    }
-	    else {
-		QPointArray pa;
-		pa.makeArc( x, y, w, h, a, alen ); // arc polyline
-		int n = pa.size();
-		pa.resize( n+2 );
-		pa.setPoint( n, x+w/2, y+h/2 ); // add legs
-		pa.setPoint( n+1, pa.at(0) );
-		pa = xForm( pa );		// xform polygon
-		uint tmpf = flags;
-		flags = IsActive | SafePolygon; // fake flags to speed up
-		drawPolygon( pa );
-		flags = tmpf;
-		return;
-	    }
+	if ( txop == TxRotShear ) {		// rotate/shear
+	    QPointArray pa;
+	    pa.makeArc( x, y, w, h, a, alen );	// arc polyline
+	    int n = pa.size();
+	    pa.resize( n+2 );
+	    pa.setPoint( n, x+w/2, y+h/2 );	// add legs
+	    pa.setPoint( n+1, pa.at(0) );
+	    pa = xForm( pa );			// xform polygon
+	    uint tmpf = flags;
+	    flags = IsActive | SafePolygon;	// fake flags to speed up
+	    drawPolygon( pa );
+	    flags = tmpf;
+	    return;
 	}
-	else if ( testf(VxF) )
-	    VXFORM_R( x, y, w, h );
+	map( x, y, w, h, &x, &y, &w, &h );
     }
     XSetArcMode( dpy, gc_brush, ArcPieSlice );
     w--;
@@ -1967,26 +2005,20 @@ void QPainter::drawChord( int x, int y, int w, int h, int a, int alen )
 	    if ( !pdev->cmd(PDC_DRAWCHORD,this,param) || !hd )
 		return;
 	}
-	if ( testf(WxF) ) {			// world transform
-	    if ( wm12 == 0 && wm21 == 0 ) {	// scaling+translation only
-		WXFORM_R(x,y,w,h);
-	    }
-	    else {
-		QPointArray pa;
-		pa.makeArc( x, y, w-1, h-1, a, alen ); // arc polygon
-		int n = pa.size();
-		pa.resize( n+1 );
-		pa.setPoint( n, pa.at(0) );	// connect endpoints
-		pa = xForm( pa );		// xform polygon
-		uint tmpf = flags;
-		flags = IsActive | SafePolygon; // fake flags to speed up
-		drawPolygon( pa );
-		flags = tmpf;
-		return;
-	    }
+	if ( txop == TxRotShear ) {		// rotate/shear
+	    QPointArray pa;
+	    pa.makeArc( x, y, w-1, h-1, a, alen ); // arc polygon
+	    int n = pa.size();
+	    pa.resize( n+1 );
+	    pa.setPoint( n, pa.at(0) );		// connect endpoints
+	    pa = xForm( pa );			// xform polygon
+	    uint tmpf = flags;
+	    flags = IsActive | SafePolygon;	// fake flags to speed up
+	    drawPolygon( pa );
+	    flags = tmpf;
+	    return;
 	}
-	else if ( testf(VxF) )
-	    VXFORM_R( x, y, w, h );
+	map( x, y, w, h, &x, &y, &w, &h );
     }
     XSetArcMode( dpy, gc_brush, ArcChord );
     w--;
@@ -2057,7 +2089,7 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 	    if ( !pdev->cmd(PDC_DRAWLINESEGS,this,param) || !hd )
 		return;
 	}
-	if ( testf(VxF|WxF) ) {
+	if ( txop != TxNone ) {
 	    if ( cpen.style() != NoPen ) {
 		QPointArray axf = xForm( a );
 		XDrawSegments( dpy, hd, gc, (XSegment*)(axf.data()+index),
@@ -2104,7 +2136,7 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 	    if ( !pdev->cmd(PDC_DRAWPOLYLINE,this,param) || !hd )
 		return;
 	}
-	if ( testf(VxF|WxF) ) {
+	if ( txop != TxNone ) {
 	    if ( cpen.style() != NoPen ) {
 		QPointArray axf = xForm( a );
 		XDrawLines( dpy, hd, gc, (XPoint*)(axf.data()+index), npoints,
@@ -2163,7 +2195,7 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
 	    if ( !pdev->cmd(PDC_DRAWPOLYGON,this,param) || !hd )
 		return;
 	}
-	if ( testf(VxF|WxF) ) {
+	if ( txop != TxNone ) {
 	    axf = xForm( a );
 	    pa = &axf;
 	}
@@ -2250,7 +2282,7 @@ void QPainter::drawBezier( const QPointArray &a, int index, int npoints )
 	    if ( !pdev->cmd(PDC_DRAWBEZIER,this,param) || !hd )
 		return;
 	}
-	if ( testf(VxF|WxF) )
+	if ( txop != TxNone )
 	    a2 = xForm( a2 );
     }
     if ( cpen.style() != NoPen ) {
@@ -2304,11 +2336,11 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
     if ( !isActive() || pixmap.isNull() )
 	return;
     if ( sw < 0 )
-	sw = pixmap.width() - sx;
+	sw = pixmap.width()  - sx;
     if ( sh < 0 )
 	sh = pixmap.height() - sy;
     if ( testf(ExtDev|VxF|WxF) ) {
-	if ( testf(ExtDev|WxF) ) {
+	if ( testf(ExtDev) || txop == TxScale || txop == TxRotShear ) {
 	    if ( sx != 0 || sy != 0 ||
 		 sw != pixmap.width() || sh != pixmap.height() ) {
 		QPixmap tmp( sw, sh, pixmap.depth() );
@@ -2329,32 +2361,29 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 		if ( !pdev->cmd(PDC_DRAWPIXMAP,this,param) || !hd )
 		    return;
 	    }
-						// world transform
-	    QWMatrix mat( wm11/65536.0, wm12/65536.0,
-			  wm21/65536.0, wm22/65536.0,
-			  wdx/65536.0,	wdy/65536.0 );
-	    mat = QPixmap::trueMatrix( mat, sw, sh );
-	    QPixmap pm = pixmap.xForm( mat );
-	    QBitmap bm;
-	    if ( pm.mask() )			// pixmap has mask
-		bm = *pm.mask();
-	    else {				// generate full mask
-		QBitmap bm_clip( sw, sh, 1 );
-		bm_clip.fill( color1 );
-		pm.setMask( bm_clip.xForm(mat) );
+	    if ( txop == TxScale || txop == TxRotShear ) {
+		QWMatrix mat( wm11/65536.0, wm12/65536.0,
+			      wm21/65536.0, wm22/65536.0,
+			      wdx/65536.0,  wdy/65536.0 );
+		mat = QPixmap::trueMatrix( mat, sw, sh );
+		QPixmap pm = pixmap.xForm( mat );
+		if ( !pm.mask() && txop == TxRotShear ) {
+		    QBitmap bm_clip( sw, sh, 1 );
+		    bm_clip.fill( color1 );
+		    pm.setMask( bm_clip.xForm(mat) );
+		}
+		map( x, y, &x, &y );		// compute position of pixmap
+		int dx, dy;
+		mat.map( 0, 0, &dx, &dy );
+		x -= dx;  y -= dy;
+		ushort save_flags = flags;
+		flags = IsActive | (save_flags & ClipOn);
+		drawPixmap( x, y, pm );
+		flags = save_flags;
+		return;
 	    }
-	    WXFORM_P( x, y );
-	    int dx, dy;
-	    mat.map( 0, 0, &dx, &dy );		// compute position of pixmap
-	    x -= dx;  y -= dy;
-	    ushort save_flags = flags;
-	    flags = IsActive | (save_flags & ClipOn);
-	    drawPixmap( x, y, pm );
-	    flags = save_flags;
-	    return;
 	}
-	if ( testf(VxF) )
-	    VXFORM_P( x, y );
+	map( x, y, &x, &y );
     }
 
     bool do_clip  = hasClipping();
@@ -2476,7 +2505,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    if ( !pdev->cmd(PDC_DRAWTEXT,this,param) || !hd )
 		return;
 	}
-	if ( testf(WxF) ) {			// draw transformed text
+	if ( txop == TxScale || TxRotShear ) {	// draw transformed text
 	    QFontMetrics fm = fontMetrics();
 	    QFontInfo	 fi = fontInfo();
 	    QRect bbox = fm.boundingRect( str, len );
@@ -2484,7 +2513,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    int tx=-bbox.x(),  ty=-bbox.y();	// text position
 	    QWMatrix mat1( wm11/65536.0, wm12/65536.0,
 			   wm21/65536.0, wm22/65536.0,
-			   wdx/65536.0,	 wdy/65536.0 );
+			   wdx /65536.0, wdy /65536.0 );
 	    QWMatrix mat = QPixmap::trueMatrix( mat1, w, h );
 	    QPixmap *wx_bm = get_text_bitmap( mat, fi, str, len );
 	    bool create_new_bm = wx_bm == 0;
@@ -2556,8 +2585,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 		ins_text_bitmap( mat, fi, str, len, wx_bm );
 	    return;
 	}
-	if ( testf(VxF) )
-	    VXFORM_P( x, y );
+	map( x, y, &x, &y );
     }
 
     if ( cfont.underline() || cfont.strikeOut() ) {
