@@ -802,7 +802,7 @@ bool QSvgDevice::play( const QDomNode &node )
 		y2 = lenToInt( attr, "y2" );
 		QPen p = pt->pen();
 		w = p.width();
-		p.setWidth( w * (QABS(pt->worldMatrix().m11()) + QABS(pt->worldMatrix().m22())) / 2.0 );
+		p.setWidth( w * (QABS(pt->worldMatrix().m11()) + QABS(pt->worldMatrix().m22())) / 2 );
 		pt->setPen( p );
 		pt->drawLine( x1, y1, x2, y2 );
 		p.setWidth( w );
