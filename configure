@@ -272,6 +272,7 @@ fi
 fi # help
 
 # Defaults
+DO_INCREMENT=auto
 QCONFIG=full
 EMBEDDED=no
 KDE=no
@@ -349,6 +350,9 @@ while [ -n "$1" ]; do
 	;;
    -depths)
 	shift; QWS_DEPTHS=$1;
+	;;
+   -no-incremental)
+	DO_INCREMENT="no"
 	;;
    -accel-voodoo3)
 	QWS_ACCEL_VOODOO3=y
@@ -1451,33 +1455,50 @@ else
     chmod -w $relpath/src/tools/qmodules.h
 fi
 
+##
 # Create the .qmake.cache file
-[ -f $outpath/.qmake.cache ] && rm -f $outpath/.qmake.cache
-cat >>$outpath/.qmake.cache <<EOF
+CACHEFILE=$outpath/.qmake.cache
+[ -f $CACHEFILE ] && rm -f $CACHEFILE
+cat >>$CACHEFILE <<EOF
 CONFIG += $QMAKE_CONFIG
 QMAKEPATH = $XPLATFORM
 EOF
+#cmdline args
 quoted=no
 tmp=""
 for i in $QMAKE_VARS; do
   if [ "$quoted" = "no" ]
   then
     case "$i" in
-      \"*\")   echo $i | sed 's,^",,' | sed 's,"$,,' >>$outpath/.qmake.cache;   ;;
-      \"*)   quoted=yes ; tmp=$i;   ;;
-      *)   echo $i >>.qmake.cache ;;
+      \"*\")   echo $i | sed 's,^",,' | sed 's,"$,,' >>$CACHEFILE   ;;
+      \"*)   quoted=yes ; tmp=$i   ;;
+      *)   echo $i >>CACHEFILE ;;
     esac
   else
     case "$i" in
       *\") quoted=no
-	   echo $tmp $i | sed 's,^",,' | sed 's,"$,,' >>$outpath/.qmake.cache
+	   echo $tmp $i | sed 's,^",,' | sed 's,"$,,' >>$CACHEFILE
 	   tmp="" ;;
-      *) tmp="$tmp $i" >>$outpath/.qmake.cache ;;
+      *) tmp="$tmp $i" >>$CACHEFILE ;;
     esac
   fi
-#    echo $a
 done
+#incrementals
+INCREMENTAL=""
+[ "$DO_INCREMENT" = "auto" ] && which p4 >/dev/null 2>&1 && [ "$Edition" = "troll" ] && DO_INCREMENT="yes"
+if [ "$DO_INCREMENT" = "yes" ]; then
+    openfiles=`find $relpath -perm +200 -mtime -3 | grep 'cpp$'`
+    for f in $openfiles; do
+	#don't need to worry about generated files
+	[ -e `echo $f | sed "s,cpp$,ui,"` ] && continue
+	basename $f | grep '^moc_' >/dev/null 2>&1 && continue
+	#done
+	INCREMENTAL="$INCREMENTAL `basename $f | sed 's,.cpp,.o,'`"
+    done
+    echo "QMAKE_INCREMENTAL += $INCREMENTAL" >>$CACHEFILE
+fi
 
+##
 # Give feedback...
 echo
 if [ "$XPLATFORM" = "$PLATFORM" ]
@@ -1503,6 +1524,7 @@ then
 fi
 
 [ "x$CONCURRENT" != "x0" ] && echo "Concurrent........... $CONCURRENT"
+[ "x$DO_INCREMENT" = "xyes" ] && echo "Incremental.......... $INCREMENTAL"
 echo "Configuration........ $QMAKE_CONFIG"
 echo "Embedded support..... $EMBEDDED"
 echo "Thread support....... $THREAD"

@@ -78,7 +78,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     if(ofile.findRev(Option::dir_sep) != -1)
 	ofile = ofile.right(ofile.length() - ofile.findRev(Option::dir_sep) -1);
     bool do_incremental = project->isActiveConfig("incremental") && !project->variables()["QMAKE_INCREMENTAL"].isEmpty() && 
-			 !project->variables()["QMAKE_LIB_FLAG"].isEmpty() && !project->isActiveConfig("staticlib");
+			 (!project->variables()["QMAKE_APP_FLAG"].isEmpty() || !project->isActiveConfig("staticlib"));
 
     t << "####### Compiler, tools and options" << endl << endl;
     t << "CC      = " << var("QMAKE_CC") << endl;
@@ -173,11 +173,37 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     }
     if(!project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
 	t << "all: " << ofile <<  " " << varGlue("ALL_DEPS",""," "," ") <<  "$(TARGET)" << endl << endl;
-	t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS") << "\n\t";
+
 	QString destdir = project->variables()["DESTDIR"].first();
-	if(!destdir.isEmpty())
-	    t << "[ -d " << destdir << " ] || mkdir -p " << destdir << "\n\t";
-	t << "$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)" << endl << endl;
+	if(do_incremental) {
+	    //utility variables
+	    QString s_ext = project->variables()["QMAKE_EXTENTION_SHLIB"].first();
+	    QString incr_target = var("TARGET").replace("." + s_ext, "").replace(QRegExp("^lib"), "") + "_incremental";
+	    QString incr_target_dir = var("DESTDIR") + "lib" + incr_target + "." + s_ext;
+	    
+	    //incremental target
+	    t << incr_target_dir << ": $(OBJECTS) $(OBJMOC) ";
+	    if(!destdir.isEmpty())
+		t << "\n\t" << "[ -d " << destdir << " ] || mkdir -p " << destdir;
+	    QString incr_lflags = var("QMAKE_LFLAGS_SHLIB") + " ";
+	    incr_lflags += var(project->isActiveConfig("debug") ? "QMAKE_LFLAGS_DEBUG" : "QMAKE_LFLAGS_RELEASE");
+	    t << "\n\t"
+	      << "$(LINK) " << incr_lflags << " -o "<< incr_target_dir << " $(OBJECTS) $(OBJMOC)" << endl;
+	    //real target
+	    QString objs = "$(INCREMENTAL_OBJECTS) $(LIBS)";
+	    t << var("TARGET") << ": " << incr_target_dir << " " << objs << "\n\t";
+	    if(!destdir.isEmpty()) {
+		t << "[ -d " << destdir << " ] || mkdir -p " << destdir << "\n\t";
+		objs += " -L" + destdir;
+	    }
+	    objs += " -l" + incr_target;
+	    t << "$(LINK) $(LFLAGS) -o $(TARGET) " << objs << endl << endl;
+	} else {
+	    t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS") << "\n\t";
+	    if(!destdir.isEmpty())
+		t << "[ -d " << destdir << " ] || mkdir -p " << destdir << "\n\t";
+	    t << "$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)" << endl << endl;
+	}
     } else if(!project->isActiveConfig("staticlib")) {
 	t << "all: " << ofile << " " << varGlue("ALL_DEPS",""," ","") << " " <<  var("DESTDIR_TARGET") << endl << endl;
 
