@@ -202,9 +202,9 @@ public:
         OnCharacters
     };
 
-    /* cPos gets set to the valid position */
-    int cursorToX(int *cPos, Edge edge = Leading) const;
-    inline int cursorToX(int cPos, Edge edge = Leading) const { return cursorToX(&cPos, edge); }
+    /* cursorPos gets set to the valid position */
+    int cursorToX(int *cursorPos, Edge edge = Leading) const;
+    inline int cursorToX(int cursorPos, Edge edge = Leading) const { return cursorToX(&cursorPos, edge); }
     int xToCursor(int x, CursorPosition = BetweenCharacters) const;
 
     enum BreakMode {

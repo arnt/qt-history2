@@ -1268,30 +1268,30 @@ void QTextLine::draw(QPainter *p, int xpos, int ypos, int selection) const
 }
 
 /*!
-    \fn int QTextLine::cursorToX(int cPos, Edge edge) const
+    \fn int QTextLine::cursorToX(int cursorPos, Edge edge) const
 
     \overload
 */
 
 
 /*!
-    Converts the cursor position \a cPos to the corresponding x position
+    Converts the cursor position \a cursorPos to the corresponding x position
     inside the line, taking account of the \a edge.
 
-    If \a cPos is not a valid cursor position, the nearest valid
+    If \a cursorPos is not a valid cursor position, the nearest valid
     cursor position will be used instead, and cpos will be modified to
     point to this valid cursor position.
 
     \sa xToCursor()
 */
-int QTextLine::cursorToX(int *cPos, Edge edge) const
+int QTextLine::cursorToX(int *cursorPos, Edge edge) const
 {
     if (!i && !eng->items.size()) {
-        *cPos = 0;
+        *cursorPos = 0;
         return eng->lines[0].x.toInt();
     }
 
-    int pos = *cPos;
+    int pos = *cursorPos;
 
     int itm = eng->findItem(pos);
 
@@ -1384,7 +1384,7 @@ int QTextLine::cursorToX(int *cPos, Edge edge) const
         }
     }
 
-    *cPos = pos + si->position;
+    *cursorPos = pos + si->position;
     return x.toInt();
 }
 
