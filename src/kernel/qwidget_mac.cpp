@@ -1634,12 +1634,12 @@ void QWidget::raise()
     if(isDesktop())
 	return;
     if(isTopLevel()) {
+	//raise this window
+	BringToFront((WindowPtr)hd);
 	//we get to be the active process now
 	ProcessSerialNumber psn;
 	GetCurrentProcess(&psn);
-	SetFrontProcess(&psn);
-	//raise this window
-	BringToFront((WindowPtr)hd);
+	SetFrontProcessWithOptions(&psn, kSetFrontProcessFrontWindowOnly);
     } else if(QWidget *p = parentWidget(true)) {
 	QRegion clp;
 	if(isVisible())
