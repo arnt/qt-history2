@@ -49,15 +49,9 @@ int main( int /*argc*/, char** /*argv*/ )
 
 #if 0
     /* create an index on id field */
-    QValueList<QVariant> field;
-    QVariant name = "id";
-    QVariant value;
-    value.cast( QVariant::Int );
-    field.append( name );
-    field.append( value );
-    env.program().append( new Push( field ) );
-    env.program().append( new PushList( 1 ) );
     env.program().append( new Open( 0, FILENAME ) );
+    env.program().append( new PushFieldDesc( 0, "id" ) );
+    env.program().append( new PushList( 1 ) );
     env.program().append( new CreateIndex( 0, QVariant(FALSE,1) ) );
     env.program().append( new Close( 0 ) );
 #endif
