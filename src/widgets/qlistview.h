@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#6 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#7 $
 **
 ** Definition of 
 **
@@ -12,9 +12,11 @@
 
 class QStrList;
 class QPixmap;
+class QFont;
 
 class QListView;
 struct QListViewPrivate;
+
 
 #include "qscrollview.h"
 
@@ -24,10 +26,10 @@ class QListViewItem
 public:
     QListViewItem( QListView * parent );
     QListViewItem( QListViewItem * parent );
-    QListViewItem( QListViewItem * parent,
-		   const char * firstLabel, ... );
-    QListViewItem( QListViewItem * parent,
-		   const QPixmap, const char * firstLabel, ... );
+    QListViewItem( QListView * parent, const char * firstLabel, ... );
+    QListViewItem( QListViewItem * parent, const char * firstLabel, ... );
+    //    QListViewItem( QListViewItem * parent,
+    //		   const QPixmap, const char * firstLabel, ... );
     virtual ~QListViewItem();
 
     virtual void insertItem( QListViewItem * );
@@ -36,7 +38,7 @@ public:
     virtual int compare( int column, const QListViewItem * with ) const;
 
     int height() const { return ownHeight; }
-    virtual void setHeight( int );
+    virtual void styleChange();
     virtual void invalidateHeight();
     int totalHeight() const;
 
@@ -57,9 +59,11 @@ public:
 
     virtual QListView *listView() const;
 
+protected:
+    void setHeight( int );
+
 private:
     void init();
-
     int ownHeight;
     int maybeTotalHeight;
     int childCount;
@@ -92,6 +96,7 @@ public:
     virtual void setColumn( const char * label, int size, int column=-1 );
 
     void show();
+    void setFont( const QFont & );
 
 public slots:
     void triggerUpdate();
@@ -108,6 +113,7 @@ protected slots:
     void updateContents();
 
 private:
+    void doStyleChange( QListViewItem * );
     QListViewPrivate * d;
 };
 

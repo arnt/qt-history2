@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#16 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#17 $
 **
 ** Implementation of something useful
 **
@@ -19,7 +19,7 @@
 
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#16 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#17 $");
 
 
 struct QListViewPrivate
@@ -84,8 +84,35 @@ QListViewItem::QListViewItem( QListViewItem * parent )
 }
 
 
+
+/*!  Create a new list view item in the QListView \a parent,
+  with the contents asdf asdf asdf ### sex vold ### 
+
+*/
+
+QListViewItem::QListViewItem( QListView * parent,
+			      const char * firstLabel, ... )
+{
+    init();
+    parent->insertItem( this );
+
+    columnTexts = new QStrList();
+    columnTexts->append( firstLabel );
+    va_list ap;
+    const char * nextLabel;
+    va_start( ap, firstLabel );
+    while ( (nextLabel = va_arg(ap, const char *)) != 0 )
+	columnTexts->append( nextLabel );
+    va_end( ap );
+
+    styleChange(); //####### ugle hack hack and away
+}
+
+
 /*!  Create a new list view item which is a child of \a parent,
-  with the contents asdf asdf asdf ### sex vold ### */
+  with the contents asdf asdf asdf ### sex vold ### 
+
+*/
 
 QListViewItem::QListViewItem( QListViewItem * parent,
 			      const char * firstLabel, ... )
@@ -101,30 +128,9 @@ QListViewItem::QListViewItem( QListViewItem * parent,
     while ( (nextLabel = va_arg(ap, const char *)) != 0 )
 	columnTexts->append( nextLabel );
     va_end( ap );
+
+    styleChange(); //####### ugle hack hack and away
 }
-
-
-/*!  Create a new list view item which is a child of \a parent,
-  with the contents asdf asdf asdf ### sex vold ### */
-
-QListViewItem::QListViewItem( QListViewItem * parent,
-			      const QPixmap pm,
-			      const char * firstLabel, ... )
-{
-    init();
-    parent->insertItem( this );
-    icon = new QPixmap( pm );
-
-    columnTexts = new QStrList();
-    columnTexts->append( firstLabel );
-    va_list ap;
-    const char * nextLabel;
-    va_start( ap, firstLabel );
-    while ( (nextLabel = va_arg(ap, const char *)) != 0 )
-	columnTexts->append( nextLabel );
-    va_end( ap );
-}
-
 
 /*!  Perform the initializations that's common to the constructors. */
 
@@ -346,7 +352,10 @@ int QListViewItem::totalHeight() const
 
 const char * QListViewItem::text( int column ) const
 {
-    return columnTexts ? columnTexts->at( column ) : 0;
+    if ( columnTexts && (int)columnTexts->count() > column )
+	return columnTexts->at( column );
+    else
+	return 0;
 }
 
 
@@ -373,6 +382,10 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
     const char * t = text( column );
     if ( t ) {
 	p->setPen( cg.text() );
+	QListView *lv = listView();
+	if ( lv )
+	    p->setFont( lv->font() );
+
 	// should do the ellipsis thing here
 	p->drawText( r, 0, width-2-r, height(), AlignLeft + AlignVCenter, t );
     }
@@ -919,3 +932,45 @@ QListView * QListViewItem::listView() const
   This signal is emitted when the list view changes width (or height?
   not at present).
 */
+
+
+/*!
+  Recalculates all cached parameters when the visual appearance of the
+  list view changes. The default implementation sets the height of the
+  item to QFontMetrics::lineSpacing().
+*/
+//#### should test for columnTexts
+void QListViewItem::styleChange()
+{
+    QListView *lv = listView();
+    if ( lv )
+	 setHeight( QFontMetrics( lv->font() ).lineSpacing() );
+}
+
+
+/*!
+  Sets the font of this widget to \a f
+*/
+
+void QListView::setFont( const QFont &f )
+{
+    d->h->setFont( f );
+    QScrollView::setFont( f );
+    doStyleChange( d->r );
+}
+
+
+/*!
+  Changes the style of \a item and all list view items 
+  under it.
+*/
+
+void QListView::doStyleChange( QListViewItem *item )
+{
+    item->styleChange();
+    QListViewItem *it = (QListViewItem*)item->firstChild();
+    while ( it ) {
+	doStyleChange( it );
+	it = (QListViewItem*)it->nextSibling();
+    }
+}
