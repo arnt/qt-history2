@@ -20,8 +20,6 @@
 
 #include <stdlib.h>
 
-extern bool qt_resolve_symlinks = true;
-
 class Q3UrlPrivate
 {
 public:
