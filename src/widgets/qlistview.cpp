@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#215 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#216 $
 **
 ** Implementation of QListView widget class
 **
@@ -592,9 +592,6 @@ void QListViewItem::removeItem( QListViewItem * tbg )
   also incorporate the order indicated by \a ascending into this
   key, although this is not recommended.
 
-  QListViewItem immediately copies the return value of this function,
-  so it's safe to return a pointer to a static variable.
-
   You can use this function to sort by non-alphabetic data.  This code
   excerpt sort by file modification date, for example
 
@@ -946,7 +943,7 @@ int QListViewItem::totalHeight() const
 
 
 /*!  Returns the text in column \a column, or a
-  \link QString::operator!() null string\endlink if there
+  \link QString::operator!() null string \endlink if there
   is no text in that column.
 
   This function works even if this item is not contained in a list
@@ -2390,6 +2387,9 @@ void QListViewItem::widthChanged( int c ) const
   in single-selection and multi-selection mode, but is most meaningful
   in multi-selection mode.
 
+  Note that you may not delete any QListViewItem objects in slots
+  connected to this signal.
+
   \sa setSelected() QListViewItem::setSelected()
 */
 
@@ -2398,10 +2398,14 @@ void QListViewItem::widthChanged( int c ) const
 
   This signal is emitted whenever the selected item has changed in
   single-selection mode (normally after the screen update).  The
-  argument is the newly selected item.
+  argument is the newly selected item, or 0 if the change was to
+  unselect the selected item.
 
   There is another signal which is more useful in multi-selection
   mode.
+
+  Note that you may not delete any QListViewItem objects in slots
+  connected to this signal.
 
   \sa setSelected() QListViewItem::setSelected() currentChanged()
 */
@@ -2413,7 +2417,12 @@ void QListViewItem::widthChanged( int c ) const
   (normally after the screen update).  The current item is the item
   responsible for indicating keyboard focus.
 
-  The argument is the newly current item.
+  The argument is the newly current item, or 0 if the change was to
+  make no item current.  This can happen e.g. if all items in the list
+  view are deleted.
+
+  Note that you may not delete any QListViewItem objects in slots
+  connected to this signal.
 
   \sa setCurrentItem() currentItem()
 */
