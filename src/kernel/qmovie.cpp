@@ -44,7 +44,7 @@
 #include "qmovie.h"
 #include "qfile.h"
 #include "qbuffer.h"
-#include "qshared.h"
+#include "qobject.h"
 
 #ifndef QT_NO_MOVIE
 

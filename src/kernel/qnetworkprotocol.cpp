@@ -43,6 +43,7 @@
 #include "qurloperator.h"
 #include "qtimer.h"
 #include "qmap.h"
+#include "qqueue.h"
 
 //#define QNETWORKPROTOCOL_DEBUG
 #define NETWORK_OP_DELAY 1000

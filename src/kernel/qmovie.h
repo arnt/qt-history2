@@ -39,15 +39,14 @@
 #define QMOVIE_H
 
 #ifndef QT_H
-#include "qobject.h"
-#include "qpixmap.h"
-#include "qlist.h"
+#include "qpixmap.h" // ### remove or keep for users' convenience?
 #endif // QT_H
 
 #ifndef QT_NO_MOVIE
 
 class QDataSource;
 class QMovieFilePrivate;
+class QObject;
 
 class Q_EXPORT QMovie {
 public:
