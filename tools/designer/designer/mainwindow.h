@@ -414,7 +414,7 @@ private:
     QPopupMenu *toolsMenu, *layoutMenu, *previewMenu;
     QToolBar *customWidgetToolBar, *layoutToolBar, *projectToolBar, *customWidgetToolBar2, *toolsToolBar;
     QToolBar *commonWidgetsToolBar;
-    QList<QToolBar> widgetToolBars;
+    QPtrList<QToolBar> widgetToolBars;
 
     Preferences *prefDia;
     QMap<QString,QString> propertyDocumentation;
