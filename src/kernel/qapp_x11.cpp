@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#272 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#273 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -85,7 +85,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#272 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#273 $");
 
 
 /*****************************************************************************
@@ -2691,7 +2691,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     // is safe to use the locale functions to process X codes
     if ( key < 256 ) {
 	code = isprint(key) ? toupper(key) : 0; // upper-case key, if known
-    } else if ( key >= XK_F1 && key <= XK_F24 ) {
+    } else if ( key >= XK_F1 && key <= XK_F35 ) {
 	code = Key_F1 + ((int)key - XK_F1);	// function keys
     } else if ( key >= XK_KP_0 && key <= XK_KP_9){
 	code = Key_0 + ((int)key - XK_KP_0);	// numeric keypad keys
