@@ -143,8 +143,9 @@ int QUtf8Codec::heuristicContentMatch(const char* chars, int len) const
 class QUtf8Decoder : public QTextDecoder {
     ushort uc;
     int need;
+    bool headerDone;
 public:
-    QUtf8Decoder() : need(0)
+    QUtf8Decoder() : need(0), headerDone(FALSE)
     {
     }
 
@@ -168,8 +169,11 @@ public:
 			    unsigned short low = uc%0x400 + 0xdc00;
 			    *qch++ = QChar(high);
 			    *qch++ = QChar(low);
+			    headerDone = TRUE;
 			} else {
-			    *qch++ = uc;
+			    if (!headerDone && QChar(uc) != QChar::byteOrderMark)
+				*qch++ = uc;
+			    headerDone = TRUE;
 			}
 		    }
 		} else {
@@ -180,6 +184,7 @@ public:
 	    } else {
 		if ( ch < 128 ) {
 		    *qch++ = ch;
+		    headerDone = TRUE;
 		} else if ((ch & 0xe0) == 0xc0) {
 		    uc = ch & 0x1f;
 		    need = 1;
