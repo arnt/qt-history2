@@ -79,10 +79,10 @@ class Q_CORE_EXPORT QCoreVariant
     };
 
     inline QCoreVariant();
-    inline ~QCoreVariant();
+    ~QCoreVariant();
     QCoreVariant(Type type);
     QCoreVariant(int typeOrUserType, const void *copy);
-    inline QCoreVariant(const QCoreVariant &other);
+    QCoreVariant(const QCoreVariant &other);
 
 #ifndef QT_NO_DATASTREAM
     QCoreVariant(QDataStream &s);
@@ -128,8 +128,7 @@ class Q_CORE_EXPORT QCoreVariant
 
     void clear();
 
-
-    inline void detach() { if (d->ref != 1) detach_helper(); }
+    void detach();
     inline bool isDetached() const;
 
     int toInt(bool *ok = 0) const;
@@ -186,27 +185,36 @@ class Q_CORE_EXPORT QCoreVariant
     void *data();
     const void *constData() const;
     inline const void *data() const { return constData(); }
- private:
-    void detach_helper();
 
  public:
 #ifndef qdoc
-    struct Private
+    struct PrivateShared
     {
+        inline PrivateShared() { ref = 1; }
+        inline PrivateShared(void *v) { ref = 1; value.ptr = v; }
         QAtomic ref;
-        uint type : 31;
-        uint is_null : 1;
         union
         {
-            uint u;
-            int i;
             Q_LLONG ll;
             Q_ULLONG ull;
-            bool b;
             double d;
             void *ptr;
         } value;
-        mutable void *str_cache;
+    };
+    struct Private
+    {
+        inline Private(): type(Invalid), is_shared(false), is_null(true) { data.ptr = 0; }
+        uint type : 30;
+        uint is_shared : 1;
+        uint is_null : 1;
+        union
+        {
+            int i;
+            uint u;
+            bool b;
+            void *ptr;
+            PrivateShared *shared;
+        } data;
     };
  public:
     typedef void (*f_construct)(Private *, const void *);
@@ -217,8 +225,8 @@ class Q_CORE_EXPORT QCoreVariant
     typedef void (*f_save)(const Private *, QDataStream &);
 #endif
     typedef bool (*f_compare)(const Private *, const Private *);
-    typedef void (*f_cast)(QCoreVariant::Private *d, Type t, void *, bool *);
-    typedef bool (*f_canCast)(QCoreVariant::Private *d, Type t);
+    typedef void (*f_cast)(const QCoreVariant::Private *d, Type t, void *, bool *);
+    typedef bool (*f_canCast)(const QCoreVariant::Private *d, Type t);
     struct Handler {
         f_construct construct;
         f_clear clear;
@@ -234,14 +242,11 @@ class Q_CORE_EXPORT QCoreVariant
 #endif
 
 protected:
-    Private *d;
-    static Private shared_invalid;
+    Private d;
 
     static const Handler *handler;
 
-    Private *create(int type, const void *copy);
-    inline void cleanUp(Private *p)
-    { handler->clear(p); delete p; }
+    void create(int type, const void *copy);
     void *castOrDetach(Type t);
 };
 
@@ -263,14 +268,8 @@ bool qVariantGet(const QCoreVariant &v, T &t, const char *typeName)
 typedef QList<QCoreVariant> QCoreVariantList;
 typedef QMap<QString, QCoreVariant> QCoreVariantMap;
 
-inline QCoreVariant::QCoreVariant() :d(&shared_invalid)
-{ ++d->ref; }
-inline QCoreVariant::~QCoreVariant()
-{ if (!--d->ref) cleanUp(d); }
-inline QCoreVariant::QCoreVariant(const QCoreVariant &p) : d(p.d)
-{ ++d->ref; }
-
-inline bool QCoreVariant::isValid() const { return d->type != Invalid; }
+inline QCoreVariant::QCoreVariant() {}
+inline bool QCoreVariant::isValid() const { return d.type != Invalid; }
 
 #ifdef QT_COMPAT
 inline int &QCoreVariant::asInt()
@@ -315,7 +314,7 @@ Q_CORE_EXPORT QDataStream& operator<< (QDataStream& s, const QCoreVariant::Type 
 #endif
 
 inline bool QCoreVariant::isDetached() const
-{ return d->ref == 1; }
+{ return !d.is_shared || d.data.shared->ref == 1; }
 
 #if defined Q_CC_MSVC && _MSC_VER < 1300
 template <class T> inline T QVariant_to_helper(const QCoreVariant &v, const T *);

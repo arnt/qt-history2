@@ -172,7 +172,7 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
 #endif //QT_COMPAT
 
 protected:
-    Private *create(int type, const void *copy);
+    void create(int type, const void *copy);
 };
 
 typedef QList<QVariant> QVariantList;
