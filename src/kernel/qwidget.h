@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#26 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#27 $
 **
 ** Definition of QWidget class
 **
@@ -169,10 +169,6 @@ public:
     static QWidget       *find( WId );		// find widget by identifier
     static QWidgetMapper *wmapper()	{ return mapper; }
 
-#if defined(_WS_X11_)
-    GC	    getGC()  		 const	{ return gc; }
-#endif
-
 protected:
     WFlags  getFlags() const		{ return flags; }
     void    setFlag( WFlags n )		{ flags |= n; }
@@ -186,8 +182,6 @@ protected:
     int	    convertYPos( int );
     void    reposChildren();
     WId	    frm_wnd;
-#elif defined(_WS_X11_)
-    GC	    gc;
 #endif
 
 private:
