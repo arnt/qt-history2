@@ -357,16 +357,21 @@ private:
 class QDesignerDialog : public QDialog
 {
     Q_OBJECT
+    Q_OVERRIDE( bool modal READ isModal WRITE setModal )
 
 public:
     QDesignerDialog( FormWindow *fw, QWidget *parent, const char *name )
-	: QDialog( parent, name, FALSE, WResizeNoErase ), formwindow( fw ) {}
+	: QDialog( parent, name, FALSE, WResizeNoErase ), formwindow( fw ), modal(FALSE) {}
+
+    bool isModal() const { return modal; }
+    void setModal(bool b) { modal = b; }
 
 protected:
     void paintEvent( QPaintEvent *e );
 
 private:
     FormWindow *formwindow;
+    bool modal;
 
 };
 
