@@ -944,6 +944,9 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 
     Display *dpy = QPaintDevice::x11AppDisplay();
 
+    int xorig = x;
+    int yorig = y;
+
     XftFont *fnt = _font;
     bool transform = FALSE;
     if ( p->txop >= QPainter::TxScale ) {
@@ -1035,7 +1038,7 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 #endif
 
     if ( textFlags != 0 )
-	drawLines( p, this, y, x, si->width, textFlags );
+	drawLines( p, this, yorig, xorig, si->width, textFlags );
 
 
     if ( si->isSpace )
