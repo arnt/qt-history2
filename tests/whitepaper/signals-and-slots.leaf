@@ -1,0 +1,175 @@
+\chapter Signals and Slots
+
+\index MFC
+\index Motif
+\index QObject
+\index callbacks
+\index communication
+\index message maps
+\index objects
+\index signals
+\index slots
+
+Qt provides an easy-to-use and powerful communication mechanism
+between objects. We named this approach \e {signals and slots} and
+designed it to replace the crude callbacks and message maps used by
+older toolkits.
+
+\index events
+\index state of widgets
+
+Objects, typically widgets, emit \e signals to indicate state
+changes. Signals can be connected to member functions, \e slots, that
+implement the required behavior.
+
+\index connect()
+
+For example, if a \Button Quit button's \Func clicked() signal is
+connected to the application's \Func quit() slot, a user's click on
+\Button Quit makes the application quit. In code, this translates
+to
+\code
+    connect( button, SIGNAL(clicked()), qApp, SLOT(quit()) );
+\endcode
+Connections can be added or removed at any time during the execution
+of a Qt application.
+
+\index OOP
+\index object-oriented programming
+\index type safety
+
+The signals and slots implementation smoothly extends C++'s syntax
+and takes full advantage of C++'s object-orientated features. Signals
+and slots are type safe, can be overloaded or reimplemented and may
+appear in the public, protected or private sections of a class.
+
+\index components
+\index reusability
+
+Communication using callbacks or message maps binds classes together,
+making it difficult to develop classes independently. Qt's signals
+and slots mechanism does not require classes to have knowledge of
+each other, which makes it much easier to develop highly reusable
+software components.
+
+\section1 An Example
+
+\index QObject
+
+To benefit from signals and slots, a class needs to inherit from
+\Class QObject or one of its subclasses and must include the \c
+Q_OBJECT macro in the class's definition. Signals are declared in the
+\c {signals} section of the class, while slots are declared in the \c
+{public slots}, \c {protected slots} or \c {private slots} sections.
+
+\index inheriting in Qt
+\index subclassing in Qt
+
+Here's an example \Class QObject subclass:
+\code
+    class BankAccount : public QObject
+    {
+	Q_OBJECT
+    public:
+	BankAccount() { curBalance = 0; }
+	int balance() const { return curBalance; }
+    public slots:
+	void setBalance( int newBalance );
+
+    signals:
+	void balanceChanged( int newBalance );
+
+    private:
+	int curBalance;
+    };
+\endcode
+
+The class \Class BankAccount has a constructor, a get function, \Func
+balance(), and a set function, \Func setBalance(), like almost any
+C++ class.
+
+The class also has a signal, \Func balanceChanged(), that announces
+that the balance in the account has changed. Signals are not
+implemented; when a signal is emitted, the slots it is connected to
+are executed.
+
+The set function is declared in the \c {public slots} section, so it
+is a slot. Slots are standard member functions with an implementation
+that can be called like any other function, and which can also be
+connected to signals.
+
+\index emitting a signal
+\index preprocessor!C++
+
+Here's the implementation of the slot \Func setBalance():
+\code
+    void BankAccount::setBalance( int newBalance ) {
+	if ( newBalance != curBalance ) {
+	    curBalance = newBalance;
+	    emit balanceChanged( curBalance );
+	}
+    }
+\endcode
+The statement
+\code
+    emit balanceChanged( curBalance );
+\endcode
+causes the \Func balanceChanged() signal to be emitted with the new
+current balance as its argument. The keyword \c emit, like \c signals
+and \c slots, is provided by Qt and is transformed into standard C++
+by the C++ preprocessor.
+
+Here's an example of how to use \Class BankAccount:
+\code
+    BankAccount x, y;
+    connect( &x, SIGNAL(balanceChanged(int)),
+	     &y, SLOT(setBalance(int)) );
+    x.setBalance( 2450 );
+\endcode
+We create two \Class BankAccount objects, \c x and \c y, and connect
+\c x's \Func balanceChanged() signal to \c y's \Func setBalance()
+slot. When we set the balance in \c x to 2450, the \Func
+balanceChanged() signal is emitted and is received by \c y's \Func
+setBalance() slot, which sets \c y's balance to 2450.
+
+One object's signal can be connected to many different slots and many
+signals can be connected to one slot in a particular object. Connections
+can be made between any signal and slot, providing that their arguments
+are compatible.
+
+\section1 Meta Object Compiler
+
+\index Meta Object Compiler
+\index Moc
+\index compiler features
+\index header files
+\index qmake
+
+The signals and slots mechanism is implemented in pure standard C++.
+The implementation uses the C++ preprocessor and the Meta Object
+Compiler (\e moc) included with the Qt library. 
+
+The \e moc reads the application's header files and generates the
+necessary code to support the signals and slots mechanism. Developers
+never have to edit or even look at the generated code, and \l qmake
+generates the correct makefiles for the target platform.
+
+\index introspection
+\index magic
+\index properties
+\index rtti
+\index run-time type information
+\index translations
+
+In addition to handling signals and slots, \e moc supports Qt's \l
+{translation mechanism}, property system and extended run-time type
+information. The \e moc also makes the cross-platform introspection
+of C++ programs possible.
+
+\section1 Further Reading
+
+\list
+\i \l http://doc.trolltech.com/object.html
+\i \l http://doc.trolltech.com/signalsandslots.html
+\i \l http://doc.trolltech.com/moc.html
+\endlist
