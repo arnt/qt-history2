@@ -1129,6 +1129,8 @@ void QTextCursor::gotoPreviousWord()
     tmpIndex = -1;
     QTextString *s = string->string();
     bool allowSame = FALSE;
+    if ( idx == ((int)s->length()-1) )
+	return;
     for ( int i = idx; i >= 0; --i ) {
 	if ( s->at( i ).c.isSpace() || s->at( i ).c == '\t' || s->at( i ).c == '.' ||
 	     s->at( i ).c == ',' || s->at( i ).c == ':' || s->at( i ).c == ';' ) {
@@ -1163,7 +1165,9 @@ void QTextCursor::gotoNextWord()
 
     }
 
-    if ( string->next() ) {
+    if ( idx < ((int)s->length()-1) ) {
+	gotoLineEnd();
+    } else if ( string->next() ) {
 	QTextParag *s = string->next();
 	while ( s  && !s->isVisible() )
 	    s = s->next();
@@ -1662,7 +1666,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		}
 
 		const QStyleSheetItem* nstyle = sheet_->item(tagname);
-		
+
 		if ( curtag.style->displayMode() == QStyleSheetItem::DisplayListItem ) {
 		    if ( tagname == "br" ) {
 			// our standard br emty-tag handling breaks
@@ -1675,7 +1679,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    if ( nstyle )
 			hasNewPar = FALSE; // we want empty paragraphs in this case
 		}
-		
+
 		if ( nstyle ) {
 		    // we might have to close some 'forgotten' tags
 		    while ( !nstyle->allowedInContext( curtag.style ) ) {
@@ -1827,7 +1831,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			    anchorName = attr["name"];
 			curtag.anchorHref = attr["href"];
 		    }
-		
+
 		    if ( nstyle->alignment() != QStyleSheetItem::Undefined )
 			curtag.alignment = nstyle->alignment();
 
@@ -1929,12 +1933,12 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		QStyleSheetItem::WhiteSpaceMode wsm = curtag.wsm;
 		if ( s.length() > 4096 )
 		    wsm =  (QStyleSheetItem::WhiteSpaceMode)QStyleSheetItem_WhiteSpaceNormalWithNewlines;
-		
+
 		c = parseChar( doc, length, pos, wsm );
-		
+
 		if ( c == '\n' ) // happens only in whitespacepre-mode or with WhiteSpaceNormalWithNewlines.
  		    break;  // we want a new line in this case
-		
+
 		bool c_isSpace = c.isSpace() && c.unicode() != 0x00a0U;
 
 		if ( curtag.wsm == QStyleSheetItem::WhiteSpaceNormal && c_isSpace && space )
@@ -2798,7 +2802,7 @@ void QTextDocument::setTextFormat( Qt::TextFormat f )
 	v.insert( v.size() - 1, styleSheet()->item( "p" ) );
 	fParag->setStyleSheetItems( v );
     }
-	
+
 }
 
 Qt::TextFormat QTextDocument::textFormat() const
