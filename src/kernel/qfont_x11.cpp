@@ -43,30 +43,19 @@
 
 #include "qfont.h"
 #include "qapplication.h"
-#include "qfontdata_p.h"
-#include "qfontengine_p.h"
-#include "qtextengine_p.h"
 #include "qfontinfo.h"
 #include "qfontdatabase.h"
 #include "qfontmetrics.h"
-#include "qpainter.h"
 #include "qpaintdevice.h"
 #include "qpaintdevicemetrics.h"
-#include "qregexp.h"
-#include "qdict.h"
 #include "qtextcodec.h"
-#include "qcleanuphandler.h"
+
 #include <private/qfontcodecs_p.h>
-
-#include "qfontengine_p.h"
-
-#ifndef QT_NO_XFTFREETYPE
-# include "qintdict.h"
-# include "qpixmap.h"
-# include "qsettings.h"
-#endif // QT_NO_XFTFREETYPE
-
 #include <private/qunicodetables_p.h>
+#include "qfontdata_p.h"
+#include "qfontengine_p.h"
+#include "qtextengine_p.h"
+
 #include "qt_x11.h"
 
 #include <time.h>
@@ -593,258 +582,6 @@ QString QFont::lastResortFont() const
 // QFontMetrics member methods
 // **********************************************************************
 
-/*!
-    Returns the ascent of the font.
-
-    The ascent of a font is the distance from the baseline to the
-    highest position characters extend to. In practice, some font
-    designers break this rule, e.g. when they put more than one accent
-    on top of a character, or to accommodate an unusual character in
-    an exotic language, so it is possible (though rare) that this
-    value will be too small.
-
-    \sa descent()
-*/
-int QFontMetrics::ascent() const
-{
-    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
-#ifdef QT_CHECK_STATE
-    Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
-
-    return engine->ascent();
-}
-
-
-/*!
-    Returns the descent of the font.
-
-    The descent is the distance from the base line to the lowest point
-    characters extend to. (Note that this is different from X, which
-    adds 1 pixel.) In practice, some font designers break this rule,
-    e.g. to accommodate an unusual character in an exotic language, so
-    it is possible (though rare) that this value will be too small.
-
-    \sa ascent()
-*/
-int QFontMetrics::descent() const
-{
-    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
-#ifdef QT_CHECK_STATE
-    Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
-
-    return engine->descent();
-}
-
-/*!
-    Returns TRUE if character \a ch is a valid character in the font;
-    otherwise returns FALSE.
-*/
-bool QFontMetrics::inFont(QChar ch) const
-{
-    QFont::Script script;
-    SCRIPT_FOR_CHAR( script, ch );
-
-    QFontEngine *engine = d->engineForScript( script );
-#ifdef QT_CHECK_STATE
-    Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
-
-    if ( engine->type() == QFontEngine::Box ) return FALSE;
-    return engine->canRender( &ch, 1 );
-}
-
-/*!
-    Returns the left bearing of character \a ch in the font.
-
-    The left bearing is the right-ward distance of the left-most pixel
-    of the character from the logical origin of the character. This
-    value is negative if the pixels of the character extend to the
-    left of the logical origin.
-
-    See width(QChar) for a graphical description of this metric.
-
-    \sa rightBearing(), minLeftBearing(), width()
-*/
-int QFontMetrics::leftBearing(QChar ch) const
-{
-    QFont::Script script;
-    SCRIPT_FOR_CHAR( script, ch );
-
-    QFontEngine *engine = d->engineForScript( script );
-#ifdef QT_CHECK_STATE
-    Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
-
-    if ( engine->type() == QFontEngine::Box ) return 0;
-
-    glyph_t glyphs[10];
-    int nglyphs = 9;
-    engine->stringToCMap( &ch, 1, glyphs, 0, &nglyphs );
-    // ### can nglyphs != 1 happen at all? Not currently I think
-    glyph_metrics_t gi = engine->boundingBox( glyphs[0] );
-    return gi.x;
-}
-
-/*!
-    Returns the right bearing of character \a ch in the font.
-
-    The right bearing is the left-ward distance of the right-most
-    pixel of the character from the logical origin of a subsequent
-    character. This value is negative if the pixels of the character
-    extend to the right of the width() of the character.
-
-    See width() for a graphical description of this metric.
-
-    \sa leftBearing(), minRightBearing(), width()
-*/
-int QFontMetrics::rightBearing(QChar ch) const
-{
-    QFont::Script script;
-    SCRIPT_FOR_CHAR( script, ch );
-
-    QFontEngine *engine = d->engineForScript( script );
-#ifdef QT_CHECK_STATE
-    Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
-
-    if ( engine->type() == QFontEngine::Box ) return 0;
-
-    glyph_t glyphs[10];
-    int nglyphs = 9;
-    engine->stringToCMap( &ch, 1, glyphs, 0, &nglyphs );
-    // ### can nglyphs != 1 happen at all? Not currently I think
-    glyph_metrics_t gi = engine->boundingBox( glyphs[0] );
-    return gi.xoff - gi.x - gi.width;
-}
-
-/*!
-    Returns the minimum left bearing of the font.
-
-    This is the smallest leftBearing(char) of all characters in the
-    font.
-
-    Note that this function can be very slow if the font is large.
-
-    \sa minRightBearing(), leftBearing()
-*/
-int QFontMetrics::minLeftBearing() const
-{
-    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
-#ifdef QT_CHECK_STATE
-    Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
-
-    return engine->minLeftBearing();
-}
-
-/*!
-    Returns the minimum right bearing of the font.
-
-    This is the smallest rightBearing(char) of all characters in the
-    font.
-
-    Note that this function can be very slow if the font is large.
-
-    \sa minLeftBearing(), rightBearing()
-*/
-int QFontMetrics::minRightBearing() const
-{
-    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
-#ifdef QT_CHECK_STATE
-    Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
-
-    return engine->minRightBearing();
-}
-
-/*!
-    Returns the height of the font.
-
-    This is always equal to ascent()+descent()+1 (the 1 is for the
-    base line).
-
-    \sa leading(), lineSpacing()
-*/
-int QFontMetrics::height() const
-{
-    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
-#ifdef QT_CHECK_STATE
-    Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
-
-    return engine->ascent() + engine->descent();
-}
-
-
-/*!
-    Returns the leading of the font.
-
-    This is the natural inter-line spacing.
-
-    \sa height(), lineSpacing()
-*/
-int QFontMetrics::leading() const
-{
-    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
-#ifdef QT_CHECK_STATE
-    Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
-
-    return engine->leading();
-}
-
-/*!
-    Returns the distance from one base line to the next.
-
-    This value is always equal to leading()+height().
-
-    \sa height(), leading()
-*/
-int QFontMetrics::lineSpacing() const
-{
-    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
-#ifdef QT_CHECK_STATE
-    Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
-
-    return engine->leading() + engine->ascent() + engine->descent();
-}
-
-/*! \fn int QFontMetrics::width( char c ) const
-
-  \overload
-  \obsolete
-
-  Provided to aid porting from Qt 1.x.
-*/
-
-/*!
-    \overload
-
-    <img src="bearings.png" align=right>
-
-    Returns the logical width of character \a ch in pixels. This is a
-    distance appropriate for drawing a subsequent character after \a
-    ch.
-
-    Some of the metrics are described in the image to the right. The
-    central dark rectangles cover the logical width() of each
-    character. The outer pale rectangles cover the leftBearing() and
-    rightBearing() of each character. Notice that the bearings of "f"
-    in this particular font are both negative, while the bearings of
-    "o" are both positive.
-
-    \warning This function will produce incorrect results for Arabic
-    characters or non spacing marks in the middle of a string, as the
-    glyph shaping and positioning of marks that happens when
-    processing strings cannot be taken into account. Use charWidth()
-    instead if you aren't looking for the width of isolated
-    characters.
-
-    \sa boundingRect(), charWidth()
-*/
 int QFontMetrics::width( QChar ch ) const
 {
     if ( ch.unicode() < QFontEngineData::widthCacheSize &&
@@ -865,10 +602,11 @@ int QFontMetrics::width( QChar ch ) const
     if ( engine->type() == QFontEngine::Box )
 	return ((QFontEngineBox *) engine)->size();
 
-    glyph_t glyphs[10];
-    advance_t advances[10];
-    int nglyphs = 9;
+    glyph_t glyphs[8];
+    advance_t advances[8];
+    int nglyphs = 7;
     engine->stringToCMap( &ch, 1, glyphs, advances, &nglyphs );
+
     // ### can nglyphs != 1 happen at all? Not currently I think
     if ( ch.unicode() < QFontEngineData::widthCacheSize && advances[0] < 0x100 )
 	d->engineData->widthCache[ ch.unicode() ] = advances[0];
@@ -876,17 +614,7 @@ int QFontMetrics::width( QChar ch ) const
     return advances[0];
 }
 
-/*!
-    Returns the width of the character at position \a pos in the
-    string \a str.
 
-    The whole string is needed, as the glyph drawn may change
-    depending on the context (the letter before and after the current
-    one) for some languages (e.g. Arabic).
-
-    This function also takes non spacing marks and ligatures into
-    account.
-*/
 int QFontMetrics::charWidth( const QString &str, int pos ) const
 {
     if ( pos < 0 || pos > (int)str.length() )
@@ -906,175 +634,6 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 
     return w;
 }
-
-/*!
-    Returns the width in pixels of the first \a len characters of \a
-    str. If \a len is negative (the default), the entire string is
-    used.
-
-    Note that this value is \e not equal to boundingRect().width();
-    boundingRect() returns a rectangle describing the pixels this
-    string will cover whereas width() returns the distance to where
-    the next string should be drawn.
-
-    \sa boundingRect()
-*/
-int QFontMetrics::width( const QString &str, int len ) const
-{
-    if (len < 0)
-	len = str.length();
-    if (len == 0)
-	return 0;
-
-    QTextEngine layout( str, d );
-    layout.itemize( FALSE );
-    return layout.width( 0, len );
-}
-
-/*!
-    \overload
-
-    Returns the bounding rectangle of the character \a ch relative to
-    the left-most point on the base line.
-
-    Note that the bounding rectangle may extend to the left of (0, 0),
-    e.g. for italicized fonts, and that the text output may cover \e
-    all pixels in the bounding rectangle.
-
-    Note that the rectangle usually extends both above and below the
-    base line.
-
-    \sa width()
-*/
-QRect QFontMetrics::boundingRect( QChar ch ) const
-{
-    QFont::Script script;
-    SCRIPT_FOR_CHAR( script, ch );
-
-    QFontEngine *engine = d->engineForScript( script );
-#ifdef QT_CHECK_STATE
-    Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
-
-    glyph_t glyphs[10];
-    int nglyphs = 9;
-    engine->stringToCMap( &ch, 1, glyphs, 0, &nglyphs );
-    glyph_metrics_t gi = engine->boundingBox( glyphs[0] );
-    return QRect( gi.x, gi.y, gi.width, gi.height );
-}
-
-/*!
-    Returns the bounding rectangle of the first \a len characters of
-    \a str, which is the set of pixels the text would cover if drawn
-    at (0, 0).
-
-    If \a len is negative (the default), the entire string is used.
-
-    Note that the bounding rectangle may extend to the left of (0, 0),
-    e.g. for italicized fonts, and that the text output may cover \e
-    all pixels in the bounding rectangle.
-
-    Newline characters are processed as normal characters, \e not as
-    linebreaks.
-
-    Due to the different actual character heights, the height of the
-    bounding rectangle of e.g. "Yes" and "yes" may be different.
-
-    \sa width(), QPainter::boundingRect()
-*/
-QRect QFontMetrics::boundingRect( const QString &str, int len ) const
-{
-    if (len < 0)
-	len = str.length();
-    if (len == 0)
-	return QRect();
-
-    QTextEngine layout( str, d );
-    layout.itemize( FALSE );
-    glyph_metrics_t gm = layout.boundingBox( 0, len );
-    return QRect( gm.x, gm.y, gm.width, gm.height );
-}
-
-/*!
-    Returns the width of the widest character in the font.
-*/
-int QFontMetrics::maxWidth() const
-{
-    if ( ! d->engineData )
-	d->load( (QFont::Script) fscript );
-#ifdef QT_CHECK_STATE
-    Q_ASSERT( d->engineData != 0 );
-#endif // QT_CHECK_STATE
-
-    QFontEngine *engine;
-    int w = 0;
-
-    for ( int i = 0; i < QFont::LastPrivateScript - 1; ++i ) {
-	engine = d->engineData->engines[i];
-	if ( ! engine ) continue;
-
-	w = QMAX( w, engine->maxCharWidth() );
-    }
-    return w;
-}
-
-/*!
-    Returns the distance from the base line to where an underscore
-    should be drawn.
-
-    \sa overlinePos(), strikeOutPos(), lineWidth()
-*/
-int QFontMetrics::underlinePos() const
-{
-    int pos = ( ( lineWidth() * 2 ) + 3 ) / 6;
-    return pos ? pos : 1;
-}
-
-/*!
-    Returns the distance from the base line to where an overline
-    should be drawn.
-
-    \sa underlinePos(), strikeOutPos(), lineWidth()
-*/
-int QFontMetrics::overlinePos() const
-{
-    int pos = ascent() + 1;
-    return pos > 0 ? pos : 1;
-}
-
-/*!
-    Returns the distance from the base line to where the strikeout
-    line should be drawn.
-
-    \sa underlinePos(), overlinePos(), lineWidth()
-*/
-int QFontMetrics::strikeOutPos() const
-{
-    int pos = ascent() / 3;
-    return pos > 0 ? pos : 1;
-}
-
-/*!
-    Returns the width of the underline and strikeout lines, adjusted
-    for the point size of the font.
-
-    \sa underlinePos(), overlinePos(), strikeOutPos()
-*/
-int QFontMetrics::lineWidth() const
-{
-    if ( ! d->engineData )
-	d->load( (QFont::Script) fscript );
-#ifdef QT_CHECK_STATE
-    Q_ASSERT( d->engineData != 0 );
-#endif // QT_CHECK_STATE
-    return d->engineData->lineWidth;
-}
-
-
-
-
-
-
 
 
 

@@ -297,40 +297,6 @@ QString QFont::lastResortFont() const
 #define TMW engine->tm.w
 #define TMA engine->tm.a
 
-int QFontMetrics::ascent() const
-{
-    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
-#ifdef QT_CHECK_STATE
-    Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
-
-    return engine->ascent();
-}
-
-int QFontMetrics::descent() const
-{
-    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
-#ifdef QT_CHECK_STATE
-    Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
-
-    return engine->descent();
-}
-
-bool QFontMetrics::inFont(QChar ch) const
-{
-    QFont::Script script;
-    SCRIPT_FOR_CHAR( script, ch );
-
-    QFontEngine *engine = d->engineForScript( script );
-#ifdef QT_CHECK_STATE
-    Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
-
-    if ( engine->type() == QFontEngine::Box ) return FALSE;
-    return engine->canRender( &ch, 1 );
-}
-
 int QFontMetrics::leftBearing(QChar ch) const
 {
 #ifdef Q_OS_TEMP
@@ -419,61 +385,9 @@ int QFontMetrics::rightBearing(QChar ch) const
 }
 
 
-int QFontMetrics::minLeftBearing() const
-{
-    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
-#ifdef QT_CHECK_STATE
-    Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
-
-    return engine->minLeftBearing();
-}
-
-int QFontMetrics::minRightBearing() const
-{
-    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
-#ifdef QT_CHECK_STATE
-    Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
-
-    return engine->minRightBearing();
-}
-
-
-int QFontMetrics::height() const
-{
-    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
-#ifdef QT_CHECK_STATE
-    Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
-
-    return engine->ascent() + engine->descent();
-}
-
-
-int QFontMetrics::leading() const
-{
-    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
-#ifdef QT_CHECK_STATE
-    Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
-
-    return engine->leading();
-}
-
-int QFontMetrics::lineSpacing() const
-{
-    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
-#ifdef QT_CHECK_STATE
-    Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
-
-    return engine->leading() + engine->ascent() + engine->descent();
-}
-
 int QFontMetrics::width( QChar ch ) const
 {
-    if ( ch.category() == QChar::Mark_NonSpacing )
+    if ( ::isMark( ch ) )
 	return 0;
 
     QFont::Script script;
@@ -500,20 +414,11 @@ int QFontMetrics::width( QChar ch ) const
 }
 
 
-int QFontMetrics::width( const QString &str, int len ) const
-{
-    if ( len < 0 )
-	len = str.length();
-    if ( len == 0 )
-	return 0;
-
-    QTextEngine layout( str, d );
-    layout.itemize( FALSE );
-    return layout.width( 0, len );
-}
-
 int QFontMetrics::charWidth( const QString &str, int pos ) const
 {
+    if ( pos < 0 || pos > (int)str.length() )
+	return 0;
+
     if ( qt_winver & Qt::WV_NT_based && painter )
 	painter->nativeXForm( TRUE );
 
@@ -533,68 +438,3 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
     }
     return w;
 }
-
-QRect QFontMetrics::boundingRect( QChar ch ) const
-{
-    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
-#ifdef QT_CHECK_STATE
-    Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
-
-    glyph_t glyphs[10];
-    int nglyphs = 9;
-    advance_t advances[10];
-    engine->stringToCMap( &ch, 1, glyphs, advances, &nglyphs );
-    glyph_metrics_t gi = engine->boundingBox( glyphs[0] );
-    return QRect( gi.x, gi.y, gi.width, gi.height );
-}
-
-
-QRect QFontMetrics::boundingRect( const QString &str, int len ) const
-{
-    if (len < 0)
-	len = str.length();
-    if (len == 0)
-	return QRect();
-
-    QTextEngine layout( str, d );
-    layout.itemize( FALSE );
-    glyph_metrics_t gm = layout.boundingBox( 0, len );
-    return QRect( gm.x, gm.y, gm.width, gm.height );
-}
-
-int QFontMetrics::maxWidth() const
-{
-    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
-#ifdef QT_CHECK_STATE
-    Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
-
-    return TMX.tmMaxCharWidth;
-}
-
-int QFontMetrics::underlinePos() const
-{
-    int pos = (lineWidth()*2 + 3)/6;
-    return QMAX(pos,1);
-}
-
-int QFontMetrics::strikeOutPos() const
-{
-    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
-#ifdef QT_CHECK_STATE
-    Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
-
-    int pos = TMX.tmAscent/3;
-    return QMAX(pos,1);
-}
-
-int QFontMetrics::lineWidth() const
-{
-    if ( !d->engineData )
-	d->load( QFont::NoScript );
-
-    return d->engineData->lineWidth;
-}
-
