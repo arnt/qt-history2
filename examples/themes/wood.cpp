@@ -1066,7 +1066,7 @@ void NorwegianWoodStyle::drawControlMask( ControlElement element,
 					  QPainter *p,
 					  const QWidget *widget,
 					  const QRect &r,
-					  void **data = 0 ) const
+					  void **data ) const
 {
     switch( element ) {
     case CE_PushButton:
