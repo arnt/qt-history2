@@ -39,6 +39,7 @@
 #include "qslider.h"
 #include "qstylefactory.h"
 #include "qprogressbar.h"
+#include "qobjectdefs.h"
 
 #include <limits.h>
 
@@ -390,9 +391,10 @@ void LightStyleV3::drawPrimitive(PrimitiveElement pe,
 	    if (p && p->device()->devType() == QInternal::Widget) {
 		QWidget *w = (QWidget *) p->device();
 		QWidget *p = w->parentWidget();
-		if (p->inherits("QDockWindow") && ! p->inherits("QToolBar")) {
+		if (p->metaObject()->inherits("QDockWindow")
+		    && !p->metaObject()->inherits("QToolBar")) {
 		    drawTitle = TRUE;
-		    title = p->caption();
+		    title = p->windowTitle();
 		}
 	    }
 
@@ -715,7 +717,7 @@ void LightStyleV3::drawPrimitive(PrimitiveElement pe,
 	    default: break;
 	    }
 
-	    if (a.isNull())
+	    if (a.isEmpty())
 		return;
 
 	    p->save();
@@ -914,7 +916,7 @@ void LightStyleV3::drawControl(ControlElement control,
 	    if (!mi)
 		break;
 
-	    maxpmw = QMAX(maxpmw, 16);
+	    maxpmw = qMax(maxpmw, 16);
 
 	    QRect cr, ir, tr, sr;
 	    // check column
@@ -980,7 +982,7 @@ void LightStyleV3::drawControl(ControlElement control,
 
 	    QString text = mi->text();
 	    if (! text.isNull()) {
-		int t = text.find('\t');
+		int t = text.indexOf('\t');
 
 		// draw accelerator/tab-text
 		if (t >= 0) {
@@ -1601,8 +1603,8 @@ QSize LightStyleV3::sizeFromContents(ContentsType contents,
     case CT_DockWindow:
 	{
 	    int sw = pixelMetric(PM_SplitterWidth);
-	    return QSize(QMAX(sw, contentsSize.width()),
-			 QMAX(sw, contentsSize.height()));
+	    return QSize(qMax(sw, contentsSize.width()),
+			 qMax(sw, contentsSize.height()));
 	}
 
     case CT_ComboBox:
@@ -1667,21 +1669,21 @@ QSize LightStyleV3::sizeFromContents(ContentsType contents,
 		if (h < 16)
 		    h = 16;
 		if (mi->pixmap())
-		    h = QMAX(h, mi->pixmap()->height());
+		    h = qMax(h, mi->pixmap()->height());
 		else if (! mi->text().isNull())
-		    h = QMAX(h, popupmenu->fontMetrics().height() + 4);
+		    h = qMax(h, popupmenu->fontMetrics().height() + 4);
 		if (mi->iconSet() != 0)
-		    h = QMAX(h, mi->iconSet()->pixmap(QIconSet::Small,
+		    h = qMax(h, mi->iconSet()->pixmap(QIconSet::Small,
 						      QIconSet::Normal).height());
 	    }
 
 	    // check | 4 pixels | item | 8 pixels | accel | 4 pixels | check
 
 	    // check is at least 16x16
-	    maxpmw = QMAX(maxpmw, 16);
+	    maxpmw = qMax(maxpmw, 16);
 	    w += (maxpmw * 2) + 8;
 
-	    if (! mi->text().isNull() && mi->text().find('\t') >= 0)
+	    if (!mi->text().isNull() && mi->text().contains('\t'))
 		w += 8;
 
 	    return QSize(w, h);
@@ -1715,9 +1717,6 @@ int LightStyleV3::styleHint(StyleHint stylehint,
 
     case SH_MainWindow_SpaceBelowMenuBar:
 	return 0;
-
-    case SH_ScrollBar_BackgroundMode:
-	return NoBackground;
 
     case SH_Header_ArrowAlignment:
         return Qt::AlignRight;

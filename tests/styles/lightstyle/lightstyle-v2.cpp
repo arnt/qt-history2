@@ -38,6 +38,7 @@
 #include "qcombobox.h"
 #include "qslider.h"
 #include "qstylefactory.h"
+#include "qmetaobject.h"
 
 #include <limits.h>
 
@@ -282,9 +283,10 @@ void LightStyleV2::drawPrimitive(PrimitiveElement pe,
 	    if (p && p->device()->devType() == QInternal::Widget) {
 		QWidget *w = (QWidget *) p->device();
 		QWidget *p = w->parentWidget();
-		if (p->inherits("QDockWindow") && ! p->inherits("QToolBar")) {
+		if (p->metaObject()->inherits("QDockWindow")
+		    && !p->metaObject()->inherits("QToolBar")) {
 		    drawTitle = TRUE;
-		    title = p->caption();
+		    title = p->windowTitle();
 		}
 	    }
 
@@ -565,7 +567,7 @@ void LightStyleV2::drawPrimitive(PrimitiveElement pe,
 		break;
 	    }
 
-	    if (a.isNull())
+	    if (a.isEmpty())
 		return;
 
 	    p->save();
@@ -700,7 +702,7 @@ void LightStyleV2::drawControl(ControlElement control,
 	    if (!mi)
 		break;
 
-	    maxpmw = QMAX(maxpmw, 16);
+	    maxpmw = qMax(maxpmw, 16);
 
 	    QRect cr, ir, tr, sr;
 	    // check column
@@ -771,7 +773,7 @@ void LightStyleV2::drawControl(ControlElement control,
 
 	    QString text = mi->text();
 	    if (! text.isNull()) {
-		int t = text.find('\t');
+		int t = text.indexOf('\t');
 
 		// draw accelerator/tab-text
 		if (t >= 0) {
@@ -1405,11 +1407,11 @@ QSize LightStyleV2::sizeFromContents(ContentsType contents,
 		if (h < 16)
 		    h = 16;
 		if (mi->pixmap())
-		    h = QMAX(h, mi->pixmap()->height());
+		    h = qMax(h, mi->pixmap()->height());
 		else if (! mi->text().isNull())
-		    h = QMAX(h, popupmenu->fontMetrics().height() + 2);
+		    h = qMax(h, popupmenu->fontMetrics().height() + 2);
 		if (mi->iconSet() != 0)
-		    h = QMAX(h, mi->iconSet()->pixmap(QIconSet::Small,
+		    h = qMax(h, mi->iconSet()->pixmap(QIconSet::Small,
 						      QIconSet::Normal).height());
 		h += 2;
 	    }
@@ -1417,10 +1419,10 @@ QSize LightStyleV2::sizeFromContents(ContentsType contents,
 	    // check | 4 pixels | item | 8 pixels | accel | 4 pixels | check
 
 	    // check is at least 16x16
-	    maxpmw = QMAX(maxpmw, 16);
+	    maxpmw = qMax(maxpmw, 16);
 	    w += (maxpmw * 2) + 8;
 
-	    if (! mi->text().isNull() && mi->text().find('\t') >= 0)
+	    if (!mi->text().isEmpty() && mi->text().contains('\t'))
 		w += 8;
 
 	    ret = QSize(w, h);
