@@ -19,7 +19,6 @@
 ** not clear to you.
 **
 *********************************************************************</comment>
-<layoutdefaults spacing="6" margin="11"/>
 <widget class="QDialog">
     <property name="name">
         <cstring>FormSettingsBase</cstring>
@@ -29,7 +28,7 @@
             <x>0</x>
             <y>0</y>
             <width>497</width>
-            <height>362</height>
+            <height>426</height>
         </rect>
     </property>
     <property name="caption">
@@ -82,7 +81,7 @@
                         <string>Save pixmaps into the .ui files</string>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>&lt;b&gt;Save Inline&lt;/b&gt;&lt;p&gt;Saves the pixmaps you choose as binary data into the .ui files. &lt;em&gt;This is the suggested option!&lt;/em&gt;</string>
+                        <string>&lt;b&gt;Save Inline&lt;/b&gt;&lt;p&gt;Saves the pixmaps you choose as binary data into the .ui files. Pixmaps are not shared between forms. We recommend using Project Imagefiles instead.</string>
                     </property>
                 </widget>
                 <widget class="QRadioButton" row="2" column="0">
@@ -97,7 +96,7 @@
                     </property>
                     <property name="whatsThis" stdset="0">
                         <string>&lt;b&gt;Use the Project's Image file to open pixmaps&lt;/b&gt;
-&lt;p&gt;Each project has a collection of pixmaps. If you use a project, it is the best (and suggested) sloution to use only pixmaps of this collection. This is the fastest and most efficient way to use pixmaps in your forms.&lt;/p&gt;</string>
+&lt;p&gt;Each project has a collection of pixmaps. If you use a project, we recommend that you use this option since it shares images and is the fastest and most efficient way to use pixmaps in your forms.&lt;/p&gt;</string>
                     </property>
                 </widget>
                 <widget class="QLineEdit" row="1" column="1">
@@ -370,25 +369,24 @@
     </grid>
 </widget>
 <connections>
-    <connection language="C++">
+    <connection>
         <sender>buttonCancel</sender>
         <signal>clicked()</signal>
         <receiver>FormSettingsBase</receiver>
         <slot>reject()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>buttonOk</sender>
         <signal>clicked()</signal>
         <receiver>FormSettingsBase</receiver>
         <slot>okClicked()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>radioPixmapFunction</sender>
         <signal>toggled(bool)</signal>
         <receiver>editPixmapFunction</receiver>
         <slot>setEnabled(bool)</slot>
     </connection>
-    <slot access="public" language="C++" returnType="void">okClicked()</slot>
 </connections>
 <tabstops>
     <tabstop>editClassName</tabstop>
@@ -404,4 +402,8 @@
     <tabstop>buttonOk</tabstop>
     <tabstop>buttonCancel</tabstop>
 </tabstops>
+<slots>
+    <slot>okClicked()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
 </UI>
