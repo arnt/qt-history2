@@ -1053,12 +1053,14 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev)
     d->offx = d->offy = 0; // (quickdraw compat!!)
     d->pdev = pdev;
     d->hd = qt_macCreateCGHandle(pdev);
-    d->orig_xform = CGContextGetCTM(d->hd);
-    if(d->shading) {
-        CGShadingRelease(d->shading);
-        d->shading = 0;
+    if(d->hd) {
+        d->orig_xform = CGContextGetCTM(d->hd);
+        if(d->shading) {
+            CGShadingRelease(d->shading);
+            d->shading = 0;
+        }
+        d->setClip(0);  //clear the context's clipping
     }
-    d->setClip(0);  //clear the context's clipping
 
     setActive(true);
     assignf(IsActive | DirtyFont);
