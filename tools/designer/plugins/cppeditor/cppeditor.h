@@ -25,7 +25,7 @@
 
 class EditorCompletion;
 class EditorBrowser;
-class DesignerInterface;
+struct DesignerInterface;
 
 class  CppEditor : public Editor
 {
