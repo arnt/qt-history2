@@ -21,8 +21,6 @@ Editing of Slots (Reggie)
     designer, so that one doesn't need to subclass always just to
     implement a slot. This is easy to do using QTextEdit.
 
-Support for the database classes/widgets to build database forms (Dave, Reggie) #
-
 Add splitter support (Reggie)
     Same concept as tabwidgets
     (widgetOfContainer/containerOfWidget/passiveInteractor). Will be
@@ -49,20 +47,10 @@ ListView editor
     - Support for checkable items
     - Able to set column width
 
-New file format (Reggie, Matthias) #
-    - As desussed move name, class, etc. in attributes to shorten it. Reggie
-      started with resource.cpp, the work so far is in designer/designer/newfileformat
-      on his machine. Continue there and provide a filter to modify the DOM tree
-      if it is an old format, so that loading/saving in the designer/uic/widgetfactory
-      only needs to support one format.
-
 Feature Requests
 ----------------
 
 Changing page-order in tabwidget using a special editor dialog
-
-Special editor dialog for QTable
-    Allows to edit column/row header labels and contents
 
 Use QSettings for config ASA this is done
 
