@@ -1,6 +1,7 @@
 @SysInclude { tbl }
 @SysInclude { diag }
-@Include { mydoc.lout }
+# pspdf -W1134 -H666
+@Include { doc.lout }
 macro @QtColour		{ rgb 0.90 1.00 0.90 } 
 macro @ObjectColour	{ rgb 0.90 1.00 0.60 } 
 macro @EventColour	{ rgb 0.80 1.00 0.95 } 
@@ -37,30 +38,24 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 @Doc 
 //
 @Text @Begin
-@Place x { 4.25c } y { 15.25c }
+@Place x { 15.25c } y { 3.75c }
 {
-2.0 @Scale @WatermarkColour @Colour 0d @Rotate
+1.7 @Scale @WatermarkColour @Colour -90d @Rotate
 { 0.75 1.0 } @Scale @F @Verbatim { connect(button, SIGNAL(clicked()), qApp, SLOT(quit())); }
 }
-@Place
-    x { 3.1c }
-    y { 17.7c }
+@Place x { 16.9c } y { 20.5c }
 {
-0.75 @Scale @WatermarkColour @Colour 90d @Rotate
+0.7 @Scale @WatermarkColour @Colour 0d @Rotate
 { Qt"/"Embedded @CDot Qt"/"Mac @CDot Qt"/"Windows @CDot Qt"/"X11 }
 }
-@Place 
-    x { 27.155c }
-    y { 29.0c }
+@Place x { 33c } y { 0.75c }
 {
-0.75 @Scale 90d @Rotate @IncludeGraphic { combobox.eps.gz }
+0.4 @Scale 0d @Rotate @IncludeGraphic { "../../class-chart/combobox.eps.gz" }
 }
-@Place 
-    x { 26.25c }
-    y { 3.65c }
+@Place x { 0.75c } y { 0.75c }
 {
-0.75 @Scale black @Colour 90d @Rotate
-Slope @Font 9.25c @Wide { ragged nohyphen } @Break {
+0.75 @Scale black @Colour 0d @Rotate
+Slope @Font 5c @Wide { ragged nohyphen } @Break {
 Qt is a C++ toolkit for cross-platform GUI and application
 development. In addition to the Qt C++ class library, the toolkit
 includes tools like Qt Designer that make writing applications fast
@@ -69,17 +64,13 @@ internationalization support means that Qt applications can reach the
 widest darkgrey @Colour{mark}et. 
 }
 }
-@Place
-    x { 27.75c }
-    y { 13.25c }
+@Place x { 12c } y { 0.75c }
 {
-90d @Rotate 1.8 @Scale @B { www.trolltech.com   @CDot   doc.trolltech.com }
+0d @Rotate 1.8 @Scale @B { www.trolltech.com   @CDot   doc.trolltech.com }
 }
-@Place 
-    x { 14.125c }
-    y { 24.00c }
+@Place x { 35c } y { 2.5c }
 {
-0.75 @Scale 90d @Rotate @WatermarkColour @Colour 
+0.75 @Scale 0d @Rotate @WatermarkColour @Colour 
 { 0.75 1.0 } @Scale @F @Verbatim @Begin 
 #include <qapplication.h>
 #include <qlabel.h>
@@ -87,17 +78,17 @@ int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
     QLabel *hello = new QLabel( 
-                 "<font color=blue>"
-                 "Hello <i>Qt!</i>"
-                 "</font>", 0);
+        "<font color=blue>"
+        "Hello <i>Qt!</i>"
+        "</font>", 0);
     app.setMainWidget(hello);
     hello->show();
     return app.exec();
 }
 @End @Verbatim
 }
-@Place x { 3.25c } y { 4.9c }
-{ 0.75 @Scale @WatermarkColour @Colour 90d @Rotate rlines @Break { 
+@Place x { 0.75c } y { 14c }
+{ 0.75 @Scale @WatermarkColour @Colour 0d @Rotate rlines @Break { 
 AIX
 BSDI
 FreeBSD
@@ -118,8 +109,8 @@ Windows 2000
 Windows XP
 }
 }
-@Place x { 2.555c } y { 30.12c }
-{ 0.5 @Scale @WatermarkColour @Colour 90d @Rotate rlines @Break { 
+@Place x { 36.5c } y { 11.5c }
+{ 0.5 @Scale @WatermarkColour @Colour 0d @Rotate lines @Break { 
 utf16 @CDot Unicode
 utf8 @CDot Unicode
 Big5 @CDot Chinese
@@ -153,21 +144,23 @@ ISO8859-7 @CDot Greek
 ISO8859-6 @CDot Arabic
 ISO8859-5 @CDot Cyrillic
 ISO8859-4 @CDot Baltic
-/0.75v
 ISO8859-3 @CDot Central Europe
 ISO8859-2 @CDot Central Europe
 ISO8859-1 @CDot Western
 Apple Roman
 } 
 }
-@Place x { 26.45c } y { 32.50c }
-{ 0.75 @Scale grey @Colour 90d @Rotate
-{ Copyright @CopyRight 2003 Trolltech AS. All Rights Reserved. @Sup{1.0}} }
-@Place x { 26.5c } y { 1c }
-{ 0.25 @Scale 90d @Rotate
-@IncludeGraphic { square_trolltech.eps.gz } }
+@Place x { 0.75c } y { 9c }
+{ 0.75 @Scale grey @Colour 0d @Rotate clines @Break
+{ Copyright @CopyRight 2003
+Trolltech AS.
+All Rights Reserved.
+-2p @Font{CHA400606N0-09"/"03} @Sup{1.1}} }
+@Place x { 23c } y { 8.25c }
+{ 0.3 @Scale 0d @Rotate
+@IncludeGraphic { "../../class-chart/square_trolltech.eps.gz" } }
 @CD 
-{} @Scale 
+0.575 @Scale 
 @Diag 
     margin { 0.3f }
     outline { shadowbox }
@@ -206,7 +199,7 @@ Apple Roman
 		  @Cell U }
     {
 	@Rowc
-	    A { The Essential Qt 3.3 Class Hierarchy }
+	    A { The Essential Qt 3.2 Class Hierarchy }
 	@Rowd
 	    A { QT:: @QtNode Qt }
 	    D { L:: @XNode{white @Colour{Q}} } 
