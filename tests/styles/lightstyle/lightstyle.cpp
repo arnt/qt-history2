@@ -176,7 +176,7 @@ void LightStyle::drawPrimitive( PrimitiveElement pe,
     switch (pe) {
     case PE_HeaderSection:
 	p->fillRect(r, cg.brush(QColorGroup::Base));
-	p->setPen(cg.mid());
+	p->setPen(cg.dark());
 	p->drawLine(r.right(), r.bottom() - 1, r.right(), (r.height() / 2) - 1);
 	p->drawLine(r.bottomLeft(), r.bottomRight());
 	break;
