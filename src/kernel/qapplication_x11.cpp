@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#228 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#229 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -67,7 +67,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 extern "C" void bzero(void *, size_t len);
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#228 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#229 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -1495,8 +1495,11 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	return 0;
     }
 
-    if ( !widget )				// don't know this window
+    if ( !widget ) {				// don't know this window
+	void qt_np_process_foreign_event(XEvent*); // in qnpsupport.cpp
+	qt_np_process_foreign_event( event );
 	return -1;
+    }
 
     if ( app_do_modal )				// modal event handling
 	if ( !qt_try_modal(widget, event) )
