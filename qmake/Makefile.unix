@@ -100,13 +100,13 @@ qmap.o: @REL_QTDIR@/src/tools/qmap.cpp
 winmakefile.o: generators/win32/winmakefile.cpp
 	$(CXX) -c -O2 -o $@ $(CFLAGS) generators/win32/winmakefile.cpp
 
-project.o: project.cpp
+project.o: project.cpp project.h option.h
 	$(CXX) -c -o $@ $(CFLAGS) project.cpp
 
-main.o: main.cpp
+main.o: main.cpp project.h
 	$(CXX) -c -o $@ $(CFLAGS) main.cpp
 
-option.o: option.cpp
+option.o: option.cpp option.h
 	$(CXX) -c -O2 -o $@ $(CFLAGS) option.cpp
 
 makefile.o: generators/makefile.cpp

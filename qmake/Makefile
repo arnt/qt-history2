@@ -120,12 +120,12 @@ msvc_nmake.obj: generators/win32/msvc_nmake.cpp
 msvc_dsp.obj: generators/win32/msvc_dsp.cpp
 	$(CXX) /c /Fo$@ $(CFLAGS) generators/win32/msvc_dsp.cpp
 
-project.obj: project.cpp
+project.obj: project.cpp project.h option.h
 	$(CXX) /c /Fo$@ $(CFLAGS) project.cpp
 
-main.obj: main.cpp
+main.obj: main.cpp project.h
 	$(CXX) /c /Fo$@ $(CFLAGS) main.cpp
 
-option.obj: option.cpp
+option.obj: option.cpp option.h
 	$(CXX) /c /Fo$@ $(CFLAGS) option.cpp
 
