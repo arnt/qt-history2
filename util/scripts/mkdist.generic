@@ -93,6 +93,7 @@ export QTDIR
 
 echo "Create symlinks for Qt header files.." >&2
 ${QTDIR}/bin/syncqt > /dev/null
+${curdir}/make_qt_dot_h > ${QTDIR}/include/qt.h
 
 if [ "$nodoc" = "yes" ]; then
   echo "Documentation won't be generated" >& 2
