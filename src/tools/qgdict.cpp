@@ -204,7 +204,10 @@ QGDict::QGDict( uint len, KeyType kt, bool caseSensitive, bool copyKeys )
 
 void QGDict::init( uint len, KeyType kt, bool caseSensitive, bool copyKeys )
 {
-    vec = new QBaseBucket *[vlen = len];		// allocate hash table
+    vlen = len;
+    if ( vlen == 0 )
+	vlen = 17;
+    vec = new QBaseBucket *[vlen];
     Q_CHECK_PTR( vec );
     memset( (char*)vec, 0, vlen*sizeof(QBaseBucket*) );
     numItems  = 0;
