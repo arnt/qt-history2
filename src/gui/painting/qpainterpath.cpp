@@ -14,6 +14,7 @@
 #include "qpainterpath.h"
 #include "qpainterpath_p.h"
 
+#include <qiodevice.h>
 #include <private/qbezier_p.h>
 #include <private/qfontengine_p.h>
 #include <private/qobject_p.h>
