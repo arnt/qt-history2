@@ -4699,6 +4699,10 @@ QIconViewItem *QIconView::rowBegin( QIconViewItem * ) const
     return d->firstItem;
 }
 
+#if defined(Q_C_CALLBACKS)
+extern "C" {
+#endif
+
 static int cmpIconViewItems( const void *n1, const void *n2 )
 {
     if ( !n1 || !n2 )
@@ -4709,6 +4713,10 @@ static int cmpIconViewItems( const void *n1, const void *n2 )
 
     return i1->item->compare( i2->item );
 }
+
+#if defined(Q_C_CALLBACKS)
+}
+#endif
 
 /*!
   Sorts the items of the listview and re-arranges them afterwards.
