@@ -155,6 +155,19 @@ public:
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
     bool operator==( const QIconSetPrivate& ) const { return FALSE; }
 #endif
+#if defined(Q_CC_HPACC)
+    // workaround for "implicit copy ctor for multi dimension array"
+    // bug (CR JAGad01979) in HP-UX aCC (up to A.03.30 at least)
+    QIconSetPrivate( const QIconSetPrivate& other ) : QShared() {
+	count = other.count;
+	for ( int i = 0; i < NumSizes; i++ )
+	    for ( int j = 0; j < NumModes; j++ )
+		for ( int k = 0; k < NumStates; k++ )
+		    icons[i][j][k] = other.icons[i][j][k];
+	defaultPix = other.defaultPix;
+	factory = other.factory;
+    }
+#endif
 };
 
 typedef QIconSetPrivate::Icon Icon;
@@ -182,7 +195,7 @@ typedef QIconSetPrivate::Icon Icon;
   \code
     QToolButton *but = new QToolButton( QIconSet( QPixmap("open.xpm") ), ... );
   \endcode
-  
+
   Using whichever pixmaps you specify as a base, QIconSet provides a
   set of six icons, each with a \l Size and a \l Mode: Small Normal,
   Small Disabled, Small Active, Large Normal, Large Disabled, and
