@@ -555,12 +555,15 @@ TrWindow::TrWindow()
     f->setCaption( tr("Qt Linguist") );
     h = new FindDialog( TRUE, this, "replace", FALSE );
     h->setCaption( tr("Qt Linguist") );
+    replacing = FALSE;
     findMatchCase = FALSE;
     findWhere = 0;
     foundItem = 0;
     foundScope = 0;
     foundWhere = 0;
-    foundOffset = 0;
+    foundStrIndex = 0;
+    foundPara = 0;
+    foundParaIndex = 0;
 
     connect( lv, SIGNAL(currentChanged(QListViewItem *)),
 	     this, SLOT(showNewScope(QListViewItem *)) );
@@ -580,6 +583,10 @@ TrWindow::TrWindow()
     connect( me, SIGNAL(focusPhraseList()), this, SLOT(focusPhraseList()) );
     connect( f, SIGNAL(findNext(const QString&, int, bool)),
 	     this, SLOT(findNext(const QString&, int, bool)) );
+    connect( h, SIGNAL(findNext(const QString&, int, bool)),
+	     this, SLOT(findNext(const QString&, int, bool)) );
+    connect( h, SIGNAL(replace(const QString&, const QString&, bool, bool)),
+	     this, SLOT(replace(const QString&, const QString&, bool, bool)) );
 
     QWhatsThis::add( lv, tr("This panel lists the source contexts.") );
 
@@ -681,13 +688,13 @@ void TrWindow::openFile( const QString& name )
 
 	    foundItem = 0;
 	    foundWhere = 0;
-	    foundOffset = 0;
+	    foundStrIndex = 0;
+	    foundPara = 0;
+	    foundParaIndex = 0;
 	    if ( lv->childCount() > 0 ) {
 		findAct->setEnabled( TRUE );
 		findAgainAct->setEnabled( FALSE );
-#ifdef notyet
 		replaceAct->setEnabled( TRUE );
-#endif
 	    }
 	    addRecentlyOpenedFile( name, recentFiles );
 	} else {
@@ -832,34 +839,28 @@ void TrWindow::find()
     f->raise();
 }
 
-void TrWindow::findAgain()
+bool TrWindow::findAgain()
 {
     int pass = 0;
+    bool wrapped = FALSE;
     int oldItemNo = itemToIndex( slv, slv->currentItem() );
     QListViewItem * j = foundScope;
     QListViewItem * k = indexToItem( slv, foundItem );
     QListViewItem * oldScope = lv->currentItem();
 
     if ( lv->childCount() == 0 )
-	return;
-#if 1
-    /*
-      As long as we don't implement highlighting of the text in the QTextView,
-      we may have only one match per message.
-    */
-    foundOffset = (int) 0x7fffffff;
-#else
-    foundOffset++;
-#endif
+	return FALSE;
+    foundStrIndex++;
+    foundParaIndex++;
 
     slv->setUpdatesEnabled( FALSE );
     do {
-	// Iterate through every item in all contexts
+	// Iterate through every item in every context
 	if ( j == 0 ) {
 	    j = lv->firstChild();
 	    setCurrentContextItem( j );
 	    if ( foundScope != 0 )
-		statusBar()->message( tr("Search wrapped."), MessageMS );
+		wrapped = TRUE;
 	}
 	if ( k == 0 )
 	    k = slv->firstChild();
@@ -867,27 +868,40 @@ void TrWindow::findAgain()
 	while ( k ) {
 	    MessageLVI * m = (MessageLVI *) k;
 	    switch ( foundWhere ) {
-		case 0:
-		    foundWhere  = FindDialog::SourceText;
-		    foundOffset = 0;
-		    // fall-through
-		case FindDialog::SourceText:
-		    if ( searchItem( m->sourceText(), j, k ) )
-			return;
-		    foundWhere  = FindDialog::Translations;
-		    foundOffset = 0;
-		    // fall-through
-		case FindDialog::Translations:
-		    if ( searchItem( m->translation(), j, k ) )
-			return;
-		    foundWhere  = FindDialog::Comments;
-		    foundOffset = 0;
-		    // fall-through
-		case FindDialog::Comments:
-		    if ( searchItem( ((ContextLVI *) j)->fullContext(), j, k) )
-			return;
-		    foundWhere  = 0;
-		    foundOffset = 0;
+	    case 0:
+		foundWhere = FindDialog::SourceText;
+		foundStrIndex = 0;
+		foundPara = 0;
+		foundParaIndex = 0;
+		// fall-through
+	    case FindDialog::SourceText:
+		if ( searchItem( me->editorPage->srcText,
+				 m->sourceText(), j, k, wrapped ) )
+		    return TRUE;
+		foundWhere = FindDialog::Comments;
+		foundStrIndex = 0;
+		foundPara = 0;
+		foundParaIndex = 0;
+		// fall-through
+	    case FindDialog::Comments:
+		if ( searchItem( me->editorPage->cmtText,
+				 ((ContextLVI *) j)->fullContext(), j, k,
+				 wrapped) )
+		    return TRUE;
+		foundWhere = FindDialog::Translations;
+		foundStrIndex = 0;
+		foundPara = 0;
+		foundParaIndex = 0;
+		// fall-through
+	    case FindDialog::Translations:
+		if ( searchItem( (QTextEdit *) me->editorPage
+					 ->translationMed,
+				 m->translation(), j, k, wrapped ) )
+		    return TRUE;
+		foundWhere = 0;
+		foundStrIndex = 0;
+		foundPara = 0;
+		foundParaIndex = 0;
 	    }
 	    k = k->nextSibling();
 	}
@@ -917,9 +931,12 @@ void TrWindow::findAgain()
     slv->triggerUpdate();
     statusBar()->message( tr("No match."), MessageMS );
     qApp->beep();
-    foundItem   = 0;
-    foundWhere  = 0;
-    foundOffset = 0;
+    foundItem = 0;
+    foundWhere = 0;
+    foundStrIndex = 0;
+    foundPara = 0;
+    foundParaIndex = 0;
+    return FALSE;
 }
 
 void TrWindow::replace()
@@ -957,21 +974,47 @@ QListViewItem * TrWindow::indexToItem( QListView * view, int index )
     return item;
 }
 
-bool TrWindow::searchItem( const QString & searchWhat, QListViewItem * j,
-			   QListViewItem * k )
+bool TrWindow::searchItem( QTextEdit *edit, const QString & searchWhat,
+			   QListViewItem * j, QListViewItem * k,
+			   bool wrapped )
 {
     if ( (findWhere & foundWhere) != 0 ) {
-	foundOffset = searchWhat.find( findText, foundOffset, findMatchCase );
-	if ( foundOffset >= 0 ) {
+	foundStrIndex = searchWhat.find( findText, foundStrIndex,
+					 findMatchCase );
+	if ( foundStrIndex >= 0 ) {
 	    foundItem = itemToIndex( slv, k );
 	    foundScope = j;
 	    setCurrentMessageItem( k );
 	    slv->setUpdatesEnabled( TRUE );
 	    slv->triggerUpdate();
+
+	    if ( edit->find(findText, findMatchCase, FALSE, TRUE, &foundPara,
+			    &foundParaIndex) ) {
+		edit->setSelection( foundPara, foundParaIndex, foundPara,
+				    foundParaIndex + findText.length() );
+		if ( replacing )
+		    edit->insert( replaceText );
+	    } else {
+		if ( replacing )
+		    return FALSE;
+		else
+		    edit->selectAll();
+	    }
+	    edit->setFocus();
+	    if ( me->editorPage->srcText != edit )
+		me->editorPage->srcText->selectAll( FALSE );
+	    if ( me->editorPage->cmtText != edit )
+		me->editorPage->cmtText->selectAll( FALSE );
+	    if ( (QTextEdit *) me->editorPage->translationMed != edit )
+		((QTextEdit *) me->editorPage->translationMed)
+			->selectAll( FALSE );
+
+	    if ( wrapped )
+		statusBar()->message( tr("Search wrapped."), MessageMS );
 	    return TRUE;
 	}
     }
-    foundOffset = 0;
+    foundStrIndex = 0;
     return FALSE;
 }
 
@@ -1219,13 +1262,23 @@ void TrWindow::updateTranslation( const QString& translation )
     QListViewItem *item = slv->currentItem();
     if ( item != 0 ) {
 	MessageLVI *m = (MessageLVI *) item;
-	QString stripped = translation.stripWhiteSpace();
+
+	/*
+	  Remove trailing '\n's, as they were probably inserted by
+	  mistake. Don't dare to strip all white-space though, as some
+	  idioms require them. Whether these idioms are recommendable
+	  is beyond the scope of this comment.
+	*/
+	QString stripped = translation;
+	while ( stripped.endsWith(QChar('\n')) )
+	    stripped.truncate( stripped.length() - 1 );
+
 	if ( stripped != m->translation() ) {
 	    bool dngr;
 	    m->setTranslation( stripped );
 	    if ( m->finished() &&
 		 (dngr = danger( m->sourceText(), m->translation(), TRUE )) ) {
-		numFinished -= 1;
+		numFinished--;
 		m->setDanger( dngr );
 		m->setFinished( FALSE );
 		m->contextLVI()->updateStatus();
@@ -1554,16 +1607,111 @@ void TrWindow::next()
     }
 }
 
-
 void TrWindow::findNext( const QString& text, int where, bool matchCase )
 {
     findText = text;
+    replacing = FALSE;
     if ( findText.isEmpty() )
 	findText = QString( "magicwordthatyoushouldavoid" );
     findWhere = where;
     findMatchCase = matchCase;
     findAgainAct->setEnabled( TRUE );
     findAgain();
+}
+
+/*
+  This should go in Qt at some point.
+*/
+int replace( QString& str, const QString& before, const QString& after )
+{
+    if ( before.length() == 0 )
+        return 0;
+
+    int maxsize;
+    if ( before.length() > after.length() )
+        maxsize = str.length();
+    else
+        maxsize = ( str.length() / before.length() ) * after.length();
+
+    QChar *buf = new QChar[maxsize + 1]; // + 1 in case maxsize is 0
+    const QChar *strBuf = str.unicode();
+
+    int prev = 0;
+    int cur = 0;
+    int i = 0;
+    int n = 0;
+
+    while ( (uint) (cur = str.find(before, prev)) < str.length() ) {
+        if ( cur > prev ) {
+            memcpy( buf + i, strBuf + prev, sizeof(QChar) * (cur - prev) );
+            i += cur - prev;
+        }
+        if ( after.length() > 0 ) {
+            memcpy( buf + i, after.unicode(), sizeof(QChar) * after.length() );
+            i += after.length();
+        }
+        prev = cur + before.length();
+        n++;
+    }
+
+    if ( n != 0 ) {
+        memcpy( buf + i, strBuf + prev,
+		sizeof(QChar) * (str.length() - prev) );
+        i += str.length() - prev;
+        str = QString( buf, i );
+    }
+    delete[] buf;
+    return n;
+}
+
+void TrWindow::replace( const QString& before, const QString& after,
+			bool matchCase, bool all )
+{
+    if ( all ) {
+	ContextLVI *c = (ContextLVI *) lv->firstChild();
+	QListViewItem * oldScope = lv->currentItem();
+	int oldItemNo = itemToIndex( slv, slv->currentItem() );
+	slv->setUpdatesEnabled( FALSE );
+
+	int n = 0;
+
+	while ( c != 0 ) {
+	    showNewScope( c );
+	    MessageLVI *m = (MessageLVI *) slv->firstChild();
+	    while ( m != 0 ) {
+		QString t = m->translation();
+		n += ::replace( t, before, after );
+		m->setTranslation( t );
+		m = (MessageLVI *) m->nextSibling();
+	    }
+	    c = (ContextLVI *) c->nextSibling();
+	}
+
+	if ( oldScope ){
+	    showNewScope( oldScope );
+	    QListViewItem * tmp = indexToItem( slv, oldItemNo );
+	    if( tmp )
+		setCurrentMessageItem( tmp );
+	}
+	slv->setUpdatesEnabled( TRUE );
+	slv->triggerUpdate();
+	if ( n == 0 ) {
+	    qApp->beep();
+	    statusBar()->message( tr("No match.") );
+	} else {
+	    statusBar()->message( tr("Performed %d replacement(s).").arg(n) );
+	}
+    } else {
+	foundParaIndex--;
+	findText = before;
+	replaceText = after;
+	replacing = TRUE;
+	if ( findText.isEmpty() )
+	    findText = QString( "magicwordthatyoushouldavoid" );
+	findWhere = FindDialog::Translations;
+	findMatchCase = matchCase;
+	findAgain();
+    }
 }
 
 void TrWindow::revalidate()
@@ -1738,11 +1886,9 @@ void TrWindow::setupMenuBar()
     findAgainAct = new Action( editp, tr("Find &Next"),
 			       this, SLOT(findAgain()), Key_F3 );
     findAgainAct->setEnabled( FALSE );
-#ifdef notyet
     replaceAct = new Action( editp, tr("&Replace..."), this, SLOT(replace()),
 			     QAccel::stringToKey(tr("Ctrl+H")) );
     replaceAct->setEnabled( FALSE );
-#endif
 
     // Translation menu
     // when updating the accelerators, remember the status bar
@@ -1842,11 +1988,9 @@ void TrWindow::setupMenuBar()
     findAct->setWhatsThis( tr("Search for some text in the translation "
 				"source file.") );
     findAgainAct->setWhatsThis( tr("Continue the search where it was left.") );
-#ifdef notyet
     replaceAct->setWhatsThis( tr("Search for some text in the translation"
 				 " source file and replace it by another"
 				 " text.") );
-#endif
 
     newPhraseBookAct->setWhatsThis( tr("Create a new phrase book.") );
     openPhraseBookAct->setWhatsThis( tr("Open a phrase book to assist"
@@ -1903,9 +2047,7 @@ void TrWindow::setupToolBars()
     pasteAct->addToToolbar( editt, tr("Paste"), "editpaste" );
     editt->addSeparator();
     findAct->addToToolbar( editt, tr("Find"), "searchfind" );
-#ifdef notyet
     replaceAct->addToToolbar( editt, tr("Replace"), "replace" );
-#endif
 
     // beginFromSourceAct->addToToolbar( translationst, 
     //                                tr("Begin from Source"), "searchfind" );

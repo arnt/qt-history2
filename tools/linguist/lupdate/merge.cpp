@@ -46,36 +46,39 @@ void merge( MetaTranslator *tor, const MetaTranslator *virginTor, bool verbose )
 	MetaTranslatorMessage::Type newType;
 	MetaTranslatorMessage m = *it;
 
-	if ( !virginTor->contains((*it).context(), (*it).sourceText(),
-				  (*it).comment()) ) {
-	    newType = MetaTranslatorMessage::Obsolete;
-	    if ( m.type() != MetaTranslatorMessage::Obsolete )
-		obsoleted++;
-	} else {
-	    switch ( m.type() ) {
-	    case MetaTranslatorMessage::Finished:
-		newType = MetaTranslatorMessage::Finished;
-		known++;
-		break;
-	    case MetaTranslatorMessage::Unfinished:
-		newType = MetaTranslatorMessage::Unfinished;
-		known++;
-		break;
-	    case MetaTranslatorMessage::Obsolete:
-		newType = MetaTranslatorMessage::Unfinished;
-		neww++;
+	// skip context comment
+	if ( !QCString((*it).sourceText()).isEmpty() ) {
+	    if ( !virginTor->contains((*it).context(), (*it).sourceText(),
+				      (*it).comment()) ) {
+		newType = MetaTranslatorMessage::Obsolete;
+		if ( m.type() != MetaTranslatorMessage::Obsolete )
+		    obsoleted++;
+	    } else {
+		switch ( m.type() ) {
+		case MetaTranslatorMessage::Finished:
+		    newType = MetaTranslatorMessage::Finished;
+		    known++;
+		    break;
+		case MetaTranslatorMessage::Unfinished:
+		    newType = MetaTranslatorMessage::Unfinished;
+		    known++;
+		    break;
+		case MetaTranslatorMessage::Obsolete:
+		    newType = MetaTranslatorMessage::Unfinished;
+		    neww++;
+		}
 	    }
-	}
 
-	if ( newType != m.type() ) {
-	    m.setType( newType );
-	    tor->insert( m );
+	    if ( newType != m.type() ) {
+		m.setType( newType );
+		tor->insert( m );
+	    }
 	}
     }
 
     /*
       Messages found only in the virgin translator are added to the
-      vernacular translator.
+      vernacular translator. Among these are all the context comments.
     */
     all = virginTor->messages();
 
@@ -83,7 +86,8 @@ void merge( MetaTranslator *tor, const MetaTranslator *virginTor, bool verbose )
 	if ( !tor->contains((*it).context(), (*it).sourceText(),
 			    (*it).comment()) ) {
 	    tor->insert( *it );
-	    neww++;
+	    if ( !QCString((*it).sourceText()).isEmpty() )
+		neww++;
 	}
     }
 

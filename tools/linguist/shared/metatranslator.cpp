@@ -401,6 +401,40 @@ void MetaTranslator::insert( const MetaTranslatorMessage& m )
     mm.replace( m, pos );
 }
 
+void MetaTranslator::stripObsoleteMessages()
+{
+    TMM newmm;
+
+    TMM::Iterator m = mm.begin();
+    while ( m != mm.end() ) {
+	if ( m.key().type() != MetaTranslatorMessage::Obsolete )
+	    newmm.insert( m.key(), *m );
+	++m;
+    }
+    mm = newmm;
+}
+
+void MetaTranslator::stripEmptyContexts()
+{
+    TMM newmm;
+
+    TMM::Iterator m = mm.begin();
+    while ( m != mm.end() ) {
+	if ( QCString(m.key().sourceText()).isEmpty() ) {
+	    TMM::Iterator n = m;
+	    ++n;
+	    // the context comment is followed by other messages
+	    if ( n != newmm.end() &&
+		 qstrcmp(m.key().context(), n.key().context()) == 0 )
+		newmm.insert( m.key(), *m );
+	} else {
+	    newmm.insert( m.key(), *m );
+	}
+	++m;
+    }
+    mm = newmm;
+}
+
 void MetaTranslator::setCodec( const char *name )
 {
     const int latin1 = 4;

@@ -77,6 +77,9 @@ public:
 		   const char *comment ) const;
     void insert( const MetaTranslatorMessage& m );
 
+    void stripObsoleteMessages();
+    void stripEmptyContexts();
+
     void setCodec( const char *name );
     QString toUnicode( const char *str, bool utf8 ) const;
 

@@ -41,6 +41,8 @@ static void printUsage()
     qWarning( "Usage: lupdate [options] file.pro...\n"
 	      "Options:\n"
 	      "    -help  Display this information and exits\n"
+	      "    -noobsolete\n"
+	      "           Drop all obsolete strings\n"
 	      "    -verbose\n"
 	      "           Explains what is being done\n"
 	      "    -version\n"
@@ -50,6 +52,7 @@ static void printUsage()
 int main( int argc, char **argv )
 {
     bool verbose = FALSE;
+    bool noObsolete = FALSE;
     bool metSomething = FALSE;
     int numProFiles = 0;
 
@@ -57,6 +60,9 @@ int main( int argc, char **argv )
 	if ( qstrcmp(argv[i], "-help") == 0 ) {
 	    printUsage();
 	    return 0;
+	} else if ( qstrcmp(argv[i], "-noobsolete") == 0 ) {
+	    noObsolete = TRUE;
+	    continue;
 	} else if ( qstrcmp(argv[i], "-verbose") == 0 ) {
 	    verbose = TRUE;
 	    continue;
@@ -126,6 +132,9 @@ int main( int argc, char **argv )
 	    if ( verbose )
 		qWarning( "Updating '%s'...", (*tf).latin1() );
 	    merge( &tor, &fetchedTor, verbose );
+	    if ( noObsolete )
+		tor.stripObsoleteMessages();
+	    tor.stripEmptyContexts();
 	    if ( !tor.save(*tf) )
 		qWarning( "lupdate error: Cannot save '%s': %s", (*tf).latin1(),
 			  strerror(errno) );
