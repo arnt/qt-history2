@@ -777,7 +777,6 @@ static void shapedString(const QString& uc, int from, int len, QChar *shapeBuffe
 
     for ( int i = 0; i < len; i++ ) {
 	uchar r = ch->row();
-	bool zeroWidth = FALSE;
 	int gpos = data - shapeBuffer;
 
 	if ( r != 0x06 ) {
@@ -785,7 +784,7 @@ static void shapedString(const QString& uc, int from, int len, QChar *shapeBuffe
 		uchar c = ch->cell();
 		if (c == 0x0c || c == 0x0d)
 		    // remove ZWJ and ZWNJ
-		    zeroWidth = TRUE;
+		    goto skip;
 	    }
 	    if ( reverse )
 		*data = mirroredChar( *ch );
@@ -832,7 +831,8 @@ static void shapedString(const QString& uc, int from, int len, QChar *shapeBuffe
 	next:
 	    *data = map;
 	}
-	glyphs[gpos].attributes.zeroWidth = zeroWidth;
+	// ##### Fixme
+	//glyphs[gpos].attributes.zeroWidth = zeroWidth;
 	if ( ::category( *ch ) == QChar::Mark_NonSpacing ) {
 	    glyphs[gpos].attributes.mark = TRUE;
 // 	    qDebug("glyph %d (char %d) is mark!", gpos, i );
@@ -864,7 +864,23 @@ static void arabicSyriacOpenTypeShape( int script, QOpenType *openType, const QS
     for ( int i = 0; i < si->num_glyphs; i++ )
 	glyphVariant[i] = glyphVariantLogical( string, from + i );
 
-    openType->init(engine->glyphs(si), si->num_glyphs, engine->logClusters(si), len);
+    QGlyphLayout *glyphs = engine->glyphs(si);
+    unsigned short *logClusters = engine->logClusters(si);
+    unsigned short *uc = (unsigned short *)string.unicode() + from;
+
+    // Hack to remove ZWJ and ZWNJ from rendered output.
+    int j = 0;
+    for ( int i = 0; i < si->num_glyphs; i++ ) {
+ 	if (uc[i] == 0x200c || uc[i] == 0x200d)
+ 	    continue;
+ 	glyphs[j] = glyphs[i];
+ 	glyphVariant[i] = glyphVariant[j];
+ 	logClusters[i] = logClusters[j];
+ 	++j;
+    }
+    si->num_glyphs = j;
+
+    openType->init(glyphs, si->num_glyphs, logClusters, si->num_glyphs);
 
     // call features in the order defined by http://www.microsoft.com/typography/otfntdev/arabicot/shaping.htm
     openType->applyGSUBFeature(FT_MAKE_TAG( 'c', 'c', 'm', 'p' ));
