@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#70 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#71 $
 **
 ** Definition of QListBox widget class
 **
@@ -123,6 +123,7 @@ public:
 
     uint	count() const;
 
+    void	insertStrList( const QStrList &, int index=-1 );
     void	insertStrList( const QStrList *, int index=-1 );
     void	insertStrList( const char **, int numStrings=-1, int index=-1 );
 

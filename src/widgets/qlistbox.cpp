@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#188 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#189 $
 **
 ** Implementation of QListBox widget class
 **
@@ -545,6 +545,14 @@ void QListBox::insertStrList( const QStrList *list, int index )
     updateNumRows( TRUE );
     if ( autoUpdate() && isVisible() )
 	repaint();
+}
+
+/*!
+  \overload
+ */
+void QListBox::insertStrList( const QStrList &list, int index )
+{
+    insertStrList( &list, index );
 }
 
 /*!
