@@ -3156,22 +3156,21 @@ bool QETWidget::translatePaintEvent( const MSG & )
     PAINTSTRUCT ps;
     hdc = BeginPaint( winId(), &ps );
 
-    if ( res == SIMPLEREGION ) {
-	DeleteObject( possible_region ); // Don't need it anymore
-	QRect psRect(QPoint(ps.rcPaint.left,ps.rcPaint.top), QPoint(ps.rcPaint.right-1,ps.rcPaint.bottom-1));
+    // Create region, which is not empty_region
+    QRegion rgn( false );
+    // Destructor will delete rgn
+    rgn.data->rgn = possible_region;
+    rgn.data->ref();
 
-	QPaintEvent e( psRect );
-	QApplication::sendSpontaneousEvent( this, (QEvent*) &e );
-
-    } else { // COMPLEXREGION
-	// Create region, which is not empty_region
-	QRegion rgn( false );
-	// Destructor will delete rgn
-	rgn.data->rgn = possible_region;
-	rgn.data->ref();
-
-	repaint(rgn);
-    }
+//  Speed optimization from Qt 3.3, can this be used in main?
+//  We probably want to use 'res' to trigger a repaint of a
+//  QRect, instead of a QRegion, on res == SIMPLEREGION
+//    - marius
+//
+//    QPaintEvent e( rgn,
+//		   QRect(QPoint(ps.rcPaint.left,ps.rcPaint.top),
+//			 QPoint(ps.rcPaint.right-1,ps.rcPaint.bottom-1)) );
+    repaint(rgn);
 
     hdc = 0;
     EndPaint( winId(), &ps );

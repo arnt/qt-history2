@@ -195,7 +195,14 @@ public:
     QPaintEvent( const QRect &paintRect )
 	: QEvent(Paint),
 	  rec(paintRect),
-	  reg(paintRect){}
+	  reg(paintRect),
+	  erase(erased){}
+    QPaintEvent( const QRegion &paintRegion, const QRect &paintRect, bool erased = TRUE )
+	: QEvent(Paint),
+	  rec(paintRect),
+	  reg(paintRegion),
+	  erase(erased){}
+
     const QRect &rect() const	  { return rec; }
     const QRegion &region() const { return reg; }
 
