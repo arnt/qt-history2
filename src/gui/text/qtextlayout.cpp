@@ -766,16 +766,14 @@ int QTextLayout::maximumWidth() const
 }
 
 /*!
-    \fn void QTextLayout::draw(QPainter *painter, const QPointF &pos, int cursorPos, const QRect &clipRect) const
+    \fn void QTextLayout::draw(QPainter *painter, const QPointF &pos, int cursorPos, const QRect &clip) const
 
     Draws the whole layout on the \a painter at point \a pos with the
     given \a cursorPos.
 */
-void QTextLayout::draw(QPainter *p, const QPointF &pos, int cursorPos, const QRect &cr) const
+void QTextLayout::draw(QPainter *p, const QPointF &pos, const QRect &clip) const
 {
     Q_ASSERT(numLines() != 0);
-
-    d->cursorPos = cursorPos;
 
     if (!d->layoutData)
         d->itemize();
@@ -784,9 +782,9 @@ void QTextLayout::draw(QPainter *p, const QPointF &pos, int cursorPos, const QRe
 
     qreal clipy = qreal(INT_MIN/256);
     qreal clipe = qreal(INT_MAX/256);
-    if (cr.isValid()) {
-        clipy = cr.y() - position.y();
-        clipe = clipy + cr.height();
+    if (clip.isValid()) {
+        clipy = clip.y() - position.y();
+        clipe = clipy + clip.height();
     }
 
     for (int i = 0; i < d->lines.size(); i++) {
@@ -797,31 +795,54 @@ void QTextLayout::draw(QPainter *p, const QPointF &pos, int cursorPos, const QRe
             continue;
 
         l.draw(p, position);
-        if ((sl.from <= cursorPos && sl.from + (int)sl.length > cursorPos)
-            || (sl.from + (int)sl.length == cursorPos && cursorPos == d->layoutData->string.length())) {
+    }
 
-            const qreal x = position.x() + l.cursorToX(cursorPos);
+    if (d->itemization_mode & NoGlyphCache)
+        d->freeMemory();
+}
 
-            int itm = d->findItem(cursorPos-1);
+/*!
+  Draws a cursor at the position indicated by cursorPosition using the current pen on the
+  painter.
+*/
+void QTextLayout::drawCursor(QPainter *p, const QPointF &pos, int cursorPosition) const
+{
+    if (!d->layoutData)
+        d->itemize();
+
+    QPointF position = pos + d->position;
+
+    for (int i = 0; i < d->lines.size(); i++) {
+        QTextLine l(i, d);
+        const QScriptLine &sl = d->lines[i];
+
+        if ((sl.from <= cursorPosition && sl.from + (int)sl.length > cursorPosition)
+            || (sl.from + (int)sl.length == cursorPosition && cursorPosition == d->layoutData->string.length())) {
+
+            const qreal x = position.x() + l.cursorToX(cursorPosition);
+
+            int itm = d->findItem(cursorPosition - 1);
             qreal ascent = sl.ascent;
             qreal descent = sl.descent;
+            bool rightToLeft = (d->option.layoutDirection() == Qt::RightToLeft);
             if (itm >= 0) {
                 const QScriptItem &si = d->layoutData->items.at(itm);
                 if (si.ascent > 0.0)
                     ascent = si.ascent;
                 if (si.descent > 0.0)
                     descent = si.descent;
+                rightToLeft = si.analysis.bidiLevel % 2;
             }
-
-            p->setPen(d->pal ? d->pal->text().color() : QColor(Qt::black));
-            p->drawLine(qRound(x), qRound(position.y() + sl.y + sl.ascent - ascent),
-                        qRound(x), qRound(position.y() + sl.y + sl.ascent + descent));
+            qreal y = position.y() + sl.y + sl.ascent - ascent;
+            p->drawLine(QLineF(x, y, x, y + ascent + descent));
+            const int arrow_extent = 4;
+            int sign = rightToLeft ? -1 : 1;
+            p->drawLine(QLineF(x, y, x + (sign * arrow_extent/2), y + arrow_extent/2));
+            p->drawLine(QLineF(x, y+arrow_extent, x + (sign * arrow_extent/2), y + arrow_extent/2));
+            return;
         }
     }
 
-    d->cursorPos = -1;
-    if (d->itemization_mode & NoGlyphCache)
-        d->freeMemory();
 }
 
 /*!

@@ -333,7 +333,6 @@ public:
     QRectF boundingRect;
     QPointF position;
 
-    int cursorPos;
     int *underlinePositions;
 
     struct LayoutData {

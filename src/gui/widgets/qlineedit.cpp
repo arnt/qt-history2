@@ -1784,6 +1784,7 @@ void QLineEdit::paintEvent(QPaintEvent *)
 
         r.addCoords(frameWidth, frameWidth, -frameWidth, -frameWidth);
     }
+    p.setClipRect(r);
 
     QFontMetrics fm = fontMetrics();
     QRect lineRect(r.x() + innerMargin, r.y() + (r.height() - fm.height() + 1) / 2,
@@ -1862,7 +1863,9 @@ void QLineEdit::paintEvent(QPaintEvent *)
     // selection phase of input method, so the ordinary cursor should be
     // invisible if we have a preedit string.
     bool showCursor = (d->cursorVisible && !supressCursor && !d->textLayout.preeditAreaText().length());
-    d->textLayout.draw(&p, topLeft, showCursor ? d->cursor : QTextLayout::NoCursor);
+    d->textLayout.draw(&p, topLeft, r);
+    if (showCursor)
+        d->textLayout.drawCursor(&p, topLeft, d->cursor);
 
 }
 
@@ -2127,7 +2130,7 @@ QRect QLineEditPrivate::cursorRect() const
     QTextLine l = textLayout.lineAt(0);
     cix += qRound(l.cursorToX(cursor));
     int ch = qMin(cr.height(), q->fontMetrics().height() + 1);
-    return QRect(cix-4, cr.y() + (cr.height() -  ch) / 2, 8, ch);
+    return QRect(cix-5, cr.y() + (cr.height() -  ch) / 2, 10, ch);
 }
 
 void QLineEditPrivate::moveCursor(int pos, bool mark)

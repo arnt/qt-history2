@@ -135,9 +135,8 @@ public:
     int nextCursorPosition(int oldPos, CursorMode mode = SkipCharacters) const;
     int previousCursorPosition(int oldPos, CursorMode mode = SkipCharacters) const;
 
-    enum { NoCursor = -1 };
-
-    void draw(QPainter *p, const QPointF &pos, int cursorPos = NoCursor, const QRect &cr = QRect()) const;
+    void draw(QPainter *p, const QPointF &pos, const QRect &clip = QRect()) const;
+    void drawCursor(QPainter *p, const QPointF &pos, int cursorPosition) const;
 
     QPointF position() const;
     void setPosition(const QPointF &p);

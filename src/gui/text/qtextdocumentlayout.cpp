@@ -599,8 +599,9 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPoint &offset, QPainter *paint
 
     const_cast<QTextLayout *>(tl)->setPalette(context.palette);
 
-    tl->draw(painter, offset, cursor, context.rect);
-
+    tl->draw(painter, offset, context.rect);
+    if (cursor >= 0)
+        tl->drawCursor(painter, offset, cursor);
     const_cast<QTextLayout *>(tl)->setFormatOverrides(overrides);
 }
 

@@ -548,14 +548,6 @@ void QTextEditPrivate::ensureVisible(int documentPosition)
     vbar->setValue(y);
 }
 
-// QRect QTextEditPrivate::cursorRect() const
-// {
-//     QTextFrame *frame = d->cursor.currentFrame();
-//     QRect r = d->cursor.block().layout()->rect();
-//     r.translate(d->doc->documentLayout()->frameBoundingRect(frame).topLeft());
-//     return r;
-// }
-
 void QTextEditPrivate::emitCursorPosChanged(const QTextCursor &someCursor)
 {
     Q_Q(QTextEdit);
@@ -2627,10 +2619,10 @@ QRect QTextEditPrivate::cursorRect() const
     const int relativePos = cursor.position() - block.position();
     QTextLine line = layout->findLine(relativePos);
     if (!line.isValid())
-        return QRect(qRound(layoutPos.x()), qRound(layoutPos.y()), 1, 10); // ###
+        return QRect(qRound(layoutPos.x()-5), qRound(layoutPos.y()), 10, 10); // #### correct height
 
-    return QRectF(layoutPos.x() + line.cursorToX(relativePos), layoutPos.y() + line.y(),
-                  1, line.ascent() + line.descent()+1.).toRect();
+    return QRect(qRound(layoutPos.x() + line.cursorToX(relativePos))-5, qRound(layoutPos.y() + line.y()),
+                 10, qRound(line.ascent() + line.descent()+1.));
 }
 
 /*!
