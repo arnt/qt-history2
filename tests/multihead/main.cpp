@@ -9,6 +9,7 @@ int main( int argc, char **argv )
 
     if ( desktop->isVirtualDesktop() )
 	qDebug( "Virtual desktop detected." );
+    qDebug( "Total desktop size: %dx%d", desktop->size().width(), desktop->size().height() );
     qDebug( "%d screens present, %d is the primary screen.\n", screens, desktop->primaryScreen() );
 
     for ( int i = 0; i < screens; ++i ) {
