@@ -89,7 +89,7 @@ public:
     enum Property {
         ObjectIndex = 0x0,
 
-        // paragrpah and char
+        // paragraph and char
         CssFloat = 0x0800,
 
         // paragraph
