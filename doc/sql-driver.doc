@@ -364,9 +364,9 @@ database.
 
 \section3 How to build the plugin on Unix/Linux
 
-Just installing \c libpq.so and the corresponding header files is
-unfortunately not sufficient. You must get the whole source
-distribution and run the configure script once (there is no need to
+Just installing the pq client library and the corresponding header
+files is not sufficient. You have to get the PostgreSQL
+source distribution and run the configure script (there is no need to
 build it if you have already installed a binary distribution).
 
 Tell \c qmake where to find the PostgreSQL header files and shared
@@ -391,18 +391,21 @@ make
 
 \section3 How to build the plugin on Windows
 
-You need to get the PostgreSQL installation files and install them.
-Build the plugin as follows (here it is assumed that PostgreSQL is
-installed in \c{C:\psql}):
+Unpack and build the PostgreSQL source distribution as described in
+the PostgreSQL documentation. Build the plugin as follows (here it is
+assumed that PostgreSQL is installed in \c{C:\psql}):
 
 \code
 cd %QTDIR%\plugins\src\sqldrivers\psql
-qmake -o Makefile "INCLUDEPATH+=C:\psql\include" "LIBS+=C:\psql\lib\msvc\libpqdll.lib" psql.pro
+qmake -o Makefile "INCLUDEPATH+=C:\psql\src\include C:\psql\src\interfaces\libpq" psql.pro
 nmake
 \endcode
 
-If you are not using a Microsoft compiler, replace \c nmake with \c
-make in the statement above.
+Remember to add the path to the \c{libpq.dll} library to your PATH
+environment variable so that Windows can find it. In this case that
+would be \c{C:\psql\src\interfaces\libpq\Release}. If you are not using a
+Microsoft compiler, replace \c nmake with \c make in the statement
+above.
 
 \target QTDS7
 \section2 QTDS7 - Sybase Adaptive Server and Microsoft SQL Server
