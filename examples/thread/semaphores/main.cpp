@@ -18,7 +18,7 @@
 
 #if defined(QT_NO_THREAD)
 #  error Thread support not enabled.
-#endif   
+#endif
 
 // Use pointers to create semaphores after QApplication object!
 QSemaphore* yellowSem, *greenSem;
@@ -48,16 +48,16 @@ void YellowThread::run()
      	event->setData(new QString("Yellow!"));
 	QThread::postEvent(receiver, event);
 	msleep(200);
-	
+
 	(*greenSem)--;
     }
 
     (*yellowSem)++;
-    
+
     QCustomEvent *event = new QCustomEvent(12346);
     event->setData(new QString("Yellow!"));
     QThread::postEvent(receiver, event);
-    
+
     (*greenSem)--;
 }
 
@@ -86,7 +86,7 @@ void GreenThread::run()
      	event->setData(new QString("Green!"));
 	QThread::postEvent(receiver, event);
 	msleep(200);
-	
+
 	(*yellowSem)--;
     }
 
@@ -96,7 +96,7 @@ void GreenThread::run()
     event->setData(new QString("Green!"));
     QThread::postEvent(receiver, event);
     msleep(10);
-    
+
     (*yellowSem)--;
 }
 
@@ -150,10 +150,10 @@ void SemaphoreExample::startExample()
 	QMessageBox::information(this, "Sorry",
 				 "The threads have not completed yet, and must finish before "
 				 "they can be started again.");
-	
+
 	return;
     }
-    
+
     mlineedit->clear();
 
     while (yellowSem->available() < yellowSem->total()) (*yellowSem)--;
@@ -180,22 +180,20 @@ void SemaphoreExample::customEvent(QCustomEvent *event) {
 
 	    delete s;
 
-	    qApp->sendPostedEvents();
-	    
 	    break;
 	}
-	
+
     case 12346:
 	{
 	    QString *s = (QString *) event->data();
-	    
+
 	    QMessageBox::information(this, (*s) + " - Finished",
 				     "The thread creating the \"" + *s +
 				     "\" events has finished.");
-      	    
+
 	    break;
 	}
-	
+
     default:
 	{
 	    qWarning("Unknown custom event type: %d", event->type());
