@@ -595,6 +595,7 @@ QByteArray QIODevice::read(Q_LONGLONG maxlen)
         if (readBytes <= 0)
             break;
         tmp += QByteArray(buffer, (int) readBytes);
+        readSoFar += readBytes;
     } while (readSoFar < maxlen && bytesAvailable() > 0);
 
     return tmp;
