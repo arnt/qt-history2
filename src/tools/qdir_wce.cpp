@@ -484,27 +484,16 @@ const QFileInfoList * QDir::drives()
     // points to that list
     static QFileInfoList * knownMemoryLeak = 0;
 
+    if ( !knownMemoryLeak ) {
+
 #ifdef QT_THREAD_SUPPORT
-    QMutexLocker locker( qt_global_mutexpool ?
-			 qt_global_mutexpool->get( &knownMemoryLeak ) : 0 );
+	QMutexLocker locker( qt_global_mutexpool ?
+			     qt_global_mutexpool->get( &knownMemoryLeak ) : 0 );
 #endif // QT_THREAD_SUPPORT
 
-    if ( !knownMemoryLeak ) {
-	knownMemoryLeak = new QFileInfoList;
-	knownMemoryLeak->setAutoDelete( TRUE );
-    }
-
-    if ( !knownMemoryLeak->count() ) {
-	Q_UINT32 driveBits = (Q_UINT32) GetLogicalDrives() & 0x3ffffff;
-
-	char driveName[4];
-	qstrcpy( driveName, "/" );
-
-	while( driveBits ) {
-	    if ( driveBits & 1 )
-		knownMemoryLeak->append( new QFileInfo( QString::fromLatin1(driveName) ) );
-	    driveName[0]++;
-	    driveBits = driveBits >> 1;
+	if ( !knownMemoryLeak ) {
+	    knownMemoryLeak = new QFileInfoList;
+	    knownMemoryLeak->append( new QFileInfo( rootDirPath() ) );
 	}
     }
 
