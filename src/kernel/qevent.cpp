@@ -2501,7 +2501,7 @@ QCustomEvent::QCustomEvent( int type )
 
 QEvent::~QEvent()
 {
-    if (posted)
+    if ( posted && qApp )
 	QApplication::removePostedEvent( this );
 }
 
