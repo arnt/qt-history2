@@ -182,7 +182,7 @@ void QWindowsStyle::polish(QWidget *widget)
     if(QMenu *menu = qt_cast<QMenu*>(widget))
         menu->setCheckable(true);
     if (qt_cast<QRubberBand*>(widget)) {
-        widget->setWindowOpacity(0.7);
+        widget->setWindowOpacity(0.7f);
         widget->setAttribute(Qt::WA_PaintOnScreen);
     }
 }
