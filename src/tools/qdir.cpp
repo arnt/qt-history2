@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#91 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#92 $
 **
 ** Implementation of QDir class
 **
@@ -1295,6 +1295,47 @@ QString QDir::rootDirPath()
     return d;
 }
 
+static QStringList makeFilterList( const QString &filter )
+{
+    if ( filter.isEmpty() )
+        return QStringList();
+
+    int i = filter.find( ' ', 0 );
+    QStringList lst;
+
+    while ( i != -1 ) {
+        if ( filter.left( i ).length() > 0 )
+            lst.append( filter.left( i ) );
+        filter.remove( 0, i + 1 );
+        i = filter.find( ' ', 0 );
+    }
+
+    if ( !filter.simplifyWhiteSpace().isEmpty() )
+        lst.append( filter.simplifyWhiteSpace() );
+
+    return lst;
+}
+
+/*!
+  Returns TRUE if the \e fileName matches one of the wildcards in the list \e filters.
+  \sa QRegExp
+*/
+
+bool QDir::match( const QStringList &filters, const QString &fileName )
+{
+    QStringList::ConstIterator sit = filters.begin();
+    bool matched = FALSE;
+    for ( ; sit != filters.end(); ++sit ) {
+        QRegExp regexp( *sit, FALSE, TRUE );
+        if ( regexp.match( fileName ) != -1 ) {
+            matched = TRUE;
+            break;
+        }
+    }
+
+    return matched;
+}
+
 /*!
   Returns TRUE if the \e fileName matches the wildcard \e filter.
   \sa QRegExp
@@ -1302,8 +1343,10 @@ QString QDir::rootDirPath()
 
 bool QDir::match( const QString &filter, const QString &fileName )
 {
-    QRegExp tmp( filter, TRUE, TRUE ); // case sensitive and wildcard mode on
-    return tmp.match( fileName ) != -1;
+    QStringList lst = makeFilterList( filter );
+    return match( lst, fileName );
+//     QRegExp tmp( filter, TRUE, TRUE ); // case sensitive and wildcard mode on
+//     return tmp.match( fileName ) != -1;
 }
 
 
@@ -1467,15 +1510,17 @@ bool QDir::readDirEntries( const QString &nameFilter,
 {
     int i;
     if ( !fList ) {
-	fList  = new QStringList;
-	CHECK_PTR( fList );
-	fiList = new QFileInfoList;
-	CHECK_PTR( fiList );
-	fiList->setAutoDelete( TRUE );
+        fList  = new QStringList;
+        CHECK_PTR( fList );
+        fiList = new QFileInfoList;
+        CHECK_PTR( fiList );
+        fiList->setAutoDelete( TRUE );
     } else {
-	fList->clear();
-	fiList->clear();
+        fList->clear();
+        fiList->clear();
     }
+
+    QStringList filters = makeFilterList( nameFilter );
 
     bool doDirs	    = (filterSpec & Dirs)	!= 0;
     bool doFiles    = (filterSpec & Files)	!= 0;
@@ -1487,14 +1532,14 @@ bool QDir::readDirEntries( const QString &nameFilter,
 #if !defined(UNIX)
     // show hidden files if the user asks explicitly for e.g. .*
     if ( !doHidden && !nameFilter.isEmpty() && nameFilter[0] == '.' )
-	doHidden = TRUE;
+        doHidden = TRUE;
     bool doModified = (filterSpec & Modified)	!= 0;
     bool doSystem   = (filterSpec & System)	!= 0;
 #endif
 
 #if defined(_OS_WIN32_)
 
-    QRegExp   wc( nameFilter, FALSE, TRUE );	// wild card, case insensitive
+    //QRegExp   wc( nameFilter, FALSE, TRUE );	// wild card, case insensitive
     bool      first = TRUE;
     QString   p = dPath.copy();
     int	      plen = p.length();
@@ -1518,86 +1563,86 @@ bool QDir::readDirEntries( const QString &nameFilter,
 
     if ( plen == 0 ) {
 #if defined(CHECK_NULL)
-	qWarning( "QDir::readDirEntries: No directory name specified" );
+        qWarning( "QDir::readDirEntries: No directory name specified" );
 #endif
-	return FALSE;
+        return FALSE;
     }
     if ( p.at(plen-1) != '/' && p.at(plen-1) != '\\' )
-	p += '/';
+        p += '/';
     p += QString::fromLatin1("*.*");
 
     if ( qt_winunicode ) {
-	ff = FindFirstFile((TCHAR*)qt_winTchar(p,TRUE),&finfo);
+        ff = FindFirstFile((TCHAR*)qt_winTchar(p,TRUE),&finfo);
     } else {
-	// Cast is safe, since char is at end of WIN32_FIND_DATA
-	ff = FindFirstFileA(qt_win95Name(p),(WIN32_FIND_DATAA*)&finfo);
+        // Cast is safe, since char is at end of WIN32_FIND_DATA
+        ff = FindFirstFileA(qt_win95Name(p),(WIN32_FIND_DATAA*)&finfo);
     }
     if ( ff == FF_ERROR ) {
 #if defined(CHECK_RANGE)
-	qWarning( "QDir::readDirEntries: Cannot read the directory: %s (UTF8)",
-		 dPath.utf8().data() );
+        qWarning( "QDir::readDirEntries: Cannot read the directory: %s (UTF8)",
+                  dPath.utf8().data() );
 #endif
-	return FALSE;
+        return FALSE;
     }
 
     while ( TRUE ) {
-	if ( first )
-	    first = FALSE;
-	else {
-	    if ( qt_winunicode ) {
-		if ( !FindNextFile(ff,&finfo) )
-		    break;
-	    } else {
-		if ( !FindNextFileA(ff,(WIN32_FIND_DATAA*)&finfo) )
-		    break;
-	    }
-	}
-	int  attrib = finfo.dwFileAttributes;
-	bool isDir	= (attrib & IS_SUBDIR) != 0;
-	bool isFile	= !isDir;
-	bool isSymLink	= FALSE;
-	bool isReadable = TRUE;
-	bool isWritable = (attrib & IS_RDONLY) == 0;
-	bool isExecable = FALSE;
-	bool isModified = (attrib & IS_ARCH)   != 0;
-	bool isHidden	= (attrib & IS_HIDDEN) != 0;
-	bool isSystem	= (attrib & IS_SYSTEM) != 0;
+        if ( first )
+            first = FALSE;
+        else {
+            if ( qt_winunicode ) {
+                if ( !FindNextFile(ff,&finfo) )
+                    break;
+            } else {
+                if ( !FindNextFileA(ff,(WIN32_FIND_DATAA*)&finfo) )
+                    break;
+            }
+        }
+        int  attrib = finfo.dwFileAttributes;
+        bool isDir	= (attrib & IS_SUBDIR) != 0;
+        bool isFile	= !isDir;
+        bool isSymLink	= FALSE;
+        bool isReadable = TRUE;
+        bool isWritable = (attrib & IS_RDONLY) == 0;
+        bool isExecable = FALSE;
+        bool isModified = (attrib & IS_ARCH)   != 0;
+        bool isHidden	= (attrib & IS_HIDDEN) != 0;
+        bool isSystem	= (attrib & IS_SYSTEM) != 0;
 
-	QString fname;
-	if ( qt_winunicode ) {
-	    fname = qt_winQString(finfo.cFileName);
-	} else {
-	    fname = qt_winMB2QString((const char*)finfo.cFileName);
-	}
-	if ( wc.match(fname) == -1 && !(allDirs && isDir) )
-	    continue;
+        QString fname;
+        if ( qt_winunicode ) {
+            fname = qt_winQString(finfo.cFileName);
+        } else {
+            fname = qt_winMB2QString((const char*)finfo.cFileName);
+        }
+        if ( !match( filters, fname ) && !(allDirs && isDir) )
+            continue;
 
-	if  ( (doDirs && isDir) || (doFiles && isFile) ) {
-	    QString name = fname;
-	    slashify(name);
-	    if ( doExecable ) {
-		QString ext = name.right(4).lower();
-		if ( ext == ".exe" || ext == ".com" || ext == ".bat" ||
-		     ext == ".pif" || ext == ".cmd" )
-		    isExecable = TRUE;
-	    }
+        if  ( (doDirs && isDir) || (doFiles && isFile) ) {
+            QString name = fname;
+            slashify(name);
+            if ( doExecable ) {
+                QString ext = name.right(4).lower();
+                if ( ext == ".exe" || ext == ".com" || ext == ".bat" ||
+                     ext == ".pif" || ext == ".cmd" )
+                    isExecable = TRUE;
+            }
 
-	    if ( noSymLinks && isSymLink )
-		continue;
-	    if ( (filterSpec & RWEMask) != 0 )
-		if ( (doReadable && !isReadable) ||
-		     (doWritable && !isWritable) ||
-		     (doExecable && !isExecable) )
-		    continue;
-	    if ( doModified && !isModified )
-		continue;
-	    if ( !doHidden && isHidden )
-		continue;
-	    if ( !doSystem && isSystem )
-		continue;
-	    fi.setFile( *this, name );
-	    fiList->append( new QFileInfo( fi ) );
-	}
+            if ( noSymLinks && isSymLink )
+                continue;
+            if ( (filterSpec & RWEMask) != 0 )
+                if ( (doReadable && !isReadable) ||
+                     (doWritable && !isWritable) ||
+                     (doExecable && !isExecable) )
+                    continue;
+            if ( doModified && !isModified )
+                continue;
+            if ( !doHidden && isHidden )
+                continue;
+            if ( !doSystem && isSystem )
+                continue;
+            fi.setFile( *this, name );
+            fiList->append( new QFileInfo( fi ) );
+        }
     }
     FindClose( ff );
 
@@ -1611,9 +1656,9 @@ bool QDir::readDirEntries( const QString &nameFilter,
 #else // UNIX
 
 #if defined(_OS_OS2EMX_)
-    QRegExp   wc( nameFilter, FALSE, TRUE );	// wild card, case insensitive
+    //QRegExp   wc( nameFilter, FALSE, TRUE );	// wild card, case insensitive
 #else
-    QRegExp   wc( nameFilter, TRUE, TRUE );	// wild card, case sensitive
+    //QRegExp   wc( nameFilter, TRUE, TRUE );	// wild card, case sensitive
 #endif
     QFileInfo fi;
     DIR	     *dir;
@@ -1622,67 +1667,67 @@ bool QDir::readDirEntries( const QString &nameFilter,
     dir = opendir( QFile::encodeName(dPath) );
     if ( !dir ) {
 #if defined(CHECK_NULL)
-	qWarning( "QDir::readDirEntries: Cannot read the directory: %s",
-		 QFile::encodeName(dPath).data() );
+        qWarning( "QDir::readDirEntries: Cannot read the directory: %s",
+                  QFile::encodeName(dPath).data() );
 #endif
-	return FALSE;
+        return FALSE;
     }
 
     while ( (file = readdir(dir)) ) {
-	QString fn = QFile::decodeName(file->d_name);
-	fi.setFile( *this, fn );
-	if ( wc.match(fn) == -1 && !(allDirs && fi.isDir()) )
-	    continue;
-	if  ( (doDirs && fi.isDir()) || (doFiles && fi.isFile()) ) {
-	    if ( noSymLinks && fi.isSymLink() )
-		continue;
-	    if ( (filterSpec & RWEMask) != 0 )
-		if ( (doReadable && !fi.isReadable()) ||
-		     (doWritable && !fi.isWritable()) ||
-		     (doExecable && !fi.isExecutable()) )
-		    continue;
-	    if ( !doHidden && fn[0] == '.' &&
-		    fn != QString::fromLatin1(".")
-		    && fn != QString::fromLatin1("..") )
-		continue;
-	    fiList->append( new QFileInfo( fi ) );
-	}
-    }
-    if ( closedir(dir) != 0 ) {
+        QString fn = QFile::decodeName(file->d_name);
+        fi.setFile( *this, fn );
+        if ( !match( filters, fn ) && !(allDirs && fi.isDir()) )
+             continue;
+             if  ( (doDirs && fi.isDir()) || (doFiles && fi.isFile()) ) {
+                 if ( noSymLinks && fi.isSymLink() )
+                     continue;
+                 if ( (filterSpec & RWEMask) != 0 )
+                     if ( (doReadable && !fi.isReadable()) ||
+                          (doWritable && !fi.isWritable()) ||
+                          (doExecable && !fi.isExecutable()) )
+                         continue;
+                 if ( !doHidden && fn[0] == '.' &&
+                      fn != QString::fromLatin1(".")
+                      && fn != QString::fromLatin1("..") )
+                     continue;
+                 fiList->append( new QFileInfo( fi ) );
+             }
+             }
+        if ( closedir(dir) != 0 ) {
 #if defined(CHECK_NULL)
-	qWarning( "QDir::readDirEntries: Cannot close the directory: %s (UTF8)",
-		 dPath.utf8().data() );
+            qWarning( "QDir::readDirEntries: Cannot close the directory: %s (UTF8)",
+                      dPath.utf8().data() );
 #endif
-    }
+        }
 
 #endif // UNIX
 
-    // Sort...
-    QDirSortItem* si= new QDirSortItem[fiList->count()];
-    QFileInfo* itm;
-    i=0;
-    for (itm = fiList->first(); itm; itm = fiList->next())
-	si[i++].item = itm;
-    cmp_si_sortSpec = sortSpec;
-    qsort( si, i, sizeof(si[0]), cmp_si );
-    // put them back in the list
-    fiList->setAutoDelete( FALSE );
-    fiList->clear();
-    int j;
-    for ( j=0; j<i; j++ ) {
-	fiList->append( si[j].item );
-	fList->append( si[j].item->fileName() );
-    }
-    delete [] si;
-    fiList->setAutoDelete( TRUE );
+        // Sort...
+        QDirSortItem* si= new QDirSortItem[fiList->count()];
+        QFileInfo* itm;
+        i=0;
+        for (itm = fiList->first(); itm; itm = fiList->next())
+            si[i++].item = itm;
+        cmp_si_sortSpec = sortSpec;
+        qsort( si, i, sizeof(si[0]), cmp_si );
+        // put them back in the list
+        fiList->setAutoDelete( FALSE );
+        fiList->clear();
+        int j;
+        for ( j=0; j<i; j++ ) {
+            fiList->append( si[j].item );
+            fList->append( si[j].item->fileName() );
+        }
+        delete [] si;
+        fiList->setAutoDelete( TRUE );
 
-    if ( filterSpec == (FilterSpec)filtS && sortSpec == (SortSpec)sortS &&
-	 nameFilter == nameFilt )
-	dirty = FALSE;
-    else
-	dirty = TRUE;
-    return TRUE;
-}
+        if ( filterSpec == (FilterSpec)filtS && sortSpec == (SortSpec)sortS &&
+             nameFilter == nameFilt )
+            dirty = FALSE;
+        else
+            dirty = TRUE;
+        return TRUE;
+    }
 
 
 /*!  Returns a list if the root directories on this system.  On

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.h#41 $
+** $Id: //depot/qt/main/src/tools/qdir.h#42 $
 **
 ** Definition of QDir class
 **
@@ -156,6 +156,7 @@ public:
     static QString homeDirPath();
     static QString rootDirPath();
 
+    static bool match( const QStringList &filters, const QString &fileName );
     static bool match( const QString &filter, const QString &fileName );
     static QString cleanDirPath( const QString &dirPath );
     static bool isRelativePath( const QString &path );
