@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.h#4 $
+** $Id: //depot/qt/main/src/kernel/qcursor.h#5 $
 **
 ** Definition of QCursor class
 **
 ** Author  : Haavard Nord
 ** Created : 940219
 **
-** Copyright (C) 1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -22,6 +22,7 @@ friend class QWidget;
 public:
     QCursor();					// create default arrow cursor
     QCursor( int shape );			// create cursor with shape
+    QCursor( QBitMap *bitmap, QBitMap *mask, int hotX=-1, int hotY=-1 );
    ~QCursor();
 
     int	   shape() const { return cshape; }	// get cursor shape
@@ -36,8 +37,10 @@ public:
 
 private:
     void   update();
-    int	   cshape;
     static QCursor *locate( int );
+    int	   cshape;
+    QBitMap *bm, *bmm;
+    short  hx, hy;
 #if defined(_WS_WIN_)
     HANDLE hcurs;
 public:
@@ -48,7 +51,7 @@ public:
     HANDLE handle() const { return hcurs; }
 #elif defined(_WS_X11_)
     Cursor cursor;
-    Pixmap pm, mpm;
+    Pixmap pm, pmm;
 #endif
 };
 
@@ -66,7 +69,7 @@ inline void QCursor::setPos( const QPoint &p )
 enum CursorShape {
     ArrowCursor, UpArrowCursor, CrossCursor, HourGlassCursor, IbeamCursor,
     SizeVerCursor, SizeHorCursor, SizeBDiagCursor, SizeFDiagCursor,
-    SizeAllCursor };
+    SizeAllCursor, BitMapCursor=24 };
 
 
 // --------------------------------------------------------------------------
