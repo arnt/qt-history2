@@ -25,7 +25,7 @@
 #include <qobject.h>
 
 class ViewManager;
-class DesignerInterface;
+struct DesignerInterface;
 
 class EditorInterfaceImpl : public QObject, public EditorInterface
 {
@@ -61,7 +61,7 @@ public:
     void setModified( bool m );
 
 protected:
-    bool eventFilter( QObject *, QEvent * );
+    bool eventFilter( QObject*, QEvent* );
 
 private slots:
     void modificationChanged();
