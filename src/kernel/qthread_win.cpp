@@ -67,9 +67,11 @@ public:
 
     QThreadPrivate();
 
-    Q_EXPORT QList<QThreadEvent> myevents;
+    QList<QThreadEvent> myevents;
     QMutex myeventmutex;
 
+    void add(QThreadEvent *);
+    
 public slots:
 
     void sendEvents();
@@ -95,7 +97,12 @@ void QThreadPrivate::sendEvents()
     qApp->sendPostedEvents();
     myeventmutex.unlock();
 }
- 
+
+void QThreadPrivate::add(QThreadEvent * e)
+{
+   myevents.append( e );
+}
+
 static QThreadPrivate * qthreadprivate = 0;
 
 int QThread::currentThread()
@@ -113,7 +120,7 @@ void QThread::postEvent(QObject * o,QEvent * e)
     qte = new QThreadEvent();
     qte->o = o;
     qte->e = e;
-    qthreadprivate->myevents.append( qte );
+    qthreadprivate->add( qte );
     qthreadprivate->myeventmutex.unlock();
     qApp->wakeUpGuiThread();
 
