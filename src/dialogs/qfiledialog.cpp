@@ -767,7 +767,7 @@ private:
 QFDProgressDialog::QFDProgressDialog( QWidget *parent, const QString &fn, int steps )
     : QSemiModal( parent, "", TRUE )
 {
-    setCaption( tr( "Copy or Move a File" ) );
+    setCaption( QFileDialog::tr( "Copy or Move a File" ) );
     QVBoxLayout *layout = new QVBoxLayout( this );
     layout->setSpacing( 5 );
     layout->setMargin( 5 );
@@ -775,19 +775,22 @@ QFDProgressDialog::QFDProgressDialog( QWidget *parent, const QString &fn, int st
     animation = new QFDProgressAnimation( this );
     layout->addWidget( animation );
 
-    layout->addWidget( new QLabel( tr( "Read: %1" ).arg( fn ), this, "qt_read_lbl" ) );
+    layout->addWidget( new QLabel( QFileDialog::tr( "Read: %1" ).arg( fn ),
+		       this, "qt_read_lbl" ) );
     readBar = new QProgressBar( steps, this, "qt_readbar" );
     readBar->reset();
     readBar->setProgress( 0 );
     layout->addWidget( readBar );
-    writeLabel = new QLabel( tr( "Write: %1" ).arg( QString::null ), this, "qt_write_lbl" );
+    writeLabel = new QLabel( QFileDialog::tr( "Write: %1" ).arg( QString::null ),
+			     this, "qt_write_lbl" );
     layout->addWidget( writeLabel );
     writeBar = new QProgressBar( steps, this, "qt_writebar" );
     writeBar->reset();
     writeBar->setProgress( 0 );
     layout->addWidget( writeBar );
 
-    QPushButton *b = new QPushButton( tr( "Cancel" ), this, "qt_cancel_btn" );
+    QPushButton *b = new QPushButton( QFileDialog::tr( "Cancel" ), this,
+				      "qt_cancel_btn" );
     b->setFixedSize( b->sizeHint() );
     layout->addWidget( b );
     connect( b, SIGNAL( clicked() ),
@@ -808,7 +811,7 @@ void QFDProgressDialog::setWriteProgress( int p )
 
 void QFDProgressDialog::setWriteLabel( const QString &s )
 {
-    writeLabel->setText( tr( "Write: %1" ).arg( s ) );
+    writeLabel->setText( QFileDialog::tr( "Write: %1" ).arg( s ) );
 }
 
 /************************************************************************
