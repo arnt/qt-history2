@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#44 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#45 $
 **
 ** Implementation of QFile class
 **
@@ -12,7 +12,7 @@
 #include "qfile.h"
 #include "qfiledef.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#44 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#45 $");
 
 
 /*!
@@ -265,10 +265,11 @@ bool QFile::open( int m )
 		    perm = "r+";
 		    try_create = TRUE;		// try to create if not exists
 		}
-	    } else if ( isReadable() )
+	    } else if ( isReadable() ) {
 		perm = "r";
-	    else if ( isWritable() )
+	    } else if ( isWritable() ) {
 		perm = "w";
+	    }
 	}
 	strcpy( perm2, perm );
 #if defined(HAS_TEXT_FILEMODE)
@@ -283,21 +284,17 @@ bool QFile::open( int m )
 	    fh = fopen( (const char *)fn, perm2 );
 	}
 	if ( fh ) {
-	    if ( flags() & IO_Append ) {	// index is at end of file
-		length = ftell( fh );
-		index = length;
-	    } else {				// calc size of file
-		fseek( fh, 0, SEEK_END );
-		length = ftell( fh );
-		fseek( fh, 0, SEEK_SET );
-		index = 0;
-	    }
-	} else
+	    STATBUF st;
+	    FSTAT( FILENO(fh), &st );
+	    length = st.st_size;
+	    index  = (flags() & IO_Append) == 0 ? 0 : length;
+	} else {
 	    ok = FALSE;
+	}
     }
-    if ( ok )
+    if ( ok ) {
 	setState( IO_Open );
-    else {
+    } else {
 	init();
 	if ( errno == EMFILE )			// no more file handles/descrs
 	    setStatus( IO_ResourceError );
@@ -386,9 +383,10 @@ bool QFile::open( int m, int f )
     if ( fd == 0 || fd == 1 || fd == 2 ) {
 	length = INT_MAX;
     } else {
-	index = LSEEK( fd, 0, SEEK_CUR );
-	length = LSEEK( fd, 0, SEEK_END );
-	LSEEK( fd, index, SEEK_SET );
+	STATBUF st;
+	FSTAT( fd, &st );
+	index  = st.st_size;
+	length = st.st_size;
     }
     return TRUE;
 }

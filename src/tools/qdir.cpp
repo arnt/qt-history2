@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#34 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#35 $
 **
 ** Implementation of QDir class
 **
@@ -25,10 +25,9 @@
 #endif
 #if defined(_OS_OS2EMX_)
 #include <ctype.h>
-#define chdir _chdir2
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#34 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#35 $");
 
 
 #if defined(_OS_FATFS_)
@@ -307,9 +306,9 @@ QString QDir::canonicalPath() const
     QString tmp( PATH_MAX );
 
     GETCWD( cur.data(), PATH_MAX );
-    if ( chdir( dPath ) >= 0 )
+    if ( CHDIR(dPath) >= 0 )
 	GETCWD( tmp.data(), PATH_MAX );
-    chdir( cur );
+    CHDIR( cur );
 
     return tmp;
 }
@@ -1002,7 +1001,7 @@ char QDir::separator()
 
 bool QDir::setCurrent( const char *path )
 {
-    if ( chdir( path ) >= 0 )
+    if ( CHDIR(path) >= 0 )
 	return TRUE;
     else
 	return FALSE;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfiledefs.h#18 $
+** $Id: //depot/qt/main/src/tools/qfiledefs.h#19 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -68,13 +68,15 @@
 #if defined(_CC_MSVC_) || defined(_CC_SYM_)
 
 # define STATBUF	struct _stat		// non-ANSI defs
-# define STAT		_stat
+# define STAT		::_stat
+# define FSTAT		::_fstat
 # define STAT_REG	_S_IFREG
 # define STAT_DIR	_S_IFDIR
 # define STAT_MASK	_S_IFMT
 # if defined(_S_IFLNK)
 #  define STAT_LNK	_S_IFLNK
 # endif
+# define FILENO		_fileno
 # define OPEN		::_open
 # define CLOSE		::_close
 # define LSEEK		::_lseek
@@ -82,6 +84,7 @@
 # define WRITE		::_write
 # define ACCESS		::_access
 # define GETCWD		::_getcwd
+# define CHDIR		::_chdir
 # define MKDIR		::_mkdir
 # define RMDIR		::_rmdir
 # define OPEN_RDONLY	_O_RDONLY
@@ -97,17 +100,15 @@
 #else						// all other systems
 
 # define STATBUF	struct stat
-# if defined(UNIX)
-#  define STAT		::stat
-# else
-#  define STAT		::stat
-# endif
+# define STAT		::stat
+# define FSTAT		::fstat
 # define STAT_REG	S_IFREG
 # define STAT_DIR	S_IFDIR
 # define STAT_MASK	S_IFMT
 # if defined(S_IFLNK)
 #  define STAT_LNK	S_IFLNK
 # endif
+# define FILENO		fileno
 # define OPEN		::open
 # define CLOSE		::close
 # define LSEEK		::lseek
@@ -116,8 +117,10 @@
 # define ACCESS		::access
 # if defined(_OS_OS2EMX_)
 #  define GETCWD	::_getcwd2
+#  define CHDIR		::_chdir2
 # else
 #  define GETCWD	::getcwd
+#  define CHDIR		::chdir
 # endif
 # define MKDIR		::mkdir
 # define RMDIR		::rmdir
