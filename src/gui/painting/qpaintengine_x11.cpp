@@ -1365,10 +1365,12 @@ void QX11PaintEngine::drawEllipse(const QRectF &rect)
         return;
     }
     if (d->cbrush.style() != Qt::NoBrush) {          // draw filled ellipse
-        XFillArc(d->dpy, d->hd, d->gc_brush, x, y, w, h, 0, 360*64);
         if (d->cpen.style() == Qt::NoPen) {
-            XDrawArc(d->dpy, d->hd, d->gc_brush, x, y, w, h, 0, 360*64);
+            XFillArc(d->dpy, d->hd, d->gc_brush, x, y, w-1, h-1, 0, 360*64);
+            XDrawArc(d->dpy, d->hd, d->gc_brush, x, y, w-1, h-1, 0, 360*64);
             return;
+        } else{
+            XFillArc(d->dpy, d->hd, d->gc_brush, x, y, w, h, 0, 360*64);
         }
     }
     if (d->cpen.style() != Qt::NoPen)                // draw outline
