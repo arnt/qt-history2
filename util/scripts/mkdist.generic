@@ -227,7 +227,8 @@ if [ "${platform}" = "win" ]; then
 
 # Convince tmake to use the right DLL library and set right DLL lib Makefile
   [ ! -d lib ] && mkdir lib
-  touch lib/qt${VERSIONWIN}.lib
+  DLLVER=`tmake src/qt.pro -e "Expand('VERSION')" | sed -e 's/\.//'`
+  touch lib/qt${DLLVER}.lib
   mv src/Makefile.win32-dll src/Makefile
 
   if [ -z "$msonly" ]; then
@@ -245,7 +246,7 @@ if [ "${platform}" = "win" ]; then
   find . -name Makefile -o -name "qt*.mak" | xargs zip -r mkfiles/msvc_dll.zip
 
 # Clean up after DLL library makefiles have been created
-  rm lib/qt${VERSIONWIN}.lib
+  rm lib/qt${DLLVER}.lib
   rm src/Makefile
   rm src/qtdll.mak
   rm src/qtmain.mak
