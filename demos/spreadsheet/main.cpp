@@ -307,7 +307,7 @@ void SpreadSheet::selectColor()
     if (!col.isValid())
         return;
 
-    QList<QTableWidgetItem*> selected = table->selectedItems(true);
+    QList<QTableWidgetItem*> selected = table->selectedItems();
     if (selected.count() == 0)
         return;
 
