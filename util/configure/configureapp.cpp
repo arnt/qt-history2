@@ -254,8 +254,8 @@ void Configure::parseCmdLine()
 	else if( (*args) == "-no-style-sgi" )
 	    dictionary[ "STYLE_SGI" ] = "no";
 
-/*	else if( (*args) == "-qt-style-windowsxp" )
-	    dictionary[ "STYLE_WINDOWSXP" ] = "yes";*/
+	else if( (*args) == "-qt-style-windowsxp" )
+	    dictionary[ "STYLE_WINDOWSXP" ] = "yes";
 	else if( (*args) == "-plugin-style-windowsxp" )
 	    dictionary[ "STYLE_WINDOWSXP" ] = "plugin";
 	else if( (*args) == "-no-style-windowsxp" )
@@ -699,11 +699,9 @@ void Configure::generateOutputVars()
     else if ( dictionary[ "STYLE_WINDOWS" ] == "plugin" )
 	qmakeStylePlugins += "windows";
 
-/*
     if ( dictionary[ "STYLE_WINDOWSXP" ] == "yes" )
 	qmakeStyles += "windowsxp";
-    else */
-    if ( dictionary[ "STYLE_WINDOWSXP" ] == "plugin" )
+    else if ( dictionary[ "STYLE_WINDOWSXP" ] == "plugin" )
 	qmakeStylePlugins += "windowsxp";
 
     if ( dictionary[ "STYLE_MOTIF" ] == "yes" )

@@ -1,9 +1,5 @@
 #include "qwindowsxpstyle.h"
 
-#if !defined (Q_WS_WIN)
-#error "This style can only be compiled on Windows!"
-#endif
-
 #ifndef QT_NO_STYLE_WINDOWSXP
 
 #include "qmenubar.h"
@@ -69,7 +65,7 @@ bool QWindowsXPStyle::resolveSymbols()
     static bool tried = FALSE;
     if ( !tried ) {
 	tried = TRUE;
-	QLibrary lib( "uxtheme.dll" );
+	QLibrary lib( "uxtheme" );
 	lib.setAutoUnload( FALSE );
 
 	pIsAppThemed = (PtrIsAppThemed)lib.resolve( "IsAppThemed" );

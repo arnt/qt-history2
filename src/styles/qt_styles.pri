@@ -85,6 +85,16 @@ styles {
 	}
 	else:DEFINES += QT_NO_STYLE_PLATINUM
 
+	contains( styles, windowsxp ) {
+		HEADERS +=$$STYLES_H/qwindowsxpstyle.h
+		SOURCES +=$$STYLES_CPP/qwindowsxpstyle.cpp
+		!contains( styles, windowsxp ) {
+			message( windowsxp requires windows )
+			styles += windows
+		}
+        }
+        else:DEFINES += QT_NO_STYLE_WINDOWSXP
+
 	contains( styles, sgi ) {
 		HEADERS +=$$STYLES_H/qsgistyle.h
 		SOURCES +=$$STYLES_CPP/qsgistyle.cpp
