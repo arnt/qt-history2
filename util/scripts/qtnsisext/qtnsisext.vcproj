@@ -12,7 +12,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="Debug"
+			OutputDirectory="c:\program files\nsis\plugins"
 			IntermediateDirectory="Debug"
 			ConfigurationType="2"
 			CharacterSet="2">
@@ -117,6 +117,12 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
+				RelativePath=".\binpatch.cpp">
+			</File>
+			<File
+				RelativePath=".\keycheck.cpp">
+			</File>
+			<File
 				RelativePath=".\qtnsisext.cpp">
 			</File>
 		</Filter>
@@ -125,7 +131,13 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
+				RelativePath=".\binpatch.h">
+			</File>
+			<File
 				RelativePath=".\exdll.h">
+			</File>
+			<File
+				RelativePath=".\keycheck.h">
 			</File>
 		</Filter>
 		<Filter
