@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#97 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#98 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#97 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#98 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -326,15 +326,21 @@ void QWidget::setBackgroundColor( const QColor &c )
 }
 
 /*!
-  Sets the background pixmap of the widget to \e pm.
+  Sets the background pixmap of the widget to \e pixmap.
 
   The background pixmap is tiled.
+
   \sa setBackgroundColor()
 */
 
-void QWidget::setBackgroundPixmap( const QPixmap &pm )
+void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 {
     if ( !pm.isNull() ) {
+	QPixmap pm = pixmap;
+	if ( pm.depth() == 1 && QPixmap::defaultDepth() > 1 ) {
+	    pm = QPixmap( pixmap.size() );
+	    bitBlt( &pm, 0, 0, &pixmap, 0, 0, pm.width(), pm.height() );
+	}
 	XSetWindowBackgroundPixmap( dpy, ident, pm.handle() );
 	if ( testWFlags(WType_Desktop) )	// save rootinfo later
 	    qt_updated_rootinfo();
