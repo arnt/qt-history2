@@ -4061,7 +4061,8 @@ Qt::TextFormat QTextEdit::textFormat() const
 }
 
 /*!
-    Returns the number of paragraphs in the text; this could be 0.
+    Returns the number of paragraphs in the text; an empty textedit is always
+    considered to have one paragraph, so 1 is returned in this case.
 */
 
 int QTextEdit::paragraphs() const
