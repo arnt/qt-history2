@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/mainwindow.cpp#11 $
+** $Id: //depot/qt/main/examples/qfileiconview/mainwindow.cpp#12 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -127,10 +127,10 @@ void FileMainWindow::setup()
     connect( fileview, SIGNAL( selectionChanged( int ) ),
 	     this, SLOT( slotNumItemsSelected( int ) ) );
 
-    progress = new QProgressBar( statusBar() );
-    statusBar()->addWidget( progress, TRUE );
     label = new QLabel( statusBar() );
-    statusBar()->addWidget( label, TRUE );
+    statusBar()->addWidget( label, 2, TRUE );
+    progress = new QProgressBar( statusBar() );
+    statusBar()->addWidget( progress, 1, TRUE );
 }
 
 void FileMainWindow::setPathCombo()
