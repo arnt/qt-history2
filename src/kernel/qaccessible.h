@@ -255,13 +255,21 @@ private:
 class Q_EXPORT QAccessibleButton : public QAccessibleWidget
 {
 public:
-    QAccessibleButton( QButton *b, Role r = PushButton, QString description = QString::null,
+    QAccessibleButton( QButton *b, Role r, QString description = QString::null,
 	QString help = QString::null );
 
     bool	doDefaultAction( int who );
     QString	accelerator( int who ) const;
     QString	name( int who ) const;
     State	state( int who ) const;
+};
+
+class Q_EXPORT QAccessibleRangeControl : public QAccessibleWidget
+{
+public:
+    QAccessibleRangeControl( QWidget *w, Role role );
+
+    QString value( int who ) const;
 };
 
 #endif //QT_ACCESSIBILITY_SUPPORT

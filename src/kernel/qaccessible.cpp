@@ -5,6 +5,9 @@
 #include "qapplication.h"
 #include "qobjectlist.h"
 #include "qbutton.h"
+#include "qrangecontrol.h"
+#include "qslider.h"
+#include "qdial.h"
 
 /*!
   \class QAccessibleInterface qaccessible.h
@@ -590,7 +593,7 @@ QAccessibleInterface *QAccessibleWidget::hasFocus( int *who ) const
 
 /*!
   \class QAccessibleButton qaccessible.h
-  \brief The QAccessibleButton class provides accessibility information for button type widgets.
+  \brief The QAccessibleButton class implements the QAccessibleInterface for button type widgets.
 */
 
 /*!
@@ -686,6 +689,32 @@ QAccessible::State QAccessibleButton::state( int who ) const
     }
     
     return (State)state;
+}
+
+/*! 
+  \class QAccessibleRangeControl qaccessible.h
+  \brief The QAccessibleRangeControl class implements the QAccessibleInterface for button type widgets.
+*/
+
+/*!
+  Creates a QAccessibleRangeControl object.
+*/
+QAccessibleRangeControl::QAccessibleRangeControl( QWidget *w, Role role )
+: QAccessibleWidget( w, role )
+{
+}
+
+QString QAccessibleRangeControl::value( int who ) const
+{
+    if ( widget()->inherits( "QSlider" ) ) {
+	QRangeControl *r = (QRangeControl*)(QSlider*)widget();
+	return QString::number( r->value() );
+    } else if ( widget()->inherits( "QDial" ) ) {
+	QRangeControl *r = (QRangeControl*)(QDial*)widget();
+	return QString::number( r->value() );
+    }
+
+    return QAccessibleWidget::value( who );
 }
 
 #endif
