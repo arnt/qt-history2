@@ -390,6 +390,10 @@
 /* The UnixWare 7 UDK compiler is based on EDG and does define __EDG__ */
 #  elif defined(__USLC__) && defined(__SCO_VERSION__)
 #    define Q_CC_USLC
+/* The latest UDK 7.1.1b does not need this, but previous versions do */
+#    if !defined(__SCO_VERSION__) || (__SCO_VERSION__ < 302200010)
+#      define Q_INLINE_TEMPLATES inline
+#    endif
 #    define Q_NO_USING_KEYWORD /* ### check "using" status */
 
 /* Never tested! */
@@ -423,11 +427,13 @@
 #  endif
 
 /* The older UnixWare 2.X compiler? */
-#elif defined(__USLC__) && !defined(__SCO_VERSION__)
+#elif defined(__USLC__)
 #  define Q_CC_USLC
+#  define Q_TYPENAME
 #  define Q_NO_BOOL_TYPE
 #  define Q_NO_EXPLICIT_KEYWORD
 #  define Q_NO_USING_KEYWORD
+#  define Q_INLINE_TEMPLATES inline
 
 /* Never tested! */
 #elif defined(__HIGHC__)
@@ -453,6 +459,16 @@
 #    define Q_NO_EXPLICIT_KEYWORD
 #    define Q_NO_USING_KEYWORD
 #  endif
+
+/* CDS++ does not seem to define __EDG__ or __EDG according to Reliant
+   documentation but nevertheless uses EDG conventions like _BOOL */
+#elif defined(sinix)
+#  define Q_CC_EDG
+#  define Q_CC_CDS
+#  if !defined(_BOOL)
+#    define Q_NO_BOOL_TYPE
+#  endif
+#  define Q_BROKEN_TEMPLATE_SPECIALIZATION
 
 #elif defined(Q_OS_HPUX)
 /* __HP_aCC was not defined in first aCC releases */
