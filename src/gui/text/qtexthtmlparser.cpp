@@ -1116,7 +1116,7 @@ void QTextHtmlParser::parseAttributes()
         QString key = parseWord().toLower();
         QString value = QLatin1String("1");
         if (key.size() == 0)
-            continue;
+            break;
         eatSpace();
         if (hasPrefix(QLatin1Char('='))){
             pos++;
