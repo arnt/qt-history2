@@ -268,6 +268,9 @@ public:
 #ifndef QT_NO_COMPAT
 	// charset = QFont::AnyCharSet;
 #endif
+#ifdef Q_WS_WIN
+		fin = 0;
+#endif
     }
 
     QFontPrivate(const QFontPrivate &fp)
@@ -276,6 +279,9 @@ public:
     {
 #ifndef QT_NO_COMPAT
 	// charset = fp.charset;
+#endif
+#ifdef Q_WS_WIN
+		fin = 0;
 #endif
     }
 
@@ -380,6 +386,7 @@ public:
 #endif // Q_WS_X11
 
 #if defined(Q_WS_WIN)
+	~QFontPrivate() { if( fin ) fin->deref(); }
 	void load();	
 	void initFontInfo();
 	HFONT create( bool *stockFont, HDC hdc = 0, bool VxF = FALSE );

@@ -278,13 +278,15 @@ void QFontPrivate::load()
 		return;
 
     QString k = key();
-    fin = fontCache->find( k );
-
-	if ( !fin ) {			// font was never loaded
-	    fin = new QFontStruct( k );
-	    Q_CHECK_PTR( fin );
-	    fontCache->insert( fin->key(), fin, 1 );
+	QFontStruct *qfs = fontCache->find( k );
+	
+	if ( !qfs ) {			// font was never loaded
+	    qfs = new QFontStruct( k );
+	    Q_CHECK_PTR( qfs );
 	}
+	qfs->ref();
+	if ( fin ) fin->deref();
+	fin = qfs;
 
     if ( !fin->font() ) {			// font not loaded
 	if ( qt_winver & Qt::WV_NT_based )
