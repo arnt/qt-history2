@@ -60,7 +60,11 @@
 #define IDE_NO_DEBUGVIEWS
 
 MainWindow::MainWindow()
-    : QMainWindow(0, Qt::WStyle_Tool),
+    : QMainWindow(0
+#ifdef Q_WS_MAC
+                  , Qt::WStyle_Tool
+#endif
+        ),
       m_closeForm(true), m_settingsSaved(false),
       m_newFormDialog(0), m_preferenceDialog(0), m_actionWindowList(0), m_actionWindowSeparator(0)
 {
