@@ -249,7 +249,7 @@ CFG_SQL_AUTODETECTED=
 CFG_GFX_AVAILABLE=
 CFG_TABLET=auto
 CFG_XKB=auto
-CFG_NIS=no
+CFG_NIS=auto
 CFG_STL=auto
 CFG_NAS=no
 CFG_REMOTE=no
@@ -1296,7 +1296,7 @@ Usage:  $relconf [-prefix dir] \\
 	[-docdir dir] [-headerdir dir] [-libdir dir] [-bindir dir] [-plugindir dir ] [-datadir dir] \\
 	[-debug] [-release] [-qt-gif] [-no-gif] [-sm] [-no-sm] [-stl] [-no-st] \\
 	[-qt-zlib] [-system-zlib] [-qt-libpng] [-system-libpng] \\
-	[-no-jpeg] [-system-jpeg] [-no-thread] [-thread] \\
+	[-no-jpeg] [-system-jpeg] [-no-thread] [-thread] [-no-nis] [-nis] \\
 	[-Istring] [-lstring] [-Lstring] [-Rstring] [-disable-<module>] \\
 	[-with-<module setting>] [-without-<module setting>] [-fast] [-nofast]
 
@@ -1389,6 +1389,9 @@ Configure options:
 
  $THN  -no-thread ......... Do not compile threading support.
  $THY  -thread ............ Compile threading support.
+
+ $NSN  -no-nis ............ Do not compile NIS support.
+ $NSY  -nis ............... Compile NIS support.
 
  $SHN  -no-stl ............ Do not compile STL support.
  $SHY  -stl ............... Compile STL support.
