@@ -14,6 +14,7 @@
 #include <qlineedit.h>
 #include <qapplication.h>
 #include <qtimer.h>
+#include <stdlib.h>
 
 /*!
   \class QTableItem qtable.h
@@ -21,12 +22,12 @@
   \brief Implementation of a item for a QTable.
 
   This item contains the data of a table cell, specifies the editor
-  and edit type for that cell and defines some other behaviour. By
-  default it can contain a text and pixmaps and offers a QLineEdit for
-  editing.
+  and edit type for that cell, defines some other behaviour and
+  provides the API neede for sorting table items. By default it can
+  contain a text and pixmaps and offers a QLineEdit for editing.
 
-  By reimplementing paint(), editor() and setContentFromEditor() you
-  can change this.
+  By reimplementing paint(), key(), editor() and
+  setContentFromEditor() you can change this.
 */
 
 /*! \fn QTable *QTableItem::table() const
@@ -230,6 +231,15 @@ bool QTableItem::isTypeChangeAllowed() const
     return tcha;
 }
 
+/*! Returns the key which should be used for sorting. The default
+  implementation returns the text() if the item here. You might
+  reimplement this in custom table items.
+*/
+
+QString QTableItem::key() const
+{
+    return text();
+}
 
 
 /*!
@@ -289,6 +299,13 @@ bool QTableItem::isTypeChangeAllowed() const
   If you want to make a cell not editable and do not want to waste a
   QTableItem for this cell, reimplement editor() and return 0 there
   for the cells which should be not editable.
+  
+  QTable supports also all needed selection types like range
+  selections, selectiongs through the header, selection with keyboard
+  and mouse, etc.
+  
+  QTable offers also an API for sorting columns. See setSorting(),
+  sortColumn() and QTableItem::key() for more details.
 */
 
 /*! \fn void QTable::currentChanged( int row, int col )
@@ -320,7 +337,8 @@ bool QTableItem::isTypeChangeAllowed() const
 
 QTable::QTable( int numRows, int numCols, QWidget *parent, const char *name )
     : QScrollView( parent, name, WRepaintNoErase | WNorthWestGravity ),
-      currentSelection( 0 ), sGrid( TRUE ), mRows( FALSE ), mCols( FALSE )
+      currentSelection( 0 ), sGrid( TRUE ), mRows( FALSE ), mCols( FALSE ),
+      lastSortCol( -1 ), asc( TRUE ), doSort( TRUE )
 {
     setResizePolicy( Manual );
     selections.setAutoDelete( TRUE );
@@ -364,6 +382,8 @@ QTable::QTable( int numRows, int numCols, QWidget *parent, const char *name )
 	     this, SLOT( columnWidthChanged( int, int, int ) ) );
     connect( topHeader, SIGNAL( indexChange( int, int, int ) ),
 	     this, SLOT( columnIndexChanged( int, int, int ) ) );
+    connect( topHeader, SIGNAL( sectionClicked( int ) ),
+	     this, SLOT( columnClicked( int ) ) );
     connect( leftHeader, SIGNAL( sizeChange( int, int, int ) ),
 	     this, SLOT( rowHeightChanged( int, int, int ) ) );
     connect( leftHeader, SIGNAL( indexChange( int, int, int ) ),
@@ -1285,6 +1305,47 @@ void QTable::rowIndexChanged( int, int, int )
     repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight(), FALSE );
 }
 
+/*!  This function is called of the column \c col has been
+  clicked. The default implementation sorts this coumns then of
+  sorting() is TRUE
+*/
+
+void QTable::columnClicked( int col ) 
+{ 
+    if ( !sorting() )
+	return;
+    
+    if ( col == lastSortCol ) {
+	asc = !asc;
+    } else {
+	lastSortCol = col;
+	asc = TRUE;
+    }
+    
+    sortColumn( lastSortCol, asc );
+}
+
+/*!  If \a b is set to TRUE, clicking on the header of a column sorts
+  this column.
+  
+  \sa sortColumn()
+*/
+
+void QTable::setSorting( bool b )
+{
+    doSort = b;
+}
+
+/*!  Returns wheather clicking on a column header sorts the column.
+ 
+ \sa setSorting()
+ */
+
+bool QTable::sorting() const
+{
+    return doSort;
+}
+
 /*!  This function updates the geometries of the left and top header.
 */
 
@@ -1795,6 +1856,78 @@ void QTable::fixCol( int &col, int x )
 	    col = cols() - 1;
     }
 }
+
+#if defined(Q_C_CALLBACKS)
+extern "C" {
+#endif
+
+static int cmpTableItems( const void *n1, const void *n2 )
+{
+    if ( !n1 || !n2 )
+	return 0;
+
+    QTable::SortableItem *i1 = (QTable::SortableItem *)n1;
+    QTable::SortableItem *i2 = (QTable::SortableItem *)n2;
+
+    return i1->item->key().compare( i2->item->key() );
+}
+
+#if defined(Q_C_CALLBACKS)
+}
+#endif
+
+/*!  Sorts the column \a col in ascending order if \a ascending is
+  TRUE, else in descending order.
+  
+  In this implementation really only the column is sorted. If you need
+  to do more (e.g. moving whole rows instead of only cells when
+  re-sorting), you have to reimplement this function and do what you need.
+  
+  \internal
+  
+  Should we have a moveCell( from, to ) is used and can be
+  reimplemented to move whole rows?
+*/
+
+void QTable::sortColumn( int col, bool ascending )
+{
+    int filledRows = 0, i;
+    for ( i = 0; i < rows(); ++i ) {
+	QTableItem *item = cellContent( i, col );
+	if ( item )
+	    filledRows++;
+    }
+    
+    if ( !filledRows )
+	return;
+    
+    QTable::SortableItem *items = new QTable::SortableItem[ filledRows ];
+    int j = 0;
+    for ( i = 0; i < rows(); ++i ) {
+	QTableItem *item = cellContent( i, col );
+	if ( !item )
+	    continue;
+	items[ j++ ].item = item;
+    }
+    
+    qsort( items, filledRows, sizeof( QTable::SortableItem ), cmpTableItems );
+    
+    contents.setAutoDelete( FALSE );
+    for ( i = 0; i < rows(); ++i ) {
+	contents.remove( indexOf( i, col ) );
+	if ( i < filledRows ) {
+	    if ( ascending )
+		contents.insert( indexOf( i, col ), items[ i ].item );
+	    else
+		contents.insert( indexOf( i, col ), items[ filledRows - i - 1 ].item );
+	}
+    }
+    contents.setAutoDelete( TRUE );
+    
+    repaintContents( columnPos( col ), 0, columnWidth( col ), contentsHeight(), FALSE );
+    delete [] items;
+}
+
 
 
 void QTable::SelectionRange::init( int row, int col )

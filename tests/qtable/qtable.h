@@ -53,6 +53,8 @@ public:
     virtual void setTypeChangeAllowed( bool );
     bool isTypeChangeAllowed() const;
 
+    virtual QString key() const;
+    
 protected:
     virtual void paint( QPainter *p, const QColorGroup &cg, const QRect &cr, bool selected );
 
@@ -139,6 +141,10 @@ public:
     void setRowsMovable( bool b );
     bool rowsMovable() const;
 
+    virtual void sortColumn( int col, bool ascending = TRUE );
+    virtual void setSorting( bool b );
+    bool sorting() const;
+    
 protected:
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
     void contentsMousePressEvent( QMouseEvent* );
@@ -160,7 +166,8 @@ protected slots:
     virtual void rowHeightChanged( int col, int os, int ns );
     virtual void columnIndexChanged( int s, int oi, int ni );
     virtual void rowIndexChanged( int s, int oi, int ni );
-
+    virtual void columnClicked( int col );
+    
 signals:
     void currentChanged( int row, int col );
 
@@ -182,6 +189,11 @@ private:
 	int anchorRow, anchorCol;
     };
 
+    struct SortableItem
+    {
+	QTableItem *item;
+    };
+    
     void paintCell( QPainter *p, int row, int col, const QRect &cr, bool selected );
     int indexOf( int row, int col ) const;
     void updateGeometries();
@@ -205,7 +217,10 @@ private:
     SelectionRange *currentSelection;
     QTimer *autoScrollTimer;
     bool sGrid, mRows, mCols;
-
+    int lastSortCol;
+    bool asc;
+    bool doSort;
+    
 };
 
 class QTableHeader : public QHeader
