@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#48 $
+** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#49 $
 **
 ** Implementation of QRadioButton class
 **
@@ -14,8 +14,9 @@
 #include "qpainter.h"
 #include "qpixmap.h"
 #include "qpmcache.h"
+#include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobt.cpp#48 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobt.cpp#49 $");
 
 
 /*!
@@ -158,8 +159,8 @@ void QRadioButton::drawButton( QPainter *paint )
 #define SAVE_RADIOBUTTON_PIXMAPS
 #if defined(SAVE_RADIOBUTTON_PIXMAPS)
     QString pmkey;				// pixmap key
-    pmkey.sprintf( "$qt_radio_%d_%d_%d_%d", gs, palette().serialNumber(),
-		   isDown(), isOn() );
+    pmkey.sprintf( "$qt_radio_%d_%d_%d_%d_%d", gs, palette().serialNumber(),
+		   isDown(), isOn(), isEnabled() );
     QPixmap *pm = QPixmapCache::find( pmkey );
     if ( pm ) {					// pixmap exists
 	p->drawPixmap( x, y, *pm );
@@ -221,8 +222,7 @@ void QRadioButton::drawButton( QPainter *paint )
 	    p->drawRect( x+5, y+4, 2, 4 );
 	    p->drawRect( x+4, y+5, 4, 2 );
 	}
-    }
-    else if ( gs == MotifStyle ) {		// Motif radio button
+    } else if ( gs == MotifStyle ) {		// Motif radio button
 	static QCOORD inner_pts[] =		// used for filling diamond
 	    { 2,6, 6,2, 10,6, 6,10 };
 	static QCOORD top_pts[] =		// top (^) of diamond
@@ -280,14 +280,36 @@ void QRadioButton::drawButtonLabel( QPainter *p )
     p->setPen( colorGroup().text() );
 
     if ( pixmap() ) {
-	QPixmap *pm = (QPixmap *)pixmap();
-	if ( pm->depth() == 1 )
-	    p->setBackgroundMode( OpaqueMode );
+	const QPixmap *pm = pixmap();
 	y += h/2 - pm->height()/2;
+	if ( gs == WindowsStyle && !isEnabled() ) {
+	    if ( !pm->isQBitmap() ) {
+		if ( pm->mask() == 0 ) {
+		    // detach and build a goodish mask -- slow!
+		    QPixmap masked = *pm;
+		    masked.detach();
+		    masked.setMask( masked.isQBitmap() ?
+				    *((QBitmap*)(&masked)) :
+				    masked.reasonableMask() );
+		    setPixmap( masked );
+		}
+		pm = pm->mask();
+	    }
+	    p->setBackgroundMode( TransparentMode );
+	    p->setPen( white );
+	    p->drawPixmap( x+1, y+1, *pm );
+	    p->setPen( colorGroup().foreground() );
+	}
 	p->drawPixmap( x, y, *pm );
-    }
-    else if ( text() )
+    } else if ( text() ) {
+	if ( gs == WindowsStyle && !isEnabled() ) {
+	    p->setPen( white );
+	    p->drawText( x+1, y+1, w, h,
+			 AlignLeft|AlignVCenter|ShowPrefix, text() );
+	    p->setPen( colorGroup().text() );
+	}
 	p->drawText( x, y, w, h, AlignLeft|AlignVCenter|ShowPrefix, text() );
+    }
 }
 
 
