@@ -49,7 +49,7 @@ QDocMainWindow::QDocMainWindow( const QString& qtdir,
     classList->addColumn( "Text" );
     classList->setRootIsDecorated( TRUE );
     vb->addWidget( classList );
-    QHBoxLayout* hb = new QHBoxLayout( this );
+    QHBoxLayout* hb = new QHBoxLayout();
     statusBar = new QLabel( "Ready", this );
     hb->addWidget( statusBar );
     hb->setStretchFactor( statusBar, 2 );
