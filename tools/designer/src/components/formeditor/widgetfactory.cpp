@@ -47,17 +47,17 @@ WidgetFactory::~WidgetFactory()
 void WidgetFactory::loadPlugins()
 {
     PluginManager pluginManager;
-    
+
     m_customFactory.clear();
     QStringList plugins = pluginManager.registeredPlugins();
-    
+
     foreach (QString plugin, plugins) {
         QObject *o = pluginManager.instance(plugin);
-        
+
         if (ICustomWidget *c = qt_cast<ICustomWidget*>(o)) {
             if (!c->isInitialized())
                 c->initialize(core());
-                
+
             m_customFactory.insert(c->name(), c);
         }
     }
@@ -68,7 +68,7 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
     FormWindow *fw = FormWindow::findFormWindow(parentWidget);
 
     QWidget *w = 0;
-    
+
     if (ICustomWidget *f = m_customFactory.value(widgetName)) {
         return f->createWidget(parentWidget);
     } else if (widgetName == QLatin1String("Line")) {
@@ -204,7 +204,7 @@ QLayout *WidgetFactory::createLayout(QWidget *widget, QLayout *layout, int type)
 
     if (QLayoutWidget *l = qt_cast<QLayoutWidget*>(widget)) {
         l->layout()->setMargin(1); // ### this should be 0
-    }    
+    }
 
     if (IPropertySheet *sheet = qt_extension<IPropertySheet*>(core()->extensionManager(), l)) {
         sheet->setChanged(sheet->indexOf("margin"), true);
@@ -275,11 +275,17 @@ AbstractFormEditor *WidgetFactory::core() const
 
 void WidgetFactory::initialize(QObject *object) const
 {
-    if (IPropertySheet *sheet = qt_extension<IPropertySheet*>(m_core->extensionManager(), object)) {        
-        sheet->setChanged(sheet->indexOf("objectName"), true);
-        sheet->setChanged(sheet->indexOf("geometry"), true);
-    }
+    IPropertySheet *sheet = qt_extension<IPropertySheet*>(m_core->extensionManager(), object);
 
     if (object->metaObject()->indexOfProperty("focusPolicy") != -1)
         object->setProperty("focusPolicy", Qt::NoFocus);
+
+    if (!sheet)
+        return;
+
+    sheet->setChanged(sheet->indexOf("objectName"), true);
+    sheet->setChanged(sheet->indexOf("geometry"), true);
+
+    if (qt_cast<Spacer*>(object))
+        sheet->setChanged(sheet->indexOf("sizeHint"), true);
 }

@@ -27,7 +27,7 @@ Spacer::Spacer(QWidget *parent)
     m_formWindow = AbstractFormWindow::findFormWindow(this);
 
     setSizeType(Spacer::Expanding);
-    setAutoMask(true);    
+    setAutoMask(true);
 }
 
 void Spacer::paintEvent(QPaintEvent *)
@@ -69,6 +69,10 @@ void Spacer::paintEvent(QPaintEvent *)
 void Spacer::resizeEvent(QResizeEvent* e)
 {
     QWidget::resizeEvent(e);
+
+    if (!interactive)
+        return;
+
     if (!parentWidget() || (m_formWindow && LayoutInfo::layoutType(m_formWindow->core(), parentWidget()) == LayoutInfo::NoLayout))
         sh = size();
 }
@@ -134,7 +138,7 @@ QSize Spacer::sizeHint() const
 void Spacer::setSizeHint(const QSize &s)
 {
     sh = s;
-    
+
     if (!parentWidget() || (m_formWindow && LayoutInfo::layoutType(m_formWindow->core(), parentWidget()) == LayoutInfo::NoLayout))
         resize(sizeHint());
 
@@ -150,7 +154,7 @@ void Spacer::setOrientation(Qt::Orientation o)
 {
     if (orient == o)
         return;
-        
+
     Spacer::SizeType st = sizeType();
     orient = o;
     setSizeType(st);
