@@ -2444,11 +2444,13 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    case WM_SETFOCUS:
 		if ( !QWidget::find( (HWND)wParam ) ) // we didn't set focus, so set it now
 		    widget->setFocus();
+		result = FALSE;
 		break;
 
 	    case WM_KILLFOCUS:
 		if ( !QWidget::find( (HWND)wParam ) ) // we don't get focus, so unset it now
 		    widget->clearFocus();
+		result = FALSE;
 		break;
 
 	    case WM_THEMECHANGED:
@@ -2472,7 +2474,6 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    default:
 		result = FALSE;			// event was not processed
 		break;
-
 	    }
 	}
     }
