@@ -36,6 +36,7 @@ private slots:
     void aboutQt();
     void openFile();
     void newWindow();
+    void print();
 
     void pathSelected( const QString & );
     void histChosen( int );

@@ -44,7 +44,10 @@ class Q_EXPORT QSimpleRichText
 {
 public:
     QSimpleRichText( const QString& text, const QFont& fnt,
-		     const QString& context = QString::null, const QStyleSheet* s = 0);
+		     const QString& context = QString::null, const QStyleSheet* sheet = 0);
+    QSimpleRichText( const QString& text, const QFont& fnt,
+		     const QString& context,  const QStyleSheet* sheet, 
+		     const QMimeSourceFactory* factory, int verticalBreak = -1);
     ~QSimpleRichText();
 
     void setWidth( QPainter*, int );

@@ -501,7 +501,8 @@ public:
     int width;
     int widthUsed;
     int height;
-
+    
+    int pagesize;
 
     QTextFlow* parent;
 

@@ -131,6 +131,8 @@ void QTextOptions::erase( QPainter* p, const QRect& r ) const
 {
     if ( !paper )
 	return;
+    if ( p->device()->devType() == QInternal::Printer )
+	return;
     if ( paper->pixmap() )
 	p->drawTiledPixmap( r, *paper->pixmap(),
 			    QPoint(r.x()+offsetx, r.y()+offsety) );
@@ -1726,7 +1728,7 @@ void QTextCursor::drawLine( QPainter* p, int ox, int oy,
 	gy = y();
     }
 
-    if (clipMode ) {
+    if (clipMode && p->device()->devType() != QInternal::Printer ) {
 	p->setClipRegion( backgroundRegion );
 	to.erase( p, r);
 	p->setClipping( FALSE );
@@ -2239,7 +2241,7 @@ QRect QTextCursor::lineGeometry() const
 
 QTextFlow::QTextFlow()
 {
-    width = widthUsed = height = 0;
+    width = widthUsed = height = pagesize = 0;
 }
 
 QTextFlow::~QTextFlow()
@@ -2279,7 +2281,6 @@ int QTextFlow::adjustRMargin( int yp, int margin )
 }
 
 
-const int pagesize = 100000;
 
 void QTextFlow::adjustFlow( int  &yp, int w, int h, bool pages )
 {
@@ -2287,7 +2288,7 @@ void QTextFlow::adjustFlow( int  &yp, int w, int h, bool pages )
 	widthUsed = w;
 
 
-    if ( FALSE && pages ) { // check pages
+    if ( pages && pagesize > 0 ) { // check pages
 	int ty = yp;
 	int yinpage = ty % pagesize;
  	if ( yinpage < 2 )
@@ -2618,8 +2619,10 @@ void QTextTableCell::draw(int x, int y,
     QRect r(x-ox+geom.x(), y-oy+geom.y(), geom.width(), geom.height() );
     richtext->draw(painter(), x+geom.x(), y+geom.y(), ox, oy, cx, cy, cw, ch, backgroundRegion, cg, o );
 
-    painter()->setClipRegion( backgroundRegion );
-    o.erase( painter(), r );
+     if ( painter()->device()->devType() != QInternal::Printer ) {
+	painter()->setClipRegion( backgroundRegion );
+	o.erase( painter(), r );
+    }
     backgroundRegion = backgroundRegion.subtract( r );
 }
 

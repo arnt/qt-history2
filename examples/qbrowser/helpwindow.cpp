@@ -29,6 +29,9 @@
 #include <qfileinfo.h>
 #include <qfile.h>
 #include <qdatastream.h>
+#include <qprinter.h>
+#include <qsimplerichtext.h>
+#include <qpaintdevicemetrics.h>
 
 #include <ctype.h>
 
@@ -60,6 +63,7 @@ HelpWindow::HelpWindow( const QString& home_, const QString& _path, QWidget* par
     QPopupMenu* file = new QPopupMenu( this );
     file->insertItem( tr("&New Window"), this, SLOT( newWindow() ), ALT | Key_N );
     file->insertItem( tr("&Open File"), this, SLOT( openFile() ), ALT | Key_O );
+    file->insertItem( tr("&Print"), this, SLOT( print() ), ALT | Key_P );
     file->insertSeparator();
     file->insertItem( tr("&Close"), this, SLOT( close() ), ALT | Key_Q );
     file->insertItem( tr("E&xit"), qApp, SLOT( closeAllWindows() ), ALT | Key_X );
@@ -231,6 +235,44 @@ void HelpWindow::openFile()
 void HelpWindow::newWindow()
 {
     ( new HelpWindow(browser->source(), "qbrowser") )->show();
+}
+
+void HelpWindow::print()
+{
+    QPrinter printer;
+    printer.setFullPage(TRUE);
+    if ( printer.setup() ) {
+	QPainter p( &printer );
+	QPaintDeviceMetrics metrics(p.device());
+	int dpix = metrics.logicalDpiX();
+	int dpiy = metrics.logicalDpiY();
+	const int margin = 72; // pt
+	QRect body(margin*dpix/72, margin*dpiy/72,
+		   metrics.width()-margin*dpix/72*2,
+		   metrics.height()-margin*dpiy/72*2 );
+	double scale = 0.75;
+	p.scale(scale, scale );
+	body = QRect( int(body.x()/scale), int(body.y()/scale), 
+		      int(body.width()/scale), int(body.height()/scale) );
+	QFont font("times");
+	QSimpleRichText richText( browser->text(), font, browser->context(), browser->styleSheet(), 
+				  browser->mimeSourceFactory(), body.height() );
+	richText.setWidth( &p, body.width() );
+	QRect view( body );
+	int page = 1;
+	do {
+	    richText.draw( &p, body.left(), body.top(), view, colorGroup() );
+	    view.moveBy( 0, body.height() );
+	    p.translate( 0 , -body.height() );
+	    p.setFont( font );
+	    p.drawText( view.right() - p.fontMetrics().width( QString::number(page) ), 
+			view.bottom() + p.fontMetrics().ascent() + 5, QString::number(page) );
+	    if ( view.top()  >= richText.height() )
+		break;
+	    printer.newPage();
+	    page++;
+	} while (TRUE);
+    }
 }
 
 void HelpWindow::pathSelected( const QString &_path )

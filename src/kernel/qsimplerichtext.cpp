@@ -81,11 +81,28 @@ public:
 
 */
 QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
-				  const QString& context, const QStyleSheet* s)
+				  const QString& context, const QStyleSheet* sheet)
 {
     d  = new QSimpleRichTextData;
-    d->doc = new QRichText( text, fnt, context, 0, 0, s );
+    d->doc = new QRichText( text, fnt, context, 0, 0, sheet );
 }
+
+
+/*!  
+  Another, more complex constructor for QSimpleRichText that takes
+  an additional mime source factory \a factory and a vertical break
+  parameter \a verticalBreak.
+  
+ */
+QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
+		 const QString& context,
+		 const QStyleSheet* sheet, const QMimeSourceFactory* factory, int verticalBreak )
+{
+    d  = new QSimpleRichTextData;
+    d->doc = new QRichText( text, fnt, context, 0, factory, sheet );
+    d->doc->flow()->pagesize = verticalBreak;
+}
+
 
 /*!
   Destructs the document, freeing memory.
