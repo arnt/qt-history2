@@ -211,7 +211,7 @@ void Frame::clickedCategory( QListBoxItem *item )
 		qDebug("Lazy creation of %s failed", item->text().latin1());
 	    }
 	}
-	stack->raiseWidget( c->widget() );    
+	stack->raiseWidget( c->widget() );
     }
 }
 
@@ -224,9 +224,14 @@ void Frame::updateTranslators()
 	qApp->installTranslator( translator );
     }
 
-    QString QTDIR = getenv( "QTDIR" );
+    QString base( QString( QT_INSTALL_DATA ) + "/translations" );
+    // if $QTDIR is set, then use that instead
+    const char *qtdirenv = getenv( "QTDIR" );
+    if ( qtdirenv ) {
+	base = QString( qtdirenv ) + "/translations";
+    }
 
-    qt_translator->load( QString( "qt_%1" ).arg( QTextCodec::locale() ), QTDIR + "/translations" );
+    qt_translator->load( QString( "qt_%1" ).arg( QTextCodec::locale() ), base );
     translator->load( QString( "translations/demo_%1" ).arg( QTextCodec::locale() ) );
 }
 

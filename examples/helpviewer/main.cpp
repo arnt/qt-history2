@@ -21,12 +21,18 @@ int main( int argc, char ** argv )
     QApplication a(argc, argv);
 
     QString home;
-    if (argc > 1)
+    if (argc > 1) {
         home = argv[1];
-    else
-        home = QString(getenv("QTDIR")) + "/doc/html/index.html";
+    } else {
+        home = QString( QT_INSTALL_DOCS ) + "/html/index.html";
 
-    
+	// if $QTDIR is set, use that instead
+	const char *qtdirenv = getenv( "QTDIR" );
+	if ( qtdirenv ) {
+	    home = QString( qtdirenv ) + "/doc/html/index.html";
+	}
+    }
+
     HelpWindow *help = new HelpWindow(home, ".", 0, "help viewer");
     help->setCaption("Qt Example - Helpviewer");
     if ( QApplication::desktop()->width() > 400

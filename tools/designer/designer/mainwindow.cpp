@@ -104,13 +104,13 @@ MainWindow *MainWindow::self = 0;
 
 QString assistantPath()
 {
+    QString path = QDir::cleanDirPath( QString( QT_INSTALL_BINS ) +
+				       QDir::separator() + "assistant" );
 #ifdef Q_OS_MACX
-    return QDir::cleanDirPath(QString(getenv("QTDIR")) + QDir::separator() +
-			      "bin" + QDir::separator() +
-			      "assistant.app/Contents/MacOS/assistant");
-#else
-    return "assistant";
+    path += QDir::separator() + ".app/Contents/MacOS/assistant";
 #endif
+
+    return path;
 }
 
 
@@ -132,7 +132,8 @@ MainWindow::MainWindow( bool asClient, bool single )
     : QMainWindow( 0, "designer_mainwindow", WType_TopLevel | (single ? 0 : WDestructiveClose) | WGroupLeader ),
 #endif
       grd( 10, 10 ), sGrid( TRUE ), snGrid( TRUE ), restoreConfig( TRUE ), splashScreen( TRUE ),
-      docPath( "$QTDIR/doc/html" ), fileFilter( tr( "Qt User-Interface Files (*.ui)" ) ), client( asClient ),
+      docPath( QString( QT_INSTALL_DOCS ) + "/html" ),
+      fileFilter( tr( "Qt User-Interface Files (*.ui)" ) ), client( asClient ),
       previewing( FALSE ), databaseAutoEdit( FALSE )
 {
     customWidgetToolBar = customWidgetToolBar2 = 0;
@@ -975,7 +976,7 @@ void MainWindow::helpContents()
 #else
     if ( !source.isEmpty() ) {
 	if ( assistant ) {
-	    QString path = QString( getenv( "QTDIR" )) + "/doc/html/";
+	    QString path = QString( QT_INSTALL_DOCS ) + "/html/";
 	    assistant->sendRequest( path+source+'\n' );
 	}
     }
@@ -991,7 +992,8 @@ void MainWindow::helpManual()
     proc.start();
 #else
     if ( assistant )
-	assistant->sendRequest( QString( getenv( "QTDIR" )) + "/doc/html/designer-manual.html\n" );
+	assistant->sendRequest( QString( QT_INSTALL_DOCS ) +
+				"/html/designer-manual.html\n" );
 #endif
 }
 
@@ -2560,7 +2562,7 @@ bool MainWindow::openEditor( QWidget *w, FormWindow *f )
 		    break;
 		}
 	    }
-	
+
 	    if ( ev.isEmpty() ) {
 		editSource();
 	    } else {
@@ -2796,7 +2798,7 @@ void MainWindow::showDialogHelp()
     QWidget *w = (QWidget*)sender();
     w = w->topLevelWidget();
 
-    QString link = QString( getenv( "QTDIR" )) + "/doc/html/designer-manual-12.html#";
+    QString link = QString( QT_INSTALL_DOCS ) + "/html/designer-manual-12.html#";
 
     if ( w->inherits( "NewFormBase" ) )
 	link += "dialog-file-new";
@@ -3558,8 +3560,8 @@ SourceTemplateInterface* MainWindow::sourceTemplateInterface( const QString& tem
 QString MainWindow::whatsThisFrom( const QString &key )
 {
     if ( menuHelpFile.isEmpty() ) {
-	QString fn = getenv( "QTDIR" );
-	fn += "/doc/html/designer-manual-10.html";
+	QString fn( QT_INSTALL_DOCS );
+	fn += "/html/designer-manual-10.html";
 	QFile f( fn );
 	if ( f.open( IO_ReadOnly ) ) {
 	    QTextStream ts( &f );

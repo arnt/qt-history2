@@ -1619,8 +1619,8 @@ void TrWindow::newPhraseBook()
 
 void TrWindow::openPhraseBook()
 {
-    QString qtdirenv = getenv("QTDIR");
-    QString name = QFileDialog::getOpenFileName( QString( qtdirenv + "/tools/linguist/phrasebooks" ),
+    QString phrasebooks( QT_INSTALL_DATA );
+    QString name = QFileDialog::getOpenFileName( phrasebooks + "/phrasebooks",
 	    tr("Qt phrase books (*.qph)\n"
 	       "All files (*)"), 0, "open_phrasebook",
 	       tr("Open phrase book") );
@@ -1702,15 +1702,14 @@ void TrWindow::revertSorting()
 
 void TrWindow::manual()
 {
-    QStringList lst;
+    QString path = QDir::cleanDirPath( QString( QT_INSTALL_BINS ) +
+				       QDir::separator() + "assistant" );
 #ifdef Q_OS_MACX
-    lst << QDir::cleanDirPath(QString(getenv("QTDIR")) + QDir::separator() +
-			      "bin" + QDir::separator() +
-			      "assistant.app/Contents/MacOS/assistant");
-#else
-    lst << "assistant";
+    path += QDir::separator() + ".app/Contents/MacOS/assistant";
 #endif
-    lst << "linguist-manual.html";
+
+    QStringList lst;
+    lst << path << "linguist-manual.html";
     QProcess proc( lst );
     proc.start();
 }
@@ -1812,7 +1811,7 @@ void TrWindow::showNewScope( QListViewItem *item )
 	    slv->insertItem( tmp );
 	    tmp->updateTranslationText();
 	}
-	
+
 	slv->viewport()->setUpdatesEnabled( upe );
 	slv->setUpdatesEnabled( upe );
 	if( upe )

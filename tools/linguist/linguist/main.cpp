@@ -38,12 +38,6 @@ int main( int argc, char **argv )
     QApplication app( argc, argv );
     QApplication::setOverrideCursor( Qt::waitCursor );
 
-#ifdef Q_OS_MACX
-    QString qdir = QDir::cleanDirPath(QDir::currentDirPath() + QDir::separator() +
-				      ".." + QDir::separator());
-    setenv("QTDIR", qdir.latin1(), 0);
-#endif
-
     QTranslator translator( 0 );
     translator.load( QString( "linguist_" ) + QTextCodec::locale(), "." );
     app.installTranslator( &translator );
@@ -65,7 +59,7 @@ int main( int argc, char **argv )
     r.setHeight( config.readNumEntry( keybase + "Geometry/MainwindowHeight", r.height() ) );
 
     QLabel *splash = 0;
-    int nscreen = QApplication::desktop()->screenNumber( r.center() ); 
+    int nscreen = QApplication::desktop()->screenNumber( r.center() );
     QRect screen = QApplication::desktop()->screenGeometry( nscreen );
     if ( showSplash ) {
 	splash = new QLabel( 0, "splash", Qt::WDestructiveClose |
@@ -89,7 +83,7 @@ int main( int argc, char **argv )
     if ( app.argc() > 1 )
 	tw->openFile( QString(app.argv()[app.argc() - 1]) );
 
-    if ( config.readBoolEntry( keybase + "Geometry/MainwindowMaximized", FALSE ) )     
+    if ( config.readBoolEntry( keybase + "Geometry/MainwindowMaximized", FALSE ) )
 	tw->showMaximized();
     else
 	tw->show();

@@ -93,7 +93,12 @@ QWidget *Frame::createCategory(const QString &cat)
 //	te->load( "textdrawing/bidi.txt" );
 	w = te;
 	tab->addTab( w, tr( "Richtext Editor" ) );
-	QString home = QString(getenv("QTDIR")) + "/doc/html/index.html";
+	QString home( QString( QT_INSTALL_DOCS ) + "/html/index.html" );
+	// use $QTDIR if it is set
+	const char *qtdirenv = getenv( "QTDIR" );
+	if ( qtdirenv ) {
+	    home = QString( qtdirenv ) + "/doc/html/index.html";
+	}
 	w = new HelpWindow( home, ".", 0, "helpviewer" );
 	tab->addTab( w, tr( "Help Browser" ) );
     } else if(cat == "Internationalization") {
@@ -117,11 +122,8 @@ int main( int argc, char **argv )
 {
     QString category;
     QApplication a( argc, argv );
-#ifdef Q_OS_MACX
-    setenv("QTDIR", QDir::cleanDirPath(QDir::currentDirPath() + QDir::separator() + ".." + QDir::separator() + ".."), 0);
-#endif
     for(int i = 1; i < argc-1; i++) {
-	if(!qstrcmp(argv[i], "-demo")) 
+	if(!qstrcmp(argv[i], "-demo"))
 	    category = argv[++i];
     }
 
@@ -172,7 +174,7 @@ int main( int argc, char **argv )
     QPixmap joypix_sel( joyicon_sel );
     frame.addCategory( NULL, joypix, joypix_sel, "Games" );
 #endif
-    if( !category.isEmpty() ) 
+    if( !category.isEmpty() )
 	frame.setCurrentCategory( category );
 
     a.setMainWidget( &frame );

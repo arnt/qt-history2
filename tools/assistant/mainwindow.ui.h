@@ -279,10 +279,9 @@ void MainWindow::init()
     actionGoDesigner->removeFrom( goMenu );
     actionGoDesigner->removeFrom( Toolbar );
 #else
+    QString base( QT_INSTALL_DOCS );
     // #### hardcoded paths - probably should read the settings from somewhere
-    browser->mimeSourceFactory()->addFilePath( QString( getenv( "QTDIR" ) ) + "/tools/linguist/doc/html" );
-    browser->mimeSourceFactory()->addFilePath( QString( getenv( "QTDIR" ) ) + "/doc/html/" );    
-    browser->mimeSourceFactory()->addFilePath( QString( getenv( "QTDIR" ) ) + "/doc/html/" );
+    browser->mimeSourceFactory()->addFilePath( base + "/html/" );
 #endif
 
     connect( actionGoPrev, SIGNAL( activated() ), browser, SLOT( backward() ) );
@@ -509,14 +508,14 @@ void MainWindow::showDesignerHelp()
 }
 
 void MainWindow::showLink( const QString & link, const QString & title )
-{    
+{
     browser->setCaption( title );
     QString filename = link.left( link.find( '#' ) );
     QFileInfo fi( filename );
     // introduce a default-not-found site
     if ( !fi.exists() )
-	browser->setSource( "index.html" ); 
-    else    
+	browser->setSource( "index.html" );
+    else
 	browser->setSource( link );
     browser->setFocus();
 }

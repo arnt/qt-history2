@@ -149,12 +149,6 @@ int main( int argc, char *argv[] )
     DesignerApplication a( argc, argv );
 #endif
 
-#ifdef Q_OS_MACX
-    QString qdir = QDir::cleanDirPath(QDir::currentDirPath() + QDir::separator() + "..");
-    setenv("QTDIR", qdir, 0);
-    setenv("PATH",  qdir + QDir::separator() + "bin" + ":" + getenv("PATH"), 0);
-#endif
-
 #if 0 // ###### this is not defined when building designer, even when
  // remote stuff is not built and disabled. Fix the build first,
  // please!

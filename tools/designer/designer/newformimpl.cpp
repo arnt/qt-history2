@@ -228,7 +228,7 @@ void SourceTemplateItem::setProject( Project *pro )
 	iconView()->insertItem( this );
 }
 
-void NewForm::insertTemplates( QIconView *tView, 
+void NewForm::insertTemplates( QIconView *tView,
 			       const QString &templatePath )
 {
     QStringList::Iterator it;
@@ -265,21 +265,17 @@ void NewForm::insertTemplates( QIconView *tView,
 	fi->setFormType( FormItem::MainWindow );
 	fi->setPixmap( PixmapChooser::loadPixmap( "newform.xpm" ) );
 	fi->setDragEnabled( FALSE );
-	
+
 	QString templPath = templatePath;
 	QStringList templRoots;
 	if ( templPath.isEmpty() || !QFileInfo( templPath ).exists() ) {
-	    if(getenv( "QTDIR" ))
-		templRoots << getenv( "QTDIR" );
-#ifdef QT_INSTALL_PREFIX
-	    templRoots << QT_INSTALL_PREFIX;
-#endif
-#ifdef QT_INSTALL_DATA
-	    templRoots << QT_INSTALL_DATA;
-#endif
+	    // use default template paths
+	    templRoots << QString( QT_INSTALL_DATA ) + "/templates";
+	    // support srcdir == installdir
+	    templRoots << QString( QT_INSTALL_DATA ) + "/tools/designer/templates";
 	}
 	for ( QStringList::Iterator it = templRoots.begin(); it != templRoots.end(); ++it ) {
-	    QString path = (*it) + "/tools/designer/templates";
+	    QString path = (*it);
 	    if ( QFile::exists( path )) {
 		templPath = path;
 		break;
@@ -361,9 +357,9 @@ NewForm::NewForm( QWidget *parent, const QStringList& projects,
 
     projectCombo->insertStringList( projects );
     projectCombo->setCurrentText( currentProject );
-    
+
     insertTemplates( templateView, templatePath );
-    
+
     projectChanged( projectCombo->currentText() );
 }
 

@@ -172,7 +172,7 @@ HelpDialog::HelpDialog( QWidget *parent, MainWindow *h, QTextBrowser *v )
     settings.insertSearchPath( QSettings::Unix,
 			   QDir::homeDirPath() + "/.palmtopcenter/" );
 
-    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );    
+    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
     QString basePath;
     basePath = settings.readEntry( "/palmtopcenter/qtopiadir" );
     if ( basePath.isEmpty() )
@@ -190,10 +190,10 @@ HelpDialog::HelpDialog( QWidget *parent, MainWindow *h, QTextBrowser *v )
     mime->addFilePath( basePath + "/doc/en" );
     mime->setExtensionType("html","text/html;charset=UTF-8");
 #else
-    QString qtdir = getenv( "QTDIR" );
-    documentationPath = qtdir + "/doc/html";
+    QString base( QT_INSTALL_DOCS );
+    documentationPath = base + "/html";
     mime->addFilePath( documentationPath );
-    mime->addFilePath( qtdir + "/gif/" );
+    mime->addFilePath( base + "/../gif/" );
 #endif
     indexDone = FALSE;
     contentsDone = FALSE;
@@ -220,7 +220,7 @@ void HelpDialog::lastWinClosed()
 void HelpDialog::generateNewDocu()
 {
     QString d( QDir::homeDirPath() );
-    QDir dir( d );    
+    QDir dir( d );
     QStringList list = dir.entryList( ".indexdb*; .titlemapdb*", QDir::Files | QDir::Hidden );
     QStringList::iterator it = list.begin();
     for ( ; it != list.end(); ++it ) {
@@ -229,17 +229,17 @@ void HelpDialog::generateNewDocu()
 	    f.remove();
 	}
     }
-    showChangedDocu(); 
+    showChangedDocu();
 }
 
 void HelpDialog::showChangedDocu()
-{    
+{
     indexDone = FALSE;
     contentsDone = FALSE;
     contentsInserted = FALSE;
     QTimer::singleShot( 0, this, SLOT( loadIndexFile() ) );
-    setupTitleMap();    
-    insertContents(); 
+    setupTitleMap();
+    insertContents();
 }
 
 QString HelpDialog::generateFileNumber()
@@ -248,17 +248,17 @@ QString HelpDialog::generateFileNumber()
     QStringList list = settings.readListEntry( "/Qt Assistant/categories/available/" );
     QStringList::iterator it = list.begin();
     uint i = 2;
-    uint j = 0;    
-    
-    categoryMap.clear();    
+    uint j = 0;
+
+    categoryMap.clear();
     for ( ; it != list.end(); ++it ) {
-	if ( *it == "all" ) 
+	if ( *it == "all" )
 	    categoryMap["all"] = 1;
 	else {
 	    categoryMap[*it] = i;
 	    i *= 2;
 	}
-    }	
+    }
 
     list = settings.readListEntry( "/Qt Assistant/categories/selected/" );
     for ( it = list.begin(); it != list.end(); ++it ){
@@ -274,14 +274,14 @@ bool HelpDialog::isValidCategory( QString category )
     QSettings settings;
     QStringList list = settings.readListEntry( "/Qt Assistant/categories/selected/" );
     QStringList::iterator it = list.begin();
-    for( ; it != list.end(); ++it ){ 
+    for( ; it != list.end(); ++it ){
 	QString cat(*it);
-	cat = cat.lower();	
+	cat = cat.lower();
 	if( (cat == category.lower()) || ( cat == "all" ) )
 	    return TRUE;
     }
     return FALSE;
-}    
+}
 
 void HelpDialog::loadIndexFile()
 {
@@ -298,17 +298,17 @@ void HelpDialog::loadIndexFile()
     QSettings settings;
     QStringList addDocuPath = settings.readListEntry( "/Qt Assistant/additionalDocu/Path" );
     QStringList::iterator i = addDocuPath.begin();
-    
+
     int steps = QFileInfo( indexFile ).size();
     for( ; i != addDocuPath.end(); i++ )
 	steps += QFileInfo( *i + "index.xml" ).size();
-    
+
     QProgressBar *bar = progressPrepare;
     bar->setTotalSteps( steps );
     bar->setProgress( 0 );
 
     HelpNavigationListItem *lastItem = 0;
-    
+
     //### if constructed on stack, it will crash on WindowsNT
     QValueList<SortableString>* lst = new QValueList<SortableString>;
     bool buildDb = TRUE;
@@ -341,25 +341,25 @@ void HelpDialog::loadIndexFile()
 		qApp->processEvents();
 		if ( lastWindowClosed() )
 		    break;
-		QString l = ts.readLine();		
+		QString l = ts.readLine();
 		if ( l.find( "::" ) != -1 ) {
 		    int i = l.find( "\"" ) + 1;
-		    l.remove( i, l.find( "::" ) + 2 - i );		    
-		}		
-		
+		    l.remove( i, l.find( "::" ) + 2 - i );
+		}
+
 		QString buf( l );
 		l.remove( 0, l.find( "\"", 1 ) + 2 );
 		buf.remove( buf.find( "\"", 1 ) + 1, buf.length() );
-		l = buf + " " + documentationPath + "/" + l;		
-		
+		l = buf + " " + documentationPath + "/" + l;
+
 		lst->append( l );
-		
+
 		if ( bar )
 		    bar->setProgress( bar->progress() + l.length() * 1.3 );
 	    }
-	    
-	    for( i = addDocuPath.begin(); i != addDocuPath.end(); i++ ){	
-		DocuIndexParser handler;		
+
+	    for( i = addDocuPath.begin(); i != addDocuPath.end(); i++ ){
+		DocuIndexParser handler;
 		QFile file( *i + "index.xml" );
 		QXmlInputSource source( file );
 		QXmlSimpleReader reader;
@@ -368,8 +368,8 @@ void HelpDialog::loadIndexFile()
 		bool ok = reader.parse( source );
 		file.close();
 		if( !ok ){
-		    QMessageBox::critical( this, "Parse Error", 
-				 handler.errorProtocol() 
+		    QMessageBox::critical( this, "Parse Error",
+				 handler.errorProtocol()
 				 + "\nSkipping file " + *i + "index.xml" );
 		}
 		else{
@@ -379,18 +379,18 @@ void HelpDialog::loadIndexFile()
 		    QStringList::Iterator j = indexlist.begin();
 		    for( ; j != indexlist.end(); j++ ){
 			QString l( *j );
-			
+
 			QString buf( l );
 			l.remove( 0, l.find( "\"", 1 ) + 2 );
 			buf.remove( buf.find( "\"", 1 ) + 1, buf.length() );
 			l = buf + " " + *i + l;
-			
+
 			lst->append( l );
-			bar->setProgress( bar->progress() + (*j).length() * 3 );    
+			bar->setProgress( bar->progress() + (*j).length() * 3 );
 		    }
 		}
 	    }
-	    	    
+
 	    if ( lastWindowClosed() ) {
 		delete lst;
 		return;
@@ -493,10 +493,10 @@ void HelpDialog::setupTitleMap()
 	    link = documentationPath + "/" + link;
 	    titleMap[ link ] = title.stripWhiteSpace();
 	}
-			
+
 	QSettings settings;
 	QStringList docuPath = settings.readListEntry( "/Qt Assistant/additionalDocu/Path" );
-	
+
 	for( QStringList::iterator it=docuPath.begin(); it != docuPath.end(); it++ ){
 	    DocuIndexParser handler;
 	    QFile file( *it + "index.xml" );
@@ -520,9 +520,9 @@ void HelpDialog::setupTitleMap()
 		    link = *it + link;
 		    titleMap[ link ] = title.stripWhiteSpace();
 		}
-	    }	    
+	    }
 	}
-	
+
 	QFile titleout( QDir::homeDirPath() + "/.titlemapdb" + num );
 	if ( titleout.open( IO_WriteOnly ) ) {
 	    QDataStream s( &titleout );
@@ -584,7 +584,7 @@ void HelpDialog::showIndexTopic()
 	for ( ; it != links.end(); ++it ) {
 	    linkList << *it;
 	    linkNames << titleOfLink( *it );
-	}	
+	}
 	QString link = TopicChooser::getLink( this, linkNames, linkList, i->text() );
 	if ( !link.isEmpty() )
 	    emit showLink( link, i->text() );
@@ -737,7 +737,7 @@ void HelpDialog::insertContents()
     qtDocu->setText( 0, tr( "Qtopia Desktop Documentation" ) );
     qtDocu->setLink( documentationPath + "/qtopiadesktop.html" );
     qtDocu->setPixmap( 0, *bookPixmap );
-#else    
+#else
     qtDocu = new HelpNavigationContentsItem( listContents, 0 );
     qtDocu->setText( 0, tr( "Qt Reference Documentation" ) );
     qtDocu->setLink( documentationPath + "/index.html" );
@@ -754,18 +754,18 @@ void HelpDialog::insertContents()
     assistantDocu->setText( 0, tr( "Qt Assistant Manual" ) );
     assistantDocu->setLink( documentationPath + "/assistant.html" );
     assistantDocu->setPixmap( 0, *bookPixmap );
-    
-    QSettings settings;  
+
+    QSettings settings;
     QStringList addDocuPath = settings.readListEntry( "/Qt Assistant/additionalDocu/Path" );
     QStringList::iterator i = addDocuPath.begin();
-    for( ; i != addDocuPath.end(); i++ ){	
-	HelpNavigationContentsItem *additionalDocu;	
+    for( ; i != addDocuPath.end(); i++ ){
+	HelpNavigationContentsItem *additionalDocu;
 	QMimeSourceFactory *mime = QMimeSourceFactory::defaultFactory();
 	mime->addFilePath( *i );
 	mime->setExtensionType("html","text/html;charset=UTF-8");
 	mime->setExtensionType("png", "image/png" );
 	mime->setExtensionType("jpg", "image/jpeg" );
-	mime->setExtensionType("jpeg", "image/jpeg" );	
+	mime->setExtensionType("jpeg", "image/jpeg" );
 	additionalDocu = new HelpNavigationContentsItem( listContents, 0 );
 	additionalDocu->setPixmap( 0, *bookPixmap );
 	bool ok = insertContents( *i, "contents.xml", additionalDocu );
@@ -773,7 +773,7 @@ void HelpDialog::insertContents()
 	    delete additionalDocu;
     }
 #endif
-    
+
     HelpNavigationContentsItem *lastItem = 0;
     HelpNavigationContentsItem *lastGroup = 0;
 
@@ -853,78 +853,79 @@ void HelpDialog::insertContents()
 	}
     }
     delete lst;
-#ifdef QT_PALMTOPCENTER_DOCS	
+#ifdef QT_PALMTOPCENTER_DOCS
     settings.insertSearchPath( QSettings::Unix,
 			       QDir::homeDirPath() + "/.palmtopcenter/" );
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
 
 //     QString basePath;
-//     basePath = settings.readEntry( "/palmtopcenter/qtopiadir", QString::null, &okay );    
+//     basePath = settings.readEntry( "/palmtopcenter/qtopiadir", QString::null, &okay );
     QString manualdir = "qtopiadesktop.html";
     insertContents( manualdir, tr( "Qtopia Desktop Manual" ), lastItem, handbook );
-#else    
-    QString manualdir = QString( getenv( "QTDIR" ) ) + "/doc/html/designer-manual.html";
+#else
+    QString base( QT_INSTALL_DOCS );
+    QString manualdir = base + "/html/designer-manual.html";
     insertContents( manualdir, tr( "Qt Designer Manual" ), lastItem, handbook );
-    manualdir = QString( getenv( "QTDIR" ) ) + "/doc/html/linguist-manual.html";
+    manualdir = base + "/html/linguist-manual.html";
     insertContents( manualdir, tr( "Qt Linguist Manual" ), lastItem, linguistDocu );
-    manualdir = QString( getenv( "QTDIR" ) ) + "/doc/html/assistant.html";
+    manualdir = base + "/html/assistant.html";
     insertContents( manualdir, tr( "Qt Assistant" ), lastItem, assistantDocu );
 #endif
 }
 
-bool HelpDialog::insertContents( QString additionalPath, const QString &filename, 
+bool HelpDialog::insertContents( QString additionalPath, const QString &filename,
 				 HelpNavigationContentsItem *newEntry )
-{       
+{
     QFile xmlFile( additionalPath + filename );
     QXmlInputSource source( &xmlFile );
     QXmlSimpleReader reader;
     DocuContentParser *handler = new DocuContentParser();
     reader.setContentHandler( handler );
     reader.setErrorHandler( handler );
-    bool ok = reader.parse( source );    
+    bool ok = reader.parse( source );
     xmlFile.close();
     if( !ok ){
 	QMessageBox::critical( this, "Parse Error", handler->errorProtocol() );
 	return FALSE;
     }
-    
-    if( !isValidCategory( handler->getCategory() )) 	
-	return FALSE;    
-    
+
+    if( !isValidCategory( handler->getCategory() ))
+	return FALSE;
+
     HelpNavigationContentsItem *contentEntry;
     QPtrStack<HelpNavigationContentsItem> stack;
     stack.clear();
     int depth = 0;
-    bool root = FALSE;    
+    bool root = FALSE;
     QPtrList<ContentItem> contentList = handler->getContentItems();
     ContentItem *item;
-    for( item = contentList.first(); item; item = contentList.next() ){	
+    for( item = contentList.first(); item; item = contentList.next() ){
 	if( item->getDepth() == 0 ){
 	    newEntry->setText( 0, tr( item->getContentName() ));
 	    newEntry->setLink( additionalPath + item->getContentRef() );
 	    stack.push( newEntry );
 	    depth = 1;
 	    root = TRUE;
-	}	
+	}
 	else{
 	    if( (item->getDepth() > depth) && (root) ){
 		depth = item->getDepth();
 		stack.push( contentEntry );
-	    }	    
+	    }
 	    if( item->getDepth() == depth ){
 		contentEntry = new HelpNavigationContentsItem( stack.top(), 0 );
 		contentEntry->setText( 0, tr( item->getContentName() ));
 		contentEntry->setLink( additionalPath + item->getContentRef() );
-	    }	    
+	    }
 	    else if( item->getDepth() < depth ){
 		stack.pop();
 		depth--;
 		item = contentList.prev();
-	    }    
-	}	
+	    }
+	}
     }
     newEntry->sortChildItems( 1, FALSE );
-    return TRUE;        
+    return TRUE;
 }
 
 void HelpDialog::insertContents( const QString &filename, const QString &titl,
