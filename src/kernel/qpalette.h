@@ -18,7 +18,6 @@
 #ifndef QT_H
 #include "qwindowdefs.h"
 #include "qcolor.h"
-#include "qshared.h"
 #include "qbrush.h" // QColor->QBrush conversion
 #endif // QT_H
 

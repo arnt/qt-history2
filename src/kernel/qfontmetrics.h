@@ -17,7 +17,9 @@
 
 #ifndef QT_H
 #include "qfont.h"
+#ifndef QT_INCLUDE_COMPAT
 #include "qrect.h"
+#endif
 #endif // QT_H
 
 #ifdef Q_WS_QWS
@@ -25,6 +27,7 @@ class QFontEngine;
 #endif
 
 class QTextCodec;
+class QRect;
 
 class Q_GUI_EXPORT QFontMetrics
 {

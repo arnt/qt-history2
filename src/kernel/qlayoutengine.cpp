@@ -16,6 +16,7 @@
 #include "private/qlayoutengine_p.h"
 
 #include "qvector.h"
+#include "qwidget.h"
 
 #ifndef QT_NO_LAYOUT
 

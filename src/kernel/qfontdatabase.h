@@ -18,18 +18,18 @@
 #ifndef QT_H
 #include "qwindowdefs.h"
 #include "qstring.h"
-#include "qstringlist.h"
 #include "qfont.h"
+#ifdef QT_COMPAT
+#include "qstringlist.h"
 #include "qlist.h"
+#endif
 #endif // QT_H
 
 
 #ifndef QT_NO_FONTDATABASE
 
-class QFontStylePrivate; /* Don't touch! */
-struct QtFontStyle;
-struct QtFontFamily;
-struct QtFontFoundry;
+class QStringList;
+template <class T> class QList;
 struct QFontDef;
 class QFontEngine;
 #ifdef Q_WS_QWS

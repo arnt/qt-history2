@@ -18,7 +18,10 @@
 #ifndef QT_H
 #include "qobject.h"
 #include "qsizepolicy.h"
+#include "qrect.h"
+#ifdef QT_INCLUDE_COMPAT
 #include "qwidget.h"
+#endif
 #endif // QT_H
 
 #include <limits.h>

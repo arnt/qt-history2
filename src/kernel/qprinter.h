@@ -18,7 +18,6 @@
 #ifndef QT_H
 #include "qpaintdevice.h"
 #include "qstring.h"
-#include "qstringlist.h"
 #endif // QT_H
 
 #ifndef QT_NO_PRINTER
@@ -163,7 +162,7 @@ private:
     bool prepare(PMPageFormat *);
     void interpret(PMPrintSettings *);
     void interpret(PMPageFormat *);
-    
+
     friend class QPrinterGC;
     bool printerBegin();
     bool printerEnd();

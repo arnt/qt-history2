@@ -16,16 +16,18 @@
 #define QIMAGE_H
 
 #ifndef QT_H
-#include "qlist.h"
-#include "qstringlist.h"
-#include "qiodevice.h"
 #include "qshared.h"
 #include "qrgb.h"
 #include "qrect.h"
-#ifndef QT_BUILD_KERNEL_LIB
-class QPixmap;
+#ifndef QT_INCLUDE_COMPAT
+#include "qiodevice.h"
+#include "qstringlist.h"
 #endif
 #endif // QT_H
+
+class QIODevice;
+class QStringList;
+template <class T> class QList;
 
 class QImageDataMisc; // internal
 #ifndef QT_NO_IMAGE_TEXT

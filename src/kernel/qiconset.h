@@ -16,13 +16,19 @@
 #define QICONSET_H
 
 #ifndef QT_H
+#include "qglobal.h"
+#ifdef QT_INCLUDE_COMPAT
 #include "qobject.h"
 #include "qpixmap.h"
+#endif
 #endif // QT_H
 
 #ifndef QT_NO_ICONSET
 
+class QPixmap;
 class QIconSetData;
+class QString;
+class QSize;
 
 class Q_GUI_EXPORT QIconSet
 {

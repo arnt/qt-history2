@@ -17,7 +17,6 @@
 
 #ifndef QT_H
 #include "qwindowdefs.h"
-#include "qlist.h"
 #endif // QT_H
 
 #ifndef QT_NO_MIME
@@ -25,6 +24,7 @@
 class QImageDrag;
 class QTextDrag;
 template<class Key, class T> class QMap;
+template<class T> class QList;
 
 class Q_GUI_EXPORT QMimeSource
 {

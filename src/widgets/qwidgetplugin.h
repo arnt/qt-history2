@@ -16,6 +16,7 @@
 #define QWIDGETPLUGIN_H
 
 #ifndef QT_H
+#include "qwindowdefs.h"
 #include "qgplugin.h"
 #include "qstringlist.h"
 #include "qiconset.h"

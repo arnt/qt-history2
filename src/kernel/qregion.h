@@ -18,8 +18,9 @@
 #ifndef QT_H
 #include "qatomic.h"
 #include "qrect.h"
-#include "qvector.h"
 #endif // QT_H
+
+template <class T> class QVector;
 
 #if defined(Q_WS_QWS) || defined(Q_WS_X11) || defined(Q_WS_MAC)
 struct QRegionPrivate;

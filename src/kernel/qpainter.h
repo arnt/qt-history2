@@ -22,20 +22,27 @@
 #include "qnamespace.h"
 #include "qrect.h"
 #include "qpoint.h"
-#include "qpointarray.h"
 #include "qpixmap.h"
+#include "qimage.h"
+
+#ifndef QT_INCLUDE_COMPAT
+#include "qpointarray.h"
 #include "qpen.h"
 #include "qbrush.h"
 #include "qwmatrix.h"
-#include "qimage.h"
-
 #include "qfontinfo.h"
 #include "qfontmetrics.h"
+#endif
 
 class QPaintDevice;
 class QPainterPrivate;
 class QTextParag;
-
+class QPointArray;
+class QPen;
+class QBrush;
+class QWMatrix;
+class QFontInfo;
+class QFontMetrics;
 
 class Q_GUI_EXPORT QPainter : public Qt
 {
