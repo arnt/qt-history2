@@ -5,7 +5,7 @@
 **
 ** Created : 931029
 **
-** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -3271,8 +3271,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
     }
 
     int xkey_keycode = event->xkey.keycode;
-    extern int compose_keycode; // in qinputcontext_x11.cpp
-    compose_keycode = xkey_keycode;
+    extern int qt_compose_keycode; // in qinputcontext_x11.cpp
+    qt_compose_keycode = xkey_keycode;
     if ( XFilterEvent( event, keywidget ? keywidget->topLevelWidget()->winId() : None ) ) {
 	if ( keywidget )
 	    composingKeycode = xkey_keycode; // ### not documented in xlib

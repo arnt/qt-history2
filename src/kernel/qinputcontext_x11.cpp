@@ -42,7 +42,7 @@
 #include <limits.h>
 
 
-static int compose_keycode = 0;
+int qt_compose_keycode = 0;
 
 #if !defined(QT_NO_XIM)
 
@@ -139,7 +139,7 @@ extern "C" {
 	    qic->text.remove(drawstruct->chg_first, drawstruct->chg_length);
 
 	    KeySym sym = XKeycodeToKeysym(QPaintDevice::x11AppDisplay(),
-					  compose_keycode, 0);
+					  qt_compose_keycode, 0);
 
 	    if ( qic->text.isEmpty() ) {
 		if ( sym == XK_Return ) {
