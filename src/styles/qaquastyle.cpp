@@ -539,6 +539,9 @@ void QAquaStyle::polish( QWidget * w )
 {
     d->addWidget(w);
 
+    if(w->inherits("QLineEdit")) 
+	((QLineEdit *)w)->setLineWidth(3);
+
     if( w->inherits("QToolButton") ){
         QToolButton * btn = (QToolButton *) w;
         btn->setAutoRaise( FALSE );
@@ -622,6 +625,27 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 				   const QStyleOption& opt ) const
 {
     switch( pe ) {
+    case PE_PanelLineEdit:
+	//Top
+	p->setPen(QColor(120, 124, 120));
+	p->drawLine(r.x(), r.y(), r.right(), r.y());
+	p->setPen(QColor(192, 192, 192));
+	p->drawLine(r.x(), r.y() + 1, r.right(), r.y() + 1);
+	p->setPen(QColor(240, 240, 240));
+	p->drawLine(r.x() + 2, r.y() + 2, r.right() - 4, r.y() + 2);
+	//Bottom
+	p->setPen(QColor(200, 204, 200));
+	p->drawLine(r.x() + 1, r.bottom(), r.right() - 2, r.bottom());
+	p->setPen(QColor(232, 236, 232));
+	p->drawLine(r.x() + 2, r.bottom() - 1, r.right() - 4, r.bottom() - 1);
+	//Left/Right
+	p->setPen(QColor(184, 184, 184));
+	p->drawLine(r.x(), r.y() + 1, r.x(), r.bottom());
+	p->drawLine(r.right(), r.y() + 1, r.right(), r.bottom());
+	p->setPen(QColor(224, 224, 224));
+	p->drawLine(r.x() + 1, r.y() + 2, r.x() + 1, r.bottom() - 1);
+	p->drawLine(r.right() - 1, r.y() + 2, r.right() - 1, r.bottom() - 1);
+	break;
     case PE_HeaderArrow:
 	if(flags & Style_Up)
 	    drawPrimitive(PE_ArrowUp, p, QRect(r.x(), r.y()+2, r.width(), r.height()-4), cg, 0, opt);

@@ -648,6 +648,7 @@ void QTextEdit::init()
     undoEnabled = TRUE;
     readonly = TRUE;
     setReadOnly( FALSE );
+    setFrameStyle( LineEditPanel | Sunken );
     d = new QTextEditPrivate;
     connect( doc, SIGNAL( minimumWidthChanged( int ) ),
 	     this, SLOT( documentWidthChanged( int ) ) );

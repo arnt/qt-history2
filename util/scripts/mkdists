@@ -845,12 +845,24 @@ for plat in mac win x11 embedded; do
 
 	#do the documentation
 	if [ "x$DO_DOC" = "xyes" ]; then
+	    for tdir in $DISTDIR/qt/tutorial/t*; do
+	        tutorial=`basename $a`
+		if [ -d "$tdir" ] && [ -e "${tdir}/${tutorial}.pro" ]; then
+		    (cd "$tdir" && $QMAKE_PATH)
+		fi
+            done
 	    status "Running qdoc.."
 	    QTDIR=$PLATDIR $QDOC_PATH $DISTDIR/qt/util/qdoc/qdoc.conf --warning-level=0 >/dev/null 2>&1 || die "could not run qdoc, stopped"
 	    find $PLATDIR/gif -exec mv {} $PLATDIR/doc/html/ \; >/dev/null 2>&1
 	    if [ "$plat" = "x11" ] || [ "$plat" = "embedded" ]; then
 		QTDIR=$PLATDIR/ $DISTDIR/qt/util/qdoc/man  $PLATDIR/ >/dev/null 2>&1 || die "could not run man, stopped"
 	    fi
+	    for tdir in $DISTDIR/qt/tutorial/t*; do
+	        tutorial=`basename $a`
+		if [ -d "$tdir" ] && [ -e "${tdir}/${tutorial}.pro" ] && [ -e "${tdir}/Makefile" ]; then
+		    rm -f $tdir/Makefile
+		fi
+            done
 	fi
 	if [ "$plat" = "win" ]; then
 	    rm -rf "$PLATDIR/doc/man"
