@@ -1046,8 +1046,8 @@ void QWidgetPrivate::updateInheritedBackground()
         return;
     q->repaint();
     for (int i = 0; i < children.size(); ++i)
-        if (children.at(i)->isWidgetType())
-            static_cast<QWidget*>(children.at(i))->d_func()->updateInheritedBackground();
+        if (QWidget *w = qobject_cast<QWidget *>(children.at(i)))
+            w->d_func()->updateInheritedBackground();
 #endif
 }
 
@@ -1066,8 +1066,7 @@ void QWidgetPrivate::updatePropagatedBackground(const QRegion *reg)
 {
 #ifndef Q_WS_MAC
     for (int i = 0; i < children.size(); ++i) {
-        if (children.at(i)->isWidgetType()) {
-            QWidget *w = static_cast<QWidget*>(children.at(i));
+        if (QWidget *w = qobject_cast<QWidget*>(children.at(i))) {
             if (reg && !reg->boundingRect().intersects(w->geometry()))
                 continue;
             w->d_func()->updateInheritedBackground();
@@ -1144,8 +1143,8 @@ void QWidgetPrivate::setUpdatesEnabled_helper(bool enable)
 
     Qt::WidgetAttribute attribute = enable ? Qt::WA_ForceUpdatesDisabled : Qt::WA_UpdatesDisabled;
     for (int i = 0; i < children.size(); ++i) {
-        QWidget *w = static_cast<QWidget *>(children.at(i));
-        if (w->isWidgetType() && !w->testAttribute(attribute))
+        QWidget *w = qobject_cast<QWidget *>(children.at(i));
+        if (w && !w->testAttribute(attribute))
             w->d_func()->setUpdatesEnabled_helper(enable);
     }
 }
@@ -1157,10 +1156,9 @@ void QWidgetPrivate::propagatePaletteChange()
     QApplication::sendEvent(q, &pc);
     if(!children.isEmpty()) {
         for(int i = 0; i < children.size(); ++i) {
-            QWidget *w = static_cast<QWidget*>(children.at(i));
-            if(!w->isWidgetType() || w->isWindow())
-                continue;
-            w->d_func()->resolvePalette();
+            QWidget *w = qobject_cast<QWidget*>(children.at(i));
+            if(w && !w->isWindow())
+                w->d_func()->resolvePalette();
         }
     }
 #if defined(QT3_SUPPORT)
@@ -1754,8 +1752,8 @@ void QWidgetPrivate::setEnabled_helper(bool enable)
 
     Qt::WidgetAttribute attribute = enable ? Qt::WA_ForceDisabled : Qt::WA_Disabled;
     for (int i = 0; i < children.size(); ++i) {
-        QWidget *w = static_cast<QWidget *>(children.at(i));
-        if (w->isWidgetType() && !w->testAttribute(attribute))
+        QWidget *w = qobject_cast<QWidget *>(children.at(i));
+        if (w && !w->testAttribute(attribute))
             w->d_func()->setEnabled_helper(enable);
     }
 #if defined(Q_WS_X11)
@@ -2046,9 +2044,9 @@ QRect QWidget::childrenRect() const
     Q_D(const QWidget);
     QRect r(0, 0, 0, 0);
     for (int i = 0; i < d->children.size(); ++i) {
-        QObject *obj = d->children.at(i);
-        if (obj->isWidgetType() && !((QWidget*)obj)->isExplicitlyHidden())
-            r = r.unite(((QWidget*)obj)->geometry());
+        QWidget *w = qobject_cast<QWidget *>(d->children.at(i));
+        if (w && !w->isExplicitlyHidden())
+            r |= w->geometry();
     }
     return r;
 }
@@ -2067,9 +2065,14 @@ QRegion QWidget::childrenRegion() const
     Q_D(const QWidget);
     QRegion r;
     for (int i = 0; i < d->children.size(); ++i) {
-        QObject *obj = d->children.at(i);
-        if (obj->isWidgetType() && !((QWidget*)obj)->isExplicitlyHidden())
-            r = r.unite(((QWidget*)obj)->geometry());
+        QWidget *w = qobject_cast<QWidget *>(d->children.at(i));
+        if (w && !w->isExplicitlyHidden()) {
+            QRegion mask = w->mask();
+            if (mask.isEmpty())
+                r |= w->geometry();
+            else
+                r |= mask;
+        }
     }
     return r;
 }
@@ -2724,10 +2727,9 @@ void QWidgetPrivate::setFont_helper(const QFont &font)
     data.fnt.x11SetScreen(xinfo.screen());
 #endif
     for (int i = 0; i < children.size(); ++i) {
-        QWidget *w = static_cast<QWidget*>(children.at(i));
-        if (!w->isWidgetType() || w->isWindow())
-            continue;
-        w->d_func()->resolveFont();
+        QWidget *w = qobject_cast<QWidget*>(children.at(i));
+        if (w && !w->isWindow())
+            w->d_func()->resolveFont();
     }
     QEvent e(QEvent::FontChange);
     QApplication::sendEvent(q, &e);
@@ -2745,10 +2747,9 @@ void QWidgetPrivate::setLayoutDirection_helper(Qt::LayoutDirection direction)
     q->setAttribute(Qt::WA_RightToLeft,  (direction == Qt::RightToLeft));
     if (!children.isEmpty()) {
         for (int i = 0; i < children.size(); ++i) {
-            QWidget *w = static_cast<QWidget*>(children.at(i));
-            if (!w->isWidgetType() || w->isWindow() || w->testAttribute(Qt::WA_SetLayoutDirection))
-                continue;
-            w->d_func()->setLayoutDirection_helper(direction);
+            QWidget *w = qobject_cast<QWidget*>(children.at(i));
+            if (w && !w->isWindow() && !w->testAttribute(Qt::WA_SetLayoutDirection))
+                w->d_func()->setLayoutDirection_helper(direction);
         }
     }
     QEvent e(QEvent::LayoutDirectionChange);
@@ -3945,13 +3946,10 @@ void QWidgetPrivate::showChildren(bool spontaneous)
 {
     QList<QObject*> childList = children;
     for (int i = 0; i < childList.size(); ++i) {
-        register QObject *object = childList.at(i);
-        if (!object->isWidgetType())
-            continue;
-        QWidget *widget = static_cast<QWidget*>(object);
-        if (widget->isWindow() )
-            continue;
-        if (widget->testAttribute(Qt::WA_WState_Hidden))
+        QWidget *widget = qobject_cast<QWidget*>(childList.at(i));
+        if (!widget
+            || widget->isWindow()
+            || widget->testAttribute(Qt::WA_WState_Hidden))
             continue;
         if (spontaneous) {
             widget->setAttribute(Qt::WA_Mapped);
@@ -3971,11 +3969,8 @@ void QWidgetPrivate::hideChildren(bool spontaneous)
 {
     QList<QObject*> childList = children;
     for (int i = 0; i < childList.size(); ++i) {
-        register QObject *object = childList.at(i);
-        if (!object->isWidgetType())
-            continue;
-        QWidget *widget = static_cast<QWidget*>(object);
-        if (widget->isWindow() || widget->testAttribute(Qt::WA_WState_Hidden))
+        QWidget *widget = qobject_cast<QWidget*>(childList.at(i));
+        if (!widget || widget->isWindow() || widget->testAttribute(Qt::WA_WState_Hidden))
             continue;
         if (spontaneous)
             widget->setAttribute(Qt::WA_Mapped, false);
@@ -4564,11 +4559,9 @@ bool QWidget::event(QEvent *e)
         }
         QList<QObject*> childList = d->children;
         for (int i = 0; i < childList.size(); ++i) {
-            QObject *o = childList.at(i);
-            if (o->isWidgetType()
-                && static_cast<QWidget*>(o)->isVisible()
-                && !static_cast<QWidget*>(o)->isWindow())
-                QApplication::sendEvent(o, e);
+            QWidget *w = qobject_cast<QWidget *>(childList.at(i));
+            if (w && w->isVisible() && !w->isWindow())
+                QApplication::sendEvent(w, e);
         }
         break; }
 
@@ -5403,11 +5396,10 @@ void QWidget::ensurePolished() const
     QCoreApplication::sendEvent(const_cast<QWidget *>(this), &e);
 
     // polish children after 'this'
-    QObject *child;
     QList<QObject*> children = d->children;
     for (int i = 0; i < children.size(); ++i)
-        if ((child = children.at(i))->isWidgetType())
-            static_cast<QWidget*>(child)->ensurePolished();
+        if (QWidget *w = qobject_cast<QWidget *>(children.at(i)))
+            w->ensurePolished();
 
     if (d->parent && d->sendChildEvents) {
         QChildEvent e(QEvent::ChildPolished, const_cast<QWidget *>(this));
@@ -5537,8 +5529,8 @@ QWidget *QWidget::childAt(const QPoint &p) const
     Q_D(const QWidget);
     for (int i = d->children.size(); i > 0 ;) {
         --i;
-        QWidget *w = static_cast<QWidget *>(d->children.at(i));
-        if (w->isWidgetType() && !w->isWindow() && !w->isExplicitlyHidden() && w->geometry().contains(p)) {
+        QWidget *w = qobject_cast<QWidget *>(d->children.at(i));
+        if (w && !w->isWindow() && !w->isExplicitlyHidden() && w->geometry().contains(p)) {
             if (QWidget *t = w->childAt(p.x() - w->x(), p.y() - w->y()))
                 return t;
             // if WMouseNoMask is set the widget mask is ignored, if
