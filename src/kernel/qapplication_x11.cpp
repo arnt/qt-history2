@@ -1393,10 +1393,13 @@ void qt_init( QApplicationPrivate *priv, int,
 
 	// Set application name and class
 	appName = qstrdup( "Qt-subapplication" );
-	const char* p = strrchr( priv->argv[0], '/' );
-	char *app_class = qstrdup(p ? p + 1 : priv->argv[0]);
-	if (app_class[0])
-	    app_class[0] = toupper(app_class[0]);
+	char *app_class = 0;
+	if (priv->argv) {
+	    const char* p = strrchr( priv->argv[0], '/' );
+	    app_class = qstrdup(p ? p + 1 : priv->argv[0]);
+	    if (app_class[0])
+		app_class[0] = toupper(app_class[0]);
+	}
 	appClass = app_class;
 
 	// Install default error handlers
@@ -1405,7 +1408,6 @@ void qt_init( QApplicationPrivate *priv, int,
     } else {
 	// Qt controls everything (default)
 
-	const char *p;
 	int argc = priv->argc;
 	char **argv = priv->argv;
 	int j;
@@ -1415,11 +1417,14 @@ void qt_init( QApplicationPrivate *priv, int,
 	original_xio_errhandler = XSetIOErrorHandler( qt_xio_errhandler );
 
 	// Set application name and class
-	p = strrchr( argv[0], '/' );
-	appName = p ? p + 1 : argv[0];
-	char *app_class = qstrdup(appName);
-	if (app_class[0])
-	    app_class[0] = toupper(app_class[0]);
+	char *app_class = 0;
+	if (argv) {
+	    const char *p = strrchr( argv[0], '/' );
+	    appName = p ? p + 1 : argv[0];
+	    app_class = qstrdup(appName);
+	    if (app_class[0])
+		app_class[0] = toupper(app_class[0]);
+	}
 	appClass = app_class;
 
 	// Get command line params
