@@ -223,12 +223,6 @@ void Graph::paintBar(QPaintEvent* event)
 	    int bh = int((h-h/4-1)*rowdata[0].dbl/max);
 	    p.drawRect( w/8+x, h-h/8-1-bh, bw, bh );
 
-	    // ### This causes a crash, so comment out for now
-	    /*if (model.colType(1) == GraphModel::Label) {
-		p.drawText(w/8+x, h-h/8, bw, fh+h/8,
-		    WordBreak|AlignTop|AlignHCenter,
-		    *rowdata[1].str);
-	    }*/
 	    i++;
 	    x+=bw;
 	}
