@@ -217,7 +217,7 @@ bool FileDriver::insert( const qdb::List& data )
     if ( !isOpen() )
 	return FALSE;
     if ( !data.count() ) {
-	ERROR_RETURN( "internal error:FileDriver::insert: no values!");
+	ERROR_RETURN( "internal error:FileDriver::insert: no values");
     }
     if ( (int)data.count() > d->file.FieldCount() ) {
 	ERROR_RETURN( "internal error:FileDriver::insert: too many values");
@@ -242,7 +242,7 @@ bool FileDriver::insert( const qdb::List& data )
 	    ERROR_RETURN( "internal error:FileDriver::insert: unknown field: " + name );
 	}
 	if ( !name.length() ) {
-	    ERROR_RETURN( "internal error:FileDriver::internal: unknown field number:" + QString::number(pos) );
+	    ERROR_RETURN( "internal error:FileDriver::insert: unknown field number:" + QString::number(pos) );
 	}
 	QVariant val = insertData[1];
 	if ( d->file.PutField( pos, val.toString().latin1() ) != XB_NO_ERROR ) {
@@ -481,23 +481,30 @@ bool FileDriver::update( const qdb::List& data )
 	ERROR_RETURN( "internal error:FileDriver::update: incorrect number of fields" );
     }
     if ( !data.count() ) {
-	ERROR_RETURN( "internal error:FileDriver::update: no values!");
+	ERROR_RETURN( "internal error:FileDriver::update: no update data");
     }
     uint i = 0;
     for ( ;  i < data.count(); ++i ) {
-	qdb::List updateData = data[i].toList();
-	if ( !updateData.count() ) {
-	    ERROR_RETURN( "internal error:FileDriver::update: no update data" );
+	QString name;
+	int pos;
+	if ( data[0].type() == QVariant::String || data[0].type() == QVariant::CString ) {
+	    name = data[0].toString();
+	    pos = d->file.GetFieldNo( name );
+	} else {
+	    pos = data[0].toInt();
+	    name = d->file.GetFieldName( pos );
 	}
-	QString name = updateData[0].toString();
-	int pos = d->file.GetFieldNo( name.latin1() );
 	if ( pos == -1 ) {
 	    ERROR_RETURN( "internal error:FileDriver::update: field not found:" + name );
 	}
-	if ( variantToXbaseType( updateData[1].type() ) != d->file.GetFieldType( pos ) ) {
-	    ERROR_RETURN( "internal error:FileDriver::update: invalid field type:" + name );
+	if ( !name.length() ) {
+	    ERROR_RETURN( "internal error:FileDriver::update: unknown field number:" + QString::number(pos) );
 	}
-	if ( d->file.PutField( pos, updateData[1].toString().latin1() ) != XB_NO_ERROR ) {
+	if ( variantToXbaseType( data[1].type() ) != d->file.GetFieldType( pos ) ) {
+	    ERROR_RETURN( "internal error:FileDriver::update: invalid field type:" +
+			  QString(data[1].typeName()) );
+	}
+	if ( d->file.PutField( pos, data[1].toString().latin1() ) != XB_NO_ERROR ) {
 	    ERROR_RETURN( "internal error:FileDriver::update: invalid field number or data:" + name);
 	}
 
@@ -520,7 +527,7 @@ bool FileDriver::rangeScan( const qdb::List& data )
 	ERROR_RETURN( "internal error:FileDriver::rangeScan: file not open" );
     }
     if ( !data.count() ) {
-	ERROR_RETURN( "internal error:FileDriver::rangeScan: no fields defined!");
+	ERROR_RETURN( "internal error:FileDriver::rangeScan: no fields defined");
     }
     d->marked.clear();
     bool forceScan = TRUE;
@@ -530,7 +537,7 @@ bool FileDriver::rangeScan( const qdb::List& data )
     for ( i = 0; i < data.count(); ++i ) {
 	qdb::List rangeScanFieldData = data[i].toList();
 	if ( rangeScanFieldData.count() != 2 ) {
-	    ERROR_RETURN( "internal error:FileDriver::rangeScanFieldData: bad field description!");
+	    ERROR_RETURN( "internal error:FileDriver::rangeScanFieldData: bad field description");
 	}
 	QString name = rangeScanFieldData[0].toString();
 	QVariant value = rangeScanFieldData[1];

@@ -875,10 +875,12 @@ public:
 
   Where each 'field data' is a value list of the form:
 
-  name
+  nameOrNumber
   data
 
-   The file must be open (see Open).
+  Where 'nameOrNumber' is the name of the field or the number of the
+  field within the file.  The file must be open (see Open).
+
 */
 
 class Update : public Label
