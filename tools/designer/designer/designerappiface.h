@@ -9,6 +9,7 @@
 
 class MainWindow;
 class FormList;
+class FormListItem;
 class FormWindow;
 class PropertyEditor;
 class QStatusBar;
@@ -31,24 +32,32 @@ public:
 class DesignerFormWindowInterfaceImpl : public DesignerFormWindowInterface
 {
 public:
-    DesignerFormWindowInterfaceImpl( FormWindow *fw, QUnknownInterface *parent, const char *name = 0 );
-
-    bool initialize();
+    DesignerFormWindowInterfaceImpl( FormListItem *fw, QUnknownInterface *parent );
 
     void save() const;
     void close() const;
     void undo() const;
     void redo() const;
+
+    QVariant requestProperty( const QCString &p );
+
+protected:
+    QObject *component() const;
+    void setFormListItem( FormListItem * );
+    FormListItem *formListItem() const;
+
+private:
+    FormListItem *item;
 };
 
 class DesignerActiveFormWindowInterfaceImpl : public DesignerFormWindowInterfaceImpl
 {
 public:
-    DesignerActiveFormWindowInterfaceImpl( FormList *fl, QUnknownInterface *parent, const char *name = 0 );
+    DesignerActiveFormWindowInterfaceImpl( FormList *fl, QUnknownInterface *parent );
 
     QString interfaceId() const { return createId( DesignerFormWindowInterface::interfaceId(), "DesignerActiveFormWindowInterface" ); }
 
-    bool initialize();
+    unsigned long addRef();
 
     bool requestConnect( const char* signal, QObject* target, const char* slot );
     bool requestConnect( QObject *sender, const char* signal, const char* slot );
@@ -82,6 +91,7 @@ private:
     
     QGuardedPtr<FormList> formList;
     QGuardedPtr<FormWindow> lastForm;
+    bool inReconnect;
 };
 
 class DesignerFormListInterfaceImpl : public DesignerFormListInterface
@@ -89,8 +99,8 @@ class DesignerFormListInterfaceImpl : public DesignerFormListInterface
 public:
     DesignerFormListInterfaceImpl( FormList *fl, QUnknownInterface* parent  );
 
-    bool initialize();
-    bool cleanup();
+    unsigned long addRef();
+    unsigned long release();
 
     const QPixmap* pixmap( DesignerFormWindowInterface*, int col ) const;
     void setPixmap( DesignerFormWindowInterface*, int col, const QPixmap& );
@@ -117,8 +127,7 @@ class DesignerWidgetListInterfaceImpl : public DesignerWidgetListInterface
 public:
     DesignerWidgetListInterfaceImpl( FormWindow *fw, QUnknownInterface *parent );
 
-    bool initialize();
-    bool cleanup();
+    unsigned long release();
 
     uint count() const;
     DesignerWidgetInterface* toFirst();
@@ -129,6 +138,7 @@ public:
     void removeAll() const;
 
     FormWindow *formWindow() const;
+    void setFormWindow( FormWindow* );
 
 private:
     QPtrDictIterator<QWidget> *dictIterator;
@@ -153,7 +163,7 @@ public:
 
     QString interfaceId() const { return createId( DesignerWidgetInterfaceImpl::interfaceId(), "DesignerActiveWidgetInterface" ); }
 
-    bool initialize();
+    unsigned long addRef();
 
 private:
     QGuardedPtr<PropertyEditor> propertyEditor;
@@ -163,17 +173,18 @@ private:
  * Application
  */
 
-class DesignerApplicationInterface : public QApplicationInterface
+class DesignerApplicationInterface : public QUnknownInterface
 {
 public:
     DesignerApplicationInterface();
 
-    QString interfaceId() const;
-
+    QString interfaceId() const { return createId( QUnknownInterface::interfaceId(), "DesignerApplicationInterface" ); }
+/*
     QString name() const { return "Qt Designer"; }
     QString description() const { return "GUI Editor for the Qt Toolkit"; }
     QString version() const { return "1.1"; }
     QString author() const { return "Trolltech"; }
+*/
 };
 
 #endif

@@ -3597,14 +3597,16 @@ void MainWindow::setupActionManager()
 {
     QString dir = getenv( "QTDIR" );
     dir += "/plugins";
-    actionPluginManager = new QInterfaceManager<ActionInterface>( "ActionInterface", dir, "*.dll; *.so", new DesignerApplicationInterface );
-
+    DesignerApplicationInterface *appInterface = new DesignerApplicationInterface;
+    actionPluginManager = new QInterfaceManager<ActionInterface>( "ActionInterface", dir, "*.dll; *.so" );
+    
     QStringList lst = actionPluginManager->featureList();
     for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
 	ActionInterface *iface = actionPluginManager->queryInterface( *it );
 	if ( !iface )
 	    continue;
 
+	iface->connectTo( appInterface );
 	QAction *a = iface->create( *it, this );
 	if ( !a )
 	    continue;

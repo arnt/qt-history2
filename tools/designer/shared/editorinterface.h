@@ -8,8 +8,8 @@ class QWidget;
 class EditorInterface : public QUnknownInterface
 {
 public:
-    EditorInterface( QUnknownInterface *parent = 0, const char *name = 0 )
-	: QUnknownInterface( parent, name ) {}
+    EditorInterface( QUnknownInterface *parent = 0 )
+	: QUnknownInterface( parent ) {}
 
     virtual QStringList featureList() const = 0;
     QString interfaceId() const { return createId( QUnknownInterface::interfaceId(), "EditorInterface" ); }
