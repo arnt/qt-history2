@@ -599,6 +599,7 @@ void QPainter::updateBrush()
 		s = HS_HORIZONTAL;
 	}
 	hbrush = CreateHatchBrush( s, pix );
+    }
 #else
     } else {
 	if ( bs == CustomPattern ) {
