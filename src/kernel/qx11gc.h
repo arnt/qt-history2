@@ -82,6 +82,9 @@ protected:
     void cloneX11Data(const QX11GC *);
     virtual void setX11Data(const QX11GCData *);
     QX11GCData* getX11Data(bool def = FALSE) const;
+    
+    friend void qt_init( QApplicationPrivate *, int, Display *, Qt::HANDLE, Qt::HANDLE );
+    friend void qt_cleanup();
 
 private:
     static Display *x_appdisplay;

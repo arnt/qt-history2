@@ -315,11 +315,13 @@ inline bool QPaintDevice::paintingActive() const
 { return painters != 0; }
 
 #if defined(Q_WS_X11)
+#ifndef Q_Q4PAINTER
 inline Display *QPaintDevice::x11Display() const
 { return x11Data ? x11Data->x_display : x_appdisplay; }
 
 inline int QPaintDevice::x11Screen() const
 { return x11Data ? x11Data->x_screen : x_appscreen; }
+#endif
 
 inline int QPaintDevice::x11Depth() const
 { return x11Data ? x11Data->x_depth : x_appdepth; }

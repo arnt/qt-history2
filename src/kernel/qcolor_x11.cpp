@@ -22,6 +22,11 @@
 #define QT_NO_DEFINE_DQ
 #include "qapplication_p.h"
 
+#ifdef Q_Q4PAINTER
+#include "qx11gc.h"
+#define QPaintDevice QX11GC
+#endif
+
 // NOT REVISED
 
 /*****************************************************************************

@@ -20,6 +20,15 @@
 #include "qapplication.h"
 #include "qt_x11_p.h"
 
+#ifdef Q_Q4PAINTER
+#include "qx11gc.h"
+
+inline Display *QPaintDevice::x11Display() const
+{ return x11Data ? x11Data->x_display : QX11GC::x11AppDisplay(); }
+
+inline int QPaintDevice::x11Screen() const
+{ return x11Data ? x11Data->x_screen : QX11GC::x11AppScreen(); }
+#endif
 
 /*!
     \class QPaintDevice qpaintdevice.h

@@ -29,11 +29,6 @@
 #include "qt_x11_p.h"
 #include <stdlib.h>
 
-#ifdef Q_Q4PAINTER
-#include "qx11gc.h"
-#endif
-
-
 // NOT REVISED
 
 // defined in qapplication_x11.cpp
@@ -62,6 +57,11 @@ static QWidget *keyboardGrb = 0;
 extern Time qt_x_time;
 
 int qt_x11_create_desktop_on_screen = -1;
+
+#ifdef Q_Q4PAINTER
+#include "qx11gc.h"
+#define QPaintDevice QX11GC
+#endif
 
 /*****************************************************************************
   QWidget member functions
@@ -1397,6 +1397,9 @@ void QWidget::repaint(const QRegion& r)
 			  && br.width()  <= QX11DoubleBuffer::MaxWidth
 			  && br.height() <= QX11DoubleBuffer::MaxHeight);
 
+#ifdef Q_Q4PAINTER // won't work yet...
+    double_buffer = false;
+#endif    
     HANDLE old_hd = hd;
     HANDLE old_rendhd = rendhd;
 

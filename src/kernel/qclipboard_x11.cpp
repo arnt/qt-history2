@@ -52,6 +52,10 @@
 #include "qapplication_p.h"
 #include "qevent.h"
 
+#ifdef Q_Q4PAINTER
+#include "qx11gc.h"
+#define QPaintDevice QX11GC
+#endif
 
 // REVISED: arnt
 

@@ -25,6 +25,11 @@
 #  include <X11/Xcursor/Xcursor.h>
 #endif // QT_NO_XCURSOR
 
+#ifdef Q_Q4PAINTER
+#include "qx11gc.h"
+#define QPaintDevice QX11GC
+#endif
+
 // Define QT_USE_APPROXIMATE_CURSORS when compiling if you REALLY want to
 // use the ugly X11 cursors.
 

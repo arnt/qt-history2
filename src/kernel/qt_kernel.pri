@@ -292,6 +292,7 @@ newpainter {
 
 	SOURCES += $$KERNEL_CPP/qx11gc.cpp
 
-	HEADERS += $$KERNEL_H/qx11gc.h
+	HEADERS += $$KERNEL_H/qx11gc.h \
+		   $$KERNEL_P/qx11gc_p.h
     }
 }

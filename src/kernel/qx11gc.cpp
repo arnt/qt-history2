@@ -25,6 +25,8 @@
 
 #include <math.h>
 
+#include "qx11gc_p.h"
+
 //
 // Some global variables - these are initialized by QColor::initialize()
 //
@@ -564,66 +566,6 @@ void qt_draw_transformed_rect( QPainter *p,  int x, int y, int w,  int h, bool f
 // ########
 
 /*
- * QX11GCPrivate
- */
-
-struct QX11GCPrivate {
-    QX11GCPrivate()
-	{
-	    dpy = 0;
-	    scrn = -1;
-	    hd = 0;
-	    rendhd = 0;
-//  	    flags = Qt::IsStartingUp;
-	    bg_col = Qt::white;                             // default background color
- 	    bg_mode = Qt::TransparentMode;                  // default background mode
-	    rop = Qt::CopyROP;                                // default ROP
-	    tabstops = 0;                               // default tabbing
-	    tabarray = 0;
-	    tabarraylen = 0;
-	    ps_stack = 0;
-	    wm_stack = 0;
-	    gc = gc_brush = 0;
-	    pdev = 0;
-	    dpy  = 0;
-// 	    txop = txinv = 0;
-	    penRef = brushRef = 0;
-	    clip_serial = 0;
-// 	    pfont = 0;
-// 	    block_ext = false;
-	}
-    Display *dpy;
-    int scrn;
-    Qt::HANDLE hd;
-    Qt::HANDLE rendhd;
-    GC gc;
-    GC gc_brush;
-
-    QColor bg_col;
-    uchar bg_mode;
-    Qt::RasterOp rop;
-//     uchar pu;
-//     QPoint bro;
-//     QFont cfont;
-//     QFont *pfont; 	// font used for metrics (might be different for printers)
-    QPen cpen;
-    QBrush cbrush;
-    QBrush bg_brush;
-    QRegion crgn;
-    int tabstops;
-    int *tabarray;
-    int tabarraylen;
-
-    void *penRef;
-    void *brushRef;
-    void *ps_stack;
-    void *wm_stack;
-    uint clip_serial;
-    QPaintDevice *pdev; // tmp - QPaintDevice
-};
-
-
-/*
  * QX11GC members
  */
 
@@ -645,22 +587,15 @@ QX11GC::~QX11GC()
 
 void QX11GC::initialize()
 {
-    // tmp stuff - these will be inited from QApplication etc. when
-    // putting it into main
-    static bool doInit = true;
-    if (doInit) {
-	QX11GC::x_appdisplay = QPaintDevice::x11AppDisplay();
-	QX11GC::x_appscreen = QPaintDevice::x11AppScreen();
-	init_gc_array();
-	init_gc_cache();
-	doInit = false;
-    }
+    init_gc_array();
+    init_gc_cache();
 }
 
 void QX11GC::cleanup()
 {
     cleanup_gc_cache();
     cleanup_gc_array(QX11GC::x_appdisplay);
+    QPointArray::cleanBuffers();
 }
 
 bool QX11GC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
@@ -698,12 +633,12 @@ bool QX11GC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
 //     else if ( dt == QInternal::Pixmap )         // device is a pixmap
 //         ((QPixmap*)pdev)->detach();             // will modify it
 
-    d->dpy = d->pdev->x11Display();                   // get display variable
-    d->scrn = d->pdev->x11Screen();			// get screen variable
-    d->hd = d->pdev->handle();                       // get handle to drawable - NB! double buffering might change the handle
+    d->dpy = x11Display();                   // get display variable
+    d->scrn = x11Screen();			// get screen variable
+    d->hd = handle();                       // get handle to drawable - NB! double buffering might change the handle
     d->rendhd = d->pdev->x11RenderHandle();
 
-    if (d->pdev->x11Depth() != d->pdev->x11AppDepth( d->scrn)) { // non-standard depth
+    if (x11Depth() != x11AppDepth( d->scrn)) { // non-standard depth
         setf(NoCache);
         setf(UsePrivateCx);
     }
@@ -1259,25 +1194,6 @@ QX11GCData* QX11GC::getX11Data(bool def) const
     return res;
 }
 
-static const short ropCodes[] = {                     // ROP translation table
-    GXcopy, // CopyROP
-    GXor, // OrROP
-    GXxor, // XorROP
-    GXandInverted, // NotAndROP EraseROP
-    GXcopyInverted, // NotCopyROP
-    GXorInverted, // NotOrROP
-    GXequiv, // NotXorROP
-    GXand, // AndROP
-    GXinvert, // NotROP
-    GXclear, // ClearROP
-    GXset, // SetROP
-    GXnoop, // NopROP
-    GXandReverse, // AndNotROP
-    GXorReverse, // OrNotROP
-    GXnand, // NandROP
-    GXnor // NorROP
-};
-
 void QX11GC::setRasterOp(RasterOp r)
 {
     if (!isActive()) {
@@ -1816,3 +1732,24 @@ Qt::HANDLE QX11GC::handle() const
     Q_ASSERT(d->hd);
     return d->hd;
 }
+
+int QX11GC::x11AppDpiX(int screen )
+{
+    
+}
+
+void QX11GC::x11SetAppDpiX(int screen, int xdpi)
+{
+    
+}
+
+int QX11GC::x11AppDpiY(int screen )
+{
+    
+}
+
+void QX11GC::x11SetAppDpiY(int screen, int ydpi)
+{
+    
+}
+
