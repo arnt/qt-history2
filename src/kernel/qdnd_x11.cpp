@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#56 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#57 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -821,6 +821,18 @@ bool qt_xdnd_handle_badwindow()
 }
 
 
+/*!
+  \class QDragMoveEvent qevent.h
+  \brief Event sent as a drag-and-drop is in progress.
+
+  When a widgets \link QWidget::setAcceptDrops() accepts drop events\endlink,
+  it will receive this event repeatedly while the the drag is inside that
+  widget.  The widget should examine the event, especially
+  seeing what data it \link QDragMoveEvent::provides provides\endlink,
+  and accept() the drop if appropriate.
+*/
+
+
 /*!  Returns a string describing one of the available data types for
   this drag.  Common examples are "text/plain" and "image/gif".  If \a
   n is less than zero or greater than the number of available data
@@ -987,12 +999,28 @@ QByteArray QDragMoveEvent::data( const char *format )
 }
 
 
+/*!
+  \class QDropEvent qevent.h
+  \brief Event sent when a drag-and-drop is completed.
+
+  When a widgets \link QWidget::setAcceptDrops() accepts drop events\endlink,
+  it will receive this event if it has accepted the most recent
+  QDragEnterEvent or QDragMoveEvent sent to it.
+
+  The widget should use data() to extract data in an
+  appropriate format.
+*/
+
+
 /*!  Returns a byte array containing the payload data of this drag, in
   \a format.
 
   data() normally needs to get the data from the drag source, which is
   potentially very slow, so it's advisable to call this function only
   if you're sure that you will need the data in \a format.
+
+  The resulting data will have a \link QByteArray::size() size\endlink
+  of 0 if the format was not available.
 
   \sa QDragMoveEvent::data() QDragMoveEvent::format()
 */

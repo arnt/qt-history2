@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#285 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#286 $
 **
 ** Implementation of QWidget class
 **
@@ -263,11 +263,16 @@
   <li> paintEvent() - called whenever the widget needs to be
   repainted.  Every widget which displays output must implement it,
   and it is sensible to \e never paint on the screen outside
-  paintEvent().  You are guaranteed to receive a paint event
-  immediately after every resize events, and at once when the widget
+  paintEvent().
+  The widget is guaranteed to receive a paint event when the widget
   is first shown.
+  Unless the widget was created with the
+  WResizeNoErase flag, the widget will also receive a paint event
+  immediately after every resize events
 
   <li> resizeEvent() - called when the widget has been resized.
+  For widgets created with the WResizeNoErase flag,
+  see the full documentation for resizeEvent() for details.
 
   <li> mousePressEvent() - called when a mouse button is pressed.
   There are six mouse-related events, mouse press and mouse release
@@ -2810,6 +2815,7 @@ QSize QWidget::sizeHint() const
   <dt>WPaintClever<dd> The widget wants every update rectangle.
   <dt>WConfigPending<dd> Config (resize,move) event pending.
   <dt>WResizeNoErase<dd> Widget resizing should not erase the widget.
+			This allows smart-repainting to avoid flicker.
   <dt>WReparented<dd> The widget has been reparented.
   <dt>WExportFontMetrics<dd> Somebody refers the font's metrics.
   <dt>WExportFontInfo<dd> Somebody refers the font's info.
@@ -3274,9 +3280,22 @@ void QWidget::moveEvent( QMoveEvent * )
   widget resize events.	 When resizeEvent() is called, the widget
   already has its new geometry.
 
+  If the widget was created with the WResizeNoErase flag, this handler
+  is responsible for calling update() for all areas in the \link
+  QResizeEvent::oldSize() previous area\endlink of the widget which
+  look different with the new size.  For example, for a simple label,
+  no areas need to be updated, while for a button with centered text,
+  the area covered by the old and new text needs to be updated and
+  possibly also the right-edge and bottom-edge of the button frame
+  (depending on the actual resize) You should also use
+  QPaintEvent::region() rather than QPaintEvent::rect() when you \link
+  QPainter::setClipRegion() set clipping\endlink in the paintEvent().  
+
   The old size is accessible through QResizeEvent::oldSize().
 
-  The default implementation does nothing.
+  The default implementation calls updateMask() if the widget
+  has \link QWidget::setAutoMask() automatic masking\endlink
+  enabled.
 
   \sa moveEvent(), event(), resize(), QResizeEvent
 */
@@ -3529,9 +3548,10 @@ void QWidget::setPalettePropagation( PropagationMode m )
 
 
 /*!
-  Updates (using update()) the border area which the resize event
-  \a e would have damaged given that that border width is \a bw.
-  By using this in combination with WResizeNoErase.
+  Updates (using update()) pixels to a width of \a bw around
+  the margin of the widget that the resize event
+  \a e would have damaged.
+  Particularly useful in resizeEvent() when using WResizeNoErase.
 */
 void QWidget::updateResizedBorder( QResizeEvent* e, int bw )
 {
