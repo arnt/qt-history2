@@ -398,7 +398,7 @@ QMakeProject::read(QString project, QString)
 	mkspec_roots << QT_INSTALL_PREFIX;
 #endif
 #ifdef QT_INSTALL_DATA
-	mkspecs_roots << QT_INSTALL_DATA;
+	mkspec_roots << QT_INSTALL_DATA;
 #endif
 	if(Option::mkfile::qmakespec.isEmpty()) {
 	    for(QStringList::Iterator it = mkspec_roots.begin(); it != mkspec_roots.end(); ++it) {
