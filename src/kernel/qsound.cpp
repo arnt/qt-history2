@@ -16,15 +16,15 @@
 
 #ifndef QT_NO_SOUND
 
-#include "qptrlist.h"
+#include "qlist.h"
 
-static QPtrList<QAuServer> *servers=0;
+static QList<QAuServer*> *servers=0;
 
 QAuServer::QAuServer(QObject* parent, const char* name) :
     QObject(parent,name)
 {
     if ( !servers ) {
-	servers = new QPtrList<QAuServer>;
+	servers = new QList<QAuServer*>;
 	// ### add cleanup
     }
     servers->prepend(this);

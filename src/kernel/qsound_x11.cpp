@@ -18,7 +18,7 @@
 
 #ifndef QT_NO_SOUND
 
-#include "qptrdict.h"
+#include "qhash.h"
 #include "qsocketnotifier.h"
 #include "qapplication.h"
 
@@ -108,7 +108,7 @@ void QAuServerNAS::play(const QString& filename)
     }
 }
 
-static QPtrDict<void> *inprogress=0;
+static QHash<void*,void*> *inprogress=0;
 
 static void callback( AuServer*, AuEventHandlerRec*, AuEvent* e, AuPointer p)
 {
@@ -137,7 +137,7 @@ void QAuServerNAS::play(QSound* s)
 {
     if (nas) {
 	if ( !inprogress )
-	    inprogress = new QPtrDict<void>;
+	    inprogress = new QHash<void*, void*>;
 	inprogress->insert(s,(void*)this);
 	int iv=100;
 	AuFixedPoint volume=AuFixedPointFromFraction(iv,100);
