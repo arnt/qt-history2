@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qtranslator/qtmessageview.cpp#1 $
+** $Id: //depot/qt/main/util/qtranslator/qtmessageview.cpp#2 $
 **
 ** This is a utility program for translating Qt applications
 **
@@ -14,7 +14,7 @@
 #include <qheader.h>
 
 /****************************************************************************
- * 
+ *
  * Class: QTMessageViewEdit
  *
  ****************************************************************************/
@@ -28,8 +28,7 @@ QTMessageViewEdit::QTMessageViewEdit( QTMessageView *parent )
 
 void QTMessageViewEdit::keyPressEvent( QKeyEvent *e )
 {
-    if ( ( e->key() == Key_Return || e->key() == Key_Enter ) &&
-         e->state() & ControlButton ) {
+    if ( e->key() == Key_Return || e->key() == Key_Enter ) {
         emit ctrlReturnPressed();
         return;
     }
@@ -37,7 +36,7 @@ void QTMessageViewEdit::keyPressEvent( QKeyEvent *e )
         emit escapePressed();
         return;
     }
-    
+
     QMultiLineEdit::keyPressEvent( e );
 }
 
@@ -47,7 +46,7 @@ void QTMessageViewEdit::focusOutEvent( QFocusEvent * )
 }
 
 /****************************************************************************
- * 
+ *
  * Class: QTMessageViewItem
  *
  ****************************************************************************/
@@ -56,7 +55,7 @@ QTMessageViewItem::QTMessageViewItem( QListView *parent )
     : QListViewItem( parent )
 {
 }
-    
+
 int QTMessageViewItem::height() const
 {
     QFontMetrics fm( listView()->font() );
@@ -66,7 +65,7 @@ int QTMessageViewItem::height() const
 }
 
 /****************************************************************************
- * 
+ *
  * Class: QTMessageView
  *
  ****************************************************************************/
@@ -84,13 +83,13 @@ QTMessageView::QTMessageView( QWidget *parent, const char *name )
     connect( editBox, SIGNAL( ctrlReturnPressed() ),
              this, SLOT( editNext() ) );
 }
-    
+
 void QTMessageView::viewportMousePressEvent( QMouseEvent *e )
 {
 
     if ( editBox->isVisible() )
         stopEdit();
-    
+
     if ( !hasFocus() && !viewport()->hasFocus() )
         setFocus();
 
@@ -113,9 +112,9 @@ void QTMessageView::startEdit( int x )
 {
     if ( !currentItem() )
         return;
-    
+
     QTMessageViewItem *item = ( QTMessageViewItem* )currentItem();
-    
+
     int col = -1;
 
     if ( editCol == -1 ) {
@@ -127,12 +126,12 @@ void QTMessageView::startEdit( int x )
         }
     } else
         col = editCol;
-    
+
     if ( col == -1 )
         return;
-    
+
     editCol = col;
-    
+
     QRect ir = itemRect( item );
     QRect r( header()->cellPos( col ) - contentsX(), ir.y(),
              header()->cellSize( col ), ir.height() );
@@ -154,16 +153,16 @@ void QTMessageView::editNext()
 {
     if ( !currentItem() || editCol == -1 )
         return;
-    
+
     QTMessageViewItem *item = ( QTMessageViewItem* )currentItem();
     item->setText( editCol, editBox->text() );
-    
+
     int col = editCol;
     stopEdit();
-    
+
     QListViewItemIterator it( item );
     ++it;
-    
+
     if ( it.current() ) {
         setCurrentItem( it.current() );
         setSelected( it.current(), TRUE );
