@@ -168,7 +168,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 #else
 	// WinCE must use DIBSections instead of Compatible Bitmaps
 	// so it's possible to get the colortable at a later point.
-	int   ncols           = dd <= 8 ? 1<<dd : 0;
+	int   ncols           = data->d <= 8 ? 1<<data->d : 0;
         int   bmi_data_len    = sizeof(BITMAPINFO) + sizeof(RGBQUAD)*ncols;
 	char *bmi_data        = new char[bmi_data_len];
 	memset( bmi_data, 0, bmi_data_len );
@@ -178,14 +178,14 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	bmh->biWidth	      = w;
 	bmh->biHeight	      = -h; // top-down bitmap
 	bmh->biPlanes	      = 1;
-	bmh->biBitCount	      = dd;
+	bmh->biBitCount	      = data->d;
 	bmh->biCompression    = BI_RGB;
 	bmh->biSizeImage      = 0;
 	bmh->biClrUsed	      = ncols;
 	bmh->biClrImportant   = 0;
 	DATA_HBM = CreateDIBSection( qt_display_dc(), 
 				     bmi,
-				     dd > 8 ? DIB_RGB_COLORS : DIB_PAL_COLORS,
+				     DIB_RGB_COLORS,
 				     (void**)&(data->ppvBits),
 				     NULL, 
 				     0 );
@@ -245,11 +245,19 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     data->d = 1;
 
     int bitsbpl = (w+7)/8;			// original # bytes per line
+
+    // CreateBitmap data is word aligned, while 
+    // CreateDIBSection is doubleword aligned
+#ifndef Q_OS_TEMP
     int bpl	= ((w+15)/16)*2;		// bytes per scanline
+#else
+    int bpl	= ((w+31)/32)*4;		// bytes per scanline
+#endif
     uchar *newbits = new uchar[bpl*h];
     uchar *p	= newbits;
     int x, y, pad;
     pad = bpl - bitsbpl;
+
     if ( isXbitmap ) {				// flip and invert
 	const uchar *f = qt_get_bitflip_array();
 	for ( y=0; y<h; y++ ) {
@@ -266,7 +274,40 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
 		*p++ = 0;
 	}
     }
-    DATA_HBM = CreateBitmap( w, h, 1, 1, newbits );
+
+#ifndef Q_OS_TEMP
+        DATA_HBM = CreateBitmap( w, h, 1, 1, newbits );
+#else
+	// WinCE must use DIBSections instead of Compatible Bitmaps
+	// so it's possible to get the colortable at a later point.
+	int   ncols           = 2;
+        int   bmi_data_len    = sizeof(BITMAPINFO) + sizeof(RGBQUAD)*ncols;
+	char *bmi_data        = new char[bmi_data_len];
+	memset( bmi_data, 0, bmi_data_len );
+	BITMAPINFO       *bmi = (BITMAPINFO*)bmi_data;
+	BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi_data;
+	bmh->biSize	      = sizeof(BITMAPINFOHEADER);
+	bmh->biWidth	      = w;
+	bmh->biHeight	      = -h; // top-down bitmap
+	bmh->biPlanes	      = 1;
+	bmh->biBitCount	      = 1;
+	bmh->biCompression    = BI_RGB;
+	bmh->biSizeImage      = 0;
+	bmh->biClrUsed	      = ncols;
+	bmh->biClrImportant   = 0;
+        QRgb *coltbl = (QRgb*)(bmi_data + sizeof(BITMAPINFOHEADER));
+	coltbl[1] = 0xffffff;
+	coltbl[0] = 0x0;
+
+	DATA_HBM = CreateDIBSection( qt_display_dc(), 
+				     bmi,
+				     DIB_RGB_COLORS,
+				     (void**)&(data->ppvBits),
+				     NULL, 
+				     0 );
+	memcpy( data->ppvBits, newbits, bpl*h ); 
+#endif
+
     hdc = alloc_mem_dc( DATA_HBM );
     delete [] newbits;
     if ( defOptim != NormalOptim )
@@ -569,7 +610,6 @@ QImage QPixmap::convertToImage() const
 	  } break;
 	}
     }
-#ifndef Q_OS_TEMP
     if ( d == 1 ) {
 	// Make image bit 0 come from color0, image bit 1 come form color1
 	image.invertPixels();
@@ -577,7 +617,6 @@ QImage QPixmap::convertToImage() const
 	image.setColor(0,image.color(1));
 	image.setColor(1,c0);
     }
-#endif
     delete [] bmi_data;
     return image;
 }
