@@ -1,18 +1,23 @@
+/****************************************************************************
+**
+** Copyright (C) 2003-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #include <qapplication.h>
 #include <qaxfactory.h>
-#include <qwidget.h>
+#include <qtabwidget.h>
 #include <qtimer.h>
 
 class Application;
 class DocumentList;
-
-class Window : public QWidget
-{
-public:
-    Window()
-    {
-    }
-};
 
 class Document : public QObject
 {
@@ -21,16 +26,20 @@ class Document : public QObject
     Q_CLASSINFO("ClassID", "{2b5775cd-72c2-43da-bc3b-b0e8d1e1c4f7}")
     Q_CLASSINFO("InterfaceID", "{2ce1761e-07a3-415c-bd11-0eab2c7283de}")
 
-    Q_PROPERTY(int value READ value WRITE setValue)
+    Q_PROPERTY(Application *application READ application)
+    Q_PROPERTY(QString title READ title WRITE setTitle)
 
 public:
     Document(DocumentList *list);
+    ~Document();
 
-    int value() const;
-    void setValue(int value);
+    Application *application() const;
+
+    QString title() const;
+    void setTitle(const QString &title);
 
 private:
-    int v;
+    QWidget *page;
 };
 
 class DocumentList : public QObject
@@ -40,8 +49,8 @@ class DocumentList : public QObject
     Q_CLASSINFO("ClassID", "{496b761d-924b-4554-a18a-8f3704d2a9a6}")
     Q_CLASSINFO("InterfaceID", "{6c9e30e8-3ff6-4e6a-9edc-d219d074a148}")
 
-    Q_PROPERTY(int count READ count)
     Q_PROPERTY(Application* application READ application)
+    Q_PROPERTY(int count READ count)
 
 public:
     DocumentList(Application *application);
@@ -53,7 +62,7 @@ public slots:
     Document *addDocument();
     Document *item(int index) const;
 
-public:
+private:
     QList<Document*> list;
 };
 
@@ -78,7 +87,7 @@ public:
     void setVisible(bool on);
     bool isVisible() const;
 
-    Window *window() const { return ui; }
+    QTabWidget *window() const { return ui; }
 
 public slots:
     void quit();
@@ -86,22 +95,42 @@ public slots:
 private:
     DocumentList *docs;
 
-    Window *ui;
+    QTabWidget *ui;
 };
 
 Document::Document(DocumentList *list)
-: QObject(list), v(0)
+: QObject(list)
 {
+    QTabWidget *tabs = list->application()->window();
+    page = new QWidget(tabs);
+    page->setWindowTitle("Unnamed");
+    tabs->addTab(page, page->windowTitle());
+
+    page->show();
 }
 
-int Document::value() const
+Document::~Document()
 {
-    return v;
+    delete page;
 }
 
-void Document::setValue(int value)
+Application *Document::application() const
 {
-    v = value;
+    return qt_cast<DocumentList*>(parent())->application();
+}
+
+QString Document::title() const
+{
+    return page->windowTitle();
+}
+
+void Document::setTitle(const QString &t)
+{
+    page->setWindowTitle(t);
+
+    QTabWidget *tabs = application()->window();
+    int index = tabs->indexOf(page);
+    tabs->setTabText(index, page->windowTitle());
 }
 
 DocumentList::DocumentList(Application *application)
@@ -131,7 +160,6 @@ Document *DocumentList::addDocument()
 {
     Document *document = new Document(this);
     list.append(document);
-    document->setValue(list.count());
 
     return document;
 }
@@ -140,6 +168,8 @@ Document *DocumentList::addDocument()
 Application::Application(QObject *parent)
 : QObject(parent), ui(0)
 {
+    ui = new QTabWidget;
+
     setObjectName("From QAxFactory");
     docs = new DocumentList(this);
 }
@@ -151,21 +181,21 @@ DocumentList *Application::documents() const
 
 void Application::setVisible(bool on)
 {
-    if (on) {
-        ui = new Window;
-        ui->show();
-    } else {
-        delete ui;
-    }
+    ui->setShown(on);
 }
 
 bool Application::isVisible() const
 {
-    return ui && ui->isVisible();
+    return ui->isVisible();
 }
 
 void Application::quit()
 {
+    delete docs;
+    docs = 0;
+
+    delete ui;
+    ui = 0;
     QTimer::singleShot(0, qApp, SLOT(quit()));
 }
 
@@ -194,9 +224,7 @@ int main(int argc, char **argv)
     QAxFactory::registerActiveObject(&appobject);
 
     appobject.setVisible(true);
-    QObject::connect(qApp, SIGNAL(lastWindowClosed()), qApp, SLOT(quit()));
+    QObject::connect(qApp, SIGNAL(lastWindowClosed()), &appobject, SLOT(quit()));
 
-    app.exec();
-
-    return 0;
+    return app.exec();
 }
