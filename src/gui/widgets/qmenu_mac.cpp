@@ -100,20 +100,30 @@ void qt_mac_command_set_enabled(MenuRef menu, UInt32 cmd, bool b)
 }
 
 //toggling of modal state
-void qt_mac_set_modal_state(MenuRef menu, bool b)
+void qt_mac_set_modal_state(MenuRef menu, bool on)
 {
     for(int i = 1; i < CountMenuItems(menu); i++) {
         MenuRef submenu;
         GetMenuItemHierarchicalMenu(menu, i+1, &submenu);
-        if(b)
+        if(on)
             DisableMenuItem(submenu, 0);
         else
             EnableMenuItem(submenu, 0);
     }
 
     UInt32 commands[] = { kHICommandQuit, kHICommandPreferences, kHICommandAbout, kHICommandAboutQt, 0 };
-    for(int c = 0; commands[c]; c++)
-        qt_mac_command_set_enabled(menu, commands[c], !b);
+    for(int c = 0; commands[c]; c++) {
+        bool enabled = !on;
+        if(enabled) {
+            QMacMenuAction *action = 0;
+            if(GetMenuCommandProperty(menu, commands[c], kMenuCreatorQt, kMenuPropertyQAction, 
+                                      sizeof(action), 0, &action) != noErr || !action) 
+                enabled = false;
+            else 
+                enabled = action->action->isEnabled();
+        }
+        qt_mac_command_set_enabled(menu, commands[c], enabled);
+    }
 }
 
 void qt_mac_clear_menubar()
