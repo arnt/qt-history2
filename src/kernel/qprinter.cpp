@@ -149,9 +149,11 @@
     lower quality output than HighResolution and should only be used
     for drafts.
 
-    \value PrinterResolution Use the physical resolution of the
-    printer on Windows. On Unix, set the postscript resolution to 72
-    dpi.
+    \value PrinterResolution This value is deprecated. Is is
+    equivalent to ScreenResolution on Unix and HighResolution on
+    Windows and Mac. Due do the difference between ScreenResolution
+    and HighResolution, use of this value may lead to non portable
+    printer code.
 
     \value HighResolution Use printer resolution on windows, set the
     resolution of the postscript driver to 600dpi.
