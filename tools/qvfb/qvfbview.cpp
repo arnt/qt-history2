@@ -319,10 +319,11 @@ void QVFbView::setRate( int r )
     timer->start( 1000/r );
 }
 
-void QVFbView::sendMouseData( const QPoint &pos, int buttons )
+void QVFbView::sendMouseData( const QPoint &pos, int buttons, int wheel )
 {
     write( mouseFd, &pos, sizeof( QPoint ) );
     write( mouseFd, &buttons, sizeof( int ) );
+    write( mouseFd, &wheel, sizeof( int ) );
 }
 
 void QVFbView::sendKeyboardData( int unicode, int keycode, Qt::KeyboardModifiers modifiers,
@@ -546,26 +547,31 @@ void QVFbView::setDirty( const QRect& r )
 
 void QVFbView::mousePressEvent( QMouseEvent *e )
 {
-    sendMouseData( e->pos()/zm, e->stateAfter() );
+    sendMouseData( e->pos()/zm, e->stateAfter(), 0 );
 }
 
 void QVFbView::mouseDoubleClickEvent( QMouseEvent *e )
 {
-    sendMouseData( e->pos()/zm, e->stateAfter() );
+    sendMouseData( e->pos()/zm, e->stateAfter(), 0 );
 }
 
 void QVFbView::mouseReleaseEvent( QMouseEvent *e )
 {
-    sendMouseData( e->pos()/zm, e->stateAfter() );
+    sendMouseData( e->pos()/zm, e->stateAfter(), 0 );
 }
 
 void QVFbView::mouseMoveEvent( QMouseEvent *e )
 {
     if ( !emulateTouchscreen || (e->state() & Qt::MouseButtonMask ) )
-        sendMouseData( e->pos()/zm, e->state() );
+        sendMouseData( e->pos()/zm, e->state(), 0 );
 }
 
-
+void QVFbView::wheelEvent( QWheelEvent *e )
+{
+    if (!e)
+        return;
+    sendMouseData(e->pos()/zm, e->buttons(), e->delta());
+}
 
 void QVFbView::keyPressEvent( QKeyEvent *e )
 {

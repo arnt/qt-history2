@@ -61,7 +61,7 @@ protected slots:
 protected:
     QImage getBuffer( const QRect &r, int &leading ) const;
     void drawScreen();
-    void sendMouseData( const QPoint &pos, int buttons );
+    void sendMouseData( const QPoint &pos, int buttons, int wheel );
     void sendKeyboardData( int unicode, int keycode, Qt::KeyboardModifiers modifiers,
 			   bool press, bool repeat );
     virtual void paintEvent( QPaintEvent *pe );
@@ -69,6 +69,7 @@ protected:
     virtual void mouseDoubleClickEvent( QMouseEvent *e );
     virtual void mouseReleaseEvent( QMouseEvent *e );
     virtual void mouseMoveEvent( QMouseEvent *e );
+    virtual void wheelEvent( QWheelEvent *e );
     virtual void keyPressEvent( QKeyEvent *e );
     virtual void keyReleaseEvent( QKeyEvent *e );
 
