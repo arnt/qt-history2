@@ -1107,7 +1107,7 @@ static QString guessTypes( const TYPEDESC &tdesc, ITypeInfo *info, const QDict<Q
 		str += "&";
 	    else if ( str == "QVariant" )
 		str = "const QVariant&";
-	    else if ( enumlist[str] )
+	    else if ( !str.isEmpty() && enumlist[str] )
 		str += "&";
 	    else if ( !str.isEmpty() && str != "QFont" && str != "QPixmap" )
 		str += "*";
