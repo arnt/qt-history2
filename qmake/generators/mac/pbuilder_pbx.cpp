@@ -96,7 +96,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	QString mkfile = Option::output_dir + Option::dir_sep + "qt_makeqmake.mak";
 	QFile mkf(mkfile);
 	if(mkf.open(IO_WriteOnly | IO_Translate)) {
-	    debug_msg(1, "Creating file: %s", mkfile.latin1());
+	    debug_msg(1, "pbuilder: Creating file: %s", mkfile.latin1());
 	    QTextStream mkt(&mkf);
 	    writeHeader(mkt);
 	    mkt << "QMAKE    = "	<<
@@ -182,7 +182,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	QFile mkf(mkfile);
 	if(mkf.open(IO_WriteOnly | IO_Translate)) {
 	    did_preprocess = TRUE;
-	    debug_msg(1, "Creating file: %s", mkfile.latin1());
+	    debug_msg(1, "pbuilder: Creating file: %s", mkfile.latin1());
 	    QTextStream mkt(&mkf);
 	    writeHeader(mkt);
 	    mkt << "MOC       = " << var("QMAKE_MOC") << endl;
@@ -280,16 +280,40 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 		    libdirs.append(r);
 		} else if(opt.left(2) == "-l") {
 		    name = opt.right(opt.length() - 2);
-		    QString lib("lib" + name  + ".");
+		    QString lib("lib" + name);
 		    for(QStringList::Iterator lit = libdirs.begin(); lit != libdirs.end(); ++lit) {
-			QString extns[] = { "dylib", "so", "a", QString::null };
-			for(int n = 0; !extns[n].isNull(); n++) {
-			    QString tmp =  (*lit) + Option::dir_sep + lib + extns[n];
-			    if(QFile::exists(tmp)) {
-				library = tmp;
-				//don't remove, so it gets into LDFLAGS for now -- FIXME
-				//remove = TRUE
-				break;
+			if(project->isActiveConfig("link_prl")) {
+			    /* This isn't real nice, but it is real usefull. This looks in a prl
+			       for what the library will ultimately be called so we can stick it
+			       in the ProjectFile. If the prl format ever changes (not likely) then
+			       this will not really work. However, more concerning is that it will
+			       encode the version number in the Project file which might be a bad
+			       things in days to come? --Sam
+			    */
+			    QString prl_file = (*lit) + Option::dir_sep + lib + Option::prl_ext;
+			    if(QFile::exists(prl_file)) {
+				QMakeProject proj;
+				if(proj.read(prl_file, QDir::currentDirPath())) {
+				    if(!proj.isEmpty("QMAKE_PRL_TARGET")) {
+					library = (*lit) + Option::dir_sep + proj.first("QMAKE_PRL_TARGET");
+					debug_msg(1, "pbuilder: Found library (%s) via PRL %s (%s)", 
+						  opt.latin1(), prl_file.latin1(), library.latin1());
+					remove = TRUE;
+				    }
+				}
+
+			    }
+			}
+			if(!remove) {
+			    QString extns[] = { ".dylib", ".so", ".a", QString::null };
+			    for(int n = 0; !remove && !extns[n].isNull(); n++) {
+				QString tmp =  (*lit) + Option::dir_sep + lib + extns[n];
+				if(QFile::exists(tmp)) {
+				    library = tmp;
+				    debug_msg(1, "pbuilder: Found library (%s) via %s", 
+					      opt.latin1(), library.latin1());
+				    remove = TRUE;
+				}
 			    }
 			}
 		    }
@@ -352,7 +376,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	QString mkfile = Option::output_dir + Option::dir_sep + "qt_sublibs.mak";
 	QFile mkf(mkfile);
 	if(mkf.open(IO_WriteOnly | IO_Translate)) {
-	    debug_msg(1, "Creating file: %s", mkfile.latin1());
+	    debug_msg(1, "pbuilder: Creating file: %s", mkfile.latin1());
 	    QTextStream mkt(&mkf);
 	    writeHeader(mkt);
 	    mkt << "SUBLIBS= ";
@@ -468,7 +492,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	QString script = Option::output_dir + Option::dir_sep + "qt_install.sh";
 	QFile shf(script);
 	if(shf.open(IO_WriteOnly | IO_Translate)) {
-	    debug_msg(1, "Creating file: %s", script.latin1());
+	    debug_msg(1, "pbuilder: Creating file: %s", script.latin1());
 	    QString targ = project->first("QMAKE_ORIG_TARGET"), cpflags;
 	    if(project->first("TEMPLATE") == "app") {
 		cpflags += "-r ";
@@ -510,7 +534,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    fileFixify(script, QDir::currentDirPath());
 	    project->variables()["QMAKE_PBX_BUILDPHASES"].append(phase_key);
 	    t << "\t\t" << phase_key << " = {" << "\n"
-	      << "\t\t\t" << "buildActionMask = 2147483647;" << "\n"
+	      << "\t\t\t" << "buildActionMask = 8;" << "\n" //only on install!
 	      << "\t\t\t" << "files = (" << "\n"
 	      << "\t\t\t" << ");" << "\n"
 	      << "\t\t\t" << "generatedFileNames = (" << "\n"
@@ -641,7 +665,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << "\t\t\t\t\t" << "<key>CFBundleExecutable</key>" << "\n"
 	  << "\t\t\t\t\t" << "<string>" << project->first("QMAKE_ORIG_TARGET") << "</string>" << "\n"
 	  << "\t\t\t\t\t" << "<key>CFBundleIconFile</key>" << "\n"
-	  << "\t\t\t\t\t" << "<string></string>" << "\n"
+	  << "\t\t\t\t\t" << "<string>" << var("RC_FILE") << "</string>" << "\n"
 	  << "\t\t\t\t\t" << "<key>CFBundleInfoDictionaryVersion</key>"  << "\n"
 	  << "\t\t\t\t\t" << "<string>6.0</string>" << "\n"
 	  << "\t\t\t\t\t" << "<key>CFBundlePackageType</key>" << "\n"
@@ -665,23 +689,24 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     if(!project->isEmpty("DESTDIR"))
 	t << "\t\t\t" << "productInstallPath = \"" << project->first("DESTDIR") << "\";" << "\n";
     t << "\t\t" << "};" << "\n";
-    //DEBUG-RELEASE
-    QString builds[] = { "DEBUG", "RELEASE", QString::null };
-    for(i = 0; !builds[i].isNull(); i++) {
-	QString key = "QMAKE_PBX_" + builds[i];
+    //DEBUG/RELEASE
+    for(i = 0; i < 2; i++) {
+	bool as_release = !i;
+	if(project->isActiveConfig("debug")) 
+	    as_release = i;
+	QString key = "QMAKE_PBX_" + QString(as_release ? "RELEASE" : "DEBUG");
 	key = keyFor(key);
 	project->variables()["QMAKE_PBX_BUILDSTYLES"].append(key);
-	bool as_debug = (builds[i] == "DEBUG");
 	t << "\t\t" << key << " = {" << "\n"
 	  << "\t\t\t" << "buildRules = (" << "\n"
 	  << "\t\t\t" << ");" << "\n"
 	  << "\t\t\t" << "buildSettings = {" << "\n"
-	  << "\t\t\t\t" << "COPY_PHASE_STRIP = " << (as_debug ? "NO" : "YES") << ";" << "\n";
-	if(!as_debug) 
+	  << "\t\t\t\t" << "COPY_PHASE_STRIP = " << (as_release ? "YES" : "NO") << ";" << "\n";
+	if(as_release) 
 	    t << "\t\t\t\t" << "DEBUGGING_SYMBOLS = NO;" << "\n";
 	t << "\t\t\t" << "};" << "\n"
 	  << "\t\t\t" << "isa = PBXBuildStyle;" << "\n"
-	  << "\t\t\t" << "name = " << (as_debug ? "Development" : "Deployment") << ";" << "\n"
+	  << "\t\t\t" << "name = " << (as_release ? "Deployment" : "Development") << ";" << "\n"
 	  << "\t\t" << "};" << "\n";
     }
     //ROOT
@@ -702,19 +727,21 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "}" << endl;
 
     QString mkwrap = Option::output_dir + Option::dir_sep + ".." + Option::dir_sep + project->first("MAKEFILE");
-    Option::fixPathToLocalOS(mkwrap);
+    fileFixify(mkwrap);
     QFile mkwrapf(mkwrap);
     if(mkwrapf.open(IO_WriteOnly | IO_Translate)) {
-	debug_msg(1, "Creating file: %s", mkwrap.latin1());
+	debug_msg(1, "pbuilder: Creating file: %s", mkwrap.latin1());
 	QTextStream mkwrapt(&mkwrapf);
 	writeHeader(mkwrapt);
 	const char *cleans = "uiclean mocclean preprocess_clean ";
 	mkwrapt << "#This is a makefile wrapper for PROJECT BUILDER\n"
 		<< "all:" << "\n\t" 
 		<< "cd " << (project->first("QMAKE_ORIG_TARGET") + ".pbproj/ && pbxbuild") << "\n"
+		<< "install:" << "\n\t" 
+		<< "cd " << (project->first("QMAKE_ORIG_TARGET") + ".pbproj/ && pbxbuild install") << "\n"
 		<< "distclean clean: preprocess_clean" << "\n\t" 
 		<< "cd " << (project->first("QMAKE_ORIG_TARGET") + ".pbproj/ && pbxbuild clean") << "\n"
-		<< (!did_preprocess ? cleans : "") << "install:" << "\n";
+		<< (!did_preprocess ? cleans : "") << ":" << "\n";
 	if(did_preprocess) 
 	    mkwrapt << cleans << ":" << "\n\t"
 		    << "make -f " 
@@ -809,7 +836,7 @@ ProjectBuilderMakefileGenerator::pbuilderVersion() const
 	    version_plist = version_plist.replace(QRegExp("\""), "");
 	QFile version_file(version_plist);
 	if(version_file.open(IO_ReadOnly)) {
-	    debug_msg(1, "version.plist: Reading file: %s", version_plist.latin1());
+	    debug_msg(1, "pbuilder: version.plist: Reading file: %s", version_plist.latin1());
 	    QTextStream plist(&version_file);
 
 	    bool in_dict = FALSE;
@@ -829,7 +856,7 @@ ProjectBuilderMakefileGenerator::pbuilderVersion() const
 		}
 	    }
 	    version_file.close();
-	} else debug_msg(1, "version.plist: Failure to open %s", version_plist.latin1());
+	} else debug_msg(1, "pbuilder: version.plist: Failure to open %s", version_plist.latin1());
 	if(version == "2.0")
 	    ret = "38";
 	else if(version == "1.1")
@@ -841,10 +868,10 @@ ProjectBuilderMakefileGenerator::pbuilderVersion() const
 	bool ok;
 	int int_ret = ret.toInt(&ok);
 	if(ok) {
-	    debug_msg(1, "version.plist: Got version: %d", int_ret);
+	    debug_msg(1, "pbuilder: version.plist: Got version: %d", int_ret);
 	    return int_ret;
 	}
     }
-    debug_msg(1, "version.plist: Fallback to default version");
+    debug_msg(1, "pbuilder: version.plist: Fallback to default version");
     return 34; //my fallback
 }
