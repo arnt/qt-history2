@@ -61,7 +61,7 @@ inline void QMacSavedFontInfo::init(CGrafPtr w)
     }
 }
 
-#include <qlist.h>
+#include <qptrlist.h>
 #include <qpaintdevice.h>
 extern QPaintDevice *qt_mac_safe_pdev; //qapplication_mac.cpp
 class QMacSavedPortInfo
@@ -74,7 +74,7 @@ class QMacSavedPortInfo
     QMacSavedFontInfo *fi;
     void init();
     
-    static QList<QMacSavedPortInfo> gports;
+    static QPtrList<QMacSavedPortInfo> gports;
     bool valid_gworld;
     inline void register_self() { gports.append(this); }
     inline void deregister_self() { gports.remove(this); }
@@ -146,7 +146,7 @@ inline void QMacSavedPortInfo::removingGWorld(const GWorldPtr w)
 {
     if(!gports.count())
         return;
-    for(QListIterator<QMacSavedPortInfo> it(gports); it.current(); ++it) {
+    for(QPtrListIterator<QMacSavedPortInfo> it(gports); it.current(); ++it) {
         if((*it)->world == w) 
             (*it)->valid_gworld = FALSE;
     }
