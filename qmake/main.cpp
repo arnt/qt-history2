@@ -41,7 +41,7 @@
 #include "borland_bmake.h"
 #include "msvc_nmake.h"
 #include "msvc_dsp.h"
-#include "metrowerks_xml.h"
+#include "mac/metrowerks_xml.h"
 #include "projectgenerator.h"
 #include <stdlib.h>
 #include <stdio.h>
