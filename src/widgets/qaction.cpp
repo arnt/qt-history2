@@ -157,7 +157,7 @@ public:
     // will clean this up
     struct ComboItem {
 	ComboItem():combo(0), id(0) {}
-	QComboBox* combo;
+	QComboBox *combo;
 	int id;
     };
     QList<MenuItem> menuitems;
@@ -262,6 +262,8 @@ void QActionPrivate::update( Update upd )
     // Only used by actiongroup
     for ( QListIterator<ComboItem> it3( comboitems ); it3.current(); ++it3 ) {
 	ComboItem *ci = it3.current();
+	if ( !ci->combo )
+	    return;
 	if ( iconset )
 	    ci->combo->changeItem( iconset->pixmap(), text, ci->id );
 	else
@@ -821,6 +823,7 @@ bool QAction::addTo( QWidget* w )
 	if ( qstrcmp( name(), "qt_separator_action" ) ) {
 	    QActionPrivate::ComboItem *ci = new QActionPrivate::ComboItem;
 	    ci->combo = (QComboBox*)w;
+	    connect( ci->combo, SIGNAL( destroyed() ), this, SLOT( objectDestroyed() ) );
 	    ci->id = ci->combo->count();
 	    if ( d->iconset )
 		ci->combo->insertItem( d->iconset->pixmap(), text() );
@@ -944,6 +947,16 @@ bool QAction::removeFrom( QWidget* w )
 		d->menuitems.removeRef( mi );
 	    }
 	}
+    } else if ( w->inherits( "QComboBox" ) ) {
+	QListIterator<QActionPrivate::ComboItem> it( d->comboitems );
+	QActionPrivate::ComboItem *ci;
+	while ( ( ci = it.current() ) ) {
+	    ++it;
+	    if ( ci->combo == w ) {
+		disconnect( ci->combo, SIGNAL(destroyed()), this, SLOT(objectDestroyed()) );
+		d->comboitems.removeRef( ci );
+	    }
+	}
     } else {
 	qWarning( "QAction::removeFrom(), unknown object" );
 	return FALSE;
@@ -957,12 +970,19 @@ bool QAction::removeFrom( QWidget* w )
 void QAction::objectDestroyed()
 {
     const QObject* obj = sender();
-    QListIterator<QActionPrivate::MenuItem> it( d->menuitems);
+    QListIterator<QActionPrivate::MenuItem> it( d->menuitems );
     QActionPrivate::MenuItem* mi;
     while ( ( mi = it.current() ) ) {
 	++it;
 	if ( mi->popup == obj )
 	    d->menuitems.removeRef( mi );
+    }
+    QActionPrivate::ComboItem *ci;
+    QListIterator<QActionPrivate::ComboItem> it2( d->comboitems );
+    while ( ( ci = it2.current() ) ) {
+	++it2;
+	if ( ci->combo == obj )
+	    d->comboitems.removeRef( ci );
     }
     d->toolbuttons.removeRef( (QToolButton*) obj );
 }
@@ -1502,6 +1522,8 @@ bool QActionGroup::removeFrom( QWidget* w )
 	while ( pu.current() ) {
 	    QActionGroupPrivate::MenuItem *mi = pu.current();
 	    ++pu;
+	    if ( d->dropdown && mi->popup )
+		( (QPopupMenu*)w )->removeItem( mi->id );
 	    delete mi->popup;
 	}
     }
