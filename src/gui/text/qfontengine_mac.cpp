@@ -26,7 +26,6 @@
 #include <ApplicationServices/ApplicationServices.h>
 
 //Externals
-QPoint posInWindow(QWidget *); //qwidget_mac.cpp
 void qstring2pstring(QString s, Str255 str, TextEncoding encoding=0, int len=-1); //qglobal.cpp
 QByteArray pstring2qstring(const unsigned char *c); //qglobal.cpp
 unsigned char * p_str(const QString &); //qglobal.cpp

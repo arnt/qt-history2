@@ -642,6 +642,7 @@ private:
     friend class QMacSavedPortInfo;
     friend class QQuickDrawPaintEngine;
     friend class QCoreGraphicsPaintEngine;
+    friend QPoint posInWindow(QWidget *w);
 #endif
 
 private:        // Disabled copy constructor and operator=

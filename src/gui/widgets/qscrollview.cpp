@@ -836,14 +836,13 @@ void QScrollView::updateScrollBars()
 
 #ifdef Q_WS_MAC
         extern WindowPtr qt_mac_window_for(HIViewRef); //qwidget_mac.cpp
-        extern QPoint posInWindow(QWidget *); //qwidget_mac.cpp
         bool mac_need_scroll = false;
         if(!parentWidget()) {
             mac_need_scroll = true;
         } else {
             QWidget *tlw = topLevelWidget();
             QPoint tlw_br = QPoint(tlw->width(), tlw->height()),
-                    my_br = posInWindow(this) + QPoint(w, h);
+                    my_br = mapTo(tlw, QPoint(w, h));
             if(my_br.x() >= tlw_br.x() - 3 && my_br.y() >= tlw_br.y() - 3)
                 mac_need_scroll = true;
         }

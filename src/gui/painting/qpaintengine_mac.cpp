@@ -138,7 +138,7 @@ QQuickDrawPaintEngine::begin(QPaintDevice *pdev, QPainterState *ps, bool unclipp
     if(d->pdev->devType() == QInternal::Widget) {                    // device is a widget
         QWidget *w = (QWidget*)d->pdev;
         { //offset painting in widget relative the tld
-            QPoint wp(posInWindow(w));
+            QPoint wp = posInWindow(w);
             d->offx = wp.x();
             d->offy = wp.y();
         }
@@ -906,7 +906,7 @@ void QQuickDrawPaintEngine::setupQDPort(bool force, QPoint *off, QRegion *rgn)
         }
         if(remade_clip) {
             //offset painting in widget relative the tld
-            QPoint wp(posInWindow(w));
+            QPoint wp = posInWindow(w);
             d->offx = wp.x();
             d->offy = wp.y();
 
@@ -1081,7 +1081,7 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev, QPainterState *state, bool u
     if(d->pdev->devType() == QInternal::Widget) {                    // device is a widget
         QWidget *w = (QWidget*)d->pdev;
         { //offset painting in widget relative the tld (quickdraw compat!!!)
-            QPoint wp(posInWindow(w));
+            QPoint wp = posInWindow(w);
             d->offx = wp.x();
             d->offy = wp.y();
         }
@@ -1609,7 +1609,7 @@ QCoreGraphicsPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap,
     CGContextSetFillColorSpace(d->hd, cs);
     float component = 1.0; //just one
     CGContextSetFillPattern(d->hd, pat, &component);
-    CGContextSetPatternPhase(d->hd, CGSizeMake(r.x()-p.x(), r.y()-p.y()));
+    CGContextSetPatternPhase(d->hd, CGSizeMake(p.x()-r.x(), p.y()-r.y()));
     //fill the rectangle
     CGRect mac_rect = CGRectMake(r.x(), r.y(), r.width(), r.height());
     CGContextFillRect(d->hd, mac_rect);
