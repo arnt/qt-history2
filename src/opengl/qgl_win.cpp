@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/opengl/qgl_win.cpp#23 $
+** $Id: //depot/qt/main/src/opengl/qgl_win.cpp#24 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -54,7 +54,7 @@ public:
  *****************************************************************************/
 
 /****************************************************************************
-** $Id: //depot/qt/main/src/opengl/qgl_win.cpp#23 $
+** $Id: //depot/qt/main/src/opengl/qgl_win.cpp#24 $
 **
 ** Definition of QColorMap class
 **
@@ -1023,7 +1023,11 @@ void QGLWidget::setColormap( const QGLColormap & c )
 	return;
     
     if ( cmap.d->cmapHandle ) { // already have an allocated cmap
+        HDC hdc = GetDC( winId() );
+	SelectPalette( hdc, (HPALETTE) cmap.d->cmapHandle, FALSE );
 	qStoreColors( (HPALETTE) cmap.d->cmapHandle, c );
+        RealizePalette( hdc );
+	ReleaseDC( winId(), hdc );
     } else {
         LOGPALETTE * lpal = (LOGPALETTE *) malloc( sizeof(LOGPALETTE)
 			    + c.size() * sizeof(PALETTEENTRY) );
@@ -1032,12 +1036,12 @@ void QGLWidget::setColormap( const QGLColormap & c )
 	lpal->palNumEntries = c.size();
 	cmap.d->cmapHandle  = CreatePalette( lpal );
 
-	if ( cmap.d->cmapHandle != 0 ) {
-	    HDC hdc = GetDC( tlw->winId() );
+	if ( cmap.d->cmapHandle ) {
+	    HDC hdc = GetDC( winId() );
 	    SelectPalette( hdc, (HPALETTE) cmap.d->cmapHandle, FALSE );
 	    qStoreColors( (HPALETTE) cmap.d->cmapHandle, c );
 	    RealizePalette( hdc );
-	    ReleaseDC( tlw->winId(), hdc );
+	    ReleaseDC( winId(), hdc );
 	}
 	free( lpal );
     }
@@ -1049,11 +1053,11 @@ void QGLWidget::cleanupColormaps()
 	return;
     
     if ( cmap.d->cmapHandle ) {
-	HDC hdc = GetDC( topLevelWidget()->winId() ); 
+	HDC hdc = GetDC( winId() ); 
 	SelectPalette( hdc, (HPALETTE) GetStockObject( DEFAULT_PALETTE ),
 		       FALSE );
 	DeleteObject( (HPALETTE) cmap.d->cmapHandle );
-	ReleaseDC( topLevelWidget()->winId(), hdc );
+	ReleaseDC( winId(), hdc );
 	cmap.d->cmapHandle = 0;
     }
 }
