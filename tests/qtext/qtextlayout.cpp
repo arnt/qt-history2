@@ -4,7 +4,7 @@
 #include <qregexp.h>
 #include <iostream.h>
 
-#define BIDI_DEBUG 2
+//#define BIDI_DEBUG 2
 
 
 QChar::Direction basicDirection(const QRichTextString &text)
@@ -870,12 +870,15 @@ void QParagraph::layout()
 {
     int pos = 0;
     int lineLength = 0;
-
+#if 1
+    QRichTextFormatterBreakWords formatter(area);
+    formatter.format(this, 0);
+#else
     while( (lineLength = findLineBreak(pos)) != 0 ) {
 	   addLine(pos, lineLength);
 	   pos += lineLength;
     }
-
+#endif
 }
 
 
@@ -1253,4 +1256,151 @@ QString QRichTextFormat::makeFormatEndTags() const
     return tag;
 }
 
+// ============================================================================
 
+QRichTextFormatter::QRichTextFormatter( QTextArea *a )
+    : area( a )
+{
+}
+
+void QRichTextFormatter::addLine(QParagraph *p, int from, int to, int height)
+{
+    printf("addline %d %d\n", from, to - from);
+    QTextRow *line = new QTextRow(*p->string(), from, to - from, p->lastRow());
+
+    int x = p->x();
+    int y = p->y();
+    if ( p->lastRow() ) {
+	x += p->lastRow()->x();
+	y += p->lastRow()->y() + p->lastRow()->height();
+    }
+    QRect r = area->lineRect(x, y, height);
+    // ####
+    //bRect |= r;
+    // make is relative to the paragraph
+    r.moveBy( - p->x(), -p->y() );
+
+    line->setBoundingRect(r);
+
+    if( !p->firstRow() )
+	p->setFirstRow(line);
+    if ( p->lastRow() )
+	p->lastRow()->setNextLine(line);
+    p->setLastRow( line );
+
+}
+
+// ============================================================================
+
+QRichTextFormatterBreakWords::QRichTextFormatterBreakWords( QTextArea *a )
+    : QRichTextFormatter( a )
+{
+}
+
+
+int QRichTextFormatterBreakWords::format( QParagraph *parag, int start )
+{
+    QRichTextString::Char *c = 0;
+
+    // #########################################
+    // Should be optimized so that we start formatting
+    // really at start (this means the last line begin before start)
+    // and not always at the beginnin of the parag!
+    start = 0;
+    if ( start == 0 ) {
+	c = &parag->string()->at( 0 );
+    }
+    // #########################################
+
+    int i = start;
+    int lastSpace = -1;
+    int tmpBaseLine = 0, tmph = 0;
+
+    int x = parag->x();
+    int y = parag->y();
+    int w = area->lineWidth(x, y);
+    printf("new line at %d/%d\n", x, y);
+    int h = 0;
+    
+    for ( ; i < parag->string()->length(); ++i ) {
+
+	
+	c = &parag->string()->at( i );
+#if 0
+	// ####
+	if ( i > 0 && x > left ) {
+	    c->lineStart = 0;
+	} else {
+	    c->lineStart = 1;
+	}
+#endif
+	int ww = 0;
+	if ( c->c.unicode() >= 32 || c->c == '\t' ) {
+	    ww = c->format->width( c->c );
+	} else {
+	    ww = c->format->width( ' ' );
+	}
+	
+	if ( x + ww > w ) {
+	    if ( lastSpace != -1 )
+		i = lastSpace;
+	    // ### add baseline
+	    addLine(parag, start, i, h);
+	    start = i;
+	    x = parag->x();
+	    y = parag->y();
+	    if ( parag->lastRow() ) {
+		x += parag->lastRow()->x();
+		y += parag->lastRow()->y() + parag->lastRow()->height();	
+	    }	
+	    int w = area->lineWidth(x, y);
+	    printf("new line at %d/%d\n", x, y);
+	    int h = 0;
+	    lastSpace = -1;
+	    continue;
+	} else if ( c->c == ' ' ) {
+	    tmpBaseLine = QMAX( tmpBaseLine, c->format->ascent() );
+	    tmph = QMAX( tmph, c->format->height() );
+	    h = QMAX( h, tmph );
+	    lastSpace = i;
+	    // ### cache lineheight and baseline for the chars up to here!!!
+	} else {
+	    tmpBaseLine = QMAX( tmpBaseLine, c->format->ascent() );
+	    tmph = QMAX( tmph, c->format->height() );
+	}
+	
+	c->x = x;
+	x += ww;
+    }
+
+#if 0
+    // ############## unefficient!!!!!!!!!!!!!!!!!!!!!! - rewrite that!!!!
+    if ( parag->alignment() & Qt::AlignHCenter || parag->alignment() & Qt::AlignRight ) {
+	int last = 0;
+	QMap<int, QRichTextParag::LineStart*>::Iterator it = parag->lineStartList().begin();
+	while ( TRUE ) {
+	    it++;
+	    int i = 0;
+	    if ( it == parag->lineStartList().end() )
+		i = parag->length() - 1;
+	    else
+		i = it.key() - 1;
+	    c = &parag->string()->at( i );
+	    int lw = c->x + c->format->width( c->c );
+	    int diff = w - lw;
+	    if ( parag->alignment() & Qt::AlignHCenter )
+		diff /= 2;
+	    for ( int j = last; j <= i; ++j )
+		parag->string()->at( j ).x += diff;
+	    last = i + 1;
+	    if ( it == parag->lineStartList().end() )
+		break;
+	}
+    }
+
+    y += h + doc->paragSpacing( parag );
+    return y;
+#endif
+
+    return 0;
+}

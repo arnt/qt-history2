@@ -148,7 +148,15 @@ public:
     QPoint nextLine() const;
 
     void paint(QPainter *p, int x, int y);
+    QRichTextString *string() { return &text; }
 
+    QTextRow *firstRow() const { return first; }
+    QTextRow *lastRow() const { return last; }
+    void setFirstRow(QTextRow *r) { first = r; }
+    void setLastRow(QTextRow *r) { last = r; }
+    int x() const { return xPos; }
+    int y() const { return yPos; }
+    
 protected:
     virtual void layout();
 
@@ -283,6 +291,31 @@ private:
     QColor ccol;
     QString kof, knf;
     int cflags;
+
+};
+
+// =========================================================================
+
+class QRichTextFormatter
+{
+public:
+    QRichTextFormatter( QTextArea *a );
+    virtual ~QRichTextFormatter() {}
+    virtual int format( QParagraph *parag, int start ) = 0;
+    void addLine(QParagraph *p, int from, int to, int height);
+
+protected:
+    QTextArea *area;
+
+};
+
+// =========================================================================
+
+class QRichTextFormatterBreakWords : public QRichTextFormatter
+{
+public:
+    QRichTextFormatterBreakWords( QTextArea *a );
+    int format( QParagraph *parag, int start );
 
 };
 
