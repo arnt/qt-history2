@@ -263,7 +263,6 @@ Win32MakefileGenerator::findLibraries(const QString &where)
             QString r = opt.mid(9), l = Option::fixPathToLocalOS(r);
             dirs.append(new MakefileDependDir(r.replace("\"",""),
                                               l.replace("\"","")));
-            remove = TRUE;
         } else if(opt.startsWith("-L") || opt.startsWith("/L")) {
             QString r = opt.mid(2), l = Option::fixPathToLocalOS(r);
             dirs.append(new MakefileDependDir(r.replace("\"",""),
@@ -307,13 +306,20 @@ Win32MakefileGenerator::findLibraries(const QString &where)
 		    file = file.left(file.length() - 4);
 		    if(!file.at(file.length()-1).isNumber()) {
 			for(MakefileDependDir *mdd = lib_dirs.first(); mdd; mdd = lib_dirs.next() ) {
-			    QString lib_tmpl(mdd->real_dir + file + "%1" + ".lib");
+			    QString lib_tmpl(file + "%1" + ".lib");
 			    int ver = findHighestVersion(mdd->local_dir, file);
 			    if(ver != -1) {
 				if(ver)
-				    (*it) = lib_tmpl.arg(ver);
+				    lib_tmpl = lib_tmpl.arg(ver);
 				else
-				    (*it) = lib_tmpl.arg("");
+				    lib_tmpl = lib_tmpl.arg("");
+				if(slsh != -1) {
+				    QString dir = mdd->real_dir;
+				    if(!dir.endsWith(Option::dir_sep))
+					dir += Option::dir_sep;
+				    lib_tmpl.prepend(dir);
+				}
+				(*it) = lib_tmpl;
 				break;
 			    } 
 			}
