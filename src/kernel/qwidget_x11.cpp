@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#304 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#305 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -262,7 +262,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	size_hints.y = crect.top();
 	size_hints.width = crect.width();
 	size_hints.height = crect.height();
-	size_hints.win_gravity = 1;		// NortWest
+	size_hints.win_gravity = 1;		// NorthWest
 	char *title = qAppName();
 	XWMHints wm_hints;			// window manager hints
 	wm_hints.input = True;
@@ -610,7 +610,7 @@ void QWidget::setCursor( const QCursor &cursor )
 /*!
   Unset the cursor for this widget. The widget will use the cursor of
   its parent from now on.
-  
+
   This functions does nothing for toplevel windows.
 
   \sa cursor(), setCursor(), QApplication::setOverrideCursor()
@@ -1228,49 +1228,9 @@ static void do_size_hints( Display *dpy, WId winid, QWExtra *x, XSizeHints *s )
 
 void QWidget::move( int x, int y )
 {
-    if ( testWFlags(WType_Desktop) )
-	return;
-    QPoint p(x,y);
-    QPoint oldp = pos();
-    if ( oldp == p )
-	return;
-    if ( extra && extra->topextra ) {
-	QRect  r = frameGeometry();
-	r.moveTopLeft( p );
-	setFRect( r );
-    } else {
-	// Simple - no frame
-	crect.moveTopLeft(p);
-	fpos = p;
-    }
-    internalMove( x, y );
-    if ( isVisible() ) {
-	QMoveEvent e( fpos, oldp );
-	QApplication::sendEvent( this, &e );
-    } else {
-	QMoveEvent * e = new QMoveEvent( fpos, oldp );
-	QApplication::postEvent( this, e );
-    }
+    internalSetGeometry( x, y, width(), height(), TRUE );
 }
 
-
-void QWidget::internalMove( int x, int y )
-{
-    if ( testWFlags(WType_TopLevel) ) {
-	setWFlags( WState_ConfigPending );
-	usposition = 1;
-	XSizeHints size_hints;			// tell window manager
-	size_hints.flags = USPosition;
-	size_hints.x = x;
-	size_hints.y = y;
-	// always set the size, otherwise it would be cleared
-	size_hints.flags |= USSize | PSize;
-	size_hints.width = width();
-	size_hints.height = height();
-	do_size_hints( dpy, winid, extra, &size_hints );
-    }
-    XMoveWindow( dpy, winid, x, y );
-}
 
 
 /*!
@@ -1298,62 +1258,7 @@ void QWidget::internalMove( int x, int y )
 */
 void QWidget::resize( int w, int h )
 {
-    if ( w == width() && h == height() )
-	return;
-    if ( testWFlags(WType_Desktop) )
-	return;
-#ifndef QT_NO_LAYOUT_COMPAT
-    if ( w <= 1 && h <= 1 && layout() ) {
-	QSize s = layout()->sizeHint();
-	w = s.width();
-	h = s.height();
-    }
-#endif
-    if ( extra ) {				// any size restrictions?
-	w = QMIN(w,extra->maxw);
-	h = QMIN(h,extra->maxh);
-	w = QMAX(w,extra->minw);
-	h = QMAX(h,extra->minh);
-    }
-    if ( w < 1 )				// invalid size
-	w = 1;
-    if ( h < 1 )
-	h = 1;
-    QRect r = crect;
-    QSize s(w,h);
-    QSize olds = size();
-    r.setSize( s );
-    setCRect( r );
-    internalResize( w, h );
-    if ( isVisible() ) {
-	QResizeEvent e( s, olds );
-	QApplication::sendEvent( this, &e );
- 	if ( !testWFlags(WResizeNoErase) )
- 	    repaint( TRUE );
-    } else {
-	QResizeEvent * e = new QResizeEvent( s, olds );
-	QApplication::postEvent( this, e );
-    }
-}
-
-
-void QWidget::internalResize( int w, int h )
-{
-    if ( testWFlags(WType_TopLevel) ) {
-	setWFlags( WState_ConfigPending );
-	XSizeHints size_hints;			// tell window manager
-	size_hints.flags = USSize | PSize;
-	size_hints.width = w;
-	size_hints.height = h;
-	if ( usposition ) {
-	    // also restore the usposition, otherwise it would be cleared
-	    size_hints.flags |= USPosition;
-	    size_hints.x = x();
-	    size_hints.y = y();
-	}
-	do_size_hints( dpy, winid, extra, &size_hints );
-    }
-    XResizeWindow( dpy, winid, w, h );
+    internalSetGeometry( x(), y(), w, h, FALSE );
 }
 
 
@@ -1384,6 +1289,12 @@ void QWidget::internalResize( int w, int h )
 
 void QWidget::setGeometry( int x, int y, int w, int h )
 {
+    internalSetGeometry( x, y, w, h, TRUE );
+}
+
+
+void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
+{
     if ( testWFlags(WType_Desktop) )
 	return;
     if ( extra ) {				// any size restrictions?
@@ -1399,44 +1310,52 @@ void QWidget::setGeometry( int x, int y, int w, int h )
     QPoint oldp = pos();
     QSize  olds = size();
     QRect  r( x, y, w, h );
-    if ( r.topLeft() == oldp && r.size() == olds )
+    if ( isMove == FALSE && r.size() == olds )
 	return;
+
     setCRect( r );
-    internalSetGeometry( x, y, w, h );
-    if ( !isVisible() ) {
-	deferMove( oldp );
-	if ( isTopLevel() )			// force internalSetGeometry
-	    deferResize( QSize(-olds.width(), -olds.height()) );
-	else
-	    deferResize( olds );
-    } else {
-	cancelMove();
-	cancelResize();
-	QResizeEvent e1( r.size(), olds );
-	QApplication::sendEvent( this, &e1 );	// send resize event
-	QMoveEvent e2( r.topLeft(), oldp );
-	QApplication::sendEvent( this, &e2 );	// send move event
-	if ( !testWFlags(WResizeNoErase) ) {
-	    repaint( TRUE );
-	}
-    }
-}
 
-
-void QWidget::internalSetGeometry( int x, int y, int w, int h )
-{
     if ( testWFlags(WType_TopLevel) ) {
 	setWFlags( WState_ConfigPending );
-	usposition = 1;
-	XSizeHints size_hints;			// tell window manager
+	XSizeHints size_hints;
 	size_hints.flags = USPosition | USSize | PSize;
+	if ( usposition || isMove )
+	    // also restore the usposition, otherwise it would be cleared
+	    size_hints.flags |= USPosition;
 	size_hints.x = x;
 	size_hints.y = y;
 	size_hints.width = w;
 	size_hints.height = h;
 	do_size_hints( dpy, winid, extra, &size_hints );
+	usposition = isMove;
     }
-    XMoveResizeWindow( dpy, winid, x, y, w, h );
+
+    if ( isMove )
+	XMoveResizeWindow( dpy, winid, x, y, w, h );
+    else
+	XResizeWindow( dpy, winid, w, h );
+    
+    bool isResize = olds != r.size();
+
+    if ( isVisible() ) {
+	if ( isMove ) {
+	    QMoveEvent e( r.topLeft(), oldp );
+	    QApplication::sendEvent( this, &e );
+	}
+	if ( isResize ) {
+	    QResizeEvent e( r.size(), olds );
+	    QApplication::sendEvent( this, &e );
+	}
+	if ( !testWFlags(WResizeNoErase) )
+	    repaint( TRUE );
+    } else {
+	if ( isMove )
+	    QApplication::postEvent( this,
+				     new QMoveEvent( r.topLeft(), oldp );
+	if ( isResize )
+	    QApplication::postEvent( this,
+				     new QResizeEvent( r.size(), olds ) );
+    }
 }
 
 

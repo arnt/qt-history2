@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#327 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#328 $
 **
 ** Implementation of QWidget class
 **
@@ -526,11 +526,11 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     propagatePalette = 0;
     keyCompression = 0;
     lay_out = 0;
-    if ( !deferredMoves )			// do it only once
-	initDeferredDicts();
     create();					// platform-dependent init
-    deferMove( fpos );
-    deferResize( crect.size() );
+    QApplication::postEvent( this,		// make sure move/resize events
+			     new QMoveEvent( fpos, fpos ) ); // are sent to all
+    QApplication::postEvent( this,		// widgets
+			     new QResizeEvent( crect.size(), crect.size() ) );
     if ( isTopLevel() ||			// kludge alert
 	 testWFlags(WState_TabToFocus) ) {	// focus was set using WFlags
 	QFocusData *fd = focusData( TRUE );
@@ -570,10 +570,6 @@ QWidget::~QWidget()
     if ( f )
 	f->focusWidgets.removeRef( this );
 
-    if ( deferredMoves ) {
-	deferredMoves->take( this );	// clean deferred move/resize
-	deferredResizes->take( this );
-    }
     if ( QApplication::main_widget == this ) {	// reset main widget
 	QApplication::main_widget = 0;
 	if (qApp)

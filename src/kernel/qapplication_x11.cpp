@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#410 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#411 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3652,11 +3652,11 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	r.setSize( newSize );
 	setCRect( r );
 	if ( isVisible() ) {
-	    cancelResize();
 	    QResizeEvent e( newSize, oldSize );
 	    QApplication::sendEvent( this, &e );
 	} else {
-	    deferResize( oldSize );
+	    QResizeEvent * e = new QResizeEvent( newSize, oldSize );
+	    QApplication::postEvent( this, e );
 	}
 	if ( !testWFlags(WResizeNoErase) ) {
 	    repaint( TRUE );

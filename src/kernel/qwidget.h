@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#198 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#199 $
 **
 ** Definition of QWidget class
 **
@@ -375,9 +375,7 @@ private:
     void	 createSysExtra();
     void	 deleteExtra();
     void	 deleteSysExtra();
-    void	 internalMove( int, int );
-    void	 internalResize( int, int );
-    void	 internalSetGeometry( int, int, int, int );
+    void	 internalSetGeometry( int, int, int, int, bool );
     void	 reparentFocusWidgets( QWidget *parent );
     QFocusData	*focusData( bool create );
     void         setBackgroundFromMode();
