@@ -37,6 +37,7 @@
 #include "qregexp.h"
 #include "qstring.h"
 #include "qptrlist.h"
+// ### remove this hack, tools shouldn't include kernel files
 #include "qwindowdefs.h"
 #include <CoreFoundation/CoreFoundation.h>
 #include <stdlib.h>

@@ -42,6 +42,10 @@
 #include "qglobal.h"
 #include "qstrlist.h"
 #include "qfileinfo.h"
+#if defined(Q_OS_MAC)
+// ### remove this hack, tools shouldn't include kernel files
+#include "qwindowdefs.h"
+#endif
 #endif // QT_H
 
 
