@@ -313,8 +313,6 @@ bool QPainter::begin( const QPaintDevice *pd )
 	QPoint wp(posInWindow(w));
 	offx = wp.x();
 	offy = wp.y();
-	if(!strcmp(w->name(), "rbutt"))
-	    qDebug("setting value of offx/offy to %d %d", offx, offy);
 
         cfont = w->font();                      // use widget font
         cpen = QPen( w->foregroundColor() );    // use widget fg color
