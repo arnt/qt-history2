@@ -297,9 +297,8 @@ QString qtMD5(const QByteArray &src)
     unsigned char digest[16];
     qtMD5(src, digest);
 
-    QString output;
-    for (int i = 0; i < 16; ++i)
-	output += output.sprintf("%02x", digest[i]);
-
+    QString output, tmp;
+    for (int i = 0; i < 16; ++i) 
+	output += tmp.sprintf("%02x", digest[i]);
     return output;
 }
