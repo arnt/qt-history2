@@ -1,5 +1,9 @@
 #include <qfile.h>
 #include <qmessagebox.h>
+#include <qsplitter.h>
+#include <qpushbutton.h>
+#include <qhbox.h>
+#include <qsizepolicy.h>
 
 #include "domtree.h"
 
@@ -7,11 +11,15 @@
 // DomTree
 //
 
-DomTree::DomTree( const QString fileName, QWidget *parent, const char *name )
-    : QHBox( parent, name )
+DomTree::DomTree( const QString &fileName, QWidget *parent, const char *name )
+    : QVBox( parent, name )
 {
-    // div. configuration of the list view
-    tree = new QListView( this );
+    filename = fileName;
+
+    QSplitter *split = new QSplitter( this );
+    split->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
+
+    tree = new QListView( split );
     tree->addColumn( "Type" );
     tree->addColumn( "Name" );
     tree->setRootIsDecorated( TRUE );
@@ -19,26 +27,46 @@ DomTree::DomTree( const QString fileName, QWidget *parent, const char *name )
     connect( tree, SIGNAL(selectionChanged(QListViewItem*)),
 	    this, SLOT(selectionChanged(QListViewItem*)) );
 
+    setContent( fileName, TRUE );
+
+    text = new QTextView( split );
+    text->setMinimumSize( 300, 400 );
+    text->setTextFormat( RichText );
+
+    split->setResizeMode( tree, QSplitter::KeepSize );
+    split->setResizeMode( text, QSplitter::Stretch );
+
+    QHBox *hb = new QHBox( this );
+    QPushButton *pb;
+    pb = new QPushButton( "With Namespace Processing", hb );
+    connect( pb, SIGNAL(clicked()),
+	    this, SLOT(withNSProc()) );
+    pb = new QPushButton( "Without Namespace Processing", hb );
+    connect( pb, SIGNAL(clicked()),
+	    this, SLOT(withoutNSProc()) );
+
+    resize( 700, 600 );
+}
+
+void DomTree::setContent( const QString &fileName, bool processNS )
+{
     // read the XML file and create DOM tree
     QFile file( fileName );
     if ( !file.open( IO_ReadOnly ) ) {
 	return;
     }
-    if ( !domTree.setContent( &file, TRUE ) ) {
+    domTree = new QDomDocument;
+    if ( !domTree->setContent( &file, processNS ) ) {
 	file.close();
 	return;
     }
     file.close();
-    buildTree( 0, domTree, QDomNamedNodeMap() );
-
-    // div. configuration of the list view
-    text = new QTextView( this );
-    text->setMinimumSize( 300, 400 );
-    text->setTextFormat( RichText );
+    buildTree( 0, *domTree, QDomNamedNodeMap() );
 }
 
 DomTree::~DomTree()
 {
+    delete domTree;
 }
 
 void DomTree::buildTree( QListViewItem *parentItem, const QDomNode &actNode, const QDomNamedNodeMap &attribs )
@@ -81,6 +109,20 @@ void DomTree::buildTree( QListViewItem *parentItem, const QDomNode &actNode, con
 void DomTree::selectionChanged( QListViewItem *it )
 {
     text->setText( ((DomTreeItem*)it)->contentString() );
+}
+
+void DomTree::withNSProc()
+{
+    delete domTree;
+    tree->clear();
+    setContent( filename, TRUE );
+}
+
+void DomTree::withoutNSProc()
+{
+    delete domTree;
+    tree->clear();
+    setContent( filename, FALSE );
 }
 
 //
