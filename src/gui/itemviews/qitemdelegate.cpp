@@ -312,6 +312,10 @@ void QItemDelegate::drawFocus(QPainter *painter, const QStyleOptionViewItem &opt
         o.rect = rect;
         o.palette = option.palette;
         o.state = QStyle::Style_Default;
+        if (option.state & QStyle::Style_Selected)
+            o.backgroundColor = option.palette.highlight();
+        else
+            o.backgroundColor = option.palette.background();
         QApplication::style().drawPrimitive(QStyle::PE_FocusRect, &o, painter);
     }
 }
