@@ -203,8 +203,11 @@ QString qGetStringData( SQLHANDLE hStmt, int column, int colSize, bool& isNull, 
 	colSize = 255;
     } else if ( colSize > 65536 ) { // limit buffer size to 64 KB 
 	colSize = 65536;
-    } else if ( unicode ) {
-	colSize *= 2; // a tiny bit faster, since it saves a SQLGetData() call
+    } else {
+	colSize++; // make sure there is room for more than the 0 termination
+	if ( unicode ) {
+	    colSize *= 2; // a tiny bit faster, since it saves a SQLGetData() call
+	}
     }
     char* buf = new char[ colSize ];
     while ( TRUE ) {
@@ -225,14 +228,14 @@ QString qGetStringData( SQLHANDLE hStmt, int column, int colSize, bool& isNull, 
 	    // contain the number of bytes returned - it contains the
 	    // total number of bytes that CAN be fetched
 	    // colSize-1: remove 0 termination when there is more data to fetch
-	    int rSize = (r == SQL_SUCCESS_WITH_INFO) ? colSize-1 : lengthIndicator;
+	    int rSize = (r == SQL_SUCCESS_WITH_INFO) ? (unicode ? colSize-2 : colSize-1) : lengthIndicator;
 	    if ( unicode ) {
 		fieldVal += QString( (QChar*) buf, rSize / 2 );
 	    } else {
 		buf[ rSize ] = 0;
 		fieldVal += buf;
 	    }
-	    if ( lengthIndicator <= colSize ) {
+	    if ( lengthIndicator < colSize ) {
 		// workaround for Drivermanagers that don't return SQL_NO_DATA
 		break;
 	    }
@@ -914,6 +917,7 @@ bool QODBCResult::exec()
  		    dt->hour = qdt.time().hour();
  		    dt->minute = qdt.time().minute();
  		    dt->second = qdt.time().second();
+  		    dt->fraction = 0;
 		    r = SQLBindParameter( d->hStmt,
 					  para,
 					  SQL_PARAM_INPUT,
