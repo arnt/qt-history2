@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#6 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#7 $
 **
 ** Definition of QPaintDevice class
 **
@@ -101,6 +101,15 @@ public:
 		     int dx, int dy, RasterOp =CopyROP );
     void     bitBlt( const QRect &srcrect, QPaintDevice *dest,
 		     const QPoint &dpos, RasterOp =CopyROP );
+
+#if defined(_WS_WIN_)
+    HDC	     handle() const { return hdc; }	// get device context
+#elif defined(_WS_PM_)
+    HPS	     handle() const { return hps; }	// get presentation space
+#elif defined(_WS_X11_)
+    Display *display() const { return dpy; }	// get display
+    WId	     handle() const { return hd; }	// get drawable
+#endif
 
 protected:
     void     setDevType( uint t )   { devFlags = t; }
