@@ -1616,6 +1616,9 @@ QT_MAC_VERSION=
 if [ "$PLATFORM_MAC" = "yes" ]; then
     mactests=$relpath/config.tests/mac
     QT_MAC_VERSION=`$mactests/mac_version.test "$OPT_VERBOSE" "$relpath" "$outpath"`
+    if [ "$CFG_TABLET" = "auto" ]; then
+	CFG_TABLET=yes
+    fi
 fi
 
 # x11
@@ -1995,6 +1998,16 @@ Third Party Image Loading Libraries:
     -system-libmng ..... Use libmng from the operating system.
 			 See http://www.libmng.com
 EOF
+
+if [ "$PLATFORM_MAC" = "yes" ]; then
+    cat << EOF
+
+Qt/Mac only:
+
+    -no-tablet ......... Do not compile Tablet support.
+ *  -tablet ............ Compile Tablet support.
+EOF
+fi
 
 if [ "$PLATFORM_X11" = "yes" ]; then
     if [ "$CFG_SM" = "no" ]; then
@@ -2703,6 +2716,10 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     if [ "$CFG_XKB" = "yes" ]; then
         QMAKE_CONFIG="$QMAKE_CONFIG xkb"
     fi
+elif [ "$PLATFORM_MAC" = "yes" ]; then
+    if [ "$CFG_TABLET" = "yes" ]; then
+	QMAKE_CONFIG="$QMAKE_CONFIG tablet"
+    fi
 fi
 
 [ '!' -z "$D_FLAGS" ] && QMAKE_VARS="$QMAKE_VARS \"DEFINES+=$D_FLAGS\""
@@ -3182,6 +3199,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     echo "XKB Support ......... $CFG_XKB"
 elif [ "$PLATFORM_MAC" = "yes" ]; then
     echo "Accessibility ....... $CFG_ACCESSIBILITY"
+    echo "Tablet support ...... $CFG_TABLET"
 fi
 
 # complain about not being able to use plugins if we are using a static build
