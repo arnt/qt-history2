@@ -259,7 +259,7 @@ void QDnsAgent::run()
     A QDnsHostInfo is passed to the slot invoked by
     QDns::getHostByName(). It contains the result of the lookup.
 
-    host() returns the host name that was found. Call addresses()
+    host() returns the host name that was looked up. Call addresses()
     to get the list of IP addresses for the host.
 
     If the lookup failed, error() returns the type of error that
