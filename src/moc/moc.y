@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#252 $
+** $Id: //depot/qt/main/src/moc/moc.y#253 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -1539,7 +1539,7 @@ bool qt_is_gui_used = FALSE;
 #include "Aliases.h"
 #include <stat.h>
 
-const unsigned char *p_str(const char *);
+const unsigned char *p_str(const char *, int =-1);
 
 CWPluginContext g_ctx;
 
@@ -2637,7 +2637,7 @@ void generateClass()		      // generate C++ source code for a class
     const char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     const char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#252 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#253 $)\n**\n";
     const char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     const char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
