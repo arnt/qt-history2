@@ -96,7 +96,8 @@ namespace QMsNet
 					    Resource.AddMocStepBitmapID,
 					    ref contextGUIDS,
 					    disableFlags );
-		cmd.AddControl( cmdBar, 1 );
+		CommandBarControl ctrl = cmd.AddControl( cmdBar, 1 );
+		ctrl.Caption = " ";
 
 		// DLL Project command
 		cmd = cmds.AddNamedCommand( Connect.addinInstance,
@@ -107,7 +108,8 @@ namespace QMsNet
 					    Resource.DLLQtProjectBitmapID,
 					    ref contextGUIDS,
 					    disableFlags );
-		cmd.AddControl( cmdBar, 1 );
+		ctrl = cmd.AddControl( cmdBar, 1 );
+		ctrl.Caption = " ";
 
 		// Save Qt Project command
 		cmd = cmds.AddNamedCommand( Connect.addinInstance,
@@ -118,7 +120,8 @@ namespace QMsNet
 					    Resource.SaveQtProjectBitmapID,
 					    ref contextGUIDS,
 					    disableFlags );
-		cmd.AddControl( cmdBar, 1 );
+		ctrl = cmd.AddControl( cmdBar, 1 );
+		ctrl.Caption = " ";
 
 		// Load Qt Project command
 		cmd = cmds.AddNamedCommand( Connect.addinInstance,
@@ -129,7 +132,8 @@ namespace QMsNet
 					    Resource.LoadQtProjectBitmapID,
 					    ref contextGUIDS,
 					    disableFlags );
-		cmd.AddControl( cmdBar, 1 );
+		ctrl = cmd.AddControl( cmdBar, 1 );
+		ctrl.Caption = " ";
 
 		// Load Designer command
 		cmd = cmds.AddNamedCommand( Connect.addinInstance,
@@ -140,7 +144,8 @@ namespace QMsNet
 					    Resource.LoadDesignerBitmapID,
 					    ref contextGUIDS,
 					    disableFlags );
-		cmd.AddControl( cmdBar, 1 );
+		ctrl = cmd.AddControl( cmdBar, 1 );
+		ctrl.Caption = " ";
 
 		// Make Qt Project command
 		cmd = cmds.AddNamedCommand( Connect.addinInstance,
@@ -151,7 +156,8 @@ namespace QMsNet
 					    Resource.MakeQtProjectBitmapID,
 					    ref contextGUIDS,
 					    disableFlags );
-		cmd.AddControl( cmdBar, 1 );
+		ctrl = cmd.AddControl( cmdBar, 1 );
+		ctrl.Caption = " ";
 
 		// New Qt Project command
 		cmd = cmds.AddNamedCommand( Connect.addinInstance,
@@ -162,7 +168,8 @@ namespace QMsNet
 					    Resource.NewQtProjectBitmapID,
 					    ref contextGUIDS,
 					    disableFlags );
-		cmd.AddControl( cmdBar, 1 );
+		ctrl = cmd.AddControl( cmdBar, 1 );
+		ctrl.Caption = " ";
 
 		// Monitor Events command
 		cmds.AddNamedCommand( Connect.addinInstance,
