@@ -841,7 +841,7 @@ unsigned long NETRootInfo::event(XEvent *e) {
 	} else if (e->xclient.message_type == net_current_desktop) {
 	    dirty = CurrentDesktop;
 
-	    changeCurrentDesktop(e->xclient.data.l[0]);
+	    changeCurrentDesktop(e->xclient.data.l[0] + 1);
 	} else if (e->xclient.message_type == net_active_window) {
 	    dirty = ActiveWindow;
 
