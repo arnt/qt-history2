@@ -591,12 +591,10 @@ bool QWidgetItem::isEmpty() const
   This is an abstract base class. The concrete layout managers
   QBoxLayout and QGridLayout inherit from this one.
 
-  Most users of Q*Layout are likely to use some of the basic functions
-  provided by QLayout, such as	setMenuBar(), which is necessary
-  to manage a menu bar because of the special properties of menu bars,
-  and  freeze(), which allows you to freeze the widget's size and
-  layout.  See the <a href="layout.html">layout overview page</a> for more
-  information.
+  For users of Q*Layout or QMainWindow, there is seldom need to use
+  any of the basic functions provided by QLayout, such as
+  setResizeMode() or setMenuBar(). See the <a
+  href="layout.html">layout overview page</a> for more information.
 
   To make your own layout manager, make a subclass of QGLayoutIterator
   and implement the functions addItem(), sizeHint(), setGeometry() and
@@ -672,6 +670,7 @@ void QLayout::init()
     marginImpl = FALSE;
     extraData = 0;
     menubar = 0;
+    enabled = TRUE;
 }
 
 /*!
@@ -949,6 +948,9 @@ static bool removeWidget( QLayoutItem *lay, QWidget *w )
 
 bool QLayout::eventFilter( QObject *o, QEvent *e )
 {
+    if ( !enabled )
+	return FALSE; // nothing we can do, should do or want to do
+    
     if ( o == this && e->type() == QEvent::ChildRemoved ) {
 	//we cannot implement childEvent() or event() because of
 	//###binary compatibility.
@@ -969,15 +971,13 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
     if ( !o->isWidgetType() )
 	return FALSE;
 
-    //	  QWidget *p = (QWidget*)o;
-    //		 if ( p != parentWidget() ) return FALSE;
     switch ( e->type() ) {
-    case QEvent::Resize: {
-	QResizeEvent *r = (QResizeEvent*)e;
-	int mbh = 0;
-	if ( menubar && !menubar->testWState(WState_ForceHide) )
-	    mbh = menubar->heightForWidth( r->size().width() );
+    case QEvent::Resize:
 	if ( activated ) {
+	    QResizeEvent *r = (QResizeEvent*)e;
+	    int mbh = 0;
+	    if ( menubar && !menubar->testWState(WState_ForceHide) )
+		mbh = menubar->heightForWidth( r->size().width() );
 	    int b = marginImpl ? 0 : outsideBorder;
 	    setGeometry( QRect( b, mbh + b, r->size().width() - 2*b,
 				r->size().height() - mbh - 2*b ) );
@@ -985,7 +985,6 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 	    activate();
 	}
 	break;
-    }
     case QEvent::ChildRemoved: {
 	QChildEvent *c = (QChildEvent*)e;
 	if ( c->child()->isWidgetType() ) {
@@ -1022,7 +1021,7 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 	QApplication::postEvent( o, new QEvent( QEvent::LayoutHint ) );
 	break;
     case QEvent::LayoutHint:
-	activate(); //######## Check that LayoutHint events are collapsed
+	activate();
 	break;
     default:
 	break;
@@ -1644,7 +1643,7 @@ QGLayoutIterator::~QGLayoutIterator()
 
 /*!
   Sets the resize mode to \a mode.
-
+  
   The default mode is \c Minimum for top level widgets, and \c FreeResize
   for all others.
 
@@ -1770,4 +1769,32 @@ QRect QLayout::alignmentRect( const QRect &r ) const
 
     return QRect( x, y, s.width(), s.height() );
 
+}
+
+
+
+/*!  
+  Enables this layout if \a enable is TRUE, otherwise disables it.
+  
+  An enabled layout adjusts dynamically to changes, a disabled layout
+  acts as if it was not existing.
+  
+  By default, all layouts are enabled.
+  
+  \sa isEnabled()
+ */
+void QLayout::setEnabled( bool enable)
+{
+    enabled = enable;
+}
+
+
+/*!
+  Returns whether or not this layout is enabled.
+  
+  \sa setEnabled()
+ */
+bool QLayout::isEnabled() const
+{
+    return enabled;
 }

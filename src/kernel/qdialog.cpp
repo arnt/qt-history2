@@ -29,6 +29,7 @@
 #include "qobjectlist.h"
 #include "qobjectdict.h"
 #include "qwidgetlist.h"
+#include "qlayout.h"
 
 
 // NOT REVISED
@@ -39,14 +40,15 @@
   \ingroup dialogs
   \ingroup abstractwidgets
 
-  A dialog window is a widget used to communicate with the user. It offers
-  mechanisms such as default buttons.
+  A dialog window is a widget used to communicate with the user. It
+  offers mechanisms such as modality, default buttons and
+  extensibility.
 
-  The dialog window can either be modeless or modal. A modeless dialog is
-  a normal window, while a modal window must be finished before the user
-  can continue with other parts of the program.	 The third constructor
-  argument must be set to TRUE to create a modal dialog, otherwise it will
-  create a modeless dialog.
+  The dialog window can either be modeless or modal. A modeless dialog
+  is a normal secondary window, while a modal window must be finished
+  before the user can continue with other parts of the program. The
+  third constructor argument must be set to TRUE to create a modal
+  dialog, otherwise it will create a modeless dialog.
 
   Example (your own modal dialog):
   \code
@@ -69,9 +71,11 @@
     }
   \endcode
 
-  Note that the parent widget has an additional meaning for modal
-  dialogs.  A modal dialog is placed on top of the parent widget. The
-  dialog is centered on the screen if the parent widget is zero.
+  Note that the parent widget has an additional meaning for dialogs.
+  A dialog is placed on top of the parent widget and associated with
+  it (i.e. it stays on top of its parent and shares certain resources,
+  for example a common taskbar entry). If the parent widget is zero,
+  the dialog is centered on the screen.
 
   You would normally call exec() to start a modal dialog. This enters
   a local event loop, which is terminated when the modal dialog calls
@@ -85,12 +89,28 @@
     }
   \endcode
 
-  Modeless dialogs behave just like ordinary toplevel widgets. The only difference
-  is that they have the default button mechanism.
-
   \sa QTabDialog QWidget QSemiModal
   <a href="guibooks.html#fowler">GUI Design Handbook: Dialogs, Standard.</a>
 */
+
+
+
+class QDialogPrivate : public Qt
+{
+public:
+    
+    QDialogPrivate()
+{
+    mainDef = 0;
+    orientation = Horizontal;
+    extension = 0;
+}
+    
+    QPushButton* mainDef;
+    Orientation orientation;
+    QWidget* extension;
+    QSize size, min, max;
+};
 
 
 /*!
@@ -123,7 +143,7 @@ QDialog::QDialog( QWidget *parent, const char *name, bool modal, WFlags f )
     did_move = FALSE;
     did_resize = FALSE;
     in_loop = FALSE;
-    mainDef = 0;
+    d = new QDialogPrivate;
 }
 
 /*!
@@ -135,6 +155,7 @@ QDialog::~QDialog()
     // Need to hide() here, as our (to-be) overridden hide()
     // will not be called in ~QWidget.
     hide();
+    delete d;
 }
 
 /*!
@@ -154,15 +175,15 @@ void QDialog::setDefault( QPushButton *pushButton )
     bool hasMain = FALSE;
     while ( (pb = (QPushButton*)it.current()) ) {
 	++it;
-	if ( pb == mainDef )
+	if ( pb == d->mainDef )
 	    hasMain = TRUE;
 	if ( pb != pushButton )
 	    pb->setDefault( FALSE );
     }
     if (!pushButton && hasMain)
-	mainDef->setDefault( TRUE );
+	d->mainDef->setDefault( TRUE );
     if (!hasMain)
-	mainDef = pushButton;
+	d->mainDef = pushButton;
     delete list;
 #endif
 }
@@ -423,6 +444,16 @@ void QDialog::show()
 	move( p );
     }
     QWidget::show();
+    
+    
+    /*########### 3.0: 
+      
+      This 'feature' is nonsense and will be removed in 3.0. 
+      show()
+      should do show() and nothing more.  If these lines are removed,
+      we can finally kill QSemiModal and let QProgressBar inherit
+      QDialog.
+     */
     if ( testWFlags(WType_Modal) && !in_loop ) {
 	in_loop = TRUE;
 	qApp->enter_loop();
@@ -446,8 +477,7 @@ void QDialog::hide()
   Detects any widget geometry changes done by the user.
  *****************************************************************************/
 
-/*!
-  Reimplements QWidget::move() for internal purposes.
+/*!\reimp
 */
 
 void QDialog::move( int x, int y )
@@ -456,8 +486,7 @@ void QDialog::move( int x, int y )
     QWidget::move( x, y );
 }
 
-/*!
-  Reimplements QWidget::move() for internal purposes.
+/*!\reimp
 */
 
 void QDialog::move( const QPoint &p )
@@ -466,8 +495,7 @@ void QDialog::move( const QPoint &p )
     QWidget::move( p );
 }
 
-/*!
-  Reimplements QWidget::resize() for internal purposes.
+/*!\reimp
 */
 
 void QDialog::resize( int w, int h )
@@ -476,8 +504,7 @@ void QDialog::resize( int w, int h )
     QWidget::resize( w, h );
 }
 
-/*!
-  Reimplements QWidget::resize() for internal purposes.
+/*!\reimp
 */
 
 void QDialog::resize( const QSize &s )
@@ -486,8 +513,7 @@ void QDialog::resize( const QSize &s )
     QWidget::resize( s );
 }
 
-/*!
-  Reimplements QWidget::setGeometry() for internal purposes.
+/*!\reimp
 */
 
 void QDialog::setGeometry( int x, int y, int w, int h )
@@ -497,8 +523,7 @@ void QDialog::setGeometry( int x, int y, int w, int h )
     QWidget::setGeometry( x, y, w, h );
 }
 
-/*!
-  Reimplements QWidget::setGeometry() for internal purposes.
+/*!\reimp
 */
 
 void QDialog::setGeometry( const QRect &r )
@@ -507,3 +532,124 @@ void QDialog::setGeometry( const QRect &r )
     did_resize = TRUE;
     QWidget::setGeometry( r );
 }
+
+
+/*!  
+  Sets whether the dialog should extend horizontally or vertically,
+  depending on \a orientation.
+
+  \sa orientation(), setExtension()
+*/
+void QDialog::setOrientation( Orientation orientation )
+{
+    d->orientation = orientation;
+}
+
+/*!  
+  Returns the extension direction of the dialog.
+
+  \sa setOrientation()
+*/
+Qt::Orientation QDialog::orientation() const
+{
+    return d->orientation;
+}
+    
+/*!
+  Sets \a extension to be the dialog's extension. 
+  
+  The dialogs takes over ownership of the extension. Any previously
+  defined extension is deleted.
+  
+  \sa showExtension(), setOrientation(), extension()
+ */
+void QDialog::setExtension( QWidget* extension )
+{
+    delete d->extension;
+    d->extension = extension;
+    if ( !extension )
+	return;
+    if ( extension->parentWidget() != this )
+	extension->reparent( this, QPoint(0,0) );
+    else
+	extension->hide();
+}
+
+/*!  
+  Returns the dialog's extension or 0 if no extension has been
+  defined yet.
+  
+  \sa setExtension()
+ */
+QWidget* QDialog::extension() const
+{
+    return d->extension;
+}
+
+
+/*!  
+  Extends the dialog to show its extension if \a showIt is TRUE,
+  otherwise hides the extension.
+  
+  This slot is usually connected to the toggled-signal of a toggle
+  button (see QPushButton::toggled() ). Per default, the dialog
+  extends horizontally. Adjust this behaviour with setOrientation().
+  
+  Nothing happens if the dialog is not visible yet.
+  
+  \sa show(), setExtension(), setOrientation()
+ */
+void QDialog::showExtension( bool showIt )
+{
+    if ( !d->extension )
+	return;
+    if ( !testWState(WState_Visible) )
+	return;
+    
+    if ( showIt ) {
+	d->size = size();
+	d->min = minimumSize();
+	d->max = maximumSize();
+    
+	if ( layout() )
+	    layout()->setEnabled( FALSE );
+
+	QSize s( d->extension->sizeHint() );
+	if ( d->orientation == Horizontal ) {
+	    d->extension->setGeometry( width(), 0, s.width(), height() );
+	    setFixedSize( width() + s.width(), height() );
+	} else {
+	    d->extension->setGeometry( 0, height(), width(), s.height() );
+	    setFixedSize( width(), height() + s.height() );
+	}
+	d->extension->show();
+    } else {
+	d->extension->hide();
+	setMinimumSize( d->min );
+	setMaximumSize( d->max );
+	resize( d->size );
+	if ( layout() )
+	    layout()->setEnabled( TRUE );
+    }
+}
+
+
+/*!\reimp
+ */
+QSize QDialog::sizeHint() const
+{
+    if ( d->extension )
+	return QWidget::sizeHint().expandedTo( d->extension->sizeHint() );
+    return QWidget::sizeHint();
+}
+
+
+/*!\reimp
+ */
+QSize QDialog::minimumSizeHint() const
+{
+    if ( d->extension )
+	return QWidget::minimumSizeHint().expandedTo( d->extension->minimumSizeHint() );
+    return QWidget::minimumSizeHint();
+}
+

@@ -157,7 +157,7 @@ class Q_EXPORT QLayout : public QObject, public QLayoutItem
     Q_PROPERTY( int margin READ margin WRITE setMargin )
     Q_PROPERTY( int spacing READ spacing WRITE setSpacing )
     Q_PROPERTY( ResizeMode resizeMode READ resizeMode WRITE setResizeMode )
-    
+
 public:
     QLayout( QWidget *parent, int margin=0, int space=-1,
 	     const char *name=0 );
@@ -165,7 +165,7 @@ public:
     QLayout( int space=-1, const char *name=0 );
 
     ~QLayout();
-    
+
     int margin() const { return outsideBorder; }
     int spacing() const { return insideSpacing; }
 
@@ -213,6 +213,9 @@ public:
     QLayout *layout();
 
     bool supportsMargin() const { return marginImpl; }
+    
+    void setEnabled( bool );
+    bool isEnabled() const;
 
 protected:
     bool  eventFilter( QObject *, QEvent * );
@@ -232,6 +235,7 @@ private:
     uint frozen : 1;
     uint activated : 1;
     uint marginImpl : 1;
+    uint enabled : 1;
     QRect rect;
     QLayoutData *extraData;
     QMenuBar *menubar;

@@ -40,7 +40,7 @@
   default, for consistency with QDialog.  Such a QSemiModal is modal
   like QDialog, but it does not have its own event loop. The flow of
   control is still within your code and it is up to you to update the
-  semi-modal dialog (for example a progressbar) from time to time. 
+  semi-modal dialog (for example a progressbar) from time to time.
 
   Note that the parent widget has a different meaning for dialogs than
   for other types of widgets. A dialog is placed on top of the parent
@@ -56,7 +56,7 @@
 */
 
 QSemiModal::QSemiModal( QWidget *parent, const char *name, bool modal, WFlags f )
-    : QWidget( parent, name, modal ? f | WType_Modal : f )
+    : QWidget( parent, name, (modal ? (f | WType_Modal) : f) | WType_TopLevel | WStyle_Dialog )
 {
     did_move = did_resize = FALSE;
 }
