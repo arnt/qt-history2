@@ -115,6 +115,9 @@ public:
     QHostAddress address() const;
     QHostAddress peerAddress() const;
 
+    void	 setReadBufferSize( Q_ULONG );
+    Q_ULONG	 readBufferSize() const;
+
 signals:
     void	 hostFound();
     void	 connected();

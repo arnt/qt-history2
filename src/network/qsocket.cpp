@@ -123,6 +123,7 @@ public:
     QSocketDevice      *socket;			// connection socket
     QSocketNotifier    *rsn, *wsn;		// socket notifiers
     QMembuf		rba;			// read buffer
+    Q_ULONG		readBufferSize;		// limit for the read buffer size
     QPtrList<QByteArray> wba;			// list of write bufs
     QHostAddress	addr;			// connection address
     QIODevice::Offset	wsize;			// write total buf size
@@ -137,7 +138,7 @@ QPtrList<QSocket> QSocketPrivate::sn_read_alreadyCalled;
 
 QSocketPrivate::QSocketPrivate()
     : state(QSocket::Idle), host(QString::fromLatin1("")), port(0),
-      socket(0), rsn(0), wsn(0), wsize(0), windex(0)
+      socket(0), rsn(0), wsn(0), readBufferSize(0), wsize(0), windex(0)
 {
 #ifndef QT_NO_DNS
     dns = 0;
@@ -745,6 +746,8 @@ bool QSocket::at( Offset index )
     if ( index > d->rba.size() )
 	return FALSE;
     d->rba.consumeBytes( (Q_ULONG)index, 0 );			// throw away data 0..index-1
+    if ( d->rsn )
+	d->rsn->setEnabled( TRUE );
     return TRUE;
 }
 
@@ -869,6 +872,8 @@ Q_LONG QSocket::readBlock( char *data, Q_ULONG maxlen )
     qDebug( "QSocket (%s): readBlock %d bytes", name(), (int)maxlen );
 #endif
     d->rba.consumeBytes( maxlen, data );
+    if ( d->rsn )
+	d->rsn->setEnabled( TRUE );
     return maxlen;
 }
 
@@ -943,6 +948,8 @@ int QSocket::getch()
     if ( isOpen() && d->rba.size() > 0 ) {
 	uchar c;
 	d->rba.consumeBytes( 1, (char*)&c );
+	if ( d->rsn )
+	    d->rsn->setEnabled( TRUE );
 	return c;
     }
     return -1;
@@ -1050,6 +1057,16 @@ QString QSocket::readLine()
 
 void QSocket::sn_read( bool force )
 {
+    Q_LONG maxToRead = 0;
+    if ( d->readBufferSize > 0 ) {
+	maxToRead = d->readBufferSize - d->rba.size();
+	if ( maxToRead <= 0 ) {
+	    if ( d->rsn )
+		d->rsn->setEnabled( FALSE );
+	    return;
+	}
+    }
+
     // Use QSocketPrivate::sn_read_alreadyCalled to avoid recursive calls of
     // sn_read() (and as a result avoid emitting the readyRead() signal in a
     // slot for readyRead(), if you use bytesAvailable()).
@@ -1058,9 +1075,12 @@ void QSocket::sn_read( bool force )
     QSocketPrivate::sn_read_alreadyCalled.append( this );
 
     char buf[4096];
-    int  nbytes = d->socket->bytesAvailable();
-    int  nread;
+    Q_LONG nbytes = d->socket->bytesAvailable();
+    Q_LONG nread;
     QByteArray *a = 0;
+
+    if ( d->readBufferSize > 0 ) {
+    }
 
     if ( state() == Connecting ) {
 	if ( nbytes > 0 ) {
@@ -1083,7 +1103,7 @@ void QSocket::sn_read( bool force )
 	// event is processed. A new read operation would then block.
 	// This code is also useful when QSocket is used without an
 	// event loop.
-	nread = d->socket->readBlock( buf, sizeof(buf) );
+	nread = d->socket->readBlock( buf, maxToRead ? QMIN((Q_LONG)sizeof(buf),maxToRead) : sizeof(buf) );
 	if ( nread == 0 ) {			// really closed
 #if defined(QSOCKET_DEBUG)
 	    qDebug( "QSocket (%s): sn_read: Connection closed", name() );
@@ -1120,10 +1140,10 @@ void QSocket::sn_read( bool force )
 	if ( nbytes > (int)sizeof(buf) ) {
 	    // big
 	    a = new QByteArray( nbytes );
-	    nread = d->socket->readBlock( a->data(), nbytes );
+	    nread = d->socket->readBlock( a->data(), maxToRead ? QMIN(nbytes,maxToRead) : nbytes );
 	} else {
 	    a = 0;
-	    nread = d->socket->readBlock( buf, sizeof(buf) );
+	    nread = d->socket->readBlock( buf, maxToRead ? QMIN((Q_LONG)sizeof(buf),maxToRead) : sizeof(buf) );
 	    if ( nread > 0 ) {
 		// ##### could setRawData
 		a = new QByteArray( nread );
@@ -1354,4 +1374,39 @@ QString QSocket::peerName() const
 {
     return d->host;
 }
+
+/*!
+    Sets the size of the QSocket's internal read buffer to \a bufSize.
+
+    Usually QSocket reads all data that is available from the operating
+    system's socket. If the buffer size is limited to a certain size, this
+    means that the QSocket class doesn't buffer more than this size of data.
+
+    If the size of the read buffer is 0, the read buffer is unlimited and all
+    incoming data is buffered. This is the default.
+
+    If you read the data in the readyRead() signal, you shouldn't use this
+    option since it might slow down your program unnecessary. This option is
+    useful if you only need to read the data at certain points in time, like in
+    a realtime streaming application.
+
+    \sa readBufferSize()
+*/
+
+void QSocket::setReadBufferSize( Q_ULONG bufSize )
+{
+    d->readBufferSize = bufSize;
+}
+
+/*!
+    Returns the size of the read buffer.
+
+    \sa setReadBufferSize()
+*/
+
+Q_ULONG QSocket::readBufferSize() const
+{
+    return d->readBufferSize;
+}
+
 #endif //QT_NO_NETWORK
