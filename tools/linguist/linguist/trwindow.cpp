@@ -853,7 +853,6 @@ void TrWindow::findAgain()
       As long as we don't implement highlighting of the text in the QTextView,
       we may have only one match per message.
     */
-    foundWhere = FindDialog::Comments;
     foundOffset = (int) 0x7fffffff;
 #else
     foundOffset++;
@@ -868,9 +867,8 @@ void TrWindow::findAgain()
 	    if ( foundScope != 0 )
 		statusBar()->message( tr("Search wrapped."), MessageMS );
 	}
-	if ( k == 0 ) {
+	if ( k == 0 )
 	    k = slv->firstChild();
-	}
 
 	while ( k ) {
 	    MessageLVI * m = (MessageLVI *) k;
@@ -883,16 +881,19 @@ void TrWindow::findAgain()
 		    if ( searchItem( m->sourceText(), j, k ) )
 			return;
 		    foundWhere  = FindDialog::Translations;
+		    foundOffset = 0;
 		    // fall-through
 		case FindDialog::Translations:
 		    if ( searchItem( m->translation(), j, k ) )
 			return;
 		    foundWhere  = FindDialog::Comments;
+		    foundOffset = 0;
 		    // fall-through
 		case FindDialog::Comments:
-		    if( searchItem( ((ContextLVI *) j)->fullContext(), j, k))
+		    if ( searchItem( ((ContextLVI *) j)->fullContext(), j, k) )
 			return;
 		    foundWhere  = 0;
+		    foundOffset = 0;
 	    }
 	    k = k->nextSibling();
 	}
@@ -902,7 +903,7 @@ void TrWindow::findAgain()
 	    setCurrentContextItem( j );
 	    k = slv->firstChild();
 	}
-    } while ( ++pass != lv->childCount() );
+    } while ( pass++ != lv->childCount() );
 
     // This is just to keep the current scope and source text item
     // selected after a search failed.
@@ -1085,14 +1086,10 @@ void TrWindow::revertSorting()
 
 void TrWindow::manual()
 {
-//     ov->show();
-//     ov->setActiveWindow();
-//     ov->raise();
     QStringList lst;
     lst << "assistant" << "qt-translation-tools.html";
     QProcess proc( lst );
     proc.start();
-
 }
 
 void TrWindow::about()
