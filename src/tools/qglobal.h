@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#76 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#77 $
 **
 ** Global type declarations and definitions
 **
@@ -106,6 +106,10 @@
 #define _CC_BOR_
 #elif defined(__GNUC__)
 #define _CC_GNU_
+#elif defined(__xlC__)
+#define _CC_XLC_
+// since IBM licensed EDG...
+#define _CC_EDG_
 #elif defined(__EDG) || defined(__EDG__)
 // one observed on SGI DCC, the other documented
 #define _CC_EDG_
@@ -115,8 +119,6 @@
 #define _CC_SUN_
 #elif defined(__DECCXX)
 #define _CC_DEC_
-#elif defined(__xlC__)
-#define _CC_XLC_
 #elif defined(_OS_HPUX_)
 // must be last, since the HP CC's we have seen do not identify themselves
 // in any documented manner
