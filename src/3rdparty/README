@@ -1,7 +1,7 @@
 The libraries included here are the original packages, unpacked, and
 with their version number removed from the directory name (for version
-information, see the README files in the directories).  Some bugs have
-been fixed.  The following have been removed:
+information, see the README files in the directories).  The following
+have been removed:
  
     libpng/contrib - a collection of examples and test-suite
     zlib/contrib - a collection of non-zlib code
