@@ -111,11 +111,6 @@ public:
 
 bool QMacMimeAnyMime::loadMimeRegistry()
 {
-    static bool loaded = FALSE;
-    if(loaded) 
-	return TRUE;
-    loaded = TRUE;
-
     QSettings mime_settings;
     mime_settings.setPath("MimeRegistry", "qt");
     mime_registry.clear();
