@@ -188,7 +188,7 @@ enum enumResourceLangID {
     rcThai			= 1054,
     rcTurkish			= 1055,
     rcUkrainian			= 1058,
-    rcUrdu			= 1056,
+    rcUrdu			= 1056
 };
 enum enumSccEvent {
     eProjectInScc,
