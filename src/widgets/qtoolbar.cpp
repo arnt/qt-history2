@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#3 $
 **
 ** Implementation of something useful.
 **
@@ -20,7 +20,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#2 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#3 $");
 
 
 
@@ -30,6 +30,11 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#2 $");
 
   Very simple, even.
 */
+
+
+/*! \fn void QToolBar::useBigPixmaps( bool );
+  
+  This signal is emitted when items in teh toolbar need to foo */
 
 
 /*!  Constructs an empty tool bar. */
