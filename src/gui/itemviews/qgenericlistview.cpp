@@ -430,6 +430,27 @@ void QGenericListView::contentsRemoved(const QModelIndex &parent,
         emit this->needMore();
 }
 
+void QGenericListView::mouseMoveEvent(QMouseEvent *e)
+{
+    QAbstractItemView::mouseMoveEvent(e);
+    if (state() == QAbstractItemView::Selecting && d->selectionMode != Single) {
+        QPoint topLeft(d->pressedPosition.x() - horizontalOffset(),
+                       d->pressedPosition.y() - verticalOffset());
+        QRect rect(mapToGlobal(topLeft), mapToGlobal(e->pos()));
+        d->rubberBand->setGeometry(rect.normalize());
+        if (!d->rubberBand->isVisible()) {
+            d->rubberBand->show();
+            d->rubberBand->raise();
+        }
+    }
+}
+
+void QGenericListView::mouseReleaseEvent(QMouseEvent *e)
+{
+    QAbstractItemView::mouseReleaseEvent(e);
+    d->rubberBand->hide();
+}
+
 void QGenericListView::timerEvent(QTimerEvent *e)
 {
     if (e->timerId() == d->layoutTimer) {
@@ -738,7 +759,6 @@ void QGenericListView::setSelection(const QRect &rect, int selectionCommand)
 
 QRect QGenericListView::selectionViewportRect(const QItemSelection &selection) const
 {
-    // FIXME: slow temporary fix
     QList<QModelIndex> items = selection.items(model());
     QList<QModelIndex>::iterator it = items.begin();
     QRect rect;

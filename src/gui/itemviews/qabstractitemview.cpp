@@ -813,9 +813,7 @@ void QAbstractItemView::startDrag()
     QDragObject *obj = dragObject();
     if (!obj)
         return;
-    setState(Dragging);
     obj->drag();
-    setState(NoState);
 }
 
 void QAbstractItemView::getViewOptions(QItemOptions *options) const
