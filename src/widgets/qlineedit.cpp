@@ -1450,6 +1450,8 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 void QLineEdit::insert( const QString &newText )
 {
     QString t( newText );
+    if ( t.find( '\n' ) != -1 )
+	t = t.left( t.find( '\n' ) );
     if ( t.isEmpty() )
 	return;
 
