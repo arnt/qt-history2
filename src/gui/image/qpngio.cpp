@@ -833,6 +833,7 @@ private:
     QImageConsumer* consumer;
     QImage* image;
     int unused_data;
+    QRect changed_rect;
 };
 
 class QPNGFormatType : public QImageFormatType
@@ -1031,6 +1032,7 @@ int QPNGFormat::decode(QImage& img, QImageConsumer* cons,
         }
 
         state = Inside;
+        changed_rect = QRect();
     }
 
     if (!png_ptr) return 0;
@@ -1045,7 +1047,10 @@ int QPNGFormat::decode(QImage& img, QImageConsumer* cons,
     png_process_data(png_ptr, info_ptr, (png_bytep)buffer, length);
     int l = length - unused_data;
 
-    // TODO: send incremental stuff to consumer (optional)
+    if(changed_rect.height() > 64) {
+        consumer->changed( changed_rect );
+        changed_rect = QRect();
+    }
 
     if (state != Inside) {
         if (png_ptr)
@@ -1060,6 +1065,7 @@ void QPNGFormat::info(png_structp png, png_infop)
 {
     png_set_interlace_handling(png);
     setup_qt(*image, png, info_ptr);
+    consumer->setSize( image->width(), image->height());
 }
 
 void QPNGFormat::row(png_structp png, png_bytep new_row,
@@ -1067,6 +1073,7 @@ void QPNGFormat::row(png_structp png, png_bytep new_row,
 {
     uchar* old_row = image->scanLine(row_num);
     png_progressive_combine_row(png, old_row, new_row);
+    changed_rect |= QRect( 0, row_num, image->width(), 1 );
 }
 
 
@@ -1091,6 +1098,8 @@ void QPNGFormat::end(png_structp png, png_infop info)
         text_ptr++;
     }
 #endif
+    if( !changed_rect.isNull())
+        consumer->changed( changed_rect );
     QRect r(0,0,image->width(),image->height());
     consumer->frameDone(QPoint(offx,offy),r);
     consumer->end();
