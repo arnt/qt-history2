@@ -59,6 +59,12 @@ void QDesignerMainWindow::initialize()
         m_editMenu->addAction(action);
     }
 
+    m_editMenu->addSeparator();
+
+    foreach (QAction *action, m_actionManager->editModeActions()->actions()) {
+        m_editMenu->addAction(action);
+    }
+
     m_formMenu = menuBar()->addMenu(tr("F&orm"));
     foreach (QAction *action, m_actionManager->formActions()->actions()) {
         m_formMenu->addAction(action);

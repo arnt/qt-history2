@@ -38,9 +38,11 @@ QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
     m_editActions = new QActionGroup(this);
     m_editActions->setExclusive(false);
 
+    m_editModeActions = new QActionGroup(this);
+    m_editModeActions->setExclusive(true);
+
     m_formActions = new QActionGroup(this);
     m_formActions->setExclusive(false);
-
 
 //
 // file actions
@@ -110,6 +112,24 @@ QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
     m_editActions->addAction(m_bringToFrontAction);
 
 //
+// edit mode actions
+//
+    m_editWidgets = new QAction(tr("Edit Widgets"), this);
+    m_editWidgets->setShortcut(tr("F2"));
+    m_editWidgets->setCheckable(true);
+    m_editModeActions->addAction(m_editWidgets);
+
+    m_editConnections = new QAction(tr("Edit Connections"), this);
+    m_editConnections->setShortcut(tr("F3"));
+    m_editConnections->setCheckable(true);
+    m_editModeActions->addAction(m_editConnections);
+
+    m_editBuddies = new QAction(tr("Edit Buddies"), this);
+    m_editBuddies->setShortcut(tr("F4"));
+    m_editBuddies->setCheckable(true);
+    m_editModeActions->addAction(m_editBuddies);
+
+//
 // form actions
 //
     m_layoutHorizontallyAction = formWindowManager->actionHorizontalLayout();
@@ -152,6 +172,9 @@ QActionGroup *QDesignerActions::fileActions() const
 
 QActionGroup *QDesignerActions::editActions() const
 { return m_editActions; }
+
+QActionGroup *QDesignerActions::editModeActions() const
+{ return m_editModeActions; }
 
 QActionGroup *QDesignerActions::formActions() const
 { return m_formActions; }
@@ -224,4 +247,14 @@ QAction *QDesignerActions::adjustSizeAction() const
 
 QAction *QDesignerActions::previewFormAction() const
 { return m_previewFormAction; }
+
+QAction *QDesignerActions::editWidgets() const
+{ return m_editWidgets; }
+
+QAction *QDesignerActions::editConnections() const
+{ return m_editConnections; }
+
+QAction *QDesignerActions::editBuddies() const
+{ return m_editBuddies; }
+
 

@@ -31,6 +31,7 @@ public:
 
     QActionGroup *fileActions() const;
     QActionGroup *editActions() const;
+    QActionGroup *editModeActions() const;
     QActionGroup *formActions() const;
 
 //
@@ -57,6 +58,13 @@ public:
     QAction *bringToFrontAction() const;
 
 //
+// edit mode actions
+//
+    QAction *editWidgets() const;
+    QAction *editConnections() const;
+    QAction *editBuddies() const;
+
+//
 // form actions
 //
     QAction *layoutHorizontallyAction() const;
@@ -73,6 +81,7 @@ private:
 
     QActionGroup *m_fileActions;
     QActionGroup *m_editActions;
+    QActionGroup *m_editModeActions;
     QActionGroup *m_formActions;
 
     QAction *m_newFormAction;
@@ -91,6 +100,10 @@ private:
     QAction *m_sendToBackAction;
     QAction *m_bringToFrontAction;
     QAction *m_selectAllAction;
+
+    QAction *m_editWidgets;
+    QAction *m_editConnections;
+    QAction *m_editBuddies;
 
     QAction *m_layoutHorizontallyAction;
     QAction *m_layoutVerticallyAction;
