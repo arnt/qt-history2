@@ -195,7 +195,7 @@ bool QTreeModel::insertRow(const QModelIndex &parent, int row)
         }
         return false;
     }
-    tree->insert(row, new QTreeViewItem());
+    tree.insert(row, new QTreeViewItem());
     return true;
 }
 

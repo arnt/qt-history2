@@ -10,15 +10,14 @@ public:
     void setItem(int row, const QListView_Item &item);
     void append(const QListView_Item &item);
 
-private:
     int rowCount(const QModelIndex &parent = 0) const;
     int columnCount(const QModelIndex &parent = 0) const;
 
     QVariant data(const QModelIndex &index, int role) const;
     void setData(const QModelIndex &index, int role, const QVariant &value);
 
-    bool insertRow(const QModelIndex &parent int row);
-    bool removeRow(const QModelIndex &parent, int row);
+    bool insertRow(const QModelIndex &parent, int row);
+    bool removeRow(const QModelIndex &parent,int row);
 
     bool isSelectable(const QModelIndex &index) const;
     bool isEditable(const QModelIndex &index) const;
@@ -71,19 +70,19 @@ void QListModel::setData(const QModelIndex &index, int role, const QVariant &val
     emit contentsChanged(index, index);
 }
 
-bool insertRow(const QModelIndex &, int row)
+bool QListModel::insertRow(const QModelIndex &parent, int row)
 {
     QListView_Item item;
-    if (row < rowCount())
+    if (row < rowCount(parent))
         lst.insert(row, item);
     else
         lst.append(item);
     return true;
 }
 
-bool removeRow(const QModelIndex &, int row);
+bool QListModel::removeRow(const QModelIndex &parent, int row)
 {
-    if (row < rowCount()) {
+    if (row < rowCount(parent)) {
         lst.removeAt(row);
         return true;
     }
@@ -197,10 +196,12 @@ QListView_Item QListView_::item(int row) const
     return d->model()->item(row);
 }
 
-void QListView_::setItem(int row, const QListView_Item &item) {
+void QListView_::setItem(int row, const QListView_Item &item)
+{
     d->model()->setItem(row, item);
 }
 
-void QListView_::appendItem(const QListView_Item &item) {
+void QListView_::appendItem(const QListView_Item &item)
+{
     d->model()->append(item);
 }

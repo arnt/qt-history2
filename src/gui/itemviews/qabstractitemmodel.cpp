@@ -109,10 +109,10 @@ bool QAbstractItemModel::decode(QMimeSource *src)
     while (!stream.atEnd()) {
         stream >> role;
         if (role > -1) {
-            if (newItem) {
-                insertedItem = insertItem();
+//            if (newItem) {
+                //insertedItem = insertRow();
                 newItem = false;
-            }
+//            }
             stream >> variantData;
             setData(insertedItem, role, variantData);
         } else {
