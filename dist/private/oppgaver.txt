@@ -107,6 +107,7 @@ Ferdigstilling:
     Dokumentasjon:
 	QTextStream (må forklare flagg og formattering)
 	QCache, QStack, QQueue
+	#include <qdrawutl.h>
 
     Font metrics & info direkte av QFont.
 
