@@ -426,9 +426,9 @@ static int scm(int a, int b)
     \module canvas
 
     The QCanvas class manages its 2D graphic area and all the canvas
-    items the area contains. The canvas has no visual appearance of
+    items the area contains. The canvas has \e{no visual appearance} of
     its own. Instead, it is displayed on screen using a QCanvasView.
-    Multiple QCanvasView widgets may be associated with a canvas to
+    Multiple QCanvasView widgets can be associated with a canvas to
     provide multiple views of the same canvas.
 
     The canvas is optimized for large numbers of items, particularly
@@ -436,11 +436,11 @@ static int scm(int a, int b)
     one time. If the entire display changes very regularly, you should
     consider using your own custom QScrollView subclass.
 
-    Qt provides a rich
-    set of canvas item classes, e.g. QCanvasEllipse, QCanvasLine,
-    QCanvasPolygon, QCanvasPolygonalItem, QCanvasRectangle, QCanvasSpline,
-    QCanvasSprite and QCanvasText. You can subclass to create your own
-    canvas items; QCanvasPolygonalItem is the most common base class used
+    Qt provides a rich set of canvas item classes, e.g.
+    QCanvasEllipse, QCanvasLine, QCanvasPolygon, QCanvasPolygonalItem,
+    QCanvasRectangle, QCanvasSpline, QCanvasSprite and QCanvasText.
+    You can subclass any of these to create your own canvas items,
+    although QCanvasPolygonalItem is the most common base class used
     for this purpose.
 
     Items appear on the canvas after their \link QCanvasItem::show()
@@ -448,8 +448,9 @@ static int scm(int a, int b)
     QCanvasItem::setVisible() setVisible(true)\endlink), and \e after
     update() has been called. The canvas only shows items that are
     \link QCanvasItem::setVisible() visible\endlink, and then only if
-    \l update() is called. (By default the canvas is white and so are
-    canvas items, so if nothing appears try changing colors.)
+    \l update() is called on the canvas itself. (By default the canvas
+    is white and so are canvas items, so if nothing appears try
+    changing the colors of your items.)
 
     If you created the canvas without passing a width and height to
     the constructor you must also call resize().
