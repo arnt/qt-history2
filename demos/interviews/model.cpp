@@ -70,18 +70,29 @@ int Model::columnCount(const QModelIndex &) const
 
 QVariant Model::data(const QModelIndex &index, int role) const
 {
-    static QPixmap png("folder.png");
-    static QIconSet icons(png);
-    if (index.type() == QModelIndex::VerticalHeader)
-        return i2s(strbuf, 65, index.row());
-    if (index.type() == QModelIndex::HorizontalHeader)
-	return i2s(strbuf, 65, index.column());
+    static QIconSet folder(QPixmap("folder.png"));
+    static QIconSet service(QPixmap("services.png"));
+    
+    if (index.type() == QModelIndex::VerticalHeader) {
+        if (role == DisplayRole)
+            return i2s(strbuf, 65, index.row());
+        if (role == DecorationRole)
+            return service;
+        return QVariant();
+    }
+    
+    if (index.type() == QModelIndex::HorizontalHeader) {
+        if (role == DisplayRole)
+            return i2s(strbuf, 65, index.column());
+        if (role == DecorationRole)
+            return service;
+        return QVariant();
+    }
+
     if (role == DisplayRole)
 	return "Item " + i2s(strbuf, 65, index.row()) + ":" + i2s(strbuf, 65, index.column());
-    if (role == UserRole)
-	return (index.row() & 1) || (index.column() & 1);
     if (role == DecorationRole)
-	return icons;
+	return folder;
     return QVariant();
 }
 
