@@ -403,6 +403,9 @@ int QTabBar::addTab( QTab * newTab )
 int QTabBar::insertTab( QTab * newTab, int index )
 {
     newTab->id = d->id++;
+    if ( !tab( d->focus ) )
+	d->focus = newTab->id;
+
     newTab->setTabBar( this );
     l->insert( 0, newTab );
     if ( index < 0 || index > int(lstatic->count()) )
@@ -438,6 +441,7 @@ void QTabBar::removeTab( QTab * t )
     if ( d->a )
 	d->a->removeItem( t->id );
 #endif
+    bool updateFocus = t->id == d->focus;
     // remove the TabBar Reference
     if(d->pressed == t)
 	d->pressed = 0;
@@ -447,6 +451,8 @@ void QTabBar::removeTab( QTab * t )
     layoutTabs();
     updateArrowButtons();
     makeVisible( tab( currentTab() ) );
+    if ( updateFocus )
+	d->focus = currentTab();
     update();
 }
 
