@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#326 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#327 $
 **
 ** Implementation of QListView widget class
 **
@@ -146,7 +146,7 @@ struct QListViewPrivate
 
     bool multi;
     bool strictMulti;
-    
+
     // TRUE if the widget should take notice of mouseReleaseEvent
     bool buttonDown;
     // TRUE if the widget should ignore a double-click
@@ -2822,7 +2822,7 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
     QListViewItem * i = itemAt( vp );
     if ( !i )
 	return;
-        
+
     emit pressed( i );
     emit pressed( i, viewport()->mapToGlobal( vp ), d->h->mapToLogical( d->h->cellAt( vp.x() ) ) );
 
@@ -2859,7 +2859,7 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
     QListViewItem *oldCurrent = currentItem();
     setCurrentItem( i );
 
-    
+
     if ( i->isSelectable() ) {
 	if ( !isMultiSelection() || isMultiSelection() && !isStrictMultiSelection() )
 	    setSelected( i, d->select );
@@ -2875,8 +2875,10 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 		    bool down = oldCurrent->itemPos() < i->itemPos();
 		    QListViewItemIterator lit( down ? oldCurrent : i );
 		    for ( ;; ++lit ) {
-			if ( !lit.current() )
+			if ( !lit.current() ) {
+			    triggerUpdate();
 			    return;
+			}
 			if ( down && lit.current() == i ) {
 			    i->setSelected( d->select );
 			    triggerUpdate();
@@ -3336,10 +3338,10 @@ int QListView::itemPos( const QListViewItem * item )
 }
 
 
-/*!  
+/*!
   Sets the list view to multi-selection mode if \a enable is TRUE,
   and to single-selection mode if \a enable is FALSE.
-  
+
   If you enable multi-selection mode, it's possible to specify
   if this mode should be \a strict or not. Strict means, that the
   user can only select multiple items when pressing the Shift
@@ -3366,7 +3368,7 @@ bool QListView::isMultiSelection() const
     return d->multi;
 }
 
-/*!  
+/*!
   Returns TRUE if this list view is in strict multi-selection mode and
   FALSE if it is in single-selection or non-strict multi-selection mode.
 

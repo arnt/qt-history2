@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#309 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#310 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1471,9 +1471,35 @@ void QListBox::mousePressEvent( QMouseEvent *e )
 	break;
     case Extended:
 	if ( i ) {
-	    if ( !(e->state() & QMouseEvent::ShiftButton) )
+	    if ( !(e->state() & QMouseEvent::ShiftButton) && 
+		 !(e->state() & QMouseEvent::ControlButton) ) {
 		clearSelection();
-	    setSelected( i, TRUE );
+		setSelected( i, TRUE );
+	    } else if ( e->state() & ControlButton ) {
+		setSelected( i, !i->selected() );
+	    } else if ( e->state() & ShiftButton ) {
+		QListBoxItem *oldCurrent = item( currentItem() );
+		bool down = itemRect( oldCurrent ).y() < itemRect( i ).y();
+		QListBoxItem *lit = down ? oldCurrent : i;
+		bool select = !i->selected();
+		for ( ;; lit = lit->n ) {
+		    if ( !lit ) {
+			triggerUpdate( FALSE );
+			return;
+		    }
+		    if ( down && lit == i ) {
+			setSelected( i, select );
+			triggerUpdate( FALSE );
+			break;
+		    }
+		    if ( !down && lit == oldCurrent ) {
+			setSelected( oldCurrent, select );
+			triggerUpdate( FALSE );
+			break;
+		    }
+		    setSelected( lit, select );
+		}
+	    }
 	}
 	break;
     case Multi:
