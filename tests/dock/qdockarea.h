@@ -30,8 +30,6 @@ public:
 private:
     int findDockWidget( QDockWidget *w );
     void setupLayout();
-    void setupHorizontalLayout();
-    void setupVerticalLayout();
 
 private:
     Orientation orient;

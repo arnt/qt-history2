@@ -27,7 +27,7 @@ private:
     void startLineDraw();
     void endLineDraw();
     void drawLine( const QPoint &globalPos );
-    
+
 private:
     Qt::Orientation orient;
     QDockArea *s;
@@ -35,7 +35,7 @@ private:
     bool mousePressed;
     QPainter *unclippedPainter;
     QPoint lastPos;
-    
+
 };
 
 QDockAreaHandle::QDockAreaHandle( Qt::Orientation o, QDockArea *parent, const QWidgetList &wl, const char * name )
@@ -182,23 +182,18 @@ int QDockArea::findDockWidget( QDockWidget *w )
 
 void QDockArea::setupLayout()
 {
+    delete layout;
+    layout = 0;
+    insertedSplitters.clear();
+
+    if ( !sections )
+	return;
+
     if ( orientation() == Horizontal )
-	setupHorizontalLayout();
+	layout = new QBoxLayout( this, QBoxLayout::TopToBottom );
     else
-	setupVerticalLayout();
-}
-
-void QDockArea::setupHorizontalLayout()
-{
-    delete layout;
-    layout = 0;
-    insertedSplitters.clear();
-
-    if ( !sections )
-	return;
-
-    layout = new QBoxLayout( this, QBoxLayout::TopToBottom );
-
+	layout = new QBoxLayout( this, QBoxLayout::LeftToRight );
+    
     QVector<QBoxLayout> layouts;
     layouts.resize( sections );
     QVector<QBoxLayout> splitters;
@@ -209,8 +204,13 @@ void QDockArea::setupHorizontalLayout()
     wlv.resize( sections );
     int i = 0;
     for ( i = 0; i < sections; ++i ) {
-	layouts.insert( i, new QHBoxLayout( layout ) );
-	splitters.insert( i, new QHBoxLayout( layout ) );
+	if ( orientation() == Horizontal ) {
+	    layouts.insert( i, new QHBoxLayout( layout ) );
+	    splitters.insert( i, new QHBoxLayout( layout ) );
+	} else {
+	    layouts.insert( i, new QVBoxLayout( layout ) );
+	    splitters.insert( i, new QVBoxLayout( layout ) );
+	}
 	resizeable[ i ] = FALSE;
 	wlv.insert( i, new QWidgetList );
     }
@@ -221,60 +221,7 @@ void QDockArea::setupHorizontalLayout()
 	if ( d->dockWidget->isResizeEnabled() ) {
 	    QWidgetList wl;
 	    wl.append( d->dockWidget );
-	    QWidget *w = new QDockAreaHandle( Vertical, this, wl );
-	    w->show();
-	    insertedSplitters.append( w );
-	    layouts[ d->section ]->addWidget( w );
-	    wlv[ d->section ]->append( d->dockWidget );
-	}
-    }
-
-    for ( i = 0; i < sections; ++i ) {
-	if ( resizeable[ i ] ) {
-	    QWidget *w = new QDockAreaHandle( orientation(), this, *wlv[ i ] );
-	    splitters[ i ]->addWidget( w );
-	    w->show();
-	    insertedSplitters.append( w );
-	}
-    }
-
-    layout->activate();
-}
-
-void QDockArea::setupVerticalLayout()
-{
-    delete layout;
-    layout = 0;
-    insertedSplitters.clear();
-
-    if ( !sections )
-	return;
-
-    layout = new QBoxLayout( this, QBoxLayout::LeftToRight );
-
-    QVector<QBoxLayout> layouts;
-    layouts.resize( sections );
-    QVector<QBoxLayout> splitters;
-    splitters.resize( sections );
-    QArray<bool> resizeable( sections );
-    QVector<QWidgetList> wlv;
-    wlv.setAutoDelete( TRUE );
-    wlv.resize( sections );
-    int i = 0;
-    for ( i = 0; i < sections; ++i ) {
-	layouts.insert( i, new QVBoxLayout( layout ) );
-	splitters.insert( i, new QVBoxLayout( layout ) );
-	resizeable[ i ] = FALSE;
-	wlv.insert( i, new QWidgetList );
-    }
-
-    for ( QDockWidgetData *d = dockWidgets.first(); d; d = dockWidgets.next() ) {
-	layouts[ d->section ]->addWidget( d->dockWidget );
-	resizeable[ d->section ] = d->dockWidget->isResizeEnabled();
-	if ( d->dockWidget->isResizeEnabled() ) {
-	    QWidgetList wl;
-	    wl.append( d->dockWidget );
-	    QWidget *w = new QDockAreaHandle( Horizontal, this, wl );
+	    QWidget *w = new QDockAreaHandle( orientation() == Horizontal ? Vertical : Horizontal, this, wl );
 	    w->show();
 	    insertedSplitters.append( w );
 	    layouts[ d->section ]->addWidget( w );
