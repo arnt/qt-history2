@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdlg.h#11 $
+** $Id: //depot/qt/main/src/dialogs/qtabdlg.h#12 $
 **
 ** Definition of tab dialog
 **
@@ -26,6 +26,8 @@ public:
     void setFont( const QFont & font );
 
     void addTab( QWidget *, const char * );
+    void setTabEnabled( const char *, bool );
+    bool isTabEnabled( const char * );
 
     void setDefaultButton( const char *text = "Defaults" );
     bool hasDefaultButton() const { return db != 0; }
@@ -35,8 +37,7 @@ public:
 
     void setApplyButton( const char *text = "Apply" );
     bool hasApplyButton() const { return ab != 0; }
-
-
+    
     bool eventFilter( QObject *, QEvent * );
 
 protected:

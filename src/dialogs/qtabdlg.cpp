@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#18 $
+** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#19 $
 **
 ** Implementation of tab dialog
 **
@@ -12,7 +12,7 @@
 #include "qpainter.h"
 #include "qstring.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#18 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#19 $");
 
 // a small private class to show the tabs on top
 
@@ -52,13 +52,57 @@ QTab::~QTab()
 
   A tabbed dialog is one in which several "pages" are available, and
   the user selects which page to see and use by clicking on its tab.
-  No keyboard shortcuts are available.  Tabbed dialogs provide an easy
-  way to cram more information into a window than a normal dialog
-  does.
+  No keyboard shortcuts are available.
+
+  QTabDialog does not provide more than one row of tabs, and does not
+  provide tabs along the sides or bottom of the pages.  It also does
+  not offer any way to find out which page is currently visible, or to
+  set the visible page.
+
+  QTabDialog provides an OK button and optionally Apply, Cancel and
+  Defaults buttons.
+
+  The normal way to use QTabDialog is to do the following in the
+  constructor: <ol> <li> Create a QTabDialog, <li> create a QWidget
+  for each of the pages in the tab dialog, insert children into it,
+  set up geometry management for it, and finally use addTab() to set
+  up a tab for it, <li> set up the buttons for the tab dialog (Apply,
+  Cancel and so on), and finally <li> connect to the signals and
+  slots. </ol>
+
+  The pref.cpp example does all this.
+
+  If you don't call addTab(), the page you have created will not be
+  visible.  Please don't mistake the object name you supply to the
+  QWidget constructor for the tab string you supply to addTab().
+
+  You more or less have to connect the applyButtonPressed() signal to
+  something.  applyButtonPressed() is emitted when either OK or Apply
+  is clicked, and your slot must copy the dialog's state into the
+  application.
+
+  There are also several other signals which may be useful. <ul> <li>
+  cancelButtonPressed() is emitted when the user clicks Cancel; the
+  slot it is connected to should reset the state of the dialog.  <li>
+  defaultButtonPressed() is emitted when the user clicks Defaults; the
+  slot it is connected to should reset the state of the dialog to the
+  application defaults.  <li> aboutToShow() is emitted at the start of
+  show(); if the QTabDialog object and its children are not newly
+  created, you must connect this signal to a slot which resets the
+  state of the dialog.  (You can probably connect aboutToShow() and
+  cancelButtonPressed() to the same slot.) </ul>
+
+  Each tab is either enabled or disabled at any given time.  If a tab
+  is enabled, the tab text is drawn in black and the user can select
+  that tab.  If it is disabled, the tab is drawn in (usually) gray and
+  the user can not select that tab.  Note that even though a tab is
+  disabled, the page can still be visible, for example if it is
+  visible at the moment you call setTabEnabled().
 
   While tab dialogs can be a very good way to split up a complex
   dialog, it's also very easy to make a hash of it.  Here is some
-  advice:
+  advice (greatly inspired from a USENET posting by Jared M. Spool
+  \<jared@uie.com\>):
 
   <ol><li> Make sure that each page forms a logical whole which is
   adequately described by the label on the tab.
@@ -112,12 +156,6 @@ QTab::~QTab()
   ought not to be joined in a tab dialog.
 
   </ol>
-
-  QTabDialog does not provide more than one row of tabs, and does not
-  provide tabs along the sides or bottom of the pages.
-
-  QTabDialog provides an OK button and optionally Apply, Cancel and
-  Defaults buttons.
 
 */
 
@@ -335,6 +373,69 @@ void QTabDialog::addTab( QWidget * child, const char * name )
 }
 
 
+/*! Finds the page with object name \a name, enables/disables it
+  according to the value of \a enable, and redraws the page's tab
+  appropriately.
+
+  QTabDialog uses QWidget::setEnabled() internally, rather than keep a
+  separate flag.
+
+  Note that even a disabled tab/page may be visible.  If the page is
+  visible already, QTabDialog will not hide it, and if all the pages
+  are disabled, QTabDialog will show one of them.
+
+  The object name is used (rather than the tab text) because the tab
+  text may not be invariant in multi-language applications.
+
+  \sa isTabEnabled() QWidget::setEnabled()
+*/
+
+void QTabDialog::setTabEnabled( const char * name, bool enable )
+{
+    if ( !name || !*name )
+	return;
+
+    QTab * t = tabs;
+    while ( t ) {
+	const char * n = t->w->name();
+	if ( n && !strcmp( n, name ) ) {
+	    if ( enable != t->w->isEnabled() ) {
+		t->w->setEnabled( enable );
+		t->repaint();
+	    }
+	    return;
+	}
+	t = t->next;
+    }
+}
+
+
+/*! Returns TRUE if the page with object name \a name is enabled
+  (according to QWidget::isEnabled()), and false if it is disabled.
+
+  If \a name is 0 or not the name of any of the pages, isTabEnabled()
+  returns FALSE.
+
+  \sa setTabEnabled() QWidget::isEnabled()
+*/
+
+bool QTabDialog::isTabEnabled( const char * name )
+{
+    if ( !name || !*name )
+	return FALSE;
+
+    QTab * t = tabs;
+    while ( t ) {
+	const char * n = t->w->name();
+	if ( n && !strcmp( n, name ) )
+	    return t->w->isEnabled();
+	t = t->next;
+    }
+
+    return FALSE;
+}
+
+
 /*!
   Add an Apply button to the dialog.  The button's text is set to \e
   text (and defaults to "Apply").
@@ -474,7 +575,7 @@ void QTabDialog::setSizes()
     if ( cb )
 	cb->resize( bw, bh );
 
-    // look at the pages and find the largest minimum and smalles
+    // look at the pages and find the largest minimum and smallest
     // maximum size
     QTab * t = tabs;
     QFontMetrics fm( fontMetrics() );
@@ -630,7 +731,7 @@ bool QTabDialog::eventFilter( QObject * o, QEvent * e )
 	    while ( tab != t && tab )
 		tab = tab->next;
 
-	    if ( tab ) {
+	    if ( tab && tab->w->isEnabled() ) {
 		QTab * prevCurrent = currentTab;
 		currentTab = tab;
 		prevCurrent->repaint();
@@ -678,7 +779,12 @@ bool QTabDialog::eventFilter( QObject * o, QEvent * e )
 	    p.drawLine( 0, t->height() - 1, t->width(), t->height() - 1 );
 	    p.setFont( font() );
 	}
-	p.setPen( black );
+
+	if ( t->w->isEnabled() )
+	    p.setPen( palette().normal().foreground() );
+	else
+	    p.setPen( palette().disabled().foreground() );
+
 	p.drawText( 2, 0, t->width() - 6, t->height(), AlignCenter, t->name );
 	p.end();
     }
