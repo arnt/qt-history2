@@ -352,7 +352,7 @@ const QMimeSource* QMimeSourceFactory::data(const QString& abs_name) const
     QStringList::Iterator it;
     if ( abs_name[0] == '/'
 #ifdef Q_WS_WIN
-	    || abs_name[0] && abs_name[1] == ':'
+	    || ( abs_name[0] && abs_name[1] == ':' ) || abs_name.startsWith("\\\\")
 #endif
     )
     {
