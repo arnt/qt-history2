@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.h#6 $
+** $Id: //depot/qt/main/src/widgets/qlabel.h#7 $
 **
 ** Definition of QLabel class
 **
@@ -38,6 +38,7 @@ protected:
     void    drawContents( QPainter * );
 
 private:
+    void    updateLabel();
     QString str;
     int	    align;
 };

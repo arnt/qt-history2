@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#7 $
 **
 ** Implementation of QLabel class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#7 $";
 #endif
 
 
@@ -39,7 +39,7 @@ void QLabel::setLabel( const char *s )
     if ( str == s )				// no change
 	return;
     str = s;
-    repaint();
+    updateLabel();
 }
 
 void QLabel::setLabel( long l )
@@ -48,7 +48,7 @@ void QLabel::setLabel( long l )
     tmp.sprintf( "%ld", l );
     if ( tmp != str ) {
 	str = tmp;
-	repaint();
+	updateLabel();
     }
 }
 
@@ -58,7 +58,7 @@ void QLabel::setLabel( double d )
     tmp.sprintf( "%g", d );
     if ( tmp != str ) {
 	str = tmp;
-	repaint();
+	updateLabel();
     }
 }
 
@@ -66,7 +66,17 @@ void QLabel::setLabel( double d )
 void QLabel::setAlignment( int alignment )
 {
     align = alignment;
-    update();
+    updateLabel();
+}
+
+
+void QLabel::updateLabel()			// update label, not frame
+{
+    QPainter paint;
+    paint.begin( this );
+    paint.eraseRect( contentsRect() );
+    drawContents( &paint );
+    paint.end();
 }
 
 
