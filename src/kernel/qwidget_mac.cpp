@@ -73,7 +73,7 @@ bool qt_nograb();
 RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
 void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
 void unclippedBitBlt(QPaintDevice *, int, int, const QPaintDevice *, int, int, 
-		      int, int, Qt::RasterOp, bool); //qpaintdevice_mac.cpp
+		      int, int, Qt::RasterOp, bool, bool); //qpaintdevice_mac.cpp
 
 /*****************************************************************************
   QWidget utility functions
@@ -1446,7 +1446,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 			p = this;
 		    QMacSavedPortInfo pi(p, bltregion);
 		    unclippedBitBlt(p, pos().x(), pos().y(), p, oldp.x(), oldp.y(), 
-				    olds.width(), olds.height(), Qt::CopyROP,TRUE);
+				    olds.width(), olds.height(), Qt::CopyROP,TRUE,TRUE);
 		}
 	    }
 	    if((!newreg_empty || !oldreg_empty) &&
@@ -1616,7 +1616,7 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
 	bltd &= requested;
 	bltd &= clippedRegion(valid_rect); //finally clip to clipping region
 	QMacSavedPortInfo pi(this, bltd);
-	unclippedBitBlt(this,x2,y2,this,x1,y1,w,h,Qt::CopyROP,TRUE);
+	unclippedBitBlt(this,x2,y2,this,x1,y1,w,h,Qt::CopyROP,TRUE,TRUE);
     }
     dirtyClippedRegion(TRUE);
     if ( !valid_rect && children() ) {	// scroll children

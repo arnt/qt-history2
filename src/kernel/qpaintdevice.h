@@ -241,7 +241,7 @@ protected:
     virtual CGContextRef macCGContext(bool clipped=TRUE) const;
 #endif
     friend Q_EXPORT void unclippedScaledBitBlt( QPaintDevice *, int, int, int, int,
-						const QPaintDevice *, int, int, int, int, Qt::RasterOp, bool );
+						const QPaintDevice *, int, int, int, int, Qt::RasterOp, bool, bool );
 #else
     friend Q_EXPORT void bitBlt( QPaintDevice *, int, int,
 				 const QPaintDevice *,

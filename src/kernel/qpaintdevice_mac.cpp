@@ -86,7 +86,7 @@ QPoint posInWindow(QWidget *w);
 
 void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	     const QPaintDevice *src, int sx, int sy, int sw, int sh,
-	     Qt::RasterOp rop, bool imask)
+	     Qt::RasterOp rop, bool imask, bool set_fore_colour)
 {
     if(rop == Qt::NotROP) { //this is the only way we can get a NotROP
 	sx = dx;
@@ -173,8 +173,8 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	    qDebug("I don't really know if this will work, I'll need to find a test case FIXME! %s:%d",
 		   __FILE__, __LINE__);
 	    QPixmap tmppix(dw, dh, 32);
-	    unclippedScaledBitBlt( &tmppix, 0, 0, dw, dh, src, sx, sy, sw, sh, rop, imask );
-	    unclippedScaledBitBlt( dst, dx, dy, dw, dh, &tmppix, 0, 0, dw, dh, rop, imask );
+	    unclippedScaledBitBlt( &tmppix, 0, 0, dw, dh, src, sx, sy, sw, sh, rop, imask, TRUE );
+	    unclippedScaledBitBlt( dst, dx, dy, dw, dh, &tmppix, 0, 0, dw, dh, rop, imask, TRUE );
 	    return;
 	}
 
@@ -244,8 +244,10 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
     }
 
     ::RGBColor f;
-    f.red = f.green = f.blue = 0;
-    RGBForeColor( &f );
+    if(set_fore_colour) {
+	f.red = f.green = f.blue = 0;
+	RGBForeColor( &f );
+    }
     f.red = f.green = f.blue = ~0;
     RGBBackColor( &f );
 
@@ -299,9 +301,9 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 
 void unclippedBitBlt( QPaintDevice *dst, int dx, int dy,
 		      const QPaintDevice *src, int sx, int sy, int sw, int sh,
-		      Qt::RasterOp rop, bool imask)
+		      Qt::RasterOp rop, bool imask, bool set_fore_colour)
 {
-    unclippedScaledBitBlt(dst, dx, dy, sw, sh, src, sx, sy, sw, sh, rop, imask);
+    unclippedScaledBitBlt(dst, dx, dy, sw, sh, src, sx, sy, sw, sh, rop, imask, set_fore_colour);
 }
 
 void scaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
@@ -317,7 +319,7 @@ void scaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
       QPixmap *pm = (QPixmap *)dst;
       QMacSavedPortInfo::setClipRegion(QRect(0, 0, pm->width(), pm->height()));
   }
-  unclippedScaledBitBlt(dst, dx, dy, dw, dh, src, sx, sy, sw, sh, rop, imask);
+  unclippedScaledBitBlt(dst, dx, dy, dw, dh, src, sx, sy, sw, sh, rop, imask, TRUE);
 }
 
 void bitBlt( QPaintDevice *dst, int dx, int dy,

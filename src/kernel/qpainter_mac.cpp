@@ -93,7 +93,7 @@ static QPaintDeviceDict *pdev_dict = 0;
 QRegion make_region(RgnHandle handle);
 void unclippedBitBlt( QPaintDevice *dst, int dx, int dy,
 		      const QPaintDevice *src, int sx, int sy, int sw, int sh,
-		      Qt::RasterOp rop, bool imask);
+		      Qt::RasterOp rop, bool imask, bool set_fore_colour);
 RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
 void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
 
@@ -1646,17 +1646,20 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap, int sx, int sy, 
 	    initPaintDevice();
 	    if(d->cache.paintreg.isEmpty())
 		return;
-	    unclippedScaledBitBlt( pdev, x, y, w, h, &pixmap, sx, sy, sw, sh, (RasterOp)rop, FALSE );
+	    updatePen();
+	    unclippedScaledBitBlt( pdev, x, y, w, h, &pixmap, sx, sy, sw, sh, (RasterOp)rop, 
+				   FALSE, FALSE );
 	    return;
 	} else if ( testf(ExtDev) || txop == TxRotShear ) {
 	    if ( sx != 0 || sy != 0 ||
 		 sw != pixmap.width() || sh != pixmap.height() ) {
 		QPixmap tmp( sw, sh, pixmap.depth() );
-		unclippedBitBlt( &tmp, 0, 0, &pixmap, sx, sy, sw, sh, CopyROP, TRUE );
+		updatePen();
+		unclippedBitBlt( &tmp, 0, 0, &pixmap, sx, sy, sw, sh, CopyROP, TRUE, FALSE );
 		if ( pixmap.mask() ) {
 		    QBitmap mask( sw, sh );
 		    unclippedBitBlt( &mask, 0, 0, pixmap.mask(), sx, sy, sw, sh,
-				     CopyROP, TRUE );
+				     CopyROP, TRUE, FALSE );
 		    tmp.setMask( mask );
 		}
 		drawPixmap( x, y, tmp );
@@ -1688,8 +1691,9 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap, int sx, int sy, 
 		initPaintDevice();
 		if(d->cache.paintreg.isEmpty())
 		    return;
+		updatePen();
 		unclippedBitBlt( pdev, x-dx, y-dy, &pm, 0, 0, pm.width(),
-				 pm.height(), (RasterOp)rop, FALSE );
+				 pm.height(), (RasterOp)rop, FALSE, FALSE );
 		return;
 	    }
 	}
@@ -1700,7 +1704,8 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap, int sx, int sy, 
     initPaintDevice();
     if(d->cache.paintreg.isEmpty())
 	return;
-    unclippedBitBlt( pdev, x, y, &pixmap, sx, sy, sw, sh, (RasterOp)rop, FALSE );
+    updatePen();
+    unclippedBitBlt( pdev, x, y, &pixmap, sx, sy, sw, sh, (RasterOp)rop, FALSE, FALSE );
 }
 
 static void drawTile( QPainter *p, int x, int y, int w, int h,
@@ -1850,7 +1855,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 	    mat2.map( tfx, tfy, &dx, &dy );     // compute position of bitmap
 	    x = qRound(nfx-dx);
 	    y = qRound(nfy-dy);
-	    unclippedBitBlt(pdev, x, y, &pm, 0, 0, -1, -1, CopyROP, FALSE );
+	    unclippedBitBlt(pdev, x, y, &pm, 0, 0, -1, -1, CopyROP, FALSE, FALSE );
 #ifndef QMAC_NO_CACHE_TEXT_XFORM
 	    if(create_new_bm)
 		ins_text_bitmap( bm_key, wx_bm );
