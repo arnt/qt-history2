@@ -981,7 +981,7 @@ void QTextCursor::select(SelectionType selection)
 */
 bool QTextCursor::hasSelection() const
 {
-    return d && d->position != d->anchor;
+    return !!d && d->position != d->anchor;
 }
 
 
@@ -1675,7 +1675,7 @@ bool QTextCursor::operator!=(const QTextCursor &rhs) const
 bool QTextCursor::operator<(const QTextCursor &rhs) const
 {
     if (!d)
-        return rhs.d != 0;
+        return !!rhs.d;
 
     if (!rhs.d)
         return false;
@@ -1714,7 +1714,7 @@ bool QTextCursor::operator<=(const QTextCursor &rhs) const
 bool QTextCursor::operator==(const QTextCursor &rhs) const
 {
     if (!d)
-        return rhs.d == 0;
+        return !rhs.d;
 
     if (!rhs.d)
         return false;
