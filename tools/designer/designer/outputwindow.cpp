@@ -147,6 +147,7 @@ ErrorItem::ErrorItem( QListView *parent, QListViewItem *after, const QString &me
 		      const QString &locationString, QObject *locationObject )
     : QListViewItem( parent, after )
 {
+    setMultiLinesEnabled( TRUE );
     QString m( message );
     type = m.startsWith( "Warning: " ) ? Warning : Error;
     m = m.mid( m.find( ':' ) + 1 );
