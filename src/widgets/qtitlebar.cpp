@@ -248,7 +248,8 @@ void QTitleBar::readColors()
 
 void QTitleBar::mousePressEvent( QMouseEvent * e)
 {
-    emit doActivate();
+    if ( !d->act )
+	emit doActivate();
     if ( e->button() == LeftButton ) {
 	d->pressed = TRUE;
 	QStyle::SCFlags ctrl = style().querySubControl(QStyle::CC_TitleBar, this, e->pos());
