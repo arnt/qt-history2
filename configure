@@ -55,7 +55,7 @@ else
 fi
 
 # Check licensed modules
-MODULES="tools kernel widgets dialogs iconview workspace network canvas table xml opengl database"
+MODULES="tools kernel widgets dialogs iconview workspace network canvas table xml opengl sql"
 
 # Free edition - may only be used under the terms of the QPL.
 if [ -f LICENSE.QPL -a -f LICENSE.GPL ]
@@ -864,9 +864,9 @@ fi
 if [ -n "$VERBOSE" ]
 then
     echo "QMake args....... $QMAKE_ARGS"
-    echo "QMake config..... $QMAKE_CONFIG"
 fi
 
+echo "Configuration........ $QMAKE_CONFIG"
 echo "Embedded support..... $EMBEDDED"
 echo "Thread support....... $THREAD"
 echo "GIF support.......... $GIF"
