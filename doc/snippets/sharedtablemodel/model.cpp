@@ -59,10 +59,12 @@ int TableModel::columnCount() const
 
 /*!
     Returns an appropriate value for the requested data.
+
     If the view requests an invalid index, an invalid variant is returned.
     If a header is requested then we just return the column or row number,
     depending on the orientation of the header.
-    Any valid index that corresponds to a string in the list causes that
+
+    Any valid index that corresponds to a string in the model causes that
     string to be returned.
 */
 
@@ -79,7 +81,7 @@ QVariant TableModel::data(const QModelIndex &index, int /* role */) const
 }
 
 /*!
-    Returns true so that all items in the string list can be edited.
+    Returns true so that all items in the model can be edited.
 */
 
 bool TableModel::isEditable(const QModelIndex &/*index*/) const
@@ -88,7 +90,7 @@ bool TableModel::isEditable(const QModelIndex &/*index*/) const
 }
 
 /*!
-    Changes an item in the string list, but only if the following conditions
+    Changes an item in the model, but only if the following conditions
     are met:
 
     * The index supplied is valid.
@@ -129,8 +131,8 @@ bool TableModel::insertRows(int position, const QModelIndex &/*index*/, int rows
 
 /*!
     Inserts a number of columns into the model at the specified position.
-    Each entry in the list is extended in turn with the required number of
-    empty strings.
+    Each entry in the row list is extended in turn with the required number
+    of empty strings.
 */
 
 bool TableModel::insertColumns(int position, const QModelIndex &/*index*/, int columns)
