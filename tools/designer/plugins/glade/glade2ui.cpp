@@ -1,12 +1,38 @@
-/*
-  glade2ui.cpp
-
-  Converts a Glade .glade file into a .ui file.
-*/
-
-#include <ctype.h>
+/**********************************************************************
+**
+** Converts a Glade .glade file into a .ui file.
+**
+** Copyright (C) 2000-2001 Trolltech AS.  All rights reserved.
+**
+** This file is part of Qt Designer.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include "glade2ui.h"
+
+#include <qapplication.h>
+#include <qfile.h>
+#include <qimage.h>
+#include <qprogressdialog.h>
+#include <qmessagebox.h>
+#include <qrect.h>
+#include <qregexp.h>
+#include <qsizepolicy.h>
+
+#include <ctype.h>
 
 /*
   TODO: Provide stock icons.
@@ -1450,15 +1476,19 @@ QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
     QString gtkClass;
     QString name;
     QString title;
+#if 0 // ### not used?
     bool canFocus = FALSE;
+#endif
     int x = 0;
     int y = 0;
     int width = 0;
     int height = 0;
     int numRows = 0;
     int numColumns = 0;
+#if 0 // ### not used?
     int columnSpacing = 0;
     int rowSpacing = 0;
+#endif
 
     bool active = FALSE;
     QString authors;
@@ -1496,6 +1526,7 @@ QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
     QString vscrollbarPolicy;
     QString watermarkImage;
     bool wrap = FALSE;
+#if 0 // ### not used?
     int xalign = 0;
     int yalign = 0;
 
@@ -1507,6 +1538,7 @@ QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
     bool yshrink = FALSE;
     bool xfill = TRUE;
     bool yfill = TRUE;
+#endif
 
     bool topLevel = yyFormName.isEmpty();
     if ( topLevel )
@@ -1533,7 +1565,9 @@ QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
 		break;
 	    case 'c':
 		if ( tagName == QString("can_focus") ) {
+#if 0 // ### not used?
 		    canFocus = isTrue( getTextValue(n) );
+#endif
 		} else if ( tagName == QString("child") ) {
 		    QDomNode child = n.firstChild();
 		    while ( !child.isNull() ) {
@@ -1546,6 +1580,7 @@ QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
 			    topAttach = getTextValue( child ).toInt();
 			} else if ( childTagName == QString("bottom_attach") ) {
 			    bottomAttach = getTextValue( child ).toInt();
+#if 0 // ### not used?
 			} else if ( childTagName == QString("xpad") ) {
 			    xpad = getTextValue( child ).toInt();
 			} else if ( childTagName == QString("ypad") ) {
@@ -1563,6 +1598,9 @@ QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
 			} else if ( childTagName == QString("yfill") ) {
 			    yfill = isTrue( getTextValue(child) );
 			}
+#else
+			}
+#endif
 			child = child.nextSibling();
 		    }
 		} else if ( tagName == QString("child_name") ) {
@@ -1572,7 +1610,9 @@ QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
 		} else if ( tagName == QString("climb_rate") ) {
 		    step = getTextValue( n ).toInt();
 		} else if ( tagName == QString("column_spacing") ) {
+#if 0 // ### not used?
 		    columnSpacing = getTextValue( n ).toInt();
+#endif
 		} else if ( tagName == QString("columns") ) {
 		    numColumns = getTextValue( n ).toInt();
 		} else if ( tagName == QString("comments") ) {
@@ -1642,7 +1682,9 @@ QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
 		break;
 	    case 'r':
 		if ( tagName == QString("row_spacing") ) {
+#if 0 // ### not used?
 		    rowSpacing = getTextValue( n ).toInt();
+#endif
 		} else if ( tagName == QString("rows") ) {
 		    numRows = getTextValue( n ).toInt();
 		}
@@ -1714,18 +1756,22 @@ QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
 	    case 'x':
 		if ( tagName == QString("x") )
 		    x = getTextValue( n ).toInt();
+#if 0 // ### not used?
 		else if ( tagName == QString("xalign") )
 		    xalign = getTextValue( n ).toInt();
 		else if ( tagName == QString("xpad") )
 		    xpad = getTextValue( n ).toInt();
+#endif
 		break;
 	    case 'y':
 		if ( tagName == QString("y") )
 		    y = getTextValue( n ).toInt();
+#if 0 // ### not used?
 		else if ( tagName == QString("yalign") )
 		    yalign = getTextValue( n ).toInt();
 		else if ( tagName == QString("ypad") )
 		    ypad = getTextValue( n ).toInt();
+#endif
 	    }
 	}
 	n = n.nextSibling();
