@@ -474,6 +474,7 @@ static void cleanup() {
 }
 
 #if defined(_WS_WIN_)
+
 class QWindowsIconProvider : public QFileIconProvider
 {
 public:
@@ -2145,15 +2146,8 @@ void QFileDialog::init()
     QFileInfo *fi;
     makeVariables();
 
-#if defined(UNIX)
-    if ( getenv( "HOME" ) )
-	d->paths->insertItem( *openFolderIcon, getenv( "HOME" ) );
-#endif
-
-#if defined(UNIX)
-    if ( getenv( "HOME" ) )
-	d->paths->insertItem( *openFolderIcon, getenv( "HOME" ) );
-#endif
+    if ( !!QDir::homeDirPath() )
+	d->paths->insertItem( *openFolderIcon, QDir::homeDirPath() );
 
     while ( (fi = it.current()) != 0 ) {
 	++it;

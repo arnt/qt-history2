@@ -990,23 +990,11 @@ QDir QDir::root()
 }
 
 /*!
+  \fn QString QDir::homeDirPath()
+
   Returns the absolute path for the user's home directory,
   \sa home()
 */
-
-QString QDir::homeDirPath()
-{
-    QString d;
-#ifdef _WS_WIN_
-    d = getenv("HOME");
-#else
-    d = QFile::decodeName(getenv("HOME"));
-#endif
-    slashify( d );
-    if ( d.isNull() )
-	d = rootDirPath();
-    return d;
-}
 
 QStringList qt_makeFilterList( const QString &filter )
 {

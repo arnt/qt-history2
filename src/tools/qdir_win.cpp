@@ -32,6 +32,7 @@
 #endif
 
 #include "qdir.h"
+#include "qnamespace.h"
 #include "qfileinfo.h"
 #include "qfiledefs_p.h"
 #include "qregexp.h"
@@ -78,6 +79,21 @@ static void QDir::slashify( QString& n)
 }
 
 #endif
+
+extern Qt::WindowsVersion qt_winver;
+
+QString QDir::homeDirPath()
+{
+    QString d;
+    if ( qt_winver & Qt::WV_NT_based )
+	d = QString(getenv("HOMEDIR")) + getenv("HOMEPATH");
+    else
+	d = getenv("HOME");
+    slashify( d );
+    if ( d.isNull() )
+	d = rootDirPath();
+    return d;
+}
 
 /*!
   Returns the canonical path, i.e. a path without symbolic links or
