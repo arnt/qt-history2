@@ -932,7 +932,7 @@ bool QSqlQuery::exec()
 	// fake preparation - just replace the placeholders..
 	QString query = d->sqlResult->lastQuery();
 	if ( d->sqlResult->extension()->bindMethod() == QSqlExtension::BindByName ) {
-	    QMap<QString, QVariant>::Iterator it;
+	    QMap<QString, QVariant>::ConstIterator it;
 	    for ( it = d->sqlResult->extension()->values.begin();
 		  it != d->sqlResult->extension()->values.end(); ++it ) {
 		QSqlField f( "", it.data().type() );
@@ -940,7 +940,8 @@ bool QSqlQuery::exec()
 		query = query.replace( it.key(), driver()->formatValue( &f ) ); 
 	    }
 	} else {
-	    QMap<int, QString>::Iterator it;
+	    QMap<int, QString>::ConstIterator it;
+	    QString val;
 	    int i = 0;
 	    for ( it = d->sqlResult->extension()->index.begin();
 		  it != d->sqlResult->extension()->index.end(); ++it ) {
@@ -948,7 +949,9 @@ bool QSqlQuery::exec()
 		if ( i > -1 ) {
 		    QSqlField f( "", d->sqlResult->extension()->values[ it.data() ].type() );
 		    f.setValue( d->sqlResult->extension()->values[ it.data() ] );
+		    val = driver()->formatValue( &f );
 		    query = query.replace( i, 1, driver()->formatValue( &f ) );
+		    i += val.length();
 		}
 	    }
 	}
