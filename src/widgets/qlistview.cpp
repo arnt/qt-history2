@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#21 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#22 $
 **
 ** Implementation of something useful
 **
@@ -21,7 +21,7 @@
 
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#21 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#22 $");
 
 
 struct QListViewPrivate
@@ -165,6 +165,8 @@ void QListViewItem::init()
     siblingItem = childItem = 0;
 
     columnTexts = 0;
+
+    selected = 0;
 }
 
 
