@@ -106,6 +106,7 @@ QHashData *QHashData::detach_helper(Node *(*node_duplicate)(Node *))
     d->userNumBits = userNumBits;
     d->numBits = numBits;
     d->numBuckets = numBuckets;
+    d->autoDelete = autoDelete;
 
     if (numBuckets) {
 	d->buckets = new Node *[numBuckets];
