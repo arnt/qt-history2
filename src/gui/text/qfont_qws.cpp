@@ -136,7 +136,7 @@ void QFontPrivate::load(QFont::Script)
     QStringList family_list;
 
     if (!req.family.isEmpty()) {
-        family_list = QStringList::split(',', req.family);
+        family_list = QString::split(',', req.family);
 
         // append the substitute list for each family in family_list
         QStringList subs_list;

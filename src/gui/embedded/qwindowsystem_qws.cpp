@@ -2445,7 +2445,7 @@ void QWSServer::openMouse()
     closeMouse();
     bool needviscurs = true;
     if (mice != "None") {
-        QStringList mouse = QStringList::split(" ",mice);
+        QStringList mouse = QString::split(" ",mice);
         for (QStringList::Iterator m=mouse.begin(); m!=mouse.end(); ++m) {
             QString ms = *m;
             QWSMouseHandler* h = newMouseHandler(ms);
@@ -2529,7 +2529,7 @@ void QWSServer::openKeyboard()
         return;
     QString device;
     QString type;
-    QStringList keyboard = QStringList::split(" ",keyboards);
+    QStringList keyboard = QString::split(" ",keyboards);
     for (QStringList::Iterator k=keyboard.begin(); k!=keyboard.end(); ++k) {
         QString spec = *k;
         int colon=spec.find(':');
