@@ -956,8 +956,10 @@ void QListViewItem::insertItem( QListViewItem * newChild )
   The normal way to delete an item is \c delete.
 
   \warning This function leaves \a item and its children in a state
-  where most member functions are unsafe.  Only the few functions that
-  are explicitly documented to work in this state may be used then.
+  where most member functions are unsafe. Only a few functions work
+  correctly on an item in this state, most notably insert(). The
+  functions that work on detached items are explicitly documented as
+  such.
 
   \sa QListViewItem::insertItem()
 */
@@ -2340,7 +2342,7 @@ bool QListView::showSortIndicator() const
 }
 
 /*! If \a b is TRUE, tooltips are shows for truncated column texts,
-  otherwise this is not the case. 
+  otherwise this is not the case.
 
   \sa showToolTips()
 */
@@ -2350,7 +2352,7 @@ void QListView::setShowToolTips( bool b )
     d->toolTips = b;
 }
 
-/*! Returns whether tooltips are shown for truncated column texts. 
+/*! Returns whether tooltips are shown for truncated column texts.
 
   \sa setShowToolTips()
 */
@@ -2373,7 +2375,7 @@ void QListView::setFullSize( bool b, int section )
     header()->setFullSize( b, section );
 }
 
-/*! \fn void QListView::setFullSize( bool b ) 
+/*! \fn void QListView::setFullSize( bool b )
 
   \overload
 
@@ -2395,7 +2397,7 @@ bool QListView::fullSize() const
     return header()->fullSize();
 }
 
-/*! \overload 
+/*! \overload
 
   Returns whether the listview's header sections always cover the
   full width of the header by automatically adjusting the section \a
@@ -2444,7 +2446,7 @@ QListView::~QListView()
 /*! Calls QListViewItem::paintCell() and/or
   QListViewItem::paintBranches() for all list view items that
   require repainting in the \a cw pixels wide and
-  \a ch pixels high bounding rectangle starting at position \a cx, \a cy. 
+  \a ch pixels high bounding rectangle starting at position \a cx, \a cy.
 
   For doing this, the painter \a p is used.
 
@@ -3301,7 +3303,7 @@ void QListView::triggerUpdate()
 
 
 /*! Redirects the event \a e for the viewport to mousePressEvent(),
-  keyPressEvent() and friends. 
+  keyPressEvent() and friends.
 */
 
 bool QListView::eventFilter( QObject * o, QEvent * e )
@@ -3628,10 +3630,10 @@ void QListViewItem::widthChanged( int c ) const
 /*! \fn void QListView::mouseButtonClicked(int button, QListViewItem * item, const QPoint & pos, int c)
 
   This signal is emitted whenever the user clicks (mouse pressed + mouse released)
-  into the list view at position \a pos. \a button is the mouse button that the 
-  user pressed, \a item is the pointer to the clicked list view item or NULL 
+  into the list view at position \a pos. \a button is the mouse button that the
+  user pressed, \a item is the pointer to the clicked list view item or NULL
   if the user didn't click on an item, and
-  \a c the list view column into which the user pressed (this argument is valid 
+  \a c the list view column into which the user pressed (this argument is valid
   only if \a item is not NULL!)
 
   Note that you may not delete any QListViewItem objects in slots
@@ -4864,9 +4866,9 @@ void QListView::setSorting( int column, bool ascending )
 }
 
 
-/*! Determines the \a column the list view is sorted by. 
+/*! Determines the \a column the list view is sorted by.
 
-  Sorting is triggered by choosing a header section. 
+  Sorting is triggered by choosing a header section.
 */
 
 void QListView::changeSortColumn( int column )
@@ -6231,7 +6233,7 @@ QListViewItemIterator &QListViewItemIterator::operator--()
     }
 }
 
-/*! \overload 
+/*! \overload
 
   Postfix -- makes the previous item in the QListViewItem tree of
   the QListView of the iterator the current item and returns the item,
