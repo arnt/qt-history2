@@ -6,7 +6,8 @@
 
 QValueList<ArchiveExtractor *> ArchiveExtractor::extractors;
 
-ArchiveExtractor::ArchiveExtractor()
+ArchiveExtractor::ArchiveExtractor( const QStringList& extensions )
+    : fileExts( extensions )
 {
     extractors.prepend( this );
 }
@@ -19,16 +20,15 @@ ArchiveExtractor::~ArchiveExtractor()
 ArchiveExtractor *ArchiveExtractor::extractorForFileName(
 	const QString& fileName )
 {
-    QString ext;
-    int dot = fileName.findRev( '.' );
-    if ( dot != -1 )
-	ext = fileName.mid( dot + 1 );
-
-    QValueList<ArchiveExtractor *>::ConstIterator e = extractors.begin();
-    while ( e != extractors.end() ) {
-	if ( (*e)->recognizeExtension(ext) )
-	    return *e;
-	++e;
+    int dot = -1;
+    while ( (dot = fileName.find(".", dot + 1)) != -1 ) {
+	QString ext = fileName.mid( dot + 1 );
+	QValueList<ArchiveExtractor *>::ConstIterator e = extractors.begin();
+	while ( e != extractors.end() ) {
+	    if ( (*e)->fileExtensions().contains(ext) )
+		return *e;
+	    ++e;
+	}
     }
     return 0;
 }

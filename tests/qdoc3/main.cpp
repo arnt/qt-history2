@@ -18,6 +18,7 @@
 #include "mangenerator.h"
 #include "plaincodemarker.h"
 #include "polyarchiveextractor.h"
+#include "polyuncompressor.h"
 #include "qscodemarker.h"
 #include "qscodeparser.h"
 #include "sgmlgenerator.h"
@@ -168,8 +169,25 @@ int main( int argc, char **argv )
 
     trees.setAutoDelete( TRUE );
 
-    PolyArchiveExtractor qsArchiveExtractor( QStringList() << "qsa",
-					     "qsauncompress \1 \2" );
+    PolyArchiveExtractor qsaExtractor( QStringList() << "qsa",
+				       "qsauncompress \1 \2" );
+    PolyArchiveExtractor tarExtractor( QStringList() << "tar",
+				       "tar -C \2 -xf \1" );
+    PolyArchiveExtractor tazExtractor( QStringList() << "taz",
+				       "tar -C \2 -Zxf \1" );
+    PolyArchiveExtractor tbz2Extractor( QStringList() << "tbz" << "tbz2",
+					"tar -C \2 -jxf \1" );
+    PolyArchiveExtractor tgzExtractor( QStringList() << "tgz",
+				       "tar -C \2 -zxf \1" );
+    PolyArchiveExtractor zipExtractor( QStringList() << "zip",
+				       "unzip \1 -d \2" );
+
+    PolyUncompressor bz2Uncompressor( QStringList() << "bz" << "bz2",
+				      "bunzip2 -c \1 > \2" );
+    PolyUncompressor gzAndZUncompressor( QStringList() << "gz" << "z" << "Z",
+					 "gunzip -c \1 > \2" );
+    PolyUncompressor zipUncompressor( QStringList() << "zip",
+				      "unzip -c \1 > \2" );
 
     CCodeParser cParser;
     CppCodeParser cppParser;

@@ -66,20 +66,18 @@ CodeMarker *CodeMarker::markerForCode( const QString& code )
 
 CodeMarker *CodeMarker::markerForFileName( const QString& fileName )
 {
-    QString ext;
-    int dot = fileName.findRev( '.' );
-    if ( dot != -1 )
-	ext = fileName.mid( dot + 1 );
-
     CodeMarker *defaultMarker = markerForLanguage( defaultLang );
-    if ( defaultMarker != 0 && defaultMarker->recognizeExtension(ext) )
-	return defaultMarker;
-
-    QValueList<CodeMarker *>::ConstIterator m = markers.begin();
-    while ( m != markers.end() ) {
-	if ( (*m)->recognizeExtension(ext) )
-	    return *m;
-	++m;
+    int dot = -1;
+    while ( (dot = fileName.find(".", dot + 1)) != -1 ) {
+	QString ext = fileName.mid( dot + 1 );
+	if ( defaultMarker != 0 && defaultMarker->recognizeExtension(ext) )
+	    return defaultMarker;
+	QValueList<CodeMarker *>::ConstIterator m = markers.begin();
+	while ( m != markers.end() ) {
+	    if ( (*m)->recognizeExtension(ext) )
+		return *m;
+	    ++m;
+	}
     }
     return defaultMarker;
 }

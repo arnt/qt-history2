@@ -54,7 +54,8 @@ private:
     QMap<QString, QStringList> stringListValueMap;
     QMap<QString, QString> stringValueMap;
 
-    static QMap<QString, QString> tempDirs;
+    static QMap<QString, QString> uncompressedFiles;
+    static QMap<QString, QString> extractedDirs;
     static int numInstances;
 };
 

@@ -245,42 +245,48 @@ void ClassNode::addBaseClass( Access access, ClassNode *node,
 QValueList<ClassSection> ClassNode::overviewSections() const
 {
     ClassSection properties( "Properties" );
-    ClassSection publicMembers( "Public Members" );
+    ClassSection publicTypes( "Public Types" );
+    ClassSection publicFunctions( "Public Functions" );
     ClassSection publicSlots( "Public Slots" );
     ClassSection publicSignals( "Signals" );
     ClassSection staticPublicMembers( "Static Public Members" );
     ClassSection importantInheritedMembers( "Important Inherited Members" );
-    ClassSection protectedMembers( "Protected Members" );
+    ClassSection protectedTypes( "Protected Types" );
+    ClassSection protectedFunctions( "Protected Functions" );
     ClassSection protectedSlots( "Protected Slots" );
     ClassSection staticProtectedMembers( "Static Protected Members" );
-    ClassSection privateMembers( "Private Members" );
+    ClassSection privateTypes( "Private Types" );
+    ClassSection privateFunctions( "Private Functions" );
     ClassSection privateSlots( "Private Slots" );
     ClassSection staticPrivateMembers( "Static Private Members" );
-    ClassSection relatedNonMemberFunctions( "Related Non-Member Functions" );
+    ClassSection relatedNonMemberFunctions( "Related Non-member Functions" );
 
     NodeList::ConstIterator c = childNodes().begin();
     while ( c != childNodes().end() ) {
-	FunctionNode::Metaness metaness = FunctionNode::Plain;
+	bool isSlot = FALSE;
+	bool isSignal = FALSE;
 	bool isStatic = FALSE;
 	if ( (*c)->type() == Function ) {
 	    const FunctionNode *func = (const FunctionNode *) *c;
-	    metaness = func->metaness();
+	    isSlot = ( func->metaness() == FunctionNode::Slot );
+	    isSignal = ( func->metaness() == FunctionNode::Signal );
 	    isStatic = func->isStatic();
 	}
-	bool isSlot = ( metaness == FunctionNode::Slot );
 
 	switch ( (*c)->access() ) {
 	case Public:
 	    if ( isSlot ) {
 		publicSlots.members.append( *c );
-	    } else if ( metaness == FunctionNode::Signal ) {
+	    } else if ( isSignal ) {
 		publicSignals.members.append( *c );
 	    } else if ( isStatic ) {
 		staticPublicMembers.members.append( *c );
 	    } else if ( (*c)->type() == Property ) {
 		properties.members.append( *c );
+	    } else if ( (*c)->type() == Function ) {
+		publicFunctions.members.append( *c );	    
 	    } else {
-		publicMembers.members.append( *c );
+		publicTypes.members.append( *c );
 	    }
 	    break;
 	case Protected:
@@ -288,8 +294,10 @@ QValueList<ClassSection> ClassNode::overviewSections() const
 		protectedSlots.members.append( *c );
 	    } else if ( isStatic ) {
 		staticProtectedMembers.members.append( *c );
+	    } else if ( (*c)->type() == Function ) {
+		protectedFunctions.members.append( *c );
 	    } else {
-		protectedMembers.members.append( *c );
+		protectedTypes.members.append( *c );
 	    }
 	    break;
 	case Private:
@@ -297,8 +305,10 @@ QValueList<ClassSection> ClassNode::overviewSections() const
 		privateSlots.members.append( *c );
 	    } else if ( isStatic ) {
 		staticPrivateMembers.members.append( *c );
+	    } else if ( (*c)->type() == Function ) {
+		privateFunctions.members.append( *c );
 	    } else {
-		privateMembers.members.append( *c );
+		privateTypes.members.append( *c );
 	    }
 	}
 	++c;
@@ -306,19 +316,20 @@ QValueList<ClassSection> ClassNode::overviewSections() const
 
     QValueList<ClassSection> sections;
     append( &sections, properties );
-    append( &sections, publicMembers );
+    append( &sections, publicTypes );
+    append( &sections, publicFunctions );
     append( &sections, publicSlots );
     append( &sections, publicSignals );
     append( &sections, staticPublicMembers );
     append( &sections, importantInheritedMembers );
-    append( &sections, protectedMembers );
+    append( &sections, protectedTypes );
+    append( &sections, protectedFunctions );
     append( &sections, protectedSlots );
     append( &sections, staticProtectedMembers );
-    if ( FALSE ) { // ###
-	append( &sections, privateMembers );
-	append( &sections, privateSlots );
-	append( &sections, staticPrivateMembers );
-    }
+    append( &sections, privateTypes );
+    append( &sections, privateFunctions );
+    append( &sections, privateSlots );
+    append( &sections, staticPrivateMembers );
     append( &sections, relatedNonMemberFunctions );
     return sections;
 }

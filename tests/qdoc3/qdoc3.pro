@@ -20,6 +20,7 @@ HEADERS += archiveextractor.h \
 	   pagegenerator.h \
 	   plaincodemarker.h \
 	   polyarchiveextractor.h \
+	   polyuncompressor.h \
 	   qscodemarker.h \
 	   qscodeparser.h \
            quoter.h \
@@ -29,7 +30,8 @@ HEADERS += archiveextractor.h \
 	   text.h \
 	   tokenizer.h \
 	   tr.h \
-	   tree.h
+	   tree.h \
+	   uncompressor.h
 SOURCES += archiveextractor.cpp \
 	   atom.cpp \
 	   bookgenerator.cpp \
@@ -52,6 +54,7 @@ SOURCES += archiveextractor.cpp \
 	   pagegenerator.cpp \
 	   plaincodemarker.cpp \
 	   polyarchiveextractor.cpp \
+	   polyuncompressor.cpp \
 	   qscodemarker.cpp \
 	   qscodeparser.cpp \
            quoter.cpp \
@@ -59,4 +62,5 @@ SOURCES += archiveextractor.cpp \
 	   sgmlgenerator.cpp \
 	   text.cpp \
 	   tokenizer.cpp \
-	   tree.cpp
+	   tree.cpp \
+	   uncompressor.cpp

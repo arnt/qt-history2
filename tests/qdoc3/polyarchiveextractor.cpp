@@ -8,7 +8,7 @@
 
 PolyArchiveExtractor::PolyArchiveExtractor( const QStringList& extensions,
 					    const QString& commandLine )
-    : correctExts( extensions ), cmd( commandLine )
+    : ArchiveExtractor( extensions ), cmd( commandLine )
 {
 }
 
@@ -16,28 +16,27 @@ PolyArchiveExtractor::~PolyArchiveExtractor()
 {
 }
 
-bool PolyArchiveExtractor::recognizeExtension( const QString& ext )
-{
-    return correctExts.contains( ext );
-}
-
 void PolyArchiveExtractor::extractArchive( const Location& location,
 					   const QString& filePath,
 					   const QString& outputDir )
 {
-    QString realCommand = cmd;
-    for ( int i = realCommand.length() - 1; i >= 0; i-- ) {
-	if ( realCommand[i].unicode() == 1 ) {
-	    realCommand.replace( i, 1, filePath );
-	} else if ( realCommand[i].unicode() == 2 ) {
-	    realCommand.replace( i, 1, outputDir );	
+    QString actualCommand = cmd;
+    for ( int i = actualCommand.length() - 1; i >= 0; i-- ) {
+	if ( actualCommand[i].unicode() == 1 ) {
+	    actualCommand.replace( i, 1, filePath );
+	} else if ( actualCommand[i].unicode() == 2 ) {
+	    actualCommand.replace( i, 1, outputDir );
 	}
     }
-    QStringList args = QStringList::split( ' ', realCommand );
+    QString toolName = actualCommand;
+    int space = toolName.find( " " );
+    if ( space != -1 )
+	toolName.truncate( space );
 
-    QProcess process( args );
+    QProcess process( QStringList() << "sh" << "-c" << actualCommand );
     if ( !process.start() )
-	location.fatal( tr("Couldn't launch the %1 tool").arg(args[0]),
+	location.fatal( tr("Couldn't launch the '%1' archive extractor")
+			.arg(toolName),
 			tr("Make sure the tool is installed and in the"
 			   " path.") );
     while ( process.isRunning() )
@@ -50,6 +49,7 @@ void PolyArchiveExtractor::extractArchive( const Location& location,
     */
     QByteArray errors = process.readStderr();
     if ( !errors.isEmpty() )
-	location.fatal( tr("The %1 tool encountered some problems")
-			.arg(args[0]) );
+	location.fatal( tr("The '%1' archive extractor encountered some"
+			   " problems")
+			.arg(toolName) );
 }
