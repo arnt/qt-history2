@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#14 $
 **
 ** Implementation of QRect class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qrect.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qrect.cpp#14 $";
 #endif
 
 
@@ -204,7 +204,7 @@ Synonymous to top().
 */
 
 /*!
-Sets the left position of the rectangle.
+Sets the left position of the rectangle, possibly changing the width.
 */
 
 void QRect::setLeft( QCOORD pos )
@@ -213,7 +213,7 @@ void QRect::setLeft( QCOORD pos )
 }
 
 /*!
-Sets the top position of the rectangle.
+Sets the top position of the rectangle, possibly changing the height.
 */
 
 void QRect::setTop( QCOORD pos )
@@ -222,7 +222,7 @@ void QRect::setTop( QCOORD pos )
 }
 
 /*!
-Sets the x (left) position of the rectangle.
+Sets the x (left) position of the rectangle, possibly changing the width.
 
 Synonymous to setLeft().
 */
@@ -233,7 +233,7 @@ void QRect::setX( QCOORD x )
 }
 
 /*!
-Sets the y (top) position of the rectangle.
+Sets the y (top) position of the rectangle, possibly changing the height.
 
 Synonymous to setTop().
 */
@@ -244,7 +244,7 @@ void QRect::setY( QCOORD y )
 }
 
 /*!
-Sets the right position of the rectangle.
+Sets the right position of the rectangle, possibly changing the width.
 
 \sa right().
 */
@@ -255,7 +255,7 @@ void QRect::setRight( QCOORD pos )
 }
 
 /*!
-Sets the bottom position of the rectangle.
+Sets the bottom position of the rectangle, possibly changing the height.
 
 \sa bottom().
 */
