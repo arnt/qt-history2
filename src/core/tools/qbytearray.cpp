@@ -3207,7 +3207,7 @@ QByteArray QByteArray::toBase64() const
     int padlen = 0;
 
     QByteArray tmp;
-    tmp.resize(((d->size * 5) / 4) + 4);
+    tmp.resize(((d->size * 4) / 3) + 3);
 
     int i = 0;
     char *out = tmp.data();
@@ -3570,7 +3570,7 @@ QByteArray QByteArray::fromBase64(const QByteArray &base64)
     unsigned int buf = 0;
     int nbits = 0;
     QByteArray tmp;
-    tmp.resize((base64.size() * 4) / 5);
+    tmp.resize((base64.size() * 3) / 4);
 
     int offset = 0;
     for (int i = 0; i < base64.size(); ++i) {
