@@ -2422,7 +2422,7 @@ void QWorkspaceChildTitleLabel::drawLabel()
 	    rS+=rD;
 	    gS+=gD;
 	    bS+=bD;
-	    p.setPen( QColor( rS, gS, bS ) );
+	    p.setPen( QColor( (int)rS, (int)gS, (int)bS ) );
 	    p.drawLine( x, contentsRect().y(), x, contentsRect().height() );
 	}
     } else {

@@ -151,7 +151,7 @@ QSGIStyle::polish( QApplication* app)
 */
 
 void
-QSGIStyle::unPolish( QApplication* app )
+QSGIStyle::unPolish( QApplication* /* app */ )
 {    
     QFont f = QApplication::font();
     QApplication::setFont( f, TRUE, "QPopupMenu" );
@@ -1237,7 +1237,7 @@ void QSGIStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
 	QRect br = p->fontMetrics().boundingRect( x, y-2, w+1, h,
 		AlignCenter|DontClip|SingleLine|ShowPrefix, mi->text() );
 
-	drawSGIPrefix( p, br.x()+p->fontMetrics().leftBearing(*text[0]),
+	drawSGIPrefix( p, br.x()+p->fontMetrics().leftBearing((*text)[0]),
 		br.y()+br.height()+p->fontMetrics().underlinePos()-2, text );
 	p->drawText( x, y-2, w+1, h, AlignCenter|DontClip|SingleLine, *text, text->length() );
 	delete text;

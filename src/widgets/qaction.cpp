@@ -27,9 +27,9 @@
 
 #ifndef QT_NO_ACTION
 
+#include <qtoolbar.h>
 #include <qlist.h>
 #include <qpopupmenu.h>
-#include <qtoolbar.h>
 #include <qaccel.h>
 #include <qtoolbutton.h>
 #include <qtooltip.h>
@@ -617,8 +617,9 @@ bool QAction::addTo( QWidget* w )
     } else if ( w->inherits( "QPopupMenu" ) ) {
 	QActionPrivate::MenuItem* mi = new QActionPrivate::MenuItem;
 	mi->popup = (QPopupMenu*) w;
-	if ( d->iconset )
-	    mi->id = mi->popup->insertItem( *d->iconset, QString::fromLatin1("") );
+	QIconSet* diconset = d->iconset; // stupid GCC 2.7.x compiler
+	if ( diconset )
+	    mi->id = mi->popup->insertItem( *diconset, QString::fromLatin1("") );
 	else
 	    mi->id = mi->popup->insertItem( QString::fromLatin1("") );
 	mi->popup->connectItem( mi->id, this, SLOT(internalActivation()) );

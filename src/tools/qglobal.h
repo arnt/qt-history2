@@ -171,6 +171,7 @@
 #if __GNUC__ == 2 && __GNUC_MINOR__ <= 7
 #define Q_FULL_TEMPLATE_INSTANTIATION
 #define Q_TEMPLATE_NEEDS_CLASS_DECLARATION
+#define Q_TEMPLATE_NEEDS_EXPLICIT_CONVERSION
 #endif
 #elif defined(__xlC__)
 #define _CC_XLC_
