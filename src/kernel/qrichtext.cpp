@@ -1843,11 +1843,13 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		if ( c == '\n' ) // happens only in whitespacepre-mode.
 		    break;  // we want a new line in this case
 		
-		if ( curtag.wsm == QStyleSheetItem::WhiteSpaceNormal && c.isSpace() && space )
+		bool c_isSpace = c.isSpace() && c.unicode() != 0x00a0U;
+		
+		if ( curtag.wsm == QStyleSheetItem::WhiteSpaceNormal && c_isSpace && space )
 		    continue;
 		if ( c == '\r' )
 		    continue;
-		space = c.isSpace();
+		space = c_isSpace;
 		s += c;
 	    }
 	    if ( !s.isEmpty() && curtag.style->displayMode() != QStyleSheetItem::DisplayNone ) {
