@@ -2164,7 +2164,7 @@ void QLineEditPrivate::setText( const QString& txt )
 
 void QLineEditPrivate::setCursorVisible( bool visible )
 {
-    if ( cursorVisible == visible )
+    if ( (bool)cursorVisible == visible )
 	return;
     if ( cursorTimer )
 	cursorVisible = visible;
