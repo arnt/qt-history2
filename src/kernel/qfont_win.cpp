@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#68 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#69 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -40,6 +40,9 @@
 #endif
 
 extern WindowsVersion qt_winver;		// defined in qapplication_win.cpp
+
+extern QString qt_winQString(TCHAR* tc);
+extern TCHAR* qt_winTchar(const QString& str, bool addnul);
 
 #if defined(Q_SHARED_FONTDC)
 static HANDLE shared_dc	     = 0;		// common dc for all fonts
@@ -335,10 +338,9 @@ void QFont::initFontInfo() const
 	return;
     f->lw = 1;
     f->s = d->req;				// most settings are equal
-    char n[64];
+    TCHAR n[64];
     GetTextFace( f->dc(), 64, n );
-    if ( stricmp(f->s.family,n) != 0 )
-	f->s.family = n;
+    f->s.family = qt_winQString(n);
     f->s.dirty = FALSE;
 }
 
@@ -479,7 +481,8 @@ HANDLE QFont::create( bool *stockFont, HANDLE hdc ) const
     lf.lfClipPrecision  = CLIP_DEFAULT_PRECIS;
     lf.lfQuality	= DEFAULT_QUALITY;
     lf.lfPitchAndFamily = DEFAULT_PITCH | hint;
-    strcpy( lf.lfFaceName, fam );
+    memcpy(lf.lfFaceName,qt_winTchar( fam, TRUE ),
+	sizeof(TCHAR)*QMIN(fam.length()+1,32));  // 32 = Windows hard-coded
 
     HANDLE hfont = CreateFontIndirect( &lf );
     if ( stockFont )
@@ -759,26 +762,8 @@ int QFontMetrics::width( const QString &str, int len ) const
 	len = str.length();
     SIZE s;
     HDC h = hdc();
-    if ( qt_winver == WV_NT ) {
-	const QChar* uc = str.unicode();
-	if ( sizeof(WCHAR)==sizeof(QChar) && *((WCHAR*)(&QChar(0,1))) == 0x0100 ) {
-	    // Same endianness of WCHAR
-	    GetTextExtentPoint32W( h, (WCHAR*)uc, len, &s );
-	} else if ( len < 256 ) {
-	    WCHAR buf[256];
-	    for ( int i=len; i--; )
-		buf[i] = uc[i].row << 8 | uc[i].cell;
-	    GetTextExtentPoint32W( h, buf, len, &s );
-	} else {
-	    WCHAR *buf = new WCHAR[len];
-	    for ( int i=len; i--; )
-		buf[i] = uc[i].row << 8 | uc[i].cell;
-	    GetTextExtentPoint32W( h, buf, len, &s );
-	    delete [] buf;
-	}
-    } else {
-	GetTextExtentPoint32( h, str.ascii(), len, &s );
-    }
+    TCHAR* tc = qt_winTchar(str,FALSE);
+    GetTextExtentPoint32( h, tc, len, &s );
     return s.cx;
 }
 
