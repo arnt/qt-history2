@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#275 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#276 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -9643,68 +9643,179 @@ categories are: <ul>
 <li> \c NoCategory - used when Qt is dazed and confused and cannot
 make sense of anything.
 
-<li> \c Mark_NonSpacing - (Mn) - 
+<li> \c Mark_NonSpacing - (Mn) -
 
-<li> \c Mark_SpacingCombining - (Mc) - 
+<li> \c Mark_SpacingCombining - (Mc) -
 
-<li> \c Mark_Enclosing - (Me) - 
+<li> \c Mark_Enclosing - (Me) -
 
-<li> \c Number_DecimalDigit - (Nd) - 
+<li> \c Number_DecimalDigit - (Nd) -
 
-<li> \c Number_Letter - (Nl) - 
+<li> \c Number_Letter - (Nl) -
 
-<li> \c Number_Other - (No) - 
+<li> \c Number_Other - (No) -
 
-<li> \c Separator_Space - (Zs) - 
+<li> \c Separator_Space - (Zs) -
 
-<li> \c Separator_Line - (Zl) - 
+<li> \c Separator_Line - (Zl) -
 
-<li> \c Separator_Paragraph - (Zp) - 
+<li> \c Separator_Paragraph - (Zp) -
 
-<li> \c Other_Control - (Cc) - 
+<li> \c Other_Control - (Cc) -
 
-<li> \c Other_Format - (Cf) - 
+<li> \c Other_Format - (Cf) -
 
-<li> \c Other_Surrogate - (Cs) - 
+<li> \c Other_Surrogate - (Cs) -
 
-<li> \c Other_PrivateUse - (Co) - 
+<li> \c Other_PrivateUse - (Co) -
 
-<li> \c Other_NotAssigned - (Cn) - 
+<li> \c Other_NotAssigned - (Cn) -
 
-<li> \c Letter_Uppercase - (Lu) - 
+<li> \c Letter_Uppercase - (Lu) -
 
-<li> \c Letter_Lowercase - (Ll) - 
+<li> \c Letter_Lowercase - (Ll) -
 
-<li> \c Letter_Titlecase - (Lt) - 
+<li> \c Letter_Titlecase - (Lt) -
 
-<li> \c Letter_Modifier - (Lm) - 
+<li> \c Letter_Modifier - (Lm) -
 
-<li> \c Letter_Other - (Lo) - 
+<li> \c Letter_Other - (Lo) -
 
-<li> \c Punctuation_Connector - (Pc) - 
+<li> \c Punctuation_Connector - (Pc) -
 
-<li> \c Punctuation_Dask - (Pd) - 
+<li> \c Punctuation_Dask - (Pd) -
 
-<li> \c Punctuation_Open - (Ps) - 
+<li> \c Punctuation_Open - (Ps) -
 
-<li> \c Punctuation_Close - (Pe) - 
+<li> \c Punctuation_Close - (Pe) -
 
-<li> \c Punctuation_InitialQuote - (Pi) - 
+<li> \c Punctuation_InitialQuote - (Pi) -
 
-<li> \c Punctuation_FinalQuote - (Pf) - 
+<li> \c Punctuation_FinalQuote - (Pf) -
 
-<li> \c Punctuation_Other - (Po) - 
+<li> \c Punctuation_Other - (Po) -
 
-<li> \c Symbol_Math - (Sm) - 
+<li> \c Symbol_Math - (Sm) -
 
-<li> \c Symbol_Currency - (Sc) - 
+<li> \c Symbol_Currency - (Sc) -
 
-<li> \c Symbol_Modifier - (Sk) - 
+<li> \c Symbol_Modifier - (Sk) -
 
-<li> \c Symbol_Other - (So) - 
+<li> \c Symbol_Other - (So) -
 
 </ul>
 */
+
+#warning "Warwick: Please fill in these enum things"
+
+/*! \enum QChar::Direction
+
+  This enum type defines <ul>
+<li> \c DirL - 
+<li> \c DirR - 
+<li> \c DirEN - 
+<li> \c DirES - 
+<li> \c DirET - 
+<li> \c DirAN - 
+<li> \c DirCS - 
+<li> \c DirB - 
+<li> \c DirS - 
+<li> \c DirWS - 
+<li> \c DirON -
+</ul>
+*/
+
+/*! \enum QChar::Decomposition
+
+  This enum type defines <ul>
+<li> \c        Single - 
+<li> \c Canonical - 
+<li> \c Font - 
+<li> \c NoBreak - 
+<li> \c Initial - 
+<li> \c Medial - 
+<li> \c Final - 
+<li> \c Isolated - 
+<li> \c Circle - 
+<li> \c Super - 
+<li> \c Sub - 
+<li> \c Vertical - 
+<li> \c Wide - 
+<li> \c Narrow - 
+<li> \c Small - 
+<li> \c Square - 
+<li> \c Compat - 
+<li> \c Fraction -
+</ul>
+*/
+
+/*! \enum QChar::Joining
+
+  This enum type defines <ul>
+<li> \c OtherJoining - 
+<li> \c Dual - 
+<li> \c Right - 
+<li> \c Center - 
+<li> \c Unknown -
+</ul>
+*/
+
+
+
+/*! \fn QChar::QChar()
+
+Constructs a null QChar (one that isNull()).
+*/
+
+
+/*! \fn QChar::QChar( char c )
+
+Constructs a QChar corresponding to ASCII/Latin1 character \a c. 
+*/
+
+
+/*! \fn QChar::QChar( uchar c )
+
+Constructs a QChar corresponding to ASCII/Latin1 character \a c. 
+*/
+
+
+/*! \fn QChar::QChar( uchar c, uchar r )
+
+Constructs a QChar for Unicode cell \a c in row \a r.
+*/
+
+
+/*! \fn QChar::QChar( const QChar& c )
+
+Constructs a copy of \a c.  This is a deep copy, if such a
+light-weight object can be said to have deep copies.
+*/
+
+
+/*! \fn QChar::QChar( ushort rc )
+
+Constructs a QChar for the character with Unicode code point \a rc.
+*/
+
+
+/*! \fn QChar::QChar( short rc )
+
+Constructs a QChar for the character with Unicode code point \a rc.
+*/
+
+
+/*! \fn QChar::QChar( uint rc )
+
+Constructs a QChar for the character with Unicode code point \a rc.
+*/
+
+
+/*! \fn QChar::QChar( int rc )
+
+Constructs a QChar for the character with Unicode code point \a rc.
+*/
+
 
 /*!
   \fn bool QChar::isNull() const
@@ -9823,7 +9934,7 @@ QChar::Category QChar::category() const
 /*!
   Returns the characters directionality.
 
-  \sa 
+  \sa
 */
 QChar::Direction QChar::direction() const
 {
