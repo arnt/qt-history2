@@ -3374,6 +3374,10 @@ int QTable::currentSelection() const
 
 void QTable::selectCells( int start_row, int start_col, int end_row, int end_col )
 {
+    start_row = QMAX( 0, start_row );
+    start_col = QMAX( 0, start_col );
+    end_row = QMIN( numRows()-1, end_row );
+    end_col = QMIN( numCols()-1, end_col );
     QTableSelection sel( start_row, start_col, end_row, end_col );
     addSelection( sel );
 }
@@ -3386,6 +3390,7 @@ void QTable::selectCells( int start_row, int start_col, int end_row, int end_col
 // ### Make this virtual in 4.0 and remove hack for QDataTable
 void QTable::selectRow( int row )
 {
+    row = QMIN(numRows()-1, row);
     if ( inherits("QDataTable") ) {
 	setCurrentCell( row, currentColumn() );
     } else {
@@ -3402,6 +3407,7 @@ void QTable::selectRow( int row )
 // ### Make this virtual in 4.0
 void QTable::selectColumn( int col )
 {
+    col = QMIN(numCols()-1, col);
     QTableSelection sel( 0, col, numRows() - 1, col );
     addSelection( sel );
 }
