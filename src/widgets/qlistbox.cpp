@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#16 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#17 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#16 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#17 $";
 #endif
 
 #include "qstring.h"
@@ -83,12 +83,9 @@ static inline bool checkIndex( const char *method, int count, int index )
 
   \brief QListBox provides a single-column list of items.
 
-  Since this is so flippant, H&aring;vard will write something less
-  funny and more informative.
-
   */
 
-/*! Creates a new QListBox.  The arguments are passed to the parent
+/*! Constructs a list box.  The arguments are passed to the parent
   class as usual. */
 
 QListBox::QListBox( QWidget *parent, const char *name )
@@ -270,9 +267,8 @@ void QListBox::insertItem( const QPixmap *pixmap, int index )
 
 }
 
-/*! Insert and sort.  Yes.
-
-  Inserts \e string into the list and sorts the list. \sa
+/*!
+Inserts \e string into the list and sorts the list. \sa
   insertItem(). */
 
 void QListBox::inSort( const char *string )
@@ -369,19 +365,16 @@ void QListBox::clear()
 	erase();
 }
 
-/*! Not implemented yet. \sa The Future. */
-
 void QListBox::setStringCopy( bool b )
 {
     if ( b == copyStrings )
 	return;
     if ( count() != 0 ) {
-	if ( !b ) {
-	    warning("QListBox::setStringCopy: Cannot change from TRUE "
-		    "to FALSE when the list box is not empty.");
+//	if ( !b ) {
+	    warning("QListBox::setStringCopy: Cannot change the value "
+		    "when the list box is not empty.");
 	    return;
-	}
-	// Yo!!!       ####
+//	}
     }
     
 }
@@ -425,30 +418,20 @@ void QListBox::setUserItems( bool b )
     ownerDrawn = b;
 }
 
-/*! Not implemented yet. */
-
 bool QListBox::userItems()
 {
     return ownerDrawn;
 }
-
-/*! Returns a new QLBItem which may be used freely.  QListBox will not
-  try to keep track of this item, but you can call deleteItem() to
-  delete it. */
 
 QLBItem *QListBox::newItem()
 {
     return new QLBItem;
 }
 
-/*! Deletes \e i.  \sa newItem(). */
-
 void QListBox::deleteItem( QLBItem *i )
 {
     delete i;
 }
-
-/*! Not implemented yet. */
 
 void QListBox::paintItem( QPainter *, int )
 {
@@ -496,8 +479,7 @@ void QListBox::changeItem( const QLBItem *lbi, int index )
     changeAny( 0, 0, lbi, index );
 }
 
-/*! Returns a pointer to the item at position \e index.  If that item
-  isn't a QLBItem, you are very unlucky. */
+/*! Returns a pointer to the item at position \e index. */
 
 QLBItem *QListBox::item( int index ) const
 {
@@ -544,7 +526,7 @@ int QListBox::cellWidth( long l )
     return QTableWidget::cellWidth();  // cellWidth is always constant
 }
 
-/*! This virtual function returns a null pointer in QListBox and must
+/*! This virtual function returns 0 in QListBox and must
   be reimplemented by subclasses that use other types. */
 
 int QListBox::itemHeight( QLBItem *lbi )
@@ -554,7 +536,7 @@ int QListBox::itemHeight( QLBItem *lbi )
     return 0;
 }
 
-/*! This virtual function returns a null pointer in QListBox and must
+/*! This virtual function returns 0 in QListBox and must
   be reimplemented by subclasses that use other types. */
 
 int QListBox::itemWidth( QLBItem *lbi )
