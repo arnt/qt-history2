@@ -1985,21 +1985,18 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt,
             p->fillRect(mid_h, opt->rect.y(), 1, bef_v - opt->rect.y(), brush);
         break; }
     case PE_ButtonBevel:
-    case PE_HeaderSection:
-        if (const Q4StyleOptionHeader *header = qt_cast<const Q4StyleOptionHeader *>(opt)) {
-            QBrush fill;
-            if (!(header->state & Style_Down) && (header->state & Style_On))
-                fill = QBrush(header->palette.light(), Dense4Pattern);
-            else
-                fill = header->palette.brush(QPalette::Button);
+    case PE_HeaderSection: {
+        QBrush fill;
+        if (!(opt->state & Style_Down) && (opt->state & Style_On))
+            fill = QBrush(opt->palette.light(), Dense4Pattern);
+        else
+            fill = opt->palette.brush(QPalette::Button);
 
-            if (header->state & (Style_Raised | Style_Down | Style_On | Style_Sunken))
-                qDrawWinButton(p, header->rect, header->palette,
-                               header->state & (Style_Down | Style_On), &fill);
-            else
-                p->fillRect(opt->rect, fill);
-        }
-        break;
+        if (opt->state & (Style_Raised | Style_Down | Style_On | Style_Sunken))
+            qDrawWinButton(p, opt->rect, opt->palette, opt->state & (Style_Down | Style_On), &fill);
+        else
+            p->fillRect(opt->rect, fill);
+        break; }
 #if defined(Q_WS_WIN)
     case PE_HeaderArrow:
         if (const Q4StyleOptionHeader *header = qt_cast<const Q4StyleOptionHeader *>(opt)) {
