@@ -376,7 +376,7 @@ QImage QPixmap::convertToImage() const
     int	h = height();
     int	d = depth();
     int	ncols = 2;
-    const QBitmap *m = mask();
+    const QBitmap *m = data->hasRealAlpha ? 0 : mask();
 
     if ( d > 1 && d <= 8 || d == 1 && m ) {	// set to nearest valid depth
 	d = 8;					//   2..7 ==> 8
@@ -639,9 +639,9 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 		b[i+2] = 0;
 	    } else if ( b[i+3] != 255 ) {
 		hasRealAlpha = TRUE;
-		b[i]   = (b[i]  *b[i+3]) / 255;
-		b[i+1] = (b[i+1]*b[i+3]) / 255;
-		b[i+2] = (b[i+2]*b[i+3]) / 255;
+		b[i]   = ((int)b[i]  *b[i+3]) / 255;
+		b[i+1] = ((int)b[i+1]*b[i+3]) / 255;
+		b[i+2] = ((int)b[i+2]*b[i+3]) / 255;
 	    }
 	}
 	if ( hasRealAlpha ) {
