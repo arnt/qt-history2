@@ -81,6 +81,7 @@ public:
         nocolBrush(false),
         pixmapBrush(false),
         usesWidgetDC(false),
+        rasterOp(Qt::CopyROP),
         pStyle(Qt::SolidLine),
         pWidth(0),
         pColor(0),
