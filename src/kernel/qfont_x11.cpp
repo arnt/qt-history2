@@ -91,7 +91,7 @@ static char *qt_x11encodings[][QFontPrivate::NScripts + 1] = {
       "koi8-r",
       "koi8-ru"          , 0 }, // CYRILLIC
     { 0                      }, // CYRILLICHISTORIC
-    { 0                      }, // EXTCYRILLIC
+    { 0                      }, // CyrillicExt
     { 0                      }, // ARMENIAN
     { 0                      }, // GEORGIAN
     { 0                      }, // RUNIC
@@ -1119,7 +1119,7 @@ void QFontPrivate::load(QFontPrivate::Script script, bool tryUnicode)
 		    case CyrillicHistoric:
 			row = 0x04; cell = 0x60; break;
 		    case CyrillicExt:
-			row = 0x04; cell = 0x90; break;
+			row = 0x04; cell = 0xa0; break;
 		    case Armenian:
 			row = 0x05; cell = 0x40; break;
 		    case Georgian:
@@ -1669,7 +1669,7 @@ void QFont::setPixelSizeFloat( float pixelSize )
 int QFontMetrics::ascent() const
 {
     d->load(QFontPrivate::defaultScript);
-
+    
     QFontStruct *qfs = d->x11data.fontstruct[QFontPrivate::defaultScript];
     if (! qfs || qfs == (QFontStruct *) -1) {
 	return d->request.pointSize * 3 / 40;
@@ -1697,7 +1697,7 @@ int QFontMetrics::descent() const
     if (! qfs || qfs == (QFontStruct *) -1) {
 	return 0;
     }
-
+    
     XFontStruct *f = (XFontStruct *) qfs->handle;
     return f->max_bounds.descent - 1;
 }
@@ -2004,7 +2004,8 @@ int QFontMetrics::leading() const
     }
 
     XFontStruct *f = (XFontStruct *) qfs->handle;
-    return f->ascent + f->descent - f->max_bounds.ascent - f->max_bounds.descent;
+    int l = f->ascent + f->descent - f->max_bounds.ascent - f->max_bounds.descent;
+    return (l > 0) ? l : 0;
 }
 
 
@@ -2061,7 +2062,7 @@ int QFontMetrics::width(QChar ch) const
     if (! qfs || qfs == (QFontStruct *) -1) {
 	return d->request.pointSize * 3 / 40;
     }
-
+    
     XCharStruct *xcs = charStr(qfs->codec, ((XFontStruct *) qfs->handle), ch, 0);
     return xcs ? xcs->width : d->request.pointSize * 3 / 40;
 }
