@@ -1,7 +1,3 @@
-void MainView::url_dataTransferProgress(int,int,QNetworkOperation*)
-{
-}
-
 void MainView::init()
 {
     connect( &urlOp, SIGNAL(connectionStateChanged( int, const QString&)),
@@ -33,14 +29,14 @@ void MainView::quit()
 
 void MainView::start_copy()
 {
-    logWindow->append( "START: copy()\n" );
+    logMessage( "START: copy()", 0 );
     urlOp = urlEdit->displayText(); 
     urlOp.copy( copyFrom->displayText(), copyTo->displayText(), copyMove->isChecked() );  
 }
 
 void MainView::start_get()
 {
-    logWindow->append( "START: get()\n" ); 
+    logMessage( "START: get()", 0 ); 
     urlOp = urlEdit->displayText();
     QString location = getLocation->displayText();
     if ( location.isEmpty() )
@@ -51,21 +47,21 @@ void MainView::start_get()
 
 void MainView::start_listChildren()
 {
-    logWindow->append( "START: listChildren()\n" );
+    logMessage( "START: listChildren()", 0 );
     urlOp = urlEdit->displayText();
     urlOp.listChildren();
 }
 
 void MainView::start_mkdir()
 {
-    logWindow->append( "START: mkdir()\n" );
+    logMessage( "START: mkdir()", 0 );
     urlOp = urlEdit->displayText();
     urlOp.mkdir( mkdirDirName->displayText() );
 }
 
 void MainView::start_put()
 {
-    logWindow->append( "START: put()\n" );
+    logMessage( "START: put()", 0 );
     urlOp = urlEdit->displayText(); 
     QString location = getLocation->displayText(); 
     QByteArray ba( 50 );
@@ -79,14 +75,14 @@ void MainView::start_put()
 
 void MainView::start_remove()
 {
-    logWindow->append( "START: remove()\n" );  
+    logMessage( "START: remove()", 0 );  
     urlOp = urlEdit->displayText(); 
     urlOp.remove( removeFileName->displayText() ); 
 }
 
 void MainView::start_rename()
 {
-    logWindow->append( "START: rename()\n" );  
+    logMessage( "START: rename()", 0 );  
     urlOp = urlEdit->displayText(); 
     urlOp.rename( renameOldName->displayText(), renameNewName->displayText() ); 
 }
@@ -96,44 +92,49 @@ void MainView::stop()
     urlOp.stop();
 }
 
-void MainView::url_createdDirectory( const QUrlInfo&, QNetworkOperation* )
+void MainView::url_createdDirectory( const QUrlInfo&, QNetworkOperation *no )
 {
-    logWindow->append( "SIGNAL: createdDirectory\n" ); 
+    logMessage( "SIGNAL: createdDirectory", no ); 
 }
 
-void MainView::url_data(const QByteArray&, QNetworkOperation* )
+void MainView::url_data(const QByteArray&, QNetworkOperation *no )
 {
-    logWindow->append( "SIGNAL: data\n" ); 
+    logMessage( "SIGNAL: data", no ); 
 }
 
-void MainView::url_finished( QNetworkOperation* )
+void MainView::url_dataTransferProgress( int i, int j, QNetworkOperation *no)
 {
-    logWindow->append( "SIGNAL: finished\n" ); 
+    logMessage( QString("SIGNAL: dataTransferProgress( %1, %2 )").arg(i).arg(j), no ); 
 }
 
-void MainView::url_itemChanged( QNetworkOperation* )
+void MainView::url_finished( QNetworkOperation *no )
 {
-    logWindow->append( "SIGNAL: itemChanged\n" ); 
+    logMessage( "SIGNAL: finished", no ); 
 }
 
-void MainView::url_newChildren( const QValueList<QUrlInfo>&, QNetworkOperation* )
+void MainView::url_itemChanged( QNetworkOperation *no )
 {
-    logWindow->append( "SIGNAL: newChildren\n" ); 
+    logMessage( "SIGNAL: itemChanged", no ); 
 }
 
-void MainView::url_removed( QNetworkOperation* )
+void MainView::url_newChildren( const QValueList<QUrlInfo>&, QNetworkOperation *no )
 {
-    logWindow->append( "SIGNAL: removed\n" ); 
+    logMessage( "SIGNAL: newChildren", no ); 
 }
 
-void MainView::url_start( QNetworkOperation* )
+void MainView::url_removed( QNetworkOperation *no )
 {
-    logWindow->append( "SIGNAL: start\n" ); 
+    logMessage( "SIGNAL: removed", no ); 
+}
+
+void MainView::url_start( QNetworkOperation *no )
+{
+    logMessage( "SIGNAL: start", no ); 
 }
 
 void MainView::url_startedNextCopy( const QPtrList<QNetworkOperation>& )
 {
-    logWindow->append( "SIGNAL: startedNextCopy\n" );  
+    logMessage( "SIGNAL: startedNextCopy", 0 );  
 }
 
 void MainView::url_connectionStateChanged( int i, const QString &s )
@@ -153,5 +154,11 @@ void MainView::url_connectionStateChanged( int i, const QString &s )
 	    enumStr = "(Unknown)";
 	    break;
     }
-    logWindow->append( QString("SIGNAL: connectionStateChanged( %1, \"%2\" )\n").arg(enumStr).arg(s) );
+    logMessage( QString("SIGNAL: connectionStateChanged( %1, \"%2\" )").arg(enumStr).arg(s), 0 );
+}
+
+
+void MainView::logMessage( const QString &msg, QNetworkOperation * )
+{
+    logWindow->append( msg + "\n" );
 }
