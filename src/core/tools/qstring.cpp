@@ -1597,7 +1597,7 @@ bool QString::operator<(const QLatin1String &other) const
         ++uc;
         ++c;
     }
-    return (uc == e || *uc < *c);
+    return (uc == e ? *c : *uc < *c);
 }
 
 /*! \fn bool QString::operator<(const QByteArray &other) const
@@ -1693,7 +1693,7 @@ bool QString::operator>(const QLatin1String &other) const
         ++uc;
         ++c;
     }
-    return (uc != e && *uc > *c);
+    return (uc == e ? false : *uc > *c);
 }
 
 /*! \fn bool QString::operator>(const QByteArray &other) const
