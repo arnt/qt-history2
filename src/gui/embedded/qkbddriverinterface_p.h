@@ -28,7 +28,8 @@
 //
 
 #ifndef QT_H
-#include <private/qcom_p.h>
+#include <qglobal.h>
+////#include <private/qcom_p.h>
 #endif // QT_H
 
 #ifndef QT_NO_COMPONENT

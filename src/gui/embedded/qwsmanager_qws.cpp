@@ -264,11 +264,11 @@ void QWSManager::mouseReleaseEvent(QMouseEvent *e)
 void QWSManager::mouseMoveEvent(QMouseEvent *e)
 {
 #ifndef QT_NO_CURSOR
-    static Qt::CursorShape shape[] = { Qt::ArrowCursor, ArrowCursor, ArrowCursor,
-                            Qt::SizeVerCursor, SizeVerCursor, Qt::SizeHorCursor,
+    static Qt::CursorShape shape[] = { Qt::ArrowCursor, Qt::ArrowCursor, Qt::ArrowCursor,
+                            Qt::SizeVerCursor, Qt::SizeVerCursor, Qt::SizeHorCursor,
                             Qt::SizeHorCursor, Qt::SizeFDiagCursor, Qt::SizeBDiagCursor,
                             Qt::SizeBDiagCursor, Qt::SizeFDiagCursor, Qt::ArrowCursor,
-                            Qt::ArrowCursor, ArrowCursor, ArrowCursor, ArrowCursor};
+                            Qt::ArrowCursor, Qt::ArrowCursor, Qt::ArrowCursor, Qt::ArrowCursor};
 
     // cursor
     QWSDisplay *qwsd = QApplication::desktop()->qwsDisplay();
@@ -409,7 +409,7 @@ void QWSManager::paintEvent(QPaintEvent *)
     QRegion r = managed->d->topData()->decor_allocated_region;
     int rgnIdx = managed->data->alloc_region_index;
 
-    QGfx *gfx = static_cast<QWSPaintEngine *>(painter.device()->engine())->gfx();
+    QGfx *gfx = static_cast<QWSPaintEngine *>(painter.device()->paintEngine())->gfx();
     if (rgnIdx >= 0) {
         QRegion newRegion;
         bool changed = false;

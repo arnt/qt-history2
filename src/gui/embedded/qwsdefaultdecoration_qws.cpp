@@ -349,7 +349,7 @@ QRegion QWSDefaultDecoration::region(const QWidget *widget, const QRect &rect, Q
             }
             break;
 
-        case Qt::TopLeft: {
+        case TopLeft: {
                 QRect r1(rect.left() - bw,
                         rect.top() - bw - titleHeight,
                         CORNER_GRAB + bw,
@@ -364,7 +364,7 @@ QRegion QWSDefaultDecoration::region(const QWidget *widget, const QRect &rect, Q
             }
             break;
 
-        case Qt::TopRight: {
+        case TopRight: {
                 QRect r1(rect.right() - CORNER_GRAB,
                         rect.top() - bw - titleHeight,
                         CORNER_GRAB + bw,
@@ -379,7 +379,7 @@ QRegion QWSDefaultDecoration::region(const QWidget *widget, const QRect &rect, Q
             }
             break;
 
-        case Qt::BottomLeft: {
+        case BottomLeft: {
                 QRect r1(rect.left() - bw,
                         rect.bottom() + 1,
                         CORNER_GRAB + bw,
@@ -393,7 +393,7 @@ QRegion QWSDefaultDecoration::region(const QWidget *widget, const QRect &rect, Q
             }
             break;
 
-        case Qt::BottomRight: {
+        case BottomRight: {
                 QRect r1(rect.right() - CORNER_GRAB,
                         rect.bottom() + 1,
                         CORNER_GRAB + bw,

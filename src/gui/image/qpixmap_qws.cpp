@@ -129,7 +129,6 @@ static void build_scale_table(uint **table, uint nBits)
 }
 */
 
-static QList<QSharedTemporary*> *qws_pixmapData = 0;
 static bool qws_trackPixmapData = true;
 
 class QwsPixmap : public QPixmap
@@ -138,19 +137,21 @@ public:
     QwsPixmap() : QPixmap() {}
     static void mapPixmaps(bool from);
     static QHash<QPixmapData*, QImage*> *images;
+    static QList<QPixmapData*> *pixmapData;
 };
 
 QHash<QPixmap::QPixmapData*, QImage*> *QwsPixmap::images = 0;
+QList<QPixmap::QPixmapData*> *QwsPixmap::pixmapData = 0;
 
 void QwsPixmap::mapPixmaps(bool from)
 {
-    if (!qws_pixmapData)
+    if (!pixmapData)
         return;
     if (!images)
         images = new QHash<QPixmapData*, QImage*>;
     qws_trackPixmapData = false;
-    for (int i = 0; i < qws_pixmapData->size(); ++i) {
-        QPixmapData *d = (QPixmapData*)qws_pixmapData->at(i);
+    for (int i = 0; i < pixmapData->size(); ++i) {
+        QPixmapData *d = pixmapData->at(i);
         if (d->w && d->h) {
             if (from) {
                 QwsPixmap p;
@@ -201,8 +202,8 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
     static int serial = 0;
     int dd = defaultDepth();
 
-    if (!qws_pixmapData)
-        qws_pixmapData = new QList<QSharedTemporary*>;
+    if (!QwsPixmap::pixmapData)
+        QwsPixmap::pixmapData = new QList<QPixmapData*>;
 
     if (optim == DefaultOptim)                // use default optimization
         optim = defOptim;
@@ -210,7 +211,7 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
     data = new QPixmapData;
 
     if (qws_trackPixmapData)
-        qws_pixmapData->append(data);
+        QwsPixmap::pixmapData->append(data);
 
     memset(data, 0, sizeof(QPixmapData));
     data->id=0;
@@ -268,7 +269,7 @@ void QPixmap::deref()
 {
     if (data && data->deref()) {                        // last reference lost
         if (qws_trackPixmapData)
-            qws_pixmapData->remove(data);
+            QwsPixmap::pixmapData->remove(data);
         if (data->mask)
             delete data->mask;
         if (data->clut)
@@ -646,9 +647,8 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
     init(w, h, dd, ibm, optim);
 
     //##### HACK to get to the gfx #####
-    QPaintEngine *p = engine();
-    QPainterState ps;
-    p->begin(this, &ps);
+    QPaintEngine *p = paintEngine();
+    p->begin(this);
     QGfx * mygfx=static_cast<QWSPaintEngine*>(p)->gfx();
     if (mygfx) {
         mygfx->setAlphaType(QGfx::IgnoreAlpha);
@@ -706,4 +706,265 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
 QPixmap QPixmap::xForm(const QWMatrix &matrix) const
 {
-    i
+    int           w, h;                                // size of target pixmap
+    int           ws, hs;                                // size of source pixmap
+    uchar *dptr;                                // data in target pixmap
+    int           dbpl, dbytes;                        // bytes per line/bytes total
+    uchar *sptr;                                // data in original pixmap
+    int           sbpl;                                // bytes per line in original
+    int           bpp;                                        // bits per pixel
+    bool   depth1 = depth() == 1;
+    //int           y;
+
+    if (isNull())                                // this is a null pixmap
+        return copy();
+
+    ws = width();
+    hs = height();
+
+    QWMatrix mat(matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(), 0., 0.);
+
+//#######################################
+#ifdef QT_OLD_GFX
+    if (matrix.m12() == 0.0F && matrix.m21() == 0.0F) {
+        if (matrix.m11() == 1.0F && matrix.m22() == 1.0F)
+            return *this;                        // identity matrix
+        h = qRound(matrix.m22()*hs);
+        w = qRound(matrix.m11()*ws);
+        h = QABS(h);
+        w = QABS(w);
+        if (matrix.m11() >= 0.0F  && matrix.m22() >= 0.0F &&
+                depth() == defaultDepth()) // ### stretchBlt limitation
+        {
+             if (w==0 || h==0)
+                 return *this;
+
+             QPixmap pm(w, h, depth(), NormalOptim);
+             QGfx * mygfx=pm.graphicsContext();
+             if (mygfx) {
+                 mygfx->setSource(this);
+                 mygfx->setAlphaType(QGfx::IgnoreAlpha);
+                 mygfx->stretchBlt(0,0,w,h,ws,hs);
+                 delete mygfx;
+             }
+             if (data->mask) {
+                 QBitmap bm =
+                     data->selfmask ? *((QBitmap*)(&pm)) :
+                     data->mask->xForm(matrix);
+                 pm.setMask(bm);
+             }
+             pm.data->hasAlpha = data->hasAlpha;
+             return pm;
+         }
+    } else
+#else
+#warning "QPixmap::xForm"
+#endif
+    {                                        // rotation or shearing
+        QPointArray a(QRect(0,0,ws+1,hs+1));
+        a = mat.map(a);
+        QRect r = a.boundingRect().normalize();
+        w = r.width()-1;
+        h = r.height()-1;
+    }
+
+    mat = trueMatrix(mat, ws, hs); // true matrix
+
+    bool invertible;
+    mat = mat.invert(&invertible);                // invert matrix
+
+    if (h == 0 || w == 0 || !invertible) {        // error, return null pixmap
+        QPixmap pm;
+        pm.data->bitmap = data->bitmap;
+        return pm;
+    }
+
+    QImage srcImg;
+    if (qt_screen->isTransformed()) {
+        srcImg = convertToImage();
+        sptr=srcImg.scanLine(0);
+        sbpl=srcImg.bytesPerLine();
+    } else {
+        sptr=scanLine(0);
+        sbpl=bytesPerLine();
+    }
+    ws=width();
+    hs=height();
+
+    QImage destImg;
+    QPixmap pm(1, 1, depth(), data->bitmap, NormalOptim);
+    pm.data->uninit = false;
+    if (qt_screen->isTransformed()) {
+        destImg.create(w, h, srcImg.depth(), srcImg.numColors(), srcImg.bitOrder());
+        dptr=destImg.scanLine(0);
+        dbpl=destImg.bytesPerLine();
+        bpp=destImg.depth();
+    } else {
+        pm.resize(w, h);
+        dptr=pm.scanLine(0);
+        dbpl=pm.bytesPerLine();
+        bpp=pm.depth();
+    }
+
+    dbytes = dbpl*h;
+
+    if (depth1)
+        memset(dptr, 0x00, dbytes);
+    else if (bpp == 8)
+        memset(dptr, QColor(white).pixel(), dbytes);
+    else if (bpp == 32) {
+        if (qt_screen->isTransformed())
+            destImg.fill(0x00FFFFFF);
+        else
+            pm.fill(QColor(0x00FFFFFF,0x00FFFFFF));
+    } else
+        memset(dptr, 0xff, dbytes);
+
+    int xbpl, p_inc;
+    if (depth1) {
+        xbpl  = (w+7)/8;
+        p_inc = dbpl - xbpl;
+    } else {
+        xbpl  = (w*bpp)/8;
+        p_inc = dbpl - xbpl;
+    }
+
+    if (!qt_xForm_helper(mat, 0, QT_XFORM_TYPE_LSBFIRST, bpp, dptr, xbpl, p_inc, h, sptr, sbpl, ws, hs)){
+        qWarning("QPixmap::xForm: display not supported (bpp=%d)",bpp);
+        QPixmap pm;
+        return pm;
+    }
+
+    if (qt_screen->isTransformed()) {
+        pm.convertFromImage(destImg);
+    }
+
+    if (data->mask) {
+        if (depth1 && data->selfmask)               // pixmap == mask
+            pm.setMask(*((QBitmap*)(&pm)));
+        else
+            pm.setMask(data->mask->xForm(matrix));
+    }
+    pm.data->hasAlpha = data->hasAlpha;
+
+    return pm;
+}
+#endif // QT_NO_PIXMAP_TRANSFORMATION
+
+// CALLER DELETES
+/*!
+    \internal
+*/
+#if 1//def QT_OLD_GFX
+QGfx * QPixmap::graphicsContext(bool) const
+{
+#ifdef QT_OLD_GFX
+    if(isNull()) {
+        qDebug("Can't make QGfx for null pixmap\n");
+        return 0;
+    }
+    uchar * mydata;
+    int xoffset,linestep;
+    memorymanager->findPixmap(data->id,data->rw,data->d,&mydata,&xoffset,&linestep);
+
+    QGfx * ret=QGfx::createGfx(depth(), mydata, data->w,data->h, linestep);
+    if(data->d<=8) {
+        if(data->d==1 && !(data->clut)) {
+            data->clut=new QRgb[2];
+            data->clut[0]=qRgb(255,255,255);
+            data->clut[1]=qRgb(0,0,0);
+            data->numcols = 2;
+        }
+        if (data->numcols)
+            ret->setClut(data->clut,data->numcols);
+    }
+    return ret;
+#else
+    qWarning("QPixmap::graphicsContext");
+    return 0; //####
+#endif
+}
+#endif
+/*!
+    \internal
+*/
+unsigned char * QPixmap::scanLine(int i) const
+{
+    uchar * p;
+    int xoffset,linestep;
+    memorymanager->findPixmap(data->id,data->rw,data->d,&p,&xoffset,&linestep);
+    p+=i*linestep;
+    return p;
+}
+
+/*!
+    \internal
+*/
+int QPixmap::bytesPerLine() const
+{
+    uchar * p;
+    int xoffset,linestep;
+    memorymanager->findPixmap(data->id,data->rw,data->d,&p,&xoffset,&linestep);
+    return linestep;
+}
+
+/*!
+    \internal
+*/
+QRgb * QPixmap::clut() const
+{
+    return data->clut;
+}
+
+/*!
+    \internal
+*/
+int QPixmap::numCols() const
+{
+    return data->numcols;
+}
+
+bool QPixmap::hasAlpha() const
+{
+    return data->hasAlpha || data->mask;
+}
+
+bool QPixmap::hasAlphaChannel() const
+{
+    return data->hasAlpha;
+}
+
+Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
+                       const QPixmap *src, int sx, int sy, int sw, int sh)
+{
+    if (! dst || ! src || sw == 0 || sh == 0 || dst->depth() != src->depth()) {
+        Q_ASSERT(dst != 0);
+        Q_ASSERT(src != 0);
+        return;
+    }
+
+    // copy pixel data
+    bitBlt(dst, dx, dy, src, sx, sy, sw, sh, true);
+
+    // copy mask data
+    if (src->data->mask) {
+        if (! dst->data->mask) {
+            dst->data->mask = new QBitmap(dst->width(), dst->height());
+
+            // new masks are fully opaque by default
+            dst->data->mask->fill(Qt::color1);
+        }
+
+        bitBlt(dst->data->mask, dx, dy,
+	       src->data->mask, sx, sy, sw, sh, true);
+    }
+
+    dst->data->hasAlpha = src->data->hasAlpha;
+}
+
+QPaintEngine *QPixmap::paintEngine() const
+{
+    if (!data->paintEngine)
+        data->paintEngine = new QWSPaintEngine(const_cast<QPixmap *>(this));
+    return data->paintEngine;
+}

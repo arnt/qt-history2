@@ -16,7 +16,7 @@
 #define QMOUSEDRIVERPLUGIN_QWS_H
 
 #ifndef QT_H
-#include "qgplugin.h"
+//////#include "qgplugin.h"
 #include "qstringlist.h"
 #endif // QT_H
 

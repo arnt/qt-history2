@@ -61,10 +61,10 @@ QRegion QWSKDEDecoration::region(const QWidget *widget, const QRect &rect, QWSDe
         case Left:
         case Right:
         case Bottom:
-        case Qt::TopLeft:
-        case Qt::TopRight:
-        case Qt::BottomLeft:
-        case Qt::BottomRight:
+        case TopLeft:
+        case TopRight:
+        case BottomLeft:
+        case BottomRight:
         default:
             region = QWSDefaultDecoration::region(widget, rect, type);
             break;

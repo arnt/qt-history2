@@ -24,8 +24,8 @@
 #include <stdlib.h>
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
-#include <private/qpluginmanager_p.h>
 #ifndef QT_NO_COMPONENT
+#include <private/qpluginmanager_p.h>
 class QKbdDriverFactoryPrivate : public QObject
 {
 public:

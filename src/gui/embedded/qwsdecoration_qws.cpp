@@ -200,7 +200,7 @@ QPopupMenu *QWSDecoration::menu(const QWidget *, const QPoint &)
 
     m->insertItem(qApp->translate("QWSDecoration", "&Restore"), (int)Normalize);
     m->insertItem(qApp->translate("QWSDecoration", "&Move"), (int)Title);
-    m->insertItem(qApp->translate("QWSDecoration", "&Size"), (int)Qt::BottomRight);
+    m->insertItem(qApp->translate("QWSDecoration", "&Size"), (int)BottomRight);
     m->insertItem(qApp->translate("QWSDecoration", "Mi&nimize"), (int)Minimize);
     m->insertItem(qApp->translate("QWSDecoration", "Ma&ximize"), (int)Maximize);
     m->insertSeparator();

@@ -294,6 +294,27 @@ protected:
 extern QScreen * qt_screen;
 
 class Q_GUI_EXPORT QGfx : public Qt {
+
+public:
+     enum RasterOp { // raster op mode
+         CopyROP,
+         OrROP,
+         XorROP,
+         NotAndROP, EraseROP=NotAndROP,
+         NotCopyROP,
+         NotOrROP,
+         NotXorROP,
+         AndROP,        NotEraseROP=AndROP,
+         NotROP,
+         ClearROP,
+         SetROP,
+         NopROP,
+         AndNotROP,
+         OrNotROP,
+         NandROP,
+         NorROP,        LastROP=NorROP
+     };
+
 public:
     // With loadable drivers, do probe here
     static QGfx *createGfx(int depth, unsigned char *buffer,
@@ -399,7 +420,6 @@ public:
 protected:
     bool is_screen_gfx;
     void * shared_data;
-
 };
 
 

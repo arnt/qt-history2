@@ -111,17 +111,16 @@ public:
     mouse cursor is hidden if it is above \a w.
 */
 QDirectPainter::QDirectPainter(QWidget* w) :
-    QPainter(w,w)
+    QPainter(w)
 {
     d = new Private;
-    QWSPaintEngine *qp = (QWSPaintEngine*)device()->engine();
+    QWSPaintEngine *qp = (QWSPaintEngine*)device()->paintEngine();
     d->gfx = (QDirectPainterGfx*)qp->gfx();
     d->offset = w->mapToGlobal(QPoint(0,0));
     d->w = w->width();
     d->h = w->height();
     d->gfx->beginTransaction(QRect(d->offset,size()));
     d->change = QRect(d->offset, QSize(d->w,d->h));
-
 
     //???? pretend to be in paint event to shut up warning from QWSPaintEngine::begin
 }

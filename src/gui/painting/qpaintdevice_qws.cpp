@@ -62,17 +62,6 @@ int QPaintDevice::metric(int m) const
     }
 }
 
-int QPaintDevice::fontMet(QFont *, int, const char *, int) const
-{
-    return 0;
-}
-
-int QPaintDevice::fontInf(QFont *, int) const
-{
-    return 0;
-}
-
-
 void bitBlt(QPaintDevice *dst, int dx, int dy,
              const QPaintDevice *src, int sx, int sy, int sw, int sh,
              bool ignoreMask)
@@ -228,9 +217,8 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
 
 //    QGfx * mygfx = dst->graphicsContext();
     //##### HACK to get to the gfx #####
-    QPaintEngine *p = dst->engine();
-    QPainterState ps;
-    p->begin(dst, &ps);
+    QPaintEngine *p = dst->paintEngine();
+    p->begin(dst);
     QGfx * mygfx=static_cast<QWSPaintEngine*>(p)->gfx();
 
 
