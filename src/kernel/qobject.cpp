@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#49 $
 **
 ** Implementation of QObject class
 **
@@ -16,7 +16,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#48 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#49 $";
 #endif
 
 
@@ -999,9 +999,10 @@ void QObject::initMetaObject()			// initialize meta object
 
 void QObject::activate_signal( const char *signal )
 {
-    QConnectionList *clist;
-    if ( !connections || signalsBlocked() ||
-	 !(clist=connections->find(signal)) )
+    if ( !connections )
+	return;
+    QConnectionList *clist = connections->find( signal );
+    if ( !clist || signalsBlocked() )
 	return;
     typedef void (QObject::*RT)();
     typedef RT *PRT;
@@ -1022,9 +1023,10 @@ void QObject::activate_signal( const char *signal )
 #define ACTIVATE_SIGNAL_WITH_PARAM(TYPE)				      \
 void QObject::activate_signal( const char *signal, TYPE param )		      \
 {									      \
-    QConnectionList *clist;						      \
-    if ( !connections || signalsBlocked() ||				      \
-	 !(clist=connections->find(signal)) )				      \
+    if ( !connections )							      \
+	return;								      \
+    QConnectionList *clist = connections->find( signal );		      \
+    if ( !clist || signalsBlocked() )					      \
 	return;								      \
     typedef void (QObject::*RT)( TYPE );				      \
     typedef RT *PRT;							      \
