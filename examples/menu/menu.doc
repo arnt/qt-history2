@@ -6,9 +6,9 @@ $Id$
   \ingroup examples
   \title Using menus
 
-  This example demonstrates simple use of menus (a menu bar and
-  pull-down menus).  Qt also supports popup menus, although this example
-  doesn't contain any.
+    This example demonstrates a menu bar with pull-down menus,
+    sub-menus and custom menu items. It also demonstrates a pop-up
+    context menu.
 
 
   <hr>

@@ -137,12 +137,12 @@ static bool inMenu = FALSE;
     outermost menubar (normally inside a widget with \l
     WType_TopLevel) will be used for the global menubar.
 
-    Qt/Mac also provides a menubar merging feature, with this your
-    QMenubar will be brought closer to conforming to accepted Mac OS X
+    Qt/Mac also provides a menubar merging feature to make
+    QMenubar conform more closely to accepted Mac OS X
     menubar layout. The merging functionality is based on string
-    matching the title of a QPopupMenu entry, these strings are
+    matching the title of a QPopupMenu entry. These strings are
     translated (using QObject::tr()) in the "QMenuBar" context. If an
-    entry is moved the regularly connected slots will still fire as if
+    entry is moved its slots will still fire as if
     it was in the original place. The table below outlines the strings
     looked for and where the entry is placed if matched:
 
@@ -156,6 +156,9 @@ static bool inMenu = FALSE;
          \i If this entry is not found a default Quit item will be created to call
 	    QApplication::quit()
     \endtable
+
+  \link menu-example.html menu/menu.cpp\endlink is an example of
+  QMenuBar and QPopupMenu use.
 
   \sa QPopupMenu QAccel QAction
       \link http://developer.apple.com/techpubs/macosx/Carbon/HumanInterfaceToolbox/Aqua/aqua.html
@@ -1187,13 +1190,13 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
     QMenuItem  *mi = 0;
     int dx = 0;
 
-    if ( e->state() & Qt::ControlButton && 
+    if ( e->state() & Qt::ControlButton &&
 	 ( e->key() == Qt::Key_Tab || e->key() == Qt::Key_Backtab ) )
     {
 	e->ignore();
-	return;	
+	return;
     }
-	
+
     switch ( e->key() ) {
      case Key_Left:
 	dx = QApplication::reverseLayout() ? 1 : -1;

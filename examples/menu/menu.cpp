@@ -9,6 +9,7 @@
 *****************************************************************************/
 
 #include "menu.h"
+#include <qcursor.h>
 #include <qpopupmenu.h>
 #include <qapplication.h>
 #include <qmessagebox.h>
@@ -100,7 +101,7 @@ public:
     void paint( QPainter* p, const QColorGroup& /*cg*/, bool /*act*/, bool /*enabled*/, int x, int y, int w, int h )
     {
 	p->setFont ( font );
-	p->drawText( x, y, w, h, AlignLeft | AlignVCenter | DontClip, string );
+	p->drawText( x, y, w, h, AlignLeft | AlignVCenter | DontClip | ShowPrefix, string );
     }
 
     QSize sizeHint()
@@ -176,6 +177,7 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
     help->insertItem( "&About", this, SLOT(about()), CTRL+Key_H );
     help->insertItem( "About &Qt", this, SLOT(aboutQt()) );
 
+    // If we used a QMainWindow we could use its built-in menuBar().
     menu = new QMenuBar( this );
     Q_CHECK_PTR( menu );
     menu->insertItem( "&File", file );
@@ -184,6 +186,30 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
     menu->insertSeparator();
     menu->insertItem( "&Help", help );
     menu->setSeparator( QMenuBar::InWindowsStyle );
+
+    contextMenu = new QPopupMenu( this );
+    Q_CHECK_PTR( contextMenu );
+    QLabel *caption = new QLabel( "<font color=darkblue><u><b>"
+				"Context Menu</b></u></font>", this );
+    caption->setAlignment( Qt::AlignCenter );
+    contextMenu->insertItem( caption );
+    contextMenu->insertItem( "&New",  this, SLOT(news()), CTRL+Key_N );
+    contextMenu->insertItem( "&Open...", this, SLOT(open()), CTRL+Key_O );
+    contextMenu->insertItem( "&Save", this, SLOT(save()), CTRL+Key_S );
+    QPopupMenu *submenu = new QPopupMenu( this );
+    Q_CHECK_PTR( submenu );
+    submenu->insertItem( "&Print to printer", this, SLOT(printer()) );
+    submenu->insertItem( "Print to &file", this, SLOT(file()) );
+    submenu->insertItem( "Print to fa&x", this, SLOT(fax()) );
+    contextMenu->insertItem( "&Print", submenu );
+
+    QLabel *msg = new QLabel( this );
+    Q_CHECK_PTR( msg );
+    msg->setText( "A context menu is available.\n"
+		  "Invoke it by right-clicking or by"
+		  " pressing the 'context' button." );
+    msg->setGeometry( 0, height() - 60, width(), 60 );
+    msg->setAlignment( AlignCenter );
 
     label = new QLabel( this );
     Q_CHECK_PTR( label );
@@ -196,6 +222,12 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
 	     label, SLOT(setText(const QString&)) );
 
     setMinimumSize( 100, 80 );
+}
+
+
+void MenuExample::contextMenuEvent( QContextMenuEvent * )
+{
+    contextMenu->exec( QCursor::pos() );
 }
 
 
@@ -238,6 +270,8 @@ void MenuExample::normal()
 {
     isBold = FALSE;
     isUnderline = FALSE;
+    QFont font;
+    label->setFont( font );
     menu->setItemChecked( boldID, isBold );
     menu->setItemChecked( underlineID, isUnderline );
     emit explain( "Options/Normal selected" );
@@ -247,6 +281,10 @@ void MenuExample::normal()
 void MenuExample::bold()
 {
     isBold = !isBold;
+    QFont font;
+    font.setBold( isBold );
+    font.setUnderline( isUnderline );
+    label->setFont( font );
     menu->setItemChecked( boldID, isBold );
     emit explain( "Options/Bold selected" );
 }
@@ -255,6 +293,10 @@ void MenuExample::bold()
 void MenuExample::underline()
 {
     isUnderline = !isUnderline;
+    QFont font;
+    font.setBold( isBold );
+    font.setUnderline( isUnderline );
+    label->setFont( font );
     menu->setItemChecked( underlineID, isUnderline );
     emit explain( "Options/Underline selected" );
 }

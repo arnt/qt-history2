@@ -193,7 +193,8 @@ static QMenuItem* whatsThisItem = 0;
   Microsoft Windows so users may not be familiar with it. Consider
   using a QToolBar instead.
 
-  menu/menu.cpp is a typical example of QMenuBar and QPopupMenu use.
+  \link menu-example.html menu/menu.cpp\endlink is an example of
+  QMenuBar and QPopupMenu use.
 
   \important insertItem removeItem removeItemAt clear text pixmap iconSet  insertSeparator
   changeItem whatsThis setWhatsThis accel setAccel setItemEnabled isItemEnabled
@@ -923,7 +924,7 @@ QRect QPopupMenu::itemGeometry( int index )
 	sz = sz.expandedTo(QSize(itemw, sz.height()));
 	itemw = sz.width();
 	itemh = sz.height();
-	if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollDown && 
+	if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollDown &&
 	   (y + itemh > contentsRect().height() - scrollh))
 	    itemh = (y + itemh) - (contentsRect().height() - scrollh);
 	if ( ncols > 1 && y + itemh > contentsRect().bottom() ) {
@@ -1470,7 +1471,7 @@ void QPopupMenu::closeEvent( QCloseEvent * e) {
 void QPopupMenu::mousePressEvent( QMouseEvent *e )
 {
     int sh = style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this);
-    if (rect().contains(e->pos()) && 
+    if (rect().contains(e->pos()) &&
 	((d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollUp && e->pos().y() <= sh) || //up
 	 (d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollDown &&
 	     e->pos().y() >= contentsRect().height() - sh))) //down
@@ -2151,7 +2152,7 @@ void QPopupMenu::updateRow( int row )
     }
     int itemw = contentsRect().width() / ncols;
     while ( (mi=it.current()) ) {
-	if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollDown && 
+	if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollDown &&
 	   y >= contentsRect().height() - style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this)) {
 	    QStyle::SFlags flags = QStyle::Style_Down;
 	    if (isEnabled())
@@ -2570,7 +2571,7 @@ void QPopupMenu::activateItemAt( int index )
 
 }
 
-/*! \internal 
+/*! \internal
   This private function is to update the scroll states in styles that support scrolling. */
 void
 QPopupMenu::updateScrollerState()
@@ -2584,7 +2585,7 @@ QPopupMenu::updateScrollerState()
     if(d->scroll.topScrollableIndex) {
 	for(int row = 0; (mi = it.current()) && row < d->scroll.topScrollableIndex; row++)
 	    ++it;
-	if(!mi) 
+	if(!mi)
 	    it.toFirst();
     }
     int y = 0, sh = style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this);

@@ -1353,7 +1353,8 @@ QString QMenuData::whatsThis( int id ) const
   style -- provide the possibility of drawing the item with a different
   color when it is highlighted.
 
-  menu/menu.cpp shows a simply example how custom menu items can be used.
+  \link menu-example.html menu/menu.cpp\endlink
+  shows a simple example how custom menu items can be used.
 
   Please note: the current implementation of QCustomMenuItem will not recognize
   shortcut keys that are from text with ampersands.  Normal accelerators work though.

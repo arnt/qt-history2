@@ -46,7 +46,11 @@ signals:
     void    explain( const QString& );
 
 private:
+    void contextMenuEvent ( QContextMenuEvent * );
+
+
     QMenuBar *menu;
+    QPopupMenu *contextMenu;
     QLabel   *label;
     bool isBold;
     bool isUnderline;
