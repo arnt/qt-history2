@@ -341,7 +341,7 @@ void QEventLoop::cleanup()
         QSNDict *snDict= sn_vec[i];
         for(QSNDict::Iterator it = snDict->begin(); it != snDict->end(); ++it)
             delete (*it);
-    }    
+    }
 }
 
 void QEventLoop::registerSocketNotifier(QSocketNotifier *notifier)
@@ -563,11 +563,19 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
         winProcessEvent(&msg);
         shortcut = d->exitloop || d->quitnow;
     } else {
-        while (message && !shortcut) {
+        // ### Don't send two timers in a row, since it could potentially block
+        // other events from being fired.
+        bool lastWasTimer = false;
+        while (message && !shortcut && !lastWasTimer) {
             winProcessEvent(&msg);
+            if (msg.message == WM_TIMER)
+                lastWasTimer = true;
             message = winPeekMessage(&msg, 0, 0, 0, PM_REMOVE);
             shortcut = d->exitloop || d->quitnow;
         }
+
+        if (lastWasTimer)
+            winProcessEvent(&msg);
     }
 
     // don't wait if there are pending socket notifiers
