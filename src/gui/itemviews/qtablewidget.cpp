@@ -1420,12 +1420,12 @@ int QTableWidget::visualColumn(int logicalColumn) const
 }
 
 /*!
-  Returns a pointer to the item at the coordinates \a x, \a y.
+  Returns a pointer to the item at the coordinates \a p.
 */
 
-QTableWidgetItem *QTableWidget::itemAt(int x, int y) const
+QTableWidgetItem *QTableWidget::itemAt(const QPoint &p) const
 {
-    return d->model()->item(indexAt(x, y));
+    return d->model()->item(indexAt(p));
 }
 
 /*!

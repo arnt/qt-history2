@@ -849,13 +849,13 @@ void QListView::paintEvent(QPaintEvent *e)
 /*!
   \reimp
 */
-QModelIndex QListView::indexAt(int x, int y) const
+QModelIndex QListView::indexAt(const QPoint &p) const
 {
-    QRect rect(x + horizontalOffset(), y + verticalOffset(), 1, 1);
+    QRect rect(p.x() + horizontalOffset(), p.y() + verticalOffset(), 1, 1);
     d->intersectingSet(rect);
     QModelIndex index = d->intersectVector.count() > 0
                         ? d->intersectVector.first() : QModelIndex();
-    if (index.isValid() && viewportRectForIndex(index).contains(QPoint(x, y)))
+    if (index.isValid() && viewportRectForIndex(index).contains(p))
         return index;
     return QModelIndex();
 }

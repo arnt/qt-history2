@@ -60,7 +60,7 @@ public:
 
     QRect viewportRectForIndex(const QModelIndex &index) const;
     void scrollTo(const QModelIndex &index);
-    QModelIndex indexAt(int x, int y) const;
+    QModelIndex indexAt(const QPoint &p) const;
     QModelIndex indexAbove(const QModelIndex &index) const;
     QModelIndex indexBelow(const QModelIndex &index) const;
 

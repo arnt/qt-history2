@@ -1451,7 +1451,7 @@ void QHeaderView::scrollTo(const QModelIndex &)
   Empty implementation because the header doesn't show QModelIndex items.
 */
 
-QModelIndex QHeaderView::indexAt(int, int) const
+QModelIndex QHeaderView::indexAt(const QPoint &) const
 {
     return QModelIndex();
 }

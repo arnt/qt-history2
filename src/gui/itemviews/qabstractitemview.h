@@ -122,8 +122,8 @@ public:
 
     virtual QRect viewportRectForIndex(const QModelIndex &index) const = 0;
     virtual void scrollTo(const QModelIndex &index) = 0;
-    virtual QModelIndex indexAt(int x, int y) const = 0;
-    inline QModelIndex indexAt(const QPoint &p) const { return indexAt(p.x(), p.y()); }
+    virtual QModelIndex indexAt(const QPoint &p) const = 0;
+    inline QModelIndex indexAt(int x, int y) const  { return indexAt(QPoint(x, y)); }
 
     QSize sizeHintForIndex(const QModelIndex &index) const;
     virtual int sizeHintForRow(int row) const;

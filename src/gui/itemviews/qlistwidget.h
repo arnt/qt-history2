@@ -131,8 +131,8 @@ public:
     QListWidgetItem *currentItem() const;
     void setCurrentItem(QListWidgetItem *item);
 
-    QListWidgetItem *itemAt(int x, int y) const;
-    inline QListWidgetItem *itemAt(const QPoint &p) const { return itemAt(p.x(), p.y()); }
+    QListWidgetItem *itemAt(const QPoint &p) const;
+    inline QListWidgetItem *itemAt(int x, int y) const { return itemAt(QPoint(x, y)); }
     QRect viewportRectForItem(const QListWidgetItem *item) const;
 
     void sortItems(Qt::SortOrder order = Qt::AscendingOrder);

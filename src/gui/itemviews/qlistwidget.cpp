@@ -924,12 +924,12 @@ void QListWidget::setCurrentItem(QListWidgetItem *item)
 }
 
 /*!
-  Returns a pointer to the item at the coordinates \a x, \a y.
+  Returns a pointer to the item at the coordinates \a p.
 */
 
-QListWidgetItem *QListWidget::itemAt(int x, int y) const
+QListWidgetItem *QListWidget::itemAt(const QPoint &p) const
 {
-    QModelIndex index = indexAt(x, y);
+    QModelIndex index = indexAt(p);
     if (index.isValid())
         return d->model()->at(index.row());
     return 0;

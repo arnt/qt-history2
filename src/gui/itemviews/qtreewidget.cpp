@@ -1656,12 +1656,12 @@ void QTreeWidget::setCurrentItem(QTreeWidgetItem *item)
 }
 
 /*!
-  Returns a pointer to the item at the coordinates \a x, \a y.
+  Returns a pointer to the item at the coordinates \a p.
 */
 
-QTreeWidgetItem *QTreeWidget::itemAt(int x, int y) const
+QTreeWidgetItem *QTreeWidget::itemAt(const QPoint &p) const
 {
-    return d->model()->item(indexAt(x, y));
+    return d->model()->item(indexAt(p));
 }
 
 /*!

@@ -146,7 +146,7 @@ protected:
     QRect viewportRectForIndex(const QModelIndex &index) const;
     void scrollTo(const QModelIndex &index);
 
-    QModelIndex indexAt(int x, int y) const;
+    QModelIndex indexAt(const QPoint &p) const;
     bool isIndexHidden(const QModelIndex &index) const;
 
     QModelIndex moveCursor(QAbstractItemView::CursorAction, Qt::KeyboardModifiers);

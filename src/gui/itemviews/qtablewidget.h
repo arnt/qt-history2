@@ -194,8 +194,8 @@ public:
     int visualRow(int logicalRow) const;
     int visualColumn(int logicalColumn) const;
 
-    QTableWidgetItem *itemAt(int x, int y) const;
-    inline QTableWidgetItem *itemAt(const QPoint &p) const { return itemAt(p.x(), p.y()); }
+    QTableWidgetItem *itemAt(const QPoint &p) const;
+    inline QTableWidgetItem *itemAt(int x, int y) const  { return itemAt(QPoint(x, y)); }
     QRect viewportRectForItem(const QTableWidgetItem *item) const;
 
     QTableWidgetItemCreatorBase *itemCreator() const;

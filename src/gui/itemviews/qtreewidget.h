@@ -155,8 +155,8 @@ public:
     QTreeWidgetItem *currentItem() const;
     void setCurrentItem(QTreeWidgetItem *item);
 
-    QTreeWidgetItem *itemAt(int x, int y) const;
-    inline QTreeWidgetItem *itemAt(const QPoint &p) const { return itemAt(p.x(), p.y()); }
+    QTreeWidgetItem *itemAt(const QPoint &p) const;
+    inline QTreeWidgetItem *itemAt(int x, int y) const { return itemAt(QPoint(x, y)); }
     QRect viewportRectForItem(const QTreeWidgetItem *item) const;
 
     void sortItems(int column, Qt::SortOrder order);

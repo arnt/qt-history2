@@ -726,15 +726,13 @@ void QTreeView::mouseDoubleClickEvent(QMouseEvent *e)
 }
 
 /*!
-  \fn QModelIndex QTreeView::indexAt(int x, int y) const
-
-  Returns the model index of the item at point (\a x, \a y).
+  \reimpl
 */
-QModelIndex QTreeView::indexAt(int x, int y) const
+QModelIndex QTreeView::indexAt(const QPoint &p) const
 {
-    int vi = d->item(y);
+    int vi = d->item(p.y());
     QModelIndex mi = d->modelIndex(vi);
-    int c = d->columnAt(x);
+    int c = d->columnAt(p.x());
     if (mi.isValid() && c >= 0)
         return model()->sibling(mi.row(), c, mi);
     return QModelIndex();
@@ -864,8 +862,10 @@ void QTreeView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
 {
     if (!selectionModel())
         return;
-    int start = d->viewIndex(indexAt(isRightToLeft() ? rect.right() : rect.left(), rect.top()));
-    int stop = d->viewIndex(indexAt(isRightToLeft() ? rect.left() : rect.right(), rect.bottom()));
+    QPoint tl(isRightToLeft() ? rect.right() : rect.left(), rect.top());
+    QPoint br(isRightToLeft() ? rect.left() : rect.right(), rect.bottom());
+    int start = d->viewIndex(indexAt(tl));
+    int stop = d->viewIndex(indexAt(br));
     d->select(start, stop, command);
 }
 

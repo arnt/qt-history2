@@ -251,17 +251,17 @@ void QAbstractItemViewPrivate::init()
     \overload
 
     Returns the model index of the item at point \a p.
-
-    In the base class this is built on the other indexAt() function,
-    which is pure virtual.
+    
+    In the base class this is a pure virtual function.
 */
 
 /*!
     \fn QModelIndex QAbstractItemView::indexAt(int x, int y) const = 0
 
     Returns the model index of the item at point (\a x, \a y).
-
-    In the base class this is a pure virtual function.
+    
+    In the base class this is built on the other indexAt() function,
+    which is pure virtual.
 */
 
 /*!
