@@ -69,6 +69,7 @@ public:
     void select(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QAbstractItemModel *model);
     bool contains(const QModelIndex &item, const QAbstractItemModel *model) const;
     QModelIndexList items(QAbstractItemModel *model) const;
+    void merge(const QItemSelection &other, int update);
 };
 
 class QItemSelectionModelPrivate;
@@ -131,8 +132,8 @@ signals:
 
 protected:
     QItemSelectionModel(QItemSelectionModelPrivate &dd, QAbstractItemModel *model, QObject *parent = 0);
-    void exchange(QItemSelection &oldSelection, const QItemSelection &newSelection, bool alterRanges = true);
-    void toggle(const QItemSelection &selection, bool emitSelectionChanged = true);
+    void emitSelectionChanged(const QItemSelection &oldSelection,
+                              const QItemSelection &newSelection);
     void mergeCurrentSelection();
 };
 

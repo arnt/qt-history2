@@ -4,6 +4,27 @@
 #define d d_func()
 #define q q_func()
 
+static void split(const QItemSelectionRange &range, const QItemSelectionRange &other, QItemSelection *result)
+{
+    QModelIndex parent = other.parent();
+    int top = range.top();
+    int left = range.left();
+    int bottom = range.bottom();
+    int right = range.right();
+    int other_top = other.top();
+    int other_left = other.left();
+    int other_bottom = other.bottom();
+    int other_right = other.right();
+    if (other_top > top)
+        result->append(QItemSelectionRange(parent, top, left, other_top - 1,right));
+    if (other_bottom < bottom)
+        result->append(QItemSelectionRange(parent, other_bottom + 1, left, bottom, right));
+    if (other_left > left)
+        result->append(QItemSelectionRange(parent, top, left, bottom, other_left - 1));
+    if (other_right < right)
+        result->append(QItemSelectionRange(parent, top, other_right + 1, bottom, right));
+}
+
 QModelIndexList QItemSelectionRange::items(const QAbstractItemModel *model) const
 {
     QModelIndexList items;
@@ -56,25 +77,50 @@ QModelIndexList QItemSelection::items(QAbstractItemModel *model) const
     return items;
 }
 
-static void split(QItemSelectionRange &range, const QItemSelectionRange &other, QItemSelection *result)
+/*!
+  Merges selection \a other with this QItemSelection using the \a update mode.
+  This method guarantees that no ranges are overlapping.
+
+  Note: Only QItemSelectionModel::Toggle and
+  QItemSelectionModel::Select are supported.
+*/
+void QItemSelection::merge(const QItemSelection &other, int update)
 {
-    QModelIndex parent = other.parent();
-    int top = range.top();
-    int left = range.left();
-    int bottom = range.bottom();
-    int right = range.right();
-    int other_top = other.top();
-    int other_left = other.left();
-    int other_bottom = other.bottom();
-    int other_right = other.right();
-    if (other_top > top)
-        result->append(QItemSelectionRange(parent, top, left, other_top - 1,right));
-    if (other_bottom < bottom)
-        result->append(QItemSelectionRange(parent, other_bottom + 1, left, bottom, right));
-    if (other_left > left)
-        result->append(QItemSelectionRange(parent, top, left, bottom, other_left - 1));
-    if (other_right < right)
-        result->append(QItemSelectionRange(parent, top, other_right + 1, bottom, right));
+    if (!(update & QItemSelectionModel::Toggle || update & QItemSelectionModel::Select) ||
+        other.isEmpty())
+        return;
+
+    QItemSelection newSelection = other;
+    // Collect intersections
+    QItemSelection intersections;
+    for (int n = 0; n < newSelection.count(); ++n) {
+        for (int t = 0; t < count(); ++t) {
+            if (newSelection.at(n).intersects(at(t)))
+                intersections.append(at(t).intersect(newSelection.at(n)));
+        }
+    }
+
+    //  Split the old (and new) ranges using the intersections
+    for (int i = 0; i < intersections.count(); ++i) { // for each intersection
+        for (int t = 0; t < count();) { // splitt each old range
+            if (at(t).intersects(intersections.at(i))) {
+                split(at(t), intersections.at(i), this);
+                removeAt(t);
+            } else {
+                ++t;
+            }
+        }
+        // only split newSelection if Toggle is specified
+        for (int n = 0; (update & QItemSelectionModel::Toggle) && n < newSelection.count();) {
+            if (newSelection.at(n).intersects(intersections.at(i))) {
+                split(newSelection.at(n), intersections.at(i), &newSelection);
+                newSelection.removeAt(n);
+            } else {
+                ++n;
+            }
+        }
+    }
+    operator+=(newSelection);
 }
 
 /*!
@@ -117,7 +163,6 @@ QItemSelection QItemSelectionModelPrivate::expandSelection(
     return expanded;
 }
 
-
 /*!
   \class QItemSelectionModel
 
@@ -150,8 +195,12 @@ void QItemSelectionModel::select(const QModelIndex &item, int updateMode,
 void QItemSelectionModel::select(const QItemSelection &selection, int updateMode,
                                  SelectionBehavior behavior)
 {
+    if (updateMode == NoUpdate)
+        return;
+
     QItemSelection sel = selection;
-    QItemSelection old;
+    QItemSelection old = d->ranges;
+    old.merge(d->currentSelection, d->toggleState ? Toggle : Select);
 
     if (d->selectionMode == Single) {
         if (!sel.isEmpty()) {
@@ -166,46 +215,29 @@ void QItemSelectionModel::select(const QItemSelection &selection, int updateMode
     if (behavior != SelectItems)
         sel = d->expandSelection(sel, behavior);
 
-    if (updateMode == NoUpdate)
-        return;
-
+    // clear ranges and currentSelection
     if (updateMode & Clear) {
-        if (d->ranges.size()) {
-            old += d->ranges;
-            d->ranges.clear();
-        }
-        if (d->currentSelection.size()) {
-            old += d->currentSelection; //### not correct for Toggle
-            d->currentSelection.clear();
-        }
-    }
-
-    if (!(updateMode & Current))
-        mergeCurrentSelection();
-
-    if (updateMode & Toggle || updateMode & Select) {
-        d->toggleState = (updateMode & Toggle);
-        if (d->currentSelection.size())
-            old += d->currentSelection;
-        d->currentSelection = sel;
-    }
-    exchange(old, sel, false); // emits selectionChanged
-    return;
-}
-/*!
-  \internal
-
-  merges the currentSelection with the ranges in the selection model, does not emit any signal
-*/
-void QItemSelectionModel::mergeCurrentSelection()
-{
-    if (d->currentSelection.size()) {
-        if (d->toggleState)
-            toggle(d->currentSelection, false);
-        else
-            d->ranges += d->currentSelection;
+        d->ranges.clear();
         d->currentSelection.clear();
     }
+
+    // merge and clear currentSelection if Current was not set (ie. start new currentSelection)
+    if (!(updateMode & Current)) {
+        d->ranges.merge(d->currentSelection, d->toggleState ? Toggle : Select);
+        d->currentSelection.clear();
+    }
+
+    // update currentSelection
+    if (updateMode & Toggle || updateMode & Select) {
+        d->toggleState = (updateMode & Toggle);
+        d->currentSelection = sel;
+    }
+
+    // generate new selection, compare with old and emit selectionChanged()
+    QItemSelection newSelection = d->ranges;
+    newSelection.merge(d->currentSelection, d->toggleState ? Toggle : Select);
+    emitSelectionChanged(old, newSelection);
+    return;
 }
 
 void QItemSelectionModel::clear()
@@ -342,95 +374,79 @@ QAbstractItemModel *QItemSelectionModel::model() const
 
 QModelIndexList QItemSelectionModel::selectedItems() const
 {
-    QModelIndexList selectedItems;
-    QList<QItemSelectionRange>::const_iterator it = d->ranges.begin();
-    for (; it != d->ranges.end(); ++it)
-        selectedItems += (*it).items(model());
-    if (!d->toggleState && d->currentSelection.size())
-        selectedItems += d->currentSelection.items(model());
-    return selectedItems;
+    QItemSelection selected = d->ranges;
+    selected.merge(d->currentSelection, d->toggleState ? Toggle : Select);
+    return selected.items(model());
 }
 
-void QItemSelectionModel::exchange(QItemSelection &oldSelection,
-                                   const QItemSelection &newSelection,
-                                   bool alterRanges)
+/*!
+  compares the two selections \a oldSelection and \a newSelection and
+  emits selectionChanged with the deselected and selected items.
+*/
+void QItemSelectionModel::emitSelectionChanged(const QItemSelection &oldSelection,
+                                               const QItemSelection &newSelection )
 {
-        if (oldSelection.size() && alterRanges)
-            d->remove(oldSelection);
+    // if both selections are empty or equal we return
+    if ((oldSelection.isEmpty() && newSelection.isEmpty()) ||
+        oldSelection == newSelection)
+        return;
 
-        if (newSelection.size() && alterRanges)
-            d->ranges += newSelection;
+    // if either selection is empty we do not need to compare
+    if (oldSelection.isEmpty() || newSelection.isEmpty()) {
+        emit selectionChanged(oldSelection, newSelection);
+        return;
+    }
 
-        if (oldSelection.size() && newSelection.size()) {
-            // Find intersections between new and old selections
-            QItemSelection intersections;
+    QItemSelection deselected = oldSelection;
+    QItemSelection selected = newSelection;
 
-            for (int n = 0; n < newSelection.count(); ++n)
-                for (int o = 0; o < oldSelection.count(); ++o)
-                    if (newSelection.at(n).intersects(oldSelection.at(o)))
-                        intersections.append(oldSelection.at(o).intersect(newSelection.at(n)));
-
-            // Split old selections using the intersections
-            for (int i = 0; i < intersections.count(); ++i) {
-                for (int o = 0; o < oldSelection.count();) {
-                    if (oldSelection.at(o).intersects(intersections.at(i))) {
-                        split(oldSelection[o], intersections.at(i), &oldSelection);
-                        oldSelection.removeAt(o);
-                    } else {
-                        ++o;
-                    }
-                }
+    // remove equal ranges
+    bool advance;
+    for (int o = 0; o < deselected.count(); ++o) {
+        advance = true;
+        for (int s = 0; s < selected.count() && o < deselected.count();) {
+            if (deselected.at(o) == selected.at(s)) {
+                deselected.removeAt(o);
+                selected.removeAt(s);
+                advance = false;
+            } else {
+                ++s;
             }
         }
+        if (advance)
+            ++o;
+    }
 
-//         qDebug("QItemSelectionModel::exchange old %d new %d",
-//                 oldSelection ? oldSelection->refCount() : -1,//oldSelection->count() : -1,
-//                 newSelection ? newSelection->refCount() : -1);//newSelection->count() : -1);
-
-        // The result will be the deselected ranges
-        emit selectionChanged(oldSelection, newSelection);
-}
-
-void QItemSelectionModel::toggle(const QItemSelection &selection, bool emitSelectionChanged)
-{
-    QItemSelection oldSelection;
-    oldSelection += d->ranges;
-    QItemSelection newSelection = selection;
-
-    // Collect intersections
+    // find intersections
     QItemSelection intersections;
-    for (int n = 0; n < newSelection.count(); ++n) {
-        for (int o = 0; o < oldSelection.count(); ++o) {
-            if (newSelection.at(n).intersects(oldSelection.at(o)))
-                intersections.append(oldSelection.at(o).intersect(newSelection.at(n)));
+    for (int o = 0; o < deselected.count(); ++o) {
+        for (int s = 0; s < selected.count(); ++s) {
+            if (deselected.at(o).intersects(selected.at(s)))
+                intersections.append(deselected.at(o).intersect(selected.at(s)));
         }
     }
 
-    //  Split the old and new ranges using the intersections
-    for (int i = 0; i < intersections.count(); ++i) { // for each intersection
-        for (int o = 0; o < oldSelection.count();) { // splitt each old range
-            if (oldSelection.at(o).intersects(intersections.at(i))) {
-                split(oldSelection[o], intersections.at(i), &oldSelection);
-                oldSelection.removeAt(o);
+    // compare remaining ranges with intersections and split them to find deselected and selected
+    for (int i = 0; i < intersections.count(); ++i) {
+        // split deselected
+        for (int o = 0; o < deselected.count();) {
+            if (deselected.at(o).intersects(intersections.at(i))) {
+                split(deselected.at(o), intersections.at(i), &deselected);
+                deselected.removeAt(o);
             } else {
                 ++o;
             }
         }
-        for (int n = 0; n < newSelection.count();) { // splitt each new range
-            if (newSelection.at(n).intersects(intersections.at(i))) {
-                split(newSelection[n], intersections.at(i), &newSelection);
-                newSelection.removeAt(n);
+        // split selected
+        for (int s = 0; s < selected.count();) {
+            if (selected.at(s).intersects(intersections.at(i))) {
+                split(selected.at(s), intersections.at(i), &selected);
+                selected.removeAt(s);
             } else {
-                ++n;
+                ++s;
             }
         }
     }
 
-    // The result is the split old and the split new selections
-    static_cast< QList<QItemSelectionRange> >(d->ranges) = oldSelection + newSelection;
-
-    // The new selected areas will be the split newSelection
-    // The deselected areas are the intersections
-    if (emitSelectionChanged)
-        emit selectionChanged(intersections, newSelection);
+    emit selectionChanged(deselected, selected);
 }
