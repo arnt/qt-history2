@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#40 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#41 $
 **
 **  Splitter widget
 **
@@ -274,7 +274,7 @@ void QSplitter::setOrientation( Orientation o )
 }
 
 /*!
-   \fn Qt::Orientation QSplitter::orientation() const
+   \fn Orientation QSplitter::orientation() const
 
    Returns the orientation (\c Horizontal or \c Vertical) of the splitter.
    \sa setOrientation()

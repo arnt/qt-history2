@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#65 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#66 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -163,7 +163,7 @@ int QHeader::count() const
 
 
 /*!
-  \fn Qt::Orientation QHeader::orientation() const
+  \fn Orientation QHeader::orientation() const
 
   Returns \c Horizontal if the header is horizontal, \c Vertical if
   the header is vertical.
