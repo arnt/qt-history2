@@ -20,6 +20,7 @@
 #include <qpointer.h>
 
 #include <windows.h>
+#include <assert.h>
 
 #ifndef Q_OS_TEMP
 #ifndef _MT
@@ -32,13 +33,12 @@ static DWORD qt_current_data_tls_index = TLS_OUT_OF_INDEXES;
 static DWORD qt_current_thread_tls_index = TLS_OUT_OF_INDEXES;
 void qt_create_tls()
 {
-    if (qt_current_thread_tls_index != TLS_OUT_OF_INDEXES) return;
-
+    if (qt_current_thread_tls_index != TLS_OUT_OF_INDEXES) 
+        return;
     static QMutex mutex;
-    mutex.lock();
+    QMutexLocker locker(&mutex);
     qt_current_data_tls_index = TlsAlloc();
     qt_current_thread_tls_index = TlsAlloc();
-    mutex.unlock();
 }
 
 
@@ -69,13 +69,14 @@ void QThreadData::setCurrent(QThreadData *data)
 
 unsigned int __stdcall QThreadPrivate::start(void *arg)
 {
+    qt_create_tls();
     TlsSetValue(qt_current_thread_tls_index, arg);
-    QThread::setTerminationEnabled(true);
+    QThread::setTerminationEnabled(false);
 
     QThread *thr = reinterpret_cast<QThread *>(arg);
-    QThreadData *data = &thr->d_func()->data;
-    QThreadData::setCurrent(data);
-
+    QThreadData *data = &thr->d_func()->data;   
+    TlsSetValue(qt_current_data_tls_index, data);
+    
     (void) new QEventDispatcherWin32;
     Q_ASSERT(data->eventDispatcher != 0);
     data->eventDispatcher->startingUp();
@@ -133,7 +134,7 @@ Qt::HANDLE QThread::currentThread()
 
 QThread *QThread::currentQThread()
 {
-    return reinterpret_cast<QThread*>(TlsGetValue(qt_current_thread_tls_index));
+    return reinterpret_cast<QThread *>(TlsGetValue(qt_current_thread_tls_index));
 }
 
 void QThread::sleep(unsigned long secs)
@@ -289,9 +290,9 @@ bool QThread::wait(unsigned long time)
 void QThread::setTerminationEnabled(bool enabled)
 {
     QThread *thr = currentQThread();
-    QThreadPrivate *d = thr->d_func();
     Q_ASSERT_X(thr != 0, "QThread::setTerminationEnabled()",
                "Current thread was not started with QThread.");
+    QThreadPrivate *d = thr->d_func();
     QMutexLocker locker(&d->mutex);
     d->terminationEnabled = enabled;
     if (enabled && d->terminatePending) {
