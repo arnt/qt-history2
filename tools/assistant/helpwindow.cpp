@@ -75,9 +75,26 @@ void HelpWindow::setSource( const QString &name )
     }
 }
 
-QPopupMenu *HelpWindow::createPopupMenu()
+
+void HelpWindow::openLinkInNewWindow()
+{
+    if ( lastAnchor.isEmpty() )
+	return;
+    bool oldShiftPressed = shiftPressed;
+    shiftPressed = TRUE;
+    setSource( lastAnchor );
+    shiftPressed = oldShiftPressed;
+    
+}
+
+
+QPopupMenu *HelpWindow::createPopupMenu( const QPoint& pos )
 {
     QPopupMenu *m = new QPopupMenu( this );
+    lastAnchor = anchorAt( pos );
+    if ( !lastAnchor.isEmpty() ) {
+	m->insertItem( tr("Open Link in New Window\tShift+LMB"), this, SLOT( openLinkInNewWindow() ) ); 
+    }
     mw->actionNewWindow->addTo( m );
     m->insertSeparator();
     mw->actionGoPrev->addTo( m );

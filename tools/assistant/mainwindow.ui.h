@@ -26,7 +26,7 @@ void MainWindow::init()
     connect( actionGoPrev, SIGNAL( activated() ), browser, SLOT( backward() ) );
     connect( actionGoNext, SIGNAL( activated() ), browser, SLOT( forward() ) );
     connect( actionEditCopy, SIGNAL( activated() ), browser, SLOT( copy() ) );
-    connect( actionFileExit, SIGNAL( activated() ), qApp, SLOT( quit() ) );
+    connect( actionFileExit, SIGNAL( activated() ), qApp, SLOT( closeAllWindows() ) );
 
     QDockWindow *dw = new QDockWindow;
     helpDock = new HelpDialog( dw, this, browser );
@@ -95,6 +95,9 @@ void MainWindow::init()
     }
 
     helpDock->tabWidget->setCurrentPage( config.readNumEntry( keybase + "SideBarPage", 0 ) );
+    
+    resize( config.readNumEntry( keybase + "GeometryWidth", width() ),
+	    config.readNumEntry( keybase + "GeometryHeight", height() ) );
 
     QString source = config.readEntry( keybase + "Source", QString::null );
     QString title = config.readEntry( keybase + "Title", source );
@@ -122,6 +125,8 @@ void MainWindow::destroy()
     config.writeEntry( keybase + "Source", browser->source() );
     config.writeEntry( keybase + "Title", browser->caption() );
     config.writeEntry( keybase + "SideBarPage", helpDock->tabWidget->currentPageIndex() );
+    config.writeEntry( keybase + "GeometryWidth", width() );
+    config.writeEntry( keybase + "GeometryHeight", height() );
 }
 
 void MainWindow::about()
