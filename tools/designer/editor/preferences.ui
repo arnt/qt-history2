@@ -383,7 +383,7 @@
     
 }</function>
     <function name="colorClicked()" >{
-    QColor c = QColorDialog::getColor( currentStyle.color, this );
+    QColor c = QColorDialog::getColor( currentStyle.color, this, "editor_getcolor_dlg" );
     if ( c.isValid() ) {
 	currentStyle.color = c;
 	setColorPixmap( c );
