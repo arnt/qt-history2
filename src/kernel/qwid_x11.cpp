@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#150 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#151 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#150 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#151 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -670,7 +670,9 @@ bool QWidget::isActiveWindow() const
 
 void QWidget::setActiveWindow()
 {
-    XSetInputFocus( dpy, topLevelWidget()->winId(), RevertToNone, CurrentTime);
+    QWidget *tlw = topLevelWidget();
+    if ( tlw->isVisible() )
+	XSetInputFocus( dpy, tlw->winId(), RevertToNone, CurrentTime);
 }
 
 
