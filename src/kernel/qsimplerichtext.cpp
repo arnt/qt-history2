@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsimplerichtext.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qsimplerichtext.cpp#8 $
 **
 ** Implementation of the QSimpleRichText class
 **
@@ -37,14 +37,14 @@
   useful if you want to display some rich text in a custom widget.
 
   Once created, the rich text object can be queried for its width(),
-  height() and the actual width used ( see widthUsed() ). And, most
-  certainly, it can be drawn on any given QPainter with draw().  By
-  using anchor(), it is possible to use QSimpleRichText to implement
-  some kind of hypertext or active text facilities as well.
+  height() and the actual width used (see widthUsed()). Most
+  importantly, it can be drawn on any given QPainter with draw().
+  QSimpleRichText can also be used to implement
+  hypertext or active text facilities by using anchor().
 
-  Changes other than resizing with setWidth() cannot be made. If the
-  contents is supposed to change, just throw the rich text object away
-  and make a new one with the new contents.
+  Once constructed from a string, the contents cannot be changed, only
+  resized.  If the contents should change, just throw the rich text
+  object away and make a new one with the new contents.  
 
   For large documents, see QTextView or QTextBrowser.
 */
@@ -60,14 +60,14 @@ public:
 
   If a font \a fnt is specified, this font will be used as basis for
   the text rendering. When using rich text rendering on a certain
-  widget \e w, you would regularily specify the widget's font as shown in
+  widget \e w, you would generally specify the widget's font as shown in
   the following code example:
 
   \code
-  QSimpleRichText* t = new QSimpleRichText( contents, w->font() );
+  QSimpleRichText myrichtext( contents, mywidget->font() );
   \endcode
 
-  If not font has been specified, the application's default font is used.
+  If no font has been specified, the application's default font is used.
 
   \a context is the optional context of the document. This becomes
   important if \a text contains relative references, for example
