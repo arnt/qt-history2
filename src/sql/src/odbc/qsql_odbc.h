@@ -44,6 +44,9 @@
 #include <qsqlresult.h>
 #include <qsqlindex.h>
 
+#include <sql.h>
+#include <sqlext.h>
+
 class QODBCPrivate;
 class QODBCDriver;
 class QODBCResult : public QSqlResult
@@ -52,17 +55,20 @@ class QODBCResult : public QSqlResult
 public:
     QODBCResult( const QODBCDriver * db, QODBCPrivate* p );
     ~QODBCResult();
+
+    SQLHANDLE   statement();
+
 protected:
-    bool 	fetchFirst();
-    bool 	fetchLast();
-    bool 	fetch(int i);
-    bool 	reset ( const QString& query );
-    QVariant 	data( int field );
+    bool	fetchFirst();
+    bool	fetchLast();
+    bool	fetch(int i);
+    bool	reset ( const QString& query );
+    QVariant	data( int field );
     bool	isNull( int field );
     int         size();
     int         numRowsAffected();
 private:
-    QODBCPrivate* 	d;
+    QODBCPrivate*	d;
     typedef QMap<int,QVariant> FieldCache;
     FieldCache fieldCache;
     typedef QMap<int,bool> NullCache;
@@ -74,19 +80,22 @@ class QODBCDriver : public QSqlDriver
 public:
     QODBCDriver( QObject * parent=0, const char * name=0 );
     ~QODBCDriver();
-    bool    	        hasTransactionSupport() const;
+    bool	        hasTransactionSupport() const;
     bool                hasQuerySizeSupport() const;
     bool                canEditBinaryFields() const;
     bool                open( const QString & db,
 			      const QString & user = QString::null,
 			      const QString & password = QString::null,
 			      const QString & host = QString::null );
-    void 	        close();
-    QSqlQuery 	        createQuery() const;
+    void	        close();
+    QSqlQuery	        createQuery() const;
     QStringList         tables( const QString& user ) const;
     QSqlRecord          record( const QString& tablename ) const;
     QSqlRecord          record( const QSqlQuery& query ) const;
     QSqlIndex           primaryIndex( const QString& tablename ) const;
+    SQLHANDLE           environment();
+    SQLHANDLE           connection();
+
 protected:
     bool                beginTransaction();
     bool                commitTransaction();
