@@ -1197,7 +1197,24 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, LayoutStruc
         if (c && !fd->layoutedFrames.contains(c)) {
             QTextFrameData *cd = data(c);
             if (cd->position == QTextFrameFormat::InFlow) {
-                cd->boundingRect.moveTopLeft(QPoint(layoutStruct->x_left, layoutStruct->y));
+                Qt::Alignment align = Qt::AlignLeft;
+
+                if (QTextTable *table = qt_cast<QTextTable *>(c)) {
+                    align = table->format().alignment();
+
+                    // ### correct? I guess not...
+                    if (align == Qt::AlignAuto)
+                        align == Qt::AlignLeft;
+                }
+
+                QPoint pos(layoutStruct->x_left, layoutStruct->y);
+
+                if (align == Qt::AlignRight)
+                    pos.rx() += layoutStruct->x_right - cd->boundingRect.width();
+                else if (align == Qt::AlignHCenter)
+                    pos.rx() += (layoutStruct->x_right - cd->boundingRect.width()) / 2;
+
+                cd->boundingRect.moveTopLeft(pos);
                 layoutStruct->y += cd->boundingRect.height();
             } else {
                 positionFloat(c);
