@@ -302,7 +302,7 @@ QStyle::drawRectStrong( QPainter *p, int x, int y, int w, int h,
   \sa drawBevelButton()
 */
 QRect QStyle::bevelButtonRect( int x, int y, int w, int h){
-    int fw = defaultFrameWidth()+1;
+    int fw = defaultFrameWidth();
     return QRect(x+fw, y+fw, w-2*fw, h-2*fw);
 }
 
@@ -342,7 +342,7 @@ QRect QStyle::toolButtonRect( int x, int y, int w, int h){
   \sa drawButton()
 */
 QRect QStyle::buttonRect( int x, int y, int w, int h){
-    int fw = defaultFrameWidth()+1;
+    int fw = defaultFrameWidth();
     return QRect(x+fw, y+fw, w-2*fw, h-2*fw);
 }
 
