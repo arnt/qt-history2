@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/examples/iconview/GNUmakefile#1 $
+# $Id: //depot/qt/main/examples/iconview/GNUmakefile#2 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
@@ -7,6 +7,6 @@
 #
 #############################################################################
 
-PROJECT = qiconview
+PROJECT = iconview
 
 include $(QTDIR)/GNUmakefile.inc

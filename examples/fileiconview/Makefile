@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/examples/fileiconview/Makefile#1 $
+# $Id: //depot/qt/main/examples/fileiconview/Makefile#2 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
@@ -7,6 +7,6 @@
 #
 #############################################################################
 
-PROJECT = qfileiconview
+PROJECT = fileiconview
 
 !INCLUDE $(QTDIR)\Makefile.inc
