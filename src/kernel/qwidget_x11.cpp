@@ -1017,7 +1017,7 @@ void QWidget::setCaption( const QString &caption )
     topData()->caption = caption;
     XSetWMName( x11Display(), winId(), qstring_to_xtp(caption) );
 
-    QCString net_wm_name = caption.utf8();
+    QByteArray net_wm_name = caption.toUtf8();
     XChangeProperty(x11Display(), winId(), qt_net_wm_name, qt_utf8_string, 8,
 		    PropModeReplace, (unsigned char *)net_wm_name.data(),
 		    net_wm_name.length());
