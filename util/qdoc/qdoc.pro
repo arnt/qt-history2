@@ -54,20 +54,22 @@ SOURCES		= binarywriter.cpp \
 		  $$QT_SOURCE_TREE/src/codecs/qutfcodec.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qbitarray.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qbuffer.cpp \
-		  $$QT_SOURCE_TREE/src/tools/qptrcollection.cpp \
-		  $$QT_SOURCE_TREE/src/tools/qcstring.cpp \
+		  $$QT_SOURCE_TREE/src/compat/qptrcollection.cpp \
+		  $$QT_SOURCE_TREE/src/compat/qcstring.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qbytearray.cpp \
+		  $$QT_SOURCE_TREE/src/tools/qlist.cpp \
+		  $$QT_SOURCE_TREE/src/tools/qvector.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qdatastream.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qdatetime.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qdir.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qfile.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qfileinfo.cpp \
-		  $$QT_SOURCE_TREE/src/tools/qgarray.cpp \
-		  $$QT_SOURCE_TREE/src/tools/qgcache.cpp \
-		  $$QT_SOURCE_TREE/src/tools/qgdict.cpp \
-		  $$QT_SOURCE_TREE/src/tools/qglist.cpp \
+		  $$QT_SOURCE_TREE/src/compat/qgarray.cpp \
+		  $$QT_SOURCE_TREE/src/compat/qgcache.cpp \
+		  $$QT_SOURCE_TREE/src/compat/qgdict.cpp \
+		  $$QT_SOURCE_TREE/src/compat/qglist.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qglobal.cpp \
-		  $$QT_SOURCE_TREE/src/tools/qgvector.cpp \
+		  $$QT_SOURCE_TREE/src/compat/qgvector.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qiodevice.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qmap.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qregexp.cpp \
