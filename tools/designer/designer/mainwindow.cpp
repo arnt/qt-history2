@@ -732,7 +732,7 @@ void MainWindow::setupFileActions()
     ag->addTo( menu );
     ag->addTo( tb );
     actionGroupProjects = ag;
-    
+
     menu->insertSeparator();
 
     a = new QAction( this, 0 );
@@ -1086,7 +1086,7 @@ void MainWindow::setupActionEditor()
     actionEditor->show();
     dw->setFixedExtentWidth( 300 );
     dw->setCaption( tr( "Action Editor" ) );
-    QWhatsThis::add( propertyEditor, tr("<b>The Action Editor</b><p>Todo Whatsthis</p>" ) );
+    QWhatsThis::add( actionEditor, tr("<b>The Action Editor</b><p>Todo Whatsthis</p>" ) );
     connect( actionEditor, SIGNAL( hidden() ),
 	     this, SLOT( actionEditorHidden() ) );
     actionWindowActionEditor->setOn( FALSE );
