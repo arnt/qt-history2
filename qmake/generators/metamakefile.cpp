@@ -166,14 +166,16 @@ MakefileGenerator
 
 //Factory thing
 #include "unixmake.h"
-#include "msvc_nmake.h"
-#include "borland_bmake.h"
 #include "mingw_make.h"
-#include "msvc_dsp.h"
-#include "msvc_vcproj.h"
-#include "metrowerks_xml.h"
-#include "pbuilder_pbx.h"
 #include "projectgenerator.h"
+#ifndef QMAKE_OPENSOURCE_EDITION
+# include "msvc_nmake.h"
+# include "borland_bmake.h"
+# include "metrowerks_xml.h"
+# include "pbuilder_pbx.h"
+# include "msvc_dsp.h"
+# include "msvc_vcproj.h"
+#endif
 
 MakefileGenerator *
 MetaMakefileGenerator::createMakefileGenerator(QMakeProject *proj)
@@ -192,6 +194,9 @@ MetaMakefileGenerator::createMakefileGenerator(QMakeProject *proj)
                 proj->projectFile().latin1());
     } else if(gen == "UNIX") {
         mkfile = new UnixMakefileGenerator;
+    } else if(gen == "MINGW") {
+        mkfile = new MingwMakefileGenerator;
+#ifndef QMAKE_OPENSOURCE_EDITION
     } else if(gen == "MSVC") {
         // Visual Studio =< v6.0
         if(proj->first("TEMPLATE").indexOf(QRegExp("^vc.*")) != -1)
@@ -206,12 +211,11 @@ MetaMakefileGenerator::createMakefileGenerator(QMakeProject *proj)
             mkfile = new NmakeMakefileGenerator;
     } else if(gen == "BMAKE") {
         mkfile = new BorlandMakefileGenerator;
-    } else if(gen == "MINGW") {
-        mkfile = new MingwMakefileGenerator;
     } else if(gen == "METROWERKS") {
         mkfile = new MetrowerksMakefileGenerator;
     } else if(gen == "PROJECTBUILDER" || gen == "XCODE") {
         mkfile = new ProjectBuilderMakefileGenerator;
+#endif
     } else {
         fprintf(stderr, "Unknown generator specified: %s\n", gen.latin1());
     }

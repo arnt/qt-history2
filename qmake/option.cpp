@@ -208,7 +208,9 @@ Option::parseCommandLine(int argc, char **argv, int skip)
                 Option::debug_level++;
             } else if(opt == "version" || opt == "v" || opt == "-version") {
                 fprintf(stderr, "Qmake version: %s (Qt %s)\n", qmake_version(), QT_VERSION_STR);
-                fprintf(stderr, "Qmake is free software from Trolltech AS.\n");
+#ifdef QMAKE_OPENSOURCE_VERSION
+                fprintf(stderr, "Qmake is Open Source software from Trolltech AS.\n");
+#endif
                 return QMAKE_CMDLINE_BAIL;
             } else if(opt == "h" || opt == "help") {
                 return QMAKE_CMDLINE_SHOW_USAGE;
