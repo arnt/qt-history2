@@ -3474,8 +3474,36 @@ void QFileDialog::okClicked()
 	    accept();
 	    return;
 	}
+    }    
+
+    if ( mode() != ExistingFiles ) {
+	QString fileName;
+	if ( files->isVisible() && files->selectedItem() )
+	    fileName = files->selectedItem()->text( 0 );
+	else if ( d->moreFiles->isVisible() && d->moreFiles->selectedItem() )
+	    fileName = d->moreFiles->selectedItem()->text();
+	else
+	    fileName = fn;
+
+	QFileInfo fileinfo( d->url.path() + fileName );
+
+	if ( fileinfo.isDir() )
+	    fn = fileName;
     }
 
+    if ( mode() == ExistingFiles ) {
+	if ( !fn.isEmpty() ) {
+	    QStringList list = selectedFiles();
+	    QStringList::Iterator it = list.begin();
+	    while( it != list.end() ) {	    
+		if ( !isReadable( *it ) )
+		    return;
+		++it;
+	    }
+	}
+    } else if ( !fn.isEmpty() && !isReadable( d->url.path() + fn ) )
+	return;	
+        
     // if we're in multi-selection mode and something is selected,
     // accept it and be done.
     if ( mode() == ExistingFiles ) {
@@ -3911,8 +3939,12 @@ void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
     if ( !newItem )
 	return;
 
-#if defined(Q_WS_WIN)
     QFileInfo fi( d->url.path() + newItem->text(0) );
+
+    if ( !isReadable( fi.absFilePath() ) )
+	return;
+
+#if defined(Q_WS_WIN)
     if ( fi.isSymLink() ) {
 	nameEdit->setText( fi.readLink() );
 	okClicked();
@@ -6111,6 +6143,21 @@ void QFileDialog::goBack()
 // a class with wonderfully inflexible flexibility. why doesn't it
 // just subclass QWidget in the first place? 'you have to derive your
 // preview widget from QWidget and from this class' indeed.
+
+bool QFileDialog::isReadable( const QString & filename )
+{
+    QFileInfo inf( filename );
+    
+    if ( mode() != AnyFile || inf.isDir() ) {
+	if ( !inf.isReadable() || ( inf.isDir() && !inf.isExecutable() ) ) {
+	    QMessageBox::critical( this, tr( "Error" ),
+				   inf.filePath() + tr( " is not accessible" ) +
+				   "\n\n" + tr( "Access is denied" ) );
+	    return FALSE;
+	}
+    }
+    return TRUE;
+}
 
 /*!
   \class QFilePreview qfiledialog.h
