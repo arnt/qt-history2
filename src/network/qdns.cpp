@@ -36,10 +36,6 @@ Q_GLOBAL_STATIC(QDnsAgent, agent)
     \brief The QDns class provides static functions for host name lookups.
     \reentrant
 
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
-
     \module network
     \ingroup io
 
@@ -244,10 +240,6 @@ void QDnsAgent::run()
 /*! \class QDnsHostInfo
     \brief The QDnsHostInfo class provides information about a host name lookup.
     \reentrant
-
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
 
     \module network
     \ingroup io

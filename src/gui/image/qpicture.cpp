@@ -53,10 +53,6 @@
     files; these files are in an XML format specified by \link
     http://www.w3.org/Graphics/SVG/ W3C\endlink. (See the load() and
     save() functions.)
-\if defined(commercial)
-    The SVG capability requires Qt's XML module which is part of
-    \link commercialeditions.html Qt Enterprise Edition\endlink.
-\endif
 
     QPicture is an \link shclass.html implicitly shared\endlink class.
 
@@ -243,10 +239,6 @@ void QPicture::setData(const char* data, uint size)
     Currently, the only external format supported is the \link
     http://www.w3.org/Graphics/SVG/ W3C SVG\endlink format. The
     corresponding \a format string is "svg".
-\if defined(commercial)
-    The SVG capability requires Qt's XML module which is part of
-    \link commercialeditions.html Qt Enterprise Edition\endlink.
-\endif
 
     \sa save()
 */
@@ -300,10 +292,7 @@ bool QPicture::load(QIODevice *dev, const char *format)
     the only other format that you can save in is \link
     http://www.w3.org/Graphics/SVG/ W3C's SVG format\endlink; use a
     \a format name of "svg" to save in SVG format.
-\if defined(commercial)
-    The SVG capability requires Qt's XML module which is part of
-    \link commercialeditions.html Qt Enterprise Edition\endlink.
-\endif
+
     \sa load()
 */
 
@@ -1064,10 +1053,6 @@ QList<QByteArray> QPicture::outputFormats()
 
     Qt currently only supports \link http://www.w3.org/Graphics/SVG/
     W3C SVG \endlink picture file formats (with type string svg).
-\if defined(commercial)
-    The SVG capability requires Qt's XML module which is part of
-    \link commercialeditions.html Qt Enterprise Edition\endlink.
-\endif
 
     You don't normally need to use this class; QPicture::load(),
     QPiicture::save().

@@ -1557,9 +1557,6 @@ void Q3DnsSocket::answer()
 /*!
     \class Q3Dns q3dns.h
     \brief The Q3Dns class provides asynchronous DNS lookups.
-\if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
-\endif
 
     \module network
     \ingroup io
@@ -1999,9 +1996,6 @@ Q3ValueList<QHostAddress> Q3Dns::addresses() const
 /*!
     \class Q3Dns::MailServer
     \brief The Q3Dns::MailServer class is  described in Q3Dns::mailServers().
-\if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
-\endif
 
     \ingroup io
 
@@ -2055,9 +2049,6 @@ Q3ValueList<Q3Dns::MailServer> Q3Dns::mailServers() const
 /*!
     \class Q3Dns::Server
     \brief The Q3Dns::Server class is described in Q3Dns::servers().
-\if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
-\endif
 
     \ingroup io
 

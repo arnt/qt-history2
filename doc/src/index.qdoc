@@ -28,13 +28,13 @@
 edition is for the development of non-commercial software in
 accordance with the license you agreed to when you installed the
 software from the CD; see also
-\l{commercialeditions.html}{Commercial Editions}.
+\l{commercialedition.html}{Commercial Edition}.
 \endif
 \if !defined(commercial) && !defined(noncommercial)
 \bold{Note:} This edition is
-for the development of \l{freeeditions.html}{Free and Open
-Source} software only; see \l{commercialeditions.html}{Commercial
-Editions}.
+for the development of \l{opensourceedition.html}{Free and Open
+Source} software only; see \l{commercialedition.html}{Commercial
+Edition}.
 \endif
 
 \raw HTML
@@ -76,8 +76,8 @@ General
 <td valign="top">
 <ul>
 <li><a href="aboutqt.html">About Qt</a></li>
-<li><a href="commercialeditions.html">Commercial Editions</a></li>
-<li><a href="freeeditions.html">Open Source Edition</a></li>
+<li><a href="commercialedition.html">Commercial Edition</a></li>
+<li><a href="opensourceedition.html">Open Source Edition</a></li>
 <li><a href="http://www.trolltech.com/developer/changes/">Change History</a></li>
 <li><a href="trolltech.html">About Trolltech</a></li>
 </ul>

@@ -15,10 +15,6 @@
 
     \brief The QTcpServer class provides a TCP-based server.
 
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
-
     \reentrant
     \ingroup io
     \module network

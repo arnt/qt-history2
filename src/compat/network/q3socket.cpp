@@ -199,9 +199,6 @@ void Q3SocketPrivate::setSocketDevice( Q3Socket *q, Q3SocketDevice *device )
 /*!
     \class Q3Socket q3socket.h
     \brief The Q3Socket class provides a buffered TCP connection.
-\if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
-\endif
 
     \ingroup io
     \module network

@@ -580,10 +580,6 @@ QDomImplementationPrivate* QDomImplementationPrivate::clone()
     \brief The QDomImplementation class provides information about the
     features of the DOM implementation.
 
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
-
     \module XML
     \ingroup xml-tools
 
@@ -887,10 +883,6 @@ uint QDomNodeListPrivate::length() const
     \class QDomNodeList
     \reentrant
     \brief The QDomNodeList class is a list of QDomNode objects.
-
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
 
     \module XML
     \ingroup xml-tools
@@ -1501,10 +1493,6 @@ void QDomNodePrivate::save(QTextStream& s, int depth, int indent) const
     \class QDomNode
     \reentrant
     \brief The QDomNode class is the base class for all the nodes in a DOM tree.
-
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
 
     \module XML
     \ingroup xml-tools
@@ -2683,10 +2671,6 @@ bool QDomNamedNodeMapPrivate::containsNS(const QString& nsURI, const QString & l
     \brief The QDomNamedNodeMap class contains a collection of nodes
     that can be accessed by name.
 
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
-
     \module XML
     \ingroup xml-tools
 
@@ -3100,10 +3084,6 @@ void QDomDocumentTypePrivate::save(QTextStream& s, int, int indent) const
     \brief The QDomDocumentType class is the representation of the DTD
     in the document tree.
 
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
-
     \module XML
     \ingroup xml-tools
 
@@ -3279,10 +3259,6 @@ QDomNodePrivate* QDomDocumentFragmentPrivate::cloneNode(bool deep)
     \reentrant
     \brief The QDomDocumentFragment class is a tree of QDomNodes which is not usually a complete QDomDocument.
 
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
-
     \module XML
     \ingroup xml-tools
 
@@ -3418,10 +3394,6 @@ void QDomCharacterDataPrivate::appendData(const QString& arg)
     \class QDomCharacterData
     \reentrant
     \brief The QDomCharacterData class represents a generic string in the DOM.
-
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
 
     \module XML
     \ingroup xml-tools
@@ -3681,10 +3653,6 @@ void QDomAttrPrivate::save(QTextStream& s, int, int) const
     \class QDomAttr
     \reentrant
     \brief The QDomAttr class represents one attribute of a QDomElement.
-
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
 
     \module XML
     \ingroup xml-tools
@@ -4066,10 +4034,6 @@ void QDomElementPrivate::save(QTextStream& s, int depth, int indent) const
     \class QDomElement
     \reentrant
     \brief The QDomElement class represents one element in the DOM tree.
-
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
 
     \module XML
     \ingroup xml-tools
@@ -4620,10 +4584,6 @@ void QDomTextPrivate::save(QTextStream& s, int, int) const
     \reentrant
     \brief The QDomText class represents text data in the parsed XML document.
 
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
-
     \module XML
     \ingroup xml-tools
 
@@ -4745,10 +4705,6 @@ void QDomCommentPrivate::save(QTextStream& s, int, int) const
     \reentrant
     \brief The QDomComment class represents an XML comment.
 
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
-
     \module XML
     \ingroup xml-tools
 
@@ -4856,10 +4812,6 @@ void QDomCDATASectionPrivate::save(QTextStream& s, int, int) const
     \class QDomCDATASection
     \reentrant
     \brief The QDomCDATASection class represents an XML CDATA section.
-
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
 
     \module XML
     \ingroup xml-tools
@@ -4983,10 +4935,6 @@ void QDomNotationPrivate::save(QTextStream& s, int, int) const
     \class QDomNotation
     \reentrant
     \brief The QDomNotation class represents an XML notation.
-
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
 
     \module XML
     \ingroup xml-tools
@@ -5177,10 +5125,6 @@ void QDomEntityPrivate::save(QTextStream& s, int, int) const
     \reentrant
     \brief The QDomEntity class represents an XML entity.
 
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
-
     \module XML
     \ingroup xml-tools
 
@@ -5331,10 +5275,6 @@ void QDomEntityReferencePrivate::save(QTextStream& s, int, int) const
     \reentrant
     \brief The QDomEntityReference class represents an XML entity reference.
 
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
-
     \module XML
     \ingroup xml-tools
 
@@ -5458,10 +5398,6 @@ void QDomProcessingInstructionPrivate::save(QTextStream& s, int, int) const
     \reentrant
     \brief The QDomProcessingInstruction class represents an XML processing
     instruction.
-
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
 
     \module XML
     \ingroup xml-tools
@@ -5851,10 +5787,6 @@ void QDomDocumentPrivate::save(QTextStream& s, int, int indent) const
     \class QDomDocument
     \reentrant
     \brief The QDomDocument class represents an XML document.
-
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
 
     \module XML
     \ingroup xml-tools

@@ -16,10 +16,6 @@
     \brief The QGLColormap class is used for installing custom colormaps into
     QGLWidgets.
 
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
-
     \module OpenGL
     \ingroup multimedia
 

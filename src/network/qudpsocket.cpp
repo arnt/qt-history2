@@ -16,10 +16,6 @@
     \reentrant
     \brief The QUdpSocket class provides a UDP socket.
 
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
-
     \ingroup io
     \module network
 

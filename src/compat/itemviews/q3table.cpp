@@ -173,9 +173,6 @@ static bool isRowSelection(Q3Table::SelectionMode selMode)
     \class Q3TableSelection
     \brief The Q3TableSelection class provides access to a selected area in a
     Q3Table.
-\if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
-\endif
 
     \ingroup advanced
     \module table
@@ -384,9 +381,6 @@ int Q3TableSelection::numCols() const
 /*!
     \class Q3TableItem
     \brief The Q3TableItem class provides the cell content for Q3Table cells.
-\if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
-\endif
 
     \ingroup advanced
     \module table
@@ -1133,9 +1127,6 @@ bool Q3TableItem::isEnabled() const
     \class Q3ComboTableItem
     \brief The Q3ComboTableItem class provides a means of using
     comboboxes in Q3Tables.
-\if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
-\endif
 
     \ingroup advanced
     \module table
@@ -1454,9 +1445,6 @@ QSize Q3ComboTableItem::sizeHint() const
 /*!
     \class Q3CheckTableItem
     \brief The Q3CheckTableItem class provides checkboxes in Q3Tables.
-\if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
-\endif
 
     \ingroup advanced
     \module table
@@ -1641,17 +1629,9 @@ QSize Q3CheckTableItem::sizeHint() const
 	expandedTo(QApplication::globalStrut());
 }
 
-/*! \file table/small-table-demo/main.cpp */
-/*! \file table/bigtable/main.cpp */
-/*! \file table/statistics/statistics.cpp */
-
 /*!
     \class Q3Table
     \brief The Q3Table class provides a flexible editable table widget.
-\if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
-\endif
-
     \mainclass
     \ingroup advanced
     \module table
@@ -6402,9 +6382,6 @@ void Q3Table::setEnabled(bool b)
     \class Q3TableHeader
     \brief The Q3TableHeader class allows for creation and manipulation
     of table headers.
-\if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
-\endif
 
     \ingroup advanced
     \module table

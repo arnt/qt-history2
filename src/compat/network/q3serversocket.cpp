@@ -29,9 +29,6 @@ public:
 /*!
     \class Q3ServerSocket qserversocket.h
     \brief The Q3ServerSocket class provides a TCP-based server.
-\if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
-\endif
 
     \ingroup io
     \module network

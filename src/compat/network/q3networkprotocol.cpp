@@ -75,9 +75,6 @@ public:
 /*!
     \class Q3NetworkProtocol q3networkprotocol.h
     \brief The Q3NetworkProtocol class provides a common API for network protocols.
-\if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
-\endif
 
     \module network
     \ingroup io
@@ -952,9 +949,6 @@ public:
     \class Q3NetworkOperation
 
     \brief The Q3NetworkOperation class provides common operations for network protocols.
-\if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
-\endif
 
     \module network
     \ingroup io

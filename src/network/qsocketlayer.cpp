@@ -16,10 +16,6 @@
 
     \brief The QSocketLayer class provides low level access to a socket.
 
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
-
     \reentrant
     \ingroup io
     \module network

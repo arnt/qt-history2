@@ -16,11 +16,6 @@
 
     \title Introduction to the SQL Module
 
-    \if defined(commercial)
-    This module is part of the \link commercialeditions.html Qt Enterprise Edition
-    \endlink.
-    \endif
-
     \table
     \row \o QSql \o QSqlDatabase \o QSqlDriver \o QSqlDriverCreator
     \row \o QSqlDriverCreatorBase \o QSqlDriverPlugin \o QSqlError \o QSqlField

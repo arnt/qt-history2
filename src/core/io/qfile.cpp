@@ -92,8 +92,8 @@ QFilePrivate::setError(QFile::Error err, int errNum)
     \mainclass
 
     QFile is an I/O device for reading and writing binary and text
-    files. A QFile may be used by itself or, more conveniently, with a
-    QDataStream or QTextStream.
+    files and \l{resources.html}{resources}. A QFile may be used by
+    itself or, more conveniently, with a QDataStream or QTextStream.
 
     The file name is usually passed in the constructor, but it can be
     changed with setFileName(). You can check for a file's existence with
@@ -163,7 +163,7 @@ QFilePrivate::setError(QFile::Error err, int errNum)
     directly in the file system and this function should be avoided.
     On Windows 95, non-Latin1 locales are not supported.
 
-    \sa QDataStream, QTextStream
+    \sa QDataStream, QTextStream, {resources.html}{Qt's Resource System}
 */
 
 /*!

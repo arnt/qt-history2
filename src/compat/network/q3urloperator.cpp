@@ -66,9 +66,6 @@ public:
     \class Q3UrlOperator q3urloperator.h
 
     \brief The Q3UrlOperator class provides common operations on URLs.
-\if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
-\endif
 
     \ingroup io
     \ingroup misc

@@ -18,9 +18,6 @@
     \brief The QAbstractSocket class provides the base functionality
     common to all socket types.
 
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
     \reentrant
     \ingroup io
     \module network

@@ -420,10 +420,6 @@ private:
     \brief The QXmlParseException class is used to report errors with
     the QXmlErrorHandler interface.
 
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
-
     \module XML
     \ingroup xml-tools
 
@@ -499,10 +495,6 @@ QString QXmlParseException::systemId() const
     \reentrant
     \brief The QXmlLocator class provides the XML handler classes with
     information about the parsing position within a file.
-
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
 
     \module XML
     \ingroup xml-tools
@@ -597,10 +589,6 @@ public:
     \reentrant
     \brief The QXmlNamespaceSupport class is a helper class for XML
     readers which want to include namespace support.
-
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
 
     \module XML
     \ingroup xml-tools
@@ -869,10 +857,6 @@ void QXmlNamespaceSupport::reset()
     \reentrant
     \brief The QXmlAttributes class provides XML attributes.
 
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
-
     \module XML
     \ingroup xml-tools
 
@@ -1116,10 +1100,6 @@ void QXmlAttributes::append(const QString &qName, const QString &uri, const QStr
     \reentrant
     \brief The QXmlInputSource class provides the input data for the
     QXmlReader subclasses.
-
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
 
     \module XML
     \ingroup xml-tools
@@ -1437,10 +1417,6 @@ QString QXmlInputSource::fromRawData(const QByteArray &data, bool beginning)
     \brief The QXmlContentHandler class provides an interface to
     report the logical content of XML data.
 
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
-
     \module XML
     \ingroup xml-tools
 
@@ -1687,10 +1663,6 @@ QString QXmlInputSource::fromRawData(const QByteArray &data, bool beginning)
     \brief The QXmlErrorHandler class provides an interface to report
     errors in XML data.
 
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
-
     \module XML
     \ingroup xml-tools
 
@@ -1762,10 +1734,6 @@ events are reported.
     \brief The QXmlDTDHandler class provides an interface to report
     DTD content of XML data.
 
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
-
     \module XML
     \ingroup xml-tools
 
@@ -1829,10 +1797,6 @@ events are reported.
     \brief The QXmlEntityResolver class provides an interface to
     resolve external entities contained in XML data.
 
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
-
     \module XML
     \ingroup xml-tools
 
@@ -1884,10 +1848,6 @@ events are reported.
     \reentrant
     \brief The QXmlLexicalHandler class provides an interface to
     report the lexical content of XML data.
-
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
 
     \module XML
     \ingroup xml-tools
@@ -2036,10 +1996,6 @@ events are reported.
     \brief The QXmlDeclHandler class provides an interface to report declaration
     content of XML data.
 
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
-
     \module XML
     \ingroup xml-tools
 
@@ -2122,10 +2078,6 @@ events are reported.
     \reentrant
     \brief The QXmlDefaultHandler class provides a default implementation of all
     the XML handler classes.
-
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
 
     \module XML
     \ingroup xml-tools
@@ -2544,10 +2496,6 @@ void QXmlSimpleReaderPrivate::initIncrementalParsing()
     \brief The QXmlReader class provides an interface for XML readers (i.e.
     parsers).
 
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
-
     \module XML
     \ingroup xml-tools
 
@@ -2766,10 +2714,6 @@ void QXmlSimpleReaderPrivate::initIncrementalParsing()
     \reentrant
     \brief The QXmlSimpleReader class provides an implementation of a
     simple XML parser.
-
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
 
     \module XML
     \ingroup xml-tools

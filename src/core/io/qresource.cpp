@@ -30,7 +30,7 @@ Q_GLOBAL_STATIC(QStringList, qt_resource_search_paths)
 /* ******************** QResource ***************** */
 
 /*!
-    \class QResource qresource.h
+    \class QResource
     \reentrant
 
     \brief The QResource class provides access to application resource data.
@@ -38,14 +38,16 @@ Q_GLOBAL_STATIC(QStringList, qt_resource_search_paths)
     \ingroup io
     \mainclass
 
-    QResources are created and used internally although they can also
-    be used for direct access to the application's current resources.
-    Resources must be accessed using absolute paths. Compression and
-    encryption are taken care of internally.
+    \l{QResource}s are created and used internally although they can
+    also be used for direct access to the application's current
+    resources. Resources must be accessed using absolute paths.
+    Compression and encryption are taken care of internally.
 
     Use find() to find a resource. A resource has a name(), a size(),
     and either data() or children() (child resources). A resource may
     also have another resource as its parent().
+
+    \sa {resources.html}{Resource System}
 */
 
 struct QResourceNode
@@ -449,4 +451,3 @@ QMetaResource::~QMetaResource()
     delete d_ptr;
     d_ptr = 0;
 }
-

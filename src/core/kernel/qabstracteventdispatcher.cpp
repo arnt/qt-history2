@@ -48,12 +48,8 @@
 
     QAbstractEventDispatcher also allows the integration of an
     external event loop with the Qt event loop. For example, the Motif
-    Extension included with Qt
-\if defined(commercial)
-\link commercialeditions.html Enterprise Edition\endlink
-\endif
-    includes a reimplementation of QAbstractEventDispatcher that
-    merges Qt and Motif events together.
+    Extension included with Qt includes a reimplementation of
+    QAbstractEventDispatcher that merges Qt and Motif events together.
 
     \sa QEventLoop
 */

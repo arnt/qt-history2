@@ -310,9 +310,6 @@ void Q3HttpCloseRequest::start( Q3Http *http )
 /*!
     \class Q3HttpHeader q3http.h
     \brief The Q3HttpHeader class contains header information for HTTP.
-\if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
-\endif
 
     \ingroup io
     \module network
@@ -652,9 +649,6 @@ void Q3HttpHeader::setContentType( const QString& type )
 /*!
     \class Q3HttpResponseHeader q3http.h
     \brief The Q3HttpResponseHeader class contains response header information for HTTP.
-\if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
-\endif
 
     \ingroup io
     \module network
@@ -815,13 +809,7 @@ QString Q3HttpResponseHeader::toString() const
 /*!
     \class Q3HttpRequestHeader q3http.h
     \brief The Q3HttpRequestHeader class contains request header information for
-\if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
-\endif
     HTTP.
-\if defined(commercial_edition)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
-\endif
 
     \ingroup io
     \module network
@@ -989,9 +977,6 @@ QString Q3HttpRequestHeader::toString() const
 /*!
     \class Q3Http q3http.h
     \brief The Q3Http class provides an implementation of the HTTP protocol.
-\if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
-\endif
 
     \ingroup io
     \module network

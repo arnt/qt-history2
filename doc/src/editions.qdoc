@@ -17,101 +17,22 @@
 
 \title Qt Editions
 
-The Qt Professional and Enterprise Editions are the commercial
-versions of \link aboutqt.html Qt\endlink.
+The \l{commercialedition.html}{Qt Commercial Edition} the commercial
+version of \link aboutqt.html Qt\endlink.
 
-The \link freeeditions.html Qt Open Source Editions\endlink. are
-non-commercial version of Qt. They are freely available for download.
+The \link opensourceedition.html Qt Open Source Edition\endlink is
+the non-commercial version of Qt. They are freely available for
+download.
 
-You may write commercial/proprietary/non-free software only if you
-have purchased the \link commercialeditions.html Professional or
-Enterprise Edition\endlink. With these commercial editions, you also
-get technical support and upgrades. Qt for Microsoft Windows is only
-available as Professional and Enterprise Editions.
+You may write commercial, proprietary, or non-free software only if you
+have purchased the \link commercialedition.html Commercial
+Edition\endlink. The Commercial Edition also
+entitles you to technical support and upgrades. Qt for Microsoft Windows
+is only available in the Commercial Edition.
 
-\raw HTML
-<table border="1" cellpadding="5" cellspacing="0" width="100%">
-  <tr>
-    <td bgcolor="#a1c410"><b><a name="Chart"></a>Professional/Enterprise Comparison Chart</b></td>
-    <td width="100" align="center" bgcolor="#a1c410"><b>Professional</b></td>
-    <td width="100" align="center" bgcolor="#a1c410"><b>Enterprise</b></td>
-  </tr>
-  <tr>
-    <td><b><a href="index.html">Qt Base Modules (Tools, Kernel,
-    Widgets, Dialogs)</a></b><br />
-      The platform-independent Qt GUI toolkit and utility classes.</td>
-    <td width="100" align="center"><b>X</b></td>
-    <td width="100" align="center"><b>X</b></td>
-  </tr>
-  <tr>
-    <td><a href="designer-manual.html"><b>Qt Designer</b></a><br />
-      Visual GUI builder.</td>
-    <td width="100" align="center"><b>X</b></td>
-    <td width="100" align="center"><b>X</b></td>
-  </tr>
-  <tr>
-    <td><a href="iconview.html"><b>Iconview module</b></a><br />
-      Visualization of sets of pixmaps with user interaction.</td>
-    <td width="100" align="center"><b>X</b></td>
-    <td width="100" align="center"><b>X</b></td>
-  </tr>
-  <tr>
-    <td><a href="workspace.html"><b>Workspace module</b></a><b><br />
-      </b>Multiple Document Interface (MDI) support.</td>
-    <td width="100" align="center"><b>X</b></td>
-    <td width="100" align="center"><b>X</b></td>
-  </tr>
-  <tr>
-    <td><a href="opengl.html"><b>OpenGL 3D Graphics module</b></a><b><br />
-      </b>Integration of Qt with OpenGL.</td>
-    <td width="100" align="center"><br />
-    </td>
-    <td width="100" align="center"><b>X</b></td>
-  </tr>
-  <tr>
-    <td><a href="network.html"><b>Network module</b></a><b><br />
-      </b>Platform-independent classes for sockets, TCP, UDP, FTP,
-      HTTP, and asynchronous DNS lookup.</td>
-    <td width="100" align="center"><br />
-    </td>
-    <td width="100" align="center"><b>X</b></td>
-  </tr>
-  <tr>
-    <td><a href="canvas.html"><b>Canvas module</b></a><br />
-      Optimized 2D graphics area for visualization, diagrams, etc.</td>
-    <td width="100" align="center"><br />
-    </td>
-    <td width="100" align="center"><b>X</b></td>
-  </tr>
-  <tr>
-    <td><a href="table.html"><b>Table module</b></a><br />
-      Flexible and editable table/spreadsheet.</td>
-    <td width="100" align="center"><br />
-    </td>
-    <td width="100" align="center"><b>X</b></td>
-  </tr>
-  <tr>
-    <td><a href="xml.html"><b>XML module</b></a><br />
-      Well-formed XML parsers: SAX2 and DOM Level 1.</td>
-    <td width="100" align="center"><br />
-    </td>
-    <td width="100" align="center"><b>X</b></td>
-  </tr>
-  <tr>
-    <td><a href="activeqt.html"><b>ActiveQt extension</b></a><br />
-      Support for building and hosting ActiveX controls on Windows.</td>
-    <td width="100" align="center"><br />
-    </td>
-    <td width="100" align="center"><b>X</b></td>
-  </tr>
-  <tr>
-    <td><a href="motif-extension.html"><b>QMotif extension</b></a><br />
-      Motif co-existence and migration support.</td>
-    <td width="100" align="center"><br />
-    </td>
-    <td width="100" align="center"><b>X</b></td>
-  </tr>
-</table>
-\endraw
+The two editions are functionally equivalent, with the exception of
+a few database drivers (Oracle, IBM DB2, and Sybase), which are not
+included in the Open Source Edition because of license restrictions
+of the closed-source client libraries used to implement the drivers.
 
 */

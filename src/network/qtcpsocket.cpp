@@ -15,10 +15,6 @@
 
     \brief The QTcpSocket class provides a TCP socket.
 
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
-
     \reentrant
     \ingroup io
     \module network

@@ -194,10 +194,6 @@ void QHostAddressPrivate::clear()
 /*!
     \class QHostAddress
     \brief The QHostAddress class provides an IP address.
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
-
     \ingroup io
     \module network
 

@@ -465,10 +465,6 @@ public:
     \class QHttpHeader
     \brief The QHttpHeader class contains header information for HTTP.
 
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
-
     \ingroup io
     \module network
 
@@ -866,10 +862,6 @@ public:
     \class QHttpResponseHeader
     \brief The QHttpResponseHeader class contains response header information for HTTP.
 
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
-
     \ingroup io
     \module network
 
@@ -1056,10 +1048,6 @@ public:
 /*!
     \class QHttpRequestHeader
     \brief The QHttpRequestHeader class contains request header information for HTTP.
-
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
 
     \ingroup io
     \module network
@@ -1256,10 +1244,6 @@ QString QHttpRequestHeader::toString() const
     \reentrant
 
     \brief The QHttp class provides an implementation of the HTTP protocol.
-
-\if defined(commercial)
-    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
-\endif
 
     \ingroup io
     \module network

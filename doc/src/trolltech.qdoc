@@ -1,15 +1,15 @@
-/*! \page troll.html
+/*! \page trolltech.html
 
 \title Company Information
 
 Trolltech is an international software company with
-headquarters in Oslo, the capital of Norway, and with offices
-in Brisbane, Australia, and Palo Alto, California.
+headquarters in Oslo, Norway, and with offices
+in Brisbane, Australia and Palo Alto, California.
 
 Our flagship product is \link
 http://www.trolltech.com/products/qt.html Qt\endlink, the
-cross-platform C++ GUI toolkit. Qt enables you to build professional,
-efficient, portable and maintainable GUI applications quickly and
+cross-platform C++ GUI toolkit. Qt enables you to develop professional,
+efficient, portable, and maintainable GUI applications quickly and
 easily.
 
 \link http://www.trolltech.com/products/embedded/index.html
@@ -19,7 +19,7 @@ devices. On top of that, \link
 http://www.trolltech.com/products/qtopia/index.html Qtopia\endlink
 provides a window system and application suite for handheld devices.
 
-\section1 Software that makes Sense
+\section1 Software that Makes Sense
 
 Our motto expresses the vision behind our products. We design our
 products to give our customers the feeling of "this is the way
@@ -30,7 +30,7 @@ making good software. Therefore, we do not compromise our demands for
 superior design and technical quality when we develop our
 products.
 
-Trolltech is also known for providing top quality technical support
+Trolltech is also known for providing top-quality technical support
 to our customers. At Trolltech, support inquiries are handled by the
 most qualified developers and designers themselves.
 

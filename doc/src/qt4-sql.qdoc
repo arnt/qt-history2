@@ -75,10 +75,6 @@
     released. QSqlRelationalTableModel is still in development and
     might change significantly. See \l{Future Work} for details.
 
-    The Oracle, IBM DB2, and Sybase closed source drivers are left
-    out of this Technology Preview. They will be available in the
-    Enterprise Edition of the Qt 4.0 beta 1 release.
-
     \section1 Example Code
 
     The simplest way to present data from a database is to simply

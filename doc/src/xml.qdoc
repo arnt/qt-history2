@@ -16,14 +16,10 @@
 
 \title XML Module
 
-\if defined(commercial)
-This module is part of the \link commercialeditions.html Qt Enterprise Edition\endlink.
-\endif
-
 \tableofcontents
 
 \target overview
-\section1 Overview of the XML architecture in Qt
+\section1 Overview of the XML Architecture in Qt
 
 The XML module provides a well-formed XML parser using the SAX2
 (Simple API for XML) interface plus an implementation of the DOM Level
@@ -125,7 +121,7 @@ Qt provides the following SAX and DOM classes:
 \endtable
 
 \target sax2
-\section1 The Qt SAX2 classes
+\section1 The Qt SAX2 Classes
 
 \target sax2Intro
 \section2 Introduction to SAX2
@@ -367,7 +363,7 @@ can be found in the \link xml.html introduction to the Qt XML module. \endlink
 
 
 \target dom
-\section1 The Qt DOM classes
+\section1 The Qt DOM Classes
 
 \target domIntro
 \section2 Introduction to DOM
@@ -453,7 +449,7 @@ DOM implementation.
 To get started please refer to the \l QDomDocument documentation.
 
 \target namespaces
-\section1 An introduction to namespaces
+\section1 An Introduction to Namespaces
 
 Parts of the Qt XML module documentation assume that you are familiar
 with XML namespaces. Here we present a brief introduction; skip to
