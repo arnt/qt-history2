@@ -1288,6 +1288,9 @@ QSize QHeaderView::sectionSizeFromContents(int logicalIndex) const
 {
     QSize size(100, 30);
     QStyleOptionHeader opt = d->getStyleOption();
+    QFont fnt = font();
+    fnt.setBold(true);
+    opt.fontMetrics = QFontMetrics(fnt); // do the metrics with a bold font
     opt.text = d->model->headerData(logicalIndex, orientation(),
                                     QAbstractItemModel::DisplayRole).toString();
     opt.icon = d->model->headerData(logicalIndex, orientation(),
