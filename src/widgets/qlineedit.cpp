@@ -815,8 +815,10 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 {
     dragScrolling = FALSE;
-    if ( d->dndTimer.isActive() || !d->mousePressed ) {
+    if ( d->dndTimer.isActive() ) {
 	d->dndTimer.stop();
+	deselect();
+	setCursorPosition( xPosToCursorPos( e->pos().x() ) );
 	return;
     }
     if ( d->inDoubleClick ) {
