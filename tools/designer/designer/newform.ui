@@ -32,7 +32,7 @@
         </rect>
     </property>
     <property name="caption">
-        <string>New Form</string>
+        <string>New File</string>
     </property>
     <property name="sizeGripEnabled">
         <bool>true</bool>
@@ -224,9 +224,6 @@
     <tabstop>buttonOk</tabstop>
     <tabstop>buttonCancel</tabstop>
 </tabstops>
-<includes>
-    <include location="local" impldecl="in declaration">newform.ui.h</include>
-</includes>
 <slots>
     <slot access="protected">itemChanged( QIconViewItem * )</slot>
     <slot access="protected">projectChanged( const QString &amp; )</slot>

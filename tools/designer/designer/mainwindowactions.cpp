@@ -592,7 +592,7 @@ void MainWindow::setupFileActions()
 
     a = new QAction( this, 0 );
     a->setText( tr( "New" ) );
-    a->setMenuText( tr( "&New" ) );
+    a->setMenuText( tr( "&New..." ) );
     a->setIconSet( createIconSet("filenew.xpm") );
     a->setAccel( CTRL + Key_N );
     a->setStatusTip( tr( "Creates a new project, form or source file." ) );
