@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#74 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#75 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -15,6 +15,7 @@
 #include "qcache.h"
 #include "qdict.h"
 #include <ctype.h>
+#include <stdio.h>
 #include <stdlib.h>
 #define GC GC_QQQ
 #include <X11/Xlib.h>
@@ -22,7 +23,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#74 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#75 $");
 
 
 static const int fontFields = 14;
@@ -47,7 +48,6 @@ enum FontFieldNames {				// X LFD fields
 // Internal functions
 
 static bool	parseXFontName( QString &fontName, char **tokens );
-static QString	bestFitFamily( const QString & );
 static char   **getXFontNames( const char *pattern, int *count );
 static bool	smoothlyScalable( const char *fontName );
 static bool	fontExists( const char *fontName );
@@ -64,8 +64,8 @@ public:
 			    float *pointSizeDiff, int *weightDiff,
 			    bool *scalable, bool *polymorphic,
 			    int *resx, int *resy );
-    QString bestMatch( const QString &pattern, int *score );
-    QString bestFamilyMember( const QString &family, int *score );
+    QString bestMatch( const char *pattern, int *score );
+    QString bestFamilyMember( const char *family, int *score );
     QString findFont( bool *exact );
 };
 
@@ -490,26 +490,25 @@ void QFont::load( HANDLE ) const
 	return;
 
     QString k = key();
-    QString n;
     QXFontName *fn = fontNameDict->find( k );
 
-    if ( fn ) {
-	n = fn->name;
-    } else {
-	bool m;
+    if ( !fn ) {
+	QString name;
+	bool match;
 	if ( d->req.rawMode ) {
-	    n = substitute( family() );
-	    m = fontExists( n );
-	    if ( !m )
-		n = lastResortFont();
+	    name = substitute( family() );
+	    match = fontExists( name );
+	    if ( !match )
+		name = lastResortFont();
 	} else {
-	    n = PRIV->findFont( &m );
+	    name = PRIV->findFont( &match );
 	}
-	fn = new QXFontName( n, m );
+	fn = new QXFontName( name, match );
 	CHECK_PTR( fn );
 	fontNameDict->insert( k, fn );
     }
 
+    QString n = fn->name;
     d->fin = fontCache->find( n );
     if ( !d->fin ) {				// font not loaded
 	d->fin = fontDict->find( n );
@@ -529,17 +528,17 @@ void QFont::load( HANDLE ) const
 	    if ( !f )
 		fatal( "QFont::load: Internal error" );
 #endif
-	    int size = (f->max_bounds.ascent + f->max_bounds.descent) *
-		       f->max_bounds.width *
-		       (f->max_char_or_byte2 - f->min_char_or_byte2) / 8;
-	    // If we get a cache overflow, we make room for this font only
-	    if ( size > fontCache->maxCost() + reserveCost )
-		fontCache->setMaxCost( size + reserveCost );
-	    if ( !fontCache->insert(n, d->fin, size) ) {
+	}
+	int size = (f->max_bounds.ascent + f->max_bounds.descent) *
+		   f->max_bounds.width *
+		   (f->max_char_or_byte2 - f->min_char_or_byte2) / 8;
+	// If we get a cache overflow, we make room for this font only
+	if ( size > fontCache->maxCost() + reserveCost )
+	    fontCache->setMaxCost( size + reserveCost );
+	if ( !fontCache->insert(n, d->fin, size) ) {
 #if defined(DEBUG)
-		fatal( "QFont::load: Cache overflow error" );
+	    fatal( "QFont::load: Cache overflow error" );
 #endif
-	    }
 	}
 	d->fin->f = f;
     }
@@ -639,7 +638,7 @@ int QFont_Private::fontMatchScore( char	 *fontName,	 QString &buffer,
 	pSize = atoi( tokens[PointSize] );
 
     if ( strcmp(tokens[ResolutionX], "0") == 0 &&
-	   strcmp(tokens[ResolutionY], "0") == 0 ) {
+	 strcmp(tokens[ResolutionY], "0") == 0 ) {
 	// smoothly scalable font, we can ask for any resolution
 	score |= ResolutionScore;
     } else {
@@ -707,7 +706,7 @@ struct MatchData {			// internal for bestMatch
     int	    weightDiff;
 };
 
-QString QFont_Private::bestMatch( const QString &pattern, int *score )
+QString QFont_Private::bestMatch( const char *pattern, int *score )
 {
     MatchData	best;
     MatchData	bestScalable;
@@ -731,9 +730,9 @@ QString QFont_Private::bestMatch( const QString &pattern, int *score )
 			     &pointDiff, &weightDiff,
 			     &scalable, &polymorphic, &resx, &resy );
 	if ( sc > best.score ||
-	    sc == best.score && pointDiff < best.pointDiff ||
-	    sc == best.score && pointDiff == best.pointDiff &&
-				weightDiff < best.weightDiff ) {
+	     sc == best.score && pointDiff < best.pointDiff ||
+	     sc == best.score && pointDiff == best.pointDiff &&
+				 weightDiff < best.weightDiff ) {
 	    if ( scalable ) {
 		if ( sc > bestScalable.score ||
 		     sc == bestScalable.score &&
@@ -790,50 +789,43 @@ QString QFont_Private::bestMatch( const QString &pattern, int *score )
 }
 
 
-QString QFont_Private::bestFamilyMember( const QString &family, int *score )
+QString QFont_Private::bestFamilyMember( const char *family, int *score )
 {
-    QString pattern;
-    QString match;
-    pattern.sprintf( "-*-%s-*-*-*-*-*-*-*-*-*-*-*-*", family.data() );
+    char pattern[256];
+    sprintf( pattern, "-*-%s-*-*-*-*-*-*-*-*-*-*-*-*", family );
     return bestMatch( pattern, score );
 }
 
 
 QString QFont_Private::findFont( bool *exact )
 {
-    QString familyName;
-    QString bestName;
-    int	    score;
-    const char *fam = family();			// fam = font family name
-
-    if ( fam == 0 || fam[0] == '\0' ) {		// null or empty string
+    QString familyName = substitute( family() );
+    if ( familyName.isEmpty() ) {
 	familyName = defaultFamily();
-	*exact	   = FALSE;
-    } else {
-	familyName = bestFitFamily( fam );
-	*exact	   = TRUE;
+	*exact = FALSE;
     }
-    bestName = bestFamilyMember( familyName, &score );
+
+    int score;
+    QString bestName = bestFamilyMember( familyName, &score );
     if ( *exact && score != exactScore )
 	*exact = FALSE;
 
     if ( score == 0 ) {
-	QString df = defaultFamily();
-	if( familyName != df ) {
-	    familyName = df;			// try default family for style
-	    bestName   = bestFamilyMember( familyName, &score );
+	QString f = defaultFamily();
+	if( familyName != f ) {
+	    familyName = f;			// try default family for style
+	    bestName = bestFamilyMember( familyName, &score );
+	}
+	if ( score == 0 ) {
+	    f = lastResortFamily();
+	    if ( familyName != f ) {
+		familyName = f;			// try system default family
+		bestName = bestFamilyMember( familyName, &score );
+	    }
 	}
     }
-    if ( score == 0 ) {
-	QString lrf = lastResortFamily();
-	if ( familyName != lrf ) {
-	    familyName = lrf;			// try system default family
-	    bestName   = bestFamilyMember( familyName, &score );
-	}
-    }
-    if ( bestName.isNull() ) {			// no matching fonts found
+    if ( bestName.isNull() )			// no matching fonts found
 	bestName = lastResortFont();
-    }
     return bestName;
 }
 
@@ -1146,17 +1138,6 @@ static bool parseXFontName( QString &fontName, char **tokens )
 	return FALSE;
     }
     return TRUE;
-}
-
-
-//
-// Maps a font family name to a valid X family name
-//
-
-static QString bestFitFamily( const QString &fam )
-{
-    QString family = QFont::substitute( fam );
-    return family.lower();
 }
 
 

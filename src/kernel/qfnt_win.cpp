@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_win.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qfnt_win.cpp#26 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -28,7 +28,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_win.cpp#25 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_win.cpp#26 $");
 
 
 static HANDLE stock_sysfont = 0;
@@ -66,9 +66,8 @@ private:
 };
 
 inline QFontInternal::QFontInternal( const QString &key )
-    : k(key)
+    : k(key), hdc(0), hfont(0)
 {
-    hdc = hfont = 0;
 }
 
 inline bool QFontInternal::dirty() const
@@ -226,7 +225,7 @@ QFont::QFont( bool )
 {
     init();
     d->req.family    = "MS Sans Serif";		// default font
-    d->req.pointSize = 8*10;			// approximate point size, hack
+    d->req.pointSize = 8*10;
     d->req.weight    = QFont::Normal;
 }
 
@@ -330,32 +329,30 @@ void QFont::load( HANDLE ) const
 
 HANDLE QFont::create( bool *stockFont, HANDLE hdc ) const
 {
+    QString fam = QFont::substitute( d->req.family );
     if ( d->req.rawMode ) {			// will choose a stock font
-	QString n = QFont::substitute( d->req.family );
-	int	f, deffnt;
-	if ( qt_winver == WV_NT )
-	    deffnt = SYSTEM_FONT;		// Windows NT 3.x
-	else if ( qt_winver == WV_32s )
-	    deffnt = SYSTEM_FONT;		// Win32s
+	int f, deffnt;
+	if ( qt_winver == WV_NT || qt_winver == WV_32s )
+	    deffnt = SYSTEM_FONT;		// Windows NT or Win32s
 	else
 	    deffnt = DEFAULT_GUI_FONT;		// Windows 95
-	n.lower();
-	if ( n == "default" )
+	fam = fam.lower();
+	if ( fam == "default" )
 	    f = deffnt;
-	else if ( n == "system" )
+	else if ( fam == "system" )
 	    f = SYSTEM_FONT;
-	else if ( n == "system_fixed" )
+	else if ( fam == "system_fixed" )
 	    f = SYSTEM_FIXED_FONT;
-	else if ( n == "ansi_fixed" )
+	else if ( fam == "ansi_fixed" )
 	    f = ANSI_FIXED_FONT;
-	else if ( n == "ansi_var" )
+	else if ( fam == "ansi_var" )
 	    f = ANSI_VAR_FONT;
-	else if ( n == "device_default" )
+	else if ( fam == "device_default" )
 	    f = DEVICE_DEFAULT_FONT;
-	else if ( n == "oem_fixed" )
+	else if ( fam == "oem_fixed" )
 	    f = OEM_FIXED_FONT;
-	else if ( n[0] == '#' )
-	    n = n.right(n.length()-1).toInt();
+	else if ( fam[0] == '#' )
+	    f = fam.right(fam.length()-1).toInt();
 	else
 	    f = deffnt;
 	if ( stockFont )
@@ -407,7 +404,7 @@ HANDLE QFont::create( bool *stockFont, HANDLE hdc ) const
     lf.lfClipPrecision  = CLIP_DEFAULT_PRECIS; 
     lf.lfQuality	= DEFAULT_QUALITY;
     lf.lfPitchAndFamily = DEFAULT_PITCH | hint;
-    strcpy( lf.lfFaceName, QFont::substitute(d->req.family) );
+    strcpy( lf.lfFaceName, fam );
     
     HANDLE hfont = CreateFontIndirect( &lf );
     if ( stockFont )
@@ -420,7 +417,7 @@ HANDLE QFont::create( bool *stockFont, HANDLE hdc ) const
 
 void *QFont::textMetric() const
 {
-    if ( !d->fin ) {
+    if ( DIRTY_FONT ) {
 	load();
 #if defined(DEBUG)
 	ASSERT( d->fin && d->fin->font() );
