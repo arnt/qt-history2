@@ -41,8 +41,6 @@ PhraseBookBox::PhraseBookBox( const QString& filename,
 			      const char *name, bool modal )
     : QDialog( parent, name, modal ), fn( filename ), pb( phraseBook )
 {
-    setIcon( createPixmap( IconPixmap ) );
-
     QGridLayout *gl = new QGridLayout( this, 4, 3, 11, 11,
 				       "phrase book outer layout" );
     QVBoxLayout *bl = new QVBoxLayout( 6, "phrase book button layout" );

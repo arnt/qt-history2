@@ -38,8 +38,6 @@ FindDialog::FindDialog( bool replace, QWidget *parent, const char *name,
 			bool modal )
     : QDialog( parent, name, modal )
 {
-    setIcon( createPixmap( IconPixmap ) );
-
     sourceText = 0;
     
     led = new QLineEdit( this, "find line edit" );

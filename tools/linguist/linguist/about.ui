@@ -36,9 +36,6 @@
     <property name="caption">
         <string>Qt Linguist</string>
     </property>
-    <property name="icon">
-        <pixmap>IconPixmap</pixmap>
-    </property>
     <vbox>
         <property name="name">
             <cstring>unnamed</cstring>
