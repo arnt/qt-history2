@@ -413,7 +413,7 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
     if(object == o)
         return false;
     /* At the moment it seems clear that Mac OS X does not want to drag with a non-left button
-       so we just bail early to prevent it, however we need to find a better solution! FIXME! */
+       so we just bail early to prevent it */
     if(!(GetCurrentEventButtonState() & kEventMouseButtonPrimary))
         return false;
 
