@@ -883,28 +883,6 @@ void QTextEdit::setCurrentFont(const QFont &f)
 }
 
 /*!
-    \fn QTextEdit::undo()
-
-    Undoes the last operation.
-
-    If there is no operation to undo, i.e. there is no undo step in
-    the undo/redo history, nothing happens.
-
-    \sa redo()
-*/
-
-/*!
-    \fn QTextEdit::redo()
-
-    Redoes the last operation.
-
-    If there is no operation to redo, i.e. there is no redo step in
-    the undo/redo history, nothing happens.
-
-    \sa undo()
-*/
-
-/*!
     Copies the selected text to the clipboard and deletes it from
     the text edit.
 
