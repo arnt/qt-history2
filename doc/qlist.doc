@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qlist.doc,v 2.21 1999/03/08 17:42:43 weis Exp $
+** $Id: qlist.doc,v 2.22 1999/03/08 17:49:59 weis Exp $
 **
 ** QList and QListIterator class documentation
 **
@@ -75,11 +75,6 @@
 	Steve earns 80000
 	Ron earns 60000
   \endcode
-
-  A list can also be instantiated through a macro expansion, but this
-  is necessary only for compilers that do not support templates. See the
-  \link collection.html collection classes documentation\endlink
-  for a general discussion on template-based versus macro-based collections.
 
   The list class is indexable and has a \link at() current index\endlink
   and a \link current() current item\endlink.  The first item corresponds
