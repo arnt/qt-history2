@@ -138,23 +138,23 @@ public slots:
 
 
 class QWhatsThat : public QWidget
-{ 
+{
     Q_OBJECT
 public:
     QWhatsThat( QWidget* w, const QString& txt, QWidget* parent, const char* name );
     ~QWhatsThat() ;
-    
+
 public slots:
     void hide();
-    
+
 protected:
     void mousePressEvent( QMouseEvent* );
     void mouseReleaseEvent( QMouseEvent* );
     void mouseMoveEvent( QMouseEvent* );
     void keyPressEvent( QKeyEvent* );
     void paintEvent( QPaintEvent* );
-    
-private: 
+
+private:
     QString text;
 #ifndef QT_NO_RICHTEXT
     QSimpleRichText* doc;
@@ -210,7 +210,7 @@ public:
 #ifndef QT_NO_CURSOR
     QCursor * cursor;
 #endif
-    
+
 private slots:
     void cleanupWidget()
     {
@@ -235,10 +235,10 @@ QWhatsThat::QWhatsThat( QWidget* w, const QString& txt, QWidget* parent, const c
     setPalette( QToolTip::palette() );
     setMouseTracking( TRUE );
     setCursor( arrowCursor );
-    
+
     if ( widget )
 	connect( widget, SIGNAL( destroyed() ), this, SLOT( hide() ) );
-    
+
 
     QRect r;
 #ifndef QT_NO_RICHTEXT
@@ -271,7 +271,7 @@ QWhatsThat::~QWhatsThat()
 #ifndef QT_NO_RICHTEXT
     if ( doc )
 	delete doc;
-#endif    
+#endif
 }
 
 void QWhatsThat::hide()
@@ -330,7 +330,7 @@ void QWhatsThat::mouseMoveEvent( QMouseEvent* e)
 }
 
 
-void QWhatsThat::keyPressEvent( QKeyEvent* ) 
+void QWhatsThat::keyPressEvent( QKeyEvent* )
 {
     hide();
 }
@@ -338,22 +338,30 @@ void QWhatsThat::keyPressEvent( QKeyEvent* )
 
 
 void QWhatsThat::paintEvent( QPaintEvent* ) {
-    
-    // now for super-clever shadow stuff.  super-clever mostly in
-    // how many window system problems it skirts around.
 
-    int w = width();
-    int h = height();
     QRect r = rect();
-    r.addCoords( hMargin, vMargin, -hMargin-shadowWidth, -vMargin-shadowWidth );
-
+    r.addCoords( 0, 0, -shadowWidth, -shadowWidth );
     QPainter p( this);
     p.setPen( colorGroup().foreground() );
-    p.drawRect( 0, 0, w, h );
+    p.drawRect( r );
     p.setPen( colorGroup().mid() );
     p.setBrush( colorGroup().brush( QColorGroup::Background ) );
+    int w = r.width();
+    int h = r.height();
     p.drawRect( 1, 1, w-2, h-2 );
+    p.setPen( colorGroup().shadow() );
+    p.drawPoint( w + 5, 6 );
+    p.drawLine( w + 3, 6, w + 5, 8 );
+    p.drawLine( w + 1, 6, w + 5, 10 );
+    int i;
+    for( i=7; i < h; i += 2 )
+	p.drawLine( w, i, w + 5, i + 5 );
+    for( i = w - i + h; i > 6; i -= 2 )
+	p.drawLine( i, h, i + 5, h + 5 );
+    for( ; i > 0 ; i -= 2 )
+	p.drawLine( 6, h + 6 - i, i + 5, h + 5 );
     p.setPen( colorGroup().foreground() );
+    r.addCoords( hMargin, vMargin, -hMargin, -vMargin );
 
 #ifndef QT_NO_RICHTEXT
     if ( doc ) {
@@ -364,23 +372,6 @@ void QWhatsThat::paintEvent( QPaintEvent* ) {
     {
 	p.drawText( r, AlignAuto + AlignTop + WordBreak + ExpandTabs, text );
     }
-    p.setPen( colorGroup().shadow() );
-
-    p.drawPoint( w + 5, 6 );
-    p.drawLine( w + 3, 6,
-		w + 5, 8 );
-    p.drawLine( w + 1, 6,
-		w + 5, 10 );
-    int i;
-    for( i=7; i < h; i += 2 )
-	p.drawLine( w, i,
-		    w + 5, i + 5 );
-    for( i = w - i + h; i > 6; i -= 2 )
-	p.drawLine( i, h,
-		    i + 5, h + 5 );
-    for( ; i > 0 ; i -= 2 )
-	p.drawLine( 6, h + 6 - i,
-		    i + 5, h + 5 );
 }
 
 // the item
@@ -676,8 +667,8 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
 			       0,
 #endif
 			       "automatic what's this? widget" );
-    
-    
+
+
     // okay, now to find a suitable location
     QRect screen = QApplication::desktop()->screenGeometry( QApplication::desktop()->screenNumber( ppos ) );
     int x;
@@ -957,12 +948,12 @@ QString QWhatsThis::text( const QPoint & )
   This virtual function is called when the user clicks inside the
   What's This? window. \a href is the link the user clicked on, or
   QString::null if there was no link.
-  
+
   If the function returns TRUE (the default), the What's This? window
   is closed, otherwise it remains visible.
-  
+
   The default implementation ignores \a href and returns TRUE.
-  
+
 */
 bool QWhatsThis::clicked( const QString& )
 {
