@@ -269,15 +269,9 @@ void QMakeSourceFileInfo::addSourceFile(const QString &f, uchar seek,
     }
     file->type = type;
 
-/* Do moc before dependency checking since some includes can come from
-   moc_*.cpp files */
-    if(seek & ADD_MOC) {
-        files_changed = true;
-        file->mocable = true;
-    } else if(seek & SEEK_MOCS) {
+    if(seek & SEEK_MOCS && !file->moc_checked)
         findMocs(file);
-    }
-    if(seek & SEEK_DEPS)
+    if(seek & SEEK_DEPS && !file->dep_checked)
         findDeps(file);
 }
 
@@ -579,6 +573,14 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
  /* qmake ignore Q_OBJECT */
 #define Q_OBJECT_LEN 8 //strlen("Q_OBJECT")
     for(int x = 0; x < (buffer_len-Q_OBJECT_LEN); x++) {
+        while(x < buffer_len && *(buffer+x) != '/' && *(buffer+x) != 'Q') {
+            x++;
+            if(QMAKE_EOL(*(buffer+x)))
+                line_count++;
+        }
+        if(x >= buffer_len)
+            break;
+
         if(*(buffer + x) == '/') {
             x++;
             if(buffer_len >= x) {
@@ -613,8 +615,7 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
                 }
             }
         }
-#define SYMBOL_CHAR(x) ((x >= 'a' && x <= 'z') || (x >= 'A' && x <= 'Z') || \
-                        (x >= '0' && x <= '9') || x == '_')
+#define SYMBOL_CHAR(x)
 
         bool interesting = *(buffer+x) == 'Q' &&
                            (!strncmp(buffer+x, "Q_OBJECT", Q_OBJECT_LEN) ||
@@ -635,7 +636,9 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
                 len=Q_GADGET_LEN;
             }
 
-            if(SYMBOL_CHAR(*(buffer+x+len)))
+            if((*(buffer+x+len) >= 'a' && *(buffer+x+len) <= 'z') ||
+               (*(buffer+x+len) >= 'A' && *(buffer+x+len) <= 'Z') ||
+               (*(buffer+x+len) >= '0' && *(buffer+x+len) <= '9') || *(buffer+x+len) == '_')
                 interesting = false;
             if(interesting) {
                 *(buffer+x+len) = '\0';
@@ -645,11 +648,6 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
                 break;
             }
         }
-
-        while(x < buffer_len && SYMBOL_CHAR(*(buffer+x)))
-            x++;
-        if(QMAKE_EOL(*(buffer+x)))
-            line_count++;
     }
     return true;
 }

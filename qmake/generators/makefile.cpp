@@ -449,7 +449,7 @@ MakefileGenerator::init()
         }
 
         // get deps
-        depHeuristics.clear();
+        depHeuristicsCache.clear();
         // dependency paths
         QStringList incDirs = v["DEPENDPATH"] + v["QMAKE_ABSOLUTE_SOURCE_PATH"];
         if(project->isActiveConfig("depend_includepath"))
@@ -627,7 +627,7 @@ MakefileGenerator::init()
                     QString trg = dir + fi.completeBaseName() + Option::lex_mod + Option::cpp_ext.first();
                     impldeps.append(trg);
                     impldeps += findDependencies(lexsrc);
-                    depends[lexsrc].clear();
+                    dependsCache[lexsrc].clear();
                 }
             }
             yaccdeps.clear();
@@ -1358,9 +1358,46 @@ MakefileGenerator::createObjectList(const QStringList &sources)
     return ret;
 }
 
+struct ReplaceExtraCompilerCacheKey
+{
+    mutable uint hash;
+    QString var, in, out, pwd;
+    ReplaceExtraCompilerCacheKey(const QString &v, const QString &i, const QString &o)
+    {
+        hash = 0;
+        pwd = qmake_getpwd();
+        var = v;
+        in = i;
+        out = o;
+    }
+    bool operator==(const ReplaceExtraCompilerCacheKey &f) const
+    {
+        return (f.var == var &&
+                f.in == in &&
+                f.out == out &&
+                f.pwd == pwd);
+    }
+    uint hashCode() const {
+        if(!hash)
+            hash = qHash(var) | qHash(in) | qHash(out) | qHash(pwd);
+        return hash;
+    }
+};
+
+uint qHash(const ReplaceExtraCompilerCacheKey &f) { return f.hashCode(); }
+
 QString
 MakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QString &in, const QString &out)
 {
+    //lazy cache
+    static QHash<ReplaceExtraCompilerCacheKey, QString> *cache = 0;
+    if(!cache)
+        cache = new QHash<ReplaceExtraCompilerCacheKey, QString>;
+    ReplaceExtraCompilerCacheKey cacheKey(var, in, out);
+    if(cache->contains(cacheKey))
+        return cache->value(cacheKey);
+
+    //do the work
     QString ret = var;
     if(!in.isNull()) {
         QFileInfo fi(Option::fixPathToLocalOS(in));
@@ -1369,9 +1406,11 @@ MakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QStri
         ret.replace("${QMAKE_FILE_NAME}", fi.filePath());
         ret.replace("${QMAKE_FILE_IN}", fi.filePath());
     }
-    if(!out.isNull()) {
+    if(!out.isNull())
         ret.replace("${QMAKE_FILE_OUT}", out);
-    }
+
+    //cache the value
+    cache->insert(cacheKey, ret);
     return ret;
 }
 
@@ -2148,10 +2187,10 @@ struct FileFixifyCacheKey
     mutable uint hash;
     QString in_d, out_d;
     QString file, pwd;
-    MakefileGenerator::FileFixifyType fixType;
+    uint fixType;
     bool canonicalize;
     FileFixifyCacheKey(const QString &f, const QString &od, const QString &id,
-                   MakefileGenerator::FileFixifyType ft, bool c)
+                       uint ft, bool c)
     {
         hash = 0;
         pwd = qmake_getpwd();
@@ -2365,8 +2404,8 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &d
     //reliable these will be, most likely when problems arise turn it off
     //and see if they go away..
     if(Option::mkfile::do_dep_heuristics) {
-        if(depHeuristics.contains(dep.real()))
-            return depHeuristics[dep.real()];
+        if(depHeuristicsCache.contains(dep.real()))
+            return depHeuristicsCache[dep.real()];
 
         if(Option::output_dir != qmake_getpwd()
            && QDir::isRelativePath(dep.real())) { //is it from the shadow tree
@@ -2468,7 +2507,7 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &d
             }
         }
     found_dep_from_heuristic:
-        depHeuristics.insert(dep.real(), ret);
+        depHeuristicsCache.insert(dep.real(), ret);
     }
     return ret;
 }
@@ -2477,9 +2516,9 @@ QStringList
 &MakefileGenerator::findDependencies(const QString &file)
 {
     QString fixedFile = fileFixify(file);
-    if(!depends.contains(fixedFile))
-        depends.insert(fixedFile, QMakeSourceFileInfo::dependencies(fixedFile));
-    return depends[fixedFile];
+    if(!dependsCache.contains(fixedFile))
+        dependsCache.insert(fixedFile, QMakeSourceFileInfo::dependencies(fixedFile));
+    return dependsCache[fixedFile];
 }
 
 QString

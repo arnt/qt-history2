@@ -18,14 +18,13 @@
 #include "makefiledeps.h"
 #include <qtextstream.h>
 #include <qlist.h>
+#include <qhash.h>
 
 #ifdef Q_OS_WIN32
 #define QT_POPEN _popen
 #else
 #define QT_POPEN popen
 #endif
-
-struct FileFixifyCacheKey;
 
 class MakefileGenerator : protected QMakeSourceFileInfo
 {
@@ -34,9 +33,10 @@ class MakefileGenerator : protected QMakeSourceFileInfo
     QStringList createObjectList(const QStringList &sources);
     QString build_args();
     void checkMultipleDefinition(const QString &, const QString &);
-    QMap<QString, QString> fileFixed;
-    QMap<QString, QMakeLocalFileName> depHeuristics;
-    QMap<QString, QStringList> depends;
+
+    //internal caches
+    mutable QHash<QString, QMakeLocalFileName> depHeuristicsCache;
+    mutable QHash<QString, QStringList> dependsCache;
 
 protected:
     //makefile style generator functions
@@ -115,8 +115,6 @@ protected:
     QString filePrefixRoot(const QString &, const QString &);
 
     //file fixification to unify all file names into a single pattern
-    friend struct FileFixifyCacheKey;
-    friend uint qHash(const FileFixifyCacheKey &f);
     enum FileFixifyType { FileFixifyAbsolute, FileFixifyRelative, FileFixifyDefault };
     QString fileFixify(const QString& file, const QString &out_dir=QString::null,
                        const QString &in_dir=QString::null, FileFixifyType fix=FileFixifyDefault, bool canon=true) const;

@@ -68,7 +68,7 @@ public:
     inline DependencyMode dependencyMode() const { return dep_mode; }
 
     enum SourceFileType { TYPE_UNKNOWN, TYPE_C, TYPE_UI, TYPE_QRC };
-    enum SourceFileSeek { SEEK_DEPS=0x01, SEEK_MOCS=0x02, ADD_MOC=0x04 };
+    enum SourceFileSeek { SEEK_DEPS=0x01, SEEK_MOCS=0x02 };
     void addSourceFiles(const QStringList &, uchar seek, SourceFileType type=TYPE_C);
     void addSourceFile(const QString &, uchar seek, SourceFileType type=TYPE_C);
 
