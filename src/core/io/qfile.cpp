@@ -668,40 +668,45 @@ QFile::copy(const QString &newName)
     }
     close();
     if(error() == QFile::NoError) {
-        bool error = false;
-        if(!open(QFile::ReadOnly)) {
-            error = true;
-            QString errorMessage = QLatin1String("Cannot open %1 for input");
-            d->setError(QFile::CopyError, errorMessage.arg(d->fileName));
-        } else {
-            QTemporaryFile out;
-            if(!out.open()) {
-                close();
-                error = true;
-                d->setError(QFile::CopyError, QLatin1String("Cannot open for output"));
-            } else {
-                char block[1024];
-                while(!atEnd()) {
-                    Q_LONG in = read(block, 1024);
-                    if(in == -1)
-                        break;
-                    if(in != out.write(block, in)) {
-                        d->setError(QFile::CopyError, QLatin1String("Failure to write block"));
-                        error = true;
-                        break;
-                    }
-                }
-                if(!error && !out.rename(newName)) {
-                    error = true;
-                    QString errorMessage = QLatin1String("Cannot create %1 for output");
-                    d->setError(QFile::CopyError, errorMessage.arg(newName));
-                }
-            }
-        }
-        if(!error) {
-            QFile::setPermissions(newName, permissions());
+        if(fileEngine()->copy(newName)) {
             unsetError();
             return true;
+        } else {
+            bool error = false;
+            if(!open(QFile::ReadOnly)) {
+                error = true;
+                QString errorMessage = QLatin1String("Cannot open %1 for input");
+                d->setError(QFile::CopyError, errorMessage.arg(d->fileName));
+            } else {
+                QTemporaryFile out;
+                if(!out.open()) {
+                    close();
+                    error = true;
+                    d->setError(QFile::CopyError, QLatin1String("Cannot open for output"));
+                } else {
+                    char block[1024];
+                    while(!atEnd()) {
+                        Q_LONG in = read(block, 1024);
+                        if(in == -1)
+                            break;
+                        if(in != out.write(block, in)) {
+                            d->setError(QFile::CopyError, QLatin1String("Failure to write block"));
+                            error = true;
+                            break;
+                        }
+                    }
+                    if(!error && !out.rename(newName)) {
+                        error = true;
+                        QString errorMessage = QLatin1String("Cannot create %1 for output");
+                        d->setError(QFile::CopyError, errorMessage.arg(newName));
+                    }
+                }
+            }
+            if(!error) {
+                QFile::setPermissions(newName, permissions());
+                unsetError();
+                return true;
+            }
         }
     }
     return false;

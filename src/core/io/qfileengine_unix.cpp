@@ -49,6 +49,12 @@ QFSFileEngine::remove()
 }
 
 bool
+QFSFileEngine::copy(const QString &)
+{
+    return false;
+}
+
+bool
 QFSFileEngine::rename(const QString &newName)
 {
     return ::rename(QFile::encodeName(d->file), QFile::encodeName(newName)) == 0;

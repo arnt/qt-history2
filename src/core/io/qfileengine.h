@@ -49,6 +49,7 @@ public:
     virtual QString errorString() const;
 
     virtual bool remove() = 0;
+    virtual bool copy(const QString &newName) = 0;
     virtual bool rename(const QString &newName) = 0;
     virtual bool link(const QString &newName) = 0;
 
@@ -156,6 +157,7 @@ public:
     virtual QString errorString() const;
 
     virtual bool remove();
+    virtual bool copy(const QString &newName);
     virtual bool rename(const QString &newName);
     virtual bool link(const QString &newName);
 

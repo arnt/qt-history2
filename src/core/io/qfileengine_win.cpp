@@ -210,6 +210,12 @@ QFSFileEngine::remove()
 }
 
 bool
+QFSFileEngine::copy(const QString &)
+{
+    return false;
+}
+
+bool
 QFSFileEngine::rename(const QString &newName)
 {
     QT_WA({

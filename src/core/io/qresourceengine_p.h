@@ -54,6 +54,7 @@ public:
     virtual Q_LONGLONG write(const char *data, Q_LONGLONG len);
 
     virtual bool remove();
+    virtual bool copy(const QString &newName);
     virtual bool rename(const QString &newName);
     virtual bool link(const QString &newName);
 

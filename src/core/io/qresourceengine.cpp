@@ -189,6 +189,11 @@ bool QResourceFileEngine::remove()
     return false;
 }
 
+bool QResourceFileEngine::copy(const QString &)
+{
+    return false;
+}
+
 bool QResourceFileEngine::rename(const QString &)
 {
     return false;
