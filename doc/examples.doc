@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: examples.doc,v 2.26 1999/06/03 10:31:30 paul Exp $
+** $Id: examples.doc,v 2.27 1999/06/03 19:59:58 paul Exp $
 **
 ** Documentation for the examples
 **
@@ -22,7 +22,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: examples.doc,v 2.26 1999/06/03 10:31:30 paul Exp $";
+static char ident[] = "$Id: examples.doc,v 2.27 1999/06/03 19:59:58 paul Exp $";
 #endif
 
 
@@ -320,7 +320,7 @@ static char ident[] = "$Id: examples.doc,v 2.26 1999/06/03 10:31:30 paul Exp $";
   <h1 align=center>Layout Managers</h1><br clear="all">
 
   This example shows simple and intermediate use of Qt's layout
-  classes, QGridLaout, QBoxLayout etc.
+  classes, QGridLayout, QBoxLayout etc.
 
   <hr>
 
