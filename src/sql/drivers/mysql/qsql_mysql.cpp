@@ -492,11 +492,6 @@ bool QMYSQLResult::isNull(int field)
 
 bool QMYSQLResult::reset (const QString& query)
 {
-    if (d->preparedQuerys) {
-        if (!prepare(query))
-            return false;
-        return exec();
-    }
     if (!driver() || !driver()->isOpen() || driver()->isOpenError())
         return false;
 
