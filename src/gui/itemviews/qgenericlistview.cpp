@@ -89,23 +89,23 @@ template <class T>
 void BinTree<T>::insertItem(T &item, const QRect &rect, int idx)
 {
     itemVector.insert(idx + 1, 1, item); // insert after idx
-    climbTree(rect, &insert, (void*)idx, 0);
+    climbTree(rect, &insert, reinterpret_cast<void *>(idx), 0);
 }
 
 template <class T>
 void BinTree<T>::removeItem(const QRect &rect, int idx)
 {
-    climbTree(rect, &remove, (void*)idx, 0);
+    climbTree(rect, &remove, reinterpret_cast<void *>(idx), 0);
     itemVector.remove(idx, 1);
 }
 
 template <class T>
 void BinTree<T>::moveItem(const QPoint &dest, const QRect &rect, int idx)
 {
-    climbTree(rect, &remove, (void*)idx, 0);
+    climbTree(rect, &remove, reinterpret_cast<void *>(idx), 0);
     item(idx).x = dest.x();
     item(idx).y = dest.y();
-    climbTree(QRect(dest, rect.size()), &insert, (void*)idx, 0);
+    climbTree(QRect(dest, rect.size()), &insert, reinterpret_cast<void *>(idx), 0);
 }
 
 template <class T>
@@ -926,7 +926,8 @@ void QGenericListView::doDynamicLayout(const QRect &bounds, int first, int last)
 
     // insert items in tree
     for (int i = insertFrom; i <= last; i++)
-        d->tree.climbTree(d->tree.item(i).rect(), &BinTree<QGenericListViewItem>::insert, (void *)i);
+        d->tree.climbTree(d->tree.item(i).rect(), &BinTree<QGenericListViewItem>::insert,
+                          reinterpret_cast<void *>(i));
 
     if (clipRegion().boundingRect().intersects(rect))
         d->viewport->update();
@@ -1032,8 +1033,8 @@ void QGenericListViewPrivate::intersectingDynamicSet(const QRect &area) const
 {
     intersectVector.clear();
 //    intersectVector.reserve(500); // FIXME
-    QGenericListViewPrivate *that = (QGenericListViewPrivate*)this; // FIXME
-    that->tree.climbTree(area, &QGenericListViewPrivate::addLeaf, (void *)this);
+    QGenericListViewPrivate *that = const_cast<QGenericListViewPrivate *>(this); // FIXME
+    that->tree.climbTree(area, &QGenericListViewPrivate::addLeaf, static_cast<void *>(that));
 }
 
 void QGenericListViewPrivate::createItems(int to)

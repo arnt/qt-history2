@@ -27,7 +27,7 @@ inline void expand(QVector<T> &vec, int after, size_t n)
 {
     size_t m = vec.size() - after - 1;
     vec.resize(vec.size() + n);
-    T *b = (T*)vec.data();
+    T *b = static_cast<T *>(vec.data());
     T *src = b + after + 1;
     T *dst = src + n;
     memmove(dst, src, m * sizeof(T));
@@ -232,7 +232,7 @@ void QGenericTreeView::drawRow(QPainter *painter, QItemOptions *options, const Q
     int y = options->itemRect.y();
     int width, height = options->itemRect.height();
     QColor base = options->palette.base();
-    
+
     QModelIndex parent = model()->parent(index);
     QGenericHeader *header = d->header;
     QModelIndex current = selectionModel()->currentItem();
@@ -740,7 +740,7 @@ int QGenericTreeView::columnSizeHint(int column) const
     QFontMetrics fontMetrics(this->fontMetrics());
     QAbstractItemDelegate *delegate = itemDelegate();
     QModelIndex index;
-    
+
     const QGenericTreeViewItem *items = d->items.constData();
     int v = verticalScrollBar()->value();
     int h = d->viewport->height();

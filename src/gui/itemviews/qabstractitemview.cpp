@@ -468,7 +468,7 @@ void QAbstractItemView::endEdit(const QModelIndex &item, bool accept)
     }
 
     if (accept)
-        itemDelegate()->setContentFromEditor((QWidget*)d->currentEditor, item);
+        itemDelegate()->setContentFromEditor(d->currentEditor, item);
     delete d->currentEditor;
     setFocus();
 }
@@ -510,7 +510,7 @@ void QAbstractItemView::horizontalScrollbarAction(int)
 bool QAbstractItemView::eventFilter(QObject *object, QEvent *event)
 {
     if (object == d->currentEditor && event->type() == QEvent::KeyPress) {
-        switch (((QKeyEvent*)event)->key()) {
+        switch (static_cast<QKeyEvent *>(event)->key()) {
         case Key_Escape:
             endEdit(d->editItem, false);
             return true;
@@ -841,7 +841,7 @@ bool QAbstractItemViewPrivate::sendItemEvent(const QModelIndex &data, QEvent *ev
         case QEvent::MouseMove:
         case QEvent::MouseButtonDblClick: {
             QPoint pt(options.itemRect.x(), options.itemRect.y());
-            QMouseEvent *me = (QMouseEvent*)event;
+            QMouseEvent *me = static_cast<QMouseEvent *>(event);
             QMouseEvent ce(me->type(), me->pos() - pt,
                             me->globalPos(), me->button(), me->state());
             //data->event(&ce, &options); // FIXME: !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -853,7 +853,7 @@ bool QAbstractItemViewPrivate::sendItemEvent(const QModelIndex &data, QEvent *ev
         case QEvent::KeyPress:
         case QEvent::KeyRelease:
             //data->event(event, &options); // FIXME: !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            if (((QKeyEvent*)event)->isAccepted()) {
+            if (static_cast<QKeyEvent *>(event)->isAccepted()) {
                 return true;
             }
             break;

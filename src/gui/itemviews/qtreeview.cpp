@@ -106,9 +106,10 @@ QTreeViewItem *QTreeModel::item(const QModelIndex &index) const
         return 0;
     if (index.type() != QModelIndex::View)
         return &topHeader;
-    return (QTreeViewItem *)index.data();
+    return static_cast<QTreeViewItem *>(index.data());
 }
 
+// ### why isn't item const?
 QModelIndex QTreeModel::index(QTreeViewItem *item) const
 {
     if (!item)
@@ -125,12 +126,12 @@ QModelIndex QTreeModel::index(int row, int column, const QModelIndex &parent,
     if (row < 0 || row >= r || column < 0 || column >= c)
         return QModelIndex();
     if (!parent.isValid() && row < r) {// toplevel
-        QTreeViewItem *itm = ((QTreeModel*)this)->tree[row]; // FIXME
+        QTreeViewItem *itm = const_cast<QTreeModel*>(this)->tree[row]; // FIXME
         return QModelIndex(row, column, itm, type);
     }
     QTreeViewItem *parentItem = item(parent);
     if (parentItem && row < parentItem->childCount()) {
-        QTreeViewItem *itm = (QTreeViewItem*)parentItem->child(row); // FIXME
+        QTreeViewItem *itm = static_cast<QTreeViewItem *>(parentItem->child(row)); // FIXME
         return QModelIndex(row, column, itm, type);
     }
     return QModelIndex();
@@ -140,10 +141,10 @@ QModelIndex QTreeModel::parent(const QModelIndex &child) const
 {
     if (!child.isValid())
         return QModelIndex();
-    const QTreeViewItem *itm = (const QTreeViewItem*)child.data();
+    const QTreeViewItem *itm = static_cast<const QTreeViewItem *>(child.data());
     if (!itm)
         return QModelIndex();
-    QTreeViewItem *parent = (QTreeViewItem*)itm->parent(); // FIXME
+    QTreeViewItem *parent = const_cast<QTreeViewItem *>(itm->parent()); // FIXME
     return index(parent);
 }
 
