@@ -126,6 +126,12 @@ public:
     int         numCopies()     const;
     virtual void setNumCopies( int );
 
+    bool	collateCopiesEnabled() const;    
+    void	setCollateCopiesEnabled(bool );
+
+    bool	collateCopies() const;
+    void	setCollateCopies(bool );
+
     bool        newPage();
     bool        abort();
     bool        aborted()       const;
@@ -181,6 +187,7 @@ private:
     ColorMode   color_mode : 1;
     Orientation orient : 1;
     bool        to_edge : 1;
+    bool	appcolcopies : 1;
     bool        usercolcopies : 1;
     short       from_pg, to_pg;
     short       min_pg,  max_pg;
@@ -234,6 +241,16 @@ inline int QPrinter::maxPage() const
 
 inline int QPrinter::numCopies() const
 { return ncopies; }
+
+inline bool QPrinter::collateCopiesEnabled() const
+{ return appcolcopies; }
+
+inline void QPrinter::setCollateCopiesEnabled(bool v)
+{ appcolcopies = v; }
+
+inline bool QPrinter::collateCopies() const
+{ return usercolcopies; }
+
 
 #endif // QT_NO_PRINTER
 
