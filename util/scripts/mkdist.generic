@@ -211,6 +211,9 @@ if [ "${platform}" = "win" ]; then
   cd ${DISTDIR}/qt
   mkdir mkfiles
 
+# Convince tmake to use the right library
+  touch ${DISTDIR}/qt/lib/qt${VERSIONWIN}.lib
+
   echo "Build Makefiles for Borland C++" >&2
   export TMAKEPATH=${TMAKEDIR}/lib/win32-borland
   ${curdir}/buildmakefiles -win32
@@ -222,6 +225,8 @@ if [ "${platform}" = "win" ]; then
   ${curdir}/buildmakefiles -win32
   find . -name Makefile | xargs ${curdir}/unix_to_dos
   find . -name Makefile | xargs zip -r mkfiles/msvc.zip
+
+  rm ${DISTDIR}/qt/lib/qt${VERSIONWIN}.lib
 
   echo "Converting Unix text files to DOS..." >&2
   cd ${DISTDIR}
