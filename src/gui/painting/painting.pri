@@ -41,7 +41,7 @@ SOURCES += \
 	painting/qmatrix.cpp
 
 win32 {
-	DEFINES += _STANDALONE_ QT_RASTER_PAINTENGINE
+	DEFINES += QT_RASTER_PAINTENGINE QT_RASTER_IMAGEENGINE
 	SOURCES += 					\
 	 	painting/qpaintengine_raster.cpp	\
 		painting/qdrawhelper.cpp 		\

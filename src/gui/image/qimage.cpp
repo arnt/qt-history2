@@ -34,7 +34,7 @@ QImage::Endian qX11BitmapBitOrder()
 }
 #endif
 
-#ifdef QT_RASTER_PAINTENGINE
+#ifdef QT_RASTER_IMAGEENGINE
 #include <private/qpaintengine_raster_p.h>
 #else
 #include <qpaintengine.h>
@@ -3679,7 +3679,7 @@ void QImage::setText(const char* key, const char* lang, const QString& s)
 
 QPaintEngine *QImage::paintEngine() const
 {
-#ifdef QT_RASTER_PAINTENGINE
+#ifdef QT_RASTER_IMAGEENGINE
     if (!d->paintEngine) {
         d->paintEngine = new QRasterPaintEngine();
     }
