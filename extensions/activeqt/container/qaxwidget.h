@@ -53,8 +53,8 @@ protected:
 
     void connectNotify(const char *signal);
 private:
-    friend class QAxHostWindow;
-    QAxHostWindow *container;
+    friend class QAxClientSite;
+    QAxClientSite *container;
     
     const QMetaObject *parentMetaObject() const;
     static QMetaObject staticMetaObject;

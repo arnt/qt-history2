@@ -86,7 +86,7 @@ static Qt::KeyboardModifiers translateModifierState(int s)
 }
 
 /*  \class QAxHostWidget qaxwidget.cpp
-    \brief The QAxHostWindow class is the actual container widget.
+    \brief The QAxHostWidget class is the actual container widget.
 \if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
@@ -95,16 +95,16 @@ static Qt::KeyboardModifiers translateModifierState(int s)
 */
 class QAxHostWidget : public QWidget
 {
-    friend class QAxHostWindow;
+    friend class QAxClientSite;
 public:
-    QAxHostWidget(QWidget *parent, QAxHostWindow *ax);
+    QAxHostWidget(QWidget *parent, QAxClientSite *ax);
     ~QAxHostWidget();
     
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
     
     int qt_metacall(QMetaObject::Call, int isignal, void **argv);
-    QAxHostWindow *clientSite() const
+    inline QAxClientSite *clientSite() const
     {
         return axhost;
     }
@@ -116,14 +116,13 @@ protected:
     void focusInEvent(QFocusEvent *e);
     void focusOutEvent(QFocusEvent *e);
     void paintEvent(QPaintEvent *e);
-    
-    QAxHostWindow *axhost;
-    
+        
 private:
     int setFocusTimer;
+    QAxClientSite *axhost;
 };
 
-QAxHostWidget::QAxHostWidget(QWidget *parent, QAxHostWindow *ax)
+QAxHostWidget::QAxHostWidget(QWidget *parent, QAxClientSite *ax)
 : QWidget(parent), axhost(ax)
 {
     setAttribute(Qt::WA_NoSystemBackground);
@@ -136,15 +135,15 @@ QAxHostWidget::~QAxHostWidget()
 }
 
 
-/*  \class QAxHostWindow qaxwidget.cpp
-    \brief The QAxHostWindow class implements the client site interfaces.
+/*  \class QAxClientSite qaxwidget.cpp
+    \brief The QAxClientSite class implements the client site interfaces.
 \if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
     \internal
 */
-class QAxHostWindow : public IDispatch,
+class QAxClientSite : public IDispatch,
                     public IOleClientSite,
                     public IOleControlSite,
                     public IOleInPlaceSiteWindowless,
@@ -154,8 +153,8 @@ class QAxHostWindow : public IDispatch,
     friend class QAxHostWidget;
     friend class QAxWidget;
 public:
-    QAxHostWindow(QAxWidget *c, bool inited);
-    virtual ~QAxHostWindow();
+    QAxClientSite(QAxWidget *c, bool inited);
+    virtual ~QAxClientSite();
     void releaseAll();
     void deactivate();
     QWidget *hostWidget() const
@@ -384,7 +383,7 @@ bool axc_FilterProc(void *m)
         if (ax && msg->hwnd != ax->winId()) {
             if (message >= WM_KEYFIRST && message <= WM_KEYLAST) {
                 QAxHostWidget *host = qFindChild<QAxHostWidget*>(ax);
-                QAxHostWindow *site = host ? host->clientSite() : 0;
+                QAxClientSite *site = host ? host->clientSite() : 0;
                 if (site && site->inPlaceObject() && site->translateKeyEvent(msg->message, msg->wParam))
                         site->inPlaceObject()->TranslateAccelerator(msg);
             } else {
@@ -413,7 +412,7 @@ bool axc_FilterProc(void *m)
     return false;
 }
 
-QAxHostWindow::QAxHostWindow(QAxWidget *c, bool bInited)
+QAxClientSite::QAxClientSite(QAxWidget *c, bool bInited)
 : ref(1), widget(c)
 {
     host = new QAxHostWidget(widget, this);
@@ -522,7 +521,7 @@ QAxHostWindow::QAxHostWindow(QAxWidget *c, bool bInited)
     }
 }
 
-QAxHostWindow::~QAxHostWindow()
+QAxClientSite::~QAxClientSite()
 {
     if (host)
         host->axhost = 0;
@@ -532,7 +531,7 @@ QAxHostWindow::~QAxHostWindow()
     delete aggregatedObject;
 }
 
-void QAxHostWindow::releaseAll()
+void QAxClientSite::releaseAll()
 {
     if (m_spOleObject) {
         m_spOleObject->SetClientSite(0);
@@ -550,7 +549,7 @@ void QAxHostWindow::releaseAll()
     inPlaceObjectWindowless = false;
 }
 
-void QAxHostWindow::deactivate()
+void QAxClientSite::deactivate()
 {
     if (m_spInPlaceObject) m_spInPlaceObject->InPlaceDeactivate();
     // if this assertion fails the control didn't call OnInPlaceDeactivate
@@ -558,12 +557,12 @@ void QAxHostWindow::deactivate()
 }
 
 //**** IUnknown
-unsigned long WINAPI QAxHostWindow::AddRef()
+unsigned long WINAPI QAxClientSite::AddRef()
 {
     return ++ref;
 }
 
-unsigned long WINAPI QAxHostWindow::Release()
+unsigned long WINAPI QAxClientSite::Release()
 {
     if (!--ref) {
         delete this;
@@ -572,7 +571,7 @@ unsigned long WINAPI QAxHostWindow::Release()
     return ref;
 }
 
-HRESULT WINAPI QAxHostWindow::QueryInterface(REFIID iid, void **iface)
+HRESULT WINAPI QAxClientSite::QueryInterface(REFIID iid, void **iface)
 {
     *iface = 0;
     
@@ -616,7 +615,7 @@ extern bool runsInDesignMode;
 #endif
 
 //**** IDispatch
-HRESULT WINAPI QAxHostWindow::Invoke(DISPID dispIdMember,
+HRESULT WINAPI QAxClientSite::Invoke(DISPID dispIdMember,
                                      REFIID /*riid*/,
                                      LCID /*lcid*/,
                                      WORD /*wFlags*/,
@@ -687,19 +686,19 @@ HRESULT WINAPI QAxHostWindow::Invoke(DISPID dispIdMember,
     return DISP_E_MEMBERNOTFOUND;
 }
 
-void QAxHostWindow::emitAmbientPropertyChange(DISPID dispid)
+void QAxClientSite::emitAmbientPropertyChange(DISPID dispid)
 {
     if (m_spOleControl)
         m_spOleControl->OnAmbientPropertyChange(dispid);
 }
 
 //**** IOleClientSite
-HRESULT WINAPI QAxHostWindow::SaveObject()
+HRESULT WINAPI QAxClientSite::SaveObject()
 {
     return E_NOTIMPL;
 }
 
-HRESULT WINAPI QAxHostWindow::GetMoniker(DWORD, DWORD, IMoniker **ppmk)
+HRESULT WINAPI QAxClientSite::GetMoniker(DWORD, DWORD, IMoniker **ppmk)
 {
     if (!ppmk)
         return E_POINTER;
@@ -708,7 +707,7 @@ HRESULT WINAPI QAxHostWindow::GetMoniker(DWORD, DWORD, IMoniker **ppmk)
     return E_NOTIMPL;
 }
 
-HRESULT WINAPI QAxHostWindow::GetContainer(LPOLECONTAINER *ppContainer)
+HRESULT WINAPI QAxClientSite::GetContainer(LPOLECONTAINER *ppContainer)
 {
     if (!ppContainer)
         return E_POINTER;
@@ -717,23 +716,23 @@ HRESULT WINAPI QAxHostWindow::GetContainer(LPOLECONTAINER *ppContainer)
     return E_NOINTERFACE;
 }
 
-HRESULT WINAPI QAxHostWindow::ShowObject()
+HRESULT WINAPI QAxClientSite::ShowObject()
 {
     return S_OK;
 }
 
-HRESULT WINAPI QAxHostWindow::OnShowWindow(BOOL /*fShow*/)
+HRESULT WINAPI QAxClientSite::OnShowWindow(BOOL /*fShow*/)
 {
     return S_OK;
 }
 
-HRESULT WINAPI QAxHostWindow::RequestNewObjectLayout()
+HRESULT WINAPI QAxClientSite::RequestNewObjectLayout()
 {
     return E_NOTIMPL;
 }
 
 //**** IOleControlSite
-HRESULT WINAPI QAxHostWindow::OnControlInfoChanged()
+HRESULT WINAPI QAxClientSite::OnControlInfoChanged()
 {
     if (m_spOleControl)
         m_spOleControl->GetControlInfo(&control_info);
@@ -741,12 +740,12 @@ HRESULT WINAPI QAxHostWindow::OnControlInfoChanged()
     return S_OK;
 }
 
-HRESULT WINAPI QAxHostWindow::LockInPlaceActive(BOOL /*fLock*/)
+HRESULT WINAPI QAxClientSite::LockInPlaceActive(BOOL /*fLock*/)
 {
     return S_OK;
 }
 
-HRESULT WINAPI QAxHostWindow::GetExtendedControl(IDispatch** ppDisp)
+HRESULT WINAPI QAxClientSite::GetExtendedControl(IDispatch** ppDisp)
 {
     if (!ppDisp)
         return E_POINTER;
@@ -755,12 +754,12 @@ HRESULT WINAPI QAxHostWindow::GetExtendedControl(IDispatch** ppDisp)
     return E_NOTIMPL;
 }
 
-HRESULT WINAPI QAxHostWindow::TransformCoords(POINTL* /*pPtlHimetric*/, POINTF* /*pPtfContainer*/, DWORD /*dwFlags*/)
+HRESULT WINAPI QAxClientSite::TransformCoords(POINTL* /*pPtlHimetric*/, POINTF* /*pPtfContainer*/, DWORD /*dwFlags*/)
 {
     return S_OK;
 }
 
-HRESULT WINAPI QAxHostWindow::TranslateAccelerator(LPMSG lpMsg, DWORD /*grfModifiers*/)
+HRESULT WINAPI QAxClientSite::TranslateAccelerator(LPMSG lpMsg, DWORD /*grfModifiers*/)
 {
     QT_WA_INLINE(
         SendMessage(hostWidget()->winId(), lpMsg->message, lpMsg->wParam, lpMsg->lParam),
@@ -769,18 +768,18 @@ HRESULT WINAPI QAxHostWindow::TranslateAccelerator(LPMSG lpMsg, DWORD /*grfModif
     return S_OK;
 }
 
-HRESULT WINAPI QAxHostWindow::OnFocus(BOOL /*bGotFocus*/)
+HRESULT WINAPI QAxClientSite::OnFocus(BOOL /*bGotFocus*/)
 {
     return S_OK;
 }
 
-HRESULT WINAPI QAxHostWindow::ShowPropertyFrame()
+HRESULT WINAPI QAxClientSite::ShowPropertyFrame()
 {
     return E_NOTIMPL;
 }
 
 //**** IOleWindow
-HRESULT WINAPI QAxHostWindow::GetWindow(HWND *phwnd)
+HRESULT WINAPI QAxClientSite::GetWindow(HWND *phwnd)
 {
     if (!phwnd)
         return E_POINTER;
@@ -789,7 +788,7 @@ HRESULT WINAPI QAxHostWindow::GetWindow(HWND *phwnd)
     return S_OK;
 }
 
-HRESULT WINAPI QAxHostWindow::ContextSensitiveHelp(BOOL fEnterMode)
+HRESULT WINAPI QAxClientSite::ContextSensitiveHelp(BOOL fEnterMode)
 {
     if (fEnterMode)
         QWhatsThis::enterWhatsThisMode();
@@ -800,12 +799,12 @@ HRESULT WINAPI QAxHostWindow::ContextSensitiveHelp(BOOL fEnterMode)
 }
 
 //**** IOleInPlaceSite
-HRESULT WINAPI QAxHostWindow::CanInPlaceActivate()
+HRESULT WINAPI QAxClientSite::CanInPlaceActivate()
 {
     return S_OK;
 }
 
-HRESULT WINAPI QAxHostWindow::OnInPlaceActivate()
+HRESULT WINAPI QAxClientSite::OnInPlaceActivate()
 {
     OleLockRunning(m_spOleObject, true, false);
     if (!m_spInPlaceObject) {
@@ -823,12 +822,12 @@ HRESULT WINAPI QAxHostWindow::OnInPlaceActivate()
     return S_OK;
 }
 
-HRESULT WINAPI QAxHostWindow::OnUIActivate()
+HRESULT WINAPI QAxClientSite::OnUIActivate()
 {
     return S_OK;
 }
 
-HRESULT WINAPI QAxHostWindow::GetWindowContext(IOleInPlaceFrame **ppFrame, IOleInPlaceUIWindow **ppDoc, LPRECT lprcPosRect, LPRECT lprcClipRect, LPOLEINPLACEFRAMEINFO lpFrameInfo)
+HRESULT WINAPI QAxClientSite::GetWindowContext(IOleInPlaceFrame **ppFrame, IOleInPlaceUIWindow **ppDoc, LPRECT lprcPosRect, LPRECT lprcClipRect, LPOLEINPLACEFRAMEINFO lpFrameInfo)
 {
     if (!ppFrame || !ppDoc || !lprcPosRect || !lprcClipRect || !lpFrameInfo)
         return E_POINTER;
@@ -848,17 +847,17 @@ HRESULT WINAPI QAxHostWindow::GetWindowContext(IOleInPlaceFrame **ppFrame, IOleI
     return S_OK;
 }
 
-HRESULT WINAPI QAxHostWindow::Scroll(SIZE /*scrollExtant*/)
+HRESULT WINAPI QAxClientSite::Scroll(SIZE /*scrollExtant*/)
 {
     return S_FALSE;
 }
 
-HRESULT WINAPI QAxHostWindow::OnUIDeactivate(BOOL)
+HRESULT WINAPI QAxClientSite::OnUIDeactivate(BOOL)
 {
     return S_OK;
 }
 
-HRESULT WINAPI QAxHostWindow::OnInPlaceDeactivate()
+HRESULT WINAPI QAxClientSite::OnInPlaceDeactivate()
 {
     if (m_spInPlaceObject)
         m_spInPlaceObject->Release();
@@ -868,12 +867,12 @@ HRESULT WINAPI QAxHostWindow::OnInPlaceDeactivate()
     return S_OK;
 }
 
-HRESULT WINAPI QAxHostWindow::DiscardUndoState()
+HRESULT WINAPI QAxClientSite::DiscardUndoState()
 {
     return S_OK;
 }
 
-HRESULT WINAPI QAxHostWindow::DeactivateAndUndo()
+HRESULT WINAPI QAxClientSite::DeactivateAndUndo()
 {
     if (m_spInPlaceObject)
         m_spInPlaceObject->UIDeactivate();
@@ -881,14 +880,14 @@ HRESULT WINAPI QAxHostWindow::DeactivateAndUndo()
     return S_OK;
 }
 
-HRESULT WINAPI QAxHostWindow::OnPosRectChange(LPCRECT /*lprcPosRect*/)
+HRESULT WINAPI QAxClientSite::OnPosRectChange(LPCRECT /*lprcPosRect*/)
 {
     // ###
     return S_OK;
 }
 
 //**** IOleInPlaceFrame
-HRESULT WINAPI QAxHostWindow::InsertMenus(HMENU /*hmenuShared*/, LPOLEMENUGROUPWIDTHS lpMenuWidths)
+HRESULT WINAPI QAxClientSite::InsertMenus(HMENU /*hmenuShared*/, LPOLEMENUGROUPWIDTHS lpMenuWidths)
 {
     QMenuBar *mb = menuBar;
     if (!mb)
@@ -956,7 +955,7 @@ static int menuItemEntry(HMENU menu, int index, MENUITEMINFOA item, QString &tex
     return -1;
 }
 
-QMenu *QAxHostWindow::generatePopup(HMENU subMenu, QWidget *parent)
+QMenu *QAxClientSite::generatePopup(HMENU subMenu, QWidget *parent)
 {
     QMenu *popup = 0;
     int count = GetMenuItemCount(subMenu);
@@ -1019,7 +1018,7 @@ QMenu *QAxHostWindow::generatePopup(HMENU subMenu, QWidget *parent)
     return popup;
 }
 
-HRESULT WINAPI QAxHostWindow::SetMenu(HMENU hmenuShared, HOLEMENU /*holemenu*/, HWND hwndActiveObject)
+HRESULT WINAPI QAxClientSite::SetMenu(HMENU hmenuShared, HOLEMENU /*holemenu*/, HWND hwndActiveObject)
 {
     if (hmenuShared) {
 	m_menuOwner = hwndActiveObject;
@@ -1091,7 +1090,7 @@ HRESULT WINAPI QAxHostWindow::SetMenu(HMENU hmenuShared, HOLEMENU /*holemenu*/, 
     return S_OK;
 }
 
-int QAxHostWindow::qt_metacall(QMetaObject::Call call, int isignal, void **argv)
+int QAxClientSite::qt_metacall(QMetaObject::Call call, int isignal, void **argv)
 {
     if (!m_spOleObject || call != QMetaObject::InvokeMetaMember || !menuBar)
         return -1;
@@ -1108,13 +1107,13 @@ int QAxHostWindow::qt_metacall(QMetaObject::Call call, int isignal, void **argv)
     return isignal;
 }
 
-HRESULT WINAPI QAxHostWindow::RemoveMenus(HMENU /*hmenuShared*/)
+HRESULT WINAPI QAxClientSite::RemoveMenus(HMENU /*hmenuShared*/)
 {
     //###
     return E_NOTIMPL;
 }
 
-HRESULT WINAPI QAxHostWindow::SetStatusText(LPCOLESTR pszStatusText)
+HRESULT WINAPI QAxClientSite::SetStatusText(LPCOLESTR pszStatusText)
 {
     widget->setStatusText(BSTRToQString((BSTR)pszStatusText));
     return S_OK;
@@ -1124,7 +1123,7 @@ extern Q_GUI_EXPORT void qt_enter_modal(QWidget*);
 extern Q_GUI_EXPORT void qt_leave_modal(QWidget*);
 extern Q_GUI_EXPORT bool qt_win_ignoreNextMouseReleaseEvent;
 
-HRESULT WINAPI QAxHostWindow::EnableModeless(BOOL fEnable)
+HRESULT WINAPI QAxClientSite::EnableModeless(BOOL fEnable)
 {
     EnableWindow(host->winId(), fEnable);
 
@@ -1137,25 +1136,25 @@ HRESULT WINAPI QAxHostWindow::EnableModeless(BOOL fEnable)
     return S_OK;
 }
 
-HRESULT WINAPI QAxHostWindow::TranslateAccelerator(LPMSG lpMsg, WORD grfModifiers)
+HRESULT WINAPI QAxClientSite::TranslateAccelerator(LPMSG lpMsg, WORD grfModifiers)
 {
     return TranslateAccelerator(lpMsg, (DWORD)grfModifiers);
 }
 
 //**** IOleInPlaceUIWindow
-HRESULT WINAPI QAxHostWindow::GetBorder(LPRECT lprectBorder)
+HRESULT WINAPI QAxClientSite::GetBorder(LPRECT lprectBorder)
 {
     RECT border = { 0,0, 100, 10 };
     *lprectBorder = border;
     return S_OK;
 }
 
-HRESULT WINAPI QAxHostWindow::RequestBorderSpace(LPCBORDERWIDTHS /*pborderwidths*/)
+HRESULT WINAPI QAxClientSite::RequestBorderSpace(LPCBORDERWIDTHS /*pborderwidths*/)
 {
     return S_OK;
 }
 
-HRESULT WINAPI QAxHostWindow::SetBorderSpace(LPCBORDERWIDTHS pborderwidths)
+HRESULT WINAPI QAxClientSite::SetBorderSpace(LPCBORDERWIDTHS pborderwidths)
 {
     if (!pborderwidths)
         return S_OK;
@@ -1168,7 +1167,7 @@ HRESULT WINAPI QAxHostWindow::SetBorderSpace(LPCBORDERWIDTHS pborderwidths)
     return S_OK;
 }
 
-HRESULT WINAPI QAxHostWindow::SetActiveObject(IOleInPlaceActiveObject *pActiveObject, LPCOLESTR pszObjName)
+HRESULT WINAPI QAxClientSite::SetActiveObject(IOleInPlaceActiveObject *pActiveObject, LPCOLESTR pszObjName)
 {
     if (pszObjName)
         widget->setWindowTitle(BSTRToQString((BSTR)pszObjName));
@@ -1182,7 +1181,7 @@ HRESULT WINAPI QAxHostWindow::SetActiveObject(IOleInPlaceActiveObject *pActiveOb
     return S_OK;
 }
 
-QSize QAxHostWindow::minimumSizeHint() const
+QSize QAxClientSite::minimumSizeHint() const
 {
     if (!m_spOleObject)
         return QSize();
@@ -1197,7 +1196,7 @@ QSize QAxHostWindow::minimumSizeHint() const
     return QSize();
 }
 
-void QAxHostWindow::windowActivationChange()
+void QAxClientSite::windowActivationChange()
 {
     if (m_spInPlaceActiveObject) {
         QWidget *modal = QApplication::activeModalWidget();
@@ -1469,7 +1468,7 @@ bool QAxWidget::createHostWindow(bool initialized)
     QApplication::sendPostedEvents(0, QEvent::ChildInserted);
 #endif
 
-    container = new QAxHostWindow(this, initialized);
+    container = new QAxClientSite(this, initialized);
     
     if (!filter_ref)
         previous_filter = QAbstractEventDispatcher::instance()->setEventFilter(axc_FilterProc);
