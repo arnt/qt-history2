@@ -715,7 +715,7 @@ QFocusEvent::Reason QFocusEvent::prev_reason = QFocusEvent::Other;
   <li> \c Other - any other reason, usually application-specific
   </ul>
 
-   See focus.html for more about focus.
+   See the \link focus.html focus overview \endlink for more about focus.
 
 */
 

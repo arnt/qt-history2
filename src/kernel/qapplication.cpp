@@ -552,7 +552,7 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 	debugging.
   </ul>
 
-  See <a href="debug.html">Debugging Techniques</a> for a more
+  See \link debug.html Debugging Techniques \endlink for a more
   detailed explanation.
 
   All Qt programs automatically support the following command line options:

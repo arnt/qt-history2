@@ -594,9 +594,9 @@ bool QWidgetItem::isEmpty() const
   QBoxLayout and QGridLayout inherit from this one.
 
   For users of Q*Layout or QMainWindow, there is seldom need to use
-  any of the basic functions provided by QLayout, such as
-  setResizeMode() or setMenuBar(). See the <a
-  href="layout.html">layout overview page</a> for more information.
+  any of the basic functions provided by QLayout, such as setResizeMode()
+  or setMenuBar(). See the \link layout.html layout overview page \endlink
+  for more information.
 
   To make your own layout manager, make a subclass of QGLayoutIterator
   and implement the functions addItem(), sizeHint(), setGeometry() and
@@ -604,8 +604,8 @@ bool QWidgetItem::isEmpty() const
   layout will be resized to zero size if there is little space. To
   support children whose height depend on their widths, implement
   hasHeightForWidth() and heightForWidth().
-  See the <a href="customlayout.html">custom layout page</a> for an in-depth
-  description.
+  See the \link customlayout.html custom layout page \endlink for an
+  in-depth description.
 
   Geometry management stops when the layout manager is deleted.
 */

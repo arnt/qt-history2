@@ -59,7 +59,7 @@ public:
   what he/she should input.
 
   In this Qt version only the 4 static convenience functions
-  getText(), getInteger(), getDouble() and getInteger() of QInputDialog
+  getText(), getInteger(), getDouble() and getItem() of QInputDialog
   are available.
 
   Use it like this:

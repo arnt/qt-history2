@@ -842,7 +842,7 @@ private:
   to the same as the border width.  Both are set using arguments to
   the constructor.
 
-  See also the <a href="layout.html">Layout Overview</a> documentation.
+  See also the \link layout.html Layout Overview \endlink documentation.
 */
 
 
@@ -1549,7 +1549,7 @@ private:
   QBoxLayout: QVBoxLayout and QHBoxLayout, because of their simpler
   constructors.
 
-  See also the <a href="layout.html">Layout Overview</a> documentation.
+  See also the \link layout.html Layout overview documentation \endlink.
 */
 
 
