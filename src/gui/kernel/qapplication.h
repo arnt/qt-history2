@@ -197,7 +197,7 @@ public:
 #endif
 #if defined(Q_WS_X11)
     void setInputContext(const QString &);
-    QInputContext *QApplication::inputContext() const;
+    QInputContext *inputContext() const;
     static QString defaultInputMethod();
     static void close_im();
 
