@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#337 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#338 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1297,6 +1297,14 @@ void QApplication::winFocus( QWidget *widget, bool gotFocus )
 	    else
 		widget->topLevelWidget()->setFocus();
 	}
+	if ( active_window->testWFlags( WStyle_Dialog ) ) {
+	  // raise the entire application, not just the dialog
+	  QWidget* mw = active_window;
+	  while( mw->parentWidget() )
+	    mw = mw->parentWidget();
+	  if ( mw != active_window )
+	    SetWindowPos( mw->winId(), HWND_TOP, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE );
+	}
     } else {
 	active_window = 0;
 	if ( focus_widget && !inPopupMode() ) {
@@ -1659,14 +1667,6 @@ static bool qt_try_modal( QWidget *widget, MSG *msg, int& ret )
     widget = widget->topLevelWidget();
     if ( widget->testWFlags(Qt::WType_Modal) )	// widget is modal
 	modal = widget;
-
-    if ( top && ( type == WM_ACTIVATE && LOWORD(msg->wParam) != WA_INACTIVE ) ){
-	// raise the entire application, not just the modal dialog
-	QWidget* mw = top;
-	while( mw->parentWidget() )
-	  mw = mw->parentWidget();
-	SetWindowPos( mw->winId(), HWND_TOP, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE );
-    }
 
     if ( modal == top )				// don't block event
 	return TRUE;
