@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#61 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#62 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -434,7 +434,9 @@ void QButtonGroup::moveFocus( int key )
 
     i = buttons->first();
     while( i && i->button ) {
-	if ( i->button != f ) {
+	if ( i->button != f &&
+	     i->button->focusPolicy() &&
+	     i->button->isEnabled() ) {
 	    QPoint p(i->button->mapToGlobal(i->button->geometry().center()));
 	    int score = (p.y() - goal.y())*(p.y() - goal.y()) +
 			(p.x() - goal.x())*(p.x() - goal.x());
