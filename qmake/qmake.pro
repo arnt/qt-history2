@@ -8,7 +8,7 @@ CONFIG += console
 CONFIG -= qt shared
 DESTDIR = ../bin/
 DEPENDPATH += generators generators/unix generators/win32 \
-              generators/mac $$QT_SOURCE_TREE/include $$QT_SOURCE_TREE/qmake
+              generators/mac $$QT_SOURCE_TREE/include $$QT_SOURCE_TREE/include/QtCore $$QT_SOURCE_TREE/qmake
 INCLUDEPATH += $$DEPENDPATH .
 DEFINES += QT_NO_TEXTCODEC QT_NO_COMPONENT QT_NO_STL QT_NO_COMPRESS QT_NO_UNICODETABLES QT_NODLL QT_BUILD_QMAKE QT_NO_THREAD
 
@@ -48,6 +48,7 @@ exists($$QT_BUILD_TREE/src/core/global/qconfig.cpp) {  #qconfig.cpp
 #where to find the Qt code, and platform dependant SOURCES
 VPATH += $$QT_SOURCE_TREE/src/core/global \
          $$QT_SOURCE_TREE/src/core/tools \
+         $$QT_SOURCE_TREE/src/core/kernel \
          $$QT_SOURCE_TREE/src/core/library \
 	 $$QT_SOURCE_TREE/src/core/io \
          $$QT_SOURCE_TREE/src/compat/tools
