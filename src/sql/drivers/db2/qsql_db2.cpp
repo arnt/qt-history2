@@ -1236,6 +1236,7 @@ bool QDB2Driver::open( const QString& db, const QString& user, const QString& pa
 
     d->user = user.upper();
     setOpen( TRUE );
+    setOpenError( FALSE );
     return TRUE;
 }
 
