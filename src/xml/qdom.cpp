@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#50 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#51 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -6160,11 +6160,7 @@ bool QDomHandler::startElement( const QString& nsURI, const QString&, const QStr
     for ( int i=0; i<atts.length(); i++ )
     {
 	if ( nsProcessing ) {
-	    QDomAttrPrivate *attr = doc->createAttributeNS( atts.uri(i), atts.qName(i) );
-	    attr->value = atts.value(i);
-	    ((QDomElementPrivate*)node)->setAttributeNode( attr );
-	    // ### use this instead (?):
-	    //((QDomElementPrivate*)node)->setAttributeNS( atts.uri(i), atts.qName(i), atts.value(i) );
+	    ((QDomElementPrivate*)node)->setAttributeNS( atts.uri(i), atts.qName(i), atts.value(i) );
 	} else {
 	    ((QDomElementPrivate*)node)->setAttribute( atts.qName(i), atts.value(i) );
 	}
