@@ -742,37 +742,46 @@ MakefileGenerator::write()
 {
     if(!project)
         return false;
-    if((Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE || Option::qmake_mode == Option::QMAKE_GENERATE_PRL)
-       && project->variables()["QMAKE_FAILED_REQUIREMENTS"].isEmpty()
-       && project->isActiveConfig("create_prl")
-       && (project->first("TEMPLATE") == "lib" || project->first("TEMPLATE") == "vclib")
-       && !project->isActiveConfig("plugin")) { //write prl file
-        QString prl = var("TARGET");
-        int slsh = prl.lastIndexOf(Option::dir_sep);
-        if(slsh != -1)
-            prl = prl.right(prl.length() - slsh);
-        int dot = prl.indexOf('.');
-        if(dot != -1)
-            prl = prl.left(dot);
-        prl += Option::prl_ext;
-        if(!project->isEmpty("DESTDIR"))
-            prl.prepend(var("DESTDIR"));
-        QString local_prl = Option::fixPathToLocalOS(fileFixify(prl, QDir::currentPath(), Option::output_dir));
-        QFile ft(local_prl);
-        if(ft.open(IO_WriteOnly)) {
-            project->variables()["ALL_DEPS"].append(prl);
-            project->variables()["QMAKE_INTERNAL_PRL_FILE"].append(prl);
-            QTextStream t(&ft);
-            writePrlFile(t);
-            ft.close();
-        }
-    }
+    writePrlFile();
     if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE || //write makefile
        Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT) {
         QTextStream t(&Option::output);
         writeMakefile(t);
     }
     return true;
+}
+
+void
+MakefileGenerator::writePrlFile()
+{
+    if((Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE || 
+	Option::qmake_mode == Option::QMAKE_GENERATE_PRL)
+       && project->variables()["QMAKE_FAILED_REQUIREMENTS"].isEmpty()
+       && project->isActiveConfig("create_prl")
+       && (project->first("TEMPLATE") == "lib" 
+	   || project->first("TEMPLATE") == "vclib")
+       && !project->isActiveConfig("plugin")) { //write prl file
+
+	QString prl = project->first("TARGET");
+	int slsh = prl.lastIndexOf(Option::dir_sep);
+	if(slsh != -1)
+	    prl = prl.right(prl.length() - slsh);
+	int dot = prl.indexOf('.');
+	if(dot != -1)
+	    prl = prl.left(dot);
+	prl += Option::prl_ext;
+	if(!project->isEmpty("DESTDIR"))
+	    prl.prepend(var("DESTDIR"));
+	QString local_prl = Option::fixPathToLocalOS(fileFixify(prl, QDir::currentPath(), Option::output_dir));
+	QFile ft(local_prl);
+	if(ft.open(IO_WriteOnly)) {
+	    project->variables()["ALL_DEPS"].append(prl);
+	    project->variables()["QMAKE_INTERNAL_PRL_FILE"].append(prl);
+	    QTextStream t(&ft);
+	    writePrlFile(t);
+	    ft.close();
+	}
+    }
 }
 
 // Manipulate directories, so it's possible to build

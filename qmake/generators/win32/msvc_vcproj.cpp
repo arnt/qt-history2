@@ -279,8 +279,12 @@ bool VcprojGenerator::writeProjectMakefile()
 
         debug_msg(1, "Generator: MSVC.NET: Writing project file");
         VCProject mergedProject;
-        for (int i = 0; i < mergedProjects.count(); ++i)
+        for (int i = 0; i < mergedProjects.count(); ++i) 
             mergedProject.SingleProjects += mergedProjects.at(i)->vcProject;
+	if(mergedProjects.count() > 1 && 
+	   mergedProjects.at(0)->vcProject.Name == 
+	   mergedProjects.at(1)->vcProject.Name)
+	    mergedProjects.at(0)->writePrlFile();
         mergedProject.Name = mergedProjects.at(0)->vcProject.Name;
         mergedProject.Version = mergedProjects.at(0)->vcProject.Version;
         mergedProject.ProjectGUID = getProjectUUID();
@@ -292,7 +296,6 @@ bool VcprojGenerator::writeProjectMakefile()
         xmlOut << mergedProject;
         return true;
     }
-
     return false;
 }
 

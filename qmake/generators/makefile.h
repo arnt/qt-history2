@@ -38,6 +38,7 @@ class MakefileGenerator : protected QMakeSourceFileInfo
     QMap<QString, QStringList> depends;
 
 protected:
+    void writePrlFile();
     void writeObj(QTextStream &, const QString &obj, const QString &src);
     void writeMocObj(QTextStream &, const QString &obj, const QString &src);
     void writeMocSrc(QTextStream &, const QString &src);
