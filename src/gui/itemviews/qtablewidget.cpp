@@ -391,6 +391,33 @@ QVariant QTableWidgetItem::data(int role) const
     return QVariant();
 }
 
+void QTableWidgetItem::openPersistentEditor()
+{
+    if (!model)
+        return;
+    QTableWidget *view = ::qt_cast<QTableWidget*>(static_cast<QObject*>(model)->parent());
+    if (view)
+        view->openPersistentEditor(this);
+}
+
+void QTableWidgetItem::closePersistentEditor()
+{
+    if (!model)
+        return;
+    QTableWidget *view = ::qt_cast<QTableWidget*>(static_cast<QObject*>(model)->parent());
+    if (view)
+        view->closePersistentEditor(this);
+}
+
+bool QTableWidgetItem::isSelected() const
+{
+    if (!model)
+        return false;
+    const QObject *parent = static_cast<QObject*>(model)->parent();
+    const QTableWidget *view = ::qt_cast<const QTableWidget*>(parent);
+    return (view && view->isSelected(this));
+}
+
 /*!
     \class QTableWidget qtablewidget.h
     \brief The QTableWidget class provides a table view that uses the
@@ -626,17 +653,6 @@ void QTableWidget::setHorizontalHeaderLabels(const QStringList &labels)
     }
 }
 
-void QTableWidget::removeItem(QTableWidgetItem *item)
-{
-    Q_ASSERT(item);
-    d->model()->removeItem(item);
-}
-
-void QTableWidget::setModel(QAbstractItemModel *model)
-{
-    QTableView::setModel(model);
-}
-
 void QTableWidget::openPersistentEditor(QTableWidgetItem *item)
 {
     Q_ASSERT(item);
@@ -649,6 +665,27 @@ void QTableWidget::closePersistentEditor(QTableWidgetItem *item)
     Q_ASSERT(item);
     QModelIndex index = d->model()->index(item);
     QAbstractItemView::closePersistentEditor(index);
+}
+
+/*!
+  Returns true if the \a item is selected, otherwise returns false.
+*/
+
+bool QTableWidget::isSelected(const QTableWidgetItem *item) const
+{
+    QModelIndex index = d->model()->index(item);
+    return selectionModel()->isSelected(index);
+}
+
+void QTableWidget::removeItem(QTableWidgetItem *item)
+{
+    Q_ASSERT(item);
+    d->model()->removeItem(item);
+}
+
+void QTableWidget::setModel(QAbstractItemModel *model)
+{
+    QTableView::setModel(model);
 }
 
 #include "moc_qtablewidget.cpp"

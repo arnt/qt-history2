@@ -77,6 +77,10 @@ public:
     virtual void setData(int role, const QVariant &value);
     virtual bool operator<(const QTableWidgetItem &other) const;
 
+    void openPersistentEditor();
+    void closePersistentEditor();
+    bool isSelected() const;
+
 protected:
     struct Data {
         Data() : role(-1) {}
@@ -126,6 +130,11 @@ public:
     void setVerticalHeaderLabels(const QStringList &labels);
     void setHorizontalHeaderLabels(const QStringList &labels);
 
+    void openPersistentEditor(QTableWidgetItem *item);
+    void closePersistentEditor(QTableWidgetItem *item);
+
+    bool isSelected(const QTableWidgetItem *item) const;
+
 signals:
     void clicked(QTableWidgetItem *item, int button);
     void doubleClicked(QTableWidgetItem *item, int button);
@@ -133,8 +142,6 @@ signals:
 protected:
     void removeItem(QTableWidgetItem *item);
     void setModel(QAbstractItemModel *model);
-    void openPersistentEditor(QTableWidgetItem *item);
-    void closePersistentEditor(QTableWidgetItem *item);
 
 private:
     Q_PRIVATE_SLOT(d, void emitClicked(const QModelIndex &index, int button));

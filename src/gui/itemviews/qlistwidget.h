@@ -26,9 +26,6 @@ public:
     QListWidgetItem(QListWidget *view = 0);
     virtual ~QListWidgetItem();
 
-//    void openPersistentEditor();
-//    void closePersistentEditor();
-
     inline QAbstractItemModel::ItemFlags flags() const { return itemFlags; }
     inline void setFlags(QAbstractItemModel::ItemFlags flags) { itemFlags = flags; }
 
@@ -80,6 +77,11 @@ public:
     virtual QVariant data(int role) const;
     virtual void setData(int role, const QVariant &value);
     virtual bool operator<(const QListWidgetItem &other) const;
+    
+    void openPersistentEditor();
+    void closePersistentEditor();
+
+    bool isSelected() const;
 
 protected:
     struct Data {
@@ -118,6 +120,10 @@ public:
     int count() const;
     void sort(Qt::SortOrder order);
 
+    void openPersistentEditor(QListWidgetItem *item);
+    void closePersistentEditor(QListWidgetItem *item);
+    bool isSelected(const QListWidgetItem *item) const;
+
 signals:
     void clicked(QListWidgetItem *item, int button);
     void doubleClicked(QListWidgetItem *item, int button);
@@ -125,8 +131,6 @@ signals:
 protected:
     void removeItem(QListWidgetItem *item);
     void setModel(QAbstractItemModel *model);
-    void openPersistentEditor(QListWidgetItem *item);
-    void closePersistentEditor(QListWidgetItem *item);
 
 private:
     Q_PRIVATE_SLOT(d, void emitClicked(const QModelIndex &index, int button));

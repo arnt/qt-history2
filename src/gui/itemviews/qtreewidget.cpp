@@ -675,13 +675,42 @@ void QTreeWidget::setCurrentTreeItem(QTreeWidgetItem *item)
         setCurrentItem(QModelIndex());
 }
 
+void QTreeWidgetItem::openPersistentEditor()
+{
+    view->openPersistentEditor(this);
+}
+
+void QTreeWidgetItem::closePersistentEditor()
+{
+    view->closePersistentEditor(this);
+}
+
+bool QTreeWidgetItem::isSelected()
+{
+    return view->isSelected(this);
+}
+
+void QTreeWidget::openPersistentEditor(QTreeWidgetItem *item)
+{
+    Q_ASSERT(item);
+    QModelIndex index = d->model()->index(item);
+    QAbstractItemView::openPersistentEditor(index);
+}
+
+void QTreeWidget::closePersistentEditor(QTreeWidgetItem *item)
+{
+    Q_ASSERT(item);
+    QModelIndex index = d->model()->index(item);
+    QAbstractItemView::closePersistentEditor(index);
+}
+
 /*!
   Returns true if the \a item is selected, otherwise returns false.
 */
 
-bool QTreeWidget::isSelected(QTreeWidgetItem *item) const
+bool QTreeWidget::isSelected(const QTreeWidgetItem *item) const
 {
-    QModelIndex index = d->model()->index(item);
+    QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item));
     return selectionModel()->isSelected(index);
 }
 
@@ -706,20 +735,6 @@ void QTreeWidget::removeItem(QTreeWidgetItem *item)
 void QTreeWidget::setModel(QAbstractItemModel *model)
 {
     QTreeView::setModel(model);
-}
-
-void QTreeWidget::openPersistentEditor(QTreeWidgetItem *item)
-{
-    Q_ASSERT(item);
-    QModelIndex index = d->model()->index(item);
-    QAbstractItemView::openPersistentEditor(index);
-}
-
-void QTreeWidget::closePersistentEditor(QTreeWidgetItem *item)
-{
-    Q_ASSERT(item);
-    QModelIndex index = d->model()->index(item);
-    QAbstractItemView::closePersistentEditor(index);
 }
 
 #include "moc_qtreewidget.cpp"

@@ -79,12 +79,14 @@ public:
     virtual void setData(int column, int role, const QVariant &value);
     virtual bool operator<(const QTreeWidgetItem &other) const;
 
-    inline QTreeWidgetItem *parent() { return par; }
-    inline QTreeWidgetItem *child(int index) { return children.at(index); }
+    inline QTreeWidgetItem *parent() const { return par; }
+    inline QTreeWidgetItem *child(int index) const { return children.at(index); }
     inline int childCount() const { return children.count(); }
     inline int columnCount() const { return values.count(); }
 
-    // bool isSelected() { return view->isSelected(this); }
+    void openPersistentEditor();
+    void closePersistentEditor();
+    bool isSelected();
 
 protected:
     QTreeWidgetItem();
@@ -124,8 +126,11 @@ public:
     QTreeWidgetItem *currentTreeItem() const;
     void setCurrentTreeItem(QTreeWidgetItem *item);
 
-    bool isSelected(QTreeWidgetItem *item) const;
+    void openPersistentEditor(QTreeWidgetItem *item);
+    void closePersistentEditor(QTreeWidgetItem *item);
     
+    bool isSelected(const QTreeWidgetItem *item) const;
+
 signals:
     void clicked(QTreeWidgetItem *item, int column, int button);
     void doubleClicked(QTreeWidgetItem *item, int column, int button);
@@ -134,8 +139,6 @@ protected:
     void appendItem(QTreeWidgetItem *item);
     void removeItem(QTreeWidgetItem *item);
     void setModel(QAbstractItemModel *model);
-    void openPersistentEditor(QTreeWidgetItem *item);
-    void closePersistentEditor(QTreeWidgetItem *item);
 
 private:
     Q_PRIVATE_SLOT(d, void emitClicked(const QModelIndex &index, int button));

@@ -226,23 +226,6 @@ QListWidgetItem::~QListWidgetItem()
     if (model)
         model->remove(this);
 }
-/*
-void QListWidgetItem::openPersistentEditor()
-{
-    if (model)
-        view->openPersistentEditor(this);
-}
-
-void QListWidgetItem::closePersistentEditor()
-{
-    if (view)
-        view->closePersistentEditor(this);
-}
-*/
-bool QListWidgetItem::operator<(const QListWidgetItem &other) const
-{
-    return text() < other.text();
-}
 
 void QListWidgetItem::setData(int role, const QVariant &value)
 {
@@ -263,6 +246,38 @@ QVariant QListWidgetItem::data(int role) const
         if (values.at(i).role == role)
             return values.at(i).value;
     return QVariant();
+}
+
+bool QListWidgetItem::operator<(const QListWidgetItem &other) const
+{
+    return text() < other.text();
+}
+
+void QListWidgetItem::openPersistentEditor()
+{
+    if (!model)
+        return;
+    QListWidget *view = ::qt_cast<QListWidget*>(static_cast<QObject*>(model)->parent());
+    if (view)
+        view->openPersistentEditor(this);
+}
+
+void QListWidgetItem::closePersistentEditor()
+{
+    if (!model)
+        return;
+    QListWidget *view = ::qt_cast<QListWidget*>(static_cast<QObject*>(model)->parent());
+    if (view)
+        view->closePersistentEditor(this);
+}
+
+bool QListWidgetItem::isSelected() const
+{
+    if (!model)
+        return false;
+    const QObject *parent = static_cast<QObject*>(model)->parent();
+    const QListWidget *view = ::qt_cast<const QListWidget*>(parent);
+    return (view && view->isSelected(this));
 }
 
 /*!
@@ -631,6 +646,26 @@ void QListWidget::sort(Qt::SortOrder order)
     d->model()->sort(0, QModelIndex::Null, order);
 }
 
+void QListWidget::openPersistentEditor(QListWidgetItem *item)
+{
+    Q_ASSERT(item);
+    QModelIndex index = d->model()->index(item);
+    QAbstractItemView::openPersistentEditor(index);
+}
+
+void QListWidget::closePersistentEditor(QListWidgetItem *item)
+{
+    Q_ASSERT(item);
+    QModelIndex index = d->model()->index(item);
+    QAbstractItemView::closePersistentEditor(index);
+}
+
+bool QListWidget::isSelected(const QListWidgetItem *item) const
+{
+    QModelIndex index = d->model()->index(const_cast<QListWidgetItem*>(item));
+    return selectionModel()->isSelected(index);
+}
+
 /*!
   Removes the given \a item from the list.
 */
@@ -644,20 +679,6 @@ void QListWidget::removeItem(QListWidgetItem *item)
 void QListWidget::setModel(QAbstractItemModel *model)
 {
     QListView::setModel(model);
-}
-
-void QListWidget::openPersistentEditor(QListWidgetItem *item)
-{
-    Q_ASSERT(item);
-    QModelIndex index = d->model()->index(item);
-    QAbstractItemView::openPersistentEditor(index);
-}
-
-void QListWidget::closePersistentEditor(QListWidgetItem *item)
-{
-    Q_ASSERT(item);
-    QModelIndex index = d->model()->index(item);
-    QAbstractItemView::closePersistentEditor(index);
 }
 
 #include "moc_qlistwidget.cpp"
