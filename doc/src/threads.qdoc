@@ -81,6 +81,9 @@
     GUI thread because it's the only thread that is allowed to
     perform GUI-related operations.
 
+    In addition, you must create the QApplication (or
+    QCoreApplication) object before you can create a QThread.
+
     \section2 Synchronizing Threads
 
     The QMutex, QReadWriteLock, QSemaphore, and QWaitCondition
@@ -112,8 +115,14 @@
     typical application of semaphores: synchronizing access to a
     circular buffer between a producer and a consumer.
 
-    QWaitCondition allows a thread to go to sleep until another
-    thread wakes it up.
+    QWaitCondition allows a thread to wake up other threads when some
+    condition has been met. One or many threads can block waiting for
+    a QWaitCondition to set a condition with
+    \l{QWaitCondition::wakeOne()}{wakeOne()} or
+    \l{QWaitCondition::wakeAll()}{wakeAll()}. Use
+    \l{QWaitCondition::wakeOne()}{wakeOne()} to wake one randomly
+    selected event or \l{QWaitCondition::wakeAll()}{wakeAll()} to
+    wake them all.
 
     \section1 Reentrancy and Thread-Safety
 
@@ -136,8 +145,8 @@
     works if the different threads operate on the same instance.
 
     Note that the terminology in this domain isn't entirely
-    standardized. POSIX uses a somewhat definition of thread-safety
-    and reentrancy for its C APIs. When dealing with an
+    standardized. POSIX uses a somewhat different definition of
+    reentrancy and thread-safety for its C APIs. When dealing with an
     object-oriented C++ class library such as Qt, the definitions
     must be adapted.
 
@@ -188,14 +197,14 @@
     declared with the \c mutable qualifier because we need to lock
     and unlock the mutex in \c value(), which is a const function.
 
-    Since locking and unlocking a QMutex is a rather expensive
-    operation, most Qt classes are reentrant but not thread-safe. For
+    Most Qt classes are reentrant and not thread-safe, to avoid the
+    overhead of repeatedly locking and unlocking a QMutex. For
     example, QString is reentrant, meaning that you can use it in
     different threads, but you can't access the same QString object
-    from different threads simultaneously. A few classes and
-    functions are thread-safe; these are mainly thread-related
-    classes such as QMutex, or fundamental functions such as
-    QCoreApplication::postEvent().
+    from different threads simultaneously (unless you protect it with
+    a mutex yourself). A few classes and functions are thread-safe;
+    these are mainly thread-related classes such as QMutex, or
+    fundamental functions such as QCoreApplication::postEvent().
 
     \section1 Threads and QObjects
 
@@ -242,7 +251,7 @@
 
     An event loop in a thread makes it possible for the thread to use
     certain non-GUI Qt classes that require the presence of an event
-    loop (such as QTimer, QTcpSocket, and QSocket). It also makes it
+    loop (such as QTimer, QTcpSocket, and QProcess). It also makes it
     possible to connect signals from any threads to slots of a
     specific thread. This is explained in more detail in the
     \l{Signals and Slots Across Threads} section below.
@@ -338,8 +347,8 @@
     Earlier versions of Qt didn't provide a satisfactory solution to
     this problem.
 
-    Since Qt 4, implicit shared classes can safely be copied across
-    threads, like any other value classes. They are fully
+    Beginning with Qt 4, implicit shared classes can safely be copied
+    across threads, like any other value classes. They are fully
     \l{#reentrant}{reentrant}. The implicit sharing is really
     implicit. This is implemented using atomic reference counting
     operations, which are implemented in assembly language for the

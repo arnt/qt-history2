@@ -1,282 +1,282 @@
 /*! \page qt4-getting-started.html
     \title Getting Started with Qt 4
 
-This document covers the most important differences between Qt 3 and
-Qt 4. Although it is not intended to be a comprehensive porting
-guide, it tells you about the most important portability issues that
-you may encounter. It also explains how to turn on Qt 3 compatibility
-support, and provides a brief overview of some Qt 4 features beyond
-the five main technologies in this preview.
+    This document covers the most important differences between Qt 3 and
+    Qt 4. Although it is not intended to be a comprehensive porting
+    guide, it tells you about the most important portability issues that
+    you may encounter. It also explains how to turn on Qt 3 compatibility
+    support, and provides a brief overview of some Qt 4 features beyond
+    the five main technologies in this preview.
 
-\tableofcontents
+    \tableofcontents
 
-\section1 Build System
+    \section1 Build System
 
-Unlike previous Qt releases, Qt 4 is a collection of smaller
-libraries.
+    Unlike previous Qt releases, Qt 4 is a collection of smaller
+    libraries.
 
-\list
-\i \bold{QtCore}: core non-GUI functionality
-\i \bold{QtGui}: core GUI functionality
-\i \bold{QtNetwork}: network module
-\i \bold{QtOpenGL}: OpenGL module
-\i \bold{QtSql}: SQL module
-\i \bold{Qt3Compat}: Qt 3 compatibility classes (see \l{Qt 3 Compatibility} below)
-\endlist
+    \list
+    \i \bold{QtCore}: core non-GUI functionality
+    \i \bold{QtGui}: core GUI functionality
+    \i \bold{QtNetwork}: network module
+    \i \bold{QtOpenGL}: OpenGL module
+    \i \bold{QtSql}: SQL module
+    \i \bold{QtXml}: XML module
+    \i \bold{Qt3Compat}: Qt 3 compatibility classes (see \l{Qt 3 Compatibility} below)
+    \endlist
 
-QtCore contains tool classes like QString, QList, and QFile, as well
-as kernel classes like QObject and QTimer. A few Qt 3 classes have
-been refactored so that they can be used in non-GUI applications:
+    QtCore contains tool classes like QString, QList, and QFile, as well
+    as kernel classes like QObject and QTimer. A few Qt 3 classes have
+    been refactored so that they can be used in non-GUI applications:
 
-\list
-\i QApplication is split into QCoreApplication (in QtCore) and
-      QApplication (in QtGui).
+    \list
+    \i QApplication is split into QCoreApplication (in QtCore) and
+       QApplication (in QtGui).
 
-\i QVariant is split into QCoreVariant and QVariant.
+    \i QVariant is split into QCoreVariant and QVariant.
 
-\i QEventLoop is split into QEventLoop and QGuiEventLoop.
-\endlist
+    \i QEventLoop is split into QEventLoop and QGuiEventLoop.
+    \endlist
 
-This split makes it possible to develop server applications using Qt
-without linking in any unnecessary GUI-related code and without
-requiring GUI-related system libraries to be present on the target
-machine (e.g. Xlib on X11, Carbon on Mac OS X).
+    This split makes it possible to develop server applications using Qt
+    without linking in any unnecessary GUI-related code and without
+    requiring GUI-related system libraries to be present on the target
+    machine (e.g. Xlib on X11, Carbon on Mac OS X).
 
-If you use qmake to generate your makefiles, qmake will by default
-link your application against QtCore and QtGui. To remove the
-dependency upon QtGui, add the line
+    If you use qmake to generate your makefiles, qmake will by default
+    link your application against QtCore and QtGui. To remove the
+    dependency upon QtGui, add the line
 
-\code
-    QT -= gui
-\endcode
+    \code
+        QT -= gui
+    \endcode
 
-to your .pro file. To enable the other libraries, add the line
+    to your .pro file. To enable the other libraries, add the line
 
-\code
-    QT += network opengl sql compat
-\endcode
+    \code
+        QT += network opengl sql compat
+    \endcode
 
-Another change to the build system is that moc now understands
-preprocessor directives. qmake automatically passes the defines set
-for your project (using "DEFINES +=") on to moc, which has its own
-built-in C++ preprocessor.
+    Another change to the build system is that moc now understands
+    preprocessor directives. qmake automatically passes the defines set
+    for your project (using "DEFINES +=") on to moc, which has its own
+    built-in C++ preprocessor.
 
-To compile code that uses .ui files, you will also need this line in
-the .pro file:
+    To compile code that uses .ui files, you will also need this line in
+    the .pro file:
 
-\code
-    CONFIG += uic3
-\endcode
+    \code
+        CONFIG += uic3
+    \endcode
 
-\section1 Includes
+    \section1 Includes
 
-The syntax for including Qt class definitions has become
+    The syntax for including Qt class definitions has become
 
-\code
-    #include <QClassName>
-\endcode
+    \code
+        #include <QClassName>
+    \endcode
 
-For example:
+    For example:
 
-\code
-    #include <QString>
-    #include <QApplication>
-    #include <QSqlTableModel>
-\endcode
+    \code
+        #include <QString>
+        #include <QApplication>
+        #include <QSqlTableModel>
+    \endcode
 
-This is guaranteed to work for any public Qt class. The old syntax,
+    This is guaranteed to work for any public Qt class. The old syntax,
 
-\code
-    #include <qclassname.h>
-\endcode
+    \code
+        #include <qclassname.h>
+    \endcode
 
-still works for compatibility.
+    still works for compatibility.
 
-If you attempt to include a header file from a library that isn't
-linked against the application, this will result in a compile-time
-warning (e.g., "QSqlQuery: No such file or directory"). You can remedy
-to this problem either by removing the offending include or by
-specifying the missing library in the QT entry of your .pro file (see
-Build System above).
+    If you attempt to include a header file from a library that isn't
+    linked against the application, this will result in a compile-time
+    warning (e.g., "QSqlQuery: No such file or directory"). You can remedy
+    to this problem either by removing the offending include or by
+    specifying the missing library in the QT entry of your .pro file (see
+    Build System above).
 
-To include the definitions for all the classes in a library, simply
-specify the name of that library. For example:
+    To include the definitions for all the classes in a library, simply
+    specify the name of that library. For example:
+
+    \code
+        #include <QtCore>
+    \endcode
+
+
+    \section1 Namespaces
+
+    Qt 2 introduced a class called Qt for global-like constants (e.g.,
+    Qt::yellow). The C++ namespace construct was not used because not all
+    compilers understood it when it was released.
 
-\code
-    #include <QtCore>
-\endcode
-
-
-\section1 Namespaces
-
-Qt 2 introduced a class called Qt for global-like constants (e.g.,
-Qt::yellow). The C++ namespace construct was not used because not all
-compilers understood it when it was released.
+    With Qt 4, the Qt class has become the Qt namespace. If you want
+    to access a constant that is part of the Qt namespace, prefix it
+    with "Qt::" (e.g., Qt::yellow), or add the directive
 
-With Qt 4, the Qt class has become the Qt namespace. If you want
-to access a constant that is part of the Qt namespace, prefix it
-with "Qt::" (e.g., Qt::yellow), or add the directive
+    \code
+        using namespace Qt;
+    \endcode
 
-\code
-    using namespace Qt;
-\endcode
+    at the top of your source files, after your #include directives. If
+    you use the "using namespace" syntax you don't need the prefix (e.g.,
+    yellow is sufficient).
 
-at the top of your source files, after your #include directives. If
-you use the "using namespace" syntax you don't need the prefix (e.g.,
-yellow is sufficient).
+    When porting Qt 3 applications, you may run into some source
+    compatibility problems with some of these symbols. For example, in Qt
+    3, it was legal to write QWidget::yellow instead of Qt::yellow,
+    because QWidget inherited from Qt. This won't work in Qt 4; you must
+    write Qt::yellow or add the "using namespace" directive and drop the
+    "Qt::" prefix.
 
-When porting Qt 3 applications, you may run into some source
-compatibility problems with some of these symbols. For example, in Qt
-3, it was legal to write QWidget::yellow instead of Qt::yellow,
-because QWidget inherited from Qt. This won't work in Qt 4; you must
-write Qt::yellow or add the "using namespace" directive and drop the
-"Qt::" prefix.
 
+    \section1 QObject/QWidget Constructors
 
-\section1 QObject/QWidget Constructors
+    In Qt 4 we have tried to simplify the constructors of QObject/QWidget
+    subclasses. This makes subclassing easier, at the same time as it
+    helps make the Qt library more efficient.
 
-In Qt 4 we have tried to simplify the constructors of QObject/QWidget
-subclasses. This makes subclassing easier, at the same time as it
-helps make the Qt library more efficient.
+    Constructors no longer take a "const char *name" parameter. If
+    you want to specify a name for a QObject, you must call
+    QObject::setObjectName() after construction. The object name is
+    now a QString.
 
-Constructors no longer take a "const char *name" parameter. If
-you want to specify a name for a QObject, you must call
-QObject::setObjectName() after construction. The object name is
-now a QString.
+    QWidget's WFlags data type has been split in two: Qt::WFlags
+    specifies low-level window flags (the type of window and the
+    frame style), whereas Qt::WidgetAttribute specifies various
+    higher-level attributes about the widget (e.g.,
+    WA_StaticContents). Widget attributes can be set at any time
+    using QWidget::setAttribute(); low-level window flags can be
+    passed to the QWidget constructor or set later using
+    QWidget::setParent(). As a consequence, the constructors of most
+    QWidget subclasses don't need to provide a WFlags parameter.
 
-QWidget's WFlags data type has been split in two: Qt::WFlags
-specifies low-level window flags (the type of window and the
-frame style), whereas Qt::WidgetAttribute specifies various
-higher-level attributes about the widget (e.g.,
-WA_StaticContents). Widget attributes can be set at any time
-using QWidget::setAttribute(); low-level window flags can be
-passed to the QWidget constructor or set later using
-QWidget::setParent(). As a consequence, the constructors of most
-QWidget subclasses don't need to provide a WFlags parameter.
+    The \e parent parameter of all QObject classes in Qt defaults to a
+    null pointer, as it used to do in Qt 1. This enables a style of
+    programming where widgets are created without parents and then
+    inserted in a layout, at which point the layout automatically
+    reparents them.
 
-The \e parent parameter of all QObject classes in Qt defaults to a
-null pointer, as it used to do in Qt 1. This enables a style of
-programming where widgets are created without parents and then
-inserted in a layout, at which point the layout automatically
-reparents them.
 
+    \section1 Dynamic Casts
 
-\section1 Dynamic Casts
+    Qt 4 provides a qt_cast<>() function that performs a dynamic cast
+    based on the meta-information generated by moc for QObject
+    subclasses. Unlike the standard C++ dynamic_cast<>() construct,
+    qt_cast<>() works even when RTTI is disabled, and it works correctly
+    across DLL boundaries.
 
-Qt 4 provides a qt_cast<>() function that performs a dynamic cast
-based on the meta-information generated by moc for QObject
-subclasses. Unlike the standard C++ dynamic_cast<>() construct,
-qt_cast<>() works even when RTTI is disabled, and it works correctly
-across DLL boundaries.
+    Here's the Qt 3 idiom to cast a type to a subtype:
 
-Here's the Qt 3 idiom to cast a type to a subtype:
+    \code
+        // DEPRECATED
+        if (obj->inherits("QPushButton")) {
+            QPushButton *pushButton = (QPushButton *)obj;
+            ...
+        }
+    \endcode
 
-\code
-    // DEPRECATED
-    if (obj->inherits("QPushButton")) {
-        QPushButton *pushButton = (QPushButton *)obj;
-        ...
-    }
-\endcode
+    The Qt 4 idiom is both cleaner and safer, because typos will always
+    result in compiler errors:
 
-The Qt 4 idiom is both cleaner and safer, because typos will always
-result in compiler errors:
+    \code
+        QPushButton *pushButton = qt_cast<QPushButton *>(obj);
+        if (pushButton) {
+            ...
+        }
+    \endcode
 
-\code
-    QPushButton *pushButton = qt_cast<QPushButton *>(obj);
-    if (pushButton) {
-        ...
-    }
-\endcode
+    \section1 QPointer<T>
 
-\section1 QPointer<T>
+    The QPointer<T> class provides a pointer to type T (where T inherits
+    from QObject) that is automatically set to 0 when the referenced
+    object is destroyed. Guarded pointers are useful whenever you want to
+    store a pointer to an object you do not own.
 
-The QPointer<T> class provides a pointer to type T (where T inherits
-from QObject) that is automatically set to 0 when the referenced
-object is destroyed. Guarded pointers are useful whenever you want to
-store a pointer to an object you do not own.
+    Example:
 
-Example:
+    \code
+        QLabel *label = new QLabel;
+        QPointer<QLabel> safeLabel = label;
+        safeLabel->setText("Hello world!");
+        delete label;
+        // safeLabel is now 0, whereas label is a dangling pointer
+    \endcode
 
-\code
-    QLabel *label = new QLabel;
-    QPointer<QLabel> safeLabel = label;
-    safeLabel->setText("Hello world!");
-    delete label;
-    // safeLabel is now 0, whereas label is a dangling pointer
-\endcode
+    QPointer<T> is more or less the same as the old QGuardedPtr<T> class,
+    except that it is now implemented in a much more lightweight manner
+    than before. The cost of one QPointer<T> object is now approximately
+    the same as that of a signal--slot connection.
 
-QPointer<T> is more or less the same as the old QGuardedPtr<T> class,
-except that it is now implemented in a much more lightweight manner
-than before. The cost of one QPointer<T> object is now approximately
-the same as that of a signal--slot connection.
 
+    \section1 Paint Events
 
-\section1 Paint Events
+    Qt 4 supports double buffering transparently on all platforms. This
+    feature can be turned off on a per-widget basis by calling
+    QWidget::setAttribute(Qt::WA_PaintOnScreen).
 
-Qt 4 supports double buffering transparently on all platforms. This
-feature can be turned off on a per-widget basis by calling
-QWidget::setAttribute(Qt::WA_PaintOnScreen).
+    A consequence of this is that all painting must now be done from the
+    paintEvent() function. This is also required by the HIView API on Mac
+    OS X. In practice, this is seldom a problem, since you can call
+    update() from anywhere in your code to create a paint event, with the
+    region to update as the argument.
 
-A consequence of this is that all painting must now be done from the
-paintEvent() function. This is also required by the HIView API on Mac
-OS X. In practice, this is seldom a problem, since you can call
-update() from anywhere in your code to create a paint event, with the
-region to update as the argument.
 
+    \section1 Qt 3 Compatibility
 
-\section1 Qt 3 Compatibility
+    Qt 4 provides an extension library that applications based on Qt 3
+    can link against. This allows for more compatibility than ever
+    before, without bloating Qt.
 
-Qt 4 provides an extension library that applications based on Qt 3
-can link against. This allows for more compatibility than ever
-before, without bloating Qt.
+    \list
+     \i Classes that no longer exist in Qt 4, such as QIconView, are
+        accessible under their old name.
 
-\list
- \i Classes that no longer exist in Qt 4, such as QIconView, are
-    accessible under their old name.
+     \i Classes that have been replaced by a different class with the
+        same name, such as QListView, are available under a different
+        name (e.g., Q3ListView).
 
- \i Classes that have been replaced by a different class with the
-    same name, such as QListView, are available under a different
-    name (e.g., Q3ListView).
+     \i Other classes provide compatibility functions. Most of these are
+        implemented inline, so that they don't bloat the Qt libraries.
+    \endlist
 
- \i Other classes provide compatibility functions. Most of these are
-    implemented inline, so that they don't bloat the Qt libraries.
-\endlist
+    To enable the compatibility classes and functions, add the line
 
-To enable the compatibility classes and functions, add the line
+    \code
+        QT += compat
+    \endcode
 
-\code
-    QT += compat
-\endcode
+    to your .pro file.
 
-to your .pro file.
+    On Visual C++ 7 and GCC 3.2+, using compatibility function results in
+    a compiler warning (e.g. "'find' is deprecated"). If you want to turn
+    off that warning, add the line
 
-On Visual C++ 7 and GCC 3.2+, using compatibility function results in
-a compiler warning (e.g. "'find' is deprecated"). If you want to turn
-off that warning, add the line
+    \code
+        DEFINES += QT_COMPAT
+    \endcode
 
-\code
-    DEFINES += QT_COMPAT
-\endcode
+    to your .pro file.
 
-to your .pro file.
+    If you want to use compatibility functions but don't want to link
+    against the compatibility library, add the line
 
-If you want to use compatibility functions but don't want to link
-against the compatibility library, add the line
+    \code
+        DEFINES += QT_COMPAT_WARNINGS
+    \endcode
 
-\code
-    DEFINES += QT_COMPAT_WARNINGS
-\endcode
+    or
 
-or
+    \code
+        DEFINES += QT_COMPAT
+    \endcode
 
-\code
-    DEFINES += QT_COMPAT
-\endcode
+    to your .pro file, depending on whether you want compatibility
+    function calls to generate compiler warnings or not.
 
-to your .pro file, depending on whether you want compatibility
-function calls to generate compiler warnings or not.
-
-\link qt4-intro.html [Back to the Technology Preview page] \endlink
-
+    \link qt4-intro.html [Back to the Beta page] \endlink
 */

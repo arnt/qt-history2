@@ -1,0 +1,3399 @@
+/*!
+    \page qmake-manual.html
+    \title qmake Manual
+
+    \c qmake is a tool created by Trolltech to write makefiles for
+    different compilers and platforms.
+
+    Writing makefiles by hand can be difficult and error prone, especially
+    if several makefiles are required for different compiler and platform
+    combinations. With \c qmake, developers create a simple single
+    project file and run \c qmake to generate the appropriate
+    makefiles. \c qmake takes care of all the compiler and platform
+    dependencies, freeing developers to focus on their code. Trolltech
+    uses \c qmake as the primary build tool for the Qt library, and for
+    the tools supplied with Qt.
+
+    \c qmake also takes care of Qt's special requirements, automatically
+    including build rules for \link moc.html moc\endlink and \c uic.
+
+    Table of contents:
+
+    \list
+    \o \l{qmake-installation.html}{Installing qmake}
+    \o \l{qmake-quickguide.html}{The Ten-Minute Guide to Using qmake}
+    \o \l{qmake-tutorial.html}{qmake Tutorial}
+    \o \l{qmake-concepts.html}{qmake's Concepts}
+    \o \l{qmake-advancedconcepts.html}{qmake's Advanced Concepts}
+    \o \l{qmake-precompiledheaders.html}{Using Precompiled Headers}
+    \o \l{qmake-commandreference.html}{qmake Command Reference}
+    \endlist
+*/
+
+/*!
+    \page qmake-installation.html
+    \title Installing qmake
+
+    \c qmake is built by default when Qt is built.  
+
+    This section explains how to build \c qmake manually. Skip ahead to
+    \l{The 10 minute guide to using qmake}, if you already have \c qmake.
+
+    \section1 Installing qmake Manually
+
+    Before building Qt manually the following environment variables must
+    be set:
+
+    \list
+    \i \c QMAKESPEC must be set to the platform and compiler
+    combination that you are using on your system. For example, if
+    you are using Windows and Microsoft Visual Studio, you would set this
+    environment variable to \c win32-msvc.  If you are using Solaris and
+    g++, you would set this environment variable to \c solaris-g++.
+
+    The following is a list of environment variables available to choose
+    from when setting QMAKESPEC:
+
+    \code
+        aix-64       hpux-cc    irix-032      netbsd-g++  solaris-cc   unixware7-g++
+        aix-g++      hpux-g++   linux-cxx     openbsd-g++ solaris-g++  win32-borland    
+        aix-xlc      hpux-n64   linux-g++     openunix-cc sunos-g++    win32-g++ 
+        bsdi-g++     hpux-o64   linux-icc     qnx-g++     tru64-cxx    win32-msvc 
+        dgux-g++     hurd-g++   linux-kcc     reliant-64  tru64-g++    win32-watc
+        freebsd-g++  irix-64    macx-pbuilder reliant-cds ultrix-g++   win32-visa    
+        hpux-acc     irix-g++   macx-g++      sco-g++     unixware-g        	
+        hpux-acc     irix-n32   solaris-64    unixware7-cc 
+    \endcode
+
+    The environment variable should be set to qws/envvar where envvar is
+    one of the following:
+
+    \code
+        linux-arm-g++      linux-generic-g++  linux-mips-g++     linux-x86-g++
+        linux-freebsd-g++  linux-ipaq-g++     linux-solaris-g++  qnx-rtp-g++
+    \endcode
+
+    \i \c QTDIR must be set to where Qt is (or will be) installed.
+    For example, \c {c:\\qt} and \c {\\local\\qt} 
+    \endlist
+
+    Once the environment variables are set go into the qmake directory, \c
+    $QTDIR/qmake, e.g. \c{C:\\qt\\qmake}. Now run \c make or \c nmake
+    depending on your compiler.
+
+    When the make has completed, \c qmake is ready for use.
+*/
+
+/*!
+    \page qmake-quickguide.html
+    \title The Ten-Minute Guide to Using qmake
+
+    \section1 Creating a Project File
+
+    \c qmake uses information stored in project (.pro) files to determine
+    what should go in the makefiles it generates.
+
+    A basic project file contains information about the application, for
+    example, which files are needed to compile the application, and which
+    configuration settings to use.
+
+    Here's a simple example project file:
+
+    \code
+        SOURCES = hello.cpp
+        HEADERS = hello.h
+        CONFIG += qt warn_on release
+    \endcode
+
+    We'll provide a brief line-by-line explanation, deferring the detail
+    until later on in the manual.
+
+    \code
+        SOURCES = hello.cpp
+    \endcode
+
+    This line specifies the source files that implement the application. In this
+    case there is just one file, \c hello.cpp. Most applications require
+    multiple files; this situation is dealt with by listing all the files
+    on the same line space separated, like this:
+
+    \code
+        SOURCES = hello.cpp main.cpp
+    \endcode
+
+    Alternatively, each file can be listed on a separate line, by escaping
+    the newlines, like this:
+
+    \code
+        SOURCES = hello.cpp \
+                  main.cpp
+    \endcode
+
+    A more verbose approach is to list each file separately, like this:
+
+    \code
+        SOURCES += hello.cpp
+        SOURCES += main.cpp
+    \endcode
+
+    This approach uses "+=" rather than "=" which is safer, because it
+    always adds a new file to the existing list rather than replacing the
+    list.
+
+    The HEADERS line is used to specify the header files created for use
+    by the application, e.g. 
+
+    \code 
+        HEADERS += hello.h
+    \endcode
+
+    Any of the approaches used to list source files may be used for header
+    files.
+
+    The CONFIG line is used to give \c qmake information about the
+    application's configuration.
+
+    \code 
+        CONFIG += qt warn_on release
+    \endcode
+
+    The "+=" is used here, because we add our configuration options to any
+    that are already present. This is safer than using "=" which replaces
+    all options with just those specified.
+
+    The \c qt part of the CONFIG line tells \c qmake that the application
+    is built using Qt.  This means that \c qmake will link against the Qt
+    libraries when linking and add in the neccesary include paths for
+    compiling.
+
+    The \c warn_on part of the CONFIG line tells \c qmake that it should
+    set the compiler flags so that warnings are output.
+
+    The \c release part of the CONFIG line tells \c qmake that the
+    application must be built as a release application. During
+    development, programmers may prefer to replace \c release with \c
+    debug, which is discussed later.
+
+    \omit
+    The last line in the project file is the TARGET line:
+
+    \code
+        TARGET = hello
+    \endcode
+
+    The target line simply specifies what the name of the target should be
+    for the application.  You shouldn't put an extension here because \c
+    qmake will do this for you.
+    \endomit
+
+    Project files are plain text (i.e. use an editor like notepad, vim
+    or xemacs) and must be saved with a \c .pro extension. The name of the
+    application's executable will be the same as the project file's name,
+    but with an extension appropriate to the platform. For example, a
+    project file called \c hello.pro will produce \c hello.exe on Windows
+    and \c hello on Unix.
+
+    \section1 Generating a Makefile
+
+    When you have created your project file it is very easy to generate a
+    makefile, all you need to do is go to where you have created your
+    project file and type:
+
+    Makefiles are generated from the \c .pro files like this:
+
+    \code
+        qmake -o Makefile hello.pro 
+    \endcode
+
+    For Visual Studio users, \c qmake can also generate \c .dsp files, for
+    example:
+
+    \code
+        qmake -t vcapp -o hello.dsp hello.pro
+    \endcode
+*/
+
+/*!
+    \page qmake-tutorial.html
+    \title qmake Tutorial
+
+    This tutorial teaches you how to use \c qmake.  We recommend that
+    you read the \c qmake user guide after completing this tutorial.
+
+    \section1 Starting off Simple
+
+    Let's assume that you have just finished a basic implementation of
+    your application, and you have created the following files:
+
+    \list
+    \i hello.cpp
+    \i hello.h
+    \i main.cpp
+    \endlist
+
+    You will find these files in \c {qt/qmake/examples/tutorial}.  The
+    only other thing you know about the setup of the application is that
+    it's written in Qt.  First, using your favorite plain text editor,
+    create a file called \c hello.pro in \c {qt/qmake/tutorial}.  The
+    first thing you need to do is add the lines that tell \c qmake about
+    the source and header files that are part of your development project.  
+
+    We'll add the source files to the project file first.  To do this you
+    need to use the SOURCES variable.  Just start a new line with \c
+    {SOURCES +=} and put hello.cpp after it.  You should have something
+    like:
+
+    \code
+        SOURCES += hello.cpp
+    \endcode
+
+    We repeat this for each source file in the project, until we end up
+    with:
+
+    \code
+        SOURCES += hello.cpp
+        SOURCES += main.cpp
+    \endcode
+
+    If you prefer to use a Make-like syntax, with all the files listed in
+    one go you can use the newline escaping like this:
+
+    \code
+        SOURCES = hello.cpp \
+	          main.cpp
+    \endcode
+
+    Now that the source files are listed in the project file, the header
+    files must be added. These are added in exactly the same way as source
+    files, except that the variable name is HEADERS:
+
+    Once you have done this, your project file should look something like
+    this:
+
+    \code
+        HEADERS += hello.h
+        SOURCES += hello.cpp 
+        SOURCES += main.cpp 
+    \endcode
+
+    The target name is set automatically; it is the same as the project
+    file, but with the suffix appropriate to the platform. For example, if
+    the project file is called \c hello.pro, the target will be \c hello.exe
+    on Windows and \c hello on Unix. If you want to use a different name
+    you can set it in the project file:
+
+    \code
+        TARGET = helloworld
+    \endcode
+
+    The final step is to set the \c CONFIG variable. Since this is a Qt
+    application, we need to put \c qt on the CONFIG line so that \c qmake
+    will add the relevant libraries to be linked against and ensure that
+    build lines for \c moc and \c uic are included in the makefile.
+
+    The finished project file should look like this:
+
+    \code
+        CONFIG += qt
+        HEADERS += hello.h
+        SOURCES += hello.cpp
+        SOURCES += main.cpp 
+    \endcode
+
+    You can now use \c qmake to generate a makefile for your application.
+    On the command line, in your application directory, type:
+
+    \code
+        qmake -o Makefile hello.pro
+    \endcode
+
+    Then type \c make or \c nmake depending on the compiler you use.  
+
+    \section1 Making an Application Debuggable
+
+    The release version of an application doesn't contain any debugging
+    symbols or other debuggin information. During development it is useful
+    to produce a debugging version of the application that has the
+    relevant information. This is easily achieved by adding \c debug to the
+    CONFIG variable in the project file.
+
+    For example:
+
+    \code
+        CONFIG += qt debug
+        HEADERS += hello.h
+        SOURCES += hello.cpp
+        SOURCES += main.cpp 
+    \endcode
+
+    Use \c qmake as before to generate a makefile and you will be able to
+    debug your application.
+
+    \section1 Adding Platform-Specific Source Files
+
+    After a few hours of coding, you might have made a start on the
+    platform specific part of your application, and decided to keep the
+    platform dependent code separate.  So you now have two new files to
+    include into your project file - \c hellowin.cpp and \c
+    hellounix.cpp.  We can't just add these to the \c SOURCES
+    variable since this will put both files in the makefile.  So what we
+    need to do here is to use a scope which will be processed depending on
+    which platform \c qmake is run on.
+
+    A simple scope which will add in the platform dependent file for
+    Windows looks like this:
+
+    \code
+        win32 {
+	    SOURCES += hellowin.cpp
+        }
+    \endcode
+
+    So if \c qmake is run on Windows, it will add \c hellowin.cpp to the
+    list of source files.  If \c qmake is run on any other platform, it
+    will simply ignore it.  Now all that is left to be done is to create a
+    scope for the unix dependent file.
+
+    When you have done that, your project file should now look
+    something like this:
+
+    \code
+        CONFIG += qt debug
+        HEADERS += hello.h
+        SOURCES += hello.cpp
+        SOURCES += main.cpp 
+        win32 {
+	    SOURCES += hellowin.cpp
+        }
+        unix {
+	    SOURCES += hellounix.cpp
+        }
+    \endcode
+
+    Use \c qmake as before to generate a makefile.  
+
+    \section1 Stopping qmake If a File Doesn't Exist
+
+    You may not want to create a makefile if a certain file doesn't exist.
+    We can check if a file exists by using the exists() function.  We can
+    stop \c qmake from processing by using the error() function.  This
+    works in the same way as scopes.  Simply replace the scope condition
+    with the function. A check for a main.cpp file looks like this:
+
+    \code
+        !exists( main.cpp ) {
+	    error( "No main.cpp file found" )
+        }
+    \endcode
+
+    The "!" is used to negate the test, i.e. \c{exists( main.cpp )} is
+    true if the file exists and \c{!exists( main.cpp )} is true if the
+    file doesn't exist.
+
+    \code
+        CONFIG += qt debug
+        HEADERS += hello.h
+        SOURCES += hello.cpp
+        SOURCES += main.cpp 
+        win32 {
+	    SOURCES += hellowin.cpp
+        }
+        unix {
+	    SOURCES += hellounix.cpp
+        }
+        !exists( main.cpp ) {
+	    error( "No main.cpp file found" )
+        }
+    \endcode
+
+    Use \c qmake as before to generate a makefile.  If you rename \c
+    main.cpp temporarily, you will see the message and \c qmake will stop
+    processing.
+
+    \section1 Checking for More than One Condition
+
+    Suppose you use Windows and you want to be able to see the qDebug()
+    statements when you run your application on the command line.  Unless
+    you build your application with the console setting, you won't see the
+    output.  We can easily put \c console on the CONFIG line so that on
+    Windows the makefile will have this setting.  But let's say that we
+    only want to add the CONFIG line if we are running on Windows \c and when
+    \c debug is already on the CONFIG line.  This requires using two
+    nested scopes; just create one scope, then create the other inside
+    that one.  Put the settings to be processed inside the last scope,
+    like this:
+
+    \code
+        win32 {
+	    debug {
+	        CONFIG += console
+	    }
+        }
+    \endcode
+
+    Nested scopes can be joined together using colons, so the final
+    project file looks like this:
+
+    \code
+        CONFIG += qt debug
+        HEADERS += hello.h
+        SOURCES += hello.cpp
+        SOURCES += main.cpp 
+        win32 {
+	    SOURCES += hellowin.cpp
+        }
+        unix {
+	    SOURCES += hellounix.cpp
+        }
+        !exists( main.cpp ) {
+	    error( "No main.cpp file found" )
+        }
+        win32:debug {
+	    CONFIG += console
+        }
+    \endcode
+
+
+    That's it!  You have now completed the tutorial for \c qmake, and are
+    ready to write project files for your development projects.
+*/
+
+/*!
+    \page qmake-concepts.html
+    \title qmake's Concepts
+
+    \c qmake is an easy-to-use tool from Trolltech that creates makefiles
+    for development projects across different platforms.  \c qmake
+    simplifies the generation of makefiles so that only a few lines of
+    information are needed to create a makefile.  \c qmake can be used for
+    any software project whether it is written in Qt or not, although it
+    also contains additional features to support Qt development.
+
+    \c qmake generates a makefile based on the information in a project
+    file.  Project files are created by the developer. Project files are
+    usually simple, but can be quite sophisticated if required.
+    \c qmake can also generate projects for Microsoft Visual studio
+    without having to change the project file.  
+
+    \section1 The QMAKESPEC Environment Variable
+
+    Before \c qmake can be used to build makefiles, the QMAKESPEC
+    environment variable must be set to the platform-compiler combination
+    that is being used on the system.  The QMAKESPEC environment variable
+    tells qmake where to look to find platform and compiler specific
+    information.  This ensures that the right libraries are used, and that
+    the generated makefile uses the correct syntax.  A list of the
+    currently supported platform-compiler combinations can be found in
+    qt/mkspecs.  Just set your environment variable to one of the
+    directories listed.
+
+    For example, if you are using Microsoft Visual Studio on Windows, then
+    you would set the QMAKESPEC environment variable to \c win32-msvc.
+    If you are using gcc on Solaris then you would set your QMAKESPEC
+    environment variable to \c solaris-g++.
+
+    Inside each of the directories in qt/mkspecs, there is a \c qmake.conf
+    file which contains the platform and compiler specific information.
+    These settings are applied to any project that is built using \c
+    qmake and should not be modified unless you're an expert. For example,
+    if all your applications had to link against a particular library, you
+    might add this information to the relevant \c qmake.conf file.
+
+    \section1 Project Files (\c .pro)
+
+    A project file is used to tell \c qmake the details it needs to know
+    about creating a makefile for the application.  For instance, a list
+    of source files and header files that should be put into the project
+    file; any application specific configuration, such as an extra library
+    that should be linked against, or an extra include path.
+
+    \section2 Hash Comments
+
+    You can add comments to project files. Comments begin with the \c
+    # symbol and run to the end of the line.
+
+    \section2 Project Template
+
+    The template variable tells \c qmake what sort of makefile should be
+    generated for the application. The following choices are available:
+
+    \list
+    \i app - Creates a makefile that builds an application.  This is the
+    default, so if a template is not specified, this is used.
+    \i lib - Creates a makefile that builds a library.
+    \i vcapp - Creates a Visual Studio Project file which builds an application.
+    \i vclib - Creates a Visual Studio Project file which builds a library.
+    \i subdirs - This is a special template which creates a makefile which
+    will go into the specified directories and create a makefile for the
+    project file and call make on it.
+    \endlist
+
+    \section2 The \c app Template
+
+    The \c app template tells \c qmake to generate a makefile that will build
+    an application.  When using this template the following \c qmake
+    system variables are recognized.  You should use these in your .pro
+    file to specify information about your application.
+
+    \list
+    \i HEADERS - A list of all the header files for the application.
+    \i SOURCES - A list of all the source files for the application.
+    \i FORMS - A list of all the .ui files (created using \c{Qt Designer})
+    for the application.
+    \i LEXSOURCES - A list of all the lex source files for the application.
+    \i YACCSOURCES - A list of all the yacc source files for the application.
+    \i TARGET - Name of the executable for the application. This defaults
+    to the name of the project file. (The extension, if any, is added
+    automatically).
+    \i DESTDIR - The directory in which the target executable is placed.
+    \i DEFINES - A list of any additional pre-processor defines needed for the application.
+    \i INCLUDEPATH - A list of any additional include paths needed for the application.
+    \i DEPENDPATH - The dependency search path for the application.
+    \i VPATH - The search path to find supplied files. 
+    \i DEF_FILE - Windows only: A .def file to be linked against for the application.
+    \i RC_FILE - Windows only: A resource file for the application.
+    \i RES_FILE - Windows only: A resource file to be linked against for the application.
+    \endlist
+
+    You only need to use the system variables that you have values for,
+    for instance, if you don't have any extra INCLUDEPATHs then you don't
+    need to specify any, \c qmake will add in the default ones needed.
+    For instance, an example project file might look like this:
+
+    \code
+        TEMPLATE = app
+        DESTDIR  = c:\helloapp
+        HEADERS += hello.h
+        SOURCES += hello.cpp 
+        SOURCES += main.cpp
+        DEFINES += QT_DLL
+        CONFIG  += qt warn_on release
+    \endcode
+
+    For items that are single valued, e.g. the template or the destination
+    directory, we use "="; but for multi-valued items we use "+=" to \e
+    add to the existing items of that type. Using "=" replaces the item's
+    value with the new value, for example if we wrote \c{DEFINES=QT_DLL},
+    all other definitions would be deleted.
+
+    \section2 The \c lib Template
+
+    The \c lib template tells \c qmake to generate a makefile that will
+    build a library.  When using this template, in addition to the system variables
+    mentioned above for the \c app template the \c VERSION variable is
+    supported.  You should use these in your .pro file to specify
+    information about the library.
+
+    \list
+    \i VERSION - The version number of the target library, for example, 2.3.1.
+    \endlist
+
+    \section2 The \c subdirs Template
+
+    The \c subdirs template tells qmake to generate a makefile that will go
+    into the specified subdirectories and generate a makefile for the
+    project file in the directory and call make on it.
+
+    The only system variable that is recognised for this template is the
+    \c SUBDIRS variable.  This variable contains a list of all the
+    subdirectories that contain project files to be processed.  It is
+    essential that the project file in the sub directory has the same name
+    as the subdirectory, so that \c qmake can find it.  For
+    example, if the subdirectory is called \c myapp then the project file
+    in that directory should be called \c myapp.pro in that directory.
+
+    \section1 The \c CONFIG Variable
+
+    The config variable specifies the options that the compiler should use
+    and the libraries that should be linked against.  Anything can be
+    added to the config variable, but the options covered below are
+    recognised by qmake internally.
+
+    The following options control what compiler flags are used:
+
+    \list
+    \i release - The application is to be built in release mode.  This is ignored if \c debug is specified.
+    \i debug - The application is to be built in debug mode.
+    \i warn_on - The compiler should output as many warnings as possible.  This is ignored if 'warn_off' is specified.
+    \i warn_off - The compiler should output as few warnings as possible.
+    \endlist
+
+    The following options define the type of library/application to be built:
+
+    \list
+    \i qt - The application is a Qt application and should link against the Qt library.
+    \i thread - The application is a multi-threaded application.
+    \i x11 - The application is an X11 application or library.
+    \i windows - \c app template only: the application is a Windows window application.
+    \i console - \c app template only: the application is a Windows console application.
+    \i dll - \c lib template only: The library is a shared library (dll).
+    \i staticlib - \c lib template only: The library is a static library.
+    \i plugin - \c lib template only: The library is a plugin; this enables the dll option.
+    \endlist
+
+    For example, if your application uses the Qt library and you want to
+    build it as a debuggable multi-threaded application, your project file
+    will have the following line:
+
+    \code
+        CONFIG += qt thread debug
+    \endcode
+
+    Note, that you must use "+=", not "=", or \c qmake will not be able to
+    use the settings used to build Qt as a guide as what type of Qt
+    library was built.
+*/
+
+/*!
+    \page qmake-advancedconcepts.html
+    \title qmake's Advanced Concepts
+
+    The \c qmake project files we've seen up to now have been very simple,
+    just a list of \c{name = value} and \c{name += value} lines. \c qmake
+    provides a lot more power, for example you can use a single project
+    file to produce makefiles for multiple platforms.
+
+    \section1 Operators
+
+    So far, you have seen the \c = operator and \c += operator being used
+    in a project file.  There are more operators available for use; but
+    some of these should be used carefully as they may change more than
+    you expect them to.
+
+    \section2 The \c = Operator
+
+    This operator simply assigns a value to a variable, it is used like
+    this:
+
+    \code
+        TARGET = myapp
+    \endcode
+
+    This sets the TARGET variable to \c myapp.  This will remove any
+    previously set TARGET.
+
+    \section2 The \c += Operator
+
+    This operator appends a value to the list of values in a variable.  It
+    is used like this:
+
+    \code
+        DEFINES += QT_DLL
+    \endcode
+
+    This appends QT_DLL to the list of pre-processor defines to be put in the
+    makefile.
+
+    \section2 The \c -= Operator
+
+    This operator removes a value from the list of values in a variable.
+    It is used like this:
+
+    \code
+        DEFINES -= QT_DLL
+    \endcode
+
+    This removes QT_DLL from the list of pre-processor defines to be put
+    in the makefile.
+
+    \section2 The \c *= Operator
+
+    This operator only adds a value to the list of values in a variable if
+    it doesn't already exist.  It is used like this:
+
+    \code
+        DEFINES *= QT_DLL
+    \endcode
+
+    QT_DLL will only be added to the list of pre-processor defines if it
+    is not already defined.
+
+    \section2 The \c ~= Operator
+
+    This operator replaces any values that match the regexp with the
+    specified value.  It is used like this:
+
+    \code
+        DEFINES ~= s/QT_[DT].+/QT
+    \endcode
+
+    This removes any values in the list that start with QT_D or QT_T with
+    QT.
+
+    \section1 Scopes
+
+    A scope are similar to \c if statements, if a certain condition is
+    true, the settings inside the scope are processed.  A scope is written
+    like this:
+
+    \code
+        win32 {
+	    DEFINES += QT_DLL
+        }
+    \endcode
+
+    The above code will add the QT_DLL define to the makefile if \c qmake
+    is used on a Windows platform.  If \c qmake is used on a different
+    platform than Windows, the define will be ignored. You may also perform
+    single line conditionals/assignments with qmake like this:
+
+    \code
+        win32:DEFINES += QT_DLL
+    \endcode
+
+    For example, suppose we want to process something on all platforms
+    \e except for Windows. We can achieve this by negating the scope like
+    this:
+
+    \code
+        !win32 {
+	    DEFINES += QT_DLL
+        }
+    \endcode
+
+    Any entry on the CONFIG line is also a scope. For example, if you
+    write this:
+    \code
+        CONFIG += warn_on
+    \endcode
+    you will have a scope called 'warn_on'. This makes it easy to change
+    the configuration for a project without losing all the custom settings
+    that might be needed for a specific configuration.  Since it is
+    possible to put your own values on the CONFIG line, this provides you
+    with a very powerful configuration tool for your makefiles. For
+    example:
+
+    \code
+        CONFIG += qt warn_on debug
+        debug {
+	    TARGET = myappdebug
+        }
+        release {
+	    TARGET = myapp
+        }
+    \endcode
+
+    In the above code, two scopes are created which depend on what
+    is put on the CONFIG line.  In the example, \c debug is on the config
+    line, so the TARGET variable is set to \c myappdebug.  If \c release
+    was on the config line, then the TARGET variable would be set to \c
+    myapp.
+
+    It is also possible to check for two things before processing some
+    settings.  For instance, if you want to check if the platform is
+    Windows and that the thread configuration is set, you would write
+    this:
+
+    \code
+        win32 {
+	    thread {
+	        DEFINES += QT_THREAD_SUPPORT
+	    }
+        }
+    \endcode
+
+    To save writing many nested scopes, you can nest scopes using a colon
+    like this:
+
+    \code
+        win32:thread {
+	    DEFINES += QT_THREAD_SUPPORT
+        }
+    \endcode
+
+    Once a test has been performed you may also do else/elseif operations. With
+    this you may easily write complicated tests. This can be done with the
+    special \c else scope, it can be combined with other scopes (separated by
+    colons as above) for example:
+
+    \code
+        win32:thread {
+	    DEFINES += QT_THREAD_SUPPORT
+        } else:debug {
+	    DEFINES += QT_NOTHREAD_DEBUG
+        } else {
+	    message("Unknown configuration")
+        }
+    \endcode
+
+    \section1 Variables
+
+    The variables that we have encountered so far are system variables,
+    such as \c DEFINES, \c SOURCES, and \c HEADERS.  It is possible for you
+    to create your own variables so that you use them in scopes.  It's
+    easy to create your own variable; just name it and assign something to
+    it. For example:
+
+    \code
+        MY_VARIABLE = value
+    \endcode
+
+    There are no restricitions on what you do to your own variables, as \c
+    qmake will just ignore them unless it needs to look at them for a
+    scope.  
+
+    You can also assign the value of a current variable to another
+    variable by prefixing $$ to the variable name. For example:
+
+    \code
+        MY_DEFINES = $$DEFINES
+    \endcode
+
+    Now the MY_DEFINES variable contains what is in the DEFINES variable at
+    this point in the project file.  This is also equivalent to:
+
+    \code 
+        MY_DEFINES = $${DEFINES}
+    \endcode
+
+    The second notation allows you to adjoin the variable expansion to another
+    value without separating by space. \c qmake will allow a variable to
+    contain anything (including $(VALUE), which will be placed directly into
+    the Makefile, and allow it to expand as appropriate, usually an environment
+    variable). However, if you require an environment variable to be replaced
+    immediately then you may use the $$() notation. For example:
+
+    \code
+        MY_DEFINES = $$(ENV_DEFINES)
+    \endcode
+
+    This will set MY_DEFINES to the value of the evironment variable
+    ENV_DEFINES as it parses the .pro file. Additionally you may call built-in
+    functions in variable replacing. These functions (not to be confused with
+    Test Functions as enumerated in the next section) are listed below:
+
+    \section2 join(variablename, glue, before, after)
+
+    This will join the value of \e variablename with glue. If this value is
+    non-empty it will prefix the value with \e before and suffix it with \e
+    after. \e variablename is the only required field, the others will default
+    to empty strings. If you need to encode spaces in \e glue, \e before, or \e
+    after you must quote them.
+
+    \section2 prompt(question)
+
+    This will display \e question, and read from stdin as a return value.
+
+    \section2 member(variablename, position)
+
+    This will place the value in \e variablename in position \e position of the
+    list. If the value of \e variablename is not long this will return an empty
+    string. \e variablename is the only required field, if not specified
+    position will default to the first value in the list (0).
+
+    \section2 find(variablename, substr)
+
+    This will place all the values in \e variablename that match \e substr. \e
+    substr may be a regular expression as well, and will be matched
+    accordingly.
+
+    \code
+        MY_VAR = one two three four
+        MY_VAR2 = $$join(MY_VAR, " -L", -L) -Lfive
+        MY_VAR3 = $$member(MY_VAR, 2) $$find(MY_VAR, t.*)
+    \endcode
+
+    MY_VAR2 will contain '-Lone -Ltwo -Lthree -Lfour -Lfive', and MYVAR3 will
+    contains 'three two three'.
+
+    \section2 basename(file)
+
+    This will return the basename of the file specified. For example:
+
+    \code
+       FILE = /etc/passd
+       FILENAME = $$basename($$FILE) #passwd
+    \endcode
+
+    \section2 dirname(file)
+
+    This will return the directory name part of the file specified. For
+    example:
+
+    \code
+       FILE = /etc/X11R6/XF86Config
+       DIRNAME = dirname($$FILE) #/etc/X11R6
+    \endcode
+
+    \section2 sprintf(string, ...)
+
+    This will replace %1-%9 with the arguments passed into the
+    ... arguments. The resulting string will be returned.
+
+    \section2 unique(variablename)
+
+    This will return a list of values in variable that are unique (that is
+    with repetitive entries removed). For example:
+
+    \code
+       ARGS = 1 2 3 2 5 1
+       ARGS = $$unique(ARGS) #1 2 3 5
+    \endcode
+
+    \section2 quote(string)
+
+    This will place a whole value into a single entity, \n \r and \t can
+    be used to generate literal carriage returns, line feeds and tabs
+    (respectively). The return value will not be quoted (double or single)
+    but will be placed into a single entry (for literal expansion).
+
+    \section2 system(program_and_args)
+
+    This will return the stdout/stderr of the program executed, and parse it as
+    normally expected. You can use this to interrogate information about the
+    platform for example.
+
+    \code
+        UNAME = $$system(uname -s)
+        contains( UNAME, [lL]inux ):message( This looks like Linux ($$UNAME) to me )
+    \endcode
+
+    \section1 Test Functions
+
+    \c qmake provides built-in functions that perform simple, yet powerful
+    tests. These tests may be used in place of scopes (as described above), in
+    some cases it is more usefull to use the test function by itself ignoring
+    its test value.
+
+    \section2 contains(variablename, value)
+
+    If \e value is in the list of values stored in the variable called \e
+    variablename, then the settings inside the scope will be processed.
+    For example:
+
+    \code
+        contains(CONFIG, thread) {
+	    DEFINES += QT_THREAD_SUPPORT
+        }
+    \endcode
+
+    If \c thread is in the list of values for the \c CONFIG variable, then
+    QT_THREAD_SUPPORT will be added to the list of values in the \c
+    DEFINES variable.
+
+    \section2 count(variablename, number)
+
+    If \e number matches the number of values stored in the variable
+    called \e variablename, then the settings inside the scope will be
+    processed.  For example:
+
+    \code
+        count( DEFINES, 5 ) {
+	    CONFIG += debug
+        }
+    \endcode
+
+    \section2 error(string)
+
+    This function outputs the string given and then makes \c qmake exit.
+    For example:
+
+    \code
+        error( "An error has occurred" )
+    \endcode
+
+    The text "An error has occurred" will be displayed on the console and
+    \c qmake will exit.
+
+    \section2 exists(filename)
+
+    If the specified file exists, then the settings inside the scope will
+    be processed.  For example:
+
+    \code
+        exists( /local/qt/qmake/main.cpp ) {
+	    SOURCES += main.cpp
+        }
+    \endcode
+
+    If \c /local/qt/qmake/main.cpp exists then main.cpp is added to the
+    list of source files.
+
+    Note that "/" can be used as a directory separator regardless of the
+    platform.
+
+    \section2 include(filename)
+
+    The contents of filename are included at this point in the project
+    file, so any settings in the specified file will be processed.  An
+    example of this is:
+
+    \code 
+        include( myotherapp.pro )
+    \endcode
+
+    Any settings in the \c myotherapp.pro project file are now processed.
+
+    \section2 isEmpty(variablename)
+
+    This is the equivalent of using count( variablename, 0 ).  If the
+    variable called \e variablename has no elements, then the settings
+    inside the scope will be processed.  An example of this is:
+
+    \code
+        isEmpty( CONFIG ) {
+	    CONFIG += qt warn_on debug
+        }
+    \endcode
+
+    \section2 message(string) 
+
+    This function simply outputs a message on the console.
+
+    \code
+        message( "This is a message" )
+    \endcode
+
+    The text "This is a message" is output to the console and
+    processing of the project file carries on.
+
+    \section2 system(command)
+
+    The specified command is performed and if it returns an exit code of
+    1, the settings inside the scope are processed.  For example:
+
+    \code
+        system( ls /bin ) {
+	    SOURCES += bin/main.cpp
+	    HEADERS += bin/main.h
+        }
+    \endcode
+
+    So if the command \c {ls /bin} returns 1 then \c bin/main.cpp is added
+    to the list of sources and \c bin/main.h is added to the list of
+    headers.
+
+    \section2 CONFIG(config)
+
+    This function can be used to test for variables placed into the CONFIG
+    variable. This is the same as regular old style (tmake) scopes, but
+    has the added advantage a second paramter can be passed to test for
+    the active config. As CONFIG's are order dependent (ie the last one
+    set will be considered the active config for mutual exclusive sets
+    like debug and release) a second paramter can be used to specify a set
+    of values to consider for example:
+
+    \code
+      CONFIG = debug
+      CONFIG += release
+      CONFIG(release, debug|release):message(Release build!) #will print
+      CONFIG(debug, debug|release):message(Debug build!) #no print
+    \endcode
+
+    Because release is considered the active setting (for feature parsing)
+    it will be the CONFIG used to generate the build file. In the common
+    case a second paramter is not needed, but for specific mutual
+    exclusive tests it is invaluable.
+
+    \section2 infile(filename, var, val)
+
+    This function will succeed if the file \e filename (when parsed
+    by qmake itself) contains the variable \e var with a value of 
+    \e val. You may also not pass in a third argument (\e val) and the
+    function will only test if \e var has been assigned to in the file.
+
+    \section2 for(iterate, list)
+
+    This special test function will cause a loop to be started that
+    iterates over all values in \e list setting \e iterate to each
+    value. As a convience if \e list is 1..10 then iterate will iterate
+    over the values 1 through 10.
+
+    The use of an else scope afer a condition line with a for() loop is
+    disallowed. 
+
+    For example:
+
+    \code
+        LIST = 1 2 3
+        for(a, LIST):exists(file.$${a}):message(I see a file.$${a}!)
+    \endcode
+*/
+
+/*!
+    \page qmake-precompiledheaders.html
+    \title Using Precompiled Headers
+
+    \target About
+
+    Precompiled headers are a performance feature supported by some
+    compilers to compile a stable body of code, and store the compiled
+    state of the code in a binary file. During subsequent compilations,
+    the compiler will load the stored state, and continue compiling the
+    specified file. Each subsequent compilation is faster because the
+    stable code does not need to be recompiled.
+
+    \c qmake supports the use of precompiled headers (PCH) on some
+    platforms and build environments, including:
+    \list
+    \i Windows
+        \list
+        \i nmake
+        \i Dsp projects (VC 6.0)
+        \i Vcproj projects (VC 7.0 \& 7.1)
+        \endlist
+    \i Mac OS X
+        \list
+        \i Makefile
+        \i Xcode
+        \endlist
+    \i Unix
+        \list
+        \i GCC 3.3 and up
+        \endlist
+    \endlist
+
+
+    \target ADD_PCH
+    \section1 Adding Precompiled Headers to Your Project
+
+    \target PCH_CONTENTS
+    \section2 Contents of the Precompiled Header File
+
+    The precompiled header must contain code which is \c stable
+    and \c static throughout your project. A typical PCH might look
+    like this:
+
+    \section3 Example: \c stable.h
+
+    \code
+	// Add C includes here
+
+	#if defined __cplusplus
+	// Add C++ includes here
+	#include <stdlib>
+	#include <iostream>
+	#include <vector>
+	#include <qapplication.h> // Qt includes
+	#include <qpushbutton.h>
+	#include <qlabel.h>
+	#include "thirdparty/include/libmain.h"
+	#include "my_stable_class.h"
+	...
+	#endif
+    \endcode
+
+    Note that a precompiled header file needs to separate C includes from
+    CPP includes, since the precompiled header file for C files may not
+    contain C++ code.
+
+
+    \target PROJECT_OPTIONS
+    \section2 Project Options
+
+    To make your project use PCH, the only thing you need to change in
+    your project settings (.pro), is to include the PRECOMPILED_HEADER option:
+
+    \code
+        PRECOMPILED_HEADER = stable.h
+    \endcode
+
+    \c qmake will handle the rest, to ensure the creation and use of the
+    precompiled header file. You do not need to include the precompiled
+    header file in HEADERS, as qmake will do this if the configuration
+    supports PCH.
+
+    All platforms that support precompiled headers have the configuration
+    option \bold precompile_header set. Using this option, you may trigger
+    conditional blocks in your .pro file, to add settings when using PCH.
+    For example:
+
+    \code
+        precompile_header:!isEmpty(PRECOMPILED_HEADER) {
+	    DEFINES += USING_PCH
+        }
+    \endcode
+
+    \target EXAMPLE_PROJECT
+    \section1 Example Project
+
+    You can find the following source code in the
+    \c{qt/qmake/examples/precompile} directory:
+
+    \section2 \c mydialog.ui
+
+    \quotefile precompile/mydialog.ui
+    \skipto <!
+    \printuntil </UI>
+
+    \section2 \c stable.h
+
+    \quotefile precompile/stable.h
+    \skipto /*
+    \printuntil #endif
+
+    \section2 \c myobject.h
+
+    \quotefile precompile/myobject.h
+    \skipto #include
+    \printuntil }
+
+    \section2 \c myobject.cpp
+
+    \quotefile precompile/myobject.cpp
+    \skipto #include
+    \printuntil }
+
+    \section2 \c util.cpp
+
+    \quotefile precompile/util.cpp
+    \skipto void
+    \printuntil }
+
+    \section2 \c main.cpp
+
+    \quotefile precompile/main.cpp
+    \skipto #include
+    \printuntil }
+
+    \section2 \c precompile.pro
+
+    \quotefile precompile/precompile.pro
+    \skipto #
+    \printuntil .ui
+*/
+
+/*!
+    \page qmake-commandreference.html
+    \title qmake Command Reference
+
+    \tableofcontents section1
+
+    \target About
+    \section1 About This Reference
+
+    This reference is a detailed index of all command line options,
+    configurations and internal variables used by the cross-platform
+    makefile generation utility \c qmake.
+
+    In addition to the variables and functions described in the following
+    sections, \c qmake project files may also include comments. 
+    Comments begin with the '#' symbol and run to the end of the line.
+
+    \target Commands
+    \section1 Command-Line Options
+
+    \section2 Syntax
+
+    \code
+        qmake [options] files
+    \endcode
+
+    \section2 Options
+
+    The following options can be specified on the command line to \c qmake:
+
+    \list
+    \i \c -o file \BR
+	    \c qmake output will be directed to \e file. if this argument
+	    is not specified, then \c qmake will try to guess a suitable name.  If '-' is
+	    specified, output is directed to stdout. 
+    \i \c -unix \BR
+	    \c qmake will run in unix mode.  In this mode, Unix file
+	    naming and path conventions will be used, additionally testing for unix 
+	    (as a scope) will succeed. This is the default mode on all Unices. 
+    \i \c -macx \BR
+	    \c qmake will run in Mac OS X mode.  In this mode, Unix file
+	    naming and path conventions will be used, additionally testing for macx
+	    (as a scope) will succeed. This is the default mode on Mac OS X. 
+    \i \c -win32 \BR
+	    \c qmake will run in win32 mode.  In this mode, Windows file naming and path
+	    conventions will be used, additionally testing for win32 (as a scope) will succeed. 
+	    This is the default mode on Windows.
+    \i \c -d \BR
+	    \c qmake will output (hopefully) useful debugging information.
+    \i \c -t tmpl \BR
+	    \c qmake will override any set TEMPLATE variables with tmpl, but only
+	    \e after the .pro file has been processed.
+    \i \c -tp prefix \BR
+	    \c qmake will add the prefix to the TEMPLATE variable.
+    \i \c -help \BR
+	    \c qmake will go over these features and give some useful help.
+    \endlist
+
+    There are also warning options that can help to find problems in your
+    project file:
+
+    \list
+    \i \c -Wall \BR
+          With this \c qmake will turn on all known warnings.
+    \i \c -Wnone \BR
+          No warning information will be generated by \c qmake.
+    \i \c -Wparser \BR
+          \c qmake will only generate parser warnings, this will alert
+          you to common pitfalls, and potential problems in the parsing of your .pro
+          files.
+    \i \c -Wlogic \BR
+          Again \c qmake will warn of common pitfalls, and potential problems. This can
+          include (but not limited to) checking if a file is placed into a list of files
+          multiple times, if a file cannot be found, etc.
+    \endlist
+
+    \c qmake supports two different modes of operation. The first mode,
+    which is the default is makefile generation.  In this mode, \c qmake
+    will take a .pro file and turn it into a makefile.  Creating makefiles
+    is covered by this reference guide, there is another mode which
+    generates .pro files.
+
+    To toggle between these modes you must specify in the first argument
+    what mode you want to use.  If no mode is specified, \c qmake will
+    assume you want makefile mode.  The available modes are:
+
+    \list
+    \i \c -makefile \BR
+	    \c qmake output will be a makefile (\link #MakefileMode Makefile mode \endlink).
+    \i \c -project \BR
+	    \c qmake output will be a project file (\link #ProjectfileMode Project file mode \endlink).
+    \endlist
+
+    \target MakefileMode
+    \section3 Makefile Mode
+
+    In Makefile mode \c qmake will generate a makefile. Additionally you may
+    supply the following arguments in this mode:
+
+    \list
+    \i \c -after \BR
+            \c qmake will process assignments given on the commandline after
+            the specified files.
+    \i \c -nocache \BR
+	    \c qmake will ignore the .qmake.cache file.
+    \i \c -nodepend \BR
+	    \c qmake will not generate any dependency information.
+    \i \c -cache file \BR
+	    \c qmake will use \e file as the cache file, ignoring any other .qmake.cache file found
+    \i \c -spec spec \BR
+	    \c qmake will use \e spec as a path to platform-compiler information and QMAKESPEC will be ignored.
+    \endlist
+
+    The \c files argument can be a list of one or more project files, separated
+    by spaces. You may also pass qmake assignments on the command line here and
+    they will be processed before all files specified, for example:
+
+    qmake -makefile -unix -o Makefile "CONFIG+=test" test.pro 
+
+    If however you are certain you want your variables processed after the
+    the files specified, then you may pass the -after argument. When this
+    is specified all assignments on the commandline after the -after
+    option will be postponed until after the specified files are parsed.
+
+    This will generate a Makefile, from test.pro with Unix pathnames.  However
+    many of these arguments aren't necessary as they are the default.  Therefore
+    the line can be simplified on Unix to:
+
+    qmake "CONFIG+=test" test.pro 
+
+
+    \target ProjectfileMode
+    \section3 Projectfile Mode
+
+    In Projectfile mode \c qmake will generate a project file. Additionally, you may
+    supply the following arguments in this mode:
+
+    \list
+    \i \c -r \BR
+            \c qmake will look through supplied directories recursively
+    \i \c -nopwd \BR
+	    \c qmake will not look in your current working directory for
+	    source code and only use the specified \c files
+    \endlist
+
+    The \c files argument can be a list of files or directories.  If a
+    directory is specified, then it will be included in the \link
+    #DEPENDPATH DEPENDPATH \endlink variable and relevant code from there
+    will be included in the generated project file, if a file is given it
+    will go into the correct variable depending on extension (i.e. .ui
+    files go into FORMS, .cpp files go into SOURCES, etc). Here too you
+    may pass assignments on the commandline, when doing so these
+    assignments will be placed last in the generated .pro file.
+
+    \target SystemVariables
+    \section1 System Variables
+
+    \list
+    \i \link #FrequentlyUsedSystemVariables Frequently Used System Variables \endlink
+    \i \link #RarelyUsedSystemVariables Rarely Used System Variables \endlink
+    \endlist
+
+
+    \target FrequentlyUsedSystemVariables
+    \section2 Frequently Used System Variables
+
+    The following variables are recognized by \c qmake and are used
+    most frequently when creating project files.
+
+
+    \target CONFIG
+    \section3 CONFIG
+
+     The \c CONFIG variable specifies project configuration and
+    compiler options.  The values will be recognized internally by
+    \c qmake and have special meaning.  They are as follows.
+
+    These \c CONFIG values control compilation flags: 
+
+    \list
+    \i release - Compile with optimization enabled, ignored if
+        "debug" is specified
+    \i debug - Compile with debug options enabled
+    \i warn_on - The compiler should emit more warnings than normally, ignored if
+         "warn_off" is specified
+    \i warn_off - The compiler should only emit severe warnings.
+    \endlist
+
+    These options define the application/library type:
+
+    \list
+    \i qt - The target is a Qt application/library and requires the Qt header
+         files/library.  The proper include and library paths for the Qt
+         library will automatically be added to the project.
+    \i opengl - The target requires the OpenGL (or Mesa)
+        headers/libraries. The proper include and library paths for
+        these libraries will automatically be added to the project.
+    \i thread - The target is a multi-threaded application or library.  The
+        proper defines and compiler flags will automatically be added to
+        the project.
+    \i x11 - The target is a X11 application or library.  The proper
+        include paths and libraries will automatically be added to the
+        project.
+    \i windows - The target is a Win32 window application (app only). The
+        proper include paths,compiler flags and libraries will
+        automatically be added to the project.
+    \i console - The target is a Win32 console application (app only). The
+        proper include paths, compiler flags and libraries will
+        automatically be added to the
+        project.
+    \i dll - The target is a shared object/DLL.The proper
+        include paths, compiler flags and libraries will automatically be
+        added to the project.
+    \i staticlib - The target is a static library (lib only).  The proper
+        compiler flags will automatically be added to the project.
+    \i plugin - The target is a plugin (lib only). This enables dll as well.
+    \endlist
+
+    These options are used to set the compiler flags:
+
+    \list
+    \i exceptions - Exception support is enabled
+    \i rtti - RTTI support is enabled
+    \i stl - STL support is enabled
+    \endlist
+
+    These options define specific things depending on the platform and/or template:
+
+    \list
+    \i flat - When using the vcapp template this will put all the source files into the source group and 
+	    the header files into the header group regardless of what directory they reside in.  Turning this
+	    option off will group the files within the source/header group depending on the directory they 
+	    reside.  This is turned on by default.
+    \endlist
+
+    The \c CONFIG variable will also be checked when resolving
+    scopes.  You may assign anything to this variable.  
+
+    For example:
+
+    \code
+        CONFIG += qt console newstuff
+        ...
+        newstuff {
+	        SOURCES += new.cpp
+	        HEADERS += new.h
+        }
+    \endcode
+
+
+    \target DEFINES
+    \section3 DEFINES
+
+    \c qmake adds the values of this variable as compiler C
+    preprocessor macros (-D option).  
+
+    For example:
+
+    \code 
+        DEFINES += USE_MY_STUFF QT_DLL
+    \endcode
+
+
+    \target DEF_FILE
+    \section3 DEF_FILE
+
+    \e {This is only used on Windows when using the \c app template}.
+
+    Specifies a .def file to be included in the project.
+
+
+    \target DESTDIR
+    \section3 DESTDIR
+
+    Specifies where to put the \link #TARGET target \endlink file. 
+
+    For example:
+
+    \code 
+        DESTDIR = ../../lib
+    \endcode
+
+    \target DLLDESTDIR
+    \section3 DLLDESTDIR
+
+    Specifies where to copy the \link #TARGET target \endlink dll.
+
+    \target HEADERS
+    \section3 HEADERS
+
+    Defines the header files for the project.  
+
+    \c qmake will generate dependency information (unless -nodepend
+    is specified on the \link #Commands command line \endlink) for the
+    specified headers.  \c qmake will also automatically detect if
+    \c moc is required by the classes in these headers, and add the
+    appropriate dependencies and files to the project for generating and
+    linking the moc files. 
+
+    For example:
+
+    \code
+        HEADERS = myclass.h \
+                  login.h \
+                  mainwindow.h
+    \endcode
+
+    See also \link #SOURCES SOURCES \endlink.
+
+
+    \target INCLUDEPATH
+    \section3 INCLUDEPATH
+
+    This variable specifies the #include directories which should be
+    searched when compiling the project. Use ';' or a space as the
+    directory separator. 
+
+    For example:
+
+    \code
+        INCLUDEPATH = c:\msdev\include d:\stl\include
+    \endcode
+
+
+    \target FORMS
+    \section3 FORMS
+
+    This variable specifies the .ui files (see \link
+    designer-manual.book Qt Designer \endlink) to be processed through \c uic
+    before compiling.  All dependencies, headers and source files required
+    to build these .ui files will automatically be added to the project.
+
+    For example:
+
+    \code
+        FORMS = mydialog.ui \
+	        mywidget.ui \
+                myconfig.ui
+    \endcode
+
+
+    \target LEXSOURCES
+    \section3 LEXSOURCES
+
+    This variable contains a list of lex source files.  All
+    dependencies, headers and source files will automatically be added to
+    the project for building these lex files.  
+
+    For example:
+
+    \code
+        LEXSOURCES = lexer.l
+    \endcode
+
+
+    \target LIBS
+    \section3 LIBS
+
+    This variable contains a list of libraries to be linked into the project.
+    If you are more comfortable with the Unix convension of -L/-l flags you are
+    free to use them in a cross-platform manner and qmake will do the correct
+    thing with these libraries on Windows (namely this means passing the full
+    path of the library to the linker). The only limitation to this is the
+    library must exist, for qmake to find which directory a -l lib lives in.
+
+    For example:
+
+    \code
+        unix:LIBS += -lmath -L/usr/local/lib
+        win32:LIBS += c:\mylibs\math.lib
+    \endcode
+
+
+    \target MOC_DIR
+    \section3 MOC_DIR
+
+    This variable specifies the directory where all intermediate moc
+    files should be placed.  
+
+    For example:
+
+    \code
+        unix:MOC_DIR = ../myproject/tmp
+        win32:MOC_DIR = c:\myproject\tmp
+    \endcode
+
+
+    \target OBJECTS_DIR
+    \section3 OBJECTS_DIR
+
+    This variable specifies the directory where all intermediate
+    objects should be placed.  
+
+    For example:
+
+    \code
+        unix:OBJECTS_DIR = ../myproject/tmp
+        win32:OBJECTS__DIR = c:\myproject\tmp
+    \endcode
+
+
+    \target UI_DIR
+    \section3 UI_DIR
+
+    This variable specifies the directory where all intermediate files from uic
+    should be placed. This variable overrides both UI_SOURCES_DIR and
+    UI_HEADERS_DIR.
+
+    For example:
+
+    \code
+        unix:UI_DIR = ../myproject/ui
+        win32:UI_DIR = c:\myproject\ui
+    \endcode
+
+    \target UI_HEADERS_DIR
+    \section3 UI_HEADERS_DIR
+
+    This variable specifies the directory where all declaration files (as
+    generated by uic) should be placed.
+
+    For example:
+
+    \code
+        unix:UI_HEADERS_DIR = ../myproject/ui/include
+        win32:UI_HEADERS_DIR = c:\myproject\ui\include
+    \endcode
+
+    \target UI_SOURCES_DIR
+    \section3 UI_SOURCES_DIR
+
+    This variable specifies the directory where all implementation files (as generated
+    by uic) should be placed.
+
+    For example:
+
+    \code
+        unix:UI_SOURCES_DIR = ../myproject/ui/src
+        win32:UI_SOURCES_DIR = c:\myproject\ui\src
+    \endcode
+
+
+    \target REQUIRES
+    \section3 REQUIRES
+
+    This is a special variable processed by \c qmake.  If the
+    contents of this variable do not appear in CONFIG by the time this
+    variable is assigned, then a minimal makefile will be generated that
+    states what dependencies (the values assigned to REQUIRES) are
+    missing.
+
+    This is mainly used in Qt's build system for building the examples.
+
+    \target SOURCES
+    \section3 SOURCES
+
+    This variable contains the name of all source files in the project.  
+
+    For example:
+
+    \code
+        SOURCES = myclass.cpp \
+	          login.cpp \
+	          mainwindow.cpp
+    \endcode
+
+    See also \link #HEADERS HEADERS \endlink
+
+
+    \section3 SUBDIRS
+
+    This variable, when used with the \c subdirs
+    \link #TEMPLATE TEMPLATE \endlink contains the names of all subdirectories
+    to look for a project file.
+
+    For example:
+
+    \code
+        SUBDIRS = kernel \
+	          tools
+    \endcode
+
+
+    \target TARGET
+    \section3 TARGET
+
+    This specifies the name of the target file.
+
+    For example:
+
+    \code
+        TEMPLATE = app
+        TARGET = myapp
+        SOURCES = main.cpp
+    \endcode
+
+    The project file above would produce an executable named \c myapp on
+    unix and 'myapp.exe' on windows.
+
+
+
+    \target TEMPLATE
+    \section3 TEMPLATE
+
+    This variable contains the name of the template to use when
+    generating the project.  The allowed values are:
+
+    \list
+    \i app - Creates a makefile for building applications (the default)
+    \i lib - Creates a makefile for building libraries
+    \i subdirs - Creates a makefile for building targets in subdirectories
+    \i vcapp - \e {win32 only}  Creates an application project file for
+    Visual Studio
+    \i vclib - \e {win32 only}  Creates a library project file for Visual
+    Studio
+
+    \endlist
+
+    For example:
+
+    \code
+        TEMPLATE = lib
+        SOURCES = main.cpp
+        TARGET = mylib
+    \endcode
+
+    The template can be overridden by specifying a new template type with the
+    \c -t command line option. This overrides the template type \e after the .pro
+    file has been processed. With .pro files that use the template type to
+    determine how the project is built, it is necessary to declare TEMPLATE on
+    the command line rather than use the \c -t option.
+
+
+
+    \section3 VERSION
+
+    This variable contains the version number of the library if the
+    \c lib \link #TEMPLATE TEMPLATE \endlink is specified.
+
+    For example:
+
+    \code
+        VERSION = 1.2.3
+    \endcode
+
+    \section3 DISTFILES
+
+    This variable contains a list of files to be included in the dist
+    target. This feature is supported by UnixMake specs only.
+
+    For example:
+
+    \code
+        DISTFILES += ../program.txt
+    \endcode
+
+
+    \target YACCSOURCES
+    \section3 YACCSOURCES
+
+    This variable contains a list of yacc source files to be included
+    in the project.  All dependencies, headers and source files will
+    automatically be included in the project.
+
+    For example:
+
+    \code
+        YACCSOURCES = moc.y
+    \endcode
+
+
+    \target RarelyUsedSystemVariables
+    \section2 Rarely Used System Variables
+
+    The following variables are also recognized by \c qmake but are
+    either internal or very rarely used.
+
+
+
+    \target DESTDIR_TARGET
+    \section3 DESTDIR_TARGET
+
+    This variable is set internally by \c qmake, which is basically the DESTDIR variable with
+    the TARGET variable appened at the end.  The value of this variable
+    is typically handled by \c qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be
+    modified.
+
+
+    \target DSP_TEMPLATE
+    \section3 DSP_TEMPLATE
+
+    This variable is set internally by \c qmake, which specifies where the dsp template file for
+    basing generated dsp files is stored.  The value of this variable
+    is typically handled by \c qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be
+    modified.
+
+
+    \target LEXIMPLS
+    \section3 LEXIMPLS
+
+    This variable contains a list of lex implementation files.  The value
+    of this variable is typically handled by \c qmake or \link #QMAKESPEC qmake.conf \endlink and rarely
+    needs to be modified.
+
+
+
+    \target LEXOBJECTS
+    \section3 LEXOBJECTS
+
+    This variable contains the names of intermediate lex object
+    files.The value of this variable is typically handled by
+    \c qmake and rarely needs to be modified.
+
+
+    \target MAKEFILE
+    \section3 MAKEFILE
+
+    This variable specifies the name of the makefile which
+    \c qmake should use when outputting the dependency information
+    for building a project.  The value of this variable is typically
+    handled by \c qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+    \target MAKEFILE_GENERATOR
+    \section3 MAKEFILE_GENERATOR
+
+    This variable contains the name of the makefile generator to use
+    when generating a makefile.  The value of this variable is typically
+    handled internally by \c qmake and rarely needs to be modified.
+
+
+    \target OBJECTS
+    \section3 OBJECTS
+
+    This variable is generated from the \link #SOURCES SOURCES
+    \endlink variable.  The extension of each source file will have been 
+    replaced by .o (Unix) or .obj (Win32).  The value of this variable is 
+    typically handled by \c qmake or \link #QMAKESPEC qmake.conf \endlink and
+    rarely needs to be modified.
+
+    \target OBJMOC
+    \section3 OBJMOC
+
+    This variable is set by \c qmake if files can be found that
+    contain the Q_OBJECT macro.  \c OBJMOC contains the
+    name of all intermediate moc object files. The value of this variable
+    is typically handled by \c qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be
+    modified.
+
+    \target PRECOMPILED_HEADER
+    \section3 PRECOMPILED_HEADER
+
+    This variable indicates the header file for creating a precompiled
+    header file, to increase the compilation speed of a project.
+    Precompiled headers are currently only supported on some platforms
+    (Windows - all MSVC project types, Mac OS X - Xcode, Makefile,
+    UNIX - gcc 3.3 and up).
+
+    On other platforms, this variable has different meaning, as noted
+    below.
+
+    This variable contains a list of header files that require some
+    sort of pre-compilation step (such as with moc). The value of this
+    variable is typically handled by \c qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be
+    modified.  
+
+    \target QMAKE
+    \section3 QMAKE
+
+    This variable contains the name of the \c qmake program
+    itself and is placed in generated makefiles.  The value of this
+    variable is typically handled by \c qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be
+    modified.
+
+
+
+    \target QMAKESPEC_systemvariable
+    \section3 QMAKESPEC
+
+    This variable contains the name of the \c qmake
+    configuration to use when generating makefiles.  The value of this
+    variable is typically handled by \c qmake and rarely needs to be modified.
+    Use the \link #QMAKESPEC QMAKESPEC \endlink environment variable instead.
+
+
+
+
+    \target QMAKE_APP_FLAG
+    \section3 QMAKE_APP_FLAG
+
+    This variable is empty unless the \c app
+    \link #TEMPLATE TEMPLATE \endlink is specified.  The value of this
+    variable is typically handled by \c qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be
+    modified.  Use the following instead:
+
+    \code
+        app {
+            # Conditional code for 'app' template here
+        }
+    \endcode
+
+
+
+    \target QMAKE_APP_OR_DLL
+    \section3 QMAKE_APP_OR_DLL
+
+    This variable is empty unless the \c app or \c dll
+    \link #TEMPLATE TEMPLATE \endlink is specified.  The value of this
+    variable is typically handled by \c qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be
+    modified.  
+
+
+
+    \target QMAKE_AR_CMD
+    \section3 QMAKE_AR_CMD
+
+    \e {This is used on Unix platforms only}
+
+    This variable contains the command for invoking the program which
+    creates, modifies and extracts archives. The value of this variable is
+    typically handled by \c qmake or \link #QMAKESPEC qmake.conf \endlink 
+    and rarely needs to be modified.
+
+
+
+    \target QMAKE_CFLAGS_DEBUG
+    \section3 QMAKE_CFLAGS_DEBUG
+
+    This variable contains the flags for the C compiler in debug mode.The value of this variable is
+    typically handled by \c qmake or \link #QMAKESPEC qmake.conf \endlink 
+    and rarely needs to be modified.
+
+
+
+
+    \target QMAKE_CFLAGS_MT
+    \section3 QMAKE_CFLAGS_MT
+
+    This variable contains the compiler flags for creating a
+    multi-threaded application or when the version of Qt that you link
+    against is a multi-threaded statically linked library.  The value of 
+    this variable is typically handled by \c qmake or 
+    \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+    \target QMAKE_CFLAGS_MT_DBG
+    \section3 QMAKE_CFLAGS_MT_DBG
+
+    This variable contains the compiler flags for creating a debuggable
+    multi-threaded application or when the version of Qt that you link
+    against is a debuggable multi-threaded statically linked library.  The 
+    value of this variable is typically handled by \c qmake or 
+    \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+    \target QMAKE_CFLAGS_MT_DLL
+    \section3 QMAKE_CFLAGS_MT_DLL
+
+    \e {This is used on Windows only}
+
+    This variable contains the compiler flags for creating a 
+    multi-threaded dll or when the version of Qt that you link
+    against is a multi-threaded dll.  The value of this variable is typically
+    handled by \c qmake or \link #QMAKESPEC qmake.conf \endlink and
+    rarely needs to be modified.
+
+
+
+
+    \target QMAKE_CFLAGS_MT_DLLDBG
+    \section3 QMAKE_CFLAGS_MT_DLLDBG
+
+    \e {This is used on Windows only}
+
+    This variable contains the compiler flags for creating a debuggable
+    multi-threaded dll or when the version of Qt that you link
+    against is a debuggable multi-threaded statically linked library. 
+    The value of this variable is typically handled by \c qmake or 
+    \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+    \target QMAKE_CFLAGS_RELEASE
+    \section3 QMAKE_CFLAGS_RELEASE
+
+    This variable contains the compiler flags for creating a non-debuggable
+    application.  The value of this variable is typically
+    handled by \c qmake or \link #QMAKESPEC qmake.conf \endlink and
+    rarely needs to be modified.
+
+
+
+
+    \target QMAKE_CFLAGS_SHLIB
+    \section3 QMAKE_CFLAGS_SHLIB
+
+    \e {This is used on Unix platforms only}
+
+    This variable contains the compiler flags for creating a shared
+    library. The value of this variable is typically handled by
+    \c qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs
+    to be modified.
+
+
+
+
+    \target QMAKE_CFLAGS_THREAD
+    \section3 QMAKE_CFLAGS_THREAD
+
+    This variable contains the compiler flags for creating a multi-threaded
+    application. The value of this variable is typically handled by
+    \c qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs
+    to be modified.
+
+
+
+
+    \target QMAKE_CFLAGS_WARN_OFF
+    \section3 QMAKE_CFLAGS_WARN_OFF
+
+    This variable is not empty if the warn_off
+    \link #TEMPLATE TEMPLATE \endlink option is specified.  The value of this 
+    variable is typically handled by \c qmake or \link #QMAKESPEC qmake.conf \endlink 
+    and rarely needs to be modified.
+
+
+
+    \target QMAKE_CFLAGS_WARN_ON
+    \section3 QMAKE_CFLAGS_WARN_ON
+
+    This variable is not empty if the warn_on
+    \link #TEMPLATE TEMPLATE \endlink option is specified.
+    The value of this variable is typically handled by
+    \c qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs
+    to be modified.
+
+
+
+
+    \target QMAKE_CLEAN
+    \section3 QMAKE_CLEAN
+
+    This variable contains any files which are not generated files (such as moc and uic 
+    generated files) and object files that should be removed when using "make clean".
+
+
+
+    \target QMAKE_CXXFLAGS_DEBUG
+    \section3 QMAKE_CXXFLAGS_DEBUG
+
+    This variable contains the C++ compiler flags for creating a debuggable
+    application. The value of this variable is typically handled by
+    \c qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs
+    to be modified.
+
+
+
+    \target QMAKE_CXXFLAGS_MT
+    \section3 QMAKE_CXXFLAGS_MT
+
+    This variable contains the C++ compiler flags for creating a multi-threaded
+    application. The value of this variable is typically handled by
+    \c qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs
+    to be modified.
+
+
+
+
+    \target QMAKE_CXXFLAGS_MT_DBG
+    \section3 QMAKE_CXXFLAGS_MT_DBG
+
+    This variable contains the C++ compiler flags for creating a debuggable multi-threaded
+    application. The value of this variable is typically handled by
+    \c qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs
+    to be modified.
+
+
+
+
+    \target QMAKE_CXXFLAGS_MT_DLL
+    \section3 QMAKE_CXXFLAGS_MT_DLL
+
+    \c {This is used on Windows only}
+
+    This variable contains the C++ compiler flags for creating a multi-threaded
+    dll. The value of this variable is typically handled by
+    \c qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs
+    to be modified.
+
+
+
+
+    \target QMAKE_CXXFLAGS_MT_DLLDBG
+    \section3 QMAKE_CXXFLAGS_MT_DLLDBG
+
+    \c {This is used on Windows only}
+
+    This variable contains the C++ compiler flags for creating a multi-threaded debuggable
+    dll. The value of this variable is typically handled by
+    \c qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs
+    to be modified.
+
+
+
+
+    \target QMAKE_CXXFLAGS_RELEASE
+    \section3 QMAKE_CXXFLAGS_RELEASE
+
+    This variable contains the C++ compiler flags for creating an 
+    application. The value of this variable is typically handled by
+    \c qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs
+    to be modified.
+
+
+
+
+    \target QMAKE_CXXFLAGS_SHLIB
+    \section3 QMAKE_CXXFLAGS_SHLIB
+
+    This variable contains the C++ compiler flags for creating a
+    shared library.  The value of this variable is typically handled by
+    \c qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs
+    to be modified.
+
+
+
+
+    \target QMAKE_CXXFLAGS_THREAD
+    \section3 QMAKE_CXXFLAGS_THREAD
+
+    This variable contains the C++ compiler flags for creating a
+    multi-threaded application.  The value of this variable is typically handled by
+    \c qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs
+    to be modified.
+
+
+
+
+    \target QMAKE_CXXFLAGS_WARN_OFF
+    \section3 QMAKE_CXXFLAGS_WARN_OFF
+
+    This variable contains the C++ compiler flags for suppressing compiler warnings.
+     The value of this variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+    \target QMAKE_CXXFLAGS_WARN_ON
+    \section3 QMAKE_CXXFLAGS_WARN_ON
+
+    This variable contains C++ compiler flags for generating compiler warnings.
+     The value of this variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+    \target QMAKE_EXTENSION_SHLIB
+    \section3 QMAKE_EXTENSION_SHLIB
+
+    This variable contains the extention for shared libraries.  The value of this 
+    variable is typically handled by \c qmake or \link #QMAKESPEC qmake.conf \endlink 
+    and rarely needs to be modified.
+
+
+
+
+    \target QMAKE_FAILED_REQUIREMENTS
+    \section3 QMAKE_FAILED_REQUIREMENTS
+
+    This variable contains the list of requirements that were failed to be met when
+    \c qmake was used.  For example, the sql module is needed and wasn't compiled into Qt.  The 
+    value of this variable is typically handled by \c qmake or \link #QMAKESPEC qmake.conf \endlink 
+    and rarely needs to be modified.
+
+
+
+
+    \target QMAKE_FILETAGS
+    \section3 QMAKE_FILETAGS
+
+    This variable contains the file tags needed to be entered into the makefile, such as SOURCES
+    and HEADERS.  The value of this variable is typically handled by \c qmake or 
+    \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+    \target QMAKE_INCDIR
+    \section3 QMAKE_INCDIR
+
+    This variable contains the location of all known header files to be added to 
+    INCLUDEPATH when building an application.  The value of this variable is 
+    typically handled by \c qmake or \link #QMAKESPEC qmake.conf \endlink and rarely 
+    needs to be modified.
+
+
+    \target POST_TARGETDEPS
+    \section3 POST_TARGETDEPS
+
+    All libraries that the \link #TARGET target \endlink depends on can be
+    listed in this variable. Some backends do not support this, these include
+    MSVC Dsp, and ProjectBuilder .pbproj files. Generally this is support
+    internally by these build tools, this is usefull for explicitly listing
+    dependant static libraries.
+
+    This list will go after all builtin (and \link #PRE_TARGETDEPS
+    $$PRE_TARGETDEPS \endlink) dependencies.
+
+
+    \target PRE_TARGETDEPS
+    \section3 PRE_TARGETDEPS
+
+    All libraries that the \link #TARGET target \endlink depends on can be
+    listed in this variable. Some backends do not support this, these include
+    MSVC Dsp, and ProjectBuilder .pbproj files. Generally this is support
+    internally by these build tools, this is usefull for explicitly listing
+    dependant static libraries.
+
+    This list will go before all builtin dependencies.
+
+
+    \target QMAKE_INCDIR_OPENGL
+    \section3 QMAKE_INCDIR_OPENGL
+
+    This variable contains the location of OpenGL header files to be added
+    to INCLUDEPATH when building an application with OpenGL support. The
+    value of this variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+    \target QMAKE_INCDIR_QT
+    \section3 QMAKE_INCDIR_QT
+
+    This variable contains the location of all known header file
+    paths to be added to INCLUDEPATH when building a Qt application. The value 
+    of this variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+    \target QMAKE_INCDIR_THREAD
+    \section3 QMAKE_INCDIR_THREAD
+
+    This variable contains the location of all known header file
+    paths to be added to INCLUDEPATH when building a multi-threaded application. 
+    The value of this variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+    \target QMAKE_INCDIR_X11
+    \section3 QMAKE_INCDIR_X11
+
+    \e {This is used on Unix platforms only}
+
+    This variable contains the location of X11 header file paths to be
+    added to INCLUDEPATH when building a X11 application.  The
+    value of this variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+    \target QMAKE_LFLAGS_CONSOLE
+    \section3 QMAKE_LFLAGS_CONSOLE
+
+    \e {This is used on Windows only}
+
+    This variable contains link flags when building console
+    programs.  The value of this variable is typically handled by
+    \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+    \section3 QMAKE_LFLAGS_CONSOLE_DLL
+
+    \e {This is used on Windows only}
+
+    This variable contains link flags when building console
+    dlls.  The value of this variable is typically handled by
+    \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+
+    \section3 QMAKE_LFLAGS_DEBUG
+
+    This variable contains link flags when building debuggable applications.  The
+    value of this variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+
+    \section3 QMAKE_LFLAGS_PLUGIN
+
+    This variable contains link flags when building plugins. The value
+    of this variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+
+    \section3 QMAKE_LFLAGS_QT_DLL
+
+    This variable contains link flags when building programs that
+    use the Qt library built as a dll. The value of this variable is
+    typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+
+    \section3 QMAKE_LFLAGS_RELEASE
+
+    This variable contains link flags when building applications for 
+    release. The value of this variable is typically handled by
+    \c qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+
+    \section3 QMAKE_LFLAGS_SHAPP
+
+    This variable contains link flags when building applications which are using
+    the \c app template.  The value of this variable is typically handled by
+    \c qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+
+    \section3 QMAKE_LFLAGS_SHLIB
+
+    This variable contains link flags when building shared libraries
+    The value of this variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+
+    \section3 QMAKE_LFLAGS_SONAME
+
+    This variable specifies the link flags to set the name of shared objects,
+    such as .so or .dll.  The value of this variable is typically handled by \c
+    qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+    \section3 QMAKE_LFLAGS_THREAD
+
+    This variable contains link flags when building multi-threaded projects.
+    The value of this variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+
+    \section3 QMAKE_LFLAGS_WINDOWS
+
+    \e {This is used on Windows only}
+
+    This variable contains link flags when building windows projects.
+    The value of this variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+    \section3 QMAKE_LFLAGS_WINDOWS_DLL
+
+    \e {This is used on Windows only}
+
+    This variable contains link flags when building windows dll projects.
+    The value of this variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+    \section3 QMAKE_LIBDIR
+
+    This variable contains the location of all known library
+    directories.The value of this variable is typically handled by
+    \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+
+    \section3 QMAKE_LIBDIR_FLAGS
+
+    \e {This is used on Unix platforms only}
+
+    This variable contains the location of all library
+    directory with -L prefixed.  The value of this variable is typically handled by
+    \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+    \section3 VPATH
+
+    This variable tells \c qmake where to search for files it cannot
+    open. With this you may tell \c qmake where it may look for things
+    like SOURCES, and if it finds an entry in SOURCES that cannot be
+    opened it will look through the entire VPATH list to see if it can
+    find the file on its own.
+
+    See also \link #DEPENDPATH DEPENDPATH \endlink.
+
+    \target DEPENDPATH
+    \section3 DEPENDPATH
+
+    This variable contains the list of all directories to look in to
+    resolve dependencies. This will be used when crawling through
+    \c included files.
+
+
+    \section3 QMAKE_LIBDIR_OPENGL
+
+    This variable contains the location of the OpenGL library
+    directory.The value of this variable is typically handled by
+    \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+
+    \section3 QMAKE_LIBDIR_QT
+
+    This variable contains the location of the Qt library
+    directory.The value of this variable is typically handled by
+    \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+
+    \section3 QMAKE_LIBDIR_X11
+
+    \e {This is used on Unix platforms only}
+
+    This variable contains the location of the X11 library
+    directory.The value of this variable is typically handled by
+    \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+    \section3 QMAKE_LIBS
+
+    This variable contains all project libraries.  The value of this
+    variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+    \section3 QMAKE_LIBS_CONSOLE
+
+    \e {This is used on Windows only}
+
+    This variable contains all project libraries that should be linked against
+    when building a console application.  The value of this
+    variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+    \section3 QMAKE_LIBS_OPENGL
+
+    This variable contains all OpenGL libraries.  The value of this
+    variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+
+    \section3 QMAKE_LIBS_OPENGL_QT
+
+    This variable contains all OpenGL Qt libraries.The value of this
+    variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+
+    \section3 QMAKE_LIBS_QT
+
+    This variable contains all Qt libraries.The value of this
+    variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+
+    \section3 QMAKE_LIBS_QT_DLL
+
+    \e {This is used on Windows only}
+
+    This variable contains all Qt libraries when Qt is built as a dll.  The 
+    value of this variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+
+    \section3 QMAKE_LIBS_QT_OPENGL
+
+    This variable contains all the libraries needed to link against if 
+    OpenGL support is turned on. The 
+    value of this variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+    \section3 QMAKE_LIBS_QT_THREAD
+
+    This variable contains all the libraries needed to link against if 
+    thread support is turned on.  The 
+    value of this variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+
+    \section3 QMAKE_LIBS_RT
+
+    \e {This is used with Borland compilers only}
+
+    This variable contains the runtime library needed to link against when
+    building an application.  The 
+    value of this variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+
+    \section3 QMAKE_LIBS_RTMT
+
+    \e {This is used with Borland compilers only}
+
+    This variable contains the runtime library needed to link against when
+    building a multi-threaded application.  The 
+    value of this variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+    \section3 QMAKE_LIBS_THREAD
+
+    \e {This is used on Unix platforms only}
+
+    This variable contains all libraries that need to be linked against
+    when building a multi-threaded application.  The 
+    value of this variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+
+    \section3 QMAKE_LIBS_WINDOWS
+
+    \e {This is used on Windows only}
+
+    This variable contains all windows libraries.The value of this
+    variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+
+    \section3 QMAKE_LIBS_X11
+
+    \e {This is used on Unix platforms only}
+
+    This variable contains all X11 libraries.The value of this
+    variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+
+    \section3 QMAKE_LIBS_X11SM
+
+    \e {This is used on Unix platforms only}
+
+    This variable contains all X11 session management libraries.  The
+    value of this variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+
+    \section3 QMAKE_LIB_FLAG
+
+    This variable is not empty if the \c lib template is specified.  The
+    value of this variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+    \section3 QMAKE_LINK_SHLIB_CMD
+
+    This variable contains the command to execute when creating a
+    shared library. The
+    value of this variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+    \section3 QMAKE_POST_LINK
+
+    This variable contains the command to execute after linking the TARGET
+    together. This variable is normally empty and therefore nothing is
+    executed, additionally some backends will not support this - mostly only
+    Makefile backends.
+
+
+
+    \section3 QMAKE_PRE_LINK
+
+    This variable contains the command to execute before linking the TARGET
+    together. This variable is normally empty and therefore nothing is
+    executed, additionally some backends will not support this - mostly only
+    Makefile backends.
+
+
+
+    \section3 QMAKE_LN_SHLIB
+
+    This variable contains the command to execute when creating a link
+    to a shared library. The
+    value of this variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+
+    \section3 QMAKE_MAKEFILE
+
+    This variable contains the name of the makefile to create. The
+    value of this variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+
+
+    \section3 QMAKE_MOC_SRC
+
+    This variable contains the names of all moc source files to
+    generate and include in the project. The value of this variable is
+    typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+    \section3 QMAKE_QMAKE
+
+    This variable contains the location of qmake if it is not in the path.  
+    The value of this variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+
+    \section3 QMAKE_QT_DLL
+
+    This variable is not empty if Qt was built as a dll.  The
+    value of this variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+    \section3 QMAKE_RUN_CC
+
+    This variable specifies the individual rule needed to build an object.
+    The value of this variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+    \section3 QMAKE_RUN_CC_IMP
+
+    This variable specifies the individual rule needed to build an object.
+    The value of this variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+    \section3 QMAKE_RUN_CXX
+
+    This variable specifies the individual rule needed to build an object.
+    The value of this variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+    \section3 QMAKE_RUN_CXX_IMP
+
+    This variable specifies the individual rule needed to build an object.
+    The value of this variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+    \section3 QMAKE_TARGET
+
+    This variable contains the name of the project target.  The value of
+    this variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+    \section3 QMAKE_UIC
+
+    This variable contains the location of uic if it is not in the path.  
+    The value of this variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+    It can be used to specify arguments to uic as well, such as additional plugin 
+    paths.  For example:
+
+    \code
+        QMAKE_UIC = uic -L /path/to/plugin
+    \endcode
+
+
+
+    \section3 RC_FILE
+
+    This variable contains the name of the resource file for the application.  
+    The value of this variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+
+    \section3 RES_FILE
+
+    This variable contains the name of the resource file for the application.  
+    The value of this variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+    \section3 SRCMOC
+
+    This variable is set by \c qmake if files can be found that
+    contain the Q_OBJECT macro.  \c SRCMOC contains the
+    name of all the generated moc files. The value of this variable
+    is typically handled by \c qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be
+    modified.
+
+    \section3 TARGET_EXT
+
+    This variable specifies the target's extension.  The value of this variable
+    is typically handled by \c qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be
+    modified.
+
+
+
+    \section3 TARGET_x
+
+    This variable specifies the target's extension with a major version number.  The value of this variable
+    is typically handled by \c qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be
+    modified.
+
+
+    \section3 TARGET_x.y.z
+
+    This variable specifies the target's extension with version number.  The value of this variable
+    is typically handled by \c qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be
+    modified.
+
+
+    \section3 UICIMPLS
+
+    This variable contains a list of the generated implementation files by UIC.  
+    The value of this variable
+    is typically handled by \c qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be
+    modified.
+
+
+
+
+
+    \section3 UICOBJECTS
+
+    This variable is generated from the UICIMPLS variable.  The extension of each 
+    file will have been replaced by .o (Unix) or .obj (Win32).  The value of this variable is 
+    typically handled by \c qmake or \link #QMAKESPEC qmake.conf \endlink and
+    rarely needs to be modified.
+
+
+
+    \section3 VER_MAJ
+
+    This variable contains the major version number of the library, if the
+    \c lib \link #TEMPLATE template \endlink is specified.
+
+
+
+
+
+    \section3 VER_MIN
+
+    This variable contains the minor version number of the library, if the
+    \c lib \link #TEMPLATE template \endlink is specified.
+
+
+
+
+
+    \section3 VER_PAT
+
+    This variable contains the patch version number of the library, if the
+    \c lib \link #TEMPLATE template \endlink is specified.
+
+
+
+    \section3 QMAKE_EXT_MOC
+
+    This variable changes the extention used on included moc files. 
+
+    See also \link #Extensions File Extensions \endlink.
+
+
+
+    \section3 QMAKE_EXT_UI
+
+    This variable changes the extention used on /e Designer UI files. 
+
+    See also \link #Extensions File Extensions \endlink.
+
+
+
+    \section3 QMAKE_EXT_PRL
+
+    This variable changes the extention used on created PRL files. 
+
+    See also \link #Extensions File Extensions \endlink, 
+             \link #LibDepend Library Dependencies \endlink.
+
+
+
+    \section3 QMAKE_EXT_LEX
+
+    This variable changes the extention used on files given to lex.
+
+    See also \link #Extensions File Extensions \endlink,
+             \link #LEXSOURCES LEXSOURCES \endlink.
+
+
+
+    \section3 QMAKE_EXT_YACC
+    This variable changes the extention used on files given to yacc.
+
+    See also \link #Extensions File Extensions \endlink,
+             \link #LEXSOURCES YACCSOURCES \endlink.
+
+
+
+    \section3 QMAKE_EXT_OBJ
+
+    This variable changes the extention used on generated object files. 
+
+    See also \link #Extensions File Extensions \endlink.
+
+
+    \section3 QMAKE_EXT_CPP
+
+    This variable changes the interpretation of all suffixes in this
+    list of values as files of type C++ source code.
+
+    See also \link #Extensions File Extensions \endlink.
+
+
+    \section3 QMAKE_EXT_H
+
+    This variable changes the interpretation of all suffixes in this
+    list of values as files of type C header files.
+
+    See also \link #Extensions File Extensions \endlink.
+
+
+    \section3 YACCIMPLS
+
+    This variable contains a list of yacc source files. The value of
+    this variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+
+
+    \section3 YACCOBJECTS
+
+    This variable contains a list of yacc object files. The value of
+    this variable is typically handled by \c qmake or
+     \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
+
+
+    \target Functions
+    \section1 Functions
+
+    \c qmake recognizes the following functions:
+
+
+
+    \section2 include(filename)
+
+    This function will include the contents of \e filename into the
+    current project at the point where was included.  The function succeeds
+    if \e filename was included, otherwise it fails. You can check the
+    return value of this function using a
+    scope.
+
+    For example:
+
+    \code
+        include( shared.pri )
+        OPTIONS = standard custom
+        !include( options.pri ) {
+            message( "No custom build options specified" )
+	    OPTIONS -= custom
+        }
+    \endcode
+
+    \section2 exists(file)
+
+    This function will test if \e file exists.  If the file exists, then it will succeed; otherwise it will
+    fail. 
+    You can specify a regular expression in file and it will succeed if any file
+    matches the regular expression specified.
+
+    For example:
+    \code
+        exists( $(QTDIR)/lib/libqt-mt* ) {
+              message( "Configuring for multi-threaded Qt..." )
+              CONFIG += thread
+        }
+    \endcode
+
+    \section2 contains(variablename, value)
+
+    This function will succeed if the variable \e variablename
+    contains the value \e value.  You can check the return value of this
+    function using a scope.
+
+    For example:
+
+    \code
+        contains( drivers, network ) {
+	        # drivers contains 'network'
+	        message( "Configuring for network build..." )
+	        HEADERS += network.h
+	        SOURCES += network.cpp
+        }
+    \endcode
+
+    \section2 count(variablename, number)
+
+    This function will succeed if the variable \e variablename
+    contains \e number elements, otherwise it will fail.  You can check
+    the return value of this function using a
+    scope.
+
+    For example:
+
+    \code
+        MYVAR = one two three
+        count( MYVAR, 3 ) {
+	        # always true
+        }
+    \endcode
+
+    \section2 CONFIG(config)
+
+    This function can be used to test for variables placed into the CONFIG
+    variable. This is the same as regular old style (tmake) scopes, but
+    has the added advantage a second paramter can be passed to test for
+    the active config. As CONFIG's are order dependent (ie the last one
+    set will be considered the active config for mutual exclusive sets
+    like debug and release) a second paramter can be used to specify a set
+    of values to consider for example:
+
+    \code
+        CONFIG = debug
+        CONFIG += release
+        CONFIG(release, debug|release):message(Release build!) #will print
+        CONFIG(debug, debug|release):message(Debug build!) #no print
+    \endcode
+
+    Because release is considered the active setting (for feature parsing)
+    it will be the CONFIG used to generate the build file. In the common
+    case a second paramter is not needed, but for specific mutual
+    exclusive tests it is invaluable.
+
+    \section2 infile(filename, var, val)
+
+    This function will succeed if the file \e filename (when parsed
+    by qmake itself) contains the variable \e var with a value of 
+    \e val. You may also not pass in a third argument (\e val) and the
+    function will only test if \e var has been assigned to in the file.
+
+    \section2 isEmpty(variablename)
+
+    This function will succeed if the variable \e variablename is
+    empty (same as \c count(variable, 0)).
+
+    \section2 system(command)
+
+    This function will execute \c command in a secondary shell and will
+    succeed if the command exits with an exit status of 1.  You can check the
+    return value of this function using a scope.
+
+    For example:
+
+    \code
+        system(ls /bin):HAS_BIN=FALSE
+    \endcode
+
+    \section2 warning(string)
+
+    This function will always succeed, and will display the given
+    \e string to the user. message() is a synonym for warning().
+
+    \section2 error(string)
+
+    This function will never return a value.  It will display the given \e
+    string to the user, and then exit \c qmake. This function should
+    only be used for very fatal configurations.
+
+    For example:
+
+    \code
+        release:debug:error(You can't have release and debug at the same time!)
+    \endcode
+
+    \target Properties
+    \section1 Properties
+
+    \c qmake has a system of persistant information, this allows you to
+    \c set a variable in qmake once, and each time qmake is invoked this
+    value can be queried. Use the following to set a property in qmake:
+
+    \code
+        qmake -set VARIABLE VALUE
+    \endcode
+
+    To retrieve this information back from qmake you can do:
+
+    \code
+        qmake -query VARIABLE
+        qmake -query #queries all current VARIABLE/VALUE pairs..
+    \endcode
+
+    This information will be saved into a QSettings object (meaning it
+    will be stored in different places for different platforms). As
+    VARIABLE is versioned as well, you can set one value in an older
+    version of qmake, and newer versions will retrieve this value, however
+    if you -set VARIABLE into a newer version of qmake the older version
+    will not use this value. You can however query a specific version of a
+    variable if you prefix that version of qmake to VARIABLE, as in:
+
+    \code
+        qmake -query "1.06a/VARIABLE"
+    \endcode
+
+    qmake also has the notion of \c builtin properties, for example you can
+    query the installation of Qt for this version of qmake with the
+    QT_INSTALL_PREFIX property:
+
+    \code
+        qmake -query "QT_INSTALL_PREFIX"
+    \endcode
+
+    These builtin properties cannot have a version prefixed to them as
+    they are not versioned and each qmake will have its own notion of
+    these values. The list below outlines the builtin properties:
+
+    \list
+    \i QT_INSTALL_PREFIX - Where the version of Qt this qmake is built for resides
+    \i QT_INSTALL_DATA - Where data for this version of Qt resides
+    \i QMAKE_VERSION - The current version of qmake
+    \endlist
+
+    Finally, these values can be queried in a project file with a special
+    notation such as:
+
+    \code
+        QMAKE_VERS = $$[QMAKE_VERSION]
+    \endcode
+
+    \target Environment
+    \section1 Environment Variables and Configuration
+
+    \target QMAKESPEC
+    \section2 QMAKESPEC
+
+    \c qmake requires a platform and compiler description file which
+    contains many default values used to generate appropriate makefiles.
+    The standard Qt distribution comes with many of these files, located
+    in the \c mkspecs subdirectory of the Qt installation.
+
+    The QMAKESPEC environment variable can contain any of the following:
+
+    \list
+    \i A complete path to a directory containing a qmake.conf file.  In this case \c qmake will open the qmake.conf file from within that directory.  If the file does not exist, \c qmake will exit with an error.
+    \i The name of a platform-compiler combination.  In this case, \c qmake will search in the directory specified by the QTDIR environment variable.
+    \endlist
+
+    Note: the QMAKESPEC path will automatically be added to the
+    \link #INCLUDEPATH INCLUDEPATH \endlink system variable.
+
+    \target INSTALLS
+    \section2 INSTALLS
+
+    It is common on UNIX to be able to install from the same utility as
+    you build with (e.g make install). For this \c qmake has introduce the
+    concept of an install set. The notation for this is quite simple,
+    first you fill in an "object" in qmake for example:
+
+    \code
+        documentation.path = /usr/local/program/doc
+        documentation.files = docs/*
+    \endcode
+
+    In this way you are telling \c qmake several things about this
+    install, first that you plan to install to /usr/local/program/doc (the
+    path member), second that you plan to copy everything in the docs
+    directory. Once this is done you may insert it in the install list:
+
+    \code
+        INSTALLS += documentation
+    \endcode
+
+    Now \c qmake will take over making sure the correct things are copied
+    to the specified places. If however you require greater control you
+    may use the \c extra member of the object:
+
+    \code
+        unix:documentation.extra = create_docs; mv master.doc toc.doc
+    \endcode
+
+    Then qmake will run the things in extra (this is of course platform
+    specific, so you may need to test for your platform first, this case
+    we test for unix). Then it will do the normal processings of the files
+    member. Finally if you appened a builtin install to INSTALLS \c qmake
+    (and do not specify a files or extra member) will decide what needs to
+    be copied for you, currently the only supported builtin is target:
+
+    \code
+        target.path = /usr/local/myprogram
+        INSTALLS += target
+    \endcode
+
+    With this \c qmake will know what you plan need copied, and do this
+    for you.
+
+    \target cache
+    \section2 Cache File
+
+    The cache file (mentioned above in the options) is a special file \c qmake
+    will read to find settings not specified in the \c qmake.conf file, the
+    .pro file, or the command line. If \c -nocache is not specified, \c qmake
+    will try to find a file called \c .qmake.cache in parent directories.  If
+    it fails to find this file, it will silently ignore this step of
+    processing.
+
+    \target LibDepend
+    \section2 Library Dependencies
+
+    Often when linking against a library \c qmake relies on the underlying
+    platform to know what other libraries this library links against, and
+    lets the platform pull them in. In many cases, however, this is not
+    sufficent. For example when statically linking a library there are no
+    libraries linked against, and therefore no dependencies to those
+    libraries are created - however an application that later links
+    against this library will need to know where to find the symbols that
+    the linked in library will require. To help with this situation \c
+    qmake will follow a library's dependencies when it feels appropriate,
+    however this behaviour must be enabled in \c qmake. To enable requires
+    two steps. First, you must enable it in the library - to do this you
+    must tell \c qmake to save information about this library:
+
+    \code
+        CONFIG += create_prl
+    \endcode
+
+    This is only relevant to the lib template, and will be ignored for all
+    others. When this option is enabled \c qmake will create a file
+    (called a .prl file) which will save some meta information about the
+    library. This metafile is itself just a qmake project file, but with
+    all internal variables. You are free to view this file, and if deleted
+    \c qmake will know to recreate it when necesary (either when the .pro
+    file is later read, or if a dependent library (described below) has
+    changed). When installing this library (by using target in INSTALLS,
+    above) \c qmake will automatically copy the .prl file to your install
+    path.
+
+    The second step to enabling this processing is to turn on reading of
+    the meta information created above:
+
+    \code
+        CONFIG += link_prl
+    \endcode
+
+    When this is turned on \c qmake will process all libraries linked to,
+    and find their meta information. With this meta information \c qmake
+    will figure out what is relevant to linking, specifically it will add
+    to your list of DEFINES as well as LIBS. Once \c qmake has processed
+    this file, it will then look through the newly introduced LIBS and
+    find their dependent .prl files, and continue until all libraries have
+    been resolved. At this point the makefile is created as usual, and the
+    libraries are linked explicity against your program.
+
+    The internals of the .prl file are left closed so they can easily
+    change later. It is not designed to be changed by hand however, and
+    should only be created by \c qmake - these .prl files should also not
+    be transfered from operating system to operating system as they may be
+    platform dependent (like a makefile).
+
+    \target Extensions
+    \section2 File Extensions
+
+    Under normal circumstances \c qmake will try to use appropriate file extensions
+    for your platform. There may be times, however, that you would like to override
+    the behavior of these extensions. To do this, you must modify builtin variables 
+    in your .pro file, which will in turn changes \c qmake's interpretation of these
+    files. You may do this as:
+
+    \code
+        QMAKE_EXT_MOC = .mymoc
+    \endcode
+
+    The variables are as follows:
+
+    \list
+    \i QMAKE_EXT_MOC - This modifies the extension placed on included moc files.
+    \i QMAKE_EXT_UI - This modifies the extension used for designer UI files (usually in FORMS).
+    \i QMAKE_EXT_PRL - This modifies the extension placed on 
+                       \link #LibDepend library dependency files \endlink.
+    \i QMAKE_EXT_LEX - This changes the suffix used in files (usually in LEXSOURCES).
+    \i QMAKE_EXT_YACC - This changes the suffix used in files (usually in YACCSOURCES).
+    \i QMAKE_EXT_OBJ - This changes the suffix used on generated object files.
+    \endlist
+
+    All the above accept just the first value, so you must assign to it one value that
+    will be used through your makefile. There are two variables that accept a list of values, 
+    they are:
+
+    \list
+    \i QMAKE_EXT_CPP - Changes interpretation all files with these suffixes to be
+                       C++ source files. 
+    \i QMAKE_EXT_H - Changes interpretation all files with these suffixes to be
+                       C header files. 
+    \endlist
+
+
+    \target Customizing
+    \section2 Customizing Makefile Output
+
+    \c qmake often tries to be all things to all build tools, this is often less
+    than ideal when you really need to run special platform dependent
+    commands. This can be achieved with specific instructions to the different
+    \c qmake backends (currently this is only supported by the UNIX \link
+    #MAKEFILE_GENERATOR generator \endlink). 
+
+    The interfaces to customizing the Makefile are done through "objects" as in
+    other places in qmake. The notation for this is quite simple, first you
+    fill in an "object" in qmake for example:
+
+    \code
+        mytarget.target = .buildfile
+        mytarget.commands = touch $$mytarget.target
+        mytarget.depends = mytarget2
+
+        mytarget2.commands = @echo Building $$mytarget.target
+    \endcode
+
+    The information above defines a qmake target called mytarget which contains
+    a Makefile target called .buildfile, .buildfile is generated by 'touch
+    .buildfile', and finally that this Makefile target depends on the qmake
+    target mytarget2. Additionally we've defined the qmake target mytarget2
+    which simply echo's something to stdout.
+
+    The final step to making use of the above is to instruct qmake that this is
+    actually an object used by the target building parts of qmake by:
+
+    \code
+        QMAKE_EXTRA_UNIX_TARGETS += mytarget mytarget2
+    \endcode
+
+    This is all you need to do to actually build custom targets in qmake, of
+    course you may want to tie one of these targets to actually building the
+    \link #TARGET qmake build target \endlink. To do this, you simply need to
+    include your Makefile target in the list of \link #PRE_TARGETDEPS PRE_TARGETDEPS
+    \endlink.
+
+    For convenience there is also a method of customizing (UNIX) projects
+    for generic new compilers (or even preprocessors).
+
+    \code
+        new_moc.output  = moc_${QMAKE_FILE_BASE}.cpp
+        new_moc.commands = moc ${QMAKE_FILE_NAME} -o ${QMAKE_FILE_OUT}
+        new_moc.depend_command = g++ -E -M ${QMAKE_FILE_NAME} | sed "s,^.*: ,,"
+        new_moc.input = NEW_HEADERS
+        QMAKE_EXTRA_UNIX_COMPILERS += new_moc
+    \endcode
+
+    With this you can create a new moc for qmake, the commands will be
+    executed over all arguments given to a NEW_HEADERS variable (from the
+    input variable), and write to output (and automatically hand this
+    filename to the compiler to be linked into your target). Additionally
+    \c qmake will execute depend_command to generate dependency information and
+    place this in the project as well.
+
+    These commands can easily be placed into a cache file, and subsequent
+    .pro files can give several arguments to NEW_HEADERS.
+*/

@@ -65,16 +65,6 @@
     SQL drivers contribute to making Qt 4 database applications more
     snappy.
 
-    \section1 The Current State of the Database Module
-
-    The database drivers and the core SQL classes are not expected to
-    change significantly before the final Qt 4.0 release.
-
-    The QSqlQueryModel and QSqlTableModel classes are mostly
-    finished, but they might get some new features before Qt 4.0 is
-    released. QSqlRelationalTableModel is still in development and
-    might change significantly. See \l{Future Work} for details.
-
     \section1 Example Code
 
     The simplest way to present data from a database is to simply
@@ -158,19 +148,5 @@
     old classes are part of the \l{Qt 3 compatibility library} to aid
     porting to Qt 4.
 
-    \section1 Future Work
-
-    The SQL module will continue to evolve. Below are some ideas that
-    are likely to be implemented before Qt 4 is released:
-
-    \list
-    \o Generic form support, in the spirit of the old QSqlForm class
-       but with a generic interface that isn't restricted to
-       databases.
-    \o More convenience features in existing models.
-    \o Additional models.
-    \o Support for asynchronous queries.
-    \endlist
-
-    \link qt4-intro.html [Back to the Technology Preview page] \endlink
+    \link qt4-intro.html [Back to the Beta page] \endlink
 */

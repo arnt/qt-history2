@@ -1280,7 +1280,7 @@ items.
     way to the item view classes in Qt 3, but have been rewritten to use the
     underlying model/view framework for performance and maintainability. The
     old item view classes are still available in the compatibility library
-    (see the \l{porting.html}{Porting Guide} for more information).
+    (see the \l{porting4.html}{Porting Guide} for more information).
 
     The item-based widgets have been given names which reflect their uses:
     \c QListWidget provides a list of items, \c QTreeWidget displays a

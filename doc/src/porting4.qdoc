@@ -11,7 +11,7 @@
 ****************************************************************************/
 
 /*!
-    \page porting.html
+    \page porting4.html
 
     \title Porting to Qt 4
 
@@ -28,6 +28,9 @@
     ### QServerSocket -> Q3ServerSocket
 
     ### remove these when the classes are re-ported
+
+    ### QApplication::eventLoop()
+
     \row \o void QCheckListItem::paintCell(QPainter *, const QColorGroup &, int, int, int)\row \o void Q3CheckListItem::paintCell(QPainter *, const QPalette &, int, int, int)
     \row \o void QCheckListItem::paintFocus(QPainter *, const QColorGroup &, const QRect &) \o void Q3CheckListItem::paintFocus(QPainter *, const QPalette &, const QRect &)
     \row \o QDataTable: a whole bunch of virtual functions have a different signature

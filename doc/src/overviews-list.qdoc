@@ -100,8 +100,8 @@
     \i \link emb-fonts.html Fonts in Qt/Embedded \endlink
     \i \link emb-pointer.html Qt/Embedded Pointer Handling \endlink
     \i \link emb-envvars.html Qt/Embedded environment variables \endlink
-    \i \link emb-porting.html Porting your applications to Qt/Embedded \endlink
-    \i \link embedporting.html Issues when porting Qt/Embedded to another OS \endlink
+    \i \link emb-differences.html Porting your applications to Qt/Embedded \endlink
+    \i \link emb-porting.html Issues when porting Qt/Embedded to another OS \endlink
     \i \link emb-performance.html Qt/Embedded Performance Tuning \endlink
     \i \link emb-vnc.html Qt/Embedded as a VNC Server \endlink
     \endlist

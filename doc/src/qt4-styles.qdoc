@@ -81,15 +81,6 @@
     \l QStyleOption has a versioning mechanism that makes it possible to
     add members to the class without breaking binary compatibility.
 
-    \section1 State of the Style API
-
-    \l QStyle, \l QStyleOption, and all \l QStyleOption subclasses
-    are essentially finished and fully documented.
-
-    Among the predefined Qt styles, \l QWindowsStyle and \l QMacStyle
-    are the only ones that have been ported to the new API so far.
-    The other styles should be ready for Qt 4.0 beta 1 or beta 2.
-
     \section1 Example Code
 
     The following code snippet illustrates how to use \l QStyle to
@@ -155,5 +146,5 @@
     was deduced by querying the widget. In Qt 4, everything is stored
     in the \l QStyleOption parameter.
 
-    \link qt4-intro.html [Back to the Technology Preview page] \endlink
+    \link qt4-intro.html [Back to the Beta page] \endlink
 */

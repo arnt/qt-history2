@@ -96,11 +96,6 @@
     QByteArray("")} and \c{QString() == QString("")}.
 
 
-    \section1 The State of Tulip
-
-    The Tulip classes are essentially finished and fully documented.
-
-
     \section1 Examples
 
     The first group of examples show how to use the new Java-style
@@ -230,5 +225,5 @@
     If you use QValueVector or QMap in Qt 3, the corresponding Qt 4
     classes (QVector, QMap) are very similar to use.
 
-    \link qt4-intro.html [Back to the Technology Preview page] \endlink
+    \link qt4-intro.html [Back to the Beta page] \endlink
 */

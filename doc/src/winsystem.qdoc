@@ -69,7 +69,7 @@
     \o \link emb-install.html Installation\endlink
     \o \link emb-performance.html Qt/Embedded performance tuning\endlink
     \o \link emb-running.html Running Qt/Embedded applications\endlink
-    \o \link emb-porting.html Porting your applications to Qt/Embedded\endlink
+    \o \link emb-differences.html Porting your applications to Qt/Embedded\endlink
     \o \link emb-fonts.html Font formats and definitions\endlink
     \o \link emb-charinput.html Character input (keyboard, pen, ...)\endlink
     \o \link emb-pointer.html Pointer handling (mouse, pen, ...)\endlink

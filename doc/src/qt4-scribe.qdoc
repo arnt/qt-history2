@@ -104,15 +104,6 @@
     behavior is currently implemented in a private class.
 
 
-    \section1 What's Changed Since Technology Preview 1?
-
-    Some parts of the Scribe framework are still incomplete.
-    Rich text support has been improved to allow HTML documents to be
-    rendered by \c QTextEdit and \c QTextBrowser, but we are still
-    interested in receiving feedback on the public API, usability, and
-    any bugs that you find. Plain text support is considered to be
-    complete.
-
     \section1 The Current State of Scribe
 
     The following features are mostly complete:
@@ -296,5 +287,5 @@
     \i Improved layout of rich text documents
     \endlist
 
-    \link qt4-intro.html [Back to the Technology Preview page] \endlink
+    \link qt4-intro.html [Back to the Beta page] \endlink
 */

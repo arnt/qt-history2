@@ -75,49 +75,6 @@
     See also the \l{qt4-sql.html}{Database GUI Layer} document for
     information about Qt 4's database models.
 
-    \section1 The Current State of Interview
-
-    The following features are provided with the technology preview.
-
-    Model classes that provide common interfaces, or that manage and store
-    data:
-
-    \list
-    \i QAbstractItemModel
-    \i QAbstractListModel and QAbstractTableModel
-    \i QModelIndex and QPersistentModelIndex
-    \i QDirModel -- a predefined subclass providing a model for
-    viewing files and directories
-    \endlist
-
-    View classes that provide common interfaces, or that present data
-    from models in a standard way:
-
-    \list
-    \i QAbstractItemView
-    \i QListView, QTableView, QTreeView -- ready-to-use view
-       classes that are suitable for subclassing
-    \endlist
-
-    Delegate and controller classes that provide common interfaces, or
-    that provide editing and control facilities for views:
-
-    \list
-    \i QAbstractItemDelegate
-    \i QItemDelegate
-    \i QItemSelectionModel, QItemSelection,
-    QItemSelectionRange -- classes to handle selections of items
-    \endlist
-
-    Convenience classes that provide item-based functionality found
-    in Qt 3's item view widgets:
-
-    \list
-    \i QListWidget and QListWidgetItem
-    \i QTableWidget and QTableWidgetItem
-    \i QTreeWidget and QTreeWidgetItem
-    \endlist
-
     \section1 Example Code
 
     To illustrate how the Interview classes are used, we present two
@@ -243,28 +200,6 @@
     from a simple model. The standard models and views planned for
     Qt 4 will make the process even easier.
 
-    \section1 What's Changed Since Qt 4 Technology Preview 1?
-
-    Convenience classes that correspond to Qt 3's item view classes are
-    now included with the model/view classes. These provide a familiar
-    item-based interface for developers who do not need the flexibility
-    of the pure model/view classes.
-    We introduce the QListWidget, QTreeWidget, and QTableWidget
-    classes. These correspond to the QListBox, QListView, and
-    QTable classes from Qt 3.
-
-    After feedback from the
-    \l{http://lists.trolltech.com/qt4-preview-feedback/}{Qt 4 preview
-    feedback mailing list} and some internal discussion, the concept of
-    a model index type was abandoned in favor of a separate mechnism for
-    supplying header data from models. This separates the task of
-    providing headers to views from the more common task of supplying
-    data to views, making the whole process more efficient.
-
-    The delegate classes have been simplified so that they are easier
-    to subclass, and to make it easier to implement new editor widgets
-    for delegates.
-
     \section1 What's Changed Since Qt 3?
 
     The table and item view classes in Qt 3 implemented widgets that
@@ -318,19 +253,6 @@
     QTreeView widgets.
 
 
-    \section1 Future Work
-
-    We plan to introduce the following features in the Qt 4 release:
-
-    \list
-    \i Support for right-to-left languages
-    \i Standard models to allow views to be easily populated with common
-       data types
-    \i Convenience views for common kinds of widgets
-    \i Support for freezing rows/columns in view widgets
-    \i Persistent index-based selections
-    \endlist
-
-    \link qt4-intro.html [Back to the Technology Preview page] \endlink
+    \link qt4-intro.html [Back to the Beta page] \endlink
 
 */

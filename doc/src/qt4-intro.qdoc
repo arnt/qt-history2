@@ -1,121 +1,103 @@
 /*! \page qt4-intro.html
-    \title Welcome to the Qt 4 Beta 1 Release
+    \title Welcome to the Qt 4.0 Beta 1
 
-Dear Qt user,
+    We are pleased to present our first beta release for Qt 4. We are
+    releasing this code snapshot to our users because we want to show you
+    some of the new technologies that will go into the final Qt 4
+    release, and because we want you to have the opportunity to give us
+    your feedback. The feedback we receive will help us to ensure that
+    the final Qt 4 release provides as much value and productivity as
+    possible.
 
-We are pleased to present our first beta release for Qt 4. We are
-releasing this code snapshot to our users because we want to show you
-some of the new technologies that will go into the final Qt 4
-release, and because we want you to have the opportunity to give us
-your feedback. The feedback we receive will help us to ensure that
-the final Qt 4 release provides as much value and productivity as
-possible.
+    This beta release is not meant to be used in production code.
+    However, you can already start using it for new projects. The API
+    might change before Qt 4.0.0 final is released, but only in minor
+    ways. Your can also start porting your Qt 3 based projects over
+    to Qt 4. The \l{porting4.html}{Porting Guide} and the
+    \l{qt3to4.html}{qt3to4 porting tool} will help you with the
+    process.
 
-This beta release is licensed under a non-commercial license. It is
-not meant to be used in production code or even for application
-development. Furthermore, please do not attempt to start porting your
-Qt 3 based projects over yet. Not all backward compatibility
-functionality is in place yet, and we have not yet finished the \link
-porting.html Porting Guide \endlink and the \l{qt3to4.htmk}{porting
-tool} that will help you with the process once the Qt 4 final release
-is imminent.
+    We suggest that you write new small programs to experience what
+    the next generation of Qt programming will be like. In
+    particular, there are five new technologies that we hope you will
+    try out and give us feedback on. All are new to Qt, written
+    specifically for Qt 4:
 
-What you \e{can} do is write new small programs to experience what
-the next generation of Qt programming will be like. In particular,
-there are five new technologies that we hope you will try out and
-give us feedback on. All are new to Qt, written specifically for Qt
-4:
+    \list
+    \o \link qt4-tulip.html Tulip \endlink, a new set of template container classes.
 
-\list 1
-\i \link qt4-tulip.html Tulip \endlink, a new set of template container classes.
+    \o \link qt4-interview.html Interview \endlink, a model/view architecture for item views.
 
-\i \link qt4-interview.html Interview \endlink, a model/view architecture for item views.
+    \o \link qt4-arthur.html Arthur \endlink, the Qt 4 painting framework.
 
-\i \link qt4-arthur.html Arthur \endlink, the Qt 4 painting framework.
+    \o \link qt4-scribe.html Scribe \endlink, the Unicode text
+    renderer with a public API for performing low-level text layout.
 
-\i \link qt4-scribe.html Scribe \endlink, the Unicode text
-renderer with a public API for performing low-level text layout.
+    \o \link qt4-mainwindow.html Mainwindow \endlink, a modern
+    action-based mainwindow, toolbar, menu, and docking architecture.
+    \endlist
 
-\i \link qt4-mainwindow.html Mainwindow \endlink, a modern
-action-based mainwindow, toolbar, menu, and docking architecture.
-\endlist
+    This beta release also previews the new \e{Qt Designer} user
+    interface design tool. The tool is still heavily under
+    development, but you can already try it out and give us feedback.
+    Read the \l{designer-manual.html}{Qt Designer Manual} to get
+    started.
 
-Follow the hyperlinks above for a detailed description for each of
-the five areas, including the current state of development and our
-plans for the final release.
+    In addition, the following modules have been significantly improved
+    since Qt 3:
 
-Since the first Technology Preview, we have made improvements to all of
-the five new technologies, but in particular we have significantly
-enhanced \link qt4-interview.html Interview \endlink,
-\link qt4-arthur.html Arthur \endlink, and
-\link qt4-scribe.html Scribe \endlink. Take a look at each of the
-overviews for a more detailed description of the new features in
-each of the technologies.
+    \list
+    \o A fully cross-platform \l{qt4-accessibility.html}{accessibility}
+    module, with support for the emerging SP-API Unix standard in
+    addition to Microsoft and Mac Accessibility.
+    \o The \l{qt4-sql.html}{SQL module}, which is now based on the
+    Interview model/view framework.
+    \o The \l{qt4-network.html}{network module}, with better support
+    for UDP and synchronous sockets.
+    \o The \l{qt4-styles.html}{style API}, which is now decoupled from
+    the widgets, meaning that you can draw any user interface element on
+    any device (widget, pixmap, etc.).
+    \o Enhanced \l{qt4-threads.html}{thread support}, with signal-slot
+    connections across threads and per-thread event loops.
+    \endlist
 
-In addition, the following modules have been significantly improved
-since Qt 3:
+    See also \link qt4-getting-started.html Getting Started with Qt 4
+    \endlink for an overview of the main portability issues.
 
-\list 1
-\i A fully cross-platform \l{qt4-accessibility.html}{accessibility}
-module, with support for the emerging SP-API Unix standard in
-addition to Microsoft and Mac Accessibility.
-\i The \l{qt4-sql.html}{SQL module}, which is now based on the
-Interview model/view framework.
-\i The \l{qt4-network.html}{network module}, with better support
-for UDP and synchronous sockets.
-\i The \l{qt4-styles.html}{style API}, which is now decoupled from
-the widgets, meaning that you can draw any user interface element on
-any device (widget, pixmap, etc.).
-\endlist
+    \section1 Supported Platforms
 
-See also \link qt4-getting-started.html Getting Started with Qt 4
-\endlink for an overview of the main portability issues.
+    This beta release has not been tested on the entire range of
+    platforms targeted by the final Qt 4.0 release. The following
+    platforms are supported:
 
-This is a preview of some of the Qt 4 libraries, not of the entire
-application development framework. Most notably, new versions of
-\e{Qt Designer} and \e{Qt Linguist} are not included. But we do ship
-a version of uic that allows you to experiment with .ui files
-generated by version 3 of \e{Qt Designer}. We also ship a ported
-version of \e{Qt Assistant} to make it easier to read the online
-documentation provided with this package, although the Qt 4
-documentation itself is still far from complete.
+    \list
+    \o GNU/Linux with gcc 2.95 or later on Intel x86
+    \o Mac OS X 10.3 with the native gcc compiler
+    \o Microsoft Windows 2000 and later with MSVC 6 or later
+    \o Qt/Embedded with gcc 3.3 on Intel x86
+    \endlist
 
-\section1 Supported Platforms
+    Other operating systems and compilers might work but are not yet part
+    of the testing program.
 
-This beta release has not been tested on the entire range of
-platforms targeted by the final Qt 4.0 release. The following
-platforms are supported:
+    \section1 How to Provide Feedback
 
-\list
-\i GNU/Linux with gcc 2.95 or later on Intel x86
-\i Mac OS X 10.3 with the native gcc compiler
-\i Microsoft Windows 2000 and later with MSVC 6 or later
-\i Qt/Embedded with gcc 3.3 on Intel x86
-\endlist
+    Trolltech has set up a special mailing list, \c qt4-preview-feedback,
+    for discussion of Qt 4 related issues. To subscribe,
+    send a message containing just the word "subscribe" (without the
+    quotes) to
+    \l{mailto:qt4-preview-feedback-request@trolltech.com}{qt4-preview-feedback-request@trolltech.com}.
+    We encourage you to use this mailing list instead of \c qt-interest for
+    beta-specific issues. See \l http://lists.trolltech.com/ for more
+    information on Trolltech's mailing lists, including archived
+    discussions.
 
-Other operating systems and compilers might work but are not yet part
-of the testing program.
+    \section1 Roadmap
 
-\section1 How to Provide Feedback
+    We plan to release the final Qt 4.0 in late Q1, 2005.
 
-Trolltech has set up a special mailing list, \c qt4-preview-feedback,
-for discussion of Qt Technology Preview related issues. To subscribe,
-send a message containing just the word "subscribe" (without the
-quotes) to
-\l{mailto:qt4-preview-feedback-request@trolltech.com}{qt4-preview-feedback-request@trolltech.com}.
-We encourage you to use this mailing list instead of \c qt-interest for
-beta-specific issues. See \l http://lists.trolltech.com/ for more
-information on Trolltech's mailing lists, including archived
-discussions.
+    We hope you will have as much fun and pleasure experimenting with
+    Qt 4 as we had designing and building it.
 
-\section1 Roadmap
-
-We plan to enter the beta phase in Q4, 2004 and release the final Qt
-4.0 in late Q1, 2005.
-
-Enjoy the beta release: We hope you will have as much fun and
-pleasure experimenting with Qt 4 as we had designing and building it.
-
-\e{--The Trolltech Qt 4 Team}
-
+    \e{--The Trolltech Qt 4 Team}
 */

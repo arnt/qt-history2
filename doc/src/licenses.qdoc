@@ -1,18 +1,17 @@
 /*! \page licenses.html
-\title Licenses for Code Used in Qt
+    \title Licenses for Code Used in Qt
 
-Qt contains a little code that is not under the \link qpl.html
-QPL\endlink, the \link gpl.html GPL\endlink, or the Qt Commercial
-License Agreement, but rather under specific highly permissive
-licenses from the original authors. This page lists the licenses used
-for that code, names the authors, and links to the points where it is
-used.
+    Qt contains a little code that is not under the \link qpl.html
+    QPL\endlink, the \link gpl.html GPL\endlink, or the Qt Commercial
+    License Agreement, but rather under specific highly permissive
+    licenses from the original authors. This page lists the licenses used
+    for that code, names the authors, and links to the points where it is
+    used.
 
-Trolltech gratefully acknowledges these and others contribution to
-Qt. We recommend that all programs that use Qt also acknowledge these
-contributions, and quote all these license statements in an appendix
-to the documentation.
+    Trolltech gratefully acknowledges these and others contribution
+    to Qt. We recommend that programs that use Qt also acknowledge
+    these contributions, and quote these license statements in an
+    appendix to the documentation.
 
-\generatelist legalese
-
+    \generatelist legalese
 */

@@ -214,10 +214,5 @@
     includes Q3Dns, QServerSocket, QSocket, and QSocketDevice
     classes.
 
-    \section1 Future Work
-
-    The network classes's API, implementation, and documentation are
-    mostly finished, with the exception of QFtp and QHttp. We plan to
-    add support for proxies, user names and password, and FTP active
-    mode transfer before the first Qt 4.0 beta release.
+    \l{qt4-intro.html}{[Back to the Beta page]}
 */

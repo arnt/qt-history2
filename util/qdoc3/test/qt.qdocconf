@@ -17,7 +17,8 @@ exampledirs		= $QTDIR/doc/src \
 			  $QTDIR/examples \
 			  $QTDIR/demos \
 			  $QTDIR/tutorial \
-                          $QTDIR/extensions/activeqt/examples
+                          $QTDIR/extensions/activeqt/examples \
+			  $QTDIR/qmake/examples
 imagedirs		= $QTDIR/doc/src/images \
 			  $QTDIR/doc/src/examples/images
 outputdir		= $QTDIR/doc/html
@@ -34,8 +35,11 @@ extraimages.HTML	= logo32
 
 macro.key               = "\\bold"
 macro.menu              = "\\bold"
+macro.gui               = "\\bold"
 macro.reg.HTML          = "<sup>&reg;</sup>"
+macro.BR.HTML           = "<br />"
 macro.QD                = "\\e{Qt Designer}"
+macro.QA                = "\\e{Qt Assistant}"
 
 Cpp.ignoretokens	= QAXFACTORY_EXPORT \
                           QM_EXPORT_CANVAS \
