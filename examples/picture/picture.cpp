@@ -63,7 +63,7 @@ private:
 
 PictureDisplay::PictureDisplay( const char *fileName )
 {
-    pict = new QPicture;
+    pict = new QPicture( 0 );
     name = fileName;
     if ( !pict->load(fileName) ) {		// cannot load picture
 	delete pict;
