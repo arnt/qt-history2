@@ -94,6 +94,8 @@ LPCTSTR FindOneOf(LPCTSTR p1, LPCTSTR p2)
 
 /////////////////////////////////////////////////////////////////////////////
 //
+extern "C" int main( int argc, char **argv );
+
 extern "C" int WINAPI _tWinMain(HINSTANCE hInstance, 
     HINSTANCE /*hPrevInstance*/, LPTSTR lpCmdLine, int /*nShowCmd*/)
 {
@@ -106,8 +108,9 @@ extern "C" int WINAPI _tWinMain(HINSTANCE hInstance,
     _Module.dwThreadID = GetCurrentThreadId();
     TCHAR szTokens[] = _T("-/");
 
-	int nRet = 0;
+    int nRet = 0;
     BOOL bRun = TRUE;
+    BOOL bRunMain = FALSE;
     LPCTSTR lpszToken = FindOneOf(lpCmdLine, szTokens);
     while (lpszToken != NULL)
     {
@@ -125,22 +128,29 @@ extern "C" int WINAPI _tWinMain(HINSTANCE hInstance,
             bRun = FALSE;
             break;
         }
+	if ( lstrcmpi(lpszToken, _T("Run"))==0)
+	{
+	    bRun = TRUE;
+	    bRunMain = TRUE;
+	}
         lpszToken = FindOneOf(lpszToken, szTokens);
     }
 
     if (bRun)
     {
-	int tmp( 0 );
-		// Create our QApplication object before starting our monitor.
-	QApplication app( tmp, NULL );
-        _Module.StartMonitor();
-        hRes = _Module.RegisterClassObjects(CLSCTX_LOCAL_SERVER, REGCLS_MULTIPLEUSE);
-        _ASSERTE(SUCCEEDED(hRes));
+	int argc = 0;
+	if ( !bRunMain ) {
+	    QApplication app( argc, NULL );
+	    _Module.StartMonitor();
+	    hRes = _Module.RegisterClassObjects(CLSCTX_LOCAL_SERVER, REGCLS_MULTIPLEUSE);
+	    _ASSERTE(SUCCEEDED(hRes));
+	    nRet = app.exec();
 
-        app.exec();
-
-        _Module.RevokeClassObjects();
-        Sleep(dwPause); //wait for any threads to finish
+	    _Module.RevokeClassObjects();
+	    Sleep(dwPause); //wait for any threads to finish
+	} else {
+	    return main( argc, NULL );
+	}
     }
 
     _Module.Term();

@@ -82,7 +82,7 @@ SOURCE="$(InputPath)"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /ZI /Od /I "$(QTDIR)\include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "QT_DLL" /FR /YX"stdafx.h" /FD /GZ /c
 # ADD CPP /nologo /W3 /O1 /I "$(QTDIR)\include" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "QT_DLL" /D "UNICODE" /YX"stdafx.h" /FD /GZ /c
-# SUBTRACT CPP /Z<none> /Fr
+# SUBTRACT CPP /Fr
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203
 # ADD BASE RSC /l 0x814 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -128,6 +128,10 @@ SOURCE=.\ActiveQtEXE.idl
 # Begin Source File
 
 SOURCE=.\ActiveQtEXE.rc
+# End Source File
+# Begin Source File
+
+SOURCE=.\main.cpp
 # End Source File
 # Begin Source File
 
