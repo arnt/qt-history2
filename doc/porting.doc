@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.40 1999/04/23 11:47:51 paul Exp $
+** $Id: porting.doc,v 1.41 1999/04/23 20:41:21 paul Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -613,8 +613,15 @@ be shared.
 Remove all such calls. The default size of toplevel widgets will be their
 \link QWidget::sizeHint() sizeHint()\endlink.
 
+<p> \link QBoxLayout::addWidget() QBoxLayout::addWidget()\endlink
+now interprets the \e alignment parameter more aggressively.  A
+non-default alignment now indicates that the widget should not grow to
+fill the available space, but should be sized according to sizeHint().
+If a widget is too small, set the alignment to 0. (Zero indicates no
+alignment, and is the default.)
+
 <p> The class QGManager is removed. Subclasses of QLayout need to be rewritten
-to use the new, much simpler API.
+to use the new, much simpler \link QLayout QLayout API\endlink.
 
 <p> For typical layouts, all use of
 \link QWidget::setMinimumSize() setMinimumSize()\endlink
@@ -629,6 +636,14 @@ a simple way to build nested widget structures.
 
 
 <h3><a name=QMultiLineEdit>QMultiLineEdit</a></h3>
+
+<p>
+The protected function
+\code QMultiLineEdit::insertChar(char)\endcode
+has been removed. Use
+\code QMultiLineEdit::insert(const QString&)\endcode
+instead. (It will accept a QChar as a parameter, since QChar converts
+to QString.)
 
 <p>
 The protected function
