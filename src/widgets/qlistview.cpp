@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#193 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#194 $
 **
 ** Implementation of QListView widget class
 **
@@ -1666,15 +1666,20 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	if ( current->i == d->focusItem && hasFocus() &&
 	     d->allColumnsShowFocus ) {
 	    p->save();
-	    int x1 = ox > 0 ? -1 : 0;
-	    int x2 = d->h->width() - ox;
-	    int w = QMIN( viewport()->width(), x2-x1+1 );
-	    r.setRect( x1, current->y - oy, w, ih );
+	    int x = contentsX() - ox;
+	    int w = viewport()->width();
+	    if ( contentsX() ) {
+		x--;
+		w++;
+	    }
+	    if ( contentsX() + viewport()->width() < contentsWidth() ) {
+		w++;
+	    }
+	    r.setRect( x, current->y - oy, w, ih );
 	    p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
 	    current->i->paintFocus( p, colorGroup(), r );
 	    p->restore();
 	}
-	
     }
 
     if ( d->r->totalHeight() < cy + ch )
@@ -2192,9 +2197,10 @@ bool QListView::eventFilter( QObject * o, QEvent * e )
 QListView * QListViewItem::listView() const
 {
     const QListViewItem* c = this;
-    while (c && !c->is_root)
+    while ( c && !c->is_root )
 	c = c->parentItem;
-    if (!c) return 0;
+    if ( !c )
+	return 0;
     return ((QListViewPrivate::Root*)c)->theListView();
 }
 
@@ -2687,6 +2693,8 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	    i = i->childItem;
 	else if (  !i->isOpen() && (i->isExpandable() || i->childCount()) )
 	    setOpen( i, TRUE );
+	else
+	    horizontalScrollBar()->addLine();
 	d->currentPrefix.truncate( 0 );
 	e->accept();
 	break;
@@ -2701,6 +2709,8 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	    setOpen( i, FALSE );
 	else if ( i->parentItem && i->parentItem != d->r )
 	    i = i->parentItem;
+	else
+	    horizontalScrollBar()->subtractLine();
 	d->currentPrefix.truncate( 0 );
 	e->accept();
 	break;
@@ -2839,9 +2849,9 @@ bool QListView::isMultiSelection() const
   selected if \a selected is FALSE.
 
   If the list view is in single-selection mode and \a selected is
-  TRUE, the present selected item is unselected and made current.
-  Unlike QListViewItem::setSelected(), this function updates the list
-  view as necessary and emits the selectionChanged() signals.
+  TRUE, the currently selected item is unselected and \a item made
+  current.  Unlike QListViewItem::setSelected(), this function updates
+  the list view as necessary and emits the selectionChanged() signals.
 
   \sa isSelected() setMultiSelection() isMultiSelection() setCurrentItem()
 */
@@ -2850,6 +2860,12 @@ void QListView::setSelected( QListViewItem * item, bool selected )
 {
     if ( !item || item->isSelected() == selected || !item->isSelectable() )
 	return;
+
+    if ( d->currentSelected == item && !selected ) {
+	d->currentSelected = 0;
+	item->setSelected( FALSE );
+	repaintItem( item );
+    }
 
     if ( selected && !isMultiSelection() && d->currentSelected ) {
 	d->currentSelected->setSelected( FALSE );
@@ -2871,7 +2887,47 @@ void QListView::setSelected( QListViewItem * item, bool selected )
 }
 
 
-/*!  Returns i->isSelected().
+/*! Sets all items to be not selected, updates the list view as
+necessary and emits the selectionChanged() signals.  Note that for
+multi-selection list views, this function needs to iterate over \e all
+items.
+
+\sa setSelected(), setMultiSelection()
+*/
+
+void QListView::clearSelection()
+{
+    if ( isMultiSelection() ) {
+	bool anything = FALSE;
+	QListViewItem * i = firstChild();
+	QStack<QListViewItem> s;
+	while ( i ) {
+	    if ( i->childItem )
+		s.push( i->childItem );
+	    if ( i->isSelected() ) {
+		anything = TRUE;
+		setSelected( i, FALSE );
+	    }
+	    i = i->siblingItem;
+	    if ( !i )
+		i = s.pop();
+	}
+	if ( anything ) {
+	    if ( !isMultiSelection() )
+		emit selectionChanged( i );
+	    emit selectionChanged();
+	}
+    } else if ( d->currentSelected ) {
+	QListViewItem * i = d->currentSelected;
+	setSelected( i, FALSE );
+	if ( !isMultiSelection() )
+	    emit selectionChanged( i );
+	emit selectionChanged();
+    }
+}
+
+
+/*!  Returns \link QListViewItem::isSelected() i->isSelected(). \endlink
 
   Provided only because QListView provides setSelected() and trolls
   are neat creatures and like neat, orthogonal interfaces.
@@ -2880,6 +2936,21 @@ void QListView::setSelected( QListViewItem * item, bool selected )
 bool QListView::isSelected( QListViewItem * i ) const
 {
     return i ? i->isSelected() : FALSE;
+}
+
+
+/*!  Returns a pointer to the selected item, if the list view is in
+single-selection mode and an item is selected.
+
+If no items are selected or the list view is in multi-selection mode
+this function returns 0.
+
+\sa setSelected() setMultiSelection()
+*/
+
+QListViewItem * QListView::selectedItem() const
+{
+    return isMultiSelection() ? 0 : d->currentSelected;
 }
 
 
