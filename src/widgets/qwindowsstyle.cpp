@@ -571,7 +571,6 @@ void QWindowsStyle::drawTab( QPainter* p,  const QTabBar* tb, QTab* t , bool sel
 #ifndef QT_NO_COMPLEXWIDGETS
     QRect r( t->rect() );
     bool reverse = QApplication::reverseLayout();
-    int x1, x2;
     if ( tb->shape()  == QTabBar::RoundedAbove ) {
 	p->setPen( tb->colorGroup().midlight() );
 	p->drawLine( r.left(), r.bottom(), r.right(), r.bottom() );
