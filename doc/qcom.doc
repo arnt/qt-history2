@@ -180,6 +180,8 @@
   create the actual components in the createInstance() implementation.
   A client using this interface has to know the component identifiers of the
   components provided.
+
+  This interface should be implemented by the exported component.
 */
 
 /*!
@@ -210,6 +212,8 @@
   Before the component server is unloaded, QLibrary calls the cleanup()
   function so that the library can free all allocated resources. If the
   following call to canUnload() returns FALSE, the unloading will be cancelled.
+
+  This interface should be implemented by the exported component.
 */
 
 /*!
@@ -279,6 +283,8 @@
   unregisterComponents(), that are used by the QComponentFactory
   class to register and unregister all components provided by a
   component server.
+
+  This interface should be implemented by the exported component.
 
   \sa QComponentFactory QComponentFactoryInterface
 */
