@@ -174,7 +174,7 @@ SeeAlso: ???
 
 Feature: COMPONENT
 Section: File I/O
-Requires: QUUID_STRING DIR
+Requires: QUUID_STRING DIR SETTINGS
 Name: Dynamic module linking
 SeeAlso: ???
 
