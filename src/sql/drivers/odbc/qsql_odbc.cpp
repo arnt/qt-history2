@@ -999,7 +999,7 @@ bool QODBCResult::exec()
     for (i = 0; i < values.count(); ++i) {
         if (bindValueType(i) & QSql::Out)
             values[i].detach();
-        QCoreVariant val(values.at(i));
+        const QCoreVariant &val = values.at(i);
         SQLINTEGER * ind = &indicators[i];
         if (val.isNull())
             *ind = SQL_NULL_DATA;
