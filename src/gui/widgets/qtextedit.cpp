@@ -591,11 +591,11 @@ void QTextEditPrivate::adjustScrollbars()
     const QSize viewportSize = viewport->size();
     const QSize docSize = layout->sizeUsed();
 
-    d->hbar->setRange(0, docSize.width() - viewportSize.width());
-    d->hbar->setPageStep(viewportSize.width());
+    hbar->setRange(0, docSize.width() - viewportSize.width());
+    hbar->setPageStep(viewportSize.width());
 
-    d->vbar->setRange(0, docSize.height() - viewportSize.height());
-    d->vbar->setPageStep(viewportSize.height());
+    vbar->setRange(0, docSize.height() - viewportSize.height());
+    vbar->setPageStep(viewportSize.height());
 }
 
 /*!
@@ -1193,6 +1193,16 @@ process:
     if (updateCurrentFormat)
         d->updateCurrentCharFormat();
 
+}
+
+int QTextEdit::heightForWidth(int width) const
+{
+    QAbstractTextDocumentLayout *layout = d->doc->documentLayout();
+    const int oldWidth = layout->sizeUsed().width();
+    layout->setPageSize(QSize(width, INT_MAX));
+    const int height = layout->sizeUsed().height();
+    layout->setPageSize(QSize(oldWidth, INT_MAX));
+    return height;
 }
 
 void QTextEdit::resizeEvent(QResizeEvent *)

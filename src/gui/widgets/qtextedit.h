@@ -142,6 +142,8 @@ public:
     void moveCursor(CursorAction action, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
 #endif
 
+    virtual int heightForWidth(int width) const;
+
 public slots:
     void setFontPointSize(float s);
     void setFontFamily(const QString &fontFamily);
