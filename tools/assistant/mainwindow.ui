@@ -142,24 +142,18 @@
      <iconSet>print.png</iconSet>
     </property>
     <property name="text" >
-     <string>Print</string>
-    </property>
-    <property name="text" >
      <string>&amp;Print...</string>
     </property>
     <property name="whatsThis" >
      <string>Print the currently displayed page.</string>
     </property>
     <property name="shortcut" >
-     <string>Ctrl+P</string>
+     <shortcut>Ctrl+P</shortcut>
     </property>
    </action>
    <action name="actionFileExit" >
     <property name="objectName" >
      <cstring>actionFileExit</cstring>
-    </property>
-    <property name="text" >
-     <string>Exit</string>
     </property>
     <property name="text" >
      <string>E&amp;xit</string>
@@ -168,7 +162,7 @@
      <string>Quit Qt Assistant.</string>
     </property>
     <property name="shortcut" >
-     <string>Ctrl+Q</string>
+     <shortcut>Ctrl+Q</shortcut>
     </property>
    </action>
    <action name="actionEditCopy" >
@@ -179,16 +173,13 @@
      <iconSet>editcopy.png</iconSet>
     </property>
     <property name="text" >
-     <string>Copy</string>
-    </property>
-    <property name="text" >
      <string>&amp;Copy</string>
     </property>
     <property name="whatsThis" >
      <string>Copy the selected text to the clipboard.</string>
     </property>
     <property name="shortcut" >
-     <string>Ctrl+C</string>
+     <shortcut>Ctrl+C</shortcut>
     </property>
    </action>
    <action name="actionEditFind" >
@@ -199,16 +190,13 @@
      <iconSet>find.png</iconSet>
     </property>
     <property name="text" >
-     <string>Find in Text</string>
-    </property>
-    <property name="text" >
      <string>&amp;Find in Text...</string>
     </property>
     <property name="whatsThis" >
      <string>Open the Find dialog. Qt Assistant will search the currently displayed page for the text you enter.</string>
     </property>
     <property name="shortcut" >
-     <string>Ctrl+F</string>
+     <shortcut>Ctrl+F</shortcut>
     </property>
    </action>
    <action name="actionEditFindAgain" >
@@ -218,11 +206,8 @@
     <property name="text" >
      <string>Find &amp;Next</string>
     </property>
-    <property name="text" >
-     <string>Find Next</string>
-    </property>
     <property name="shortcut" >
-     <string>F3</string>
+     <shortcut>F3</shortcut>
     </property>
    </action>
    <action name="actionEditFindAgainPrev" >
@@ -232,11 +217,8 @@
     <property name="text" >
      <string>Find &amp;Previous</string>
     </property>
-    <property name="text" >
-     <string>Find Previous</string>
-    </property>
     <property name="shortcut" >
-     <string>Shift+F3</string>
+     <shortcut>Shift+F3</shortcut>
     </property>
    </action>
    <action name="actionGoHome" >
@@ -247,16 +229,13 @@
      <iconSet>home.png</iconSet>
     </property>
     <property name="text" >
-     <string>Home</string>
-    </property>
-    <property name="text" >
      <string>&amp;Home</string>
     </property>
     <property name="whatsThis" >
      <string>Go to the home page. Qt Assistant's home page is the Qt Reference Documentation.</string>
     </property>
     <property name="shortcut" >
-     <string>Ctrl+Home</string>
+     <shortcut>Ctrl+Home</shortcut>
     </property>
    </action>
    <action name="actionGoPrevious" >
@@ -267,16 +246,13 @@
      <iconSet>previous.png</iconSet>
     </property>
     <property name="text" >
-     <string>Previous</string>
-    </property>
-    <property name="text" >
      <string>&amp;Previous</string>
     </property>
     <property name="whatsThis" >
      <string>Go to the previous page.</string>
     </property>
     <property name="shortcut" >
-     <string>Alt+Left</string>
+     <shortcut>Alt+Left</shortcut>
     </property>
    </action>
    <action name="actionGoNext" >
@@ -287,24 +263,18 @@
      <iconSet>next.png</iconSet>
     </property>
     <property name="text" >
-     <string>Next</string>
-    </property>
-    <property name="text" >
      <string>&amp;Next</string>
     </property>
     <property name="whatsThis" >
      <string>Go to the next page.</string>
     </property>
     <property name="shortcut" >
-     <string>Alt+Right</string>
+     <shortcut>Alt+Right</shortcut>
     </property>
    </action>
    <action name="helpAbout_Qt_AssistantAction" >
     <property name="objectName" >
      <cstring>helpAbout_Qt_AssistantAction</cstring>
-    </property>
-    <property name="text" >
-     <string>About Qt Assistant</string>
     </property>
     <property name="text" >
      <string>About Qt Assistant</string>
@@ -326,16 +296,13 @@
      <iconSet>zoomin.png</iconSet>
     </property>
     <property name="text" >
-     <string>Zoom in</string>
-    </property>
-    <property name="text" >
      <string>Zoom &amp;in</string>
     </property>
     <property name="whatsThis" >
      <string>Zoom in on the document, i.e. increase the font size.</string>
     </property>
     <property name="shortcut" >
-     <string>Ctrl++</string>
+     <shortcut>Ctrl++</shortcut>
     </property>
    </action>
    <action name="actionZoomOut" >
@@ -346,24 +313,18 @@
      <iconSet>zoomout.png</iconSet>
     </property>
     <property name="text" >
-     <string>Zoom out</string>
-    </property>
-    <property name="text" >
      <string>Zoom &amp;out</string>
     </property>
     <property name="whatsThis" >
      <string>Zoom out on the document, i.e. decrease the font size.</string>
     </property>
     <property name="shortcut" >
-     <string>Ctrl+-</string>
+     <shortcut>Ctrl+-</shortcut>
     </property>
    </action>
    <action name="actionSettings" >
     <property name="objectName" >
      <cstring>actionSettings</cstring>
-    </property>
-    <property name="text" >
-     <string>Settings</string>
     </property>
     <property name="text" >
      <string>&amp;Settings...</string>
@@ -379,22 +340,16 @@
     <property name="text" >
      <string>New Window</string>
     </property>
-    <property name="text" >
-     <string>New Window</string>
-    </property>
     <property name="whatsThis" >
      <string>Open a new window.</string>
     </property>
     <property name="shortcut" >
-     <string>Ctrl+N</string>
+     <shortcut>Ctrl+N</shortcut>
     </property>
    </action>
    <action name="actionClose" >
     <property name="objectName" >
      <cstring>actionClose</cstring>
-    </property>
-    <property name="text" >
-     <string>Close</string>
     </property>
     <property name="text" >
      <string>&amp;Close</string>
@@ -406,9 +361,6 @@
    <action name="actionAddBookmark" >
     <property name="objectName" >
      <cstring>actionAddBookmark</cstring>
-    </property>
-    <property name="text" >
-     <string>Add Bookmark</string>
     </property>
     <property name="text" >
      <string>&amp;Add Bookmark</string>
@@ -434,7 +386,7 @@
      <string>&quot;What's This?&quot; context sensitive help.</string>
     </property>
     <property name="shortcut" >
-     <string>Shift+F1</string>
+     <shortcut>Shift+F1</shortcut>
     </property>
    </action>
    <action name="actionOpenPage" >
@@ -445,7 +397,7 @@
      <string>Add Tab</string>
     </property>
     <property name="shortcut" >
-     <string>Ctrl+Alt+N</string>
+     <shortcut>Ctrl+Alt+N</shortcut>
     </property>
    </action>
    <action name="actionNextPage" >
@@ -456,7 +408,7 @@
      <string>Next Tab</string>
     </property>
     <property name="shortcut" >
-     <string>Ctrl+Alt+Right</string>
+     <shortcut>Ctrl+Alt+Right</shortcut>
     </property>
    </action>
    <action name="actionPrevPage" >
@@ -467,7 +419,7 @@
      <string>Previous Tab</string>
     </property>
     <property name="shortcut" >
-     <string>Ctrl+Alt+Left</string>
+     <shortcut>Ctrl+Alt+Left</shortcut>
     </property>
    </action>
    <action name="actionClosePage" >
@@ -478,7 +430,7 @@
      <string>Close Tab</string>
     </property>
     <property name="shortcut" >
-     <string>Ctrl+Alt+Q</string>
+     <shortcut>Ctrl+Alt+Q</shortcut>
     </property>
    </action>
    <action name="actionHelpAssistant" >
@@ -492,7 +444,7 @@
      <string>Qt Assistant Manual</string>
     </property>
     <property name="shortcut" >
-     <string>F1</string>
+     <shortcut>F1</shortcut>
     </property>
    </action>
   </actionGroup>
