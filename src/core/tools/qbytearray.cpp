@@ -1833,8 +1833,7 @@ Q_LLONG QByteArray::toLongLong(bool *ok, int base) const
     }
 #endif
 
-    QLocale locale(QLocale::C);
-    return locale.d->bytearrayToLongLong(*this, base, ok);
+    return QLocalePrivate::bytearrayToLongLong(*this, base, ok);
 }
 
 /*!
@@ -1862,8 +1861,7 @@ Q_ULLONG QByteArray::toULongLong(bool *ok, int base) const
     }
 #endif
 
-    QLocale locale(QLocale::C);
-    return locale.d->bytearrayToUnsLongLong(*this, base, ok);
+    return QLocalePrivate::bytearrayToUnsLongLong(*this, base, ok);
 }
 
 /*!
@@ -2054,8 +2052,7 @@ ushort QByteArray::toUShort(bool *ok, int base) const
 
 double QByteArray::toDouble(bool *ok) const
 {
-    QLocale locale(QLocale::C);
-    return locale.d->bytearrayToDouble(*this, ok);
+    return QLocalePrivate::bytearrayToDouble(*this, ok);
 }
 
 /*!
