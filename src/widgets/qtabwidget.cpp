@@ -103,7 +103,7 @@
 
 /*! \enum QTabWidget::TabShape
 
-  This enum type defines the shape of the tabs: 
+  This enum type defines the shape of the tabs:
   \value Rounded  rounded look (normal)
   \value Triangular  triangular look (very unusual, included for completeness)
 */
@@ -524,8 +524,9 @@ void QTabWidget::setCurrentPage( int id )
 /*!
   \reimp
  */
-void QTabWidget::resizeEvent( QResizeEvent * )
+void QTabWidget::resizeEvent( QResizeEvent *e )
 {
+    QWidget::resizeEvent( e );
     setUpLayout();
 }
 
@@ -563,9 +564,9 @@ QTabBar* QTabWidget::tabBar() const
 void QTabWidget::showTab( int i )
 {
     if ( d->stack->widget( i ) ) {
-        d->stack->raiseWidget( i );
-        emit selected( d->tabs->tab( i )->label );
-        emit currentChanged( d->stack->widget( i ) );
+	d->stack->raiseWidget( i );
+	emit selected( d->tabs->tab( i )->label );
+	emit currentChanged( d->stack->widget( i ) );
     }
 }
 
@@ -575,15 +576,15 @@ void QTabWidget::showTab( int i )
 void QTabWidget::setUpLayout( bool onlyCheck )
 {
     if ( onlyCheck && !d->dirty )
-        return; // nothing to do
+	return; // nothing to do
 
     if ( !isVisible() ) {
-        d->dirty = TRUE;
-        return; // we'll do it later
+	d->dirty = TRUE;
+	return; // we'll do it later
     }
     QSize t( d->tabs->sizeHint() );
     if ( t.width() > width() )
-        t.setWidth( width() );
+	t.setWidth( width() );
     int lw = d->stack->lineWidth();
     bool reverse = QApplication::reverseLayout();
     int tabx, taby, stacky, exty, extw, exth, overlap;
@@ -591,30 +592,30 @@ void QTabWidget::setUpLayout( bool onlyCheck )
     style().tabBarExtensionMetrics( this, extw, exth, overlap );
 
     if( reverse ) {
-        tabx = QMIN( width() - t.width(), width() - t.width() - lw + 2 );
+	tabx = QMIN( width() - t.width(), width() - t.width() - lw + 2 );
     } else {
-        tabx = QMAX( 0, lw - 2 );
+	tabx = QMAX( 0, lw - 2 );
     }
     if ( d->pos == Bottom ) {
-        taby = height() - t.height() - lw;
-        stacky = 0;
-        exty = taby - (exth - overlap);
+	taby = height() - t.height() - lw;
+	stacky = 0;
+	exty = taby - (exth - overlap);
     }
     else { // Top
-        taby = 0;
-        stacky = t.height()-lw + (exth - overlap), width();
-        exty = taby + t.height() - overlap;
+	taby = 0;
+	stacky = t.height()-lw + (exth - overlap), width();
+	exty = taby + t.height() - overlap;
     }
     d->tabs->setGeometry( tabx, taby, t.width(), t.height() );
     d->tabExtension->setGeometry( 0, exty, extw, exth );
     d->stack->setGeometry( 0, stacky, width(), height() - (exth-overlap) -
-                           t.height()+QMAX(0, lw-2));
+			   t.height()+QMAX(0, lw-2));
 
     d->dirty = FALSE;
     if ( !onlyCheck )
-        update();
+	update();
     if ( autoMask() )
-        updateMask();
+	updateMask();
 }
 
 /*!\reimp
@@ -623,8 +624,8 @@ QSize QTabWidget::sizeHint() const
 {
     QSize s( d->stack->sizeHint() );
     QSize t( d->tabs->sizeHint() );
-    return QSize( QMAX( QMAX( s.width(), t.width()), d->tabExtension->width()),
-                  s.height() + t.height() + d->tabExtension->height());
+    return QSize( QMAX( s.width(), t.width() ),
+		  s.height() + t.height() + d->tabExtension->height());
 }
 
 
@@ -635,8 +636,8 @@ QSize QTabWidget::minimumSizeHint() const
 {
     QSize s( d->stack->minimumSizeHint() );
     QSize t( d->tabs->minimumSizeHint() );
-    return QSize( QMAX( QMAX( s.width(), t.width()), d->tabExtension->width()),
-                  s.height() + t.height() + d->tabExtension->height() );
+    return QSize( QMAX( s.width(), t.width() ),
+		  s.height() + t.height() + d->tabExtension->height() );
 }
 
 /*! \reimp
