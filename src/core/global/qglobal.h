@@ -703,7 +703,8 @@ typedef int QNoImplicitBoolCast;
 // Utility macros and inline functions
 //
 
-#define QABS(a) ((a) >= 0  ? (a) : -(a))
+template <typename T>
+inline T qAbs(const T &t) { return t >= 0 ? t : -t; }
 
 inline int qRound(double d)
 { return d >= 0.0 ? int(d + 0.5) : int(d - int(d-1) + 0.5) + int(d-1); }
@@ -717,6 +718,7 @@ template <typename T>
 inline T qMax(T a, T b) { return (b < a) ? a : b; }
 
 #ifdef QT_COMPAT
+#  define QABS(a) qAbs(a)
 #  define QMAX(a, b) qMax((a), (b))
 #  define QMIN(a, b) qMin((a), (b))
 #endif

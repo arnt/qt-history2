@@ -5282,7 +5282,7 @@ static QString replaceArgEscapes(const QString &s, const ArgEscapeData &d, int f
     const QChar *uc_begin = s.unicode();
     const QChar *uc_end = uc_begin + s.length();
 
-    int abs_field_width = QABS(field_width);
+    int abs_field_width = qAbs(field_width);
     uint result_len = s.length()
                             - d.escape_len
                         + (d.occurrences - d.locale_occurrences)
