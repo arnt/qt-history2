@@ -715,7 +715,7 @@ bool QDomImplementation::hasFeature(const QString& feature, const QString& versi
     way, is in combination with the createDocument() function to
     create a QDomDocument with this document type.
 
-    \sa createDocument();
+    \sa createDocument()
 */
 QDomDocumentType QDomImplementation::createDocumentType(const QString& qName, const QString& publicId, const QString& systemId)
 {
@@ -6056,7 +6056,7 @@ QString QDomDocument::toString(int indent) const
 
 /*!
     Converts the parsed document back to its textual representation
-    and returns a QByteArray for that is encoded in UTF-8.
+    and returns a QByteArray containing the data encoded as UTF-8.
 
     This function uses \a indent as the amount of space to indent
     subelements.
