@@ -1683,10 +1683,14 @@ QSize QMotifStyle::sizeFromContents( ContentsType contents,
 
 	    // a little bit of border can never harm
 	    w += 2*motifItemHMargin + 2*motifItemFrame;
-	    if ( checkable && maxpmw < motifCheckMarkSpace)
-		maxpmw = motifCheckMarkSpace;
+	    if ( checkable && maxpmw <= 0)
+		// if we are checkable and have no iconsets, add space for a checkmark
+		w += motifCheckMarkSpace;
+	    else if (checkable && maxpmw < motifCheckMarkSpace)
+		// make sure the check-column is wide enough if we have iconsets
+		w += (motifCheckMarkSpace - maxpmw);
 
-	    // if we have a check-column ( iconsets or checkmarks), add space
+	    // if we have a check-column ( iconsets of checkmarks), add space
 	    // to separate the columns
 	    if ( maxpmw > 0 || checkable )
 		w += motifCheckMarkHMargin;
