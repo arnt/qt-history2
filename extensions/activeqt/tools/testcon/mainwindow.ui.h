@@ -9,6 +9,8 @@
 *****************************************************************************/
 
 #include <qaxobject.h>
+#include <qaxwidget.h>
+#include <qaxselect.h>
 #include <qinputdialog.h>
 #include <qlabel.h>
 #include "docuwindow.h"

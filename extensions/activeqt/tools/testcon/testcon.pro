@@ -13,7 +13,7 @@ CONFIG(debug, debug|release) {
 CONFIG += qaxcontainer
 
 SOURCES	 = main.cpp docuwindow.cpp
-HEADERS	 = docuwindow.h ../../container/qaxselect.h
+HEADERS	 = docuwindow.h
 FORMS	 = mainwindow.ui invokemethod.ui changeproperties.ui ambientproperties.ui controlinfo.ui
 RC_FILE	 = testcon.rc
 
