@@ -47,7 +47,32 @@ public:
     PGconn *connection;
     bool isUtf8;
     QPSQLDriver::Protocol pro;
+
+    void appendTables(QStringList &tl, QSqlQuery &t, QChar type);
 };
+
+void QPSQLDriverPrivate::appendTables(QStringList &tl, QSqlQuery &t, QChar type)
+{
+    QString query;
+    if (pro >= QPSQLDriver::Version73) {
+        query = QString::fromLatin1("select pg_class.relname, pg_namespace.nspname from pg_class "
+                  "left join pg_namespace on (pg_class.relnamespace = pg_namespace.oid) "
+                  "where (pg_class.relkind = '%1') and (pg_class.relname !~ '^Inv') "
+                  "and (pg_namespace.nspname != 'information_schema')").arg(type);
+    } else {
+        query = QString::fromLatin1("select relname, null from pg_class where (relkind = 'r') "
+                  "and (relname !~ '^Inv') "
+                  "and (relname !~ '^pg_') ");
+    }
+    t.exec(query);
+    while (t.next()) {
+        QString schema = t.value(1).toString();
+        if (schema.isEmpty() || schema == QLatin1String("public"))
+            tl.append(t.value(0).toString());
+        else
+            tl.append(t.value(0).toString().prepend(QLatin1Char('.')).prepend(schema));
+    }
+}
 
 class QPSQLResultPrivate
 {
@@ -630,28 +655,10 @@ QStringList QPSQLDriver::tables(QSql::TableType type) const
     QSqlQuery t(createResult());
     t.setForwardOnly(true);
 
-    if (type & QSql::Tables) {
-        QString query(QLatin1String("select relname from pg_class where (relkind = 'r') "
-                "and (relname !~ '^Inv') "
-                "and (relname !~ '^pg_') "));
-        if (d->pro >= QPSQLDriver::Version73)
-            query.append(QLatin1String("and (relnamespace not in "
-                         "(select oid from pg_namespace where nspname = 'information_schema')) "));
-        t.exec(query);
-        while (t.next())
-            tl.append(t.value(0).toString());
-    }
-    if (type & QSql::Views) {
-        QString query(QLatin1String("select relname from pg_class where (relkind = 'v') "
-                "and (relname !~ '^Inv') "
-                "and (relname !~ '^pg_') "));
-        if (d->pro >= QPSQLDriver::Version73)
-            query.append(QLatin1String("and (relnamespace not in "
-                         "(select oid from pg_namespace where nspname = 'information_schema')) "));
-        t.exec(query);
-        while (t.next())
-            tl.append(t.value(0).toString());
-    }
+    if (type & QSql::Tables)
+        d->appendTables(tl, t, QLatin1Char('r'));
+    if (type & QSql::Views)
+        d->appendTables(tl, t, QLatin1Char('v'));
     if (type & QSql::SystemTables) {
         t.exec(QLatin1String("select relname from pg_class where (relkind = 'r') "
                 "and (relname like 'pg_%') "));
