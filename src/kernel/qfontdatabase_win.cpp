@@ -495,6 +495,8 @@ QFontEngine *loadEngine( QFont::Script script, const QFontDef &request,
 
     HFONT hfont = 0;
 
+#if 0
+    // ###### 
     if ( request.mask & QFontDef::RawMode ) {			// will choose a stock font
 	int f, deffnt;
 	// ### why different?
@@ -531,7 +533,9 @@ QFontEngine *loadEngine( QFont::Script script, const QFontDef &request,
 	    hfont = systemFont();
 	}
 	stockFont = TRUE;
-    } else {
+    } else 
+#endif
+    {
 
 	int hint = FF_DONTCARE;
 	switch ( request.styleHint ) {
@@ -569,8 +573,8 @@ QFontEngine *loadEngine( QFont::Script script, const QFontDef &request,
 	else
 	    lf.lfWeight = (request.weight*900)/99;
 	lf.lfItalic		= request.italic;
-	lf.lfUnderline	= request.underline;
-	lf.lfStrikeOut	= request.strikeOut;
+//	lf.lfUnderline	= request.underline;
+//	lf.lfStrikeOut	= request.strikeOut;
 	lf.lfCharSet	= DEFAULT_CHARSET;
 
 	int strat = OUT_DEFAULT_PRECIS;
