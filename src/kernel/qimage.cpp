@@ -6272,7 +6272,7 @@ QList<QImageTextKeyLang> QImage::textList() const
 void QImage::setText(const char* key, const char* lang, const QString& s)
 {
     QImageTextKeyLang x(key,lang);
-    misc().text_lang.replace(x,s);
+    misc().text_lang.insert(x,s);
 }
 
 #endif // QT_NO_IMAGE_TEXT

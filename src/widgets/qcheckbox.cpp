@@ -175,7 +175,7 @@ void QCheckBox::drawButton( QPainter *paint )
 	flags |= QStyle::Style_HasFocus;
     if ( isDown() )
 	flags |= QStyle::Style_Down;
-    if ( hasMouse() )
+    if ( testAttribute(WA_UnderMouse) )
 	flags |= QStyle::Style_MouseOver;
     if ( state() == QButton::On )
 	flags |= QStyle::Style_On;

@@ -242,8 +242,8 @@ void QMacStylePrivate::PolicyState::watchObject(QObject *o)
 }
 void QMacStylePrivateObjectWatcher::destroyedObject(QObject *o)
 {
-    QMacStylePrivate::PolicyState::focusMap.erase((QWidget*)o);
-    QMacStylePrivate::PolicyState::sizeMap.erase((QWidget*)o);
+    QMacStylePrivate::PolicyState::focusMap.remove((QWidget*)o);
+    QMacStylePrivate::PolicyState::sizeMap.remove((QWidget*)o);
 }
 QMacStylePrivate::QMacStylePrivate() : QAquaAnimate()
 {

@@ -5801,8 +5801,10 @@ void QTable::setCellWidget( int row, int col, QWidget *e )
 
     e->installEventFilter( this );
     clearCellWidget( row, col );
-    if ( e->parent() != viewport() )
-	e->reparent( viewport(), QPoint( 0,0 ) );
+    if ( e->parent() != viewport() ) {
+	e->setParent( viewport() );
+	e->move(QPoint( 0,0 ));
+    }
     insertWidget( row, col, e );
     QRect cr = cellGeometry( row, col );
     e->resize( cr.size() );

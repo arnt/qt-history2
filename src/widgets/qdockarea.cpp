@@ -559,15 +559,24 @@ void QDockArea::moveDockWindow( QDockWindow *w, int index )
     int dockWindowIndex = findDockWindow( w );
     if ( dockWindowIndex == -1 ) {
 	dockWindow = w;
-	dockWindow->reparent( this, QPoint( 0, 0 ), isVisible() );
+	bool vis = dockWindow->isVisible();
+	dockWindow->setParent( this );
+	dockWindow->move(0, 0);
+	if(vis)
+	    dockWindow->show();
 	w->installEventFilter( this );
 	updateLayout();
 	setSizePolicy( QSizePolicy( orientation() == Horizontal ? QSizePolicy::Expanding : QSizePolicy::Minimum,
 				    orientation() == Vertical ? QSizePolicy::Expanding : QSizePolicy::Minimum ) );
 	dockWindows.append( w );
     } else {
-        if ( w->parent() != this )
-	    w->reparent( this, QPoint( 0, 0 ), isVisible() );
+        if ( w->parent() != this ) {
+	    bool vis = w->isVisible();
+	    w->setParent( this );
+	    w->move(0, 0);
+	    if(vis)
+		w->show();
+	}
         if ( index == - 1 ) {
 	    dockWindows.remove( w );
 	    dockWindows.append( w );
@@ -670,7 +679,11 @@ void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r,
 	}
     } else {
 	dockWindow = w;
-	dockWindow->reparent( this, QPoint( 0, 0 ), isVisible() );
+	bool vis = dockWindow->isVisible();
+	dockWindow->setParent( this );
+	dockWindow->move(0, 0);
+	if(vis)
+	    dockWindow->show();
 	if ( swap )
 	    dockWindow->resize( dockWindow->height(), dockWindow->width() );
 	w->installEventFilter( this );
@@ -869,7 +882,8 @@ void QDockArea::removeDockWindow( QDockWindow *w, bool makeFloating, bool swap, 
 	dockWindows.at( i )->setNewLine( TRUE );
     if ( makeFloating ) {
 	QWidget *p = parentWidget() ? parentWidget() : topLevelWidget();
-	dockWindow->reparent( p, WType_Dialog | WStyle_Customize | WStyle_NoBorder | WStyle_Tool, QPoint( 0, 0 ), FALSE );
+	dockWindow->setParent( p, WType_Dialog | WStyle_Customize | WStyle_NoBorder | WStyle_Tool );
+	dockWindow->move(0, 0);
     }
     if ( swap )
 	dockWindow->resize( dockWindow->height(), dockWindow->width() );
@@ -996,7 +1010,9 @@ void QDockArea::dockWindow( QDockWindow *dockWindow, DockWindowData *data )
     if ( !data )
 	return;
 
-    dockWindow->reparent( this, QPoint( 0, 0 ), FALSE );
+    dockWindow->setParent( this );
+    dockWindow->move(0, 0);
+
     dockWindow->installEventFilter( this );
     dockWindow->dockArea = this;
     dockWindow->updateGui();
