@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#284 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#285 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1367,47 +1367,48 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	}
 	break;
     case Key_Left:
-	if ( currentColumn() > 0 ) {
-	    setCurrentItem( currentItem() - numRows() );
-	    if ( e->state() & ShiftButton )
-		toggleCurrentItem();
-	} else if ( numColumns() > 1 && currentItem() > 0 ) {
-	    int row = currentRow();
-	    setCurrentItem( currentRow() - 1 + ( numColumns() - 1 ) * numRows() );
+        if ( currentColumn() > 0 ) {
+            setCurrentItem( currentItem() - numRows() );
+            if ( e->state() & ShiftButton )
+                toggleCurrentItem();
+        } else if ( numColumns() > 1 && currentItem() > 0 ) {
+            int row = currentRow();
+            setCurrentItem( currentRow() - 1 + ( numColumns() - 1 ) * numRows() );
 
-	    if ( !item( currentItem() ) )
-		setCurrentItem( row - 1 + ( numColumns() - 2 ) * numRows() );
+            if ( currentItem() == -1 )
+                setCurrentItem( row - 1 + ( numColumns() - 2 ) * numRows() );
 
-	    if ( e->state() & ShiftButton )
-		toggleCurrentItem();
-	} else {
-	    QApplication::sendEvent( horizontalScrollBar(), e );
+            if ( e->state() & ShiftButton )
+                toggleCurrentItem();
+        } else {
+            QApplication::sendEvent( horizontalScrollBar(), e );
 	}
 	break;
     case Key_Right:
-	if ( currentColumn() < numColumns()-1 ) {
-	    int row = currentRow();
-	    int i = currentItem();
-	    setCurrentItem( currentItem() + numRows() );
+        if ( currentColumn() < numColumns()-1 ) {
+            int row = currentRow();
+            int i = currentItem();
+            setCurrentItem( currentItem() + numRows() );
 
-	    if ( !item( currentItem() ) )
-		if ( row < numRows() - 1 )
-		    setCurrentItem( row + 1 );
-		else
-		    setCurrentItem( i );
+            if ( currentItem() == -1 ) {
+                if ( row < numRows() - 1 )
+                    setCurrentItem( row + 1 );
+                else
+                    setCurrentItem( i );
+            }
+            
+            if ( e->state() & ShiftButton )
+                toggleCurrentItem();
+        } else if ( numColumns() > 1 && currentRow() < numRows() ) {
+            if ( currentRow() + 1 < numRows() ) {
+                setCurrentItem( currentRow() + 1 );
 
-	    if ( e->state() & ShiftButton )
-		toggleCurrentItem();
-	} else if ( numColumns() > 1 && currentRow() < numRows() ) {
-	    if ( currentRow() + 1 < numRows() ) {
-		setCurrentItem( currentRow() + 1 );
-
-		if ( e->state() & ShiftButton )
-		    toggleCurrentItem();
-	    }
-	} else {
-	    QApplication::sendEvent( horizontalScrollBar(), e );
-	}
+                if ( e->state() & ShiftButton )
+                    toggleCurrentItem();
+            }
+        } else {
+            QApplication::sendEvent( horizontalScrollBar(), e );
+        }
 	break;
     case Key_Next:
 	{
