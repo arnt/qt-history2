@@ -62,11 +62,13 @@ public:
     QString tableName;
     QString filter;
 
+    enum Op { None, Insert, Update, Delete };
+
     struct ModifiedRow
     {
-        ModifiedRow(QSql::Op o = QSql::None, const QSqlRecord &r = QSqlRecord()): op(o), rec(r) {}
+        ModifiedRow(Op o = None, const QSqlRecord &r = QSqlRecord()): op(o), rec(r) {}
         ModifiedRow(const ModifiedRow &other): op(other.op), rec(other.rec) {}
-        QSql::Op op;
+        Op op;
         QSqlRecord rec;
     };
 

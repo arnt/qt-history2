@@ -70,16 +70,16 @@ void QSqlTableModelPrivate::revertCachedRow(int row)
 {
     ModifiedRow r = cache.value(row);
     switch (r.op) {
-    case QSql::None:
+    case QSqlTableModelPrivate::None:
         Q_ASSERT_X(false, "QSqlTableModelPrivate::revertCachedRow()", "Invalid entry in cache map");
         return;
-    case QSql::Update:
-    case QSql::Delete:
+    case QSqlTableModelPrivate::Update:
+    case QSqlTableModelPrivate::Delete:
         cache.remove(row);
         emit q->dataChanged(q->createIndex(row, 0),
                             q->createIndex(row, q->columnCount() - 1));
         break;
-    case QSql::Insert: {
+    case QSqlTableModelPrivate::Insert: {
             QMap<int, QSqlTableModelPrivate::ModifiedRow>::Iterator it = cache.find(row);
             if (it == cache.end())
                 return;
@@ -320,7 +320,7 @@ QVariant QSqlTableModel::data(const QModelIndex &idx, int role) const
     case OnManualSubmit: {
         const QSqlTableModelPrivate::ModifiedRow row = d->cache.value(idx.row());
         const QVariant var = row.rec.value(item.column());
-        if (var.isValid() || row.op == QSql::Insert)
+        if (var.isValid() || row.op == QSqlTableModelPrivate::Insert)
             return var;
         break; }
     }
@@ -341,10 +341,10 @@ QVariant QSqlTableModel::headerData(int section, Qt::Orientation orientation, in
                 return QLatin1String("*");
             break;
         case OnManualSubmit:
-            QSql::Op op = d->cache.value(section).op;
-            if (op == QSql::Insert)
+            QSqlTableModelPrivate::Op op = d->cache.value(section).op;
+            if (op == QSqlTableModelPrivate::Insert)
                 return QLatin1String("*");
-            else if (op == QSql::Delete)
+            else if (op == QSqlTableModelPrivate::Delete)
                 return QLatin1String("!");
             break;
         }
@@ -371,8 +371,10 @@ bool QSqlTableModel::isDirty(const QModelIndex &index) const
             return index.row() == d->editIndex && d->editBuffer.value(index.column()).isValid();
         case OnManualSubmit: {
             const QSqlTableModelPrivate::ModifiedRow row = d->cache.value(index.row());
-            return row.op == QSql::Insert || row.op == QSql::Delete
-                   || (row.op == QSql::Update && row.rec.value(index.column()).isValid());
+            return row.op == QSqlTableModelPrivate::Insert
+                   || row.op == QSqlTableModelPrivate::Delete
+                   || (row.op == QSqlTableModelPrivate::Update
+                       && row.rec.value(index.column()).isValid());
         }
     }
     return false;
@@ -427,8 +429,8 @@ bool QSqlTableModel::setData(const QModelIndex &index, const QVariant &value, in
         break;
     case OnManualSubmit: {
         QSqlTableModelPrivate::ModifiedRow &row = d->cache[index.row()];
-        if (row.op == QSql::None) {
-            row.op = QSql::Update;
+        if (row.op == QSqlTableModelPrivate::None) {
+            row.op = QSqlTableModelPrivate::Update;
             row.rec = d->rec;
         }
         row.rec.setValue(index.column(), value);
@@ -574,16 +576,16 @@ bool QSqlTableModel::submitAll()
         QSqlTableModelPrivate::CacheMap::ConstIterator it = d->cache.constBegin();
         while (it != d->cache.constEnd()) {
             switch (it.value().op) {
-            case QSql::Insert:
+            case QSqlTableModelPrivate::Insert:
                 isOk |= insertRowIntoTable(it.value().rec);
                 break;
-            case QSql::Update:
+            case QSqlTableModelPrivate::Update:
                 isOk |= updateRowInTable(it.key(), it.value().rec);
                 break;
-            case QSql::Delete:
+            case QSqlTableModelPrivate::Delete:
                 isOk |= deleteRowFromTable(it.key());
                 break;
-            case QSql::None:
+            case QSqlTableModelPrivate::None:
                 qWarning("QSqlTableModel::submitAll: Invalid operation");
                 break;
             }
@@ -879,10 +881,10 @@ bool QSqlTableModel::removeRows(int row, int count, const QModelIndex &parent)
             int idx = row + i;
             if (idx >= rowCount())
                 return false;
-            if (d->cache.value(idx).op == QSql::Insert)
+            if (d->cache.value(idx).op == QSqlTableModelPrivate::Insert)
                 revertRow(idx);
             else
-                d->cache[idx].op = QSql::Delete;
+                d->cache[idx].op = QSqlTableModelPrivate::Delete;
         }
         break;
     }
@@ -930,7 +932,8 @@ bool QSqlTableModel::insertRows(int row, int count, const QModelIndex &parent)
         }
 
         for (int i = 0; i < count; ++i) {
-            d->cache[row + i] = QSqlTableModelPrivate::ModifiedRow(QSql::Insert, d->rec);
+            d->cache[row + i] = QSqlTableModelPrivate::ModifiedRow(QSqlTableModelPrivate::Insert,
+                                                                   d->rec);
             emit primeInsert(row + i, d->cache[row + i].rec);
         }
         break;
@@ -967,7 +970,7 @@ int QSqlTableModel::rowCount(const QModelIndex &) const
     if (d->strategy == OnManualSubmit) {
         for (QSqlTableModelPrivate::CacheMap::ConstIterator it = d->cache.constBegin();
              it != d->cache.constEnd(); ++it) {
-             if (it.value().op == QSql::Insert)
+             if (it.value().op == QSqlTableModelPrivate::Insert)
                  ++rc;
         }
     } else if (d->insertIndex >= 0) {
@@ -992,7 +995,7 @@ QModelIndex QSqlTableModel::dataIndex(const QModelIndex &item) const
         int rowOffset = 0;
         QSqlTableModelPrivate::CacheMap::ConstIterator i = d->cache.constBegin();
         while (i != d->cache.constEnd() && i.key() <= it.row()) {
-            if (i.value().op == QSql::Insert)
+            if (i.value().op == QSqlTableModelPrivate::Insert)
                 ++rowOffset;
             ++i;
         }
@@ -1074,8 +1077,8 @@ bool QSqlTableModel::setRecord(int row, const QSqlRecord &record)
         return isOk;
     case OnManualSubmit: {
         QSqlTableModelPrivate::ModifiedRow &mrow = d->cache[row];
-        if (mrow.op == QSql::None) {
-            mrow.op = QSql::Update;
+        if (mrow.op == QSqlTableModelPrivate::None) {
+            mrow.op = QSqlTableModelPrivate::Update;
             mrow.rec = d->rec;
         }
         for (int i = 0; i < record.count(); ++i) {

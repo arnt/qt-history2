@@ -18,22 +18,9 @@
 
 namespace QSql
 {
-    enum Op {
-        None = -1,
-        Insert = 0,
-        Update = 1,
-        Delete = 2
-    };
-
     enum Location {
         BeforeFirst = -1,
         AfterLast = -2
-    };
-
-    enum Confirm {
-        Cancel = -1,
-        No = 0,
-        Yes = 1
     };
 
     enum ParamTypeFlag {
@@ -50,6 +37,21 @@ namespace QSql
         Views = 0x04,
         AllTables = 0xff
     };
+
+#ifdef QT_COMPAT
+    enum Op {
+        None = -1,
+        Insert = 0,
+        Update = 1,
+        Delete = 2
+    };
+
+    enum Confirm {
+        Cancel = -1,
+        No = 0,
+        Yes = 1
+    };
+#endif
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QSql::ParamType)
