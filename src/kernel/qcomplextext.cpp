@@ -1456,7 +1456,7 @@ QString QComplexText::bidiReorderString( const QString &str, QChar::Direction /*
     const QChar *ch = str.unicode();
     while( lineStart < len ) {
 	lineEnd = lineStart;
-	while( *ch != '\n' && lineEnd < len ) {
+	while( lineEnd < len && *ch != '\n' ) {
 	    ch++;
 	    lineEnd++;
 	}
@@ -1486,7 +1486,7 @@ QString QComplexText::bidiReorderString( const QString &str, QChar::Direction /*
 	    }
 	    r = runs->next();
 	}
-	if ( *ch == '\n' ) {
+	if ( lineEnd < len && *ch == '\n' ) {
 	    *vch = *ch;
 	    vch++;
 	    ch++;
