@@ -1163,13 +1163,13 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
     switch (cc) {
     case CC_ToolButton:
         if (const QStyleOptionToolButton *toolbutton
-                = qstyleoption_cast<const QStyleOptionToolButton *>(opt)) {
+            = qstyleoption_cast<const QStyleOptionToolButton *>(opt)) {
             QRect button, menuarea;
             button = visualRect(opt->direction, opt->rect,
                                 subControlRect(cc, toolbutton, SC_ToolButton, widget));
             menuarea = visualRect(opt->direction, opt->rect,
                                   subControlRect(cc, toolbutton, SC_ToolButtonMenu,
-                                                         widget));
+                                                 widget));
 
             State bflags = toolbutton->state;
 
@@ -1218,72 +1218,76 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
         }
         break;
     case CC_SpinBox:
-        if (const QStyleOptionSpinBox *sb = qstyleoption_cast<const QStyleOptionSpinBox *>(opt)) {
-            QStyleOptionSpinBox copy = *sb;
+        if (const QStyleOptionSpinBox *spinbox = qstyleoption_cast<const QStyleOptionSpinBox *>(opt)) {
+            QStyleOptionSpinBox copy = *spinbox;
             PrimitiveElement pe;
 
-            if (sb->subControls & SC_SpinBoxFrame) {
+            if (spinbox->frame && (spinbox->subControls & SC_SpinBoxFrame)) {
                 QRect r = visualRect(opt->direction, opt->rect,
-                                     subControlRect(CC_SpinBox, sb, SC_SpinBoxFrame, widget));
+                                     subControlRect(CC_SpinBox, spinbox, SC_SpinBoxFrame, widget));
                 qDrawShadePanel(p, r, opt->palette, false, pixelMetric(PM_SpinBoxFrameWidth));
+
+                int fw = pixelMetric(QStyle::PM_DefaultFrameWidth);
+                r = visualRect(opt->direction, opt->rect,
+                               subControlRect(CC_SpinBox, spinbox, SC_SpinBoxEditField, widget)).adjusted(-fw,-fw,fw,fw);
+                QStyleOptionFrame lineOpt;
+                lineOpt.QStyleOption::operator=(*opt);
+                lineOpt.rect = r;
+                lineOpt.lineWidth = fw;
+                lineOpt.midLineWidth = 0;
+                lineOpt.state |= QStyle::State_Sunken;
+                drawPrimitive(QStyle::PE_FrameLineEdit, &lineOpt, p, widget);
             }
 
-            if (sb->subControls & SC_SpinBoxEditField) {
-                int fw = pixelMetric(QStyle::PM_SpinBoxFrameWidth);
-                QRect r = visualRect(opt->direction, opt->rect,
-                                     subControlRect(CC_SpinBox, sb, SC_SpinBoxEditField, widget)).adjusted(-fw,-fw,fw,fw);
-                qDrawShadePanel(p, r, opt->palette, true, fw);
-            }
-
-            if (sb->subControls & SC_SpinBoxUp) {
+            if (spinbox->subControls & SC_SpinBoxUp) {
                 copy.subControls = SC_SpinBoxUp;
-                QPalette pal2 = sb->palette;
-                if (!(sb->stepEnabled & QAbstractSpinBox::StepUpEnabled)) {
+                QPalette pal2 = spinbox->palette;
+                if (!(spinbox->stepEnabled & QAbstractSpinBox::StepUpEnabled)) {
                     pal2.setCurrentColorGroup(QPalette::Disabled);
                     copy.state &= ~State_Enabled;
                 }
 
                 copy.palette = pal2;
 
-                if (sb->activeSubControls == SC_SpinBoxUp) {
+                if (spinbox->activeSubControls == SC_SpinBoxUp && (spinbox->state & State_Down)) {
                     copy.state |= State_On;
                     copy.state |= State_Sunken;
-                    copy.state |= State_Down;
                 } else {
                     copy.state |= State_Raised;
+                    copy.state &= ~State_Down;
                 }
-                pe = (sb->buttonSymbols == QAbstractSpinBox::PlusMinus ? PE_IndicatorSpinPlus
-                                                                       : PE_IndicatorSpinUp);
+                pe = (spinbox->buttonSymbols == QAbstractSpinBox::PlusMinus ? PE_IndicatorSpinPlus
+                      : PE_IndicatorSpinUp);
 
                 copy.rect = visualRect(opt->direction, opt->rect,
-                                       subControlRect(CC_SpinBox, sb, SC_SpinBoxUp,
-                                                              widget));
+                                       subControlRect(CC_SpinBox, spinbox, SC_SpinBoxUp,
+                                                      widget));
                 drawPrimitive(pe, &copy, p, widget);
             }
 
-            if (sb->subControls & SC_SpinBoxDown) {
+            if (spinbox->subControls & SC_SpinBoxDown) {
                 copy.subControls = SC_SpinBoxDown;
-                copy.state = sb->state;
-                QPalette pal2 = sb->palette;
-                if (!(sb->stepEnabled & QAbstractSpinBox::StepDownEnabled)) {
+                copy.state = spinbox->state;
+                QPalette pal2 = spinbox->palette;
+                if (!(spinbox->stepEnabled & QAbstractSpinBox::StepDownEnabled)) {
                     pal2.setCurrentColorGroup(QPalette::Disabled);
                     copy.state &= ~State_Enabled;
                 }
                 copy.palette = pal2;
 
-                if (sb->activeSubControls == SC_SpinBoxDown) {
+                if (spinbox->activeSubControls == SC_SpinBoxDown && (spinbox->state & State_Down)) {
                     copy.state |= State_On;
                     copy.state |= State_Sunken;
-                    copy.state |= State_Down;
                 } else {
                     copy.state |= State_Raised;
+                    copy.state &= ~State_Down;
                 }
-                pe = (sb->buttonSymbols == QAbstractSpinBox::PlusMinus ? PE_IndicatorSpinMinus
-                                                                       : PE_IndicatorSpinDown);
+                pe = (spinbox->buttonSymbols == QAbstractSpinBox::PlusMinus ? PE_IndicatorSpinMinus
+                      : PE_IndicatorSpinDown);
 
                 copy.rect = visualRect(opt->direction, opt->rect,
-                                       subControlRect(CC_SpinBox, sb, SC_SpinBoxDown,
-                                                              widget));
+                                       subControlRect(CC_SpinBox, spinbox, SC_SpinBoxDown,
+                                                      widget));
                 drawPrimitive(pe, &copy, p, widget);
             }
         }
@@ -1339,12 +1343,14 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
         if (const QStyleOptionComboBox *cb = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
             if (opt->subControls & SC_ComboBoxArrow) {
                 int awh, ax, ay, sh, sy, dh, ew;
-                int fw = pixelMetric(PM_ComboBoxFrameWidth, opt, widget);
+                int fw = cb->frame ? pixelMetric(PM_ComboBoxFrameWidth, opt, widget) : 0;
 
-                QStyleOptionButton btn;
-                btn.QStyleOption::operator=(*cb);
-                btn.state |= QStyle::State_Raised;
-                drawPrimitive(PE_PanelButtonCommand, &btn, p, widget);
+                if (cb->frame) {
+                    QStyleOptionButton btn;
+                    btn.QStyleOption::operator=(*cb);
+                    btn.state |= QStyle::State_Raised;
+                    drawPrimitive(PE_PanelButtonCommand, &btn, p, widget);
+                }
 
                 QRect tr = opt->rect;
                 tr.adjust(fw, fw, -fw, -fw);
@@ -1385,7 +1391,7 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
                 }
             }
             p->setPen(opt->palette.buttonText().color());
-            }
+        }
         break;
 
     case CC_ScrollBar: {
@@ -1609,31 +1615,32 @@ QMotifStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *opt,
                             SubControl sc, const QWidget *widget) const
 {
     switch (cc) {
-    case CC_SpinBox: {
-        int fw = pixelMetric(PM_SpinBoxFrameWidth, opt, widget);
-        QSize bs;
-        bs.setHeight(opt->rect.height()/2 - fw);
-        bs.setWidth(qMin(bs.height() * 8 / 5, opt->rect.width() / 4)); // 1.6 -approximate golden mean
-        bs = bs.expandedTo(QApplication::globalStrut());
-        int y = fw;
-        int x, lx, rx;
-        x = opt->rect.width() - y - bs.width();
-        lx = fw;
-        rx = x - fw * 2;
-        const int margin = 4;
-        switch (sc) {
-        case SC_SpinBoxUp:
-            return QRect(x, y, bs.width(), bs.height());
-        case SC_SpinBoxDown:
-            return QRect(x, y + bs.height(), bs.width(), bs.height());
-        case SC_SpinBoxEditField:
-            return QRect(lx + margin, fw + margin, rx - margin, opt->rect.height() - 2*fw - 2 * margin);
-        case SC_SpinBoxFrame:
-            return opt->rect;
-        default:
-            break;
-        }
-        break; }
+    case CC_SpinBox:
+        if (const QStyleOptionSpinBox *spinbox = qstyleoption_cast<const QStyleOptionSpinBox *>(opt)) {
+            int fw = spinbox->frame ? pixelMetric(PM_SpinBoxFrameWidth, spinbox, widget) : 0;
+            QSize bs;
+            bs.setHeight(opt->rect.height()/2 - fw);
+            bs.setWidth(qMin(bs.height() * 8 / 5, opt->rect.width() / 4)); // 1.6 -approximate golden mean
+            bs = bs.expandedTo(QApplication::globalStrut());
+            int y = fw;
+            int x, lx, rx;
+            x = opt->rect.width() - y - bs.width();
+            lx = fw;
+            rx = x - fw * 2;
+            const int margin = spinbox->frame ? 4 : 0;
+            switch (sc) {
+            case SC_SpinBoxUp:
+                return QRect(x, y, bs.width(), bs.height() - 1);
+            case SC_SpinBoxDown:
+                return QRect(x, y + bs.height() + 1, bs.width(), bs.height() - 1);
+            case SC_SpinBoxEditField:
+                return QRect(lx + margin, fw + margin, rx - margin, opt->rect.height() - 2*fw - 2 * margin);
+            case SC_SpinBoxFrame:
+                return opt->rect;
+            default:
+                break;
+            }
+            break; }
 
     case CC_Slider:
         if (const QStyleOptionSlider *slider = qstyleoption_cast<const QStyleOptionSlider *>(opt)) {
@@ -1675,25 +1682,27 @@ QMotifStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *opt,
         break;
 
     case CC_ComboBox:
-        switch (sc) {
-        case SC_ComboBoxArrow: {
-            int ew, awh, sh, dh, ax, ay, sy;
-            int fw = pixelMetric(PM_ComboBoxFrameWidth, opt, widget);
-            QRect cr = opt->rect;
-            cr.adjust(fw, fw, -fw, -fw);
-            get_combo_parameters(cr, ew, awh, ax, ay, sh, dh, sy);
-            return QRect(QPoint(ax, ay), cr.bottomRight()); }
+        if (const QStyleOptionComboBox *cb = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
+            switch (sc) {
+            case SC_ComboBoxArrow: {
+                int ew, awh, sh, dh, ax, ay, sy;
+                int fw = cb->frame ? pixelMetric(PM_ComboBoxFrameWidth, opt, widget) : 0;
+                QRect cr = opt->rect;
+                cr.adjust(fw, fw, -fw, -fw);
+                get_combo_parameters(cr, ew, awh, ax, ay, sh, dh, sy);
+                return QRect(QPoint(ax, ay), cr.bottomRight()); }
 
-        case SC_ComboBoxEditField: {
-            int fw = pixelMetric(PM_ComboBoxFrameWidth, opt, widget);
-            QRect rect = opt->rect;
-            rect.adjust(fw, fw, -fw, -fw);
-            int ew = get_combo_extra_width(rect.height(), rect.width());
-            rect.adjust(1, 1, -1-ew, -1);
-            return rect; }
+            case SC_ComboBoxEditField: {
+                int fw = cb->frame ? pixelMetric(PM_ComboBoxFrameWidth, opt, widget) : 0;
+                QRect rect = opt->rect;
+                rect.adjust(fw, fw, -fw, -fw);
+                int ew = get_combo_extra_width(rect.height(), rect.width());
+                rect.adjust(1, 1, -1-ew, -1);
+                return rect; }
 
-        default:
-            break;
+            default:
+                break;
+            }
         }
         break;
     default:

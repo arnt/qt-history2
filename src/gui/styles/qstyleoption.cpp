@@ -895,7 +895,7 @@ QStyleOptionSlider::QStyleOptionSlider(int version)
 
 QStyleOptionSpinBox::QStyleOptionSpinBox()
     : QStyleOptionComplex(Version, SO_SpinBox), buttonSymbols(QAbstractSpinBox::UpDownArrows),
-      stepEnabled(QAbstractSpinBox::StepNone), percentage(0.0)
+      stepEnabled(QAbstractSpinBox::StepNone), percentage(0.0), frame(false)
 {
 }
 
@@ -904,7 +904,7 @@ QStyleOptionSpinBox::QStyleOptionSpinBox()
 */
 QStyleOptionSpinBox::QStyleOptionSpinBox(int version)
     : QStyleOptionComplex(version, SO_SpinBox), buttonSymbols(QAbstractSpinBox::UpDownArrows),
-      stepEnabled(QAbstractSpinBox::StepNone), percentage(0.0)
+      stepEnabled(QAbstractSpinBox::StepNone), percentage(0.0), frame(false)
 {
 }
 
@@ -929,6 +929,12 @@ QStyleOptionSpinBox::QStyleOptionSpinBox(int version)
 
     The percentage is the quotient of the current value divided by
     the maximum value.
+*/
+
+/*!
+    \property QStyleOptionSpinBox::frame
+    \brief Indicates whether whether the spin box has a frame.
+
 */
 
 /*!
@@ -1282,7 +1288,7 @@ QStyleOptionToolButton::QStyleOptionToolButton(int version)
 */
 
 QStyleOptionComboBox::QStyleOptionComboBox()
-    : QStyleOptionComplex(Version, SO_ComboBox), editable(false)
+    : QStyleOptionComplex(Version, SO_ComboBox), editable(false), frame(true)
 {
 }
 
@@ -1290,7 +1296,7 @@ QStyleOptionComboBox::QStyleOptionComboBox()
     \internal
 */
 QStyleOptionComboBox::QStyleOptionComboBox(int version)
-    : QStyleOptionComplex(version, SO_ComboBox), editable(false)
+    : QStyleOptionComplex(version, SO_ComboBox), editable(false), frame(true)
 {
 }
 
@@ -1299,6 +1305,13 @@ QStyleOptionComboBox::QStyleOptionComboBox(int version)
     \brief whether or not the combobox is editable or not.
 
     \sa QComboBox::isEditable()
+*/
+
+
+/*!
+    \property QStyleOptionComboBox::frame
+    \brief Indicates whether whether the combo box has a frame.
+
 */
 
 /*!

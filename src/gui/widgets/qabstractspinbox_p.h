@@ -128,6 +128,7 @@ public:
     uint wrapping : 1;
     uint dragging : 1;
     uint ignorecursorpositionchanged : 1;
+    uint frame : 1;
     QStyle::SubControl hoverControl;
     QRect hoverRect;
     QAbstractSpinBox::ButtonSymbols buttonsymbols;

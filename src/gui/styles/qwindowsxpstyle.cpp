@@ -1376,7 +1376,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
         {
             XPThemeData theme(widget, p, "SPIN");
 
-            if (sub & SC_SpinBoxFrame) {
+            if (sb->frame && (sub & SC_SpinBoxFrame)) {
                 partId = EP_EDITTEXT;
                 if ((!flags & State_Enabled))
                     stateId = ETS_DISABLED;
@@ -1844,7 +1844,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                     p->drawText(ir.x() + 2, ir.y(), ir.width() - 2, ir.height(),
                                 Qt::AlignLeft | Qt::AlignVCenter | Qt::TextSingleLine, tb->text);
                 }
-                
+
                 if (sub & SC_TitleBarSysMenu && tb->titleBarFlags & Qt::WindowSystemMenuHint) {
                     theme.rec = visualRect(option->direction, option->rect, subControlRect(CC_TitleBar, option, SC_TitleBarSysMenu, widget));
                     partId = WP_SYSBUTTON;
@@ -2125,13 +2125,13 @@ QRect QWindowsXPStyle::subControlRect(ComplexControl cc, const QStyleOptionCompl
     case CC_TitleBar: {
 #ifndef QT_NO_TITLEBAR
         if (const QStyleOptionTitleBar *tb = qstyleoption_cast<const QStyleOptionTitleBar *>(option)) {
-            
+
             const bool isToolTitle = false; // widget->testWFlags(Qt::WA_WState_Tool)
             const int height = tb->rect.height();
             const int width = tb->rect.width();
             const int controlTop = 6; //widget->testWFlags(Qt::WA_WState_Tool) ? 4 : 6;
             const int controlHeight = height - controlTop - 3;
-            
+
             const bool sysmenuHint  = (tb->titleBarFlags & Qt::WindowSystemMenuHint) != 0;
             const bool minimizeHint = (tb->titleBarFlags & Qt::WindowMinimizeButtonHint) != 0;
             const bool maximizeHint = (tb->titleBarFlags & Qt::WindowMaximizeButtonHint) != 0;

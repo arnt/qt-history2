@@ -2298,7 +2298,7 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
     case QStyle::CC_SpinBox:
         if (const QStyleOptionSpinBox *sb = qstyleoption_cast<const QStyleOptionSpinBox *>(opt)) {
             QStyleOptionSpinBox newSB = *sb;
-            if (sb->subControls & QStyle::SC_SpinBoxFrame) {
+            if (sb->frame && (sb->subControls & QStyle::SC_SpinBoxFrame)) {
                 QStyleOptionFrame lineedit;
                 lineedit.rect = QStyle::visualRect(opt->direction, opt->rect,
                                                    q->subControlRect(QStyle::CC_SpinBox,

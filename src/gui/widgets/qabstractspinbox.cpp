@@ -516,7 +516,7 @@ bool QAbstractSpinBox::event(QEvent *event)
     case QEvent::HoverEnter:
     case QEvent::HoverLeave:
     case QEvent::HoverMove:
-        if (const QHoverEvent *he = static_cast<const QHoverEvent *>(event)) 
+        if (const QHoverEvent *he = static_cast<const QHoverEvent *>(event))
             d->updateHoverControl(he->pos());
         break;
     default: break;
@@ -898,7 +898,7 @@ QAbstractSpinBoxPrivate::QAbstractSpinBoxPrivate()
       spinclicktimerinterval(100), buttonstate(None), sizehintdirty(true),
       dirty(true), cachedtext("\x01"), cachedstate(QValidator::Invalid),
       pendingemit(false), readonly(false), tracking(false), wrapping(false),
-      dragging(false), ignorecursorpositionchanged(false),
+      dragging(false), ignorecursorpositionchanged(false), frame(true),
       buttonsymbols(QAbstractSpinBox::UpDownArrows)
 {
 }
@@ -917,7 +917,7 @@ bool QAbstractSpinBoxPrivate::updateHoverControl(const QPoint &pos)
         q->update(lastHoverRect);
         q->update(hoverRect);
         return true;
-    } 
+    }
     return !doesHover;
 }
 
@@ -1186,7 +1186,7 @@ void QAbstractSpinBoxPrivate::calculateSizeHints() const
 
         QStyleOptionSpinBox opt = getStyleOption();
         QSize hint(w, h);
-        QSize extra(35,6);
+        QSize extra(35, 6);
         opt.rect.setSize(hint + extra);
         extra += hint - q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
                                                    QStyle::SC_SpinBoxEditField, q).size();
@@ -1196,9 +1196,8 @@ void QAbstractSpinBoxPrivate::calculateSizeHints() const
                                                    QStyle::SC_SpinBoxEditField, q).size();
         hint += extra;
 
-        cachedsizehint = hint.expandedTo(QApplication::globalStrut());
-        cachedminimumsizehint = hint.expandedTo(QApplication::globalStrut());
-        const_cast<QAbstractSpinBoxPrivate *>(this)->sizehintdirty = false;
+        cachedsizehint = cachedminimumsizehint =  hint.expandedTo(QApplication::globalStrut());
+        sizehintdirty = false;
     }
 }
 
@@ -1232,6 +1231,8 @@ QStyleOptionSpinBox QAbstractSpinBoxPrivate::getStyleOption() const
         opt.stepEnabled = QAbstractSpinBox::StepNone;
         opt.percentage = 0.0;
     }
+
+    opt.frame = frame;
     return opt;
 }
 
@@ -1716,6 +1717,26 @@ double operator/(const QVariant &arg1, const QVariant &arg2)
     }
 
     return (a1 != 0 && a2 != 0) ? (a1 / a2) : 0.0;
+}
+
+/*!
+    \property QAbstractSpinBox::frame
+    \brief whether the spin box draws itself with a frame
+
+    If enabled (the default) the spin box draws itself inside a frame,
+    otherwise the spin box draws itself without any frame.
+*/
+bool QAbstractSpinBox::hasFrame() const
+{
+    return d->frame;
+}
+
+
+void QAbstractSpinBox::setFrame(bool enable)
+{
+    d->frame = enable;
+    update();
+    updateGeometry();
 }
 
 #include "moc_qabstractspinbox.cpp"

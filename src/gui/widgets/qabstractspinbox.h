@@ -27,6 +27,7 @@ class Q_GUI_EXPORT QAbstractSpinBox : public QWidget
     Q_ENUMS(ButtonSymbols)
     Q_PROPERTY(bool wrapping READ wrapping WRITE setWrapping)
     Q_PROPERTY(bool tracking READ tracking WRITE setTracking)
+    Q_PROPERTY(bool frame READ hasFrame WRITE setFrame)
     Q_PROPERTY(Qt::Alignment alignment READ alignment WRITE setAlignment)
     Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly)
     Q_PROPERTY(ButtonSymbols buttonSymbols READ buttonSymbols WRITE setButtonSymbols)
@@ -60,6 +61,9 @@ public:
 
     void setAlignment(Qt::Alignment flag);
     Qt::Alignment alignment() const;
+
+    void setFrame(bool);
+    bool hasFrame() const;
 
     QSize sizeHint() const;
     QSize minimumSizeHint() const;

@@ -393,8 +393,7 @@ void QLineEdit::setMaxLength(int maxLength)
     \brief whether the line edit draws itself with a frame
 
     If enabled (the default) the line edit draws itself inside a
-    two-pixel frame, otherwise the line edit draws itself without any
-    frame.
+    frame, otherwise the line edit draws itself without any frame.
 */
 bool QLineEdit::hasFrame() const
 {

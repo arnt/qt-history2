@@ -480,6 +480,7 @@ public:
     QAbstractSpinBox::ButtonSymbols buttonSymbols;
     QAbstractSpinBox::StepEnabled stepEnabled;
     double percentage;
+    bool frame;
 
     QStyleOptionSpinBox();
     QStyleOptionSpinBox(const QStyleOptionSpinBox &other) : QStyleOptionComplex(Version, Type) { *this = other; }
@@ -487,6 +488,7 @@ public:
     QDOC_PROPERTY(QAbstractSpinBox::ButtonSymbols buttonSymbols)
     QDOC_PROPERTY(QAbstractSpinBox::StepEnabled stepEnabled)
     QDOC_PROPERTY(double percentage)
+    QDOC_PROPERTY(bool frame)
 
 protected:
     QStyleOptionSpinBox(int version);
@@ -563,12 +565,14 @@ public:
 
     bool editable;
     QRect popupRect;
+    bool frame;
 
     QStyleOptionComboBox();
     QStyleOptionComboBox(const QStyleOptionComboBox &other) : QStyleOptionComplex(Version, Type) { *this = other; }
 
     QDOC_PROPERTY(bool editable)
     QDOC_PROPERTY(QRect popupRect)
+    QDOC_PROPERTY(bool frame)
 
 protected:
     QStyleOptionComboBox(int version);

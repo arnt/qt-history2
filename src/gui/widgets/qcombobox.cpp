@@ -27,6 +27,25 @@
 #include <private/qcombobox_p.h>
 #include <qdebug.h>
 
+QComboBoxPrivate::QComboBoxPrivate()
+    : QWidgetPrivate(),
+      model(0),
+      lineEdit(0),
+      container(0),
+      insertPolicy(QComboBox::InsertAtBottom),
+      sizeAdjustPolicy(QComboBox::AdjustToContentsOnFirstShow),
+      minimumContentsLength(0),
+      shownOnce(false),
+      autoCompletion(true),
+      duplicatesEnabled(false),
+      arrowDown(false),
+      skipCompletion(false),
+      frame(false),
+      maxVisibleItems(10),
+      maxCount(INT_MAX)
+{
+}
+
 QStyleOptionMenuItem MenuDelegate::getStyleOption(const QStyleOptionViewItem &option,
                                                   const QModelIndex &index) const
 {
@@ -637,6 +656,7 @@ QStyleOptionComboBox QComboBoxPrivate::getStyleOption() const
         opt.activeSubControls = hoverControl;
     }
     opt.editable = q->isEditable();
+    opt.frame = frame;
     return opt;
 }
 
@@ -1976,6 +1996,30 @@ QVariant QComboBox::inputMethodQuery(Qt::InputMethodQuery query) const
 
     Use clearEditText() instead.
 */
+
+
+/*!
+    \property QComboBox::frame
+    \brief whether the combo box draws itself with a frame
+
+    If enabled (the default) the combo box draws itself inside a
+    frame, otherwise the combo box draws itself without any frame.
+*/
+bool QComboBox::hasFrame() const
+{
+    Q_D(const QComboBox);
+    return d->frame;
+}
+
+
+void QComboBox::setFrame(bool enable)
+{
+    Q_D(QComboBox);
+    d->frame = enable;
+    update();
+    updateGeometry();
+}
+
 
 #define d d_func()
 #include "moc_qcombobox.cpp"

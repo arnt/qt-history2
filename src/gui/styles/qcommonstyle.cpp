@@ -1294,7 +1294,10 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
         }
         break;
     case SE_ComboBoxFocusRect:
-        r.setRect(3, 3, opt->rect.width() - 6 - 16, opt->rect.height() - 6);
+        if (const QStyleOptionComboBox *cb = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
+            int margin = cb->frame ? 3 : 0;
+            r.setRect(margin, margin, opt->rect.width() - 2*margin - 16, opt->rect.height() - 2*margin);
+        }
         break;
     case SE_ToolBoxTabContents:
         r = opt->rect;
@@ -1639,7 +1642,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             QStyleOptionSpinBox copy = *sb;
             PrimitiveElement pe;
 
-            if (sb->subControls & SC_SpinBoxFrame) {
+            if (sb->frame && (sb->subControls & SC_SpinBoxFrame)) {
                 QRect r = visualRect(opt->direction, opt->rect,
                                      subControlRect(CC_SpinBox, sb, SC_SpinBoxFrame, widget));
                 qDrawWinPanel(p, r, sb->palette, true);
@@ -2150,7 +2153,7 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
     case CC_SpinBox:
         if (const QStyleOptionSpinBox *spinbox = qstyleoption_cast<const QStyleOptionSpinBox *>(opt)) {
             QSize bs;
-            int fw = pixelMetric(PM_SpinBoxFrameWidth, spinbox, widget);
+            int fw = spinbox->frame ? pixelMetric(PM_SpinBoxFrameWidth, spinbox, widget) : 0;
             bs.setHeight(qMax(8, spinbox->rect.height()/2 - fw));
             // 1.6 -approximate golden mean
             bs.setWidth(qMax(16, qMin(bs.height() * 8 / 5, spinbox->rect.width() / 4)));
@@ -2200,26 +2203,29 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
         }
         break;
     case CC_ComboBox:
-        if (const QStyleOptionComboBox *cmb = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
+        if (const QStyleOptionComboBox *cb = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
             int x = 0,
                 y = 0,
-                wi = cmb->rect.width(),
-                he = cmb->rect.height();
+                wi = cb->rect.width(),
+                he = cb->rect.height();
             int xpos = x;
-            xpos += wi - 2 - 16;
+            int margin = cb->frame ? 3 : 0;
+            int bmarg = cb->frame ? 2 : 0;
+            xpos += wi - bmarg - 16;
+
 
             switch (sc) {
             case SC_ComboBoxFrame:
-                ret = cmb->rect;
+                ret = cb->rect;
                 break;
             case SC_ComboBoxArrow:
-                ret.setRect(xpos, y + 2, 16, he - 4);
+                ret.setRect(xpos, y + bmarg, 16, he - 2*bmarg);
                 break;
             case SC_ComboBoxEditField:
-                ret.setRect(x + 3, y + 3, wi - 6 - 16, he - 6);
+                ret.setRect(x + margin, y + margin, wi - 2 * margin - 16, he - 2 * margin);
                 break;
             case SC_ComboBoxListBoxPopup:
-                ret = cmb->popupRect;
+                ret = cb->popupRect;
                 break;
             default:
                 break;
@@ -2664,10 +2670,12 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
     case CT_ToolButton:
         sz = QSize(sz.width() + 6, sz.height() + 5);
         break;
-    case CT_ComboBox: {
-        int dfw = pixelMetric(PM_ComboBoxFrameWidth, opt, widget) * 2;
-        sz = QSize(sz.width() + dfw + 21, sz.height() + dfw);
-        break; }
+    case CT_ComboBox:
+        if (const QStyleOptionComboBox *cmb = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
+            int fw = cmb->frame ? pixelMetric(PM_ComboBoxFrameWidth, opt, widget) * 2 : 0;
+            sz = QSize(sz.width() + fw + 21, sz.height() + fw);
+        }
+        break;
     case CT_HeaderSection:
         if (const QStyleOptionHeader *hdr = qstyleoption_cast<const QStyleOptionHeader *>(opt)) {
             int margin = pixelMetric(QStyle::PM_HeaderMargin);

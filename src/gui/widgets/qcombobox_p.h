@@ -158,21 +158,7 @@ class QComboBoxPrivate: public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QComboBox)
 public:
-    QComboBoxPrivate()
-        : QWidgetPrivate(),
-          model(0),
-          lineEdit(0),
-          container(0),
-          insertPolicy(QComboBox::InsertAtBottom),
-          sizeAdjustPolicy(QComboBox::AdjustToContentsOnFirstShow),
-          shownOnce(false),
-          minimumContentsLength(0),
-          autoCompletion(true),
-          duplicatesEnabled(false),
-          arrowDown(false),
-          maxVisibleItems(10),
-          maxCount(INT_MAX),
-          skipCompletion(false) {}
+    QComboBoxPrivate();
     ~QComboBoxPrivate() {}
     void init();
     ItemViewContainer* viewContainer();
@@ -195,15 +181,17 @@ public:
     ItemViewContainer *container;
     QComboBox::InsertPolicy insertPolicy;
     QComboBox::SizeAdjustPolicy sizeAdjustPolicy;
-    bool shownOnce;
     int minimumContentsLength;
     QSize iconSize;
-    bool autoCompletion;
-    bool duplicatesEnabled;
-    bool arrowDown;
+    uint shownOnce : 1;
+    uint autoCompletion : 1;
+    uint duplicatesEnabled : 1;
+    uint arrowDown : 1;
+    uint skipCompletion : 1;
+    uint frame : 1;
+    uint padding : 26;
     int maxVisibleItems;
     int maxCount;
-    bool skipCompletion;
     mutable QSize sizeHint;
     QStyle::SubControl hoverControl;
     QRect hoverRect;

@@ -2140,9 +2140,12 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
             if (cmb->subControls & SC_ComboBoxArrow) {
                 State flags = State_None;
 
-                qDrawWinPanel(p, opt->rect, opt->palette, true,
-                              cmb->state & State_Enabled ? &cmb->palette.brush(QPalette::Base)
-                                                         : &cmb->palette.brush(QPalette::Background));
+                QBrush editBrush = (cmb->state & State_Enabled) ? cmb->palette.brush(QPalette::Base)
+                                   : cmb->palette.brush(QPalette::Background);
+                if (cmb->frame)
+                    qDrawWinPanel(p, opt->rect, opt->palette, true, &editBrush);
+                else
+                    p->fillRect(opt->rect, editBrush);
 
                 QRect ar = visualRect(opt->direction, opt->rect, QCommonStyle::subControlRect(CC_ComboBox, cmb,
                                                                                               SC_ComboBoxArrow,

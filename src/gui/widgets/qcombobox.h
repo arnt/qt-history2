@@ -41,6 +41,7 @@ class Q_GUI_EXPORT QComboBox : public QWidget
     Q_PROPERTY(QSize iconSize READ iconSize WRITE setIconSize)
     Q_PROPERTY(bool autoCompletion READ autoCompletion WRITE setAutoCompletion)
     Q_PROPERTY(bool duplicatesEnabled READ duplicatesEnabled WRITE setDuplicatesEnabled)
+    Q_PROPERTY(bool frame READ hasFrame WRITE setFrame)
 
 public:
     explicit QComboBox(QWidget *parent = 0);
@@ -58,6 +59,9 @@ public:
 
     bool duplicatesEnabled() const;
     void setDuplicatesEnabled(bool enable);
+
+    void setFrame(bool);
+    bool hasFrame() const;
 
     inline int findText(const QString &text,
                         QAbstractItemModel::MatchFlags flags =

@@ -75,7 +75,7 @@ public:
     QVariant validateAndInterpret(QString &input, int &, QValidator::State &state) const;
     void editorCursorPositionChanged(int lastpos, int newpos);
 
-    QStyleOptionSpinBox styleOption() const;
+    QStyleOptionSpinBox getStyleOption() const;
     QVariant valueForPosition(int pos) const;
 
     void clearSection(Section s);
@@ -1931,20 +1931,9 @@ QDateTimeEditPrivate::SectionNode QDateTimeEditPrivate::nextPrevSection(Section 
     return (forward ? last : first);
 }
 
-QStyleOptionSpinBox QDateTimeEditPrivate::styleOption() const
+QStyleOptionSpinBox QDateTimeEditPrivate::getStyleOption() const
 {
-    QStyleOptionSpinBox opt;
-    opt.init(q);
-    opt.stepEnabled = q->stepEnabled();
-    opt.activeSubControls = 0;
-    opt.buttonSymbols = buttonsymbols;
-    opt.subControls = QStyle::SC_SpinBoxUp | QStyle::SC_SpinBoxDown | QStyle::SC_SpinBoxEditField;
-
-    if (d->buttonstate & Up) {
-        opt.activeSubControls = QStyle::SC_SpinBoxUp;
-    } else if (buttonstate & Down) {
-        opt.activeSubControls = QStyle::SC_SpinBoxDown;
-    }
+    QStyleOptionSpinBox opt = QAbstractSpinBoxPrivate::getStyleOption();
 
     double days = (double)minimum.toDateTime().daysTo(value.toDateTime());
     days += (double)minimum.toDateTime().time().msecsTo(value.toDateTime().time()) / (24 * 3600 * 1000);
@@ -2455,20 +2444,20 @@ void QDateTimeEditPrivate::calculateSizeHints() const
         w = qMax<int>(w, fm.width(s));
         w += 10; // cursor blinking space
 
-        QStyleOptionSpinBox opt = styleOption();
+        QStyleOptionSpinBox opt = getStyleOption();
         QSize hint(w, h);
         QSize extra(35, 6);
         opt.rect.setSize(hint + extra);
         extra += hint - q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
-                                            QStyle::SC_SpinBoxEditField, q).size();
+                                                   QStyle::SC_SpinBoxEditField, q).size();
         // get closer to final result by repeating the calculation
         opt.rect.setSize(hint + extra);
         extra += hint - q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
-						   QStyle::SC_SpinBoxEditField, q).size();
+                                                   QStyle::SC_SpinBoxEditField, q).size();
         hint += extra;
 
         cachedsizehint = cachedminimumsizehint = hint.expandedTo(QApplication::globalStrut());
-        const_cast<QDateTimeEditPrivate *>(this)->sizehintdirty = false;
+        sizehintdirty = false;
     }
 }
 /*!
