@@ -1857,10 +1857,10 @@ void QApplication::closeAllWindows()
 */
 
 /*!
-  Sends event \a e to \a receiver: \a {receiver}->event(\a event).
+  Sends event \a e to \a receiver: \a {receiver}->event(\a e).
   Returns the value that is returned from the receiver's event handler.
 
-  If the receiver is not interested in the event (i.e., it returns FALSE)
+  If the receiver is not interested in the event (i.e. it returns FALSE)
   the event will be propagated to the receiver's parent and so on up to
   the top level widget. All events are propagated in this way including
   mouse, wheel and key events.
