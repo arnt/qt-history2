@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#107 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#108 $
 **
 ** Global type declarations and definitions
 **
@@ -219,12 +219,9 @@
 #define HAS_BOOL_TYPE
 #endif
 
+#if !defined(HAS_BOOL_TYPE)
 #if defined(_CC_MSVC_)
 #define _CC_BOOL_DEF_
-#endif
-
-#if !defined(HAS_BOOL_TYPE)
-#if defined(_CC_BOOL_DEF_)
 #define bool		int
 #else
 typedef int		bool;
@@ -326,6 +323,7 @@ bool qSysInfo( int *wordSize, bool *bigEndian );
 #if defined(NO_WARNINGS)
 #if defined(_CC_MSVC_)
 #pragma warning(disable: 4244)
+#pragma warning(disable: 4800)
 #elif defined(_CC_BOR_)
 #pragma option -w-inl
 #pragma warn -inl
