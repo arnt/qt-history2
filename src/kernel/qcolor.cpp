@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#48 $
 **
 ** Implementation of QColor class
 **
@@ -13,7 +13,7 @@
 #include "qcolor.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#47 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#48 $")
 
 
 /*----------------------------------------------------------------------------
@@ -597,7 +597,6 @@ QDataStream &operator>>( QDataStream &s, QColor &c )
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn int QGRAY( qRgb rgb )
+  \overload int qGray( qRgb rgb )
   \relates QColor
-  Returns a gray value 0..255 from the \e rgb value.
  ----------------------------------------------------------------------------*/
