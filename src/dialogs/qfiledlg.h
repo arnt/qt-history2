@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.h#3 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.h#4 $
 **
 ** Definition of QFileDialog class
 **
@@ -42,9 +42,9 @@ public:
     void	rereadDir();
 
     static QString getOpenFileName( const char *dir = 0, const char *filter= 0,
-				    QWidget *parent, const char *name );
+				    QWidget *parent = 0, const char *name = 0);
     static QString getSaveFileName( const char *dir = 0, const char *filter= 0,
-				    QWidget *parent, const char *name );
+				    QWidget *parent = 0, const char *name = 0);
 
 signals:
     void	fileHighlighted( const char * );
