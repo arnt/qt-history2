@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#232 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#233 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -601,6 +601,9 @@ void QWidget::setIcon( const QPixmap &pixmap )
 		 (long)extra->winIcon );
     SendMessageA( winId(), WM_SETICON, 1, /* ICON_BIG */
 		 (long)extra->winIcon );
+
+    QCustomEvent e( QEvent::IconChange, 0 );
+    QApplication::sendEvent( this, &e );
 }
 
 
@@ -778,7 +781,7 @@ void QWidget::showWindow()
 		      SWP_NOACTIVATE | SWP_SHOWWINDOW );
     }
     else {
-	ShowWindow( winId(), 
+	ShowWindow( winId(),
 		    (isTopLevel() && qt_sw_do_show_maximize)?SW_SHOWMAXIMIZED:SW_SHOW );
     }
     UpdateWindow( winId() );

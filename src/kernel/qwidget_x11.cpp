@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#402 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#403 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -873,6 +873,8 @@ void QWidget::setIcon( const QPixmap &pixmap )
     XSetWMHints( x11Display(), winId(), h );
     if ( got_hints )
 	XFree( (char *)h );
+    QCustomEvent e( QEvent::IconChange, 0 );
+    QApplication::sendEvent( this, &e );
 }
 
 

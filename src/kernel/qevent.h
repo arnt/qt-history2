@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#88 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#89 $
 **
 ** Definition of event classes
 **
@@ -49,7 +49,7 @@ public:
 
 	Timer = 1,				// timer event
 	MouseButtonPress = 2,			// mouse button pressed
-        MouseButtonRelease = 3,			// mouse button released
+	MouseButtonRelease = 3,			// mouse button released
 	MouseButtonDblClick= 4,			// mouse button double click
 	MouseMove = 5,				// mouse move
 	KeyPress = 6,				// key pressed
@@ -71,6 +71,7 @@ public:
 	Wheel = 31,				// wheel event
 	AccelAvailable = 32,			// accelerator available event
 	CaptionChange = 33,			// caption changed
+	IconChange = 34,				// icon changed
 	Clipboard = 40,				// internal clipboard event
 	SockAct = 50,				// socket activation
 	DragEnter = 60,				// drag moves into widget
