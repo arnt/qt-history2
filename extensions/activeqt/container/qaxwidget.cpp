@@ -211,10 +211,6 @@ public:
     ~QAxHostWindow();
     void releaseAll();
     void deactivate();
-    bool lastReference() const
-    {
-	return ref == 1; 
-    }
     QWidget *hostWidget() const
     {
 	return host;
