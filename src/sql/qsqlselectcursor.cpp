@@ -50,17 +50,18 @@ public:
 /*!
     \class QSqlSelectCursor qsqlselectcursor.h
     \brief The QSqlSelectCursor class provides browsing of general SQL
-    queries.
+    SELECT statements.
 
     \ingroup database
     \module sql
 
     QSqlSelectCursor is a convenience class that makes it possible to
-    display result sets from general SQL queries in data-aware Qt
-    widgets. QSqlSelectCursor is read-only and does not support
-    INSERT, UPDATE or DELETE operations.
+    display result sets from general SQL \c SELECT statements in
+    data-aware Qt widgets. QSqlSelectCursor is read-only and does not
+    support \c INSERT, \c UPDATE or \c DELETE operations.
 
-    Pass the query in at construction time, or use the QSqlSelectCursor::exec() function.
+    Pass the query in at construction time, or use the
+    QSqlSelectCursor::exec() function.
 
     Example:
     \code
