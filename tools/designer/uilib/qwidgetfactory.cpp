@@ -163,7 +163,15 @@ static QImage loadImageData( const QString& format, ulong len, QByteArray data )
     if ( format == "XPM.GZ" ) {
 	if ( len < data.size() * 10 )
 	    len = data.size() * 10;
-	QByteArray baunzip = qUncompress( data, len );
+	// qUncompress() expects the first 4 bytes to be the expected length of
+	// the uncompressed data
+	QByteArray dataTmp( data.size() + 4 );
+	memcpy( dataTmp.data()+4, data.data(), data.size() );
+	dataTmp[0] = ( len & 0xff000000 ) >> 24;
+	dataTmp[1] = ( len & 0x00ff0000 ) >> 16;
+	dataTmp[2] = ( len & 0x0000ff00 ) >> 8;
+	dataTmp[3] = ( len & 0x000000ff );
+	QByteArray baunzip = qUncompress( dataTmp );
 	len = baunzip.size();
 	img.loadFromData( (const uchar*)baunzip.data(), len, "XPM" );
     } else {

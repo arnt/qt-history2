@@ -335,48 +335,50 @@ Q_UINT16 qChecksum( const char *data, uint len )
 #ifndef QT_NO_COMPRESS
 QByteArray qCompress( const uchar* data, int nbytes )
 {
+    if ( nbytes == 0 ) {
+	QByteArray tmp( 4 );
+	tmp.fill( 0 );
+	return tmp;
+    }
     if ( !data ) {
 #if defined(QT_CHECK_RANGE)
 	qWarning( "qCompress: data is NULL." );
 #endif
 	return QByteArray();
     }
-    if ( !nbytes ) {
-#if defined(QT_CHECK_RANGE)
-	qWarning( "qCompress: nbytes is 0." );
-#endif
-	return QByteArray();
-    }
 
     ulong len = nbytes * 2;
     QByteArray bazip;
-    for (;;) {
-	bazip.resize( len );
-	int res = ::compress(  (uchar*)bazip.data(), &len, (uchar*)data, nbytes );
+    int res;
+    do {
+	bazip.resize( len + 4 );
+	res = ::compress(  (uchar*)bazip.data()+4, &len, (uchar*)data, nbytes );
 
 	switch ( res ) {
 	case Z_OK:
-	    if ( len != bazip.size() )
-		bazip.resize( len );
+	    bazip.resize( len + 4 );
+	    bazip[0] = ( nbytes & 0xff000000 ) >> 24;
+	    bazip[1] = ( nbytes & 0x00ff0000 ) >> 16;
+	    bazip[2] = ( nbytes & 0x0000ff00 ) >> 8;
+	    bazip[3] = ( nbytes & 0x000000ff );
 	    break;
 	case Z_MEM_ERROR:
 #if defined(QT_CHECK_RANGE)
-	    qWarning( "qCcompress: Z_MEM_ERROR: Not enough memory." );
+	    qWarning( "qCompress: Z_MEM_ERROR: Not enough memory." );
 #endif
+	    bazip.resize( 0 );
 	    break;
 	case Z_BUF_ERROR:
-	    // try again with the correct length
-	    continue;
+	    len *= 2;
+	    break;
 	}
-
-	break;
-    }
+    } while ( res == Z_BUF_ERROR );
 
     return bazip;
 }
 #endif
 
-/*! \fn QByteArray qUncompress( const QByteArray& data, int expectedSize )
+/*! \fn QByteArray qUncompress( const QByteArray& data )
   \relates QByteArray
   \overload
 */
@@ -387,18 +389,11 @@ QByteArray qCompress( const uchar* data, int nbytes )
   Uncompresses the array \a data which is \a nbytes long and returns
   the uncompressed byte array.
 
-  The uncompression algorithm has to estimate the size of the
-  uncompressed buffer. If you know the size you can specify it in \a
-  expectedSize, otherwise pass -1, which is the default. If -1 is
-  passed, uncompressing may take a bit longer, because the size of the
-  uncompressed buffer has to be estimated and uncompress might have to
-  be called a couple of times until the result is correct.
-
   \sa qCompress()
 */
 
 #ifndef QT_NO_COMPRESS
-QByteArray qUncompress( const uchar* data, int nbytes, int expectedSize )
+QByteArray qUncompress( const uchar* data, int nbytes )
 {
     if ( !data ) {
 #if defined(QT_CHECK_RANGE)
@@ -406,20 +401,21 @@ QByteArray qUncompress( const uchar* data, int nbytes, int expectedSize )
 #endif
 	return QByteArray();
     }
-    if ( !nbytes ) {
+    if ( nbytes <= 4 ) {
 #if defined(QT_CHECK_RANGE)
-	qWarning( "qUncompress: nbytes is 0." );
+	if ( nbytes < 4 || ( data[0]!=0 || data[1]!=0 || data[2]!=0 || data[3]!=0 ) )
+	    qWarning( "qUncompress: Input data is corrupted." );
 #endif
 	return QByteArray();
     }
+    ulong expectedSize = ( data[0] << 24 ) | ( data[1] << 16 ) | ( data[2] << 8 ) | data[3];
     ulong len = expectedSize;
-    if ( expectedSize == -1 )
-	len = nbytes * 5;
     QByteArray baunzip;
-    for (;;) {
+    int res;
+    do {
 	baunzip.resize( len );
-	int res = ::uncompress( (uchar*)baunzip.data(), &len,
-				(uchar*)data, nbytes );
+	res = ::uncompress( (uchar*)baunzip.data(), &len,
+				(uchar*)data+4, nbytes-4 );
 
 	switch ( res ) {
 	case Z_OK:
@@ -433,17 +429,14 @@ QByteArray qUncompress( const uchar* data, int nbytes, int expectedSize )
 	    break;
 	case Z_BUF_ERROR:
 	    len *= 2;
-	    // try again with the correct length
-	    continue;
+	    break;
 	case Z_DATA_ERROR:
 #if defined(QT_CHECK_RANGE)
 	    qWarning( "qUncompress: Z_DATA_ERROR: Input data is corrupted." );
 #endif
 	    break;
 	}
-
-	break;
-    }
+    } while ( res == Z_BUF_ERROR );
 
     return baunzip;
 }

@@ -1906,10 +1906,12 @@ static QImage loadImageData( QDomElement &n2 )
 {
     QImage img;
     QString data = n2.firstChild().toText().data();
-    char *ba = new char[ data.length() / 2 ];
-    for ( int i = 0; i < (int)data.length() / 2; ++i ) {
-	char h = data[ 2 * i ].latin1();
-	char l = data[ 2 * i  + 1 ].latin1();
+    const int lengthOffset = 4;
+    int baSize = data.length() / 2 + lengthOffset;
+    uchar *ba = new uchar[ baSize ];
+    for ( int i = lengthOffset; i < baSize; ++i ) {
+	char h = data[ 2 * (i-lengthOffset) ].latin1();
+	char l = data[ 2 * (i-lengthOffset) + 1 ].latin1();
 	uchar r = 0;
 	if ( h <= '9' )
 	    r += h - '0';
@@ -1927,11 +1929,16 @@ static QImage loadImageData( QDomElement &n2 )
 	ulong len = n2.attribute( "length" ).toULong();
 	if ( len < data.length() * 5 )
 	    len = data.length() * 5;
-	QByteArray baunzip = qUncompress( (uchar*)ba, data.length()/2, len );
-	len = baunzip.size();
-	img.loadFromData( (const uchar*)baunzip.data(), len, "XPM" );
+	// qUncompress() expects the first 4 bytes to be the expected length of
+	// the uncompressed data
+	ba[0] = ( len & 0xff000000 ) >> 24;
+	ba[1] = ( len & 0x00ff0000 ) >> 16;
+	ba[2] = ( len & 0x0000ff00 ) >> 8;
+	ba[3] = ( len & 0x000000ff );
+	QByteArray baunzip = qUncompress( ba, baSize );
+	img.loadFromData( (const uchar*)baunzip.data(), baunzip.size(), "XPM" );
     }  else {
-	img.loadFromData( (const uchar*)ba, data.length() / 2, format );
+	img.loadFromData( (const uchar*)ba+lengthOffset, baSize-lengthOffset, format );
     }
     delete [] ba;
 

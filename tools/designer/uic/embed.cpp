@@ -44,7 +44,7 @@ struct EmbedImage
     QString cname;
     bool alpha;
 #ifndef QT_NO_IMAGE_COLLECTION_COMPRESSION
-    ulong compressed, uncompressed;
+    ulong compressed;
 #endif
 };
 
@@ -81,9 +81,9 @@ static ulong embedData( QTextStream& out, const uchar* input, int nbytes )
 	uint v = (uchar)
 #ifndef QT_NO_IMAGE_COLLECTION_COMPRESSION
 		 bazip
-#else		
+#else
 		 input
-#endif		
+#endif
 		 [i];
 	s += "0x";
 	s += hexdigits[(v >> 4) & 15];
@@ -162,9 +162,8 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	out << s.sprintf( "static const unsigned char %s_data[] = {",
 			  (const char *)e->cname );
 #ifndef QT_NO_IMAGE_COLLECTION_COMPRESSION
-	e->uncompressed = img.numBytes();
 	e->compressed =
-#endif	
+#endif
 	    embedData( out, img.bits(), img.numBytes() );
 	out << "\n};\n\n";
 	if ( e->numColors ) {
@@ -180,8 +179,8 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	    "    int width, height, depth;\n"
 	    "    const unsigned char *data;\n"
 #ifndef QT_NO_IMAGE_COLLECTION_COMPRESSION
-	    "    ulong compressed, uncompressed;\n"
-#endif	
+	    "    ulong compressed;\n"
+#endif
 	    "    int numColors;\n"
 	    "    const QRgb *colorTable;\n"
 	    "    bool alpha;\n"
@@ -196,8 +195,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 		<< "(const unsigned char*)" << e->cname << "_data, "
 #ifndef QT_NO_IMAGE_COLLECTION_COMPRESSION
 		<< e->compressed << ", "
-		<< e->uncompressed << ", "
-#endif		
+#endif
 		<< e->numColors << ", ";
 	    if ( e->numColors )
 		out << e->cname << "_ctable, ";
@@ -211,10 +209,10 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	    e = list_image.next();
 	}
 #ifndef QT_NO_IMAGE_COLLECTION_COMPRESSION
-	out << "    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }\n};\n";
-#else	
+	out << "    { 0, 0, 0, 0, 0, 0, 0, 0, 0 }\n};\n";
+#else
 	out << "    { 0, 0, 0, 0, 0, 0, 0, 0 }\n};\n";
-#endif	
+#endif
 
 	out << "\n"
 	    "static QImage uic_findImage( const QString& name )\n"
@@ -224,8 +222,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 #ifndef QT_NO_IMAGE_COLLECTION_COMPRESSION
 	    "	    QByteArray baunzip;\n"
 	    "	    baunzip = qUncompress( embed_image_vec[i].data, \n"
-	    "		embed_image_vec[i].compressed, \n"
-	    "		embed_image_vec[i].uncompressed );\n"
+	    "		embed_image_vec[i].compressed );\n"
 	    "	    QImage img((uchar*)baunzip.data(),\n"
 	    "			embed_image_vec[i].width,\n"
 	    "			embed_image_vec[i].height,\n"
@@ -244,9 +241,9 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	    "			embed_image_vec[i].numColors,\n"
 	    "			QImage::BigEndian\n"
 	    "		);\n"
-#endif	
+#endif
 	    "	    if ( embed_image_vec[i].alpha )\n"
-	    "	        img.setAlphaBuffer(TRUE);\n"
+	    "		img.setAlphaBuffer(TRUE);\n"
 	    "	    return img;\n"
 	    "        }\n"
 	    "    }\n"
