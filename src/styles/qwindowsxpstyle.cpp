@@ -73,8 +73,8 @@ static char * dockCloseXPM[] = {
 "...  ...",
 "..    .."};
 
+static ulong ref = 0;
 static bool use_xp  = FALSE;
-static bool init_xp = FALSE;
 static QMap<QString,HTHEME> *handleMap = 0;
 
 typedef bool ( WINAPI *PtrIsAppThemed )();
@@ -140,12 +140,12 @@ public:
 	cleanup();
     }
 
-    void init()
+    void init( bool force = FALSE )
     {
-        if ( !init_xp ) {
-	    init_xp = TRUE;
-	    use_xp = QWindowsXPStyle::resolveSymbols() && pIsThemeActive() && pIsAppThemed();
-	}
+	if ( ref++ && !force )
+	    return;
+
+	use_xp = QWindowsXPStyle::resolveSymbols() && pIsThemeActive() && pIsAppThemed();
 
 	COLORREF cref;
 	// Active Title Bar ( Color 1 in the gradient )
@@ -170,9 +170,11 @@ public:
 	p2.drawPixmap( 1, 1, tmp_ex );
     }
 
-    void cleanup()
+    void cleanup( bool force = FALSE )
     {
-	init_xp = FALSE;
+	if ( --ref && !force )
+	    return;
+
 	use_xp  = FALSE;
 	if ( handleMap ) {
 	    QMap<QString, HTHEME>::Iterator it;
@@ -403,15 +405,12 @@ QWindowsXPStyle::~QWindowsXPStyle()
 
 void QWindowsXPStyle::unPolish( QApplication *app )
 {
-    d->cleanup();
     QWindowsStyle::unPolish( app );
 }
 
 void QWindowsXPStyle::polish( QApplication *app )
 {
     QWindowsStyle::polish( app );
-    init_xp = FALSE;
-    d->init();
 
     // Get text color for groupbox labels
     COLORREF cref;
@@ -506,10 +505,10 @@ void QWindowsXPStyle::unPolish( QWidget *widget )
     // engine is turned off. So we detect it here.
     bool newState = QWindowsXPStyle::resolveSymbols() && pIsThemeActive() && pIsAppThemed();
     if ( use_xp != newState ) {
-	if ( use_xp = newState )
-	    d->init();
-	else
-	    d->cleanup();
+	if ( use_xp = newState ) {
+	    d->cleanup( TRUE );
+	    d->init( TRUE );
+	}
     }
 
     widget->removeEventFilter( this );
