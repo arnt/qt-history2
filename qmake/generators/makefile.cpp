@@ -500,6 +500,7 @@ MakefileGenerator::init()
 	    if(imgfile.find(Option::dir_sep) != -1)
 		imgfile = imgfile.right(imgfile.findRev(Option::dir_sep) + 1);
 	    imgfile.prepend(project->first("UI_DIR"));
+	    v["QMAKE_IMAGE_FILE"] = QStringList(imgfile);
 	}
 	logicWarn(imgfile, "SOURCES");
 	QStringList &l = v["IMAGES"];
