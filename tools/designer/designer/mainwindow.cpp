@@ -3256,8 +3256,13 @@ void MainWindow::readConfig()
 	r.setY( config.readNumEntry( "MainwindowY", r.y() ) );
 	r.setWidth( config.readNumEntry( "MainwindowWidth", r.width() ) );
 	r.setHeight( config.readNumEntry( "MainwindowHeight", r.height() ) );
+	QRect desk = QApplication::desktop()->geometry();
+	QRect inter = desk.intersect( r );
 	resize( r.size() );
-	move( r.topLeft() );
+	if ( inter.width() * inter.height() > ( r.width() * r.height() / 20 ) ) {
+	    move( r.topLeft() );
+	}
+
 	config.setGroup( "Geometries" );
 	r.setX( config.readNumEntry( "PropertyEditorX", r.x() ) );
 	r.setY( config.readNumEntry( "PropertyEditorY", r.y() ) );
