@@ -146,7 +146,7 @@
             <cstring>fileNewAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>filenew</iconset>
+            <iconset>filenew.png</iconset>
         </property>
         <property name="text">
             <string>New</string>
@@ -163,7 +163,7 @@
             <cstring>fileOpenAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>fileopen</iconset>
+            <iconset>fileopen.png</iconset>
         </property>
         <property name="text">
             <string>Open</string>
@@ -180,7 +180,7 @@
             <cstring>fileSaveAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>filesave</iconset>
+            <iconset>filesave.png</iconset>
         </property>
         <property name="text">
             <string>Save</string>
@@ -225,7 +225,7 @@
             <cstring>editUndoAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>undo</iconset>
+            <iconset>undo.png</iconset>
         </property>
         <property name="text">
             <string>Undo</string>
@@ -242,7 +242,7 @@
             <cstring>editRedoAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>redo</iconset>
+            <iconset>redo.png</iconset>
         </property>
         <property name="text">
             <string>Redo</string>
@@ -259,7 +259,7 @@
             <cstring>editCutAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>editcut</iconset>
+            <iconset>editcut.png</iconset>
         </property>
         <property name="text">
             <string>Cut</string>
@@ -276,7 +276,7 @@
             <cstring>editCopyAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>editcopy</iconset>
+            <iconset>editcopy.png</iconset>
         </property>
         <property name="text">
             <string>Copy</string>
@@ -293,7 +293,7 @@
             <cstring>editPasteAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>editpaste</iconset>
+            <iconset>editpaste.png</iconset>
         </property>
         <property name="text">
             <string>Paste</string>
@@ -355,7 +355,7 @@
             <bool>true</bool>
         </property>
         <property name="iconSet">
-            <iconset>textbold</iconset>
+            <iconset>textbold.png</iconset>
         </property>
         <property name="text">
             <string>bold</string>
@@ -375,7 +375,7 @@
             <bool>true</bool>
         </property>
         <property name="iconSet">
-            <iconset>textitalic</iconset>
+            <iconset>textitalic.png</iconset>
         </property>
         <property name="text">
             <string>italic</string>
@@ -395,7 +395,7 @@
             <bool>true</bool>
         </property>
         <property name="iconSet">
-            <iconset>textunder</iconset>
+            <iconset>textunder.png</iconset>
         </property>
         <property name="text">
             <string>underline</string>
@@ -425,7 +425,7 @@
                 <bool>true</bool>
             </property>
             <property name="iconSet">
-                <iconset>textleft</iconset>
+                <iconset>textleft.png</iconset>
             </property>
             <property name="text">
                 <string>left</string>
@@ -445,7 +445,7 @@
                 <bool>true</bool>
             </property>
             <property name="iconSet">
-                <iconset>textright</iconset>
+                <iconset>textright.png</iconset>
             </property>
             <property name="text">
                 <string>right</string>
@@ -465,7 +465,7 @@
                 <bool>true</bool>
             </property>
             <property name="iconSet">
-                <iconset>textcenter</iconset>
+                <iconset>textcenter.png</iconset>
             </property>
             <property name="text">
                 <string>center</string>
