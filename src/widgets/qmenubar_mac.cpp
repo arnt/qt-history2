@@ -371,7 +371,8 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
     if(d) {
 	if(!d->isEnabled())
 	    DisableMenuItem(ret, 0);
-	SetMenuExcludesMarkColumn(ret, !d->isCheckable());
+	ChangeMenuAttributes(ret, !d->isCheckable() ? kMenuAttrExcludesMarkColumn : 0,
+			     d->isCheckable() ? kMenuAttrExcludesMarkColumn : 0);
 	int id = 1, index = 0;
 	for(QMenuItemListIt it(*d->mitems); it.current(); ++it, ++index) {
 #if !defined(QMAC_QMENUBAR_NO_MERGE)
