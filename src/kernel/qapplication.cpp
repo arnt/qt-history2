@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#213 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#214 $
 **
 ** Implementation of QApplication class
 **
@@ -1040,7 +1040,6 @@ bool QApplication::notify( QObject *receiver, QEvent *event )
 #endif
 	return FALSE;
     }
-
 
     if ( receiver->pendEvent && event->type() == QEvent::ChildRemoved ) {
 	// if this is a child remove event an the child insert hasn't been
