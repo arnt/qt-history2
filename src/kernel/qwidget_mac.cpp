@@ -427,20 +427,23 @@ bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = false)
     } else {
 	switch(wcode) {
 	case kWindowStructureRgn: {
-	    bool ret = FALSE;
+	    bool ret = false;
 	    if(widget) {
-		if(widget->extra && !widget->extra->mask.isNull()) {
-		    QRegion rin;
-		    CopyRgn(rgn, rin.handle(TRUE));
+		if(widget->d->extra && !widget->d->extra->mask.isNull()) {
+		    QRegion rin = qt_mac_convert_mac_region(rgn);
 		    if(!rin.isEmpty()) {
 			QPoint rin_tl = rin.boundingRect().topLeft(); //in offset
 			rin.translate(-rin_tl.x(), -rin_tl.y()); //bring into same space as below
 			
-			QRegion mask = widget->extra->mask;
-//			mask.translate(1, 1);
+			QRegion mask = widget->d->extra->mask;
 			if(!widget->testWFlags(Qt::WStyle_Customize) || !widget->testWFlags(Qt::WStyle_NoBorder)) {
 			    QRegion title;
-			    GetWindowRegion((WindowPtr)widget->handle(), kWindowTitleBarRgn, title.handle(TRUE));
+			    {
+				RgnHandle rgn;
+				GetWindowRegion((WindowPtr)widget->handle(), kWindowTitleBarRgn, rgn);
+				title = qt_mac_convert_mac_region(rgn);
+				qt_mac_dispose_rgn(rgn);
+			    }
 			    QRect br = title.boundingRect();
 			    mask.translate(0, br.height()); //put the mask 'under' the titlebar..
 			    title.translate(-br.x(), -br.y());
@@ -2106,7 +2109,7 @@ void QWidget::setMask(const QRegion &region)
     QRegion clp;
     if(isVisible())
 	clp = clippedRegion(false);
-    extra->mask = region;
+    d->extra->mask = region;
     if(isVisible()) {
 	dirtyClippedRegion(true);
 	clp ^= clippedRegion(false);

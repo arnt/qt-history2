@@ -123,7 +123,7 @@ void qt_mac_set_modal_state(bool b, QMenuBar *mb)
 	GetMenuItemHierarchicalMenu(mr, i+1, &mr2);
 	bool enabled = true;
 	if(!b && mb && mb->mac_d->popups) {
-	    QMenuBar::MacPrivate::PopupBinding *pb = mb->mac_d->popups->find(GetMenuID(mr2));
+	    QMenuBar::MacPrivate::PopupBinding *pb = mb->mac_d->popups->value(GetMenuID(mr2));
 	    if(pb && !pb->tl)
 		qWarning("%s:%d That cannot happen either!", __FILE__, __LINE__);
 	    enabled = (!pb || (pb->qpopup && pb->qpopup->isEnabled()));
@@ -141,7 +141,7 @@ void qt_mac_set_modal_state(bool b, QMenuBar *mb)
     for(int c = 0; commands[c]; c++) {
 	bool enabled = true;
 	if(!b && mb && mb->mac_d->commands) {
-	    if(QMenuBar::MacPrivate::CommandBinding *cb = mb->mac_d->commands->find(commands[c])) {
+	    if(QMenuBar::MacPrivate::CommandBinding *cb = mb->mac_d->commands->value(commands[c])) {
 		if(cb->qpopup) 
 		    enabled = cb->qpopup->isItemEnabled(cb->qpopup->idAt(cb->index));
 	    }
