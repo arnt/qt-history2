@@ -1006,10 +1006,12 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 
 int QLayout::totalHeightForWidth( int w ) const
 {
-    if ( topLevel && !mainWidget()->testWState(WState_Polished) ) {
-	mainWidget()->polish();
+    if ( topLevel ) {
+	QWidget *mw = (QWidget*)parent();
+	if ( mw && !mw->testWState(WState_Polished) ) {
+	    mw->polish();
+	}
     }
-
     int b = topLevel ? 2*outsideBorder : 0;
     int h = heightForWidth( w - b ) + b;
     if ( menubar )
@@ -1024,8 +1026,11 @@ int QLayout::totalHeightForWidth( int w ) const
 
 QSize QLayout::totalMinimumSize() const
 {
-    if ( topLevel && !mainWidget()->testWState(WState_Polished) ) {
-	mainWidget()->polish();
+    if ( topLevel ) {
+	QWidget *mw = (QWidget*)parent();
+	if ( mw && !mw->testWState(WState_Polished) ) {
+	    mw->polish();
+	}
     }
     int b = topLevel ? 2*outsideBorder : 0;
 
@@ -1045,8 +1050,11 @@ QSize QLayout::totalMinimumSize() const
 
 QSize QLayout::totalSizeHint() const
 {
-    if ( topLevel && !mainWidget()->testWState(WState_Polished) ) {
-	mainWidget()->polish();
+    if ( topLevel ) {
+	QWidget *mw = (QWidget*)parent();
+	if ( mw && !mw->testWState(WState_Polished) ) {
+	    mw->polish();
+	}
     }
     int b = topLevel ? 2*outsideBorder : 0;
 
@@ -1065,8 +1073,11 @@ QSize QLayout::totalSizeHint() const
 
 QSize QLayout::totalMaximumSize() const
 {
-    if ( topLevel && !mainWidget()->testWState(WState_Polished) ) {
-	mainWidget()->polish();
+    if ( topLevel ) {
+	QWidget *mw = (QWidget*)parent();
+	if ( mw && !mw->testWState(WState_Polished) ) {
+	    mw->polish();
+	}
     }
     int b = topLevel ? 2*outsideBorder : 0;
 
