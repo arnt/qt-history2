@@ -2381,6 +2381,10 @@ void QDns::doSynchronousLookup()
 }
 #endif
 
+#if defined(__GLIBC__) && ((__GLIBC__ > 2) || ((__GLIBC__ == 2) && (__GLIBC_MINOR__ >= 3)))
+#define Q_MODERN_RES_API
+#endif
+
 static void doResInit()
 {
     if ( ns )
@@ -2390,23 +2394,33 @@ static void doResInit()
     domains = new QStrList( TRUE );
     domains->setAutoDelete( TRUE );
 
+#if defined(Q_MODERN_RES_API)
+    struct __res_state res;
+    res_ninit( &res );
+    int i;
+    // find the name servers to use
+    for( i=0; i < MAXNS && i < res.nscount; i++ )
+	ns->append( new QHostAddress( ntohl( res.nsaddr_list[i].sin_addr.s_addr ) ) );
+#  if defined(MAXDFLSRCH)
+    for( i=0; i < MAXDFLSRCH; i++ )
+	if ( res.dnsrch[i] && *(res.dnsrch[i]) )
+	    domains->append( QString::fromLatin1( res.dnsrch[i] ).lower() );
+#  endif
+    if ( *res.defdname )
+	domains->append( QString::fromLatin1( res.defdname ).lower() );
+#else
     res_init();
     int i;
     // find the name servers to use
-    for( i=0; i < MAXNS && i < _res.nscount; i++ ) {
-	ns->append( new QHostAddress(
-			     ntohl( _res.nsaddr_list[i].sin_addr.s_addr ) ) );
-    }
-#if defined(MAXDFLSRCH)
+    for( i=0; i < MAXNS && i < _res.nscount; i++ )
+	ns->append( new QHostAddress( ntohl( _res.nsaddr_list[i].sin_addr.s_addr ) ) );
+#  if defined(MAXDFLSRCH)
     for( i=0; i < MAXDFLSRCH; i++ )
 	if ( _res.dnsrch[i] && *(_res.dnsrch[i]) )
 	    domains->append( QString::fromLatin1( _res.dnsrch[i] ).lower() );
-#endif
+#  endif
     if ( *_res.defdname )
 	domains->append( QString::fromLatin1( _res.defdname ).lower() );
-#if defined(SANE_OPERATING_SYSTEM)
-    // never defined, for obvious reasons, but should be
-    res_close();
 #endif
 
     QFile hosts( QString::fromLatin1( "/etc/hosts" ) );
