@@ -168,7 +168,7 @@ static inline int qt_open( const char *pathname, int flags, mode_t mode )
     settings under Unix. In the examples the settings file will be
     searched for in the following directories:
     \list 1
-    \i \c INSTALL/etc/settings
+    \i \c SYSCONF - the default value is \c INSTALL/etc/settings
     \i \c /opt/MyCompany/share/etc
     \i \c /opt/MyCompany/share/MyApplication/etc
     \i \c $HOME/.qt
@@ -500,11 +500,7 @@ QSettingsPrivate::QSettingsPrivate( QSettings::Format format )
     } );
 #endif // Q_OS_TEMP
 #else
-// for now
-#define QSETTINGS_DEFAULT_PATH_SUFFIX "/etc/settings"
-
-    defPath = qInstallPath();
-    defPath += QSETTINGS_DEFAULT_PATH_SUFFIX;
+    defPath = qInstallPathSysconf();
 #endif
     QDir dir(appSettings);
     if (! dir.exists()) {
@@ -744,7 +740,8 @@ static QString groupKey( const QString &group, const QString &key )
   two entries in the search path:
 
   \list 1
-  \i INSTALL/etc - where \c INSTALL is the directory where Qt was installed.
+  \i SYSCONF - where is \c SYSCONF is a directory specified when
+  configuring Qt, by default it is INSTALL/etc.
   \i $HOME/.qt/ - where \c $HOME is the user's home directory.
   \endlist
 
@@ -758,7 +755,7 @@ static QString groupKey( const QString &group, const QString &key )
   \endcode
   Will result in a search path of:
   \list 1
-  \i INSTALL/etc
+  \i SYSCONF
   \i /opt/MyCompany/share/etc
   \i /opt/MyCompany/share/MyApplication/etc
   \i $HOME/.qt
