@@ -244,6 +244,7 @@ void scaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
   QMacSavedPortInfo saveportstate; 
     
   if(dst && dst->devType() == QInternal::Widget) {
+      SetPortWindowPort((WindowPtr)((QWidget *)dst)->handle()); 
       SetClip((RgnHandle)((QWidget *)dst)->clippedRegion().handle()); //probably shouldn't do this?
   } else if(dst && dst->devType() == QInternal::Pixmap) {
       QPixmap *pm = (QPixmap *)dst;
