@@ -344,6 +344,19 @@ static void init_layout_struct(const QMainWindowLayout * const layout,
     }
 }
 
+/*
+  Returns the minimum size hint for the first user item in a tb
+  layout.
+*/
+static QSize get_min_item_sz(QLayout *layout)
+{
+    QLayoutItem *item = layout->itemAt(1);
+    if (item && item->widget())
+	return item->widget()->minimumSizeHint();
+    else
+	return QSize(0, 0);
+}
+
 void QMainWindowLayout::setGeometry(const QRect &_r)
 {
     QLayout::setGeometry(_r);
@@ -470,7 +483,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 		    // swap if dragging it past the next one
 		    ToolBarLayoutInfo &next = tb_layout_info[k][i+1];
 		    next.pos = tb_rect[k].topLeft();
-		    next.size.setHeight(pick_perp(where, next.item->widget()->layout()->itemAt(1)->widget()->minimumSizeHint()) + tb_fill);
+		    next.size.setHeight(pick_perp(where, get_min_item_sz(next.item->widget()->layout())) + tb_fill);
 		    next.offset = QPoint();
 		    if (where == LEFT || where == RIGHT)
 			info.pos = QPoint(tb_rect[k].left(), next.pos.y() + next.size.height());
@@ -487,7 +500,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 		QSize min = info.item->widget()->layout()->itemAt(1)->widget()->minimumSizeHint();
 		set_perp(where, min, pick_perp(where, min) + tb_fill);
  		const int cur_pt = pick_perp(where, prev.pos) + pick_perp(where, prev.size);
-		const int prev_min = pick_perp(where, prev.item->widget()->layout()->itemAt(1)->widget()->minimumSizeHint()) + tb_fill;
+		const int prev_min = pick_perp(where, get_min_item_sz(prev.item->widget()->layout())) + tb_fill;
 
 		if (where == LEFT || where == RIGHT)
 		    info.pos = QPoint(tb_rect[k].left(), cur_pt + info.offset.y());
@@ -507,7 +520,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 			for (int l = i-2; l >= 0; --l) {
 			    ToolBarLayoutInfo &t = tb_layout_info[k][l];
 			    if (pick_perp(where, t.size) + pick_perp(where, info.offset) >
-				pick_perp(where, t.item->widget()->layout()->itemAt(1)->widget()->minimumSizeHint()) + tb_fill) {
+				pick_perp(where, get_min_item_sz(t.item->widget()->layout())) + tb_fill) {
 				QSize sz(0, 0);
 				set_perp(where, sz, pick_perp(where, info.offset) + pick_perp(where, prev.size) - prev_min);
 				t.size += sz;
@@ -542,7 +555,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 			for (int l = i+1; l < num_tbs; ++l) {
 			    ToolBarLayoutInfo &t = tb_layout_info[k][l];
 			    if (pick_perp(where, t.size) - pick_perp(where, info.offset)
-				> pick_perp(where, t.item->widget()->layout()->itemAt(1)->widget()->minimumSizeHint()) + tb_fill) {
+				> pick_perp(where, get_min_item_sz(t.item->widget()->layout())) + tb_fill) {
 				QPoint pt;
 				set_perp(where, pt, pick_perp(where, info.offset));
 				t.pos += pt;
@@ -583,7 +596,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 		else
 		    info.size.setWidth(tb_rect[k].right() - info.pos.x() + 1);
 		if (pick_perp(where, info.size) < 1)
-		    set_perp(where, info.size, pick_perp(where, info.item->widget()->layout()->itemAt(1)->widget()->minimumSizeHint()) + tb_fill);
+		    set_perp(where, info.size, pick_perp(where, get_min_item_sz(info.item->widget()->layout())) + tb_fill);
 	    }
 	    if (i > 0) {
 		// assumes that all tbs are positioned at the correct
