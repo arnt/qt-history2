@@ -216,9 +216,14 @@ QStyleOptionTabWidgetFrame QTabWidgetPrivate::getStyleOption() const
     if (rightCornerWidget)
         option.rightCornerWidgetSize
             = rightCornerWidget->sizeHint().boundedTo(t - QSize(exth, exth));
+    else
+        option.rightCornerWidgetSize = QSize(0, 0);
+
     if (leftCornerWidget)
         option.leftCornerWidgetSize
             = leftCornerWidget->sizeHint().boundedTo(t - QSize(exth, exth));
+    else
+        option.leftCornerWidgetSize = QSize(0, 0);
 
     switch (pos) {
     case QTabWidget::North:
