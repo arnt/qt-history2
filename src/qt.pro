@@ -157,6 +157,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$TOOLS_H/qutfcodec.h \
 		  $$TOOLS_H/qvector.h \
 		  $$TOOLS_H/qvaluelist.h \
+		  $$TOOLS_H/qstringlist.h \
 		  $$WIDGETS_H/qbuttongroup.h \
 		  $$WIDGETS_H/qbutton.h \
 		  $$WIDGETS_H/qcheckbox.h \
@@ -264,6 +265,7 @@ SOURCES	       += tools/qbitarray.cpp \
 		  tools/qjpunicode.cpp \
 		  tools/qkoi8codec.cpp \
 		  tools/qmap.cpp \
+		  tools/qstringlist.cpp \
 		  tools/qregexp.cpp \
 		  tools/qrtlcodec.cpp \
 		  tools/qsjiscodec.cpp \
