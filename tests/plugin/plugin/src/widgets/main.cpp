@@ -53,7 +53,7 @@ public:
     bool disconnectNotify( QApplication* theApp );
 
     QString name() { return "Standard Widgets"; }
-    QString description() { return "Qt Designer plugin for extra widgets"; }
+    QString description() { return "Qt Designer plugin for standard widgets"; }
     QString author() { return "Trolltech"; }
 
     QStringList featureList();
