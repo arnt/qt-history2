@@ -1454,6 +1454,10 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const Q
 
     //restore
     CGContextRestoreGState(d->hd);
+
+    //duplicate
+    if(mode == Qt::CopyPixmap && d->pdev->devType() == QInternal::Pixmap)
+        static_cast<QPixmap*>(d->pdev)->data->macSetHasAlpha(pm.data->has_alpha);
 }
 
 void

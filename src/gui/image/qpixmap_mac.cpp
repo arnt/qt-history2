@@ -200,6 +200,20 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
             break;
         }
     }
+    if(image.hasAlphaBuffer()) { //setup the alpha
+        bool alphamap = img.depth() == 32;
+        if (img.depth() == 8) {
+            const QRgb * const rgb = img.colorTable();
+            for (int i = 0, count = img.numColors(); i < count; ++i) {
+                const int alpha = qAlpha(rgb[i]);
+                if (alpha != 0 && alpha != 0xff) {
+                    alphamap = true;
+                    break;
+                }
+            }
+        }
+        pixmap.data->macSetHasAlpha(alphamap);
+    }
     pixmap.data->uninit = false;
     return pixmap;
 }
@@ -344,9 +358,11 @@ void QPixmap::setMask(const QBitmap &newmask)
 
 void QPixmap::detach()
 {
-    if (data->count != 1)
+    if (data->count != 1) {
         *this = copy();
-    data->uninit = FALSE;
+        data->qd_alpha = 0; //leave it behind
+    }
+    data->uninit = false;
     data->ser_no = ++qt_pixmap_serial;
 }
 
@@ -414,6 +430,7 @@ QPixmapData::macSetAlphaChannel(const QPixmap *pix)
         for(int xx=0; xx < w*4; xx+=4)
             *(drow+xx) = *(srow+xx);
     }
+    macSetHasAlpha(true);
 }
 
 void
@@ -534,6 +551,7 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
 
     //update the alpha
     pm.data->macSetHasAlpha(data->has_alpha);
+    pm.data->has_mask = data->has_mask;
     return pm;
 }
 
