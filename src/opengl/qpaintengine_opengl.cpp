@@ -81,6 +81,8 @@ QOpenGLPaintEngine::QOpenGLPaintEngine()
 		                       | AlphaFill
 		                       | AlphaPixmap
  				       | LinearGradientFill
+ 				       | FillAntialiasing
+ 				       | LineAntialiasing
 		                       | PaintOutsidePaintEvent))
 {
 }
