@@ -272,9 +272,9 @@ void SyntaxHighlighter_CPP::process( QTextDocument *doc, QTextParag *string, int
     else
 	paragData = new ParagData;
 
-    static QString alphabeth = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    static QString mathChars = "xXeE";
-    static QString numbers = "0123456789";
+    QString alphabeth = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    QString mathChars = "xXeE";
+    QString numbers = "0123456789";
     bool questionMark = FALSE;
     QChar lastChar;
     for (;;) {
