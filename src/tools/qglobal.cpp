@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#25 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#26 $
 **
 ** Global functions
 **
@@ -15,7 +15,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#25 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#26 $")
 
 
 /*----------------------------------------------------------------------------
@@ -328,7 +328,8 @@ bool chk_pointer( bool c, const char *n, int l )
 
 void qObsolete(  const char *obj, const char *oldfunc, const char *newfunc )
 {
-    debug( "%s::%s: This function is obsolete, use %s instead" );
+    debug( "%s::%s: This function is obsolete, use %s instead",
+	   obj, oldfunc, newfunc );
 }
 
 
