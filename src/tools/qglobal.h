@@ -951,8 +951,6 @@ Q_EXPORT const char *qInstallPathData();
 Q_EXPORT const char *qInstallPathTranslations();
 Q_EXPORT const char *qInstallPathSysconf();
 
-#endif // __cplusplus
-
 
 class QBool
 {
@@ -1174,5 +1172,7 @@ inline T qt_cast(const QObject *object)
 template <> inline IFace *qt_cast<IFace *>(const QObject *object) \
 { return (IFace *)(object ? object->qt_metacast(#IFace) : 0); }
 
-#endif // QGLOBAL_H
 
+#endif // __cplusplus
+
+#endif // QGLOBAL_H
