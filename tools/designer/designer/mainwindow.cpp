@@ -2874,6 +2874,7 @@ FormWindow* MainWindow::insertFormWindow( int type )
 
     // the wizard might have changed a lot, lets update everything
     actionEditor->setFormWindow( fw );
+    hierarchyView->setFormWindow( fw, fw );
     hierarchyView->functionList()->refreshFunctions();
     fw->killAccels( fw );
     fw->project()->pixmapCollection()->createCppFile();
