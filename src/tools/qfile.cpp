@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#54 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#55 $
 **
 ** Implementation of QFile class
 **
@@ -12,7 +12,7 @@
 #include "qfile.h"
 #include "qfiledef.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#54 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#55 $");
 
 
 /*!
@@ -419,8 +419,7 @@ bool QFile::open( int m, FILE *f )
     STATBUF st;
     FSTAT( FILENO(fh), &st );
     index = ftell( fh );
-    if ( S_ISCHR( st.st_mode ) || S_ISFIFO( st.st_mode ) || S_ISSOCK(st.st_mode) )
-    {
+    if ( (st.st_mode & STAT_MASK) != STAT_REG ) {
 	// non-seekable
 	setType( IO_Sequential );
 	length = INT_MAX;
