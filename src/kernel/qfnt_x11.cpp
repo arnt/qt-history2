@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#4 $
 **
 ** Implementation of QFont and QFontMetrics classes for X11
 **
@@ -18,7 +18,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#4 $";
 #endif
 
 
@@ -153,6 +153,27 @@ bool QFont::operator==( const QFont &f ) const
 Font QFont::fontId() const
 {
     return data->f->fid;
+}
+
+
+// --------------------------------------------------------------------------
+// QFont stream functions
+//
+
+#include "qdstream.h"
+
+QDataStream &operator<<( QDataStream &s, const QFont &f )
+{
+    return s << f.name();
+}
+
+QDataStream &operator>>( QDataStream &s, QFont &f )
+{
+    char *name;
+    s >> name;
+    f = QFont( name );
+    delete name;
+    return s;
 }
 
 
