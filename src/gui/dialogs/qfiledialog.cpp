@@ -14,7 +14,6 @@
 #include "qfiledialog.h"
 #include <qcombobox.h>
 #include <qdirmodel.h>
-#include <qframe.h>
 #include <qheaderview.h>
 #include <qlistview.h>
 #include <qtreeview.h>
@@ -170,7 +169,6 @@ public:
 
     QList<QPersistentModelIndex> history;
 
-    QFrame *frame;
     QComboBox *lookIn;
     QFileDialogLineEdit *fileName;
     QFileDialogLineEdit *lookInEdit;
@@ -821,7 +819,6 @@ QFileDialogPrivate::QFileDialogPrivate()
       viewMode(QFileDialog::Detail),
       fileMode(QFileDialog::AnyFile),
       acceptMode(QFileDialog::AcceptOpen),
-      frame(0),
       lookIn(0),
       fileName(0),
       fileType(0),
