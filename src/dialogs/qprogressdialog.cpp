@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#35 $
+** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#36 $
 **
 ** Implementation of QProgressDialog class
 **
@@ -90,7 +90,7 @@ struct QProgressData
 
   Example:
   \code
-    QProgressDialog progress( "Copying files...", "Abort Copy", numFiles, this );
+    QProgressDialog progress( "Copying files...", "Abort Copy", numFiles, this, TRUE );
     for (int i=0; i<numFiles; i++) {
 	progress.setProgress( i );
 	if ( progress.wasCancelled() )
