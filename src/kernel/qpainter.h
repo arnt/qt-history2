@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#89 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#90 $
 **
 ** Definition of QPainter class
 **
@@ -129,6 +129,8 @@ public:
 
     void	drawPoint( int x, int y );
     void	drawPoint( const QPoint & );
+    void	drawPoints( const QPointArray& a,
+			    int index=0, int npoints=-1 );
     void	moveTo( int x, int y );
     void	moveTo( const QPoint & );
     void	lineTo( int x, int y );

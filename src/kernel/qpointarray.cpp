@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#41 $
 **
 ** Implementation of QPointArray class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#40 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#41 $");
 
 
 /*!
@@ -213,6 +213,12 @@ bool QPointArray::setPoints( int nPoints, const QCOORD *points )
 }
 
 /*!
+  \fn void QPointArray::setPoint( uint i, const QPoint &p )
+
+  Equivalent to setPoint( i, p.x(), p.y() ).
+*/
+
+/*!
   Resizes the array to \e nPoints and sets the points in the array to
   the values taken from the variable argument list.
 
@@ -382,6 +388,15 @@ static inline int fix_angle( int a )
     return a;
 }
 
+/*!
+  Sets the points of the array to those describing an arc of an
+  ellipse with size \a w by \a h and position (\a x, \a y ), starting
+  from angle \a1, spanning \a a2.
+  Angles are specified in 16ths of a degree,
+  i.e. a full circle equals 5760 (16*360). Positive values mean
+  counter-clockwise while negative values mean clockwise direction.
+  Zero degrees is at the 3'o clock position.
+*/
 void QPointArray::makeArc( int x, int y, int w, int h, int a1, int a2 )
 {
     a1 = fix_angle( a1 );
@@ -419,7 +434,10 @@ void QPointArray::makeArc( int x, int y, int w, int h, int a1, int a2 )
     return;
 }
 
-
+/*!
+  Sets the points of the array to those describing an ellipse with
+  size \a w by \a h and position (\a x, \a y ).
+*/
 void QPointArray::makeEllipse( int xx, int yy, int w, int h )
 {						// midpoint, 1/4 ellipse
     if ( w <= 0 || h <= 0 ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#71 $
+** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#72 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -29,7 +29,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#71 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#72 $");
 
 
 /*
@@ -1286,6 +1286,34 @@ void QPainter::drawPoint( int x, int y )
     SetPixelV( hdc, x, y, COLOR_VALUE(cpen.data->color) );
 }
 
+void QPainter::drawPoints( const QPointArray& a, int index, int npoints )
+{
+    if ( npoints < 0 )
+	npoints = pa.size() - index;
+    if ( index + npoints > (int)a.size() )
+	npoints = pa.size() - index;
+    if ( !isActive() || npoints < 1 || index < 0 || cpen.style() == NoPen )
+	return;
+    QPointArray pa = a;
+    if ( testf(ExtDev|VxF|WxF) ) {
+	if ( testf(ExtDev) ) {
+	    QPDevCmdParam param[1];
+	    for (int i=0; i<npoints; i++) {
+		QPoint p( pa[index+i].x(), pa[index+i].y() );
+		param[0].point = &p;
+		if ( !pdev->cmd(PDC_DRAWPOINT,this,param))
+		    return;
+	    }
+	    if ( !hdc ) return;
+	}
+	if ( txop != TxNone )
+	    pa = xForm( a );
+    }
+    for (int i=0; i<npoints; i++) {
+	SetPixelV( hdc, pa[index+i].x(), pa[index+i].y(),
+	    COLOR_VALUE(cpen.data->color) );
+    }
+}
 
 void QPainter::moveTo( int x, int y )
 {

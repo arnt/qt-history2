@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#215 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#216 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#215 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#216 $");
 
 
 /*****************************************************************************
@@ -1615,6 +1615,38 @@ void QPainter::drawPoint( int x, int y )
 }
 
 /*!
+  Draws/plots an array of points using the current pen.  The
+  \a index and \a npoints arguments allow a subsequence of the
+  array to be drawn.
+*/
+void QPainter::drawPoints( const QPointArray& a, int index, int npoints )
+{
+    if ( npoints < 0 )
+	npoints = a.size() - index;
+    if ( index + npoints > (int)a.size() )
+	npoints = a.size() - index;
+    if ( !isActive() || npoints < 1 || index < 0 || cpen.style() == NoPen )
+	return;
+    QPointArray pa = a;
+    if ( testf(ExtDev|VxF|WxF) ) {
+	if ( testf(ExtDev) ) {
+	    QPDevCmdParam param[1];
+	    for (int i=0; i<npoints; i++) {
+		QPoint p( pa[index+i].x(), pa[index+i].y() );
+		param[0].point = &p;
+		if ( !pdev->cmd(PDC_DRAWPOINT,this,param))
+		    return;
+	    }
+	    if ( !hd ) return;
+	}
+	if ( txop != TxNone )
+	    pa = xForm( a );
+    }
+    XDrawPoints( dpy, hd, gc, (XPoint*)(pa.data()+index), npoints,
+		    CoordModeOrigin );
+}
+
+/*!
   Sets the current point.
   \sa lineTo(), drawLine()
 */
@@ -2254,6 +2286,7 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 	    }
 	    QPDevCmdParam param[1];
 	    param[0].ptarr = (QPointArray*)&pa;
+	    // ### ??? We do this even if NoPen?
 	    if ( !pdev->cmd(PDC_DRAWPOLYLINE,this,param) || !hd )
 		return;
 	}
