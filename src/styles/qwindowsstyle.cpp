@@ -267,8 +267,10 @@ QWindowsStyle::drawArrow( QPainter *p, ArrowType type, bool down,
         return;
 
     if ( down ) {
-        x++;
-        y++;
+	int xs, ys;
+	getButtonShift( xs, ys );
+        x += xs;
+        y += ys;
     }
 
     QPen savePen = p->pen();                    // save current pen
