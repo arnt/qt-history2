@@ -1489,7 +1489,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     if ( img.hasAlphaBuffer() ) {
 #ifndef QT_NO_XRENDER
 	// ### only support 32bit images at the moment
-	if (qt_use_xrender) {
+	if (qt_use_xrender && img.depth() == 32) {
 	    data->alphapm = new QPixmap; // create a null pixmap
 
 	    // setup pixmap data
@@ -1521,10 +1521,10 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 		axi->data = (char *) malloc(h * axi->bytes_per_line);
 
 		char *aptr = axi->data;
-		int ix, iy;
-		for (iy = 0; iy < h; iy++)
-		    for (ix = 0; ix < w; ix++)
-			*aptr++ = qAlpha(image.pixel(ix, iy));
+		int *iptr = (int *) image.bits();
+		int max = w * h;
+		for (int i = 0; i < max; i++)
+		    *aptr++ = *iptr++ >> 24; // squirt
 
 		GC gc = XCreateGC(x11Display(), data->alphapm->hd, 0, 0);
 		XPutImage(dpy, data->alphapm->hd, gc, axi, 0, 0, 0, 0, w, h);
