@@ -887,7 +887,7 @@ MakefileGenerator::init()
 	    impls.append(impl);
 	    v["SOURCES"].append(impl);
 	    QStringList &impldeps = findDependencies(impl);
- 	    impldeps.append(decl);
+	    impldeps.append(decl);
 	    // attribute deps of yacc file to impl file
 	    QStringList &yaccdeps = findDependencies((*it));
 	    for(QStringList::ConstIterator d = yaccdeps.begin(); d != yaccdeps.end(); ++d) {
@@ -900,8 +900,12 @@ MakefileGenerator::init()
 		if(fi.dirPath() != ".")
 		    lexsrc.prepend(fi.dirPath() + Option::dir_sep);
 		if(v["LEXSOURCES"].findIndex(lexsrc) != -1) {
-		    QString trg = fi.dirPath() + Option::dir_sep + fi.baseName(TRUE) + 
-				  Option::lex_mod + Option::cpp_ext.first();
+		    QString trg;
+		    if(fi.dirPath() != ".")
+			trg = fi.dirPath() + Option::dir_sep + fi.baseName(TRUE) +
+			      Option::lex_mod + Option::cpp_ext.first();
+		    else
+			trg = fi.baseName(TRUE) + Option::lex_mod + Option::cpp_ext.first();
 		    impldeps.append(trg);
 		    impldeps += findDependencies(lexsrc);
 		    depends[lexsrc].clear();
