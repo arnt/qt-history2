@@ -14,6 +14,31 @@
 #include <qcheckbox.h>
 #include <qradiobutton.h>
 #include <qpushbutton.h>
+#include <qtoolbutton.h>
+
+/* XPM */
+static const char *fileopen[] = {
+"    16    13        5            1",
+". c #040404",
+"# c #808304",
+"a c None",
+"b c #f3f704",
+"c c #f3f7f3",
+"aaaaaaaaa...aaaa",
+"aaaaaaaa.aaa.a.a",
+"aaaaaaaaaaaaa..a",
+"a...aaaaaaaa...a",
+".bcb.......aaaaa",
+".cbcbcbcbc.aaaaa",
+".bcbcbcbcb.aaaaa",
+".cbcb...........",
+".bcb.#########.a",
+".cb.#########.aa",
+".b.#########.aaa",
+"..#########.aaaa",
+"...........aaaaa"
+};
+
 
 class ActiveQtFactory : public QAxFactory
 {
@@ -28,6 +53,7 @@ public:
 	list << "QCheckBox";
 	list << "QRadioButton";
 	list << "QPushButton";
+	list << "QToolButton";
 	return list;
     }
     QWidget *create( const QString &key, QWidget *parent, const char *name )
@@ -40,6 +66,11 @@ public:
 	    return new QRadioButton( parent, name );
 	if ( key == "QPushButton" )
 	    return new QPushButton( parent, name );
+	if ( key == "QToolButton" ) {
+	    QToolButton *tb = new QToolButton( parent, name );
+	    tb->setPixmap( QPixmap(fileopen) );
+	    return tb;
+	}
 
 	return 0;
     }
@@ -53,6 +84,8 @@ public:
 	    return QRadioButton::staticMetaObject();
 	if ( key == "QPushButton" )
 	    return QPushButton::staticMetaObject();
+	if ( key == "QToolButton" )
+	    return QToolButton::staticMetaObject();
 
 	return 0;
     }
@@ -66,6 +99,8 @@ public:
 	    return "{AFCF78C8-446C-409A-93B3-BA2959039189}";
 	if ( key == "QPushButton" )
 	    return "{2B262458-A4B6-468B-B7D4-CF5FEE0A7092}";
+	if ( key == "QToolButton" )
+	    return "{7c0ffe7a-60c3-4666-bde2-5cf2b54390a1}";
 
 	return QUuid();
     }
@@ -79,6 +114,8 @@ public:
 	    return "{7CC8AE30-206C-48A3-A009-B0A088026C2F}";
 	if ( key == "QPushButton" )
 	    return "{06831CC9-59B6-436A-9578-6D53E5AD03D3}";
+	if ( key == "QToolButton" )
+	    return "{6726080f-d63d-4950-a366-9bf33e5cdf84}";
 
 	return QUuid();
     }
@@ -92,6 +129,8 @@ public:
 	    return "{73EE4860-684C-4A66-BF63-9B9EFFA0CBE5}";
 	if ( key == "QPushButton" )
 	    return "{3CC3F17F-EA59-4B58-BBD3-842D467131DD}";
+	if ( key == "QToolButton" )
+	    return "{f4d421fd-4ead-4fd9-8a25-440766939639}";
 
 	return QUuid();
     }

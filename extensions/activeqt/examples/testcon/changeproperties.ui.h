@@ -75,7 +75,13 @@ void ChangeProperties::setValue()
     
     QString prop = item->text(0);
     QVariant value = activex->property( prop );
-    switch ( value.type() ) {
+    QVariant::Type type = value.type();
+    if ( !value.isValid() ) {
+	const QMetaObject *mo = activex->metaObject();
+	const QMetaProperty *mp = mo->property( mo->findProperty( prop, TRUE ), TRUE );
+	type = QVariant::nameToType( mp->type() );
+    }
+    switch ( type ) {
     case QVariant::Color:
 	{
 	    QColor col;

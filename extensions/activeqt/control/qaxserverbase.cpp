@@ -28,6 +28,7 @@
 #include <qapplication.h>
 #include <qbuffer.h>
 #include <qintdict.h>
+#include <qmenubar.h>
 #include <qmetaobject.h>
 #include <qobjectlist.h>
 #include <qpainter.h>
@@ -121,9 +122,10 @@ public:
 
 // Window creation
     HWND Create(HWND hWndParent, RECT& rcPos );
+    void CreateMenu( IOleInPlaceFrame *spInPlaceFrame, QMenuBar *menuBar );
 
-    static LRESULT CALLBACK StartWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-    
+    static LRESULT CALLBACK ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
     int PreTranslateMessage( MSG *pMsg );
 
 // IUnknown
@@ -320,6 +322,8 @@ private:
 
     HWND m_hWnd;
     HWND& m_hWndCD;
+
+    HMENU hmenuShared;
 
     SIZE sizeExtent;
     RECT rcPos;
@@ -749,7 +753,7 @@ HRESULT WINAPI GetClassObject( void *pv, REFIID iid, void **ppUnk )
 QAxServerBase::QAxServerBase( const QString &classname )
 : activeqt( 0 ), aggregatedObject( 0 ), ref( 0 ), class_name( classname ),
   slotlist(0), signallist(0),proplist(0), proplist2(0),
-  propPageSite( 0 ), propPage( 0 ), m_hWnd(0), m_hWndCD( m_hWnd )
+  propPageSite( 0 ), propPage( 0 ), m_hWnd(0), m_hWndCD( m_hWnd ), hmenuShared(0)
 {
     initNewCalled	= FALSE;
     dirtyflag		= FALSE;
@@ -958,6 +962,11 @@ bool QAxServerBase::internalCreate()
     return TRUE;
 }
 
+class HackMenuData : public QMenuData
+{
+    friend class QAxServerBase;
+};
+
 /*
     Message handler. \a hWnd is always the ActiveX widget hosting the Qt widget. 
     \a uMsg is handled as follows
@@ -974,7 +983,7 @@ bool QAxServerBase::internalCreate()
 
     The semantics of \a wParam and \a lParam depend on the value of \a uMsg.
 */
-LRESULT CALLBACK QAxServerBase::StartWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     if ( uMsg == WM_CREATE ) {
 	QAxServerBase *that;
@@ -1000,16 +1009,7 @@ LRESULT CALLBACK QAxServerBase::StartWindowProc(HWND hWnd, UINT uMsg, WPARAM wPa
     }
 
     QAxServerBase *that = axServerMapper()->find( hWnd );
-    if ( !that ) {
-#if defined(UNICODE)
-	if ( qWinVersion() & Qt::WV_NT_based )
-	    return ::DefWindowProc( hWnd, uMsg, wParam, lParam );
-	else
-#endif
-	    return ::DefWindowProcA( hWnd, uMsg, wParam, lParam );
-    }
-
-    switch ( uMsg )
+    if ( that ) switch ( uMsg )
     {
     case WM_NCDESTROY:
 	that->m_hWnd = 0;
@@ -1074,6 +1074,37 @@ LRESULT CALLBACK QAxServerBase::StartWindowProc(HWND hWnd, UINT uMsg, WPARAM wPa
 	that->DoVerb(OLEIVERB_UIACTIVATE, NULL, that->m_spClientSite, 0, that->m_hWndCD, &that->rcPos);
 	break;
 
+    case WM_COMMAND:
+	if ( that->activeqt ) {
+	    QMenuBar *menuBar = (QMenuBar*)that->activeqt->child( 0, "QMenuBar" );
+	    if ( !menuBar )
+		break;
+
+	    int qtid = int(wParam);
+	    QMenuData *menu = 0;
+	    QMenuItem *qitem = menuBar->findItem( qtid, &menu );
+	    QObject *menuObject = 0;
+	    if ( ((HackMenuData*)menu)->isMenuBar )
+		menuObject = (QMenuBar*)menu;
+	    else if ( ((HackMenuData*)menu)->isPopupMenu )
+		menuObject = (QPopupMenu*)menu;
+
+	    if ( qitem && menuObject ) {
+		QString item = qitem->text();
+		const QMetaObject *mo = menuObject->metaObject();
+		int index = mo->findSignal( "activated(int)", TRUE );
+		QUObject o[2];
+		static_QUType_int.set( o+1, qtid );
+		if ( qitem && qitem->signal() )	    // activate signal
+		    qitem->signal()->activate();
+
+		menuObject->qt_emit( index, o );
+
+		return 0;
+	    }
+	}
+	break;
+
     default:
 	break;
     }
@@ -1108,9 +1139,10 @@ HWND QAxServerBase::Create(HWND hWndParent, RECT& rcPos )
 	    wcTemp.hInstance = hInst;
 	    wcTemp.lpszClassName = L"QAxControl";
 	    wcTemp.lpszMenuName = 0;
-	    wcTemp.lpfnWndProc = StartWindowProc;
+	    wcTemp.lpfnWndProc = ActiveXProc;
 
 	    atom = RegisterClassW( &wcTemp );
+
 	} else
 #endif
 	{
@@ -1124,7 +1156,7 @@ HWND QAxServerBase::Create(HWND hWndParent, RECT& rcPos )
 	    wcTemp.hInstance = hInst;
 	    wcTemp.lpszClassName = "QAxControl";
 	    wcTemp.lpszMenuName = 0;
-	    wcTemp.lpfnWndProc = StartWindowProc;
+	    wcTemp.lpfnWndProc = ActiveXProc;
 
 	    atom = RegisterClassA( &wcTemp );
 	}
@@ -1154,6 +1186,75 @@ HWND QAxServerBase::Create(HWND hWndParent, RECT& rcPos )
     internalCreate();
 
     return hWnd;
+}
+
+static HMENU createPopup( QPopupMenu *popup )
+{
+    HMENU popupMenu = CreatePopupMenu();
+
+    for ( uint i = 0; i < popup->count(); ++i ) {
+	int qid = popup->idAt(i);
+	QMenuItem *qitem = popup->findItem( qid );
+	if ( !qitem )
+	    continue;
+
+	uint flags = qitem->isEnabled() ? MF_ENABLED : MF_DISABLED;
+	if ( qitem->isSeparator() )
+	    flags |= MF_SEPARATOR;
+	else if ( qitem->popup() )
+	    flags |= MF_POPUP;
+	else
+	    flags |= MF_STRING;
+
+	UINT itemId = qitem->popup() ? (UINT_PTR)createPopup( qitem->popup() ) : qid;
+#if defined(UNICODE)
+	if ( qWinVersion() & Qt::WV_NT_based )
+	    AppendMenuW( popupMenu, flags, itemId, (TCHAR*)qt_winTchar( qitem->text(), TRUE ) );
+	else
+#endif
+	    AppendMenuA( popupMenu, flags, itemId, qitem->text().local8Bit() );
+    }
+    return popupMenu;
+}
+
+/*!
+    Creates a Win32 menu.
+*/
+void QAxServerBase::CreateMenu( IOleInPlaceFrame *spInPlaceFrame, QMenuBar *menuBar )
+{
+    hmenuShared = ::CreateMenu();
+    OLEMENUGROUPWIDTHS menuWidths;
+    memset( &menuWidths, 0, sizeof(OLEMENUGROUPWIDTHS) );
+    spInPlaceFrame->InsertMenus( hmenuShared, &menuWidths );
+
+    for ( uint i = 0; i < menuBar->count(); ++i ) {
+	int qid = menuBar->idAt( i );
+	QMenuItem *qitem = menuBar->findItem( qid );
+	if ( !qitem )
+	    continue;
+
+	uint flags = qitem->isEnabled() ? MF_ENABLED : MF_DISABLED;
+	if ( qitem->isSeparator() )
+	    flags |= MF_SEPARATOR;
+	else if ( qitem->popup() )
+	    flags |= MF_POPUP;
+	else
+	    flags |= MF_STRING;
+
+	UINT itemId = qitem->popup() ? (UINT)createPopup( qitem->popup() ) : qid;
+
+#if defined(UNICODE)
+	if ( qWinVersion() & Qt::WV_NT_based ) {
+	    AppendMenuW( hmenuShared, flags, itemId, (TCHAR*)qt_winTchar( qitem->text(), TRUE ) );
+	} else {
+#endif
+	    AppendMenuA( hmenuShared, flags, itemId, qitem->text().local8Bit() );
+	}
+    }
+    menuWidths.width[1] = menuBar->count()+1;
+
+    HOLEMENU holemenu = OleCreateMenuDescriptor( hmenuShared, &menuWidths );
+    spInPlaceFrame->SetMenu( hmenuShared, holemenu, m_hWnd );
 }
 
 /*!
@@ -1592,6 +1693,8 @@ HRESULT QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 {
     if ( riid != IID_NULL )
 	return DISP_E_UNKNOWNINTERFACE;
+    if ( !activeqt )
+	return E_UNEXPECTED;
 
     HRESULT res = DISP_E_MEMBERNOTFOUND;
 
@@ -1987,8 +2090,7 @@ HRESULT QAxServerBase::Draw( DWORD dwAspect, LONG lindex, void *pvAspect, DVTARG
     if ( !lprcBounds )
 	return E_INVALIDARG;
 
-    if ( !activeqt )
-        return OLE_E_BLANK;
+    internalCreate();
 
     switch ( dwAspect ) {
     case DVASPECT_CONTENT:
@@ -2200,7 +2302,7 @@ HRESULT QAxServerBase::OnMnemonic( LPMSG )
 */
 HRESULT QAxServerBase::OnAmbientPropertyChange( DISPID dispID )
 {
-    if ( !m_spClientSite )
+    if ( !m_spClientSite || !activeqt )
 	return S_OK;
 
     IDispatch *disp = 0;
@@ -2371,6 +2473,9 @@ HRESULT QAxServerBase::UIDeactivate()
 	    spInPlaceUIWindow->Release();
 	}
 	if (spInPlaceFrame) {
+	    spInPlaceFrame->SetMenu( 0, 0, m_hWnd );
+	    if ( hmenuShared )
+		DestroyMenu( hmenuShared );
 	    spInPlaceFrame->SetActiveObject(0, 0);
 	    spInPlaceFrame->Release();
 	}
@@ -2674,10 +2779,17 @@ HRESULT QAxServerBase::internalActivate()
 	}
 
 	if ( spInPlaceFrame ) {
+	    spInPlaceFrame->SetActiveObject( this, QStringToBSTR(class_name) );
+	    QMenuBar *menuBar = activeqt ? (QMenuBar*)activeqt->child( 0, "QMenuBar" ) : 0;
+
+	    if ( menuBar )
+		CreateMenu( spInPlaceFrame, menuBar );
+
 	    spInPlaceFrame->SetBorderSpace(0);
 	    spInPlaceFrame->Release();
 	}
 	if ( spInPlaceUIWindow ) {
+	    spInPlaceUIWindow->SetActiveObject( this, QStringToBSTR(class_name) );
 	    spInPlaceUIWindow->SetBorderSpace(0);
 	    spInPlaceUIWindow->Release();
 	}

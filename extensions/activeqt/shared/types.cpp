@@ -128,7 +128,7 @@ QPixmap IPictureToQPixmap( IPicture *ipic )
 	      MAP_LOGHIM_TO_PIX( pHeight, pdm.logicalDpiY() ) );
 
     pm.resize( sz );
-    ipic->Render( pm.handle(), 0, 0, pm.width(), pm.height(), 0, 0, pWidth, pHeight, 0 );
+    ipic->Render( pm.handle(), 0, 0, pm.width(), pm.height(), 0, pHeight, pWidth, -pHeight, 0 );
 
     return pm;
 }
