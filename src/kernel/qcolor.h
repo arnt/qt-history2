@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#21 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#22 $
 **
 ** Definition of QColor class
 **
@@ -44,42 +44,43 @@ inline int QGRAY( ulong rgb )			// convert RGB to gray 0..255
 class QColor					// color class
 {
 public:
+    enum Spec { Rgb, Hsv };
+
     QColor();					// default RGB=0,0,0
     QColor( int r, int g, int b );		// specify RGB
+    QColor( int x, int y, int z, Spec );	// specify RGB or HSV
     QColor( ulong rgb, ulong pixel=0xffffffff); // specify RGB and/or pixel
     QColor( const char *name );			// load color from database
     QColor( const QColor & );			// copy color
     QColor &operator=( const QColor & );	// copy color
 
-    static bool lazyAlloc()	{ return lalloc; }
-    static void setLazyAlloc( bool );		// enable/disable lazy alloc
+    bool   isValid()const { return (rgbVal & RGB_INVALID) == 0; }
+    bool   isDirty()const { return (rgbVal & RGB_DIRTY) == RGB_DIRTY; }
 
-    ulong  alloc();				// allocate color
+    void   setNamedColor( const char *name );
 
-    void   setNamedColor( const char *name );	// load color from database
-
-    void   rgb( int *r, int *g, int *b ) const; // get RGB value
+    void   rgb( int *r, int *g, int *b ) const;
     ulong  rgb() const { return rgbVal & RGB_MASK; }
-    void   setRgb( int r, int g, int b );	// set RGB value
+    void   setRgb( int r, int g, int b );
     void   setRgb( ulong rgb );
 
     int	   red()    const { return QRED(rgbVal); }
     int	   green()  const { return QGREEN(rgbVal); }
     int	   blue()   const { return QBLUE(rgbVal); }
 
-    void   hsv( int *h, int *s, int *v ) const; // get HSV value
-    void   setHsv( int h, int s, int v );	// set HSV value
+    void   hsv( int *h, int *s, int *v ) const;
+    void   setHsv( int h, int s, int v );
 
-    bool   isValid()const { return (rgbVal & RGB_INVALID) == 0; }
-    bool   isDirty()const { return (rgbVal & RGB_DIRTY) == RGB_DIRTY; }
-
-    QColor light( int f = 112 ) const;		// get lighter color
-    QColor dark( int f = 200 )	const;		// get darker color
-
-    ulong  pixel()  const;			// get pixel value
+    QColor light( int f = 112 ) const;
+    QColor dark( int f = 200 )	const;
 
     bool   operator==( const QColor &c ) const;
     bool   operator!=( const QColor &c ) const;
+
+    static bool lazyAlloc()	{ return lalloc; }
+    static void setLazyAlloc( bool );
+    ulong  alloc();
+    ulong  pixel()  const;
 
     static int maxColors();
     static int numBitPlanes();
