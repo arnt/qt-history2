@@ -685,11 +685,11 @@ void qt_init(int* argcptr, char **argv, QApplication::Type)
     char *p = strrchr(argv[0], '/');
     appName = p ? p + 1 : argv[0];
 #ifdef Q_WS_MACX
-    if (argv[0] && *argv[0] != '/')
-	qWarning( "Qt: QApplication: Warning argv[0] == '%s' is relative.\n"
-		  "In order to dispatch events correctly Mac OS X may "
-		  "require applications to be run with the *full* path to the "
-		  "executable.", argv[0] );
+    if(qt_is_gui_used && argv[0] && *argv[0] != '/')
+	qWarning("Qt: QApplication: Warning argv[0] == '%s' is relative.\n"
+		 "In order to dispatch events correctly Mac OS X may "
+		 "require applications to be run with the *full* path to the "
+		 "executable.", argv[0]);
 		  
     //special hack to change working directory to a resource fork when running from finder
     if(p && !QDir::isRelativePath(p) && QDir::currentDirPath() == "/") {
