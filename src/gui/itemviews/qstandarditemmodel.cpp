@@ -97,8 +97,8 @@ QModelIndex QStandardItemModel::index(int row, int column, const QModelIndex &pa
 QModelIndex QStandardItemModel::parent(const QModelIndex &child) const
 {
     Q_D(const QStandardItemModel);
-    if (child.isValid() && child.data()) {
-        QStdModelRow *parentRow = static_cast<QStdModelRow*>(child.data());
+    if (child.isValid() && child.internalPointer()) {
+        QStdModelRow *parentRow = static_cast<QStdModelRow*>(child.internalPointer());
         QStdModelRow *grandParentRow = parentRow ? parentRow->p : 0;
         QVector<QStdModelRow*> grandParentChildren = d->topLevelRows;
         if (grandParentRow)
@@ -497,7 +497,7 @@ QStdModelRow *QStandardItemModelPrivate::containedRow(const QModelIndex &index,
     if (!index.isValid())
         return 0;
 
-    QStdModelRow *parentRow = static_cast<QStdModelRow*>(index.data());
+    QStdModelRow *parentRow = static_cast<QStdModelRow*>(index.internalPointer());
     QVector<QStdModelRow*> *rowList = const_cast<QVector<QStdModelRow*> *>(&topLevelRows);
     if (parentRow) {
         rowList = const_cast<QVector<QStdModelRow*> *>(&parentRow->childrenRows);

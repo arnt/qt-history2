@@ -390,7 +390,8 @@ QModelIndex QDirModel::index(int row, int column, const QModelIndex &parent) con
     if (column < 0 || column >= 4 || row < 0 || row >= rowCount(parent)) // does lazy population
         return QModelIndex();
 
-    QDirModelPrivate::QDirNode *p = static_cast<QDirModelPrivate::QDirNode*>(parent.data());
+    QDirModelPrivate::QDirNode *p =
+        static_cast<QDirModelPrivate::QDirNode*>(parent.internalPointer());
     QDirModelPrivate::QDirNode *n = d->node(row, p);
     Q_ASSERT(n);
 
@@ -407,7 +408,8 @@ QModelIndex QDirModel::parent(const QModelIndex &child) const
     if (!child.isValid())
 	return QModelIndex();
 
-    QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(child.data());
+    QDirModelPrivate::QDirNode *node =
+        static_cast<QDirModelPrivate::QDirNode*>(child.internalPointer());
     Q_ASSERT(node);
 
     QDirModelPrivate::QDirNode *par = d->parent(node);
@@ -427,7 +429,8 @@ QModelIndex QDirModel::parent(const QModelIndex &child) const
 int QDirModel::rowCount(const QModelIndex &parent) const
 {
     Q_D(const QDirModel);
-    QDirModelPrivate::QDirNode *p = static_cast<QDirModelPrivate::QDirNode*>(parent.data());
+    QDirModelPrivate::QDirNode *p =
+        static_cast<QDirModelPrivate::QDirNode*>(parent.internalPointer());
 
     bool isDir = !p || p->info.isDir(); // no node pointer means that it is the root
     if (!p) p = &(d->root);
@@ -457,7 +460,8 @@ QVariant QDirModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
+    QDirModelPrivate::QDirNode *node =
+        static_cast<QDirModelPrivate::QDirNode*>(index.internalPointer());
     Q_ASSERT(node);
 
     if (role == Qt::DisplayRole || role == Qt::EditRole) {
@@ -505,12 +509,14 @@ bool QDirModel::setData(const QModelIndex &index, const QVariant &value, int rol
         || (flags(index) & Qt::ItemIsEditable) == 0 || role != Qt::EditRole)
         return false;
 
-    QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
+    QDirModelPrivate::QDirNode *node =
+        static_cast<QDirModelPrivate::QDirNode*>(index.internalPointer());
     Q_ASSERT(node);
     QDir dir = node->info.dir();
     if (dir.rename(node->info.fileName(), value.toString())) {
         QModelIndex par = parent(index);
-        QDirModelPrivate::QDirNode *p = static_cast<QDirModelPrivate::QDirNode*>(par.data());
+        QDirModelPrivate::QDirNode *p =
+            static_cast<QDirModelPrivate::QDirNode*>(par.internalPointer());
         d->refresh(p);
         QModelIndex topLeft = this->index(0, 0, par);
         int rc = rowCount(par);
@@ -554,7 +560,8 @@ bool QDirModel::hasChildren(const QModelIndex &parent) const
     Q_D(const QDirModel);
     if (!parent.isValid()) // the invalid index is the "My Computer" item
         return true; // the drives
-    QDirModelPrivate::QDirNode *p = static_cast<QDirModelPrivate::QDirNode*>(parent.data());
+    QDirModelPrivate::QDirNode *p =
+        static_cast<QDirModelPrivate::QDirNode*>(parent.internalPointer());
     Q_ASSERT(p);
     if (d->lazyChildCount) { // optimization that only checks for children if the node has been populated
         if (p->populated)
@@ -578,7 +585,8 @@ Qt::ItemFlags QDirModel::flags(const QModelIndex &index) const
     flags |= Qt::ItemIsDragEnabled;
     if (d->readOnly)
         return flags;
-    QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
+    QDirModelPrivate::QDirNode *node =
+        static_cast<QDirModelPrivate::QDirNode*>(index.internalPointer());
     Q_ASSERT(node);
     if ((index.column() == 0) && node->info.isWritable()) {
         flags |= Qt::ItemIsEditable;
@@ -667,7 +675,8 @@ bool QDirModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
     if (!parent.isValid() || isReadOnly())
         return false;
 
-    QDirModelPrivate::QDirNode *p = static_cast<QDirModelPrivate::QDirNode*>(parent.data());
+    QDirModelPrivate::QDirNode *p =
+        static_cast<QDirModelPrivate::QDirNode*>(parent.internalPointer());
     Q_ASSERT(p);
 
     QList<QUrl> urls = data->urls();
@@ -897,7 +906,7 @@ void QDirModel::refresh(const QModelIndex &parent)
     Q_D(QDirModel);
     d->savePersistentIndexes();
     emit rowsAboutToBeRemoved(parent, 0, rowCount(parent) - 1);
-    d->refresh(static_cast<QDirModelPrivate::QDirNode*>(parent.data()));
+    d->refresh(static_cast<QDirModelPrivate::QDirNode*>(parent.internalPointer()));
     d->restorePersistentIndexes();
     emit rowsInserted(parent, 0, rowCount(parent) - 1);
 }
@@ -936,7 +945,7 @@ QModelIndex QDirModel::index(const QString &path, int column) const
         // get the list of children of the current path element
         if (idx.isValid()) {
             QDirModelPrivate::QDirNode *node =
-                static_cast<QDirModelPrivate::QDirNode*>(idx.data());
+                static_cast<QDirModelPrivate::QDirNode*>(idx.internalPointer());
             Q_ASSERT(node);
             entries = d->entryList(node->info.absoluteFilePath());
         } else { // parent is "My Computer"
@@ -962,7 +971,8 @@ QModelIndex QDirModel::index(const QString &path, int column) const
 bool QDirModel::isDir(const QModelIndex &index) const
 {
     Q_ASSERT(index.isValid());
-    QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
+    QDirModelPrivate::QDirNode *node =
+        static_cast<QDirModelPrivate::QDirNode*>(index.internalPointer());
     Q_ASSERT(node);
     return node->info.isDir();
 }
@@ -977,7 +987,8 @@ QModelIndex QDirModel::mkdir(const QModelIndex &parent, const QString &name)
     if (!parent.isValid())
         return QModelIndex();
 
-    QDirModelPrivate::QDirNode *p = static_cast<QDirModelPrivate::QDirNode*>(parent.data());
+    QDirModelPrivate::QDirNode *p =
+        static_cast<QDirModelPrivate::QDirNode*>(parent.internalPointer());
     Q_ASSERT(p);
 
     d->savePersistentIndexes();
@@ -1024,7 +1035,8 @@ bool QDirModel::rmdir(const QModelIndex &index)
     if (!index.isValid())
         return false;
 
-    QDirModelPrivate::QDirNode *n = static_cast<QDirModelPrivate::QDirNode*>(index.data());
+    QDirModelPrivate::QDirNode *n =
+        static_cast<QDirModelPrivate::QDirNode*>(index.internalPointer());
     Q_ASSERT(n);
 
     if (!n->info.isDir()) {
@@ -1063,7 +1075,8 @@ bool QDirModel::remove(const QModelIndex &index)
     if (!index.isValid())
         return false;
 
-    QDirModelPrivate::QDirNode *n = static_cast<QDirModelPrivate::QDirNode*>(index.data());
+    QDirModelPrivate::QDirNode *n =
+        static_cast<QDirModelPrivate::QDirNode*>(index.internalPointer());
     Q_ASSERT(n);
 
     if (n->info.isDir())
@@ -1148,7 +1161,8 @@ QFileInfo QDirModel::fileInfo(const QModelIndex &index) const
 {
     Q_ASSERT(index.isValid());
 
-    QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
+    QDirModelPrivate::QDirNode *node =
+        static_cast<QDirModelPrivate::QDirNode*>(index.internalPointer());
     Q_ASSERT(node);
 
     return node->info;

@@ -1470,12 +1470,12 @@ int QTreeViewPrivate::viewIndex(const QModelIndex &index) const
     t = t > 100 ? t - 100 : 0; // start 100 items above the visible area
     for (int i = t; i < viewItems.count(); ++i)
         if (viewItems.at(i).index.row() == index.row() &&
-            viewItems.at(i).index.data() == index.data()) // ignore column
+            viewItems.at(i).index.internalId() == index.internalId()) // ignore column
             return i;
     // search above
     for (int j = 0; j < t; ++j)
         if (viewItems.at(j).index.row() == index.row() &&
-            viewItems.at(j).index.data() == index.data()) // ignore column
+            viewItems.at(j).index.internalId() == index.internalId()) // ignore column
             return j;
     // nothing found
     return -1;

@@ -476,7 +476,7 @@ WidgetCollectionModel::Widget WidgetCollectionModel::widget(const QModelIndex &i
     if (!index.isValid())
         return Widget();
 
-    int d = reinterpret_cast<long>(index.data());
+    qint64 d = index.internalId();
 
     if (d == -1)
         return Widget();
@@ -496,16 +496,16 @@ QModelIndex WidgetCollectionModel::index(int row, int column,
     if (!parent.isValid()) {
         if (row >= categoryCount())
             return QModelIndex();
-        return createIndex(row, 0, reinterpret_cast<void*>(-1));
+        return createIndex(row, 0, -1);
     }
 
-    int d = reinterpret_cast<long>(parent.data());
+    qint64 d = parent.internalId();
     if (d == -1) {
         if (parent.row() >= categoryCount())
             return QModelIndex();
         if (row >= widgetCount(parent.row()))
             return QModelIndex();
-        return createIndex(row, 0, reinterpret_cast<void*>(parent.row()));
+        return createIndex(row, 0, parent.row());
     }
 
     return QModelIndex();
@@ -516,13 +516,13 @@ QModelIndex WidgetCollectionModel::parent(const QModelIndex &index) const
     if (!index.isValid())
         return QModelIndex();
 
-    int d = reinterpret_cast<long>(index.data());
+    qint64 d = index.internalId();
 
     if (d == -1)
         return QModelIndex();
 
     Q_ASSERT(d < categoryCount());
-    return createIndex(d, 0, reinterpret_cast<void*>(-1));
+    return createIndex(d, 0, -1);
 }
 
 int WidgetCollectionModel::rowCount(const QModelIndex &parent) const
@@ -530,7 +530,7 @@ int WidgetCollectionModel::rowCount(const QModelIndex &parent) const
     if (!parent.isValid())
         return categoryCount();
 
-    int d = reinterpret_cast<long>(parent.data());
+    qint64 d = parent.internalId();
 
     if (d == -1) {
         Q_ASSERT(parent.row() < categoryCount());
@@ -545,7 +545,7 @@ int WidgetCollectionModel::columnCount(const QModelIndex &parent) const
     if (!parent.isValid())
         return 1;
 
-    int d = reinterpret_cast<long>(parent.data());
+    qint64 d = parent.internalId();
 
     if (d == -1) {
         Q_ASSERT(parent.row() < categoryCount());
@@ -560,7 +560,7 @@ QVariant WidgetCollectionModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    int d = reinterpret_cast<long>(index.data());
+    qint64 d = index.internalId();
 
     QVariant result;
 

@@ -1086,10 +1086,10 @@ QModelIndex QSqlTableModel::indexInQuery(const QModelIndex &item) const
                 ++rowOffset;
             ++i;
         }
-        return createIndex(it.row() - rowOffset, it.column(), it.data());
+        return createIndex(it.row() - rowOffset, it.column(), it.internalPointer());
     } else {
         if (d->insertIndex >= 0 && it.row() >= d->insertIndex)
-            return createIndex(it.row() - 1, it.column(), it.data());
+            return createIndex(it.row() - 1, it.column(), it.internalPointer());
     }
     return it;
 }
@@ -1137,7 +1137,7 @@ void QSqlTableModel::clear()
 Qt::ItemFlags QSqlTableModel::flags(const QModelIndex &index) const
 {
     Q_D(const QSqlTableModel);
-    if (index.data() || index.column() < 0 || index.column() >= d->rec.count()
+    if (index.internalPointer() || index.column() < 0 || index.column() >= d->rec.count()
         || index.row() < 0)
         return 0;
     if (d->rec.field(index.column()).isReadOnly())

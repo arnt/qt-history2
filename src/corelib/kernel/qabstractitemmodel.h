@@ -24,27 +24,28 @@ class Q_CORE_EXPORT QModelIndex
 {
     friend class QAbstractItemModel;
 public:
-    inline QModelIndex() : r(-1), c(-1), d(0), m(0) {}
+    inline QModelIndex() : r(-1), c(-1), p(0), m(0) {}
     inline QModelIndex(const QModelIndex &other)
-        : r(other.row()), c(other.column()), d(other.data()), m(other.model()) {}
-    inline ~QModelIndex() { d = 0; m = 0; }
+        : r(other.r), c(other.c), p(other.p), m(other.m) {}
+    inline ~QModelIndex() { p = 0; m = 0; }
     inline int row() const { return r; }
     inline int column() const { return c; }
-    inline void *data() const { return d; }
+    inline void *internalPointer() const { return p; }
+    inline qint64 internalId() const { return reinterpret_cast<qint64>(p); }
     inline QModelIndex parent() const;
     inline QModelIndex sibling(int row, int column) const;
     inline QModelIndex child(int row, int column) const;
     inline const QAbstractItemModel *model() const { return m; }
     inline bool isValid() const { return (r >= 0) && (c >= 0) && (m != 0); }
     inline bool operator==(const QModelIndex &other) const
-        { return (other.r == r && other.c == c && other.d == d && other.m == m); }
+        { return (other.r == r && other.c == c && other.p == p && other.m == m); }
     inline bool operator!=(const QModelIndex &other) const
         { return !(*this == other); }
 private:
-    inline QModelIndex(int row, int column, void *data, const QAbstractItemModel *model)
-        : r(row), c(column), d(data), m(model) {}
+    inline QModelIndex(int row, int column, void *ptr, const QAbstractItemModel *model)
+        : r(row), c(column), p(ptr), m(model) {}
     int r, c;
-    void *d;
+    void *p;
     const QAbstractItemModel *m;
 };
 Q_DECLARE_TYPEINFO(QModelIndex, Q_MOVABLE_TYPE);
@@ -71,7 +72,8 @@ public:
     operator const QModelIndex&() const;
     int row() const;
     int column() const;
-    void *data() const;
+    void *internalPointer() const;
+    qint64 internalId() const;
     QModelIndex parent() const;
     QModelIndex sibling(int row, int column) const;
     QModelIndex child(int row, int column) const;
@@ -187,8 +189,10 @@ protected slots:
 protected:
     QAbstractItemModel(QAbstractItemModelPrivate &dd, QObject *parent = 0);
 
-    inline QModelIndex createIndex(int row, int column, void *data = 0) const
-        { return QModelIndex(row, column, data, this); }
+    inline QModelIndex createIndex(int row, int column, void *ptr = 0) const
+        { return QModelIndex(row, column, ptr, this); }
+    inline QModelIndex createIndex(int row, int column, int id) const
+        { return QModelIndex(row, column, reinterpret_cast<void*>(id), this); }
 
     void encodeData(const QModelIndexList &indexes, QDataStream &stream) const;
     void encodeData(const QModelIndex &parent, QDataStream &stream) const;

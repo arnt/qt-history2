@@ -238,17 +238,31 @@ int QPersistentModelIndex::column() const
 }
 
 /*!
-    \fn void *QPersistentModelIndex::data() const
+    \fn void *QPersistentModelIndex::internalPointer() const
 
     \internal
 
-    Returns a \c{void} \c{*} pointer to the data located at this persistent model
-    index position.
+    Returns a \c{void} \c{*} pointer used by the model to associate the index with
+    the internal data structure.
 */
 
-void *QPersistentModelIndex::data() const
+void *QPersistentModelIndex::internalPointer() const
 {
-    return d->index.data();
+    return d->index.internalPointer();
+}
+
+/*!
+    \fn void *QPersistentModelIndex::internalId() const
+
+    \internal
+
+    Returns a \c{qint64} used by the model to associate the index with
+    the internal data structure.
+*/
+
+qint64 QPersistentModelIndex::internalId() const
+{
+    return d->index.internalId();
 }
 
 /*!
@@ -311,7 +325,7 @@ QDebug operator<<(QDebug dbg, const QModelIndex &idx)
 {
 #ifndef Q_BROKEN_DEBUG_STREAM
     dbg.nospace() << "QModelIndex(" << idx.row() << "," << idx.column()
-                  << "," << idx.data() << "," << idx.model() << ")";
+                  << "," << idx.internalId() << "," << idx.model() << ")";
     return dbg.space();
 #else
     qWarning("This compiler doesn't support streaming QModelIndex to QDebug");
@@ -414,12 +428,21 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
 
 
 /*!
-    \fn void *QModelIndex::data() const
+    \fn void *QModelIndex::internalPointer() const
 
     \internal
 
-    Returns a \c{void} \c{*} pointer to the data located at this model
-    index position.
+    Returns a \c{void} \c{*} pointer used by the model to associate
+    the index with the internal data structure.
+*/
+
+/*!
+    \fn void *QModelIndex::internalId() const
+
+    \internal
+
+    Returns a \c{qint64} used by the model to associate
+    the index with the internal data structure.
 */
 
 /*!
@@ -1178,10 +1201,18 @@ bool QAbstractItemModel::setHeaderData(int section, Qt::Orientation orientation,
 }
 
 /*!
-    \fn QModelIndex QAbstractItemModel::createIndex(int row, int column, void *data) const
+    \fn QModelIndex QAbstractItemModel::createIndex(int row, int column, void *ptr) const
 
-    Creates a model index for the given \a row and \a column that
-    points to the given \a data.
+    Creates a model index for the given \a row and \a column with the internal pointer \a ptr.
+
+    This function provides a consistent interface that model subclasses must
+    use to create model indexes.
+*/
+
+/*!
+    \fn QModelIndex QAbstractItemModel::createIndex(int row, int column, int id) const
+
+    Creates a model index for the given \a row and \a column with the internal identifier \a id.
 
     This function provides a consistent interface that model subclasses must
     use to create model indexes.

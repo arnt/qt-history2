@@ -204,7 +204,7 @@ bool QPropertyEditorModel::isEditable(const QModelIndex &index) const
 QModelIndex QPropertyEditorModel::buddy(const QModelIndex &index) const
 {
     if (index.column() == 0)
-        return createIndex(index.row(), 1, index.data());
+        return createIndex(index.row(), 1, index.internalPointer());
     return index;
 }
 

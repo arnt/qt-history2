@@ -480,5 +480,6 @@ QModelIndex QSqlQueryModel::indexInQuery(const QModelIndex &item) const
     if (item.column() < 0 || item.column() >= d->rec.count()
         || !d->rec.isGenerated(item.column()))
         return QModelIndex();
-    return createIndex(item.row(), item.column() - d->colOffsets[item.column()], item.data());
+    return createIndex(item.row(), item.column() - d->colOffsets[item.column()],
+                       item.internalPointer());
 }

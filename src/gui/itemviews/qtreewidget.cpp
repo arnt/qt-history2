@@ -173,7 +173,7 @@ QTreeWidgetItem *QTreeModel::item(const QModelIndex &index) const
 {
     if (!index.isValid())
         return 0;
-    return static_cast<QTreeWidgetItem*>(index.data());
+    return static_cast<QTreeWidgetItem*>(index.internalPointer());
 }
 
 /*!
@@ -241,7 +241,7 @@ QModelIndex QTreeModel::parent(const QModelIndex &child) const
 {
     if (!child.isValid())
         return QModelIndex();
-    QTreeWidgetItem *itm = reinterpret_cast<QTreeWidgetItem *>(child.data());
+    QTreeWidgetItem *itm = reinterpret_cast<QTreeWidgetItem *>(child.internalPointer());
     if (!itm)
         return QModelIndex();
     QTreeWidgetItem *parent = itm->parent();

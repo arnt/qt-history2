@@ -353,6 +353,7 @@ void ResourceModel::setDirty(bool b)
 {
     if (b == m_dirty)
         return;
+                   
     m_dirty = b;
     emit dirtyChanged(b);
 }
@@ -362,16 +363,16 @@ QModelIndex ResourceModel::index(int row, int column,
 {
     QModelIndex result;
 
-    qint64 d = reinterpret_cast<qint64>(parent.data());
+    qint64 d = parent.internalId();
 
     if (!parent.isValid()) {
         if (row < m_resource_file.prefixCount())
-            result = createIndex(row, 0, reinterpret_cast<void*>(-1));
+            result = createIndex(row, 0, -1);
     } else if (column == 0
                 && d == -1
                 && parent.row() < m_resource_file.prefixCount()
                 && row < m_resource_file.fileCount(parent.row())) {
-        result = createIndex(row, 0, reinterpret_cast<void*>(parent.row()));
+        result = createIndex(row, 0, parent.row());
     }
 
 //    qDebug() << "ResourceModel::index(" << row << column << parent << "):" << result;
@@ -383,10 +384,10 @@ QModelIndex ResourceModel::parent(const QModelIndex &index) const
 {
     QModelIndex result;
 
-    qint64 d = reinterpret_cast<qint64>(index.data());
+    qint64 d = index.internalId();
 
     if (index.isValid() && d != -1)
-        result = createIndex(d, 0, reinterpret_cast<void*>(-1));
+        result = createIndex(d, 0, -1);
 
 //    qDebug() << "ResourceModel::parent(" << index << "):" << result;
 
@@ -397,7 +398,7 @@ int ResourceModel::rowCount(const QModelIndex &parent) const
 {
     int result = 0;
 
-    qint64 d = reinterpret_cast<qint64>(parent.data());
+    qint64 d = parent.internalId();
 
     if (!parent.isValid())
         result = m_resource_file.prefixCount();
@@ -418,7 +419,7 @@ bool ResourceModel::hasChildren(const QModelIndex &parent) const
 {
     bool result = false;
 
-    qint64 d = reinterpret_cast<qint64>(parent.data());
+    qint64 d = parent.internalId();
 
     if (!parent.isValid())
         result = m_resource_file.prefixCount() > 0;
@@ -454,7 +455,7 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    qint64 d = reinterpret_cast<qint64>(index.data());
+    qint64 d = index.internalId();
 
     QVariant result;
 
@@ -495,7 +496,7 @@ void ResourceModel::getItem(const QModelIndex &index, QString &prefix, QString &
     if (!index.isValid())
         return;
 
-    qint64 d = reinterpret_cast<qint64>(index.data());
+    qint64 d = index.internalId();
 
     if (d == -1) {
         prefix = m_resource_file.prefix(index.row());
