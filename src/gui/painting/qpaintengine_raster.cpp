@@ -8,6 +8,7 @@
 #include <qdebug.h>
 #include <qhash.h>
 #include <qlabel.h>
+#include <qbitmap.h>
 
 #include <math.h>
 
