@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.h#15 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.h#16 $
 **
 ** Definition of QCommonStyle class
 **
@@ -40,6 +40,7 @@
 
 #ifndef QT_H
 #include "qstyle.h"
+#include "qpushbutton.h" // compile!
 #endif // QT_H
 
 #ifndef QT_NO_STYLE
@@ -57,6 +58,18 @@ private:
 
 
 public:
+    // ### 8< - Make it compile!
+    QRect buttonRect( int x, int y, int w, int h ) const {
+	return QRect( x, y, w, h ); 
+    }
+    QRect pushButtonContentsRect( const QPushButton & b ) const {
+	return QRect( b.x(), b.y(), b.width(), b.height() ); 
+    }
+    int menuButtonIndicatorWidth( int h ) const {
+	return h; 
+    }
+    // ### 8<
+    
     virtual void drawPrimitive( PrimitiveOperation op,
 				QPainter *p,
 				const QRect &r,

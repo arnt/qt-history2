@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangecontrol.h#46 $
+** $Id: //depot/qt/main/src/widgets/qrangecontrol.h#47 $
 **
 ** Definition of QRangeControl class
 **
@@ -124,7 +124,7 @@ inline int QRangeControl::pageStep() const
 #ifndef QT_NO_SPINWIDGET
 
 class QSpinWidgetPrivate;
-
+class QLineEdit;
 class Q_EXPORT QSpinWidget : public QWidget
 {
     Q_OBJECT
@@ -132,15 +132,18 @@ public:
     QSpinWidget( QWidget* parent = 0, const char* name = 0 );
     ~QSpinWidget();
 
+    QLineEdit * lineEdit();
     QRect upRect() const;
     QRect downRect() const;
 
     void setUpEnabled( bool on );
     void setDownEnabled( bool on );
-
+    
     enum ButtonSymbols { UpDownArrows, PlusMinus };
     virtual void	setButtonSymbols( ButtonSymbols bs );
     ButtonSymbols	buttonSymbols() const;
+
+    void arrange();
 
 signals:
     void stepUpPressed();
@@ -165,7 +168,6 @@ private slots:
 private:
     QSpinWidgetPrivate * d;
 
-    void arrange();
     void updateDisplay();
 
 private:	// Disabled copy constructor and operator=

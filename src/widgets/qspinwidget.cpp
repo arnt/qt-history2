@@ -40,6 +40,7 @@
 #include "qtimer.h"
 #include "qapplication.h"
 #include "qpainter.h"
+#include "qlineedit.h"
 
 static uint theButton = 0;
 
@@ -63,6 +64,7 @@ public:
     QRect down;
     QTimer *auRepTimer;
     QSpinWidget::ButtonSymbols bsyms;
+    QLineEdit *vi;
 };
 
 /*!  Constructs an empty range control widget.
@@ -73,7 +75,11 @@ QSpinWidget::QSpinWidget( QWidget* parent, const char* name )
     : QWidget( parent, name )
 {
     d = new QSpinWidgetPrivate();
-    setFocusPolicy( QWidget::NoFocus );
+    d->vi = new QLineEdit( this );
+    //setFocusPolicy( QWidget::NoFocus );
+    setFocusProxy( d->vi );
+    setFocusPolicy( StrongFocus );
+
     arrange();
     updateDisplay();
 }
@@ -86,6 +92,12 @@ QSpinWidget::QSpinWidget( QWidget* parent, const char* name )
 QSpinWidget::~QSpinWidget()
 {
     delete d;
+}
+
+/*! */
+QLineEdit * QSpinWidget::lineEdit()
+{
+    return d->vi;
 }
 
 /*! \reimp
@@ -136,12 +148,13 @@ void QSpinWidget::mousePressEvent( QMouseEvent *e )
 
 void QSpinWidget::arrange()
 {
-    d->up = style().querySubControlMetrics( QStyle::CC_SpinWidget,
-					    parentWidget(),
+    d->up = style().querySubControlMetrics( QStyle::CC_SpinWidget, this,
 					    QStyle::SC_SpinWidgetUp );
-    d->down = style().querySubControlMetrics( QStyle::CC_SpinWidget,
-					      parentWidget(),
+    d->down = style().querySubControlMetrics( QStyle::CC_SpinWidget, this,
 					      QStyle::SC_SpinWidgetDown );
+    QRect r = style().querySubControlMetrics( QStyle::CC_SpinWidget, this, 
+					      QStyle::SC_SpinWidgetEditField );
+    d->vi->setGeometry( r );
 }
 
 void QSpinWidget::stepUp()
@@ -267,16 +280,13 @@ void QSpinWidget::paintEvent( QPaintEvent * )
     else if (theButton & 2)
 	active = QStyle::SC_SpinWidgetUp;
 
-
-
-
     style().drawComplexControl( QStyle::CC_SpinWidget, &p, this,
 				d->up,
-				d->upEnabled ? colorGroup() :
+				d->downEnabled ? colorGroup() :
 				palette().disabled(),
 				QStyle::CStyle_Default,
 				QStyle::SC_SpinWidgetUp,
-				active);
+				active );
 
     style().drawComplexControl( QStyle::CC_SpinWidget, &p, this,
 				d->down,
@@ -284,7 +294,14 @@ void QSpinWidget::paintEvent( QPaintEvent * )
 				palette().disabled(),
 				QStyle::CStyle_Default,
 				QStyle::SC_SpinWidgetDown,
-				active);
+				active );
+
+    QRect fr = style().querySubControlMetrics( QStyle::CC_SpinWidget, this, 
+					      QStyle::SC_SpinWidgetFrame );
+    style().drawComplexControl( QStyle::CC_SpinWidget, &p, this,
+				fr, colorGroup(),
+				QStyle::CStyle_Default,
+				QStyle::SC_SpinWidgetFrame );
 }
 
 

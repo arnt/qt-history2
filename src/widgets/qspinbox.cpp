@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#149 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#150 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -56,7 +56,7 @@ class QSpinBoxPrivate
 {
 public:
     QSpinBoxPrivate() {}
-    QSpinWidget* buttons;
+    QSpinWidget* controls;
 };
 
 
@@ -178,18 +178,15 @@ void QSpinBox::initSpinBox()
 {
     d = new QSpinBoxPrivate;
 
-    d->buttons = new QSpinWidget( this, "buttons" );
-    connect( d->buttons, SIGNAL( stepUpPressed() ), SLOT( stepUp() ) );
-    connect( d->buttons, SIGNAL( stepDownPressed() ), SLOT( stepDown() ) );
+    d->controls = new QSpinWidget( this, "controls" );
+    connect( d->controls, SIGNAL( stepUpPressed() ), SLOT( stepUp() ) );
+    connect( d->controls, SIGNAL( stepDownPressed() ), SLOT( stepDown() ) );
 
     wrap = FALSE;
     edited = FALSE;
 
     validate = new QIntValidator( minValue(), maxValue(), this, "validator" );
-    vi = new QLineEdit( this, "line editor" );
-
-    setFocusProxy( vi );
-    setFocusPolicy( StrongFocus );
+    vi = d->controls->lineEdit();
     vi->setValidator( validate );
     vi->installEventFilter( this );
     vi->setFrame( FALSE );
@@ -412,33 +409,14 @@ QSize QSpinBox::sizeHint() const
 	w = QMAX( w, fm.width( s ) + wx );
     }
 
-    return QSize( w + d->buttons->downRect().width(), h ).expandedTo( QApplication::globalStrut() );
-}
-
-/*! \reimp */
-void QSpinBox::paintEvent( QPaintEvent * )
-{
-    QPainter p( this );
-    QRect frameRect = style().querySubControlMetrics( QStyle::CC_SpinWidget,
-						      this,
-						   QStyle::SC_SpinWidgetFrame);
-						      
-    style().drawComplexControl( QStyle::CC_SpinWidget, &p, this, frameRect,
-				colorGroup(),
-				QStyle::CStyle_Default,
-				QStyle::SC_SpinWidgetFrame );
+    return QSize( w + d->controls->downRect().width(), h ).expandedTo( QApplication::globalStrut() );
 }
 
 // Does the layout of the lineedit and the buttons
 
 void QSpinBox::arrangeWidgets()
-{
-    QRect b = style().querySubControlMetrics( QStyle::CC_SpinWidget, this,
-					    QStyle::SC_SpinWidgetButtonField );
-    QRect r = style().querySubControlMetrics( QStyle::CC_SpinWidget, this,
-					      QStyle::SC_SpinWidgetEditField );
-    d->buttons->setGeometry( b );
-    vi->setGeometry( r );
+{    
+    d->controls->arrange();
 }
 
 /*!
@@ -580,7 +558,7 @@ void QSpinBox::leaveEvent( QEvent* )
 */
 void QSpinBox::resizeEvent( QResizeEvent* )
 {
-    arrangeWidgets();
+    d->controls->resize( width(), height() );
 }
 
 /*!\reimp
@@ -681,8 +659,8 @@ void QSpinBox::updateDisplay()
     bool upEnabled = isEnabled() && (wrapping() || value() < maxValue());
     bool downEnabled = isEnabled() && (wrapping() || value() > minValue());
 
-    d->buttons->setUpEnabled( upEnabled );
-    d->buttons->setDownEnabled( downEnabled );
+    d->controls->setUpEnabled( upEnabled );
+    d->controls->setDownEnabled( downEnabled );
     repaint( FALSE );
 }
 
@@ -723,7 +701,7 @@ void QSpinBox::interpretText()
 
 QRect QSpinBox::upRect() const
 {
-    return d->buttons->upRect();
+    return d->controls->upRect();
 }
 
 
@@ -733,7 +711,7 @@ QRect QSpinBox::upRect() const
 
 QRect QSpinBox::downRect() const
 {
-    return d->buttons->downRect();
+    return d->controls->downRect();
 }
 
 
@@ -835,7 +813,7 @@ QString QSpinBox::currentValueText()
   \reimp
 */
 
-void QSpinBox::setEnabled( bool on )
+void QSpinBox::setEnabled( bool /*on*/ ) // ###??
 {
     bool b = isEnabled();
     if ( isEnabled() != b ) {
@@ -886,10 +864,10 @@ void QSpinBox::setButtonSymbols( ButtonSymbols newSymbols )
 
     switch ( newSymbols ) {
     case UpDownArrows:
-	d->buttons->setButtonSymbols( QSpinWidget::UpDownArrows );
+	d->controls->setButtonSymbols( QSpinWidget::UpDownArrows );
 	break;
     case PlusMinus:
-	d->buttons->setButtonSymbols( QSpinWidget::PlusMinus );
+	d->controls->setButtonSymbols( QSpinWidget::PlusMinus );
 	break;
     }
     //    repaint( FALSE );
@@ -897,7 +875,7 @@ void QSpinBox::setButtonSymbols( ButtonSymbols newSymbols )
 
 QSpinBox::ButtonSymbols QSpinBox::buttonSymbols() const
 {
-    switch( d->buttons->buttonSymbols() ) {
+    switch( d->controls->buttonSymbols() ) {
     case QSpinWidget::UpDownArrows:
 	return UpDownArrows;
     case QSpinWidget::PlusMinus:
