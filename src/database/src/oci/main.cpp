@@ -2,14 +2,33 @@
 #include "qsql_oci.h"
 #include <qstringlist.h>
 
-class QOCIDriverInterface : public QSqlDriverInterface
+class QOCIDriverInterface : public QPlugInInterface, public QSqlDriverInterface
 {
 public:
     QOCIDriverInterface(){}
 
+    QStringList interfaceList();
+    QUnknownInterface* queryInterface( const QString& request );
+
     QSqlDriver* create( const QString &name );
     QStringList featureList();
 };
+
+QStringList QOCIDriverInterface::interfaceList()
+{
+    QStringList list;
+
+    list << "QOCIDriverInterface";
+
+    return list;
+}
+
+QUnknownInterface* QOCIDriverInterface::queryInterface( const QString& request )
+{
+    if ( request == "QOCIDriverInterface" )
+	return new QOCIDriverInterface;
+    return 0;
+}
 
 
 QSqlDriver* QOCIDriverInterface::create( const QString &name )
