@@ -641,8 +641,8 @@ void QPainterPrivate::updateInvMatrix()
 
     The core functionality of QPainter is drawing, and there are
     functions to draw most primitives: drawPoint(), drawPoints(),
-    drawLine(), drawRect(), drawRoundRect(),
-    drawEllipse(), drawArc(), drawPie(), drawChord(),
+    drawLine(), drawRectangle(), drawRoundRectangle(),
+    drawOval(), drawArc(), drawPie(), drawChord(),
     drawLine:Segments(), drawPolyline(), drawPolygon(),
     drawConvexPolygon() and drawCubicBezier(). All of these functions
     take integer coordinates; there are no floating-point versions
@@ -1839,7 +1839,16 @@ void QPainter::drawLine(const QLineF &l)
 /*!
     Draws the rectangle \a r.
 
-    \sa QPen, drawRoundRect()
+    \obsolete
+    Use drawRectangle().
+
+    This function is obsoleted due to the way stroking/filling was defined
+    prior to Qt 4. The old model was to reduce the size of the outline so
+    that the pen fitted inside the bounds of the rectangle. This means that
+    a rectangle is not the same a polygon defined by its corner points. In
+    addition, the model did not transform properly.
+
+    \sa QPen, QBrush, drawRectangle()
 */
 void QPainter::drawRect(const QRectF &r)
 {
@@ -1879,6 +1888,12 @@ void QPainter::drawRect(const QRectF &r)
     d->engine->drawRect(rect);
 }
 
+/*!
+  Draws the rectangle \r with the current pen and brush.
+
+  A filled rectangle has a size of r.size(). An outlined rectangle
+  has a size of r.size() plus the pen width.
+*/
 void QPainter::drawRectangle(const QRectF &r)
 {
 #ifdef QT_DEBUG_DRAW
@@ -1918,7 +1933,7 @@ void QPainter::drawRectangle(const QRectF &r)
     Draws all the rectangles in the \a rects list using the current
     pen and brush.
 
-    \sa drawRect()
+    \sa drawRectangle()
 */
 void QPainter::drawRectangles(const QList<QRectF> &rects)
 {
@@ -1938,7 +1953,7 @@ void QPainter::drawRectangles(const QList<QRectF> &rects)
             rectangles[i].moveBy(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
     } else if (d->engine->emulationSpecifier) {
         for (int i=0; i<rects.size(); ++i)
-            drawRect(rects.at(i));
+            drawRectangle(rects.at(i));
         return;
     }
 
@@ -2274,6 +2289,9 @@ const QFont &QPainter::font() const
 
     The width and height include all of the drawn lines.
 
+    \obsolete
+    See explatanion in drawRect for details
+
     \sa drawRect(), QPen
 */
 
@@ -2284,6 +2302,9 @@ const QFont &QPainter::font() const
     should be. 0 is angled corners, 99 is maximum roundedness.
 
     The width and height include all of the drawn lines.
+
+    \obsolete
+    See explatanion in drawRect for details
 
     \sa drawRect(), QPen
 */
@@ -2301,10 +2322,21 @@ void QPainter::drawRoundRect(const QRectF &r, int xRnd, int yRnd)
     QRectF rect = r.normalize();
     int subtract = d->rectSubtraction();
     if (subtract != 0)
-        rect = QRectF(rect.x(), rect.y(), rect.width(), rect.height());
+        rect = QRectF(rect.x(), rect.y(), rect.width() - subtract, rect.height() - subtract);
     drawRoundRectangle(rect, xRnd, yRnd);
 }
 
+/*!
+    Draws a rectangle \a r with rounded corners.
+
+    The \a xRnd and \a yRnd arguments specify how rounded the corners
+    should be. 0 is angled corners, 99 is maximum roundedness.
+
+    A filled rectangle has a size of r.size(). An outlined rectangle
+    has a size of r.size() plus the pen width.
+
+    \sa drawRect(), QPen
+*/
 void QPainter::drawRoundRectangle(const QRectF &r, int xRnd, int yRnd)
 {
 #ifdef QT_DEBUG_DRAW
@@ -2360,10 +2392,17 @@ void QPainter::drawRoundRectangle(const QRectF &r, int xRnd, int yRnd)
 
     Draws an ellipse with center at (\a{x} + \a{w}/2, \a{y} + \a{h}/2)
     and size (\a{w}, \a{h}).
+
+    \obsolete
+    Use QPainter::drawOval() instead. See explanation in QPainter::drawRect
+
+    \sa drawRect()
 */
 
 /*!
     Draws the ellipse that fits inside rectangle \a r.
+
+    \obsolete, see explanation in QPainter::drawRect for details
 */
 void QPainter::drawEllipse(const QRectF &r)
 {
@@ -2395,7 +2434,11 @@ void QPainter::drawEllipse(const QRectF &r)
     d->engine->drawEllipse(rect);
 }
 
+/*!
+    Draws an oval, (circle or ellipse), that fits inside the rectangle \a r
 
+    The width and height include all of the drawn lines.
+*/
 void QPainter::drawOval(const QRectF &r)
 {
 #ifdef QT_DEBUG_DRAW
