@@ -730,8 +730,7 @@ static void mergeInto(QVector<int> *a, const QVector<int> &b)
 		    c[k++] = b[j++];
 		}
 	    } else {
-		memcpy(c.data() + k, (*a).constData() + i,
-			(asize - i) * sizeof(int));
+		memcpy(c.data() + k, (*a).constData() + i, (asize - i) * sizeof(int));
 		break;
 	    }
 	}
@@ -1009,9 +1008,8 @@ public:
       enough.
      */
     enum { MaxLookaheads = 13, MaxBackRefs = 14 };
-    enum { Anchor_Dollar = 0x00000001, Anchor_Caret = 0x00000002,
-	   Anchor_Word = 0x00000004, Anchor_NonWord = 0x00000008,
-	   Anchor_FirstLookahead = 0x00000010,
+    enum { Anchor_Dollar = 0x00000001, Anchor_Caret = 0x00000002, Anchor_Word = 0x00000004,
+	   Anchor_NonWord = 0x00000008, Anchor_FirstLookahead = 0x00000010,
 	   Anchor_BackRef1Empty = Anchor_FirstLookahead << MaxLookaheads,
 	   Anchor_BackRef0Empty = Anchor_BackRef1Empty >> 1,
 	   Anchor_Alternation = Anchor_BackRef1Empty << MaxBackRefs,
@@ -1028,8 +1026,7 @@ public:
 #endif
 
 #ifndef QT_NO_REGEXP_CAPTURE
-    bool isBetterCapture(const int *begin1, const int *end1, const int *begin2,
-			  const int *end2);
+    bool isBetterCapture(const int *begin1, const int *end1, const int *begin2, const int *end2);
 #endif
     bool testAnchor(int i, int a, const int *capBegin);
 
@@ -1144,10 +1141,9 @@ public:
     /*
       This is the lexical analyzer for regular expressions.
     */
-    enum { Tok_Eos, Tok_Dollar, Tok_LeftParen, Tok_MagicLeftParen,
-	   Tok_PosLookahead, Tok_NegLookahead, Tok_RightParen, Tok_CharClass,
-	   Tok_Caret, Tok_Quantifier, Tok_Bar, Tok_Word, Tok_NonWord,
-	   Tok_Char = 0x10000, Tok_BackRef = 0x20000 };
+    enum { Tok_Eos, Tok_Dollar, Tok_LeftParen, Tok_MagicLeftParen, Tok_PosLookahead,
+	   Tok_NegLookahead, Tok_RightParen, Tok_CharClass, Tok_Caret, Tok_Quantifier, Tok_Bar,
+           Tok_Word, Tok_NonWord, Tok_Char = 0x10000, Tok_BackRef = 0x20000 };
     int getChar();
     int getEscape();
 #ifndef QT_NO_REGEXP_INTERVAL
@@ -1351,8 +1347,7 @@ void QRegExpEngine::addCatTransitions(const QVector<int> &from, const QVector<in
 }
 
 #ifndef QT_NO_REGEXP_CAPTURE
-void QRegExpEngine::addPlusTransitions(const QVector<int> &from, const QVector<int> &to,
-				       int atom)
+void QRegExpEngine::addPlusTransitions(const QVector<int> &from, const QVector<int> &to, int atom)
 {
     for (int i = 0; i < (int) from.size(); i++) {
 	State *st = s[from[i]];
@@ -1476,9 +1471,7 @@ void QRegExpEngine::dump() const
     qDebug("Case %ssensitive engine", cs ? "" : "in");
     qDebug("  States");
     for (i = 0; i < s.size(); i++) {
-	qDebug("  %d%s", i,
-		i == InitialState ? " (initial)" :
-		i == FinalState ? " (final)" : "");
+	qDebug("  %d%s", i, i == InitialState ? " (initial)" : i == FinalState ? " (final)" : "");
 #ifndef QT_NO_REGEXP_CAPTURE
 	qDebug("    in atom %d", s[i]->atom);
 #endif
@@ -1515,8 +1508,7 @@ void QRegExpEngine::dump() const
 #endif
 #ifndef QT_NO_REGEXP_ANCHOR_ALT
     for (i = 0; i < (int) aa.size(); i++)
-	qDebug("  Anchor alternation 0x%.8x: 0x%.8x 0x%.9x", i, aa[i].a,
-		aa[i].b);
+	qDebug("  Anchor alternation 0x%.8x: 0x%.8x 0x%.9x", i, aa[i].a, aa[i].b);
 #endif
 }
 #endif
@@ -1600,8 +1592,8 @@ int QRegExpEngine::addLookahead(QRegExpEngine *eng, bool negative)
 /*
   We want the longest leftmost captures.
 */
-bool QRegExpEngine::isBetterCapture(const int *begin1, const int *end1,
-				     const int *begin2, const int *end2)
+bool QRegExpEngine::isBetterCapture(const int *begin1, const int *end1, const int *begin2,
+				    const int *end2)
 {
     for (int i = 0; i < ncap; i++) {
 	int delta = begin2[i] - begin1[i]; // it has to start early...
@@ -1624,10 +1616,9 @@ bool QRegExpEngine::testAnchor(int i, int a, const int *capBegin)
     int j;
 
 #ifndef QT_NO_REGEXP_ANCHOR_ALT
-    if ((a & Anchor_Alternation) != 0) {
-	return testAnchor(i, aa[a ^ Anchor_Alternation].a, capBegin) ||
-	       testAnchor(i, aa[a ^ Anchor_Alternation].b, capBegin);
-    }
+    if ((a & Anchor_Alternation) != 0)
+	return testAnchor(i, aa[a ^ Anchor_Alternation].a, capBegin)
+	       || testAnchor(i, aa[a ^ Anchor_Alternation].b, capBegin);
 #endif
 
     if ((a & Anchor_Caret) != 0) {
@@ -1658,8 +1649,7 @@ bool QRegExpEngine::testAnchor(int i, int a, const int *capBegin)
 	for (j = 0; j < (int) ahead.size(); j++) {
 	    if ((a & (Anchor_FirstLookahead << j)) != 0) {
 		QVector<int> captured;
-		ahead[j]->eng->match(cstr, 0, true, true,
-				      mmCaretPos - mmPos - i, captured);
+		ahead[j]->eng->match(cstr, 0, true, true, mmCaretPos - mmPos - i, captured);
 		if ((captured[0] == 0) == ahead[j]->neg)
 		    return false;
 	    }
@@ -1867,8 +1857,7 @@ bool QRegExpEngine::matchHere()
 			in = bref <= ncap && mmCurCapBegin[ell] != EmptyCapture;
 			if (in) {
 			    if (cs)
-				in = (mmIn[mmPos + mmCurCapBegin[ell]]
-				       == QChar(ch));
+				in = (mmIn[mmPos + mmCurCapBegin[ell]] == QChar(ch));
 			    else
 				in = (mmIn[mmPos + mmCurCapBegin[ell]].toLower()
 				       == QChar(ch).toLower());
@@ -1886,16 +1875,14 @@ bool QRegExpEngine::matchHere()
 				int n = 1;
 				if (cs) {
 				    while (n < delta) {
-					if (mmIn[mmPos +
-						  mmCurCapBegin[ell] + n] !=
-					     mmIn[mmPos + i + n])
+					if (mmIn[mmPos + mmCurCapBegin[ell] + n]
+					    != mmIn[mmPos + i + n])
 					    break;
 					n++;
 				    }
 				} else {
 				    while (n < delta) {
-					QChar a = mmIn[mmPos +
-						       mmCurCapBegin[ell] + n];
+					QChar a = mmIn[mmPos + mmCurCapBegin[ell] + n];
 					QChar b = mmIn[mmPos + i + n];
 					if (a.toLower() != b.toLower())
 					    break;
@@ -1947,10 +1934,8 @@ bool QRegExpEngine::matchHere()
 		      Updating the capture zones is much of a task.
 		    */
 		    if (ncap > 0) {
-			memcpy(capBegin, mmCurCapBegin + j * ncap,
-				ncap * sizeof(int));
-			memcpy(capEnd, mmCurCapEnd + j * ncap,
-				ncap * sizeof(int));
+			memcpy(capBegin, mmCurCapBegin + j * ncap, ncap * sizeof(int));
+			memcpy(capEnd, mmCurCapEnd + j * ncap, ncap * sizeof(int));
 			int c = scur->atom, n = snext->atom;
 			int p = -1, q = -1;
 			int cap;
@@ -1968,8 +1953,7 @@ bool QRegExpEngine::matchHere()
 			  If we are reentering an atom, we empty all
 			  capture zones inside it.
 			*/
-			if (scur->reenter != 0 &&
-			     (q = scur->reenter->value(next, 0)) != 0) {
+			if (scur->reenter != 0 && (q = scur->reenter->value(next, 0)) != 0) {
 			    QBitArray b(nf, false);
 			    b.setBit(q, true);
 			    for (int ell = q + 1; ell < nf; ell++) {
@@ -2037,13 +2021,10 @@ bool QRegExpEngine::matchHere()
 			  capture zones we want to keep.
 			*/
 			if (capBegin == mmTempCapBegin &&
-			     isBetterCapture(capBegin, capEnd,
-					     mmNextCapBegin + m * ncap,
+			     isBetterCapture(capBegin, capEnd, mmNextCapBegin + m * ncap,
 					     mmNextCapEnd + m * ncap)) {
-			    memcpy(mmNextCapBegin + m * ncap, capBegin,
-				    ncap * sizeof(int));
-			    memcpy(mmNextCapEnd + m * ncap, capEnd,
-				    ncap * sizeof(int));
+			    memcpy(mmNextCapBegin + m * ncap, capBegin, ncap * sizeof(int));
+			    memcpy(mmNextCapEnd + m * ncap, capEnd, ncap * sizeof(int));
 			}
 		    }
 #ifndef QT_NO_REGEXP_BACKREF
@@ -2097,15 +2078,12 @@ bool QRegExpEngine::matchHere()
 		    mmNextStack[m] = next;
 		    mmInNextStack[next] = m;
 		} else {
-		    copyOver = isBetterCapture(mmNextCapBegin + m * ncap,
-						mmNextCapEnd + m * ncap,
-						capBegin, capEnd);
+		    copyOver = isBetterCapture(mmNextCapBegin + m * ncap, mmNextCapEnd + m * ncap,
+					       capBegin, capEnd);
 		}
 		if (copyOver) {
-		    memcpy(mmNextCapBegin + m * ncap, capBegin,
-			    ncap * sizeof(int));
-		    memcpy(mmNextCapEnd + m * ncap, capEnd,
-			    ncap * sizeof(int));
+		    memcpy(mmNextCapBegin + m * ncap, capBegin, ncap * sizeof(int));
+		    memcpy(mmNextCapEnd + m * ncap, capEnd, ncap * sizeof(int));
 		}
 	    } else {
 		++j;
@@ -3748,8 +3726,7 @@ QStringList QRegExp::capturedTexts()
 	    if (priv->captured[i + 1] == 0)
 		m = QString::fromLatin1("");
 	    else if (priv->captured[i] >= 0)
-		m = priv->t.mid(priv->captured[i],
-				 priv->captured[i + 1]);
+		m = priv->t.mid(priv->captured[i], priv->captured[i + 1]);
 	    priv->capturedCache.append(m);
 	}
 	priv->t = QString::null;
