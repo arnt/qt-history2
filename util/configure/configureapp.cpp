@@ -91,11 +91,11 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "OPENGL" ]	    = "yes";
 
     dictionary[ "STYLE_WINDOWS" ]   = "yes";
-    dictionary[ "STYLE_MOTIF" ]	    = "yes";
-    dictionary[ "STYLE_MOTIFPLUS" ] = "yes";
-    dictionary[ "STYLE_PLATINUM" ]  = "yes";
-    dictionary[ "STYLE_SGI" ]	    = "yes";
-    dictionary[ "STYLE_CDE" ]	    = "yes";
+    dictionary[ "STYLE_MOTIF" ]	    = "no";
+    dictionary[ "STYLE_MOTIFPLUS" ] = "no";
+    dictionary[ "STYLE_PLATINUM" ]  = "no";
+    dictionary[ "STYLE_SGI" ]	    = "no";
+    dictionary[ "STYLE_CDE" ]	    = "no";
     dictionary[ "STYLE_WINDOWSXP" ] = "no";
     dictionary[ "STYLE_POCKETPC" ]  = "no";
 
@@ -1407,7 +1407,7 @@ void Configure::buildQmake()
 		if( int r = system( args.join( " " ).latin1() ) ) {
 		    cout << "Building qmake failed, return code " << r << endl << endl;
 		    dictionary[ "DONE" ] = "error";
-		} 	
+		}
 	    }
 	}
 	QDir::setCurrent( pwd );
