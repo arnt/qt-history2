@@ -408,7 +408,8 @@ protected:
 	if ( o == this || !o->isWidgetType() )
 	    return QWidget::eventFilter( o, e );
 	if ( e->type() == QEvent::Hide ||
-	     e->type() == QEvent::Show )
+	     e->type() == QEvent::Show ||
+	     e->type() == QEvent::ShowToParent )
 	    updateState();
 	return QWidget::eventFilter( o, e );
     }
@@ -424,6 +425,10 @@ protected:
 		++it;
 		if ( !o->inherits( "QDockWindow" ) )
 		    continue;
+		if ( ( (QDockWindow*)o )->isHidden() ) {
+		    visible = FALSE;
+		    continue;
+		}
 		if ( !( (QDockWindow*)o )->isVisible() )
 		    continue;
 		visible = TRUE;
