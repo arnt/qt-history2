@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#111 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#112 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#111 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#112 $");
 
 
 /*!
@@ -408,14 +408,6 @@ int QApplication::colorSpec()
 
   \sa colorSpec(), QColor::numBitPlanes(), QColor::enterAllocContext()
 */
-
-/*
-   ### planned functionality
-            The user can force the
-	    application to use the pseudo color visual by the \e -visual
-	    option. ### Final sentence not true yet.
-
- */
 
 void QApplication::setColorSpec( int spec )
 {
