@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#97 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#98 $
 **
 ** Implementation of QColor class for X11
 **
@@ -361,7 +361,7 @@ uint QColor::alloc()
 
     do {
 	// This loop is run until we manage to either allocate or
-	// find an approximate color, it stops after 100 iterations.
+	// find an approximate color, it stops after a few iterations.
 
 	try_again = FALSE;
 
@@ -417,7 +417,7 @@ uint QColor::alloc()
 		return pix;
 	    }
 	    if ( g_our_alloc[i] ) {		// we've already allocated it
-		i = (uint)g_carr[i].pixel;//#### not needed
+		; // i == g_carr[i].pixel
 	    } else {
 		// Try to allocate existing color
 		col = g_carr[i];
@@ -440,7 +440,7 @@ uint QColor::alloc()
 	    }
 	}
 
-    } while ( try_again && try_count < 100 );
+    } while ( try_again && try_count < 2 );
 
     if ( try_again ) {				// no hope of allocating color
 	rgbVal |= RGB_INVALID;
