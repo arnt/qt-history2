@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#68 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#69 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -760,30 +760,34 @@ QCollection::Item QGDictIterator::operator+=( uint jumps )
 
 bool QGDict::remove( QString key )
 {
-    return remove( (const char*)key.utf8() );
+    QCString kutf8 = key.utf8();
+    return remove( kutf8.data() );
 }
 
 bool QGDict::removeItem( QString key, Item item )
 {
-    return removeItem( (const char*)key.utf8(), item );
+    QCString kutf8 = key.utf8();
+    return removeItem( kutf8.data(), item );
 }
 
 QCollection::Item QGDict::take( QString key )
 {
-    return take( (const char*)key.utf8() );
+    QCString kutf8 = key.utf8();
+    return take( kutf8.data() );
 }
 
 QCollection::Item QGDict::look( QString key, Item g, int op )
 {
+    QCString kutf8 = key.utf8();
     if ( op == op_find ) {
-	return look( (const char*)key.utf8(), g, op );
+	return look( kutf8.data(), g, op );
     } else {
 	if ( !copyk ) {
 	    warning("QGDict: attempted to insert QString without copying key"
 			   " - MEMORY LEAK");
-	    return look( strdup(key.utf8()), g, op );
+	    return look( kutf8.data(), g, op );
 	} else {
-	    return look( (const char*)key.utf8(), g, op );
+	    return look( kutf8.data(), g, op );
 	}
     }
 }
