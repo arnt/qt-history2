@@ -59,7 +59,7 @@
 #include "qintdict.h"
 #endif
 #endif // QT_H
-
+#include <errno.h>
 
 static QMutex *dictMutex = 0;
 #ifdef QWS
@@ -115,7 +115,7 @@ public:
 	int ret = pthread_mutex_init( &mutex, &attr );
 	pthread_mutexattr_destroy(&attr);
 #else // !Q_SET_MUTEX_TYPE
-	int ret = pthread_mutex_init( &mutex, NULL );
+	int ret = pthread_mutex_init( &mutex, 0 );
 #endif // Q_SET_MUTEX_TYPE
 
 #ifdef QT_CHECK_RANGE
@@ -376,7 +376,7 @@ public:
 
     QWaitConditionPrivate()
     {
-	int ret = pthread_cond_init(&cond, NULL);
+	int ret = pthread_cond_init(&cond, 0);
 
 #ifdef QT_CHECK_RANGE
 	if (ret)
@@ -533,7 +533,7 @@ public:
 
     QMutexPrivate(bool = FALSE)
     {
-	int ret = mutex_init( &mutex, NULL, NULL );
+	int ret = mutex_init( &mutex, 0, 0 );
 
 #ifdef QT_CHECK_RANGE
 	if( ret )
@@ -617,7 +617,7 @@ public:
     QRMutexPrivate()
 	: QMutexPrivate(TRUE)
     {
-	int ret = mutex_init( &mutex2, NULL, NULL );
+	int ret = mutex_init( &mutex2, 0, 0 );
 
 #ifdef QT_CHECK_RANGE
 	if (ret)
@@ -737,7 +737,7 @@ public:
 	that->d->running = TRUE;
 	that->d->finished = FALSE;
 
-	int ret = thr_create( NULL, NULL, start_thread, that, THR_DETACHED,
+	int ret = thr_create( 0, 0, start_thread, that, THR_DETACHED,
 			      &thread_id );
 
 #ifdef QT_CHECK_RANGE
@@ -780,7 +780,7 @@ public:
 
     QWaitConditionPrivate()
     {
-	int ret = cond_init(&cond, NULL, NULL );
+	int ret = cond_init( &cond, 0, 0 );
 
 #ifdef QT_CHECK_RANGE
 	if (ret)
