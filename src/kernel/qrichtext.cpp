@@ -1751,7 +1751,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			    curtag.alignment = Qt::AlignJustify;
 		    }
 		    curpar->setAlignment( curtag.alignment );
-		    if ( attr.contains( "dir" ) && 
+		    if ( attr.contains( "dir" ) &&
 			 ( curtag.name == "p" ||
 			   curtag.name == "div" ||
 			   curtag.name == "li" ||
@@ -1891,7 +1891,7 @@ static QString align_to_string( const QString &tag, int a )
 
 static QString direction_to_string( const QString &tag, int d )
 {
-    if ( d == QChar::DirR && 
+    if ( d == QChar::DirR &&
 	 ( tag == "p" || tag == "div" || tag == "li" || tag[ 0 ] == 'h' ) )
 	return " dir=\"rtl\"";
     return "";
@@ -1930,7 +1930,7 @@ QString QTextDocument::richText( QTextParag *p ) const
 		if ( item->name() == "li" && p->listValue() != -1 )
 		    s += "<li value=\"" + QString::number( p->listValue() ) + "\">";
 		else
-		    s += "<" + item->name() + align_to_string( item->name(), p->alignment() ) 
+		    s += "<" + item->name() + align_to_string( item->name(), p->alignment() )
 			 + direction_to_string( item->name(), p->direction() )  + ">" +
 		     p->richText() + "</" + item->name() + ">\n";
 	    } else {
@@ -1941,7 +1941,7 @@ QString QTextDocument::richText( QTextParag *p ) const
 		    end.prepend( "</" + lastItems[ i ]->name() + ">" );
 		}
 		s += end;
-		s += "<p" + align_to_string( "p", p->alignment() ) + direction_to_string( "p", p->direction() ) 
+		s += "<p" + align_to_string( "p", p->alignment() ) + direction_to_string( "p", p->direction() )
 		     + ">" + p->richText() + "</p>\n";
 		lastItems = items;
 	    }
@@ -4663,7 +4663,7 @@ void QTextParag::hide()
 }
 
 void QTextParag::setDirection( QChar::Direction d )
-{  
+{
     if ( str ) {
 	str->setRightToLeft( (d == QChar::DirR) );
 	setChanged( TRUE );
@@ -4671,7 +4671,7 @@ void QTextParag::setDirection( QChar::Direction d )
 	format( -1, TRUE );
     }
 }
- 
+
 QChar::Direction QTextParag::direction() const
 {
     QChar::Direction d = QChar::DirL;
@@ -4768,7 +4768,7 @@ QTextParagLineStart *QTextFormatter::bidiReorderLine( QTextParag */*parag*/, QTe
     int x = startChar->x;
 
     QPtrList<QTextRun> *runs;
-    runs = QComplexText::bidiReorderLine(control, str, 0, last - start + 1, 
+    runs = QComplexText::bidiReorderLine(control, str, 0, last - start + 1,
 					 (text->isRightToLeft() ? QChar::DirR : QChar::DirL) );
 
     // now construct the reordered string out of the runs...
@@ -5189,6 +5189,9 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	    ww = c->format()->width( ' ' );
 	}
 
+	if ( i == len - 1 )
+	    ww = 0;
+	
 	if ( c->isCustom() && c->customItem()->ownLine() ) {
 	    x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), left, 4 ) : left;
 	    w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), parag->rect().height(), rm, 4 ) : 0 );
