@@ -70,7 +70,8 @@ struct QFontDef {
     QFontDef()
 	: pixelSize(0), pointSize(0), lbearing(SHRT_MIN), rbearing(SHRT_MIN),
 	  styleStrategy(QFont::PreferDefault), styleHint(QFont::AnyStyle),
-	  weight(0), italic(FALSE), underline(FALSE), strikeOut(FALSE),
+	  weight(0), stretch( 100 ),
+	  italic(FALSE), underline(FALSE), strikeOut(FALSE),
 	  fixedPitch(FALSE), hintSetByUser(FALSE), rawMode(FALSE), dirty(TRUE)
     { ; }
 
@@ -86,14 +87,16 @@ struct QFontDef {
     uchar styleHint;
     uchar weight;
 
-    bool italic;
-    bool underline;
-    bool strikeOut;
-    bool fixedPitch;
-    bool hintSetByUser;
-    bool rawMode;
+    uint stretch       : 12;
 
-    bool dirty;
+    bool italic        : 1;
+    bool underline     : 1;
+    bool strikeOut     : 1;
+    bool fixedPitch    : 1;
+    bool hintSetByUser : 1;
+    bool rawMode       : 1;
+
+    bool dirty         : 1;
 };
 
 
@@ -150,6 +153,8 @@ public:
     virtual int scale() const { return 1; }
 
     virtual Type type() const = 0;
+
+    int cache_cost;
 };
 
 
