@@ -2216,9 +2216,13 @@ void QObject::activate_signal( QConnectionList *clist, QUObject *o )
 		delete sol;
 	}
     } else {
+	QConnection *cd = 0;
 	QConnectionListIt it(*clist);
 	while ( (c=it.current()) ) {
 	    ++it;
+	    if ( c == cd )
+		continue;
+	    cd = c;
 	    object = c->object();
 	    sol = object->senderObjects;
 	    if ( sol ) {
