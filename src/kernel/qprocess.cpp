@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qprocess.cpp#29 $
 **
 ** Implementation of QProcess class
 **
@@ -105,6 +105,11 @@
   \printuntil // Keep in mind that the data might be reported in chunks.
   \skipto }
   \printline }
+
+  Please note that you need the quotes for the file on the command line, but
+  you must not give the quotes to the QProcess: the command line shell
+  processes the string and splits it into the arguments, but the QProcess class
+  does not do this processing.
 
   The readyReadStdout() signal is emitted when there is new data on standard
   output. This happens asynchronous: you don't know if more data will arrive
