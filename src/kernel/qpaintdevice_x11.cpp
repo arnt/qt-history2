@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#71 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#72 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -19,7 +19,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#71 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#72 $");
 
 
 /*!
@@ -117,7 +117,7 @@ QPaintDevice::~QPaintDevice()
 /*!
   \fn int QPaintDevice::devType() const
   Returns the device type identifier: \c PDT_WIDGET, \c PDT_PIXMAP,
-  \c PDT_PRINTER, \c PDT_PICTURE or \c PDT_UNKNOWN.
+  \c PDT_PRINTER, \c PDT_PICTURE or \c PDT_UNDEF.
 */
 
 /*!
