@@ -1811,7 +1811,7 @@ bool PropertyColorItem::hasCustomContents() const
 void PropertyColorItem::drawCustomContents( QPainter *p, const QRect &r )
 {
     p->save();
-    p->setPen( QPen( black, 1 ) );
+    p->setPen(QPen(Qt::black, 1));
     p->setBrush( val.toColor() );
     p->drawRect( r.x() + 2, r.y() + 2, r.width() - 5, r.height() - 5 );
     p->restore();
@@ -2306,7 +2306,7 @@ void PropertyPaletteItem::drawCustomContents( QPainter *p, const QRect &r )
     r2.setY( r2.y() + 2 );
     r2.setWidth( r2.width() - 3 );
     r2.setHeight( r2.height() - 3 );
-    p->setPen( QPen( black, 1 ) );
+    p->setPen( QPen(Qt::black, 1) );
     p->setBrush( pal.active().background() );
     p->drawRect( r2 );
     p->restore();
