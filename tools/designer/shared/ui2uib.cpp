@@ -351,6 +351,9 @@ static int outputObject( QMap<int, QStringList>& buddies,
 	objects.setName( objectNo,
 			 DomTool::readProperty(elem, "name", "unnamed")
 			 .asString() );
+#if defined(Q_CC_GNU)
+#warning "missing return statement at end of non-void function \"outputObject\""
+#endif
 }
 
 static void outputBlock( QDataStream& out, BlockTag tag,
