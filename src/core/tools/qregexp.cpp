@@ -2931,11 +2931,12 @@ int QRegExpEngine::parse(const QChar *pattern, int len)
         QMap<int, int> &anchors = *sinit->anchors;
         QMap<int, int>::ConstIterator a;
         for (a = anchors.begin(); a != anchors.end(); ++a) {
+            if (
 #ifndef QT_NO_REGEXP_ANCHOR_ALT
-            if ((*a & Anchor_Alternation) != 0)
-                break;
+                (*a & Anchor_Alternation) != 0 ||
 #endif
-            if ((*a & Anchor_Caret) == 0) {
+                (*a & Anchor_Caret) == 0)
+            {
                 caretAnchored = false;
                 break;
             }
