@@ -797,12 +797,12 @@ CGImageRef qt_mac_create_cgimage(const QPixmap &px, Qt::PixmapDrawingMode mode)
         char *out_addr = (char*)malloc(w*h);
         provider = CGDataProviderCreateWithData(0, out_addr, w*h, qt_mac_mask_data_free);
         
-        const QRgb c0 = (QColor(Qt::color0).rgb() & 0xFFFFFF); //duplicated
+        const QRgb c0 = (QColor(Qt::color0).rgb() & 0xFFFFFF);
         for(int yy = 0; yy < h; yy++) {
             char *out_row = out_addr + (yy * px.width());
             ulong *in_row = reinterpret_cast<ulong*>(reinterpret_cast<char *>(addr) + (yy * bpl));
             for(int xx = 0; xx < w; xx++) 
-                *(out_row+xx) = *(in_row+xx) == c0 ? 255 : 0;
+                *(out_row+xx) = ((*(in_row+xx) & c0) == c0) ? 255 : 0;
         }
         image = CGImageMaskCreate(px.width(), px.height(), 8, 8, px.width(), provider, 0, true);
     } else {
@@ -821,16 +821,15 @@ CGImageRef qt_mac_create_cgimage(const QPixmap &px, Qt::PixmapDrawingMode mode)
                         *(drow + (xx*4)) = 255-(*(arow + xx) & 0xFF);
                 }
             } else if(const QBitmap *mask = px.mask()) {
-                char *drow;
-                long *mptr = reinterpret_cast<long*>(GetPixBaseAddr(GetGWorldPixMap(qt_macQDHandle(mask)))),
-                *mrow;
+                char *mptr = reinterpret_cast<char*>(GetPixBaseAddr(GetGWorldPixMap(qt_macQDHandle(mask))));
                 unsigned short mbpr = GetPixRowBytes(GetGWorldPixMap(qt_macQDHandle(mask)));
                 const int h = mask->height(), w = mask->width();
+                const QRgb c0 = (QColor(Qt::color0).rgb() & 0xFFFFFF);
                 for(int yy=0; yy<h; yy++) {
-                    mrow = reinterpret_cast<long*>(reinterpret_cast<char*>(mptr) + (yy * mbpr));
-                    drow = addr + (yy * bpl);
+                    ulong *mrow = reinterpret_cast<ulong*>(mptr + (yy * mbpr));
+                    char *drow = addr + (yy * bpl);
                     for(int xx=0;xx<w;xx++) 
-                        *(drow + (xx*4)) = (*(mrow + xx) & 0x01) ? 0 : 255;
+                        *(drow + (xx*4)) = ((*(mrow + xx) & c0) == c0) ? 0 : 255;
                 }
             } else {
                 mode = Qt::CopyPixmap; //there isn't really a "mask"
@@ -845,10 +844,6 @@ CGImageRef qt_mac_create_cgimage(const QPixmap &px, Qt::PixmapDrawingMode mode)
     CGDataProviderRelease(provider);
     {
         px.data->cgimage = image;
-        CGImageRetain(px.data->cgimage);
-        CGImageRetain(px.data->cgimage);
-        CGImageRetain(px.data->cgimage);
-        CGImageRetain(px.data->cgimage);
         CGImageRetain(px.data->cgimage);
     }
     return image;
