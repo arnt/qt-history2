@@ -1046,7 +1046,11 @@ bool QDir::match( const QStringList &filters, const QString &fileName )
 {
     QStringList::ConstIterator sit = filters.begin();
     while ( sit != filters.end() ) {
-	QRegExp rx( *sit, FALSE, TRUE );
+#if defined(_OS_FATFS_) && !defined(_OS_UNIX_)
+	QRegExp rx( *sit, FALSE, TRUE ); // The FAT FS is not case sensitive..
+#else
+	QRegExp rx( *sit, TRUE, TRUE );  // ..while others are.
+#endif
 	if ( rx.match(fileName) )
 	    return TRUE;
 	++sit;
