@@ -1593,21 +1593,21 @@ void QWorkspace::tile()
             if (p.y() > height())
                 p.setY(height() - c->height());
 
-
             if (p != c->pos())
                 c->QFrame::move(p);
         } else {
             c->showNormal();
             qApp->sendPostedEvents(0, QEvent::ShowNormal);
             used[row*cols+col] = true;
+            QSize sz(w, h + add ? h : 0);
+            sz = sz.expandedTo(c->windowWidget()->minimumSize()).boundedTo(c->windowWidget()->maximumSize());
+            sz += c->baseSize();
             if (add) {
-                c->setGeometry(col*w, row*h, qMin(w, c->windowWidget()->maximumWidth()+c->baseSize().width()),
-                                              qMin(2*h, c->windowWidget()->maximumHeight()+c->baseSize().height()));
+                c->setGeometry(col*w, row*h, sz.width(), sz.height());
                 used[(row+1)*cols+col] = true;
                 add--;
             } else {
-                c->setGeometry(col*w, row*h, qMin(w, c->windowWidget()->maximumWidth()+c->baseSize().width()),
-                                              qMin(h, c->windowWidget()->maximumHeight()+c->baseSize().height()));
+                c->setGeometry(col*w, row*h, sz.width(), sz.height());
             }
             while(row < rows && col < cols && used[row*cols+col]) {
                 col++;
