@@ -1265,8 +1265,6 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
         if(mouse_down_unhandled)
             (*mouse_down_unhandled) = true;
         return false;
-    } else if(windowPart == inContent) {
-        return !popup_close_count; //just return and let the event loop process
     } else if(windowPart != inGoAway && windowPart != inCollapseBox) {
         bool set_active = true;
         if(windowPart == inZoomIn || windowPart == inZoomOut || windowPart == inDrag || windowPart == inGrow)
@@ -1278,6 +1276,9 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
                 widget->setActiveWindow();
         }
     }
+    if(windowPart == inContent)
+        return !popup_close_count; //just return and let the event loop process
+
     WindowPtr window = qt_mac_window_for((HIViewRef)widget->winId());
     if(windowPart == inGoAway || windowPart == inCollapseBox ||
        windowPart == inZoomIn || windowPart == inZoomOut) {

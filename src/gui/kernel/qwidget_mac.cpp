@@ -287,7 +287,7 @@ static EventTypeSpec widget_events[] = {
     { kEventClassControl, kEventControlDragEnter },
     { kEventClassControl, kEventControlDragWithin },
     { kEventClassControl, kEventControlDragLeave },
-    { kEventClassControl, kEventControlDragReceive },
+    { kEventClassControl, kEventControlDragReceive }
 };
 static EventHandlerUPP mac_widget_eventUPP = 0;
 static void cleanup_widget_eventUPP()
