@@ -52,8 +52,10 @@
 #include <errno.h>
 #endif
 
-// needed for QT_TRANSLATE_NOOP:
-#include "qobject.h"
+
+// Duplicated from qobject.h, but we cannot include qobject.h here since
+// it causes qmake to not build on irix g++
+#define QT_TRANSLATE_NOOP(scope,x) (x)
 
 const char* qt_fileerr_unknown	= QT_TRANSLATE_NOOP( "QFile", "Unknown error" );
 const char* qt_fileerr_read	= QT_TRANSLATE_NOOP( "QFile", "Could not read from the file" );
