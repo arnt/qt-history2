@@ -777,8 +777,9 @@ public:
     }
     void setCharset( OCIDefine* dfn )
     {
+	int r = 0;
+
 	if ( d->serverVersion > 8 ) {
-	    int r = 0;
 	    r = OCIAttrSet( (void*)dfn,
 			    OCI_HTYPE_DEFINE,
 			    (void*)&CSID_NCHAR,
