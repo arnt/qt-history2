@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#31 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#32 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -55,6 +55,26 @@ const char *qGLVersion()
 {
     return QGL_VERSION_STR;
 }
+
+
+
+/*! \class QGL qgl.h
+  \brief The QGL class is a namespace for miscellaneous identifiers
+  in the Qt OpenGL Extension.
+
+  \extension OpenGL
+
+  Normally, you can ignore this class. QGLWidget and the other OpenGL
+  Extension classes inherit it, so when you make your own QGLWidget
+  subclass, you can use the identifiers in the QGL namespace without
+  qualification.
+
+  However, occasionally you may find yourself in situations where you
+  need ot refer to these identifiers from outside the QGL namespace
+  scope, e.g. in static utility functions. In such cases, simply write
+  e.g. \c QGL::DoubleBuffer instead just \c DoubleBuffer.
+
+*/
 
 
 /*****************************************************************************
