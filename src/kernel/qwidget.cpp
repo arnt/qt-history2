@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#112 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#113 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#112 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#113 $")
 
 
 /*----------------------------------------------------------------------------
@@ -267,9 +267,9 @@ void QWidget::createExtra()
 	extra = new QWExtra;
 	CHECK_PTR( extra );
 	extra->guistyle = QApplication::style();// default style
-	extra->minw = extra->minh = -1;
-	extra->maxw = extra->maxh = -1;
-	extra->incw = extra->inch = -1;
+	extra->minw = extra->minh = 0;
+	extra->maxw = extra->maxh = QCOORD_MAX;
+	extra->incw = extra->inch = 0;
 	extra->caption = extra->iconText = 0;
 	extra->icon = extra->bg_pix = 0;
     }
@@ -578,66 +578,42 @@ QRect QWidget::childrenRect() const
 
 
 /*----------------------------------------------------------------------------
-  Returns TRUE if a minimum widget size has been set, or FALSE if
-  it has not been set.
+  Returns the minimum widget size.
 
-  If a minimum size has been set, it is returned in \e *w and \e *h.
+  The widget cannot be resized to a smaller size than the minimum widget
+  size.
 
-  Note that while you can set the minimum size for all widgets, it has
-  no effect except for top-level widgets.
-
-  \sa setMinimumSize()
+  \sa setMinSize(), maxSize(), sizeIncrement()
  ----------------------------------------------------------------------------*/
 
-bool QWidget::minimumSize( int *w, int *h ) const
+QSize QWidget::minSize() const
 {
-    if ( extra && extra->minw >= 0 && w && h) {
-	*w = extra->minw;
-	*h = extra->minh;
-	return TRUE;
-    }
-    return FALSE;
+    return extra ? QSize(extra->minw,extra->minh) : QSize(0,0);
 }
 
 /*----------------------------------------------------------------------------
-  Returns TRUE if a maximum widget size has been set, or FALSE if
-  it has not been set.
+  Returns the maximum widget size.
 
-  If a mazimum size has been set, it returned in \e *w and \e *h.
+  The widget cannot be resized to a larger size than the maximum widget
+  size.
 
-  Note that while you can set the minimum size for all widgets, it has
-  no effect except for top-level widgets.
-
-  \sa setMaximumSize()
+  \sa setMaxSize(), minSize(), sizeIncrement()
  ----------------------------------------------------------------------------*/
 
-bool QWidget::maximumSize( int *w, int *h ) const
+QSize QWidget::maxSize() const
 {
-    if ( extra && extra->maxw >= 0 && w && h ) {
-	*w = extra->maxw;
-	*h = extra->maxh;
-	return TRUE;
-    }
-    return FALSE;
+    return extra ? QSize(extra->maxw,extra->maxh) : QSize(0,0);
 }
 
 /*----------------------------------------------------------------------------
-  Returns TRUE if a widget size increment has been set, or FALSE if
-  it has not been set.
+  Returns the widget size increment.
 
-  If a size increment has been set, it returned in \e *w and \e *h.
-
-  \sa setSizeIncrement()
+  \sa setSizeIncrement(), minSize(), maxSize()
  ----------------------------------------------------------------------------*/
 
-bool QWidget::sizeIncrement( int *w, int *h ) const
+QSize QWidget::sizeIncrement() const
 {
-    if ( extra && extra->incw >= 0 && w && h ) {
-	*w = extra->incw;
-	*h = extra->inch;
-	return TRUE;
-    }
-    return FALSE;
+    return extra ? QSize(extra->incw,extra->inch) : QSize(0,0);
 }
 
 

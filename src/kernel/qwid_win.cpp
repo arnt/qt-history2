@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#36 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -19,14 +19,14 @@
 #include "qobjcoll.h"
 
 #if defined(_CC_BOOL_DEF_)
-#undef  bool
+#undef	bool
 #include <windows.h>
 #define bool int
 #else
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#35 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#36 $")
 
 
 const char *qt_reg_winclass( int type );	// defined in qapp_win.cpp
@@ -114,7 +114,7 @@ bool QWidget::create()
 	QWidget *otherDesktop = find( id );	// is there another desktop?
 	if ( otherDesktop && otherDesktop->testWFlags(WPaintDesktop) ) {
 	    otherDesktop->setWinId( 0 );	// remove id from widget mapper
-	    set_id( id );			// make sure otherDesktop is
+	    setWinId( id );			// make sure otherDesktop is
 	    otherDesktop->setWinId( id );	//   found first
 	} else {
 	    setWinId( id );
@@ -144,6 +144,7 @@ bool QWidget::create()
 	w = h = 40;
 	id = CreateWindow( wcln, title, style, x, y, w, h,
 			   parentw, NULL, appinst, NULL );
+	SetWindowPos( id, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE );
 	setWinId( id );
     }
 
@@ -194,7 +195,7 @@ bool QWidget::destroy()
 	    qt_close_popup( this );
 	if ( !testWFlags(WType_Desktop) )
 	    DestroyWindow( winId() );
-	set_id( 0 );
+	setWinId( 0 );
     }
     return TRUE;
 }
@@ -486,12 +487,12 @@ void QWidget::show()
 	QWidget *widget;
 	while ( it ) {				// show all widget children
 	    object = it.current();		//   (except popups)
+	    ++it;
 	    if ( object->isWidgetType() ) {
 		widget = (QWidget*)object;
 		if ( !widget->testWFlags(WExplicitHide) )
 		    widget->show();
 	    }
-	    ++it;
 	}
     }
     if ( testWFlags(WType_Popup) )
@@ -556,8 +557,7 @@ void QWidget::move( int x, int y )
     if ( testWFlags(WConfigPending) )		// processing config event
 	qWinRequestConfig( winId(), 0, x, y, 0, 0 );
     else {
-	if ( !testWFlags(WState_Visible) )
-	    setFRect( QRect(x,y,frect.width(),frect.height()) );
+	setFRect( QRect(x,y,frect.width(),frect.height()) );
 	setWFlags( WConfigPending );
 	MoveWindow( winId(), x, y, frect.width(), frect.height(), TRUE );
 	clearWFlags( WConfigPending );
@@ -573,8 +573,7 @@ void QWidget::resize( int w, int h )
 	int y = frect.y();
 	w += frect.width()  - crect.width();
 	h += frect.height() - crect.height();
-	if ( !testWFlags(WState_Visible) )
-	    setFRect( QRect(x,y,w,h) );
+	setFRect( QRect(x,y,w,h) );
 	setWFlags( WConfigPending );
 	MoveWindow( winId(), x, y, w, h, TRUE );
 	clearWFlags( WConfigPending );
@@ -586,8 +585,9 @@ void QWidget::setGeometry( int x, int y, int w, int h )
     if ( testWFlags(WConfigPending) )		// processing config event
 	qWinRequestConfig( winId(), 2, x, y, w, h );
     else {
-	if ( !testWFlags(WState_Visible) )
-	    setFRect( QRect(x,y,w,h) );
+	w += frect.width()  - crect.width();
+	h += frect.height() - crect.height();
+	setFRect( QRect(x,y,w,h) );
 	setWFlags( WConfigPending );
 	MoveWindow( winId(), x, y, w, h, TRUE );
 	clearWFlags( WConfigPending );
@@ -595,18 +595,39 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 }
 
 
-void QWidget::setMinimumSize( int w, int h )
+void QWidget::setMinSize( int w, int h )
 {
+#if defined(CHECK_RANGE)
+    if ( w < 0 || h < 0 )
+	warning( "QWidget::setMinSize: The smallest allowed size is (0,0)" );
+#endif
     createExtra();
-    extra->minw = w;
-    extra->minh = h;
+    extra->minw = w + frect.width()  - crect.width();
+    extra->minh = h + frect.height() - crect.height();
+#if 0
+    int minw = QMIN(w,crect.width());
+    int minh = QMIN(h,crect.height());
+    if ( minw < w || minh < h )
+	resize( minw, minh );
+#endif
 }
 
-void QWidget::setMaximumSize( int w, int h )
+void QWidget::setMaxSize( int w, int h )
 {
+#if defined(CHECK_RANGE)
+    if ( w > QCOORD_MAX || h > QCOORD_MAX )
+	warning( "QWidget::setMaxSize: The largest allowed size is (%d,%d)",
+		 QCOORD_MAX, QCOORD_MAX );
+#endif
     createExtra();
-    extra->maxw = w;
-    extra->maxh = h;
+    extra->maxw = w + frect.width()  - crect.width();
+    extra->maxh = h + frect.height() - crect.height();
+#if 0
+    int maxw = QMAX(w,crect.width());
+    int maxh = QMAX(h,crect.height());
+    if ( maxw > w || maxh > h )
+	resize( maxw, maxh );
+#endif
 }
 
 void QWidget::setSizeIncrement( int w, int h )

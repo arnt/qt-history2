@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#77 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#78 $
 **
 ** Definition of QWidget class
 **
@@ -68,12 +68,23 @@ public:
     QRect	 rect()		const;
     QRect	 childrenRect() const;
 
+#if defined(OBSOLETE)
     void	 setMinimumSize( int w, int h );
     void	 setMaximumSize( int w, int h );
-    void	 setSizeIncrement( int w, int h );
     bool	 minimumSize( int *w, int *h )	 const;
-    bool	 maximumSize( int *w, int *h )   const;
+    bool	 maximumSize( int *w, int *h )	 const;
     bool	 sizeIncrement( int *w, int *h ) const;
+#endif
+    QSize	 minSize()	const;
+    QSize	 maxSize()	const;
+    void	 setMinSize( const QSize & );
+    void	 setMinSize( int w, int h );
+    void	 setMaxSize( const QSize & );
+    void	 setMaxSize( int w, int h );
+
+    QSize	 sizeIncrement() const;
+    void	 setSizeIncrement( const QSize & );
+    void	 setSizeIncrement( int w, int h );
 
   // Widget coordinate mapping
 
@@ -105,12 +116,12 @@ public:
     const QCursor &cursor() const;
     virtual void setCursor( const QCursor & );
 
-    const char  *caption()	const;
-    void    	 setCaption( const char * );
+    const char	*caption()	const;
+    void	 setCaption( const char * );
     const QPixmap *icon()	const;
-    void    	 setIcon( const QPixmap & );
-    const char  *iconText()	const;
-    void    	 setIconText( const char * );
+    void	 setIcon( const QPixmap & );
+    const char	*iconText()	const;
+    void	 setIconText( const char * );
 
     bool	 hasMouseTracking() const;
     void	 setMouseTracking( bool enable );
@@ -274,7 +285,7 @@ inline WId QWidget::winId() const
 
 #if defined(OBSOLETE)
 inline WId QWidget::id() const
-{ return winid; }
+{ qObsolete("QWidget","id","winId"); return winid; }
 #endif
 
 inline bool QWidget::isTopLevel() const
@@ -294,13 +305,13 @@ inline bool QWidget::isEnabled() const
 
 #if defined(OBSOLETE)
 inline void QWidget::enable()
-{ setEnabled(TRUE); }
+{ qObsolete("QWidget","enable","setEnabled(TRUE)"); setEnabled(TRUE); }
 
 inline void QWidget::disable()
-{ setEnabled(FALSE); }
+{ qObsolete("QWidget","disable","setEnabled(FALSE)"); setEnabled(FALSE); }
 
 inline bool QWidget::isDisabled() const
-{ return !isEnabled(); }
+{ qObsolete("QWidget","isDisabled","!isEnabled()"); return !isEnabled(); }
 #endif
 
 inline const QRect &QWidget::frameGeometry() const
@@ -330,6 +341,62 @@ inline int QWidget::height() const
 inline QRect QWidget::rect() const
 { return QRect(0,0,crect.width(),crect.height()); }
 
+inline void QWidget::setMinSize( const QSize &s )
+{ setMinSize(s.width(),s.height()); }
+
+inline void QWidget::setMaxSize( const QSize &s )
+{ setMaxSize(s.width(),s.height()); }
+
+inline void QWidget::setSizeIncrement( const QSize &s )
+{ setSizeIncrement(s.width(),s.height()); }
+
+#if defined(OBSOLETE)
+inline void QWidget::setMinimumSize( int w, int h )
+{
+    qObsolete( "QWidget", "setMinimumSize", "setMinSize" );
+    setMinSize( s.width(), s.height() );
+}
+
+inline void QWidget::setMaximumSize( int w, int h )
+{
+    qObsolete( "QWidget", "setMaximumSize", "setMaxSize" );
+    setMaximumSize( s.width(), s.height() );
+}
+
+inline bool QWidget::minimumSize( int *w, int *h )
+{
+    qObsolete( "QWidget", "minimumSize", "minSize" );
+    if ( extra && extra->minw >= 0 && w && h) {
+	*w = extra->minw;
+	*h = extra->minh;
+	return TRUE;
+    }
+    return FALSE;
+}
+
+inline bool QWidget::maximumSize( int *w, int *h )
+{
+    qObsolete( "QWidget", "maximumSize", "maxSize" );
+    if ( extra && extra->maxw >= 0 && w && h ) {
+	*w = extra->maxw;
+	*h = extra->maxh;
+	return TRUE;
+    }
+    return FALSE;
+}
+
+inline bool QWidget::sizeIncrement( int *w, int *h ) const
+{
+    qObsolete( "QWidget", "sizeIncrement", "QSize sizeIncrement()" );
+    if ( extra && extra->incw >= 0 && w && h ) {
+	*w = extra->incw;
+	*h = extra->inch;
+	return TRUE;
+    }
+    return FALSE;
+}
+#endif
+
 inline const QColor &QWidget::backgroundColor() const
 { return bg_col; }
 
@@ -354,6 +421,7 @@ inline bool QWidget::isUpdatesEnabled() const
 #if defined(OBSOLETE)
 inline bool QWidget::enableUpdates( bool enable )
 {
+    qObsolete("QWidget","enableUpdates","isUpdatesEnabled/setUpdatesEnabled");
     bool last=isUpdatesEnabled();
     setUpdatesEnabled(enable);
     return last;
