@@ -663,13 +663,13 @@ bool QUrl::parse( const QString& url )
     relPath = FALSE;
     bool forceRel = FALSE;
 
-    // if :/ is at pos 1, we have only one letter
+    // If ':' is at pos 1, we have only one letter
     // before that separator => that's a drive letter!
-    int cs = url_.find( ":/" );
-    if ( cs == 1 )
+    if ( url_.length() >= 2 && url_[1] == ':' )
 	relPath = forceRel = TRUE;
 
     int hasNoHost = -1;
+    int cs = url_.find( ":/" );
     if ( cs != -1 ) // if a protocol is there, find out if there is a host or directly the path after it
 	hasNoHost = url_.find( "///", cs );
     table[ 4 ][ 1 ] = User;
