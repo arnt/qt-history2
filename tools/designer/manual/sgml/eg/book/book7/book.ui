@@ -1,7 +1,8 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>BookForm</class>
-<include location="local" impldecl="in declaration">qdatabrowser.h</include>
+<include location="global" impldecl="in declaration">qsqlrecord.h</include>
 <include location="local" impldecl="in declaration">editbook.h</include>
+<include location="global" impldecl="in declaration">qdatabrowser.h</include>
 <widget class="QDialog">
     <property name="name">
         <cstring>BookForm</cstring>
@@ -10,8 +11,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>534</width>
-            <height>526</height>
+            <width>510</width>
+            <height>514</height>
         </rect>
     </property>
     <property name="caption">
@@ -169,12 +170,6 @@
     </connection>
     <connection>
         <sender>AuthorDataTable</sender>
-        <signal>primeInsert(QSqlRecord*)</signal>
-        <receiver>BookForm</receiver>
-        <slot>primeInsertAuthor(QSqlRecord*)</slot>
-    </connection>
-    <connection>
-        <sender>AuthorDataTable</sender>
         <signal>currentChanged(QSqlRecord*)</signal>
         <receiver>BookForm</receiver>
         <slot>newCurrentAuthor(QSqlRecord*)</slot>
@@ -189,10 +184,18 @@
     <function name="destroy()" >{
     
 }</function>
-    <function name="editClicked()" >{ 
-    EditBookForm *dialog = new EditBookForm( this, "Edit Book Form", TRUE ); 
-    dialog-&gt;exec(); 
-    delete dialog; 
+    <function name="editClicked()" >{
+    
+    EditBookForm *dialog = new EditBookForm( this, "Edit Book Form", TRUE );
+    QSqlCursor cur( "book" );
+    dialog-&gt;BookDataBrowser-&gt;setCursor( &amp;cur );
+    dialog-&gt;BookDataBrowser-&gt;setFilter( BookDataTable-&gt;filter() );
+    dialog-&gt;BookDataBrowser-&gt;setSort(QSqlIndex::fromStringList( 
+    	BookDataTable-&gt;sort(), &amp;cur ) );
+    dialog-&gt;BookDataBrowser-&gt;refresh();
+    dialog-&gt;BookDataBrowser-&gt;seek( BookDataTable-&gt;sqlCursor()-&gt;at() );
+    dialog-&gt;exec();
+    delete dialog;
 }</function>
     <function name="init()" >{
     

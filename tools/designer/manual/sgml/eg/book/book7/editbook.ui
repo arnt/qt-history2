@@ -10,8 +10,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>560</width>
-            <height>297</height>
+            <width>556</width>
+            <height>387</height>
         </rect>
     </property>
     <property name="caption">
@@ -43,7 +43,7 @@
                 </stringlist>
             </property>
             <property name="frameworkCode" stdset="0">
-                <bool>false</bool>
+                <bool>true</bool>
             </property>
             <grid>
                 <property name="name">
@@ -111,7 +111,58 @@
                         </widget>
                     </grid>
                 </widget>
-                <widget class="QLayoutWidget" row="1" column="0">
+                <widget class="QLayoutWidget" row="3" column="0">
+                    <property name="name">
+                        <cstring>Layout6</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <property name="margin">
+                            <number>0</number>
+                        </property>
+                        <property name="spacing">
+                            <number>6</number>
+                        </property>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>PushButtonInsert</cstring>
+                            </property>
+                            <property name="text">
+                                <string>&amp;Insert</string>
+                            </property>
+                        </widget>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>PushButtonUpdate</cstring>
+                            </property>
+                            <property name="text">
+                                <string>&amp;Update</string>
+                            </property>
+                            <property name="default">
+                                <bool>true</bool>
+                            </property>
+                        </widget>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>PushButtonDelete</cstring>
+                            </property>
+                            <property name="text">
+                                <string>&amp;Delete</string>
+                            </property>
+                        </widget>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>PushButtonClose</cstring>
+                            </property>
+                            <property name="text">
+                                <string>&amp;Close</string>
+                            </property>
+                        </widget>
+                    </hbox>
+                </widget>
+                <widget class="QLayoutWidget" row="2" column="0">
                     <property name="name">
                         <cstring>Layout3</cstring>
                     </property>
@@ -159,7 +210,7 @@
                         </widget>
                     </hbox>
                 </widget>
-                <widget class="QLayoutWidget" row="2" column="0">
+                <widget class="QLayoutWidget" row="1" column="0">
                     <property name="name">
                         <cstring>Layout6</cstring>
                     </property>
@@ -173,39 +224,30 @@
                         <property name="spacing">
                             <number>6</number>
                         </property>
-                        <widget class="QPushButton">
+                        <widget class="QLabel">
                             <property name="name">
-                                <cstring>PushButtonInsert</cstring>
+                                <cstring>TextLabel1</cstring>
                             </property>
                             <property name="text">
-                                <string>&amp;Insert</string>
+                                <string>Author</string>
                             </property>
                         </widget>
-                        <widget class="QPushButton">
+                        <widget class="QComboBox">
                             <property name="name">
-                                <cstring>PushButtonUpdate</cstring>
+                                <cstring>ComboBoxAuthor</cstring>
                             </property>
-                            <property name="text">
-                                <string>&amp;Update</string>
+                            <property name="sizePolicy">
+                                <sizepolicy>
+                                    <hsizetype>7</hsizetype>
+                                    <vsizetype>0</vsizetype>
+                                </sizepolicy>
                             </property>
-                            <property name="default">
-                                <bool>true</bool>
-                            </property>
-                        </widget>
-                        <widget class="QPushButton">
-                            <property name="name">
-                                <cstring>PushButtonDelete</cstring>
-                            </property>
-                            <property name="text">
-                                <string>&amp;Delete</string>
-                            </property>
-                        </widget>
-                        <widget class="QPushButton">
-                            <property name="name">
-                                <cstring>PushButtonClose</cstring>
-                            </property>
-                            <property name="text">
-                                <string>&amp;Close</string>
+                            <property name="database" stdset="0">
+                                <stringlist>
+                                    <string>(default)</string>
+                                    <string>author_view</string>
+                                    <string>name</string>
+                                </stringlist>
                             </property>
                         </widget>
                     </hbox>
@@ -282,32 +324,68 @@
         <slot>del()</slot>
     </connection>
     <connection>
+        <sender>PushButtonClose</sender>
+        <signal>clicked()</signal>
+        <receiver>EditBookForm</receiver>
+        <slot>accept()</slot>
+    </connection>
+    <connection>
         <sender>BookDataBrowser</sender>
         <signal>primeInsert(QSqlRecord*)</signal>
         <receiver>EditBookForm</receiver>
         <slot>primeInsertBook(QSqlRecord*)</slot>
     </connection>
     <connection>
-        <sender>PushButtonClose</sender>
-        <signal>clicked()</signal>
+        <sender>BookDataBrowser</sender>
+        <signal>primeInsert(QSqlRecord*)</signal>
         <receiver>EditBookForm</receiver>
-        <slot>accept()</slot>
+        <slot>primeInsertBook(QSqlRecord*)</slot>
+    </connection>
+    <connection>
+        <sender>BookDataBrowser</sender>
+        <signal>primeUpdate(QSqlRecord*)</signal>
+        <receiver>EditBookForm</receiver>
+        <slot>primeUpdateBook(QSqlRecord*)</slot>
     </connection>
     <slot access="protected" language="C++">init()</slot>
-    <slot access="protected" language="C++">destroy()</slot>
-    <slot access="public" language="C++">primeInsertBook( QSqlRecord *buffer )</slot>
+    <slot access="public" language="C++">beforeUpdateBook( QSqlRecord *buffer )</slot>
+    <slot access="public" language="C++">primeInsertBook( QSqlRecord * )</slot>
+    <slot access="protected" language="C++">primeUpdateBook( QSqlRecord *buffer )</slot>
 </connections>
 <functions>
-    <function name="destroy()" >{
-    
+    <function name="beforeUpdateBook(QSqlRecord*)" >{
+    QSqlQuery query( "SELECT id FROM author_view WHERE name='" + 
+	ComboBoxAuthor-&gt;currentText() + "';" );
+    if ( query.next() )
+	buffer-&gt;setValue( "authorid", query.value( 0 ) );
 }</function>
     <function name="init()" >{
-	 
+    // Re-populate the ComboBox (the database may have changed) 
+    QSqlQuery query( "SELECT name FROM author_view ORDER BY name;" );    
+    while ( query.next() ) 
+	ComboBoxAuthor-&gt;insertItem( query.value( 0 ).toString()); 
 }</function>
     <function name="primeInsertBook(QSqlRecord*)" >{
-    QSqlQuery query( "SELECT nextval('book_seq');" ); 
-    if ( query.next() ) 
-	buffer-&gt;setValue( "id", query.value( 0 ) );    
+    QSqlQuery query( "SELECT nextval('book_seq');" );   
+    if ( query.next() )   
+	buffer-&gt;setValue( "id", query.value( 0 ) );       
+}</function>
+    <function name="primeUpdateBook(QSqlRecord*)" >{
+    // Select this book's author  
+    QSqlQuery query( "SELECT name FROM author_view WHERE id=" +   
+    	buffer-&gt;value( "authorid" ).toString() + ";" ); 
+    QString author = "";
+    if ( query.next() )
+	author = query.value( 0 ).toString();    
+    int i; 
+    for( i = 0; i &lt; ComboBoxAuthor ) { 
+	ComboBoxAuthor-&gt;insertItem( query.value( 0 ).toString(), i ); 
+	if ( query.value( 0 ).toString() == author ) 
+	    authorIndex = i; 
+	i++; 
+    } 
+    // Scroll ComboBox to show the author 
+    ComboBoxAuthor-&gt;setCurrentItem( authorIndex );    
 }</function>
 </functions>
 </UI>

@@ -11,8 +11,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>522</width>
-            <height>520</height>
+            <width>514</width>
+            <height>516</height>
         </rect>
     </property>
     <property name="caption">
@@ -183,20 +183,22 @@
     <slot access="protected" language="C++">init()</slot>
     <slot access="protected" language="C++">destroy()</slot>
     <slot access="public" language="C++">editClicked()</slot>
-    <slot access="public" language="C++">newCurrentAuthor(QSqlRecord*author)</slot>
-    <slot access="public" language="C++">primeInsertAuthor(QSqlRecord*buffer)</slot>
+    <slot access="public" language="C++">newCurrentAuthor( QSqlRecord *author )</slot>
+    <slot access="public" language="C++">primeInsertAuthor( QSqlRecord *buffer )</slot>
 </connections>
 <functions>
     <function name="destroy()" >{
     
 }</function>
     <function name="editClicked()" >{
+    
     EditBookForm *dialog = new EditBookForm( this, "Edit Book Form", TRUE );
-    QSqlCursor cur( "book" );    
+    QSqlCursor cur( "book" );
     dialog-&gt;BookDataBrowser-&gt;setCursor( &amp;cur );
-    dialog-&gt;BookDataBrowser-&gt;setFilter( BookDataTable-&gt;filter() ); 
-    dialog-&gt;BookDataBrowser-&gt;setSort( QSqlIndex::fromStringList( BookDataTable-&gt;sort(), &amp;cur ) ); 
-    dialog-&gt;BookDataBrowser-&gt;refresh(); 
+    dialog-&gt;BookDataBrowser-&gt;setFilter( BookDataTable-&gt;filter() );
+    dialog-&gt;BookDataBrowser-&gt;setSort(QSqlIndex::fromStringList( 
+    	BookDataTable-&gt;sort(), &amp;cur ) );
+    dialog-&gt;BookDataBrowser-&gt;refresh();
     dialog-&gt;BookDataBrowser-&gt;seek( BookDataTable-&gt;sqlCursor()-&gt;at() );
     dialog-&gt;exec();
     delete dialog;
