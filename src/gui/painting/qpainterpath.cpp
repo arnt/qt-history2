@@ -556,18 +556,19 @@ QPainterPath QPainterPathPrivate::createStroke(const QPen &pen)
 
 /*!
     \class QPainterPath
-    \brief The QPainterPath class specifies a graphical shape.
+    \brief The QPainterPath class provides a container for painting operations,
+    enabling graphical shapes to be constructed and reused.
 
     A painter path is an object composed of a number of graphical
     building blocks, such as rectangles, ellipses, lines, and curves.
-    A painter path can be used for filling and outlining, and also for
-    clipping. The main advantage of painter paths over normal drawing
+    A painter path can be used for filling, outlining, and clipping.
+    The main advantage of painter paths over normal drawing
     operations is that it is possible to build up non-linear shapes
-    which can be drawn later one go.
+    which can be drawn later in one go.
 
     Building blocks can be joined in closed sub-paths, such as a
     rectangle or an ellipse, or they can exist independently as unclosed
-    sub-paths, although an unclosed path will not be filled.
+    sub-paths. Note that unclosed paths will not be filled.
 
     Below is a code snippet that shows how a path can be used. The
     painter in this case has a pen width of 3 and a light blue brush.
@@ -610,7 +611,7 @@ QPainterPath QPainterPathPrivate::createStroke(const QPen &pen)
 */
 
 /*!
- * Creates a new empty QPainterPath.
+ Constructs a new empty QPainterPath.
  */
 QPainterPath::QPainterPath()
 {
@@ -637,7 +638,7 @@ QPainterPath &QPainterPath::operator=(const QPainterPath &other)
 }
 
 /*!
-    Destructs the painter path.
+    Destroys the painter path.
 */
 QPainterPath::~QPainterPath()
 {
@@ -646,9 +647,9 @@ QPainterPath::~QPainterPath()
 
 /*!
     Closes the current subpath. If the subpath does not contain any
-    elements, the function does nothing. A new subpath is
-    automatically begun when the current subpath is closed. The
-    current point of the new path is in 0, 0.
+    elements, the function does nothing. A new subpath is automatically
+    begun when the current subpath is closed. The current point of the
+    new path is (0, 0).
 
     \sa beginSubpath()
  */
@@ -665,12 +666,16 @@ void QPainterPath::closeSubpath()
 
     \overload
 
-    Moves the current point to (\a{x}, \a{y}).
+    Moves the current point to (\a{x}, \a{y}). Moving the current
+    point will also start a new subpath. The previously current path
+    will not be closed implicitly before the new one is started.
 */
 
 /*!
-    Moves the current point to \a p. Moving the current point
-    will also start a new subpath. The previously current path
+    \fn void QPainterPath::moveTo(const QPointF &point)
+
+    Moves the current point to the given \a point. Moving the current
+    point will also start a new subpath. The previously current path
     will not be closed implicitly before the new one is started.
 */
 void QPainterPath::moveTo(const QPointF &p)
@@ -694,12 +699,17 @@ void QPainterPath::moveTo(const QPointF &p)
 
     \overload
 
-    Draws a line to point (\a{x}, \a{y}).
+    Draws a line from the current point to the point at (\a{x}, \a{y}).
+    After the line is drawn, the current point is updated to be at the
+    end point of the line.
 */
 
 /*!
-    Adds a straight line from the current point to the point \a p. The current
-    point is moved to \a p when this function returns.
+    \fn void QPainterPath::lineTo(const QPointF &endPoint)
+
+    Adds a straight line from the current point to the given \a endPoint.
+    After the line is drawn, the current point is updated to be at the
+    end point of the line.
  */
 void QPainterPath::lineTo(const QPointF &p)
 {
@@ -712,15 +722,19 @@ void QPainterPath::lineTo(const QPointF &p)
 
     \overload
 
-    Adds a Bezier curve with control points (\a{ctrlPt1x},
-    \a{ctrlPt1y}), (\a{ctrlPt2x}, \a{ctrlPt2y}), and end points,
-    (\a{endPtx}, \a{endPty}).
+    Adds a Bezier curve between the current point and the endpoint
+    (\a{endPtx}, \a{endPty}) with control points specified by
+    (\a{ctrlPt1x}, \a{ctrlPt1y}) and (\a{ctrlPt2x}, \a{ctrlPt2y}).
+    After the curve is added, the current point is updated to be at
+    the end point of the curve.
 */
 
 /*!
-    Adds a Bezier curve starting in the current point with control points \a c1, and \a c2,
-    ending in \a e. The current point is moved to \a e when this function returns.
+    \fn void QPainterPath::curveTo(const QPointF &c1, const QPointF &c2, const QPointF &endPoint)
 
+    Adds a Bezier curve between the current point and \a endPoint with control
+    points specified by \a c1, and \a c2. After the curve is added, the current
+    point is updated to be at the end point of the curve.
 */
 void QPainterPath::curveTo(const QPointF &c1, const QPointF &c2, const QPointF &e)
 {
@@ -733,16 +747,20 @@ void QPainterPath::curveTo(const QPointF &c1, const QPointF &c2, const QPointF &
 
     \overload
 
-    The arc's rectangle is at point (\a{x}, \a{y}) and has the given
-    \a width and \a height.
+    The arc's lies within the rectangle given by the point (\a{x}, \a{y}),
+    \a width and \a height, beginning at \a startAngle and extending
+    \a sweepLength degrees anti-clockwise.
+    Angles are specified in degrees. This function connects the current point
+    to the starting point of the arc if they are not already connected.
 */
 
 /*!
-    Creates an  arc which occupies the notional rectangle \a rect,
-    starting at the given \a startAngle, and extending for \a
-    sweepLength degrees anti-clockwise. Angles are specified
-    in degrees. This function connects the current point to
-    the starting point of the arc if they are not already connected.
+    \fn void QPainterPath::arcTo(const QRectF &rectangle, float startAngle, float sweepLength)
+
+    Creates an arc that occupies the given \a rectangle, beginning at
+    \a startAngle and extending \a sweepLength degrees anti-clockwise.
+    Angles are specified in degrees. This function connects the current point
+    to the starting point of the arc if they are not already connected.
 */
 void QPainterPath::arcTo(const QRectF &rect, float startAngle, float sweepLength)
 {
@@ -754,16 +772,18 @@ void QPainterPath::arcTo(const QRectF &rect, float startAngle, float sweepLength
 
     \overload
 
-    Adds a rectangle at position (\a{x}, \a{y}), with the given \a
-    width and \a height.
-
+    Adds a rectangle at position (\a{x}, \a{y}), with the given \a width and
+    \a height. The rectangle is added as a clockwise set of lines. An empty
+    subpath with current position at (0, 0) is in use after this function
+    returns.
 */
 
 /*!
-    Adds rectangle, \a r, as a closed subpath to this path. The
-    rectangle is added as a clockwise set of lines. An empty subpath
-    with current position at (0, 0) is in use after this function
-    returns.
+    \fn void QPainterPath::addRect(const QRectF &rectangle)
+
+    Adds the \a rectangle to this path as a closed subpath. The rectangle
+    is added as a clockwise set of lines. An empty subpath with current
+    position at (0, 0) is in use after this function returns.
 */
 void QPainterPath::addRect(const QRectF &r)
 {
@@ -812,7 +832,7 @@ void QPainterPath::transform(const QMatrix &matrix)
     Returns the fill mode of the painter path. The default fill mode
     is OddEven.
 
-    \sa FillMode, setFillMode()
+    \sa FillMode setFillMode()
 */
 QPainterPath::FillMode QPainterPath::fillMode() const
 {
@@ -820,7 +840,7 @@ QPainterPath::FillMode QPainterPath::fillMode() const
 }
 
 /*!
-    Sets the fill mode of the painterpath to \a fillMode.
+    Sets the fill mode of the painter path to \a fillMode.
 
     \sa FillMode, fillMode
 */
@@ -830,7 +850,8 @@ void QPainterPath::setFillMode(QPainterPath::FillMode fillMode)
 }
 
 /*!
-    Returns the bounding rectangle of this painter path
+    Returns the bounding rectangle of this painter path as a rectangle with
+    floating point precision.
 */
 QRectF QPainterPath::boundingRect() const
 {
@@ -845,7 +866,7 @@ QRectF QPainterPath::boundingRect() const
 }
 
 /*!
-    Returns true if there are no elements in this path
+    Returns true if there are no elements in this path.
 */
 bool QPainterPath::isEmpty() const
 {
