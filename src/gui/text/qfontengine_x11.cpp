@@ -1207,7 +1207,7 @@ bool QFontEngineXft::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
     return true;
 }
 
-static Q26Dot6Offset map(const QWMatrix &m, Q26Dot6Offset &pos)
+static Q26Dot6Offset q_map(const QWMatrix &m, Q26Dot6Offset &pos)
 {
     Q26Dot6Offset ret;
     ret.x = m.m11()*pos.x + m.m21()*pos.y;
@@ -1404,7 +1404,7 @@ void QFontEngineXft::draw(QPaintEngine *p, int xpos, int ypos, const QTextItem &
             gpos.x += glyphs[i].offset.x;
             gpos.y += glyphs[i].offset.y;
             if (transform)
-                gpos = map(p->painterState()->worldMatrix, gpos);
+                gpos = q_map(p->painterState()->worldMatrix, gpos);
             int xp = gpos.x.toInt();
             int yp = gpos.y.toInt();
             if (xp > SHRT_MIN && xp < SHRT_MAX) {
@@ -1425,7 +1425,7 @@ void QFontEngineXft::draw(QPaintEngine *p, int xpos, int ypos, const QTextItem &
 
                     Q26Dot6Offset gpos = pos;
                     if (transform)
-                        gpos = map(p->painterState()->worldMatrix, gpos);
+                        gpos = q_map(p->painterState()->worldMatrix, gpos);
                     int xp = gpos.x.toInt();
                     int yp = gpos.y.toInt();
                     if (xp > SHRT_MIN && xp < SHRT_MAX) {
@@ -1453,7 +1453,7 @@ void QFontEngineXft::draw(QPaintEngine *p, int xpos, int ypos, const QTextItem &
             gpos.x += glyphs[i].offset.x;
             gpos.y += glyphs[i].offset.y;
             if (transform)
-                gpos = map(p->painterState()->worldMatrix, gpos);
+                gpos = q_map(p->painterState()->worldMatrix, gpos);
             int xp = gpos.x.toInt();
             int yp = gpos.y.toInt();
             if (xp > SHRT_MIN && xp < SHRT_MAX) {
