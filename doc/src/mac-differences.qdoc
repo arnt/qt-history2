@@ -29,9 +29,12 @@
     \section1 GUI Applications
 
     GUI Applications must be run out of a bundle (something like widgets.app/)
-    or using the open(1) command. Mac OS X needs this to dispatch events correctly,
-    as well as gaining access to the menu bar. If using GDB you must run with the 
-    full path to the executable.
+    or using the open(1) command. Mac OS X needs this to dispatch events
+    correctly, as well as gaining access to the menu bar.
+    
+    If you are using older versions of GDB you must run with the full path to
+    the executable.  Later versions allow you to pass the bundle name on the
+    command line.
 
     \section1 QCursor
 
@@ -39,13 +42,10 @@
     workaround to this problem is to use a small customs cursors (16x16)
     with QCursor.
 
-    \section1 Anti-Aliased Text
-
-    Starting with version 3.0.5, Qt/Mac has introduced some support
-    for smooth text as suggested by Apple's Aqua Style Guildelines.
-    This support is limited to Mac OS X 10.1.4 and above. If an older
-    version is detected Qt will fallback to the old text rendering
-    library.
+    \section1 Painting
+    Mac OS X always double buffers the screen so the \l{WA_PaintOnScreen} attribute
+    has no effect. Also it is impossible to paint outside of a paint event so
+    \l{WA_PaintOutsidePaintEvent} has no effect either.
 
     \section1 Library Support
 
@@ -64,27 +64,17 @@
         QMAKE_LFLAGS_SONAME  = -Wl,-install_name,@executable_path/../Frameworks/
     \endcode
 
-    In case of Project Builder, you set the Library targets to have their
-    install path (in the Build Settings of the target) set to
-    "@executable_path/.../Frameworks". You also need to add a custom build
-    setting called "SKIP_INSTALL" and set this to YES. In the Application
-    target you need to add a Copy Files build phase that will copy the library
-    product into the applications wrapper's Framework sub-folder.
+    Alternatively you can modify the intall name using the install_name_tool(1)
+    command line tool. See its manpage for more information.
 
     Note that the \c DYLD_LIBRARY_PATH environment variable will override these
     settings, and any other default paths such as a lookup of dynamic
     libraries inside \c /usr/lib and similar default locations.
 
-    We still strongly recommend that you build static applications where
-    the library code is incorporated into the Mac OS X binary. However, in
-    case you ship applications that require plugin support, then you must
-    use dynamic libraries as part of your application.
-
-
     \section2 Combining Libraries
 
-    If you want to build a new dynamic library combining the Qt 3.1 dynamic
-    libraries, you need to introduce the \c{ld -r} flag so that relocation
+    If you want to build a new dynamic library combining the Qt 4.0 dynamic
+    libraries, you need to introduce the \c{ld -r} flag. Then relocation
     information is stored in the the output file, so that this file could
     be the subject of another \c ld run. This is done by setting the \c -r flag
     in the \c .pro file, and the \c LFLAGS settings.
@@ -102,35 +92,17 @@
 
     \section2 Compile-Time Flags
 
-    If you want to wrap any specific Mac OS X code in a define, use the \c Q_OS_MAC
-    flag, as in:
+    There are two flags that are helpful when wanting to define Mac OS X specific code.
 
-    \code
-        #if defined(Q_OS_MAC)
-        // the code used
-        #endif
-    \endcode
+    \c Q_OS_DARWIN is defined when Qt detects you are on a Darwin-based system (including the Open Source version)
+    \c Q_WS_MAC is defined when we the Mac OS X GUI is present.
 
-    Note that when you build under Mac OS X 10.2, then the \c MACOSX_102 flag is
-    automatically included in the make builds.
+    \c Q_OS_MAC is defined as a convenience and is available whenever Q_OS_DARWIN is defined.
 
+    If you desire to define for specific versions of Mac OS X, use the
+    availability macros defined in /usr/include/AvailabilityMacros.h.
 
-    \section1 Building and Configuring Qt/Mac
-
-    \section2 Problems Building a Static Configuration
-
-    If a static build fails with the following error messages during the
-    designer make phase:
-
-    \code
-        QWidget::sizeHint() const referenced from libqui expected to be defined in @executable_path/../Frameworks/libqt-mt.3.dylib
-        non-virtual thunk [nv:-40] to QWidget::metric(int) const referenced from libqui
-         expected to be defined in @executable_path/../Frameworks/libqt-mt.3.dylib
-    \endcode
-
-    then ensure that your library path does not have \c libqui libraries or
-    symbolic links. If you remove these, then the build will continue.
-
+    See QSysInfo for information on runtime version checking.
 
     \section1 Mac OS X Native API Access
 
@@ -153,14 +125,14 @@
         CFRelease(macPath);
     \endcode
 
-    Do not forget to enclosure this in an #if defined(Q_OS_MAC) macro statement.
+    Do not forget to protect this code with an #if defined(Q_WS_MAC) macro if
+    you are deploying on more than one platform.
 
     \section2 Translating the Application Menu and Native Dialogs
 
-    You need to do a little extra to get the Application Menu and native dialogs
-    localized. This is a requirement of Mac OS X and not of Qt.
-
-    First, you must add a localized resource folder inside the Bundle see:
+    The items in the Application Menu will be merged correctly for you
+    localized application, but they will not show up translated until
+    you add a localized resource folder inside the Bundle see:
 
     http://developer.apple.com/documentation/CoreFoundation/Conceptual/CFBundles/index.html
 
@@ -215,8 +187,8 @@
     \i If the window has no parent then the default menub ar is used (as documented below).
     \endlist
 
-    The above 3 steps are applied all the way up the parent window chain until
-    one of the above are satisifed. If all else fails a default menu bar will be
+    The above 3 guidelines are followed all the way up the parent window chain until
+    one of the above is satisifed. If all else fails a default menu bar will be
     created, the default menu bar on Qt/Mac is an empty menu bar, however you can
     create a different default menu bar by creating a parentless QMenuBar; the
     first one created will be designated the default menu bar, and will be
@@ -228,10 +200,6 @@
 
     \list
 
-    \i \l{QCustomMenuItem}s are not supported in Mac native menu bars,
-    although they are supported in popup menus that are not in the Mac
-    native menu bar.
-
     \i Items with accelerators that have more than one keystroke
     (QKeySequence) will not be honored, and the first key will be used.
 
@@ -241,8 +209,8 @@
 
     Qt/Mac now has support for sheets, drawers. Represented as \l {WMacSheet} and
     \l {WMacDrawer} in the window flags respectiviely. Brushed metal windows are
-    also possible using \l {WMacMetal}.
+    also possible using \l {WA_MacMetalStyle} window attribute.
 
-    We currently do not support the chooser (Panther-style tabs). There may be
+    This beta does not support the chooser (Panther-style tabs). There may be
     support for these in a future version of Qt.
 */
