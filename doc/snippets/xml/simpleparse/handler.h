@@ -13,11 +13,8 @@
 #ifndef HANDLER_H
 #define HANDLER_H
 
-#include <qobject.h>
 #include <qstring.h>
 #include <qxml.h>
-
-/* Note that QObject must precede QXmlDefaultHandler in the following list. */
 
 class Handler : public QXmlDefaultHandler
 {
