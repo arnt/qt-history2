@@ -63,27 +63,23 @@ problems with installing Qt"/"Embedded then refer to the @F INSTALL file in
 ######################## Qt/Mac OS X ########################
 #############################################################
 @CD @Heading { How to Install Qt{@Sup @Register} for Mac OS{@Sup @Register} X }
-@NumberedList gap { 0.5v }
+@NumberedList gap { 0.7v }
 @LI { Copy the @F{"/MacOS/qt-mac-commercial-3.3.2.tar.gz"} file to
 @F{"/Developer"}. }
-@LI{Unpack the archive either by running
-@F{qt-mac-commercial-3.3.2.tar.gz}, or by using:
-//0.35v @F @RawVerbatim {
-    cd /Developer
-    gnutar xzvf qt-mac-commercial-3.3.2.tar.gz
-}//0.5v
+@LI{Unpack the archive by running
+@F{qt-mac-commercial-3.3.2.tar.gz}.
 This creates the directory @F{"/Developer/qt-mac-commercial-3.3.2"}
 containing the files from the main archive.
 }
-@LI{Rename @F{qt-mac-commercial-3.3.2} to @F{qt} (or make a symlink):
-//0.35v @F @RawVerbatim {
-    mv qt-mac-commercial-3.3.2 qt
-}//0.5v
+@LI { Read the license. You cannot continue the installation
+unless you accept the license. }
+@LI{Rename @F{qt-mac-commercial-3.3.2} to @F{qt}.
 The rest of these instructions assume that Qt is unpacked in
 @F{"/Developer/qt"}.
 }
-@LI { Read the license. You cannot continue the installation
-unless you accept the license. }
+@LI{To complete the installation you will need a terminal. You can
+launch a terminal from Applications"/"Utilities in the Finder.
+}
 @LI { You must set up certain environment variables for Qt:
 @PP
 In @F{.login} (if your shell is csh or tcsh), add the following lines:
@@ -101,8 +97,8 @@ In @F{.profile} (if your shell is bash, ksh, zsh or sh), add the following lines
 //0.6v @F @RawVerbatim {
     export QTDIR PATH DYLD_LIBRARY_PATH
 }//0.5v
-After you have done this, you must either login again, or re-source
-the file you've just edited before continuing, so that @F{$QTDIR} is set.
+After you have done this the settings must be activated. One way to do
+this is to close the terminal window and then open a new one.
 }
 @LI { Create a symbolic link from @F{"$QTDIR/doc/man"} to
 @F{"$QTDIR/man"}:
