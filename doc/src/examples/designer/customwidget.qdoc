@@ -4,7 +4,7 @@
 
     The Custom Widget example shows how to create a custom widget plugin for \QD.
 
-    \image designer-creating-custom-widgets.png
+    \image customwidget-example.png
 
     In this example, the custom widget used is based on the
     \l{widgets/analogclock}{Analog Clock example}, and does not provide any custom

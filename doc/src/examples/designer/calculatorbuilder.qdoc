@@ -1,4 +1,88 @@
 /*!
     \example designer/calculatorbuilder
     \title Calculator Builder
+
+    The Calculator Builder example shows how to create a user interface from
+    a \QD form at runtime, using the \c FormBuilder class.
+
+    We use the form created in the \l{designer/calculatorform}{Calculator Form}
+    example to show that the same user interface can be generated when the
+    application is executed or defined when the application is built.
+
+    \section1 Preparation
+
+    The \l{examples/calculatorform}{Calculator Form} example defines a user
+    interface that we can use without modification. In this example, we use a
+    \l{The Qt Resource System}{resource file} to contain the \c{calculatorform.ui}
+    file created in the previous example, but it could be stored on disk instead.
+
+    To generate a form at run time, we need to link the example against the
+    \c libQtDesigner library. The project file we use contains all the
+    necessary information to do this:
+
+    \quotefromfile designer/calculatorbuilder/calculatorbuilder.pro
+    \skipto SDK
+    \printuntil /^\}/
+    \printline
+    \printuntil /^\}/
+
+    All the other necessary files are declared as usual.
+
+    \section1 CalculatorForm Class Definition
+
+    The \c CalculatorForm class defines the widget used to host the form's
+    user interface:
+
+    \quotefromfile designer/calculatorbuilder/calculatorform.h
+    \skipto class CalculatorForm
+    \printuntil /^\}/
+
+    Note that we do not need to include a header file to describe the user
+    interface. We only define two public slots, using the auto-connection
+    naming convention required by \c uic, and declare private variables
+    that we will use to access widgets provided by the form after they are
+    constructed.
+
+    \section1 CalculatorForm Class Implementation
+
+    We will need to use the \c FormBuilder class that is provided by the
+    \c libQtDesigner library, so we first ensure that we include the header
+    file for it:
+
+    \quotefromfile designer/calculatorbuilder/calculatorform.cpp
+    \skipto #include <formbuilder.h>
+    \printline
+
+    The constructor uses a \c FormBuilder object to construct the user
+    interface that we retrieve, via a QFile object, from the example's
+    resources:
+
+    \skipto CalculatorForm::CalculatorForm
+    \printuntil file.close()
+
+    By including the user interface in the example's resources, we ensure
+    that it will be present when the example is run. The \c{builder.load()}
+    function takes the user interface description contained in the file
+    and constructs the form widget as a child widget of the \c{CalculatorForm}.
+
+    We are interested in three widgets in the generated user interface:
+    two spin boxes and a label. For convenience, we retrieve pointers to
+    these widgets from the widget that was constructed by the \c FormBuilder,
+    and we record them for later use. The \c qFindChild() template function
+    allows us to query widgets in order to find named child widgets.
+
+    The widgets created by the \c FormBuilder need to be connected to the
+    specially-named slots in the \c CalculatorForm object. We use Qt's
+    meta-object system to enable these connections:
+
+    \skipto QMetaObject
+    \printline
+
+    The form widget is added to a layout, and the window title is set:
+
+    \skipto QVBoxLayout
+    \printuntil /^\}/
+
+    The two slots that modify the 
+
 */

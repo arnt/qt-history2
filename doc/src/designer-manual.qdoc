@@ -26,8 +26,8 @@ that they will look and feel exactly as you intended.
  \tableofcontents{1 Qt Designer's Form Editing Mode}
 \i \l{Using Containers in Qt Designer}
  \tableofcontents{1 Using Containers in Qt Designer}
-\i \l{Qt Designer's Connection Editing Mode}
- \tableofcontents{1 Qt Designer's Connection Editing Mode}
+\i \l{Editing Signals and Slots}
+ \tableofcontents{1 Editing Signals and Slots}
 \i \l{Qt Designer's Buddy Editing Mode}
  \tableofcontents{1 Qt Designer's Buddy Editing Mode}
 \i \l{Qt Designer's Tab Order Mode}
@@ -64,10 +64,10 @@ that they will look and feel exactly as you intended.
 \i \l{Qt Designer's Form Editing Mode#DragAndDrop}{Drag and drop}
 \i \l{Qt Designer's Form Editing Mode#EditingProperties}{Editing properties}
 \i \l{Qt Designer's Form Editing Mode#InsertingObjectsIntoALayout}{Inserting objects into a layout}
-\i \l{Qt Designer's Connection Editing Mode#HighlightedObjects}{Highlighted objects}
-\i \l{Qt Designer's Connection Editing Mode#MakingAConnection}{Making a connection}
-\i \l{Qt Designer's Connection Editing Mode#ChoosingSignalsAndSlots}{Choosing signals and slots}
-\i \l{Qt Designer's Connection Editing Mode#DeletingConnections}{Deleting connections}
+\i \l{Editing Signals and Slots#HighlightedObjects}{Highlighted objects}
+\i \l{Editing Signals and Slots#MakingAConnection}{Making a connection}
+\i \l{Editing Signals and Slots#ChoosingSignalsAndSlots}{Choosing signals and slots}
+\i \l{Editing Signals and Slots#DeletingConnections}{Deleting connections}
 \endlist
 
 */
@@ -250,7 +250,7 @@ dragged from the main toolbox onto the form.
 we can change the appearance of the form, add layouts, and edit the
 properties of each widget.
 \row \i \inlineimage designer-connection-tool.png
-\i In \l{Qt Designer's Connection Editing Mode}{connection editing mode},
+\i In \l{Editing Signals and Slots}{connection editing mode},
 we can connect widgets together using Qt's signals and slots mechanism.
 \row \i \inlineimage designer-buddy-tool.png
 \i In \l{Qt Designer's Buddy Editing Mode}, buddy widgets can be
@@ -338,7 +338,7 @@ immediately.
 
 Once all the widgets are in position, they need to be placed into one or
 more layouts. These will ensure that the widgets are the correct size, and
-are corectly positioned on the form.
+are correctly positioned on the form.
 
 \target CreatingALayout
 \section1 Creating a Layout
@@ -411,8 +411,8 @@ We can show how the connection editor is used by connecting the
 \l{QLineEdit::returnPressed()}{returnPressed()} signal of the line edit
 in our dialog to the \key OK button's
 \l{QAbstractButton::animateClick()}{animateClick()} slot.
-We change into connection editing mode by opening the \key{Form} menu
-and selecting \key{Connection Mode}. The objects in the form will now
+We change into connection editing mode by opening the \key{Edit} menu
+and selecting \key{Edit Signals/Slots}. The objects in the form will now
 become highlighted as the cursor passes over them. 
 
 \target ConnectingWidgets
@@ -486,7 +486,7 @@ of any signal and slot connections between them.
 
 By default, new forms are opened in editing mode. If \QD is in another mode,
 you can enter editing mode by opening the \key Edit menu and selecting
-\key{Edit Widgets}.
+\key{Edit Widgets}, or by pressing the \key F2 key.
 
 Objects are added to the form by dragging them from the main toolbox
 and dropping them in the desired location on the form. Once there, they
@@ -646,8 +646,8 @@ the left mouse button on the form itself) and applying a layout.
 The simplest way to arrange objects on a form is to place them in a
 horizontal or vertical layout. For example, the dialog shown at the
 beginning of this chapter contains two push buttons and a spacer that
-can be placed in a horizontal layout, keeping the buttons vertically
-aligned when more layouts are added to the dialog.
+can be placed in a horizontal layout; this makes sure that the buttons
+remain next to each other when more layouts are added to the dialog.
 In the same way, vertical layouts ensure that each of the widgets
 within are aligned horizontally.
 
@@ -685,7 +685,7 @@ used in an application.
 \previouspage Using Containers in Qt Designer
 \nextpage Qt Designer's Buddy Editing Mode
 
-\title Qt Designer's Connection Editing Mode
+\title Editing Signals and Slots
 
 \image designer-connection-mode.png
 
@@ -702,7 +702,8 @@ so that they will be ready for use when your project is built.
 \section1 Connecting Objects
 
 To begin connecting objects, enter connection mode by opening the
-\key Edit menu and selecting \key{Edit Connections}.
+\key Edit menu and selecting \key{Edit Signals/Slots}, or by pressing
+the \key F3 key.
 All widgets and layout objects on the form can be connected together.
 Spacers just provide spacing hints to layouts, so they cannot be connected
 to other objects.
@@ -817,7 +818,7 @@ key, and they will not be set up in the .ui file.
 \page designer-using-containers.html
 \contentspage designer-manual.html Contents
 \previouspage Qt Designer's Form Editing Mode
-\nextpage Qt Designer's Connection Editing Mode
+\nextpage Editing Signals and Slots
 
 \title Using Containers in Qt Designer
 
@@ -955,7 +956,7 @@ click inside it and apply the layout as usual.
 /*!
 \page designer-buddy-mode.html
 \contentspage designer-manual.html Contents
-\previouspage Qt Designer's Connection Editing Mode
+\previouspage Editing Signals and Slots
 \nextpage Qt Designer's Tab Order Mode
 
 \title Qt Designer's Buddy Editing Mode
@@ -973,10 +974,10 @@ concept is also used in Qt's \l{Model/View Programming}{model/view} framework.
 
 To enter buddy mode, open the \key Edit menu and select \key{Edit Buddies}.
 This mode presents the widgets on the form in a similar way to the
-\l{Qt Designer's Connection Editing Mode}{connection editing mode} except
-that, in this mode, connections must start at label widgets. Ideally, you
-should connect each label widget that provides a shortcut with a suitable
-input widget, such as a QLineEdit.
+\l{Editing Signals and Slots}{signals and slots} except that, in this mode,
+connections must start at label widgets. Ideally, you should connect each
+label widget that provides a shortcut with a suitable input widget, such as
+a QLineEdit.
 
 \target MakingBuddies
 \table
@@ -1013,29 +1014,29 @@ operation does not modify either the label or its buddy in any way.
 
 \title Qt Designer's Tab Order Mode
 
-\image designer-tab-order.png
+\image designer-tab-order-mode.png
 
-Many users of form-based graphical user interfaces expect to be able to navigate
-between widgets and controls using only the keyboard. Qt lets the user navigate
-between input widgets using the \key Tab and \key{Shift-Tab} key combinations,
-using a default \e{tab order} based on the order in which widgets are constructed.
-Although the default tab order may be sufficient for some users, it is often
-better to explictly specify the tab order to make your application easier to use.
+Many users expect to be able to navigate between widgets and controls using only
+the keyboard. Qt lets the user navigate between input widgets with the \key Tab
+and \key{Shift-Tab} keyboard shortcuts. The default \e{tab order} is based on
+the order in which widgets are constructed and, although this order may be
+sufficient for many users, it is often better to explictly specify the tab order
+to make your application easier to use.
 
-\tableofcontents
-
-\section1 Setting The Tab Order
+\section1 Setting the Tab Order
 
 To enter tab order mode, open the \key Edit menu and select \key{Edit Tab Order}.
-In this mode, each input widget in the form is overlaid with a number indicating
+In this mode, each input widget in the form is shown with a number indicating
 its position in the tab order. So, if the user gives the first input widget the
 input focus then presses the tab key, the focus will move to the second input
 widget, and so on.
 
-To change the 
-
-\section1 Resetting The Tab Order
-
+The tab order is defined by clicking on each of the numbers in the correct order.
+You can set the first widget in the tab order by double-clicking on it. After
+this has been done, click on another widget to make it the second in the tab
+order, set the third with the next click, and so on until you are satisfied.
+If you make a mistake, simply double click to set the first widget, and start
+again.
 */
 
 /*!
@@ -1069,8 +1070,6 @@ opening the \key Edit menu and selecting \key{Edit Resources}.
 
     \title Using Custom Widgets with Qt Designer
 
-    \image designer-using-custom-widgets.png
-
     \QD can display custom widgets through its extensible plugin mechanism,
     allowing the range of designable widgets to be extended by the user and
     third parties. This feature also allows \QD to optionally support
@@ -1079,6 +1078,9 @@ opening the \key Edit menu and selecting \key{Edit Resources}.
     widget classes that provide similar APIs.
 
     \tableofcontents
+
+    Widgets from the \l{The Qt 3 Support Classes}{Qt3Support} library are made
+    available via in \QD's support for custom widgets.
 
     \section1 Handling Custom Widgets
 
@@ -1090,7 +1092,7 @@ opening the \key Edit menu and selecting \key{Edit Resources}.
     \list
      \i Custom widgets may not be available at the time the user interface is being
         designed.
-     \i Custom widgets may be platform-specific, and designers may be developing the
+     \i Custom widgets may be platform-specific, and designers may be developing
         the user interface on a different platform to end users.
      \i The source code for a custom widget is not available, or the user interface
         designers are unable to use the widget for non-technical reasons.
@@ -1104,6 +1106,8 @@ opening the \key Edit menu and selecting \key{Edit Resources}.
     we can adapt the custom widget for use with \QD.
 
     \section2 Promoting Widgets
+
+    \image designer-promoting-widgets.png
 
     In the case where forms must be designed, but where certain custom widgets
     are unavailable to the designer, we can substitute similar widgets to
@@ -1123,14 +1127,19 @@ opening the \key Edit menu and selecting \key{Edit Resources}.
     If this is not possible then QWidget is the obvious choice for a placeholder
     widget since it is the lowest common denominator for all widgets.
 
-    \section2 Qt 3 Custom Widgets
-
-
-
     \section2 User Defined Custom Widgets
 
+    \image customwidget-example.png
+
     Custom widgets can be adapted for use with \QD, giving designers the
-    opportunity to configure 
+    opportunity to configure the user interface using the actual widgets
+    that will be used in an application rather than placeholder widgets.
+
+    The process of creating a custom widget plugin is described in the
+    \l{designer/customwidget}{Custom Widget} example. To use a plugin,
+    it is necessary to ensure that it is located on a path that \QD
+    searches for plugins. Generally, plugins stored in
+    \c{$QTDIR/plugins/designer} will be loaded when \QD starts.
 */
 
 /*!
@@ -1390,8 +1399,15 @@ without having to write code themselves.
 
     \title Creating Custom Widgets for Qt Designer
 
+    \QD's plugin-based architecture allows user-defined and third party custom
+    widgets to be edited in the same way as standard Qt widgets. All the features
+    of the custom widgets are made available to the designer, including widget
+    properties, signals, and slots. Since \QD uses real widgets during the form
+    design process, custom widgets will appear the same as they do when previewed.
+
     \image designer-creating-custom-widgets.png
 
-    \tableofcontents
-
+    The documentation for this chapter is currently being revised. Please see
+    the \l{designer/customwidget}{Custom Widget} example for more information
+    about using custom widgets in \QD.
 */
