@@ -1235,7 +1235,7 @@ static bool qt_query_property(const QMetaObject*const*mobj,const int *idx, uint 
     int flags = mobj[call]->d.data[handle + 2];
     bool b = (flags & flag);
     if (obj) {
-	void *argv[] = { 0, &b };
+	void *argv[] = { &b };
 	const_cast<QObject*>(obj)->qt_metacall(call,
 					       idx[call]
 					       + mobj[call]->propertyOffset(),
