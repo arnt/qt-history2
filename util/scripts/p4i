@@ -20,7 +20,7 @@ if ( $#ARGV != 0 ) {
     $change = $ARGV[0];
 }
 
-@branchFiles = ();
+@fromBranchFiles = ();
 open( P4, "$P4 describe -s $change |") || die "$0: Couldn't exec $P4: $!\n";
 @changeDescription = <P4>;
 close( P4 );
@@ -28,52 +28,78 @@ close( P4 );
 pop( @changeDescription );
 
 # This is pretty evil; essentially it picks out the "affected files" lines and
-# pushes the filename and revision of each onto @branchFiles and
-# @branchRevisions, respectively.
+# pushes the filename and revision of each onto @fromBranchFiles and
+# @fromBranchRevisions, respectively.
 grep {
     if ( /^\.\.\. (\/\/depot.*)\#([0-9]+)/ ) {
-	push( @branchFiles, $1 );
-	push( @branchRevisions, $2 );
+	push( @fromBranchFiles, $1 );
+	push( @fromBranchRevisions, $2 );
     }
 } @changeDescription;
 
-if ( $#branchFiles == -1 ) {
+if ( $#fromBranchFiles == -1 ) {
     die "$0: No files found in changelist";
 }
 
-# Check all files in same branch
-@pathComponents = split ( /\//, $branchFiles[0] );
+# Check all files from same product and in same branch
+
+@pathComponents = split ( /\//, $fromBranchFiles[0] );
 # The leading "//" will split into two empty fields, so we use 4 instead of 2
 # here. Note that we're making assumptions about the depot layout...
-$branch = $pathComponents[4];
-print "Merging from $branch to main\n";
 
-foreach $file ( @branchFiles ) {
+# Different products (e.g. Qt and Qtopia) will have different integration
+# targets for different branches...
+
+$targetBranch{"qt-3.0"} = "3.1";
+$targetBranch{"qt-3.1"} = "main";
+$targetBranch{"qtopia-1"} = "main";
+
+$product = $pathComponents[3];
+$fromBranch = $pathComponents[4];
+if ( defined( $targetBranch{"$product-$fromBranch"} ) ) {
+    $toBranch = $targetBranch{"$product-$fromBranch"};
+} else {
+    print STDERR " ** Warning: No target branch found for $product/$fromBranch. Assuming $product/main.\n";
+    $toBranch = "main";
+}
+
+print "Merging from $fromBranch to $toBranch\n";
+if ( $fromBranch eq $toBranch ) { 
+    die "Can't merge file to itself!\n";
+}
+
+foreach $file ( @fromBranchFiles ) {
     @pathComponents = split ( /\//, $file );
-    if ( $pathComponents[4] ne $branch ) {
-	print STDERR "File $file on branch $pathComponents[4], not $branch\n";
+    if ( $pathComponents[3] ne $product ) {
+	print STDERR "File $file from product $pathComponents[3], not $product\n";
+	$abort = 1;
+    }
+    if ( $pathComponents[4] ne $fromBranch ) {
+	print STDERR "File $file on branch $pathComponents[4], not $fromBranch\n";
 	$abort = 1;
     }
 }
 
 if ( $abort ) {
-    die "$0: Exiting; not all files on the same branch";
+    die "$0: Exiting; not all files from same product/on same branch";
 }
 
-@mainFiles = ();
-foreach $file ( @branchFiles ) {
+@toBranchFiles = ();
+foreach $file ( @fromBranchFiles ) {
     @pathComponents = split ( /\//, $file );
-    $pathComponents[4] = "main";
-    $mainfile = join ("/", @pathComponents );
-    push( @mainFiles, $mainfile );
+    $pathComponents[4] = $toBranch;
+    $toBranchFile = join ("/", @pathComponents );
+    push( @toBranchFiles, $toBranchFile );
 }
 
 # Check all files are closed
-$files = join( " ", map { "\"$_\"" } @mainFiles );
+$files = join( " ", map { "\"$_\"" } @toBranchFiles );
 print "Checking files are closed: $files\n";
 # Unbelievable... p4 writes this file list to stderr!?
+$linecount = 0;
 open( P4, "$P4 opened $files 2>&1 |") || die "$0: Couldn't exec $P4: $!\n";
 while ( $line = <P4> ) {
+    $linecount++;
     chomp( $line );
     ($file, $message) = split( m/ - /, $line );
     if ( $message ne "file(s) not opened on this client." ) {
@@ -83,6 +109,10 @@ while ( $line = <P4> ) {
 }
 close( P4 );
 
+if ( !$linecount ) {
+    die "$0: No lines read while checking all files closed.\n";
+}
+
 if ( $abort ) {
     die "$0: Exiting; not all files were closed.\n";
 }
@@ -90,8 +120,10 @@ if ( $abort ) {
 # Check all files are up-to-date newly added
 
 print "Checking files are up-to-date: $files\n";
+$linecount = 0;
 open( P4, "$P4 sync -n $files 2>&1 |") || die "$0: Couldn't exec $P4: $!\n";
 while ( $line = <P4> ) {
+    $linecount++;
     chomp( $line );
     ($file, $message) = split( m/ - /, $line );
     if ( $message ne "file(s) up-to-date."
@@ -102,27 +134,37 @@ while ( $line = <P4> ) {
 }
 close( P4 );
 
+if ( !$linecount ) {
+    die "$0: No lines read while checking all files up-to-date.\n";
+}
+
 if ( $abort ) {
     die "$0: Exiting; not all files up-to-date.\n";
 }
 
 print "Checking for gaps in integration: $files\n";
-for ( $count = 0; $count < @branchFiles; $count++ ) {
-    open( P4, "$P4 integrate -n \"$branchFiles[$count]\@$change\" \"$mainFiles[$count]\" |") || die "$0: Couldn't exec $P4: $!\n";
+for ( $count = 0; $count < @fromBranchFiles; $count++ ) {
+    $linecount = 0;
+    open( P4, "$P4 integrate -n \"$fromBranchFiles[$count]\@$change\" \"$toBranchFiles[$count]\" |") || die "$0: Couldn't exec $P4: $!\n";
     while ( $line = <P4> ) {
+	$linecount++;
 	chomp( $line );
 	($file, $message) = split( m/ - /, $line );
-	if ( $message ne "integrate from $branchFiles[$count]#".$branchRevisions[$count]
-	  && $message ne "branch/sync from $branchFiles[$count]#".$branchRevisions[$count]
-	  && $message ne "delete from $branchFiles[$count]#".$branchRevisions[$count] ) {
+	if ( $message ne "integrate from $fromBranchFiles[$count]#".$fromBranchRevisions[$count]
+	  && $message ne "branch/sync from $fromBranchFiles[$count]#".$fromBranchRevisions[$count]
+	  && $message ne "delete from $fromBranchFiles[$count]#".$fromBranchRevisions[$count] ) {
 	    print STDERR "Gaps in integration of $file: \"$message\"\n";
 	    $message =~ s/.*\#([0-9]+),\#([0-9]+)/$1 $2/g;
 	    ($start, $end) = split( " ", $message );
-	    printNeededRevisions( $branchFiles[$count], $mainFiles[$count], $change, $start, $end);
+	    printNeededRevisions( $fromBranchFiles[$count], $toBranchFiles[$count], $change, $start, $end);
 	    $abort = 1;
 	}
     }
     close( P4 );
+
+    if ( !$linecount ) {
+	die "$0: No lines read while checking $fromBranchFiles[$count]\@$change for gaps in integration\n";
+    }
 
 }
 
@@ -133,20 +175,27 @@ if ( $abort ) {
 # Now do the integrate
 
 print "Integrating: $files\n";
-for ( $count = 0; $count < @branchFiles; $count++ ) {
-    open( P4, "$P4 integrate \"$branchFiles[$count]\@$change\" \"$mainFiles[$count]\" |") || die "$0: Couldn't exec $P4: $!\n";
+for ( $count = 0; $count < @fromBranchFiles; $count++ ) {
+    $linecount = 0;
+    open( P4, "$P4 integrate \"$fromBranchFiles[$count]\@$change\" \"$toBranchFiles[$count]\" |") || die "$0: Couldn't exec $P4: $!\n";
     while ( $line = <P4> ) {
+	$linecount++;
 	chomp( $line );
 	# Discard revisions here.
 	$line =~ s/\#[0-9]+//g;
-	if ( $line ne "$mainFiles[$count] - integrate from $branchFiles[$count]"
-	  && $line ne "$mainFiles[$count] - branch/sync from $branchFiles[$count]"
-	  && $line ne "$mainFiles[$count] - delete from $branchFiles[$count]" ) {
+	if ( $line ne "$toBranchFiles[$count] - integrate from $fromBranchFiles[$count]"
+	  && $line ne "$toBranchFiles[$count] - branch/sync from $fromBranchFiles[$count]"
+	  && $line ne "$toBranchFiles[$count] - delete from $fromBranchFiles[$count]" ) {
 	    print STDERR "$P4 returned unexpected line \"$line\"\n";
 	    $abort = 1;
 	}
     }
     close( P4 );
+
+    if ( !$linecount ) {
+	die "$0: No lines read while integrating $fromBranchFiles[$count]\@$change\n";
+    }
+
 }
 
 if ( $abort ) {
@@ -155,11 +204,13 @@ if ( $abort ) {
 
 # Now the complicated bit. Doing the resolution.
 
-@filesToResolve = @mainFiles;
+@filesToResolve = @toBranchFiles;
 while ( @filesToResolve ) {
     $files = join( " ", map { "\"$_\"" } @filesToResolve );
-    open( P4, "$P4 resolve -am $files |") || die "$0: Couldn't exec $P4: $!\n";
+    $linecount = 0;
+    open( P4, "$P4 resolve -am $files 2>&1 |") || die "$0: Couldn't exec $P4: $!\n";
     while ( $line = <P4> ) {
+	$linecount++;
 	chomp( $line );
 	if ( $line =~ /^\/\// ) {
 	    ($file, $message) = split( m/ - /, $line);
@@ -177,6 +228,11 @@ while ( @filesToResolve ) {
 	print "Please resolve these files manually, and then press enter.\n";
 	$line = <STDIN>;
     }
+
+    if ( !$linecount ) {
+	die "$0: No lines read while resolving $files\n";
+    }
+
     @filesToResolve = @skippedFiles;
     @skippedFiles = ();
 }
@@ -197,10 +253,10 @@ open( P4, "| $P4 $action -i" ) || die "$0: Couldn't exec $P4: $!\n";
 print P4 "Change: new\n";
 print P4 "Description:\n";
 print P4 "\tp4i integration\n";
-print P4 "\tIntegrate change $change from $branch to main.\n";
+print P4 "\tIntegrate change $change from $fromBranch to $toBranch.\n";
 print P4 "\tDescription for change $change:\n\n";
 print P4 "\t: ".join( "\t: ", @changeDescription )."\n";
-print P4 "Files:\n\t".join( "\n\t", @mainFiles )."\n";
+print P4 "Files:\n\t".join( "\n\t", @toBranchFiles )."\n";
 
 close( P4 );
 
@@ -211,16 +267,16 @@ if ( $action eq "change" ) {
 print "Done.\n";
 
 sub printNeededRevisions {
-    my ($branchFile, $mainFile, $change, $start, $end) = @_;
+    my ($fromBranchFile, $toBranchFile, $change, $start, $end) = @_;
     my ($count, $rev, @fileLog, $revisionChange, $line);
 
     for ($count = $start; $count <= $end; $count++ ) {
-	open( MYP4, "$P4 integrate -n \"$branchFile#$count,#$count\" \"$mainFile\" 2>&1 |") || die "$0: Couldn't exec $P4: $!\n";
+	open( MYP4, "$P4 integrate -n \"$fromBranchFile#$count,#$count\" \"$toBranchFile\" 2>&1 |") || die "$0: Couldn't exec $P4: $!\n";
 	$line = <MYP4>;
 	chomp( $line );
 	close( MYP4 );
-	if ( $line ne "$mainFile - all revision(s) already integrated." ) {
-	    open( MYP4, "$P4 filelog -m 1 \"$branchFile#$count\" |" ) || die "$0: Couldn't exec $P4: $!\n";
+	if ( $line ne "$toBranchFile - all revision(s) already integrated." ) {
+	    open( MYP4, "$P4 filelog -m 1 \"$fromBranchFile#$count\" |" ) || die "$0: Couldn't exec $P4: $!\n";
 	    # The first line is the filename; the second is the rev we want.
 	    $line = <MYP4>;
 	    $line = <MYP4>;
@@ -228,9 +284,9 @@ sub printNeededRevisions {
 	    close( MYP4 );
 	    (undef, $rev, undef, $revisionChange, undef) = split ( " ", $line );
 	    # We don't report the change we're currently integrating as needing
-	    # integratetion.
+	    # integration.
 	    if ( $revisionChange ne $change ) {
-		print "Missing integration of $branchFile revision $rev revisionChange $revisionChange\n";
+		print "Missing integration of $fromBranchFile revision $rev revisionChange $revisionChange\n";
 	    }
 	}
     }
