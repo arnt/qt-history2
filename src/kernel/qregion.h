@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.h#5 $
+** $Id: //depot/qt/main/src/kernel/qregion.h#6 $
 **
 ** Definition of QRegion class
 **
@@ -20,7 +20,6 @@
 
 class QRegion
 {
-friend class QPainter;
 public:
     enum RegionType { Rectangle, Ellipse };
 
@@ -49,6 +48,14 @@ public:
     bool    operator==( const QRegion & );
     bool    operator!=( const QRegion &r )
     			{ return !(operator==(r)); }
+
+#if defined(_WS_WIN_)
+    HANDLE  handle() const { return data->rgn; }
+#elif defined(_WS_PM_)
+    HANDLE  handle() const { return data->rgn; }
+#elif defined(_WS_X11_)
+    Region  handle() const { return data->rgn; }
+#endif
 
     friend QDataStream &operator<<( QDataStream &, const QRegion & );
     friend QDataStream &operator>>( QDataStream &, QRegion & );
