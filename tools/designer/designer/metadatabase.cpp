@@ -56,6 +56,7 @@ public:
     QMap<QString, QString> columnFields;
     QMap<QString, QString> eventFunctions;
     QMap<QString, QString> functionBodies;
+    QValueList<int> breakPoints;
 };
 
 static QPtrDict<MetaDataBaseRecord> *db = 0;
@@ -1261,4 +1262,34 @@ void MetaDataBase::clear( QObject *o )
     db->remove( (void*)o );
     for ( QPtrDictIterator<QWidget> it( *( (FormWindow*)o )->widgets() ); it.current(); ++it )
 	db->remove( (void*)it.current() );
+}
+
+void MetaDataBase::setBreakPoints( QObject *o, const QValueList<int> &l )
+{
+    if ( !o )
+	return;
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return;
+    }
+
+    r->breakPoints = l;
+}
+
+QValueList<int> MetaDataBase::breakPoints( QObject *o )
+{
+    if ( !o )
+	return QValueList<int>();
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return QValueList<int>();
+    }
+
+    return r->breakPoints;
 }

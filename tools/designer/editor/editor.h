@@ -55,6 +55,9 @@ public:
     void setStepSelection( int line );
     void clearSelections();
 
+    virtual bool supportsErrors() const { return TRUE; }
+    virtual bool supportsBreakPoints() const { return TRUE; }
+
 signals:
     void clearErrorMarker();
 

@@ -35,6 +35,8 @@ public:
     virtual EditorCompletion *completionManager() { return completion; }
     void configChanged();
 
+    bool supportsBreakPoints() const { return FALSE; }
+
 protected:
     EditorCompletion *completion;
 

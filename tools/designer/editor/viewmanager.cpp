@@ -104,3 +104,40 @@ void ViewManager::clearErrorMarker()
     }
     markerWidget->doRepaint();
 }
+
+void ViewManager::setBreakPoints( const QValueList<int> &l )
+{
+    QTextParag *p = ( (Editor*)curView )->document()->firstParag();
+    int i = 0;
+    while ( p ) {
+	if ( l.find( i ) != l.end() ) {
+	    if ( !p->extraData() ) {
+		ParagData *data = new ParagData;
+		p->setExtraData( data );
+	    }
+	    ParagData *data = (ParagData*)p->extraData();
+	    data->marker = ParagData::Breakpoint;
+	} else if ( p->extraData() ) {
+	    ParagData *data = (ParagData*)p->extraData();
+	    data->marker = ParagData::NoMarker;
+	}
+	p = p->next();
+	++i;
+    }
+    markerWidget->doRepaint();
+}
+
+QValueList<int> ViewManager::breakPoints() const
+{
+    QValueList<int> l;
+    int i = 0;
+    QTextParag *p = ( (Editor*)curView )->document()->firstParag();
+    while ( p ) {
+	if ( p->extraData() &&
+	     ( (ParagData*)p->extraData() )->marker == ParagData::Breakpoint )
+	    l << i;
+	p = p->next();
+	++i;
+    }
+    return l;
+}

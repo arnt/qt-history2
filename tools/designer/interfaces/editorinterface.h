@@ -24,6 +24,7 @@
 #include <qcomponentinterface.h>
 #include <qmap.h>
 #include <qstringlist.h>
+#include <qvaluelist.h>
 
 class QWidget;
 class QObjectList;
@@ -58,6 +59,8 @@ struct EditorInterface : public QUnknownInterface
     virtual void readSettings() = 0;
     virtual void setModified( bool m ) = 0;
     virtual int numLines() const = 0;
+    virtual void breakPoints( QValueList<int> &l ) const = 0;
+    virtual void setBreakPoints( const QValueList<int> &l ) = 0;
 
 };
 

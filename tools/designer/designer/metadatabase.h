@@ -215,6 +215,9 @@ public:
 
     static void clear( QObject *o );
 
+    static void setBreakPoints( QObject *o, const QValueList<int> &l );
+    static QValueList<int> breakPoints( QObject *o );
+
 };
 
 #endif

@@ -117,6 +117,8 @@ void MarkerWidget::resizeEvent( QResizeEvent *e )
 
 void MarkerWidget::mousePressEvent( QMouseEvent *e )
 {
+    if ( !( (Editor*)viewManager->currentView() )->supportsBreakPoints() )
+	return;
     QTextParag *p = ( (Editor*)viewManager->currentView() )->document()->firstParag();
     int yOffset = ( (Editor*)viewManager->currentView() )->contentsY();
     while ( p ) {

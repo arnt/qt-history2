@@ -23,6 +23,7 @@
 
 #include <qwidget.h>
 #include "dlldefs.h"
+#include <qvaluelist.h>
 
 class QChildEvent;
 class MarkerWidget;
@@ -40,6 +41,9 @@ public:
     QWidget *currentView() const;
 
     void setError( int line );
+    void setBreakPoints( const QValueList<int> &l );
+    QValueList<int> breakPoints() const;
+
 
 protected slots:
     void clearErrorMarker();

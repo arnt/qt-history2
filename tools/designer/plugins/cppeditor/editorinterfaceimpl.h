@@ -64,6 +64,8 @@ public:
     void setModified( bool m );
 
     int numLines() const;
+    void breakPoints( QValueList<int> & ) const {}
+    void setBreakPoints( const QValueList<int> & ) {}
 
 protected:
     bool eventFilter( QObject*, QEvent* );

@@ -51,6 +51,7 @@ SourceEditor::SourceEditor( QWidget *parent, EditorInterface *iface, LanguageInt
 
 SourceEditor::~SourceEditor()
 {
+    saveBreakPoints();
     iFace->release();
     lIface->release();
     MainWindow::self->editorClosed( this );
@@ -60,11 +61,18 @@ SourceEditor::~SourceEditor()
 void SourceEditor::setForm( FormWindow *fw )
 {
     save();
+    bool changed = FALSE;
+    if ( formWindow != fw ) {
+	saveBreakPoints();
+	changed = TRUE;
+    }
     formWindow = fw;
     setCaption( tr( "Edit %1" ).arg( formWindow->name() ) );
     iFace->setText( sourceOfForm( formWindow, lang, iFace, lIface ) );
     if ( fw->project() )
 	iFace->setContext( fw->project()->formList(), fw ->mainContainer() );
+    if ( changed )
+	iFace->setBreakPoints( MetaDataBase::breakPoints( fw ) );
 }
 
 QString SourceEditor::sourceOfForm( FormWindow *fw, const QString &lang, EditorInterface *, LanguageInterface *lIface )
@@ -200,4 +208,13 @@ void SourceEditor::setFocus()
 int SourceEditor::numLines() const
 {
     return iFace->numLines();
+}
+
+void SourceEditor::saveBreakPoints()
+{
+    if ( !formWindow )
+	return;
+    QValueList<int> l;
+    iFace->breakPoints( l );
+    MetaDataBase::setBreakPoints( formWindow, l );
 }
