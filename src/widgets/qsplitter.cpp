@@ -672,7 +672,8 @@ int QSplitter::findWidgetJustBeforeOrJustAfter( int id, int delta, int &collapsi
     do {
 	QWidget *w = d->list.at( id )->wid;
 	if ( !w->isHidden() ) {
-	    collapsibleSize = pick( qSmartMinSize(w) );
+            if ( collapsible(d->list.at(id)) )
+                collapsibleSize = pick( qSmartMinSize(w) );
 	    return id;
 	}
 	id += 2 * delta; // go to previous (or next) widget, skip the handle
