@@ -25,6 +25,17 @@ QMAKE_SWITCHES=
 QMAKE_VARS=
 QMAKE_CONFIG=
 
+
+#-------------------------------------------------------------------------------
+# platform detection
+#-------------------------------------------------------------------------------
+
+# need that throughout the script
+UNAME_MACHINE=`(uname -m) 2>/dev/null` || UNAME_MACHINE=unknown
+UNAME_RELEASE=`(uname -r) 2>/dev/null` || UNAME_RELEASE=unknown
+UNAME_SYSTEM=`(uname -s) 2>/dev/null`  || UNAME_SYSTEM=unknown
+UNAME_VERSION=`(uname -v) 2>/dev/null` || UNAME_VERSION=unknown
+
 # initialize platform detection
 X11_PLATFORM=no
 CFG_PLATFORM=x11
@@ -802,7 +813,6 @@ fi ### help
 
 if [ "$CFG_EMBEDDED" = "auto" ]
 then
-    UNAME_MACHINE=`(uname -m) 2>/dev/null` || UNAME_MACHINE=unknown
     case "$UNAME_MACHINE" in
 	x86pc) ARCH=qnx ;;
 	*86) ARCH=x86 ;;
@@ -836,11 +846,6 @@ fi
 
 if [ -z "$PLATFORM" ]
 then
-    UNAME_MACHINE=`(uname -m) 2>/dev/null` || UNAME_MACHINE=unknown
-    UNAME_RELEASE=`(uname -r) 2>/dev/null` || UNAME_RELEASE=unknown
-    UNAME_SYSTEM=`(uname -s) 2>/dev/null`  || UNAME_SYSTEM=unknown
-    UNAME_VERSION=`(uname -v) 2>/dev/null` || UNAME_VERSION=unknown
-
     ARCH=""
     if echo $QMAKE_CONFIG | grep embedded >/dev/null 2>&1
     then
@@ -1046,7 +1051,7 @@ echo "$XQMAKESPEC" | grep mkspecs/qws >/dev/null 2>&1 && QWS_PLATFORM=yes
 if grep >/dev/null '^QMAKE_LIBS_THREAD' $XQMAKESPEC/qmake.conf
 then
     AUTOTHREAD=yes
-    AUTOTHREAD=no  ####### leave off for now
+    AUTOTHREAD=no  ### leave off for now
 else
     AUTOTHREAD=never
 fi
@@ -1488,7 +1493,7 @@ fi
 # check for license confirmation
 if [ "$Edition" = "free" ]
 then
-    while true
+    while :
     do
 	if [ "$QWS_PLATFORM" = "yes" ]
 	then
@@ -1606,7 +1611,7 @@ else
     echo
     echo "This is the $Platform $Desc Edition."
     echo
-    while true
+    while :
     do
 	echo
 	echo "Type '?' to view the $Platform License."
@@ -1739,7 +1744,7 @@ fi
 # ask for all that hasn't been auto-detected or specified in the arguments
 #-------------------------------------------------------------------------------
 
-### fix this: user input should be in a loop and tested for correctness
+### fix this: user input should be validated in a loop
 if [ "$CFG_QWS_DEPTHS" = "prompted" -a "$CFG_EMBEDDED" != "no" ]
 then
     echo
@@ -1807,7 +1812,7 @@ then
     fi
 fi
 
-### fix this: user input should be in a loop and tested for correctness
+### fix this: user input should be validated in a loop
 if [ "$CFG_QWS_QVFB" = "prompted" -a "$CFG_EMBEDDED" != "no" ]
 then
     echo
