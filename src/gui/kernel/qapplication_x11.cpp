@@ -1475,7 +1475,12 @@ void qt_init(QApplicationPrivate *priv, int,
             // default visual
             XRenderPictFormat *format =
                 XRenderFindVisualFormat(X11->display, (Visual *) QX11Info::appVisual(X11->defaultScreen));
-            X11->use_xrender = (format != 0) && (QX11Info::appDepth(X11->defaultScreen) != 8);
+            // Check the version as well - we need v0.4 or higher
+            int major = 0;
+            int minor = 0;
+            XRenderQueryVersion(X11->display, &major, &minor);
+            X11->use_xrender = (major >= 0 && minor >= 4) && (format != 0)
+                               && (QX11Info::appDepth(X11->defaultScreen) != 8);
         }
 #endif // QT_NO_XRENDER
 
