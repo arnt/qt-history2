@@ -2385,7 +2385,10 @@ void QOpenType::applyGPOSFeatures()
 	for( int i = 0; i < numfeatures; i++ ) {
 	    TTO_FeatureRecord *r = featurelist.FeatureRecord + i;
 	    FT_UShort feature_index;
-	    TT_GPOS_Select_Feature( gpos, r->FeatureTag, script_index, 0xffff, &feature_index );
+	    FT_Error error = TT_GPOS_Select_Feature( gpos, r->FeatureTag, script_index, 0xffff, &feature_index );
+	    if (error != TT_Err_Ok)
+		continue;
+
 	    // ### is FT_LOAD_DEFAULT the right thing to do?
 	    TT_GPOS_Apply_Feature( face, gpos, feature_index, FT_LOAD_DEFAULT, str, &positions, FALSE, false );
 	}
