@@ -1093,6 +1093,7 @@ void QObject::insertChild( QObject *obj )
 
 void QObject::removeChild( QObject *obj )
 {
+    QApplication::sendPostedEvents( this, QEvent::ChildInserted );
     if ( childObjects && childObjects->removeRef(obj) ) {
 	obj->parentObj = 0;
 	if ( !obj->wasDeleted ) {
