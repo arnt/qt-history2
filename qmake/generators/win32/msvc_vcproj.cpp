@@ -21,6 +21,8 @@
 #include <quuid.h>
 #include <stdlib.h>
 
+//#define DEBUG_SOLUTION_GEN
+//#define DEBUG_PROJECT_GEN
 
 // Flatfile Tags ----------------------------------------------------
 const char* _snlHeader		= "Microsoft Visual Studio Solution File, Format Version 7.00";
@@ -160,10 +162,14 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
     t << _snlHeader;
 
     QDict<VcsolutionDepend> solution_depends;
+
     QPtrList<VcsolutionDepend> solution_cleanup;
     solution_cleanup.setAutoDelete(TRUE);
+
+    
     QStringList subdirs = project->variables()["SUBDIRS"];
     QString oldpwd = QDir::currentDirPath();
+
     for(QStringList::Iterator it = subdirs.begin(); it != subdirs.end(); ++it) {
 	QFileInfo fi(Option::fixPathToLocalOS((*it), TRUE));
 	if(fi.exists()) {
@@ -183,13 +189,16 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 		if(tmp_proj.read(fn, oldpwd)) {
 		    if(tmp_proj.first("TEMPLATE") == "vcsubdirs") {
 			QStringList tmp_subdirs = fileFixify(tmp_proj.variables()["SUBDIRS"]);
-			int removed = tmp_subdirs.remove( Option::fixPathToLocalOS(QDir::currentDirPath()) ); // Remove duplicates! ### This shouldn't happen Sam?
+			int removed = tmp_subdirs.remove( Option::fixPathToLocalOS(QDir::currentDirPath()) ); // Remove duplicates!
 			subdirs += tmp_subdirs;
-			if(removed) // Hmmm, what's going on here??
+			if(removed) { // Hmmm, what's going on here??
 			    qDebug( "\nThis shouldn't happen Sam!?\nremoved (%dX) [%s]\nfrom [%s]", 
 				    removed, 
 				    Option::fixPathToLocalOS(QDir::currentDirPath()).latin1(), 
 				    fileFixify(tmp_proj.variables()["SUBDIRS"]).join(" :: ").latin1() );
+			    subdirs += QDir::currentDirPath() + QDir::separator() + fi.baseName();
+			    qDebug( "Added subdir: [%s]", Option::fixPathToLocalOS(QDir::currentDirPath() + QDir::separator() + fi.baseName()).latin1() );
+			}
 		    } else if(tmp_proj.first("TEMPLATE") == "vcapp" || tmp_proj.first("TEMPLATE") == "vclib") {
 			// Initialize a 'fake' project to get the correct variables
 			// and to be able to extract all the dependencies
@@ -219,36 +228,55 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 			VcsolutionDepend *newDep = new VcsolutionDepend;
 			newDep->vcprojFile = fileFixify(vcproj);
 			newDep->orig_target = tmp_proj.first("QMAKE_ORIG_TARGET");
-			newDep->target = tmp_proj.first("TARGET").section(Option::dir_sep, -1);
+			newDep->target = tmp_proj.first("MSVCPROJ_TARGET").section(Option::dir_sep, -1);
 			newDep->targetType = tmp_vcproj.projectTarget;
 			newDep->uuid = getProjectUUID(Option::fixPathToLocalOS(QDir::currentDirPath() + QDir::separator() + vcproj)).toString().upper();
 
+			// We want to store it as the .lib name.
 			if(newDep->target.endsWith(".dll"))
 			    newDep->target = newDep->target.left(newDep->target.length()-3) + "lib";
+
+			// All projects using Forms are dependent on uic.exe
 			if(!tmp_proj.isEmpty("FORMS"))
 			    newDep->dependencies << "uic.exe";
-			{
-			    QStringList where("QMAKE_LIBS");
-			    if(!tmp_proj.isEmpty("QMAKE_INTERNAL_PRL_LIBS"))
-				where = tmp_proj.variables()["QMAKE_INTERNAL_PRL_LIBS"];
-			    for(QStringList::iterator wit = where.begin();
-				wit != where.end(); ++wit) {
-				QStringList &l = tmp_proj.variables()[(*wit)];
-				for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-				    QString opt = (*it);
-				    if(!opt.startsWith("/")) //Not a switch
-					newDep->dependencies << opt.section(Option::dir_sep, -1);
+
+			// Add all unknown libs to the deps
+			QStringList where("QMAKE_LIBS");
+			if(!tmp_proj.isEmpty("QMAKE_INTERNAL_PRL_LIBS"))
+			    where = tmp_proj.variables()["QMAKE_INTERNAL_PRL_LIBS"];
+			for(QStringList::iterator wit = where.begin();
+			    wit != where.end(); ++wit) {
+			    QStringList &l = tmp_proj.variables()[(*wit)];
+			    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+				QString opt = (*it);
+				if(!opt.startsWith("/") &&   // Not a switch
+				    opt != newDep->target && // Not self
+				    opt != "opengl32.lib" && // We don't care about these libs
+				    opt != "glu32.lib" &&    // to make depgen alittle faster
+				    opt != "kernel32.lib" &&
+				    opt != "user32.lib" &&
+				    opt != "gdi32.lib" &&
+				    opt != "comdlg32.lib" &&
+				    opt != "advapi32.lib" &&
+				    opt != "shell32.lib" &&
+				    opt != "ole32.lib" &&
+				    opt != "oleaut32.lib" &&
+				    opt != "uuid.lib" &&
+				    opt != "imm32.lib" &&
+				    opt != "winmm.lib" &&
+				    opt != "wsock32.lib" &&
+				    opt != "winspool.lib" &&
+				    opt != "delayimp.lib" )
+				{
+				    newDep->dependencies << opt.section(Option::dir_sep, -1);
 				}
 			    }
 			}
+#ifdef DEBUG_SOLUTION_GEN
+			qDebug( "Deps for %20s: [%s]", newDep->target.latin1(), newDep->dependencies.join(" :: " ).latin1() );
+#endif
 			solution_cleanup.append(newDep);
   			solution_depends.insert(newDep->target, newDep);
-  			{
-  			    QRegExp libVersion("[0-9]{3,3}\\.lib$");
-    	  		    if(libVersion.search(newDep->target) != -1)
-	    			solution_depends.insert(newDep->target.left(newDep->target.length() -
-	    						libVersion.matchedLength()) + ".lib", newDep);
-			}
 			t << _snlProjectBeg << _snlMSVCvcprojGUID << _snlProjectMid
 			    << "\"" << newDep->orig_target << "\", \"" << newDep->vcprojFile
 			    << "\", \"" << newDep->uuid << "\"";
@@ -263,16 +291,19 @@ nextfile:
     t << _snlGlobalBeg;
     t << _snlSolutionConf;
     t << _snlProjDepBeg;
+
+    // Figure out dependencies 
     for(solution_cleanup.first(); solution_cleanup.current(); solution_cleanup.next()) {
+	if(solution_cleanup.current()->targetType == StaticLib)
+	    continue; // Shortcut, Static libs are not dep.
 	int cnt = 0;
 	for(QStringList::iterator dit = solution_cleanup.current()->dependencies.begin();
 	    dit != solution_cleanup.current()->dependencies.end();
-	    ++dit) {
-	    VcsolutionDepend *vc;
-	    if((vc=solution_depends[*dit])) {
-	    	if(solution_cleanup.current()->targetType != StaticLib || vc->targetType == Application)
-		    t << "\n\t\t" << solution_cleanup.current()->uuid << "." << cnt++ << " = " << vc->uuid;
-	    }
+	    ++dit)
+	{
+	    VcsolutionDepend *vc = solution_depends[*dit];
+	    if(vc)
+		t << "\n\t\t" << solution_cleanup.current()->uuid << "." << cnt++ << " = " << vc->uuid;
 	}
     }
     t << _snlProjDepEnd;
