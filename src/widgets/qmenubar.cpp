@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#168 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#169 $
 **
 ** Implementation of QMenuBar class
 **
@@ -1052,6 +1052,7 @@ void QMenuBar::setAltMode( bool enable )
 	if ( !QMenuData::d->activeBefore )
 	    QMenuData::d->activeBefore = qApp->focusWidget();
 	setFocus();
+	updateItem( idAt( actItem ) );
     } else {
 	if ( QMenuData::d->activeBefore )
 	    QMenuData::d->activeBefore->setFocus();
@@ -1137,6 +1138,8 @@ void QMenuBar::focusInEvent( QFocusEvent * )
 void QMenuBar::focusOutEvent( QFocusEvent * )
 {
     updateItem( idAt( actItem ) );
+    if ( !popupvisible )
+	setAltMode( FALSE );
 }
 
 #ifdef QT_BUILDER
