@@ -1029,7 +1029,6 @@ void VcprojGenerator::initOld()
 
     // $$QMAKE.. -> $$MSVCPROJ.. -------------------------------------
     project->variables()["MSVCPROJ_LIBS"] += project->variables()["QMAKE_LIBS"];
-    project->variables()["MSVCPROJ_LIBS"] += project->variables()["QMAKE_LIBS_WINDOWS"];
     project->variables()["MSVCPROJ_LFLAGS" ] += project->variables()["QMAKE_LFLAGS"];
     if(!project->variables()["QMAKE_LIBDIR"].isEmpty()) {
 	QStringList strl = project->variables()["QMAKE_LIBDIR"];
