@@ -609,14 +609,13 @@ void QWidget::setCursor( const QCursor &cursor )
 
 void QWidget::unsetCursor()
 {
-    if ( !isTopLevel() ) {
-	if (extra ) {
-	    delete extra->curs;
-	    extra->curs = 0;
-	}
-	clearWState( WState_OwnCursor );
-	qt_set_cursor( this, cursor() );
+    if ( extra ) {
+	delete extra->curs;
+	extra->curs = 0;
     }
+    if ( !isTopLevel() )
+	clearWState( WState_OwnCursor );
+    qt_set_cursor( this, cursor() );
 }
 
 void QWidget::setCaption( const QString &caption )

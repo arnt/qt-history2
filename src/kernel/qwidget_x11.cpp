@@ -919,9 +919,6 @@ void QWidget::setBackgroundPixmapDirect( const QPixmap &pixmap )
     can check for an empty background by checking backgroundPixmap().
 
     \sa setBackgroundPixmap(), setBackgroundColor()
-
-    This class should \e not be made virtual - it is an alternate
-    usage of setBackgroundPixmap().
 */
 void QWidget::setBackgroundEmpty()
 {
@@ -951,15 +948,14 @@ void QWidget::setCursor( const QCursor &cursor )
 
 void QWidget::unsetCursor()
 {
-    if ( !isTopLevel() ) {
-	if ( extra ) {
-	    delete extra->curs;
-	    extra->curs = 0;
-	}
-	clearWState( WState_OwnCursor );
-	qt_x11_enforce_cursor( this );
-	XFlush( x11Display() );
+    if ( extra ) {
+	delete extra->curs;
+	extra->curs = 0;
     }
+    if ( !isTopLevel() )
+	clearWState( WState_OwnCursor );
+    qt_x11_enforce_cursor( this );
+    XFlush( x11Display() );
 }
 
 static XTextProperty*
