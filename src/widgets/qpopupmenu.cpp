@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#50 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#51 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qscrbar.h"				// qDrawArrow
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#50 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#51 $")
 
 
 // Mac style parameters
@@ -106,7 +106,8 @@ static const motifTabSpacing	= 12;		// space between text and tab
   Constructs a popup menu with a parent and a widget name.
 
   The parent widget is ignored.  A pop-up menu has to be a top-level
-  widget, this argument is present merely for API uniformity. */
+  widget, this argument is present merely for API uniformity.
+*/
 
 QPopupMenu::QPopupMenu( QWidget *, const char *name )
 	: QTableView( 0, name, WType_Popup )
@@ -120,11 +121,18 @@ QPopupMenu::QPopupMenu( QWidget *, const char *name )
     setNumCols( 1 );				// set number of table columns
     setNumRows( 0 );				// set number of table rows
     clearTableFlags( Tbl_clipCellPainting | Tbl_autoScrollBars );
-    setFrameStyle( QFrame::Panel | QFrame::Raised );
-    if ( style() == MotifStyle )
-	setLineWidth( motifPopupFrame );
-    else
-	setLineWidth( 1 );
+    switch ( style() ) {
+	case WindowsStyle:
+	    setFrameStyle( QFrame::WinPanel | QFrame::Raised );
+	    break;
+	case MotifStyle:
+	    setFrameStyle( QFrame::Panel | QFrame::Raised );
+	    setLineWidth( motifPopupFrame );
+	    break;
+	default:
+	    setFrameStyle( QFrame::Panel | QFrame::Plain );
+	    setLineWidth( 1 );
+    }
 }
 
 /*!
