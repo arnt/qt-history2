@@ -24,6 +24,13 @@
 /*
   These three macros are used so often that all-upper-case names are
   undesirable.
+
+  hash() combines a character (the first character of a word) and a
+  lenght to form a hash value.
+
+  check() and consume() compare variable 'command' with a target
+  string.  If they are not equal, break.  If they are equal,
+  consume(), but not check(), removes the '\command' from the text.
 */
 #define hash( ch, len ) ( (ch) | ((len) << 8) )
 #define check( target ) \
@@ -53,6 +60,8 @@ static QString what( Doc::Kind kind )
     }
 }
 
+// ### I hate the word 'sanitize'... I have to get rid of the function real
+// soon... 100% bureaucraty.
 static void sanitize( QString& str )
 {
     if ( str.isNull() )
