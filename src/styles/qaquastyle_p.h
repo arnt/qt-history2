@@ -87,8 +87,11 @@ public:
     virtual void removeWidget(QWidget *);
 
     //animation things
-    enum Animates { AquaPushButton, AquaProgressBar };
+    enum Animates { AquaPushButton, AquaProgressBar, AquaListViewItemOpen };
     bool animatable(Animates, QWidget *);
+    bool animatable(Animates, QListViewItem *);
+    void stopAnimate(Animates, QWidget *);
+    void stopAnimate(Animates, QListViewItem *);
 
     //focus things
     static bool focusable(QWidget *);
@@ -107,6 +110,7 @@ protected:
 
 private slots:
     void objDestroyed(QObject *o);
+    void lvi(QListViewItem *);
 };
 
 /*

@@ -2588,6 +2588,7 @@ int QCommonStyle::styleHint(StyleHint sh, const QWidget * w, const QStyleOption 
 	ret = (int) ( w ? w->paletteForegroundColor().rgb() : 0 );
 	break;
 
+    case SH_ListViewExpand_SelectMouseType:
     case SH_TabBar_SelectMouseType:
 	ret = QEvent::MouseButtonPress;
 	break;

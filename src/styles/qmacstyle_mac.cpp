@@ -176,6 +176,9 @@ public:
     struct ProgressBarState {
 	int frame;
     } progressbarState;
+    struct ListViewItemState {
+	QMap<QListViewItem*, int> lvis;
+    } lviState;
     QMacStylePrivate();
     ~QMacStylePrivate();
 protected:
@@ -204,6 +207,30 @@ bool QMacStylePrivate::doAnimate(QAquaAnimate::Animates as)
 	buttonState.frame += ((buttonState.dir == ButtonState::ButtonDark) ? 1 : -1);
     } else if(as == AquaProgressBar) {
 	progressbarState.frame++;
+    } else if(as == AquaListViewItemOpen) {
+	for(QMap<QListViewItem*, int>::Iterator it = lviState.lvis.begin(); it != lviState.lvis.end(); ++it) {
+	    QListViewItem *i = it.key();
+	    int &frame = it.data();
+	    if(i->isOpen()) {
+		if(frame == 4) {
+		    stopAnimate(AquaListViewItemOpen, i);
+		    lviState.lvis.remove(it);
+		    if(lviState.lvis.isEmpty())
+			break;
+		} else {
+		    frame++;
+		}
+	    } else {
+		if(frame == 0) {
+		    stopAnimate(AquaListViewItemOpen, i);
+		    lviState.lvis.remove(it);
+		    if(lviState.lvis.isEmpty())
+			break;
+		} else {
+		    frame--;
+		}
+	    }
+	}
     }
     return TRUE;
 }
@@ -1184,6 +1211,9 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 		f.blue = widget->paletteBackgroundColor().blue()*256;
 		RGBBackColor(&f);
 	    }
+
+	    QPixmap pm;
+	    QPainter pm_paint;
 	    for(QListViewItem *child = item->firstChild(); child && y < h;
 		y += child->totalHeight(), child = child->nextSibling()) {
 		if(y + child->height() > 0) {
@@ -1191,11 +1221,42 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 			ThemeButtonDrawInfo info = { tds, kThemeDisclosureRight, kThemeAdornmentDrawIndicatorOnly };
 			if(flags & Style_HasFocus)
 			    info.adornment |= kThemeAdornmentFocus;
-			if(child->isOpen())
+
+			int rot = 0, border = 2;
+			QPainter *curPaint = p;
+			QRect mr(r.right() - 10, (y + child->height()/2) - 4, 9, 9);
+			Rect glb_r = *qt_glb_mac_rect(mr, p);
+			if(d->animatable(QAquaAnimate::AquaListViewItemOpen, child)) {
+			    if(!d->lviState.lvis.contains(child)) {
+				d->lviState.lvis.insert(child, child->isOpen() ? 0 : 4);
+			    } else {
+				int frame = d->lviState.lvis[child];
+				if((child->isOpen() && frame == 4) || (!child->isOpen() && frame == 0)) {
+				    //nothing..
+				} else {
+				    if(pm.isNull()) {
+					pm = QPixmap(mr.width()+(border*2), mr.height()+(border*2), 32);
+					pm.fill(widget->paletteBackgroundColor());
+					pm_paint.begin(&pm);
+				    }
+				    SetRect(&glb_r, border, border, mr.width(), mr.height());
+				    curPaint = &pm_paint;
+				    ((QMacPainter *)curPaint)->setport();
+				    rot = frame;
+				} 
+			    }
+			}
+			if(!rot && child->isOpen())
 			    info.value = kThemeDisclosureDown;
-			DrawThemeButton(qt_glb_mac_rect(
-			    QRect(r.right() - 10, (y + child->height()/2) - 4, 9, 9), p),
-					kThemeDisclosureButton, &info, NULL, NULL, NULL, 0);
+			DrawThemeButton(&glb_r, kThemeDisclosureButton, &info, NULL, NULL, NULL, 0);
+			if(curPaint != p) {
+			    QWMatrix wm;
+			    wm.translate(-(pm.width()/2), -(pm.height()/2));
+			    wm.rotate((90 / 4) * rot);
+			    wm.translate((pm.width()/2), (pm.height()/2));
+			    p->drawPixmap(mr.topLeft()-QPoint(border, border), pm.xForm(wm));
+			    ((QMacPainter *)p)->setport();
+			} 
 		    }
 		}
 	    }
@@ -1966,6 +2027,7 @@ int QMacStyle::styleHint(StyleHint sh, const QWidget *w,
     case SH_ScrollBar_StopMouseOverSlider:
         ret = TRUE;
         break;
+    case SH_ListViewExpand_SelectMouseType:
     case SH_TabBar_SelectMouseType:
         ret = QEvent::MouseButtonRelease;
         break;

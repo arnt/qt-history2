@@ -44,6 +44,7 @@
 #include <qlabel.h>
 #include <qradiobutton.h>
 #include <qcombobox.h>
+#include <qlistview.h>
 #ifdef Q_WS_MAC
 #  include <qt_mac.h>
 #endif
@@ -147,12 +148,14 @@ struct QAquaAnimatePrivate
     int buttonTimerId;
     QPtrList<QProgressBar> progressBars; //progress bar information
     int progressTimerId;
+    QPtrList<QListViewItem> lvis;
+    int lviTimerID;
 };
 QAquaAnimate::QAquaAnimate() 
 {
     d = new QAquaAnimatePrivate;
     d->focus = d->defaultButton = d->noPulse = NULL;
-    d->progressTimerId = d->buttonTimerId = -1;
+    d->lviTimerID = d->progressTimerId = d->buttonTimerId = -1;
 }
 QAquaAnimate::~QAquaAnimate()
 { 
@@ -185,6 +188,9 @@ bool QAquaAnimate::addWidget(QWidget *w)
 	    d->progressTimerId = startTimer(50);
 	}
 	return TRUE;
+    } else if(w->inherits("QListView")) {
+	QObject::connect(w, SIGNAL(collapsed(QListViewItem*)), this, SLOT(lvi(QListViewItem*)));
+	QObject::connect(w, SIGNAL(expanded(QListViewItem*)),  this, SLOT(lvi(QListViewItem*)));
     }
     return FALSE;
 }
@@ -201,14 +207,23 @@ void QAquaAnimate::removeWidget(QWidget *w)
             killTimer(d->buttonTimerId);
             d->buttonTimerId = -1;
         }
-    }
-    if(w->inherits("QProgressBar")) {
+    } else if(w->inherits("QProgressBar")) {
 	d->progressBars.remove((QProgressBar *) w);
 	if(d->progressBars.isEmpty() && d->progressTimerId != -1) {
 	    killTimer(d->progressTimerId);
 	    d->progressTimerId = -1;
 	}
+    } else if(w->inherits("QListView")) {
+	QObject::disconnect(w, SIGNAL(collapsed(QListViewItem*)), this, SLOT(lvi(QListViewItem*)));
+	QObject::disconnect(w, SIGNAL(expanded(QListViewItem*)),  this, SLOT(lvi(QListViewItem*)));
     }
+}
+void QAquaAnimate::lvi(QListViewItem *l)
+{
+    if(d->lvis.find(l) == -1) 
+	d->lvis.append(l);
+    if(d->lviTimerID == -1) 
+	d->lviTimerID = startTimer(50);
 }
 void QAquaAnimate::objDestroyed(QObject *o)
 {
@@ -216,18 +231,52 @@ void QAquaAnimate::objDestroyed(QObject *o)
 	setFocusWidget(NULL);
     while(d->progressBars.remove((QProgressBar*)o));
 }
+bool QAquaAnimate::animatable(QAquaAnimate::Animates as, QListViewItem *l)
+{
+    if(as == AquaListViewItemOpen && d->lvis.find(l) != -1)
+	return TRUE;
+    return FALSE;
+}
 bool QAquaAnimate::animatable(QAquaAnimate::Animates as, QWidget *w)
 {
     if(as == AquaPushButton && w->inherits("QPushButton")) {
 	QPushButton *btn = (QPushButton *)w;
 	if((!d->noPulse || (QPushButton*)d->noPulse == btn || !d->noPulse->isDown()) &&
-	   btn->isEnabled() && (btn->isDefault() || (btn->autoDefault() && btn->hasFocus())) && ((QPushButton*)d->defaultButton == btn) &&
-	   w == d->defaultButton)
+	   btn->isEnabled() && (btn->isDefault() || (btn->autoDefault() && btn->hasFocus())) && 
+	   ((QPushButton*)d->defaultButton == btn) && w == d->defaultButton)
 	    return TRUE;
     } else if(as == AquaProgressBar && d->progressBars.find((QProgressBar*)w) != -1) {
 	return TRUE;
     }
     return FALSE;
+}
+void QAquaAnimate::stopAnimate(QAquaAnimate::Animates as, QWidget *w)
+{
+    if(as == AquaPushButton && w->inherits("QPushButton")) {
+	if((QPushButton*)d->defaultButton == (QPushButton*)w) {
+	    d->defaultButton = NULL;
+	    if(d->buttonTimerId != -1) {
+		killTimer(d->buttonTimerId);
+		d->buttonTimerId = -1;
+	    }
+	}
+    } else if(as == AquaProgressBar) {
+	d->progressBars.remove((QProgressBar*)w);
+	if(d->progressTimerId != -1 && d->progressBars.isEmpty()) {
+	    killTimer(d->progressTimerId);
+	    d->progressTimerId = -1;
+	}
+    }
+}
+void QAquaAnimate::stopAnimate(QAquaAnimate::Animates as, QListViewItem *l)
+{
+    if(as == AquaListViewItemOpen) {
+	d->lvis.remove(l);
+	if(d->lviTimerID != -1 && d->lvis.isEmpty()) {
+	    killTimer(d->lviTimerID);
+	    d->lviTimerID = -1;
+	}
+    }
 }
 void QAquaAnimate::timerEvent(QTimerEvent * te)
 {
@@ -236,6 +285,15 @@ void QAquaAnimate::timerEvent(QTimerEvent * te)
 	    (d->defaultButton->isDefault() || (d->defaultButton->autoDefault() && d->defaultButton->hasFocus()) )) {
 	    if(doAnimate(AquaPushButton)) 
 		d->defaultButton->repaint(FALSE);
+	}
+    } else if(te->timerId() == d->lviTimerID && !d->lvis.isEmpty()) {
+	if(doAnimate(AquaListViewItemOpen)) {
+	    if(d->lvis.count() == 1) {
+		d->lvis.first()->repaint();
+	    } else {
+		for(QPtrListIterator<QListViewItem> it(d->lvis); it.current(); ++it) 
+		    (*it)->repaint();
+	    }
 	}
     } else if(te->timerId() == d->progressTimerId && !d->progressBars.isEmpty()) {
 	if(doAnimate(AquaProgressBar)) {

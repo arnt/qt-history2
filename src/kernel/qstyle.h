@@ -654,6 +654,9 @@ public:
 	//bool - if left button should cause an absolute position
 	SH_ScrollBar_LeftClickAbsolutePosition,
 
+	// QEvent::Type - which mouse event to select a list view expansion
+	SH_ListViewExpand_SelectMouseType,
+
 	// do not add any values below/greater than this
 	SH_CustomBase =		0xf0000000
     };

@@ -1675,6 +1675,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value SH_TabBar_SelectMouseType which type of mouse event should
 	cause a tab to be selected.
 
+    \value SH_ListViewExpand_SelectMouseType which type of mouse event should
+	cause a listview expansion to be selected.
+
     \value SH_TabBar_PreferNoArrows whether a tabbar should suggest a size
         to prevent scoll arrows.
 
