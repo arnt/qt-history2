@@ -2823,7 +2823,7 @@ QSize QCanvasView::sizeHint() const
   \module canvas
 
   The mostly rectangular classes QCanvasSprite and QCanvasText use the
-  object's bounding rectangle for movement, repaining and collision
+  object's bounding rectangle for movement, repainting and collision
   calculation. However, for most other items, the bounding rectangle
   can be far too large - a diagonal line is the worst case, but there
   are many others that are very bad.
@@ -2844,13 +2844,40 @@ QSize QCanvasView::sizeHint() const
   Normally, QCanvasPolygonalItem uses the odd-even algorithm for
   determining whether an object intersects this object. You can change
   that using setWinding().
+
+  By default, QCanvasPolygonalItem objects have no pen and a black brush.
+  You can change this with setPen() and setBrush(), but note that most
+  QCanvasPolygonalItem subclasses only use the brush, ignoring the pen
+  setting.
 */
+
+
+/*
+  Since most polygonal items don't have a pen, the default is
+  NoPen and a black brush.
+*/
+static const QPen& defaultPolygonPen()
+{
+    static QPen* dp=0;
+    if ( !dp )
+	dp = new QPen(Qt::NoPen);
+    return *dp;
+}
+static const QBrush& defaultPolygonBrush()
+{
+    static QBrush* db=0;
+    if ( !db )
+	db = new QBrush(Qt::black);
+    return *db;
+}
 
 /*!
   Constructs a QCanvasPolygonalItem on \a canvas.
 */
 QCanvasPolygonalItem::QCanvasPolygonalItem(QCanvas* canvas) :
-    QCanvasItem(canvas)
+    QCanvasItem(canvas),
+    br(defaultPolygonBrush()),
+    pn(defaultPolygonPen())
 {
     wind=0;
 }
