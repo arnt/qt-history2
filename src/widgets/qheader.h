@@ -111,6 +111,7 @@ public:
     void 	setSortIndicator( int section, bool increasing = TRUE );
     void setFullSize( bool b );
     bool fullSize() const;
+    void adjustHeaderSize();
 
 public slots:
     void setUpdatesEnabled( bool enable );

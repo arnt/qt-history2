@@ -221,6 +221,7 @@ struct QListViewPrivate
     QPoint dragStartPos;
     bool toolTips;
     QListViewToolTip *toolTip;
+    bool updateHeader;
 
 };
 
@@ -2159,6 +2160,7 @@ void QListView::init()
     d->was_visible = FALSE;
     d->toolTips = TRUE;
     d->toolTip = new QListViewToolTip( viewport(), this );
+    d->updateHeader = FALSE;
 
     setMouseTracking( TRUE );
     viewport()->setMouseTracking( TRUE );
@@ -2955,6 +2957,9 @@ void QListView::show()
 
 void QListView::updateContents()
 {
+    if ( d->updateHeader )
+	header()->adjustHeaderSize();
+    d->updateHeader = FALSE;
     if ( !isVisible() ) {
 	// Not in response to a setText/setPixmap any more.
 	d->useDoubleBuffer = FALSE;
@@ -4783,6 +4788,7 @@ void QListView::widthChanged( const QListViewItem* item, int c )
 	}
 	col++;
     }
+    d->updateHeader = TRUE;
 }
 
 /*!  Sets this list view to assume that the items show focus and

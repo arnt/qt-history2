@@ -1502,7 +1502,8 @@ void QHeader::setUpdatesEnabled( bool enable )
 }
 
 
-bool QHeader::reverse () const {
+bool QHeader::reverse () const
+{
     return ( orient == Qt::Horizontal && QApplication::reverseLayout() );
 }
 
@@ -1516,6 +1517,15 @@ void QHeader::resizeEvent( QResizeEvent *e )
 	    offs = 0;
     }
 
+    adjustHeaderSize();
+}
+
+/*! Adjusts the header size to fit as good as possible, if fullSize()
+  is TRUE.
+*/
+
+void QHeader::adjustHeaderSize()
+{
     if ( d->fullSize && count() > 0 ) {
 	int sec = mapToIndex( count() - 1 );
 	int ns = ( orientation() == Horizontal ? width() : height() ) - sectionPos( sec );
