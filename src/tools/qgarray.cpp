@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#19 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#20 $
 **
 ** Implementation of QGArray class
 **
@@ -27,7 +27,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#19 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#20 $")
 
 
 #if !defined(CHECK_MEMORY)
@@ -80,8 +80,8 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#19 $")
 
 QGArray::QGArray()				// create empty array
 {
-    p = newData();
-    CHECK_PTR( p );
+    shd = newData();
+    CHECK_PTR( shd );
 }
 
 /*! Dummy constructor; does nothing.
@@ -109,13 +109,13 @@ QGArray::QGArray( int size )			// allocate room
 #endif
 	size = 0;
     }
-    p = newData();
-    CHECK_PTR( p );
+    shd = newData();
+    CHECK_PTR( shd );
     if ( size == 0 )				// zero length
 	return;
-    p->data = NEW(char,size);
-    CHECK_PTR( p->data );
-    p->len = size;
+    shd->data = NEW(char,size);
+    CHECK_PTR( shd->data );
+    shd->len = size;
 }
 
 /*!
@@ -124,8 +124,8 @@ QGArray::QGArray( int size )			// allocate room
 
 QGArray::QGArray( const QGArray &a )		// shallow copy
 {
-    p = a.p;
-    p->ref();
+    shd = a.shd;
+    shd->ref();
 }
 
 /*!
@@ -135,10 +135,10 @@ QGArray::QGArray( const QGArray &a )		// shallow copy
 
 QGArray::~QGArray()
 {
-    if ( p && p->deref() ) {			// delete when last reference
-	if ( p->data )				// is lost
-	    DELETE(p->data);
-	deleteData( p );
+    if ( shd && shd->deref() ) {		// delete when last reference
+	if ( shd->data )			// is lost
+	    DELETE(shd->data);
+	deleteData( shd );
     }
 }
 
@@ -148,7 +148,7 @@ QGArray::~QGArray()
 */
 
 
-bool QGArray::isEqual( const QGArray &a ) const // is arrays equal to a
+bool QGArray::isEqual( const QGArray &a ) const
 {
     if ( size() != a.size() )			// different size
 	return FALSE;
@@ -163,30 +163,30 @@ bool QGArray::isEqual( const QGArray &a ) const // is arrays equal to a
   \todo check out possible memory loss involving realloc()
 */
 
-bool QGArray::resize( uint newsize )		// resize array
+bool QGArray::resize( uint newsize )
 {
-    if ( newsize == p->len )			// nothing to do
+    if ( newsize == shd->len )			// nothing to do
 	return TRUE;
     if ( newsize == 0 ) {			// remove array
 	duplicate( 0, 0 );
 	return TRUE;
     }
-    if ( p->data ) {				// existing data
+    if ( shd->data ) {				// existing data
 #if defined(DONT_USE_REALLOC)
 	char *newdata = NEW(char,newsize);	// manual realloc
-	memcpy( newdata, p->data, p->len < newsize ? p->len : newsize );
-	DELETE(p->data);
-	p->data = newdata;
+	memcpy( newdata, shd->data, QMIN(shd->len,newsize) );
+	DELETE(shd->data);
+	shd->data = newdata;
 #else
-	p->data = (char *)realloc( p->data, newsize );
+	shd->data = (char *)realloc( shd->data, newsize );
 #endif
     }
     else
-	p->data = NEW(char,newsize);
-    CHECK_PTR( p->data );
-    if ( !p->data )				// no memory
+	shd->data = NEW(char,newsize);
+    CHECK_PTR( shd->data );
+    if ( !shd->data )				// no memory
 	return FALSE;
-    p->len = newsize;
+    shd->len = newsize;
     return TRUE;
 }
 
@@ -207,7 +207,7 @@ bool QGArray::resize( uint newsize )		// resize array
 bool QGArray::fill( const char *d, int len, uint sz )
 {						// resize and fill array
     if ( len < 0 )
-	len = p->len/sz;			// default: use array length
+	len = shd->len/sz;			// default: use array length
     else if ( !resize( len*sz ) )
 	return FALSE;
     if ( sz == 1 )				// 8 bit elements
@@ -242,13 +242,13 @@ bool QGArray::fill( const char *d, int len, uint sz )
 
 QGArray &QGArray::assign( const QGArray &a )
 {						// shallow copy
-    a.p->ref();					// avoid 'a = a'
-    if ( p->deref() ) {				// delete when last reference
-	if ( p->data )				// is lost
-	    DELETE(p->data);
-	deleteData( p );
+    a.shd->ref();				// avoid 'a = a'
+    if ( shd->deref() ) {			// delete when last reference
+	if ( shd->data )			// is lost
+	    DELETE(shd->data);
+	deleteData( shd );
     }
-    p = a.p;
+    shd = a.shd;
     return *this;
 }
 
@@ -261,17 +261,17 @@ QGArray &QGArray::assign( const QGArray &a )
 
 QGArray &QGArray::assign( const char *d, uint len )
 {						// shallow copy
-    if ( p->count > 1 ) {			// disconnect this
-	p->count--;
-	p = newData();
-	CHECK_PTR( p );
+    if ( shd->count > 1 ) {			// disconnect this
+	shd->count--;
+	shd = newData();
+	CHECK_PTR( shd );
     }
     else {
-	if ( p->data )
-	    DELETE(p->data);
+	if ( shd->data )
+	    DELETE(shd->data);
     }
-    p->data = (char *)d;
-    p->len = len;
+    shd->data = (char *)d;
+    shd->len = len;
     return *this;
 }
 
@@ -281,42 +281,42 @@ QGArray &QGArray::assign( const char *d, uint len )
   \sa assign(), operator=
 */
 
-QGArray &QGArray::duplicate( const QGArray &a ) // deep copy
+QGArray &QGArray::duplicate( const QGArray &a )
 {
-    if ( a.p == p ) {				// a.duplicate(a) !
-	if ( p->count > 1 ) {
-	    p->count--;
+    if ( a.shd == shd ) {			// a.duplicate(a) !
+	if ( shd->count > 1 ) {
+	    shd->count--;
 	    register array_data *n = newData();
 	    CHECK_PTR( n );
-	    if ( (n->len=p->len) ) {
+	    if ( (n->len=shd->len) ) {
 		n->data = NEW(char,n->len);
 		CHECK_PTR( n->data );
 		if ( n->data )
-		    memcpy( n->data, p->data, n->len );
+		    memcpy( n->data, shd->data, n->len );
 	    }
 	    else
 		n->data = 0;
-	    p = n;
+	    shd = n;
 	}
 	return *this;
     }
     char *oldptr = 0;
-    if ( p->count > 1 ) {			// disconnect this
-	p->count--;
-	p = newData();
-	CHECK_PTR( p );
+    if ( shd->count > 1 ) {			// disconnect this
+	shd->count--;
+	shd = newData();
+	CHECK_PTR( shd );
     }
     else					// delete after copy was made
-	oldptr = p->data;
-    if ( a.p->len ) {				// duplicate data
-	p->data = NEW(char,a.p->len);
-	CHECK_PTR( p->data );
-	if ( p->data )
-	    memcpy( p->data, a.p->data, a.p->len );
+	oldptr = shd->data;
+    if ( a.shd->len ) {				// duplicate data
+	shd->data = NEW(char,a.shd->len);
+	CHECK_PTR( shd->data );
+	if ( shd->data )
+	    memcpy( shd->data, a.shd->data, a.shd->len );
     }
     else
-	p->data = 0;
-    p->len = a.p->len;
+	shd->data = 0;
+    shd->len = a.shd->len;
     if ( oldptr )
 	DELETE(oldptr);
     return *this;
@@ -331,40 +331,40 @@ QGArray &QGArray::duplicate( const QGArray &a ) // deep copy
 
 QGArray &QGArray::duplicate( const char *d, uint len )
 {						// deep copy
-    bool overlap = d >= p->data && d < p->data + p->len;
+    bool overlap = d >= shd->data && d < shd->data + shd->len;
     char *oldptr = 0;
     bool null = !(d && len);
-    if ( p->count > 1 ) {			// disconnect this
-	p->count--;
-	p = newData();
-	CHECK_PTR( p );
+    if ( shd->count > 1 ) {			// disconnect this
+	shd->count--;
+	shd = newData();
+	CHECK_PTR( shd );
     }
     else {					// just a single reference
-	if ( len == p->len && !null ) {		// same size; copy the data
+	if ( len == shd->len && !null ) {	// same size; copy the data
 	    if ( overlap )
-		memmove( p->data, d, len );
+		memmove( shd->data, d, len );
 	    else
-		memcpy( p->data, d, len );
+		memcpy( shd->data, d, len );
 	    return *this;
 	}
 	if ( overlap )
-	    oldptr = p->data;
-	else if ( p->data )
-	    DELETE(p->data);
+	    oldptr = shd->data;
+	else if ( shd->data )
+	    DELETE(shd->data);
     }
     if ( null ) {				// null value
-	p->data = 0;
-	p->len	= 0;
+	shd->data = 0;
+	shd->len	= 0;
     }
     else {					// duplicate data
-	p->data = NEW(char,len);
-	CHECK_PTR( p->data );
-	p->len = len;
-	if ( p->data ) {
+	shd->data = NEW(char,len);
+	CHECK_PTR( shd->data );
+	shd->len = len;
+	if ( shd->data ) {
 	    if ( overlap )
-		memmove( p->data, d, len );
+		memmove( shd->data, d, len );
 	    else
-		memcpy( p->data, d, len );
+		memcpy( shd->data, d, len );
 	}
     }
     if ( oldptr )
@@ -383,7 +383,7 @@ QGArray &QGArray::duplicate( const char *d, uint len )
 void QGArray::store( const char *d, uint len )
 {						// store, but not deref
     resize( len );
-    memcpy( p->data, d, len );
+    memcpy( shd->data, d, len );
 }
 
 
@@ -427,10 +427,10 @@ void QGArray::store( const char *d, uint len )
 
 QGArray &QGArray::setRawData( const char *d, uint len )
 {
-    if ( p->data )
+    if ( shd->data )
 	duplicate( 0, 0 );			// set null data
-    p->data = (char *)d;
-    p->len  = len;
+    shd->data = (char *)d;
+    shd->len  = len;
     return *this;
 }
 
@@ -443,14 +443,14 @@ QGArray &QGArray::setRawData( const char *d, uint len )
 
 void QGArray::resetRawData( const char *d, uint len )
 {
-    if ( d != p->data || len != p->len ) {
+    if ( d != shd->data || len != shd->len ) {
 #if defined(CHECK_STATE)
 	warning( "QGArray::resetRawData: Inconsistent arguments" );
 #endif
 	return;
     }
-    p->data = 0;
-    p->len  = 0;
+    shd->data = 0;
+    shd->len  = 0;
 }
 
 
@@ -467,7 +467,7 @@ void QGArray::resetRawData( const char *d, uint len )
 int QGArray::find( const char *d, uint index, uint sz ) const
 {
     index *= sz;
-    if ( index >= p->len ) {
+    if ( index >= shd->len ) {
 #if defined(CHECK_RANGE)
 	warning( "QGArray::find: Index %d out of range", index/sz );
 #endif
@@ -478,7 +478,7 @@ int QGArray::find( const char *d, uint index, uint sz ) const
     if ( sz == 1 ) {				// 8 bit elements
 	register char *x = data();
 	char v = *d;
-	for ( i=index; i<p->len; i++ ) {
+	for ( i=index; i<shd->len; i++ ) {
 	    if ( *x++ == v )
 		break;
 	}
@@ -488,7 +488,7 @@ int QGArray::find( const char *d, uint index, uint sz ) const
     if ( sz == 4 ) {				// 32 bit elements
 	register INT32 *x = (INT32*)(data() + index);
 	INT32 v = *((INT32*)d);
-	for ( i=index; i<p->len; i+=4 ) {
+	for ( i=index; i<shd->len; i+=4 ) {
 	    if ( *x++ == v )
 		break;
 	}
@@ -498,32 +498,34 @@ int QGArray::find( const char *d, uint index, uint sz ) const
     if ( sz == 2 ) {				// 16 bit elements
 	register INT16 *x = (INT16*)(data() + index);
 	INT16 v = *((INT16*)d);
-	for ( i=index; i<p->len; i+=2 ) {
+	for ( i=index; i<shd->len; i+=2 ) {
 	    if ( *x++ == v )
 		break;
 	}
 	ii = i/2;
     }
     else {					// any size elements
-	for ( i=index; i<p->len; i+=sz ) {
-	    if ( memcmp( d, &p->data[i], sz ) == 0 )
+	for ( i=index; i<shd->len; i+=sz ) {
+	    if ( memcmp( d, &shd->data[i], sz ) == 0 )
 		break;
 	}
 	ii = i/sz;
     }
-    return i<p->len ? (int)ii : -1;
+    return i<shd->len ? (int)ii : -1;
 }
 
-/*! Returns the number of occurences of the \e sz bytes at \e d in
+/*!
+  Returns the number of occurences of the \e sz bytes at \e d in
   this array.
 
-  IF you have an 144-byte array containing only null bytes and ask for
+  If you have an 144-byte array containing only null bytes and ask for
   the number of occurences of the 32-bit word 0 (ie. \e d points to 4
-  null bytes and \e sz is 4) you will get 36. */
+  null bytes and \e sz is 4) you will get 36.
+*/
 
 int QGArray::contains( const char *d, uint sz ) const
 {
-    register uint i = p->len;
+    register uint i = shd->len;
     int count = 0;
     if ( sz == 1 ) {				// 8 bit elements
 	register char *x = data();
@@ -554,8 +556,8 @@ int QGArray::contains( const char *d, uint sz ) const
 	}
     }
     else {					// any size elements
-	for ( i=0; i<p->len; i+=sz ) {
-	    if ( memcmp( d, &p->data[i], sz ) == 0 )
+	for ( i=0; i<shd->len; i+=sz ) {
+	    if ( memcmp( d, &shd->data[i], sz ) == 0 )
 		count++;
 	}
     }
@@ -566,13 +568,13 @@ int QGArray::contains( const char *d, uint sz ) const
 
 char *QGArray::at( uint index ) const		// checked indexing
 {
-    if ( index >= p->len ) {
+    if ( index >= shd->len ) {
 #if defined(CHECK_RANGE)
 	warning( "QGArray::operator[]: Absolute index %d out of range", index);
 #endif
 	index = 0;				// try to recover
     }
-    return &p->data[index];
+    return &shd->data[index];
 }
 
 /*! Expand the array if necessary, and copies (the first part of) its
@@ -589,7 +591,7 @@ char *QGArray::at( uint index ) const		// checked indexing
 bool QGArray::setExpand( uint index, const char *d, uint sz )
 {						// set and expand if necessary
     index *= sz;
-    if ( index >= p->len ) {
+    if ( index >= shd->len ) {
 	if ( !resize( index+sz ) )		// no memory
 	    return FALSE;
     }

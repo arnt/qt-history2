@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.cpp#11 $
+** $Id: //depot/qt/main/src/tools/qbuffer.cpp#12 $
 **
 ** Implementation of QBuffer class
 **
@@ -13,7 +13,7 @@
 #include "qbuffer.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#11 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#12 $")
 
 /*! \class QBuffer qbuffer.h
 
@@ -169,12 +169,12 @@ int QBuffer::writeBlock( const char *p, uint len )// write data info buffer
 	}
 	a_inc *= 2;				// double increment
 	a_len = new_len;
-	a.p->len = (uint)index + len;
+	a.shd->len = (uint)index + len;
     }
     memcpy( a.data()+index, p, len );
     index += len;
-    if ( a.p->len < (uint)index )
-	a.p->len = (uint)index;			// fake (not alloc'd) length
+    if ( a.shd->len < (uint)index )
+	a.shd->len = (uint)index;		// fake (not alloc'd) length
     return len;
 }
 
@@ -249,8 +249,8 @@ int QBuffer::putch( int ch )			// put char
     }
     else {
 	*(a.data() + index++) = (char)ch;
-	if ( a.p->len < (uint)index )
-	    a.p->len = (uint)index;
+	if ( a.shd->len < (uint)index )
+	    a.shd->len = (uint)index;
     }
     return ch;
 }

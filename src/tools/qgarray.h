@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.h#11 $
+** $Id: //depot/qt/main/src/tools/qgarray.h#12 $
 **
 ** Definition of QGArray class
 **
@@ -34,8 +34,9 @@ protected:
 
     virtual void detach()	{ duplicate(*this); }
 
-    char       *data()	 const	{ return p->data; }
-    uint	size()	 const	{ return p->len; }
+    char       *data()	 const	{ return shd->data; }
+    uint	nrefs()	 const	{ return shd->count; }
+    uint	size()	 const	{ return shd->len; }
     bool	isEqual( const QGArray &a ) const;
 
     bool	resize( uint newsize );
@@ -48,6 +49,9 @@ protected:
     QGArray    &duplicate( const char *d, uint len );
     void	store( const char *d, uint len );
 
+    array_data *sharedBlock()	const		{ return shd; }
+    void	setSharedBlock( array_data *p ) { shd=(array_data*)p; }
+
     QGArray    &setRawData( const char *d, uint len );
     void	resetRawData( const char *d, uint len );
 
@@ -59,17 +63,18 @@ protected:
     bool	setExpand( uint index, const char *d, uint sz );
 
 protected:
-    array_data *p;
-
     virtual array_data *newData()		    { return new array_data; }
-    virtual void	deleteData( array_data *d ) { delete d; }
+    virtual void	deleteData( array_data *p ) { delete p; }
+
+private:
+    array_data *shd;
 };
 
 
 #if !defined(CHECK_RANGE) && !defined(QGARRAY_CPP)
 inline char *QGArray::at( uint index ) const
 {
-    return &p->data[index];
+    return &shd->data[index];
 }
 #endif
 
