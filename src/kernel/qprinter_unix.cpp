@@ -52,6 +52,7 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 #include "qpsprinter_p.h"
 #include "qprintdialog.h"
 #include "qapplication.h"
+#include "qprinter_p.h"
 
 #include <stdlib.h>
 
@@ -59,17 +60,16 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 // NOT REVISED
 
 
-class QPrinterUnixPrivate : public QPrinter
-struct QPrinterPrivate
+class QPrinterUnixPrivate : public QPrinterPrivate
 {
+public:
     uint topMargin;
     uint leftMargin;
     uint bottomMargin;
     uint rightMargin;
-
-    uint pageRangeEnabled;
-    QPrinter::PageRange pageRange;
 };
+
+#define D ( (QPrinterUnixPrivate*) d )
 
 /*****************************************************************************
   QPrinter member functions
@@ -119,7 +119,7 @@ QPrinter::QPrinter( PrinterMode m )
     output_file = FALSE;
     to_edge     = FALSE;
     d = 0;
-    QPrinterPrivate *tmp = new QPrinterPrivate;
+    QPrinterUnixPrivate *tmp = new QPrinterUnixPrivate;
     margins( &(tmp->topMargin), &(tmp->leftMargin),
 	     &(tmp->bottomMargin), &(tmp->rightMargin) );
     d = tmp;
@@ -510,7 +510,7 @@ int QPrinter::metric( int m ) const
 	    val = (val * res + 36) / 72;
 	if ( !fullPage() ) {
 	    if ( d )
-		val -= d->leftMargin + d->rightMargin;
+		val -= D->leftMargin + D->rightMargin;
 	    else
 		val -= 2*margins().width();
 	}
@@ -521,7 +521,7 @@ int QPrinter::metric( int m ) const
 	    val = (val * res + 36) / 72;
 	if ( !fullPage() ) {
 	    if ( d )
-		val -= d->topMargin + d->bottomMargin;
+		val -= D->topMargin + D->bottomMargin;
 	    else
 		val -= 2*margins().height();
 	}
@@ -580,7 +580,7 @@ int QPrinter::metric( int m ) const
 QSize QPrinter::margins() const
 {
     if ( d )
-	return QSize( d->leftMargin, d->topMargin );
+	return QSize( D->leftMargin, D->topMargin );
 
     if (orient == Portrait)
 	return QSize( res/2, res/3 );
@@ -612,10 +612,10 @@ void QPrinter::margins( uint *top, uint *left, uint *bottom, uint *right ) const
 	*top = *bottom = y;
 	*left = *right = x;
     } else {
-	*top = d->topMargin;
-	*left = d->leftMargin;
-	*bottom = d->bottomMargin;
-	*right = d->rightMargin;
+	*top = D->topMargin;
+	*left = D->leftMargin;
+	*bottom = D->bottomMargin;
+	*right = D->rightMargin;
     }
 }
 
@@ -629,14 +629,14 @@ void QPrinter::margins( uint *top, uint *left, uint *bottom, uint *right ) const
 */
 void QPrinter::setMargins( uint top, uint left, uint bottom, uint right )
 {
-    d->topMargin = top;
-    d->leftMargin = left;
-    d->bottomMargin = bottom;
-    d->rightMargin = right;
+    D->topMargin = top;
+    D->leftMargin = left;
+    D->bottomMargin = bottom;
+    D->rightMargin = right;
 }
 
 QPrinterPageSize::QPrinterPageSize( const QString &, const QSize & )
-    d( 0 )
+  : d( 0 )
 {
     // ###
 }
@@ -647,25 +647,25 @@ bool QPrinterPageSize::isValid() const
     return FALSE;
 }
 
-static QPrinterPageSize::QPrinterPageSize pageSize( const QString & )
+QPrinterPageSize::QPrinterPageSize pageSize( const QString & )
 {
     // ###
     return QPrinterPageSize();
 }
 
-static QPrinterPageSize::definePageSize( const QString &
-					 const QSize & )
+QPrinterPageSize QPrinterPageSize::definePageSize( const QString &,
+							  const QSize & )
 {
     // ###
     return QPrinterPageSize();
 }
 
-static void QPrinterPageSize::undefinePageSize( const QString & )
+void QPrinterPageSize::undefinePageSize( const QString & )
 {
     // ###
 }
 
-static QStringList QPrinterPageSize::pageSizeNames()
+QStringList QPrinterPageSize::pageSizeNames()
 {
     // ###
     return QStringList();
