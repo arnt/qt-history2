@@ -2662,7 +2662,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 {
     if ( columns() == 0 )
 	return;
-    
+
     if ( !d->drawables ||
 	 d->drawables->isEmpty() ||
 	 d->topPixel > cy ||
@@ -5629,6 +5629,26 @@ QCheckListItem::QCheckListItem( QCheckListItem *parent, const QString &text,
 }
 
 /*!
+    Constructs a checkable item with parent \a parent, which is after \a after in the parent's list of children,
+    text \a text and type \a tt. . Note that a \c RadioButton must be the child of a
+    \c Controller, otherwise it will not toggle.
+*/
+QCheckListItem::QCheckListItem( QCheckListItem *parent, QListViewItem *after,
+ 				const QString &text, Type tt )
+    : QListViewItem( parent, after, text )
+{
+    myType = tt;
+    init();
+    if ( myType == RadioButton ) {
+ 	if ( parent->type() != Controller )
+ 	    qWarning( "QCheckListItem::QCheckListItem(), radio button must be "
+		      "child of a controller" );
+ 	else
+ 	    exclusive = parent;
+    }
+}
+
+/*!
     Constructs a checkable item with parent \a parent, text \a text
     and type \a tt. Note that this item must \e not be a \c RadioButton.
     Radio buttons must be children of a \c Controller.
@@ -5646,6 +5666,24 @@ QCheckListItem::QCheckListItem( QListViewItem *parent, const QString &text,
 }
 
 /*!
+    Constructs a checkable item with parent \a parent, which is after \a after in the parent's list of children,
+    text \a text and type \a tt. Note that this item must \e not be a \c RadioButton.
+    Radio buttons must be children of a \c Controller.
+*/
+QCheckListItem::QCheckListItem( QListViewItem *parent, QListViewItem *after,
+ 				const QString &text, Type tt )
+    : QListViewItem( parent, after, text )
+{
+    myType = tt;
+    if ( myType == RadioButton ) {
+ 	qWarning( "QCheckListItem::QCheckListItem(), radio button must be "
+ 		  "child of a QCheckListItem" );
+    }
+    init();
+}
+
+
+/*!
     Constructs a checkable item with parent \a parent, text \a text
     and type \a tt. Note that \a tt must \e not be \c RadioButton. Radio
     buttons must be children of a \c Controller.
@@ -5660,6 +5698,23 @@ QCheckListItem::QCheckListItem( QListView *parent, const QString &text,
 		 "child of a QCheckListItem" );
     init();
 }
+
+/*!
+    Constructs a checkable item with parent \a parent, which is after \a after in the parent's list of children,
+    text \a text and type \a tt. Note that \a tt must \e not be \c RadioButton. Radio
+    buttons must be children of a \c Controller.
+*/
+QCheckListItem::QCheckListItem( QListView *parent, QListViewItem *after,
+ 				const QString &text, Type tt )
+    : QListViewItem( parent, after, text )
+{
+    myType = tt;
+    if ( tt == RadioButton )
+ 	qWarning( "QCheckListItem::QCheckListItem(), radio button must be "
+ 		  "child of a QCheckListItem" );
+    init();
+}
+
 
 int QCheckListItem::RTTI = 1;
 

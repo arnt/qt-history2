@@ -460,10 +460,16 @@ public:
 
     QCheckListItem( QCheckListItem *parent, const QString &text,
 		    Type = Controller );
+    QCheckListItem( QCheckListItem *parent, QListViewItem *after,
+ 		    const QString &text, Type = Controller );
     QCheckListItem( QListViewItem *parent, const QString &text,
 		    Type = Controller );
+    QCheckListItem( QListViewItem *parent, QListViewItem *after,
+ 		    const QString &text, Type = Controller );
     QCheckListItem( QListView *parent, const QString &text,
 		    Type = Controller );
+    QCheckListItem( QListView *parent, QListViewItem *after,
+ 		    const QString &text, Type = Controller );
     QCheckListItem( QListViewItem *parent, const QString &text,
 		    const QPixmap & );
     QCheckListItem( QListView *parent, const QString &text,
