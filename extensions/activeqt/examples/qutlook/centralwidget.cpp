@@ -136,8 +136,8 @@ void AddressBookModel::update()
 {
     cache.clear();
 
-    emit dataChanged(QModelIndex::invalid, QModelIndex::invalid);
-    emit rowsInserted(QModelIndex::invalid, 0, rowCount());
+    emit dataChanged(QModelIndex(), QModelIndex());
+    emit rowsInserted(QModelIndex(), 0, rowCount());
 }
 
 
