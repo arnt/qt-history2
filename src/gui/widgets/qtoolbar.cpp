@@ -306,6 +306,8 @@ Qt::IconSize QToolBar::iconSize() const
 
 void QToolBar::setIconSize(Qt::IconSize iconSize)
 {
+    if (d->iconSize == iconSize)
+        return;
     d->iconSize = iconSize;
     emit iconSizeChanged(d->iconSize);
 }
