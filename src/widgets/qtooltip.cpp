@@ -346,7 +346,9 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 {
     // avoid dumping core in case of application madness, and return
     // quickly for some common but irrelevant events
-    if ( e->type() == QEvent::WindowDeactivate && qApp && !qApp->activeWindow() ) 
+    if ( e->type() == QEvent::WindowDeactivate && 
+	qApp && !qApp->activeWindow() && 
+	label && label->isVisible() ) 
 	hideTipAndSleep();
 
     if ( !qApp || !qApp->activeWindow() ||
