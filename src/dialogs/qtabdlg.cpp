@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#17 $
+** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#18 $
 **
 ** Implementation of tab dialog
 **
@@ -12,7 +12,7 @@
 #include "qpainter.h"
 #include "qstring.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#17 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#18 $");
 
 // a small private class to show the tabs on top
 
@@ -36,7 +36,6 @@ QTab::QTab( QWidget * child, const char * tabString,
     w = child;
     next = 0;
     name = tabString;
-    setFont( QFont("helvetica" ) );
 }
 
 
@@ -53,7 +52,7 @@ QTab::~QTab()
 
   A tabbed dialog is one in which several "pages" are available, and
   the user selects which page to see and use by clicking on its tab.
-  No keyboard shortcuts are available.	Tabbed dialogs provide an easy
+  No keyboard shortcuts are available.  Tabbed dialogs provide an easy
   way to cram more information into a window than a normal dialog
   does.
 
@@ -79,7 +78,7 @@ QTab::~QTab()
   on the current page: Many users will treat that page as independent
   of the other pages.
 
-  <li> Do not use tab dialogs for frequent operations.	The tab dialog
+  <li> Do not use tab dialogs for frequent operations.  The tab dialog
   is probably the most complex widget in common use at the moment, and
   subjecting the user to this complexity during his/her normal use of
   your application is most often a bad idea.
@@ -91,7 +90,7 @@ QTab::~QTab()
   should be treated as such.)
 
   The tab dialog is not a navigational aid, it is an organizational
-  aid.	It is a good way to organize aspects of a complex operation
+  aid.  It is a good way to organize aspects of a complex operation
   (such as setting up caching and proxies in a WWW browser), but a bad
   way to navigate towards a simple operation (such as emptying the
   cache in a WWW browser - emptying the cache is \e not part of
@@ -144,6 +143,7 @@ QTabDialog::QTabDialog( QWidget *parent, const char *name, WFlags f )
 	     this, SIGNAL(applyButtonPressed()) );
     connect( ok, SIGNAL(clicked()),
 	     this, SLOT(accept()) );
+    setFont( QFont( "helvetica" ) );
 }
 
 
@@ -161,11 +161,11 @@ QTabDialog::~QTabDialog()
   Sets the font for the tabs to \e font.
 
   The weight is forced to QFont::Bold for the active tab and
-  QFont::Light for the others.	(QTabDialog::font() returns the
+  QFont::Light for the others.  (QTabDialog::font() returns the
   latter.)
 
   If the widget is visible, the display is updated with the new font
-  immediately.	There may be some geometry changes, depending on the
+  immediately.  There may be some geometry changes, depending on the
   size of the old and new fonts.
 */
 
@@ -174,8 +174,6 @@ void QTabDialog::setFont( const QFont & font )
     QFont f( font );
     f.setWeight( QFont::Light );
     QDialog::setFont( f );
-    for ( QTab * t = tabs; t; t=t->next )
-	t->setFont( f );
     if ( isVisible() ) {
 	setSizes();
 	showTab();
@@ -265,7 +263,7 @@ void QTabDialog::setFont( const QFont & font )
 
 
 /*!
-  Shows the tab view and its children.	Reimplemented in order to
+  Shows the tab view and its children.  Reimplemented in order to
   delay show()'ing of every page except the initially visible one, and
   in order to emit the aboutToShow() signal.
 
@@ -365,7 +363,7 @@ void QTabDialog::setApplyButton( const char * text )
 
 
 /*!
-  Add a Defaults button to the dialog.	The button's text is set to \e
+  Add a Defaults button to the dialog.  The button's text is set to \e
   text (and defaults to "Defaults").
 
   The Defaults button should set the dialog (but not the application)
@@ -647,36 +645,38 @@ bool QTabDialog::eventFilter( QObject * o, QEvent * e )
 	p.begin( t );
 	p.setPen( white );
 	if ( currentTab == t ) {
-	    p.drawLine( 0, height() - 1, 0, 2 );
+	    p.drawLine( 0, t->height() - 1, 0, 2 );
 	    p.drawPoint( 1, 1 );
-	    p.drawLine( 2, 0, width() - 5, 0 );
+	    p.drawLine( 2, 0, t->width() - 5, 0 );
 	    p.setPen( colorGroup().dark() );
-	    p.drawPoint( width() - 4, 1 );
-	    p.drawLine( width() - 3, 2,
-			width() - 3, height() - 2);
+	    p.drawPoint( t->width() - 4, 1 );
+	    p.drawLine( t->width() - 3, 2,
+			t->width() - 3, t->height() - 2);
 	    p.setPen( black );
-	    p.drawPoint( width() - 3, 1 );
-	    p.drawLine( width() - 2, 2,
-			width() - 2, height() - 2);
+	    p.drawPoint( t->width() - 3, 1 );
+	    p.drawLine( t->width() - 2, 2,
+			t->width() - 2, t->height() - 2);
 	    p.setPen( white );
-	    p.drawLine( width()-3, height() - 1, width(), height() - 1 );
+	    p.drawLine( t->width()-3, t->height() - 1,
+			t->width(), t->height() - 1 );
 	    QFont bold( font() );
-	    bold.setBold( TRUE );
+	    bold.setWeight( QFont::Bold );
 	    p.setFont( bold );
 	} else {
-	    p.drawLine( 1, height() - 2, 1, 4 );
+	    p.drawLine( 1, t->height() - 2, 1, 4 );
 	    p.drawPoint( 2, 3 );
-	    p.drawLine( 3, 2, width() - 4, 2 );
+	    p.drawLine( 3, 2, t->width() - 4, 2 );
 	    p.setPen( colorGroup().dark() );
-	    p.drawPoint( width() - 3, 3 );
-	    p.drawLine( width() - 2, 4,
-			width() - 2, height() - 2);
+	    p.drawPoint( t->width() - 3, 3 );
+	    p.drawLine( t->width() - 2, 4,
+			t->width() - 2, t->height() - 2);
 	    p.setPen( black );
-	    p.drawPoint( width() - 2, 3 );
-	    p.drawLine( width() - 1, 4,
-			width() - 1, height() - 2);
+	    p.drawPoint( t->width() - 2, 3 );
+	    p.drawLine( t->width() - 1, 4,
+			t->width() - 1, t->height() - 2);
 	    p.setPen( white );
-	    p.drawLine( 0, height() - 1, width(), height() - 1 );
+	    p.drawLine( 0, t->height() - 1, t->width(), t->height() - 1 );
+	    p.setFont( font() );
 	}
 	p.setPen( black );
 	p.drawText( 2, 0, t->width() - 6, t->height(), AlignCenter, t->name );
