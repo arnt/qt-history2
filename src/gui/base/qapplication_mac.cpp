@@ -2095,10 +2095,11 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    }
 
 	    if(qt_mac_get_document_id(widget)) {
-		QPoint mp(widget->mapToGlobal(QPoint(widget->microFocusHint().topLeft())));
+		QRect mr(widget->microFocusHint());
+		QPoint mp(widget->mapToGlobal(QPoint(mr.topLeft())));
 		Point pt;
 		pt.h = mp.x();
-		pt.v = mp.y();
+		pt.v = mp.y() + mr.height();
 		SetEventParameter(event, kEventParamTextInputReplyPoint, typeQDPoint,
 				  sizeof(pt), &pt);
 		handled_event = TRUE;

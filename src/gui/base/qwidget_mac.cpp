@@ -1185,7 +1185,11 @@ QPoint QWidget::mapFromGlobal(const QPoint &pos) const
 
 void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool, QFont *)
 {
-    if(QRect(x, y, width, height) != microFocusHint()) {
+    if(!width) 
+	width = 1;
+    if(!height)
+	height = 1;
+    if(text && QRect(x, y, width, height) != microFocusHint()) {
 	d->createExtra();
 	d->extraData()->micro_focus_hint.setRect(x, y, width, height);
     }
