@@ -157,24 +157,14 @@ static QString compose(const QString &str)
     ushort last = *(uc++);
     while (uc != end) {
         ushort utf16 = *uc;
-        const unsigned short index = GET_LIGATURE_INDEX(utf16);
-        if (index != 0xffff) {
-            const unsigned short *ligatures = uc_ligature_map+index;
-            ushort length = *ligatures;
-            ++ligatures;
-            // ### use bsearch
-            for (uint i = 0; i < length; ++i) {
-                if (ligatures[2*i] == last) {
-                    QChar ligature = ligatures[2*i+1];
-                    int pos = uc - s.utf16() - 1;
-                    s.replace(pos, 2, &ligature, 1);
-                    // since the insert invalidates the pointers and we do decomposition recursive
-                    uc = s.utf16() + pos;
-                    end = s.utf16() + s.length();
-                    utf16 = ligature.unicode();
-                    break;
-                }
-            }
+        QChar ligature = QUnicodeTables::ligature(last, utf16);
+        if (ligature.unicode()) {
+            int pos = uc - s.utf16() - 1;
+            s.replace(pos, 2, &ligature, 1);
+            // since the insert invalidates the pointers and we do decomposition recursive
+            uc = s.utf16() + pos;
+            end = s.utf16() + s.length();
+            utf16 = ligature.unicode();
         }
         last = utf16;
         uc++;
