@@ -435,7 +435,7 @@ void ConfigureApp::generateConfigfiles()
 	    outStream << "// Everything" << endl << endl;
 	    outStream << "#if defined( QT_MAKEDLL ) && !defined( QT_DLL )" << endl;
 	    outStream << "#define QT_DLL" << endl;
-	    outStream << "#endif" << endl << endl;
+	    outStream << "#endif" << endl;
 	}
 	else {
 	    QString configName( "qconfig-" + dictionary[ "QCONFIG" ] + ".h" );
