@@ -1,4 +1,3 @@
-//depot/qt/main/src/xml/qxml.cpp#14 - integrate change 29186 (text)
 /****************************************************************************
 ** $Id: //depot/qt/main/src/xml/qxml.cpp#4 $
 **
@@ -2888,7 +2887,6 @@ bool QXmlSimpleReader::parseContent()
 		    d->error = XMLERR_ERRORPARSINGPI;
 		    goto parseError;
 		}
-		// call the handler
 		if ( contentHnd ) {
 		    if ( !contentHnd->processingInstruction(name(),string()) ) {
 			d->error = contentHnd->errorString();
@@ -3062,6 +3060,12 @@ bool QXmlSimpleReader::parseMisc()
 		if ( !parseOk ) {
 		    d->error = XMLERR_ERRORPARSINGPI;
 		    goto parseError;
+		}
+		if ( contentHnd ) {
+		    if ( !contentHnd->processingInstruction(name(),string()) ) {
+			d->error = contentHnd->errorString();
+			goto parseError;
+		    }
 		}
 		return TRUE;
 	    case Comment2:
@@ -3763,6 +3767,12 @@ bool QXmlSimpleReader::parseMarkupdecl()
 		if ( !parseOk ) {
 		    d->error = XMLERR_ERRORPARSINGPI;
 		    goto parseError;
+		}
+		if ( contentHnd ) {
+		    if ( !contentHnd->processingInstruction(name(),string()) ) {
+			d->error = contentHnd->errorString();
+			goto parseError;
+		    }
 		}
 		return TRUE;
 	    case Dash:
