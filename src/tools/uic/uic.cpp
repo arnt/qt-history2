@@ -30,6 +30,7 @@
 #include <qregexp.h>
 #include <qcoreapplication.h>
 #include <qdebug.h>
+#include <qdom.h>
 
 #if defined Q_WS_WIN
 #include <qt_windows.h>

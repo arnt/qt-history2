@@ -11,11 +11,7 @@
 **
 ****************************************************************************/
 #include "ui4.h"
-#include <QList>
-#include <QString>
-#include <QStringList>
 #include <QtXml/QDomDocument>
-
 
 /*******************************************************************************
 ** Implementations
@@ -180,7 +176,11 @@ void DomUI::read(const QDomElement &node)
         }
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomUI::write(QDomDocument &doc, const QString &tagName)
@@ -366,7 +366,11 @@ void DomIncludes::read(const QDomElement &node)
         }
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomIncludes::write(QDomDocument &doc, const QString &tagName)
@@ -426,7 +430,11 @@ void DomInclude::read(const QDomElement &node)
         QString tag = e.tagName().toLower();
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomInclude::write(QDomDocument &doc, const QString &tagName)
@@ -490,7 +498,11 @@ void DomResources::read(const QDomElement &node)
         }
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomResources::write(QDomDocument &doc, const QString &tagName)
@@ -549,7 +561,11 @@ void DomResource::read(const QDomElement &node)
         QString tag = e.tagName().toLower();
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomResource::write(QDomDocument &doc, const QString &tagName)
@@ -646,7 +662,11 @@ void DomActionGroup::read(const QDomElement &node)
         }
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomActionGroup::write(QDomDocument &doc, const QString &tagName)
@@ -763,7 +783,11 @@ void DomAction::read(const QDomElement &node)
         }
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomAction::write(QDomDocument &doc, const QString &tagName)
@@ -835,7 +859,11 @@ void DomActionRef::read(const QDomElement &node)
         QString tag = e.tagName().toLower();
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomActionRef::write(QDomDocument &doc, const QString &tagName)
@@ -892,7 +920,11 @@ void DomImages::read(const QDomElement &node)
         }
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomImages::write(QDomDocument &doc, const QString &tagName)
@@ -958,7 +990,11 @@ void DomImage::read(const QDomElement &node)
         }
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomImage::write(QDomDocument &doc, const QString &tagName)
@@ -1022,7 +1058,11 @@ void DomImageData::read(const QDomElement &node)
         QString tag = e.tagName().toLower();
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomImageData::write(QDomDocument &doc, const QString &tagName)
@@ -1082,7 +1122,11 @@ void DomCustomWidgets::read(const QDomElement &node)
         }
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomCustomWidgets::write(QDomDocument &doc, const QString &tagName)
@@ -1131,7 +1175,11 @@ void DomHeader::read(const QDomElement &node)
     if (node.hasAttribute(QLatin1String("location")))
         setAttributeLocation(node.attribute(QLatin1String("location")));
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomHeader::write(QDomDocument &doc, const QString &tagName)
@@ -1240,7 +1288,11 @@ void DomCustomWidget::read(const QDomElement &node)
         }
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomCustomWidget::write(QDomDocument &doc, const QString &tagName)
@@ -1366,7 +1418,11 @@ void DomProperties::read(const QDomElement &node)
         }
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomProperties::write(QDomDocument &doc, const QString &tagName)
@@ -1422,7 +1478,11 @@ void DomPropertyData::read(const QDomElement &node)
         QString tag = e.tagName().toLower();
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomPropertyData::write(QDomDocument &doc, const QString &tagName)
@@ -1479,7 +1539,11 @@ void DomSizePolicyData::read(const QDomElement &node)
         }
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomSizePolicyData::write(QDomDocument &doc, const QString &tagName)
@@ -1551,7 +1615,11 @@ void DomLayoutDefault::read(const QDomElement &node)
         QString tag = e.tagName().toLower();
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomLayoutDefault::write(QDomDocument &doc, const QString &tagName)
@@ -1607,7 +1675,11 @@ void DomLayoutFunction::read(const QDomElement &node)
         QString tag = e.tagName().toLower();
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomLayoutFunction::write(QDomDocument &doc, const QString &tagName)
@@ -1661,7 +1733,11 @@ void DomTabStops::read(const QDomElement &node)
         }
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomTabStops::write(QDomDocument &doc, const QString &tagName)
@@ -1753,7 +1829,11 @@ void DomLayout::read(const QDomElement &node)
         }
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomLayout::write(QDomDocument &doc, const QString &tagName)
@@ -1886,7 +1966,11 @@ void DomLayoutItem::read(const QDomElement &node)
         }
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomLayoutItem::write(QDomDocument &doc, const QString &tagName)
@@ -2001,7 +2085,11 @@ void DomRow::read(const QDomElement &node)
         }
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomRow::write(QDomDocument &doc, const QString &tagName)
@@ -2065,7 +2153,11 @@ void DomColumn::read(const QDomElement &node)
         }
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomColumn::write(QDomDocument &doc, const QString &tagName)
@@ -2141,7 +2233,11 @@ void DomItem::read(const QDomElement &node)
         }
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomItem::write(QDomDocument &doc, const QString &tagName)
@@ -2337,7 +2433,11 @@ void DomWidget::read(const QDomElement &node)
         }
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomWidget::write(QDomDocument &doc, const QString &tagName)
@@ -2511,7 +2611,11 @@ void DomSpacer::read(const QDomElement &node)
         }
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomSpacer::write(QDomDocument &doc, const QString &tagName)
@@ -2584,7 +2688,11 @@ void DomColor::read(const QDomElement &node)
         }
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomColor::write(QDomDocument &doc, const QString &tagName)
@@ -2665,7 +2773,11 @@ void DomColorGroup::read(const QDomElement &node)
         }
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomColorGroup::write(QDomDocument &doc, const QString &tagName)
@@ -2747,7 +2859,11 @@ void DomPalette::read(const QDomElement &node)
         }
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomPalette::write(QDomDocument &doc, const QString &tagName)
@@ -2856,7 +2972,11 @@ void DomFont::read(const QDomElement &node)
         }
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomFont::write(QDomDocument &doc, const QString &tagName)
@@ -2973,7 +3093,11 @@ void DomPoint::read(const QDomElement &node)
         }
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomPoint::write(QDomDocument &doc, const QString &tagName)
@@ -3057,7 +3181,11 @@ void DomRect::read(const QDomElement &node)
         }
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomRect::write(QDomDocument &doc, const QString &tagName)
@@ -3159,7 +3287,11 @@ void DomSizePolicy::read(const QDomElement &node)
         }
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomSizePolicy::write(QDomDocument &doc, const QString &tagName)
@@ -3249,7 +3381,11 @@ void DomSize::read(const QDomElement &node)
         }
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomSize::write(QDomDocument &doc, const QString &tagName)
@@ -3327,7 +3463,11 @@ void DomDate::read(const QDomElement &node)
         }
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomDate::write(QDomDocument &doc, const QString &tagName)
@@ -3414,7 +3554,11 @@ void DomTime::read(const QDomElement &node)
         }
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomTime::write(QDomDocument &doc, const QString &tagName)
@@ -3519,7 +3663,11 @@ void DomDateTime::read(const QDomElement &node)
         }
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomDateTime::write(QDomDocument &doc, const QString &tagName)
@@ -3621,7 +3769,11 @@ void DomStringList::read(const QDomElement &node)
         }
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomStringList::write(QDomDocument &doc, const QString &tagName)
@@ -3677,7 +3829,11 @@ void DomResourcePixmap::read(const QDomElement &node)
         QString tag = e.tagName().toLower();
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomResourcePixmap::write(QDomDocument &doc, const QString &tagName)
@@ -3726,7 +3882,11 @@ void DomString::read(const QDomElement &node)
         QString tag = e.tagName().toLower();
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomString::write(QDomDocument &doc, const QString &tagName)
@@ -3953,7 +4113,11 @@ void DomProperty::read(const QDomElement &node)
         }
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomProperty::write(QDomDocument &doc, const QString &tagName)
@@ -4311,7 +4475,11 @@ void DomConnections::read(const QDomElement &node)
         }
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomConnections::write(QDomDocument &doc, const QString &tagName)
@@ -4389,7 +4557,11 @@ void DomConnection::read(const QDomElement &node)
         }
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomConnection::write(QDomDocument &doc, const QString &tagName)
@@ -4488,7 +4660,11 @@ void DomConnectionHints::read(const QDomElement &node)
         }
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomConnectionHints::write(QDomDocument &doc, const QString &tagName)
@@ -4556,7 +4732,11 @@ void DomConnectionHint::read(const QDomElement &node)
         }
     }
 
-    m_text = node.text();
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
 }
 
 QDomElement DomConnectionHint::write(QDomDocument &doc, const QString &tagName)

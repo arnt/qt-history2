@@ -16,8 +16,8 @@
 #include <QList>
 #include <QString>
 #include <QStringList>
-#include <QtXml/QDomDocument>
-
+class QDomDocument;
+class QDomElement;
 
 #include <qglobal.h>
 #if defined(QT_DESIGNER) && defined(Q_OS_WIN)
