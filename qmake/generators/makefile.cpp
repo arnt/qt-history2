@@ -790,6 +790,7 @@ bool
 MakefileGenerator::write()
 {
     init();
+    findLibraries();
     if((Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE || //write prl
        Option::qmake_mode == Option::QMAKE_GENERATE_PRL) && 
        project->isActiveConfig("create_prl") && project->first("TEMPLATE") == "lib" &&

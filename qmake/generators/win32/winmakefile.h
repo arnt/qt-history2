@@ -44,6 +44,8 @@ class Win32MakefileGenerator : public MakefileGenerator
 protected:
     virtual void writeSubDirs(QTextStream &t);
     int findHighestVersion(const QString &dir, const QString &stem);
+    bool findLibraries(const QString &);
+    virtual bool findLibraries();
 
 public:
     Win32MakefileGenerator(QMakeProject *p);
@@ -52,6 +54,9 @@ public:
 
 inline Win32MakefileGenerator::~Win32MakefileGenerator()
 { }
+
+inline bool Win32MakefileGenerator::findLibraries()
+{ return findLibraries("QMAKE_LIBS"); }
 
 
 

@@ -56,7 +56,7 @@ public:
 
 protected:
     virtual void processPrlVariable(const QString &, const QStringList &);
-
+    virtual bool findLibraries();
 };
 
 inline DspMakefileGenerator::~DspMakefileGenerator()
@@ -66,5 +66,8 @@ inline QString DspMakefileGenerator::defaultMakefile() const
 {
     return project->first("TARGET") + project->first("DSP_EXTENSION");
 }
+
+inline bool DspMakefileGenerator::findLibraries()
+{ return Win32MakefileGenerator::findLibraries("MSVCDSP_LIBS"); }
 
 #endif /* __DSPMAKE_H__ */

@@ -101,6 +101,9 @@ protected:
     virtual void processPrlFiles();
     virtual void writePrlFile(QTextStream &);
 
+    //make sure libraries are found
+    virtual bool findLibraries(); 
+
     QString var(const QString &var);
     QString varGlue(const QString &var, const QString &before, const QString &glue, const QString &after);
     QString varList(const QString &var);
@@ -147,6 +150,9 @@ inline bool MakefileGenerator::mocAware() const
 
 inline QString MakefileGenerator::defaultInstall(const QString &)
 { return QString(""); }
+
+inline bool MakefileGenerator::findLibraries()
+{ return TRUE; }
 
 inline MakefileGenerator::~MakefileGenerator()
 { }

@@ -170,9 +170,71 @@ Win32MakefileGenerator::findHighestVersion(const QString &d, const QString &stem
 	    int n = (*it).mid(nbeg, nend - nbeg).toInt();
 	    if(n > biggest)
 		biggest = n;
+	} else if(biggest == -1) {
+	    biggest = 0;
 	}
     }
     return biggest;
 }
 
-
+bool 
+Win32MakefileGenerator::findLibraries(const QString &where)
+{
+    QStringList &l = project->variables()[where];
+    QPtrList<MakefileDependDir> dirs;
+    dirs.setAutoDelete(TRUE);
+    for(QStringList::Iterator it = l.begin(); it != l.end(); ) {
+        QString opt = (*it);
+        bool remove = FALSE;
+        if(opt.left(2) == "-L" || opt.left(2) == "/L") {
+            QString r = opt.right(opt.length() - 2), l = Option::fixPathToLocalOS(r);
+            dirs.append(new MakefileDependDir(r.replace(QRegExp("\""),""), 
+                                              l.replace(QRegExp("\""),"")));
+            remove = TRUE;
+        } else if(opt.left(2) == "-l" || opt.left(2) == "/l") {
+            QString lib = opt.right(opt.length() - 2), out;
+            if(!lib.isEmpty()) {
+                for(MakefileDependDir *mdd = dirs.first(); mdd; mdd = dirs.next() ) {
+                    int ver = findHighestVersion(mdd->local_dir, lib);
+                    if(ver != -1) {
+                        out = QString(mdd->real_dir + Option::dir_sep + lib + "%1" + ".lib");
+			if(ver)
+			    out = out.arg(ver);
+			else
+			    out = out.arg("");
+                        break;
+                    }
+                }
+            }
+            if(out.isEmpty())
+                remove = TRUE;
+            else
+                (*it) = out;
+        } else if(!QFile::exists(Option::fixPathToLocalOS(opt))) {
+            QString dir, file = opt;
+            int slsh = file.findRev(Option::dir_sep);
+            if(slsh != -1) {
+                dir = file.left(slsh+1);
+                file = file.right(file.length() - slsh - 1);
+            }
+            if(file.right(4) == ".lib") {
+                file = file.left(file.length() - 4);
+                if(!file.at(file.length()-1).isNumber()) {
+                    int ver = findHighestVersion(dir, file);
+                    if(ver != -1) {
+                        file = QString(dir + file + "%1" + ".lib");
+			if(ver)
+			    (*it) = file.arg(ver);
+			else
+			    (*it) = file.arg("");
+		    }
+                }
+            }
+        }
+        if(remove)
+            it = l.remove(it);
+        else
+            ++it;
+    }
+    return TRUE;
+}
