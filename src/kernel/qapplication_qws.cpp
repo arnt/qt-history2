@@ -2251,6 +2251,13 @@ void QApplication::processEvents( int maxtime )
     }
 }
 
+extern QPostEventList *qGlobalPostedEvents();
+
+bool QApplication::hasPendingEvents()
+{
+    #warning "Implement hasPendingEvents on QWS"
+    return qGlobalPostedEvents();
+}
 
 /*!
   This virtual function is only implemented under Qt/Embedded.

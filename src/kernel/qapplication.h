@@ -136,6 +136,7 @@ public:
     void	     processEvents();
     void	     processEvents( int maxtime );
     void	     processOneEvent();
+    bool	     hasPendingEvents();
     int		     enter_loop();
     void	     exit_loop();
     int		     loopLevel() const;

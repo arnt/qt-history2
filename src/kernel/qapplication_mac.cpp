@@ -1367,6 +1367,14 @@ void QApplication::processEvents( int maxtime)
     }
 }
 
+extern QPostEventList *qGlobalPostedEvents();
+
+bool QApplication::hasPendingEvents()
+{
+    #warning "Implement hasPendingEvents on Mac9/X"
+    return qGlobalPostedEvents();
+}
+
 bool QApplication::macEventFilter( EventRef )
 {
     return 0;

@@ -3584,6 +3584,15 @@ void QApplication::processEvents( int maxtime )
     }
 }
 
+extern QPostEventList *qGlobalPostedEvents();
+/*!
+  ### DOCU and IMPL
+*/
+bool QApplication::hasPendingEvents()
+{
+#warning "Implement and Document hasPendingEvents"
+    return qGlobalPostedEvents();
+}
 
 /*!
   This virtual function is only implemented under X11.

@@ -345,7 +345,12 @@ public:
     QPostEventListIt &operator=(const QPostEventListIt &i)
 { return (QPostEventListIt&)QListIterator<QPostEvent>::operator=(i); }
 };
+
 static QPostEventList *globalPostedEvents = 0;	// list of posted events
+QPostEventList *qGlobalPostedEvents()
+{
+    return globalPostedEvents;
+}
 
 static QCleanupHandler<QPostEventList> qapp_cleanup_events;
 
