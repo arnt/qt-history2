@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnum.cpp#42 $
+** $Id: //depot/qt/main/src/widgets/qlcdnum.cpp#43 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 #include <stdio.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnum.cpp#42 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnum.cpp#43 $");
 
 
 /*!
@@ -1074,9 +1074,12 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
   <li>\c Outline gives raised segments filled with the background color. 
   <li>\c Filled gives raised segments filled with the foreground color.
   <li>\c Flat gives flat segments filled with the foreground color.
-  
-  \sa segmentStyle()
-*/
+  </ul>
+
+  \c Outline and \c Filled will additionally use QColorGroup::light()
+  and QColorGroup::dark() for shadow effects.
+
+  \sa segmentStyle() */
 
 void QLCDNumber::setSegmentStyle( SegmentStyle s )
 {
