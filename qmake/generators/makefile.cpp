@@ -661,13 +661,14 @@ MakefileGenerator::processPrlFile(QString &file)
 	    try_replace_file = TRUE;
 	}
     }
-    if(!prl_file.isEmpty() && QFile::exists(prl_file) && 
+    QString real_prl_file = Option::fixPathToLocalOS(prl_file);
+    if(!real_prl_file.isEmpty() && QFile::exists(real_prl_file) && 
        project->variables()["QMAKE_PRL_INTERNAL_FILES"].findIndex(prl_file) == -1) {
 	project->variables()["QMAKE_PRL_INTERNAL_FILES"].append(prl_file);
 	QMakeProject proj;
-	debug_msg(1, "Processing PRL file: %s", prl_file.latin1());
-	if(!proj.read(prl_file, QDir::currentDirPath())) {
-	    fprintf(stderr, "Error processing prl file: %s\n", prl_file.latin1());
+	debug_msg(1, "Processing PRL file: %s", real_prl_file.latin1());
+	if(!proj.read(real_prl_file, QDir::currentDirPath())) {
+	    fprintf(stderr, "Error processing prl file: %s\n", real_prl_file.latin1());
 	} else {
 	    ret = TRUE;
 	    if(!proj.isEmpty("QMAKE_PRL_LIBS")) 
@@ -683,9 +684,9 @@ MakefileGenerator::processPrlFile(QString &file)
 	    }
 	    if(try_replace_file && !proj.isEmpty("QMAKE_PRL_TARGET")) {
 		QString dir;
-		int slsh = file.findRev(Option::dir_sep);
+		int slsh = real_prl_file.findRev(Option::dir_sep);
 		if(slsh != -1)
-		    dir = prl_file.left(slsh+1);
+		    dir = real_prl_file.left(slsh+1);
 		file = dir + proj.first("QMAKE_PRL_TARGET");
 	    }
 	}

@@ -218,7 +218,7 @@ BorlandMakefileGenerator::init()
     bool is_qt = (project->first("TARGET") == "qt" || project->first("TARGET") == "qtmt");
     QStringList &configs = project->variables()["CONFIG"];
     if (project->isActiveConfig("shared"))
-	project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_DLL");
+	project->variables()["DEFINES"].append("QT_DLL");
     if (project->isActiveConfig("qt_dll"))
 	if(configs.findIndex("qt") == -1) configs.append("qt");
     if ( project->isActiveConfig("qt") ) {
