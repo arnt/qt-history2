@@ -1017,6 +1017,7 @@ void QDragManager::updateCursor()
 
 void QDragManager::cancel( bool deleteSource )
 {
+    killTimer( heartbeat );
     if ( object ) {
 	beingCancelled = TRUE;
 	object = 0;
@@ -1094,6 +1095,7 @@ Window findRealWindow( const QPoint & pos, Window w, int md )
 
 void QDragManager::move( const QPoint & globalPos )
 {
+    Q_ASSERT( object != 0 ); // ### remove in Qt 4.0 (object should never be 0 here)
     int screen = QCursor::x11Screen();
     if ( ( qt_xdnd_current_screen == -1 && screen != QPaintDevice::x11AppScreen() ) ||
 	 ( screen != qt_xdnd_current_screen ) ) {
@@ -1153,7 +1155,7 @@ void QDragManager::move( const QPoint & globalPos )
 	WId *proxy_id;
 	qt_ignore_badwindow();
 	r = XGetWindowProperty( qt_xdisplay(), target, qt_xdnd_proxy, 0,
-			    1, False, XA_WINDOW, &type, &f,&n,&a,(uchar**)&proxy_id );
+				1, False, XA_WINDOW, &type, &f,&n,&a,(uchar**)&proxy_id );
 	if ( ( r != Success ) || qt_badwindow() ) {
 	    proxy_target = target = 0;
 	} else if ( type == XA_WINDOW && proxy_id ) {
@@ -1161,7 +1163,7 @@ void QDragManager::move( const QPoint & globalPos )
 	    XFree(proxy_id);
 	    proxy_id = 0;
 	    r = XGetWindowProperty( qt_xdisplay(), proxy_target, qt_xdnd_proxy, 0,
-				1, False, XA_WINDOW, &type, &f,&n,&a,(uchar**)&proxy_id );
+				    1, False, XA_WINDOW, &type, &f,&n,&a,(uchar**)&proxy_id );
 	    if ( ( r != Success ) || qt_badwindow() || !type || !proxy_id || *proxy_id != proxy_target ) {
 		// Bogus
 		proxy_target = 0;
@@ -1174,14 +1176,15 @@ void QDragManager::move( const QPoint & globalPos )
 	    int *tv;
 	    qt_ignore_badwindow();
 	    r = XGetWindowProperty( qt_xdisplay(), proxy_target, qt_xdnd_aware, 0,
-				1, False, AnyPropertyType, &type, &f,&n,&a,(uchar**)&tv );
+				    1, False, AnyPropertyType, &type, &f,&n,&a,(uchar**)&tv );
 	    if ( r != Success ) {
 		target = 0;
 	    } else {
 		target_version = QMIN(qt_xdnd_version,tv ? *tv : 1);
-		if ( tv ) XFree(tv);
+		if ( tv )
+		    XFree( tv );
 		if ( !qt_badwindow() && type )
-		emask = EnterWindowMask;
+		    emask = EnterWindowMask;
 		else
 		    target = 0;
 	    }
@@ -1194,10 +1197,7 @@ void QDragManager::move( const QPoint & globalPos )
 
 	qt_xdnd_current_target = target;
 	qt_xdnd_current_proxy_target = proxy_target;
-	if ( target && object ) {
-	    // check for object shouldn't be necessary,
-	    // since a drag can't start without an object
-
+	if ( target ) {
 	    QMemArray<Atom> type;
 	    int flags = target_version << 24;
 	    const char* fmt;
@@ -1237,7 +1237,7 @@ void QDragManager::move( const QPoint & globalPos )
 	}
     }
 
-    if ( target && object ) {
+    if ( target ) {
 	XClientMessageEvent move;
 	move.type = ClientMessage;
 	move.window = target;
@@ -1266,6 +1266,7 @@ void QDragManager::move( const QPoint & globalPos )
 
 void QDragManager::drop()
 {
+    killTimer( heartbeat );
     if ( !qt_xdnd_current_target )
 	return;
 
@@ -1662,7 +1663,7 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
 
     delete qt_xdnd_deco;
     qt_xdnd_deco = 0;
-    killTimer(heartbeat);
+    killTimer( heartbeat );
     heartbeat = 0;
     qt_xdnd_current_screen = -1;
     qt_xdnd_dragging = FALSE;
