@@ -809,6 +809,7 @@ QAxBase::~QAxBase()
     \i To initialize a licensed control use the following pattern:
     \code
     {8E27C92B-1264-101C-8A2F-040224009C02}:<LicenseKey>
+    \endcode
     \i To connect to an already running object use the following pattern:
     \code
     {8E27C92B-1264-101C-8A2F-040224009C02}&
