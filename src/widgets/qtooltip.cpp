@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#75 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#76 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -511,7 +511,7 @@ void QTipManager::hideTip()
   rectangle within a widget. <li> Adding a tip to a dynamic rectangle
   within a widget. </ol>
 
-  To add a tip to a widget, call the static function QToolTip::add()
+  To add a tip to a widget, call the \e static function QToolTip::add()
   with the widget and tip as arguments:
 
   \code
@@ -968,7 +968,7 @@ void QToolTipGroup::setDelay( bool enable )
 ** QTipLabel meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Sun Aug 23 21:50:26 1998
-**      by: The Qt Meta Object Compiler ($Revision: 2.70 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.71 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
