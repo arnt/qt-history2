@@ -29,6 +29,7 @@ QTOBJS= \
 	qbitarray.o \
 	qbuffer.o \
 	qbytearray.o \
+        qvsnprintf.o \
 	qbytearraymatcher.o \
 	qchar.o \
 	qconfig.o \
@@ -117,6 +118,9 @@ qhash.o: ..\src\core\tools\qhash.cpp
 
 qbytearray.o: ..\src\core\tools\qbytearray.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\tools\qbytearray.cpp
+
+qvsnprintf.o: ..\src\core\tools\qvsnprintf.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\tools\qvsnprintf.cpp
 
 qbytearraymatcher.o: ..\src\core\tools\qbytearraymatcher.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\tools\qbytearraymatcher.cpp

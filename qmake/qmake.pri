@@ -63,7 +63,8 @@ bootstrap { #Qt code
 	qrect.cpp \
 	qpoint.cpp \
 	qsize.cpp \
-        qvector.cpp 
+        qvector.cpp \
+        qvsnprintf.cpp
 
    HEADERS+= \
         qbitarray.h \
