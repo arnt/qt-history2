@@ -214,7 +214,7 @@ inline void QVector<T>::insert(int i, int n, const T &t)
   insert(begin() + i, n, t); }
 template <typename T>
 inline void QVector<T>::remove(int i, int n)
-{ Q_ASSERT_X(i >= 0 && i + n <= d->size, "QVector<T>::remove", "index out of range");
+{ Q_ASSERT_X(i >= 0 && n >= 0 && i + n <= d->size, "QVector<T>::remove", "index out of range");
   erase(begin() + i, begin() + i + n); }
 template <typename T>
 inline void QVector<T>::remove(int i)
