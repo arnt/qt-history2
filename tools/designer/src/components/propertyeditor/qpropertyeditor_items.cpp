@@ -1107,3 +1107,49 @@ void KeySequenceProperty::updateValue(QWidget *editor)
 }
 
 
+// -------------------------------------------------------------------------
+AlignmentProperty::AlignmentProperty(const QMap<QString, QVariant> &items, Qt::Alignment value, const QString &name)
+    : AbstractPropertyGroup(name)
+{
+    QStringList horz_keys = QStringList()
+        << "Qt::AlignLeft" << "Qt::AlignRight"
+        << "Qt::AlignHCenter" << "Qt::AlignJustify"; // << "Qt::AlignAbsolute"
+
+    QMap<QString, QVariant> horz_map;
+    foreach (QString h, horz_keys) {
+        horz_map.insert(h, items.value(h));
+    }
+
+    MapProperty *ph = new MapProperty(horz_map, uint(value & Qt::AlignHorizontal_Mask), QLatin1String("horizontal"));
+    ph->setFake(true);
+    ph->setParent(this);
+    m_properties << ph;
+
+
+
+
+    QStringList vert_keys = QStringList()
+        << "Qt::AlignTop" << "Qt::AlignBottom" << "Qt::AlignVCenter";
+
+    QMap<QString, QVariant> vert_map;
+    foreach (QString h, vert_keys) {
+        vert_map.insert(h, items.value(h));
+    }
+
+    MapProperty *pv = new MapProperty(vert_map, int(value & Qt::AlignVertical_Mask), QLatin1String("vertical"));
+    pv->setFake(true);
+    pv->setParent(this);
+    m_properties << pv;
+}
+
+QVariant AlignmentProperty::value() const
+{
+    return uint(propertyAt(0)->value().toUInt() | propertyAt(1)->value().toUInt());
+}
+
+void AlignmentProperty::setValue(const QVariant &value)
+{
+    propertyAt(0)->setValue(value.toUInt() & Qt::AlignHorizontal_Mask);
+    propertyAt(1)->setValue(value.toUInt() & Qt::AlignVertical_Mask);
+}
+

@@ -43,7 +43,6 @@ NewForm::NewForm(QDesignerWorkbench *workbench, QWidget *parentWidget)
     ui.treeWidget->header()->hide();
     ui.treeWidget->header()->setStretchLastSection(true);
     ui.lblPreview->setBackgroundRole(QPalette::Base);
-    ui.lblPreview->setAlignment(Qt::AlignCenter);
     ui.chkShowOnStartup->setChecked(QDesignerSettings().showNewFormOnStartup());
 
     loadFrom(":/trolltech/designer/templates/forms");

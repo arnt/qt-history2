@@ -534,7 +534,7 @@ QVariant Resource::toVariant(const QMetaObject *meta, DomProperty *p)
         QMetaEnum e = meta->property(index).enumerator();
         Q_ASSERT(e.isFlag() == true);
 
-        v = e.keysToValue(p->elementEnum().toLatin1());
+        v = e.keysToValue(p->elementSet().toLatin1());
     } break;
 
     case DomProperty::Enum: {

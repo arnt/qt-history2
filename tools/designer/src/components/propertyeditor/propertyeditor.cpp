@@ -38,12 +38,10 @@
 
 using namespace QPropertyEditor;
 
-// ### remove me
-IProperty *PropertyEditor::createSpecialProperty(const QVariant &value,
-        const QString &name)
+IProperty *PropertyEditor::createSpecialProperty(const QVariant &value, const QString &name)
 {
-    if (name == QLatin1String("alignment"))
-        return new IntProperty(value.toInt(), name);
+    Q_UNUSED(value);
+    Q_UNUSED(name);
 
     return 0;
 }
@@ -462,7 +460,10 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
         IProperty *p = 0;
         if (qVariantCanConvert<FlagType>(value)) {
             FlagType f = qvariant_cast<FlagType>(value);
-            p = new FlagsProperty(f.items, f.value.toInt(), pname);
+            if (pname == QLatin1String("alignment"))
+                p = new AlignmentProperty(f.items, Qt::Alignment(f.value.toInt()), pname);
+            else
+                p = new FlagsProperty(f.items, f.value.toInt(), pname);
         } else if (qVariantCanConvert<EnumType>(value)) {
             EnumType e = qvariant_cast<EnumType>(value);
             p = new MapProperty(e.items, e.value, pname);
@@ -603,7 +604,7 @@ IProperty *PropertyEditor::propertyByName(IProperty *p, const QString &name)
             if (IProperty *c = propertyByName(g->propertyAt(i), name))
                 return c;
     }
-                
+
     return 0;
 }
 
@@ -661,7 +662,7 @@ void PropertyEditor::setObject(QObject *object)
 void PropertyEditor::resetProperty(const QString &prop_name)
 {
     int idx = m_prop_sheet->indexOf(prop_name);
-    
+
     if (idx == -1) {
         qWarning("PropertyEditor::resetProperty(): no property \"%s\"",
                     prop_name.toLatin1().constData());
@@ -671,7 +672,7 @@ void PropertyEditor::resetProperty(const QString &prop_name)
     QObject *obj = m_object;
     if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(obj))
         obj = promoted->child();
-    
+
     if (!m_prop_sheet->reset(idx)) {
         int item_idx =  m_core->widgetDataBase()->indexOfObject(obj);
         if (item_idx == -1) {
@@ -684,7 +685,7 @@ void PropertyEditor::resetProperty(const QString &prop_name)
         if (idx < default_prop_values.size())
             m_prop_sheet->setProperty(idx, default_prop_values.at(idx));
     }
-    
+
     m_prop_sheet->setChanged(idx, false);
     if (IProperty *p = propertyByName(m_editor->initialInput(), prop_name)) {
         p->setValue(m_prop_sheet->property(idx));

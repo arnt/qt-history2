@@ -1019,12 +1019,12 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
         return 0;
     } else if (qVariantCanConvert<FlagType>(value)) {
         FlagType f = qvariant_cast<FlagType>(value);
-        int v = f.value.toInt();
+        uint v = f.value.toUInt();
         QMapIterator<QString, QVariant> it(f.items);
         QStringList keys;
 
         while (it.hasNext()) {
-            int x = it.next().value().toInt();
+            uint x = it.next().value().toUInt();
             if (v == x) {
                 DomProperty *p = new DomProperty;
                 p->setAttributeName(propertyName);
@@ -1032,7 +1032,8 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
                 return p;
             }
 
-            keys.push_back(it.key());
+            if ((v & x) == x)
+                keys.push_back(it.key());
         }
 
         if (keys.isEmpty())

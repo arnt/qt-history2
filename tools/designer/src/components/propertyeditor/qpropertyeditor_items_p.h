@@ -349,6 +349,15 @@ public:
     void setValue(const QVariant &value);
 };
 
+class QT_PROPERTYEDITOR_EXPORT AlignmentProperty: public AbstractPropertyGroup
+{
+public:
+    AlignmentProperty(const QMap<QString, QVariant> &items, Qt::Alignment value, const QString &name);
+
+    QVariant value() const;
+    void setValue(const QVariant &value);
+};
+
 class QT_PROPERTYEDITOR_EXPORT RectProperty: public AbstractPropertyGroup
 {
 public:
