@@ -73,20 +73,15 @@ static inline void qt_socket_getportaddr( struct sockaddr *sa,
 	Q_IPV6ADDR tmp;
 	memcpy( &tmp, &sa6->sin6_addr.s6_addr, sizeof(tmp) );
 	QHostAddress a( tmp );
-	if ( !a.isNull() ) {
-	    *addr = a;
-	    *port = ntohs( sa6->sin6_port );
-	}
-
+	*addr = a;
+	*port = ntohs( sa6->sin6_port );
 	return;
     }
 #endif
     struct sockaddr_in *sa4 = (struct sockaddr_in *)sa;
     QHostAddress a( ntohl( sa4->sin_addr.s_addr ) );
-    if ( !a.isNull() ) {
-	*port = ntohs( sa4->sin_port );
-	*addr = QHostAddress( ntohl( sa4->sin_addr.s_addr ) );
-    }
+    *port = ntohs( sa4->sin_port );
+    *addr = QHostAddress( ntohl( sa4->sin_addr.s_addr ) );
     return;
 }
 
@@ -109,9 +104,10 @@ QSocketDevice::Protocol QSocketDevice::getProtocol() const
 #endif
 	memset( &sa, 0, sizeof(sa) );
 	QT_SOCKLEN_T sz = sizeof( sa );
-	if ( !::getsockname(fd, (struct sockaddr *)&sa, &sz) ) {
 #if !defined (QT_NO_IPV6)
-	    switch ( sa.ss_family ) {
+	struct sockaddr *sap = reinterpret_cast<struct sockaddr *>(&sa);
+	if ( !::getsockname(fd, sap, &sz) ) {
+	    switch ( sap->sa_family ) {
 		case AF_INET:
 		    return IPv4;
 		case AF_INET6:
@@ -119,15 +115,17 @@ QSocketDevice::Protocol QSocketDevice::getProtocol() const
 		default:
 		    return Unknown;
 	    }
+	}
 #else
+	if ( !::getsockname(fd, &sa, &sz) ) {
 	    switch ( sa.sa_family ) {
 		case AF_INET:
 		    return IPv4;
 		default:
 		    return Unknown;
 	    }
-#endif
 	}
+#endif
     }
     return Unknown;
 }
