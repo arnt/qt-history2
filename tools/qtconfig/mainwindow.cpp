@@ -611,7 +611,14 @@ void MainWindow::fileSave()
 	settings.writeEntry("/qt/Palette/active", actcg);
 	settings.writeEntry("/qt/Palette/inactive", inactcg);
 	settings.writeEntry("/qt/Palette/disabled", discg);
-	settings.writeEntry("/qt/libraryPath", QApplication::libraryPaths(), ':');
+
+	QStringList libpath = QApplication::libraryPaths();
+	QString QTDIRpath = getenv("QTDIR");
+	if ( ! QTDIRpath.isEmpty() ) {
+	    QTDIRpath += "/plugins";
+	    libpath.remove(QTDIRpath);
+	}
+	settings.writeEntry("/qt/libraryPath", libpath, ':');
 	settings.writeEntry("/qt/fontPath", fontpaths, ':');
 	settings.writeEntry("/qt/embedFonts", fontembeddingcheckbox->isChecked() );
 	settings.writeEntry("/qt/style", gstylecombo->currentText());
