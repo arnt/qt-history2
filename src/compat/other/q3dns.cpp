@@ -233,7 +233,7 @@ private:
     QString label;
     Q3DnsRR * rr;
 
-    QString readString();
+    QString readString(bool multipleLabels = true);
     void parseA();
     void parseAaaa();
     void parseMx();
@@ -310,42 +310,59 @@ Q3DnsAnswer::~Q3DnsAnswer()
 }
 
 
-QString Q3DnsAnswer::readString()
+QString Q3DnsAnswer::readString(bool multipleLabels)
 {
     int p = pp;
-    QString r;
+    QString r = QString::null;
     Q_UINT8 b;
-    for (;;) {
-        b = 128;
-        if (p >= 0 && p < size)
-            b = answer[p];
+    for( ;; ) {
+	b = 128;
+        // Read one character
+        if ( p >= 0 && p < size )
+	    b = answer[p];
 
-        switch(b >> 6) {
-        case 0:
-            p++;
-            if (b == 0) {
-                if (p > pp)
-                    pp = p;
-                return r.isNull() ? QString(".") : r;
-            }
-            if (!r.isNull())
-                r += '.';
-            while(b-- > 0)
-                r += QChar(answer[p++]);
-            break;
-        default:
-            goto not_ok;
-        case 3:
-            int q = ((answer[p] & 0x3f) << 8) + answer[p+1];
-            if (q >= pp || q >= p)
-                goto not_ok;
-            if (p >= pp)
-                pp = p + 2;
-            p = q;
+	switch( b >> 6 ) {
+	case 0:
+            // b is less than 64
+	    p++;
+
+            // Detect end of data
+	    if ( b == 0 ) {
+		if ( p > pp )
+		    pp = p;
+                return r.isNull() ? QString( "." ) : r;
+	    }
+
+            // Read a label of size 'b' characters
+            if ( !r.isNull() )
+		r += '.';
+	    while( b-- > 0 )
+                r += QChar( answer[p++] );
+
+            // Return immediately if we were only supposed to read one
+            // label.
+            if (!multipleLabels)
+                return r;
+
+	    break;
+	default:
+            // Ignore unrecognized control character, or p was out of
+            // range.
+	    goto not_ok;
+	case 3:
+            // Use the next character to determine the relative offset
+            // to jump to before continuing the packet parsing.
+	    int q = ( (answer[p] & 0x3f) << 8 ) + answer[p+1];
+
+	    if ( q >= pp || q >= p )
+		goto not_ok;
+	    if ( p >= pp )
+		pp = p + 2;
+	    p = q;
         }
     }
 not_ok:
-    ok = false;
+    ok = FALSE;
     return QString::null;
 }
 
@@ -517,7 +534,7 @@ void Q3DnsAnswer::parsePtr()
 
 void Q3DnsAnswer::parseTxt()
 {
-    QString text = readString();
+    QString text = readString(false);
     if (!ok) {
 #if defined(QDNS_DEBUG)
         qDebug("Q3Dns: saw bad TXT for for %s", label.ascii());
