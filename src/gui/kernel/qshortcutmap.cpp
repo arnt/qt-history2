@@ -12,10 +12,6 @@
 // To enable verbose output uncomment below
 //#define Debug_QShortcutMap
 
-#if defined(Debug_QShortcutMap)
-#pragma message("*** QShortcut debug mode")
-#endif
-
 #define d d_func()
 #define p p_func()
 
@@ -28,18 +24,21 @@
 struct QShortcutEntry
 {
     QShortcutEntry()
-    { owner = 0; id = 0; enabled = false; }
+        : keyseq(0), type(Qt::WhereActiveWindow), enabled(false), id(0), owner(0)
+    {}
 
-    QShortcutEntry(const QWidget *w, const QKeySequence &k, int id)
-    { owner = w; keyseq = k; this->id = id; enabled = true; }
+    QShortcutEntry(const QWidget *w, const QKeySequence &k, Qt::ShortcutType t, int i)
+        : keyseq(k), type(t), enabled(true), id(i), owner(w)
+    {}
 
     bool operator<(const QShortcutEntry &f) const
     { return keyseq < f.keyseq; }
 
     QKeySequence keyseq;
-    const QWidget *owner;
-    int id      : 31;
+    Qt::ShortcutType type;
     bool enabled : 1;
+    int id : 31;
+    const QWidget *owner;
 };
 
 /*! \internal
@@ -103,12 +102,12 @@ QShortcutMap::~QShortcutMap()
     Adds a shortcut to the global map.
     Returns the id of the newly added shortcut.
 */
- int QShortcutMap::addShortcut(const QWidget *owner, const QKeySequence &key)
+int QShortcutMap::addShortcut(const QWidget *owner, const QKeySequence &key, Qt::ShortcutType type)
 {
-    Q_ASSERT(owner);
-    Q_ASSERT(!key.isEmpty());
+    Q_ASSERT_X(owner, "QShortcutMap::addShortcut", "All shortcuts need an owner");
+    Q_ASSERT_X(!key.isEmpty(), "QShortcutMap::addShortcut", "Cannot add keyless shortcuts to map");
 
-    QShortcutEntry newEntry(owner, key, --(d->currentId));
+    QShortcutEntry newEntry(owner, key, type, --(d->currentId));
     QList<QShortcutEntry>::iterator it
         = qUpperBound(d->sequences.begin(), d->sequences.end(), newEntry);
     d->sequences.insert(it, newEntry); // Insert sorted
@@ -310,10 +309,10 @@ Qt::SequenceMatch QShortcutMap::find(QKeyEvent *e)
     static QShortcutEntry newEntry;
     createNewSequence(e, newEntry.keyseq);
 
-    // Should never happen, but will if e->key() == Key_unknown, and
-    // e->text == "", in which case we want to break into debugger
+    // Should never happen
     if (newEntry.keyseq == d->currentSequence) {
-        Q_ASSERT(e->key() != Qt::Key_unknown || e->text().length());
+        Q_ASSERT_X(e->key() != Qt::Key_unknown || e->text().length(),
+                   "QShortcutMap::find", "New sequence to find identical to previous");
         return Qt::NoMatch;
     }
 
@@ -328,19 +327,19 @@ Qt::SequenceMatch QShortcutMap::find(QKeyEvent *e)
         if (it == itEnd)
             break;
         result = newEntry.keyseq.matches((*it).keyseq);
-        if (correctSubWindow((*it).owner)) {
+        if (correctSubWindow(*it)) {
             if (result == Qt::Identical) {
                 if ((*it).enabled)
                     d->identicals.append(&*it);
                 else
                     identicalDisabledFound = true;
             } else if (result == Qt::PartialMatch) {
+                // We don't need partials, if we have identicals
                 if (d->identicals.size())
-                    break;  // We don't need partials, if we have identicals
+                    break;
                 // We only care about enabled partials, so we don't consume
                 // key events when all partials are disabled!
-                if ((*it).enabled)
-                    partialFound = true;
+                partialFound |= (*it).enabled;
             }
         }
         ++it;
@@ -363,7 +362,7 @@ Qt::SequenceMatch QShortcutMap::find(QKeyEvent *e)
 
 /*! \internal
     Clears \a seq to an empty QKeySequence.
-    Same as doing
+    Same as doing (the slower)
     \code
         key = QKeySequence();
     \endcode
@@ -401,18 +400,24 @@ void QShortcutMap::createNewSequence(QKeyEvent *e, QKeySequence &seq)
     Returns true if the widget \a w is a logical sub window of the current
     top-level widget.
 */
-bool QShortcutMap::correctSubWindow(const QWidget* w) {
+bool QShortcutMap::correctSubWindow(const QShortcutEntry &item) {
     QWidget *wtlw = qApp->activeWindow();
     Q_ASSERT(wtlw != 0);
 
+    const QWidget *w = item.owner;
     if (!w->isVisible() || !w->isEnabled() || !wtlw)
         return false;
 
+    // Focus wigdet policy shortcut -------------------------------------------
+    if (item.type == Qt::WhereFocusWidget)
+        return qApp->focusWidget() == item.owner;
+    
+    // Active window policy shortcut ------------------------------------------
     QWidget *tlw = w->topLevelWidget();
     wtlw = wtlw->topLevelWidget();
 
     /* if we live in a floating dock window, keep our parent's
-     * accelerators working */
+   * accelerators working */
     if (tlw->isDialog() && tlw->parentWidget() && ::qt_cast<QDockWindow*>(tlw))
         return tlw->parentWidget()->topLevelWidget() == wtlw;
 
@@ -421,7 +426,7 @@ bool QShortcutMap::correctSubWindow(const QWidget* w) {
 
 #ifndef QT_NO_WORKSPACE
     /* if we live in a MDI subwindow, ignore the event if we are
-       not the active document window */
+          not the active document window */
     const QWidget* sw = w;
     while (sw && !sw->testWFlags(Qt::WSubWindow) && !sw->isTopLevel())
         sw = sw->parentWidget();

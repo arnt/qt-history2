@@ -16,7 +16,8 @@ class Q_GUI_EXPORT QShortcut : public QObject
 public:
     QShortcut(QWidget *parent);
     QShortcut(const QKeySequence& key, QWidget *parent,
-              const char *member = 0, const char *ambiguousMember = 0);
+              const char *member = 0, const char *ambiguousMember = 0,
+              ShortcutType type = WhereActiveWindow);
     ~QShortcut();
 
     void setKey(const QKeySequence& key);

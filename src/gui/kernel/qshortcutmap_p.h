@@ -19,7 +19,7 @@ public:
     QShortcutMap();
     ~QShortcutMap();
 
-    int addShortcut(const QWidget *owner, const QKeySequence &key);
+    int addShortcut(const QWidget *owner, const QKeySequence &key, Qt::ShortcutType type);
     int removeShortcut(const QWidget *owner, int id, const QKeySequence &key = QKeySequence());
     int setShortcutEnabled(const QWidget *owner, int id, bool enable, const QKeySequence &key = QKeySequence());
 
@@ -40,7 +40,7 @@ private:
     QVector<const QShortcutEntry *> matches() const;
     void createNewSequence(QKeyEvent *e, QKeySequence &seq);
     void clearSequence(QKeySequence &seq);
-    bool correctSubWindow(const QWidget* w);
+    bool correctSubWindow(const QShortcutEntry &item);
     int translateModifiers(Qt::ButtonState state);
 };
 

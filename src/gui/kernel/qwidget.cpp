@@ -2920,7 +2920,7 @@ void QWidget::setFocusProxy(QWidget * w)
 
     for (QWidget* fp  = w; fp; fp = fp->focusProxy()) {
         if (fp == this) {
-            qWarning("%s (%s): already in focus proxy chain", className(), objectName().local8Bit());
+            qWarning("%s (%s): already in focus proxy chain", metaObject()->className(), objectName().local8Bit());
             return;
         }
     }
@@ -6231,13 +6231,13 @@ QString QWidget::whatsThis() const
 /*!
   \brief
 */
-int QWidget::grabShortcut(const QKeySequence &key)
+int QWidget::grabShortcut(const QKeySequence &key, ShortcutType type)
 {
     Q_ASSERT(qApp);
     if (key.isEmpty())
         return 0;
     setAttribute(WA_GrabbedShortcut);
-    return qApp->d->shortcutMap.addShortcut(this, key);
+    return qApp->d->shortcutMap.addShortcut(this, key, type);
 }
 
 /*!
