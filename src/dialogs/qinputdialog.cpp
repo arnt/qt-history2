@@ -165,9 +165,9 @@ QInputDialog::QInputDialog( const QString &label, QWidget* parent,
     connect( d->ok, SIGNAL( clicked() ), this, SLOT( accept() ) );
     connect( cancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
 
-    QSize sh = sizeHint();
+    QSize sh = sizeHint().expandedTo( QSize(400, 10) );
     setType( type );
-    resize( QMAX( sh.width(), 400 ), 1 );
+    resize( sh.width(), vbox->heightForWidth(sh.width()) );
 }
 
 /*!
