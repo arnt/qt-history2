@@ -122,6 +122,9 @@ void FtpMainWindow::downloadFile()
 
     ftp->get( item->text(0), file );
     progress.exec(); // ### takes a lot of time!!!
+
+    // the get is finished when we get here, so we can safely cleanup
+    delete file;
 }
 
 void FtpMainWindow::removeFile()
