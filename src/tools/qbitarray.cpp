@@ -213,7 +213,8 @@ bool QBitArray::fill( bool v, int size )
     } else {
 	size = this->size();
     }
-    memset( data(), v ? 0xff : 0, (size+7)/8 ); // set many bytes, fast
+    if ( size > 0 )
+	memset( data(), v ? 0xff : 0, (size + 7) / 8 );
     if ( v )
 	pad0();
     return TRUE;
