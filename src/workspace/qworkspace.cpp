@@ -311,20 +311,15 @@ QSize QWorkspace::sizeHint() const
     return QSize( s.width()*2/3, s.height()*2/3);
 }
 
-/*!
-    \fn void QWorkspace::setBackgroundMode( BackgroundMode )
-    \internal
-*/
-
 /*! \reimp */
-void QWorkspace::setBackgroundColor( const QColor & c )
+void QWorkspace::setPaletteBackgroundColor( const QColor & c )
 {
     setEraseColor( c );
 }
 
 
 /*! \reimp */
-void QWorkspace::setBackgroundPixmap( const QPixmap & pm )
+void QWorkspace::setPaletteBackgroundPixmap( const QPixmap & pm )
 {
     setErasePixmap( pm );
 }
@@ -1485,7 +1480,7 @@ void QWorkspaceChild::resizeEvent( QResizeEvent * )
     if (!childWidget)
 	return;
 
-    windowSize = cr.size();    
+    windowSize = cr.size();
     childWidget->setGeometry( cr );
     ((QWorkspace*) parentWidget() )->updateWorkspace();
 

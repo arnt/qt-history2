@@ -82,23 +82,24 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( QSizePolicy sizePolicy READ sizePolicy WRITE setSizePolicy )
     Q_PROPERTY( QSize minimumSize READ minimumSize WRITE setMinimumSize )
     Q_PROPERTY( QSize maximumSize READ maximumSize WRITE setMaximumSize )
-    Q_PROPERTY( int minimumWidth READ minimumWidth WRITE setMinimumWidth STORED false )
-    Q_PROPERTY( int minimumHeight READ minimumHeight WRITE setMinimumHeight STORED false )
-    Q_PROPERTY( int maximumWidth READ maximumWidth WRITE setMaximumWidth STORED false )
-    Q_PROPERTY( int maximumHeight READ maximumHeight WRITE setMaximumHeight STORED false )
+    Q_PROPERTY( int minimumWidth READ minimumWidth WRITE setMinimumWidth STORED false DESIGNABLE false )
+    Q_PROPERTY( int minimumHeight READ minimumHeight WRITE setMinimumHeight STORED false DESIGNABLE false )
+    Q_PROPERTY( int maximumWidth READ maximumWidth WRITE setMaximumWidth STORED false DESIGNABLE false )
+    Q_PROPERTY( int maximumHeight READ maximumHeight WRITE setMaximumHeight STORED false DESIGNABLE false )
     Q_PROPERTY( QSize sizeIncrement READ sizeIncrement WRITE setSizeIncrement )
     Q_PROPERTY( QSize baseSize READ baseSize WRITE setBaseSize )
     Q_PROPERTY( BackgroundMode backgroundMode READ backgroundMode WRITE setBackgroundMode DESIGNABLE false )
-    Q_PROPERTY( QColor backgroundColor READ backgroundColor WRITE setBackgroundColor )
-    Q_PROPERTY( QColor foregroundColor READ foregroundColor WRITE setForegroundColor )
+    Q_PROPERTY( QColor paletteForegroundColor READ paletteForegroundColor WRITE setPaletteForegroundColor RESET unsetPalette )
+    Q_PROPERTY( QColor paletteBackgroundColor READ paletteBackgroundColor WRITE setPaletteBackgroundColor RESET unsetPalette )
+    Q_PROPERTY( QColor paletteBackgroundPixmap READ paletteBackgroundPixmap WRITE setPaletteBackgroundPixmap RESET unsetPalette )
     Q_PROPERTY( QBrush backgroundBrush READ backgroundBrush )
     Q_PROPERTY( QColorGroup colorGroup READ colorGroup )
-    Q_PROPERTY( QPalette palette READ palette WRITE setPalette RESET unsetPalette )
+    Q_PROPERTY( QPalette palette READ palette WRITE setPalette RESET unsetPalette  STORED ownPalette )
     Q_PROPERTY( bool ownPalette READ ownPalette )
-    Q_PROPERTY( QFont font READ font WRITE setFont RESET unsetFont )
+    Q_PROPERTY( QFont font READ font WRITE setFont RESET unsetFont STORED ownFont )
     Q_PROPERTY( bool ownFont READ ownFont )
 #ifndef QT_NO_CURSOR
-    Q_PROPERTY( QCursor cursor READ cursor WRITE setCursor RESET unsetCursor )
+    Q_PROPERTY( QCursor cursor READ cursor WRITE setCursor RESET unsetCursor STORED ownCursor )
     Q_PROPERTY( bool ownCursor READ ownCursor )
 #endif
 #ifndef QT_NO_WIDGET_TOPEXTRA
@@ -213,16 +214,7 @@ public:
     virtual void	setBackgroundMode( BackgroundMode );
     void 		setBackgroundMode( BackgroundMode, BackgroundMode );
 
-    virtual const QColor &	foregroundColor() const;
-    virtual void		setForegroundColor( const QColor & );
-
-    virtual const QColor &	backgroundColor() const;
-    virtual void		setBackgroundColor( const QColor & );
-
-    virtual const QPixmap *	backgroundPixmap() const;
-    virtual void		setBackgroundPixmap( const QPixmap & );
-    
-    virtual const QBrush&	backgroundBrush() const;
+    const QColor &	foregroundColor() const;
 
     const QColor &	eraseColor() const;
     virtual void	setEraseColor( const QColor & );
@@ -237,6 +229,18 @@ public:
     virtual void	setPalette( const QPalette & );
     void		unsetPalette();
 #endif
+    
+    const QColor &	paletteForegroundColor() const;
+    void		setPaletteForegroundColor( const QColor & );
+
+    const QColor &	paletteBackgroundColor() const;
+    virtual void	setPaletteBackgroundColor( const QColor & );
+
+    const QPixmap *	paletteBackgroundPixmap() const;
+    virtual void 	setPaletteBackgroundPixmap( const QPixmap & );
+    
+    const QBrush&	backgroundBrush() const;
+
     QFont		font() const;
     bool		ownFont() const;
     virtual void	setFont( const QFont & );
@@ -260,6 +264,11 @@ public:
     virtual void	setMask( const QBitmap & );
     virtual void	setMask( const QRegion & );
     void		clearMask();
+
+    const QColor &	backgroundColor() const; // obsolete, use eraseColor()
+    virtual void	setBackgroundColor( const QColor & ); // obsolete, use setEraseColor()
+    const QPixmap *	backgroundPixmap() const; // obsolete, use erasePixmap()
+    virtual void	setBackgroundPixmap( const QPixmap & ); // obsolete, use setErasePixmap()
 
 public slots:
 #ifndef QT_NO_WIDGET_TOPEXTRA

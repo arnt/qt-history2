@@ -185,9 +185,6 @@
 	setPalette(),
 	backgroundMode(),
 	setBackgroundMode(),
-	backgroundPixmap(),
-	setBackgroundPixmap(),
-	backgroundColor(),
 	colorGroup(),
 	fontMetrics(),
 	fontInfo().
@@ -1957,7 +1954,7 @@ QWidget *QWidget::topLevelWidget() const
 }
 
 
-/*! \property QWidget::foregroundColor
+/*! \property QWidget::paletteForegroundColor
     \brief the foreground color of the widget
 
   setForegroundColor() is a convenience function that creates and
@@ -1969,7 +1966,7 @@ QWidget *QWidget::topLevelWidget() const
   \sa setPalette() QApplication:setPalette() backgroundMode()
       foregroundColor() setBackgroundMode() setEraseColor()
 */
-const QColor &QWidget::foregroundColor() const
+const QColor &QWidget::paletteForegroundColor() const
 {
 #ifndef QT_NO_PALETTE
     BackgroundMode mode = extra ? (BackgroundMode) extra->bg_mode_visual : PaletteBackground;
@@ -1979,7 +1976,7 @@ const QColor &QWidget::foregroundColor() const
 #endif
 }
 
-void QWidget::setForegroundColor( const QColor & color )
+void QWidget::setPaletteForegroundColor( const QColor & color )
 {
 #ifndef QT_NO_PALETTE
     BackgroundMode mode = extra ? (BackgroundMode) extra->bg_mode_visual : PaletteBackground;
@@ -1991,6 +1988,16 @@ void QWidget::setForegroundColor( const QColor & color )
     setPalette( pal );
 #endif
 }
+
+
+/*!
+  Same as paletteForegroundColor()
+ */
+const QColor &QWidget::foregroundColor() const
+{
+    return paletteForegroundColor();
+}
+
 
 /*! \fn const QColor& QWidget::eraseColor() const
 
@@ -2243,24 +2250,25 @@ void QWidget::setBackgroundModeDirect( BackgroundMode m )
     }
 }
 
-/*! \property QWidget::backgroundColor
+/*! \property QWidget::paletteBackgroundColor
     \brief the background color of the widget
 
-  The background color is usually set implicitly by
+  The palette background color is usually set implicitly by
   setBackgroundMode(), although it can also be set explicitly by
-  setBackgroundColor().  setBackgroundColor() is a convenience
-  function that creates and sets a modified QPalette with
+  setPaletteBackgroundColor().  setPaletteBackgroundColor() is a
+  convenience function that creates and sets a modified QPalette with
   setPalette(). The palette is modified according to the widget's
   background mode. For example, if the background mode is
   PaletteButton the color used for the palette's QColorGroup::Button
   color entry is set.
 
-  If there is a background pixmap (set using setBackgroundPixmap()),
-  then the return value of this function is indeterminate.
+  If there is a background pixmap (set using
+  setPaletteBackgroundPixmap()), then the return value of this
+  function is indeterminate.
 
-  \sa foregroundColor, palette, colorGroup()
+  \sa paletteBackgroundPixmap, paletteForegroundColor, palette, colorGroup()
 */
-const QColor & QWidget::backgroundColor() const
+const QColor & QWidget::paletteBackgroundColor() const
 {
 #ifndef QT_NO_PALETTE
     BackgroundMode mode = extra ? (BackgroundMode) extra->bg_mode_visual : PaletteBackground;
@@ -2279,20 +2287,7 @@ const QColor & QWidget::backgroundColor() const
 #endif
 }
 
-/*!
-    This function sets the widget's background color to \a color.
-
-    Qt uses palettes for colors to ensure good contrast and consistent
-    color use. Behind-the-scenes this function either sets the
-    setEraseColor() or the palette (see setPalette()) depending on the
-    background mode. For example, if the background mode is
-    PaletteButton the pixmap used for the palette's
-    QColorGroup::Button brush entry is set.
-
-  \sa backgroundColor, setBackgroundColor() erasePixmap, palette, QApplication::setPalette()
-*/
-
-void QWidget::setBackgroundColor( const QColor &color )
+void QWidget::setPaletteBackgroundColor( const QColor &color )
 {
 #ifndef QT_NO_PALETTE
     BackgroundMode mode = extra ? (BackgroundMode) extra->bg_mode_visual : PaletteBackground;
@@ -2318,16 +2313,24 @@ void QWidget::setBackgroundColor( const QColor &color )
 }
 
 
-/*!
-    Returns the widget's background pixmap.
-  If the widget has backgroundMode() NoBackground, the
-  backgroundPixmap() returns a pixmap for which QPixmap:isNull() is
-  true.  If the widget has no pixmap is the background,
-  backgroundPixmap() returns a null pointer.
+/*! \property QWidget::paletteBackgroundPixmap
+    \brief the background pixmap of the widget
 
-  \sa backgroundColor, setBackgroundColor() erasePixmap, palette, QApplication::setPalette()
+  The palette background pixmap is usually set implicitly by
+  setBackgroundMode(), although it can also be set explicitly by
+  setPaletteBackgroundPixmap().  setPaletteBackgroundPixmap() is a
+  convenience function that creates and sets a modified QPalette with
+  setPalette(). The palette is modified according to the widget's
+  background mode. For example, if the background mode is
+  PaletteButton the pixmap used for the palette's QColorGroup::Button
+  color entry is set.
+
+  If there is a plain background color (set using
+  setPaletteBackgroundColor()), then this function returns 0.
+
+  \sa paletteBackgroundColor, paletteForegroundColor, palette, colorGroup()
 */
-const QPixmap *QWidget::backgroundPixmap() const
+const QPixmap *QWidget::paletteBackgroundPixmap() const
 {
 #ifndef QT_NO_PALETTE
     BackgroundMode mode = extra ? (BackgroundMode) extra->bg_mode_visual : PaletteBackground;
@@ -2346,20 +2349,7 @@ const QPixmap *QWidget::backgroundPixmap() const
 #endif
 }
 
-/*!
-    This function sets the widget's background pixmap to \a pixmap.
-
-    Qt uses palettes for colors to ensure good contrast and consistent
-    color use. Behind-the-scenes this function either sets the
-    setEraseColor() or the palette (see setPalette()) depending on the
-    background mode. For example, if the background mode is
-    PaletteButton the pixmap used for the palette's
-    QColorGroup::Button brush entry is set.
-
-  \sa backgroundColor, setBackgroundColor() erasePixmap, palette, QApplication::setPalette()
-*/
-
-void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
+void QWidget::setPaletteBackgroundPixmap( const QPixmap &pixmap )
 {
 #ifndef QT_NO_PALETTE
     BackgroundMode mode = extra ? (BackgroundMode) extra->bg_mode_visual : PaletteBackground;
@@ -2388,6 +2378,9 @@ void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 /*! \property QWidget::backgroundBrush
     \brief the widget's background brush
 
+    The background brush depends on a widget's palette and its
+    background mode.
+    
   \sa backgroundColor,  backgroundPixmap, eraseColor,  palette, QApplication::setPalette()
 */
 const QBrush& QWidget::backgroundBrush() const
@@ -2440,6 +2433,11 @@ const QColorGroup &QWidget::colorGroup() const
   has been called, this is either a special palette for the widget
   class, the parent's palette or (if this widget is a top level
   widget) the default application palette.
+  
+  Instead of defining an entirely new palette, you can also use the \l
+  paletteBackgroundColor, \l paletteBackgroundPixmap and \l
+  paletteForegroundColor convenience properties to change a widget's
+  background and foreground appearance only.
 
   \sa ownPalette, colorGroup(), QApplication::palette()
 */
@@ -5245,3 +5243,14 @@ void QWidget::showFullScreen()
 
   \sa setPalette(), unsetPalette()
 */
+
+
+
+/*!\obsolete  Use eraseColor() instead. */
+const QColor & QWidget::backgroundColor() const { return eraseColor(); }
+/*!\obsolete  Use setEraseColor() instead. */
+void QWidget::setBackgroundColor( const QColor &c ) { setEraseColor( c ); }
+/*!\obsolete  Use erasePixmap() instead. */
+const QPixmap *QWidget::backgroundPixmap() const { return erasePixmap(); }
+/*!\obsolete  Use setErasePixmap() instead. */
+void QWidget::setBackgroundPixmap( const QPixmap &pm ) { setErasePixmap( pm ); }

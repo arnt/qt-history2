@@ -65,12 +65,9 @@ public:
     bool scrollBarsEnabled() const;
     void setScrollBarsEnabled( bool enable );
 
-    void setBackgroundColor( const QColor & );
-    void setBackgroundPixmap( const QPixmap & );
-    
-    void setBackgroundMode( BackgroundMode ) {}
+    void setPaletteBackgroundColor( const QColor & );
+    void setPaletteBackgroundPixmap( const QPixmap & );
 
-    
 signals:
     void windowActivated( QWidget* w);
 
