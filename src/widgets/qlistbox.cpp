@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#196 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#197 $
 **
 ** Implementation of QListBox widget class
 **
@@ -760,7 +760,7 @@ void QListBox::clear()
 
 /*!
   Returns the text at position \e index, or a
-  \a link QString::isNull() null string\endlink
+  \link QString::operator!() null string\endlink
   if there is no text at that position.
 
   \sa pixmap()

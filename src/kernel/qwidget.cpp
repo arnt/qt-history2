@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#366 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#367 $
 **
 ** Implementation of QWidget class
 **
@@ -1998,7 +1998,9 @@ const QPixmap *QWidget::icon() const
 }
 
 /*!
-  Returns the widget icon text, or null if no icon text has been set.
+  Returns the widget icon text, or a
+  \link QString::operator!() null string\endlink
+  if no icon text has been set.
   \sa setIconText(), icon(), caption()
 */
 
