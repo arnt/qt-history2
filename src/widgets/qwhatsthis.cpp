@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#14 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -21,13 +21,39 @@
 #include "qcursor.h"
 #include "qbitmap.h"
 
-/*notready
-  \class QWhatsThis qwhatsthis.h
-  \brief ....
+/*! \class QWhatsThis qwhatsthis.h
 
-  ....
+  \brief The QWhatsThis class provides a simple description of any
+  widget, e.g. answering the question "what's this?"
 
   \ingroup application
+
+  What's This help lies between tool tips and fully-blown online help
+  systems: <ul><li> Tool Tips - flyweight help, extremely brief,
+  entirely integrated in the user interface. <li> What's This? - also
+  lightweight, but can encompass a three-paragraph explanation.  <li>
+  Online Help - can encompass any amount of information, but is
+  typically a little slower to call up, a little separated from the
+  user's work, and often users feel that using online help is a
+  digression from their real task. </ul>
+  
+  QWhatsThis, then, offers a single window with a single explanatory
+  text, which pops up quickly when the user asks "what's this?", and
+  goes away as soon as the user does something else.  There are two
+  ways to make QWhatsThis pop up: Click a "What's This?" button and
+  then click on some other widget to get help for that other widget,
+  or press Shift-F1 to get help for the widget that has keyboard
+  focus.
+  
+  QWhatsThis provides functions to add() and remove() What's This help
+  for a widget, and it provides a function to create a What's This
+  button suitable for typical tool bars.
+  
+  <img src="whatsthis.gif" width="376" height="239">
+
+  More functionality will be provided in the coming releases of Qt.
+
+  \sa QToolTip
 */
 
 class QWhatsThisPrivate: public QObject
@@ -119,26 +145,6 @@ static const char * button_image[] = {
 "     ooo        ",
 "     ooo        "};
 
-/*
-#define cursor_mask_width 22
-#define cursor_mask_height 21
-static uchar cursor_mask_bits[] = {
- 0x00,0x00,0x00,0x02,0x00,0x00,0x06,0xe0,0x0f,0x0e,0xf0,0x1f,0x1e,0xf8,0x3f,
- 0x3e,0x7c,0x3e,0x7e,0x7c,0x3e,0xfe,0x7c,0x3e,0xfe,0x7d,0x3e,0xfe,0x3b,0x1f,
- 0xfe,0x87,0x0f,0xfe,0xcf,0x07,0xfe,0xc0,0x07,0xee,0xc1,0x07,0xe6,0xc1,0x07,
- 0xc2,0xc3,0x07,0xc0,0xc3,0x07,0x80,0xc7,0x07,0x80,0xc7,0x07,0x00,0x03,0x00,
- 0x00,0x00,0x00};
- */
-/*
-#define wwwww1_width 22
-#define cursor_bits_height 21
-static uchar cursor_bits_bits[] = {
- 0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x1f,0xf0,0xfb,0xef,0xef,0xf3,0x77,0xde,
- 0xe3,0xbb,0xdd,0xc3,0xbb,0xdd,0x83,0xbb,0xdd,0x03,0xbb,0xdd,0x03,0xc6,0xee,
- 0x03,0x7c,0xf7,0x83,0xbf,0xfb,0x93,0xbf,0xfb,0x3b,0xbf,0xfb,0x3f,0x3f,0xf8,
- 0x7f,0xbe,0xfb,0x7f,0xbe,0xfb,0xff,0xbc,0xfb,0xff,0x3c,0xf8,0xff,0xff,0xff,
- 0xff,0xff,0xff};
- */
 #define cursor_bits_width 32
 #define cursor_bits_height 32
 static unsigned char cursor_bits_bits[] = {
@@ -491,7 +497,7 @@ void QWhatsThisPrivate::say( QWidget * widget, const char * text )
 
 // and finally the What's This class itself
 
-/*!  Adds \a text as what's this help for \a widget.  If \a deepCopy
+/*!  Adds \a text as What's This help for \a widget.  If \a deepCopy
   is TRUE, QWhatsThis makes a deep copy of the string; if it is FALSE
   QWhatsThis just copies the pointer \a text.
 */
@@ -504,7 +510,7 @@ void QWhatsThis::add( QWidget * widget, const char * text, bool deepCopy )
 
 
 
-/*!  Adds \a text as what's this help for \a widget, with title line
+/*!  Adds \a text as What's This help for \a widget, with title line
   \a title and icon \a icon.  If \a deepCopy is TRUE, QWhatsThis makes
   a deep copy of \a title and \a text; if it is FALSE QWhatsThis just
   copies the pointers.
@@ -542,7 +548,7 @@ void QWhatsThis::add( QWidget * widget, const QPixmap & icon,
 }
 
 
-/*!  Removes the what's this help for \a widget.  \sa add() */
+/*!  Removes the What's This help for \a widget.  \sa add() */
 
 void QWhatsThis::remove( QWidget * widget )
 {
@@ -560,7 +566,7 @@ void QWhatsThis::remove( QWidget * widget )
 
 
 /*!  Returns the text (not the title) for \a widget, or 0 if there
-  isn't any what's this help for \a widget.
+  isn't any What's This help for \a widget.
 
   \sa add() */
 
@@ -584,3 +590,120 @@ QToolButton * QWhatsThis::whatsThisButton( QWidget * parent )
     return new QWhatsThisPrivate::Button( parent,
 					  "automatic what's this? button" );
 }
+
+
+/*! \base64 whatsthis.gif
+
+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
+GyLb533h/K3hGL7he9HhKfLho9XeI+459z1CChHisz3e+o3eLO7f6xbkLs4XMG4bMn7gxV3j
+aXPj6bQk5D3fQm7h+p3eQz4ZwX3kWpvlhLjlWcvlW+vlWr7ZhMLk0JHjtM1RSYTb0aPeGb7m
+Vc7hV57dM87db642MKHjdZ7nRB7n/vJN43r+OSWO3w6uE3ge4X/u3Xxu4IVeM0peM2SuTYce
+6YJR5DRy5IueE40u5sf96Nhi5g9+5pI+T4kO4n4u6ZzeLaGe6l9B6RBi6aUe6afuERB+6c2t
+6m/O6szh6nRu6oGO406e5vXc23zF5rZuPaM+5wguGJmeK7HeEbMO6inx5CpO5V9G7MXOEMeO
+5L697GPe601+4j0+7bzt5s/D3q+15rktaz/u4rhu4HKu7a7N7UvS7Gzl6YTOUeHuaWw+a9I9
+bcvW7/4O8Hne7tr97rROKPK+IfQeTfk94RVe29Hd4gJf7uZe8S0+8Nl+8LGk7KG+8J1h7zmx
+6Che6/W8lO/CTvEo7+8WT+1DTvDCreivfugeXzHg3uI+vu/9/e8Sv/N/7vK6ftwJLx8z/06D
+HvL4buj6rt/8juH93vTmPvG3nvEx3/PeXua/HkeedvK6Te5uvvTo3vUpj/HXbfAcHxhBfx1D
+rzs7fu9vvu5V7vNkv+uwXvWQfu0flepw3+dyL/N03+lFf/Rsny9u3/JSv/cqERAAOw==
+*/

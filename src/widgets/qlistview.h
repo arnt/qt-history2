@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#49 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#50 $
 **
 ** Definition of QListView widget class
 **
@@ -15,6 +15,7 @@
 class QStrList;
 class QPixmap;
 class QFont;
+class QHeader;
 
 class QListView;
 struct QListViewPrivate;
@@ -137,6 +138,8 @@ public:
 
     virtual void insertItem( QListViewItem * );
     virtual void clear();
+
+    QHeader * header() const;
 
     virtual int addColumn( const char * label, int size = -1);
     virtual void setColumnText( int column, const char * label );

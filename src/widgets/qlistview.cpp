@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#114 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#115 $
 **
 ** Implementation of QListView widget class
 **
@@ -162,11 +162,60 @@ struct QListViewPrivate
   parent is a QListView, this item is a top-level item within than
   QListView.  If the parent is another QListViewItem, this item
   becomes a child of the parent item.
-  
-  If you keep the pointer, you can set or change the texts using
-  setText(), add pixmaps using setPixmap().
 
+  If you keep the pointer, you can set or change the texts using
+  setText(), add pixmaps using setPixmap(), change its mode using
+  setSelectable(), setSelected(), setOpen() and setExpandable(),
+  change its height using setHeight(), and do much tree traversal.
   
+  You can traverse the tree as if it were a doubly linked list using
+  itemAbove() and itemBelow(); they return pointers to the items
+  directly above and below this item on the screen (even if none of
+  the three are actually visible at the moment).
+  
+  You can also traverse it as a tree, using parent(), firstChild() and
+  nextSibling().  This code does something to each of an item's
+  children:
+  
+  \code
+    QListViewItem * myChild = myItem->firstChild();
+    while( myChild ) {
+        doSomething( myChild );
+	myChild = myChild->nextSibling();
+    }
+  \endcode
+
+  Note that the order of the children will change when the sorting
+  order changes, and is undefined if the items are not visible.  You
+  can however call enforceSortOrder() at any time, and QListView will
+  always call it before it needs to show an item.
+  
+  Many programs will need to reimplement QListViewItem.  The most
+  commonly reimplemented functions are: <ul> <li> text() returns the
+  text in a column.  Many subclasses will compute that on the
+  fly. <li> key() is used for sorting. <li> setup() is called before
+  showing the item, and whenever e.g. the font changes. <li>
+  activate() is called whenever the user clicks on the item or presses
+  space when the item is the currently highlighted item.</ul>
+
+  Some subclasses call setExpandable( TRUE ) even when they have no
+  children, and populate themselves when setup() is called.  The
+  dirview/dirview.cpp example program uses precisely this technique to
+  start up quickly: The files and subdirectories in a directory aren't
+  entered into the tree until they need to.
+
+  This example shows a number of root items in a QListView.  These
+  items are actually subclassed from QListViewItem: The file size,
+  type etc. are computed on the fly.
+  
+  <img src="listview.gif" width="518" height="82" alt="Example List View">
+
+  The next example shows a fraction of the dirview example.  Again,
+  the Direcotory/Symbolic Link column is computed on the fly.  None of
+  the items are root items; the \e usr item is a child of the root and
+  the \e X11 item is a child of the \e usr item.
+  
+  <img src="treeview.gif" width="256" height="216" alt="Example Tree View">
 */
 
 
@@ -224,7 +273,7 @@ QListViewItem::QListViewItem( QListView * parent,
 
 /*!  Creates a new list view item that's a child of the QListViewItem
   \a parent, with at most 8 constant strings as contents.  Possible
-  example in a news or e-mail reader:
+  example in a threaded news or e-mail reader:
 
   \code
      (void)new QListViewItem( parentMessage, author, subject );
@@ -356,7 +405,7 @@ void QListViewItem::removeItem( QListViewItem * tbg )
   Returns a key that can be used for sorting by column \a column.
   The default implementation returns text().  Derived classes may
   also incorporate the order indicated by \a ascending into this
-  key, although this is not common.
+  key, although this is not recommended.
 
   QListViewItem immediately copies the return value of this function,
   so it's safe to return a pointer to a static variable.
@@ -386,7 +435,8 @@ static int cmp( const void *n1, const void *n2 )
 
   Asks some of the children to sort their children.  (QListView and
   QListViewItem ensure that all on-screen objects are properly sorted,
-  but may avoid sorting other objects in order to be more responsive.)
+  but may avoid or defer sorting other objects in order to be more
+  responsive.)
 
   \sa key()
 */
@@ -542,8 +592,9 @@ void QListViewItem::setup()
 
 /*!
   This virtual function is called whenever the user clicks on this
-  item. The default implementation does nothing.
- */
+  item or presses Space on it. The default implementation does
+  nothing.
+*/
 
 void QListViewItem::activate()
 {
@@ -554,7 +605,8 @@ void QListViewItem::activate()
   Returns TRUE if the item is selectable (as it is by default) and
   FALSE if it isn't.
 
-  \sa setSelectable() */
+  \sa setSelectable()
+*/
 
 
 /*!  Sets this items to be selectable if \a enable is TRUE (the
@@ -596,7 +648,7 @@ void QListViewItem::setExpandable( bool enable )
 }
 
 
-/*!  Enforce that this object's children are sorted appropriately.
+/*!  Makes sure that this object's children are sorted appropriately.
 
   This only works if every item in the chain from the root item to
   this item is sorted appropriately.
@@ -622,9 +674,9 @@ void QListViewItem::enforceSortOrder() const
 
 
 /*!  Sets this item to be selected \a s is TRUE, and to not be
-  selected if \a o is FALSE.  Doesn't repaint anything in either case.
+  selected if \a o is FALSE.
 
-  Thsi function does not maintan any invariants --
+  Thsi function does not maintain any invariants or repaint anything -
   QListView::setSelected() does that.
 
   \sa ownHeight() totalHeight() */
@@ -671,7 +723,7 @@ int QListViewItem::totalHeight() const
 
 /*!  Returns the text in column \a column, or else 0.
 
-  The returned pointer must be copied or used at once;
+  The returned pointer must be copied or used at once so that
   reimplementations of this function are at liberty to e.g. return a
   pointer into a static buffer.
 
@@ -722,7 +774,7 @@ void QListViewItem::setText( int column, const char * text )
 }
 
 
-/*!  Sets the pixmap in column \a column to \a text, if \a text is
+/*!  Sets the pixmap in column \a column to \a pm, if \a pm is
   non-null and \a column is non-negative.
 
   \sa pixmap() setText()
@@ -750,8 +802,10 @@ void QListViewItem::setPixmap( int column, const QPixmap & pm )
 }
 
 
-/*!
-
+/*!  Returns a pointer to the pixmap for \a column, or a null pointer
+  if there is no pixmap for \a column.
+  
+  \sa setText() setPixmap()
 */
 
 const QPixmap * QListViewItem::pixmap( int column ) const
@@ -782,7 +836,8 @@ const QPixmap * QListViewItem::pixmap( int column ) const
   spacing on the left and right sides of information such as text,
   and should honour isSelected() and QListView::allColumnsShowFocus().
 
-  If re-implementing this function, you should also re-implement width().
+  If you reimplement this function, you should also reimplement
+  width().
 
   The rectangle to be painted is in an undefined state when this
   function is called, so you \e must draw on all the pixels.
@@ -1168,6 +1223,7 @@ QListView::QListView( QWidget * parent, const char * name )
 	     this, SLOT(updateContents()) );
     connect( d->dirtyItemTimer, SIGNAL(timeout()),
 	     this, SLOT(updateDirtyItems()) );
+
     connect( d->h, SIGNAL(sizeChange( int, int, int )),
 	     this, SLOT(handleSizeChange( int, int, int )) );
     connect( d->h, SIGNAL(moved( int, int )),
@@ -1724,12 +1780,14 @@ void QListView::updateContents()
 void QListView::updateGeometries()
 {
     QSize hs( d->h->sizeHint() );
-
     resizeContents( hs.width(), d->r->totalHeight() );
-
-    setMargins( 0, hs.height(), 0, 0 );
-    d->h->setGeometry( viewport()->x(), viewport()->y()-hs.height(),
-		       viewport()->width(), hs.height() );
+    if ( d->h->testWFlags( WState_DoHide ) ) {
+	setMargins( 0, 0, 0, 0 );
+    } else {
+	setMargins( 0, hs.height(), 0, 0 );
+	d->h->setGeometry( viewport()->x(), viewport()->y()-hs.height(),
+			   viewport()->width(), hs.height() );
+    }
 }
 
 /*!
@@ -3507,3 +3565,16 @@ bhMVcllmes44h64mO3ZYdILohjI4inLYehqoedSoUnlIiMfIh6OXiNv4iQyUjrnHTnhEjkJ3
 V3FIKAEBADs=
 
 */
+
+
+/*!  Returns a pointer to the QHeader object that manages this list
+  view's columns.  Please don't modify the header behind the list
+  view's back.
+
+  \sa setHeader()
+*/
+
+QHeader * QListView::header() const
+{
+    return d->h;
+}

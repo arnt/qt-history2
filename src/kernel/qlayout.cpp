@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#33 $
 **
 ** Implementation of layout classes
 **
@@ -253,7 +253,10 @@ void QLayout::setMenuBar( QMenuBar *w )
 
 /*!
   \class QBoxLayout qlayout.h
-  \brief The QBoxLayout class lines up child widgets horizontally or vertically.
+
+  \brief The QBoxLayout class lines up child widgets horizontally or
+  vertically.
+  
   \ingroup geomanagement
 
   QBoxLayout takes the space it gets (from its parent layout or from
@@ -269,16 +272,18 @@ void QLayout::setMenuBar( QMenuBar *w )
   other, again with suitable sizes.
 
   The easiest way to create a QBoxLayout is to use one of the
-  convenience classes QHBoxLayout (for \c Horizontal boxes) or 
-  QVBoxLayout (for \c Vertical boxes). You can also use the
-  QBoxLayout constuctor directly, specifying its
-  direction as \c LeftToRight, \c Down, \c RightToLeft or \c Up.
+  convenience classes QHBoxLayout (for \c Horizontal boxes) or
+  QVBoxLayout (for \c Vertical boxes). You can also use the QBoxLayout
+  constuctor directly, specifying its direction as \c LeftToRight, \c
+  Down, \c RightToLeft or \c Up.
 
-  If the QBoxLayout is not the top-level layout (ie. is not managing the
-  entirety of the widget's area), you must add it to its parent
-  layout, typically using parentLayout->addLayout().
+  If the QBoxLayout is not the top-level layout (ie. is not managing
+  all of the widget's area and children), you must add it to its
+  parent layout before you can do anything with it.  The normal way to
+  add a layout is by calling parentLayout->addLayout().
 
-  Then, you add boxes to the QBoxLayout using one of four functions: <ul>
+  Once you have done that, you can add boxes to the QBoxLayout using
+  one of four functions: <ul>
 
   <li> addWidget() to add a widget to the QBoxLayout and set the
   widget's stretch factor.  (The stretch factor is along the row if
@@ -289,7 +294,7 @@ void QLayout::setMenuBar( QMenuBar *w )
   for ways to set margins.
 
   <li> addStretch() to create an empty, stretchable box.
-  
+
   <li> addLayout() to add a box containing another QLayout to the row
   and set that layout's stretch factor.
 
@@ -308,8 +313,8 @@ void QLayout::setMenuBar( QMenuBar *w )
   the constructor.
 
   You will almost always want to use the convenience classes for
-  QBoxLayout: QVBoxLayout and QHBoxLayout.  The advantage is
-  their simpler constructors.
+  QBoxLayout: QVBoxLayout and QHBoxLayout, because of their simpler
+  constructors.
 */
 
 static inline bool horz( QGManager::Direction dir )
@@ -635,12 +640,24 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
 
 /*!
   \class QHBoxLayout qlayout.h
-  \brief The QHBoxLayout class provides a horizontal layout box
+
+  \brief The QHBoxLayout class lines up child widgets horizontally.
 
   \ingroup geomanagement
 
-  The contents are arranged left to right, they will stretch to fill
-  the available space.
+  This class provides an easier way to construct horizontal box layout
+  objects.  See \l QBoxLayout for more details.
+  
+  The simplest way to use this class is:
+
+  \code
+     QBoxLayout * l = new QHBoxLayout( widget );
+     l->addWidget( aWidget );
+     l->addWidget( anotherWidget );
+     l->activate()
+  \endcode
+
+  \sa QVBoxLayout QGridLayout
 */
 
 
@@ -648,8 +665,8 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
   Creates a new top-level horizontal box.
  */
 QHBoxLayout::QHBoxLayout( QWidget *parent, int border,
-		int autoBorder, const char *name )
-    :QBoxLayout( parent, LeftToRight, border, autoBorder, name )
+			  int autoBorder, const char *name )
+    : QBoxLayout( parent, LeftToRight, border, autoBorder, name )
 {
 
 }
@@ -676,20 +693,32 @@ QHBoxLayout::~QHBoxLayout()
 
 /*!
   \class QVBoxLayout qlayout.h
-  \brief The QVBoxLayout class provides a vertical layout box
+
+  \brief The QHBoxLayout class lines up child widgets vertically.
 
   \ingroup geomanagement
 
-  The contents are arranged top to bottom, they will stretch to fill
-  the available space.
+  This class provides an easier way to construct vertical box layout
+  objects.  See \l QBoxLayout for more details.
+  
+  The simplest way to use this class is:
+
+  \code
+     QBoxLayout * l = new QVBoxLayout( widget );
+     l->addWidget( aWidget );
+     l->addWidget( anotherWidget );
+     l->activate()
+  \endcode
+  
+  \sa QHBoxLayout QGridLayout
 */
 
 /*!
   Creates a new top-level vertical box.
  */
 QVBoxLayout::QVBoxLayout( QWidget *parent, int border,
-		int autoBorder, const char *name )
-    :QBoxLayout( parent, TopToBottom, border, autoBorder, name )
+			  int autoBorder, const char *name )
+    : QBoxLayout( parent, TopToBottom, border, autoBorder, name )
 {
 
 }
@@ -714,23 +743,143 @@ QVBoxLayout::~QVBoxLayout()
 /*!
   \class QGridLayout qlayout.h
 
-  \brief The QGridLayout class specifies child widget geometry.
+  \brief The QVBoxLayout class lays out child widgets in a grid.
 
   \ingroup geomanagement
 
-  Contents are arranged in a grid. If you need a more flexible layout,
-  see the QHBoxLayout and QVBoxLayout classes.
+  QGridLayout takes the space it gets (from its parent layout or from
+  the mainWidget()), divides it up into rows and columns, and puts
+  each of the child widgets it manages into the correct cell(s).
 
-  To avoid squashed widgets, each column and each row of the grid
-  should have a a minimum size or a nonzero stretch factor. Stretch
-  factors are set with setRowStretch() and setColStretch(). Minimum sizes
-  are set by addColSpacing(), addRowSpacing() and by the minimum sizes
-  of the widgets added.
+  Columns and rows behave identically; we will discuss columns but
+  there are eqivalent functions for rows.
+  
+  Each column has a minimum width and a stretch factor.  The minimum
+  width is the greatest of that set using addRowSpacing() and the
+  minimum width of each widget in that column.  The stretch factor is
+  set using setColStretch() and determines how much of the available
+  space the column will get, over and above its necessary minimum.
 
-  Note that a widget which spans several rows or columns does not
-  influence the minimum size of any of the rows/columns it spans.
+  Normally, each child widget or layout is put into a cell of its own
+  using addWidget() or addLayout(), but you can also put widget into
+  multiple cells using addMultiCellWidget().  However, if you do that,
+  QGridLayout does not take the child widget's minimum size into
+  consideration (because it does not known what column the minimum
+  width should belong to).  Thus you must set the minimum width of
+  each column using addColSpacing().
+
+  This illustration shows a fragment of a dialog with a five-column,
+  three-row grid (the grid is shown overlaid in magenta):
+
+  <img src="gridlayout.gif" width="425" height="150">
+
+  Columns 0, 2 and 4 in this dialog fragment are made up of a QLabel,
+  a QLineEdit and a QListBox.  Columns 1 and 2 are placeholders, made
+  with setColSpacing().  Row 0 consists of three QLabel objects, row 1
+  of three QLineEdit objects and row 2 of three QListBox objects.
+
+  Since we did not want any space between the rows, we had to use
+  placeholder columns to get the right amount of space between the
+  columns.
+
+  Note that the columns and rows are not equally wide/tall: If you
+  want two columns to be equally wide, you must set the columns'
+  minimum widths and stretch factors to be the same yourself.  You do
+  this using addColSpacing() and setStretch().
+
+  If the QGridLayout is not the top-level layout (ie. is not managing
+  all of the widget's area and children), you must add it to its
+  parent layout when you have created it, but before you can do
+  anything with it.  The normal way to add a layout is by calling
+  parentLayout->addLayout().
+
+  Once you have done that, you can start putting widgets and other
+  layouts in the cells of your grid layout using addWidget(),
+  addLayout() and addMultiCellWidget().
+  
+  Finally, if the grid is the top-level layout, you activate() it.
+
+  QGridLayout also includes two margin widths: The border width and
+  the inter-box width.  The border width is the width of the reserved
+  space along each of the QGridLayout's four sides.  The intra-widget
+  width is the width of the automatically allocated spacing between
+  neighbouring boxes.
+
+  The border width defaults to 0, and the intra-widget width defaults
+  to the same as the border width.  Both are set using arguments to
+  the constructor.
 */
 
+
+/*! \base64 gridlayout.gif
+
+  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
+
+*/
 
 /*!
   Constructs a new QGridLayout with \a nRows rows, \a nCols columns
