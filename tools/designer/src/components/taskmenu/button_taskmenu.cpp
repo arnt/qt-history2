@@ -34,7 +34,7 @@ ButtonTaskMenu::ButtonTaskMenu(QAbstractButton *button, QObject *parent)
     QAction *action = 0;
 
     action = new QAction(this);
-    action->setText(tr("Edit button text"));
+    action->setText(tr("Edit Button Text"));
     connect(action, SIGNAL(triggered()), this, SLOT(editText()));
     m_taskActions.append(action);
 }

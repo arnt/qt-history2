@@ -91,7 +91,13 @@ public:
     virtual void beginCommand(const QString &description) = 0;
     virtual void endCommand() = 0;
 
+    // notifications
+    virtual void emitSelectionChanged() = 0;
+
 public slots:
+    virtual void manageWidget(QWidget *widget) = 0;
+    virtual void unmanageWidget(QWidget *widget) = 0;
+
     virtual void setFeatures(Feature f) = 0;
     virtual void setDirty(bool dirty) = 0;
     virtual void clearSelection(bool changePropertyDisplay = true) = 0;

@@ -15,7 +15,6 @@
 #define COMMAND_H
 
 #include <qtundo.h>
-#include <ui4.h>
 #include <layoutinfo.h>
 #include <buddyeditor.h>
 #include "layoutdecoration.h"
@@ -24,9 +23,9 @@
 #include <QVariant>
 #include <qpair.h>
 
-class FormEditor;
-class FormWindowManager;
-class FormWindow;
+class AbstractFormEditor;
+class AbstractFormWindowManager;
+class AbstractFormWindow;
 class Layout;
 class QToolBox;
 class QTabWidget;
@@ -35,37 +34,37 @@ class QStackedWidget;
 struct IPropertySheet;
 struct AbstractMetaDataBaseItem;
 
-class FormEditorCommand: public QtCommand
+class AbstractFormEditorCommand: public QtCommand
 {
     Q_OBJECT
 public:
-    FormEditorCommand(const QString &description, FormEditor *core);
+    AbstractFormEditorCommand(const QString &description, AbstractFormEditor *core);
 
-    FormEditor *core() const;
+    AbstractFormEditor *core() const;
 
 private:
-    QPointer<FormEditor> m_core;
+    QPointer<AbstractFormEditor> m_core;
 };
 
-class FormWindowManagerCommand: public QtCommand
+class AbstractFormWindowManagerCommand: public QtCommand
 {
     Q_OBJECT
 public:
-    FormWindowManagerCommand(const QString &description, FormWindowManager *formWindowManager);
+    AbstractFormWindowManagerCommand(const QString &description, AbstractFormWindowManager *formWindowManager);
 
-    FormWindowManager *formWindowManager() const;
+    AbstractFormWindowManager *formWindowManager() const;
 
 private:
-    QPointer<FormWindowManager> m_formWindowManager;
+    QPointer<AbstractFormWindowManager> m_formWindowManager;
 };
 
-class FormWindowCommand: public QtCommand
+class AbstractFormWindowCommand: public QtCommand
 {
     Q_OBJECT
 public:
-    FormWindowCommand(const QString &description, FormWindow *formWindow);
+    AbstractFormWindowCommand(const QString &description, AbstractFormWindow *formWindow);
 
-    FormWindow *formWindow() const;
+    AbstractFormWindow *formWindow() const;
 
 protected:
     void checkObjectName(QWidget *widget);
@@ -74,14 +73,14 @@ protected:
     bool hasLayout(QWidget *widget) const;
 
 private:
-    QPointer<FormWindow> m_formWindow;
+    QPointer<AbstractFormWindow> m_formWindow;
 };
 
-class SetPropertyCommand: public FormWindowCommand
+class SetPropertyCommand: public AbstractFormWindowCommand
 {
     Q_OBJECT
 public:
-    SetPropertyCommand(FormWindow *formWindow);
+    SetPropertyCommand(AbstractFormWindow *formWindow);
 
     void init(QWidget *widget, const QString &propertyName, const QVariant &newValue);
 
@@ -120,11 +119,11 @@ private:
     bool m_changed;
 };
 
-class InsertWidgetCommand: public FormWindowCommand
+class InsertWidgetCommand: public AbstractFormWindowCommand
 {
     Q_OBJECT
 public:
-    InsertWidgetCommand(FormWindow *formWindow);
+    InsertWidgetCommand(AbstractFormWindow *formWindow);
 
     void init(QWidget *widget);
 
@@ -137,11 +136,11 @@ private:
     QPair<int, int> m_cell;
 };
 
-class RaiseWidgetCommand: public FormWindowCommand
+class RaiseWidgetCommand: public AbstractFormWindowCommand
 {
     Q_OBJECT
 public:
-    RaiseWidgetCommand(FormWindow *formWindow);
+    RaiseWidgetCommand(AbstractFormWindow *formWindow);
 
     void init(QWidget *widget);
 
@@ -152,11 +151,11 @@ private:
     QPointer<QWidget> m_widget;
 };
 
-class LowerWidgetCommand: public FormWindowCommand
+class LowerWidgetCommand: public AbstractFormWindowCommand
 {
     Q_OBJECT
 public:
-    LowerWidgetCommand(FormWindow *formWindow);
+    LowerWidgetCommand(AbstractFormWindow *formWindow);
 
     void init(QWidget *widget);
 
@@ -167,11 +166,11 @@ private:
     QPointer<QWidget> m_widget;
 };
 
-class DeleteWidgetCommand: public FormWindowCommand
+class DeleteWidgetCommand: public AbstractFormWindowCommand
 {
     Q_OBJECT
 public:
-    DeleteWidgetCommand(FormWindow *formWindow);
+    DeleteWidgetCommand(AbstractFormWindow *formWindow);
 
     void init(QWidget *widget);
 
@@ -188,11 +187,11 @@ private:
     int m_rowspan, m_colspan;
 };
 
-class ReparentWidgetCommand: public FormWindowCommand
+class ReparentWidgetCommand: public AbstractFormWindowCommand
 {
     Q_OBJECT
 public:
-    ReparentWidgetCommand(FormWindow *formWindow);
+    ReparentWidgetCommand(AbstractFormWindow *formWindow);
 
     void init(QWidget *widget, QWidget *parentWidget);
 
@@ -207,11 +206,11 @@ private:
     QPointer<QWidget> m_newParentWidget;
 };
 
-class TabOrderCommand: public FormWindowCommand
+class TabOrderCommand: public AbstractFormWindowCommand
 {
     Q_OBJECT
 public:
-    TabOrderCommand(FormWindow *formWindow);
+    TabOrderCommand(AbstractFormWindow *formWindow);
 
     void init(const QList<QWidget*> &newTabOrder);
 
@@ -230,11 +229,11 @@ private:
     QList<QWidget*> m_newTabOrder;
 };
 
-class LayoutCommand: public FormWindowCommand
+class LayoutCommand: public AbstractFormWindowCommand
 {
     Q_OBJECT
 public:
-    LayoutCommand(FormWindow *formWindow);
+    LayoutCommand(AbstractFormWindow *formWindow);
     virtual ~LayoutCommand();
 
     inline QList<QWidget*> widgets() const
@@ -253,11 +252,11 @@ private:
     QPointer<Layout> m_layout;
 };
 
-class BreakLayoutCommand: public FormWindowCommand
+class BreakLayoutCommand: public AbstractFormWindowCommand
 {
     Q_OBJECT
 public:
-    BreakLayoutCommand(FormWindow *formWindow);
+    BreakLayoutCommand(AbstractFormWindow *formWindow);
     virtual ~BreakLayoutCommand();
 
     inline QList<QWidget*> widgets() const
@@ -276,11 +275,11 @@ private:
     int m_spacing;
 };
 
-class ToolBoxCommand: public FormWindowCommand
+class ToolBoxCommand: public AbstractFormWindowCommand
 {
     Q_OBJECT
 public:
-    ToolBoxCommand(FormWindow *formWindow);
+    ToolBoxCommand(AbstractFormWindow *formWindow);
     virtual ~ToolBoxCommand();
 
     virtual void init(QToolBox *toolBox);
@@ -300,7 +299,7 @@ class DeleteToolBoxPageCommand: public ToolBoxCommand
 {
     Q_OBJECT
 public:
-    DeleteToolBoxPageCommand(FormWindow *formWindow);
+    DeleteToolBoxPageCommand(AbstractFormWindow *formWindow);
     virtual ~DeleteToolBoxPageCommand();
 
     virtual void init(QToolBox *toolBox);
@@ -313,7 +312,7 @@ class AddToolBoxPageCommand: public ToolBoxCommand
 {
     Q_OBJECT
 public:
-    AddToolBoxPageCommand(FormWindow *formWindow);
+    AddToolBoxPageCommand(AbstractFormWindow *formWindow);
     virtual ~AddToolBoxPageCommand();
 
     virtual void init(QToolBox *toolBox);
@@ -322,11 +321,11 @@ public:
     virtual void undo();
 };
 
-class TabWidgetCommand: public FormWindowCommand
+class TabWidgetCommand: public AbstractFormWindowCommand
 {
     Q_OBJECT
 public:
-    TabWidgetCommand(FormWindow *formWindow);
+    TabWidgetCommand(AbstractFormWindow *formWindow);
     virtual ~TabWidgetCommand();
 
     virtual void init(QTabWidget *tabWidget);
@@ -346,7 +345,7 @@ class DeleteTabPageCommand: public TabWidgetCommand
 {
     Q_OBJECT
 public:
-    DeleteTabPageCommand(FormWindow *formWindow);
+    DeleteTabPageCommand(AbstractFormWindow *formWindow);
     virtual ~DeleteTabPageCommand();
 
     virtual void init(QTabWidget *tabWidget);
@@ -359,7 +358,7 @@ class AddTabPageCommand: public TabWidgetCommand
 {
     Q_OBJECT
 public:
-    AddTabPageCommand(FormWindow *formWindow);
+    AddTabPageCommand(AbstractFormWindow *formWindow);
     virtual ~AddTabPageCommand();
 
     virtual void init(QTabWidget *tabWidget);
@@ -372,7 +371,7 @@ class MoveTabPageCommand: public TabWidgetCommand
 {
     Q_OBJECT
 public:
-    MoveTabPageCommand(FormWindow *formWindow);
+    MoveTabPageCommand(AbstractFormWindow *formWindow);
     virtual ~MoveTabPageCommand();
 
     virtual void init(QTabWidget *tabWidget, QWidget *page,
@@ -390,11 +389,11 @@ private:
     QIcon m_icon;
 };
 
-class StackedWidgetCommand: public FormWindowCommand
+class StackedWidgetCommand: public AbstractFormWindowCommand
 {
     Q_OBJECT
 public:
-    StackedWidgetCommand(FormWindow *formWindow);
+    StackedWidgetCommand(AbstractFormWindow *formWindow);
     virtual ~StackedWidgetCommand();
 
     virtual void init(QStackedWidget *stackedWidget);
@@ -412,7 +411,7 @@ class DeleteStackedWidgetPageCommand: public StackedWidgetCommand
 {
     Q_OBJECT
 public:
-    DeleteStackedWidgetPageCommand(FormWindow *formWindow);
+    DeleteStackedWidgetPageCommand(AbstractFormWindow *formWindow);
     virtual ~DeleteStackedWidgetPageCommand();
 
     virtual void init(QStackedWidget *stackedWidget);
@@ -425,7 +424,7 @@ class AddStackedWidgetPageCommand: public StackedWidgetCommand
 {
     Q_OBJECT
 public:
-    AddStackedWidgetPageCommand(FormWindow *formWindow);
+    AddStackedWidgetPageCommand(AbstractFormWindow *formWindow);
     virtual ~AddStackedWidgetPageCommand();
 
     virtual void init(QStackedWidget *stackedWidget);

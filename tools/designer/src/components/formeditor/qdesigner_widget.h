@@ -27,7 +27,7 @@
 #include <QPointer>
 #include <qpair.h>
 
-class FormWindow;
+class AbstractFormWindow;
 class QAction;
 class QLayoutItem;
 class QVBoxLayout;
@@ -38,10 +38,10 @@ class QT_FORMEDITOR_EXPORT QDesignerWidget : public QWidget
 {
     Q_OBJECT
 public:
-    QDesignerWidget(FormWindow* formWindow, QWidget *parent = 0);
+    QDesignerWidget(AbstractFormWindow* formWindow, QWidget *parent = 0);
     virtual ~QDesignerWidget();
 
-    inline FormWindow* formWindow() const
+    inline AbstractFormWindow* formWindow() const
     { return m_formWindow; }
 
     void updatePixmap();
@@ -51,7 +51,7 @@ protected:
     virtual void dragEnterEvent(QDragEnterEvent *e);
 
 private:
-    FormWindow* m_formWindow;
+    AbstractFormWindow* m_formWindow;
     uint need_frame : 1;
     QPixmap grid;
 };
@@ -60,7 +60,7 @@ class QT_FORMEDITOR_EXPORT QLayoutSupport: public QObject
 {
     Q_OBJECT
 public:
-    QLayoutSupport(FormWindow *formWindow, QWidget *widget, QObject *parent = 0);
+    QLayoutSupport(AbstractFormWindow *formWindow, QWidget *widget, QObject *parent = 0);
     virtual ~QLayoutSupport();
 
     inline QWidget *widget() const
@@ -72,7 +72,7 @@ public:
     inline QGridLayout *gridLayout() const
     { return qt_cast<QGridLayout*>(layout()); }
 
-    inline FormWindow *formWindow() const
+    inline AbstractFormWindow *formWindow() const
     { return m_formWindow; }
 
     AbstractFormEditor *core() const;
@@ -128,7 +128,7 @@ protected:
     void tryRemoveColumn(int column);
 
 private:
-    FormWindow *m_formWindow;
+    AbstractFormWindow *m_formWindow;
     QPointer<QWidget> m_widget;
     QPointer<QWidget> m_indicatorLeft;
     QPointer<QWidget> m_indicatorTop;
@@ -145,7 +145,7 @@ class QT_FORMEDITOR_EXPORT QLayoutWidget: public QWidget
     Q_PROPERTY(int margin READ layoutMargin WRITE setLayoutMargin DESIGNABLE true)
     Q_PROPERTY(int spacing READ layoutSpacing WRITE setLayoutSpacing DESIGNABLE true)
 public:
-    QLayoutWidget(FormWindow *formWindow, QWidget *parent = 0);
+    QLayoutWidget(AbstractFormWindow *formWindow, QWidget *parent = 0);
 
     int layoutMargin() const;
     void setLayoutMargin(int layoutMargin);
@@ -153,7 +153,7 @@ public:
     int layoutSpacing() const;
     void setLayoutSpacing(int layoutSpacing);
 
-    inline FormWindow *formWindow() const
+    inline AbstractFormWindow *formWindow() const
     { return m_formWindow; }
 
     inline QLayoutSupport *support() const
@@ -196,7 +196,7 @@ protected:
     { m_support.rebuildGridLayout(layout); }
 
 private:
-    FormWindow *m_formWindow;
+    AbstractFormWindow *m_formWindow;
     QLayoutSupport m_support;
 };
 
@@ -235,14 +235,14 @@ class QT_FORMEDITOR_EXPORT QDesignerDialog : public QDialog
 {
     Q_OBJECT
 public:
-    QDesignerDialog(FormWindow *fw, QWidget *parent)
+    QDesignerDialog(AbstractFormWindow *fw, QWidget *parent)
         : QDialog(parent), m_formWindow(fw) {}
 
 protected:
     void paintEvent(QPaintEvent *e);
 
 private:
-    FormWindow *m_formWindow;
+    AbstractFormWindow *m_formWindow;
 };
 
 class QT_FORMEDITOR_EXPORT QDesignerLabel : public QLabel

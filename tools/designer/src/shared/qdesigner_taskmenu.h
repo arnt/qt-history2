@@ -36,10 +36,12 @@ public:
 
 private slots:
     void changeObjectName();
+    void createDockWindow();
 
 private:
     QPointer<QWidget> m_widget;
-    QList<QAction*> m_actions;
+    QAction *m_changeObjectNameAction;
+    QAction *m_createDockWindowAction;
 };
 
 #endif // QDESIGNER_TASKMENU_H

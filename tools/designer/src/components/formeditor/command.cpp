@@ -12,13 +12,13 @@
 ****************************************************************************/
 
 #include "command.h"
-#include "formeditor.h"
-#include "formwindowmanager.h"
-#include "formwindow.h"
-#include "formwindowcursor.h"
 #include "layout.h"
 #include "qdesigner_widget.h"
 
+#include <abstractformeditor.h>
+#include <abstractformwindow.h>
+#include <abstractformwindowcursor.h>
+#include <abstractformwindowmanager.h>
 #include <abstractmetadatabase.h>
 #include <abstractwidgetfactory.h>
 #include <abstractpropertyeditor.h>
@@ -31,43 +31,43 @@
 #include <QSplitter>
 #include <qdebug.h>
 
-// ---- FormEditorCommand ----
-FormEditorCommand::FormEditorCommand(const QString &description, FormEditor *core)
+// ---- AbstractFormEditorCommand ----
+AbstractFormEditorCommand::AbstractFormEditorCommand(const QString &description, AbstractFormEditor *core)
     : QtCommand(description),
       m_core(core)
 {
 }
 
-FormEditor *FormEditorCommand::core() const
+AbstractFormEditor *AbstractFormEditorCommand::core() const
 {
     return m_core;
 }
 
-// ---- FormWindowManagerCommand ----
-FormWindowManagerCommand::FormWindowManagerCommand(const QString &description, FormWindowManager *formWindowManager)
+// ---- AbstractFormWindowManagerCommand ----
+AbstractFormWindowManagerCommand::AbstractFormWindowManagerCommand(const QString &description, AbstractFormWindowManager *formWindowManager)
     : QtCommand(description),
       m_formWindowManager(formWindowManager)
 {
 }
 
-FormWindowManager *FormWindowManagerCommand::formWindowManager() const
+AbstractFormWindowManager *AbstractFormWindowManagerCommand::formWindowManager() const
 {
     return m_formWindowManager;
 }
 
-// ---- FormWindowCommand ----
-FormWindowCommand::FormWindowCommand(const QString &description, FormWindow *formWindow)
+// ---- AbstractFormWindowCommand ----
+AbstractFormWindowCommand::AbstractFormWindowCommand(const QString &description, AbstractFormWindow *formWindow)
     : QtCommand(description),
       m_formWindow(formWindow)
 {
 }
 
-FormWindow *FormWindowCommand::formWindow() const
+AbstractFormWindow *AbstractFormWindowCommand::formWindow() const
 {
     return m_formWindow;
 }
 
-bool FormWindowCommand::hasLayout(QWidget *widget) const
+bool AbstractFormWindowCommand::hasLayout(QWidget *widget) const
 {
     AbstractFormEditor *core = formWindow()->core();
     if (widget && LayoutInfo::layoutType(core, widget) != LayoutInfo::NoLayout) {
@@ -78,7 +78,7 @@ bool FormWindowCommand::hasLayout(QWidget *widget) const
     return false;
 }
 
-void FormWindowCommand::checkObjectName(QWidget *widget)
+void AbstractFormWindowCommand::checkObjectName(QWidget *widget)
 {
     if (widget->objectName().isEmpty())
         qWarning("invalid object name");
@@ -89,17 +89,19 @@ void FormWindowCommand::checkObjectName(QWidget *widget)
     }
 }
 
-void FormWindowCommand::checkSelection(QWidget *widget)
+void AbstractFormWindowCommand::checkSelection(QWidget *widget)
 {
     AbstractFormEditor *core = formWindow()->core();
 
+#if 0 // ### port me
     formWindow()->updateSelection(widget);
 
     if (LayoutInfo::layoutType(core, widget) != LayoutInfo::NoLayout)
         formWindow()->updateChildSelections(widget);
+#endif
 }
 
-void FormWindowCommand::checkParent(QWidget *widget, QWidget *parentWidget)
+void AbstractFormWindowCommand::checkParent(QWidget *widget, QWidget *parentWidget)
 {
     Q_ASSERT(widget);
 
@@ -108,8 +110,8 @@ void FormWindowCommand::checkParent(QWidget *widget, QWidget *parentWidget)
 }
 
 // ---- SetPropertyCommand ----
-SetPropertyCommand::SetPropertyCommand(FormWindow *formWindow)
-    : FormWindowCommand(QString::null, formWindow),
+SetPropertyCommand::SetPropertyCommand(AbstractFormWindow *formWindow)
+    : AbstractFormWindowCommand(QString::null, formWindow),
       m_index(-1),
       m_propertySheet(0),
       m_changed(false)
@@ -161,7 +163,6 @@ void SetPropertyCommand::redo()
     if (m_propertyName == QLatin1String("geometry")) {
         checkSelection(m_widget);
         checkParent(m_widget, m_parentWidget);
-        formWindow()->emitWidgetsChanged();
     } else if (m_propertyName == QLatin1String("objectName")) {
         checkObjectName(m_widget);
     }
@@ -183,7 +184,6 @@ void SetPropertyCommand::undo()
     if (m_propertyName == QLatin1String("geometry")) {
         checkSelection(m_widget);
         checkParent(m_widget, m_parentWidget);
-        formWindow()->emitWidgetsChanged();
     } else if (m_propertyName == QLatin1String("objectName")) {
         checkObjectName(m_widget);
     }
@@ -208,8 +208,8 @@ bool SetPropertyCommand::mergeMeWith(QtCommand *other)
 
 
 // ---- InsertWidgetCommand ----
-InsertWidgetCommand::InsertWidgetCommand(FormWindow *formWindow)
-    : FormWindowCommand(QString::null, formWindow)
+InsertWidgetCommand::InsertWidgetCommand(AbstractFormWindow *formWindow)
+    : AbstractFormWindowCommand(QString::null, formWindow)
 {
 }
 
@@ -263,7 +263,6 @@ void InsertWidgetCommand::redo()
 
     formWindow()->manageWidget(m_widget);
     m_widget->show();
-    formWindow()->emitWidgetsChanged();
 }
 
 void InsertWidgetCommand::undo()
@@ -282,12 +281,11 @@ void InsertWidgetCommand::undo()
 
     formWindow()->unmanageWidget(m_widget);
     m_widget->hide();
-    formWindow()->emitWidgetsChanged();
 }
 
 // ---- RaiseWidgetCommand ----
-RaiseWidgetCommand::RaiseWidgetCommand(FormWindow *formWindow)
-    : FormWindowCommand(QString::null, formWindow)
+RaiseWidgetCommand::RaiseWidgetCommand(AbstractFormWindow *formWindow)
+    : AbstractFormWindowCommand(QString::null, formWindow)
 {
 }
 
@@ -307,8 +305,8 @@ void RaiseWidgetCommand::undo()
 }
 
 // ---- LowerWidgetCommand ----
-LowerWidgetCommand::LowerWidgetCommand(FormWindow *formWindow)
-    : FormWindowCommand(QString::null, formWindow)
+LowerWidgetCommand::LowerWidgetCommand(AbstractFormWindow *formWindow)
+    : AbstractFormWindowCommand(QString::null, formWindow)
 {
 }
 
@@ -328,8 +326,8 @@ void LowerWidgetCommand::undo()
 }
 
 // ---- DeleteWidgetCommand ----
-DeleteWidgetCommand::DeleteWidgetCommand(FormWindow *formWindow)
-    : FormWindowCommand(QString::null, formWindow)
+DeleteWidgetCommand::DeleteWidgetCommand(AbstractFormWindow *formWindow)
+    : AbstractFormWindowCommand(QString::null, formWindow)
 {
 }
 
@@ -385,7 +383,6 @@ void DeleteWidgetCommand::redo()
     m_widget->setParent(formWindow());
 
     formWindow()->emitSelectionChanged();
-    formWindow()->emitWidgetsChanged();
 }
 
 void DeleteWidgetCommand::undo()
@@ -417,12 +414,11 @@ void DeleteWidgetCommand::undo()
 
     m_widget->show();
     formWindow()->emitSelectionChanged();
-    formWindow()->emitWidgetsChanged();
 }
 
 // ---- ReparentWidgetCommand ----
-ReparentWidgetCommand::ReparentWidgetCommand(FormWindow *formWindow)
-    : FormWindowCommand(QString::null, formWindow)
+ReparentWidgetCommand::ReparentWidgetCommand(AbstractFormWindow *formWindow)
+    : AbstractFormWindowCommand(QString::null, formWindow)
 {
 }
 
@@ -455,8 +451,8 @@ void ReparentWidgetCommand::undo()
 }
 
 // ---- LayoutCommand ----
-LayoutCommand::LayoutCommand(FormWindow *formWindow)
-    : FormWindowCommand(QString::null, formWindow)
+LayoutCommand::LayoutCommand(AbstractFormWindow *formWindow)
+    : AbstractFormWindowCommand(QString::null, formWindow)
 {
 }
 
@@ -513,8 +509,8 @@ void LayoutCommand::undo()
 }
 
 // ---- BreakLayoutCommand ----
-BreakLayoutCommand::BreakLayoutCommand(FormWindow *formWindow)
-    : FormWindowCommand(tr("Break layout"), formWindow)
+BreakLayoutCommand::BreakLayoutCommand(AbstractFormWindow *formWindow)
+    : AbstractFormWindowCommand(tr("Break layout"), formWindow)
 {
 }
 
@@ -586,8 +582,8 @@ void BreakLayoutCommand::undo()
 }
 
 // ---- ToolBoxCommand ----
-ToolBoxCommand::ToolBoxCommand(FormWindow *formWindow)
-    : FormWindowCommand(QString::null, formWindow)
+ToolBoxCommand::ToolBoxCommand(AbstractFormWindow *formWindow)
+    : AbstractFormWindowCommand(QString::null, formWindow)
 {
 }
 
@@ -621,7 +617,7 @@ void ToolBoxCommand::addPage()
 }
 
 // ---- DeleteToolBoxPageCommand ----
-DeleteToolBoxPageCommand::DeleteToolBoxPageCommand(FormWindow *formWindow)
+DeleteToolBoxPageCommand::DeleteToolBoxPageCommand(AbstractFormWindow *formWindow)
     : ToolBoxCommand(formWindow)
 {
 }
@@ -647,7 +643,7 @@ void DeleteToolBoxPageCommand::undo()
 }
 
 // ---- AddToolBoxPageCommand ----
-AddToolBoxPageCommand::AddToolBoxPageCommand(FormWindow *formWindow)
+AddToolBoxPageCommand::AddToolBoxPageCommand(AbstractFormWindow *formWindow)
     : ToolBoxCommand(formWindow)
 {
 }
@@ -682,8 +678,8 @@ void AddToolBoxPageCommand::undo()
 }
 
 // ---- TabWidgetCommand ----
-TabWidgetCommand::TabWidgetCommand(FormWindow *formWindow)
-    : FormWindowCommand(QString::null, formWindow)
+TabWidgetCommand::TabWidgetCommand(AbstractFormWindow *formWindow)
+    : AbstractFormWindowCommand(QString::null, formWindow)
 {
 }
 
@@ -717,7 +713,7 @@ void TabWidgetCommand::addPage()
 }
 
 // ---- DeleteTabPageCommand ----
-DeleteTabPageCommand::DeleteTabPageCommand(FormWindow *formWindow)
+DeleteTabPageCommand::DeleteTabPageCommand(AbstractFormWindow *formWindow)
     : TabWidgetCommand(formWindow)
 {
 }
@@ -743,7 +739,7 @@ void DeleteTabPageCommand::undo()
 }
 
 // ---- AddTabPageCommand ----
-AddTabPageCommand::AddTabPageCommand(FormWindow *formWindow)
+AddTabPageCommand::AddTabPageCommand(AbstractFormWindow *formWindow)
     : TabWidgetCommand(formWindow)
 {
 }
@@ -778,7 +774,7 @@ void AddTabPageCommand::undo()
 }
 
 // ---- MoveTabPageCommand ----
-MoveTabPageCommand::MoveTabPageCommand(FormWindow *formWindow)
+MoveTabPageCommand::MoveTabPageCommand(AbstractFormWindow *formWindow)
     : TabWidgetCommand(formWindow)
 {
 }
@@ -816,8 +812,8 @@ void MoveTabPageCommand::undo()
 }
 
 // ---- StackedWidgetCommand ----
-StackedWidgetCommand::StackedWidgetCommand(FormWindow *formWindow)
-    : FormWindowCommand(QString::null, formWindow)
+StackedWidgetCommand::StackedWidgetCommand(AbstractFormWindow *formWindow)
+    : AbstractFormWindowCommand(QString::null, formWindow)
 {
 }
 
@@ -849,7 +845,7 @@ void StackedWidgetCommand::addPage()
 }
 
 // ---- DeleteStackedWidgetPageCommand ----
-DeleteStackedWidgetPageCommand::DeleteStackedWidgetPageCommand(FormWindow *formWindow)
+DeleteStackedWidgetPageCommand::DeleteStackedWidgetPageCommand(AbstractFormWindow *formWindow)
     : StackedWidgetCommand(formWindow)
 {
 }
@@ -875,7 +871,7 @@ void DeleteStackedWidgetPageCommand::undo()
 }
 
 // ---- AddStackedWidgetPageCommand ----
-AddStackedWidgetPageCommand::AddStackedWidgetPageCommand(FormWindow *formWindow)
+AddStackedWidgetPageCommand::AddStackedWidgetPageCommand(AbstractFormWindow *formWindow)
     : StackedWidgetCommand(formWindow)
 {
 }
@@ -908,8 +904,8 @@ void AddStackedWidgetPageCommand::undo()
 }
 
 // ---- TabOrderCommand ----
-TabOrderCommand::TabOrderCommand(FormWindow *formWindow)
-    : FormWindowCommand(tr("Change Tab order"), formWindow),
+TabOrderCommand::TabOrderCommand(AbstractFormWindow *formWindow)
+    : AbstractFormWindowCommand(tr("Change Tab order"), formWindow),
       m_widgetItem(0)
 {
 }
@@ -928,11 +924,11 @@ void TabOrderCommand::init(const QList<QWidget*> &newTabOrder)
 void TabOrderCommand::redo()
 {
     m_widgetItem->setTabOrder(m_newTabOrder);
-    formWindow()->updateOrderIndicators();
+    // formWindow()->updateOrderIndicators();
 }
 
 void TabOrderCommand::undo()
 {
     m_widgetItem->setTabOrder(m_oldTabOrder);
-    formWindow()->updateOrderIndicators();
+    // formWindow()->updateOrderIndicators();
 }

@@ -53,7 +53,7 @@ static void paintGrid(QWidget *widget, AbstractFormWindow *formWindow, QPaintEve
     p.fillRect(e->rect(), widget->palette().brush(widget->backgroundRole()));
 
     QString grid_name;
-    grid_name.sprintf("FormWindowGrid_%d_%d", formWindow->grid().x(), formWindow->grid().y());
+    grid_name.sprintf("AbstractFormWindowGrid_%d_%d", formWindow->grid().x(), formWindow->grid().y());
 
     QPixmap grid;
     if (!QPixmapCache::find(grid_name, grid)) {
@@ -82,7 +82,7 @@ static void paintGrid(QWidget *widget, AbstractFormWindow *formWindow, QPaintEve
 
 void QDesignerDialog::paintEvent(QPaintEvent *e)
 {
-    if (!m_formWindow->hasFeature(FormWindow::GridFeature)) {
+    if (!m_formWindow->hasFeature(AbstractFormWindow::GridFeature)) {
         QWidget::paintEvent(e);
         return;
     }
@@ -100,7 +100,7 @@ void QDesignerLabel::updateBuddy()
         QLabel::setBuddy(l.first());
 }
 
-QDesignerWidget::QDesignerWidget(FormWindow* formWindow, QWidget *parent)
+QDesignerWidget::QDesignerWidget(AbstractFormWindow* formWindow, QWidget *parent)
     : QWidget(parent), m_formWindow(formWindow)
 {
     need_frame = true;
@@ -112,7 +112,7 @@ QDesignerWidget::~QDesignerWidget()
 
 void QDesignerWidget::paintEvent(QPaintEvent *e)
 {
-    if (m_formWindow->hasFeature(FormWindow::GridFeature)) {
+    if (m_formWindow->hasFeature(AbstractFormWindow::GridFeature)) {
         paintGrid(this, m_formWindow, e, need_frame);
     } else {
         QWidget::paintEvent(e);
@@ -125,7 +125,7 @@ void QDesignerWidget::dragEnterEvent(QDragEnterEvent *)
 //    e->setAccepted(QTextDrag::canDecode(e));
 }
 
-QLayoutWidget::QLayoutWidget(FormWindow *formWindow, QWidget *parent)
+QLayoutWidget::QLayoutWidget(AbstractFormWindow *formWindow, QWidget *parent)
     : QWidget(parent), m_formWindow(formWindow),
       m_support(formWindow, this)
 {
@@ -133,7 +133,7 @@ QLayoutWidget::QLayoutWidget(FormWindow *formWindow, QWidget *parent)
 
 void QLayoutWidget::paintEvent(QPaintEvent*)
 {
-    if (!m_formWindow->hasFeature(FormWindow::GridFeature))
+    if (!m_formWindow->hasFeature(AbstractFormWindow::GridFeature))
         return;
 
     if (m_formWindow->editMode() != AbstractFormWindow::WidgetEditMode)
@@ -221,7 +221,9 @@ int QLayoutWidget::layoutMargin() const
 {
     if (layout())
         return layout()->margin();
-    return FormWindow::DefaultMargin;
+
+    qWarning("unknown margin!");
+    return 0;
 }
 
 void QLayoutWidget::setLayoutMargin(int layoutMargin)
@@ -238,7 +240,9 @@ int QLayoutWidget::layoutSpacing() const
 {
     if (layout())
         return layout()->spacing();
-    return FormWindow::DefaultSpacing;
+
+    qWarning("unknown spacing!");
+    return 0;
 }
 
 void QLayoutWidget::setLayoutSpacing(int layoutSpacing)
@@ -250,7 +254,7 @@ void QLayoutWidget::setLayoutSpacing(int layoutSpacing)
 
 
 // ---- QLayoutSupport ----
-QLayoutSupport::QLayoutSupport(FormWindow *formWindow, QWidget *widget, QObject *parent)
+QLayoutSupport::QLayoutSupport(AbstractFormWindow *formWindow, QWidget *widget, QObject *parent)
     : QObject(parent),
       m_formWindow(formWindow),
       m_widget(widget),

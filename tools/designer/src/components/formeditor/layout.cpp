@@ -11,27 +11,27 @@
 **
 ****************************************************************************/
 
-#include "formwindow.h"
 #include "layout.h"
 #include "qdesigner_widget.h"
-#include "widgetdatabase.h"
 #include "layoutdecoration.h"
 
+#include <abstractwidgetdatabase.h>
+#include <abstractformwindow.h>
 #include <abstractwidgetfactory.h>
 #include <abstractformeditor.h>
 #include <qextensionmanager.h>
 
 #include <spacer.h>
 
-#include <qdebug.h>
-#include <qlayout.h>
-#include <qvector.h>
-#include <qevent.h>
-#include <qpainter.h>
-#include <qpen.h>
-#include <qbitmap.h>
-#include <qsplitter.h>
-#include <qmainwindow.h>
+#include <QtCore/qdebug.h>
+#include <QtCore/QVector>
+
+#include <QtGui/qevent.h>
+#include <QtGui/QGridLayout>
+#include <QtGui/QPainter>
+#include <QtGui/QBitmap>
+#include <QtGui/QSplitter>
+#include <QtGui/QMainWindow>
 
 class FriendlyBoxLayout: public QBoxLayout
 {
@@ -97,7 +97,7 @@ void add_to_grid_layout(QGridLayout *grid, QWidget *widget, int r, int c, int rs
   widget is found later by Layout.)
  */
 
-Layout::Layout(const QList<QWidget*> &wl, QWidget *p, FormWindow *fw, QWidget *lb, bool splitter)
+Layout::Layout(const QList<QWidget*> &wl, QWidget *p, AbstractFormWindow *fw, QWidget *lb, bool splitter)
     : widgets(wl), m_parentWidget(p), formWindow(fw), isBreak(false), useSplitter(splitter)
 {
     layoutBase = lb;
@@ -356,7 +356,7 @@ void Layout::breakLayout()
         formWindow->selectWidget(formWindow);
 }
 
-HorizontalLayout::HorizontalLayout(const QList<QWidget*> &wl, QWidget *p, FormWindow *fw, QWidget *lb, bool splitter)
+HorizontalLayout::HorizontalLayout(const QList<QWidget*> &wl, QWidget *p, AbstractFormWindow *fw, QWidget *lb, bool splitter)
     : Layout(wl, p, fw, lb, splitter)
 {
 }
@@ -403,7 +403,7 @@ void HorizontalLayout::doLayout()
     finishLayout(needMove, layout);
 }
 
-VerticalLayout::VerticalLayout(const QList<QWidget*> &wl, QWidget *p, FormWindow *fw, QWidget *lb, bool splitter)
+VerticalLayout::VerticalLayout(const QList<QWidget*> &wl, QWidget *p, AbstractFormWindow *fw, QWidget *lb, bool splitter)
     : Layout(wl, p, fw, lb, splitter)
 {
 }
@@ -780,7 +780,7 @@ bool Grid::locateWidget(QWidget *w, int &row, int &col, int &rowspan, int &colsp
 
 
 
-GridLayout::GridLayout(const QList<QWidget*> &wl, QWidget *p, FormWindow *fw, QWidget *lb, const QSize &res)
+GridLayout::GridLayout(const QList<QWidget*> &wl, QWidget *p, AbstractFormWindow *fw, QWidget *lb, const QSize &res)
     : Layout(wl, p, fw, lb), resolution(res)
 {
     grid = 0;

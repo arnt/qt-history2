@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qdesigner_taskmenu.h"
+#include "qtundo.h"
 
 #include <abstractformwindow.h>
 #include <abstractformwindowcursor.h>
@@ -19,18 +20,55 @@
 #include <QtGui/QAction>
 #include <QtGui/QWidget>
 #include <QtGui/QInputDialog>
+#include <QtGui/QMainWindow>
 #include <QtGui/QVariant>
+
+class CreatDockWindowCommand: public QtCommand
+{
+public:
+    CreatDockWindowCommand();
+
+    void init(QWidget *widget);
+
+    virtual void redo();
+    virtual void undo();
+
+private:
+    QPointer<QWidget> m_widget;
+    QPointer<QWidget> m_parentWidget;
+    QPointer<QDockWindow> m_dockWindow;
+};
+
+CreatDockWindowCommand::CreatDockWindowCommand()
+{
+}
+
+void CreatDockWindowCommand::init(QWidget *widget)
+{
+    Q_ASSERT(widget != 0);
+
+    m_widget = widget;
+    m_parentWidget = widget->parentWidget();
+}
+
+void CreatDockWindowCommand::redo()
+{
+}
+
+void CreatDockWindowCommand::undo()
+{
+}
+
 
 QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent)
     : QObject(parent),
       m_widget(widget)
 {
-    QAction *a = 0;
+    m_changeObjectNameAction = new QAction(tr("Change Object Name"), this);
+    connect(m_changeObjectNameAction, SIGNAL(triggered()), this, SLOT(changeObjectName()));
 
-    a = new QAction(tr("Change Object Name"), this);
-    connect(a, SIGNAL(triggered()), this, SLOT(changeObjectName()));
-
-    m_actions.append(a);
+    m_createDockWindowAction = new QAction(tr("Create Dock Window"), this);
+    connect(m_createDockWindowAction, SIGNAL(triggered()), this, SLOT(createDockWindow()));
 }
 
 QDesignerTaskMenu::~QDesignerTaskMenu()
@@ -44,7 +82,15 @@ QWidget *QDesignerTaskMenu::widget() const
 
 QList<QAction*> QDesignerTaskMenu::taskActions() const
 {
-    return m_actions;
+    QList<QAction*> actions;
+
+    actions.append(m_changeObjectNameAction);
+
+    if (qt_cast<QMainWindow*>(widget()->parentWidget()) != 0) {
+        actions.append(m_createDockWindowAction);
+    }
+
+    return actions;
 }
 
 void QDesignerTaskMenu::changeObjectName()
@@ -59,3 +105,8 @@ void QDesignerTaskMenu::changeObjectName()
         formWindow->cursor()->setProperty("objectName", newObjectName);
     }
 }
+
+void QDesignerTaskMenu::createDockWindow()
+{
+}
+

@@ -26,7 +26,7 @@
 #include <QGridLayout>
 #include <QMap>
 
-class FormWindow;
+class AbstractFormWindow;
 
 void add_to_box_layout(QBoxLayout *box, QWidget *widget);
 void insert_into_box_layout(QBoxLayout *box, int index, QWidget *widget);
@@ -36,7 +36,7 @@ class Layout : public QObject
 {
     Q_OBJECT
 public:
-    Layout(const QList<QWidget*> &wl, QWidget *p, FormWindow *fw, QWidget *lb, bool splitter = false);
+    Layout(const QList<QWidget*> &wl, QWidget *p, AbstractFormWindow *fw, QWidget *lb, bool splitter = false);
     virtual ~Layout();
 
     virtual void setup();
@@ -53,7 +53,7 @@ protected:
     QPoint startPoint;
     QMap<QPointer<QWidget>, QRect> geometries;
     QWidget *layoutBase;
-    FormWindow *formWindow;
+    AbstractFormWindow *formWindow;
     QRect oldGeometry;
     bool isBreak;
     bool useSplitter;
@@ -67,7 +67,7 @@ protected slots:
 class HorizontalLayout : public Layout
 {
 public:
-    HorizontalLayout(const QList<QWidget*> &wl, QWidget *p, FormWindow *fw, QWidget *lb, bool splitter = false);
+    HorizontalLayout(const QList<QWidget*> &wl, QWidget *p, AbstractFormWindow *fw, QWidget *lb, bool splitter = false);
 
     void doLayout();
 
@@ -79,7 +79,7 @@ protected:
 class VerticalLayout : public Layout
 {
 public:
-    VerticalLayout(const QList<QWidget*> &wl, QWidget *p, FormWindow *fw, QWidget *lb, bool splitter = false);
+    VerticalLayout(const QList<QWidget*> &wl, QWidget *p, AbstractFormWindow *fw, QWidget *lb, bool splitter = false);
 
     void doLayout();
 
@@ -91,7 +91,7 @@ protected:
 class StackedLayout : public Layout
 {
 public:
-    StackedLayout(const QList<QWidget*> &wl, QWidget *p, FormWindow *fw, QWidget *lb, bool splitter = false);
+    StackedLayout(const QList<QWidget*> &wl, QWidget *p, AbstractFormWindow *fw, QWidget *lb, bool splitter = false);
 
     void doLayout();
 
@@ -106,7 +106,7 @@ class Grid;
 class GridLayout : public Layout
 {
 public:
-    GridLayout(const QList<QWidget*> &wl, QWidget *p, FormWindow *fw, QWidget *lb, const QSize &res);
+    GridLayout(const QList<QWidget*> &wl, QWidget *p, AbstractFormWindow *fw, QWidget *lb, const QSize &res);
     ~GridLayout();
 
     void doLayout();
