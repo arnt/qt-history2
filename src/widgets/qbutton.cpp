@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#59 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#60 $
 **
 ** Implementation of QButton widget class
 **
@@ -16,7 +16,7 @@
 #include "qkeycode.h"
 #include "qtimer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#59 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#60 $");
 
 static const int autoRepeatPeriod = 200;
 
@@ -193,10 +193,10 @@ void QButton::setPixmap( const QPixmap &pixmap )
     bool sameSize = w == bpixmap->width() && h == bpixmap->height();
     *bpixmap = pixmap;
     if ( bpixmap->depth() == 1 && !bpixmap->mask() )
-	bpixmap->setMask( *((QBitmap *)&pixmap) );
+	bpixmap->setMask( *((QBitmap *)bpixmap) );
     if ( !btext.isNull() )
 	btext.resize( 0 );
-    if ( autoresize &&	!sameSize )
+    if ( autoresize && !sameSize )
 	adjustSize();
     else
 	repaint( FALSE );
