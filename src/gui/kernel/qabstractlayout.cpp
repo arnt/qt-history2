@@ -1202,6 +1202,8 @@ void QLayout::freeze(int w, int h)
 */
 void QLayout::setMenuBar(QWidget *w)
 {
+    if (w)
+        addChildWidget(w);
     d->menubar = w;
 }
 

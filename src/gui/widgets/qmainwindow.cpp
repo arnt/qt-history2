@@ -191,7 +191,7 @@ void QMainWindow::setToolButtonStyle(Qt::ToolButtonStyle toolButtonStyle)
 */
 QMenuBar *QMainWindow::menuBar() const
 {
-    QMenuBar *menubar = qt_cast<QMenuBar*>(d->layout->menuBar());
+    QMenuBar *menubar = qt_cast<QMenuBar *>(d->layout->menuBar());
     if (!menubar) {
 	QMainWindow *self = const_cast<QMainWindow *>(this);
 	menubar = new QMenuBar(self);
@@ -206,13 +206,7 @@ QMenuBar *QMainWindow::menuBar() const
     \sa menuBar()
 */
 void QMainWindow::setMenuBar(QMenuBar *menubar)
-{
-    Q_ASSERT_X(menubar != 0,
-	       "QMainWindow::setMenuBar()", "parameter cannot be zero");
-    Q_ASSERT_X(!d->layout->menuBar(),
-	       "QMainWindow::setMenuBar()", "menu bar already set");
-    layout()->setMenuBar(menubar);
-}
+{ d->layout->setMenuBar(menubar); }
 
 /*!
     Returns the status bar for the main window. This function creates
@@ -237,13 +231,7 @@ QStatusBar *QMainWindow::statusBar() const
     \sa statusBar()
 */
 void QMainWindow::setStatusBar(QStatusBar *statusbar)
-{
-    Q_ASSERT_X(statusbar != 0,
-	       "QMainWindow::setStatusBar()", "parameter cannot be zero");
-    Q_ASSERT_X(!d->layout->statusBar(),
-	       "QMainWindow::setStatusBar()", "status bar already set");
-    d->layout->setStatusBar(statusbar);
-}
+{ d->layout->setStatusBar(statusbar); }
 
 /*!
     Returns the central widget for the main window.  This function

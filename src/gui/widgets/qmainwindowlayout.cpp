@@ -176,9 +176,10 @@ QStatusBar *QMainWindowLayout::statusBar() const
 
 void QMainWindowLayout::setStatusBar(QStatusBar *sb)
 {
-    addChildWidget(sb);
+    if (sb)
+        addChildWidget(sb);
     delete statusbar;
-    statusbar = new QWidgetItem(sb);
+    statusbar = sb ? new QWidgetItem(sb) : 0;
 }
 
 QWidget *QMainWindowLayout::centralWidget() const
