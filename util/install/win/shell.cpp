@@ -3,6 +3,7 @@
 #include "dialogs/folderdlgimpl.h"
 #include <qnamespace.h>
 #include <qdir.h>
+#include <qlibrary.h>
 #if defined(Q_OS_WIN32)
 #include <windows.h>
 #include <shlobj.h>
@@ -129,6 +130,23 @@ static QPixmap* openImage = NULL;
 static QPixmap* fileImage = NULL;
 static QPixmap* infoImage = NULL;
 
+typedef BOOL (WINAPI *PtrSHGetPathFromIDListW)(LPITEMIDLIST,LPWSTR);
+static PtrSHGetPathFromIDListW ptrSHGetPathFromIDListW = 0;
+
+static void resolveLibs()
+{
+    static bool triedResolve = FALSE;
+    
+    if ( !triedResolve ) {
+	triedResolve = TRUE;
+	if ( qt_winunicode ) {
+	    QLibrary lib("shell32");
+	    lib.setAutoUnload( FALSE );
+	    ptrSHGetPathFromIDListW = (PtrSHGetPathFromIDListW) lib.resolve( "SHGetPathFromIDListW" );
+	}
+    }
+}
+
 WinShell::WinShell()
 {
 #if defined(Q_OS_WIN32)
@@ -144,10 +162,10 @@ WinShell::WinShell()
     if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
 	ushort buffer[MAX_PATH];
 	if( SUCCEEDED( hr = SHGetSpecialFolderLocation( NULL, CSIDL_PROGRAMS, &item ) ) ) {
-	    if( SHGetPathFromIDListW( item, buffer ) ) {
+	    if( ptrSHGetPathFromIDListW( item, buffer ) ) {
 		localProgramsFolderName = QString::fromUcs2( buffer );
 		if( SUCCEEDED( hr = SHGetSpecialFolderLocation( NULL, CSIDL_COMMON_PROGRAMS, &item ) ) ) {
-		    if( SHGetPathFromIDListW( item, buffer ) )
+		    if( ptrSHGetPathFromIDListW( item, buffer ) )
 			commonProgramsFolderName = QString::fromUcs2( buffer );
 		    else
 			qDebug( "Could not get name of common programs folder" );
