@@ -1712,6 +1712,44 @@ void QString::setLength( uint newLen )
 }
 
 /*!
+    \fn uint QString::capacity() const
+
+    Returns the number of characters this string can hold
+    in the allocated memory.
+
+    \sa setLength()
+*/
+
+/*!
+    Allocates memory to hold \a newCap characters. 
+    
+    If \a newCap is smaller than the current length of the 
+    string the string is truncated. Any new space allocated
+    contains arbitrary data.
+
+    This function always detaches the string from other references
+    to the same data. If \a newCap is 0, then the string becomes
+    empty (non-null).
+
+    \sa setLength(), truncate()
+*/
+void QString::setCapacity( uint newCap )
+{
+    if ( d->maxl != newCap ) {
+	d->len = QMIN( d->len, newCap );
+	d->setDirty();
+
+	QChar *nd = QT_ALLOC_QCHAR_VEC( newCap );
+	if ( nd ) {
+	    uint len = d->len;
+	    memcpy( nd, d->unicode, sizeof(QChar) * len );
+	    deref();
+	    d = new QStringData( nd, len, newCap );
+	}
+    }
+}
+
+/*!
     \internal
 
     Like setLength, but doesn't shrink the allocated memory.

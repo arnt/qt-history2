@@ -697,6 +697,9 @@ public:
 
     void setLength( uint newLength );
 
+    uint capacity() const;
+    void setCapacity( uint newCap );
+
     bool simpleText() const { if ( !d->issimpletext ) checkSimpleText(); return (bool)d->issimpletext; }
     bool isRightToLeft() const;
 
@@ -863,6 +866,9 @@ inline bool QString::operator!() const
 
 inline uint QString::length() const
 { return d->len; }
+
+inline uint QString::capacity() const
+{ return d->maxl; }
 
 inline bool QString::isEmpty() const
 { return length() == 0; }
