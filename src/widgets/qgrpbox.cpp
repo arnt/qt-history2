@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgrpbox.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qgrpbox.cpp#10 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qgrpbox.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qgrpbox.cpp#10 $";
 #endif
 
 
@@ -118,7 +118,7 @@ void QGroupBox::paintEvent( QPaintEvent * )	// overrides QFrame::paintEvent
 	    setFrameRect( r );			//   smaller than client rect
 	    int x;
 	    if ( align & AlignHCenter )		// center alignment
-		x = r.width()/2;
+		x = r.width()/2 - tw/2;
 	    else if ( align & AlignRight )	// right alignment
 		x = r.width() - tw - 8;
 	    else				// |eft alignment
