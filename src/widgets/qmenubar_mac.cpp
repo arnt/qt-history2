@@ -435,7 +435,7 @@ void QMenuBar::macUpdateMenuBar()
 	    }
 	} else if (!first) {
 	    first = TRUE;
-	    if(!w->testWFlags(WType_Dialog) && !w->testWFlags(WType_Popup) ) {
+	    if(!w->testWFlags(WStyle_Tool) && !w->testWFlags(WType_Popup) ) {
 		ClearMenuBar();
 		InvalMenuBar();
 	    }
