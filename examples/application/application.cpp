@@ -34,10 +34,8 @@
 #include "fileopen.xpm"
 #include "fileprint.xpm"
 
-static int screen = -1;
-
 ApplicationWindow::ApplicationWindow()
-    : QMainWindow( QApplication::desktop( screen ++), "example application main window", WDestructiveClose )
+    : QMainWindow( 0, "example application main window", WDestructiveClose )
 {
     printer = new QPrinter;
     QPixmap openIcon, saveIcon, printIcon;
