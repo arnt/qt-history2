@@ -678,6 +678,7 @@ private:
     bool emitCharFormatStyle(const QTextCharFormat &format);
     void emitTextLength(const char *attribute, const QTextLength &length);
     void emitAlignment(Qt::Alignment alignment);
+    void emitFloatStyle(QTextFrameFormat::Position pos);
     void emitAttribute(const char *attribute, const QString &value);
 
     QString html;
@@ -815,6 +816,18 @@ void QTextHtmlExporter::emitAlignment(Qt::Alignment alignment)
         html += QLatin1String(" align='justify'");
 }
 
+void QTextHtmlExporter::emitFloatStyle(QTextFrameFormat::Position pos)
+{
+    if (pos == QTextFrameFormat::InFlow)
+        return;
+
+    html += QLatin1String(" style=\"float:");
+    if (pos == QTextFrameFormat::FloatLeft)
+        html += QLatin1String(" left;\"");
+    else if (pos == QTextFrameFormat::FloatRight)
+        html += QLatin1String(" right;\"");
+}
+
 void QTextHtmlExporter::emitFragment(const QTextFragment &fragment)
 {
     const QTextCharFormat format = fragment.charFormat();
@@ -861,6 +874,9 @@ void QTextHtmlExporter::emitFragment(const QTextFragment &fragment)
 
         if (imgFmt.hasProperty(QTextFormat::ImageHeight))
             emitAttribute("height", QString::number(imgFmt.height()));
+
+        if (QTextFrame *imageFrame = qt_cast<QTextFrame *>(doc->objectForFormat(imgFmt)))
+            emitFloatStyle(imageFrame->format().position());
 
         html += QLatin1String(" />");
     } else {
@@ -936,8 +952,7 @@ void QTextHtmlExporter::emitTable(const QTextTable *table)
     if (format.hasProperty(QTextFormat::FrameBorder))
         emitAttribute("border", QString::number(format.border()));
 
-    // ### style="float: ..."
-
+    emitFloatStyle(format.position());
     emitAlignment(format.alignment());
     emitTextLength("width", format.width());
 
