@@ -759,6 +759,20 @@ MakefileGenerator::usePlatformDir()
 }
 
 void
+MakefileGenerator::writeHdr(QTextStream &t, const QString &hdr)
+{
+    QStringList &hdrl = project->variables()[hdr];
+    QStringList::Iterator oit = hdrl.begin();
+    for (; oit != hdrl.end(); ++oit) {
+        QStringList deps = findDependencies((*oit));
+        if (deps.isEmpty())
+            continue;
+
+        t << (*oit) << ": " << deps.join(" \\\n\t\t") << "\n";
+    }
+}
+
+void
 MakefileGenerator::writeObj(QTextStream &t, const QString &obj, const QString &src)
 {
     QStringList &objl = project->variables()[obj];
@@ -1427,6 +1441,7 @@ MakefileGenerator::writeMakefile(QTextStream &t)
     t << "####### Compile" << endl << endl;
     writeObj(t, "OBJECTS", "SOURCES");
     writeMocObj(t, "OBJMOC", "SRCMOC");
+    writeHdr(t, "HEADERS");
     writeMocSrc(t, "HEADERS");
     writeMocSrc(t, "SOURCES");
     writeYaccSrc(t, "YACCSOURCES");

@@ -40,6 +40,7 @@ class MakefileGenerator : protected QMakeSourceFileInfo
 
 protected:
     void writeObj(QTextStream &, const QString &obj, const QString &src);
+    void writeHdr(QTextStream &, const QString &hdr);
     void writeMocObj(QTextStream &, const QString &obj, const QString &src);
     void writeMocSrc(QTextStream &, const QString &src);
     void writeLexSrc(QTextStream &, const QString &lex);
