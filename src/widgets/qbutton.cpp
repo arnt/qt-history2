@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#99 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#100 $
 **
 ** Implementation of QButton widget class
 **
@@ -19,7 +19,7 @@
 #include "qpmcache.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#99 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#100 $");
 
 
 static const int autoRepeatDelay  = 300;
@@ -108,8 +108,8 @@ static int shortcutChar( const char *str )
   specify how to reply to user actions and how to draw the button.
 
   QButton provides both push and toggle buttons.  The QRadioButton and
-  QCheckBox classes provide only toggle buttons, QPushButton provides
-  both toggle and push buttons.
+  QCheckBox classes provide only toggle buttons, QPushButton and
+  QToolButton provide both toggle and push buttons.
 
   Any button can have either a text or pixmap label.  setText() sets
   the button to be a text button and setPixmap() sets it to be a
@@ -164,8 +164,8 @@ static int shortcutChar( const char *str )
   \link animateClick() animate a click\endlink.
 
   You can also set a custom accelerator using the setAccel() function.
-  This is very useful for pixmap buttons since they have no automatic
-  accelerator.
+  This is useful mostly for pixmap buttons since they have no
+  automatic accelerator.
 
   \code
     QPushButton *p;
@@ -173,8 +173,8 @@ static int shortcutChar( const char *str )
     p->setAccel( ALT+Key_F7 );
   \endcode
 
-  All of the buttons provided by Qt (\l QPushButton, \l QCheckBox and \l
-  QRadioButton) support both text and pixmap labels.
+  All of the buttons provided by Qt (\l QPushButton, \l QToolButton,
+  \l QCheckBox and \l QRadioButton) can display both text and pixmaps.
 
   To subclass QButton, you have to reimplement at least drawButton()
   (to draw the button's outskirts) and drawButtonLabel() (to draw its
@@ -271,11 +271,14 @@ QButton::~QButton()
 */
 
 /*!
-  Sets the button contents to \e text and redraws the contents.
+  Sets the button to display \e text and repaints
 
-  The button resizes itself if auto-resizing is enabled.
+  The button resizes itself if auto-resizing is enabled, changes its
+  minimum size if autoMinimumSize() is enabled, and sets the
+  appropriate accelerator.
 
-  \sa text(), setPixmap(), setAutoResize()
+  \sa text(), setPixmap(), setAutoMinimumSize(), setAutoResize(),
+  setAccel(), QPixmap::mask()
 */
 
 void QButton::setText( const char *text )
@@ -307,7 +310,7 @@ void QButton::setText( const char *text )
 */
 
 /*!
-  Sets the button pixmap to \a pixmap and redraws the contents.
+  Sets the button to display \a pixmap and repaints at once.
 
   If \a pixmap is monochrome (i.e. it is a QBitmap or its \link
   QPixmap::depth() depth\endlink is 1) and it does not have a mask,
@@ -315,10 +318,12 @@ void QButton::setText( const char *text )
   this is to draw transparent bitmaps, which is important for
   e.g. toggle buttons.
 
-  The button resizes itself if auto-resizing is enabled, and always
-  disables any accelerator.
+  The button resizes itself if auto-resizing is enabled, changes its
+  minimum size if autoMinimumSize() is enabled, and always disables
+  any accelerator.
 
-  \sa pixmap(), setText(), setAutoResize(), setAccel(), QPixmap::mask()
+  \sa pixmap(), setText(), setAutoMinimumSize(), setAutoResize(),
+  setAccel(), QPixmap::mask()
 */
 
 void QButton::setPixmap( const QPixmap &pixmap )
@@ -548,7 +553,7 @@ void QButton::setOn( bool enable )
 #endif
 	return;
     }
-    
+
     if ( (bool)buttonOn != enable ) {		// changed state
 	buttonOn = enable;
 	repaint( FALSE );
