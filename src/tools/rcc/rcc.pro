@@ -5,13 +5,12 @@ build_all:CONFIG += release
 
 DEFINES	       += QT_RCC QT_LITE_UNICODE QT_NO_DATASTREAM QT_NO_THREAD QT_NO_QOBJECT \
                   QT_NO_UNICODETABLES QT_NO_COMPONENT
+win32:DEFINES += QT_NODLL
 
 CONFIG -= qt
 INCLUDEPATH	 = ../../corelib/arch/generic $$QT_BUILD_TREE/include . \
                    $$QT_BUILD_TREE/include/QtCore $$QT_BUILD_TREE/include/QtXml
 DEPENDPATH	+= $$INCLUDEPATH ../../corelib/base ../../corelib/tools ../../corelib/io ../../corelib/codecs ../../xml
-
-unix:LIBS += -lz
 
 SOURCES += main.cpp
 
@@ -61,6 +60,25 @@ macx: {
    QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.2 #enables weak linking for 10.2 (exported)
    SOURCES += ../../corelib/kernel/qcore_mac.cpp
    LIBS += -framework CoreServices
+}
+
+contains(QT_CONFIG, zlib) {
+   INCLUDEPATH += ../../3rdparty/zlib
+   SOURCES+= \
+	../3rdparty/zlib/adler32.c \
+	../3rdparty/zlib/compress.c \
+	../3rdparty/zlib/crc32.c \
+	../3rdparty/zlib/deflate.c \
+	../3rdparty/zlib/gzio.c \
+	../3rdparty/zlib/inffast.c \
+	../3rdparty/zlib/inflate.c \
+	../3rdparty/zlib/inftrees.c \
+	../3rdparty/zlib/trees.c \
+	../3rdparty/zlib/uncompr.c \
+	../3rdparty/zlib/zutil.c
+} else:!contains(QT_CONFIG, no-zlib) {
+   unix:LIBS += -lz
+#  win32:LIBS += libz.lib
 }
 
 target.path=$$[QT_INSTALL_BINS]
