@@ -90,6 +90,7 @@
 #include "../pics/no.xbm"
 
 static QFontDatabase *fontDataBase = 0;
+QString assistantPath();
 
 static void cleanupFontDatabase()
 {
@@ -133,7 +134,7 @@ bool PropertyWhatsThis::clicked( const QString& href )
 {
     if ( !href.isEmpty() ) {
 	QStringList lst;
-	lst << "assistant" << QString( href );
+	lst << assistantPath() << QString( href );
 	QProcess proc( lst );
 	proc.start();
     }

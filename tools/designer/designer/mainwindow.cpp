@@ -95,6 +95,18 @@ static bool tbSettingsRead = FALSE;
 
 MainWindow *MainWindow::self = 0;
 
+QString assistantPath()
+{
+#ifdef Q_OS_MACX
+    return QDir::cleanDirPath(QString(getenv("QTDIR")) + QDir::separator() + 
+			      "bin" + QDir::separator() + 
+			      "assistant.app/Contents/MacOS/assistant");
+#else
+    return "assistant";
+#endif
+}
+    
+
 static QString textNoAccel( const QString& text)
 {
     QString t = text;
@@ -834,7 +846,7 @@ void MainWindow::helpContents()
 
     if ( !source.isEmpty() ) {
 	QStringList lst;
-	lst << "assistant" << QString( "d:" + source );
+	lst << assistantPath() << QString( "d:" + source );
 	QProcess proc( lst );
 	proc.start();
     }
@@ -844,7 +856,7 @@ void MainWindow::helpContents()
 void MainWindow::helpManual()
 {
     QStringList lst;
-    lst << "assistant" << "d:book1.html";
+    lst << assistantPath() << "d:book1.html";
     QProcess proc( lst );
     proc.start();
 }
@@ -2624,7 +2636,7 @@ void MainWindow::openHelpForDialog( const QString &dia )
 
     if ( !page.isEmpty() ) {
 	QStringList lst;
-	lst << "assistant" << QString( "d:" + page );
+	lst << assistantPath() << QString( "d:" + page );
 	QProcess proc( lst );
 	proc.start();
     }
