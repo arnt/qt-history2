@@ -122,6 +122,20 @@ protected:
 
 };
 
+class WidgetVerticalSorter
+{
+public:    
+    bool operator()(const QWidget *a, const QWidget *b) const 
+    { return a->y() < b->y(); }    
+};
+
+class WidgetHorizontalSorter
+{
+public:    
+    bool operator()(const QWidget *a, const QWidget *b) const 
+    { return a->x() < b->x(); }    
+};
+
 class VerticalLayoutList: public QList<QWidget*>
 {
 public:
@@ -130,9 +144,9 @@ public:
 
     static bool lessThan(const QWidget *a, const QWidget *b)
     {  return a->y() < b->y(); }
-
+    
     void sort()
-    { qSort(*this, lessThan); }
+    { qSort(this->begin(), this->end(), WidgetVerticalSorter()); }
 };
 
 class HorizontalLayoutList : public QList<QWidget*>
@@ -143,9 +157,9 @@ public:
 
     static bool hLessThan(const QWidget *a, const QWidget *b)
     { return a->x() < b->x(); }
-
+   
     void sort()
-    { qSort(*this, hLessThan); }
+    { qSort(this->begin(), this->end(), WidgetHorizontalSorter()); }
 };
 
 namespace Utils // ### fix the namespace
