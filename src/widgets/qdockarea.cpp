@@ -230,16 +230,22 @@ static int point_pos( const QPoint &p, Qt::Orientation o, bool swap = FALSE )
     return o == Qt::Horizontal ? ( swap ? p.y() : p.x() ) : ( swap ? p.x() : p.y() );
 }
 
-static void shrink_extend( QDockWindow *dw, int &dockExtend, int spaceLeft, Qt::Orientation o )
+static void shrink_extend( QDockWindow *dw, int &dockExtend, int /*spaceLeft*/, Qt::Orientation o )
 {
-    dockExtend = spaceLeft;
     if ( o == Qt::Horizontal ) {
-	if ( dw->minimumWidth() > dockExtend )
-	    dockExtend = dw->minimumWidth();
+	int mw = 0;
+	if ( !dw->inherits( "QToolBar" ) )
+	    mw = dw->minimumWidth();
+	else
+	    mw = dw->sizeHint().width();
+	dockExtend = mw;
     } else {
-	dockExtend = dw->minimumHeight();
-	if ( dw->minimumHeight() > dockExtend )
-	    dockExtend = dw->minimumHeight();
+	int mh = 0;
+	if ( !dw->inherits( "QToolBar" ) )
+	    mh = dw->minimumHeight();
+	else
+	    mh = dw->sizeHint().height();
+	dockExtend = mh;
     }
 }
 
@@ -304,15 +310,16 @@ int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
 	// dock, try moving it a bit back, if possible.
 	int op = pos;
 	int dockExtend = dock_extent( dw, orientation() );
-	if ( !dw->isStretchable() )
+	if ( !dw->isStretchable() ) {
 	    pos = QMAX( pos, dw->offset() );
-	if ( pos + dockExtend > size_extent( r.size(), orientation() ) - 1 )
-	    pos = QMAX( op, size_extent( r.size(), orientation() ) - 1 - dockExtend );
+	    if ( pos + dockExtend > size_extent( r.size(), orientation() ) - 1 )
+		pos = QMAX( op, size_extent( r.size(), orientation() ) - 1 - dockExtend );
+	}
+	if ( !lastLine.isEmpty() && !dw->newLine() && space_left( rect, pos, orientation() ) < dockExtend )
+	    shrink_extend( dw, dockExtend, space_left( rect, pos, orientation() ), orientation() );
 	// if the current widget doesn't fit into the line anymore and it is not the first widget of the line
-	if ( !lastLine.isEmpty() && !dw->newLine() && space_left( r, pos, orientation() ) < dockExtend )
-	    shrink_extend( dw, dockExtend, space_left( r, pos, orientation() ), orientation() );
-	if ( !lastLine.isEmpty() && 
-	     ( space_left( r, pos, orientation() ) < dockExtend || dw->newLine() ) ) {
+	if ( !lastLine.isEmpty() &&
+	     ( space_left( rect, pos, orientation() ) < dockExtend || dw->newLine() ) ) {
 	    if ( !testonly ) // place the last line, if not in test mode
 		place_line( lastLine, orientation(), linestrut, size_extent( r.size(), orientation() ), tbstrut );
 	    // remember the line coordinats of the last line
@@ -557,6 +564,16 @@ void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r,
 
     QRect rect = QRect( mapFromGlobal( r.topLeft() ), r.size() );
     dockWindow->setOffset( point_pos( rect.topLeft(), orientation() ) );
+    if ( orientation() == Horizontal ) {
+	int offs = dockWindow->offset();
+	if ( width() - offs < dockWindow->minimumWidth() )
+	    dockWindow->setOffset( width() - dockWindow->minimumWidth() );
+    } else {
+	int offs = dockWindow->offset();
+	if ( width() - offs < dockWindow->minimumHeight() )
+	    dockWindow->setOffset( width() - dockWindow->minimumHeight() );
+    }
+    
     if ( dockWindows->isEmpty() ) {
 	dockWindows->append( dockWindow );
     } else {
@@ -581,11 +598,12 @@ void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r,
 	    else
 		dockLine = lines.count(); // insert after the last line
 	} else { // inside the dock (we have found a dockLine)
-	    if ( point_pos( pos, orientation(), TRUE ) < point_pos( lineRect.topLeft(), orientation(), TRUE ) +
-		 size_extent( lineRect.size(), orientation(), TRUE ) / 5 ) { 	// mouse was at the very beginning of the line
+	    if ( point_pos( pos, orientation(), TRUE ) < 
+		 point_pos( lineRect.topLeft(), orientation(), TRUE ) + 4 ) { 	// mouse was at the very beginning of the line
 		insertLine = TRUE;					// insert a new line before that with the docking widget
-	    } else if ( point_pos( pos, orientation(), TRUE ) > point_pos( lineRect.topLeft(), orientation(), TRUE ) +
-			4 * size_extent( lineRect.size(), orientation(), TRUE ) / 5 ) {	// mouse was at the very and of the line
+	    } else if ( point_pos( pos, orientation(), TRUE ) > 
+			point_pos( lineRect.topLeft(), orientation(), TRUE ) +
+			size_extent( lineRect.size(), orientation(), TRUE ) - 4 ) {	// mouse was at the very and of the line
 		insertLine = TRUE;						// insert a line after that with the docking widget
 		dockLine++;
 	    }
@@ -721,10 +739,8 @@ void QDockArea::removeDockWindow( QDockWindow *w, bool makeFloating, bool swap, 
     QList<QDockWindow> lineStarts = layout->lineStarts();
     if ( fixNewLines && lineStarts.findRef( dockWindow ) != -1 && i < (int)dockWindows->count() )
 	dockWindows->at( i )->setNewLine( TRUE );
-    if ( makeFloating ) {
-	w->setFixedExtentWidth( -1 );
-	w->setFixedExtentHeight( -1 );
-    }
+    w->setFixedExtentWidth( -1 );
+    w->setFixedExtentHeight( -1 );
     if ( makeFloating )
 	dockWindow->reparent( topLevelWidget(), WStyle_Customize | WStyle_NoBorderEx | WType_TopLevel | WStyle_Dialog,
 			      QPoint( 0, 0 ), FALSE );
@@ -941,39 +957,44 @@ void QDockArea::invalidateFixedSizes()
 
 int QDockArea::maxSpace( int hint, QDockWindow *dw )
 {
-    int idx = dockWindows->findRef( dw );
-    if ( idx == -1 )
-	return hint;
-    int index = lineOf( idx );
-    int needed = 0;
-    QPoint pos( -1, -1 );
-    for ( QDockWindow *w = dockWindows->at( index ); w; w = dockWindows->next() ) {
-	if ( pos != QPoint( -1, -1 ) ) {
-	    if ( orientation() == Horizontal ) {
-		if ( w->pos().y() > pos.y() )
-		    break;
-	    } else {
-		if ( w->pos().x() > pos.x() )
-		    break;
-	    }
-	}
-	pos = w->pos();
-	if ( w == dw )
-	    continue;
-	if ( orientation() == Horizontal ) {
-	    if ( !w->inherits( "QToolBar" ) )
-		needed += w->minimumWidth() + 5;
-	    else
-		needed += w->sizeHint().width() + 5;
-	} else {
-	    if ( !w->inherits( "QToolBar" ) )
-		needed += w->minimumHeight() + 5;
-	    else
-		needed += w->sizeHint().height() + 5;
-	}
+    int index = findDockWindow( dw );
+    if ( index == -1 || index + 1 >= (int)dockWindows->count() ) {
+	if ( orientation() == Horizontal )
+	    return dw->width();
+	return dw->height();
     }
-    
-    hint = QMIN( hint, ( orientation() == Horizontal ? width() - needed : height() - needed ) );
-    hint = QMAX( hint, 0 );
+
+    QDockWindow *w = dockWindows->at( index + 1 );
+    if ( !w->isResizeEnabled() ) {
+	if ( orientation() == Horizontal )
+	    return dw->width();
+	return dw->height();
+    }
+    int min = 0;
+    if ( orientation() == Horizontal ) {
+	w->setFixedExtentWidth( -1 );
+	if ( !w->inherits( "QToolBar" ) )
+	    min = QMAX( w->minimumSize().width(), w->minimumSizeHint().width() );
+	else
+	    min = w->sizeHint().width();
+    } else {
+	w->setFixedExtentHeight( -1 );
+	if ( !w->inherits( "QToolBar" ) )
+	    min = QMAX( w->minimumSize().height(), w->minimumSizeHint().height() );
+	else
+	    min = w->sizeHint().height();
+    }
+
+    int diff = hint - ( orientation() == Horizontal ? dw->width() : dw->height() );
+
+    int oldHint = hint;
+    if ( ( orientation() == Horizontal ? w->width() : w->height() ) - diff < min )
+	hint = ( orientation() == Horizontal ? dw->width() : dw->height() ) + ( orientation() == Horizontal ? w->width() : w->height() ) - min;
+
+    diff = hint - ( orientation() == Horizontal ? dw->width() : dw->height() );
+    if ( orientation() == Horizontal )
+	w->setFixedExtentWidth( w->width() - diff );
+    else
+	w->setFixedExtentHeight( w->height() - diff );
     return hint;
 }
