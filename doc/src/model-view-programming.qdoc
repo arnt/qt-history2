@@ -141,8 +141,8 @@ is used in Qt. Each section provides an example of use, and is followed
 by a section showing how you can create new components.
 
 \list
-\i \l{Using Models in an Application}
-  \tableofcontents{1 Using Models in an Application}
+\i \l{Using Models and Views}
+  \tableofcontents{1 Using Models and Views}
 \i \l{Model Classes}
   \tableofcontents{1 Model Classes}
 \i \l{Creating New Models}
@@ -523,11 +523,12 @@ holding lists of strings.
 \section1 Concepts
 
 In the model/view architecture, the view obtains items of data from the
-model and presents them to the user. The way in which the data is
-presented can be completely different from the representation of the
-data provided by the model, and from the underlying data structure used
-to store items of data.
-This separation of content and presentation is achieved by the use of a
+model and presents them to the user. The way that the data is
+presented need not resemble the representation of the data provided by
+the model, and may be \e{completely different} from the underlying data
+structure used to store items of data.
+
+The separation of content and presentation is achieved by the use of a
 standard model interface provided by QAbstractItemModel, a standard view
 interface provided by QAbstractItemView, and the use of model indexes
 that represent items of data in a general way.
@@ -1260,8 +1261,9 @@ items.
     \skipto QVariant StringListModel::data
     \printuntil }
 
-    We only return a valid QVariant if the model index supplied is valid
-    and the requested role is one that we support.
+    We only return a valid QVariant if the model index supplied is valid,
+    the row number is within the range of items in the string list, and the
+    requested role is one that we support.
 
     If our model is displayed in a view with headers, we want the headers
     to show the row and column numbers. We can provide information about
