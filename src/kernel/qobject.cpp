@@ -1080,10 +1080,10 @@ void QObject::installEventFilter( const QObject *obj )
     if (!obj)
 	return;
     QObject *o = const_cast<QObject *>(obj);
-    bool found = d->eventFilters.remove(o);
+    // clean up unused items in the list
+    d->eventFilters.remove(QObjectPointer());
+    d->eventFilters.remove(o);
     d->eventFilters.prepend(o);
-    if (!found)
-	connect( obj, SIGNAL(destroyed(QObject*)), this, SLOT(cleanupEventFilter(QObject*)) );
 }
 
 /*!
@@ -1102,9 +1102,7 @@ void QObject::installEventFilter( const QObject *obj )
 void QObject::removeEventFilter( const QObject *obj )
 {
     QObject *o = const_cast<QObject *>(obj);
-    if (d->eventFilters.remove(o))
-	disconnect( obj,  SIGNAL(destroyed(QObject*)),
-		    this, SLOT(cleanupEventFilter(QObject*)) );
+    d->eventFilters.remove(o);
 }
 
 
@@ -1142,17 +1140,6 @@ void QObject::removeEventFilter( const QObject *obj )
 void QObject::deleteLater()
 {
     QApplication::postEvent( this, new QEvent( QEvent::DeferredDelete) );
-}
-
-/*!
-    This slot is connected to the destroyed() signal of other objects
-    that have installed event filters on this object. When the other
-    object, \a obj, is destroyed, we want to remove its event filter.
-*/
-
-void QObject::cleanupEventFilter(QObject* obj)
-{
-    removeEventFilter( obj );
 }
 
 /*!

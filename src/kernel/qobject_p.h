@@ -89,7 +89,7 @@ struct QObjectPrivate
 
 
     QObjectList children;
-    QObjectList eventFilters;
+    QList<QObjectPointer> eventFilters;
 };
 
 #endif

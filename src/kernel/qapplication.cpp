@@ -2480,7 +2480,7 @@ bool QApplication::internalNotify( QObject *receiver, QEvent * e)
     // send to all application event filters
     for (int i = 0; i < d->eventFilters.size(); ++i) {
 	register QObject *obj = d->eventFilters.at(i);
-	if ( obj->eventFilter(receiver,e) )
+	if ( obj && obj->eventFilter(receiver,e) )
 	    return TRUE;
     }
 
@@ -2488,7 +2488,7 @@ bool QApplication::internalNotify( QObject *receiver, QEvent * e)
 	// send to all event filters on the object
 	for (int i = 0; i < receiver->d->eventFilters.size(); ++i) {
 	    register QObject *obj = receiver->d->eventFilters.at(i);
-	    if ( obj->eventFilter(receiver,e) )
+	    if ( obj && obj->eventFilter(receiver,e) )
 		return TRUE;
 	}
     }

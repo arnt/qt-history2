@@ -122,10 +122,6 @@ public:
 public slots:
     void deleteLater();
 
-private slots:
-    // ### replace by QGuardedPtr
-    void cleanupEventFilter(QObject*);
-
 protected:
     const QObject *sender();
     int receivers(const char* signal ) const;
