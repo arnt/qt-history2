@@ -241,36 +241,30 @@ void QAlphaWidget::render()
     if ( alpha >= 1 || !showWidget) {
 	anim.stop();
 	qApp->removeEventFilter( this );
-	BackgroundMode bgm;
-	QColor erc;
-	const QPixmap *erp = 0;
+
 	if ( widget ) {
 	    widget->removeEventFilter( this );
-	    bgm = widget->backgroundMode();
-	    erc = widget->eraseColor();
-	    erp = widget->erasePixmap();
+	    if ( !showWidget ) {
+		widget->hide();
+	    } else {
+		BackgroundMode bgm = widget->backgroundMode();
+		QColor erc = widget->eraseColor();
+		const QPixmap *erp = widget->erasePixmap();
 
-	    if ( showWidget ) {
 		widget->clearWState( WState_Visible );
 		widget->setWState( WState_ForceHide );
 		widget->setBackgroundMode( NoBackground );
 		widget->show();
-	    } else {
-		widget->hide();
-	    }
-	}
-	hide();
-
-	if ( showWidget && widget ) {
-	    if ( bgm != FixedColor && bgm != FixedPixmap ) {
-		widget->clearWState( WState_Visible ); // prevent update in setBackgroundMode
-		widget->setBackgroundMode( bgm );
-		widget->setWState( WState_Visible );
-	    } 
-	    if ( erc.isValid() ) {
-		widget->setEraseColor( erc );
-	    } else if ( erp ) {
-		widget->setErasePixmap( *erp );
+		if ( bgm != FixedColor && bgm != FixedPixmap ) {
+		    widget->clearWState( WState_Visible ); // prevent update in setBackgroundMode
+		    widget->setBackgroundMode( bgm );
+		    widget->setWState( WState_Visible );
+		} 
+		if ( erc.isValid() ) {
+		    widget->setEraseColor( erc );
+		} else if ( erp ) {
+		    widget->setErasePixmap( *erp );
+		}
 	    }
 	}
 	q_blend = 0;
@@ -561,36 +555,30 @@ void QRollEffect::scroll()
     if ( done ) {
 	anim.stop();
 	qApp->removeEventFilter( this );
-	BackgroundMode bgm;
-	QColor erc;
-	const QPixmap *erp = 0;
 	if ( widget ) {
 	    widget->removeEventFilter( this );
-	    bgm = widget->backgroundMode();
-	    erc = widget->eraseColor();
-	    erp = widget->erasePixmap();
+	    widget->removeEventFilter( this );
+	    if ( !showWidget ) {
+		widget->hide();
+	    } else {
+		BackgroundMode bgm = widget->backgroundMode();
+		QColor erc = widget->eraseColor();
+		const QPixmap *erp = widget->erasePixmap();
 
-	    if ( showWidget ) {
 		widget->clearWState( WState_Visible );
 		widget->setWState( WState_ForceHide );
 		widget->setBackgroundMode( NoBackground );
 		widget->show();
-	    } else {
-		widget->hide();
-	    }
-	}
-	hide();
-
-	if ( showWidget && widget ) {
-	    if ( bgm != FixedColor && bgm != FixedPixmap ) {
-		widget->clearWState( WState_Visible ); // prevent update in setBackgroundMode
-		widget->setBackgroundMode( bgm );
-		widget->setWState( WState_Visible );
-	    } 
-	    if ( erc.isValid() ) {
-		widget->setEraseColor( erc );
-	    } else if ( erp ) {
-		widget->setErasePixmap( *erp );
+		if ( bgm != FixedColor && bgm != FixedPixmap ) {
+		    widget->clearWState( WState_Visible ); // prevent update in setBackgroundMode
+		    widget->setBackgroundMode( bgm );
+		    widget->setWState( WState_Visible );
+		} 
+		if ( erc.isValid() ) {
+		    widget->setEraseColor( erc );
+		} else if ( erp ) {
+		    widget->setErasePixmap( *erp );
+		}
 	    }
 	}
 	q_roll = 0;
