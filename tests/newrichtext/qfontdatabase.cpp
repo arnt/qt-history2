@@ -509,13 +509,6 @@ QFontDatabase::QFontDatabase()
 }
 
 
-static int sortFamilies( const void *one, const void *two )
-{
-    const QtFontFamily **as = (const QtFontFamily **)one;
-    const QtFontFamily **bs = (const QtFontFamily **)two;
-    return ucstricmp( (*as)->name, (*bs)->name );
-}
-
 /*! Returns a sorted list of the names of the available font families.
 
     If a family exists in several foundries, the returned name for
@@ -524,9 +517,13 @@ static int sortFamilies( const void *one, const void *two )
 */
 QStringList QFontDatabase::families() const
 {
+    load();
+
     QStringList flist;
     for ( int i = 1; i < d->count; i++ ) {
 	QtFontFamily *f = d->families[i];
+	if ( f->count == 0 )
+	    continue;
 	if ( f->count == 1 ) {
 	    flist.append( f->name );
 	} else {
@@ -555,6 +552,8 @@ QStringList QFontDatabase::styles( const QString &family ) const
 {
     QString familyName,  foundryName;
     parseFontName( family, foundryName, familyName );
+
+    load( familyName );
 
     QStringList l;
     QtFontFamily *f = d->family( familyName );
@@ -590,6 +589,8 @@ bool QFontDatabase::isFixedPitch(const QString &family,
     QString familyName,  foundryName;
     parseFontName( family, foundryName, familyName );
 
+    load( familyName );
+
     QtFontFamily *f = d->family( familyName );
     return ( f && f->fixedPitch );
 }
@@ -610,6 +611,8 @@ bool QFontDatabase::isBitmapScalable( const QString &family,
     bool bitmapScalable = FALSE;
     QString familyName,  foundryName;
     parseFontName( family, foundryName, familyName );
+
+    load( familyName );
 
     QtFontStyle::Key styleKey( style );
 
@@ -647,6 +650,8 @@ bool  QFontDatabase::isSmoothlyScalable( const QString &family,
     bool smoothScalable = FALSE;
     QString familyName,  foundryName;
     parseFontName( family, foundryName, familyName );
+
+    load( familyName );
 
     QtFontStyle::Key styleKey( style );
 
@@ -701,6 +706,8 @@ QValueList<int> QFontDatabase::pointSizes( const QString &family,
     QString familyName,  foundryName;
     parseFontName( family, foundryName, familyName );
 
+    load( familyName );
+
     QtFontStyle::Key styleKey( style );
 
     QValueList<int> sizes;
@@ -752,6 +759,8 @@ QFont QFontDatabase::font( const QString &family, const QString &style,
     QString familyName,  foundryName;
     parseFontName( family, foundryName, familyName );
 
+    load( familyName );
+
     QtFontFoundry allStyles( foundryName );
     QtFontFamily *f = d->family( familyName );
     if ( !f ) return QApplication::font();
@@ -794,6 +803,8 @@ QValueList<int> QFontDatabase::smoothSizes( const QString &family,
     bool smoothScalable = FALSE;
     QString familyName,  foundryName;
     parseFontName( family, foundryName, familyName );
+
+    load( familyName );
 
     QtFontStyle::Key styleKey( style );
 
@@ -865,6 +876,8 @@ bool QFontDatabase::italic( const QString &family,
     QString familyName,  foundryName;
     parseFontName( family, foundryName, familyName );
 
+    load( familyName );
+
     QtFontFoundry allStyles( foundryName );
     QtFontFamily *f = d->family( familyName );
     if ( !f ) return FALSE;
@@ -894,6 +907,8 @@ bool QFontDatabase::bold( const QString &family,
 {
     QString familyName,  foundryName;
     parseFontName( family, foundryName, familyName );
+
+    load( familyName );
 
     QtFontFoundry allStyles( foundryName );
     QtFontFamily *f = d->family( familyName );
@@ -926,6 +941,8 @@ int QFontDatabase::weight( const QString &family,
 {
     QString familyName,  foundryName;
     parseFontName( family, foundryName, familyName );
+
+    load( familyName );
 
     QtFontFoundry allStyles( foundryName );
     QtFontFamily *f = d->family( familyName );

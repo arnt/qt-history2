@@ -881,12 +881,16 @@ static inline void checkXftCoverage( QtFontFamily *family )
 }
 #endif
 
-static void load( const QString &family, QFont::Script script )
+static void load( const QString &family = QString::null, int script = -1 )
 {
     if ( family.isNull() ) {
-	for ( int i = 0; i < numEncodings; i++ ) {
-	    if ( scripts_for_xlfd_encoding[i][script] )
-		loadXlfds( 0, i );
+	if ( script == -1 )
+	    loadXlfds( 0, -1 );
+	else {
+	    for ( int i = 0; i < numEncodings; i++ ) {
+		if ( scripts_for_xlfd_encoding[i][script] )
+		    loadXlfds( 0, i );
+	    }
 	}
     } else {
 	QtFontFamily *f = db->family( family, TRUE );
@@ -901,21 +905,17 @@ static void load( const QString &family, QFont::Script script )
 #endif
 	// could reduce this further with some more magic:
 	// would need to remember the encodings loaded for the family.
-	if ( !f->hasXft && !(f->scripts[script] & QtFontFamily::Supported) &&
-	     !(f->scripts[script] & QtFontFamily::UnSupported_Xlfd) ) {
+	if ( ( script == -1 && !f->xlfdLoaded ) ||
+	     ( !f->hasXft && !(f->scripts[script] & QtFontFamily::Supported) &&
+	       !(f->scripts[script] & QtFontFamily::UnSupported_Xlfd) ) ) {
 	    loadXlfds( family, -1 );
 	    f->fullyLoaded = TRUE;
 	}
 
 	// set Unknown script status to UnSupported
-	if ( !(f->scripts[script] & QtFontFamily::Supported) )
+	if ( script != -1 && !(f->scripts[script] & QtFontFamily::Supported) )
 	     f->scripts[script] = QtFontFamily::UnSupported;
     }
-}
-
-static void loadFully()
-{
-    loadXlfds( 0, -1 );
 }
 
 void QFontDatabase::createDatabase()
