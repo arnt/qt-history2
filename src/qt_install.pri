@@ -3,22 +3,22 @@ target.path=$$libs.path
 INSTALLS += target
 
 #headers
-headers.files  = ../include/*.h
+headers.files  = $$QT_BUILD_TREE/include/*.h
 headers.files += $$QT_BUILD_TREE/include/qconfig.h \
                  $$QT_BUILD_TREE/include/qmodules.h 
 isEmpty(headers_p.path):headers_p.path=$$headers.path/private
-headers_p.files = ../include/private/*.h
+headers_p.files = $$QT_BUILD_TREE/include/private/*.h
 headers_arch.files = $$ARCH_H/qatomic.h
 headers_arch.path = $$headers.path/arch
 INSTALLS += headers headers_p headers_arch
 
 #docs
-htmldocs.files = ../doc/html/*
+htmldocs.files = $$QT_BUILD_TREE/doc/html/*
 htmldocs.path = $$docs.path/html
 INSTALLS += htmldocs
 
 #translations
-translations.files = ../translations/*.qm
+translations.files = $$QT_BUILD_TREE/translations/*.qm
 INSTALLS += translations
 
 macx { #mac framework
