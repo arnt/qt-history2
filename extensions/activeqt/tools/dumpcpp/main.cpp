@@ -167,7 +167,7 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
         if (category & ActiveX)
             out << "QWidget *parent = 0, Qt::WFlags f";
         else if (category & SubObject)
-            out << "IDispatch *subobject, QAxObject *parent";
+            out << "IDispatch *subobject = 0, QAxObject *parent";
         else
             out << "QObject *parent";
         out << " = 0)" << endl;
@@ -255,8 +255,13 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
         if (!(category & NoInlines)) {
             out << endl << indent << "{" << endl;
             if (qax_qualified_usertypes.contains(simplePropType)) {
-                out << indent << "    IDispatch *disp_pointer = 0;" << endl;
-                out << indent << "    qRegisterMetaType(\"" << property.typeName() << "\", &disp_pointer);" << endl;
+                out << indent << "    " << propertyType << " qax_pointer = 0;" << endl;
+                out << indent << "    qRegisterMetaType(\"" << property.typeName() << "\", &qax_pointer);" << endl;
+                if (foreignNamespace)
+                    out << "#ifdef QAX_DUMPCPP_" << propertyType.left(propertyType.indexOf("::")).toUpper() << "_H" << endl;
+                out << indent << "    qRegisterMetaType(\"" << simplePropType << "\", qax_pointer);" << endl;
+                if (foreignNamespace)
+                    out << "#endif" << endl;
             }
             out << indent << "    QVariant qax_result = property(\"" << propertyName << "\");" << endl;
             if (propertyType.at(propertyType.length()-1) == '*')
@@ -265,13 +270,9 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
             if (qax_qualified_usertypes.contains(simplePropType)) {
                 simplePropType = propertyType;
                 simplePropType.replace('*', "");
-                if (foreignNamespace) {
-                    out << "#ifdef QAX_DUMPCPP_";
-                    out << propertyType.left(propertyType.indexOf("::")).toUpper();
-                    out << "_H" << endl;                    
-                }
-
-                out << indent << "    return new " << simplePropType << "(*(IDispatch**)qax_result.constData());" << endl;
+                if (foreignNamespace)
+                    out << "#ifdef QAX_DUMPCPP_" << propertyType.left(propertyType.indexOf("::")).toUpper() << "_H" << endl;
+                out << indent << "    return *(" << propertyType << "*)qax_result.constData();" << endl;
                 if (foreignNamespace) {
                     out << "#else" << endl;
                     out << indent << "    return 0; // foreign namespace not included" << endl;
@@ -392,7 +393,20 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
             out << indent << "{" << endl;
             
             if (!slotType.isEmpty()) {
-                out << indent << "    " << slotType << " qax_result;" << endl;
+                
+                out << indent << "    " << slotType << " qax_result";
+                if (slotType.endsWith('*'))
+                    out << " = 0";
+                out << ";" << endl;
+                if (qax_qualified_usertypes.contains(simpleSlotType)) {
+                    out << indent << "    qRegisterMetaType(\"" << simpleSlotType << "*\", &qax_result);" << endl;
+                    bool foreignNamespace = simpleSlotType.contains("::");
+                    if (foreignNamespace)
+                        out << "#ifdef QAX_DUMPCPP_" << simpleSlotType.left(simpleSlotType.indexOf(':')).toUpper() << "_H" << endl;
+                    out << indent << "    qRegisterMetaType(\"" << simpleSlotType << "\", qax_result);" << endl;
+                    if (foreignNamespace)
+                        out << "#endif" << endl;
+                }
             }
             out << indent << "    void *_a[] = {";
             if (!slotType.isEmpty())
@@ -408,13 +422,7 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
             out << indent << "    qt_metacall(QMetaObject::InvokeMetaMember, " << islot << ", _a);" << endl;
 
             if (!slotType.isEmpty()) {
-                if (qax_qualified_usertypes.contains(simpleSlotType)) {
-                    simpleSlotType = slotType;
-                    simpleSlotType.replace('*', "");
-                    out << indent << "    return new " << simpleSlotType << "(qax_result);" << endl;
-                } else {
-                    out << indent << "    return qax_result;" << endl;
-                }
+                out << indent << "    return qax_result;" << endl;
             }
             out << indent << "}" << endl;
         }
