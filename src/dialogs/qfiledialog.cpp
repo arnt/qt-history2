@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#131 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#132 $
 **
 ** Implementation of QFileDialog class
 **
@@ -824,6 +824,7 @@ void QFileDialog::init()
     files->setFocusPolicy( StrongFocus );
 
     files->installEventFilter( this );
+    files->viewport()->installEventFilter( this );
 
     d->moreFiles = new QFileDialogPrivate::MCList( files, d->stack );
     d->moreFiles->setFrameStyle( QFrame::NoFrame );
@@ -1447,6 +1448,16 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 
 void QFileDialog::okClicked()
 {
+    // if we're in multi-selection mode and something is selected,
+    // accept it and be done.
+    if ( mode() == ExistingFiles ) {
+	QListViewItem * i = files->firstChild();
+	while( i && !i->isSelected() )
+	    i = i->nextSibling();
+	if ( i )
+	    accept();
+    }
+
     // If selection is valid, return it, else try
     // using selection as a directory to change to.
     if ( !d->currentFileName.isNull() ) {
@@ -1683,6 +1694,15 @@ void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
     QFileDialogPrivate::File * i = (QFileDialogPrivate::File *)newItem;
 
     if ( i->info.isDir() ) {
+	if ( mode() == ExistingFiles ) {
+	    QListViewItem * i = files->firstChild();
+	    while( i && !i->isSelected() )
+		i = i->nextSibling();
+	    if ( i ) {
+		accept();
+		return;
+	    }
+	}
 	setDir( i->info.absFilePath() );
 	if ( mode() == Directory ) {
 	    QFileInfo f ( cwd, "." );
@@ -1990,7 +2010,15 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
 {
     if ( !o || !e )
 	return TRUE;
-    if ( o == files && e->type() == QEvent::FocusOut &&
+    if ( mode() == ExistingFiles &&
+	 e->type() == QEvent::MouseButtonDblClick &&
+	 ( o == files || o == d->moreFiles || o == files->viewport() ) ) {
+	QListViewItem * i = files->firstChild();
+	while( i && !i->isSelected() )
+	    i = i->nextSibling();
+	if ( i )
+	    return TRUE;
+    } else if ( o == files && e->type() == QEvent::FocusOut &&
 	 files->currentItem() && mode() != ExistingFiles ) {
 	files->setSelected( files->currentItem(), FALSE );
     } else if ( o == files && e->type() == QEvent::KeyPress ) {
