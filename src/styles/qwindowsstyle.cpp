@@ -513,88 +513,88 @@ void QWindowsStyle::drawControl( ControlElement element,
 		 tb->currentTab() == tb->indexOf(tb->count()-1) )
 		lastIsCurrent = TRUE;
 
-	    QRect r( r );
+	    QRect r2( r );
 	    if ( tb->shape()  == QTabBar::RoundedAbove ) {
 		p->setPen( cg.midlight() );
-		p->drawLine( r.left(), r.bottom(), r.right(), r.bottom() );
+		p->drawLine( r2.left(), r2.bottom(), r2.right(), r2.bottom() );
 		p->setPen( cg.light() );
-		p->drawLine( r.left(), r.bottom()-1, r.right(), r.bottom()-1 );
-		if ( r.left() == 0 )
+		p->drawLine( r2.left(), r2.bottom()-1, r2.right(), r2.bottom()-1 );
+		if ( r2.left() == 0 )
 		    p->drawPoint( tb->rect().bottomLeft() );
 
 		if ( selected ) {
-		    p->fillRect( QRect( r.left()+1, r.bottom()-1, r.width()-3, 2),
+		    p->fillRect( QRect( r2.left()+1, r2.bottom()-1, r2.width()-3, 2),
 				 cg.brush( QColorGroup::Background ));
 		    p->setPen( cg.background() );
-		    p->drawLine( r.left()+1, r.bottom(), r.left()+1, r.top()+2 );
+		    p->drawLine( r2.left()+1, r2.bottom(), r2.left()+1, r2.top()+2 );
 		    p->setPen( cg.light() );
 		} else {
 		    p->setPen( cg.light() );
-		    r.setRect( r.left() + 2, r.top() + 2,
-			       r.width() - 4, r.height() - 2 );
+		    r2.setRect( r2.left() + 2, r2.top() + 2,
+			       r2.width() - 4, r2.height() - 2 );
 		}
 
 		int x1, x2;
-		x1 = r.left();
-		x2 = r.right() - 2;
-		p->drawLine( x1, r.bottom()-1, x1, r.top() + 2 );
+		x1 = r2.left();
+		x2 = r2.right() - 2;
+		p->drawLine( x1, r2.bottom()-1, x1, r2.top() + 2 );
 		x1++;
-		p->drawPoint( x1, r.top() + 1 );
+		p->drawPoint( x1, r2.top() + 1 );
 		x1++;
-		p->drawLine( x1, r.top(), x2, r.top() );
-		if ( r.left() > 0 ) {
+		p->drawLine( x1, r2.top(), x2, r2.top() );
+		if ( r2.left() > 0 ) {
 		    p->setPen( cg.midlight() );
 		}
-		x1 = r.left();
-		p->drawPoint( x1, r.bottom());
+		x1 = r2.left();
+		p->drawPoint( x1, r2.bottom());
 
 		p->setPen( cg.midlight() );
 		x1++;
-		p->drawLine( x1, r.bottom(), x1, r.top() + 2 );
+		p->drawLine( x1, r2.bottom(), x1, r2.top() + 2 );
 		x1++;
-		p->drawLine( x1, r.top()+1, x2, r.top()+1 );
+		p->drawLine( x1, r2.top()+1, x2, r2.top()+1 );
 
 		p->setPen( cg.dark() );
-		x2 = r.right() - 1;
-		p->drawLine( x2, r.top() + 2, x2, r.bottom() - 1 +
+		x2 = r2.right() - 1;
+		p->drawLine( x2, r2.top() + 2, x2, r2.bottom() - 1 +
 			     (selected ? 1:-1) );
 		p->setPen( cg.shadow() );
-		p->drawPoint( x2, r.top() + 1 );
-		p->drawPoint( x2, r.top() + 1 );
+		p->drawPoint( x2, r2.top() + 1 );
+		p->drawPoint( x2, r2.top() + 1 );
 		x2++;
-		p->drawLine( x2, r.top() + 2, x2, r.bottom() -
+		p->drawLine( x2, r2.top() + 2, x2, r2.bottom() -
 			     (selected ? (lastIsCurrent ? 0:1) :2));
 	    } else if ( tb->shape() == QTabBar::RoundedBelow ) {
 		if ( selected ) {
-		    p->fillRect( QRect( r.left()+1, r.top(), r.width()-3, 1),
+		    p->fillRect( QRect( r2.left()+1, r2.top(), r2.width()-3, 1),
 				 tb->palette().active().brush( QColorGroup::Background ));
 		    p->setPen( cg.background() );
-		    p->drawLine( r.left()+1, r.top(), r.left()+1, r.bottom()-2 );
+		    p->drawLine( r2.left()+1, r2.top(), r2.left()+1, r2.bottom()-2 );
 		    p->setPen( cg.dark() );
 		} else {
 		    p->setPen( cg.dark() );
-		    p->drawLine( r.left(), r.top(), r.right(), r.top() );
-		    r.setRect( r.left() + 2, r.top(),
-			       r.width() - 4, r.height() - 2 );
+		    p->drawLine( r2.left(), r2.top(), r2.right(), r2.top() );
+		    r2.setRect( r2.left() + 2, r2.top(),
+			       r2.width() - 4, r2.height() - 2 );
 		}
 
-		p->drawLine( r.right() - 1, r.top(),
-			     r.right() - 1, r.bottom() - 2 );
-		p->drawPoint( r.right() - 2, r.bottom() - 2 );
-		p->drawLine( r.right() - 2, r.bottom() - 1,
-			     r.left() + 1, r.bottom() - 1 );
-		p->drawPoint( r.left() + 1, r.bottom() - 2 );
+		p->drawLine( r2.right() - 1, r2.top(),
+			     r2.right() - 1, r2.bottom() - 2 );
+		p->drawPoint( r2.right() - 2, r2.bottom() - 2 );
+		p->drawLine( r2.right() - 2, r2.bottom() - 1,
+			     r2.left() + 1, r2.bottom() - 1 );
+		p->drawPoint( r2.left() + 1, r2.bottom() - 2 );
 
 		p->setPen( cg.shadow() );
-		p->drawLine( r.right(), r.top(),
-			     r.right(), r.bottom() - 1 );
-		p->drawPoint( r.right() - 1, r.bottom() - 1 );
-		p->drawLine( r.right() - 1, r.bottom(),
-			     r.left() + 2, r.bottom() );
+		p->drawLine( r2.right(), r2.top(),
+			     r2.right(), r2.bottom() - 1 );
+		p->drawPoint( r2.right() - 1, r2.bottom() - 1 );
+		p->drawLine( r2.right() - 1, r2.bottom(),
+			     r2.left() + 2, r2.bottom() );
 
 		p->setPen( cg.light() );
-		p->drawLine( r.left(), r.top(),
-			     r.left(), r.bottom() - 2 );
+		p->drawLine( r2.left(), r2.top(),
+			     r2.left(), r2.bottom() - 2 );
 
 	    } else {
 		QCommonStyle::drawControl(element, p, widget, r, cg, how, data);
