@@ -49,6 +49,7 @@
 #include "qlibrary.h"
 #include "qt_windows.h"
 #include <private/qinternal_p.h>
+#include <private/qcriticalsection_p.h>
 #include <private/qinputcontext_p.h>
 #include "qstyle.h"
 
@@ -896,10 +897,14 @@ void qt_cleanup()
 
 static void msgHandler( QtMsgType t, const char* str )
 {
+    // OutputDebugString is not threadsafe.
+    static QCriticalSection staticSection;
+
     if ( !str )
 	str = "(null)";
     QCString s = str;
     s += "\n";
+    staticSection.enter();
 #ifndef Q_OS_TEMP
     OutputDebugStringA( s.data() );
 #else
@@ -909,6 +914,7 @@ static void msgHandler( QtMsgType t, const char* str )
 	OutputDebugStringA( s.data() );
     )
 #endif
+    staticSection.leave();
     if ( t == QtFatalMsg )
 #ifndef Q_OS_TEMP
 	ExitProcess( 1 );
