@@ -1794,13 +1794,21 @@ QSimpleTextCodec::~QSimpleTextCodec()
 // what happens if strlen(chars)<len?  what happens if !chars?  if len<1?
 QString QSimpleTextCodec::toUnicode(const char* chars, int len) const
 {
+    if(len <= 0)
+        return QString::null;
+
+    int clen = qstrlen(chars);
+    len = QMIN(len, clen); // Note: NUL ends string
+
     QString r;
+    r.setUnicode(0, len);
+    QChar* uc = (QChar*)r.unicode(); // const_cast
     const unsigned char * c = (const unsigned char *)chars;
-    for( int i=0; i<len && c[i]; i++ ) { // Note: NUL ends string
+    for( int i=0; i<len; i++ ) {
         if ( c[i] > 127 )
-            r[i] = unicodevalues[forwardIndex].values[c[i]-128];
+            uc[i] = unicodevalues[forwardIndex].values[c[i]-128];
         else
-            r[i] = c[i];
+            uc[i] = c[i];
     }
     return r;
 }
