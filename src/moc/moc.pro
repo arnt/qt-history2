@@ -20,6 +20,7 @@ SOURCES		= ../compat/qptrcollection.cpp  \
 		  ../compat/qglist.cpp	    \
 		  ../compat/qgvector.cpp	    \
 		  ../tools/qglobal.cpp	    \
+		  ../tools/qhash.cpp	    \
 		  ../tools/qiodevice.cpp    \
 		  ../tools/qlist.cpp	    \
 		  ../tools/qregexp.cpp	    \
