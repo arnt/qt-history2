@@ -1790,7 +1790,7 @@ const char* QLocalePrivate::systemLocaleName()
     if (!lang.isEmpty())
         return lang;
 
-    if (qWinVersion() == Qt::WV_95) {
+    if (QSysInfo::WindowsVersion == QSysInfo::WV_95) {
         lang = winLangCodeToIsoName(GetUserDefaultLangID());
     } else {
         QT_WA({
