@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#219 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#220 $
 #
 # this is a massive hack, written very quickly
 #
@@ -263,6 +263,9 @@ sub findlink {
     } elsif ((($ismethod eq "(") || (/^[A-Z]/)) &&
 	     defined($anchor{"::" . $_}) && $anchor{"::" . $_} ne $url) {
 	sprintf("<a href=\"%s\">%s</a>", $anchor{"::" . $_}, &html($_));
+    } elsif ( (/^[A-Z]/) &&
+	      defined($anchor{"Qt::" . $_}) && $anchor{"Qt::" . $_} ne $url) {
+	sprintf("<a href=\"%s\">%s</a>", $anchor{"Qt::" . $_}, &html($_));
     } else {
 	sprintf("%s", $_);
     }
@@ -451,9 +454,19 @@ sub processdocs {
 	    $doc =~ s/\\internal\s.*//s;
 	}
 	if ( $doc =~ s/(^|\s)\\obsolete\b//gs ) {
+	    if ( $type{$url} eq "fn" ) {
+		$what = "function";
+	    } elsif ( $type eq "enum" ) {
+		$what = "type";
+	    } elsif ( $type eq "class" ) {
+		$what = "class";
+	    } else {
+		$what = "member";
+	    }
 	    # uglehack.  look for this text elsewhere...
-	    $doc = "<b>This function is obsolete.</b> It is provided to keep "
-	      . "old programs working.  We strongly advise against using it "
+	    $doc = "<b>This ". $what . " is obsolete.</b> It is provided to "
+	      . "keep old source working, and will probably be removed in a "
+		. "future version of Qt.  We strongly advise against using it "
 		. "in new code.<p>" . $doc;
 	}
 
@@ -782,6 +795,9 @@ sub manglefn {
     if ( ($type =~ /^[A-Z][^:]*$/ ) # class-local enum
 	&& defined( $type{&mangleclass( $class ) . "#" . $type} ) ) {
 	$type = $name{&mangleclass( $class ) . "#" . $type};
+    } elsif ( ($type =~ /^[A-Z][^:]*$/ ) # Qt-local enum
+	&& defined( $type{"qt.html#" . $type} ) ) {
+	$type = $name{"qt.html#" . $type};
     }
     $type = "-" . $type if ($type ne "");
     $const = "-" . $const if ($const ne "");
@@ -802,6 +818,14 @@ sub manglefn {
 		s/\s*(\w+)$//;
 		$names .= $1 . " ";
 	    }
+	}
+	# qualify enums (third uglest hack in qdoc, methinks)
+	if ( /^[A-Z][^:]*$/ # class-local enum
+	     && defined( $type{&mangleclass( $class ) . "#" . $_} ) ) {
+	    $_ = $name{&mangleclass( $class ) . "#" . $_};
+	} elsif ( /^[A-Z][^:]*$/  # Qt-local enum
+		  && defined( $type{"qt.html#" . $_} ) ) {
+	    $_ = $name{"qt.html#" . $_};
 	}
 # strip spaces around & and *
 	s/\s*([\*\&]+)\s*/$1/g;
@@ -1807,7 +1831,8 @@ sub printclass {
 		    }
 		    $fndocs{$u} = $mode;
 		    # second uglest hack in qdoc
-		    $_ .= " <strong>[obsolete]</strong>"  if ($doc{$u} =~ /^<b>This function is obsolete./si );
+		    $_ .= " <b>(obsolete)</b>" 
+		      if ($doc{$u} =~ /^<b>This function is obsolete./si );
 		} else {
 		    print "undocumented: ", $t," ", $name{$url}, "::", $f,
 		        " (",$a,") ", $c, "\n" if ($errmsg++<$maxerr);
@@ -2000,7 +2025,7 @@ sub importants {
 		    next unless ( $type{$fn} eq "fn"  &&
 				  $def{$fn} =~ /\b$p\b/ );
 		    # uglest hack in qdoc.  possibly.
-		    next if ($doc{$fn} =~ /^<b>This function is obsolete./si );
+		    next if ($doc{$fn} =~ /^<b>This \S+ is obsolete./si );
 		    my $f;
 		    $f = $def{$fn};
 		    $f =~ s/<[^>]*>//g;
