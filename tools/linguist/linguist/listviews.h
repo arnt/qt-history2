@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000-2001 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Linguist.
 **
@@ -21,12 +21,12 @@
 #ifndef LISTVIEWS_H
 #define LISTVIEWS_H
 
+#include "msgedit.h"
+
 #include <qstring.h>
 #include <qptrlist.h>
 #include <qregexp.h>
 #include <qlistview.h>
-
-#include "msgedit.h"
 
 class LVI : public QListViewItem
 {

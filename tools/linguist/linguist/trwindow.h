@@ -23,16 +23,15 @@
 
 #include "phrase.h"
 
+#include <metatranslator.h>
+
 #include <qmainwindow.h>
 #include <qptrlist.h>
 #include <qdict.h>
 #include <qprinter.h>
 #include <qstringlist.h>
 #include <qpixmap.h>
-
 #include <qlistview.h>
-
-#include <metatranslator.h>
 
 class QAction;
 class QDialog;

@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000-2001 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Linguist.
 **
@@ -21,10 +21,10 @@
 #ifndef PHRASEBOOKBOX_H
 #define PHRASEBOOKBOX_H
 
+#include "phrase.h"
+
 #include <qdialog.h>
 #include <qvaluelist.h>
-
-#include "phrase.h"
 
 class QLineEdit;
 class QPushButton;

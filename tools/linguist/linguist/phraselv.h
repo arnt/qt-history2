@@ -21,9 +21,9 @@
 #ifndef PHRASELV_H
 #define PHRASELV_H
 
-#include <qlistview.h>
-
 #include "phrase.h"
+
+#include <qlistview.h>
 
 class QWhatsThis;
 

@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000-2001 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Linguist.
 **
@@ -21,18 +21,18 @@
 #ifndef MSGEDIT_H
 #define MSGEDIT_H
 
+#include "trwindow.h"
+#include "phrase.h"
+
+#include <metatranslator.h>
+
 #include <qsplitter.h>
 #include <qstring.h>
 #include <qstringlist.h>
 #include <qvaluelist.h>
-
 #include <qscrollview.h>
-#include <metatranslator.h>
 #include <qpixmap.h>
 #include <qbitmap.h>
-
-#include "trwindow.h"
-#include "phrase.h"
 #include <qtooltip.h>
 
 class QAccel;
@@ -227,4 +227,5 @@ private:
     bool canPaste;
     bool doGuesses;
 };
+
 #endif
