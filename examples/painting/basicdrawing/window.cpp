@@ -63,7 +63,7 @@ Window::Window()
     brushStyleComboBox = new QComboBox(this);
     addItem(brushStyleComboBox, tr("Linear Gradient"),
             Qt::LinearGradientPattern);
-    addItem(brushStyleComboBox, tr("Texture"), Qt::CustomPattern);
+    addItem(brushStyleComboBox, tr("Texture"), Qt::TexturePattern);
     addItem(brushStyleComboBox, tr("Solid"), Qt::SolidPattern);
     addItem(brushStyleComboBox, tr("Horizontal"), Qt::HorPattern);
     addItem(brushStyleComboBox, tr("Verical"), Qt::VerPattern);
@@ -161,7 +161,7 @@ void Window::brushChanged()
     if (style == Qt::LinearGradientPattern) {
         renderArea->setBrush(QBrush(QPoint(0, 0), Qt::red,
                                     QPoint(400, 200), Qt::green));
-    } else if (style == Qt::CustomPattern) {
+    } else if (style == Qt::TexturePattern) {
         renderArea->setBrush(QBrush(QPixmap(":/images/brick.png")));
     } else {
         renderArea->setBrush(QBrush(Qt::red, style));
