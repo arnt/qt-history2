@@ -78,6 +78,9 @@ private slots:
     void reply( const QHttpReplyHeader & rep, const QByteArray & dataA );
     void requestFinished();
     void requestFailed();
+    void connected();
+    void closed();
+    void hostFound();
 
 private:
     QHttpPrivate *d;
