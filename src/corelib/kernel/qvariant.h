@@ -459,7 +459,7 @@ inline int qt_variant_metatype_id(QColorGroup *) { return QVariant::ColorGroup; 
 template <typename T>
 inline QVariant qVariantFromValue(const T &t)
 {
-    return QVariant(qt_variant_metatype_id<T>(static_cast<T *>(0)), &t);
+    return QVariant(qt_variant_metatype_id<T>((T *)0), &t);
 }
 
 template <>
@@ -468,7 +468,7 @@ inline QVariant qVariantFromValue(const QVariant &t) { return t; }
 template <typename T>
 inline void qVariantSetValue(QVariant &v, const T &t)
 {
-    v = QVariant(qt_variant_metatype_id<T>(static_cast<T *>(0)), &t);
+    v = QVariant(qt_variant_metatype_id<T>((T *)0), &t);
 }
 #endif
 
