@@ -18,6 +18,7 @@
 **
 **********************************************************************/
 
+#include "qplatformdefs.h"
 #include "mainwindow.h"
 #include "formwindow.h"
 
@@ -52,11 +53,7 @@ extern void qt_wait_for_window_manager( QWidget* );
 extern "C" {
 #endif
 
-#if defined(Q_OS_IRIX) && defined(Q_CC_GNU)
-static void signalHandler()
-#else
-static void signalHandler( int )
-#endif
+static void signalHandler( QT_SIGNAL_ARGS )
 {
     QFile f( QDir::homeDirPath() + "/.designerargs" );
     f.open( IO_ReadOnly );
@@ -113,7 +110,7 @@ static void exitHandler( int )
 }
 #endif
 
-#ifdef Q_OS_MACX
+#if defined(Q_OS_MACX)
 #include <stdlib.h>
 #include <qdir.h>
 #endif

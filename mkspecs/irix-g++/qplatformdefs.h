@@ -73,7 +73,7 @@
 #endif
 
 #define QT_SIGNAL_RETTYPE	void
-#if !defined(_SGIAPI)
+#if defined(_LANGUAGE_C_PLUS_PLUS) || !defined(_SGIAPI)
 #define QT_SIGNAL_ARGS		int
 #else
 #define QT_SIGNAL_ARGS		void
