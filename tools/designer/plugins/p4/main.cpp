@@ -736,11 +736,10 @@ unsigned long P4Interface::addRef()
 
 unsigned long P4Interface::release()
 {
-    --ref;
-
-    if ( !ref )
+    if ( !--ref ) {
 	delete this;
-
+	return 0;
+    }
     return ref;
 }
 
