@@ -253,12 +253,13 @@ QTimer *QButton::timer()
   this property to 0 then any current accelerator is removed.
 */
 
-/*! \property QButton::autoRepeat
+/*!
+    \property QButton::autoRepeat
     \brief whether autoRepeat is enabled
 
-  If autoRepeat is enabled then the clicked() signal is emitted at
-  regular intervals if the button is down.  This property has
-  no effect on toggle buttons. autoRepeat is off by default.
+    If autoRepeat is enabled then the clicked() signal is emitted at
+    regular intervals if the button is down. This property has no
+    effect on toggle buttons. autoRepeat is off by default.
 */
 
 /*! \property QButton::autoResize
@@ -328,11 +329,13 @@ QTimer *QButton::timer()
     The default value is FALSE.
 */
 
-/*! \fn QButton::setToggleButton( bool b )
-  Makes this button a toggle button when \a b is TRUE, otherwise
-  it becomes a normal button.
+/*!
+    \fn QButton::setToggleButton( bool b )
 
-  \sa toggleButton
+    If \a b is TRUE, this button becomes a toggle button; if \a b is
+    FALSE, this button becomes a normal button.
+
+    \sa toggleButton
 */
 
 /*! \property QButton::toggleState
@@ -409,12 +412,13 @@ QButton::~QButton()
 
   This signal is emitted when the button is activated (i.e. first pressed
   down and then released when the mouse cursor is inside the button), when
-  the accelerator key is typed or when animateClick() is called.
+  the accelerator key is typed or when animateClick() is called. This
+  signal is \e not emitted if you call setDown().
 
   The QButtonGroup::clicked() signal does the same job, if you want to
   connect several buttons to the same slot.
 
-  \sa pressed(), released(), toggled()
+  \sa pressed(), released(), toggled() \l autoRepeat \l down
 */
 
 /*!
