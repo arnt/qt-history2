@@ -313,13 +313,13 @@ void QDockWidgetTitle::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() != Qt::LeftButton) return;
 
+    if (!state) return;
+
     QMainWindowLayout *layout =
         qt_cast<QMainWindowLayout *>(dockwidget->parentWidget()->layout());
     if (!layout)
         return;
     layout->discardLayoutInfo();
-
-    if (!state) return;
 
     delete state->rubberband;
 
