@@ -135,6 +135,7 @@ struct QTextHtmlParserNode {
     QTextFrameFormat::Position cssFloat : 2;
     uint hasOwnListStyle : 1;
     QString fontFamily;
+    uint hasFontPointSize : 1;
     int fontPointSize;
     int fontWeight;
     QColor color;

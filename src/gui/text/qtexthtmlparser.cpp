@@ -438,7 +438,7 @@ static QString quoteNewline(const QString &s)
 QTextHtmlParserNode::QTextHtmlParserNode()
     : parent(0), id(-1), isBlock(false), isListItem(false), isListStart(false), isTableCell(false), isAnchor(false),
       fontItalic(false), fontUnderline(false), fontOverline(false), fontStrikeOut(false), fontFixedPitch(false),
-      cssFloat(QTextFrameFormat::InFlow), hasOwnListStyle(false), fontPointSize(DefaultFontSize),
+      cssFloat(QTextFrameFormat::InFlow), hasOwnListStyle(false), hasFontPointSize(false), fontPointSize(DefaultFontSize),
       fontWeight(QFont::Normal), alignment(Qt::AlignAuto),listStyle(QTextListFormat::ListStyleUndefined),
       imageWidth(-1), imageHeight(-1), tableColConstraint(QTextTableFormat::VariableLength), tableColConstraintValue(0), 
       tableBorder(0), tableCellRowSpan(1), tableCellColSpan(1), wsm(WhiteSpaceModeUndefined)
@@ -461,7 +461,8 @@ QTextCharFormat QTextHtmlParserNode::charFormat() const
     format.setFontFixedPitch(fontFixedPitch);
     if (fontFamily.size())
         format.setFontFamily(fontFamily);
-    format.setFontPointSize(fontPointSize);
+    if (hasFontPointSize)
+        format.setFontPointSize(fontPointSize);
     format.setFontWeight(fontWeight);
     if (color.isValid())
         format.setTextColor(color);
@@ -837,6 +838,7 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
     fontStrikeOut = parent->fontStrikeOut;
     fontFixedPitch = parent->fontFixedPitch;
     fontFamily = parent->fontFamily;
+    hasFontPointSize = parent->hasFontPointSize;
     fontPointSize = parent->fontPointSize;
     fontWeight = parent->fontWeight;
     color = parent->color;
@@ -859,6 +861,8 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
     margin[QTextHtmlParser::MarginBottom] = 0;
     margin[QTextHtmlParser::MarginFirstLine] = 0;
     cssFloat = QTextFrameFormat::InFlow;
+
+    const int oldFontPointSize = fontPointSize;
 
     // set element specific attributes
     switch (id) {
@@ -968,6 +972,8 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
             break;
         default: break;
     }
+
+    hasFontPointSize = (fontPointSize != oldFontPointSize);
 }
 
 static bool setIntAttribute(int *destination, const QString &value)
@@ -1006,6 +1012,7 @@ void QTextHtmlParser::parseAttributes()
                 if (value.at(0) == QLatin1Char('+') || value.at(0) == QLatin1Char('-'))
                     n += 3;
                 node->fontPointSize = scaleFontPointSize(DefaultFontSize, n);
+                node->hasFontPointSize = true;
             } else if (key == QLatin1String("face")) {
                 node->fontFamily = value;
             } else if (key == QLatin1String("color")) {
@@ -1082,6 +1089,7 @@ void QTextHtmlParser::parseAttributes()
                 QString style = a.section(';', s, s).trimmed();
                 if (style.startsWith(QLatin1String("font-size:")) && style.endsWith(QLatin1String("pt"))) {
                     node->fontPointSize = int(style.mid(10, style.length() - 12).toDouble());
+                    node->hasFontPointSize = true;
                 } if (style.startsWith(QLatin1String("font-style:"))) {
                     QString s = style.mid(11).trimmed();
                     if (s == QLatin1String("normal"))
