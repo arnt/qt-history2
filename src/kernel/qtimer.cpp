@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qtimer.cpp#19 $
 **
 ** Implementation of QTimer class
 **
@@ -12,7 +12,7 @@
 #include "qtimer.h"
 #include "qsignal.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#18 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#19 $");
 
 
 /*!
@@ -163,7 +163,6 @@ bool QTimer::event( QEvent *e )
 
 class QSingleShotTimer : public QSignal
 {
-    Q_OBJECT
 public:
     bool    start( int msec, QObject *r, const char *m );
 protected:
