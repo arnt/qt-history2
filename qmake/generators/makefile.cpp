@@ -1154,9 +1154,15 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
                     QFileInfo fi(wild);
                     if(!target.isEmpty())
                         target += "\t";
+                    QString dst_file = filePrefixRoot(root, dst);
+                    if(fi.isDir() && project->isActiveConfig("copy_dir_files")) {
+                        if(!dst_file.endsWith(Option::dir_sep))
+                            dst_file += Option::dir_sep;
+                        dst_file += fi.fileName();
+                    }
                     QString cmd =  QString(fi.isDir() ? "-$(INSTALL_DIR)" : "-$(INSTALL_FILE)") + " \"" +
                                    Option::fixPathToTargetOS(fileFixify(wild, FileFixifyAbsolute, false), false) +
-                                   "\" \"" + filePrefixRoot(root, dst) + "\"\n";
+                                   "\" \"" + dst_file + "\"\n";
                     target += cmd;
                     if(!project->isActiveConfig("debug") &&
                        !fi.isDir() && fi.isExecutable() && !project->isEmpty("QMAKE_STRIP"))
@@ -1193,9 +1199,15 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
                     QFileInfo fi(Option::fixPathToTargetOS(fileFixify(dirstr + file, FileFixifyAbsolute), true));
                     if(!target.isEmpty())
                         target += "\t";
+                    QString dst_file = filePrefixRoot(root, fileFixify(dst, FileFixifyAbsolute));
+                    if(fi.isDir() && project->isActiveConfig("copy_dir_files")) {
+                        if(!dst_file.endsWith(Option::dir_sep))
+                            dst_file += Option::dir_sep;
+                        dst_file += fi.fileName();
+                    }
                     QString cmd = QString(fi.isDir() ? "-$(INSTALL_DIR)" : "-$(INSTALL_FILE)") + " \"" +
                                   Option::fixPathToTargetOS(fileFixify(dirstr + file, FileFixifyAbsolute, false), false) +
-                                  "\" \"" + filePrefixRoot(root, fileFixify(dst, FileFixifyAbsolute)) + "\"\n";
+                                  "\" \"" + dst_file + "\"\n";
                     target += cmd;
                     if(!project->isActiveConfig("debug") &&
                        !fi.isDir() && fi.isExecutable() && !project->isEmpty("QMAKE_STRIP"))
