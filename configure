@@ -273,6 +273,7 @@ PLATFORM=$QMAKESPEC
 QMAKE_PROJECTS=
 QMAKE_IGNORE_PROJECTS="tests/*"
 OPT_CONCURRENT=0
+OPT_SHADOW=maybe
 CONFIG_FAST=no
 OPT_VERBOSE=no
 OPT_HELP=
@@ -700,9 +701,20 @@ trap "\
 exit 130" HUP INT TERM
 fi
 
+# is this a shadow build?
+if [ "$OPT_SHADOW" = "maybe" ]; then
+    OPT_SHADOW=no
+    if [ "$relpath" != "$outpath" ] && [ '!' -e "$outpath/configure" ]; then
+	if [ -L "$outpath" ]; then
+	    test "$relpath" -ef "$outpath" || OPT_SHADOW=yes
+	else
+	    OPT_SHADOW=yes
+    fi
+fi
+
 ### please add a comment here: what is qdir? why do we set it here?
 qdir="\$(QTDIR)"
-[ "$relpath" != "$outpath" ] && qdir="$outpath"
+[ "$OPT_SHADOW" = "yes" ] && qdir="$outpath"
 
 # we may write in the source tree, let's take advantage of this
 # to test that QTDIR is correctly set to be the source tree
@@ -727,7 +739,7 @@ rm -f .test.qt.
 
 # if the source tree is different from the build tree,
 # symlink or copy part of the sources
-if [ "$relpath" != "$outpath" ]
+if [ "$OPT_SHADOW" = "yes" ]
 then
     echo "Preparing build tree..."
     mkdir -p $outpath/bin
@@ -1771,10 +1783,7 @@ if [ -x "$relpath/bin/syncqt" ]
 then
     QTDIR=$relpath $relpath/bin/syncqt -inc $relpath/include
     # when doing shadow builds, make sure we symlink includes there too
-    if [ "$relpath" != "$outpath" ]
-    then
-	QTDIR=$relpath $relpath/bin/syncqt -inc $outpath/include
-    fi
+    [ "$OPT_SHADOW" = "yes" ] && QTDIR=$relpath $relpath/bin/syncqt -inc $outpath/include
 fi
 
 # build qmake
