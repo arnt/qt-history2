@@ -779,7 +779,7 @@ int QMetaProperty::keysToValue( const QStrList& keys ) const
 		break;
 	    }
 	}
-	if ( i == 0 ) 
+	if ( i == 0 )
 	    value |= -1;
     }
     return value;
@@ -801,7 +801,7 @@ QStrList QMetaProperty::valueToKeys( int value ) const
 
     for( uint i = ed->count; i > 0; --i ) {
 	int k = ed->items[i-1].value;
-	if ( k && (value & k) == k  ) {
+	if ( ( k != 0 || value != 0 ) && (value & k) == k  ) {
 	    value = value & ~k;
 	    keys.append( ed->items[i-1].key );
 	}
