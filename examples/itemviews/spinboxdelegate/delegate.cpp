@@ -28,16 +28,6 @@ SpinBoxDelegate::SpinBoxDelegate(QObject *parent)
 {
 }
 
-/*!
-    Returns an editor widget (a spin box) that restricts values from the
-    model to integers in the range [0, 100]. We call the standard interface
-    functions for this class to ensure that the editor is updated in a
-    consistent way.
-
-    If editing is never allowed by the model, we return 0 to indicate that
-    no editor widget was created.
-*/
-
 QWidget *SpinBoxDelegate::createEditor(QWidget *parent,
     const QStyleOptionViewItem &/* option */,
     const QModelIndex &/* index */) const
@@ -50,11 +40,6 @@ QWidget *SpinBoxDelegate::createEditor(QWidget *parent,
     return editor;
 }
 
-/*!
-    Reads data from the model, and writes it to the editor widget, assuming
-    that it is a spin box.
-*/
-
 void SpinBoxDelegate::setEditorData(QWidget *editor,
                                     const QModelIndex &index) const
 {
@@ -65,10 +50,6 @@ void SpinBoxDelegate::setEditorData(QWidget *editor,
     spinBox->setValue(value);
 }
 
-/*!
-    Reads the contents of the spin box, and writes it to the model.
-*/
-
 void SpinBoxDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
                                    const QModelIndex &index) const
 {
@@ -78,12 +59,6 @@ void SpinBoxDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
 
     model->setData(index, value);
 }
-
-/*!
-    Updates the editor widget's geometry using the information supplied in
-    the style option. This is the minimum that the delegate must do in this
-    case.
-*/
 
 void SpinBoxDelegate::updateEditorGeometry(QWidget *editor,
     const QStyleOptionViewItem &option, const QModelIndex &/* index */) const

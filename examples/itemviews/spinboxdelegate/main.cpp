@@ -20,21 +20,20 @@
 #include <QApplication>
 #include <QHeaderView>
 #include <QItemSelectionModel>
+#include <QStandardItemModel>
 #include <QTableView>
 
-#include "model.h"
 #include "delegate.h"
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    TableModel *model = new TableModel(4, 2);
-
+    QStandardItemModel *model = new QStandardItemModel(4, 2);
     QTableView *tableView = new QTableView;
-    SpinBoxDelegate *delegate = new SpinBoxDelegate;
-
     tableView->setModel(model);
+
+    SpinBoxDelegate *delegate = new SpinBoxDelegate;
     tableView->setItemDelegate(delegate);
 
     for (int row = 0; row < 4; ++row) {

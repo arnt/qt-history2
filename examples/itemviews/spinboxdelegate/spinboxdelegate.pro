@@ -1,5 +1,3 @@
-HEADERS     = delegate.h \
-              model.h
+HEADERS     = delegate.h
 SOURCES     = delegate.cpp \
-              main.cpp \
-              model.cpp
+              main.cpp
