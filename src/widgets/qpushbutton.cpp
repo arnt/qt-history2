@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#138 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#139 $
 **
 ** Implementation of QPushButton class
 **
@@ -100,8 +100,11 @@ QPushButton::QPushButton( const QString &text, QWidget *parent,
 
 void QPushButton::init()
 {
-    defButton = lastDown = lastDef = lastEnabled
-	      = hasMenuArrow = FALSE;
+    defButton = FALSE;
+    lastDown = FALSE;
+    lastDef = FALSE;
+    lastEnabled = FALSE;
+    hasMenuArrow = FALSE;
     autoDefButton = TRUE;
     setBackgroundMode( PaletteButton );
 }

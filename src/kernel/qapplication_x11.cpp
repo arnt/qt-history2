@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#510 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#511 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -490,11 +490,11 @@ static bool qt_set_desktop_properties()
     long offset = 0;
     const char *data;
 
-    if ( XGetWindowProperty( appDpy, appRootWin, qt_desktop_properties, 0, 1,
+    int e = XGetWindowProperty( appDpy, appRootWin, qt_desktop_properties, 0, 1,
 			     FALSE, AnyPropertyType, &type, &format, &nitems,
-			     &after,  (unsigned char**)&data ) != Success )
-	return FALSE;
-    if ( !nitems ) {
+			     &after,  (unsigned char**)&data );
+
+    if ( e != Success || !nitems ) {
 	if ( data )
 	    XFree(  (unsigned char*)data );
 	return FALSE;
@@ -930,44 +930,47 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	qt_xim = XOpenIM( appDpy, 0, 0, 0 );
 
     if ( qt_xim ) {
-	XIMStyles *styles;
+	XIMStyles *styles=0;
 	XGetIMValues(qt_xim, XNQueryInputStyle, &styles, NULL, NULL);
-	bool done = FALSE;
-	int i;
-	for ( i = 0; !done && i < styles->count_styles; i++ ) {
-	    if ( styles->supported_styles[i] == xim_preferred_style ) {
-	        qt_xim_style = xim_preferred_style;
-		done = TRUE;
+	if ( styles ) {
+	    bool done = FALSE;
+	    int i;
+	    for ( i = 0; !done && i < styles->count_styles; i++ ) {
+		if ( styles->supported_styles[i] == xim_preferred_style ) {
+		    qt_xim_style = xim_preferred_style;
+		    done = TRUE;
+		}
 	    }
-	}
-	// if the preferred input style couldn't be found, look for
-	// Nothing and failing that, None.
-	for ( i = 0; !done && i < styles->count_styles; i++ ) {
-	    if ( styles->supported_styles[i] == (XIMPreeditNothing |
-						 XIMStatusNothing) ) {
-	        qt_xim_style = XIMPreeditNothing | XIMStatusNothing;
-		done = TRUE;
+	    // if the preferred input style couldn't be found, look for
+	    // Nothing and failing that, None.
+	    for ( i = 0; !done && i < styles->count_styles; i++ ) {
+		if ( styles->supported_styles[i] == (XIMPreeditNothing |
+						     XIMStatusNothing) ) {
+		    qt_xim_style = XIMPreeditNothing | XIMStatusNothing;
+		    done = TRUE;
+		}
 	    }
-	}
-	for ( i = 0; !done && i < styles->count_styles; i++ ) {
-	    if ( styles->supported_styles[i] == (XIMPreeditNone |
-						 XIMStatusNone) ) {
-	        qt_xim_style = XIMPreeditNone | XIMStatusNone;
-		done = TRUE;
+	    for ( i = 0; !done && i < styles->count_styles; i++ ) {
+		if ( styles->supported_styles[i] == (XIMPreeditNone |
+						     XIMStatusNone) ) {
+		    qt_xim_style = XIMPreeditNone | XIMStatusNone;
+		    done = TRUE;
+		}
 	    }
-	}
-	for ( i = 0; i < styles->count_styles; i++) {
-	    if (styles->supported_styles[i] == xim_preferred_style) {
-	        qt_xim_style = xim_preferred_style;
-		break;
-	    } else if (styles->supported_styles[i] ==
-			(XIMPreeditNone | XIMStatusNone) ||
-		       styles->supported_styles[i] ==
-			(XIMPreeditNothing | XIMStatusNothing) ) {
-		// Either of these will suffice as a default
-	        if ( !qt_xim_style )
-		    qt_xim_style = styles->supported_styles[i];
+	    for ( i = 0; i < styles->count_styles; i++) {
+		if (styles->supported_styles[i] == xim_preferred_style) {
+		    qt_xim_style = xim_preferred_style;
+		    break;
+		} else if (styles->supported_styles[i] ==
+			    (XIMPreeditNone | XIMStatusNone) ||
+			   styles->supported_styles[i] ==
+			    (XIMPreeditNothing | XIMStatusNothing) ) {
+		    // Either of these will suffice as a default
+		    if ( !qt_xim_style )
+			qt_xim_style = styles->supported_styles[i];
+		}
 	    }
+	    XFree(styles);
 	}
 	if ( !qt_xim_style ) {
 	    // Give up

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#82 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#83 $
 **
 ** Implementation of QDialog class
 **
@@ -113,7 +113,8 @@ QDialog::QDialog( QWidget *parent, const char *name, bool modal, WFlags f )
     : QWidget( parent, name, (modal ? (f | WType_Modal) : f) | WType_TopLevel | WStyle_Dialog )
 {
     rescode = 0;
-    did_move = did_resize = FALSE;
+    did_move = FALSE;
+    did_resize = FALSE;
     mainDef = 0;
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#371 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#372 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -573,6 +573,7 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 */
 void QWidget::setMicroFocusHint(int x, int y, int /*width*/, int height, bool text)
 {
+#ifndef NO_XIM
     if ( text ) {
 	QWidget* tlw = topLevelWidget();
 	if ( tlw->extra && tlw->extra->topextra && tlw->extra->topextra->xic ) {
@@ -584,8 +585,20 @@ void QWidget::setMicroFocusHint(int x, int y, int /*width*/, int height, bool te
 	    XVaNestedList preedit_attr;
 	    preedit_attr = XVaCreateNestedList(0, XNSpotLocation, &spot, 0);
 	    XSetICValues(xic, XNPreeditAttributes, preedit_attr, 0);
+	    XFree(preedit_attr);
 	}
     }
+#endif
+}
+
+#ifndef NO_XIM
+static XFontSet fixed_fontset = 0; // leaked once
+
+static
+void cleanup_ffs()
+{
+    XFreeFontSet(QPaintDevice::x11AppDisplay(), fixed_fontset);
+    fixed_fontset = 0;
 }
 
 static
@@ -599,7 +612,6 @@ XFontSet xic_fontset(void* qfs, int pt)
     //              the default font etc. are for this locale.
     char** missing=0;
     int nmissing;
-    static XFontSet fixed_fontset = 0;
     if ( !fixed_fontset ) {
 	QCString n;
 	n.sprintf( "-*-Helvetica-*-*-normal-*-*-%d-*-*-*-*-*-*,"
@@ -610,12 +622,15 @@ XFontSet xic_fontset(void* qfs, int pt)
 		   pt*10 );
 	fixed_fontset = XCreateFontSet( QPaintDevice::x11AppDisplay(), n,
 					&missing, &nmissing, 0 );
+	qAddPostRoutine(cleanup_ffs);
     }
     return fixed_fontset;
 }
+#endif
 
 void QWidget::setFontSys()
 {
+#ifndef NO_XIM
     QWidget* tlw = topLevelWidget();
     if ( tlw->extra && tlw->extra->topextra && tlw->extra->topextra->xic ) {
 	XIC xic = (XIC)tlw->extra->topextra->xic;
@@ -632,7 +647,11 @@ void QWidget::setFontSys()
 		      XNPreeditAttributes, preedit_att,
 		      XNStatusAttributes, status_att,
 		      0 );
+
+	XFree(preedit_att);
+	XFree(status_att);
     }
+#endif
 }
 
 
@@ -1850,6 +1869,9 @@ void QWidget::createTLSysExtra()
 			XNPreeditAttributes, preedit_att,
 			XNStatusAttributes, status_att,
 			0 );
+
+	XFree(preedit_att);
+	XFree(status_att);
 
 	setFontSys();
     } else {
