@@ -134,6 +134,7 @@ struct QLineEditPrivate {
 	switch( mode ) {
 	    case QLineEdit::Normal:
 		res = parag->string()->toString();
+		res.remove( res.length() - 1, 1 );
 		break;
 	    case QLineEdit::NoEcho:
 		res = QString::fromLatin1("");
@@ -1518,7 +1519,8 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
     t.truncate( maxLength() );
 
     QString old = d->parag->string()->toString();
-
+    old.remove( old.length() - 1, 1 );
+    
     const QValidator * v = validator();
 
     int pos = d->cursor->index();
@@ -1570,6 +1572,7 @@ void QLineEdit::insert( const QString &newText )
 	emit textChanged( text() );
     } else {
 	QString text = d->parag->string()->toString();
+	text.remove( text.length() - 1, 1 );
 	int cp = d->cursor->index();
 	if ( hasMarkedText() ) {
 	    text.remove( d->parag->selectionStart(0), d->parag->selectionEnd(0) - d->parag->selectionStart( 0 ) );
