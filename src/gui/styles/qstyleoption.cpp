@@ -1533,3 +1533,106 @@ QStyleOptionTabWidgetFrame::QStyleOptionTabWidgetFrame(int version)
 {
 }
 
+
+/*!
+    \class QStyleHintReturn
+    \brief The QStyleHintReturn is used for stylehints that return more than a simple int.
+
+    \ingroup appearance
+
+    QStyleHintReturn and its subclasses are used to pass information
+    from a style back to the querying widget. This is most usefull
+    when the return value from QStyle::styleHint() is not enough
+    detail (for example when a mask is to be returned).
+
+    ### --Sam
+*/
+
+/*!
+    \enum QStyleOption::OptionType
+
+    This enum is used internally by QStyleOption, its subclasses, and
+    qt_cast() to determine the type of style option. In general you do not need
+    to worry about this unless you want to create your own QStyleOption
+    subclass and your own styles.
+
+    \value SH_Default QStyleHintReturn
+    \value SH_Mask \l SH_RubberBand_Mask SH_FocusFrame_Mask
+*/
+
+/*!
+    \property QStyleHintReturn::type
+    \brief the type of the style hint container
+
+    \sa HintReturnType
+*/
+
+/*!
+    \property QStyleHintReturn::version
+    \brief the version of the style hint return container
+
+    This value can be used by subclasses to implement extensions
+    without breaking compatibility. If you use qt_cast<T>(), you
+    normally don't need to check it.
+*/
+
+/*!
+    Constructs a QStyleHintReturn with version \a version and type \a
+    type.
+
+    The version has no special meaning for QStyleHintReturn; it can be
+    used by subclasses to distinguish between different version of
+    the same hint type.
+
+    \sa version, type
+*/
+
+QStyleHintReturn::QStyleHintReturn(int version, int type)
+    : version(version), type(type)
+{
+}
+
+QStyleHintReturn::~QStyleHintReturn()
+{
+
+}
+
+QStyleHintReturnMask::QStyleHintReturnMask() : QStyleHintReturn(Version, Type)
+{
+
+}
+
+/*!
+    \fn T qt_cast<T>(const QStyleHintReturn *hint)
+    \relates QStyleHintReturn
+
+    Returns a T or 0 depending on the \l{QStyleHintReturn::type}{type}
+    and \l{QStyleHintReturn::version}{version} of \a hint.
+
+    Example:
+
+    \code
+        int MyStyle::styleHint(StyleHint stylehint, const QStyleOption *opt,
+                               const QWidget *widget, QStyleHintReturn* returnData) const;
+        {
+            if (stylehint == SH_RubberBand_Mask) {
+                const QStyleHintReturnMask *maskReturn =
+                        qt_cast<const QStyleHintReturnMask *>(hint);
+                if (maskReturn) {
+                    ...
+                }
+            }
+            ...
+        }
+    \endcode
+
+    \sa QStyleHintReturn::type, QStyleHintReturn::version
+*/
+
+/*!
+    \fn T qt_cast<T>(QStyleHintReturn *hint)
+    \overload
+    \relates QStyleHintReturn
+
+    Returns a T or 0 depending on the type of \a hint.
+*/

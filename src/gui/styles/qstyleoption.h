@@ -567,4 +567,50 @@ T qt_cast(QStyleOption *opt)
         return static_cast<T>(opt);
     return 0;
 }
+
+// -------------------------- QStyleHintReturn -------------------------------
+class Q_GUI_EXPORT QStyleHintReturn {
+public:
+    enum HintReturnType {
+        SH_Default=0xf000, SH_Mask
+    };
+
+    enum { Type = SH_Default };
+    enum { Version = 1 };
+
+    QStyleHintReturn(int version = QStyleOption::Version, int type = SH_Default);
+    ~QStyleHintReturn();
+
+    int version;
+    int type;
+};
+
+class Q_GUI_EXPORT QStyleHintReturnMask : public QStyleHintReturn {
+public:
+    enum { Type = SH_Mask };
+    enum { Version = 1 };
+
+    QStyleHintReturnMask();
+
+    QRegion region;
+};
+
+template <typename T>
+T qt_cast(const QStyleHintReturn *hint)
+{
+    if (hint && hint->version <= static_cast<T>(0)->Version &&
+        (hint->type == static_cast<T>(0)->Type || int(static_cast<T>(0)->Type) == QStyleHintReturn::SH_Default))
+        return static_cast<T>(hint);
+    return 0;
+}
+
+template <typename T>
+T qt_cast(QStyleHintReturn *hint)
+{
+    if (hint && hint->version <= static_cast<T>(0)->Version &&
+        (hint->type == static_cast<T>(0)->Type || int(static_cast<T>(0)->Type) == QStyleHintReturn::SH_Default))
+        return static_cast<T>(hint);
+    return 0;
+}
+
 #endif

@@ -26,8 +26,7 @@ class QAction;
 class QTab;
 class QFontMetrics;
 
-class QStyleHintReturn; // not defined yet
-
+class QStyleHintReturn;
 class QStyleOption;
 class QStyleOptionComplex;
 class Q_GUI_EXPORT QStyle : public QObject

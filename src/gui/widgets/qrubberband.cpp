@@ -122,10 +122,10 @@ QRubberBand::Shape QRubberBand::shape() const
 */
 void QRubberBand::updateMask()
 {
+    QStyleHintReturnMask mask;
     QStyleOption opt = d->getStyleOption();
-    if (style()->styleHint(QStyle::SH_RubberBand_Mask, &opt, q, 0)) {
-        //### TODO get region from QStyleHintReturn and set the mask
-    }
+    if (style()->styleHint(QStyle::SH_RubberBand_Mask, &opt, q, &mask))
+        setMask(mask.region);
 }
 
 /*!

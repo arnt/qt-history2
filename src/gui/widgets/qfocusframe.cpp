@@ -60,11 +60,12 @@ void QFocusFrame::updateMask()
     Q_D(QFocusFrame);
     if (!d->widget)
         return;
+    QStyleHintReturnMask mask;
     QStyleOption opt = d->getStyleOption();
-    if (style()->styleHint(QStyle::SH_FocusFrame_Mask, &opt, this, 0)) {
-        //### TODO get region from QStyleHintReturn and set the mask
-    }
+    if (style()->styleHint(QStyle::SH_FocusFrame_Mask, &opt, this, &mask))
+        setMask(mask.region);
 }
+
 QStyleOption QFocusFramePrivate::getStyleOption() const
 {
     Q_Q(const QFocusFrame);

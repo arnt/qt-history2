@@ -4904,7 +4904,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
 
 /*! \reimp */
 int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w,
-                         QStyleHintReturn *shret) const
+                         QStyleHintReturn *hret) const
 {
     SInt32 ret = 0;
     switch(sh) {
@@ -4947,7 +4947,7 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
                 || w->inherits("QWorkspaceChild")))
             ret = true;
         else
-            ret = QWindowsStyle::styleHint(sh, opt, w, shret);
+            ret = QWindowsStyle::styleHint(sh, opt, w, hret);
         break;
     case SH_Menu_FillScreenWithScroll:
         ret = (QSysInfo::MacintoshVersion < QSysInfo::MV_10_3);
@@ -5001,12 +5001,39 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
     case SH_EtchDisabledText:
         ret = false;
         break;
+    case SH_FocusFrame_Mask: {
+        ret = true;
+        if(QStyleHintReturnMask *mask = qt_cast<QStyleHintReturnMask*>(hret)) {
+            const QRgb fillColor = qRgb(192, 191, 190);
+            QImage img;
+            {
+                QPixmap pix(opt->rect.size(), 32);
+                pix.fill(fillColor);
+                QPainter pix_paint(&pix);
+                drawControl(CE_FocusFrame, opt, &pix_paint, w);
+                pix_paint.end();
+                img = pix.toImage();
+            }
+            QImage img_mask(img.width(), img.height(), 1, 2, QImage::LittleEndian);
+            for (int y = 0; y < img.height(); y++) {
+                for (int x = 0; x < img.width(); x++) {
+                    QRgb clr = img.pixel(x, y);
+                    int diff = (((qRed(clr)-qRed(fillColor))*((qRed(clr)-qRed(fillColor)))) +
+                                ((qGreen(clr)-qGreen(fillColor))*((qGreen(clr)-qGreen(fillColor)))) +
+                                ((qBlue(clr)-qBlue(fillColor))*((qBlue(clr)-qBlue(fillColor)))));
+                    img_mask.setPixel(x, y, diff < 100);
+                }
+            }
+            QBitmap qmask;
+            qmask = img_mask;
+            mask->region = QRegion(qmask);
+        }
+        break; }
     case SH_RubberBand_Mask:
-    case SH_FocusFrame_Mask:
         ret = 0;
         break;
     default:
-        ret = QWindowsStyle::styleHint(sh, opt, w, shret);
+        ret = QWindowsStyle::styleHint(sh, opt, w, hret);
         break;
     }
     return ret;

@@ -2898,7 +2898,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
 
 /*! \reimp */
 int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *widget,
-                            QStyleHintReturn *) const
+                            QStyleHintReturn *hret) const
 {
     int ret;
 
@@ -3010,14 +3010,14 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
         break;
 
     case SH_RubberBand_Mask:
-        ret = 1;
+        ret = false;
         if (widget && (opt->state & State_Rectangle)) {
-            ret = 0;
-            QRegion reg = widget->rect();
-            int margin = pixelMetric(PM_DefaultFrameWidth) * 2;
-            reg -= opt->rect.adjusted(margin, margin, -margin, -margin);
-            const_cast<QWidget*>(widget)->setMask(reg);
-            //### TODO return region in QStyleHintReturn
+            ret = true;
+            if(QStyleHintReturnMask *mask = qt_cast<QStyleHintReturnMask*>(hret)) {
+                mask->region = widget->rect();
+                int margin = pixelMetric(PM_DefaultFrameWidth) * 2;
+                mask->region -= opt->rect.adjusted(margin, margin, -margin, -margin);
+            }
         }
         break;
 
