@@ -80,6 +80,7 @@ void QAquaFocusWidget::setFocusWidget(QWidget * widget)
 	QPoint p(widget->mapTo(parentWidget(), QPoint(0, 0)));
 	setGeometry(p.x() - focusOutset(), p.y() - focusOutset(), 
 		    widget->width() + (focusOutset() * 2), widget->height() + (focusOutset() * 2));
+	setPalette(widget->palette());
 	setMask(QRegion(rect()) - focusRegion());
 	raise();
 	show();
@@ -94,6 +95,9 @@ bool QAquaFocusWidget::eventFilter(QObject * o, QEvent * e)
 	return TRUE; //block child events
     } else if(o == d) {
 	switch (e->type()) {
+	case QEvent::PaletteChange:
+	    setPalette(d->palette());
+	    break;
 	case QEvent::Hide: 
 	    hide();
 	    break;
