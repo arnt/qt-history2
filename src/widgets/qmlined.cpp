@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.cpp#75 $
+** $Id: //depot/qt/main/src/widgets/qmlined.cpp#76 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -194,9 +194,9 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
 
 /*! \fn void QMultiLineEdit::textChanged()
 
-  This signal is emitted when the text is changed by  
-  an event or by a slot. Not that the signal is not emitted when 
-  you call a non-slot function such as insertLine().
+  This signal is emitted when the text is changed by an event or by a
+  slot. Note that the signal is not emitted when you call a non-slot
+  function such as insertLine().
 
   \sa returnPressed()
 */
