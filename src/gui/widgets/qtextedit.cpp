@@ -391,7 +391,7 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument
         cursor.insertFragment(fragment);
     }
 
-    doc->setUndoRedoEnabled(true);
+    doc->setUndoRedoEnabled(!q->isReadOnly());
     cursor.movePosition(QTextCursor::Start);
     updateCurrentCharFormatAndSelection();
 
@@ -978,14 +978,10 @@ QTextDocument *QTextEdit::document() const
 */
 void QTextEdit::setTextCursor(const QTextCursor &cursor)
 {
-    // (schedule a repaint of the region of the old cursor
-    //  and of the new cursor, so that the old one disappears
-    //  and the new one is shown)
-    QRect r = d->cursorRect();
     d->cursor = cursor;
     d->updateCurrentCharFormatAndSelection();
     ensureCursorVisible();
-    d->update(d->cursorRect().unite(r));
+    d->viewport->update();
 }
 
 /*!
