@@ -43,7 +43,7 @@ public:
 };
 
 #include "qpaintdevice.h"
-extern WindowPtr qt_mac_window_for(HIViewRef); //qwidget_mac.cpp
+extern WindowPtr qt_mac_window_for(const QWidget*); //qwidget_mac.cpp
 extern QPaintDevice *qt_mac_safe_pdev; //qapplication_mac.cpp
 class QMacSavedPortInfo
 {
@@ -85,7 +85,7 @@ inline void
 QMacSavedPortInfo::setWindowAlpha(QWidget *w, float l)
 {
     CGSSetWindowAlpha(_CGSDefaultConnection(),
-                      GetNativeWindowFromWindowRef(qt_mac_window_for((HIViewRef)w->winId())), l);
+                      GetNativeWindowFromWindowRef(qt_mac_window_for(w)), l);
 }
 
 inline bool
@@ -148,10 +148,10 @@ QMacSavedPortInfo::setPaintDevice(QPaintDevice *pd)
         qt_mac_port_mutex->lock();
 #endif
     extern GrafPtr qt_macQDHandle(const QPaintDevice *); // qpaintdevice_mac.cpp
-    if(GrafPtr graf = qt_macQDHandle(pd)) //set the gworld
-        SetGWorld(graf, 0);
-    else
-        ret = false;
+    if(pd->devType() == QInternal::Widget)
+        SetPortWindowPort(qt_mac_window_for(static_cast<QWidget*>(pd)));
+    else if(pd->devType() == QInternal::Pixmap || pd->devType() == QInternal::Printer)
+        SetGWorld((GrafPtr)qt_macQDHandle(pd), 0); //set the gworld
 #if defined(QT_THREAD_SUPPORT)
     if(qt_mac_port_mutex)
         qt_mac_port_mutex->unlock();
