@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#55 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#56 $
 **
 **  Splitter widget
 **
@@ -30,6 +30,7 @@
 #include "qlayoutengine.h"
 #include "qlist.h"
 #include "qarray.h"
+#include "qobjectlist.h"
 
 class QSplitterHandle : public QWidget
 {
@@ -809,18 +810,26 @@ void QSplitter::recalcId()
 */
 QSize QSplitter::sizeHint() const
 {
-    return QWidget::sizeHint();
-#if 0
-    QSize s1 = w1 ? w1->sizeHint() : QSize(0,0);
-    QSize s2 = w2 ? w2->sizeHint() : QSize(0,0);
-    if ( orient == Horizontal ) {
-	return QSize(s1.width()+s2.width(),QMAX(s1.height(),s2.height()));
-    } else {
-	return QSize(QMAX(s1.width(),s2.width()),s1.height()+s2.height());
-    }
-#endif
-}
+    int l = 0;
+    int t = 0;
+    if ( children() ) {
+	const QObjectList * c = children();
+	QObjectListIt it( *c );
+	QObject * o;
 
+	while( (o=it.current()) != 0 ) {
+	    ++it;
+	    if ( o->isWidgetType() ) {
+		QSize s = ((QWidget*)o)->sizeHint();
+		if ( s.isValid() ) {
+		    l += pick( s );
+		    t = QMAX( t, trans( s ) );
+		}
+	    }
+	}
+    }
+    return orientation() == Horizontal ? QSize( l, t ) : QSize( t, l );
+}
 /*!
   Says that this widget wants to grow in both height and width.
 */
