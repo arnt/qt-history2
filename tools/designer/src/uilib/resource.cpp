@@ -473,8 +473,8 @@ QVariant Resource::toVariant(const QMetaObject *meta, DomProperty *p)
     } break;
 
     case DomProperty::IconSet: {
-        DomResourcePixmap *pix = p->elementIconSet();
-        QIcon icon(pix->text());
+        DomResourcePixmap *iconset = p->elementIconSet();
+        QIcon icon(QPixmap(iconset->text()));
         v = QVariant(icon);
     } break;
 
