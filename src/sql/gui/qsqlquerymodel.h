@@ -38,7 +38,7 @@ public:
     QVariant data(const QModelIndex &item, int role = QAbstractItemModel::DisplayRole) const;
     QVariant headerData(int section, Qt::Orientation orientation,
                         int role = QAbstractItemModel::DisplayRole) const;
-    bool setHeaderData(int section, Qt::Orientation orientation, int role, const QVariant &value);
+    bool setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int role);
 
     bool insertColumns(int column, int count, const QModelIndex &parent);
     bool removeColumns(int column, int count, const QModelIndex &parent);

@@ -263,8 +263,8 @@ void QSqlQueryModel::clear()
 
     \sa data()
  */
-bool QSqlQueryModel::setHeaderData(int section, Qt::Orientation orientation, int role,
-                                   const QVariant &value)
+bool QSqlQueryModel::setHeaderData(int section, Qt::Orientation orientation,
+                                   const QVariant &value, int role)
 {
     if (role != DisplayRole || orientation != Qt::Horizontal || section < 0)
         return false;

@@ -388,10 +388,10 @@ bool QSqlTableModel::isDirty(const QModelIndex &index) const
 
     \sa editStrategy(), data(), submit(), submitAll(), revertRow()
  */
-bool QSqlTableModel::setData(const QModelIndex &index, int role, const QVariant &value)
+bool QSqlTableModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (role & ~EditRole)
-        return QSqlQueryModel::setData(index, role, value);
+        return QSqlQueryModel::setData(index, value, role);
 
     QSqlRecord rec = query().record();
     if (index.column() >= rec.count() || index.row() >= rowCount())
@@ -1069,7 +1069,7 @@ bool QSqlTableModel::setRecord(int row, const QSqlRecord &record)
             int idx = d->rec.indexOf(record.fieldName(i));
             if (idx == -1)
                 continue;
-            isOk |= setData(createIndex(row, idx), QAbstractItemModel::EditRole, record.value(i));
+            isOk |= setData(createIndex(row, idx), record.value(i), QAbstractItemModel::EditRole);
         }
         return isOk;
     case OnManualSubmit: {

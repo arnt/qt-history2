@@ -747,17 +747,6 @@ QMap<int, QVariant> QAbstractItemModel::itemData(const QModelIndex &index) const
 }
 
 /*!
-    \fn bool QAbstractItemModel::setData(const QModelIndex &index, const QVariant &value)
-
-    \overload
-
-    Sets the \c EditRole role data for the item at \a index to \a value.
-    Returns true if successful; otherwise returns false.
-
-    \sa data() itemData()
-*/
-
-/*!
     Sets the \a role data for the item at \a index to \a value.
     Returns true if successful; otherwise returns false.
 
@@ -766,8 +755,11 @@ QMap<int, QVariant> QAbstractItemModel::itemData(const QModelIndex &index) const
 
     \sa data() itemData()
 */
-bool QAbstractItemModel::setData(const QModelIndex &, int, const QVariant &)
+bool QAbstractItemModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
+    Q_UNUSED(index);
+    Q_UNUSED(value);
+    Q_UNUSED(role);
     return false;
 }
 
@@ -789,7 +781,7 @@ bool QAbstractItemModel::setItemData(const QModelIndex &index, const QMap<int, Q
 {
     bool b = true;
     for (QMap<int, QVariant>::ConstIterator it = roles.begin(); it != roles.end(); ++it)
-        b = b && setData(index, it.key(), it.value());
+        b = b && setData(index, it.value(), it.key());
     return b;
 }
 
@@ -864,7 +856,7 @@ bool QAbstractItemModel::dropMimeData(const QMimeData *data, QDrag::DropAction a
             for (int i = 0; i < count; ++i) {
                 stream >> role;
                 stream >> value;
-                setData(idx, role, value);
+                setData(idx, value, role);
             }
             stream >> rows; // children
             stream >> columns; // children
@@ -1187,13 +1179,13 @@ QVariant QAbstractItemModel::headerData(int section, Qt::Orientation, int role) 
   \sa headerData()
 */
 
-bool QAbstractItemModel::setHeaderData(int section, Qt::Orientation orientation, int role,
-                                       const QVariant &value)
+bool QAbstractItemModel::setHeaderData(int section, Qt::Orientation orientation,
+                                       const QVariant &value, int role)
 {
     Q_UNUSED(section);
     Q_UNUSED(orientation);
-    Q_UNUSED(role);
     Q_UNUSED(value);
+    Q_UNUSED(role);
     return false;
 }
 

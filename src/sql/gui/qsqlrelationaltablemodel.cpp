@@ -143,14 +143,14 @@ QVariant QSqlRelationalTableModel::data(const QModelIndex &item, int role) const
 
     \sa editStrategy(), data(), submitChanges(), revertRow()
  */
-bool QSqlRelationalTableModel::setData(const QModelIndex &item, int role, const QVariant &value)
+bool QSqlRelationalTableModel::setData(const QModelIndex &item, const QVariant &value, int role)
 {
     if (role == DisplayRole && item.column() > 0 && item.column() < d->relations.count()) {
         d->relations[item.column()].displayValues[item.row()] = value;
         return true;
     }
 
-    return QSqlTableModel::setData(item, role, value);
+    return QSqlTableModel::setData(item, value, role);
 }
 
 /*!

@@ -92,9 +92,9 @@ void QSqlRelationalDelegate::setModelData(QWidget *editor, QAbstractItemModel *m
     QVariant val;
     val = childModel->data(childModel->index(currentItem, childColIndex),
                            QAbstractItemModel::DisplayRole);
-    sqlModel->setData(index, QAbstractItemModel::DisplayRole, val);
+    sqlModel->setData(index, val, QAbstractItemModel::DisplayRole);
     val = childModel->data(childModel->index(currentItem, childEditIndex),
                            QAbstractItemModel::EditRole);
-    sqlModel->setData(index, QAbstractItemModel::EditRole, val);
+    sqlModel->setData(index, val, QAbstractItemModel::EditRole);
 }
 

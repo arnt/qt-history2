@@ -1006,7 +1006,7 @@ QString QComboBox::currentText() const
 void QComboBox::setCurrentText(const QString& text)
 {
     if (d->currentIndex.isValid()) {
-        model()->setData(d->currentIndex, QAbstractItemModel::EditRole, text);
+        model()->setData(d->currentIndex, text, QAbstractItemModel::EditRole);
         if (d->lineEdit)
             d->lineEdit->setText(text);
     }
@@ -1062,7 +1062,7 @@ void QComboBox::insertStringList(const QStringList &list, int row)
         QModelIndex item;
         for (int i = 0; i < list.count(); ++i) {
             item = model()->index(i+row, 0, root());
-            model()->setData(item, QAbstractItemModel::EditRole, list.at(i));
+            model()->setData(item, list.at(i), QAbstractItemModel::EditRole);
         }
     }
     if (!d->currentIndex.isValid())
@@ -1082,7 +1082,7 @@ void QComboBox::insertItem(const QString &text, int row)
     QModelIndex item;
     if (model()->insertRows(row, 1, root())) {
         item = model()->index(row, 0, root());
-        model()->setData(item, QAbstractItemModel::EditRole, text);
+        model()->setData(item, text, QAbstractItemModel::EditRole);
 
         if (d->currentIndex.isValid() && item == d->currentIndex) {
             update();
@@ -1107,7 +1107,7 @@ void QComboBox::insertItem(const QIcon &icon, int row)
     QModelIndex item;
     if (model()->insertRows(row, 1, root())) {
         item = model()->index(row, 0, root());
-        model()->setData(item, QAbstractItemModel::DecorationRole, icon);
+        model()->setData(item, icon, QAbstractItemModel::DecorationRole);
     }
     if (!d->currentIndex.isValid())
         setCurrentItem(row);
@@ -1154,7 +1154,7 @@ void QComboBox::setItemText(const QString &text, int row)
 {
     QModelIndex item = model()->index(row, 0, root());
     if (item.isValid()) {
-        model()->setData(item, QAbstractItemModel::EditRole, text);
+        model()->setData(item, text, QAbstractItemModel::EditRole);
     }
 }
 
@@ -1166,7 +1166,7 @@ void QComboBox::setItemIcon(const QIcon &icon, int row)
 {
     QModelIndex item = model()->index(row, 0, root());
     if (item.isValid()) {
-        model()->setData(item, QAbstractItemModel::DecorationRole, icon);
+        model()->setData(item, icon, QAbstractItemModel::DecorationRole);
     }
 }
 
@@ -1177,7 +1177,7 @@ void QComboBox::setItemData(int role, const QVariant &value, int row)
 {
     QModelIndex item = model()->index(row, 0, root());
     if (item.isValid()) {
-        model()->setData(item, role, value);
+        model()->setData(item, value, role);
     }
 }
 

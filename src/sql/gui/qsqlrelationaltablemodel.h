@@ -46,13 +46,7 @@ public:
     virtual ~QSqlRelationalTableModel();
 
     QVariant data(const QModelIndex &item, int role = QAbstractItemModel::DisplayRole) const;
-    bool setData(const QModelIndex &item, int role, const QVariant &value);
-#ifdef Q_NO_USING_KEYWORD
-    inline bool setData(const QModelIndex &index, const QVariant &value)
-    { return QAbstractItemModel::setData(index, value); }
-#else
-    using QAbstractItemModel::setData;
-#endif
+    bool setData(const QModelIndex &item, const QVariant &value, int role = QAbstractItemModel::EditRole);
 
     void clear();
     bool select();

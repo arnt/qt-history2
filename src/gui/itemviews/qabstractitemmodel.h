@@ -161,16 +161,12 @@ public:
     virtual bool hasChildren(const QModelIndex &parent = QModelIndex()) const = 0;
 
     virtual QVariant data(const QModelIndex &index, int role = DisplayRole) const = 0;
-    virtual bool setData(const QModelIndex &index, int role, const QVariant &value);
-    inline bool setData(const QModelIndex &index, const QVariant &value)
-        { return setData(index, EditRole, value); }
+    virtual bool setData(const QModelIndex &index, const QVariant &value, int role = EditRole);
 
     virtual QVariant headerData(int section, Qt::Orientation orientation,
                                 int role = DisplayRole) const;
-    virtual bool setHeaderData(int section, Qt::Orientation orientation, int role,
-                               const QVariant &value);
-    inline bool setHeaderData(int section, Qt::Orientation orientation, const QVariant &value)
-        { return setHeaderData(section, orientation, EditRole, value); }
+    virtual bool setHeaderData(int section, Qt::Orientation orientation, const QVariant &value,
+                               int role = EditRole);
 
     virtual QMap<int, QVariant> itemData(const QModelIndex &index) const;
     virtual bool setItemData(const QModelIndex &index, const QMap<int, QVariant> &roles);

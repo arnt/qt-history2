@@ -56,10 +56,10 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
     QVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
-    bool setData(const QModelIndex &index, int role, const QVariant &value);
+    bool setData(const QModelIndex &index, const QVariant &value, int role);
 
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-    bool setHeaderData(int section, Qt::Orientation orientation, int role, const QVariant &value);
+    bool setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int role);
 
     QAbstractItemModel::ItemFlags flags(const QModelIndex &index) const;
 
@@ -323,7 +323,7 @@ QVariant QTableModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-bool QTableModel::setData(const QModelIndex &index, int role, const QVariant &value)
+bool QTableModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     QTableWidgetItem *itm = item(index);
 
@@ -392,7 +392,8 @@ QVariant QTableModel::headerData(int section, Qt::Orientation orientation, int r
     return QAbstractItemModel::headerData(section, orientation, role);
 }
 
-bool QTableModel::setHeaderData(int section, Qt::Orientation orientation, int role, const QVariant &value)
+bool QTableModel::setHeaderData(int section, Qt::Orientation orientation,
+                                const QVariant &value, int role)
 {
     QTableWidgetItem *itm = 0;
     if (orientation == Qt::Horizontal)

@@ -39,10 +39,10 @@ public:
     bool hasChildren(const QModelIndex &parent) const;
 
     QVariant data(const QModelIndex &index, int role) const;
-    bool setData(const QModelIndex &index, int role, const QVariant &value);
+    bool setData(const QModelIndex &index, const QVariant &value, int role);
 
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-    bool setHeaderData(int section, Qt::Orientation orientation, int role, const QVariant &value);
+    bool setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int role);
 
     QStringList mimeTypes() const;
     QMimeData *mimeData(const QModelIndexList &indexes) const;

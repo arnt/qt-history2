@@ -206,7 +206,7 @@ QWidget *QItemDelegate::editor(QWidget *parent,
 void QItemDelegate::releaseEditor(QWidget *editor)
 {
     editor->removeEventFilter(this);
-    delete editor;
+    delete editor; // FIXME: editor->deleteLater();
 }
 
 /*!
@@ -234,7 +234,7 @@ void QItemDelegate::setModelData(QWidget *editor,
     QVariant::Type t = model->data(index, QAbstractItemModel::EditRole).type();
     QByteArray n = d->editorFactory()->valuePropertyName(t);
     if (!n.isEmpty())
-        model->setData(index, QAbstractItemModel::EditRole, editor->property(n));
+        model->setData(index, editor->property(n), QAbstractItemModel::EditRole);
 }
 
 /*!

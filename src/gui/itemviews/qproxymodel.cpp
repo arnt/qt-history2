@@ -196,9 +196,9 @@ QVariant QProxyModel::data(const QModelIndex &index, int role) const
 
     \sa data() itemData() QAbstractItemModel::setData()
 */
-bool QProxyModel::setData(const QModelIndex &index, int role, const QVariant &value)
+bool QProxyModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    return d->model->setData(index, role, value);
+    return d->model->setData(index, value, role);
 }
 
 /*!
@@ -217,9 +217,9 @@ QVariant QProxyModel::headerData(int section, Qt::Orientation orientation, int r
     \sa QAbstractItemModel::setHeaderData()
 */
 bool QProxyModel::setHeaderData(int section, Qt::Orientation orientation,
-                                int role, const QVariant &value)
+                                const QVariant &value, int role)
 {
-    return d->model->setHeaderData(section, orientation, role, value);
+    return d->model->setHeaderData(section, orientation, value, role);
 }
 
 QStringList QProxyModel::mimeTypes() const
