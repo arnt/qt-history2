@@ -364,6 +364,7 @@ WidgetBoxTreeView::Category WidgetBoxTreeView::loadCustomCategory() const
 QTreeWidgetItem *WidgetBoxTreeView::widgetToItem(const Widget &wgt, QTreeWidgetItem *parent) const
 {
     QTreeWidgetItem *item = new QTreeWidgetItem(parent);
+    item->setFlags(item->flags() & ~Qt::ItemIsSelectable);
 
     item->setText(0, wgt.name());
     item->setIcon(0, wgt.icon());
