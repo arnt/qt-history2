@@ -21,7 +21,7 @@
 #include <QtCore/qdatastream.h>
 #include <QtCore/qmap.h>
 #include <QtCore/qobject.h>
-#include <QtGui/qvariant.h>
+#include <QtCore/qvariant.h>
 
 struct IUnknown;
 struct IDispatch;
