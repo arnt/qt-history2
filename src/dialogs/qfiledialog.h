@@ -70,7 +70,7 @@ public:
 
     static QString getOpenFileName( const QString &initially = QString::null,
                                     const QString &filter = QString::null,
-                                    QWidget *parent = 0, const char* name = 0);
+                                    QWidget *parent = 0, const char* name = 0 );
     static QString getSaveFileName( const QString &initially = QString::null,
                                     const QString &filter = QString::null,
                                     QWidget *parent = 0, const char* name = 0);
@@ -176,6 +176,7 @@ protected:
     void keyPressEvent( QKeyEvent * );
 
     void addWidgets( QLabel *, QWidget *, QPushButton * );
+    void addToolButton( QButton *b, bool separator = FALSE );
     void drawDragShapes( const QPoint &pnt, bool multRow, int num );
     void addFilter( const QString &filter );
 

@@ -343,7 +343,7 @@ static const char* previewinfoview_xpm[]={
     "#######a#####",
     "..#####a#bbb#",
     ".#.#bb#a#####",
-    "...####aaaaaa"};                                                               
+    "...####aaaaaa"};
 
 /* XPM */
 static const char* previewcontentsview_xpm[]={
@@ -772,10 +772,12 @@ struct QFileDialogPrivate {
     QLabel * typeL;
 
     QVBoxLayout * topLevelLayout;
-    QHBoxLayout * extraWidgetsLayout;
-    QLabel * extraLabel, *extraWidgetsSpace;
-    QWidget * extraWidget;
-    QButton * extraButton;
+    QHBoxLayout *buttonLayout;
+    QList<QHBoxLayout> extraWidgetsLayouts;
+    QList<QLabel> extraLabels;
+    QList<QWidget> extraWidgets;
+    QList<QWidget> extraButtons;
+    QList<QButton> toolButtons;
 
     QWidgetStack * stack;
 
@@ -2259,11 +2261,11 @@ void QFileDialog::init()
     d->mcView->setOn( TRUE );
 
     d->topLevelLayout = new QVBoxLayout( this, 5 );
-    d->extraWidgetsLayout = 0;
-    d->extraLabel = 0;
-    d->extraWidget = 0;
-    d->extraButton = 0;
-    d->extraWidgetsSpace = 0;
+    d->extraWidgetsLayouts.setAutoDelete( FALSE );
+    d->extraLabels.setAutoDelete( FALSE );
+    d->extraWidgets.setAutoDelete( FALSE );
+    d->extraButtons.setAutoDelete( FALSE );
+    d->toolButtons.setAutoDelete( FALSE );
 
     QHBoxLayout * h;
 
@@ -2273,6 +2275,7 @@ void QFileDialog::init()
     d->contentsPreviewWidget = new QWidget( d->preview );
 
     h = new QHBoxLayout( 0 );
+    d->buttonLayout = h;
     d->topLevelLayout->addLayout( h );
     h->addWidget( d->pathL );
     h->addSpacing( 8 );
@@ -3092,6 +3095,8 @@ void QFileDialog::updateGeometries()
 	return;
 
     d->geometryDirty = FALSE;
+    QWidget *ew = 0, *eb = 0;
+    QLabel *el = 0;
 
     QSize r, t;
 
@@ -3105,15 +3110,19 @@ r.setHeight( QMAX(r.height(),t.height()) )
     RM;
     t = d->typeL->sizeHint();
     RM;
-    if ( d->extraLabel ) {
-	t = d->extraLabel->sizeHint();
-	RM;
+    if ( !d->extraLabels.isEmpty() ) {
+	for ( el = d->extraLabels.first(); el; el = d->extraLabels.next() ) {
+	    t = el->sizeHint();
+	    RM;
+	}
     }
     d->pathL->setFixedSize( d->pathL->sizeHint() );
     d->fileL->setFixedSize( r );
     d->typeL->setFixedSize( r );
-    if ( d->extraLabel )
-	d->extraLabel->setFixedSize( r );
+    if ( !d->extraLabels.isEmpty() ) {
+	for ( el = d->extraLabels.first(); el; el = d->extraLabels.next() )
+	    el->setFixedSize( r );
+    }
 
     // single-line input areas
     r = d->paths->sizeHint();
@@ -3122,9 +3131,11 @@ r.setHeight( QMAX(r.height(),t.height()) )
     t = d->types->sizeHint();
     RM;
     r.setWidth( t.width() * 2 / 3 );
-    if ( d->extraWidget ) {
-	t = d->extraWidget->sizeHint();
-	RM;
+    if ( !d->extraWidgets.isEmpty() ) {
+	for ( ew = d->extraWidgets.first(); ew; ew = d->extraWidgets.next() ) {
+	    t = ew->sizeHint();
+	    RM;
+	}
     }
     t.setWidth( QWIDGETSIZE_MAX );
     t.setHeight( r.height() );
@@ -3134,9 +3145,9 @@ r.setHeight( QMAX(r.height(),t.height()) )
     nameEdit->setMaximumSize( t );
     d->types->setMinimumSize( r );
     d->types->setMaximumSize( t );
-    if ( d->extraWidget ) {
-	d->extraWidget->setMinimumSize( r );
-	d->extraWidget->setMaximumSize( t );
+    if ( !d->extraWidgets.isEmpty() ) {
+	for ( ew = d->extraWidgets.first(); ew; ew = d->extraWidgets.next() )
+	    ew->setMinimumSize( r );
     }
 
     // buttons on top row
@@ -3149,6 +3160,13 @@ r.setHeight( QMAX(r.height(),t.height()) )
     d->newFolder->setFixedSize( r );
     d->mcView->setFixedSize( r );
     d->detailView->setFixedSize( r );
+
+    QButton *b = 0;
+    if ( !d->toolButtons.isEmpty() ) {
+	for ( b = d->toolButtons.first(); b; b = d->toolButtons.next() )
+	    b->setFixedSize( r );
+    }
+    
     if ( d->infoPreview ) {
 	d->previewInfo->show();
 	d->previewInfo->setFixedSize( r );
@@ -3165,27 +3183,25 @@ r.setHeight( QMAX(r.height(),t.height()) )
 	d->previewContents->setFixedSize( QSize( 0, 0 ) );
     }
 	
-
     // open/save, cancel
     r = QSize( 75, 20 );
     t = okB->sizeHint();
     RM;
     t = cancelB->sizeHint();
     RM;
-    if ( d->extraButton ) {
-	t = d->extraButton->sizeHint();
-	RM;
-    } else if ( d->extraWidgetsSpace ) {
-	t = d->extraWidgetsSpace->sizeHint();
-	RM;
+    if ( !d->extraButtons.isEmpty() ) {
+	for ( eb = d->extraButtons.first(); eb; eb = d->extraButtons.next() ) {
+	    t = eb->sizeHint();
+	    RM;
+	}
     }
 
     okB->setFixedSize( r );
     cancelB->setFixedSize( r );
-    if ( d->extraButton )
-	d->extraButton->setFixedSize( r );
-    else if ( d->extraWidgetsSpace )
-	d->extraWidgetsSpace->setFixedSize( r );
+    if ( !d->extraButtons.isEmpty() ) {
+	for ( eb = d->extraButtons.first(); eb; eb = d->extraButtons.next() )
+	    eb->setFixedSize( r );
+    }
 
     d->topLevelLayout->activate();
 
@@ -3768,7 +3784,7 @@ int QFileDialog::viewMode() const
     return ret;
 }
 
-/*!  Adds 1-3 widgets to the bottom of the file dialog.	 \a l is the
+/*!  Adds 1-3 widgets to the bottom of the file dialog. \a l is the
   (optional) label, which is put beneath the "file name" and "file
   type" labels, \a w is a (optional) widget, which is put beneath the
   file type combo box, and \a b is the (you guessed it - optional)
@@ -3781,41 +3797,52 @@ int QFileDialog::viewMode() const
 
 void QFileDialog::addWidgets( QLabel * l, QWidget * w, QPushButton * b )
 {
-    d->geometryDirty = TRUE;
     if ( !l && !w && !b )
 	return;
 
-    if ( d->extraLabel || d->extraWidget || d->extraButton )
-	return;
+    d->geometryDirty = TRUE;
 
-    d->extraWidgetsLayout = new QHBoxLayout();
-    d->topLevelLayout->addLayout( d->extraWidgetsLayout );
+    QHBoxLayout *lay = new QHBoxLayout();
+    d->extraWidgetsLayouts.append( lay );
+    d->topLevelLayout->addLayout( lay );
 
     if ( !l )
 	l = new QLabel( this );
-    d->extraLabel = l;
-    if ( l )
-	d->extraWidgetsLayout->addWidget( l );
+    d->extraLabels.append( l );
+    lay->addWidget( l );
 
     if ( !w )
 	w = new QWidget( this );
-    d->extraWidget = w;
-    if ( w ) {
-	d->extraWidgetsLayout->addWidget( w );
-	d->extraWidgetsLayout->addSpacing( 15 );
-    }
+    d->extraWidgets.append( w );
+    lay->addWidget( w );
+    lay->addSpacing( 15 );
 
-    d->extraButton = b;
-    if ( b )
-	d->extraWidgetsLayout->addWidget( b );
-    else {
-	d->extraWidgetsSpace = new QLabel( this );
-	d->extraWidgetsLayout->addWidget( d->extraWidgetsSpace );
+    if ( b ) {
+	d->extraButtons.append( b );
+	lay->addWidget( b );
+    } else {
+	QWidget *wid = new QWidget( this );
+	d->extraButtons.append( wid );
+	lay->addWidget( wid );
     }
 
     updateGeometries();
 }
 
+void QFileDialog::addToolButton( QButton *b, bool separator )
+{
+    if ( !b || !d->buttonLayout )
+	return;
+    
+    d->geometryDirty = TRUE;
+    
+    d->toolButtons.append( b );
+    if ( separator )
+	d->buttonLayout->addSpacing( 8 );
+    d->buttonLayout->addWidget( b );
+
+    updateGeometries();
+}
 
 /*! \reimp */
 

@@ -10,6 +10,33 @@
 #include <qlabel.h>
 #include <qpixmap.h>
 #include "qnetwork.h"
+#include <qcheckbox.h>
+#include <qcombobox.h>
+#include <qpixmap.h>
+#include <qtoolbutton.h>
+
+/* XPM */
+static const char *fileopen[] = {
+    "    16    13        5            1",
+    ". c #040404",
+    "# c #808304",
+    "a c None",
+    "b c #f3f704",
+    "c c #f3f7f3",
+    "aaaaaaaaa...aaaa",
+    "aaaaaaaa.aaa.a.a",
+    "aaaaaaaaaaaaa..a",
+    "a...aaaaaaaa...a",
+    ".bcb.......aaaaa",
+    ".cbcbcbcbc.aaaaa",
+    ".bcbcbcbcb.aaaaa",
+    ".cbcb...........",
+    ".bcb.#########.a",
+    ".cb.#########.aa",
+    ".b.#########.aaa",
+    "..#########.aaaa",
+    "...........aaaaa"
+};                                                                              
 
 Main::Main(QWidget* parent, const char* name, int f) :
     QWidget(parent, name, f)
@@ -39,7 +66,7 @@ Main::Main(QWidget* parent, const char* name, int f) :
     QPushButton *but6 = new QPushButton( "Test &Preview", this );
     lay->addWidget( but6 );
     connect( but6, SIGNAL(clicked()), this, SLOT(platsch()) );
-    QPushButton *but7 = new QPushButton( "Download", this );
+    QPushButton *but7 = new QPushButton( "Custom Filedialog", this );
     lay->addWidget( but7 );
     connect( but7, SIGNAL(clicked()), this, SLOT(tusch()) );
 }
@@ -141,12 +168,28 @@ void Main::platsch()
     fd->show();
 }
 
+class MyFileDialog : public QFileDialog
+{
+public:
+    MyFileDialog() : QFileDialog() {
+ 	addWidgets( 0, new QCheckBox( "Open Read-Only", this ), 0 );
+	addWidgets( new QLabel( "Choose Something", this ), 
+		    new QComboBox( TRUE, this ), 
+		    new QPushButton( "Press Me", this ) );
+	QPixmap p( fileopen );
+	QToolButton *b = new QToolButton( this );
+	b->setIconSet( p );
+	addToolButton( b, TRUE );
+	b = new QToolButton( this );
+	b->setIconSet( p );
+	addToolButton( b, FALSE );
+    };
+};
+
 void Main::tusch()
 {
-    QUrlOperator *u = new QUrlOperator( lab->text() );
-    if ( !u->fileName().isEmpty() ) {
-	u->get();
-    }
+    MyFileDialog *fd = new MyFileDialog;
+    fd->exec();
 }
 
 void Main::resizeEvent(QResizeEvent*)
