@@ -121,6 +121,31 @@ static inline const Rect *qt_glb_mac_rect(const QRect &qr, const QPainter *p,
     return qt_glb_mac_rect(r, p->device(), off, rect);
 }
 
+static inline ThemeTabDirection getTabDirection(QTabBar::Shape shape)
+{
+    ThemeTabDirection ttd;
+    switch (shape) {
+    case QTabBar::RoundedSouth:
+    case QTabBar::TriangularSouth:
+        ttd = kThemeTabSouth;
+        break;
+    case QTabBar::RoundedNorth:
+    case QTabBar::TriangularNorth:
+        ttd = kThemeTabNorth;
+        break;
+    case QTabBar::RoundedWest:
+    case QTabBar::TriangularWest:
+        ttd = kThemeTabWest;
+        break;
+    case QTabBar::RoundedEast:
+    case QTabBar::TriangularEast:
+        ttd = kThemeTabEast;
+        break;
+    }
+    return ttd;
+}
+
+
 class QAquaFocusWidget : public QWidget
 {
     Q_OBJECT
@@ -1626,13 +1651,17 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
             tpdi.version = qt_mac_hitheme_tab_version();
             tpdi.state = tds;
             QRect paneRect = twf->rect;
-            if (twf->shape == QTabBar::RoundedSouth || twf->shape == QTabBar::TriangularSouth) {
-                tpdi.direction = kThemeTabSouth;
+            tpdi.direction = getTabDirection(twf->shape);
+            switch (tpdi.direction) {
+            default:
+                break;
+            case kThemeTabSouth:
                 paneRect.setHeight(paneRect.height() + 7);
-            } else {
-                tpdi.direction = kThemeTabNorth;
+                break;
+            case kThemeTabNorth:
                 paneRect.setTop(paneRect.top() - 6);
                 paneRect.setHeight(paneRect.height() + 6);
+                break;
             }
             tpdi.size = kHIThemeTabSizeNormal;
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
@@ -1641,7 +1670,6 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
                 tpdi.adornment = kHIThemeTabPaneAdornmentNormal;
             }
 #endif
-
             HIRect hirect = qt_hirectForQRect(paneRect, p);
             HIThemeDrawTabPane(&hirect, &tpdi, cg, kHIThemeOrientationNormal);
         }
@@ -1968,11 +1996,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                        == (QStyle::Style_Sunken | QStyle::Style_MouseOver)) {
                 tdi.style = kThemeTabNonFrontPressed;
             }
-            if (tabOpt->shape == QTabBar::RoundedAbove || tabOpt->shape == QTabBar::TriangularAbove)
-                tdi.direction = kThemeTabNorth;
-            else
-                tdi.direction = kThemeTabSouth;
-            tdi.size = kHIThemeTabSizeNormal;
+            tdi.direction = getTabDirection(tabOpt->shape);
             if (tabOpt->state & QStyle::Style_HasFocus)
                 tdi.adornment = kHIThemeTabAdornmentFocus;
             else
@@ -3570,9 +3594,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                        == (QStyle::Style_Sunken | QStyle::Style_MouseOver)) {
                 tts = kThemeTabNonFrontPressed;
             }
-            ThemeTabDirection ttd = kThemeTabNorth;
-            if (tab->shape == QTabBar::RoundedBelow || tab->shape == QTabBar::TriangularBelow)
-                ttd = kThemeTabSouth;
+            ThemeTabDirection ttd = getTabDirection(tab->shape);
             QRect tabr(tab->rect.x(), tab->rect.y(), tab->rect.width(),
                        tab->rect.height() + q->pixelMetric(QStyle::PM_TabBarBaseOverlap, tab,
                                                            widget));
