@@ -1,7 +1,6 @@
 TEMPLATE    =	qtlib
 HEADERS     =	dialogs/qfiledlg.h \
 		dialogs/qmsgbox.h \
-		dialogs/qprndlg.h \
 		dialogs/qtabdlg.h \
 		kernel/qaccel.h \
 		kernel/qapp.h \
@@ -105,7 +104,6 @@ HEADERS     =	dialogs/qfiledlg.h \
 		widgets/qtooltip.h
 SOURCES     =	dialogs/qfiledlg.cpp \
 		dialogs/qmsgbox.cpp \
-		dialogs/qprndlg.cpp \
 		dialogs/qtabdlg.cpp \
 		kernel/qaccel.cpp \
 		kernel/qapp.cpp \
@@ -194,4 +192,4 @@ SOURCES     =	dialogs/qfiledlg.cpp \
 		widgets/qtablevw.cpp \
 		widgets/qtooltip.cpp
 TARGET      =	qt
-VERSION     =	1.1
+VERSION     =	1.2

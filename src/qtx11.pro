@@ -194,4 +194,4 @@ SOURCES     =	dialogs/qfiledlg.cpp \
 		widgets/qtablevw.cpp \
 		widgets/qtooltip.cpp
 TARGET      =	qt
-VERSION     =	1.1
+VERSION     =	1.2
