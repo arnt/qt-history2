@@ -1,24 +1,27 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#7 $
 **
 ** Implementation of QPainter class for Windows + NT
 **
 ** Author  : Haavard Nord
 ** Created : 940112
 **
-** Copyright (C) 1994 by Troll Tech as.	 All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
 #include "qpainter.h"
+#include "qpaintdc.h"
 #include "qwidget.h"
-#include "qpntarry.h"
-#include "qpixmap.h"
+#include "qbitmap.h"
+#include "qpmcache.h"
+#include "qlist.h"
+#include "qintdict.h"
 #include <math.h>
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#7 $";
 #endif
 
 
@@ -26,27 +29,26 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#6 $";
 // QPen member functions
 //
 
-QPen::QPen()
+void QPen::init( const QColor &color, uint width, PenStyle style )
 {
     data = new QPenData;
     CHECK_PTR( data );
-    data->style = SolidLine;			// default pen attributes
-    data->width = 0;
-    data->color = black;
+    data->style = style;
+    data->width = width;
+    data->color = color;
     data->hpen = 0;
     data->invalid = TRUE;
+}
+
+QPen::QPen()
+{
+    init( black, 0, SolidLine );
     data->stockPen = TRUE;
 }
 
 QPen::QPen( const QColor &color, uint width, PenStyle style )
 {
-    data = new QPenData;
-    CHECK_PTR( data );
-    data->style = style;			// set pen attributes
-    data->width = width;
-    data->color = color;
-    data->hpen = 0;
-    data->invalid = TRUE;
+    init( color, width, style );
     data->stockPen = FALSE;
 }
 
@@ -59,26 +61,35 @@ QPen::QPen( const QPen &p )
 QPen::~QPen()
 {
     if ( data->deref() ) {
-	if ( data->hpen && !data->stockPen ) {	// delete windows pen
-	    QPainter::changedPen( this, TRUE );
+	if ( data->hpen && !data->stockPen )	// delete windows pen
 	    DeleteObject( data->hpen );
-	}
 	delete data;
     }
+}
+
+
+void QPen::detach()
+{
+    if ( data->count != 1 )
+	*this = copy();
 }
 
 QPen &QPen::operator=( const QPen &p )
 {
     p.data->ref();				// beware of p = p
     if ( data->deref() ) {
-	if ( data->hpen && !data->stockPen ) {	// delete windows pen
-	    QPainter::changedPen( this, TRUE );
+	if ( data->hpen && !data->stockPen )	// delete windows pen
 	    DeleteObject( data->hpen );
-	}
 	delete data;
     }
     data = p.data;
     return *this;
+}
+
+QPen QPen::copy() const
+{
+    QPen p( data->color, data->width, data->style );
+    return p;
 }
 
 
@@ -86,32 +97,32 @@ void QPen::setStyle( PenStyle s )		// set pen style
 {
     if ( data->style == s )
 	return;
+    detach();
     data->style = s;
     data->invalid = TRUE;
-    QPainter::changedPen( this, TRUE );
 }
 
 void QPen::setWidth( uint w )			// set pen width
 {
     if ( data->width == w )
 	return;
+    detach();
     data->width = w;
     data->invalid = TRUE;
-    QPainter::changedPen( this, TRUE );
 }
 
 void QPen::setColor( const QColor &c )		// set pen color
 {
+    detach();
     data->color = c;
     data->invalid = TRUE;
-    QPainter::changedPen( this, TRUE );
 }
 
 
-bool QPen::update( HDC hdc )			// update pen handle
+void QPen::update( HDC hdc )			// update pen handle
 {
     if ( !data->invalid )			// pen handle is ok
-	return FALSE;
+	return;
     int s;
     switch ( data->style ) {
 	case NoPen:
@@ -150,8 +161,6 @@ bool QPen::update( HDC hdc )			// update pen handle
     }
     SetTextColor( hdc, pixel );			// pen color is also text color
     data->invalid = FALSE;			// valid pen data now
-    QPainter::changedPen( this, FALSE );	// update all painters
-    return TRUE;
 }
 
 
@@ -159,23 +168,11 @@ bool QPen::update( HDC hdc )			// update pen handle
 // QBrush member functions
 //
 
-QBrush::QBrush()
+void QBrush::init( const QColor &color, BrushStyle style )
 {
     data = new QBrushData;
     CHECK_PTR( data );
-    data->style = NoBrush;			// default brush attributes
-    data->color = white;
-    data->hbrush = 0;
-    data->hbmp = 0;
-    data->invalid = TRUE;
-    data->stockBrush = TRUE;
-}
-
-QBrush::QBrush( const QColor &color, BrushStyle style )
-{
-    data = new QBrushData;
-    CHECK_PTR( data );
-    data->style = style;			// set brush attributes
+    data->style = style;			// default brush attributes
     data->color = color;
     data->hbrush = 0;
     data->hbmp = 0;
@@ -183,39 +180,68 @@ QBrush::QBrush( const QColor &color, BrushStyle style )
     data->stockBrush = FALSE;
 }
 
-QBrush::QBrush( const QBrush &p )
+void QBrush::reset()
 {
-    data = p.data;
+    if ( data->hbrush && !data->stockBrush )
+	DeleteObject( data->hbrush );
+    if ( data->hbmp )
+	DeleteObject( data->hbmp );
+    delete data;
+}
+
+QBrush::QBrush( BrushStyle style )
+{
+    init( black, style );
+}
+
+QBrush::QBrush( const QColor &color, BrushStyle style )
+{
+    init( color, style );
+}
+
+QBrush::QBrush( const QColor &color, const QBitmap &bitmap )
+{
+    init( color, CustomPattern );
+    data->bitmap = new QBitmap( bitmap );
+}
+
+QBrush::QBrush( const QBrush &b )
+{
+    data = b.data;
     data->ref();
 }
 
 QBrush::~QBrush()
 {
-    if ( data->deref() ) {			// delete windows brush
-	if ( data->hbrush && !data->stockBrush ) {
-	    QPainter::changedBrush( this, TRUE );
-	    DeleteObject( data->hbrush );
-	}
-	if ( data->hbmp )
-	    DeleteObject( data->hbmp );
-	delete data;
-    }
+    if ( data->deref() );
+	reset();
 }
 
-QBrush &QBrush::operator=( const QBrush &p )
+void QBrush::detach()
 {
-    p.data->ref();				// beware of p = p
-    if ( data->deref() ) {			// delete windows brush
-	if ( data->hbrush && !data->stockBrush ) {
-	    QPainter::changedBrush( this, TRUE );
-	    DeleteObject( data->hbrush );
-	}
-	if ( data->hbmp )
-	    DeleteObject( data->hbmp );
-	delete data;
-    }
-    data = p.data;
+    if ( data->count != 1 )
+	*this = copy();
+}
+
+QBrush &QBrush::operator=( const QBrush &b )
+{
+    b.data->ref();				// beware of b = b
+    if ( data->deref() )
+	reset();
+    data = b.data;
     return *this;
+}
+
+QBrush QBrush::copy() const
+{
+    if ( data->style == CustomPattern ) {	// brush has bitmap
+	QBrush b( data->color, *data->bitmap );
+	return b;
+    }
+    else {					// brush has std pattern
+	QBrush b( data->color, data->style );
+	return b;
+    }
 }
 
 
@@ -223,26 +249,30 @@ void QBrush::setStyle( BrushStyle s )		// set brush style
 {
     if ( data->style == s )
 	return;
+    detach();
     data->style = s;
     data->invalid = TRUE;
-    QPainter::changedBrush( this, TRUE );
 }
 
 void QBrush::setColor( const QColor &c )	// set brush color
 {
+    detach();
     data->color = c;
     data->invalid = TRUE;
-    QPainter::changedBrush( this, TRUE );
 }
 
 
 bool QBrush::update( HDC hdc )			// update brush handle
 {
-    static short pix1_bmp[] = {0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55};
-    static short pix2_bmp[] = {0x55, 0xbb, 0x55, 0xee, 0x55, 0xbb, 0x55, 0xee};
-    static short pix3_bmp[] = {0x77, 0xff, 0xdd, 0xff, 0x77, 0xff, 0xdd, 0xff};
-    static short pix4_bmp[] = {0xff, 0xbb, 0xff, 0xff, 0xff, 0xbb, 0xff, 0xff};
-    static short pix5_bmp[] = {0xff, 0xff, 0xff, 0xfe, 0xff, 0xff, 0xff, 0xff};
+    static short d1_pat[] = { 0xff, 0xbb, 0xff, 0xff, 0xff, 0xbb, 0xff, 0xff };
+    static short d2_pat[] = { 0x77, 0xff, 0xdd, 0xff, 0x77, 0xff, 0xdd, 0xff };
+    static short d3_pat[] = { 0x55, 0xbb, 0x55, 0xee, 0x55, 0xbb, 0x55, 0xee };
+    static short d4_pat[] = { 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa };
+    static short d5_pat[] = { 0xaa, 0x44, 0xaa, 0x11, 0xaa, 0x44, 0xaa, 0x11 };
+    static short d6_pat[] = { 0x88, 0x00, 0x22, 0x00, 0x88, 0x00, 0x22, 0x00 };
+    static short d7_pat[] = { 0x00, 0x44, 0x00, 0x00, 0x00, 0x44, 0x00, 0x00 };
+    static short *dense_patterns[]
+	= { d1_pat, d2_pat, d3_pat, d4_pat, d5_pat, d6_pat, d7_pat };
 
     if ( !data->invalid )			// brush handle is ok
 	return FALSE;
@@ -259,18 +289,8 @@ bool QBrush::update( HDC hdc )			// update brush handle
 	data->stockBrush = TRUE;		// assume stock brush
 	if ( pixel == black.pixel() )
 	    s = BLACK_BRUSH;
-	else
-	if ( pixel == white.pixel() )
+	else if ( pixel == white.pixel() )
 	    s = WHITE_BRUSH;
-	else
-	if ( pixel == gray.pixel() )
-	    s = GRAY_BRUSH;
-	else
-	if ( pixel == darkGray.pixel() )
-	    s = DKGRAY_BRUSH;
-	else
-	if ( pixel == lightGray.pixel() )
-	    s = LTGRAY_BRUSH;
 	else
 	    data->stockBrush = FALSE;
 	if ( data->stockBrush )
@@ -278,39 +298,22 @@ bool QBrush::update( HDC hdc )			// update brush handle
 	else
 	    data->hbrush = CreateSolidBrush( pixel );
     }
-    else
-    if ( data->style == NoBrush ) {		// no brush
+    else  if ( data->style == NoBrush ) {	// no brush
 	data->hbrush = GetStockObject( NULL_BRUSH );
 	data->stockBrush = TRUE;
     }
-    else
-    if ( data->style >= Pix1Pattern && data->style <= Pix5Pattern ) {
-	short *bmp;
-	switch ( data->style ) {		// custom pattern brush
-	    case Pix1Pattern:
-		bmp = pix1_bmp;
-		break;
-	    case Pix2Pattern:
-		bmp = pix2_bmp;
-		break;
-	    case Pix3Pattern:
-		bmp = pix3_bmp;
-		break;
-	    case Pix4Pattern:
-		bmp = pix4_bmp;
-		break;
-	    case Pix5Pattern:
-		bmp = pix5_bmp;
-		break;
-	    default:
-		bmp = pix1_bmp;
+    else  if ( (data->style >= Dense1Pattern && data->style <= Dense7Pattern)||
+	       (data->style == CustomPattern) ) {
+	if ( data->style == CustomPattern )
+	    data->hbm = data->bitmap->hbm();
+	else {
+	    short *bm = dense_patterns[ data->style - Dense1Pattern ];
+	    data->hbm = CreateBitmap( 8, 8, 1, 1, bm );
 	}
-	data->hbmp = CreateBitmap( 8, 8, 1, 1, bmp );
-	data->hbrush = CreatePatternBrush( data->hbmp );
+	data->hbrush = CreatePatternBrush( data->hbm );
 	data->stockBrush = FALSE;
     }
-    else
-    switch ( data->style ) {			// hatch brush
+    else switch ( data->style ) {		// other brushes
 	case HorPattern:
 	    s = HS_HORIZONTAL;
 	    break;
@@ -337,16 +340,12 @@ bool QBrush::update( HDC hdc )			// update brush handle
 	data->stockBrush = FALSE;
     }
     data->invalid = FALSE;			// valid brush data now
-    QPainter::changedBrush( this, FALSE );	// update all painters
-    return TRUE;
 }
 
 
 // --------------------------------------------------------------------------
 // QPainter member functions
 //
-
-#include "qlist.h"
 
 typedef declare(QListM,QPainter) QPnList;
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#3 $
 **
 ** Implementation of QCursor class for Windows + NT
 **
@@ -15,7 +15,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor_win.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor_win.cpp#3 $";
 #endif
 
 
@@ -118,6 +118,13 @@ void QCursor::setPos( int x, int y )		// set cursor position
     SetCursorPos( x, y );
 }
 
+
+HANDLE QCursor::handle() const
+{
+    if ( !data->hcurs )
+	update();
+    return data->hcurs;
+}
 
 void QCursor::update()				// update/load cursor
 {

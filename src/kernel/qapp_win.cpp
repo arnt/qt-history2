@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#8 $
 **
 ** Implementation of Windows + NT startup routines and event handling
 **
@@ -11,14 +11,20 @@
 *****************************************************************************/
 
 #include "qapp.h"
-#include "qevent.h"
-#include "qview.h"
-#include "qwininfo.h"
+#include "qwidget.h"
+#include "qwidcoll.h"
+#include "qpainter.h"
+#include "qpmcache.h"
 #include <ctype.h>
 #include <windows.h>
 
+#if defined(DEBUG) && !defined(CHECK_MEMORY)
+#define	 CHECK_MEMORY
+#include <qmemchk.h>
+#endif
+
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_win.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_win.cpp#8 $";
 #endif
 
 
@@ -28,7 +34,7 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_win.cpp#7 $";
 
 static char	appName[120];			// application name
 static HANDLE	appInst;			// handle to app instance
-static HANDLE	prevAppInst;			// handle to prev app instance
+static HANDLE	appPrevInst;			// handle to prev app instance
 static int	appCmdShow;			// main window show command
 static int	numZeroTimers = 0;		// number of full-speed timers
 static HWND	curWin = 0;			// current window
@@ -36,12 +42,22 @@ static QWidget *curWidget;
 #if defined(USE_HEARTBEAT)
 static int	heartBeat = 0;			// heatbeat timer
 #endif
+#if defined(DEBUG)
+static bool	appMemChk	= FALSE;	// memory checking (debugging)
+#endif
+
+static bool	app_do_modal	= FALSE;	// modal mode
+static int	app_loop_level	= 1;		// event loop level
+static bool	app_exit_loop	= FALSE;	// flag to exit local loop
 
 typedef void  (*VFPTR)();
-static VFPTR   *cleanupRvec = 0;		// vector of cleanup routines
-static uint	cleanupRcount = 0;
+typedef void  (*VFPTR_ARG)( int, char ** );
+typedef declare(QListM,void) QVFuncList;
+static QVFuncList *postRList = 0;		// list of post routines
 
 static void	debugHandler( const char * );	// default debug handler
+
+static void	cleanupPostedEvents();
 
 static void	initTimers();
 static void	cleanupTimers();
@@ -50,28 +66,27 @@ static void	activateZeroTimers();
 
 static int translateKeyCode( int );
 
-class QETWidget : public QWidget {		// event translator widget
+class QETWidget : public QWidget		// event translator widget
+{
 public:
-    bool translateMouseEvent( const MSG & );
-    bool translateKeyEvent( const MSG & );
-    bool translatePaintEvent( const MSG & );
-    bool translateConfigEvent( const MSG & );
-    bool translateCloseEvent( const MSG & );
+    void setWFlags( WFlags f )		{ QWidget::setWFlags(f); }
+    void clearWFlags( WFlags f )	{ QWidget::clearWFlags(f); }
+    bool translateMouseEvent( const XEvent * );
+    bool translateKeyEvent( const XEvent * );
+    bool translatePaintEvent( const XEvent * );
+    bool translateConfigEvent( const XEvent * );
+    bool translateCloseEvent( const XEvent * );
 };
 
 
 // --------------------------------------------------------------------------
-// WinMain() - initializes Windows and calls user's startup function qMain()
+// WinMain() - initializes Windows and calls user's startup function main()
 //
 
 extern "C"
 int PASCAL WinMain( HANDLE instance, HANDLE prevInstance,
 		    LPSTR  cmdParam, int cmdShow )
 {
-#if defined(TRACE_FS)
-    startFSTrace();
-#endif
-
   // Install default debug handler
 
     installDebugHandler( (void (*)(char*))debugHandler );
@@ -92,54 +107,118 @@ int PASCAL WinMain( HANDLE instance, HANDLE prevInstance,
 	if ( *p )
 	    *p++ = '\0';
     }
-    p = strrchr( argv[0], '\\' );
+    p = strrchr( argv[0], '\\' );    
     if ( p )
 	strcpy( appName, p+1 );
 
   // Get Windows parameters
 
     appInst = instance;
-    prevAppInst = prevInstance;
+    appPrevInst = prevInstance;
     appCmdShow = cmdShow;
+
+  // Call user main()
+
+    int retcode = main( argc, argv );
+
+    delete appName;
+
+    return retcode;
+}
+
+
+// --------------------------------------------------------------------------
+// qt_init() - initializes Qt for Windows
+//
+
+void qt_init( int *argcptr, char **argv )
+{
+#if defined(DEBUG)
+    int argc = *argcptr;
+    int i, j;
+    int mcBufSize = 100000;			// default memchk settings
+    const char *mcLogFile = "MEMCHK.LOG";
+
+  // Get command line params
+
+    j = 1;
+    for ( i=1; i<argc; i++ ) {
+	if ( argv[i] && *argv[i] != '-' ) {
+	    argv[j++] = argv[i];
+	    continue;
+	}
+	QString arg = argv[i];
+	if ( arg == "-nograb" )
+	    appNoGrab = !appNoGrab;
+	else if ( arg == "-memchk" )
+	    appMemChk = !appMemChk;
+	else if ( arg == "-membuf" ) {
+	    if ( ++i < argc ) mcBufSize = atoi(argv[i]);
+	}
+	else if ( arg == "-memlog" ) {
+	    if ( ++i < argc ) mcLogFile = argv[i];
+	}
+	else
+	    argv[j++] = argv[i];
+    }
+    *argcptr = j;
+    if ( appMemChk ) {				// perform memory checking
+	memchkSetBufSize( mcBufSize );
+	memchkSetLogFile( mcLogFile );
+	memchkStart();
+    }
+#endif // DEBUG
 
   // Misc. initialization
 
-    QWinInfo::initialize();
+    app_loop_level = 0;
     QColor::initialize();
     QFont::initialize();
     QCursor::initialize();
+    QPainter::initialize();
+    qApp->setName( appName );
 #if defined(USE_HEARTBEAT)
     heartBeat = SetTimer( 0, 0, 100, 0 );
 #endif
+}
 
-  // Call user-provided main routine
 
-    int returnCode = qMain( argc, argv );
+// --------------------------------------------------------------------------
+// qt_cleanup() - cleans up when the application is finished
+//
 
-  // Cleanup
-
-    if ( cleanupRvec ) {
-	while ( cleanupRcount )			// call cleanup routines
-	    (*(cleanupRvec[--cleanupRcount]))();
-	delete cleanupRvec;
+void qt_cleanup()
+{
+    cleanupPostedEvents();			// remove list of posted events
+    if ( postRList ) {
+	VFPTR f = (VFPTR)postRList->first();
+	while ( f ) {				// call post routines
+	    (*f)();
+	    postRList->remove();
+	    f = (VFPTR)postRList->first();
+	}
+	delete postRList;
     }
-    if ( qApp )
-	delete qApp;
-    QApplication::cleanup();
+    QPixmapCache::clear();
     QCursor::cleanup();
     QFont::cleanup();
     QColor::cleanup();
     cleanupTimers();
+    QPainter::cleanup();
 #if defined(USE_HEARTBEAT)
     KillTimer( 0, heartBeat );
 #endif
 
-#if defined(TRACE_FS)
-    stopFSTrace();
+#if defined(DEBUG)
+    if ( appMemChk )
+	memchkStop();				// finish memory checking
 #endif
-    return returnCode;
 }
 
+
+// --------------------------------------------------------------------------
+// Platform specific global and internal functions
+//
 
 void debugHandler( const char *str )		// print debug message
 {
@@ -148,17 +227,15 @@ void debugHandler( const char *str )		// print debug message
 }
 
 
-void qAddCleanupRoutine( void (*p)() )		// add cleanup routine
+void qAddPostRoutine( void (*p)() )		// add post routine
 {
-    if ( !cleanupRvec )
-	cleanupRvec = new VFPTR[16];		// plenty of room
-    cleanupRvec[cleanupRcount++] = p;		// save pointer to routine
+    if ( !postRList ) {
+	postRList = new QVFuncList;
+	CHECK_PTR( postRList );
+    }
+    postRList->insert( (void *)p );		// store at list head
 }
 
-
-// --------------------------------------------------------------------------
-// Global functions that export important data
-//
 
 char *qAppName()				// get application name
 {
@@ -170,9 +247,9 @@ HANDLE qWinAppInst()				// get Windows app handle
     return appInst;
 }
 
-HANDLE qWinPrevAppInst()			// get Windows prev app handle
+HANDLE qWinAppPrevInst()			// get Windows prev app handle
 {
-    return prevAppInst;
+    return appPrevInst;
 }
 
 int qWinAppCmdShow()				// get main window show command
@@ -182,7 +259,140 @@ int qWinAppCmdShow()				// get main window show command
 
 
 // --------------------------------------------------------------------------
-// Safe configuration (move,resize,changeGeometry) mechanism to avoid
+// Platform specific QApplication members
+//
+
+void QApplication::setMainWidget( QWidget *mainWidget )
+{
+    main_widget = mainWidget;			// set main widget
+}
+
+
+QWidget *QApplication::desktop()
+{
+    if ( !desktopWidget ) {			// not created yet
+	desktopWidget = new QWidget( 0, "desktop", WType_Desktop );
+	CHECK_PTR( desktopWidget );
+    }
+    return desktopWidget;
+}
+
+
+void QApplication::setCursor( const QCursor &c )// set application cursor
+{
+    if ( app_cursor )
+	delete app_cursor;
+    app_cursor = new QCursor( c );
+    CHECK_PTR( app_cursor );
+}
+
+void QApplication::restoreCursor()		// restore application cursor
+{
+    if ( !app_cursor )				// there is no app cursor
+	return;
+    delete app_cursor;				// reset app_cursor
+    app_cursor = 0;
+}
+
+
+// --------------------------------------------------------------------------
+// QApplication management of posted events
+//
+
+class QPEObject : public QObject		// trick to set/clear pendEvent
+{
+public:
+    void setPendEventFlag()	{ pendEvent = TRUE; }
+    void clearPendEventFlag()	{ pendEvent = FALSE; }
+};
+
+class QPEvent : public QEvent			// trick to set/clear posted
+{
+public:
+    QPEvent( int type ) : QEvent( type ) {}
+    void setPostedFlag()	{ posted = TRUE; }
+    void clearPostedFlag()	{ posted = FALSE; }
+};
+
+struct QPostEvent {
+    QPostEvent( QObject *r, QEvent *e ) { receiver=r; event=e; }
+   ~QPostEvent()			{ delete event; }
+    QObject  *receiver;
+    QEvent   *event;
+};
+
+declare(QListM,QPostEvent);
+static QListM(QPostEvent) *postedEvents = 0;	// list of posted events
+
+
+void QApplication::postEvent( QObject *receiver, QEvent *event )
+{
+    if ( !postedEvents ) {			// create list
+	postedEvents = new QListM(QPostEvent);
+	CHECK_PTR( postedEvents );
+	postedEvents->setAutoDelete( TRUE );
+    }
+#if defined(CHECK_NULL)
+    if ( receiver == 0 )
+	warning( "QApplication::postEvent: Unexpeced NULL receiver" );
+#endif
+    ((QPEObject*)receiver)->setPendEventFlag();
+    ((QPEvent*)event)->setPostedFlag();
+    postedEvents->append( new QPostEvent(receiver,event) );
+}
+
+static void sendPostedEvents()			// transmit posted events
+{
+    int count = postedEvents ? postedEvents->count() : 0;
+    while ( count-- ) {				// just send to existing recvs
+	register QPostEvent *pe = postedEvents->first();
+	if ( pe->event ) {			// valid event
+	    QApplication::sendEvent( pe->receiver, pe->event );
+	    ((QPEvent*)pe->event)->clearPostedFlag();
+	}
+	((QPEObject*)pe->receiver)->clearPendEventFlag();
+	postedEvents->remove( (uint)0 );
+    }
+}
+
+void qRemovePostedEvents( QObject *receiver )	// remove receiver from list
+{
+    if ( !postedEvents )
+	return;
+    register QPostEvent *pe = postedEvents->first();
+    while ( pe ) {
+	if ( pe->receiver == receiver ) {	// remove this receiver
+	    ((QPEObject*)pe->receiver)->clearPendEventFlag();
+	    ((QPEvent*)pe->event)->clearPostedFlag();
+	    postedEvents->remove();
+	    pe = postedEvents->current();
+	}
+	else
+	    pe = postedEvents->next();
+    }
+}
+
+void qRemovePostedEvent( QEvent *event )	// remove event in list
+{
+    if ( !postedEvents )
+	return;
+    register QPostEvent *pe = postedEvents->first();
+    while ( pe ) {
+	if ( pe->event == event )		// make this event invalid
+	    pe->event = 0;			//   will not be sent!
+	pe = postedEvents->next();
+    }
+}
+
+static void cleanupPostedEvents()		// cleanup list
+{
+    delete postedEvents;
+    postedEvents = 0;
+}
+
+
+// --------------------------------------------------------------------------
+// Safe configuration (move,resize,setGeometry) mechanism to avoid
 // recursion when processing messages.
 //
 
@@ -190,7 +400,7 @@ int qWinAppCmdShow()				// get main window show command
 
 struct QWinConfigRequest {
     WId	 id;					// widget to be configured
-    int	 req;					// 0=move, 1=resize, 2=changeG
+    int	 req;					// 0=move, 1=resize, 2=setGeo
     int	 x, y, w, h;				// request parameters
 };
 
@@ -230,7 +440,7 @@ static void qWinProcessConfigRequests()		// perform requests in queue
 	    if ( r->req == 1 )
 		w->resize( r->w, r->h );
 	    else
-		w->changeGeometry( r->x, r->y, r->w, r->h );
+		w->setGeometry( r->x, r->y, r->w, r->h );
 	}
 	delete r;
     }
@@ -243,11 +453,20 @@ static void qWinProcessConfigRequests()		// perform requests in queue
 // Main event loop
 //
 
-int QApplication::exec( QWidget *mainWidget )	// main event loop
+int QApplication::exec()			// entern main event loop
 {
-    MSG msg;
-    main_widget = mainWidget;			// set main widget
-    while ( TRUE ) {				// message loop
+    enter_loop();
+    return quit_code;
+}
+
+
+int QApplication::enter_loop()			// local event loop
+{
+    app_loop_level++;				// increment loop level count
+
+    while ( quit_now == FALSE && !app_exit_loop ) {
+	MSG msg;
+
 	if ( numZeroTimers ) {			// activate full-speed timers
 	    int m;
 	    while ( numZeroTimers && !(m=PeekMessage(&msg,0,0,0,PM_REMOVE)) )
@@ -257,8 +476,10 @@ int QApplication::exec( QWidget *mainWidget )	// main event loop
 	}
 	else if ( !GetMessage(&msg,0,0,0) )
 	    break;
+
 	if ( winEventFilter( &msg ) )		// pass through event filter
 	    continue;
+
 #if defined(USE_HEARTBEAT)
 	if ( msg.message == WM_TIMER ) {	// timer message received
 	    if ( msg.wParam != heartBeat )
@@ -269,7 +490,7 @@ int QApplication::exec( QWidget *mainWidget )	// main event loop
 		GetCursorPos( &p );
 		if ( WindowFromPoint( p ) != curWin ) {
 		    QEvent leave( Event_Leave );
-		    SEND_EVENT( curWidget, &leave );
+		    QApplication::sendEvent( curWidget, &leave );
 		    curWin = 0;
 		}
 	    }
@@ -281,6 +502,7 @@ int QApplication::exec( QWidget *mainWidget )	// main event loop
 	    continue;
 	}
 #endif
+
 	if ( msg.message == WM_KEYDOWN || msg.message == WM_KEYUP ) {
 	    if ( translateKeyCode(msg.wParam) == 0 ) {
 		TranslateMessage( &msg );	// translate to WM_CHAR
@@ -293,12 +515,24 @@ int QApplication::exec( QWidget *mainWidget )	// main event loop
 	if ( quit_now )				// request to quit application
 	    break;
     }
-    return quit_code;
+    app_exit_loop = FALSE;
+    return 0;
+}
+
+void QApplication::exit_loop()
+{
+    app_exit_loop = TRUE;
+}
+
+
+bool QApplication::winEventFilter( MSG * )	// Windows event filter
+{
+    return FALSE;
 }
 
 
 // --------------------------------------------------------------------------
-// WndProc receives all messages from the main event loop
+// WndProc() receives all messages from the main event loop
 //
 
 #if defined(_WS_WIN32_)
@@ -344,7 +578,7 @@ WndProc( HWND hwnd, UINT message, WORD wParam, LONG lParam )
 	    LRESULT r = DefWindowProc(hwnd,message,wParam,lParam);
 	    if ( r != HTCLIENT && hwnd == curWin ) {
 		QEvent leave( Event_Leave );
-		SEND_EVENT( widget, &leave );
+		QApplication::sendEvent( widget, &leave );
 		curWin = 0;
 	    }
 	    return r;
@@ -385,7 +619,7 @@ WndProc( HWND hwnd, UINT message, WORD wParam, LONG lParam )
 	case WM_DESTROY:			// destroy window
 	    if ( hwnd == curWin ) {
 		QEvent leave( Event_Leave );
-		SEND_EVENT( widget, &leave );
+		QApplication::sendEvent( widget, &leave );
 		curWin = 0;
 	    }
 	    result = FALSE;
@@ -398,16 +632,10 @@ WndProc( HWND hwnd, UINT message, WORD wParam, LONG lParam )
     }
 
     if ( evt_type != Event_None ) {		// simple event
-	QEvent evt( evt_type );
-	result = SEND_EVENT(widget, &evt);
+	QEvent e( evt_type );
+	result = QApplication::sendEvent(widget, &e);
     }
     return result ? 0 : DefWindowProc(hwnd,message,wParam,lParam);
-}
-
-
-bool QApplication::winEventFilter( MSG * )	// Windows event filter
-{
-    return FALSE;
 }
 
 
@@ -487,8 +715,8 @@ static bool activateTimer( uint id )		// activate timer
 	t->countdown--;
     else {
 	t->countdown = t->maxcount;		// start counting again
-	QTimerEvent evt( t->ind + 1 );
-	SEND_EVENT( t->obj, &evt );		// send event
+	QTimerEvent e( t->ind + 1 );
+	QApplication::sendEvent( t->obj, &e );	// send event
     }
     return TRUE;				// timer event was processed
 }
@@ -508,8 +736,8 @@ static void activateZeroTimers()		// activate full-speed timers
 	    else if ( i == MaxTimers )		// should not happen
 		return;
 	}
-	QTimerEvent evt( t->ind + 1 );
-	SEND_EVENT( t->obj, &evt );
+	QTimerEvent e( t->ind + 1 );
+	QApplication::sendEvent( t->obj, &e );
     }
 
 }
@@ -674,18 +902,22 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
     button = mouseTbl[++i];			// which button
     state = translateButtonState( msg.wParam ); // button state
     if ( type == Event_MouseMove ) {
-	SetCursor( cursor().handle() );
+	QCursor *c = QApplication::cursor();
+	if ( c )				// application cursor defined
+	    SetCursor( c->handle() );
+	else					// use widget cursor
+	    SetCursor( cursor().handle() );
 	if ( curWin != id() ) {			// new current window
 	    if ( curWin ) {			// send leave event
 		QEvent leave( Event_Leave );
-		SEND_EVENT( curWidget, &leave );
+		QApplication::sendEvent( curWidget, &leave );
 	    }
 	    curWin = id();
 	    curWidget = this;
 	    QEvent enter( Event_Enter );	// send enter event
-	    SEND_EVENT( this, &enter );
+	    QApplication::sendEvent( this, &enter );
 	}
-	if ( (state == 0 || !capture) && !testWFlags(WEtc_MouMove) )
+	if ( (state == 0 || !capture) && !testWFlags(WMouseTracking) )
 	    return TRUE;			// no button
     }
     int bs = state & (LeftButton | RightButton | MidButton);
@@ -699,8 +931,8 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	ReleaseCapture();
 	capture = FALSE;
     }
-    QMouseEvent evt( type, pos, button, state );
-    return SEND_EVENT( this, &evt );		// send event
+    QMouseEvent e( type, pos, button, state );
+    return QApplication::sendEvent( this, &e );	// send event
 }
 
 
@@ -736,7 +968,7 @@ static ushort KeyTbl[] = {			// keyboard mapping table
     VK_CAPITAL,		Key_CapsLock,
     VK_NUMLOCK,		Key_NumLock,
     VK_SCROLL,		Key_ScrollLock,
-    VK_NUMPAD0,		Key_0,			// keypad
+    VK_NUMPAD0,		Key_0,			// numeric keypad
     VK_NUMPAD1,		Key_1,
     VK_NUMPAD2,		Key_2,
     VK_NUMPAD3,		Key_3,
@@ -797,8 +1029,8 @@ bool QETWidget::translateKeyEvent( const MSG &msg )
 	state |= ShiftButton;
     if ( GetKeyState(VK_CONTROL) < 0 )
 	state |= ControlButton;
-    QKeyEvent evt( type, code, ascii, state );
-    return SEND_EVENT( this, &evt );		// send event
+    QKeyEvent e( type, code, ascii, state );
+    return QApplication::sendEvent( this, &e ); // send event
 }
 
 
@@ -809,22 +1041,24 @@ bool QETWidget::translateKeyEvent( const MSG &msg )
 bool QETWidget::translatePaintEvent( const MSG &msg )
 {
     PAINTSTRUCT ps;
-    QPaintEvent evt( clientRect() );
+    RECT rect;    
+    GetUpdateRect( id(), &rect, FALSE );
+    QRect r( QPoint(rect.left,rect.top), QPoint(rect.right,rect.bottom) );
+    QPaintEvent e( &r );
     setWFlags( WState_Paint );
     hdc = BeginPaint( id(), &ps );
 #if defined(STUPID_WINDOWS_NT)
-    RECT rect;
     HBRUSH hbr;
     GetClientRect( id(), &rect );
     hbr = CreateSolidBrush( backgroundColor().pixel() );
     FillRect( hdc, &rect, hbr );
     DeleteObject( hbr );
 #endif
-    bool res = SEND_EVENT( this, &evt );
+    QApplication::sendEvent( this, &e );
     EndPaint( id(), &ps );
     hdc = 0;
     clearWFlags( WState_Paint );
-    return res;
+    return TRUE;
 }
 
 
@@ -839,13 +1073,15 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
     WORD a = LOWORD(msg.lParam);
     WORD b = HIWORD(msg.lParam);
     if ( msg.message == WM_SIZE ) {		// resize event
+	QSize oldSize = size();
 	QSize newSize( a, b );
+	QRect r = clientGeometry();
 	r.setSize( newSize );
-	setRect( r );
-	QResizeEvent evt( geometry().size() );
-	SEND_EVENT( this, &evt );
-	if ( testWFlags(WType_Overlap) && isParentType() ) {
-	    QView *v = (QView *)this;		// parent type, i.e. QView
+	setCRect( r );
+	QResizeEvent e( newSize, oldSize );
+	QApplication::sendEvent( this, &e );
+	if ( inherits("QWindow") ) {		// update caption/icon text
+	    QWindow *v = (QWindow *)this;
 	    if ( IsIconic(v->id()) && v->iconText() )
 		SetWindowText( v->id(), v->iconText() );
 	    else
@@ -857,11 +1093,13 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
     }
     else
     if ( msg.message == WM_MOVE ) {		// move event
+	QPoint oldPos = pos();
 	QPoint newPos( a, b );
+	QRect  r = frameGeometry();
 	r.setTopLeft( newPos );
-	setRect( r );
-	QMoveEvent evt( geometry().topLeft() );
-	SEND_EVENT( this, &evt );
+	setFRect( r );
+	QMoveEvent e( newPos, oldPos );
+	QApplication::sendEvent( this, &e );
     }
     clearWFlags( WWin_Config );			// clear config flag
     return TRUE;
@@ -874,43 +1112,13 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 
 bool QETWidget::translateCloseEvent( const MSG &msg )
 {
-    QEvent evt( Event_Close );
-    if ( SEND_EVENT( this, &evt ) ) {		// close widget
+    QCloseEvent e;
+    if ( QApplication::sendEvent( this, &e ) ) {// close widget
 	hide();
-	if ( qApp->mainWidget() == this || nWidgets() == 1 )
+	if ( qApp->mainWidget() == this )
 	    qApp->quit();
 	else
-	    return TRUE;			// delete widget
+	    return TRUE;			// accepts close
     }
     return FALSE;
-}
-
-
-// --------------------------------------------------------------------------
-// QWinInfo::initialize() - Gets window system specific attributes
-//
-
-bool QWinInfo::initialize()
-{
-    HDC gdc;					// global DC
-
-    gdc = GetDC( 0 );
-    if ( GetDeviceCaps(gdc, RASTERCAPS) & RC_PALETTE )
-	nColors = GetDeviceCaps( gdc, SIZEPALETTE );
-    else
-	nColors = GetDeviceCaps( gdc, NUMCOLORS );
-
-    dispType = ColorDisplay;			// well, could be LCD...
-
-    int width  = GetSystemMetrics( SM_CXSCREEN );
-    int height = GetSystemMetrics( SM_CYSCREEN );
-    dispSize = QSize( width, height );
-
-    width  = GetDeviceCaps( gdc, HORZSIZE );
-    height = GetDeviceCaps( gdc, VERTSIZE );
-    dispSizeMM = QSize( width, height );
-
-    ReleaseDC( 0, gdc );
-    return TRUE;
-
 }
