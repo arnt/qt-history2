@@ -1127,6 +1127,8 @@ void QSocket::sn_read( bool force )
 #endif
 	    d->connectionClosed();
 	    emit connectionClosed();
+	    QSocketPrivate::sn_read_alreadyCalled.removeRef( this );
+	    return;
 	} else if ( nread < 0 ) {
 	    if ( d->socket->error() == QSocketDevice::NoError ) {
 		// all is fine
