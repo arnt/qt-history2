@@ -78,6 +78,9 @@ ObjectInspector::ObjectInspector(AbstractFormEditor *core, QWidget *parent)
     
     connect(this, SIGNAL(doubleClicked(QTreeWidgetItem *, int, Qt::MouseButton, Qt::KeyboardModifiers)), 
         this, SLOT(slotSelectionChanged()));
+        
+    connect(this, SIGNAL(returnPressed(QTreeWidgetItem *, int)), 
+        this, SLOT(slotSelectionChanged()));
 }
 
 ObjectInspector::~ObjectInspector()
