@@ -342,7 +342,7 @@ QAxServerBase::~QAxServerBase()
     delete proplist2;
 }
 
-/*!
+/*
     QueryInterface implementation.
 
     Calls QAxBindable::queryInterface and returns the result if an interface
