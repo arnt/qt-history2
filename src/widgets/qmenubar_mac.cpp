@@ -1,8 +1,12 @@
 #include <qglobal.h>
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
+#if !defined( Q_WS_MACX ) && !defined(QMAC_QMENUBAR_NO_MERGE)
+#define QMAC_QMENUBAR_NO_MERGE //9 does not really need the merge
+#endif
 
 #include <ctype.h>
 #include "qt_mac.h"
+#include <unistd.h>
 
 #define INCLUDE_MENUITEM_DEF
 #include <qpopupmenu.h>
@@ -11,22 +15,32 @@
 #include <qstring.h>
 #include <qapplication.h>
 #include <qaccel.h>
+#include <qregexp.h>
 
 void qt_event_request_menubarupdate(); //qapplication_mac.cpp
-MenuRef createMacPopup(QPopupMenu *d, bool);
-static bool syncPopups(MenuRef ret, QPopupMenu *d);
+MenuRef createMacPopup(QPopupMenu *d, bool, bool=FALSE);
+bool syncPopups(MenuRef ret, QPopupMenu *d);
 
 class QMenuBar::MacPrivate {
 public:
-    MacPrivate() : popups(NULL), mac_menubar(NULL), dirty(1) { }
-    ~MacPrivate() { clear(); delete popups; }
+    MacPrivate() : commands(NULL), popups(NULL), mac_menubar(NULL), dirty(1) { }
+    ~MacPrivate() { clear(); delete popups; delete commands; }
+
+    class CommandBinding {
+    public:
+	CommandBinding(QPopupMenu *m, uint i) : qpopup(m), index(i) { }
+	QPopupMenu *qpopup;
+	int index;
+    };
+    QIntDict<CommandBinding> *commands;
 
     class PopupBinding {
     public:
-	PopupBinding(QPopupMenu *m, MenuRef r) : qpopup(m), macpopup(r) { }
-	~PopupBinding() { DisposeMenu(macpopup); }
+	PopupBinding(QPopupMenu *m, MenuRef r, bool b) : qpopup(m), macpopup(r), tl(b) { }
+	~PopupBinding() { if(tl) DeleteMenu(GetMenuID(macpopup)); DisposeMenu(macpopup); }
 	QPopupMenu *qpopup;
 	MenuRef macpopup;
+	bool tl;
     };
     QIntDict<PopupBinding> *popups;
     MenuBarHandle mac_menubar;
@@ -35,6 +49,8 @@ public:
     void clear() {
 	if(popups)
 	    popups->clear();
+	if(commands)
+	    commands->clear();
 	if(mac_menubar) {
 	    DisposeMenuBar(mac_menubar);
 	    mac_menubar = NULL;
@@ -116,31 +132,77 @@ QMAC_PASCAL void macMenuItemProc(SInt16 msg, MenuRef mr, Rect *menuRect, Point p
 }
 #endif
 
-static bool syncPopups(MenuRef ret, QPopupMenu *d)
+#if !defined(QMAC_QMENUBAR_NO_MERGE)
+static uint isCommand(QString t) 
+{
+    t = t.lower();
+    for(int w = 0; (w=t.find('&', w)) != -1; )
+	t.remove(w, 1);
+    int st = t.findRev('\t');
+    if(st != -1) 
+	t.remove(st, t.length()-st);
+    //now the fun part
+#if 0
+    if(t.find("about") != -1 && t.find(QRegExp("qt$")) == -1) {
+	EnableMenuCommand(NULL, kHICommandAbout);
+	return kHICommandAbout;
+    }
+#endif
+    if(t.find("config") != -1 || t.find("preference") != -1 || t.find("options") != -1) {
+	EnableMenuCommand(NULL, kHICommandPreferences);
+	return kHICommandPreferences;
+    }
+    if(t.find("quit") != -1 || t.find("exit") != -1) {
+	EnableMenuCommand(NULL, kHICommandQuit);
+	return kHICommandQuit;
+    }
+    return 0;
+}
+#endif
+
+bool syncPopups(MenuRef ret, QPopupMenu *d)
 {
     if(d) {
 	for(int id = 1, x = 0; x < (int)d->count(); x++) {
 	    QMenuItem *item = d->findItem(d->idAt(x));
 	
 	    if(item->custom()) {
-		//FIXME
 		//qDebug("Ooops, don't think I can handle that yet! %s:%d %d", __FILE__, __LINE__, x);
 		continue;
 	    }
 	    if(item->widget()) {
-		qDebug("Ooops, don't think I can handle that yet! %s:%d %d", __FILE__, __LINE__, x);
+		//qDebug("Ooops, don't think I can handle that yet! %s:%d %d", __FILE__, __LINE__, x);
 		continue;
 	    }
 
 	    QString text = "empty", accel; //Yes I need this, stupid!
 	    if(!item->isSeparator()) {
 		text = item->text();
+#if !defined(QMAC_QMENUBAR_NO_MERGE)
+		if(int cmd = isCommand(text)) {
+		    if(!activeMenuBar->mac_d->commands) {
+			activeMenuBar->mac_d->commands = new QIntDict<QMenuBar::MacPrivate::CommandBinding>();
+			activeMenuBar->mac_d->commands->setAutoDelete(TRUE);
+		    }
+		    activeMenuBar->mac_d->commands->insert(cmd, new QMenuBar::MacPrivate::CommandBinding(d, x));
+		    continue;
+		}
+#endif
+
 		int st = text.findRev('\t');
 		if(st != -1) {
 		    accel = text.right(text.length()-(st+1));
 		    text.remove(st, text.length()-st);
 		}
+	    } 
+#if !defined(QMAC_QMENUBAR_NO_MERGE)
+	    else if(x != (int)d->count()-1) {
+		text = d->findItem(d->idAt(x+1))->text();
+		if((x == (int)d->count() - 2 || d->findItem(d->idAt(x+2))->isSeparator()) && 
+		   isCommand(text)) 
+		    continue;
 	    }
+#endif
 
 	    InsertMenuItemTextWithCFString(ret, no_ampersands(text), id, 0, item->id());
 	    if(item->isSeparator()) {
@@ -189,7 +251,7 @@ static bool syncPopups(MenuRef ret, QPopupMenu *d)
     return TRUE;
 }
 
-MenuRef createMacPopup(QPopupMenu *d, bool do_sync) 
+MenuRef createMacPopup(QPopupMenu *d, bool do_sync, bool top_level) 
 {
     MenuRef ret;
     if(CreateNewMenu(0, 0, &ret) != noErr)
@@ -202,7 +264,8 @@ MenuRef createMacPopup(QPopupMenu *d, bool do_sync)
     short mid = (short)ret;
     SetMenuID(ret, mid);
     activeMenuBar->mac_d->popups->insert((int)mid, 
-					 new QMenuBar::MacPrivate::PopupBinding(d, ret));
+					 new QMenuBar::MacPrivate::PopupBinding(d, ret, 
+										top_level));
 
 #if 0
     MenuDefSpec spec;
@@ -224,21 +287,45 @@ bool updateMenuBar(QMenuBar *mbar)
     InvalMenuBar();
     if(mbar->mac_d)
 	mbar->mac_d->clear();
-    
+
     for(int x = 0; x < (int)mbar->count(); x++) {
 	QMenuItem *item = mbar->findItem(mbar->idAt(x));
 	if(item->isSeparator()) //mac doesn't support these
 	    continue;
 
-	MenuRef mp = createMacPopup(item->popup(), FALSE);
+	MenuRef mp = createMacPopup(item->popup(), FALSE, TRUE);
 	SetMenuTitleWithCFString(mp, no_ampersands(item->text()));
 	InsertMenu(mp, 0);
+	usleep(50); //seems to help prevent inversion of the menubar
     }
     InvalMenuBar();
     return TRUE;
 }
 
 /* qmenubar functions */
+
+/*!
+  Internal function..
+*/
+bool QMenuBar::activateCommand(uint cmd)
+{
+#if !defined(QMAC_QMENUBAR_NO_MERGE)
+    if(!activeMenuBar || !activeMenuBar->mac_d->commands) {
+	HiliteMenu(0);
+	return FALSE;
+    }
+    if(MacPrivate::CommandBinding *mcb = activeMenuBar->mac_d->commands->find(cmd)) {
+	mcb->qpopup->activateItemAt(mcb->index);
+	HiliteMenu(0);
+	return TRUE;
+    }
+    HiliteMenu(0);
+    return FALSE;
+#else
+    Q_UNUSED(cmd);
+    return FALSE;
+#endif
+}
 
 /*!
   Internal function..

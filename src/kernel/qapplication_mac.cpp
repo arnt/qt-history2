@@ -1841,16 +1841,31 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		    QApplication::sendSpontaneousEvent( widget->topLevelWidget(), &a );
 		    if ( a.isAccepted() )
 			isAccel = TRUE;
-#if !defined(QMAC_QMENUBAR_NO_NATIVE) //In native menubar mode we offer the event to the menubar...
 		    if( !isAccel ) {
 			MenuRef menu;
 			MenuItemIndex idx;
 			if(IsMenuKeyEvent(NULL, event, kNilOptions, &menu, &idx)) {
-			    QMenuBar::activate(menu, idx);
+			    bool is_cmd = FALSE;
+			    MenuCommand cmd;
+#if !defined(QMAC_QMENUBAR_NO_NATIVE) //In native menubar mode we offer the event to the menubar...
+			    if(GetMenuItemCommandID(menu, idx, &cmd) == noErr) {
+				if(cmd == kHICommandQuit || cmd == kHICommandPreferences ||
+				   cmd == kHICommandAbout) {
+				    is_cmd = TRUE;
+				    QMenuBar::activateCommand(cmd);
+				}
+			    }
+			    if(!is_cmd)
+				QMenuBar::activate(menu, idx);
+#else
+			    if(cmd == kHICommandQuit)
+				qApp->closeAllWindows();
+			    else if(cmd == kHICommandAbout)
+				QMessageBox::aboutQt(NULL);
+#endif
 			    isAccel = TRUE;
 			}
 		    }
-#endif
 		}
 	    }
 	    if(!isAccel) {
@@ -1978,11 +1993,18 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	if(ekind == kEventCommandProcess) {
 	    HICommand cmd;
 	    GetEventParameter(event, kEventParamDirectObject, typeHICommand, NULL, sizeof(cmd), NULL, &cmd);
+#if !defined(QMAC_QMENUBAR_NO_NATIVE) //offer it to the menubar..
+	    bool took_cmd = FALSE;
+	    if(cmd.commandID == kHICommandQuit || cmd.commandID == kHICommandPreferences ||
+	       cmd.commandID == kHICommandAbout)
+		took_cmd = QMenuBar::activateCommand(cmd.commandID);
+	    if(!took_cmd)
+		QMenuBar::activate(cmd.menu.menuRef, cmd.menu.menuItemIndex);
+#else
 	    if(cmd.commandID == kHICommandQuit)
 		qApp->closeAllWindows();
-#if !defined(QMAC_QMENUBAR_NO_NATIVE) //offer it to the menubar..
-	    else
-		QMenuBar::activate(cmd.menu.menuRef, cmd.menu.menuItemIndex);
+	    else if(cmd.commandID == kHICommandAbout)
+		QMessageBox::aboutQt(NULL);
 #endif
 	}
 	break;
