@@ -4,4 +4,4 @@ WIN32:CONFIG   += dll
 HEADERS		= 
 SOURCES		= main.cpp
 INTERFACES	=
-DESTDIR		= ../../
+DESTDIR		= $(QTDIR)/plugins
