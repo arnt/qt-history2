@@ -273,7 +273,7 @@ QStringList ResultSet::columnNames() const
 bool ResultSet::field( uint i, QVariant& v )
 {
     if ( i > count() ) {
-	env->setLastError("internal error:ResultSet::field: unknown field number: " + QString::number(i));
+	env->setLastError( "Unknown field number: " + QString::number(i) );
 	return 0;
     }
     v = currentRecord()[i];
@@ -287,13 +287,13 @@ bool ResultSet::field( uint i, QVariant& v )
 bool ResultSet::setHeader( const qdb::List& list )
 {
     if ( !list.count() ) {
-	env->setLastError("internal error:ResultSet::setHeader: no fields defined");
+	env->setLastError( "No fields defined" );
 	return 0;
     }
     for ( int i = 0; i < (int)list.count(); ++i ) {
 	qdb::List fieldDescription = list[i].toList();
 	if ( fieldDescription.count() != 4 ) {
-	    env->setLastError("internal error:ResultSet::setHeader: bad field description");
+	    env->setLastError( "Internal error: Bad field description" );
 	    return 0;
 	}
 	head->fields[i].name = fieldDescription[0].toString();
@@ -309,22 +309,22 @@ bool ResultSet::setHeader( const qdb::List& list )
 bool ResultSet::append( const qdb::Record& buf )
 {
     if ( !env ) {
-	qWarning( "internal error:ResultSet: no environment" );
+	qWarning( "Fatal internal error: No environment" );
 	return FALSE;
     }
     if ( !head->fields.count() ) {
-	env->setLastError( "internal error:ResultSet: no header" );
+	env->setLastError( "Internal error: No header" );
 	return FALSE;
     }
     if ( head->fields.count() != buf.count() ) {
-	env->setLastError( "internal error:ResultSet: incorrect number of buffer fields" );
+	env->setLastError( "Internal error: Incorrect number of buffer fields" );
 	return FALSE;
     }
     for ( uint j = 0; j < buf.count(); ++j ) {
 	if ( buf[j].type() != head->fields[j].type ) {
 	    QVariant v;
 	    v.cast( head->fields[j].type );
-	    env->setLastError( "internal error:ResultSet: incorrect field type: " +
+	    env->setLastError( "Incorrect field type: " +
 			       QString( buf[j].typeName() ) + " (expected " +
 			       QString( v.typeName() ) + ")" );
 	    return FALSE;
@@ -465,22 +465,22 @@ static void reverse( qdb::ColumnKey& colkey, uint elements )
 bool ResultSet::sort( const qdb::List& index )
 {
     if ( !env ) {
-	env->setLastError( "internal error:ResultSet::sort: no environment" );
+	env->setLastError( "Internal error: No environment" );
 	return FALSE;
     }
     if ( !head->fields.count() ) {
-	env->setLastError( "internal error:ResultSet::sort: no header" );
+	env->setLastError( "Internal error: No header" );
 	return FALSE;
     }
     if ( !data.count() || data.count() == 1 ) { /* nothing to do */
 	return TRUE;
     }
     if ( !index.count() ) {
-	env->setLastError("internal error:ResultSet::sort: no fields defined");
+	env->setLastError("No fields defined");
 	return 0;
     }
     if ( (index.count() % 2) != 0 ) {
-	env->setLastError("internal error:ResultSet::sort: wrong multiple of list elements");
+	env->setLastError("Internal error: Incorrect multiple of list elements");
 	return 0;
     }
     uint i = 0;
@@ -489,7 +489,7 @@ bool ResultSet::sort( const qdb::List& index )
     for ( uint i = 0; i < index.count(); ++i ) {
 	qdb::List fieldDescription = index[i].toList();
 	if ( fieldDescription.count() != 4 ) {
-	    env->setLastError("internal error:ResultSet::sort: bad field description");
+	    env->setLastError("Internal error: Bad field description");
 	    return 0;
 	}
 	sortIndex.fields[i].name = fieldDescription[0].toString();
@@ -509,14 +509,13 @@ bool ResultSet::sort( const qdb::List& index )
 	default:
 	    QVariant v;
 	    v.cast( sortIndex.fields[i].type );
-	    env->setLastError( "internal error:ResultSet::sort: invalid sort field type" +
+	    env->setLastError( "Internal error: Invalid sort field type" +
 			       QString( v.typeName() ) );
 	    return FALSE;
 	}
 	int sortField = head->position( sortIndex.fields[i].name );
 	if ( sortField == -1 ) {
-	    env->setLastError( "internal error:ResultSet: sort field not found:" +
-			       sortIndex.fields[i].name );
+	    env->setLastError( "Field not found:" + sortIndex.fields[i].name );
 	    return FALSE;
 	}
     }

@@ -51,12 +51,35 @@ QDb::~QDb()
 /*! Adds a driver to the environment with the name \a fileName
  identified by \a id.
 
- \sa fileFriver()
+ \sa fileDriver()
 */
 
 void QDb::addFileDriver( int id, const QString& fileName )
 {
     d->drivers[id] = FileDriver( this, fileName );
+}
+
+/*! Adds a driver to the environment with the name \a fileName.  A
+  unique id is automatically generated and returned.
+
+ \sa fileDriver()
+*/
+
+int QDb::addFileDriver( const QString& fileName )
+{
+    int id = d->drivers.count()+1;
+    d->drivers[id] = FileDriver( this, fileName );
+    return id;
+}
+
+/*! Closes and removes the file driver identified by 'id'.  The driver
+ must have been previously added with addfileDriver().
+ */
+
+void QDb::removeFileDriver( int id )
+{
+    d->drivers[id].close();
+    d->drivers.remove( d->drivers.find( id ) );
 }
 
 /*! Adds a result to the environment with the name \a fileName
@@ -138,8 +161,8 @@ bool QDb::execute( bool verbose )
     d->pgm.resetCounter();
     while( (op = d->pgm.next() ) ) {
 	if ( !op->exec( this ) ) {
-	    if ( verbose )
-		output() << "[Line " + QString::number(d->pgm.counter()) + "] " + lastError() << endl;
+//	    if ( verbose )
+//		output() << "[Line " + QString::number(d->pgm.counter()) + "] " + lastError() << endl;
 	    return FALSE;
 	}
     }

@@ -6,18 +6,18 @@ c2 char( 10 ),
 d1 date
 );
 
-create unique index alltypesindex on alltypes ( n1 ); 
-create index alltypesindex on alltypes ( n1, n2 ); 
-create index alltypesindex on alltypes ( c1 ); 
-create index alltypesindex on alltypes ( d1 ); 
+create unique index alltypesindex_primary on alltypes ( n1 ); 
+create index alltypesindex_1 on alltypes ( n1, n2 ); 
+create index alltypesindex_2 on alltypes ( c1 ); 
+create index alltypesindex_3 on alltypes ( d1 ); 
 
-insert into alltypes values( 1, 12, 'csdfsdf', 'more', '2000-01-01');
-insert into alltypes values( 2, 22, 'csdfsdf', 'more', '2000-01-01');
-insert into alltypes values( 3, 32, 'xsdfsdf', 'more', '2000-01-01');
-insert into alltypes values( 4, 42, 'csdfsdf', 'more', '2000-01-01');
-insert into alltypes values( 5, 52, 'csdfsdf', 'more', '2000-01-01');
-insert into alltypes values( 6, 62, 'xsdfsdf', 'more', '2000-01-01');
-insert into alltypes values( 7, 72, 'swdfsdf', 'more', '2000-01-01');
+insert into alltypes values( 1, 12, 'csdfsdf', 'more', '2001-01-11');
+insert into alltypes values( 2, 22, 'csdfsdf', 'more', '2002-01-21');
+insert into alltypes values( 3, 32, 'xsdfsdf', 'more', '2003-01-12');
+insert into alltypes values( 4, 42, 'csdfsdf', 'more', '2004-01-14');
+insert into alltypes values( 5, 52, 'csdfsdf', 'more', '2005-01-15');
+insert into alltypes values( 6, 62, 'xsdfsdf', 'more', '2006-01-16');
+insert into alltypes values( 7, 72, 'swdfsdf', 'more', '2007-02-17');
 insert into alltypes values( 8, 82, 'sdsddfsdf', 'more', '2000-01-01');
 insert into alltypes values( 9, 92, 'sfdfsdf', 'more', '2000-01-01');
 insert into alltypes values( 10, 32, 'dsddfsdf', 'more', '2000-01-01');

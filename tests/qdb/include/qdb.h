@@ -15,6 +15,8 @@ public:
     bool execute( bool verbose = FALSE );
     void reset();
     void addFileDriver( int id, const QString& fileName );
+    int addFileDriver( const QString& fileName );
+    void removeFileDriver( int id );
     void addResultSet( int id );
     qdb::FileDriver* fileDriver( int id );
     qdb::Stack* stack();

@@ -386,8 +386,8 @@ public:
     int exec( qdb::Environment* env )
     {
 	qdb::List list = env->stack()->pop().toList();
-	env->addFileDriver( 0, p1.toString() );
-	qdb::FileDriver* drv = env->fileDriver( 0 );
+	int id = env->addFileDriver( p1.toString() );
+	qdb::FileDriver* drv = env->fileDriver( id );
 	return drv->create( list );
     }
 };
@@ -631,7 +631,9 @@ public:
   ...etc
 
   The number of elements in the list must match the number of elements
-  in the result set.  It is an error to attempt to save an empty list.
+  in the result set.  The type of each element must also match the
+  corresponding type in the result set.  It is an error to attempt to
+  save an empty list.
 
 */
 
@@ -799,8 +801,7 @@ public:
     int exec( qdb::Environment* env )
     {
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
-	bool b = drv->rangeMark( env->stack()->pop().toList() );
-	return b;
+	return drv->rangeMark( env->stack()->pop().toList() );
     }
 };
 
@@ -833,12 +834,11 @@ public:
     int exec( qdb::Environment* env )
     {
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
-	bool b = drv->createIndex( env->stack()->pop().toList(), p2.toBool() );
-	return b;
+	return drv->createIndex( env->stack()->pop().toList(), p2.toBool() );
     }
 };
 
-/*  Drops (deletes) the file identified by 'id'.  If the file contains
+/*  Drops (deletes) the file 'name'.  If the file contains
     any indexes, they are also dropped (deleted).  If the file is
     open, it is first closed.
 */
@@ -846,13 +846,13 @@ public:
 class Drop : public Op3
 {
 public:
-    Drop( const QVariant& id, const QVariant& name )
-	: Op3( id, name ) {}
+    Drop( const QVariant& name )
+	: Op3( name ) {}
     QString name() const { return "drop"; }
     int exec( qdb::Environment* env )
     {
-	env->addFileDriver( p1.toInt(), p2.toString() );
-	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
+	int id = env->addFileDriver( p1.toString() );
+	qdb::FileDriver* drv = env->fileDriver( id );
 	return drv->drop();
     }
 };

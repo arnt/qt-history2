@@ -14,7 +14,7 @@ class QIODevice;
 
 /*! \namespace qdb
 
-  All QDb interfaces are in the 'qdb' namespace.
+  All qDb interfaces are in the 'qdb' namespace.
 */
 
 namespace qdb {
@@ -178,6 +178,8 @@ namespace qdb {
 	virtual Stack* stack() = 0;
 	virtual Program* program() = 0;
 	virtual void addFileDriver( int id, const QString& fileName ) = 0;
+	virtual int addFileDriver( const QString& fileName ) = 0;
+	virtual void removeFileDriver( int id ) = 0;
 	virtual void addResultSet( int id ) = 0;
 	virtual FileDriver* fileDriver( int id ) = 0;
 	virtual ResultSet* resultSet( int id ) = 0;
