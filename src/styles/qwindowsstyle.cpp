@@ -620,17 +620,19 @@ void QWindowsStyle::drawControl( ControlElement element,
 		return;
 
 	    int xpos = x;
+	    QRect vrect = visualRect( QRect( xpos, y, checkcol, h ), r );
+	    int xvis = vrect.x();
 	    if ( mi->isChecked() ) {
 		if ( act && !dis )
-		    qDrawShadePanel( p, xpos, y, checkcol, h,
+		    qDrawShadePanel( p, xvis, y, checkcol, h,
 				     cg, TRUE, 1, &cg.brush( QColorGroup::Button ) );
 		else {
 		    QBrush fill( cg.light(), Dense4Pattern );
-		    qDrawShadePanel( p, xpos, y, checkcol, h, cg, TRUE, 1,
+		    qDrawShadePanel( p, xvis, y, checkcol, h, cg, TRUE, 1,
 				     &fill );
 		}
 	    } else if (! act)
-		p->fillRect(xpos, y, checkcol , h, cg.brush( QColorGroup::Button ));
+		p->fillRect(xvis, y, checkcol , h, cg.brush( QColorGroup::Button ));
 
 	    if ( mi->iconSet() ) {              // draw iconset
 		QIconSet::Mode mode = dis ? QIconSet::Disabled : QIconSet::Normal;
@@ -644,20 +646,18 @@ void QWindowsStyle::drawControl( ControlElement element,
 		int pixw = pixmap.width();
 		int pixh = pixmap.height();
 		if ( act && !dis && !mi->isChecked() )
-		    qDrawShadePanel( p, xpos, y, checkcol, h, cg, FALSE, 1,
+		    qDrawShadePanel( p, xvis, y, checkcol, h, cg, FALSE, 1,
 				     &cg.brush( QColorGroup::Button ) );
-		QRect cr( xpos, y, checkcol, h );
 		QRect pmr( 0, 0, pixw, pixh );
-		pmr.moveCenter( cr.center() );
+		pmr.moveCenter( vrect.center() );
 		p->setPen( cg.text() );
 		p->drawPixmap( pmr.topLeft(), pixmap );
 
 		fill = (act ?
 			cg.brush( QColorGroup::Highlight ) :
 			cg.brush( QColorGroup::Button ));
-		int xp;
-		xp = xpos + checkcol + 1;
-		p->fillRect( xp, y, w - checkcol - 1, h, fill);
+		int xp = xpos + checkcol + 1;
+		p->fillRect( visualRect( QRect( xp, y, w - checkcol - 1, h ), r ), fill);
 	    } else  if ( checkable ) {  // just "checking"...
 		if ( mi->isChecked() ) {
 		    int xp = xpos + windowsItemFrame;
@@ -669,9 +669,9 @@ void QWindowsStyle::drawControl( ControlElement element,
 			cflags |= Style_On;
 
 		    drawPrimitive(PE_CheckMark, p,
-				  QRect(xp, y + windowsItemFrame,
+				  visualRect( QRect(xp, y + windowsItemFrame,
 					checkcol - 2*windowsItemFrame,
-					h - 2*windowsItemFrame), cg, cflags);
+					h - 2*windowsItemFrame), r ), cg, cflags);
 		}
 	    }
 
@@ -686,55 +686,58 @@ void QWindowsStyle::drawControl( ControlElement element,
 	    int xm = windowsItemFrame + checkcol + windowsItemHMargin;
 	    xpos += xm;
 
+	    vrect = visualRect( QRect( xpos, y+windowsItemVMargin, w-xm-tab+1, h-2*windowsItemVMargin ), r );
+	    xvis = vrect.x();
 	    if ( mi->custom() ) {
-		int m = windowsItemVMargin;
 		p->save();
 		if ( dis && !act ) {
 		    p->setPen( cg.light() );
 		    mi->custom()->paint( p, cg, act, !dis,
-					 xpos+1, y+m+1, w-xm-tab+1, h-2*m );
+					 xvis+1, y+windowsItemVMargin+1, w-xm-tab+1, h-2*windowsItemVMargin );
 		    p->setPen( discol );
 		}
 		mi->custom()->paint( p, cg, act, !dis,
-				     x+xm, y+m, w-xm-tab+1, h-2*m );
+				     xvis, y+windowsItemVMargin, w-xm-tab+1, h-2*windowsItemVMargin );
 		p->restore();
 	    }
 	    QString s = mi->text();
 	    if ( !s.isNull() ) {                        // draw text
 		int t = s.find( '\t' );
-		int m = windowsItemVMargin;
-		const int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
+		int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
+		text_flags |= (QApplication::reverseLayout() ? AlignRight : AlignLeft );
 		if ( t >= 0 ) {                         // draw tab text
 		    int xp;
 		    xp = x + w - tab - ((use2000style) ? 20 : windowsRightBorder) -
 			 windowsItemHMargin - windowsItemFrame + 1;
+		    int xoff = visualRect( QRect( xp, y+windowsItemVMargin, tab, h-2*windowsItemVMargin ), r ).x();
 		    if ( dis && !act ) {
 			p->setPen( cg.light() );
-			p->drawText( xp, y+m+1, tab, h-2*m, text_flags, s.mid( t+1 ));
+			p->drawText( xoff+1, y+windowsItemVMargin+1, tab, h-2*windowsItemVMargin, text_flags, s.mid( t+1 ));
 			p->setPen( discol );
 		    }
-		    p->drawText( xp, y+m, tab, h-2*m, text_flags, s.mid( t+1 ) );
+		    p->drawText( xoff, y+windowsItemVMargin, tab, h-2*windowsItemVMargin, text_flags, s.mid( t+1 ) );
 		    s = s.left( t );
 		}
 		if ( dis && !act ) {
 		    p->setPen( cg.light() );
-		    p->drawText( xpos+1, y+m+1, w-xm-tab+1, h-2*m, text_flags, s, t );
+		    p->drawText( xvis+1, y+windowsItemVMargin+1, w-xm-tab+1, h-2*windowsItemVMargin, text_flags, s, t );
 		    p->setPen( discol );
 		}
-		p->drawText( xpos, y+m, w-xm-tab+1, h-2*m, text_flags, s, t );
+		p->drawText( xvis, y+windowsItemVMargin, w-xm-tab+1, h-2*windowsItemVMargin, text_flags, s, t );
 	    } else if ( mi->pixmap() ) {                        // draw pixmap
 		QPixmap *pixmap = mi->pixmap();
 		if ( pixmap->depth() == 1 )
 		    p->setBackgroundMode( OpaqueMode );
-		p->drawPixmap( xpos, y+windowsItemFrame, *pixmap );
+		p->drawPixmap( xvis, y+windowsItemFrame, *pixmap );
 		if ( pixmap->depth() == 1 )
 		    p->setBackgroundMode( TransparentMode );
 	    }
 	    if ( mi->popup() ) {                        // draw sub menu arrow
 		int dim = (h-2*windowsItemFrame) / 2;
 		PrimitiveElement arrow;
-		arrow = PE_ArrowRight;
+		arrow = ( QApplication::reverseLayout() ? PE_ArrowLeft : PE_ArrowRight );
 		xpos = x+w - windowsArrowHMargin - windowsItemFrame - dim;
+		vrect = visualRect( QRect(xpos, y + h / 2 - dim / 2, dim, dim), r );
 		if ( act ) {
 		    if ( !dis )
 			discol = white;
@@ -743,10 +746,10 @@ void QWindowsStyle::drawControl( ControlElement element,
 				    dis ? discol : white,
 				    discol, white );
 
-		    drawPrimitive(arrow, p, QRect(xpos, y + h / 2 - dim / 2, dim, dim),
+		    drawPrimitive(arrow, p, vrect,
 				  g2, Style_Enabled);
 		} else {
-		    drawPrimitive(arrow, p, QRect(xpos, y + h / 2 - dim / 2, dim, dim),
+		    drawPrimitive(arrow, p, vrect,
 				  cg, mi->isEnabled() ? Style_Enabled : Style_Default);
 		}
 	    }
