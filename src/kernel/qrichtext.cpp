@@ -4111,10 +4111,14 @@ void QTextParag::drawParagString( QPainter &painter, const QString &s, int start
 				      QTextFormat *lastFormat, int i, const QMemArray<int> &selectionStarts,
 				      const QMemArray<int> &selectionEnds, const QColorGroup &cg, bool rightToLeft )
 {
+    bool plainText = doc ? doc->textFormat() == Qt::PlainText : FALSE;
     QString str( s );
     if ( str[ (int)str.length() - 1 ].unicode() == 0xad )
 	str.remove( str.length() - 1, 1 );
-    painter.setPen( QPen( lastFormat->color() ) );
+    if ( !plainText )
+	painter.setPen( QPen( lastFormat->color() ) );
+    else
+	painter.setPen( cg.text() );
     painter.setFont( lastFormat->font() );
 
     if ( doc && lastFormat->isAnchor() && !lastFormat->anchorHref().isEmpty() && lastFormat->useLinkColor() ) {
