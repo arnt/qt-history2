@@ -22,7 +22,8 @@ HEADERS += \
     widgets/qbutton.h \
     widgets/qpopupmenu.h \
     widgets/qrangecontrol.h \
-    widgets/qvbox.h
+    widgets/qvbox.h \
+    widgets/qhbox.h
 
 SOURCES += \
     widgets/q3action.cpp \
