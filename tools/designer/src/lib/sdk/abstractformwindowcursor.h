@@ -35,7 +35,7 @@ public:
         Left,
         Right,
         Up,
-        Down,
+        Down
     };
 
     enum MoveMode
