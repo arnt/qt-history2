@@ -1187,7 +1187,7 @@ void QPrintDialog::printerOrFileSelected( int id )
             if ( cur.left( home.length() ) != home )
                 cur = home;
             d->fileName->setText( cur );
-            d->fileName->setCursorPosition( 32767 );
+            d->fileName->setCursorPosition( cur.length() );
             d->fileName->selectAll();
         }
         d->browse->setEnabled( TRUE );
