@@ -1,15 +1,3 @@
-# All extension modules are listed here
-# This is duplicated in qt.pro
-MODULES_BASE	= tools kernel widgets dialogs
-MODULES_PRO	= iconview workspace
-MODULES_ENT	= network canvas table xml opengl
-MODULES		= $$MODULES_BASE $$MODULES_PRO
-enterprise:MODULES	+= $$MODULES_ENT
-
-internal:MODULES	+= $$MODULES_ENT
-
-CONFIG += $$MODULES
-
 TEMPLATE    =	subdirs
 SUBDIRS     =	aclock \
 		action \
@@ -81,6 +69,7 @@ workspace:SUBDIRS+= mdi
 table:SUBDIRS +=    statistics \
 		    table
 xml:SUBDIRS +=	    xmlquotes
+sql:SUBDIRS += sql
 
 embedded:SUBDIRS += winmanager \
 		notepad \
