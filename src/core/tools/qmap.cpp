@@ -403,7 +403,7 @@ void QMapData::dump()
 
 /*! \fn QMap<Key, T> &QMap::operator=(const typename std::map<Key,T> &other)
 
-    Constructs a copy of \a other.
+    \overload
 
     This function is only available if Qt is configured with STL
     compabitility enabled.
@@ -882,10 +882,10 @@ void QMapData::dump()
 
 /*! \fn QMap::iterator::iterator()
 
-    Constructs an unitialized iterator.
+    Constructs an uninitialized iterator.
 
     Functions like key(), value(), and operator++() must not be
-    called on an unitialized iterator. Use operator=() to assign a
+    called on an uninitialized iterator. Use operator=() to assign a
     value to it before using it.
 */
 
@@ -1106,7 +1106,7 @@ void QMapData::dump()
     Constructs an uninitialized iterator.
 
     Functions like key(), value(), and operator++() must not be
-    called on an unitialized iterator. Use operator=() to assign a
+    called on an uninitialized iterator. Use operator=() to assign a
     value to it before using it.
 */
 

@@ -457,9 +457,9 @@ QByteArray::Data QByteArray::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, shared_emp
     want to use. It stores 16-bit Unicode characters, making it easy
     to store non-ASCII/non-Latin-1 characters in your application.
     Furthermore, QString is used throughout in the Qt API. The two
-    cases where QByteArray is appropriate are when you need to store
-    raw binary data, and when memory conservation is critical (e.g.
-    with Qt/Embedded).
+    main cases where QByteArray is appropriate are when you need to
+    store raw binary data, and when memory conservation is critical
+    (e.g. with Qt/Embedded).
 
     One way to initialize a QByteArray is simply to pass a \c{const
     char *} to its constructor. For example, the following code
@@ -470,9 +470,10 @@ QByteArray::Data QByteArray::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, shared_emp
     \endcode
 
     Although the size() is 5, the byte array also maintains an extra
-    '\\0' character at the end so that if function is used that asks
-    for a pointer to the underlying data (e.g. a call to data()), the
-    data pointed to is guaranteed to be '\\0'-terminated.
+    '\\0' character at the end so that if a function is used that
+    asks for a pointer to the underlying data (e.g. a call to
+    data()), the data pointed to is guaranteed to be
+    '\\0'-terminated.
 
     QByteArray makes a deep copy of the \c{const char *} data, so you
     can modify it later without experiencing side effects. (If for
@@ -600,9 +601,9 @@ QByteArray::Data QByteArray::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, shared_emp
 
     All functions except isNull() treat null byte arrays the same as
     empty byte arrays. For example, data() returns a pointer to a
-    '\\0' character for a null byte array (not a null pointer), and
-    QByteArray() compares equal to QByteArray(""). We recommend that
-    you always use isEmpty() and avoid isNull().
+    '\\0' character for a null byte array (\e not a null pointer),
+    and QByteArray() compares equal to QByteArray(""). We recommend
+    that you always use isEmpty() and avoid isNull().
 
     \sa QConstByteArray, QBitArray, QString
 */
@@ -1197,7 +1198,7 @@ QByteArray::QByteArray(int size, char ch)
 
     If \a size is greater than the current size, the byte array is
     extended to make it \a size bytes with the extra bytes added to
-    the end. The new bytes are unitialized.
+    the end. The new bytes are uninitialized.
 
     If \a size is less than the current size, bytes are removed from
     the end.

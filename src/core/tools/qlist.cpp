@@ -1016,11 +1016,11 @@ void **QListData::erase(void **xi)
 
 /*! \fn QList::iterator::iterator()
 
-    Constructs an unitialized iterator.
+    Constructs an uninitialized iterator.
 
     Functions like operator*() and operator++() should not be called
-    on an unitialized iterartor. Use operator=() to assign a value to
-    it before using it.
+    on an uninitialized iterartor. Use operator=() to assign a value
+    to it before using it.
 */
 
 /*! \fn QList::iterator::iterator(Node *node)
@@ -1209,11 +1209,11 @@ void **QListData::erase(void **xi)
 
 /*! \fn QList::const_iterator::const_iterator()
 
-    Constructs an unitialized iterator.
+    Constructs an uninitialized iterator.
 
     Functions like operator*() and operator++() should not be called
-    on an unitialized iterartor. Use operator=() to assign a value to
-    it before using it.
+    on an uninitialized iterartor. Use operator=() to assign a value
+    to it before using it.
 */
 
 /*! \typedef QList::const_iterator::iterator_category

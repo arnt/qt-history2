@@ -1048,10 +1048,10 @@ void QHashData::free()
 
 /*! \fn QHash::iterator::iterator()
 
-    Constructs an unitialized iterator.
+    Constructs an uninitialized iterator.
 
     Functions like key(), value(), and operator++() must not be
-    called on an unitialized iterator. Use operator=() to assign a
+    called on an uninitialized iterator. Use operator=() to assign a
     value to it before using it.
 */
 
@@ -1274,7 +1274,7 @@ void QHashData::free()
     Constructs an uninitialized iterator.
 
     Functions like key(), value(), and operator++() must not be
-    called on an unitialized iterator. Use operator=() to assign a
+    called on an uninitialized iterator. Use operator=() to assign a
     value to it before using it.
 */
 
