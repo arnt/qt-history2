@@ -1,3 +1,5 @@
+#define QT_NO_CODECS
+#define QT_NO_UNICODETABLES
 #define QT_NO_IMAGEIO_BMP
 #define QT_NO_IMAGEIO_PPM
 #define QT_NO_IMAGEIO_JPEG
