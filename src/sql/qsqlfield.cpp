@@ -34,8 +34,6 @@
 **
 **********************************************************************/
 
-#include <float.h>
-
 #include "qsqlfield.h"
 
 #ifndef QT_NO_SQL
@@ -126,7 +124,7 @@ QSqlField& QSqlField::operator=( const QSqlField& other )
     ro = other.ro;
     nul = other.nul;
     d->type = other.d->type;
-    return *this;
+    return *this;    
 }
 
 /*!
@@ -194,16 +192,7 @@ void QSqlField::setValue( const QVariant& value )
 	     qWarning("QSqlField::setValue: %s cannot cast from %s to %s",
 		      nm.local8Bit().data(), value.typeName(), QVariant::typeToName( d->type ) );
     }
-    if ( value.type() == QVariant::Double && ( val.type() == QVariant::String || 
-	 val.type() == QVariant::CString ) ) {
-	// prevent precision loss
-#ifndef DBL_DIG
-#define DBL_DIG 10
-#endif
-	val.asString().setNum( value.toDouble(), 'g', DBL_DIG );
-    } else {
-	val = value;
-    }
+    val = value;
     if ( val.type() != QVariant::Invalid )
 	nul = FALSE;
 }
