@@ -34,7 +34,7 @@ class  QM_EXPORT_NETWORK QSocketDevice: public QIODevice
 {
 public:
     enum Type { Stream, Datagram };
-    enum Protocol { Auto, Ipv4, Ipv6 };
+    enum Protocol { Unknown, IPv4, IPv6 };
 
     QSocketDevice( Type type = Stream );
     QSocketDevice( Type type, Protocol protocol, int dummy );

@@ -56,10 +56,13 @@ public:
 #ifndef QT_NO_STRINGLIST
     bool setAddress( const QString& address );
 #endif
-    bool	 isIp4Addr()	 const;
-    Q_UINT32	 ip4Addr()	 const;
-    bool	 isIp6Addr()	 const;
-    Q_IPV6ADDR	 ip6Addr()	 const;
+    bool	 isIp4Addr()	 const; // obsolete
+    Q_UINT32	 ip4Addr()	 const; // obsolete
+
+    bool	 isIPv4Address() const;
+    Q_UINT32	 toIPv4Address() const;
+    bool	 isIPv6Address() const;
+    Q_IPV6ADDR	 toIPv6Address() const;
 
 #ifndef QT_NO_SPRINTF
     QString	 toString() const;

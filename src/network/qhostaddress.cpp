@@ -296,14 +296,33 @@ bool QHostAddress::setAddress(const QString& address)
 #endif
 
 /*!
+    \obsolete
+
+    Use isIPv4Address() instead.
+*/
+bool QHostAddress::isIp4Addr() const
+{
+    return isIPv4Address();
+}
+
+/*!
     Returns TRUE if the host address represents an IPv4 address;
     otherwise returns FALSE.
 */
-bool QHostAddress::isIp4Addr() const
+bool QHostAddress::isIPv4Address() const
 {
     return d->isIp4;
 }
 
+/*!
+    \obsolete
+
+    Use toIPv4Address() instead.
+*/
+Q_UINT32 QHostAddress::ip4Addr() const
+{
+    return toIPv4Address();
+}
 
 /*!
     Returns the IPv4 address as a number.
@@ -315,7 +334,7 @@ bool QHostAddress::isIp4Addr() const
 
     \sa toString()
 */
-Q_UINT32 QHostAddress::ip4Addr() const
+Q_UINT32 QHostAddress::toIPv4Address() const
 {
     return d->a;
 }
@@ -324,7 +343,7 @@ Q_UINT32 QHostAddress::ip4Addr() const
     Returns TRUE if the host address represents an IPv6 address;
     otherwise returns FALSE.
 */
-bool QHostAddress::isIp6Addr() const
+bool QHostAddress::isIPv6Address() const
 {
     return d->isIp6;
 }
@@ -345,11 +364,11 @@ bool QHostAddress::isIp6Addr() const
         }
     \endcode
 
-    This value is only valid when isIp6Addr() returns TRUE.
+    This value is only valid when isIPv6Address() returns TRUE.
 
     \sa toString()
 */
-Q_IPV6ADDR QHostAddress::ip6Addr() const
+Q_IPV6ADDR QHostAddress::toIPv6Address() const
 {
     Q_IPV6ADDR tmp;
 

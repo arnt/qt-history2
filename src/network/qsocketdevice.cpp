@@ -30,7 +30,7 @@ public:
 };
 
 QSocketDevicePrivate::QSocketDevicePrivate()
-    : protocol(QSocketDevice::Auto)
+    : protocol(QSocketDevice::Unknown)
 {
 }
 
@@ -55,7 +55,7 @@ QSocketDevicePrivate::QSocketDevicePrivate()
     works on sockets, wrapped in a platform-independent API.
 
     When calling connect() or bind(), QSocketDevice detects the
-    protocol family (Ipv4, Ipv6) automatically. Passing the protocol
+    protocol family (IPv4, IPv6) automatically. Passing the protocol
     family to QSocketDevice's constructor or to setSocket() forces
     creation of a socket device of a specific protocol. If not set, the
     protocol will be detected at the first call to connect() or bind().
@@ -67,9 +67,9 @@ QSocketDevicePrivate::QSocketDevicePrivate()
 /*!
     \enum QSocketDevice::Protocol
 
-    \value Auto
-    \value Ipv4
-    \value Ipv6
+    \value Unknown
+    \value IPv4
+    \value IPv6
 */
 
 /*!
@@ -165,8 +165,8 @@ QSocketDevice::QSocketDevice( Type type )
     reliable, connection-oriented TCP socket, or \c
     QSocketDevice::Datagram for an unreliable UDP socket.
 
-    The \a protocol indicates whether the socket should be of type Ipv4
-    or Ipv6. (The \a dummy integer is for internal use.)
+    The \a protocol indicates whether the socket should be of type IPv4
+    or IPv6. (The \a dummy integer is for internal use.)
 
     \sa blocking()
 */
@@ -223,8 +223,8 @@ QSocketDevice::Type QSocketDevice::type() const
 }
 
 /*!
-    Returns the socket type, which is one of \c Auto, \c Ipv4, or \c
-    Ipv6.
+    Returns the socket type, which is one of \c Unknown, \c IPv4, or \c
+    IPv6.
 */
 QSocketDevice::Protocol QSocketDevice::protocol() const
 {
@@ -232,8 +232,8 @@ QSocketDevice::Protocol QSocketDevice::protocol() const
 }
 
 /*!
-    Sets the socket type. The \a protocol must be one of \c Auto, \c
-    Ipv4, or \c Ipv6.
+    Sets the socket type. The \a protocol must be one of \c Unknown, \c
+    IPv4, or \c IPv6.
 */
 void QSocketDevice::setProtocol( Protocol protocol )
 {
