@@ -1897,9 +1897,10 @@ bool QVga16Screen::connect( const QString &displaySpec )
 
     optype = &VGA16DummyOpType;
 
-    if (-1 == ioperm (0x3c0, 0x20, 1))
+    if (-1 == ioperm (0x3c0, 0x20, 1)) {
+	qDebug( "IO permissions problem (for VGA16 you need to run as root)\n" );
 	return FALSE;
-	//perror("IO permissions problem (for VGA16 you probably need to be root)");
+    }
 
 
 #define SCREEN_BUFFER_SIZE	((640*480/2)+512) // 512 bytes for vga_register_values
@@ -1918,19 +1919,18 @@ bool QVga16Screen::connect( const QString &displaySpec )
     }
 #endif
 
-    if (shared_memory == (void *)-1)
+    if ( (shared_memory == (void *)-1) || (shared_memory == NULL) ) {
+	qDebug( "shared memory or malloc failure\n" );
 	return FALSE;
-	//perror("shared memory / malloc problem");
-    if (shared_memory == NULL)
-	return FALSE;
-	//perror("shared memory / malloc problem");
+    }
 
     vga_register_values = shared_memory;
     screen_double_buffer = shared_memory + 512;
 
-    if (screen_double_buffer == NULL)
+    if (screen_double_buffer == NULL) {
+	qDebug( "error getting screen_double_buffer memory\n" );
 	return FALSE;
-	//printf("error getting screen_double_buffer memory\n"), exit(0);
+    }
 	
     unsigned char *db_line_ptr = screen_double_buffer;
 
