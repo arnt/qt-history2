@@ -30,14 +30,14 @@ class ListViewItemDrag : public QStoredDrag
 {
 public:
     enum DropRelation { Sibling, Child };
-    ListViewItemDrag( ListViewItemList &items, QWidget * parent = 0, const char * name = 0 );
+    ListViewItemDrag( ListViewItemList & items, QWidget * parent = 0, const char * name = 0 );
     ~ListViewItemDrag() {};
     static bool canDecode( QDragMoveEvent * event );
-    static bool decode( QDropEvent * event, QListView *parent, QListViewItem *insertPoint, DropRelation dr );
+    static bool decode( QDropEvent * event, QListView * parent, QListViewItem * insertPoint, DropRelation dr );
 };
 // ------------------------------------------------------------------
 
-ListViewDnd::ListViewDnd( QListView * eventSource, const char *name )
+ListViewDnd::ListViewDnd( QListView * eventSource, const char * name )
     : QObject( eventSource, name ), 
       dragInside( FALSE ), dragDelete( TRUE ), dropConfirmed( FALSE ), dMode( Both )
 {
@@ -126,7 +126,7 @@ bool ListViewDnd::dragMoveEvent( QDragMoveEvent * event )
 
 bool ListViewDnd::dropEvent( QDropEvent * event )
 {
-    if ( dragInside) {
+    if ( dragInside ) {
     
 	if ( dMode & NullDrop ) { // combined with Move, a NullDrop will delete an item
 	    event->accept();
@@ -185,27 +185,30 @@ bool ListViewDnd::mouseMoveEvent( QMouseEvent * event )
 
 	    if ( dMode & Move ) {
 		disabledItems = list;
-		setEnableItems( FALSE );
+		setVisibleItems( FALSE );
 	    }
 
 	    dragobject->dragCopy();
 
-	    // Did the target accept the drop?
-	    if ( ( dMode & Move ) && dropConfirmed ) {
-		// Shouldn't autoDelete handle this?
-		for( list.first(); list.current(); list.next() ) 
-		    delete list.current();
-		dropConfirmed = FALSE;
-	    } else if ( dMode & Move ) {
-		// Reenable disabled items since 
-		// drag'n'drop was aborted
-		setEnableItems( TRUE );
+	    if ( dMode & Move ) {
+		// Did the target accept the drop?
+		if ( dropConfirmed ) {
+		    // Shouldn't autoDelete handle this?
+		    for( list.first(); list.current(); list.next() ) 
+			delete list.current();
+		    dropConfirmed = FALSE;
+		} else {
+		    // Reenable disabled items since 
+		    // drag'n'drop was aborted
+		    setVisibleItems( TRUE );
+		}
+		disabledItems.clear();
 	    }
 	}
     }
     return FALSE;
 }
-int ListViewDnd::buildFlatList( ListViewItemList &list )
+int ListViewDnd::buildFlatList( ListViewItemList & list )
 {
     bool addKids = FALSE;
     QListViewItem *nextSibling = 0;
@@ -240,7 +243,7 @@ int ListViewDnd::buildFlatList( ListViewItemList &list )
     return list.count();
 }
 
-int ListViewDnd::buildTreeList( ListViewItemList &list )
+int ListViewDnd::buildTreeList( ListViewItemList & list )
 {
     QListViewItemIterator it = src->firstChild();
     for ( ; *it; it++ ) {
@@ -250,19 +253,18 @@ int ListViewDnd::buildTreeList( ListViewItemList &list )
     return list.count();
 }
 
-void ListViewDnd::setEnableItems( bool b )
+void ListViewDnd::setVisibleItems( bool b )
 {
     if ( disabledItems.isEmpty() ) 
 	return;
     
     disabledItems.first();
     do {
-        (*disabledItems.current()).setVisible( b );
-	//(*disabledItems.current()).setEnabled( b );
+        disabledItems.current()->setVisible( b );
     } while ( disabledItems.next() );
 }
 
-void ListViewDnd::updateLine( const QPoint &dragPos )
+void ListViewDnd::updateLine( const QPoint & dragPos )
 {
     QListViewItem *item = itemAt(dragPos);
     QRect rec = src->itemRect(item);
@@ -276,11 +278,11 @@ void ListViewDnd::updateLine( const QPoint &dragPos )
     line->move( xpos, ypos );
 }
 
-QListViewItem *ListViewDnd::itemAt( QPoint pos )
+QListViewItem * ListViewDnd::itemAt( QPoint pos )
 {
     int headerHeight = (int)(src->header()->height());
     pos.ry() -= headerHeight;
-    QListViewItem *result = src->itemAt( pos );
+    QListViewItem * result = src->itemAt( pos );
 
     if ( result && ( pos.ry() < (src->itemPos(result) + result->height()/2) ) )
 	result = result->itemAbove();
@@ -303,7 +305,7 @@ QListViewItem *ListViewDnd::itemAt( QPoint pos )
     return result;
 }
 
-int ListViewDnd::dropDepth( QListViewItem* item, QPoint pos )
+int ListViewDnd::dropDepth( QListViewItem * item, QPoint pos )
 {
     if ( !item || (dMode & Flat) )
 	return 0;
@@ -333,7 +335,7 @@ int ListViewDnd::dropDepth( QListViewItem* item, QPoint pos )
 QDataStream & operator<< ( QDataStream & stream, const QListViewItem & item );
 QDataStream & operator>> ( QDataStream & stream, QListViewItem & item );
 
-ListViewItemDrag::ListViewItemDrag( ListViewItemList &items, QWidget * parent, const char * name )
+ListViewItemDrag::ListViewItemDrag( ListViewItemList & items, QWidget * parent, const char * name )
     : QStoredDrag( "qt/listviewitem", parent, name )
 {
     // ### FIX!

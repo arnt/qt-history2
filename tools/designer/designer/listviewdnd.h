@@ -33,9 +33,9 @@ class ListViewDnd : public QObject
 {
     Q_OBJECT
 public:
-    enum DragMode { None = 0, External = 1, Internal = 2, Both = 3, Move = 4, Flat = 8, NullDrop = 16 };
+    enum DragMode { None = 0, External = 1, Internal = 2, Both = 3, Move = 4, NullDrop = 8, Flat = 16 };
 
-    ListViewDnd( QListView * eventSource, const char *name = 0 );
+    ListViewDnd( QListView * eventSource, const char * name = 0 );
     void setDragMode( int mode );
     int dragMode() const;
     bool eventFilter( QObject *, QEvent * event ); 
@@ -55,14 +55,14 @@ protected:
     bool mouseMoveEvent( QMouseEvent * event );
 
 private:
-    void updateLine( const QPoint &pos );
-    QListViewItem *itemAt( QPoint pos );
-    int dropDepth( QListViewItem* item, QPoint pos );
-    int buildFlatList( ListViewItemList &list );
-    int buildTreeList( ListViewItemList &list );
-    void setEnableItems( bool b );
-    QListView *src;
-    QWidget *line;
+    void updateLine( const QPoint & pos );
+    QListViewItem * itemAt( QPoint pos );
+    int dropDepth( QListViewItem * item, QPoint pos );
+    int buildFlatList( ListViewItemList & list );
+    int buildTreeList( ListViewItemList & list );
+    void setVisibleItems( bool b );
+    QListView * src;
+    QWidget * line;
     QPoint mousePressPos;
     QPoint dragPos;
     bool dragInside;
