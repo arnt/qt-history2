@@ -8,7 +8,6 @@
 #include <qdialog.h>
 #include <qlcdnumber.h>
 #include <qlayout.h>
-#include <qregexp.h>
 
 class TestInterface;
 
@@ -114,29 +113,16 @@ void TestInterface::countWidgets()
     if ( !applicationInterface() )
 	return;
 
-    DesignerFormWindowInterface *fwIface = (DesignerFormWindowInterface*)applicationInterface()->queryInterface( "*DesignerActiveFormWindowInterface" );
-    
-    if ( !fwIface )
-	 return;
-
-    DesignerWidgetInterface *awIface = (DesignerWidgetInterface*)fwIface->queryInterface( "*DesignerActiveWidgetInterface" );
-    if ( awIface ) {
-	qDebug( awIface->requestProperty( "name" ).toString() );
-	awIface->release();
-    }
-
-    DesignerWidgetListInterface *wlIface = (DesignerWidgetListInterface*)fwIface->queryInterface( "*DesignerWidgetListInterface" );
+    DesignerWidgetListInterface *wlIface = (DesignerWidgetListInterface*)applicationInterface()->queryInterface( "*DesignerWidgetListInterface" );
     if ( !wlIface )
 	return;
 
-    DesignerWidgetInterface *wIface = wlIface->current();
-    int count = 0;
-    while ( wIface ) {
-	qDebug( "%d. widget: %s", ++count, wIface->requestProperty( "name" ).toString().latin1() );
-	delete wIface;
-	wIface = wlIface->next();
-    }
+    int c = wlIface->count();
     wlIface->release();
+
+    DesignerStatusBarInterface *sbIface = (DesignerStatusBarInterface*)applicationInterface()->queryInterface( "*DesignerStatusBarInterface" );
+    sbIface->requestSetProperty( "message", tr("There are %1 widgets in this form").arg( c ) );
+    sbIface->release();
 }
 
 void TestInterface::startThread()
