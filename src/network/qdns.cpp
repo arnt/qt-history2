@@ -1780,12 +1780,15 @@ bool QDns::isWorking() const
     QPtrList<QDnsRR> * ll = QDnsDomain::cached( this );
     Q_LONG queries = n.count();
     while( ll->current() != 0 ) {
-	if ( ll->current()->nxdomain )
+	if ( ll->current()->nxdomain ) {
 	    queries--;
-	else
+	} else {
+	    delete ll;
 	    return FALSE;
+	}
 	ll->next();
     }
+    delete ll;
 
     if ( queries <= 0 )
 	return FALSE;
@@ -2107,7 +2110,6 @@ void QDns::doSynchronousLookup()
 		query->id = ++::id;
 		query->t = t;
 		query->l = s;
-
 		QDnsAnswer a( ba, query );
 		a.parse();
 	    } else if ( len == -1 ) {
