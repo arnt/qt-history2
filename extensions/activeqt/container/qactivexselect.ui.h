@@ -55,7 +55,7 @@ void QActiveXSelect::init()
     for ( QStringList::Iterator it = clsids.begin(); it != clsids.end(); ++it ) {
 	QString clsid = *it;
 	QStringList subkeys = controls.subkeyList( "/Classes/CLSID/" + clsid );
-	if ( subkeys.contains( "Control" ) || subkeys.contains( "Insertable" ) ) {
+	if ( subkeys.contains( "Control" ) /*|| subkeys.contains( "Insertable" )*/ ) {
 	    QString name = controls.readEntry( "/Classes/CLSID/" + clsid + "/Default" );
 	    if ( !name.isEmpty() )
 		(void)new ListBoxText( ActiveXList, name, clsid );
