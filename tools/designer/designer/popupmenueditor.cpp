@@ -15,6 +15,7 @@
 #include "mainwindow.h"
 #include "actioneditorimpl.h"
 #include "pixmapchooser.h"
+#include "metadatabase.h"
 
 // Drag Object Declaration -------------------------------------------
 
@@ -632,6 +633,7 @@ void PopupMenuEditor::showLineEdit( int index )
 
 void PopupMenuEditor::setAccelerator( int key, Qt::ButtonState state, int index )
 {
+    // FIXME: make command
     if ( index == -1 ) {
 	index = currentIndex;
     }
@@ -666,6 +668,7 @@ void PopupMenuEditor::setAccelerator( int key, Qt::ButtonState state, int index 
 	keys[n] = key | shift | ctrl | alt | meta;
     }
     a->setAccel( QKeySequence( keys[0], keys[1], keys[2], keys[3] ) );
+    MetaDataBase::setPropertyChanged( a, "accel", TRUE );
     resizeToContents();
 }
 

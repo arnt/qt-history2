@@ -937,9 +937,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	break;
     case QEvent::ContextMenu:
     case QEvent::MouseButtonPress:
-	//if ( o->inherits( "PopupMenuEditor" ) )
-	//    break;
-	if ( o && currentTool() == POINTER_TOOL && ( /*o->inherits( "MenuBarEditor" ) ||*/
+	if ( o && currentTool() == POINTER_TOOL && ( o->inherits( "MenuBarEditor" ) ||
 		 o->inherits( "QDesignerToolBar" ) ||
 		 ( o->inherits( "QComboBox") || o->inherits( "QToolButton" ) ||
 		   o->inherits( "QDesignerToolBarSeparator" ) ) &&
@@ -1066,7 +1064,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	break;
     case QEvent::Enter:
     case QEvent::Leave:
-	if ( !( w = isAFormWindowChild( o ) ) || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) /*|| o->inherits( "MenuBarEditor" )*/ )
+	if ( !( w = isAFormWindowChild( o ) ) || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) || o->inherits( "MenuBarEditor" ) )
 	    break;
 	return TRUE;
     case QEvent::Resize:

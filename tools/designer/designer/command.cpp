@@ -2135,6 +2135,7 @@ void SetActionIconsCommand::execute()
     ActionEditor *ae = actionEditor();
     if ( ae )
 	ae->updateActionIcon( action );
+    MetaDataBase::setPropertyChanged( action, "iconSet", TRUE );
 }
 
 void SetActionIconsCommand::unexecute()
@@ -2143,6 +2144,7 @@ void SetActionIconsCommand::unexecute()
     ActionEditor *ae = actionEditor();
     if ( ae )
 	ae->updateActionIcon( action );
+    MetaDataBase::setPropertyChanged( action, "iconSet", TRUE );
 }
 
 // ------------------------------------------------------------
