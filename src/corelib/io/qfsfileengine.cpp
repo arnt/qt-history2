@@ -73,7 +73,7 @@ QFSFileEngine::open(int flags)
         oflags = QT_OPEN_WRONLY | QT_OPEN_CREAT;
     }
 
-    if (!(flags & QFile::ReadOnly)) {
+    if (flags & QFile::WriteOnly) {
         if (flags & QFile::Append)
             oflags |= QT_OPEN_APPEND;
         else
