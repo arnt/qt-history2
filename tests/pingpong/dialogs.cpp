@@ -100,19 +100,19 @@ MatchDialog::MatchDialog( QSqlRecord* buf, Mode mode, QWidget * parent,
     formLayout->addWidget( lteam, 0, 3 );
     form->associate( lteam, buf->field("loserid") );
 
-    flabel = new QLabel( buf->field("wins")->displayLabel(), w );
+    flabel = new QLabel( buf->field("winnerwins")->displayLabel(), w );
     wins = new QSpinBox( w );
     formLayout->addWidget( flabel, 1, 0 );
     formLayout->addWidget( wins, 1, 1 );
-    form->associate( wins, buf->field("wins") );
+    form->associate( wins, buf->field("winnerwins") );
     connect( wins, SIGNAL( valueChanged(int) ),
 	     SLOT( updateSets() ) );
 
-    flabel = new QLabel( buf->field("losses")->displayLabel(), w );
+    flabel = new QLabel( buf->field("loserwins")->displayLabel(), w );
     losses = new QSpinBox( w );
     formLayout->addWidget( flabel, 1, 2 );
     formLayout->addWidget( losses, 1, 3 );
-    form->associate( losses, buf->field("losses") );
+    form->associate( losses, buf->field("loserwins") );
     connect( losses, SIGNAL( valueChanged(int) ),
 	     SLOT( updateSets() ) );
 
@@ -182,15 +182,14 @@ EditTeamsDialog::EditTeamsDialog( QWidget * parent, const char * name )
     : QDialog( parent, name, TRUE )
 {
     setCaption( "Team Editor" );
-    
+
     QGridLayout * g = new QGridLayout( this );
-    
+
     g->setMargin( 5 );
     g->setSpacing( 5 );
 
     QFont f = font();
-    f.setBold( TRUE );  
-    
+    f.setBold( TRUE );
     QLabel * label = new QLabel( "All teams", this );
     label->setFont( f );
     g->addWidget( label, 0, 0 );
@@ -199,14 +198,14 @@ EditTeamsDialog::EditTeamsDialog( QWidget * parent, const char * name )
     g->addWidget( teamTable, 1, 0 );
     connect( teamTable, SIGNAL( currentChanged( const QSqlRecord * ) ),
 	     SLOT( updateTeamMembers( const QSqlRecord * ) ) );
-    
+
     label = new QLabel( "All players", this );
     label->setFont( f );
     g->addWidget( label, 0, 1 );
     playerTable = new QSqlTable( this );
     playerTable->setCursor( &playerCursor );
     g->addWidget( playerTable, 1, 1 );
-    
+
     player2teamLabel = new QLabel( "Players on ?", this );
     player2teamLabel->setFont( f );
     g->addMultiCellWidget( player2teamLabel, 2, 2, 0, 1 );
@@ -214,17 +213,15 @@ EditTeamsDialog::EditTeamsDialog( QWidget * parent, const char * name )
     player2teamTable->setCursor( &player2teamCursor );
     player2teamTable->setReadOnly( TRUE );
     g->addWidget( player2teamTable, 3, 0 );
-    
-    
     QFrame * buttonFrame = new QFrame( this );
     QVBoxLayout * v = new QVBoxLayout( buttonFrame );
 
-    QPushButton * button = new QPushButton( "&Add player to team", 
+    QPushButton * button = new QPushButton( "<< &Add",
 					    buttonFrame );
     connect( button, SIGNAL( clicked() ), SLOT( addPlayer() ) );
     v->addWidget( button );
 
-    button = new QPushButton( "&Remove player from team", buttonFrame );
+    button = new QPushButton( ">> &Remove", buttonFrame );
     connect( button, SIGNAL( clicked() ), SLOT( removePlayer() ) );
     v->addWidget( button );
     v->addItem( new QSpacerItem( 0, 0, QSizePolicy::Expanding,
@@ -242,7 +239,7 @@ EditTeamsDialog::EditTeamsDialog( QWidget * parent, const char * name )
     h->addWidget( button );
     h->addItem( new QSpacerItem( 0, 0, QSizePolicy::Expanding,
 				 QSizePolicy::Minimum ) );
-    
+
     g->addMultiCellWidget( buttonFrame, 4, 4, 0, 1 );
 }
 
@@ -250,7 +247,7 @@ void EditTeamsDialog::updateTeamMembers( const QSqlRecord * record )
 {
     player2teamCursor.select( "teamid = " + record->value( "id" ).toString());
     player2teamTable->refresh();
-    player2teamLabel->setText( "Players on " + 
+    player2teamLabel->setText( "Players on " +
 			       teamCursor.value("name").toString() );
 }
 
@@ -259,7 +256,7 @@ void EditTeamsDialog::addPlayer()
     QSqlQuery sql( "select count(*) from player2team where teamid = " +
 		   teamCursor.value("id").toString() + " and playerid = " +
 		   playerCursor.value("id").toString() + ";" );
-    
+
     if( sql.next() && (sql.value(0).toInt() == 0) ){
 	QSqlRecord * buf = player2teamCursor.insertBuffer();
 	buf->setValue( "teamid", teamCursor.value("id") );

@@ -31,11 +31,10 @@ create sequence matchid_sequence;
 create table match
 (id int4 primary key default nextval('matchid_sequence'),
 date date not null,
-sets int4 not null,
 winnerid int4 references team on delete cascade,
 loserid int4 references team on delete cascade,
-wins int4 not null,
-losses int4 not null);
+winnerwins int4 not null,
+loserwins int4 not null);
 
 
 

@@ -14,6 +14,7 @@
 #include <qframe.h>
 #include <qapplication.h>
 #include <qaction.h>
+#include <qlistview.h>
 
 MatchTable::MatchTable( QWidget * parent = 0, const char * name = 0 )
     : QSqlTable( parent, name )
@@ -29,10 +30,31 @@ void MatchTable::sortColumn ( int col, bool ascending,
 	return;
     } else if ( cursor()->field(indexOf(col))->name() == "loser" ) {
 	cursor()->select( cursor()->filter(), cursor()->index( "loserid" )  );
-	viewport()->repaint( FALSE );	
+	viewport()->repaint( FALSE );
+	return;
+    } else if ( cursor()->field(indexOf(col))->name() == "sets" ) {
 	return;
     }
+
     QSqlTable::sortColumn( col, ascending, wholeRows );
+}
+
+Statistics::Statistics( QWidget * parent = 0, const char * name = 0 )
+    : QFrame( parent, name )
+{
+    QVBoxLayout* b = new QVBoxLayout( this );
+    list = new QListView( this );
+    list->addColumn( " ", 30 );
+    list->addColumn( " ", 30 );
+    b->addWidget( list );
+    refresh();
+}
+
+void Statistics::refresh()
+{
+    list->clear();
+    QListViewItem* lvi = new QListViewItem( list, "some text", "more text" );
+    list->insertItem( lvi );
 }
 
 PingPongApp::PingPongApp( QWidget * parent, const char * name )
@@ -43,7 +65,7 @@ PingPongApp::PingPongApp( QWidget * parent, const char * name )
 
 void PingPongApp::init()
 {
-    setCaption( "National Pingpong Association (NPA) League Table" );
+    setCaption( "Scandinavian Pingpong Association (NPA) League Table" );
     QPixmap icon( "pingpong.xpm" );
     setIcon( icon );
 
@@ -60,7 +82,7 @@ void PingPongApp::init()
 		     QString::null, 0, this, 0 );
     connect( a, SIGNAL( activated() ), SLOT( insertMatch() ) );
     a->addTo( tbar );
-    a = new QAction( "Update result", QPixmap( "edit.png" ), QString::null, 
+    a = new QAction( "Update result", QPixmap( "edit.png" ), QString::null,
 		     0, this, 0 );
     connect( a, SIGNAL( activated() ), SLOT( updateMatch() ) );
     a->addTo( tbar );
@@ -74,7 +96,7 @@ void PingPongApp::init()
 		     0, this, 0 );
     connect( a, SIGNAL( activated() ), SLOT( editTeams() ) );
     a->addTo( tbar );
-    
+
     QFrame * f1       = new QFrame( this );
     QVBoxLayout * vb1 = new QVBoxLayout( f1 );
 
@@ -99,15 +121,15 @@ void PingPongApp::init()
     resize( 700, 400 );
 
     // Setup initial match table
-    matchCr.select( matchCr.index( "date" ) );    
+    matchCr.select( matchCr.index( "date" ) );
     matchTable->setConfirmEdits( TRUE );
     matchTable->setConfirmCancels( TRUE );
     matchTable->setCursor( &matchCr, FALSE );
     matchTable->addColumn( matchCr.field( "date" ) );
     matchTable->addColumn( matchCr.field( "winner" ) );
-    matchTable->addColumn( matchCr.field( "wins" ) );
+    matchTable->addColumn( matchCr.field( "winnerwins" ) );
     matchTable->addColumn( matchCr.field( "loser" ) );
-    matchTable->addColumn( matchCr.field( "losses" ) );
+    matchTable->addColumn( matchCr.field( "loserwins" ) );
     matchTable->addColumn( matchCr.field( "sets" ) );
     matchTable->setSorting( TRUE );
     matchTable->setReadOnly( TRUE );

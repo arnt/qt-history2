@@ -11,6 +11,7 @@
 #include "cursors.h"
 
 class QLabel;
+class QListView;
 
 class MatchTable : public QSqlTable
 {
@@ -18,6 +19,15 @@ public:
     MatchTable( QWidget * parent = 0, const char * name = 0 );
     void         sortColumn ( int col, bool ascending = TRUE,
 			      bool wholeRows = FALSE );
+};
+
+class Statistics : public QFrame
+{
+public:
+    Statistics( QWidget * parent = 0, const char * name = 0 );
+    void refresh();
+private:
+    QListView* list;
 };
 
 class PingPongApp : public QMainWindow

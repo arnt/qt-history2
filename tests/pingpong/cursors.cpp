@@ -10,10 +10,9 @@ MatchCursor::MatchCursor()
     field("winnerid")->setVisible( FALSE );
     field("loserid")->setVisible( FALSE );
 
-    field("losses")->setDisplayLabel( "Losses" );
-    field("wins")->setDisplayLabel( "Wins" );
+    field("loserwins")->setDisplayLabel( "Loser Wins" );
+    field("winnerwins")->setDisplayLabel( "Winner Wins" );
     field("date")->setDisplayLabel( "Date" );
-    field("sets")->setDisplayLabel( "Sets" );
 
     // add lookup field
     QSqlField loser("loser", QVariant::String );
@@ -23,13 +22,21 @@ MatchCursor::MatchCursor()
     QSqlField winner("winner", QVariant::String );
     winner.setDisplayLabel("Winner");
     append( winner );
+    
+    QSqlField sets("sets", QVariant::Int );
+    sets.setDisplayLabel("Sets");
+    append( sets );
 
     setCalculated( loser.name(), TRUE );
     setCalculated( winner.name(), TRUE );
+    setCalculated( sets.name(), TRUE );    
 }
 
 QVariant MatchCursor::calculateField( const QString& name )
 {
+    if ( name == "sets" ) 
+	return QVariant( field("winnerwins")->value().toInt() + field("loserwins")->value().toInt() );
+	
     if( name == "winner" )
 	teamCr->setValue( "id", field("winnerid")->value() );
     else if( name == "loser" )
@@ -72,7 +79,7 @@ Player2TeamCursor::Player2TeamCursor()
 {
     field("playerid")->setVisible( FALSE );
     field("teamid")->setVisible( FALSE );
-    
+
     QSqlField f( "playername", QVariant::String );
     f.setDisplayLabel( "Player name" );
     append( f );
@@ -82,7 +89,7 @@ Player2TeamCursor::Player2TeamCursor()
 QVariant Player2TeamCursor::calculateField( const QString & name )
 {
     if( name == "playername" ){
-	QSqlQuery sql( "select name from player where id = " + 
+	QSqlQuery sql( "select name from player where id = " +
 		       field("playerid")->value().toString() + ";");
 	if( sql.next() ){
 	    return sql.value( 0 );
