@@ -64,6 +64,8 @@ QTextOption::QTextOption(const QTextOption &o)
 
 QTextOption &QTextOption::operator=(const QTextOption &o)
 {
+    if (this == &o)
+        return *this;
     if (d)
         delete d;
     align = o.align;
