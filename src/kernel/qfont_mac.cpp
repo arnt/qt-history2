@@ -262,7 +262,7 @@ inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *
 
 #if defined( QMAC_FONT_ATSUI )
 	//Create a cacheable ATSUStyle
-	const int arr_guess = 5;
+	const int arr_guess = 6;
 	int arr = 0;
 	ATSUAttributeTag tags[arr_guess];
 	ByteCount valueSizes[arr_guess];
@@ -278,6 +278,11 @@ inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *
 	valueSizes[arr] = sizeof(fond);
 	values[arr] = &fond;
 	arr++;
+        tags[arr] = kATSUQDItalicTag;
+        valueSizes[arr] = sizeof(Boolean);
+        Boolean boolVar = d->request.italic ? true : false;
+        values[arr] = &boolVar;
+        arr++;
 	if(arr > arr_guess) //this won't really happen, just so I will not miss the case
 	    qDebug("%d: Whoa!! you forgot to increase arr_guess! %d", __LINE__, arr);
 
