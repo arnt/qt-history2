@@ -16,6 +16,7 @@ public:
     virtual void licenseAccepted();
     virtual void clickedFolderPath();
     virtual void clickedDevSysPath();
+    virtual void clickedSave();
 
     virtual void showPage( QWidget* );
     QApplication* app;
@@ -61,4 +62,11 @@ private:
     QString currentLine;
 
     void updateOutputDisplay( QProcess* );
+    void installIcons( QString iconFolder, QString dirName, bool common );
+
+    enum {
+	MSVC = 0,
+	Borland = 1,
+	GCC = 2
+    };
 };

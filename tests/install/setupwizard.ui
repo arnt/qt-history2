@@ -8,7 +8,7 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>537</width>
+            <width>529</width>
             <height>347</height>
         </rect>
     </property>
@@ -724,19 +724,19 @@
                 <property name="title">
                     <string>Build output</string>
                 </property>
-                <vbox>
+                <grid>
                     <property name="margin">
                         <number>11</number>
                     </property>
                     <property name="spacing">
                         <number>6</number>
                     </property>
-                    <widget class="QListBox">
+                    <widget class="QListBox" row="0" column="0" rowspan="1" colspan="2">
                         <property name="name">
                             <cstring>outputDisplay</cstring>
                         </property>
                     </widget>
-                    <widget class="QProgressBar">
+                    <widget class="QProgressBar" row="1" column="0">
                         <property name="name">
                             <cstring>compileProgress</cstring>
                         </property>
@@ -747,18 +747,26 @@
                             <bool>false</bool>
                         </property>
                     </widget>
-                </vbox>
+                    <widget class="QPushButton" row="1" column="1">
+                        <property name="name">
+                            <cstring>saveButton</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Save log</string>
+                        </property>
+                    </widget>
+                </grid>
             </widget>
         </hbox>
     </widget>
     <widget class="QWidget">
         <property name="name">
-            <cstring>page</cstring>
+            <cstring>finishPage</cstring>
         </property>
         <attribute name="title">
-            <string>Page</string>
+            <string>Finished...</string>
         </attribute>
-        <grid>
+        <hbox>
             <property name="name">
                 <cstring>unnamed</cstring>
             </property>
@@ -768,7 +776,7 @@
             <property name="spacing">
                 <number>6</number>
             </property>
-            <widget class="QLabel" row="0" column="0">
+            <widget class="QLabel">
                 <property name="name">
                     <cstring>page7Pixmap</cstring>
                 </property>
@@ -790,7 +798,12 @@
                 <property name="vAlign" stdset="0">
                 </property>
             </widget>
-        </grid>
+            <widget class="QTextView">
+                <property name="name">
+                    <cstring>finishText</cstring>
+                </property>
+            </widget>
+        </hbox>
     </widget>
 </widget>
 <images>
@@ -847,14 +860,21 @@
         <receiver>SetupWizard</receiver>
         <slot>clickedDevSysPath()</slot>
     </connection>
-    <slot access="protected" language="C++">init()</slot>
-    <slot access="protected" language="C++">destroy()</slot>
+    <connection>
+        <sender>saveButton</sender>
+        <signal>clicked()</signal>
+        <receiver>SetupWizard</receiver>
+        <slot>clickedSave()</slot>
+    </connection>
+    <slot access="public" language="C++">clickedDevSysPath()</slot>
     <slot access="public" language="C++">clickedFolderPath()</slot>
     <slot access="public" language="C++">clickedPath()</slot>
     <slot access="public" language="C++">clickedSystem(int)</slot>
+    <slot access="protected" language="C++">destroy()</slot>
     <slot access="public" language="C++">licenseAccepted()</slot>
-    <slot access="public" language="C++">clickedDevSysPath()</slot>
+    <slot access="public" language="C++">clickedSave()</slot>
     <slot access="public" language="C++">pageChanged(const QString&amp;)</slot>
+    <slot access="protected" language="C++">init()</slot>
 </connections>
 <tabstops>
     <tabstop>introText</tabstop>

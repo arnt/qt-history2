@@ -118,73 +118,54 @@ QString WinShell::createFolder( QString folderName, bool common )
 {
     QDir folderDir;
     QString folderPath;
-    HRESULT hr;
-    IShellFolder* programFolder;
-    IShellFolder* iconFolder;
-    IShellLink* link;
-    IPersistFile* linkFile;
 
-    if( common ) {
+    if( common )
 	folderPath = commonProgramsFolderName + QString( "\\" ) + folderName;
-	programFolder = commonProgramsFolder;
-    }
-    else {
+    else
 	folderPath = localProgramsFolderName + QString( "\\" ) + folderName;
-	programFolder = localProgramsFolder;
-    }
+
     folderDir.setPath( folderPath );
 
     if( !folderDir.exists( folderPath ) )
 	if( !createDir( folderPath ) )
 	    return QString::null;
 
-    programFolder->AddRef();
+    return folderPath;
+}
 
+
+HRESULT WinShell::createShortcut( QString folderName, bool common, QString shortcutName, QString target, QString description, QString arguments )
+{
+    IShellLink* link;
+    IPersistFile* linkFile;
     LPITEMIDLIST item;    
+    HRESULT hr;
 
-    if( SUCCEEDED( hr = desktopFolder->ParseDisplayName( NULL, NULL, (LPOLESTR)QString2OLESTR( folderPath ).data(), NULL, &item, NULL ) ) ) {
-	if( SUCCEEDED( hr = desktopFolder->BindToObject( (LPCITEMIDLIST)item, NULL, IID_IShellFolder, (void**)&iconFolder ) ) ) {
-	    if( SUCCEEDED( hr = CoCreateInstance( CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (void**)&link ) ) ) {
-		if( SUCCEEDED( hr = link->QueryInterface( IID_IPersistFile, (void**)&linkFile ) ) ) {
-		    link->SetPath( QString( QEnvironment::getEnv( "QTDIR" ) + "\\bin\\designer.exe" ).local8Bit() );
-		    link->SetDescription( "GUI designer" );
-		    if( FAILED( hr = linkFile->Save( (LPCOLESTR)QString2OLESTR( QString( folderPath + "\\Designer.lnk" ) ).data(), false ) ) )
-			qDebug( "Could not save link to designer" );
-		    
-		    link->SetPath( QString( QEnvironment::getEnv( "QTDIR" ) + "\\bin\\configurator.exe" ).local8Bit() );
-		    link->SetDescription( "Reconfigure Qt" );
-		    if( FAILED( hr = linkFile->Save( (LPCOLESTR)QString2OLESTR( QString( folderPath + "\\Reconfigure Qt.lnk" ) ).data(), false ) ) )
-			qDebug( "Could not save link to configurator" );
+    // Add .lnk to shortcut name if needed
+    if( shortcutName.right( 4 ) != ".lnk" )
+	shortcutName += ".lnk";
 
+    if( SUCCEEDED( hr = CoCreateInstance( CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (void**)&link ) ) ) {
+	if( SUCCEEDED( hr = link->QueryInterface( IID_IPersistFile, (void**)&linkFile ) ) ) {
+	    link->SetPath( QString( target.local8Bit() ) );
+	    if( description.length() )
+		link->SetDescription( description.local8Bit() );
+	    if( arguments.length() )
+		link->SetArguments( arguments.local8Bit() );
 
-
-		    link->SetPath( QString( "notepad.exe" ).local8Bit() );
-		    link->SetArguments( QString( QEnvironment::getEnv( "QTDIR" ) + "\\LICENSE" ).local8Bit() );
-		    link->SetDescription( "Show the License agreement" );
-		    if( FAILED( hr = linkFile->Save( (LPCOLESTR)QString2OLESTR( QString( folderPath + "\\View license.lnk" ) ).data(), false ) ) )
-			qDebug( "Could not save link to license agreement" );
-
-		    linkFile->Release();
-		}
-		else
-		    qDebug( "Could not get link file interface" );
-
-		link->Release();
-	    }
-	    else
-		qDebug( "Could not instantiate link object" );
+	    hr = linkFile->Save( (LPCOLESTR)QString2OLESTR( folderName + QString( "\\" ) + shortcutName ).data(), false );
+	    
+	    linkFile->Release();
 	}
 	else
-	    qDebug( "Could not get folder interface for icon folder" );
+	    qDebug( "Could not get link file interface" );
+
+	link->Release();
     }
     else
-	qDebug( "Could not parse icon folder name" );
+	qDebug( "Could not instantiate link object" );
 
-
-
-    programFolder->Release();
-    
-    return folderPath;
+    return hr;
 }
 
 bool WinShell::createDir( QString fullPath )

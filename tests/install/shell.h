@@ -23,4 +23,5 @@ public:
     QString selectFolder( QString folderName, bool common );
 
     QString createFolder( QString folderName, bool common );
+    HRESULT createShortcut( QString folderName, bool common, QString shortcutName, QString target, QString description = QString::null, QString arguments = QString::null );
 };

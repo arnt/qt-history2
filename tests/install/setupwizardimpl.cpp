@@ -74,6 +74,24 @@ void SetupWizardImpl::clickedDevSysPath()
     }
 }
 
+void SetupWizardImpl::clickedSave()
+{
+    QString fileName = QFileDialog::getSaveFileName( QEnvironment::getEnv( "QTDIR" ) + "\\buildlog.txt", "*.txt" );
+
+    if( fileName.isEmpty() )
+	return;
+
+    QFile logFile( fileName );
+    if( logFile.open( IO_WriteOnly ) ) {
+	QTextStream outStream( &logFile );
+	for( int i = 0; i < outputDisplay->count(); i++ ) {
+	    QString entry = outputDisplay->text( i );
+	    outStream << entry.latin1();
+	}
+	logFile.close();
+    }
+}
+
 void SetupWizardImpl::clickedSystem( int sys )
 {
     sysID = sys;
@@ -132,16 +150,58 @@ void SetupWizardImpl::updateOutputDisplay( QProcess* proc )
     }
 }
 
+void SetupWizardImpl::installIcons( QString iconFolder, QString dirName, bool common )
+{
+    QDir dir( dirName );
+
+    dir.setSorting( QDir::Name | QDir::IgnoreCase );
+    const QFileInfoList* filist = dir.entryInfoList();
+    QFileInfoListIterator it( *filist );
+    QFileInfo* fi;
+
+    while( ( fi = it.current() ) ) {
+	if( fi->fileName()[0] != '.' ) { // Exclude dot-dirs
+	    if( fi->isDir() )
+		installIcons( iconFolder, fi->absFilePath(), common );
+	    else if( fi->fileName().right( 4 ) == ".exe" )
+		shell.createShortcut( iconFolder, common, fi->baseName(), fi->absFilePath() );
+	}
+	++it;
+    }
+}
+
 void SetupWizardImpl::integratorDone()
 {
-    QString dirName;
+    QString dirName, examplesName, tutorialsName;
+    bool common( folderGroups->currentItem() == 1 );
+    /*
+    ** We still have some more items to do in order to finish all the
+    ** integration stuff.
+    */
+    switch( sysID ) {
+    case MSVC:
+	{
+	    
+	}
+	break;
+    }
     /*
     ** Set up our icon folder and populate it with shortcuts.
     ** Then move to the next page.
     */
-    dirName = shell.createFolder( folderPath->text(), ( folderGroups->currentItem() == 1 ) );
-
-    next();
+    dirName = shell.createFolder( folderPath->text(), common );
+    shell.createShortcut( dirName, common, "Designer", QEnvironment::getEnv( "QTDIR" ) + "\\bin\\designer.exe", "GUI designer" );
+    shell.createShortcut( dirName, common, "Reconfigure Qt", QEnvironment::getEnv( "QTDIR" ) + "\\bin\\configurator.exe", "Reconfigure the Qt library" );
+    shell.createShortcut( dirName, common, "License agreement", "notepad.exe", "Review the license agreement", QString( "\"" ) + QEnvironment::getEnv( "QTDIR" ) + "\\LICENSE\"" );
+    if( installTutorials->isChecked() ) {
+	tutorialsName = shell.createFolder( folderPath->text() + "\\Tutorials", common );
+	installIcons( tutorialsName, QEnvironment::getEnv( "QTDIR" ) + "\\tutorial", common );
+    }
+    if( installExamples->isChecked() ) {
+	examplesName = shell.createFolder( folderPath->text() + "\\Examples", common );
+	installIcons( examplesName, QEnvironment::getEnv( "QTDIR" ) + "\\examples", common );
+    }
+    setNextEnabled( buildPage, true );
 }
 
 void SetupWizardImpl::makeDone()
@@ -306,6 +366,14 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    if( installTutorials->isChecked() )
 		readArchive( "tutorial.arq", installPath->text() );
 	    filesCopied = true;
+	    filesDisplay->append( "\n\nAll files have been copied\nThis log will be saved to your installation directory\n" );
+
+	    QFile logFile( installPath->text() + "\\install.log" );
+	    if( logFile.open( IO_WriteOnly ) ) {
+		QTextStream outStream( &logFile );
+		outStream << filesDisplay->text().latin1();
+		logFile.close();
+	    }
 	}
 	setNextEnabled( progressPage, true );
     }
@@ -514,6 +582,11 @@ void SetupWizardImpl::readArchive( QString arcname, QString installPath )
 			else
 			    break;
 		    }
+		    if( app ) {
+			app->processEvents();
+			operationProgress->setProgress( totalRead );
+			filesDisplay->append( dirName + "\n" );
+		    }
 		}
 	    }
 	    else
@@ -527,7 +600,7 @@ void SetupWizardImpl::readArchive( QString arcname, QString installPath )
 		    if( app ) {
 			app->processEvents();
 			operationProgress->setProgress( totalRead );
-			filesDisplay->append( fileName );
+			filesDisplay->append( fileName + "\n" );
 		    }
 		    // Try to count the files to get some sort of idea of compilation progress
 		    if( ( entryName.right( 4 ) == ".cpp" ) || ( entryName.right( 2 ) == ".h" ) )
