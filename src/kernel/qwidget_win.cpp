@@ -930,11 +930,11 @@ void QWidget::setWindowState(uint newstate)
 	    if (newstate & WindowFullScreen) {
 		if ( topData()->normalGeometry.width() < 0 && !(oldstate & WindowMaximized) )
 		    topData()->normalGeometry = QRect( pos(), size() );
-		topData()->savedFlags = GetWindowLong(winId(), GWL_STYLE);
+		topData()->savedFlags = GetWindowLongA(winId(), GWL_STYLE);
 		UINT style = WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_POPUP;
 		if (isVisible())
 		    style |= WS_VISIBLE;
-		SetWindowLong(winId(), GWL_STYLE, style);
+		SetWindowLongA(winId(), GWL_STYLE, style);
 		QRect r = qApp->desktop()->screenGeometry(this);
 		UINT swpf = SWP_FRAMECHANGED;
 		if (newstate & WindowActive)
@@ -946,7 +946,7 @@ void QWidget::setWindowState(uint newstate)
 		UINT style = topData()->savedFlags;
 		if (isVisible())
 		    style |= WS_VISIBLE;
-		SetWindowLong(winId(), GWL_STYLE, style);
+		SetWindowLongA(winId(), GWL_STYLE, style);
 		QRect r = topData()->normalGeometry;
 
 		UINT swpf = SWP_FRAMECHANGED | SWP_NOZORDER | SWP_NOSIZE | SWP_NOMOVE;
