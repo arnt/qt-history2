@@ -258,7 +258,11 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
 		softwareRepeat = FALSE;
 		break;
 	    case 0x78:
+# ifdef QT_QWS_IPAQ
+		keyCode = Key_F24;  // record
+# else
 		keyCode = Key_Escape;
+# endif
 		softwareRepeat = FALSE;
 		break;
 	    case 0x60:
