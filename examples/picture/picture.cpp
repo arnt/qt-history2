@@ -38,7 +38,7 @@ void paintCar( QPainter *p )			// paint a car
 
     QPixmap pixmap;
     if ( pixmap.load("flag.bmp") )		// load and draw image
-	p->drawPixmap( 100, 90, pixmap );
+	p->drawPixmap( 100, 85, pixmap );
 
     p->setBackgroundMode( Qt::OpaqueMode );	// set opaque mode
     p->setBrush( Qt::DiagCrossPattern );	// black diagonal cross pattern
