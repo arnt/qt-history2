@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignalmapper.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qsignalmapper.cpp#6 $
 **
 ** Implementation of QSignalMapper class
 **
@@ -31,7 +31,7 @@ struct QSignalMapperRec {
 	str_id = 0;
     }
 
-    int has_int:1;
+    uint has_int:1;
 
     int int_id;
     const char* str_id;
