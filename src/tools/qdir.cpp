@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#98 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#99 $
 **
 ** Implementation of QDir class
 **
@@ -1310,22 +1310,8 @@ static QStringList makeFilterList( const QString &filter )
             i = filter.find( sep, 0 );
         }
     }
-    QStringList lst;
 
-    int j = 0;
-    
-    while ( i != -1 ) {
-        if ( filter.mid( j, i - j ).length() > 0 )
-            lst.append( filter.mid( j, i - j ) );
-        j = i + 1;
-        i = filter.find( sep, j );
-    }
-
-    int l = filter.length() - 1;
-    if ( !filter.mid( j, l - j + 1 ).simplifyWhiteSpace().isEmpty() )
-        lst.append( filter.mid( j, l - j + 1 ).simplifyWhiteSpace() );
-    
-    return lst;
+    return QStringList::split( filter, sep );
 }
 
 /*!

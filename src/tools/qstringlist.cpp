@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstringlist.cpp#12 $
+** $Id: //depot/qt/main/src/tools/qstringlist.cpp#13 $
 **
 ** Implementation of QStringList
 **
@@ -95,6 +95,32 @@
 void QStringList::sort()
 {
     qHeapSort(*this);
+}
+
+QStringList QStringList::split( const QString &str, const QChar &sep)
+{
+    return split( str, QString( sep ) );
+}
+
+QStringList QStringList::split( const QString &str, const QString &sep )
+{
+    QStringList lst;
+
+    int j = 0;
+    int i = str.find( sep, j );
+    
+    while ( i != -1 ) {
+        if ( str.mid( j, i - j ).length() > 0 )
+            lst.append( str.mid( j, i - j ) );
+        j = i + sep.length();
+        i = str.find( sep, j );
+    }
+
+    int l = str.length() - 1;
+    if ( !str.mid( j, l - j + 1 ).simplifyWhiteSpace().isEmpty() )
+        lst.append( str.mid( j, l - j + 1 ).simplifyWhiteSpace() );
+
+    return lst;
 }
 
 Q_EXPORT QDataStream &operator>>( QDataStream & s, QStringList& l )
