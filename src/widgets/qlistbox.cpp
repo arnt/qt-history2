@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#94 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#95 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#94 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#95 $");
 
 
 Q_DECLARE(QListM, QListBoxItem);
@@ -49,7 +49,7 @@ static inline bool checkInsertIndex( const char *method, int count, int *index)
 
 static inline bool checkIndex( const char *method, int count, int index )
 {
-    bool range_err = (index >= count);
+    bool range_err = ((uint)index >= (uint)count);
 #if defined(CHECK_RANGE)
     if ( range_err )
 	warning( "QListBox::%s: Index %d out of range", method, index );
@@ -478,8 +478,7 @@ void QListBox::insertStrList( const QStrList *list, int index )
 	index = itemList->count();
     while ( (txt=it.current()) ) {
 	++it;
-	QListBoxText *tmp = new QListBoxText( txt );
-	insertDangerously( tmp, index++, FALSE );
+	insert( new QListBoxText(txt), index++, FALSE );
     }
     updateNumRows( TRUE );
     if ( autoUpdate() && isVisible() )
@@ -510,8 +509,7 @@ void QListBox::insertStrList( const char **strings, int numStrings, int index )
 	index = itemList->count();
     int i = 0;
     while ( (numStrings<0 && strings[i]!=0) || i<numStrings ) {
-	QListBoxText *tmp = new QListBoxText( strings[i] );
-	insertDangerously( tmp, index + i, FALSE );
+	insert( new QListBoxText(strings[i]), index + i, FALSE );
 	i++;
     }
     updateNumRows( TRUE );
@@ -543,7 +541,7 @@ void QListBox::insertItem( const QListBoxItem *lbi, int index )
 	stringsOnly = FALSE;
 	setCellHeight( 0 );
     }
-    insertDangerously( lbi, index, TRUE );
+    insert( lbi, index, TRUE );
     updateNumRows( FALSE );
     if ( autoUpdate() )
 	repaint();
@@ -567,8 +565,7 @@ void QListBox::insertItem( const char *text, int index )
 #endif
 	return;
     }
-    QListBoxText *tmp = new QListBoxText( text );
-    insertDangerously( tmp, index, TRUE );
+    insert( new QListBoxText(text), index, TRUE );
     updateNumRows( FALSE );
     if ( autoUpdate() && itemVisible(index) ) {
 	int x, y;
@@ -594,8 +591,7 @@ void QListBox::insertItem( const QPixmap &pixmap, int index )
 	stringsOnly = FALSE;
 	setCellHeight( 0 );
     }
-    QListBoxPixmap *tmp = new QListBoxPixmap( pixmap );
-    insertDangerously( tmp, index, TRUE );
+    insert( new QListBoxPixmap(pixmap), index, TRUE );
     updateNumRows( FALSE );
     if ( autoUpdate() && itemVisible(index) ) {
 	int x, y;
@@ -697,10 +693,9 @@ void QListBox::clear()
 
 const char *QListBox::text( int index ) const
 {
-    if ( index >= (int)count() )
+    if ( (uint)index >= count() )
 	return 0;
-    QListBoxItem *lbi = itemList->at( index );
-    return lbi->text();
+    return itemList->at(index)->text();
 }
 
 /*!
@@ -711,10 +706,9 @@ const char *QListBox::text( int index ) const
 
 const QPixmap *QListBox::pixmap( int index ) const
 {
-    if ( index >= (int)count() )
+    if ( (uint)index >= count() )
 	return 0;
-    QListBoxItem *lbi = itemList->at( index );
-    return lbi->pixmap();
+    return itemList->at(index)->pixmap();
 }
 
 /*!
@@ -729,8 +723,7 @@ void QListBox::changeItem( const char *text, int index )
 {
     if ( !checkIndex( "changeItem", count(), index ) )
 	return;
-    QListBoxText *tmp = new QListBoxText( text );
-    changeDangerously( tmp, index );
+    change( new QListBoxText(text), index );
 }
 
 /*!
@@ -745,8 +738,7 @@ void QListBox::changeItem( const QPixmap &pixmap, int index )
 {
     if ( !checkIndex( "changeItem", count(), index ) )
 	return;
-    QListBoxPixmap *tmp = new QListBoxPixmap( pixmap );
-    changeDangerously( tmp, index );
+    change( new QListBoxPixmap(pixmap), index );
 }
 
 
@@ -761,7 +753,7 @@ void QListBox::changeItem( const QListBoxItem *lbi, int index )
 {
     if ( !checkIndex( "changeItem", count(), index ) )
 	return;
-    changeDangerously( lbi, index );
+    change( lbi, index );
 }
 
 
@@ -880,7 +872,6 @@ int QListBox::topItem() const
 
 void QListBox::setTopItem( int index )
 {
-    //debug( "Set top item %d", index );
     setTopCell( index );
 }
 
@@ -1137,11 +1128,11 @@ bool QListBox::itemVisible( int index )
     return rowIsVisible( index );
 }
 
+
 /*!
-  Repaints the cell at position \e row using \e p.  The \e col
-  argument is ignored, it is present because QTableView is more
-  general. This function has the responsibility of showing focus
-  and highlighting.
+  Repaints the cell at position \e row using \e p.  The \e col argument
+  is ignored, it is present because QTableView is more general. This
+  function has the responsibility of showing focus and highlighting.
 
   \sa QTableView::paintCell()
 */
@@ -1152,9 +1143,6 @@ void QListBox::paintCell( QPainter *p, int row, int col )
     if ( !lbi )
 	return;
 
-    //debug( "painting cell %d, focus %u, select %u, %s", row, hasFocus(),
-    //	      row == current, lbi->text() );
-
     QColorGroup g = colorGroup();
     if ( current == row ) {
 	QColor	 fc;				// fill color
@@ -1162,12 +1150,8 @@ void QListBox::paintCell( QPainter *p, int row, int col )
 	    fc = darkBlue;			// !!!hardcoded
 	else
 	    fc = g.text();
-	if ( hasFocus() ) {
-	    //bool clip =  p->hasClipping();
-	    //p->setClipping( FALSE );
+	if ( hasFocus() )
 	    p->fillRect( 0, 0, cellWidth(col), cellHeight(row), fc );
-	    //p->setClipping( clip );
-	}
 	else
 	    p->fillRect( 1, 1, cellWidth(col) - 2, cellHeight(row) - 2, fc );
 	p->setPen( g.base() );
@@ -1189,6 +1173,7 @@ void QListBox::paintCell( QPainter *p, int row, int col )
     p->setBackgroundColor( g.base() );
     p->setPen( g.text() );
 }
+
 
 /*!
   Handles mouse press events.  Makes the clicked item the current item.
@@ -1264,6 +1249,7 @@ void QListBox::mouseMoveEvent( QMouseEvent *e )
     }
 }
 
+
 /*!
   Handles key press events.
 
@@ -1282,17 +1268,12 @@ void QListBox::keyPressEvent( QKeyEvent *e )
     if ( currentItem() < 0 )
 	setCurrentItem( topItem() );
 
-    //debug("Last row visible is %d", lastRowVisible() );
-    //debug("Top row visible is %d", topItem() );
-    //debug("Current item is %d", currentItem() );
-
     int pageSize, delta;
 
     switch ( e->key() ) {
 	case Key_Up:
 	    if ( currentItem() > 0 ) {
 		setCurrentItem( currentItem() - 1 );
-		//debug("Current item is %d", currentItem() );
 		if ( currentItem() < topItem()	)
 		    setTopItem( currentItem() );
 	    }
@@ -1300,28 +1281,21 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	case Key_Down:
 	    if ( currentItem() < (int)count() - 1 ) {
 		setCurrentItem( currentItem() + 1 );
-		//debug("Current item is %d", currentItem() );
 		if ( currentItem() > lastRowVisible() )
 		    setTopItem( topItem() + currentItem() - lastRowVisible() );
 	    }
-	    //### tableview !!!
-	    //	    while (  currentItem() > lastRowVisible() ) {
-	    //setTopItem( topItem() + 1 );
-	    //}
 	    break;
 	case Key_Next:
 	    delta = currentItem() - topItem();
 	    pageSize = lastRowVisible() - topItem();
 	    setTopItem( QMIN( topItem() + pageSize, (int)count() - 1 ) );
 	    setCurrentItem( QMIN( topItem() + delta, (int)count() - 1 ) );
-	    //debug("Current item is %d", currentItem() );
 	    break;
 	case Key_Prior:
 	    delta = currentItem() - topItem();
 	    pageSize = lastRowVisible() - topItem();
 	    setTopItem( QMAX( topItem() - pageSize, 0 ) );
 	    setCurrentItem( QMAX( topItem() + delta, 0 ) );
-	    //debug("Current item is %d", currentItem() );
 	    break;
 
 	case Key_Return:
@@ -1336,8 +1310,8 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 
 
 /*!
-  Handles focus events.	 Repaints, and sets the current item to
-  first one if there is no current item.
+  Handles focus events.	 Repaints, and sets the current item to first one
+  if there is no current item.
   \sa keyPressEvent(), focusOutEvent()
 */
 
@@ -1359,6 +1333,7 @@ void QListBox::resizeEvent( QResizeEvent *e )
     QTableView::resizeEvent( e );
     setCellWidth( QMAX(maxItemWidth(), viewWidth()) );
 }
+
 
 /*!
   Handles timer events.	 Does auto-scrolling.
@@ -1406,6 +1381,7 @@ int QListBox::findItem( int yPos ) const
     return findRow( yPos );
 }
 
+
 /*!
   Repaints the item at position \e index in the list.  Erases the line
   first if \e erase is TRUE.
@@ -1415,6 +1391,7 @@ void QListBox::updateItem( int index, bool erase )
 {
     updateCell( index, 0,  erase );
 }
+
 
 /*!
   Deletes all items in the list.  Protected function that does NOT
@@ -1439,6 +1416,7 @@ void QListBox::clearList()
     setAutoUpdate( a );
 }
 
+
 /*!
   Traverses the list and finds an item with the maximum width, and
   updates the internal list box structures accordingly.
@@ -1460,6 +1438,7 @@ void QListBox::updateCellWidth()
     setCellWidth( QMAX( maxW, viewWidth() ) );
 }
 
+
 /*!
   \internal
   Inserts a new list box item.
@@ -1467,12 +1446,12 @@ void QListBox::updateCellWidth()
   The caller must also call update() if autoUpdate() is TRUE.
 */
 
-void QListBox::insertDangerously( const QListBoxItem *lbi, int index,
-				  bool updateCellWidth	)
+void QListBox::insert( const QListBoxItem *lbi, int index,
+		       bool updateCellWidth )
 {
 #if defined(CHECK_RANGE)
-    if ( (uint)index > count() )
-	warning( "QListBox::insert: Index %d out of range", index );
+    ASSERT( lbi );
+    ASSERT( (uint)index <= itemList->count() );
 #endif
     itemList->insert( index, lbi );
     if ( current == index )
@@ -1481,9 +1460,8 @@ void QListBox::insertDangerously( const QListBoxItem *lbi, int index,
 	int w = lbi->width( this );
 	if ( w > maxItemWidth() )
 	    setMaxItemWidth( w );
-	if ( w > cellWidth() ) {
+	if ( w > cellWidth() )
 	    setCellWidth( w );
-	}
     }
 }
 
@@ -1492,25 +1470,23 @@ void QListBox::insertDangerously( const QListBoxItem *lbi, int index,
   Changes a list box item.
 */
 
-void QListBox::changeDangerously( const QListBoxItem *lbi, int index )
+void QListBox::change( const QListBoxItem *lbi, int index )
 {
 #if defined(CHECK_RANGE)
-    if ( (uint)index > count() )
-	warning( "QListBox::change: Index %d out of range", index );
+    ASSERT( lbi );
+    ASSERT( (uint)index < itemList->count() );
 #endif
     QListBoxItem *old = itemList->take( index );
-    QFontMetrics fm = fontMetrics();
     int w = old->width( this );
+    int h = old->height( this );
     if ( w == cellWidth() )
 	updateCellWidth();
-    int h = cellHeight( index );
     delete old;
     int oldpos = current;
-    insertDangerously( lbi, index, TRUE );
+    insert( lbi, index, TRUE );
     current = oldpos;
     int nh = cellHeight( index );
     int y;
-    // ### the update rectangles are dubious
     if ( autoUpdate() && rowYPos( index, &y ) ) {
 	if ( nh == h )
 	    repaint( frameWidth(), y, viewWidth(), h );
@@ -1518,6 +1494,7 @@ void QListBox::changeDangerously( const QListBoxItem *lbi, int index )
 	    repaint( frameWidth(), y, viewWidth(), viewHeight() - y );
     }
 }
+
 
 /*!
   \internal
