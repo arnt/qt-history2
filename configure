@@ -292,7 +292,6 @@ R_FLAGS=
 l_FLAGS=
 XPLATFORM=
 FROMMAKE=
-QT_CXX=""
 QMAKE_PROJECTS=""
 CONCURRENT=0
 LIBDL=auto
@@ -475,24 +474,21 @@ while [ -n "$1" ]; do
 	MODULE=`echo $1 | sed "s/-enable-//"`
 	if [ -n $MODULE -a -d "$relpath/src/$MODULE" ]
 	then
-	    echo "${MODULES}" | grep $MODULE
-	    if [ '!' $? ]
+	    
+	    if echo "${MODULES}" | grep $MODULE >/dev/null 2>&1
 	    then
 		MODULES="$MODULES $MODULE"
 	    fi
 	fi
 	;;
    -disable-*)
-echo "MODULES(1): $MODULES"
     	MODULE=`echo $1 | sed -e "s/-disable-//"`
 	if [ -d "$relpath/src/$MODULE" ]
 	then
 	    MODULES=`echo $MODULES | sed -e "s/$MODULE//"`
 	else
-	    FEATURE=`echo $1 | sed -e "s/-/_/g" | tr '[a-z]' '[A-Z]'`;
-	    QT_CXX="$QT_CXX -DQT"`echo $1 | sed -e "s/-/_/g" | tr '[a-z]' '[A-Z]'`
+	    echo "Unknown module disabled: $MODULE"
 	fi
-echo "MODULES(2): $MODULES"
 	;;
     -with-*-*-*)
 	CONFIG=`echo $1 | sed -e "s/-with-//"`
@@ -729,7 +725,7 @@ then
 fi
 
 # Auto-detect opengl support
-if echo $MODULES | grep > /dev/null opengl
+if echo $MODULES | grep opengl >/dev/null 
 then
     LIBS=`sed -n -e '/^QMAKE_LIBS_OPENGL[	]*=/ { s/[^=]*=[	 ]*//; s/-l/ /g; p; }' $XMKSPEC`
     for L in $LIBS
@@ -1202,7 +1198,7 @@ case $Products in
        QMAKE_CONFIG="$QMAKE_CONFIG enterprise"
 	;;
    qt-internal)
-	QMAKE_CONFIG="$QMAKE_CONFIG internal"
+#	QMAKE_CONFIG="$QMAKE_CONFIG internal"
 	;;
    *) ;;
 esac
