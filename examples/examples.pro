@@ -19,6 +19,7 @@ SUBDIRS     =	aclock \
 		cursor \
 		customlayout \
 		dclock \
+		demo \
 		dirview \
 		dragdrop \
 		drawdemo \
