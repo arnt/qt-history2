@@ -519,6 +519,6 @@ QObjectList *Project::formList() const
 {
     QObjectList *l = new QObjectList;
     for ( QMap<FormWindow*, QString>::ConstIterator it = formWindows.begin(); it != formWindows.end(); ++it )
-	l->append( it.key() );
+	l->append( it.key()->child( 0, "QWidget" ) );
     return l;
 }
