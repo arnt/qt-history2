@@ -198,7 +198,7 @@ void TextEdit::load( const QString &f )
 
 //     if ( !f.contains( "bidi" ) && !f.contains( "utf8" ) ) { // ### hack, Lars please
 // 	edit->load( f );
-//     } else 
+//     } else
     {
 	QFile fl( f );
 	fl.open( IO_ReadOnly );
@@ -210,6 +210,7 @@ void TextEdit::load( const QString &f )
     }
 
     edit->viewport()->setFocus();
+    edit->setTextFormat( Qt::RichText );
 }
 
 QTextEdit *TextEdit::currentEditor() const
