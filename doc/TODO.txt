@@ -251,6 +251,8 @@ QPtrQueue:
 QDockWindow
   Be able to dock a window on top of itself so that it makes it like a QTabWidget.  
   (see support/arc-11/23889)
+  Make it look more like dock windows in Visual Studio, i.e. have a minimize button and 
+  don't minimize when clicking on the double lines.
 
 QPrinter\QPainter??
   Export the graphics to a WMF (Window Metafile) - I doubt we will do this, but I'll
@@ -275,6 +277,8 @@ QToolBar
 
 QListBoxItem::setEnabled()
   Allow the user to be able to set a list box item to be disabled.
+
+
 
 
 New functionality
