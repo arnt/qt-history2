@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnamespace.h#34 $
+** $Id: //depot/qt/main/src/kernel/qnamespace.h#35 $
 **
 ** Definition of Qt namespace (as class for compiler compatibility)
 **
@@ -57,6 +57,7 @@ public:
     QT_STATIC_CONST QColor & darkMagenta;
     QT_STATIC_CONST QColor & darkYellow;
 
+    // documented in qevent.cpp
     enum ButtonState {				// mouse/keyboard state values
 	NoButton	= 0x00,
 	LeftButton	= 0x01,
@@ -69,6 +70,7 @@ public:
 	KeyButtonMask   = 0x38
     };
 
+    // documented in qobject.cpp
     enum Orientation {
         Horizontal,
 	Vertical
@@ -76,6 +78,7 @@ public:
 
     // Text formatting flags for QPainter::drawText and QLabel
 
+    // documented in qpainter.cpp
     enum AlignmentFlags {
 	AlignLeft	= 0x0001,		// text alignment
 	AlignRight	= 0x0002,
@@ -93,7 +96,7 @@ public:
 	DontPrint	= 0x1000		// internal
     };
 
-    // QWidget state flags (internal)
+    // QWidget state flags (internal, not documented but should be)
     enum WidgetState {
 	WState_Created		= 0x00000001,
 	WState_Disabled		= 0x00000002,
@@ -122,6 +125,7 @@ public:
     // Widget flags
     typedef uint WFlags;
 
+    // documented in qwidget.cpp
     enum WidgetFlags {
 	WType_TopLevel		= 0x00000001,	// widget type flags
 	WType_Modal		= 0x00000002,
@@ -155,8 +159,9 @@ public:
 	WRepaintNoErase		= 0x00800000
     };
 
-    // Image conversion flags
-    // The unusual ordering is caused by compatibility and default requirements.
+    // Image conversion flags.  The unusual ordering is caused by
+    // compatibility and default requirements.
+
     enum ImageConversionFlags {
 	ColorMode_Mask		= 0x00000003,
 	AutoColor		= 0x00000000,

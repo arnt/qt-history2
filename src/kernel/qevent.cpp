@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#104 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#105 $
 **
 ** Implementation of event classes
 **
@@ -59,6 +59,32 @@
   QApplication::sendEvent() QAppilcation::postEvent()
   QApplication::processEvents()
 */
+
+
+/*! \enum Qt::ButtonState
+  This enum type describes the state of the mouse buttons, with
+  associated shift buttons.  The currently defined values are:<ul>
+
+  <li> \c NoButton - used when the button state does not refer to any
+  button (see QMouseEvent::button()).
+
+  <li> \c LeftButton - set if the left button is pressed, or this
+  event refers to the left button.  Note that the left button may be
+  the right button on left-handed mice.
+
+  <li> \c RightButton - the right button.
+
+  <li> \c MidButton - the middle button
+
+  <li> \c ShiftButton - a shift key on the keyboard is also pressed.
+
+  <li> \c ControlButton - a control key on the keyboard is also pressed.
+
+  <li> \c AltButton - an alt (or meta) key on the keyboard is also pressed.
+
+  </ul>
+*/
+
 
 /*!
   \fn QEvent::QEvent( Type type )
