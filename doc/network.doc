@@ -37,7 +37,7 @@ static char ident[] = "$Id: classes.doc,v 1.8 1999/04/28 09:53:43 aavit Exp $";
 <h1 align=center>Network Programming with Qt</h1><br clear="all">
 
 Since version 2.1 Qt offers classes to make network programming
-easier and portable. Basicly there are three sets of classes, first very
+easier and portable. Basically there are three sets of classes, first very
 basic classes like QSocket, QServerSocket, etc. which allow to work
 in a portable way with TCP/IP sockets. Then there are classes like
 \c QNetworkProtocol, \c QNetworkOperation which provide an abstract
@@ -53,7 +53,7 @@ classes. E.g. the QFtp class (implementation of the FTP protocol) uses
 QSockets. But QSockets don't need to be used for protocol implementations,
 e.g. QLocalFs (which is an implementation of the local filesystem as
 network protocol) uses QDir and no QSocket. Using QNetworkProtocols
-you can implement everything which fits into a hirarchical structure and
+you can implement everything which fits into a hierarchical structure and
 can be accessed using URLs. This could be e.g. a protocol which can read
 pictures from a digital camera using a serial connection.
 
@@ -79,7 +79,7 @@ renaming, etc. E.g. to create a folder on a private FTP account do
 That's it again. To see all available operations, look at the \c QUrlOperator class
 documentation.
 
-Now as everything works asyncronous, the function call for an operation returns
+Now as everything works asynchronous, the function call for an operation returns
 before the operation has been processed. So you don't get a return value which
 tells you something about failure or success. The return value always is a pointer
 to a \c QNetworkOperation.
@@ -159,7 +159,7 @@ void MyClass::slotFinished( QNetworkOperation *operation )
 {
     if ( operation->operation() == QNetworkProtocol::OpListChildren ) {
         if ( operation->state() == QNetworkProtocol::StFailed )
-            qDebug( "Couldn't read '%s'! Following error occured: %s",
+            qDebug( "Couldn't read '%s'! Following error occurred: %s",
                 op.toString().latin1(), operation->protocolDetail().latin1() );
         else
             qDebug( "Finished reading '%s'!", op.toString().latin1() );
@@ -177,15 +177,15 @@ files, making directories, etc. And all this is done using \c QUrlOperators.
 
 \c QNetworkProtocol provides a base class for implementations
 of network protocols and an architecture to a dynamic registration
-and unregistration of network protocols. If you use these architecture
-you also don't need to care about async programming, as the
-architecture hides this and does all the work fo it.
+and unregistration of network protocols. If you use this architecture
+you also don't need to care about asynchronous programming, as the
+architecture hides this and does all the work for you.
 
 Limitation: As it is quite hard to design a base class for
 network protocols which satisfies all network protocols,
 the architecture described here is designed to work with all kinds
-of hirarchical structures, like filesystems. So everything which can
-be interpreted as hirarchical structure and accessed via URLs,
+of hierarchical structures, like filesystems. So everything which can
+be interpreted as hierarchical structure and accessed via URLs,
 can be implemented as network protocol and easily used in Qt. This
 is not limited to filesystems!
 
@@ -207,9 +207,9 @@ to operate on it. So you should reimplement following protected members
 Some words about how to reimplement these methods: You always
 get a pointer to a \c QNetworkOperation as argument. This pointer holds
 all information about the operation in the current state. If you start
-procressing such an operation, set the state to \c QNetworkProtocol::StInProgress.
+processing such an operation, set the state to \c QNetworkProtocol::StInProgress.
 If you finished processing the operation, set the state to \cQNetworkProtocol::StDone if it
-was successful or \c QNetworkProtocol::StFailed if an error occured. If an error occured
+was successful or \c QNetworkProtocol::StFailed if an error occurred. If an error occurred
 you have to set an error code (see \c QNetworkOperation::setErrorCode() )
 and if you know some details (e.g. an error message) you can also set this message
 to the operation pointer (see \c QNetworkOperation::setProtocolDetail() ).
@@ -220,14 +220,14 @@ you can get and set look at the class documentation of \c QNetworkOperation.
 If you reimplement such an operation method, it's also very important
 to emit the correct signals at the correct time: In general always emit
 at the end of an operation (when you either successfully finished processing
-the operation or and error occured) the \c finished() signal with
+the operation or and error occurred) the \c finished() signal with
 the network operation as argument. The whole network architecture
 relies on correctly emitted \c finished() signals. So be careful with that!
 Then there are some more special signals which are specific to operations:
 <ul>
   <li>Emit in \c operationListChildren:
   <ul>
-    <li>\c start() just before starting listing the childrens
+    <li>\c start() just before starting listing the children
     <li>\c newChild() for each listed child
   </ul>
   <li>Emit in \c operationMkDir:
@@ -392,19 +392,19 @@ is \c QNetworkProtocol::StFailed, the operation contains some more information a
 error. Following error codes are defined in \c QNetworkProtocol:
 
 <ul>
-  <li>\c QNetworkProtocol::NoError - No error occured
+  <li>\c QNetworkProtocol::NoError - No error occurred
   <li>\c QNetworkProtocol::ErrValid - The URL you are operating on is not valid
   <li>\c QNetworkProtocol::ErrUnknownProtocol - There is no protocol implementation available for the protocol of the URL you are operating on (e.g. if the protocol is http and no http implementation has been registered)
   <li>\c QNetworkProtocol::ErrUnsupported - The operation is not supported by the protocol
   <li>\c QNetworkProtocol::ErrParse - Parse error of the URL
   <li>\c QNetworkProtocol::ErrLoginIncorrect - You needed to login but the username and or password are wrong
   <li>\c QNetworkProtocol::ErrHostNotFound - The specified host (in the URL) couldn´t be found
-  <li>\c QNetworkProtocol::ErrListChlidren - An error occured while listing the children
-  <li>\c QNetworkProtocol::ErrMkdir - An error occured when creating a directory
-  <li>\c QNetworkProtocol::ErrRemove -An error occured while removing a child
-  <li>\c QNetworkProtocol::ErrRename - An error occured while renaming a child
-  <li>\c QNetworkProtocol::ErrGet - An error occured while getting (retrieving) data
-  <li>\c QNetworkProtocol::ErrPut - An error occured while putting (uploading) data
+  <li>\c QNetworkProtocol::ErrListChlidren - An error occurred while listing the children
+  <li>\c QNetworkProtocol::ErrMkdir - An error occurred when creating a directory
+  <li>\c QNetworkProtocol::ErrRemove -An error occurred while removing a child
+  <li>\c QNetworkProtocol::ErrRename - An error occurred while renaming a child
+  <li>\c QNetworkProtocol::ErrGet - An error occurred while getting (retrieving) data
+  <li>\c QNetworkProtocol::ErrPut - An error occurred while putting (uploading) data
   <li>\c QNetworkProtocol::ErrFileNotExisting - A file which is needed by the operation doesn't exist
   <li>\c QNetworkProtocol::ErrPermissionDenied - The permission for doing the operation has been denied
 </ul>
@@ -418,11 +418,11 @@ message then which could e.g. be displayed for the user.
 According tho this information it should be possible to react on errors.
 
 Now, if you implement your work network protocol, you will need to tell about errors
-which occured. First you always need to be able to access the \c QNetworkOperation
+which occurred. First you always need to be able to access the \c QNetworkOperation
 which is processed at the moment. This can be done using \c QNetworkOperation::operationInProgress(),
 which returns a pointer to the current network operation.
 
-Now if and error occured and you need to handle it, do
+Now if and error occurred and you need to handle it, do
 
 \code
 
