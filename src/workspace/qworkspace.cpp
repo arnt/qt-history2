@@ -1956,8 +1956,14 @@ void QWorkspaceChild::activate()
 bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 {
     if ( !isActive() && ( e->type() == QEvent::MouseButtonPress ||
-			  e->type() == QEvent::FocusIn ) )
+	e->type() == QEvent::FocusIn ) ) {
+	if ( iconw ) {
+	    ((QWorkspace*)parentWidget())->normalizeWindow( windowWidget() );
+	    ((QWorkspace*)parentWidget())->removeIcon( iconw->parentWidget() );
+	    delete iconw->parentWidget();
+	}
 	activate();
+    }
 
     // for all widgets except the window, we that's the only thing we
     // process, and if we have no childWidget we skip totally
