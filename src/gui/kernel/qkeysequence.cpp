@@ -26,10 +26,11 @@
 #endif
 
 #ifdef Q_WS_MAC
-#define QMAC_CTRL  (QString(QChar(0x2318)))
-#define QMAC_META  (QString(QChar(0x2303)))
-#define QMAC_ALT   (QString(QChar(0x2325)))
-#define QMAC_SHIFT (QString(QChar(0x21E7)))
+#include "qt_mac.h"
+#define QMAC_CTRL QChar(kCommandUnicode)
+#define QMAC_META QChar(kControlUnicode)
+#define QMAC_ALT  QChar(kOptionUnicode)
+#define QMAC_SHIFT QChar(kShiftUnicode)
 #endif
 
 /*!
@@ -337,7 +338,8 @@ int QKeySequence::assign(const QString &ks)
 
 struct ModifKeyName {
     ModifKeyName() { }
-    ModifKeyName(int q, QString n) : qt_key(q), name(n) { }
+    ModifKeyName(int q, QChar n) : qt_key(q), name(n) { }
+    ModifKeyName(int q, const QString &n) : qt_key(q), name(n) { }
     int qt_key;
     QString name;
 };

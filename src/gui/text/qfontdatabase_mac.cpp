@@ -150,6 +150,3 @@ QFontEngine *loadEngine(QFont::Script, const QFontPrivate *, const QFontDef &req
     }
     return engine;
 }
-
-
-

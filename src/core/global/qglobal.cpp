@@ -24,7 +24,6 @@
 #include <crtdbg.h>
 #endif
 
-
 /*!
     \relates QApplication
 
@@ -117,31 +116,14 @@ void qstring2pstring(QString s, Str255 str, TextEncoding encoding=0, int len=-1)
 }
 
 QString pstring2qstring(const unsigned char *c) {
-    QString ret;
-    if(c[0])
-        ret = QString::fromAscii((char*)c+1, c[0]);
-    return ret;
+    return QCFString(CFStringCreateWithPascalString(0, c, CFStringGetSystemEncoding()));
 }
 
-unsigned char *p_str(const char * c, int len=-1)
+unsigned char *p_str(const QString &s)
 {
-    const int maxlen = 255;
-    if(len == -1)
-        len = qstrlen(c);
-    if(len > maxlen) {
-        qWarning("p_str len must never exceed %d", maxlen);
-        len = maxlen;
-    }
-    unsigned char *ret = (unsigned char*)malloc(len+2);
-    *ret=len;
-    memcpy(((char *)ret)+1,c,len);
-    *(ret+len+1) = '\0';
-    return ret;
-}
-
-unsigned char * p_str(const QString &s)
-{
-    return p_str(s.latin1(), s.length());
+    uchar *p = (uchar*)malloc(256);
+    CFStringGetPascalString(QCFString(s), p, 256, CFStringGetSystemEncoding());
+    return p;
 }
 
 static QSysInfo::MacVersion macVersion()

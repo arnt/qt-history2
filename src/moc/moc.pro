@@ -55,7 +55,10 @@ win32:SOURCES += \
 	../core/io/qdir_win.cpp \
 	../core/io/qfileinfo_win.cpp
 
-macx:LIBS	+= -framework CoreServices
+macx: {
+SOURCES += ../core/kernel/qcore_mac.cpp
+LIBS	+= -framework CoreServices
+}
 
 target.path=$$bins.path
 INSTALLS += target

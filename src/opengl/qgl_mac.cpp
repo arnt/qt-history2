@@ -331,8 +331,12 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
     if(fnt.italic())
         fstyle |= italic;
     if(fnt.underline())
-        fstyle |= underline;
-    aglUseFont((AGLContext) cx, (int)fnt.handle(), fstyle, fnt.pointSize(), 0, 256, listBase);
+	fstyle |= underline;
+    Str255 name;
+    FMGetFontFamilyName((FMFontFamily)fnt.handle(), name);
+    short fnum;
+    GetFNum(name, &fnum);
+    aglUseFont((AGLContext) cx, (int)fnum, fstyle, fnt.pointSize(), 0, 256, listBase);
 }
 
 /*****************************************************************************

@@ -63,10 +63,10 @@
 #include <sys/time.h>
 #include <sys/select.h>
 
+
 #include <string.h>
 #define d d_func()
 #define q q_func()
-
 
 /*****************************************************************************
   QApplication debug facilities
@@ -334,10 +334,10 @@ void qt_mac_update_os_settings()
         QColor qc;
         RGBColor c;
         QPalette pal = QApplication::palette();
-        if(!GetThemeBrushAsColor(-3, 32, true, &c))
+        if(!GetThemeBrushAsColor(kThemeBrushPrimaryHighlightColor, 32, true, &c))
             pal.setBrush(QPalette::Active, QPalette::Highlight,
                          QColor(c.red / 256, c.green / 256, c.blue / 256));
-        if(!GetThemeBrushAsColor(-4, 32, true, &c)) {
+        if(!GetThemeBrushAsColor(kThemeBrushSecondaryHighlightColor, 32, true, &c)) {
             pal.setBrush(QPalette::Inactive, QPalette::Highlight,
                          QColor(c.red / 256, c.green / 256, c.blue / 256));
             pal.setBrush(QPalette::Disabled, QPalette::Highlight,
@@ -1643,7 +1643,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
         break;
     case kEventClassMouse:
     {
-        Point where;
+       Point where;
         GetEventParameter(event, kEventParamMouseLocation, typeQDPoint, 0,
                           sizeof(where), 0, &where);
         if(ekind == kEventMouseMoved && qt_mac_app_fullscreen &&
