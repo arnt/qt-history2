@@ -540,7 +540,7 @@ static const char *mb_texts[] = {
 };
 
 /*!
-  Constructs a message box with no text and a button with the text "OK".
+  Constructs a message box with no text and a button with the label "OK".
 
   If \a parent is 0, the message box becomes an application-global
   modal dialog box.  If \a parent is a widget, the message box becomes
@@ -589,24 +589,24 @@ QMessageBox::QMessageBox( QWidget *parent, const char *name )
   Use QMessageBox::NoButton for the later parameters to have fewer than
   three buttons in your message box.
 
-  One of the buttons can be combined with the \c QMessageBox::Default flag
+  One of the buttons can be OR-ed with the \c QMessageBox::Default flag
   to make it the default button (clicked when Enter is pressed).
 
-  One of the buttons can be combined with the \c QMessageBox::Escape flag
+  One of the buttons can be OR-ed with the \c QMessageBox::Escape flag
   to make it the cancel or close button (clicked when Escape is pressed).
 
   Example:
-  \code
-    QMessageBox mb( "Application Name",
-                    "Hardware failure.\n\nDisk error detected\nDo you want to stop?",
-                    QMessageBox::NoIcon,
-                    QMessageBox::Yes | QMessageBox::Default,
-                    QMessageBox::No  | QMessageBox::Escape );
-    if ( mb.exec() == QMessageBox::No )
-        // try again
-  \endcode
+\code
+QMessageBox mb( "Application Name",
+	"Hardware failure.\n\nDisk error detected\nDo you want to stop?",
+	QMessageBox::NoIcon,
+	QMessageBox::Yes | QMessageBox::Default,
+	QMessageBox::No  | QMessageBox::Escape );
+if ( mb.exec() == QMessageBox::No )
+    // try again
+\endcode
 
-  If \a parent is 0, then the message box becomes an application-global
+  If \a parent is 0, the message box becomes an application-global
   modal dialog box.  If \a parent is a widget, the message box becomes
   modal relative to \a parent.
 
@@ -839,7 +839,7 @@ void QMessageBox::resizeButtons()
 
   The text will be interpreted either as a plain text or as a rich
   text, depending on the text format setting (\l textFormat). The
-  default setting is \c AutoText, i.e., the message box will try to
+  default setting is \c AutoText, i.e. the message box will try to
   auto-detect the format of the text.
 
   The initial value of the property is QString::null.
@@ -1165,7 +1165,7 @@ void QMessageBox::showEvent( QShowEvent *e )
 
   Returns the index of the button that was clicked.
 
-  If \a parent is 0, then the message box becomes an application-global
+  If \a parent is 0, the message box becomes an application-global
   modal dialog box.  If \a parent is a widget, the message box becomes
   modal relative to \a parent.
 
@@ -1208,7 +1208,7 @@ int QMessageBox::information( QWidget *parent,
 
   Returns the index of the button that was clicked.
 
-  If \a parent is 0, then the message box becomes an application-global
+  If \a parent is 0, the message box becomes an application-global
   modal dialog box.  If \a parent is a widget, the message box becomes
   modal relative to \a parent.
 
@@ -1251,7 +1251,7 @@ int QMessageBox::warning( QWidget *parent,
 
   Returns the index of the button that was clicked.
 
-  If \a parent is 0, then the message box becomes an application-global
+  If \a parent is 0, the message box becomes an application-global
   modal dialog box.  If \a parent is a widget, the message box becomes
   modal relative to \a parent.
 
@@ -1284,8 +1284,7 @@ int QMessageBox::critical( QWidget *parent,
   containing \a parent.
   \i If that fails, it tries the \link
   QApplication::mainWidget() main widget. \endlink
-  \i As a last
-  resort it uses the Information icon.
+  \i As a last resort it uses the Information icon.
   \endlist
 
   The about box has a single button labelled OK.
@@ -1383,7 +1382,7 @@ static int textBox( QWidget *parent, QMessageBox::Icon severity,
   \a button0Text is not supplied, "OK" (translated) will be used.
   \a button1Text is the text of the second button and is optional.
   \a button2Text is the text of the third button and is optional.  \a
-  defaultButtonNumber (0-2) is the index of the default button;
+  defaultButtonNumber (0..2) is the index of the default button;
   pressing Return or Enter is the same as clicking the default button.
   It defaults to 0 (the first button).  \a escapeButtonNumber is the
   index of the Escape button; pressing Escape is the same as clicking
@@ -1415,14 +1414,14 @@ int QMessageBox::information( QWidget *parent, const QString &caption,
 /*!
     \overload
   Displays a warning message box with a caption, a text, and
-  1-3 buttons.  Returns the number of the button that was clicked
+  1..3 buttons.  Returns the number of the button that was clicked
   (0, 1, or 2).
 
   \a button0Text is the text of the first button and is optional.  If
   \a button0Text is not supplied, "OK" (translated) will be used.
   \a button1Text is the text of the second button and is optional, and
   \a button2Text is the text of the third button and is optional.  \a
-  defaultButtonNumber (0-2) is the index of the default button;
+  defaultButtonNumber (0..2) is the index of the default button;
   pressing Return or Enter is the same as clicking the default button.
   It defaults to 0 (the first button).  \a escapeButtonNumber is the
   index of the Escape button; pressing Escape is the same as clicking
@@ -1454,14 +1453,14 @@ int QMessageBox::warning( QWidget *parent, const QString &caption,
 /*!
     \overload
   Displays a critical error message box with a caption, a text, and
-  1-3 buttons.  Returns the number of the button that was clicked
+  1..3 buttons.  Returns the number of the button that was clicked
   (0, 1 or 2).
 
   \a button0Text is the text of the first button and is optional.  If
   \a button0Text is not supplied, "OK" (translated) will be used.
   \a button1Text is the text of the second button and is optional, and
   \a button2Text is the text of the third button and is optional.  \a
-  defaultButtonNumber (0-2) is the index of the default button;
+  defaultButtonNumber (0..2) is the index of the default button;
   pressing Return or Enter is the same as clicking the default button.
   It defaults to 0 (the first button).  \a escapeButtonNumber is the
   index of the Escape button; pressing Escape is the same as clicking
@@ -1495,8 +1494,8 @@ int QMessageBox::critical( QWidget *parent, const QString &caption,
   caption and optionally centered over \a parent.  The message includes
   the version number of Qt being used by the application.
 
-  This is useful for inclusion in the Help menu.  See the menu.cpp
-  example.
+  This is useful for inclusion in the Help menu.  See the
+  examples/menu/menu.cpp example.
 */
 
 void QMessageBox::aboutQt( QWidget *parent, const QString &caption )

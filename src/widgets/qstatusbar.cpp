@@ -58,16 +58,16 @@
 
   Each status indicator falls into one of three categories:
 
-  <ul>
-  <li> \e Temporary - briefly occupies most of the status bar.  Used
+  \list
+  \i \e Temporary - briefly occupies most of the status bar.  Used
     to explain tool tip texts or menu entries, for example.
-  <li> \e Normal - occupies part of the status bar and may be hidden
+  \i \e Normal - occupies part of the status bar and may be hidden
     by temporary messages.  Used to display the page and line
     number in a word processor, for example.
-  <li> \e Permanent - is never hidden.  Used for important mode
+  \i \e Permanent - is never hidden.  Used for important mode
     indications.  Some applications put a Caps Lock indicator in the
     status bar.
-  </ul>
+  \endlist
 
   QStatusBar lets you display all three types of indicators.
 
@@ -101,7 +101,7 @@
   <img src=qstatusbar-m.png> <img src=qstatusbar-w.png>
 
   \sa QToolBar QMainWindow QLabel
-  <a href="guibooks.html#fowler">GUI Design Handbook: Status Bar.</a>
+  \link guibooks.html#fowler GUI Design Handbook: Status Bar.\endlink
 */
 
 
@@ -342,7 +342,7 @@ void QStatusBar::message( const QString &message )
 
 /*!
   \overload
-  
+
   Hides the normal status indications and displays \a message for \a
   ms milli-seconds or until clear() or another message() is called,
   whichever occurs first.
@@ -423,7 +423,7 @@ void QStatusBar::paintEvent( QPaintEvent * )
 	    if ( item->w->isVisible() ) {
 		if ( item->p && item->w->x()-1 < psx )
 		    psx = item->w->x()-1;
-		style().drawPrimitive( QStyle::PO_StatusBarSection, &p, 
+		style().drawPrimitive( QStyle::PO_StatusBarSection, &p,
 				       QRect(item->w->x() - 1, item->w->y() - 1,
 					     item->w->width()+2, item->w->height()+2),
 				       colorGroup() );

@@ -81,7 +81,6 @@ public:
 };
 
 
-// NOT REVISED
 /*! \class QDial qdial.h
 
   \brief The QDial class provides a rounded range control (like a speedometer or potentiometer).
@@ -128,7 +127,7 @@ public:
   <img src=qdial-m.png> <img src=qdial-w.png>
 
   \sa QScrollBar QSpinBox
-  <a href="guibooks.html#fowler">GUI Design Handbook: Slider</a>
+  \link guibooks.html#fowler GUI Design Handbook: Slider\endlink
 */
 
 

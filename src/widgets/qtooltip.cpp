@@ -656,7 +656,7 @@ QString QTipManager::find( QWidget *w, const QPoint& pos )
   disabled in groups with QToolTipGroup::setEnabled().
 
   \sa QStatusBar QWhatsThis QToolTipGroup
-  <a href="guibooks.html#fowler">GUI Design Handbook: Tool Tip</a>
+  \link guibooks.html#fowler GUI Design Handbook: Tool Tip\endlink
 */
 
 
@@ -827,7 +827,7 @@ void QToolTip::remove( QWidget * widget, const QRect & rect )
 }
 
 /*!
-  Returns the text for \a widget at position \a pos, or a null string 
+  Returns the text for \a widget at position \a pos, or a null string
   if there is no tool tip for widget.
 */
 

@@ -165,142 +165,142 @@ QListBoxPrivate::~QListBoxPrivate()
 */
 
 /*!
-    \fn void QListBox::setDragSelect( bool ) 
+    \fn void QListBox::setDragSelect( bool )
     \internal
 */
 
 /*!
-    \fn bool QListBox::autoScroll() const 
+    \fn bool QListBox::autoScroll() const
     \internal
 */
 
 /*!
-    \fn void QListBox::setAutoScroll( bool ) 
+    \fn void QListBox::setAutoScroll( bool )
     \internal
 */
 
 /*!
-    \fn bool QListBox::autoScrollBar() const 
+    \fn bool QListBox::autoScrollBar() const
     Returns TRUE if vScrollBarMode() is Auto; otherwise returns FALSE.
 */
 
 /*!
-    \fn void QListBox::setAutoScrollBar( bool enable ) 
+    \fn void QListBox::setAutoScrollBar( bool enable )
     If \a enable is TRUE sets setVScrollBarMode() to AlwaysOn;
     otherwise sets setVScrollBarMode() to AlwaysOff.
 */
 
 /*!
-    \fn bool QListBox::scrollBar() const 
+    \fn bool QListBox::scrollBar() const
     Returns FALSE if vScrollBarMode() is AlwaysOff; otherwise returns TRUE.
 */
 
 /*!
-    \fn void QListBox::setScrollBar( bool enable ) 
+    \fn void QListBox::setScrollBar( bool enable )
     If \a enable is TRUE sets setVScrollBarMode() to AlwaysOn;
     otherwise sets setVScrollBarMode() to AlwaysOff.
 */
 
 /*!
-    \fn bool QListBox::autoBottomScrollBar() const 
+    \fn bool QListBox::autoBottomScrollBar() const
     Returns TRUE if hScrollBarMode() is Auto; otherwise returns FALSE.
 */
 
 /*!
-    \fn void QListBox::setAutoBottomScrollBar( bool enable ) 
+    \fn void QListBox::setAutoBottomScrollBar( bool enable )
     If \a enable is TRUE sets setHScrollBarMode() to AlwaysOn;
     otherwise sets setHScrollBarMode() to AlwaysOff.
 */
 
 /*!
-    \fn bool QListBox::bottomScrollBar() const 
+    \fn bool QListBox::bottomScrollBar() const
     Returns FALSE if vScrollBarMode() is AlwaysOff; otherwise returns TRUE.
 */
 
 /*!
-    \fn void QListBox::setBottomScrollBar( bool enable ) 
+    \fn void QListBox::setBottomScrollBar( bool enable )
     If \a enable is TRUE sets setHScrollBarMode() to AlwaysOn;
     otherwise sets setHScrollBarMode() to AlwaysOff.
 */
 
 /*!
-    \fn bool QListBox::smoothScrolling() const 
+    \fn bool QListBox::smoothScrolling() const
     \internal
 */
 
 /*!
-    \fn void QListBox::setSmoothScrolling( bool ) 
+    \fn void QListBox::setSmoothScrolling( bool )
     \internal
 */
 
 /*!
-    \fn bool QListBox::autoUpdate() const 
+    \fn bool QListBox::autoUpdate() const
     \internal
 */
 
 /*!
-    \fn void QListBox::setAutoUpdate( bool ) 
+    \fn void QListBox::setAutoUpdate( bool )
     \internal
 */
 
 /*!
-    \fn void QListBox::setFixedVisibleLines( int lines ) 
+    \fn void QListBox::setFixedVisibleLines( int lines )
     \internal
 */
 
 /*!
     \obsolete
     \fn int QListBox::cellHeight( int i ) const
-    Returns the item height of item \a i. 
+    Returns the item height of item \a i.
     \sa itemHeight()
 */
 
 /*!
     \obsolete
-    \overload int QListBox::cellHeight() const 
-    Returns the item height of the first item, item 0. 
+    \overload int QListBox::cellHeight() const
+    Returns the item height of the first item, item 0.
     \sa itemHeight()
 */
 
 /*!
     \obsolete
-    \fn int QListBox::cellWidth() const 
+    \fn int QListBox::cellWidth() const
     Returns the maximum item width.
     \sa maxItemWidth()
 */
 
 /*!
-    \overload int QListBox::cellWidth(int i) const 
+    \overload int QListBox::cellWidth(int i) const
     \internal
 */
 
 /*!
     \obsolete
-    \fn int QListBox::numCols() const 
+    \fn int QListBox::numCols() const
     Returns the number of columns.
     \sa numColumns()
 */
 
 /*!
-    \fn void QListBox::updateCellWidth() 
+    \fn void QListBox::updateCellWidth()
     \internal
 */
 
 /*!
     \obsolete
-    \fn int QListBox::totalWidth() const 
+    \fn int QListBox::totalWidth() const
     Returns contentsWidth().
 */
 
 /*!
     \obsolete
-    \fn int QListBox::totalHeight() const 
+    \fn int QListBox::totalHeight() const
     Returns contentsHeight().
 */
 
 /*!
     \obsolete
-    \fn int QListBox::findItem( int yPos ) const 
+    \fn int QListBox::findItem( int yPos ) const
     Returns the index of the item a point (0, \a yPos).
     \sa index() itemAt()
 */
@@ -852,8 +852,8 @@ int QListBoxPixmap::rtti() const
   <img src=qlistbox-m.png> <img src=qlistbox-w.png>
 
   \sa QListView QComboBox QButtonGroup
-  <a href="guibooks.html#fowler">GUI Design Handbook: List Box (two
-  sections)</a>
+  \link guibooks.html#fowler GUI Design Handbook: List Box (two
+  sections)\endlink
 */
 
 /*! \enum QListBox::SelectionMode
@@ -892,7 +892,7 @@ int QListBoxPixmap::rtti() const
 /*! \enum QListBox::LayoutMode
 
   This enum type is used to specify how QListBox lays out its rows and
-  columns. 
+  columns.
 
   The possible values for each row or column mode are:
 
@@ -2704,7 +2704,7 @@ void QListBox::setSelected( QListBoxItem * item, bool select )
 
 
 /*!
-  Returns TRUE if item \a i is selected; otherwise returns FALSE. 
+  Returns TRUE if item \a i is selected; otherwise returns FALSE.
 */
 
 bool QListBox::isSelected( int i ) const
@@ -2722,7 +2722,7 @@ bool QListBox::isSelected( int i ) const
 /*!
   \overload
 
-  Returns TRUE if item \a i is selected; otherwise returns FALSE. 
+  Returns TRUE if item \a i is selected; otherwise returns FALSE.
 */
 
 bool QListBox::isSelected( const QListBoxItem * i ) const
@@ -3122,7 +3122,7 @@ void QListBox::doLayout() const
 
 /*! Lay the items out in a \a columns by \a rows array.	 The array may
   be too big: doLayout() is expected to call this with the
-  right values. 
+  right values.
 */
 
 void QListBox::tryGeometry( int rows, int columns ) const
@@ -3827,7 +3827,7 @@ void QListBox::adjustItems()
 }
 
 
-/*!  Provided for compatibility with the old QListBox.	
+/*!  Provided for compatibility with the old QListBox.
     We recommend using QListBoxItem::paint()
 
     Repaints the cell at \a row, \a col using painter \a p.
@@ -4269,7 +4269,7 @@ static int cmpListBoxItems( const void *n1, const void *n2 )
     otherwise sorts in descending order.
 
   To compare the items, the text (QListBoxItem::text()) of the items
-  is used. 
+  is used.
 */
 
 void QListBox::sort( bool ascending )

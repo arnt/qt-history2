@@ -274,8 +274,8 @@ void QToolBarSeparator::paintEvent( QPaintEvent * )
   You can use the clear() method to remove all items from a toolbar.
 
   \sa QToolButton QMainWindow
-  <a href="http://www.iarchitect.com/visual.htm">Parts of Isys on Visual Design</a>
-  <a href="guibooks.html#fowler">GUI Design Handbook: Tool Bar</a>.
+  \link http://www.iarchitect.com/visual.htm Parts of Isys on Visual Design\endlink
+  \link guibooks.html#fowler GUI Design Handbook: Tool Bar\endlink.
 */
 
 /*!

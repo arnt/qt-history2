@@ -92,7 +92,7 @@
 
   The margin is the gap between the frame and the contents of the frame.
 
-  <a name=picture></a>
+  \target picture
   This table shows the most useful combinations of styles and widths
   (and some rather useless ones):
 
@@ -123,7 +123,7 @@
 
   When it does not call QStyle, Shape interacts with QFrame::Shadow,
   the lineWidth() and the midLineWidth() to create the total result.
-  The <a href="#picture">picture of the frames</a> in the class
+  The \link #picture picture of the frames\endlink in the class
   documentation may illustrate this better than words.
 
   \sa QFrame::Shadow QFrame::style() QStyle::drawPanel()
@@ -142,7 +142,7 @@
   \value MShadow internal; mask for the shadow
 
   Shadow interacts with QFrame::Shape, the lineWidth() and the
-  midLineWidth().  The <a href="#picture">picture of the frames</a> in
+  midLineWidth().  The \link #picture picture of the frames\endlink in
   the class documentation may illustrate this better than words.
 
   \sa QFrame::Shape lineWidth() midLineWidth()
@@ -196,7 +196,7 @@ static const int wpwidth = 2; // WinPanel lwidth
   Sets the frame style to \a style.
 
   The \a style is the bitwise OR between a frame shape and a frame
-  shadow style.  See the <a href="#picture">illustration</a> in the
+  shadow style.  See the \link #picture illustration\endlink in the
   class documentation.
 
   The frame shapes are:
@@ -239,7 +239,7 @@ static const int wpwidth = 2; // WinPanel lwidth
   frames.  The mid-color of the current color group is used for
   drawing middle lines.
 
-  \sa <a href="#picture">Illustration</a>, frameStyle(),
+  \sa \link #picture Illustration\endlink, frameStyle(),
   colorGroup(), QColorGroup
 */
 

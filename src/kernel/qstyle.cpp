@@ -1143,7 +1143,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   This enum represents a StyleHint.  A StyleHint is a general Look and/or Feel hint.
 
   \value SH_ScrollBar_BackgroundMode  the background mode for a QScrollBar.  Possible
-         values are any in the Qt::BackgroundMode enum.
+         values are any in the \link Qt::BackgroundMode
+	 BackgroundMode\endlink enum.
   \value SH_ScrollBar_MiddleClickAbsolutePosition  a boolean value.  If TRUE, middle
          clicking on a scrollbar causes the slider to jump to that position.  If FALSE,
          the click is ignored.

@@ -122,7 +122,7 @@
   <img src=qscrbar-m.png> <img src=qscrbar-w.png>
 
   \sa QSlider QSpinBox QScrollView
-  <a href="guibooks.html#fowler">GUI Design Handbook: Scroll Bar</a>
+  \link guibooks.html#fowler GUI Design Handbook: Scroll Bar\endlink
 */
 
 

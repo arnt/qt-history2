@@ -81,7 +81,7 @@
   clicked, toggled, state stateChanged
 
   \sa QPushButton QToolButton
-  <a href="guibooks.html#fowler">GUI Design Handbook: Radio Button</a>
+  \link guibooks.html#fowler GUI Design Handbook: Radio Button\endlink
 */
 
 /*! \property QRadioButton::checked

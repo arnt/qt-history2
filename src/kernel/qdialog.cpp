@@ -108,7 +108,7 @@
   be able to interact with the progress dialog, e.g. to cancel a long
   running operation, but need to actually carry out the operation.
   Semi-modal dialogs are displayed by setting the modal flag to TRUE and
-  calling the \l show() function. 
+  calling the \l show() function.
   \endlist
 
     <a name="default"><b>Default button</b><br>
@@ -136,7 +136,7 @@
     appropriate. After the exec() call has returned the result is
     available from result().
 
-    
+
     <a name="examples"><b>Examples</b><br>
 
     A modal dialog.
@@ -160,8 +160,8 @@
     See the \l QProgressDialog documentation for an example of a
     semi-modal dialog.
 
-    \sa QTabDialog QWidget QProgressDialog 
-  <a href="guibooks.html#fowler">GUI Design Handbook: Dialogs, Standard.</a>
+    \sa QTabDialog QWidget QProgressDialog
+  \link guibooks.html#fowler GUI Design Handbook: Dialogs, Standard.\endlink
 */
 
 /*! \enum QDialog::DialogCode
@@ -299,7 +299,7 @@ void QDialog::hideDefault()
 /*!
   \fn int  QDialog::result() const
 
-  Returns the modal dialog's result code, \c Accepted or \c Rejected. 
+  Returns the modal dialog's result code, \c Accepted or \c Rejected.
 */
 
 /*!
@@ -309,10 +309,10 @@ void QDialog::hideDefault()
 */
 
 
-/*! 
+/*!
     Executes a modal dialog. Control passes to the dialog until the user
     closes it, at which point the local event loop finishes and the
-    function returns with the \l DialogCode result. 
+    function returns with the \l DialogCode result.
     The user will not be able to interact with any other window in
     the same application until they close this dialog. For a modeless or
     semi-modal dialog use show().
@@ -500,16 +500,16 @@ void QDialog::closeEvent( QCloseEvent *e )
   Geometry management.
  *****************************************************************************/
 
-/*! 
+/*!
     Shows a modeless or semi-modal dialog. Control returns immediately
-    to the calling code. 
+    to the calling code.
 
     The dialog does not have a local event loop so you will need to call
     QApplication::processEvents() periodically to give the dialog the
     opportunity to process its events.
-    
+
     The dialog will be \link #semimodal semi-modal\endlink if the modal
-    flag was set to TRUE in the constructor. 
+    flag was set to TRUE in the constructor.
 
   \warning
 
@@ -658,7 +658,7 @@ void QDialog::setGeometry( const QRect &r )
 }
 
 
-/*!  
+/*!
     If \a orientation is \c Horizonal, the extension will be displayed
     to the right of the dialog's main area. If \a orientation is \c
     Vertical, the extension will be displayed below the dialog's main
@@ -681,11 +681,11 @@ Qt::Orientation QDialog::orientation() const
     return d->orientation;
 }
 
-/*!  
+/*!
     Sets the widget, \a extension, to be the dialog's extension,
     deleting any previous extension. The dialog takes ownership of the
     extension. Note that if 0 is passed any existing extension will be
-    deleted. 
+    deleted.
 
   This function must only be called while the dialog is hidden.
 

@@ -83,9 +83,9 @@ static QMotifPlusStylePrivate * singleton = 0;
 /*!
   Constructs a QMotifPlusStyle
 
-  If \a hoveringHighlight is FALSE (default value), then the style will not
+  If \a hoveringHighlight is FALSE (the default), then the style will not
   highlight push buttons, checkboxes, radiobuttons, comboboxes, scrollbars
-  and sliders.
+  or sliders.
  */
 QMotifPlusStyle::QMotifPlusStyle(bool hoveringHighlight) : QMotifStyle(TRUE)
 {

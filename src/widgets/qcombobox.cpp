@@ -141,8 +141,8 @@
   <img src="qcombo1-w.png">(Windows style)
 
   \sa QLineEdit QListBox QSpinBox QRadioButton QButtonGroup
-  <a href="guibooks.html#fowler">GUI Design Handbook: Combo Box,</a>
-  <a href="guibooks.html#fowler">GUI Design Handbook: Drop-Down List Box.</a>
+  \link guibooks.html#fowler GUI Design Handbook: Combo Box,\endlink
+  \link guibooks.html#fowler GUI Design Handbook: Drop-Down List Box.\endlink
 */
 
 

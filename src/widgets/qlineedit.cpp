@@ -104,7 +104,7 @@ struct QLineEditPrivate {
 	parag->formatter()->setWrapEnabled( FALSE );
 	cursor = new QTextCursor( 0 );
 	cursor->setParag( parag );
-	
+
     }
     static QPixmap* pm; // only used when we have focus
 
@@ -259,8 +259,8 @@ QPixmap* QLineEditPrivate::pm = 0;
   <img src=qlined-m.png> <img src=qlined-w.png>
 
   \sa QTextEdit QLabel QComboBox
-  <a href="guibooks.html#fowler">GUI Design Handbook: Field, Entry,</a>
-  <a href="guibooks.html#fowler">GUI Design Handbook: Field, Required.</a>
+  \link guibooks.html#fowler GUI Design Handbook: Field, Entry,\endlink
+  \link guibooks.html#fowler GUI Design Handbook: Field, Required.\endlink
 */
 
 
@@ -1904,7 +1904,7 @@ void QLineEdit::updateOffset()
 	    d->offset = cursorPos - w;
 	// the 4 pixels are a bit magic. It's the border QRichrText adds. Makes right aligned
 	// lineedits work without having a moving right border
-	if ( d->parag->alignment() & Qt::AlignRight && textWidth < w + 4 + d->offset ) 
+	if ( d->parag->alignment() & Qt::AlignRight && textWidth < w + 4 + d->offset )
 	    d->offset = QMAX( 0, textWidth - w - 4 );
     } else {
 	d->offset = 0;

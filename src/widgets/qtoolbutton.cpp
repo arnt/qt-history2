@@ -111,7 +111,7 @@ public:
   adjust it with setPopupDelay().
 
   \sa QPushButton QToolBar QMainWindow
-  <a href="guibooks.html#fowler">GUI Design Handbook: Push Button</a>
+  \link guibooks.html#fowler GUI Design Handbook: Push Button\endlink
 */
 
 

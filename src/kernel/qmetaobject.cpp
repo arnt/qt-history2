@@ -41,8 +41,7 @@
 /*!
   \class QMetaData qmetaobject.h
 
-  \brief The QMetaData class provides a struct that contains a member function that is known
-  by the meta object system.
+  \brief The QMetaData class provides a struct that contains a member function that is known by the meta object system.
 
   \internal
 
@@ -87,22 +86,22 @@
 
   In general, you will not have to use this class directly in any
   application program. Most of the class members and functions are
-  internal; <strong> do not use them </strong>.
+  internal; <strong>do not use them</strong>.
 
   Some functions, however, are marked as public API and may make sense
   for certain "meta" applications such as scripting engines or GUI
   builders:
-  <ul>
-  <li> className() to get the name of a class.
-  <li> superClassName() to get the name of the superclass.
-  <li> inherits(), the function called by QObject::inherits().
-  <li> superClass() to access the meta object of the superclass.
-  <li> numSlots(), numSignals(), slotNames(), and  signalNames() to get
+  \list
+  \i className() to get the name of a class.
+  \i superClassName() to get the name of the superclass.
+  \i inherits(), the function called by QObject::inherits().
+  \i superClass() to access the meta object of the superclass.
+  \i numSlots(), numSignals(), slotNames(), and  signalNames() to get
       information about a class's signals and slots.
-  <li> property() and propertyNames() to receive information about a
+  \i property() and propertyNames() to receive information about a
       class's properties.
-  <li> classInfo() and numClassInfo() to access additional class information.
-  </ul>
+  \i classInfo() and numClassInfo() to access additional class information.
+  \endlist
 
 */
 
@@ -235,7 +234,7 @@ QMetaObject::~QMetaObject()
 	    qt_metaobjects = 0;
 	}
     }
-	
+
     // delete reserved;				// Unused void*
 }
 
@@ -794,8 +793,8 @@ QMetaProperty::~QMetaProperty()
 /*! \fn bool QMetaProperty::isSetType() const
 
   Returns whether the property's type is an enumeration value that is
-  used as set, i.e., whether the enumeration values can be OR'ed together.  A
-  set type is implicitely also an enum type.
+  used as set, i.e. whether the enumeration values can be OR'ed together.  A
+  set type is implicitly also an enum type.
 
   \sa isEnumType(), enumKeys()
 */
@@ -819,8 +818,8 @@ QMetaProperty::~QMetaProperty()
 
 
 /*!
-  Returns whether the property is designable for object \a o or
-  not.
+  Returns TRUE if the property is designable for object \a o;
+  otherwise returns FALSE.
  */
 bool QMetaProperty::designable( QObject* o ) const
 {
@@ -830,8 +829,8 @@ bool QMetaProperty::designable( QObject* o ) const
 }
 
 /*!
-  Returns whether the property is scriptable for object \a o or
-  not.
+  Returns TRUE if the property is scriptable for object \a o;
+  otherwise returns FALSE.
  */
 bool QMetaProperty::scriptable( QObject* o ) const
 {
@@ -839,8 +838,8 @@ bool QMetaProperty::scriptable( QObject* o ) const
 }
 
 /*!
-  Returns whether the property shall be stored for object \a o or
-  not.
+  Returns TRUE if the property shall be stored for object \a o;
+  otherwise returns FALSE.
  */
 bool QMetaProperty::stored( QObject* o ) const
 {

@@ -78,16 +78,16 @@ static const int motifCheckMarkSpace    = 12;
   \brief The QMotifStyle class provides Motif look and feel.
   \ingroup appearance
 
-  This class implements the Motif look and feel. It almost completely
-  resembles the original Motif look as defined by the Open Group, but
-  also contains minor improvements. The Motif style is Qt's default
+  This class implements the Motif look and feel. It closely resembles
+  the original Motif look as defined by the Open Group, with the
+  addition of some minor improvements. The Motif style is Qt's default
   GUI style on UNIX platforms.
 */
 
 /*!
     Constructs a QMotifStyle.
 
-    If useHighlightCols is FALSE (default value), then the style will
+    If \a useHighlightCols is FALSE (the default), the style will
     polish the application's color palette to emulate the Motif way of
     highlighting, which is a simple inversion between the base and the
     text color.
@@ -104,12 +104,12 @@ QMotifStyle::~QMotifStyle()
 }
 
 /*!
-  If the argument is FALSE, the style will polish the
+  If \a arg is FALSE, the style will polish the
   application's color palette to emulate the
   Motif way of highlighting, which is a simple inversion between the
   base and the text color.
 
-  The effect will show up the next time a application palette is set
+  The effect will show up the next time an application palette is set
   via QApplication::setPalette(). The current color palette of the
   application remains unchanged.
 
@@ -121,9 +121,9 @@ void QMotifStyle::setUseHighlightColors( bool arg )
 }
 
 /*!
-  Returns whether the style treats the highlight colors of the palette
-  Motif-like, which is a simple inversion between the base and the
-  text color. The default is FALSE.
+  Returns TRUE if the style treats the highlight colors of the palette
+  in a Motif-like manner, which is a simple inversion between the base and the
+  text color; otherwise returns FALSE. The default is FALSE.
  */
 bool QMotifStyle::useHighlightColors() const
 {

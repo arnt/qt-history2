@@ -136,14 +136,14 @@
 
     Use maxColors() and numBitPlanes() to determine the maximum number
     of colors and the number of bit planes supported by the underlying
-    window system, 
+    window system,
 
   If you need to allocate many colors temporarily, for example in an
   image viewer application, enterAllocContext(), leaveAllocContext() and
   destroyAllocContext() will prove useful.
 
   \sa QPalette, QColorGroup, QApplication::setColorSpec(),
-  <a href="http://www.inforamp.net/~poynton/Poynton-color.html">Color FAQ</a>
+  \link http://www.inforamp.net/~poynton/Poynton-color.html Color FAQ\endlink
 */
 
 /*****************************************************************************
@@ -445,7 +445,7 @@ static int hex2int( QChar hexchar )
 
 
 /*!
-  Sets the RGB value to \a name, which may be in one of these formats: 
+  Sets the RGB value to \a name, which may be in one of these formats:
   <ul>
   <li> #RGB (each of R, G and B is a single hex digit)
   <li> #RRGGBB

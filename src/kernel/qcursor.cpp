@@ -76,7 +76,7 @@
   QCursor::pos() and QCursor::setPos().
 
   \sa QWidget
-  <a href="guibooks.html#fowler">GUI Design Handbook: Cursors</a>
+  \link guibooks.html#fowler GUI Design Handbook: Cursors\endlink
 */
 
 /*!
@@ -99,8 +99,8 @@
   \value SplitHCursor - horziontal splitting
   \value PointingHandCursor - a pointing hand
   \value ForbiddenCursor - a slashed circle
-  \value BitmapCursor 
-  
+  \value BitmapCursor
+
   ArrowCursor is the default for widgets in a normal state.
 */
 

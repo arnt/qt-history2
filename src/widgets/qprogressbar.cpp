@@ -60,7 +60,7 @@
   <img src=qprogbar-m.png> <img src=qprogbar-w.png>
 
   \sa QProgressDialog
-  <a href="guibooks.html#fowler">GUI Design Handbook: Progress Indicator</a>
+  \link guibooks.html#fowler GUI Design Handbook: Progress Indicator\endlink
 */
 
 
@@ -283,7 +283,7 @@ void QProgressBar::styleChange( QStyle& old )
   the progress bar.
 
   The \a progress may be negative, indicating that the bar is in the
-  "reset" state before any progress is set. 
+  "reset" state before any progress is set.
 
   The default implementation is the percentage of completion or blank in the
   reset state. The percentage is calculated based on the \a progress

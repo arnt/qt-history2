@@ -82,7 +82,7 @@ static int sliderStartVal = 0; //##### class member?
   <img src=qslider-m.png> <img src=qslider-w.png>
 
   \sa QScrollBar QSpinBox
-  <a href="guibooks.html#fowler">GUI Design Handbook: Slider</a>
+  \link guibooks.html#fowler GUI Design Handbook: Slider\endlink
 */
 
 

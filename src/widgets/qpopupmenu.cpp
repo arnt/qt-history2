@@ -192,8 +192,8 @@ static bool preventAnimation = FALSE;
   <img src=qpopmenu-m.png> <img src=qpopmenu-w.png>
 
   \sa QMenuBar
-  <a href="guibooks.html#fowler">GUI Design Handbook: Menu, Drop-Down and
-  Pop-Up</a>
+  \link guibooks.html#fowler GUI Design Handbook: Menu, Drop-Down and
+  Pop-Up\endlink
 */
 
 
@@ -1826,7 +1826,7 @@ void QPopupMenu::updateRow( int row )
 }
 
 
-/*!  
+/*!
     \overload
     Executes this popup synchronously.
 

@@ -108,14 +108,14 @@ QString qwf_currFileName = "";
 /*!
   \class QWidgetFactory
 
-  \brief A class to dynamically create widgets from Qt Designer user
-  interface description files
+  \brief The QWidgetFactory class provides for the creation of dynamically
+  create widgets from Qt Designer user interface description files
 
   This class basically offers two things:
 
-  <ul>
+  \list
 
-  <li>Dynamically creating widgets from Qt Designer user interface
+  \i Dynamically creating widgets from Qt Designer user interface
   description files. You can do that using the static function
   QWidgetFactory::create(). This function also performs signal and
   slot connections, tab ordering, etc. as defined in the ui file and
@@ -123,7 +123,7 @@ QString qwf_currFileName = "";
   QObject::child() and QObject::queryList() to access child widgets of
   this returned widget.
 
-  <li>Adding additional widget factories to be able to create custom
+  \i Adding additional widget factories to be able to create custom
   widgets. See createWidget() for details.
 
   This class is not included in the Qt library itself. To use it you
@@ -132,7 +132,7 @@ QString qwf_currFileName = "";
   able to include qwidgetfactory.h you have to add
   $(QTDIR)/tools/designer/uilib to your project's include path.
 
-  </ul>
+  \endlist
 */
 
 /*! Constructs a QWidgetFactory. */
@@ -178,6 +178,7 @@ QWidget *QWidgetFactory::create( const QString &uiFile, QObject *connector, QWid
 }
 
 /*!  \overload
+    Loads the user interface descriptin from the \a dev device.
  */
 
 QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *parent, const char *name )
@@ -410,13 +411,13 @@ void QWidgetFactory::addWidgetFactory( QWidgetFactory *factory )
   If you have a custom widget, and want it to be created using the
   widget factory, you have two possibilities to add it:
 
-  <ul>
+  \list
 
-  <li>First you can write a widget plugin. This allows you to use that
+  \i First you can write a widget plugin. This allows you to use that
   widget in the Qt Designer and in this QWidgetFactory. See the widget
   plugin documentation for further details .
 
-  <li>The other possibility is to subclass QWidgetFactory. Then
+  \i The other possibility is to subclass QWidgetFactory. Then
   reimplement this function. There create and return an instance of
   your custom widget, if \a className equals the name of your widget,
   otherwise return 0. Then at the beginning of your program where you
@@ -428,7 +429,7 @@ void QWidgetFactory::addWidgetFactory( QWidgetFactory *factory )
 
   (where MyWidgetFactory is your QWidgetFactory subclass)
 
-  </ul>
+  \endlist
 
 */
 

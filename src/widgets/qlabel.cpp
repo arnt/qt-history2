@@ -118,7 +118,7 @@ public:
   <img src=qlabel-m.png> <img src=qlabel-w.png>
 
   \sa QLineEdit, QTextView, QPixmap, QMovie,
-  <a href="guibooks.html#fowler">GUI Design Handbook: Label</a>
+  \link guibooks.html#fowler GUI Design Handbook: Label\endlink
 */
 
 /*!
@@ -164,12 +164,12 @@ QLabel::QLabel( const QString &text, QWidget *parent, const char *name,
 
 /*!
   Constructs a label that displays the text \a text. The label has a
-  buddy widget, \a buddy. 
-  
+  buddy widget, \a buddy.
+
   If the \a text contains an underlined letter (a letter preceded by
   an ampersand, &), and the text is in plain text format, when the
   user presses Alt+ the underlined letter, focus is passed to the
-  buddy widget.  
+  buddy widget.
 
   The \a parent, \a name and widget flag, \a f, arguments are passed
   to the QFrame constructor.
@@ -342,7 +342,7 @@ void QLabel::setPicture( const QPicture &picture )
   Sets the label contents to plain text containing the printed
   representation of integer \a num. Any previous content is cleared.
   Does nothing if the integer's string representation is the same as
-  the current contents of the label. 
+  the current contents of the label.
 
   The buddy accelerator, if any, is disabled.
 
@@ -362,7 +362,7 @@ void QLabel::setNum( int num )
   Sets the label contents to plain text containing the printed
   representation of double \a num. Any previous content is cleared.
   Does nothing if the double's string representation is the same as
-  the current contents of the label. 
+  the current contents of the label.
 
   The buddy accelerator, if any, is disabled.
 
@@ -389,7 +389,7 @@ void QLabel::setNum( double num )
 
   If the label has a buddy, the \c ShowPrefix flag is forced to TRUE.
 
-  The default alignment is \c{AlignAuto | AlignVCenter | ExpandTabs} 
+  The default alignment is \c{AlignAuto | AlignVCenter | ExpandTabs}
   if the label doesn't have a buddy and
   \c{AlignAuto | AlignVCenter | ExpandTabs | ShowPrefix} if
   the label has a buddy.

@@ -119,7 +119,7 @@ void QCornerSquare::paintEvent( QPaintEvent * )
   doesn't support at all.
 
   \sa QScrollView
-  <a href="guibooks.html#fowler">GUI Design Handbook: Table</a>
+  \link guibooks.html#fowler GUI Design Handbook: Table\endlink
 */
 
 

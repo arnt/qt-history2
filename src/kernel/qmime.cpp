@@ -53,8 +53,8 @@
   \link dnd.html Drag-and-drop\endlink and
   \link QClipboard clipboard\endlink use this abstraction.
 
-  \sa <a href="http://www.isi.edu/in-notes/iana/assignments/media-types/">
-	  IANA list of MIME media types</a>
+  \sa \link http://www.isi.edu/in-notes/iana/assignments/media-types/
+	  IANA list of MIME media types\endlink
 */
 
 static int qt_mime_serial_number = 0;
@@ -101,7 +101,7 @@ void QMimeSource::clearCache()
 }
 
 /*!
-  Provided to ensure that subclasses destroy themself correctly.
+  Provided to ensure that subclasses destroy themselves correctly.
 */
 QMimeSource::~QMimeSource()
 {
@@ -132,11 +132,11 @@ QMimeSource::~QMimeSource()
 
 /*!
   Returns TRUE if the object can provide the data
-  in format \a mimeType.
+  in format \a mimeType; otherwise returns FALSE.
 
   If you inherit from QMimeSource for consistency reasons it is better
-  to implement more abstract canDecode() functions such as QTextDrag::canDecode()
-  and QImageDrag::canDecode().
+  to implement the more abstract canDecode() functions such as
+  QTextDrag::canDecode() and QImageDrag::canDecode().
 */
 bool QMimeSource::provides(const char* mimeType) const
 {
@@ -152,7 +152,7 @@ bool QMimeSource::provides(const char* mimeType) const
 /*!
   \fn const char * QMimeSource::format(int i) const
 
-  Returns the \a{i}-th supported MIME format, or NULL.
+  Returns the \a{i}-th supported MIME format, or 0.
 */
 
 
@@ -199,13 +199,13 @@ public:
   setImage(), and setPixmap() that simply call setData() with massaged
   parameters).
 
-  The rich text widgets QTextView and QTextBrowser use
+  The rich text widgets QTextEdit and QTextBrowser use
   QMimeSourceFactory to resolve references such as images or links
-  within rich text documents. They either access the default factory (
-  see defaultFactory() ) or their own ( see
-  QTextView::setMimeSourceFactory() ). Other classes that are capable
-  of displaying rich text (such as QLabel, QWhatsThis or QMessageBox)
-  always use the default factory.
+  within rich text documents. They either access the default factory
+  (see \l{defaultFactory()}) or their own (see
+  \l{QTextEdit::setMimeSourceFactory()}). Other classes that are
+  capable of displaying rich text (such as QLabel, QWhatsThis or
+  QMessageBox) always use the default factory.
 
   As mentioned earlier, a factory can also be used as container to
   store data associated with a name. This technique is useful whenever
@@ -213,28 +213,28 @@ public:
   loaded from the hard disk. Your program may, for example, define some
   image data as
 
-  \code
-  static const char* myimage_xpm[]={
-  "...",
-  ...
-  "..."};
-  \endcode
+\code
+static const char* myimage_xpm[]={
+"...",
+...
+"..."};
+\endcode
 
   To be able to use this image within some rich text, for example inside a
   QLabel, you have to create a QImage from the raw data and insert it
   into the factory with a unique name:
 
-  \code
-  QMimeSourceFactory::defaultFactory()->setImage( "myimage", QImage(myimage_data) );
-  \endcode
+\code
+QMimeSourceFactory::defaultFactory()->setImage( "myimage", QImage(myimage_data) );
+\endcode
 
   Now you can create a rich text QLabel with
 
-  \code
-  QLabel* label = new QLabel(
-      "Rich text with embedded image:<img source=\"myimage\">"
-      "Isn't that <em>cute</em>?" );
-  \endcode
+\code
+QLabel* label = new QLabel(
+    "Rich text with embedded image:<img source=\"myimage\">"
+    "Isn't that <em>cute</em>?" );
+\endcode
 */
 
 
@@ -309,26 +309,26 @@ QMimeSource* QMimeSourceFactory::dataInternal(const QString& abs_name, const QMa
   If there is no data associated with \a abs_name in the factory's
   store, the factory tries to access the local filesystem. If \a
   abs_name isn't an absolute file name, the factory will search for it
-  on all defined paths ( see setFilePath() ).
+  on all defined paths (see \l{setFilePath()}).
 
   The factory understands all image formats supported by
   QImageIO. Any other mime types are determined by the file name
   extension. The default settings are
-  \code
-  setExtensionType("html", "text/html;charset=iso8859-1");
-  setExtensionType("htm", "text/html;charset=iso8859-1");
-  setExtensionType("txt", "text/plain");
-  setExtensionType("xml", "text/xml;charset=UTF-8");
-  \endcode
+\code
+setExtensionType("html", "text/html;charset=iso8859-1");
+setExtensionType("htm", "text/html;charset=iso8859-1");
+setExtensionType("txt", "text/plain");
+setExtensionType("xml", "text/xml;charset=UTF-8");
+\endcode
   The effect of these is that file names ending in "html" or "htm" will
   be treated as text encoded in the iso8859-1 encoding, those ending in "txt"
   will be treated as text encoded in the local encoding; those ending in "xml"
-  will be treated as text encoded in UTF8 encoding.  The text subtype ("html",
-  "plain", or "xml") does not affect the factory, but users of the factory
-  may behave differently. We recommend creating "xml" files where practical.
-  These files can be viewed regardless of the runtime encoding and can
-  encode any Unicode characters without resorting to encoding definitions
-  inside the file.
+  will be treated as text encoded in the UTF8 encoding.  The text
+  subtype ("html", "plain", or "xml") does not affect the factory, but
+  users of the factory may behave differently. We recommend creating
+  "xml" files where practical. These files can be viewed regardless of
+  the runtime encoding and can encode any Unicode characters without
+  resorting to encoding definitions inside the file.
 
   Any file data that is not recognized will be retrieved as a QMimeSource
   providing the "application/octet-stream" mime type, meaning
@@ -426,7 +426,7 @@ void QMimeSourceFactory::setExtensionType( const QString& ext, const char* mimet
 
 /*!
   Converts the absolute or relative data item name \a abs_or_rel_name
-  to an absolute name, interpreted within the context of the data
+  to an absolute name, interpreted within the context (path) of the data
   item named \a context (this must be an absolute name).
 */
 QString QMimeSourceFactory::makeAbsolute(const QString& abs_or_rel_name, const QString& context) const
@@ -494,7 +494,7 @@ void QMimeSourceFactory::setPixmap( const QString& abs_name, const QPixmap& pixm
 /*!
   Sets \a data to be the data item associated with
   the absolute name \a abs_name. Note that the ownership of \a data is
-  transferred to the factory - do not delete or access the pointer after
+  transferred to the factory: do not delete or access the pointer after
   passing it to this function.
 */
 void QMimeSourceFactory::setData( const QString& abs_name, QMimeSource* data )
@@ -511,7 +511,7 @@ void QMimeSourceFactory::setData( const QString& abs_name, QMimeSource* data )
   factory is used by rich text rendering classes such as
   QSimpleRichText, QWhatsThis and QMessageBox to resolve named
   references within rich text documents. It serves also as initial
-  factory for the more complex render widgets QTextView and
+  factory for the more complex render widgets QTextEdit and
   QTextBrowser.
 
   \sa setDefaultFactory()
@@ -550,7 +550,7 @@ QMimeSourceFactory* QMimeSourceFactory::takeDefaultFactory()
 /*! Adds the QMimeSourceFactory \a f to the list of available
    mimesource factories. If the defaultFactory() can't resolve a
    data() it iterates over the list of installed mimesource factories
-   until the data could be resolved.
+   until the data can be resolved.
 
    \sa removeFactory();
 */

@@ -197,7 +197,7 @@ public:
   <img src=qprogdlg-m.png> <img src=qprogdlg-w.png>
 
   \sa QDialog QProgressBar
-  <a href="guibooks.html#fowler">GUI Design Handbook: Progress Indicator</a>
+  \link guibooks.html#fowler GUI Design Handbook: Progress Indicator\endlink
 */
 
 

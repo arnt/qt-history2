@@ -148,7 +148,7 @@
   clicked, toggled, state stateChanged
 
   \sa QToolButton, QRadioButton QCheckBox
-  <a href="guibooks.html#fowler">GUI Design Handbook: Push Button</a>
+  \link guibooks.html#fowler GUI Design Handbook: Push Button\endlink
 */
 
 /*! \property QPushButton::autoDefault
@@ -639,7 +639,7 @@ bool QPushButton::isFlat() const
 
 /*!
     \obsolete
-    \fn virtual void QPushButton::setIsMenuButton( bool enable ) 
+    \fn virtual void QPushButton::setIsMenuButton( bool enable )
 */
 
 #endif
