@@ -188,7 +188,7 @@ bool QPSQLResult::fetchLast()
 static QPoint pointFromString( const QString& s)
 {
     // format '(x,y)'
-    int pivot = s.find( ',' );
+    int pivot = s.indexOf( ',' );
     if ( pivot != -1 ) {
 	int x = s.mid( 1, pivot-1 ).toInt();
 	int y = s.mid( pivot+1, s.length()-pivot-2 ).toInt();
@@ -268,7 +268,7 @@ QVariant QPSQLResult::data( int i )
 	return QVariant( pointFromString( val ) );
     case QVariant::Rect: // format '(x,y),(x',y')'
 	{
-	    int pivot = val.find( "),(" );
+	    int pivot = val.indexOf( "),(" );
 	    if ( pivot != -1 )
 		return QVariant( QRect( pointFromString( val.mid(pivot+2,val.length()) ), pointFromString( val.mid(0,pivot+1) ) ) );
 	    return QVariant( QRect() );
@@ -280,10 +280,10 @@ QVariant QPSQLResult::data( int i )
 	    QPointArray parray( points );
 	    int idx = 1;
 	    for ( int i = 0; i < points; i++ ){
-		int start = val.find( pointPattern, idx );
+		int start = val.indexOf( pointPattern, idx );
 		int end = -1;
 		if ( start != -1 ) {
-		    end = val.find( ')', start+1 );
+		    end = val.indexOf( ')', start+1 );
 		    if ( end != -1 ) {
 			parray.setPoint( i, pointFromString( val.mid(idx, end-idx+1) ) );
 		    }
@@ -303,7 +303,8 @@ QVariant QPSQLResult::data( int i )
 	    int index = 0;
 	    uint len = val.length();
 	    static const QChar backslash( '\\' );
-	    QByteArray ba( (int)len );
+	    QByteArray ba;
+	    ba.resize( (int)len );
 	    while ( i < len ) {
 		if ( val.at( i ) == backslash ) {
 		    if ( val.at( i + 1 ).isDigit() ) {
@@ -363,7 +364,7 @@ QVariant QPSQLResult::data( int i )
 	if (retval < 0) {
 	    qWarning( "QPSQLResult::data: unable to read large object" );
 	} else {
-	    ba.duplicate( buf, size );
+	    ba = QByteArray( buf, size );
 	}
 	delete [] buf;
 	lo_close( d->connection, fd );
@@ -723,7 +724,7 @@ QSqlIndex QPSQLDriver::primaryIndex( const QString& tablename ) const
 	break;
     }
 
-    i.exec( stmt.arg( tablename.lower() ) );
+    i.exec( stmt.arg( tablename.toLower() ) );
     while ( i.isActive() && i.next() ) {
 	QSqlField f( i.value(0).toString(), qDecodePSQLType( i.value(1).toInt() ) );
 	idx.append( f );
@@ -765,7 +766,7 @@ QSqlRecord QPSQLDriver::record( const QString& tablename ) const
     }
 
     QSqlQuery fi = createQuery();
-    fi.exec( stmt.arg( tablename.lower() ) );
+    fi.exec( stmt.arg( tablename.toLower() ) );
     while ( fi.next() ) {
 	QSqlField f( fi.value(0).toString(), qDecodePSQLType( fi.value(1).toInt() ) );
 	fil.append( f );
@@ -843,7 +844,7 @@ QSqlRecordInfo QPSQLDriver::recordInfo( const QString& tablename ) const
     }
 
     QSqlQuery query = createQuery();
-    query.exec( stmt.arg( tablename.lower() ) );
+    query.exec( stmt.arg( tablename.toLower() ) );
     if ( pro >= QPSQLDriver::Version71 ) {
 	while ( query.next() ) {
 	    int len = query.value( 3 ).toInt();
@@ -947,7 +948,7 @@ QString QPSQLDriver::formatValue( const QSqlField* field,
 			  QString::number( dt.month() ) + "-" +
 			  QString::number( dt.day() ) + " " +
 			  tm.toString() + "." +
-			  QString::number( tm.msec() ).rightJustify( 3, '0' ) + "'";
+			  QString::number( tm.msec() ).rightJustified( 3, '0' ) + "'";
 	    } else {
 		r = nullText();
 	    }
@@ -1012,7 +1013,7 @@ QString QPSQLDriver::formatValue( const QSqlField* field,
 		    r += uc;
 		} else {
 		    r += "\\\\";
-		    r += QString::number( (unsigned char) ba[ i ], 8 ).rightJustify( 3, '0', TRUE );
+		    r += QString::number( (unsigned char) ba[ i ], 8 ).rightJustified( 3, '0', TRUE );
 		}
 	    }
 	    r += "'";

@@ -227,8 +227,7 @@ QVariant QMYSQLResult::data( int field )
 	return QVariant( QDateTime::fromString( val, Qt::ISODate ) );
     case QVariant::ByteArray: {
 	unsigned long* fl = mysql_fetch_lengths( d->result );
-	QByteArray ba;
-	ba.duplicate( d->row[field], fl[field] );
+	QByteArray ba(d->row[field], fl[field]);
 	return QVariant( ba );
     }
     default:
@@ -404,9 +403,9 @@ bool QMYSQLDriver::open( const QString& db,
     for ( it = raw.begin(); it != raw.end(); ++it ) {
 	QString tmp( *it );
 	int idx;
-	if ( (idx = tmp.find( '=' )) != -1 ) {
+	if ( (idx = tmp.indexOf( '=' )) != -1 ) {
 	    QString val( tmp.mid( idx + 1 ) );
-	    val.simplifyWhiteSpace();
+	    val.simplified();
 	    if ( val == "TRUE" || val == "1" )
 		opts << tmp.left( idx );
 	    else
@@ -417,7 +416,7 @@ bool QMYSQLDriver::open( const QString& db,
     }
     
     for ( it = opts.begin(); it != opts.end(); ++it ) {
-	QString opt( (*it).upper() );
+	QString opt( (*it).toUpper() );
 	if ( opt == "CLIENT_COMPRESS" )
 	    optionFlags |= CLIENT_COMPRESS;
 	else if ( opt == "CLIENT_FOUND_ROWS" )

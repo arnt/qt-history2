@@ -679,7 +679,7 @@ QSqlRecord QTDSDriver::record( const QString& tablename ) const
     t.exec( stmt.arg( tablename ) );
     while ( t.next() ) {
 	QVariant::Type ty = qDecodeTDSType( t.value(1).toInt() );
-	QSqlField f( t.value(0).toString().stripWhiteSpace(), ty );
+	QSqlField f( t.value(0).toString().simplified(), ty );
 	fil.append( f );
     }
     return fil;
@@ -713,7 +713,7 @@ QSqlRecordInfo QTDSDriver::recordInfo( const QString& tablename ) const
 		   "where id = (select id from sysobjects where name = '%1')" );
     t.exec( stmt.arg( tablename ) );
     while ( t.next() ) {
-	info.append( QSqlFieldInfo( t.value(0).toString().stripWhiteSpace(),
+	info.append( QSqlFieldInfo( t.value(0).toString().simplified(),
 				    qDecodeTDSType( t.value(1).toInt() ),
 				    -1,
 				    t.value(2).toInt(),
@@ -749,7 +749,7 @@ QStringList QTDSDriver::tables( const QString& typeName ) const
     t.setForwardOnly( TRUE );
     t.exec( "select name from sysobjects where " + typeFilter );
     while ( t.next() ) {
-	list.append( t.value(0).toString().stripWhiteSpace() );
+	list.append( t.value(0).toString().simplified() );
     }
 
     return list;
@@ -794,18 +794,18 @@ QSqlIndex QTDSDriver::primaryIndex( const QString& tablename ) const
     t.setForwardOnly( TRUE );
     t.exec( QString( "sp_helpindex '%1'" ).arg( tablename ) );
     if ( t.next() ) {
-	QStringList fNames = QStringList::split( ',', t.value(2).toString().stripWhiteSpace(), FALSE );
+	QStringList fNames = QStringList::split( ',', t.value(2).toString().simplified(), FALSE );
 	QRegExp regx("\\s*(\\S+)(?:\\s+(DESC|desc))?\\s*");
 	for( QStringList::Iterator it = fNames.begin(); it != fNames.end(); ++it ) {
 	    regx.search( *it );
 	    QSqlField f( regx.cap( 1 ), rec.field( regx.cap( 1 ) )->type() );
-	    if ( regx.cap( 2 ).lower() == "desc" ) {
+	    if ( regx.cap( 2 ).toLower() == "desc" ) {
 		idx.append( f, TRUE );
 	    } else {
 		idx.append( f, FALSE );
 	    }
 	}
-	idx.setName( t.value(0).toString().stripWhiteSpace() );
+	idx.setName( t.value(0).toString().simplified() );
     }
     return idx;
 }

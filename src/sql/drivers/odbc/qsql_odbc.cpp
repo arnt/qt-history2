@@ -418,8 +418,8 @@ bool QODBCPrivate::setConnectionOptions( const QString& connOpts )
     for ( QStringList::ConstIterator it = raw.begin(); it != raw.end(); ++it ) {
 	QString tmp( *it );
 	int idx;
-	if ( (idx = tmp.find( '=' )) != -1 )
-	    connMap[ tmp.left( idx ) ] = tmp.mid( idx + 1 ).simplifyWhiteSpace();
+	if ( (idx = tmp.indexOf( '=' )) != -1 )
+	    connMap[ tmp.left( idx ) ] = tmp.mid( idx + 1 ).simplified();
 	else
 	    qWarning( "QODBCDriver::open: Illegal connect option value '%s'", tmp.latin1() );
     }
@@ -428,8 +428,8 @@ bool QODBCPrivate::setConnectionOptions( const QString& connOpts )
 	QString opt, val;
 	SQLUINTEGER v = 0;
 	for ( it = connMap.constBegin(); it != connMap.constEnd(); ++it ) {
-	    opt = it.key().upper();
-	    val = it.data().upper();
+	    opt = it.key().toUpper();
+	    val = it.data().toUpper();
 	    r = SQL_SUCCESS;
 	    if ( opt == "SQL_ATTR_ACCESS_MODE" ) {
 		if ( val == "SQL_MODE_READ_ONLY" ) {
@@ -1843,8 +1843,8 @@ QString QODBCDriver::formatValue( const QSqlField* field,
 	    // Dateformat has to be "yyyy-MM-dd hh:mm:ss", with leading zeroes if month or day < 10
 	    r = "{ ts '" +
 		QString::number(dt.year()) + "-" +
-		QString::number(dt.month()).rightJustify( 2, '0', TRUE ) + "-" +
-		QString::number(dt.day()).rightJustify( 2, '0', TRUE ) + " " +
+		QString::number(dt.month()).rightJustified( 2, '0', TRUE ) + "-" +
+		QString::number(dt.day()).rightJustified( 2, '0', TRUE ) + " " +
 		tm.toString() +
 		"' }";
 	} else

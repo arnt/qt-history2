@@ -276,8 +276,6 @@ QString qOraWarn( const QOCIPrivate* d )
     sb4 errcode;
     text errbuf[1024];
     
-    QString errBuf;
-    errBuf.setLength( 512 );
     OCIErrorGet( (dvoid *)d->err,
 		(ub4) 1,
 		(text *)NULL,
@@ -531,7 +529,8 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
 */
 QByteArray qMakeOraDate( const QDateTime& dt )
 {
-    QByteArray ba( 7 );
+    QByteArray ba;
+    ba.resize(7);
     int year = dt.date().year();
     ba[0]= (year / 100) + 100; // century
     ba[1]= (year % 100) + 100; // year
@@ -924,7 +923,8 @@ int QOCIResultPrivate::readLOBs( QSqlRecord& res )
 	    //		if ( res.value( i ).type() == QVariant::CString ) {
 	    //		    buf = new QCString( amount + 1 ); // including terminating zero
 	    //		} else {
-	    buf = new QByteArray( amount );
+	    buf = new QByteArray();
+	    buf->resize(amount);
 	    //		}
 	    
 	    // get lob charset ID and tell oracle to transform it into UTF-8
@@ -1047,11 +1047,10 @@ QVariant QOCIResultPrivate::value( int i )
 	    v = QVariant( QString::fromUtf8( at(i) ) );
 	break;
 	case QVariant::ByteArray: {
-	    QByteArray ba;
 	    int len = length(i);
 	    if (len > 0)
-		ba.duplicate(at(i), len);
-	    return QVariant( ba );
+		return QByteArray(at(i), len);
+	    return QVariant( QByteArray() );
 	    break;
 	}
 	default:
@@ -1861,7 +1860,7 @@ bool QOCIDriver::open( const QString & db,
 }
     setOpen( TRUE );
     setOpenError( FALSE );
-    d->user = user.upper();
+    d->user = user.toUpper();
     
     QSqlQuery q = createQuery();
     q.setForwardOnly( TRUE );
@@ -1871,10 +1870,10 @@ bool QOCIDriver::open( const QString & db,
 	while ( q.next() ) {
 	    // qDebug( "NLS: " + q.value( 0 ).toString() ); // ###
 	    if ( q.value( 0 ).toString() == "NLS_CHARACTERSET" &&
-		 q.value( 1 ).toString().upper().startsWith( "UTF8" ) ) {
+		 q.value( 1 ).toString().toUpper().startsWith( "UTF8" ) ) {
 		d->utf8 = TRUE;
 	    } else if ( q.value( 0 ).toString() == "NLS_NCHAR_CHARACTERSET" &&
-		 q.value( 1 ).toString().upper().startsWith( "UTF8" ) ) {
+		 q.value( 1 ).toString().toUpper().startsWith( "UTF8" ) ) {
 		d->nutf8 = TRUE;
 	    }
 	}
@@ -2018,12 +2017,12 @@ QStringList QOCIDriver::tables( const QString& typeName ) const
 void qSplitTableAndOwner( const QString & tname, QString * tbl,
 			  QString * owner )
 {
-    int i = tname.find('.'); // prefixed with owner?
+    int i = tname.indexOf('.'); // prefixed with owner?
     if ( i != -1 ) {
-	*tbl = tname.right( tname.length() - i - 1 ).upper();
-	*owner = tname.left( i ).upper();
+	*tbl = tname.right( tname.length() - i - 1 ).toUpper();
+	*owner = tname.left( i ).toUpper();
     } else {
-	*tbl = tname.upper();
+	*tbl = tname.toUpper();
     }
 }
 
@@ -2236,7 +2235,7 @@ QString QOCIDriver::formatValue( const QSqlField* field, bool ) const
 	    QString encStr = "UNISTR('";
 	    const QString srcStr = field->value().toString();
 	    for ( int i = 0; i < srcStr.length(); ++i ) {
-		encStr += '\\' + QString::number( srcStr.at( i ).unicode(), 16 ).rightJustify( 4, '0' );
+		encStr += '\\' + QString::number( srcStr.at( i ).unicode(), 16 ).rightJustified( 4, '0' );
 	    }
 	    encStr += "')";
 	    return encStr;

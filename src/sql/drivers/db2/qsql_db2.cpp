@@ -1071,8 +1071,8 @@ bool QDB2Driver::open( const QString& db, const QString& user, const QString& pa
     for ( QStringList::ConstIterator it = raw.begin(); it != raw.end(); ++it ) {
 	QString tmp( *it );
 	int idx;
-	if ( (idx = tmp.find( '=' )) != -1 )
-	    connMap[ tmp.left( idx ) ] = tmp.mid( idx + 1 ).simplifyWhiteSpace();
+	if ( (idx = tmp.indexOf( '=' )) != -1 )
+	    connMap[ tmp.left( idx ) ] = tmp.mid( idx + 1 ).simplified();
 	else
 	    qWarning( "QDB2Driver::open: Illegal connect option value '%s'", tmp.latin1() );
     }
@@ -1081,8 +1081,8 @@ bool QDB2Driver::open( const QString& db, const QString& user, const QString& pa
 	QString opt, val;
 	SQLUINTEGER v = 0;
 	for ( it = connMap.constBegin(); it != connMap.constEnd(); ++it ) {
-	    opt = it.key().upper();
-	    val = it.data().upper();
+	    opt = it.key().toUpper();
+	    val = it.data().toUpper();
 	    r = SQL_SUCCESS;
 	    if ( opt == "SQL_ATTR_ACCESS_MODE" ) {
 		if ( val == "SQL_MODE_READ_ONLY" ) {
@@ -1127,7 +1127,7 @@ bool QDB2Driver::open( const QString& db, const QString& user, const QString& pa
 	return FALSE;
     }
 
-    d->user = user.upper();
+    d->user = user.toUpper();
     setOpen( TRUE );
     setOpenError( FALSE );
     return TRUE;
@@ -1182,7 +1182,7 @@ QSqlRecordInfo QDB2Driver::recordInfo( const QString& tableName ) const
 
     SQLHANDLE hStmt;
     QString catalog, schema, table;
-    qSplitTableQualifier( tableName.upper(), &catalog, &schema, &table );
+    qSplitTableQualifier( tableName.toUpper(), &catalog, &schema, &table );
     if ( schema.isEmpty() )
 	schema = d->user;
 
@@ -1320,7 +1320,7 @@ QSqlIndex QDB2Driver::primaryIndex( const QString& tablename ) const
 	return index;
     }
     QString catalog, schema, table;
-    qSplitTableQualifier( tablename.upper(), &catalog, &schema, &table );
+    qSplitTableQualifier( tablename.toUpper(), &catalog, &schema, &table );
     r = SQLSetStmtAttr( hStmt,
 			SQL_ATTR_CURSOR_TYPE,
 			(SQLPOINTER)SQL_CURSOR_FORWARD_ONLY,
@@ -1454,9 +1454,9 @@ QString QDB2Driver::formatValue( const QSqlField* field, bool trimStrings ) cons
 		       QString::number( dt.month() ) + "-" +
 		       QString::number( dt.day() ) + "-" +
 		       QString::number( tm.hour() ) + "." +
-		       QString::number( tm.minute() ).rightJustify( 2, '0', TRUE ) + "." +
-		       QString::number( tm.second() ).rightJustify( 2, '0', TRUE ) + "." +
-		       QString::number( tm.msec() * 1000 ).rightJustify( 6, '0', TRUE ) + "'";
+		       QString::number( tm.minute() ).rightJustified( 2, '0', TRUE ) + "." +
+		       QString::number( tm.second() ).rightJustified( 2, '0', TRUE ) + "." +
+		       QString::number( tm.msec() * 1000 ).rightJustified( 6, '0', TRUE ) + "'";
 		} else {
 		    return nullText();
 		}
