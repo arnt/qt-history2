@@ -239,9 +239,11 @@ class QWidget;
 struct QX11InfoData {
     uint ref;
     int screen;
+    int dpiX;
+    int dpiY;
     int depth;
     int cells;
-    Qt::HANDLE colormap;
+    Colormap colormap;
     Visual *visual;
     bool defaultColormap;
     bool defaultVisual;
@@ -291,18 +293,7 @@ struct QX11Data
     // client leader window
     Window wm_client_leader;
 
-    struct Screen {
-        int dpiX;
-        int dpiY;
-        int depth;
-        int cells;
-        Window rootWindow;
-        Colormap colormap;
-        Visual *visual;
-        bool defaultColormap;
-        bool defaultVisual;
-    };
-    Screen *screens;
+    QX11InfoData *screens;
     int screenCount;
     int defaultScreen;
 

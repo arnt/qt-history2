@@ -176,7 +176,7 @@ void *QX11Info::appVisual(int screen)
 
 Qt::HANDLE QX11Info::appRootWindow(int screen)
 {
-    return X11->screens[screen == -1 ? X11->defaultScreen : screen].rootWindow;
+    return RootWindow(X11->display, screen == -1 ? X11->defaultScreen : screen);
 }
 
 int QX11Info::appDepth(int screen)

@@ -1548,17 +1548,18 @@ void qt_init(QApplicationPrivate *priv, int,
         X11->defaultScreen = DefaultScreen(X11->display);
         X11->screenCount = ScreenCount(X11->display);
 
-        X11->screens = new QX11Data::Screen[X11->screenCount];
+        X11->screens = new QX11InfoData[X11->screenCount];
 
         for (int s = 0; s < X11->screenCount; s++) {
-            QX11Data::Screen *screen = X11->screens + s;
+            QX11InfoData *screen = X11->screens + s;
+            screen->ref = 1; // ensures it doesn't get deleted
+            screen->screen = s;
             screen->dpiX = (DisplayWidth(X11->display, s) * 254 + DisplayWidthMM(X11->display, s)*5)
                            / (DisplayWidthMM(X11->display, s)*10);
             screen->dpiY = (DisplayHeight(X11->display, s) * 254 + DisplayHeightMM(X11->display, s)*5)
                            / (DisplayHeightMM(X11->display, s)*10);
             screen->depth = DefaultDepth(X11->display, s);
             screen->cells = DisplayCells(X11->display, s);
-            screen->rootWindow = RootWindow(X11->display, s);
 
             // setup the visual and colormap for each screen
             screen->visual = 0;
@@ -1626,7 +1627,7 @@ void qt_init(QApplicationPrivate *priv, int,
                         // doesn't give us correct colors. Why this happens, I have
                         // no clue, so we disable this for HPUX
                         int count;
-                        if (XGetRGBColormaps(X11->display, screen->rootWindow,
+                        if (XGetRGBColormaps(X11->display, RootWindow(X11->display, s),
                                              &stdcmap, &count, XA_RGB_DEFAULT_MAP)) {
                             int i = 0;
                             while (i < count && screen->colormap == 0) {
@@ -1644,7 +1645,7 @@ void qt_init(QApplicationPrivate *priv, int,
                 } else {
                     // create a custom colormap
                     screen->colormap =
-                        XCreateColormap(X11->display, screen->rootWindow, screen->visual, AllocNone);
+                        XCreateColormap(X11->display, RootWindow(X11->display, s), screen->visual, AllocNone);
                 }
             }
         }
