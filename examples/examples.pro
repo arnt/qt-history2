@@ -94,8 +94,7 @@ xml:SUBDIRS +=	xml/outliner \
 		xml/tagreader \
 		xml/tagreader-with-features
 
-embedded:SUBDIRS += winmanager \
-		notepad \
+embedded:SUBDIRS += notepad \
 		kiosk \
 		launcher
 
