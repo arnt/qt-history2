@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#42 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -20,7 +20,7 @@
 #include "qstrlist.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#41 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#42 $")
 
 
 /*----------------------------------------------------------------------------
@@ -526,7 +526,7 @@ QFont::StyleHint QFont::styleHint() const
 
 void QFont::setStyleHint( StyleHint hint )
 {
-    if ( (bool)d->req.styleHint != hint ) {
+    if ( (StyleHint)d->req.styleHint != hint ) {
 	detach();
 	d->req.styleHint     = hint;
 	d->req.hintSetByUser = TRUE;
@@ -577,7 +577,7 @@ QFont::CharSet QFont::charSet() const
 
 void QFont::setCharSet( CharSet charset )
 {
-    if ( (bool)d->req.charSet != charset ) {
+    if ( (CharSet)d->req.charSet != charset ) {
 	detach();
 	d->req.charSet = charset;
 	d->req.dirty   = TRUE;
