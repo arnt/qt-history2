@@ -571,7 +571,7 @@ void MainWindow::setupLayoutActions()
     connect( actionEditGridLayout, SIGNAL( activated() ), this, SLOT( editLayoutGrid() ) );
     actionEditGridLayout->setEnabled( FALSE );
 
-    actionEditSplitHorizontal = new QAction( tr( "Lay Out Horizontally (in Splitter)" ), createIconSet("editvlayout.xpm"),
+    actionEditSplitHorizontal = new QAction( tr( "Lay Out Horizontally (in Splitter)" ), createIconSet("edithlayoutsplit.xpm"),
 					     tr( "Lay Out Horizontally (in &Splitter)" ), 0, this, 0 );
     actionEditSplitHorizontal->setStatusTip(tr("Lays out the selected widgets horizontally in a splitter") );
     actionEditSplitHorizontal->setWhatsThis(tr("<b>Layout widgets horizontally in a splitter</b>"
@@ -579,7 +579,7 @@ void MainWindow::setupLayoutActions()
     connect( actionEditSplitHorizontal, SIGNAL( activated() ), this, SLOT( editLayoutHorizontalSplit() ) );
     actionEditSplitHorizontal->setEnabled( FALSE );
 
-    actionEditSplitVertical = new QAction( tr( "Lay Out Vertically (in Splitter)" ), createIconSet("editvlayout.xpm"),
+    actionEditSplitVertical = new QAction( tr( "Lay Out Vertically (in Splitter)" ), createIconSet("editvlayoutsplit.xpm"),
 					     tr( "Lay Out Vertically (in &Splitter)" ), 0, this, 0 );
     actionEditSplitVertical->setStatusTip(tr("Lays out the selected widgets vertically in a splitter") );
     actionEditSplitVertical->setWhatsThis(tr("<b>Layout widgets vertically in a splitter</b>"
