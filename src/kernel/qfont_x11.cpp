@@ -129,16 +129,13 @@ static const char *qt_x11encodings[][QFont::NScripts + 1] = {
     { 0                      }, // Myanmar
     { 0                      }, // Khmer
 
-    { "jisx0212.1990-0",
-      "jisx0208.1983-0",
+    { "jisx0208.1983-0",
       "gb2312.1980-0",
       "big5*-0",
       "big5-1",
       "ksc5601.1987-0",    0 }, // UnifiedHan
-    { "jisx0212.1990-0",
-      "jisx0208.1983-0",   0 }, // Hiragana
-    { "jisx0212.1990-0",
-      "jisx0208.1982-0"  , 0 }, // Katakana
+    { "jisx0208.1983-0",   0 }, // Hiragana
+    { "jisx0208.1983-0"  , 0 }, // Katakana
     { "ksc5601.1987-0"   , 0 }, // Hangul
     { "gb2312.1980-0"    , 0 }, // Bopomofo
     { 0                      }, // Yi
