@@ -2788,15 +2788,15 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                             break;
                     }
                     res = true;
-                    break;
+                } else {
+                    w->setAttribute(Qt::WA_NoMouseReplay, false);
+                    res = notify_helper(w, w == receiver ? mouse : &me);
+                    e->spont = false;
+                    if (res && (w == receiver ? mouse : &me)->isAccepted())
+                        break;
                 }
-                w->setAttribute(Qt::WA_NoMouseReplay, false);
-                res = notify_helper(w, w == receiver ? mouse : &me);
-                e->spont = false;
-                if ((res && (w == receiver ? mouse : &me)->isAccepted())
-                    || w->isWindow() || w->testAttribute(Qt::WA_NoMousePropagation))
+                if (w->isWindow() || w->testAttribute(Qt::WA_NoMousePropagation))
                     break;
-
                 relpos += w->pos();
                 w = w->parentWidget();
             }
