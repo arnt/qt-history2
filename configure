@@ -3186,6 +3186,9 @@ if [ "$CFG_LARGEFILE" = "yes" ]; then
     echo "#define QT_LARGEFILE_SUPPORT 64" >>$outpath/include/qconfig.h.new
 fi
 
+$unixtests/ptrsize.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath
+echo "#define QT_POINTER_SIZE $?" >>$outpath/include/qconfig.h.new
+
 if [ ! -z "$QT_MAC_VERSION" ]; then
     echo "#ifndef QT_MACOSX_VERSION" >>$outpath/include/qconfig.h.new
     echo "# define QT_MACOSX_VERSION  `printf 0x%x ${QT_MAC_VERSION}`  /*from config.tests*/" >>$outpath/include/qconfig.h.new
