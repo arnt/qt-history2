@@ -82,15 +82,27 @@ static QDict<glibs_ref> *glibs_loaded = 0;
 #endif
 
 #ifdef DO_MAC_LIBRARY
-static NSModule qt_mac_library_multiple(NSSymbol, NSModule o, NSModule)
+static NSModule qt_mac_library_multiple(NSSymbol sym, NSModule o, NSModule)
 {
+#if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
+    qDebug("multiple definition %s", NSNameOfSymbol(sym));
+#endif
     return o;
+}
+
+static void qt_mac_library_undefined(const char *symbolname)
+{
+#if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
+    qDebug("qlibrary_mac.cpp: undefined symbol (%s)", symbolname);
+#endif
 }
 
 static void qt_mac_library_error(NSLinkEditErrors err, int line, const char *fileName, 
 				 const char *error)
 {
-    qWarning("qlibrary_mac.cpp: %d: %d: %s (%s)", err, line, fileName, error);
+#if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
+    qDebug("qlibrary_mac.cpp: %d: %d: %s (%s)", err, line, fileName, error);
+#endif
 }
 #endif
 
@@ -104,7 +116,7 @@ bool QLibraryPrivate::loadLibrary()
     if(first) { //deal with errors
 	first = FALSE;
 	NSLinkEditErrorHandlers hdl;
-	hdl.undefined = NULL;
+	hdl.undefined = qt_mac_library_undefined;
 	hdl.multiple = qt_mac_library_multiple;
 	hdl.linkEdit = qt_mac_library_error;
 	NSInstallLinkEditErrorHandlers(&hdl);
