@@ -14,7 +14,8 @@ INCLUDEPATH += ../../lib/sdk \
     ../../lib/extension \
     ../propertyeditor \
     ../signalsloteditor \
-    ../buddyeditor
+    ../buddyeditor \
+    ../../lib
 
 PRECOMPILED_HEADER=formeditor_pch.h
 HEADERS += \
