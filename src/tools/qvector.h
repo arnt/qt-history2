@@ -52,6 +52,7 @@ public:
    ~QVector()				{ clear(); }
     QVector<type> &operator=(const QVector<type> &v)
 			{ return (QVector<type>&)QGVector::operator=(v); }
+    bool operator==( const QVector<type> &v ) const { return QGVector::operator==(v); }
     type **data()   const		{ return (type **)QGVector::data(); }
     uint  size()    const		{ return QGVector::size(); }
     uint  count()   const		{ return QGVector::count(); }

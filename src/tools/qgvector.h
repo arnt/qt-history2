@@ -60,7 +60,8 @@ protected:
    ~QGVector();
 
     QGVector &operator=( const QGVector &v );	// assign from other vector
-
+    bool operator==( const QGVector &v ) const;
+    
     Item	 *data()    const	{ return vec; }
     uint  size()    const	{ return len; }
     uint  count()   const	{ return numItems; }

@@ -632,4 +632,20 @@ QDataStream &QGVector::write( QDataStream &s ) const
     }
     return s;
 }
+
+/* Returns whether v equals this vector or not */
+
+bool QGVector::operator==( const QGVector &v ) const
+{
+    if ( size() != v.size() )
+	return FALSE;
+    if ( count() != v.count() )
+	return FALSE;
+    for ( int i = 0; i < (int)size(); ++i ) {
+	if ( ( (QGVector*)this )->compareItems( at( i ), v.at( i ) ) != 0 )
+	    return FALSE;
+    }
+    return TRUE;
+}
+
 #endif // QT_NO_DATASTREAM

@@ -927,6 +927,16 @@ private:
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+
+#if defined(Q_TEMPLATEDLL)
+// MOC_SKIP_BEGIN
+template class Q_EXPORT QValueList< QVector<QStyleSheetItem> >;
+template class Q_EXPORT QVector<QStyleSheetItem>;
+template class Q_EXPORT QValueList<QStyleSheetItem::ListStyle>;
+template class Q_EXPORT QArray<int>;
+// MOC_SKIP_END
+#endif
+
 class Q_EXPORT QTextDeleteCommand : public QTextCommand
 {
 public:
@@ -1055,7 +1065,6 @@ private:
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-template class Q_EXPORT QVector<QStyleSheetItem>;
 template class Q_EXPORT QMap<int, QTextParagSelection>;
 template class Q_EXPORT QMap<int, QTextParagLineStart*>;
 // MOC_SKIP_END
