@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#205 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#206 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -1221,7 +1221,8 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 			     dis ? discol : white,
 			     discol, white );
 	}
-	qDrawArrow( p, RightArrow, gs,
+	
+	style().drawArrow(p, RightArrow,
 		    row == actItem && gs == MotifStyle && mi->isEnabled(),
 		    cellw - motifArrowHMargin - dim,  cellh/2-dim/2,
 		    dim, dim, g,
