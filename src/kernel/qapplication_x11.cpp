@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#812 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#813 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -4628,6 +4628,7 @@ static const unsigned short greekKeysymsToUnicode[] = {
 };
 #endif
 
+#if !defined(NO_XIM)
 // ### add keysym conversion for the missing ranges.
 static QChar keysymToUnicode(unsigned char byte3, unsigned char byte4)
 {
@@ -4643,7 +4644,7 @@ static QChar keysymToUnicode(unsigned char byte3, unsigned char byte4)
     }
     return QChar(0x0);
 }
-
+#endif
 
 
 bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
