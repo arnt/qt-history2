@@ -5,7 +5,7 @@
 **
 ** Created : 010301
 **
-** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt TestFramework of the Qt GUI Toolkit.
 **
@@ -41,20 +41,20 @@
 #include <qlistbox.h>
 #include <qlistview.h>
 #include <qpixmap.h>
-#include <errno.h>
-#include <assert.h>
-#include <stdlib.h>
 #include <qobjectlist.h>
 #include <qlistbox.h>
 #include <qcombobox.h>
 #include <qregexp.h>
+#include <qtimer.h>
+#include <qmessagebox.h>
+#include <qsocketdevice.h>
 #include "private/qtestcontrol_p.h"
 #include "private/qtestlistbox_p.h"
 #include "private/qtestmenubar_p.h"
 #include "private/qtestpopupmenu_p.h"
-#include <qtimer.h>
-#include <qmessagebox.h>
-#include <qsocketdevice.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <assert.h>
 
 /*!
   \internal
