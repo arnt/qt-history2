@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#24 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#25 $
 **
 ** Implementation of QGArray class
 **
@@ -27,7 +27,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#24 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#25 $")
 
 
 #if !defined(CHECK_MEMORY)
@@ -48,6 +48,20 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#24 $")
 #define DELETE(array)	(delete[] array)
 #define DONT_USE_REALLOC			// comment to use realloc()
 #endif
+
+
+/*----------------------------------------------------------------------------
+  \class QShared qshared.h
+  \brief The QShared struct is internally used for implementing shared classes.
+
+  It only contains a reference count and member functions to increment and
+  decrement it.
+
+  Shared classes normally have internal classes that inherit QShared and
+  add the shared data.
+
+  \sa \link shclass.html Shared Classes\endlink
+ ----------------------------------------------------------------------------*/
 
 
 /*----------------------------------------------------------------------------
