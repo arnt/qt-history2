@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#204 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#205 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1326,7 +1326,7 @@ void QFileDialog::rereadDir()
     }
     d->moreFiles->setCurrentItem( 0 );
     files->setCurrentItem( files->firstChild() );
-    delete filist;
+    //delete filist;
 }
 
 
