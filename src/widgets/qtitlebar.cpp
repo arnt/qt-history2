@@ -10,7 +10,7 @@
 #include "qcleanuphandler.h"
 
 #ifndef QT_NO_WORKSPACE
-#include "../workspace/qworkspace.h"
+#include <qworkspace.h>
 #endif
 
 #if defined(Q_WS_WIN)
