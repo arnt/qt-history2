@@ -1078,7 +1078,6 @@ bool QTextEdit::event( QEvent *e )
 	     !d->optimMode &&
 #endif
 	     d->ensureCursorVisibleInShowEvent  ) {
-	    sync();
 	    ensureCursorVisible();
 	    d->ensureCursorVisibleInShowEvent = FALSE;
 	}
@@ -1830,8 +1829,7 @@ void QTextEdit::ensureCursorVisible()
 	d->ensureCursorVisibleInShowEvent = TRUE;
 	return;
     }
-    lastFormatted = cursor->paragraph();
-    formatMore();
+    sync();
     QTextStringChar *chr = cursor->paragraph()->at( cursor->index() );
     int h = cursor->paragraph()->lineHeightOfChar( cursor->index() );
     int x = cursor->paragraph()->rect().x() + chr->x + cursor->offsetX();
@@ -5129,6 +5127,7 @@ void QTextEdit::sync()
 	lastFormatted = lastFormatted->next();
     }
     resizeContents( contentsWidth(), doc->height() );
+    updateScrollBars();
 }
 
 /*! \reimp */
