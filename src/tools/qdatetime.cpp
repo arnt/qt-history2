@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#29 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#30 $
 **
 ** Implementation of date and time classes
 **
@@ -21,12 +21,15 @@
 #elif defined(_OS_OS2_)
 #include <os2.h>
 #elif defined(UNIX)
+#define gettimeofday	__hide_gettimeofday
 #include <sys/time.h>
 #include <unistd.h>
+#undef  gettimeofday
+extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetime.cpp#29 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetime.cpp#30 $";
 #endif
 
 
@@ -626,13 +629,6 @@ long QTime::msecsTo( const QTime &t ) const	// milliseconds difference
  ----------------------------------------------------------------------------*/
 
 
-#if defined(_OS_SUN_)
-#if defined(__SVR4)
-extern "C" int gettimeofday( struct timeval *, void * );
-#else
-extern "C" int gettimeofday( struct timeval * );
-#endif
-#endif
 
 /*----------------------------------------------------------------------------
   Returns the current time.
@@ -687,11 +683,7 @@ bool QTime::currentTime( QTime *ct )			// get current time
 #elif defined(UNIX)
 
     struct timeval tv;
-#if defined(_OS_SUN_) && !defined(__SVR4)
-    gettimeofday( &tv );
-#else
     gettimeofday( &tv, 0 );
-#endif
     time_t ltime = tv.tv_sec;
     tm *t = localtime( &ltime );
     ct->ds = MSECS_PER_HOUR*t->tm_hour + MSECS_PER_MIN*t->tm_min +
