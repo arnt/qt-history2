@@ -36,21 +36,21 @@
     development. The Qt implementation does not include the SAX1
     compatibility classes present in the Java interface.
     For an introduction to Qt's SAX2 classes see
-    "\link #sax2 The Qt SAX2 classes \endlink".
+    \l{#sax2}{The Qt SAX2 classes}.
 
     DOM Level 2 is a W3C Recommendation for XML interfaces that maps the
     constituents of an XML document to a tree structure. The specification
     of DOM Level 2 can be found at \l{http://www.w3.org/DOM/}.
     More information about the DOM classes in Qt is provided in the
-    \link #dom Qt DOM classes \endlink.
+    \l{#dom}{Qt DOM classes}.
 
-    In addition to SAX and DOM support, Qt's QPicture class can read and
+    In addition to SAX and DOM support, Qt's Q3Picture class can read and
     write SVG. Additional XML support is provided by the
     \l{http://www.trolltech.com/products/solutions/index.html}{Qt Solutions}
     group who provide, for example, classes that support SOAP and MML with
     the Qt XML classes.
 
-    Qt provides the following SAX and DOM classes:
+    The \l{qtxml.html}{QtXml module} provides the following SAX and DOM classes:
 
     \table
     \header \i Class \i Short description
