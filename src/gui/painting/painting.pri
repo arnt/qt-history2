@@ -54,7 +54,7 @@ win32 {
 		painting/qpaintengine_win.cpp \
 		painting/qprintengine_win.cpp \
 		painting/qregion_win.cpp
-	LIBS += -lmsimg32
+	!win32-borland:LIBS += -lmsimg32
 }
 
 wince-* {
