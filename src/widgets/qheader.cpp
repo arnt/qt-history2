@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#14 $
 **
 **  Table header
 **
@@ -137,12 +137,11 @@ QHeader::~QHeader()
 */
 
 /*!
-  \fn void QHeader::sizeChange() 
+  \fn void QHeader::sizeChange( int section, int newSize ) 
 
   This signal is emitted when the user has changed the size of some
   of the parts of the header. This signal is typically connected to a slot
-  which resizes all columns, finding the sizes from cellSize().
-  
+  that repaints the table.  
 */
 
 /*!
@@ -764,4 +763,46 @@ int QHeader::mapToLogical( int a ) const
 int QHeader::mapToActual( int l ) const
 {
     return l2a[ l ];
+}
+
+
+/*!
+  Sets the size of logical cell \a i to \a s pixels.
+
+  \warning does not repaint or send out signals at present.
+*/
+
+void QHeader::setCellSize( int i, int s )
+{
+    sizes[i] = s;
+}
+
+
+/*!
+  Not implemented
+*/
+
+void QHeader::setResizeEnabled( bool, int )
+{
+    
+}
+
+
+/*!
+  Not implemented
+*/
+
+void QHeader::setMovingEnabled( bool )
+{
+    
+}
+
+
+/*!
+  Not implemented
+*/
+
+void QHeader::setClickEnabled( bool, int )
+{
+    
 }
