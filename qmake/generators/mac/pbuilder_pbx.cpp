@@ -597,8 +597,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                     if(it == tmp.end())
                         break;
                     QStringList &fdirs = project->variables()["QMAKE_FRAMEWORKDIR"];
-                    if(fdirs.isEmpty())
-                        fdirs.append("/System/Library/Frameworks/");
+                    fdirs.append("/System/Library/Frameworks/");
+                    fdirs.append("/Library/Frameworks/");
                     for(QStringList::Iterator fit = fdirs.begin(); fit != fdirs.end(); ++fit) {
                         if(QFile::exists((*fit) + QDir::separator() + (*it) + ".framework")) {
                             --it;
