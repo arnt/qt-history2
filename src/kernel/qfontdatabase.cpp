@@ -641,7 +641,7 @@ unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStr
 	    px = 0; // scale it to the required size
 
 	QtFontSize *size = style->pixelSize( px );
-	if ( !size ) {
+	if ( px != SMOOTH_SCALABLE && !size ) {
 	    // find closest size match
 	    unsigned int distance = ~0;
 	    for ( int x = 0; x < style->count; ++x ) {
@@ -706,7 +706,7 @@ unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStr
 #endif
 	if ( styleKey != style->key )
 	    this_score += 100;
-	if ( px != size->pixelSize && ! style->smoothScalable ) // bitmap scaled
+	if ( !style->smoothScalable && px != size->pixelSize ) // bitmap scaled
 	    this_score += 50;
 
 	if ( this_score < score ) {
@@ -898,12 +898,13 @@ QFontDatabase::findFont( QFont::Script script, const QFontDef &request, int scre
 	    fe->fontDef.family += QString::fromLatin1( "]" );
 	}
 
-	fe->fontDef.pixelSize = best_size->pixelSize;
 	if ( best_style->smoothScalable )
 	    fe->fontDef.pixelSize = request.pixelSize;
 	else if ( best_style->bitmapScalable &&
 		  ( request.styleStrategy & QFont::PreferMatch ) )
 	    fe->fontDef.pixelSize = request.pixelSize;
+	else
+	    fe->fontDef.pixelSize = best_size->pixelSize;
 
 #if defined(Q_WS_X11)
 	fe->fontDef.pointSize     = int( double( fe->fontDef.pixelSize ) * 720.0 /
