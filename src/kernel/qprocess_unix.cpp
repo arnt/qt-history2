@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#65 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#66 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -39,6 +39,8 @@
 
 #ifndef QT_NO_PROCESS
 
+#include "qplatformdefs.h"
+
 #include "qapplication.h"
 #include "qqueue.h"
 #include "qlist.h"
@@ -46,64 +48,20 @@
 #include "qtimer.h"
 #include "qcleanuphandler.h"
 
-// On Irix the correct type for sigaction.sa_handler is used in C++.
-// But C++ is detected using _LANGUAGE_C_PLUS_PLUS which is ridiculous
-// because this macro is only defined by the SGI compiler while the portable
-// macro __cplusplus could have been used instead.
-#if defined(_OS_IRIX_) && defined(_CC_GNU_)
-#define _LANGUAGE_C_PLUS_PLUS
-#endif
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <signal.h>
-#include <sys/wait.h>
-#include <sys/socket.h>
-#include <sys/types.h>
 
 //#define QT_QPROCESS_DEBUG
 
-#ifdef __MIPSEL__
-#  ifndef SOCK_DGRAM
-#    define SOCK_DGRAM 1
-#  endif
-#  ifndef SOCK_STREAM
-#    define SOCK_STREAM 2
-#  endif
-#endif
 
-#if defined(SIGNAL_HACK)
-#  undef SIGNAL_HACK
-#endif
-
-#if defined(Q_OS_MACX)
-// these platforms work one way
-#  define SIGNAL_HACK
-#elif defined(Q_CC_GNU) && ( defined(Q_OS_IRIX) || defined(Q_OS_SUN) )
-// gcc on these platforms works above, but native compiler doesn't.
-#  define SIGNAL_HACK
-#endif
-
-
-#if defined(Q_C_CALLBACKS)
+#ifdef Q_C_CALLBACKS
 extern "C" {
-#endif
-    // this looks like two unconnected platform differences that just
-    // happen to match up... perhaps we should use two defines, one
-    // for each yuckyness.
-#if defined(SIGNAL_HACK)
-static void qt_C_sigign() { (*SIG_IGN)(SIGPIPE); }
-static void qt_C_sigchldHnd();
-#else
-#define qt_C_sigign SIG_IGN
-static void qt_C_sigchldHnd( int );
-#endif
-#if defined(Q_C_CALLBACKS)
+#endif // Q_C_CALLBACKS
+
+    QT_SIGNAL_RETTYPE qt_C_sigchldHnd(QT_SIGNAL_ARGS);
+
+#ifdef Q_C_CALLBACKS
 }
-#endif
+#endif // Q_C_CALLBACKS
+
 
 class QProc;
 class QProcessManager;
@@ -260,7 +218,7 @@ QProcessManager::QProcessManager()
 #if defined(QT_QPROCESS_DEBUG)
     qDebug( "QProcessManager: install a sigpipe handler (SIG_IGN)" );
 #endif
-    act.sa_handler = qt_C_sigign;
+    act.sa_handler = QT_SIGNAL_IGNORE;
     sigemptyset( &(act.sa_mask) );
     sigaddset( &(act.sa_mask), SIGPIPE );
     act.sa_flags = 0;

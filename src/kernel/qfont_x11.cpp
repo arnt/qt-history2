@@ -37,6 +37,8 @@
 
 // REVISED: brad
 
+#include "qplatformdefs.h"
+
 #include "qfont.h"
 #include "qfontdata_p.h"
 #include "qcomplextext_p.h"
@@ -57,14 +59,7 @@
 #  include <qintdict.h>
 #  include <qpixmap.h>
 #  include <qsettings.h>
-#  include <netinet/in.h>
 #endif // QT_NO_XFTFREETYPE
-
-#include <ctype.h>
-#include <locale.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
 
 #include "qt_x11.h"
 

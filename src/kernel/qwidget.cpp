@@ -2817,6 +2817,8 @@ void QWidget::setFocus()
     if ( isActiveWindow() ) {
 	QWidget * prev = qApp->focus_widget;
 	qApp->focus_widget = this;
+	focusInputContext();
+
 	if ( prev != this ) {
 	    if ( prev ) {
 		QFocusEvent out( QEvent::FocusOut );
@@ -4073,6 +4075,7 @@ bool QWidget::event( QEvent *e )
 	    break;
 
 	case QEvent::MouseButtonPress:
+	    resetInputContext();
 	    mousePressEvent( (QMouseEvent*)e );
 	    if ( ! ((QMouseEvent*)e)->isAccepted() )
 		return FALSE;
@@ -4123,8 +4126,9 @@ bool QWidget::event( QEvent *e )
 	    break;
 
 	case QEvent::FocusIn:
-	    setFontSys();
 	    focusInEvent( (QFocusEvent*)e );
+	    setFontSys();
+	    resetInputContext();
 	    break;
 
 	case QEvent::FocusOut:
@@ -4511,7 +4515,7 @@ QString QWidget::accessibilityHint() const
   current state of your widget, e.g. "checked" for a check box, or
   the text of the current item in a item view.
 
-  Call 
+  Call
 
   \code
   setAccessibilityHint( stateDescription() );
@@ -4519,7 +4523,7 @@ QString QWidget::accessibilityHint() const
 
   when the current state of your widget changes.
 
-  When getting focus, the accessibility hint for the widget will be 
+  When getting focus, the accessibility hint for the widget will be
   set to a text generated as
 
   contentsDescription() + ", " + typeDescription() + ", " + stateDescription() + ". " + useDescription()
@@ -4710,6 +4714,32 @@ void QWidget::closeEvent( QCloseEvent *e )
 */
 
 void QWidget::contextMenuEvent( QContextMenuEvent *e )
+{
+    e->ignore();
+}
+
+
+/*!
+
+ */
+void QWidget::imStartEvent( QIMEvent *e )
+{
+    e->ignore();
+}
+
+/*!
+
+ */
+void QWidget::imComposeEvent( QIMEvent *e )
+{
+    e->ignore();
+}
+
+
+/*!
+
+ */
+void QWidget::imEndEvent( QIMEvent *e )
 {
     e->ignore();
 }
@@ -5248,7 +5278,6 @@ void QWidget::showFullScreen()
 
   \sa showMaximized()
  */
-
 
 /*!
   \fn bool QWidget::ownCursor() const

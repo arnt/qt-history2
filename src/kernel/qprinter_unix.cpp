@@ -39,29 +39,12 @@
 
 #ifndef QT_NO_PRINTER
 
+#include "qplatformdefs.h"
+
 #include "qpaintdevicemetrics.h"
 #include "qpsprinter_p.h"
 #include "qprintdialog.h"
 #include "qapplication.h"
-#include <stdlib.h>
-
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/wait.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <signal.h>
-
-#if defined(Q_OS_OS2EMX)
-#define INCL_DOSFILEMGR
-#define INCL_DOSERRORS
-#include <os2.h>
-#endif
-
-#if defined(Q_OS_QNX)
-#include <process.h>
-#endif
 
 // NOT REVISED
 
@@ -208,8 +191,8 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		    state = PST_ERROR;
 		    return FALSE;
 		}
-		
-// ### shouldn't we use QProcess here????   
+
+// ### shouldn't we use QProcess here????
 #if 0 && defined(Q_OS_OS2EMX)
 		// this code is still not used, and maybe it's not
 		// usable either, any more.  if you want to use it,

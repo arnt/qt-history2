@@ -35,8 +35,6 @@
 **
 **********************************************************************/
 
-#include "qglobal.h"
-
 // NOT REVISED
 
 // Uncomment the next line to enable the MIT Shared Memory extension
@@ -53,18 +51,16 @@
 #undef MITSHM
 #endif
 
+#include "qplatformdefs.h"
+
 #include "qbitmap.h"
 #include "qpaintdevicemetrics.h"
 #include "qimage.h"
 #include "qwmatrix.h"
 #include "qapplication.h"
-#include <stdlib.h>
 #include "qt_x11.h"
-#ifdef MITSHM
-#include <sys/ipc.h>
-#include <sys/shm.h>
-#include <X11/extensions/XShm.h>
-#endif
+
+
 
 
 // For thread-safety:

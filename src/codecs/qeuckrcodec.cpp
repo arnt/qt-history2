@@ -152,32 +152,34 @@ QCString QEucKrCodec::fromUnicode(const QString& uc, int& len_in_out) const
 
 QString QEucKrCodec::toUnicode(const char* chars, int len) const
 {
-  QString result;
-  for (int i=0; i<len; i++) {
-    uchar ch = chars[i];
-    if ( ch < 0x80 ) {
-      // ASCII
-      result += QChar(ch);
-    } else if ( IsEucChar(ch) ) {
-      // KSC 5601
-      if ( i < len-1 ) {
-	uchar c2 = chars[++i];
-	if ( IsEucChar(c2) ) {
-	  uint u = qt_Ksc5601ToUnicode((ch << 8) | c2);
-	  result += QValidChar(u);
+    QString result;
+    for (int i=0; i<len; i++) {
+	uchar ch = chars[i];
+	if (ch == 0)
+	    break;
+	if ( ch < 0x80 ) {
+	    // ASCII
+	    result += QChar(ch);
+	} else if ( IsEucChar(ch) ) {
+	    // KSC 5601
+	    if ( i < len-1 ) {
+		uchar c2 = chars[++i];
+		if ( IsEucChar(c2) ) {
+		    uint u = qt_Ksc5601ToUnicode((ch << 8) | c2);
+		    result += QValidChar(u);
+		} else {
+		    i--;
+		    result += QChar::replacement;
+		}
+	    } else {
+		result += QChar::replacement;
+	    }
 	} else {
-	  i--;
-	  result += QChar::replacement;
+	    // Invalid
+	    result += QChar::replacement;
 	}
-      } else {
-	result += QChar::replacement;
-      }
-    } else {
-      // Invalid
-      result += QChar::replacement;
     }
-  }
-  return result;
+    return result;
 }
 
 /*!
@@ -262,47 +264,49 @@ int QEucKrCodec::heuristicContentMatch(const char* chars, int len) const
 }
 
 class QEucKrDecoder : public QTextDecoder {
-  uchar buf[2];
-  int nbuf;
+    uchar buf[2];
+    int nbuf;
 public:
-  QEucKrDecoder() : nbuf(0)
-  {
-  }
-
-  QString toUnicode(const char* chars, int len)
-  {
-    QString result;
-    for (int i=0; i<len; i++) {
-      uchar ch = chars[i];
-      switch (nbuf) {
-      case 0:
-	if ( ch < 0x80 ) {
-	  // ASCII
-	  result += QChar(ch);
-	} else if ( IsEucChar(ch) ) {
-	  // KSC 5601
-	  buf[0] = ch;
-	  nbuf = 1;
-	} else {
-	  // Invalid
-	  result += QChar::replacement;
-	}
-	break;
-      case 1:
-	// KSC 5601
-	if ( IsEucChar(ch) ) {
-	  uint u = qt_Ksc5601ToUnicode((buf[0] << 8) |  ch);
-	  result += QValidChar(u);
-	} else {
-	  // Error
-	  result += QChar::replacement;
-	}
-	nbuf = 0;
-	break;
-      }
+    QEucKrDecoder() : nbuf(0)
+    {
     }
-    return result;
-  }
+
+    QString toUnicode(const char* chars, int len)
+    {
+	QString result;
+	for (int i=0; i<len; i++) {
+	    uchar ch = chars[i];
+	    if (ch == 0)
+		break;
+	    switch (nbuf) {
+	    case 0:
+		if ( ch < 0x80 ) {
+		    // ASCII
+		    result += QChar(ch);
+		} else if ( IsEucChar(ch) ) {
+		    // KSC 5601
+		    buf[0] = ch;
+		    nbuf = 1;
+		} else {
+		    // Invalid
+		    result += QChar::replacement;
+		}
+		break;
+	    case 1:
+		// KSC 5601
+		if ( IsEucChar(ch) ) {
+		    uint u = qt_Ksc5601ToUnicode((buf[0] << 8) |  ch);
+		    result += QValidChar(u);
+		} else {
+		    // Error
+		    result += QChar::replacement;
+		}
+		nbuf = 0;
+		break;
+	    }
+	}
+	return result;
+    }
 };
 
 /*!

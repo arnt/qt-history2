@@ -62,18 +62,16 @@ in doc/dnd.doc, where the documentation system can see it. */
 /* Adapted by : Matt Koss, koss@napri.sk */
 /* Further adaptions by : Trolltech AS */
 /***********************************************************/
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
 
 #include "qapplication.h"
 
 #ifndef QT_NO_DRAGANDDROP
 
-#include "qwidget.h"
+#include "qplatformdefs.h"
 
-#include <X11/Xlib.h>
-#include <X11/Xatom.h>
+#include "qwidget.h"
+#include "qt_x11.h"
+
 
 static Atom atom_message_type, atom_receiver_info, atom_src_property_type;
 static Atom atom_motif_window, atom_target_list ;
@@ -326,7 +324,7 @@ void qt_x11_motifdnd_init()
 
     qt_x11_intern_atom( "XmTRANSFER_SUCCESS", &Dnd_transfer_success );
     qt_x11_intern_atom( "XmTRANSFER_FAILURE", &Dnd_transfer_failure );
-    
+
     char my_dnd_selection_name[30];  // 11-digit number should be enough
     sprintf(my_dnd_selection_name, "_MY_DND_SELECTION_%d", (int)getpid());
     qt_x11_intern_atom( my_dnd_selection_name, &Dnd_selection );

@@ -52,7 +52,10 @@ void qt_insert_sip( QWidget*, int, int );	// defined in qapplication_x11.cpp
 int  qt_sip_count( QWidget* );			// --- "" ---
 bool qt_wstate_iconified( WId );		// --- "" ---
 void qt_updated_rootinfo();
+
 #ifndef NO_XIM
+#include "qinputcontext_p.h"
+
 extern XIM qt_xim;
 extern XIMStyle qt_xim_style;
 #endif
@@ -115,7 +118,7 @@ const uint stdWidgetEventMask =			// X event mask
 	    FocusChangeMask |
 	    ExposureMask |
 	    PropertyChangeMask |
-	    StructureNotifyMask | SubstructureRedirectMask
+	    StructureNotifyMask
 	);
 
 const uint stdDesktopEventMask =			// X event mask
@@ -736,24 +739,21 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text, 
 #ifndef NO_XIM
     if ( text ) {
 	QWidget* tlw = topLevelWidget();
-	if ( tlw->extra && tlw->extra->topextra &&
-	     tlw->extra->topextra->xic ) {
+	QTLWExtra *topdata = tlw->topData();
+
+	// trigger input context creation if it hasn't happened already
+	createInputContext();
+	QInputContext *qic = (QInputContext *) topdata->xic;
+
+	if ( qt_xim && qic ) {
 	    QPoint p( x, y );
 	    mapTo ( topLevelWidget(), p );
-
-	    XPoint spot;
-	    spot.x = p.x();
-	    spot.y = p.y()+height;
-	    XIC xic = (XIC)tlw->extra->topextra->xic;
-	    XVaNestedList preedit_attr;
-	    preedit_attr = XVaCreateNestedList(0, XNSpotLocation, &spot, 0);
-	    XSetICValues(xic, XNPreeditAttributes, preedit_attr, 0);
-	    XFree(preedit_attr);
+	    qic->setComposePosition(p.x(), p.y() + height);
+	    qic->setComposeArea(x, y, width, height);
 	}
-#if 0
+
 	if ( f )
 	    setFontSys( f );
-#endif
     }
 #endif
     if ( QRect( x, y, width, height ) != microFocusHint() )
@@ -761,32 +761,29 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text, 
 }
 
 #ifndef NO_XIM
+// We create an XFontSet for use with input method stuff - since QFont is
+// now a logical font composed of several real XFonts, we need a way to
+// tell the input method server what font to use
 
-#if 0
+
 static XFontSet fixed_fontset = 0; // leaked once
 
-static
-void cleanup_ffs()
+
+static void cleanup_ffs()
 {
     if ( fixed_fontset )
 	XFreeFontSet(QPaintDevice::x11AppDisplay(), fixed_fontset);
     fixed_fontset = 0;
 }
 
-static
-XFontSet xic_fontset(void* qfs, int pt)
-{
-    XFontSet fontset = (XFontSet)qfs;
-    if ( fontset )
-	return fontset;
 
-    // ##### TODO: this case cannot happen if we ensure that
-    //              the default font etc. are for this locale.
-    char** missing=0;
-    int nmissing;
+static XFontSet xic_fontset(int pt)
+{
     if ( !fixed_fontset ) {
 	QCString n;
-	n.sprintf( "-*-Helvetica-*-*-normal-*-*-%d-*-*-*-*-*-*,"
+	char **missing = 0;
+	int nmissing = 0;
+	n.sprintf( "-*-fixed-*-*-normal-*-*-%d-*-*-*-*-*-*,"
 		   "-*-*-*-*-normal-*-*-%d-*-*-*-*-*-*,"
 		   "-*-*-*-*-*-*-*-%d-*-*-*-*-*-*",
 		   pt*10,
@@ -799,40 +796,21 @@ XFontSet xic_fontset(void* qfs, int pt)
     return fixed_fontset;
 }
 
-#endif // was Q_SUPERFONT
-
 #endif // NO_XIM
 
 
 void QWidget::setFontSys( QFont * )
 {
 #ifndef NO_XIM
-
-#if 0
-
-    QWidget* tlw = topLevelWidget();
-    if ( tlw->extra && tlw->extra->topextra && tlw->extra->topextra->xic ) {
-	XIC xic = (XIC)tlw->extra->topextra->xic;
-	XFontSet fontset = xic_fontset( fontMetrics().fontSet(),
-					font().pointSize());
-
-	XVaNestedList preedit_att = XVaCreateNestedList( 0, XNFontSet, fontset,
-							 NULL );
-	XVaNestedList status_att = XVaCreateNestedList( 0, XNFontSet, fontset,
-							NULL );
-
-	XSetICValues( xic,
-		      XNPreeditAttributes, preedit_att,
-		      XNStatusAttributes, status_att,
-		      0 );
-
-	XFree(preedit_att);
-	XFree(status_att);
-
-    }
-
-#endif // was Q_SUPERFONT
-
+    /*
+      QWidget* tlw = topLevelWidget();
+      QTLWExtra *topdata = tlw->topData();
+      QInputContext *qic = (QInputContext *) topdata->xic;
+      if (qic) {
+      XFontSet fontset = xic_fontset(QApplication::font().pointSize());
+      qic->setXFontSet(fontset);
+      }
+    */
 #endif // NO_XIM
 }
 
@@ -1332,8 +1310,13 @@ void QWidget::setActiveWindow()
 	XSetInputFocus( x11Display(), tlw->winId(), RevertToNone, qt_x_time);
 
 #ifndef NO_XIM
-	if (tlw->topData()->xic)
-	    XSetICFocus( (XIC) tlw->topData()->xic);
+	// trigger input context creation if it hasn't happened already
+	createInputContext();
+
+	if (tlw->topData()->xic) {
+	    QInputContext *qic = (QInputContext *) tlw->topData()->xic;
+	    qic->setFocus();
+	}
 #endif
     }
 }
@@ -2265,67 +2248,13 @@ void QWidget::deleteSysExtra()
 
 void QWidget::createTLSysExtra()
 {
-#ifndef NO_XIM
-    if ( qt_xim ) {
-	XPoint spot; spot.x = 1; spot.y = 1; // dummmy
-
-#if 0
-	XFontSet fontset = xic_fontset(fontMetrics().fontSet(), font().pointSize());
-#endif // was Q_SUPERFONT
-
-	XVaNestedList preedit_att =
-	    XVaCreateNestedList(0,
-				XNSpotLocation, &spot,
-
-#if 0
-				XNFontSet, fontset,
-#endif // was Q_SUPERFONT
-
-				NULL);
-
-#if 0
-	XVaNestedList status_att =
-	    XVaCreateNestedList(0,
-				XNFontSet, fontset,
-				NULL);
-#endif // was Q_SUPERFONT
-
-	extra->topextra->xic =
-	    (void*)XCreateIC( qt_xim,
-			      XNInputStyle, qt_xim_style,
-			      XNClientWindow, winId(),
-			      XNFocusWindow, winId(),
-			      XNPreeditAttributes, preedit_att,
-
-#if 0
-			      XNStatusAttributes, status_att,
-#endif // was Q_SUPERFONT
-
-			      0 );
-
-	XFree(preedit_att);
-
-#if 0
-	XFree(status_att);
-#endif // was Q_SUPERFONT
-
-    } else {
-	extra->topextra->xic = 0;
-    }
-#else
+    // created lazily
     extra->topextra->xic = 0;
-#endif
 }
 
 void QWidget::deleteTLSysExtra()
 {
-#ifndef NO_XIM
-    if (extra->topextra->xic) {
-	XUnsetICFocus( (XIC) extra->topextra->xic );
-	XDestroyIC( (XIC) extra->topextra->xic );
-	extra->topextra->xic = 0;
-    }
-#endif
+    destroyInputContext();
 }
 
 
@@ -2508,4 +2437,73 @@ void QWidget::updateFrameStrut() const
     }
 
     that->fstrut_dirty = 0;
+}
+
+
+void QWidget::createInputContext()
+{
+#ifndef NO_XIM
+    QWidget *tlw = topLevelWidget();
+    QTLWExtra *topdata = tlw->topData();
+    if (qt_xim) {
+	if (! topdata->xic) {
+	    QInputContext *qic = new QInputContext(tlw);
+
+	    // XFontSet fontset = xic_fontset(QApplication::font().pointSize());
+	    // qic->setXFontSet(fontset);
+
+	    topdata->xic = (void *) qic;
+	}
+    } else
+#endif // NO_XIM
+	{
+	    qDebug("QWidget::createInputContext: no xim");
+	    topdata->xic = 0;
+	}
+}
+
+
+void QWidget::destroyInputContext()
+{
+#ifndef NO_XIM
+    QInputContext *qic = (QInputContext *) extra->topextra->xic;
+    delete qic;
+#endif // NO_XIM
+    extra->topextra->xic = 0;
+}
+
+
+void QWidget::resetInputContext()
+{
+#ifndef NO_XIM
+    if (qt_xim_style & XIMPreeditCallbacks) {
+	QWidget *tlw = topLevelWidget();
+	QTLWExtra *topdata = tlw->topData();
+
+	// trigger input context creation if it hasn't happened already
+	createInputContext();
+
+	if (topdata->xic) {
+	    QInputContext *qic = (QInputContext *) topdata->xic;
+	    qic->reset();
+	}
+    }
+#endif // NO_XIM
+}
+
+
+void QWidget::focusInputContext()
+{
+#ifndef NO_XIM
+    QWidget *tlw = topLevelWidget();
+    QTLWExtra *topdata = tlw->topData();
+
+    // trigger input context creation if it hasn't happened already
+    createInputContext();
+
+    if (topdata->xic) {
+	QInputContext *qic = (QInputContext *) topdata->xic;
+	qic->setFocus();
+    }
+#endif // NO_XIM
 }

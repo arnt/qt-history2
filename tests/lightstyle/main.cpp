@@ -8,7 +8,7 @@ public:
     LightStyleIface();
     virtual ~LightStyleIface();
 
-    QUnknownInterface *queryInterface( const QUuid& );
+    void queryInterface( const QUuid&, QUnknownInterface **);
     unsigned long addRef();
     unsigned long release();
 
@@ -34,21 +34,19 @@ LightStyleIface::~LightStyleIface()
 {
 }
 
-QUnknownInterface *LightStyleIface::queryInterface( const QUuid &uuid )
+void LightStyleIface::queryInterface( const QUuid &uuid, QUnknownInterface **iface )
 {
-    QUnknownInterface *iface = 0;
     if ( uuid == IID_QUnknownInterface )
-	iface = (QUnknownInterface*)(QStyleInterface*)this;
+	*iface = (QUnknownInterface*)(QStyleInterface*)this;
     else if ( uuid == IID_QFeatureListInterface )
-	iface = (QFeatureListInterface*)this;
+	*iface = (QFeatureListInterface*)this;
     else if ( uuid == IID_QStyleInterface )
-	iface = (QStyleInterface*)this;
+	*iface = (QStyleInterface*)this;
     else if ( uuid == IID_QLibraryInterface )
-	iface = (QLibraryInterface*)this;
+	*iface = (QLibraryInterface*)this;
 
-    if ( iface )
-	iface->addRef();
-    return iface;
+    if ( *iface )
+	(*iface)->addRef();
 }
 
 unsigned long LightStyleIface::addRef()

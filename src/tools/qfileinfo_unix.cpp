@@ -35,14 +35,11 @@
 **
 **********************************************************************/
 
-#include "qglobal.h"
+#include "qplatformdefs.h"
 #include "qfileinfo.h"
-#include "qfiledefs_p.h"
 #include "qdatetime.h"
 #include "qdir.h"
-
-#include <pwd.h>
-#include <grp.h>
+#include "qfiledefs_p.h"
 
 
 void QFileInfo::slashify( QString& )
@@ -66,7 +63,7 @@ bool QFileInfo::isFile() const
 {
     if ( !fic || !cache )
 	doStat();
-    return fic ? (fic->st.st_mode & STAT_MASK) == STAT_REG : FALSE;
+    return fic ? (fic->st.st_mode & QT_STAT_MASK) == QT_STAT_REG : FALSE;
 }
 
 /*!
@@ -79,7 +76,7 @@ bool QFileInfo::isDir() const
 {
     if ( !fic || !cache )
 	doStat();
-    return fic ? (fic->st.st_mode & STAT_MASK) == STAT_DIR : FALSE;
+    return fic ? (fic->st.st_mode & QT_STAT_MASK) == QT_STAT_DIR : FALSE;
 }
 
 /*!
@@ -317,7 +314,7 @@ void QFileInfo::doStat() const
     QFileInfo *that = ((QFileInfo*)this);	// mutable function
     if ( !that->fic )
 	that->fic = new QFileInfoCache;
-    STATBUF *b = &that->fic->st;
+    QT_STATBUF *b = &that->fic->st;
     that->symLink = FALSE;
 
 #if defined(Q_OS_UNIX) && defined(S_IFLNK)
@@ -330,7 +327,7 @@ void QFileInfo::doStat() const
 #endif
     int r;
 
-    r = STAT( QFile::encodeName(fn), b );
+    r = QT_STAT( QFile::encodeName(fn), b );
 
     if ( r != 0 ) {
 	delete that->fic;

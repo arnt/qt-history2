@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#41 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#42 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -39,226 +39,8 @@
 
 #ifndef QT_NO_NETWORK
 
+#include "qplatformdefs.h"
 #include "qwindowdefs.h"
-#include <string.h>
-
-#if defined(Q_OS_AIX)
-// Macro FD_ZERO is defined using bzero() in <sys/time.h> and bzero()
-// is defined in <strings.h>.  However <sys/time.h> does not include
-// <strings.h>.  So we include it ourselves.  Seen on AIX 4.3.3.
-#  include <strings.h>
-#endif
-
-#include <unistd.h>
-#include <sys/param.h>
-#include <sys/socket.h>
-#if defined(Q_OS_AIX)
-// OK, I'm phasing this out because there is no evidence that it is
-// needed on AIX 4.3.3:
-// #  include <sys/select.h>
-// In any case <sys/select.h> is included by <sys/types.h> if _BSD is
-// defined.  If you really need to include <sys/select.h> I suggest
-// you just define _BSD for AIX.
-#endif
-#include <sys/types.h>
-#if defined(Q_OS_SOLARIS) || defined(Q_OS_UNIXWARE7)
-// FIONREAD is #defined in <sys/filio.h>.
-// Have <sys/ioctl.h> include <sys/filio.h>.
-#  define BSD_COMP
-#endif
-#include <sys/ioctl.h>
-#if defined(Q_OS_SOLARIS) || defined(Q_OS_UNIXWARE7)
-#  undef BSD_COMP
-#endif
-#include <sys/file.h>
-#include <sys/time.h>
-#include <fcntl.h>
-#include <netinet/in.h>
-// OK, I'm phasing this out because according to SUSv2 this is only
-// supposed to provide definitions for UNIX-domain sockets like
-// sockaddr_un which we do not use.
-//#include <sys/un.h>
-#include <netdb.h>
-#include <errno.h>
-
-#if defined(Q_OS_QNX)
-#  include <unix.h>
-#endif
-
-// What's this?  It's not even used so I am phasing it out.
-// #ifndef UNIX_PATH_MAX
-// #  define UNIX_PATH_MAX 108
-// #endif
-
-// ### What's this?  This should be defined in <sys/socket.h>.
-// ### And what does ths use of a little-endian MIPS processor
-// ### have to do with the contents of system header files?
-// ### Should be explained.
-#ifdef __MIPSEL__
-#  ifndef SOCK_DGRAM
-#    define SOCK_DGRAM 1
-#  endif
-#  ifndef SOCK_STREAM
-#    define SOCK_STREAM 2
-#  endif
-#endif
-
-
-// no includes after this point
-
-// ### Mmmmh... Which system has TIOCINQ but not FIONREAD?
-// ### Please document with OS and OS release.
-#if !defined(FIONREAD) && defined(TIOCINQ)
-#  define QT_NREAD TIOCINQ
-#else
-#  define QT_NREAD FIONREAD
-#endif
-
-// ### Please #ifdef and document with OS and OS release.
-#if defined(Q_OS_QNX)
-// QNX 6.00 Neutrino is pure XPG4v2 and lacks support for BSD's FNDELAY.
-#  if !defined (FNDELAY)
-#    define FNDELAY O_NDELAY
-#  endif
-#endif
-#if defined(Q_OS_OS2EMX)
-// This is documented in the un*x to OS/2-EMX Porting FAQ:
-// 	http://homepages.tu-darmstadt.de/~st002279/os2/porting.html
-#  if !defined (FNDELAY)
-#    define FNDELAY O_NONBLOCK
-#  endif
-#endif
-
-// This mess defines SOCKLEN_T to socklen_t or whatever else.
-// Single XPG5/SUSv2 and common sense say it's to be socklen_t.
-// XNS4/SUS says it's to be size_t but most platforms do not
-// apply the standard and size_t has been phased out because it is
-// not compatible with IPv6 or LP64. Also some XNS4/SUS platforms
-// also support POSIX.1g Draft 6.6 (March 1997) and have switched
-// to socklen_t earlier. But classically it's int.
-// Want more?
-//	The Single UNIX Specification, Version 2
-//		- http://www.opengroup.org/onlinepubs/007908799/
-//		- http://www.UNIX-systems.org/apis.html
-//	Networking Services (XNS) Issue 5.2 Draft 4.0
-//		- http://www.opengroup.org/orc/DOCS/XNS/webcom.htm
-//	Advanced Sockets API for IPv6
-//		- ftp://ftp.isi.edu/in-notes/rfc2292.txt
-//	HP-UX 11.00
-//		- http://www.devresource.hp.com/STK/impacts/i338.html
-
-#if defined(SOCKLEN_T)
-#  undef SOCKLEN_T
-#endif
-
-#if defined(Q_OS_BSD4)
-// int       - FreeBSD 1.0 through 3.5.1
-//             OpenBSD 2.1 through 2.4
-//             NetBSD  1.0 through 1.3.3
-//             SunOS
-// socklen_t - FreeBSD 4.0 through 4.2
-//             OpenBSD 2.5 through 2.8
-//             NetBSD  1.4 through 1.5
-// ### Brad, is there some way to distinguish BSDs which use int
-// ### and BSDs which use socklen_t? Or maybe this is not an issue
-// ### because those that use int are way too old?
-#  define SOCKLEN_T socklen_t
-#elif defined(Q_OS_LINUX) || defined(Q_OS_GNU)
-#  if defined(__GLIBC__) && (__GLIBC__ >= 2)
-// No other way to find about this in the GNU C library...?
-#    define SOCKLEN_T socklen_t
-#  else
-#    define SOCKLEN_T int
-#  endif
-#elif defined(Q_OS_AIX)
-#  if defined(_XOPEN_VERSION) && (_XOPEN_VERSION >= 500)
-// AIX 4.3 is SUSv2/XPG5.
-#    define SOCKLEN_T socklen_t
-#  elif defined(_XOPEN_UNIX)
-// AIX 4.2 is SUS/XPG4v2.
-#    define SOCKLEN_T size_t
-#  else
-// AIX 4.1 is plain XPG4.
-#    define SOCKLEN_T int
-#  endif
-#elif defined(Q_OS_SOLARIS)
-#  if defined(_XOPEN_UNIX)
-// SUSv2/XPG5 explicitly specified or SUS/XPG4v2 explicitly specified
-// but with socklen_t typedef'ed to size_t except in 64-bit mode.
-// What about Solaris 2.6?
-#    define SOCKLEN_T socklen_t
-#  else
-#    define SOCKLEN_T int
-#  endif
-#elif defined(Q_OS_UNIXWARE7)
-#  if defined(_XOPEN_UNIX)
-// UnixWare 7 should be XPG4v2.
-#    define SOCKLEN_T size_t
-#  else
-#    define SOCKLEN_T int
-#  endif                                                                        #elif defined(Q_OS_QNX)
-#elif defined(Q_OS_QNX)
-#  if defined(_XOPEN_UNIX)
-// QNX should be XPG4v2 - at least if _QNX_SOURCE is defined.
-#    define SOCKLEN_T size_t
-#  else
-#    define SOCKLEN_T int
-#  endif
-#else
-// Fall through. XNS4 sockets are not the default on most XPG4v2 platforms.
-// From Sun's "Notes on 64-bit Drivers and STREAMS - A White Paper":
-// 	Under UNIX95, the XNS4.2 definitions were only available under
-// 	a specific compilation environment through feature-test macros
-// 	specifically requesting them.
-// 	The standard environment provided the older Berkeley-style
-// 	prototypes.
-// This is not very clear:
-// => Does the last sentence apply to Solaris only or are there many vendors
-//    shipping implementations with default size_t? Actually AIX 4.2, QNX
-//    and UnixWare 7 use size_t by default.
-// => Which feature-test macros trigger the infamous size_t on platforms that
-//    do not default to it? On HP-UX for example it's _XOPEN_SOURCE_EXTENDED.
-// => Could it be that some platforms have POSIX.1g Draft 6.6 (March 1997)
-//    overload XPG4v2 thus requesting socklen_t? This seems to be the case on
-//    GNU platforms. Then how to detect this?
-// It seems that except for GNU platforms, we should be able to test
-// directly against _XOPEN_VERSION and _XOPEN_UNIX instead of testing
-// against OS/release.
-#  define SOCKLEN_T int
-#endif
-
-// Tru64 sometimes redefines accept().
-static inline
-int qt_accept_hack( int s, struct sockaddr *addr, SOCKLEN_T *addrlen )
-{
-    return ::accept( s, addr, addrlen );
-}
-#if defined(accept)
-#  undef accept
-#endif
-
-// UnixWare 7 redefines listen() to _listen() in <socket.h>.
-static inline
-int qt_listen_hack( int s, int backlog )
-{
-    return ::listen( s, backlog );
-}
-#if defined(listen)
-#  undef listen
-#endif
-
-// The next mess deals with EAGAIN and/or EWOULDBLOCK.
-#if !defined(EAGAIN) && !defined(EWOULDBLOCK)
-#  error "requires EAGAIN or EWOULDBLOCK"
-#endif
-
-// If one is there, define the other, so we can switch() easily.
-#if !defined(EWOULDBLOCK) && defined(EAGAIN)
-#  define EWOULDBLOCK EAGAIN
-#endif
-#if !defined(EAGAIN) && defined(EWOULDBLOCK)
-#  define EAGAIN EWOULDBLOCK
-#endif
 
 
 // internal
@@ -427,7 +209,7 @@ int QSocketDevice::option( Option opt ) const
 	break;
     }
     if ( n != -1 ) {
-	SOCKLEN_T len;
+	QT_SOCKLEN_T len;
 	len = sizeof(v);
 	int r = ::getsockopt( fd, SOL_SOCKET, n, (char*)&v, &len );
 	if ( r >= 0 )
@@ -636,7 +418,8 @@ bool QSocketDevice::listen( int backlog )
 {
     if ( !isValid() )
 	return FALSE;
-    if ( qt_listen_hack( fd, backlog ) >= 0 )
+    // qt_socket_listen is defined in qplatformdefs.h
+    if ( qt_socket_listen( fd, backlog ) >= 0 )
 	return TRUE;
     if ( !e )
 	e = Impossible;
@@ -656,8 +439,9 @@ int QSocketDevice::accept()
     if ( !isValid() )
 	return FALSE;
     struct sockaddr aa;
-    SOCKLEN_T l = sizeof(struct sockaddr);
-    int s = qt_accept_hack( fd, (struct sockaddr*)&aa, &l );
+    QT_SOCKLEN_T l = sizeof(struct sockaddr);
+    // qt_socket_accept is defined in qplatformdefs.h
+    int s = qt_socket_accept( fd, (struct sockaddr*)&aa, &l );
     // we'll blithely throw away the stuff accept() wrote to aa
     if ( s < 0 && e == NoError ) {
 	switch( errno ) {
@@ -796,7 +580,7 @@ int QSocketDevice::readBlock( char *data, uint maxlen )
 	if ( t == Datagram ) {
 	    struct sockaddr_in aa;
 	    memset( &aa, 0, sizeof(aa) );
-	    SOCKLEN_T sz;
+	    QT_SOCKLEN_T sz;
 	    sz = sizeof( aa );
 	    r = ::recvfrom( fd, data, maxlen, 0,
 			    (struct sockaddr *)&aa, &sz );
@@ -1024,7 +808,7 @@ void QSocketDevice::fetchConnectionParameters()
     }
     struct sockaddr_in sa;
     memset( &sa, 0, sizeof(sa) );
-    SOCKLEN_T sz;
+    QT_SOCKLEN_T sz;
     sz = sizeof( sa );
     if ( !::getsockname( fd, (struct sockaddr *)(&sa), &sz ) ) {
 	p = ntohs( sa.sin_port );

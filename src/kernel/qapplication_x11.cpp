@@ -35,15 +35,9 @@
 **
 **********************************************************************/
 
-#define select		_qt_hide_select
-#define gettimeofday	_qt_hide_gettimeofday
+// Get the system specific includes and defines
+#include "qplatformdefs.h"
 
-#include "qglobal.h"
-#if defined(Q_OS_WIN32)
-#undef select
-#include <windows.h>
-#define HANDLE QT_HANDLE
-#endif
 #include "qapplication.h"
 #include "qapplication_p.h"
 #include "qcolor_p.h"
@@ -71,106 +65,26 @@
 #include "qsettings.h"
 #include "qstylefactory.h"
 #include "qfileinfo.h"
-#include <stdlib.h>
-#ifndef QT_NO_SM_SUPPORT
-#include <pwd.h>
-#endif
-#include <ctype.h>
-#include <locale.h>
-#include <errno.h>
-#define	 GC GC_QQQ
+
+// Input method stuff - UNFINISHED
+#include "qinputcontext_p.h"
 
 #if defined(QT_THREAD_SUPPORT)
-#include "qthread.h"
+#  include "qthread.h"
 #endif
 
 #if defined(QT_DEBUG) && defined(Q_OS_LINUX)
-#include "qfile.h"
-#endif
-
-#if defined(Q_OS_WIN32)
-#undef gettimeofday
+#  include "qfile.h"
 #endif
 
 #if defined(Q_OS_UNIX)
-
-#if defined(Q_OS_SOLARIS) || defined(Q_OS_UNIXWARE7)
-// FIONREAD is #defined in <sys/filio.h>.
-// Have <sys/ioctl.h> include <sys/filio.h>.
-#  define BSD_COMP
-#endif
-#include <sys/ioctl.h>
-#if defined(Q_OS_SOLARIS) || defined(Q_OS_UNIXWARE7)
-#  undef BSD_COMP
-#endif
-
-// ### Mmmmh... Maybe we lack some #define's?
-// ### Check system header files.
-#if defined(_OS_SCO_)
-#  include <sys/socket.h> // for FIONREAD on SCO OpenServer 5.0.x
-#endif
-
-// ### Mmmmh... Maybe we lack some #define's?
-// ### Check system header files.
-#if defined(_OS_DYNIX_)
-#  include <sys/sockio.h> // for FIONREAD on Dynix 4.x
-#endif
-
-// 1) strcasecmp() in documented to live in <strings.h> by XPG4v2 and XPG5.
-// 2) X11 libraries need macro FD_ZERO. Macro FD_ZERO is defined using
-//    bzero() in <sys/time.h> and bzero() is defined in <strings.h>.
-//    However ON AIX neither <sys/time.h> nor X11 header files include
-//    <strings.h>.  So we include it ourselves.  Seen on AIX 4.3.3.
-#include <strings.h>
-
 static int qt_thread_pipe[2];
-
 #endif
 
 
+#define GC GC_QQQ
 #include "qt_x11.h"
 
-#ifndef X11R4
-#  include <X11/Xlocale.h>
-#endif
-
-#if defined(Q_OS_AIX) && defined(Q_CC_GNU)
-// ### Please add comments! Why and which version of AIX?
-// ### This looks highly suspicious, shouldn't depend on GCC.
-#  include <sys/time.h>
-#  include <sys/select.h>
-#endif
-
-#if defined(Q_OS_QNX)
-// ### Please add comments! Why?
-#  include <sys/select.h>
-#endif
-
-#if defined(Q_CC_MSVC)
-#pragma warning(disable: 4018)
-#undef open
-#undef close
-#endif
-
-// ### Why all this #undef'inery on Windows?
-#if defined(Q_OS_WIN32) && defined(gettimeofday)
-#  undef gettimeofday
-#  include <sys/timeb.h>
-inline void gettimeofday( struct timeval *t, struct timezone * )
-{
-    struct _timeb tb;
-    _ftime( &tb );
-    t->tv_sec  = tb.time;
-    t->tv_usec = tb.millitm * 1000;
-}
-#else
-#  undef gettimeofday
-extern "C" int gettimeofday( struct timeval *, struct timezone * );
-#endif // Q_OS_WIN32 etc.
-#if !defined(Q_OS_WIN32)
-#  undef select
-extern "C" int select( int, void *, void *, void *, struct timeval * );
-#endif
 
 //#define X_NOT_BROKEN
 #ifdef X_NOT_BROKEN
@@ -188,8 +102,9 @@ char *_Xsetlocale(int category, const char *locale)
     //qDebug("_Xsetlocale(%d,%s),category,locale");
     return setlocale(category,locale);
 }
-#  endif
-#endif
+#  endif // setlocale
+#endif // X_NOT_BROKEN
+
 
 // resolve the conflict between X11's FocusIn and QEvent::FocusIn
 const int XFocusOut = FocusOut;
@@ -201,6 +116,7 @@ const int XKeyPress = KeyPress;
 const int XKeyRelease = KeyRelease;
 #undef KeyPress
 #undef KeyRelease
+
 
 // Fix old X libraries
 #ifndef XK_KP_Home
@@ -233,6 +149,7 @@ const int XKeyRelease = KeyRelease;
 #ifndef XK_KP_Delete
 #define XK_KP_Delete            0xFF9F
 #endif
+
 
 /*****************************************************************************
   Internal variables and functions
@@ -410,10 +327,12 @@ timeval	*qt_wait_timer_max = 0;
 int		qt_activate_timers();
 
 #if !defined(NO_XIM)
-XIM	qt_xim = 0;
-XIMStyle qt_xim_style = 0;
-static XIMStyle xim_preferred_style = XIMPreeditPosition | XIMStatusNothing;
+XIM		qt_xim			= 0;
+XIMStyle	qt_xim_style		= 0;
+// static XIMStyle	xim_preferred_style	= XIMPreeditPosition | XIMStatusNothing;
+static XIMStyle	xim_preferred_style	= XIMPreeditCallbacks | XIMStatusNothing;
 #endif
+
 static int composingKeycode=0;
 static QTextCodec * input_mapper = 0;
 
@@ -527,25 +446,139 @@ public:
 };
 
 
-/*!
-  \internal
+
+
+// ************************************************************************
+// X Input Method support
+// ************************************************************************
+
+#if !defined(NO_XIM)
+
+#if defined(Q_C_CALLBACKS)
+extern "C" {
+#endif // Q_C_CALLBACKS
+
+#ifdef USE_X11R6_XIM
+    static void xim_create_callback(XIM /*im*/,
+				    XPointer /*client_data*/,
+				    XPointer /*call_data*/)
+    {
+	qDebug("xim_create_callback");
+	QApplication::create_xim();
+    }
+
+    static void xim_destroy_callback(XIM /*im*/,
+				     XPointer /*client_data*/,
+				     XPointer /*call_data*/)
+    {
+	qDebug("xim_destroy_callback");
+	QApplication::close_xim();
+	XRegisterIMInstantiateCallback(appDpy, 0, 0, 0,
+				       (XIMProc) xim_create_callback, 0);
+    }
+
+#endif // USE_X11R6_XIM
+
+#if defined(Q_C_CALLBACKS)
+}
+#endif // Q_C_CALLBACKS
+
+#endif // NO_XIM
+
+
+/*! \internal
+  Creates the application input method.
+ */
+void QApplication::create_xim()
+{
+#ifndef NO_XIM
+    qt_xim = XOpenIM( appDpy, 0, 0, 0 );
+    if ( qt_xim ) {
+
+#ifdef USE_X11R6_XIM
+	XIMCallback destroy;
+	destroy.callback = (XIMProc) xim_destroy_callback;
+	destroy.client_data = 0;
+	if ( XSetIMValues( qt_xim, XNDestroyCallback, &destroy, 0 ) != 0 )
+	    qWarning( "Xlib dosn't support destroy callback");
+#endif // USE_X11R6_XIM
+
+	XIMStyles *styles = 0;
+	XGetIMValues(qt_xim, XNQueryInputStyle, &styles, 0, 0);
+	if ( styles ) {
+	    int i;
+	    for ( i = 0; !qt_xim_style && i < styles->count_styles; i++ ) {
+		if ( styles->supported_styles[i] == xim_preferred_style ) {
+		    qt_xim_style = xim_preferred_style;
+		    break;
+		}
+	    }
+	    // if the preferred input style couldn't be found, look for
+	    // Nothing
+	    for ( i = 0; !qt_xim_style && i < styles->count_styles; i++ ) {
+		if ( styles->supported_styles[i] == (XIMPreeditNothing |
+						     XIMStatusNothing) ) {
+		    qt_xim_style = XIMPreeditNothing | XIMStatusNothing;
+		    break;
+		}
+	    }
+	    // ... and failing that, None.
+	    for ( i = 0; !qt_xim_style && i < styles->count_styles; i++ ) {
+		if ( styles->supported_styles[i] == (XIMPreeditNone |
+						     XIMStatusNone) ) {
+		    qt_xim_style = XIMPreeditNone | XIMStatusNone;
+		    break;
+		}
+	    }
+	    qDebug("QApplication: using im style %lx", qt_xim_style);
+	    XFree( styles );
+	}
+
+	if ( qt_xim_style ) {
+
+#ifdef USE_X11R6_XIM
+	    XUnregisterIMInstantiateCallback(appDpy, 0, 0, 0,
+					     (XIMProc) xim_create_callback, 0);
+#endif // USE_X11R6_XIM
+
+	    QWidgetList *list= qApp->topLevelWidgets();
+	    QWidgetListIt it(*list);
+	    QWidget * w;
+	    while( (w=it.current()) != 0 ) {
+		++it;
+		w->createTLSysExtra();
+	    }
+	    delete list;
+	} else {
+	    // Give up
+	    qWarning( "No supported input style found."
+		      "  See InputMethod documentation.");
+	    close_xim();
+	}
+    }
+#endif // NO_XIM
+}
+
+
+/*! \internal
+  Closes the application input method.
 */
-//Ming-Che 04/10
 void QApplication::close_xim()
 {
-#if !defined(NO_XIM)
+#ifndef NO_XIM
     // Calling XCloseIM gives a Purify FMR error
     // XCloseIM( qt_xim );
     // We prefer a less serious memory leak
+
     qt_xim = 0;
-    QWidgetList *list= qApp->topLevelWidgets();
+    QWidgetList *list = qApp->topLevelWidgets();
     QWidgetListIt it(*list);
     while(it.current()) {
-	it.current()->topData()->xic=0;
+	it.current()->destroyInputContext();
 	++it;
     }
     delete list;
-#endif
+#endif // NO_XIM
 }
 
 
@@ -1527,90 +1560,6 @@ static Visual *find_truecolor_visual( Display *dpy, int *depth, int *ncols )
 /*****************************************************************************
   qt_init() - initializes Qt for X11
  *****************************************************************************/
-//Ming-Che 05/10
-
-
-
-
-#if defined(Q_C_CALLBACKS)
-extern "C" {
-#endif
-
-#ifdef USE_X11R6_XIM
-static void xim_create_callback(XIM /*im*/,XPointer /*client_data*/,XPointer /*call_data*/)
-{
-    QApplication::create_xim();
-}
-
-static void xim_destroy_callback(XIM /*im*/,XPointer /*client_data*/,XPointer /*call_data*/)
-{
-    QApplication::close_xim();
-
-    XRegisterIMInstantiateCallback(appDpy,0,0,0,(XIMProc)xim_create_callback,0);
-
-}
-#endif
-
-#if defined(Q_C_CALLBACKS)
-}
-#endif
-
-
-/*! \internal */
-void QApplication::create_xim()
-{
-#if !defined(NO_XIM)
-    qt_xim = XOpenIM( appDpy, 0, 0, 0 );
-    if ( qt_xim ) {
-#ifdef USE_X11R6_XIM
-	XIMCallback destroy;
-	destroy.callback = (XIMProc)xim_destroy_callback;
-	destroy.client_data = 0;
-	if ( XSetIMValues( qt_xim, XNDestroyCallback, &destroy, 0 ) != 0 )
-	    qWarning( "Xlib dosn't support destroy callback");
-#endif
-	XIMStyles *styles=0;
-	XGetIMValues(qt_xim, XNQueryInputStyle, &styles, 0, 0);
-	if ( styles ) {
-	    int i;
-	    for ( i = 0; !qt_xim_style && i < styles->count_styles; i++ )
-		if ( styles->supported_styles[i] == xim_preferred_style )
-		    qt_xim_style = xim_preferred_style;
-	    // if the preferred input style couldn't be found, look for
-	    // Nothing
-	    for ( i = 0; !qt_xim_style && i < styles->count_styles; i++ )
-		if ( styles->supported_styles[i] == (XIMPreeditNothing |
-						     XIMStatusNothing) )
-		    qt_xim_style = XIMPreeditNothing | XIMStatusNothing;
-	    // ... and failing that, None.
-	    for ( i = 0; !qt_xim_style && i < styles->count_styles; i++ )
-		if ( styles->supported_styles[i] == (XIMPreeditNone |
-						     XIMStatusNone) )
-		    qt_xim_style = XIMPreeditNone | XIMStatusNone;
-	    XFree( styles );
-	}
-	if ( qt_xim_style ) {
-#ifdef USE_X11R6_XIM
-	    XUnregisterIMInstantiateCallback(appDpy,0,0,0,
-					     (XIMProc )create_xim,0);
-#endif
-	    QWidgetList *list= qApp->topLevelWidgets();
-	    QWidgetListIt it(*list);
-	    QWidget * w;
-	    while( (w=it.current()) != 0 ) {
-		++it;
-		w->createTLSysExtra();
-	    }
-	    delete list;
-	} else {
-	    // Give up
-	    qWarning( "No supported input style found."
-		      "  See InputMethod documentation.");
-	    close_xim();
-	}
-    }
-#endif
-}
 
 // ### This should be static but it isn't because of the friend declaration
 // ### in qpaintdevice.h which then should have a static too but can't have
@@ -1701,11 +1650,14 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 			// ### Should we honor any others?
 		    }
 		}
-#if !defined(NO_XIM)
+#ifndef NO_XIM
 	    } else if ( arg == "-inputstyle" ) {
 		if ( ++i < argc ) {
 		    QCString s = QCString(argv[i]).lower();
-		    if ( s == "overthespot" )
+		    if ( s == "onthespot" )
+			xim_preferred_style = XIMPreeditCallbacks |
+					      XIMStatusNothing;
+		    else if ( s == "overthespot" )
 			xim_preferred_style = XIMPreeditPosition |
 					      XIMStatusNothing;
 		    else if ( s == "offthespot" )
@@ -1882,21 +1834,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	    XRenderPictFormat *format =
 		XRenderFindVisualFormat(appDpy,
 					(Visual *) QPaintDevice::x_appvisual);
-
-	    /*
-	      if (format)
-	      qDebug("format %p: depth %d type %d rgba masks %x/%x/%x/%x",
-	      format,
-	      format->depth,
-	      format->type,
-	      format->direct.redMask,
-	      format->direct.greenMask,
-	      format->direct.blueMask,
-	      format->direct.alphaMask);
-	    */
-
 	    qt_use_xrender = (format != 0);
-
 	}
 #endif // QT_NO_XRENDER
 
@@ -1941,7 +1879,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 
     if ( qt_is_gui_used ) {
 
-#if !defined(NO_XIM)
+#ifndef NO_XIM
 	qt_xim = 0;
 	QString ximServerName(ximServer);
 	if (ximServer)
@@ -1956,17 +1894,18 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	else if ( XSetLocaleModifiers (ximServerName.ascii()) == 0 )
 	    qWarning( "Qt: Cannot set locale modifiers: %s",
 		      ximServerName.ascii());
-	else if ( !noxim )
-	    XRegisterIMInstantiateCallback( appDpy, 0 , 0, 0,
-					    (XIMProc)QApplication::create_xim,
-					    0);
-#else
+	else if (! noxim) {
+	    qDebug("regsitering create callback");
+	    XRegisterIMInstantiateCallback(appDpy, 0, 0, 0,
+					   (XIMProc) xim_create_callback, 0);
+	}
+#else // !USE_X11R6_XIM
 	else if ( XSetLocaleModifiers ("") == 0 )
 	    qWarning("Qt: Cannot set locale modifiers");
-	else if ( !noxim )
+	else if (! noxim)
 	    QApplication::create_xim();
-#endif
-#endif
+#endif // USE_X11R6_XIM
+#endif // NO_XIM
 
 	qt_set_input_encoding();
 
@@ -3160,20 +3099,14 @@ bool QApplication::processNextEvent( bool canWait )
 	    (**it)();
     }
 
-#if defined(Q_OS_WIN32)
-#define FDCAST (fd_set*)
-#else
-#define FDCAST (void*)
-#endif
-
 #if defined(QT_THREAD_SUPPORT)
     qApp->unlock(FALSE);
 #endif
 
     nsel = select( highest + 1,
-		   FDCAST (&app_readfds),
-		   FDCAST (sn_write  ? &app_writefds  : 0),
-		   FDCAST (sn_except ? &app_exceptfds : 0),
+		   &app_readfds,
+		   sn_write  ? &app_writefds  : 0,
+		   sn_except ? &app_exceptfds : 0,
 		   tm );
 
 #undef FDCAST
@@ -3227,7 +3160,7 @@ void QApplication::wakeUpGuiThread()
 #  if defined(Q_OS_UNIX)
     char c = 0;
     int nbytes;
-    if ( ::ioctl(qt_thread_pipe[0], FIONREAD, (char*)&nbytes) >= 0 && nbytes == 0 ) {
+    if ( ::ioctl(qt_thread_pipe[0], QT_NREAD, (char*)&nbytes) >= 0 && nbytes == 0 ) {
 	::write(  qt_thread_pipe[1], &c, 1  );
     }
 #  endif
@@ -3588,6 +3521,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	     event->xfocus.detail != NotifyInferior &&
 	     event->xfocus.detail != NotifyNonlinear )
 	    break;
+	widget->createInputContext();
 	setActiveWindow( widget );
     }
 	break;
@@ -4854,10 +4788,11 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 
     QWidget* tlw = topLevelWidget();
 
+    XKeyEvent xkeyevent = event->xkey;
+
 #if defined(NO_XIM)
 
-    count = XLookupString( &((XEvent*)event)->xkey,
-			   chars.data(), chars.size(), &key, 0 );
+    count = XLookupString( &xkeyevent, chars.data(), chars.size(), &key, 0 );
 
     if ( count == 1 )
 	ascii = chars[0];
@@ -4874,19 +4809,14 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 	bool mb=FALSE;
 	if ( qt_xim ) {
 	    QTLWExtra*  xd = tlw->topData();
-	    if ( xd->xic ) {
+	    QInputContext *qic = (QInputContext *) xd->xic;
+	    if ( qic ) {
 		mb=TRUE;
-		count = XmbLookupString( (XIC)(xd->xic), &((XEvent*)event)->xkey,
-					 chars.data(), chars.size(), &key, &status );
-		if ( status == XBufferOverflow ) {
-		    chars.resize(count+1);
-		    count = XmbLookupString( (XIC)(xd->xic), &((XEvent*)event)->xkey,
-					 chars.data(), chars.size(), &key, &status );
-		}
+		count = qic->lookupString(&xkeyevent, chars, &key, &status);
 	    }
 	}
 	if ( !mb ) {
-	    count = XLookupString( &((XEvent*)event)->xkey,
+	    count = XLookupString( &xkeyevent,
 				   chars.data(), chars.size(), &key, 0 );
 	}
 	if ( count && !keycode ) {
@@ -4895,36 +4825,38 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 	}
 	if ( key )
 	    keyDict->replace( keycode, (void*)key );
-	if ( count == 0 && key < 0xff00 ) { // all keysyms smaller than that are actally keys that can be mapped to unicode chars
+	// all keysyms smaller than that are actally keys that can be mapped
+	// to unicode chars
+	if ( count == 0 && key < 0xff00 ) {
 	    unsigned char byte3 = (unsigned char )(key >> 8);
 	    int mib = -1;
 	    switch( byte3 ) {
-		case 0: // Latin 1
-		case 1: // Latin 2
-		case 2: //latin 3
-		case 3: // latin4
-		    mib = byte3 + 4; break;
-		case 4: // kana
-		    break;
-		case 5: // arabic
-		    mib = 82; break;
-		case 6: // Cyrillic
-		case 7: //greek
-		    mib = -1; // manual conversion
-		    mapper = 0;
-		    converted = keysymToUnicode( byte3, key & 0xff );
-		case 8: // technical, no mapping here at the moment
-		case 9: // Special
-		case 10: // Publishing
-		case 11: // APL
-		    break;
-		case 12: // Hebrew
-		    mib = 85; break;
-		case 13: // Thai
-		    mib = 2259; break;
-		case 14: // Korean, no mapping
-		default:
-		    break;
+	    case 0: // Latin 1
+	    case 1: // Latin 2
+	    case 2: //latin 3
+	    case 3: // latin4
+		mib = byte3 + 4; break;
+	    case 4: // kana
+		break;
+	    case 5: // arabic
+		mib = 82; break;
+	    case 6: // Cyrillic
+	    case 7: //greek
+		mib = -1; // manual conversion
+		mapper = 0;
+		converted = keysymToUnicode( byte3, key & 0xff );
+	    case 8: // technical, no mapping here at the moment
+	    case 9: // Special
+	    case 10: // Publishing
+	    case 11: // APL
+		break;
+	    case 12: // Hebrew
+		mib = 85; break;
+	    case 13: // Thai
+		mib = 2259; break;
+	    case 14: // Korean, no mapping
+	    default:
+		break;
 	    }
 	    if ( mib != -1 ) {
 		mapper = QTextCodec::codecForMib( mib );
@@ -5202,6 +5134,25 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 		return TRUE;
 	}
     }
+
+#ifndef NO_XIM
+    if (qt_xim_style & XIMPreeditCallbacks) {
+	// when in OnTheSpot mode - we need to deliver the events properly
+	QWidget *tlw = topLevelWidget();
+	QTLWExtra *topdata = tlw->topData();
+
+	qWarning("TODO: queue key events for input method");
+
+	// QInputContext *qic = (QInputContext *) topdata->xic;
+	// if (qic) {
+	// QKeyEvent *ke = new QKeyEvent(type, code, ascii, state, text, autor,
+	// QMAX(count, int(text.length())));
+	// if (xic->keyPressEvent(ke))
+	// return TRUE;
+	// }
+    }
+#endif // NO_XIM
+
     return QApplication::sendEvent( this, &e );
 }
 
