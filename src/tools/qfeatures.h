@@ -254,6 +254,13 @@
 # define QT_NO_DOM
 #endif
 
+/*!
+  Scalable Vector Graphics (SVG)
+*/
+#if defined(QT_NO_DOM)
+# define QT_NO_SVG
+#endif
+
 // Sound
 /*!
     Playing sounds
