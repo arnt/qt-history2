@@ -38,7 +38,7 @@
 #define d d_func()
 #define q q_func()
 
-//#define QT_DEBUG_DRAW
+// #define QT_DEBUG_DRAW
 
 void qt_format_text(const QFont &font, const QRect &_r, int tf, const QString& str,
                     int len, QRect *brect, int tabstops, int* tabarray, int tabarraylen,
@@ -2503,8 +2503,8 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, Qt::PixmapDrawingMo
 */
 void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::PixmapDrawingMode mode)
 {
-#ifdef QT_DEBUG_DRAW
-    printf("QPainter::drawPixmap(), target=[%d,%d,%d,%d], pix=[%d,%d], source=[%d,%d,%d%d], mode=%d\n",
+#if defined QT_DEBUG_DRAW
+    printf("QPainter::drawPixmap(), target=[%d,%d,%d,%d], pix=[%d,%d], source=[%d,%d,%d,%d], mode=%d\n",
            r.x(), r.y(), r.width(), r.height(),
            pm.width(), pm.height(),
            sr.x(), sr.y(), sr.width(), sr.height(),

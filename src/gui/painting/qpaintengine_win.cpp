@@ -786,6 +786,16 @@ void QWin32PaintEngine::cleanup()
 void QWin32PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QRectF &sr,
                                    Qt::PixmapDrawingMode mode)
 {
+#if defined QT_DEBUG_DRAW
+    printf(" - QWin32PaintEngine::drawPixmap(), [%.2f,%.2f,%.2f,%.2f], size=[%d,%d], "
+           "sr=[%.2f,%.2f,%.2f,%.2f], mode=%d\n",
+           r.x(), r.y(), r.width(), r.height(),
+           pixmap.width(), pixmap.height(),
+           sr.x(), sr.y(), sr.width(), sr.height(),
+           mode);
+#endif
+
+
     Q_ASSERT(isActive());
 
     bool stretch = r.width() != sr.width() || r.height() != sr.height();
