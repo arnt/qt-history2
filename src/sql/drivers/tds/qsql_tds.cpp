@@ -122,7 +122,8 @@ private:
     QStringList errorMsgs;
 };
 
-static QHash<DBPROCESS*, QTDSResultPrivate*> errs;
+typedef QHash<DBPROCESS *, QTDSResultPrivate *> QTDSErrorHash;
+Q_GLOBAL_STATIC(QTDSErrorHash, errs)
 
 extern "C" {
 static int CS_PUBLIC qTdsMsgHandler (DBPROCESS* dbproc,
@@ -134,7 +135,7 @@ static int CS_PUBLIC qTdsMsgHandler (DBPROCESS* dbproc,
                             char* /*procname*/,
                             int /*line*/)
 {
-    QTDSResultPrivate* p = errs.value(dbproc);
+    QTDSResultPrivate* p = errs()->value(dbproc);
 
     if (!p) {
 //        ### umm... temporary disabled since this throws shitloads of warnings...
@@ -157,7 +158,7 @@ static int CS_PUBLIC qTdsErrHandler(DBPROCESS* dbproc,
                                 char* dberrstr,
                                 char* oserrstr)
 {
-    QTDSResultPrivate* p = errs.value(dbproc);
+    QTDSResultPrivate* p = errs()->value(dbproc);
     if (!p) {
         qWarning("QTDSDriver error (%d): [%s] [%s]", dberr, dberrstr, oserrstr);
         return INT_CANCEL;
@@ -252,14 +253,14 @@ QTDSResult::QTDSResult(const QTDSDriver* db)
         return;
 
     // insert d in error handler dict
-    errs.insert(d->dbproc, d);
+    errs()->insert(d->dbproc, d);
 }
 
 QTDSResult::~QTDSResult()
 {
     cleanup();
     dbclose(d->dbproc);
-    errs.remove(d->dbproc);
+    errs()->remove(d->dbproc);
     delete d;
 }
 
