@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#10 $
 **
 ** Implementation of QFileDialog class
 **
@@ -43,7 +43,7 @@ QNetworkProtocolDict *qNetworkProtocolRegister = 0;
 	ActListDirectory
 	ActCopyFile
 	ActMoveFiles
-	ActPut
+	ActGet
 */
 
 /*!
@@ -54,7 +54,7 @@ QNetworkProtocolDict *qNetworkProtocolRegister = 0;
 	ActListDirectory
 	ActCopyFile
 	ActMoveFiles
-	ActPut
+	ActGet
 */
 
 /*!
@@ -80,12 +80,6 @@ QNetworkProtocolDict *qNetworkProtocolRegister = 0;
   This signal is emitted when new \a data has been received.
 */
 
-/*!
-  \fn void QNetworkProtocol::putSuccessful( const QCString &data )
-
-  This signal is emitted after successfully calling put(). \a data is the data
-  which has been put.
-*/
 
 /*!
   \fn void QNetworkProtocol::connectionStateChanged( int state, const QString &data )
@@ -159,7 +153,7 @@ QNetworkProtocol::~QNetworkProtocol()
   Open connection.
 */
 
-void QNetworkProtocol::openConnection( QUrl *u )
+void QNetworkProtocol::openConnection( QUrlOperator *u )
 {
     setUrl( u );
 }
@@ -185,7 +179,7 @@ void QNetworkProtocol::close()
   #### todo
 */
 
-void QNetworkProtocol::setUrl( QUrl *u )
+void QNetworkProtocol::setUrl( QUrlOperator *u )
 {
     url = u;
 }
@@ -194,7 +188,7 @@ void QNetworkProtocol::setUrl( QUrl *u )
   #### todo
 */
 
-void QNetworkProtocol::put( const QCString & )
+void QNetworkProtocol::get( const QCString & )
 {
 }
 

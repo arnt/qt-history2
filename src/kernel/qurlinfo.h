@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurlinfo.h#3 $
+** $Id: //depot/qt/main/src/kernel/qurlinfo.h#4 $
 **
 ** Implementation of QFileDialog class
 **
@@ -30,6 +30,7 @@
 #include <qdatetime.h>
 #include <qstring.h>
 
+class QUrlOperator;
 struct QUrlInfoPrivate;
 
 class QUrlInfo
@@ -44,7 +45,7 @@ public:
 	      const QString &group, uint size, const QDateTime &lastModified,
 	      const QDateTime &lastRead, bool isDir, bool isFile, bool isSymLink,
 	      bool isWritable, bool isReadable, bool isExecutable );
-    QUrlInfo( const QUrl &path, const QString &file );
+    QUrlInfo( const QUrlOperator &path, const QString &file );
     QUrlInfo( const QUrlInfo &ui );
     QUrlInfo &operator=( const QUrlInfo &ui );
     ~QUrlInfo();
@@ -77,7 +78,7 @@ public:
 			  int sortBy );
     static bool equal( const QUrlInfo &i1, const QUrlInfo &i2,
 		       int sortBy );
-    
+
 private:
     QUrlInfoPrivate *d;
 

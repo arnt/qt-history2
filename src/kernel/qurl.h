@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.h#17 $
+** $Id: //depot/qt/main/src/kernel/qurl.h#18 $
 **
 ** Implementation of QFileDialog class
 **
@@ -28,37 +28,12 @@
 
 #include <qstring.h>
 #include <qdir.h>
-#include <qobject.h>
-#include <qmap.h>
 
 struct QUrlPrivate;
-class QUrlInfo;
 
-class QUrl : public QObject
+class QUrl
 {
-    Q_OBJECT
-
 public:
-    enum Error {
-	ErrDeleteFile = -1,
-	ErrRenameFile = -2,
-	ErrCopyFile = -3,
-	ErrReadDir = -4,
-	ErrCreateDir = -5,
-	ErrUnknownProtocol = -6,
-	ErrParse = -7,
-	ErrLoginIncorrect = -8,
-	ErrHostNotFound = -9,
-	ErrValid = -10
-    };
-
-    enum Action {
-	ActListDirectory = 0,
-	ActCopyFiles,
-	ActMoveFiles,
-	ActPut
-    };
-
     QUrl();
     QUrl( const QString& url );
     QUrl( const QUrl& url );
@@ -83,7 +58,7 @@ public:
     int port() const;
     virtual void setPort( int port );
 
-    QString path() const;
+    QString path( bool correct = TRUE ) const;
     virtual void setPath( const QString& path );
     bool hasPath() const;
 
@@ -115,119 +90,20 @@ public:
     static void decode( QString& url );
     static void encode( QString& url );
 
-    virtual void listEntries();
-    virtual void mkdir( const QString &dirname );
-    virtual void remove( const QString &filename );
-    virtual void rename( const QString &oldname, const QString &newname );
-    virtual void copy( const QString &from, const QString &to );
-    virtual void copy( const QStringList &files, const QString &dest, bool move );
-    virtual bool isDir();
-
-    virtual void put( const QCString &data );
-
-
-    virtual void setNameFilter( const QString &nameFilter );
-    QString nameFilter() const;
-
-    virtual QUrlInfo info( const QString &entry ) const;
     operator QString() const;
     virtual QString toString( bool encodedPath = FALSE, bool forcePrependProtocol = FALSE ) const;
 
     virtual bool cdUp();
 
-    void emitEntry( const QUrlInfo & );
-    void emitFinished( int action );
-    void emitStart( int action );
-    void emitCreatedDirectory( const QUrlInfo & );
-    void emitRemoved( const QString & );
-    void emitItemChanged( const QString &oldname, const QString &newname );
-    void emitError( int ecode, const QString &msg );
-    void emitData( const QCString &d );
-    void emitPutSuccessful( const QCString &d );
-    void emitCopyProgress( const QString &from, const QString &to,
-			   int step, int total );
-
     static bool isRelativeUrl( const QString &url );
-
-signals:
-    void entry( const QUrlInfo & );
-    void finished( int );
-    void start( int );
-    void createdDirectory( const QUrlInfo & );
-    void removed( const QString & );
-    void itemChanged( const QString &oldname, const QString &newname );
-    void error( int ecode, const QString &msg );
-    void data( const QCString & );
-    void putSuccessful( const QCString & );
-    void copyProgress( const QString &, const QString &,
-		       int step, int total );
 
 protected:
     virtual void reset();
-    virtual void parse( const QString& url );
-    virtual void addEntry( const QUrlInfo &i );
-    virtual void clearEntries();
-    void getNetworkProtocol();
-    void deleteNetworkProtocol();
-    bool checkValid();
+    virtual bool parse( const QString& url );
 
 private:
     QUrlPrivate *d;
 
 };
-
-inline void QUrl::emitEntry( const QUrlInfo &i )
-{
-    addEntry( i );
-    emit entry( i );
-}
-
-inline void QUrl::emitFinished( int action )
-{
-    emit finished( action );
-    deleteNetworkProtocol();
-    getNetworkProtocol();
-}
-
-inline void QUrl::emitStart( int action )
-{
-    emit start( action );
-}
-
-inline void QUrl::emitCreatedDirectory( const QUrlInfo &i )
-{
-    emit createdDirectory( i );
-}
-
-inline void QUrl::emitRemoved( const QString &s )
-{
-    emit removed( s );
-}
-
-inline void QUrl::emitItemChanged( const QString &oldname, const QString &newname )
-{
-    emit itemChanged( oldname, newname );
-}
-
-inline void QUrl::emitError( int ecode, const QString &msg )
-{
-    emit error( ecode, msg );
-}
-
-inline void QUrl::emitData( const QCString &d )
-{
-    emit data( d );
-}
-
-inline void QUrl::emitPutSuccessful( const QCString &d )
-{
-    emit putSuccessful( d );
-}
-
-inline void QUrl::emitCopyProgress( const QString &from, const QString &to,
-				    int step, int total )
-{
-    emit copyProgress( from, to, step, total );
-}
 
 #endif

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#8 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#9 $
 **
 ** Implementation of QFileDialog class
 **
@@ -26,7 +26,7 @@
 #ifndef QNETWORKPROTOCOL_H
 #define QNETWORKPROTOCOL_H
 
-#include "qurl.h"
+#include "qurloperator.h"
 #include "qurlinfo.h"
 
 #include <qstring.h>
@@ -79,24 +79,24 @@ public:
 	OpRemove = 4,
 	OpRename = 8,
 	OpCopy = 16,
-	OpPut = 32,
+	OpGet = 32,
 	OpUrlIsDir = 64
     };
 
     QNetworkProtocol();
     virtual ~QNetworkProtocol();
 
-    virtual void openConnection( QUrl *u );
+    virtual void openConnection( QUrlOperator*u );
     virtual bool isOpen();
     virtual void close();
-    virtual void setUrl( QUrl *u );
+    virtual void setUrl( QUrlOperator *u );
 
     virtual void listEntries();
     virtual void mkdir( const QString &dirname );
     virtual void remove( const QString &filename );
     virtual void rename( const QString &oldname, const QString &newname );
     virtual void copy( const QStringList &files, const QString &dest, bool move );
-    virtual void put( const QCString &data );
+    virtual void get( const QCString &data );
 
     virtual bool isUrlDir();
 
@@ -109,7 +109,6 @@ public:
 signals:
     void error( int ecode, const QString &msg );
     void data( const QCString & );
-    void putSuccessful( const QCString & );
     void connectionStateChanged( int state, const QString &data );
     void finished( int );
     void start( int );
@@ -122,7 +121,7 @@ signals:
 		       int step, int total );
 
 protected:
-    QUrl *url;
+    QUrlOperator *url;
 
 };
 
