@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.h#30 $
+** $Id: //depot/qt/main/src/widgets/qlabel.h#31 $
 **
 ** Definition of QLabel widget class
 **
@@ -40,7 +40,7 @@ public:
     QSize	sizeHint() const;
 
     void	setBuddy( QWidget * );
-    QWidget *   buddy() const;
+    QWidget    *buddy() const;
 
 public slots:
     void	setText( const char * );

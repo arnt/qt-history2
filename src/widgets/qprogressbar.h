@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.h#4 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.h#5 $
 **
 ** Definition of QProgressBar class
 **
 ** Created : 970520
 **
-** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -19,19 +19,20 @@ class QProgressBar : public QFrame
 {
     Q_OBJECT
 public:
-    QProgressBar( int totalsteps, QWidget *parent=0,
-	const char *name=0, WFlags f=0, bool allowLines=TRUE );
+    QProgressBar( QWidget *parent=0, const char *name=0, WFlags f=0 );
+    QProgressBar( int totalSteps, QWidget *parent=0, const char *name=0,
+		  WFlags f=0 );
 
-    void	reset( int totalsteps );
-    void	reset();
+    int		totalSteps() const;
+    int		progress()   const;
 
     QSize	sizeHint() const;
-
-    int		totalSteps () const;
-    int		progress () const;
-    void	setProgress( int progress );
-
     void	show();
+
+public slots:
+    void	reset();
+    void	setTotalSteps( int totalSteps );
+    void	setProgress( int progress );
 
 protected:
     void	drawContents( QPainter * );
@@ -39,8 +40,8 @@ protected:
 				int totalsteps );
 
 private:
-    int		totalsteps;
-    int		progr;
+    int		total_steps;
+    int		progress_val;
     int		percentage;
     QString	progress_str;
 
@@ -49,7 +50,16 @@ private:	// Disabled copy constructor and operator=
     QProgressBar &operator=( const QProgressBar & ) { return *this; }
 };
 
-inline int QProgressBar::totalSteps() const { return totalsteps; }
-inline int QProgressBar::progress() const { return progr; }
+
+inline int QProgressBar::totalSteps() const
+{
+    return total_steps;
+}
+
+inline int QProgressBar::progress() const
+{
+    return progress_val;
+}
+
 
 #endif // QPROGBAR_H
