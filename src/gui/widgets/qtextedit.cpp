@@ -1291,7 +1291,7 @@ void QTextEdit::mouseReleaseEvent(QMouseEvent *ev)
     if (d->mousePressed) {
         d->mousePressed = false;
         if (d->cursor.hasSelection()) {
-            QRichTextDrag *drag = new QRichTextDrag(d->cursor, this);
+            QRichTextDrag *drag = new QRichTextDrag(d->cursor, 0);
             QApplication::clipboard()->setData(drag, QClipboard::Selection);
         }
     } else if (ev->button() == Qt::MidButton
