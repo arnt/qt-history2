@@ -1,7 +1,12 @@
 #include "db.h"
 #include <qdatetime.h>
 #include <qsqldatabase.h>
-#include <qsqlview.h>
+#include <qsqlcursor.h>
+#include <qpixmap.h>
+// #include "/home/trond/pics/radio_t.xpm"
+// #include "/home/trond/pics/radio_f.xpm"
+// #include "/home/trond/pics/slider_v.xpm"
+// #include "/home/trond/pics/slider_h.xpm"
 
 void drop_db();
 
@@ -9,7 +14,7 @@ void create_db()
 {
     drop_db();
 
-    QSqlDatabase* db = QSqlConnection::database();
+    QSqlDatabase* db = QSqlDatabase::database();
 
     /* create sample database with some sample data */
 
@@ -31,8 +36,8 @@ void create_db()
 	     "shiptocity char(50),"
 	     "shiptopostalcode char(20),"
 	     "shiptocountry char(2));");
-    QSqlView customerView( "customer" );
-    customerView.setMode( SQL_Writable );
+    QSqlCursor customerView( "customer" );
+    customerView.setMode( QSqlCursor::Writable );
     customerView["id"] = 1;
     customerView["name"] = "Trolltech";
     customerView["add1"] = "Waldemar Thranesgt. 98b";
@@ -55,14 +60,33 @@ void create_db()
     db->exec("create table product "
 	     "(id numeric(10) primary key,"
 	     "name char(30),"
-	     "pic char(255));");
-    QSqlView productView( "product" );
-    productView.setMode( SQL_Writable );
+	     "pic oid);");
+    QSqlCursor productView( "product" );
+    //productView.field("pic")->setType( QVariant::Pixmap );
+  //  QPixmap px( (const char **) radio_t );
+//    productView["pic"] = px;
+    productView.setMode( QSqlCursor::Writable );
     productView["id"] = 1;
     productView["name"] = "Widget";
-    productView["pic"] = "";
+    productView["pic"] = 0;
     productView.insert();
-
+    productView["id"] = 2;
+    productView["name"] = "Test";
+    productView["pic"] = 0;
+    productView.insert();
+    productView["id"] = 3;
+    productView["name"] = "Thingy";
+    productView["pic"] = 0;
+    productView.insert();
+    productView["id"] = 4;
+    productView["name"] = "Button";
+    productView["pic"] = 0;
+    productView.insert();
+    db->exec("update product set pic = lo_import('/tmp/radio_t.xpm') where id = '1';");
+    db->exec("update product set pic = lo_import('/tmp/radio_f.xpm') where id = '2';");
+    db->exec("update product set pic = lo_import('/tmp/slider_v.xpm') where id = '3';");
+    db->exec("update product set pic = lo_import('/tmp/slider_h.xpm') where id = '4';");
+    
     db->exec("create table invoice "
 	     "(id numeric(10) primary key,"
 	     "customerid numeric(10) references customer,"
@@ -72,8 +96,8 @@ void create_db()
 	     "tax numeric(10,5),"
 	     "shipping numeric(15,2),"
 	     "total numeric(15,2));");
-    QSqlView invoiceView( "invoice" );
-    invoiceView.setMode( SQL_Writable );
+    QSqlCursor invoiceView( "invoice" );
+    invoiceView.setMode( QSqlCursor::Writable );
     invoiceView["id"] = 1;
     invoiceView["customerid"] = 1;
     invoiceView["number"] = 1;
@@ -90,8 +114,8 @@ void create_db()
 	     "productid numeric(10) references product,"
 	     "quantity numeric(10),"
 	     "total numeric(15,2));");
-    QSqlView invoiceitemView( "invoiceitem" );
-    invoiceitemView.setMode( SQL_Writable );
+    QSqlCursor invoiceitemView( "invoiceitem" );
+    invoiceitemView.setMode( QSqlCursor::Writable );
     invoiceitemView["id"] = 1;
     invoiceitemView["invoiceid"] = 1;
     invoiceitemView["productid"] = 1;
@@ -103,7 +127,7 @@ void create_db()
 
 void drop_db()
 {
-    QSqlDatabase* db = QSqlConnection::database();
+    QSqlDatabase* db = QSqlDatabase::database();
     db->exec("drop table invoiceitem;");
     db->exec("drop table invoice;");
     db->exec("drop table product;");

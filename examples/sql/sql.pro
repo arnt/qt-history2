@@ -1,7 +1,9 @@
 TEMPLATE	= app
 CONFIG		= qt warn_on release
-HEADERS		= db.h
-SOURCES		= main.cpp \
-		db.cpp
+HEADERS		= databaseapp.h \
+		  db.h
+SOURCES		= databaseapp.cpp \
+		  db.cpp \
+		  main.cpp
 INTERFACES	= 
 TARGET		= sql
