@@ -33,7 +33,9 @@ class Q_GUI_EXPORT QSlider : public QAbstractSlider
 public:
     enum TickSetting { NoMarks = 0, Above = 1, Left = Above, Below = 2, Right = Below, Both = 3 };
 
+#ifndef QT_COMPAT
     QSlider(QWidget *parent = 0);
+#endif
     QSlider(Orientation orientation, QWidget *parent = 0);
 
     ~QSlider();

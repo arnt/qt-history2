@@ -65,7 +65,7 @@ int QSliderPrivate::pixelPosToRangeValue(int pos) const
     QRect gr = q->style().querySubControlMetrics(QStyle::CC_Slider, q, QStyle::SC_SliderGroove);
     QRect sr = q->style().querySubControlMetrics(QStyle::CC_Slider, q, QStyle::SC_SliderHandle);
     int sliderMin, sliderMax, sliderLength;
-    
+
     if (orientation == Horizontal) {
 	sliderLength = sr.width();
 	sliderMin = gr.x();
@@ -101,12 +101,12 @@ inline int QSliderPrivate::pick(const QPoint &pt) const
     the effects of clicking (useful for accelerator keys);
     setSingleStep(), setPageStep() to set the steps; and setMinimum()
     and setMaximum() to define the range of the scroll bar.
- 
+
     QSlider provides methods for controlling tickmarks.
     You can use setTickmarks() to indicate where
     you want the tickmarks to be, setTickInterval() to indicate how
     many of them you want.
- 
+
     QSlider inherits a comprehensive set of signals:
     \table
     \header \i Signal \i Emitted when
@@ -121,15 +121,15 @@ inline int QSliderPrivate::pick(const QPoint &pt) const
     \row \i \l sliderReleased()
     \i the user releases the slider.
     \endtable
- 
- 
+
+
     QSlider only provides integer ranges. Note that although
     QSlider handles very large numbers, it becomes difficult for users
     to effectivley use a slider for very large ranges.
- 
+
     A slider accepts focus on Tab and provides both a mouse wheel and a
     keyboard interface. The keyboard interface is the following:
- 
+
     \list
         \i Left/Right move a horizontal slider by one single step.
         \i Up/Down move a vertical slider by one single step.
@@ -138,7 +138,7 @@ inline int QSliderPrivate::pick(const QPoint &pt) const
         \i Home moves to the start (mininum).
         \i End moves to the end (maximum).
     \endlist
- 
+
     <img src=qslider-m.png> <img src=qslider-w.png>
 
     \important setRange
@@ -169,13 +169,14 @@ inline int QSliderPrivate::pick(const QPoint &pt) const
     The \a parent argument is sent to the QAbstractSlider
     constructor.
 */
+#ifndef QT_COMPAT
 QSlider::QSlider(QWidget *parent)
     : QAbstractSlider(*new QSliderPrivate, parent)
 {
     d->orientation = Vertical;
     d->init();
 }
-
+#endif QT_COMPAT
 
 /*!
     Constructs a slider.
