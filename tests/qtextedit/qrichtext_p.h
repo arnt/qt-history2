@@ -201,7 +201,7 @@ class QTextDocument
     friend class QTextTableCell;
     friend class QTextCursor;
     friend class QTextEdit;
-    
+
 public:
     enum SelectionIds {
 	Standard = 0,
@@ -306,7 +306,7 @@ public:
     QString context() const { return contxt; }
 
     void setStyleSheet( const QStyleSheet *s ) { if ( s ) sheet_ = s; }
-    void setMimeSoureFactory( const QMimeSourceFactory *f ) { if ( f ) factory_ = f; }
+    void setMimeSourceFactory( const QMimeSourceFactory *f ) { if ( f ) factory_ = f; }
     void setContext( const QString &c ) { if ( !c.isEmpty() ) contxt = c; }
 
     void setLinkColor( const QColor &c ) { linkC = c; }
@@ -382,7 +382,7 @@ private:
     const QBrush *backBrush;
     QPixmap *buf_pixmap;
     bool nextDoubleBuffered;
-    
+
     // HTML parser
     bool hasPrefix(const QString& doc, int pos, QChar c);
     bool hasPrefix(const QString& doc, int pos, const QString& s);

@@ -52,7 +52,6 @@ public:
     int linesOfParagraph( int parag ) const;
     int lineOfChar( int parag, int chr );
 
-    bool isReadOnly() const;
     bool isModified() const;
 
     bool italic() const;
@@ -64,6 +63,31 @@ public:
     QFont font() const;
     int alignment() const;
     int maxLines() const;
+
+    const QStyleSheet* styleSheet() const;
+    void setStyleSheet( const QStyleSheet* styleSheet );
+
+    void setPaper( const QBrush& pap);
+    QBrush paper() const;
+
+    void setPaperColorGroup( const QColorGroup& colgrp);
+    QColorGroup paperColorGroup() const;
+
+    void setLinkColor( const QColor& );
+    QColor linkColor() const;
+
+    void setLinkUnderline( bool );
+    bool linkUnderline() const;
+
+    void setMimeSourceFactory( const QMimeSourceFactory* factory );
+    const QMimeSourceFactory* mimeSourceFactory() const;
+
+    int heightForWidth( int w ) const;
+
+    void append( const QString& text );
+
+    bool hasSelectedText() const;
+    QString selectedText() const;
 
 public slots:
     virtual void undo();
@@ -100,7 +124,6 @@ public slots:
     virtual void setSelection( int parag_from, int index_from,
 			       int parag_to, int index_to );
 
-    virtual void setReadOnly( bool ro );
     virtual void setModified( bool m );
     virtual void selectAll( bool select );
 
@@ -129,6 +152,10 @@ protected:
     void contentsDropEvent( QDropEvent *e );
     bool eventFilter( QObject *o, QEvent *e );
     bool focusNextPrevChild( bool next );
+#if !defined(QTEXTEDIT_OPEN_API)
+    QTextDocument *document() const;
+    QTextCursor *textCursor() const;
+#endif
 
 private slots:
     void formatMore();
@@ -171,11 +198,7 @@ private:
     };
 
 private:
-#if !defined(QTEXTEDIT_OPEN_API)
-    QTextDocument *document() const;
-    QTextCursor *textCursor() const;
-#endif
-
+    virtual bool isReadOnly() const { return FALSE; }
     void init();
     void ensureCursorVisible();
     void drawCursor( bool visible );
@@ -188,7 +211,8 @@ private:
     void checkUndoRedoInfo( UndoRedoInfo::Type t );
     void repaintChanged();
     void updateCurrentFormat();
-
+    void handleReadOnlyKeyEvent( QKeyEvent *e );
+    
 private:
     QTextDocument *doc;
     QTextCursor *cursor;

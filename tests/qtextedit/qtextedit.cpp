@@ -42,7 +42,6 @@ void QTextEdit::init()
     drawAll = TRUE;
     mousePressed = FALSE;
     inDoubleClick = FALSE;
-    readOnly = FALSE;
     modified = FALSE;
     onLink = QString::null;
 
@@ -149,6 +148,13 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
     changeIntervalTimer->stop();
     interval = 10;
 
+    if ( isReadOnly() ) {
+	handleReadOnlyKeyEvent( e );
+	changeIntervalTimer->start( 100, TRUE );
+	return;
+    }
+
+    
     bool selChanged = FALSE;
     for ( int i = 1; i < doc->numSelections; ++i ) // start with 1 as we don't want to remove the Standard-Selection
 	selChanged = doc->removeSelection( i ) || selChanged;
@@ -285,7 +291,7 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 
 void QTextEdit::doKeyboardAction( int action )
 {
-    if ( readOnly )
+    if ( isReadOnly() )
 	return;
 
     lastFormatted = cursor->parag();
@@ -354,7 +360,7 @@ void QTextEdit::doKeyboardAction( int action )
 
 void QTextEdit::removeSelectedText()
 {
-    if ( readOnly )
+    if ( isReadOnly() )
 	return;
 
     drawCursor( FALSE );
@@ -938,7 +944,7 @@ bool QTextEdit::eventFilter( QObject *o, QEvent *e )
 
 void QTextEdit::insert( const QString &text, bool indent, bool checkNewLine )
 {
-    if ( readOnly )
+    if ( isReadOnly() )
 	return;
 
     QString txt( text );
@@ -981,7 +987,7 @@ void QTextEdit::insert( const QString &text, bool indent, bool checkNewLine )
 
 void QTextEdit::undo()
 {
-    if ( readOnly )
+    if ( isReadOnly() )
 	return;
 
     undoRedoInfo.clear();
@@ -999,7 +1005,7 @@ void QTextEdit::undo()
 
 void QTextEdit::redo()
 {
-    if ( readOnly )
+    if ( isReadOnly() )
 	return;
 
     undoRedoInfo.clear();
@@ -1018,7 +1024,7 @@ void QTextEdit::redo()
 
 void QTextEdit::paste()
 {
-    if ( readOnly )
+    if ( isReadOnly() )
 	return;
 
     QString s = QApplication::clipboard()->text();
@@ -1042,7 +1048,7 @@ void QTextEdit::repaintChanged()
 
 void QTextEdit::cut()
 {
-    if ( readOnly )
+    if ( isReadOnly() )
 	return;
 
     if ( doc->hasSelection( QTextDocument::Standard ) ) {
@@ -1059,7 +1065,7 @@ void QTextEdit::copy()
 
 void QTextEdit::indent()
 {
-    if ( readOnly )
+    if ( isReadOnly() )
 	return;
 
     drawCursor( FALSE );
@@ -1079,7 +1085,7 @@ bool QTextEdit::focusNextPrevChild( bool )
 
 void QTextEdit::setFormat( QTextFormat *f, int flags )
 {
-    if ( readOnly )
+    if ( isReadOnly() )
 	return;
 
     if ( doc->hasSelection( QTextDocument::Standard ) ) {
@@ -1104,7 +1110,7 @@ void QTextEdit::setFormat( QTextFormat *f, int flags )
 
 void QTextEdit::setParagType( QStyleSheetItem::DisplayMode dm, int listStyle )
 {
-    if ( readOnly )
+    if ( isReadOnly() )
 	return;
 
     drawCursor( FALSE );
@@ -1130,7 +1136,7 @@ void QTextEdit::setParagType( QStyleSheetItem::DisplayMode dm, int listStyle )
 
 void QTextEdit::setAlignment( int a )
 {
-    if ( readOnly )
+    if ( isReadOnly() )
 	return;
 
     drawCursor( FALSE );
@@ -1407,17 +1413,6 @@ int QTextEdit::lineOfChar( int parag, int chr )
     return line;
 }
 
-void QTextEdit::setReadOnly( bool ro )
-{
-    if ( ro == readOnly )
-	return;
-    readOnly = ro;
-    if ( readOnly )
-	viewport()->setCursor( arrowCursor );
-    else
-	viewport()->setCursor( ibeamCursor );
-}
-
 void QTextEdit::setModified( bool m )
 {
     modified = m;
@@ -1485,7 +1480,7 @@ void QTextEdit::startDrag()
     mousePressed = FALSE;
     inDoubleClick = FALSE;
     QDragObject *drag = new QTextDrag( doc->selectedText( QTextDocument::Standard ), viewport() );
-    if ( readOnly ) {
+    if ( isReadOnly() ) {
 	drag->dragCopy();
     } else {
 	if ( drag->drag() && QDragObject::target() != this ) {
@@ -1534,7 +1529,122 @@ void QTextEdit::resetFormat()
     setFormat( doc->formatCollection()->defaultFormat(), QTextFormat::Format );
 }
 
-bool QTextEdit::isReadOnly() const
+const QStyleSheet* QTextEdit::styleSheet() const
 {
-    return readOnly;
+    return doc->styleSheet();
+}
+
+void QTextEdit::setStyleSheet( const QStyleSheet* styleSheet )
+{
+    doc->setStyleSheet( styleSheet );
+}
+
+void QTextEdit::setPaper( const QBrush& pap )
+{
+    doc->setPaper( new QBrush( pap ) );
+}
+
+QBrush QTextEdit::paper() const
+{
+    if ( doc->paper() )
+	return *doc->paper();
+    return QBrush();
+}
+
+void QTextEdit::setPaperColorGroup( const QColorGroup& colgrp )
+{
+    Q_CONST_UNUSED( colgrp );
+    ASSERT( 0 );
+}
+
+QColorGroup QTextEdit::paperColorGroup() const
+{
+    ASSERT( 0 );
+    return colorGroup();
+}
+
+void QTextEdit::setLinkColor( const QColor &c )
+{
+    doc->setLinkColor( c );
+}
+
+QColor QTextEdit::linkColor() const
+{
+    return doc->linkColor();
+}
+
+void QTextEdit::setLinkUnderline( bool b )
+{
+    doc->setUnderlineLinks( b );
+}
+
+bool QTextEdit::linkUnderline() const
+{
+    return doc->underlineLinks();
+}
+
+void QTextEdit::setMimeSourceFactory( const QMimeSourceFactory* factory )
+{
+    doc->setMimeSourceFactory( factory );
+}
+
+const QMimeSourceFactory* QTextEdit::mimeSourceFactory() const
+{
+    return doc->mimeSourceFactory();
+}
+
+int QTextEdit::heightForWidth( int w ) const
+{
+    Q_UNUSED( w );
+    ASSERT( 0 );
+    // ##### make copy of document, do doc->doLayout() and return its height
+    return 0;
+}
+
+void QTextEdit::append( const QString& text )
+{
+    Q_CONST_UNUSED( text );
+    ASSERT( 0 );
+}
+
+bool QTextEdit::hasSelectedText() const
+{
+    return doc->hasSelection( QTextDocument::Standard );
+}
+
+QString QTextEdit::selectedText() const
+{
+    return doc->selectedText( QTextDocument::Standard );
+}
+
+void QTextEdit::handleReadOnlyKeyEvent( QKeyEvent *e )
+{
+    switch( e->key() ) {
+    case Key_Down:
+	setContentsPos( contentsX(), contentsY() + 10 );
+	break;
+    case Key_Up:
+	setContentsPos( contentsX(), contentsY() - 10 );
+	break;
+    case Key_Left:
+	setContentsPos( contentsX() - 10, contentsY() );
+	break;
+    case Key_Right:
+	setContentsPos( contentsX() + 10, contentsY() );
+	break;
+    case Key_PageUp:
+	setContentsPos( contentsX(), contentsY() - visibleHeight() );
+	break;
+    case Key_PageDown:
+	setContentsPos( contentsX(), contentsY() + visibleHeight() );
+	break;
+    case Key_Home:
+	setContentsPos( contentsX(), 0 );
+	break;
+    case Key_End:
+	setContentsPos( contentsX(), contentsHeight() - visibleHeight() );
+	break;
+    default:
+	break;
+    }
 }

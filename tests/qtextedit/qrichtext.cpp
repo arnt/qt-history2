@@ -4458,7 +4458,7 @@ QTextTableCell::QTextTableCell( QTextTable* table,
     richtext = new QTextDocument( table->parent );
     richtext->setTableCell( this );
     richtext->setFormatter( new QTextFormatterBreakWords( richtext ) );
-    richtext->setMimeSoureFactory( &factory );
+    richtext->setMimeSourceFactory( &factory );
     richtext->setStyleSheet( sheet );
     richtext->setRichText( doc, context );
     rowspan_ = 1;
