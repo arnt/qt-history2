@@ -3,6 +3,7 @@
 
 #include <qguardedptr.h>
 #include <qobjectlist.h>
+#include <qwidget.h> // for GCC 2.7.* compatibility
 #include <qptrdict.h>
 #include <../plugins/designerinterface.h>
 

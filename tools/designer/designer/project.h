@@ -21,11 +21,11 @@
 #ifndef PROJECT_H
 #define PROJECT_H
 
+#include <qsqldatabase.h>
 #include <qstring.h>
 #include <qstringlist.h>
-#include <qmap.h>
-#include <qsqldatabase.h>
 #include <qlist.h>
+#include <qmap.h>
 
 class FormWindow;
 

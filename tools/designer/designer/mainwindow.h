@@ -22,6 +22,7 @@
 #define MAINWINDOW_H
 
 #include "metadatabase.h"
+#include "actioninterface.h" // for GCC 2.7.* compatibility
 
 #if defined(HAVE_KDE)
 #include <kmainwindow.h>
@@ -45,7 +46,6 @@ class QCloseEvent;
 class FormList;
 class Help;
 class ActionEditor;
-class ActionInterface;
 class Project;
 
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
