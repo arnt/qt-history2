@@ -275,6 +275,7 @@ private:
     void deleteFile( const QString &filename );
     void popupContextMenu( const QString &filename, bool withSort,
 			   PopupAction &action, const QPoint &p );
+    void updatePreviews( const QUrl &u );
 
     QDir reserved; // was cwd
     QString fileName;

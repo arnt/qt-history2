@@ -2812,6 +2812,19 @@ void QFileDialog::fileNameEditReturnPressed()
 
 /*!
   \internal
+  Update the info and content preview widgets to display \a u.
+*/
+
+void QFileDialog::updatePreviews( const QUrl &u )
+{
+    if ( d->infoPreviewer )
+	d->infoPreviewer->previewUrl( u );
+    if ( d->contentsPreviewer )
+	d->contentsPreviewer->previewUrl( u );
+}
+
+/*!
+  \internal
   Changes the preview mode to the mode specified at \a id.
 */
 
@@ -2832,12 +2845,8 @@ void QFileDialog::changeMode( int id )
     if ( btn != d->previewContents && btn != d->previewInfo ) {
 	d->preview->hide();
     } else {
-	if ( files->currentItem() ) {
-	    if ( d->infoPreviewer )
-		d->infoPreviewer->previewUrl( QUrl( d->url, files->currentItem()->text( 0 ) ) );
-	    if ( d->contentsPreviewer )
-		d->contentsPreviewer->previewUrl( QUrl( d->url, files->currentItem()->text( 0 ) ) );
-	}
+	if ( files->currentItem() )
+	    updatePreviews( QUrl( d->url, files->currentItem()->text( 0 ) ) );
 	if ( btn == d->previewInfo )
 	    d->preview->raiseWidget( d->infoPreviewWidget );
 	else
@@ -3744,14 +3753,8 @@ bool QFileDialog::trySetSelection( bool isDir, const QUrlOperator &u, bool updat
 	}
     }
 
-    if ( isDir ) {
-	if ( d->preview && d->preview->isVisible() ) {
-	    if ( d->infoPreviewer )
-		d->infoPreviewer->previewUrl( u );
-	    if ( d->contentsPreviewer )
-		d->contentsPreviewer->previewUrl( u );
-	}
-    }
+    if ( isDir && d->preview && d->preview->isVisible() )
+	updatePreviews( u );
 
     QString old = d->currentFileName;
 
@@ -3938,10 +3941,7 @@ void QFileDialog::detailViewSelectionChanged()
     okB->setEnabled( TRUE );
     if ( d->preview && d->preview->isVisible() && files->currentItem() ) {
 	QUrl u = QUrl( d->url, QFileDialogPrivate::encodeFileName( ((QFileDialogPrivate::File*)files->currentItem())->info.name() ) );
-	if ( d->infoPreviewer )
-	    d->infoPreviewer->previewUrl( u );
-	if ( d->contentsPreviewer )
-	    d->contentsPreviewer->previewUrl( u );
+	updatePreviews( u );
     }
 }
 
@@ -3998,10 +3998,7 @@ void QFileDialog::listBoxSelectionChanged()
     if ( d->preview && d->preview->isVisible() && j ) {
 	QUrl u = QUrl( d->url,
 		       QFileDialogPrivate::encodeFileName( ( (QFileDialogPrivate::File*)( (QFileDialogPrivate::MCItem*)j )->i )->info.name() ) );
-	if ( d->infoPreviewer )
-	    d->infoPreviewer->previewUrl( u );
-	if ( d->contentsPreviewer )
-	    d->contentsPreviewer->previewUrl( u );
+	updatePreviews( u );
     }
 }
 
@@ -4027,12 +4024,8 @@ void QFileDialog::fileNameEditDone()
     if ( mode() != QFileDialog::ExistingFiles ) {
 	QUrlOperator u( d->url, QFileDialogPrivate::encodeFileName( nameEdit->text() ) );
 	trySetSelection( f.isDir(), u, FALSE );
-	if ( d->preview && d->preview->isVisible() ) {
-	    if ( d->infoPreviewer )
-		d->infoPreviewer->previewUrl( u );
-	    if ( d->contentsPreviewer )
-		d->contentsPreviewer->previewUrl( u );
-	}
+	if ( d->preview && d->preview->isVisible() )
+	    updatePreviews( u );
     }
 }
 
@@ -6049,8 +6042,7 @@ void QFileDialog::setInfoPreview( QWidget *w, QFilePreview *preview )
 	d->preview->removeWidget( d->infoPreviewWidget );
 	delete d->infoPreviewWidget;
     }
-    if ( d->infoPreviewer )
-	delete d->infoPreviewer;
+    delete d->infoPreviewer;
     d->infoPreviewWidget = w;
     d->infoPreviewer = preview;
     w->reparent( d->preview, 0, QPoint( 0, 0 ) );
@@ -6107,8 +6099,7 @@ void QFileDialog::setContentsPreview( QWidget *w, QFilePreview *preview )
 	d->preview->removeWidget( d->contentsPreviewWidget );
 	delete d->contentsPreviewWidget;
     }
-    if ( d->contentsPreviewer )
-	delete d->contentsPreviewer;
+    delete d->contentsPreviewer;
     d->contentsPreviewWidget = w;
     d->contentsPreviewer = preview;
     w->reparent( d->preview, 0, QPoint( 0, 0 ) );
