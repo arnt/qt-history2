@@ -465,11 +465,13 @@ void Uic::createPopupMenuImpl( const QDomElement &e, const QString &parentClass,
     for ( QDomElement n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName() == "action" ) {
 	    QDomElement n2 = n.nextSibling().toElement();
-	    if ( n2.tagName() == "item" ) { // the action is a sub menu
+	    if ( n2.tagName() == "item" ) { // the action has a sub menu
 		QString itemName = n2.attribute( "name" );
 		QString itemText = n2.attribute( "text" );
 		out << indent << "QPopupMenu *" << itemName << " = new QPopupMenu( this );" << endl;
-		out << indent << parent << "->insertItem( \"" << itemText << "\", " << itemName << " );" << endl; // FIXME: does not support icon or pixmap
+		out << indent << parent << "->setAccel( " << n.attribute( "name" ) << "->accel()," << endl;
+		out << indent << indent << parent << "->insertItem( " << n.attribute( "name" ) << "->iconSet(),";
+		out << "\"" << itemText << "\", " << itemName << " ) );" << endl;
 		createPopupMenuImpl( n2, parentClass, itemName );
 		n = n2;
 	    } else {

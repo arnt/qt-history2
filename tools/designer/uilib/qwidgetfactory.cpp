@@ -2502,19 +2502,26 @@ void QWidgetFactory::loadPopupMenu( QPopupMenu *p, const QDomElement &e )
     QDomElement n = e.firstChild().toElement();
     while ( !n.isNull() ) {
 	if ( n.tagName() == "action" ) {
+	    QAction *a = findAction( n.attribute( "name" ) );
 	    QDomElement n2 = n.nextSibling().toElement();
 	    if ( n2.tagName() == "item") { // load submenu
 		QPopupMenu *popup = new QPopupMenu( mw );
 		popup->setName( n2.attribute( "name" ) );
-		p->insertItem( translate( n2.attribute( "text" ).utf8() ), popup );
+		if ( a ) {
+		    p->setAccel( a->accel(), p->insertItem( a->iconSet(),
+					     translate( n2.attribute( "text" ).utf8() ),
+					     popup ) );
+		} else {
+		    p->insertItem( translate( n2.attribute( "text" ).utf8() ), popup );
+		}
 		loadPopupMenu( popup, n2 );
 		n = n2;
 	    } else {
-		QAction *a = findAction( n.attribute( "name" ) );
 		if ( a ) {
 		    a->addTo( p );
 		}
 	    }
+	    a = 0;
 	} else if ( n.tagName() == "separator" ) {
 	    p->insertSeparator();
 	}
