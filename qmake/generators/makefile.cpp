@@ -543,7 +543,7 @@ MakefileGenerator::init()
 			    QString("LEXSOURCES"), QString("QMAKE_INTERNAL_INCLUDED_FILES"), QString::null };
     for(int y = 0; paths[y] != QString::null; y++) {
 	QStringList &l = v[paths[y]];
-	if(!l.isEmpty())
+	if(!l.isEmpty()) 
 	    fileFixify(l);
     }
 
@@ -1003,7 +1003,7 @@ MakefileGenerator::fileFixify(QString &file) const
 	    return FALSE;
 	QString match_dir = Option::output_dir;
 	if(file.left(match_dir.length()) == match_dir) {
-	    file = file.right(file.length() - match_dir.length());
+	    file = file.right(file.length() - (match_dir.length() + 1));
 	} else {
 	    //try to make no more than five ..'s
 	    for(int i = 1; i <= 5; i++) {

@@ -259,13 +259,32 @@ void fixEnvVariables(QString &x)
     while((rep = reg_var.match(x, 0, &rep_len)) != -1)
 	x.replace(rep, rep_len, QString(getenv(x.mid(rep + 2, rep_len - 3).latin1())));
 }
+static QString fixPath(QString x)
+{
+    if(x == "/sqlformwizardimpl.h")
+	qDebug("foo..");
+//    qDebug("Got %s", x.latin1());
+    QFileInfo fi(x);
+    if(fi.isDir()) {
+	QDir dir(x);
+	x = dir.canonicalPath();
+    } else {
+	QString dir = fi.dir().canonicalPath();
+	if(!dir.isEmpty() && dir.right(1) != Option::dir_sep)
+	    dir += Option::dir_sep;
+	x = dir + fi.fileName();
+    }
+//    qDebug("Finished with %s", x.latin1());
+    return QDir::cleanDirPath(x);
+}
+
 
 QString
 Option::fixPathToTargetOS(QString in, bool fix_env)
 {
     if(fix_env)
 	fixEnvVariables(in);
-    in = QDir::cleanDirPath(in);
+    in = fixPath(in);
     QString rep;
     if(Option::target_mode == TARG_UNIX_MODE || Option::target_mode == TARG_MACX_MODE)
 	rep = "[\\\\]";
@@ -280,7 +299,7 @@ QString
 Option::fixPathToLocalOS(QString in)
 {
     fixEnvVariables(in);
-    in = QDir::cleanDirPath(in);
+    in = fixPath(in);
 #if defined(Q_OS_WIN32)
     return in.replace(QRegExp("/"), "\\");
 #else

@@ -69,7 +69,6 @@ int main(int argc, char **argv)
 	return 666;
 
     QString oldpwd = QDir::current().currentDirPath();
-
     QMakeProject proj;
     int exit_val = 0;
     if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE) {
@@ -142,7 +141,7 @@ int main(int argc, char **argv)
 			    Option::output.setName(oldpwd + Option::dir_sep + Option::output.name());
 
 			QFileInfo fi(Option::output);
-			Option::output_dir = Option::fixPathToTargetOS(fi.dir().canonicalPath());
+			Option::output_dir = Option::fixPathToTargetOS(fi.dirPath());
 			if(!Option::output.open(IO_WriteOnly | IO_Translate)) {
 			    fprintf(stderr, "Failure to open file: %s\n", Option::output.name().latin1());
 			    return 5;
