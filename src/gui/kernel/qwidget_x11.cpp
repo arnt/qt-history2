@@ -283,59 +283,24 @@ Q_GUI_EXPORT void qt_wait_for_window_manager(QWidget* w)
         qApp->x11ProcessEvent(&ev);
 }
 
-static void qt_net_change_wm_state(const QWidget* w, bool set, Atom one, Atom two = 0)
+static void qt_change_net_wm_state(const QWidget* w, bool set, Atom one, Atom two = 0)
 {
-    if (w->isShown()) {
-        // managed by WM
-        XEvent e;
-        e.xclient.type = ClientMessage;
-        e.xclient.message_type = ATOM(_NET_WM_STATE);
-        e.xclient.display = X11->display;
-        e.xclient.window = w->winId();
-        e.xclient.format = 32;
-        e.xclient.data.l[0] = set ? 1 : 0;
-        e.xclient.data.l[1] = one;
-        e.xclient.data.l[2] = two;
-        e.xclient.data.l[3] = 0;
-        e.xclient.data.l[4] = 0;
-        XSendEvent(X11->display, RootWindow(X11->display, w->x11Info().screen()),
-                   False, (SubstructureNotifyMask|SubstructureRedirectMask), &e);
-    } else {
-        Atom ret;
-        int format = 0, status;
-        unsigned char *data = 0;
-        unsigned long nitems = 0, after = 0;
-        Atom *old_states = 0;
-        status = XGetWindowProperty(X11->display, w->winId(),
-                                    ATOM(_NET_WM_STATE), 0, 1024, False,
-                                    XA_ATOM, &ret, &format, &nitems,
-                                    &after, &data);
-        if (status == Success && ret == XA_ATOM && format == 32 && nitems > 0)
-            old_states = (Atom *) data;
-        else
-            nitems = 0;
+    if (!w->isShown()) // not managed by the window manager
+        return;
 
-        Atom *new_states = new Atom[nitems + 2];
-        int i, j = 0;
-        for (i = 0; i < (int)nitems; ++i) {
-            if (old_states[i] && old_states[i] != one && old_states[i] != two)
-                new_states[j++] = old_states[i];
-        }
-
-        if (set) {
-            if (one) new_states[j++] = one;
-            if (two) new_states[j++] = two;
-        }
-
-        if (j)
-            XChangeProperty(X11->display, w->winId(), ATOM(_NET_WM_STATE), XA_ATOM, 32,
-                            PropModeReplace, (uchar *) new_states, j);
-        else
-            XDeleteProperty(X11->display, w->winId(), ATOM(_NET_WM_STATE));
-
-        delete [] new_states;
-        if (data) XFree(data);
-    }
+    XEvent e;
+    e.xclient.type = ClientMessage;
+    e.xclient.message_type = ATOM(_NET_WM_STATE);
+    e.xclient.display = X11->display;
+    e.xclient.window = w->winId();
+    e.xclient.format = 32;
+    e.xclient.data.l[0] = set ? 1 : 0;
+    e.xclient.data.l[1] = one;
+    e.xclient.data.l[2] = two;
+    e.xclient.data.l[3] = 0;
+    e.xclient.data.l[4] = 0;
+    XSendEvent(X11->display, RootWindow(X11->display, w->x11Info().screen()),
+               false, (SubstructureNotifyMask | SubstructureRedirectMask), &e);
 }
 
 /*!
@@ -1679,7 +1644,7 @@ void QWidget::setWindowState(uint newstate)
         if ((oldstate & Qt::WindowMaximized) != (newstate & Qt::WindowMaximized)) {
             if (qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_HORZ))
                 && qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_VERT))) {
-                qt_net_change_wm_state(this, (newstate & Qt::WindowMaximized),
+                qt_change_net_wm_state(this, (newstate & Qt::WindowMaximized),
                                        ATOM(_NET_WM_STATE_MAXIMIZED_HORZ),
                                        ATOM(_NET_WM_STATE_MAXIMIZED_VERT));
             } else if (! (newstate & Qt::WindowFullScreen)) {
@@ -1709,7 +1674,7 @@ void QWidget::setWindowState(uint newstate)
 
         if ((oldstate & Qt::WindowFullScreen) != (newstate & Qt::WindowFullScreen)) {
             if (qt_net_supports(ATOM(_NET_WM_STATE_FULLSCREEN))) {
-                qt_net_change_wm_state(this, (newstate & Qt::WindowFullScreen),
+                qt_change_net_wm_state(this, (newstate & Qt::WindowFullScreen),
                                        ATOM(_NET_WM_STATE_FULLSCREEN));
             } else {
                 needShow = isVisible();
