@@ -82,10 +82,11 @@ private:
 
 #ifdef QT_COMPAT
 public:
-    QT_COMPAT inline QWidget *currentItem() const { return item(currentIndex()); }
-    QT_COMPAT inline void setCurrentItem(QWidget *item) { setCurrentIndex(indexOf(item)); }
-    QT_COMPAT inline int removeItem(QWidget *item) { int i = indexOf(item); removeItem(i); return i; }
-    QT_COMPAT inline QWidget *item(int index) const { return widget(index); }
+    inline QT_COMPAT QWidget *currentItem() const { return item(currentIndex()); }
+    inline QT_COMPAT void setCurrentItem(QWidget *item) { setCurrentIndex(indexOf(item)); }
+    inline QT_COMPAT int removeItem(QWidget *item)
+    { int i = indexOf(item); removeItem(i); return i; }
+    inline QT_COMPAT QWidget *item(int index) const { return widget(index); }
 #endif
 };
 
