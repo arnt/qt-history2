@@ -647,12 +647,13 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
     \value WState_ConfigPending
     \value WState_AutoMask
     \value WState_DND
-    \value WState_Reserved0
-    \value WState_Reserved1
+    \value WState_Reserved0 \e internal
+    \value WState_CreatedHidden
     \value WState_Maximized
     \value WState_Minimized
     \value WState_Exposed
     \value WState_OwnSizePolicy
+    \value WState_FullScreen
 */
 
 
