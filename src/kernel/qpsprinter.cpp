@@ -2366,11 +2366,11 @@ void QPSPrinterFontTTF::drawText( QTextStream &stream, const QPoint &p, QTextEng
 	    // map unicode is not really the correct name, as we map glyphs, but we also download glyphs, so this works
 	    stream << toHex( mapUnicode( shaped->glyphs[i] ) );
 	    if ( i ) {
-		xyarray += toInt( xo + shaped->offsets[i].x + shaped->advances[i-1] );
+		xyarray += toInt( xo - shaped->offsets[i].x + shaped->advances[i-1] );
 		xyarray += " ";
 		xyarray += toInt( yo + shaped->offsets[i].y );
 		xyarray += " ";
-		xo = -shaped->offsets[i].x;
+		xo = shaped->offsets[i].x;
 		yo = -shaped->offsets[i].y;
 	    }
 	}
