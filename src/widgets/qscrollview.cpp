@@ -1554,10 +1554,12 @@ void QScrollView::contentsMouseReleaseEvent( QMouseEvent* e )
     This event handler is called whenever the QScrollView receives a
     mouseDoubleClickEvent(): the click position in \a e is translated to be a
     point on the contents.
+
+    The default implementation generates a normal mouse press event.
 */
 void QScrollView::contentsMouseDoubleClickEvent( QMouseEvent* e )
 {
-    e->ignore();
+    contentsMousePressEvent(e);		    // try mouse press event
 }
 
 /*!
