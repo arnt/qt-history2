@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#94 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#95 $
 #
 # this is a massive hack, written very quickly
 #
@@ -71,6 +71,9 @@ sub html {
 }
 
 
+#
+# HTMLize and add links to code, returns the result
+# 
 sub processcode {
     local ($_) = @_;
     local (%types);
@@ -80,9 +83,16 @@ sub processcode {
     s/\s+$/\n/s;
     s!\\/(.*?\n)!//$1!gs;
 
-    while ( m@(?:(?:^)|(?:[;\{\(]))(?:\s*//[^\n]*\n)*\s*([A-Za-z0-9_]+)(?:\s*<[^>]*>)?\s*\*?\s*([A-Za-z0-9_]+)@gs ) {
+    s@(\n#include\s+(?:\"|(?:&lt;)))(.*?.h)((?:\"|(?:&gt;)))@
+	if ( defined( $anchor{$2} ) ) {
+	    sprintf("%s<a href=%s>%s</a>%s", $1, $anchor{$2}, $2, $3);
+	} else {
+	    sprintf("%s%s%s", $1, $2, $3);
+	}
+       @egsx;
+
+    while ( m@(?:(?:^)|(?:[;\{\(]))(?:\s*//[^\n]*\n)*\s*([A-Za-z0-9_]+)(?:\s*&lt;[^;]*?&gt;)?\s*\*?\s*([A-Za-z0-9_]+)@gs ) {
 	if ($type{$anchor{$1}} eq "class") {
-	    #print "recognized $2 as $1\n";
 	    print "Changing type of $2 from ", $types{$2}, " to $1\n"
 		if (defined($types{$2}) && ($1 ne $types{$2}));
 	    $types{$2} = $1;
@@ -96,8 +106,9 @@ sub processcode {
 	} else {
 	    sprintf("%s%s%s", $1, $2, $3);
 	}
-    @egsx;
+       @egsx;
 
+    # statics in templates are not recognized
     s@\b([A-Za-z0-9_]+::[A-Za-z0-9_]+)\b@
 	if (defined($anchor{$1})) {
 	    sprintf("<a href=%s>%s</a>", $anchor{$1}, $1);
@@ -106,7 +117,7 @@ sub processcode {
 	}
     @egsx;
 
-    s@(\s)([A-Za-z0-9_]+)(?!::)@
+    s@(\s)([A-Za-z0-9_]+)\b(?!::)@
 	if ((defined($anchor{$2})) && ($type{$anchor{$2}} eq "class")) {
 	    sprintf("%s<a href=%s>%s</a>", $1, $anchor{$2}, $2);
 	} else {
@@ -168,6 +179,85 @@ sub preprocessdocs {
 	$relations{url} = join(" ", sort keys %tmp);
     }
 }
+
+
+
+sub handlecodeincludes {
+    local( $cmd, $arg ) = @_;
+    local ( $res, $slash );
+
+    #print "Arg: ", $cmd, " - ", $arg, "\n";
+    $res = "<blink>error</blink>";
+
+    while( $#code >= 0 && $code[0] eq "    <linebreak>" ) {
+	shift @code;
+    }
+
+    if ( $cmd eq "include" || $cmd eq "dontinclude" ) {
+	open(IF, "expand < /local/qt/tutorial/$arg |") ||
+	    die "cannot read /local/qt/tutorial/$arg";
+	$slash = $/;
+	undef $/;
+	$arg = <IF>;
+	close IF;
+	$/ = $slash;
+	$res = &processcode( $arg );
+	$arg = $res; # icky
+	$arg =~ s-^<pre>-\n-;
+	$arg =~ s-</pre>$--;
+	$arg =~ s-\n-\n    -g;
+	@code = split( /\n+/, $arg );
+	$res = "" if ( $cmd eq "dontinclude" );
+    } elsif ( $cmd eq "line" ) {
+	$res = shift @code;
+	print "line ", $res, "does not contain ", $arg, "\n"
+	    unless ( $res =~ /\Q$arg\E/ );
+	$res = "<pre>\n" . $res . "\n</pre>\n";
+    } elsif ( $cmd eq "skipline" || $cmd eq "skip" ) {
+	while ( $#code>-1 && !( $code[0] =~ /\Q$arg\E/ ) ) {
+	    shift @code;
+	}
+	print "no such line: ", $arg if ( $#code == -1 );
+	$res = "";
+	$res = join( shift @code, "<pre>\n", "</pre>\n" )
+	    if ( $cmd eq "skipline" );
+    } elsif ( $cmd eq "until" ) {
+	$res = "<pre>";
+	while ( $#code > -1 && !( $code[0] =~ /\Q$arg\E/ ) ) {
+	    #print $#code, " - ", $code[0], " sex\n";
+	    $res = join( "\n", $res, shift @code );
+	}
+	print "no such line: ", $arg if ( $#code == -1 );
+	$res = join( "\n", $res, shift @code, "</pre>\n" );
+    } else {
+	die "internal error regarding $cmd $arg";
+    }
+    
+    #print "Result: $res\n";
+
+    $res;
+}
+
+
+#
+# handle code includes, common to pages and item docs
+#
+sub codeincludes {
+    local ($doc) = @_;
+
+    $doc =~ s/\\((?:
+		  (?:include)|
+		  (?:dontinclude)|
+		  (?:line)|
+		  (?:skipline)|
+		  (?:skip)|
+		  (?:until)))\b\s*(\S+)/
+		      &handlecodeincludes($1,$2)
+    /esgx;
+    $doc =~ s-</pre>\s*<pre>\n--gs;
+    $doc;
+}
+			
 
 
 
@@ -305,10 +395,11 @@ sub processdocs {
 
 	$doc =~ s-\\internal\s-<p>Internal comments:<p>\n-s;
 
-	$doc =~ s!\\code\b(.*?)\\endcode!&processcode($1)!esg;
-
 	$doc =~ s!\\e\s+(\S+)!<em>$1</em>!gs;
 	$doc =~ s!\\c\s+(\S+)!<code>$1</code>!gs;
+
+	$doc =~ s!\\code\b(.*?)\\endcode!&processcode($1)!esg;
+	$doc = &codeincludes($doc);
 
 	$doc =~ s/\.?\s*$/.\n/s;
 	$doc =~ s/^\s*\n//s;
@@ -389,7 +480,12 @@ sub writepages {
 
 	$doc =~ s-\\internal\s-<p>Internal comments:<p>\n-s;
 
+	$doc =~ s/\\\&/&amp;/gs;
+	$doc =~ s/\\</&lt;/gs;
+	$doc =~ s/\\>/&gt;/gs;
+
 	$doc =~ s!\\code\b(.*?)\\endcode!&processcode($1)!esg;
+	$doc = &codeincludes($doc);
 
 	$doc =~ s!\\e\s+(\S+)!<em>$1</em>!gs;
 	$doc =~ s!\\c\s+(\S+)!<code>$1</code>!gs;
@@ -765,9 +861,6 @@ sub templates {
 
 			    $url = &manglefn($type, $n, $mm, $args,
 					     $const, &mangleclass($n));
-			} else {
-			    die "unparsable definition: ", $n, "::", $mm,
-			    "cannot be instantiated from ", $def{$m};
 			}
 		    }
 
@@ -830,6 +923,9 @@ sub readc {
 	    $url = &mangleclass($class);
 	    print $class, " not in ", $hfile, "\n" 
 		unless (defined($members{$url}) || defined($declared{$class}));
+	    # override inheritance after storeclass has done its job
+	    $inheritance{$url} = "public ".$1
+		if ( $doc =~ s/\s*\\inherit\s*(\w+)\s+/\n\n/ );
 	    $doc{$url} = $doc;
 	    $includefile{$url} = $hfile;
 	    $includefile{$url} =~ s/\.doc/.h/;
@@ -1325,9 +1421,17 @@ sub printclass {
 		$a =~ s/\s+$//s;
 
 		$u = &manglefn($t, $name{$url}, $f, $a, $c);
-#print "1: $u\n";
 		&fixdefvalues($u, $a) if ($type{$u} eq "fn");
 		if ($type{$u} eq "fn") {
+		    # only for templates: promote use the .cpp variable names
+		    if ( defined( $templatecookie{$url} ) ) {
+			#print "not $a\n";
+			$a = $def{$u};
+			$a =~ s/^.*?\((\)\()?\s*//s;
+			$a =~ s/\s*\).*?$//s;
+			$a =~ s-<a href=.*?>(.*?)</a>-$1-g;
+			#print "but $a\n";
+		    }
 		    $_ = join("", &html($t), "<a href=", $u,
 			      "><strong>", &html($f), 
 			      "</strong></a> (", &html($a), 
@@ -1360,7 +1464,6 @@ sub printclass {
 		    $_ = join("", "operator <a href=", $u, "><strong>",
 			      &html($r), "</strong></a> ()", $c);
 		    $fndocs{$u} = $mode;
-#print "2: $_\n";
 		} else {
 		    print "undocumented: ", $name{$url}, "::operator ", $r,
 		        " () ", $c, "\n" if ($errmsg++<$maxerr);
