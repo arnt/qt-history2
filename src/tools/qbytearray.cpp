@@ -1220,6 +1220,44 @@ bool QByteArray::ensure_constructed()
     return true;
 }
 
+QByteArray QByteArray::leftJustified(int width, char fill, bool truncate) const
+{
+    QByteArray result;
+    int len = qstrlen(d->data);
+    int padlen = width - len;
+    if (padlen > 0) {
+	result.resize(len+padlen);
+	if (len)
+	    memcpy(result.d->data, d->data, sizeof(char)*len);
+	memset(result.d->data+len, fill, padlen);
+    } else {
+	if (truncate)
+	    result = left(width);
+	else
+	    result = *this;
+    }
+    return result;
+}
+
+QByteArray QByteArray::rightJustified(int width, char fill, bool truncate) const
+{
+    QByteArray result;
+    int len = qstrlen(d->data);
+    int padlen = width - len;
+    if (padlen > 0) {
+        result.resize(len+padlen);
+        if (len)
+	    memcpy(result.d->data+padlen, data(), len);
+        memset(result.d->data, fill, padlen);
+    } else {
+        if (truncate)
+            result = left(width);
+        else
+            result = *this;
+    }
+    return result;
+}
+
 #ifndef QT_NO_COMPAT
 bool QByteArray::isNull() const { return d == &shared_null; }
 #endif

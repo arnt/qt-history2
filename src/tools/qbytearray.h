@@ -133,6 +133,15 @@ public:
 
     QByteArray trimmed() const;
     QByteArray simplified() const;
+    QByteArray leftJustified(int width, char fill = ' ', bool truncate = false) const;
+    QByteArray rightJustified(int width, char fill = ' ', bool truncate = false) const;
+
+#ifndef QT_NO_COMPAT
+    inline QByteArray leftJustify(uint width, char fill = ' ', bool truncate = false) const
+    { return leftJustified((int)width, fill, truncate); }
+    inline QByteArray rightJustify(uint width, char fill = ' ', bool truncate = false) const
+    { return rightJustified((int)width, fill, truncate); }
+#endif
 
     QByteArray &prepend(char c);
     QByteArray &prepend(const char *s);
