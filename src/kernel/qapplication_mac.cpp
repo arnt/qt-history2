@@ -935,18 +935,6 @@ static key_sym key_syms[] = {
 { kPageUpCharCode, MAP_KEY(Qt::Key_PageUp) },
 { kPageDownCharCode, MAP_KEY(Qt::Key_PageDown) },
 { kReturnCharCode, MAP_KEY(Qt::Key_Return) },
-{ 32, MAP_KEY(Qt::Key_F1) },
-{ 33, MAP_KEY(Qt::Key_F2) },
-{ 34, MAP_KEY(Qt::Key_F3) },
-{ 35, MAP_KEY(Qt::Key_F4) },
-{ 36, MAP_KEY(Qt::Key_F5) },
-{ 37, MAP_KEY(Qt::Key_F6) },
-{ 38, MAP_KEY(Qt::Key_F7) },
-{ 39, MAP_KEY(Qt::Key_F8) },
-{ 40, MAP_KEY(Qt::Key_F9) },
-{ 41, MAP_KEY(Qt::Key_F10) },
-{ 42, MAP_KEY(Qt::Key_F11) },
-{ 43, MAP_KEY(Qt::Key_F12) },
 { kEscapeCharCode, MAP_KEY(Qt::Key_Escape) },
 { kLeftArrowCharCode, MAP_KEY(Qt::Key_Left) },
 { kRightArrowCharCode, MAP_KEY(Qt::Key_Right) },
@@ -988,6 +976,21 @@ static key_sym key_syms[] = {
 { '}', MAP_KEY(Qt::Key_BraceRight) },
 { '|', MAP_KEY(Qt::Key_Bar) },
 { '~', MAP_KEY(Qt::Key_AsciiTilde) },
+//function keys?
+#if 0
+{ 32, MAP_KEY(Qt::Key_F1) },
+{ 33, MAP_KEY(Qt::Key_F2) },
+{ 34, MAP_KEY(Qt::Key_F3) },
+{ 35, MAP_KEY(Qt::Key_F4) },
+{ 36, MAP_KEY(Qt::Key_F5) },
+{ 37, MAP_KEY(Qt::Key_F6) },
+{ 38, MAP_KEY(Qt::Key_F7) },
+{ 39, MAP_KEY(Qt::Key_F8) },
+{ 40, MAP_KEY(Qt::Key_F9) },
+{ 41, MAP_KEY(Qt::Key_F10) },
+{ 42, MAP_KEY(Qt::Key_F11) },
+{ 43, MAP_KEY(Qt::Key_F12) },
+#endif
 //terminator
 {   0, MAP_KEY(0) } };
 static int get_key(int key)
@@ -1017,7 +1020,7 @@ static int get_key(int key)
     } 
 
 #ifdef DEBUG_KEY_MAPS
-    qDebug("Unknown case.. %s:%d", __FILE__, __LINE__);
+    qDebug("Unknown case.. %s:%d %d", __FILE__, __LINE__, key);
 #endif
     return Qt::Key_unknown;
 }
