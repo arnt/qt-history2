@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/GNUmakefile.inc#3 $
+# $Id: //depot/qt/main/GNUmakefile.inc#4 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
@@ -40,19 +40,25 @@ release: GNUmakefile.release $(MORETARGETS)
 	$(MAKE) -f GNUmakefile.release
 
 GNUmakefile.static: $(PROJECT).pro GNUmakefile
+ifeq ($(LIBTARGET),1)
 	syncqt
+endif
 	@mkdir -p .obj/static
 	tmake $(PROJECT).pro -o GNUmakefile.static \
 	    "CONFIG+=staticlib" "OBJECTS_DIR=.obj/static"
 
 GNUmakefile.debug: $(PROJECT).pro GNUmakefile
+ifeq ($(LIBTARGET),1)
 	syncqt
+endif
 	@mkdir -p .obj/debug
 	tmake $(PROJECT).pro -o GNUmakefile.debug \
 	    "CONFIG+=debug" "OBJECTS_DIR=.obj/debug"
 
 GNUmakefile.release: $(PROJECT).pro GNUmakefile
+ifeq ($(LIBTARGET),1)
 	syncqt
+endif
 	@mkdir -p .obj/release
 	tmake $(PROJECT).pro -o GNUmakefile.release \
 	    "CONFIG+=release" "OBJECTS_DIR=.obj/release"
