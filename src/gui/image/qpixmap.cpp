@@ -805,7 +805,7 @@ bool QPixmap::load(const QString &fileName, const char *format, Qt::ImageConvers
             QRetainedPixmap *keeper = 0;
             if(fileName[0] != QLatin1Char(':'))
                 keeper = new QRetainedPixmapFile(fileName, *this);
-            if(!keeper)
+            else
                 keeper = new QRetainedPixmap(*this);
             int cost = width()*height()*depth()/8;
             if(data->optim == LoadOptim)
