@@ -622,12 +622,24 @@ void QWorkspace::minimizeWindow( QWidget* w)
 {
     QWorkspaceChild* c = findChild( w );
     if ( c ) {
+	setUpdatesEnabled( FALSE );
+	bool wasMax = FALSE;
+	if ( c == d->maxWindow ) {
+	    wasMax = TRUE;
+	    d->maxWindow = 0;
+	    inCaptionChange = TRUE;
+	    if ( !!d->topCaption )
+		topLevelWidget()->setCaption( d->topCaption );
+	    inCaptionChange = FALSE;
+	    hideMaximizeControls();
+	}
 	insertIcon( c->iconWidget() );
 	c->hide();
+	if ( wasMax )
+	    c->setGeometry( d->maxRestore );
 	d->focus.append( c );
-	if ( d->maxWindow )
-	    d->maxWindow->setFocus();
 
+	setUpdatesEnabled( TRUE );
 	QWorkspace *fake = (QWorkspace*)w;
 	fake->clearWState( WState_Maximized );
 	fake->setWState( WState_Minimized );
@@ -645,8 +657,7 @@ void QWorkspace::normalizeWindow( QWidget* w)
 	    if ( !!d->topCaption )
 		topLevelWidget()->setCaption( d->topCaption );
 	    inCaptionChange = FALSE;
-	}
-	else {
+	} else {
 	    if ( c->iconw )
 		removeIcon( c->iconw->parentWidget() );
 	    c->show();
@@ -655,6 +666,7 @@ void QWorkspace::normalizeWindow( QWidget* w)
 	fake->clearWState( WState_Minimized | WState_Maximized );
 
 	hideMaximizeControls();
+	activateWindow( w, TRUE );
     }
 }
 
