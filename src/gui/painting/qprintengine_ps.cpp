@@ -849,8 +849,7 @@ public:
     virtual QString defineFont(QTextStream &stream, const QString &ps, const QFont &f, const QString &key,
                              QPSPrintEnginePrivate *ptr);
     virtual void download(QTextStream& s, bool global);
-    virtual void drawText(QTextStream &stream, const QPoint &p, QTextEngine *engine, int item,
-                           const QString &text, QPSPrintEnginePrivate *d, QPainterState *ps);
+    virtual void drawText(QTextStream &stream, QPSPrintEnginePrivate *d, const QPoint &p, const QTextItem &ti, int textflags);
     virtual unsigned short mapUnicode(unsigned short unicode);
     void downloadMapping(QTextStream &s, bool global);
     QString glyphName(unsigned short glyphindex, bool *glyphSet = 0);
@@ -1148,34 +1147,32 @@ static inline const char * toInt(int i)
     return intVal+pos;
 }
 
-void QPSPrintEngineFontPrivate::drawText(QTextStream &stream, const QPoint &p, QTextEngine *engine, int item,
-                                 const QString &text, QPSPrintEnginePrivate *d, QPainterState *ps)
+void QPSPrintEngineFontPrivate::drawText(QTextStream &stream, QPSPrintEnginePrivate *d, const QPoint &p, const QTextItem &ti, int textflags)
 {
-    int len = engine->length(item);
-    QScriptItem &si = engine->items[item];
-
     int x = p.x();
     int y = p.y();
     if (y != d->textY || d->textY == 0)
         stream << y << " Y";
     d->textY = y;
 
+    int len = ti.num_chars;
+
     stream << "<";
-    if (si.analysis.bidiLevel % 2) {
+    if (ti.right_to_left) {
         for (int i = len-1; i >=0; i--)
-            stream << toHex(mapUnicode(text.unicode()[i].unicode()));
+            stream << toHex(mapUnicode(ti.chars[i].unicode()));
     } else {
         for (int i = 0; i < len; i++)
-            stream << toHex(mapUnicode(text.unicode()[i].unicode()));
+            stream << toHex(mapUnicode(ti.chars[i].unicode()));
     }
     stream << ">";
 
-    stream << si.width.toDouble() << " " << x;
+    stream << ti.width << " " << x;
 
-    if (ps->font.underline())
+    if (textflags & Qt::Underline)
         stream << ' ' << y + d->fm.underlinePos() + d->fm.lineWidth()
                << " " << d->fm.lineWidth() << " Tl";
-    if (ps->font.strikeOut())
+    if (textflags & Qt::StrikeOut)
         stream << ' ' << y + d->fm.strikeOutPos()
                << " " << d->fm.lineWidth() << " Tl";
     stream << " AT\n";
@@ -1523,8 +1520,7 @@ class QPSPrintEngineFontTTF
 public:
     QPSPrintEngineFontTTF(const QFontEngine *f, QByteArray& data);
     virtual void    download(QTextStream& s, bool global);
-    virtual void drawText(QTextStream &stream, const QPoint &p, QTextEngine *engine, int item,
-                           const QString &text, QPSPrintEnginePrivate *d, QPainterState *ps);
+    virtual void drawText(QTextStream &stream, QPSPrintEnginePrivate *d, const QPoint &p, const QTextItem &ti, int textflags);
     //  virtual ~QPSPrintEngineFontTTF();
 
     virtual bool embedded() { return true; }
@@ -1822,14 +1818,8 @@ QPSPrintEngineFontTTF::QPSPrintEngineFontTTF(const QFontEngine *f, QByteArray& b
 }
 
 
-void QPSPrintEngineFontTTF::drawText(QTextStream &stream, const QPoint &p, QTextEngine *engine, int item,
-                                  const QString &text, QPSPrintEnginePrivate *d, QPainterState *ps)
+void QPSPrintEngineFontTTF::drawText(QTextStream &stream, QPSPrintEnginePrivate *d, const QPoint &p, const QTextItem &ti, int textflags)
 {
-    // we draw glyphs here to get correct shaping of arabic and indic
-    QScriptItem &si = engine->items[item];
-    engine->shape(item);
-    int len = si.num_glyphs;
-
     int x = p.x();
     int y = p.y();
     if (y != d->textY || d->textY == 0)
@@ -1840,8 +1830,9 @@ void QPSPrintEngineFontTTF::drawText(QTextStream &stream, const QPoint &p, QText
     Q26Dot6 xo;
     Q26Dot6 yo;
 
-    QGlyphLayout *glyphs = engine->glyphs(&si);
-    QFontEngine *fe = engine->fontEngine(si);
+    QGlyphLayout *glyphs = ti.glyphs;
+    QFontEngine *fe = ti.fontEngine;
+
 #ifdef Q_WS_X11
     int type = fe->type();
     bool glyphIndices = (type == QFontEngine::Xft);
@@ -1852,15 +1843,18 @@ void QPSPrintEngineFontTTF::drawText(QTextStream &stream, const QPoint &p, QText
     const bool glyphIndices = FALSE;
     const bool useGlyphAsUnicode = TRUE;
 #endif
+    int len;
+    len =  (glyphIndices || useGlyphAsUnicode) ? ti.num_glyphs : ti.num_chars;
+
     stream << "<";
-    if (si.analysis.bidiLevel % 2) {
+    if (ti.right_to_left) {
         for (int i = len-1; i >=0; i--) {
             // map unicode is not really the correct name, as we map glyphs, but we also download glyphs, so this works
             unsigned short glyph;
             if (glyphIndices)
                 glyph = glyphs[i].glyph;
             else
-                glyph = glyph_for_unicode(useGlyphAsUnicode ? glyphs[i].glyph : text.unicode()[i].unicode());
+                glyph = glyph_for_unicode(useGlyphAsUnicode ? glyphs[i].glyph : ti.chars[i].unicode());
 	    stream << toHex(mapUnicode(glyph));
             if (i != len-1) {
                 xyarray += QByteArray::number((xo + glyphs[i].offset.x + glyphs[i+1].advance.x).toDouble());
@@ -1878,7 +1872,7 @@ void QPSPrintEngineFontTTF::drawText(QTextStream &stream, const QPoint &p, QText
             if (glyphIndices)
                 glyph = glyphs[i].glyph;
             else
-                glyph = glyph_for_unicode(useGlyphAsUnicode ? glyphs[i].glyph : text.unicode()[i].unicode());
+                glyph = glyph_for_unicode(useGlyphAsUnicode ? glyphs[i].glyph : ti.chars[i].unicode());
 	    stream << toHex(mapUnicode(glyph));
             if (i) {
                 xyarray += QByteArray::number((xo + glyphs[i].offset.x + glyphs[i-1].advance.x).toDouble());
@@ -1893,12 +1887,12 @@ void QPSPrintEngineFontTTF::drawText(QTextStream &stream, const QPoint &p, QText
     stream << ">";
 
     stream << "[" << xyarray << "0 0]";
-    stream << si.width.toDouble() << " " << x;
+    stream << ti.width << " " << x;
 
-    if (ps->font.underline())
+    if (textflags & Qt::Underline)
         stream << ' ' << y + d->fm.underlinePos() + d->fm.lineWidth()
                << " " << d->fm.lineWidth() << " Tl";
-    if (ps->font.strikeOut())
+    if (textflags & Qt::StrikeOut)
         stream << ' ' << y + d->fm.strikeOutPos()
                << " " << d->fm.lineWidth() << " Tl";
     stream << " XYT\n";
@@ -3644,8 +3638,7 @@ public:
     void download(QTextStream& s, bool global);
     QString defineFont(QTextStream &stream, const QString &ps, const QFont &f, const QString &key,
                         QPSPrintEnginePrivate *d);
-    void drawText(QTextStream &stream, const QPoint &p, QTextEngine *engine, int item,
-                   const QString &text, QPSPrintEnginePrivate *d, QPainterState *ps);
+    void drawText(QTextStream &stream, QPSPrintEnginePrivate *d, const QPoint &p, const QTextItem &ti, int textflags);
 
     QString makePSFontName(const QFontEngine *f, int type) const;
     virtual QString extension() const = 0;
@@ -3748,9 +3741,9 @@ void QPSPrintEngineFontAsian::download(QTextStream& s, bool)
     emitPSFontNameList(s, psname, replacementList);
 }
 
-void QPSPrintEngineFontAsian::drawText(QTextStream &stream, const QPoint &p, QTextEngine *engine, int item,
-                                    const QString &text, QPSPrintEnginePrivate *d, QPainterState *ps)
+void QPSPrintEngineFontAsian::drawText(QTextStream &stream, QPSPrintEnginePrivate *d, const QPoint &p, const QTextItem &ti, int textflags)
 {
+#if 0
     int len = engine->length(item);
     QScriptItem &si = engine->items[item];
 
@@ -3811,6 +3804,7 @@ void QPSPrintEngineFontAsian::drawText(QTextStream &stream, const QPoint &p, QTe
         }
     }
     stream << "(" << out << ")" << si.width.toDouble() << " " << x << mdf << " AT\n";
+#endif
 }
 
 // ----------- Japanese --------------
@@ -5866,21 +5860,13 @@ void QPSPrintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &
 
 void QPSPrintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
 {
-    int x = p.x();
-    int y = p.y();
-    // #########################
-//     QScriptItem &si = ti.engine()->items[ti.item()];
-//     int len = ti.engine()->length(ti.item());
-//     if (si.isSpace || si.isObject)
-//         return;
-
-//     if (d->currentSet != d->currentUsed || d->scriptUsed != si.analysis.script || !d->currentFontFile) {
-//         d->currentUsed = d->currentSet;
-//         d->setFont(d->currentSet, si.analysis.script);
-//     }
-//     if(d->currentFontFile) // better not crash in case somethig goes wrong.
-//         d->currentFontFile->drawText(d->pageStream, QPoint(x, y), ti.engine(), ti.item(),
-//                                       ti.engine()->string.mid(si.position, len), d, state);
+    // ####### Fix script support, use font engines instead of fonts.
+    if (d->currentSet != d->currentUsed || !d->currentFontFile) {
+        d->currentUsed = d->currentSet;
+        d->setFont(d->currentSet, QFont::Latin);
+    }
+    if(d->currentFontFile) // better not crash in case somethig goes wrong.
+        d->currentFontFile->drawText(d->pageStream, d, p, ti, textflags);
 }
 
 void QPSPrintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p, bool optim)
