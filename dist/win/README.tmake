@@ -7,7 +7,7 @@ a makefile.
 The .pro files in the Qt distribution are project files for tmake.
 To create a makefile from a .pro file, do the following:
 
-	tmake tetris.pro -o tetris.mak
+	tmake tetrix.pro -o tetrix.mak
 
 This assumes that the TMAKEPATH environment variable contains the
 directory where your compiler's template files are stored (for example
