@@ -11805,7 +11805,7 @@ enum Script {
 
     KatakanaHalfWidth,		// from JIS X 0201
     // End
-    NScripts,
+    NScripts
 };
 
 // copied form qfont.h, as we can't include it in tools. Do not modify without
