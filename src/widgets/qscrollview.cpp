@@ -101,8 +101,7 @@ class QViewportWidget : public QWidget
 
 public:
     QViewportWidget( QScrollView* parent=0, const char* name=0, WFlags f = 0 )
-	: QWidget( parent, name, f )
-    {}
+	: QWidget( parent, name, f ) {}
 };
 
 class QClipperWidget : public QWidget
@@ -111,14 +110,7 @@ class QClipperWidget : public QWidget
 
 public:
     QClipperWidget( QWidget * parent=0, const char * name=0, WFlags f=0 )
-        : QWidget ( parent,name,f) { blockFocus = FALSE; }
-    bool focusNextPrevChild( bool next ) {
-        if ( !blockFocus )
-            return QWidget::focusNextPrevChild( next );
-        else
-            return TRUE;
-    }
-    bool blockFocus;
+        : QWidget ( parent,name,f) {}
 };
 
 #include "qscrollview.moc"
@@ -236,36 +228,33 @@ QSVChildRec* QScrollViewData::ancestorRec(QWidget* w)
 
 void QScrollViewData::hideOrShowAll(QScrollView* sv, bool isScroll )
 {
-    if ( clipped_viewport ) {
-	if ( clipped_viewport->x() <= 0
-	     && clipped_viewport->y() <= 0
-	     && clipped_viewport->width()+clipped_viewport->x() >=
-	     viewport->width()
-	     && clipped_viewport->height()+clipped_viewport->y() >=
-	     viewport->height() ) {
-	    // clipped_viewport still covers viewport
-	    if( static_bg )
-		clipped_viewport->repaint( clipped_viewport->visibleRect(), TRUE );
-	    else if ( ( !isScroll && !clipped_viewport->testWFlags( Qt::WStaticContents) ) || static_bg )
-		QApplication::postEvent( clipped_viewport, new QPaintEvent( clipped_viewport->visibleRect(),
-									    !clipped_viewport->testWFlags(Qt::WResizeNoErase) ) );
-	} else {
-	    // Re-center
-	    int nx = ( viewport->width() - clipped_viewport->width() ) / 2;
-	    int ny = ( viewport->height() - clipped_viewport->height() ) / 2;
-	    // hide the clipped_viewport while we mess around
-	    // with it. To avoid having the focus jumping
-	    // around, we block it.
-	    clipped_viewport->blockFocus = TRUE;
-	    clipped_viewport->hide();
-	    clipped_viewport->move(nx,ny);
-	    clipped_viewport->blockFocus = FALSE;
-	    // no need to update, we'll receive a paintevent after show.
-	}
-	for (QSVChildRec *r = children.first(); r; r=children.next()) {
-	    r->hideOrShow(sv, clipped_viewport);
-	}
-	clipped_viewport->show();
+    if ( !clipped_viewport )
+	return;
+    if ( clipped_viewport->x() <= 0
+	 && clipped_viewport->y() <= 0
+	 && clipped_viewport->width()+clipped_viewport->x() >=
+	 viewport->width()
+	 && clipped_viewport->height()+clipped_viewport->y() >=
+	 viewport->height() ) {
+	// clipped_viewport still covers viewport
+	if( static_bg )
+	    clipped_viewport->repaint( clipped_viewport->visibleRect(), TRUE );
+	else if ( ( !isScroll && !clipped_viewport->testWFlags( Qt::WStaticContents) )
+		  || static_bg )
+	    QApplication::postEvent( clipped_viewport,
+		     new QPaintEvent( clipped_viewport->visibleRect(),
+			      !clipped_viewport->testWFlags(Qt::WResizeNoErase) ) );
+    } else {
+	// Re-center
+	int nx = ( viewport->width() - clipped_viewport->width() ) / 2;
+	int ny = ( viewport->height() - clipped_viewport->height() ) / 2;
+	clipped_viewport->move(nx,ny);
+	// no need to update, we'll receive a paintevent after move
+	// (with the safe assumption that the newly exposed area
+	// covers the entire viewport)
+    }
+    for (QSVChildRec *r = children.first(); r; r=children.next()) {
+	r->hideOrShow(sv, clipped_viewport);
     }
 }
 
@@ -2449,6 +2438,7 @@ void QScrollView::enableClipper(bool y)
 	d->viewport->setBackgroundMode(NoBackground); // no exposures for this
 	d->viewport->removeEventFilter( this );
 	d->clipped_viewport->installEventFilter( this );
+	d->clipped_viewport->show();
     } else {
 	delete d->clipped_viewport;
 	d->clipped_viewport = 0;
