@@ -143,7 +143,6 @@ public:
         else
             return 0;
     }
-
     inline QLayoutItem *takeAt(int index) {
         QLayoutItem *item = 0;
         if (index < things.count()) {
@@ -879,9 +878,12 @@ QRect QGridLayoutData::cellGeometry(int row, int col) const
 */
 QGridLayout::QGridLayout(QWidget *parent, int nRows, int nCols, int margin,
                           int space, const char *name)
-    : QLayout(parent, margin, space, name)
+    : QLayout(parent)
 {
     init(nRows, nCols);
+    setMargin(margin);
+    setSpacing(space);
+    setObjectName(name);
 }
 
 /*!
@@ -895,9 +897,11 @@ QGridLayout::QGridLayout(QWidget *parent, int nRows, int nCols, int margin,
 */
 QGridLayout::QGridLayout(QLayout *parentLayout, int nRows, int nCols,
                           int spacing, const char *name)
-    : QLayout(parentLayout, spacing, name)
+    : QLayout(parentLayout)
 {
     init(nRows, nCols);
+    setSpacing(spacing);
+    setObjectName(name);
 }
 
 /*!
@@ -912,9 +916,10 @@ QGridLayout::QGridLayout(QLayout *parentLayout, int nRows, int nCols,
 */
 QGridLayout::QGridLayout(int nRows, int nCols,
                           int spacing, const char *name)
-     : QLayout(spacing, name)
 {
     init(nRows, nCols);
+    setSpacing(spacing);
+    setObjectName(name);
 }
 
 /*!
@@ -1114,7 +1119,7 @@ void QGridLayout::addItem(QLayoutItem *item, int row, int col, int rowSpan, int 
 static bool checkWidget(QLayout *l, QWidget *w)
 {
     if (!w) {
-        qWarning("QLayout: Cannot add null widget to %s/%s", l->className(),
+        qWarning("QLayout: Cannot add null widget to %s/%s", l->metaObject()->className(),
                   l->objectName().local8Bit());
         return false;
     }
@@ -1136,7 +1141,7 @@ void QGridLayout::addWidget(QWidget *w, int row, int col, Alignment alignment)
         return;
     if (row < 0 || col < 0) {
         qWarning("QGridLayout: Cannot add %s/%s to %s/%s at row %d col %d",
-                  w->className(), w->objectName().local8Bit(), className(), objectName().local8Bit(), row, col);
+                  w->metaObject()->className(), w->objectName().local8Bit(), metaObject()->className(), objectName().local8Bit(), row, col);
         return;
     }
     addChildWidget(w);
@@ -1524,7 +1529,55 @@ static inline bool horz(QBoxLayout::Direction dir)
     return dir == QBoxLayout::RightToLeft || dir == QBoxLayout::LeftToRight;
 }
 
+
+
+
 /*!
+    Constructs a new QBoxLayout with direction \a d and parent widget \a
+    parent. \a parent may not be 0.
+
+    \sa direction()
+*/
+QBoxLayout::QBoxLayout(Direction d, QWidget *parent)
+    : QLayout(parent)
+{
+    data = new QBoxLayoutData;
+    dir = d;
+    setSupportsMargin(true);
+}
+
+
+
+/*!
+  \obsolete
+    Constructs a new QBoxLayout called \a name, with direction \a d,
+    and inserts it into \a parentLayout.
+
+*/
+QBoxLayout::QBoxLayout(Direction d, QLayout *parentLayout)
+    : QLayout(parentLayout)
+{
+    data = new QBoxLayoutData;
+    dir = d;
+    setSupportsMargin(true);
+}
+
+/*!
+    Constructs a new QBoxLayout with direction \a d.
+
+    You must insert this box into another layout.
+*/
+QBoxLayout::QBoxLayout(Direction d)
+{
+    data = new QBoxLayoutData;
+    dir = d;
+    setSupportsMargin(true);
+}
+
+
+#ifdef QT_COMPAT
+/*!
+  \obsolete
     Constructs a new QBoxLayout with direction \a d and main widget \a
     parent. \a parent may not be 0.
 
@@ -1539,14 +1592,18 @@ static inline bool horz(QBoxLayout::Direction dir)
 */
 QBoxLayout::QBoxLayout(QWidget *parent, Direction d,
                         int margin, int spacing, const char *name)
-    : QLayout(parent, margin, spacing, name)
+    : QLayout(parent)
 {
     data = new QBoxLayoutData;
     dir = d;
     setSupportsMargin(true);
+    setMargin(margin);
+    setObjectName(name);
+    setSpacing(spacing);
 }
 
 /*!
+  \obsolete
     Constructs a new QBoxLayout called \a name, with direction \a d,
     and inserts it into \a parentLayout.
 
@@ -1556,14 +1613,17 @@ QBoxLayout::QBoxLayout(QWidget *parent, Direction d,
 */
 QBoxLayout::QBoxLayout(QLayout *parentLayout, Direction d, int spacing,
                         const char *name)
-    : QLayout(parentLayout, spacing, name)
+    : QLayout(parentLayout)
 {
     data = new QBoxLayoutData;
     dir = d;
     setSupportsMargin(true);
+    setObjectName(name);
+    setSpacing(spacing);
 }
 
 /*!
+  \obsolete
     Constructs a new QBoxLayout called \a name, with direction \a d.
 
     If \a spacing is -1, the layout will inherit its parent's
@@ -1572,12 +1632,15 @@ QBoxLayout::QBoxLayout(QLayout *parentLayout, Direction d, int spacing,
     You must insert this box into another layout.
 */
 QBoxLayout::QBoxLayout(Direction d, int spacing, const char *name)
-    : QLayout(spacing, name)
 {
     data = new QBoxLayoutData;
     dir = d;
     setSupportsMargin(true);
+    setObjectName(name);
+    setSpacing(spacing);
 }
+#endif //QT_COMPAT
+
 
 /*!
     Destroys this box layout.
@@ -2101,12 +2164,6 @@ bool QBoxLayout::setAlignment(QLayout *l, Alignment alignment)
     return false;
 }
 
-/*! \reimp */
-void QBoxLayout::setAlignment(Alignment alignment)
-{
-    QLayout::setAlignment(alignment);
-}
-
 /*!
     Sets the direction of this layout to \a direction.
 */
@@ -2320,8 +2377,11 @@ void QBoxLayout::calcHfw(int w)
 */
 QHBoxLayout::QHBoxLayout(QWidget *parent, int margin,
                           int spacing, const char *name)
-    : QBoxLayout(parent, LeftToRight, margin, spacing, name)
+    : QBoxLayout(LeftToRight, parent)
 {
+       setMargin(margin);
+       setSpacing(spacing);
+       setObjectName(name);
 }
 
 /*!
@@ -2334,8 +2394,10 @@ QHBoxLayout::QHBoxLayout(QWidget *parent, int margin,
 */
 QHBoxLayout::QHBoxLayout(QLayout *parentLayout, int spacing,
                           const char *name)
-    : QBoxLayout(parentLayout, LeftToRight, spacing, name)
+    : QBoxLayout(LeftToRight, parentLayout)
 {
+       setSpacing(spacing);
+       setObjectName(name);
 }
 
 /*!
@@ -2347,8 +2409,10 @@ QHBoxLayout::QHBoxLayout(QLayout *parentLayout, int spacing,
     parent's spacing().
 */
 QHBoxLayout::QHBoxLayout(int spacing, const char *name)
-    : QBoxLayout(LeftToRight, spacing, name)
+    : QBoxLayout(LeftToRight)
 {
+    setSpacing(spacing);
+    setObjectName(name);
 }
 
 /*!
@@ -2395,9 +2459,11 @@ QHBoxLayout::~QHBoxLayout()
 */
 QVBoxLayout::QVBoxLayout(QWidget *parent, int margin, int spacing,
                           const char *name)
-    : QBoxLayout(parent, TopToBottom, margin, spacing, name)
+    : QBoxLayout(TopToBottom, parent)
 {
-
+    setMargin(margin);
+    setSpacing(spacing);
+    setObjectName(name);
 }
 
 /*!
@@ -2410,8 +2476,10 @@ QVBoxLayout::QVBoxLayout(QWidget *parent, int margin, int spacing,
 */
 QVBoxLayout::QVBoxLayout(QLayout *parentLayout, int spacing,
                           const char *name)
-    : QBoxLayout(parentLayout, TopToBottom, spacing, name)
+    : QBoxLayout(TopToBottom, parentLayout)
 {
+    setSpacing(spacing);
+    setObjectName(name);
 }
 
 /*!
@@ -2423,8 +2491,10 @@ QVBoxLayout::QVBoxLayout(QLayout *parentLayout, int spacing,
     parent's spacing().
 */
 QVBoxLayout::QVBoxLayout(int spacing, const char *name)
-    : QBoxLayout(TopToBottom, spacing, name)
+    : QBoxLayout(TopToBottom)
 {
+    setSpacing(spacing);
+    setObjectName(name);
 }
 
 /*!

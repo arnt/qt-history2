@@ -34,34 +34,9 @@ class QGridLayoutBox;
 class QGridLayoutData;
 class QLayout;
 class QLayoutItem;
-struct QLayoutData;
 class QMenuBar;
 class QSpacerItem;
 class QWidget;
-
-#if 0 //QT_COMPAT
-class Q_GUI_EXPORT QLayoutIterator
-{
-public:
-    inline QLayoutIterator(QLayout *i) : layout(i), index(0) {}
-    inline QLayoutIterator(const QLayoutIterator &i) : layout(i.layout), index(i.index) {
-    }
-    inline QLayoutIterator &operator=(const QLayoutIterator &i) {
-        layout = i.layout;
-        index = i.index;
-        return *this;
-    }
-    inline QT_COMPAT QLayoutItem *operator++() { return layout->itemAt(++index); }
-    inline QT_COMPAT QLayoutItem *current() { return layout->itemAt(index); }
-    inline QT_COMPAT QLayoutItem *takeCurrent() { layout->takeAt(index); }
-    inline QT_COMPAT void deleteCurrent() { delete takeCurrent(); }
-
-private:
-    QLayout *layout;
-    int index;
-};
-#endif
-
 
 class Q_GUI_EXPORT QLayoutItem
 {
@@ -85,7 +60,7 @@ public:
     virtual QSpacerItem *spacerItem();
 
     Qt::Alignment alignment() const { return align; }
-    virtual void setAlignment(Qt::Alignment a);
+    void setAlignment(Qt::Alignment a);
 
 protected:
     Qt::Alignment align;
@@ -137,6 +112,33 @@ private:
     QWidget *wid;
 };
 
+
+#ifdef QT_COMPAT
+class Q_GUI_EXPORT QLayoutIterator
+{
+public:
+    inline QT_COMPAT QLayoutIterator(QLayout *i) : layout(i), index(0) {}
+    inline QT_COMPAT QLayoutIterator(const QLayoutIterator &i) : layout(i.layout), index(i.index) {
+    }
+    inline QT_COMPAT QLayoutIterator &operator=(const QLayoutIterator &i) {
+        layout = i.layout;
+        index = i.index;
+        return *this;
+    }
+    inline QT_COMPAT QLayoutItem *operator++();
+    inline QT_COMPAT QLayoutItem *current();
+    inline QT_COMPAT QLayoutItem *takeCurrent();
+    inline QT_COMPAT void deleteCurrent();
+
+private:
+    //hack to avoid deprecated warning
+    friend class QLayout;
+    inline QLayoutIterator(QLayout *i, bool) : layout(i), index(0) {}
+    QLayout *layout;
+    int index;
+};
+#endif
+
 class Q_GUI_EXPORT QLayout : public QObject, public QLayoutItem
 {
     Q_OBJECT
@@ -148,10 +150,15 @@ class Q_GUI_EXPORT QLayout : public QObject, public QLayoutItem
 public:
     enum ResizeMode { Auto, FreeResize, Minimum, Fixed };
 
-    QLayout(QWidget *parent, int margin = 0, int spacing = -1,
-             const char *name = 0);
-    QLayout(QLayout *parentLayout, int spacing = -1, const char *name = 0);
-    QLayout(int spacing = -1, const char *name = 0);
+    QLayout(QWidget *parent);
+    QLayout(QLayout *parentLayout);
+    QLayout();
+#ifdef QT_COMPAT
+    explicit QT_COMPAT QLayout(QWidget *parent, int margin, int spacing = -1,
+                             const char *name = 0);
+    explicit QT_COMPAT QLayout(QLayout *parentLayout, int spacing, const char *name = 0);
+    explicit QT_COMPAT QLayout(int spacing, const char *name = 0);
+#endif
     ~QLayout();
 
     int margin() const { return outsideBorder; }
@@ -231,7 +238,6 @@ private:
     uint autoResizeMode : 1;
     uint autoNewChild : 1;
     QRect rect;
-    QLayoutData *extraData;
 #ifndef QT_NO_MENUBAR
     QMenuBar *menubar;
 #endif
@@ -251,11 +257,17 @@ public:
 
     inline QT_COMPAT void setAutoAdd(bool a) { autoNewChild = a; }
     inline QT_COMPAT bool autoAdd() const { return autoNewChild; }
-# if 0
-    inline QT_COMPAT QLayoutIterator iterator() { return QLayoutIterator(this); }
-# endif
+    inline QT_COMPAT QLayoutIterator iterator() { return QLayoutIterator(this,true); }
 #endif
 };
+
+#ifdef QT_COMPAT
+inline QLayoutItem *QLayoutIterator::operator++() { return layout->itemAt(++index); }
+inline QLayoutItem *QLayoutIterator::current() { return layout->itemAt(index); }
+inline QLayoutItem *QLayoutIterator::takeCurrent() { return layout->takeAt(index); }
+inline void QLayoutIterator::deleteCurrent() { delete  layout->takeAt(index); }
+#endif
+
 
 
 class Q_GUI_EXPORT QGridLayout : public QLayout
@@ -274,9 +286,8 @@ public:
     QSize minimumSize() const;
     QSize maximumSize() const;
 
-    // ### remove 'virtual' in 4.0 (or add 'virtual' to set{Row,Col}Spacing())
-    virtual void setRowStretch(int row, int stretch);
-    virtual void setColStretch(int col, int stretch);
+    void setRowStretch(int row, int stretch);
+    void setColStretch(int col, int stretch);
     int rowStretch(int row) const;
     int colStretch(int col) const;
 
@@ -345,11 +356,17 @@ public:
     enum Direction { LeftToRight, RightToLeft, TopToBottom, BottomToTop,
                      Down = TopToBottom, Up = BottomToTop };
 
-    QBoxLayout(QWidget *parent, Direction, int border = 0, int spacing = -1,
+    QBoxLayout(Direction, QWidget *parent);
+    QBoxLayout(Direction, QLayout *parentLayout);
+    QBoxLayout(Direction);
+
+#ifdef QT_COMPAT
+    explicit QT_COMPAT QBoxLayout(QWidget *parent, Direction, int border = 0, int spacing = -1,
                 const char *name = 0);
-    QBoxLayout(QLayout *parentLayout, Direction, int spacing = -1,
+    explicit QT_COMPAT QBoxLayout(QLayout *parentLayout, Direction, int spacing = -1,
                 const char *name = 0);
-    QBoxLayout(Direction, int spacing = -1, const char *name = 0);
+    explicit QT_COMPAT QBoxLayout(Direction, int spacing, const char *name = 0);
+#endif
     ~QBoxLayout();
 
 
@@ -373,7 +390,6 @@ public:
     bool setStretchFactor(QLayout *l, int stretch);
     bool setAlignment(QWidget *w, Alignment alignment);
     bool setAlignment(QLayout *l, Alignment alignment);
-    void setAlignment(Alignment alignment);
 
     QSize sizeHint() const;
     QSize minimumSize() const;
@@ -445,6 +461,7 @@ private:        // Disabled copy constructor and operator=
     QVBoxLayout &operator=(const QVBoxLayout &);
 #endif
 };
+
 
 #endif // QT_NO_LAYOUT
 #endif // QLAYOUT_H

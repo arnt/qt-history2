@@ -565,8 +565,82 @@ bool QWidgetItem::isEmpty() const
     Geometry management stops when the layout manager is deleted.
 */
 
+
+
+
 /*!
-    Constructs a new top-level QLayout called \a name, with main
+    Constructs a new top-level QLayout called \a name, with parent
+    widget \a parent. \a parent may not be 0.
+
+    There can be only one top-level layout for a widget. It is
+    returned by QWidget::layout()
+*/
+QLayout::QLayout(QWidget *parent)
+    : QObject(parent)
+{
+    init();
+    if (parent) {
+        if (parent->layout()) {
+            qWarning("QLayout \"%s\" added to %s \"%s\", which already has a"
+                      " layout", QObject::objectName().local8Bit(), parent->metaObject()->className(),
+                      parent->objectName().local8Bit());
+            parent->layout()->setParent(0);
+        } else {
+            topLevel = true;
+            parent->d->layout = this;
+            invalidate();
+        }
+    }
+}
+
+
+/*!
+    Constructs a new child QLayout called \a name, and places it
+    inside \a parentLayout by using the default placement defined by
+    addItem().
+*/
+QLayout::QLayout(QLayout *parentLayout)
+    : QObject(parentLayout)
+
+{
+    init();
+    parentLayout->addItem(this);
+}
+
+/*!
+    Constructs a new child QLayout.
+
+    This layout has to be inserted into another layout before geometry
+    management will work.
+*/
+QLayout::QLayout()
+{
+    init();
+}
+
+
+
+void QLayout::init()
+{
+    insideSpacing = 0;
+    outsideBorder = 0;
+    topLevel = false;
+    enabled = true;
+    autoNewChild = false;
+    frozen = false;
+    activated = true;
+    marginImpl = false;
+    autoMinimum = false;
+    autoResizeMode = true;
+#ifndef QT_NO_MENUBAR
+    menubar = 0;
+#endif
+}
+
+
+#ifdef QT_COMPAT
+/*!
+    Constructs a new top-level QLayout called \a name, with parent
     widget \a parent. \a parent may not be 0.
 
     The \a margin is the number of pixels between the edge of the
@@ -590,7 +664,7 @@ QLayout::QLayout(QWidget *parent, int margin, int spacing, const char *name)
     if (parent) {
         if (parent->layout()) {
             qWarning("QLayout \"%s\" added to %s \"%s\", which already has a"
-                      " layout", QObject::objectName().local8Bit(), parent->className(),
+                      " layout", QObject::objectName().local8Bit(), parent->metaObject()->className(),
                       parent->objectName().local8Bit());
             parent->layout()->setParent(0);
         } else {
@@ -599,24 +673,6 @@ QLayout::QLayout(QWidget *parent, int margin, int spacing, const char *name)
             invalidate();
         }
     }
-}
-
-void QLayout::init()
-{
-    insideSpacing = 0;
-    outsideBorder = 0;
-    topLevel = false;
-    enabled = true;
-    autoNewChild = false;
-    frozen = false;
-    activated = true;
-    marginImpl = false;
-    autoMinimum = false;
-    autoResizeMode = true;
-    extraData = 0;
-#ifndef QT_NO_MENUBAR
-    menubar = 0;
-#endif
 }
 
 /*!
@@ -650,6 +706,8 @@ QLayout::QLayout(int spacing, const char *name)
     init();
     insideSpacing = spacing;
 }
+#endif
+
 
 /*!
     \fn void QLayout::addItem(QLayoutItem *item)
@@ -1197,7 +1255,7 @@ bool QLayout::activate()
     QWidget *mw = static_cast<QWidget*>(parent());
     if (mw == 0) {
         qWarning("QLayout::activate: %s \"%s\" does not have a main widget",
-                  QObject::className(), QObject::objectName().local8Bit());
+                  QObject::metaObject()->className(), QObject::objectName().local8Bit());
         return false;
     }
     activateRecursiveHelper(this);
