@@ -1827,6 +1827,9 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	}
 #endif
 
+	if ( data->mask ) // xform mask, too
+	    pm.setMask( data->mask->xForm(matrix) );
+
 #ifndef QT_NO_XRENDER
 	if ( qt_use_xrender && data->alphapm ) { // xform the alpha channel
 	    XImage *axi = 0;
@@ -1888,8 +1891,6 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	}
 #endif
 
-	if ( data->mask ) // xform mask, too
-	    pm.setMask( data->mask->xForm(matrix) );
 	return pm;
     }
 }
