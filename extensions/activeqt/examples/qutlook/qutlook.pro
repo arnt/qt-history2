@@ -10,4 +10,4 @@ SOURCES	 = centralwidget.cpp \
 	   main.cpp \
 	   mainwindow.cpp
 
-TYPELIBS = "d:\program files\Microsoft Office\Office10\msoutl.olb"
+TYPELIBS = "c:\program files\Microsoft Office\Office10\msoutl.olb"
