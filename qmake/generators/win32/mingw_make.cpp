@@ -241,83 +241,6 @@ MingwMakefileGenerator::init()
 	if(configs.indexOf("qt") == -1)
 	    configs.append("qt");
 
-
-    if(project->isActiveConfig("qt")) {
-	project->variables()["CONFIG"].append("moc");
-	project->variables()["INCLUDEPATH"] +=	project->variables()["QMAKE_INCDIR_QT"];
-	project->variables()["QMAKE_LIBDIR"] += project->variables()["QMAKE_LIBDIR_QT"];
-	if(!project->isActiveConfig("debug"))
-	    project->variables()[project->isActiveConfig("target_qt") ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_NO_DEBUG");
-	if(project->isActiveConfig("target_qt") && !project->variables()["QMAKE_LIB_FLAG"].isEmpty()) {
-	    if(!project->variables()["QMAKE_QT_DLL"].isEmpty()) {
-		project->variables()["DEFINES"].append("QT_MAKEDLL");
-		project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_QT_DLL"];
-	    }
-	} else {
-
-	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT"];
-	    if(!project->variables()["QMAKE_QT_DLL"].isEmpty()) {
-		int hver = findHighestVersion(project->first("QMAKE_LIBDIR_QT"), "qt");
-		if(hver != -1) {
-		    QString ver;
-		    ver.sprintf("libqt" QTDLL_POSTFIX "%d.a", hver);
-		    QStringList &libs = project->variables()["QMAKE_LIBS"];
-// @@@HGTODO maybe we must change the replace regexp if we understand what's going on
-		    for(QStringList::Iterator libit = libs.begin(); libit != libs.end(); ++libit)
-			(*libit).replace(QRegExp("qt\\.lib"), ver);
-		}
-	    }
-	    if(project->isActiveConfig("activeqt")) {
-		project->variables().remove("QMAKE_LIBS_QT_ENTRY");
-		project->variables()["QMAKE_LIBS_QT_ENTRY"] = "-lqaxserver";
-		if(project->isActiveConfig("dll")) {
-		    project->variables()["QMAKE_LIBS"]  += project->variables()["QMAKE_LIBS_QT_ENTRY"];
-		}
-	    }
-	    if(!project->isActiveConfig("dll") && !project->isActiveConfig("plugin")) {
-		project->variables()["QMAKE_LIBS"] +=project->variables()["QMAKE_LIBS_QT_ENTRY"];
-	    }
-
-            // QMAKE_LIBS_QT_ENTRY should be first on the link line as it needs qt
-            project->variables()["QMAKE_LIBS"].remove(project->variables()["QMAKE_LIBS_QT_ENTRY"].first());
-	    project->variables()["QMAKE_LIBS"].prepend(project->variables()["QMAKE_LIBS_QT_ENTRY"].first());
-
-	    if(project->isActiveConfig("activeqt") && project->variables()["QMAKE_LIBS"].contains("-lqaxserver")) { // ordering
-		project->variables()["QMAKE_LIBS"].remove("-lqaxserver");
-		project->variables()["QMAKE_LIBS"].prepend("-lqaxserver");
-	    }
-	}
-    }
-
-    if(project->isActiveConfig("dll")) {
-	project->variables()["QMAKE_CFLAGS_CONSOLE_ANY"] = project->variables()["QMAKE_CFLAGS_CONSOLE_DLL"];
-	project->variables()["QMAKE_CXXFLAGS_CONSOLE_ANY"] = project->variables()["QMAKE_CXXFLAGS_CONSOLE_DLL"];
-	project->variables()["QMAKE_LFLAGS_CONSOLE_ANY"] = project->variables()["QMAKE_LFLAGS_CONSOLE_DLL"];
-	project->variables()["QMAKE_LFLAGS_WINDOWS_ANY"] = project->variables()["QMAKE_LFLAGS_WINDOWS_DLL"];
-    } else {
-	project->variables()["QMAKE_CFLAGS_CONSOLE_ANY"] = project->variables()["QMAKE_CFLAGS_CONSOLE"];
-	project->variables()["QMAKE_CXXFLAGS_CONSOLE_ANY"] = project->variables()["QMAKE_CXXFLAGS_CONSOLE"];
-	project->variables()["QMAKE_LFLAGS_CONSOLE_ANY"] = project->variables()["QMAKE_LFLAGS_CONSOLE"];
-	project->variables()["QMAKE_LFLAGS_WINDOWS_ANY"] = project->variables()["QMAKE_LFLAGS_WINDOWS"];
-    }
-
-    if(project->isActiveConfig("windows")) {
-	if(project->isActiveConfig("console")) {
-	    project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_CONSOLE_ANY"];
-	    project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_CONSOLE_ANY"];
-	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_CONSOLE_ANY"];
-	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_CONSOLE"];
-	} else {
-	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_WINDOWS_ANY"];
-	}
-	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_WINDOWS"];
-    } else {
-	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_CONSOLE_ANY"];
-	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_CONSOLE_ANY"];
-	project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_CONSOLE_ANY"];
-	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_CONSOLE"];
-    }
-
     if(project->isActiveConfig("dll")) {
 	QString destDir = "";
 	if(!project->first("DESTDIR").isEmpty())
@@ -328,10 +251,8 @@ MingwMakefileGenerator::init()
 
     if(!project->variables()["DEF_FILE"].isEmpty())
 	project->variables()["QMAKE_LFLAGS"].append(QString("-Wl,") + project->first("DEF_FILE"));
-//    if(!project->isActiveConfig("incremental"))
-//	project->variables()["QMAKE_LFLAGS"].append(QString("/incremental:no"));
 
-#if 0
+#if 0 
     if(!project->variables()["VERSION"].isEmpty()) {
 	QString version = project->variables()["VERSION"][0];
 	int firstDot = version.find(".");
@@ -403,5 +324,42 @@ void MingwMakefileGenerator::writeLibsPart(QTextStream &t)
     }
     else {
 	t << "LIB	=	" << var("QMAKE_LIB") << endl;
+    }
+}
+
+void MingwMakefileGenerator::processQtConfig()
+{
+    if (project->isActiveConfig("qt")) {
+	if (!(project->isActiveConfig("target_qt") && !project->variables()["QMAKE_LIB_FLAG"].isEmpty())) {
+	    if (!project->variables()["QMAKE_QT_DLL"].isEmpty()) {
+		int hver = findHighestVersion(project->first("QMAKE_LIBDIR_QT"), "qt");
+		if(hver != -1) {
+		    QString ver;
+		    ver.sprintf("libqt" QTDLL_POSTFIX "%d.a", hver);
+		    QStringList &libs = project->variables()["QMAKE_LIBS"];
+		    for(QStringList::Iterator libit = libs.begin(); libit != libs.end(); ++libit)
+			(*libit).replace(QRegExp("qt\\.lib"), ver);
+		}
+	    }
+	    if(project->isActiveConfig("activeqt")) {
+		project->variables().remove("QMAKE_LIBS_QT_ENTRY");
+		project->variables()["QMAKE_LIBS_QT_ENTRY"] = "-lqaxserver";
+		if(project->isActiveConfig("dll")) {
+		    project->variables()["QMAKE_LIBS"]  += project->variables()["QMAKE_LIBS_QT_ENTRY"];
+		}
+	    }
+	    if(!project->isActiveConfig("dll") && !project->isActiveConfig("plugin")) {
+		project->variables()["QMAKE_LIBS"] +=project->variables()["QMAKE_LIBS_QT_ENTRY"];
+	    }
+
+            // QMAKE_LIBS_QT_ENTRY should be first on the link line as it needs qt
+            project->variables()["QMAKE_LIBS"].remove(project->variables()["QMAKE_LIBS_QT_ENTRY"].first());
+	    project->variables()["QMAKE_LIBS"].prepend(project->variables()["QMAKE_LIBS_QT_ENTRY"].first());
+
+	    if(project->isActiveConfig("activeqt") && project->variables()["QMAKE_LIBS"].contains("-lqaxserver")) { // ordering
+		project->variables()["QMAKE_LIBS"].remove("-lqaxserver");
+		project->variables()["QMAKE_LIBS"].prepend("-lqaxserver");
+	    }	
+	}
     }
 }

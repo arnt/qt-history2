@@ -442,8 +442,8 @@ void Win32MakefileGenerator::processVars()
     processRcFileVar();
     processExtraWinCompilersVar();
     processFileTagsVar();
-    processQtConfig();
     processMocConfig();
+    processQtConfig();
     processDllConfig();
 }
 
@@ -480,12 +480,6 @@ void Win32MakefileGenerator::fixTargetExt()
 	    project->variables()["TARGET_EXT"].append(".lib");
 	}
     }
-}
-
-void Win32MakefileGenerator::processMocConfig()
-{
-    if(project->isActiveConfig("moc"))
-	setMocAware(TRUE);
 }
 
 void Win32MakefileGenerator::processRcFileVar()
@@ -532,8 +526,7 @@ void Win32MakefileGenerator::processExtraWinCompilersVar()
 void Win32MakefileGenerator::processQtConfig()
 {
     if (project->isActiveConfig("qt")) {
-	if (project->isActiveConfig("target_qt") && !project->variables()["QMAKE_LIB_FLAG"].isEmpty()) {
-	} else {
+	if (!(project->isActiveConfig("target_qt") && !project->variables()["QMAKE_LIB_FLAG"].isEmpty())) {
 	    if (!project->variables()["QMAKE_QT_DLL"].isEmpty()) {
 		int hver = findHighestVersion(project->first("QMAKE_LIBDIR_QT"), "qt");
 		if(hver != -1) {
@@ -774,4 +767,10 @@ void Win32MakefileGenerator::writeLibsPart(QTextStream &t)
 void Win32MakefileGenerator::writeLibDirPart(QTextStream &t)
 {
     t << varGlue("QMAKE_LIBDIR","-L\"","\" -L\"","\"") << " ";
+}
+
+void Win32MakefileGenerator::processMocConfig()
+{
+    if(project->isActiveConfig("moc"))
+	setMocAware(TRUE);
 }

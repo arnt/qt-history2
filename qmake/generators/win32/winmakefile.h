@@ -38,6 +38,7 @@ protected:
     virtual void writeStandardParts(QTextStream &t);
     virtual void writeLibDirPart(QTextStream &t);
     virtual void writeLibsPart(QTextStream &t);
+    virtual void processMocConfig();
 
     int findHighestVersion(const QString &dir, const QString &stem);
     bool findLibraries(const QString &);
@@ -48,7 +49,6 @@ protected:
     virtual void processVars();
     virtual void processLibsVar();
     virtual void fixTargetExt();
-    virtual void processMocConfig();
     virtual void processRcFileVar();
     virtual void processExtraWinCompilersVar();
     virtual void processQtConfig();

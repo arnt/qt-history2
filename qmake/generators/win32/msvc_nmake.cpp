@@ -263,9 +263,6 @@ NmakeMakefileGenerator::init()
 
     processVars();
     
-    if(!project->isActiveConfig("debug"))
-	project->variables()["DEFINES"] += "QT_NO_DEBUG";
-
     if(!project->variables()["DEF_FILE"].isEmpty())
 	project->variables()["QMAKE_LFLAGS"].append(QString("/DEF:") + project->first("DEF_FILE"));
 
