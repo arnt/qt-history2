@@ -594,8 +594,9 @@ QPainterPath QPainterPathPrivate::createStroke(const QPen &pen)
     building blocks, such as rectangles, ellipses, lines, and curves.
     A painter path can be used for filling, outlining, and clipping.
     The main advantage of painter paths over normal drawing
-    operations is that it is possible to build up non-linear shapes
-    which can be drawn later in one go.
+    operations is that complex shapes only need to be created once,
+    but they can be drawn many times using only calls to
+    \l QPainter::drawPath().
 
     Building blocks can be joined in closed subpaths, such as a
     rectangle or an ellipse, or they can exist independently as unclosed
