@@ -105,6 +105,16 @@ QMacSetFontInfo::createFontInfo(const QFontEngine *fe, const QFontDef *def, QPai
     Boolean boldBool = ((def->weight == QFont::Bold) ? true : false);
     values[arr] = &boldBool;
     arr++;
+#ifdef MACOSX_102
+    CGAffineTransform tf = CGAffineTransformIdentity;
+    if(def->stretch != 100) {
+	tf = CGAffineTransformMakeScale(def->stretch/100, 1);
+	tags[arr] = kATSUFontMatrixTag;
+	valueSizes[arr] = sizeof(tf);
+	values[arr] = &tf;
+	arr++;
+    }
+#endif
     if(arr > arr_guess) //this won't really happen, just so I will not miss the case
 	qDebug("Qt: internal: %d, WH0A %d: arr_guess overflow", __LINE__, arr);
 
