@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#99 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#100 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -41,7 +41,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#99 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#100 $";
 #endif
 
 
@@ -599,7 +599,7 @@ void QApplication::restoreCursor()		// restore application cursor
 
 static bool isLeafWidget( Window win )
 {
-    QWidget *w = QWidget::find( win );    
+    QWidget *w = QWidget::find( win );
     if ( !w || !w->children() )
 	return FALSE;
     QObjectListIt it( *w->children() );
@@ -616,7 +616,7 @@ static Window findChild( Window win, Atom WM_STATE, bool leaf )
     Window root, parent, target=0, *children;
     uint   nchildren;
     Atom   type = None;
-    int    format, i;
+    int	   format, i;
     ulong  nitems, after;
     uchar *data;
     QWidget *w;
@@ -665,7 +665,7 @@ static QWidget *findChildWidget( QWidget *p, QPoint pos )
 static Window findClientWindow( Window win, Atom WM_STATE, bool leaf )
 {
     Atom   type = None;
-    int    format, i;
+    int	   format, i;
     ulong  nitems, after;
     uchar *data;
     Window root, parent, target=0, *children=0;
@@ -764,7 +764,7 @@ HANDLE QApplication::windowAt( int x, int y, bool child )
 #endif
 
 
-/*!  Flushes the X event queue in the X-Windows implementation.  Does
+/*!  Flushes the X event queue in the X-Windows implementation.	 Does
   nothing on other platforms. \sa syncX() */
 
 void QApplication::flushX()			// flush X output buffer
@@ -1927,7 +1927,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
     if ( parentWidget() && !testWFlags(WType_Modal) )
 	return TRUE;				// child widget
     Window child;
-    int    x, y;
+    int	   x, y;
     XTranslateCoordinates( display(), id(), DefaultRootWindow(display()),
 			   0, 0, &x, &y, &child );
     QPoint newPos( x, y );

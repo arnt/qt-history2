@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#74 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#75 $
 **
 ** Implementation of QWidget class
 **
@@ -21,7 +21,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#74 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#75 $";
 #endif
 
 /*!
@@ -844,8 +844,9 @@ public:
     void setAccel()	  { accel = TRUE; }
 };
 
-/*! This is the main event handler. You may reimplement this function
-  in a sub class, but we recommend using one of the specialized event
+/*!
+  This is the main event handler. You may reimplement this function
+  in a subclass, but we recommend using one of the specialized event
   handlers instead.
 
   The main event handler first passes an event through all event
@@ -866,7 +867,8 @@ public:
   \sa QObject::event(), closeEvent(), focusInEvent(), focusOutEvent(),
   keyPressEvent(), keyReleaseEvent(), mouseDoubleClickEvent(),
   mouseMoveEvent(), mousePressEvent(), mouseReleaseEvent(),
-  moveEvent(), paintEvent(), resizeEvent() and timerEvent(). */
+  moveEvent(), paintEvent(), resizeEvent(), timerEvent()
+*/
 
 bool QWidget::event( QEvent *e )		// receive event(),
 {
