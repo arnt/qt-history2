@@ -1,0 +1,347 @@
+<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<class>MainWindow</class>
+<include location="global" impldecl="in declaration">qmap.h</include>
+<include location="global" impldecl="in implementation">qfileinfo.h</include>
+<include location="global" impldecl="in implementation">qtextstream.h</include>
+<include location="global" impldecl="in implementation">qdockwindow.h</include>
+<include location="global" impldecl="in implementation">stdlib.h</include>
+<include location="global" impldecl="in implementation">qmime.h</include>
+<include location="local" impldecl="in implementation">helpwindow.h</include>
+<include location="global" impldecl="in implementation">qstylesheet.h</include>
+<include location="global" impldecl="in implementation">qapplication.h</include>
+<include location="local" impldecl="in implementation">helpdialogimpl.h</include>
+<include location="global" impldecl="in implementation">qdir.h</include>
+<forward>class HelpDialog;</forward>
+<forward>class HelpWindow;</forward>
+<variable>QMap&lt;int, QString&gt; bookmarks;</variable>
+<variable>HelpWindow *browser;</variable>
+<variable>HelpDialog *helpDock;</variable>
+<widget class="QMainWindow">
+    <property name="name">
+        <cstring>MainWindow</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>954</width>
+            <height>784</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Qt Assistent by Trolltech</string>
+    </property>
+</widget>
+<menubar>
+    <item text="&amp;File" name="fileMenu">
+        <action name="actionFilePrint"/>
+        <separator/>
+        <action name="actionFileExit"/>
+    </item>
+    <item text="&amp;Edit" name="editMenu">
+        <action name="actionEditCopy"/>
+        <separator/>
+        <action name="actionEditFind"/>
+    </item>
+    <item text="&amp;Go" name="goMenu">
+        <action name="actionGoHome"/>
+        <separator/>
+        <action name="actionGoPrev"/>
+        <action name="actionGoNext"/>
+    </item>
+    <item text="&amp;Bookmarks" name="bookmarkMenu">
+    </item>
+    <item text="&amp;Help" name="helpMenu">
+        <action name="actionAbout"/>
+        <action name="actionAboutQt"/>
+    </item>
+</menubar>
+<toolbars>
+    <toolbar dock="2" label="Operations" name="Toolbar">
+        <action name="actionFilePrint"/>
+        <separator/>
+        <action name="actionEditCopy"/>
+        <action name="actionEditFind"/>
+        <separator/>
+        <action name="actionGoHome"/>
+        <action name="actionGoPrev"/>
+        <action name="actionGoNext"/>
+    </toolbar>
+</toolbars>
+<actions>
+    <action>
+        <property name="name">
+            <cstring>actionFilePrint</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image0</iconset>
+        </property>
+        <property name="text">
+            <string>Print</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Print...</string>
+        </property>
+        <property name="accel">
+            <number>272629840</number>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>actionFileExit</cstring>
+        </property>
+        <property name="text">
+            <string>Exit</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Exit</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>actionEditCopy</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image1</iconset>
+        </property>
+        <property name="text">
+            <string>Copy</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Copy</string>
+        </property>
+        <property name="accel">
+            <number>272629827</number>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>actionEditFind</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image2</iconset>
+        </property>
+        <property name="text">
+            <string>Find in Text</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Find in Text...</string>
+        </property>
+        <property name="accel">
+            <number>272629830</number>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>actionGoHome</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image3</iconset>
+        </property>
+        <property name="text">
+            <string>Home</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Home</string>
+        </property>
+        <property name="accel">
+            <number>4198416</number>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>actionGoPrev</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image4</iconset>
+        </property>
+        <property name="text">
+            <string>Previous</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Previous</string>
+        </property>
+        <property name="accel">
+            <number>4198420</number>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>actionGoNext</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image5</iconset>
+        </property>
+        <property name="text">
+            <string>Next</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Next</string>
+        </property>
+        <property name="accel">
+            <number>4198418</number>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>actionAbout</cstring>
+        </property>
+        <property name="text">
+            <string>About</string>
+        </property>
+        <property name="menuText">
+            <string>About...</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>actionAboutQt</cstring>
+        </property>
+        <property name="text">
+            <string>About Qt</string>
+        </property>
+        <property name="menuText">
+            <string>About Qt...</string>
+        </property>
+    </action>
+</actions>
+<images>
+    <image name="image0">
+        <data format="XPM.GZ" length="2509">789c7d944973db381085effe152af7cd35d5a1242e604dcdc189b37a899d65e2646a0e240168b32cc992bc646afefb34ba1b509671f40c9a9fde43a349507c72d0bb3c3fed1d3cd95b6f9acda4eb75e3e6a67760b7f3f9c35f7ffff1cfdefe60d0a33f637a83fddff6f62f36bdae77b6b87601704000197f98df331bef3313186e03f7b3ccf4c5ff281cc47e9798f378ca6c22835336ea1f461e48bd93c0832c325c0907b1ff3571cdfe9cb94ebc5536cad791877d9eff4ed87bf5178187fde47f101e66c2b04ccc79fc22ecbdfa2be63afab051369a7f889c4b7e1d38ef47c685709ea93f666e7253f0e620f75f34455634ecdf28d7a5f8af853ba77e1bb86cca7ec98c4be55af93e723564fe2cecbdd6e3fb5d0d93cfd753b555bf6a99d7918df899b0f7ea737f6658d5ea6f13b30f23615308233f4fa6adea3a677f229cfcbbc8ea4f95adfa26b2f8c8cf439d478659e28ed90bd75a0f5789d9c737c25da9f32d73177d682237327fa6acf5f12cb2faaf843ba77c1cb8c9a30f9858e64f849b587f9858d607e62ee5ff148e3e5a65a73c8ddc4abd3a709b2706e1b654e6eb6b6deb5acb5c09db52997fdf5dd1955dc15c305b62f15b65a79c47b6927f11d816895f2696f7cf58d896ea3f4f2cfe85b0f7ea3f6576c9ef477625f34839d63f8aac7e19d89589bdb08bf39f2596f997c2deabff96d925df293be54f817d19c47ccecc1f79f9ee84800db6aa8ed4902c36d1ff29dfa0439fe458a35fe63b56ac2f6b748fe6813b08023dc2e3fd502d2bf552efe11c76891ff2bbba4d4aff3a0fa9aea4c3b08fe6bbef6aa72b79346fe9ae78ba7f3b8d694c48d31ff354678657d4cf98e6ec469833c76b5ce032ac13f3945ee10dae71f39db6788b77788f0ff8150f69ce44f25cfb293ec3233a3e57bdc097f80a5fe31b3ca6e409e9141fe4f78a67f816cf7fd205bec3f7345a5ae503d5ff8827f2bec04fff933ec74bfc8c5f30a3b33ef5768803cd0f69f51c0b1a63ee648425777644e715f5153c43dd0cf050debf58e394561902d2dce3f0c8e0844638030877c2400b5daa3fa7f454b2ac331e2c68c082c53bc98393f73757fc26473567922435388711b4a11f186b7dae9c52e93f555e916b6082f7d08143abf547f4cd1d4c694ce8cae46842926acff89b161c78d95f6ae62aec1fd011e6ac6b589096a41569c9e7fedbe7072ddcc09ab48125ed0d09b6b0a5f98e744bfb3bd3e7eddfdff7fe0305be5c9c</data>
+    </image>
+    <image name="image1">
+        <data format="XPM.GZ" length="706">789c9d92cb0ac2301045f7f98aa1d915b1da82b4889fa0b814c4c54c6ad14515b42e44fc773b79d057ace04da073399c5042a21076db358491b857589d15a813de20cc1f65f9dc1f562f11c431d47b01f36022822928d85c2f479e653dcb990e5772354db82aae4996a8a2e09a734d29cd4c45ae858e3ed69b71226d3c04757ac81036b05edf1ceca0b643364387ccd7a2c69148c625453d079d936be47350239f637ec3e318ec733aa4edd8f997633374dc4d0d9d86fce1b433f60ede4bf101a375a557</data>
+    </image>
+    <image name="image2">
+        <data format="XPM.GZ" length="2798">789cb5d5594f23471007f0773e8545bda1e8bfbe66ecd16a1fcc7d3ab017ec46799899ee010c0603365794ef9e9afe574f2201118a14350ffcd4d555d5c7c08795d6c9e1416be5c3d2dd3c9f9f97adf22cbf6dadb8c574faf4dbef9ffe585aee765bfad369a7adeef22f4bcb47f356d91a5f5ff91a325648b75d8fe0dde0ac3bec66c17bb57b596fd8a30f6af73bfd76bf531bd3da499e64491ee66fe94127a54774e686bde0d5da6937eda4a1198ccd99c56fd1cdfa7b3af7c322783b388ff128e94167c0fcebe68cc665e3b01ec7f43031cfcd8e96473a4bacdf073af7593fc42f6a0f7ab11eeecdb1de6963e65fa787b67f0ce826bf6bccfacfb41e68193ca38b94f5e5daec398f22b868eafd4a0f63fe9c8efdcb4d63e63fa7353ff325e6385f44e75c7f4697162f4fd19cc7b0f6b017eba31f5d70fe8cce9cf57345e749cefadfcdb1de061dfb93cd689b9f9863fc9c8efdc8a5d95b7ee62bf43e78dea7d1850b163ab37e654ae7dee64b3ad6c73eadf598ffabd9ea49156dfb0ff791f5b3c4ded315dddcf722ba0cf5704117b1ff03baa997465bfe5573acd7a15d9c5f6bccfc99d9f687f0bd676596b824d8999dbd8f07bab0fc8268c6cb1d5dc67cdd68db4f9b6eea7da17dece76774c9fadf6ae77a5e8e7faff6697d2fdccf882e52cea317ede91d3ad6970bda79cb7f4737f5c27de5651ecf7b37daf27da69b7ae77419f31dd22ee69b98637d4f6b3dee37bcb742fbb5fbd9367bcb7f44bbe85bdadb7923e42b5c11cff3992ed32a0d7ea25d5a55c127b44f6dfd8d39e6ff4157b63f09e7572665dccf23edbce59fd155ea8325bcaf52ebd9feb6ccdeea5fd35565e719be67975415f31dcddf3ffe7b3c04390a943a0a38f87f8f4785539ce11c131d17b8d435f276bc464f71856b1d33dce016779863f15a0dde1feef1a071333ce209cf1861156b58c7c61bf14e3bd9d4f82d6c6347c72ef6b08f038c5ff6c4ff0738d44e8ef059f37ec157cdff0ddff5f763b857e34f71821ff8a9a38d0ebae8a18f04290618be113fd13db691a123404f447229a414f746fc3d0ec56be68e5418c9291239937399683f2f76ccbfd79aeb4263f7e552a67225d732d37123b7a85e8dd7bb923b99eb286481bedccb838ec7d76ec0ee6b03737992423b7916a7b9473a56e1644d73f957e23d0a59970dd99489769eebc94cebb344a5aba6ffecaa793f5e6b8c655df7782c5bb2cd18d9d13cbbb2a773fee57bd617ea7426977dd9f93ba3ea40d75886f7bc7fadbd90b156c9dfffbde8def774cdf6fbbf2f48bdf7fffdfbfdf3e3d25f9a24cea0</data>
+    </image>
+    <image name="image3">
+        <data format="XPM.GZ" length="3198">789c8d95d76e2b470c86effd14827967043cdb0b825cb8c8bd48ee76908bd96649b68a6dc9ed20ef1eee901ce4c425f67881fd343f7f7266b8bb3f563a97bd83ceca8fa5c7b9990fcb4e39300f9d956a311ebffef9d71f3f979683a043ff7ee87782e5df9696fbf34ed9399c4eea166083003cfb67b9b69c396e8433e15366dff332cb55cbbee7abbe6c39c803e559cba11f483cf698c32cf4edfc8ee55ce7a1600e251eaf9483dccef78433c97fa6ecb33e6f39f2234ffc771d737c5f58f2e3b67264ecbcb16c22591f6e2847acbf16163d4e98632fb69b8baf2dc781f3bb648e3d9ffd3695590fe7c2b463767e8b39f163f6e778f2977c2fc2b9c443cb09f9c9fe4d8573a97f9dd9f93d28271c7f22acf98f9465fed932e5137f5496fd1e323bfd9e635ebfc79cfae27fd1721aaa1ecf1db33e624e7dde2f0895f9fc31514e433b7f259ccbbcad372d529ffd305416fd85b0ac177cc71c9f29b31e63c785e543e62c6606db3f19e597f35d53967c017316b3bf31cadc8f982a8bff5439e3fc9570c50c5dcb548ff4ff4499cf038e98b358ea192b8bffbdb2f8ed0b57b25f07ca927fc731af3767ce63e9bfa796f3288ba59e5765396f4f58fc0c30e731f7b34165f13b5696fcbb8e397f265c493fdbfecd4b379f0a57d28f8963eeaf6b65d6635f398f2c1bc7a5e50133353cf39e706dac1ede5a36549facf75859fc755efd1f1d5b3f88994d2cfdd6284bbe9132e7c385b0e4c75bc7ac9f311775c1f5d9f337b41ea96fceecfc4158fd6ac73c7fc75c24c29132fbe33e73991495cd67fba7685f88dc0fabcaf23c2f94a59e4059eaf185b59e82d9e53b15d6f5d9f76551995abe0f2fcaf2fedf64d678b81196782c1ddbfab1cbecd6639f97322e12f15b73cccfef197395941cff245c57b1d5dbfe29c95fde3777cca5f8e10db3d3dbf3a96237bfca5c277562e7edfbbb4eaa44f6f35659be6fb6bfeabad2f58f1cf3bcfd1e3449554bfc90b9563ffb7e6b1ae5fefcfd4040f3d1ef1febb1c0122bacbfa7276d833738c02196dfd28ff016ef708c139cfebf9e6a19e08cae7b7ca008f3b59e6a79c4392ef089229ef1055fb1f8526ff08d06e02a45ade13a6e5096f2333dd6b42b33ec52fd0d8d35dcc42ddcc69d8ff554cb2eeee13ead7541790ef090fc8f28a287a3f77a52f7f198aa38a1159ce21955d5e0395ee0255ee1b5aee25ffa1a3df2f5b13ddb33aa3fa0fb90ce60486beee9cefee21f913e26cf842a4969ff33aa2727f784bcca0fd75b00028081024aa868d47435987db63f70030318c2086ee10ec6308129cca0fa5c8f25dcc3033c52c408e6b080277886d937f42ff00a6fb04a1980f4f117fa3558a74a2ad8a00ba14b1515987e5aff266c917edbaa1baa7d42f5ecc02eec698e5fcf17f6e1000ee188f40d5d3dab9fd95deabfdbff2e1cc309691fe83a853338870b5b8f814bb882fdffeae11a3cfadd8780464877ed88e8aefdc587e377fa18123b521a198ddc205d6087c146f47fffbef40f9441f8a1</data>
+    </image>
+    <image name="image4">
+        <data format="XPM.GZ" length="2894">789ca5955d53e2581086effd15947d676df5104842525b7b21f8ad80a8e3386eed459293082a8a801f38b5ff7d3bfd719cbd19d9da3a14f0a4df7e4ff73927c997adc6d569bfb1f56563b1cc9693a2518cb37963cb3d4fa7ab3ffffae3c7c666abd5a04f10d0cfe66f1b9ba365a3680c1e1fca1a604400cd662ba92ae62573d24a4a893f1b5731f3a170bba9fa79cd01e597127f32d6f88bb0d7bf295b7c261c5a7cc14cfeea57299bffabb0d79fd7dc6afa78261c5afe543832fd8a390d9b8efbc38eb1ea4b61af07e554f9b1e67640f911f391701c68fc8299f2c51f26c216c758d9fcf66b0e83a859b01f5e1babffa9701c687ddbca9a8f1aef04ba5fb7c6eadf67cea2b470cc63611fbf53b67a6e6a8e5a7120f5c0bd7012697c8f398bd35cfc86c6aa77c28953fda0e698f2b5be5cd9e2289caa3f7e57b6789799eacd438e8f8413a7eb7b2c9caa3f0e95351ff9bc76daa497f57d13263daf27ce959df2aeb19c770c8533ebff80394f22a907768d75ff56ca4ef9d833af17e6c65acf99701a299f2b5b7c209c95dacf8e701e2b376b4ea81fd90f5c1aebfc17c299ad4f5bd9fc7ac2deafaf6cf107e6dcfbdf2a5b7f997066eb3915ce639def5559fd80eb4fc334ca0a8e3b63dd5f50763a5f57b8d0faa050b6fa783fd2c2f4f02e9c995f294cfd497d5f954be51761efc7f77346378cceff24ec6c7e5e8facc84aa91f4e8cf53cf43c4b3d67c6ba5e37c279a9eb7329ec6cfe54b8b4fde07ef3308fb59eb1b1faed2beb7cb830d67824ecfdf979943bafdf3356fd9d7061eb13085bff7825ecebe3e75111793e51b6f9f8fd51d0ddaa7edf84bd9e9fa7ee237f265c55cabc9faef4f17b611f4f6a2e3fb85573157be6f74755198f96eb8fffaf47c00c732cd6d3a3c3122bbcc1f1e77a9ce02dde91fa1ea79ffb93fa011f493dc3279ce3e2d77a522ff199d52ff88a6fbff6c70257f84eea6dec620f777097fa98e01eeee3180fc8698587e471884772def0982b39c13e0e780cf114477886e778815ff112bf51ec0abfe3b53cdf30c0165de9629bb4218f01751191669bbe2fb9c601c6d891e71d2698f2155387fcff237b88434000c8e47d040555ddfe49ed5532488be0a0047d3fd23f47d74d41bf308609c6700b77704fc3f1f754ea810778841929d0f4e4f6047358c0129ee1055e694cc9f30d56b29ef00e2bbab64d95710efd76e95a0f766017f6609ffc56d821cd81dfaf02afe1108e68d6bad6e37fef17ed45518f9fcf039c409f331c8d01f4d6386ffb30a40ca02e4fd7d1d7f352dd239851ad676b9eff091cc0395cac7bbf7c36feb3feefdf37fe0163dad9ac</data>
+    </image>
+    <image name="image5">
+        <data format="XPM.GZ" length="2894">789cad955b4fe35610c7dff91411f386aa593bb11d5b551f08102e214020bb0b547db07d12724f20ce8d55bf7bc767660eaa5ab1a9549d38d64ff39fffccb9d8fe725479bc6b578ebe1c2c8bb418e6957c90be558ecc6a3addfdfec76f3f0e0eabd50afd7c9f6e87bf1c1c768a4a5eb999cf7a25c03d01789e1ff723cb2dc77dcbb7cc554fe273c71cef08ab7e5db2efd5bc1efbaf94257e21acfa2be640e31bcb31e573bd17e158b86076fa6dc9d5a4169bd0f28c39d4785f38113e2fb9e6d7e2dc5836cca1f67b23acfa2573e40bef2c27419c73bd3173a4faf79203dfc5df98eb9a7f69390d3d892f8493ccf6832d65e96fc05cf779fef8e2d8f68bafc25affbae4b04af9ec0fcc91cf8cbeb0fa4f99351f27cc71c8fb8d9e63f6b7f5c234127fcc98e350faab3ae6fe56c246fcaf9813f56b941c513f32ff29735dfb5d3be67e9bcc5a0f526123fb97333bff07cbb45e5960f94e58fb3f668e433e3ff8ae2cf3690b1b395f3d66e73f12d6f9d9fdaed7ea3a9f06731c4abd0be6c448ff1365f1cb9853f5ef5acee250fa6f0b1b5e0f7c624e7ba23f29991e17d1e340d8483f124fb49f9d635e5f64563f7c66ce22f13fb39c25eadf654e251f97c23d59cf0765390ff7cce4c7ebfbe898eb5d0aeb7c86ccb9c6edfe2681ab7f2e6c84bf32bbfa09b3fa61c1ecfcc6c25aefd472eefc3e98e79732a7ba7edf84b5de8c39539e333b7f7bde527ac0c57fc8ecf40b66a3fdd9f75b4afea2bf76ccfd7c67ce747d2366a3f30d997bea67dfaf599045927fa62cf331c2eadf6176fd04cccecfbe5f32e3f44d65f1ab333bfd4858fbb3cf531ee63d393f7d6617af31f735df3ebff9477eccece2f6fd6d3ef4f6fb555667ee14fb8fff4f8f8029669823eca937d8c33ebee0606fff218e708c139c7ed4f8d47f86735cd0f58a6f9af1a9ff120b1a63ca58e11a37aac72deef01d8fb18127788a67a46cd2758e177869479975852dbc167d1b6ff016efb0434ef7f8805dfc8adff03b3ee2133ed3e02c0f7ddcf2f7046b18608811fd0758a75589c9a18f89e89f016dd62b007f0f483ba728fb3cbbfb13e9ec45ff198d1c8cf8cfa9c3d2e9e96fc331697be8411f5ef87b0c43aa99c108725a8915d51dc398eeaa9e50640a3398c382bf97f0064be20256b0860d6c6147638d2b40dbc7881c0a52bfe386df0fd822cd1616d0801338c50dad26c01934493bb19d94ea7338d6fda2bddca2f9c77e75698639d5be20f5256e7f769e691f3c525f410baed5ed333db4e186bc6fa1c1de3fd5df4107eee1019bfb9c67ea67406bd0ddf779f9f7f19ff57ffe7af017ed7bda5f</data>
+    </image>
+</images>
+<connections>
+    <connection>
+        <sender>actionGoHome</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>goHome()</slot>
+    </connection>
+    <connection>
+        <sender>actionAbout</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>about()</slot>
+    </connection>
+    <connection>
+        <sender>actionAboutQt</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>aboutQt()</slot>
+    </connection>
+    <connection>
+        <sender>actionEditFind</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>find()</slot>
+    </connection>
+    <connection>
+        <sender>actionFilePrint</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>print()</slot>
+    </connection>
+    <slot access="protected" language="C++">init()</slot>
+    <slot access="protected" language="C++">destroy()</slot>
+    <slot access="public" language="C++">goHome()</slot>
+    <slot access="public" language="C++">about()</slot>
+    <slot access="public" language="C++">aboutQt()</slot>
+    <slot access="public" language="C++">find()</slot>
+    <slot access="public" language="C++">print()</slot>
+    <slot access="public" language="C++">setupBookmarkMenu()</slot>
+    <slot access="public" language="C++">showBookmark( int id )</slot>
+    <slot access="public" language="C++">showLink( const QString &amp;link,const QString &amp;title )</slot>
+</connections>
+<functions>
+    <function name="init()" >{
+    browser = new HelpWindow( this, "qt_assistent_helpwindow" );
+    browser-&gt;setFrameStyle( QFrame::Panel | QFrame::Sunken ); 
+    setCentralWidget( browser );
+    
+    // #### hardcoded paths - probably should read the settings from somewhere
+    browser-&gt;mimeSourceFactory()-&gt;addFilePath( QString( getenv( "QTDIR" ) ) + "/tools/designer/manual" );
+    browser-&gt;mimeSourceFactory()-&gt;addFilePath( QString( getenv( "QTDIR" ) ) + "/doc/html/designer" );
+    browser-&gt;mimeSourceFactory()-&gt;addFilePath( QString( getenv( "QTDIR" ) ) + "/doc/html/" );
+    
+    connect( actionGoPrev, SIGNAL( activated() ), browser, SLOT( backward() ) );
+    connect( actionGoNext, SIGNAL( activated() ), browser, SLOT( forward() ) );
+    connect( actionEditCopy, SIGNAL( activated() ), browser, SLOT( copy() ) );
+    connect( actionFileExit, SIGNAL( activated() ), qApp, SLOT( quit() ) );
+    
+    QDockWindow *dw = new QDockWindow;
+    helpDock = new HelpDialog( dw, this, browser );
+    dw-&gt;setResizeEnabled( TRUE );
+    dw-&gt;setCloseMode( QDockWindow::Always );
+    addDockWindow( dw, Left );
+    dw-&gt;setWidget( helpDock );
+    dw-&gt;setCaption( "Sidebar" );
+    dw-&gt;setFixedExtentWidth( 250 );    
+ 
+    connect( helpDock, SIGNAL( showLink( const QString&amp;, const QString &amp; ) ),
+    		this, SLOT( showLink( const QString&amp;, const QString &amp; ) ) );
+    
+    goHome();
+    
+    connect( bookmarkMenu, SIGNAL( activated( int ) ),
+		this, SLOT( showBookmark( int ) ) );
+    
+    
+    setupBookmarkMenu();
+}</function>
+    <function name="destroy()" >{
+    
+}</function>
+    <function name="goHome()" >{
+    // #### we need a general Qt fonrtpage with links to Qt Class docu, Designer Manual, Linguist Manual, etc,
+    showLink( "index.html", "Qt Reference Documentation" );
+}</function>
+    <function name="about()" >{
+}</function>
+    <function name="aboutQt()" >{
+}</function>
+    <function name="find()" >{
+}</function>
+    <function name="print()" >{
+}</function>
+    <function name="setupBookmarkMenu()" >{
+    bookmarkMenu-&gt;clear();
+    bookmarks.clear();
+    bookmarkMenu-&gt;insertItem( tr( "&amp;Add Bookmark" ), helpDock, SLOT( addBookmark() ) );
+
+    QFile f( QDir::homeDirPath() + "/.bookmarks" );
+    if ( !f.open( IO_ReadOnly ) )
+	return;
+    QTextStream ts( &amp;f );
+    bookmarkMenu-&gt;insertSeparator();
+    while ( !ts.atEnd() ) {
+	QString title = ts.readLine();
+	QString link = ts.readLine();
+	bookmarks.insert( bookmarkMenu-&gt;insertItem( title ), link );
+    }
+}</function>
+    <function name="showBookmark(int)" >{
+    if ( bookmarks.find( id ) != bookmarks.end() )
+	showLink( *bookmarks.find( id ), bookmarkMenu-&gt;text( id ) );
+}</function>
+    <function name="showLink(const QString&amp;,const QString&amp;)" >{
+    browser-&gt;setCaption( title );
+    browser-&gt;setSource( link );
+    browser-&gt;setFocus();
+}</function>
+</functions>
+</UI>
