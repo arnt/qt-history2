@@ -28,7 +28,8 @@ SOURCES		= ../tools/qbuffer.cpp	    \
 		  ../tools/qbitarray.cpp    \
 		  ../tools/qmap.cpp         \
 		  ../tools/qgcache.cpp      \
-		  ../codecs/qtextcodec.cpp
+		  ../codecs/qtextcodec.cpp \
+		  ../codecs/qutfcodec.cpp
 
 unix:SOURCES	+= ../tools/qfile_unix.cpp
 

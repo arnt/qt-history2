@@ -2470,10 +2470,10 @@ static void setupBuiltinCodecs()
 {
     (void)new QLatin1Codec;
 
-#ifndef QT_NO_CODECS
     (void)new QUtf8Codec;
     (void)new QUtf16Codec;
 
+#ifndef QT_NO_CODECS
     int i = 0;
     do {
 	(void)new QSimpleTextCodec( i );

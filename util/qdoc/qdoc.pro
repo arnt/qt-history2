@@ -50,6 +50,7 @@ SOURCES		= binarywriter.cpp \
 		  tokenizer.cpp \
 		  walkthrough.cpp \
 		  ../../src/codecs/qtextcodec.cpp \
+		  ../../src/codecs/qutfcodec.cpp \
 		  ../../src/tools/qbitarray.cpp \
 		  ../../src/tools/qbuffer.cpp \
 		  ../../src/tools/qptrcollection.cpp \
