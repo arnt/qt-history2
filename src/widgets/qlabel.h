@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.h#53 $
+** $Id: //depot/qt/main/src/widgets/qlabel.h#54 $
 **
 ** Definition of QLabel widget class
 **
@@ -47,7 +47,7 @@ public:
     QString	text()		const	{ return ltext; }
     QPixmap    *pixmap()	const	{ return lpixmap; }
     QMovie     *movie()		const;
-    
+
     Qt::TextFormat textFormat() const;
     void setTextFormat( Qt::TextFormat );
 
@@ -95,7 +95,7 @@ private:
     QMovie *	lmovie;
     QWidget *	lbuddy;
     ushort	align;
-    int		extraMargin:8;
+    short	extraMargin;
     uint	autoresize:1;
     Qt::TextFormat textformat;
     QSimpleRichText* doc;
