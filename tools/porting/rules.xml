@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Rules>
-    <Count>3444</Count>
+    <Count>3443</Count>
     <item Type="RenamedHeader" >
         <Qt4>q3accel.h</Qt4>
         <Qt3>qaccel.h</Qt3>
@@ -6099,27 +6099,27 @@
         <Qt3>QSizePolicy::Vertical</Qt3>
     </item>
     <item Type="RenamedEnumvalue" >
-        <Qt4>QSlider::TickMarksAbove</Qt4>
+        <Qt4>QSlider::TicksAbove</Qt4>
         <Qt3>QSlider::Above</Qt3>
     </item>
     <item Type="RenamedEnumvalue" >
-        <Qt4>QSlider::TickMarksBelow</Qt4>
+        <Qt4>QSlider::TicksBelow</Qt4>
         <Qt3>QSlider::Below</Qt3>
     </item>
     <item Type="RenamedEnumvalue" >
-        <Qt4>QSlider::TickMarksBoth</Qt4>
+        <Qt4>QSlider::TicksBothSides</Qt4>
         <Qt3>QSlider::Both</Qt3>
     </item>
     <item Type="RenamedEnumvalue" >
-        <Qt4>QSlider::TickMarksAbove</Qt4>
+        <Qt4>QSlider::TicksLeft</Qt4>
         <Qt3>QSlider::Left</Qt3>
     </item>
     <item Type="RenamedEnumvalue" >
-        <Qt4>QSlider::NoTickMarks</Qt4>
+        <Qt4>QSlider::NoTicks</Qt4>
         <Qt3>QSlider::NoMarks</Qt3>
     </item>
     <item Type="RenamedEnumvalue" >
-        <Qt4>QSlider::TickMarksRight</Qt4>
+        <Qt4>QSlider::TicksRight</Qt4>
         <Qt3>QSlider::Right</Qt3>
     </item>
     <item Type="RenamedEnumvalue" >
@@ -8773,10 +8773,6 @@
     <item Type="RenamedType" >
         <Qt4>QFile::Error</Qt4>
         <Qt3>QFile::Status</Qt3>
-    </item>
-    <item Type="RenamedType" >
-        <Qt4>QFileDialog::FileMode</Qt4>
-        <Qt3>QFileDialog::Mode</Qt3>
     </item>
     <item Type="RenamedType" >
         <Qt4>QFile::Permission</Qt4>
