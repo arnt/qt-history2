@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.h#3 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.h#4 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -85,13 +85,16 @@ public:
 
 public slots:
     void setDirectory( const QString &dir );
-
+    void setDirectory( const QDir &dir );
+    void newDirectory();
+    QDir currentDir();
+    
 signals:
     void directoryChanged( const QString & );
     void startReadDir( int dirs );
     void readNextDir();
     void readDirDone();
-    
+
 protected slots:
     void itemDoubleClicked( QtIconViewItem *i );
     void slotDropped( QMimeSource *mime );

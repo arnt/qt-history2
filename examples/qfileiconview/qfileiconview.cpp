@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#3 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#4 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -369,6 +369,32 @@ void QtFileIconView::setDirectory( const QString &dir )
     readDir( viewDir );
 }
 
+void QtFileIconView::setDirectory( const QDir &dir )
+{
+    viewDir = dir;
+    readDir( viewDir );
+}
+
+void QtFileIconView::newDirectory()
+{
+    if ( viewDir.mkdir( QString( "New Folder %1" ).arg( ++newFolderNum ) ) ) {
+        QFileInfo *fi = new QFileInfo( viewDir, QString( "New Folder %1" ).arg( newFolderNum ) );
+        QtFileIconViewItem *item = new QtFileIconViewItem( this, fi );
+        delete fi;
+        repaintContents( contentsX(), contentsY(), contentsWidth(), contentsHeight() );
+        ensureItemVisible( item );
+        item->setSelected( TRUE, TRUE );
+        setCurrentItem( item );
+        repaintItem( item );
+        item->rename();
+    }
+}    
+
+QDir QtFileIconView::currentDir()
+{
+    return viewDir;
+}
+
 void QtFileIconView::readDir( const QDir &dir )
 {
     if ( !dir.isReadable() )
@@ -382,7 +408,7 @@ void QtFileIconView::readDir( const QDir &dir )
     const QFileInfoList *filist = dir.entryInfoList( QDir::DefaultFilter, QDir::DirsFirst | QDir::Name );
 
     emit startReadDir( filist->count() );
-    
+
     QFileInfoListIterator it( *filist );
     QFileInfo *fi;
     bool allowRename = FALSE, allowRenameSet = FALSE;
@@ -401,7 +427,7 @@ void QtFileIconView::readDir( const QDir &dir )
         qApp->processEvents();
     }
     emit readDirDone();
-    
+
     orderItemsInGrid();
     viewport()->repaint( TRUE );
 }
@@ -443,19 +469,9 @@ QDragObject *QtFileIconView::dragObject()
 void QtFileIconView::keyPressEvent( QKeyEvent *e )
 {
     if ( e->key() == Key_N &&
-         ( e->state() & ControlButton ) ) {
-        if ( viewDir.mkdir( QString( "New Folder %1" ).arg( ++newFolderNum ) ) ) {
-            QFileInfo *fi = new QFileInfo( viewDir, QString( "New Folder %1" ).arg( newFolderNum ) );
-            QtFileIconViewItem *item = new QtFileIconViewItem( this, fi );
-            delete fi;
-            repaintContents( contentsX(), contentsY(), contentsWidth(), contentsHeight() );
-            ensureItemVisible( item );
-            item->setSelected( TRUE, TRUE );
-            setCurrentItem( item );
-            repaintItem( item );
-            item->rename();
-        }
-    } else
+         ( e->state() & ControlButton ) )
+        newDirectory();
+    else
         QtIconView::keyPressEvent( e );
 }
 

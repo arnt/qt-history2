@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/mainwindow.h#3 $
+** $Id: //depot/qt/main/examples/qfileiconview/mainwindow.h#4 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -17,6 +17,7 @@ class QtFileIconView;
 class DirectoryView;
 class QProgressBar;
 class QLabel;
+class QComboBox;
 
 class FileMainWindow : public QMainWindow
 {
@@ -32,11 +33,13 @@ public:
 
 protected:
     void setup();
-
+    void setPathCombo();
+    
     QtFileIconView *fileview;
     DirectoryView *dirlist;
     QProgressBar *progress;
     QLabel *label;
+    QComboBox *pathCombo;
 
 protected slots:
     void directoryChanged( const QString & );
@@ -44,6 +47,9 @@ protected slots:
     void slotReadNextDir();
     void slotReadDirDone();
     void slotNumItemsSelected( int num );
+    void cdUp();
+    void newFolder();
+    void changePath( const QString &path );
     
 };
 
