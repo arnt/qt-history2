@@ -838,21 +838,21 @@ void QApplication::setEnableRemoteControl(bool enable, const QUuid appId)
 	    return; // it's enabled already so there's nothing more to do.
 	}
 
-	QString S;
-	const QString TestStr = "QREMOTE_CONTROL:";
+	QString s;
+	const QString testStr = "QREMOTE_CONTROL:";
 	for (int i=0; i<argc(); i++) {
 
-	    S = argv()[i];
-	    int pos = S.find(TestStr);
+	    s = argv()[i];
+	    int pos = s.find(testStr);
 	    if (pos >= 0) {
 
 		QString hostIp, hostPort;
-		S = S.mid(pos + TestStr.length());
-		int pos = S.find(":");
+		s = s.mid(pos + testStr.length());
+		int pos = s.find(":");
 		if (pos > 0) {
 
-		    hostIp = S.left(pos);
-		    hostPort = S.mid(pos+1);
+		    hostIp = s.left(pos);
+		    hostPort = s.mid(pos+1);
 		    int port = hostPort.toInt();
 		    if (port > 0) {
 
@@ -883,7 +883,7 @@ void QApplication::setEnableRemoteControl(bool enable, const QUuid appId)
     }
 }
 
-/*! 
+/*!
     Returns TRUE if remote control access is enabled for the application.
 */
 bool QApplication::remoteControlEnabled() const
