@@ -739,17 +739,19 @@ void QWorkspace::showEvent( QShowEvent *e )
 		    }
 		    if(list.count()) {
 			if(list.count() == 1) {
-			    list.first()->undock();
+			    QToolBar *tb = list.first();
+			    tb->undock();
+			    tb->move(0, 10);
 			} else {
 			    QDockWindow *dw = new QDockWindow(QDockWindow::OutsideDock, 
 							      w->parentWidget(), "magicdock");
 			    dw->setResizeEnabled(TRUE);
 			    dw->setCaption(o->caption());
-//			    dw->setCloseMode(QDockWindow::Always);
 			    QSize os(w->size());
 			    w->reparent(dw, QPoint(0, 0));
 			    dw->setWidget(w);
 			    w->setMinimumSize(os);
+			    dw->move(0, 10);
 			    dw->show();
 			}
 		    }
@@ -1671,6 +1673,8 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     connect( widgetResizeHandler, SIGNAL( activate() ),
 	     this, SLOT( activate() ) );
     widgetResizeHandler->setExtraHeight( th + 1 );
+    if(toplevel == Yes && isTopLevel())
+	widgetResizeHandler->setActive( FALSE );
 }
 
 QWorkspaceChild::~QWorkspaceChild()
@@ -2211,6 +2215,8 @@ void QWorkspaceChild::internalRaise()
 	     c->windowWidget()->testWFlags( WStyle_StaysOnTop ) )
 	     c->raise();
     }
+    if(toplevel == Yes && isTopLevel())
+	setActiveWindow();
 
     setUpdatesEnabled( TRUE );
 }
