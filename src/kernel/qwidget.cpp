@@ -3063,7 +3063,7 @@ void QWidget::setKeyCompression(bool compress)
   The active window is the window that has keyboard focus.
 
   When popup windows are visible, this property is TRUE for both the
-  active window \a and for the popup.
+  active window \e and for the popup.
 
   \sa setActiveWindow(), QApplication::activeWindow()
 */
@@ -4440,7 +4440,7 @@ void QWidget::tabletEvent( QTabletEvent *e )
   have focus in order to receive a key press event.
 
   If you reimplement this handler, it is very important that you
-  \link QKeyEvent ignore()\link the event if you do not
+  \link QKeyEvent ignore()\endlink the event if you do not
   understand it, so that the widget's parent can interpret it.
 
   The default implementation closes popup widgets if the user presses
