@@ -26,15 +26,15 @@ private:
     QTextView *text;
 
     void setContent( const QString &fileName, bool processNS );
-    void buildTree( QListViewItem *parentItem, const QDomNode &actNode, const QDomNamedNodeMap &attribs );
+    void buildTree( bool namespaces, QListViewItem *parentItem, const QDomNode &actNode, const QDomNamedNodeMap &attribs );
 };
 
 
 class DomTreeItem : public QListViewItem
 {
 public:
-    DomTreeItem( const QDomNode &node, QListView *parent, QListViewItem *after ) ;
-    DomTreeItem( const QDomNode &node, QListViewItem *parent, QListViewItem *after ) ;
+    DomTreeItem( bool useNS, const QDomNode &node, QListView *parent, QListViewItem *after ) ;
+    DomTreeItem( bool useNS, const QDomNode &node, QListViewItem *parent, QListViewItem *after ) ;
     ~DomTreeItem();
 
     QString contentString();
@@ -43,6 +43,7 @@ private:
     QDomNode _node;
 
     void init();
+    bool namespaces;
 };
 
 #endif // DOMTREE_H

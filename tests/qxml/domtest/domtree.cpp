@@ -61,7 +61,7 @@ void DomTree::setContent( const QString &fileName, bool processNS )
 	return;
     }
     file.close();
-    buildTree( 0, *domTree, QDomNamedNodeMap() );
+    buildTree( processNS, 0, *domTree, QDomNamedNodeMap() );
 }
 
 DomTree::~DomTree()
@@ -69,7 +69,7 @@ DomTree::~DomTree()
     delete domTree;
 }
 
-void DomTree::buildTree( QListViewItem *parentItem, const QDomNode &actNode, const QDomNamedNodeMap &attribs )
+void DomTree::buildTree( bool namespaces, QListViewItem *parentItem, const QDomNode &actNode, const QDomNamedNodeMap &attribs )
 {
     static int depth = -1;
     QListViewItem *thisItem = 0;
@@ -79,23 +79,23 @@ void DomTree::buildTree( QListViewItem *parentItem, const QDomNode &actNode, con
     // add attributes to the tree first
     for ( uint i=0; i< attribs.length(); i++ ) {
 	if ( parentItem == 0 ) {
-	    thisItem = new DomTreeItem( attribs.item(i), tree, thisItem );
+	    thisItem = new DomTreeItem( namespaces, attribs.item(i), tree, thisItem );
 	} else {
-	    thisItem = new DomTreeItem( attribs.item(i), parentItem, thisItem );
+	    thisItem = new DomTreeItem( namespaces, attribs.item(i), parentItem, thisItem );
 	}
     }
     while ( !node.isNull() ) {
 	if ( parentItem == 0 ) {
-	    thisItem = new DomTreeItem( node, tree, thisItem );
+	    thisItem = new DomTreeItem( namespaces, node, tree, thisItem );
 	} else {
-	    thisItem = new DomTreeItem( node, parentItem, thisItem );
+	    thisItem = new DomTreeItem( namespaces, node, parentItem, thisItem );
 	}
 	if ( node.isElement() ) {
 	    // add also attributes to the tree
-	    buildTree( thisItem, node.firstChild(),
+	    buildTree( namespaces, thisItem, node.firstChild(),
 		    node.toElement().attributes() );
 	} else {
-	    buildTree( thisItem, node.firstChild(),
+	    buildTree( namespaces, thisItem, node.firstChild(),
 		    QDomNamedNodeMap() );
 	}
 	if ( depth <= 1 ) {
@@ -129,16 +129,18 @@ void DomTree::withoutNSProc()
 // DomTreeItem
 //
 
-DomTreeItem::DomTreeItem( const QDomNode &node, QListView *parent, QListViewItem *after )
+DomTreeItem::DomTreeItem( bool useNS, const QDomNode &node, QListView *parent, QListViewItem *after )
     : QListViewItem( parent, after )
 {
+    namespaces = useNS;
     _node = node;
     init();
 }
 
-DomTreeItem::DomTreeItem( const QDomNode &node, QListViewItem *parent, QListViewItem *after )
+DomTreeItem::DomTreeItem( bool useNS, const QDomNode &node, QListViewItem *parent, QListViewItem *after )
     : QListViewItem( parent, after )
 {
+    namespaces = useNS;
     _node = node;
     init();
 }
@@ -204,11 +206,15 @@ QString DomTreeItem::contentString()
 	    s += "<br/>Error: Prefix is not Null!";
 	if ( _node.nodeType()==QDomNode::ElementNode ||
 		_node.nodeType()==QDomNode::AttributeNode ) {
-	    if ( _node.localName().isNull() ) {
-		s += "<br/>Local name is Null!";
+	    if ( namespaces && _node.localName().isNull() ) {
+		s += "<br/>Error: Local name is Null!";
 	    } else {
-		s += "<br/><b>local name:</b> ";
-		s += _node.localName();
+		if ( namespaces ) {
+		    s += "<br/><b>local name:</b> ";
+		    s += _node.localName();
+		} else {
+		    s += "<br/>Error: Local name is not Null!";
+		}
 	    }
 	} else {
 	    if ( !_node.localName().isNull() )
