@@ -841,22 +841,20 @@ bool QTextEdit::event( QEvent *e )
 	}
     }
 
-    if ( e->type() == QEvent::Show && d->ensureCursorVisibleInShowEvent ) {
-	sync();
-	ensureCursorVisible();
-	d->ensureCursorVisibleInShowEvent = FALSE;
+    if ( e->type() == QEvent::Show ) {
+	if ( 
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( !d->optimMode && e->type() == QEvent::Show && d->ensureCursorVisibleInShowEvent ) {
-#else
-    if ( e->type() == QEvent::Show && d->ensureCursorVisibleInShowEvent ) {
+	     !d->optimMode &&
 #endif
-	sync();
-	ensureCursorVisible();
-	d->ensureCursorVisibleInShowEvent = FALSE;
-    }
-    if ( e->type() == QEvent::Show && !d->scrollToAnchor.isEmpty() ) {
+	     d->ensureCursorVisibleInShowEvent  ) {
+	    sync();
+	    ensureCursorVisible();
+	    d->ensureCursorVisibleInShowEvent = FALSE;
+	}
+	if ( !d->scrollToAnchor.isEmpty() ) {
 	    scrollToAnchor( d->scrollToAnchor );
 	    d->scrollToAnchor = QString::null;
+	}
     }
     return QWidget::event( e );
 }
