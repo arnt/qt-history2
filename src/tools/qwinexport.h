@@ -190,16 +190,16 @@ Q_TEMPLATE_EXTERN template class Q_EXPORT QValueList<QStyleSheetItem::ListStyle>
 // qcanvas template exports
 #if defined(Q_DEFINED_QPTRLIST)  && defined(Q_DEFINED_QCANVAS) && !defined(Q_EXPORTED_QCANVAS1_TEMPLATES)
 #define Q_EXPORTED_QCANVAS1_TEMPLATES
-Q_TEMPLATE_EXTERN template class QM_EXPORT_CANVAS QPtrListIterator< QCanvasItem >;
-Q_TEMPLATE_EXTERN template class QM_EXPORT_CANVAS QPtrList< QCanvasItem >;
-Q_TEMPLATE_EXTERN template class QM_EXPORT_CANVAS QPtrListIterator< QCanvasView >;
-Q_TEMPLATE_EXTERN template class QM_EXPORT_CANVAS QPtrList< QCanvasView >;
+QM_TEMPLATE_EXTERN_CANVAS template class QM_EXPORT_CANVAS QPtrListIterator< QCanvasItem >;
+QM_TEMPLATE_EXTERN_CANVAS template class QM_EXPORT_CANVAS QPtrList< QCanvasItem >;
+QM_TEMPLATE_EXTERN_CANVAS template class QM_EXPORT_CANVAS QPtrListIterator< QCanvasView >;
+QM_TEMPLATE_EXTERN_CANVAS template class QM_EXPORT_CANVAS QPtrList< QCanvasView >;
 #endif
 
 #if defined(Q_DEFINED_QVALUELIST)  && defined(Q_DEFINED_QCANVAS) && !defined(Q_EXPORTED_QCANVAS2_TEMPLATES)
 #define Q_EXPORTED_QCANVAS2_TEMPLATES
-Q_TEMPLATE_EXTERN template class QM_EXPORT_CANVAS QValueListIterator< QCanvasItem* >;
-Q_TEMPLATE_EXTERN template class QM_EXPORT_CANVAS QValueList< QCanvasItem* >;
+QM_TEMPLATE_EXTERN_CANVAS template class QM_EXPORT_CANVAS QValueListIterator< QCanvasItem* >;
+QM_TEMPLATE_EXTERN_CANVAS template class QM_EXPORT_CANVAS QValueList< QCanvasItem* >;
 #endif
 
 // qtable template exports
