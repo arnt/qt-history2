@@ -36,6 +36,7 @@ public:
     void setWidgetResizable(bool resizable);
 
     QSize sizeHint() const;
+    bool focusNextPrevChild(bool next);
 
 protected:
     bool event(QEvent *);

@@ -1,10 +1,8 @@
 #include "qwidgetview.h"
 #include "qscrollbar.h"
-
 #include "private/qviewport_p.h"
 #include "qlayout.h"
 #include "private/qlayoutengine_p.h"
-
 class QWidgetViewPrivate: public QViewportPrivate
 {
     Q_DECLARE_PUBLIC(QWidgetView);
@@ -204,3 +202,28 @@ QSize QWidgetView::sizeHint() const
 
 
 
+/*!\reimp
+ */
+bool QWidgetView::focusNextPrevChild(bool next)
+{
+    if (QWidget::focusNextPrevChild(next)) {
+        if (QWidget *fw = focusWidget()) {
+            if (d->widget && fw != d->widget && d->widget->isAncestorOf(fw)) {
+                QRect focusRect(fw->mapTo(d->widget, QPoint(0,0)), fw->size());
+                QRect visibleRect(-d->widget->pos(), d->viewport->size());
+                if (!visibleRect.contains(focusRect)) {
+                    if (focusRect.right() > visibleRect.right())
+                        d->hbar->setValue(focusRect.right() - d->viewport->width());
+                    else if (focusRect.left() < visibleRect.left())
+                        d->hbar->setValue(focusRect.left());
+                    if (focusRect.bottom() > visibleRect.bottom())
+                        d->vbar->setValue(focusRect.bottom() - d->viewport->height());
+                    else if (focusRect.top() < visibleRect.top())
+                        d->vbar->setValue(focusRect.top());
+                }
+            }
+        }
+        return true;
+    }
+    return false;
+}
