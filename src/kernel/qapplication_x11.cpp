@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#122 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#123 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -36,7 +36,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#122 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#123 $")
 
 
 /*****************************************************************************
@@ -509,9 +509,9 @@ void QApplication::setMainWidget( QWidget *mainWidget )
 	if ( mwTitle )
 	    XStoreName( appDpy, main_widget->id(), mwTitle );
 	if ( mwGeometry ) {			// parse geometry
-	    int	 x, y;
-	    uint w, h;
-	    int m = XParseGeometry( mwGeometry, &x, &y, &w, &h );
+	    int	x, y;
+	    int w, h;
+	    int m = XParseGeometry( mwGeometry, &x, &y, (uint*)&w, (uint*)&h );
 	    if ( (m & XValue) == 0 )	  x = main_widget->geometry().x();
 	    if ( (m & YValue) == 0 )	  y = main_widget->geometry().y();
 	    if ( (m & WidthValue) == 0 )  w = main_widget->width();
