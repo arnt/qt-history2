@@ -106,7 +106,7 @@ public:
         SingleLine = 0x2,
         NoGlyphCache = 0x4000
     };
-    Q_DECLARE_FLAGS(LayoutMode, LayoutModeFlags);
+    Q_DECLARE_FLAGS(LayoutMode, LayoutModeFlags)
 
     void setLayoutMode(LayoutMode m);
     void beginLayout();
