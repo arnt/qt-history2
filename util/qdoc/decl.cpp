@@ -836,13 +836,7 @@ static void checkParams( const FunctionDecl *funcDecl,
     if ( fn == 0 )
 	return;
 
-    int level = 3;
     if ( funcDecl->internal() )
-	level++;
-    if ( funcDecl->reimplements() != 0 )
-	level++;
-
-    if ( level > 4 ) // no warnings for '\reimp'
 	return;
 
     StringSet diff;
@@ -851,7 +845,7 @@ static void checkParams( const FunctionDecl *funcDecl,
     diff = difference( declared, fn->documentedParameters() );
     s = diff.begin();
     while ( s != diff.end() ) {
-	warning( level, fn->location(), "Undocumented parameter '%s'",
+	warning( 3, fn->location(), "Undocumented parameter '%s'",
 		 (*s).latin1() );
 	++s;
     }
