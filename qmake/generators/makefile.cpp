@@ -384,6 +384,7 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, const
 	}
 
 	if(!inc.isEmpty()) {
+	    bool from_source_dir = TRUE;
 	    debug_msg(5, "%s:%d Found dependency to %s", fix_env_fn.latin1(),
 		      line_count, inc.latin1());
 	    if(!project->isEmpty("SKIP_DEPENDS")) {
@@ -480,11 +481,11 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, const
 			    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 				QString file = Option::fixPathToTargetOS((*it));
 				if(file.section(Option::dir_sep, -(inc.contains('/')+1)) == inc) {
-				    fqn = fileFixify(*it, QDir::currentDirPath(),
-						     Option::output_dir);
+				    fqn = (*it);
+				    from_source_dir = FALSE;
 				    if(mocs[moc] == "_HDRMOC") {
+					project->variables()["_SRCMOC"].append((*it));
 					l.remove(it);
-					project->variables()["_SRCMOC"].append(file);
 				    }
 				    break;
 				}
@@ -497,7 +498,9 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, const
 		    continue;
 	    }
 
-	    fqn = fileFixify(Option::fixPathToTargetOS(fqn, FALSE));
+	    fqn = Option::fixPathToTargetOS(fqn, FALSE);
+	    if(from_source_dir)
+		fqn = fileFixify(fqn);
 	    debug_msg(4, "Resolved dependancy of %s to %s", inc.latin1(), fqn.latin1());
 	    if(outdeps && outdeps->findIndex(fqn) == -1)
 		outdeps->append(fqn);
