@@ -44,6 +44,7 @@
 #include <qdatetime.h>
 #include <private/qsqlextension_p.h>
 #include <private/qinternal_p.h>
+#include <stdlib.h>
 
 // undefine this to prevent initial check of the ODBC driver 
 #define ODBC_CHECK_DRIVER
