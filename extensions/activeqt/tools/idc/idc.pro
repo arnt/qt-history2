@@ -2,14 +2,14 @@ TEMPLATE        = app
 TARGET          = idc
 
 CONFIG         += console warn_off qtinc
-QT =
+CONFIG	       -= qt
 DESTDIR         = ../../../../bin
 
 DEFINES        += QT_NO_THREAD QT_LITE_UNICODE QT_NO_CODECS QT_NO_COMPONENT QT_NO_STL QT_NODLL QT_NO_DATASTREAM \
                   QT_NO_REGEXP QT_NO_COMPRESS QT_NO_TEXTCODEC QT_NO_UNICODETABLES QT_NO_QOBJECT QT_NO_TEXTSTREAM
                   
-INCLUDEPATH     = ../../../../include/qtcore .
-DEPENDPATH      = ../../../../include .
+INCLUDEPATH     = ../../corelib/arch/generic $$QT_BUILD_TREE/include $$QT_BUILD_TREE/include/QtCore
+DEPENDPATH      += $$INCLUDEPATH ../../corelib/base ../../corelib/tools ../../corelib/io
 
 SOURCES         = main.cpp
 
