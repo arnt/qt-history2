@@ -139,6 +139,8 @@ static char *qt_x11encodings[][QFontPrivate::NScripts + 1] = {
     { 0                      }, // CANADIANABORIGINAL
     { 0                      }, // MONGOLIAN
 
+    { "big5*-0"	, 0 }, // HANHACK
+
     { "iso10646-1",
       "unicode-*"        , 0 }, // UNICODE == ISO-10646-1 (for now)
 
@@ -209,6 +211,8 @@ static int qt_x11indices[QFontPrivate::NScripts + 1] = {
     0, // CANADIANABORIGINAL
     0, // MONGOLIAN
 
+    0, // HANHACK
+    
     0, // UNICODE
 
     0, // NScripts

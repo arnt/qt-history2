@@ -269,6 +269,10 @@ public:
 	CanadianAboriginal,
 	Mongolian,
 
+	// this one is only used on X11 to get some char displayed for all of 
+	// the Han area.
+	HanHack,
+	
 	Unicode,
 
 	// End
@@ -284,7 +288,7 @@ public:
     // array size because it thinks QFontPrivate is still incomplete.  If you change
     // the above enum you *MUST* update this number to be equal to the new NScripts
     // value, lest you suffer firey death at the hand of qFatal().
-#define NSCRIPTSEGCSHACK 54
+#define NSCRIPTSEGCSHACK 55
 
     static Script scriptForChar(const QChar &c);
 
