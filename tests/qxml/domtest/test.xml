@@ -1,0 +1,16 @@
+<a>
+  <b1>
+    <c1/>
+  </b1>
+  <b2>
+    Some text just in between
+    <c2.1/>
+    <c2.2/>
+  </b2>
+  <b3/>
+  <b4 attr1="foo" attr2='bar'>
+    <![CDATA[ This is a CDATA section. Pretty amazing... <> ]...]]...]]>
+    <!-- And a nice comment, isn't it? -->
+    <?snafu is a nice processing-instruction?>
+  </b4>
+</a>
