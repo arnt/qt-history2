@@ -209,8 +209,10 @@ bool FormFile::save( bool withMsgBox, bool ignoreModified )
 	bool formCodeOnly = isModified( WFormCode ) && !isModified( WFormWindow );
 	if ( !resource.save( pro->makeAbsolute( filename ), formCodeOnly ) ) {
 	    if ( MainWindow::self )
-		MainWindow::self->statusBar()->message( tr( "Failed to save file '%1'.").arg( filename ),
+		MainWindow::self->statusBar()->message( tr( "Failed to save file '%1'.").arg( formCodeOnly ? codeFile(): filename ),
 							5000 );
+	    if ( formCodeOnly )
+		return FALSE;
 	    return saveAs();
 	}
 	if ( MainWindow::self )
@@ -218,7 +220,8 @@ bool FormFile::save( bool withMsgBox, bool ignoreModified )
 						    arg( formCodeOnly ? codeFile() : filename ),
 						    3000 );
     } else {
-	Resource::saveFormCode( this, MetaDataBase::languageInterface( pro->language() ) );
+	if ( !Resource::saveFormCode(this, MetaDataBase::languageInterface(pro->language())) )
+	    return FALSE;
     }
     timeStamp.update();
     setModified( FALSE );
