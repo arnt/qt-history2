@@ -58,7 +58,9 @@ QStringList AccessibleFactory::featureList() const
     list << "QViewportWidget";
     list << "QClipperWidget";
     list << "QTextEdit";
+#ifndef QT_NO_ICONVIEW
     list << "QIconView";
+#endif
     list << "QListView";
     list << "QListBox";
     list << "QTable";
@@ -127,8 +129,10 @@ QRESULT AccessibleFactory::createAccessibleInterface( const QString &classname, 
 	*iface = new QAccessibleViewport( object, object->parent()->parent() );
     } else if ( classname == "QTextEdit" ) {
 	*iface = new QAccessibleTextEdit( object );
+#ifndef QT_NO_ICONVIEW
     } else if ( classname == "QIconView" ) {
 	*iface = new QAccessibleIconView( object );
+#endif
     } else if ( classname == "QListView" ) {
 	*iface = new QAccessibleListView( object );
     } else if ( classname == "QListBox" ) {

@@ -11,12 +11,16 @@ class QScrollBar;
 class QSlider;
 class QListBox;
 class QListView;
-class QIconView;
 class QTextEdit;
 class QTabBar;
 class QComboBox;
 class QTitleBar;
 class QWidgetStack;
+
+#ifndef QT_NO_ICONVIEW
+class QIconView;
+#endif
+
 
 QString buddyString( QWidget * );
 QString stripAmp( const QString& );
@@ -358,6 +362,7 @@ protected:
     QListView *listView() const;
 };
 
+#ifndef QT_NO_ICONVIEW
 class QAccessibleIconView : public QAccessibleScrollView
 {
 public:
@@ -379,6 +384,7 @@ public:
 protected:
     QIconView *iconView() const;
 };
+#endif
 
 class QAccessibleTextEdit : public QAccessibleScrollView
 {
