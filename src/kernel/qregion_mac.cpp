@@ -77,7 +77,7 @@ QRegion::QRegionData *qt_mac_get_rgn_data() {
     }
     return data;
 }
-static void qt_mac_free_rgn_data(QRegion::QRegionData *data)
+void qt_mac_free_rgn_data(QRegion::QRegionData *data)
 {
     if(data_cache.rgndata_used < RGN_DATA_SIZE) {
 	for(int i = 0; i < RGN_DATA_SIZE; i++) {
