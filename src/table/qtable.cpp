@@ -4642,7 +4642,7 @@ void QTable::editCell( int row, int col, bool replace )
     if ( row < 0 || col < 0 || row > numRows() - 1 || col > numCols() - 1 )
 	return;
 
-    if ( beginEdit( row, col, FALSE ) ) {
+    if ( beginEdit( row, col, replace ) ) {
 	edMode = Editing;
 	editRow = row;
 	editCol = col;
