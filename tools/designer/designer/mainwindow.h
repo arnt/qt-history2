@@ -198,6 +198,7 @@ protected:
 public slots:
     void fileNew();
     void fileClose();
+    void fileQuit();
     void fileCloseProject(); // not visible in menu, called from fileClose
     void fileOpen();
     void fileOpen( const QString &filter, const QString &extension, const QString &filename = "" , bool inProject = TRUE );

@@ -274,6 +274,8 @@ MainWindow::~MainWindow()
     delete sourceTemplatePluginManager;
 
     MetaDataBase::clearDataBase();
+    if(self == this)
+	self = 0;
 }
 
 void MainWindow::setupMDI()
@@ -2309,6 +2311,7 @@ void MainWindow::closeEvent( QCloseEvent *e )
 		return;
 	    }
 	}
+	w->close();
     }
 
     QMapConstIterator<QAction*, Project*> it = projects.begin();

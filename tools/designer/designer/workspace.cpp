@@ -609,7 +609,7 @@ void Workspace::rmbClicked( QListViewItem *i, const QPoint& pos )
 	
 bool Workspace::eventFilter( QObject *o, QEvent * e )
 {
-    if ( o ==bufferEdit )
+    if ( o ==bufferEdit ) 
 	updateBufferEdit();
     return QListView::eventFilter( o, e );
 }
@@ -624,7 +624,7 @@ void Workspace::setBufferEdit( QCompletionEdit *edit )
 
 void Workspace::updateBufferEdit()
 {
-    if ( !bufferEdit || !completionDirty )
+    if ( !bufferEdit || !completionDirty || !MainWindow::self)
 	return;
     completionDirty = FALSE;
     QStringList completion = MainWindow::self->projectFileNames();

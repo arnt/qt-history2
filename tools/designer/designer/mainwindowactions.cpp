@@ -652,7 +652,7 @@ void MainWindow::setupFileActions()
     a->setMenuText( tr( "E&xit" ) );
     a->setStatusTip( tr( "Quits the application and prompts to save any changed forms, source files or project settings" ) );
     a->setWhatsThis( whatsThisFrom( "File|Exit" ) );
-    connect( a, SIGNAL( activated() ), qApp, SLOT( closeAllWindows() ) );
+    connect( a, SIGNAL( activated() ), this, SLOT( fileQuit() ) );
     a->addTo( fileMenu );
 }
 
@@ -912,6 +912,12 @@ void MainWindow::fileNew()
     NewForm dlg( this, projectNames(), currentProject->projectName(), templatePath() );
     dlg.exec();
     statusBar()->clear();
+}
+
+void MainWindow::fileQuit()
+{
+    close();
+    qApp->closeAllWindows();
 }
 
 void MainWindow::fileClose()
