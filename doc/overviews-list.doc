@@ -56,7 +56,6 @@
     \endomit
     \i \link datastreamformat.html Format of the QDataStream Operators \endlink
     \i \link debug.html Debugging Techniques \endlink
-    \i \link design.html Design Principles \endlink
     \i \link dnd.html Drag and Drop \endlink
     \i \link editions.html Qt Editions \endlink
     \i \link eventsandfilters.html Events and Event Filters \endlink
