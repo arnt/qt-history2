@@ -8,20 +8,18 @@
 <H1 align=center>Qt Designer TODO</H1>
 <H2>New functionality</H2>
 <DL>
-    <DT><B>Action Editor</B> (Reggie)</DT>
-    <DD>A dialog to create actions and change their
-    properties. QMainWindow will offer an action editor which will
-    support dragging actions between the editor and menu and
-    toolbar. The designer will use that too to let the user set the
-    initial action for the menu and toolbar.</DD>
-
     <DT><B>MainWindow editing</B> (Reggie)</DT>
     <DD>Creating a mainwindow with menubar, toolbar, statusbar and
     centralwidget. This can be done using the passiveInteractor and
     mainContainer concept in the designer's formwindow like done with
     QWizard. Menuu/Toolbar editing does not allow to add items, as
     this is done using actions, it only mut be possible to add widgets
-    to toolbars and submenus and widgets to menus.
+    to toolbars and submenus and widgets to menus.<BR>
+    As special editor of the mainwindow a dialog to create actions and
+    change their properties has to be implemented. QMainWindow will
+    offer an action editor which will support dragging actions between
+    the editor and menu and toolbar. The designer will use that too to
+    let the user set the initial action for the menu and toolbar.
     </DD>
 
     <DT><B>Editing of Slots</B> (Reggie)</DT>
@@ -30,7 +28,7 @@
     implement a slot. This is easy to do using QTextEdit.
     </DD>
 
-    <DT><B>Support for the database classes/widgets to build database forms</B>(Dave, Reggie)</DT> 
+    <DT><B>Support for the database classes/widgets to build database forms</B>(Dave, Reggie)</DT>
 
  </DL>
 
@@ -43,9 +41,10 @@
 <H2>Feature Requests</H2>
 <DL>
     <DT><B>Changing page-order in tabwidget using a special editor
-    dialog</B></DT> 
-    <DT><B>Special editor dialog for QTable</B></DT> 
-    <DT><B>Use QSettings for config ASA this is done</B></DT> 
+    dialog</B></DT>
+    <DT><B>Special editor dialog for QTable, allows to edit column/row
+    header labels and contents</B></DT>
+    <DT><B>Use QSettings for config ASA this is done</B></DT>
     <DT><B>Use docking windows for property editor, etc. instead of
     MDI toolwindows ASA the docking stuff is done</B>(Reggie)</DT>
 
