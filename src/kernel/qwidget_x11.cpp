@@ -1096,29 +1096,43 @@ void QWidget::setActiveWindow()
 /*!
   Updates the widget unless updates are disabled or the widget is hidden.
 
-  Updating the widget will erase the widget contents and generate a paint
-  event from the window system. The paint event is processed after the
-  program has returned to the main event loop.
+  Updating the widget will erase the widget contents and generate an
+  appropriate paint event for the invalidated region. The paint event
+  is processed after the program has returned to the main event loop.
+  Calling update() many times in a row will generate a single paint
+  event.
+  
+  If the widgets sets the WRepaintNoErase flag, update() will not erase
+  its contents.
 
-  \sa repaint(), paintEvent(), setUpdatesEnabled(), erase()
+  \sa repaint(), paintEvent(), setUpdatesEnabled(), erase(), setWFlags()
 */
 
 void QWidget::update()
 {
-    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible )
-	XClearArea( x11Display(), winId(), 0, 0, 0, 0, TRUE );
+    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
+	QApplication::postEvent( this, new QPaintEvent( visibleRect(), 
+		!testWFlags(WRepaintNoErase) ) );
+// 	XClearArea( x11Display(), winId(), 0, 0, 0, 0, TRUE );
+    }
 }
 
 /*!
   Updates a rectangle (\e x, \e y, \e w, \e h) inside the widget
   unless updates are disabled or the widget is hidden.
 
-  Updating the widget erases the widget area \e (x,y,w,h), which in turn
-  generates a paint event from the window system. The paint event is
-  processed after the program has returned to the main event loop.
+  Updating the widget erases the widget area \e (x,y,w,h) and generate
+  an appropriate paint event for the invalidated region. The paint
+  event is processed after the program has returned to the main event
+  loop.  Calling update() many times in a row will generate a single
+  paint event.
 
   If \e w is negative, it is replaced with <code>width() - x</code>.
   If \e h is negative, it is replaced width <code>height() - y</code>.
+  
+
+  If the widgets sets the WRepaintNoErase flag, update() will not erase
+  its contents.
 
   \sa repaint(), paintEvent(), setUpdatesEnabled(), erase()
 */
@@ -1132,7 +1146,10 @@ void QWidget::update( int x, int y, int w, int h )
 	if ( h < 0 )
 	    h = crect.height() - y;
 	if ( w != 0 && h != 0 )
-	    XClearArea( x11Display(), winId(), x, y, w, h, TRUE );
+	    QApplication::postEvent( this, 
+	        new QPaintEvent( visibleRect().intersect(QRect(x,y,w,h)), 
+				 !testWFlags( WRepaintNoErase ) ) );
+// 	    XClearArea( x11Display(), winId(), x, y, w, h, TRUE );
     }
 }
 
@@ -1161,9 +1178,10 @@ void QWidget::update( int x, int y, int w, int h )
   If \e w is negative, it is replaced with <code>width() - x</code>.
   If \e h is negative, it is replaced width <code>height() - y</code>.
 
-  Doing a repaint() is usually faster than doing an update(), but
-  calling update() many times in a row will generate a single paint
-  event.
+  Use repaint if your widget needs to be repainted immediately, for
+  example when doing some animation. In all other cases, update() is
+  to be preferred. Calling update() many times in a row will generate
+  a single paint event.
 
   \warning If you call repaint() in a function which may itself be called
   from paintEvent(), you may see infinite recursion. The update() function
@@ -1197,9 +1215,10 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 
   Erases the widget region  \a reg if \a erase is TRUE.
 
-  Calling repaint() is usually faster than doing an update(), but
-  calling update() many times in a row will generate a single paint
-  event.
+  Use repaint if your widget needs to be repainted immediately, for
+  example when doing some animation. In all other cases, update() is
+  to be preferred. Calling update() many times in a row will generate
+  a single paint event.
 
   \warning If you call repaint() in a function which may itself be called
   from paintEvent(), you may see infinite recursion. The update() function

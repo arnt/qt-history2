@@ -407,7 +407,7 @@ void QLabel::setIndent( int indent )
 }
 
 
-/*! 
+/*!
   \fn bool QLabel::autoResize() const
 
   \obsolete
@@ -733,7 +733,7 @@ void QLabel::updateLabel( QSize oldSizeHint )
     }
     else {
 	if ( isVisible() ) {
-	    QApplication::postEvent( this, new QPaintEvent( rect(), TRUE ) );
+	    update();
 	    updateGeometry();
 	}
 	if ( autoMask() )

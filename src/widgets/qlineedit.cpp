@@ -144,7 +144,7 @@ static const int scrollTime = 40;		// mark text scroll time
 */
 
 QLineEdit::QLineEdit( QWidget *parent, const char *name )
-    : QWidget( parent, name )
+    : QWidget( parent, name, WRepaintNoErase )
 {
     init();
 }
@@ -242,7 +242,7 @@ void QLineEdit::setText( const QString &text )
 	(void)validator()->validate( tbuf, cursorPos );
     d->pmDirty = TRUE;
 
-    repaint( FALSE );
+    update();
     if ( d->undo ) {
 	d->undoList.clear();
 	d->redoList.clear();
@@ -368,7 +368,7 @@ void QLineEdit::setMaxLength( int m )
     }
     setCursorPosition( 0 );
     if ( d->pmDirty )
-	repaint( FALSE );
+	update();
 }
 
 /*!
@@ -422,7 +422,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    QString old( tbuf );
 	    v->fixup( tbuf );
 	    if ( old != tbuf )
-		repaint();
+		update();
 	    if ( v->validate( tbuf, cursorPos ) == QValidator::Acceptable )
 		emit returnPressed();
 	    e->ignore();
@@ -919,7 +919,7 @@ void QLineEdit::del()
 	    d->redoList.clear();
 	}
     }
-    
+
     if ( hasMarkedText() ) {
 	test.remove( minMark(), maxMark() - minMark() );
 	validateAndSet( test, minMark(), minMark(), minMark() );
@@ -1639,7 +1639,7 @@ void QLineEdit::updateOffset()
 	return;
 
     d->pmDirty = TRUE;
-    repaint( FALSE );
+    update();
 }
 
 

@@ -107,7 +107,7 @@ public:
     WordWrap wordWrap() const;
     void setWrapColumnOrWidth( int );
     int wrapColumnOrWidth() const;
-    
+
     enum WrapPolicy {
 	AtWhiteSpace,
 	Anywhere
@@ -262,8 +262,6 @@ private:
     bool	inMark( int posx, int posy ) const;
     bool	beforeMark( int posx, int posy ) const;
     bool	afterMark( int posx, int posy ) const;
-
-    void	repaintDelayed( bool erase = TRUE );
 
     void	doDrag();
     void	startAutoScroll();

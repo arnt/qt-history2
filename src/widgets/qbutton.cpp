@@ -361,7 +361,7 @@ void QButton::setText( const QString &text )
     setAccel( QAccel::shortcutKey( btext ) );
 
     if ( isVisible() ) {
-	QApplication::postEvent( this, new QPaintEvent( rect(), FALSE ) );
+	update();
 	updateGeometry();
     }
 }
@@ -409,7 +409,7 @@ void QButton::setPixmap( const QPixmap &pixmap )
     if ( autoMask() )
 	updateMask();
     if ( isVisible() ) {
-	QApplication::postEvent( this, new QPaintEvent( rect(), FALSE ) );
+	update();
 	updateGeometry();
     }
 }
@@ -856,29 +856,21 @@ void QButton::paintEvent( QPaintEvent *event )
     }
 }
 
-/*!
-  Handles focus in events for the button.
-  \sa focusOutEvent()
+/*!\reimp
 */
 
-void QButton::focusInEvent( QFocusEvent * )
+void QButton::focusInEvent( QFocusEvent * e)
 {
-    repaint( FALSE );
-    if ( autoMask() )
-	updateMask();
+    QWidget::focusInEvent( e );
 }
 
-/*!
-  Handles focus out events for the button.
-  \sa focusInEvent()
+/*!\reimp
 */
 
-void QButton::focusOutEvent( QFocusEvent * )
+void QButton::focusOutEvent( QFocusEvent * e )
 {
     buttonDown = FALSE;
-    repaint( FALSE );
-    if ( autoMask() )
-	updateMask();
+    QWidget::focusOutEvent( e );
 }
 
 

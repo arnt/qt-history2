@@ -555,7 +555,7 @@ void QComboBox::insertStrList( const QStrList *list, int index )
 		d->ed->setText( text( d->current ) );
 		d->updateLinedGeometry();
 	    } else
-		repaint();
+		update();
 	    currentChanged();
 	}
     }
@@ -582,7 +582,7 @@ void QComboBox::insertStringList( const QStringList &list, int index )
 		d->ed->setText( text( d->current ) );
 		d->updateLinedGeometry();
 	    } else
-		repaint();
+		update();
 	    currentChanged();
 	}
 	++it;
@@ -627,7 +627,7 @@ void QComboBox::insertStrList( const char **strings, int numStrings, int index)
 		d->ed->setText( text( d->current ) );
 		d->updateLinedGeometry();
 	    } else
-		repaint();
+		update();
 	    currentChanged();
 	}
     }
@@ -657,7 +657,7 @@ void QComboBox::insertItem( const QString &t, int index )
 	    d->ed->setText( text( d->current ) );
 	    d->updateLinedGeometry();
 	} else
-	    repaint();
+	    update();
     }
     if ( index == d->current )
 	currentChanged();
@@ -684,7 +684,7 @@ void QComboBox::insertItem( const QPixmap &pixmap, int index )
 	    d->ed->setText( text( d->current ) );
 	    d->updateLinedGeometry();
 	} else
-	    repaint();
+	    update();
     }
     if ( index == d->current )
 	currentChanged();
@@ -711,7 +711,7 @@ void QComboBox::insertItem( const QPixmap &pixmap, const QString& text, int inde
 	    d->ed->setText( this->text( d->current ) );
 	    d->updateLinedGeometry();
 	} else
-	    repaint();
+	    update();
     }
     if ( index == d->current )
 	currentChanged();
@@ -748,7 +748,7 @@ void QComboBox::removeItem( int index )
 		if (d->current > count()-1 && d->current > 0)
 		    d->current--;
 	    }
-	    repaint();
+	    update();
 	}
 	currentChanged();
     }
@@ -1121,15 +1121,13 @@ void QComboBox::setFont( const QFont &font )
   Handles resize events for the combo box.
 */
 
-void QComboBox::resizeEvent( QResizeEvent * )
+void QComboBox::resizeEvent( QResizeEvent * e )
 {
     if ( d->ed ) {
 	d->updateLinedGeometry();
 	//d->ed->setGeometry(style().comboButtonRect( 0, 0, width(), height() ));
     }
-    if ( autoMask())
-	updateMask();
-    repaint(rect());
+    QWidget::resizeEvent( e );
 }
 
 /*!
@@ -1362,13 +1360,12 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
 }
 
 
-/*!
-  Handles focus in events.
+/*!\reimp
 */
 
-void QComboBox::focusInEvent( QFocusEvent * )
+void QComboBox::focusInEvent( QFocusEvent * e )
 {
-    repaint( FALSE );
+    QWidget::focusInEvent( e );
 }
 
 /*!
@@ -1493,7 +1490,7 @@ void QComboBox::currentChanged()
 {
     if ( d->autoresize )
 	adjustSize();
-    repaint();
+    update();
 }
 
 /*! \reimp

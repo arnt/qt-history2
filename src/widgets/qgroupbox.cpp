@@ -168,8 +168,10 @@ void QGroupBox::setTitle( const QString &title )
     }
     calculateFrame();
     setTextSpacer();
-    if ( isVisible() )
-	repaint();
+    if ( isVisible() ) {
+	update();
+	updateGeometry();
+    }
 }
 
 /*!
@@ -205,7 +207,7 @@ void QGroupBox::setTitle( const QString &title )
 void QGroupBox::setAlignment( int alignment )
 {
     align = alignment;
-    repaint();
+    update();
 }
 
 /*! \reimp

@@ -614,7 +614,8 @@ repainting for the widget, but instead pass on window system repaint
 events directly.  (This tends to produce more events and smaller
 repaint regions.)
 
-<li> \c WResizeNoErase -
+<li> \c WResizeNoErase - indicates that resizing the widget should not
+erase it. This allows smart-repainting to avoid flicker.
 
 <li> \c WMouseNoMask - indicates that even if the widget has a mask,
 it wants mouse events for its entire rectangle.
@@ -624,8 +625,8 @@ north-west aligned and static. On resize, such a widget will receive
 paint events only for the newly visible part of itself.
 
 <li> \c WRepaintNoErase - indacates that the widget paints all its
-pixels.  Scrolling and focus changes should therefore not erase the
-widget.  This allows smart-repainting to avoid flicker.
+pixels.  Updating, scrolling and focus changes should therefore not
+erase the widget.  This allows smart-repainting to avoid flicker.
 
 </ul>
 
@@ -1060,15 +1061,17 @@ QStyle& QWidget::style() const
 
   Reimplement this function if your widget needs to know when its GUI
   style changes.  You will almost certainly need to update the widget
-  using either repaint(TRUE) or update().
+  using update().
 
-  The default implementation calls updateGeometry()
+  The default implementation updates the widget including its
+  geometry.
 
-  \sa QApplication::setStyle(), style()
+  \sa QApplication::setStyle(), style(), update(), updateGeometry()
 */
 
 void QWidget::styleChange( QStyle& )
 {
+    update();
     updateGeometry();
 }
 
@@ -1249,7 +1252,7 @@ void QWidget::setEnabled( bool enable )
 
   Reimplement this function if your widget needs to know when it becomes
   enabled or disabled. You will almost certainly need to update the widget
-  using either repaint(TRUE) or update().
+  using update().
 
   The default implementation repaints the visible part of the widget.
 
@@ -1258,7 +1261,7 @@ void QWidget::setEnabled( bool enable )
 
 void QWidget::enabledChange( bool )
 {
-    repaint( visibleRect() );
+    update();
 }
 
 
@@ -1883,7 +1886,7 @@ const QColor &QWidget::foregroundColor() const
 
   Reimplement this function if your widget needs to know when its
   background color changes.  You will almost certainly need to update the
-  widget using either repaint(TRUE) or update().
+  widget update().
 
   The default implementation calls update()
 
@@ -1920,7 +1923,7 @@ const QPixmap *QWidget::backgroundPixmap() const
 
   Reimplement this function if your widget needs to know when its
   background pixmap changes.  You will almost certainly need to update the
-  widget using either repaint(TRUE) or update().
+  widget using update().
 
   The default implementation calls update()
 
@@ -2042,7 +2045,7 @@ void QWidget::setPalette( const QPalette &p, bool fixed )
 
   Reimplement this function if your widget needs to know when its palette
   changes.  You will almost certainly need to update the widget using
-  either repaint(TRUE) or update().
+  update().
 
   The default implementation calls update().
 
@@ -2135,16 +2138,18 @@ void QWidget::setFont( const QFont &font, bool fixed )
 
   Reimplement this function if your widget needs to know when its font
   changes.  You will almost certainly need to update the widget using
-  either repaint(TRUE) or update().
+  update().
 
-  The default implementation calls update
+  The default implementation updates the widget including its
+  geometry.
 
-  \sa setFont(), font(), repaint(), update()
+  \sa setFont(), font(), update(), updateGeometry()
 */
 
 void QWidget::fontChange( const QFont & )
 {
     update();
+    updateGeometry();
 }
 
 
@@ -3886,7 +3891,7 @@ void QWidget::keyReleaseEvent( QKeyEvent *e )
 void QWidget::focusInEvent( QFocusEvent * )
 {
     if ( focusPolicy() != NoFocus || !isTopLevel() ) {
-	repaint( visibleRect(), !testWFlags(WRepaintNoErase) );
+	update();
 	if ( testWState(WState_AutoMask) )
 	    updateMask();
 	setMicroFocusHint(width()/2, 0, 1, height(), FALSE);
@@ -3911,7 +3916,7 @@ void QWidget::focusInEvent( QFocusEvent * )
 void QWidget::focusOutEvent( QFocusEvent * )
 {
     if ( focusPolicy() != NoFocus || !isTopLevel() ){
-	repaint( visibleRect(), !testWFlags(WRepaintNoErase) );
+	update();
 	if ( testWState(WState_AutoMask) )
 	    updateMask();
     }
@@ -3966,7 +3971,8 @@ void QWidget::leaveEvent( QEvent * )
 
   When the paint event occurs, the update region QPaintEvent::region()
   normally has been cleared to the background color or pixmap. An
-  exception is when repaint(FALSE) is called. Inside the paint event
+  exception is when repaint(FALSE) is called or the widget sets the
+  WRepaintNoErase or WResizeNoErase flag.  Inside the paint event
   handler, QPaintEvent::erased() carries this information.
 
   For many widgets it is sufficient to redraw the entire widget each time,
@@ -4421,9 +4427,6 @@ void QWidget::updateGeometry()
     if ( !isTopLevel() )
 	QApplication::postEvent( parentWidget(),
 				 new QEvent( QEvent::LayoutHint ) );
-    else if ( FALSE && layout() )
-	layout()->activate();
-
 }
 
 

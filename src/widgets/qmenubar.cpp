@@ -267,7 +267,7 @@ void QMenuBar::menuContentsChanged()
     badSize = TRUE;				// might change the size
     if ( isVisible() ) {
 	calculateRects();
-	repaint();
+	update();
     }
 }
 
@@ -281,7 +281,7 @@ void QMenuBar::menuContentsChanged()
 
 void QMenuBar::menuStateChanged()
 {
-    repaint();
+    update();
 }
 
 

@@ -663,26 +663,18 @@ void QSlider::mouseReleaseEvent( QMouseEvent * )
     resetState();
 }
 
-/*!
-  Handles focus in events for the slider.
+/*!\reimp
 */
-
-void QSlider::focusInEvent( QFocusEvent * )
+void QSlider::focusInEvent( QFocusEvent * e)
 {
-    repaint( FALSE );
-    if ( autoMask() )
-	updateMask();
+    QWidget::focusInEvent( e );
 }
 
-/*!
-  Handles focus out events for the slider.
+/*!\reimp
 */
-
-void QSlider::focusOutEvent( QFocusEvent * )
+void QSlider::focusOutEvent( QFocusEvent * e )
 {
-    repaint( visibleRect() );
-    if ( autoMask() )
-	updateMask();
+    QWidget::focusOutEvent( e );
 }
 
 /*!

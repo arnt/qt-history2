@@ -282,7 +282,8 @@ void QHeader::setOrientation( Orientation orientation )
 {
     if (orient==orientation) return;
     orient = orientation;
-    repaint();
+    update();
+    updateGeometry();
 }
 
 
@@ -1097,7 +1098,8 @@ void QHeader::setSortIndicator( int column, bool increasing )
 {
     data->sortColumn = column;
     data->sortDirection = increasing;
-    repaint( TRUE );
+    update();
+    updateGeometry();
 }
 
 //#### what about lastSectionCoversAll?

@@ -237,7 +237,7 @@ void QTabBar::removeTab( QTab * tab )
     lstatic->remove( tab );
     layoutTabs();
     updateArrowButtons();
-    repaint();
+    update();
 }
 
 
@@ -246,8 +246,8 @@ void QTabBar::removeTab( QTab * tab )
   FALSE.  If \a id is currently selected, setTabEnabled() makes
   another tab selected.
 
-  setTabEnabled() calls repaint() if this causes a change in \a id's
-  status.
+  setTabEnabled() updates the display respectivly if this causes a
+  change in \a id's status.
 
   \sa update(), isTabEnabled()
 */
@@ -728,7 +728,7 @@ void QTabBar::setShape( Shape s )
     //######### must recalculate heights
     d->s = s;
     updateMask();
-    repaint();
+    update();
 }
 
 
@@ -874,7 +874,7 @@ void QTabBar::makeVisible( QTab* tab  )
     d->rightB->setEnabled( lstatic->last()->r.right() >= d->leftB->x() );
 	
 
-    repaint( TRUE );
+    update();
 }
 
 void QTabBar::updateArrowButtons()

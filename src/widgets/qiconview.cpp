@@ -4823,7 +4823,7 @@ QSize QIconView::sizeHint() const
 
 void QIconView::updateContents()
 {
-    viewport()->repaint( FALSE );
+    viewport()->update();
 }
 
 /*!

@@ -276,7 +276,13 @@ void QPushButton::toggle()
 
 void QPushButton::setAutoDefault( bool enable )
 {
+    if ( autoDefButton == enable )
+	return;
     autoDefButton = enable;
+    if ( isVisible() ) {
+	update();
+	updateGeometry();
+    }
 }
 
 
@@ -313,8 +319,7 @@ void QPushButton::setDefault( bool enable )
     defButton = enable;
     if ( defButton )
 	((QDialog*)p)->setDefault( this );
-    if ( isVisible() )
-	repaint( FALSE );
+    update();
 }
 
 
@@ -559,7 +564,7 @@ void QPushButton::setIsMenuButton( bool enable )
 	return;
     hasMenuArrow = enable ? 1 : 0;
     if ( isVisible() ) {
-	QApplication::postEvent( this, new QPaintEvent( rect(), FALSE ) );
+	update();
 	updateGeometry();
     }
 }

@@ -694,7 +694,7 @@ void QWidget::setActiveWindow()
 void QWidget::update()
 {
     if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible )
-	InvalidateRect( winId(), 0, TRUE );
+	InvalidateRect( winId(), 0, !testWFlags( WRepaintNoErase) );
 }
 
 void QWidget::update( int x, int y, int w, int h )
@@ -712,7 +712,7 @@ void QWidget::update( int x, int y, int w, int h )
 	    r.bottom = crect.height();
 	else
 	    r.bottom = y + h;
-	InvalidateRect( winId(), &r, TRUE );
+	InvalidateRect( winId(), &r, !testWFlags( WRepaintNoErase) );
     }
 }
 

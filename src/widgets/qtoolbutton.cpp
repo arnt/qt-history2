@@ -84,7 +84,7 @@ QToolButton::QToolButton( QWidget * parent, const char *name )
   Constructs a tool button as arrow button. The ArrowType \a type
   defines the arrow direction. Possible values are LeftArrow,
   RightArrow, UpArrow and DownArrow.
-  
+
   An arrow button has auto repeat turned on.
 
   The \a parent and \a name arguments are sent to the QWidget constructor.
@@ -325,8 +325,8 @@ void QToolButton::setUsesBigPixmap( bool enable )
 
     ubp = enable;
     if ( isVisible() ) {
+	update();
 	updateGeometry();
-	QApplication::postEvent( this, new QPaintEvent( rect(), FALSE ) );
     }
 }
 
@@ -353,8 +353,8 @@ void QToolButton::setUsesTextLabel( bool enable )
 
     utl = enable;
     if ( isVisible() ) {
+	update();
 	updateGeometry();
-	QApplication::postEvent( this, new QPaintEvent( rect(), FALSE ) );
     }
 }
 
@@ -450,7 +450,7 @@ void QToolButton::drawButtonLabel( QPainter * p )
 	style().drawArrow( p, d->arrow, isDown(), x, y, w, h, colorGroup(), isEnabled() );
 	return;
     }
-    
+
     if ( !text().isNull() ) {
 	style().drawItem( p, x, y, w, h,
 			  AlignCenter + ShowPrefix,
@@ -585,7 +585,7 @@ void QToolButton::setIconSet( const QIconSet & set, bool on )
 	son = new QIconSet( set );
     }
     if ( isVisible() )
-	QApplication::postEvent( this, new QPaintEvent( rect(), FALSE ) );
+	update();
 }
 
 

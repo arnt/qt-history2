@@ -497,14 +497,14 @@ void QDial::focusInEvent( QFocusEvent * )
 
 */
 
-void QDial::focusOutEvent( QFocusEvent * )
+void QDial::focusOutEvent( QFocusEvent * e )
 {
     if ( !d->blinkTimer )
 	return;
 
     d->blinkTimer->stop();
     d->color = colorGroup().background();
-    repaint( FALSE );
+    QWidget::focusOutEvent(e );
 }
 
 /*!
@@ -783,7 +783,7 @@ void QDial::repaintScreen()
 void QDial::setShowNotches( bool b )
 {
     d->showNotches = b;
-    repaint( FALSE );
+    update();
 }
 
 /*!

@@ -296,9 +296,9 @@ void QPopupMenu::menuContentsChanged()
 
 void QPopupMenu::menuStateChanged()
 {
-    repaint();
+    update();
     if ( QMenuData::d->aWidget )
-	QMenuData::d->aWidget->repaint();
+	QMenuData::d->aWidget->update();
 }
 
 void QPopupMenu::menuInsPopup( QPopupMenu *popup )

@@ -936,7 +936,7 @@ QScrollView::ResizePolicy QScrollView::resizePolicy() const
 /*!
   \reimp
 */
- 
+
 void QScrollView::setEnabled( bool enable )
 {
     QFrame::setEnabled( enable );
@@ -1590,11 +1590,8 @@ void QScrollView::moveContents(int x, int y)
 	)
     {
 	// Big move
-	if ( viewport()->isUpdatesEnabled() ) {
-	    QPaintEvent* pe = new QPaintEvent( viewport()->rect(),
-				   !viewport()->testWFlags( WRepaintNoErase ) );
-	    QApplication::postEvent( viewport(), pe );
-	}
+	if ( viewport()->isUpdatesEnabled() )
+	    viewport()->update();
 	d->moveAllBy(dx,dy);
     } else {
 	// Small move
