@@ -959,26 +959,14 @@ bool QApplication::x11_apply_settings()
 	}
     }
 
-    QStringList effects =
-	settings.readListEntry("/qt/GUIEffects");
+    QStringList effects = settings.readListEntry("/qt/GUIEffects");
 
-    if (! effects.isEmpty()) {
-	if ( effects.contains("none") )
-	    QApplication::setEffectEnabled( Qt::UI_General, FALSE);
-	if ( effects.contains("general") )
-	    QApplication::setEffectEnabled( Qt::UI_General, TRUE );
-	if ( effects.contains("animatemenu") )
-	    QApplication::setEffectEnabled( Qt::UI_AnimateMenu, TRUE );
-	if ( effects.contains("fademenu") )
-	    QApplication::setEffectEnabled( Qt::UI_FadeMenu, TRUE );
-	if ( effects.contains("animatecombo") )
-	    QApplication::setEffectEnabled( Qt::UI_AnimateCombo, TRUE );
-	if ( effects.contains("animatetooltip") )
-	    QApplication::setEffectEnabled( Qt::UI_AnimateTooltip, TRUE );
-	if ( effects.contains("fadetooltip") )
-	    QApplication::setEffectEnabled( Qt::UI_FadeTooltip, TRUE );
-    } else
-	QApplication::setEffectEnabled( Qt::UI_General, FALSE);
+    QApplication::setEffectEnabled( Qt::UI_General,  effects.contains("general") );
+    QApplication::setEffectEnabled( Qt::UI_AnimateMenu, effects.contains("animatemenu") );
+    QApplication::setEffectEnabled( Qt::UI_FadeMenu, effects.contains("fademenu") );
+    QApplication::setEffectEnabled( Qt::UI_AnimateCombo, effects.contains("animatecombo") );
+    QApplication::setEffectEnabled( Qt::UI_AnimateTooltip, effects.contains("animatetooltip") );
+    QApplication::setEffectEnabled( Qt::UI_FadeTooltip, effects.contains("fadetooltip") );
 
     QStringList fontsubs =
 	settings.entryList("/qt/Font Substitutions");
@@ -1291,21 +1279,13 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	*qt_std_pal = pal;
     }
 
-    if ( !resEF.isEmpty() ) {
-	QStringList effects = QStringList::split(" ",resEF);
-	if ( effects.contains("general") )
-	    QApplication::setEffectEnabled( Qt::UI_General, TRUE );
-	if ( effects.contains("animatemenu") )
-	    QApplication::setEffectEnabled( Qt::UI_AnimateMenu, TRUE );
-	if ( effects.contains("fademenu") )
-	    QApplication::setEffectEnabled( Qt::UI_FadeMenu, TRUE );
-	if ( effects.contains("animatecombo") )
-	    QApplication::setEffectEnabled( Qt::UI_AnimateCombo, TRUE );
-	if ( effects.contains("animatetooltip") )
-	    QApplication::setEffectEnabled( Qt::UI_AnimateTooltip, TRUE );
-	if ( effects.contains("fadetooltip") )
-	    QApplication::setEffectEnabled( Qt::UI_FadeTooltip, TRUE );
-    }
+    QStringList effects = QStringList::split(" ",resEF);
+    QApplication::setEffectEnabled( Qt::UI_General,  effects.contains("general") );
+    QApplication::setEffectEnabled( Qt::UI_AnimateMenu, effects.contains("animatemenu") );
+    QApplication::setEffectEnabled( Qt::UI_FadeMenu, effects.contains("fademenu") );
+    QApplication::setEffectEnabled( Qt::UI_AnimateCombo, effects.contains("animatecombo") );
+    QApplication::setEffectEnabled( Qt::UI_AnimateTooltip, effects.contains("animatetooltip") );
+    QApplication::setEffectEnabled( Qt::UI_FadeTooltip, effects.contains("fadetooltip") );
 }
 
 
