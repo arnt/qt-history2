@@ -475,6 +475,7 @@ QDockArea::QDockArea( Orientation o, Gravity g, QWidget *parent, const char *nam
 QDockArea::~QDockArea()
 {
     delete dockWindows;
+    dockWindows = 0;
 }
 
 /*! Moves the QDockWindow \a w in the dock area. If \a w is not
@@ -763,7 +764,7 @@ void QDockArea::removeDockWindow( QDockWindow *w, bool makeFloating, bool swap, 
 
 int QDockArea::findDockWindow( QDockWindow *w )
 {
-    return dockWindows->findRef( w );
+    return dockWindows ? dockWindows->findRef( w ) : -1;
 }
 
 void QDockArea::updateLayout()
