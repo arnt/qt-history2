@@ -414,14 +414,14 @@ void QPixmap::fill(const QColor &fillColor)
 
 void QPixmap::detach()
 {
-    if(data->uninit || data->count == 1)
+    if(data->uninit || data->count == 1) {
         data->uninit = false;
-    else
+        if(data->cgimage) {
+            CGImageRelease(data->cgimage);
+            data->cgimage = 0;
+        }
+    } else {
         *this = copy();
-    //destroy cache
-    if(data->cgimage) {
-        CGImageRelease(data->cgimage);
-        data->cgimage = 0;
     }
 }
 
@@ -471,6 +471,11 @@ void QPixmap::deref()
         if(data->alphapm) {
             delete data->alphapm;
             data->alphapm = 0;
+        }
+
+        if(data->cgimage) {
+            CGImageRelease(data->cgimage);
+            data->cgimage = 0;
         }
 
         if(data->hd && qApp) {
@@ -840,6 +845,10 @@ CGImageRef qt_mac_create_cgimage(const QPixmap &px, Qt::PixmapDrawingMode mode)
     CGDataProviderRelease(provider);
     {
         px.data->cgimage = image;
+        CGImageRetain(px.data->cgimage);
+        CGImageRetain(px.data->cgimage);
+        CGImageRetain(px.data->cgimage);
+        CGImageRetain(px.data->cgimage);
         CGImageRetain(px.data->cgimage);
     }
     return image;
