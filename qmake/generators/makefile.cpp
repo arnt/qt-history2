@@ -2701,7 +2701,7 @@ MakefileGenerator::openOutput(QFile &file, const QString &build) const
         QString outdir;
         if(!file.fileName().isEmpty()) {
             if(QDir::isRelativePath(file.fileName()))
-                file.setFileName(Option::output_dir + file.fileName()); //pwd when qmake was run
+                file.setFileName(Option::output_dir + "/" + file.fileName()); //pwd when qmake was run
             QFileInfo fi(fileInfo(file.fileName()));
             if(fi.isDir())
                 outdir = file.fileName() + QDir::separator();
