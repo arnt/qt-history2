@@ -1319,17 +1319,17 @@ bool QActionGroup::usesDropDown() const
     return d->dropdown;
 }
 
-/*! Inserts action \a action into this group.
+/*! Adds action \a action to this group.
 
   QActions with this action group as their parent object became members
-  at creation time and don't have to be inserted manually.
+  at creation time and don't have to be added manually.
 
   Note that all members of an action group must be
-  inserted before the group is added to a widget.
+  added before the group is added to a widget.
 
   \sa addTo()
 */
-void QActionGroup::insert( QAction* action )
+void QActionGroup::add( QAction* action )
 {
     if ( d->actions.containsRef( action ) )
 	return;
@@ -1362,8 +1362,8 @@ void QActionGroup::insert( QAction* action )
     }
 }
 
-/*! Inserts a separator into the group. */
-void QActionGroup::insertSeparator()
+/*! Adds a separator to the group. */
+void QActionGroup::addSeparator()
 {
     if ( !d->separatorAction )
 	d->separatorAction = new QAction( 0, "qt_separator_action" );

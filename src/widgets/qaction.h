@@ -132,8 +132,8 @@ public:
     ~QActionGroup();
     void setExclusive( bool );
     bool isExclusive() const;
-    void insert( QAction* );
-    void insertSeparator();
+    void add( QAction* a);
+    void addSeparator();
     bool addTo( QWidget* );
     bool removeFrom( QWidget* );
     void setEnabled( bool );
@@ -166,6 +166,12 @@ private slots:
 
 private:
     QActionGroupPrivate* d;
+    
+#ifndef QT_NO_COMPAT
+public:
+    void insert( QAction* a ) { add( a ); }
+#endif
+
 };
 
 #endif
