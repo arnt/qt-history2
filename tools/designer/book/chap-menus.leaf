@@ -452,32 +452,32 @@ Search toolbar buttons visible or to hide the toolbar buttons if you
 do not want them to be visible. If the toolbar buttons are currently
 visible, a check mark will appear next to the name in the menu. 
 
-\i \Menu{Window|Toolbars|Layout}Click this menu option to make the
+\i \Menu{Window|Toolbars|Layout} Click this menu option to make the
 Layout toolbar buttons visible or to hide the toolbar buttons if you do not
 want them to be visible. If the toolbar buttons are currently visible,
 a check mark will appear next to the name in the menu. 
 
-\i \Menu{Window|Toolbars|Tools}Click this menu option to make the
+\i \Menu{Window|Toolbars|Tools} Click this menu option to make the
 Tools toolbar buttons visible or to hide the toolbar buttons if you do not
 want them to be visible. If the toolbar buttons are currently visible,
 a check mark will appear next to the name in the menu. 
 
-\i \Menu{Window|Toolbars|Buttons}Click this menu option to make the
+\i \Menu{Window|Toolbars|Buttons} Click this menu option to make the
 Buttons toolbar buttons visible or to hide the toolbar buttons if you do not
 want them to be visible. If the toolbar buttons are currently visible,
 a check mark will appear next to the name in the menu. 
 
-\i \Menu{Window|Toolbars|Containers}Click this menu option to make the
+\i \Menu{Window|Toolbars|Containers} Click this menu option to make the
 Containers toolbar buttons visible or to hide the toolbar buttons if you do not
 want them to be visible. If the toolbar buttons are currently visible,
 a check mark will appear next to the name in the menu. 
 
-\i \Menu{Window|Toolbars|Views}Click this menu option to make the
+\i \Menu{Window|Toolbars|Views} Click this menu option to make the
 Views toolbar buttons visible or to hide the toolbar buttons if you do not
 want them to be visible. If the toolbar buttons are currently visible,
 a check mark will appear next to the name in the menu. 
 
-\i \Menu{Window|Toolbars|Database}Click this menu option to make the
+\i \Menu{Window|Toolbars|Database} Click this menu option to make the
 Database toolbar buttons visible or to hide the toolbar buttons if you do not
 want them to be visible. If the toolbar buttons are currently visible,
 a check mark will appear next to the name in the menu. 
@@ -487,17 +487,17 @@ Input toolbar buttons visible or to hide the toolbar buttons if you do not
 want them to be visible. If the toolbar buttons are currently visible,
 a check mark will appear next to the name in the menu. 
 
-\i \Menu{Window|Toolbars|Display}Click this menu option to make the
+\i \Menu{Window|Toolbars|Display} Click this menu option to make the
 Display toolbar buttons visible or to hide the toolbar buttons if you do not
 want them to be visible. If the toolbar buttons are currently visible,
 a check mark will appear next to the name in the menu. 
 
-\i \Menu{Window|Toolbars|Custom}Click this menu option to make the
+\i \Menu{Window|Toolbars|Custom} Click this menu option to make the
 Custom toolbar buttons visible or to hide the toolbar buttons if you do not
 want them to be visible. If the toolbar buttons are currently visible,
 a check mark will appear next to the name in the menu. 
 
-\i \Menu{Window|Toolbars|Help}Click this menu option to make the Help
+\i \Menu{Window|Toolbars|Help} Click this menu option to make the Help
 toolbar buttons visible or to hide the toolbar buttons if you do not
 want them to be visible. If the toolbar buttons are currently visible,
 a check mark will appear next to the name in the menu. 
@@ -506,7 +506,7 @@ a check mark will appear next to the name in the menu.
 extra space between toolbars and line them up next to each other all
 at once, rather than moving each individual toolbar into place.
 
-\i \Menu{Window|\<file name>\} Click this menu option to toggle
+\i \Menu{Window|<file name>} Click this menu option to toggle
 between forms or files that are currently open. Select the name of the
 form or file from the list.
 
