@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#100 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#101 $
 **
 ** Definition of QPixmap class
 **
@@ -44,8 +44,10 @@ public:
     QPixmap();
     QPixmap( int w, int h,  int depth=-1 );
     QPixmap( const QSize &, int depth=-1 );
-    QPixmap( const QString& fileName, const char *format=0, ColorMode mode=Auto );
-    QPixmap( const QString& fileName, const char *format, int conversion_flags );
+    QPixmap( const QString& fileName, const char *format=0,
+	     ColorMode mode=Auto );
+    QPixmap( const QString& fileName, const char *format,
+	     int conversion_flags );
     QPixmap( const char *xpm[] );
     QPixmap( const QByteArray &data );
     QPixmap( const QPixmap & );
@@ -63,7 +65,7 @@ public:
     int		depth()		const { return data->d; }
     static int	defaultDepth();
 
-    void	fill( const QColor &fillColor=Qt::white );
+    void	fill( const QColor &fillColor = Qt::white );
     void	fill( const QWidget *, int xofs, int yofs );
     void	fill( const QWidget *, const QPoint &ofs );
     void	resize( int width, int height );
@@ -123,7 +125,7 @@ public:
 
 protected:
     QPixmap( int w, int h, const uchar *data, bool isXbitmap );
-    int		metric( int ) const;
+    int metric( int ) const;
 
     struct QPixmapData : public QShared {	// internal pixmap data
 	QCOORD	w, h;
