@@ -3704,6 +3704,8 @@ QTextParag::~QTextParag()
     if ( mSelections ) delete mSelections;
     if ( mFloatingItems ) delete mFloatingItems;
     if ( mStyleSheetItemsVec ) delete mStyleSheetItemsVec;
+    if ( p ) p->setNext( n );
+    if ( n ) n->setPrev( p );
 }
 
 void QTextParag::setNext( QTextParag *s )
