@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#181 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#182 $
 **
 ** Implementation of QListView widget class
 **
@@ -496,7 +496,7 @@ void QListViewItem::insertItem( QListViewItem * newChild )
     if ( !newChild || newChild->parentItem == this )
 	return;
     if ( newChild->parentItem )
-	newChild->parentItem->removeChild( newChild );
+	newChild->parentItem->removeItem( newChild );
     invalidateHeight();
     newChild->siblingItem = childItem;
     childItem = newChild;
