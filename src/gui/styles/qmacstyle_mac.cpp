@@ -2305,18 +2305,19 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
         if (const QStyleOptionSpinBox *sb = qstyleoption_cast<const QStyleOptionSpinBox *>(opt)) {
             QStyleOptionSpinBox newSB = *sb;
             if (sb->frame && (sb->subControls & QStyle::SC_SpinBoxFrame)) {
-                QStyleOptionFrame lineedit;
-                lineedit.rect = QStyle::visualRect(opt->direction, opt->rect,
+                QRect lineeditRect = QStyle::visualRect(opt->direction, opt->rect,
                                                    q->subControlRect(QStyle::CC_SpinBox,
-                                                                             sb,
-                                                                             QStyle::SC_SpinBoxFrame,
-                                                                             widget));
+                                                                     sb,
+                                                                     QStyle::SC_SpinBoxFrame,
+                                                                     widget));
 
-                lineedit.palette = sb->palette;
-                lineedit.state = QStyle::State_Sunken;
-                lineedit.lineWidth = 0;
-                lineedit.midLineWidth = 0;
-                q->drawPrimitive(QStyle::PE_FrameLineEdit, &lineedit, p, widget);
+                HIThemeFrameDrawInfo fdi;
+                fdi.version = qt_mac_hitheme_version;
+                fdi.state = tds;
+                fdi.kind = kHIThemeFrameTextFieldSquare;
+                fdi.isFocused = false;
+                HIRect hirect = qt_hirectForQRect(lineeditRect, p, false);
+                HIThemeDrawFrame(&hirect, &fdi, cg, kHIThemeOrientationNormal);
             }
             if (sb->subControls & (QStyle::SC_SpinBoxUp | QStyle::SC_SpinBoxDown)) {
                 HIThemeButtonDrawInfo bdi;
@@ -3862,21 +3863,22 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
             QStyleOptionSpinBox newSB = *sb;
             if (sb->subControls & QStyle::SC_SpinBoxFrame) {
                 QStyleOptionFrame lineedit;
-                lineedit.rect = q->subControlRect(QStyle::CC_SpinBox, sb,
-                                                          QStyle::SC_SpinBoxFrame, widget),
-                lineedit.palette = sb->palette;
-                lineedit.state = QStyle::State_Sunken;
-                lineedit.lineWidth = 0;
-                lineedit.midLineWidth = 0;
-                q->drawPrimitive(QStyle::PE_FrameLineEdit, &lineedit, p, widget);
+                QRect lineeditRect = q->visualRect(sb->direction, sb->rect,
+                                            q->subControlRect(QStyle::CC_SpinBox, sb,
+                                                          QStyle::SC_SpinBoxFrame, widget));
+                qt_mac_set_port(p);
+                const Rect *rect = qt_glb_mac_rect(lineeditRect, p, false);
+                DrawThemeEditTextFrame(rect, tds);
             }
             if (sb->subControls & (QStyle::SC_SpinBoxDown | QStyle::SC_SpinBoxUp)) {
                 if (!(sb->stepEnabled & (QAbstractSpinBox::StepUpEnabled
                                         | QAbstractSpinBox::StepDownEnabled)))
                     tds = kThemeStateUnavailable;
-                if (sb->activeSubControls == QStyle::SC_SpinBoxDown)
+                if ((sb->activeSubControls == QStyle::SC_SpinBoxDown)
+                    && (sb->state & QStyle::State_Sunken))
                     tds = kThemeStatePressedDown;
-                else if (sb->activeSubControls == QStyle::SC_SpinBoxUp)
+                else if ((sb->activeSubControls == QStyle::SC_SpinBoxUp)
+                         && (sb->state & QStyle::State_Sunken))
                     tds = kThemeStatePressedUp;
                 ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
                 if (sb->state & QStyle::State_HasFocus
@@ -5521,12 +5523,13 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
                     ret = d->AppManSubControlRect(cc, opt, sc, w);
                 break;
             case SC_SpinBoxEditField:
-                ret.setRect(fw, fw, spin->rect.width() - spinner_w - fw * 2 - macSpinBoxSep,
-                            spin->rect.height() - fw * 2);
+                ret.setRect(fw, fw,
+                            spin->rect.width() - spinner_w - fw * 2 - macSpinBoxSep + 1,
+                            spin->rect.height() - fw * 2 + 1);
                 break;
             case SC_SpinBoxFrame:
-                ret.setRect(0, 0, spin->rect.width() - spinner_w - macSpinBoxSep,
-                            spin->rect.height());
+                ret.setRect(1, 1, spin->rect.width() - spinner_w - macSpinBoxSep - 1,
+                            spin->rect.height() - 1);
                 break;
             default:
                 ret = QWindowsStyle::subControlRect(cc, spin, sc, w);
