@@ -935,5 +935,5 @@ Q_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
 		src->data->mask, sx, sy, sw, sh, Qt::CopyROP, TRUE );
     }
 
-    qDebug( "TODO: copy the alpha bits from \a src to \a dst" );
+    dst->data->hasAlpha = src->data->hasAlpha;
 }
