@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/etc/opengl/glwidget.cpp#3 $
+** $Id: //depot/qt/main/etc/opengl/glwidget.cpp#4 $
 **
 ** Implementation of GLWidget class for X11.
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbasic.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qbasic.cpp#18 $
 **
 **  Studies in Geometry Management
 **
@@ -13,7 +13,7 @@
 #include "qlist.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#17 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#18 $");
 
 
 

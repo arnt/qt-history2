@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstack.h#8 $
+** $Id: //depot/qt/main/src/tools/qstack.h#9 $
 **
 ** Definition of QStack template/macro class
 **

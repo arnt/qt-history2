@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qlist.h#16 $
+** $Id: //depot/qt/main/src/tools/qlist.h#17 $
 **
 ** Definition of QList template/macro class
 **

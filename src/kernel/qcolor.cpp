@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#54 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#55 $
 **
 ** Implementation of QColor class
 **
@@ -12,7 +12,7 @@
 #include "qcolor.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#54 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#55 $");
 
 
 /*!

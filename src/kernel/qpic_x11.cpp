@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpic_x11.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qpic_x11.cpp#13 $
 **
 ** Implementation of QPicture class for X11
 **
@@ -15,7 +15,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpic_x11.cpp#12 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpic_x11.cpp#13 $");
 
 
 QPicture::QPicture()

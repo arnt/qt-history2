@@ -1,7 +1,7 @@
 #############################################################################
 # Qt Makefile - doc
 #############################################################################
-# $Id: //depot/qt/main/doc/Makefile#3 $
+# $Id: //depot/qt/main/doc/Makefile#4 $
 
 showfiles showsources:
 	@echo *.doc

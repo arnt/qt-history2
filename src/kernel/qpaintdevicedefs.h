@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevicedefs.h#19 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevicedefs.h#20 $
 **
 ** Definition of QPaintDevice constants and flags
 **

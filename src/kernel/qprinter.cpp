@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#26 $
 **
 ** Implementation of QPrinter class
 **
@@ -11,7 +11,7 @@
 
 #include "qprinter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#25 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#26 $");
 
 
 /*!

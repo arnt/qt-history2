@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#18 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#19 $
 **
 ** Implementation of QMessageBox class
 **
@@ -13,7 +13,7 @@
 #include "qlabel.h"
 #include "qpushbt.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#18 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#19 $");
 
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.cpp#18 $
+** $Id: //depot/qt/main/src/tools/qgvector.cpp#19 $
 **
 ** Implementation of QGVector class
 **
@@ -28,7 +28,7 @@
 #include "qdstream.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgvector.cpp#18 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qgvector.cpp#19 $");
 
 
 #define USE_MALLOC				// comment to use new/delete

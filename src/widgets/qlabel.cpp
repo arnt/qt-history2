@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#42 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#43 $
 **
 ** Implementation of QLabel widget class
 **
@@ -13,7 +13,7 @@
 #include "qpixmap.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#42 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#43 $");
 
 
 /*!

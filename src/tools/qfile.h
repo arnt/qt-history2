@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.h#17 $
+** $Id: //depot/qt/main/src/tools/qfile.h#18 $
 **
 ** Definition of QFile class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgeneric.h#6 $
+** $Id: //depot/qt/main/src/tools/qgeneric.h#7 $
 **
 ** Macros for pasting tokens; utilized by our generic classes
 **

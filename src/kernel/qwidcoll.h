@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidcoll.h#4 $
+** $Id: //depot/qt/main/src/kernel/qwidcoll.h#5 $
 **
 ** Definition of QWidget collections
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#65 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#66 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -23,7 +23,7 @@
 #define QXFontStruct XFontStruct
 #include "qfontdta.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#65 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#66 $");
 
 
 static const int fontFields = 14;

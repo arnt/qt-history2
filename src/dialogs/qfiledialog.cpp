@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#25 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#26 $
 **
 ** Implementation of QFileDialog class
 **
@@ -27,7 +27,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#25 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#26 $");
 
 
 /*!

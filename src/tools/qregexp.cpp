@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#36 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#37 $
 **
 ** Implementation of QRegExp class
 **
@@ -13,7 +13,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#36 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#37 $");
 
 
 /*!

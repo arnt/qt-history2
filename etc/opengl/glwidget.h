@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/etc/opengl/glwidget.h#2 $
+** $Id: //depot/qt/main/etc/opengl/glwidget.h#3 $
 **
 ** Definition of GLWidget class
 **

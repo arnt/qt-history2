@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qtimer.cpp#23 $
 **
 ** Implementation of QTimer class
 **
@@ -12,7 +12,7 @@
 #include "qtimer.h"
 #include "qsignal.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#22 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#23 $");
 
 
 /*!

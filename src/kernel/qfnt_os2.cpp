@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_os2.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qfnt_os2.cpp#8 $
 **
 ** Implementation of QFont and QFontMetrics classes for OS/2 PM
 **
@@ -13,7 +13,7 @@
 #define	 INCL_WIN
 #include <os2.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_os2.cpp#7 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_os2.cpp#8 $");
 
 
 void QFont::initialize()			// called from startup routines

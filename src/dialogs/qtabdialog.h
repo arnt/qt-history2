@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.h#10 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.h#11 $
 **
 ** Definition of tab dialog
 **

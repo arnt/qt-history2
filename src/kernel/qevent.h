@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#33 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#34 $
 **
 ** Definition of event classes
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.h#15 $
+** $Id: //depot/qt/main/src/kernel/qtimer.h#16 $
 **
 ** Definition of QTimer class
 **

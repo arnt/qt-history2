@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintd.h#43 $
+** $Id: //depot/qt/main/src/kernel/qpaintd.h#44 $
 **
 ** Definition of QPaintDevice class
 **

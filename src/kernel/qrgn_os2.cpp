@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrgn_os2.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qrgn_os2.cpp#8 $
 **
 ** Implementation of QRegion class for OS/2 PM
 **
@@ -14,7 +14,7 @@
 #define	 INCL_PM
 #include <os2.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qrgn_os2.cpp#7 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qrgn_os2.cpp#8 $");
 
 
 HPS QRegion::hps = 0;				// global presentation space

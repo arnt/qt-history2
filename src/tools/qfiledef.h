@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfiledef.h#15 $
+** $Id: //depot/qt/main/src/tools/qfiledef.h#16 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **

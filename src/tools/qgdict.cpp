@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#40 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#41 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#40 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#41 $");
 
 
 /*!

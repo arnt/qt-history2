@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.h#24 $
+** $Id: //depot/qt/main/src/widgets/qlined.h#25 $
 **
 ** Definition of QLineEdit widget class
 **

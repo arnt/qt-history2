@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#39 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#40 $
 **
 ** Implementation of QFrame widget class
 **
@@ -14,7 +14,7 @@
 #include "qdrawutl.h"
 #include "qframe.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#39 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#40 $");
 
 
 /*!

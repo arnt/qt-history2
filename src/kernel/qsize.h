@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.h#12 $
+** $Id: //depot/qt/main/src/kernel/qsize.h#13 $
 **
 ** Definition of QSize class
 **

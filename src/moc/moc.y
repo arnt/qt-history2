@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#65 $
+** $Id: //depot/qt/main/src/moc/moc.y#66 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -37,7 +37,7 @@ void yyerror( char *msg );
 #include <stdio.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#65 $");
+RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#66 $");
 
 QString rmWS( const char * );
 

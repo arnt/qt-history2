@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qarray.h#17 $
+** $Id: //depot/qt/main/src/tools/qarray.h#18 $
 **
 ** Definition of QArray template/macro class
 **

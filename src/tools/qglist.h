@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.h#22 $
+** $Id: //depot/qt/main/src/tools/qglist.h#23 $
 **
 ** Definition of QGList and QGListIterator classes
 **

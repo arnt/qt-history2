@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#37 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#38 $
 **
 ** Definition of QMenuData class
 **

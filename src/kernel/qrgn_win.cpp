@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrgn_win.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qrgn_win.cpp#18 $
 **
 ** Implementation of QRegion class for Win32
 **
@@ -21,7 +21,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qrgn_win.cpp#17 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qrgn_win.cpp#18 $");
 
 
 static QRegion *empty_region = 0;

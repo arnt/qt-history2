@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#137 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#138 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#137 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#138 $");
 
 
 /*!

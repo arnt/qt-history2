@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.h#25 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.h#26 $
 **
 ** Definition of QScrollBar class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontmetrics.h#23 $
+** $Id: //depot/qt/main/src/kernel/qfontmetrics.h#24 $
 **
 ** Definition of QFontMetrics class
 **

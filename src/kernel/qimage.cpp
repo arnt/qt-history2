@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#70 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#71 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#70 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#71 $");
 
 
 /*!

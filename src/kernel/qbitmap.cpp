@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#29 $
 **
 ** Implementation of QBitmap class
 **
@@ -12,7 +12,7 @@
 #include "qbitmap.h"
 #include "qimage.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qbitmap.cpp#28 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qbitmap.cpp#29 $");
 
 
 /*!

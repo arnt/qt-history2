@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.h#22 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.h#23 $
 **
 ** Definition of QPointArray class
 **

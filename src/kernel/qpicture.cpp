@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#42 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#43 $
 **
 ** Implementation of QPicture class
 **
@@ -16,7 +16,7 @@
 #include "qfile.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpicture.cpp#42 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpicture.cpp#43 $");
 
 
 /*!

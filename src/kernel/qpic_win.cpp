@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpic_win.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qpic_win.cpp#11 $
 **
 ** Implementation of QPicture class for Win32
 **
@@ -19,7 +19,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpic_win.cpp#10 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpic_win.cpp#11 $");
 
 
 QPicture::QPicture()

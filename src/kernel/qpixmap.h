@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#61 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#62 $
 **
 ** Definition of QPixmap class
 **

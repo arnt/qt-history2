@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#105 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#106 $
 **
 ** Implementation of QObject class
 **
@@ -14,7 +14,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#105 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#106 $");
 
 
 /*!

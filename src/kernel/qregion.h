@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.h#24 $
+** $Id: //depot/qt/main/src/kernel/qregion.h#25 $
 **
 ** Definition of QRegion class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#50 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#51 $
 **
 ** Implementation of QButton widget class
 **
@@ -14,7 +14,7 @@
 #include "qpixmap.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#50 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#51 $");
 
 
 /*!

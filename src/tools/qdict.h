@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdict.h#15 $
+** $Id: //depot/qt/main/src/tools/qdict.h#16 $
 **
 ** Definition of QDict template/macro class
 **

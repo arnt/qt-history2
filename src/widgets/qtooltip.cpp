@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#5 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -15,7 +15,7 @@
 #include "qlabel.h"
 #include "qpoint.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#4 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#5 $");
 
 // what comes out of the dict
 struct QTip

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpmcache.h#4 $
+** $Id: //depot/qt/main/src/kernel/qpmcache.h#5 $
 **
 ** Definition of QPixmapCache class
 **

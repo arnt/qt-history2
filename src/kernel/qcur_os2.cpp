@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcur_os2.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qcur_os2.cpp#9 $
 **
 ** Implementation of QCursor class for OS/2 PM
 **
@@ -14,7 +14,7 @@
 #define	 INCL_WIN
 #include <os2.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcur_os2.cpp#8 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcur_os2.cpp#9 $");
 
 
 /*****************************************************************************

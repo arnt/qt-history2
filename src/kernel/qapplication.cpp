@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#82 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#83 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#82 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#83 $");
 
 
 /*!

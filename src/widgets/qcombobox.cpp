@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#48 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#49 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -21,7 +21,7 @@
 #include "qtimer.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#48 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#49 $");
 
 
 /*!

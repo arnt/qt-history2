@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qconnection.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qconnection.cpp#13 $
 **
 ** Implementation of QConnection class
 **
@@ -11,7 +11,7 @@
 
 #include "qconnect.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qconnection.cpp#12 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qconnection.cpp#13 $");
 
 
 /*!

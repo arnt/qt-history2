@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbttngrp.h#14 $
+** $Id: //depot/qt/main/src/widgets/qbttngrp.h#15 $
 **
 ** Definition of QButtonGroup class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qqueue.h#6 $
+** $Id: //depot/qt/main/src/tools/qqueue.h#7 $
 **
 ** Definition of QQueue template/macro class
 **

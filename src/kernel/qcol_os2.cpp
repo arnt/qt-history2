@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_os2.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qcol_os2.cpp#10 $
 **
 ** Implementation of QColor class for OS/2 PM
 **
@@ -14,7 +14,7 @@
 #define	 INCL_PM
 #include <os2.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_os2.cpp#9 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_os2.cpp#10 $");
 
 
 /*****************************************************************************

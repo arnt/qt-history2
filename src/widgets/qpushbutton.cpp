@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#70 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#71 $
 **
 ** Implementation of QPushButton class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#70 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#71 $");
 
 
 /*!

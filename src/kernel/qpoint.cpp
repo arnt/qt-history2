@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qpoint.cpp#23 $
 **
 ** Implementation of QPoint class
 **
@@ -13,7 +13,7 @@
 #include "qpoint.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpoint.cpp#22 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpoint.cpp#23 $");
 
 
 /*!

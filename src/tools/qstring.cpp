@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#84 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#85 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#84 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#85 $");
 
 
 /*****************************************************************************

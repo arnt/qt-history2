@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#28 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#29 $
 **
 ** Implementation of QDir class
 **
@@ -24,7 +24,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#28 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#29 $");
 
 
 #if defined(_OS_FATFS_)

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.h#17 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.h#18 $
 **
 ** Definition of QMenuBar class
 **

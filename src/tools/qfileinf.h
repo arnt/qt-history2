@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinf.h#12 $
+** $Id: //depot/qt/main/src/tools/qfileinf.h#13 $
 **
 ** Definition of QFileInfo class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.cpp#27 $
+** $Id: //depot/qt/main/src/tools/qgcache.cpp#28 $
 **
 ** Implementation of QGCache and QGCacheIterator classes
 **
@@ -14,7 +14,7 @@
 #include "qdict.h"
 #include "qstring.h"				/* used for statistics */
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgcache.cpp#27 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qgcache.cpp#28 $");
 
 
 /*!

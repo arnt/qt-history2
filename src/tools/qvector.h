@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qvector.h#9 $
+** $Id: //depot/qt/main/src/tools/qvector.h#10 $
 **
 ** Definition of QVector template/macro class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.h#8 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.h#9 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **

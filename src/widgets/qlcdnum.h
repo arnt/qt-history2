@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnum.h#22 $
+** $Id: //depot/qt/main/src/widgets/qlcdnum.h#23 $
 **
 ** Definition of QLCDNumber class
 **

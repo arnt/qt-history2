@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#39 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#40 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 #include <stdio.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#39 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#40 $");
 
 
 /*!

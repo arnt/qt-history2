@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcollect.h#6 $
+** $Id: //depot/qt/main/src/tools/qcollect.h#7 $
 **
 ** Definition of base class for all collection classes
 **

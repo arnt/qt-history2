@@ -1,5 +1,5 @@
 %
-% $Id: //depot/qt/main/src/kernel/qpshdr.txt#10 $
+% $Id: //depot/qt/main/src/kernel/qpshdr.txt#11 $
 %
 % Postscript routines for QPSPrinter class
 %

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.h#6 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.h#7 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **

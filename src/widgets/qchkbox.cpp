@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#49 $
+** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#50 $
 **
 ** Implementation of QCheckBox class
 **
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qchkbox.cpp#49 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qchkbox.cpp#50 $");
 
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#17 $
 **
 ** Implementation of QCursor class for Win32
 **
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor_win.cpp#16 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor_win.cpp#17 $");
 
 
 /*****************************************************************************

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdata.h#20 $
+** $Id: //depot/qt/main/src/kernel/qfontdata.h#21 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **

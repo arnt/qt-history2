@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#47 $
+** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#48 $
 **
 ** Implementation of QRadioButton class
 **
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobt.cpp#47 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobt.cpp#48 $");
 
 
 /*!

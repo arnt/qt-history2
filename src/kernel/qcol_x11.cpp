@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#44 $
 **
 ** Implementation of QColor class for X11
 **
@@ -16,7 +16,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#43 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#44 $");
 
 
 /*****************************************************************************

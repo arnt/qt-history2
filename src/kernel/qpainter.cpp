@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#84 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#85 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -19,7 +19,7 @@
 #include "qstack.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#84 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#85 $");
 
 
 /*!

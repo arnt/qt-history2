@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcur_x11.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qcur_x11.cpp#41 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -19,7 +19,7 @@
 #include <X11/Xos.h>
 #include <X11/cursorfont.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcur_x11.cpp#40 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcur_x11.cpp#41 $");
 
 
 /*****************************************************************************

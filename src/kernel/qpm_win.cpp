@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#33 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#32 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#33 $");
 
 
 bool QPixmap::optimAll = TRUE;

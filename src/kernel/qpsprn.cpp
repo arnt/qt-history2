@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#27 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -18,7 +18,7 @@
 #include "qfile.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#26 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#27 $");
 
 
 #if !defined(QT_HEADER_PS)

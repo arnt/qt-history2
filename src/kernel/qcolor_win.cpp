@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#25 $
 **
 ** Implementation of QColor class for Win32
 **
@@ -20,7 +20,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_win.cpp#24 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_win.cpp#25 $");
 
 
 /*****************************************************************************

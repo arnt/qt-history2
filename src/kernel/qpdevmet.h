@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpdevmet.h#8 $
+** $Id: //depot/qt/main/src/kernel/qpdevmet.h#9 $
 **
 ** Definition of QPaintDeviceMetrics class
 **

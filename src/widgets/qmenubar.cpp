@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#59 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#60 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#59 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#60 $");
 
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignal.h#9 $
+** $Id: //depot/qt/main/src/kernel/qsignal.h#10 $
 **
 ** Definition of QSignal class
 **

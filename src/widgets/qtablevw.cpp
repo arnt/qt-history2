@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#31 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#32 $
 **
 ** Implementation of QTableView class
 **
@@ -19,7 +19,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#31 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#32 $");
 
 
 const int sbDim = 16;

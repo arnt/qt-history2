@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbasic.h#10 $
+** $Id: //depot/qt/main/src/kernel/qbasic.h#11 $
 **
 **   Geometry Management
 **

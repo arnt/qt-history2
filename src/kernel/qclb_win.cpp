@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclb_win.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qclb_win.cpp#6 $
 **
 ** Implementation of QClipboard class for Win32
 **
@@ -22,7 +22,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclb_win.cpp#5 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclb_win.cpp#6 $");
 
 
 /*****************************************************************************

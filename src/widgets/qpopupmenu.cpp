@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#77 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#78 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -18,7 +18,7 @@
 #include "qscrbar.h"				// qDrawArrow
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#77 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#78 $");
 
 
 // Motif style parameters
