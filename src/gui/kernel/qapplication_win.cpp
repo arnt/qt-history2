@@ -1846,6 +1846,10 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
                     }
                     QPoint cpos = QCursor::pos();
                     dispatch = !geom.contains(cpos);
+                    if ( !dispatch) {
+                        QWidget *hittest = QApplication::widgetAt(cpos);
+                        dispatch = !hittest || hittest->winId() != curWin;
+                    }                    
                     if (!dispatch) {
                         HRGN hrgn = CreateRectRgn(0,0,0,0);
                         if (GetWindowRgn(curWin, hrgn) != ERROR) {
