@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#27 $
 **
 ** Implementation of QMetaObject class
 **
@@ -13,7 +13,7 @@
 #include "qobjcoll.h"
 #include "qstrlist.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qmetaobject.cpp#26 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qmetaobject.cpp#27 $");
 
 
 /* not documented
@@ -165,8 +165,7 @@ QMemberDict *QMetaObject::init( QMetaData *data, int n )
 
 QMetaData *QMetaObject::mdata( int code, const char *name, bool super ) const
 {
-    register QMetaObject *meta = (QMetaObject *)this;
-    QMetaData *d = 0;				// avoid compiler warning
+    QMetaObject *meta = (QMetaObject *)this;
     QMemberDict *dict;
     while ( TRUE ) {
 	switch ( code ) {			// find member
@@ -174,8 +173,12 @@ QMetaData *QMetaObject::mdata( int code, const char *name, bool super ) const
 	    case SIGNAL_CODE: dict = meta->signalDict; break;
 	    default:	      return 0;		// should not happen
 	}
-	if ( dict && (d=dict->find(name)) )	// found it
-	    return d;
+	
+	if ( dict ) {
+	    QMetaData *d = dict->find(name);
+	    if ( d )
+		return d;
+	}
 	if ( super && meta->superclass )	// try for super class
 	    meta = meta->superclass;
 	else					// not found
