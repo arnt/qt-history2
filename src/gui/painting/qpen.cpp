@@ -517,7 +517,6 @@ QDataStream &operator<<(QDataStream &s, const QPen &p)
     } else {
         s << (double) p.widthF();
         s << p.brush();
-        qDebug() << "wrote out" << p.widthF() << p.brush();
     }
     return s;
 }
@@ -547,7 +546,6 @@ QDataStream &operator>>(QDataStream &s, QPen &p)
     } else {
         s >> width;
         s >> brush;
-        qDebug() << "wrote in" << width << brush;
     }
 
     Qt::PenStyle penStyle = Qt::PenStyle(style & Qt::MPenStyle);

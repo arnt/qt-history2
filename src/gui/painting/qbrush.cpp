@@ -720,7 +720,7 @@ QDataStream &operator<<(QDataStream &s, const QBrush &b)
                || b.style() == Qt::ConicalGradientPattern) {
         const QGradient *gradient = b.gradient();
         s << gradient->type();
-        s << gradient->stops();
+        s << gradient->m_stops;
 
         if (gradient->type() == QGradient::LinearGradient) {
             s << static_cast<const QLinearGradient *>(gradient)->start();
