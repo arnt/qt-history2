@@ -611,13 +611,13 @@ bool QTitleBar::event(QEvent *e)
             // try to keep something close to the same aspect
             int aspect = (icon.height() * 100) / icon.width();
             int newh = (aspect * menur.width()) / 100;
-            icon.fromImage(icon.toImage().smoothScale(menur.width(), newh));
+            icon.fromImage(icon.toImage().scale(menur.width(), newh));
             QWidget::setWindowIcon(icon);
         } else if (icon.height() > menur.height()) {
             // try to keep something close to the same aspect
             int aspect = (icon.width() * 100) / icon.height();
             int neww = (aspect * menur.height()) / 100;
-            icon.fromImage(icon.toImage().smoothScale(neww, menur.height()));
+            icon.fromImage(icon.toImage().scale(neww, menur.height()));
             QWidget::setWindowIcon(icon);
         }
 

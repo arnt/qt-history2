@@ -752,7 +752,7 @@ QPixmap *QIconSet::createScaled(Size size, const QPixmap *suppliedPix) const
     } else {
         imgSize = imgSize.expandedTo(img.size());
     }
-    img = img.smoothScale(imgSize);
+    img = img.scale(imgSize);
 
     QPixmap *pixmap = new QPixmap(img);
     if (!pixmap->mask()) {
