@@ -227,24 +227,21 @@ void QProcess::connectNotify( const char * signal )
 #if defined(QPROCESS_DEBUG)
 	    qDebug( "QProcess::connectNotify(): set ioRedirection to TRUE" );
 #endif
-	    // ### do something
-	    ioRedirection = TRUE;
+	    setIoRedirection( TRUE );
 	    return;
 	}
     if ( !notifyOnExit && qstrcmp( signal, SIGNAL(processExited()) )==0 ) {
 #if defined(QPROCESS_DEBUG)
 	qDebug( "QProcess::connectNotify(): set notifyOnExit to TRUE" );
 #endif
-	// ### do something
-	notifyOnExit = TRUE;
+	setNotifyOnExit( TRUE );
 	return;
     }
     if ( !wroteStdinConnected && qstrcmp( signal, SIGNAL(wroteStdin()) )==0 ) {
 #if defined(QPROCESS_DEBUG)
 	qDebug( "QProcess::connectNotify(): set wroteStdinConnected to TRUE" );
 #endif
-	// ### do something
-	wroteStdinConnected = TRUE;
+	setWroteStdinConnected( TRUE );
 	return;
     }
 }
@@ -262,21 +259,18 @@ void QProcess::disconnectNotify( const char * )
 #if defined(QPROCESS_DEBUG)
 	qDebug( "QProcess::disconnectNotify(): set ioRedirection to FALSE" );
 #endif
-	// ### do something
-	ioRedirection = FALSE;
+	setIoRedirection( FALSE );
     }
     if ( notifyOnExit && receivers( SIGNAL(processExited()) ) == 0 ) {
 #if defined(QPROCESS_DEBUG)
 	qDebug( "QProcess::disconnectNotify(): set notifyOnExit to FALSE" );
 #endif
-	// ### do something
-	notifyOnExit = FALSE;
+	setNotifyOnExit( FALSE );
     }
     if ( wroteStdinConnected && receivers( SIGNAL(wroteStdin()) ) == 0 ) {
 #if defined(QPROCESS_DEBUG)
 	qDebug( "QProcess::disconnectNotify(): set wroteStdinConnected to FALSE" );
 #endif
-	// ### do something
-	wroteStdinConnected = FALSE;
+	setWroteStdinConnected( FALSE );
     }
 }

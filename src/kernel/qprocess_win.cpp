@@ -112,10 +112,6 @@ void QProcess::init()
     exitNormal = FALSE;
 }
 
-/*!
-  Destructor; if the process is running, it is NOT terminated! Stdin, stdout
-  and stderr of the process are closed.
-*/
 QProcess::~QProcess()
 {
     delete d;
@@ -209,8 +205,10 @@ bool QProcess::start()
     CloseHandle( d->pipeStdout[1] );
     CloseHandle( d->pipeStderr[1] );
 
-    // start the timer
-    d->lookup->start( 100 );
+    if ( ioRedirection || notifyOnExit ) {
+	// start the timer
+	d->lookup->start( 100 );
+    }
 
     // cleanup and return
     return TRUE;
@@ -317,21 +315,31 @@ void QProcess::socketWrite( int fd )
     }
 }
 
+/*!
+  Use a timer for polling misc. stuff.
+*/
 void QProcess::timeout()
 {
-//    socketWrite( 0 );
-    socketRead( 1 ); // try stdout
-    socketRead( 2 ); // try stderr
+//    socketWrite( 0 ); // ### I don't need this one, do I?
 
-    // is process running?
-    if ( !isRunning() ) {
-	// isRunning() gets the exit values
-	d->lookup->stop();
-	emit processExited();
+    if ( ioRedirection ) {
+	socketRead( 1 ); // try stdout
+	socketRead( 2 ); // try stderr
+    }
+
+    if ( notifyOnExit ) {
+	// is process running?
+	if ( !isRunning() ) {
+	    // isRunning() gets the exit values
+	    d->lookup->stop();
+	    emit processExited();
+	}
     }
 }
 
-// non-blocking read on the pipe
+/*!
+  non-blocking read on the pipe
+*/
 QByteArray QProcess::readStddev( HANDLE dev, ulong bytes )
 {
     unsigned long i, r;
@@ -353,4 +361,39 @@ QByteArray QProcess::readStddev( HANDLE dev, ulong bytes )
 	}
     }
     return readBuffer;
+}
+
+/*!
+  Used by connectNotify() and disconnectNotify() to change the value of
+  ioRedirection (and related behaviour)
+*/
+void QProcess::setIoRedirection( bool value )
+{
+    ioRedirection = value;
+    if ( !ioRedirection && !notifyOnExit )
+	d->lookup->stop();
+    if ( ioRedirection )
+	d->lookup->start( 100 );
+}
+
+/*!
+  Used by connectNotify() and disconnectNotify() to change the value of
+  notifyOnExit (and related behaviour)
+*/
+void QProcess::setNotifyOnExit( bool value )
+{
+    notifyOnExit = value;
+    if ( !ioRedirection && !notifyOnExit )
+	d->lookup->stop();
+    if ( notifyOnExit )
+	d->lookup->start( 100 );
+}
+
+/*!
+  Used by connectNotify() and disconnectNotify() to change the value of
+  wroteStdinConnected (and related behaviour)
+*/
+void QProcess::setWroteStdinConnected( bool value )
+{
+    wroteStdinConnected = value;
 }

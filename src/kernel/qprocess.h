@@ -91,6 +91,9 @@ public slots:
 public:
     void connectNotify( const char * signal );
     void disconnectNotify( const char * signal );
+    void setIoRedirection( bool value );
+    void setNotifyOnExit( bool value );
+    void setWroteStdinConnected( bool value );
 
 private:
     QProcessPrivate *d;
@@ -106,7 +109,7 @@ private:
 
 private:
     void init();
-#if defined( _WS_WIN_ )
+#if defined(_WS_WIN_)
     QByteArray readStddev( HANDLE dev, ulong bytes = 0 );
 #endif
 

@@ -245,27 +245,6 @@ QProcess::~QProcess()
 
   Returns TRUE on success, otherwise FALSE.
 */
-/*
-  If \a ioRedirection is TRUE, the signals dataStdout() and dataStdin() are
-  emitted when the program wrote data to stdout resp. stderr. If \a
-  ioRedirection is FALSE, all output of the program is ignored. If you are not
-  interested in these signals, you should use FALSE for \a ioRedirection, since
-  the processing might be more efficient in this case (depending on the
-  operating system).
-
-  ### should writing to stdin be allowed? At the moment it isn't really
-  allowed. It will probably make no sense to close stdin automatically?
-
-  ### what should happen with the output? To the console (if any) or ignored?
-
-  If \a notifyOnExit is TRUE, the signal processExited() is emitted when the
-  program terminated. If \a notifyOnExit is FALSE, the signal is never emitted.
-  If you are not interested in this signal, you should use FALSE for \a
-  notifyOnExit since the processing might be more efficient in this case
-  (depending on the operating system).
-
-  Returns TRUE on success, otherwise FALSE.
-*/
 bool QProcess::start()
 {
 #if defined(QPROCESS_DEBUG)
@@ -329,7 +308,7 @@ bool QProcess::start()
 	::dup2( d->socketStdout[1], STDOUT_FILENO );
 	::dup2( d->socketStderr[1], STDERR_FILENO );
 	::chdir( workingDir.absPath().latin1() );
-	::execvp( arglist[0], (char*const*)arglist ); // ### a hack
+	::execvp( arglist[0], (char*const*)arglist ); // ### cast not nice
 	::exit( -1 );
     } else if ( d->pid == -1 ) {
 	// error forking
@@ -346,7 +325,7 @@ bool QProcess::start()
     ::close( d->socketStdin[0] );
     ::close( d->socketStdout[1] );
     ::close( d->socketStderr[1] );
-    // TODO? test if exec was successful
+    // ### test if exec was successful? How?
 
     // setup notifiers for the sockets
     d->notifierStdin = new QSocketNotifier( d->socketStdin[1],
@@ -361,8 +340,10 @@ bool QProcess::start()
 	    this, SLOT(socketRead(int)) );
     connect( d->notifierStderr, SIGNAL(activated(int)),
 	    this, SLOT(socketRead(int)) );
-    if ( ioRedirection ) {
+    if ( !d->stdinBuf.isEmpty() ) {
 	d->notifierStdin->setEnabled( TRUE );
+    }
+    if ( ioRedirection ) {
 	d->notifierStdout->setEnabled( TRUE );
 	d->notifierStderr->setEnabled( TRUE );
     }
@@ -573,7 +554,48 @@ void QProcess::socketWrite( int fd )
     }
 }
 
-// only used under Windows
+/*!
+  Only used under Windows (but moc does not know about #if defined()).
+*/
 void QProcess::timeout()
 {
+}
+
+
+/*!
+  Used by connectNotify() and disconnectNotify() to change the value of
+  ioRedirection (and related behaviour)
+*/
+void QProcess::setIoRedirection( bool value )
+{
+    ioRedirection = value;
+    if ( ioRedirection ) {
+	if ( d->notifierStdout )
+	    d->notifierStdout->setEnabled( TRUE );
+	if ( d->notifierStderr )
+	    d->notifierStderr->setEnabled( TRUE );
+    } else {
+	if ( d->notifierStdout )
+	    d->notifierStdout->setEnabled( FALSE );
+	if ( d->notifierStderr )
+	    d->notifierStderr->setEnabled( FALSE );
+    }
+}
+
+/*!
+  Used by connectNotify() and disconnectNotify() to change the value of
+  notifyOnExit (and related behaviour)
+*/
+void QProcess::setNotifyOnExit( bool value )
+{
+    notifyOnExit = value;
+}
+
+/*!
+  Used by connectNotify() and disconnectNotify() to change the value of
+  wroteStdinConnected (and related behaviour)
+*/
+void QProcess::setWroteStdinConnected( bool value )
+{
+    wroteStdinConnected = value;
 }
