@@ -606,10 +606,10 @@ void QWSDisplay::Data::init()
 QWSEvent* QWSDisplay::Data::readMore()
 {
 #ifdef QT_NO_QWS_MULTIPROCESS
-    return incoming.takeFirst();
+    return incoming ? incoming.takeFirst() : 0;
 #else
     if ( !csocket )
-	return incoming.takeFirst();
+	return incoming ? incoming.takeFirst() : 0;
     // read next event
     if ( !current_event ) {
 	int event_type = qws_read_uint( csocket );

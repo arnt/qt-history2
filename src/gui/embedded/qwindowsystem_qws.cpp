@@ -912,7 +912,8 @@ QWSCommand* QWSClient::readMoreCommand()
     else
 #endif
     {
-	return qt_get_server_queue()->takeFirst();
+	QList<QWSCommand*> *serverQueue = qt_get_server_queue();
+	return serverQueue->isEmpty() ? 0 : serverQueue->takeFirst();
     }
 
 }
