@@ -748,6 +748,13 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, 
         p->setPen(opt->palette.text());
         p->drawLineSegments(a);
         break; }
+    case PE_MenuFrame:
+    case PE_Panel:
+    case PE_PanelPopup:
+        if (const Q4StyleOptionFrame *frame = qt_cast<const Q4StyleOptionFrame *>(opt))
+            qDrawShadePanel(p, frame->rect, frame->palette, frame->state & Style_Sunken,
+                            frame->lineWidth);
+        break;
     default:
         qWarning("QCommonStyle::drawPrimitive not handled %d", pe);
     }

@@ -2690,6 +2690,22 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt,
             drawPrimitive(PE_ButtonBevel, &buttonOpt, p, w);
         }
         break;
+    case PE_MenuFrame:
+    case PE_Panel:
+    case PE_PanelPopup:
+        if (const Q4StyleOptionFrame *frame = qt_cast<const Q4StyleOptionFrame *>(opt)) {
+            if (frame->lineWidth == 2) {
+                QPalette popupPal = frame->palette;
+                if (pe == PE_PanelPopup) {
+                    popupPal.setColor(QPalette::Light, frame->palette.background());
+                    popupPal.setColor(QPalette::Midlight, frame->palette.light());
+                }
+                qDrawWinPanel(p, frame->rect, popupPal, frame->state & Style_Sunken);
+            } else {
+                QCommonStyle::drawPrimitive(pe, opt, p, w);
+            }
+        }
+        break;
     default:
         QCommonStyle::drawPrimitive(pe, opt, p, w);
     }

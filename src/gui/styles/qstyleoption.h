@@ -23,9 +23,9 @@ struct Q4StyleOption {
     int version;
     int type;
     QStyle::SFlags state;
-    QRect rect;             // Right now we also use this as the rect for drawing the label too...
+    QRect rect;             // Rect has overloaded meanings.
     QPalette palette;
-    enum { Default, FocusRect, Button, Tab, MenuItem, Complex, Slider };
+    enum { Default, FocusRect, Button, Tab, MenuItem, Complex, Slider, Frame };
     enum { Type = Default };
     Q4StyleOption(int optionversion, int optiontype = Default);
     void init(const QWidget *w);
@@ -35,6 +35,12 @@ struct Q4StyleOptionFocusRect  : public Q4StyleOption {
     enum { Type = FocusRect };
     QColor backgroundColor;
     Q4StyleOptionFocusRect(int version) : Q4StyleOption(version, FocusRect) {}
+};
+
+struct Q4StyleOptionFrame : public Q4StyleOption {
+    enum { Type = Frame };
+    int lineWidth;
+    Q4StyleOptionFrame(int version) : Q4StyleOption(version, Frame) {}
 };
 
 struct Q4StyleOptionButton : public Q4StyleOption {
@@ -51,13 +57,13 @@ struct Q4StyleOptionTab : public Q4StyleOption {
     enum { Type = Tab };
     QTabBar::Shape tabshape;
     QString text;
-    QIconSet iconset;
+    QIconSet icon;
     Q4StyleOptionTab(int version) : Q4StyleOption(version, Tab) {}
 };
 
 struct Q4StyleOptionMenuItem : public Q4StyleOption {
     enum { Type = MenuItem };
-    enum MenuItemType { Normal, Separator, SubMenu, Scroller, TearOff };
+    enum MenuItemType { Normal, Separator, SubMenu, Scroller, TearOff, EmptyArea };
     enum CheckState { NotCheckable, Checked, Unchecked };
     MenuItemType menuItemType;
     CheckState checkState;
