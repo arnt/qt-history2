@@ -195,7 +195,10 @@ void QPainterSubpath::removeBrokenSegments()
     We first add a rectangle, which becomes a closed subpath.  We
     then add two bezier curves, and finally draw the entire path.
 
-    \code
+    \table
+    \row
+    \i \inlineimage qpainterpath-example.png
+    \i \code
     QPainterPath path;
     path.addRect(20, 20, 80, 80);
 
@@ -205,6 +208,7 @@ void QPainterSubpath::removeBrokenSegments()
 
     painter.drawPath(path);
     \endcode
+    \endtable
 
     \sa QPainter
 */
@@ -230,6 +234,67 @@ void QPainterSubpath::removeBrokenSegments()
     number is non zero, the point is inside the path. This fill mode
     can also in most cases be considered as the intersection of closed
     shapes.
+*/
+
+/*!
+    \enum QPainterPath::ElementType
+    \internal
+
+    This enum describes the types of elements used to connect vertices
+    in subpaths.
+
+    \value MoveToElement      A new line begins at the element.
+    \value LineToElement      A line is drawn to the element.
+    \value CurveToElement     A curve is drawn to the element.
+    \value CurveToDataElement Provides extra data required to draw a curve to
+                              a \c CurveToElement element.
+*/
+
+/*!
+    \class QPainterPath::Element
+    \internal
+*/
+
+/*!
+    \fn void QPainterPath::addEllipse(float x, float y, float width, float height)
+    \overload
+
+    Creates an ellipse within a bounding rectangle defined by its top-left
+    corner at (\a x, \a y), \a width and \a height, and adds it to the
+    painter path.
+
+    If the current subpath is closed, a new subpath is started. The ellipse
+    is clockwise starting and starting zero degrees.
+*/
+
+/*!
+    \fn void QPainterPath::addText(float x, float y, const QFont &font, const QString &text)
+    \overload
+
+    Adds the given \a text to this path as a set of closed subpaths created
+    from the \a font supplied. The subpaths are positioned so that the left
+    end of the text's baseline lies at the point specified by (\a x, \a y).
+
+    \sa QPainter::drawText
+*/
+
+/*!
+    \fn int QPainterPath::elementCount() const
+
+    Returns the number of path elements in the painter path.
+*/
+
+/*!
+    \fn const QPainterPath::Element &QPainterPath::elementAt(int index) const
+
+    Returns the element at the given \a index in the painter path.
+*/
+
+/*!
+    \fn QPainterPath &QPainterPath::operator +=(const QPainterPath &other)
+
+    Appends the \a other painter path to this painter path and returns a
+    reference to the result.
 */
 
 /*!
@@ -523,10 +588,11 @@ void QPainterPath::addPolygon(const QPolygon &polygon)
 }
 
 /*!
-    Adds the ellipse defined by the bounding rectangle \a rect to the
-    path as a new subpath. If the current subpath is closed, a new
-    subpath is started. The ellipse is clockwise starting and starting
-    zero degrees.
+    Creates an ellipse within the bounding rectangle specified by
+    \a boundingRect and adds it to the painter path.
+
+    If the current subpath is closed, a new subpath is started. The ellipse
+    is clockwise starting and starting zero degrees.
 */
 void QPainterPath::addEllipse(const QRectF &boundingRect)
 {
@@ -705,6 +771,10 @@ QPainterPath QPainterPath::toReversed() const
 }
 
 
+/*!
+    Returns a list of polygons corresponding to the subpaths in the painter
+    path.
+*/
 QList<QPolygon> QPainterPath::toSubpathPolygons() const
 {
     QList<QPolygon> flatCurves;
@@ -745,6 +815,9 @@ QList<QPolygon> QPainterPath::toSubpathPolygons() const
     return flatCurves;
 }
 
+/*!
+    Returns the painter path as a filled polygon.
+*/
 QPolygon QPainterPath::toFillPolygon() const
 {
     QList<QPolygon> flats = toSubpathPolygons();
@@ -968,7 +1041,7 @@ void QPainterPathStrokerPrivate::strokeCurve(int elmi,
 }
 
 /*!
-  \breif The QPainterPathStroker class is used to process the stroke
+  \brief The QPainterPathStroker class is used to process the stroke
   of a QPainterPath into a path that can be used for filling.
 
   The function createStroke is used to create a stroke from a given
