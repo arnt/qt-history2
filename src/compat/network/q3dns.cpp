@@ -2601,13 +2601,13 @@ void Q3Dns::doResInit()
 #  if defined(MAXDFLSRCH)
 	for( i=0; i < MAXDFLSRCH; i++ ) {
 	    if ( _res.dnsrch[i] && *(_res.dnsrch[i]) )
-		domains->append( QString::fromLatin1( _res.dnsrch[i] ).lower() );
+		domains->append( QString::fromLatin1( _res.dnsrch[i] ).lower().latin1() );
 	    else
 		break;
 	}
 #  endif
 	if ( *_res.defdname )
-	    domains->append( QString::fromLatin1( _res.defdname ).lower() );
+	    domains->append( QString::fromLatin1( _res.defdname ).lower().latin1() );
 #endif
 
 	// the code above adds "0.0.0.0" as a name server at the slightest
