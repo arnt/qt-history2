@@ -50,12 +50,12 @@ static QColor menuColors[17] = {		// menu colors
  public:
      ToggleIconButton( QWidget *parent=0, const char *name=0 )
 	 : QPushButton(parent, name) { setToggleButton(TRUE); }
-     ToggleIconButton( const QPixmap &pm, 
+     ToggleIconButton( const QPixmap &pm,
 		       QWidget *parent=0, const char *name=0 )
 	 : QPushButton( parent, name) { setPixmap(pm); setToggleButton(TRUE); }
  };
 
-const char *shapeNames[] = {"Line", "Rectangle", "RoundRect", "Text", 
+const char *shapeNames[] = {"Line", "Rectangle", "RoundRect", "Text",
 			    "Ellipse", "Arc", "Pie", "Chord", "PolyLine",
 			    "Polygon", "Bezier", "Bitmap", "Pixmap", 0 };
 
@@ -89,13 +89,13 @@ public:
     DrawView( QWidget *parent=0, const char *name=0 );
    ~DrawView() {}
 
-    enum Shape {Line, Rectangle, RoundRect, Text, Ellipse, Arc, Pie, Chord, 
+    enum Shape {Line, Rectangle, RoundRect, Text, Ellipse, Arc, Pie, Chord,
 		 PolyLine, Polygon, Bezier, Bitmap, Pixmap, MaxShape };
 
     void setShape( Shape s ) { currentShape = s; repaint(); }
     Shape shape()   { return currentShape; }
-    QPen *pen()     { return &currentPen; } 
-    QBrush *brush() { return &currentBrush; } 
+    QPen *pen()     { return &currentPen; }
+    QBrush *brush() { return &currentBrush; }
     bool evenOdd()  { return evenOddOn; }
 
     static void drawShape( QPainter *p, const QPoint&, Shape shape,
@@ -148,7 +148,7 @@ DrawControl::DrawControl( QWidget *parent, const char *name )
 	: QWidget( parent, name )
 {
     view = new DrawView( 0, "drawView" );
-    view->setGeometry( 200, 200, 320, 200);
+    view->resize( 320, 200);
     createMenus();
     view->show();
     brushColorSet = FALSE;
@@ -204,7 +204,7 @@ void DrawControl::penColorSelected( int i )
 void DrawControl::penStyleSelected( int i )
 {
     view->pen()->setStyle( menuPenStyles[i] );
-    if ( view->shape() == DrawView::Pixmap || 
+    if ( view->shape() == DrawView::Pixmap ||
 	 view->shape() == DrawView::Bitmap )
 	return;
     view->repaint();
@@ -213,7 +213,7 @@ void DrawControl::penStyleSelected( int i )
 void DrawControl::penWidthSelected( int i )
 {
     view->pen()->setWidth( menuLWidths[i] );
-    if ( view->shape() == DrawView::Pixmap || 
+    if ( view->shape() == DrawView::Pixmap ||
 	 view->shape() == DrawView::Bitmap )
 	return;
     view->repaint();
@@ -234,7 +234,7 @@ void DrawControl::brushStyleSelected( int i )
     if ( !brushColorSet )
 	view->brush()->setColor( black );
 
-    if ( view->shape() == DrawView::Pixmap || 
+    if ( view->shape() == DrawView::Pixmap ||
 	 view->shape() == DrawView::Bitmap )
 	return;
     view->repaint();
@@ -378,7 +378,7 @@ void DrawControl::createMenus()
     QFontMetrics fm = fontMetrics();
 
     QWMatrix mtx;
-    mtx.scale( 1.0*fm.height()/200, 1.0*fm.height()/200 ); 
+    mtx.scale( 1.0*fm.height()/200, 1.0*fm.height()/200 );
     pix.resize( 120, fm.height()+4 );
 
     int i;
@@ -617,7 +617,7 @@ void DrawControl::setBrushPattern( QBrush *b, int index )
                     p.setPen( white );
                     p.drawText( -r.x() + 5, -r.y() + 5, txt );
                     p.end();
-		}                
+		}
 	    }
 	    QPixmapCache::insert( key, pm );	// save in pixmap cache
 	}
@@ -645,16 +645,16 @@ void DrawView::drawShape( QPainter *p, const QPoint &pnt, Shape shape,
 
     if ( !pixLoaded && (shape == Pixmap || shape == Bitmap) ) {
 	QImageIO io;
-	QCString tmp; 
+	QCString tmp;
 	tmp.resize( doomSize + 1);     // doomSize and doomStr are defined
 	qmemmove( tmp.data(), doomStr, doomSize + 1 ); // in doom.cpp
-	QBuffer b( tmp );	      
+	QBuffer b( tmp );	
 	b.open( IO_ReadOnly );
 	io.setIODevice( &b );	      // read image from string via buffer
 	io.read();
 	b.close();
 	pixmap.convertFromImage( io.image() );
-	bitmap = pixmap;	     // will automatically dither image	       
+	bitmap = pixmap;	     // will automatically dither image	
 	pixLoaded = TRUE;
     }
 
@@ -728,7 +728,7 @@ int main( int argc, char **argv )
     QApplication a( argc, argv );
 //    installDebugHandler(f);
     DrawControl *tmp = new DrawControl;
-    tmp->setGeometry( 0, 0, 800, 575 );
+    tmp->resize( 800, 575 );
     tmp->show();
     tmp->raiseView();
 
