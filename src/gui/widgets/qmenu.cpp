@@ -1199,6 +1199,7 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
     }
     d->tearoffHighlighted = 0;
     d->motions = 0;
+    d->doChildEffects = true;
 
     ensurePolished(); // Get the right font
     d->updateActions();
@@ -1277,19 +1278,30 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
        (qobject_cast<QMenuBar*>(d->causedPopup) && pos.y() + size.width()/2 < d->causedPopup->mapToGlobal(d->causedPopup->pos()).y()))
        vGuess = QEffects::UpScroll;
 #endif
-
+    emit aboutToShow();
     if (QApplication::isEffectEnabled(Qt::UI_AnimateMenu)) {
-        emit aboutToShow();
-        if (QApplication::isEffectEnabled(Qt::UI_FadeMenu))
-            qFadeEffect(this);
-        else if (d->causedPopup)
-            qScrollEffect(this, qobject_cast<QMenu*>(d->causedPopup) ? hGuess : vGuess);
-        else
-            qScrollEffect(this, hGuess | vGuess);
+        bool doChildEffects = true;
+        if (QMenuBar *mb = qobject_cast<QMenuBar*>(d->causedPopup)) {
+            doChildEffects = mb->d->doChildEffects;
+            mb->d->doChildEffects = false;
+        } else if (QMenu *m = qobject_cast<QMenu*>(d->causedPopup)) {
+            doChildEffects = m->d->doChildEffects;
+            m->d->doChildEffects = false;
+        }
+        
+        if (doChildEffects) {
+            if (QApplication::isEffectEnabled(Qt::UI_FadeMenu))
+                qFadeEffect(this);
+            else if (d->causedPopup)
+                qScrollEffect(this, qobject_cast<QMenu*>(d->causedPopup) ? hGuess : vGuess);
+            else
+                qScrollEffect(this, hGuess | vGuess);
+        } else {
+            show();
+        }
     } else
 #endif
     {
-        emit aboutToShow();
         show();
     }
 

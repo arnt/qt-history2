@@ -132,6 +132,9 @@ public:
     void actionTriggered();
     void actionHovered();
 
+    //menu fading/scrolling effects
+    bool doChildEffects;
+
 #ifdef Q_WS_MAC
     //mac menu binding
     struct QMacMenuPrivate {

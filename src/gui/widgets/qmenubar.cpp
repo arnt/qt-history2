@@ -164,6 +164,7 @@ void QMenuBarPrivate::setCurrentAction(QAction *action, bool popup, bool activat
     if(currentAction == action && popup == popupState)
         return;
 
+    doChildEffects = (popup && !activeMenu);
     Q_Q(QMenuBar);
     if(activeMenu) {
         QMenu *menu = activeMenu;

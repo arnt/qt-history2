@@ -86,6 +86,9 @@ public:
     //extra widgets in the menubar
     QPointer<QWidget> leftWidget, rightWidget;
 
+    //menu fading/scrolling effects
+    bool doChildEffects;
+
     // reparenting
     void handleReparent();
     QWidget *oldParent;
