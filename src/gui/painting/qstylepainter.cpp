@@ -54,10 +54,26 @@
 */
 
 /*!
+    \fn QStylePainter::QStylePainter(QPaintDevice *pd,  Widget *widget)
+
+    Construct a QStylePainter using \a pd for its paint device, and
+    attributes from \a widget.
+*/
+
+
+/*!
     \fn bool QStylePainter::begin(QWidget *widget)
 
     Begin painting operations on widget \a widget.
     This is automatically called by the constructor that takes a QWidget.
+*/
+
+/*! \overload
+    \fn bool QStylePainter::begin(QPaintDevice *pd QWidget *widget)
+
+    Begin painting operations on paint device \a pd as if it was \a
+    widget.  This is automatically called by the constructor that
+    takes a QPaintDevice and a QWidget.
 */
 
 

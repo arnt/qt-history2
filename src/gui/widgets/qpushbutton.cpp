@@ -20,7 +20,7 @@
 #include "qevent.h"
 #include "qfontmetrics.h"
 #include "qmenu.h"
-#include "qpainter.h"
+#include "qstylepainter.h"
 #include "qpixmap.h"
 #include "qpointer.h"
 #include "qpushbutton.h"
@@ -369,9 +369,9 @@ void QPushButton::updateMask()
     QBitmap bm(size());
     bm.fill(Qt::color0);
 
-    QPainter p(&bm);
+    QStylePainter p(&bm, this);
     QStyleOptionButton opt = d->getStyleOption();
-    style()->drawControlMask(QStyle::CE_PushButton, &opt, &p, this);
+    p.drawControlMask(QStyle::CE_PushButton, opt);
     p.end();
 
     setMask(bm);
@@ -382,9 +382,9 @@ void QPushButton::updateMask()
 */
 void QPushButton::paintEvent(QPaintEvent *)
 {
-    QPainter p(this);
+    QStylePainter p(this);
     QStyleOptionButton opt = d->getStyleOption();
-    style()->drawControl(QStyle::CE_PushButton, &opt, &p, this);
+    p.drawControl(QStyle::CE_PushButton, opt);
 }
 
 

@@ -16,7 +16,7 @@
 #include "qapplication.h"
 #include "qbitmap.h"
 #include "qicon.h"
-#include "qpainter.h"
+#include "qstylepainter.h"
 #include "qstyle.h"
 #include "qstyleoption.h"
 
@@ -220,9 +220,9 @@ QSize QCheckBox::sizeHint() const
 */
 void QCheckBox::paintEvent(QPaintEvent *)
 {
-    QPainter p(this);
+    QStylePainter p(this);
     QStyleOptionButton opt = d->getStyleOption();
-    style()->drawControl(QStyle::CE_CheckBox, &opt, &p, this);
+    p.drawControl(QStyle::CE_CheckBox, opt);
 }
 
 
@@ -237,8 +237,8 @@ void QCheckBox::updateMask()
     QBitmap bm(width(), height());
     bm.fill(Qt::color0);
 
-    QPainter p(&bm);
-    style()->drawControlMask(QStyle::CE_CheckBox, &opt, &p, this);
+    QStylePainter p(&bm, this);
+    p.drawControlMask(QStyle::CE_CheckBox, opt);
     if (!text().isNull() || !icon().isNull()) {
         QStyleOptionButton opt = d->getStyleOption();
         QRect crect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_CheckBoxContents, &opt, this));

@@ -16,7 +16,7 @@
 #include "qapplication.h"
 #include "qbitmap.h"
 #include "qbuttongroup.h"
-#include "qpainter.h"
+#include "qstylepainter.h"
 #include "qstyle.h"
 #include "qstyleoption.h"
 
@@ -159,9 +159,9 @@ bool QRadioButton::hitButton(const QPoint &pos) const
  */
 void QRadioButton::paintEvent(QPaintEvent *)
 {
-    QPainter p(this);
+    QStylePainter p(this);
     QStyleOptionButton opt = getStyleOption(this);
-    style()->drawControl(QStyle::CE_RadioButton, &opt, &p, this);
+    p.drawControl(QStyle::CE_RadioButton, opt);
 }
 
 /*!
@@ -173,8 +173,8 @@ void QRadioButton::updateMask()
     opt.rect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_RadioButtonIndicator, &opt, this));
     QBitmap bm(width(), height());
     bm.fill(Qt::color0);
-    QPainter p(&bm);
-    style()->drawControlMask(QStyle::CE_RadioButton, &opt, &p, this);
+    QStylePainter p(&bm, this);
+    p.drawControlMask(QStyle::CE_RadioButton, opt);
     if (!text().isEmpty() || !icon().isNull()) {
         QRect crect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_RadioButtonContents, &opt, this));
         QRect frect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_RadioButtonFocusRect, &opt, this));
