@@ -3744,6 +3744,7 @@ const int BMP_OS2  = 64;			// new OS/2 BMP size
 const int BMP_RGB  = 0;				// no compression
 const int BMP_RLE8 = 1;				// run-length encoded, 8 bits
 const int BMP_RLE4 = 2;				// run-length encoded, 4 bits
+const int BMP_BITFIELDS = 3;			// RGB values encoded in data as bit-fields
 
 struct BMP_INFOHDR {				// BMP information header
     Q_INT32  biSize;				// size of this struct
@@ -3796,6 +3797,17 @@ QDataStream &operator<<( QDataStream &s, const BMP_INFOHDR &bi )
 }
 
 static
+int calc_shift(int mask)
+{
+    int result = 0;
+    while (!(mask & 1)) {
+	result++;
+	mask >>= 1;
+    }
+    return result;
+}
+
+static
 bool read_dib( QDataStream& s, int offset, int startpos, QImage& image )
 {
     BMP_INFOHDR bi;
@@ -3821,18 +3833,23 @@ bool read_dib( QDataStream& s, int offset, int startpos, QImage& image )
 #endif
     int w = bi.biWidth,	 h = bi.biHeight,  nbits = bi.biBitCount;
     int t = bi.biSize,	 comp = bi.biCompression;
+    int red_mask, green_mask, blue_mask;
+    int red_shift, green_shift, blue_shift;
+    int red_scale, green_scale, blue_scale;
 
-    if ( !(nbits == 1 || nbits == 4 || nbits == 8 || nbits == 24) ||
-	 bi.biPlanes != 1 || comp > BMP_RLE4 )
+    if ( !(nbits == 1 || nbits == 4 || nbits == 8 || nbits == 24 || nbits == 32) ||
+	 bi.biPlanes != 1 || comp > BMP_BITFIELDS )
 	return FALSE;					// weird BMP image
     if ( !(comp == BMP_RGB || (nbits == 4 && comp == BMP_RLE4) ||
-	   (nbits == 8 && comp == BMP_RLE8)) )
+	   (nbits == 8 && comp == BMP_RLE8) || ((nbits == 16 || nbits == 32) && comp == BMP_BITFIELDS)) )
 	 return FALSE;				// weird compression type
 
     int ncols;
     int depth;
     switch ( nbits ) {
+	case 32:
 	case 24:
+	case 16:
 	    depth = 32;
 	    break;
 	case 8:
@@ -3864,7 +3881,29 @@ bool read_dib( QDataStream& s, int offset, int startpos, QImage& image )
 	    if ( d->atEnd() )			// truncated file
 		return FALSE;
 	}
-    }
+    } else if (comp == BMP_BITFIELDS && (nbits == 16 || nbits == 32)) {
+	if ( d->readBlock( (char *)&red_mask, sizeof(red_mask)) != sizeof(red_mask) )
+	    return FALSE;
+	if ( d->readBlock( (char *)&green_mask, sizeof(green_mask)) != sizeof(green_mask) )
+	    return FALSE;
+	if ( d->readBlock( (char *)&blue_mask, sizeof(blue_mask)) != sizeof(blue_mask) )
+	    return FALSE;
+	red_shift = calc_shift(red_mask);
+	red_scale = 256 / ((red_mask >> red_shift) + 1);
+	green_shift = calc_shift(green_mask);
+	green_scale = 256 / ((green_mask >> green_shift) + 1);
+	blue_shift = calc_shift(blue_mask);
+	blue_scale = 256 / ((blue_mask >> blue_shift) + 1);
+    } else if (comp == BMP_RGB && (nbits == 24 || nbits == 32)) {
+	blue_mask = 0x000000ff;
+	green_mask = 0x0000ff00;
+	red_mask = 0x00ff0000;
+	blue_shift = 0;
+	green_shift = 8;
+	red_shift = 16;
+	blue_scale = green_scale = red_scale = 1;
+    } else if (comp == BMP_RGB && nbits == 16)  // don't support RGB values for 15/16 bpp
+	return FALSE; 
 
     // offset can be bogus, be careful
     if (offset>=0 && startpos + offset > d->at() )
@@ -4011,12 +4050,14 @@ bool read_dib( QDataStream& s, int offset, int startpos, QImage& image )
 	}
     }
 
-    else if ( nbits == 24 ) {			// 24 bit BMP image
+    else if ( nbits == 16 || nbits == 24 || nbits == 32 ) { // 16,24,32 bit BMP image
 	register QRgb *p;
 	QRgb  *end;
 	uchar *buf24 = new uchar[bpl];
-	int    bpl24 = ((w*24+31)/32)*4;
+	int    bpl24 = ((w*nbits+31)/32)*4;
 	uchar *b;
+	int c;
+
 	while ( --h >= 0 ) {
 	    p = (QRgb *)line[h];
 	    end = p + w;
@@ -4024,8 +4065,11 @@ bool read_dib( QDataStream& s, int offset, int startpos, QImage& image )
 		break;
 	    b = buf24;
 	    while ( p < end ) {
-		*p++ = qRgb(b[2],b[1],b[0]);
-		b += 3;
+ 	    	c = (nbits == 16)?*(unsigned short*)b:*(int *)b;
+ 		*p++ = qRgb(((c & red_mask) >> red_shift) * red_scale,
+ 					((c & green_mask) >> green_shift) * green_scale,
+ 					((c & blue_mask) >> blue_shift)) * blue_scale;
+ 		b += nbits/8;
 	    }
 	}
 	delete[] buf24;
