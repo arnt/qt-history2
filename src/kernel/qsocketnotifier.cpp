@@ -102,10 +102,6 @@
     select() call that incorporates all socket notifiers and the X
     socket.
 
-    Note that on XFree86 for OS/2, select() works only in the thread
-    in which main() is running; you should therefore use that thread
-    for GUI operations.
-
     \sa QSocket, QServerSocket, QSocketDevice
 */
 
