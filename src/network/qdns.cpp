@@ -1701,10 +1701,11 @@ void QDns::startQuery()
 void QDns::setStartQueryTimer()
 {
 #if defined(Q_DNS_SYNCHRONOUS)
-    if ( !d->startQueryTimer && !d->noEventLoop ) {
+    if ( !d->startQueryTimer && !d->noEventLoop )
 #else
-    if ( !d->startQueryTimer ) {
+    if ( !d->startQueryTimer )
 #endif
+    {
 	// start the query the next time we enter event loop
 	QTimer::singleShot( 0, this, SLOT(startQuery()) );
 	d->startQueryTimer = TRUE;
