@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#98 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#99 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -41,7 +41,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#98 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#99 $";
 #endif
 
 
@@ -230,7 +230,7 @@ void qt_init( int *argcptr, char **argv )
 		    s += (char)c;
 	    }
 	    if ( s == "gdb" ) {
-		appNoGrab == TRUE;
+		appNoGrab = TRUE;
 		debug( "Qt: gdb: -nograb added to command-line options"
 		       "\tUse the -dograb option to enforce grabbing" );
 	    }
