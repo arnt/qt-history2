@@ -790,61 +790,66 @@ QPointArray QComplexText::positionMarks( QFontPrivate *f, const QString &str,
 	unsigned char cmb = combiningClass( mark );
 	QPoint p;
 	QRect markRect = f->boundingRect( mark );
+	int eCmb = cmb;
 
-	if ( cmb < 200 ) {
+	if ( eCmb < 200 ) {
 	    // fixed position classes. We approximate by mapping to one of the others.
 	    // currently I added only the ones for arabic, hebrew, lao and thai.
 
 	    // add a bit more offset to arabic, a bit hacky
-	    if ( cmb >= 27 && cmb <= 36 )
+	    if ( eCmb >= 27 && eCmb <= 36 )
 		offset +=1;
-	    if ( cmb == 0 ) {
+	    if ( eCmb == 0 ) {
 		if ( mark.row() == 0x0e ) {
 		    // thai or lao
 		    unsigned char col = mark.cell();
 		    if ( col == 0x31 ) {
-			cmb = QChar::Combining_AboveRight;
+			eCmb = QChar::Combining_AboveRight;
 			p += QPoint( markRect.width()/4., 0 );
-		    } else if ( col == 0x47 ||
-				col == 0x4c ||
-				col == 0x4d ||
-				col == 0x4e ||
-				col == 0xcc ||
-				col == 0xcd ) {
-			cmb = QChar::Combining_AboveRight;
 		    } else if ( col == 0x34 ||
 				col == 0x35 ||
 				col == 0x36 ||
 				col == 0x37 ||
-				col == 0xb1 ||
+				col == 0x47 ||
+				col == 0x4c ||
+				col == 0x4d ||
+				col == 0x4e ) {
+			eCmb = QChar::Combining_AboveRight;
+		    } else if ( col == 0xb1 ||
 				col == 0xb4 ||
 				col == 0xb5 ||
 				col == 0xb6 ||
 				col == 0xb7 ||
-				col == 0xbb ) {
-			cmb = QChar::Combining_Above;
+				col == 0xbb ||
+				col == 0xcc ||
+				col == 0xcd ) {
+			eCmb = QChar::Combining_Above;
 		    } else if ( col == 0xbc ) {
-			cmb = QChar::Combining_Below;
+			eCmb = QChar::Combining_Below;
 		    }
 		}
 	    }
+	    else if ( eCmb == 9 )
+		eCmb = QChar::Combining_BelowRight;
  	    // below
-	    else if ( (cmb >= 10 && cmb <= 18) ||
-		 cmb == 20 || cmb == 22 ||
-		 cmb == 29 || cmb == 32 )
-		cmb = QChar::Combining_Below;
+	    else if ( (eCmb >= 10 && eCmb <= 18) ||
+		      eCmb == 20 || eCmb == 22 ||
+		      eCmb == 29 || eCmb == 32 ||
+		      eCmb == 118 )
+		eCmb = QChar::Combining_Below;
 	    // above
-	    else if ( cmb == 23 || cmb == 27 || cmb == 28 ||
-		      cmb == 30 || cmb == 31 || (cmb >= 33 && cmb <= 36 ) )
-		cmb = QChar::Combining_Above;
+	    else if ( eCmb == 23 || eCmb == 27 || eCmb == 28 ||
+		      eCmb == 30 || eCmb == 31 || (eCmb >= 33 && eCmb <= 36 ) ||
+		      eCmb == 122 )
+		eCmb = QChar::Combining_Above;
 	    //below-right
-	    else if ( cmb == 103 || cmb == 118 )
-		cmb = QChar::Combining_BelowRight;
+	    else if ( eCmb == 103 )
+		eCmb = QChar::Combining_BelowRight;
 	    // above-right
-	    else if ( cmb == 24 || cmb == 107 || cmb == 122 )
-		cmb = QChar::Combining_AboveRight;
-	    else if ( cmb == 25 )
-		cmb = QChar::Combining_AboveLeft;
+	    else if ( eCmb == 24 || eCmb == 107 )
+		eCmb = QChar::Combining_AboveRight;
+	    else if ( eCmb == 25 )
+		eCmb = QChar::Combining_AboveLeft;
 	    // fixed:
 	    //  19 21
 
@@ -856,7 +861,7 @@ QPointArray QComplexText::positionMarks( QFontPrivate *f, const QString &str,
 	    attachmentRect = baseRect;
 	}
 
-	switch( cmb ) {
+	switch( eCmb ) {
 	case QChar::Combining_DoubleBelow:
 		// ### wrong in rtl context!
 	case QChar::Combining_BelowLeft:
@@ -912,6 +917,9 @@ QPointArray QComplexText::positionMarks( QFontPrivate *f, const QString &str,
 	attachmentRect |= markRect;
 	if ( boundingRect )
 	    *boundingRect |= markRect;
+	// combining class 0 is treated special. We make them extend the base.
+	if ( !cmb )
+	    baseRect = attachmentRect;
 	lastCmb = cmb;
 	pa.setPoint( i, p );
     }
