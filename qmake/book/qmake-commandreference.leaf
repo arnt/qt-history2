@@ -59,6 +59,8 @@ The following options can be specified on the command line to \e qmake:
 	\e qmake will output (hopefully) useful debugging information.
 \i \c -t tmpl \BR
 	\e qmake will override any set TEMPLATE variables with tmpl.
+\i \c -tp prefix \BR
+	\e qmake will add the prefix to the TEMPLATE variable.
 \i \c -help \BR
 	\e qmake will go over these features and give some useful help.
 \endlist
@@ -517,8 +519,10 @@ generating the project.  The allowed values are:
 \i app - Creates a makefile for building applications (the default)
 \i lib - Creates a makefile for building libraries
 \i subdirs - Creates a makefile for building targets in subdirectories
-\i vcapp - \e {win32 only}  Creates an application project file
-\i vclib - \e {win32 only}  Creates a library project file
+\i vcapp - \e {win32 only}  Creates an application project file for
+Visual Studio
+\i vclib - \e {win32 only}  Creates a library project file for Visual
+Studio
 
 \endlist
 
@@ -2079,7 +2083,7 @@ QMAKE_EXTRA_UNIX_TARGETS += mytarget mytarget2
 This is all you need to do to actually build custom targets in qmake, of
 course you may want to tie one of these targets to actually building the
 \link #TARGET qmake build target \endlink. To do this, you simply need to
-include your Makefile target in the list of \link #TARGETDEPS TARGETDEPS
+include your Makefile target in the list of \link #PRE_TARGETDEPS PRE_TARGETDEPS
 \endlink.
 
 For convenience there is also a method of customizing (UNIX) projects

@@ -1184,7 +1184,7 @@ called at the end of the form's constructor.
 
 The first thing we do is take a pointer to the global clipboard
 object. The \Func{setSelectionMode()} call ensures that the clipboard
-works as expected on all all platforms. The "findForm" and
+works as expected on all platforms. The "findForm" and
 "loadSettings()" lines will be covered later; if you're entering the
 code, comment them out for now. We set the filename to be empty
 because the user hasn't opened a file. We set changed to false since
