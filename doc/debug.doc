@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: debug.doc,v 1.8 1996/02/05 00:50:17 agulbra Exp $
+** $Id: debug.doc,v 1.9 1996/02/19 12:36:06 hanord Exp $
 **
 ** Qt Debugging Techniques
 **
@@ -101,7 +101,7 @@ it's only a debugging aid) and \e alloc returns a wild pointer.
 The Qt development library contains hundreds of warning messages that
 are printed when some error is detected.
 
-The warning messages inside Qt are conditional, based on the sate of
+The warning messages inside Qt are conditional, based on the state of
 various debugging flags:
 <ul>
 <li> \c CHECK_STATE: Check for consistent/expected object state
