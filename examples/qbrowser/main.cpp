@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qbrowser/main.cpp#6 $
+** $Id: //depot/qt/main/examples/qbrowser/main.cpp#7 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -47,7 +47,7 @@ int main( int argc, char ** argv )
     else
 	home = QString(getenv("QTDIR")) + "/doc/index.html";
 
-    ( new HelpWindow(home, "qbrowser") )->show();
+    ( new HelpWindow(home, ".", 0, "qbrowser") )->show();
     
     QObject::connect( &a, SIGNAL(lastWindowClosed()),
 		      &a, SLOT(quit()) );
