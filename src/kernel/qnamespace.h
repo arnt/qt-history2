@@ -204,7 +204,8 @@ public:
 	WShowModal 	       	= 0x04000000,
 	WNoMousePropagation	= 0x08000000,
 	WSubWindow              = 0x10000000,
-	WStyle_Splash           = WStyle_NoBorder | WStyle_StaysOnTop | WX11BypassWM
+	WStyle_Splash           = WStyle_NoBorder | WStyle_StaysOnTop
+	                          | WStyle_Tool | WX11BypassWM | WWinOwnDC
 #ifndef QT_NO_COMPAT
 	,
 	WNorthWestGravity	= WStaticContents,
