@@ -484,8 +484,10 @@ private:
 #endif // QT_NO_XFTFREETYPE
 
 #elif defined( Q_WS_MAC )
-
 #include "qt_mac.h"
+#include <qmap.h>
+#include <qcache.h>
+
 class QFontEngineMac : public QFontEngine
 {
 #if 0
@@ -496,12 +498,13 @@ class QFontEngineMac : public QFontEngine
     short fnum;
     int psize;
     QMacFontInfo *internal_fi;
+    QMap<QFontCache::Key, QCache<void> > *width_cache;
     friend class QGLContext;
     friend class QFontPrivate;
     friend class QMacSetFontInfo;
 
 public:
-    QFontEngineMac() : QFontEngine(), info(NULL), fnum(-1), internal_fi(NULL) { }
+    QFontEngineMac() : QFontEngine(), info(NULL), fnum(-1), internal_fi(NULL), width_cache(NULL) { }
 
     Error stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs, bool mirrored ) const;
 

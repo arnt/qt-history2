@@ -217,6 +217,8 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
     QMacFontInfo::QATSUStyle *st = fi.atsuStyle();
     if(!st)
 	return 0;
+
+    QCache<void> *cache = NULL;
     if(task & DRAW) {
 	RGBColor fcolor;
 	GetForeColor(&fcolor);
@@ -231,7 +233,18 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
 		return 0;
 	    }
 	}
+    } 
+#if 1
+    if((task & WIDTH)) {
+	QFontCache::Key key = QFontCache::Key(fontDef, QFont::NoScript, 0);
+	if(!width_cache) 
+	    ((QFontEngineMac*)this)->width_cache = new QMap<QFontCache::Key, QCache<void> >();
+	cache = &(*(width_cache->find(key)));
+	ret = (int)cache->find(QString(s+pos, use_len));
+	if(ret && task == WIDTH) 
+	    return ret;
     }
+#endif
 
     //create layout
     ATSUTextLayout alayout;
@@ -324,7 +337,7 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
 	UniCharCount off_len;
 	if(ATSUMatchFontsToText(alayout, kATSUFromTextBeginning, kATSUToTextEnd, &fid, &off, &off_len) != kATSUFontsNotMatched)
 	    ret = 1;
-    } else if(task & WIDTH) {
+    } else if((task & WIDTH) && !ret) {
 	ATSUTextMeasurement left, right, bottom, top;
 #if defined(MACOSX_102)
 	if(qMacVersion() >= Qt::MV_10_DOT_2)
@@ -334,13 +347,9 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
 #endif
 	    ATSUMeasureText(alayout, kATSUFromTextBeginning, kATSUToTextEnd,
 			    &left, &right, &bottom, &top);
-#if 0
-	qDebug("(%s) (%s): %p %d %d %d (%d %d == %d)",
-	       QString(s+pos, use_len).latin1(), QString(s, len).latin1(),
-	       s, pos, use_len, len, FixRound(left), FixRound(right),
-	       FixRound(right) - FixRound(left));
-#endif
 	ret = FixRound(right-left);
+	if(cache) 
+	    cache->insert(QString(s+pos, use_len), (void*)ret);
     }
     if(task & DRAW) {
 	ATSUDrawText(alayout, kATSUFromTextBeginning, kATSUToTextEnd,
