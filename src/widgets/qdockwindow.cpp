@@ -1716,16 +1716,10 @@ void QDockWindow::updateSplitterVisibility( bool visible )
 {
     if ( area() && isResizeEnabled() ) {
 	if ( orientation() == Horizontal ) {
-	    if ( visible )
-		vHandleRight->show();
-	    else
-		vHandleRight->hide();
+	    vHandleRight->show();
 	    vHandleLeft->hide();
 	} else {
-	    if ( visible )
-		hHandleBottom->show();
-	    else
-		hHandleBottom->hide();
+	    hHandleBottom->show();
 	    hHandleTop->hide();
 	}
     }
