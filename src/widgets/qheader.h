@@ -1,3 +1,13 @@
+/****************************************************************************
+** $Id: //depot/qt/main/src/widgets/qheader.h#2 $
+**
+**  Table header
+**
+**  Created:  961105
+**
+** Copyright (C) 1996 by Troll Tech AS.	 All rights reserved.
+**
+*****************************************************************************/
 #ifndef QHEADER_H
 #define QHEADER_H
 
@@ -12,10 +22,7 @@ public:
 
     QHeader( QWidget *parent=0, const char *name=0 );
     QHeader( int, QWidget *parent=0, const char *name=0 );
-    QHeader( int minValue, int maxValue, int step, int value, Orientation,
-	 QWidget *parent=0, const char *name=0 );
-    ~QHeader() {}
-
+    ~QHeader();
 
     void	setLabel( int, const char * );
     void	addLabel( const char * );
@@ -24,8 +31,8 @@ public:
     void	setTracking( bool enable );
     bool	tracking() const;
 
-    int		cellSize( int i ) const { return pSize( i ); }
-    int		count() const { return places.size() - 1; }
+    int		cellSize( int i ) const;
+    int		count() const;
 
     QSize	sizeHint();
 signals:
@@ -65,7 +72,8 @@ private:
     enum State { None, Sliding, Pressed, Moving };
     State	state;
     QCOORD	clickPos;
-
+    bool	trackingIsOn;
+    
     QArray<QCOORD>	places;
     QArray<const char*>	labels;
 
@@ -81,5 +89,11 @@ inline QHeader::Orientation QHeader::orientation() const
 {
     return orient;
 }
+
+inline int QHeader::cellSize( int i ) const { return pSize( i ); }
+inline int QHeader::count() const { return places.size() - 1; }
+
+inline void QHeader::setTracking( bool enable ) { trackingIsOn = enable; }
+inline bool QHeader::tracking() const { return trackingIsOn; }
 
 #endif //QHEADER_H
