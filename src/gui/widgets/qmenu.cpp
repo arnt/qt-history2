@@ -529,24 +529,25 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
 #endif
         action->showStatusText(q);
     }
+}
 
-    for(QWidget *caused = q; caused;) {
-        if(QMenuBar *mb = qt_cast<QMenuBar*>(caused)) {
-            if(action_e == QAction::Trigger)
-                emit mb->activated(action);
-            else if(action_e == QAction::Hover)
-                emit mb->highlighted(action);
-            caused = 0;
-        } else if(QMenu *m = qt_cast<QMenu*>(caused)) {
-            caused = m->d->causedPopup;
-            if(action_e == QAction::Trigger)
-                emit m->activated(action);
-            else if(action_e == QAction::Hover)
-                emit m->highlighted(action);
-        } else {
-            qWarning("not possible..");
-            caused = 0;
-        }
+void QMenuPrivate::actionTriggered()
+{
+    if (QAction *action = qt_cast<QAction *>(q->sender())) {
+        emit q->triggered(action);
+#ifdef QT_COMPAT
+        emit q->activated(q->findIdForAction(action));
+#endif
+    }
+}
+
+void QMenuPrivate::actionHovered()
+{
+    if (QAction *action = qt_cast<QAction *>(q->sender())) {
+        emit q->hovered(action);
+#ifdef QT_COMPAT
+        emit q->highlighted(q->findIdForAction(action));
+#endif
     }
 }
 
@@ -681,10 +682,6 @@ QMenu::QMenu(QWidget *parent)
     }
     d->menuAction = new QAction(this);
     d->menuAction->d->menu = this;
-#ifdef QT_COMPAT
-    QObject::connect(this, SIGNAL(activated(QAction*)), this, SLOT(compatActivated(QAction*)));
-    QObject::connect(this, SIGNAL(highlighted(QAction*)), this, SLOT(compatHighlighted(QAction*)));
-#endif
 }
 
 /*!
@@ -707,10 +704,6 @@ QMenu::QMenu(const QString &title, QWidget *parent)
     }
     d->menuAction = new QAction(title, this);
     d->menuAction->d->menu = this;
-#ifdef QT_COMPAT
-    QObject::connect(this, SIGNAL(activated(QAction*)), this, SLOT(compatActivated(QAction*)));
-    QObject::connect(this, SIGNAL(highlighted(QAction*)), this, SLOT(compatHighlighted(QAction*)));
-#endif
 }
 
 /*!
@@ -1791,6 +1784,12 @@ void QMenu::actionEvent(QActionEvent *e)
             d->mac_menu->syncAction(e->action());
     }
 #endif
+    if(e->type() == QEvent::ActionAdded) {
+        connect(e->action(), SIGNAL(triggered()), this, SLOT(actionTriggered()));
+        connect(e->action(), SIGNAL(hovered()), this, SLOT(actionHovered()));
+    } else if(e->type() == QEvent::ActionRemoved) {
+        e->action()->disconnect(this);
+    }
 
     if(isVisible())
         update();
@@ -1980,16 +1979,6 @@ int QMenu::frameWidth() const
     return style().pixelMetric(QStyle::PM_MenuFrameWidth, this);
 }
 
-void QMenu::compatActivated(QAction *act)
-{
-    emit activated(findIdForAction(act));
-}
-
-void QMenu::compatHighlighted(QAction *act)
-{
-    emit highlighted(findIdForAction(act));
-}
-
 int QMenu::findIdForAction(QAction *act) const
 {
     if(!act)
@@ -1997,3 +1986,5 @@ int QMenu::findIdForAction(QAction *act) const
     return act->d->id;
 }
 #endif // QT_COMPAT
+
+#include "moc_qmenu.cpp"

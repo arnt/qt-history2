@@ -68,6 +68,9 @@ public:
     //firing of events
     void activateAction(QAction *, QAction::ActionEvent);
 
+    void actionTriggered();
+    void actionHovered();
+
     //extra widgets in the menubar
     QPointer<QWidget> leftWidget, rightWidget;
 

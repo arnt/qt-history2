@@ -253,11 +253,33 @@ void QMenuBarPrivate::activateAction(QAction *action, QAction::ActionEvent actio
     if(!action)
         return;
     action->activate(action_e);
-    if(action_e == QAction::Trigger)
-        emit q->activated(action);
-    else if(action_e == QAction::Hover)
-        emit q->highlighted(action);
+//     if(action_e == QAction::Trigger)
+//         emit q->activated(action);
+//     else if(action_e == QAction::Hover)
+//         emit q->highlighted(action);
 }
+
+
+void QMenuBarPrivate::actionTriggered()
+{
+    if (QAction *action = qt_cast<QAction *>(q->sender())) {
+        emit q->triggered(action);
+#ifdef QT_COMPAT
+        emit q->activated(q->findIdForAction(action));
+#endif
+    }
+}
+
+void QMenuBarPrivate::actionHovered()
+{
+    if (QAction *action = qt_cast<QAction *>(q->sender())) {
+        emit q->hovered(action);
+#ifdef QT_COMPAT
+        emit q->highlighted(q->findIdForAction(action));
+#endif
+    }
+}
+
 
 QStyleOptionMenuItem QMenuBarPrivate::getStyleOption(const QAction *action) const
 {
@@ -382,10 +404,6 @@ void QMenuBarPrivate::init()
             parent->installEventFilter(q); //handle resizes
     }
     q->setMouseTracking(q->style().styleHint(QStyle::SH_MenuBar_MouseTracking));
-#ifdef QT_COMPAT
-    QObject::connect(q, SIGNAL(activated(QAction*)), q, SLOT(compatActivated(QAction*)));
-    QObject::connect(q, SIGNAL(highlighted(QAction*)), q, SLOT(compatHighlighted(QAction*)));
-#endif
 }
 
 /*!
@@ -802,9 +820,13 @@ void QMenuBar::actionEvent(QActionEvent *e)
         else if(e->type() == QEvent::ActionChanged)
             d->mac_menubar->syncAction(e->action());
     }
-#else
-    Q_UNUSED(e);
 #endif
+    if(e->type() == QEvent::ActionAdded) {
+        connect(e->action(), SIGNAL(triggered()), this, SLOT(actionTriggered()));
+        connect(e->action(), SIGNAL(hovered()), this, SLOT(actionHovered()));
+    } else if(e->type() == QEvent::ActionRemoved) {
+        e->action()->disconnect(this);
+    }
     if(isVisible())
         update();
 }
@@ -1228,18 +1250,11 @@ QAction *QMenuBar::findActionForId(int id) const
     return 0;
 }
 
-void QMenuBar::compatActivated(QAction *act)
-{
-    emit activated(findIdForAction(act));
-}
-
-void QMenuBar::compatHighlighted(QAction *act)
-{
-    emit highlighted(findIdForAction(act));
-}
-
 int QMenuBar::findIdForAction(QAction *act) const
 {
     return act->d->id;
 }
 #endif
+
+
+#include <moc_qmenubar.cpp>

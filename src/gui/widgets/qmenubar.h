@@ -67,8 +67,8 @@ public:
 #endif
 
 signals:
-    void activated(QAction *action);
-    void highlighted(QAction *action);
+    void triggered(QAction *action);
+    void hovered(QAction *action);
 
 protected:
     void contextMenuEvent(QContextMenuEvent *);
@@ -242,10 +242,6 @@ signals:
     QT_MOC_COMPAT void activated(int itemId);
     QT_MOC_COMPAT void highlighted(int itemId);
 
-private slots:
-    void compatActivated(QAction *);
-    void compatHighlighted(QAction *);
-
 protected:
     inline QT_COMPAT QRect itemRect(int index) {
         if(QAction *act = actions().value(index))
@@ -264,6 +260,9 @@ private:
 #endif
 
 private:
+    Q_PRIVATE_SLOT(d, void actionTriggered())
+    Q_PRIVATE_SLOT(d, void actionHovered())
+
     friend class QMenu;
     friend class QWorkspacePrivate;
     friend class QMenuPrivate;

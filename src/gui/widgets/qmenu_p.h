@@ -120,6 +120,9 @@ public:
     //firing of events
     void activateAction(QAction *, QAction::ActionEvent);
 
+    void actionTriggered();
+    void actionHovered();
+
 #ifdef Q_WS_MAC
     //mac menu binding
     struct QMacMenuPrivate {

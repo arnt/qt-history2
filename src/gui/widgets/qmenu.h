@@ -97,8 +97,8 @@ public:
 
 signals:
     void aboutToShow();
-    void activated(QAction *action);
-    void highlighted(QAction *action);
+    void triggered(QAction *action);
+    void hovered(QAction *action);
 
 protected:
     int columnCount() const;
@@ -171,8 +171,10 @@ public:
             return act->shortcut();
         return QKeySequence(); }
     inline QT_COMPAT void setAccel(const QKeySequence& key, int id) {
-        if(QAction *act = findActionForId(id))
+        if(QAction *act = findActionForId(id)) {
+            qDebug("act= %p", act);
             act->setShortcut(key);
+        }
     }
 #endif
     inline QT_COMPAT QIconSet iconSet(int id) const {
@@ -310,11 +312,10 @@ signals:
     QT_MOC_COMPAT void activated(int itemId);
     QT_MOC_COMPAT void highlighted(int itemId);
 
-private slots:
-    void compatActivated(QAction *);
-    void compatHighlighted(QAction *);
-
 private:
+    Q_PRIVATE_SLOT(d, void actionTriggered())
+    Q_PRIVATE_SLOT(d, void actionHovered())
+
     int insertAny(const QIconSet *icon, const QString *text, const QObject *receiver, const char *member,
                   const QKeySequence *shorcut, const QMenu *popup, int id, int index);
     QAction *findActionForId(int id) const;
