@@ -1515,8 +1515,15 @@ void PropertyDatabaseItem::initChildren()
 		item->setValue( cl );
 	    else if ( lst.count() > 0 )
 		item->setValue( QStringList( lst[ 0 ] ) );
+	    else if ( withField )
+		item->setValue( QStringList( MetaDataBase::fakeProperty( listview->propertyEditor()->formWindow()->mainContainer(), 
+									 "database" ).toStringList()[ 0 ] ) );
+	    
 	    if ( lst.count() > 0 && !lst[ 0 ].isEmpty() )
 		item->setCurrentItem( lst[ 0 ] );
+	    else if ( !isChanged() && withField )
+		item->setCurrentItem( MetaDataBase::fakeProperty( listview->propertyEditor()->formWindow()->mainContainer(), 
+								  "database" ).toStringList()[ 0 ] );
 	    else
 		item->setCurrentItem( 0 );
 	    conn = item->currentItem();
@@ -1526,8 +1533,15 @@ void PropertyDatabaseItem::initChildren()
 		item->setValue( cl );
 	    else if ( lst.count() > 1 )
 		item->setValue( QStringList( lst[ 1 ] ) );
+	    else if ( withField )
+		item->setValue( QStringList( MetaDataBase::fakeProperty( listview->propertyEditor()->formWindow()->mainContainer(), 
+									 "database" ).toStringList()[ 1 ] ) );
+	    
 	    if ( lst.count() > 1 && !lst[ 1 ].isEmpty() )
 		item->setCurrentItem( lst[ 1 ] );
+	    else if ( !isChanged() && withField )
+		item->setCurrentItem( MetaDataBase::fakeProperty( listview->propertyEditor()->formWindow()->mainContainer(), 
+								  "database" ).toStringList()[ 1 ] );
 	    else
 		item->setCurrentItem( 0 );
 	    table = item->currentItem();
