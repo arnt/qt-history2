@@ -194,8 +194,6 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	}
 	t << endl << endl;
 
-	qDebug("TARGETA #%s#", var("TARGETA").latin1());
-
 	if (! project->isActiveConfig("plugin")) {
 	    t << "staticlib: $(TARGETA)" << endl << endl;
 	    t << "$(TARGETA): $(UICDECLS) $(OBJECTS) $(OBJMOC)" <<
