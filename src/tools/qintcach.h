@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qintcach.h#7 $
+** $Id: //depot/qt/main/src/tools/qintcach.h#8 $
 **
 ** Definition of QIntCache template/macro class
 **
@@ -36,18 +36,18 @@ class QIntCacheM(type) : public QGCache					      \
 {									      \
 public:									      \
     QIntCacheM(type)( const QIntCacheM(type) &c ) : QGCache(c) {}	      \
-    QIntCacheM(type)( long maxCost=100, int size=17 )			      \
+    QIntCacheM(type)( int maxCost=100, int size=17 )			      \
 	: QGCache( maxCost, size, FALSE, FALSE, TRUE ) {}		      \
    ~QIntCacheM(type)()		      { clear(); }			      \
     QIntCacheM(type) &operator=( const QIntCacheM(type) &c )		      \
 			{ return (QIntCacheM(type)&)QGCache::operator=(c); }  \
-    long  maxCost()   const	      { return QGCache::maxCost(); }	      \
-    long  totalCost() const	      { return QGCache::totalCost(); }	      \
-    void  setMaxCost( long m )	      { QGCache::setMaxCost(m); }	      \
+    int   maxCost()   const	      { return QGCache::maxCost(); }	      \
+    int   totalCost() const	      { return QGCache::totalCost(); }	      \
+    void  setMaxCost( int m )	      { QGCache::setMaxCost(m); }	      \
     uint  count()     const	      { return QGCache::count(); }	      \
     uint  size()      const	      { return QGCache::size(); }	      \
     bool  isEmpty()   const	      { return QGCache::count() == 0; }	      \
-    bool  insert( long k, const type *d, long c=1, int p=0 )		      \
+    bool  insert( long k, const type *d, int c=1, int p=0 )		      \
 			{ return QGCache::insert((const char*)k,(GCI)d,c,p); }\
     bool  remove( long k )   { return QGCache::remove((const char *)k); }     \
     type *take( long k )     { return (type *)QGCache::take((const char *)k);}\
@@ -108,14 +108,14 @@ template<class type> class QIntCacheT : public QGCache
 {
 public:
     QIntCacheT( const QIntCacheT<type> &c ) : QGCache(c) {}
-    QIntCacheT( long maxCost=100, int size=17 )
+    QIntCacheT( int maxCost=100, int size=17 )
 	: QGCache( maxCost, size, FALSE, FALSE, TRUE ) {}
    ~QIntCacheT()	     { clear(); }
     QIntCacheT<type> &operator=( const QIntCacheT<type> &c )
 			{ return (QIntCacheT<type>&)QGCache::operator=(c); }
-    long  maxCost()   const  { return QGCache::maxCost(); }
-    long  totalCost() const  { return QGCache::totalCost(); }
-    void  setMaxCost( long m){ QGCache::setMaxCost(m); }
+    int   maxCost()   const  { return QGCache::maxCost(); }
+    int   totalCost() const  { return QGCache::totalCost(); }
+    void  setMaxCost( int m) { QGCache::setMaxCost(m); }
     uint  count()     const  { return QGCache::count(); }
     uint  size()      const  { return QGCache::size(); }
     bool  isEmpty()   const  { return QGCache::count() == 0; }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.h#9 $
+** $Id: //depot/qt/main/src/tools/qgcache.h#10 $
 **
 ** Definition of QGCache and QGCacheIterator classes
 **
@@ -30,18 +30,18 @@ class QGCache : public QCollection		// LRU cache class
 {
 friend class QGCacheIterator;
 protected:
-    QGCache( long maxCost, uint size,bool caseS, bool copyKeys, bool trivial );
+    QGCache( int maxCost, uint size,bool caseS, bool copyKeys, bool trivial );
     QGCache( const QGCache & );			// not allowed, calls fatal()
    ~QGCache();
     QGCache &operator=( const QGCache & );	// not allowed, calls fatal()
 
     uint    count()	const	{ return ((QGDict*)dict)->count(); }
     uint    size()	const	{ return ((QGDict*)dict)->size(); }
-    long    maxCost()	const	{ return mCost; }
-    long    totalCost() const	{ return tCost; }
-    void    setMaxCost( long maxCost );
+    int     maxCost()	const	{ return mCost; }
+    int     totalCost() const	{ return tCost; }
+    void    setMaxCost( int maxCost );
 
-    bool    insert( const char *key, GCI, long cost, int priority );
+    bool    insert( const char *key, GCI, int cost, int priority );
     bool    remove( const char *key );
     GCI	    take( const char *key );
     void    clear();
@@ -51,11 +51,11 @@ protected:
     void    statistics() const;			// output debug statistics
 
 private:
-    bool    makeRoomFor( long cost, int priority = -1 );
+    bool    makeRoomFor( int cost, int priority = -1 );
     QCList *lruList;
     QCDict *dict;
-    long    mCost;
-    long    tCost;
+    int     mCost;
+    int     tCost;
     bool    copyK;
 };
 
