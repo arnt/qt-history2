@@ -1028,14 +1028,14 @@ void QWindowsXPStyle::drawIndicator( QPainter* p, int x, int y, int w, int h, co
 
     int stateId;
     switch ( state ) {
-    case QButton::Off:
-	stateId = 1;
-	break;
     case QButton::On:
 	stateId = 5;
 	break;
     case QButton::NoChange:
 	stateId = 9;
+	break;
+    default:
+	stateId = 1;
 	break;
     }
     if ( down )
@@ -1433,9 +1433,9 @@ void QWindowsXPStyle::drawTitleBarButtonLabel( QPainter *p, const QRect &r, cons
 
     RECT rect;
     rect.left = r.left();
-    rect.right = r.right();
+    rect.right = r.right()+1;
     rect.top = r.top();
-    rect.bottom = r.bottom();
+    rect.bottom = r.bottom()+1;
 
     int stateId = down ? 3 : ( p->device() == d->hotWidget ? 2 : 1 );
 

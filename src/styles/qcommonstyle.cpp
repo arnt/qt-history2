@@ -318,7 +318,7 @@ void QCommonStyle::drawToolButton( QToolButton* btn, QPainter *p)
 
 void QCommonStyle::drawTitleBar( QPainter *p, 
 		       const QRect &r, const QColor &left, const QColor &right, 
-		       bool active )
+		       bool /*active*/ )
 {
     if ( left != right ) {
 	double rS = left.red();
@@ -343,7 +343,7 @@ void QCommonStyle::drawTitleBar( QPainter *p,
 
 void QCommonStyle::drawTitleBarLabel( QPainter *p, 
 		       const QRect &r, const QString &text, 
-		       const QColor &tc, bool active )
+		       const QColor &tc, bool /*active*/ )
 {
     p->setPen( tc );
     p->drawText( r, AlignAuto | AlignVCenter | SingleLine, text );
@@ -354,7 +354,7 @@ void QCommonStyle::drawTitleBarButton( QPainter *p, const QRect &r, const QColor
     drawToolButton( p, r.x(), r.y(), r.width(), r.height(), g, down );
 }
 
-void QCommonStyle::drawTitleBarButtonLabel( QPainter *p, const QRect &r, const QPixmap *pm, int button, bool down )
+void QCommonStyle::drawTitleBarButtonLabel( QPainter *p, const QRect &r, const QPixmap *pm, int /*button*/, bool down )
 {
     if ( pm ) {
 	QSize sdiff = r.size() - pm->size();
@@ -375,13 +375,13 @@ void QCommonStyle::drawHeaderSection( QPainter *p, const QRect &rect, const QCol
 
 // spinbox
 void QCommonStyle::drawSpinBoxButton( QPainter *p, const QRect &rect, const QColorGroup &g, 
-		    const QSpinBox *sp, bool upDown, bool enabled, bool down )
+		    const QSpinBox * /*sp*/, bool /*upDown*/, bool /*enabled*/, bool down )
 {
     drawButton( p, rect.x(), rect.y(), rect.width(), rect.height(), g, down );
 }
 
 void QCommonStyle::drawSpinBoxSymbol( QPainter *p, const QRect &rect, const QColorGroup &g, const QSpinBox *sp,
-			    bool downbtn, bool enabled, bool down )
+			    bool downbtn, bool /*enabled*/, bool down )
 {
     if ( sp->buttonSymbols() == QSpinBox::PlusMinus ) {
 	
@@ -436,7 +436,7 @@ void QCommonStyle::drawGroupBoxTitle( QPainter *p, const QRect &rect, const QCol
     drawItem( p, rect.x(), rect.y(), rect.width(), rect.height(), AlignCenter + ShowPrefix, g, enabled, 0, text );
 }
 
-void QCommonStyle::drawGroupBoxFrame( QPainter *p, const QRect &rect, const QColorGroup &g, const QGroupBox *gb )
+void QCommonStyle::drawGroupBoxFrame( QPainter *p, const QRect & /*rect*/, const QColorGroup &g, const QGroupBox *gb )
 {
     QRect		r = gb->frameRect();
     QPoint		p1, p2;
