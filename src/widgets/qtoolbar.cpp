@@ -366,7 +366,7 @@ void QToolBar::addSeparator()
 /*!\reimp
 */
 
-void QToolBar::styleChange( QStyle& old )
+void QToolBar::styleChange( QStyle& )
 {
     QObjectList *childs = queryList( "QWidget" );
     if ( childs ) {
