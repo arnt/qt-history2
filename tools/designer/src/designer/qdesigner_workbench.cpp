@@ -254,7 +254,7 @@ void QDesignerWorkbench::switchToTopLevelMode()
 
     foreach (QDesignerToolWindow *tw, m_toolWindows) {
         if (tw != widgetBoxWrapper) {
-            tw->setParent(magicalParent(), Qt::Tool);
+            tw->setParent(magicalParent(), Qt::Window);
             QRect g = m_geometries.value(tw, tw->geometryHint());
             tw->resize(g.size());
             tw->move(g.topLeft());
@@ -270,7 +270,7 @@ void QDesignerWorkbench::switchToTopLevelMode()
     }
 
     foreach (QDesignerFormWindow *fw, m_formWindows) {
-        fw->setParent(magicalParent(), Qt::Dialog);
+        fw->setParent(magicalParent(), Qt::Window);
         QRect g = m_geometries.value(fw, fw->geometryHint());
         fw->resize(g.size());
         fw->move(g.topLeft());
@@ -286,7 +286,7 @@ QDesignerFormWindow *QDesignerWorkbench::createFormWindow()
     Qt::WFlags flags = 0;
 
     if (m_mode == QDesignerWorkbench::TopLevelMode)
-        flags = Qt::Dialog;
+        flags = Qt::Window;
 
     formWindow->setParent(magicalParent(), flags);
     formWindow->setAttribute(Qt::WA_DeleteOnClose, true);

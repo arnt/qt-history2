@@ -13,7 +13,7 @@
 
 #include "abstractformwindow.h"
 
-#include <QMainWindow>
+#include <QtGui/QMainWindow>
 
 AbstractFormWindow::AbstractFormWindow(QWidget *parent, Qt::WFlags flags)
     : QWidget(parent, flags)
