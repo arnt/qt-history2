@@ -641,6 +641,64 @@ void QPrinter::setMinMax( int minPage, int maxPage )
 */
 
 /*!
+  \fn bool QPrinter::collateCopiesEnabled() const
+  Returns TRUE if the application should allow the user to collate the
+  printout.  Returns FALSE if the user shouldn't be given the choice
+  and printouts shouldn't be collated.
+
+  Collation means that each copy is printed in order instead of duplicating
+  each page concurrently.  So a collated copy will print 1, 2, 3...<n pages>
+  and for the <n copies> 1, 2, 3, ... <n pages>.  A non-collated printout
+  will printout 1,1...<n copies> of 1; 2,2...<n copies> of 2;
+  3,3...<n copies>, etc.  
+
+  \sa setCollateCopiesEnabled() 
+  \sa setCollateCopies(), collateCopies()
+*/
+
+/*!
+  \fn void QPrinter::setCollateCopiesEnabled(bool enable) const
+  Sets whether the user is given a choice to print out multiple copies collated
+  in the print dialog. If \a enable is set to FALSE, then collateCopies() will
+  be ignored.  The default value is set to TRUE.
+  
+  Collation means that each copy is printed in order instead of duplicating
+  each page concurrently.  So a collated copy will print 1, 2, 3...<n pages>
+  and for the <n copies> 1, 2, 3, ... <n pages>.  A non-collated printout
+  will printout 1,1...<n copies> of 1; 2,2...<n copies> of 2;
+  3,3...<n copies>, etc.  
+
+  \sa collateCopiesEnabled() 
+  \sa setCollateCopies(), collateCopies()
+*/
+
+/*!
+  \fn bool QPrinter::collateCopies() const
+  Returns TRUE if collation is turned on when multiple copies is selected.  
+  Returns FALSE if it is turned off when multiple copies is selected.
+
+  \sa collateCopiesEnabled(), setCollateCopiesEnabled() 
+  \sa setCollateCopies()
+*/
+
+/*!
+  Sets the default value for collation checkbox when the print dialog appears.
+  If set progmatically to TRUE, it will enable setCollateCopiesEnabled().
+  The default value is FALSE.  This value will be changed by what the 
+  user presses in the print dialog.
+
+  \sa collateCopiesEnabled(), setCollateCopiesEnabled() 
+  \sa collateCopies()
+*/
+
+void QPrinter::setCollateCopies(bool on)
+{ 
+    if (!collateCopiesEnabled() && on)
+	setCollateCopiesEnabled(on);
+    usercolcopies = on; 
+}
+
+/*!
   Sets the number of pages to be printed to \a numCopies.
 
   The printer driver reads this setting and prints the specified number of
