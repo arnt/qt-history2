@@ -784,7 +784,7 @@ void QSettings::insertSearchPath(System s, const QString &path)
     if (s == Windows)
         return;
 #endif
-#if !defined(Q_WS_WIN)
+#if !defined(Q_OS_MAC)
     if (s == Mac)
         return;
 #endif
