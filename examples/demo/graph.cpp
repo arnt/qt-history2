@@ -28,22 +28,6 @@ typedef QValueList<EdgeItem*> EdgeItemList;
 
 #define SPEED2ADVANCE(x) (301-x)
 
-class GraphWidgetPrivate
-{
-public:
-    GraphWidgetPrivate() {
-	moving = 0;
-	speed = 275;
-    }
-    ~GraphWidgetPrivate() {
-	delete canvas;
-    }
-    NodeItemList nodeItems;
-    FigureEditor* editor;
-    QCanvas* canvas;
-    QCanvasItem* moving;
-    int speed;
-};
 
 class EdgeItem: public QCanvasLine
 {
@@ -56,8 +40,6 @@ public:
     NodeItem* from;
     NodeItem* to;
 };
-
-
 
 class NodeItem: public QCanvasEllipse
 {
@@ -79,6 +61,22 @@ private:
     EdgeItemList outList;
 };
 
+class GraphWidgetPrivate
+{
+public:
+    GraphWidgetPrivate() {
+	moving = 0;
+	speed = 275;
+    }
+    ~GraphWidgetPrivate() {
+	delete canvas;
+    }
+    NodeItemList nodeItems;
+    FigureEditor* editor;
+    QCanvas* canvas;
+    QCanvasItem* moving;
+    int speed;
+};
 
 
 void EdgeItem::moveBy(double, double)
