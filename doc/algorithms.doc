@@ -1,0 +1,440 @@
+/*! \page algorithms.html
+
+    \title Generic Algorithms
+
+    * containers have requirements;
+      certain algorithms have additional requirements, e.g.
+      operator<() or operator==(); how to full the requirements
+
+    * how to override operator<() to provide a different kind of sorting
+
+    * using the generic algorithms on Qt containers
+	* begin, end params don't always mean begin(), end()
+        * explain the range notation
+
+    * using the generic algorithms on C++ arrays
+	* qFind(), qCount(), etc., have competition from container functions
+
+    * using the STL generic algorithms on Qt containers
+*/
+
+/*! \fn template <class InputIterator, class OutputIterator> \
+	OutputIterator qCopy(InputIterator begin1, InputIterator end1, OutputIterator begin2)
+
+    Copies the items from range [\a begin1, \a end1) to range [\a
+    begin2, ...), in the order in which they appear.
+
+    The item at position \a begin1 is assigned to that at position \a
+    begin2; the item at position \a begin1 + 1 is assigned to that at
+    position \a begin2 + 2; and so on.
+
+    Example:
+    \code
+        QList<QString> list;
+	list << "one" << "two" << "three";
+
+	QVector<QString> vect1(3);
+        qCopy(list.begin(), list.end(), vect1.begin());
+        // vect: [ "one", "two", "three" ]
+
+        QVector<QString> vect2(8);
+        qCopy(list.begin(), list.end(), vect2.begin() + 2);
+        // vect: [ "", "", "one", "two", "three", "", "", "" ]
+    \endcode
+
+    \sa qCopyBackward(), {input iterators}, {output iterators}
+*/
+
+/*! \fn template <class BiIterator1, class BiIterator2> \
+	BiIterator2 qCopyBackward(BiIterator1 begin1, BiIterator1 end1, BiIterator2 end2)
+
+    Copies the items from range [\a begin1, \a end1) to range [...,
+    \a end2).
+
+    The item at position \a end1 - 1 is assigned to that at position
+    \a end2 - 1; the item at position \a end1 - 2 is assigned to that
+    at position \a end2 - 2; and so on.
+
+    Example:
+    \code
+        QList<QString> list;
+	list << "one" << "two" << "three";
+
+	QVector<QString> vect(5);
+        qCopyBackward(list.begin(), list.end(), vect.end());
+        // vect: [ "", "", "three", "two", "one" ]
+    \endcode
+
+    \sa qCopy(), {bidirectional iterators}
+*/
+
+/*! \fn template <class InputIterator1, class InputIterator2> \
+	bool qEqual(InputIterator1 begin1, InputIterator1 end1, InputIterator2 begin2)
+
+    Compares the items in the range [begin1, end1) with the items in
+    the range [begin2, ...). Returns \true if all the items compare
+    equal, \false otherwise.
+
+    Example:
+    \code
+	QList<QString> list;
+        list << "one" << "two << "three";
+
+	QVector<QString> vect[3];
+        vect[0] = "one";
+        vect[1] = "two";
+        vect[2] = "three";
+
+	bool ret1 = qEqual(list.begin(), list.end(), vect.begin());
+        // ret1 is true
+
+        vect[2] = "seven";
+	bool rec2 = qEqual(list.begin(), list.end(), vect.begin());
+        // ret2 is false
+    \endcode
+
+    This function requires the item type (in the example above,
+    QString) to implement \c operator==().
+
+    \sa {input iterators}
+*/
+
+/*! \fn template <class ForwardIterator, class T> \
+	void qFill(ForwardIterator begin, ForwardIterator end, const T &value)
+
+    Fills the range [\a begin, \a end) with \a value.
+
+    Example:
+    \code
+	QList<QString> list;
+        list << "one" << "two" << "three";
+
+        qFill(list.begin(), list.end(), "eleven");
+        // list: [ "eleven", "eleven", "eleven" ]
+
+	qFill(list.begin() + 1, list.end(), "six");
+        // list: [ "eleven", "six", "six" ]
+    \endcode
+
+    \sa qCopy(), {forward iterators}
+*/
+
+/*! \fn template <class InputIterator, class T> \
+	InputIterator qFind(InputIterator begin, InputIterator end, const T &value)
+
+    Returns an iterator to the first occurrence of \a value in a
+    container in the range [\a begin, \a end). Returns \a end if \a
+    value isn't found.
+
+    Example:
+    \code
+        QList<QString> list;
+        list << "one" << "two" << "three";
+
+        QList<QString>::Iterator it1 = qFind(list.begin(), list.end(),
+					     "two");
+	// it1 == list.begin() + 1
+
+        QList<QString>::Iterator it2 = qFind(list.begin(), list.end(),
+					     "seventy");
+	// it2 == list.end()
+    \endcode
+
+    This function requires the item type (in the example above,
+    QString) to implement \c operator==().
+
+    If the items in the range are in ascending order, you can get
+    faster results by using qLowerBound() or qBinaryFind() instead of
+    qFind().
+
+    \sa qBinaryFind(), {input iterators}
+*/
+
+/*! \fn template <class InputIterator, class T, class Size> \
+	void qCount(InputIterator begin, InputIterator end, const T &value, Size &n)
+
+    Sets \a n to the number of occurrences of \a value in the range
+    [\a begin, \a end).
+
+    Example:
+    \code
+	QList<int> list;
+        list << 3 << 3 << 6 << 6 << 6 << 8;
+
+	int count6;
+        qCount(list.begin(), list.end(), count6, 6);
+        // count6 == 3
+
+	int count7;
+        qCount(list.begin(), list.end(), count7, 7);
+        // count7 == 0
+    \endcode
+
+    This function requires the item type (in the example above,
+    QString) to implement \c operator==().
+
+    \sa {input iterators}
+*/
+
+/*! \fn template <class T> \
+	void qSwap(T &var1, T &var2)
+
+    Exchanges the values of variables \a var1 and \a var2.
+
+    Example:
+    \code
+	double pi = 3.14;
+        double e = 2.71;
+
+	qSwap(pi, e);
+        // pi == 2.71, e == 3.14
+    \endcode
+*/
+
+/*! \fn template <class BiIterator> \
+	void qBubbleSort(BiIterator begin, BiIterator end)
+
+    Sorts the items in range [\a begin, \a end) in ascending order
+    using the bubble sort algorithm.
+
+    Example:
+    \code
+	QList<int> list;
+        list << 33 << 12 << 68 << 6 << 12;
+	qBubbleSort(list.begin(), list.end());
+        // list: [ 6, 12, 12, 33, 68 ]
+    \endcode
+
+    The bubble sort algorithm can be very slow on large data sets.
+    Its behavior is said to be \l quadratic. Use this algorithm only
+    if you are certain that there are only a few items to sort, say,
+    less than 30. If you can't guarantee that, use qHeapSort()
+    instead.
+
+    This function requires the item type (in the example above,
+    \c{int}) to implement \c operator<().
+
+    \sa qHeapSort(), {bidirectional iterators}
+*/
+
+/*! \fn template <class Container> \
+	void qBubbleSort(Container &c)
+
+    \overload
+
+    This is the same as qBubbleSort(\a{c}.begin(), \a{c}.end());
+*/
+
+/*! \fn template <class Value> \
+	void qHeapSortPushDown(Value *heap, int first, int end)
+
+    \private
+    Used by qHeapSort().
+*/
+
+/*! \fn template <class BiIterator, class Value> \
+	void qHeapSortHelper(BiIterator begin, BiIterator end, Value, uint n)
+
+    \private
+    Used by qHeapSort().
+*/
+
+/*! \fn template <class BiIterator> \
+	void qHeapSort(BiIterator begin, BiIterator end)
+
+    Sorts the items in range [\a begin, \a end) in ascending order
+    using the heap sort algorithm.
+
+    Example:
+    \code
+	QList<int> list;
+        list << 33 << 12 << 68 << 6 << 12;
+	qHeapSort(list.begin(), list.end());
+        // list: [ 6, 12, 12, 33, 68 ]
+    \endcode
+
+    The heap sort algorithm can be slower than bubble sort (qBubbleSort())
+    for small data sets, but is much faster on large data sets. Its behavior
+    is said to be \l {linear-logarithmic}, O(\e{n} log \e{n}).
+
+    This function requires the item type (in the example above,
+    \c{int}) to implement \c operator<().
+
+    \sa qHeapSort(), {bidirectional iterators}
+*/
+
+/*! \fn template <class Container> \
+	void qHeapSort(Container &c)
+
+    \overload
+
+    This is the same as qHeapSort(\a{c}.begin(), \a{c}.end());
+*/
+
+/*! \fn template <class RandomAccessIterator, class T> \
+	RandomAccessIterator qLowerBound(RandomAccessIterator begin, RandomAccessIterator end, const T &value)
+
+    Performs a binary search of the range [\a begin, \a end) and
+    returns the position of the first ocurrence of \a value. If no
+    such item is found, returns the position where it should be
+    inserted.
+
+    The items in the range [\a begin, \e end) must be sorted in
+    ascending order beforehand.
+
+    Example:
+    \code
+	QList<int> list;
+        list << 3 << 3 << 6 << 6 << 6 << 8;
+
+        QList<int>::Iterator it = qLowerBound(list.begin(), list.end(), 5);
+	list.insert(it, 5);
+        // list: [ 3, 3, 5, 6, 6, 6, 8 ]
+
+	it = qLowerBound(list.begin(), list.end(), 12);
+        list.insert(it, 12);
+        // list: [ 3, 3, 5, 6, 6, 6, 8, 12 ]
+    \endcode
+
+    This function requires the item type (in the example above,
+    \c{int}) to implement \c operator<().
+
+    qLowerBound() can be used in conjunction with qUpperBound() to
+    iterate over all occurrences of the same value:
+
+    \code
+	QVector<int> vect;
+        vect << 3 << 3 << 6 << 6 << 6 << 8;
+        QVector<int>::Iterator begin6 =
+	        qLowerBound(vect.begin(), vect.end(), 6);
+        QVector<int>::Iterator end6 =
+	        qLowerBound(vect.begin(), vect.end(), 6);
+
+	QVector<int>::Iterator it = begin6;
+        while (it != end6) {
+	    *it = 7;
+            ++it;
+        }
+        // vect: [ 3, 3, 7, 7, 7, 8 ]
+    \endcode
+
+    \sa qUpperBound(), qBinaryFind()
+*/
+
+/*! \fn template <class RandomAccessIterator, class T> \
+	RandomAccessIterator qUpperBound(RandomAccessIterator begin, RandomAccessIterator end, const T &value)
+
+    Performs a binary search of the range [\a begin, \a end) and
+    returns the position of the next-to-last occurrence of \a value.
+    If no such item is found, returns the position where the item
+    should be inserted.
+
+    The items in the range [\a begin, \e end) must be sorted in
+    ascending order beforehand.
+
+    Example:
+    \code
+	QList<int> list;
+        list << 3 << 3 << 6 << 6 << 6 << 8;
+
+        QList<int>::Iterator it = qLowerBound(list.begin(), list.end(), 5);
+	list.insert(it, 5);
+        // list: [ 3, 3, 5, 6, 6, 6, 8 ]
+
+	it = qLowerBound(list.begin(), list.end(), 12);
+        list.insert(it, 12);
+        // list: [ 3, 3, 5, 6, 6, 6, 8, 12 ]
+    \endcode
+
+    This function requires the item type (in the example above,
+    \c{int}) to implement \c operator<().
+
+    qUpperBound() can be used in conjunction with qLowerBound() to
+    iterate over all occurrences of the same value:
+
+    \code
+	QVector<int> vect;
+        vect << 3 << 3 << 6 << 6 << 6 << 8;
+        QVector<int>::Iterator begin6 =
+	        qLowerBound(vect.begin(), vect.end(), 6);
+        QVector<int>::Iterator end6 =
+	        qLowerBound(vect.begin(), vect.end(), 6);
+
+	QVector<int>::Iterator it = begin6;
+        while (it != end6) {
+	    *it = 7;
+            ++it;
+        }
+        // vect: [ 3, 3, 7, 7, 7, 8 ]
+    \endcode
+
+    \sa qLowerBound(), qBinaryFind()
+*/
+
+/*! \fn template <class RandomAccessIterator, class T> \
+	RandomAccessIterator qBinaryFind(RandomAccessIterator begin, RandomAccessIterator end, const T &value)
+
+    Performs a binary search of the range [\a begin, \a end) and
+    returns the position of an occurrence of \a value. If there are
+    no occurrences of \a value, returns \a end.
+
+    The items in the range [\a begin, \e end) must be sorted in
+    ascending order beforehand.
+
+    If there are many occurrences of the same value, it is not
+    specified which one is returned. Use \a qLowerBound() or \a
+    qUpperBound() if you need more control.
+
+    Example:
+    \code
+	QVector<int> vect;
+        vect << 3 << 3 << 6 << 6 << 6 << 8;
+
+	QVector<int>::Iterator it =
+		qBinaryFind(vect.begin(), vect.end(), 6);
+	// it == vect.begin() + 2 (or 3 or 4)
+    \endcode
+
+    This function requires the item type (in the example above,
+    QString) to implement \c operator<().
+
+    \sa qLowerBound(), qUpperBound(), {random access iterators}
+*/
+
+/*! \fn template <class ForwardIterator> \
+	void qDeleteAll(ForwardIterator begin, ForwardIterator end)
+
+    Deletes all the items in the range [\a begin, \a end) using the
+    C++ \c delete operator. The item type must be a pointer type (for
+    example, \c{QWidget *}).
+
+    Example:
+    \code
+	QList<Employee *> list;
+        list.append(new Employee("Blackpool", "Stephen"));
+        list.append(new Employee("Twist", "Oliver"));
+
+	qDeleteAll(list.begin(), list.end());
+        list.clear();
+    \endcode
+
+    Notice that qDeleteAll() doesn't remove the items from the
+    container; it merely calls \c delete on them. In the example
+    above, we call clear() on the container to remove the items.
+
+    \sa {forward iterators}
+*/
+
+/*! \fn template <class Container> \
+	void qDeleteAll(const Container &c)
+
+    \overload
+
+    This is the same as qDelete(\a{c}.begin(), \a{c}.end()).
+*/
+
+/*! \fn template <class Container> \
+	QBackInsertIterator<Container> qBackInserter(Container &c)
+
+    \obsolete
+*/
