@@ -745,8 +745,6 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 	    newSliderPos = sliderMin;
 	else if ( newSliderPos > sliderMax )
 	    newSliderPos = sliderMax;
-	if ( newSliderPos == sliderPos )
-	    return;
 	int newVal = sliderPosToRangeValue(newSliderPos);
 	if ( newVal != slidePrevVal )
 	    emit sliderMoved( newVal );
