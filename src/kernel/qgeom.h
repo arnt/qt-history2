@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgeom.h#14 $
+** $Id: //depot/qt/main/src/kernel/qgeom.h#15 $
 **
 **  Geometry Management
 **
@@ -13,30 +13,40 @@
 #define QGEOM_H
 
 #include "qbasic.h"
+#include "qlist.h"
 
-class QLayout : public QObject
+class QLayout
 {
 public:
+    virtual ~QLayout();
     int defaultBorder() const { return defBorder; }
 
     bool doIt() { return bm->doIt(); }
     void freeze( int w, int h );
     void freeze() { freeze( 0, 0 ); }
+    
+    const char *name() { return objName; }
 
 protected:
     QLayout( QWidget *parent,  int border,
 	     int autoBorder, const char *name );
-    QLayout( QLayout *parent, int autoBorder = -1, const char *name=0 );
+    QLayout( int autoBorder = -1, const char *name=0 );
 
     QBasicManager *basicManager() { return bm; }
     virtual QChain *mainVerticalChain() = 0;
     virtual QChain *mainHorizontalChain() = 0;
 
+    virtual void initBM() = 0;
+    void addChildLayout( QLayout *);
+
     static QChain *verChain( QLayout *l ) { return l->mainVerticalChain(); }
     static QChain *horChain( QLayout *l ) { return l->mainHorizontalChain(); }
 
 private:
+    const char *objName;
     QBasicManager * bm;
+    QLayout *parentLayout;
+    QList<QLayout> *children;
     int defBorder;
     bool    topLevel;
 
@@ -50,16 +60,16 @@ private:	// Disabled copy constructor and operator=
 class QBoxLayout : public QLayout
 {
 public:
-    QBoxLayout(	 QWidget *parent, QBasicManager::Direction, int border=0,
-		 int autoBorder = -1, const char *name=0 );
+    QBoxLayout( QWidget *parent, QBasicManager::Direction, int border=0,
+		int autoBorder = -1, const char *name=0 );
 
-    QBoxLayout(	 QLayout *parent, QBasicManager::Direction, int autoBorder = -1,
-		 const char *name=0 );
+    QBoxLayout(	QBasicManager::Direction, int autoBorder = -1,
+		const char *name=0 );
 
+    ~QBoxLayout();
     enum alignment { alignCenter, alignTop, alignLeft,
 		     alignBottom, alignRight };
 
-    //QBoxLayout *addNewBox( QBasicManager::Direction, int stretch = 0 );
     void addWidget( QWidget *, int stretch = 0, alignment a = alignCenter );
     void addSpacing( int size );
     void addStretch( int stretch = 0 );
@@ -71,6 +81,7 @@ public:
 protected:
     QChain *mainVerticalChain();
     QChain *mainHorizontalChain();
+    void initBM();
 
 private:
     void addB( QLayout *, int stretch );
@@ -93,9 +104,9 @@ class QGridLayout : public QLayout
 public:
     QGridLayout( QWidget *parent, int nRows, int nCols, int border=0,
 		 int autoBorder = -1, const char *name=0 );
-    QGridLayout( QLayout *parent, int nRows, int nCols, int autoBorder = -1,
+    QGridLayout( int nRows, int nCols, int autoBorder = -1,
 		 const char *name=0 );
-
+    ~QGridLayout();
     void addWidget( QWidget *, int row, int col, int align = 0 );
     void addMultiCellWidget( QWidget *, int fromRow, int toRow, 
 			       int fromCol, int toCol, int align = 0 );
@@ -108,6 +119,7 @@ public:
 protected:
     QChain *mainVerticalChain() { return verChain; }
     QChain *mainHorizontalChain() { return horChain; }
+    void initBM();
 
 private:
     QArray<QChain*> *rows;
@@ -116,6 +128,9 @@ private:
     QChain *horChain;
     QChain *verChain;
     void init ( int r, int c );
+
+    int rr;
+    int cc;
 
 private:	// Disabled copy constructor and operator=
     QGridLayout( const QGridLayout & ) :QLayout(0) {}
