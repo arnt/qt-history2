@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include <qtextoption.h>
+#include "qtextoption.h"
 
 #include <QtCore/qlist.h>
 
