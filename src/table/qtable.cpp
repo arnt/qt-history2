@@ -1168,7 +1168,7 @@ bool QCheckTableItem::isChecked() const
 
   If your application already stores its data in a way that allocating
   a QTableItem for each data containing cell seems inappropriate, you
-  can reimplement QTable::paintCell() and draw the contents directly. 
+  can reimplement QTable::paintCell() and draw the contents directly.
   You should also reimplement QTable::paintCell() if you wish to change
   the alignment of your items in the QTable.
 
@@ -1943,7 +1943,7 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
   paintCell() to do the custom drawing, or subclass QTableItem
   and reimplement QTableItem::paint().
 
-  If you want to change the alignment of your items then you will need to 
+  If you want to change the alignment of your items then you will need to
   reimplement paintCell().
 
   Reimplementing this function is probably better e.g. for data you
@@ -4259,45 +4259,53 @@ bool QTable::dragEnabled() const
 
 #ifndef QT_NO_DRAGANDDROP
 
-/*! Inserts an empty row at the index \a row.
+/*! Inserts \count empty rows at the index \a row.
 
-  \sa insertColumn() removeRow()
+  \sa insertColumns() removeRow()
 */
 
-void QTable::insertRow( int row )
+void QTable::insertRows( int row, int count )
 {
-    setNumRows( numRows() + 1 );
+    if ( row < 0 || count <= 0 )
+	return;
+
+    row--;
     if ( row >= numRows() )
 	return;
-    int j = 1;
-    for ( int i = row; i < numRows() - 1; ++i ) {
-	( (QTableHeader*)verticalHeader() )->swapSections( numRows() - j - 1, numRows() - j );
-	++j;
-    }
+
+    setNumRows( numRows() + count );
+
+    for ( int i = numRows() - count - 1; i > row; --i )
+        ( (QTableHeader*)verticalHeader() )->swapSections( i, i + count );
+
     repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight() );
 }
 
 /*! Inserts an empty column at the index \a col.
 
-  \sa insertRow() removeColumn()
+  \sa insertRows() removeColumn()
 */
 
-void QTable::insertColumn( int col )
+void QTable::insertColumns( int col, int count )
 {
-    setNumCols( numCols() + 1 );
+    if ( col < 0 || count <= 0 )
+	return;
+
+    col--;
     if ( col >= numCols() )
 	return;
-    int j = 1;
-    for ( int i = col; i < numCols() - 1; ++i ) {
-	( (QTableHeader*)horizontalHeader() )->swapSections( numCols() - j - 1, numCols() - j );
-	++j;
-    }
+
+    setNumCols( numCols() + count );
+
+    for ( int i = numCols() - count - 1; i > col; --i )
+        ( (QTableHeader*)horizontalHeader() )->swapSections( i, i + count );
+
     repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight() );
 }
 
 /*! Removes the row \a row.
 
-  \sa hideRow() insertRow() removeColumn(), removeRows()
+  \sa hideRow() insertRows() removeColumn(), removeRows()
 */
 
 void QTable::removeRow( int row )
@@ -4335,7 +4343,7 @@ void QTable::removeRows( const QArray<int> &rows )
 
 /*! Removes the column \a col.
 
-  \sa hideColumn() insertColumn() removeRow()
+  \sa hideColumn() insertColumns() removeRow()
 */
 
 void QTable::removeColumn( int col )

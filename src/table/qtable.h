@@ -337,8 +337,8 @@ public slots:
     virtual void setDragEnabled( bool b );
     bool dragEnabled() const;
 
-    void insertRow( int row );
-    void insertColumn( int col );
+    void insertRows( int row, int count = 1 );
+    void insertColumns( int col, int count = 1 );
     void removeRow( int row );
     void removeRows( const QArray<int> &rows );
     void removeColumn( int col );
