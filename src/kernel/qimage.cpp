@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#2 $
 **
 ** Implementation of QImage class
 **
@@ -19,7 +19,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#2 $";
 #endif
 
 
@@ -624,7 +624,7 @@ static void write_xbm_image( QImageIO *image )	// write X bitmap image data
     if ( (i=s.findRev('\\')) >= 0 )
 	s = &s[i];
     if ( (i=s.find('.')) >= 0 )
-	s.resize( i + 1 );
+	s.truncate( i );
     char buf[100];
     sprintf( buf, "#define %s_width %d\n",  (char *)s, w );
     d->writeBlock( buf, strlen(buf) );

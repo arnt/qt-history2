@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#39 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#38 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#39 $";
 #endif
 
 
@@ -1946,7 +1946,7 @@ static QString gen_xbm_key(  const QWorldMatrix &m, const QFont &f,
 			     const char *str, int len )
 {
     QString s = str;
-    s.resize( len + 1 );
+    s.truncate( len );
     QString k;
     if ( len > 150 )
 	k.resize( len + 100 );
@@ -2010,7 +2010,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    QPDevCmdParam param[2];
 	    QPoint p( x, y );
 	    QString newstr = str;
-	    newstr.resize( len+1 );
+	    newstr.truncate( len );
 	    param[0].point = &p;
 	    param[1].str = newstr.data();
 	    pdev->cmd( PDC_DRAWTEXT, param );
@@ -2152,7 +2152,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	    QRect r( x, y, w, h );
 	    QString newstr = str;
 	    if ( len >= 0 )
-		newstr.resize( len+1 );
+		newstr.truncate( len );
 	    param[0].rect = &r;
 	    param[1].ival = tf;
 	    param[2].str = newstr.data();
