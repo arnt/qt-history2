@@ -58,6 +58,12 @@ void Logger::addEntry(LogEntry *entry)
    logEntries.append(entry);
 }
 
+int Logger::numEntries()
+{
+    return logEntries.size();
+}
+
+
 QStringList Logger::fullReport()
 {
     QStringList report;

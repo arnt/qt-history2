@@ -68,7 +68,7 @@ public:
 
     void addEntry(LogEntry *entry);
     QStringList fullReport();
-
+    int numEntries();
     /*
         glabalState can be used for storage of application state
         together with the logger. This can be useful in some cases,

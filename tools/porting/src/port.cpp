@@ -212,19 +212,20 @@ int main(int argc, char**argv)
         porter.portFile(inFileName);
 
     //write log
-    QStringList report = Logger::instance()->fullReport();
-    QString logFileName =  "portinglog.txt";
-    cout << "Writing log to " << logFileName.toLocal8Bit().constData() << endl;
-    QByteArray logContents;
-    QBuffer logBuffer(&logContents);
-    logBuffer.open(QIODevice::Text | QIODevice::WriteOnly);
-    QTextStream logStream(&logBuffer);
-    foreach(QString logLine, report) {
-        logStream << logLine << endl;
+    if(Logger::instance()->numEntries() > 0) {
+        QStringList report = Logger::instance()->fullReport();
+        QString logFileName =  "portinglog.txt";
+        cout << "Writing log to " << logFileName.toLocal8Bit().constData() << endl;
+        QByteArray logContents;
+        QBuffer logBuffer(&logContents);
+        logBuffer.open(QIODevice::Text | QIODevice::WriteOnly);
+        QTextStream logStream(&logBuffer);
+        foreach(QString logLine, report) {
+            logStream << logLine << endl;
+        }
+        FileWriter fileWriter(FileWriter::AskOnOverWrite, "Overwrite file ");
+        fileWriter.writeFile(logFileName, logContents);
     }
-    FileWriter fileWriter(FileWriter::AskOnOverWrite, "Overwrite file ");
-    fileWriter.writeFile(logFileName, logContents);
-
     Logger::deleteInstance();
     PortingRules::deleteInstance();
     return 0;
