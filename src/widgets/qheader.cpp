@@ -734,7 +734,7 @@ QRect QHeader::sRect( int index )
 {
 
     int section = mapToSection( index );
-    if ( index >= count() ) {
+    if ( count() > 0 && index >= count() ) {
 	int s = d->positions[count()-1]-offset()+d->sizes[mapToSection(count()-1)];
 	if ( orient == Horizontal )
 	    return QRect(  s, 0, width()-s+10, height() );
@@ -743,7 +743,7 @@ QRect QHeader::sRect( int index )
     }
     if ( section < 0 )
 	return rect(); // ### eeeeevil
-    
+
 
     if ( reverse() )
 	return QRect(  d->lastPos - d->positions[index] - d->sizes[section] -offset(), 0, d->sizes[section], height() );
@@ -1352,7 +1352,7 @@ void QHeader::paintEvent( QPaintEvent *e )
     } else {
 	for ( int i = id; i <= count(); i++ ) {
 	    QRect r = sRect( i );
-	    if ( i < count() || d->clicks[ mapToSection( count() - 1 ) ] ) 
+	    if ( i < count() || d->clicks[ mapToSection( count() - 1 ) ] )
 		paintSection( &p, i, r );
 	    if ( orient == Horizontal && r. right() >= e->rect().right() ||
 		 orient == Vertical && r. bottom() >= e->rect().bottom() )
