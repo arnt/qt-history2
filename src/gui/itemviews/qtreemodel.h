@@ -3,7 +3,6 @@
 
 #ifndef QT_H
 #include <qgenericitemmodel.h>
-#include <qsharedpointer.h>
 #include <qlist.h>
 #include <qvector.h>
 #include <qiconset.h>
@@ -12,14 +11,14 @@
 
 class QTreeModel;
 
-class Q_GUI_EXPORT QTreeModelItem : public QSharedObject
+class Q_GUI_EXPORT QTreeModelItem
 {
     friend class QTreeModel;
 
 public:
     QTreeModelItem(QTreeModel *model);
     QTreeModelItem(QTreeModelItem *parent);
-    virtual ~QTreeModelItem() {}
+    virtual ~QTreeModelItem();
 
     inline const QTreeModelItem *parent() const { return par; }
     inline const QTreeModelItem *child(int index) const { return children.at(index); }
@@ -47,7 +46,7 @@ private:
     QTreeModelItem();
     QTreeModelItem(const QVariant &values);
     QTreeModelItem *par;
-    QList< QExplicitSharedPointer<QTreeModelItem> > children;
+    QList<QTreeModelItem*> children;
     QVector<QString> txt;
     QVector<QIconSet> icn;
     QTreeModel *mod;
@@ -64,7 +63,7 @@ class Q_GUI_EXPORT QTreeModel : public QGenericItemModel
 
 public:
     QTreeModel(int columns = 0, QObject *parent = 0, const char *name = 0);
-    ~QTreeModel() {};
+    ~QTreeModel();
 
     virtual void setColumnCount(int columns);
     int columnCount() const;
@@ -89,6 +88,8 @@ public:
 
     QVariant data(const QModelIndex &index, int element) const;
     void setData(const QModelIndex &index, int element, const QVariant &variant);
+    void insertDataList(const QModelIndex &index, const QVariant &variant);
+    void appendDataList(const QVariant &variant);
 
     QVariant::Type type(const QModelIndex &index, int element) const;
     int element(const QModelIndex &index, QVariant::Type type) const;
@@ -98,10 +99,11 @@ public:
 
 protected:
     void append(QTreeModelItem *item);
+    void emitContentsInserted(QTreeModelItem *item);
 
 private:
     int c;
-    QList< QExplicitSharedPointer<QTreeModelItem> > tree;
+    QList<QTreeModelItem*> tree;
     mutable QTreeModelItem topHeader;
 };
 

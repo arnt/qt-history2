@@ -10,7 +10,8 @@ QTreeModelItem::QTreeModelItem(const QVariant &values)
 {
     if (values.type() != QVariant::List)
 	return;
-    QList<QVariant> elementList = *reinterpret_cast< QList<QVariant> *>(&values.toList());
+    QList<QCoreVariant> lst = values.toList();
+    QList<QVariant> elementList = *reinterpret_cast< QList<QVariant> *>(&lst);
     QList<QVariant>::ConstIterator it = elementList.begin();
     for (int e = 0; e < elementList.count(); ++it, ++e) {
 	if ((*it).type() == QVariant::String)
@@ -31,11 +32,14 @@ QTreeModelItem::QTreeModelItem(QTreeModelItem *parent)
     : par(parent), mod(parent->mod), c(0), edit(true), select(true)
 {
     if (parent)
-	parent->children.push_back(QExplicitSharedPointer<QTreeModelItem>(this));
-    QModelIndex topLeft = model()->index(this);
-    QModelIndex parentIndex = model()->parent(topLeft);
-    QModelIndex bottomRight = model()->index(topLeft.row(), model()->columnCount(parentIndex) - 1, parentIndex);
-    emit model()->contentsInserted(topLeft, bottomRight);
+	parent->children.push_back(this);
+    model()->emitContentsInserted(this);
+}
+
+QTreeModelItem::~QTreeModelItem()
+{
+    for (int i = 0; i < children.count(); ++i)
+	delete children.at(i);
 }
 
 void QTreeModelItem::setColumnCount(int columns)
@@ -63,6 +67,12 @@ QTreeModel::QTreeModel(int columns, QObject *parent, const char *name)
     : QGenericItemModel(parent, name), c(0)
 {
     setColumnCount(columns);
+}
+
+QTreeModel::~QTreeModel()
+{
+    for (int i = 0; i < tree.count(); ++i)
+	delete tree.at(i);
 }
 
 void QTreeModel::setColumnCount(int columns)
@@ -166,8 +176,7 @@ QModelIndex QTreeModel::index(QTreeModelItem *item) const
     if (!item)
 	return QModelIndex();
     const QTreeModelItem *par = item->parent();
-    const QExplicitSharedPointer<QTreeModelItem> ptr(item);
-    int row = par ? par->children.indexOf(ptr) : tree.indexOf(ptr);
+    int row = par ? par->children.indexOf(item) : tree.indexOf(item);
     return QModelIndex(row, 0, item);
 }
 
@@ -243,6 +252,29 @@ void QTreeModel::setData(const QModelIndex &index, int element, const QVariant &
     emit contentsChanged(index, index);
 }
 
+void QTreeModel::insertDataList(const QModelIndex &index, const QVariant &variant)
+{
+    QTreeModelItem *sibling = item(index);
+    QTreeModelItem *parent = (QTreeModelItem *)sibling->parent();
+    QTreeModelItem *itm = new QTreeModelItem(variant);
+    if (parent) {
+	itm->par = parent;
+	itm->mod = this;
+	int i = parent->children.indexOf(sibling);
+	parent->children.insert(i, itm);
+    } else {
+	itm->mod = this;
+	int i = tree.indexOf(sibling);
+	tree.insert(i, itm);
+    }
+    emitContentsInserted(itm);
+}
+
+void QTreeModel::appendDataList(const QVariant &variant)
+{
+    append(new QTreeModelItem(variant));
+}
+
 QVariant::Type QTreeModel::type(const QModelIndex &index, int element) const
 {
     if (!index.isValid())
@@ -277,9 +309,17 @@ bool QTreeModel::isEditable(const QModelIndex &) const
 
 void QTreeModel::append(QTreeModelItem *item)
 {
-    tree.push_back(QExplicitSharedPointer<QTreeModelItem>(item));
+    tree.push_back(item);
     int r = tree.count();
     QModelIndex topLeft = index(r - 1, 0, 0);
     QModelIndex bottomRight = index(r - 1, c - 1, 0);
+    emit contentsInserted(topLeft, bottomRight);
+}
+
+void QTreeModel::emitContentsInserted(QTreeModelItem *item)
+{
+    QModelIndex topLeft = index(item);
+    QModelIndex parentIndex = parent(topLeft);
+    QModelIndex bottomRight = index(topLeft.row(), columnCount(parentIndex) - 1, parentIndex);
     emit contentsInserted(topLeft, bottomRight);
 }
