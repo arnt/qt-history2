@@ -56,6 +56,7 @@ public:
     virtual bool setFocusSection( int sec ) = 0;
     virtual QString sectionFormattedText( int sec ) = 0;
     virtual void addNumber( int sec, int num ) = 0;
+    virtual void removeFirstNumber( int sec ) = 0;
     virtual void removeLastNumber( int sec ) = 0;
 
 public slots:
@@ -125,6 +126,7 @@ protected:
     void stepDown();
     QString sectionFormattedText( int sec );
     void addNumber( int sec, int num );
+    void removeFirstNumber( int sec );
     void removeLastNumber( int sec );
     bool setFocusSection( int s );
     
@@ -208,6 +210,7 @@ protected:
     void stepDown();
     QString sectionFormattedText( int sec );
     void addNumber( int sec, int num );
+    void removeFirstNumber( int sec );
     void removeLastNumber( int sec );
     bool setFocusSection( int s );
     

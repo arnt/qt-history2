@@ -566,6 +566,8 @@ bool QDateTimeEditor::eventFilter( QObject *o, QEvent *e )
 		cw->stepDown();
 		return TRUE;
 	    case Key_Backspace:
+		cw->removeFirstNumber( d->focusSection() );
+		return TRUE;
 	    case Key_Delete:
 		cw->removeLastNumber( d->focusSection() );
 		return TRUE;
@@ -758,8 +760,14 @@ bool QDateTimeEditor::setFocusSection( int sec )
     \internal
 
   Pure virtual function which is called whenever the user tries to
-  remove the last number from \a sec by pressing the backspace or
-  delete key.
+  remove the last number from \a sec by pressing the delete key.
+*/
+
+/*! \fn void QDateTimeEditBase::removeFirstNumber( int sec )
+    \internal
+
+  Pure virtual function which is called whenever the user tries to
+  remove the first number from \a sec by pressing the backspace key.
 */
 
 ////////////////
@@ -1638,6 +1646,32 @@ bool QDateEdit::event( QEvent *e )
 
 */
 
+void QDateEdit::removeFirstNumber( int sec )
+{
+    if ( sec == -1 )
+	return;
+    QString txt;
+    if ( sec == d->yearSection ) {
+	txt = QString::number( d->y );
+	txt = txt.mid( 1, txt.length() ) + "0";
+	d->y = txt.toInt();
+    } else if ( sec == d->monthSection ) {
+	txt = QString::number( d->m );
+	txt = txt.mid( 1, txt.length() ) + "0";
+	d->m = txt.toInt();
+    } else if ( sec == d->daySection ) {
+	txt = QString::number( d->d );
+	txt = txt.mid( 1, txt.length() ) + "0";
+	d->d = txt.toInt();
+	d->dayCache = d->d;
+    }
+    d->ed->repaint( d->ed->rect(), FALSE );
+}
+
+/*! \reimp
+
+*/
+
 void QDateEdit::removeLastNumber( int sec )
 {
     if ( sec == -1 )
@@ -2382,6 +2416,41 @@ void QTimeEdit::addNumber( int sec, int num )
 
 */
 
+void QTimeEdit::removeFirstNumber( int sec )
+{
+    if ( sec == -1 )
+	return;
+    sec = d->ed->mapSection( sec );
+    QString txt;
+    switch( sec ) {
+    case 0:
+	txt = QString::number( d->h );
+	break;
+    case 1:
+	txt = QString::number( d->m );
+	break;
+    case 2:
+	txt = QString::number( d->s );
+	break;
+    }
+    txt = txt.mid( 1, txt.length() ) + "0";
+    switch( sec ) {
+    case 0:
+	d->h = txt.toInt();
+	break;
+    case 1:
+	d->m = txt.toInt();
+	break;
+    case 2:
+	d->s = txt.toInt();
+	break;
+    }
+    d->ed->repaint( d->ed->rect(), FALSE );
+}
+
+/*! \reimp
+
+*/
 void QTimeEdit::removeLastNumber( int sec )
 {
     if ( sec == -1 )
