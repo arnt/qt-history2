@@ -267,24 +267,32 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    writeLexSrc(mkt, "LEXSOURCES");
 	    mkf.close();
 	}
-	QString phase_key = keyFor("QMAKE_PBX_PREPROCESST_BUILDPHASE");
+	QString target_key = keyFor("QMAKE_PBX_PREPROCESS_TARGET");
 	mkfile = fileFixify(mkfile, QDir::currentDirPath());
-	project->variables()["QMAKE_PBX_BUILDPHASES"].append(phase_key);
-	t << "\t\t" << phase_key << " = {" << "\n"
-	  << "\t\t\t" << "buildActionMask = 2147483647;" << "\n"
-	  << "\t\t\t" << "files = (" << "\n"
+	t << "\t\t" << target_key << " = {" << "\n"
+	  << "\t\t\t" << "buildArgumentsString = \"-f " << mkfile << "\";" << "\n"
+	  << "\t\t\t" << "buildPhases = (" << "\n"
 	  << "\t\t\t" << ");" << "\n"
-	  << "\t\t\t" << "generatedFileNames = (" << "\n"
-//	  << varGlue("QMAKE_PBX_UICIMPLS", "\t\t\t\t", ",\n\t\t\t\t", "")
-//	  << varGlue("QMAKE_PBX_SRCMOC", ",\n\t\t\t\t", ",\n\t\t\t\t", "\n")
+	  << "\t\t\t" << "buildSettings = {" << "\n"
+	  << "\t\t\t" << "};" << "\n"
+	  << "\t\t\t" << "buildToolPath = \"/usr/bin/gnumake\";"<< "\n"
+	  << "\t\t\t" << "buildWorkingDirectory = \"" << QDir::currentDirPath() << "\";" << "\n"
+	  << "\t\t\t" << "dependencies = (" << "\n"
 	  << "\t\t\t" << ");" << "\n"
-	  << "\t\t\t" << "isa = PBXShellScriptBuildPhase;" << "\n"
-	  << "\t\t\t" << "name = \"Qt Preprocessors\";" << "\n"
-	  << "\t\t\t" << "neededFileNames = (" << "\n"
-	  << "\t\t\t" << ");" << "\n"
-	  << "\t\t\t" << "shellPath = /bin/sh;" << "\n"
-	  << "\t\t\t" << "shellScript = \"make -C " << QDir::currentDirPath() <<
-	    " -f " << mkfile << "\";" << "\n"
+	  << "\t\t\t" << "isa = PBXLegacyTarget;" << "\n"
+	  << "\t\t\t" << "name = QtPreprocessors;" << "\n"
+	  << "\t\t\t" << "productName = QtPreprocessors;" << "\n"
+	  << "\t\t\t" << "settingsToExpand = 6;" << "\n"
+	  << "\t\t\t" << "settingsToPassInEnvironment = 287;" << "\n"
+	  << "\t\t\t" << "settingsToPassOnCommandLine = 280;" << "\n"
+	  << "\t\t\t" << "shouldsUseHeadermap = 0;" << "\n"
+	  << "\t\t" << "};" << "\n";
+
+	QString target_depend_key = keyFor("QMAKE_PBX_PREPROCESS_TARGET_DEPEND");
+	project->variables()["QMAKE_PBX_TARGETDEPENDS"].append(target_depend_key);
+	t << "\t\t" << target_depend_key << " = {" << "\n"
+	  << "\t\t\t" << "isa = PBXTargetDependency;" << "\n"
+	  << "\t\t\t" << "target = " << target_key << ";" << "\n"
 	  << "\t\t" << "};" << "\n";
     }
     //SOURCE BUILDPHASE
@@ -696,6 +704,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "\t\t\t" << "conditionalBuildSettings = {" << "\n"
       << "\t\t\t" << "};" << "\n"
       << "\t\t\t" << "dependencies = (" << "\n"
+      << varGlue("QMAKE_PBX_TARGETDEPENDS", "\t\t\t\t", ",\n\t\t\t\t", "\n")
       << "\t\t\t" << ");" << "\n"
       << "\t\t\t" << "productReference = " << keyFor("QMAKE_PBX_REFERENCE") << ";" << "\n"
       << "\t\t\t" << "shouldUseHeadermap = 1;" << "\n";
