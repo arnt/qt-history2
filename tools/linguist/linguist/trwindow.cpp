@@ -151,6 +151,12 @@ const QPixmap TrWindow::pageCurl()
     return pixmap;
 }
 
+#if 0//def Q_WS_MAC
+const QString rsrcString = ":/images/mac";
+#else
+const QString rsrcString = ":/images/win";
+#endif
+
 TrWindow::TrWindow()
     : QMainWindow(0, Qt::Window)
 {
@@ -1327,17 +1333,17 @@ void TrWindow::setupMenuBar()
         this, SLOT(printPhraseBook(QAction *)));
 
     // File menu
-    openAct = filep->addAction(QIcon(":/images/fileopen.png"),
+    openAct = filep->addAction(QIcon(rsrcString + "/fileopen.png"),
         tr("&Open..."), this, SLOT(open()));
     openAct->setShortcut(QKeySequence("Ctrl+O"));
     filep->addSeparator();
-    saveAct = filep->addAction(QIcon(":/images/filesave.png"),
+    saveAct = filep->addAction(QIcon(rsrcString + "/filesave.png"),
         tr("&Save"), this, SLOT(save()));
     saveAct->setShortcut(QKeySequence("Ctrl+S"));
     saveAsAct = filep->addAction(tr("Save &As..."), this, SLOT(saveAs()));
     releaseAct = filep->addAction(tr("&Release..."), this, SLOT(release()));
     filep->addSeparator();
-    printAct = filep->addAction(QIcon(":/images/print.png"),
+    printAct = filep->addAction(QIcon(rsrcString + "/print.png"),
         tr("&Print..."), this, SLOT(print()));
     printAct->setShortcut(QKeySequence("Ctrl+P"));
     filep->addSeparator();
@@ -1354,24 +1360,24 @@ void TrWindow::setupMenuBar()
     exitAct = filep->addAction(tr("E&xit"), this, SLOT(close()));
     exitAct->setShortcut(QKeySequence("Ctrl+Q"));
     // Edit menu
-    undoAct = editp->addAction(QIcon(":/images/undo.png"), tr("&Undo"), me, SLOT(undo()));
+    undoAct = editp->addAction(QIcon(rsrcString + "/undo.png"), tr("&Undo"), me, SLOT(undo()));
     undoAct->setShortcut(QKeySequence("Ctrl+Z"));
     undoAct->setEnabled(false);
     connect(me, SIGNAL(undoAvailable(bool)), undoAct, SLOT(setEnabled(bool)));
-    redoAct = editp->addAction(QIcon(":/images/redo.png"), tr("&Redo"), me, SLOT(redo()));
+    redoAct = editp->addAction(QIcon(rsrcString + "/redo.png"), tr("&Redo"), me, SLOT(redo()));
     redoAct->setShortcut(QKeySequence("Ctrl+Y"));
     redoAct->setEnabled(false);
     connect(me, SIGNAL(redoAvailable(bool)), redoAct, SLOT(setEnabled(bool)));
     editp->addSeparator();
-    cutAct = editp->addAction(QIcon(":/images/editcut.png"), tr("Cu&t"), me, SLOT(cut()));
+    cutAct = editp->addAction(QIcon(rsrcString + "/editcut.png"), tr("Cu&t"), me, SLOT(cut()));
     cutAct->setShortcut(QKeySequence("Ctrl+X"));
     cutAct->setEnabled(false);
     connect(me, SIGNAL(cutAvailable(bool)), cutAct, SLOT(setEnabled(bool)));
-    copyAct = editp->addAction(QIcon(":/images/editcopy.png"), tr("&Copy"), me, SLOT(copy()));
+    copyAct = editp->addAction(QIcon(rsrcString + "/editcopy.png"), tr("&Copy"), me, SLOT(copy()));
     copyAct->setShortcut(QKeySequence("Ctrl+C"));
     copyAct->setEnabled(false);
     connect(me, SIGNAL(copyAvailable(bool)), copyAct, SLOT(setEnabled(bool)));
-    pasteAct = editp->addAction(QIcon(":/images/editpaste.png"), tr("&Paste"), me, SLOT(paste()));
+    pasteAct = editp->addAction(QIcon(rsrcString + "/editpaste.png"), tr("&Paste"), me, SLOT(paste()));
     pasteAct->setShortcut(QKeySequence("Ctrl+V"));
     pasteAct->setEnabled(false);
     connect(me, SIGNAL(pasteAvailable(bool)), pasteAct, SLOT(setEnabled(bool)));
@@ -1379,7 +1385,7 @@ void TrWindow::setupMenuBar()
     selectAllAct->setShortcut(QKeySequence("Ctrl+A"));
     selectAllAct->setEnabled(false);
     editp->addSeparator();
-    findAct = editp->addAction(QIcon(":/images/searchfind.png"), tr("&Find..."), this, SLOT(find()));
+    findAct = editp->addAction(QIcon(rsrcString + "/searchfind.png"), tr("&Find..."), this, SLOT(find()));
     findAct->setShortcut(QKeySequence("Ctrl+F"));
     findAct->setEnabled(false);
     findAgainAct = editp->addAction(tr("Find &Next"), this, SLOT(findAgain()));
@@ -1388,20 +1394,20 @@ void TrWindow::setupMenuBar()
 
     // Translation menu
     // when updating the accelerators, remember the status bar
-    prevUnfinishedAct = translationp->addAction(QIcon(":/images/prevunfinished.png"),
+    prevUnfinishedAct = translationp->addAction(QIcon(rsrcString + "/prevunfinished.png"),
         tr("&Prev Unfinished"), this, SLOT(prevUnfinished()));
     prevUnfinishedAct->setShortcut(QKeySequence("Ctrl+K"));
-    nextUnfinishedAct = translationp->addAction(QIcon(":/images/nextunfinished.png"),
+    nextUnfinishedAct = translationp->addAction(QIcon(rsrcString + "/nextunfinished.png"),
         tr("&Next Unfinished"), this, SLOT(nextUnfinished()));
     nextUnfinishedAct->setShortcut(QKeySequence("Ctrl+L"));
 
-    prevAct = translationp->addAction(QIcon(":/images/prev.png"), tr("P&rev"),
+    prevAct = translationp->addAction(QIcon(rsrcString + "/prev.png"), tr("P&rev"),
                           this, SLOT(prev()));
     prevAct->setShortcut(QKeySequence("Ctrl+Shift+K"));
-    nextAct = translationp->addAction(QIcon(":/images/next.png"), tr("Ne&xt"),
+    nextAct = translationp->addAction(QIcon(rsrcString + "/next.png"), tr("Ne&xt"),
                           this, SLOT(next()));
     nextAct->setShortcut(QKeySequence("Ctrl+Shift+L"));
-    doneAndNextAct = translationp->addAction(QIcon(":/images/doneandnext.png"), tr("Done and &Next"),
+    doneAndNextAct = translationp->addAction(QIcon(rsrcString + "/doneandnext.png"), tr("Done and &Next"),
                                  this, SLOT(doneAndNext()));
     doneAndNextAct->setShortcut(QKeySequence("Ctrl+Enter"));
     doneAndNextAct->setEnabled(false);
@@ -1421,7 +1427,7 @@ void TrWindow::setupMenuBar()
     newPhraseBookAct = phrasep->addAction(tr("&New Phrase Book..."),
         this, SLOT(newPhraseBook()));
     newPhraseBookAct->setShortcut(QKeySequence("Ctrl+N"));
-    openPhraseBookAct = phrasep->addAction(QIcon(":/images/book.png"), tr("&Open Phrase Book..."),
+    openPhraseBookAct = phrasep->addAction(QIcon(rsrcString + "/book.png"), tr("&Open Phrase Book..."),
         this, SLOT(openPhraseBook()));
     openPhraseBookAct->setShortcut(QKeySequence("Ctrl+H"));
     closePhraseBookId = phrasep->addMenu(closePhraseBookp);
@@ -1434,15 +1440,15 @@ void TrWindow::setupMenuBar()
     connect(phrasep, SIGNAL(aboutToShow()), this, SLOT(setupPhrase()));
 
     // Validation menu
-    acceleratorsAct = validationp->addAction(QIcon(":/images/accelerator.png"), tr("&Accelerators"),
+    acceleratorsAct = validationp->addAction(QIcon(rsrcString + "/accelerator.png"), tr("&Accelerators"),
         this, SLOT(revalidate()));
     acceleratorsAct->setCheckable(true);
     acceleratorsAct->setChecked(true);
-    endingPunctuationAct = validationp->addAction(QIcon(":/images/punctuation.png"), tr("&Ending Punctuation"),
+    endingPunctuationAct = validationp->addAction(QIcon(rsrcString + "/punctuation.png"), tr("&Ending Punctuation"),
         this, SLOT(revalidate()));
     endingPunctuationAct->setCheckable(true);
     endingPunctuationAct->setChecked(true);
-    phraseMatchesAct = validationp->addAction(QIcon(":/images/phrase.png"), tr("&Phrase Matches"),
+    phraseMatchesAct = validationp->addAction(QIcon(rsrcString + "/phrase.png"), tr("&Phrase Matches"),
         this, SLOT(revalidate()));
     phraseMatchesAct->setCheckable(true);
     phraseMatchesAct->setChecked(true);
@@ -1478,7 +1484,7 @@ void TrWindow::setupMenuBar()
     aboutQtAct = helpp->addAction(tr("About &Qt"), this, SLOT(aboutQt()));
     helpp->addSeparator();
 
-    whatsThisAct = helpp->addAction(QIcon(":/images/whatsthis.png"), tr("&What's This?"),
+    whatsThisAct = helpp->addAction(QIcon(rsrcString + "/whatsthis.png"), tr("&What's This?"),
                                this, SLOT(onWhatsThis()));
 
     whatsThisAct->setShortcut(Qt::SHIFT + Qt::Key_F1);
