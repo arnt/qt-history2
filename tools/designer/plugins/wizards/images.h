@@ -932,16 +932,20 @@ static struct Embed {
     { 0, 0, 0 }
 };
 
+QDict<QByteArray> *qembed_dict = 0;
+
 inline const QByteArray& qembed_findData(const char* name)
 {
-    static QDict<QByteArray> dict;
-    QByteArray* ba = dict.find(name);
+    if ( !qembed_dict )
+	qembed_dict = new QDict<QByteArray>;
+    QByteArray* ba = qembed_dict->find(name);
     if ( !ba ) {
         for (int i=0; embed_vec[i].data; i++) {
     	if ( 0==strcmp(embed_vec[i].name, name) ) {
     	    ba = new QByteArray;
     	    ba->setRawData( (char*)embed_vec[i].data,
     			    embed_vec[i].size );
+	    qembed_dict->insert( name, ba );
     	    break;
     	}
         }

@@ -23184,6 +23184,9 @@ void qInitImages()
     designerMimeSourceFactory = new DesignerMimeSourceFactory;
     QMimeSourceFactory::defaultFactory()->addFactory( designerMimeSourceFactory );
 }
+
+extern QDict<QByteArray> *qembed_dict;
+
 void qCleanupImages()
 {
     if ( !designerMimeSourceFactory )
@@ -23193,5 +23196,7 @@ void qCleanupImages()
     designerMimeSourceFactory = 0;
     delete uic_image_dict;
     uic_image_dict = 0;
+    delete qembed_dict;
+    qembed_dict = 0;
 }
 #endif
