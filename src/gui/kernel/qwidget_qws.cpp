@@ -1238,17 +1238,17 @@ void QWidget::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 
                         QRegion scrollRegion(alloc & oldAlloc);
                         if (!scrollRegion.isEmpty()) {
-                            bool was_unclipped = testAttribute(Qt::WA_PaintUnclipped);
-                            setAttribute(Qt::WA_PaintUnclipped);
+                            bool was_unclipped = p->testAttribute(Qt::WA_PaintUnclipped);
+                            p->setAttribute(Qt::WA_PaintUnclipped);
 
-                            QWSPaintEngine * engine=static_cast<QWSPaintEngine*>(paintEngine());
-                            engine->begin(this);
+                            QWSPaintEngine * engine=static_cast<QWSPaintEngine*>(p->paintEngine());
+                            engine->begin(p);
 
                             engine->setClipDeviceRegion(scrollRegion);
                             engine->scroll(x,y,w,h,oldp.x(),oldp.y());
                             engine->end();
                             if (!was_unclipped)
-                                setAttribute(Qt::WA_PaintUnclipped,false);
+                                p->setAttribute(Qt::WA_PaintUnclipped,false);
 
                             QSize ds(qt_screen->deviceWidth(), qt_screen->deviceHeight());
                             scrollRegion = qt_screen->mapFromDevice(scrollRegion, ds);
