@@ -20,6 +20,7 @@
 #include "qdesktopwidget.h"
 #include "qdockwindow.h"
 #include "qevent.h"
+#include "qeventdispatcher_mac.h"
 #include "qhash.h"
 #include "qmenubar.h"
 #include "qmessagebox.h"
@@ -41,7 +42,6 @@
 
 #include "private/qapplication_p.h"
 #include "private/qcolor_p.h"
-#include "private/qguieventloop_p.h"
 #include "private/qwidget_p.h"
 
 #ifndef QT_NO_ACCESSIBILITY
@@ -732,6 +732,14 @@ static void qt_event_request_context(QWidget *w=0, EventRef *where=0)
     PostEventToQueue(GetMainEventQueue(), *where, kEventPriorityStandard);
 }
 static EventRef request_context_hold_pending = 0;
+
+void QApplicationPrivate::createEventDispatcher()
+{
+    eventDispatcher = (q->type() != QApplication::Tty
+                       ? new QEventDispatcherMac(q)
+                       : new QEventDispatcherUNIX(q));
+}
+
 void
 QApplicationPrivate::qt_context_timer_callbk(EventLoopTimerRef r, void *data)
 {
