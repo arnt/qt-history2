@@ -195,16 +195,13 @@ void QCheckBox::drawButton( QPainter *paint )
 	return;
     }
     QPainter pmpaint;
-    int wx = 0, wy = 0;
     pm = QPixmap( irect.size() );	// create new pixmap
-    pm.fill( pal.background() );
-    QPainter::redirect(this, &pm);
-    pmpaint.begin(this);
+    int wx = irect.x();				// save x,y coords
+    int wy = irect.y();
+    pm.fill(this, wx, wy);
+    pmpaint.begin(&pm, this);
     p = &pmpaint;				// draw in pixmap
-    wx = irect.x();				// save x,y coords
-    wy = irect.y();
     irect.moveTopLeft(QPoint(0, 0));
-    p->setBackgroundColor( pal.background() );
 #endif
 
     QStyle::SFlags flags = QStyle::Style_Default;
@@ -227,15 +224,6 @@ void QCheckBox::drawButton( QPainter *paint )
 
 #if defined(SAVE_CHECKBOX_PIXMAPS)
     pmpaint.end();
-    QPainter::redirect( this, 0 );
-    if ( backgroundPixmap() || backgroundMode() == X11ParentRelative ) {
-	QBitmap bm( pm.size() );
-	bm.fill( color0 );
-	pmpaint.begin( &bm );
-	style().drawControlMask(QStyle::CE_CheckBox, &pmpaint, this, irect);
-	pmpaint.end();
-	pm.setMask( bm );
-    }
     p = paint;				// draw in default device
     p->drawPixmap( wx, wy, pm );
     QPixmapCache::insert(pmkey, pm);	// save in cache
