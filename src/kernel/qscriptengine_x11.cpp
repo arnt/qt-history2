@@ -139,7 +139,7 @@ static const unsigned char indicForms[0xe00-0x900] = {
     Consonant, Consonant, Consonant, Consonant,
     Consonant, Consonant, Consonant, Consonant,
 
-    Other, Other, VowelMark, VowelMark,
+    IndependentVowel, IndependentVowel, VowelMark, VowelMark,
     Other, Other, Other, Other,
     Other, Other, Other, Other,
     Other, Other, Other, Other,
@@ -180,7 +180,7 @@ static const unsigned char indicForms[0xe00-0x900] = {
     Invalid, Invalid, Invalid, Invalid,
     Consonant, Consonant, Invalid, Consonant,
 
-    Other, Other, VowelMark, VowelMark,
+    IndependentVowel, IndependentVowel, VowelMark, VowelMark,
     Other, Other, Other, Other,
     Other, Other, Other, Other,
     Other, Other, Other, Other,
@@ -303,8 +303,8 @@ static const unsigned char indicForms[0xe00-0x900] = {
     Invalid, Invalid, Invalid, Invalid,
     Consonant, Consonant, Invalid, Consonant,
 
-    Other, Other, Invalid, Invalid,
-    Other, Other, Other, Other,
+    IndependentVowel, IndependentVowel, Invalid, Invalid,
+    Invalid, Invalid, Other, Other,
     Other, Other, Other, Other,
     Other, Other, Other, Other,
 
@@ -345,7 +345,7 @@ static const unsigned char indicForms[0xe00-0x900] = {
     Invalid, Invalid, Invalid, Invalid,
 
     Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
+    Invalid, Invalid, Other, Other,
     Other, Other, Other, Other,
     Other, Other, Other, Other,
 
@@ -385,8 +385,8 @@ static const unsigned char indicForms[0xe00-0x900] = {
     Invalid, Invalid, Invalid, Invalid,
     Invalid, Invalid, Invalid, Invalid,
 
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
+    IndependentVowel, IndependentVowel, Invalid, Invalid,
+    Invalid, Invalid, Other, Other,
     Other, Other, Other, Other,
     Other, Other, Other, Other,
 
@@ -426,8 +426,8 @@ static const unsigned char indicForms[0xe00-0x900] = {
     Invalid, Invalid, Invalid, Invalid,
     Invalid, Invalid, Consonant, Invalid,
 
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
+    IndependentVowel, IndependentVowel, Invalid, Invalid,
+    Invalid, Invalid, Other, Other,
     Other, Other, Other, Other,
     Other, Other, Other, Other,
 
@@ -467,8 +467,8 @@ static const unsigned char indicForms[0xe00-0x900] = {
     Invalid, Invalid, Invalid, Invalid,
     Invalid, Invalid, Invalid, Invalid,
 
-    Invalid, Invalid, Invalid, Invalid,
-    Invalid, Invalid, Invalid, Invalid,
+    IndependentVowel, IndependentVowel, Invalid, Invalid,
+    Invalid, Invalid, Other, Other,
     Other, Other, Other, Other,
     Other, Other, Other, Other,
 
@@ -849,7 +849,7 @@ static const unsigned char indicPosition[0xe00-0x900] = {
     None, None, None, None,
     None, Post, Post, None,
     None, None, None, None,
-    None, None, None, None,
+    None, None, Below, None,
 
     None, None, None, None,
     None, None, None, None,
@@ -983,7 +983,7 @@ const uchar scriptProperties[10] = {
     // Telugu,
     HasSplit,
     // Kannada,
-    HasSplit,
+    HasSplit|HasReph,
     // Malayalam,
     HasSplit,
     // Sinhala,
@@ -1224,6 +1224,11 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	// #### replace the HasReph property by testing if the feature exists in the font!
 	if (form(*uc) == Consonant || (script == QFont::Bengali && form(*uc) == IndependentVowel)) {
 	    beginsWithRa = (properties & HasReph) && ((len > 2) && *uc == ra && *(uc+1) == halant);
+
+	    if (beginsWithRa && script == QFont::Kannada &&
+		form(*(uc+2)) == Control)
+		beginsWithRa = false;
+
 	    base = (beginsWithRa ? 2 : 0);
 	    IDEBUG("    length = %d, beginsWithRa = %d, base=%d", len, beginsWithRa, base );
 
@@ -1269,7 +1274,8 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 		if (pos == Post && charPosition == Post) {
 		    pos = Below;
 		} else if ((pos == Post || pos == Below) && charPosition == Below) {
-		    pos = None;
+		    if (script != QFont::Kannada && script != QFont::Telugu)
+			pos = None;
 		    if (script == QFont::Devanagari || script == QFont::Gujarati)
 			base = i;
 		} else {
@@ -1352,6 +1358,10 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	    //      them there now.
 	    if (matra_position == Split)
 		splitMatra(uc, matra, len, base);
+		// Handle three-part matras (0xccb in Kannada)
+		matra_position = indic_position(uc[matra]);
+	    	if (matra_position == Split)
+			splitMatra(uc, matra, len, base);
 	    else if (matra_position == Pre) {
 		unsigned short m = uc[matra];
 		while (matra--)
