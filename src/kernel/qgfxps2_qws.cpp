@@ -221,10 +221,10 @@ void
 QGfxPS2::flushRegisters(bool flushtex) 
 {
     /* flush */
-    gsosMakeGiftag( flushtex ? 22 : 21, GSOS_GIF_EOP_TERMINATE, GSOS_GIF_PRE_IGNORE,
+    gsosMakeGiftag( flushtex ? 23: 22, GSOS_GIF_EOP_TERMINATE, GSOS_GIF_PRE_IGNORE,
 		    0, GSOS_GIF_FLG_PACKED, 1, GSOS_GIF_REG_AD);
     gsosSetPacketAddrData(GSOS_XYOFFSET_1, GsosXyoffsetData(GSOS_XYOFFSET<<4, GSOS_XYOFFSET<<4));
-//    gsosSetPacketAddrData(GSOS_FRAME_1, GsosFrameData(0x00, (qt_screen->deviceWidth() +63)/64, 0, 0xff000000));
+    gsosSetPacketAddrData(GSOS_FRAME_1, GsosFrameData(0x00, (qt_screen->deviceWidth() +63)/64, 0, 0));
     gsosSetPacketAddrData(0x100, GsosZbufData(0x100, 0, 0));
     gsosSetPacketAddrData(GSOS_PRMODECONT, GsosPrmodecontData( 0));
     gsosSetPacketAddrData(GSOS_TEX0_1, GsosTex0Data(0x3000, 1, 0, 10, 10, 1, 0, 0, 0, 0, 0, 0));
@@ -459,6 +459,9 @@ QGfxPS2::drawPolyline( const QPointArray &pa, int index, int npoints)
     if(!ncliprect)
 	return;
 
+    if(cpen.style()==NoPen)
+	return;
+
     GFX_START(clipbounds);
 
     usePen();
@@ -499,13 +502,27 @@ QGfxPS2::drawPolygon( const QPointArray &pa, bool winding, int index, int npoint
 
     GFX_START(clipbounds);
 
-    if ( cbrush.style()!=QBrush::NoBrush )
+    if (cbrush.style()!=QBrush::NoBrush )
 	scan(pa,winding,index,npoints);
-
     drawPolyline(pa, index, npoints);
-    if (pa[index] != pa[index+npoints-1]) {
-	usePen();
-	QRgb rgb = cpen.color().rgb();
+    if (pa[index] != pa[index+npoints-1])
+	drawLine(pa[index].x(), pa[index].y(), pa[index+npoints-1].x(), pa[index+npoints-1].y());
+
+    GFX_END;
+}
+
+//this must go away, I will rewrite my own polygon scanner to use triangles..
+void QGfxPS2::processSpans( int n, QPoint* point, int* width )
+{
+    if(!ncliprect)
+	return;
+
+    int usable = 0;
+    for(int x = 0; x < n; x++)
+	if(*(width+x)) usable++;
+    if(usable) {
+	useBrush();
+	QRgb rgb = cbrush.color().rgb();
 	int r(qRed(rgb)), g(qGreen(rgb)), b(qBlue(rgb)), a(qAlpha(rgb));
 
 	for(int clp = 0; clp < ncliprect; clp++) {
@@ -519,58 +536,27 @@ QGfxPS2::drawPolygon( const QPointArray &pa, bool winding, int index, int npoint
 	    gsosSetPacketAddrData( GSOS_PRMODE, GsosPrmodeData( 0, 0, 0, 0, 0, 0, 0, 0 ) ) ;
 	    gsosSetPacketAddrData( GSOS_PRIM, GSOS_PRIM_LINE ) ;
 
-	    gsosMakeGiftag( 2, GSOS_GIF_EOP_TERMINATE, GSOS_GIF_PRE_IGNORE, 0,
-			    GSOS_GIF_FLG_PACKED, 2,
-			    (GSOS_GIF_REG_XYZ2<<4) | (GSOS_GIF_REG_RGBAQ));
-
-	    gsosSetPacket4( r, g, b, a ) ;
-	    gsosSetPacket4(GSOS_SUBPIX_OFST(pa[index].x() + xoffs), GSOS_SUBPIX_OFST(pa[index].y()+yoffs),0,0);
-	    gsosSetPacket4( r, g, b, a ) ;
-	    gsosSetPacket4(GSOS_SUBPIX_OFST(pa[index+npoints-1].x() + xoffs), 
-			   GSOS_SUBPIX_OFST(pa[index+npoints-1].y() + yoffs),0,0);
-
-	}
-	gsosExec() ;
-    }
-    GFX_END;
-}
-
-void QGfxPS2::processSpans( int n, QPoint* point, int* width )
-{
-    int usable = 0;
-    for(int x = 0; x < n; x++)
-	if(*(width+x)) usable++;
-    if(usable) {
-	useBrush();
-	QRgb rgb = cbrush.color().rgb();
-	int r(qRed(rgb)), g(qGreen(rgb)), b(qBlue(rgb)), a(qAlpha(rgb));
-
-	gsosMakeGiftag( 3, GSOS_GIF_EOP_CONTINUE, GSOS_GIF_PRE_IGNORE,
-			0, GSOS_GIF_FLG_PACKED, 1, GSOS_GIF_REG_AD );
-	gsosSetPacketAddrData(GSOS_TEST_1, GsosTestData( 1, 1, 0, 0, 0, 0, 0, 0 ));
-	gsosSetPacketAddrData( GSOS_PRMODE, GsosPrmodeData( 0, 0, 0, 0, 0, 0, 0, 0 ) ) ;
-	gsosSetPacketAddrData( GSOS_PRIM, GSOS_PRIM_LINE ) ;
-
-	gsosMakeGiftag( usable * 2, GSOS_GIF_EOP_TERMINATE, GSOS_GIF_PRE_IGNORE, 0,
-		    GSOS_GIF_FLG_PACKED, 2, (GSOS_GIF_REG_XYZ2<<4) | (GSOS_GIF_REG_RGBAQ));
-	while(n--) {
-	    if(*width) {
-		gsosSetPacket4( r, g, b, a );
-		gsosSetPacket4(GSOS_SUBPIX_OFST(point->x()+xoffs), GSOS_SUBPIX_OFST(point->y()+yoffs),0,0);
-		gsosSetPacket4( r, g, b, a ) ;
-		gsosSetPacket4(GSOS_SUBPIX_OFST(point->x()+((*width))+xoffs), GSOS_SUBPIX_OFST(point->y()+yoffs),0,0);
+	    gsosMakeGiftag( usable * 2, GSOS_GIF_EOP_TERMINATE, GSOS_GIF_PRE_IGNORE, 0,
+			    GSOS_GIF_FLG_PACKED, 2, (GSOS_GIF_REG_XYZ2<<4) | (GSOS_GIF_REG_RGBAQ));
+	    
+	    QPoint *pf = point;
+	    int *pw = width;
+	    for(int pn = 0; pn < n; pn++) {
+		if(*pw) {
+		    gsosSetPacket4( r, g, b, a );
+		    gsosSetPacket4(GSOS_SUBPIX_OFST(pf->x()+xoffs), GSOS_SUBPIX_OFST(pf->y()+yoffs),0,0);
+		    gsosSetPacket4( r, g, b, a ) ;
+		    gsosSetPacket4(GSOS_SUBPIX_OFST(pf->x()+((*pw))+xoffs), GSOS_SUBPIX_OFST(pf->y()+yoffs),0,0);
+		}
+		pf++;
+		pw++;
 	    }
-	    point++;
-	    width++;
-	}
 
+	}
 	gsosExec() ;
     }
 }
 
-/* 
-   I need to come back and rewrite this properly
-*/
 bool
 QGfxPS2::mapSourceToTexture(int x, int y, int w, int h)
 {
@@ -620,8 +606,10 @@ QGfxPS2::mapSourceToTexture(int x, int y, int w, int h)
     if(tex_psm == 0) {
 	if(alphatype != IgnoreAlpha) {
 	    unsigned int rgb;
+	    unsigned char alpha_channel;
 	    if(srctype == SourcePen) {
 		usePen();
+		alpha_channel = 255;
 		rgb = (0x00FFFFFF) & cpen.color().rgb();
 	    }
 
@@ -630,20 +618,22 @@ QGfxPS2::mapSourceToTexture(int x, int y, int w, int h)
 		int dy = (y * aligned_width);
 		int sy = (y * alphalinestep);
 		for(int x = 0; x < tex_width; x++) {
-		    if(srctype == SourceImage)
+		    if(srctype == SourceImage) {
+			alpha_channel = (out[dy+x] >> 24) & 0xFF;
 			rgb = (0x00FFFFFF) & out[dy+x];
+		    }
 		    if(alphatype ==  LittleEndianMask || alphatype == BigEndianMask) {
 			char a = alphabits[sy + (x / 8)];
 			if(alphatype == LittleEndianMask) 
 			    a = a >> (x % 8);
 			else
 			    a = a >> (7 - (x % 8));
-			out[dy+x] = ((a & 0x01) ? 0xFF000000 : 0) | rgb;
+			out[dy+x] = ((a & 0x01) ? 0x80000000 : 0) | rgb;
 		    }	
 		    else if(alphatype == SeparateAlpha)
-			out[dy+x] = ((alphabits[sy+x]) << 24) | rgb;
+			out[dy+x] = ((alphabits[sy+x]/2) << 24) | rgb;
 		    else
-			out[dy+x] = (qAlpha(rgb) / 2) << 24 | rgb;
+			out[dy+x] = (alpha_channel / 2) << 24 | rgb;
 		}
 	    }
 	}
@@ -666,21 +656,7 @@ QGfxPS2::bltTexture(int x, int y, int clp, int w, int h)
     if(h == -1)
 	h = tex_height;
 
-    bool do_alpha = FALSE, do_alpha_blend = FALSE;
-    switch(alphatype) {
-    case InlineAlpha:
-    case SeparateAlpha:
-	do_alpha = TRUE;
-	do_alpha_blend = TRUE;
-	break;
-    case BigEndianMask:
-    case LittleEndianMask:
-	do_alpha = TRUE;
-	break;
-    default:
-	break;
-    }
-
+    bool do_alpha = (alphatype != IgnoreAlpha);
     gsosMakeGiftag( 6, GSOS_GIF_EOP_CONTINUE, GSOS_GIF_PRE_IGNORE,
 		    0, GSOS_GIF_FLG_PACKED, 1, GSOS_GIF_REG_AD );
 
@@ -696,7 +672,7 @@ QGfxPS2::bltTexture(int x, int y, int clp, int w, int h)
 	clip = cliprect[clp];
     gsosSetPacketAddrData4( GSOS_SCISSOR_1,(GSOSbit64)clip.topLeft().x(), (GSOSbit64)clip.bottomRight().x(),
 			    (GSOSbit64)clip.topLeft().y(), (GSOSbit64)clip.bottomRight().y() ) ;
-    gsosSetPacketAddrData( GSOS_PRMODE, GsosPrmodeData( 0, 1, 0, do_alpha_blend, 0, 1, 0, 0 ) ) ;
+    gsosSetPacketAddrData( GSOS_PRMODE, GsosPrmodeData( 0, 1, 0, do_alpha, 0, 1, 0, 0 ) ) ;
     gsosSetPacketAddrData( GSOS_PRIM, GSOS_PRIM_SPRITE ) ;
 
     gsosMakeGiftag( 2, GSOS_GIF_EOP_TERMINATE, GSOS_GIF_PRE_IGNORE, 0, GSOS_GIF_FLG_PACKED, 
@@ -705,8 +681,8 @@ QGfxPS2::bltTexture(int x, int y, int clp, int w, int h)
     gsosSetPacket4(GSOS_SUBPIX_OFST(0), GSOS_SUBPIX_OFST(0),0,0);
     gsosSetPacket4(GSOS_SUBPIX_OFST(x), GSOS_SUBPIX_OFST(y),0,0);
 
-    gsosSetPacket4(GSOS_SUBPIX_OFST((w+1)), GSOS_SUBPIX_OFST(h),0,0);
-    gsosSetPacket4(GSOS_SUBPIX_OFST((x+w)), GSOS_SUBPIX_OFST((y+h)+1),0,0);
+    gsosSetPacket4(GSOS_SUBPIX_OFST((w+1)), GSOS_SUBPIX_OFST(h+1),0,0);
+    gsosSetPacket4(GSOS_SUBPIX_OFST((x+w)), GSOS_SUBPIX_OFST((y+h)),0,0);
 
     gsosExec();
 
@@ -725,11 +701,31 @@ QGfxPS2::blt( int rx, int ry, int w, int h, int sx,int sy)
 
     GFX_START(QRect(rx, ry, w+1, h+1));
 
-    if(mapSourceToTexture(sx, sy, w, h)) {
-	for(int clp = 0; clp < ncliprect; clp++)
-	    bltTexture(rx, ry, clp);
-    }
-
+    /* this is really gross, however it'll work for now, basically I see
+       the buffers wrapping at some point so I'm going to segment up blts
+       into BLT_CHUNKxBLT_CHUNK image chunks..
+    */
+#define     BLT_CHUNK 320 //should be a multiple of 64 for efficency in mapSourceToTexture
+#if defined(BLT_CHUNK)
+    if(w > BLT_CHUNK || h > BLT_CHUNK) {
+	for(int wi = 0; wi < w; wi += BLT_CHUNK) {
+	    for(int hi = 0; hi < h; hi += BLT_CHUNK) {
+		QRect br(rx + wi, ry + hi, (w - wi) < BLT_CHUNK ? w - wi : BLT_CHUNK, 
+			 (h - hi) < BLT_CHUNK ? h - hi : BLT_CHUNK);
+		if(clipbounds.intersects(br)) {
+		    if(mapSourceToTexture(sx+wi, sy+hi, br.width(), br.height())) {
+			for(int clp = 0; clp < ncliprect; clp++)
+			    bltTexture(br.x(), br.y(), clp);
+		    }
+		}
+	    }
+	}
+    } else 
+#endif //BLT_CHUNK hack
+	if(mapSourceToTexture(sx, sy, w, h)) {
+	    for(int clp = 0; clp < ncliprect; clp++)
+		bltTexture(rx, ry, clp);
+	}
     GFX_END;
 }
 
