@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#18 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -22,50 +22,8 @@
 #include <X11/cursorfont.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#17 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#18 $";
 #endif
-
-
-/*!
-\class QCursor qcursor.h
-\brief This class provides a mouse cursor with arbitrary shape and color.
-
-The QCursor class represents the window system's mouse curor.  There
-are a number of <a name=cursors>predefined cursor shapes</a>:
-<dl compact>
-<dt> arrowCursor <dd> standard arrow cursor
-<dt> upArrowCursor <dd> upwards arrow
-<dt> crossCursor <dd> crosshair
-<dt> hourGlassCursor <dd> hourglass/watch
-<dt> ibeamCursor <dd> ibeam/text entry
-<dt> sizeVerCursor <dd> vertical resize
-<dt> sizeHorCursor <dd> horizontal resize
-<dt> sizeBDiagCursor <dd> diagonal resize (/)
-<dt> sizeFDiagCursor <dd> diagonal resize (\)
-<dt> sizeAllCursor <dd> all directions resize
-</dl>
-
-It is also possible to define custom shapes.
-
-Members are provided to \link setShape() change shape \endlink,
-\link pos() get the cursor position \endlink and so on.
-*/
-
-
-// --------------------------------------------------------------------------
-// Global cursors
-//
-
-const QCursor arrowCursor;
-const QCursor upArrowCursor;
-const QCursor crossCursor;
-const QCursor hourGlassCursor;
-const QCursor ibeamCursor;
-const QCursor sizeVerCursor;
-const QCursor sizeHorCursor;
-const QCursor sizeBDiagCursor;
-const QCursor sizeFDiagCursor;
-const QCursor sizeAllCursor;
 
 
 // --------------------------------------------------------------------------
@@ -86,6 +44,7 @@ QCursorData::QCursorData()
 {
     bm = bmm = 0;
     pm = pmm = 0;
+    hx = hy  = 0;
 }
 
 QCursorData::~QCursorData()
@@ -122,6 +81,17 @@ static QCursor *cursorTable[] = {		// the order is important!!
     0
 };
 
+static QCursor *find_cur( int shape )		// find predefined cursor
+{
+    return (uint)shape <= SizeAllCursor ? cursorTable[shape] : 0;
+}
+
+
+/*!
+  Internal function that initializes the predefined
+  cursors.
+*/
+
 void QCursor::initialize()			// initialize standard cursors
 {
     int shape = ArrowCursor;
@@ -130,6 +100,10 @@ void QCursor::initialize()			// initialize standard cursors
 	shape++;
     }
 }
+
+/*!
+  Internal function that cleans up the predefined cursors.
+*/
 
 void QCursor::cleanup()				// cleanup standard cursors
 {
@@ -148,14 +122,8 @@ void QCursor::cleanup()				// cleanup standard cursors
 }
 
 
-QCursor *QCursor::locate( int shape )		// get global cursor
-{
-    return (uint)shape <= SizeAllCursor ? cursorTable[shape] : 0;
-}
-
-
 /*!
-Constructs a cursor with the default arrow shape.
+  Constructs a cursor with the default arrow shape.
 */
 
 QCursor::QCursor()				// default arrow cursor
@@ -173,12 +141,12 @@ QCursor::QCursor()				// default arrow cursor
 }
 
 /*!
-Constructs a cursor with the specified \e shape.
+  Constructs a cursor with the specified \e shape.
 */
 
 QCursor::QCursor( int shape )			// cursor with shape
 {
-    QCursor *c = locate( shape );
+    QCursor *c = find_cur( shape );
     if ( !c )					// not found
 	c = (QCursor *)&arrowCursor;		//   then use arrowCursor
     c->data->ref();
@@ -187,12 +155,12 @@ QCursor::QCursor( int shape )			// cursor with shape
 
 
 /*!
-Constructs a custom bitmap cursor.
+  Constructs a custom bitmap cursor.
 
-\arg \e bitmap and
-\arg \e mask make up the bitmap
-\arg \e hotX and
-\arg \e hotY define the hot spot of this cursor
+  \arg \e bitmap and
+  \arg \e mask make up the bitmap.
+  \arg \e hotX and
+  \arg \e hotY define the hot spot of this cursor.
 */
 
 QCursor::QCursor( const QBitmap &bitmap, const QBitmap &mask,
@@ -209,7 +177,7 @@ QCursor::QCursor( const QBitmap &bitmap, const QBitmap &mask,
 }
 
 /*!
-Constructs a copy of the cursor \e c.
+  Constructs a copy of the cursor \e c.
 */
 
 QCursor::QCursor( const QCursor &c )
@@ -219,8 +187,7 @@ QCursor::QCursor( const QCursor &c )
 }
 
 /*!
-Dereferences the cursor and destroys the cursor data if it was the last
-reference.
+  Destroys the cursor.
 */
 
 QCursor::~QCursor()
@@ -230,7 +197,7 @@ QCursor::~QCursor()
 }
 
 /*!
-Assigns \e c to this cursor and returns a reference to the cursor.
+  Assigns \e c to this cursor and returns a reference to the cursor.
 */
 
 QCursor &QCursor::operator=( const QCursor &c )
@@ -243,20 +210,8 @@ QCursor &QCursor::operator=( const QCursor &c )
 }
 
 /*!
-Returns a deep copy of the cursor.
-
-\todo Copy bitmap data
-*/
-
-QCursor QCursor::copy() const
-{
-    QCursor c( data->cshape );
-    return c;
-}
-
-/*!
-This function returns the cursor shape (one of the
-<a href=#cursors>global cursors</a> or one of the custom cursors.
+  Returns the cursor shape identifer.
+  \sa setShape()
 */
 
 int QCursor::shape() const			// get cursor shape
@@ -265,34 +220,59 @@ int QCursor::shape() const			// get cursor shape
 }
 
 /*!
-This function sets the cursor shape.  If the argument isn't a
-valid shape number, an arrow cursor will be substituted.
+  Sets the cursor shape identifier to \e shape.
+  We recommend using one of the <a href=#cursors>predefined cursors</a>
+  instead.
+  \sa shape()
 */
 
-bool QCursor::setShape( int shape )		// set cursor shape
+void QCursor::setShape( int shape )		// set cursor shape
 {
-    QCursor *c = locate( shape );		// find one of the global ones
-    bool res = c != 0;
-    if ( !res )					// not found
+    QCursor *c = find_cur( shape );		// find one of the global ones
+    if ( !c )					// not found
 	c = (QCursor *)&arrowCursor;		//   then use arrowCursor
     c->data->ref();
     if ( data->deref() )			// make shallow copy
 	delete data;
     data = c->data;
-    return res;
 }
 
 
 /*!
-Returns the position of the cursor on the screen in the global
-coordinate system.
+  Returns the cursor bitmap, or 0 if it is one of the standard cursors.
+*/
 
-You can use QWidget::mapFromGlobal() to translate it to widget
-coordinates.
+const QBitmap *QCursor::bitmap() const
+{
+    return data->bm;
+}
 
-The return value is the coordinate of the hot spot.
+/*!
+  Returns the cursor bitmap mask, or 0 if it is one of the standard cursors.
+*/
 
-\sa setPos(), QWidget::mapFromGlobal() and QWidget::mapToGlobal().
+const QBitmap *QCursor::mask() const
+{
+    return data->bmm;
+}
+
+/*!
+  Returns the cursor hot spot, or (0,0) if it is one of the standard cursors.
+*/
+
+QPoint QCursor::hotSpot() const
+{
+    return QPoint( data->hx, data->hy );
+}
+
+
+/*!
+  Returns the position of the cursor (hot spot) in global screen
+  coordinates.
+
+  You can call QWidget::mapFromGlobal() to translate it to widget
+  coordinates.
+  \sa setPos(), QWidget::mapFromGlobal(), QWidget::mapToGlobal()
 */
 
 QPoint QCursor::pos()				// get cursor position
@@ -307,12 +287,11 @@ QPoint QCursor::pos()				// get cursor position
 }
 
 /*!
-Warps the cursor to the global screen position \e (x,y).
+  Warps the cursor (hot spot) to the global screen position \e (x,y).
 
-You can use QWidget::mapToGlobal() to translate widget coordinates
-to global screen coordinates.
-
-\sa pos().
+  You can call QWidget::mapToGlobal() to translate widget coordinates
+  to global screen coordinates.
+  \sa pos(), QWidget::mapFromGlobal(), QWidget::mapToGlobal()
 */
 
 void QCursor::setPos( int x, int y )		// set cursor position
@@ -322,7 +301,7 @@ void QCursor::setPos( int x, int y )		// set cursor position
 
 
 /*!
-\internal Creates the cursor internals.
+  \internal Creates the cursor.
 */
 
 void QCursor::update() const			// update/load cursor
@@ -423,70 +402,16 @@ void QCursor::update() const			// update/load cursor
 
 
 /*!
-\warning System dependent!  Do not use this unless you have to.
+  Returns the window system cursor handle.
 
-This function returns the window system's handle to the current cursor.
-Rather than use it, you should <a href=mailto:qt-bugs@troll.no>tell
-us</a> what the portable functions lack.
-
-The return type for each window system is specified in qcursor.h.
+  \warning 
+  Portable in principle, but if you use it you are probably about to do
+  something non-portable. Be careful.
 */
 
-Cursor QCursor::handle() const
+HANDLE QCursor::handle() const
 {
     if ( !data->hcurs )
 	update();
     return data->hcurs;
-}
-
-
-// --------------------------------------------------------------------------
-// QCursor stream functions
-//
-
-/*!
-\relates QCursor
-Writes the cursor to the stream.
-*/
-
-QDataStream &operator<<( QDataStream &s, const QCursor &c )
-{
-    s << (INT16)c.data->cshape;			// write shape id to stream
-    if ( c.data->cshape == BitmapCursor ) {
-	s << *(c.data->bm) << *(c.data->bmm);
-	s << (INT16)c.data->hx << (INT16)c.data->hy;
-    }
-    return s;
-}
-
-/*!
-\relates QCursor
-Reads the cursor from the stream.
-*/
-
-QDataStream &operator>>( QDataStream &s, QCursor &c )
-{
-    INT16 shape;
-    s >> shape;					// read shape id from stream
-    if ( shape == BitmapCursor ) {		// read bitmap cursor
-	if ( c.data->deref() )
-	    delete c.data;
-	c.data = new QCursorData;
-	CHECK_PTR( c.data );
-	QBitmap bm(1,1), bmm(1,1); // ###
-	INT16	hx, hy;
-	s >> bm >> bmm;
-	s >> hx >> hy;
-	CHECK_PTR( c.data->bm && c.data->bmm );
-	c.data->bm  = new QBitmap( bm );
-	c.data->bmm = new QBitmap( bmm );
-	c.data->hcurs  = 0;
-	c.data->cshape = BitmapCursor;
-	c.data->hx = hx;
-	c.data->hy = hy;
-	c.update();
-    }
-    else
-	c.setShape( (int)shape );		// create cursor with shape
-    return s;
 }
