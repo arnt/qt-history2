@@ -5307,7 +5307,13 @@ QTextParagLineStart *QTextFormatter::formatLine( QTextParag *parag, QTextString 
 	    string->at( j ).x += space;
     } else if ( align & Qt::AlignJustify ) {
 	int numSpaces = 0;
-	for ( int j = start; j < last; ++j ) {
+	// End at "last-1", the last space ends up with a width of 0
+	for ( int j = last-1; j >= start; --j ) {
+	    // Start at last tab, if any.
+	    if ( string->at( j ).c == '\t' ) {
+		start = j+1;
+		break;
+	    }
 	    if( isBreakable( string, j ) ) {
 		numSpaces++;
 	    }
@@ -5377,7 +5383,13 @@ QTextParagLineStart *QTextFormatter::bidiReorderLine( QTextParag * /*parag*/, QT
     else if ( align & Qt::AlignRight )
 	x += space;
     else if ( align & Qt::AlignJustify ) {
-	for ( int j = start; j < last; ++j ) {
+	// End at "last-1", the last space ends up with a width of 0
+	for ( int j = last-1; j >= start; --j ) {
+	    // Start at last tab, if any.
+	    if ( text->at( j ).c == '\t' ) {
+		start = j+1;
+		break;
+	    }	
 	    if( isBreakable( text, j ) ) {
 		numSpaces++;
 	    }
