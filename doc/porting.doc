@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.57 1999/05/26 12:24:27 aavit Exp $
+** $Id: porting.doc,v 1.58 1999/05/31 09:30:33 warwick Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -108,6 +108,7 @@ in the collective conscious that is the Qt Developer Community!
  <li><b><a href=#QIODevice>QIODevice</a></b>
  <li><b><a href=#QLabel>QLabel</a></b>
  <li><b><a href=#QLayout>QLayout</a></b>
+ <li><b><a href=#QListView>QListView</a></b>
  <li><b><a href=#QMenuData>QMenuData</a></b>
  <li><b><a href=#QMenuData>QPopupMenu</a></b>
  <li><b><a href=#QMultiLineEdit>QMultiLineEdit</a></b>
@@ -120,6 +121,7 @@ in the collective conscious that is the Qt Developer Community!
  <li><b><a href=#QStrList>QStrList</a></b>
  <li><b><a href=#QString>QString</a></b>
  <li><b><a href=#QTextStream>QTextStream</a></b>
+ <li><b><a href=#QUriDrag>QUriDrag / QUrlDrag</a></b>
  <li><b><a href=#QValidator>QComboBox</a></b>
  <li><b><a href=#QValidator>QLineEdit</a></b>
  <li><b><a href=#QValidator>QSpinBox</a></b>
@@ -661,7 +663,7 @@ for return types/parameters.
  <li><tt>QStrList QFileDialog::getOpenFileNames(...)</tt>
       becomes <tt>QStringList QFileDialog::getOpenFileNames(...)</tt>
  <li><tt>bool QUrlDrag::decodeLocalFiles(QMimeSource*, QStrList&)</tt>
-      becomes <tt>bool QUrlDrag::decodeLocalFiles(QMimeSource*, QStringList&)</tt>
+      becomes <tt>bool QUriDrag::decodeLocalFiles(QMimeSource*, QStringList&)</tt>
  <li><tt>const QStrList *QDir::entryList(...) const</tt>
       becomes <tt>QStringList QDir::entryList(...) const</tt>
 	(note that the return type is no longer a pointer).  You may also
@@ -709,6 +711,22 @@ can be removed.
 You might like to look at the QGrid, QVBox, and QHBox widgets - they offer
 a simple way to build nested widget structures.
 
+
+<h3><a name=QListView>QListView</a></h3>
+
+In Qt 1.x mouse events to the viewport where redirected to the
+event handlers for the listview; in Qt 2.0, this functionality is
+in QScrollView where mouse (and other position-oriented) events are
+redirected to viewportMousePressEvent() etc, which in turn translate
+the event to the coordinate system of the contents and call
+contentsMousePressEvent() etc, thus providing events in the most
+convenient coordinate system.  If you overrode QListView::MouseButtonPress(), 
+QListView::mouseDoubleClickEvent(), QListView::mouseMoveEvent(), or
+QListView::mouseReleaseEvent() you must instead override
+viewportMousePressEvent(),
+viewportMouseDoubleClickEvent(), viewportMouseMoveEvent(), or
+viewportMouseReleaseEvent() respectively.  New code will usually override
+contentsMousePressEvent() etc.
 
 <h3><a name=QMultiLineEdit>QMultiLineEdit</a></h3>
 
@@ -773,6 +791,16 @@ described for <a href=#QDropSite>QDropSite</a>.
 \code operator<<(QTextStream&, char&)\endcode does,
     as was the case with Qt 1.x.  This is for backward compatibility.
 
+<h3><a name=QUriDrag>QUriDrag</a></h3>
+
+The class QUrlDrag is renamed to QUriDrag, and the API has been
+broadened to include additional conversion routines, including
+conversions to Unicode filenames (see the class documentation
+for details).  Note that in Qt 1.x
+the QUrlDrag class used the non-standard MIME type "url/url",
+while QUriDrag uses the standardized "text/uri-list" type.  Other
+identifiers affected by the Url to Uri change are
+QUrlDrag::setUrls() and QUrlDrag::urlToLocalFile().
 
 <h3><a name=QPainter>QPainter</a></h3>
 
