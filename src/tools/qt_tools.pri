@@ -52,6 +52,8 @@ tools {
 		  $$TOOLS_H/qtextstream.h \
 		  $$TOOLS_H/qptrvector.h \
 	          $$TOOLS_H/qvaluelist.h \
+		  $$TOOLS_H/qvaluestack.h \
+		  $$TOOLS_H/qvaluevector.h \
 		  $$TOOLS_H/qwaitcondition.h \
 		  $$TOOLS_H/qcom.h \
 		  $$TOOLS_H/quuid.h
