@@ -136,6 +136,17 @@ QRangeControl::QRangeControl( int minValue, int maxValue,
     d       = 0;
 }
 
+/*!
+
+  Destroys the range control
+
+*/
+
+QRangeControl::~QRangeControl()
+{
+
+}
+
 
 /*!
   \fn int QRangeControl::value() const

@@ -55,7 +55,7 @@ public:
     QRangeControl();
     QRangeControl( int minValue, int maxValue,
 		   int lineStep, int pageStep, int value );
-
+    virtual ~QRangeControl();
     int		value()		const;
     void	setValue( int );
     void	addPage();
