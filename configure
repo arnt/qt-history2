@@ -618,7 +618,6 @@ then
 
     case "$UNAME_SYSTEM:$UNAME_RELEASE" in
      Darwin:*)
-	LIBDL=no
 	PLATFORM=macx-g++
 	;;
      AIX*)
@@ -644,15 +643,12 @@ then
 	PLATFORM=ultrix-g++
 	;;
      FreeBSD:*)
-        LIBDL=no
 	PLATFORM=freebsd-g++
 	;;
      OpenBSD:*)
-	LIBDL=no
 	PLATFORM=openbsd-g++
 	;;
      NetBSD:*)
-	LIBDL=no
 	PLATFORM=netbsd-g++
 	;;
      IRIX64:*)
@@ -678,7 +674,6 @@ then
 	"
 	;;
      OSF1:*)
-	LIBDL=no
 	PLATFORM=osf1-cxx
 	#PLATFORM=osf1-g++
 	PLATFORM_NOTES="
@@ -732,6 +727,30 @@ then
 	fi
     esac
 fi
+
+# look for platforms without libdl
+case "$PLATFORM" in
+    macx-g++)
+	LIBDL=no
+	;;
+    freebsd-g++)
+	LIBDL=no
+	;;
+    openbsd-g++)
+	LIBDL=no
+	;;
+    netbsd-g++)
+	LIBDL=no
+	;;
+    osf1-g++)
+	LIBDL=no
+	;;
+    osf1-cxx)
+	LIBDL=no
+	;;
+    *)
+	;;
+esac
 
 if [ "x$CONCURRENT" = "x0" ] && echo $MAKEFLAGS | grep '.* *-j[0-9]* *.*' >/dev/null 2>&1; then
     CONCURRENT=`echo $MAKEFLAGS | sed "s,.* *-j\([0-9]*\) *.*,\1,"`
@@ -1546,7 +1565,7 @@ then
     case "$LIBDL" in
     auto) DYLIB_LINK="-ldl" ;;
     no)   DYLIB_LINK="" ;;
-    *)    DYLIB_LINK="$LIBDL" ;;	
+    *)    DYLIB_LINK="$LIBDL" ;;
     esac
 
     #fix makefiles
