@@ -2574,7 +2574,7 @@ QCoreVariant QSettings::value(const QString &key, const QCoreVariant &defaultVal
     XDG Base Directory Specification. This default can be changed when compiling Qt by passing 
     the \c --sysconfdir flag to \c configure.
     
-    On Windows, the default directory is \c{C:\Documents and Settings\All Users}.
+    On Windows, the default directory is \c{C:\Documents and Settings\All Users\Application Data}.
 
     A call to this function should precede any instantiations of QSettings objects.
 
@@ -2582,9 +2582,7 @@ QCoreVariant QSettings::value(const QString &key, const QCoreVariant &defaultVal
 */
 void QSettings::setSystemIniPath(const QString &dir)
 {
-#if defined(Q_OS_UNIX)
     *defaultSystemIniPath() = dir;
-#endif
 }
 
 /*!
@@ -2595,7 +2593,7 @@ void QSettings::setSystemIniPath(const QString &dir)
     the FreeDesktop's XDG Base Directory Specification. Calling this function overrides the 
     path specified in \c $XDG_CONFIG_HOME.
 
-    On Windows, the default directory is \c{C:\Documents and Settings\<username>}.
+    On Windows, the default directory is \c{C:\Documents and Settings\<username>\Application Data}.
     
     A call to this function should precede any instantiations of QSettings objects.
 
@@ -2604,9 +2602,7 @@ void QSettings::setSystemIniPath(const QString &dir)
 
 void QSettings::setUserIniPath(const QString &dir)
 {
-#if defined(Q_OS_UNIX)
     *defaultUserIniPath() = dir;
-#endif
 }
 
 #ifdef QT_COMPAT
