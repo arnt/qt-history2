@@ -1765,7 +1765,7 @@ bool QOCIDriver::rollbackTransaction()
     return true;
 }
 
-QStringList QOCIDriver::tables(const QString& typeName) const
+QStringList QOCIDriver::tables(QSql::TableType type) const
 {
     QStringList tl;
     if (!isOpen())
@@ -1773,8 +1773,7 @@ QStringList QOCIDriver::tables(const QString& typeName) const
 
     QSqlQuery t = createQuery();
     t.setForwardOnly(true);
-    int type = typeName.toInt();
-    if (typeName.isEmpty() || ((type & (int)QSql::Tables) == (int)QSql::Tables)) {
+    if (type & QSql::Tables) {
         t.exec("select owner, table_name from all_tables "
                 "where owner != 'MDSYS' "
                 "and owner != 'LBACSYS' "
@@ -1790,7 +1789,7 @@ QStringList QOCIDriver::tables(const QString& typeName) const
                 tl.append(t.value(1).toString());
         }
     }
-    if ((type & (int)QSql::Views) == (int)QSql::Views) {
+    if (type & QSql::Views) {
         t.exec("select owner, view_name from all_views "
                 "where owner != 'MDSYS' "
                 "and owner != 'LBACSYS' "
@@ -1806,7 +1805,7 @@ QStringList QOCIDriver::tables(const QString& typeName) const
                 tl.append(t.value(1).toString());
         }
     }
-    if ((type & (int)QSql::SystemTables) == (int)QSql::SystemTables) {
+    if (type & QSql::SystemTables) {
         t.exec("select table_name from dictionary");
         while (t.next()) {
             tl.append(t.value(0).toString());

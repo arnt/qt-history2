@@ -272,7 +272,7 @@ QSqlError QSqlDriver::lastError() const
     \sa QSql::TableType
 */
 
-QStringList QSqlDriver::tables(const QString&       ) const
+QStringList QSqlDriver::tables(QSql::TableType) const
 {
     return QStringList();
 }

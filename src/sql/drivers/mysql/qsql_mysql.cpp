@@ -505,18 +505,18 @@ QSqlQuery QMYSQLDriver::createQuery() const
     return QSqlQuery(new QMYSQLResult(this));
 }
 
-QStringList QMYSQLDriver::tables(const QString& typeName) const
+QStringList QMYSQLDriver::tables(QSql::TableType type) const
 {
     QStringList tl;
     if (!isOpen())
         return tl;
-    if (!typeName.isEmpty() && !(typeName.toInt() & (int)QSql::Tables))
+    if (!(type & QSql::Tables))
         return tl;
 
     MYSQL_RES* tableRes = mysql_list_tables(d->mysql, NULL);
-    MYSQL_ROW        row;
+    MYSQL_ROW row;
     int i = 0;
-    while (tableRes && true) {
+    while (tableRes) {
         mysql_data_seek(tableRes, i);
         row = mysql_fetch_row(tableRes);
         if (!row)

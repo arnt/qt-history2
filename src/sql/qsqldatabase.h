@@ -67,15 +67,14 @@ class QM_EXPORT_SQL QSqlDatabase : public QObject
 public:
     ~QSqlDatabase();
 
-    bool                open();
-    bool                open(const QString& user, const QString& password);
-    void                close();
-    bool                isOpen() const;
-    bool                isOpenError() const;
-    QStringList                tables() const;
-    QStringList                tables(QSql::TableType type) const;
-    QSqlIndex                primaryIndex(const QString& tablename) const;
-    QSqlRecord                record(const QString& tablename) const;
+    bool open();
+    bool open(const QString& user, const QString& password);
+    void close();
+    bool isOpen() const;
+    bool isOpenError() const;
+    QStringList tables(QSql::TableType type = QSql::Tables) const;
+    QSqlIndex primaryIndex(const QString& tablename) const;
+    QSqlRecord record(const QString& tablename) const;
 #ifdef QT_COMPAT
     inline QT_COMPAT QSqlRecord record(const QSqlQuery& query) const
     { return query.record(); }

@@ -54,7 +54,7 @@ public:
     virtual bool beginTransaction();
     virtual bool commitTransaction();
     virtual bool rollbackTransaction();
-    virtual QStringList tables(const QString &tableType) const;
+    virtual QStringList tables(QSql::TableType tableType) const;
     virtual QSqlIndex primaryIndex(const QString &tableName) const;
     virtual QSqlRecord record(const QString &tableName) const;
 #ifdef QT_COMPAT

@@ -62,7 +62,7 @@ public:
     bool hasFeature(DriverFeature) const;
     void close();
     QSqlRecord record(const QString& tableName) const;
-    QStringList tables(const QString& /* user */) const;
+    QStringList tables(QSql::TableType type) const;
     QSqlQuery createQuery() const;
     QSqlIndex primaryIndex(const QString& tablename) const;
     bool beginTransaction();

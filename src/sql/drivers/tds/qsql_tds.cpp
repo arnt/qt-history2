@@ -660,21 +660,20 @@ QSqlRecord QTDSDriver::record(const QString& tablename) const
     return info;
 }
 
-QStringList QTDSDriver::tables(const QString& typeName) const
+QStringList QTDSDriver::tables(QSql::TableType type) const
 {
     QStringList list;
 
     if (!isOpen())
         return list;
 
-    int type = typeName.toInt();
     QString typeFilter;
 
-    if (typeName.isEmpty() || ((type & (int)QSql::Tables) == (int)QSql::Tables))
+    if (type & QSql::Tables)
         typeFilter += "type='U' or ";
-    if ((type & (int)QSql::SystemTables) == (int)QSql::SystemTables)
+    if (type & QSql::SystemTables)
         typeFilter += "type='S' or ";
-    if ((type & (int)QSql::Views) == (int)QSql::Views)
+    if (type & QSql::Views)
         typeFilter += "type='V' or ";
 
     if (typeFilter.isEmpty())

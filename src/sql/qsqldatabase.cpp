@@ -920,48 +920,13 @@ QSqlError QSqlDatabase::lastError() const
 
 
 /*!
-    \overload
-
-    Returns a list of the database's tables that are visible to the
-    user. To include views or system tables, use the version of this
-    function that takes a table \c type parameter.
-
-    Note that if you want to iterate over the list, you should iterate
-    over a copy, e.g.
-    \code
-    QStringList list = myDatabase.tables();
-    QStringList::Iterator it = list.begin();
-    while(it != list.end()) {
-        myProcessing(*it);
-        ++it;
-    }
-    \endcode
-*/
-
-QStringList QSqlDatabase::tables() const
-{
-    return tables(QSql::Tables);
-}
-
-/*!
     Returns a list of the database's tables, system tables and views,
     as specified by the parameter \a type.
-
-    Note that if you want to iterate over the list, you should iterate
-    over a copy, e.g.
-    \code
-    QStringList list = myDatabase.tables(QSql::Tables | QSql::Views);
-    QStringList::Iterator it = list.begin();
-    while(it != list.end()) {
-        myProcessing(*it);
-        ++it;
-    }
-    \endcode
 */
 
 QStringList QSqlDatabase::tables(QSql::TableType type) const
 {
-    return d->driver->tables(QString::number((int)type));
+    return d->driver->tables(type);
 }
 
 /*!

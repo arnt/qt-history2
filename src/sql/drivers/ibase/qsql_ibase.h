@@ -93,7 +93,7 @@ public:
     bool beginTransaction();
     bool commitTransaction();
     bool rollbackTransaction();
-    QStringList tables(const QString& typeName) const;
+    QStringList tables(QSql::TableType) const;
 
     QSqlRecord record(const QString& tablename) const;
     QSqlIndex primaryIndex(const QString &table) const;

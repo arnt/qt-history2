@@ -1014,25 +1014,24 @@ bool QIBaseDriver::rollbackTransaction()
     return !d->isError("Unable to rollback transaction", QSqlError::Transaction);
 }
 
-QStringList QIBaseDriver::tables(const QString& typeName) const
+QStringList QIBaseDriver::tables(QSql::TableType type) const
 {
     QStringList res;
     if (!isOpen())
         return res;
 
-    int type = typeName.isEmpty() ? (int)QSql::Tables | (int)QSql::Views : typeName.toInt();
     QString typeFilter;
 
-    if (type == (int)QSql::SystemTables) {
+    if (type == QSql::SystemTables) {
         typeFilter += "RDB$SYSTEM_FLAG != 0";
-    } else if (type == ((int)QSql::SystemTables | (int)QSql::Views)) {
+    } else if (type == (QSql::SystemTables | QSql::Views)) {
         typeFilter += "RDB$SYSTEM_FLAG != 0 OR RDB$VIEW_BLR NOT NULL";
     } else {
-        if (!(type & (int)QSql::SystemTables))
+        if (!(type & QSql::SystemTables))
             typeFilter += "RDB$SYSTEM_FLAG = 0 AND ";
-        if (!(type & (int)QSql::Views))
+        if (!(type & QSql::Views))
             typeFilter += "RDB$VIEW_BLR IS NULL AND ";
-        if (!(type & (int)QSql::Tables))
+        if (!(type & QSql::Tables))
             typeFilter += "RDB$VIEW_BLR IS NOT NULL AND ";
         if (!typeFilter.isEmpty())
             typeFilter.truncate(typeFilter.length() - 5);

@@ -76,7 +76,7 @@ public:
                const QString& connOpts);
     void close();
     QSqlQuery createQuery() const;
-    QStringList tables(const QString& user) const;
+    QStringList tables(QSql::TableType) const;
     QSqlIndex primaryIndex(const QString& tablename) const;
     QSqlRecord record(const QString& tablename) const;
     QString formatValue(const QSqlField* field,

@@ -18,19 +18,10 @@
 #include <qregexp.h>
 #include <qfile.h>
 
-#if (QT_VERSION-0 < 0x030000)
-#  include <qvector.h>
-#  if !defined Q_WS_WIN32
-#    include <unistd.h>
-#  endif
-#  include "../../../3rdparty/libraries/sqlite/sqlite.h"
-#else
-#  include <qptrvector.h>
-#  if !defined Q_WS_WIN32
-#    include <unistd.h>
-#  endif
-#  include <sqlite.h>
+#if !defined Q_WS_WIN32
+# include <unistd.h>
 #endif
+#include <sqlite.h>
 
 typedef struct sqlite_vm sqlite_vm;
 
@@ -299,10 +290,8 @@ bool QSQLiteDriver::hasFeature(DriverFeature f) const
     switch (f) {
     case Transactions:
         return true;
-#if (QT_VERSION-0 >= 0x030000)
     case Unicode:
         return d->utf8;
-#endif
 //   case BLOB:
     default:
         return false;
@@ -401,25 +390,20 @@ bool QSQLiteDriver::rollbackTransaction()
     return false;
 }
 
-QStringList QSQLiteDriver::tables(const QString &typeName) const
+QStringList QSQLiteDriver::tables(QSql::TableType type) const
 {
     QStringList res;
     if (!isOpen())
         return res;
-    int type = typeName.toInt();
 
     QSqlQuery q = createQuery();
     q.setForwardOnly(true);
-#if (QT_VERSION-0 >= 0x030000)
-    if ((type & (int)QSql::Tables) && (type & (int)QSql::Views))
+    if (type & (QSql::Tables | QSql::Views))
         q.exec("SELECT name FROM sqlite_master WHERE type='table' OR type='view'");
-    else if (typeName.isEmpty() || (type & (int)QSql::Tables))
+    else if (type & QSql::Tables)
         q.exec("SELECT name FROM sqlite_master WHERE type='table'");
-    else if (type & (int)QSql::Views)
+    else if (type & QSql::Views)
         q.exec("SELECT name FROM sqlite_master WHERE type='view'");
-#else
-        q.exec("SELECT name FROM sqlite_master WHERE type='table' OR type='view'");
-#endif
 
 
     if (q.isActive()) {
@@ -427,12 +411,10 @@ QStringList QSQLiteDriver::tables(const QString &typeName) const
             res.append(q.value(0).toString());
     }
 
-#if (QT_VERSION-0 >= 0x030000)
-    if (type & (int)QSql::SystemTables) {
+    if (type & QSql::SystemTables) {
         // there are no internal tables beside this one:
         res.append("sqlite_master");
     }
-#endif
 
     return res;
 }

@@ -1217,13 +1217,12 @@ QSqlRecord QDB2Driver::record(const QString& tableName) const
     return fil;
 }
 
-QStringList QDB2Driver::tables(const QString& typeName) const
+QStringList QDB2Driver::tables(QSql::TableType type) const
 {
     QStringList tl;
     if (!isOpen())
         return tl;
 
-    int type = typeName.toInt();
     SQLHANDLE hStmt;
 
     SQLRETURN r = SQLAllocHandle(SQL_HANDLE_STMT,
@@ -1239,11 +1238,11 @@ QStringList QDB2Driver::tables(const QString& typeName) const
                         SQL_IS_UINTEGER);
 
     QString tableType;
-    if (typeName.isEmpty() || ((type & (int)QSql::Tables) == (int)QSql::Tables))
+    if (type & QSql::Tables)
         tableType += "TABLE,";
-    if ((type & (int)QSql::Views) == (int)QSql::Views)
+    if (type & QSql::Views)
         tableType += "VIEW,";
-    if ((type & (int)QSql::SystemTables) == (int)QSql::SystemTables)
+    if (type & QSql::SystemTables)
         tableType += "SYSTEM TABLE,";
     if (tableType.isEmpty())
         return tl;

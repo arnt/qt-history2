@@ -74,7 +74,7 @@ public:
                int port,
                const QString& connOpts);
     void close();
-    QStringList tables(const QString& user) const;
+    QStringList tables(QSql::TableType) const;
     QSqlQuery createQuery() const;
     QSqlRecord record(const QString& tablename) const;
     QSqlIndex primaryIndex(const QString& tablename) const;
