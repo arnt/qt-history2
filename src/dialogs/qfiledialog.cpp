@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#243 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#244 $
 **
 ** Implementation of QFileDialog class
 **
@@ -637,10 +637,7 @@ void QFileListBox::viewportMouseMoveEvent( QMouseEvent *e )
                 if ( lined->isVisible() )
                     cancelRename();
 
-                if ( e->state() & ControlButton )
-                    drag->dragCopy();
-                else
-                    drag->dragMove();
+                drag->drag();
 
                 mousePressed = FALSE;
             }
@@ -689,7 +686,18 @@ void QFileListBox::viewportDragMoveEvent( QDragMoveEvent *e )
     }
 
     if ( acceptDrop( e->pos(), e->source() ) ) {
-        e->accept();
+        switch ( e->action() ) {
+	    case QDropEvent::Copy:
+            e->acceptAction();
+            break;
+	    case QDropEvent::Move:
+            e->acceptAction();
+            break;
+	    case QDropEvent::Link:
+            break;
+	    default:
+            ;
+        }
         setCurrentDropItem( e->pos() );
     } else {
         changeDirTimer->stop();
@@ -714,7 +722,7 @@ void QFileListBox::viewportDropEvent( QDropEvent *e )
 {
     changeDirTimer->stop();
     dragScrollTimer->stop();
-    
+
     if ( !QUriDrag::canDecode( e ) ) {
         e->ignore();
         return;
@@ -1031,10 +1039,7 @@ void QFileListView::viewportMouseMoveEvent( QMouseEvent *e )
                 if ( lined->isVisible() )
                     cancelRename();
 
-                if ( e->state() & ControlButton )
-                    drag->dragCopy();
-                else
-                    drag->dragMove();
+                drag->drag();
 
                 mousePressed = FALSE;
             }
@@ -1083,8 +1088,19 @@ void QFileListView::viewportDragMoveEvent( QDragMoveEvent *e )
     }
 
     if ( acceptDrop( e->pos(), e->source() ) ) {
-        e->accept();
         setCurrentDropItem( e->pos() );
+        switch ( e->action() ) {
+	    case QDropEvent::Copy:
+            e->acceptAction();
+            break;
+	    case QDropEvent::Move:
+            e->acceptAction();
+            break;
+	    case QDropEvent::Link:
+            break;
+	    default:
+            ;
+        }
     } else {
         changeDirTimer->stop();
         e->ignore();
