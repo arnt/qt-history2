@@ -183,9 +183,6 @@ int QColor::numBitPlanes()
 
 void QColor::initialize()
 {
-    static const int blackIdx = 2;
-    static const int whiteIdx = 3;
-
     if ( color_init )				// already initialized
 	return;
     color_init = TRUE;
