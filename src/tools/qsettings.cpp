@@ -5,7 +5,7 @@
 **
 ** Created : 000626
 **
-** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -39,7 +39,7 @@
 
 // POSIX Large File Support redefines open -> open64
 static inline int qt_open( const char *pathname, int flags, mode_t mode )
-{ return QT_OPEN( pathname, flags, mode ); }
+{ return ::open( pathname, flags, mode ); }
 #if defined(open)
 # undef open
 #endif
