@@ -1795,6 +1795,7 @@ void QWidget::setGeometry_helper(int x, int y, int w, int h, bool isMove)
 	Rect r;
 	SetRect(&r, x, y, x + w, y + h);
 	SetWindowBounds((WindowPtr)hd, kWindowContentRgn, &r);
+	dirtyClippedRegion(TRUE);
     }
 
     if(isMove || isResize) {
