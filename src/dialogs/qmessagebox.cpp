@@ -45,7 +45,6 @@
 #include "qimage.h"
 #include "qapplication.h"
 #include "qstyle.h"
-#include "qguardedptr.h"
 #include "qobjectlist.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
@@ -1353,7 +1352,7 @@ void QMessageBox::aboutQt( QWidget *parent, const QString &caption )
     if ( c.isNull() )
         c = "About Qt";
     QMessageBox *mb = new QMessageBox( parent, "qt_msgbox_about_qt" );
-    QGuardedPtr<QMessageBox> ptr = mb;
+    mb->setWFlags( WDestructiveClose );
 
 #ifndef QT_NO_WIDGET_TOPEXTRA
     mb->setCaption( caption.isNull()?QString::fromLatin1("About Qt"):caption );
@@ -1385,9 +1384,6 @@ void QMessageBox::aboutQt( QWidget *parent, const QString &caption )
         mb->mbd->pb[0]->setFocus();
     }
     mb->exec();
-    // ptr will be zero if mb is deleted
-    mb = ptr;
-    delete mb;
 }
 
 /*!
