@@ -1533,8 +1533,8 @@ fi
 if [ "$UNAME_SYSTEM" = "SunOS" ]; then
     # Solaris 2.5 and 2.6 have libposix4, which was renamed to librt for Solaris >=7
     if echo $UNAME_RELEASE | grep "^5\.[5|6]" >/dev/null 2>&1; then
-	QMAKE_VARS="$QMAKE_VARS QMAKE_LIBS_THREAD-=-lrt"
-	QMAKE_VARS="$QMAKE_VARS QMAKE_LIBS_THREAD+=-lposix4"
+	sed -e "s,-lrt,-lposix4," $XQMAKESPEC/qmake.conf > $XQMAKESPEC/qmake.conf.new
+	mv $XQMAKESPEC/qmake.conf.new $XQMAKESPEC/qmake.conf
     fi
 fi
 if [ $AUTOTHREAD = never ]; then
