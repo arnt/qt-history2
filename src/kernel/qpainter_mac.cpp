@@ -692,6 +692,8 @@ void QPainter::setClipRegion( const QRegion &r )
 void QPainter::drawPolyInternal( const QPointArray &a, bool close )
 {
     initPaintDevice();
+    if(paintreg.isEmpty())
+	return;
 
     RgnHandle polyRegion = NewRgn();
     OpenRgn();
@@ -778,6 +780,8 @@ void QPainter::drawPoint( int x, int y )
 
     if ( cpen.style() != NoPen ) {
 	initPaintDevice();
+	if(paintreg.isEmpty())
+	    return;
 	updatePen();
 	MoveTo(x + offx, y+offy);
 	Line(0,1);
@@ -815,6 +819,8 @@ void QPainter::drawPoints( const QPointArray& a, int index, int npoints )
 
     if ( cpen.style() != NoPen ) {
 	initPaintDevice();
+	if(paintreg.isEmpty())
+	    return;
 	updatePen();
 	for (int i=0; i<npoints; i++) {
 	    MoveTo(pa[index+i].x()+offx, pa[index+i].y()+offy);
@@ -859,6 +865,8 @@ void QPainter::lineTo( int x, int y )
   }
 
   initPaintDevice();
+  if(paintreg.isEmpty())
+      return;
   updatePen();
   LineTo(x+offx,y+offy);
 }
@@ -881,6 +889,8 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
   }
 
   initPaintDevice();
+  if(paintreg.isEmpty())
+      return;
   updatePen();
   MoveTo(x1+offx,y1+offy);
   LineTo(x2+offx,y2+offy);
@@ -912,6 +922,8 @@ void QPainter::drawRect( int x, int y, int w, int h )
     }
 
     initPaintDevice();
+    if(paintreg.isEmpty())
+	return;
     Rect rect;
     SetRect( &rect, x+offx, y+offy, x + w+offx, y + h+offy);
     if( this->brush().style() != NoBrush) {
@@ -1086,6 +1098,9 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd)
     }
 
     initPaintDevice();
+    if(paintreg.isEmpty())
+	return;
+
     Rect rect;
     SetRect( &rect, x+offx, y+offy, x + w+offx, y + h+offy );
     if( this->brush().style() == SolidPattern ) {
@@ -1126,6 +1141,9 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
     }
 
     initPaintDevice();
+    if(paintreg.isEmpty())
+	return;
+
     Rect r;
     SetRect( &r, x+offx, y+offy, x + w+offx, y + h+offy );
 
@@ -1216,6 +1234,9 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
     }
 
     initPaintDevice();
+    if(paintreg.isEmpty())
+	return;
+
     Rect bounds;
     SetRect(&bounds,x+offx,y+offy,x+w+offx,y+h+offy);
     updatePen();
@@ -1263,6 +1284,9 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
     }
 
     initPaintDevice();
+    if(paintreg.isEmpty())
+	return;
+
     Rect bounds;
     SetRect(&bounds,x+offx,y+offy,x+w+offx,y+h+offy);
     //PaintArc(&bounds,a*16,alen*16);
@@ -1331,6 +1355,9 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
     uint i = index;
 
     initPaintDevice();
+    if(paintreg.isEmpty())
+	return;
+
     updatePen();
     while ( nlines-- ) {
 	pa.point( i++, &x1, &y1 );
@@ -1391,6 +1418,9 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
     }
     int loopc;
     initPaintDevice();
+    if(paintreg.isEmpty())
+	return;
+
     updateBrush();
     updatePen();
     MoveTo(pa[0].x() + offx, pa[0].y() + offy );
@@ -1481,6 +1511,8 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap, int sx, int sy, 
 	    int w, h;
 	    map( x, y, sw, sh, &x, &y, &w, &h );
 	    initPaintDevice();
+	    if(paintreg.isEmpty())
+		return;
 	    unclippedScaledBitBlt( pdev, x, y, w, h, &pixmap, sx, sy, sw, sh, (RasterOp)rop, FALSE );
 	    return;
 	} else if ( testf(ExtDev) || txop == TxRotShear ) {
@@ -1521,6 +1553,8 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap, int sx, int sy, 
 		int dx, dy;
 		mat.map( 0, 0, &dx, &dy );
 		initPaintDevice();
+		if(paintreg.isEmpty())
+		    return;
 		unclippedBitBlt( pdev, x-dx, y-dy, &pm, 0, 0, pm.width(),
 				 pm.height(), (RasterOp)rop, FALSE );
 		return;
@@ -1531,6 +1565,8 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap, int sx, int sy, 
 	    map( x, y, &x, &y );
     }
     initPaintDevice();
+    if(paintreg.isEmpty())
+	return;
     unclippedBitBlt( pdev, x, y, &pixmap, sx, sy, sw, sh, (RasterOp)rop, FALSE );
 }
 
@@ -1701,6 +1737,9 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
     }
 
     initPaintDevice();
+    if(paintreg.isEmpty())
+	return;
+
     updatePen();
     cfont.d->drawText(x + offx, y + offy, str, len);
 }
