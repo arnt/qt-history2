@@ -160,7 +160,7 @@
      COMEAU	- Comeau C++
      EDG	- Edison Design Group C++
      OC		- CenterLine C++
-     SUN	- Sun WorkShop, Forte Developer, or Sun ONE Studio C++
+     SUN	- Forte Developer, or Sun ONE Studio C++
      MIPS	- MIPSpro C++
      DEC	- DEC C++
      HP		- HPUX C++
@@ -460,7 +460,7 @@
     'bool' is enabled by default but can be disabled using -features=nobool
     in which case _BOOL is not defined
         this is the default in 4.2 compatibility mode triggered by -compat=4 */
-#  if __SUNPRO_CC >= 0x500 || __SUNPRO_C >= 0x500
+#  if __SUNPRO_CC >= 0x500
 #    if !defined(_BOOL)
 #      define Q_NO_BOOL_TYPE
 #    endif
@@ -1660,4 +1660,3 @@ for (QForeachMemory<sizeof(qForeachSizeofContainerHelper(container))> _container
 #endif /* __cplusplus */
 
 #endif /* QGLOBAL_H */
-
