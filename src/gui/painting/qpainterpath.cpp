@@ -214,29 +214,6 @@ void QPainterSubpath::removeBrokenSegments()
 */
 
 /*!
-    \enum QPainterPath::FillMode
-
-    Specifies which method should be used to fill the path.
-
-    \value OddEven Specifies that the region is filled using the odd
-    even fill rule. With this rule, one determines wheter a point is
-    inside the path as follows: Draw a horizontal line from the point
-    to outside the path and count the number of intersections. If the
-    number of intersections is an odd number the point is inside the
-    path. This mode is the default.
-
-    \value Winding Specifies that the region is filled using the non
-    zero winding rule. With this rule, one determines wheter a point
-    is inside the path as follows: Draw a horizontal line from the
-    path to the outside of the path. Determine the direction of the
-    path in each intersection point, up or down. The winding number is
-    determined by summing the direction of each intersection. If the
-    number is non zero, the point is inside the path. This fill mode
-    can also in most cases be considered as the intersection of closed
-    shapes.
-*/
-
-/*!
     \enum QPainterPath::ElementType
     \internal
 

@@ -524,6 +524,29 @@ void QPainterPrivate::updateInvMatrix()
 */
 
 /*!
+    \enum Qt::FillRule
+
+    Specifies which method should be used to fill the paths and polygons.
+
+    \value OddEvenFill Specifies that the region is filled using the
+    odd even fill rule. With this rule, one determines wheter a point
+    is inside the shape as follows: Draw a horizontal line from the
+    point to outside the shape and count the number of
+    intersections. If the number of intersections is an odd number the
+    point is inside the shape. This mode is the default.
+
+    \value WindingFill Specifies that the region is filled using the
+    non zero winding rule. With this rule, one determines wheter a
+    point is inside the shape as follows: Draw a horizontal line from
+    the shape to the outside of the shape. Determine the direction of
+    the shape in each intersection point, up or down. The winding
+    number is determined by summing the direction of each
+    intersection. If the number is non zero, the point is inside the
+    shape. This fill mode can also in most cases be considered as the
+    intersection of closed shapes.
+*/
+
+/*!
     \class QPainter qpainter.h
     \brief The QPainter class does low-level painting e.g. on widgets.
 
