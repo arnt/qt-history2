@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#9 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#10 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -24,6 +24,7 @@ public:
    ~QMultiLineEdit();
 
     const char *text( int row ) const;
+    QString text() const;
 
     void insert( QString s, int row = -1 );
     void remove( int );
@@ -87,8 +88,8 @@ private:
 
     int		mapFromView( int xPos, int row );
     int		mapToView( int xIndex, int row );
-    int		lineLength( int row );
-    QString	*getString( int row );
+    int		lineLength( int row ) const;
+    QString	*getString( int row ) const;
 
     void	insertChar( char );
     void 	newLine();
@@ -110,6 +111,11 @@ private:
     void	setBottomCell( int row );
 
     void	paste();
+
+    void	newMark( int posx, int posy, bool copy=TRUE );
+    void	markWord( int posx, int posy );
+    void	copyText();
+
 private:	// Disabled copy constructor and operator=
     QMultiLineEdit( const QMultiLineEdit & ) {}
     QMultiLineEdit &operator=( const QMultiLineEdit & ) { return *this; }
@@ -117,7 +123,7 @@ private:	// Disabled copy constructor and operator=
 
 inline bool QMultiLineEdit::inputEnabled() { return isInputEnabled; }
 
-inline int QMultiLineEdit::lineLength( int row )
+inline int QMultiLineEdit::lineLength( int row ) const
 {
     return contents->at( row )->length();
 }
@@ -133,7 +139,7 @@ inline bool QMultiLineEdit::atBeginning()
     return cursorY == 0 && cursorX == 0; 
 }
 
-inline QString *QMultiLineEdit::getString( int row )
+inline QString *QMultiLineEdit::getString( int row ) const
 {
     return contents->at( row );
 }
