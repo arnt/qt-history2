@@ -219,8 +219,6 @@
 /* Intel C++ disguising as Visual C++: the `using' keyword avoids warnings */
 #  if defined(__INTEL_COMPILER)
 #    define Q_CC_INTEL
-#  else
-#    define Q_NO_USING_KEYWORD /* ### check "using" status */
 #  endif
 
 #elif defined(__BORLANDC__) || defined(__TURBOC__)

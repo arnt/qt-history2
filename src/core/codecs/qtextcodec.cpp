@@ -2425,7 +2425,7 @@ class QLatin15Codec: public QLatin1Codec
 public:
     QString toUnicode(const char* chars, int len) const;
 #if !defined(Q_NO_USING_KEYWORD)
-    using QTextCodec::fromUnicode;
+    using QLatin1Codec::fromUnicode;
 #endif
     QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
     void fromUnicode(const QChar *in, unsigned short *out, int length) const;

@@ -58,7 +58,7 @@ public:
     QTextDecoder* makeDecoder() const;
 
 #if !defined(Q_NO_USING_KEYWORD)
-    using QTextCodec::fromUnicode;
+    using QGb18030Codec::fromUnicode;
 #endif
     QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
     QString toUnicode(const char* chars, int len) const;
@@ -77,7 +77,7 @@ public:
     QTextDecoder* makeDecoder() const;
 
 #if !defined(Q_NO_USING_KEYWORD)
-    using QTextCodec::fromUnicode;
+    using QGb18030Codec::fromUnicode;
 #endif
     QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
     QString toUnicode(const char* chars, int len) const;
