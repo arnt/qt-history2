@@ -3,7 +3,6 @@
 #include "qatomic.h"
 #include "qreadwritelock_p.h"
 
-
 #include <errno.h>
 #include <string.h>
 #include <pthread.h>
@@ -84,12 +83,13 @@ QReadWriteLock::~QReadWriteLock()
 void QReadWriteLock::lock(AccessMode mode)
 {
     if(mode==ReadAccess) {
+        ++d->waitingReaders;
         for(;;){
             int localAccessCount(d->accessCount);
             if(d->waitingWriters == 0 && localAccessCount != -1 && localAccessCount <= d->maxReaders) {
                 if (q_atomic_test_and_set_int(&d->accessCount, localAccessCount, localAccessCount + 1))
                      break;
-            }else {
+            } else {
                 report_error(pthread_mutex_lock(&d->mutex), "QReadWriteLock::lock()", "mutex lock");
                 if (d->waitingWriters == 0 && d->accessCount != -1 && d->accessCount <= d->maxReaders) {
                     report_error(pthread_mutex_unlock(&d->mutex), "QReadWriteLock::lock()", "mutex unlock");
@@ -100,6 +100,7 @@ void QReadWriteLock::lock(AccessMode mode)
                 continue;
             }
         }
+        --d->waitingReaders;
     } else { //mode==WriteAccess
         ++d->waitingWriters;
         for(;;) {
@@ -141,6 +142,7 @@ bool QReadWriteLock::tryLock(AccessMode mode)
 {
     bool result;
     if(mode==ReadAccess) {
+        ++d->waitingReaders;
         for(;;){
             int localAccessCount(d->accessCount);
             if(d->waitingWriters == 0 && localAccessCount != -1 && localAccessCount <= d->maxReaders) {
@@ -153,6 +155,7 @@ bool QReadWriteLock::tryLock(AccessMode mode)
                 break;
             }
         }
+        --d->waitingReaders;
     } else { //mode==WriteAccess
         ++d->waitingWriters;
         for(;;){
@@ -196,11 +199,14 @@ void QReadWriteLock::unlock()
                 break;
         }
     }
-    report_error(pthread_mutex_lock(&d->mutex), "QReadWriteLock::unlock()", "mutex lock");
-    if(d->waitingWriters != 0)
+    if (d->waitingWriters != 0) {
+        report_error(pthread_mutex_lock(&d->mutex), "QReadWriteLock::unlock()", "mutex lock");
         pthread_cond_signal(&d->writerWait);
-    else
+        report_error(pthread_mutex_unlock(&d->mutex), "QReadWriteLock::unlock()", "mutex unlock");
+    } else if (d->waitingReaders != 0) {
+        report_error(pthread_mutex_lock(&d->mutex), "QReadWriteLock::unlock()", "mutex lock");
         pthread_cond_signal(&d->readerWait);
-    report_error(pthread_mutex_unlock(&d->mutex), "QReadWriteLock::unlock()", "mutex unlock");
+        report_error(pthread_mutex_unlock(&d->mutex), "QReadWriteLock::unlock()", "mutex unlock");
+    }
 }
 
