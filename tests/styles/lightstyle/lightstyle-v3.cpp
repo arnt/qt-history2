@@ -286,48 +286,28 @@ void LightStyleV3::drawPrimitive( PrimitiveElement pe,
 
     case PE_ButtonDropDown:
 	{
-	    QBrush thefill;
-	    bool sunken =
-		(flags & (QStyle::Style_Down | QStyle::Style_On | QStyle::Style_Sunken));
-
 	    if (flags & QStyle::Style_Enabled) {
-		if (sunken)
-		    thefill = cg.brush(QColorGroup::Midlight);
+		if (flags & (QStyle::Style_Down |
+			     QStyle::Style_On |
+			     QStyle::Style_Sunken))
+		    fill = &cg.brush(QColorGroup::Midlight);
 		else
-		    thefill = cg.brush(QColorGroup::Button);
+		    fill = &cg.brush(QColorGroup::Button);
 	    } else
-		thefill = cg.brush(QColorGroup::Background);
+		fill = &cg.brush(QColorGroup::Background);
 
-	    p->setPen( cg.dark() );
-	    p->drawLine(r.topLeft(),     r.topRight());
-	    p->drawLine(r.topRight(),    r.bottomRight());
-	    p->drawLine(r.bottomRight(), r.bottomLeft());
-
-	    if (flags & (QStyle::Style_Down | QStyle::Style_On |
-			 QStyle::Style_Sunken | QStyle::Style_Raised)) {
-		// button bevel
-		if (sunken)
-		    p->setPen(cg.mid());
-		else
-		    p->setPen(cg.light());
-
-		p->drawLine(r.x(), r.y() + 2,
-			    r.x(), r.y() + r.height() - 3); // left
-		p->drawLine(r.x(), r.y() + 1,
-			    r.x() + r.width() - 2, r.y() + 1); // top
-
-		if (sunken)
-		    p->setPen(cg.light());
-		else
-		    p->setPen(cg.mid());
-
-		p->drawLine(r.x() + r.width() - 2, r.y() + 2,
-			    r.x() + r.width() - 2, r.y() + r.height() - 3); // right
-		p->drawLine(r.x() + 1, r.y() + r.height() - 2,
-			    r.x() + r.width() - 2, r.y() + r.height() - 2); // bottom
+	    bool border = ( ! ( flags & QStyle::Style_AutoRaise ) );
+	    if ( border ) {
+		p->setPen( cg.dark() );
+		p->drawLine( br.topLeft(),     br.topRight()    );
+		p->drawLine( br.topRight(),    br.bottomRight() );
+		p->drawLine( br.bottomRight(), br.bottomLeft()  );
+		br.addCoords( 0, 1, -1, -1 );
 	    }
 
-	    p->fillRect(r.x() + 1, r.y() + 2, r.width() - 3, r.height() - 4, thefill);
+	    drawLightBevel( p, r, cg, flags,
+			    pixelMetric( PM_DefaultFrameWidth ) - ( border ? 0 : 1 ),
+			    FALSE, fill );
 	    break;
 	}
 
