@@ -1271,10 +1271,11 @@ bool QFontEngineLatinXLFD::canRender( const QChar *string, int len )
 
 void QFontEngineLatinXLFD::setScale( double scale )
 {
-    for ( int i = 0; i < _count; ++i )
+    int i;
+    for ( i = 0; i < _count; ++i )
 	_engines[i]->setScale( scale );
     unsigned short chars[0x200];
-    for ( int i = 0; i < 0x200; ++i )
+    for ( i = 0; i < 0x200; ++i )
 	chars[i] = i;
     int glyphCount = 0x200;
     _engines[0]->stringToCMap( (const QChar *)chars, 0x200,
