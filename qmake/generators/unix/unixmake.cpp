@@ -346,7 +346,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	if(slsh != -1)
 	    dst_prl = dst_prl.right(dst_prl.length() - slsh - 1);
 	dst_prl = Option::fixPathToTargetOS(targetdir + dst_prl, FALSE);
-	ret += "$(COPY) " + project->first("QMAKE_INTERNAL_PRL_FILE") + " " + dst_prl;
+	ret += "-$(COPY) " + project->first("QMAKE_INTERNAL_PRL_FILE") + " " + dst_prl;
 	if(!uninst.isEmpty())
 	    uninst.append("\n\t");
 	uninst.append("-$(DEL_FILE) \"" + dst_prl + "\"");
@@ -371,9 +371,9 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
     QString dst_targ = Option::fixPathToTargetOS(targetdir + target, FALSE);
     if(!ret.isEmpty())
 	ret += "\n\t";
-    ret += QString("$(COPY) \"") + src_targ + "\" \"" + dst_targ + "\"";
+    ret += QString("-$(COPY) \"") + src_targ + "\" \"" + dst_targ + "\"";
     if(!project->isEmpty("QMAKE_STRIP"))
-	ret += "\n\t" + var("QMAKE_STRIP") + " \"" + dst_targ + "\"";
+	ret += "\n\t-" + var("QMAKE_STRIP") + " \"" + dst_targ + "\"";
     if(!uninst.isEmpty())
 	uninst.append("\n\t");
     uninst.append("-$(DEL_FILE) \"" + dst_targ + "\"");
@@ -388,7 +388,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 		if(lslash != -1)
 		    link = link.right(link.length() - (lslash + 1));
 		QString dst_link = Option::fixPathToTargetOS(targetdir + link, FALSE);
-		ret += "\n\tln -sf \"" + dst_targ + "\" \"" + dst_link + "\"";
+		ret += "\n\t-ln -sf \"" + dst_targ + "\" \"" + dst_link + "\"";
 		if(!uninst.isEmpty())
 		    uninst.append("\n\t");
 		uninst.append("-$(DEL_FILE) \"" + dst_link + "\"");
