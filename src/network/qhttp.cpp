@@ -48,188 +48,6 @@
 #include "qbuffer.h"
 #include "qurloperator.h"
 
-/****************************************************
- *
- * "Private" class declarations
- *
- ****************************************************/
-
-class QHttpHeader
-{
-public:
-    QHttpHeader();
-    QHttpHeader( const QHttpHeader& header );
-    QHttpHeader( const QString& str );
-    virtual ~QHttpHeader();
-
-    QHttpHeader& operator=( const QHttpHeader& h );
-
-    QString value( const QString& key ) const;
-    QStringList keys() const;
-    bool hasKey( const QString& key ) const;
-
-    void setValue( const QString& key, const QString& value );
-    void removeValue( const QString& key );
-
-    uint contentLength() const;
-    QString contentType() const;
-    void setContentLength( int len );
-    void setContentType( const QString& type );
-
-    enum Connection { Close, KeepAlive };
-    void setConnection( Connection );
-    Connection connection() const;
-
-    virtual QString toString() const;
-
-    bool isValid() const;
-
-    QTextStream& read( QTextStream& );
-    QTextStream& write( QTextStream& ) const;
-
-protected:
-    virtual bool parseLine( const QString& line, int number );
-
-    void parse( const QString& str );
-
-private:
-    QMap<QString,QString> m_values;
-    bool m_bValid;
-};
-
-
-class QHttpReplyHeader : public QHttpHeader
-{
-public:
-    QHttpReplyHeader();
-    QHttpReplyHeader( int code, const QString& text = QString::null, int version = 10 );
-    QHttpReplyHeader( const QHttpReplyHeader& header );
-    QHttpReplyHeader( const QString& str );
-
-    void setReply( int code, const QString& text = QString::null, int version = 10 );
-    int replyCode() const;
-    QString replyText() const;
-    int version() const;
-    bool hasAutoContentLength() const;
-
-    virtual QString toString() const;
-
-protected:
-    virtual bool parseLine( const QString& line, int number );
-
-private:
-    int m_code;
-    QString m_text;
-    int m_version;
-};
-
-
-class QHttpRequestHeader : public QHttpHeader
-{
-public:
-    QHttpRequestHeader();
-    QHttpRequestHeader( const QString& method, const QString& path, int version = 10 );
-    QHttpRequestHeader( const QHttpRequestHeader& header );
-    QHttpRequestHeader( const QString& str );
-
-    void setRequest( const QString& method, const QString& path, int version = 10 );
-    QString method() const;
-    QString path() const;
-    int version();
-
-    virtual QString toString() const;
-
-protected:
-    virtual bool parseLine( const QString& line, int number );
-
-private:
-    QString m_method;
-    QString m_path;
-    int m_version;
-};
-
-
-class QHttpClient : public QObject
-{
-    Q_OBJECT
-    Q_PROPERTY( State state READ state )
-    Q_ENUMS( State )
-    //Q_PROPERTY( QIODevice* device READ device WRITE setDevice )
-
-public:
-    enum State { Closed, Connecting, Sending, Reading, Alive, Idle };
-    enum Error {
-	ErrUnknown,
-	ErrConnectionRefused,
-	ErrHostNotFound,
-	ErrSocketRead,
-	ErrUnexpectedClose,
-	ErrInvalidReplyHeader,
-	ErrWrongContentLength
-    };
-
-    QHttpClient( QObject* parent = 0, const char* name = 0 );
-    ~QHttpClient();
-
-    virtual bool request( const QString& hostname, int port, const QHttpRequestHeader& header, const char* data, uint size );
-    bool request( const QString& hostname, int port, const QHttpRequestHeader& header, const QByteArray& data );
-    bool request( const QString& hostname, int port, const QHttpRequestHeader& header, const QCString& data );
-    bool request( const QString& hostname, int port, const QHttpRequestHeader& header, QIODevice* device );
-    bool request( const QString& hostname, int port, const QHttpRequestHeader& header );
-
-    void close();
-
-    State state() const;
-    void setDevice( QIODevice* );
-    QIODevice* device() const;
-
-signals:
-    void reply( const QHttpReplyHeader& repl, const QByteArray& data );
-    void reply( const QHttpReplyHeader& repl, const QIODevice* device );
-    void replyChunk( const QHttpReplyHeader& repl, const QByteArray& data );
-    void replyHeader( const QHttpReplyHeader& repl );
-    void requestFailed( int error );
-    void finished();
-
-    // informational
-    void connected();
-    void closed();
-    void hostFound();
-
-protected:
-    void timerEvent( QTimerEvent * );
-
-private slots:
-    void slotReadyRead();
-    void slotConnected();
-    void slotError( int );
-    void slotClosed();
-    void slotBytesWritten( int );
-
-private:
-    void killIdleTimer();
-
-    QSocket* m_socket;
-    QByteArray m_buffer;
-    uint m_bytesRead;
-    QHttpRequestHeader m_header;
-    State m_state;
-    bool m_readHeader;
-    QHttpReplyHeader m_reply;
-
-    int m_idleTimer;
-
-    QIODevice* m_device;
-    QIODevice* m_postDevice;
-};
-
-#include "qhttp.moc"
-
-QTextStream& operator>>( QTextStream&, QHttpRequestHeader& );
-QTextStream& operator<<( QTextStream&, const QHttpRequestHeader& );
-
-QTextStream& operator>>( QTextStream&, QHttpReplyHeader& );
-QTextStream& operator<<( QTextStream&, const QHttpReplyHeader& );
 
 
 /****************************************************
@@ -238,7 +56,7 @@ QTextStream& operator<<( QTextStream&, const QHttpReplyHeader& );
  *
  ****************************************************/
 
-/*
+/*!
   \class QHttpHeader qhttp.h
     \ingroup io
   \brief The QHttpHeader class contains header information for HTTP.
@@ -541,7 +359,7 @@ QString QHttpHeader::contentType() const
     return type.left( pos ).stripWhiteSpace();
 }
 
-/*
+/*!
   \enum QHttpHeader::Connection
 
   \value Close - the connection should be closed when the current
@@ -594,7 +412,7 @@ void QHttpHeader::setContentType( const QString& type )
 
   \sa connection()
 */
-void QHttpHeader::setConnection( QHttpHeader::Connection con )
+void QHttpHeader::setConnection( Connection con )
 {
     switch( con )
     {
@@ -613,7 +431,7 @@ void QHttpHeader::setConnection( QHttpHeader::Connection con )
  *
  ****************************************************/
 
-/*
+/*!
   \class QHttpReplyHeader qhttp.h
     \ingroup io
   \brief The QHttpReplyHeader class contains reply header information for HTTP.
@@ -622,9 +440,6 @@ void QHttpHeader::setConnection( QHttpHeader::Connection con )
 
   This class is used in the QHttpClient class to report the header information
   that the client received from the server.
-
-  This class is also used in the QHttpConnection class to send HTTP replies
-  from a server to a client.
 
   HTTP replies have a status code that indicates the status of the reply. This
   code is a 3-digit integer result code (for details please refer to RFC 1945).
@@ -635,7 +450,7 @@ void QHttpHeader::setConnection( QHttpHeader::Connection con )
   Since this is a subclass of QHttpHeader, all functions in this class are also
   available, especially setValue() and value().
 
-  \sa QHttpRequestHeader QHttpClient QHttpConnection
+  \sa QHttpRequestHeader QHttpClient
 */
 
 /*!
@@ -753,6 +568,7 @@ QString QHttpReplyHeader::toString() const
     return ret.arg( m_version / 10 ).arg ( m_version % 10 ).arg( m_code ).arg( m_text ).arg( QHttpHeader::toString() );
 }
 
+#if 0
 /*!
   Reads a HTTP reply header from the text stream \a stream and stores it in \a
   header and returns a refernce to the stream.
@@ -770,6 +586,7 @@ QTextStream& operator<<( QTextStream& stream, const QHttpReplyHeader& header )
 {
     return header.write( stream );
 }
+#endif
 
 /*!
   Returns TRUE if the server did not specify a size of the reply data, This is
@@ -790,7 +607,7 @@ bool QHttpReplyHeader::hasAutoContentLength() const
  *
  ****************************************************/
 
-/*
+/*!
   \class QHttpRequestHeader qhttp.h
     \ingroup io
   \brief The QHttpRequestHeader class contains request header information for
@@ -801,9 +618,6 @@ bool QHttpReplyHeader::hasAutoContentLength() const
   This class is used in the QHttpClient class to report the header information
   if the client requests something from the server.
 
-  This class is also used in the QHttpConnection class to receive HTTP requests
-  by a server.
-
   HTTP requests have a method which describes the action of the request. The
   most common requests are "GET" and "POST". In addition to the method the
   header also includes a request-URI to specify the location for the method.
@@ -811,7 +625,7 @@ bool QHttpReplyHeader::hasAutoContentLength() const
   Since this is a subclass of QHttpHeader, all functions in this class are also
   available, especially setValue() and value().
 
-  \sa QHttpReplyHeader QHttpClient QHttpConnection
+  \sa QHttpReplyHeader QHttpClient
 */
 
 /*!
@@ -928,6 +742,7 @@ QString QHttpRequestHeader::toString() const
 	last.arg( m_version / 10 ).arg( m_version % 10 ).arg( QHttpHeader::toString());
 }
 
+#if 0
 /*!
   Reads a HTTP request header from the text stream \a stream and stores it in
   \a header and returns a refernce to the stream.
@@ -945,6 +760,7 @@ QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
 {
     return header.write( stream );
 }
+#endif
 
 /****************************************************
  *
@@ -952,7 +768,7 @@ QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
  *
  ****************************************************/
 
-/*
+/*!
   \class QHttpClient qhttp.h
     \ingroup io
   \brief The QHttpClient class provides the client side of HTTP.
@@ -988,7 +804,7 @@ QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
   document was received.
 */
 
-/*
+/*!
   \fn void QHttpClient::reply( const QHttpReplyHeader& repl, const QByteArray& data )
 
   This signal is emitted when the reply is available. The reply header is
@@ -999,7 +815,7 @@ QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
 
   \sa replyChunk()
 */
-/*
+/*!
   \fn void QHttpClient::reply( const QHttpReplyHeader& repl, const QIODevice* device )
   \overload
 
@@ -1011,12 +827,14 @@ QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
 
   \sa replyChunk()
 */
-/*
+/*!
   \fn void QHttpClient::replyChunk( const QHttpReplyHeader& repl, const QByteArray& data )
 
   This signal is emitted if the client has received a piece of the reply data.
   This is useful for slow connections: you don't have to wait until all data is
   available; you can present the data that is already loaded to the user.
+
+  The header is passed in \a repl and the data chunk in \a data.
 
   If you are only interested in the complete document, use one of the reply()
   signals instead.
@@ -1025,7 +843,7 @@ QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
 
   \sa finished() reply()
 */
-/*
+/*!
   \fn void QHttpClient::replyHeader( const QHttpReplyHeader& repl )
 
   This signal is emitted if the HTTP header of the reply is available. The
@@ -1036,7 +854,7 @@ QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
 
   \sa setDevice() reply() replyChunk()
 */
-/*
+/*!
   \fn void QHttpClient::requestFailed( int error )
 
   This signal is emitted if a request failed. \a error is a Error enum that
@@ -1044,7 +862,7 @@ QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
 
   \sa request()
 */
-/*
+/*!
   \fn void QHttpClient::finished()
 
   This signal is emitted when the QHttpClient is able to start a new request.
@@ -1439,7 +1257,7 @@ void QHttpClient::slotReadyRead()
     }
 }
 
-/*
+/*!
   \enum QHttpClient::State
 
   This enum is used to specify the state the client is in. The

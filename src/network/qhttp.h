@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QHtpp and related classes.
 **
@@ -56,9 +56,173 @@ class QTimerEvent;
 class QTextStream;
 class QIODevice;
 
-class QHttpReplyHeader;
-class QHttpClient;
 class QHttpPrivate;
+
+class QM_EXPORT_HTTP QHttpHeader
+{
+public:
+    QHttpHeader();
+    QHttpHeader( const QHttpHeader& header );
+    QHttpHeader( const QString& str );
+    virtual ~QHttpHeader();
+
+    QHttpHeader& operator=( const QHttpHeader& h );
+
+    QString value( const QString& key ) const;
+    QStringList keys() const;
+    bool hasKey( const QString& key ) const;
+
+    void setValue( const QString& key, const QString& value );
+    void removeValue( const QString& key );
+
+    uint contentLength() const;
+    QString contentType() const;
+    void setContentLength( int len );
+    void setContentType( const QString& type );
+
+    enum Connection { Close, KeepAlive };
+    void setConnection( Connection );
+    Connection connection() const;
+
+    virtual QString toString() const;
+
+    bool isValid() const;
+
+    QTextStream& read( QTextStream& );
+    QTextStream& write( QTextStream& ) const;
+
+protected:
+    virtual bool parseLine( const QString& line, int number );
+
+    void parse( const QString& str );
+
+private:
+    QMap<QString,QString> m_values;
+    bool m_bValid;
+};
+
+class QM_EXPORT_HTTP QHttpReplyHeader : public QHttpHeader
+{
+public:
+    QHttpReplyHeader();
+    QHttpReplyHeader( int code, const QString& text = QString::null, int version = 10 );
+    QHttpReplyHeader( const QHttpReplyHeader& header );
+    QHttpReplyHeader( const QString& str );
+
+    void setReply( int code, const QString& text = QString::null, int version = 10 );
+    int replyCode() const;
+    QString replyText() const;
+    int version() const;
+    bool hasAutoContentLength() const;
+
+    virtual QString toString() const;
+
+protected:
+    virtual bool parseLine( const QString& line, int number );
+
+private:
+    int m_code;
+    QString m_text;
+    int m_version;
+};
+
+class QM_EXPORT_HTTP QHttpRequestHeader : public QHttpHeader
+{
+public:
+    QHttpRequestHeader();
+    QHttpRequestHeader( const QString& method, const QString& path, int version = 10 );
+    QHttpRequestHeader( const QHttpRequestHeader& header );
+    QHttpRequestHeader( const QString& str );
+
+    void setRequest( const QString& method, const QString& path, int version = 10 );
+    QString method() const;
+    QString path() const;
+    int version();
+
+    virtual QString toString() const;
+
+protected:
+    virtual bool parseLine( const QString& line, int number );
+
+private:
+    QString m_method;
+    QString m_path;
+    int m_version;
+};
+
+class QM_EXPORT_HTTP QHttpClient : public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY( State state READ state )
+    Q_ENUMS( State )
+    //Q_PROPERTY( QIODevice* device READ device WRITE setDevice )
+
+public:
+    enum State { Closed, Connecting, Sending, Reading, Alive, Idle };
+    enum Error {
+	ErrUnknown,
+	ErrConnectionRefused,
+	ErrHostNotFound,
+	ErrSocketRead,
+	ErrUnexpectedClose,
+	ErrInvalidReplyHeader,
+	ErrWrongContentLength
+    };
+
+    QHttpClient( QObject* parent = 0, const char* name = 0 );
+    ~QHttpClient();
+
+    virtual bool request( const QString& hostname, int port, const QHttpRequestHeader& header, const char* data, uint size );
+    bool request( const QString& hostname, int port, const QHttpRequestHeader& header, const QByteArray& data );
+    bool request( const QString& hostname, int port, const QHttpRequestHeader& header, const QCString& data );
+    bool request( const QString& hostname, int port, const QHttpRequestHeader& header, QIODevice* device );
+    bool request( const QString& hostname, int port, const QHttpRequestHeader& header );
+
+    void close();
+
+    State state() const;
+    void setDevice( QIODevice* );
+    QIODevice* device() const;
+
+signals:
+    void reply( const QHttpReplyHeader& repl, const QByteArray& data );
+    void reply( const QHttpReplyHeader& repl, const QIODevice* device );
+    void replyChunk( const QHttpReplyHeader& repl, const QByteArray& data );
+    void replyHeader( const QHttpReplyHeader& repl );
+    void requestFailed( int error );
+    void finished();
+
+    // informational
+    void connected();
+    void closed();
+    void hostFound();
+
+protected:
+    void timerEvent( QTimerEvent * );
+
+private slots:
+    void slotReadyRead();
+    void slotConnected();
+    void slotError( int );
+    void slotClosed();
+    void slotBytesWritten( int );
+
+private:
+    void killIdleTimer();
+
+    QSocket* m_socket;
+    QByteArray m_buffer;
+    uint m_bytesRead;
+    QHttpRequestHeader m_header;
+    State m_state;
+    bool m_readHeader;
+    QHttpReplyHeader m_reply;
+
+    int m_idleTimer;
+
+    QIODevice* m_device;
+    QIODevice* m_postDevice;
+};
 
 class QM_EXPORT_HTTP QHttp : public QNetworkProtocol
 {
@@ -87,6 +251,15 @@ private:
     QHttpClient *client;
     int bytesRead;
 };
+
+
+#if 0
+QM_EXPORT_HTTP QTextStream& operator>>( QTextStream&, QHttpRequestHeader& );
+QM_EXPORT_HTTP QTextStream& operator<<( QTextStream&, const QHttpRequestHeader& );
+
+QM_EXPORT_HTTP QTextStream& operator>>( QTextStream&, QHttpReplyHeader& );
+QM_EXPORT_HTTP QTextStream& operator<<( QTextStream&, const QHttpReplyHeader& );
+#endif
 
 #endif
 #endif
