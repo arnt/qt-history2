@@ -450,10 +450,10 @@ void write_jpeg_image(QImageIO* iio)
 
         jpeg_set_defaults(&cinfo);
 
-        float diffInch = QABS(image.dotsPerMeterX()*2.54/100. - qRound(image.dotsPerMeterX()*2.54/100.))
-                         + QABS(image.dotsPerMeterY()*2.54/100. - qRound(image.dotsPerMeterY()*2.54/100.));
-        float diffCm = (QABS(image.dotsPerMeterX()/100. - qRound(image.dotsPerMeterX()/100.))
-                        + QABS(image.dotsPerMeterY()/100. - qRound(image.dotsPerMeterY()/100.)))*2.54;
+        float diffInch = qAbs(image.dotsPerMeterX()*2.54/100. - qRound(image.dotsPerMeterX()*2.54/100.))
+                         + qAbs(image.dotsPerMeterY()*2.54/100. - qRound(image.dotsPerMeterY()*2.54/100.));
+        float diffCm = (qAbs(image.dotsPerMeterX()/100. - qRound(image.dotsPerMeterX()/100.))
+                        + qAbs(image.dotsPerMeterY()/100. - qRound(image.dotsPerMeterY()/100.)))*2.54;
         if (diffInch < diffCm) {
             cinfo.density_unit = 1; // dots/inch
             cinfo.X_density = qRound(image.dotsPerMeterX()*2.54/100.);
