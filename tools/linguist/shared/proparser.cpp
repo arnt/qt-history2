@@ -15,6 +15,16 @@
 #include <qregexp.h>
 #include <qstringlist.h>
 
+#ifdef Q_OS_UNIX
+#include <unistd.h>
+#endif
+
+#ifdef Q_OS_WIN32
+#define QT_POPEN _popen
+#else
+#define QT_POPEN popen
+#endif
+
 QMap<QString, QString> proFileTagMap( const QString& text )
 {
     QString t = text;
@@ -60,20 +70,54 @@ QMap<QString, QString> proFileTagMap( const QString& text )
 	}
     }
 
-    QRegExp var( "\\$\\$[a-zA-Z0-9_]+" );
+    QRegExp var( "\\$\\$[({]?([a-zA-Z0-9_]+)[)}]?" );
     QMap<QString, QString>::Iterator it;
     for ( it = tagMap.begin(); it != tagMap.end(); ++it ) {
 	int i = 0;
-
-	while ( (i = var.search(it.data(), i)) != -1 ) {
+	while ( (i = var.search((*it), i)) != -1 ) {
 	    int len = var.matchedLength();
-	    QString invocation = (*it).mid( i + 2, len - 2 );
+	    QString invocation = var.cap(1);
 	    QString after;
-	    if ( tagMap.contains(invocation) )
-		after = tagMap[invocation];
-	    (*it).replace( i, len, after );
+
+	    if ( invocation == "system" ) {
+		// skip system(); it will be handled in the next pass
+		++i;
+	    } else {
+		if ( tagMap.contains(invocation) )
+		    after = tagMap[invocation];
+		(*it).replace( i, len, after );
+		i += after.length();
+	    }
+	}
+    }
+
+    QRegExp callToSystem( "\\$\\$system\\s*\\(([^()]*)\\)" );
+    for ( it = tagMap.begin(); it != tagMap.end(); ++it ) {
+	int i = 0;
+	while ( (i = callToSystem.search((*it), i)) != -1 ) {
+	    /*
+	      This code is stolen from qmake's project.cpp file.
+	      Ideally we would use the same parser, so we wouldn't
+	      have this code duplication.
+	    */
+	    QString after;
+	    char buff[256];
+	    FILE *proc = QT_POPEN( callToSystem.cap(1).latin1(), "r" );
+	    while ( proc && !feof(proc) ) {
+		int read_in = fread( buff, 1, 255, proc );
+		if ( !read_in )
+		    break;
+		for ( int i = 0; i < read_in; i++ ) {
+		    if ( buff[i] == '\n' || buff[i] == '\t' )
+			buff[i] = ' ';
+		}
+		buff[read_in] = '\0';
+		after += buff;
+	    }
+	    (*it).replace( i, callToSystem.matchedLength(), after );
 	    i += after.length();
 	}
     }
+
     return tagMap;
 }
