@@ -523,11 +523,8 @@ void QTableWidgetPrivate::emitAboutToShowContextMenu(QMenu *menu, const QModelIn
 
 void QTableWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
-    if (topLeft == bottomRight) // this should always be true
+    if (topLeft == bottomRight) // this should always be true, unless we sort
         emit q->itemChanged(model()->item(topLeft));
-    else
-        qWarning("QTableWidgetPrivate: several items were changed");
-    // Only one item at a time can change, so the warning should never be shown
 }
 
 /*!

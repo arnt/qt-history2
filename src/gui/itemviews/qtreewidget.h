@@ -143,7 +143,9 @@ public:
     QTreeWidgetItem *currentItem() const;
     void setCurrentItem(QTreeWidgetItem *item);
 
-    void sortItems(int column, Qt::SortOrder order = Qt::AscendingOrder);
+    void sortItems(int column, Qt::SortOrder order);
+    void setSortingEnabled(bool enable);
+    bool isSortingEnabled() const;
 
     void openPersistentEditor(QTreeWidgetItem *item, int column = 0);
     void closePersistentEditor(QTreeWidgetItem *item, int column = 0);
@@ -160,6 +162,7 @@ public:
 
 public slots:
     void ensureItemVisible(const QTreeWidgetItem *item);
+    void sortItems(int column);
     void clear();
 
 signals:

@@ -941,11 +941,8 @@ void QTreeWidgetPrivate::emitAboutToShowContextMenu(QMenu *menu, const QModelInd
 
 void QTreeWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
-    if (topLeft == bottomRight) // this should always be true
+    if (topLeft == bottomRight) // this should always be true, unless we sort
         emit q->itemChanged(model()->item(topLeft), topLeft.column());
-    else
-        qWarning("QTreeWidgetPrivate: several items were changed");
-    // Only one item at a time can change, so the warning should never be shown
 }
 
 /*!
@@ -1034,7 +1031,8 @@ QTreeWidget::QTreeWidget(QWidget *parent)
             SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
             this, SIGNAL(selectionChanged()));
     connect(model(), SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
-            SLOT(emitItemChanged(const QModelIndex&, const QModelIndex&)));
+            this, SLOT(emitItemChanged(const QModelIndex&, const QModelIndex&)));
+    connect(header(), SIGNAL(sectionPressed(int, Qt::ButtonState)), this, SLOT(sortItems(int)));
 }
 
 /*!
@@ -1135,6 +1133,17 @@ void QTreeWidget::setCurrentItem(QTreeWidgetItem *item)
 void QTreeWidget::sortItems(int column, Qt::SortOrder order)
 {
     d->model()->sortAll(column, order);
+    header()->setSortIndicator(column, order);
+}
+
+void QTreeWidget::setSortingEnabled(bool enable)
+{
+    header()->showSortIndicator(enable);
+}
+
+bool QTreeWidget::isSortingEnabled() const
+{
+    return header()->isSortIndicatorShown();
 }
 
 void QTreeWidget::openPersistentEditor(QTreeWidgetItem *item, int column)
@@ -1223,6 +1232,12 @@ void QTreeWidget::ensureItemVisible(const QTreeWidgetItem *item)
     Q_ASSERT(item);
     QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item));
     QTreeView::ensureItemVisible(index);
+}
+
+void QTreeWidget::sortItems(int column)
+{
+    if (isSortingEnabled())
+        d->model()->sortAll(column, header()->sortIndicatorOrder());
 }
 
 /*!
