@@ -26,8 +26,9 @@ private:
 
 
 Test::Test(QWidget* parent, const char* name, int f) :
-    QWidget(parent, name, f)
+    QWidget(parent, name, f|WResizeNoErase)
 {
+
 }
 
 void Test::paintEvent(QPaintEvent* e)
@@ -83,8 +84,10 @@ int main( int argc, char ** argv )
     t5->setMinimumSize( 80, 50 );
     t5->setBackgroundColor( Qt::yellow );
 
-    // Test widgets draw fast...
-    //s1->setOpaqueResize( TRUE );
+#ifdef _WS_QWS_
+    // Qt/Embedded XOR drawing not yet implemented.
+    s1->setOpaqueResize( TRUE );
+#endif
     s2->setOpaqueResize( TRUE );
     s3->setOpaqueResize( TRUE );
 
