@@ -222,10 +222,11 @@ void QWizard::show()
     \reimp
 */
 
-void QWizard::setFont(const QFont & font)
+void QWizard::changeEvent(QEvent *event)
 {
-    QApplication::postEvent(this, new QEvent(QEvent::LayoutHint));
-    QDialog::setFont(font);
+    if (event->type() == QEvent::ApplicationFontChange || event->type() == QEvent::FontChange)
+        QApplication::postEvent(this, new QEvent(QEvent::LayoutHint));
+    QDialog::changeEvent(event);
 }
 
 

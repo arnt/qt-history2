@@ -1102,8 +1102,6 @@ void Q3DockWindow::setOrientation(Qt::Orientation o)
 }
 
 /*!
-    \reimp
-
     Destroys the dock window and its child widgets.
 */
 
@@ -1813,7 +1811,7 @@ QSize Q3DockWindow::sizeHint() const
     return sh;
 }
 
-/*! \reimp
+/*! \internal
  */
 
 QSize Q3DockWindow::minimumSize() const

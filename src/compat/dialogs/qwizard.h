@@ -36,8 +36,6 @@ public:
 
     void show();
 
-    void setFont(const QFont & font);
-
     virtual void addPage(QWidget *, const QString &);
     virtual void insertPage(QWidget*, const QString&, int);
     virtual void removePage(QWidget *);
@@ -86,6 +84,7 @@ signals:
     void selected(const QString&);
 
 protected:
+    void changeEvent(QEvent *event);
     virtual void layOutButtonRow(QHBoxLayout *);
     virtual void layOutTitleRow(QHBoxLayout *, const QString &);
 

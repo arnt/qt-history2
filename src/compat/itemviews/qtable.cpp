@@ -2768,16 +2768,6 @@ void QTable::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
 }
 
 /*!
-    \reimp
-
-    (Implemented to get rid of a compiler warning.)
-*/
-
-void QTable::drawContents(QPainter *)
-{
-}
-
-/*!
     Returns the geometry of cell \a row, \a col in the cell's
     coordinate system. This is a convenience function useful in
     paintCell(). It is equivalent to QRect(QPoint(0,0), cellGeometry(
@@ -6266,21 +6256,16 @@ void QTable::changeEvent(QEvent *ev)
             autoScrollTimer->stop();
         if (isVisible() && !palette().isEqual(QPalette::Active, QPalette::Inactive))
             updateContents();
+    } else if (ev->type() == QEvent::EnabledChange) {
+        if (!isEnabled()) {
+            // editor will lose focus, causing a crash deep in setEnabled(),
+            // so we'll end the edit early.
+            endEdit(editRow, editCol, true, edMode != Editing);
+        }
     }
+
     QScrollView::changeEvent(ev);
 }
-
-/*! \reimp */
-void QTable::setEnabled(bool b)
-{
-    if (!b) {
-        // editor will lose focus, causing a crash deep in setEnabled(),
-        // so we'll end the edit early.
-        endEdit(editRow, editCol, true, edMode != Editing);
-    }
-    QScrollView::setEnabled(b);
-}
-
 
 /*
     \class QTableHeader

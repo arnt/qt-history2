@@ -1318,19 +1318,6 @@ void Q3PopupMenu::enableAccel(bool enable)
 /*!
     \reimp
 */
-void Q3PopupMenu::setFont(const QFont &font)
-{
-    QWidget::setFont(font);
-    badSize = true;
-    if (isVisible()) {
-        updateSize();
-        update();
-    }
-}
-
-/*!
-    \reimp
-*/
 void Q3PopupMenu::show()
 {
     if (!isPopup() && isVisible())
@@ -2214,6 +2201,14 @@ void Q3PopupMenu::changeEvent(QEvent *ev)
             Q3MenuData::d->aPopup->setEnabled(isEnabled());
     }
     Q3Frame::changeEvent(ev);
+
+    if (ev->type() == QEvent::FontChange) {
+        badSize = true;
+        if (isVisible()) {
+            updateSize();
+            update();
+        }
+    }
 }
 
 

@@ -84,7 +84,7 @@ QSqlSelectCursor::~QSqlSelectCursor()
     delete d;
 }
 
-/*! \reimp */
+/*! \internal */
 bool QSqlSelectCursor::exec(const QString& query)
 {
     d->query = query;
@@ -97,10 +97,10 @@ bool QSqlSelectCursor::exec(const QString& query)
 }
 
 /*! \fn bool QSqlSelectCursor::select()
-    \reimp
+    \internal
 */
 
-/*! \reimp */
+/*! \internal */
 bool QSqlSelectCursor::select(const QString&, const QSqlIndex&)
 {
     bool ret = QSqlCursor::exec(d->query);
@@ -119,106 +119,106 @@ void QSqlSelectCursor::populateCursor()
 }
 
 /*! \fn QSqlIndex QSqlSelectCursor::primaryIndex(bool) const
-    \reimp
+    \internal
 */
 
 /*! \fn QSqlIndex QSqlSelectCursor::index(const QStringList&) const
-    \reimp
+    \internal
 */
 
 /*! \fn QSqlIndex QSqlSelectCursor::index(const QString&) const
-    \reimp
+    \internal
 */
 
 /*! \fn QSqlIndex QSqlSelectCursor::index(const char*) const
-    \reimp
+    \internal
 */
 
 /*! \fn void QSqlSelectCursor::setPrimaryIndex(const QSqlIndex&)
-    \reimp
+    \internal
 */
 
 /*! \fn void QSqlSelectCursor::append(const QSqlFieldInfo&)
-    \reimp
+    \internal
 */
 
 /*! \fn void QSqlSelectCursor::insert(int, const QSqlFieldInfo&)
-    \reimp
+    \internal
 */
 
 /*! \fn void QSqlSelectCursor::remove(int)
-    \reimp
+    \internal
 */
 
 /*! \fn void QSqlSelectCursor::clear()
-    \reimp
+    \internal
 */
 
 /*! \fn void QSqlSelectCursor::setGenerated(const QString&, bool)
-    \reimp
+    \internal
 */
 
 /*! \fn void QSqlSelectCursor::setGenerated(int, bool)
-    \reimp
+    \internal
 */
 
 /*! \fn QSqlRecord* QSqlSelectCursor::editBuffer(bool)
-    \reimp
+    \internal
 */
 
 /*! \fn QSqlRecord* QSqlSelectCursor::primeInsert()
-    \reimp
+    \internal
 */
 
 /*! \fn QSqlRecord* QSqlSelectCursor::primeUpdate()
-    \reimp
+    \internal
 */
 
 /*! \fn QSqlRecord* QSqlSelectCursor::primeDelete()
-    \reimp
+    \internal
 */
 
 /*! \fn int QSqlSelectCursor::insert(bool)
-    \reimp
+    \internal
 */
 
 /*! \fn int QSqlSelectCursor::update(bool)
-    \reimp
+    \internal
 */
 
 /*! \fn int QSqlSelectCursor::del(bool)
-    \reimp
+    \internal
 */
 
 /*! \fn void QSqlSelectCursor::setMode(int)
-    \reimp
+    \internal
 */
 
 /*! \fn void QSqlSelectCursor::setSort(const QSqlIndex&)
-    \reimp
+    \internal
 */
 
 /*! \fn QSqlIndex QSqlSelectCursor::sort() const
-    \reimp
+    \internal
 */
 
 /*! \fn void QSqlSelectCursor::setFilter(const QString&)
-    \reimp
+    \internal
 */
 
 /*! \fn QString QSqlSelectCursor::filter() const
-    \reimp
+    \internal
 */
 
 /*! \fn void QSqlSelectCursor::setName(const QString&, bool)
-    \reimp
+    \internal
 */
 
 /*! \fn QString QSqlSelectCursor::name() const
-    \reimp
+    \internal
 */
 
 /*! \fn QString QSqlSelectCursor::toString(const QString&, const QString&) const
-    \reimp
+    \internal
 */
 #endif // QT_NO_SQL

@@ -1560,7 +1560,7 @@ QSize Q3MenuBar::sizeHint() const
 }
 
 /*!
-    \reimp
+    \internal
 */
 
 QSize Q3MenuBar::minimumSize() const

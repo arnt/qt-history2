@@ -306,8 +306,6 @@ public:
     bool isRowReadOnly(int row) const;
     bool isColumnReadOnly(int col) const;
 
-    void setEnabled(bool b);
-
     void repaintSelections();
 
     enum FocusStyle { FollowStyle, SpreadSheet };
@@ -435,7 +433,6 @@ private slots:
 
 private:
     void contentsMousePressEventEx(QMouseEvent*);
-    void drawContents(QPainter*);
     void updateGeometries();
     void repaintSelections(QTableSelection *oldSelection,
                             QTableSelection *newSelection,

@@ -904,7 +904,7 @@ Q3TextEdit::Q3TextEdit(const QString& text, const QString& context,
 }
 
 /*!
-    \reimp
+    Destructor.
 */
 
 Q3TextEdit::~Q3TextEdit()
@@ -1065,7 +1065,7 @@ void Q3TextEdit::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
 }
 
 /*!
-    \reimp
+    \internal
 */
 
 void Q3TextEdit::drawContents(QPainter *p)
@@ -3441,20 +3441,6 @@ void Q3TextEdit::setFormat(Q3TextFormat *f, int flags)
     }
 }
 
-/*!
-    \reimp
-*/
-
-void Q3TextEdit::setPalette(const QPalette &p)
-{
-    QScrollView::setPalette(p);
-    if (textFormat() == Qt::PlainText) {
-        Q3TextFormat *f = doc->formatCollection()->defaultFormat();
-        f->setColor(palette().text());
-        updateContents();
-    }
-}
-
 /*! \internal
   \warning In Qt 3.1 we will provide a cleaer API for the
   functionality which is provided by this function and in Qt 4.0 this
@@ -5479,37 +5465,6 @@ QPopupMenu *Q3TextEdit::createPopupMenu()
 }
 
 /*!
-    \reimp
-*/
-
-void Q3TextEdit::setFont(const QFont &f)
-{
-#ifdef QT_TEXTEDIT_OPTIMIZATION
-    if (d->optimMode) {
-        QScrollView::setFont(f);
-        doc->setDefaultFormat(f, doc->formatCollection()->defaultFormat()->color());
-        // recalculate the max string width
-        QFontMetrics fm(f);
-        int i, sw;
-        d->od->maxLineWidth = 0;
-        for (i = 0; i < d->od->numLines; i++) {
-            sw = fm.width(d->od->lines[LOGOFFSET(i)]);
-            if (d->od->maxLineWidth < sw)
-                d->od->maxLineWidth = sw;
-        }
-        resizeContents(d->od->maxLineWidth + 4, d->od->numLines * fm.lineSpacing() + 1);
-        return;
-    }
-#endif
-    QScrollView::setFont(f);
-    doc->setMinimumWidth(-1);
-    doc->setDefaultFormat(f, doc->formatCollection()->defaultFormat()->color());
-    lastFormatted = doc->firstParagraph();
-    formatMore();
-    repaintChanged();
-}
-
-/*!
     \fn Q3TextEdit::zoomIn()
 
     \overload
@@ -5608,20 +5563,6 @@ void Q3TextEdit::sync()
 }
 
 /*!
-    \reimp
-*/
-
-void Q3TextEdit::setEnabled(bool b)
-{
-    QScrollView::setEnabled(b);
-    if (textFormat() == Qt::PlainText) {
-        Q3TextFormat *f = doc->formatCollection()->defaultFormat();
-        f->setColor(palette().text());
-        updateContents();
-    }
-}
-
-/*!
     Sets the background color of selection number \a selNum to \a back
     and specifies whether the text of this selection should be
     inverted with \a invertText.
@@ -5652,7 +5593,44 @@ void Q3TextEdit::changeEvent(QEvent *ev)
         if (!palette().isEqual(QPalette::Active, QPalette::Inactive))
             updateContents();
     }
+
+#ifdef QT_TEXTEDIT_OPTIMIZATION
+    if (d->optimMode && (ev->type() == QEvent::ApplicationFontChange
+                         || ev->type() == QEvent::FontChange)) {
+        QScrollView::setFont(font());
+        doc->setDefaultFormat(font(), doc->formatCollection()->defaultFormat()->color());
+        // recalculate the max string width
+        QFontMetrics fm(font());
+        int i, sw;
+        d->od->maxLineWidth = 0;
+        for (i = 0; i < d->od->numLines; i++) {
+            sw = fm.width(d->od->lines[LOGOFFSET(i)]);
+            if (d->od->maxLineWidth < sw)
+                d->od->maxLineWidth = sw;
+        }
+        resizeContents(d->od->maxLineWidth + 4, d->od->numLines * fm.lineSpacing() + 1);
+        return;
+    }
+#endif
+
     QScrollView::changeEvent(ev);
+
+    if (textFormat() == Qt::PlainText) {
+        if (ev->type() == QEvent::ApplicationPaletteChange || ev->type() == QEvent::PaletteChange
+            || ev->type() == QEvent::EnabledChange) {
+            Q3TextFormat *f = doc->formatCollection()->defaultFormat();
+            f->setColor(palette().text());
+            updateContents();
+        }
+    }
+
+    if (ev->type() == QEvent::ApplicationFontChange || ev->type() == QEvent::FontChange) {
+        doc->setMinimumWidth(-1);
+        doc->setDefaultFormat(font(), doc->formatCollection()->defaultFormat()->color());
+        lastFormatted = doc->firstParagraph();
+        formatMore();
+        repaintChanged();
+    }
 }
 
 void Q3TextEdit::setReadOnly(bool b)

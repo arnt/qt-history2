@@ -1832,7 +1832,7 @@ bool Q3Header::isMovingEnabled() const
     return d->move;
 }
 
-/*! \reimp */
+/*! \internal */
 
 void Q3Header::setUpdatesEnabled(bool enable)
 {

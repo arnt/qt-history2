@@ -26,7 +26,7 @@
   to disable editing.
 */
 
-/*! \reimp */
+/*! \internal */
 
 QTextView::QTextView(const QString& text, const QString& context,
                       QWidget *parent, const char *name)
@@ -35,7 +35,7 @@ QTextView::QTextView(const QString& text, const QString& context,
     setReadOnly(true);
 }
 
-/*! \reimp */
+/*! \internal */
 
 QTextView::QTextView(QWidget *parent, const char *name)
     : Q3TextEdit(parent, name)
@@ -43,7 +43,7 @@ QTextView::QTextView(QWidget *parent, const char *name)
     setReadOnly(true);
 }
 
-/*! \reimp */
+/*! \internal */
 
 QTextView::~QTextView()
 {

@@ -153,7 +153,7 @@ void Q3ButtonGroup::init()
     radio_excl = true;
 }
 
-/*! \reimp */
+/*! Destructor. */
 
 Q3ButtonGroup::~Q3ButtonGroup()
 {

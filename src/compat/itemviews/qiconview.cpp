@@ -529,7 +529,7 @@ void QIconDragItem::setData(const QByteArray &d)
 }
 
 /*!
-    \reimp
+    \internal
 */
 
 bool QIconDragItem::operator==(const QIconDragItem &i) const
@@ -2806,42 +2806,19 @@ void QIconView::changeEvent(QEvent *ev)
         if(isVisible() && !palette().isEqual(QPalette::Active, QPalette::Inactive))
             repaintSelectedItems();
     }
+
     QScrollView::changeEvent(ev);
-}
 
-/*!
-    \reimp
-*/
+    if (ev->type() == QEvent::ApplicationFontChange || ev->type() == QEvent::FontChange) {
+         *d->fm = QFontMetrics(font());
+         d->minLeftBearing = d->fm->minLeftBearing();
+         d->minRightBearing = d->fm->minRightBearing();
 
-void QIconView::setFont(const QFont & f)
-{
-    QScrollView::setFont(f);
-    *d->fm = QFontMetrics(font());
-    d->minLeftBearing = d->fm->minLeftBearing();
-    d->minRightBearing = d->fm->minRightBearing();
-
-    QIconViewItem *item = d->firstItem;
-    for (; item; item = item->next) {
-        item->wordWrapDirty = true;
-        item->calcRect();
-    }
-}
-
-/*!
-    \reimp
-*/
-
-void QIconView::setPalette(const QPalette & p)
-{
-    QScrollView::setPalette(p);
-    *d->fm = QFontMetrics(font());
-    d->minLeftBearing = d->fm->minLeftBearing();
-    d->minRightBearing = d->fm->minRightBearing();
-
-    QIconViewItem *item = d->firstItem;
-    for (; item; item = item->next) {
-        item->wordWrapDirty = true;
-        item->calcRect();
+         QIconViewItem *item = d->firstItem;
+         for (; item; item = item->next) {
+             item->wordWrapDirty = true;
+             item->calcRect();
+         }
     }
 }
 
@@ -6301,16 +6278,6 @@ QBitmap QIconView::mask(QPixmap *pix) const
        m = pix->createHeuristicMask();
     d->maskCache.insert(QString::number(pix->serialNumber()), m);
     return m;
-}
-
-/*!
-    \reimp
-    \internal
-
-    (Implemented to get rid of a compiler warning.)
-*/
-void QIconView::drawContents(QPainter *)
-{
 }
 
 /*!

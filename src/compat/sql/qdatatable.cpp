@@ -1673,8 +1673,6 @@ void QDataTable::columnClicked (int col)
 }
 
 /*!
-    \reimp
-
     Repaints the cell at \a row, \a col.
 */
 void QDataTable::repaintCell(int row, int col)
@@ -2104,7 +2102,7 @@ void QDataTable::refresh()
 }
 
 /*!
-    \reimp
+    \internal
 
     Selects the record in the table using the current cursor edit
     buffer and the fields specified by the index \a idx. If \a atHint

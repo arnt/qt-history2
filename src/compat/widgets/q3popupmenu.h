@@ -40,7 +40,6 @@ public:
     virtual void        setCheckable(bool);
     bool        isCheckable() const;
 
-    void        setFont(const QFont &);
     void        show();
     void        hide();
 

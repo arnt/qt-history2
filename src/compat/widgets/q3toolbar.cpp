@@ -367,13 +367,12 @@ void Q3ToolBar::init()
 }
 
 /*!
-    \reimp
+    Destructor.
 */
 
 Q3ToolBar::~Q3ToolBar()
 {
     delete d;
-    d = 0;
 }
 
 /*!
@@ -545,7 +544,7 @@ void Q3ToolBar::clear()
 }
 
 /*!
-    \reimp
+    \internal
 */
 
 QSize Q3ToolBar::minimumSize() const
@@ -764,7 +763,7 @@ void Q3ToolBar::checkForExtension(const QSize &sz)
 
 
 /*!
-    \reimp
+    \internal
 */
 
 void Q3ToolBar::setMinimumSize(int, int)

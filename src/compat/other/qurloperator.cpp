@@ -949,7 +949,7 @@ bool QUrlOperator::parse(const QString &url)
 }
 
 /*!
-    \reimp
+    \internal
 */
 
 QUrlOperator& QUrlOperator::operator=(const QUrlOperator &url)
@@ -975,7 +975,7 @@ QUrlOperator& QUrlOperator::operator=(const QUrlOperator &url)
 }
 
 /*!
-    \reimp
+    \internal
 */
 
 QUrlOperator& QUrlOperator::operator=(const QString &url)
@@ -999,7 +999,7 @@ bool QUrlOperator::cdUp()
 }
 
 /*!
-    \reimp
+    \internal
 */
 
 bool QUrlOperator::checkValid()

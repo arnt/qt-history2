@@ -195,7 +195,6 @@ public:
                QWidget* parent=0, const char* name=0);
     Q3TextEdit(QWidget* parent=0, const char* name=0);
     virtual ~Q3TextEdit();
-    void setPalette(const QPalette &);
 
     QString text() const;
     QString text(int para) const;
@@ -280,7 +279,6 @@ public:
     QSyntaxHighlighter *syntaxHighlighter() const;
 
 public slots:
-    void setEnabled(bool);
 #ifndef QT_NO_MIME
     virtual void setMimeSourceFactory(QMimeSourceFactory* factory);
 #endif
@@ -327,7 +325,6 @@ public slots:
     virtual void setFamily(const QString &f);
     virtual void setPointSize(int s);
     virtual void setColor(const QColor &c);
-    virtual void setFont(const QFont &f);
     virtual void setVerticalAlignment(VerticalAlignment a);
     virtual void setAlignment(int a);
 

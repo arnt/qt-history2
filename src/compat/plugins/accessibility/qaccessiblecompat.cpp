@@ -205,7 +205,7 @@ bool QAccessibleListView::setFocus(int child)
     return true;
 }*/
 
-/*! \reimp */
+/*! \internal */
 bool QAccessibleListView::setSelected(int child, bool on, bool extend)
 {
     if (!child || (extend &&
@@ -237,13 +237,13 @@ bool QAccessibleListView::setSelected(int child, bool on, bool extend)
     return true;
 }
 
-/*! \reimp */
+/*! \internal */
 void QAccessibleListView::clearSelection()
 {
     listView()->clearSelection();
 }
 
-/*! \reimp */
+/*! \internal */
 QVector<int> QAccessibleListView::selection() const
 {
     QVector<int> array;
@@ -298,14 +298,14 @@ QIconView *QAccessibleIconView::iconView() const
     return (QIconView*)widget();
 }
 
-/*! \reimp */
+/*! \internal */
 int QAccessibleIconView::itemAt(int x, int y) const
 {
     QIconViewItem *item = iconView()->findItem(QPoint(x, y));
     return iconView()->index(item) + 1;
 }
 
-/*! \reimp */
+/*! \internal */
 QRect QAccessibleIconView::itemRect(int child) const
 {
     QIconViewItem *item = findIVItem(iconView(), child);
@@ -315,13 +315,13 @@ QRect QAccessibleIconView::itemRect(int child) const
     return item->rect();
 }
 
-/*! \reimp */
+/*! \internal */
 int QAccessibleIconView::itemCount() const
 {
     return iconView()->count();
 }
 
-/*! \reimp */
+/*! \internal */
 QString QAccessibleIconView::text(Text t, int child) const
 {
     if (!child || t != Name)
@@ -333,7 +333,7 @@ QString QAccessibleIconView::text(Text t, int child) const
     return item->text();
 }
 
-/*! \reimp */
+/*! \internal */
 QAccessible::Role QAccessibleIconView::role(int child) const
 {
     if (!child)
@@ -341,7 +341,7 @@ QAccessible::Role QAccessibleIconView::role(int child) const
     return ListItem;
 }
 
-/*! \reimp */
+/*! \internal */
 int QAccessibleIconView::state(int child) const
 {
     int state = Q3AccessibleScrollView::state(child);
@@ -395,7 +395,7 @@ bool QAccessibleIconView::setFocus(int child)
     return true;
 }*/
 
-/*! \reimp */
+/*! \internal */
 bool QAccessibleIconView::setSelected(int child, bool on, bool extend)
 {
     if (!child || (extend &&
@@ -438,13 +438,13 @@ bool QAccessibleIconView::setSelected(int child, bool on, bool extend)
     return true;
 }
 
-/*! \reimp */
+/*! \internal */
 void QAccessibleIconView::clearSelection()
 {
     iconView()->clearSelection();
 }
 
-/*! \reimp */
+/*! \internal */
 QVector<int> QAccessibleIconView::selection() const
 {
     QVector<int> array;

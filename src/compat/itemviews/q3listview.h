@@ -307,9 +307,6 @@ public:
     void setSortOrder(Qt::SortOrder order);
     virtual void sort();
 
-    virtual void setFont(const QFont &);
-    virtual void setPalette(const QPalette &);
-
     bool eventFilter(QObject * o, QEvent *);
 
     QSize sizeHint() const;

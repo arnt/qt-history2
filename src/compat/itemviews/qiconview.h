@@ -366,9 +366,6 @@ public:
 
     virtual void sort(bool ascending = true);
 
-    virtual void setFont(const QFont &);
-    virtual void setPalette(const QPalette &);
-
     bool isRenaming() const;
 
 public slots:
@@ -453,7 +450,6 @@ private:
 #ifndef QT_NO_DRAGANDDROP
     virtual void initDragEnter(QDropEvent *e);
 #endif
-    void drawContents(QPainter*);
     QIconViewItem* findItemByName(QIconViewItem *start);
     void handleItemChange(QIconViewItem *old, bool shift,
                            bool control, bool homeend = false);

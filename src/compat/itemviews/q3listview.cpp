@@ -5649,28 +5649,11 @@ void Q3ListView::changeEvent(QEvent *ev)
             viewport()->update();
     }
     QScrollView::changeEvent(ev);
+
+    if (ev->type() == QEvent::ApplicationFontChange || ev->type() == QEvent::FontChange
+        || ev->type() == QEvent::ApplicationPaletteChange || ev->type() == QEvent::PaletteChange)
+        reconfigureItems();
 }
-
-
-/*!
-    \reimp
-*/
-void Q3ListView::setFont(const QFont & f)
-{
-    QScrollView::setFont(f);
-    reconfigureItems();
-}
-
-
-/*!
-    \reimp
-*/
-void Q3ListView::setPalette(const QPalette & p)
-{
-    QScrollView::setPalette(p);
-    reconfigureItems();
-}
-
 
 /*!
     Ensures that setup() is called for all currently visible items,

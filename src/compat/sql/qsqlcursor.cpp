@@ -403,7 +403,7 @@ QString QSqlCursor::name() const
     return d->nm;
 }
 
-/*! \reimp
+/*! \internal
 */
 
 QString QSqlCursor::toString(const QString& prefix, const QString& sep) const
@@ -1482,7 +1482,7 @@ bool QSqlCursor::isNull(const QString& name) const
     return QSqlRecord::isNull(name);
 }
 
-/*! \reimp */
+/*! \internal */
 void QSqlCursor::setValue(int i, const QCoreVariant& val)
 {
 #ifdef QT_DEBUG

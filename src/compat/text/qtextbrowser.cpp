@@ -119,7 +119,7 @@ QTextBrowser::QTextBrowser(QWidget *parent, const char *name)
 }
 
 /*!
-    \reimp
+    \internal
 */
 QTextBrowser::~QTextBrowser()
 {

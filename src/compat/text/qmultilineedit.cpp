@@ -159,7 +159,7 @@ int QMultiLineEdit::lineLength(int row) const
 }
 
 
-/*! \reimp */
+/*! Destructor. */
 
 QMultiLineEdit::~QMultiLineEdit()
 {
