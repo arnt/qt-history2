@@ -65,6 +65,8 @@ TARGET		= $(LIBDIR)/libqkernel.a
 
 all: $(HEADERS) $(SOURCES) $(TARGET)
 
+obj: $(HEADERS) $(SOURCES) $(OBJECTS) $(OBJMETA) $(SRCMETA)
+
 $(TARGET): $(OBJECTS) $(OBJMETA)
 	/bin/rm -f $(TARGET)
 	ar q $(TARGET) $(OBJECTS) $(OBJMETA)

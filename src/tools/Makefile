@@ -54,6 +54,8 @@ MOCOBJECTS	= qcollect.o	qdatetm.o     	qgarray.o	qglist.o \
 
 all: $(HEADERS) $(SOURCES) $(TARGET)
 
+obj: $(HEADERS) $(SOURCES) $(OBJECTS)
+
 $(TARGET): $(OBJECTS)
 	/bin/rm -f $(TARGET)
 	ar q $(TARGET) $(OBJECTS)
