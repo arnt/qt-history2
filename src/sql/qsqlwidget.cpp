@@ -38,10 +38,32 @@
 
 #ifndef QT_NO_SQL
 
-QSqlWidget::QSqlWidget( QWidget *parent, const char *name )
+QSqlWidget::QSqlWidget( QWidget *parent = 0, const char *name = 0 )
     : QWidget( parent, name )
 {
 }
+
+void QSqlWidget::setBoundryChecking( bool active )
+{
+    QSqlNavigator::setBoundryChecking( active );
+}
+
+bool QSqlWidget::boundryChecking() const
+{
+    return QSqlNavigator::boundryChecking();
+}
+
+/*! \fn void firstRecordAvailable( bool available )
+*/
+
+/*! \fn void lastRecordAvailable( bool available )
+*/
+
+/*! \fn void nextRecordAvailable( bool available )
+*/
+
+/*! \fn void prevRecordAvailable( bool available )
+*/
 
 void QSqlWidget::insertRecord()
 {
@@ -81,6 +103,26 @@ void QSqlWidget::prevRecord()
 void QSqlWidget::clearForm()
 {
     QSqlNavigator::clearForm();
+}
+
+void QSqlWidget::emitFirstRecordAvailable( bool available )
+{
+    emit firstRecordAvailable( available );
+}
+
+void QSqlWidget::emitLastRecordAvailable( bool available )
+{
+    emit lastRecordAvailable( available );
+}
+
+void QSqlWidget::emitNextRecordAvailable( bool available )
+{
+    emit nextRecordAvailable( available );
+}
+
+void QSqlWidget::emitPrevRecordAvailable( bool available )
+{
+    emit prevRecordAvailable( available );
 }
 
 #endif

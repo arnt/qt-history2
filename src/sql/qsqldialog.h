@@ -46,9 +46,19 @@
 class Q_EXPORT QSqlDialog : public QDialog, public QSqlNavigator
 {
     Q_OBJECT
+    Q_PROPERTY( bool boundryChecking READ boundryChecking WRITE setBoundryChecking )
 
 public:
     QSqlDialog( QWidget *parent = 0, const char *name = 0, bool modal = FALSE, WFlags f = 0 );
+
+    void setBoundryChecking( bool active );
+    bool boundryChecking() const;
+
+signals:
+    void firstRecordAvailable( bool available );
+    void lastRecordAvailable( bool available );
+    void nextRecordAvailable( bool available );
+    void prevRecordAvailable( bool available );
 
 public slots:
     virtual void insertRecord();
@@ -59,6 +69,13 @@ public slots:
     virtual void nextRecord();
     virtual void prevRecord();
     virtual void clearForm();
+
+protected:
+    void emitFirstRecordAvailable( bool available );
+    void emitLastRecordAvailable( bool available );
+    void emitNextRecordAvailable( bool available );
+    void emitPrevRecordAvailable( bool available );
+
 };
 
 

@@ -71,10 +71,23 @@ public:
     void clearForm();
 
     Boundry boundry();
+    virtual void setBoundryChecking( bool active );
+    bool boundryChecking() const;
 
     virtual QSqlCursor* defaultCursor();
     virtual QSqlForm* defaultForm();
+
+protected:
+    virtual void emitFirstRecordAvailable( bool available );
+    virtual void emitLastRecordAvailable( bool available );
+    virtual void emitNextRecordAvailable( bool available );
+    virtual void emitPrevRecordAvailable( bool available );
+
     virtual void handleError( const QSqlError& e );
+
+private:
+    void updateBoundry();
+    bool boundryCheck;
 
 };
 

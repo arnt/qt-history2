@@ -52,7 +52,7 @@
 
 */
 
-/*! \enum Boundy
+/*! \enum Boundry
 
   This enum type describes where the navigator is currently positioned.
 
@@ -84,6 +84,7 @@
 */
 
 QSqlNavigator::QSqlNavigator()
+    : boundryCheck( TRUE )
 {
 }
 
@@ -180,8 +181,10 @@ bool QSqlNavigator::firstRecord()
 	QSqlForm* form = defaultForm();
 	if ( form )
 	    form->readFields();
+	updateBoundry();
 	return TRUE;
     }
+    updateBoundry();
     return FALSE;
 }
 
@@ -201,8 +204,10 @@ bool QSqlNavigator::lastRecord()
 	QSqlForm* form = defaultForm();
 	if ( form )
 	    form->readFields();
+	updateBoundry();
 	return TRUE;
     }
+    updateBoundry();
     return FALSE;
 }
 
@@ -225,6 +230,7 @@ bool QSqlNavigator::nextRecord()
     QSqlForm* form = defaultForm();
     if ( form )
 	form->readFields();
+    updateBoundry();
     return b;
 }
 
@@ -247,6 +253,7 @@ bool QSqlNavigator::prevRecord()
     QSqlForm* form = defaultForm();
     if ( form )
 	form->readFields();
+    updateBoundry();
     return b;
 }
 
@@ -325,10 +332,88 @@ QSqlNavigator::Boundry QSqlNavigator::boundry()
     Boundry b = None;
     if ( !cursor->prev() )
 	b = Beginning;
+    else
+	cursor->seek( currentAt );
     if ( b == None && !cursor->next() )
 	b = End;
     cursor->seek( currentAt );
     return b;
+}
+
+void QSqlNavigator::setBoundryChecking( bool active )
+{
+    boundryCheck = active;
+}
+
+bool QSqlNavigator::boundryChecking() const
+{
+    return boundryCheck;
+}
+
+/*! If boundryChecking() is TRUE, checks the boundry of the current
+default cursor and calls virtual 'emit' functions which derived
+classes can reimplement to emit signals.
+*/
+
+void QSqlNavigator::updateBoundry()
+{
+    if ( boundryCheck ) {
+	Boundry bound = boundry();
+	switch ( bound ) {
+	case Unknown:
+	case None:
+	    emitFirstRecordAvailable( TRUE );
+	    emitPrevRecordAvailable( TRUE );
+	    emitNextRecordAvailable( TRUE );
+	    emitLastRecordAvailable( TRUE );
+	    break;
+
+	case BeforeBeginning:
+	    emitFirstRecordAvailable( TRUE );
+	    emitPrevRecordAvailable( FALSE );
+	    emitNextRecordAvailable( TRUE );
+	    emitLastRecordAvailable( TRUE );
+	    break;
+
+	case Beginning:
+	    emitFirstRecordAvailable( FALSE );
+	    emitPrevRecordAvailable( FALSE );
+	    emitNextRecordAvailable( TRUE );
+	    emitLastRecordAvailable( TRUE );
+	    break;
+
+	case End:
+	    emitFirstRecordAvailable( TRUE );
+	    emitPrevRecordAvailable( TRUE );
+	    emitNextRecordAvailable( FALSE );
+	    emitLastRecordAvailable( FALSE );
+	    break;
+
+	case AfterEnd:
+	    emitFirstRecordAvailable( TRUE );
+	    emitPrevRecordAvailable( TRUE );
+	    emitNextRecordAvailable( FALSE );
+	    emitLastRecordAvailable( TRUE );
+	    break;
+
+	}
+    }
+}
+
+void QSqlNavigator::emitFirstRecordAvailable( bool )
+{
+}
+
+void QSqlNavigator::emitLastRecordAvailable( bool )
+{
+}
+
+void QSqlNavigator::emitNextRecordAvailable( bool )
+{
+}
+
+void QSqlNavigator::emitPrevRecordAvailable( bool )
+{
 }
 
 #endif

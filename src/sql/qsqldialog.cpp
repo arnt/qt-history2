@@ -36,10 +36,34 @@
 
 #include "qsqldialog.h"
 
+#ifndef QT_NO_SQL
+
 QSqlDialog::QSqlDialog( QWidget *parent, const char *name, bool modal, WFlags f )
     : QDialog( parent, name, modal, f )
 {
 }
+
+void QSqlDialog::setBoundryChecking( bool active )
+{
+    QSqlNavigator::setBoundryChecking( active );
+}
+
+bool QSqlDialog::boundryChecking() const
+{
+    return QSqlNavigator::boundryChecking();
+}
+
+/*! \fn void firstRecordAvailable( bool available )
+*/
+
+/*! \fn void lastRecordAvailable( bool available )
+*/
+
+/*! \fn void nextRecordAvailable( bool available )
+*/
+
+/*! \fn void prevRecordAvailable( bool available )
+*/
 
 void QSqlDialog::insertRecord()
 {
@@ -80,3 +104,25 @@ void QSqlDialog::clearForm()
 {
     QSqlNavigator::clearForm();
 }
+
+void QSqlDialog::emitFirstRecordAvailable( bool available )
+{
+    emit firstRecordAvailable( available );
+}
+
+void QSqlDialog::emitLastRecordAvailable( bool available )
+{
+    emit lastRecordAvailable( available );
+}
+
+void QSqlDialog::emitNextRecordAvailable( bool available )
+{
+    emit nextRecordAvailable( available );
+}
+
+void QSqlDialog::emitPrevRecordAvailable( bool available )
+{
+    emit prevRecordAvailable( available );
+}
+
+#endif
