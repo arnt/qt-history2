@@ -2408,9 +2408,9 @@ void MainWindow::rebuildCustomWidgetGUI()
 	a->addTo( customWidgetMenu );
 	count++;
     }
-    QWidget *w;
-    customWidgetToolBar2->setStretchableWidget( ( w = new QWidget( customWidgetToolBar2 ) ) );
-    w->setBackgroundMode( customWidgetToolBar2->backgroundMode() );
+    QWidget *wid;
+    customWidgetToolBar2->setStretchableWidget( ( wid = new QWidget( customWidgetToolBar2 ) ) );
+    wid->setBackgroundMode( customWidgetToolBar2->backgroundMode() );
 
     if ( count == 0 )
 	customWidgetToolBar->hide();
@@ -3383,7 +3383,7 @@ void MainWindow::shuttingDown()
 
 void MainWindow::showGUIStuff( bool b )
 {
-    if ( guiStuffVisible == b )
+    if ( (bool)guiStuffVisible == b )
 	return;
     guiStuffVisible = b;
     if ( !b ) {
