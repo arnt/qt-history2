@@ -1431,24 +1431,24 @@ bool QAxWidget::createHostWindow( bool initialized )
 */
 void QAxWidget::clear()
 {
-    if ( isNull() )
+    if (isNull())
 	return;
-    if ( !!control() ) {
-	if ( hhook ) {
-	    if ( !--hhookref ) {
-		UnhookWindowsHookEx( hhook );
+    if (!control().isEmpty()) {
+	if (hhook) {
+	    if (!--hhookref) {
+		UnhookWindowsHookEx(hhook);
 		hhook = 0;
 	    }
 	}
     }
 
-    if ( container )
+    if (container)
 	container->deactivate();
 
     QAxBase::clear();
-    setFocusPolicy( NoFocus );
+    setFocusPolicy(NoFocus);
 
-    if ( container ) {
+    if (container) {
 	container->releaseAll();
 	container->Release();
     }

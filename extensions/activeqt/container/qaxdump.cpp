@@ -34,9 +34,9 @@ static void docuFromName( ITypeInfo *typeInfo, const QString &name, QString &doc
 	SysFreeString( helpFileBstr );
 	if ( hres == S_OK ) {
 	    docu += "<p>";
-	    if ( !!docString )
+	    if (!docString.isEmpty())
 		docu += docString + "\n";
-	    if ( !!helpFile )
+	    if (!helpFile.isEmpty())
 		docu += QString("For more information, see help context %1 in %2.\n").arg(helpContext).arg(helpFile);
 	}
     }

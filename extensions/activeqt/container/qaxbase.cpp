@@ -2185,7 +2185,7 @@ QMetaObject *MetaObjectGenerator::metaObject( const QMetaObject *parentObject )
     readEventInfo();
 
 #ifndef QAX_NO_CLASSINFO
-    if ( !!debugInfo && d->useClassInfo )
+    if ( !debugInfo.isEmpty() && d->useClassInfo )
 	addClassInfo("debugInfo", debugInfo);
 #endif
 /*
