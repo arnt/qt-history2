@@ -2394,5 +2394,10 @@ QString Doc::canonicalTitle(const QString &title)
 {
     QString result = title.toLower().simplified();
     result.replace(' ', '-');
+    result.replace('<', '-');
+    result.replace('>', '-');
+    result.replace('&', '-');
+    result.replace('"', '-');
+    result.replace('*', '-');
     return result;
 }

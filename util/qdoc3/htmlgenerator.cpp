@@ -1125,7 +1125,7 @@ QString HtmlGenerator::generateLowStatusMemberFile(const InnerNode *inner, CodeM
     }
 
     out() << "<p><ul><li><a href=\"" << linkForNode(inner, 0) << "\">" << protect(inner->name())
-          << " class reference</a></p></li></ul>\n";
+          << " class reference</a></li></ul></p>\n";
 
     for (i = 0; i < sections.size(); ++i) {
 	out() << "<h3>" << protect(sections.at(i).name) << "</h3>\n";
