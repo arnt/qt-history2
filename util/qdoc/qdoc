@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#89 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#90 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1002,6 +1002,19 @@ sub fixdefvalues {
 #print "unchanged: ", $def{$url}, "\n";
 	}
     }
+}
+
+
+#
+# allow word breaks only after commas
+# does not work (html)
+#
+sub clever {
+    local ($in) = @_;
+
+    $in =~ s/\s+/&nbsp;/g;
+    $in =~ s/,&nbsp;/, /g;
+    $in;
 }
 
 
