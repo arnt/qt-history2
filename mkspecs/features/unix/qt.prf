@@ -8,7 +8,7 @@ INCLUDEPATH = $$QMAKE_INCDIR_QT $$INCLUDEPATH
 
 !isEmpty(QMAKE_RTLDIR_QT):QMAKE_LIBDIR += $$QMAKE_RTLDIR_QT
 QMAKE_LIBDIR += $$QMAKE_LIBDIR_QT
-for(QTLIB, QT) {
+for(QTLIB, $$list($$unique(QT))) {
    qlib =
    isEqual(QTLIB, gui):qlib = QtGui
    else:isEqual(QTLIB, network):qlib = QtNetwork
