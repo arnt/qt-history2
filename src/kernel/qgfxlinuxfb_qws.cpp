@@ -60,7 +60,7 @@ static int dummy_lastop = 0;
   Accelerated drivers
   for Linux should inherit from it; it contains code for reading information
   about the framebuffer from the Linux framebuffer interface, managing
-  the color palette, managing offscreen graphics memory and mapping the 
+  the color palette, managing offscreen graphics memory and mapping the
   framebuffer interface itself, removing the need for drivers to do this.
   It also acts as a factory for the unaccelerated screen cursor and
   unaccelerated QGfxes. QLinuxFbScreen is a descendant of QScreen;
@@ -93,7 +93,7 @@ QLinuxFbScreen::~QLinuxFbScreen()
 /*!
   This is called by Qt/Embedded clients to map in the framebuffer.
   It should be reimplemented by accelerated drivers to map in graphics
-  card registers; those drivers should then call this method in order to set 
+  card registers; those drivers should then call this method in order to set
   up offscreen memory management. The device is specified in \a
   displaySpec, e.g. "/dev/fb".
 */
@@ -103,7 +103,7 @@ bool QLinuxFbScreen::connect( const QString &displaySpec )
     // Check for explicitly specified device
     const int len = 8; // "/dev/fbx"
     int m = displaySpec.find( "/dev/fb" );
-    
+
     QString dev = (m>=0) ? displaySpec.mid( m, len ) : QString("/dev/fb0");
 
     fd=open( dev.latin1(), O_RDWR );
@@ -340,7 +340,7 @@ bool QLinuxFbScreen::initDevice()
 		  malloc(sizeof(unsigned short int)*screencols);
 	cmap.transp=(unsigned short int *)
 		    malloc(sizeof(unsigned short int)*screencols);
-	
+
 	if (screencols==16) {
 	    if ( finfo.type == FB_TYPE_PACKED_PIXELS ) {
 		// We'll setup a greyscale cmap for 4bpp linear
@@ -353,7 +353,7 @@ bool QLinuxFbScreen::initDevice()
 		}
 	    } else {
 		// Default 16 colour palette
-		// Green is now trolltech green so certain images look nicer 
+		// Green is now trolltech green so certain images look nicer
 		//			     black  d_grey l_grey white  red  green  blue cyan magenta yellow
 		unsigned char reds[16]   = { 0x00, 0x7F, 0xBF, 0xFF, 0xFF, 0xA2, 0x00, 0xFF, 0xFF, 0x00, 0x7F, 0x7F, 0x00, 0x00, 0x00, 0x82 };
 		unsigned char greens[16] = { 0x00, 0x7F, 0xBF, 0xFF, 0x00, 0xC5, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x7F, 0x7F, 0x7F };
@@ -401,7 +401,7 @@ bool QLinuxFbScreen::initDevice()
 	    screencols=idx;
 #endif
 	}
-	
+
 	ioctl(fd,FBIOPUTCMAP,&cmap);
 	free(cmap.red);
 	free(cmap.green);
@@ -629,7 +629,7 @@ uchar * QLinuxFbScreen::cache(int amount, int optim)
 
 /*!
 \fn void QLinuxFbScreen::uncache(uchar * c)
-Delete a block of memory allocated from graphics card memory.
+Delete a block of memory \a c allocated from graphics card memory.
 */
 
 void QLinuxFbScreen::uncache(uchar * c)

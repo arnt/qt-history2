@@ -322,11 +322,8 @@ void QFont::cleanup()
     QFontPrivate::fontCache = 0;
 }
 
+// This function is needed for Qt/X11 and does nothing in Qt/Embedded.
 
-/*! \internal 
-
-  This function is needed for Qt/X11 and does nothing in Qt/Embedded.
-*/
 void QFont::cacheStatistics()
 {
 }
@@ -454,7 +451,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
 	    lasts = i;
 	    pa = QComplexText::positionMarks( this, str, pos + i - 1 );
 	    nmarks = pa.size();
-	} else 
+	} else
 #endif //QT_NO_COMPLEXTEXT
 	    if ( nmarks ) {
 	    QPoint p = pa[pa.size() - nmarks];

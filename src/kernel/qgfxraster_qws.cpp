@@ -4996,7 +4996,16 @@ the framebuffer. Accelerated drivers use it to set up the graphics card.
 \fn QScreen::connect( const QString &displaySpec )
 This function is called by every Qt/Embedded application on startup.
 It maps in the framebuffer and in the accelerated drivers the graphics
-card control registers.
+card control registers. \a displaySpec has the following syntax:
+<p>
+<tt>[gfx driver][:driver specific options][:display number]</tt>
+<p>
+for example if you want to use the mach64 driver on fb1 as display 2:
+<p>
+<tt>Mach64:/dev/fb1:2</tt>
+<p>
+\a displaySpec is passed in via the QWS_DISPLAY environment variable
+or the -display command line parameter.
 */
 
 /*!
