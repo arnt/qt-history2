@@ -157,7 +157,6 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	    }
 	
 	    if ( line == 0 && parag->type() == QTextEditParag::BulletList ) {
-		painter.save();
 		int ext = QMIN( doc->listIndent( 0 ), h );
 		ext -= 8;
 		switch ( doc->bullet( parag->listDepth() ) ) {
@@ -181,7 +180,6 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 		    painter.drawRect( parag->leftIndent() - ext - 4, cy + ( h - ext ) / 2, ext, ext );
 		} break;
 		}
-		painter.restore();
 	    }
 	
 	    if ( parag == cursor->parag() && i == cursor->index() ) {
