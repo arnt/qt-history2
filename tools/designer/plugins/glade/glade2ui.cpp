@@ -446,6 +446,7 @@ static QString accelerate( const QString& gtkLabel )
 static QString decelerate( const QString& gtkLabel )
 {
     QString qtLabel = gtkLabel;
+    // ditto
     qtLabel.replace( QRegExp(QChar('_')), QString::null );
     return qtLabel;
 }
@@ -1476,19 +1477,12 @@ QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
     QString gtkClass;
     QString name;
     QString title;
-#if 0 // ### not used?
-    bool canFocus = FALSE;
-#endif
     int x = 0;
     int y = 0;
     int width = 0;
     int height = 0;
     int numRows = 0;
     int numColumns = 0;
-#if 0 // ### not used?
-    int columnSpacing = 0;
-    int rowSpacing = 0;
-#endif
 
     bool active = FALSE;
     QString authors;
@@ -1526,19 +1520,6 @@ QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
     QString vscrollbarPolicy;
     QString watermarkImage;
     bool wrap = FALSE;
-#if 0 // ### not used?
-    int xalign = 0;
-    int yalign = 0;
-
-    int xpad = 0;
-    int ypad = 0;
-    bool xexpand = TRUE;
-    bool yexpand = TRUE;
-    bool xshrink = FALSE;
-    bool yshrink = FALSE;
-    bool xfill = TRUE;
-    bool yfill = TRUE;
-#endif
 
     bool topLevel = yyFormName.isEmpty();
     if ( topLevel )
@@ -1564,11 +1545,7 @@ QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
 		}
 		break;
 	    case 'c':
-		if ( tagName == QString("can_focus") ) {
-#if 0 // ### not used?
-		    canFocus = isTrue( getTextValue(n) );
-#endif
-		} else if ( tagName == QString("child") ) {
+		if ( tagName == QString("child") ) {
 		    QDomNode child = n.firstChild();
 		    while ( !child.isNull() ) {
 			QString childTagName = child.toElement().tagName();
@@ -1580,27 +1557,7 @@ QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
 			    topAttach = getTextValue( child ).toInt();
 			} else if ( childTagName == QString("bottom_attach") ) {
 			    bottomAttach = getTextValue( child ).toInt();
-#if 0 // ### not used?
-			} else if ( childTagName == QString("xpad") ) {
-			    xpad = getTextValue( child ).toInt();
-			} else if ( childTagName == QString("ypad") ) {
-			    ypad = getTextValue( child ).toInt();
-			} else if ( childTagName == QString("xexpand") ) {
-			    xexpand = isTrue( getTextValue(child) );
-			} else if ( childTagName == QString("yexpand") ) {
-			    yexpand = isTrue( getTextValue(child) );
-			} else if ( childTagName == QString("xshrink") ) {
-			    xshrink = isTrue( getTextValue(child) );
-			} else if ( childTagName == QString("yshrink") ) {
-			    yshrink = isTrue( getTextValue(child) );
-			} else if ( childTagName == QString("xfill") ) {
-			    xfill = isTrue( getTextValue(child) );
-			} else if ( childTagName == QString("yfill") ) {
-			    yfill = isTrue( getTextValue(child) );
 			}
-#else
-			}
-#endif
 			child = child.nextSibling();
 		    }
 		} else if ( tagName == QString("child_name") ) {
@@ -1609,10 +1566,6 @@ QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
 		    gtkClass = getTextValue( n );
 		} else if ( tagName == QString("climb_rate") ) {
 		    step = getTextValue( n ).toInt();
-		} else if ( tagName == QString("column_spacing") ) {
-#if 0 // ### not used?
-		    columnSpacing = getTextValue( n ).toInt();
-#endif
 		} else if ( tagName == QString("columns") ) {
 		    numColumns = getTextValue( n ).toInt();
 		} else if ( tagName == QString("comments") ) {
@@ -1681,13 +1634,8 @@ QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
 		}
 		break;
 	    case 'r':
-		if ( tagName == QString("row_spacing") ) {
-#if 0 // ### not used?
-		    rowSpacing = getTextValue( n ).toInt();
-#endif
-		} else if ( tagName == QString("rows") ) {
+		if ( tagName == QString("rows") )
 		    numRows = getTextValue( n ).toInt();
-		}
 		break;
 	    case 's':
 		if ( tagName == QString("selection_mode") ) {
@@ -1756,22 +1704,10 @@ QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
 	    case 'x':
 		if ( tagName == QString("x") )
 		    x = getTextValue( n ).toInt();
-#if 0 // ### not used?
-		else if ( tagName == QString("xalign") )
-		    xalign = getTextValue( n ).toInt();
-		else if ( tagName == QString("xpad") )
-		    xpad = getTextValue( n ).toInt();
-#endif
 		break;
 	    case 'y':
 		if ( tagName == QString("y") )
 		    y = getTextValue( n ).toInt();
-#if 0 // ### not used?
-		else if ( tagName == QString("yalign") )
-		    yalign = getTextValue( n ).toInt();
-		else if ( tagName == QString("ypad") )
-		    ypad = getTextValue( n ).toInt();
-#endif
 	    }
 	}
 	n = n.nextSibling();
