@@ -339,7 +339,7 @@ ${PLATFORM}:
 EOF
     [ -s $a ] && ( echo "	( cd ${PLATFORM} ; \\" ; echo "		patch -p1 -s < ../../makefiles/${PLATFORM} )" )
     echo '	[ -d ../lib -o -h ../lib ] || ln -s arch/'${PLATFORM}'/lib ..'
-    echo '	[ -d ../lib -o -h ../lib ] || ln -s arch/'${PLATFORM}'/bin ..'
+    echo '	[ -d ../bin -o -h ../bin ] || ln -s arch/'${PLATFORM}'/bin ..'
     echo
 
 done
