@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of keyboard codes.
+** Definition of layout classes.
 **
 ** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
@@ -12,13 +12,17 @@
 **
 ****************************************************************************/
 
-#ifndef QKEYCODE_H
-#define QKEYCODE_H
+#ifndef QABSTRACTLAYOUT_H
+#define QABSTRACTLAYOUT_H
+
+/*
+  This header is provided for source compatibility only.
+*/
 
 #ifndef QT_H
-#include "qnamespace.h"
+#ifdef QT_COMPAT
+#include "qlayout.h"
+#endif
 #endif // QT_H
 
-// all key codes are now in the Qt namespace class
-
-#endif // QKEYCODE_H
+#endif
