@@ -1,0 +1,32 @@
+/****************************************************************************
+** $Id: coordsys.doc,v 1.1 1995/12/28 11:53:09 hanord Exp $
+**
+** Qt Coordinate System Documentation
+**
+** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+**
+*****************************************************************************/
+
+/*!
+\page coordsys.html
+
+<title>The Coordinate System</title>
+</head><body>
+
+<h1>The Coordinate System</h1>
+<hr>
+
+
+<h2>Introduction</h2>
+
+<img src=coordsys.gif>
+
+Qt has three classes that provide coordinate system support:
+<ul>
+<li>\link QPoint QPoint\endlink
+<li>\link QSize QSize\endlink
+<li>\link QRect QRect\endlink
+</ul>
+
+
+*/
