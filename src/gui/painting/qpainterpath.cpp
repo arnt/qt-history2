@@ -91,8 +91,8 @@ void QPainterSubpath::addArc(const QRect &rect, int angle, int alen)
     double a = rect.width() / 2.0;
     double b = rect.height() / 2.0;
 
-    QPoint startPoint(a * cos(ANGLE(angle)), - b * sin(ANGLE(angle)));
-    QPoint endPoint(a * cos(ANGLE(angle + alen)), - b * sin(ANGLE(angle + alen)));
+    QPoint startPoint(int(a * cos(ANGLE(angle))), int(-b * sin(ANGLE(angle))));
+    QPoint endPoint(int(a * cos(ANGLE(angle + alen))), int(-b * sin(ANGLE(angle + alen))));
 
     startPoint += rect.center();
     endPoint   += rect.center();

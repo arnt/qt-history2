@@ -38,7 +38,7 @@ public:
 
     int rowCount(const QModelIndex&) const  { return 0; }
     int columnCount(const QModelIndex&) const { return 0; }
-    QVariant data(const QModelIndex &, int role) const { return QVariant(); }
+    QVariant data(const QModelIndex &, int /*role*/) const { return QVariant(); }
 };
 
 QAbstractItemViewPrivate::QAbstractItemViewPrivate()
