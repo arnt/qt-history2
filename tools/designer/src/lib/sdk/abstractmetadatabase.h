@@ -66,9 +66,6 @@ public:
 
     virtual QList<QObject*> objects() const = 0;
 
-    void setPropertyChanged(QObject *o, const QString &propertyName, bool changed = true);
-    bool isPropertyChanged(QObject *o, const QString &propertyName) const;
-
     virtual AbstractFormEditor *core() const = 0;
 
 signals:
