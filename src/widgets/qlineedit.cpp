@@ -922,7 +922,7 @@ void QLineEdit::drawContents( QPainter *painter )
     QSharedDoubleBuffer buffer( !hasFocus(), FALSE, QLineEditPrivate::pm );
     buffer.begin( painter, 0, linetop, width(), lineheight );
     buffer.painter()->setPen( colorGroup().text() );
-    const QBrush &bg = g.brush((isEnabled()) ? QColorGroup::Base :
+    const QBrush &bg = g.brush((isEnabled() && !isReadOnly()) ? QColorGroup::Base :
 			       QColorGroup::Background);
     buffer.painter()->fillRect( 0, 0, width(), height(), bg );
     if ( linetop ) {
@@ -1607,6 +1607,8 @@ void QLineEdit::setReadOnly( bool enable )
 #ifndef QT_NO_CURSOR
     setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
 #endif
+
+    update();
 }
 
 bool QLineEdit::isReadOnly() const

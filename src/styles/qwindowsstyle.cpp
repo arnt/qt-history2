@@ -156,6 +156,29 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 		p->fillRect(r, fill);
 	    break;
 	}
+    case PE_HeaderArrow:
+	p->save();
+	if ( flags & Style_Up ) { // invert logic to follow Windows style guide
+	    QPointArray pa( 3 );
+	    p->setPen( cg.light() );
+	    p->drawLine( r.x() + r.width(), r.y(), r.x() + r.width() / 2, r.height() );
+	    p->setPen( cg.dark() );
+	    pa.setPoint( 0, r.x() + r.width() / 2, r.height() );
+	    pa.setPoint( 1, r.x(), r.y() );
+	    pa.setPoint( 2, r.x() + r.width(), r.y() );
+	    p->drawPolyline( pa );
+	} else {
+	    QPointArray pa( 3 );
+	    p->setPen( cg.light() );
+	    pa.setPoint( 0, r.x(), r.height() );
+	    pa.setPoint( 1, r.x() + r.width(), r.height() );
+	    pa.setPoint( 2, r.x() + r.width() / 2, r.y() );
+	    p->drawPolyline( pa );
+	    p->setPen( cg.dark() );
+	    p->drawLine( r.x(), r.height(), r.x() + r.width() / 2, r.y() );
+	}
+	p->restore();
+	break;
 
     case PE_ButtonDefault:
 	p->setPen(cg.shadow());
