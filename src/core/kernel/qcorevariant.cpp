@@ -2265,7 +2265,7 @@ const void *QCoreVariant::constData() const
     case QCoreVariant::BitArray:
         return v_cast<QBitArray>(&d);
     default:
-        return d.is_shared ? d.data.shared->ptr : &d.data.ptr;
+        return d.is_shared ? d.data.shared->ptr : reinterpret_cast<const void *>(&d.data.ptr);
     }
 }
 
