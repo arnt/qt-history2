@@ -1,10 +1,10 @@
 \book Databases with Qt
 
 \page sql.html
+\page sql-driver.html
 \class QDataBrowser
 \class QDataTable
 \class QDataView
-\class QEditorFactory
 \class QSql
 \class QSqlCursor
 \class QSqlDatabase

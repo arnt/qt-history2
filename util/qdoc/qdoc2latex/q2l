@@ -5,7 +5,7 @@
 use strict;
 
 if ( not @ARGV ) {
-    print "usage: q2l [-d] [-y] [-c] file1.q2l file2.q2l ...\n",
+    print "usage: q2l [-d] [-y] [-c|-C] file1.q2l file2.q2l ...\n",
 	  "-d is debug, i.e. show don't do\n",
 	  "-y is do it don't ask\n",
 	  "-c is clear intermediate files and quit\n",
@@ -30,9 +30,11 @@ if ( $ARGV[0] =~ /^-c/i ) {
 	perform("rm *.ilg");
 	perform("rm *.log");
 	perform("rm *.ps");
+	perform("rm *.pdf");
     }
     exit;
 }
+my $YESTOPS = $YES;
 
 my $QTDIR = $ENV{'QTDIR'};
 my @tex;
@@ -108,9 +110,11 @@ sub perform {
 sub ask {
     return 1 if $YES;
     my $prog = shift;
-    print "\n[Enter] run $prog    [n] no don't run it    [q] quit? ";
+    return 1 if $YESTOPS and $prog !~ /(?:pdflatex|ps2pdf)/;
+    print "\n[Enter] run $prog  [n] no don't run it  [y] yes to postscript  [q] quit? ";
     my $ans = <STDIN>;
     cleanup() and exit if $ans =~ /^q/i;
+    $YESTOPS = 1 if $ans =~ /^y/i;
     $ans =~ /^n/i ? 0 : 1;
 }
 
@@ -121,7 +125,6 @@ sub cleanup {
     perform("rm *.ind");
     perform("rm *.idx");
     perform("rm *.aux");
-    perform("rm *.pdf");
 
     1;
 }

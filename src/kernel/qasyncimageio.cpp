@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#98 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#99 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -109,12 +109,12 @@ extern void qt_init_image_handlers();
   should be repeated \a n times, including the sequence during
   decoding.
 
-  <ul>
-    <li> 0 = Forever
-    <li> 1 = Only display frames the first time through
-    <li> 2 = Repeat once after first pass through images
-    <li> etc.
-  </ul>
+   \list
+    \i 0 = Forever
+    \i 1 = Only display frames the first time through
+    \i 2 = Repeat once after first pass through images
+    \i etc.
+  \endlist
 
   To make the QImageDecoder
   do this, just delete it and pass the information to it again
@@ -537,8 +537,8 @@ QImageFormat::~QImageFormat()
   \fn virtual QImageFormat* QImageFormatType::decoderFor(const
 	    uchar* buffer, int length)
 
-  Returns a decoder for decoding an image that starts with the give bytes.
-  This function should only return a decoder if it is definite that the
+  Returns a decoder for decoding an image that starts with the given bytes.
+  This function should only return a decoder if it is certain that the
   decoder applies to data with the given header.  Returns 0 if there is
   insufficient data in the header to make a positive identification
   or if the data is not recognized.

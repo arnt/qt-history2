@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_mac.cpp#247 $
+** $Id: //depot/qt/main/src/kernel/qapplication_mac.cpp#248 $
 **
 ** Implementation of Mac startup routines and event handling
 **
@@ -394,6 +394,9 @@ void qt_init( int* argcptr, char **argv, QApplication::Type )
 
     qApp->setName( appName );
     if ( qt_is_gui_used ) {
+#if !defined(QMAC_QMENUBAR_NO_NATIVE)
+	QMenuBar::initialize();
+#endif
 	QColor::initialize();
 	QFont::initialize();
 	QCursor::initialize();

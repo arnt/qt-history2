@@ -32,7 +32,7 @@ ADDCLEAN    =	qmake.tds
 
 #qmake code
 OBJS=project.obj main.obj makefile.obj unixmake.obj unixmake2.obj borland_bmake.obj msvc_nmake.obj msvc_dsp.obj option.obj \
-	winmakefile.obj projectgenerator.obj metrowerks_xml.obj msvc_vcp.obj
+	winmakefile.obj projectgenerator.obj metrowerks_xml.obj
 
 #qt code
 QTOBJS=qstring.obj qtextstream.obj qiodevice.obj qglobal.obj qgdict.obj qcstring.obj qdatastream.obj qgarray.obj qbuffer.obj \
@@ -155,9 +155,6 @@ msvc_nmake.obj: generators/win32/msvc_nmake.cpp
 
 msvc_dsp.obj: generators/win32/msvc_dsp.cpp
 	$(CXX) $(CFLAGS) generators/win32/msvc_dsp.cpp
-
-msvc_vcp.obj: generators/win32/msvc_vcp.cpp
-	$(CXX) $(CFLAGS) generators/win32/msvc_vcp.cpp
 
 project.obj: project.cpp project.h option.h
 	$(CXX) $(CFLAGS) project.cpp

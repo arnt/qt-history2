@@ -28,6 +28,19 @@ public:
 
     void polishPopupMenu(QPopupMenu *menu);
 
+    void drawPrimitive( PrimitiveOperation op,
+			QPainter *p,
+			const QRect &r,
+			const QColorGroup &cg,
+			PFlags flags = PStyle_Default,
+			void *data = 0 ) const;
+
+    int pixelMetric( PixelMetric metic,
+		     const QWidget *widget = 0 ) const;
+
+
+
+    // old
     void drawPushButton(QPushButton *button, QPainter *p);
     void drawButton(QPainter *p, int x, int y, int w, int h,
                     const QColorGroup &g, bool sunken = FALSE,
@@ -83,10 +96,6 @@ public:
     int sliderThickness() const;
     int sliderLength() const;
     int defaultFrameWidth() const;
-
-
-protected:
-    bool eventFilter(QObject *, QEvent *);
 };
 
 

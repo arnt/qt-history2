@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qthread_p.h#42 $
+** $Id: //depot/qt/main/src/kernel/qthread_p.h#43 $
 **
 ** QThread class for Unix
 **
@@ -447,7 +447,7 @@ public:
 	mutex.unlock();
 
 #ifdef QT_CHECK_RANGE
-	if (ret) qWarning("QWaitCondition::wait: wait error: %s",strerror(ret));
+	if (ret && ret!=ETIMEDOUT) qWarning("QWaitCondition::wait: wait error: %s",strerror(ret));
 #endif
 
 	return (ret == 0);

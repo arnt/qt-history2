@@ -1,6 +1,6 @@
 #qmake code
 OBJS=project.o main.o makefile.o unixmake2.o unixmake.o borland_bmake.o msvc_nmake.o msvc_dsp.o option.o winmakefile.o \
-     projectgenerator.o metrowerks_xml.o msvc_vcp.o
+     projectgenerator.o metrowerks_xml.o
 vpath %.cpp generators/:generators/win32:generators/unix:generators/mac
 
 #qt code
@@ -60,9 +60,6 @@ msvc_nmake.o: msvc_nmake.cpp
 	$(CXX) -c -o $@ $(CFLAGS) $^
 
 msvc_dsp.o: msvc_dsp.cpp
-	$(CXX) -c -o $@ $(CFLAGS) $^
-
-msvc_vcp.o: msvc_vcp.cpp
 	$(CXX) -c -o $@ $(CFLAGS) $^
 
 #default rules

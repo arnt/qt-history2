@@ -1,11 +1,20 @@
 \book Embedded Applications with Qt
 
-\page qembed.html
+\page running-qws.html
 \page charinput-qws.html
 \page casestudy-qws.html
+\page qvfb-qws.html
+\page HOWTO-framebuffer.html
+\page fonts-qws.html
+\page pointer-qws.html
 \class QCopChannel
 \class QScreen
 \class QWSServer
 \class QWSDecoration
 \class QWSKeyboardHandler
 \class QWSMouseHandler
+\class QWSWindow
+\page install-qws.html
+\page performance-qws.html
+\page porting-qws.html
+\page qembed.html

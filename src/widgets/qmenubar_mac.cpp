@@ -145,12 +145,10 @@ static uint isCommand(QMenuItem *it)
     if(st != -1) 
 	t.remove(st, t.length()-st);
     //now the fun part
-#if 0
     if(t.find("about") != -1 && t.find(QRegExp("qt$")) == -1) {
 	EnableMenuCommand(NULL, kHICommandAbout);
 	return kHICommandAbout;
     }
-#endif
     if(t.find("config") != -1 || t.find("preference") != -1 || 
        t.find("options") != -1 || t.find("setting") != -1) {
 	EnableMenuCommand(NULL, kHICommandPreferences);
@@ -403,6 +401,15 @@ void QMenuBar::macDirtyNativeMenubar()
     if(mac_eaten_menubar && mac_d) {
 	mac_d->dirty = 1;
 	qt_event_request_menubarupdate();
+    }
+}
+
+void QMenuBar::initialize()
+{
+    if(MenuRef r = GetMenuRef(0)) {
+	qDebug("doing it..");
+	InsertMenuItemTextWithCFString(r, no_ampersands("About"), 0, 0, kHICommandAbout);
+	DisableMenuItem(r, kHICommandAbout);
     }
 }
 

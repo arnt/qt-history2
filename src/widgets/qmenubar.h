@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.h#85 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.h#86 $
 **
 ** Definition of QMenuBar class
 **
@@ -84,6 +84,7 @@ public:
     void activateItemAt( int index ); // ### virtual in QMenuData 3.0
 
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
+    static void initialize();
     static void cleanup();
 #endif
 

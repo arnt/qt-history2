@@ -1,5 +1,7 @@
 \book Events, Actions, Layouts and Styles with Qt
 
+\page eventsandfilters.html
+\page customlayout.html
 \class QAccel
 \class QAction
 \class QActionGroup
@@ -17,7 +19,7 @@
 \class QDragMoveEvent
 \class QDragObject
 \class QDropEvent
-\class QDropSite
+#\class QDropSite
 \class QEvent
 \class QFocusEvent
 \class QGLayoutIterator
@@ -29,6 +31,7 @@
 \class QIconDrag
 \class QIconDragItem
 \class QImageDrag
+\class QInterlaceStyle
 \class QKeyEvent
 \class QLayout
 \class QLayoutItem
@@ -48,7 +51,7 @@
 \class QStyleSheetItem
 \class QTextDrag
 \class QTimerEvent
-\class QTimerEvent
+\class QUriDrag
 \class QVBoxLayout
 \class QWheelEvent
 \class QWindowsStyle

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#157 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#158 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -64,7 +64,7 @@ static QWidget* last_target;
   which received the drop, or 0 if the data was dropped on another
   application.
 
-  This can be useful for detecting the case where drag-and-drop is to
+  This can be useful for detecting the case where drag and drop is to
   and from the same widget.
 */
 QWidget * QDragObject::target()
@@ -300,7 +300,7 @@ QDragObject::QDragObject( QWidget * dragSource, const char * name )
 }
 
 
-/*! Destroys the drag object, canceling any drag-and-drop operation
+/*! Destroys the drag object, canceling any drag and drop operation
   in which it is involved, and frees up the storage used. */
 
 QDragObject::~QDragObject()
@@ -478,11 +478,11 @@ QWidget * QDragObject::source()
   \ingroup draganddrop
 
   QDragObject is the base class for all data that needs to be transferred
-  between and within applications, both for drag-and-drop and for the
+  between and within applications, both for drag and drop and for the
   clipboard.
 
   See the \link dnd.html Drag-and-drop documentation\endlink for
-  an overview of how to provide drag-and-drop in your application.
+  an overview of how to provide drag and drop in your application.
 
   See the QClipboard documentation for
   an overview of how to provide cut-and-paste in your application.
@@ -572,7 +572,7 @@ void QTextDrag::setSubtype( const QCString & st)
 
 /*! \class QTextDrag qdragobject.h
 
-  \brief The QTextDrag class is a drag-and-drop object for
+  \brief The QTextDrag class is a drag and drop object for
 	      transferring plain and Unicode text.
 
   \ingroup draganddrop
@@ -584,7 +584,8 @@ void QTextDrag::setSubtype( const QCString & st)
   Drag-and-Drop text does \e not have a NULL terminator when it
   is dropped onto the target.
 
-  For detailed information about drag-and-drop, see the QDragObject class.
+  For more information about drag and drop, see the QDragObject class
+  and the \link dnd.html drag and drop documentation\endlink.
 */
 
 
@@ -798,7 +799,7 @@ public:
 
 /*! \class QImageDrag qdragobject.h
 
-  \brief The QImageDrag class provides a drag-and-drop object for
+  \brief The QImageDrag class provides a drag and drop object for
   transferring images.
 
   \ingroup draganddrop
@@ -807,7 +808,8 @@ public:
   determined by the \link QImage::outputFormats() output formats\endlink
   in Qt.
 
-  For detailed information about drag-and-drop, see the QDragObject class.
+  For more information about drag and drop, see the QDragObject class
+  and the \link dnd.html drag and drop documentation\endlink.
 */
 
 /*!  Constructs an image drag object and sets it to \a image.  \a dragSource
@@ -905,26 +907,18 @@ QByteArray QImageDrag::encodedData(const char* fmt) const
 }
 
 /*!
-  Returns TRUE if the information in \a e can be decoded into an image.
-  \sa decode()
+  Returns TRUE if the information in mime source \a e can be decoded
+  into an image. \sa decode()
 */
-bool QImageDrag::canDecode( const QMimeSource* e )
-{
-    QStrList fileFormats = QImageIO::inputFormats();
-    fileFormats.first();
-    while ( fileFormats.current() ) {
-	QCString format = fileFormats.current();
-	QCString type = "image/" + format.lower();
-	if ( e->provides( type.data() ) )
-	    return TRUE;
-	fileFormats.next();
-    }
-    return FALSE;
-}
+bool QImageDrag::canDecode( const QMimeSource* e ) { QStrList
+fileFormats = QImageIO::inputFormats(); fileFormats.first(); while (
+fileFormats.current() ) { QCString format = fileFormats.current();
+QCString type = "image/" + format.lower(); if ( e->provides(
+type.data() ) ) return TRUE; fileFormats.next(); } return FALSE; }
 
 /*!
-  Attempts to decode the dropped information in \a e
-  into \a img, returning TRUE if successful.
+  Attempts to decode the dropped information in mime source \a e
+  into \a img. Returns TRUE if successful; otherwise returns FALSE.
 
   \sa canDecode()
 */
@@ -969,11 +963,10 @@ bool QImageDrag::decode( const QMimeSource* e, QImage& img )
 /*!
   \overload
   
-  Attempts to decode the dropped information in \a e
-  into \a pm, returning TRUE if successful.
+  Attempts to decode the dropped information in mime source \a e into
+  pixmap \a pm. Returns TRUE if successful; otherwise returns FALSE.
 
-  This is a convenience function that converts
-  to \a pm via a QImage.
+  This is a convenience function that converts to \a pm via a QImage.
 
   \sa canDecode()
 */
@@ -1011,7 +1004,8 @@ bool QImageDrag::decode( const QMimeSource* e, QPixmap& pm )
   When a block of data has only one representation, you can use
   a QStoredDrag to hold it.
 
-  For detailed information about drag-and-drop, see the QDragObject class.
+  For more information about drag and drop, see the QDragObject
+  class and the \link dnd.html drag and drop documentation\endlink.
 */
 
 /*!
@@ -1418,19 +1412,20 @@ QWidget* QDropEvent::source() const
 
 /*! \class QColorDrag qdragobject.h
 
-  \brief The QColorDrag class provides a drag-and-drop object for
+  \brief The QColorDrag class provides a drag and drop object for
 	      transferring colors.
 
   \ingroup draganddrop
 
   This class provides a drag object which can be used to transfer data
-  about colors for drag-and-drop and over the clipboard. For example, it
+  about colors for drag and drop and over the clipboard. For example, it
   is used in the QColorDialog.
 
   The color is set in the constructor but can be changed with
   setColor().
 
-  For detailed information about drag-and-drop, see the QDragObject class.
+  For more information about drag and drop, see the QDragObject class
+  and the \link dnd.html drag and drop documentation\endlink.
 */
 
 /*!

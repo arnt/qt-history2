@@ -1,6 +1,5 @@
 #include "lightstyle.h"
 
-#define INCLUDE_MENUITEM_DEF
 #include "qmenubar.h"
 #include "qapplication.h"
 #include "qpainter.h"
@@ -110,6 +109,7 @@ public:
 	    popup->move(-popup->x(), -popup->y());
 	    popup->setBackgroundPixmap(QPixmap());
 	    int count = 0;
+	    QApplication::syncX();
 	    while (qApp->hasPendingEvents() && count++ < 5)
 		qApp->processEvents();
 	}
@@ -123,7 +123,7 @@ class LightStylePrivate
 {
 public:
     LightStylePrivate()
-	: hoverWidget(0), ref(1), savePalette(0)
+	: ref(1)
     {
 	filter = new LightStyleFilter;
     }
@@ -134,12 +134,9 @@ public:
 	filter = 0;
     }
 
-    QGuardedPtr<QWidget> hoverWidget;
-    QPalette oldPalette, hoverPalette;
-    int ref;
-    QPoint mousePos;
-    QPalette *savePalette;
+    QPalette oldPalette;
     LightStyleFilter *filter;
+    int ref;
 };
 
 
@@ -180,10 +177,6 @@ LightStyle::LightStyle()
 			    bg);                                     // background
 	active2.setColor(QColorGroup::Highlight,
 			 pal.color(QPalette::Active, QColorGroup::Highlight));
-
-	singleton->hoverPalette = pal;
-	singleton->hoverPalette.setActive(active2);
- 	singleton->hoverPalette.setInactive(active2);
     } else
 	singleton->ref++;
 }
@@ -197,6 +190,57 @@ LightStyle::~LightStyle()
     }
 }
 
+
+void LightStyle::drawPrimitive( PrimitiveOperation op,
+				QPainter *p,
+				const QRect &r,
+				const QColorGroup &cg,
+				PFlags flags,
+				void *data ) const
+{
+    switch (op) {
+
+    default:
+	QWindowsStyle::drawPrimitive(op, p, r, cg, flags, data);
+	break;
+    }
+}
+
+
+int LightStyle::pixelMetric( PixelMetric metric,
+			     const QWidget *widget ) const
+{
+    int ret;
+
+    switch (metric) {
+    case PM_ButtonMargin:
+	ret = 4;
+	break;
+
+    case PM_ButtonDefaultIndicator:
+	ret = 2;
+	break;
+
+    case PM_ButtonShiftHorizontal:
+    case PM_ButtonShiftVertical:
+	ret = 0;
+	break;
+
+    case PM_DefaultFrameWidth:
+	ret = 2;
+	break;
+
+    default:
+	ret = QWindowsStyle::pixelMetric(metric, widget);
+	break;
+    }
+
+    return ret;
+}
+
+
+
+// old
 
 QSize LightStyle::scrollBarExtent() const
 {
@@ -247,9 +291,6 @@ QSize LightStyle::indicatorSize() const
 
 void LightStyle::polish(QWidget *widget)
 {
-    if (widget->inherits("QPushButton"))
-	widget->installEventFilter(this);
-
 #if QT_VERSION >= 300
     if (widget->inherits("QLineEdit")) {
 	QLineEdit *lineedit = (QLineEdit *) widget;
@@ -264,9 +305,6 @@ void LightStyle::polish(QWidget *widget)
 
 void LightStyle::unPolish(QWidget *widget)
 {
-    if (widget->inherits("QPushButton"))
-	widget->removeEventFilter(this);
-
 #if QT_VERSION >= 300
     if (widget->inherits("QLineEdit")) {
 	QLineEdit *lineedit = (QLineEdit *) widget;
@@ -366,10 +404,6 @@ void LightStyle::polish(QApplication *app)
 			bg);                                     // background
     active2.setColor(QColorGroup::Highlight,
 		     pal.color(QPalette::Active, QColorGroup::Highlight));
-
-    singleton->hoverPalette = pal;
-    singleton->hoverPalette.setActive(active2);
-    singleton->hoverPalette.setInactive(active2);
 
     app->setPalette(pal);
 }
@@ -518,7 +552,7 @@ void LightStyle::drawComboButton(QPainter *p, int x, int y, int w, int h,
 #endif
         xpos += w - indent - 5;
 
-    drawArrow(p, Qt::DownArrow, TRUE, xpos, indent, 5, 5, g, TRUE, fill);
+    drawPrimitive(PO_ArrowDown, p, QRect(xpos, indent, 5, 5), g);
 }
 
 
@@ -767,19 +801,21 @@ void LightStyle::drawSlider(QPainter *p, int x, int y, int w, int h,
 
     if (orientation == Horizontal) {
 	if (above && below) {
-	    drawArrow(p, Qt::UpArrow, FALSE, x + 1, y + 1, w, h / 2, g, TRUE);
-	    drawArrow(p, Qt::DownArrow, FALSE, x + 1, y + (h / 2) - 1,
-		      w, h / 2, g, TRUE);
-	} else
-	    drawArrow(p, (above) ? Qt::UpArrow : Qt::DownArrow,
-		      FALSE, x + 1, y, w, h, g, TRUE);
+// 	    drawArrow(p, Qt::UpArrow, FALSE, x + 1, y + 1, w, h / 2, g, TRUE);
+// 	    drawArrow(p, Qt::DownArrow, FALSE, x + 1, y + (h / 2) - 1,
+// 		      w, h / 2, g, TRUE);
+	} else {
+// 	    drawArrow(p, (above) ? Qt::UpArrow : Qt::DownArrow,
+// 		      FALSE, x + 1, y, w, h, g, TRUE);
+	}
     } else {
 	if (above && below) {
-	    drawArrow(p, Qt::LeftArrow, FALSE, x + 1, y, w / 2, h, g, TRUE);
-	    drawArrow(p, Qt::RightArrow, FALSE, x + (w / 2) - 2, y, w / 2, h, g, TRUE);
-	} else
-	    drawArrow(p, (above) ? Qt::LeftArrow : Qt::RightArrow,
-		      FALSE, x, y, w, h, g, TRUE);
+// 	    drawArrow(p, Qt::LeftArrow, FALSE, x + 1, y, w / 2, h, g, TRUE);
+// 	    drawArrow(p, Qt::RightArrow, FALSE, x + (w / 2) - 2, y, w / 2, h, g, TRUE);
+	} else {
+// 	    drawArrow(p, (above) ? Qt::LeftArrow : Qt::RightArrow,
+// 		      FALSE, x, y, w, h, g, TRUE);
+	}
     }
 }
 
@@ -871,9 +907,8 @@ void LightStyle::drawScrollBarControls( QPainter* p, const QScrollBar* scrollbar
     int sliderMin, sliderMax, sliderLength, buttonDim;
     scrollBarMetrics( scrollbar, sliderMin, sliderMax, sliderLength, buttonDim );
 
-    if (sliderStart > sliderMax) { // sanity check
+    if (sliderStart > sliderMax) // sanity check
         sliderStart = sliderMax;
-    }
 
     QRect addR, subR, subR2, addPageR, subPageR, sliderR;
     int length =  ((scrollbar->orientation() == Horizontal) ?
@@ -924,27 +959,21 @@ void LightStyle::drawScrollBarControls( QPainter* p, const QScrollBar* scrollbar
 			    &g.brush(QColorGroup::Background));
     }
 
-    if ( controls & AddLine )
-        drawArrow( p, (scrollbar->orientation() == Vertical) ? DownArrow : RightArrow,
-		   FALSE, addR.x(), addR.y(),
-                   addR.width(), addR.height(),
-		   (( activeControl == AddLine ) ?
-		    singleton->hoverPalette.active() : g),
-		   TRUE, &g.brush(QColorGroup::Background));
-    if ( controls & SubLine ) {
-        drawArrow( p, (scrollbar->orientation() == Vertical) ? UpArrow : LeftArrow,
-		   FALSE, subR.x(), subR.y(),
-                   subR.width(), subR.height(),
-                   (( activeControl == SubLine ) ?
-		    singleton->hoverPalette.active() : g),
-		   TRUE, &g.brush(QColorGroup::Background));
-        drawArrow( p, (scrollbar->orientation() == Vertical) ? UpArrow : LeftArrow,
-		   FALSE, subR2.x(), subR2.y(),
-                   subR2.width(), subR2.height(),
-                   (( activeControl == SubLine ) ?
-		    singleton->hoverPalette.active() : g),
-		   TRUE, &g.brush(QColorGroup::Background));
-    }
+//     if ( controls & AddLine )
+//         drawArrow( p, (scrollbar->orientation() == Vertical) ? DownArrow : RightArrow,
+// 		   FALSE, addR.x(), addR.y(),
+//                    addR.width(), addR.height(),
+// 		   g, TRUE, &g.brush(QColorGroup::Background));
+//     if ( controls & SubLine ) {
+//         drawArrow( p, (scrollbar->orientation() == Vertical) ? UpArrow : LeftArrow,
+// 		   FALSE, subR.x(), subR.y(),
+//                    subR.width(), subR.height(),
+// 		   g, TRUE, &g.brush(QColorGroup::Background));
+//         drawArrow( p, (scrollbar->orientation() == Vertical) ? UpArrow : LeftArrow,
+// 		   FALSE, subR2.x(), subR2.y(),
+//                    subR2.width(), subR2.height(),
+// 		   g, TRUE, &g.brush(QColorGroup::Background));
+//     }
 
     if ( controls & SubPage )
         p->fillRect( subPageR,
@@ -996,55 +1025,4 @@ void LightStyle::drawToolBarHandle(QPainter *p, const QRect &rect,
     }
 
     p->restore();
-}
-
-
-bool LightStyle::eventFilter(QObject *object, QEvent *event)
-{
-    switch(event->type()) {
-    case QEvent::Enter:
-        {
-            if (! object->isWidgetType() ||
-		! object->inherits("QPushButton"))
-		break;
-
-	    singleton->hoverWidget = (QWidget *) object;
-	    if (! singleton->hoverWidget->isEnabled()) {
-		singleton->hoverWidget = 0;
-		break;
-	    }
-
-	    QPalette pal = singleton->hoverWidget->palette();
-	    if (singleton->hoverWidget->ownPalette())
-		singleton->savePalette = new QPalette(pal);
-
-	    singleton->hoverWidget->setPalette(singleton->hoverPalette);
-
-	    break;
-	}
-
-    case QEvent::Leave:
-	{
-	    if (object != singleton->hoverWidget)
-		break;
-
-	    if (singleton->savePalette) {
-		singleton->hoverWidget->setPalette(*(singleton->savePalette));
-		delete singleton->savePalette;
-		singleton->savePalette = 0;
-	    } else
-		singleton->hoverWidget->unsetPalette();
-
-	    singleton->hoverWidget = 0;
-
-	    break;
-	}
-
-    default:
-	{
-	    ;
-	}
-    }
-
-    return QWindowsStyle::eventFilter(object, event);
 }

@@ -188,18 +188,18 @@ qmake -o Makefile "INCLUDEPATH=c:\path\to\mysql\include" "LIBS=c:\path\to\mysql\
 nmake
 \endcode
 
-The above examples ensures that the proper include and library paths
+These examples ensure that the proper include and library paths
 are used by \e qmake when generating the makefile for the MySQL
-plugin.  Of course, you will need the proper development headers and
+plugin.  You will also need the proper development headers and
 libraries for MySQL installed before compiling the plugin.
 
 Once a plugin is built, Qt will automatically load it, and the driver
 will be available for use by QSqlDatabase (see QSqlDatabase::drivers()
 for more information).
 
-Also, see the readme files for the driver you want to compile.  These
+See the readme files for the driver you want to compile.  These
 files are located in the source directory for the specific driver,
-i.e. for the MySQL driver on Unix:
+e.g. for the MySQL driver on Unix:
 
 \code $QTDIR/src/sql/src/mysql/README \endcode
 

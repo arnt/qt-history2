@@ -1,19 +1,21 @@
 \book Input/Output and Networking with Qt
 
+\page network.html
 \page datastreamformat.html
-\class QAsyncIO
+#\class QAsyncIO
 \class QClipboard
 \class QDataStream
+\class QDir
 \class QDns
 \class QFile
-\class QFileIconProvider
 \class QFileInfo
 \class QFtp
 \class QHostAddress
 \class QHttp
 \class QIODevice
-\class QIODeviceSource
+#\class QIODeviceSource
 \class QLocalFs
+\class QLock
 \class QMimeSource
 \class QMimeSourceFactory
 \class QNetworkOperation

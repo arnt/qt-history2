@@ -8,3 +8,6 @@
 \class QFeatureListInterface
 \class QLibrary
 \class QLibraryInterface
+\class QPluginManager
+\class QUnknownInterface
+\class QUuid

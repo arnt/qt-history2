@@ -2,6 +2,8 @@
 
 \page coordsys.html
 \page canvas.html
+\page geometry.html
+\page opengl.html
 \class QBitmap
 \class QBrush
 \class QBuffer
@@ -45,7 +47,9 @@
 \class QPixmap
 \class QPixmapCache
 \class QPoint
+\class QPointArray
 \class QPrinter
 \class QRect
 \class QRegion
+\class QSize
 \class QWMatrix

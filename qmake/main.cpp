@@ -41,7 +41,6 @@
 #include "borland_bmake.h"
 #include "msvc_nmake.h"
 #include "msvc_dsp.h"
-#include "msvc_vcp.h"
 #include "mac/metrowerks_xml.h"
 #include "projectgenerator.h"
 #include <qnamespace.h>
@@ -107,9 +106,6 @@ int main(int argc, char **argv)
 		if(proj.first("TEMPLATE").find(QRegExp("^vc.*")) != -1) {
 		    def_mkfile = proj.first("TARGET") + ".dsp";
 		    mkfile = new DspMakefileGenerator(&proj);
-		} else if( proj.first( "TEMPLATE" ).find( QRegExp( "^ce.*" ) ) != -1 ) {
-		    def_mkfile = proj.first( "TARGET" ) + ".vcp";
-		    mkfile = new VcpMakefileGenerator( &proj );
 		} else {
 		    mkfile = new NmakeMakefileGenerator(&proj);
 		}
@@ -129,13 +125,13 @@ int main(int argc, char **argv)
 		if(!(Option::output.state() & IO_Open)) {
 		    QString default_makefile = proj.first("QMAKE_MAKEFILE");
 		    if(default_makefile.isEmpty()) {
-			if(!def_mkfile.isEmpty()) 
+			if(!def_mkfile.isEmpty())
 			    default_makefile = def_mkfile;
 			else
 			    default_makefile = "Makefile";
 			proj.variables()["QMAKE_MAKEFILE"].append(default_makefile);
 		    }
-		    if(Option::output.name().isEmpty()) 
+		    if(Option::output.name().isEmpty())
 			Option::output.setName(default_makefile);
 		    if(Option::output.name().isEmpty() || Option::output.name() == "-") {
 			Option::output.setName("");
@@ -148,7 +144,7 @@ int main(int argc, char **argv)
 			QFileInfo fi(Option::output);
 			Option::output_dir = Option::fixPathToTargetOS(fi.dirPath());
 			if(!Option::output.open(IO_WriteOnly | IO_Translate)) {
-			    fprintf(stderr, "Failure to open file: %s\n", 
+			    fprintf(stderr, "Failure to open file: %s\n",
 				    Option::output.name().isEmpty() ? "(stdout)" : Option::output.name().latin1());
 			    return 5;
 			}

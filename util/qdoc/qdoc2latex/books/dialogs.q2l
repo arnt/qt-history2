@@ -8,8 +8,10 @@
 \class QDockWindow
 \class QFileDialog
 \class QFileIconProvider
+\class QInputDialog
 \class QMainWindow
 \class QMenuBar
+\class QMenuData
 \class QMessageBox
 \class QPopupMenu
 \class QPrintDialog

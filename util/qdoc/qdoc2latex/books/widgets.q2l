@@ -16,6 +16,7 @@
 \class QGroupBox
 \class QHButtonGroup
 \class QHGroupBox
+\page iconview.html
 \class QIconView
 \class QIconViewItem
 \class QLabel
@@ -35,6 +36,8 @@
 \class QRangeControl
 \class QScrollBar
 \class QScrollView
+\class QSizeGrip
+\class QSizePolicy
 \class QSlider
 \class QSpacerItem
 \class QSpinBox
@@ -42,12 +45,13 @@
 \class QStatusBar
 \class QTab
 \class QTabBar
+\page table.html
 \class QTable
 \class QTableItem
 \class QTabWidget
 \class QTextBrowser
 \class QTextEdit
-\class QTextView
+#\class QTextView
 \class QTimeEdit
 \class QVBox
 \class QVButtonGroup
@@ -57,3 +61,6 @@
 \class QWidgetFactory
 \class QWidgetItem
 \class QWidgetStack
+\page xt.html
+\class QXtApplication
+\class QXtWidget

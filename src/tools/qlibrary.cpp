@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qlibrary.cpp#17 $
+** $Id: //depot/qt/main/src/tools/qlibrary.cpp#18 $
 **
 ** Implementation of QLibrary class
 **
@@ -53,7 +53,7 @@
 
 // KAI C++ has at the moment problems with unloading the Qt plugins. So don't
 // unload them as a workaround for now.
-#if defined(Q_CC_KAI)
+#if defined(Q_CC_KAI) || defined(Q_OS_MAC)
 #define QT_NO_LIBRARY_UNLOAD
 #endif
 
@@ -322,11 +322,8 @@ bool QLibraryPrivate::loadLibrary()
     if( NSCreateObjectFileImageFromFile( filename, &img)  != NSObjectFileImageSuccess )
 	return FALSE;
 
-    pHnd = (void *)NSLinkModule(img, filename, NSLINKMODULE_OPTION_PRIVATE);
-    if ( pHnd ) {
+    if((pHnd = (void *)NSLinkModule(img, filename, NSLINKMODULE_OPTION_PRIVATE)))
 	glibs_loaded->insert( filename, pHnd ); //insert it in the loaded hash
-	return pHnd;
-    }
     return TRUE;
 #else
     return FALSE;
