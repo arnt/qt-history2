@@ -582,10 +582,10 @@ typedef const char     *pcchar;
 // Constant bool values
 //
 
-//#ifndef TRUE
+#ifndef TRUE
 #define TRUE true
 #define FALSE false
-//#endif
+#endif
 
 //
 // Proper for-scoping in VC++6 and MIPSpro CC
