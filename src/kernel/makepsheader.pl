@@ -90,4 +90,58 @@ while( @head ) {
 $header = $header."\n\"".$line."\\n\"";
 
 
-print $header;
+print "static const char *const ps_header =";
+print $header.";\n\n";
+
+close(INPUT);
+
+open(INPUT, 'qpsprinter.agl')
+  or die "Can't open qpsprinter.ps";
+
+print "static const char *agl =\n";
+
+$str = "\"";
+$string ="";
+$i = 0;
+while(<INPUT>) {
+  $line = $_;
+  chomp $line;
+  $line =~ s/#.*//;
+  if(length($line) ne 0) {
+    $num = $line;
+    $name = $line;
+    $num =~ s/,.*//;
+    $name =~ s/.*, \"//;
+    $name =~ s/\".*//;
+    push(@qchar, $num);
+    push(@index, $i);
+    if(length($str.$name) > 76) {
+      $str = $str."\"\n";
+      $string = $string.$str;
+      $str = "\"";
+    }
+    $str = $str.$name."\\0";
+    $i += length($name)+1;
+  }
+}
+
+print $string.";\n\n";
+
+print "static const struct { Q_UINT16 u; Q_UINT16 index; } unicodetoglyph[] = {\n    ";
+
+$loop = 0;
+while( @qchar ) {
+  $loop = $loop + 1;
+  $ch = shift @qchar;
+  $i = shift @index;
+  print "{".$ch.", ".$i."}";
+  if($ch ne "0xFFFF") {
+    print ", ";
+  }
+  if(!($loop % 4)) {
+    print "\n    ";
+  }
+};
+
+print "\n};\n\n";
+

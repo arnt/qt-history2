@@ -168,945 +168,363 @@ static const char *const ps_header =
 "ED/LWi ED/BSt ED/nS nS 1 sub d}if}D/CLSTART{/clipTmp matrix CM d defM SM NP}\n"
 "D/CLEND{clip NP clipTmp SM}D/CLO{grestore gsave defM SM}D\n";
 
-// the next table is derived from a list provided by Adobe on its web
-// server: http://partners.adobe.com/asn/developer/typeforum/glyphlist.txt
+static const char *agl =
+".notdef\0space\0exclam\0quotedbl\0numbersign\0dollar\0percent\0ampersand\0"
+"quotesingle\0parenleft\0parenright\0asterisk\0plus\0comma\0hyphen\0period\0"
+"slash\0zero\0one\0two\0three\0four\0five\0six\0seven\0eight\0nine\0colon\0"
+"semicolon\0less\0equal\0greater\0question\0at\0A\0B\0C\0D\0E\0F\0G\0H\0I\0J\0"
+"K\0L\0M\0N\0O\0P\0Q\0R\0S\0T\0U\0V\0W\0X\0Y\0Z\0bracketleft\0backslash\0"
+"bracketright\0asciicircum\0underscore\0grave\0a\0b\0c\0d\0e\0f\0g\0h\0i\0j\0"
+"k\0l\0m\0n\0o\0p\0q\0r\0s\0t\0u\0v\0w\0x\0y\0z\0braceleft\0bar\0braceright\0"
+"asciitilde\0space\0exclamdown\0cent\0sterling\0currency\0yen\0brokenbar\0"
+"section\0dieresis\0copyright\0ordfeminine\0guillemotleft\0logicalnot\0"
+"hyphen\0registered\0macron\0degree\0plusminus\0twosuperior\0threesuperior\0"
+"acute\0mu\0paragraph\0periodcentered\0cedilla\0onesuperior\0ordmasculine\0"
+"guillemotright\0onequarter\0onehalf\0threequarters\0questiondown\0Agrave\0"
+"Aacute\0Acircumflex\0Atilde\0Adieresis\0Aring\0AE\0Ccedilla\0Egrave\0Eacute\0"
+"Ecircumflex\0Edieresis\0Igrave\0Iacute\0Icircumflex\0Idieresis\0Eth\0Ntilde\0"
+"Ograve\0Oacute\0Ocircumflex\0Otilde\0Odieresis\0multiply\0Oslash\0Ugrave\0"
+"Uacute\0Ucircumflex\0Udieresis\0Yacute\0Thorn\0germandbls\0agrave\0aacute\0"
+"acircumflex\0atilde\0adieresis\0aring\0ae\0ccedilla\0egrave\0eacute\0"
+"ecircumflex\0edieresis\0igrave\0iacute\0icircumflex\0idieresis\0eth\0ntilde\0"
+"ograve\0oacute\0ocircumflex\0otilde\0odieresis\0divide\0oslash\0ugrave\0"
+"uacute\0ucircumflex\0udieresis\0yacute\0thorn\0ydieresis\0Amacron\0amacron\0"
+"Abreve\0abreve\0Aogonek\0aogonek\0Cacute\0cacute\0Ccircumflex\0ccircumflex\0"
+"Cdotaccent\0cdotaccent\0Ccaron\0ccaron\0Dcaron\0dcaron\0Dcroat\0dcroat\0"
+"Emacron\0emacron\0Ebreve\0ebreve\0Edotaccent\0edotaccent\0Eogonek\0eogonek\0"
+"Ecaron\0ecaron\0Gcircumflex\0gcircumflex\0Gbreve\0gbreve\0Gdotaccent\0"
+"gdotaccent\0Gcommaaccent\0gcommaaccent\0Hcircumflex\0hcircumflex\0Hbar\0"
+"hbar\0Itilde\0itilde\0Imacron\0imacron\0Ibreve\0ibreve\0Iogonek\0iogonek\0"
+"Idotaccent\0dotlessi\0IJ\0ij\0Jcircumflex\0jcircumflex\0Kcommaaccent\0"
+"kcommaaccent\0kgreenlandic\0Lacute\0lacute\0Lcommaaccent\0lcommaaccent\0"
+"Lcaron\0lcaron\0Ldot\0ldot\0Lslash\0lslash\0Nacute\0nacute\0Ncommaaccent\0"
+"ncommaaccent\0Ncaron\0ncaron\0napostrophe\0Eng\0eng\0Omacron\0omacron\0"
+"Obreve\0obreve\0Ohungarumlaut\0ohungarumlaut\0OE\0oe\0Racute\0racute\0"
+"Rcommaaccent\0rcommaaccent\0Rcaron\0rcaron\0Sacute\0sacute\0Scircumflex\0"
+"scircumflex\0Scedilla\0scedilla\0Scaron\0scaron\0Tcommaaccent\0tcommaaccent\0"
+"Tcaron\0tcaron\0Tbar\0tbar\0Utilde\0utilde\0Umacron\0umacron\0Ubreve\0"
+"ubreve\0Uring\0uring\0Uhungarumlaut\0uhungarumlaut\0Uogonek\0uogonek\0"
+"Wcircumflex\0wcircumflex\0Ycircumflex\0ycircumflex\0Ydieresis\0Zacute\0"
+"zacute\0Zdotaccent\0zdotaccent\0Zcaron\0zcaron\0longs\0florin\0Ohorn\0ohorn\0"
+"Uhorn\0uhorn\0Gcaron\0gcaron\0Aringacute\0aringacute\0AEacute\0aeacute\0"
+"Oslashacute\0oslashacute\0Scommaaccent\0scommaaccent\0Tcommaaccent\0"
+"tcommaaccent\0afii57929\0afii64937\0circumflex\0caron\0macron\0breve\0"
+"dotaccent\0ring\0ogonek\0tilde\0hungarumlaut\0gravecomb\0acutecomb\0"
+"tildecomb\0hookabovecomb\0dotbelowcomb\0tonos\0dieresistonos\0Alphatonos\0"
+"anoteleia\0Epsilontonos\0Etatonos\0Iotatonos\0Omicrontonos\0Upsilontonos\0"
+"Omegatonos\0iotadieresistonos\0Alpha\0Beta\0Gamma\0Delta\0Epsilon\0Zeta\0"
+"Eta\0Theta\0Iota\0Kappa\0Lambda\0Mu\0Nu\0Xi\0Omicron\0Pi\0Rho\0Sigma\0Tau\0"
+"Upsilon\0Phi\0Chi\0Psi\0Omega\0Iotadieresis\0Upsilondieresis\0alphatonos\0"
+"epsilontonos\0etatonos\0iotatonos\0upsilondieresistonos\0alpha\0beta\0gamma\0"
+"delta\0epsilon\0zeta\0eta\0theta\0iota\0kappa\0lambda\0mu\0nu\0xi\0omicron\0"
+"pi\0rho\0sigma1\0sigma\0tau\0upsilon\0phi\0chi\0psi\0omega\0iotadieresis\0"
+"upsilondieresis\0omicrontonos\0upsilontonos\0omegatonos\0theta1\0Upsilon1\0"
+"phi1\0omega1\0afii10023\0afii10051\0afii10052\0afii10053\0afii10054\0"
+"afii10055\0afii10056\0afii10057\0afii10058\0afii10059\0afii10060\0afii10061\0"
+"afii10062\0afii10145\0afii10017\0afii10018\0afii10019\0afii10020\0afii10021\0"
+"afii10022\0afii10024\0afii10025\0afii10026\0afii10027\0afii10028\0afii10029\0"
+"afii10030\0afii10031\0afii10032\0afii10033\0afii10034\0afii10035\0afii10036\0"
+"afii10037\0afii10038\0afii10039\0afii10040\0afii10041\0afii10042\0afii10043\0"
+"afii10044\0afii10045\0afii10046\0afii10047\0afii10048\0afii10049\0afii10065\0"
+"afii10066\0afii10067\0afii10068\0afii10069\0afii10070\0afii10072\0afii10073\0"
+"afii10074\0afii10075\0afii10076\0afii10077\0afii10078\0afii10079\0afii10080\0"
+"afii10081\0afii10082\0afii10083\0afii10084\0afii10085\0afii10086\0afii10087\0"
+"afii10088\0afii10089\0afii10090\0afii10091\0afii10092\0afii10093\0afii10094\0"
+"afii10095\0afii10096\0afii10097\0afii10071\0afii10099\0afii10100\0afii10101\0"
+"afii10102\0afii10103\0afii10104\0afii10105\0afii10106\0afii10107\0afii10108\0"
+"afii10109\0afii10110\0afii10193\0afii10146\0afii10194\0afii10147\0afii10195\0"
+"afii10148\0afii10196\0afii10050\0afii10098\0afii10846\0afii57799\0afii57801\0"
+"afii57800\0afii57802\0afii57793\0afii57794\0afii57795\0afii57798\0afii57797\0"
+"afii57806\0afii57796\0afii57807\0afii57839\0afii57645\0afii57841\0afii57842\0"
+"afii57804\0afii57803\0afii57658\0afii57664\0afii57665\0afii57666\0afii57667\0"
+"afii57668\0afii57669\0afii57670\0afii57671\0afii57672\0afii57673\0afii57674\0"
+"afii57675\0afii57676\0afii57677\0afii57678\0afii57679\0afii57680\0afii57681\0"
+"afii57682\0afii57683\0afii57684\0afii57685\0afii57686\0afii57687\0afii57688\0"
+"afii57689\0afii57690\0afii57716\0afii57717\0afii57718\0afii57388\0afii57403\0"
+"afii57407\0afii57409\0afii57410\0afii57411\0afii57412\0afii57413\0afii57414\0"
+"afii57415\0afii57416\0afii57417\0afii57418\0afii57419\0afii57420\0afii57421\0"
+"afii57422\0afii57423\0afii57424\0afii57425\0afii57426\0afii57427\0afii57428\0"
+"afii57429\0afii57430\0afii57431\0afii57432\0afii57433\0afii57434\0afii57440\0"
+"afii57441\0afii57442\0afii57443\0afii57444\0afii57445\0afii57446\0afii57470\0"
+"afii57448\0afii57449\0afii57450\0afii57451\0afii57452\0afii57453\0afii57454\0"
+"afii57455\0afii57456\0afii57457\0afii57458\0afii57392\0afii57393\0afii57394\0"
+"afii57395\0afii57396\0afii57397\0afii57398\0afii57399\0afii57400\0afii57401\0"
+"afii57381\0afii63167\0afii57511\0afii57506\0afii57507\0afii57512\0afii57513\0"
+"afii57508\0afii57505\0afii57509\0afii57514\0afii57519\0afii57534\0Wgrave\0"
+"wgrave\0Wacute\0wacute\0Wdieresis\0wdieresis\0Ygrave\0ygrave\0afii61664\0"
+"afii301\0afii299\0afii300\0figuredash\0endash\0emdash\0afii00208\0"
+"underscoredbl\0quoteleft\0quoteright\0quotesinglbase\0quotereversed\0"
+"quotedblleft\0quotedblright\0quotedblbase\0dagger\0daggerdbl\0bullet\0"
+"onedotenleader\0twodotenleader\0ellipsis\0afii61573\0afii61574\0afii61575\0"
+"perthousand\0minute\0second\0guilsinglleft\0guilsinglright\0exclamdbl\0"
+"fraction\0zerosuperior\0foursuperior\0fivesuperior\0sixsuperior\0"
+"sevensuperior\0eightsuperior\0ninesuperior\0parenleftsuperior\0"
+"parenrightsuperior\0nsuperior\0zeroinferior\0oneinferior\0twoinferior\0"
+"threeinferior\0fourinferior\0fiveinferior\0sixinferior\0seveninferior\0"
+"eightinferior\0nineinferior\0parenleftinferior\0parenrightinferior\0"
+"colonmonetary\0franc\0lira\0peseta\0afii57636\0dong\0Euro\0afii61248\0"
+"Ifraktur\0afii61289\0afii61352\0weierstrass\0Rfraktur\0prescription\0"
+"trademark\0Omega\0estimated\0aleph\0onethird\0twothirds\0oneeighth\0"
+"threeeighths\0fiveeighths\0seveneighths\0arrowleft\0arrowup\0arrowright\0"
+"arrowdown\0arrowboth\0arrowupdn\0arrowupdnbse\0carriagereturn\0arrowdblleft\0"
+"arrowdblup\0arrowdblright\0arrowdbldown\0arrowdblboth\0universal\0"
+"partialdiff\0existential\0emptyset\0Delta\0gradient\0element\0notelement\0"
+"suchthat\0product\0summation\0minus\0fraction\0asteriskmath\0periodcentered\0"
+"radical\0proportional\0infinity\0orthogonal\0angle\0logicaland\0logicalor\0"
+"intersection\0union\0integral\0therefore\0similar\0congruent\0approxequal\0"
+"notequal\0equivalence\0lessequal\0greaterequal\0propersubset\0"
+"propersuperset\0notsubset\0reflexsubset\0reflexsuperset\0circleplus\0"
+"circlemultiply\0perpendicular\0dotmath\0house\0revlogicalnot\0integraltp\0"
+"integralbt\0angleleft\0angleright\0SF100000\0SF110000\0SF010000\0SF030000\0"
+"SF020000\0SF040000\0SF080000\0SF090000\0SF060000\0SF070000\0SF050000\0"
+"SF430000\0SF240000\0SF510000\0SF520000\0SF390000\0SF220000\0SF210000\0"
+"SF250000\0SF500000\0SF490000\0SF380000\0SF280000\0SF270000\0SF260000\0"
+"SF360000\0SF370000\0SF420000\0SF190000\0SF200000\0SF230000\0SF470000\0"
+"SF480000\0SF410000\0SF450000\0SF460000\0SF400000\0SF540000\0SF530000\0"
+"SF440000\0upblock\0dnblock\0block\0lfblock\0rtblock\0ltshade\0shade\0"
+"dkshade\0filledbox\0H22073\0H18543\0H18551\0filledrect\0triagup\0triagrt\0"
+"triagdn\0triaglf\0lozenge\0circle\0H18533\0invbullet\0invcircle\0openbullet\0"
+"smileface\0invsmileface\0sun\0female\0male\0spade\0club\0heart\0diamond\0"
+"musicalnote\0musicalnotedbl\0copyrightserif\0registerserif\0trademarkserif\0"
+"radicalex\0arrowvertex\0arrowhorizex\0registersans\0copyrightsans\0"
+"trademarksans\0parenlefttp\0parenleftex\0parenleftbt\0bracketlefttp\0"
+"bracketleftex\0bracketleftbt\0bracelefttp\0braceleftmid\0braceleftbt\0"
+"braceex\0integralex\0parenrighttp\0parenrightex\0parenrightbt\0"
+"bracketrighttp\0bracketrightex\0bracketrightbt\0bracerighttp\0bracerightmid\0"
+"bracerightbt\0ff\0fi\0fl\0ffi\0ffl\0afii57705\0afii57694\0afii57695\0"
+;
 
-// the start of the header comment:
-//
-// Name:          Adobe Glyph List
-// Table version: 1.2
-// Date:          22 Oct 1998
-//
-// Description:
-//
-//   The Adobe Glyph List (AGL) list relates Unicode values (UVs) to glyph
-//   names, and should be used only as described in the document "Unicode and
-//   Glyph Names," at
-//   http://partners.adobe.com:80/asn/developer/type/unicodegn.html
-//
-// IMPORTANT NOTE:
-// the list contains glyphs in the private use area of unicode. These should get removed when regenerating the glyphlist.
-// also 0 shout be mapped to .notdef
-static const struct {
-    Q_UINT16 u;
-    const char *g;
-} unicodetoglyph[] = {
-    // grep '^[0-9A-F][0-9A-F][0-9A-F][0-9A-F];' < /tmp/glyphlist.txt | sed -e 's/;/, "/' -e 's-;-" },  // -' -e 's/^/    { 0x/' | sort
-    { 0x0000, ".notdef" },
-    { 0x0020, "space" },  // SPACE
-    { 0x0021, "exclam" },  // EXCLAMATION MARK
-    { 0x0022, "quotedbl" },  // QUOTATION MARK
-    { 0x0023, "numbersign" },  // NUMBER SIGN
-    { 0x0024, "dollar" },  // DOLLAR SIGN
-    { 0x0025, "percent" },  // PERCENT SIGN
-    { 0x0026, "ampersand" },  // AMPERSAND
-    { 0x0027, "quotesingle" },  // APOSTROPHE
-    { 0x0028, "parenleft" },  // LEFT PARENTHESIS
-    { 0x0029, "parenright" },  // RIGHT PARENTHESIS
-    { 0x002A, "asterisk" },  // ASTERISK
-    { 0x002B, "plus" },  // PLUS SIGN
-    { 0x002C, "comma" },  // COMMA
-    { 0x002D, "hyphen" },  // HYPHEN-MINUS
-    { 0x002E, "period" },  // FULL STOP
-    { 0x002F, "slash" },  // SOLIDUS
-    { 0x0030, "zero" },  // DIGIT ZERO
-    { 0x0031, "one" },  // DIGIT ONE
-    { 0x0032, "two" },  // DIGIT TWO
-    { 0x0033, "three" },  // DIGIT THREE
-    { 0x0034, "four" },  // DIGIT FOUR
-    { 0x0035, "five" },  // DIGIT FIVE
-    { 0x0036, "six" },  // DIGIT SIX
-    { 0x0037, "seven" },  // DIGIT SEVEN
-    { 0x0038, "eight" },  // DIGIT EIGHT
-    { 0x0039, "nine" },  // DIGIT NINE
-    { 0x003A, "colon" },  // COLON
-    { 0x003B, "semicolon" },  // SEMICOLON
-    { 0x003C, "less" },  // LESS-THAN SIGN
-    { 0x003D, "equal" },  // EQUALS SIGN
-    { 0x003E, "greater" },  // GREATER-THAN SIGN
-    { 0x003F, "question" },  // QUESTION MARK
-    { 0x0040, "at" },  // COMMERCIAL AT
-    { 0x0041, "A" },  // LATIN CAPITAL LETTER A
-    { 0x0042, "B" },  // LATIN CAPITAL LETTER B
-    { 0x0043, "C" },  // LATIN CAPITAL LETTER C
-    { 0x0044, "D" },  // LATIN CAPITAL LETTER D
-    { 0x0045, "E" },  // LATIN CAPITAL LETTER E
-    { 0x0046, "F" },  // LATIN CAPITAL LETTER F
-    { 0x0047, "G" },  // LATIN CAPITAL LETTER G
-    { 0x0048, "H" },  // LATIN CAPITAL LETTER H
-    { 0x0049, "I" },  // LATIN CAPITAL LETTER I
-    { 0x004A, "J" },  // LATIN CAPITAL LETTER J
-    { 0x004B, "K" },  // LATIN CAPITAL LETTER K
-    { 0x004C, "L" },  // LATIN CAPITAL LETTER L
-    { 0x004D, "M" },  // LATIN CAPITAL LETTER M
-    { 0x004E, "N" },  // LATIN CAPITAL LETTER N
-    { 0x004F, "O" },  // LATIN CAPITAL LETTER O
-    { 0x0050, "P" },  // LATIN CAPITAL LETTER P
-    { 0x0051, "Q" },  // LATIN CAPITAL LETTER Q
-    { 0x0052, "R" },  // LATIN CAPITAL LETTER R
-    { 0x0053, "S" },  // LATIN CAPITAL LETTER S
-    { 0x0054, "T" },  // LATIN CAPITAL LETTER T
-    { 0x0055, "U" },  // LATIN CAPITAL LETTER U
-    { 0x0056, "V" },  // LATIN CAPITAL LETTER V
-    { 0x0057, "W" },  // LATIN CAPITAL LETTER W
-    { 0x0058, "X" },  // LATIN CAPITAL LETTER X
-    { 0x0059, "Y" },  // LATIN CAPITAL LETTER Y
-    { 0x005A, "Z" },  // LATIN CAPITAL LETTER Z
-    { 0x005B, "bracketleft" },  // LEFT SQUARE BRACKET
-    { 0x005C, "backslash" },  // REVERSE SOLIDUS
-    { 0x005D, "bracketright" },  // RIGHT SQUARE BRACKET
-    { 0x005E, "asciicircum" },  // CIRCUMFLEX ACCENT
-    { 0x005F, "underscore" },  // LOW LINE
-    { 0x0060, "grave" },  // GRAVE ACCENT
-    { 0x0061, "a" },  // LATIN SMALL LETTER A
-    { 0x0062, "b" },  // LATIN SMALL LETTER B
-    { 0x0063, "c" },  // LATIN SMALL LETTER C
-    { 0x0064, "d" },  // LATIN SMALL LETTER D
-    { 0x0065, "e" },  // LATIN SMALL LETTER E
-    { 0x0066, "f" },  // LATIN SMALL LETTER F
-    { 0x0067, "g" },  // LATIN SMALL LETTER G
-    { 0x0068, "h" },  // LATIN SMALL LETTER H
-    { 0x0069, "i" },  // LATIN SMALL LETTER I
-    { 0x006A, "j" },  // LATIN SMALL LETTER J
-    { 0x006B, "k" },  // LATIN SMALL LETTER K
-    { 0x006C, "l" },  // LATIN SMALL LETTER L
-    { 0x006D, "m" },  // LATIN SMALL LETTER M
-    { 0x006E, "n" },  // LATIN SMALL LETTER N
-    { 0x006F, "o" },  // LATIN SMALL LETTER O
-    { 0x0070, "p" },  // LATIN SMALL LETTER P
-    { 0x0071, "q" },  // LATIN SMALL LETTER Q
-    { 0x0072, "r" },  // LATIN SMALL LETTER R
-    { 0x0073, "s" },  // LATIN SMALL LETTER S
-    { 0x0074, "t" },  // LATIN SMALL LETTER T
-    { 0x0075, "u" },  // LATIN SMALL LETTER U
-    { 0x0076, "v" },  // LATIN SMALL LETTER V
-    { 0x0077, "w" },  // LATIN SMALL LETTER W
-    { 0x0078, "x" },  // LATIN SMALL LETTER X
-    { 0x0079, "y" },  // LATIN SMALL LETTER Y
-    { 0x007A, "z" },  // LATIN SMALL LETTER Z
-    { 0x007B, "braceleft" },  // LEFT CURLY BRACKET
-    { 0x007C, "bar" },  // VERTICAL LINE
-    { 0x007D, "braceright" },  // RIGHT CURLY BRACKET
-    { 0x007E, "asciitilde" },  // TILDE
-    { 0x00A0, "space" },  // NO-BREAK SPACE;Duplicate
-    { 0x00A1, "exclamdown" },  // INVERTED EXCLAMATION MARK
-    { 0x00A2, "cent" },  // CENT SIGN
-    { 0x00A3, "sterling" },  // POUND SIGN
-    { 0x00A4, "currency" },  // CURRENCY SIGN
-    { 0x00A5, "yen" },  // YEN SIGN
-    { 0x00A6, "brokenbar" },  // BROKEN BAR
-    { 0x00A7, "section" },  // SECTION SIGN
-    { 0x00A8, "dieresis" },  // DIAERESIS
-    { 0x00A9, "copyright" },  // COPYRIGHT SIGN
-    { 0x00AA, "ordfeminine" },  // FEMININE ORDINAL INDICATOR
-    { 0x00AB, "guillemotleft" },  // LEFT-POINTING DOUBLE ANGLE QUOTATION MARK
-    { 0x00AC, "logicalnot" },  // NOT SIGN
-    { 0x00AD, "hyphen" },  // SOFT HYPHEN;Duplicate
-    { 0x00AE, "registered" },  // REGISTERED SIGN
-    { 0x00AF, "macron" },  // MACRON
-    { 0x00B0, "degree" },  // DEGREE SIGN
-    { 0x00B1, "plusminus" },  // PLUS-MINUS SIGN
-    { 0x00B2, "twosuperior" },  // SUPERSCRIPT TWO
-    { 0x00B3, "threesuperior" },  // SUPERSCRIPT THREE
-    { 0x00B4, "acute" },  // ACUTE ACCENT
-    { 0x00B5, "mu" },  // MICRO SIGN
-    { 0x00B6, "paragraph" },  // PILCROW SIGN
-    { 0x00B7, "periodcentered" },  // MIDDLE DOT
-    { 0x00B8, "cedilla" },  // CEDILLA
-    { 0x00B9, "onesuperior" },  // SUPERSCRIPT ONE
-    { 0x00BA, "ordmasculine" },  // MASCULINE ORDINAL INDICATOR
-    { 0x00BB, "guillemotright" }, // RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK
-    { 0x00BC, "onequarter" },  // VULGAR FRACTION ONE QUARTER
-    { 0x00BD, "onehalf" },  // VULGAR FRACTION ONE HALF
-    { 0x00BE, "threequarters" },  // VULGAR FRACTION THREE QUARTERS
-    { 0x00BF, "questiondown" },  // INVERTED QUESTION MARK
-    { 0x00C0, "Agrave" },  // LATIN CAPITAL LETTER A WITH GRAVE
-    { 0x00C1, "Aacute" },  // LATIN CAPITAL LETTER A WITH ACUTE
-    { 0x00C2, "Acircumflex" },  // LATIN CAPITAL LETTER A WITH CIRCUMFLEX
-    { 0x00C3, "Atilde" },  // LATIN CAPITAL LETTER A WITH TILDE
-    { 0x00C4, "Adieresis" },  // LATIN CAPITAL LETTER A WITH DIAERESIS
-    { 0x00C5, "Aring" },  // LATIN CAPITAL LETTER A WITH RING ABOVE
-    { 0x00C6, "AE" },  // LATIN CAPITAL LETTER AE
-    { 0x00C7, "Ccedilla" },  // LATIN CAPITAL LETTER C WITH CEDILLA
-    { 0x00C8, "Egrave" },  // LATIN CAPITAL LETTER E WITH GRAVE
-    { 0x00C9, "Eacute" },  // LATIN CAPITAL LETTER E WITH ACUTE
-    { 0x00CA, "Ecircumflex" },  // LATIN CAPITAL LETTER E WITH CIRCUMFLEX
-    { 0x00CB, "Edieresis" },  // LATIN CAPITAL LETTER E WITH DIAERESIS
-    { 0x00CC, "Igrave" },  // LATIN CAPITAL LETTER I WITH GRAVE
-    { 0x00CD, "Iacute" },  // LATIN CAPITAL LETTER I WITH ACUTE
-    { 0x00CE, "Icircumflex" },  // LATIN CAPITAL LETTER I WITH CIRCUMFLEX
-    { 0x00CF, "Idieresis" },  // LATIN CAPITAL LETTER I WITH DIAERESIS
-    { 0x00D0, "Eth" },  // LATIN CAPITAL LETTER ETH
-    { 0x00D1, "Ntilde" },  // LATIN CAPITAL LETTER N WITH TILDE
-    { 0x00D2, "Ograve" },  // LATIN CAPITAL LETTER O WITH GRAVE
-    { 0x00D3, "Oacute" },  // LATIN CAPITAL LETTER O WITH ACUTE
-    { 0x00D4, "Ocircumflex" },  // LATIN CAPITAL LETTER O WITH CIRCUMFLEX
-    { 0x00D5, "Otilde" },  // LATIN CAPITAL LETTER O WITH TILDE
-    { 0x00D6, "Odieresis" },  // LATIN CAPITAL LETTER O WITH DIAERESIS
-    { 0x00D7, "multiply" },  // MULTIPLICATION SIGN
-    { 0x00D8, "Oslash" },  // LATIN CAPITAL LETTER O WITH STROKE
-    { 0x00D9, "Ugrave" },  // LATIN CAPITAL LETTER U WITH GRAVE
-    { 0x00DA, "Uacute" },  // LATIN CAPITAL LETTER U WITH ACUTE
-    { 0x00DB, "Ucircumflex" },  // LATIN CAPITAL LETTER U WITH CIRCUMFLEX
-    { 0x00DC, "Udieresis" },  // LATIN CAPITAL LETTER U WITH DIAERESIS
-    { 0x00DD, "Yacute" },  // LATIN CAPITAL LETTER Y WITH ACUTE
-    { 0x00DE, "Thorn" },  // LATIN CAPITAL LETTER THORN
-    { 0x00DF, "germandbls" },  // LATIN SMALL LETTER SHARP S
-    { 0x00E0, "agrave" },  // LATIN SMALL LETTER A WITH GRAVE
-    { 0x00E1, "aacute" },  // LATIN SMALL LETTER A WITH ACUTE
-    { 0x00E2, "acircumflex" },  // LATIN SMALL LETTER A WITH CIRCUMFLEX
-    { 0x00E3, "atilde" },  // LATIN SMALL LETTER A WITH TILDE
-    { 0x00E4, "adieresis" },  // LATIN SMALL LETTER A WITH DIAERESIS
-    { 0x00E5, "aring" },  // LATIN SMALL LETTER A WITH RING ABOVE
-    { 0x00E6, "ae" },  // LATIN SMALL LETTER AE
-    { 0x00E7, "ccedilla" },  // LATIN SMALL LETTER C WITH CEDILLA
-    { 0x00E8, "egrave" },  // LATIN SMALL LETTER E WITH GRAVE
-    { 0x00E9, "eacute" },  // LATIN SMALL LETTER E WITH ACUTE
-    { 0x00EA, "ecircumflex" },  // LATIN SMALL LETTER E WITH CIRCUMFLEX
-    { 0x00EB, "edieresis" },  // LATIN SMALL LETTER E WITH DIAERESIS
-    { 0x00EC, "igrave" },  // LATIN SMALL LETTER I WITH GRAVE
-    { 0x00ED, "iacute" },  // LATIN SMALL LETTER I WITH ACUTE
-    { 0x00EE, "icircumflex" },  // LATIN SMALL LETTER I WITH CIRCUMFLEX
-    { 0x00EF, "idieresis" },  // LATIN SMALL LETTER I WITH DIAERESIS
-    { 0x00F0, "eth" },  // LATIN SMALL LETTER ETH
-    { 0x00F1, "ntilde" },  // LATIN SMALL LETTER N WITH TILDE
-    { 0x00F2, "ograve" },  // LATIN SMALL LETTER O WITH GRAVE
-    { 0x00F3, "oacute" },  // LATIN SMALL LETTER O WITH ACUTE
-    { 0x00F4, "ocircumflex" },  // LATIN SMALL LETTER O WITH CIRCUMFLEX
-    { 0x00F5, "otilde" },  // LATIN SMALL LETTER O WITH TILDE
-    { 0x00F6, "odieresis" },  // LATIN SMALL LETTER O WITH DIAERESIS
-    { 0x00F7, "divide" },  // DIVISION SIGN
-    { 0x00F8, "oslash" },  // LATIN SMALL LETTER O WITH STROKE
-    { 0x00F9, "ugrave" },  // LATIN SMALL LETTER U WITH GRAVE
-    { 0x00FA, "uacute" },  // LATIN SMALL LETTER U WITH ACUTE
-    { 0x00FB, "ucircumflex" },  // LATIN SMALL LETTER U WITH CIRCUMFLEX
-    { 0x00FC, "udieresis" },  // LATIN SMALL LETTER U WITH DIAERESIS
-    { 0x00FD, "yacute" },  // LATIN SMALL LETTER Y WITH ACUTE
-    { 0x00FE, "thorn" },  // LATIN SMALL LETTER THORN
-    { 0x00FF, "ydieresis" },  // LATIN SMALL LETTER Y WITH DIAERESIS
-    { 0x0100, "Amacron" },  // LATIN CAPITAL LETTER A WITH MACRON
-    { 0x0101, "amacron" },  // LATIN SMALL LETTER A WITH MACRON
-    { 0x0102, "Abreve" },  // LATIN CAPITAL LETTER A WITH BREVE
-    { 0x0103, "abreve" },  // LATIN SMALL LETTER A WITH BREVE
-    { 0x0104, "Aogonek" },  // LATIN CAPITAL LETTER A WITH OGONEK
-    { 0x0105, "aogonek" },  // LATIN SMALL LETTER A WITH OGONEK
-    { 0x0106, "Cacute" },  // LATIN CAPITAL LETTER C WITH ACUTE
-    { 0x0107, "cacute" },  // LATIN SMALL LETTER C WITH ACUTE
-    { 0x0108, "Ccircumflex" },  // LATIN CAPITAL LETTER C WITH CIRCUMFLEX
-    { 0x0109, "ccircumflex" },  // LATIN SMALL LETTER C WITH CIRCUMFLEX
-    { 0x010A, "Cdotaccent" },  // LATIN CAPITAL LETTER C WITH DOT ABOVE
-    { 0x010B, "cdotaccent" },  // LATIN SMALL LETTER C WITH DOT ABOVE
-    { 0x010C, "Ccaron" },  // LATIN CAPITAL LETTER C WITH CARON
-    { 0x010D, "ccaron" },  // LATIN SMALL LETTER C WITH CARON
-    { 0x010E, "Dcaron" },  // LATIN CAPITAL LETTER D WITH CARON
-    { 0x010F, "dcaron" },  // LATIN SMALL LETTER D WITH CARON
-    { 0x0110, "Dcroat" },  // LATIN CAPITAL LETTER D WITH STROKE
-    { 0x0111, "dcroat" },  // LATIN SMALL LETTER D WITH STROKE
-    { 0x0112, "Emacron" },  // LATIN CAPITAL LETTER E WITH MACRON
-    { 0x0113, "emacron" },  // LATIN SMALL LETTER E WITH MACRON
-    { 0x0114, "Ebreve" },  // LATIN CAPITAL LETTER E WITH BREVE
-    { 0x0115, "ebreve" },  // LATIN SMALL LETTER E WITH BREVE
-    { 0x0116, "Edotaccent" },  // LATIN CAPITAL LETTER E WITH DOT ABOVE
-    { 0x0117, "edotaccent" },  // LATIN SMALL LETTER E WITH DOT ABOVE
-    { 0x0118, "Eogonek" },  // LATIN CAPITAL LETTER E WITH OGONEK
-    { 0x0119, "eogonek" },  // LATIN SMALL LETTER E WITH OGONEK
-    { 0x011A, "Ecaron" },  // LATIN CAPITAL LETTER E WITH CARON
-    { 0x011B, "ecaron" },  // LATIN SMALL LETTER E WITH CARON
-    { 0x011C, "Gcircumflex" },  // LATIN CAPITAL LETTER G WITH CIRCUMFLEX
-    { 0x011D, "gcircumflex" },  // LATIN SMALL LETTER G WITH CIRCUMFLEX
-    { 0x011E, "Gbreve" },  // LATIN CAPITAL LETTER G WITH BREVE
-    { 0x011F, "gbreve" },  // LATIN SMALL LETTER G WITH BREVE
-    { 0x0120, "Gdotaccent" },  // LATIN CAPITAL LETTER G WITH DOT ABOVE
-    { 0x0121, "gdotaccent" },  // LATIN SMALL LETTER G WITH DOT ABOVE
-    { 0x0122, "Gcommaaccent" },  // LATIN CAPITAL LETTER G WITH CEDILLA
-    { 0x0123, "gcommaaccent" },  // LATIN SMALL LETTER G WITH CEDILLA
-    { 0x0124, "Hcircumflex" },  // LATIN CAPITAL LETTER H WITH CIRCUMFLEX
-    { 0x0125, "hcircumflex" },  // LATIN SMALL LETTER H WITH CIRCUMFLEX
-    { 0x0126, "Hbar" },  // LATIN CAPITAL LETTER H WITH STROKE
-    { 0x0127, "hbar" },  // LATIN SMALL LETTER H WITH STROKE
-    { 0x0128, "Itilde" },  // LATIN CAPITAL LETTER I WITH TILDE
-    { 0x0129, "itilde" },  // LATIN SMALL LETTER I WITH TILDE
-    { 0x012A, "Imacron" },  // LATIN CAPITAL LETTER I WITH MACRON
-    { 0x012B, "imacron" },  // LATIN SMALL LETTER I WITH MACRON
-    { 0x012C, "Ibreve" },  // LATIN CAPITAL LETTER I WITH BREVE
-    { 0x012D, "ibreve" },  // LATIN SMALL LETTER I WITH BREVE
-    { 0x012E, "Iogonek" },  // LATIN CAPITAL LETTER I WITH OGONEK
-    { 0x012F, "iogonek" },  // LATIN SMALL LETTER I WITH OGONEK
-    { 0x0130, "Idotaccent" },  // LATIN CAPITAL LETTER I WITH DOT ABOVE
-    { 0x0131, "dotlessi" },  // LATIN SMALL LETTER DOTLESS I
-    { 0x0132, "IJ" },  // LATIN CAPITAL LIGATURE IJ
-    { 0x0133, "ij" },  // LATIN SMALL LIGATURE IJ
-    { 0x0134, "Jcircumflex" },  // LATIN CAPITAL LETTER J WITH CIRCUMFLEX
-    { 0x0135, "jcircumflex" },  // LATIN SMALL LETTER J WITH CIRCUMFLEX
-    { 0x0136, "Kcommaaccent" },  // LATIN CAPITAL LETTER K WITH CEDILLA
-    { 0x0137, "kcommaaccent" },  // LATIN SMALL LETTER K WITH CEDILLA
-    { 0x0138, "kgreenlandic" },  // LATIN SMALL LETTER KRA
-    { 0x0139, "Lacute" },  // LATIN CAPITAL LETTER L WITH ACUTE
-    { 0x013A, "lacute" },  // LATIN SMALL LETTER L WITH ACUTE
-    { 0x013B, "Lcommaaccent" },  // LATIN CAPITAL LETTER L WITH CEDILLA
-    { 0x013C, "lcommaaccent" },  // LATIN SMALL LETTER L WITH CEDILLA
-    { 0x013D, "Lcaron" },  // LATIN CAPITAL LETTER L WITH CARON
-    { 0x013E, "lcaron" },  // LATIN SMALL LETTER L WITH CARON
-    { 0x013F, "Ldot" },  // LATIN CAPITAL LETTER L WITH MIDDLE DOT
-    { 0x0140, "ldot" },  // LATIN SMALL LETTER L WITH MIDDLE DOT
-    { 0x0141, "Lslash" },  // LATIN CAPITAL LETTER L WITH STROKE
-    { 0x0142, "lslash" },  // LATIN SMALL LETTER L WITH STROKE
-    { 0x0143, "Nacute" },  // LATIN CAPITAL LETTER N WITH ACUTE
-    { 0x0144, "nacute" },  // LATIN SMALL LETTER N WITH ACUTE
-    { 0x0145, "Ncommaaccent" },  // LATIN CAPITAL LETTER N WITH CEDILLA
-    { 0x0146, "ncommaaccent" },  // LATIN SMALL LETTER N WITH CEDILLA
-    { 0x0147, "Ncaron" },  // LATIN CAPITAL LETTER N WITH CARON
-    { 0x0148, "ncaron" },  // LATIN SMALL LETTER N WITH CARON
-    { 0x0149, "napostrophe" },  // LATIN SMALL LETTER N PRECEDED BY APOSTROPHE
-    { 0x014A, "Eng" },  // LATIN CAPITAL LETTER ENG
-    { 0x014B, "eng" },  // LATIN SMALL LETTER ENG
-    { 0x014C, "Omacron" },  // LATIN CAPITAL LETTER O WITH MACRON
-    { 0x014D, "omacron" },  // LATIN SMALL LETTER O WITH MACRON
-    { 0x014E, "Obreve" },  // LATIN CAPITAL LETTER O WITH BREVE
-    { 0x014F, "obreve" },  // LATIN SMALL LETTER O WITH BREVE
-    { 0x0150, "Ohungarumlaut" },  // LATIN CAPITAL LETTER O WITH DOUBLE ACUTE
-    { 0x0151, "ohungarumlaut" },  // LATIN SMALL LETTER O WITH DOUBLE ACUTE
-    { 0x0152, "OE" },  // LATIN CAPITAL LIGATURE OE
-    { 0x0153, "oe" },  // LATIN SMALL LIGATURE OE
-    { 0x0154, "Racute" },  // LATIN CAPITAL LETTER R WITH ACUTE
-    { 0x0155, "racute" },  // LATIN SMALL LETTER R WITH ACUTE
-    { 0x0156, "Rcommaaccent" },  // LATIN CAPITAL LETTER R WITH CEDILLA
-    { 0x0157, "rcommaaccent" },  // LATIN SMALL LETTER R WITH CEDILLA
-    { 0x0158, "Rcaron" },  // LATIN CAPITAL LETTER R WITH CARON
-    { 0x0159, "rcaron" },  // LATIN SMALL LETTER R WITH CARON
-    { 0x015A, "Sacute" },  // LATIN CAPITAL LETTER S WITH ACUTE
-    { 0x015B, "sacute" },  // LATIN SMALL LETTER S WITH ACUTE
-    { 0x015C, "Scircumflex" },  // LATIN CAPITAL LETTER S WITH CIRCUMFLEX
-    { 0x015D, "scircumflex" },  // LATIN SMALL LETTER S WITH CIRCUMFLEX
-    { 0x015E, "Scedilla" },  // LATIN CAPITAL LETTER S WITH CEDILLA
-    { 0x015F, "scedilla" },  // LATIN SMALL LETTER S WITH CEDILLA
-    { 0x0160, "Scaron" },  // LATIN CAPITAL LETTER S WITH CARON
-    { 0x0161, "scaron" },  // LATIN SMALL LETTER S WITH CARON
-    { 0x0162, "Tcommaaccent" },  // LATIN CAPITAL LETTER T WITH CEDILLA
-    { 0x0163, "tcommaaccent" },  // LATIN SMALL LETTER T WITH CEDILLA
-    { 0x0164, "Tcaron" },  // LATIN CAPITAL LETTER T WITH CARON
-    { 0x0165, "tcaron" },  // LATIN SMALL LETTER T WITH CARON
-    { 0x0166, "Tbar" },  // LATIN CAPITAL LETTER T WITH STROKE
-    { 0x0167, "tbar" },  // LATIN SMALL LETTER T WITH STROKE
-    { 0x0168, "Utilde" },  // LATIN CAPITAL LETTER U WITH TILDE
-    { 0x0169, "utilde" },  // LATIN SMALL LETTER U WITH TILDE
-    { 0x016A, "Umacron" },  // LATIN CAPITAL LETTER U WITH MACRON
-    { 0x016B, "umacron" },  // LATIN SMALL LETTER U WITH MACRON
-    { 0x016C, "Ubreve" },  // LATIN CAPITAL LETTER U WITH BREVE
-    { 0x016D, "ubreve" },  // LATIN SMALL LETTER U WITH BREVE
-    { 0x016E, "Uring" },  // LATIN CAPITAL LETTER U WITH RING ABOVE
-    { 0x016F, "uring" },  // LATIN SMALL LETTER U WITH RING ABOVE
-    { 0x0170, "Uhungarumlaut" },  // LATIN CAPITAL LETTER U WITH DOUBLE ACUTE
-    { 0x0171, "uhungarumlaut" },  // LATIN SMALL LETTER U WITH DOUBLE ACUTE
-    { 0x0172, "Uogonek" },  // LATIN CAPITAL LETTER U WITH OGONEK
-    { 0x0173, "uogonek" },  // LATIN SMALL LETTER U WITH OGONEK
-    { 0x0174, "Wcircumflex" },  // LATIN CAPITAL LETTER W WITH CIRCUMFLEX
-    { 0x0175, "wcircumflex" },  // LATIN SMALL LETTER W WITH CIRCUMFLEX
-    { 0x0176, "Ycircumflex" },  // LATIN CAPITAL LETTER Y WITH CIRCUMFLEX
-    { 0x0177, "ycircumflex" },  // LATIN SMALL LETTER Y WITH CIRCUMFLEX
-    { 0x0178, "Ydieresis" },  // LATIN CAPITAL LETTER Y WITH DIAERESIS
-    { 0x0179, "Zacute" },  // LATIN CAPITAL LETTER Z WITH ACUTE
-    { 0x017A, "zacute" },  // LATIN SMALL LETTER Z WITH ACUTE
-    { 0x017B, "Zdotaccent" },  // LATIN CAPITAL LETTER Z WITH DOT ABOVE
-    { 0x017C, "zdotaccent" },  // LATIN SMALL LETTER Z WITH DOT ABOVE
-    { 0x017D, "Zcaron" },  // LATIN CAPITAL LETTER Z WITH CARON
-    { 0x017E, "zcaron" },  // LATIN SMALL LETTER Z WITH CARON
-    { 0x017F, "longs" },  // LATIN SMALL LETTER LONG S
-    { 0x0192, "florin" },  // LATIN SMALL LETTER F WITH HOOK
-    { 0x01A0, "Ohorn" },  // LATIN CAPITAL LETTER O WITH HORN
-    { 0x01A1, "ohorn" },  // LATIN SMALL LETTER O WITH HORN
-    { 0x01AF, "Uhorn" },  // LATIN CAPITAL LETTER U WITH HORN
-    { 0x01B0, "uhorn" },  // LATIN SMALL LETTER U WITH HORN
-    { 0x01E6, "Gcaron" },  // LATIN CAPITAL LETTER G WITH CARON
-    { 0x01E7, "gcaron" },  // LATIN SMALL LETTER G WITH CARON
-    { 0x01FA, "Aringacute" },  // LATIN CAPITAL LETTER A WITH RING ABOVE AND ACUTE
-    { 0x01FB, "aringacute" },  // LATIN SMALL LETTER A WITH RING ABOVE AND ACUTE
-    { 0x01FC, "AEacute" },  // LATIN CAPITAL LETTER AE WITH ACUTE
-    { 0x01FD, "aeacute" },  // LATIN SMALL LETTER AE WITH ACUTE
-    { 0x01FE, "Oslashacute" },  // LATIN CAPITAL LETTER O WITH STROKE AND ACUTE
-    { 0x01FF, "oslashacute" },  // LATIN SMALL LETTER O WITH STROKE AND ACUTE
-    { 0x0218, "Scommaaccent" },  // LATIN CAPITAL LETTER S WITH COMMA BELOW
-    { 0x0219, "scommaaccent" },  // LATIN SMALL LETTER S WITH COMMA BELOW
-    { 0x021A, "Tcommaaccent" },  // LATIN CAPITAL LETTER T WITH COMMA BELOW;Duplicate
-    { 0x021B, "tcommaaccent" },  // LATIN SMALL LETTER T WITH COMMA BELOW;Duplicate
-    { 0x02BC, "afii57929" },  // MODIFIER LETTER APOSTROPHE
-    { 0x02BD, "afii64937" },  // MODIFIER LETTER REVERSED COMMA
-    { 0x02C6, "circumflex" },  // MODIFIER LETTER CIRCUMFLEX ACCENT
-    { 0x02C7, "caron" },  // CARON
-    { 0x02C9, "macron" },  // MODIFIER LETTER MACRON;Duplicate
-    { 0x02D8, "breve" },  // BREVE
-    { 0x02D9, "dotaccent" },  // DOT ABOVE
-    { 0x02DA, "ring" },  // RING ABOVE
-    { 0x02DB, "ogonek" },  // OGONEK
-    { 0x02DC, "tilde" },  // SMALL TILDE
-    { 0x02DD, "hungarumlaut" },  // DOUBLE ACUTE ACCENT
-    { 0x0300, "gravecomb" },  // COMBINING GRAVE ACCENT
-    { 0x0301, "acutecomb" },  // COMBINING ACUTE ACCENT
-    { 0x0303, "tildecomb" },  // COMBINING TILDE
-    { 0x0309, "hookabovecomb" },  // COMBINING HOOK ABOVE
-    { 0x0323, "dotbelowcomb" },  // COMBINING DOT BELOW
-    { 0x0384, "tonos" },  // GREEK TONOS
-    { 0x0385, "dieresistonos" },  // GREEK DIALYTIKA TONOS
-    { 0x0386, "Alphatonos" },  // GREEK CAPITAL LETTER ALPHA WITH TONOS
-    { 0x0387, "anoteleia" },  // GREEK ANO TELEIA
-    { 0x0388, "Epsilontonos" },  // GREEK CAPITAL LETTER EPSILON WITH TONOS
-    { 0x0389, "Etatonos" },  // GREEK CAPITAL LETTER ETA WITH TONOS
-    { 0x038A, "Iotatonos" },  // GREEK CAPITAL LETTER IOTA WITH TONOS
-    { 0x038C, "Omicrontonos" },  // GREEK CAPITAL LETTER OMICRON WITH TONOS
-    { 0x038E, "Upsilontonos" },  // GREEK CAPITAL LETTER UPSILON WITH TONOS
-    { 0x038F, "Omegatonos" },  // GREEK CAPITAL LETTER OMEGA WITH TONOS
-    { 0x0390, "iotadieresistonos" },  // GREEK SMALL LETTER IOTA WITH DIALYTIKA AND TONOS
-    { 0x0391, "Alpha" },  // GREEK CAPITAL LETTER ALPHA
-    { 0x0392, "Beta" },  // GREEK CAPITAL LETTER BETA
-    { 0x0393, "Gamma" },  // GREEK CAPITAL LETTER GAMMA
-    { 0x0394, "Delta" },  // GREEK CAPITAL LETTER DELTA;Duplicate
-    { 0x0395, "Epsilon" },  // GREEK CAPITAL LETTER EPSILON
-    { 0x0396, "Zeta" },  // GREEK CAPITAL LETTER ZETA
-    { 0x0397, "Eta" },  // GREEK CAPITAL LETTER ETA
-    { 0x0398, "Theta" },  // GREEK CAPITAL LETTER THETA
-    { 0x0399, "Iota" },  // GREEK CAPITAL LETTER IOTA
-    { 0x039A, "Kappa" },  // GREEK CAPITAL LETTER KAPPA
-    { 0x039B, "Lambda" },  // GREEK CAPITAL LETTER LAMDA
-    { 0x039C, "Mu" },  // GREEK CAPITAL LETTER MU
-    { 0x039D, "Nu" },  // GREEK CAPITAL LETTER NU
-    { 0x039E, "Xi" },  // GREEK CAPITAL LETTER XI
-    { 0x039F, "Omicron" },  // GREEK CAPITAL LETTER OMICRON
-    { 0x03A0, "Pi" },  // GREEK CAPITAL LETTER PI
-    { 0x03A1, "Rho" },  // GREEK CAPITAL LETTER RHO
-    { 0x03A3, "Sigma" },  // GREEK CAPITAL LETTER SIGMA
-    { 0x03A4, "Tau" },  // GREEK CAPITAL LETTER TAU
-    { 0x03A5, "Upsilon" },  // GREEK CAPITAL LETTER UPSILON
-    { 0x03A6, "Phi" },  // GREEK CAPITAL LETTER PHI
-    { 0x03A7, "Chi" },  // GREEK CAPITAL LETTER CHI
-    { 0x03A8, "Psi" },  // GREEK CAPITAL LETTER PSI
-    { 0x03A9, "Omega" },  // GREEK CAPITAL LETTER OMEGA;Duplicate
-    { 0x03AA, "Iotadieresis" },  // GREEK CAPITAL LETTER IOTA WITH DIALYTIKA
-    { 0x03AB, "Upsilondieresis" },  // GREEK CAPITAL LETTER UPSILON WITH DIALYTIKA
-    { 0x03AC, "alphatonos" },  // GREEK SMALL LETTER ALPHA WITH TONOS
-    { 0x03AD, "epsilontonos" },  // GREEK SMALL LETTER EPSILON WITH TONOS
-    { 0x03AE, "etatonos" },  // GREEK SMALL LETTER ETA WITH TONOS
-    { 0x03AF, "iotatonos" },  // GREEK SMALL LETTER IOTA WITH TONOS
-    { 0x03B0, "upsilondieresistonos" },  // GREEK SMALL LETTER UPSILON WITH DIALYTIKA AND TONOS
-    { 0x03B1, "alpha" },  // GREEK SMALL LETTER ALPHA
-    { 0x03B2, "beta" },  // GREEK SMALL LETTER BETA
-    { 0x03B3, "gamma" },  // GREEK SMALL LETTER GAMMA
-    { 0x03B4, "delta" },  // GREEK SMALL LETTER DELTA
-    { 0x03B5, "epsilon" },  // GREEK SMALL LETTER EPSILON
-    { 0x03B6, "zeta" },  // GREEK SMALL LETTER ZETA
-    { 0x03B7, "eta" },  // GREEK SMALL LETTER ETA
-    { 0x03B8, "theta" },  // GREEK SMALL LETTER THETA
-    { 0x03B9, "iota" },  // GREEK SMALL LETTER IOTA
-    { 0x03BA, "kappa" },  // GREEK SMALL LETTER KAPPA
-    { 0x03BB, "lambda" },  // GREEK SMALL LETTER LAMDA
-    { 0x03BC, "mu" },  // GREEK SMALL LETTER MU;Duplicate
-    { 0x03BD, "nu" },  // GREEK SMALL LETTER NU
-    { 0x03BE, "xi" },  // GREEK SMALL LETTER XI
-    { 0x03BF, "omicron" },  // GREEK SMALL LETTER OMICRON
-    { 0x03C0, "pi" },  // GREEK SMALL LETTER PI
-    { 0x03C1, "rho" },  // GREEK SMALL LETTER RHO
-    { 0x03C2, "sigma1" },  // GREEK SMALL LETTER FINAL SIGMA
-    { 0x03C3, "sigma" },  // GREEK SMALL LETTER SIGMA
-    { 0x03C4, "tau" },  // GREEK SMALL LETTER TAU
-    { 0x03C5, "upsilon" },  // GREEK SMALL LETTER UPSILON
-    { 0x03C6, "phi" },  // GREEK SMALL LETTER PHI
-    { 0x03C7, "chi" },  // GREEK SMALL LETTER CHI
-    { 0x03C8, "psi" },  // GREEK SMALL LETTER PSI
-    { 0x03C9, "omega" },  // GREEK SMALL LETTER OMEGA
-    { 0x03CA, "iotadieresis" },  // GREEK SMALL LETTER IOTA WITH DIALYTIKA
-    { 0x03CB, "upsilondieresis" },  // GREEK SMALL LETTER UPSILON WITH DIALYTIKA
-    { 0x03CC, "omicrontonos" },  // GREEK SMALL LETTER OMICRON WITH TONOS
-    { 0x03CD, "upsilontonos" },  // GREEK SMALL LETTER UPSILON WITH TONOS
-    { 0x03CE, "omegatonos" },  // GREEK SMALL LETTER OMEGA WITH TONOS
-    { 0x03D1, "theta1" },  // GREEK THETA SYMBOL
-    { 0x03D2, "Upsilon1" },  // GREEK UPSILON WITH HOOK SYMBOL
-    { 0x03D5, "phi1" },  // GREEK PHI SYMBOL
-    { 0x03D6, "omega1" },  // GREEK PI SYMBOL
-    { 0x0401, "afii10023" },  // CYRILLIC CAPITAL LETTER IO
-    { 0x0402, "afii10051" },  // CYRILLIC CAPITAL LETTER DJE
-    { 0x0403, "afii10052" },  // CYRILLIC CAPITAL LETTER GJE
-    { 0x0404, "afii10053" },  // CYRILLIC CAPITAL LETTER UKRAINIAN IE
-    { 0x0405, "afii10054" },  // CYRILLIC CAPITAL LETTER DZE
-    { 0x0406, "afii10055" },  // CYRILLIC CAPITAL LETTER BYELORUSSIAN-UKRAINIAN I
-    { 0x0407, "afii10056" },  // CYRILLIC CAPITAL LETTER YI
-    { 0x0408, "afii10057" },  // CYRILLIC CAPITAL LETTER JE
-    { 0x0409, "afii10058" },  // CYRILLIC CAPITAL LETTER LJE
-    { 0x040A, "afii10059" },  // CYRILLIC CAPITAL LETTER NJE
-    { 0x040B, "afii10060" },  // CYRILLIC CAPITAL LETTER TSHE
-    { 0x040C, "afii10061" },  // CYRILLIC CAPITAL LETTER KJE
-    { 0x040E, "afii10062" },  // CYRILLIC CAPITAL LETTER SHORT U
-    { 0x040F, "afii10145" },  // CYRILLIC CAPITAL LETTER DZHE
-    { 0x0410, "afii10017" },  // CYRILLIC CAPITAL LETTER A
-    { 0x0411, "afii10018" },  // CYRILLIC CAPITAL LETTER BE
-    { 0x0412, "afii10019" },  // CYRILLIC CAPITAL LETTER VE
-    { 0x0413, "afii10020" },  // CYRILLIC CAPITAL LETTER GHE
-    { 0x0414, "afii10021" },  // CYRILLIC CAPITAL LETTER DE
-    { 0x0415, "afii10022" },  // CYRILLIC CAPITAL LETTER IE
-    { 0x0416, "afii10024" },  // CYRILLIC CAPITAL LETTER ZHE
-    { 0x0417, "afii10025" },  // CYRILLIC CAPITAL LETTER ZE
-    { 0x0418, "afii10026" },  // CYRILLIC CAPITAL LETTER I
-    { 0x0419, "afii10027" },  // CYRILLIC CAPITAL LETTER SHORT I
-    { 0x041A, "afii10028" },  // CYRILLIC CAPITAL LETTER KA
-    { 0x041B, "afii10029" },  // CYRILLIC CAPITAL LETTER EL
-    { 0x041C, "afii10030" },  // CYRILLIC CAPITAL LETTER EM
-    { 0x041D, "afii10031" },  // CYRILLIC CAPITAL LETTER EN
-    { 0x041E, "afii10032" },  // CYRILLIC CAPITAL LETTER O
-    { 0x041F, "afii10033" },  // CYRILLIC CAPITAL LETTER PE
-    { 0x0420, "afii10034" },  // CYRILLIC CAPITAL LETTER ER
-    { 0x0421, "afii10035" },  // CYRILLIC CAPITAL LETTER ES
-    { 0x0422, "afii10036" },  // CYRILLIC CAPITAL LETTER TE
-    { 0x0423, "afii10037" },  // CYRILLIC CAPITAL LETTER U
-    { 0x0424, "afii10038" },  // CYRILLIC CAPITAL LETTER EF
-    { 0x0425, "afii10039" },  // CYRILLIC CAPITAL LETTER HA
-    { 0x0426, "afii10040" },  // CYRILLIC CAPITAL LETTER TSE
-    { 0x0427, "afii10041" },  // CYRILLIC CAPITAL LETTER CHE
-    { 0x0428, "afii10042" },  // CYRILLIC CAPITAL LETTER SHA
-    { 0x0429, "afii10043" },  // CYRILLIC CAPITAL LETTER SHCHA
-    { 0x042A, "afii10044" },  // CYRILLIC CAPITAL LETTER HARD SIGN
-    { 0x042B, "afii10045" },  // CYRILLIC CAPITAL LETTER YERU
-    { 0x042C, "afii10046" },  // CYRILLIC CAPITAL LETTER SOFT SIGN
-    { 0x042D, "afii10047" },  // CYRILLIC CAPITAL LETTER E
-    { 0x042E, "afii10048" },  // CYRILLIC CAPITAL LETTER YU
-    { 0x042F, "afii10049" },  // CYRILLIC CAPITAL LETTER YA
-    { 0x0430, "afii10065" },  // CYRILLIC SMALL LETTER A
-    { 0x0431, "afii10066" },  // CYRILLIC SMALL LETTER BE
-    { 0x0432, "afii10067" },  // CYRILLIC SMALL LETTER VE
-    { 0x0433, "afii10068" },  // CYRILLIC SMALL LETTER GHE
-    { 0x0434, "afii10069" },  // CYRILLIC SMALL LETTER DE
-    { 0x0435, "afii10070" },  // CYRILLIC SMALL LETTER IE
-    { 0x0436, "afii10072" },  // CYRILLIC SMALL LETTER ZHE
-    { 0x0437, "afii10073" },  // CYRILLIC SMALL LETTER ZE
-    { 0x0438, "afii10074" },  // CYRILLIC SMALL LETTER I
-    { 0x0439, "afii10075" },  // CYRILLIC SMALL LETTER SHORT I
-    { 0x043A, "afii10076" },  // CYRILLIC SMALL LETTER KA
-    { 0x043B, "afii10077" },  // CYRILLIC SMALL LETTER EL
-    { 0x043C, "afii10078" },  // CYRILLIC SMALL LETTER EM
-    { 0x043D, "afii10079" },  // CYRILLIC SMALL LETTER EN
-    { 0x043E, "afii10080" },  // CYRILLIC SMALL LETTER O
-    { 0x043F, "afii10081" },  // CYRILLIC SMALL LETTER PE
-    { 0x0440, "afii10082" },  // CYRILLIC SMALL LETTER ER
-    { 0x0441, "afii10083" },  // CYRILLIC SMALL LETTER ES
-    { 0x0442, "afii10084" },  // CYRILLIC SMALL LETTER TE
-    { 0x0443, "afii10085" },  // CYRILLIC SMALL LETTER U
-    { 0x0444, "afii10086" },  // CYRILLIC SMALL LETTER EF
-    { 0x0445, "afii10087" },  // CYRILLIC SMALL LETTER HA
-    { 0x0446, "afii10088" },  // CYRILLIC SMALL LETTER TSE
-    { 0x0447, "afii10089" },  // CYRILLIC SMALL LETTER CHE
-    { 0x0448, "afii10090" },  // CYRILLIC SMALL LETTER SHA
-    { 0x0449, "afii10091" },  // CYRILLIC SMALL LETTER SHCHA
-    { 0x044A, "afii10092" },  // CYRILLIC SMALL LETTER HARD SIGN
-    { 0x044B, "afii10093" },  // CYRILLIC SMALL LETTER YERU
-    { 0x044C, "afii10094" },  // CYRILLIC SMALL LETTER SOFT SIGN
-    { 0x044D, "afii10095" },  // CYRILLIC SMALL LETTER E
-    { 0x044E, "afii10096" },  // CYRILLIC SMALL LETTER YU
-    { 0x044F, "afii10097" },  // CYRILLIC SMALL LETTER YA
-    { 0x0451, "afii10071" },  // CYRILLIC SMALL LETTER IO
-    { 0x0452, "afii10099" },  // CYRILLIC SMALL LETTER DJE
-    { 0x0453, "afii10100" },  // CYRILLIC SMALL LETTER GJE
-    { 0x0454, "afii10101" },  // CYRILLIC SMALL LETTER UKRAINIAN IE
-    { 0x0455, "afii10102" },  // CYRILLIC SMALL LETTER DZE
-    { 0x0456, "afii10103" },  // CYRILLIC SMALL LETTER BYELORUSSIAN-UKRAINIAN I
-    { 0x0457, "afii10104" },  // CYRILLIC SMALL LETTER YI
-    { 0x0458, "afii10105" },  // CYRILLIC SMALL LETTER JE
-    { 0x0459, "afii10106" },  // CYRILLIC SMALL LETTER LJE
-    { 0x045A, "afii10107" },  // CYRILLIC SMALL LETTER NJE
-    { 0x045B, "afii10108" },  // CYRILLIC SMALL LETTER TSHE
-    { 0x045C, "afii10109" },  // CYRILLIC SMALL LETTER KJE
-    { 0x045E, "afii10110" },  // CYRILLIC SMALL LETTER SHORT U
-    { 0x045F, "afii10193" },  // CYRILLIC SMALL LETTER DZHE
-    { 0x0462, "afii10146" },  // CYRILLIC CAPITAL LETTER YAT
-    { 0x0463, "afii10194" },  // CYRILLIC SMALL LETTER YAT
-    { 0x0472, "afii10147" },  // CYRILLIC CAPITAL LETTER FITA
-    { 0x0473, "afii10195" },  // CYRILLIC SMALL LETTER FITA
-    { 0x0474, "afii10148" },  // CYRILLIC CAPITAL LETTER IZHITSA
-    { 0x0475, "afii10196" },  // CYRILLIC SMALL LETTER IZHITSA
-    { 0x0490, "afii10050" },  // CYRILLIC CAPITAL LETTER GHE WITH UPTURN
-    { 0x0491, "afii10098" },  // CYRILLIC SMALL LETTER GHE WITH UPTURN
-    { 0x04D9, "afii10846" },  // CYRILLIC SMALL LETTER SCHWA
-    { 0x05B0, "afii57799" },  // HEBREW POINT SHEVA
-    { 0x05B1, "afii57801" },  // HEBREW POINT HATAF SEGOL
-    { 0x05B2, "afii57800" },  // HEBREW POINT HATAF PATAH
-    { 0x05B3, "afii57802" },  // HEBREW POINT HATAF QAMATS
-    { 0x05B4, "afii57793" },  // HEBREW POINT HIRIQ
-    { 0x05B5, "afii57794" },  // HEBREW POINT TSERE
-    { 0x05B6, "afii57795" },  // HEBREW POINT SEGOL
-    { 0x05B7, "afii57798" },  // HEBREW POINT PATAH
-    { 0x05B8, "afii57797" },  // HEBREW POINT QAMATS
-    { 0x05B9, "afii57806" },  // HEBREW POINT HOLAM
-    { 0x05BB, "afii57796" },  // HEBREW POINT QUBUTS
-    { 0x05BC, "afii57807" },  // HEBREW POINT DAGESH OR MAPIQ
-    { 0x05BD, "afii57839" },  // HEBREW POINT METEG
-    { 0x05BE, "afii57645" },  // HEBREW PUNCTUATION MAQAF
-    { 0x05BF, "afii57841" },  // HEBREW POINT RAFE
-    { 0x05C0, "afii57842" },  // HEBREW PUNCTUATION PASEQ
-    { 0x05C1, "afii57804" },  // HEBREW POINT SHIN DOT
-    { 0x05C2, "afii57803" },  // HEBREW POINT SIN DOT
-    { 0x05C3, "afii57658" },  // HEBREW PUNCTUATION SOF PASUQ
-    { 0x05D0, "afii57664" },  // HEBREW LETTER ALEF
-    { 0x05D1, "afii57665" },  // HEBREW LETTER BET
-    { 0x05D2, "afii57666" },  // HEBREW LETTER GIMEL
-    { 0x05D3, "afii57667" },  // HEBREW LETTER DALET
-    { 0x05D4, "afii57668" },  // HEBREW LETTER HE
-    { 0x05D5, "afii57669" },  // HEBREW LETTER VAV
-    { 0x05D6, "afii57670" },  // HEBREW LETTER ZAYIN
-    { 0x05D7, "afii57671" },  // HEBREW LETTER HET
-    { 0x05D8, "afii57672" },  // HEBREW LETTER TET
-    { 0x05D9, "afii57673" },  // HEBREW LETTER YOD
-    { 0x05DA, "afii57674" },  // HEBREW LETTER FINAL KAF
-    { 0x05DB, "afii57675" },  // HEBREW LETTER KAF
-    { 0x05DC, "afii57676" },  // HEBREW LETTER LAMED
-    { 0x05DD, "afii57677" },  // HEBREW LETTER FINAL MEM
-    { 0x05DE, "afii57678" },  // HEBREW LETTER MEM
-    { 0x05DF, "afii57679" },  // HEBREW LETTER FINAL NUN
-    { 0x05E0, "afii57680" },  // HEBREW LETTER NUN
-    { 0x05E1, "afii57681" },  // HEBREW LETTER SAMEKH
-    { 0x05E2, "afii57682" },  // HEBREW LETTER AYIN
-    { 0x05E3, "afii57683" },  // HEBREW LETTER FINAL PE
-    { 0x05E4, "afii57684" },  // HEBREW LETTER PE
-    { 0x05E5, "afii57685" },  // HEBREW LETTER FINAL TSADI
-    { 0x05E6, "afii57686" },  // HEBREW LETTER TSADI
-    { 0x05E7, "afii57687" },  // HEBREW LETTER QOF
-    { 0x05E8, "afii57688" },  // HEBREW LETTER RESH
-    { 0x05E9, "afii57689" },  // HEBREW LETTER SHIN
-    { 0x05EA, "afii57690" },  // HEBREW LETTER TAV
-    { 0x05F0, "afii57716" },  // HEBREW LIGATURE YIDDISH DOUBLE VAV
-    { 0x05F1, "afii57717" },  // HEBREW LIGATURE YIDDISH VAV YOD
-    { 0x05F2, "afii57718" },  // HEBREW LIGATURE YIDDISH DOUBLE YOD
-    { 0x060C, "afii57388" },  // ARABIC COMMA
-    { 0x061B, "afii57403" },  // ARABIC SEMICOLON
-    { 0x061F, "afii57407" },  // ARABIC QUESTION MARK
-    { 0x0621, "afii57409" },  // ARABIC LETTER HAMZA
-    { 0x0622, "afii57410" },  // ARABIC LETTER ALEF WITH MADDA ABOVE
-    { 0x0623, "afii57411" },  // ARABIC LETTER ALEF WITH HAMZA ABOVE
-    { 0x0624, "afii57412" },  // ARABIC LETTER WAW WITH HAMZA ABOVE
-    { 0x0625, "afii57413" },  // ARABIC LETTER ALEF WITH HAMZA BELOW
-    { 0x0626, "afii57414" },  // ARABIC LETTER YEH WITH HAMZA ABOVE
-    { 0x0627, "afii57415" },  // ARABIC LETTER ALEF
-    { 0x0628, "afii57416" },  // ARABIC LETTER BEH
-    { 0x0629, "afii57417" },  // ARABIC LETTER TEH MARBUTA
-    { 0x062A, "afii57418" },  // ARABIC LETTER TEH
-    { 0x062B, "afii57419" },  // ARABIC LETTER THEH
-    { 0x062C, "afii57420" },  // ARABIC LETTER JEEM
-    { 0x062D, "afii57421" },  // ARABIC LETTER HAH
-    { 0x062E, "afii57422" },  // ARABIC LETTER KHAH
-    { 0x062F, "afii57423" },  // ARABIC LETTER DAL
-    { 0x0630, "afii57424" },  // ARABIC LETTER THAL
-    { 0x0631, "afii57425" },  // ARABIC LETTER REH
-    { 0x0632, "afii57426" },  // ARABIC LETTER ZAIN
-    { 0x0633, "afii57427" },  // ARABIC LETTER SEEN
-    { 0x0634, "afii57428" },  // ARABIC LETTER SHEEN
-    { 0x0635, "afii57429" },  // ARABIC LETTER SAD
-    { 0x0636, "afii57430" },  // ARABIC LETTER DAD
-    { 0x0637, "afii57431" },  // ARABIC LETTER TAH
-    { 0x0638, "afii57432" },  // ARABIC LETTER ZAH
-    { 0x0639, "afii57433" },  // ARABIC LETTER AIN
-    { 0x063A, "afii57434" },  // ARABIC LETTER GHAIN
-    { 0x0640, "afii57440" },  // ARABIC TATWEEL
-    { 0x0641, "afii57441" },  // ARABIC LETTER FEH
-    { 0x0642, "afii57442" },  // ARABIC LETTER QAF
-    { 0x0643, "afii57443" },  // ARABIC LETTER KAF
-    { 0x0644, "afii57444" },  // ARABIC LETTER LAM
-    { 0x0645, "afii57445" },  // ARABIC LETTER MEEM
-    { 0x0646, "afii57446" },  // ARABIC LETTER NOON
-    { 0x0647, "afii57470" },  // ARABIC LETTER HEH
-    { 0x0648, "afii57448" },  // ARABIC LETTER WAW
-    { 0x0649, "afii57449" },  // ARABIC LETTER ALEF MAKSURA
-    { 0x064A, "afii57450" },  // ARABIC LETTER YEH
-    { 0x064B, "afii57451" },  // ARABIC FATHATAN
-    { 0x064C, "afii57452" },  // ARABIC DAMMATAN
-    { 0x064D, "afii57453" },  // ARABIC KASRATAN
-    { 0x064E, "afii57454" },  // ARABIC FATHA
-    { 0x064F, "afii57455" },  // ARABIC DAMMA
-    { 0x0650, "afii57456" },  // ARABIC KASRA
-    { 0x0651, "afii57457" },  // ARABIC SHADDA
-    { 0x0652, "afii57458" },  // ARABIC SUKUN
-    { 0x0660, "afii57392" },  // ARABIC-INDIC DIGIT ZERO
-    { 0x0661, "afii57393" },  // ARABIC-INDIC DIGIT ONE
-    { 0x0662, "afii57394" },  // ARABIC-INDIC DIGIT TWO
-    { 0x0663, "afii57395" },  // ARABIC-INDIC DIGIT THREE
-    { 0x0664, "afii57396" },  // ARABIC-INDIC DIGIT FOUR
-    { 0x0665, "afii57397" },  // ARABIC-INDIC DIGIT FIVE
-    { 0x0666, "afii57398" },  // ARABIC-INDIC DIGIT SIX
-    { 0x0667, "afii57399" },  // ARABIC-INDIC DIGIT SEVEN
-    { 0x0668, "afii57400" },  // ARABIC-INDIC DIGIT EIGHT
-    { 0x0669, "afii57401" },  // ARABIC-INDIC DIGIT NINE
-    { 0x066A, "afii57381" },  // ARABIC PERCENT SIGN
-    { 0x066D, "afii63167" },  // ARABIC FIVE POINTED STAR
-    { 0x0679, "afii57511" },  // ARABIC LETTER TTEH
-    { 0x067E, "afii57506" },  // ARABIC LETTER PEH
-    { 0x0686, "afii57507" },  // ARABIC LETTER TCHEH
-    { 0x0688, "afii57512" },  // ARABIC LETTER DDAL
-    { 0x0691, "afii57513" },  // ARABIC LETTER RREH
-    { 0x0698, "afii57508" },  // ARABIC LETTER JEH
-    { 0x06A4, "afii57505" },  // ARABIC LETTER VEH
-    { 0x06AF, "afii57509" },  // ARABIC LETTER GAF
-    { 0x06BA, "afii57514" },  // ARABIC LETTER NOON GHUNNA
-    { 0x06D2, "afii57519" },  // ARABIC LETTER YEH BARREE
-    { 0x06D5, "afii57534" },  // ARABIC LETTER AE
-    { 0x1E80, "Wgrave" },  // LATIN CAPITAL LETTER W WITH GRAVE
-    { 0x1E81, "wgrave" },  // LATIN SMALL LETTER W WITH GRAVE
-    { 0x1E82, "Wacute" },  // LATIN CAPITAL LETTER W WITH ACUTE
-    { 0x1E83, "wacute" },  // LATIN SMALL LETTER W WITH ACUTE
-    { 0x1E84, "Wdieresis" },  // LATIN CAPITAL LETTER W WITH DIAERESIS
-    { 0x1E85, "wdieresis" },  // LATIN SMALL LETTER W WITH DIAERESIS
-    { 0x1EF2, "Ygrave" },  // LATIN CAPITAL LETTER Y WITH GRAVE
-    { 0x1EF3, "ygrave" },  // LATIN SMALL LETTER Y WITH GRAVE
-    { 0x200C, "afii61664" },  // ZERO WIDTH NON-JOINER
-    { 0x200D, "afii301" },  // ZERO WIDTH JOINER
-    { 0x200E, "afii299" },  // LEFT-TO-RIGHT MARK
-    { 0x200F, "afii300" },  // RIGHT-TO-LEFT MARK
-    { 0x2012, "figuredash" },  // FIGURE DASH
-    { 0x2013, "endash" },  // EN DASH
-    { 0x2014, "emdash" },  // EM DASH
-    { 0x2015, "afii00208" },  // HORIZONTAL BAR
-    { 0x2017, "underscoredbl" },  // DOUBLE LOW LINE
-    { 0x2018, "quoteleft" },  // LEFT SINGLE QUOTATION MARK
-    { 0x2019, "quoteright" },  // RIGHT SINGLE QUOTATION MARK
-    { 0x201A, "quotesinglbase" },  // SINGLE LOW-9 QUOTATION MARK
-    { 0x201B, "quotereversed" },  // SINGLE HIGH-REVERSED-9 QUOTATION MARK
-    { 0x201C, "quotedblleft" },  // LEFT DOUBLE QUOTATION MARK
-    { 0x201D, "quotedblright" },  // RIGHT DOUBLE QUOTATION MARK
-    { 0x201E, "quotedblbase" },  // DOUBLE LOW-9 QUOTATION MARK
-    { 0x2020, "dagger" },  // DAGGER
-    { 0x2021, "daggerdbl" },  // DOUBLE DAGGER
-    { 0x2022, "bullet" },  // BULLET
-    { 0x2024, "onedotenleader" },  // ONE DOT LEADER
-    { 0x2025, "twodotenleader" },  // TWO DOT LEADER
-    { 0x2026, "ellipsis" },  // HORIZONTAL ELLIPSIS
-    { 0x202C, "afii61573" },  // POP DIRECTIONAL FORMATTING
-    { 0x202D, "afii61574" },  // LEFT-TO-RIGHT OVERRIDE
-    { 0x202E, "afii61575" },  // RIGHT-TO-LEFT OVERRIDE
-    { 0x2030, "perthousand" },  // PER MILLE SIGN
-    { 0x2032, "minute" },  // PRIME
-    { 0x2033, "second" },  // DOUBLE PRIME
-    { 0x2039, "guilsinglleft" },  // SINGLE LEFT-POINTING ANGLE QUOTATION MARK
-    { 0x203A, "guilsinglright" },  // SINGLE RIGHT-POINTING ANGLE QUOTATION MARK
-    { 0x203C, "exclamdbl" },  // DOUBLE EXCLAMATION MARK
-    { 0x2044, "fraction" },  // FRACTION SLASH
-    { 0x2070, "zerosuperior" },  // SUPERSCRIPT ZERO
-    { 0x2074, "foursuperior" },  // SUPERSCRIPT FOUR
-    { 0x2075, "fivesuperior" },  // SUPERSCRIPT FIVE
-    { 0x2076, "sixsuperior" },  // SUPERSCRIPT SIX
-    { 0x2077, "sevensuperior" },  // SUPERSCRIPT SEVEN
-    { 0x2078, "eightsuperior" },  // SUPERSCRIPT EIGHT
-    { 0x2079, "ninesuperior" },  // SUPERSCRIPT NINE
-    { 0x207D, "parenleftsuperior" },  // SUPERSCRIPT LEFT PARENTHESIS
-    { 0x207E, "parenrightsuperior" },  // SUPERSCRIPT RIGHT PARENTHESIS
-    { 0x207F, "nsuperior" },  // SUPERSCRIPT LATIN SMALL LETTER N
-    { 0x2080, "zeroinferior" },  // SUBSCRIPT ZERO
-    { 0x2081, "oneinferior" },  // SUBSCRIPT ONE
-    { 0x2082, "twoinferior" },  // SUBSCRIPT TWO
-    { 0x2083, "threeinferior" },  // SUBSCRIPT THREE
-    { 0x2084, "fourinferior" },  // SUBSCRIPT FOUR
-    { 0x2085, "fiveinferior" },  // SUBSCRIPT FIVE
-    { 0x2086, "sixinferior" },  // SUBSCRIPT SIX
-    { 0x2087, "seveninferior" },  // SUBSCRIPT SEVEN
-    { 0x2088, "eightinferior" },  // SUBSCRIPT EIGHT
-    { 0x2089, "nineinferior" },  // SUBSCRIPT NINE
-    { 0x208D, "parenleftinferior" },  // SUBSCRIPT LEFT PARENTHESIS
-    { 0x208E, "parenrightinferior" },  // SUBSCRIPT RIGHT PARENTHESIS
-    { 0x20A1, "colonmonetary" },  // COLON SIGN
-    { 0x20A3, "franc" },  // FRENCH FRANC SIGN
-    { 0x20A4, "lira" },  // LIRA SIGN
-    { 0x20A7, "peseta" },  // PESETA SIGN
-    { 0x20AA, "afii57636" },  // NEW SHEQEL SIGN
-    { 0x20AB, "dong" },  // DONG SIGN
-    { 0x20AC, "Euro" },  // EURO SIGN
-    { 0x2105, "afii61248" },  // CARE OF
-    { 0x2111, "Ifraktur" },  // BLACK-LETTER CAPITAL I
-    { 0x2113, "afii61289" },  // SCRIPT SMALL L
-    { 0x2116, "afii61352" },  // NUMERO SIGN
-    { 0x2118, "weierstrass" },  // SCRIPT CAPITAL P
-    { 0x211C, "Rfraktur" },  // BLACK-LETTER CAPITAL R
-    { 0x211E, "prescription" },  // PRESCRIPTION TAKE
-    { 0x2122, "trademark" },  // TRADE MARK SIGN
-    { 0x2126, "Omega" },  // OHM SIGN
-    { 0x212E, "estimated" },  // ESTIMATED SYMBOL
-    { 0x2135, "aleph" },  // ALEF SYMBOL
-    { 0x2153, "onethird" },  // VULGAR FRACTION ONE THIRD
-    { 0x2154, "twothirds" },  // VULGAR FRACTION TWO THIRDS
-    { 0x215B, "oneeighth" },  // VULGAR FRACTION ONE EIGHTH
-    { 0x215C, "threeeighths" },  // VULGAR FRACTION THREE EIGHTHS
-    { 0x215D, "fiveeighths" },  // VULGAR FRACTION FIVE EIGHTHS
-    { 0x215E, "seveneighths" },  // VULGAR FRACTION SEVEN EIGHTHS
-    { 0x2190, "arrowleft" },  // LEFTWARDS ARROW
-    { 0x2191, "arrowup" },  // UPWARDS ARROW
-    { 0x2192, "arrowright" },  // RIGHTWARDS ARROW
-    { 0x2193, "arrowdown" },  // DOWNWARDS ARROW
-    { 0x2194, "arrowboth" },  // LEFT RIGHT ARROW
-    { 0x2195, "arrowupdn" },  // UP DOWN ARROW
-    { 0x21A8, "arrowupdnbse" },  // UP DOWN ARROW WITH BASE
-    { 0x21B5, "carriagereturn" },  // DOWNWARDS ARROW WITH CORNER LEFTWARDS
-    { 0x21D0, "arrowdblleft" },  // LEFTWARDS DOUBLE ARROW
-    { 0x21D1, "arrowdblup" },  // UPWARDS DOUBLE ARROW
-    { 0x21D2, "arrowdblright" },  // RIGHTWARDS DOUBLE ARROW
-    { 0x21D3, "arrowdbldown" },  // DOWNWARDS DOUBLE ARROW
-    { 0x21D4, "arrowdblboth" },  // LEFT RIGHT DOUBLE ARROW
-    { 0x2200, "universal" },  // FOR ALL
-    { 0x2202, "partialdiff" },  // PARTIAL DIFFERENTIAL
-    { 0x2203, "existential" },  // THERE EXISTS
-    { 0x2205, "emptyset" },  // EMPTY SET
-    { 0x2206, "Delta" },  // INCREMENT
-    { 0x2207, "gradient" },  // NABLA
-    { 0x2208, "element" },  // ELEMENT OF
-    { 0x2209, "notelement" },  // NOT AN ELEMENT OF
-    { 0x220B, "suchthat" },  // CONTAINS AS MEMBER
-    { 0x220F, "product" },  // N-ARY PRODUCT
-    { 0x2211, "summation" },  // N-ARY SUMMATION
-    { 0x2212, "minus" },  // MINUS SIGN
-    { 0x2215, "fraction" },  // DIVISION SLASH;Duplicate
-    { 0x2217, "asteriskmath" },  // ASTERISK OPERATOR
-    { 0x2219, "periodcentered" },  // BULLET OPERATOR;Duplicate
-    { 0x221A, "radical" },  // SQUARE ROOT
-    { 0x221D, "proportional" },  // PROPORTIONAL TO
-    { 0x221E, "infinity" },  // INFINITY
-    { 0x221F, "orthogonal" },  // RIGHT ANGLE
-    { 0x2220, "angle" },  // ANGLE
-    { 0x2227, "logicaland" },  // LOGICAL AND
-    { 0x2228, "logicalor" },  // LOGICAL OR
-    { 0x2229, "intersection" },  // INTERSECTION
-    { 0x222A, "union" },  // UNION
-    { 0x222B, "integral" },  // INTEGRAL
-    { 0x2234, "therefore" },  // THEREFORE
-    { 0x223C, "similar" },  // TILDE OPERATOR
-    { 0x2245, "congruent" },  // APPROXIMATELY EQUAL TO
-    { 0x2248, "approxequal" },  // ALMOST EQUAL TO
-    { 0x2260, "notequal" },  // NOT EQUAL TO
-    { 0x2261, "equivalence" },  // IDENTICAL TO
-    { 0x2264, "lessequal" },  // LESS-THAN OR EQUAL TO
-    { 0x2265, "greaterequal" },  // GREATER-THAN OR EQUAL TO
-    { 0x2282, "propersubset" },  // SUBSET OF
-    { 0x2283, "propersuperset" },  // SUPERSET OF
-    { 0x2284, "notsubset" },  // NOT A SUBSET OF
-    { 0x2286, "reflexsubset" },  // SUBSET OF OR EQUAL TO
-    { 0x2287, "reflexsuperset" },  // SUPERSET OF OR EQUAL TO
-    { 0x2295, "circleplus" },  // CIRCLED PLUS
-    { 0x2297, "circlemultiply" },  // CIRCLED TIMES
-    { 0x22A5, "perpendicular" },  // UP TACK
-    { 0x22C5, "dotmath" },  // DOT OPERATOR
-    { 0x2302, "house" },  // HOUSE
-    { 0x2310, "revlogicalnot" },  // REVERSED NOT SIGN
-    { 0x2320, "integraltp" },  // TOP HALF INTEGRAL
-    { 0x2321, "integralbt" },  // BOTTOM HALF INTEGRAL
-    { 0x2329, "angleleft" },  // LEFT-POINTING ANGLE BRACKET
-    { 0x232A, "angleright" },  // RIGHT-POINTING ANGLE BRACKET
-    { 0x2500, "SF100000" },  // BOX DRAWINGS LIGHT HORIZONTAL
-    { 0x2502, "SF110000" },  // BOX DRAWINGS LIGHT VERTICAL
-    { 0x250C, "SF010000" },  // BOX DRAWINGS LIGHT DOWN AND RIGHT
-    { 0x2510, "SF030000" },  // BOX DRAWINGS LIGHT DOWN AND LEFT
-    { 0x2514, "SF020000" },  // BOX DRAWINGS LIGHT UP AND RIGHT
-    { 0x2518, "SF040000" },  // BOX DRAWINGS LIGHT UP AND LEFT
-    { 0x251C, "SF080000" },  // BOX DRAWINGS LIGHT VERTICAL AND RIGHT
-    { 0x2524, "SF090000" },  // BOX DRAWINGS LIGHT VERTICAL AND LEFT
-    { 0x252C, "SF060000" },  // BOX DRAWINGS LIGHT DOWN AND HORIZONTAL
-    { 0x2534, "SF070000" },  // BOX DRAWINGS LIGHT UP AND HORIZONTAL
-    { 0x253C, "SF050000" },  // BOX DRAWINGS LIGHT VERTICAL AND HORIZONTAL
-    { 0x2550, "SF430000" },  // BOX DRAWINGS DOUBLE HORIZONTAL
-    { 0x2551, "SF240000" },  // BOX DRAWINGS DOUBLE VERTICAL
-    { 0x2552, "SF510000" },  // BOX DRAWINGS DOWN SINGLE AND RIGHT DOUBLE
-    { 0x2553, "SF520000" },  // BOX DRAWINGS DOWN DOUBLE AND RIGHT SINGLE
-    { 0x2554, "SF390000" },  // BOX DRAWINGS DOUBLE DOWN AND RIGHT
-    { 0x2555, "SF220000" },  // BOX DRAWINGS DOWN SINGLE AND LEFT DOUBLE
-    { 0x2556, "SF210000" },  // BOX DRAWINGS DOWN DOUBLE AND LEFT SINGLE
-    { 0x2557, "SF250000" },  // BOX DRAWINGS DOUBLE DOWN AND LEFT
-    { 0x2558, "SF500000" },  // BOX DRAWINGS UP SINGLE AND RIGHT DOUBLE
-    { 0x2559, "SF490000" },  // BOX DRAWINGS UP DOUBLE AND RIGHT SINGLE
-    { 0x255A, "SF380000" },  // BOX DRAWINGS DOUBLE UP AND RIGHT
-    { 0x255B, "SF280000" },  // BOX DRAWINGS UP SINGLE AND LEFT DOUBLE
-    { 0x255C, "SF270000" },  // BOX DRAWINGS UP DOUBLE AND LEFT SINGLE
-    { 0x255D, "SF260000" },  // BOX DRAWINGS DOUBLE UP AND LEFT
-    { 0x255E, "SF360000" },  // BOX DRAWINGS VERTICAL SINGLE AND RIGHT DOUBLE
-    { 0x255F, "SF370000" },  // BOX DRAWINGS VERTICAL DOUBLE AND RIGHT SINGLE
-    { 0x2560, "SF420000" },  // BOX DRAWINGS DOUBLE VERTICAL AND RIGHT
-    { 0x2561, "SF190000" },  // BOX DRAWINGS VERTICAL SINGLE AND LEFT DOUBLE
-    { 0x2562, "SF200000" },  // BOX DRAWINGS VERTICAL DOUBLE AND LEFT SINGLE
-    { 0x2563, "SF230000" },  // BOX DRAWINGS DOUBLE VERTICAL AND LEFT
-    { 0x2564, "SF470000" },  // BOX DRAWINGS DOWN SINGLE AND HORIZONTAL DOUBLE
-    { 0x2565, "SF480000" },  // BOX DRAWINGS DOWN DOUBLE AND HORIZONTAL SINGLE
-    { 0x2566, "SF410000" },  // BOX DRAWINGS DOUBLE DOWN AND HORIZONTAL
-    { 0x2567, "SF450000" },  // BOX DRAWINGS UP SINGLE AND HORIZONTAL DOUBLE
-    { 0x2568, "SF460000" },  // BOX DRAWINGS UP DOUBLE AND HORIZONTAL SINGLE
-    { 0x2569, "SF400000" },  // BOX DRAWINGS DOUBLE UP AND HORIZONTAL
-    { 0x256A, "SF540000" },  // BOX DRAWINGS VERTICAL SINGLE AND HORIZONTAL DOUBLE
-    { 0x256B, "SF530000" },  // BOX DRAWINGS VERTICAL DOUBLE AND HORIZONTAL SINGLE
-    { 0x256C, "SF440000" },  // BOX DRAWINGS DOUBLE VERTICAL AND HORIZONTAL
-    { 0x2580, "upblock" },  // UPPER HALF BLOCK
-    { 0x2584, "dnblock" },  // LOWER HALF BLOCK
-    { 0x2588, "block" },  // FULL BLOCK
-    { 0x258C, "lfblock" },  // LEFT HALF BLOCK
-    { 0x2590, "rtblock" },  // RIGHT HALF BLOCK
-    { 0x2591, "ltshade" },  // LIGHT SHADE
-    { 0x2592, "shade" },  // MEDIUM SHADE
-    { 0x2593, "dkshade" },  // DARK SHADE
-    { 0x25A0, "filledbox" },  // BLACK SQUARE
-    { 0x25A1, "H22073" },  // WHITE SQUARE
-    { 0x25AA, "H18543" },  // BLACK SMALL SQUARE
-    { 0x25AB, "H18551" },  // WHITE SMALL SQUARE
-    { 0x25AC, "filledrect" },  // BLACK RECTANGLE
-    { 0x25B2, "triagup" },  // BLACK UP-POINTING TRIANGLE
-    { 0x25BA, "triagrt" },  // BLACK RIGHT-POINTING POINTER
-    { 0x25BC, "triagdn" },  // BLACK DOWN-POINTING TRIANGLE
-    { 0x25C4, "triaglf" },  // BLACK LEFT-POINTING POINTER
-    { 0x25CA, "lozenge" },  // LOZENGE
-    { 0x25CB, "circle" },  // WHITE CIRCLE
-    { 0x25CF, "H18533" },  // BLACK CIRCLE
-    { 0x25D8, "invbullet" },  // INVERSE BULLET
-    { 0x25D9, "invcircle" },  // INVERSE WHITE CIRCLE
-    { 0x25E6, "openbullet" },  // WHITE BULLET
-    { 0x263A, "smileface" },  // WHITE SMILING FACE
-    { 0x263B, "invsmileface" },  // BLACK SMILING FACE
-    { 0x263C, "sun" },  // WHITE SUN WITH RAYS
-    { 0x2640, "female" },  // FEMALE SIGN
-    { 0x2642, "male" },  // MALE SIGN
-    { 0x2660, "spade" },  // BLACK SPADE SUIT
-    { 0x2663, "club" },  // BLACK CLUB SUIT
-    { 0x2665, "heart" },  // BLACK HEART SUIT
-    { 0x2666, "diamond" },  // BLACK DIAMOND SUIT
-    { 0x266A, "musicalnote" },  // EIGHTH NOTE
-    { 0x266B, "musicalnotedbl" },  // BEAMED EIGHTH NOTES
-    // The names below are in the PU area of Unicode, but needed to get a correct mapping of the symbol font
-    { 0xF6D9, "copyrightserif" },
-    { 0xF6DA, "registerserif" },
-    { 0xF6DB, "trademarkserif" },
-    { 0xF8E5, "radicalex" },
-    { 0xF8E6, "arrowvertex" },
-    { 0xF8E7, "arrowhorizex" },
-    { 0xF8E8, "registersans" },
-    { 0xF8E9, "copyrightsans" },
-    { 0xF8EA, "trademarksans" },
-    { 0xF8EB, "parenlefttp" },
-    { 0xF8EC, "parenleftex" },
-    { 0xF8ED, "parenleftbt" },
-    { 0xF8EE, "bracketlefttp" },
-    { 0xF8EF, "bracketleftex" },
-    { 0xF8F0, "bracketleftbt" },
-    { 0xF8F1, "bracelefttp" },
-    { 0xF8F2, "braceleftmid" },
-    { 0xF8F3, "braceleftbt" },
-    { 0xF8F4, "braceex" },
-    { 0xF8F5, "integralex" },
-    { 0xF8F6, "parenrighttp" },
-    { 0xF8F7, "parenrightex" },
-    { 0xF8F8, "parenrightbt" },
-    { 0xF8F9, "bracketrighttp" },
-    { 0xF8FA, "bracketrightex" },
-    { 0xF8FB, "bracketrightbt" },
-    { 0xF8FC, "bracerighttp" },
-    { 0xF8FD, "bracerightmid" },
-    { 0xF8FE, "bracerightbt" },
-    // End of extensions needed for symbols
-    { 0xFB00, "ff" },  // LATIN SMALL LIGATURE FF
-    { 0xFB01, "fi" },  // LATIN SMALL LIGATURE FI
-    { 0xFB02, "fl" },  // LATIN SMALL LIGATURE FL
-    { 0xFB03, "ffi" },  // LATIN SMALL LIGATURE FFI
-    { 0xFB04, "ffl" },  // LATIN SMALL LIGATURE FFL
-    { 0xFB1F, "afii57705" },  // HEBREW LIGATURE YIDDISH YOD YOD PATAH
-    { 0xFB2A, "afii57694" },  // HEBREW LETTER SHIN WITH SHIN DOT
-    { 0xFB2B, "afii57695" },  // HEBREW LETTER SHIN WITH SIN DOT
-    { 0xFB35, "afii57723" },  // HEBREW LETTER VAV WITH DAGESH
-    { 0xFB4B, "afii57700" },  // HEBREW LETTER VAV WITH HOLAM
-    // end of stuff from glyphlist.txt
-    { 0xFFFF, 0 }
+static const struct { Q_UINT16 u; Q_UINT16 index; } unicodetoglyph[] = {
+    {0x0000, 0}, {0x0020, 8}, {0x0021, 14}, {0x0022, 21},
+    {0x0023, 30}, {0x0024, 41}, {0x0025, 48}, {0x0026, 56},
+    {0x0027, 66}, {0x0028, 78}, {0x0029, 88}, {0x002A, 99},
+    {0x002B, 108}, {0x002C, 113}, {0x002D, 119}, {0x002E, 126},
+    {0x002F, 133}, {0x0030, 139}, {0x0031, 144}, {0x0032, 148},
+    {0x0033, 152}, {0x0034, 158}, {0x0035, 163}, {0x0036, 168},
+    {0x0037, 172}, {0x0038, 178}, {0x0039, 184}, {0x003A, 189},
+    {0x003B, 195}, {0x003C, 205}, {0x003D, 210}, {0x003E, 216},
+    {0x003F, 224}, {0x0040, 233}, {0x0041, 236}, {0x0042, 238},
+    {0x0043, 240}, {0x0044, 242}, {0x0045, 244}, {0x0046, 246},
+    {0x0047, 248}, {0x0048, 250}, {0x0049, 252}, {0x004A, 254},
+    {0x004B, 256}, {0x004C, 258}, {0x004D, 260}, {0x004E, 262},
+    {0x004F, 264}, {0x0050, 266}, {0x0051, 268}, {0x0052, 270},
+    {0x0053, 272}, {0x0054, 274}, {0x0055, 276}, {0x0056, 278},
+    {0x0057, 280}, {0x0058, 282}, {0x0059, 284}, {0x005A, 286},
+    {0x005B, 288}, {0x005C, 300}, {0x005D, 310}, {0x005E, 323},
+    {0x005F, 335}, {0x0060, 346}, {0x0061, 352}, {0x0062, 354},
+    {0x0063, 356}, {0x0064, 358}, {0x0065, 360}, {0x0066, 362},
+    {0x0067, 364}, {0x0068, 366}, {0x0069, 368}, {0x006A, 370},
+    {0x006B, 372}, {0x006C, 374}, {0x006D, 376}, {0x006E, 378},
+    {0x006F, 380}, {0x0070, 382}, {0x0071, 384}, {0x0072, 386},
+    {0x0073, 388}, {0x0074, 390}, {0x0075, 392}, {0x0076, 394},
+    {0x0077, 396}, {0x0078, 398}, {0x0079, 400}, {0x007A, 402},
+    {0x007B, 404}, {0x007C, 414}, {0x007D, 418}, {0x007E, 429},
+    {0x00A0, 440}, {0x00A1, 446}, {0x00A2, 457}, {0x00A3, 462},
+    {0x00A4, 471}, {0x00A5, 480}, {0x00A6, 484}, {0x00A7, 494},
+    {0x00A8, 502}, {0x00A9, 511}, {0x00AA, 521}, {0x00AB, 533},
+    {0x00AC, 547}, {0x00AD, 558}, {0x00AE, 565}, {0x00AF, 576},
+    {0x00B0, 583}, {0x00B1, 590}, {0x00B2, 600}, {0x00B3, 612},
+    {0x00B4, 626}, {0x00B5, 632}, {0x00B6, 635}, {0x00B7, 645},
+    {0x00B8, 660}, {0x00B9, 668}, {0x00BA, 680}, {0x00BB, 693},
+    {0x00BC, 708}, {0x00BD, 719}, {0x00BE, 727}, {0x00BF, 741},
+    {0x00C0, 754}, {0x00C1, 761}, {0x00C2, 768}, {0x00C3, 780},
+    {0x00C4, 787}, {0x00C5, 797}, {0x00C6, 803}, {0x00C7, 806},
+    {0x00C8, 815}, {0x00C9, 822}, {0x00CA, 829}, {0x00CB, 841},
+    {0x00CC, 851}, {0x00CD, 858}, {0x00CE, 865}, {0x00CF, 877},
+    {0x00D0, 887}, {0x00D1, 891}, {0x00D2, 898}, {0x00D3, 905},
+    {0x00D4, 912}, {0x00D5, 924}, {0x00D6, 931}, {0x00D7, 941},
+    {0x00D8, 950}, {0x00D9, 957}, {0x00DA, 964}, {0x00DB, 971},
+    {0x00DC, 983}, {0x00DD, 993}, {0x00DE, 1000}, {0x00DF, 1006},
+    {0x00E0, 1017}, {0x00E1, 1024}, {0x00E2, 1031}, {0x00E3, 1043},
+    {0x00E4, 1050}, {0x00E5, 1060}, {0x00E6, 1066}, {0x00E7, 1069},
+    {0x00E8, 1078}, {0x00E9, 1085}, {0x00EA, 1092}, {0x00EB, 1104},
+    {0x00EC, 1114}, {0x00ED, 1121}, {0x00EE, 1128}, {0x00EF, 1140},
+    {0x00F0, 1150}, {0x00F1, 1154}, {0x00F2, 1161}, {0x00F3, 1168},
+    {0x00F4, 1175}, {0x00F5, 1187}, {0x00F6, 1194}, {0x00F7, 1204},
+    {0x00F8, 1211}, {0x00F9, 1218}, {0x00FA, 1225}, {0x00FB, 1232},
+    {0x00FC, 1244}, {0x00FD, 1254}, {0x00FE, 1261}, {0x00FF, 1267},
+    {0x0100, 1277}, {0x0101, 1285}, {0x0102, 1293}, {0x0103, 1300},
+    {0x0104, 1307}, {0x0105, 1315}, {0x0106, 1323}, {0x0107, 1330},
+    {0x0108, 1337}, {0x0109, 1349}, {0x010A, 1361}, {0x010B, 1372},
+    {0x010C, 1383}, {0x010D, 1390}, {0x010E, 1397}, {0x010F, 1404},
+    {0x0110, 1411}, {0x0111, 1418}, {0x0112, 1425}, {0x0113, 1433},
+    {0x0114, 1441}, {0x0115, 1448}, {0x0116, 1455}, {0x0117, 1466},
+    {0x0118, 1477}, {0x0119, 1485}, {0x011A, 1493}, {0x011B, 1500},
+    {0x011C, 1507}, {0x011D, 1519}, {0x011E, 1531}, {0x011F, 1538},
+    {0x0120, 1545}, {0x0121, 1556}, {0x0122, 1567}, {0x0123, 1580},
+    {0x0124, 1593}, {0x0125, 1605}, {0x0126, 1617}, {0x0127, 1622},
+    {0x0128, 1627}, {0x0129, 1634}, {0x012A, 1641}, {0x012B, 1649},
+    {0x012C, 1657}, {0x012D, 1664}, {0x012E, 1671}, {0x012F, 1679},
+    {0x0130, 1687}, {0x0131, 1698}, {0x0132, 1707}, {0x0133, 1710},
+    {0x0134, 1713}, {0x0135, 1725}, {0x0136, 1737}, {0x0137, 1750},
+    {0x0138, 1763}, {0x0139, 1776}, {0x013A, 1783}, {0x013B, 1790},
+    {0x013C, 1803}, {0x013D, 1816}, {0x013E, 1823}, {0x013F, 1830},
+    {0x0140, 1835}, {0x0141, 1840}, {0x0142, 1847}, {0x0143, 1854},
+    {0x0144, 1861}, {0x0145, 1868}, {0x0146, 1881}, {0x0147, 1894},
+    {0x0148, 1901}, {0x0149, 1908}, {0x014A, 1920}, {0x014B, 1924},
+    {0x014C, 1928}, {0x014D, 1936}, {0x014E, 1944}, {0x014F, 1951},
+    {0x0150, 1958}, {0x0151, 1972}, {0x0152, 1986}, {0x0153, 1989},
+    {0x0154, 1992}, {0x0155, 1999}, {0x0156, 2006}, {0x0157, 2019},
+    {0x0158, 2032}, {0x0159, 2039}, {0x015A, 2046}, {0x015B, 2053},
+    {0x015C, 2060}, {0x015D, 2072}, {0x015E, 2084}, {0x015F, 2093},
+    {0x0160, 2102}, {0x0161, 2109}, {0x0162, 2116}, {0x0163, 2129},
+    {0x0164, 2142}, {0x0165, 2149}, {0x0166, 2156}, {0x0167, 2161},
+    {0x0168, 2166}, {0x0169, 2173}, {0x016A, 2180}, {0x016B, 2188},
+    {0x016C, 2196}, {0x016D, 2203}, {0x016E, 2210}, {0x016F, 2216},
+    {0x0170, 2222}, {0x0171, 2236}, {0x0172, 2250}, {0x0173, 2258},
+    {0x0174, 2266}, {0x0175, 2278}, {0x0176, 2290}, {0x0177, 2302},
+    {0x0178, 2314}, {0x0179, 2324}, {0x017A, 2331}, {0x017B, 2338},
+    {0x017C, 2349}, {0x017D, 2360}, {0x017E, 2367}, {0x017F, 2374},
+    {0x0192, 2380}, {0x01A0, 2387}, {0x01A1, 2393}, {0x01AF, 2399},
+    {0x01B0, 2405}, {0x01E6, 2411}, {0x01E7, 2418}, {0x01FA, 2425},
+    {0x01FB, 2436}, {0x01FC, 2447}, {0x01FD, 2455}, {0x01FE, 2463},
+    {0x01FF, 2475}, {0x0218, 2487}, {0x0219, 2500}, {0x021A, 2513},
+    {0x021B, 2526}, {0x02BC, 2539}, {0x02BD, 2549}, {0x02C6, 2559},
+    {0x02C7, 2570}, {0x02C9, 2576}, {0x02D8, 2583}, {0x02D9, 2589},
+    {0x02DA, 2599}, {0x02DB, 2604}, {0x02DC, 2611}, {0x02DD, 2617},
+    {0x0300, 2630}, {0x0301, 2640}, {0x0303, 2650}, {0x0309, 2660},
+    {0x0323, 2674}, {0x0384, 2687}, {0x0385, 2693}, {0x0386, 2707},
+    {0x0387, 2718}, {0x0388, 2728}, {0x0389, 2741}, {0x038A, 2750},
+    {0x038C, 2760}, {0x038E, 2773}, {0x038F, 2786}, {0x0390, 2797},
+    {0x0391, 2815}, {0x0392, 2821}, {0x0393, 2826}, {0x0394, 2832},
+    {0x0395, 2838}, {0x0396, 2846}, {0x0397, 2851}, {0x0398, 2855},
+    {0x0399, 2861}, {0x039A, 2866}, {0x039B, 2872}, {0x039C, 2879},
+    {0x039D, 2882}, {0x039E, 2885}, {0x039F, 2888}, {0x03A0, 2896},
+    {0x03A1, 2899}, {0x03A3, 2903}, {0x03A4, 2909}, {0x03A5, 2913},
+    {0x03A6, 2921}, {0x03A7, 2925}, {0x03A8, 2929}, {0x03A9, 2933},
+    {0x03AA, 2939}, {0x03AB, 2952}, {0x03AC, 2968}, {0x03AD, 2979},
+    {0x03AE, 2992}, {0x03AF, 3001}, {0x03B0, 3011}, {0x03B1, 3032},
+    {0x03B2, 3038}, {0x03B3, 3043}, {0x03B4, 3049}, {0x03B5, 3055},
+    {0x03B6, 3063}, {0x03B7, 3068}, {0x03B8, 3072}, {0x03B9, 3078},
+    {0x03BA, 3083}, {0x03BB, 3089}, {0x03BC, 3096}, {0x03BD, 3099},
+    {0x03BE, 3102}, {0x03BF, 3105}, {0x03C0, 3113}, {0x03C1, 3116},
+    {0x03C2, 3120}, {0x03C3, 3127}, {0x03C4, 3133}, {0x03C5, 3137},
+    {0x03C6, 3145}, {0x03C7, 3149}, {0x03C8, 3153}, {0x03C9, 3157},
+    {0x03CA, 3163}, {0x03CB, 3176}, {0x03CC, 3192}, {0x03CD, 3205},
+    {0x03CE, 3218}, {0x03D1, 3229}, {0x03D2, 3236}, {0x03D5, 3245},
+    {0x03D6, 3250}, {0x0401, 3257}, {0x0402, 3267}, {0x0403, 3277},
+    {0x0404, 3287}, {0x0405, 3297}, {0x0406, 3307}, {0x0407, 3317},
+    {0x0408, 3327}, {0x0409, 3337}, {0x040A, 3347}, {0x040B, 3357},
+    {0x040C, 3367}, {0x040E, 3377}, {0x040F, 3387}, {0x0410, 3397},
+    {0x0411, 3407}, {0x0412, 3417}, {0x0413, 3427}, {0x0414, 3437},
+    {0x0415, 3447}, {0x0416, 3457}, {0x0417, 3467}, {0x0418, 3477},
+    {0x0419, 3487}, {0x041A, 3497}, {0x041B, 3507}, {0x041C, 3517},
+    {0x041D, 3527}, {0x041E, 3537}, {0x041F, 3547}, {0x0420, 3557},
+    {0x0421, 3567}, {0x0422, 3577}, {0x0423, 3587}, {0x0424, 3597},
+    {0x0425, 3607}, {0x0426, 3617}, {0x0427, 3627}, {0x0428, 3637},
+    {0x0429, 3647}, {0x042A, 3657}, {0x042B, 3667}, {0x042C, 3677},
+    {0x042D, 3687}, {0x042E, 3697}, {0x042F, 3707}, {0x0430, 3717},
+    {0x0431, 3727}, {0x0432, 3737}, {0x0433, 3747}, {0x0434, 3757},
+    {0x0435, 3767}, {0x0436, 3777}, {0x0437, 3787}, {0x0438, 3797},
+    {0x0439, 3807}, {0x043A, 3817}, {0x043B, 3827}, {0x043C, 3837},
+    {0x043D, 3847}, {0x043E, 3857}, {0x043F, 3867}, {0x0440, 3877},
+    {0x0441, 3887}, {0x0442, 3897}, {0x0443, 3907}, {0x0444, 3917},
+    {0x0445, 3927}, {0x0446, 3937}, {0x0447, 3947}, {0x0448, 3957},
+    {0x0449, 3967}, {0x044A, 3977}, {0x044B, 3987}, {0x044C, 3997},
+    {0x044D, 4007}, {0x044E, 4017}, {0x044F, 4027}, {0x0451, 4037},
+    {0x0452, 4047}, {0x0453, 4057}, {0x0454, 4067}, {0x0455, 4077},
+    {0x0456, 4087}, {0x0457, 4097}, {0x0458, 4107}, {0x0459, 4117},
+    {0x045A, 4127}, {0x045B, 4137}, {0x045C, 4147}, {0x045E, 4157},
+    {0x045F, 4167}, {0x0462, 4177}, {0x0463, 4187}, {0x0472, 4197},
+    {0x0473, 4207}, {0x0474, 4217}, {0x0475, 4227}, {0x0490, 4237},
+    {0x0491, 4247}, {0x04D9, 4257}, {0x05B0, 4267}, {0x05B1, 4277},
+    {0x05B2, 4287}, {0x05B3, 4297}, {0x05B4, 4307}, {0x05B5, 4317},
+    {0x05B6, 4327}, {0x05B7, 4337}, {0x05B8, 4347}, {0x05B9, 4357},
+    {0x05BB, 4367}, {0x05BC, 4377}, {0x05BD, 4387}, {0x05BE, 4397},
+    {0x05BF, 4407}, {0x05C0, 4417}, {0x05C1, 4427}, {0x05C2, 4437},
+    {0x05C3, 4447}, {0x05D0, 4457}, {0x05D1, 4467}, {0x05D2, 4477},
+    {0x05D3, 4487}, {0x05D4, 4497}, {0x05D5, 4507}, {0x05D6, 4517},
+    {0x05D7, 4527}, {0x05D8, 4537}, {0x05D9, 4547}, {0x05DA, 4557},
+    {0x05DB, 4567}, {0x05DC, 4577}, {0x05DD, 4587}, {0x05DE, 4597},
+    {0x05DF, 4607}, {0x05E0, 4617}, {0x05E1, 4627}, {0x05E2, 4637},
+    {0x05E3, 4647}, {0x05E4, 4657}, {0x05E5, 4667}, {0x05E6, 4677},
+    {0x05E7, 4687}, {0x05E8, 4697}, {0x05E9, 4707}, {0x05EA, 4717},
+    {0x05F0, 4727}, {0x05F1, 4737}, {0x05F2, 4747}, {0x060C, 4757},
+    {0x061B, 4767}, {0x061F, 4777}, {0x0621, 4787}, {0x0622, 4797},
+    {0x0623, 4807}, {0x0624, 4817}, {0x0625, 4827}, {0x0626, 4837},
+    {0x0627, 4847}, {0x0628, 4857}, {0x0629, 4867}, {0x062A, 4877},
+    {0x062B, 4887}, {0x062C, 4897}, {0x062D, 4907}, {0x062E, 4917},
+    {0x062F, 4927}, {0x0630, 4937}, {0x0631, 4947}, {0x0632, 4957},
+    {0x0633, 4967}, {0x0634, 4977}, {0x0635, 4987}, {0x0636, 4997},
+    {0x0637, 5007}, {0x0638, 5017}, {0x0639, 5027}, {0x063A, 5037},
+    {0x0640, 5047}, {0x0641, 5057}, {0x0642, 5067}, {0x0643, 5077},
+    {0x0644, 5087}, {0x0645, 5097}, {0x0646, 5107}, {0x0647, 5117},
+    {0x0648, 5127}, {0x0649, 5137}, {0x064A, 5147}, {0x064B, 5157},
+    {0x064C, 5167}, {0x064D, 5177}, {0x064E, 5187}, {0x064F, 5197},
+    {0x0650, 5207}, {0x0651, 5217}, {0x0652, 5227}, {0x0660, 5237},
+    {0x0661, 5247}, {0x0662, 5257}, {0x0663, 5267}, {0x0664, 5277},
+    {0x0665, 5287}, {0x0666, 5297}, {0x0667, 5307}, {0x0668, 5317},
+    {0x0669, 5327}, {0x066A, 5337}, {0x066D, 5347}, {0x0679, 5357},
+    {0x067E, 5367}, {0x0686, 5377}, {0x0688, 5387}, {0x0691, 5397},
+    {0x0698, 5407}, {0x06A4, 5417}, {0x06AF, 5427}, {0x06BA, 5437},
+    {0x06D2, 5447}, {0x06D5, 5457}, {0x1E80, 5467}, {0x1E81, 5474},
+    {0x1E82, 5481}, {0x1E83, 5488}, {0x1E84, 5495}, {0x1E85, 5505},
+    {0x1EF2, 5515}, {0x1EF3, 5522}, {0x200C, 5529}, {0x200D, 5539},
+    {0x200E, 5547}, {0x200F, 5555}, {0x2012, 5563}, {0x2013, 5574},
+    {0x2014, 5581}, {0x2015, 5588}, {0x2017, 5598}, {0x2018, 5612},
+    {0x2019, 5622}, {0x201A, 5633}, {0x201B, 5648}, {0x201C, 5662},
+    {0x201D, 5675}, {0x201E, 5689}, {0x2020, 5702}, {0x2021, 5709},
+    {0x2022, 5719}, {0x2024, 5726}, {0x2025, 5741}, {0x2026, 5756},
+    {0x202C, 5765}, {0x202D, 5775}, {0x202E, 5785}, {0x2030, 5795},
+    {0x2032, 5807}, {0x2033, 5814}, {0x2039, 5821}, {0x203A, 5835},
+    {0x203C, 5850}, {0x2044, 5860}, {0x2070, 5869}, {0x2074, 5882},
+    {0x2075, 5895}, {0x2076, 5908}, {0x2077, 5920}, {0x2078, 5934},
+    {0x2079, 5948}, {0x207D, 5961}, {0x207E, 5979}, {0x207F, 5998},
+    {0x2080, 6008}, {0x2081, 6021}, {0x2082, 6033}, {0x2083, 6045},
+    {0x2084, 6059}, {0x2085, 6072}, {0x2086, 6085}, {0x2087, 6097},
+    {0x2088, 6111}, {0x2089, 6125}, {0x208D, 6138}, {0x208E, 6156},
+    {0x20A1, 6175}, {0x20A3, 6189}, {0x20A4, 6195}, {0x20A7, 6200},
+    {0x20AA, 6207}, {0x20AB, 6217}, {0x20AC, 6222}, {0x2105, 6227},
+    {0x2111, 6237}, {0x2113, 6246}, {0x2116, 6256}, {0x2118, 6266},
+    {0x211C, 6278}, {0x211E, 6287}, {0x2122, 6300}, {0x2126, 6310},
+    {0x212E, 6316}, {0x2135, 6326}, {0x2153, 6332}, {0x2154, 6341},
+    {0x215B, 6351}, {0x215C, 6361}, {0x215D, 6374}, {0x215E, 6386},
+    {0x2190, 6399}, {0x2191, 6409}, {0x2192, 6417}, {0x2193, 6428},
+    {0x2194, 6438}, {0x2195, 6448}, {0x21A8, 6458}, {0x21B5, 6471},
+    {0x21D0, 6486}, {0x21D1, 6499}, {0x21D2, 6510}, {0x21D3, 6524},
+    {0x21D4, 6537}, {0x2200, 6550}, {0x2202, 6560}, {0x2203, 6572},
+    {0x2205, 6584}, {0x2206, 6593}, {0x2207, 6599}, {0x2208, 6608},
+    {0x2209, 6616}, {0x220B, 6627}, {0x220F, 6636}, {0x2211, 6644},
+    {0x2212, 6654}, {0x2215, 6660}, {0x2217, 6669}, {0x2219, 6682},
+    {0x221A, 6697}, {0x221D, 6705}, {0x221E, 6718}, {0x221F, 6727},
+    {0x2220, 6738}, {0x2227, 6744}, {0x2228, 6755}, {0x2229, 6765},
+    {0x222A, 6778}, {0x222B, 6784}, {0x2234, 6793}, {0x223C, 6803},
+    {0x2245, 6811}, {0x2248, 6821}, {0x2260, 6833}, {0x2261, 6842},
+    {0x2264, 6854}, {0x2265, 6864}, {0x2282, 6877}, {0x2283, 6890},
+    {0x2284, 6905}, {0x2286, 6915}, {0x2287, 6928}, {0x2295, 6943},
+    {0x2297, 6954}, {0x22A5, 6969}, {0x22C5, 6983}, {0x2302, 6991},
+    {0x2310, 6997}, {0x2320, 7011}, {0x2321, 7022}, {0x2329, 7033},
+    {0x232A, 7043}, {0x2500, 7054}, {0x2502, 7063}, {0x250C, 7072},
+    {0x2510, 7081}, {0x2514, 7090}, {0x2518, 7099}, {0x251C, 7108},
+    {0x2524, 7117}, {0x252C, 7126}, {0x2534, 7135}, {0x253C, 7144},
+    {0x2550, 7153}, {0x2551, 7162}, {0x2552, 7171}, {0x2553, 7180},
+    {0x2554, 7189}, {0x2555, 7198}, {0x2556, 7207}, {0x2557, 7216},
+    {0x2558, 7225}, {0x2559, 7234}, {0x255A, 7243}, {0x255B, 7252},
+    {0x255C, 7261}, {0x255D, 7270}, {0x255E, 7279}, {0x255F, 7288},
+    {0x2560, 7297}, {0x2561, 7306}, {0x2562, 7315}, {0x2563, 7324},
+    {0x2564, 7333}, {0x2565, 7342}, {0x2566, 7351}, {0x2567, 7360},
+    {0x2568, 7369}, {0x2569, 7378}, {0x256A, 7387}, {0x256B, 7396},
+    {0x256C, 7405}, {0x2580, 7414}, {0x2584, 7422}, {0x2588, 7430},
+    {0x258C, 7436}, {0x2590, 7444}, {0x2591, 7452}, {0x2592, 7460},
+    {0x2593, 7466}, {0x25A0, 7474}, {0x25A1, 7484}, {0x25AA, 7491},
+    {0x25AB, 7498}, {0x25AC, 7505}, {0x25B2, 7516}, {0x25BA, 7524},
+    {0x25BC, 7532}, {0x25C4, 7540}, {0x25CA, 7548}, {0x25CB, 7556},
+    {0x25CF, 7563}, {0x25D8, 7570}, {0x25D9, 7580}, {0x25E6, 7590},
+    {0x263A, 7601}, {0x263B, 7611}, {0x263C, 7624}, {0x2640, 7628},
+    {0x2642, 7635}, {0x2660, 7640}, {0x2663, 7646}, {0x2665, 7651},
+    {0x2666, 7657}, {0x266A, 7665}, {0x266B, 7677}, {0xF6D9, 7692},
+    {0xF6DA, 7707}, {0xF6DB, 7721}, {0xF8E5, 7736}, {0xF8E6, 7746},
+    {0xF8E7, 7758}, {0xF8E8, 7771}, {0xF8E9, 7784}, {0xF8EA, 7798},
+    {0xF8EB, 7812}, {0xF8EC, 7824}, {0xF8ED, 7836}, {0xF8EE, 7848},
+    {0xF8EF, 7862}, {0xF8F0, 7876}, {0xF8F1, 7890}, {0xF8F2, 7902},
+    {0xF8F3, 7915}, {0xF8F4, 7927}, {0xF8F5, 7935}, {0xF8F6, 7946},
+    {0xF8F7, 7959}, {0xF8F8, 7972}, {0xF8F9, 7985}, {0xF8FA, 8000},
+    {0xF8FB, 8015}, {0xF8FC, 8030}, {0xF8FD, 8043}, {0xF8FE, 8057},
+    {0xFB00, 8070}, {0xFB01, 8073}, {0xFB02, 8076}, {0xFB03, 8079},
+    {0xFB04, 8083}, {0xFB1F, 8087}, {0xFB2A, 8097}, {0xFB2B, 8107},
+    {0xFB35, 8117}, {0xFB4B, 8127}, {0xFFFF, 8137}
 };
+
 
 // ---------------------------------------------------------------------
 // postscript font substitution dictionary. We assume every postscript printer has at least
@@ -1850,7 +1268,7 @@ QString QPSPrinterFontPrivate::glyphName( unsigned short glyphindex, bool *glyph
 	while( unicodetoglyph[l].u < unicode )
 	    l++;
 	if ( unicodetoglyph[l].u == unicode ) {
-	    glyphname = unicodetoglyph[l].g;
+	    glyphname = agl[unicodetoglyph[l].index];
 	    if ( glyphSet ) {
 		int other = 0;
 		switch ( unicode ) {
