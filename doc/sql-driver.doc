@@ -101,7 +101,7 @@ additional information about required libraries.
 \section1 Building the plugins manually
 
 \target QMYSQL3
-\section2 QMYSQL3 - MySQL 3.x
+\section2 QMYSQL3 - MySQL 3.x and MySQL 4.x
 
 \keyword QMYSQL3
 
@@ -116,6 +116,9 @@ If you have a recent client library and connect to a
 transaction-enabled MySQL server, a call to the
 QSqlDriver::hasFeature( QSqlDriver::Transactions ) function returns
 TRUE and SQL transactions can be used.
+
+If the plugin is compiled against MySQL 4.x client libraries,
+transactions are enabled by default.
 
 You can find information about MySQL on \l http://www.mysql.com
 
