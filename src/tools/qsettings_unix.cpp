@@ -24,6 +24,7 @@
 
 #include "qsettings.h"
 
+#include <qglobal.h>
 #include <qdir.h>
 #include <qfile.h>
 #include <qfileinfo.h>
@@ -32,6 +33,7 @@
 #include <qcleanuphandler.h>
 #include <qregexp.h>
 
+#include <stdlib.h>
 
 // for now
 #define QSETTINGS_DEFAULT_PATH_SUFFIX "/etc/settings"
@@ -515,7 +517,7 @@ QDateTime QSettingsPrivate::modificationTime()
   user doesn't have read permission are ignored. When saving settings
   QSettings works backwards from the last directory to the first,
   writing to the first settings file for which the user has write
-  permission.
+  permission. 
 
   Settings under Unix are stored in files whose names are based on the
   first subkey of the key (not including the search path). The algorithm

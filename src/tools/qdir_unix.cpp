@@ -40,12 +40,13 @@
 #include "qdir.h"
 #ifndef QT_NO_DIR
 
-#include "qplatformdefs.h"
-
 #include "qdir_p.h"
 #include "qfileinfo.h"
+#include "qfiledefs_p.h"
 #include "qregexp.h"
 #include "qstringlist.h"
+#include <stdlib.h>
+#include <ctype.h>
 
 
 void QDir::slashify( QString& )
@@ -68,12 +69,12 @@ QString QDir::canonicalPath() const
 
     char cur[PATH_MAX];
     char tmp[PATH_MAX];
-    QT_GETCWD( cur, PATH_MAX );
-    if ( QT_CHDIR(QFile::encodeName(dPath)) >= 0 ) {
-	QT_GETCWD( tmp, PATH_MAX );
+    GETCWD( cur, PATH_MAX );
+    if ( CHDIR(QFile::encodeName(dPath)) >= 0 ) {
+	GETCWD( tmp, PATH_MAX );
 	r = QFile::decodeName(tmp);
     }
-    QT_CHDIR( cur );
+    CHDIR( cur );
 
     slashify( r );
     return r;
@@ -81,18 +82,18 @@ QString QDir::canonicalPath() const
 
 bool QDir::mkdir( const QString &dirName, bool acceptAbsPath ) const
 {
-    return QT_MKDIR( QFile::encodeName(filePath(dirName,acceptAbsPath)), 0777 )
+    return MKDIR( QFile::encodeName(filePath(dirName,acceptAbsPath)), 0777 ) 
 	== 0;
 }
 
 bool QDir::rmdir( const QString &dirName, bool acceptAbsPath ) const
 {
-    return QT_RMDIR( QFile::encodeName(filePath(dirName,acceptAbsPath)) ) == 0;
+    return RMDIR( QFile::encodeName(filePath(dirName,acceptAbsPath)) ) == 0;
 }
 
 bool QDir::isReadable() const
 {
-    return QT_ACCESS( QFile::encodeName(dPath), R_OK | X_OK ) == 0;
+    return ACCESS( QFile::encodeName(dPath), R_OK | X_OK ) == 0;
 }
 
 bool QDir::isRoot() const
@@ -118,7 +119,7 @@ bool QDir::rename( const QString &name, const QString &newName,
 bool QDir::setCurrent( const QString &path )
 {
     int r;
-    r = QT_CHDIR( QFile::encodeName(path) );
+    r = CHDIR( QFile::encodeName(path) );
     return r >= 0;
 }
 
@@ -126,10 +127,10 @@ QString QDir::currentDirPath()
 {
     QString result;
 
-    QT_STATBUF st;
-    if ( QT_STAT( ".", &st ) == 0 ) {
+    STATBUF st;
+    if ( STAT( ".", &st ) == 0 ) {
 	char currentName[PATH_MAX];
-	if ( QT_GETCWD( currentName, PATH_MAX ) != 0 )
+	if ( GETCWD( currentName, PATH_MAX ) != 0 )
 	    result = QFile::decodeName(currentName);
 #if defined(QT_DEBUG)
 	if ( result.isNull() )
