@@ -69,8 +69,12 @@ void FindIconDialog::resourceSelected(const QModelIndex &index)
     if (model != 0) {
         QString prefix, file;
         model->getItem(index, prefix, file);
-        if (!file.isEmpty())
-            m_icon_file_name = QLatin1String(":") + prefix + QLatin1String("/") + file;
+        if (!file.isEmpty()) {
+            if (model->iconFileExtension(file))
+                m_icon_file_name = QLatin1String(":") + prefix + QLatin1String("/") + file;
+            else
+                m_icon_file_name.clear();
+        }
     }
     updateButtons();
 }

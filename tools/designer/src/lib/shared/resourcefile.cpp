@@ -430,6 +430,25 @@ bool ResourceModel::hasChildren(const QModelIndex &parent) const
     return result;
 }
 
+bool ResourceModel::iconFileExtension(const QString &path)
+{
+    static QStringList ext_list;
+    if (ext_list.isEmpty()) {
+        ext_list << QLatin1String(".jpg")
+                    <<  QLatin1String(".jpeg")
+                    <<  QLatin1String(".gif")
+                    <<  QLatin1String(".png")
+                    <<  QLatin1String(".bmp");
+    }
+    
+    foreach (QString ext, ext_list) {
+        if (path.endsWith(ext, Qt::CaseInsensitive))
+            return true;
+    }
+
+    return false;
+}
+
 QVariant ResourceModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
@@ -448,9 +467,12 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
             break;
         case Qt::DecorationRole:
             if (d != -1) {
-                QIcon icon(m_resource_file.absolutePath(m_resource_file.file(d, index.row())));
-                if (!icon.isNull())
-                    result = icon;
+                QString path = m_resource_file.absolutePath(m_resource_file.file(d, index.row()));
+                if (iconFileExtension(path)) {
+                    QIcon icon(path);
+                    if (!icon.isNull())
+                        result = icon;
+                }
             }
             break;
         case Qt::ToolTipRole:

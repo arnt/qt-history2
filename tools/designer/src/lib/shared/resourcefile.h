@@ -117,6 +117,7 @@ public:
     bool dirty() const { return m_dirty; }
     void setDirty(bool b);
 
+    static bool iconFileExtension(const QString &path);
 
 signals:
     void dirtyChanged(bool b);
