@@ -1384,12 +1384,15 @@ void QIconViewItem::repaint()
   coordinates).
 */
 
-void QIconViewItem::move( int x, int y )
+bool QIconViewItem::move( int x, int y )
 {
+    if ( x == this->x() && y == this->y() )
+	return FALSE;
     itemRect.setRect( x, y, itemRect.width(), itemRect.height() );
     checkRect();
     if ( view )
 	view->updateItemContainer( this );
+    return TRUE;
 }
 
 /*!
@@ -1409,9 +1412,9 @@ void QIconViewItem::moveBy( int dx, int dy )
   \overload void QIconViewItem::move( const QPoint &pnt  )
 */
 
-void QIconViewItem::move( const QPoint &pnt )
+bool QIconViewItem::move( const QPoint &pnt )
 {
-    move( pnt.x(), pnt.y() );
+    return move( pnt.x(), pnt.y() );
 }
 
 /*!
@@ -2694,7 +2697,7 @@ void QIconView::insertItem( QIconViewItem *item, QIconViewItem *after )
 	    d->cachedW = QMAX( d->cachedW, item->x() + item->width() );
 	    d->cachedH= QMAX( d->cachedH, item->y() + item->height() );
 
-	    d->updateTimer->start( 100, TRUE );
+	    d->updateTimer->start( 0, TRUE );
 	} else {
 	    insertInGrid( item );
 	}
@@ -2730,9 +2733,11 @@ void QIconView::slotUpdate()
 	int y = d->spacing;
 	QIconViewItem *item = d->firstItem;
 	int w = 0, h = 0;
+	bool changedLayout = FALSE;
 	while ( item ) {
-	    QIconViewItem *next = makeRowLayout( item, y );
-
+	    bool changed;
+	    QIconViewItem *next = makeRowLayout( item, y, changed );
+	    changedLayout = changed || changedLayout;
 	    if ( !next || !next->next )
 		break;
 
@@ -2747,6 +2752,9 @@ void QIconView::slotUpdate()
 	    item = item->next;
 	}
 
+	if ( !changedLayout )
+	    return;
+	
 	if ( d->lastItem && d->arrangement == TopToBottom ) {
 	    item = d->lastItem;
 	    int x = item->x();
@@ -3197,8 +3205,11 @@ void QIconView::arrangeItemsInGrid( bool update )
     int w = 0, h = 0, y = d->spacing;
 
     QIconViewItem *item = d->firstItem;
+    bool changedLayout = FALSE;
     while ( item ) {
-	QIconViewItem *next = makeRowLayout( item, y );
+	bool changed;
+	QIconViewItem *next = makeRowLayout( item, y, changed );
+	changedLayout = changed || changedLayout;
 	if( !QApplication::reverseLayout() )
 	    item = next;
 	w = QMAX( w, item->x() + item->width() );
@@ -3212,6 +3223,9 @@ void QIconView::arrangeItemsInGrid( bool update )
 
 	item = item->next;
     }
+
+    if ( !changedLayout )
+	return;
 
     if ( d->lastItem && d->arrangement == TopToBottom ) {
 	item = d->lastItem;
@@ -4512,7 +4526,7 @@ void QIconView::resizeEvent( QResizeEvent* e )
 	d->oldSize = e->oldSize();
 	if ( d->adjustTimer->isActive() )
 	    d->adjustTimer->stop();
-	d->adjustTimer->start( 100, TRUE );
+	d->adjustTimer->start( 0, TRUE );
     }
 }
 
@@ -4935,14 +4949,16 @@ void QIconView::insertInGrid( QIconViewItem *item )
 
 	item->dirty = FALSE;
 	if ( item == d->firstItem ) {
-	    makeRowLayout( item, y );
+	    bool dummy;
+	    makeRowLayout( item, y, dummy );
 	    return;
 	}
 
 	QIconViewItem *begin = rowBegin( item );
 	y = begin->y();
 	while ( begin ) {
-	    begin = makeRowLayout( begin, y );
+	    bool dummy;
+	    begin = makeRowLayout( begin, y, dummy );
 
 	    if ( !begin || !begin->next )
 		break;
@@ -5207,11 +5223,12 @@ void QIconView::findItemByName( const QString &text )
   do not recommend calling it.}
 */
 
-QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
+QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y, bool &changed )
 {
     QIconViewItem *end = 0;
 
     bool reverse = QApplication::reverseLayout();
+    changed = FALSE;
 
     if ( d->arrangement == LeftToRight ) {
 
@@ -5259,7 +5276,7 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 		    else
 			x = item->prev->x() + item->prev->width() + d->spacing;
 		}
-		item->move( x, y + ih - item->pixmapRect().height() );
+		changed = item->move( x, y + ih - item->pixmapRect().height() ) || changed;
 		if ( y + h < item->y() + item->height() )
 		    h = QMAX( h, ih + item->textRect().height() );
 		if ( item == end )
@@ -5315,20 +5332,20 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 		int r = calcGridNum( item->width(), d->rastX );
 		if ( item == begin ) {
 		    if ( d->itemTextPos == Bottom )
-			item->move( d->spacing + ( r * d->rastX - item->width() ) / 2,
-				    y + ih - item->pixmapRect().height() );
+			changed = item->move( d->spacing + ( r * d->rastX - item->width() ) / 2,
+					      y + ih - item->pixmapRect().height() ) || changed;
 		    else
-			item->move( d->spacing, y + ih - item->pixmapRect().height() );
+			changed = item->move( d->spacing, y + ih - item->pixmapRect().height() ) || changed;
 		    i += r;
 		    sp += r;
 		} else {
 		    sp += r;
 		    int x = i * d->rastX + sp * d->spacing;
 		    if ( d->itemTextPos == Bottom )
-			item->move( x + ( r * d->rastX - item->width() ) / 2,
-				    y + ih - item->pixmapRect().height() );
+			changed = item->move( x + ( r * d->rastX - item->width() ) / 2,
+					      y + ih - item->pixmapRect().height() ) || changed;
 		    else
-			item->move( x, y + ih - item->pixmapRect().height() );
+			changed = item->move( x, y + ih - item->pixmapRect().height() ) || changed;
 		    i += r;
 		}
 		if ( y + h < item->y() + item->height() )
@@ -5374,15 +5391,15 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 		item->dirty = FALSE;
 		if ( d->itemTextPos == Bottom ) {
 		    if ( item == begin )
-			item->move( x + ( w - item->width() ) / 2, d->spacing );
+			changed = item->move( x + ( w - item->width() ) / 2, d->spacing )  || changed;
 		    else
-			item->move( x + ( w - item->width() ) / 2,
-				    item->prev->y() + item->prev->height() + d->spacing );
+			changed = item->move( x + ( w - item->width() ) / 2,
+					      item->prev->y() + item->prev->height() + d->spacing ) || changed;
 		} else {
 		    if ( item == begin )
-			item->move( x, d->spacing );
+			changed = item->move( x, d->spacing ) || changed;
 		    else
-			item->move( x, item->prev->y() + item->prev->height() + d->spacing );
+			changed = item->move( x, item->prev->y() + item->prev->height() + d->spacing ) || changed;
 		}
 		if ( item == end )
 		    break;

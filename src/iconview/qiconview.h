@@ -163,9 +163,9 @@ public:
 
     virtual void repaint();
 
-    virtual void move( int x, int y );
+    virtual bool move( int x, int y );
     virtual void moveBy( int dx, int dy );
-    virtual void move( const QPoint &pnt );
+    virtual bool move( const QPoint &pnt );
     virtual void moveBy( const QPoint &pnt );
 
     QRect rect() const;
@@ -446,7 +446,7 @@ protected:
     void emitSelectionChanged( QIconViewItem * i = 0 );
     void emitRenamed( QIconViewItem *item );
 
-    QIconViewItem *makeRowLayout( QIconViewItem *begin, int &y );
+    QIconViewItem *makeRowLayout( QIconViewItem *begin, int &y, bool &changed );
 
     void styleChange( QStyle& );
 
