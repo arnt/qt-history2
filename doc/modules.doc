@@ -69,12 +69,57 @@ details.
 
 \title Workspace Module
 
-The workspace module provides a workspace window that can contain
-decorated document windows for Multiple Document Interfaces (MDI).
+\section1 Overview
 
-It is implemented in a single class \l QWorkspace.
+The workspace module provides all the facilities needed to allow
+developers to create a Multiple Document Interface (MDI) for their
+applications.
+This kind of user interface provides the user with a single workspace
+window that represents the application's documents as decorated
+child windows.
+MDI environments are typically seen in integrated environments for
+software development, but can be applied to almost any project-based
+working environment. For example, 
+\link http://www.trolltech.com/products/solutions/catalog/Tools/qtobjectinspector/
+Qt Object Inspector \endlink uses a workspace to organize information
+about running Qt applications.
+
+Any standard Qt widget can be inserted into a workspace and used as a
+document window, from simple functional widgets such as labels and
+frames to more sophisticated containers such as icon views, list views,
+\if defined(commercial)
+tables,
+\endif
+and even other workspaces.
+
+\img workspace.png
+
+\section1 Details
+
+Workspaces in Qt are implemented in the QWorkspace class, a dervied
+class of QWidget. Workspace widgets can be added to any container
+widgets that accept QWidgets.
+
+Standard Qt widgets are added to the workspace to represent document
+windows. These child widgets can either be created with the workspace
+as their parent, or reparented into the workspace from elsewhere.
+
+A workspace manages the layout of its child widgets in a different
+way to that of other container widgets, like QHBox, QVBox, and QGrid.
+The user can freely arrange the child windows within the workspace, and
+functions also exist to tidy the windows into cascaded and tiled arrangements.
+
+Child windows can be maximized, minimized, and restored by the user just
+like normal top-level widgets; functions also exist to achieve this from within
+the application. In the common case, when used as the central widget of a
+\l {main window}, workspaces can take advantage of the main window's
+menu bar to provide maximized child windows with window furniture.
+
+Workspaces can be made to automatically provide scrollbars, so that the
+user can access all documents windows if the required workspace area
+exceeds the visible size of the workspace.
 
 Please see the \link qworkspace.html class documentation \endlink for
-details.
+further details.
 
 */
