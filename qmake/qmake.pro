@@ -42,7 +42,10 @@ win32 {
    *-msvc:LIBS += ole32.lib
 }
 macx-*: LIBS += -framework Carbon
-
+qnx {
+    CFLAGS += -fhonor-std
+    LFLAGS += -lcpp
+}
 #installation
 target.path=$$bin.path
 isEmpty(target.path):target.path=$$QT_PREFIX/bin
