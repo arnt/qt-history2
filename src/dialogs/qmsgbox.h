@@ -1,19 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmsgbox.h#17 $
+** $Id: //depot/qt/main/src/dialogs/qmsgbox.h#18 $
 **
 ** Definition of QMessageBox class
 **
 ** Created : 950503
 **
-** Copyright (C) 1992-1996 Troll Tech AS.  All rights reserved.
-**
-** This file is part of the non-commercial distribution of Qt 1.1.
-**
-** See the file LICENSE included in the distribution for the usage
-** and distribution terms, or http://www.troll.no/qt/license.html.
-**
-** (This file differs from the one in the commercial distribution of
-** Qt only by this comment.)
+** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
