@@ -185,7 +185,8 @@ QScrollBar *QAccessibleScrollBar::scrollBar() const
 QRect QAccessibleScrollBar::rect(int child) const
 {
     QRect rect;
-    QRect srect = scrollBar()->sliderRect();
+    QRect srect = scrollBar()->style().querySubControlMetrics(QStyle::CC_Slider,
+                    scrollBar(), QStyle::SC_SliderHandle);
     int sz = scrollBar()->style().pixelMetric(QStyle::PM_ScrollBarExtent, scrollBar());
     switch (child) {
     case LineUp:
@@ -318,7 +319,8 @@ QSlider *QAccessibleSlider::slider() const
 QRect QAccessibleSlider::rect(int child) const
 {
     QRect rect;
-    QRect srect = slider()->sliderRect();
+    QRect srect = slider()->style().querySubControlMetrics(QStyle::CC_Slider, 
+                    slider(), QStyle::SC_SliderHandle);
     switch (child) {
     case PageLeft:
 	if (slider()->orientation() == Vertical)
