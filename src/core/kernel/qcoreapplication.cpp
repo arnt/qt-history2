@@ -472,6 +472,7 @@ int QCoreApplication::exec()
     self->d->eventLoop = &eventLoop;
     int returnCode = eventLoop.exec();
     emit self->aboutToQuit();
+    self->d->eventLoop = 0;
     return returnCode;
 }
 
@@ -493,9 +494,9 @@ int QCoreApplication::exec()
 */
 void QCoreApplication::exit(int retcode)
 {
-    QThreadData *data = QThreadData::current();
-    if (data && data->eventLoop)
-        data->eventLoop->exit(retcode);
+    QEventLoop *eventLoop = self ? self->d->eventLoop : 0;
+    if (eventLoop)
+        eventLoop->exit(retcode);
 }
 
 /*****************************************************************************
