@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#34 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#35 $
 **
 ** Definition of QListView widget class
 **
@@ -48,7 +48,7 @@ public:
     int height() const { return ownHeight; }
     virtual void invalidateHeight();
     int totalHeight() const;
-    virtual int width( const QFontMetrics&, int column) const;
+    virtual int width( const QFontMetrics&, const QListView*, int column) const;
     void widthChanged(int column=-1) const;
     int depth() const;
 
@@ -167,6 +167,9 @@ public:
 
     virtual void setAllColumnsShowFocus( bool );
     bool allColumnsShowFocus() const;
+
+    void setItemMargin( int );
+    int itemMargin() const;
 
     virtual void setRootIsDecorated( bool );
     bool rootIsDecorated() const;

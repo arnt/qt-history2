@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#73 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#74 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#73 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#74 $");
 
 
 const int Unsorted = 32767;
@@ -76,6 +76,7 @@ struct QListViewPrivate
     QHeader * h;
     Root * r;
     uint rootIsExpandable : 1;
+    int margin;
 
     QListViewItem * currentSelected;
     QListViewItem * focusItem;
@@ -685,16 +686,16 @@ const char * QListViewItem::text( int column ) const
   properties of \a p (pen, brush etc) are undefined.  \a cg is the
   color group to use.  \a column is the logical column number within
   the item that is to be painted; 0 is the column which may contain a
-  tree.  \a showFocus is TRUE if this item should indicate that the
-  list view has keyboard focus, FALSE otherwise.
+  tree. This function may use QListView::itemMargin() for readability
+  spacing on the left and right sides of information such as text.
+
+  If re-implementing this function, you should also re-implement width().
 
   The rectangle to be painted is in an undefined state when this
   function is called, so you \e must draw on all the pixels.
 
   \sa paintBranches(), QListView::drawContentsOffset()
 */
-
-#define QLVI_MARGIN 2    // ### Should be listview property?
 
 void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 			       int column, int width ) const
@@ -705,7 +706,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 	return;
 
     QListView *lv = listView();
-    int r = QLVI_MARGIN;
+    int r = lv ? lv->itemMargin() : 2;
     QPixmap * icon = 0; // ### temporary! to be replaced with an array
 
     p->fillRect( 0, 0, width, height(), cg.base() );
@@ -718,18 +719,20 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 
     const char * t = text( column );
     if ( t ) {
+	int marg = lv ? lv->itemMargin() : 2;
+
 	if ( lv )
 	    p->setFont( lv->font() );
 
 	if ( isSelected() &&
 	     (column==0 || listView()->allColumnsShowFocus()) ) {
 	    if ( listView()->style() == WindowsStyle ) {
-		p->fillRect( r - QLVI_MARGIN, 0, width - r + QLVI_MARGIN,
+		p->fillRect( r - marg, 0, width - r + marg,
 			    height(), QApplication::winStyleHighlightColor() );
 		p->setPen( white ); // ###
 	    } else {
-		p->fillRect( r - QLVI_MARGIN, 0, width - r
-				+ QLVI_MARGIN, height(), cg.text() );
+		p->fillRect( r - marg, 0, width - r
+				+ marg, height(), cg.text() );
 		p->setPen( cg.base() );
 	    }
 	} else {
@@ -737,14 +740,14 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 	}
 
 	// should do the ellipsis thing in drawText()
-	p->drawText( r, 0, width-QLVI_MARGIN-r, height(),
+	p->drawText( r, 0, width-marg-r, height(),
 	    AlignLeft + AlignVCenter, t );
     }
 }
 
 /*!
   Returns the number of pixels of width required to draw column \a c
-  using the metrics \a fm without cropping.
+  of listview \a lv, using the metrics \a fm without cropping.
   The list view containing this item may use
   this information, depending on the QListView::WidthMode settings
   for the column.
@@ -752,13 +755,13 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
   The default implementation returns the width of the bounding
   rectangle of the text of column \a c.
 
-  \sa listView() widthChanged() QListView::setColumnWidthMode()
+  \sa listView() widthChanged() QListView::setColumnWidthMode() QListView::itemMargin()
 */
-int QListViewItem::width(const QFontMetrics& fm, int c) const
+int QListViewItem::width(const QFontMetrics& fm, const QListView* lv, int c) const
 {
     return -fm.minLeftBearing()
 	   +fm.width(text(c))
-	   -fm.minRightBearing() + QLVI_MARGIN * 2;
+	   -fm.minRightBearing() + lv->itemMargin() * 2;
     // #### add pixmap width
 }
 
@@ -1047,6 +1050,7 @@ QListView::QListView( QWidget * parent, const char * name )
     d->drawables = 0;
     d->dirtyItems = 0;
     d->dirtyItemTimer = new QTimer( this );
+    d->margin = 2;
     d->multi = 0;
     d->sortcolumn = 0;
     d->ascending = TRUE;
@@ -2457,6 +2461,24 @@ void QListView::changeSortColumn( int column )
     setSorting( d->h->mapToLogical( column ), d->ascending );
 }
 
+/*!
+  Sets an advisory spacing which list items may use.
+  \sa QListViewItem::paintCell().
+*/
+void QListView::setItemMargin( int m )
+{
+    d->margin = m;
+}
+
+/*!
+  Returns an advisory spacing which list items may use.
+  \sa QListViewItem::paintCell().
+*/
+int QListView::itemMargin() const
+{
+    return d->margin;
+}
+
 
 /*! \fn void QListView::rightButtonClicked( QListViewItem *, const QPoint&, int )
 
@@ -2538,7 +2560,7 @@ void QListView::widthChanged(const QListViewItem* item, int c)
 	int col = c < 0 ? 0 : c;
 	int indent = treeStepSize() * item->depth();
 	do {
-	    int w = item->width( fm, col ) + indent;
+	    int w = item->width( fm, this, col ) + indent;
 	    if ( w > columnWidth(col) )
 		setColumnWidth( col, w );
 	    if ( c >= 0 )
