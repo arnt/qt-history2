@@ -37,6 +37,11 @@ TARGET		= linguist
 INCLUDEPATH	+= ../pics \
 		  ../shared
 
+win32:LIBS	+= $$QT_BUILD_TREE/lib/qassistantclient.lib
+unix {
+	LIBS	+= -L$$QT_BUILD_TREE/lib -lqassistantclient
+}
+
 PROJECTNAME	= Qt Linguist
 
 target.path=$$bins.path

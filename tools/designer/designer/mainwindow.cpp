@@ -764,7 +764,6 @@ void MainWindow::helpContents()
 	source = QString( WidgetFactory::classNameOf( propertyEditor->widget() ) ).lower() + ".html#details";
     }
 
-    assistant->openAssistant();
     if ( !source.isEmpty() ) {
 	QString path = QString( qInstallPathDocs() ) + "/html/";
 	assistant->showPage( path + source );
@@ -773,7 +772,6 @@ void MainWindow::helpContents()
 
 void MainWindow::helpManual()
 {
-    assistant->openAssistant();
     assistant->showPage( QString( qInstallPathDocs() ) + "/html/designer-manual.html" );
 }
 
@@ -2714,7 +2712,6 @@ void MainWindow::showDialogHelp()
 	return;
     }
 
-    assistant->openAssistant();
     assistant->showPage( link );
 }
 

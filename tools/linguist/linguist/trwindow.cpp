@@ -49,6 +49,7 @@
 #include <qtoolbar.h>
 #include <qwhatsthis.h>
 #include <qprocess.h>
+#include <qassistantclient.h>
 
 #include "phraselv.h"
 
@@ -1691,15 +1692,12 @@ void TrWindow::revertSorting()
 void TrWindow::manual()
 {
     QString path = QDir::cleanDirPath( QString( qInstallPath() ) +
-				       QDir::separator() + "assistant" );
+				       QDir::separator() + "bin/" );
 #ifdef Q_OS_MACX
-    path += QDir::separator() + ".app/Contents/MacOS/assistant";
+    path += QDir::separator() + ".app/Contents/MacOS/";
 #endif
-
-    QStringList lst;
-    lst << path << "linguist-manual.html";
-    QProcess proc( lst );
-    proc.start();
+    QAssistantClient *ac = new QAssistantClient( path, this );
+    ac->showPage( QString( qInstallPath() ) + "/doc/html/linguist-manual.html" );
 }
 
 void TrWindow::about()

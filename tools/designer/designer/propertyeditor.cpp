@@ -132,7 +132,6 @@ bool PropertyWhatsThis::clicked( const QString& href )
 {
     if ( !href.isEmpty() ) {
 	QAssistantClient *ac = MainWindow::self->assistantClient();
-	ac->openAssistant();
 	ac->showPage( QString( qInstallPathDocs() ) + "/html/" + href );
     }
     return FALSE; // do not hide window
