@@ -258,27 +258,36 @@ QBitmap QPixmap::mask() const
 void QPixmap::setMask(const QBitmap &mask)
 {
     if (mask.size().isEmpty()) {
+        detach();
         data->image = data->image.convertToFormat(QImage::Format_RGB32);
 
     } else if (mask.size() != size()) {
         qWarning("QPixmap::setMask() mask size differs from pixmap size");
 
     } else {
+        detach();
+        const QImage imageMask = mask.toImage();
+        Q_ASSERT(imageMask.format() == QImage::Format_MonoLSB);
 
-        QImage imageMask = mask.toImage();
         int w = width();
         int h = height();
 
         switch (depth()) {
 
         case 1:
-            // ### self mask, do nothing for now
+            for (int y=0; y<h; ++y) {
+                const uchar *mscan = imageMask.scanLine(y);
+                uchar *tscan = data->image.scanLine(y);
+                int bytesPerLine = data->image.bytesPerLine();
+                for (int i=0; i<bytesPerLine; ++i)
+                    tscan[i] &= mscan[i];
+            }
             break;
 
         case 32:
             data->image = data->image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
             for (int y=0; y<h; ++y) {
-                uchar *mscan = imageMask.scanLine(y);
+                const uchar *mscan = imageMask.scanLine(y);
                 QRgb *tscan = (QRgb *) data->image.scanLine(y);
                 for (int x=0; x<w; ++x) {
                     if (!(mscan[x>>3] & qt_pixmap_bit_mask[x&7]))
