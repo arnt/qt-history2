@@ -1071,6 +1071,15 @@ void SetupWizardImpl::saveSet( QListView* list )
 
 void SetupWizardImpl::showPage( QWidget* newPage )
 {
+    if ( currentPage() == configPage
+	 && newPage == progressPage
+	 && !verifyConfig() ) {
+	QMessageBox::warning( this, "Invalid Configuration", 
+			      "One or more of your selected options do not fullfill given\n"
+			      "prerequisites. These options are marked with \"<--\"." );
+	return;
+    }
+
     QWizard::showPage( newPage );
     setInstallStep( indexOf(newPage) + 1 );
 

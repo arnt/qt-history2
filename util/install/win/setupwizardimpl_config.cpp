@@ -940,6 +940,8 @@ void SetupWizardImpl::showPageBuild()
 
 }
 
+// Please note that file exists tests should also be
+// added to the verifyConfig() function below..
 void SetupWizardImpl::optionSelected( QListViewItem *i )
 {
     if ( !i ) {
@@ -1214,4 +1216,40 @@ void SetupWizardImpl::optionSelected( QListViewItem *i )
 				"by compiling the png support "
 				"into Qt, or by loading a plugin on demand." );
     }
+}
+
+bool SetupWizardImpl::verifyConfig()
+{
+    bool result = TRUE;
+#if !defined(EVAL) && !defined(EDU)
+    if( mysqlOff && !mysqlOff->isOn() && !(findFile( "libmysql.lib" ) && findFile( "mysql.h" ) ) ) {
+	mysqlOff->parent()->setText( 0, mysqlOff->parent()->text(0).append( " <--" ) );
+	result = FALSE;
+    }
+    if( ociOff && !ociOff->isOn() && !(findFile( "oci.lib" ) && findFile( "oci.h" ) ) ) {
+	ociOff->parent()->setText( 0, ociOff->parent()->text(0).append( " <--" ) );
+	result = FALSE;
+    }
+    if( odbcOff && !odbcOff->isOn() && !(findFile( "odbc32.lib" ) && findFile( "sql.h" ) ) ) {
+	odbcOff->parent()->setText( 0, odbcOff->parent()->text(0).append( " <--" ) );
+	result = FALSE;
+    }
+    if( psqlOff && !psqlOff->isOn() && !(findFile( "libpqdll.lib" ) && findFile( "libpq-fe.h" ) ) ) {
+	psqlOff->parent()->setText( 0, psqlOff->parent()->text(0).append( " <--" ) );
+	result = FALSE;
+    }
+    if( tdsOff && !tdsOff->isOn() && !(findFile( "ntwdblib.lib" ) && findFile( "sqldb.h" ) ) ) {
+	tdsOff->parent()->setText( 0, tdsOff->parent()->text(0).append( " <--" ) );
+	result = FALSE;
+    }
+    if( xpOff && !xpOff->isOn() && !findXPSupport() ) {
+	xpOff->parent()->setText( 0, xpOff->parent()->text(0).append( " <--" ) );
+	result = FALSE;
+    }
+    if ( tabletOn->isOn() && !findFile( "wintab.h" ) ) {
+	tabletOn->parent()->setText( 0, tabletOn->parent()->text(0).append( " <--" ) );
+	result = FALSE;
+    }
+#endif
+    return result;
 }

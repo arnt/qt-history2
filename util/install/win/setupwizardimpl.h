@@ -69,6 +69,7 @@ private slots:
     void archiveMsg(const QString &);
     void licenseChanged();
     void clickedSkipBuild();
+    bool verifyConfig();
 
 private:
     void showPageLicense();
