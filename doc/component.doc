@@ -36,6 +36,7 @@
 /*! \page component.html
 
 \title The Qt Component Model
+\preliminary
 
 Qt's Object Model provides very powerful extensions to the C++ Object
 Model and makes it natural to write components that are highly 
@@ -137,8 +138,8 @@ that makes it easy to copy the generated ID directly into the source code:
 
 \code
 // {2FFC826E-AA74-4528-8FC9-2FDE08F77CD4} 
-#ifndef IID_IntegerInterface
-#define IID_IntegerInterface QUuid( 0x2ffc826e, 0xaa74, 0x4528, 0x8f, 0xc9, 0x2f, 0xde, 0x08, 0xf7, 0x7c, 0xd4)
+#ifndef IID_Integer
+#define IID_Integer QUuid( 0x2ffc826e, 0xaa74, 0x4528, 0x8f, 0xc9, 0x2f, 0xde, 0x08, 0xf7, 0x7c, 0xd4)
 #endif
 \endcode
 
@@ -158,7 +159,7 @@ public:
     NumberComponent();
 
     // from QUnknownInterface
-    QUnknownInterface *queryInterface( const QUuid &iid );
+    QRESULT queryInterface( const QUuid&, QUnknownInterface** );
     ulong addRef();
     ulong release();
 
@@ -196,17 +197,17 @@ more detailed explanation of those rules.
 An implementation of \e queryInterface usually looks like this:
 
 \code
-QUnknownInterface *NumberComponent::queryInterface( const QUuid &iid )
+QRESULT NumberComponent::queryInterface( const QUuid &uuid, QUnknownInterface **iface )
 {
     QUnknownInterface *iface = 0;
-    if ( uuid == IID_QUnknownInterface )
-	iface = this;
-    else if ( uuid == IID_IntegerInterface )
-	iface = this;
+    if ( uuid == IID_QUnknown )
+	*iface = this;
+    else if ( uuid == IID_Integer )
+	*iface = this;
 
-    if ( iface )
-        iface->addRef();
-    return iface;
+    if ( *iface )
+        (*iface)->addRef();
+    return;
 }
 \endcode
 
@@ -268,12 +269,12 @@ the relevant part of the queryInterface implementation would become:
 
 \code
     ...
-    if ( uuid == IID_QUnknownInterface )
-        iface = (QUnknownInterface*)(IntegerInterface*)this;
-    else if ( uuid == IID_IntegerInterface )
-        iface = (IntegerInterface*)this;
-    else if ( uuid == IID_DoubleInterface )
-        iface = (DoubleInterface*)this;
+    if ( uuid == IID_QUnknown )
+        *iface = (QUnknownInterface*)(IntegerInterface*)this;
+    else if ( uuid == IID_Integer )
+        *iface = (IntegerInterface*)this;
+    else if ( uuid == IID_Double )
+        *iface = (DoubleInterface*)this;
     ...
 \endcode
 
@@ -305,7 +306,7 @@ An implementation of this function might look like this:
 Q_EXPORT_INTERFACE
 {
     NumberComponent *comp = new NumberComponent;
-    return comp->queryInterface( IID_QUnknownInterface );
+    return comp->queryInterface( IID_QUnknown );
 }
 \endcode
 
@@ -330,9 +331,9 @@ components. This component has to be the one returned by the exported function, 
 to implement the interface
 
 \code
-struct QComponentFactoryInterface : public QUnknownInterface
+struct Q_EXPORT QComponentFactoryInterface : public QUnknownInterface
 {
-    QUnknownInterface *createInstance( const QUuid &cid, const QUuid &iid ) = 0;
+    virtual QRESULT createInstance( const QUuid &cid, const QUuid &iid, QUnknownInterface** instance, QUnknownInterface *outer ) = 0;
 };
 \endcode
 
@@ -356,17 +357,23 @@ QUuid NumberComponent::CID = QUuid( 0xDD19964B, 0xA2C8, 0x42AE, 0xAA, 0xF9, 0x8A
 The \e iid parameter is then passed to the queryInterface function of the created component:
 
 \code
-QUnknownInterface *ComponentFactory::createInstance( const QUuid &cid, const QUuid &iid )
+QRESULT ComponentFactory::createInstance( const QUuid &cid, const QUuid &iid, QUnknownInterface** instance, QUnknownInterface *outer )
 {
     if ( cid == NumberComponent::CID ) {
 	NumberComponent *comp = new NumberComponent;
-	return comp->queryInterface( iid );
+	comp->queryInterface( iid, instance );
+	if ( *instance )
+	    return;
+	else
+	    delete comp;
     } else if ( cid == SecondComponent::CID ) {
 	SecondComponent *comp = new SecondComponent;
-	return comp->queryInterface( iid );
+	comp->queryInterface( iid, instance );
+	if ( *instance )
+	    return;
+	else
+	    delete comp;
     }
-
-    return 0;
 }
 \endcode
 
@@ -386,7 +393,8 @@ wants to use it can load the component server using the QLibrary class like this
 int sum;
 
 QLibrary lib( "filename" );
-IntegerInterface *iface = (IntegerInterface*)lib->queryInterface( IID_IntegerInterface );
+IntegerInterface *iface;
+lib->queryInterface( IID_Integer, (QUnknownInterface**)&iface );
 if ( iface ) {
     sum = iface->add( 5, 8 );
     iface->release;
@@ -411,39 +419,17 @@ to the central database. The application can then look up the UUID it requires i
 and use the filename to create a QLibrary object. 
 
 Registering the components in a server is done by implementing the QComponentServerInterface 
-using the \link qsettings.html QSettings \endlink class like this:
+using the \link qcomponentfactory.html QComponentFactory \endlink class like this:
 
 \code
-bool ComponentFactory::registerComponents( const QString &filepath ) const
+bool ComponentServer::registerComponents( const QString &filepath ) const
 {
-    QSettings settings;
-    settings.insertSearchPath( QSettings::Windows, "/Classes" );
-    bool ok;
-
-    QString cid = NumberComponent::CID.toString();
-    ok = settings.writeEntry( "/CLSID/" + cid + "/Default", "NumberComponent" );
-    ok = settings.writeEntry( "/CLSID/" + cid + "/InprocServer32/Default", filepath ) && ok;
-
-    cid = SecondComponent::CID.toString();
-    ok = ...
-
-    return ok;
+    return QComponentFactory::registerComponent( NumberComponent::cid, filepath, "Component for numbers" );
 }
 
-bool ComponentFactory::unregisterComponents() const
+bool ComponentServer::unregisterComponents() const
 {
-    QSettings settings;
-    settings.insertSearchPath( QSettings::Windows, "/Classes" );
-    bool ok;
-
-    QString cid = NumberComponent::CID.toString();
-    ok = settings.removeEntry( "/CLSID/" + cid + "/InprocServer32/Default" );
-    ok = settings.removeEntry( "/CLSID/" + cid + "/Default" ) && ok;
-
-    cid = SecondComponent::CID.toString();
-    ok = ...
-
-    return ok;
+    return QComponentFactory::unregisterComponent( NumberComponent::cid );
 }
 \endcode
 
@@ -460,7 +446,8 @@ functions of the QComponentFactory class to get an interface to the requested co
 \code
 int sum;
 
-IntegerInterface *iface = QComponentFactory::createInstance( QUuid("{DD19964B-A2C8-42AE-AAF9-8ADC509BCA03}"), IID_IntegerInterface );
+IntegerInterface *iface;
+QComponentFactory::createInstance( QUuid("{DD19964B-A2C8-42AE-AAF9-8ADC509BCA03}"), IID_Integer, (QUnknownInterface**)&iface );
 if ( iface ) {
     sum = iface->add( 5, 3 );
     iface->release();
@@ -550,13 +537,14 @@ struct QComponentInterface : public QUnknownInterface
 Any component that implements the ImageColorInterface and either the
 QFeatureListInterface or the QComponentInterface can now be used as
 a plugin for an image processing (or any other) application. The
-QInterfaceManager template class provides a generic solution for this.
+QPluginManager template class provides a generic solution for this.
 
 \code
 QImage image( "picture.png" );
-QInterfaceManager<ImageColorInterface> colorPlugins( IID_ImageColorInterface, "./plugins" );
+QPluginManager<ImageColorInterface> colorPlugins( IID_ImageColor, "./plugins" );
 
-ImageColorInterface *iface = colorPlugins.queryInterface( "Sepia" );
+ImageColorInterface *iface;
+colorPlugins.queryInterface( "Sepia", &iface );
 if ( iface ) {
     image = iface->changeColor( "Sepia", image );
     iface->release();
@@ -585,18 +573,9 @@ Registering (and unregistering) the component is again done in the implementatio
 QComponentServerInterface:
 
 \code
-bool NumberComponent::registerComponents( const QString &filepath ) const
+bool ComponentServer::registerComponents( const QString &filepath ) const
 {
-    QSettings settings;
-    bool ok;
-
-    settings.insertSearchPath( QSettings::Windows, "/Classes" );
-    ok = settings.writeEntry( "/CLSID/{DD19964B-A2C8-42AE-AAF9-8ADC509BCA03}/Default", "NumberComponent" );
-    ok = settings.writeEntry( "/CLSID/{DD19964B-A2C8-42AE-AAF9-8ADC509BCA03}/InprocServer32/Default", filepath ) && ok;
-    ok = settings.writeEntry( "/Interface/" + IID_IntegerInterface.toString() + "/Default", "IntegerInterface" ) && ok;
-    ok = settings.writeEntry( "/Interface/" + IID_IntegerInterface.toString() + "/Components", "{DD19964B-A2C8-42AE-AAF9-8ADC509BCA03}" ) && ok;
-
-    return ok;
+    return QComponentFactory::registerComponent( TestComponent::cid, filepath, "Test Component" );
 }
 \endcode
 */
