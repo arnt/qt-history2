@@ -12,46 +12,10 @@
 
 #include "flow.h"
 
-class SimpleFlowIterator :public QGLayoutIterator
-{
-public:
-    SimpleFlowIterator( QPtrList<QLayoutItem> *l ) :idx(0), list(l)  {}
-    uint count() const;
-    QLayoutItem *current();
-    QLayoutItem *next();
-    QLayoutItem *takeCurrent();
-
-private:
-    int idx;
-    QPtrList<QLayoutItem> *list;
-
-};
-
-uint SimpleFlowIterator::count() const
-{
-    return list->count();
-}
-
-QLayoutItem *SimpleFlowIterator::current()
-{
-    return idx < int(count()) ? list->at(idx) : 0;
-}
-
-QLayoutItem *SimpleFlowIterator::next()
-{
-    idx++; return current();
-}
-
-QLayoutItem *SimpleFlowIterator::takeCurrent()
-{
-    return idx < int(count()) ? list->take( idx ) : 0;
-}
-
 SimpleFlow::~SimpleFlow()
 {
     deleteAllItems();
 }
-
 
 int SimpleFlow::heightForWidth( int w ) const
 {
@@ -86,10 +50,6 @@ QSizePolicy::ExpandData SimpleFlow::expanding() const
     return QSizePolicy::NoDirection;
 }
 
-QLayoutIterator SimpleFlow::iterator()
-{
-    return QLayoutIterator( new SimpleFlowIterator( &list ) );
-}
 
 void SimpleFlow::setGeometry( const QRect &r )
 {
@@ -97,26 +57,36 @@ void SimpleFlow::setGeometry( const QRect &r )
     doLayout( r );
 }
 
+QLayoutItem *SimpleFlow::itemAt(int idx)
+{
+    return list.value(idx);
+}
+
+QLayoutItem *SimpleFlow::takeAt(int idx)
+{
+    return idx >= 0 && idx < list.size() ? list.takeAt(idx) : 0;
+}
+
 int SimpleFlow::doLayout( const QRect &r, bool testonly )
 {
     int x = r.x();
     int y = r.y();
-    int h = 0;		//height of this line so far.
-    QPtrListIterator<QLayoutItem> it(list);
-    QLayoutItem *o;
-    while ( (o=it.current()) != 0 ) {
-	++it;
-	int nextX = x + o->sizeHint().width() + spacing();
-	if ( nextX - spacing() > r.right() && h > 0 ) {
-	    x = r.x();
-	    y = y + h + spacing();
-	    nextX = x + o->sizeHint().width() + spacing();
-	    h = 0;
-	}
-	if ( !testonly )
-	    o->setGeometry( QRect( QPoint( x, y ), o->sizeHint() ) );
-	x = nextX;
-	h = QMAX( h,  o->sizeHint().height() );
+    int h = 0;          //height of this line so far.
+    int i = 0;
+    while (i < list.size()) {
+        QLayoutItem *o = list.at(i);
+        ++i;
+        int nextX = x + o->sizeHint().width() + spacing();
+        if ( nextX - spacing() > r.right() && h > 0 ) {
+            x = r.x();
+            y = y + h + spacing();
+            nextX = x + o->sizeHint().width() + spacing();
+            h = 0;
+        }
+        if ( !testonly )
+            o->setGeometry( QRect( QPoint( x, y ), o->sizeHint() ) );
+        x = nextX;
+        h = qMax( h,  o->sizeHint().height() );
     }
     return y + h - r.y();
 }
@@ -124,11 +94,11 @@ int SimpleFlow::doLayout( const QRect &r, bool testonly )
 QSize SimpleFlow::minimumSize() const
 {
     QSize s(0,0);
-    QPtrListIterator<QLayoutItem> it(list);
-    QLayoutItem *o;
-    while ( (o=it.current()) != 0 ) {
-	++it;
-	s = s.expandedTo( o->minimumSize() );
+    int i = 0;
+    while (i < list.size()) {
+        QLayoutItem *o = list.at(i);
+        ++i;
+        s = s.expandedTo( o->minimumSize() );
     }
     return s;
 }

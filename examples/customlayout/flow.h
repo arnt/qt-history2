@@ -16,7 +16,7 @@
 #define FLOW_H
 
 #include <qlayout.h>
-#include <qptrlist.h>
+#include <qlist.h>
 
 class SimpleFlow : public QLayout
 {
@@ -39,15 +39,16 @@ public:
     int heightForWidth( int ) const;
     QSize sizeHint() const;
     QSize minimumSize() const;
-    QLayoutIterator iterator();
     QSizePolicy::ExpandData expanding() const;
+    QLayoutItem *itemAt(int);
+    QLayoutItem *takeAt(int);
 
 protected:
     void setGeometry( const QRect& );
 
 private:
     int doLayout( const QRect&, bool testonly = FALSE );
-    QPtrList<QLayoutItem> list;
+    QList<QLayoutItem*> list;
     int cached_width;
     int cached_hfw;
 

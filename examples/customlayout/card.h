@@ -16,7 +16,7 @@
 #define CARD_H
 
 #include <qlayout.h>
-#include <qptrlist.h>
+#include <qlist.h>
 
 class CardLayout : public QLayout
 {
@@ -32,11 +32,13 @@ public:
     void addItem( QLayoutItem *item );
     QSize sizeHint() const;
     QSize minimumSize() const;
-    QLayoutIterator iterator();
+    QLayoutItem *itemAt(int);
+    QLayoutItem *takeAt(int);
+
     void setGeometry( const QRect &rect );
 
 private:
-    QPtrList<QLayoutItem> list;
+    QList<QLayoutItem*> list;
 
 };
 

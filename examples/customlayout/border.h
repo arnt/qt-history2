@@ -16,7 +16,8 @@
 #define BORDER_H
 
 #include <qlayout.h>
-#include <qptrlist.h>
+#include <qlist.h>
+#include <qwidget.h>
 
 class BorderWidgetItem : public QWidgetItem
 {
@@ -82,8 +83,8 @@ public:
     QSize sizeHint() const;
     QSize minimumSize() const;
 
-    QLayoutIterator iterator();
-
+    QLayoutItem *itemAt(int);
+    QLayoutItem *takeAt(int);
     QSizePolicy::ExpandData expanding() const;
 
 protected:
@@ -93,7 +94,7 @@ private:
     void doLayout( const QRect &rect );
     void calcSize();
 
-    QPtrList<BorderLayoutStruct> list;
+    QList<BorderLayoutStruct*> list;
     QSize cached, mcached;
 };
 
