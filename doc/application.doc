@@ -1,4 +1,4 @@
-// $Id: application.doc,v 2.7 1999/07/20 19:06:03 warwick Exp $
+// $Id: application.doc,v 2.8 1999/10/01 11:37:51 arnt Exp $
 
 /*! \page simple-application.html
 <title>Qt Simple Application</title>
@@ -166,7 +166,7 @@ That's it.
 
 The only thing this widget needs to do in its destructor is delete the
 printer it created.  All the other objects are child widgets, which Qt
-will delete as appropriate.  Simple.  
+will delete as appropriate.  Simple.
 
 \line ::newDoc
 \until }
@@ -310,6 +310,7 @@ FALSE), we acknowledge that.
 
 Tha's all.  We have printed a text document.
 
+<a name="closeEvent"></a>
 \line ::closeEvent
 \line {
 
