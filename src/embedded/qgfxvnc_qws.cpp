@@ -35,6 +35,7 @@
 
 #if !defined(QT_NO_QWS_VNC)
 
+#include <stdlib.h>
 #include <sys/ipc.h>
 #include <sys/types.h>
 #include <netinet/in.h>
@@ -485,7 +486,7 @@ bool QRfbClientCutText::read( QSocket *s )
 /*
  */
 QVNCServer::QVNCServer()
-    : QServerSocket( (unsigned short)5900, (int)0, (QObject*)0 )
+    : QServerSocket( (Q_UINT16)5900 )
 {
     qDebug( "QVNCServer created" );
     handleMsg = FALSE;
@@ -498,7 +499,7 @@ QVNCServer::QVNCServer()
 }
 
 QVNCServer::QVNCServer( int id )
-    : QServerSocket( 5900 + id, (int)0, (QObject*)0 )
+    : QServerSocket( (Q_UINT16)(5900 + id) )
 {
     qDebug( "QVNCServer created" );
     handleMsg = FALSE;
