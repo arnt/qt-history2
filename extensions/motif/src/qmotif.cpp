@@ -483,7 +483,6 @@ bool QMotif::processEvents(QEventLoop::ProcessEventsFlags flags)
     // get the pending event mask from Xt and process the next event
     XtInputMask pendingMask = XtAppPending(d->appContext);
     pendingMask &= allowedMask;
-    XtInputMask mask = pendingMask;
     if (pendingMask & XtIMTimer) {
 	pendingMask &= ~XtIMTimer;
 	// zero timers will starve the Xt X event dispatcher... so
@@ -569,7 +568,7 @@ void QMotif::unregisterSocketNotifier(QSocketNotifier *notifier)
 
 /*! \internal
  */
-void qmotif_timer_handler(XtPointer pointer, XtIntervalId *id)
+void qmotif_timer_handler(XtPointer pointer, XtIntervalId *)
 {
     QObject *object = reinterpret_cast<QObject *>(pointer);
     if (!object)
@@ -595,6 +594,7 @@ bool QMotif::unregisterTimer(int timerId)
     Q_D(QMotif);
     XtRemoveTimeOut(timerId);
     d->timerHash.remove(timerId);
+    return true;
 }
 
 /*! \reimp
@@ -610,6 +610,7 @@ bool QMotif::unregisterTimers(QObject *object)
             it = d->timerHash.erase(it);
         }
     }
+    return true;
 }
 
 /*! \internal
@@ -666,10 +667,11 @@ void QMotif::startingUp()
 	XtFree((char *) displays);
 
     int argc;
+    argc = qApp->argc();
     char **argv = new char*[argc];
 
     if (! display_found) {
-	argc = qApp->argc();
+    	argc = qApp->argc();
         for (int i = 0; i < argc; ++i)
             argv[i] = qApp->argv()[i];
 

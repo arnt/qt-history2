@@ -641,7 +641,7 @@ bool QMotifWidget::event( QEvent* e )
 
 /*!\reimp
  */
-bool QMotifWidget::eventFilter( QObject *object, QEvent *event )
+bool QMotifWidget::eventFilter( QObject *, QEvent *event )
 {
     if (!d->shell)
         return false;
