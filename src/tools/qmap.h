@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qmap.h#11 $
+** $Id: //depot/qt/main/src/tools/qmap.h#12 $
 **
 ** Definition of QMap class
 **
@@ -148,23 +148,23 @@ struct QMapIterator
     node = (NodePtr)tmp;
   }
 
-  Type& operator++() { 
+  Type& operator++() {
     inc();
     return *this;
   }
 
-  Type operator++(int) { 
+  Type operator++(int) {
     Type tmp = *this;
     inc();
     return tmp;
   }
 
-  Type& operator--() { 
+  Type& operator--() {
     dec();
     return *this;
   }
 
-  Type operator--(int) { 
+  Type operator--(int) {
     Type tmp = *this;
     dec();
     return tmp;
@@ -262,7 +262,7 @@ public:
     header->left = header->right = header;
   }
 
-  void clear( NodePtr p ) 
+  void clear( NodePtr p )
   {
     if ( p && p != header )
     {
@@ -282,9 +282,9 @@ public:
   ConstIterator find(const Key& k) const
   {
     QMapNodeBase* y = header;        // Last node
-    QMapNodeBase* x = header->parent; // Root node. 
+    QMapNodeBase* x = header->parent; // Root node.
 
-    while ( x != 0 ) 
+    while ( x != 0 )
     {
       // If as k <= key(x) go left
       if ( !( key(x) < k ) )
@@ -319,22 +319,22 @@ public:
 
     if ( x->left )
       inorder( x->left, level + 1 );
-    cout << level << " Key=" << key(x) << " Value=" << ((NodePtr)x)->data << endl;
+    //cout << level << " Key=" << key(x) << " Value=" << ((NodePtr)x)->data << endl;
     if ( x->right )
-      inorder( x->right, level + 1 );      
+      inorder( x->right, level + 1 );
   }
 #endif
 
   Iterator insertMulti(const Key& v)
   {
-    QMapNodeBase* y = header;
-    NodePtr x = header->parent;
-    while (x != 0)
-    {
-      y = x;
-      x = ( v < key(x) ) ? x->left : x->right;
-    }
-    return insert(x, y, v);
+     QMapNodeBase* y = header;
+     QMapNodeBase* x = header->parent;
+     while (x != 0)
+     {
+       y = x;
+       x = ( v < key(x) ) ? x->left : x->right;
+     }
+     return insert(x, y, v);
   }
 
   Iterator insertSingle( const Key& k )
@@ -442,11 +442,11 @@ public:
     bool contains ( const Key& k ) const
 	{ return find( k ) != end(); }
 	//{ return sh->find( k ) != ((const Priv*)sh)->end(); }
-  
+
     uint count() const { return sh->node_count; }
 
     bool isEmpty() const { return sh->node_count == 0; }
-  
+
     Iterator insert( const Key& key, const T& value )
     {
         detach();
@@ -456,7 +456,7 @@ public:
     }
 
     void remove( Iterator it ) { detach(); sh->remove( it ); }
-    void remove( const Key& k ) 
+    void remove( const Key& k )
     {
         detach();
         Iterator it = Iterator( sh->find( k ).node );
@@ -477,7 +477,7 @@ protected:
      * Helpers
      */
     void detach() { if ( sh->count > 1 ) { sh->deref(); sh = new QMapPrivate<Key,T>( sh ); } }
-  
+
     Priv* sh;
 };
 
@@ -494,7 +494,7 @@ QDataStream& operator>>( QDataStream& s, QMap<Key,T>& m ) {
     }
     return s;
 }
-  
+
 template<class Key, class T>
 QDataStream& operator<<( QDataStream& s, const QMap<Key,T>& m ) {
     s << m.count();
@@ -502,6 +502,6 @@ QDataStream& operator<<( QDataStream& s, const QMap<Key,T>& m ) {
     for( ; it != m.end(); ++it )
       s << it.key() << it.data();
     return s;
-}  
+}
 
 #endif
