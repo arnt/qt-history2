@@ -68,7 +68,7 @@ public:
 			const QColorGroup &cg,
 			SFlags flags = Style_Default,
 			void **data = 0 ) const;
-
+    
     void drawControl( ControlElement element,
 		      QPainter *p,
 		      const QWidget *widget,
@@ -106,52 +106,7 @@ public:
 			 void **data = 0 ) const;
 
 
-    // THE OLD API that MUST GO!
-//     void drawPopupPanel( QPainter *p, int x, int y, int w, int h,
-// 			 const QColorGroup &,  int lineWidth = 2,
-// 			 const QBrush *fill = 0 );
-//     QRect buttonRect( int x, int y, int w, int h) const;
-//     void getButtonShift( int &x, int &y ) const;
-
-//     void scrollBarMetrics( const QScrollBar*, int&, int&, int&, int&) const;
-//     void drawScrollBarControls( QPainter*,  const QScrollBar*, int sliderStart, uint controls, uint activeControl );
-//     ScrollControl scrollBarPointOver( const QScrollBar* sb, int sliderStart, const QPoint& p );
-
-
-//     void drawComboButton( QPainter *p, int x, int y, int w, int h,
-// 			  const QColorGroup &g, bool sunken = FALSE,
-// 			  bool editable = FALSE,
-// 			  bool enabled = TRUE,
-// 			  const QBrush *fill = 0 );
-//     QRect comboButtonRect( int x, int y, int w, int h) const;
-//     QRect comboButtonFocusRect( int x, int y, int w, int h) const;
-
-//     int sliderLength() const;
-//     void drawSlider( QPainter *p,
-// 			     int x, int y, int w, int h,
-// 			     const QColorGroup &g,
-// 			     Orientation, bool tickAbove, bool tickBelow );
-//     void drawSliderGroove( QPainter *p,
-// 			   int x, int y, int w, int h,
-// 			   const QColorGroup& g, QCOORD c,
-// 			   Orientation );
-
-
-//     int maximumSliderDragDistance() const;
-
-//     void polishPopupMenu( QPopupMenu* );
-
-//     int extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi,
-// 				 const QFontMetrics& fm ) const;
-//     int popupMenuItemHeight( bool checkable, QMenuItem* mi,
-// 			     const QFontMetrics& fm ) const;
-//     void drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, QMenuItem* mi,
-// 			    const QPalette& pal, bool act, bool enabled,
-// 			    int x, int y, int w, int h);
-
 protected:
-//     void drawScrollBarBackground( QPainter *p, int x, int y, int w, int h,
-// 				  const QColorGroup &g, bool horizontal, const QBrush* fill = 0);
      QColor mixedColor(const QColor &, const QColor &) const;
     void drawRiffles( QPainter* p,  int x, int y, int w, int h,
 		      const QColorGroup &g, bool horizontal ) const;
