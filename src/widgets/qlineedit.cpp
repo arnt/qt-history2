@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#192 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#193 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -1559,20 +1559,26 @@ void QLineEdit::repaintArea( int from, int to )
 	return;
     }
 
+    QString buf;
+    if ( echoMode() == Normal ) {
+	buf = tbuf;
+    } else if ( echoMode() == Password ) {
+	buf.fill( '*', tbuf.length() );
+    }
     if ( a < offset )
 	a = offset;
     if ( b < a )
 	b = a;
-    if ( b > (int)tbuf.length() )
-	b = tbuf.length();
+    if ( b > (int)buf.length() )
+	b = buf.length();
 
     const QFontMetrics & fm = fontMetrics();
 
     int margin = frame() ? 2 : 0;
-    int x3 = fm.width( tbuf.mid( offset, cursorPos - offset ) ) + 2*margin;
+    int x3 = fm.width( buf.mid( offset, cursorPos - offset ) ) + 2*margin;
     if ( x3 >= width() ) {
 	while( x3 >= width() ) {
-	    x3 -= fm.width( tbuf[offset] );
+	    x3 -= fm.width( buf[offset] );
 	    offset++;
 	}
 	d->pmDirty = TRUE;
@@ -1581,9 +1587,9 @@ void QLineEdit::repaintArea( int from, int to )
     }
 
     int x1, x2;
-    x1 = a > offset ? fm.width( tbuf.mid( offset, a-offset ) ) : 0;
+    x1 = a > offset ? fm.width( buf.mid( offset, a-offset ) ) : 0;
     x1 += alignOffset;
-    x2 = x1 + (b > a ? fm.width( tbuf.mid( a, b-a ) ) : 0);
+    x2 = x1 + (b > a ? fm.width( buf.mid( a, b-a ) ) : 0);
 
     x1 += margin - 3;
     x2 += margin + 2 + 3;
