@@ -679,11 +679,19 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 		const QUParameter *param = slotdata->method->parameters + p;
 		bool returnValue = FALSE;
 
-		if ( QUType::isEqual( param->type, &static_QUType_ptr ) ) {
-		    QString typeExtra = (const char*)param->typeExtra;
-		    if ( typeExtra.endsWith( "&" ) )
-			typeExtra = typeExtra.left( typeExtra.length()-1 );
-		    paramType = convertTypes( typeExtra, &ok );
+#if QT_VERSION >= 0x030100
+		if ( QUType::isEqual( param->type, &static_QUType_varptr ) ) {
+		    int vartable = (QVariant::Type)*(int*)param->typeExtra;
+		    QVariant::Type vartype = (QVariant::Type)qt_variant_types[vartable];
+		    QCString type = QVariant::typeToName( vartype );
+		    paramType = convertTypes( type, &ok );
+		} else 
+#endif
+		    if ( QUType::isEqual( param->type, &static_QUType_ptr ) ) {
+		    QCString type = (const char*)param->typeExtra;
+		    if ( type.right(1) == "&" )
+			type = type.left( type.length()-1 );
+		    paramType = convertTypes( type, &ok );
 		} else if ( QUType::isEqual( param->type, &static_QUType_enum ) ) {
 		    const QUEnum *uenum = (const QUEnum*)param->typeExtra;
 		    paramType = convertTypes( uenum->name, &ok );
@@ -770,12 +778,19 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 		const QUParameter *param = signaldata->method->parameters + p;
 		bool returnValue = FALSE;
 
-
-		if ( QUType::isEqual( param->type, &static_QUType_ptr ) ) {
-		    QString typeExtra = (const char*)param->typeExtra;
-		    if ( typeExtra.endsWith( "&" ) )
-			typeExtra = typeExtra.left( typeExtra.length()-1 );
-		    paramType = convertTypes( typeExtra, &ok );
+#if QT_VERSION >= 0x030100
+		if ( QUType::isEqual( param->type, &static_QUType_varptr ) ) {
+		    int vartable = (QVariant::Type)*(int*)param->typeExtra;
+		    QVariant::Type vartype = (QVariant::Type)qt_variant_types[vartable];
+		    QCString type = QVariant::typeToName( vartype );
+		    paramType = convertTypes( type, &ok );
+		} else 
+#endif
+		    if ( QUType::isEqual( param->type, &static_QUType_ptr ) ) {
+		    QCString type = (const char*)param->typeExtra;
+		    if ( type.right(1) == "&" )
+			type = type.left( type.length()-1 );
+		    paramType = convertTypes( type, &ok );
 		} else if ( QUType::isEqual( param->type, &static_QUType_enum ) ) {
 		    const QUEnum *uenum = (const QUEnum*)param->typeExtra;
 		    paramType = convertTypes( uenum->name, &ok );
