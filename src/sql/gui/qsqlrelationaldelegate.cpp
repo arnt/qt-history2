@@ -100,7 +100,7 @@ void QSqlRelationalDelegate::setEditorData(QWidget *editor, const QModelIndex &i
     int currentItem = -1;
     for (int i = 0; i < childModel->rowCount(); ++i) {
         QVariant val = childModel->data(childModel->index(i, childColIndex));
-        combo->insertItem(val.toString());
+        combo->addItem(val.toString());
         if (currentItem < 0 && val == parentEditValue)
             currentItem = i;
     }
