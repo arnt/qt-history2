@@ -13,7 +13,7 @@
 #include <stdio.h>
 
 // 20kb buffer
-#define BUFSIZE (20*1024)
+#define BUFSIZE (50*1000)
 #define PRGSTEP (BUFSIZE / 100)
 #define BLKSIZE (2)
 QByteArray bytearray;
@@ -93,14 +93,16 @@ void ProdThread::run()
 	    done = TRUE;
 	}
 
-	while (! bytearray.isNull() && ! done) {
+	while (! bytearray.isNull() && ! stop) {
             condition->wakeOne();
             condition->wait(mutex);
+
+	    stop = done;
 	}
 
 	stop = done;
-    bytearray.duplicate((const char *) (buffer + oldpos), pos - oldpos);
-    condition->wakeOne();
+	bytearray.duplicate((const char *) (buffer + oldpos), pos - oldpos);
+	condition->wakeOne();
 
 	mutex->unlock();
 
@@ -165,6 +167,7 @@ void ConsThread::stop()
 
 void ConsThread::run()
 {
+    bool stop = FALSE;
     done = FALSE;
 
     QFile file("prodcons.out");
@@ -175,19 +178,23 @@ void ConsThread::run()
     ConsEvent *ce = new ConsEvent(size);
     QThread::postEvent(receiver, ce);
 
-    while (! done) {
+    while (! stop) {
 	mutex->lock();
 
-	while (bytearray.isNull() && ! done) {
+	while (bytearray.isNull() && ! stop) {
             condition->wakeOne();
             condition->wait(mutex);
+
+	    stop = done;
 	}
 
-    if (! done) {
+	if (size < BUFSIZE) {
 	    file.writeBlock(bytearray.data(), bytearray.size());
 	    size += bytearray.size();
 	    bytearray.resize(0);
-    }
+	}
+
+	stop = done || size >= BUFSIZE;
 
 	mutex->unlock();
 
@@ -299,7 +306,7 @@ void ProdCons::stop()
     }
 
     if (cons && cons->running()) {
-    cons->stop();
+	cons->stop();
         condition.wakeAll();
 	cons->wait();
     }
@@ -323,8 +330,8 @@ void ProdCons::customEvent(QCustomEvent *e)
 		prodbar->setProgress(pe->size());
 
 	    // reap the threads
-        if (pe->done())
-        stop();
+	    if (pe->done())
+		stop();
 
 	    break;
 	}
@@ -343,6 +350,7 @@ void ProdCons::customEvent(QCustomEvent *e)
 	      if (ce->size() == BUFSIZE)
 	      stop();
 	    */
+
 	    break;
 	}
 
