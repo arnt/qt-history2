@@ -38,7 +38,7 @@
 #include <qfileinfo.h>
 #include <qstringlist.h>
 
-//#define DEBUG_XBASE
+#define DEBUG_XBASE
 // #define VERBOSE_DEBUG_XBASE
 
 static bool canConvert( QVariant::Type t1, QVariant::Type t2 )
@@ -929,8 +929,7 @@ bool FileDriver::rangeAction( const List* data, const List* cols,
 	    bool actionOK = TRUE;
 	    for ( i = 0; i < data->count(); ++i ) {
 		List rangeMarkFieldData = (*data)[i].toList();
-		List rangeMarkFieldDesc = rangeMarkFieldData[0].toList();
-		QString name = rangeMarkFieldDesc[0].toString();
+		QString name = rangeMarkFieldData[0].toString();
 		QVariant value = rangeMarkFieldData[1];
 		xbShort fieldnum = d->file.GetFieldNo( name.latin1() );
 		QVariant v;
