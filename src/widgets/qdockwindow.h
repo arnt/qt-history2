@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#27 $
 **
-** Definition of the QDockWidget class
+** Definition of the QDockWindow class
 **
 ** Created : 001010
 **
@@ -42,10 +42,10 @@
 #include "qframe.h"
 #endif // QT_H
 
-class QDockWidgetHandle;
-class QDockWidgetTitleBar;
+class QDockWindowHandle;
+class QDockWindowTitleBar;
 class QPainter;
-class QDockWidgetResizeHandle;
+class QDockWindowResizeHandle;
 class QBoxLayout;
 class QHBoxLayout;
 class QVBoxLayout;
@@ -53,10 +53,10 @@ class QDockArea;
 class QWidgetResizeHandler;
 class QMainWindow;
 
-class Q_EXPORT QDockWidget : public QFrame
+class Q_EXPORT QDockWindow : public QFrame
 {
-    friend class QDockWidgetHandle;
-    friend class QDockWidgetTitleBar;
+    friend class QDockWindowHandle;
+    friend class QDockWindowTitleBar;
     friend class QDockArea;
     friend class QMainWindow;
     Q_OBJECT
@@ -65,8 +65,8 @@ public:
     enum Place { InDock, OutsideDock };
     enum CloseMode { Never = 0, Docked = 1, Undocked = 2, Always = Docked | Undocked };
 
-    QDockWidget( Place p = InDock, QWidget *parent = 0, const char *name = 0, WFlags f = 0 );
-    ~QDockWidget();
+    QDockWindow( Place p = InDock, QWidget *parent = 0, const char *name = 0, WFlags f = 0 );
+    ~QDockWindow();
 
     virtual void setWidget( QWidget *w );
     QWidget *widget() const;
@@ -135,8 +135,8 @@ private:
     void removeFromDock();
 
 private:
-    QDockWidgetHandle *horHandle, *verHandle;
-    QDockWidgetTitleBar *titleBar;
+    QDockWindowHandle *horHandle, *verHandle;
+    QDockWindowTitleBar *titleBar;
     Place curPlace;
     QWidget *wid;
     QPainter *unclippedPainter;
@@ -152,7 +152,7 @@ private:
     int offs;
     QSize fExtent;
     bool nl;
-    QDockWidgetResizeHandle *hHandleTop, *hHandleBottom, *vHandleLeft, *vHandleRight;
+    QDockWindowResizeHandle *hHandleTop, *hHandleBottom, *vHandleLeft, *vHandleRight;
     QVBoxLayout *hbox;
     QHBoxLayout *vbox;
     QBoxLayout *layout;
@@ -162,7 +162,7 @@ private:
 
 };
 
-inline QDockArea *QDockWidget::area() const
+inline QDockArea *QDockWindow::area() const
 {
     return dockArea;
 }

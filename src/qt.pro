@@ -295,7 +295,7 @@ widgets:HEADERS += $$WIDGETS_H/qbuttongroup.h \
 		  $$WIDGETS_H/qcommonstyle.h \
 		  $$WIDGETS_H/qdial.h \
 		  $$WIDGETS_H/qdockarea.h \
-		  $$WIDGETS_H/qdockwidget.h \
+		  $$WIDGETS_H/qdockwindow.h \
 		  $$WIDGETS_H/qframe.h \
 		  $$WIDGETS_H/qgrid.h \
 		  $$WIDGETS_H/qgroupbox.h \
@@ -544,7 +544,7 @@ widgets:SOURCES += widgets/qbuttongroup.cpp \
 		  widgets/qcommonstyle.cpp \
 		  widgets/qdial.cpp \
 		  widgets/qdockarea.cpp \
-		  widgets/qdockwidget.cpp \
+		  widgets/qdockwindow.cpp \
 		  widgets/qframe.cpp \
 		  widgets/qgrid.cpp \
 		  widgets/qgroupbox.cpp \

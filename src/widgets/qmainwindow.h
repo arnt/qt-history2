@@ -59,7 +59,7 @@ class Q_EXPORT QMainWindow: public QWidget
     Q_PROPERTY( bool usesBigPixmaps READ usesBigPixmaps WRITE setUsesBigPixmaps )
     Q_PROPERTY( bool usesTextLabel READ usesTextLabel WRITE setUsesTextLabel )
     Q_PROPERTY( bool toolBarsMovable READ toolBarsMovable WRITE setToolBarsMovable )
-    Q_PROPERTY( bool dockWidgetsMovable READ dockWidgetsMovable WRITE setDockWidgetsMovable )
+    Q_PROPERTY( bool dockWidgetsMovable READ dockWidgetsMovable WRITE setDockWindowsMovable )
     Q_PROPERTY( bool opaqueMoving READ opaqueMoving WRITE setOpaqueMoving )
 
 public:
@@ -78,16 +78,16 @@ public:
     virtual void setDockEnabled( Dock dock, bool enable );
     bool isDockEnabled( Dock dock ) const;
     bool isDockEnabled( QDockArea *area ) const;
-    virtual void setDockEnabled( QDockWidget *tb, Dock dock, bool enable );
-    bool isDockEnabled( QDockWidget *tb, Dock dock ) const;
-    bool isDockEnabled( QDockWidget *tb, QDockArea *area ) const;
+    virtual void setDockEnabled( QDockWindow *tb, Dock dock, bool enable );
+    bool isDockEnabled( QDockWindow *tb, Dock dock ) const;
+    bool isDockEnabled( QDockWindow *tb, QDockArea *area ) const;
 
-    void addDockWidget( QDockWidget *, Dock = Top, bool newLine = FALSE );
-    void addDockWidget( QDockWidget *, const QString &label,
+    void addDockWindow( QDockWindow *, Dock = Top, bool newLine = FALSE );
+    void addDockWindow( QDockWindow *, const QString &label,
 		     Dock = Top, bool newLine = FALSE );
-    void moveDockWidget( QDockWidget *, Dock = Top );
-    void moveDockWidget( QDockWidget *, Dock, bool nl, int index, int extraOffset = -1 );
-    void removeDockWidget( QDockWidget * );
+    void moveDockWindow( QDockWindow *, Dock = Top );
+    void moveDockWindow( QDockWindow *, Dock, bool nl, int index, int extraOffset = -1 );
+    void removeDockWindow( QDockWindow * );
 
     void show();
     QSize sizeHint() const;
@@ -101,22 +101,22 @@ public:
 
     bool eventFilter( QObject*, QEvent* );
 
-    bool getLocation( QDockWidget *tb, Dock &dock, int &index, bool &nl, int &extraOffset ) const;
+    bool getLocation( QDockWindow *tb, Dock &dock, int &index, bool &nl, int &extraOffset ) const;
 
-    QList<QDockWidget> dockWidgets( Dock dock ) const;
-    void lineUpDockWidgets( bool keepNewLines = FALSE );
+    QList<QDockWindow> dockWidgets( Dock dock ) const;
+    void lineUpDockWindows( bool keepNewLines = FALSE );
 
     bool isDockMenuEnabled() const;
 
     // compatibility stuff
-    void addToolBar( QDockWidget *, Dock = Top, bool newLine = FALSE );
-    void addToolBar( QDockWidget *, const QString &label,
+    void addToolBar( QDockWindow *, Dock = Top, bool newLine = FALSE );
+    void addToolBar( QDockWindow *, const QString &label,
 		     Dock = Top, bool newLine = FALSE );
-    void moveToolBar( QDockWidget *, Dock = Top );
-    void moveToolBar( QDockWidget *, Dock, bool nl, int index, int extraOffset = -1 );
-    void removeToolBar( QDockWidget * );
-    bool hasDockWidget( QDockWidget *dw );
-    
+    void moveToolBar( QDockWindow *, Dock = Top );
+    void moveToolBar( QDockWindow *, Dock, bool nl, int index, int extraOffset = -1 );
+    void removeToolBar( QDockWindow * );
+    bool hasDockWindow( QDockWindow *dw );
+
     bool toolBarsMovable() const;
     QList<QToolBar> toolBars( Dock dock ) const;
     void lineUpToolBars( bool keepNewLines = FALSE );
@@ -127,7 +127,7 @@ public slots:
     virtual void setRightJustification( bool );
     virtual void setUsesBigPixmaps( bool );
     virtual void setUsesTextLabel( bool );
-    virtual void setDockWidgetsMovable( bool );
+    virtual void setDockWindowsMovable( bool );
     virtual void setOpaqueMoving( bool );
     virtual void setDockMenuEnabled( bool );
     virtual void whatsThis();
@@ -138,7 +138,7 @@ public slots:
 signals:
     void pixmapSizeChanged( bool );
     void usesTextLabelChanged( bool );
-    void dockWidgetPositionChanged( QDockWidget * );
+    void dockWidgetPositionChanged( QDockWindow * );
 
     // compatibility stuff
     void toolBarPositionChanged( QToolBar * );
@@ -166,7 +166,7 @@ private:
     virtual void setStatusBar( QStatusBar * );
     virtual void setToolTipGroup( QToolTipGroup * );
 
-    friend class QDockWidget;
+    friend class QDockWindow;
     friend class QMenuBar;
     friend class QHideDock;
     friend class QToolBar;
@@ -177,30 +177,30 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-inline void QMainWindow::addToolBar( QDockWidget *w, ToolBarDock d, bool newLine )
+inline void QMainWindow::addToolBar( QDockWindow *w, ToolBarDock d, bool newLine )
 {
-    addDockWidget( w, d, newLine );
+    addDockWindow( w, d, newLine );
 }
 
-inline void QMainWindow::addToolBar( QDockWidget *w, const QString &label,
+inline void QMainWindow::addToolBar( QDockWindow *w, const QString &label,
 			      ToolBarDock d, bool newLine )
 {
-    addDockWidget( w, label, d, newLine );
+    addDockWindow( w, label, d, newLine );
 }
 
-inline void QMainWindow::moveToolBar( QDockWidget *w, ToolBarDock d )
+inline void QMainWindow::moveToolBar( QDockWindow *w, ToolBarDock d )
 {
-    moveDockWidget( w, d );
+    moveDockWindow( w, d );
 }
 
-inline void QMainWindow::moveToolBar( QDockWidget *w, ToolBarDock d, bool nl, int index, int extraOffset )
+inline void QMainWindow::moveToolBar( QDockWindow *w, ToolBarDock d, bool nl, int index, int extraOffset )
 {
-    moveDockWidget( w, d, nl, index, extraOffset );
+    moveDockWindow( w, d, nl, index, extraOffset );
 }
 
-inline void QMainWindow::removeToolBar( QDockWidget *w )
+inline void QMainWindow::removeToolBar( QDockWindow *w )
 {
-    removeDockWidget( w );
+    removeDockWindow( w );
 }
 
 inline bool QMainWindow::toolBarsMovable() const
@@ -210,12 +210,12 @@ inline bool QMainWindow::toolBarsMovable() const
 
 inline void QMainWindow::lineUpToolBars( bool keepNewLines )
 {
-    lineUpDockWidgets( keepNewLines );
+    lineUpDockWindows( keepNewLines );
 }
 
 inline void QMainWindow::setToolBarsMovable( bool b )
 {
-    setDockWidgetsMovable( b );
+    setDockWindowsMovable( b );
 }
 
 #endif // QT_NO_COMPLEXWIDGETS

@@ -39,7 +39,7 @@
 #define QTOOLBAR_H
 
 #ifndef QT_H
-#include "qdockwidget.h"
+#include "qdockwindow.h"
 #endif // QT_H
 
 #ifndef QT_NO_COMPLEXWIDGETS
@@ -49,7 +49,7 @@ class QButton;
 class QBoxLayout;
 class QToolBarPrivate;
 
-class Q_EXPORT QToolBar: public QDockWidget
+class Q_EXPORT QToolBar: public QDockWindow
 {
     Q_OBJECT
     Q_PROPERTY( QString label READ label WRITE setLabel )

@@ -51,8 +51,8 @@
 struct DockData
 {
     DockData() : w( 0 ), rect() {}
-    DockData( QDockWidget *dw, const QRect &r ) : w( dw ), rect( r ) {}
-    QDockWidget *w;
+    DockData( QDockWindow *dw, const QRect &r ) : w( dw ), rect( r ) {}
+    QDockWindow *w;
     QRect rect;
 };
 
@@ -75,8 +75,8 @@ QSize QDockAreaLayout::sizeHint() const
 
     int w = 0;
     int h = 0;
-    QListIterator<QDockWidget> it( *dockWidgets );
-    QDockWidget *dw = 0;
+    QListIterator<QDockWindow> it( *dockWidgets );
+    QDockWindow *dw = 0;
     it.toFirst();
     int y = -1;
     int x = -1;
@@ -124,8 +124,8 @@ QSize QDockAreaLayout::minimumSize() const
 	return QSize( 0, 0 );
     QSize s;
 
-    QListIterator<QDockWidget> it( *dockWidgets );
-    QDockWidget *dw = 0;
+    QListIterator<QDockWindow> it( *dockWidgets );
+    QDockWindow *dw = 0;
     while ( ( dw = it.current() ) != 0 ) {
  	++it;
  	s = s.expandedTo( dw->minimumSizeHint() )
@@ -182,7 +182,7 @@ static int space_left( const QRect &r, int pos, Qt::Orientation o )
     }
 }
 
-static int dock_extent( QDockWidget *w, Qt::Orientation o )
+static int dock_extent( QDockWindow *w, Qt::Orientation o )
 {
     if ( o == Qt::Horizontal ) {
 	int wid;
@@ -197,7 +197,7 @@ static int dock_extent( QDockWidget *w, Qt::Orientation o )
     }
 }
 
-static int dock_strut( QDockWidget *w, Qt::Orientation o )
+static int dock_strut( QDockWindow *w, Qt::Orientation o )
 {
     if ( o != Qt::Horizontal ) {
 	int wid;
@@ -212,7 +212,7 @@ static int dock_strut( QDockWidget *w, Qt::Orientation o )
     }
 }
 
-static void set_geometry( QDockWidget *w, int pos, int sectionpos, int extent, int strut, Qt::Orientation o )
+static void set_geometry( QDockWindow *w, int pos, int sectionpos, int extent, int strut, Qt::Orientation o )
 {
     if ( o == Qt::Horizontal )
 	w->setGeometry( pos, sectionpos, extent, strut );
@@ -232,7 +232,7 @@ static int point_pos( const QPoint &p, Qt::Orientation o, bool swap = FALSE )
 
 static void place_line( QValueList<DockData> &lastLine, Qt::Orientation o, int linestrut, int fullextent, int tbstrut )
 {
-    QDockWidget *last = 0;
+    QDockWindow *last = 0;
     QRect lastRect;
     for ( QValueList<DockData>::Iterator it = lastLine.begin(); it != lastLine.end(); ++it ) {
 	if ( (*it).w->inherits( "QToolBar" ) && tbstrut != -1 )
@@ -271,8 +271,8 @@ int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
     // init
     lines.clear();
     ls.clear();
-    QListIterator<QDockWidget> it( *dockWidgets );
-    QDockWidget *dw = 0;
+    QListIterator<QDockWindow> it( *dockWidgets );
+    QDockWindow *dw = 0;
     int start = start_pos( r, orientation() );
     int pos = start;
     int sectionpos = 0;
@@ -374,7 +374,7 @@ int QDockAreaLayout::widthForHeight( int h ) const
 QDockArea::QDockArea( Orientation o, Gravity g, QWidget *parent, const char *name )
     : QWidget( parent, name ), orient( o ), layout( 0 ), grav( g )
 {
-    dockWidgets = new QList<QDockWidget>;
+    dockWidgets = new QList<QDockWindow>;
     layout = new QDockAreaLayout( this, o, dockWidgets, -1, -1, "toollayout" );
     installEventFilter( this );
 }
@@ -384,10 +384,10 @@ QDockArea::~QDockArea()
     delete dockWidgets;
 }
 
-void QDockArea::addDockWidget( QDockWidget *w, int index )
+void QDockArea::addDockWindow( QDockWindow *w, int index )
 {
-    QDockWidget *dockWidget = 0;
-    int dockWidgetIndex = findDockWidget( w );
+    QDockWindow *dockWidget = 0;
+    int dockWidgetIndex = findDockWindow( w );
     if ( dockWidgetIndex == -1 ) {
 	dockWidget = w;
 	dockWidget->reparent( this, QPoint( 0, 0 ), TRUE );
@@ -398,7 +398,7 @@ void QDockArea::addDockWidget( QDockWidget *w, int index )
 	dockWidgets->append( w );
     }
     w->dockArea = this;
-    w->curPlace = QDockWidget::InDock;
+    w->curPlace = QDockWindow::InDock;
     w->updateGui();
 
     if ( index != -1 ) {
@@ -407,7 +407,7 @@ void QDockArea::addDockWidget( QDockWidget *w, int index )
     }
 }
 
-bool QDockArea::hasDockWidget( QDockWidget *w, int *index )
+bool QDockArea::hasDockWindow( QDockWindow *w, int *index )
 {
     int i = dockWidgets->findRef( w );
     if ( index )
@@ -417,20 +417,20 @@ bool QDockArea::hasDockWidget( QDockWidget *w, int *index )
 
 int QDockArea::lineOf( int index )
 {
-    QList<QDockWidget> lineStarts = layout->lineStarts();
+    QList<QDockWindow> lineStarts = layout->lineStarts();
     int i = 0;
-    for ( QDockWidget *w = lineStarts.first(); w; w = lineStarts.next(), ++i ) {
+    for ( QDockWindow *w = lineStarts.first(); w; w = lineStarts.next(), ++i ) {
 	if ( dockWidgets->find( w ) >= index )
 	    return i;
     }
     return i;
 }
 
-void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r, bool swap )
+void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r, bool swap )
 {
-    QDockWidget *dockWidget = 0;
-    int dockWidgetIndex = findDockWidget( w );
-    QList<QDockWidget> lineStarts = layout->lineStarts();
+    QDockWindow *dockWidget = 0;
+    int dockWidgetIndex = findDockWindow( w );
+    QList<QDockWindow> lineStarts = layout->lineStarts();
     QValueList<QRect> lines = layout->lineList();
     bool wasAloneInLine = FALSE;
     QPoint pos = mapFromGlobal( p );
@@ -500,7 +500,7 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r,
 	qDebug( "insert in line %d, and insert that line: %d", dockLine, insertLine );
 	qDebug( "     (btw, we have %d lines)", lines.count() );
 #endif
-	QDockWidget *dw = 0;
+	QDockWindow *dw = 0;
 	if ( dockLine >= (int)lines.count() ) { // insert after last line
 	    dockWidgets->append( dockWidget );
 	    dockWidget->setNewLine( TRUE );
@@ -523,7 +523,7 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r,
 #if defined(QDOCKAREA_DEBUG)
 	    qDebug( "search line start of %d", searchLine );
 #endif
-	    QDockWidget *lsw = lineStarts.at( searchLine );
+	    QDockWindow *lsw = lineStarts.at( searchLine );
 	    int index = dockWidgets->find( lsw );
 	    if ( index == -1 ) { // the linestart widget hasn't been found, try to find it harder
 		if ( lsw == w && dockWidgetIndex <= (int)dockWidgets->count())
@@ -581,7 +581,7 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r,
 #if defined(QDOCKAREA_DEBUG)
 		    qDebug( "give the widget at %d a newline", index );
 #endif
-		    QDockWidget* nldw = dockWidgets->at( index );
+		    QDockWindow* nldw = dockWidgets->at( index );
 		    if ( nldw )
 			nldw->setNewLine( TRUE );
 		}
@@ -600,16 +600,16 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r,
 				orientation() == Vertical ? QSizePolicy::Expanding : QSizePolicy::Minimum ) );
 }
 
-void QDockArea::removeDockWidget( QDockWidget *w, bool makeFloating, bool swap )
+void QDockArea::removeDockWindow( QDockWindow *w, bool makeFloating, bool swap )
 {
     w->removeEventFilter( this );
-    QDockWidget *dockWidget = 0;
-    int i = findDockWidget( w );
+    QDockWindow *dockWidget = 0;
+    int i = findDockWindow( w );
     if ( i == -1 )
 	return;
     dockWidget = dockWidgets->at( i );
     dockWidgets->remove( i );
-    QList<QDockWidget> lineStarts = layout->lineStarts();
+    QList<QDockWindow> lineStarts = layout->lineStarts();
     if ( lineStarts.findRef( dockWidget ) != -1 && i < (int)dockWidgets->count() )
 	dockWidgets->at( i )->setNewLine( TRUE );
     if ( makeFloating )
@@ -622,7 +622,7 @@ void QDockArea::removeDockWidget( QDockWidget *w, bool makeFloating, bool swap )
 	setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
 }
 
-int QDockArea::findDockWidget( QDockWidget *w )
+int QDockArea::findDockWindow( QDockWindow *w )
 {
     return dockWidgets->findRef( w );
 }
@@ -635,19 +635,19 @@ void QDockArea::updateLayout()
 
 bool QDockArea::eventFilter( QObject *o, QEvent *e )
 {
-    if ( o->inherits( "QDockWidget" ) ) {
+    if ( o->inherits( "QDockWindow" ) ) {
 	if ( e->type() == QEvent::Close ) {
 	    o->removeEventFilter( this );
 	    QApplication::sendEvent( o, e );
 	    if ( ( (QCloseEvent*)e )->isAccepted() )
-		removeDockWidget( (QDockWidget*)o, FALSE, FALSE );
+		removeDockWindow( (QDockWindow*)o, FALSE, FALSE );
 	    return TRUE;
 	}
     }
     return FALSE;
 }
 
-void QDockArea::invalidNextOffset( QDockWidget *dw )
+void QDockArea::invalidNextOffset( QDockWindow *dw )
 {
     int i = dockWidgets->find( dw );
     if ( i == -1 || i >= (int)dockWidgets->count() - 1 )
@@ -662,14 +662,14 @@ bool QDockArea::isEmpty() const
 }
 
 
-QList<QDockWidget> QDockArea::dockWidgetList() const
+QList<QDockWindow> QDockArea::dockWidgetList() const
 {
     return *dockWidgets;
 }
 
 void QDockArea::lineUp( bool keepNewLines )
 {
-    for ( QDockWidget *dw = dockWidgets->first(); dw; dw = dockWidgets->next() ) {
+    for ( QDockWindow *dw = dockWidgets->first(); dw; dw = dockWidgets->next() ) {
 	dw->setOffset( 0 );
 	if ( !keepNewLines )
 	    dw->setNewLine( FALSE );
@@ -683,17 +683,17 @@ void QDockArea::mousePressEvent( QMouseEvent *e )
 	emit rightButtonPressed( e->globalPos() );
 }
 
-QDockArea::DockWidgetData *QDockArea::dockWidgetData( QDockWidget *w )
+QDockArea::DockWindowData *QDockArea::dockWidgetData( QDockWindow *w )
 {
-    DockWidgetData *data = new DockWidgetData;
-    data->index = findDockWidget( w );
+    DockWindowData *data = new DockWindowData;
+    data->index = findDockWindow( w );
     if ( data->index == -1 ) {
 	delete data;
 	return 0;
     }
-    QList<QDockWidget> lineStarts = layout->lineStarts();
+    QList<QDockWindow> lineStarts = layout->lineStarts();
     int i = -1;
-    for ( QDockWidget *dw = dockWidgets->first(); dw; dw = dockWidgets->next() ) {
+    for ( QDockWindow *dw = dockWidgets->first(); dw; dw = dockWidgets->next() ) {
  	if ( lineStarts.findRef( dw ) != -1 )
  	    ++i;
  	if ( dw == w )
@@ -705,7 +705,7 @@ QDockArea::DockWidgetData *QDockArea::dockWidgetData( QDockWidget *w )
     return data;
 }
 
-void QDockArea::dockWidget( QDockWidget *dockWidget, DockWidgetData *data )
+void QDockArea::dockWidget( QDockWindow *dockWidget, DockWindowData *data )
 {
     if ( !data )
 	return;
@@ -718,7 +718,7 @@ void QDockArea::dockWidget( QDockWidget *dockWidget, DockWidgetData *data )
     if ( dockWidgets->isEmpty() ) {
 	dockWidgets->append( dockWidget );
     } else {
-	QList<QDockWidget> lineStarts = layout->lineStarts();
+	QList<QDockWindow> lineStarts = layout->lineStarts();
 	int index = 0;
 	if ( (int)lineStarts.count() > data->line )
 	    index = dockWidgets->find( lineStarts.at( data->line ) );
@@ -728,7 +728,7 @@ void QDockArea::dockWidget( QDockWidget *dockWidget, DockWidgetData *data )
 	}
 	bool firstTime = TRUE;
 	int offset = data->offset;
-	for ( QDockWidget *dw = dockWidgets->current(); dw; dw = dockWidgets->next() ) {
+	for ( QDockWindow *dw = dockWidgets->current(); dw; dw = dockWidgets->next() ) {
 	    if ( !firstTime && lineStarts.find( dw ) != -1 )
 		break;
 	    if ( offset <
@@ -754,7 +754,7 @@ void QDockArea::dockWidget( QDockWidget *dockWidget, DockWidgetData *data )
 
 }
 
-bool QDockArea::isDockWidgetAccepted( QDockWidget *dw )
+bool QDockArea::isDockWindowAccepted( QDockWindow *dw )
 {
     if ( !dw )
 	return FALSE;
@@ -763,7 +763,7 @@ bool QDockArea::isDockWidgetAccepted( QDockWidget *dw )
     if ( !parentWidget() || !parentWidget()->inherits( "QMainWindow" ) )	
 	return TRUE;
     QMainWindow *mw = (QMainWindow*)parentWidget();
-    if ( !mw->hasDockWidget( dw ) )
+    if ( !mw->hasDockWindow( dw ) )
 	return FALSE;
     if ( !mw->isDockEnabled( this ) )
 	return FALSE;
@@ -772,7 +772,7 @@ bool QDockArea::isDockWidgetAccepted( QDockWidget *dw )
     return TRUE;
 }
 
-void QDockArea::setAcceptDockWidget( QDockWidget *dw, bool accept )
+void QDockArea::setAcceptDockWindow( QDockWindow *dw, bool accept )
 {
     if ( accept )
 	forbiddenWidgets.removeRef( dw );

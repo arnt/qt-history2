@@ -91,7 +91,7 @@
 #include <qtimer.h>
 #include <qlistbox.h>
 #include <stdlib.h>
-#include <qdockwidget.h>
+#include <qdockwindow.h>
 #include <qregexp.h>
 
 static int forms = 0;
@@ -157,7 +157,7 @@ MainWindow::MainWindow( bool asClient )
     ( (KToolBar*)layoutToolBar )->setFullSize( FALSE );
 #else
     layoutToolBar = new QToolBar( this, "Layout" );
-    layoutToolBar->setCloseMode( QDockWidget::Undocked );
+    layoutToolBar->setCloseMode( QDockWindow::Undocked );
 #endif
     addToolBar( layoutToolBar, tr( "Layout" ) );
     setupToolActions();
@@ -346,7 +346,7 @@ void MainWindow::setupEditActions()
     tb->setFullSize( FALSE );
 #else
     QToolBar *tb = new QToolBar( this, "Edit" );
-    tb->setCloseMode( QDockWidget::Undocked );
+    tb->setCloseMode( QDockWindow::Undocked );
 #endif
     QWhatsThis::add( tb, tr( "<b>The Edit toolbar</b>%1").arg(tr(toolbarHelp).arg("")) );
     addToolBar( tb, tr( "Edit" ) );
@@ -517,7 +517,7 @@ void MainWindow::setupToolActions()
     tb->setFullSize( FALSE );
 #else
     QToolBar *tb = new QToolBar( this, "Tools" );
-    tb->setCloseMode( QDockWidget::Undocked );
+    tb->setCloseMode( QDockWindow::Undocked );
 #endif
     QWhatsThis::add( tb, tr( "<b>The Tools toolbar</b>%1" ).arg(tr(toolbarHelp).arg("")) );
 					
@@ -557,7 +557,7 @@ void MainWindow::setupToolActions()
 	tb->setFullSize( FALSE );
 #else
 	QToolBar *tb = new QToolBar( this, grp.latin1() );
-	tb->setCloseMode( QDockWidget::Undocked );
+	tb->setCloseMode( QDockWindow::Undocked );
 #endif
 	bool plural = grp[(int)grp.length()-1] == 's';
 	if ( plural ) {
@@ -615,7 +615,7 @@ void MainWindow::setupToolActions()
 	tb->setFullSize( FALSE );
 #else
 	QToolBar *tb = new QToolBar( this, "Custom Widgets" );
-	tb->setCloseMode( QDockWidget::Undocked );
+	tb->setCloseMode( QDockWindow::Undocked );
 #endif
 	QWhatsThis::add( tb, tr( "<b>The Custom Widgets toolbar</b>%1"
 				 "<p>Select <b>Edit Custom Widgets...</b> in the <b>Tools->Custom</b> menu to "
@@ -642,7 +642,7 @@ void MainWindow::setupFileActions()
     tb->setFullSize( FALSE );
 #else
     QToolBar *tb = new QToolBar( this, "File" );
-    tb->setCloseMode( QDockWidget::Undocked );
+    tb->setCloseMode( QDockWindow::Undocked );
 #endif
     QWhatsThis::add( tb, tr( "<b>The File toolbar</b>%1" ).arg(tr(toolbarHelp).arg("")) );
     addToolBar( tb, tr( "File" ) );
@@ -958,7 +958,7 @@ void MainWindow::setupHelpActions()
     tb->setFullSize( FALSE );
 #else
     QToolBar *tb = new QToolBar( this, "Help" );
-    tb->setCloseMode( QDockWidget::Undocked );
+    tb->setCloseMode( QDockWindow::Undocked );
 #endif
     QWhatsThis::add( tb, tr( "<b>The Help toolbar</b>%1" ).arg(tr(toolbarHelp).arg("") ));
     addToolBar( tb, tr( "Help" ) );
@@ -978,9 +978,9 @@ void MainWindow::setupHelpActions()
 
 void MainWindow::setupPropertyEditor()
 {
-    QDockWidget *dw = new QDockWidget;
+    QDockWindow *dw = new QDockWindow;
     dw->setResizeEnabled( TRUE );
-    dw->setCloseMode( QDockWidget::Always );
+    dw->setCloseMode( QDockWindow::Always );
     propertyEditor = new PropertyEditor( dw );
     addToolBar( dw, Qt::Left );
     dw->setWidget( propertyEditor );
@@ -1005,9 +1005,9 @@ void MainWindow::setupHierarchyView()
 {
     if ( hierarchyView )
 	return;
-    QDockWidget *dw = new QDockWidget;
+    QDockWindow *dw = new QDockWindow;
     dw->setResizeEnabled( TRUE );
-    dw->setCloseMode( QDockWidget::Always );
+    dw->setCloseMode( QDockWindow::Always );
     hierarchyView = new HierarchyView( dw );
     addToolBar( dw, Qt::Right );
     dw->setWidget( hierarchyView );
@@ -1028,9 +1028,9 @@ void MainWindow::setupHierarchyView()
 
 void MainWindow::setupFormList()
 {
-    QDockWidget *dw = new QDockWidget;
+    QDockWindow *dw = new QDockWindow;
     dw->setResizeEnabled( TRUE );
-    dw->setCloseMode( QDockWidget::Always );
+    dw->setCloseMode( QDockWindow::Always );
     formList = new FormList( dw, this );
     addToolBar( dw, Qt::Bottom );
     dw->setWidget( formList );
@@ -3408,7 +3408,7 @@ void MainWindow::setupActionManager()
 	    tb->setFullSize( FALSE, grp.latin1() );
 #else
 	    tb = new QToolBar( this, grp.latin1() );
-	    tb->setCloseMode( QDockWidget::Undocked );
+	    tb->setCloseMode( QDockWindow::Undocked );
 #endif
 	    addToolBar( tb, grp );
 	}

@@ -183,7 +183,7 @@ QSize QToolBarSeparator::sizeHint() const
 QToolBar::QToolBar( const QString &label,
 		    QMainWindow * parent, QMainWindow::ToolBarDock dock,
 		    bool newLine, const char * name )
-    : QDockWidget( InDock, parent, name )
+    : QDockWindow( InDock, parent, name )
 {
     mw = parent;
     init();
@@ -205,7 +205,7 @@ QToolBar::QToolBar( const QString &label,
 QToolBar::QToolBar( const QString &label, QMainWindow * mainWindow,
 		    QWidget * parent, bool newLine, const char * name,
 		    WFlags f )
-    : QDockWidget( InDock, parent, name, f )
+    : QDockWindow( InDock, parent, name, f )
 {
     mw = mainWindow;
     init();
@@ -220,7 +220,7 @@ QToolBar::QToolBar( const QString &label, QMainWindow * mainWindow,
   useless. */
 
 QToolBar::QToolBar( QMainWindow * parent, const char * name )
-    : QDockWidget( InDock, parent, name )
+    : QDockWindow( InDock, parent, name )
 {
     mw = parent;
     init();
@@ -272,7 +272,7 @@ void QToolBar::addSeparator()
 
 void QToolBar::show()
 {
-    QDockWidget::show();
+    QDockWindow::show();
     if ( mw )
 	mw->triggerLayout( FALSE );
 }
@@ -284,7 +284,7 @@ void QToolBar::show()
 
 void QToolBar::hide()
 {
-    QDockWidget::hide();
+    QDockWindow::hide();
     if ( mw )
 	mw->triggerLayout( FALSE );
 }
@@ -327,7 +327,7 @@ void QToolBar::setStretchableWidget( QWidget * w )
 
 bool QToolBar::event( QEvent * e )
 {
-    bool r =  QDockWidget::event( e );
+    bool r =  QDockWindow::event( e );
     //after the event filters have dealt with it:
     if ( e->type() == QEvent::ChildInserted ) {
 	QObject * child = ((QChildEvent*)e)->child();
@@ -391,8 +391,8 @@ void QToolBar::clear()
 QSize QToolBar::minimumSize() const
 {
     if ( orientation() == Horizontal )
-	return QSize( 0, QDockWidget::minimumSize().height() );
-    return QSize( QDockWidget::minimumSize().width(), 0 );
+	return QSize( 0, QDockWindow::minimumSize().height() );
+    return QSize( QDockWindow::minimumSize().width(), 0 );
 }
 
 /*!
@@ -402,8 +402,8 @@ QSize QToolBar::minimumSize() const
 QSize QToolBar::minimumSizeHint() const
 {
     if ( orientation() == Horizontal )
-	return QSize( 0, QDockWidget::minimumSizeHint().height() );
-    return QSize( QDockWidget::minimumSizeHint().width(), 0 );
+	return QSize( 0, QDockWindow::minimumSizeHint().height() );
+    return QSize( QDockWindow::minimumSizeHint().width(), 0 );
 }
 
 /* from chaunsee:

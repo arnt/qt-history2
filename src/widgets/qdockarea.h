@@ -41,7 +41,7 @@
 #ifndef QT_H
 #include "qwidget.h"
 #include "qlist.h"
-#include "qdockwidget.h"
+#include "qdockwindow.h"
 #include "qlayout.h"
 #include "qvaluelist.h"
 #include "qlist.h"
@@ -56,7 +56,7 @@ class QMouseEvent;
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
 template class Q_EXPORT QValueList<QRect>;
-template class Q_EXPORT QList<QDockWidget>;
+template class Q_EXPORT QList<QDockWindow>;
 // MOC_SKIP_END
 #endif
 
@@ -66,7 +66,7 @@ class Q_EXPORT QDockAreaLayout : public QLayout
     friend class QDockArea;
 
 public:
-    QDockAreaLayout( QWidget* parent, Qt::Orientation o, QList<QDockWidget> *wl, int space = -1, int margin = -1, const char *name = 0 )
+    QDockAreaLayout( QWidget* parent, Qt::Orientation o, QList<QDockWindow> *wl, int space = -1, int margin = -1, const char *name = 0 )
 	: QLayout( parent, space, margin, name ), orient( o ), dockWidgets( wl ), parentWidget( parent ) { init(); }
     ~QDockAreaLayout() {}
 
@@ -81,7 +81,7 @@ public:
     void invalidate();
     Qt::Orientation orientation() const { return orient; }
     QValueList<QRect> lineList() const { return lines; }
-    QList<QDockWidget> lineStarts() const { return ls; }
+    QList<QDockWindow> lineStarts() const { return ls; }
 
 protected:
     void setGeometry( const QRect& );
@@ -92,10 +92,10 @@ private:
     Qt::Orientation orient;
     int cached_width, cached_height;
     int cached_hfw, cached_wfh;
-    QList<QDockWidget> *dockWidgets;
+    QList<QDockWindow> *dockWidgets;
     QWidget *parentWidget;
     QValueList<QRect> lines;
-    QList<QDockWidget> ls;
+    QList<QDockWindow> ls;
 
 };
 
@@ -103,7 +103,7 @@ class Q_EXPORT QDockArea : public QWidget
 {
     Q_OBJECT
 
-    friend class QDockWidget;
+    friend class QDockWindow;
 
 public:
     enum Gravity { Normal, Reverse };
@@ -111,12 +111,12 @@ public:
     QDockArea( Orientation o, Gravity g = Normal, QWidget *parent = 0, const char *name = 0 );
     ~QDockArea();
 
-    void moveDockWidget( QDockWidget *w, const QPoint &globalPos, const QRect &rect, bool swap );
-    void removeDockWidget( QDockWidget *w, bool makeFloating, bool swap );
-    void addDockWidget( QDockWidget *w, int index = -1 );
-    bool hasDockWidget( QDockWidget *w, int *index = 0 );
+    void moveDockWindow( QDockWindow *w, const QPoint &globalPos, const QRect &rect, bool swap );
+    void removeDockWindow( QDockWindow *w, bool makeFloating, bool swap );
+    void addDockWindow( QDockWindow *w, int index = -1 );
+    bool hasDockWindow( QDockWindow *w, int *index = 0 );
 
-    void invalidNextOffset( QDockWidget *dw );
+    void invalidNextOffset( QDockWindow *dw );
 
     Orientation orientation() const { return orient; }
     Gravity gravity() const { return grav; }
@@ -124,11 +124,11 @@ public:
     bool eventFilter( QObject *, QEvent * );
     bool isEmpty() const;
     void updateLayout();
-    QList<QDockWidget> dockWidgetList() const;
+    QList<QDockWindow> dockWidgetList() const;
     void lineUp( bool keepNewLines );
 
-    bool isDockWidgetAccepted( QDockWidget *dw );
-    void setAcceptDockWidget( QDockWidget *dw, bool accept );
+    bool isDockWindowAccepted( QDockWindow *dw );
+    void setAcceptDockWindow( QDockWindow *dw, bool accept );
 
 signals:
     void rightButtonPressed( const QPoint &globalPos );
@@ -137,7 +137,7 @@ protected:
     void mousePressEvent( QMouseEvent *e );
 
 private:
-    struct DockWidgetData
+    struct DockWindowData
     {
 	int index;
 	int offset;
@@ -145,17 +145,17 @@ private:
 	QGuardedPtr<QDockArea> area;
     };
 
-    int findDockWidget( QDockWidget *w );
+    int findDockWindow( QDockWindow *w );
     int lineOf( int index );
-    DockWidgetData *dockWidgetData( QDockWidget *w );
-    void dockWidget( QDockWidget *dockWidget, DockWidgetData *data );
+    DockWindowData *dockWidgetData( QDockWindow *w );
+    void dockWidget( QDockWindow *dockWidget, DockWindowData *data );
 
 private:
     Orientation orient;
-    QList<QDockWidget> *dockWidgets;
+    QList<QDockWindow> *dockWidgets;
     QDockAreaLayout *layout;
     Gravity grav;
-    QList<QDockWidget> forbiddenWidgets;
+    QList<QDockWindow> forbiddenWidgets;
 
 
 };
