@@ -600,7 +600,15 @@ void QDockArea::moveDockWindow( QDockWindow *w, int index )
 	setSizePolicy( QSizePolicy( orientation() == Horizontal ? QSizePolicy::Expanding : QSizePolicy::Minimum,
 				    orientation() == Vertical ? QSizePolicy::Expanding : QSizePolicy::Minimum ) );
 	dockWindows->append( w );
+    } else {
+        if ( w->parent() != this )
+	    w->reparent( this, QPoint( 0, 0 ), TRUE );
+        if ( index == - 1 ) {
+	    dockWindows->removeRef( w );
+	    dockWindows->append( w );
+        }
     }
+
     w->dockArea = this;
     w->curPlace = QDockWindow::InDock;
     w->updateGui();

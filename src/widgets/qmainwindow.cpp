@@ -1269,19 +1269,23 @@ void QMainWindow::moveDockWindow( QDockWindow * dockWindow, Dock edge )
 {
     switch ( edge ) {
     case DockTop:
-	dockWindow->removeFromDock( FALSE );
+	if ( dockWindow->area() != d->topDock )
+	    dockWindow->removeFromDock( FALSE );
 	d->topDock->moveDockWindow( dockWindow );
 	break;
     case DockBottom:
-	dockWindow->removeFromDock( FALSE );
+	if ( dockWindow->area() != d->bottomDock )
+	    dockWindow->removeFromDock( FALSE );
 	d->bottomDock->moveDockWindow( dockWindow );
 	break;
     case DockRight:
-	dockWindow->removeFromDock( FALSE );
+	if ( dockWindow->area() != d->rightDock )
+	    dockWindow->removeFromDock( FALSE );
 	d->rightDock->moveDockWindow( dockWindow );
 	break;
     case DockLeft:
-	dockWindow->removeFromDock( FALSE );
+	if ( dockWindow->area() != d->leftDock )
+	    dockWindow->removeFromDock( FALSE );
 	d->leftDock->moveDockWindow( dockWindow );
 	break;
     case DockTornOff:
@@ -1327,19 +1331,23 @@ void QMainWindow::moveDockWindow( QDockWindow * dockWindow, Dock edge, bool nl, 
     dockWindow->setOffset( extraOffset );
     switch ( edge ) {
     case DockTop:
-	dockWindow->removeFromDock( FALSE );
+	if ( dockWindow->area() != d->topDock )
+	    dockWindow->removeFromDock( FALSE );
 	d->topDock->moveDockWindow( dockWindow, index );
 	break;
     case DockBottom:
-	dockWindow->removeFromDock( FALSE );
+	if ( dockWindow->area() != d->bottomDock )
+	    dockWindow->removeFromDock( FALSE );
 	d->bottomDock->moveDockWindow( dockWindow, index );
 	break;
     case DockRight:
-	dockWindow->removeFromDock( FALSE );
+	if ( dockWindow->area() != d->rightDock )
+	    dockWindow->removeFromDock( FALSE );
 	d->rightDock->moveDockWindow( dockWindow, index );
 	break;
     case DockLeft:
-	dockWindow->removeFromDock( FALSE );
+	if ( dockWindow->area() != d->leftDock )
+	    dockWindow->removeFromDock( FALSE );
 	d->leftDock->moveDockWindow( dockWindow, index );
 	break;
     case DockTornOff:
