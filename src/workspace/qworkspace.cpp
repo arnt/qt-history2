@@ -743,7 +743,6 @@ void QWorkspace::handleUndock(QDockWindow *w)
 		break;
 	    }
 
-#if 0	    
 	    QDockWindow *o = NULL;
 	    int overlap = 0;
 	    for( it.toFirst(); it.current(); ++it ) {
@@ -753,7 +752,7 @@ void QWorkspace::handleUndock(QDockWindow *w)
 		    o = l;
 		}
 	    }
-	    if(o && overlap == 1 && w->height() > o->height()) {
+	    if(o && overlap == 1 && w->isVisible() && !o->isVisible()) {
 		wpos = QPoint(x, y);
 		possible = 2;
 		while(d->dockwindows.remove(o));
@@ -762,7 +761,6 @@ void QWorkspace::handleUndock(QDockWindow *w)
 		    QTimer::singleShot(0, this, SLOT(dockWindowsShow()));
 		break;
 	    }
-#endif
 
 	    for ( furthest = nearest, it.toFirst(); it.current(); ++it ) {
 		l = it.current();
@@ -819,12 +817,6 @@ void QWorkspace::handleUndock(QDockWindow *w)
 	w->hide();
 }
 
-void QWorkspace::closeDockWindow(bool b)
-{
-    if(!b && d->mainwindow) 
-	d->mainwindow->close();
-}
-
 void QWorkspace::dockWindowsShow()
 {
     QPtrList<QDockWindow> lst = d->newdocks;
@@ -865,15 +857,15 @@ void QWorkspace::showEvent( QShowEvent *e )
 #endif
     }
     if(d->wmode == WS_TopLevel) {
-	if(topLevelWidget()->inherits("QMainWindow"))
-	    d->mainwindow = (QMainWindow*)topLevelWidget();
 	QWidget *o = topLevelWidget();
-	const QObjectList *c = o->children();
-	for(QObjectListIt it(*c); it; ++it) {	
+	if(o->inherits("QMainWindow"))
+	    d->mainwindow = (QMainWindow*)o;
+	const QObjectList children = *o->children();
+	for(QObjectListIt it(children); it; ++it) {	
 	    if(!(*it)->isWidgetType())
 		continue;
 	    QWidget *w = (QWidget *)(*it);
-	    if(!w->isVisible() || w->isTopLevel())
+	    if(w->isTopLevel())
 		continue;
 	    if(w->inherits("QDockArea")) {
 		if(const QObjectList *dock_c = w->children()) {
@@ -898,9 +890,9 @@ void QWorkspace::showEvent( QShowEvent *e )
 			d->newdocks.prepend(tb);
 		    } else if(tb_list.count()) {
 			QDockWindow *dw = new QDockWindow(QDockWindow::OutsideDock, 
-							  NULL, QString("QMagicDock_") + w->name());
-			QObject::connect(dw, SIGNAL(visibilityChanged(bool)), 
-					 this, SLOT(closeDockWindow(bool)));
+							  w->parentWidget(), 
+							  QString("QMagicDock_") + w->name());
+			dw->installEventFilter(this);
 			dw->setResizeEnabled(TRUE);
 			dw->setCloseMode( QDockWindow::Always );
 			dw->setResizeEnabled(FALSE);
@@ -921,6 +913,7 @@ void QWorkspace::showEvent( QShowEvent *e )
 			w->show();
 		    }
 		}
+		w->installEventFilter(this);
 	    } else if(w->inherits("QStatusBar")) {
 		if(activeWindow()) {
 		    if(QWorkspaceChild *c = findChild(activeWindow()))
@@ -928,7 +921,7 @@ void QWorkspace::showEvent( QShowEvent *e )
 		}
 	    } else if(w->inherits("QWorkspaceChild")) {
 		w->reparent(this, w->testWFlags(~(0)) | WType_TopLevel, w->pos());
-	    }
+	    } 
 	}
 	dockWindowsShow(); //now place and undock windows discovered
 
@@ -1157,18 +1150,27 @@ QWidgetList QWorkspace::windowList() const
 /*!\reimp*/
 bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 {
-    if(d->wmode == WS_TopLevel && 
-       (e->type() == QEvent::ChildInserted || e->type() == QEvent::Reparent) &&
-       d->mainwindow && o->inherits("QDockWindow") && o->parent() == d->mainwindow) {
-	QDockWindow *w = (QDockWindow*)o;
-	if(d->newdocks.find(w) == -1 && d->dockwindows.find(w) == -1) {
-	    if(w->inherits("QToolBar"))
-		d->newdocks.prepend(w);
-	    else
-		d->newdocks.append(w);
-	    if(d->newdocks.count() == 1)
-		QTimer::singleShot(0, this, SLOT(dockWindowsShow()));
+    if(d->wmode == WS_TopLevel && d->mainwindow && o->parent() == d->mainwindow) {
+	if((e->type() == QEvent::ChildInserted || e->type() == QEvent::Reparent) && 
+	   o->inherits("QDockArea") && !((QWidget*)o)->isVisible()) {
+	    QChildEvent *ce = (QChildEvent*)e;
+	    if(!ce->child()->inherits("QDockWindow")) {
+		qDebug("No idea what to do..");
+		return FALSE;
+	    }
+	    QDockWindow *w = (QDockWindow*)ce->child();
+	    if(d->newdocks.find(w) == -1 && d->dockwindows.find(w) == -1) {
+		if(w->inherits("QToolBar"))
+		    d->newdocks.prepend(w);
+		else
+		    d->newdocks.append(w);
+		if(d->newdocks.count() == 1)
+		    QTimer::singleShot(0, this, SLOT(dockWindowsShow()));
+	    }
+	} else if(e->type() == QEvent::Hide && !qstrncmp(o->name(), "QMagicDock_", 11)) {
+	    d->mainwindow->close();
 	}
+	return FALSE;
     }
 
     static QTime* t = 0;
