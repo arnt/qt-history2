@@ -24,12 +24,13 @@ class QMenu;
 class Q_GUI_EXPORT QToolButton : public QAbstractButton
 {
     Q_OBJECT
-    Q_ENUMS(Qt::ToolButtonStyle Qt::IconSize)
+    Q_ENUMS(Qt::ToolButtonStyle Qt::IconSize Qt::ArrowType)
 
     Q_PROPERTY(ToolButtonPopupMode popupMode READ popupMode WRITE setPopupMode)
     Q_PROPERTY(Qt::ToolButtonStyle toolButtonStyle READ toolButtonStyle WRITE setToolButtonStyle)
     Q_PROPERTY(Qt::IconSize iconSize READ iconSize WRITE setIconSize)
     Q_PROPERTY(bool autoRaise READ autoRaise WRITE setAutoRaise)
+    Q_PROPERTY(Qt::ArrowType arrowType READ arrowType WRITE setArrowType)
     Q_OVERRIDE(Qt::BackgroundMode backgroundMode DESIGNABLE true)
 
 public:
@@ -49,7 +50,10 @@ public:
 
     Qt::IconSize iconSize() const;
     Qt::ToolButtonStyle toolButtonStyle() const;
+    Qt::ArrowType arrowType() const;
 
+    void setIcon(const QIcon &icon);
+    
     void setMenu(QMenu* menu);
     QMenu* menu() const;
     void showMenu();
@@ -66,6 +70,7 @@ public slots:
     void setIconSize(Qt::IconSize size);
     void setToolButtonStyle(Qt::ToolButtonStyle style);
     void setDefaultAction(QAction *);
+    void setArrowType(Qt::ArrowType type);
 
 signals:
     void triggered(QAction *);

@@ -43,7 +43,7 @@ public:
     QPointer<QMenu> menu; //the menu set by the user (setMenu)
     QBasicTimer popupTimer;
     int delay;
-    Qt::ArrowType arrow;
+    Qt::ArrowType arrowType;
     Qt::IconSize iconSize;
     Qt::ToolButtonStyle toolButtonStyle;
     QToolButton::ToolButtonPopupMode popupMode;
@@ -181,7 +181,7 @@ QToolButton::QToolButton(Qt::ArrowType type, QWidget *parent, const char *name)
     setObjectName(name);
     d->init();
     setAutoRepeat(true);
-    d->arrow = type;
+    d->arrowType = type;
     d->hasArrow = true;
 }
 
@@ -201,7 +201,7 @@ QToolButton::QToolButton(Qt::ArrowType type, QWidget *parent)
 {
     d->init();
     setAutoRepeat(true);
-    d->arrow = type;
+    d->arrowType = type;
     d->hasArrow = true;
 }
 
@@ -214,7 +214,7 @@ void QToolButtonPrivate::init()
     menu = 0;
     defaultAction = 0;
     autoRaise = (qt_cast<QToolBar*>(q->parentWidget()) != 0);
-    arrow = Qt::LeftArrow;
+    arrowType = Qt::LeftArrow;
     menuButtonDown = false;
     popupMode = QToolButton::DelayedPopup;
 
@@ -238,7 +238,7 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
     opt.text = q->text();
     opt.icon = q->icon();
     opt.iconSize = q->iconSize();
-    opt.arrowType = arrow;
+    opt.arrowType = arrowType;
     if (down)
         opt.state |= QStyle::Style_Down;
     if (checked)
@@ -385,6 +385,13 @@ QSize QToolButton::minimumSizeHint() const
     signal in the QMainWindow in which is resides.
 */
 
+/*!
+    \property QToolButton::arrowType
+    \brief the arrow type which is displayed as an icon.
+
+    This displays an arrow as the icon for the QToolButton.
+*/
+
 Qt::IconSize QToolButton::iconSize() const
 {
     return d->iconSize;
@@ -393,6 +400,11 @@ Qt::IconSize QToolButton::iconSize() const
 Qt::ToolButtonStyle QToolButton::toolButtonStyle() const
 {
     return d->toolButtonStyle;
+}
+
+Qt::ArrowType QToolButton::arrowType() const
+{
+    return d->arrowType;
 }
 
 void QToolButton::setIconSize(Qt::IconSize size)
@@ -417,6 +429,29 @@ void QToolButton::setToolButtonStyle(Qt::ToolButtonStyle style)
     if (isVisible()) {
         update();
     }
+}
+
+void QToolButton::setArrowType(Qt::ArrowType type)
+{
+    if (d->hasArrow && d->arrowType == type)
+        return;
+
+    d->arrowType = type;
+    d->hasArrow = true;
+    updateGeometry();
+    if (isVisible()) {
+        update();
+    }
+}
+
+/*! 
+    \reimp
+*/
+
+void QToolButton::setIcon(const QIcon &icon)
+{
+    d->hasArrow = false;
+    QAbstractButton::setIcon(icon);
 }
 
 /*!
@@ -872,7 +907,6 @@ void QToolButton::nextCheckState()
     else
         d->defaultAction->trigger();
 }
-
 
 /*! \internal
  */
