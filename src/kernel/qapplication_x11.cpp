@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#426 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#427 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3061,14 +3061,6 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		XFlush( x11Display() );
 	    }
 	
-	
-	    bool unexpected = FALSE;
-	    if ( qt_window_for_button_down != winId() && !qApp->inPopupMode() )
-		unexpected = TRUE;
-
-	    if ( unexpected )
-		return FALSE;			// unexpected event
-
 	    type = QEvent::MouseButtonRelease;
 	}
     }
@@ -3245,7 +3237,7 @@ static KeySym KeyTbl[] = {			// keyboard mapping table
     XK_KP_Down,		Qt::Key_Down,
     XK_KP_Prior,		Qt::Key_Prior,
     XK_KP_Next,		Qt::Key_Next,
-#endif    
+#endif
     0,			0
 };
 
