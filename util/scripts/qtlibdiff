@@ -57,12 +57,15 @@ for $symbol ( keys %osize ) {
 	    $classes{$classname}=1;
 	}#
     } else {
-	next if $symbol =~ /global constructors keyed to/;
+	next if $symbol =~ /^_GLOBAL_/;
+	next if $symbol =~ /^__/;
 	push @gone, $symbol;
 	print OUT "REMOVED ($otype{$symbol}): $symbol\n";
     }
 }
 for $symbol ( keys %nsize ) {
+    next if $symbol =~ /^_GLOBAL_/;
+    next if $symbol =~ /^__/;
     print OUT "NEW ($ntype{$symbol}): $symbol\n" if !defined($osize{$symbol});
 }
 
@@ -81,10 +84,14 @@ sub sizes
 
     open HEADERS, "/bin/ls $dir/include ".q{| grep -v -e 'qmutex.h' -e 'qgl.h' -e 'qgeneric.h' \
 	    -e 'q1xcompatibility.h' -e 'qwindow.h' -e 'qpaintdc.h' -e 'qpaintdevicedefs.h' \
-	    -e 'qt_windows.h' -e 'qt_x11.h' -e 'qt_mac.h' | grep '\.h$' |};
+	    -e 'qgmanagr.h' -e 'qt_windows.h' -e 'qt_x11.h' -e 'qt_mac.h' | grep '^q.*\.h$' |};
     while (<HEADERS>) {
 	chomp;
 	$h = $_;
+
+	next if $dir =~ /qt-2.0.2/ &&
+	    $h eq "qserversocket.h";
+
 	open HEADER, "<$dir/include/$h";
 	$skip=0;
 	while (<HEADER>) {
@@ -115,7 +122,7 @@ sub sizes
     print CPP "}\n";
     close CPP;
     system("gcc -DQT_THREAD_SUPPORT /tmp/t$$.cpp -I$dir/include -L$dir/lib -lqt");
-    open SIZES, "./a.out |";
+    open SIZES, "LD_LIBRARY_PATH=$dir/lib:\$LD_LIBRARY_PATH ./a.out |";
     while (<SIZES>) {
 	($class,$size) = $_ =~ /(\S+) (\S+)/;
 	$objectsize{$class}=$size;
