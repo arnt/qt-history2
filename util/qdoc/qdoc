@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#11 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#12 $
 #
 # this is a massive hack, written very quickly
 #
@@ -102,9 +102,9 @@ sub processdocs {
 	if ($doc =~ /\n\\arg\s+/s) {
 	    $doc =~ s-\n\\arg\s+-
 		<p>Arguments:\n<ul>\n\\arg -sx;
-	    $doc =~ s-\n\\arg\s+(.*?)(?=\n\s*\\arg\s+)-<li>$1-gs;
+	    $doc =~ s-\n\\arg\s+(.*?)(?=\n\s*\\arg\s+)-\n<li>$1-gs;
 	    $doc =~ s-\n\\arg\s+(.*?)
-		(?:(?:\n\s*?\n\s*)|(?:$ ))-<li>$1\n</ul><p>\n-sx;
+		(?:(?:\n\s*?\n\s*)|(?:$ ))-\n<li>$1\n</ul><p>\n-sx;
 	}
 
 	$_ = "To do:\n<ul>\n";
