@@ -33,6 +33,7 @@ class SourceEditor : public QVBox
 
 public:
     SourceEditor( QWidget *parent, EditorInterface *iface );
+    ~SourceEditor();
 
     void setForm( FormWindow *fw );
     void setFunction( const QString &func );

@@ -31,6 +31,11 @@ SourceEditor::SourceEditor( QWidget *parent, EditorInterface *iface )
     resize( 600, 400 );
 }
 
+SourceEditor::~SourceEditor()
+{
+    iFace->release();
+}
+
 class NormalizeObject : public QObject
 {
 public:

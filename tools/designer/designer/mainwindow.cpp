@@ -2383,6 +2383,7 @@ FormWindow* MainWindow::insertFormWindow( int type )
 	    }
 	}
 	iface->setup( fw->mainContainer()->className(), fw->mainContainer(), dbConnections );
+	iface->release();
     }
 
     fw->setCaption( n );
@@ -3707,6 +3708,5 @@ void MainWindow::setupEditor()
     QString dir = getenv( "QTDIR" );
     dir += "/plugins";
     editorPluginManager = new QInterfaceManager<EditorInterface>( IID_EditorInterface, dir, "*.dll; *.so" );
-
-    MetaDataBase::setEditor( editorPluginManager->queryInterface( "Editor" ) );
+    MetaDataBase::setEditor( editorPluginManager->library( "Editor" ) != 0 );
 }

@@ -718,7 +718,12 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	return w;
 
     WidgetInterface *iface = widgetManager()->queryInterface( className );
-    return iface ? iface->create( className, parent, name ) : 0;
+    if ( !iface )
+	return 0;
+
+    w = iface->create( className, parent, name );
+    iface->release();
+    return w;
 }
 
 
