@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#54 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#55 $
 **
 ** Implementation of QRegExp class
 **
@@ -122,7 +122,7 @@ QRegExp::QRegExp()
   \sa setWildcard()
 */
 
-QRegExp::QRegExp( QString pattern, bool caseSensitive, bool wildcard )
+QRegExp::QRegExp( const QString &pattern, bool caseSensitive, bool wildcard )
 {
     rxstring = pattern;
     rxdata = 0;
@@ -162,7 +162,7 @@ QRegExp::~QRegExp()
 
 QRegExp &QRegExp::operator=( const QRegExp &r )
 {
-    rxstring = (QString )r.rxstring;
+    rxstring = r.rxstring;
     cs = r.cs;
     wc = r.wc;
     compile();
@@ -174,7 +174,7 @@ QRegExp &QRegExp::operator=( const QRegExp &r )
   The case sensitivity or wildcard options do not change.
 */
 
-QRegExp &QRegExp::operator=( QString pattern )
+QRegExp &QRegExp::operator=( const QString &pattern )
 {
     rxstring = pattern;
     compile();
@@ -289,7 +289,7 @@ void QRegExp::setCaseSensitive( bool enable )
   \endcode
 */
 
-int QRegExp::match( QString str, int index, int *len ) const
+int QRegExp::match( const QString &str, int index, int *len ) const
 {
     // #### should use Unicode
 
@@ -470,7 +470,7 @@ const char *QRegExp::matchstr( ushort *rxd, const char *str, const char *bol ) c
 // Ex:	 *.cpp	==> ^.*\.cpp$
 //
 
-static QString wc2rx( QString pattern )
+static QString wc2rx( const QString &pattern )
 {
     // #### Should use unicode
 

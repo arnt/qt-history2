@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.h#32 $
+** $Id: //depot/qt/main/src/tools/qtextstream.h#33 $
 **
 ** Definition of QTextStream class
 **
@@ -79,14 +79,14 @@ public:
     QTextStream &operator<<( unsigned long );
     QTextStream &operator<<( float );
     QTextStream &operator<<( double );
-    QTextStream &operator<<( QString );
+    QTextStream &operator<<( const QString & );
     QTextStream &operator<<( void * );		// any pointer
 
     QTextStream &readRawBytes( char *, uint len );
-    QTextStream &writeRawBytes( QString , uint len );
+    QTextStream &writeRawBytes( const QString &, uint len );
 
     QString	readLine();
-    void eatWhiteSpace() { eat_ws(); }
+    void	eatWhiteSpace() { eat_ws(); }
 
     enum {
 	skipws	  = 0x0001,			// skip whitespace on input
@@ -136,18 +136,18 @@ private:
     bool	 owndev;
     CharacterMode cmode;
 
-    int eat_ws();
-    void ts_ungetc(int);
-    int ts_getc();
-    void ts_putc(int);
-    bool ts_isspace(int c);
-    bool ts_isdigit(int c);
-    ulong input_bin();
-    ulong input_oct();
-    ulong input_dec();
-    ulong input_hex();
-    double input_double();
-    QTextStream &writeBlock( QString p, uint len );
+    int		eat_ws();
+    void	ts_ungetc(int);
+    int		ts_getc();
+    void	ts_putc(int);
+    bool	ts_isspace(int c);
+    bool	ts_isdigit(int c);
+    ulong	input_bin();
+    ulong	input_oct();
+    ulong	input_dec();
+    ulong	input_hex();
+    double	input_double();
+    QTextStream &writeBlock( const QString &p, uint len );
 
 private:	// Disabled copy constructor and operator=
     QTextStream( const QTextStream & );

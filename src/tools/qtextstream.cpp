@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#58 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#59 $
 **
 ** Implementation of QTextStream class
 **
@@ -231,7 +231,6 @@ public:
     {
     }
 
-
     uint  size() const
     {
 	return s.length()*sizeof(ushort);
@@ -312,7 +311,6 @@ public:
 	return len;
     }
 
-
     int   getch()
     {
 #if defined(CHECK_STATE)
@@ -361,7 +359,6 @@ public:
 	}
 	return ch;
     }
-
 
 protected:
     QString& s;
@@ -1196,10 +1193,10 @@ QTextStream &QTextStream::output_int( int format, ulong n, bool neg )
 	    else if ( flags() & showpos )
 		*--p = '+';
 	    if ( (flags() & internal) && fwidth && !ts_isdigit(*p) ) {
-		ts_putc( *p );		// special case for internal
+		ts_putc( *p );			// special case for internal
 		++p;				//   padding
 		fwidth--;
-		return *this << (QString )p;
+		return *this << (QString)p;
 	    }
     }
     if ( fwidth ) {				// adjustment required
@@ -1213,10 +1210,10 @@ QTextStream &QTextStream::output_int( int format, ulong n, bool neg )
 		writeBlock( p-padlen, padlen+len );
 	    }
 	    else				// standard padding
-		*this << (QString )p;
+		*this << (QString)p;
 	}
 	else
-	    *this << (QString )p;
+	    *this << (QString)p;
 	fwidth = 0;				// reset field width
     }
     else
@@ -1334,7 +1331,7 @@ QTextStream &QTextStream::operator<<( double f )
     *fs = '\0';
     sprintf( buf, format, f );			// convert to text
     if ( fwidth )				// padding
-	*this << (QString )buf;
+	*this << (QString)buf;
     else					// just write it
 	writeBlock( buf, strlen(buf) );
     return *this;
@@ -1345,7 +1342,7 @@ QTextStream &QTextStream::operator<<( double f )
   Writes a string to the stream and returns a reference to the stream.
 */
 
-QTextStream &QTextStream::operator<<( QString s )
+QTextStream &QTextStream::operator<<( const QString &s )
 {
     CHECK_STREAM_PRECOND
     char padbuf[48];
@@ -1423,13 +1420,13 @@ QTextStream &QTextStream::readRawBytes( char *s, uint len )
   \sa QIODevice::writeBlock()
 */
 
-QTextStream &QTextStream::writeRawBytes( QString s, uint len )
+QTextStream &QTextStream::writeRawBytes( const QString &s, uint len )
 {
     dev->writeBlock( s, len );
     return *this;
 }
 
-QTextStream &QTextStream::writeBlock( QString p, uint len )
+QTextStream &QTextStream::writeBlock( const QString &p, uint len )
 {
     switch ( cmode ) {
       case Ascii:

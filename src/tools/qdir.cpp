@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#58 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#59 $
 **
 ** Implementation of QDir class
 **
@@ -185,8 +185,8 @@ QDir::QDir()
   \sa exists(), setPath(), setNameFilter(), setFilter(), setSorting()
 */
 
-QDir::QDir( QString path, QString nameFilter, int sortSpec,
-	    int filterSpec )
+QDir::QDir( const QString &path, const QString &nameFilter,
+	    int sortSpec, int filterSpec )
 {
     init();
     dPath = cleanDirPath( path );
@@ -259,7 +259,7 @@ QDir::~QDir()
       absFilePath(), isRelative(), convertToAbs()
 */
 
-void QDir::setPath( QString path )
+void QDir::setPath( const QString &path )
 {
     dPath = cleanDirPath( path );
     if ( dPath.isEmpty() )
@@ -358,7 +358,7 @@ QString QDir::dirName() const
   \sa absFilePath(), isRelative(), canonicalPath()
 */
 
-QString QDir::filePath( QString fileName,
+QString QDir::filePath( const QString &fileName,
 			bool acceptAbsPath ) const
 {
     if ( acceptAbsPath && !isRelativePath(fileName) )
@@ -386,7 +386,7 @@ QString QDir::filePath( QString fileName,
   \sa filePath()
 */
 
-QString QDir::absFilePath( QString fileName,
+QString QDir::absFilePath( const QString &fileName,
 			   bool acceptAbsPath ) const
 {
     if ( acceptAbsPath && !isRelativePath( fileName ) )
@@ -411,7 +411,7 @@ QString QDir::absFilePath( QString fileName,
   No conversion is done on UNIX.
 */
 
-QString QDir::convertSeparators( QString pathName )
+QString QDir::convertSeparators( const QString &pathName )
 {
     QString n( pathName );
 #if defined(_OS_FATFS_) || defined(_OS_OS2EMX_)
@@ -444,15 +444,15 @@ QString QDir::convertSeparators( QString pathName )
 	  else
 	      warning( "Cannot create directory \"%s\"\n"
 		       "A file named \"c++\" already exists in \"%s\"",
-		       (QString )d.absFilePath("c++"),
-		       (QString )d.path() );
+		       (const char *)d.absFilePath("c++"),
+		       (const char *)d.path() );
 	  return;
       } else {
 	  warning( "Creating directory \"%s\"",
-		   (QString ) d.absFilePath("c++") );
+		   (const char *) d.absFilePath("c++") );
 	  if ( !d.mkdir( "c++" ) ) {
 	      warning("Could not create directory \"%s\"",
-		      (QString )d.absFilePath("c++") );
+		      (const char *)d.absFilePath("c++") );
 	      return;
 	  }
       }
@@ -464,7 +464,7 @@ QString QDir::convertSeparators( QString pathName )
   \sa cdUp(), isReadable(), exists(), path()
 */
 
-bool QDir::cd( QString dirName, bool acceptAbsPath )
+bool QDir::cd( const QString &dirName, bool acceptAbsPath )
 {
     if ( !dirName || !*dirName || strcmp(dirName,".") == 0 )
 	return TRUE;
@@ -518,7 +518,7 @@ bool QDir::cdUp()
   \sa nameFilter()
 */
 
-void QDir::setNameFilter( QString nameFilter )
+void QDir::setNameFilter( const QString &nameFilter )
 {
     nameFilt = nameFilter;
     if ( nameFilt.isEmpty() )
@@ -699,7 +699,7 @@ const QStrList *QDir::entryList( int filterSpec, int sortSpec ) const
   \sa entryInfoList(), setNameFilter(), setSorting(), setFilter()
 */
 
-const QStrList *QDir::entryList( QString nameFilter,
+const QStrList *QDir::entryList( const QString &nameFilter,
 				 int filterSpec, int sortSpec ) const
 {
     if ( filterSpec == (int)DefaultFilter )
@@ -747,7 +747,7 @@ const QFileInfoList *QDir::entryInfoList( int filterSpec, int sortSpec ) const
   \sa entryList(), setNameFilter(), setSorting(), setFilter()
 */
 
-const QFileInfoList *QDir::entryInfoList( QString nameFilter,
+const QFileInfoList *QDir::entryInfoList( const QString &nameFilter,
 					  int filterSpec, int sortSpec ) const
 {
     if ( filterSpec == (int)DefaultFilter )
@@ -773,7 +773,7 @@ const QFileInfoList *QDir::entryInfoList( QString nameFilter,
   \sa rmdir()
 */
 
-bool QDir::mkdir( QString dirName, bool acceptAbsPath ) const
+bool QDir::mkdir( const QString &dirName, bool acceptAbsPath ) const
 {
 #if defined (UNIX) || defined(__CYGWIN32__)
     return MKDIR( filePath(dirName,acceptAbsPath), 0777 ) == 0;
@@ -796,7 +796,7 @@ bool QDir::mkdir( QString dirName, bool acceptAbsPath ) const
   \sa mkdir()
 */
 
-bool QDir::rmdir( QString dirName, bool acceptAbsPath ) const
+bool QDir::rmdir( const QString &dirName, bool acceptAbsPath ) const
 {
     return RMDIR( filePath(dirName,acceptAbsPath) ) == 0;
 }
@@ -908,7 +908,7 @@ QDir &QDir::operator=( const QDir &d )
   Sets the directory path to be the given path.
 */
 
-QDir &QDir::operator=( QString path )
+QDir &QDir::operator=( const QString &path )
 {
     dPath = cleanDirPath( path );
     dirty = TRUE;
@@ -947,7 +947,7 @@ bool QDir::operator==( const QDir &d ) const
   Returns TRUE if successful, otherwise FALSE.
 */
 
-bool QDir::remove( QString fileName, bool acceptAbsPath )
+bool QDir::remove( const QString &fileName, bool acceptAbsPath )
 {
     if ( fileName == 0 || fileName[0] == '\0' ) {
 #if defined(CHECK_NULL)
@@ -975,7 +975,7 @@ bool QDir::remove( QString fileName, bool acceptAbsPath )
   file
 */
 
-bool QDir::rename( QString name, QString newName,
+bool QDir::rename( const QString &name, const QString &newName,
 		   bool acceptAbsPaths	)
 {
     if ( name == 0 || name[0] == '\0' || newName == 0 || newName[0] == '\0' ) {
@@ -1001,7 +1001,7 @@ bool QDir::rename( QString name, QString newName,
   \sa QFileInfo::exists(), QFile::exists()
 */
 
-bool QDir::exists( QString name, bool acceptAbsPath )
+bool QDir::exists( const QString &name, bool acceptAbsPath )
 {
     if ( name == 0 || name[0] == '\0' ) {
 #if defined(CHECK_NULL)
@@ -1040,7 +1040,7 @@ char QDir::separator()
   Sets the the current directory. Returns TRUE if successful.
 */
 
-bool QDir::setCurrent( QString path )
+bool QDir::setCurrent( const QString &path )
 {
     if ( CHDIR(path) >= 0 )
 	return TRUE;
@@ -1158,7 +1158,7 @@ QString QDir::rootDirPath()
   \sa QRegExp
 */
 
-bool QDir::match( QString filter, QString fileName )
+bool QDir::match( const QString &filter, const QString &fileName )
 {
     QRegExp tmp( filter, TRUE, TRUE ); // case sensitive and wildcard mode on
     return tmp.match( fileName ) != -1;
@@ -1173,7 +1173,7 @@ bool QDir::match( QString filter, QString fileName )
   canonical path.
 */
 
-QString QDir::cleanDirPath( QString filePath )
+QString QDir::cleanDirPath( const QString &filePath )
 {
     QString name = filePath;
     QString newPath;
@@ -1239,7 +1239,7 @@ QString QDir::cleanDirPath( QString filePath )
   \sa isRelative()
 */
 
-bool QDir::isRelativePath( QString path )
+bool QDir::isRelativePath( const QString &path )
 {
     int len = strlen( path );
     if ( len == 0 )
@@ -1257,7 +1257,8 @@ bool QDir::isRelativePath( QString path )
 }
 
 
-static void dirInSort( QStrList *fl, QFileInfoList *fil, QString fileName,
+static void dirInSort( QStrList *fl, QFileInfoList *fil,
+		       const QString &fileName,
 		       const QFileInfo &fi, int sortSpec )
 {
     QFileInfo *newFi = new QFileInfo( fi );
@@ -1419,7 +1420,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
     if ( ff == FF_ERROR ) {
 #if defined(DEBUG)
 	warning( "QDir::readDirEntries: Cannot read the directory: %s",
-		 (QString )dPath );
+		 (const char *)dPath );
 #endif
 	return FALSE;
     }

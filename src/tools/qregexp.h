@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.h#13 $
+** $Id: //depot/qt/main/src/tools/qregexp.h#14 $
 **
 ** Definition of QRegExp class
 **
@@ -33,11 +33,11 @@ class QRegExp
 {
 public:
     QRegExp();
-    QRegExp( QString, bool caseSensitive=TRUE, bool wildcard=FALSE );
+    QRegExp( const QString &, bool caseSensitive=TRUE, bool wildcard=FALSE );
     QRegExp( const QRegExp & );
    ~QRegExp();
     QRegExp    &operator=( const QRegExp & );
-    QRegExp    &operator=( QString pattern );
+    QRegExp    &operator=( const QString &pattern );
 
     bool	operator==( const QRegExp & )  const;
     bool	operator!=( const QRegExp &r ) const
@@ -52,9 +52,9 @@ public:
     bool	wildcard()	const	{ return wc; }
     void	setWildcard( bool );
 
-    QString pattern()	const	{ return rxstring; }
+    QString	pattern()	const	{ return rxstring; }
 
-    int		match( QString str, int index=0, int *len=0 ) const;
+    int		match( const QString &str, int index=0, int *len=0 ) const;
 
 protected:
     void	compile();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#40 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#41 $
 **
 ** Implementation of QFileInfo class
 **
@@ -37,7 +37,7 @@
 
 #if defined(_OS_SUN_)
 #undef readlink
-extern "C" int readlink( QString , void *, uint );
+extern "C" int readlink( const char *, void *, uint );
 #endif
 
 #if defined(_OS_FATFS_)
@@ -116,7 +116,7 @@ QFileInfo::QFileInfo()
   QDir::isRelativePath()
 */
 
-QFileInfo::QFileInfo( QString file )
+QFileInfo::QFileInfo( const QString &file )
 {
     fn	  = file;
     convertSeparators( fn );
@@ -149,7 +149,7 @@ QFileInfo::QFileInfo( const QFile &file )
   \sa isRelative()
 */
 
-QFileInfo::QFileInfo( const QDir &d, QString fileName )
+QFileInfo::QFileInfo( const QDir &d, const QString &fileName )
 {
     fn	  = d.filePath( fileName );
     convertSeparators( fn );
@@ -238,7 +238,7 @@ QFileInfo &QFileInfo::operator=( const QFileInfo &fi )
   \sa isRelative(), QDir::setCurrent(), QDir::isRelativePath()
 */
 
-void QFileInfo::setFile( QString file )
+void QFileInfo::setFile( const QString &file )
 {
     fn = file;
     convertSeparators( fn );
@@ -271,7 +271,7 @@ void QFileInfo::setFile( const QFile &file )
   \sa isRelative()
 */
 
-void QFileInfo::setFile( const QDir &d, QString fileName )
+void QFileInfo::setFile( const QDir &d, const QString &fileName )
 {
     fn	= d.filePath( fileName );
     convertSeparators( fn );

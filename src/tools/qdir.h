@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.h#30 $
+** $Id: //depot/qt/main/src/tools/qdir.h#31 $
 **
 ** Definition of QDir class
 **
@@ -64,31 +64,31 @@ public:
 		      DefaultSort   = -1 };
 
     QDir();
-    QDir( QString path, QString nameFilter = 0,
+    QDir( const QString &path, const QString &nameFilter = 0,
 	  int sortSpec = Name | IgnoreCase, int filterSpec = All );
     QDir( const QDir & );
    ~QDir();
     QDir       &operator=( const QDir & );
-    QDir       &operator=( QString path );
+    QDir       &operator=( const QString &path );
 
-    void	setPath( QString path );
-    QString path()		const;
+    void	setPath( const QString &path );
+    QString	path()		const;
     QString	absPath()	const;
     QString	canonicalPath()	const;
 
     QString	dirName() const;
-    QString	filePath( QString fileName,
+    QString	filePath( const QString &fileName,
 			  bool acceptAbsPath = TRUE ) const;
-    QString	absFilePath( QString fileName,
+    QString	absFilePath( const QString &fileName,
 			     bool acceptAbsPath = TRUE ) const;
 
-    static QString convertSeparators( QString pathName );
+    static QString convertSeparators( const QString &pathName );
 
-    bool	cd( QString dirName, bool acceptAbsPath = TRUE );
+    bool	cd( const QString &dirName, bool acceptAbsPath = TRUE );
     bool	cdUp();
 
-    QString nameFilter() const;
-    void	setNameFilter( QString nameFilter );
+    QString	nameFilter() const;
+    void	setNameFilter( const QString &nameFilter );
     FilterSpec filter() const;
     void	setFilter( int filterSpec );
     SortSpec sorting() const;
@@ -98,26 +98,26 @@ public:
     void	setMatchAllDirs( bool );
 
     uint	count() const;
-    QString operator[]( int ) const;
+    QString	operator[]( int ) const;
 
     const QStrList *entryList( int filterSpec = DefaultFilter,
 			       int sortSpec   = DefaultSort  ) const;
-    const QStrList *entryList( QString nameFilter,
+    const QStrList *entryList( const QString &nameFilter,
 			       int filterSpec = DefaultFilter,
 			       int sortSpec   = DefaultSort   ) const;
 
     const QFileInfoList *entryInfoList( int filterSpec = DefaultFilter,
 					int sortSpec   = DefaultSort  ) const;
-    const QFileInfoList *entryInfoList( QString nameFilter,
+    const QFileInfoList *entryInfoList( const QString &nameFilter,
 					int filterSpec = DefaultFilter,
 					int sortSpec   = DefaultSort   ) const;
 
     static const QFileInfoList *drives();
 
-    bool	mkdir( QString dirName,
-			      bool acceptAbsPath = TRUE ) const;
-    bool	rmdir( QString dirName,
-			      bool acceptAbsPath = TRUE ) const;
+    bool	mkdir( const QString &dirName,
+		       bool acceptAbsPath = TRUE ) const;
+    bool	rmdir( const QString &dirName,
+		       bool acceptAbsPath = TRUE ) const;
 
     bool	isReadable() const;
     bool	exists()   const;
@@ -129,16 +129,16 @@ public:
     bool	operator==( const QDir & ) const;
     bool	operator!=( const QDir & ) const;
 
-    bool	remove( QString fileName,
-			      bool acceptAbsPath = TRUE );
-    bool	rename( QString name, QString newName,
-			      bool acceptAbsPaths = TRUE  );
-    bool	exists( QString name,
-			      bool acceptAbsPath = TRUE );
+    bool	remove( const QString &fileName,
+			bool acceptAbsPath = TRUE );
+    bool	rename( const QString &name, const QString &newName,
+			bool acceptAbsPaths = TRUE  );
+    bool	exists( const QString &name,
+			bool acceptAbsPath = TRUE );
 
     static char separator();
 
-    static bool setCurrent( QString path );
+    static bool setCurrent( const QString &path );
     static QDir current();
     static QDir home();
     static QDir root();
@@ -146,9 +146,9 @@ public:
     static QString homeDirPath();
     static QString rootDirPath();
 
-    static bool match( QString filter, QString fileName );
-    static QString cleanDirPath( QString dirPath );
-    static bool isRelativePath( QString path );
+    static bool match( const QString &filter, const QString &fileName );
+    static QString cleanDirPath( const QString &dirPath );
+    static bool isRelativePath( const QString &path );
 
 private:
     void	init();
