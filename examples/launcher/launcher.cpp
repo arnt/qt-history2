@@ -24,7 +24,6 @@ struct {
     { "Scribble Editor", "exec ../scribble/scribble" },
     { "Internationalization", "( cd ../i18n; exec ./i18n all )" },
     { "Magnifier", "exec ../qmag/qmag" },
-    /*{ "Dumb Terminal", "exec ../dumbterm/dumbterm" },*/
     { 0, 0 }
 };
 
