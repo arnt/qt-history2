@@ -91,6 +91,9 @@ void QDesignerWorkbench::addFormWindow(QDesignerFormWindow *formWindow)
         m_windowActions->addAction(action);
         m_windowMenu->addAction(action);
     }
+
+    m_actionManager->minimizeAction()->setEnabled(true);
+    m_actionManager->zoomAction()->setEnabled(true);
 }
 
 void QDesignerWorkbench::initialize()
@@ -136,7 +139,7 @@ void QDesignerWorkbench::initialize()
         m_formMenu->addAction(action);
     }
 
-    m_toolMenu = m_globalMenuBar->addMenu(tr("&Tools"));
+    m_toolMenu = m_globalMenuBar->addMenu(tr("&Tool"));
     m_toolMenu->addSeparator();
     m_toolMenu->addAction(m_actionManager->preferences());
 
@@ -324,9 +327,22 @@ void QDesignerWorkbench::switchToWorkspaceMode()
         fw->move(g.topLeft());
         fw->show();
     }
+    changeBringToFrontVisiblity(false);
 
     m_workspace->show();
     mw->showMaximized();
+}
+
+void QDesignerWorkbench::changeBringToFrontVisiblity(bool visible)
+{
+    QAction *btf = m_actionManager->bringToFrontAction();
+    QList<QAction *> actionList = m_actionManager->windowActions()->actions();
+    btf->setVisible(visible);
+    QAction *sep = actionList.at(actionList.indexOf(btf) - 1);
+    if (sep->isSeparator())
+        sep->setVisible(visible);
+
+
 }
 
 void QDesignerWorkbench::switchToTopLevelMode()
@@ -370,6 +386,7 @@ void QDesignerWorkbench::switchToTopLevelMode()
             tw->setVisible(m_visibilities.value(tw, true));
         }
     }
+    changeBringToFrontVisiblity(true);
 
     foreach (QDesignerFormWindow *fw, m_formWindows) {
         fw->setParent(magicalParent(), Qt::Window);
@@ -491,6 +508,11 @@ void QDesignerWorkbench::removeFormWindow(QDesignerFormWindow *formWindow)
     if (QAction *action = formWindow->action()) {
         m_windowActions->removeAction(action);
         m_windowMenu->removeAction(action);
+    }
+
+    if (formWindowCount() == 0) {
+        m_actionManager->minimizeAction()->setEnabled(false);
+        m_actionManager->zoomAction()->setEnabled(false);
     }
 }
 

@@ -95,7 +95,9 @@ public:
 //
 // window actions
 //
-    QAction *showWorkbenchAction() const;
+    QAction *minimizeAction() const;
+    QAction *zoomAction() const;
+    QAction *bringAllToFront() const;
 
 public slots:
     void activeFormWindowChanged(AbstractFormWindow *formWindow);
@@ -115,6 +117,9 @@ private slots:
     void clearRecentFiles();
     void closeForm();
     void handlePreferenceChange();
+    void minimizeForm();
+    void zoomForm();
+    void bringAllToFront();
 
 private:
     bool saveFormAs(AbstractFormWindow *fw);
@@ -165,7 +170,9 @@ private:
     QAction *m_adjustSizeAction;
     QAction *m_previewFormAction;
 
-    QAction *m_showWorkbenchAction;
+    QAction *m_minimizeAction;
+    QAction *m_zoomAction;
+    QAction *m_bringAllToFrontAction;
 };
 
 #endif // QDESIGNER_ACTIONS_H

@@ -238,9 +238,28 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
 //
 // window actions
 //
-    // Fill me in.
+    m_minimizeAction = new QAction(tr("&Minimize"), this);
+    m_minimizeAction->setShortcut(tr("CTRL+M"));
+    connect(m_minimizeAction, SIGNAL(triggered()), this, SLOT(minimizeForm()));
+    m_windowActions->addAction(m_minimizeAction);
 
+    m_zoomAction = new QAction(
+#ifdef Q_WS_MAC
+                               tr("Zoom"),
+#else
+                               tr("Maximize"),
+#endif
+                               this);
+    connect(m_minimizeAction, SIGNAL(triggered()), this, SLOT(zoomForm()));
+    m_windowActions->addAction(m_zoomAction);
 
+    sep = new QAction(this);
+    sep->setSeparator(true);
+    m_windowActions->addAction(sep);
+
+    m_bringToFrontAction = new QAction(tr("Bring All to Front"), this);
+    connect(m_bringToFrontAction, SIGNAL(triggered()), this, SLOT(bringAllToFront()));
+    m_windowActions->addAction(m_bringToFrontAction);
 
 //
 // connections
@@ -349,9 +368,6 @@ QAction *QDesignerActions::adjustSizeAction() const
 QAction *QDesignerActions::previewFormAction() const
 { return m_previewFormAction; }
 
-QAction *QDesignerActions::showWorkbenchAction() const
-{ return m_showWorkbenchAction; }
-
 void QDesignerActions::editWidgets()
 {
     AbstractFormWindowManager *formWindowManager = core()->formWindowManager();
@@ -445,8 +461,7 @@ void QDesignerActions::editPreferences()
 
 void QDesignerActions::handlePreferenceChange()
 {
-    int foo = QDesignerSettings().uiMode();
-    m_workbench->setUIMode(QDesignerWorkbench::UIMode(foo));
+    m_workbench->setUIMode(QDesignerWorkbench::UIMode(QDesignerSettings().uiMode()));
 }
 
 void QDesignerActions::previewForm()
@@ -671,4 +686,41 @@ void QDesignerActions::addRecentFile(const QString &fileName)
 
     settings.setRecentFilesList(files);
     updateRecentFileActions();
+}
+
+void QDesignerActions::minimizeForm()
+{
+    if (AbstractFormWindow *fw = core()->formWindowManager()->activeFormWindow())
+        fw->window()->showMinimized();
+}
+
+void QDesignerActions::zoomForm()
+{
+    if (AbstractFormWindow *fw = core()->formWindowManager()->activeFormWindow())
+        fw->window()->showMaximized();
+}
+
+void QDesignerActions::bringAllToFront()
+{
+    int i;
+    for (i = 0; i < m_workbench->formWindowCount(); ++i)
+        m_workbench->formWindow(i)->raise();
+
+    for (i = 0; i < m_workbench->toolWindowCount(); ++i)
+        m_workbench->toolWindow(i)->raise();
+}
+
+QAction *QDesignerActions::minimizeAction() const
+{
+    return m_minimizeAction;
+}
+
+QAction *QDesignerActions::zoomAction() const
+{
+    return m_zoomAction;
+}
+
+QAction *QDesignerActions::bringAllToFront() const
+{
+    return m_bringToFrontAction;
 }

@@ -113,6 +113,7 @@ private slots:
 private:
     QWidget *magicalParent() const;
     AbstractFormWindowManager *formWindowManager() const;
+    void changeBringToFrontVisiblity(bool visible);
 
 private:
     AbstractFormEditor *m_core;
