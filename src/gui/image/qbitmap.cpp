@@ -273,7 +273,7 @@ QBitmap::operator QVariant() const
 
 QBitmap &QBitmap::operator=(const QImage &image)
 {
-    fromImage(image);
+    *this = fromImage(image);
     return *this;
 }
 
