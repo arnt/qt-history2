@@ -2308,16 +2308,26 @@ RenameMenuCommand::RenameMenuCommand( const QString &n,
     oldName = item->menuText();
 }
 
+QString RenameMenuCommand::mangle( QString name )
+{
+    return ( name.remove( "." ).remove( "," ).remove( "&" ).replace( '-', '_' ).replace( ' ', '_' ) +
+	     "Menu" );
+}
+
 void RenameMenuCommand::execute()
 {
     item->setMenuText( newName );
     QString s = newName;
+    PopupMenuEditor *popup = item->menu();
+    popup->setName( mangle( newName ) );
 }
 
 void RenameMenuCommand::unexecute()
 {
     item->setMenuText( oldName );
     // FIXME: setName to old name ?
+    PopupMenuEditor *popup = item->menu();
+    popup->setName( mangle( oldName ) );
 }
 
 // ------------------------------------------------------------

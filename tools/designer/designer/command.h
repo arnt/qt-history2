@@ -1214,6 +1214,7 @@ public:
     void unexecute();
     Type type() const { return RenameMenu; }
 protected:
+    QString mangle( QString name );
 private:
     MenuBarEditor *bar;
     MenuBarEditorItem *item;
