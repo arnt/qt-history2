@@ -231,30 +231,26 @@
 // draft interfaces not part of the current Open Group standard.
 // Directly specifying Open Group standards will hide non-standard
 // extension such as some DNS details we actually use in Qt.
-// The MIPSpro compiler defines _SGI_SOURCE automatically and GCC is
-// probably just as smart but let's redefine it anyway.
+// The MIPSpro and the GCC compilers define _SGI_SOURCE automatically
+// so we don't redefine it unless it is hidden by a POSIX or Open Group
+// standard request.
 // See <standards.h> for more details.
 #  elif defined(Q_OS_IRIX)
-#    if !defined(_SGI_SOURCE)
-#      define _SGI_SOURCE
-#    endif
-// Use the general _ALL_SOURCE macro which will import the most
+// On AIX use the general _ALL_SOURCE macro which will import the most
 // recent interfaces automatically.
+// The IBM and the GCC compilers define _ALL_SOURCE automatically
+// so we don't redefine it unless it is hidden by a POSIX or Open Group
+// standard request.
 // See <standards.h> for more details.
 #  elif defined(Q_OS_AIX)
-#    if !defined(_ALL_SOURCE)
-#      define _ALL_SOURCE
-#    endif
 // Use the general _GNU_SOURCE macro which will import the most recent
 // which will automatically import the most recent Open Group interfaces
 // together with  proprietary or draft interfaces not part of the current
-// Open Group standard.  For example _GNU_SOURCE is needed to import POSIX
-// thread interfaces from the header files of pre-2.2 GNU C libraries.
+// Open Group standard.  For example _GNU_SOURCE seems to be needed to
+// import POSIX thread interfaces from the header files of pre-2.2 GNU C
+// libraries.
 // See <features.h> for more details.
 #  elif defined(Q_OS_LINUX) || defined(Q_OS_GNU)
-#    if !defined(_GNU_SOURCE)
-#      define _GNU_SOURCE
-#    endif
 // Use the general _HPUX_SOURCE macro which will import the most recent
 // which will automatically import the most recent Open Group interfaces
 // together with  proprietary or draft interfaces not part of the current
@@ -262,14 +258,6 @@
 // needed in this context though.
 // See stdsyms(5) and <sys/stdsyms.h> for more details.
 #  elif defined(Q_OS_HPUX)
-#    if !defined(_HPUX_SOURCE)
-#      define _HPUX_SOURCE
-#    endif
-/*
-// ### Brad? Do you need setting _POSIX_C_SOURCE to 199506L on HP-UX?
-// ### _HPUX_SOURCE ought to be enough.
-#    define _POSIX_C_SOURCE 199506L    // IEEE Std 1003.1c (1995) / POSIX.1c
-*/
 // There is an _OSF_SOURCE macro on Tru64, but it seems to behave somehow
 // differently - possibly better?
 // It does not import most recent Open Group interfaces.  Instead you must
@@ -303,14 +291,8 @@
 // See standards(5) and <sys/feature_tests.h> for more details.
 // See also the note in <sys/ioctl.h> for more details on BSD_COMP.
 #  elif defined(Q_OS_SOLARIS)
-#    if !defined(__EXTENSIONS__)
-#      define __EXTENSIONS__
-#    endif
 #    if !defined(BSD_COMP)
 #      define BSD_COMP
-#    endif
-#    if defined(QT_THREAD_SUPPORT)
-#      define _POSIX_C_SOURCE 199506L  // IEEE Std 1003.1c (1995) / POSIX.1c
 #    endif
 // BSD_COMP must be defined for <sys/ioctl.h> to define FIONREAD.
 #  elif defined(Q_OS_UNIXWARE7)
