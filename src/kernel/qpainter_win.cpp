@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#165 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#166 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -732,6 +732,8 @@ bool QPainter::begin( const QPaintDevice *pd )
 	if ( pdev->handle() )
 	    hdc = pdev->handle();
 	flags |= (NoCache | RGBColor);
+	if ( qt_winver != WV_NT )
+	    flags |= VolatileDC;
     } else if ( dt == QInternal::System ) {	// system-dependent device
 	hdc = pdev->handle();
 	if ( hdc ) {
@@ -1866,7 +1868,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	    bm_clip.fill( color1 );
 	    pmx.setMask( bm_clip.xForm(mat) );
 	}
-	map( x, y, &x, &y );			// compute position of pixmap
+	map( x, y, &x, &y );	//### already done above? // compute position of pixmap
 	int dx, dy;
 	mat.map( 0, 0, &dx, &dy );
 	bitBlt( pdev, x - dx, y - dy, &pmx );

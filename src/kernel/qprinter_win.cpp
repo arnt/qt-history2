@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#58 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#59 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -47,6 +47,7 @@ QPrinter::QPrinter()
     output_file = FALSE;
     to_edge	= FALSE;
     viewOffsetDone = FALSE;
+    painter     = 0;
 }
 
 QPrinter::~QPrinter()
@@ -60,12 +61,21 @@ QPrinter::~QPrinter()
 
 bool QPrinter::newPage()
 {
+    bool success = FALSE;
     if ( hdc && state == PST_ACTIVE ) {
+        bool restorePainter = FALSE;
+        if ( qt_winver != Qt::WV_NT && painter && painter->isActive() ) {
+            painter->save();               // EndPage/StartPage ruins the DC
+	    restorePainter = TRUE;
+	}
 	if ( EndPage(hdc) != SP_ERROR && StartPage(hdc) != SP_ERROR )
-	    return TRUE;
-	state = PST_ABORTED;
+	    success = TRUE;
+	else
+	    state = PST_ABORTED;
+	if ( restorePainter )
+	    painter->restore();
     }
-    return FALSE;
+    return success;
 }
 
 void QPrinter::setActive()
@@ -415,6 +425,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	    state = PST_ABORTED;
 	} else {
 	    state = PST_ACTIVE;
+	    painter = paint;
 	}
     } else if ( c == PdcEnd ) {
 	if ( hdc ) {

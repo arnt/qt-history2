@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.h#36 $
+** $Id: //depot/qt/main/src/kernel/qprinter.h#37 $
 **
 ** Definition of QPrinter class
 **
@@ -130,6 +130,7 @@ private:
     short	ncopies;
 #if defined(_WS_WIN_)
     bool	viewOffsetDone;
+    QPainter*   painter;
 #endif
 
 private:	// Disabled copy constructor and operator=

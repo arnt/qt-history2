@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#182 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#183 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -393,17 +393,19 @@ void QPainter::restore()
 	return;
     }
     register QPState *ps = pss->pop();
-    if ( ps->font != cfont )
+    bool hardRestore = testf(VolatileDC);
+
+    if ( ps->font != cfont || hardRestore )
 	setFont( ps->font );
-    if ( ps->pen != cpen )
+    if ( ps->pen != cpen || hardRestore )
 	setPen( ps->pen );
-    if ( ps->brush != cbrush )
+    if ( ps->brush != cbrush || hardRestore )
 	setBrush( ps->brush );
-    if ( ps->bgc != bg_col )
+    if ( ps->bgc != bg_col || hardRestore )
 	setBackgroundColor( ps->bgc );
-    if ( ps->bgm != bg_mode )
+    if ( ps->bgm != bg_mode || hardRestore )
 	setBackgroundMode( (BGMode)ps->bgm );
-    if ( ps->rop != rop )
+    if ( ps->rop != rop || hardRestore )
 	setRasterOp( (RasterOp)ps->rop );
 #if 0
     if ( ps->pu != pu )				// !!!not used
@@ -411,19 +413,19 @@ void QPainter::restore()
 #endif
     QRect wr( wx, wy, ww, wh );
     QRect vr( vx, vy, vw, vh );
-    if ( ps->wr != wr )
+    if ( ps->wr != wr || hardRestore )
 	setWindow( ps->wr );
-    if ( ps->vr != vr )
+    if ( ps->vr != vr || hardRestore )
 	setViewport( ps->vr );
-    if ( ps->wm != wxmat )
+    if ( ps->wm != wxmat || hardRestore )
 	setWorldMatrix( ps->wm );
-    if ( ps->vxf != testf(VxF) )
+    if ( ps->vxf != testf(VxF) || hardRestore )
 	setViewXForm( ps->vxf );
-    if ( ps->wxf != testf(WxF) )
+    if ( ps->wxf != testf(WxF) || hardRestore )
 	setWorldXForm( ps->wxf );
-    if ( ps->rgn != crgn )
+    if ( ps->rgn != crgn || hardRestore )
 	setClipRegion( ps->rgn );
-    if ( ps->clip != testf(ClipOn) )
+    if ( ps->clip != testf(ClipOn) || hardRestore )
 	setClipping( ps->clip );
     tabstops = ps->ts;
     tabarray = ps->ta;
