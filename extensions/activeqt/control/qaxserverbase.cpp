@@ -1864,19 +1864,16 @@ static bool checkHRESULT(HRESULT hres)
     }
 }
 
-static inline QByteArray paramType(const char *ptype, bool *out)
+static inline QByteArray paramType(const QByteArray &ptype, bool *out)
 {
-    QByteArray res(ptype);
-    *out = false;
-    if (res.endsWith("&")) {
-	*out = true;
+    *out = ptype.endsWith('&') || ptype.endsWith("**");
+    if (*out) {
+        QByteArray res(ptype);
 	res.truncate(res.length() - 1);
-    } else if (res.endsWith("**")) {
-	*out = true;
-	res.truncate(res.length() - 1);
+        return res;
     }
 
-    return res;
+    return ptype;
 }
 
 /*!
