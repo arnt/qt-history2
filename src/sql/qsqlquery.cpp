@@ -96,7 +96,7 @@ QSqlResultShared::~QSqlResultShared()
 
     \code
     QSqlQuery query( "select name from customer;" );
-    while ( query->next() ) {
+    while ( query.next() ) {
 	QString name = query.value(0).toString();
 	doSomething( name );
     }
