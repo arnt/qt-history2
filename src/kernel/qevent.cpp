@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#80 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#81 $
 **
 ** Implementation of event classes
 **
@@ -164,8 +164,8 @@ void QEvent::peErrMsg()				// posted event error message
   Timer events are sent at regular intervals to objects that have
   started one or more timers.  Each timer has a unique identifier.
 
-  If the interval is zero, the event will be sent on every iteration
-  of the event loop.
+  If interval is 0, then the timer event occurs
+  once every time there are no more window system events to process.
 
   The QTimer class provides a high-level programming interface with one-shot
   timers and timer signals instead of events.

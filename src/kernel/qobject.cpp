@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#178 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#179 $
 **
 ** Implementation of QObject class
 **
@@ -694,7 +694,7 @@ void QObject::blockSignals( bool block )
 
   A timer event will occur every \e interval milliseconds until
   killTimer() or killTimers() is called.  If \e interval is 0, then
-  timer event occurs once every time there are no more window system
+  the timer event occurs once every time there are no more window system
   events to process.
 
   The virtual timerEvent() function is called with the QTimerEvent event

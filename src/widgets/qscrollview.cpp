@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#69 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#70 $
 **
 ** Implementation of QScrollView class
 **
@@ -176,6 +176,11 @@ To provide content for the widget, inherit from QScrollView and
 override drawContentsOffset(), and use resizeContents() to set
 the size of the viewed area.  Use addChild(), moveChild(), and showChild()
 to position widgets on the view.
+
+Note that the scrolled area is the viewport() widget, not the QScrollView
+itself.  So, to turn mouse tracking on for example, use
+viewport()->setMouseTracking(TRUE).  The only part of the QScrollView that
+is visible is the "corner" and the frame.
 
 Note also the effect of resizePolicy().
 
