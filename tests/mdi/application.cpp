@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/mdi/application.cpp#1 $
+** $Id: //depot/qt/main/tests/mdi/application.cpp#2 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -21,6 +21,7 @@
 #include <qmultilineedit.h>
 #include <qfile.h>
 #include <qfiledialog.h>
+#include <qlabel.h>
 #include <qstatusbar.h>
 #include <qmessagebox.h>
 #include <qprinter.h>
@@ -106,10 +107,10 @@ ApplicationWindow::ApplicationWindow()
     file->insertItem( "&Quit", qApp, SLOT( closeAllWindows() ), CTRL+Key_Q );
 
     windowsMenu = new QPopupMenu( this );
-    connect( windowsMenu, SIGNAL( aboutToShow() ), 
+    connect( windowsMenu, SIGNAL( aboutToShow() ),
 	     this, SLOT( windowsMenuAboutToShow() ) );
     menuBar()->insertItem( "&Windows", windowsMenu );
-    
+
     QPopupMenu * help = new QPopupMenu( this );
     menuBar()->insertSeparator();
     menuBar()->insertItem( "&Help", help );
@@ -142,6 +143,7 @@ ApplicationWindow::ApplicationWindow()
 
 ApplicationWindow::~ApplicationWindow()
 {
+    qDebug("application window deleted");
     delete printer;
 }
 
@@ -149,10 +151,11 @@ ApplicationWindow::~ApplicationWindow()
 
 void ApplicationWindow::newDoc()
 {
-    QMultiLineEdit* me = new QMultiLineEdit( ws );
-    windows.append( me );
-    me->setCaption("unnamed document");
-    me->show();
+    QWidget* w = new MDIWindow( ws, 0, WDestructiveClose );
+    connect( w, SIGNAL( destroyed() ), this, SLOT( childDestroyed() ) );
+    windows.append( w );
+    w->setCaption("unnamed document");
+    w->show();
 }
 
 void ApplicationWindow::load()
@@ -328,15 +331,40 @@ void ApplicationWindow::windowsMenuAboutToShow()
 {
     windowsMenu->clear();
     for ( int i = 0; i < int(windows.count()); ++i ) {
-	int id = windowsMenu->insertItem(windows.at(i)->caption(), 
+	int id = windowsMenu->insertItem(windows.at(i)->caption(),
 					 this, SLOT( windowsMenuActivated( int ) ) );
 	windowsMenu->setItemParameter( id, i );
     }
 }
 
-void ApplicationWindow::windowsMenuActivated( int id ) 
+void ApplicationWindow::windowsMenuActivated( int id )
 {
     QWidget* w = windows.at( id );
     if ( w )
 	ws->activateClient( w );
+}
+
+void ApplicationWindow::childDestroyed()
+{
+    if ( sender() ) {
+	windows.remove( (QWidget*)sender() );
+    }
+}
+
+MDIWindow::MDIWindow( QWidget* parent, const char* name, int wflags )
+    : QMainWindow( parent, name, wflags )
+{
+    medit = new QMultiLineEdit( this );
+    setCentralWidget( medit );
+    (void) statusBar();
+}
+MDIWindow::~MDIWindow()
+{
+    qDebug("MDI window deleted");
+}
+
+void MDIWindow::closeEvent( QCloseEvent* e)
+{
+    qDebug("MDI window close event");
+    e->accept();
 }

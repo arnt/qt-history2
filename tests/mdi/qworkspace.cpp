@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/mdi/qworkspace.cpp#1 $
+** $Id: //depot/qt/main/tests/mdi/qworkspace.cpp#2 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -89,6 +89,8 @@ void QWorkspace::childEvent( QChildEvent * e)
 	    icons.remove( (QWidget*)e->child() );
 	    layoutIcons();
 	}
+	if(active == e->child())
+	    active = 0;
     }
 }
 
@@ -112,7 +114,7 @@ void QWorkspace::activateClient( QWidget* w)
 
 QWidget* QWorkspace::activeClient() const
 {
-    return active->clientWidget();
+    return active?active->clientWidget():0;
 }
 
 

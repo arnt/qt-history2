@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/mdi/qworkspacechild.h#1 $
+** $Id: //depot/qt/main/tests/mdi/qworkspacechild.h#2 $
 **
 ** Definition of the QChildWindow class
 **
@@ -104,7 +104,6 @@ public:
     void showMinimized();
     void showMaximized();
     void showNormal();
-    bool close( bool forceKill );
 
 protected:
     void mousePressEvent( QMouseEvent * );
@@ -112,12 +111,10 @@ protected:
     void mouseMoveEvent( QMouseEvent * );
     void enterEvent( QEvent * );
     void leaveEvent( QEvent * );
+    void childEvent( QChildEvent* );
 
     void resizeEvent( QResizeEvent * );
     bool eventFilter( QObject *, QEvent * );
-
- private slots:
-    void clientDestroyed();
 
 private:
     QWidget* clientw;

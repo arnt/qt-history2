@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/mdi/application.h#1 $
+** $Id: //depot/qt/main/tests/mdi/application.h#2 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -19,6 +19,20 @@ class QToolBar;
 class QPopupMenu;
 class QWorkspace;
 class QPopupMenu;
+
+class MDIWindow: public QMainWindow
+{
+    Q_OBJECT
+public:
+    MDIWindow( QWidget* parent, const char* name, int wflags );
+    ~MDIWindow();
+protected:
+    void closeEvent( QCloseEvent* );
+    
+private:
+    QMultiLineEdit* medit;
+};
+
 
 class ApplicationWindow: public QMainWindow
 {
@@ -40,9 +54,11 @@ private slots:
 
     void about();
     void aboutQt();
-    
+
     void windowsMenuAboutToShow();
     void windowsMenuActivated( int id );
+    
+    void childDestroyed();
 
 private:
     QPrinter *printer;
