@@ -58,7 +58,7 @@
 */
 
 /*!
-    Constructs a SQL driver plugin and sets the parent to \parent.
+    Constructs a SQL driver plugin and sets the parent to \a parent.
     This is invoked automatically by the \c Q_EXPORT_PLUGIN macro.
 */
 
