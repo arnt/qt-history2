@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/application/application.cpp#4 $
+** $Id: //depot/qt/main/examples/application/application.cpp#5 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -88,21 +88,21 @@ ApplicationWindow::ApplicationWindow()
     QPopupMenu * file = new QPopupMenu( this );
     menuBar()->insertItem( "&File", file );
 
-    file->insertItem( "New", this, SLOT(newDoc()), CTRL+Key_N );
+    file->insertItem( "&New", this, SLOT(newDoc()), CTRL+Key_N );
 
-    id = file->insertItem( openIcon, "Open...", this, SLOT(load()), CTRL+Key_O );
+    id = file->insertItem( openIcon, "&Open...", this, SLOT(load()), CTRL+Key_O );
     file->setWhatsThis( id, fileOpenText );
 
-    id = file->insertItem( saveIcon, "Save", this, SLOT(save()), CTRL+Key_S );
+    id = file->insertItem( saveIcon, "&Save", this, SLOT(save()), CTRL+Key_S );
     file->setWhatsThis( id, fileSaveText );
-    id = file->insertItem( "Save as...", this, SLOT(saveAs()) );
+    id = file->insertItem( "Save &as...", this, SLOT(saveAs()) );
     file->setWhatsThis( id, fileSaveText );
     file->insertSeparator();
-    id = file->insertItem( printIcon, "Print...", this, SLOT(print()), CTRL+Key_P );
+    id = file->insertItem( printIcon, "&Print...", this, SLOT(print()), CTRL+Key_P );
     file->setWhatsThis( id, filePrintText );
     file->insertSeparator();
-    file->insertItem( "Close", this, SLOT(closeDoc()), CTRL+Key_W );
-    file->insertItem( "Quit", qApp, SLOT(quit()), CTRL+Key_Q );
+    file->insertItem( "&Close", this, SLOT(closeDoc()), CTRL+Key_W );
+    file->insertItem( "&Quit", qApp, SLOT(quit()), CTRL+Key_Q );
 
     QPopupMenu * edit = new QPopupMenu( this );
     menuBar()->insertItem( "&Edit", edit );
