@@ -338,7 +338,7 @@ QButton *QButtonGroup::find( int id ) const
   This signal is emitted when a button in the group is clicked.  The
   \a id argument is the button's identifier.
 
-  \sa QButton::clicked() insert() (about the identifier)
+  \sa QButton::clicked() insert()
 */
 
 
