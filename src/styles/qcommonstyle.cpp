@@ -585,7 +585,7 @@ void QCommonStyle::drawControl( ControlElement element,
 	else if (radiobutton->state() == QButton::Off)
 	    flags |= PStyle_Off;
 
-	drawPrimitive(PO_ExclusiveIndicator, p, r, cg, flags, data);
+	drawPrimitive(PO_ExclusiveIndicator, p, ir, cg, flags, data);
 	break; }
 
     case CE_RadioButtonLabel: {

@@ -1021,7 +1021,7 @@ void QMotifStyle::drawControl( ControlElement element,
 
 void QMotifStyle::drawComplexControl( ComplexControl control,
 				     QPainter *p,
-				     const QWidget *w,
+				     const QWidget *widget,
 				     const QRect &r,
 				     const QColorGroup &cg,
 				     CFlags flags,
@@ -1035,7 +1035,7 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 	    sub = SC_SpinWidgetUp | SC_SpinWidgetDown | SC_SpinWidgetFrame;
 
 	if ( sub & SC_SpinWidgetUp || sub & SC_SpinWidgetDown )
-	    QCommonStyle::drawComplexControl( control, p, w, r, cg, flags,
+	    QCommonStyle::drawComplexControl( control, p, widget, r, cg, flags,
 					      sub, subActive, data );
 	if ( sub & SC_SpinWidgetFrame )
 	    qDrawShadePanel( p, r, cg, TRUE,
@@ -1047,14 +1047,14 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 	    sub = SC_SliderGroove | SC_SliderTickmarks | SC_SliderHandle;
 
 	if ( sub & SC_SliderGroove )
-	    drawSubControl( SC_SliderGroove, p, w, r, cg, flags, subActive,
+	    drawSubControl( SC_SliderGroove, p, widget, r, cg, flags, subActive,
 			    data );
 	if ( sub & SC_SliderTickmarks )
-	    QCommonStyle::drawComplexControl( control, p, w, r, cg, flags,
+	    QCommonStyle::drawComplexControl( control, p, widget, r, cg, flags,
 					      SC_SliderTickmarks, subActive,
 					      data );
 	if ( sub & SC_SliderHandle )
-	    drawSubControl( SC_SliderHandle, p, w, r, cg, flags, subActive,
+	    drawSubControl( SC_SliderHandle, p, widget, r, cg, flags, subActive,
 			    data );
 	break;
 
@@ -1062,26 +1062,26 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 	if ( sub == SC_None )
 	    sub = SC_ComboBoxArrow | SC_ComboBoxEditField;
 	if ( sub & SC_ComboBoxArrow )
-	    drawSubControl( SC_ComboBoxArrow, p, w, r, cg, flags, subActive,
+	    drawSubControl( SC_ComboBoxArrow, p, widget, r, cg, flags, subActive,
 			    data );
 	if ( sub & SC_ComboBoxEditField )
-	    drawSubControl( SC_ComboBoxEditField, p, w, r, cg, flags,
+	    drawSubControl( SC_ComboBoxEditField, p, widget, r, cg, flags,
 			    subActive, data );
 	break;
 
     case CC_ScrollBar: {
-	if (! w)
+	if (! widget || ! data)
 	    break;
 
-	QScrollBar *scrollbar = (QScrollBar *) w;
+	QScrollBar *scrollbar = (QScrollBar *) widget;
 	QRect addline, subline, addpage, subpage, slider;
 
-	subline = querySubControlMetrics(control, w, SC_ScrollBarSubLine, data);
-	addline = querySubControlMetrics(control, w, SC_ScrollBarAddLine, data);
-	subpage = querySubControlMetrics(control, w, SC_ScrollBarSubPage, data);
-	addpage = querySubControlMetrics(control, w, SC_ScrollBarAddPage, data);
-	slider  = querySubControlMetrics(control, w, SC_ScrollBarSlider,  data);
-	int fw  = pixelMetric(PM_DefaultFrameWidth, w);
+	subline = querySubControlMetrics(control, widget, SC_ScrollBarSubLine, data);
+	addline = querySubControlMetrics(control, widget, SC_ScrollBarAddLine, data);
+	subpage = querySubControlMetrics(control, widget, SC_ScrollBarSubPage, data);
+	addpage = querySubControlMetrics(control, widget, SC_ScrollBarAddPage, data);
+	slider  = querySubControlMetrics(control, widget, SC_ScrollBarSlider,  data);
+	int fw  = pixelMetric(PM_DefaultFrameWidth, widget);
 
 	if (sub == (SC_ScrollBarAddLine | SC_ScrollBarSubLine | SC_ScrollBarAddPage |
 		    SC_ScrollBarSubPage | SC_ScrollBarFirst | SC_ScrollBarLast |
@@ -1114,8 +1114,83 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 
 	break; }
 
+#ifndef QT_NO_LISTVIEW
+    case CC_ListView: {
+	if (! data)
+	    break;
+
+	QListViewItem *item = (QListViewItem *) data[0];
+	QListViewItem *child = item->firstChild();
+	int linetop = 0, linebot = 0, y = r.y();
+
+	// each branch needs at most two lines, ie. four end points
+	QPointArray dotlines( item->childCount() * 4 );
+	int c = 0;
+
+	// skip the stuff above the exposed rectangle
+	while ( child && y + child->height() <= 0 ) {
+	    y += child->totalHeight();
+	    child = child->nextSibling();
+	}
+
+	int bx = r.width() / 2;
+
+	// paint stuff in the magical area
+	while ( child && y < r.height() ) {
+	    linebot = y + child->height()/2;
+	    if ( (child->isExpandable() || child->childCount()) &&
+		 (child->height() > 0) ) {
+		// needs a box
+		p->setPen( cg.text() );
+		p->drawRect( bx-4, linebot-4, 9, 9 );
+		QPointArray a;
+		if ( child->isOpen() )
+		    a.setPoints( 3, bx-2, linebot-2,
+				 bx, linebot+2,
+				 bx+2, linebot-2 ); //RightArrow
+		else
+		    a.setPoints( 3, bx-2, linebot-2,
+				 bx+2, linebot,
+				 bx-2, linebot+2 ); //DownArrow
+		p->setBrush( cg.text() );
+		p->drawPolygon( a );
+		p->setBrush( NoBrush );
+		// dotlinery
+		dotlines[c++] = QPoint( bx, linetop );
+		dotlines[c++] = QPoint( bx, linebot - 5 );
+		dotlines[c++] = QPoint( bx + 5, linebot );
+		dotlines[c++] = QPoint( r.width(), linebot );
+		linetop = linebot + 5;
+	    } else {
+		// just dotlinery
+		dotlines[c++] = QPoint( bx+1, linebot );
+		dotlines[c++] = QPoint( r.width(), linebot );
+	    }
+
+	    y += child->totalHeight();
+	    child = child->nextSibling();
+	}
+
+	if ( child ) // there's a child, so move linebot to edge of rectangle
+	    linebot = r.height();
+
+	if ( linetop < linebot ) {
+	    dotlines[c++] = QPoint( bx, linetop );
+	    dotlines[c++] = QPoint( bx, linebot );
+	}
+
+	int line; // index into dotlines
+	p->setPen( cg.text() );
+	for( line = 0; line < c; line += 2 ) {
+	    p->drawLine( dotlines[line].x(), dotlines[line].y(),
+			 dotlines[line+1].x(), dotlines[line+1].y() );
+	}
+
+	break; }
+#endif // QT_NO_LISTVIEW
+
     default:
-	QCommonStyle::drawComplexControl( control, p, w, r, cg, flags,
+	QCommonStyle::drawComplexControl( control, p, widget, r, cg, flags,
 					  sub, subActive, data );
     }
 }
@@ -1669,78 +1744,6 @@ void QMotifStyle::polishPopupMenu( QPopupMenu* p)
     p->setLineWidth( 2 );
 }
 
-/*!
- \reimp
- */
-void
-QMotifStyle::drawListViewItemBranch( QPainter *p, int y, int w, int h, const QColorGroup & cg, QListViewItem *item )
-{
-    QListViewItem *child = item->firstChild();
-    int linetop = 0, linebot = 0;
-
-    // each branch needs at most two lines, ie. four end points
-    QPointArray dotlines( item->childCount() * 4 );
-    int c = 0;
-
-    // skip the stuff above the exposed rectangle
-    while ( child && y + child->height() <= 0 ) {
-	y += child->totalHeight();
-	child = child->nextSibling();
-    }
-
-    int bx = w / 2;
-
-    // paint stuff in the magical area
-    while ( child && y < h ) {
-	linebot = y + child->height()/2;
-	if ( (child->isExpandable() || child->childCount()) &&
-	     (child->height() > 0) ) {
-	    // needs a box
-	    p->setPen( cg.text() );
-	    p->drawRect( bx-4, linebot-4, 9, 9 );
-	    QPointArray a;
-	    if ( child->isOpen() )
-		a.setPoints( 3, bx-2, linebot-2,
-			     bx, linebot+2,
-			     bx+2, linebot-2 ); //RightArrow
-	    else
-		a.setPoints( 3, bx-2, linebot-2,
-			     bx+2, linebot,
-			     bx-2, linebot+2 ); //DownArrow
-	    p->setBrush( cg.text() );
-	    p->drawPolygon( a );
-	    p->setBrush( NoBrush );
-	    // dotlinery
-	    dotlines[c++] = QPoint( bx, linetop );
-	    dotlines[c++] = QPoint( bx, linebot - 5 );
-	    dotlines[c++] = QPoint( bx + 5, linebot );
-	    dotlines[c++] = QPoint( w, linebot );
-	    linetop = linebot + 5;
-	} else {
-	    // just dotlinery
-	    dotlines[c++] = QPoint( bx+1, linebot );
-	    dotlines[c++] = QPoint( w, linebot );
-	}
-
-	y += child->totalHeight();
-	child = child->nextSibling();
-    }
-
-    if ( child ) // there's a child, so move linebot to edge of rectangle
-	linebot = h;
-
-    if ( linetop < linebot ) {
-	dotlines[c++] = QPoint( bx, linetop );
-	dotlines[c++] = QPoint( bx, linebot );
-    }
-
-    int line; // index into dotlines
-    p->setPen( cg.text() );
-    for( line = 0; line < c; line += 2 ) {
-	p->drawLine( dotlines[line].x(), dotlines[line].y(),
-		     dotlines[line+1].x(), dotlines[line+1].y() );
-    }
-}
 
 static const char * const qt_close_xpm[] = {
 "12 12 2 1",

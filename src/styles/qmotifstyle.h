@@ -87,7 +87,7 @@ public:
 
     void drawComplexControl( ComplexControl control,
 			     QPainter *p,
-			     const QWidget* w,
+			     const QWidget* widget,
 			     const QRect& r,
 			     const QColorGroup& cg,
 			     CFlags flags = CStyle_Default,
@@ -97,7 +97,7 @@ public:
 
     void drawSubControl( SCFlags subCtrl,
 			 QPainter* p,
-			 const QWidget* w,
+			 const QWidget* widget,
 			 const QRect& r,
 			 const QColorGroup& cg,
 			 CFlags flags = CStyle_Default,
@@ -109,7 +109,6 @@ public:
 				  SubControl sc,
 				  void **data = 0 ) const;
 
-
     int pixelMetric( PixelMetric metric, const QWidget *widget = 0 ) const;
 
     QSize sizeFromContents( ContentsType contents,
@@ -120,9 +119,6 @@ public:
     QRect subRect( SubRect r, const QWidget *widget ) const;
 
     QPixmap stylePixmap(StylePixmap, const QWidget * = 0, void **data = 0) const;
-
-    // listview item
-    void drawListViewItemBranch( QPainter *, int, int, int, const QColorGroup & cg, QListViewItem * );
 
 
 private:
