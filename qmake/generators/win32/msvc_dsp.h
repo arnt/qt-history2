@@ -42,8 +42,7 @@ protected:
     virtual bool findLibraries();
 
     QString precompH, 
-	    precompObjR, precompPchR,
-	    precompObjD, precompPchD;
+	    precompObj, precompPch;
     bool usePCH;
 };
 

@@ -76,10 +76,8 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 	// Created files
 	QString origTarget = project->first("QMAKE_ORIG_TARGET");
 	origTarget.replace(QRegExp("-"), "_");
-	precompObjR = "\"" + var("MSVCDSP_OBJECTSDIRREL") + "/" + origTarget + Option::obj_ext + "\"";
-	precompPchR = "\"" + var("MSVCDSP_OBJECTSDIRREL") + "/" + origTarget + ".pch" + "\"";
-	precompObjD = "\"" + var("MSVCDSP_OBJECTSDIRDEB") + "/" + origTarget + Option::obj_ext + "\"";
-	precompPchD = "\"" + var("MSVCDSP_OBJECTSDIRDEB") + "/" + origTarget + ".pch" + "\"";
+	precompObj = origTarget + Option::obj_ext;
+	precompPch = origTarget + ".pch";
 	// Add PRECOMPILED_HEADER to HEADERS
 	if (!project->variables()["HEADERS"].contains(precompH))
 	    project->variables()["HEADERS"] += precompH;
@@ -87,10 +85,8 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 	project->variables()["PRECOMPILED_FLAGS_REL"]  = "/Yu\"" + namePCH + "\" /FI\"" + namePCH + "\" ";
 	project->variables()["PRECOMPILED_FLAGS_DEB"]  = "/Yu\"" + namePCH + "\" /FI\"" + namePCH + "\" ";
 	// Return to variable pool
-	project->variables()["PRECOMPILED_OBJECT_REL"] = precompObjR;
-	project->variables()["PRECOMPILED_PCH_REL"]    = precompPchR;
-	project->variables()["PRECOMPILED_OBJECT_DEB"] = precompObjD;
-	project->variables()["PRECOMPILED_PCH_DEB"]    = precompPchD;
+	project->variables()["PRECOMPILED_OBJECT"] = precompObj;
+	project->variables()["PRECOMPILED_PCH"]    = precompPch;
     }
     int rep;
     QString line;
@@ -164,7 +160,9 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			base.replace(QRegExp("[^a-zA-Z]"), "_");
 		    }
 		    if (usePCH && precompH.endsWith(*it)) {
-			QString basicBuildCmd = QString("\tcl.exe /TP /W3 /FD /c /D \"WIN32\" %1 %2 %3 %4 %5 %6 %7 /Yc /Fp\"%8\" /Fo\"%9\" /D \"")
+			QString basicBuildCmd = QString("\tcl.exe /TP /W3 /FD /c /D \"WIN32\" /Yc /Fp\"%1\" /Fo\"%2\" %3 %4 %5 %6 %7 %8 %9 /D \"")
+							.arg("$(IntDir)\\" + precompPch)
+							.arg("$(IntDir)\\" + precompObj)
 							.arg(var("MSVCDSP_INCPATH"))
 							.arg(var("MSVCDSP_DEFINES"))
 							.arg(var("MSVCDSP_CXXFLAGS"));
@@ -172,16 +170,12 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 					    .arg("/D \"NDEBUG\"")
 					    .arg(var("QMAKE_CXXFLAGS_RELEASE"))
 					    .arg(var("MSVCDSP_MTDEF"))
-					    .arg(var("MSVCDSP_RELDEFS"))
-					    .arg(precompPchR)
-					    .arg(precompObjR);
+					    .arg(var("MSVCDSP_RELDEFS"));
 			buildCmdsD = basicBuildCmd
 					    .arg("/D \"_DEBUG\" /Od")
 					    .arg(var("QMAKE_CXXFLAGS_DEBUG"))
 					    .arg(var("MSVCDSP_MTDEFD"))
-					    .arg(var("MSVCDSP_DEBUG_OPT"))
-					    .arg(precompPchD)
-					    .arg(precompObjD);
+					    .arg(var("MSVCDSP_DEBUG_OPT"));
 			if (project->first("TEMPLATE") == "vcapp") {	// App
 			    buildCmdsR += var("MSVCDSP_WINCONDEF");
 			    buildCmdsD += var("MSVCDSP_WINCONDEF");
@@ -192,14 +186,10 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			    buildCmdsR += "_LIB";
 			    buildCmdsD += "_LIB";
 			}
-			buildCmdsR += "\" /Fd\"" + var("MSVCDSP_OBJECTSDIRREL") + "\\\\\" " + (*it) + " \\\n";
-			buildCmdsD += "\" /Fd\"" + var("MSVCDSP_OBJECTSDIRDEB") + "\\\\\" " + (*it) + " \\\n";
-			compilePCH = 
-			    "!IF  \"$(CFG)\" == \"" + var("MSVCDSP_PROJECT") + " - " + platform + " Release\"\n"
-			    + "\"" + precompPchR + "\" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n   $(BuildCmds)\n\n"
-			    + "!ELSEIF  \"$(CFG)\" == \"" + var("MSVCDSP_PROJECT") + " - " + platform + " Debug\"\n"
-			    + "\"" + precompPchD + "\" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n   $(BuildCmds)\n\n"
-			    + "!ENDIF\n";
+			buildCmdsR += "\" /Fd\"$(IntDir)\\\\\" " + (*it) + " \\\n";
+			buildCmdsD += "\" /Fd\"$(IntDir)\\\\\" " + (*it) + " \\\n";
+
+			compilePCH = "\"$(IntDir)\\" + precompPch + "\" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n   $(BuildCmds)\n\n";
 
 		    }
 		    if (project->isActiveConfig("moc") && !findMocDestination((*it)).isEmpty()) {
