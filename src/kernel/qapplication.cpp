@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#83 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#84 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#83 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#84 $");
 
 
 /*!
@@ -87,6 +87,8 @@ GUIStyle QApplication::app_style = PMStyle;	// default style for OS/2 PM
 #elif defined(_WS_X11_)
 GUIStyle QApplication::app_style = MotifStyle;	// default style for X Windows
 #endif
+
+QApplication::ColorMode QApplication::app_cmode = QApplication::NormalColors;
 
 
 static QPalette *motifPalette = 0;
@@ -271,6 +273,45 @@ QApplication::~QApplication()
 void QApplication::setStyle( GUIStyle style )
 {
     app_style = style;
+}
+
+
+/*!
+  Returns the application color mode.
+  \sa QApplication::setColorMode()
+ */
+
+QApplication::ColorMode QApplication::colorMode()
+{
+    return app_cmode;
+}
+
+/*!
+  Sets the application color mode to \e mode.
+
+  The application color mode controls how your application
+  allocates colors. You must set the color mode before
+  creating the QApplication object, otherwise the color mode
+  will not work.
+
+  The choices are:
+  <ul>
+  <li> \c QApplication::NormalColors (default). The application will
+  ask the window system for colors. This works fine under X11, but
+  Windows may dither the colors if they are different from the Window's
+  20 standard colors and the display supports 256 colors or less.
+  <li> \c QApplication::CustomColors. Under X11, this is equal to
+  \c NormalColors. Under Windows, Qt will create a Windows palette
+  if the display supports 256 colors.
+  </ul>
+
+  Use \c CustomColors if you application need custom colors under
+  Windows.
+ */
+
+void QApplication::setColorMode( QApplication::ColorMode mode )
+{
+    app_cmode = mode;
 }
 
 
