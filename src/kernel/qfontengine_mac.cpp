@@ -95,7 +95,6 @@ QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, in
     return NoError;
 }
 
-bool fuck = false;
 void
 QFontEngineMac::draw(QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags)
 {
