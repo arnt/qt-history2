@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#36 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -80,14 +80,16 @@ static void qt_C_sigchldHnd( int );
 }
 #endif
 
+class QProc;
 class QProcessManager;
 class QProcessPrivate
 {
 public:
-    QProcessPrivate( QProcess *proc );
+    QProcessPrivate();
     ~QProcessPrivate();
 
     void closeOpenSocketsForChild();
+    void newProc( pid_t pid, QProcess *process );
 
     QQueue<QByteArray> stdinBuf;
 
@@ -98,15 +100,47 @@ public:
     int socketStdout[2];
     int socketStderr[2];
 
-    pid_t pid;
     ssize_t stdinBufRead;
-    QProcess *d;
+    QProc *proc;
 
     bool exitValuesCalculated;
 
     static QProcessManager *procManager;
 };
 
+
+/***********************************************************************
+ *
+ * QProc
+ *
+ **********************************************************************/
+/*
+  The class QProcess does not necessarily map exactly to the running
+  child processes: if the process is finished, the QProcess class may still be
+  there; furthermore a user can use QProcess to start more than one process.
+
+  The helper-class QProc has the semantics that one instance of this class maps
+  directly to a running child process.
+*/
+class QProc
+{
+public:
+    QProc( pid_t p, QProcess *proc=0 ) : pid(p), process(proc)
+    {
+#if defined(QT_QPROCESS_DEBUG)
+	qDebug( "QProc: Constructor for pid %d and QProcess %p", pid, process );
+#endif
+    }
+    ~QProc()
+    {
+#if defined(QT_QPROCESS_DEBUG)
+	qDebug( "QProc: Destructor for pid %d and QProcess %p", pid, process );
+#endif
+    }
+
+    pid_t pid;
+    QProcess *process;
+};
 
 /***********************************************************************
  *
@@ -121,8 +155,8 @@ public:
     QProcessManager();
     ~QProcessManager();
 
-    void append( QProcess *d );
-    bool remove( QProcess *d );
+    void append( QProc *p );
+    bool remove( QProc *p );
 
 public slots:
     void sigchldHnd( int );
@@ -130,13 +164,13 @@ public slots:
 public:
     struct sigaction oldactChld;
     struct sigaction oldactPipe;
-    QList<QProcess> *procList;
+    QList<QProc> *procList;
     int sigchldFd[2];
 };
 
 QProcessManager::QProcessManager()
 {
-    procList = new QList<QProcess>;
+    procList = new QList<QProc>;
 
     // The SIGCHLD handler writes to a socket to tell the manager that
     // something happened. This is done to get the processing in sync with the
@@ -184,7 +218,7 @@ QProcessManager::QProcessManager()
 
 QProcessManager::~QProcessManager()
 {
-    // ### delete the elements?
+    // ### delete the elements
     delete procList;
 
     if ( sigchldFd[0] != 0 )
@@ -206,17 +240,17 @@ QProcessManager::~QProcessManager()
 	qWarning( "Error restoring SIGPIPE handler" );
 }
 
-void QProcessManager::append( QProcess *d )
+void QProcessManager::append( QProc *p )
 {
-    procList->append( d );
+    procList->append( p );
 #if defined(QT_QPROCESS_DEBUG)
     qDebug( "QProcessManager: append process (procList.count(): %d)", procList->count() );
 #endif
 }
 
-bool QProcessManager::remove( QProcess *d )
+bool QProcessManager::remove( QProc *p )
 {
-    procList->remove( d );
+    procList->remove( p );
 #if defined(QT_QPROCESS_DEBUG)
     qDebug( "QProcessManager: remove process (procList.count(): %d)", procList->count() );
 #endif
@@ -232,24 +266,30 @@ void QProcessManager::sigchldHnd( int fd )
 #if defined(QT_QPROCESS_DEBUG)
     qDebug( "QProcessManager::sigchldHnd()" );
 #endif
-    QProcess *proc;
+    QProc *proc;
+    QProcess *process;
     for ( proc=procList->first(); proc!=0; proc=procList->next() ) {
-	if ( !proc->d->exitValuesCalculated && !proc->isRunning() ) {
+	process = proc->process;
+	if ( process != 0 ) {
+	    if ( !process->d->exitValuesCalculated && !process->isRunning() ) {
 #if defined(QT_QPROCESS_DEBUG)
-	    qDebug( "QProcessManager::sigchldHnd(): process exited" );
+		qDebug( "QProcessManager::sigchldHnd(): process exited" );
 #endif
-	    // read pending data
-	    proc->socketRead( proc->d->socketStdout[0] );
-	    proc->socketRead( proc->d->socketStderr[0] );
+		// read pending data
+		process->socketRead( process->d->socketStdout[0] );
+		process->socketRead( process->d->socketStderr[0] );
 
-	    if ( proc->notifyOnExit )
-		emit proc->processExited();
+		if ( process->notifyOnExit )
+		    emit process->processExited();
 #if 0
-	    // ### take a close look at this
-	    // the slot might have deleted the last process...
-	    if ( !procManager )
-		return;
+		// ### take a close look at this
+		// the slot might have deleted the last process...
+		if ( !procManager )
+		    return;
 #endif
+	    }
+	} else {
+	    // ### waitpid to avoid zombies
 	}
     }
 }
@@ -264,7 +304,7 @@ void QProcessManager::sigchldHnd( int fd )
  **********************************************************************/
 QProcessManager *QProcessPrivate::procManager = 0;
 
-QProcessPrivate::QProcessPrivate( QProcess *proc ) : d( proc )
+QProcessPrivate::QProcessPrivate()
 {
 #if defined(QT_QPROCESS_DEBUG)
     qDebug( "QProcessPrivate: Constructor" );
@@ -284,10 +324,7 @@ QProcessPrivate::QProcessPrivate( QProcess *proc ) : d( proc )
 
     exitValuesCalculated = FALSE;
 
-    if ( procManager == 0 ) {
-	procManager = new QProcessManager;
-    }
-    procManager->append( d );
+    proc = 0;
 }
 
 QProcessPrivate::~QProcessPrivate()
@@ -296,12 +333,17 @@ QProcessPrivate::~QProcessPrivate()
     qDebug( "QProcessPrivate: Destructor" );
 #endif
 
+    if ( proc != 0 )
+	proc->process = 0;
+#if 0
+    // ### where should I destroy the procManager?
     if ( procManager != 0 ) {
 	if ( procManager->remove( d ) ) {
 	    delete procManager;
 	    procManager = 0;
 	}
     }
+#endif
 
     while ( !stdinBuf.isEmpty() ) {
 	delete stdinBuf.dequeue();
@@ -330,22 +372,38 @@ QProcessPrivate::~QProcessPrivate()
 */
 void QProcessPrivate::closeOpenSocketsForChild()
 {
-    if ( procManager == 0 )
-	return;
+    ::close( socketStdin[1] );
+    ::close( socketStdout[0] );
+    ::close( socketStderr[0] );
 
-    if ( procManager->sigchldFd[0] != 0 )
-	::close( procManager->sigchldFd[0] );
-    if ( procManager->sigchldFd[1] != 0 )
-	::close( procManager->sigchldFd[1] );
+    if ( procManager != 0 ) {
+	if ( procManager->sigchldFd[0] != 0 )
+	    ::close( procManager->sigchldFd[0] );
+	if ( procManager->sigchldFd[1] != 0 )
+	    ::close( procManager->sigchldFd[1] );
 
-    QProcess *proc;
-    for ( proc=procManager->procList->first(); proc!=0; proc=procManager->procList->next() ) {
-	::close( proc->d->socketStdin[1] );
-	::close( proc->d->socketStdout[0] );
-	::close( proc->d->socketStderr[0] );
+	// delete also the sockets from other QProcess instances
+	QProc *proc;
+	QProcess *process;
+	for ( proc=procManager->procList->first(); proc!=0; proc=procManager->procList->next() ) {
+	    process = proc->process;
+	    if ( process != 0 ) {
+		::close( process->d->socketStdin[1] );
+		::close( process->d->socketStdout[0] );
+		::close( process->d->socketStderr[0] );
+	    }
+	}
     }
 }
 
+void QProcessPrivate::newProc( pid_t pid, QProcess *process )
+{
+    proc = new QProc( pid, process );
+    if ( procManager == 0 ) {
+	procManager = new QProcessManager;
+    }
+    procManager->append( proc );
+}
 
 /***********************************************************************
  *
@@ -378,7 +436,7 @@ void qt_C_sigchldHnd( int )
 */
 void QProcess::init()
 {
-    d = new QProcessPrivate( this );
+    d = new QProcessPrivate();
     exitStat = 0;
     exitNormal = FALSE;
 }
@@ -390,7 +448,7 @@ void QProcess::init()
 void QProcess::reset()
 {
     delete d;
-    d = new QProcessPrivate( this );
+    d = new QProcessPrivate();
     exitStat = 0;
     exitNormal = FALSE;
     bufStdout.resize( 0 );
@@ -476,8 +534,8 @@ bool QProcess::start()
 
     // fork and exec
     QApplication::flushX();
-    d->pid = fork();
-    if ( d->pid == 0 ) {
+    pid_t pid = fork();
+    if ( pid == 0 ) {
 	// child
 	d->closeOpenSocketsForChild();
 	::dup2( d->socketStdin[0], STDIN_FILENO );
@@ -495,7 +553,7 @@ bool QProcess::start()
 	    ::close( fd[1] );
 	}
 	::exit( -1 );
-    } else if ( d->pid == -1 ) {
+    } else if ( pid == -1 ) {
 	// error forking
 	goto error;
     }
@@ -517,6 +575,8 @@ bool QProcess::start()
 	    break;
 	}
     }
+
+    d->newProc( pid, this );
 
     ::close( d->socketStdin[0] );
     ::close( d->socketStdout[1] );
@@ -577,7 +637,9 @@ error:
 */
 bool QProcess::hangUp()
 {
-    return ::kill( d->pid, SIGHUP ) == 0;
+    if ( d->proc == 0 )
+	return FALSE;
+    return ::kill( d->proc->pid, SIGHUP ) == 0;
 }
 
 /*!
@@ -588,7 +650,9 @@ bool QProcess::hangUp()
 */
 bool QProcess::kill()
 {
-    return ::kill( d->pid, SIGKILL ) == 0;
+    if ( d->proc == 0 )
+	return FALSE;
+    return ::kill( d->proc->pid, SIGKILL ) == 0;
 }
 
 /*!
@@ -601,27 +665,27 @@ bool QProcess::isRunning()
 	qDebug( "QProcess::isRunning(): FALSE (already computed)" );
 #endif
 	return FALSE;
-    } else {
-	int status;
-	if ( ::waitpid( d->pid, &status, WNOHANG ) == d->pid )
-	{
-	    // compute the exit values
-	    exitNormal = WIFEXITED( status ) != 0;
-	    if ( exitNormal ) {
-		exitStat = WEXITSTATUS( status );
-	    }
-	    d->exitValuesCalculated = TRUE;
-#if defined(QT_QPROCESS_DEBUG)
-	    qDebug( "QProcess::isRunning(): FALSE" );
-#endif
-	    return FALSE;
-	} else {
-#if defined(QT_QPROCESS_DEBUG)
-	    qDebug( "QProcess::isRunning(): TRUE" );
-#endif
-	    return TRUE;
-	}
     }
+    if ( d->proc == 0 )
+	return FALSE;
+    int status;
+    if ( ::waitpid( d->proc->pid, &status, WNOHANG ) == d->proc->pid )
+    {
+	// compute the exit values
+	exitNormal = WIFEXITED( status ) != 0;
+	if ( exitNormal ) {
+	    exitStat = WEXITSTATUS( status );
+	}
+	d->exitValuesCalculated = TRUE;
+#if defined(QT_QPROCESS_DEBUG)
+	qDebug( "QProcess::isRunning(): FALSE" );
+#endif
+	return FALSE;
+    }
+#if defined(QT_QPROCESS_DEBUG)
+    qDebug( "QProcess::isRunning(): TRUE" );
+#endif
+    return TRUE;
 }
 
 /*!
