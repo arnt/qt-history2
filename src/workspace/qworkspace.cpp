@@ -1310,11 +1310,13 @@ void QWorkspace::cascade()
 
     // make a list of all relevant mdi clients
     QPtrList<QWorkspaceChild> widgets;
-    for ( QWorkspaceChild* wc = d->focus.first(); wc; wc = d->focus.next() ) {
-	if ( wc->windowWidget()->isVisibleTo( this ) && !wc->windowWidget()->testWFlags( WStyle_Tool ) ) {
+    QWorkspaceChild* wc = 0;
+    for ( wc = d->windows.first(); wc; wc = d->windows.next() )
+	if ( wc->iconw )
+	    normalizeWindow( wc->windowWidget() );
+    for ( wc = d->focus.first(); wc; wc = d->focus.next() )
+	if ( wc->windowWidget()->isVisibleTo( this ) && !wc->windowWidget()->testWFlags( WStyle_Tool ) )
 	    widgets.append( wc );
-	}
-    }
 
     int x = 0;
     int y = 0;
