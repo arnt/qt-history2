@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#7 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#8 $
 **
 ** Implementation of QTextCodec class
 **
@@ -68,7 +68,7 @@ QString QTextStatelessDecoder::toUnicode(const char* chars, int len)
 
 
 /*!
-  \class QTextCodec
+  \class QTextCodec qtextcodec.h
   \brief Provides conversion between text encodings.
 
   By making objects of subclasses of QTextCodec, support for
