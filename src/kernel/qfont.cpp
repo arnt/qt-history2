@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#89 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#90 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -133,7 +133,7 @@ void QFont::init()
     CHECK_PTR( d );
     d->req.pointSize	 = 0;
     d->req.styleHint	 = AnyStyle;
-    d->req.charSet	 = Latin1;
+    d->req.charSet	 = defFont?(CharSet)(defFont->d->req.charSet):Latin1;
     d->req.weight	 = 0;
     d->req.italic	 = FALSE;
     d->req.underline	 = FALSE;
@@ -204,8 +204,6 @@ QFont::QFont( const char *family, int pointSize, int weight, bool italic )
     d->req.pointSize = pointSize * 10;
     d->req.weight    = weight;
     d->req.italic    = italic;
-    if ( defFont )
-	d->req.charSet = defFont->d->req.charSet;
 }
 
 

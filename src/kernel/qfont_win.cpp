@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#51 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -404,11 +404,11 @@ HANDLE QFont::create( bool *stockFont, HANDLE hdc ) const
     }
     lf.lfCharSet	= cs;
     lf.lfOutPrecision   = OUT_DEFAULT_PRECIS;
-    lf.lfClipPrecision  = CLIP_DEFAULT_PRECIS; 
+    lf.lfClipPrecision  = CLIP_DEFAULT_PRECIS;
     lf.lfQuality	= DEFAULT_QUALITY;
     lf.lfPitchAndFamily = DEFAULT_PITCH | hint;
     strcpy( lf.lfFaceName, fam );
-    
+
     HANDLE hfont = CreateFontIndirect( &lf );
     if ( stockFont )
 	*stockFont = hfont == 0;
@@ -655,7 +655,7 @@ HDC QFontMetrics::hdc() const
     } else {
 	if ( type() == Widget && u.w ) {
 	    QFont *f = (QFont *)&u.w->font();
-	    f->handle();	    
+	    f->handle();	
 	    return f->d->fin->dc();
 	} else if ( type() == Painter && u.p ) {
 	    return u.p->handle();
