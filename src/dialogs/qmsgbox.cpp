@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#24 $
+** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#25 $
 **
 ** Implementation of QMessageBox class
 **
@@ -14,7 +14,7 @@
 #include "qpushbt.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#24 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#25 $");
 
 
 /*!
@@ -24,7 +24,7 @@ RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#24 $");
 
   A message box is a dialog that displays a text and a push button.
 
-  The default push button text is "Ok". This can be changed with
+  The default push button text is "OK". This can be changed with
   setButtonText().
 
   Enabling auto-resizing will make a message box resize itself whenever
@@ -59,12 +59,12 @@ static int mb_buttons[] = {
 };
 
 static const char *mb_texts[] = {
-    "Ok", "Yes", "No", "Abort", "Retry", "Ignore", "Cancel", 0
+    "OK", "Yes", "No", "Abort", "Retry", "Ignore", "Cancel", 0
 };
 
 
 /*!
-  Constructs a message box with no text and a button with the text "Ok".
+  Constructs a message box with no text and a button with the text "OK".
 
   If \e parent is 0, then the message box becomes an application-global
   modal dialog box.  If \e parent is a widget, the message
@@ -122,16 +122,21 @@ QMessageBox::QMessageBox( int buttons, const char *text,
 }
 
 
+QMessageBox::~QMessageBox()
+{
+    delete d;
+}
+
+
 void QMessageBox::init( int buttons, const char *text )
 {
-    QFont font( "Helvetica", 12 );
+//    QFont font( "Helvetica", 12 );
 
     initMetaObject();
     label = new QLabel( text, this, "text" );
     CHECK_PTR( label );
     label->setAlignment( AlignCenter );
-    label->setFont( font );
-    font.setWeight( QFont::Bold );
+//    label->setFont( font );
 
     d = new QMBData;
     CHECK_PTR( d );
@@ -149,7 +154,7 @@ void QMessageBox::init( int buttons, const char *text )
 	    QString bn;
 	    bn.sprintf( "button_%d", mb_buttons[i] );	// button name
 	    QPushButton *b = new QPushButton( mb_texts[i], this, bn );
-	    b->setFont( font );
+//	    b->setFont( font );
 	    QSize s = b->sizeHint();
 	    d->buttonSize.setWidth(  QMAX(d->buttonSize.width(), s.width()) );
 	    d->buttonSize.setHeight( QMAX(d->buttonSize.height(),s.height()) );
@@ -203,14 +208,14 @@ const char *QMessageBox::buttonText() const
 /*!
   Sets the push button text to be displayed.
 
-  The default push button text is "Ok".
+  The default push button text is "OK".
 
   \sa buttonText()
 */
 
 void QMessageBox::setButtonText( const char *text )
 {
-    setButtonText( Ok, text ? text : "Ok" );
+    setButtonText( Ok, text ? text : "OK" );
 }
 
 
@@ -402,7 +407,7 @@ bool QMessageBox::query( const char *caption,
 
 
 /*!
-  Opens a message box with an "Ok" and a "Cancel" button.
+  Opens a message box with an "OK" and a "Cancel" button.
   Returns the button that was pressed.
 
   Note that \a caption is not always shown, it depends on the window
