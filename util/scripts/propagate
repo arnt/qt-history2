@@ -13,7 +13,7 @@ for a in $MAKEFILES ; do
 
 INCDIR	=	${QTDIR}/include
 CFLAGS	=	${CFLAGS}
-LFLAGS	=	-L${QTDIR}/lib ${LFLAGS}
+LFLAGS	=	-L`pwd`/lib ${LFLAGS}
 CC	=	${CC}
 MOC	=	`pwd`/bin/moc
 
