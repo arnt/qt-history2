@@ -24,12 +24,12 @@
     \ingroup misc
 
     If you want to send signals from a class that does not inherit
-    QObject, you can create an internal \c{QSignal<T> object to emit
-    the signal. \c T is the type of the signal's argument, it can be
-    \c void. You must also provide a function that connects the signal
-    to an outside object slot.
+    QObject, you can create an internal \c{QSignal<T>} object to emit
+    the signal. \c T is the type of the signal's argument, and it can
+    be \c void. You must also provide a function that connects the
+    signal to an outside object slot.
 
-    In general, we recommend inheriting QObject instead. QObject
+    In general, we recommend inheriting QObject instead, since QObject
     provides much more functionality.
 
     Example:
@@ -65,39 +65,39 @@
 */
 
 /*!
-  \fn QSignal::QSignal()
+    \fn QSignal::QSignal()
 
-  Constructs a signal object
+    Constructs a signal object
 */
 
 
 /*!
-  \fn QSignal::~QSignal()
+    \fn QSignal::~QSignal()
 
-  Destroys the signal. All connections are removed.
+    Destroys the signal. All connections are removed.
 */
 
 /*!
-  \fn bool QSignal::connect(const QObject *receiver, const char *member, Qt::ConnectionType type)
+    \fn bool QSignal::connect(const QObject *receiver, const char *member, Qt::ConnectionType type)
 
-  Connects the signal to \a member in object \a receiver using the
-  given connection \a type.
+    Connects the signal to \a member in object \a receiver using the
+    given connection \a type.
 
-  \sa disconnect()
+    \sa disconnect()
 */
 
 /*!
-  \fn bool QSignal::disconnect(const QObject *receiver, const char *member)
+    \fn bool QSignal::disconnect(const QObject *receiver, const char *member)
 
-  Disconnects the signal from \a member in object \a receiver.
+    Disconnects the signal from \a member in object \a receiver.
 
-  \sa connect()
+    \sa connect()
 */
 
 /*!
-  \fn void QSignal::activate(const T& t)
+    \fn void QSignal::activate(const T& t)
 
-  Emits the signal with value \a t.
+    Emits the signal with value \a t.
 */
 
 
