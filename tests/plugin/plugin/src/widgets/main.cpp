@@ -449,4 +449,4 @@ bool StandardWidgetsInterface::isContainer( const QString& description)
     return FALSE;
 }
 
-QtExportInterface(WidgetInterface, StandardWidgetsInterface )
+Q_EXPORT_INTERFACE(WidgetInterface, StandardWidgetsInterface )
