@@ -35,8 +35,32 @@
 
 #ifdef Q_WS_MAC
 
+class QMacControl;
 class QMacControlPrivate;
 typedef short ControlPartCode;
+typedef long unsigned int OSType;
+extern const OSType qControlWidgetTag;
+extern const OSType qControlWidgetCreator;
+
+class Q_EXPORT QMacTrackEvent : public QEvent
+{
+public:
+    static const int teType;
+    QMacTrackEvent(QMacControl *ctrl, const QPoint &pos) : QEvent((QEvent::Type)teType), 
+	accpt(0), c(ctrl), p(pos) { }
+    ~QMacTrackEvent() { }
+    QPoint pos() const { return p; }
+    int x() const { return p.x(); }
+    int y() const { return p.y(); }
+    QMacControl *control() const { return c; }
+    bool   isAccepted() const	{ return accpt; }
+    void   accept()		{ accpt = TRUE; }
+    void   ignore()		{ accpt = FALSE; }
+private:
+    uint accpt : 1;
+    QMacControl *c;
+    QPoint p;
+};
 
 class Q_EXPORT QMacControl : public QWidget
 {
@@ -52,6 +76,7 @@ public:
 protected:
     bool event(QEvent *);
     void enabledChange(bool);
+    virtual void trackControlEvent(QMacTrackEvent *);
 
 private:
     static QMAC_PASCAL OSStatus ctrlEventProcessor(EventHandlerCallRef,  EventRef, void *);
@@ -59,7 +84,7 @@ private:
     QMacControlPrivate *d;
 
 signals:
-    void action();
+    void action(QMacControl *, ControlPartCode);
 };
 
 #endif //Q_WS_MAC
