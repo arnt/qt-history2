@@ -810,7 +810,7 @@ QRect QGridLayoutPrivate::cellGeometry(int row, int col) const
     there are equivalent functions for rows.
 
     Each column has a minimum width and a stretch factor. The minimum
-    width is the greatest of that set using addColSpacing() and the
+    width is the greatest of that set using setColSpacing() and the
     minimum width of each widget in that column. The stretch factor is
     set using setColStretch() and determines how much of the available
     space the column will get over and above its necessary minimum.
@@ -833,7 +833,7 @@ QRect QGridLayoutPrivate::cellGeometry(int row, int col) const
 
     Columns 0, 2 and 4 in this dialog fragment are made up of a
     QLabel, a QLineEdit, and a QListBox. Columns 1 and 3 are
-    placeholders made with addColSpacing(). Row 0 consists of three
+    placeholders made with setColSpacing(). Row 0 consists of three
     QLabel objects, row 1 of three QLineEdit objects and row 2 of
     three QListBox objects. We used placeholder columns (1 and 3) to
     get the right amount of space between the columns.
@@ -841,7 +841,7 @@ QRect QGridLayoutPrivate::cellGeometry(int row, int col) const
     Note that the columns and rows are not equally wide or tall. If
     you want two columns to have the same width, you must set their
     minimum widths and stretch factors to be the same yourself. You do
-    this using addColSpacing() and setColStretch().
+    this using setColSpacing() and setColStretch().
 
     If the QGridLayout is not the top-level layout (i.e. does not
     manage all of the widget's area and children), you must add it to
@@ -1119,6 +1119,8 @@ void QGridLayout::addItem(QLayoutItem *item)
 /*!
     Adds \a item at position \a row, \a col, spanning \a rowSpan rows
     and \a colSpan columns, and aligns it according to \a alignment.
+    If \a rowSpan and/or \a colSpan is -1, then the item will extend to the bottom
+    and/or right edge, respectively.
     The layout takes ownership of the \a item.
 
     \warning Do not use this function to add child layouts or child
@@ -1128,7 +1130,7 @@ void QGridLayout::addItem(QLayoutItem *item, int row, int col, int rowSpan, int 
 {
     QGridBox *b = new QGridBox(item);
     b->setAlignment(alignment);
-    d->add(b, row, row + rowSpan - 1, col, col + colSpan - 1);
+    d->add(b, row, (rowSpan < 0) ? -1 : row + rowSpan - 1, col, (colSpan < 0) ? -1 : col + colSpan - 1);
     invalidate();
 }
 
@@ -1175,14 +1177,17 @@ void QGridLayout::addWidget(QWidget *w, int row, int col, Qt::Alignment alignmen
     rows/columns. The cell will start at \a fromRow, \a fromCol spanning \a
     rowSpan rows and \a colSpan columns.
 
+    If \a rowSpan and/or \a colSpan is -1, then the widget will extend to the bottom
+    and/or right edge, respectively.
+
 */
 void QGridLayout::addWidget(QWidget *w, int fromRow, int fromCol,
                              int rowSpan, int colSpan, Qt::Alignment alignment)
 {
     if (!checkWidget(this, w))
         return;
-    int toRow = fromRow + rowSpan - 1;
-    int toCol = fromCol + colSpan - 1;
+    int toRow = (rowSpan < 0) ? -1 : fromRow + rowSpan - 1;
+    int toCol = (colSpan < 0) ? -1 : fromCol + colSpan - 1;
     addChildWidget(w);
     QGridBox *b = new QGridBox(w);
     b->setAlignment(alignment);
@@ -1222,6 +1227,9 @@ void QGridLayout::addLayout(QLayout *layout, int row, int col, Qt::Alignment ali
     This version adds the layout \a layout to the cell grid, spanning multiple
     rows/columns. The cell will start at \a row, \a col spanning \a
     rowSpan rows and \a colSpan columns.
+
+    If \a rowSpan and/or \a colSpan is -1, then the layout will extend to the bottom
+    and/or right edge, respectively.
 */
 void QGridLayout::addLayout(QLayout *layout, int row, int col,
                                       int rowSpan, int colSpan, Qt::Alignment alignment)
@@ -1229,7 +1237,7 @@ void QGridLayout::addLayout(QLayout *layout, int row, int col,
     addChildLayout(layout);
     QGridBox *b = new QGridBox(layout);
     b->setAlignment(alignment);
-    d->add(b, row, row + rowSpan - 1, col, col + colSpan - 1);
+    d->add(b, row, (rowSpan < 0) ? -1 : row + rowSpan - 1, col, (colSpan < 0) ? -1 : col + colSpan - 1);
 }
 
 /*!

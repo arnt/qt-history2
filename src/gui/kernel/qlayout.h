@@ -328,11 +328,11 @@ public:
     inline void addRowSpacing(int row, int minsize) { addItem(new QSpacerItem(0,minsize), row, 0); }
     inline void addColSpacing(int col, int minsize) { addItem(new QSpacerItem(minsize,0), 0, col); }
     inline void addMultiCellWidget(QWidget *w, int fromRow, int toRow, int fromCol, int toCol, Qt::Alignment align = 0)
-        { addWidget(w, fromRow, fromCol, toRow - fromRow + 1, toCol - fromCol + 1, align); }
+        { addWidget(w, fromRow, fromCol, (toRow < 0) ? -1 : toRow - fromRow + 1, (toCol < 0) ? -1 : toCol - fromCol + 1, align); }
     inline void addMultiCell(QLayoutItem *l, int fromRow, int toRow, int fromCol, int toCol, Qt::Alignment align = 0)
-        { addItem(l, fromRow, fromCol, toRow - fromRow + 1, toCol - fromCol + 1, align); }
+        { addItem(l, fromRow, fromCol, (toRow < 0) ? -1 : toRow - fromRow + 1, (toCol < 0) ? -1 : toCol - fromCol + 1, align); }
     inline void addMultiCellLayout(QLayout *layout, int fromRow, int toRow, int fromCol, int toCol, Qt::Alignment align = 0)
-        { addLayout(layout, fromRow, fromCol, toRow - fromRow + 1, toCol - fromCol + 1, align); }
+        { addLayout(layout, fromRow, fromCol, (toRow < 0) ? -1 : toRow - fromRow + 1, (toCol < 0) ? -1 : toCol - fromCol + 1, align); }
 #endif
 };
 
