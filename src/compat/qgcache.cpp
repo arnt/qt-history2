@@ -759,7 +759,7 @@ QPtrCollection::Item QGCacheIterator::get() const
 QString QGCacheIterator::getKeyString() const
 {
     QCacheItem *item = it->current();
-    return item ? *((QString*)item->key) : QString::null;
+    return item ? *((QString*)item->key) : QString();
 }
 
 /*!

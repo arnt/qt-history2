@@ -938,7 +938,7 @@ QString QAccel::whatsThis(int id) const
 {
 
     QAccelItem *item = find_id(d->aitems, id);
-    return item? item->whatsthis : QString::null;
+    return item? item->whatsthis : QString();
 }
 
 /*!\internal */

@@ -464,7 +464,7 @@ void QInputContext::accept( QWidget *fw )
 #endif
 
     if ( fw && imePosition != -1 ) {
-	QIMEvent e( QEvent::IMEnd, imeComposition ? *imeComposition : QString::null, -1 );
+	QIMEvent e( QEvent::IMEnd, imeComposition ? *imeComposition : QString(), -1 );
 	qt_sendSpontaneousEvent( fw, &e );
     }
 

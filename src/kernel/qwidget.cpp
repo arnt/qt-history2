@@ -2681,7 +2681,7 @@ QString QWidget::caption() const
 {
     return d->extra && d->extra->topextra
 	? d->extra->topextra->caption
-	: QString::null;
+	: QString();
 }
 
 /*!
@@ -2712,7 +2712,7 @@ const QPixmap *QWidget::icon() const
 QString QWidget::iconText() const
 {
     return ( d->extra && d->extra->topextra ) ? d->extra->topextra->iconText
-	: QString::null;
+	: QString();
 }
 #endif //QT_NO_WIDGET_TOPEXTRA
 

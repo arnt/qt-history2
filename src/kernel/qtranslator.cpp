@@ -989,7 +989,7 @@ QTranslatorMessage QTranslator::findMessage( const char* context,
 		r -= 8;
 
 	    QDataStream s( *d->offsetArray, IO_ReadOnly );
-	    s.device()->at( r - *d->offsetArray );
+	    s.device()->at( r - d->offsetArray->constData() );
 
 	    Q_UINT32 rh, ro;
 	    s >> rh >> ro;
