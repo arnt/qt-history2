@@ -15,7 +15,7 @@ Executing a Dynamic Dialog}.
 The doctype of a \c .ui file is simply "UI", so the doctype tag is:
 
 \code
-<DOCTYPE "UI">
+<!DOCTYPE UI>
 \endcode
 
 The root element is a "UI", which encloses the entire contents:
