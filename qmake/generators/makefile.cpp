@@ -1763,7 +1763,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 	if(dst.right(1) != Option::dir_sep)
 	    dst += Option::dir_sep;
 #endif
-	QStringList tmp, &uninst = project->variables()[(*it) + ".uninstall"];
+	QStringList tmp, uninst = project->variables()[(*it) + ".uninstall"];
 	//other
 	tmp = project->variables()[(*it) + ".extra"];
 	if(!tmp.isEmpty()) {
@@ -1846,8 +1846,10 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 	    }
 	}
 	//default?
-	if(do_default)
+	if(do_default) {
 	    target = defaultInstall((*it));
+	    uninst = project->variables()[(*it) + ".uninstall"];
+	}
 
 	if(!target.isEmpty()) {
 	    t << "install_" << (*it) << ": " << "\n\t";
