@@ -198,14 +198,14 @@ public:
         Trailing
     };
     enum CursorPosition {
-        BetweenCharacters,
-        OnCharacters
+        CursorBetweenCharacters,
+        CursorOnCharacter
     };
 
     /* cursorPos gets set to the valid position */
     int cursorToX(int *cursorPos, Edge edge = Leading) const;
     inline int cursorToX(int cursorPos, Edge edge = Leading) const { return cursorToX(&cursorPos, edge); }
-    int xToCursor(int x, CursorPosition = BetweenCharacters) const;
+    int xToCursor(int x, CursorPosition = CursorBetweenCharacters) const;
 
     enum BreakMode {
         BreakAtPixels,

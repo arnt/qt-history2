@@ -113,7 +113,7 @@ public:
 #endif
     inline bool inSelection(int x) const
     { if (selstart >= selend) return false;
-    int pos = xToPos(x, QTextLine::OnCharacters);  return pos >= selstart && pos < selend; }
+    int pos = xToPos(x, QTextLine::CursorOnCharacter);  return pos >= selstart && pos < selend; }
 
     // masking
     void parseInputMask(const QString &maskFields);
@@ -132,7 +132,7 @@ public:
     void updateTextLayout();
     void moveCursor(int pos, bool mark = false);
     void setText(const QString& txt, int pos = -1);
-    int xToPos(int x, QTextLine::CursorPosition = QTextLine::BetweenCharacters) const;
+    int xToPos(int x, QTextLine::CursorPosition = QTextLine::CursorBetweenCharacters) const;
     inline int visualAlignment() const { return alignment ? alignment : int(isRightToLeft() ? Qt::AlignRight : Qt::AlignLeft); }
     QRect cursorRect() const;
     void updateMicroFocusHint();

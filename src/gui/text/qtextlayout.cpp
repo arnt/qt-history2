@@ -1513,7 +1513,7 @@ int QTextLine::xToCursor(int xpos, CursorPosition cpos) const
 
     int item;
     int glyph;
-    if (cpos == OnCharacters || x_before < x_after) {
+    if (cpos == CursorOnCharacter || x_before < x_after) {
         item = it_before;
         glyph = gl_before;
     } else {
