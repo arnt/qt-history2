@@ -642,6 +642,9 @@ UnixMakefileGenerator::init()
 	if( project->isActiveConfig("plugin") ) {
 	    project->variables()["TARGET_x.y.z"].append("lib" +
 							project->first("TARGET") + "." + project->first("QMAKE_EXTENTION_SHLIB"));
+	    project->variables()["TARGET_x"].append("lib" + project->first("TARGET") + "." +
+						    project->first("QMAKE_EXTENTION_SHLIB") +
+						    "." + project->first("VER_MAJ"));
 	    project->variables()["TARGET"] = project->variables()["TARGET_x.y.z"];
 	} else if ( !project->variables()["QMAKE_HPUX_SHLIB"].isEmpty() ) {
 	    project->variables()["TARGET_"].append("lib" + project->first("TARGET") + ".sl");
