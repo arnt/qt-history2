@@ -203,6 +203,10 @@
 #  if __xlC__ >= 0x500
 #    define Q_HAS_BOOL_TYPE
 #  endif
+#  if __xlC__ <= 0x0306
+// reported for version 3.6
+#    define Q_TEMPLATE_NEEDS_EXPLICIT_CONVERSION
+#  endif
 #elif defined(como40)
 #  define _CC_EDG_
 #  define _CC_COMEAU_
