@@ -2802,7 +2802,7 @@ static QCursorList *cursorStack = 0;
 
   Example:
   \code
-    QApplication::setOverrideCursor( Qt::WaitCursor );
+    QApplication::setOverrideCursor( QCursor(Qt::WaitCursor) );
     calculateHugeMandelbrot();			// lunch time...
     QApplication::restoreOverrideCursor();
   \endcode

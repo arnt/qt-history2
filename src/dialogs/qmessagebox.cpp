@@ -1059,7 +1059,8 @@ int QMessageBox::information( QWidget *parent,
   If you don't want all three buttons, set the last button, or last two
   buttons to QMessageBox::NoButton.
 
-  Returns the index of the button that was clicked.
+  Returns the button type that was clicked, for example,
+  QMessageBox::Ok.
 
   If \a parent is 0, the message box becomes an application-global
   modal dialog box.  If \a parent is a widget, the message box becomes
