@@ -35,7 +35,10 @@
 #include "qwsmouse_qws.h"
 
 #include <qapplication.h>
+#include <qpointarray.h>
 #include <qtimer.h>
+#include <qfile.h>
+#include <qtextstream.h>
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -57,9 +60,11 @@
 
 #ifdef QT_QWS_IPAQ
 #include <linux/h3600_ts.h>
+#define QT_QWS_IPAQ_RAW
 #endif
 
 //#define QWS_CUSTOMTOUCHPANEL
+
 
 enum MouseProtocol { Unknown = -1, Auto = 0,
 		     MouseMan, IntelliMouse, Microsoft,
@@ -796,6 +801,7 @@ QMouseHandlerPrivate::~QMouseHandlerPrivate()
 QCalibratedMouseHandler::QCalibratedMouseHandler()
 {
     clearCalibration();
+    readCalibration();
 }
 
 void QCalibratedMouseHandler::clearCalibration()
@@ -807,6 +813,29 @@ void QCalibratedMouseHandler::clearCalibration()
     e = 1;
     f = 0;
     s = 1;
+}
+
+void QCalibratedMouseHandler::writeCalibration()
+{
+    QString calFile = "/etc/pointercal";
+    QFile file( calFile );
+    if ( file.open( IO_WriteOnly ) ) {
+	QTextStream t( &file );
+	t << a << " " << b << " " << c << " ";
+	t << d << " " << e << " " << f << " " << s;
+    } else {
+	qDebug( "Could not save calibration: %s", calFile.latin1() );
+    }
+}
+
+void QCalibratedMouseHandler::readCalibration()
+{
+    QString calFile = "/etc/pointercal";
+    QFile file( calFile );
+    if ( file.open( IO_ReadOnly ) ) {
+	QTextStream t( &file );
+	t >> a >> b >> c >> d >> e >> f >> s;
+    }
 }
 
 void QCalibratedMouseHandler::calibrate( QWSPointerCalibrationData *cd )
@@ -825,6 +854,8 @@ void QCalibratedMouseHandler::calibrate( QWSPointerCalibrationData *cd )
     d = 0;
     e = s * (screen_tl.y() - screen_br.y() ) / (dev_tl.y() - dev_br.y());
     f = s * screen_tl.y() - e * dev_tl.y();
+
+    writeCalibration();
 }
 
 QPoint QCalibratedMouseHandler::transform( const QPoint &p )
@@ -934,7 +965,7 @@ void QVrTPanelHandlerPrivate::readMouseData()
 	if(ret==sizeof(data)) {
 	    // "auto calibrate" for now.
 	    if ( data[0] & 0x8000 ) {
-		if ( data[5] > 800 ) {
+		if ( data[5] > 795 ) {
 		    if ( prev_pressure - data[5] < 40 ) {
 			QPoint t(data[3]-data[4],data[2]-data[1]);
 			if ( prev_valid ) {
@@ -957,7 +988,7 @@ void QVrTPanelHandlerPrivate::readMouseData()
 		    EMIT_MOUSE
 		}
 		if ( pressed ) {
-		    rtimer->start( 40, TRUE );
+		    rtimer->start( 50, TRUE );
 		    pressed = FALSE;
 		}
 	    }
@@ -972,7 +1003,8 @@ void QVrTPanelHandlerPrivate::readMouseData()
 }
 
 
-class QIpaqHandlerPrivate : public QMouseHandler {
+class QIpaqHandlerPrivate : public QCalibratedMouseHandler
+{
      Q_OBJECT
 public:
     QIpaqHandlerPrivate(MouseProtocol, QString dev);
@@ -982,15 +1014,24 @@ private:
     int mouseFD;
     QPoint oldmouse;
     bool waspressed;
+    QPointArray samples;
+    int currSample;
+    int numSamples;
     
 private slots:
     void readMouseData();   
 };
 
+
 QIpaqHandlerPrivate::QIpaqHandlerPrivate( MouseProtocol, QString )
+    : samples(5), currSample(0), numSamples(0)
 {
 #ifdef QT_QWS_IPAQ
+# ifdef QT_QWS_IPAQ_RAW
+    if ((mouseFD = open( "/dev/h3600_tsraw", O_RDONLY)) < 0) {
+# else
     if ((mouseFD = open( "/dev/h3600_ts", O_RDONLY)) < 0) {
+# endif
         qWarning( "Cannot open /dev/h3600_ts (%s)", strerror(errno));
 	return;
     } else {
@@ -1027,13 +1068,47 @@ void QIpaqHandlerPrivate::readMouseData()
 	QPoint q;
 	q.setX(data.x);
 	q.setY(data.y);
-	mousePos=q;
 	if(data.pressure > 0) {
-          emit mouseChanged(mousePos,Qt::LeftButton);
-	  oldmouse=mousePos;
-	  waspressed=true;
+	    samples[currSample] = q;
+	    numSamples++;
+	    if ( numSamples > samples.count() ) {
+		int maxd = 0;
+		int ignore = 0;
+		// throw away the "worst" sample
+		for ( int i = 0; i < samples.count(); i++ ) {
+		    int d = ( mousePos - samples[i] ).manhattanLength();
+		    if ( d > maxd ) {
+			maxd = d;
+			ignore = i;
+		    }
+		}
+		bool first = TRUE;
+		// average the rest
+		for ( int i = 0; i < samples.count(); i++ ) {
+		    if ( ignore != i ) {
+			if ( first ) {
+			    mousePos = samples[i];
+			    first = FALSE;
+			} else {
+			    mousePos += samples[i];
+			}
+		    }
+		}
+		mousePos /= (int)(samples.count() - 1);
+# ifdef QT_QWS_IPAQ_RAW
+		mousePos = transform( mousePos );
+# endif
+		emit mouseChanged(mousePos,Qt::LeftButton);
+		oldmouse=mousePos;
+		waspressed=true;
+	    }
+	    currSample++;
+	    if ( currSample >= samples.count() )
+		currSample = 0;
 	} else {
 	    if(waspressed) {
+		currSample = 0;
+		numSamples = 0;
 		emit mouseChanged(oldmouse,0);
 		waspressed=false;
 	    }

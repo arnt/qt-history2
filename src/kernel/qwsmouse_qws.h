@@ -66,6 +66,8 @@ public:
     virtual void calibrate( QWSPointerCalibrationData * );
 
 protected:
+    void readCalibration();
+    void writeCalibration();
     QPoint transform( const QPoint & );
 
 private:
