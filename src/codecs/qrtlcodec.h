@@ -5,7 +5,7 @@
 **
 ** Created : 981015
 **
-** Copyright (C)1998-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1998-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -53,7 +53,7 @@ public:
 #if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::fromUnicode;
 #endif
-    QCString fromUnicode(const QString& uc, int& len_in_out) const;
+    QCString fromUnicode(const QString& uc, int& lenInOut) const;
     QString toUnicode(const char* chars, int len) const;
 
     int heuristicContentMatch(const char* chars, int len) const;

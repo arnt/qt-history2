@@ -5,7 +5,7 @@
 **
 ** Created : 981015
 **
-** Copyright (C)1998-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1998-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -505,16 +505,16 @@ QString QHebrewCodec::toUnicode(const char* chars, int len ) const
   the same paragraph.
 
   Some encodings (for example Japanese or utf8) are multibye (so one
-  input character is mapped to two output characters). The \a len_in_out
+  input character is mapped to two output characters). The \a lenInOut
   argument specifies the number of QChars that should be converted and
   is set to the number of characters returned.
 */
-QCString QHebrewCodec::fromUnicode(const QString& uc, int& len_in_out) const
+QCString QHebrewCodec::fromUnicode(const QString& uc, int& lenInOut) const
 {
     // process only len chars...
     int l;
-    if( len_in_out > 0 )
-	l = QMIN((int)uc.length(),len_in_out);
+    if( lenInOut > 0 )
+	l = QMIN((int)uc.length(),lenInOut);
     else
 	l = (int)uc.length();
 
@@ -533,7 +533,7 @@ QCString QHebrewCodec::fromUnicode(const QString& uc, int& len_in_out) const
 	    if( !to8bit( ch, &rstr ) )
 		rstr += unkn;
 	}
-	// len_in_out = cursor - result;
+	// lenInOut = cursor - result;
     }
     if( l > 0 && !rstr.length() )
 	rstr += unkn;
