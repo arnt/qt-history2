@@ -408,7 +408,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 
     memorymanager->deletePixmap(data->id);
 
-    if ( image.hasAlphaBuffer() ) { //&& dd > 8 ) {
+    if ( image.hasAlphaBuffer() && dd > 8 ) {
 	dd=32;
     }
 
