@@ -2,8 +2,9 @@
 
     \title Generic Algorithms
 
-    Qt provides a number of global template functions that work on
-    containers and perform well-know algorithms:
+    Qt provides a number of global template functions in \c
+    <qalgorithm.h> that work on containers and perform well-know
+    algorithms:
 
     \list
     \i qCopy()
@@ -21,14 +22,14 @@
     \i qHeapSort()
     \endlist
 
-    You can use these algorithms with any container class that
-    provides \l {STL-style iterators}, including QList, QLinkedList,
+    You can use these algorithms with any \l {container class} that
+    provides STL-style iterators, including QList, QLinkedList,
     QVector, QMap, and QHash.
 
     These functions are inspired from the functions available in the
     STL \c <algorithm> header. Most of them have a direct STL
     equivalent; for example, qCopyBackward() is the same as STL's
-    \c copy_backward() algorithm.
+    copy_backward() algorithm.
 
     If STL is available on all your target platforms, you can use the
     STL algorithms instead of their Qt counterparts. One reason why
@@ -36,27 +37,64 @@
     algorithms than Qt. Qt concentrates on the basic, most important
     ones, but doesn't attempt beyond that to duplicate functionality
     that is already provided by the C++ standard.
-
     
+    Most algorithms take \l {STL-style iterators} as parameters. The
+    algorithms are generic in the sense that they aren't bound to a
+    specific iterator class; you can use them with any iterators that
+    meet a certain set of requirements.
 
-        * using the generic algorithms on Qt containers
-	    * begin, end params don't always mean begin(), end()
-            * explain the range notation
+    Let's take the qFill() algorithm as an example. QList has no
+    fill() function that can be used to fill a list with a certain
+    value. If you need that functionality, you can use qFill():
 
-        * some algorithms have special requirements on the type
-          stored in the container for example, qEqual() requires that
-          the value type supports operator==(), because it uses it to
-          compare items. Similarly, qDeleteAll() requires that the
-          type is a non-const pointer type. Fortunately, the compiler
-          will emit a error if such a constraint isn't met.
+    \code
+	QList<QString> list;
+        list << "one" << "two" << "three";
 
+        qFill(list.begin(), list.end(), "eleven");
+        // list: [ "eleven", "eleven", "eleven" ]
+    \endcode
 
-        * using the generic algorithms on C++ arrays
-	    * qFind(), qCount(), etc., have competition from container functions
+    qFill() takes a begin iterator, an end iterator, and a value.
+    In the example above, we pass \c list.begin() and \c list.end()
+    as the begin and end iterators, but this doesn't have to be
+    the case:
 
-    A common use of qBinaryFind() is together with two static arrays:
-    one that contains a list of keys, and another that contains a
-    list of associated values:
+    \code
+	qFill(list.begin() + 1, list.end(), "six");
+        // list: [ "eleven", "six", "six" ]
+    \endcode
+
+    If you are unfamiliar STL-style iterators, make sure to read the
+    \link containers.html#stl-iterators STL-style iterator overview
+    \endlink.
+
+    The various algorithms have different requirements on the
+    iterators they accept. For example, qFill() accepts two \l {input
+    iterators}, the lowest requirement for an iterator type. The
+    requirement are specified for every algorithm. If an iterator of
+    the wrong type is passed (for example, QList::ConstIterator is
+    passed as an \i {output iterator}), you will always get a
+    compiler error, although not necessary a highly readable one.
+
+    Some algorithms have special requirements on the value type
+    stored in the containers. For example, qEqual() requires that the
+    value type supports operator==(), which it uses to compare items.
+    Similarly, qDeleteAll() requires that the value type is a
+    non-const pointer type (for example, QWidget *). The requirements
+    are specified for each algorithm, and the compiler will produce
+    an error if such a constraint isn't met.
+
+    The generic algorithms can be used on other container classes
+    than those provided by Qt and STL. The syntax of STL-style
+    iterators is modeled after C++ pointers, so it's possible to use
+    plain arrays as containers and plain pointers as iterators. A
+    common idiom is to use qBinaryFind() together with two static
+    arrays: one that contains a list of keys, and another that
+    contains a list of associated values. For example, the following
+    code will look up an HTML entity (e.g., \c &amp;) in the \c
+    name_table array and return the corresponding Unicode value from
+    the \c value_table if the entity is recognized:
 
     \code
 	QChar resolveEntity(const QString &entity)
@@ -64,14 +102,12 @@
 	    static const QLatin1String name_table[] = {
 	        "AElig",
                 "Aacute",
-                "Acirc",
                 ...
                 "zwnj"
             };
             static const Q_UINT16 value_table[] = {
 	        0x0061,
                 0x00c1,
-                0x00c2,
                 ...
                 0x200c
             };
@@ -85,6 +121,25 @@
 
 	    return QChar(value_table[index]);
 	}
+    \endcode
+
+    This kind of code is for advanced users only; for most
+    applications, a QMap- or QHash-based approach would work just as
+    well:
+    
+    \code
+	QChar resolveEntity(const QString &entity)
+        {
+	    static QMap<QString, int> entityMap;
+
+	    if (entityMap.isEmpty()) {
+		entityMap.insert("AElig", 0x0061);
+		entityMap.insert("Aacute", 0x00c1);
+                ...
+		entityMap.insert("zwnj", 0x200c);
+            }
+            return QChar(entityMap.value(entity));
+        }
     \endcode
 */
 
