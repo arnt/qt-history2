@@ -42,7 +42,7 @@ public:
     void init(bool doMainWindowConnections);
     void popupPressed();
     void popupTimerDone();
-    QPointer<QMenu> menu;
+    QPointer<QMenu> menu, popupMenu;
     QBasicTimer popupTimer;
     int delay;
     Qt::ArrowType arrow;
@@ -200,7 +200,7 @@ void QToolButtonPrivate::init(bool doMainWindowConnections)
         }
     }
 #endif
-
+    QObject::connect(q, SIGNAL(pressed()), q, SLOT(popupPressed()));
 }
 
 #ifndef QT_NO_TOOLBAR
@@ -300,7 +300,7 @@ QSize QToolButton::sizeHint() const
         }
     }
 
-    if (d->menu && ! popupDelay())
+    if ((d->menu || actions().count() > 1) && ! popupDelay())
         w += style().pixelMetric(QStyle::PM_MenuButtonIndicator, this);
     return (style().sizeFromContents(QStyle::CT_ToolButton, this, QSize(w, h)).
             expandedTo(QApplication::globalStrut()));
@@ -389,7 +389,7 @@ void QToolButton::drawBevel(QPainter * p)
     if (isDown())
         active |= QStyle::SC_ToolButton;
 
-    if (d->menu && !d->delay) {
+    if ((d->menu || actions().count() > 1) && !d->delay) {
         controls |= QStyle::SC_ToolButtonMenu;
         if (d->instantPopup || isDown())
             active |= QStyle::SC_ToolButtonMenu;
@@ -479,9 +479,9 @@ void QToolButton::paintEvent(QPaintEvent *)
 /*!
     \reimp
  */
-void QToolButton::actionEvent(QActionEvent * e)
+void QToolButton::actionEvent(QActionEvent *)
 {
-    
+    update();
 }
 
 /*!
@@ -532,10 +532,10 @@ void QToolButton::mousePressEvent(QMouseEvent *e)
     if (d->discardNextMouseEvent) {
         d->discardNextMouseEvent = false;
         d->instantPopup = false;
-        d->menu->removeEventFilter(this);
         return;
     }
-    if (e->button() == LeftButton && d->delay <= 0 && d->menu && d->instantPopup && !d->menu->isVisible()) {
+    if (e->button() == LeftButton && d->delay <= 0 && d->instantPopup && !d->popupMenu
+        && (d->menu || actions().count())) {
         showMenu();
         return;
     }
@@ -549,30 +549,28 @@ void QToolButton::mousePressEvent(QMouseEvent *e)
 */
 bool QToolButton::eventFilter(QObject *o, QEvent *e)
 {
-    if (o != d->menu)
+    if (o != d->popupMenu)
         return QAbstractButton::eventFilter(o, e);
     switch (e->type()) {
     case QEvent::MouseButtonPress:
-    case QEvent::MouseButtonDblClick:
-        {
-            QMouseEvent *me = (QMouseEvent*)e;
-            QPoint p = me->globalPos();
-            if (QApplication::widgetAt(p) == this)
-                d->discardNextMouseEvent = true;
-        }
-        break;
+    case QEvent::MouseButtonDblClick: {
+        //when we click on the button and the menu is up just discardNextMouseEvent
+        QMouseEvent *me = (QMouseEvent*)e;
+        QPoint p = me->globalPos();
+        if (QApplication::widgetAt(p) == this)
+            d->discardNextMouseEvent = true;
+    break; }
     default:
         break;
     }
-    return QAbstractButton::eventFilter(o, e);
+    return false;
 }
 
 bool QToolButton::uses3D() const
 {
     return style().styleHint(QStyle::SH_ToolButton_Uses3D)
         && (!d->autoRaise || (underMouse() && isEnabled())
-            || (d->menu && d->menu->isVisible() && d->delay <= 0) || d->instantPopup
-           );
+            || (d->popupMenu && d->delay <= 0) || d->instantPopup);
 }
 
 
@@ -698,12 +696,7 @@ QIconSet QToolButton::iconSet(bool /* on */) const
 */
 void QToolButton::setMenu(QMenu* menu)
 {
-    if (menu && !d->menu) {
-        disconnect(this, SIGNAL(pressed()), this, SLOT(popupPressed()));
-        connect(this, SIGNAL(pressed()), this, SLOT(popupPressed()));
-    }
     d->menu = menu;
-
     update();
 }
 
@@ -725,7 +718,7 @@ QMenu* QToolButton::menu() const
 */
 void QToolButton::showMenu()
 {
-    if (!d->menu)
+    if (!d->menu || actions().count() < 2)
         return;
 
     d->instantPopup = true;
@@ -750,10 +743,19 @@ void QToolButtonPrivate::popupPressed()
 void QToolButtonPrivate::popupTimerDone()
 {
     popupTimer.stop();
-    if ((!q->isDown() && delay > 0) || !menu)
+    if ((!q->isDown() && delay > 0) || (!menu && q->actions().count() < 2))
         return;
 
-    menu->installEventFilter(q);
+    if(menu) {
+        popupMenu = menu;
+        if(q->actions().count() > 1)
+            qWarning("QToolButton: menu in setMenu() overriding actions set in addAction!");
+    } else {
+        popupMenu = new QMenu(q);
+        QList<QAction*> actions = q->actions();
+        for(int i = 1; i < actions.size(); i++) //skip the first
+            popupMenu->addAction(actions[i]);
+    }
     repeat = q->autoRepeat();
     q->setAutoRepeat(false);
     bool horizontal = true;
@@ -766,37 +768,43 @@ void QToolButtonPrivate::popupTimerDone()
     QRect screen = qApp->desktop()->availableGeometry(q);
     if (horizontal) {
         if (QApplication::reverseLayout()) {
-            if (q->mapToGlobal(QPoint(0, q->rect().bottom())).y() + menu->sizeHint().height() <= screen.height()) {
+            if (q->mapToGlobal(QPoint(0, q->rect().bottom())).y() + popupMenu->sizeHint().height() <= screen.height()) {
                 p = q->mapToGlobal(q->rect().bottomRight());
             } else {
-                p = q->mapToGlobal(q->rect().topRight() - QPoint(0, menu->sizeHint().height()));
+                p = q->mapToGlobal(q->rect().topRight() - QPoint(0, popupMenu->sizeHint().height()));
             }
-            p.rx() -= menu->sizeHint().width();
+            p.rx() -= popupMenu->sizeHint().width();
         } else {
-            if (q->mapToGlobal(QPoint(0, q->rect().bottom())).y() + menu->sizeHint().height() <= screen.height()) {
+            if (q->mapToGlobal(QPoint(0, q->rect().bottom())).y() + popupMenu->sizeHint().height() <= screen.height()) {
                 p = q->mapToGlobal(q->rect().bottomLeft());
             } else {
-                p = q->mapToGlobal(q->rect().topLeft() - QPoint(0, menu->sizeHint().height()));
+                p = q->mapToGlobal(q->rect().topLeft() - QPoint(0, popupMenu->sizeHint().height()));
             }
         }
     } else {
         if (QApplication::reverseLayout()) {
-            if (q->mapToGlobal(QPoint(q->rect().left(), 0)).x() - menu->sizeHint().width() <= screen.x()) {
+            if (q->mapToGlobal(QPoint(q->rect().left(), 0)).x() - popupMenu->sizeHint().width() <= screen.x()) {
                 p = q->mapToGlobal(q->rect().topRight());
             } else {
                 p = q->mapToGlobal(q->rect().topLeft());
-                p.rx() -= menu->sizeHint().width();
+                p.rx() -= popupMenu->sizeHint().width();
             }
         } else {
-            if (q->mapToGlobal(QPoint(q->rect().right(), 0)).x() + menu->sizeHint().width() <= screen.width()) {
+            if (q->mapToGlobal(QPoint(q->rect().right(), 0)).x() + popupMenu->sizeHint().width() <= screen.width()) {
                 p = q->mapToGlobal(q->rect().topRight());
             } else {
-                p = q->mapToGlobal(q->rect().topLeft() - QPoint(menu->sizeHint().width(), 0));
+                p = q->mapToGlobal(q->rect().topLeft() - QPoint(popupMenu->sizeHint().width(), 0));
             }
         }
     }
     QPointer<QToolButton> that = q;
-    menu->exec(p);
+    //we filter the menu because we do not want to replay the event when the button is
+    //clicked on while the menu is up (see discardNextMouseEvent)
+    popupMenu->installEventFilter(q);
+    popupMenu->exec(p);
+    popupMenu->removeEventFilter(q);
+    if (popupMenu != menu)
+        delete popupMenu;
     if (!that)
         return;
 
