@@ -319,7 +319,7 @@ QTabBar::QTabBar( QWidget * parent, const char *name )
 #ifndef QT_NO_ACCEL
     d->a = new QAccel( this, "tab accelerators" );
     connect( d->a, SIGNAL(activated(int)), this, SLOT(setCurrentTab(int)) );
-    connect( d->a, SIGNAL(clash(int)), this, SLOT(setCurrentTab(int)) );
+    connect( d->a, SIGNAL(activatedAmbiguously(int)), this, SLOT(setCurrentTab(int)) );
 #endif
     d->s = RoundedAbove;
     d->scrolls = FALSE;
