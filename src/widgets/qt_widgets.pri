@@ -13,6 +13,7 @@ widgets {
 		  $$WIDGETS_H/qdockarea.h \
 		  $$WIDGETS_H/qdockwindow.h \
 		  $$WIDGETS_H/qframe.h \
+		  $$WIDGETS_H/qframe_p.h \
 		  $$WIDGETS_H/qgrid.h \
 		  $$WIDGETS_H/qgridview.h \
 		  $$WIDGETS_H/qgroupbox.h \

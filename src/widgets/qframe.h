@@ -21,24 +21,30 @@
 
 #ifndef QT_NO_FRAME
 
+class QFramePrivate;
+
 class Q_GUI_EXPORT QFrame : public QWidget
 {
     Q_OBJECT
-    Q_ENUMS( Shape Shadow )
-    Q_PROPERTY( int frameWidth READ frameWidth )
-    Q_PROPERTY( QRect contentsRect READ contentsRect )
-    Q_PROPERTY( Shape frameShape READ frameShape WRITE setFrameShape )
-    Q_PROPERTY( Shadow frameShadow READ frameShadow WRITE setFrameShadow )
-    Q_PROPERTY( int lineWidth READ lineWidth WRITE setLineWidth )
-    Q_PROPERTY( int margin READ margin WRITE setMargin )
-    Q_PROPERTY( int midLineWidth READ midLineWidth WRITE setMidLineWidth )
-    Q_PROPERTY( QRect frameRect READ frameRect WRITE setFrameRect DESIGNABLE false )
+    Q_ENUMS(Shape Shadow)
+    Q_PROPERTY(int frameWidth READ frameWidth)
+    Q_PROPERTY(QRect contentsRect READ contentsRect)
+    Q_PROPERTY(Shape frameShape READ frameShape WRITE setFrameShape)
+    Q_PROPERTY(Shadow frameShadow READ frameShadow WRITE setFrameShadow)
+    Q_PROPERTY(int lineWidth READ lineWidth WRITE setLineWidth)
+    Q_PROPERTY(int margin READ margin WRITE setMargin)
+    Q_PROPERTY(int midLineWidth READ midLineWidth WRITE setMidLineWidth)
+    Q_PROPERTY(QRect frameRect READ frameRect WRITE setFrameRect DESIGNABLE false)
 
 public:
-    QFrame( QWidget* parent=0, const char* name=0, WFlags f=0 );
+    QFrame(QWidget* parent = 0, WFlags f = 0);
+    QFrame(QFramePrivate &, QWidget* parent, WFlags f = 0);
+#ifdef QT_COMPAT
+    QFrame(QWidget* parent, const char* name, WFlags f = 0);
+#endif
 
     int         frameStyle()    const;
-    virtual void setFrameStyle( int );
+    virtual void setFrameStyle(int);
 
     int         frameWidth()    const;
     QRect       contentsRect()  const;
@@ -70,75 +76,38 @@ public:
                   MShadow  = 0x00f0 };          // mask for the shadow
 
     Shape       frameShape()    const;
-    void        setFrameShape( Shape );
+    void        setFrameShape(Shape);
     Shadow      frameShadow()   const;
-    void        setFrameShadow( Shadow );
+    void        setFrameShadow(Shadow);
 
     int         lineWidth()     const;
-    virtual void setLineWidth( int );
+    virtual void setLineWidth(int);
 
     int         margin()        const;
-    virtual void setMargin( int );
+    virtual void setMargin(int);
 
     int         midLineWidth()  const;
-    virtual void setMidLineWidth( int );
+    virtual void setMidLineWidth(int);
 
     QRect       frameRect()     const;
-    virtual void setFrameRect( const QRect & );
+    virtual void setFrameRect(const QRect &);
 
 protected:
-    void        paintEvent( QPaintEvent * );
-    void        resizeEvent( QResizeEvent * );
-    virtual void drawFrame( QPainter * );
-    virtual void drawContents( QPainter * );
+    void        paintEvent(QPaintEvent *);
+    void        resizeEvent(QResizeEvent *);
+    virtual void drawFrame(QPainter *);
+    virtual void drawContents(QPainter *);
     virtual void frameChanged();
-    void        changeEvent( QEvent * );
+    void        changeEvent(QEvent *);
 
 private:
-    void        updateFrameWidth(bool=FALSE);
-    QRect       frect;
-    int         fstyle;
-    short       lwidth;
-    short       mwidth;
-    short       mlwidth;
-    short       fwidth;
+    Q_DECL_PRIVATE(QFrame);
 
-    void * d;
-private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QFrame( const QFrame & );
-    QFrame &operator=( const QFrame & );
+    QFrame(const QFrame &);
+    QFrame &operator=(const QFrame &);
 #endif
 };
-
-
-inline int QFrame::frameStyle() const
-{ return fstyle; }
-
-inline QFrame::Shape QFrame::frameShape() const
-{ return (Shape) ( fstyle & MShape ); }
-
-inline QFrame::Shadow QFrame::frameShadow() const
-{ return (Shadow) ( fstyle & MShadow ); }
-
-inline void QFrame::setFrameShape( QFrame::Shape s )
-{ setFrameStyle( ( fstyle & MShadow ) | s ); }
-
-inline void QFrame::setFrameShadow( QFrame::Shadow s )
-{ setFrameStyle( ( fstyle & MShape ) | s ); }
-
-inline int QFrame::lineWidth() const
-{ return lwidth; }
-
-inline int QFrame::midLineWidth() const
-{ return mlwidth; }
-
-inline int QFrame::margin() const
-{ return mwidth; }
-
-inline int QFrame::frameWidth() const
-{ return fwidth; }
-
 
 #endif // QT_NO_FRAME
 
