@@ -11,6 +11,9 @@ class Q_CORE_EXPORT QBitArray
     friend Q_CORE_EXPORT QDataStream &operator<<( QDataStream &, const QBitArray & );
     friend Q_CORE_EXPORT QDataStream &operator>>( QDataStream &, QBitArray & );
     QByteArray d;
+
+    struct BoolStruct { inline void QTrue() {} };
+    typedef void (BoolStruct::*QSafeBool)();
 public:
     inline QBitArray(){};
     QBitArray(int size, bool val = false);
@@ -20,8 +23,9 @@ public:
     inline int size() const { return (d.size() << 3) - *d.constData(); }
     inline int count() const { return (d.size() << 3) - *d.constData(); }
 
-    inline bool isEmpty() const { return !d; }
-    inline bool operator!() const { return !d; }
+    inline bool isEmpty() const { return d.isEmpty(); }
+    inline bool operator!() const { return d.isEmpty(); }
+    inline operator QSafeBool() const { return d.isEmpty() ? 0 : &BoolStruct::QTrue; }
 
     void resize(int size);
 
@@ -97,6 +101,7 @@ private:
     friend class QBitArray;
 public:
     inline operator bool() const { return a.testBit(i); }
+    inline bool operator!() const { return !a.testBit(i); }
     QBitRef& operator=(const QBitRef& val) { a.setBit(i, val); return *this; }
     QBitRef& operator=(bool val) { a.setBit(i, val); return *this; }
 };

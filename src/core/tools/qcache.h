@@ -40,6 +40,9 @@ class QCache
 	return n.t;
     }
 
+    struct BoolStruct { inline void QTrue() {} };
+    typedef void (BoolStruct::*QSafeBool)();
+
  public:
     inline QCache(int maxCost = 100, int /*size*/ = 17)
 	: f(0), l(0), mx(maxCost), total(0) {}
@@ -52,6 +55,9 @@ class QCache
     inline int size() const { return hash.size(); }
     inline int count() const { return hash.size(); }
     inline bool isEmpty() const { return hash.isEmpty(); }
+    inline bool operator!() const { return hash.isEmpty(); }
+    inline operator QSafeBool() const { return hash.isEmpty ? 0 : &BoolStruct::QTrue; }
+
     void clear();
 
     void insert(const Key &key, T *data, int cost = 1);

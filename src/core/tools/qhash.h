@@ -156,6 +156,9 @@ class QHash
 	return reinterpret_cast<Node *>(node);
     }
 
+    struct BoolStruct { inline void QTrue() {} };
+    typedef void (BoolStruct::*QSafeBool)();
+
 public:
     inline QHash() : d(&QHashData::shared_null) { ++d->ref; }
     inline QHash(const QHash<Key, T> &other) : d(other.d) { ++d->ref; }
@@ -167,8 +170,10 @@ public:
     inline bool operator!=(const QHash<Key, T> &other) const { return !(*this == other); }
 
     inline int size() const { return d->size; }
+
     inline bool isEmpty() const { return d->size == 0; }
     inline bool operator!() const { return d->size == 0; }
+    inline operator QSafeBool() const { return d.isEmpty ? 0 : &BoolStruct::QTrue; }
 
     void reserve(int size);
     inline int capacity() const { return d->numBuckets; }
@@ -324,7 +329,6 @@ public:
     { if (!d) { d = &QHashData::shared_null; ++d->ref; return false; } return true; }
 
 private:
-    operator QNoImplicitBoolCast() const;
     void detach_helper();
     void freeData(QHashData* d);
     Node **findNode(const Key &key, uint *hp = 0) const;

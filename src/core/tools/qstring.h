@@ -378,7 +378,6 @@ private:
 #ifdef QT_NO_CAST_TO_ASCII
     operator const char *() const;
 #endif
-    operator QNoImplicitBoolCast() const;
     struct Data {
 	QAtomic ref;
 	int alloc, size;

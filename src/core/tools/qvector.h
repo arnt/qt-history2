@@ -32,6 +32,9 @@ class QVector
     typedef QVectorTypedData<T> Data;
     union { QVectorData *p; QVectorTypedData<T> *d; };
 
+    struct BoolStruct { inline void QTrue() {} };
+    typedef void (BoolStruct::*QSafeBool)();
+
 public:
     inline QVector() : p(&QVectorData::shared_null) { ++d->ref; }
     explicit QVector(int size);
@@ -43,7 +46,11 @@ public:
     inline bool operator!= (const QVector &v) const { return !(*this == v); }
 
     inline int size() const { return d->size; }
+
     inline bool isEmpty() const { return d->size == 0; }
+    inline bool operator!() const { return d->size == 0; }
+    inline operator QSafeBool() const { return d->size == 0 ? 0 : &BoolStruct::QTrue; }
+
     void resize(int size);
 
     void reserve(int size);
@@ -52,8 +59,6 @@ public:
     inline void detach() { if (d->ref != 1) detach_helper(); }
     inline bool isDetached() const { return d->ref == 1; }
 
-    inline bool operator!() const { return d->size == 0; }
-    inline operator const T*() const { return d->array; }
     inline T* data() { detach(); return d->array; }
     inline const T* data() const { return d->array; }
     inline const T* constData() const { return d->array; }
@@ -140,7 +145,6 @@ public:
     { if (!p) { p = &QVectorData::shared_null; ++p->ref; return false; } return true; }
 
 private:
-    operator QNoImplicitBoolCast() const;
     void detach_helper();
     void realloc(int size, int alloc);
     void free(Data *d);

@@ -30,6 +30,9 @@ class QLinkedList
     typedef QLinkedListNode<T> Node;
     union { QLinkedListData *d; QLinkedListNode<T> *e; };
 
+    struct BoolStruct { inline void QTrue() {} };
+    typedef void (BoolStruct::*QSafeBool)();
+
 public:
     inline QLinkedList() : d(&QLinkedListData::shared_null) { ++d->ref; };
     inline QLinkedList(const QLinkedList &l):d(l.d) { ++d->ref; }
@@ -39,12 +42,13 @@ public:
     inline bool operator!=(const QLinkedList &l) const { return !(*this == l); }
 
     inline int size() const { return d->size; }
-    inline bool isEmpty() const { return d->size == 0; }
     inline void detach()
     { if ( d->ref != 1) detach_helper(); }
     inline bool isDetached() const { return d->ref == 1; }
 
+    inline bool isEmpty() const { return d->size == 0; }
     inline bool operator!() const { return d->size == 0; }
+    inline operator QSafeBool() const { return d->size != 0 ? &BoolStruct::QTrue : 0; }
 
     void clear();
 
@@ -162,7 +166,6 @@ public:
     { if (!d) { d = &QLinkedListData::shared_null; ++d->ref; return false; } return true; }
 
 private:
-    operator QNoImplicitBoolCast() const;
     void detach_helper();
     void free(QLinkedListData*);
 };
