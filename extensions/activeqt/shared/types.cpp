@@ -242,7 +242,7 @@ bool QVariantToVARIANT( const QVariant &var, VARIANT &arg, const char *type )
 	break;
     case QVariant::Bool:
 	arg.vt = VT_BOOL;
-	arg.boolVal = qvar.toBool();
+	arg.boolVal = qvar.toBool() ? -1 : 0;
 	break;
     case QVariant::Double:
 	arg.vt = VT_R8;
@@ -1096,10 +1096,10 @@ bool QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 	}
     } else if ( QUType::isEqual( obj->type, &static_QUType_bool ) ) {
 	if ( byref && ( arg.vt == (VT_BOOL|VT_BYREF) ) ) {
-	    *arg.pboolVal = static_QUType_bool.get( obj );
+	    *arg.pboolVal = static_QUType_bool.get( obj ) ? -1 : 0;
 	} else {
 	    arg.vt = VT_BOOL;
-	    arg.boolVal = static_QUType_bool.get( obj );
+	    arg.boolVal = static_QUType_bool.get( obj ) ? -1 : 0;
 	}
     } else if ( QUType::isEqual( obj->type, &static_QUType_double ) ) {
 	if ( byref && ( arg.vt == (VT_R8|VT_BYREF) ) ) {
