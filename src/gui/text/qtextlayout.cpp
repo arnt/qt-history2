@@ -1394,7 +1394,7 @@ void QTextLine::draw(QPainter *p, const QPointF &pos) const
         }
 
         gf.fontEngine = f.d->engineForScript(si.analysis.script);
-        gf.font = &f;
+        gf.f = &f;
         if (f.d->underline)
             gf.flags |= QTextItem::Underline;
         if (f.d->overline)
