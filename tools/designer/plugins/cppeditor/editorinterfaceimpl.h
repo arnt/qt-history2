@@ -63,6 +63,7 @@ public:
     void setStep( int ) {}
     void clearStep() {}
     void setModified( bool m );
+    void setMode( Mode ) {}
 
     int numLines() const;
     void breakPoints( QValueList<int> & ) const {}

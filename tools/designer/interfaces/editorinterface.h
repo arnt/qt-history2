@@ -36,6 +36,12 @@ class QObject;
 
 struct EditorInterface : public QUnknownInterface
 {
+    enum Mode
+    {
+	Editing,
+	Debugging
+    };
+
     virtual QWidget *editor( QWidget *parent, QUnknownInterface *designerIface ) = 0;
 
     virtual void setText( const QString &txt ) = 0;
@@ -61,6 +67,7 @@ struct EditorInterface : public QUnknownInterface
     virtual int numLines() const = 0;
     virtual void breakPoints( QValueList<int> &l ) const = 0;
     virtual void setBreakPoints( const QValueList<int> &l ) = 0;
+    virtual void setMode( Mode m ) = 0;
 
     virtual void onBreakPointChange( QObject *receiver, const char *slot ) = 0;
 

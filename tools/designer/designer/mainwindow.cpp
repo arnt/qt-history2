@@ -2296,6 +2296,10 @@ QObjectList *MainWindow::runProject()
 
     qwf_stays_on_top = FALSE;
 
+    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
+	if ( e->form() && e->form()->project() == currentProject )
+	    e->editorInterface()->setMode( EditorInterface::Debugging );
+    }
     return l;
 }
 
@@ -4526,6 +4530,10 @@ void MainWindow::finishedRun()
     inDebugMode = FALSE;
     debuggingForms.clear();
     enableAll( TRUE );
+    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
+	if ( e->form() && e->form()->project() == currentProject )
+	    e->editorInterface()->setMode( EditorInterface::Editing );
+    }
 }
 
 void MainWindow::enableAll( bool enable )
