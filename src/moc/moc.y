@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#260 $
+** $Id: //depot/qt/main/src/moc/moc.y#261 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -1478,9 +1478,11 @@ int main( int argc, char **argv )
 		if ( g->qtPath.right(1) != "/" )
 		    g->qtPath += '/';
 	    } else if ( opt == "v" ) {		// version number
-		fprintf( stderr, "Qt Meta-Object Compiler version %d"
+		fprintf( stderr, "Qt Meta Object Compiler version %d"
 				 " (Qt %s)\n", formatRevision,
 				 QT_VERSION_STR );
+		cleanup();
+		return 1;
 	    } else if ( opt == "k" ) {		// don't stop on errors
 		errorControl = TRUE;
 	    } else if ( opt == "nw" ) {		// don't display warnings
@@ -2680,7 +2682,7 @@ void generateClass()		      // generate C++ source code for a class
     const char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     const char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#260 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#261 $)\n**\n";
     const char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     const char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
