@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#52 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -24,7 +24,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#51 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#52 $")
 
 
 static const int fontFields = 14;
@@ -799,8 +799,12 @@ int QFontMetrics::leading() const
 {
     QFont f = data.widget ? data.w->font() : data.p->font();
     f.handle();
-    return f.d->xfd->f->ascent		  + f.d->xfd->f->descent -
+    int l = f.d->xfd->f->ascent		  + f.d->xfd->f->descent -
 	   f.d->xfd->f->max_bounds.ascent - f.d->xfd->f->max_bounds.descent;
+    if ( l > 0 )
+	return l;
+    else
+	return 0;
 }
 
 
@@ -813,9 +817,12 @@ int QFontMetrics::leading() const
 
 int QFontMetrics::lineSpacing() const
 {
+    /*
     QFont f = data.widget ? data.w->font() : data.p->font();
     f.handle();
     return f.d->xfd->f->ascent + f.d->xfd->f->descent;
+    */
+    return leading()+height();
 }
 
 
