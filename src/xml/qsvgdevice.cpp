@@ -55,41 +55,25 @@ typedef QList<ImgElement> ImageList;
 typedef QList<PixElement> PixmapList;
 typedef QList<QSvgDeviceState> StateList;
 
+enum ElementType { InvalidElement = 0, AnchorElement, CircleElement, ClipElement, CommentElement,
+                   DescElement, EllipseElement, GroupElement, ImageElement, LineElement,
+                   PolylineElement, PolygonElement, PathElement, RectElement, SvgElement,
+                   TextElement, TitleElement, TSpanElement };
+
 class QSvgDevicePrivate {
 public:
     ImageList images;
     PixmapList pixmaps;
     StateList stack;
     int currentClip;
-};
 
-enum ElementType {
-    InvalidElement = 0,
-    AnchorElement,
-    CircleElement,
-    ClipElement,
-    CommentElement,
-    DescElement,
-    EllipseElement,
-    GroupElement,
-    ImageElement,
-    LineElement,
-    PolylineElement,
-    PolygonElement,
-    PathElement,
-    RectElement,
-    SvgElement,
-    TextElement,
-    TitleElement,
-    TSpanElement
+    typedef QMap<QString, ElementType> QSvgTypeMap;
+    QSvgTypeMap typeMap; // element types
+    QMap<QString, QString> colMap; // recognized color keyword names
 };
-
-typedef QMap<QString,ElementType> QSvgTypeMap;
-static QSvgTypeMap *qSvgTypeMap=0; // element types
-static QMap<QString,QString> *qSvgColMap=0; // recognized color keyword names
 
 /*!
-    \class QSvgDevice qsvgdevice.h
+    \class QSvgDevice
     \brief The QSvgDevice class provides a paint device for SVG vector graphics.
 \if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
@@ -125,8 +109,6 @@ QSvgDevice::QSvgDevice()
 
 QSvgDevice::~QSvgDevice()
 {
-    delete qSvgTypeMap; qSvgTypeMap = 0;	// static
-    delete qSvgColMap; qSvgColMap = 0;
     delete d;
 }
 
@@ -156,13 +138,13 @@ bool QSvgDevice::play( QPainter *painter )
     pt->setPen( Qt::NoPen ); // SVG default pen and brush
     pt->setBrush( Qt::black );
     if ( doc.isNull() ) {
-	qWarning( "QSvgDevice::play: No SVG data set." );
+	qWarning( "QSvgDevice::play: No SVG data set" );
 	return FALSE;
     }
 
     QDomNode svg = doc.namedItem( "svg" );
     if ( svg.isNull() || !svg.isElement() ) {
-	qWarning( "QSvgDevice::play: Couldn't find any svg element." );
+	qWarning( "QSvgDevice::play: Couldn't find any svg element" );
 	return FALSE;
     }
 
@@ -190,7 +172,7 @@ bool QSvgDevice::play( QPainter *painter )
 	QRegExp re( QString::fromLatin1("\\s*(\\S+)\\s*,?\\s*(\\S+)\\s*,?"
 					"\\s*(\\S+)\\s*,?\\s*(\\S+)\\s*") );
 	if ( re.search( attr.namedItem( "viewBox" ).nodeValue() ) < 0 ) {
-	    qWarning( "QSvgDevice::play: Invalid viewBox attribute.");
+	    qWarning( "QSvgDevice::play: Invalid viewBox attribute");
 	    return FALSE;
 	} else {
 	    double x = re.cap( 1 ).toDouble();
@@ -198,7 +180,7 @@ bool QSvgDevice::play( QPainter *painter )
 	    double w = re.cap( 3 ).toDouble();
 	    double h = re.cap( 4 ).toDouble();
 	    if ( w < 0 || h < 0 ) {
-		qWarning( "QSvgDevice::play: Invalid viewBox dimension.");
+		qWarning( "QSvgDevice::play: Invalid viewBox dimension");
 		return FALSE;
 	    } else if ( w == 0 || h == 0 ) {
 		return TRUE;
@@ -232,11 +214,10 @@ bool QSvgDevice::play( QPainter *painter )
 	{ 0,          InvalidElement  }
     };
     // initialize only once
-    if ( !qSvgTypeMap ) {
-	qSvgTypeMap = new QSvgTypeMap;
+    if (d->typeMap.isEmpty()) {
 	const ElementTable *t = etab;
 	while ( t->name ) {
-	    qSvgTypeMap->insert( t->name, t->type );
+	    d->typeMap.insert( t->name, t->type );
 	    t++;
 	}
     }
@@ -772,228 +753,227 @@ bool QSvgDevice::play( const QDomNode &node )
 {
     saveAttributes();
 
-	ElementType t = (*qSvgTypeMap)[ node.nodeName() ];
+    ElementType t = d->typeMap[node.nodeName()];
 
-	if ( t == LineElement && pt->pen().style() == Qt::NoPen ) {
+    if ( t == LineElement && pt->pen().style() == Qt::NoPen ) {
+	QPen p = pt->pen();
+	p.setStyle( Qt::SolidLine );
+	pt->setPen( p );
+    }
+    QDomNamedNodeMap attr = node.attributes();
+    if ( attr.contains( "style" ) )
+	setStyle( attr.namedItem( "style" ).nodeValue() );
+    // ### might have to exclude more elements from transform
+    if ( t != SvgElement && attr.contains( "transform" ) )
+	setTransform( attr.namedItem( "transform" ).nodeValue() );
+    uint i = attr.length();
+    if ( i > 0 ) {
+	QPen pen = pt->pen();
+	QFont font = pt->font();
+	while ( i-- ) {
+	    QDomNode n = attr.item( i );
+	    QString a = n.nodeName();
+	    QString val = n.nodeValue().toLower().trimmed();
+	    setStyleProperty( a, val, &pen, &font, &curr->textalign );
+	}
+	pt->setPen( pen );
+	pt->setFont( font );
+    }
+
+    int x1, y1, x2, y2, rx, ry, w, h;
+    double cx1, cy1, crx, cry;
+    switch ( t ) {
+    case CommentElement:
+	// ignore
+	break;
+    case RectElement:
+	rx = ry = 0;
+	x1 = lenToInt( attr, "x" );
+	y1 = lenToInt( attr, "y" );
+	w = lenToInt( attr, "width" );
+	h = lenToInt( attr, "height" );
+	if ( w == 0 || h == 0 )	// prevent div by zero below
+	    break;
+	x2 = (int)attr.contains( "rx" ); // tiny abuse of x2 and y2
+	y2 = (int)attr.contains( "ry" );
+	if ( x2 )
+	    rx = lenToInt( attr, "rx" );
+	if ( y2 )
+	    ry = lenToInt( attr, "ry" );
+	if ( x2 && !y2 )
+	    ry = rx;
+	else if ( !x2 && y2 )
+	    rx = ry;
+	rx = int(200.0*double(rx)/double(w));
+	ry = int(200.0*double(ry)/double(h));
+	pt->drawRoundRect( x1, y1, w, h, rx, ry );
+	break;
+    case CircleElement:
+	cx1 = lenToDouble( attr, "cx" ) + 0.5;
+	cy1 = lenToDouble( attr, "cy" ) + 0.5;
+	crx = lenToDouble( attr, "r" );
+	pt->drawEllipse( (int)(cx1-crx), (int)(cy1-crx), (int)(2*crx), (int)(2*crx) );
+	break;
+    case EllipseElement:
+	cx1 = lenToDouble( attr, "cx" ) + 0.5;
+	cy1 = lenToDouble( attr, "cy" ) + 0.5;
+	crx = lenToDouble( attr, "rx" );
+	cry = lenToDouble( attr, "ry" );
+	pt->drawEllipse( (int)(cx1-crx), (int)(cy1-cry), (int)(2*crx), (int)(2*cry) );
+	break;
+    case LineElement:
+	{
+	    x1 = lenToInt( attr, "x1" );
+	    x2 = lenToInt( attr, "x2" );
+	    y1 = lenToInt( attr, "y1" );
+	    y2 = lenToInt( attr, "y2" );
 	    QPen p = pt->pen();
-	    p.setStyle( Qt::SolidLine );
+	    w = p.width();
+	    p.setWidth( (unsigned int)(w * (QABS(pt->worldMatrix().m11()) + QABS(pt->worldMatrix().m22())) / 2) );
+	    pt->setPen( p );
+	    pt->drawLine( x1, y1, x2, y2 );
+	    p.setWidth( w );
 	    pt->setPen( p );
 	}
-	QDomNamedNodeMap attr = node.attributes();
-	if ( attr.contains( "style" ) )
-	    setStyle( attr.namedItem( "style" ).nodeValue() );
-	// ### might have to exclude more elements from transform
-	if ( t != SvgElement && attr.contains( "transform" ) )
-	    setTransform( attr.namedItem( "transform" ).nodeValue() );
-	uint i = attr.length();
-	if ( i > 0 ) {
-	    QPen pen = pt->pen();
-	    QFont font = pt->font();
-	    while ( i-- ) {
-		QDomNode n = attr.item( i );
-		QString a = n.nodeName();
-		QString val = n.nodeValue().toLower().trimmed();
-		setStyleProperty( a, val, &pen, &font, &curr->textalign );
+	break;
+    case PolylineElement:
+    case PolygonElement:
+	{
+	    QString pts = attr.namedItem( "points" ).nodeValue();
+	    pts = pts.simplified();
+	    QStringList sl = QStringList::split( QRegExp( QString::fromLatin1("[ ,]") ), pts );
+	    QPointArray ptarr( (uint)sl.count() / 2);
+	    for ( int i = 0; i < (int)sl.count() / 2; i++ ) {
+		double dx = sl[2*i].toDouble();
+		double dy = sl[2*i+1].toDouble();
+		ptarr.setPoint( i, int(dx), int(dy) );
 	    }
-	    pt->setPen( pen );
-	    pt->setFont( font );
+  	    if ( t == PolylineElement ) {
+		if ( pt->brush().style() != Qt::NoBrush ) {
+		    QPen pn = pt->pen();
+		    pt->setPen( Qt::NoPen );
+		    pt->drawPolygon( ptarr );
+		    pt->setPen( pn );
+		}
+		pt->drawPolyline( ptarr ); // ### closes when filled. bug ?
+  	    } else {
+		pt->drawPolygon( ptarr );
+	    }
 	}
+	break;
+    case SvgElement:
+    case GroupElement:
+    case AnchorElement:
+	{
+	    QDomNode child = node.firstChild();
+	    while ( !child.isNull() ) {
+		play( child );
+		child = child.nextSibling();
+	    }
+	}
+	break;
+    case PathElement:
+	drawPath( attr.namedItem( "d" ).nodeValue() );
+	break;
+    case TSpanElement:
+    case TextElement:
+	{
+	    if ( attr.contains( "x" ) )
+		 curr->textx = lenToInt( attr, "x" );
+	    if ( attr.contains( "y" ) )
+		 curr->texty = lenToInt( attr, "y" );
+	    if ( t == TSpanElement ) {
+		curr->textx += lenToInt( attr, "dx" );
+		curr->texty += lenToInt( attr, "dy" );
+	    }
+	    // backup old colors
+	    QPen pn = pt->pen();
+	    QColor pcolor = pn.color();
+	    QColor bcolor = pt->brush().color();
+	    QDomNode c = node.firstChild();
+	    while ( !c.isNull() ) {
+		if ( c.isText() ) {
+		    // we have pen and brush reversed for text drawing
+		    pn.setColor( bcolor );
+		    pt->setPen( pn );
+		    QString text = c.toText().nodeValue();
+		    text = text.simplified(); // ### 'preserve'
+		    w = pt->fontMetrics().width( text );
+		    if ( curr->textalign == Qt::AlignHCenter )
+			curr->textx -= w / 2;
+		    else if ( curr->textalign == Qt::AlignRight )
+			curr->textx -= w;
+		    pt->drawText( curr->textx, curr->texty, text );
+		    // restore pen
+		    pn.setColor( pcolor );
+		    pt->setPen( pn );
+		    curr->textx += w;
+		} else if ( c.isElement() &&
+			    c.toElement().tagName() == "tspan" ) {
+		    play( c );
 
-	int x1, y1, x2, y2, rx, ry, w, h;
-	double cx1, cy1, crx, cry;
-	switch ( t ) {
-	case CommentElement:
-	    // ignore
-	    break;
-	case RectElement:
-	    rx = ry = 0;
+		}
+		c = c.nextSibling();
+	    }
+	    if ( t == TSpanElement ) {
+		// move current text position in parent text element
+		StateList::Iterator it = --(--d->stack.end());
+		(*it).textx = curr->textx;
+		(*it).texty = curr->texty;
+	    }
+	}
+	break;
+    case ImageElement:
+	{
 	    x1 = lenToInt( attr, "x" );
 	    y1 = lenToInt( attr, "y" );
 	    w = lenToInt( attr, "width" );
 	    h = lenToInt( attr, "height" );
-	    if ( w == 0 || h == 0 )	// prevent div by zero below
-		break;
-	    x2 = (int)attr.contains( "rx" ); // tiny abuse of x2 and y2
-	    y2 = (int)attr.contains( "ry" );
-	    if ( x2 )
-		rx = lenToInt( attr, "rx" );
-	    if ( y2 )
-		ry = lenToInt( attr, "ry" );
-	    if ( x2 && !y2 )
-		ry = rx;
-	    else if ( !x2 && y2 )
-		rx = ry;
-	    rx = int(200.0*double(rx)/double(w));
-	    ry = int(200.0*double(ry)/double(h));
-	    pt->drawRoundRect( x1, y1, w, h, rx, ry );
-	    break;
-	case CircleElement:
-	    cx1 = lenToDouble( attr, "cx" ) + 0.5;
-	    cy1 = lenToDouble( attr, "cy" ) + 0.5;
-	    crx = lenToDouble( attr, "r" );
-	    pt->drawEllipse( (int)(cx1-crx), (int)(cy1-crx), (int)(2*crx), (int)(2*crx) );
-	    break;
-	case EllipseElement:
-	    cx1 = lenToDouble( attr, "cx" ) + 0.5;
-	    cy1 = lenToDouble( attr, "cy" ) + 0.5;
-	    crx = lenToDouble( attr, "rx" );
-	    cry = lenToDouble( attr, "ry" );
-	    pt->drawEllipse( (int)(cx1-crx), (int)(cy1-cry), (int)(2*crx), (int)(2*cry) );
-	    break;
-	case LineElement:
-	    {
-		x1 = lenToInt( attr, "x1" );
-		x2 = lenToInt( attr, "x2" );
-		y1 = lenToInt( attr, "y1" );
-		y2 = lenToInt( attr, "y2" );
-		QPen p = pt->pen();
-		w = p.width();
-		p.setWidth( (unsigned int)(w * (QABS(pt->worldMatrix().m11()) + QABS(pt->worldMatrix().m22())) / 2) );
-		pt->setPen( p );
-		pt->drawLine( x1, y1, x2, y2 );
-		p.setWidth( w );
-		pt->setPen( p );
-	    }
-	    break;
-	case PolylineElement:
-	case PolygonElement:
-	    {
-		QString pts = attr.namedItem( "points" ).nodeValue();
-		pts = pts.simplified();
-		QStringList sl = QStringList::split( QRegExp( QString::fromLatin1("[ ,]") ), pts );
-		QPointArray ptarr( (uint)sl.count() / 2);
-		for ( int i = 0; i < (int)sl.count() / 2; i++ ) {
-		    double dx = sl[2*i].toDouble();
-		    double dy = sl[2*i+1].toDouble();
-		    ptarr.setPoint( i, int(dx), int(dy) );
-		}
-  		if ( t == PolylineElement ) {
-		    if ( pt->brush().style() != Qt::NoBrush ) {
-			QPen pn = pt->pen();
-			pt->setPen( Qt::NoPen );
-			pt->drawPolygon( ptarr );
-			pt->setPen( pn );
-		    }
-		    pt->drawPolyline( ptarr ); // ### closes when filled. bug ?
-  		} else {
-		    pt->drawPolygon( ptarr );
-		}
-	    }
-	    break;
-	case SvgElement:
-	case GroupElement:
-	case AnchorElement:
-	    {
-		QDomNode child = node.firstChild();
-		while ( !child.isNull() ) {
-		    play( child );
-		    child = child.nextSibling();
-		}
-	    }
-	    break;
-	case PathElement:
-	    drawPath( attr.namedItem( "d" ).nodeValue() );
-	    break;
-	case TSpanElement:
-	case TextElement:
-	    {
-		if ( attr.contains( "x" ) )
-		     curr->textx = lenToInt( attr, "x" );
-		if ( attr.contains( "y" ) )
-		     curr->texty = lenToInt( attr, "y" );
-		if ( t == TSpanElement ) {
-		    curr->textx += lenToInt( attr, "dx" );
-		    curr->texty += lenToInt( attr, "dy" );
-		}
-		// backup old colors
-		QPen pn = pt->pen();
-		QColor pcolor = pn.color();
-		QColor bcolor = pt->brush().color();
-		QDomNode c = node.firstChild();
-		while ( !c.isNull() ) {
-		    if ( c.isText() ) {
-			// we have pen and brush reversed for text drawing
-			pn.setColor( bcolor );
-			pt->setPen( pn );
-			QString text = c.toText().nodeValue();
-			text = text.simplified(); // ### 'preserve'
-			w = pt->fontMetrics().width( text );
-			if ( curr->textalign == Qt::AlignHCenter )
-			    curr->textx -= w / 2;
-			else if ( curr->textalign == Qt::AlignRight )
-			    curr->textx -= w;
-			pt->drawText( curr->textx, curr->texty, text );
-			// restore pen
-			pn.setColor( pcolor );
-			pt->setPen( pn );
-			curr->textx += w;
-		    } else if ( c.isElement() &&
-				c.toElement().tagName() == "tspan" ) {
-			play( c );
-
-		    }
-		    c = c.nextSibling();
-		}
-		if ( t == TSpanElement ) {
-		    // move current text position in parent text element
-		    StateList::Iterator it = --(--d->stack.end());
-		    (*it).textx = curr->textx;
-		    (*it).texty = curr->texty;
-		}
-	    }
-	    break;
-	case ImageElement:
-	    {
-		x1 = lenToInt( attr, "x" );
-		y1 = lenToInt( attr, "y" );
-		w = lenToInt( attr, "width" );
-		h = lenToInt( attr, "height" );
-		QString href = attr.namedItem( "xlink:href" ).nodeValue();
-		// ### catch references to embedded .svg files
-		QPixmap pix;
-		if ( !pix.load( href ) ) {
-		    qWarning( "QSvgDevice::play: Couldn't load image "+href );
-		    break;
-		}
-		pt->drawPixmap( QRect( x1, y1, w, h ), pix );
-	    }
-	    break;
-	case DescElement:
-	case TitleElement:
-	    // ignored for now
-	    break;
-	case ClipElement:
-	    {
-		restoreAttributes(); // To ensure the clip rect is saved, we need to restore now
-		QDomNode child = node.firstChild();
-		QDomNamedNodeMap childAttr = child.attributes();
-		if ( child.nodeName() == "rect" ) {
-		    QRect r;
-		    r.setX(lenToInt( childAttr, "x" ));
-		    r.setY(lenToInt( childAttr, "y" ));
-		    r.setWidth(lenToInt( childAttr, "width" ));
-		    r.setHeight(lenToInt( childAttr, "height" ));
-		    pt->setClipRect( r, QPainter::CoordPainter );
-		} else if ( child.nodeName() == "ellipse" ) {
-		    QRect r;
-		    int x = lenToInt( childAttr, "cx" );
-		    int y = lenToInt( childAttr, "cy" );
-		    int width = lenToInt( childAttr, "rx" );
-		    int height = lenToInt( childAttr, "ry" );
-		    r.setX( x - width );
-		    r.setY( y - height );
-		    r.setWidth( width * 2 );
-		    r.setHeight( height * 2 );
-		    QRegion rgn( r, QRegion::Ellipse );
-		    pt->setClipRegion( rgn, QPainter::CoordPainter );
-		}
+	    QString href = attr.namedItem( "xlink:href" ).nodeValue();
+	    // ### catch references to embedded .svg files
+	    QPixmap pix;
+	    if ( !pix.load( href ) ) {
+		qWarning( "QSvgDevice::play: Couldn't load image " + href );
 		break;
 	    }
-	case InvalidElement:
-	    qWarning( "QSvgDevice::play: unknown element type " +
-		      node.nodeName() );
+	    pt->drawPixmap( QRect( x1, y1, w, h ), pix );
+	}
+	break;
+    case DescElement:
+    case TitleElement:
+	// ignored for now
+	break;
+    case ClipElement:
+	{
+	    restoreAttributes(); // To ensure the clip rect is saved, we need to restore now
+	    QDomNode child = node.firstChild();
+	    QDomNamedNodeMap childAttr = child.attributes();
+	    if ( child.nodeName() == "rect" ) {
+		QRect r;
+		r.setX(lenToInt( childAttr, "x" ));
+		r.setY(lenToInt( childAttr, "y" ));
+		r.setWidth(lenToInt( childAttr, "width" ));
+		r.setHeight(lenToInt( childAttr, "height" ));
+		pt->setClipRect( r, QPainter::CoordPainter );
+	    } else if ( child.nodeName() == "ellipse" ) {
+		QRect r;
+		int x = lenToInt( childAttr, "cx" );
+		int y = lenToInt( childAttr, "cy" );
+		int width = lenToInt( childAttr, "rx" );
+		int height = lenToInt( childAttr, "ry" );
+		r.setX( x - width );
+		r.setY( y - height );
+		r.setWidth( width * 2 );
+		r.setHeight( height * 2 );
+		QRegion rgn( r, QRegion::Ellipse );
+		pt->setClipRegion( rgn, QPainter::CoordPainter );
+	    }
 	    break;
-	};
+	}
+    case InvalidElement:
+	qWarning( "QSvgDevice::play: unknown element type " + node.nodeName() );
+	break;
+    }
 
     if ( t != ClipElement )
 	restoreAttributes();
@@ -1035,18 +1015,17 @@ QColor QSvgDevice::parseColor( const QString &col )
     };
 
     // initialize color map on first use
-    if ( !qSvgColMap ) {
-	qSvgColMap = new QMap<QString, QString>;
+    if (d->colMap.isEmpty()) {
 	const struct ColorTable *t = coltab;
 	while ( t->name ) {
-	    qSvgColMap->insert( t->name, t->rgb );
-	    t++;
+	    d->colMap.insert( t->name, t->rgb );
+	    ++t;
 	}
     }
 
-    // a keyword ?
-    if ( qSvgColMap->contains ( col ) )
-	return QColor( (*qSvgColMap)[ col ] );
+    // a keyword?
+    if (d->colMap.contains(col))
+	return QColor(d->colMap[col]);
     // in rgb(r,g,b) form ?
     QString c = col;
     c.replace( QRegExp( QString::fromLatin1("\\s*") ), "" );
@@ -1203,8 +1182,7 @@ void QSvgDevice::setStyleProperty( const QString &prop, const QString &val,
 	else if ( val == "italic" )
 	    font->setItalic( TRUE );
 	else
-	    qWarning( "QSvgDevice::setStyleProperty: unhandled "
-		      "font-style: %s", val.latin1() );
+	    qWarning( "QSvgDevice::setStyleProperty: unhandled font-style: %s", val.latin1() );
     } else if ( prop == "font-weight" ) {
 	int w = font->weight();
 	// no exact equivalents so we have to "round" a little bit
