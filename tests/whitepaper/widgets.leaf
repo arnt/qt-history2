@@ -1,10 +1,10 @@
 \chapter Widgets
 
-\quote
+\QUOTE
 Qt has a rich set of widgets (buttons, scroll bars, etc.) that cater
 for most situations. Qt's widgets are flexible and easy to subclass
 for special requirements.
-\endquote
+\ENDQUOTE
 
 Qt provides a full set of widgets. Widgets are visual elements that
 are combined to create user interfaces. Buttons, menus, scroll bars,

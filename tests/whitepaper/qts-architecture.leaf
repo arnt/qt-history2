@@ -1,9 +1,9 @@
 \chapter Qt's Architecture
 
-\quote
+\QUOTE
 Qt's functionality is built on the low-level APIs of the platforms it
 supports. This makes Qt flexible and efficient.
-\endquote
+\ENDQUOTE
 
   \index Emulation
   \index Interface emulation

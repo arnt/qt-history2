@@ -1,10 +1,10 @@
 \chapter GUI Applications
 
-\quote
+\QUOTE
 Building modern GUI applications with Qt is fast and simple, and can
 be achieved by hand coding or by using \l {Qt Designer}, Qt's visual
 design tool.
-\endquote
+\ENDQUOTE
 
   \index Clipboard
   \index Drag and drop

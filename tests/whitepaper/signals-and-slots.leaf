@@ -1,9 +1,9 @@
 \chapter Signals and Slots
 
-\quote
+\QUOTE
 Signals and slots provide inter-object communication. They are easy
-to understand and use, and are fully supported by \l {Qt Designer}.
-\endquote
+to understand and use and are fully supported by \l {Qt Designer}.
+\ENDQUOTE
 
   \index Signal
   \index Slot

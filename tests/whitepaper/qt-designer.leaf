@@ -3,11 +3,11 @@
   \index Designer
   \index Qt Designer
 
-\quote
+\QUOTE
 \QD is written in Qt and provides visual user-interface design. Qt
 applications can be written entirely as source code, or using \QD
 to speed up development.
-\endquote
+\ENDQUOTE
 
   \img designer-wp.png
   \caption \QD

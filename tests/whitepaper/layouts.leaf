@@ -1,11 +1,11 @@
 \chapter Layouts
 
-\quote
+\QUOTE
 Layouts provide a powerful and flexible alternative to using
 fixed sizes and positions. Layouts free programmers from having to
 perform size and position calculations, and provide automatic scaling
 to suit the user's screen, language and fonts.
-\endquote
+\ENDQUOTE
 
   \index Automatic layout
   \index Child widget

@@ -1,11 +1,11 @@
 \chapter Collection Classes
 
-\quote
+\QUOTE
 Collection classes are used to store groups of items in memory. Qt
 provides a set of classes that are compatible with the Standard
 Template Library (STL), and that work regardless of whether the
 compiler supports STL or not.
-\endquote
+\ENDQUOTE
 
   \index Collection class
   \index Container

@@ -1,12 +1,12 @@
 \chapter Internationalization
 
-\quote
+\QUOTE
 Qt fully supports Unicode, the international standard character set.
 Programmers can freely mix Arabic, English, Hebrew, Japanese,
 Russian, and every other language supported by Unicode, in their
 applications. Qt also includes tools to support application
 translation to help companies reach international markets.
-\endquote
+\ENDQUOTE
 
   \index Internationalization
   \index Language

@@ -1,10 +1,10 @@
 \chapter Events
 
-\quote
+\QUOTE
 Application objects receive system messages as Qt events.
 Applications can monitor, filter and respond to events at different
 levels of granularity.
-\endquote
+\ENDQUOTE
 
   \index Event
   \index Messaging

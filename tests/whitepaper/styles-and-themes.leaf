@@ -1,12 +1,12 @@
 \chapter Styles and Themes
 
-\quote
+\QUOTE
 Qt automatically uses the native style for look and feel. Qt
 applications respect user preferences for colors, fonts, sounds, etc.
 Qt programmers are free to use any of the supplied styles and can
 override any preferences. Programmers can modify existing styles or
 implement their own styles using Qt's powerful style engine.
-\endquote
+\ENDQUOTE
 
   \index Color
   \index Drawing

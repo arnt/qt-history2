@@ -1,11 +1,11 @@
 \chapter Plugins and Dynamic Libraries
 
-\quote
+\QUOTE
 Qt can access functions from dynamic libraries platform-independently.
 Qt also supports plugins, which allow developers to create and
 distribute Qt codecs, database drivers, image format converters,
-styles and custom widgets as independent components.
-\endquote
+styles and custom widgets as independent components. 
+\ENDQUOTE
 
   \index Codec
   \index Custom widget

@@ -1,6 +1,16 @@
 \title Qt Whitepaper
 
-\tableofcontents
+\granularity section1
+
+This document is also available in PDF format (in ZIP files):
+\list
+\i \link ftp://ftp.trolltech.com/3.0/whitepaper-a4-web.zip
+Whitepaper (A4 size 1MB ZIP, 14MB uncompressed)\endlink
+\i \link ftp://ftp.trolltech.com/3.0/whitepaper-us-web.zip
+Whitepaper (US Letter size 1MB ZIP, 14MB uncompressed)\endlink
+\endlist
+
+\HR
 
 \input introduction.leaf
 \input widgets.leaf

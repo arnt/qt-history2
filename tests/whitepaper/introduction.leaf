@@ -1,12 +1,12 @@
 \chapter Introduction
 
-\quote
+\QUOTE
 Qt is a C++ toolkit for cross-platform GUI and application
 development. In addition to the Qt C++ class library, the toolkit
 includes tools to make writing applications fast and straightforward.
 Qt's cross-platform capabilities and extensive internationalization
 support ensure that Qt applications reach the widest possible market.
-\endquote
+\ENDQUOTE
 
 The Qt C++ toolkit has been at the heart of commercial applications
 since 1995. Qt is used by companies as diverse as AT\&T, IBM, NASA
