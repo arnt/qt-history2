@@ -174,7 +174,7 @@ private:
     void insert_string(int pos, uint strPos, uint length, int format, UndoCommand::Operation op);
     void insert_block(int pos, uint strPos, int format, int blockformat, UndoCommand::Operation op);
     int remove_string(int pos, uint length);
-    int remove_block(int pos);
+    int remove_block(int pos, int *blockformat);
 
     void adjustDocumentChanges(int from, int addedOrRemoved);
 
