@@ -151,7 +151,7 @@ public:
     {}
     
     const QMetaObject *metaObject(const QString &key) const { return &T::staticMetaObject; }
-    QStringList featureList() const { return QString(T::staticMetaObject.className()); }
+    QStringList featureList() const { return QStringList(QString(T::staticMetaObject.className())); }
     QObject *createObject(const QString &key)
     {
         const QMetaObject &mo = T::staticMetaObject;
