@@ -1599,8 +1599,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	if(ekind == kEventQtRequestPropagateWidgetUpdates) {
 	    QList<WId> update_list = request_updates_pending_list;
 	    request_updates_pending_list.clear(); //clear now and use the saved list (above)..
-	    for(QList<WId>::Iterator it = update_list.begin();
-		it != update_list.end(); ++it) {
+	    for(QList<WId>::Iterator it = update_list.begin(); it != update_list.end(); ++it) {
 		QWidget *widget = QWidget::find((*it));
 		if(!widget)
 		    continue;
