@@ -379,10 +379,12 @@ void QTreeView::open(const QModelIndex &index)
     if (!index.isValid())
         return;
     int idx = d->viewIndex(index);
-    if (idx > -1) // is visible
-        d->open(idx, true);
-    else
+    if (idx > -1) { // is visible
+        d->open(idx);
+        viewport()->update();
+    } else {
         d->openedIndexes.append(index);
+    }
 }
 
 /*!
@@ -396,7 +398,8 @@ void QTreeView::close(const QModelIndex &index)
         return;
     int i = d->viewIndex(index);
     if (i > -1) { // is visible
-        d->close(i, true);
+        d->close(i);
+        viewport()->update();
     } else {
         i = d->openedIndexes.indexOf(index);
         if (i > -1)
@@ -679,13 +682,15 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
 void QTreeView::mousePressEvent(QMouseEvent *e)
 {
     int i = d->itemDecorationAt(e->pos());
-    if (i == -1)
+    if (i == -1) {
         QAbstractItemView::mousePressEvent(e);
-    else
+    } else {
         if (d->viewItems.at(i).open)
-            d->close(i, true);
+            d->close(i);
         else
-            d->open(i, true);
+            d->open(i);
+        viewport()->update();
+    }
 }
 
 /*!
@@ -743,7 +748,7 @@ void QTreeView::doItemsLayout()
         QModelIndex index = model()->index(0, 0, root());
         d->itemHeight = itemDelegate()->sizeHint(option, index).height();
         d->layout(-1);
-        d->reopenChildren(parent, false);
+        d->reopenChildren(parent);
     }
     QAbstractItemView::doItemsLayout();
 }
@@ -808,11 +813,11 @@ QModelIndex QTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction,
         return d->modelIndex(d->above(vi));
     case MoveLeft:
         if (d->viewItems.at(vi).open)
-            d->close(vi, true);
+            d->close(vi);
         break;
     case MoveRight:
         if (!d->viewItems.at(vi).open)
-            d->open(vi, true);
+            d->open(vi);
         break;
     case MovePageUp:
         return d->modelIndex(d->pageUp(vi));
@@ -960,8 +965,9 @@ void QTreeView::reopen()
 {
     if (d->reopen == -1)
         return;
-    d->open(d->reopen, true);
+    d->open(d->reopen);
     d->reopen = -1;
+    viewport()->update();
 }
 
 /*!
@@ -990,7 +996,7 @@ void QTreeView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int e
     // close parent
     int p = d->viewIndex(parent);
     if (p > 0) {
-        d->close(p, false);
+        d->close(p);
         // reopen parent using a delayed function call
         d->reopen = p; // p is safe because all the changes happens after this one
         int slot = metaObject()->indexOfSlot("reopen()");
@@ -1161,7 +1167,7 @@ bool QTreeView::isIndexHidden(const QModelIndex &index) const
 /*
   private implementation
 */
-void QTreeViewPrivate::open(int i, bool update)
+void QTreeViewPrivate::open(int i)
 {
     QModelIndex index = viewItems.at(i).index;
 
@@ -1173,20 +1179,13 @@ void QTreeViewPrivate::open(int i, bool update)
     viewItems[i].open = true;
     layout(i);
 
-    if (update) {
-        q->updateGeometries();
-        viewport->update();
-        qApp->processEvents();
-    }
-
     // make sure we open children that are already open
-    reopenChildren(index, update);
+    reopenChildren(index);
 
-    if (update)
-        emit q->expanded(index);
+    emit q->expanded(index);
 }
 
-void QTreeViewPrivate::close(int i, bool update)
+void QTreeViewPrivate::close(int i)
 {
     if (i < 0)
         return;
@@ -1206,11 +1205,7 @@ void QTreeViewPrivate::close(int i, bool update)
     }
     qCollapse<QTreeViewItem>(viewItems, i, total);
 
-    if (update) {
-        q->updateGeometries();
-        viewport->update();
-        emit q->collapsed(index);
-    }
+    emit q->collapsed(index);
 }
 
 void QTreeViewPrivate::layout(int i)
@@ -1373,8 +1368,8 @@ void QTreeViewPrivate::relayout(const QModelIndex &parent)
     if (parent.isValid()) {
         int parentViewIndex = viewIndex(parent);
         if (parentViewIndex > -1 && viewItems.at(parentViewIndex).open) {
-            close(parentViewIndex, false);
-            open(parentViewIndex, false);
+            close(parentViewIndex);
+            open(parentViewIndex);
             q->updateGeometries();
             viewport->update();
         }
@@ -1384,7 +1379,7 @@ void QTreeViewPrivate::relayout(const QModelIndex &parent)
     }
 }
 
-void QTreeViewPrivate::reopenChildren(const QModelIndex &parent, bool update)
+void QTreeViewPrivate::reopenChildren(const QModelIndex &parent)
 {
     // FIXME: this is slow: optimize
     QVector<QPersistentModelIndex> o = openedIndexes;
@@ -1396,7 +1391,7 @@ void QTreeViewPrivate::reopenChildren(const QModelIndex &parent, bool update)
                 continue;
             int k = openedIndexes.indexOf(index);
             openedIndexes.remove(k);
-            open(v, update);
+            open(v);
         }
     }
 }

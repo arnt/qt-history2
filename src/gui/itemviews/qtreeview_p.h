@@ -49,8 +49,8 @@ public:
 
     ~QTreeViewPrivate() {}
 
-    void open(int item, bool update);
-    void close(int item, bool update);
+    void open(int item);
+    void close(int item);
     void layout(int item);
 
     int pageUp(int item) const;
@@ -80,7 +80,7 @@ public:
     int columnAt(int x) const;
 
     void relayout(const QModelIndex &parent);
-    void reopenChildren(const QModelIndex &parent, bool update);
+    void reopenChildren(const QModelIndex &parent);
 
     void updateVerticalScrollbar();
     void updateHorizontalScrollbar();
