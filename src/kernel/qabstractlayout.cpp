@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#3 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -372,7 +372,11 @@ void QLayout::setMenuBar( QMenuBar *w )
 }
 
 
-
+/*!
+  \fn QSize QLayout::sizeHint()
+  
+  Implemented in subclasses to return the preferred size of this layout.
+*/
 
 /*!
   Returns the minimum size of this layout. This is the smallest size
