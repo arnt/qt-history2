@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmime_win.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qmime_win.cpp#8 $
 **
 ** Implementation of Win32 MIME <-> clipboard converters
 **
@@ -255,8 +255,13 @@ bool QWindowsMimeText::canConvert( const char* mime, int cf )
 
 QByteArray QWindowsMimeText::convertToMime( QByteArray data, const char* /*mime*/, int cf )
 {
-    if ( cf == CF_TEXT )
-	return data;
+    if ( cf == CF_TEXT ) {
+	// text/plain doesn't have a NUL, but CF_TEXT does.
+	QByteArray r(data.size()+1);
+	memcpy(r.data(),data.data(),data.size());
+	r[data.size()]=0;
+	return r;
+    }
 
     // Windows uses un-marked little-endian nul-terminated Unicode
     int ms = data.size();

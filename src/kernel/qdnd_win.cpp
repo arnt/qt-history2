@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#60 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#61 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -419,6 +419,7 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
     object = o;
     dragSource = (QWidget *)(object->parent());
     global_src = o;
+    global_src->setTarget(0);
 
     const char* fmt;
     for (int i=0; (fmt=object->format(i)); i++)
