@@ -1109,10 +1109,15 @@ bool QWidgetPrivate::isTransparent() const
   and possibly propagates it further to its own children, this
   function updates everthing that needs to be updated after a move.
 
-  This is necessary because the pixmap offset has changed.
+  This is necessary because the pixmap offset has changed. This is not
+  necessary on Mac OS X because due to the composite manager we get
+  this for free, and as a result doing it here will actually force
+  more paints than are necessary, this is a NO-OP for a composited
+  windowing system like Mac OS X.
  */
 void QWidgetPrivate::updateInheritedBackground(bool force)
 {
+#ifndef Q_WS_MAC
     if (!q->isVisible() || !isBackgroundInherited())
         return;
 #ifndef QT_NO_PALETTE
@@ -1125,6 +1130,9 @@ void QWidgetPrivate::updateInheritedBackground(bool force)
             if (children.at(i)->isWidgetType())
                 static_cast<QWidget*>(children.at(i))->d->updateInheritedBackground(force);
     }
+#else
+    Q_UNUSED(force)
+#endif
 }
 
 /*
@@ -1132,17 +1140,26 @@ void QWidgetPrivate::updateInheritedBackground(bool force)
   children, this function updates everything that needs to be updated
   after a resize.
 
-  Call this only when Qt::WA_ContentsPropagated is set.
+  Call this only when Qt::WA_ContentsPropagated is set. This is not
+  necessary on Mac OS X because due to the composite manager we get
+  this for free, and as a result doing it here will actually force
+  more paints than are necessary, this is a NO-OP for a composited
+  windowing system like Mac OS X.
  */
 void QWidgetPrivate::updatePropagatedBackground(const QRegion *reg)
 {
-    for (int i = 0; i < children.size(); ++i)
+#ifndef Q_WS_MAC
+    for (int i = 0; i < children.size(); ++i) {
         if (children.at(i)->isWidgetType()) {
             QWidget *w = static_cast<QWidget*>(children.at(i));
             if (reg && !reg->contains(w->geometry()))
                 continue;
             w->d->updateInheritedBackground(true);
         }
+    }
+#else
+    Q_UNUSED(reg)
+#endif
 }
 
 void QWidgetPrivate::propagatePaletteChange()
