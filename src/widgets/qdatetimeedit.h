@@ -128,9 +128,9 @@ protected slots:
 
 private:
     void init();
-    int sectionOffsetEnd( int sec );
-    int sectionLength( int sec );
-    QString sectionText( int sec );
+    int sectionOffsetEnd( int sec ) const;
+    int sectionLength( int sec ) const;
+    QString sectionText( int sec ) const;
     QDateEditPrivate* d;
 };
 

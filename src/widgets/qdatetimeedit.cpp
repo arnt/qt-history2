@@ -984,7 +984,7 @@ QString QDateEdit::sectionFormattedText( int sec )
   \sa setOrder()
 */
 
-int QDateEdit::sectionLength( int sec )
+int QDateEdit::sectionLength( int sec ) const
 {
     int val = 0;
     if ( sec == d->yearSection ) {
@@ -1005,7 +1005,7 @@ int QDateEdit::sectionLength( int sec )
 
 */
 
-QString QDateEdit::sectionText( int sec )
+QString QDateEdit::sectionText( int sec ) const
 {
     int val = 0;
     if ( sec == d->yearSection ) {
@@ -1024,38 +1024,34 @@ QString QDateEdit::sectionText( int sec )
 
 */
 
-int QDateEdit::sectionOffsetEnd( int sec )
+int QDateEdit::sectionOffsetEnd( int sec ) const
 {
     if ( sec == d->yearSection ) {
 	switch( d->ord ) {
 	case DMY:
 	case MDY:
-	    return 10;
+	    return sectionOffsetEnd( sec-1) + separator().length() + sectionLength( sec );
 	case YMD:
 	case YDM:
-	    return 4;
+	    return sectionLength( sec );
 	}
     } else if ( sec == d->monthSection ) {
 	switch( d->ord ) {
 	case DMY:
-	    return 5;
-	case YMD:
-	    return 7;
-	case MDY:
-	    return 2;
 	case YDM:
-	    return 10;
+	case YMD:
+	    return sectionOffsetEnd( sec-1) + separator().length() + sectionLength( sec );
+	case MDY:
+	    return sectionLength( sec );
 	}
     } else if ( sec == d->daySection ) {
 	switch( d->ord ) {
 	case DMY:
-	    return 2;
+	    return sectionLength( sec );
 	case YMD:
-	    return 10;
 	case MDY:
-	    return 5;
 	case YDM:
-	    return 7;
+	    return sectionOffsetEnd( sec-1 ) + separator().length() + sectionLength( sec );
 	}
     }
     return 0;
@@ -1925,7 +1921,7 @@ QString QTimeEdit::sectionFormattedText( int sec )
 {
     QString txt;
     txt = sectionText( sec );
-    int offset = sec*3 + 2;
+    int offset = sec*2+sec*separator().length() + 2;
     if ( d->typing && sec == d->ed->focusSection() )
 	d->ed->setSectionSelection( sec, offset - txt.length(), offset );
     else
@@ -1939,20 +1935,20 @@ QString QTimeEdit::sectionFormattedText( int sec )
 
 */
 
-bool QTimeEdit::setFocusSection( int s )
+bool QTimeEdit::setFocusSection( int sec )
 {
-    if ( s != d->ed->focusSection() ) {
+    if ( sec != d->ed->focusSection() ) {
 	killTimer( d->timerId );
 	d->overwrite = TRUE;
 	d->typing = FALSE;
-	int offset = s*3 + 2;
-	d->ed->setSectionSelection( s, offset - 2, offset );
+	int offset = sec*2+sec*separator().length() + 2;
+	d->ed->setSectionSelection( sec, offset - 2, offset );
 	if ( d->changed ) {
 	    emit valueChanged( time() );
 	    d->changed = FALSE;
 	}
     }
-    return d->ed->setFocusSection( s );
+    return d->ed->setFocusSection( sec );
 }
 
 
