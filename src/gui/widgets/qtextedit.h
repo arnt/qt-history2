@@ -31,6 +31,7 @@ class QTextCursor;
 class QTextBlockFormat;
 class QMenu;
 class QTextEditPrivate;
+class QMimeData;
 
 class Q_GUI_EXPORT QTextEdit : public QViewport
 {
@@ -197,6 +198,9 @@ protected:
     virtual void wheelEvent(QWheelEvent *ev);
 
     virtual QMenu *createPopupMenu(const QPoint &pos);
+
+    virtual QMimeData *createMimeDataFromSelection() const;
+    virtual void insertFromMimeData(const QMimeData *data);
 
     virtual void inputMethodEvent(QInputMethodEvent *);
     QVariant inputMethodQuery(Qt::InputMethodQuery property) const;

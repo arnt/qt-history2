@@ -46,23 +46,6 @@
 #define ACCEL_KEY(k) "\t" + QString("Ctrl+" #k)
 #endif
 
-static QMimeData *createMimeData(const QTextDocumentFragment &fragment)
-{
-    QMimeData *data = new QMimeData;
-
-    QByteArray binary;
-    QDataStream stream(&binary, QIODevice::WriteOnly);
-    stream << fragment;
-    data->setData("application/x-qt-richtext", binary);
-
-    data->setHtml(fragment.toHtml());
-
-    QString txt = fragment.toPlainText();
-    txt.replace(QChar::Nbsp, ' ');
-    data->setText(txt);
-    return data;
-};
-
 static bool dataHasText(const QMimeData *data)
 {
     return data->hasText()
@@ -424,7 +407,7 @@ void QTextEditPrivate::startDrag()
 {
     Q_Q(QTextEdit);
     mousePressed = false;
-    QMimeData *data = createMimeData(cursor);
+    QMimeData *data = q->createMimeDataFromSelection();
 
     QDrag *drag = new QDrag(q);
     drag->setMimeData(data);
@@ -434,37 +417,6 @@ void QTextEditPrivate::startDrag()
 
     if (action == QDrag::MoveAction && drag->target() != q)
         cursor.removeSelectedText();
-}
-
-void QTextEditPrivate::paste(const QMimeData *source)
-{
-    Q_Q(QTextEdit);
-    if (readOnly || !source)
-	return;
-
-    bool hasData = false;
-    QTextDocumentFragment fragment;
-    if (source->hasFormat("application/x-qt-richtext")) {
-        QDataStream stream(source->data("application/x-qt-richtext"));
-        stream >> fragment;
-        hasData = true;
-    } else if (source->hasFormat("application/x-qrichtext")) {
-        fragment = QTextDocumentFragment::fromHtml(source->data("application/x-qrichtext"));
-        hasData = true;
-    } else if (source->hasHtml()) {
-        fragment = QTextDocumentFragment::fromHtml(source->html());
-        hasData = true;
-    } else {
-        QString text = source->text();
-        if (!text.isNull()) {
-            fragment = QTextDocumentFragment::fromPlainText(text);
-            hasData = true;
-        }
-    }
-
-    if (hasData)
-        cursor.insertFragment(fragment);
-    q->ensureCursorVisible();
 }
 
 void QTextEditPrivate::setCursorPosition(const QPoint &pos)
@@ -570,7 +522,8 @@ void QTextEditPrivate::setClipboardSelection()
 {
     if (!cursor.hasSelection())
         return;
-    QMimeData *data = createMimeData(cursor);
+    Q_Q(QTextEdit);
+    QMimeData *data = q->createMimeDataFromSelection();
     QApplication::clipboard()->setMimeData(data, QClipboard::Selection);
 }
 
@@ -1220,7 +1173,7 @@ void QTextEdit::copy()
     Q_D(QTextEdit);
     if (!d->cursor.hasSelection())
 	return;
-    QMimeData *data = createMimeData(d->cursor);
+    QMimeData *data = createMimeDataFromSelection();
     QApplication::clipboard()->setMimeData(data);
 }
 
@@ -1236,7 +1189,7 @@ void QTextEdit::copy()
 void QTextEdit::paste()
 {
     Q_D(QTextEdit);
-    d->paste(QApplication::clipboard()->mimeData());
+    insertFromMimeData(QApplication::clipboard()->mimeData());
 }
 
 /*!
@@ -1704,7 +1657,7 @@ void QTextEdit::mouseReleaseEvent(QMouseEvent *ev)
                && !d->readOnly
                && QApplication::clipboard()->supportsSelection()) {
         d->setCursorPosition(ev->pos());
-        d->paste(QApplication::clipboard()->mimeData(QClipboard::Selection));
+        insertFromMimeData(QApplication::clipboard()->mimeData(QClipboard::Selection));
     }
 
     d->viewport->update();
@@ -1813,7 +1766,7 @@ void QTextEdit::dropEvent(QDropEvent *ev)
         d->cursor.removeSelectedText();
 
     d->setCursorPosition(ev->pos());
-    d->paste(ev->mimeData());
+    insertFromMimeData(ev->mimeData());
 }
 
 /*! \reimp
@@ -2004,6 +1957,69 @@ QMenu *QTextEdit::createPopupMenu(const QPoint &pos)
     a->setEnabled(!d->doc->isEmpty());
 
     return menu;
+}
+
+/*!
+    This function is called whenever the textedit's selection needs
+    to be encapsulated into a new QMimeData object, for drag and
+    drop or for copying to the clipboard for example.
+
+    If you re-implement this function note that the ownership of
+    the returned QMimeData object is passed to the caller. The
+    selection can be retrieved using the textCursor() function.
+*/
+QMimeData *QTextEdit::createMimeDataFromSelection() const
+{
+    Q_D(const QTextEdit);
+    const QTextDocumentFragment fragment(d->cursor);
+    QMimeData *data = new QMimeData;
+
+    QByteArray binary;
+    QDataStream stream(&binary, QIODevice::WriteOnly);
+    stream << fragment;
+    data->setData("application/x-qt-richtext", binary);
+
+    data->setHtml(fragment.toHtml());
+
+    QString txt = fragment.toPlainText();
+    txt.replace(QChar::Nbsp, ' ');
+    data->setText(txt);
+    return data;
+};
+
+/*!
+    This function is called whenever text is to be inserted as the
+    result of pasting from the clipboard or from accepting a drop.
+*/
+void QTextEdit::insertFromMimeData(const QMimeData *source)
+{
+    Q_D(QTextEdit);
+    if (d->readOnly || !source)
+	return;
+
+    bool hasData = false;
+    QTextDocumentFragment fragment;
+    if (source->hasFormat("application/x-qt-richtext")) {
+        QDataStream stream(source->data("application/x-qt-richtext"));
+        stream >> fragment;
+        hasData = true;
+    } else if (source->hasFormat("application/x-qrichtext")) {
+        fragment = QTextDocumentFragment::fromHtml(source->data("application/x-qrichtext"));
+        hasData = true;
+    } else if (source->hasHtml()) {
+        fragment = QTextDocumentFragment::fromHtml(source->html());
+        hasData = true;
+    } else {
+        QString text = source->text();
+        if (!text.isNull()) {
+            fragment = QTextDocumentFragment::fromPlainText(text);
+            hasData = true;
+        }
+    }
+
+    if (hasData)
+        d->cursor.insertFragment(fragment);
+    ensureCursorVisible();
 }
 
 /*!
