@@ -1181,14 +1181,11 @@ static void initializeDb()
 // font loader
 // --------------------------------------------------------------------------------------
 
-#define MAXFONTSIZE_XFT 256
-#define MAXFONTSIZE_XLFD 128
-
 #ifndef QT_NO_XFT
 
-static double addPatternProps(FcPattern *pattern, const QtFontStyle::Key &key,
-                              bool fakeOblique, bool smoothScalable,
-                              const QFontPrivate *fp, const QFontDef &request, int script)
+static void addPatternProps(FcPattern *pattern, const QtFontStyle::Key &key,
+                            bool fakeOblique, bool smoothScalable,
+                            const QFontPrivate *fp, const QFontDef &request, int script)
 {
     int weight_value = FC_WEIGHT_BLACK;
     if (key.weight == 0)
@@ -1211,11 +1208,6 @@ static double addPatternProps(FcPattern *pattern, const QtFontStyle::Key &key,
     FcPatternAddInteger(pattern, FC_SLANT, slant_value);
 
     double size_value = request.pixelSize;
-    double scale = 1.;
-    if (size_value > MAXFONTSIZE_XFT) {
-        scale = (double)size_value/(double)MAXFONTSIZE_XFT;
-        size_value = MAXFONTSIZE_XFT;
-    }
     FcPatternAddDouble(pattern, FC_PIXEL_SIZE, size_value);
 
     if (!smoothScalable) {
@@ -1258,8 +1250,6 @@ static double addPatternProps(FcPattern *pattern, const QtFontStyle::Key &key,
         FcPatternAddLangSet(pattern, FC_LANG, ls);
         FcLangSetDestroy(ls);
     }
-
-    return scale;
 }
 
 static void FcFontSetRemove(FcFontSet *fs, int at)
@@ -1293,8 +1283,6 @@ static QFontEngine *loadFcEngineFromPattern(FcPattern *pattern, const QFontPriva
         return 0;
 
     double size_value = request.pixelSize;
-    if (size_value > MAXFONTSIZE_XFT)
-        size_value = MAXFONTSIZE_XFT;
 
     // remove fonts if their size isn't close enough, or if they are
     // not scalable (and should be)
@@ -1352,13 +1340,6 @@ static QFontEngine *loadFcEngineFromPattern(FcPattern *pattern, const QFontPriva
             }
 
             fe = new QFontEngineXft(xftfs);
-            double scale = 1.0;
-            if (fp->dpi != QX11Info::appDpiY()) {
-                double px;
-                FcPatternGetDouble(result, FC_PIXEL_SIZE, 0, &px);
-                scale = request.pixelSize / px;
-            }
-            fe->setScale(scale);
             fe->fontDef = request;
         }
     } else {
@@ -1373,17 +1354,6 @@ static QFontEngine *loadFcEngineFromPattern(FcPattern *pattern, const QFontPriva
         }
 
         fe = new QFontEngineMultiXft(fontSet, fp->screen);
-        // ###
-#if 0
-        if (fp->dpi != QX11Info::appDpiY()) {
-            double px;
-            FcPatternGetDouble(result, FC_PIXEL_SIZE, 0, &px);
-            scale = request.pixelSize/px;
-        }
-#else
-        double scale = size_value > 0 ? request.pixelSize / size_value : 1.;
-#endif
-        fe->setScale(scale);
         fe->fontDef = request;
     }
 
@@ -1506,13 +1476,6 @@ QFontEngine *loadEngine(int script,
         px = request.pixelSize;
     else if (style->bitmapScalable && px == 0)
         px = request.pixelSize;
-    double scale = 1.;
-    if (px > MAXFONTSIZE_XLFD) {
-        scale = (double)px/(double)MAXFONTSIZE_XLFD;
-        px = MAXFONTSIZE_XLFD;
-    }
-    if (fp && fp->dpi != QX11Info::appDpiY())
-        scale = (double)request.pixelSize/(double)px;
 
     QFontEngine *fe = 0;
     if (forced_encoding || script != QUnicodeTables::Common) {
@@ -1579,6 +1542,5 @@ QFontEngine *loadEngine(int script,
 
         fe = new QFontEngineMultiXLFD(request, encodings, fp->screen);
     }
-    fe->setScale(scale);
     return fe;
 }

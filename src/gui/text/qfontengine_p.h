@@ -82,7 +82,6 @@ public:
 #if defined(Q_WS_WIN)
         script_cache = 0;
 #endif
-        _scale = 1;
     }
     virtual ~QFontEngine();
 
@@ -123,16 +122,12 @@ public:
 
     virtual bool canRender(const QChar *string,  int len) = 0;
 
-    virtual void setScale(qreal s) { _scale = s; }
-    virtual qreal scale() const { return _scale; }
-
     virtual Type type() const = 0;
 
     QAtomic     ref;
     QFontDef fontDef;
     uint cache_cost; // amount of mem used in kb by the font
     int cache_count;
-    qreal _scale;
 
 #ifdef Q_WS_WIN
     int getGlyphIndexes(const QChar *ch, int numChars, QGlyphLayout *glyphs, bool mirrored) const;
@@ -374,9 +369,6 @@ public:
     bool canRender(const QChar *string,  int len);
     inline const char *name() const
     { return "Multi"; }
-
-    void setScale(qreal s);
-    qreal scale() const;
 
     QFontEngine *engine(int at) const;
 

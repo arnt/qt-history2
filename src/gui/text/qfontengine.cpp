@@ -226,7 +226,6 @@ bool QFontEngineMulti::stringToCMap(const QChar *str, int len,
                 if (!engine) {
                     const_cast<QFontEngineMulti *>(this)->loadEngine(x);
                     engine = engines.at(x);
-                    engine->setScale(scale());
                 }
                 Q_ASSERT(engine != 0);
                 if (engine->type() == Box)
@@ -498,20 +497,6 @@ bool QFontEngineMulti::canRender(const QChar *string, int len)
 
     return allExist;
 }
-
-void QFontEngineMulti::setScale(qreal scale)
-{
-    QFontEngine::setScale(scale);
-    int i;
-    for (i = 0; i < engines.size(); ++i) {
-        QFontEngine *fontEngine = engine(i);
-        if (fontEngine)
-            fontEngine->setScale(scale);
-    }
-}
-
-qreal QFontEngineMulti::scale() const
-{ return engine(0)->scale(); }
 
 QFontEngine *QFontEngineMulti::engine(int at) const
 {

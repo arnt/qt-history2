@@ -233,10 +233,6 @@ bool QFontEngineXLFD::stringToCMap(const QChar *str, int len, QGlyphLayout *glyp
             g->advance.ry() = 0;
         }
     }
-    if (_scale != 1.) {
-        for (int i = 0; i < len; i++)
-            glyphs[i].advance.rx() *= _scale;
-    }
     return true;
 }
 
@@ -256,7 +252,7 @@ glyph_metrics_t QFontEngineXLFD::boundingBox(const QGlyphLayout *glyphs, int num
             overall.y = qMin(overall.y, y);
             xmax = qMax(xmax, overall.xoff + glyphs[i].offset.x() + xcs->rbearing);
             ymax = qMax(ymax, y + xcs->ascent + xcs->descent);
-            overall.xoff += glyphs[i].advance.x()/_scale;
+            overall.xoff += glyphs[i].advance.x();
         } else {
             qreal size = _fs->ascent;
             overall.x = qMin(overall.x, overall.xoff);
@@ -269,21 +265,12 @@ glyph_metrics_t QFontEngineXLFD::boundingBox(const QGlyphLayout *glyphs, int num
     overall.height = ymax - overall.y;
     overall.width = xmax - overall.x;
 
-    if (_scale != qreal(1)) {
-        overall.x *= _scale;
-        overall.y *= _scale;
-        overall.height *= _scale;
-        overall.width *= _scale;
-        overall.xoff *= _scale;
-        overall.yoff *= _scale;
-    }
     return overall;
 }
 
 glyph_metrics_t QFontEngineXLFD::boundingBox(glyph_t glyph)
 {
     glyph_metrics_t gm;
-    // ### scale missing!
     XCharStruct *xcs = charStruct(_fs, glyph);
     if (xcs) {
         gm = glyph_metrics_t(xcs->lbearing, -xcs->ascent, xcs->rbearing- xcs->lbearing, xcs->ascent + xcs->descent,
@@ -292,38 +279,30 @@ glyph_metrics_t QFontEngineXLFD::boundingBox(glyph_t glyph)
         qreal size = ascent();
         gm = glyph_metrics_t(0, size, size, size, size, 0);
     }
-    if (_scale != 1.) {
-        gm.x *= _scale;
-        gm.y *= _scale;
-        gm.height *= _scale;
-        gm.width *= _scale;
-        gm.xoff *= _scale;
-        gm.yoff *= _scale;
-    }
     return gm;
 }
 
 
 qreal QFontEngineXLFD::ascent() const
 {
-    return _fs->ascent*_scale;
+    return _fs->ascent;
 }
 
 qreal QFontEngineXLFD::descent() const
 {
-    return (_fs->descent-1)*_scale;
+    return (_fs->descent-1);
 }
 
 qreal QFontEngineXLFD::leading() const
 {
     qreal l = (qMin<int>(_fs->ascent, _fs->max_bounds.ascent)
-                 + qMin<int>(_fs->descent, _fs->max_bounds.descent)) * _scale * qreal(0.15);
+                 + qMin<int>(_fs->descent, _fs->max_bounds.descent)) * qreal(0.15);
     return ceil(l);
 }
 
 qreal QFontEngineXLFD::maxCharWidth() const
 {
-    return _fs->max_bounds.width*_scale;
+    return _fs->max_bounds.width;
 }
 
 
@@ -359,7 +338,7 @@ qreal QFontEngineXLFD::minLeftBearing() const
         } else
             ((QFontEngineXLFD *)this)->lbearing = _fs->min_bounds.lbearing;
     }
-    return lbearing*_scale;
+    return lbearing;
 }
 
 qreal QFontEngineXLFD::minRightBearing() const
@@ -387,7 +366,7 @@ qreal QFontEngineXLFD::minRightBearing() const
         } else
             ((QFontEngineXLFD *)this)->rbearing = _fs->min_bounds.rbearing;
     }
-    return rbearing*_scale;
+    return rbearing;
 }
 
 int QFontEngineXLFD::cmap() const
@@ -631,10 +610,6 @@ void QFontEngineXft::recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::
             glyphs[i].advance.ry() = 0.;
         }
         XftUnlockFace(_font);
-        if (_scale != 1.) {
-            for (int i = 0; i < len; i++)
-                glyphs[i].advance.rx() *= _scale;
-        }
     } else {
         for (int i = 0; i < len; i++) {
             FT_UInt glyph = glyphs[i].glyph;
@@ -652,10 +627,6 @@ void QFontEngineXft::recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::
             }
             glyphs[i].advance.rx() = advanceCache[glyph];
             glyphs[i].advance.ry() = 0;
-        }
-        if (_scale != 1.) {
-            for (int i = 0; i < len; i++)
-                glyphs[i].advance.rx() *= _scale;
         }
     }
 }
@@ -687,15 +658,15 @@ XftFont *QFontEngineXft::transformedFont(const QMatrix &matrix)
     qreal scale = matrix.det();
     scale = sqrt(qAbs(scale));
 #ifdef QT_USE_FIXED_POINT
-    m2.xx = (matrix.m11()*_scale).toDouble();
-    m2.xy = (-matrix.m21()*_scale).toDouble();
-    m2.yx = (-matrix.m12()*_scale).toDouble();
-    m2.yy = (matrix.m22()*_scale).toDouble();
+    m2.xx = (matrix.m11()).toDouble();
+    m2.xy = (-matrix.m21()).toDouble();
+    m2.yx = (-matrix.m12()).toDouble();
+    m2.yy = (matrix.m22()).toDouble();
 #else
-    m2.xx = matrix.m11()*_scale;
-    m2.xy = -matrix.m21()*_scale;
-    m2.yx = -matrix.m12()*_scale;
-    m2.yy = matrix.m22()*_scale;
+    m2.xx = matrix.m11();
+    m2.xy = -matrix.m21();
+    m2.yx = -matrix.m12();
+    m2.yy = matrix.m22();
 #endif
 
     // check if we have it cached
@@ -779,19 +750,11 @@ glyph_metrics_t QFontEngineXft::boundingBox(const QGlyphLayout *glyphs, int numG
         overall.y = qMin(overall.y, y);
         xmax = qMax(xmax, x + xgi.width);
         ymax = qMax(ymax, y + xgi.height);
-        overall.xoff += qRound(glyphs[i].advance.x()/_scale);
+        overall.xoff += qRound(glyphs[i].advance.x());
     }
     overall.height = ymax - overall.y;
     overall.width = xmax - overall.x;
 
-    if (_scale != 1.) {
-        overall.x *= _scale;
-        overall.y *= _scale;
-        overall.height *= _scale;
-        overall.width *= _scale;
-        overall.xoff *= _scale;
-        overall.yoff *= _scale;
-    }
     return overall;
 }
 
@@ -801,14 +764,6 @@ glyph_metrics_t QFontEngineXft::boundingBox(glyph_t glyph)
     FT_UInt x = glyph;
     XftGlyphExtents(QX11Info::display(), _font, &x, 1, &xgi);
     glyph_metrics_t gm = glyph_metrics_t(-xgi.x, -xgi.y, xgi.width, xgi.height, xgi.xOff, -xgi.yOff);
-    if (_scale != 1.) {
-        gm.x *= _scale;
-        gm.y *= _scale;
-        gm.height *= _scale;
-        gm.width *= _scale;
-        gm.xoff *= _scale;
-        gm.yoff *= _scale;
-    }
     return gm;
 }
 
@@ -902,19 +857,19 @@ void QFontEngineXft::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyp
 
 qreal QFontEngineXft::ascent() const
 {
-    return (_font->height - _font->descent)*_scale;
+    return (_font->height - _font->descent);
 }
 
 qreal QFontEngineXft::descent() const
 {
-    return (_font->descent)*_scale;
+    return (_font->descent);
 }
 
 // #### use Freetype to determine this
 qreal QFontEngineXft::leading() const
 {
     qreal l = qMin(_font->height - (_font->ascent + _font->descent),
-                     int(((_font->ascent + _font->descent) >> 4)))*_scale;
+                     int(((_font->ascent + _font->descent) >> 4)));
     return (l > 0) ? l : 1.;
 }
 
@@ -936,7 +891,7 @@ qreal QFontEngineXft::lineThickness() const
 
 qreal QFontEngineXft::maxCharWidth() const
 {
-    return _font->max_advance_width*_scale;
+    return _font->max_advance_width;
 }
 
 static const ushort char_table[] = {

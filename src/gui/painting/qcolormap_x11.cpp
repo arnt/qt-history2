@@ -521,7 +521,6 @@ int QColormap::size() const
 uint QColormap::pixel(const QColor &color) const
 {
     const QColor c = color.toRgb();
-    const QRgb rgb = c.rgba();
     const uint r = (c.ct.argb.red   * d->r_max) >> 16;
     const uint g = (c.ct.argb.green * d->g_max) >> 16;
     const uint b = (c.ct.argb.blue  * d->b_max) >> 16;

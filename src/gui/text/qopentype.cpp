@@ -425,7 +425,6 @@ bool QOpenType::appendTo(QShaperItem *item, bool doLogClusters)
     // positioning code:
     if (hasGPos && positioned) {
 //         qDebug("positioned glyphs:");
-        qreal scale = item->font->scale();
         for (int i = 0; i < (int)str->length; i++) {
 //             qDebug("    %d:\t orig advance: (%d/%d)\tadv=(%d/%d)\tpos=(%d/%d)\tback=%d\tnew_advance=%d", i,
 //                    glyphs[i].advance.x, glyphs[i].advance.y,
@@ -435,12 +434,12 @@ bool QOpenType::appendTo(QShaperItem *item, bool doLogClusters)
             // ###### fix the case where we have y advances. How do we handle this in Uniscribe?????
             if (positions[i].new_advance) {
                 glyphs[i].advance.rx() = (item->flags & QTextEngine::RightToLeft
-                                          ? -positions[i].x_advance : positions[i].x_advance) / 64.*scale;
-                glyphs[i].advance.ry() = -positions[i].y_advance / 64. *scale;
+                                          ? -positions[i].x_advance : positions[i].x_advance) / 64.;
+                glyphs[i].advance.ry() = -positions[i].y_advance / 64.;
             } else {
                 glyphs[i].advance.rx() += (item->flags & QTextEngine::RightToLeft
-                                           ? -positions[i].x_advance : positions[i].x_advance) / 64. *scale;
-                glyphs[i].advance.ry() -= positions[i].y_advance / 64. * scale;
+                                           ? -positions[i].x_advance : positions[i].x_advance) / 64.;
+                glyphs[i].advance.ry() -= positions[i].y_advance / 64.;
             }
             glyphs[i].offset.rx() = positions[i].x_pos / 64.;
             glyphs[i].offset.ry() = -positions[i].y_pos / 64.;

@@ -122,7 +122,6 @@ QFontEngineFT::QFontEngineFT(const QFontDef& d, FT_Face ft_face)
     _openType = 0;
     fontDef = d;
     face = ft_face;
-    _scale =  1;
 
     smooth = FT_IS_SCALABLE(face);
     if (fontDef.styleStrategy & QFont::NoAntialias)
@@ -271,7 +270,6 @@ glyph_metrics_t QFontEngineFT::boundingBox(const QGlyphLayout *glyphs, int numGl
     const QGlyphLayout *end = glyphs + numGlyphs;
     while(end > glyphs)
         w += (--end)->advance.x();
-    w *= _scale;
     return glyph_metrics_t(0, -ascent(), w, ascent()+descent()+1, w, 0);
 }
 
@@ -279,9 +277,9 @@ glyph_metrics_t QFontEngineFT::boundingBox(glyph_t glyph)
 {
     const QGlyph *g = rendered_glyphs[glyph];
     Q_ASSERT(g);
-    return glyph_metrics_t(g->bearingx*_scale, g->bearingy*_scale,
-                            g->width*_scale, g->height*_scale,
-                            g->advance*_scale, 0);
+    return glyph_metrics_t(g->bearingx, g->bearingy,
+                            g->width, g->height,
+                            g->advance, 0);
 }
 
 static void addCurve(QPainterPath *path, const QPointF &cp, const QPointF &endPoint,
@@ -410,13 +408,13 @@ qreal QFontEngineFT::maxCharWidth() const
 qreal QFontEngineFT::minLeftBearing() const
 {
     return 0;
-//     return (memorymanager->fontMinLeftBearing(handle())*_scale)>>8;
+//     return (memorymanager->fontMinLeftBearing(handle()))>>8;
 }
 
 qreal QFontEngineFT::minRightBearing() const
 {
     return 0;
-//     return (memorymanager->fontMinRightBearing(handle())*_scale)>>8;
+//     return (memorymanager->fontMinRightBearing(handle()))>>8;
 }
 
 qreal QFontEngineFT::underlinePosition() const
@@ -464,8 +462,8 @@ void QFontEngineFT::recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::S
                 rendered_glyphs[g] = new QGlyph;
                 render(face, g, rendered_glyphs[g], smooth);
             }
-            glyphs[i].advance.rx() = (rendered_glyphs[g]->advance);//*_scale)>>8;
-        glyphs[i].advance.ry() = 0;
+            glyphs[i].advance.rx() = (rendered_glyphs[g]->advance);
+            glyphs[i].advance.ry() = 0;
         }
     }
 }
@@ -937,7 +935,6 @@ glyph_metrics_t QFontEngineQPF::boundingBox(const QGlyphLayout *glyphs, int numG
     const QGlyphLayout *end = glyphs + numGlyphs;
     while(end > glyphs)
         w += (--end)->advance.x();
-    w *= _scale;
     return glyph_metrics_t(0, -ascent(), w, ascent()+descent()+1, w, 0);
 }
 

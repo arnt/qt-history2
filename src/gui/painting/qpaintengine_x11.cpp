@@ -1948,8 +1948,7 @@ void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItemInt &si)
 
     QFontEngineXLFD *xlfd = static_cast<QFontEngineXLFD *>(si.fontEngine);
     Qt::HANDLE font_id = xlfd->fontStruct()->fid;
-    qreal scale = si.fontEngine->scale();
-    if ( d->txop > QPainterPrivate::TxTranslate || scale < 0.9999 || scale > 1.0001  ) {
+    if (d->txop > QPainterPrivate::TxTranslate) {
         // XServer or font don't support server side transformations, need to do it by hand
         QPaintEngine::drawTextItem(p, si);
         return;
