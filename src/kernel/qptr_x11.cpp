@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#90 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#91 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#90 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#91 $";
 #endif
 
 
@@ -2702,27 +2702,40 @@ void QPainter::drawBezier( const QPointArray &a, int index, int npoints )
 Draws a pixmap at \e (x,y).
 */
 
-void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap )
+void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
+			   int sx, int sy, int sw, int sh )
 {						// draw pixmap
     if ( !isActive() || pixmap.isNull() )
 	return;
+    if ( sw < 0 )
+	sw = pixmap.width();
+    if ( sh < 0 )
+	sh = pixmap.height();
     if ( testf(ExtDev|VxF|WxF) ) {
-	if ( testf(ExtDev) ) {
-	    QPDevCmdParam param[3];
-	    QRect  r(0,0,pixmap.width(),pixmap.height());
-	    QPoint p(x,y);
-	    param[0].rect   = &r;
-	    param[1].point  = &p;
-	    param[2].pixmap = &pixmap;
-	    pdev->cmd( PDC_DRAWPIXMAP, param );
-	    return;
-	}
-	if ( testf(WxF) ) {			// heavy transformation
+	if ( testf(ExtDev|WxF) ) {
+	    if ( sx != 0 || sy != 0 ||
+		 sw != pixmap.width() || sh != pixmap.height() ) {
+		QPixmap tmp( sw, sh, pixmap.depth() );
+		bitBlt( &tmp, 0, 0, &pixmap, sx, sy, sw, sh );
+		drawPixmap( x, y, tmp );
+		return;
+	    }
+	    if ( testf(ExtDev) ) {
+		QPDevCmdParam param[3];
+		QRect  r(0,0,sw,sh);
+		QPoint p(x,y);
+		param[0].rect   = &r;
+		param[1].point  = &p;
+		param[2].pixmap = &pixmap;
+		pdev->cmd( PDC_DRAWPIXMAP, param );
+		return;
+	    }
+							// world transform
 	    Q2DMatrix mat( wm11/65536.0, wm12/65536.0,
 			   wm21/65536.0, wm22/65536.0,
 			   wdx/65536.0,  wdy/65536.0 );
-	    mat = QPixmap::trueMatrix( mat, pixmap.width(), pixmap.height() );
-	    QPixmap bm_clip( pixmap.width(), pixmap.height(), 1 );
+	    mat = QPixmap::trueMatrix( mat, sw, sh );
+	    QPixmap bm_clip( sw, sh, 1 );
 	    bm_clip.fill( color1 );
 	    QPixmap pm = pixmap.xForm( mat );
 	    QPixmap bm = bm_clip.xForm( mat );
@@ -2733,7 +2746,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap )
 	    bool do_clip = hasClipping();
 	    QPixmap *draw_pm;
 	    if ( do_clip ) {
-		draw_pm = new QPixmap( pm.width(), pm.height(), pm.depth() );
+		draw_pm = new QPixmap( sw, sh, pm.depth() );
 		QPainter paint;
 		paint.begin( draw_pm );
 		QRegion rgn = crgn.copy();
@@ -2768,10 +2781,10 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap )
 	bool do_clip = hasClipping();
 	if ( bg_mode == TransparentMode ) {	// set up transparency clipping
 	    XSetClipMask( dpy, gc, pixmap.handle() );
-	    XSetClipOrigin( dpy, gc, x, y );
+	    XSetClipOrigin( dpy, gc, x-sx, y-sy );
 	}
-	XCopyPlane( dpy, pixmap.handle(), hd, gc, 0, 0,
-		    pixmap.width(), pixmap.height(), x, y, 1 );
+	XCopyPlane( dpy, pixmap.handle(), hd, gc, sx, sy,
+		    sw, sh, x, y, 1 );
 	if ( bg_mode == TransparentMode ) {	// restore clipping
 	    XSetClipOrigin( dpy, gc, 0, 0 );
 	    if ( do_clip )
@@ -2781,8 +2794,8 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap )
 	}
     }
     else
-	XCopyArea( dpy, pixmap.handle(), hd, gc, 0, 0,
-		   pixmap.width(), pixmap.height(), x, y );
+	XCopyArea( dpy, pixmap.handle(), hd, gc, sx, sy,
+		   sw, sh, x, y );
 }
 
 
