@@ -70,7 +70,6 @@ public:
     void updatePaintDevice();
     QMacWindowChangeEvent *watcher;
 #endif
-
 };
 
 class QGLContextPrivate
@@ -107,4 +106,26 @@ public:
     QGLContext *q_ptr;
 };
 
+// GL extension definitions
+class QGLExtensions {
+public:
+    enum Extension {
+	TextureRectangle 	= 0x01,
+	SampleBuffers 		= 0x02
+    };
+    Q_DECLARE_FLAGS(Extensions, Extension);
+    
+    static Extensions glExtensions;
+    static void init();
+};
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QGLExtensions::Extensions)
+
+/* NV_texture_rectangle */
+#ifndef GL_NV_texture_rectangle
+#define GL_TEXTURE_RECTANGLE_NV           0x84F5
+#define GL_TEXTURE_BINDING_RECTANGLE_NV   0x84F6
+#define GL_PROXY_TEXTURE_RECTANGLE_NV     0x84F7
+#define GL_MAX_RECTANGLE_TEXTURE_SIZE_NV  0x84F8
+#endif
 #endif // QGL_P_H

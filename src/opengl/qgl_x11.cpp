@@ -964,6 +964,7 @@ void QGLOverlayWidget::paintGL()
  *****************************************************************************/
 void QGLWidgetPrivate::init(QGLContext *context, const QGLWidget *shareWidget)
 {
+    QGLExtensions::init();
     glcx = 0;
     olw = 0;
     autoSwap = true;
@@ -1325,3 +1326,9 @@ void QGLWidget::setColormap(const QGLColormap & c)
     delete [] cmw;
 }
 
+
+QGLExtensions::Extensions QGLExtensions::glExtensions = 0;
+
+void QGLExtensions::init()
+{
+}

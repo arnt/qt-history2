@@ -612,6 +612,7 @@ void QGLWidget::setContext(QGLContext *context, const QGLContext* shareContext, 
 
 void QGLWidgetPrivate::init(QGLContext *context, const QGLWidget* shareWidget)
 {
+    QGLExtensions::init();
     watcher = new QMacGLWindowChangeEvent(q);
     glcx = d->olcx = 0;
     autoSwap = true;
@@ -652,6 +653,12 @@ void QGLWidgetPrivate::updatePaintDevice()
     glcx->updatePaintDevice();
     if(olcx)
         olcx->updatePaintDevice();
+}
+
+QGLExtensions::Extensions QGLExtensions::glExtensions = 0;
+
+void QGLExtensions::init()
+{
 }
 
 #endif

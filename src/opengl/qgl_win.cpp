@@ -780,32 +780,6 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
         opengl32dll = true;
     }
 
-    static bool init_wgl_extensions = true;
-    if (init_wgl_extensions) {
-	// we need a current GL context in order to obtain the API
-	// entries, so create a temp dummy one
-	QWidget dmy(0);
-	dmy.create(0);
-	HDC dmy_pdc = GetDC(dmy.winId());
-	PIXELFORMATDESCRIPTOR dmy_pfd = {
-	    sizeof(PIXELFORMATDESCRIPTOR), 1, PFD_SUPPORT_OPENGL,
-	    PFD_TYPE_RGBA, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	    0, 0, 0, 0, PFD_MAIN_PLANE, 0, 0, 0, 0
-	};
-	int dmy_pf = ChoosePixelFormat(dmy_pdc, &dmy_pfd);
-	SetPixelFormat(dmy_pdc, dmy_pf, &dmy_pfd);
-	HGLRC dmy_rc = wglCreateContext(dmy_pdc);
-	wglMakeCurrent(dmy_pdc, dmy_rc);
-	wglChoosePixelFormatARB =
-	    (PFNWGLCHOOSEPIXELFORMATARB) getProcAddress("wglChoosePixelFormatARB");
- 	wglGetPixelFormatAttribivARB =
-	    (PFNWGLGETPIXELFORMATATTRIBIVARB) getProcAddress("wglGetPixelFormatAttribivARB");
-	wglMakeCurrent(dmy_pdc, 0);
-	wglDeleteContext(dmy_rc);
-	ReleaseDC(dmy.winId(), dmy_pdc);
-	init_wgl_extensions = false;
-    }
-
     int chosenPfi = 0;
     if (wglChoosePixelFormatARB) {
 	bool valid;
@@ -1136,6 +1110,7 @@ void *QGLContext::getProcAddress(const QString &proc) const
 
 void QGLWidgetPrivate::init(QGLContext *ctx, const QGLWidget* shareWidget)
 {
+    QGLExtensions::init();
     glcx = 0;
     autoSwap = true;
 
@@ -1338,3 +1313,42 @@ void QGLWidget::setColormap(const QGLColormap & c)
     }
 }
 
+QGLExtensions::Extensions QGLExtensions::glExtensions = 0;
+
+void QGLExtensions::init()
+{
+    static init_done = false;
+    
+    if (init_done)
+	return;
+    init_done = true;
+    
+    // we need a current GL context in order to obtain the API
+    // entries and GL extension strings
+    QWidget dmy(0);
+    HDC dmy_pdc = GetDC(dmy.winId());
+    PIXELFORMATDESCRIPTOR dmy_pfd = {
+	sizeof(PIXELFORMATDESCRIPTOR), 1, PFD_SUPPORT_OPENGL,
+	PFD_TYPE_RGBA, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, PFD_MAIN_PLANE, 0, 0, 0, 0
+    };
+    int dmy_pf = ChoosePixelFormat(dmy_pdc, &dmy_pfd);
+    SetPixelFormat(dmy_pdc, dmy_pf, &dmy_pfd);
+    HGLRC dmy_rc = wglCreateContext(dmy_pdc);
+    wglMakeCurrent(dmy_pdc, dmy_rc);
+    
+    wglChoosePixelFormatARB =
+	(PFNWGLCHOOSEPIXELFORMATARB) wglGetProcAddress("wglChoosePixelFormatARB");
+    wglGetPixelFormatAttribivARB =
+	(PFNWGLGETPIXELFORMATATTRIBIVARB) wglGetProcAddress("wglGetPixelFormatAttribivARB");
+    
+    QString extensions(reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS)));
+    if (extensions.contains("texture_rectangle"))
+	QGLExtensions::glExtensions |= QGLExtensions::TextureRectangle;
+    if (extensions.contains("multisample"))
+	QGLExtensions::glExtensions |= QGLExtensions::SampleBuffers;
+    
+    wglMakeCurrent(dmy_pdc, 0);
+    wglDeleteContext(dmy_rc);
+    ReleaseDC(dmy.winId(), dmy_pdc);
+}
