@@ -62,6 +62,7 @@
 #include "qptrdict.h"
 #include "qstyle.h"
 #include "private/qcomplextext_p.h"
+#include "qcleanuphandler.h"
 
 #include <stdlib.h>
 
@@ -3444,10 +3445,11 @@ void QTextString::truncate( int index )
     if ( index < (int)data.size() ) {
 	for ( int i = index + 1; i < (int)data.size(); ++i ) {
 #ifndef QT_NO_TEXTCUSTOMITEM
-	    if ( data[ i ].isCustom() ) {
+	    if ( data[ i ].type != QTextStringChar::Regular ) {
 		delete data[ i ].customItem();
 		if ( data[ i ].d.custom->format )
 		    data[ i ].d.custom->format->removeRef();
+		delete data[ i ].d.custom;
 		data[ i ].d.custom = 0;
 	    } else
 #endif
@@ -3464,10 +3466,11 @@ void QTextString::remove( int index, int len )
 {
     for ( int i = index; i < (int)data.size() && i - index < len; ++i ) {
 #ifndef QT_NO_TEXTCUSTOMITEM
-	if ( data[ i ].isCustom() ) {
+	if ( data[ i ].type != QTextStringChar::Regular ) {
 	    delete data[ i ].customItem();
 	    if ( data[ i ].d.custom->format )
 		data[ i ].d.custom->format->removeRef();
+	    delete data[ i ].d.custom;
 	    data[ i ].d.custom = 0;
 	} else
 #endif
@@ -3485,7 +3488,7 @@ void QTextString::clear()
 {
     for ( int i = 0; i < (int)data.count(); ++i ) {
 #ifndef QT_NO_TEXTCUSTOMITEM
-	if ( data[ i ].isCustom() ) {
+	if ( data[ i ].type != QTextStringChar::Regular ) {
 	    delete data[ i ].customItem();
 	    if ( data[ i ].d.custom->format )
 		data[ i ].d.custom->format->removeRef();
@@ -3610,15 +3613,15 @@ void QTextStringChar::setFormat( QTextFormat *f )
 #ifndef QT_NO_TEXTCUSTOMITEM
 void QTextStringChar::setCustomItem( QTextCustomItem *i )
 {
-    if ( !isCustom() ) {
+    if ( type == Regular ) {
 	QTextFormat *f = format();
 	d.custom = new CustomData;
 	d.custom->format = f;
-	type = Custom;
     } else {
 	delete d.custom->custom;
     }
     d.custom->custom = i;
+    type = (type == Anchor ? CustomAnchor : Custom);
 }
 
 void QTextStringChar::loseCustomItem()
