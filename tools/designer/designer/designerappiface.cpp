@@ -102,7 +102,7 @@ DesignerDock *DesignerInterfaceImpl::createDock() const
 
 DesignerOutputDock *DesignerInterfaceImpl::outputDock() const
 {
-    return 0;
+    return mainWindow->outputWindow() ? mainWindow->outputWindow()->iFace() : 0;
 }
 
 void DesignerInterfaceImpl::setModified( bool b, QWidget *window )
@@ -671,9 +671,11 @@ DesignerOutputDockImpl::DesignerOutputDockImpl( OutputWindow *ow )
 {
 }
 
-QWidget *DesignerOutputDockImpl::addView( const QString & )
+QWidget *DesignerOutputDockImpl::addView( const QString &title )
 {
-    return 0;
+    QWidget *page = new QWidget( outWin );
+    outWin->addTab( page, title );
+    return page;
 }
 
 void DesignerOutputDockImpl::appendDebug( const QString &s )
