@@ -42,6 +42,9 @@
 #endif
 #include <qdatetime.h>
 
+// undefine this to prevent initial check of the ODBC driver 
+#define ODBC_CHECK_DRIVER
+
 class QODBCPrivate
 {
 public:
@@ -52,6 +55,8 @@ public:
     SQLHANDLE hEnv;
     SQLHANDLE hDbc;
     SQLHANDLE hStmt;
+
+    bool checkDriver() const;
 };
 
 QString qWarnODBCHandle(int handleType, SQLHANDLE handle)
@@ -665,6 +670,14 @@ bool QODBCDriver::open( const QString & db,
 		setOpenError( TRUE );
 		return FALSE;
     }
+
+    if ( !d->checkDriver() ) {
+
+	setLastError( qMakeError( "Unable to connect, driver doesn't support needed functionality", QSqlError::Connection, d ) );
+	setOpenError( TRUE );
+	return FALSE;
+    }
+
     setOpen( TRUE );
     return TRUE;
 }
@@ -703,6 +716,40 @@ void QODBCDriver::cleanup()
 			d->hEnv = 0;
 		}
     }
+}
+
+bool QODBCPrivate::checkDriver() const
+{
+#ifdef ODBC_CHECK_DRIVER
+
+    static const SQLUSMALLINT reqFunc[] = { 
+		SQL_API_SQLDESCRIBECOL, SQL_API_SQLGETDATA, SQL_API_SQLCOLUMNS, 
+		SQL_API_SQLFETCHSCROLL, SQL_API_SQLGETSTMTATTR, SQL_API_SQLGETDIAGREC, 
+		SQL_API_SQLEXECDIRECT, SQL_API_SQLNUMRESULTCOLS, SQL_API_SQLROWCOUNT, 
+		SQL_API_SQLGETINFO, SQL_API_SQLTABLES, SQL_API_SQLPRIMARYKEYS, 0
+    };
+
+    SQLRETURN r;
+    SQLUSMALLINT sup;
+
+    for ( int i = 0; reqFunc[ i ] != 0; ++i ) {
+
+	r = SQLGetFunctions( hDbc, SQL_API_SQLPRIMARYKEYS, &sup );
+
+#ifdef QT_CHECK_RANGE
+        if ( r != SQL_SUCCESS ) {
+	    qSqlWarning( "QODBCDriver::checkDriver: Cannot get list of supported functions", this );
+	    return FALSE;
+	}
+#endif
+	if (sup == SQL_FALSE) {
+	    return FALSE;
+	}
+    }
+
+#endif //ODBC_CHECK_DRIVER
+
+    return true;
 }
 
 QSqlQuery QODBCDriver::createQuery() const
