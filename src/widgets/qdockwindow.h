@@ -132,6 +132,7 @@ public slots:
     virtual void undock() { undock( 0 ); }
     virtual void dock();
     virtual void setOrientation( Orientation o );
+    void setCaption( const QString &s );
 
 protected:
     void resizeEvent( QResizeEvent *e );

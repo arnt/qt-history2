@@ -38,6 +38,7 @@
 #include "qdockwindow.h"
 #include "qdockarea.h"
 #include "qwidgetresizehandler.h"
+#include "qtitlebar_p.h"
 
 #include <qpainter.h>
 #include <qapplication.h>
@@ -416,7 +417,7 @@ void QDockWindowHandle::mouseDoubleClickEvent( QMouseEvent *e )
     hadDblClick = TRUE;
 }
 
-class QDockWindowTitleBar : public QWidget
+class QDockWindowTitleBar : public QTitleBarLabel
 {
     Q_OBJECT
 
@@ -424,9 +425,8 @@ public:
     QDockWindowTitleBar( QDockWindow *dw );
     void updateGui();
     void setOpaqueMoving( bool b ) { opaque = b; }
-
+    
 protected:
-    void paintEvent( QPaintEvent *e );
     void resizeEvent( QResizeEvent *e );
     void mousePressEvent( QMouseEvent *e );
     void mouseMoveEvent( QMouseEvent *e );
@@ -447,7 +447,7 @@ private:
 };
 
 QDockWindowTitleBar::QDockWindowTitleBar( QDockWindow *dw )
-    : QWidget( dw, "qt_dockwidget_internal" ), dockWindow( dw ), mousePressed( FALSE ),
+    : QTitleBarLabel( dw, "qt_dockwidget_internal" ), dockWindow( dw ), mousePressed( FALSE ),
       closeButton( 0 ), opaque( FALSE )
 {
     setMouseTracking( TRUE );
@@ -481,18 +481,6 @@ void QDockWindowTitleBar::mouseReleaseEvent( QMouseEvent *e )
     mousePressed = FALSE;
     if ( !hadDblClick )
 	dockWindow->updatePosition( e->globalPos() );
-}
-
-void QDockWindowTitleBar::paintEvent( QPaintEvent *e )
-{
-    QWidget::paintEvent( e );
-    QPainter p( this );
-    p.fillRect( rect(), colorGroup().highlight() );
-    QFont f = p.font();
-    f.setPointSize( f.pointSize() - 1 ); // #### we need a font size for that defined be the desktop environment....
-    p.setFont( f );
-    p.setPen( colorGroup().highlightedText() );
-    p.drawText( 5, height() - p.fontMetrics().descent(), dockWindow->caption() );
 }
 
 void QDockWindowTitleBar::resizeEvent( QResizeEvent * )
@@ -1279,4 +1267,10 @@ bool QDockWindow::opaqueMoving() const
     return opaque;
 }
 
+void QDockWindow::setCaption( const QString &s ) 
+{ 
+    titleBar->setText( s );
+    QFrame::setCaption( s );
+}
+ 
 #include "qdockwindow.moc"
