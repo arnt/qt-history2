@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#84 $
+** $Id: //depot/qt/main/src/moc/moc.y#85 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -37,7 +37,7 @@ void yyerror( char *msg );
 #include <stdio.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#84 $");
+RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#85 $");
 
 static QString rmWS( const char * );
 
@@ -1252,7 +1252,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 2.18 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 2.19 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -1295,8 +1295,8 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf( out, "#if !defined(Q_MOC_OUTPUT_REVISION)\n" );
 	fprintf( out, "#define Q_MOC_OUTPUT_REVISION %d\n", formatRevision );
 	fprintf( out, "#elif Q_MOC_OUTPUT_REVISION != %d\n", formatRevision );
-	fprintf( out, "#error Moc format conflict - "
-		 "please regenerate all moc files\n" );
+	fprintf( out, "#error \"Moc format conflict - "
+		 "please regenerate all moc files\"\n" );
 	fprintf( out, "#endif\n\n" );
 	if ( !noInclude )
 	    fprintf( out, "#include \"%s\"\n", (const char*)includeFile );
