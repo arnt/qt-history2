@@ -85,7 +85,7 @@ void GLTexobj::initializeGL()
 
     QImage tex1, tex2, buf;
 
-    if ( !buf.load( "opengl\\gllogo.bmp" ) ) {	// Load first image from file
+    if ( !buf.load( "opengl/gllogo.bmp" ) ) {	// Load first image from file
 	qWarning( "Could not read image file, using single-color instead." );
 	QImage dummy( 128, 128, 32 );
 	dummy.fill( Qt::green.rgb() );
@@ -93,7 +93,7 @@ void GLTexobj::initializeGL()
     }
     tex1 = QGLWidget::convertToGLFormat( buf );  // flipped 32bit RGBA
 
-    if ( !buf.load( "opengl\\qtlogo.bmp" ) ) {	// Load first image from file
+    if ( !buf.load( "opengl/qtlogo.bmp" ) ) {	// Load first image from file
 	qWarning( "Could not read image file, using single-color instead." );
 	QImage dummy( 128, 128, 32 );
 	dummy.fill( Qt::red.rgb() );
