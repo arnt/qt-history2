@@ -3000,6 +3000,18 @@ void QTextEdit::undo()
     drawCursor( TRUE );
     updateMicroFocusHint();
     setModified();
+    // ### If we get back to a completely blank textedit, it
+    // is possible that cursor is invalid and further actions
+    // might not fix the problem, so reset the cursor here.
+    // This is copied from removeSeletedText(), it might be
+    // okay to just call that.
+    if ( !cursor->isValid() ) {
+	delete cursor;
+	cursor = new QTextCursor( doc );
+	drawCursor( TRUE );
+	repaintContents( TRUE );
+    }
+
     emit textChanged();
 }
 
