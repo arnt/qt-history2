@@ -59,7 +59,7 @@ Makefile.shared: qtx11.pro qtinternal.pro Makefile
 
 Makefile.shareddbg: qtx11.pro qtinternal.pro Makefile
 	mkdir -p obj/shareddbg
-	tmake qtx11.pro -p qtinternal.pro -o Makefile.sharedebg "CONFIG+=debug" "OBJECTS_DIR=obj/shareddbg"
+	tmake qtx11.pro -p qtinternal.pro -o Makefile.shareddbg "CONFIG+=debug" "OBJECTS_DIR=obj/shareddbg"
 
 
 showdirs:
