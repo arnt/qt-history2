@@ -28,12 +28,21 @@
 #ifndef QT_NO_NETWORK
 class QHostAddressPrivate;
 
+typedef struct {
+    union {
+	Q_UINT8 c[16];
+	Q_UINT16 s[8];
+	Q_UINT32 u[4];
+    };
+} Q_IPV6ADDR;
+
 class QM_EXPORT_NETWORK QHostAddress
 {
 public:
     QHostAddress();
     QHostAddress( Q_UINT32 ip4Addr );
     QHostAddress( Q_UINT8 *ip6Addr );
+    QHostAddress(const Q_IPV6ADDR &ip6Addr);
 #ifndef QT_NO_STRINGLIST
     QHostAddress(const QString &address);
 #endif
@@ -49,6 +58,9 @@ public:
 #endif
     bool	 isIp4Addr()	 const;
     Q_UINT32	 ip4Addr()	 const;
+    bool	 isIp6Addr()	 const;
+    Q_IPV6ADDR	 ip6Addr()	 const;
+
 #ifndef QT_NO_SPRINTF
     QString	 toString() const;
 #endif
