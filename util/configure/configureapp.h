@@ -55,6 +55,7 @@ private:
 //    QStringList sqlDrivers;
     QStringList configCmdLine;
     QStringList qmakeConfig;
+    QStringList qtConfig;
 
     QStringList qmakeSql;
     QStringList qmakeSqlPlugins;

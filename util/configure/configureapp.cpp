@@ -591,12 +591,12 @@ void Configure::parseCmdLine()
 	if( modules.findIndex( (*ena) ) == -1 )
 	    modules += (*ena);
     }
-    qmakeConfig += modules;
+    qtConfig += modules;
 
     for( QStringList::Iterator it = disabledModules.begin(); it != disabledModules.end(); ++it )
-	qmakeConfig.remove( (*it) );
+	qtConfig.remove( (*it) );
 
-    if( !qmakeConfig.contains("opengl") )
+    if( !qtConfig.contains("opengl") )
 	dictionary[ "OPENGL" ] = "no";
 
     if( ( dictionary[ "REDO" ] != "yes" ) && ( dictionary[ "HELP" ] != "yes" ) )
@@ -777,7 +777,7 @@ void Configure::generateOutputVars()
     }
 
     if( dictionary[ "ACCESSIBILITY" ] == "yes" ) {
-	qmakeConfig += "accessibility";
+	qtConfig += "accessibility";
     }
 
     if( dictionary[ "SHARED" ] == "yes" ) {
@@ -791,54 +791,54 @@ void Configure::generateOutputVars()
     }
 
     if( dictionary[ "GIF" ] == "yes" )
-	qmakeConfig += "gif";
+	qtConfig += "gif";
     else if( dictionary[ "GIF" ] == "no" )
-	qmakeConfig += "no-gif";
+	qtConfig += "no-gif";
 
     if( dictionary[ "ZLIB" ] == "yes" )
-	qmakeConfig += "zlib";
+	qtConfig += "zlib";
     else if( dictionary[ "ZLIB" ] == "no" )
-	qmakeConfig += "no-zlib";
+	qtConfig += "no-zlib";
 
     if( dictionary[ "JPEG" ] == "no" )
-	qmakeConfig += "no-jpeg";
+	qtConfig += "no-jpeg";
     else if( dictionary[ "JPEG" ] == "qt" )
-	qmakeConfig += "jpeg";
+	qtConfig += "jpeg";
     else if( dictionary[ "JPEG" ] == "plugin" )
 	qmakeFormatPlugins += "jpeg";
 
     if( dictionary[ "LIBJPEG" ] == "system" )
-	qmakeConfig += "system-jpeg";
+	qtConfig += "system-jpeg";
 
     if( dictionary[ "MNG" ] == "no" )
-	qmakeConfig += "no-mng";
+	qtConfig += "no-mng";
     else if( dictionary[ "MNG" ] == "qt" )
-	qmakeConfig += "mng";
+	qtConfig += "mng";
     else if( dictionary[ "MNG" ] == "plugin" )
 	qmakeFormatPlugins += "mng";
 
     if( dictionary[ "LIBMNG" ] == "system" )
-	qmakeConfig += "system-mng";
+	qtConfig += "system-mng";
 
     if( dictionary[ "PNG" ] == "no" )
-	qmakeConfig += "no-png";
+	qtConfig += "no-png";
     else if( dictionary[ "PNG" ] == "qt" )
-	qmakeConfig += "png";
+	qtConfig += "png";
     else if( dictionary[ "PNG" ] == "plugin" )
 	qmakeFormatPlugins += "png";
 
     if( dictionary[ "LIBPNG" ] == "system" )
-	qmakeConfig += "system-png";
+	qtConfig += "system-png";
 
     if( dictionary[ "BIG_CODECS" ] == "yes" )
-	qmakeConfig += "bigcodecs";
+	qtConfig += "bigcodecs";
     else if( dictionary[ "BIG_CODECS" ] == "no" )
-	qmakeConfig += "no-bigcodecs";
+	qtConfig += "no-bigcodecs";
 
     if( dictionary[ "TABLET" ] == "yes" )
-	qmakeConfig += "tablet";
+	qtConfig += "tablet";
     else if( dictionary[ "TABLET" ] == "no" )
-	qmakeConfig += "no-tablet";
+	qtConfig += "no-tablet";
 
     if ( dictionary[ "STYLE_WINDOWS" ] == "yes" )
 	qmakeStyles += "windows";
@@ -987,6 +987,7 @@ void Configure::generateCachefile()
 	    cacheStream << (*var) << endl;
 	}
 	cacheStream << "CONFIG+=" << qmakeConfig.join( " " ) << " incremental create_prl link_prl" << endl;
+	cacheStream << "QT_CONFIG+=" << qtConfig.join( " " );
 	cacheStream << "QMAKESPEC=" << dictionary[ "QMAKESPEC" ] << endl;
 	cacheStream << "ARCH=i386" << endl; //### need to detect platform
 	cacheStream << "QT_BUILD_TREE=" << dictionary[ "QT_SOURCE_TREE" ] << endl;
@@ -1296,6 +1297,8 @@ void Configure::displayConfig()
 
     cout << "Configuration:" << endl;
     cout << "    " << qmakeConfig.join( "\r\n    " ) << endl;
+    cout << "Qt Configuration:" << endl;
+    cout << "    " << qtConfig.join( "\r\n    " ) << endl;
 
     cout << "Debug symbols..............." << dictionary[ "DEBUG" ] << endl;
 
