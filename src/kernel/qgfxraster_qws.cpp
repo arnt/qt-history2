@@ -131,6 +131,15 @@ struct SWCursorData {
 # define GFX_8BPP_PIXEL(r,g,b) (((r) + 25) / 51 * 36 + ((g) + 25) / 51 * 6 + ((b) + 25) / 51)
 #endif
 
+
+// The GFX_8BPP_PIXEL macro screws up the VGA16 driver for alpha blended images
+// This might slow down alpha blending in 8-bit modes if VGA16 is compiled in
+#ifndef QT_NO_QWS_VGA16
+#undef GFX_8BPP_PIXEL
+#define GFX_8BPP_PIXEL(r,g,b)	QColor(r,g,b).alloc()
+#endif
+
+
 static volatile int * optype=0;
 static volatile int * lastop=0;
 
