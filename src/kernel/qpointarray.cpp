@@ -396,36 +396,8 @@ static inline int fix_angle(int a)
 
 void QPointArray::makeArc(int x, int y, int w, int h, int a1, int a2)
 {
-#if !defined(QT_OLD_MAKEELLIPSE) && !defined(QT_NO_TRANSFORMATIONS)
     QWMatrix unit;
     makeArc(x, y, w, h, a1, a2, unit);
-#else
-    a1 = fix_angle(a1);
-    if (a1 < 0)
-	a1 += 16 * 360;
-    a2 = fix_angle(a2);
-    int a3 = a2 > 0 ? a2 : -a2;
-    makeEllipse(x, y, w, h);
-    int npts = a3 * size() / (16 * 360);
-    QPointArray a(npts);
-    int i = a1 * size() / (16 * 360);
-    int j = 0;
-    if (a2 > 0) {
-	while (npts--) {
-	    if (i >= size())
-		i = 0;
-	    a.QMemArray<QPoint>::at(j++) = QMemArray<QPoint>::at(i++);
-	}
-    } else {
-	while (npts--) {
-	    if ( i < 0 )
-		i = size() - 1;
-	    a.QMemArray<QPoint>::at(j++) = QMemArray<QPoint>::at(i--);
-	}
-    }
-    *this = a;
-    return;
-#endif
 }
 
 #ifndef QT_NO_TRANSFORMATIONS
