@@ -580,17 +580,14 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe, bool passive )
 
     QWidget * source = QWidget::find( qt_xdnd_dragsource_xid );
 
-    int emask = NoEventMask;
-    if ( source && source->isDesktop() && !source->acceptDrops() ) {
-	emask = EnterWindowMask;
+    if ( source && source->isDesktop() && !source->acceptDrops() )
 	source = 0;
-    }
 
     if ( source )
 	qt_handle_xdnd_status( source, (const XEvent *)&response, passive );
     else
 	XSendEvent( QPaintDevice::x11AppDisplay(), qt_xdnd_dragsource_xid, False,
-		    emask, (XEvent*)&response );
+		    NoEventMask, (XEvent*)&response );
 }
 
 
@@ -666,17 +663,14 @@ void qt_xdnd_send_leave()
 
     QWidget * w = QWidget::find( qt_xdnd_current_proxy_target );
 
-    int emask = NoEventMask;
-    if ( w && w->isDesktop() && !w->acceptDrops() ) {
-	emask = EnterWindowMask;
+    if ( w && w->isDesktop() && !w->acceptDrops() )
 	w = 0;
-    }
 
     if ( w )
 	qt_handle_xdnd_leave( w, (const XEvent *)&leave, FALSE );
     else
 	XSendEvent( QPaintDevice::x11AppDisplay(), qt_xdnd_current_proxy_target, False,
-		    emask, (XEvent*)&leave );
+		    NoEventMask, (XEvent*)&leave );
     qt_xdnd_current_target = 0;
     qt_xdnd_current_proxy_target = 0;
 }
@@ -1036,14 +1030,11 @@ void QDragManager::move( const QPoint & globalPos )
 	}
     }
 
-    int emask = NoEventMask;
     QWidget* w;
     if ( target ) {
 	w = QWidget::find( (WId)target );
-	if ( w && w->isDesktop() && !w->acceptDrops() ) {
-	    emask = EnterWindowMask;
+	if ( w && w->isDesktop() && !w->acceptDrops() )
 	    w = 0;
-	}
     } else {
 	w = 0;
 	target = rootwin;
@@ -1087,9 +1078,7 @@ void QDragManager::move( const QPoint & globalPos )
 		target_version = qMin(qt_xdnd_version,tv ? *tv : 1);
 		if ( tv )
 		    XFree( tv );
-		if ( !qt_badwindow() && type )
-		    emask = EnterWindowMask;
-		else
+		if (!(!qt_badwindow() && type))
 		    target = 0;
 	    }
 	}
@@ -1135,7 +1124,7 @@ void QDragManager::move( const QPoint & globalPos )
 	    if ( w ) {
 		qt_handle_xdnd_enter( w, (const XEvent *)&enter, FALSE );
 	    } else if ( target ) {
-		XSendEvent( QPaintDevice::x11AppDisplay(), proxy_target, False, emask,
+		XSendEvent( QPaintDevice::x11AppDisplay(), proxy_target, False, NoEventMask,
 			    (XEvent*)&enter );
 	    }
 	}
@@ -1157,7 +1146,7 @@ void QDragManager::move( const QPoint & globalPos )
 	if ( w )
 	    qt_handle_xdnd_position( w, (const XEvent *)&move, FALSE );
 	else
-	    XSendEvent( QPaintDevice::x11AppDisplay(), proxy_target, False, emask,
+	    XSendEvent( QPaintDevice::x11AppDisplay(), proxy_target, False, NoEventMask,
 			(XEvent*)&move );
     } else {
 	if ( willDrop ) {
@@ -1191,17 +1180,14 @@ void QDragManager::drop()
 
     QWidget * w = QWidget::find( qt_xdnd_current_proxy_target );
 
-    int emask = NoEventMask;
-    if ( w && w->isDesktop() && !w->acceptDrops() ) {
-	emask = EnterWindowMask;
+    if ( w && w->isDesktop() && !w->acceptDrops() )
 	w = 0;
-    }
 
     if ( w )
 	qt_handle_xdnd_drop( w, (const XEvent *)&drop, FALSE );
     else
-	XSendEvent( QPaintDevice::x11AppDisplay(), qt_xdnd_current_proxy_target, False, emask,
-		    (XEvent*)&drop );
+	XSendEvent( QPaintDevice::x11AppDisplay(), qt_xdnd_current_proxy_target, False,
+		    NoEventMask, (XEvent*)&drop );
 
 #ifndef QT_NO_CURSOR
     if ( restoreCursor ) {
