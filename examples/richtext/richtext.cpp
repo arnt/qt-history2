@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/richtext/richtext.cpp#1 $
+** $Id: //depot/qt/main/examples/richtext/richtext.cpp#2 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -81,7 +81,7 @@ MyRichText::MyRichText( QWidget *parent, const char *name )
     setMargin( 5 );
 
     view = new QTextView( this );
-    view->setText( "This is a <b>Test</b> with <i>italic</i> <u>shit</u>" );
+    view->setText( "This is a <b>Test</b> with <i>italic</i> <u>stuff</u>" );
     QBrush paper;
     paper.setPixmap( QPixmap( "../themes/marble.xpm" ) );
     view->setPaper( paper );
