@@ -573,10 +573,12 @@ QByteArray qt_xclb_read_incremental_property( Display *dpy, Window win,
 	     event.xproperty.state != PropertyNewValue )
 	    continue;
 	if ( qt_xclb_read_property(dpy, win, property, TRUE, &tmp_buf,
-				   &length,0, 0, nullterm) ) {
+				   &length,0, 0, FALSE) ) {
 	    if ( length == 0 ) {		// no more data, we're done
-		buf.at( offset ) = '\0';
-		buf.resize( offset+1 );
+		if ( nullterm ) {
+		    buf.resize( offset+1 );
+		    buf.at( offset ) = '\0';
+		}
 		break;
 	    } else if ( !alloc_error ) {
 		if ( offset+length > (int)buf.size() ) {
