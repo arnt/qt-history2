@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#89 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#90 $
 **
 ** Implementation of layout classes
 **
@@ -386,6 +386,27 @@ void QLayoutArray::add( QLayoutBox *box,  int row1, int row2,
     setNextPosAfter( row2, col2 );
 }
 
+
+/*
+  Expansive boxes win over non-expansive boxes.
+*/
+static inline void maxExpCalc( QCOORD & max, bool &exp,
+			       QCOORD boxmax, bool boxexp )
+{
+    if ( exp )
+	if ( boxexp )
+	    max = QMAX( max, boxmax );
+	else
+	    ; //nothing
+    else 
+	if ( boxexp )
+	    max = boxmax;
+	else
+	    max = QMIN( max, boxmax );
+
+    exp = exp || boxexp;
+}
+
 void QLayoutArray::addData ( QLayoutBox *box, bool r, bool c )
 {
     QSize hint = box->sizeHint();
@@ -397,20 +418,19 @@ void QLayoutArray::addData ( QLayoutBox *box, bool r, bool c )
 				      colData[box->col].sizeHint );
     colData[box->col].minimumSize = QMAX( minS.width(),
 				      colData[box->col].minimumSize );
-    colData[box->col].maximumSize = QMIN( maxS.width(),
-				      colData[box->col].maximumSize );
-    colData[box->col].expansive = colData[box->col].expansive ||
-				  (box->expanding() & QSizePolicy::Horizontal);
+ 
+    maxExpCalc( colData[box->col].maximumSize, colData[box->col].expansive,
+		maxS.width(), box->expanding() & QSizePolicy::Horizontal);
+    
     }
     if ( r ) {
     rowData[box->row].sizeHint = QMAX( hint.height(),
 				      rowData[box->row].sizeHint );
     rowData[box->row].minimumSize = QMAX( minS.height(),
 				      rowData[box->row].minimumSize );
-    rowData[box->row].maximumSize = QMIN( maxS.height(),
-				      rowData[box->row].maximumSize );
-    rowData[box->row].expansive = rowData[box->row].expansive ||
-				  (box->expanding() & QSizePolicy::Vertical);
+
+    maxExpCalc( rowData[box->row].maximumSize, rowData[box->row].expansive,
+		maxS.height(), box->expanding() & QSizePolicy::Vertical);
     }
     if ( !box->isEmpty() ) {
 	//empty boxes ( i.e. spacers) do not get borders. This is hacky, but compatible.
@@ -521,13 +541,9 @@ void QLayoutArray::setupLayoutData()
     }
     for ( i = 0; i < rr; i++ ) {
         rowData[i].expansive = rowData[i].expansive || rowData[i].stretch > 0;
-	if ( rowData[i].expansive )
-	    rowData[i].maximumSize = QCOORD_MAX;
     }
     for ( i = 0; i < cc; i++ ) {
         colData[i].expansive = colData[i].expansive || colData[i].stretch > 0;
-	if ( colData[i].expansive )
-	    colData[i].maximumSize = QCOORD_MAX;
     }
 
 
@@ -1465,13 +1481,13 @@ void QBoxLayout::addStretch( int stretch )
 	int n = numCols();
 	expand( 1, n+1 );
 	QLayoutItem *b = new QSpacerItem( 0, 0, QSizePolicy::Expanding,
-				       QSizePolicy::Expanding );
+				       QSizePolicy::Minimum );
 	QGridLayout::add( b, 0, n ) ;
 	setColStretch( n, stretch );
     } else {
 	int n = numRows();
 	expand( n+1, 1 );
-	QLayoutItem *b = new QSpacerItem( 0, 0,  QSizePolicy::Expanding,
+	QLayoutItem *b = new QSpacerItem( 0, 0,  QSizePolicy::Minimum,
 				       QSizePolicy::Expanding );
 	QGridLayout::add( b, n, 0 ) ;
 	setRowStretch( n, stretch );

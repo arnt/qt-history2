@@ -3,7 +3,7 @@
    NOTICE */
 
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayoutengine.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qlayoutengine.cpp#6 $
 **
 ** Implementation of QLayout functionality
 **
@@ -125,10 +125,11 @@ void qGeomCalc( QArray<QLayoutStruct> &chain, int count, int pos,
 		}
 	    }
 	}
-    } else { //to much space
+    } else { //extra space
 	int n = count;
 	int space_left = space - spacerCount*spacer;
-	//first give to the fixed ones:
+#if 0
+	//first give to the fixed ones: //#### covered by algorithm below(?)
 	for ( i = 0; i < count; i++ ) {
 	    if ( !chain[i].done && ( chain[i].maximumSize <= chain[i].sizeHint
 				     || wannaGrow && !chain[i].expansive )) {
@@ -139,8 +140,72 @@ void qGeomCalc( QArray<QLayoutStruct> &chain, int count, int pos,
 		n--;
 	    }
 	}
+#endif
 	extraspace =  space_left;
-
+#if 1
+	/*
+	  Do a trial distribution and calculate how much it is off.
+	  If there are more deficit pixels than surplus pixels,
+	  give the minimum size items what they need, and repeat.
+	  Otherwise give to the maximum size items.
+	  
+	  I have a wonderful mathematical proof for the correctness of
+	  this principle, but unfortunately this comment is too
+	  small to contain it.
+	*/
+	
+	int surplus, deficit;
+	do {
+	    surplus = deficit = 0;
+	    fixed fp_space = toFixed( space_left );
+	    fixed fp_w = 0;
+	    for ( i = 0; i < count; i++ ) {
+		if ( chain[i].done )
+		    continue;
+		extraspace = 0;
+		if ( sumStretch <= 0 )
+		    fp_w += fp_space / n;
+		else
+		    fp_w += (fp_space * chain[i].stretch) / sumStretch;
+		int w = fRound( fp_w );
+		chain[i].size = w;
+		fp_w -= toFixed( w ); //give the difference to the next
+		if ( w < chain[i].sizeHint ) {
+		    deficit +=  chain[i].sizeHint - w;
+		} else if ( w > chain[i].maximumSize ) {
+		    surplus += w - chain[i].maximumSize;
+		}
+	    }
+	    if ( deficit > 0 && surplus <= deficit ) {
+		//give to the ones that have too little
+		for ( i = 0; i < count; i++ ) {
+		    if ( !chain[i].done && 
+			 chain[i].size < chain[i].sizeHint ) {
+			chain[i].size = chain[i].sizeHint;
+			chain[i].done = TRUE;
+			space_left -= chain[i].sizeHint;
+			sumStretch -= chain[i].stretch;
+			n--;
+		    }
+		}
+	    }
+	    if ( surplus > 0 && surplus >= deficit ) {
+		//take from the ones that have too much
+		for ( i = 0; i < count; i++ ) {
+		    if ( !chain[i].done && 
+			 chain[i].size > chain[i].maximumSize ) {
+			chain[i].size = chain[i].maximumSize;
+			chain[i].done = TRUE;
+			space_left -= chain[i].maximumSize;
+			sumStretch -= chain[i].stretch;
+			n--;
+		    }
+		}
+	    }
+	} while ( n > 0 && surplus != deficit );
+	if ( n == 0 )
+	    extraspace = space_left;
+#else	
 	bool finished = n == 0;
 	while ( !finished ) {
 	    finished = TRUE;
@@ -169,12 +234,13 @@ void qGeomCalc( QArray<QLayoutStruct> &chain, int count, int pos,
 		}
 	    }
 	}
+#endif	
     }
 
-    //as a last resort, we distribute the unwanted space equally 
+    //as a last resort, we distribute the unwanted space equally
     //among the spacers (counting the start and end of the chain).
 
-    //fixed delta = 0; ### should do a sub-pixel allocation of extra space
+    //### should do a sub-pixel allocation of extra space
     int extra = extraspace / ( spacerCount + 2 );
     int p = pos+extra;
     for ( i = 0; i < count; i++ ) {
