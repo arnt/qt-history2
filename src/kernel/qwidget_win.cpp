@@ -479,6 +479,13 @@ void QWidget::reparent_helper( QWidget *parent, WFlags f, const QPoint &p, bool 
     if ( accept_drops )
 	setAcceptDrops( TRUE );
 
+#ifdef Q_OS_TEMP
+    // Show borderless toplevel windows in tasklist & NavBar
+    if ( !parent ) {
+	QString txt = caption().isEmpty()?qAppName():caption();
+	SetWindowText( winId(), (TCHAR*)txt.ucs2() );
+    }
+#endif
 }
 
 
