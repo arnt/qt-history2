@@ -1696,7 +1696,7 @@ QLocale::Country QLocale::country() const
 QString QLocale::languageToString(Language language)
 {
     if ((uint)language > (uint)QLocale::LastLanguage)
-    	return tr("Unknown");
+    	return "Unknown";
     return language_name_list + language_name_index[(uint)language];
 }
 
@@ -1707,7 +1707,7 @@ QString QLocale::languageToString(Language language)
 QString QLocale::countryToString(Country country)
 {
     if ((uint)country > (uint)QLocale::LastCountry)
-    	return tr("Unknown");
+    	return "Unknown";
     return country_name_list + country_name_index[(uint)country];
 }
 
