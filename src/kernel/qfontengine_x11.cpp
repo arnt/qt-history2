@@ -1796,7 +1796,8 @@ int QFontEngineXft::descent() const
 // #### use Freetype to determine this
 int QFontEngineXft::leading() const
 {
-    int l = qRound( (_font->ascent + _font->descent) * 0.15 * _scale );
+    int l = (int) QMIN( _font->height - (_font->ascent + _font->descent),
+			((_font->ascent + _font->descent) >> 4)*_scale );
     return (l > 0) ? l : 1;
 }
 
