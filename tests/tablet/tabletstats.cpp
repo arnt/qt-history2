@@ -25,33 +25,48 @@ MyOrientation::~MyOrientation()
 {
 }
 
-void MyOrientation::resizeEvent( QResizeEvent *e )
-{
-    QFrame::resizeEvent( e );
-    
-}
-
 void MyOrientation::newOrient( int tiltX, int tiltY )
-{
+{    
     
-    const int MY_HYP = 50;	// a faux hypoteneus, to mess with calculations
     double PI = 3.14159265359;
-    static int oldX = 0, oldY = 0;
-    int tmpX, tmpY;
-    QPainter p(this);
-    
-    
-    tmpX = MY_HYP * sin( tiltX * (PI / 180) );
-    tmpY = MY_HYP * sin( tiltY * (PI / 180 ) );
+    int realWidth,
+        realHeight,
+        hypot,	// a faux hypoteneus, to mess with calculations
+        shaX,
+	shaY;
+    static int oldX = 0,
+	       oldY = 0;
+    realWidth = width() - 2 * frameWidth();
+    realHeight = height() - 2 * frameWidth();
 
-    p.translate( width() / 2, height() / 2 );
+    
+
+    QRect cr( 0 + frameWidth(), 0 + frameWidth(), realWidth, realHeight );
+    QPixmap pix( cr.size() );
+    pix.fill( this, cr.topLeft() );
+    QPainter p( &pix );
+    
+    if ( realWidth > realHeight )
+	hypot = realHeight / 2;
+    else
+	hypot = realWidth / 2;
+
+    // create a shadow...
+    shaX = hypot * sin( tiltX * (PI / 180) );
+    shaY = hypot * sin( tiltY * (PI / 180 ) );
+
+    p.translate( realWidth / 2, realHeight / 2 );
     p.setPen( backgroundColor() );
     p.drawLine( 0, 0, oldX, oldY );
-    p.setPen( black );
-    p.drawLine( 0, 0,tmpX, tmpY );
-    oldX = tmpX;
-    oldY = tmpY;
+    p.setPen( foregroundColor() );
+    p.drawLine( 0, 0,shaX, shaY );
+    oldX = shaX;
+    oldY = shaY;
     p.end();
+
+    QPainter p2( this );
+    p2.drawPixmap( cr.topLeft(), pix );
+    p2.end();
 }
 
 
@@ -84,6 +99,8 @@ void StatsCanvas::mouseReleaseEvent( QMouseEvent *e )
 {
     Canvas::mouseReleaseEvent( e );
     clearScreen();
+    // a bad cheat to get rid of the old data...
+    emit signalNewTilt( 0, 0 );
 }
 
 void StatsCanvas::paintEvent( QPaintEvent *e )
@@ -94,7 +111,7 @@ void StatsCanvas::paintEvent( QPaintEvent *e )
     
     // draw a circle if we have the tablet down
     if ( mousePressed ) {
-	p.setBrush( black );
+	p.setBrush( red );
 	p.drawEllipse( r );
     }
     bitBlt( this, e->rect().x(), e->rect().y(), &buffer, e->rect().x(), e->rect().y(),

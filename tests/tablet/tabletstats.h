@@ -27,8 +27,6 @@ public:
 public slots:
     void newOrient( int tiltX, int tiltY );
 
-protected:
-    void resizeEvent( QResizeEvent *e );
 };
 
 class StatsCanvas : public Canvas
