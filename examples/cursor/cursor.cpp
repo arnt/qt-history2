@@ -100,6 +100,7 @@ CursorView::CursorView()			// construct view
 	    label->setCursor( QCursor( list[i].shape ) );
 	    label->setText( list[i].name );
 	    label->setAlignment( AlignCenter );
+	    label->setMargin( 10 );
 	    label->setFrameStyle( QFrame::Box | QFrame::Raised );
 	    grid->addWidget( label, x, y );
 	    i++;
@@ -114,6 +115,7 @@ CursorView::CursorView()			// construct view
     label->setCursor( custom );
     label->setText( "Custom bitmap cursor" );
     label->setAlignment( AlignCenter );
+    label->setMargin( 10 );
     label->setFrameStyle( QFrame::Box | QFrame::Sunken );
     grid->addMultiCellWidget( label, 4, 4, 0, 3 );
 
