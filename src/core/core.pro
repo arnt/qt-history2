@@ -20,3 +20,4 @@ include(other/other.pri)
 
 mac:LIBS += -framework CoreServices -framework CoreFoundation
 
+win32:DEFINES-=QT_NO_CAST_TO_ASCII
