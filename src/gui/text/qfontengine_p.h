@@ -301,7 +301,7 @@ public:
     Type type() const;
     XftPattern *pattern() const { return _pattern; }
 
-    void recalcAdvances(int len, QGlyphLayout *glyphs);
+    void recalcAdvances(int len, QGlyphLayout *glyphs) const;
 
     FT_Face freetypeFace() const { return _face; }
 private:

@@ -31,6 +31,7 @@
 #include "qfont.h"
 #include "qtextengine_p.h"
 #include "qfontengine_p.h"
+#include "qopentype_p.h"
 
 #include <private/qunicodetables_p.h>
 

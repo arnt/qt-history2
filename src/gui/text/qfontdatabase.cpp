@@ -21,6 +21,7 @@
 
 #include <private/qunicodetables_p.h>
 #include "qfontengine_p.h"
+#include "qopentype_p.h"
 
 #include <qcleanuphandler.h>
 
