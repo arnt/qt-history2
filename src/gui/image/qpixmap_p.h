@@ -62,6 +62,17 @@ struct QPixmapData { // internal pixmap data
     };
     inline HBITMAP bm() const;
     uchar *realAlphaBits;
+    struct MemDC {
+        MemDC() {
+            hdc = 0;
+            ref = 0;
+            bm = 0;
+        }
+        HDC hdc;
+        int ref;
+        HGDIOBJ bm;
+    };
+    MemDC mem_dc;
 #ifdef Q_OS_TEMP
     uchar *ppvBits; // Pointer to DIBSection bits
 #endif
@@ -82,18 +93,6 @@ struct QPixmapData { // internal pixmap data
     uint nbytes;
     CGImageRef cg_data;
     GWorldPtr qd_data, qd_alpha;
-#elif defined(Q_WS_WIN)
-    struct MemDC {
-        MemDC() {
-            hdc = 0;
-            ref = 0;
-            bm = 0;
-        }
-        HDC hdc;
-        int ref;
-        HGDIOBJ bm;
-    };
-    MemDC mem_dc;
 #elif defined(Q_WS_QWS)
     int id;
     QRgb *clut;
