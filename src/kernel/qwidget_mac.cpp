@@ -694,8 +694,8 @@ void QWidget::setIconText( const QString &iconText )
 void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
                         bool showIt )
 {
-    if(!parentWidget())
-	setWinId( 0 );
+    //if(!parentWidget())
+    //setWinId( 0 );
     winid=parent->winid;
     qDebug("reparent");
  
