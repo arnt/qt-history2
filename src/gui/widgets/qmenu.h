@@ -178,7 +178,7 @@ public:
 
     inline QT_COMPAT void changeItem(int id, const QString &text) { 
         if(QAction *act = findActionForId(id))
-            return act->setText(text); }
+            act->setText(text); }
     inline QT_COMPAT void changeItem(int id, const QPixmap &pixmap) { 
         if(QAction *act = findActionForId(id))
             act->setIcon(QIconSet(pixmap)); }
@@ -195,7 +195,7 @@ public:
         return false; }
     inline QT_COMPAT void setItemEnabled(int id, bool enable) { 
         if(QAction *act = findActionForId(id)) 
-            return act->setEnabled(enable); }
+            act->setEnabled(enable); }
     inline QT_COMPAT bool isItemChecked(int id) const { 
         if(QAction *act = findActionForId(id)) 
             return act->isChecked(); 
@@ -209,7 +209,7 @@ public:
         return false; }
     inline QT_COMPAT void setItemVisible(int id, bool visible) { 
         if(QAction *act = findActionForId(id)) 
-            return act->setVisible(visible); }
+            act->setVisible(visible); }
     inline QT_COMPAT QRect itemGeometry(int index) {
         if(QAction *act = actions().value(index)) 
             return actionGeometry(act);
