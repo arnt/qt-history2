@@ -1,7 +1,28 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook V3.1//EN">
 
 <chapter id="creating-custom-widgets-with-plugins">
-<title>Creating Custom Widgets with Plugins</>
+<title>Creating Custom Widgets</>
+
+<para>
+\qd provides two mechanisms for creating custom widgets:
+\list[1]
+\item\p
+The original \qd version 1 method involves little more than
+completing a dialog box. This approach is very simple and
+particularly well suited to custom widgets that do not add any new
+properties, slots or signals. We'll explain this approach at the end of
+the chapter in the <xref linkend="old-custom-widgets"> "Simple Custom
+Widgets" section.
+\P\Item
+
+\item\p
+The \qd version 2 method involves creating custom widgets
+in code and embedding the widgets in a plugin. This approach
+provides more power and flexibility than the older method and is
+covered in the following two sections.
+\P\Item
+\List1
+</para>
 
 \p
 This chapter will show you how to write a custom widget and how to embed
@@ -10,9 +31,10 @@ considerations that must be taken into account when creating a widget
 that is destined to become a plugin. If you are an experienced Qt
 programmer you can safely skip the section on creating a custom widget
 and go directly to <xref linkend="creating-a-plugin"> "Creating a
-Plugin". (Note that a simpler but less powerful approach to creating
+Plugin". Note that a simpler but less powerful approach to creating
 custom widgets is also available, see <xref
-linkend="old-custom-widgets"> "Custom Widgets".)
+linkend="old-custom-widgets"> "Custom Widgets", at the end of this
+chapter.
 \P
 
     <sect1>\title[Creating a Custom Widget]
@@ -587,13 +609,19 @@ linkend="old-custom-widgets"> "Custom Widgets".)
 	automatically. 
 	\P
 	</sect2>
-
+<!-- TODO 
 	<sect2>\title[Considerations for Making Distributable Plugins]
-	\p
-	\P
-
+	<para>
+	</para>
 	</sect2>
-
+-->
     </sect1>
+
+<sect1 id="old-custom-widgets">
+<title>Simple Custom Widgets</title>
+<para>
+
+</para>
+</sect1>
 
 </chapter>

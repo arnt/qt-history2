@@ -2,15 +2,19 @@
 <chapter>
 <title>Using Qt Designer's Value Editors</title>
 <para>
-\qd provides value editors which allow you to set up and create default
-values for some of the widgets. In this chapter we'll explain how to use
-the value editors, but first we'll briefly describe the Choose a Pixmap
-dialog since this is used by many of the value editors. 
+\qd provides value editors for some widgets which allow you to set
+default values for particular instances. In this chapter we'll explain
+how to use the value editors, but first we'll briefly describe the
+Choose a Pixmap dialog since this is used by many of the value editors. 
 </para>
 
 <sect1 id="sharedpixmaps">
 <title>Shared Pixmaps </title>
 <para>
+<figure>
+<title>Choose a Pixmap Dialog</title>
+\img[chooseapixmap]
+</figure>
 The first version of \qd kept static pixmaps (icons) in each form's
 <filename>.cpp</filename> file. This was inefficient if the same pixmaps
 were required in several different forms. \qd now creates a default

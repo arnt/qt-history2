@@ -1,7 +1,7 @@
 /****************************************************************************
-** Form interface generated from reading ui file '/home/mark/p4/qt/tools/designer/manual/sgml/eg/dynamic/mainform.ui'
+** Form interface generated from reading ui file 'mainform.ui'
 **
-** Created: Tue Feb 20 10:45:50 2001
+** Created: Tue Feb 20 15:34:46 2001
 **      by:  The User Interface Compiler (uic)
 **
 ** WARNING! All changes made in this file will be lost!

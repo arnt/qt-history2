@@ -5,18 +5,12 @@
 <!ENTITY chapMW SYSTEM "chap-main-windows.sgml">
 <!ENTITY chapSU SYSTEM "chap-subclassing.sgml">
 <!ENTITY chapAW SYSTEM "chap-advanced-widgets.sgml">
-<!ENTITY chap02 SYSTEM "chap-02.sgml">
-<!ENTITY chap03 SYSTEM "chap-03.sgml">
-<!ENTITY chap04 SYSTEM "chap-04.sgml">
 <!ENTITY chapCC SYSTEM "chap-custom-controls.sgml">
 <!ENTITY chapDA SYSTEM "chap-creating-database-applications.sgml">
 <!ENTITY chapCU SYSTEM "chap-customizing.sgml">
 <!ENTITY chap06 SYSTEM "chap-06.sgml">
 <!ENTITY chap07 SYSTEM "chap-07.sgml">
 <!ENTITY chap08 SYSTEM "chap-08.sgml">
-<!ENTITY chap09 SYSTEM "chap-09.sgml">
-<!ENTITY chap10 SYSTEM "chap-10.sgml">
-<!ENTITY chapUT SYSTEM "chap-useful-techniques.sgml">
 ]>
 <book>
 &chapPF;
@@ -30,10 +24,4 @@
 &chap06;
 &chap07;
 &chap08;
-&chap09;
-&chap10;
-&chap02;
-&chap03;
-&chap04;
-&chapUT;
 </book>

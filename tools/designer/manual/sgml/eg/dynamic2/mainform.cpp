@@ -1,19 +1,19 @@
 /****************************************************************************
-** Form implementation generated from reading ui file '/home/mark/p4/qt/tools/designer/manual/sgml/eg/dynamic/mainform.ui'
+** Form implementation generated from reading ui file 'mainform.ui'
 **
-** Created: Tue Feb 20 10:45:52 2001
+** Created: Tue Feb 20 17:49:19 2001
 **      by:  The User Interface Compiler (uic)
 **
 ** WARNING! All changes made in this file will be lost!
 ****************************************************************************/
-#include "/home/mark/p4/qt/tools/designer/manual/sgml/eg/dynamic/mainform.h"
+#include "./mainform.h"
 
 #include <qvariant.h>   // first for gcc 2.7.2
 #include <qlabel.h>
 #include <qpushbutton.h>
-#include <qradiobutton.h>
 #include <qspinbox.h>
 #include <qwidgetfactory.h>
+#include "dynamic.h"
 #include <qmime.h>
 #include <qdragobject.h>
 #include <qlayout.h>
@@ -43,7 +43,7 @@ MainForm::MainForm( QWidget* parent,  const char* name, bool modal, WFlags fl )
 {
     if ( !name )
 	setName( "MainForm" );
-    resize( 397, 119 ); 
+    resize( 381, 111 ); 
     setCaption( tr( "Main Form" ) );
     MainFormLayout = new QGridLayout( this ); 
     MainFormLayout->setSpacing( 6 );
@@ -90,31 +90,22 @@ MainForm::~MainForm()
 
 void MainForm::creditDialog()
 {
-    QDialog *creditForm = (QDialog *)
-    	QWidgetFactory::create( "../credit/creditformbase.ui" );
-    // Set up the dynamic dialog here
+    Dynamic *dynamic = new Dynamic; 
+    QDialog *creditForm = (QDialog *) 
+    QWidgetFactory::create( "../credit/creditformbase.ui", dynamic );   
+    dynamic->setParent( creditForm );   
+
+    // Set up the dynamic dialog here 
+     
+    if ( creditForm->exec() ) { 
+	// The user accepted, act accordingly 
+	QSpinBox *amount = (QSpinBox *) creditForm->child( "amountSpinBox", "QSpinBox" ); 
+	if ( amount ) 
+	    ratingTextLabel->setText( amount->text() );  
+    } 
     
-    if ( creditForm->exec() ) {
-	// The user accepted, act accordingly
-	QRadioButton *child = (QRadioButton *) creditForm->child( "stdRadioButton" );
-	if ( child && child->isChecked() )
-	    ratingTextLabel->setText( "Standard" );
-	else {
-	    child = (QRadioButton *) creditForm->child( "noneRadioButton" );
-	    if ( child && child->isChecked() ) 
-		ratingTextLabel->setText( "None" ); 
-	    else {
-		child = (QRadioButton *) creditForm->child( "specialRadioButton" ); 
-		if ( child && child->isChecked() ) {
-		    QSpinBox *amount = (QSpinBox *) creditForm->child( "amountSpinBox" );
-		    if ( amount )
-			ratingTextLabel->setText( amount->text() ); 
-		}
-	    }
-	}
-	    
-    }
-    delete creditForm;
+    delete dynamic; 
+    delete creditForm; 
 }
 
 void MainForm::init()

@@ -1,8 +1,8 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>MainForm</class>
-<include location="global" impldecl="in implementation">qradiobutton.h</include>
 <include location="global" impldecl="in implementation">qwidgetfactory.h</include>
 <include location="global" impldecl="in implementation">qspinbox.h</include>
+<include location="local" impldecl="in implementation">dynamic.h</include>
 <pixmapinproject/>
 <widget class="QDialog">
     <property name="name">
@@ -12,8 +12,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>397</width>
-            <height>119</height>
+            <width>381</width>
+            <height>111</height>
         </rect>
     </property>
     <property name="caption">
@@ -88,31 +88,22 @@
 
 }</function>
     <function name="creditDialog()" >{
-    QDialog *creditForm = (QDialog *)
-    	QWidgetFactory::create( "../credit/creditformbase.ui" );
-    // Set up the dynamic dialog here
+    Dynamic *dynamic = new Dynamic; 
+    QDialog *creditForm = (QDialog *) 
+    QWidgetFactory::create( "../credit/creditformbase.ui", dynamic );   
+    dynamic-&gt;setParent( creditForm );   
+
+    // Set up the dynamic dialog here 
+     
+    if ( creditForm-&gt;exec() ) { 
+	// The user accepted, act accordingly 
+	QSpinBox *amount = (QSpinBox *) creditForm-&gt;child( "amountSpinBox", "QSpinBox" ); 
+	if ( amount ) 
+	    ratingTextLabel-&gt;setText( amount-&gt;text() );  
+    } 
     
-    if ( creditForm-&gt;exec() ) {
-	// The user accepted, act accordingly
-	QRadioButton *child = (QRadioButton *) creditForm-&gt;child( "stdRadioButton" );
-	if ( child &amp;&amp; child-&gt;isChecked() )
-	    ratingTextLabel-&gt;setText( "Standard" );
-	else {
-	    child = (QRadioButton *) creditForm-&gt;child( "noneRadioButton" );
-	    if ( child &amp;&amp; child-&gt;isChecked() ) 
-		ratingTextLabel-&gt;setText( "None" ); 
-	    else {
-		child = (QRadioButton *) creditForm-&gt;child( "specialRadioButton" ); 
-		if ( child &amp;&amp; child-&gt;isChecked() ) {
-		    QSpinBox *amount = (QSpinBox *) creditForm-&gt;child( "amountSpinBox" );
-		    if ( amount )
-			ratingTextLabel-&gt;setText( amount-&gt;text() ); 
-		}
-	    }
-	}
-	    
-    }
-    delete creditForm;
+    delete dynamic; 
+    delete creditForm; 
 }</function>
 </functions>
 </UI>

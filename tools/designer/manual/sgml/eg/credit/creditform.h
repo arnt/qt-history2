@@ -8,5 +8,5 @@ public:
 		bool modal = FALSE, WFlags fl = 0 );
     ~CreditForm();
 public slots:
-    void special( bool on );
+    void setAmount();
 };

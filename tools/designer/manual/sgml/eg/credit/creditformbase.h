@@ -1,7 +1,7 @@
 /****************************************************************************
-** Form interface generated from reading ui file 'creditformbase.ui'
+** Form interface generated from reading ui file '/home/mark/p4/qt/tools/designer/manual/sgml/eg/credit/creditformbase.ui'
 **
-** Created: Mon Feb 19 12:01:36 2001
+** Created: Tue Feb 20 15:30:54 2001
 **      by:  The User Interface Compiler (uic)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -27,7 +27,7 @@ public:
     CreditFormBase( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0 );
     ~CreditFormBase();
 
-    QButtonGroup* ButtonGroup1;
+    QButtonGroup* creditButtonGroup;
     QRadioButton* stdRadioButton;
     QRadioButton* noneRadioButton;
     QRadioButton* specialRadioButton;
@@ -37,7 +37,7 @@ public:
 
 
 public slots:
-    virtual void special(bool);
+    virtual void setAmount();
 
 protected slots:
     virtual void destroy();
@@ -45,7 +45,7 @@ protected slots:
 
 protected:
     QVBoxLayout* CreditFormBaseLayout;
-    QHBoxLayout* ButtonGroup1Layout;
+    QHBoxLayout* creditButtonGroupLayout;
     QVBoxLayout* Layout1;
     QHBoxLayout* Layout4;
 };

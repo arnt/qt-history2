@@ -1,12 +1,12 @@
 /****************************************************************************
-** Form implementation generated from reading ui file 'creditformbase.ui'
+** Form implementation generated from reading ui file '/home/mark/p4/qt/tools/designer/manual/sgml/eg/credit/creditformbase.ui'
 **
-** Created: Mon Feb 19 12:02:14 2001
+** Created: Tue Feb 20 15:30:58 2001
 **      by:  The User Interface Compiler (uic)
 **
 ** WARNING! All changes made in this file will be lost!
 ****************************************************************************/
-#include "./creditformbase.h"
+#include "/home/mark/p4/qt/tools/designer/manual/sgml/eg/credit/creditformbase.h"
 
 #include <qvariant.h>   // first for gcc 2.7.2
 #include <qbuttongroup.h>
@@ -42,40 +42,40 @@ CreditFormBase::CreditFormBase( QWidget* parent,  const char* name, bool modal, 
 {
     if ( !name )
 	setName( "CreditFormBase" );
-    resize( 292, 201 ); 
+    resize( 284, 201 ); 
     setCaption( tr( "Credit Rating" ) );
     CreditFormBaseLayout = new QVBoxLayout( this ); 
     CreditFormBaseLayout->setSpacing( 6 );
     CreditFormBaseLayout->setMargin( 11 );
 
-    ButtonGroup1 = new QButtonGroup( this, "ButtonGroup1" );
-    ButtonGroup1->setTitle( tr( "Credit Rating" ) );
-    ButtonGroup1->setColumnLayout(0, Qt::Vertical );
-    ButtonGroup1->layout()->setSpacing( 0 );
-    ButtonGroup1->layout()->setMargin( 0 );
-    ButtonGroup1Layout = new QHBoxLayout( ButtonGroup1->layout() );
-    ButtonGroup1Layout->setAlignment( Qt::AlignTop );
-    ButtonGroup1Layout->setSpacing( 6 );
-    ButtonGroup1Layout->setMargin( 11 );
+    creditButtonGroup = new QButtonGroup( this, "creditButtonGroup" );
+    creditButtonGroup->setTitle( tr( "Credit Rating" ) );
+    creditButtonGroup->setColumnLayout(0, Qt::Vertical );
+    creditButtonGroup->layout()->setSpacing( 0 );
+    creditButtonGroup->layout()->setMargin( 0 );
+    creditButtonGroupLayout = new QHBoxLayout( creditButtonGroup->layout() );
+    creditButtonGroupLayout->setAlignment( Qt::AlignTop );
+    creditButtonGroupLayout->setSpacing( 6 );
+    creditButtonGroupLayout->setMargin( 11 );
 
     Layout1 = new QVBoxLayout; 
     Layout1->setSpacing( 6 );
     Layout1->setMargin( 0 );
 
-    stdRadioButton = new QRadioButton( ButtonGroup1, "stdRadioButton" );
+    stdRadioButton = new QRadioButton( creditButtonGroup, "stdRadioButton" );
     stdRadioButton->setText( tr( "&Standard" ) );
     stdRadioButton->setChecked( TRUE );
     Layout1->addWidget( stdRadioButton );
 
-    noneRadioButton = new QRadioButton( ButtonGroup1, "noneRadioButton" );
+    noneRadioButton = new QRadioButton( creditButtonGroup, "noneRadioButton" );
     noneRadioButton->setText( tr( "&None" ) );
     Layout1->addWidget( noneRadioButton );
 
-    specialRadioButton = new QRadioButton( ButtonGroup1, "specialRadioButton" );
+    specialRadioButton = new QRadioButton( creditButtonGroup, "specialRadioButton" );
     specialRadioButton->setText( tr( "Sp&ecial" ) );
     Layout1->addWidget( specialRadioButton );
-    ButtonGroup1Layout->addLayout( Layout1 );
-    CreditFormBaseLayout->addWidget( ButtonGroup1 );
+    creditButtonGroupLayout->addLayout( Layout1 );
+    CreditFormBaseLayout->addWidget( creditButtonGroup );
 
     amountSpinBox = new QSpinBox( this, "amountSpinBox" );
     amountSpinBox->setEnabled( FALSE );
@@ -112,7 +112,8 @@ CreditFormBase::CreditFormBase( QWidget* parent,  const char* name, bool modal, 
     // signals and slots connections
     connect( okPushButton, SIGNAL( clicked() ), this, SLOT( accept() ) );
     connect( cancelPushButton, SIGNAL( clicked() ), this, SLOT( reject() ) );
-    connect( specialRadioButton, SIGNAL( toggled(bool) ), this, SLOT( special(bool) ) );
+    connect( creditButtonGroup, SIGNAL( clicked(int) ), this, SLOT( setAmount() ) );
+    connect( specialRadioButton, SIGNAL( toggled(bool) ), amountSpinBox, SLOT( setEnabled(bool) ) );
     init();
 }
 
@@ -125,9 +126,9 @@ CreditFormBase::~CreditFormBase()
     // no need to delete child widgets, Qt does it all for us
 }
 
-void CreditFormBase::special(bool)
+void CreditFormBase::setAmount()
 {
-    qWarning( "CreditFormBase::special(bool): Not implemented yet!" );
+    qWarning( "CreditFormBase::setAmount(): Not implemented yet!" );
 }
 
 void CreditFormBase::destroy()
