@@ -1,21 +1,91 @@
-/*! \page algorithms.html
+/*! \header qalgorithm.h
 
     \title Generic Algorithms
 
-    * containers have requirements;
-      certain algorithms have additional requirements, e.g.
-      operator<() or operator==(); how to full the requirements
+    Qt provides a number of global template functions that work on
+    containers and perform well-know algorithms:
 
-    * how to override operator<() to provide a different kind of sorting
+    \list
+    \i qCopy()
+    \i qCopyBackward()
+    \i qEqual()
+    \i qFill()
+    \i qFind()
+    \i qCount()
+    \i qSwap()
+    \i qDeleteAll()
+    \i qBinaryFind()
+    \i qUpperBound()
+    \i qLowerBound()
+    \i qBubbleSort()
+    \i qHeapSort()
+    \endlist
 
-    * using the generic algorithms on Qt containers
-	* begin, end params don't always mean begin(), end()
-        * explain the range notation
+    You can use these algorithms with any container class that
+    provides \l {STL-style iterators}, including QList, QLinkedList,
+    QVector, QMap, and QHash.
 
-    * using the generic algorithms on C++ arrays
-	* qFind(), qCount(), etc., have competition from container functions
+    These functions are inspired from the functions available in the
+    STL \c <algorithm> header. Most of them have a direct STL
+    equivalent; for example, qCopyBackward() is the same as STL's
+    \c copy_backward() algorithm.
 
-    * using the STL generic algorithms on Qt containers
+    If STL is available on all your target platforms, you can use the
+    STL algorithms instead of their Qt counterparts. One reason why
+    you might want to use the this is that STL provides more
+    algorithms than Qt. Qt concentrates on the basic, most important
+    ones, but doesn't attempt beyond that to duplicate functionality
+    that is already provided by the C++ standard.
+
+    
+
+        * using the generic algorithms on Qt containers
+	    * begin, end params don't always mean begin(), end()
+            * explain the range notation
+
+        * some algorithms have special requirements on the type
+          stored in the container for example, qEqual() requires that
+          the value type supports operator==(), because it uses it to
+          compare items. Similarly, qDeleteAll() requires that the
+          type is a non-const pointer type. Fortunately, the compiler
+          will emit a error if such a constraint isn't met.
+
+
+        * using the generic algorithms on C++ arrays
+	    * qFind(), qCount(), etc., have competition from container functions
+
+    A common use of qBinaryFind() is together with two static arrays:
+    one that contains a list of keys, and another that contains a
+    list of associated values:
+
+    \code
+	QChar resolveEntity(const QString &entity)
+        {
+	    static const QLatin1String name_table[] = {
+	        "AElig",
+                "Aacute",
+                "Acirc",
+                ...
+                "zwnj"
+            };
+            static const Q_UINT16 value_table[] = {
+	        0x0061,
+                0x00c1,
+                0x00c2,
+                ...
+                0x200c
+            };
+            int N = sizeof(name_table) / sizeof(name_table[0]);
+
+	    const QLatin1String *name = qBinaryFind(name_table, name_table + N,
+						    entity);
+	    int index = name - name_table;
+	    if (index == N)
+		return QChar();
+
+	    return QChar(value_table[index]);
+	}
+    \endcode
 */
 
 /*! \fn template <class InputIterator, class OutputIterator> \
@@ -398,6 +468,8 @@
     This function requires the item type (in the example above,
     QString) to implement \c operator<().
 
+    See the \l {detailed description} for an example usage.
+
     \sa qLowerBound(), qUpperBound(), {random access iterators}
 */
 
@@ -430,7 +502,7 @@
 
     \overload
 
-    This is the same as qDelete(\a{c}.begin(), \a{c}.end()).
+    This is the same as qDeleteAll(\a{c}.begin(), \a{c}.end()).
 */
 
 /*! \fn template <class Container> \
