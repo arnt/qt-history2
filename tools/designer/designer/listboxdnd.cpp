@@ -184,18 +184,12 @@ ListBoxItemDrag::ListBoxItemDrag( ListBoxItemList & items, bool sendPtr, QListBo
     QListBoxItem * i = items.first();
 
     if ( sendPtr ) {
-
 	while ( i ) {
-
-	    stream << (unsigned long) i; //###FIX: demands sizeof(ulong) >= sizeof(void*)
+	    stream << (Q_ULONG) i; //###FIX: demands sizeof(ulong) >= sizeof(void*)
 	    i = items.next();
-
 	}
-
     } else {
-
 	while ( i ) {
-
 	    Q_UINT8 b = 0;
 
 	    b = (Q_UINT8) ( i->text() != QString::null ); // does item have text ?
@@ -245,7 +239,7 @@ bool ListBoxItemDrag::decode( QDropEvent * event, QListBox * parent, QListBoxIte
 
 	    for( int i = 0; i < count; i++ ) {
 
-		unsigned long p = 0; //###FIX: demands sizeof(ulong) >= sizeof(void*)
+		Q_ULONG p = 0; //###FIX: demands sizeof(ulong) >= sizeof(void*)
 		stream >> p;
 		item = (QListBoxItem *) p;
 

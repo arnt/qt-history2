@@ -655,11 +655,13 @@ QDataStream &QDataStream::operator>>( Q_INT64 &i )
     stream, into \a i, and returns a reference to the stream.
 */
 
+#if !defined(Q_OS_WIN64)
 /*!
     \overload
 
     Reads a signed integer of the system's word length from the stream
     into \a i, and returns a reference to the stream.
+
 */
 
 QDataStream &QDataStream::operator>>( Q_LONG &i )
@@ -678,6 +680,7 @@ QDataStream &QDataStream::operator>>( Q_LONG &i )
     }
     return *this;
 }
+#endif
 
 static double read_double_ascii( QDataStream *s )
 {
@@ -984,6 +987,7 @@ QDataStream &QDataStream::operator<<( Q_INT64 i )
     the stream and returns a reference to the stream.
 */
 
+#if !defined(Q_OS_WIN64)
 /*!
     \overload
 
@@ -1009,6 +1013,7 @@ QDataStream &QDataStream::operator<<( Q_LONG i )
     }
     return *this;
 }
+#endif
 
 #ifndef Q_OS_TEMP
 extern void qt_fix_double(char *);
