@@ -385,8 +385,10 @@ static int do_text_task(const QFontPrivate *d, const QChar *s, int pos,
     ByteCount valueSizes[arr_guess];
     ATSUAttributeValuePtr values[arr_guess];
     tags[arr] = kATSULineLayoutOptionsTag;
-    ATSLineLayoutOptions layopts = kATSLineIsDisplayOnly | kATSLineHasNoOpticalAlignment | 
-				   kATSLineFractDisable;
+    ATSLineLayoutOptions layopts = kATSLineHasNoOpticalAlignment | kATSLineFractDisable;
+#ifndef MACOSX_102
+    layopts |= kATSLineIsDisplayOnly;
+#endif
     valueSizes[arr] = sizeof(layopts);
     values[arr] = &layopts;
     arr++;
