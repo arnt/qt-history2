@@ -166,7 +166,7 @@ void QProgressBar::setProgress( int progress )
     progress_val = progress;
     if ( isVisible() ) {
 	if ( setIndicator(progress_str, progress_val, total_steps) ) {
-	    repaint( forward );
+	    repaint( FALSE /*forward*/ ); // ##### when using forward it flickers terribly!!!!!!!
 	    if ( autoMask() )
 		updateMask();
 	}

@@ -2255,13 +2255,19 @@ void QIconView::takeItem( QIconViewItem *item )
 
     if ( d->currentItem == item ) {
 	if ( item->prev ) {
-	    d->currentItem = 0;
-	    setCurrentItem( item->prev );
+	    d->currentItem = item->prev;
+	    emit currentChanged();
+	    emit currentChanged( d->currentItem );
+	    repaintItem( d->currentItem );
 	} else if ( item->next ) {
-	    d->currentItem = 0;
-	    setCurrentItem( item->next );
+	    d->currentItem = item->next;
+	    emit currentChanged();
+	    emit currentChanged( d->currentItem );
+	    repaintItem( d->currentItem );
 	} else {
-	    setCurrentItem( 0 );
+	    d->currentItem = 0;
+	    emit currentChanged();
+	    emit currentChanged( d->currentItem );
 	}
     }
     if ( item->isSelected() )
