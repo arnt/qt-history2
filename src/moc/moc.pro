@@ -1,15 +1,13 @@
-TEMPLATE	= moc.t
+TEMPLATE	= app
 CONFIG		= console release qtinc yacc
 DEFINES		= QT_NO_CODECS QT_LITE_UNICODE
 win32:DEFINES  += QT_NODLL
-LEXINPUT	= moc.l
-YACCINPUT	= moc.y
+LEXSOURCES	= moc.l
+YACCSOURCES	= moc.y
 INCLUDEPATH	= ../../include ../tools .
 DEPENDPATH	= ../../include ../tools .
 OBJECTS_DIR	= .
-MOCGEN		= mocgen.cpp
-SOURCES		= $$MOCGEN		    \
-		  ../tools/qbuffer.cpp	    \
+SOURCES		= ../tools/qbuffer.cpp	    \
 		  ../tools/qcollection.cpp  \
 		  ../tools/qcstring.cpp	    \
 		  ../tools/qdatastream.cpp  \

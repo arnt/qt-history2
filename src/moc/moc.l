@@ -36,6 +36,8 @@
 *****************************************************************************/
 
 %{
+#ifdef MOC_YACC_CODE
+
 #include "qstring.h"
 
 
@@ -515,3 +517,4 @@ extern void moc_warn( const char *msg );
 
 
 
+#endif //MOC_YACC_CODE

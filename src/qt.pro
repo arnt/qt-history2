@@ -12,7 +12,7 @@ CONFIG += oldx11font
 
 TARGET		= qt
 VERSION		= 3.0.0
-DESTDIR		= ../lib
+DESTDIR		= $$TMAKE_LIBDIR_QT
 DLLDESTDIR	= ../bin
 
 # All extension modules are listed here
@@ -25,7 +25,7 @@ enterprise:MODULES	+= $$MODULES_ENT
 
 internal:MODULES	+= $$MODULES_ENT
 
-CONFIG		+= $$MODULES
+internal:CONFIG		+= $$MODULES
 
 internal:CONFIG	+= png zlib  # Done differently in external system
 embedded:CONFIG	+= png zlib
@@ -36,6 +36,7 @@ internal:CONFIG -= opengl
 thread:TARGET = qt-mt
 thread:DEFINES += QT_THREAD_SUPPORT
 
+#just to be safe..
 embedded:CONFIG -= opengl
 
 # Use line like this for configs specific to your work
@@ -43,12 +44,13 @@ embedded:CONFIG -= opengl
 
 # CONFIG += opengl
 #internal:CONFIG += mng
-internal:DEFINES += QT_NO_IMAGEIO_MNG
+!mng:DEFINES += QT_NO_IMAGEIO_MNG
 
-#unix:DEFINES    += QT_NAS_SUPPORT
-#unix:LIBS	+= -laudio -lXt
+internal:CONFIG +=nas
+nas:DEFINES     += QT_NAS_SUPPORT
+nas:LIBS	+= -laudio -lXt
 
-internal:X11LIBS += -lICE -lSM
+internal:CONFIG+= x11sm
 
 # Install jpegsrc.v6b.tar.gz (find with http://ftpsearch.lycos.com)
 #
@@ -57,13 +59,18 @@ embedded:CONFIG -= jpeg
 win32:CONFIG -= jpeg
 jpeg:INTJPEGIU += -ljpeg
 jpeg:INTJPEGIW += $(QTDIR)/lib/libjpeg.lib
-DEFINESI += QT_NO_IMAGEIO_JPEG
-jpeg:DEFINESI -= QT_NO_IMAGEIO_JPEG
 unix:INTJPEGI += $$INTJPEGIU
 win32:INTJPEGI += $$INTJPEGIW
-internal:LIBS += $$INTJPEGI
-internal:DEFINES += $$DEFINESI
+jpeg:LIBS += $$INTJPEGI
+######
+!jpeg:DEFINES += QT_NO_IMAGEIO_JPEG
 win32:DEFINES += QT_NO_IMAGEIO_JPEG
+
+#use Qt gif
+gif:DEFINES += QT_BUILTIN_GIF_READER
+
+#sm
+!x11sm:DEFINES += QT_NO_SM_SUPPORT
 
 win32:LIBS += $$WINLIBS
 unix:LIBS += $$X11LIBS -ldl
@@ -95,6 +102,14 @@ png:INCLUDEPATH        += $$PNG_INCLUDEPATH
 zlib:INCLUDEPATH       += $$ZLIB_INCLUDEPATH
 win32:INCLUDEPATH      += tmp
 win32-borland:INCLUDEPATH += kernel
+
+
+ps2:GSOS_INCLUDEPATH        = 3rdparty/gsos
+ps2:INCLUDEPATH         += $$GSOS_INCLUDEPATH
+ps2:QWSSUBLIBS += gsos
+ps2:MAKELIBgsos = $(MAKE) -C 3rdparty/gsos; \
+			cp 3rdparty/gsos/libgsos.a tmp
+!ps2:DEFINES += QT_NO_QWS_PS2
 
 win32:MOC_DIR	  = tmp
 win32:OBJECTS_DIR = tmp
@@ -680,6 +695,7 @@ iconview:SOURCES += iconview/qiconview.cpp
 table:HEADERS += $$TABLE_H/qtable.h
 table:SOURCES += table/qtable.cpp
 
+!database:DEFINES += QT_NO_SQL
 database:HEADERS += $$DATABASE_H/qsql.h \
 		    $$DATABASE_H/qsql_p.h \
 		    $$DATABASE_H/qsqlform.h \
@@ -764,9 +780,9 @@ newrichtext:HEADERS += ../tests/qtextedit/qrichtext_p.h \
 newrichtext:DEFINES += QT_NEW_RICHTEXT
 
 # Qt/Embedded
-embedded:PRECOMPH=kernel/qt.h
+embedded:PRECOMPH=$(QTDIR)/src/kernel/qt.h
 embedded:INCLUDEPATH += 3rdparty/freetype2/include 3rdparty/libpng 3rdparty/zlib
-QWSSUBLIBS = freetype
+QWSSUBLIBS += freetype
 png:QWSSUBLIBS += png
 mng:QWSSUBLIBS += mng
 zlib:QWSSUBLIBS += z

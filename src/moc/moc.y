@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#204 $
+** $Id: //depot/qt/main/src/moc/moc.y#205 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -52,6 +52,7 @@
 *****************************************************************************/
 
 %{
+#define MOC_YACC_CODE    
 void yyerror( const char *msg );
 
 #include "qlist.h"
@@ -1215,7 +1216,7 @@ extern "C" int hack_isatty( int )
 #include <unistd.h>
 #endif
 
-#include "lex.yy.c"
+#include "moc_lex.cpp"
 
 void 	  init();				// initialize
 void 	  initClass();				// prepare for new class
@@ -2456,7 +2457,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#204 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#205 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
