@@ -449,20 +449,15 @@ QTextCursor QTextDocument::find(const QString &expr, int from, FindFlags options
 
             const int blockLength = block.length();
             while (blockOffset < blockLength) {
-                int idx = -1;
+                int idx = text.indexOf(expr, blockOffset, cs);
 
-                if (options & FindWholeWords) {
-                    idx = text.indexOf(expr, blockOffset, cs);
-                    if (idx >= 0) {
-                        const int start = idx;
-                        const int end = start + expr.length();
-                        if ((start != 0 && text.at(start - 1).isLetterOrNumber())
-                                || (end != text.length() && text.at(end).isLetterOrNumber()))
-                            idx = -1;
-                    }
-                } else {
-                    idx = text.indexOf(expr, blockOffset, cs);
-                }
+                if (options & FindWholeWords && idx >= 0) {
+                    const int start = idx;
+                    const int end = start + expr.length();
+                    if ((start != 0 && text.at(start - 1).isLetterOrNumber())
+                            || (end != text.length() && text.at(end).isLetterOrNumber()))
+                        idx = -1;
+                } 
 
                 if (idx >= 0) {
                     QTextCursor cursor(docHandle(), block.position() + idx);
@@ -483,19 +478,14 @@ QTextCursor QTextDocument::find(const QString &expr, int from, FindFlags options
             QString text = block.text();
 
             while (blockOffset >= 0) {
-                int idx = -1;
+                int idx = text.lastIndexOf(expr, blockOffset, cs);
 
-                if (options & FindWholeWords) {
-                    idx = text.lastIndexOf(expr, blockOffset, cs);
-                    if (idx >= 0) {
-                        const int start = idx;
-                        const int end = start + expr.length();
-                        if ((start != 0 && text.at(start - 1).isLetterOrNumber())
-                                || (end != text.length() && text.at(end).isLetterOrNumber()))
-                            idx = -1;
-                    }
-                } else {
-                    idx = text.lastIndexOf(expr, blockOffset, cs);
+                if (options & FindWholeWords && idx >= 0) {
+                    const int start = idx;
+                    const int end = start + expr.length();
+                    if ((start != 0 && text.at(start - 1).isLetterOrNumber())
+                            || (end != text.length() && text.at(end).isLetterOrNumber()))
+                        idx = -1;
                 }
 
                 if (idx >= 0) {
