@@ -67,7 +67,7 @@
 
 /*!
   \fn QRect::QRect()
-  Constructs an empty rectangle.
+  Constructs an invalid rectangle.
 */
 
 /*!
