@@ -1908,7 +1908,7 @@ QPoint QPainter::pos() const
 #endif
 
 #ifdef QMAC_NO_QUARTZ
-inline void QPainter::initPaintDevice(bool) {
+void QPainter::initPaintDevice(bool) {
     d->paintreg = d->clippedreg = QRegion(); //empty
     QMacSavedPortInfo::setPaintDevice(pdev);
 

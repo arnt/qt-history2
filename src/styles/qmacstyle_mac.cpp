@@ -43,6 +43,15 @@
 #include <qt_mac.h>
 #include <Appearance.h>
 
+#include <qpainter.h>
+class QMacPainter : public QPainter
+{
+public:
+    void noop() { QPainter::initPaintDevice(TRUE); }
+private:
+    ~QMacPainter();
+};
+
 static inline const Rect *mac_rect(const QRect &qr)
 {
     static Rect r;
@@ -94,8 +103,9 @@ void QMacStyle::drawControl( ControlElement element,
 	    info.state |= kThemeStateActive;
 	if(how & Style_Down)
 	    info.state = kThemeStatePressed;
-	info.value = 0;
+	info.value = kThemeButtonOn;
 	info.adornment = kThemeAdornmentNone;
+	((QMacPainter *)p)->noop();
 	DrawThemeButton(mac_rect(r), kThemePushButton, &info, NULL, NULL, NULL, 0);
 	break; }
     default:
