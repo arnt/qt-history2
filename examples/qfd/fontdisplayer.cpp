@@ -9,11 +9,15 @@
 *****************************************************************************/
 
 #include "fontdisplayer.h"
+#include <qapplication.h>
 #include <qslider.h>
 #include <qspinbox.h>
 #include <qpainter.h>
 #include <qtoolbar.h>
 #include <qstatusbar.h>
+#include <qlabel.h>
+#include <qpushbutton.h>
+#include <qfontdialog.h>
 #include <stdlib.h>
 
 
@@ -24,6 +28,7 @@ FontRowTable::FontRowTable( QWidget* parent, const char* name ) :
     setFrameStyle(Panel|Sunken);
     setMargin(8);
     setRow(0);
+    tablefont = QApplication::font();
 }
 
 QSize FontRowTable::sizeHint() const
@@ -112,9 +117,23 @@ void FontRowTable::setRow(int r)
 	fm.minRightBearing(),
 	fm.maxWidth()
 	);
-	
+
     emit fontInformation(str);
     update();
+}
+
+void FontRowTable::chooseFont()
+{
+    bool ok;
+    QFont oldfont = tablefont;
+    tablefont = QFontDialog::getFont(&ok, oldfont, this);
+
+    if (ok)
+	setFont(tablefont);
+    else
+	tablefont = oldfont;
+
+
 }
 
 FontDisplayer::FontDisplayer( QWidget* parent, const char* name ) :
@@ -122,10 +141,15 @@ FontDisplayer::FontDisplayer( QWidget* parent, const char* name ) :
 {
     FontRowTable* table = new FontRowTable(this);
     QToolBar* controls = new QToolBar(this);
+    (void) new QLabel(tr("Row:"), controls);
     QSpinBox *row = new QSpinBox(0,255,1,controls);
+    controls->addSeparator();
+    QPushButton *fontbutton = new QPushButton(tr("Font..."), controls);
+
     connect(row,SIGNAL(valueChanged(int)),table,SLOT(setRow(int)));
+    connect(fontbutton, SIGNAL(clicked()), table, SLOT(chooseFont()));
     connect(table,SIGNAL(fontInformation(const QString&)),
-	statusBar(),SLOT(message(const QString&)));
+	    statusBar(),SLOT(message(const QString&)));
     table->setRow(0);
     setCentralWidget(table);
 }

@@ -28,12 +28,14 @@ signals:
 
 public slots:
     void setRow(int);
+    void chooseFont();
 
 
 protected:
     QSize cellSize() const;
     void paintEvent( QPaintEvent* );
 private:
+    QFont tablefont;
     int row;
 };
 
