@@ -5708,6 +5708,9 @@ int QApplication::wheelScrollLines()
     Enables the UI effect \a effect if \a enable is TRUE, otherwise
     the effect will not be used.
 
+    Note: All effects are disabled on screens running at less than
+    16-bit color depth.
+
     \sa isEffectEnabled(), Qt::UIEffect, setDesktopSettingsAware()
 */
 void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
@@ -5718,7 +5721,8 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 	animate_menu = enable;
 	break;
     case UI_FadeMenu:
-	if ( enable ) animate_menu = FALSE;
+	if ( enable )
+	    animate_menu = TRUE;
 	fade_menu = enable;
 	break;
     case UI_AnimateCombo:
@@ -5729,7 +5733,8 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 	animate_tooltip = enable;
 	break;
     case UI_FadeTooltip:
-	if ( enable ) animate_tooltip = FALSE;
+	if ( enable )
+	    animate_tooltip = TRUE;
 	fade_tooltip = enable;
 	break;
     default:
@@ -5744,27 +5749,26 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
     By default, Qt will try to use the desktop settings. Call
     setDesktopSettingsAware(FALSE) to prevent this.
 
+    Note: All effects are disabled on screens running at less than
+    16-bit color depth.
+
     \sa setEffectEnabled(), Qt::UIEffect
 */
 bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 {
-    if ( !animate_ui )
+    if ( QColor::numBitPlanes() < 16 || !animate_ui )
 	return FALSE;
 
     switch( effect ) {
     case UI_AnimateMenu:
 	return animate_menu;
     case UI_FadeMenu:
-	if ( QColor::numBitPlanes() < 16 )
-	    return FALSE;
 	return fade_menu;
     case UI_AnimateCombo:
 	return animate_combo;
     case UI_AnimateTooltip:
 	return animate_tooltip;
     case UI_FadeTooltip:
-	if ( QColor::numBitPlanes() < 16 )
-	    return FALSE;
 	return fade_tooltip;
     default:
 	return animate_ui;
