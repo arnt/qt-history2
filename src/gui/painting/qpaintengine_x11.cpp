@@ -521,10 +521,10 @@ QX11PaintEngine::QX11PaintEngine()
     : QPaintEngine(*(new QX11PaintEnginePrivate), UsesFontEngine
                    | CoordTransform
                    | PainterPaths
-#if !defined(QT_NO_XRENDER) && !defined(QT_NO_XRENDER)
-                   | AlphaStroke
                    | AlphaFillPolygon
                    | AlphaFill
+#if !defined(QT_NO_XRENDER)
+                   | AlphaStroke
                    | AlphaPixmap
                    | FillAntialiasing
                    | LineAntialiasing
@@ -538,10 +538,10 @@ QX11PaintEngine::QX11PaintEngine(QX11PaintEnginePrivate &dptr)
     : QPaintEngine(dptr, UsesFontEngine
                    | CoordTransform
                    | PainterPaths
-#if !defined(QT_NO_XRENDER) && !defined(QT_NO_XRENDER)
-                   | AlphaStroke
                    | AlphaFillPolygon
                    | AlphaFill
+#if !defined(QT_NO_XRENDER)
+                   | AlphaStroke
                    | AlphaPixmap
                    | FillAntialiasing
                    | LineAntialiasing
