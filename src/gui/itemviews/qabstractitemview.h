@@ -140,6 +140,8 @@ protected slots:
     virtual void updateGeometries();
     virtual void verticalScrollbarAction(int action);
     virtual void horizontalScrollbarAction(int action);
+    virtual void verticalScrollbarValueChanged(int value);
+    virtual void horizontalScrollbarValueChanged(int value);
     virtual void selectionModelDestroyed();
     virtual void doneEditing(QWidget *editor);
     virtual void commitData(QWidget *editor);

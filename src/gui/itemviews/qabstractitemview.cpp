@@ -83,6 +83,10 @@ void QAbstractItemViewPrivate::init()
                      q, SLOT(verticalScrollbarAction(int)));
     QObject::connect(q->horizontalScrollBar(), SIGNAL(actionTriggered(int)),
                      q, SLOT(horizontalScrollbarAction(int)));
+    QObject::connect(q->verticalScrollBar(), SIGNAL(valueChanged(int)),
+                     q, SLOT(verticalScrollbarValueChanged(int)));
+    QObject::connect(q->horizontalScrollBar(), SIGNAL(valueChanged(int)),
+                     q, SLOT(horizontalScrollbarValueChanged(int)));
 
     viewport->setBackgroundRole(QPalette::Base);
     viewport->setAttribute(Qt::WA_NoBackground);
@@ -1321,6 +1325,25 @@ void QAbstractItemView::updateEditorGeometries()
 void QAbstractItemView::updateGeometries()
 {
     updateEditorGeometries();
+    d->fetchMore();
+}
+
+/*!
+  \internal
+*/
+void QAbstractItemView::verticalScrollbarValueChanged(int value)
+{
+    if (verticalScrollBar()->maximum() == value)
+        model()->fetchMore(root());
+}
+
+/*!
+  \internal
+*/
+void QAbstractItemView::horizontalScrollbarValueChanged(int value)
+{
+    if (horizontalScrollBar()->maximum() == value)
+        model()->fetchMore(root());
 }
 
 /*!
@@ -1592,13 +1615,9 @@ void QAbstractItemView::dataChanged(const QModelIndex &topLeft, const QModelInde
 
     \sa rowsRemoved()
 */
-void QAbstractItemView::rowsInserted(const QModelIndex &parent, int start, int end)
+void QAbstractItemView::rowsInserted(const QModelIndex &, int, int)
 {
-    Q_UNUSED(start);
-    QModelIndex index = model()->index(end, 0, parent);
-    QRect rect = itemViewportRect(index);
-    if (d->viewport->rect().contains(rect))
-        model()->fetchMore(parent);
+    d->fetchMore();
 }
 
 /*!
@@ -1913,6 +1932,14 @@ QItemSelectionModel::SelectionFlags QAbstractItemView::selectionCommand(Qt::Butt
     if (QAbstractItemView::state() == SelectingState)
         return QItemSelectionModel::SelectCurrent | behavior;
     return QItemSelectionModel::ClearAndSelect | behavior;
+}
+
+void QAbstractItemViewPrivate::fetchMore()
+{
+    QModelIndex index = model->index(model->rowCount(root) - 1, 0, root);
+    QRect rect = q->itemViewportRect(index);
+    if (viewport->rect().contains(rect))
+        model->fetchMore(root);
 }
 
 bool QAbstractItemViewPrivate::shouldEdit(QAbstractItemView::BeginEditAction action,

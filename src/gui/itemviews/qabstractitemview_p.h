@@ -29,6 +29,7 @@ public:
 
     void init();
 
+    void fetchMore();
     bool shouldEdit(QAbstractItemView::BeginEditAction action, const QModelIndex &index);
     bool shouldAutoScroll(const QPoint &pos);
     void doDelayedItemsLayout();
