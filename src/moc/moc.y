@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#102 $
+** $Id: //depot/qt/main/src/moc/moc.y#103 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -170,8 +170,6 @@ const int  formatRevision = 3;			// moc output format revision
 %token			SIGNALS
 %token			SLOTS
 %token			Q_OBJECT
-%token			QEXPORT
-
 
 %type  <string>		class_name
 %type  <string>		template_class_name
@@ -323,8 +321,8 @@ opt_template_spec:	  /* empty */
 			;
 
 
-class_key:		  opt_template_spec CLASS opt_q_export	{ $$ = "class"; }
-			| opt_template_spec STRUCT opt_q_export	{ $$ = "struct"; }
+class_key:		  opt_template_spec CLASS { $$ = "class"; }
+			| opt_template_spec STRUCT { $$ = "struct"; }
 			;
 
 complete_class_name:	  qualified_class_name	{ $$ = $1; }
@@ -492,13 +490,13 @@ fct_body:		  '{' {BEGIN IN_FCT; fctLevel = 1;}
 
 /***** r.17.5 (ARM p.395): Class Declarations *****/
 
-class_specifier:	  class_head
+class_specifier:	  full_class_head
 			  '{'			{ BEGIN IN_CLASS; level = 1; }
 			  opt_obj_member_list
 			  '}'			{ BEGIN QT_DEF; } /*catch ';'*/
-			| class_key class_name	{ BEGIN QT_DEF;	  /* -- " -- */
+			| class_head		{ BEGIN QT_DEF;	  /* -- " -- */
 						  skipClass = TRUE; }
-			| class_key class_name
+			| class_head
 			  '(' IDENTIFIER ')' /* Qt macro name */
 						{ BEGIN QT_DEF; /* catch ';' */
 						  skipClass = TRUE; }
@@ -513,15 +511,17 @@ whatever:		  IDENTIFIER
 			| fct_specifier
 			;
 
+
 class_head:		  class_key
 			  class_name		{ className = $2; }
-			  opt_base_spec		{ superclassName = $4; }
+			| class_key
+			  IDENTIFIER		/* possible DLL EXPORT macro */
+			  class_name		{ className = $3; }
 			;
 
-opt_q_export:			/* empty */	
-			| QEXPORT		
+full_class_head:	  class_head
+			  opt_base_spec		{ superclassName = $2; }
 			;
-
 
 opt_base_spec:			/* empty */	{ $$ = 0; }
 			| base_spec		{ $$ = $1; }
@@ -1262,7 +1262,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 2.36 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 2.37 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
