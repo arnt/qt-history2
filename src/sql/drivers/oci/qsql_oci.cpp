@@ -1048,80 +1048,152 @@ bool QOCIResult::exec()
     QPtrList<void> tmpStorage;
     tmpStorage.setAutoDelete( TRUE );
     
-    // bind placeholders - ### add support for pos. binding
+    // bind placeholders
     if ( extension()->values.count() > 0 ) {
-	QMap<QString, QVariant>::Iterator it;
-	for ( it = extension()->values.begin(); it != extension()->values.end(); ++it ) {
-	    OCIBind * hbnd = 0; // XXX dealloc?
-	    switch ( it.data().type() ) {
-		case QVariant::ByteArray: {
-		    // this is for RAW, LONG RAW and BLOB fields..
-		    r = OCIBindByName( d->sql, &hbnd, d->err,
-				       (text *) it.key().local8Bit().data(),
-				       it.key().length(),
- 				       (dvoid *) it.data().asByteArray().data(),
- 				       it.data().asByteArray().size(),
-				       SQLT_BIN, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
-				       (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
-		    break; }
-		case QVariant::CString: {
-		    // ..while this is for CLOB and LONG fields that needs an SQLT_LNG binding
-		    r = OCIBindByName( d->sql, &hbnd, d->err,
-				       (text *) it.key().local8Bit().data(),
-				       it.key().length(),
- 				       (dvoid *) it.data().asCString().data(),
- 				       it.data().asCString().length(),
-				       SQLT_LNG, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
-				       (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
-		    break; }
-		case QVariant::Time:
-		case QVariant::Date:
-		case QVariant::DateTime: {
-		    QByteArray * ba = new QByteArray;
-		    *ba = qMakeOraDate( it.data().toDateTime() );
-		    tmpStorage.append( ba );
-		    r = OCIBindByName( d->sql, &hbnd, d->err,
-				       (text *) it.key().local8Bit().data(),
-				       it.key().length(),
-				       (ub1 *) ba->data(),
-				       ba->size(),
-				       SQLT_DAT, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
-				       (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
-		    break; }
-		case QVariant::Int:
-		    r = OCIBindByName( d->sql, &hbnd, d->err,
-				       (text *) it.key().local8Bit().data(),
-				       it.key().length(),
-				       (ub1 *) &it.data().asInt(),
-				       sizeof(int),
-				       SQLT_INT, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
-				       (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
-		    break;
-		case QVariant::Double:
-		    r = OCIBindByName( d->sql, &hbnd, d->err,
-				       (text *) it.key().local8Bit().data(),
-				       it.key().length(),
-				       (ub1 *) &it.data().asDouble(),
-				       sizeof(double),
-				       SQLT_FLT, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
-				       (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
-		    break;
-		default:
-		    r = OCIBindByName( d->sql, &hbnd, d->err,
-				       (text *) it.key().local8Bit().data(),
-				       it.key().length(),
-				       (ub1 *) it.data().asString().local8Bit().data(),
-				       it.data().asString().length() + 1,
-				       SQLT_STR, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
-				       (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
-		    break;
-	    }
-	    if ( r != OCI_SUCCESS ) {
+	if ( extension()->bindMethod() == QSqlExtension::BindByName ) {
+	    QMap<QString, QVariant>::Iterator it;
+	    for ( it = extension()->values.begin(); it != extension()->values.end(); ++it ) {
+		OCIBind * hbnd = 0; // XXX dealloc?
+		switch ( it.data().type() ) {
+		    case QVariant::ByteArray: {
+			// this is for RAW, LONG RAW and BLOB fields..
+			r = OCIBindByName( d->sql, &hbnd, d->err,
+					   (text *) it.key().local8Bit().data(),
+					   it.key().length(),
+					   (dvoid *) it.data().asByteArray().data(),
+					   it.data().asByteArray().size(),
+					   SQLT_BIN, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
+					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+			break; }
+		    case QVariant::CString: {
+			// ..while this is for CLOB and LONG fields that needs an SQLT_LNG binding
+			r = OCIBindByName( d->sql, &hbnd, d->err,
+					   (text *) it.key().local8Bit().data(),
+					   it.key().length(),
+					   (dvoid *) it.data().asCString().data(),
+					   it.data().asCString().length(),
+					   SQLT_LNG, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
+					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+			break; }
+		    case QVariant::Time:
+		    case QVariant::Date:
+		    case QVariant::DateTime: {
+			QByteArray * ba = new QByteArray;
+			*ba = qMakeOraDate( it.data().toDateTime() );
+			tmpStorage.append( ba );
+			r = OCIBindByName( d->sql, &hbnd, d->err,
+					   (text *) it.key().local8Bit().data(),
+					   it.key().length(),
+					   (ub1 *) ba->data(),
+					   ba->size(),
+					   SQLT_DAT, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
+					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+			break; }
+		    case QVariant::Int:
+			r = OCIBindByName( d->sql, &hbnd, d->err,
+					   (text *) it.key().local8Bit().data(),
+					   it.key().length(),
+					   (ub1 *) &it.data().asInt(),
+					   sizeof(int),
+					   SQLT_INT, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
+					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+			break;
+		    case QVariant::Double:
+			r = OCIBindByName( d->sql, &hbnd, d->err,
+					   (text *) it.key().local8Bit().data(),
+					   it.key().length(),
+					   (ub1 *) &it.data().asDouble(),
+					   sizeof(double),
+					   SQLT_FLT, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
+					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+			break;
+		    default:
+			r = OCIBindByName( d->sql, &hbnd, d->err,
+					   (text *) it.key().local8Bit().data(),
+					   it.key().length(),
+					   (ub1 *) it.data().asString().local8Bit().data(),
+					   it.data().asString().length() + 1,
+					   SQLT_STR, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
+					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+			break;
+		}
+		if ( r != OCI_SUCCESS ) {
 #ifdef QT_CHECK_RANGE
-		qWarning( "QOCIResult::exec: unable to bind variable: " + qOraWarn( d ) );
+		    qWarning( "QOCIResult::exec: unable to bind value: " + qOraWarn( d ) );
 #endif
-		setLastError( qMakeError( "Unable to bind variable", QSqlError::Statement, d ) );
-		return FALSE;
+		    setLastError( qMakeError( "Unable to bind value", QSqlError::Statement, d ) );
+		    return FALSE;
+		}
+	    }
+	} else { // ..do positional binding
+	    QMap<int, QString>::Iterator it;
+	    for ( it = extension()->index.begin(); it != extension()->index.end(); ++it ) {
+		OCIBind * hbnd = 0; // XXX dealloc?
+		QVariant val( extension()->values[ it.data() ] );
+		switch ( val.type() ) {
+		    case QVariant::ByteArray: {
+			// this is for RAW, LONG RAW and BLOB fields..
+			r = OCIBindByPos( d->sql, &hbnd, d->err,
+					  it.key() + 1,
+					  (dvoid *) val.asByteArray().data(),
+					  val.asByteArray().size(),
+					  SQLT_BIN, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
+					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+			break; }
+		    case QVariant::CString: {
+			// ..while this is for CLOB and LONG fields that needs an SQLT_LNG binding
+			r = OCIBindByPos( d->sql, &hbnd, d->err,
+					  it.key() + 1,
+					  (dvoid *) val.asCString().data(),
+					  val.asCString().length(),
+					  SQLT_LNG, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
+					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+			break; }
+		    case QVariant::Time:
+		    case QVariant::Date:
+		    case QVariant::DateTime: {
+			QByteArray * ba = new QByteArray;
+			*ba = qMakeOraDate( val.toDateTime() );
+			tmpStorage.append( ba );
+			r = OCIBindByPos( d->sql, &hbnd, d->err,
+					  it.key() + 1,
+					  (ub1 *) ba->data(),
+					  ba->size(),
+					  SQLT_DAT, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
+					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+			break; }
+		    case QVariant::Int:
+			r = OCIBindByPos( d->sql, &hbnd, d->err,
+					  it.key() + 1,
+					  (ub1 *) &extension()->values[ it.data() ].asInt(), // avoid deep cpy
+					  sizeof(int),
+					  SQLT_INT, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
+					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+			break;
+		    case QVariant::Double:
+			r = OCIBindByPos( d->sql, &hbnd, d->err,
+					  it.key() + 1,
+					  (ub1 *) &extension()->values[ it.data() ].asDouble(), // avoid deep cpy
+					  sizeof(double),
+					  SQLT_FLT, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
+					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+			break;
+		    default:
+			r = OCIBindByPos( d->sql, &hbnd, d->err,
+					  it.key() + 1,
+					  (ub1 *) val.asString().local8Bit().data(),
+					  val.asString().length() + 1,
+					  SQLT_STR, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
+					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+			break;
+		}
+		if ( r != OCI_SUCCESS ) {
+#ifdef QT_CHECK_RANGE
+		    qWarning( "QOCIResult::exec: unable to bind value: " + qOraWarn( d ) );
+#endif
+		    setLastError( qMakeError( "Unable to bind value", QSqlError::Statement, d ) );
+		    return FALSE;
+		}
 	    }
 	}
     }

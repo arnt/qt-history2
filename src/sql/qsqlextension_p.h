@@ -33,6 +33,7 @@ Q_TEMPLATE_EXTERN template class QM_EXPORT_SQL QMap<QString,QVariant>;
 
 class QM_EXPORT_SQL QSqlExtension {
 public:
+    QSqlExtension();
     virtual ~QSqlExtension();
     virtual bool prepare( const QString& query );
     virtual bool exec();
@@ -40,9 +41,10 @@ public:
     virtual void bindValue( int pos, const QVariant& value );
     virtual void addBindValue( const QVariant& value );
     virtual void clearValues();
-    
-    QVariant value( const QString& holder );
-    QVariant value( int i );
+
+    enum BindMethod { BindByPosition, BindByName };
+    BindMethod bindMethod();
+    BindMethod bindm;
     
     QMap<int, QString> index;
     QMap<QString, QVariant> values;
