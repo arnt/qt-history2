@@ -21,29 +21,29 @@ HEADERS		= qbutton.h	qbttngrp.h	qchkbox.h	qlabel.h      \
 		  qlined.h	qlistbox.h	qmenubar.h	qmenudta.h    \
 		  qpopmenu.h	qpushbt.h	qradiobt.h	qrangect.h    \
 		  qscrbar.h	qtablew.h	qframe.h	qgrpbox.h     \
-		  qcombo.h
+		  qcombo.h	qmsgbox.h
 SOURCES		= qbutton.cpp	qbttngrp.cpp	qchkbox.cpp	qlabel.cpp    \
 		  qlcdnum.cpp   \
 		  qlined.cpp	qlistbox.cpp	qmenubar.cpp	qmenudta.cpp  \
 		  qpopmenu.cpp	qpushbt.cpp	qradiobt.cpp	qrangect.cpp  \
 		  qscrbar.cpp	qtablew.cpp	qframe.cpp	qgrpbox.cpp   \
-		  qcombo.cpp
+		  qcombo.cpp	qmsgbox.cpp
 OBJECTS		= qbutton.o	qbttngrp.o	qchkbox.o	qlabel.o      \
 		  qlcdnum.o     \
 		  qlined.o	qlistbox.o	qmenubar.o	qmenudta.o    \
 		  qpopmenu.o	qpushbt.o	qradiobt.o	qrangect.o    \
 		  qscrbar.o	qtablew.o	qframe.o	qgrpbox.o     \
-		  qcombo.o
+		  qcombo.o	qmsgbox.o
 SRCMETA		= mbutton.cpp	mbttngrp.cpp	mchkbox.cpp	mlabel.cpp    \
 		  mlcdnum.cpp   \
 		  mlined.cpp	mlistbox.cpp	mmenubar.cpp	mpopmenu.cpp  \
 		  mpushbt.cpp	mradiobt.cpp	mscrbar.cpp	mtablew.cpp   \
-		  mframe.cpp	mgrpbox.cpp     qcombo.cpp
+		  mframe.cpp	mgrpbox.cpp     qcombo.cpp	mmsgbox.cpp
 OBJMETA		= mbutton.o	mbttngrp.o	mchkbox.o	mlabel.o      \
 		  mlcdnum.o     \
 		  mlined.o	mlistbox.o	mmenubar.o	mpopmenu.o    \
 		  mpushbt.o	mradiobt.o	mscrbar.o	mtablew.o     \
-		  mframe.o	mgrpbox.o	mcombo.o
+		  mframe.o	mgrpbox.o	mcombo.o	mmsgbox.o
 TARGET		= $(LIBDIR)/libqwidgets.a
 
 #######	Implicit rules
@@ -105,6 +105,9 @@ mbttngrp.cpp: qbttngrp.h
 mchkbox.cpp: qchkbox.h
 	$(QTDIR)/bin/moc qchkbox.h -o mchkbox.cpp
 
+mcombo.cpp: qcombo.h
+	$(QTDIR)/bin/moc qcombo.h -o mcombo.cpp
+
 mframe.cpp: qframe.h
 	$(QTDIR)/bin/moc qframe.h -o mframe.cpp
 
@@ -126,6 +129,9 @@ mlistbox.cpp: qlistbox.h
 mmenubar.cpp: qmenubar.h
 	$(QTDIR)/bin/moc qmenubar.h -o mmenubar.cpp
 
+mmsgbox.cpp: qmsgbox.h
+	$(QTDIR)/bin/moc qmsgbox.h -o mmsgbox.cpp
+
 mpopmenu.cpp: qpopmenu.h
 	$(QTDIR)/bin/moc qpopmenu.h -o mpopmenu.cpp
 
@@ -140,9 +146,6 @@ mscrbar.cpp: qscrbar.h
 
 mtablew.cpp: qtablew.h
 	$(QTDIR)/bin/moc qtablew.h -o mtablew.cpp
-
-mcombo.cpp: qcombo.h
-	$(QTDIR)/bin/moc qcombo.h -o mcombo.cpp
 
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
@@ -233,6 +236,7 @@ qchkbox.o: /home/popcorn/home/hanord/qt/include/qbrush.h
 qchkbox.o: /home/popcorn/home/hanord/qt/include/q2matrix.h
 qchkbox.o: /home/popcorn/home/hanord/qt/include/qpntarry.h
 qchkbox.o: /home/popcorn/home/hanord/qt/include/qpixmap.h
+qchkbox.o: /home/popcorn/home/hanord/qt/include/qpmcache.h
 qlabel.o: qlabel.h qframe.h /home/popcorn/home/hanord/qt/include/qwidget.h
 qlabel.o: /home/popcorn/home/hanord/qt/include/qwindefs.h
 qlabel.o: /home/popcorn/home/hanord/qt/include/qobjdefs.h
@@ -361,6 +365,7 @@ qlistbox.o: /home/popcorn/home/hanord/qt/include/qcollect.h
 qlistbox.o: /home/popcorn/home/hanord/qt/include/qdstream.h
 qlistbox.o: /home/popcorn/home/hanord/qt/include/qiodev.h
 qlistbox.o: /home/popcorn/home/hanord/qt/include/qkeycode.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qpixmap.h
 qmenubar.o: qmenubar.h qpopmenu.h qtablew.h
 qmenubar.o: /home/popcorn/home/hanord/qt/include/qwidget.h
 qmenubar.o: /home/popcorn/home/hanord/qt/include/qwindefs.h
@@ -496,6 +501,7 @@ qpushbt.o: /home/popcorn/home/hanord/qt/include/qbrush.h
 qpushbt.o: /home/popcorn/home/hanord/qt/include/q2matrix.h
 qpushbt.o: /home/popcorn/home/hanord/qt/include/qpntarry.h
 qpushbt.o: /home/popcorn/home/hanord/qt/include/qpixmap.h
+qpushbt.o: /home/popcorn/home/hanord/qt/include/qpmcache.h
 qradiobt.o: qradiobt.h qbutton.h
 qradiobt.o: /home/popcorn/home/hanord/qt/include/qwidget.h
 qradiobt.o: /home/popcorn/home/hanord/qt/include/qwindefs.h
@@ -527,6 +533,7 @@ qradiobt.o: /home/popcorn/home/hanord/qt/include/qbrush.h
 qradiobt.o: /home/popcorn/home/hanord/qt/include/q2matrix.h
 qradiobt.o: /home/popcorn/home/hanord/qt/include/qpntarry.h
 qradiobt.o: /home/popcorn/home/hanord/qt/include/qpixmap.h
+qradiobt.o: /home/popcorn/home/hanord/qt/include/qpmcache.h
 qrangect.o: qrangect.h
 qscrbar.o: qscrbar.h /home/popcorn/home/hanord/qt/include/qwidget.h
 qscrbar.o: /home/popcorn/home/hanord/qt/include/qwindefs.h
@@ -644,17 +651,11 @@ qgrpbox.o: /home/popcorn/home/hanord/qt/include/qpen.h
 qgrpbox.o: /home/popcorn/home/hanord/qt/include/qbrush.h
 qgrpbox.o: /home/popcorn/home/hanord/qt/include/q2matrix.h
 qgrpbox.o: /home/popcorn/home/hanord/qt/include/qpntarry.h
-qcombo.o: /home/popcorn/home/hanord/qt/include/qpainter.h
-qcombo.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
+qcombo.o: qcombo.h /home/popcorn/home/hanord/qt/include/qwidget.h
 qcombo.o: /home/popcorn/home/hanord/qt/include/qwindefs.h
 qcombo.o: /home/popcorn/home/hanord/qt/include/qobjdefs.h
 qcombo.o: /home/popcorn/home/hanord/qt/include/qglobal.h
-qcombo.o: /home/popcorn/home/hanord/qt/include/qrect.h
-qcombo.o: /home/popcorn/home/hanord/qt/include/qsize.h
-qcombo.o: /home/popcorn/home/hanord/qt/include/qpoint.h
-qcombo.o: /home/popcorn/home/hanord/qt/include/qcolor.h
-qcombo.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
-qcombo.o: /home/popcorn/home/hanord/qt/include/qfont.h
+qcombo.o: /home/popcorn/home/hanord/qt/include/qobject.h
 qcombo.o: /home/popcorn/home/hanord/qt/include/qstring.h
 qcombo.o: /home/popcorn/home/hanord/qt/include/qarray.h
 qcombo.o: /home/popcorn/home/hanord/qt/include/qgarray.h
@@ -662,7 +663,18 @@ qcombo.o: /home/popcorn/home/hanord/qt/include/qshared.h
 qcombo.o: /home/popcorn/home/hanord/qt/include/qgeneric.h
 qcombo.o: /usr/include/string.h /usr/include/features.h
 qcombo.o: /usr/include/sys/cdefs.h
+qcombo.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
+qcombo.o: /home/popcorn/home/hanord/qt/include/qrect.h
+qcombo.o: /home/popcorn/home/hanord/qt/include/qsize.h
+qcombo.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+qcombo.o: /home/popcorn/home/hanord/qt/include/qpalette.h
+qcombo.o: /home/popcorn/home/hanord/qt/include/qcolor.h
+qcombo.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
+qcombo.o: /home/popcorn/home/hanord/qt/include/qfont.h
 qcombo.o: /home/popcorn/home/hanord/qt/include/qfontinf.h
+qcombo.o: /home/popcorn/home/hanord/qt/include/qcursor.h
+qcombo.o: /home/popcorn/home/hanord/qt/include/qevent.h
+qcombo.o: /home/popcorn/home/hanord/qt/include/qpainter.h
 qcombo.o: /home/popcorn/home/hanord/qt/include/qregion.h
 qcombo.o: /home/popcorn/home/hanord/qt/include/qpen.h
 qcombo.o: /home/popcorn/home/hanord/qt/include/qbrush.h
@@ -676,12 +688,33 @@ qcombo.o: /home/popcorn/home/hanord/qt/include/qcollect.h
 qcombo.o: /home/popcorn/home/hanord/qt/include/qdstream.h
 qcombo.o: /home/popcorn/home/hanord/qt/include/qiodev.h
 qcombo.o: /home/popcorn/home/hanord/qt/include/qpixmap.h qpopmenu.h qtablew.h
-qcombo.o: /home/popcorn/home/hanord/qt/include/qwidget.h
-qcombo.o: /home/popcorn/home/hanord/qt/include/qobject.h
-qcombo.o: /home/popcorn/home/hanord/qt/include/qpalette.h
-qcombo.o: /home/popcorn/home/hanord/qt/include/qcursor.h
-qcombo.o: /home/popcorn/home/hanord/qt/include/qevent.h qmenudta.h
-qcombo.o: /home/popcorn/home/hanord/qt/include/qsignal.h
+qcombo.o: qmenudta.h /home/popcorn/home/hanord/qt/include/qsignal.h
+qmsgbox.o: qmsgbox.h /home/popcorn/home/hanord/qt/include/qdialog.h
+qmsgbox.o: /home/popcorn/home/hanord/qt/include/qview.h
+qmsgbox.o: /home/popcorn/home/hanord/qt/include/qwidget.h
+qmsgbox.o: /home/popcorn/home/hanord/qt/include/qwindefs.h
+qmsgbox.o: /home/popcorn/home/hanord/qt/include/qobjdefs.h
+qmsgbox.o: /home/popcorn/home/hanord/qt/include/qglobal.h
+qmsgbox.o: /home/popcorn/home/hanord/qt/include/qobject.h
+qmsgbox.o: /home/popcorn/home/hanord/qt/include/qstring.h
+qmsgbox.o: /home/popcorn/home/hanord/qt/include/qarray.h
+qmsgbox.o: /home/popcorn/home/hanord/qt/include/qgarray.h
+qmsgbox.o: /home/popcorn/home/hanord/qt/include/qshared.h
+qmsgbox.o: /home/popcorn/home/hanord/qt/include/qgeneric.h
+qmsgbox.o: /usr/include/string.h /usr/include/features.h
+qmsgbox.o: /usr/include/sys/cdefs.h
+qmsgbox.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
+qmsgbox.o: /home/popcorn/home/hanord/qt/include/qrect.h
+qmsgbox.o: /home/popcorn/home/hanord/qt/include/qsize.h
+qmsgbox.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+qmsgbox.o: /home/popcorn/home/hanord/qt/include/qpalette.h
+qmsgbox.o: /home/popcorn/home/hanord/qt/include/qcolor.h
+qmsgbox.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
+qmsgbox.o: /home/popcorn/home/hanord/qt/include/qfont.h
+qmsgbox.o: /home/popcorn/home/hanord/qt/include/qfontinf.h
+qmsgbox.o: /home/popcorn/home/hanord/qt/include/qcursor.h
+qmsgbox.o: /home/popcorn/home/hanord/qt/include/qevent.h qlabel.h qframe.h
+qmsgbox.o: qpushbt.h qbutton.h
 mbutton.o: /home/popcorn/home/hanord/qt/include/qmetaobj.h
 mbutton.o: /home/popcorn/home/hanord/qt/include/qconnect.h
 mbutton.o: /home/popcorn/home/hanord/qt/include/qobject.h
@@ -1068,17 +1101,11 @@ mgrpbox.o: /home/popcorn/home/hanord/qt/include/qfont.h
 mgrpbox.o: /home/popcorn/home/hanord/qt/include/qfontinf.h
 mgrpbox.o: /home/popcorn/home/hanord/qt/include/qcursor.h
 mgrpbox.o: /home/popcorn/home/hanord/qt/include/qevent.h
-qcombo.o: /home/popcorn/home/hanord/qt/include/qpainter.h
-qcombo.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
+qcombo.o: qcombo.h /home/popcorn/home/hanord/qt/include/qwidget.h
 qcombo.o: /home/popcorn/home/hanord/qt/include/qwindefs.h
 qcombo.o: /home/popcorn/home/hanord/qt/include/qobjdefs.h
 qcombo.o: /home/popcorn/home/hanord/qt/include/qglobal.h
-qcombo.o: /home/popcorn/home/hanord/qt/include/qrect.h
-qcombo.o: /home/popcorn/home/hanord/qt/include/qsize.h
-qcombo.o: /home/popcorn/home/hanord/qt/include/qpoint.h
-qcombo.o: /home/popcorn/home/hanord/qt/include/qcolor.h
-qcombo.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
-qcombo.o: /home/popcorn/home/hanord/qt/include/qfont.h
+qcombo.o: /home/popcorn/home/hanord/qt/include/qobject.h
 qcombo.o: /home/popcorn/home/hanord/qt/include/qstring.h
 qcombo.o: /home/popcorn/home/hanord/qt/include/qarray.h
 qcombo.o: /home/popcorn/home/hanord/qt/include/qgarray.h
@@ -1086,7 +1113,18 @@ qcombo.o: /home/popcorn/home/hanord/qt/include/qshared.h
 qcombo.o: /home/popcorn/home/hanord/qt/include/qgeneric.h
 qcombo.o: /usr/include/string.h /usr/include/features.h
 qcombo.o: /usr/include/sys/cdefs.h
+qcombo.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
+qcombo.o: /home/popcorn/home/hanord/qt/include/qrect.h
+qcombo.o: /home/popcorn/home/hanord/qt/include/qsize.h
+qcombo.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+qcombo.o: /home/popcorn/home/hanord/qt/include/qpalette.h
+qcombo.o: /home/popcorn/home/hanord/qt/include/qcolor.h
+qcombo.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
+qcombo.o: /home/popcorn/home/hanord/qt/include/qfont.h
 qcombo.o: /home/popcorn/home/hanord/qt/include/qfontinf.h
+qcombo.o: /home/popcorn/home/hanord/qt/include/qcursor.h
+qcombo.o: /home/popcorn/home/hanord/qt/include/qevent.h
+qcombo.o: /home/popcorn/home/hanord/qt/include/qpainter.h
 qcombo.o: /home/popcorn/home/hanord/qt/include/qregion.h
 qcombo.o: /home/popcorn/home/hanord/qt/include/qpen.h
 qcombo.o: /home/popcorn/home/hanord/qt/include/qbrush.h
@@ -1100,9 +1138,31 @@ qcombo.o: /home/popcorn/home/hanord/qt/include/qcollect.h
 qcombo.o: /home/popcorn/home/hanord/qt/include/qdstream.h
 qcombo.o: /home/popcorn/home/hanord/qt/include/qiodev.h
 qcombo.o: /home/popcorn/home/hanord/qt/include/qpixmap.h qpopmenu.h qtablew.h
-qcombo.o: /home/popcorn/home/hanord/qt/include/qwidget.h
-qcombo.o: /home/popcorn/home/hanord/qt/include/qobject.h
-qcombo.o: /home/popcorn/home/hanord/qt/include/qpalette.h
-qcombo.o: /home/popcorn/home/hanord/qt/include/qcursor.h
-qcombo.o: /home/popcorn/home/hanord/qt/include/qevent.h qmenudta.h
-qcombo.o: /home/popcorn/home/hanord/qt/include/qsignal.h
+qcombo.o: qmenudta.h /home/popcorn/home/hanord/qt/include/qsignal.h
+mmsgbox.o: /home/popcorn/home/hanord/qt/include/qmetaobj.h
+mmsgbox.o: /home/popcorn/home/hanord/qt/include/qconnect.h
+mmsgbox.o: /home/popcorn/home/hanord/qt/include/qobject.h
+mmsgbox.o: /home/popcorn/home/hanord/qt/include/qobjdefs.h
+mmsgbox.o: /home/popcorn/home/hanord/qt/include/qglobal.h
+mmsgbox.o: /home/popcorn/home/hanord/qt/include/qstring.h
+mmsgbox.o: /home/popcorn/home/hanord/qt/include/qarray.h
+mmsgbox.o: /home/popcorn/home/hanord/qt/include/qgarray.h
+mmsgbox.o: /home/popcorn/home/hanord/qt/include/qshared.h
+mmsgbox.o: /home/popcorn/home/hanord/qt/include/qgeneric.h
+mmsgbox.o: /usr/include/string.h /usr/include/features.h
+mmsgbox.o: /usr/include/sys/cdefs.h qmsgbox.h
+mmsgbox.o: /home/popcorn/home/hanord/qt/include/qdialog.h
+mmsgbox.o: /home/popcorn/home/hanord/qt/include/qview.h
+mmsgbox.o: /home/popcorn/home/hanord/qt/include/qwidget.h
+mmsgbox.o: /home/popcorn/home/hanord/qt/include/qwindefs.h
+mmsgbox.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
+mmsgbox.o: /home/popcorn/home/hanord/qt/include/qrect.h
+mmsgbox.o: /home/popcorn/home/hanord/qt/include/qsize.h
+mmsgbox.o: /home/popcorn/home/hanord/qt/include/qpoint.h
+mmsgbox.o: /home/popcorn/home/hanord/qt/include/qpalette.h
+mmsgbox.o: /home/popcorn/home/hanord/qt/include/qcolor.h
+mmsgbox.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
+mmsgbox.o: /home/popcorn/home/hanord/qt/include/qfont.h
+mmsgbox.o: /home/popcorn/home/hanord/qt/include/qfontinf.h
+mmsgbox.o: /home/popcorn/home/hanord/qt/include/qcursor.h
+mmsgbox.o: /home/popcorn/home/hanord/qt/include/qevent.h
