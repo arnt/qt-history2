@@ -102,7 +102,8 @@ bool QFile::remove( const QString &fileName )
   \list
   \i \c IO_Raw specified raw (non-buffered) file access.
   \i \c IO_ReadOnly opens the file in read-only mode.
-  \i \c IO_WriteOnly opens the file in write-only mode (and truncates).
+  \i \c IO_WriteOnly opens the file in write-only mode (and truncates it if it
+        is a buffered file).
   \i \c IO_ReadWrite opens the file in read/write mode, equivalent to
      \c (IO_ReadOnly | IO_WriteOnly).
   \i \c IO_Append opens the file in append mode. This mode is very useful
