@@ -131,6 +131,7 @@ void SqlFormWizard::autoPopulate( bool populate )
 		 listBoxConnection->currentText() == "(default)" ) ) {
 		QStringList lst = *d->fields().find( listBoxTable->currentText() );
 		// remove primary index fields, if any
+		listBoxSortField->insertStringList( lst );
 		d->open( FALSE );
 #ifndef QT_NO_SQL
 		QSqlCursor tab( listBoxTable->currentText(), TRUE, d->connection() );
@@ -142,7 +143,6 @@ void SqlFormWizard::autoPopulate( bool populate )
 #endif
 		d->close();
 		listBoxSelectedField->insertStringList( lst );
-		listBoxSortField->insertStringList( lst );
 	    }
 	}
     }
