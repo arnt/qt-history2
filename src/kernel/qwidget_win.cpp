@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#129 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#130 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -311,6 +311,8 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     if ( parent ) {				// insert into new parent
 	parentObj = parent;			// avoid insertChild warning
 	parent->insertChild( this );
+    } else {
+	qApp->noteTopLevel(this);
     }
     bool     enable = isEnabled();		// remember status
     QSize    s	    = size();

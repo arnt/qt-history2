@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#281 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#282 $
 **
 ** Implementation of QWidget class
 **
@@ -641,9 +641,6 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 	    }
 	}
     }
-
-    if ( !parent )
-	qApp->QApplication::noteTopLevel(this);
 }
 
 
@@ -2583,13 +2580,15 @@ void QWidget::hide()
   guarantee since the initialization of the subclasses might not be
   finished.
 
-  The default implementation calls QApplication::polish()
+  The default implementation calls QApplication::polish().
 
   \sa QApplication::polish()
 */
 
 void QWidget::polish()
 {
+    if ( !parentObj )
+	qApp->noteTopLevel(this);
     qApp->polish( this );
 }
 

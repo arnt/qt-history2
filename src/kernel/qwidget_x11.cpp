@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#268 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#269 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -413,6 +413,8 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     if ( parent ) {				// insert into new parent
 	parentObj = parent;			// avoid insertChild warning
 	parent->insertChild( this );
+    } else {
+	qApp->noteTopLevel(this);
     }
     bool     enable = isEnabled();		// remember status
     QSize    s	    = size();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#170 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#171 $
 **
 ** Implementation of QObject class
 **
@@ -217,7 +217,8 @@ int   qStartTimer( int interval, QObject *obj );
 bool  qKillTimer( int id );
 bool  qKillTimer( QObject *obj );
 
-void  qRemovePostedEvents( QObject * );
+void  qRemovePostedEvents( QObject* );
+bool  qRemovePostedChildEvent( QObject* );
 
 
 QMetaObject *QObject::metaObj = 0;
@@ -954,14 +955,15 @@ void QObject::removeChild( QObject *obj )
 {
     if ( childObjects && childObjects->removeRef(obj) ) {
 	obj->parentObj = 0;
-	obj->parentObj = 0;
 	if ( childObjects->isEmpty() ) {
 	    delete childObjects;		// last child removed
 	    childObjects = 0;			// reset children list
 	}
 
-	QChildEvent e( QEvent::ChildRemoved, obj );
-        QApplication::sendEvent( this, &e );
+	if ( !qRemovePostedChildEvent( obj ) ) {
+	    QChildEvent e( QEvent::ChildRemoved, obj );
+	    QApplication::sendEvent( this, &e );
+	}
     }
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#173 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#174 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -768,6 +768,26 @@ void qRemovePostedEvents( QObject *receiver )	// remove receiver from list
 	    pe = postedEvents->next();
 	}
     }
+}
+
+bool qRemovePostedChildEvent( QObject *child )
+{
+    if ( !postedEvents )
+	return;
+    register QPostEvent *pe = postedEvents->first();
+    while ( pe ) {
+	if ( pe->event->type() == QEvent::ChildInserted
+	    && ((QChildEvent*)(pe->event))->child() == child )
+	{
+    	    // remove this event
+	    ((QPEvent*)pe->event)->clearPostedFlag();
+	    postedEvents->remove();
+	    return TRUE;
+	} else {
+	    pe = postedEvents->next();
+	}
+    }
+    return FALSE;
 }
 
 void qRemovePostedEvent( QEvent *event )	// remove event in list
