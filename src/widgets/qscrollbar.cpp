@@ -290,8 +290,8 @@ void QScrollBar::setOrientation( Orientation orientation )
 
 /*!
   \property QScrollBar::draggingSlider
-  \brief whether the the user has clicked the mouse on the slider and
-  and is currently dragging it
+  \brief whether the user has clicked the mouse on the slider and
+  is currently dragging it
 */
 
 bool QScrollBar::draggingSlider() const
