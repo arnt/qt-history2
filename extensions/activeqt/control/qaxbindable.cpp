@@ -30,6 +30,9 @@ struct IAxServerBase : public IUnknown
     \class QAxBindable qaxbindable.h
     \brief The QAxBindable class provides an interface between a
     QWidget and an ActiveX client.
+\if defined(commercial)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
 
     \module QAxServer
     \extension ActiveQt
@@ -176,6 +179,9 @@ QAxAggregated *QAxBindable::createAggregate()
     \class QAxAggregated qaxbindable.h
     \brief The QAxAggregated class is an abstract base class for implementations of
     additional COM interfaces.
+\if defined(commercial)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
 
     \module QAxServer
     \extension ActiveQt

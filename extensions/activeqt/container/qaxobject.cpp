@@ -21,7 +21,7 @@
 /*!
     \class QAxObject qaxobject.h
     \brief The QAxObject class provides a QObject that wraps a COM object.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 

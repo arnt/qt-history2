@@ -79,7 +79,7 @@ static int translateButtonState( int s, int type, int button )
 
 /*  \class QAxHostWidget qaxwidget.cpp
     \brief The QAxHostWindow class is the actual container widget.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -132,7 +132,7 @@ QAxHostWidget::~QAxHostWidget()
 
 /*  \class QAxHostWindow qaxwidget.cpp
     \brief The QAxHostWindow class implements the client site interfaces.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -1324,7 +1324,7 @@ void QAxHostWidget::paintEvent( QPaintEvent *e )
 /*!
     \class QAxWidget qaxwidget.h
     \brief The QAxWidget class is a QWidget that wraps an ActiveX control.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
@@ -1349,10 +1349,10 @@ void QAxHostWidget::paintEvent( QPaintEvent *e )
     \warning
     You can subclass QAxWidget, but you cannot use the Q_OBJECT macro
     in the subclass (the generated moc-file will not compile), so you
-    cannot add further signals, slots or properties. This limitation is 
-    due to the metaobject information generated in runtime. 
-    To work around this problem, aggregate the QAxWidget as a member of 
-    the QObject subclass.
+    cannot add further signals, slots or properties. This limitation
+    is due to the metaobject information generated in runtime. To work
+    around this problem, aggregate the QAxWidget as a member of the
+    QObject subclass.
 
     \important dynamicCall() querySubObject()
 */
