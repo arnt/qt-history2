@@ -24,6 +24,7 @@
 #include "qdragobject.h"
 #include "qpixmap.h"
 #include "qcleanuphandler.h"
+#include "private/qtextimagehandler_p.h"
 
 /*!
     \class QMimeSource
@@ -67,6 +68,16 @@ public:
     QList<QMimeSourceFactory*> factories;
 };
 
+static QImage richTextImageLoader(const QString &name, const QString &context)
+{
+    QImage img;
+
+    const QMimeSource *src = QMimeSourceFactory::defaultFactory()->data(name, context);
+    if (src && QImageDrag::decode(src, img))
+        return img;
+
+    return QImage();
+}
 
 /*!
     \class QMimeSourceFactory
@@ -448,6 +459,7 @@ QMimeSourceFactory* QMimeSourceFactory::defaultFactory()
     {
         defaultfactory = new QMimeSourceFactory();
         qmime_cleanup_factory.set(&defaultfactory);
+        QTextImageHandler::externalLoader = richTextImageLoader;
     }
     return defaultfactory;
 }
