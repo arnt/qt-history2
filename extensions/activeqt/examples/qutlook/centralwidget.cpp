@@ -245,10 +245,12 @@ void ABCentralWidget::setupOutlook()
     QAxObject *defFolder = outlookSession->querySubObject( "GetDefaultFolder(OlDefaultFolders)", "olFolderContacts" );
 
     // Get all items
-    contactItems = defFolder->querySubObject( "Items" );
-    connect( contactItems, SIGNAL(ItemAdd(IDispatch*)), this, SLOT(updateOutlook()) );
-    connect( contactItems, SIGNAL(ItemChange(IDispatch*)), this, SLOT(updateOutlook()) );
-    connect( contactItems, SIGNAL(ItemRemove()), this, SLOT(updateOutlook()) );    
+    if ( defFolder ) {
+	contactItems = defFolder->querySubObject( "Items" );
+	connect( contactItems, SIGNAL(ItemAdd(IDispatch*)), this, SLOT(updateOutlook()) );
+	connect( contactItems, SIGNAL(ItemChange(IDispatch*)), this, SLOT(updateOutlook()) );
+	connect( contactItems, SIGNAL(ItemRemove()), this, SLOT(updateOutlook()) );    
+    }
 
     updateOutlook();
 }
@@ -256,6 +258,9 @@ void ABCentralWidget::setupOutlook()
 void ABCentralWidget::updateOutlook()
 {
     listView->clear();
+    if ( !contactItems )
+	return;
+
     QAxObject *item = contactItems->querySubObject( "GetFirst()" );
     while ( item ) {
 	QString firstName = item->property( "FirstName" ).toString();

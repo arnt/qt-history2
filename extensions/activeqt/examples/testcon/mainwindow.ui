@@ -8,7 +8,7 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>805</width>
+            <width>808</width>
             <height>534</height>
         </rect>
     </property>
@@ -216,6 +216,7 @@
         <action name="actionControlProperties"/>
         <separator/>
         <action name="actionControlInfo"/>
+        <action name="actionControlDocumentation"/>
     </item>
     <item text="&amp;Options" name="PopupMenu_4">
         <action name="actionFreezeEvents"/>
@@ -453,6 +454,20 @@
             <number>4194382</number>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>actionControlDocumentation</cstring>
+        </property>
+        <property name="enabled">
+            <bool>false</bool>
+        </property>
+        <property name="text">
+            <string>Show Documentation</string>
+        </property>
+        <property name="menuText">
+            <string>Show D&amp;ocumentation</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -544,6 +559,12 @@
         <receiver>MainWindow</receiver>
         <slot>updateGUI()</slot>
     </connection>
+    <connection>
+        <sender>actionControlDocumentation</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>showDocumentation()</slot>
+    </connection>
 </connections>
 <includes>
     <include location="global" impldecl="in implementation">qworkspace.h</include>
@@ -573,18 +594,20 @@
     <slot>changeProperties()</slot>
     <slot>clearControl()</slot>
     <slot>containerProperties()</slot>
-    <slot>controlInfo()</slot>
-    <slot>destroy()</slot>
-    <slot>fileLoad()</slot>
-    <slot>fileNew()</slot>
-    <slot>fileSave()</slot>
-    <slot>init()</slot>
     <slot>invokeMethods()</slot>
-    <slot>logPropertyChanged(const QString &amp; prop)</slot>
-    <slot>logSignal(const QString &amp; signal, int argc, void * argv)</slot>
+    <slot>logPropertyChanged( const QString &amp; prop )</slot>
+    <slot>logSignal( const QString &amp; signal, int argc, void * argv )</slot>
+    <slot>logException( int code, const QString &amp; source, const QString &amp; desc, const QString &amp; help )</slot>
     <slot>setControl()</slot>
+    <slot>init()</slot>
+    <slot>destroy()</slot>
+    <slot>controlInfo()</slot>
+    <slot>fileLoad()</slot>
+    <slot>fileSave()</slot>
     <slot>updateGUI()</slot>
-    <slot>windowActivated(QWidget * window)</slot>
+    <slot>fileNew()</slot>
+    <slot>windowActivated( QWidget * window )</slot>
+    <slot>showDocumentation()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

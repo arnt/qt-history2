@@ -90,6 +90,20 @@ void MainWindow::logSignal( const QString &signal, int argc, void *argv )
     logSignals->append( container->caption() + ": " + signal + paramlist );
 }
 
+void MainWindow::logException( int code, const QString&source, const QString&desc, const QString&help )
+{
+    QAxWidget *container = (QAxWidget*)((QObject*)sender())->qt_cast("QAxWidget");
+    if ( !container )
+	return;
+
+    QString str = QString( "%1: Exception code %2 thrown by %3 (%4)" ).
+	arg( container->caption() ).arg( code ).arg( source );
+    logDebug->append( str );
+
+    if ( !help.isEmpty() )
+	logDebug->append( "\tHelp available at " + help );
+}
+
 void MainWindow::setControl()
 {
     QAxWidget *container = 0;
@@ -202,6 +216,7 @@ void MainWindow::updateGUI()
     actionControlProperties->setEnabled( hasControl );
     actionControlMethods->setEnabled( hasControl );
     actionControlInfo->setEnabled( hasControl );
+    actionControlDocumentation->setEnabled( hasControl );
     if ( dlgInvoke )
 	dlgInvoke->setControl( hasControl ? container : 0 );
     if ( dlgProperties )
@@ -212,14 +227,21 @@ void MainWindow::updateGUI()
     while ( it.current() ) {
 	QWidget *container = it.current();
 
-	container->disconnect( SIGNAL(signal(const QString&, int, void*)) );
-	if ( actionLogSignals->isOn() )
-	    connect( container, SIGNAL(signal(const QString&, int, void*)), this, SLOT(logSignal(const QString&, int, void*)) );
+	QAxWidget *ax = (QAxWidget*)container->qt_cast( "QAxWidget" );
+	if ( ax ) {
+	    container->disconnect( SIGNAL(signal(const QString&, int, void*)) );
+	    if ( actionLogSignals->isOn() )
+		connect( container, SIGNAL(signal(const QString&, int, void*)), this, SLOT(logSignal(const QString&, int, void*)) );
 
-	container->disconnect( SIGNAL(propertyChanged(const QString&)) );
-	if ( actionLogProperties->isOn() ) 
-	    connect( container, SIGNAL(propertyChanged(const QString&)), this, SLOT(logPropertyChanged(const QString&)) );
-	container->blockSignals( actionFreezeEvents->isOn() );
+	    container->disconnect( SIGNAL(exception(int,const QString&,const QString&,const QString&)) );
+	    connect( container, SIGNAL(exception(int,const QString&,const QString&,const QString&)),
+		this, SLOT(logException(int,const QString&,const QString&,const QString&)) );
+
+	    container->disconnect( SIGNAL(propertyChanged(const QString&)) );
+	    if ( actionLogProperties->isOn() ) 
+		connect( container, SIGNAL(propertyChanged(const QString&)), this, SLOT(logPropertyChanged(const QString&)) );
+	    container->blockSignals( actionFreezeEvents->isOn() );
+	}
 
 	++it;
     }
@@ -240,4 +262,23 @@ void MainWindow::fileNew()
 void MainWindow::windowActivated( QWidget *window )
 {
     updateGUI();
+}
+
+
+void MainWindow::showDocumentation()
+{
+    QAxWidget *container = 0;
+    if ( workspace->activeWindow() )
+	container = (QAxWidget*)workspace->activeWindow()->qt_cast("QAxWidget");
+    if ( !container )
+	return;
+    
+    QString docu = container->generateDocumentation();
+    if ( docu.isEmpty() )
+	return;
+
+    QTextEdit *te = new QTextEdit( docu, QString::null, workspace );
+    te->setCaption( container->caption() + " - Documentation" );
+    te->setText( docu );
+    te->show();
 }
