@@ -407,7 +407,7 @@ static void parse( MetaTranslator *tor, const char *initialContext,
 			context = functionContext;
 			if ( !namespaces.isEmpty() )
 			    context.prepend( (namespaces.join(QString("::")) +
-					      QString( "::" )).latin1() );
+					      QString("::")).latin1() );
 		    } else {
 			context = prefix;
 		    }

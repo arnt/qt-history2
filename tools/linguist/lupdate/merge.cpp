@@ -32,6 +32,9 @@ typedef QValueList<MetaTranslatorMessage> TML;
 
 void merge( MetaTranslator *tor, const MetaTranslator *virginTor, bool verbose )
 {
+    int known = 0;
+    int neww = 0;
+    int obsoleted = 0;
     TML all = tor->messages();
     TML::Iterator it;
 
@@ -44,12 +47,25 @@ void merge( MetaTranslator *tor, const MetaTranslator *virginTor, bool verbose )
 	MetaTranslatorMessage m = *it;
 
 	if ( !virginTor->contains((*it).context(), (*it).sourceText(),
-				  (*it).comment()) )
+				  (*it).comment()) ) {
 	    newType = MetaTranslatorMessage::Obsolete;
-	else if ( m.type() == MetaTranslatorMessage::Finished )
-	    newType = MetaTranslatorMessage::Finished;
-	else
-	    newType = MetaTranslatorMessage::Unfinished;
+	    if ( m.type() != MetaTranslatorMessage::Obsolete )
+		obsoleted++;
+	} else {
+	    switch ( m.type() ) {
+	    case MetaTranslatorMessage::Finished:
+		newType = MetaTranslatorMessage::Finished;
+		known++;
+		break;
+	    case MetaTranslatorMessage::Unfinished:
+		newType = MetaTranslatorMessage::Unfinished;
+		known++;
+		break;
+	    case MetaTranslatorMessage::Obsolete:
+		newType = MetaTranslatorMessage::Unfinished;
+		neww++;
+	    }
+	}
 
 	if ( newType != m.type() ) {
 	    m.setType( newType );
@@ -58,26 +74,33 @@ void merge( MetaTranslator *tor, const MetaTranslator *virginTor, bool verbose )
     }
 
     /*
-      Messages found only in the virgin translator are added to the vernacular
-      translator.
+      Messages found only in the virgin translator are added to the
+      vernacular translator.
     */
     all = virginTor->messages();
 
     for ( it = all.begin(); it != all.end(); ++it ) {
 	if ( !tor->contains((*it).context(), (*it).sourceText(),
-			    (*it).comment()) )
+			    (*it).comment()) ) {
 	    tor->insert( *it );
+	    neww++;
+	}
     }
 
     /*
-      The same-text heuristic handles cases where a message has an obsolete
-      counterpart with a different context or comment.
+      The same-text heuristic handles cases where a message has an
+      obsolete counterpart with a different context or comment.
     */
     applySameTextHeuristic( tor, verbose );
 
     /*
-      The number heuristic handles cases where a message has an obsolete
-      counterpart with mostly numbers differing in the source text.
+      The number heuristic handles cases where a message has an
+      obsolete counterpart with mostly numbers differing in the
+      source text.
     */
     applyNumberHeuristic( tor, verbose );
+
+    if ( verbose )
+	qDebug( " %d known, %d new and %d obsoleted messages",
+		known, neww, obsoleted );
 }
