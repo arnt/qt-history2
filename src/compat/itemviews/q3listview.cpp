@@ -793,12 +793,13 @@ void Q3ListViewItem::setEnabled(bool b)
     if (!enabled)
         selected = false;
     Q3ListView *lv = listView();
-    if (lv)
+    if (lv) {
         lv->triggerUpdate();
 
 #ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(lv->viewport(), indexOfItem(this), QAccessible::StateChanged);
 #endif
+    }
 }
 
 /*!
