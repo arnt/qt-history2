@@ -8,4 +8,3 @@ win32:SOURCES	+= qprocess_win.cpp
 TARGET		= qutil
 DESTDIR		= $(QTDIR)/lib
 VERSION		= 1.0.0
-embedded:PRECOMPH=allmoc.h

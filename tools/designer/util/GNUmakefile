@@ -8,5 +8,5 @@
 #############################################################################
 
 PROJECT = util
-
+LIBTARGET = 1
 include $(QTDIR)/GNUmakefile.inc

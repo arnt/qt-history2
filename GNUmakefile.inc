@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/GNUmakefile.inc#29 $
+# $Id: //depot/qt/main/GNUmakefile.inc#30 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
@@ -25,7 +25,7 @@ QT_TARGET=release
 endif
 endif
 ifeq ($(LIBTARGET),1)
-TMAKEHACK=$(TMAKEINSURE) "DESTDIR=../lib-e-$(QT_EMBEDDED)" $(TMAKEHACKEXTRA)
+TMAKEHACK=$(TMAKEINSURE) "DESTDIR=$(QTDIR)/lib-e-$(QT_EMBEDDED)" $(TMAKEHACKEXTRA)
 else
 TMAKEHACK=$(TMAKEINSURE) "TMAKE_LIBDIR_QT=$(QTDIR)/lib-e-$(QT_EMBEDDED)" $(TMAKEHACKEXTRA)
 endif
