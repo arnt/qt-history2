@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#28 $ 
+** $Id: //depot/qt/main/src/tools/qglobal.h#29 $ 
 **
 ** Global type declarations and definitions
 **
@@ -242,10 +242,10 @@ bool qSysInfo( int *wordSize, bool *bigEndian );
 #endif
 
 //
-// Avoid compiler warning "function defined but not used"
+// Avoid compiler warning "function defined but not used" (gcc only)
 //
 
-#if !defined(NOT_USED_FN)
+#if !defined(NOT_USED_FN) && defined(_CC_GCC_)
 #define NOT_USED_FN __attribute__ ((unused))
 #endif
 
@@ -261,28 +261,27 @@ bool qSysInfo( int *wordSize, bool *bigEndian );
 #define RCSTAG(string)
 #endif
 
-void warning( const char *, ... )		// print message
+void debug( const char *, ... )			// print debug message
 #if defined(_CC_GNU_)
     __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
 
-void fatal( const char *, ... )			// print message and exit
+void warning( const char *, ... )		// print warning message
+#if defined(_CC_GNU_)
+    __attribute__ ((format (printf, 1, 2)))
+#endif
+;
+
+void fatal( const char *, ... )			// print fatal message and exit
 #if defined(_CC_GNU_)
     __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
 
 
-#define debug  warning
-
-#if defined(_OLD_CPP_)
-#define ASSERT(x)  if ( !(x) )\
-	warning("ASSERT: \"%s\" in %s (%d)","x",__FILE__,__LINE__)
-#else
 #define ASSERT(x)  if ( !(x) )\
 	warning("ASSERT: \"%s\" in %s (%d)",#x,__FILE__,__LINE__)
-#endif
 
 bool chk_pointer( bool c, const char *, int );	// fatal error if c is TRUE
 
@@ -292,8 +291,11 @@ bool chk_pointer( bool c, const char *, int );	// fatal error if c is TRUE
 #define CHECK_PTR(p)
 #endif
 
-typedef void (*dbg_handler)(char *);
-dbg_handler installDebugHandler( dbg_handler ); // install debug handler
+
+enum QtMsgType { QtDebugMsg, QtWarningMsg, QtFatalMsg };
+
+typedef void (*msg_handler)(QtMsgType, const char *);
+msg_handler qInstallMsgHandler( msg_handler );	// install message handler
 
 
 #endif // QGLOBAL_H
