@@ -33,7 +33,7 @@ CDialogChooser::~CDialogChooser()
 {
 	for (int i = FIRST_CUSTOM_STEP; i <= LAST_CUSTOM_STEP; i++)
 	{
-		Q_ASSERT(m_pDlgs[i] != NULL);
+		ASSERT(m_pDlgs[i] != NULL);
 		delete m_pDlgs[i];
 	}
 }
@@ -41,8 +41,8 @@ CDialogChooser::~CDialogChooser()
 // Use the internal array to determine the next step.
 CAppWizStepDlg* CDialogChooser::Next(CAppWizStepDlg* pDlg)
 {
-	Q_ASSERT(0 <= m_nCurrDlg && m_nCurrDlg < LAST_DLG);
-	Q_ASSERT(pDlg == m_pDlgs[m_nCurrDlg]);
+	ASSERT(0 <= m_nCurrDlg && m_nCurrDlg < LAST_DLG);
+	ASSERT(pDlg == m_pDlgs[m_nCurrDlg]);
 
 	m_nCurrDlg++;
 	return m_pDlgs[m_nCurrDlg];
@@ -51,8 +51,8 @@ CAppWizStepDlg* CDialogChooser::Next(CAppWizStepDlg* pDlg)
 // Use the internal array to determine the previous step.
 CAppWizStepDlg* CDialogChooser::Back(CAppWizStepDlg* pDlg)
 {
-	Q_ASSERT(1 <= m_nCurrDlg && m_nCurrDlg <= LAST_DLG);
-	Q_ASSERT(pDlg == m_pDlgs[m_nCurrDlg]);
+	ASSERT(1 <= m_nCurrDlg && m_nCurrDlg <= LAST_DLG);
+	ASSERT(pDlg == m_pDlgs[m_nCurrDlg]);
 
 	m_nCurrDlg--;
 	return m_pDlgs[m_nCurrDlg];

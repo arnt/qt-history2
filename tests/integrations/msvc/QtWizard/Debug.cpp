@@ -64,7 +64,7 @@ void Trace(LPCTSTR lpszFormat, ...)
 	TCHAR szBuffer[512];
 
 	nBuf = _vstprintf(szBuffer, lpszFormat, args);
-	Q_ASSERT(nBuf < (sizeof(szBuffer)/sizeof(szBuffer[0])));
+	ASSERT(nBuf < (sizeof(szBuffer)/sizeof(szBuffer[0])));
 
 	CString strMessage;
 
