@@ -432,8 +432,8 @@ void QTableView::paintEvent(QPaintEvent *e)
 
     int w = d->viewport->width();
     int h = d->viewport->height();
-    int x = d->horizontalHeader->size();
-    int y = d->verticalHeader->size();
+    int x = d->horizontalHeader->length();
+    int y = d->verticalHeader->length();
     QRect bottom(0, y, w, h - y);
     QRect left(x, 0, w - x, h);
     if (y < h && area.intersects(bottom))

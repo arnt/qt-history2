@@ -271,7 +271,7 @@ void QHeaderView::headerDataChanged(Qt::Orientation orientation, int first, int 
 /*!
 */
 
-int QHeaderView::size() const
+int QHeaderView::length() const
 {
     if (d->sections.count())
         return d->sections.at(count()).position;
@@ -433,7 +433,7 @@ int QHeaderView::indexAt(int position) const
         return -1;
 
     if (d->reverse())
-        position = size() - position;
+        position = length() - position;
 
     int start = 0;
     int end = count() - 1;
@@ -489,7 +489,7 @@ int QHeaderView::sectionPosition(int section) const
     if (section < 0 || section >= d->sections.count())
         return 0;
     if (d->reverse())
-        return size() - d->sections.at(index(section)).position - sectionSize(section);
+        return length() - d->sections.at(index(section)).position - sectionSize(section);
     return d->sections.at(index(section)).position;
 }
 

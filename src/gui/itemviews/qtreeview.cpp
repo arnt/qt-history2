@@ -473,7 +473,7 @@ void QTreeView::paintEvent(QPaintEvent *e)
     }
 
     int w = d->viewport->width();
-    int x = d->header->size();
+    int x = d->header->length();
     QRect bottom(0, y, w, h - y);
     QRect left(x, 0, w - x, h);
     if (y < h && area.intersects(bottom))
@@ -849,7 +849,7 @@ void QTreeView::scrollContentsBy(int dx, int dy)
         int offset = (left / d->horizontalFactor) + d->header->sectionPosition(section);
         if (QApplication::reverseLayout()) {
             dx = offset + d->header->offset();
-            d->header->setOffset(offset - d->header->size() + d->viewport->x());
+            d->header->setOffset(offset - d->header->length() + d->viewport->x());
         } else {
             dx = d->header->offset() - offset;
             d->header->setOffset(offset);

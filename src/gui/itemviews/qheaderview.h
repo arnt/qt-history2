@@ -42,7 +42,7 @@ public:
 
     Qt::Orientation orientation() const;
     int offset() const;
-    int size() const;
+    int length() const;
     QSize sizeHint() const;
     int sectionSizeHint(int section) const;
 
