@@ -1269,8 +1269,8 @@ void qt_x11_get_double_buffer(Qt::HANDLE &hd, Qt::HANDLE &rendhd,
 			      int screen, int depth, int width, int height)
 {
     // the db should consist of 128x128 chunks
-    width  = QMIN((( width / 128) + 1) * 128, QX11DoubleBuffer::MaxWidth);
-    height = QMIN(((height / 128) + 1) * 128, QX11DoubleBuffer::MaxHeight);
+    width  = QMIN((( width / 128) + 1) * 128, (int)QX11DoubleBuffer::MaxWidth);
+    height = QMIN(((height / 128) + 1) * 128, (int)QX11DoubleBuffer::MaxHeight);
 
     if (global_double_buffer) {
 	if (global_double_buffer->screen == screen
