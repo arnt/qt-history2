@@ -570,7 +570,7 @@ void QPrinter::setOrientation(Orientation orientation)
 /*!
   Returns the printer page size. The default value is system-dependent.
 
-  \sa setPageSize()
+  \sa setPageSize() pageRect() paperRect()
 */
 QPrinter::PageSize QPrinter::pageSize() const
 {
@@ -588,7 +588,7 @@ QPrinter::PageSize QPrinter::pageSize() const
   This function is useful mostly for setting a default value that
   the user can override in the print dialog when you call setup().
 
-  \sa pageSize() PageSize setFullPage() setResolution()
+  \sa pageSize() PageSize setFullPage() setResolution() pageRect() paperRect()
 */
 
 void QPrinter::setPageSize(PageSize newPageSize)
@@ -967,8 +967,9 @@ QRect QPrinter::paperRect() const
     return d->printEngine->paperRect();
 }
 
-// ### DOC: What are the IDs and what are the metrics?
 /*!
+    \internal
+
     Returns the metric for the given \a id.
 */
 int QPrinter::metric(int id) const
