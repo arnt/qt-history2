@@ -19,7 +19,7 @@
 <a name="Chapter_1_Release_Manager">
 
 Two tools are provided for the release manager, \e lupdate and \e
-lrelease. Thes tools depend on <tt>qmake</tt> project files.
+lrelease. These tools depend on <tt>qmake</tt> project files.
 
 <h2><a name="Qt_Project_Files">Qt Project Files</a></h2>
 
