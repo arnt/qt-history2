@@ -81,7 +81,7 @@
 #define XMLERR_EDECLORSDDECLEXPECTED      "EDecl or SDDecl expected while reading the XML declaration"
 #define XMLERR_SDDECLEXPECTED             "SDDecl expected while reading the XML declaration"
 #define XMLERR_WRONGVALUEFORSDECL         "wrong value for standalone declaration"
-#define XMLERR_UNPARSEDENTITYREFERENCE    "unparsed entity reference"
+#define XMLERR_UNPARSEDENTITYREFERENCE    "unparsed entity reference in wrong context"
 #define XMLERR_INTERNALGENERALENTITYINDTD "internal general entity reference not allowed in DTD"
 #define XMLERR_EXTERNALGENERALENTITYINDTD "external parsed general entity reference not allowed in DTD"
 #define XMLERR_EXTERNALGENERALENTITYINAV  "external parsed general entity reference not allowed in attribute value"
@@ -3897,13 +3897,13 @@ bool QXmlSimpleReader::parsePEReference( EntityRecognitionContext context )
 			}
 		    }
 		} else {
-		    if        ( context == InEntityValue ) {
+		    if ( context == InEntityValue ) {
 			// Included in literal
 			xmlRef = d->parameterEntities.find( ref() )
 			    .data().replace( QRegExp("\""), "&quot;" ).replace( QRegExp("'"), "&apos;" )
 			    + xmlRef;
 		    } else if ( context == InDTD ) {
-			// Included as PE ### correct???
+			// Included as PE
 			xmlRef = QString(" ") +
 			    d->parameterEntities.find( ref() ).data() +
 			    QString(" ") + xmlRef;
@@ -5186,7 +5186,7 @@ bool QXmlSimpleReader::parseEntityDecl()
 	    case EDDone:
 		if (  d->entities.find( name() ) == d->entities.end() &&
 			d->externEntities.find( name() ) == d->externEntities.end() ) {
-		    d->externEntities.insert( name(), QXmlSimpleReaderPrivate::ExternEntity( d->publicId, d->systemId, "" ) );
+		    d->externEntities.insert( name(), QXmlSimpleReaderPrivate::ExternEntity( d->publicId, d->systemId, QString::null ) );
 		    if ( declHnd ) {
 			if ( !declHnd->externalEntityDecl( name(), d->publicId, d->systemId ) ) {
 			    d->error = declHnd->errorString();
@@ -5806,7 +5806,7 @@ bool QXmlSimpleReader::parseReference( bool &charDataRead, EntityRecognitionCont
 		next();
 		break;
 	    case DoneN:
-		if        ( ref() == "amp" ) {
+		if ( ref() == "amp" ) {
 		    if ( context == InEntityValue ) {
 			// Bypassed
 			stringAddC( '&' ); stringAddC( 'a' ); stringAddC( 'm' ); stringAddC( 'p' ); stringAddC( ';' );
@@ -5888,7 +5888,26 @@ bool QXmlSimpleReader::parseReference( bool &charDataRead, EntityRecognitionCont
 		    } else {
 			QMap<QString,QXmlSimpleReaderPrivate::ExternEntity>::Iterator itExtern;
 			itExtern = d->externEntities.find( ref() );
-			if ( itExtern != d->externEntities.end() ) {
+			if ( itExtern == d->externEntities.end() ) {
+			    // entity not declared
+			    // ### check this case for conformance
+			    if ( context == InEntityValue ) {
+				// Bypassed
+				stringAddC( '&' );
+				for ( int i=0; i<(int)ref().length(); i++ ) {
+				    stringAddC( ref()[i] );
+				}
+				stringAddC( ';');
+				charDataRead = TRUE;
+			    } else {
+				if ( contentHnd ) {
+				    if ( !contentHnd->skippedEntity( ref() ) ) {
+					d->error = contentHnd->errorString();
+					goto parseError;
+				    }
+				}
+			    }
+			} else if ( (*itExtern).notation.isNull() ) {
 			    // "External Parsed General"
 			    switch ( context ) {
 				case InContent:
@@ -5924,33 +5943,12 @@ bool QXmlSimpleReader::parseReference( bool &charDataRead, EntityRecognitionCont
 				    break;
 			    }
 			} else {
-			    // "Unparsed" ### or is the definition of unparsed entities different?
-			    if ( context == InEntityValue ) {
-				// Bypassed
-				// (this does not conform with the table 4.4 of the XML specification;
-				// on the other hand: in this case it is not really an unparsed entity)
-				stringAddC( '&' );
-				for ( int i=0; i<(int)ref().length(); i++ ) {
-				    stringAddC( ref()[i] );
-				}
-				stringAddC( ';');
-				charDataRead = TRUE;
-			    } else {
-#if 0
-				// Forbidden
-				d->error = XMLERR_UNPARSEDENTITYREFERENCE;
-				goto parseError;
-				charDataRead = FALSE;
-#else
-				// ### skip it???
-				if ( contentHnd ) {
-				    if ( !contentHnd->skippedEntity( ref() ) ) {
-					d->error = contentHnd->errorString();
-					goto parseError;
-				    }
-				}
-#endif
-			    }
+			    // "Unparsed"
+			    // ### notify for "Occurs as Attribute Value" missing (but this is no refence, anyway)
+			    // Forbidden
+			    d->error = XMLERR_UNPARSEDENTITYREFERENCE;
+			    goto parseError;
+			    charDataRead = FALSE;
 			}
 		    }
 		}
