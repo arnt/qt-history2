@@ -556,6 +556,36 @@ QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef window, RgnHandle rgn
     return 0;
 }
 
+bool qt_mac_is_macdrawer(QWidget *w)
+{
+#if defined(Q_WS_MACX) && 0
+    if(w && w->isTopLevel() && w->parentWidget() && w->testWFlags(Qt::WMacDrawer))
+	return TRUE;
+#else
+    Q_UNUSED(w);
+#endif
+    return FALSE;
+}
+
+bool qt_mac_set_drawer_preferred_edge(QWidget *w, Qt::Dock where) //users of Qt/Mac can use this..
+{
+    if(!qt_mac_is_macdrawer(w))
+	return FALSE;
+    OptionBits bits;
+    if(where == Qt::DockTop)
+	bits = kWindowEdgeTop;
+    else if(where == Qt::DockLeft)
+	bits = kWindowEdgeLeft;
+    else if(where == Qt::DockRight)
+	bits = kWindowEdgeRight;
+    else if(where == Qt::DockBottom)
+	bits = kWindowEdgeBottom;
+    else
+	return FALSE;
+    SetDrawerPreferredEdge((WindowRef)w->handle(), bits);
+    return TRUE;
+}
+
 bool qt_mac_is_macsheet(QWidget *w, bool ignore_exclusion=FALSE)
 {
 #if defined(Q_WS_MACX) && 0
@@ -662,6 +692,8 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	    wclass = kModalWindowClass;
 	else if(testWFlags(WShowModal))
 	    wclass = kMovableModalWindowClass;
+	else if(qt_mac_is_macdrawer(this))
+	    wclass = kDrawerWindowClass;
 	else if(dialog && parentWidget() && !parentWidget()->topLevelWidget()->isDesktop())
 	    wclass = kFloatingWindowClass;
 	else if(dialog)
@@ -713,6 +745,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	    UInt32 tag;
 	    const char *name;
 	} known_attribs[] = {
+	    ADD_DEBUG_WINDOW_NAME(kWindowStandardHandlerAttribute),
 	    ADD_DEBUG_WINDOW_NAME(kWindowCollapseBoxAttribute),
 	    ADD_DEBUG_WINDOW_NAME(kWindowHorizontalZoomAttribute),
 	    ADD_DEBUG_WINDOW_NAME(kWindowVerticalZoomAttribute),
@@ -722,6 +755,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	    ADD_DEBUG_WINDOW_NAME(kWindowCloseBoxAttribute),
 	    { 0, NULL }
 	}, known_classes[] = {
+	    ADD_DEBUG_WINDOW_NAME(kDrawerWindowClass),
 	    ADD_DEBUG_WINDOW_NAME(kUtilityWindowClass),
 	    ADD_DEBUG_WINDOW_NAME(kToolbarWindowClass),
 	    ADD_DEBUG_WINDOW_NAME(kSheetWindowClass),
@@ -789,6 +823,8 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	if(wclass == kFloatingWindowClass) //these dialogs don't hide
 	    ChangeWindowAttributes((WindowRef)id, 0, kWindowHideOnSuspendAttribute |
 				   kWindowNoActivatesAttribute);
+	if(qt_mac_is_macdrawer(this))
+	    SetDrawerParent((WindowRef)id, (WindowRef)parentWidget()->handle());
 	if(dialog && !parentWidget() && !testWFlags(WShowModal))
 	    grp = GetWindowGroupOfClass(kDocumentWindowClass);
 #ifdef Q_WS_MACX
@@ -834,10 +870,10 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	macWidgetChangedWindow();
 	setWinId(id);
 	ReshapeCustomWindow((WindowPtr)hd);
-#ifdef Q_WS_MACX
 	if(qt_mac_is_macsheet(this))
 	    QMacSavedPortInfo::setAlphaTransparancy(this, 0.85);
-#endif
+	else if(qt_mac_is_macdrawer(this))
+	    SetDrawerOffsets((WindowPtr)hd, 0.0, 25.0);
     } else {
 	while(QWidget::find(++serial_id));
 	setWinId(serial_id);
@@ -1371,7 +1407,9 @@ void QWidget::showWindow()
     dirtyClippedRegion(TRUE);
     if(isTopLevel()) {
 	SizeWindow((WindowPtr)hd, width(), height(), 1);
-	if(qt_mac_is_macsheet(this))
+	if(qt_mac_is_macdrawer(this))
+	    OpenDrawer((WindowPtr)hd, kWindowEdgeDefault, true);
+	else if(qt_mac_is_macsheet(this))
 	    qt_event_request_showsheet(this);
 	else
 	    ShowHide((WindowPtr)hd, 1); 	//now actually show it
@@ -1405,7 +1443,9 @@ void QWidget::hideWindow()
 	if(testWFlags(WShowModal))
 	    qt_mac_command_set_enabled(kHICommandQuit, TRUE);
 #endif
-	if(qt_mac_is_macsheet(this))
+	if(qt_mac_is_macdrawer(this))
+	    CloseDrawer((WindowPtr)hd, true);
+	else if(qt_mac_is_macsheet(this))
 	    HideSheetWindow((WindowPtr)hd);
 	else
 	    ShowHide((WindowPtr)hd, 0); //now we hide
