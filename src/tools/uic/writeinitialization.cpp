@@ -486,9 +486,9 @@ void WriteInitialization::writeProperties(const QString &varName, const QString 
                             .arg(p->elementCursor());
             break;
         case DomProperty::Enum:
-            propertyValue = QString("%1::%2")
-                            .arg(className)
-                            .arg(p->elementEnum());
+            propertyValue = p->elementEnum();
+            if (!propertyValue.contains("::"))
+                propertyValue.prepend(className + QLatin1String("::"));
             break;
         case DomProperty::Font: {
             DomFont *f = p->elementFont();

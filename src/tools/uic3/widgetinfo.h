@@ -28,10 +28,15 @@ public:
     static bool isValidSignal(const QString &className, const char *name);
     static bool isValidSlot(const QString &className, const char *name);
 
+    static QString resolveEnumerator(const QString &className, const char *name);
+
 private:
     static const QMetaObject *metaObject(const QString &widgetName);
     static bool checkEnumerator(const QMetaObject *meta, const char *name);
     static bool checkEnumerator(const QMetaEnum &metaEnum, const char *name);
+
+    static QString resolveEnumerator(const QMetaObject *meta, const char *name);
+    static QString resolveEnumerator(const QMetaEnum &metaEnum, const char *name);
 };
 
 #endif

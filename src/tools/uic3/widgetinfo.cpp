@@ -112,15 +112,6 @@ bool WidgetInfo::isValidProperty(const QString &className, const char *name)
     return meta->indexOfProperty(name) != -1;
 }
 
-bool WidgetInfo::isValidEnumerator(const QString &className, const char *name)
-{
-    const QMetaObject *meta = metaObject(className);
-    if (!meta)
-        return true;
-
-    return checkEnumerator(meta, name);
-}
-
 bool WidgetInfo::isValidSignal(const QString &className, const char *name)
 {
     const QMetaObject *meta = metaObject(className);
@@ -139,6 +130,15 @@ bool WidgetInfo::isValidSlot(const QString &className, const char *name)
     return meta->indexOfSlot(name) != -1;
 }
 
+bool WidgetInfo::isValidEnumerator(const QString &className, const char *name)
+{
+    const QMetaObject *meta = metaObject(className);
+    if (!meta)
+        return true;
+
+    return checkEnumerator(meta, name);
+}
+
 bool WidgetInfo::checkEnumerator(const QMetaObject *meta, const char *name)
 {
     for (int i=0; i<meta->enumeratorCount(); ++i)
@@ -151,3 +151,35 @@ bool WidgetInfo::checkEnumerator(const QMetaEnum &metaEnum, const char *name)
 {
     return metaEnum.keyToValue(name) != -1;
 }
+
+
+QString WidgetInfo::resolveEnumerator(const QString &className, const char *name)
+{
+    const QMetaObject *meta = metaObject(className);
+    if (!meta)
+        return QLatin1String(name);
+
+    return resolveEnumerator(meta, name);
+}
+
+QString WidgetInfo::resolveEnumerator(const QMetaObject *meta, const char *name)
+{
+    for (int i=0; i<meta->enumeratorCount(); ++i) {
+        QString e = resolveEnumerator(meta->enumerator(i), name);
+        if (e.size())
+            return e;
+    }
+
+    return QString::null;
+}
+
+QString WidgetInfo::resolveEnumerator(const QMetaEnum &metaEnum, const char *name)
+{
+    QString scope = metaEnum.scope();
+    int idx = metaEnum.keyToValue(name);
+    if (idx != -1)
+        return scope + QLatin1String("::") + metaEnum.name();
+
+    return QString::null;
+}
+

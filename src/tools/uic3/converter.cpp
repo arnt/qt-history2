@@ -690,17 +690,26 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
 
             name = prop->attributeName(); // sync the name
 
+            // resolve the enumerator
+            if (prop->kind() == DomProperty::Enum) {
+                QString e = WidgetInfo::resolveEnumerator(className, prop->elementEnum().latin1());
+
+                if (e.isEmpty()) {
+                    fprintf(stderr, "enumerator '%s' for widget '%s' is not supported\n",
+                            prop->elementEnum().latin1(), className.latin1());
+
+                    delete prop;
+                    continue;
+                }
+                prop->setElementEnum(e);
+            }
+
             if (className.size()
                     && !(className == QLatin1String("QLabel") && name == QLatin1String("buddy"))
                     && !(name == QLatin1String("buttonGroupId"))
                     && !(name == QLatin1String("frameworkCode"))
                     && !(name == QLatin1String("database"))) {
-                if (prop->kind() == DomProperty::Enum
-                            && !WidgetInfo::isValidEnumerator(className, prop->elementEnum().latin1())) {
-                    fprintf(stderr, "enumerator '%s' for widget '%s' is not supported\n",
-                            prop->elementEnum().latin1(), className.latin1());
-                    delete prop;
-                } else if (!WidgetInfo::isValidProperty(className, name.latin1())) {
+                if (!WidgetInfo::isValidProperty(className, name.latin1())) {
                     fprintf(stderr, "property '%s' for widget '%s' is not supported\n",
                             name.latin1(), className.latin1());
                     delete prop;
