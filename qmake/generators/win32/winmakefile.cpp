@@ -229,7 +229,7 @@ Win32MakefileGenerator::findHighestVersion(const QString &d, const QString &stem
     if(dir.exists(dllStem + Option::prl_ext)) {
 	QMakeProject proj;
 	if(proj.read(bd + dllStem + Option::prl_ext, QDir::currentDirPath(), TRUE)) {
-	    if(!proj.isEmpty("QMAKE_PRL_VERSION")) 
+	    if(!proj.isEmpty("QMAKE_PRL_VERSION"))
 		biggest = QMAX(biggest, proj.first("QMAKE_PRL_VERSION").replace(".", "").toInt());
 	}
     }
@@ -255,8 +255,7 @@ Win32MakefileGenerator::findLibraries(const QString &where)
     for(QStringList::Iterator it = l.begin(); it != l.end(); ) {
 	QChar quoted;
 	QString opt = (*it).stripWhiteSpace();
-	int a = opt.length()-1;
-	if((opt.left(1) == '\'' || opt.left(1) == '"') && opt[a] == opt[0]) {
+	if((opt.left(1) == '\'' || opt.left(1) == '"') && opt.constref( opt.length()-1 ) == opt.constref( 0 ) ) {
 	    quoted = opt[0];
 	    opt = opt.mid(1, opt.length());
 	}
@@ -286,7 +285,7 @@ Win32MakefileGenerator::findLibraries(const QString &where)
 		    }
                 }
             }
-            if(out.isEmpty()) 
+            if(out.isEmpty())
                 remove = TRUE;
             else
                 (*it) = quoted + out + quoted;
@@ -321,7 +320,7 @@ Win32MakefileGenerator::findLibraries(const QString &where)
 			    }
 			    (*it) = quoted + lib_tmpl + quoted;
 			    break;
-			} 
+			}
 		    }
 		}
 	    }
