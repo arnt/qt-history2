@@ -474,8 +474,8 @@ bool QFontDialog::eventFilter(QObject * o , QEvent * e)
         if (o == d->sizeEdit &&
         (k->key() == Qt::Key_Up ||
              k->key() == Qt::Key_Down ||
-         k->key() == Qt::Key_Prior ||
-         k->key() == Qt::Key_Next)) {
+         k->key() == Qt::Key_PageUp ||
+         k->key() == Qt::Key_PageDown)) {
 
             int ci = d->sizeList->currentItem();
             (void)QApplication::sendEvent(d->sizeList, k);

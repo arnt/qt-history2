@@ -682,7 +682,7 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
 {
 //    const QDateTimeEditPrivate::Section s = d->currentsection;
     bool select = true;
-    if ((e->key() == Qt::Key_Backspace || (e->key() == Qt::Key_H && e->key() & Qt::ControlButton))
+    if ((e->key() == Qt::Key_Backspace || (e->key() == Qt::Key_H && e->key() & Qt::ControlModifier))
         && !d->edit->hasSelectedText()) {
         const int pos = d->edit->cursorPosition();
         const QDateTimeEditPrivate::Section s = d->sections.last().section;

@@ -526,12 +526,12 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *e)
 
     int steps = 1;
     switch(e->key()) {
-    case Qt::Key_Prior:
-    case Qt::Key_Next:
+    case Qt::Key_PageUp:
+    case Qt::Key_PageDown:
         steps *= 10;
     case Qt::Key_Up:
     case Qt::Key_Down: {
-        const bool up = (e->key() == Qt::Key_Prior || e->key() == Qt::Key_Up);
+        const bool up = (e->key() == Qt::Key_PageUp || e->key() == Qt::Key_Up);
         if (!(stepEnabled() & (up ? StepUpEnabled : StepDownEnabled)))
             return;
         if (!up)

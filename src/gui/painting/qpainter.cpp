@@ -3619,8 +3619,6 @@ QPainter::RenderHints QPainter::renderHints() const
     return d->engine->renderHints();
 }
 
-#ifdef QT_COMPAT
-
 /*!
     Returns true if view transformation is enabled; otherwise returns
     false.
@@ -3805,6 +3803,7 @@ void QPainter::setViewTransformEnabled(bool enable)
     d->updateMatrix();
 }
 
+#ifdef QT_COMPAT
 
 double QPainter::translationX() const
 {
@@ -4399,7 +4398,7 @@ void qt_fill_linear_gradient(const QRect &rect, QPainter *p, const QBrush &brush
 
     p->setRenderHint(QPainter::Antialiasing, false);
 
-    if (QABS(dx) > QABS(dy)) { // Fill horizontally
+    if (qAbs(dx) > qAbs(dy)) { // Fill horizontally
         // Make sure we fill left to right.
         if (gstop.x() < gstart.x()) {
             qSwap(gcol1, gcol2);

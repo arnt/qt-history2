@@ -401,7 +401,7 @@ void QTableView::paintEvent(QPaintEvent *e)
     QHeaderView *horizontalHeader = d->horizontalHeader;
     QModelIndex current = currentIndex();
     bool focus = hasFocus() && current.isValid();
-    QStyle::SFlags state = option.state;
+    QStyle::StyleFlags state = option.state;
     bool alternate = d->alternatingColors;
     QColor oddColor = d->oddColor;
     QColor evenColor = d->evenColor;

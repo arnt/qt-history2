@@ -533,7 +533,7 @@ void QTreeView::paintEvent(QPaintEvent *e)
     d->right = qMax(tmp, d->right);
 
     QModelIndex current = selectionModel()->currentIndex();
-    QStyle::SFlags state = option.state;
+    QStyle::StyleFlags state = option.state;
     bool alternate = d->alternatingColors;
     QColor oddColor = d->oddColor;
     QColor evenColor = d->evenColor;
@@ -598,7 +598,7 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
     QModelIndex current = selectionModel()->currentIndex();
     bool focus = hasFocus() && current.isValid();
     bool reverse = isRightToLeft();
-    QStyle::SFlags state = opt.state;
+    QStyle::StyleFlags state = opt.state;
 
     int position;
     int headerSection;
@@ -902,7 +902,7 @@ void QTreeView::scrollContentsBy(int dx, int dy)
     int maxDeltaY = verticalFactor() * qMin(d->viewItems.count(), viewCount);
 
     // no need to do a lot of work if we are going to redraw the whole thing anyway
-    if (QABS(dy) > maxDeltaY) {
+    if (qAbs(dy) > maxDeltaY) {
         verticalScrollBar()->repaint();
         d->viewport->update();
         return;

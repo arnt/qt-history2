@@ -1316,7 +1316,7 @@ template<> QColor QVariant_to_helper<QColor>(const QCoreVariant &v, const QColor
 template<> QPalette QVariant_to_helper<QPalette>(const QCoreVariant &v, const QPalette*)
 { return static_cast<const QVariant &>(v).toPalette(); }
 template<> QIcon QVariant_to_helper<QIcon>(const QCoreVariant &v, const QIcon*)
-{ return static_cast<const QVariant &>(v).toIconSet(); }
+{ return static_cast<const QVariant &>(v).toIcon(); }
 template<> QTextLength QVariant_to_helper<QTextLength>(const QCoreVariant &v, const QTextLength*)
 { return static_cast<const QVariant &>(v).toTextLength(); }
 template<> QPointArray QVariant_to_helper<QPointArray>(const QCoreVariant &v, const QPointArray*)

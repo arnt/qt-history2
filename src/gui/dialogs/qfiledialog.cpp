@@ -1683,7 +1683,7 @@ QDir::Filters QFileDialogPrivate::filterForMode(QFileDialog::FileMode mode)
 {
     if (mode == QFileDialog::DirectoryOnly)
         return QDir::Filters(QDir::AllDirs|QDir::Drives|QDir::Dirs);
-    return QDir::Filters(QDir::AllDirs|QDir::Drives|QDir::All);
+    return QDir::Filters(QDir::AllDirs|QDir::Drives|QDir::TypeMask);
 }
 
 QAbstractItemView::SelectionMode QFileDialogPrivate::selectionMode(QFileDialog::FileMode mode)

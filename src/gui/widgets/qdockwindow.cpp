@@ -733,7 +733,7 @@ void QDockWindow::closeEvent(QCloseEvent *event)
 bool QDockWindow::event(QEvent *event)
 {
     switch (event->type()) {
-    case QEvent::Reparent:
+    case QEvent::ParentChange:
 	{
 	    QWidget *parent = parentWidget();
             QMainWindow *mainWindow = qt_cast<QMainWindow *>(parent);

@@ -681,8 +681,8 @@ QVariant QWindowsMimeHtml::convertToMime(const QString &mime, QVariant::Type pre
         qDebug(html.latin1());
 #endif
         //int ms = data.size();
-        int start = html.find("StartFragment:");
-        int end = html.find("EndFragment:");
+        int start = html.indexOf("StartFragment:");
+        int end = html.indexOf("EndFragment:");
         if(start != -1)
             start = html.mid(start+14, 10).toInt();
         if(end != -1)
@@ -710,10 +710,10 @@ bool QWindowsMimeHtml::convertFromMime(const FORMATETC &formatetc, const QMimeDa
         "StartFragment:0000000000\r\n"            // 58-86
         "EndFragment:0000000000\r\n\r\n";   // 87-105
 
-    if (data.find("<!--StartFragment-->") == -1)
+    if (data.indexOf("<!--StartFragment-->") == -1)
         result += "<!--StartFragment-->";
     result += data;
-    if (data.find("<!--EndFragment-->") == -1)
+    if (data.indexOf("<!--EndFragment-->") == -1)
         result += "<!--EndFragment-->";
 
     // set the correct number for EndHTML
@@ -721,9 +721,9 @@ bool QWindowsMimeHtml::convertFromMime(const FORMATETC &formatetc, const QMimeDa
     memcpy((char *)(result.data() + 53 - pos.length()), pos.constData(), pos.length());
 
     // set correct numbers for StartFragment and EndFragment
-    pos = QString::number(result.find("<!--StartFragment-->") + 20).latin1();
+    pos = QString::number(result.indexOf("<!--StartFragment-->") + 20).latin1();
     memcpy((char *)(result.data() + 79 - pos.length()), pos.constData(), pos.length());
-    pos = QString::number(result.find("<!--EndFragment-->")).latin1();
+    pos = QString::number(result.indexOf("<!--EndFragment-->")).latin1();
     memcpy((char *)(result.data() + 103 - pos.length()), pos.constData(), pos.length());
 
     return setData(result, pmedium);

@@ -1414,15 +1414,15 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                     pos = QStyle::positionFromValue(slider->minimum, slider->maximum + 1,
                                                     v, available) + fudge;
                     if (slider->orientation == Qt::Horizontal) {
-                        if (ticks & QSlider::Above)
+                        if (ticks & QSlider::TicksAbove)
                             p->drawLine(pos, 0, pos, tickOffset - 2);
-                        if (ticks & QSlider::Below)
+                        if (ticks & QSlider::TicksBelow)
                             p->drawLine(pos, tickOffset + thickness + 1, pos,
                                         tickOffset + thickness + 1 + available - 2);
                     } else {
-                        if (ticks & QSlider::Above)
+                        if (ticks & QSlider::TicksAbove)
                             p->drawLine(0, pos, tickOffset - 2, pos);
-                        if (ticks & QSlider::Below)
+                        if (ticks & QSlider::TicksBelow)
                             p->drawLine(tickOffset + thickness + 1, pos,
                                         tickOffset + thickness + 1 + available - 2, pos);
                     }
@@ -2294,9 +2294,9 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
             int thickness = pixelMetric(PM_SliderControlThickness, sl, widget);
             int ticks = sl->tickPosition;
 
-            if (ticks == QSlider::Both)
+            if (ticks == QSlider::TicksBothSides)
                 ret = (space - thickness) / 2;
-            else if (ticks == QSlider::Above)
+            else if (ticks == QSlider::TicksAbove)
                 ret = space - thickness;
             else
                 ret = 0;

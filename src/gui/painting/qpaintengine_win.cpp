@@ -1642,7 +1642,7 @@ void QWin32PaintEnginePrivate::fillGradient(const QRect &rect)
     int rw = rect.width();
     int rh = rect.height();
 
-    if (QABS(dx) > QABS(dy)) { // Fill horizontally
+    if (qAbs(dx) > qAbs(dy)) { // Fill horizontally
         // Make sure we fill left to right.
         if (gstop.x() < gstart.x()) {
             qt_swap(gcol1, gcol2);

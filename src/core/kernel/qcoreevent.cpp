@@ -426,21 +426,18 @@ QChildEvent::QChildEvent(Type type, QObject *child)
 /*!
     \fn QCustomEvent::QCustomEvent(int type, void *data)
 
-    \compat
-
     Constructs a custom event object with the event \a type and a
     pointer to \a data. The value of \a type must be at least as
     large as QEvent::User. By default, the data pointer is set to 0.
 
 
 */
-#ifdef QT_COMPAT
+
 QCustomEvent::QCustomEvent(int type, void *data)
     : QEvent(static_cast<Type>(type))
 {
     d = reinterpret_cast<QEventPrivate *>(data);
 }
-#endif // QT_COMPAT
 
 /*!
     \fn void QCustomEvent::setData(void *data)

@@ -1588,8 +1588,8 @@ QMainWindowLayout::locateDockWindow(QDockWindow *dockwindow, const QPoint &mouse
     POSITION pos = CENTER;
     const int width = parentWidget()->width(),
              height = parentWidget()->height(),
-                 dx = QABS(p.x() - (width / 2)),
-                 dy = QABS(p.y() - (height / 2));
+                 dx = qAbs(p.x() - (width / 2)),
+                 dy = qAbs(p.y() - (height / 2));
 
     if (dx > dy) {
         if (p.x() < width / 2 && dockwindow->isDockable(Qt::DockWindowAreaLeft)) {
@@ -1774,8 +1774,8 @@ int QMainWindowLayout::locateToolBar(QToolBar *toolbar, const QPoint &mouse) con
              height = parentWidget()->height();
     const QPoint p = parentWidget()->mapFromGlobal(mouse),
                 p2 = QPoint(width / 2, height / 2);
-    const int dx = QABS(p.x() - p2.x()),
-              dy = QABS(p.y() - p2.y());
+    const int dx = qAbs(p.x() - p2.x()),
+              dy = qAbs(p.y() - p2.y());
 
     POSITION pos = CENTER;
     if (dx > dy) {

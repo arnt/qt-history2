@@ -828,7 +828,7 @@ void QListView::paintEvent(QPaintEvent *e)
     bool alternate = d->alternatingColors;
     QColor oddColor = d->oddColor;
     QColor evenColor = d->evenColor;
-    QStyle::SFlags state = option.state;
+    QStyle::StyleFlags state = option.state;
     QVector<QModelIndex>::iterator it = d->intersectVector.begin();
     for (; it != d->intersectVector.end(); ++it) {
         option.rect = itemViewportRect(*it);

@@ -479,8 +479,8 @@ void QItemDelegate::doAlignment(Qt::LayoutDirection direction, const QRect &boun
 QPixmap QItemDelegate::decoration(const QStyleOptionViewItem &option, const QVariant &variant) const
 {
     switch (variant.type()) {
-    case QVariant::IconSet:
-        return variant.toIconSet().pixmap(option.decorationSize == QStyleOptionViewItem::Small
+    case QVariant::Icon:
+        return variant.toIcon().pixmap(option.decorationSize == QStyleOptionViewItem::Small
                                           ? Qt::SmallIconSize : Qt::LargeIconSize,
                                           option.state & QStyle::Style_Enabled
                                           ? QIcon::Normal : QIcon::Disabled,

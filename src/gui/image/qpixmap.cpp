@@ -318,6 +318,52 @@ QPixmap::QPixmap(const QPixmap &pixmap)
 }
 
 
+#ifndef QT_NO_IMAGEIO_XPM
+// helper
+extern void qt_read_xpm_image_or_array(QImageIO *, const char * const *, QImage &);
+#endif // QT_NO_IMAGEIO_XPM
+
+/*!
+    Constructs a pixmap from \a xpm, which must be a valid XPM image.
+
+    Errors are silently ignored.
+
+    Note that it's possible to squeeze the XPM variable a little bit
+    by using an unusual declaration:
+
+    \code
+        static const char * const start_xpm[]={
+            "16 15 8 1",
+            "a c #cec6bd",
+        ....
+    \endcode
+
+    The extra \c const makes the entire definition read-only, which is
+    slightly more efficient (for example, when the code is in a shared
+    library) and ROMable when the application is to be stored in ROM.
+
+    In order to use that sort of declaration you must cast the
+    variable back to \c{const char **} when you create the QPixmap.
+*/
+
+QPixmap::QPixmap(const char * const xpm[])
+    : QPaintDevice(QInternal::Pixmap)
+{
+    init(0, 0, 0, false, defOptim);
+    QImage image;
+#ifndef QT_NO_IMAGEIO_XPM
+    qt_read_xpm_image_or_array(0, xpm, image);
+#else
+    // We use a qFatal rather than disabling the whole function, as this
+    // constructor may be ambiguous.
+    qFatal("XPM not supported");
+#endif
+    if (!image.isNull())
+        fromImage(image);
+}
+
+
+
 /*!
     Destroys the pixmap.
 */
@@ -1100,52 +1146,6 @@ QPixmap::QPixmap(const QString& fileName, const char *format, ColorMode mode)
     init(0, 0, 0, false, defOptim);
     load(fileName, format, colorModeToFlags(mode));
 }
-
-#ifdef QT_COMPAT
-#ifndef QT_NO_IMAGEIO_XPM
-// helper
-extern void qt_read_xpm_image_or_array(QImageIO *, const char * const *, QImage &);
-#endif
-
-/*!
-    Constructs a pixmap from \a xpm, which must be a valid XPM image.
-
-    Errors are silently ignored.
-
-    Note that it's possible to squeeze the XPM variable a little bit
-    by using an unusual declaration:
-
-    \code
-        static const char * const start_xpm[]={
-            "16 15 8 1",
-            "a c #cec6bd",
-        ....
-    \endcode
-
-    The extra \c const makes the entire definition read-only, which is
-    slightly more efficient (for example, when the code is in a shared
-    library) and ROMable when the application is to be stored in ROM.
-
-    In order to use that sort of declaration you must cast the
-    variable back to \c{const char **} when you create the QPixmap.
-*/
-
-QPixmap::QPixmap(const char * const xpm[])
-    : QPaintDevice(QInternal::Pixmap)
-{
-    init(0, 0, 0, false, defOptim);
-    QImage image;
-#ifndef QT_NO_IMAGEIO_XPM
-    qt_read_xpm_image_or_array(0, xpm, image);
-#else
-    // We use a qFatal rather than disabling the whole function, as this
-    // constructor may be ambiguous.
-    qFatal("XPM not supported");
-#endif
-    if (!image.isNull())
-        fromImage(image);
-}
-#endif
 
 /*!
     \overload

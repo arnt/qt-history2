@@ -1125,7 +1125,7 @@ void QHeaderView::paintEvent(QPaintEvent *e)
 void QHeaderView::mousePressEvent(QMouseEvent *e)
 {
     int pos = orientation() == Qt::Horizontal ? e->x() : e->y();
-    if (e->modifiers() & Qt::ControlButton && d->movableSections) {
+    if (e->modifiers() & Qt::ControlModifier && d->movableSections) {
         d->section = d->target = d->pressed = logicalIndexAt(pos);
         if (d->section == -1)
             return;
@@ -1260,7 +1260,7 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
     opt.text = d->model->headerData(logicalIndex, orientation(),
                                     QAbstractItemModel::DisplayRole).toString();
     opt.icon = d->model->headerData(logicalIndex, orientation(),
-                                    QAbstractItemModel::DecorationRole).toIconSet();
+                                    QAbstractItemModel::DecorationRole).toIcon();
     opt.textAlignment = static_cast<Qt::Alignment>(d->model->headerData(logicalIndex, orientation(),
                                                                         QAbstractItemModel::TextAlignmentRole).toInt());
     opt.iconAlignment = Qt::AlignVCenter;
@@ -1289,7 +1289,7 @@ QSize QHeaderView::sectionSizeFromContents(int logicalIndex) const
     opt.text = d->model->headerData(logicalIndex, orientation(),
                                     QAbstractItemModel::DisplayRole).toString();
     opt.icon = d->model->headerData(logicalIndex, orientation(),
-                                    QAbstractItemModel::DecorationRole).toIconSet();
+                                    QAbstractItemModel::DecorationRole).toIcon();
     size = style()->sizeFromContents(QStyle::CT_HeaderSection, &opt, size, this);
 
     if (isSortIndicatorShown() && sortIndicatorSection() == logicalIndex) {

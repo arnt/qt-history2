@@ -852,7 +852,7 @@ public:
 QValidator::State QColIntValidator::validate(QString &s, int &pos) const
 {
     State state = QIntValidator::validate(s,pos);
-    if (state == Valid) {
+    if (state == Intermediate) {
         long int val = s.toLong();
         // This is not a general solution, assumes that top() > 0 and
         // bottom >= 0

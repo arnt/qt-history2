@@ -644,10 +644,10 @@ static QtFontStyle *bestStyle(QtFontFoundry *foundry, const QtFontStyle::Key &st
     for ( int i = 0; i < foundry->count; i++ ) {
 	QtFontStyle *style = foundry->styles[i];
 
-	int d = QABS( styleKey.weight - style->key.weight );
+	int d = qAbs( styleKey.weight - style->key.weight );
 
 	if ( styleKey.stretch != 0 && style->key.stretch != 0 ) {
-	    d += QABS( styleKey.stretch - style->key.stretch );
+	    d += qAbs( styleKey.stretch - style->key.stretch );
 	}
 
 	if ( styleKey.italic ) {
@@ -866,7 +866,7 @@ unsigned int bestFoundry(QFont::Script script, unsigned int score, int styleStra
         if (!style->smoothScalable && px != size->pixelSize) // bitmap scaled
             this_score += BitmapScaledPenalty;
         if (px != pixelSize) // close, but not exact, size match
-            this_score += QABS(px - pixelSize);
+            this_score += qAbs(px - pixelSize);
 
         if (this_score < score) {
             FM_DEBUG("          found a match: score %x best score so far %x",

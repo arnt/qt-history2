@@ -886,8 +886,8 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
 
         h = qRound(mat.m22()*hs);
         w = qRound(mat.m11()*ws);
-        h = QABS(h);
-        w = QABS(w);
+        h = qAbs(h);
+        w = qAbs(w);
         if (data->realAlphaBits == 0) {
             // we have to create the new pixmap before we query the handle of this,
             // as the handle might change if this is a multicell pixmap that gets

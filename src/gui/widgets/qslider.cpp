@@ -48,7 +48,7 @@ void QSliderPrivate::init()
 {
     pressedControl = QStyle::SC_None;
     tickInterval = 0;
-    tickPosition = QSlider::NoMarks;
+    tickPosition = QSlider::NoTicks;
     q->setFocusPolicy(Qt::TabFocus);
     QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Fixed);
     if (orientation == Qt::Vertical)
@@ -281,7 +281,7 @@ void QSlider::paintEvent(QPaintEvent *)
     QStyleOptionSlider opt = d->getStyleOption();
 
     opt.subControls = QStyle::SC_SliderGroove | QStyle::SC_SliderHandle;
-    if (d->tickPosition != NoMarks)
+    if (d->tickPosition != NoTicks)
         opt.subControls |= QStyle::SC_SliderTickmarks;
     opt.activeSubControls = d->pressedControl;
 
@@ -374,9 +374,9 @@ QSize QSlider::sizeHint() const
     const int SliderLength = 84, TickSpace = 5;
     QStyleOptionSlider opt = d->getStyleOption();
     int thick = style()->pixelMetric(QStyle::PM_SliderThickness, &opt, this);
-    if (d->tickPosition & Above)
+    if (d->tickPosition & TicksAbove)
         thick += TickSpace;
-    if (d->tickPosition & Below)
+    if (d->tickPosition & TicksBelow)
         thick += TickSpace;
     int w = thick, h = SliderLength;
     if (d->orientation == Qt::Horizontal) {

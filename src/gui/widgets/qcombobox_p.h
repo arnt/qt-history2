@@ -148,7 +148,7 @@ private:
         menuOption.checkType = QStyleOptionMenuItem::NonExclusive;
         menuOption.checked = mCombo->currentItem() == index.row();
         menuOption.menuItemType = QStyleOptionMenuItem::Normal;
-        menuOption.icon = index.model()->data(index, QAbstractItemModel::DecorationRole).toIconSet();
+        menuOption.icon = index.model()->data(index, QAbstractItemModel::DecorationRole).toIcon();
         menuOption.text = index.model()->data(index, QAbstractItemModel::DisplayRole).toString();
         menuOption.tabWidth = 0;
         menuOption.maxIconWidth = 0;

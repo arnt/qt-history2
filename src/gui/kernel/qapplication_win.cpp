@@ -210,7 +210,7 @@ void qt_erase_background(HDC hdc, int x, int y, int w, int h,
                          const QBrush &brush, int off_x, int off_y,
                          QWidget *widget)
 {
-    if (brush.pixmap() && brush.pixmap()->isNull())        // empty background
+    if (brush.texture().isNull())        // empty background
         return;
     HPALETTE oldPal = 0;
     HPALETTE hpal = QColormap::hPal();
@@ -223,8 +223,8 @@ void qt_erase_background(HDC hdc, int x, int y, int w, int h,
         p.fillRect(x, y, w, h, brush);
         return;
     }
-    else if (brush.pixmap()) {
-        qt_draw_tiled_pixmap(hdc, x, y, w, h, brush.pixmap(), off_x, off_y);
+    else if (!brush.texture().isNull()) {
+        qt_draw_tiled_pixmap(hdc, x, y, w, h, &brush.texture(), off_x, off_y);
     } else {
         QColor c = brush.color();
         HBRUSH hbrush = CreateSolidBrush(RGB(c.red(), c.green(), c.blue()));
@@ -1509,7 +1509,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
                             key = Qt::Key_MediaPlay;
                             break;
                         case APPCOMMAND_MEDIA_PREVIOUSTRACK:
-                            key = Qt::Key_MediaPrev;
+                            key = Qt::Key_MediaPrevious;
                             break;
                         case APPCOMMAND_MEDIA_STOP:
                             key = Qt::Key_MediaStop;
@@ -2283,9 +2283,9 @@ static int translateButtonState(int s, int type, int button)
     if (s & MK_RBUTTON)
         bst |= Qt::RightButton;
     if (s & MK_SHIFT)
-        bst |= Qt::ShiftButton;
+        bst |= Qt::ShiftModifier;
     if (s & MK_CONTROL)
-        bst |= Qt::ControlButton;
+        bst |= Qt::ControlModifier;
 
     if (s & MK_XBUTTON1)
         bst |= Qt::XButton1;
@@ -2293,11 +2293,11 @@ static int translateButtonState(int s, int type, int button)
         bst |= Qt::XButton2;
 
     if (GetKeyState(VK_MENU) < 0)
-        bst |= Qt::AltButton;
+        bst |= Qt::AltModifier;
 
     if ((GetKeyState(VK_LWIN) < 0) ||
          (GetKeyState(VK_RWIN) < 0))
-        bst |= Qt::MetaButton;
+        bst |= Qt::MetaModifier;
 
     // Translate from Windows-style "state after event"
     // to X-style "state before event"
@@ -2522,7 +2522,7 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
 	QMouseEvent e(type, pos, globalPos,
                       Qt::MouseButton(button),
                       Qt::MouseButtons(state & Qt::MouseButtonMask),
-                      Qt::KeyboardModifiers(state & Qt::KeyButtonMask));
+                      Qt::KeyboardModifiers(state & Qt::KeyboardModifierMask));
 	QApplication::sendSpontaneousEvent(popup, &e);
 
         if (releaseAfter) {
@@ -2577,7 +2577,7 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
         QMouseEvent e(type, pos, QPoint(gpos.x,gpos.y),
                       Qt::MouseButton(button),
                       Qt::MouseButtons(state & Qt::MouseButtonMask),
-                      Qt::KeyboardModifiers(state & Qt::KeyButtonMask));
+                      Qt::KeyboardModifiers(state & Qt::KeyboardModifierMask));
         QApplication::sendSpontaneousEvent(widget, &e);
         if (type == QEvent::MouseButtonRelease && button == Qt::RightButton) {
             QContextMenuEvent e2(QContextMenuEvent::Mouse, pos, QPoint(gpos.x,gpos.y));
@@ -2611,8 +2611,8 @@ static const uint KeyTbl[] = {                // keyboard mapping table
     VK_UP,                Qt::Key_Up,
     VK_RIGHT,                Qt::Key_Right,
     VK_DOWN,                Qt::Key_Down,
-    VK_PRIOR,                Qt::Key_Prior,
-    VK_NEXT,                Qt::Key_Next,
+    VK_PRIOR,                Qt::Key_PageUp,
+    VK_NEXT,                Qt::Key_PageDown,
     VK_SHIFT,                Qt::Key_Shift,                // modifiers
     VK_CONTROL,                Qt::Key_Control,
     VK_LWIN,                Qt::Key_Meta,
@@ -2621,7 +2621,7 @@ static const uint KeyTbl[] = {                // keyboard mapping table
     VK_CAPITAL,                Qt::Key_CapsLock,
     VK_NUMLOCK,                Qt::Key_NumLock,
     VK_SCROLL,                Qt::Key_ScrollLock,
-    VK_NUMPAD0,                Qt::Key_0,                        // numeric keypad
+    VK_NUMPAD0,                Qt::Key_0,                        // numeric Keypad
     VK_NUMPAD1,                Qt::Key_1,
     VK_NUMPAD2,                Qt::Key_2,
     VK_NUMPAD3,                Qt::Key_3,
@@ -2715,7 +2715,7 @@ static int asciiToKeycode(char a, int state)
 {
     if (a >= 'a' && a <= 'z')
         a = toupper(a);
-    if ((state & Qt::ControlButton) != 0) {
+    if ((state & Qt::ControlModifier) != 0) {
         if ( a >= 0 && a <= 31 )      // Ctrl+@..Ctrl+A..CTRL+Z..Ctrl+_
         a += '@';                     // to @..A..Z.._
     }
@@ -2766,14 +2766,14 @@ bool QETWidget::translateKeyEvent(const MSG &msg, bool grab)
         return true;
 
     if (GetKeyState(VK_SHIFT) < 0)
-        state |= Qt::ShiftButton;
+        state |= Qt::ShiftModifier;
     if (GetKeyState(VK_CONTROL) < 0)
-        state |= Qt::ControlButton;
+        state |= Qt::ControlModifier;
     if (GetKeyState(VK_MENU) < 0)
-        state |= Qt::AltButton;
+        state |= Qt::AltModifier;
     if ((GetKeyState(VK_LWIN) < 0) ||
          (GetKeyState(VK_RWIN) < 0))
-        state |= Qt::MetaButton;
+        state |= Qt::MetaModifier;
 
     if (msg.message == WM_CHAR) {
         // a multi-character key not found by our look-ahead
@@ -2797,7 +2797,7 @@ bool QETWidget::translateKeyEvent(const MSG &msg, bool grab)
         if (qt_use_rtl_extensions) {
             // for Directionality changes (BiDi)
             static int dirStatus = 0;
-            if (!dirStatus && state == Qt::ControlButton && msg.wParam == VK_CONTROL && msg.message == WM_KEYDOWN) {
+            if (!dirStatus && state == Qt::ControlModifier && msg.wParam == VK_CONTROL && msg.message == WM_KEYDOWN) {
                 if (GetKeyState(VK_LCONTROL) < 0) {
                     dirStatus = VK_LCONTROL;
                 } else if (GetKeyState(VK_RCONTROL) < 0) {
@@ -2839,11 +2839,11 @@ bool QETWidget::translateKeyEvent(const MSG &msg, bool grab)
         int code = translateKeyCode(msg.wParam);
         // Invert state logic
         if (code == Qt::Key_Alt)
-            state = state^Qt::AltButton;
+            state = state^Qt::AltModifier;
         else if (code == Qt::Key_Control)
-            state = state^Qt::ControlButton;
+            state = state^Qt::ControlModifier;
         else if (code == Qt::Key_Shift)
-            state = state^Qt::ShiftButton;
+            state = state^Qt::ShiftModifier;
 
         // If the bit 24 of lParm is set you received a enter,
         // otherwise a Return. (This is the extended key bit)
@@ -2877,11 +2877,11 @@ bool QETWidget::translateKeyEvent(const MSG &msg, bool grab)
             case Qt::Key_7:
             case Qt::Key_8:
             case Qt::Key_9:
-                state |= Qt::Keypad;
+                state |= Qt::KeypadModifier;
             default:
                 if ((uint)msg.lParam == 0x004c0001 ||
                      (uint)msg.lParam == 0xc04c0001)
-                    state |= Qt::Keypad;
+                    state |= Qt::KeypadModifier;
                 break;
             }
         } else {                                // And some with extended bit
@@ -2889,7 +2889,7 @@ bool QETWidget::translateKeyEvent(const MSG &msg, bool grab)
             case Qt::Key_Enter:
             case Qt::Key_Slash:
             case Qt::Key_NumLock:
-                state |= Qt::Keypad;
+                state |= Qt::KeypadModifier;
             default:
                 break;
             }
@@ -2943,7 +2943,7 @@ bool QETWidget::translateKeyEvent(const MSG &msg, bool grab)
                     code = asciiToKeycode(uch.cell(), state);
             }
 
-            if (state == Qt::AltButton) {
+            if (state == Qt::AltModifier) {
                 // Special handling of global Windows hotkeys
                 switch (code) {
                 case Qt::Key_Escape:
@@ -2962,8 +2962,8 @@ bool QETWidget::translateKeyEvent(const MSG &msg, bool grab)
 
             // map shift+tab to shift+backtab, QShortcutMap knows about it
             // and will handle it
-            if (code == Qt::Key_Tab && (state & Qt::ShiftButton) == Qt::ShiftButton)
-                code = Qt::Key_BackTab;
+            if (code == Qt::Key_Tab && (state & Qt::ShiftModifier) == Qt::ShiftModifier)
+                code = Qt::Key_Backtab;
 
             if (rec) {
                 // it is already down (so it is auto-repeating)
@@ -2991,8 +2991,8 @@ bool QETWidget::translateKeyEvent(const MSG &msg, bool grab)
                                 state);
 
                 // see comment above
-                if (code == Qt::Key_Tab && (state & Qt::ShiftButton) == Qt::ShiftButton)
-                    code = Qt::Key_BackTab;
+                if (code == Qt::Key_Tab && (state & Qt::ShiftModifier) == Qt::ShiftModifier)
+                    code = Qt::Key_Backtab;
 
                 k0 = sendKeyEvent(QEvent::KeyRelease, code, state, grab, rec->text);
                 if (code == Qt::Key_Alt)
@@ -3013,14 +3013,14 @@ bool QETWidget::translateWheelEvent(const MSG &msg)
         return true;
 
     if (GetKeyState(VK_SHIFT) < 0)
-        state |= Qt::ShiftButton;
+        state |= Qt::ShiftModifier;
     if (GetKeyState(VK_CONTROL) < 0)
-        state |= Qt::ControlButton;
+        state |= Qt::ControlModifier;
     if (GetKeyState(VK_MENU) < 0)
-        state |= Qt::AltButton;
+        state |= Qt::AltModifier;
     if ((GetKeyState(VK_LWIN) < 0) ||
          (GetKeyState(VK_RWIN) < 0))
-        state |= Qt::MetaButton;
+        state |= Qt::MetaModifier;
 
     int delta;
     if (msg.message == WM_MOUSEWHEEL)
@@ -3028,7 +3028,7 @@ bool QETWidget::translateWheelEvent(const MSG &msg)
     else
         delta = (int) msg.wParam;
 
-    Qt::Orientation orient = (state&Qt::AltButton
+    Qt::Orientation orient = (state&Qt::AltModifier
 #if 0 // disabled for now - Trenton's one-wheel mouse makes trouble...
     // "delta" for usual wheels is +-120. +-240 seems to indicate the second wheel
     // see more recent MSDN for WM_MOUSEWHEEL
@@ -3059,7 +3059,7 @@ bool QETWidget::translateWheelEvent(const MSG &msg)
             popup->close();
         QWheelEvent e(w->mapFromGlobal(globalPos), globalPos, delta,
                       Qt::MouseButtons(state & Qt::MouseButtonMask),
-                      Qt::KeyboardModifier(state & Qt::KeyButtonMask), orient);
+                      Qt::KeyboardModifier(state & Qt::KeyboardModifierMask), orient);
         if (QApplication::sendSpontaneousEvent(w, &e))
             return true;
     }
@@ -3069,7 +3069,9 @@ bool QETWidget::translateWheelEvent(const MSG &msg)
         QWidget* popup = qApp->activePopupWidget();
         if (popup && w->topLevelWidget() != popup)
             popup->close();
-        QWheelEvent e(w->mapFromGlobal(globalPos), globalPos, delta, state, orient);
+        QWheelEvent e(w->mapFromGlobal(globalPos), globalPos, delta,
+                      Qt::MouseButtons(state & Qt::MouseButtonMask),
+                      Qt::KeyboardModifier(state & Qt::KeyboardModifierMask), orient);
         if (QApplication::sendSpontaneousEvent(w, &e))
             return true;
     }
@@ -3174,7 +3176,7 @@ bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
         QPoint globalPos(ptNew.x, ptNew.y);
 
         // make sure the tablet event get's sent to the proper widget...
-        QWidget *w = QApplication::widgetAt(globalPos, true);
+        QWidget *w = QApplication::widgetAt(globalPos);
         if (w == NULL)
             w = this;
         QPoint localPos = w->mapFromGlobal(globalPos);
@@ -3220,7 +3222,6 @@ static void initWinTabFunctions()
         return;
 
     QLibrary library("wintab32");
-    library.setAutoUnload(false);
     if (library.load()) {
         QT_WA({
             ptrWTInfo = (PtrWTInfo)library.resolve("WTInfoW");
@@ -3245,11 +3246,11 @@ bool QETWidget::sendKeyEvent(QEvent::Type type, int code,
                               int state, bool grab, const QString& text,
                               bool autor)
 {
-#if !defined QT_NO_COMPAT && !defined(QT_NO_ACCEL)
+#if defined QT_COMPAT && !defined(QT_NO_ACCEL)
     if (type == QEvent::KeyPress && !grab
         && static_cast<QApplicationPrivate*>(qApp->d_ptr)->use_compat()) {
         // send accel events if the keyboard is not grabbed
-        QKeyEvent a(type, code, 0, Qt::KeyButtonMask & state, text, autor,
+        QKeyEvent a(type, code, 0, Qt::KeyboardModifierMask & state, text, autor,
                     qMax(1, int(text.length())));
         if (static_cast<QApplicationPrivate*>(qApp->d_ptr)->qt_tryAccelEvent(this, &a))
             return true;
@@ -3257,10 +3258,10 @@ bool QETWidget::sendKeyEvent(QEvent::Type type, int code,
 #endif
     if (!isEnabled())
         return false;
-    QKeyEvent e(type, code, 0, state & Qt::KeyButtonMask, text, autor,
-                qMax(1, int(text.length())));
+    QKeyEvent e(type, code, Qt::KeyboardModifiers(state & Qt::KeyboardModifierMask), text, 
+                autor, qMax(1, int(text.length())));
     QApplication::sendSpontaneousEvent(this, &e);
-    if (!isModifierKey(code) && state == Qt::AltButton
+    if (!isModifierKey(code) && state == Qt::AltModifier
          && ((code>=Qt::Key_A && code<=Qt::Key_Z) || (code>=Qt::Key_0 && code<=Qt::Key_9))
          && type == QEvent::KeyPress && !e.isAccepted())
         QApplication::beep();  // emulate windows behavioar

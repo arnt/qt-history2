@@ -290,7 +290,7 @@ void QAbstractButtonPrivate::moveFocus(int key)
             switch(key) {
             case Qt::Key_Up:
                 if (p.y() < goal.y() && betterScore) {
-                    if (QABS(p.x() - goal.x()) < QABS(p.y() - goal.y())) {
+                    if (qAbs(p.x() - goal.x()) < qAbs(p.y() - goal.y())) {
                         candidate = button;
                         bestScore = score;
                     } else if (buttonGeometry.x() == fGeometry.x()) {
@@ -301,7 +301,7 @@ void QAbstractButtonPrivate::moveFocus(int key)
                 break;
             case Qt::Key_Down:
                 if (p.y() > goal.y() && betterScore) {
-                    if (QABS(p.x() - goal.x()) < QABS(p.y() - goal.y())) {
+                    if (qAbs(p.x() - goal.x()) < qAbs(p.y() - goal.y())) {
                         candidate = button;
                         bestScore = score;
                     } else if (buttonGeometry.x() == fGeometry.x()) {
@@ -312,7 +312,7 @@ void QAbstractButtonPrivate::moveFocus(int key)
                 break;
             case Qt::Key_Left:
                 if (p.x() < goal.x() && betterScore) {
-                    if (QABS(p.y() - goal.y()) < QABS(p.x() - goal.x())) {
+                    if (qAbs(p.y() - goal.y()) < qAbs(p.x() - goal.x())) {
                         candidate = button;
                         bestScore = score;
                     } else if (buttonGeometry.y() == fGeometry.y()) {
@@ -323,7 +323,7 @@ void QAbstractButtonPrivate::moveFocus(int key)
                 break;
             case Qt::Key_Right:
                 if (p.x() > goal.x() && betterScore) {
-                    if (QABS(p.y() - goal.y()) < QABS(p.x() - goal.x())) {
+                    if (qAbs(p.y() - goal.y()) < qAbs(p.x() - goal.x())) {
                         candidate = button;
                         bestScore = score;
                     } else if (buttonGeometry.y() == fGeometry.y()) {

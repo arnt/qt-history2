@@ -200,7 +200,7 @@ QLineF QLineF::unitVector() const
 
     float len = sqrt(x*x + y*y);
     QLineF f(start(), QPointF(p1.x() + x/len, p1.y() + y/len));
-    Q_ASSERT(QABS(f.length() - 1) < 0.001);
+    Q_ASSERT(qAbs(f.length() - 1) < 0.001);
     return f;
 }
 

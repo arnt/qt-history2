@@ -58,7 +58,7 @@ QFont qt_LOGFONTtoQFont(LOGFONT& lf, bool /*scale*/)
             weight = QFont::Black;
         qf.setWeight(weight);
     }
-    int lfh = QABS(lf.lfHeight);
+    int lfh = qAbs(lf.lfHeight);
     Q_ASSERT(shared_dc);
     qf.setPointSizeFloat(lfh * 72.0 / GetDeviceCaps(shared_dc,LOGPIXELSY));
     qf.setUnderline(false);
@@ -389,8 +389,8 @@ int QFontMetrics::charWidth(const QString &str, int pos) const
     int width;
     if ( script >= QFont::Arabic && script <= QFont::Yi || script >= QFont::KatakanaHalfWidth) {
 	// complex script shaping. Have to do some hard work
-	int from = QMAX( 0,  pos - 8 );
-	int to = QMIN( (int)str.length(), pos + 8 );
+	int from = qMax( 0,  pos - 8 );
+	int to = qMin( (int)str.length(), pos + 8 );
 	QString cstr( str.unicode()+from, to-from);
 	QTextEngine layout( cstr, d );
 	layout.itemize(QTextEngine::WidthOnly);

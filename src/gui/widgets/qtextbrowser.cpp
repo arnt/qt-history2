@@ -481,9 +481,11 @@ void QTextBrowser::mouseReleaseEvent(QMouseEvent *ev)
         const QString url = QUrl(d->currentURL).resolved(anchor).toString();
         emit linkClicked(url);
 
+#ifdef QT_COMPAT
         // compat signal. the name is set to null. the 'name' makes no sense as it is
         // an attribute for specifying a destination.
         emit anchorClicked(QString::null, anchor);
+#endif
         emit anchorClicked(anchor);
 
         if (!d->textOrSourceChanged)
@@ -523,7 +525,7 @@ QVariant QTextBrowser::loadResource(ResourceType /*type*/, const QString &name)
         source = source.mid(6);
     QString fileName = d->findFile(source);
     QFile f(fileName);
-    if (f.open(IO_ReadOnly)) {
+    if (f.open(QFile::ReadOnly)) {
         data = f.readAll();
         f.close();
     } else {

@@ -183,14 +183,14 @@ static QString getEnglishName(const QString &familyName)
     QT_WA( {
         LOGFONTW lf;
         memset( &lf, 0, sizeof( LOGFONTW ) );
-        memcpy( lf.lfFaceName, familyName.utf16(), QMIN(LF_FACESIZE, familyName.length())*sizeof(QChar) );
+        memcpy( lf.lfFaceName, familyName.utf16(), qMin(LF_FACESIZE, familyName.length())*sizeof(QChar) );
         lf.lfCharSet = DEFAULT_CHARSET;
         hfont = CreateFontIndirectW( &lf );
     }, {
         LOGFONTA lf;
         memset( &lf, 0, sizeof( LOGFONTA ) );
         QByteArray lfam = familyName.local8Bit();
-        memcpy( lf.lfFaceName, lfam, QMIN( LF_FACESIZE, lfam.size() ) );
+        memcpy( lf.lfFaceName, lfam, qMin(LF_FACESIZE, lfam.size()) );
         lf.lfCharSet = DEFAULT_CHARSET;
         hfont = CreateFontIndirectA( &lf );
     } );

@@ -75,7 +75,7 @@ bool QFontDef::exactMatch(const QFontDef &other) const
             return false;
     } else if (pointSize != -1 && other.pointSize != -1) {
         if (pointSize != other.pointSize
-            && (QABS(pointSize - other.pointSize) >= 5
+            && (qAbs(pointSize - other.pointSize) >= 5
                 || qRound(pointSize/10.) != qRound(other.pointSize/10.)))
             return false;
     } else {

@@ -1833,7 +1833,6 @@ static void init_wintab_functions()
     if (!qt_is_gui_used)
         return;
     QLibrary library("wintab32");
-    library.setAutoUnload(false);
     QT_WA({
         ptrWTOpen = (PtrWTOpen)library.resolve("WTOpenW");
         ptrWTInfo = (PtrWTInfo)library.resolve("WTInfoW");
@@ -1851,7 +1850,8 @@ static void qt_tablet_init()
 {
     if (qt_tablet_widget)
         return;
-    qt_tablet_widget = new QWidget(0, "Qt internal tablet widget");
+    qt_tablet_widget = new QWidget(0);
+    qt_tablet_widget->setObjectName("Qt internal tablet widget");
     LOGCONTEXT lcMine;
     qAddPostRoutine(qt_tablet_cleanup);
     struct tagAXIS tpOri[3];

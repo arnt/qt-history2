@@ -292,11 +292,7 @@ bool QGroupBox::event(QEvent *e)
 /*!\reimp */
 void QGroupBox::childEvent(QChildEvent *c)
 {
-    if (c->type() !=
-#ifdef QT_COMPAT
-            QEvent::ChildInserted ||
-#endif
-            !c->child()->isWidgetType())
+    if (c->type() != QEvent::ChildAdded || !c->child()->isWidgetType())
         return;
     QWidget *w = (QWidget*)c->child();
     if (d->checkbox) {

@@ -206,9 +206,9 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
             }
             break;
 #endif
-        case Qt::Key_Next:
+        case Qt::Key_PageDown:
             return pageDown(mode);
-        case Qt::Key_Prior:
+        case Qt::Key_PageUp:
             return pageUp(mode);
     default:
         return false;
@@ -232,9 +232,11 @@ void QTextEditPrivate::updateCurrentCharFormat()
     lastCharFormat = fmt;
 
     emit q->currentCharFormatChanged(fmt);
+#ifdef QT_COMPAT
     // compat signals
     emit q->currentFontChanged(fmt.font());
     emit q->currentColorChanged(fmt.textColor());
+#endif
 }
 
 void QTextEditPrivate::indent()
@@ -1813,7 +1815,7 @@ void QTextEdit::changeEvent(QEvent *ev)
 void QTextEdit::wheelEvent(QWheelEvent *ev)
 {
     if (d->readOnly) {
-        if (ev->modifiers() & Qt::ControlButton) {
+        if (ev->modifiers() & Qt::ControlModifier) {
             const int delta = ev->delta();
             if (delta > 0)
                 zoomOut();

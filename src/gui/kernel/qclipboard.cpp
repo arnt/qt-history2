@@ -455,7 +455,7 @@ void QClipboard::setData(QMimeSource *source, Mode mode)
     d->compat_data[mode] = source;
     setMimeData(new QMimeSourceWrapper(d, mode));
 }
-
+#endif // QT_COMPAT
 
 const char* QMimeDataWrapper::format(int n) const
 {
@@ -491,7 +491,6 @@ QStringList QMimeSourceWrapper::formats() const
     }
     return fmts;
 }
-#endif
 
 #endif // QT_NO_MIMECLIPBOARD
 #endif // QT_NO_CLIPBOARD

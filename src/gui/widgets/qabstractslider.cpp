@@ -609,7 +609,7 @@ void QAbstractSlider::wheelEvent(QWheelEvent * e)
     offset += e->delta() * step / 120;
     if (d->invertedControls)
         offset = -offset;
-    if (QABS(offset) < 1)
+    if (qAbs(offset) < 1)
         return;
     setValue(d->value + int(offset));
     offset -= int(offset);

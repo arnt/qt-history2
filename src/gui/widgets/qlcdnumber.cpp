@@ -135,16 +135,16 @@ static QString int2string(int num, int base, int ndigits, bool *oflow)
         negative = false;
     }
     switch(base) {
-        case QLCDNumber::HEX:
+        case QLCDNumber::Hex:
             s.sprintf("%*x", ndigits, num);
             break;
-        case QLCDNumber::DEC:
+        case QLCDNumber::Dec:
             s.sprintf("%*i", ndigits, num);
             break;
-        case QLCDNumber::OCT:
+        case QLCDNumber::Oct:
             s.sprintf("%*o", ndigits, num);
             break;
-        case QLCDNumber::BIN:
+        case QLCDNumber::Bin:
             {
                 char buf[42];
                 char *p = &buf[41];
@@ -184,7 +184,7 @@ static QString int2string(int num, int base, int ndigits, bool *oflow)
 static QString double2string(double num, int base, int ndigits, bool *oflow)
 {
     QString s;
-    if (base != QLCDNumber::DEC) {
+    if (base != QLCDNumber::Dec) {
         bool of = num >= 2147483648.0 || num < -2147483648.0;
         if (of) {                             // oops, integer overflow
             if (oflow)
@@ -629,7 +629,7 @@ void QLCDNumber::display(const QString &s)
 
 void QLCDNumber::setHexMode()
 {
-    setMode(HEX);
+    setMode(Hex);
 }
 
 
@@ -642,7 +642,7 @@ void QLCDNumber::setHexMode()
 
 void QLCDNumber::setDecMode()
 {
-    setMode(DEC);
+    setMode(Dec);
 }
 
 
@@ -655,7 +655,7 @@ void QLCDNumber::setDecMode()
 
 void QLCDNumber::setOctMode()
 {
-    setMode(OCT);
+    setMode(Oct);
 }
 
 
@@ -668,7 +668,7 @@ void QLCDNumber::setOctMode()
 
 void QLCDNumber::setBinMode()
 {
-    setMode(BIN);
+    setMode(Bin);
 }
 
 

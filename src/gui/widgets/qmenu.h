@@ -95,6 +95,7 @@ public:
     QIcon icon() const;
     void setIcon(const QIcon &icon);
 
+    void setNoReplayFor(QWidget *widget);
 #ifdef Q_WS_MAC
     MenuRef macMenu(MenuRef merge=0);
 #endif
@@ -299,8 +300,6 @@ public:
         setTearOffEnabled(true);
         return -1;
     }
-
-    void setNoReplayFor(QWidget *widget);
 
 protected:
     inline QT_COMPAT int itemAtPos(const QPoint &p, bool ignoreSeparator = true) {

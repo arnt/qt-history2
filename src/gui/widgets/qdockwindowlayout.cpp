@@ -874,8 +874,8 @@ QDockWindowLayout::Location QDockWindowLayout::locate(const QPoint &mouse) const
                  : QRect(0, info.cur_pos, geometry().width(), info.cur_size));
             const QPoint p2 =
                 current.topLeft() + QPoint(current.width() / 2, current.height() / 2);
-            const int dx = QABS(p.x() - p2.x()),
-                      dy = QABS(p.y() - p2.y());
+            const int dx = qAbs(p.x() - p2.x()),
+                      dy = qAbs(p.y() - p2.y());
 
             ret.index = i;
             ret.area = ((dx > dy)

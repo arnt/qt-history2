@@ -493,7 +493,7 @@ void QPointArray::makeArc(int x, int y, int w, int h, int a1, int a2, const QMat
     xf.map(x + w, y, &xK, &yK);
     int m = 3;
     int max;
-    int q = int(qMax(QABS(xP - xQ), QABS(yP - yQ)));
+    int q = int(qMax(qAbs(xP - xQ), qAbs(yP - yQ)));
     if (arc)
         q *= 2;
     do {

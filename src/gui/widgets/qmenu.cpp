@@ -32,10 +32,10 @@
 #include "qmenu_p.h"
 #include "qmenubar_p.h"
 
-
+#include <private/qaction_p.h>
 #ifdef QT_COMPAT
 #include <qmenudata.h>
-#include <private/qaction_p.h>
+
 #endif // QT_COMPAT
 
 #define d d_func()
@@ -255,7 +255,8 @@ void QMenuPrivate::popupAction(QAction *action, int delay, bool activateFirst)
             menuDelayTimer->disconnect(SIGNAL(timeout()));
             QObject::connect(menuDelayTimer, SIGNAL(timeout()),
                              q, SLOT(internalDelayedPopup()));
-            menuDelayTimer->start(delay, true);
+            menuDelayTimer->setSingleShot(true);
+            menuDelayTimer->start(delay);
         }
         if(activateFirst)
             action->menu()->d->setFirstActionActive();
@@ -1600,7 +1601,7 @@ QMenu::event(QEvent *e)
 {
     if(e->type() == QEvent::KeyPress) {
         QKeyEvent *ke = (QKeyEvent*)e;
-        if(ke->key() == Qt::Key_Tab || ke->key() == Qt::Key_BackTab) {
+        if(ke->key() == Qt::Key_Tab || ke->key() == Qt::Key_Backtab) {
             keyPressEvent(ke);
             return true;
         }
@@ -1899,7 +1900,8 @@ void QMenu::mouseMoveEvent(QMouseEvent *e)
         sloppyDelayTimer->disconnect(SIGNAL(timeout()));
         QObject::connect(sloppyDelayTimer, SIGNAL(timeout()),
                          q, SLOT(internalSetSloppyAction()));
-        sloppyDelayTimer->start(style()->styleHint(QStyle::SH_Menu_SubMenuPopupDelay, 0, this)*6, true);
+        sloppyDelayTimer->setSingleShot(true);
+        sloppyDelayTimer->start(style()->styleHint(QStyle::SH_Menu_SubMenuPopupDelay, 0, this)*6);
         d->sloppyAction = action;
     } else {
         d->setCurrentAction(action, style()->styleHint(QStyle::SH_Menu_SubMenuPopupDelay, 0, this));
