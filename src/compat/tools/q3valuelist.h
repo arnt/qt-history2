@@ -120,6 +120,13 @@ public:
     bool operator== (const Q3ValueList<T>& l) const { return QLinkedList<T>::operator==(l); }
     bool operator!= (const Q3ValueList<T>& l) const { return QLinkedList<T>::operator!=(l); }
 
+    operator QList<T>() const {
+        QList<T> list;
+        for (typename Q3ValueList<T>::const_iterator it = constBegin(); it != constEnd(); ++it)
+            list.append(*it);
+        return list;
+    }
+
     inline Q3ValueList<T>& operator<< (const T& x) { append(x); return *this; }
 
     void insert(typename Q3ValueList<T>::Iterator pos,
