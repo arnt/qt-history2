@@ -2646,6 +2646,9 @@ void QTextView::handleReadOnlyKeyEvent( QKeyEvent *e )
     case Key_End:
 	setContentsPos( contentsX(), contentsHeight() - visibleHeight() );
 	break;
+    case Key_F16: // Copy key on Sun keyboards
+	copy();
+	break;
 #ifndef QT_NO_NETWORKPROTOCOL
     case Key_Return:
     case Key_Enter:
@@ -2657,6 +2660,13 @@ void QTextView::handleReadOnlyKeyEvent( QKeyEvent *e )
     } break;
 #endif
     default:
+	if ( e->state() & ControlButton ) {
+	    switch ( e->key() ) {
+	    case Key_C: case Key_F16: // Copy key on Sun keyboards
+		copy();
+		break;
+	    }
+	}
 	break;
     }
 }
