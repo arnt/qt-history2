@@ -45,7 +45,7 @@
 #include "qapplication.h"
 #include "qpixmap.h"
 #include "qapplication.h"
-#include "qvaluelist.h"
+#include "qlist.h"
 #include "qstring.h"
 #include "qstyle.h"
 
@@ -370,7 +370,7 @@ private:
     QTextCursor *cursor;
     QSize sz;
     int focusSec;
-    QValueList< QNumberSection > sections;
+    QList< QNumberSection > sections;
     QString sep;
     int offset;
 };

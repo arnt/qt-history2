@@ -40,6 +40,7 @@
 #include <qmessagebox.h>
 #include <qtextview.h>
 #include <qstyle.h>
+#include <qvaluelist.h>
 
 #include <stdlib.h>
 

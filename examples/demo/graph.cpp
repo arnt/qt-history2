@@ -7,6 +7,7 @@
 #include <qslider.h>
 #include <qlabel.h>
 #include <qlayout.h>
+#include <qvaluelist.h>
 
 const int bounce_rtti = 1234;
 

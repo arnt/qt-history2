@@ -147,7 +147,7 @@ void QSqlIndex::append( const QSqlField& field, bool desc )
 
 bool QSqlIndex::isDescending( int i ) const
 {
-    if ( sorts.at( i ) != sorts.end() )
+    if ( i >= 0 && i < sorts.size() )
 	return sorts[i];
     return FALSE;
 }
@@ -160,7 +160,7 @@ bool QSqlIndex::isDescending( int i ) const
 
 void QSqlIndex::setDescending( int i, bool desc )
 {
-    if ( sorts.at( i ) != sorts.end() )
+    if ( i >= 0 && i < sorts.size() )
 	sorts[i] = desc;
 }
 

@@ -40,13 +40,13 @@
 
 #ifndef QT_H
 #include "qgplugin.h"
-#include "qstringlist.h"
-#include "qvaluelist.h"
 #endif // QT_H
 
 #ifndef QT_NO_TEXTCODECPLUGIN
 class QTextCodec;
 class QTextCodecPluginPrivate;
+class QStringList;
+template <typename T> class QList;
 
 class Q_EXPORT QTextCodecPlugin : public QGPlugin
 {
@@ -58,7 +58,7 @@ public:
     virtual QStringList names() const = 0;
     virtual QTextCodec *createForName( const QString &name ) = 0;
 
-    virtual QValueList<int> mibEnums() const = 0;
+    virtual QList<int> mibEnums() const = 0;
     virtual QTextCodec *createForMib( int mib ) = 0;
 
 private:

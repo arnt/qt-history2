@@ -42,7 +42,6 @@
 #include "qscrollview.h"
 #include "qstylesheet.h"
 #include "qptrvector.h"
-#include "qvaluelist.h"
 #include "qptrlist.h"
 #include "qmap.h"
 #endif // QT_H

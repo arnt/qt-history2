@@ -61,7 +61,6 @@
 #include "qfont.h"
 #include "qcolor.h"
 #include "qsize.h"
-#include "qvaluelist.h"
 #include "qvaluestack.h"
 #include "qobject.h"
 #include "qdict.h"

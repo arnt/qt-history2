@@ -630,11 +630,11 @@ void QFontDialog::updateSizes()
     d->sizeList->clear();
 
     if ( !d->familyList->currentText().isEmpty() ) {
-	QValueList<int> sizes = d->fdb.pointSizes( d->familyList->currentText(), d->styleList->currentText() );
+	QList<int> sizes = d->fdb.pointSizes( d->familyList->currentText(), d->styleList->currentText() );
 
 	int i = 0;
 	bool found = FALSE;
-	for( QValueList<int>::iterator it = sizes.begin() ; it != sizes.end(); ++it ) {
+	for( QList<int>::iterator it = sizes.begin() ; it != sizes.end(); ++it ) {
 	    d->sizeList->insertItem( QString::number( *it ) );
 	    if ( !found && *it >= d->size ) {
 		d->sizeList->setCurrentItem( i );

@@ -34,6 +34,7 @@
 #include <qpalette.h>
 #include <qvariant.h>
 #include <qcstring.h>
+#include <qvaluelist.h>
 
 class Uic : public Qt
 {

@@ -52,7 +52,7 @@ class QNetworkOperation;
 class QTimer;
 class QUrlOperator;
 class QNetworkProtocolPrivate;
-template <class T> class QValueList;
+template <class T> class QList;
 
 class Q_EXPORT QNetworkProtocolFactoryBase
 {
@@ -152,7 +152,7 @@ signals:
     void connectionStateChanged( int state, const QString &data );
     void finished( QNetworkOperation *res );
     void start( QNetworkOperation *res );
-    void newChildren( const QValueList<QUrlInfo> &, QNetworkOperation *res );
+    void newChildren( const QList<QUrlInfo> &, QNetworkOperation *res );
     void newChild( const QUrlInfo &, QNetworkOperation *res );
     void createdDirectory( const QUrlInfo &, QNetworkOperation *res );
     void removed( QNetworkOperation *res );

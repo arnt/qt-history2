@@ -4,6 +4,7 @@
 #ifndef QT_H
 #include "qiterator.h"
 #include "qatomic.h"
+#include "qtl.h"
 #include <new>
 #endif // QT_H
 

@@ -313,11 +313,11 @@ private:
     \ingroup graphics
     \ingroup images
 
-    QCanvasItemList is a QValueList of pointers to \l{QCanvasItem}s.
+    QCanvasItemList is a QList of pointers to \l{QCanvasItem}s.
     This class is used by some methods in QCanvas that need to return
     a list of canvas items.
 
-    The \l QValueList documentation describes how to use this list.
+    The \l QList documentation describes how to use this list.
 */
 
 /*!
@@ -325,7 +325,7 @@ private:
 */
 void QCanvasItemList::sort()
 {
-    qHeapSort(*((QValueList<QCanvasItemPtr>*)this));
+    qHeapSort(*((QList<QCanvasItemPtr>*)this));
 }
 
 /*!
@@ -334,7 +334,8 @@ void QCanvasItemList::sort()
 void QCanvasItemList::drawUnique( QPainter& painter )
 {
     QCanvasItem* prev=0;
-    for (Iterator it=fromLast(); it!=end(); --it) {
+    for (Iterator it = end(); it!=begin(); ) {
+	--it;
 	QCanvasItem *g=*it;
 	if (g!=prev) {
 	    g->draw(painter);
@@ -2949,7 +2950,7 @@ QCanvasPixmapArray::QCanvasPixmapArray( const QString& datafilenamepattern,
 
 /*!
   \obsolete
-  Use QCanvasPixmapArray::QCanvasPixmapArray( QValueList<QPixmap>, QPointArray )
+  Use QCanvasPixmapArray::QCanvasPixmapArray( QList<QPixmap>, QPointArray )
   instead.
 
   Constructs a QCanvasPixmapArray from the list of QPixmaps \a
@@ -2982,7 +2983,7 @@ QCanvasPixmapArray::QCanvasPixmapArray(QPtrList<QPixmap> list, QPtrList<QPoint> 
 
     If an error occurs, isValid() will return FALSE.
 */
-QCanvasPixmapArray::QCanvasPixmapArray(QValueList<QPixmap> list, QPointArray hotspots) :
+QCanvasPixmapArray::QCanvasPixmapArray(QList<QPixmap> list, QPointArray hotspots) :
     framecount((int)list.size()),
     img(new QCanvasPixmap*[list.size()])
 {
@@ -2992,7 +2993,7 @@ QCanvasPixmapArray::QCanvasPixmapArray(QValueList<QPixmap> list, QPointArray hot
 	reset();
 	img = 0;
     } else {
-	QValueList<QPixmap>::iterator it;
+	QList<QPixmap>::iterator it;
 	it = list.begin();
 	for (int i=0; i<framecount; i++) {
 	    QPoint hs = have_hotspots ? hotspots[i] : QPoint( 0, 0 );

@@ -17,6 +17,7 @@
 #include <qpopupmenu.h>
 #include <qheader.h>
 #include <qregexp.h>
+#include <qvaluelist.h>
 
 // -----------------------------------------------------------------
 

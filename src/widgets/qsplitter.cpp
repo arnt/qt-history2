@@ -48,6 +48,8 @@
 #include "qpainter.h"
 #include "qptrlist.h"
 #include "qstyle.h"
+#include "qlist.h"
+#include "qtextstream.h"
 
 class QSplitterHandle : public QWidget
 {
@@ -1166,8 +1168,8 @@ void QSplitter::addContribution( int id, int *min, int *max,
     Note that if you want to iterate over the list, you should iterate
     over a copy, e.g.
     \code
-    QValueList<int> list = mySplitter.sizes();
-    QValueList<int>::Iterator it = list.begin();
+    QList<int> list = mySplitter.sizes();
+    QList<int>::Iterator it = list.begin();
     while( it != list.end() ) {
 	myProcessing( *it );
 	++it;
@@ -1177,12 +1179,12 @@ void QSplitter::addContribution( int id, int *min, int *max,
     \sa setSizes()
 */
 
-QValueList<int> QSplitter::sizes() const
+QList<int> QSplitter::sizes() const
 {
     if ( !testWState(WState_Polished) )
 	constPolish();
 
-    QValueList<int> list;
+    QList<int> list;
     QSplitterLayoutStruct *s = d->list.first();
     while ( s ) {
 	if ( !s->isHandle )
@@ -1204,10 +1206,10 @@ QValueList<int> QSplitter::sizes() const
     \sa sizes()
 */
 
-void QSplitter::setSizes( QValueList<int> list )
+void QSplitter::setSizes( QList<int> list )
 {
     processChildEvents();
-    QValueList<int>::Iterator it = list.begin();
+    QList<int>::Iterator it = list.begin();
     QSplitterLayoutStruct *s = d->list.first();
     while ( s && it != list.end() ) {
 	if ( !s->isHandle ) {

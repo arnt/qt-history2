@@ -41,7 +41,6 @@
 #include "qobject.h"
 #include "qstring.h"
 #include "qvariant.h"
-#include "qvaluelist.h"
 #include "qsqlerror.h"
 #include "qsqlfield.h"
 #include "qsql.h"
@@ -113,7 +112,7 @@ public:
     QVariant		boundValue( int pos ) const;
     QMap<QString, QVariant> boundValues() const;
     QString             executedQuery() const;
-    
+
 protected:
     virtual void        beforeSeek();
     virtual void        afterSeek();

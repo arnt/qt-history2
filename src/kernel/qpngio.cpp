@@ -41,7 +41,7 @@
 
 #include "qasyncimageio.h"
 #include "qiodevice.h"
-#include "qvaluelist.h"
+#include "qlist.h"
 
 #include <png.h>
 
@@ -396,11 +396,11 @@ void QPNGImageWriter::setGamma(float g)
 #ifndef QT_NO_IMAGE_TEXT
 static void set_text(const QImage& image, png_structp png_ptr, png_infop info_ptr, bool short_not_long)
 {
-    QValueList<QImageTextKeyLang> keys = image.textList();
+    QList<QImageTextKeyLang> keys = image.textList();
     if ( keys.count() ) {
 	png_textp text_ptr = new png_text[keys.count()];
 	int i=0;
-	for (QValueList<QImageTextKeyLang>::Iterator it=keys.begin();
+	for (QList<QImageTextKeyLang>::Iterator it=keys.begin();
 		it != keys.end(); ++it)
 	{
 	    QString t = image.text(*it);

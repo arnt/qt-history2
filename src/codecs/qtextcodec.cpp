@@ -46,7 +46,7 @@
 #ifndef QT_NO_TEXTCODEC
 
 #include "qmemarray.h"
-#include "qvaluelist.h"
+#include "qlist.h"
 #include "qtextcodecfactory.h"
 #include "qutfcodec.h"
 #include "qnamespace.h"
@@ -82,7 +82,7 @@
 #include <Carbon/Carbon.h>
 #endif
 
-static QValueList<QTextCodec*> *all = 0;
+static QList<QTextCodec*> *all = 0;
 static bool destroying_is_ok; // starts out as 0
 static QTextCodec * localeMapper = 0;
 
@@ -122,9 +122,9 @@ void QTextCodec::deleteAllCodecs()
 
     destroying_is_ok = TRUE;
 
-    QValueList<QTextCodec*> *ball = all;
+    QList<QTextCodec*> *ball = all;
     all = 0;
-    QValueList<QTextCodec*>::Iterator it;
+    QList<QTextCodec*>::Iterator it;
     for ( it = ball->begin(); it != ball->end(); ++it ) {
 	delete *it;
 	*it = 0;
@@ -522,7 +522,7 @@ int QTextCodec::simpleHeuristicNameMatch(const char* name, const char* hint)
 QTextCodec* QTextCodec::codecForIndex(int i)
 {
     setup();
-    return (int)i >= all->count() ? 0 : *all->at(i);
+    return (int)i >= all->count() ? 0 : all->at(i);
 }
 
 
@@ -533,7 +533,7 @@ QTextCodec* QTextCodec::codecForIndex(int i)
 QTextCodec* QTextCodec::codecForMib(int mib)
 {
     setup();
-    QValueList<QTextCodec*>::ConstIterator i;
+    QList<QTextCodec*>::ConstIterator i;
     QTextCodec* result=0;
     for ( i = all->begin(); i != all->end(); ++i ) {
 	result = *i;
@@ -774,7 +774,7 @@ QTextCodec* QTextCodec::codecForName( const char* name, int accuracy )
 	return 0;
 
     setup();
-    QValueList<QTextCodec*>::ConstIterator i;
+    QList<QTextCodec*>::ConstIterator i;
     QTextCodec* result = 0;
     int best = accuracy;
     QTextCodec* cursor;
@@ -812,7 +812,7 @@ QTextCodec* QTextCodec::codecForName( const char* name, int accuracy )
 QTextCodec* QTextCodec::codecForContent(const char* chars, int len)
 {
     setup();
-    QValueList<QTextCodec*>::ConstIterator i;
+    QList<QTextCodec*>::ConstIterator i;
     QTextCodec* result = 0;
     int best=0;
     QTextCodec* cursor;
@@ -2836,7 +2836,7 @@ static void realSetup()
     if ( destroying_is_ok )
 	qWarning( "QTextCodec: creating new codec during codec cleanup!" );
 #endif
-    all = new QValueList<QTextCodec*>;
+    all = new QList<QTextCodec*>;
 
     (void)new QLatin1Codec;
     (void)new QLatin15Codec;

@@ -41,13 +41,13 @@
 
 #ifndef QT_H
 #include "qobject.h"
-#include "qvaluelist.h"
-#include "qcstring.h"
+#include "qbytearray.h"
 #endif // QT_H
 
 #ifndef QT_NO_TRANSLATION
 
 class QTranslatorPrivate;
+template <typename T> class QList;
 
 class Q_EXPORT QTranslatorMessage
 {
@@ -100,7 +100,7 @@ private:
 };
 
 
-class Q_EXPORT QTranslator: public QObject
+class Q_EXPORT QTranslator : public QObject
 {
     Q_OBJECT
 public:
@@ -144,7 +144,7 @@ public:
     void squeeze( SaveMode = Everything );
     void unsqueeze();
 
-    QValueList<QTranslatorMessage> messages() const;
+    QList<QTranslatorMessage> messages() const;
 #endif
 
     bool isEmpty() const;

@@ -2440,8 +2440,8 @@ void QFileDialog::init()
 	     this, SLOT( urlStart( QNetworkOperation * ) ) );
     connect( &d->url, SIGNAL( finished( QNetworkOperation * ) ),
 	     this, SLOT( urlFinished( QNetworkOperation * ) ) );
-    connect( &d->url, SIGNAL( newChildren( const QValueList<QUrlInfo> &, QNetworkOperation * ) ),
-	     this, SLOT( insertEntry( const QValueList<QUrlInfo> &, QNetworkOperation * ) ) );
+    connect( &d->url, SIGNAL( newChildren( const QList<QUrlInfo> &, QNetworkOperation * ) ),
+	     this, SLOT( insertEntry( const QList<QUrlInfo> &, QNetworkOperation * ) ) );
     connect( &d->url, SIGNAL( removed( QNetworkOperation * ) ),
 	     this, SLOT( removeEntry( QNetworkOperation * ) ) );
     connect( &d->url, SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ),
@@ -3010,7 +3010,7 @@ void QFileDialog::setSelectedFilter( const QString& mask )
     }
     \endcode
 
-  \sa selectedFile, selectedFilter, QValueList::empty()
+  \sa selectedFile, selectedFilter, QList::empty()
 */
 
 QStringList QFileDialog::selectedFiles() const
@@ -5786,7 +5786,7 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
 		ui.setFile( FALSE );
 		ui.setSymLink( FALSE );
 		ui.setSize( 0 );
-		QValueList<QUrlInfo> lst;
+		QList<QUrlInfo> lst;
 		lst << ui;
 		insertEntry( lst, 0 );
 	    }
@@ -5849,12 +5849,12 @@ void QFileDialog::dataTransferProgress( int bytesDone, int bytesTotal, QNetworkO
     }
 }
 
-void QFileDialog::insertEntry( const QValueList<QUrlInfo> &lst, QNetworkOperation *op )
+void QFileDialog::insertEntry( const QList<QUrlInfo> &lst, QNetworkOperation *op )
 {
     if ( op && op->operation() == QNetworkProtocol::OpListChildren &&
 	 op != d->currListChildren )
 	return;
-    QValueList<QUrlInfo>::ConstIterator it = lst.begin();
+    QList<QUrlInfo>::ConstIterator it = lst.begin();
     for ( ; it != lst.end(); ++it ) {
 	const QUrlInfo &inf = *it;
 	if ( d->mode == DirectoryOnly && !inf.isDir() )

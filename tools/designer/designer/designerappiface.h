@@ -29,6 +29,8 @@
 
 #include "../interfaces/designerinterface.h"
 #include "project.h"
+#include <qmap.h>
+#include <qvaluelist.h>
 
 class FormWindow;
 class MainWindow;

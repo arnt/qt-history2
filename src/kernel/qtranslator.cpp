@@ -1063,8 +1063,8 @@ bool QTranslator::isEmpty() const
     If you want to iterate over the list, you should iterate over a
     copy, e.g.
     \code
-    QValueList<QTranslatorMessage> list = myTranslator.messages();
-    QValueList<QTranslatorMessage>::Iterator it = list.begin();
+    QList<QTranslatorMessage> list = myTranslator.messages();
+    QList<QTranslatorMessage>::Iterator it = list.begin();
     while ( it != list.end() ) {
 	process_message( *it );
 	++it;
@@ -1072,7 +1072,7 @@ bool QTranslator::isEmpty() const
   \endcode
 */
 
-QValueList<QTranslatorMessage> QTranslator::messages() const
+QList<QTranslatorMessage> QTranslator::messages() const
 {
     ((QTranslator *) this)->unsqueeze();
     return d->messages->keys();

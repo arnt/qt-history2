@@ -43,7 +43,7 @@
 #include "qstring.h"
 #include "qstringlist.h"
 #include "qfont.h"
-#include "qvaluelist.h"
+#include "qlist.h"
 #endif // QT_H
 
 
@@ -64,15 +64,15 @@ class QFontDatabasePrivate;
 class Q_EXPORT QFontDatabase
 {
 public:
-    static QValueList<int> standardSizes();
+    static QList<int> standardSizes();
 
     QFontDatabase();
 
     QStringList families() const;
     QStringList families( QFont::Script ) const;
     QStringList styles( const QString & ) const;
-    QValueList<int> pointSizes( const QString &, const QString & = QString::null);
-    QValueList<int> smoothSizes( const QString &, const QString &);
+    QList<int> pointSizes( const QString &, const QString & = QString::null);
+    QList<int> smoothSizes( const QString &, const QString &);
     QString styleString( const QFont &);
 
     QFont font( const QString &, const QString &, int);
@@ -98,8 +98,8 @@ public:
 
     QStringList families(bool) const;
     QStringList styles( const QString &, const QString & ) const;
-    QValueList<int> pointSizes( const QString &, const QString &, const QString & );
-    QValueList<int> smoothSizes( const QString &, const QString &, const QString & );
+    QList<int> pointSizes( const QString &, const QString &, const QString & );
+    QList<int> smoothSizes( const QString &, const QString &, const QString & );
 
     QFont font( const QString &, const QString &, int, const QString &);
 
@@ -145,14 +145,14 @@ inline QStringList QFontDatabase::styles( const QString &family,
     return styles(family);
 }
 
-inline QValueList<int> QFontDatabase::pointSizes( const QString &family,
+inline QList<int> QFontDatabase::pointSizes( const QString &family,
 						  const QString &style ,
 						  const QString & )
 {
     return pointSizes(family, style);
 }
 
-inline QValueList<int> QFontDatabase::smoothSizes( const QString &family,
+inline QList<int> QFontDatabase::smoothSizes( const QString &family,
 						   const QString &style,
 						   const QString & )
 {

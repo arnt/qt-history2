@@ -125,7 +125,7 @@ public:
 */
 
 /*!
-    \fn void QNetworkProtocol::newChildren( const QValueList<QUrlInfo> &i, QNetworkOperation *op )
+    \fn void QNetworkProtocol::newChildren( const QList<QUrlInfo> &i, QNetworkOperation *op )
 
     This signal is emitted after listChildren() was called and new
     children (files) have been read from the list of files. \a i holds
@@ -377,7 +377,7 @@ public:
     Constructor of the network protocol base class. Does some
     initialization and connecting of signals and slots.
 
-    The parameters \a parent and \a name are passed on to the 
+    The parameters \a parent and \a name are passed on to the
     QObject constructor.
 */
 
@@ -398,10 +398,10 @@ QNetworkProtocol::QNetworkProtocol( QObject *parent, const char *name )
 		 url(), SIGNAL( finished( QNetworkOperation * ) ) );
 	connect( this, SIGNAL( start( QNetworkOperation * ) ),
 		 url(), SIGNAL( start( QNetworkOperation * ) ) );
-	connect( this, SIGNAL( newChildren( const QValueList<QUrlInfo> &, QNetworkOperation * ) ),
-		 url(), SIGNAL( newChildren( const QValueList<QUrlInfo> &, QNetworkOperation * ) ) );
-	connect( this, SIGNAL( newChildren( const QValueList<QUrlInfo> &, QNetworkOperation * ) ),
-		 url(), SLOT( addEntry( const QValueList<QUrlInfo> & ) ) );
+	connect( this, SIGNAL( newChildren( const QList<QUrlInfo> &, QNetworkOperation * ) ),
+		 url(), SIGNAL( newChildren( const QList<QUrlInfo> &, QNetworkOperation * ) ) );
+	connect( this, SIGNAL( newChildren( const QList<QUrlInfo> &, QNetworkOperation * ) ),
+		 url(), SLOT( addEntry( const QList<QUrlInfo> & ) ) );
 	connect( this, SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ),
 		 url(), SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ) );
 	connect( this, SIGNAL( removed( QNetworkOperation * ) ),
@@ -445,10 +445,10 @@ void QNetworkProtocol::setUrl( QUrlOperator *u )
 		    url(), SIGNAL( finished( QNetworkOperation * ) ) );
 	disconnect( this, SIGNAL( start( QNetworkOperation * ) ),
 		    url(), SIGNAL( start( QNetworkOperation * ) ) );
-	disconnect( this, SIGNAL( newChildren( const QValueList<QUrlInfo> &, QNetworkOperation * ) ),
-		    url(), SIGNAL( newChildren( const QValueList<QUrlInfo> &, QNetworkOperation * ) ) );
-	disconnect( this, SIGNAL( newChildren( const QValueList<QUrlInfo> &, QNetworkOperation * ) ),
-		    url(), SLOT( addEntry( const QValueList<QUrlInfo> & ) ) );
+	disconnect( this, SIGNAL( newChildren( const QList<QUrlInfo> &, QNetworkOperation * ) ),
+		    url(), SIGNAL( newChildren( const QList<QUrlInfo> &, QNetworkOperation * ) ) );
+	disconnect( this, SIGNAL( newChildren( const QList<QUrlInfo> &, QNetworkOperation * ) ),
+		    url(), SLOT( addEntry( const QList<QUrlInfo> & ) ) );
 	disconnect( this, SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ),
 		    url(), SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ) );
 	disconnect( this, SIGNAL( removed( QNetworkOperation * ) ),
@@ -476,10 +476,10 @@ void QNetworkProtocol::setUrl( QUrlOperator *u )
 		 url(), SIGNAL( finished( QNetworkOperation * ) ) );
 	connect( this, SIGNAL( start( QNetworkOperation * ) ),
 		 url(), SIGNAL( start( QNetworkOperation * ) ) );
-	connect( this, SIGNAL( newChildren( const QValueList<QUrlInfo> &, QNetworkOperation * ) ),
-		 url(), SIGNAL( newChildren( const QValueList<QUrlInfo> &, QNetworkOperation * ) ) );
-	connect( this, SIGNAL( newChildren( const QValueList<QUrlInfo> &, QNetworkOperation * ) ),
-		 url(), SLOT( addEntry( const QValueList<QUrlInfo> & ) ) );
+	connect( this, SIGNAL( newChildren( const QList<QUrlInfo> &, QNetworkOperation * ) ),
+		 url(), SIGNAL( newChildren( const QList<QUrlInfo> &, QNetworkOperation * ) ) );
+	connect( this, SIGNAL( newChildren( const QList<QUrlInfo> &, QNetworkOperation * ) ),
+		 url(), SLOT( addEntry( const QList<QUrlInfo> & ) ) );
 	connect( this, SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ),
 		 url(), SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ) );
 	connect( this, SIGNAL( removed( QNetworkOperation * ) ),
@@ -952,7 +952,7 @@ void QNetworkProtocol::removeMe()
 
 void QNetworkProtocol::emitNewChildren( const QUrlInfo &i, QNetworkOperation *op )
 {
-    QValueList<QUrlInfo> lst;
+    QList<QUrlInfo> lst;
     lst << i;
     emit newChildren( lst, op );
 }

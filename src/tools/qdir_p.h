@@ -53,11 +53,11 @@
 
 #ifndef QT_H
 #include "qregexp.h"
-#include "qvaluelist.h"
+#include "qlist.h"
 #endif // QT_H
 
-extern QValueList<QRegExp> qt_makeFilterList( const QString & );
-extern bool qt_matchFilterList( const QValueList<QRegExp> &, const QString & );
+extern QList<QRegExp> qt_makeFilterList( const QString & );
+extern bool qt_matchFilterList( const QList<QRegExp> &, const QString & );
 
 extern int qt_cmp_si_sortSpec;
 

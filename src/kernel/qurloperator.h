@@ -88,7 +88,7 @@ public:
     virtual void stop();
 
 signals:
-    void newChildren( const QValueList<QUrlInfo> &, QNetworkOperation *res );
+    void newChildren( const QList<QUrlInfo> &, QNetworkOperation *res );
     void finished( QNetworkOperation *res );
     void start( QNetworkOperation *res );
     void createdDirectory( const QUrlInfo &, QNetworkOperation *res );
@@ -112,7 +112,7 @@ private slots:
     void copyGotData( const QByteArray &data, QNetworkOperation *op );
     void continueCopy( QNetworkOperation *op );
     void finishedCopy();
-    void addEntry( const QValueList<QUrlInfo> &i );
+    void addEntry( const QList<QUrlInfo> &i );
     void slotItemChanged( QNetworkOperation *op );
 
 private:

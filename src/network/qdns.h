@@ -43,7 +43,6 @@
 #include "qhostaddress.h"
 #include "qsocketnotifier.h"
 #include "qstringlist.h"
-#include "qvaluelist.h"
 #endif // QT_H
 
 #if !defined( QT_MODULE_NETWORK ) || defined( QT_LICENSE_PROFESSIONAL ) || defined( QT_INTERNAL_NETWORK )
@@ -55,6 +54,8 @@
 #ifndef QT_NO_DNS
 
 //#define Q_DNS_SYNCHRONOUS
+
+template<typename T> class QList;
 
 class QDnsPrivate;
 
@@ -87,7 +88,7 @@ public:
     bool isWorking() const;
 
     // to query for replies
-    QValueList<QHostAddress> addresses() const;
+    QList<QHostAddress> addresses() const;
 
     class QM_EXPORT_DNS MailServer {
     public:
@@ -97,7 +98,7 @@ public:
 	Q_UINT16 priority;
 	Q_DUMMY_COMPARISON_OPERATOR(MailServer)
     };
-    QValueList<MailServer> mailServers() const;
+    QList<MailServer> mailServers() const;
 
     class QM_EXPORT_DNS Server {
     public:
@@ -109,7 +110,7 @@ public:
 	Q_UINT16 port;
 	Q_DUMMY_COMPARISON_OPERATOR(Server)
     };
-    QValueList<Server> servers() const;
+    QList<Server> servers() const;
 
     QStringList hostNames() const;
 

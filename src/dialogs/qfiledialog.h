@@ -249,7 +249,7 @@ private slots:
     void urlStart( QNetworkOperation *op );
     void urlFinished( QNetworkOperation *op );
     void dataTransferProgress( int bytesDone, int bytesTotal, QNetworkOperation * );
-    void insertEntry( const QValueList<QUrlInfo> &fi, QNetworkOperation *op );
+    void insertEntry( const QList<QUrlInfo> &fi, QNetworkOperation *op );
     void removeEntry( QNetworkOperation * );
     void createdDirectory( const QUrlInfo &info, QNetworkOperation * );
     void itemChanged( QNetworkOperation * );

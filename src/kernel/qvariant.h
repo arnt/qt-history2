@@ -71,7 +71,7 @@ class QKeySequence;
 class QPen;
 class QVariant;
 class QStringList;
-template <class Type> class QValueList;
+template <class Type> class QList;
 template <class Key, class Type> class QMap;
 
 class Q_EXPORT QVariant
@@ -154,7 +154,7 @@ public:
 #endif
     QVariant( const QPen& );
 #ifndef QT_NO_TEMPLATE_VARIANT
-    QVariant( const QValueList<QVariant>& );
+    QVariant( const QList<QVariant>& );
     QVariant( const QMap<QString,QVariant>& );
 #endif
     QVariant( int );
@@ -216,7 +216,7 @@ public:
     bool toBool() const;
     double toDouble( bool * ok=0 ) const;
 #ifndef QT_NO_TEMPLATE_VARIANT
-    QValueList<QVariant> toList() const;
+    QList<QVariant> toList() const;
     QMap<QString,QVariant> toMap() const;
 #endif
     QSizePolicy toSizePolicy() const;
@@ -256,7 +256,7 @@ public:
     bool& asBool();
     double& asDouble();
 #ifndef QT_NO_TEMPLATE_VARIANT
-    QValueList<QVariant>& asList();
+    QList<QVariant>& asList();
     QMap<QString,QVariant>& asMap();
 #endif
     QSizePolicy& asSizePolicy();

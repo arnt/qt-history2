@@ -33,6 +33,7 @@
 #include <qstring.h>
 #include <qvariant.h>
 #include <qstringlist.h>
+#include <qvaluelist.h>
 
 typedef QMap<QString, QString> AttributeMap;
 

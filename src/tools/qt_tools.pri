@@ -65,7 +65,6 @@ tools {
 		  $$TOOLS_H/qtextstream.h \
 		  $$TOOLS_P/qunicodetables_p.h \
 		  $$TOOLS_H/qptrvector.h \
-	          $$TOOLS_H/qvaluelist.h \
 		  $$TOOLS_H/qvaluestack.h \
 		  $$TOOLS_P/qcom_p.h \
 		  $$TOOLS_P/qucom_p.h \

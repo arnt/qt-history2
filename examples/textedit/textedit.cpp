@@ -28,6 +28,7 @@
 #include <qsimplerichtext.h>
 #include <qcolordialog.h>
 #include <qpainter.h>
+#include <qvaluelist.h>
 
 TextEdit::TextEdit( QWidget *parent, const char *name )
     : QMainWindow( parent, name )

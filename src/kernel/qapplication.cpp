@@ -399,7 +399,7 @@ void qt_setMaxWindowRect(const QRect& r)
 }
 
 typedef void (*VFPTR)();
-typedef QValueList<VFPTR> QVFuncList;
+typedef QList<VFPTR> QVFuncList;
 static QVFuncList *postRList = 0;		// list of post routines
 
 /*!
@@ -2834,7 +2834,7 @@ void QApplication::installTranslator( QTranslator * mf )
     if ( !mf )
 	return;
     if ( !translators )
-	translators = new QValueList<QTranslator*>;
+	translators = new QList<QTranslator*>;
 
     translators->prepend( mf );
 
@@ -2957,7 +2957,7 @@ QString QApplication::translate( const char * context, const char * sourceText,
 	return QString::null;
 
     if ( translators ) {
-	QValueList<QTranslator*>::iterator it;
+	QList<QTranslator*>::iterator it;
 	QTranslator * mf;
 	QString result;
 	for ( it = translators->begin(); it != translators->end(); ++it ) {

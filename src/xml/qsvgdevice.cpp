@@ -44,7 +44,7 @@
 #include "qfile.h"
 #include "qmap.h"
 #include "qregexp.h"
-#include "qvaluelist.h"
+#include "qlist.h"
 #include "qtextstream.h"
 #include "qimage.h"
 #include "qpixmap.h"
@@ -74,9 +74,9 @@ struct QSvgDeviceState {
     Q_DUMMY_COMPARISON_OPERATOR( QSvgDeviceState )
 };
 
-typedef QValueList<ImgElement> ImageList;
-typedef QValueList<PixElement> PixmapList;
-typedef QValueList<QSvgDeviceState> StateList;
+typedef QList<ImgElement> ImageList;
+typedef QList<PixElement> PixmapList;
+typedef QList<QSvgDeviceState> StateList;
 
 class QSvgDevicePrivate {
 public:
@@ -740,7 +740,7 @@ void QSvgDevice::restoreAttributes()
 {
     pt->restore();
     Q_ASSERT( d->stack.count() > 1 );
-    d->stack.remove( d->stack.fromLast() );
+    d->stack.removeAt( d->stack.size()-1 );
     curr = &d->stack.last();
 }
 
@@ -918,7 +918,7 @@ bool QSvgDevice::play( const QDomNode &node )
 		}
 		if ( t == TSpanElement ) {
 		    // move current text position in parent text element
-		    StateList::Iterator it = --d->stack.fromLast();
+		    StateList::Iterator it = --(--d->stack.end());
 		    (*it).textx = curr->textx;
 		    (*it).texty = curr->texty;
 		}
@@ -1253,7 +1253,7 @@ void QSvgDevice::drawPath( const QString &data )
     double x = 0, y = 0;		// current point
     double controlX = 0, controlY = 0;	// last control point for curves
     QPointArray path( 500 );		// resulting path
-    QValueList<int> subIndex;		// start indices for subpaths
+    QList<int> subIndex;		// start indices for subpaths
     QPointArray quad( 4 ), bezier;	// for curve calculations
     int pcount = 0;			// current point array index
     int idx = 0;			// current data position
@@ -1397,9 +1397,10 @@ void QSvgDevice::drawPath( const QString &data )
 	pt->setPen( pen );
     }
     // draw each subpath stroke seperately
-    QValueListConstIterator<int> it = subIndex.begin();
+    QList<int>::ConstIterator it = subIndex.begin();
+    QList<int>::ConstIterator end = --subIndex.end();
     int start = 0;
-    while ( it != subIndex.fromLast() ) {
+    while ( it != end ) {
 	int next = *++it;
 	// ### always joins ends if first and last point coincide.
 	// ### 'Z' can't have the desired effect

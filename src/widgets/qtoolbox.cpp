@@ -49,7 +49,7 @@
 #include <qapplication.h>
 #include <qwidgetlist.h>
 #include <qlayout.h>
-#include <qvaluelist.h>
+#include <qlist.h>
 #include <qtooltip.h>
 #include <qeventloop.h>
 #include <qdatetime.h>
@@ -118,7 +118,7 @@ public:
     void updatePageBackgroundMode();
     void updateTabs( QToolBox *tb );
 
-    QValueList<Page> pageList;
+    QList<Page> pageList;
     QVBoxLayout *layout;
     QWidget *currentPage;
     QToolBoxButton *lastButton;
@@ -127,7 +127,7 @@ public:
 
 QToolBoxPrivate::Page *QToolBoxPrivate::page( QWidget *page )
 {
-    for ( QValueList<Page>::ConstIterator i = pageList.constBegin();
+    for ( QList<Page>::ConstIterator i = pageList.constBegin();
 	  i != pageList.constEnd(); ++i )
 	if ( (*i).page == page )
 	    return (Page*) &(*i);
@@ -152,7 +152,7 @@ void QToolBoxPrivate::updatePageBackgroundMode()
 void QToolBoxPrivate::updateTabs( QToolBox *tb )
 {
     bool after = FALSE;
-    for ( QValueList<Page>::ConstIterator i = pageList.constBegin();
+    for ( QList<Page>::ConstIterator i = pageList.constBegin();
 	  i != pageList.constEnd(); ++i ) {
 	Qt::BackgroundMode bm = ( after ? tb->backgroundMode() : Qt::PaletteBackground  );
 	if ( (*i).button->backgroundMode() != bm ) {
@@ -351,7 +351,7 @@ void QToolBox::insertPage( QWidget *page, const QIconSet &iconSet,
     if ( index < 0 || index >= count() ) {
 	d->pageList.append( c );
     } else {
-	d->pageList.insert( d->pageList.at(index), c );
+	d->pageList.insert( index, c );
 	needRelayout = TRUE;
     }
 
@@ -403,7 +403,7 @@ void QToolBox::buttonClicked()
 {
     QToolBoxButton *tb = (QToolBoxButton*)sender();
     QWidget *page = 0;
-    for ( QValueList<QToolBoxPrivate::Page>::ConstIterator i = d->pageList.constBegin();
+    for ( QList<QToolBoxPrivate::Page>::ConstIterator i = d->pageList.constBegin();
 	  i != d->pageList.constEnd(); ++i )
 	if ( (*i).button == tb ) {
 	    page = (*i).page;
@@ -419,7 +419,7 @@ void QToolBox::buttonClicked()
 	int direction = 0;
 
 	QWidgetList buttons;
-	for ( QValueList<QToolBoxPrivate::Page>::ConstIterator i = d->pageList.constBegin();
+	for ( QList<QToolBoxPrivate::Page>::ConstIterator i = d->pageList.constBegin();
 	      i != d->pageList.constEnd(); ++i ) {
 	    if ( (*i).button == tb ) {
 		if ( direction < 0 ) {
@@ -518,7 +518,7 @@ void QToolBox::relayout()
 {
     delete d->layout;
     d->layout = new QVBoxLayout( this );
-    for ( QValueList<QToolBoxPrivate::Page>::ConstIterator i = d->pageList.constBegin();
+    for ( QList<QToolBoxPrivate::Page>::ConstIterator i = d->pageList.constBegin();
 	  i != d->pageList.constEnd(); ++i ) {
 	d->layout->addWidget( (*i).button );
 	d->layout->addWidget( (*i).page );
@@ -548,7 +548,7 @@ void QToolBox::removePage( QWidget *page )
     d->layout->remove( page );
     d->layout->remove( c->button );
 
-   for ( QValueList<QToolBoxPrivate::Page>::Iterator i = d->pageList.begin();
+   for ( QList<QToolBoxPrivate::Page>::Iterator i = d->pageList.begin();
 	  i != d->pageList.end(); ++i )
        if ( (*i).page == page ) {
 	   d->pageList.erase( i );
@@ -590,7 +590,7 @@ QWidget *QToolBox::page( int index ) const
 {
     if ( index < 0 || index >= (int) d->pageList.size() )
 	return 0;
-    return real_page( (*d->pageList.at( index )).page );
+    return real_page( d->pageList.at( index ).page );
 }
 
 /*!
@@ -603,7 +603,7 @@ int QToolBox::indexOf( QWidget *page ) const
     if ( !page )
 	return -1;
     int index = 0;
-    for ( QValueList<QToolBoxPrivate::Page>::ConstIterator i = d->pageList.constBegin();
+    for ( QList<QToolBoxPrivate::Page>::ConstIterator i = d->pageList.constBegin();
 	  i != d->pageList.constEnd(); ++i, ++index )
 	if ( (*i).page == page )
 	    return index;
@@ -640,7 +640,7 @@ void QToolBox::activateClosestPage( QWidget *page )
 	// #### improve that algorithm at the moment that one finds the
 	// #### first available page, but it really should look in both
 	// #### directions and find the closest available page
-	for ( QValueList<QToolBoxPrivate::Page>::ConstIterator i = d->pageList.constBegin();
+	for ( QList<QToolBoxPrivate::Page>::ConstIterator i = d->pageList.constBegin();
 	      i != d->pageList.constEnd(); ++i )
 	    if ( (*i).page != page ) {
 		p = (*i).page;

@@ -42,6 +42,7 @@
 #include "qstringlist.h"
 #include "qsqlfield.h"
 #include "qsqlrecord.h"
+#include "qlist.h"
 #endif // QT_H
 
 #if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL )
@@ -86,7 +87,7 @@ private:
     QString          createField( int i, const QString& prefix, bool verbose ) const;
     QString          cursor;
     QString          nm;
-    QValueList<bool> sorts;
+    QList<bool> sorts;
 };
 
 #define Q_DEFINED_QSQLINDEX

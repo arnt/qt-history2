@@ -319,7 +319,7 @@ bool QSqlQuery::exec ( const QString& query )
     if ( !d->sqlResult )
 	return FALSE;
     if ( d->sqlResult->extension() && driver()->hasFeature( QSqlDriver::PreparedQueries ) )
-	d->sqlResult->extension()->clear();    
+	d->sqlResult->extension()->clear();
     d->sqlResult->setActive( FALSE );
     d->sqlResult->setLastError( QSqlError() );
     d->sqlResult->setAt( QSql::BeforeFirst );
@@ -399,7 +399,7 @@ int QSqlQuery::at() const
 /*!
     Returns the text of the current query being used, or QString::null
     if there is no current query text.
-    
+
     \sa executedQuery()
 */
 
@@ -825,7 +825,7 @@ bool QSqlQuery::isForwardOnly() const
 */
 void QSqlQuery::setForwardOnly( bool forward )
 {
-    if ( d->sqlResult ) 
+    if ( d->sqlResult )
 	d->sqlResult->setForwardOnly( forward );
 }
 
@@ -997,8 +997,8 @@ bool QSqlQuery::exec()
 		    f.setNull();
 		else
 		    f.setValue( val );
-		query = query.replace( (uint)d->sqlResult->extension()->holders[ i ].holderPos, 
-			holder.length(), driver()->formatValue( &f ) ); 
+		query = query.replace( (uint)d->sqlResult->extension()->holders[ i ].holderPos,
+			holder.length(), driver()->formatValue( &f ) );
 	    }
 	} else {
 	    QMap<int, QString>::ConstIterator it;
@@ -1042,7 +1042,7 @@ void QSqlQuery::bindValue( const QString& placeholder, const QVariant& val, QSql
 {
     if ( !d->sqlResult || !d->sqlResult->extension() )
 	return;
-    d->sqlResult->extension()->bindValue( placeholder, val, type );    
+    d->sqlResult->extension()->bindValue( placeholder, val, type );
 }
 
 /*!
@@ -1133,7 +1133,7 @@ QVariant QSqlQuery::boundValue( int pos ) const
 
 /*!
     Returns a map of the bound values.
-    
+
     The bound values can be examined the following way:
     \code
     QSqlQuery query;
@@ -1144,15 +1144,15 @@ QVariant QSqlQuery::boundValue( int pos ) const
     for ( it = vals.begin(); it != vals.end(); ++it )
         qWarning( "Placeholder: " + it.key() + ", Value: " + (*it).toString() );
     ...
-    
+
     // Examine the bound values - bound using positional binding
-    QValueList<QVariant>::ConstIterator it;
-    QValueList<QVariant> list = query.boundValues().values();
+    QList<QVariant>::ConstIterator it;
+    QList<QVariant> list = query.boundValues().values();
     int i = 0;
     for ( it = list.begin(); it != list.end(); ++it )
         qWarning( "Placeholder pos: %d, Value: " + (*it).toString(), i++ );
     ...
-	
+
     \endcode
 */
 QMap<QString,QVariant> QSqlQuery::boundValues() const
@@ -1171,7 +1171,7 @@ QMap<QString,QVariant> QSqlQuery::boundValues() const
     placeholders in the original query are replaced with their bound
     values to form a new query. This function returns the modified
     query. Useful for debugging purposes.
-    
+
     \sa lastQuery()
 */
 QString QSqlQuery::executedQuery() const

@@ -17,7 +17,7 @@
 #include <qapplication.h>
 #include <qmessagebox.h>
 #include <qregexp.h>
-
+#include <qvaluelist.h>
 
 Smtp::Smtp( const QString &from, const QString &to,
 	    const QString &subject,

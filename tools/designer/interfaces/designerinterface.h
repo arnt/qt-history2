@@ -45,6 +45,7 @@
 #include <qstring.h>
 #include <qmap.h>
 #include <qstringlist.h>
+#include <qvaluelist.h>
 #include <qwidgetlist.h>
 #include <qobjectlist.h>
 #include <qcstring.h>

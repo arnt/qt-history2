@@ -45,7 +45,7 @@
 #include "qlayout.h"
 #include "qpainter.h"
 #include "qpopupmenu.h"
-#include "qvaluelist.h"
+#include "qlist.h"
 #include "qsqlmanager_p.h"
 #include "qdatetime.h"
 #include "qcursor.h"
@@ -75,7 +75,7 @@ public:
 
     QString nullTxt;
     bool nullTxtChanged;
-    typedef QValueList< uint > ColIndex;
+    typedef QList< uint > ColIndex;
     ColIndex colIndex;
     bool haveAllRows;
     bool continuousEdit;
@@ -98,9 +98,9 @@ public:
     QStringList srt;
     QStringList fld;
     QStringList fldLabel;
-    QValueList<int> fldWidth;
-    QValueList<QIconSet> fldIcon;
-    QValueList<bool> fldHidden;
+    QList<int> fldWidth;
+    QList<QIconSet> fldIcon;
+    QList<bool> fldHidden;
     QSqlCursorManager cur;
     QDataManager dat;
 };
@@ -348,9 +348,9 @@ void QDataTable::removeColumn( uint col )
     if ( d->fld.begin() + (int)col != d->fld.end() ) {
 	d->fld.remove( d->fld.at( col ) );
 	d->fldLabel.remove( d->fldLabel.at( col ) );
-	d->fldIcon.remove( d->fldIcon.at( col ) );
-	d->fldWidth.remove( d->fldWidth.at( col ) );
-	d->fldHidden.remove( d->fldHidden.at( col ) );
+	d->fldIcon.removeAt( col );
+	d->fldWidth.removeAt( col );
+	d->fldHidden.removeAt( col );
     }
 }
 
@@ -363,9 +363,8 @@ void QDataTable::removeColumn( uint col )
 */
 void QDataTable::setColumnWidth( int col, int w )
 {
-    if ( d->fldWidth.at( col ) != d->fldWidth.end() ) {
+    if (col >= 0 && col < d->fldWidth.size())
 	d->fldWidth[col] = w;
-    }
 }
 
 /*!
@@ -1392,9 +1391,8 @@ void QDataTable::reset()
 
 int QDataTable::indexOf( uint i ) const
 {
-    QDataTablePrivate::ColIndex::ConstIterator it = d->colIndex.at( i );
-    if ( it != d->colIndex.end() )
-	return *it;
+    if ( (int)i < d->colIndex.size() )
+	return d->colIndex.at( i );
     return -1;
 }
 

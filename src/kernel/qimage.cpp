@@ -255,7 +255,7 @@ public:
 	text_lang = o.text_lang;
 	return *this;
     }
-    QValueList<QImageTextKeyLang> list()
+    QList<QImageTextKeyLang> list()
     {
 	return text_lang.keys();
     }
@@ -6284,8 +6284,8 @@ QStringList QImage::textKeys() const
     Note that if you want to iterate over the list, you should iterate
     over a copy, e.g.
     \code
-    QValueList<QImageTextKeyLang> list = myImage.textList();
-    QValueList<QImageTextKeyLang>::Iterator it = list.begin();
+    QList<QImageTextKeyLang> list = myImage.textList();
+    QList<QImageTextKeyLang>::Iterator it = list.begin();
     while( it != list.end() ) {
 	myProcessing( *it );
 	++it;
@@ -6295,7 +6295,7 @@ QStringList QImage::textKeys() const
 QList<QImageTextKeyLang> QImage::textList() const
 {
     if ( !data->misc )
-	return QValueList<QImageTextKeyLang>();
+	return QList<QImageTextKeyLang>();
     return misc().list();
 }
 

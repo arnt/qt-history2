@@ -145,7 +145,7 @@ void QLocalFs::operationListChildren( QNetworkOperation *op )
 
     QFileInfoListIterator it( *filist );
     QFileInfo *fi;
-    QValueList<QUrlInfo> infos;
+    QList<QUrlInfo> infos;
     while ( ( fi = it.current() ) != 0 ) {
 	++it;
 	infos << QUrlInfo( fi->fileName(), convertPermissions(fi), fi->owner(), fi->group(),

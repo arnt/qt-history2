@@ -1288,8 +1288,8 @@ QPtrList<QDnsRR> * QDnsDomain::cached( const QDns * r )
     // if you reach this point, you have to do the query
     QDnsManager * m = QDnsManager::manager();
     QStringList n = r->qualifiedNames();
-    QValueListIterator<QString> it = n.begin();
-    QValueListIterator<QString> end = n.end();
+    QList<QString>::Iterator it = n.begin();
+    QList<QString>::Iterator end = n.end();
     bool nxdomain;
     int cnamecount = 0;
     while( it != end ) {
@@ -1878,8 +1878,8 @@ bool QDns::isWorking() const
     Note that if you want to iterate over the list, you should iterate
     over a copy, e.g.
     \code
-    QValueList<QHostAddress> list = myDns.addresses();
-    QValueList<QHostAddress>::Iterator it = list.begin();
+    QList<QHostAddress> list = myDns.addresses();
+    QList<QHostAddress>::Iterator it = list.begin();
     while( it != list.end() ) {
 	myProcessing( *it );
 	++it;
@@ -1888,12 +1888,12 @@ bool QDns::isWorking() const
 
 */
 
-QValueList<QHostAddress> QDns::addresses() const
+QList<QHostAddress> QDns::addresses() const
 {
 #if defined(QDNS_DEBUG)
     qDebug( "QDns::addresses (%s)", l.ascii() );
 #endif
-    QValueList<QHostAddress> result;
+    QList<QHostAddress> result;
     if ( t != A && t != Aaaa )
 	return result;
 
@@ -1930,8 +1930,8 @@ QValueList<QHostAddress> QDns::addresses() const
     Note that if you want to iterate over the list, you should iterate
     over a copy, e.g.
     \code
-    QValueList<QDns::MailServer> list = myDns.mailServers();
-    QValueList<QDns::MailServer>::Iterator it = list.begin();
+    QList<QDns::MailServer> list = myDns.mailServers();
+    QList<QDns::MailServer>::Iterator it = list.begin();
     while( it != list.end() ) {
 	myProcessing( *it );
 	++it;
@@ -1939,12 +1939,12 @@ QValueList<QHostAddress> QDns::addresses() const
     \endcode
 
 */
-QValueList<QDns::MailServer> QDns::mailServers() const
+QList<QDns::MailServer> QDns::mailServers() const
 {
 #if defined(QDNS_DEBUG)
     qDebug( "QDns::mailServers (%s)", l.ascii() );
 #endif
-    QValueList<QDns::MailServer> result;
+    QList<QDns::MailServer> result;
     if ( t != Mx )
 	return result;
 
@@ -1985,20 +1985,20 @@ QValueList<QDns::MailServer> QDns::mailServers() const
     Note that if you want to iterate over the list, you should iterate
     over a copy, e.g.
     \code
-    QValueList<QDns::Server> list = myDns.servers();
-    QValueList<QDns::Server>::Iterator it = list.begin();
+    QList<QDns::Server> list = myDns.servers();
+    QList<QDns::Server>::Iterator it = list.begin();
     while( it != list.end() ) {
 	myProcessing( *it );
 	++it;
     }
     \endcode
 */
-QValueList<QDns::Server> QDns::servers() const
+QList<QDns::Server> QDns::servers() const
 {
 #if defined(QDNS_DEBUG)
     qDebug( "QDns::servers (%s)", l.ascii() );
 #endif
-    QValueList<QDns::Server> result;
+    QList<QDns::Server> result;
     if ( t != Srv )
 	return result;
 
@@ -2325,7 +2325,7 @@ static void doResInit()
 	    if ( last < 0 )
 		last = nameServer.length();
 	    QDns tmp( nameServer.mid( first, last-first ), QDns::A );
-	    QValueList<QHostAddress> address = tmp.addresses();
+	    QList<QHostAddress> address = tmp.addresses();
 	    Q_LONG i = address.count();
 	    while( i )
 		ns->append( new QHostAddress(address[--i]) );
@@ -2351,8 +2351,8 @@ static void doResInit()
 void QDns::doSynchronousLookup()
 {
     if ( t!=None && !l.isEmpty() ) {
-	QValueListIterator<QString> it = n.begin();
-	QValueListIterator<QString> end = n.end();
+	QListIterator<QString> it = n.begin();
+	QListIterator<QString> end = n.end();
 	int type;
 	switch( t ) {
 	    case QDns::A:

@@ -79,7 +79,6 @@
 #include "qbuffer.h"
 #include "qsocketnotifier.h"
 #include "qsessionmanager.h"
-#include "qvaluelist.h"
 #include "qdict.h"
 #include "qguardedptr.h"
 #include "qclipboard.h"

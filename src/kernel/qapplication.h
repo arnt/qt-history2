@@ -44,13 +44,13 @@
 #include "qpalette.h"
 #include "qstrlist.h"
 #include "qstringlist.h"
-#include "qvaluelist.h"
 #endif // QT_H
 
 class QSessionManager;
 class QStyle;
 class QTranslator;
 class QEventLoop;
+template <typename T> class QList;
 #if defined(Q_WS_QWS)
 class QWSDecoration;
 #endif
@@ -364,7 +364,7 @@ private:
     static bool	     widgetCount; // Coupled with -widgetcount switch
     static bool	     metaComposeUnicode;
 
-    QValueList<QTranslator*> *translators;
+    QList<QTranslator*> *translators;
 #ifndef QT_NO_SESSIONMANAGER
     QSessionManager *session_manager;
     QString	     session_id;

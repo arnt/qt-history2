@@ -40,7 +40,6 @@
 
 #ifndef QT_H
 #include "qframe.h"
-#include "qvaluelist.h"
 #endif // QT_H
 
 #ifndef QT_NO_SPLITTER
@@ -49,6 +48,7 @@ class QSplitterHandle;
 class QSplitterPrivate;
 class QSplitterLayoutStruct;
 class QTextStream;
+template <typename T> class QList;
 
 class Q_EXPORT QSplitter : public QFrame
 {
@@ -86,8 +86,8 @@ public:
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
-    QValueList<int> sizes() const;
-    void setSizes( QValueList<int> );
+    QList<int> sizes() const;
+    void setSizes( QList<int> );
 
     int handleWidth() const;
     void setHandleWidth( int );

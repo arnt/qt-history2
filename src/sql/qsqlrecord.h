@@ -40,13 +40,13 @@
 #ifndef QT_H
 #include "qstring.h"
 #include "qstringlist.h"
-#include "qvaluelist.h"
 #include "qvariant.h"
 #include "qsqlfield.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL
 
+template <typename T> class QList;
 class QSqlRecordPrivate;
 
 class QSqlRecordShared : public QShared
@@ -114,11 +114,11 @@ private:
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-Q_TEMPLATE_EXTERN template class Q_EXPORT QValueList<QSqlFieldInfo>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QList<QSqlFieldInfo>;
 // MOC_SKIP_END
 #endif
 
-typedef QValueList<QSqlFieldInfo> QSqlFieldInfoList;
+typedef QList<QSqlFieldInfo> QSqlFieldInfoList;
 
 class Q_EXPORT QSqlRecordInfo: public QSqlFieldInfoList
 {

@@ -63,6 +63,7 @@
 #include "qkeysequence.h"
 #include "qpen.h"
 #include "qmap.h"
+#include "qlist.h"
 
 #ifndef DBL_DIG
 #define DBL_DIG 10
@@ -144,7 +145,7 @@ QVariant::Private::Private( uint t )
 	value.ptr = new QMap<QString,QVariant>;
 	break;
     case List:
-	value.ptr = new QValueList<QVariant>;
+	value.ptr = new QList<QVariant>;
 	break;
 #endif
     case Date:
@@ -259,7 +260,7 @@ QVariant::Private::Private( uint t, void *v )
 	value.ptr = new QMap<QString,QVariant>(*(QMap<QString,QVariant>*)v);
 	break;
     case List:
-	value.ptr = new QValueList<QVariant>(*(QValueList<QVariant>*)v);
+	value.ptr = new QList<QVariant>(*(QList<QVariant>*)v);
 	break;
 #endif
     case Date:
@@ -378,7 +379,7 @@ void QVariant::Private::clear()
 	delete (QMap<QString,QVariant>*)value.ptr;
 	break;
     case QVariant::List:
-	delete (QValueList<QVariant>*)value.ptr;
+	delete (QList<QVariant>*)value.ptr;
 	break;
 #endif
     case QVariant::SizePolicy:
@@ -483,7 +484,7 @@ void QVariant::Private::clear()
     v.asStringList().append( "Hello" );
     \endcode
 
-    You can even store QValueList<QVariant>s and
+    You can even store QList<QVariant>s and
     QMap<QString,QVariant>s in a variant, so you can easily construct
     arbitrarily complex data structures of arbitrary types. This is
     very powerful and versatile, but may prove less memory and speed
@@ -523,7 +524,7 @@ void QVariant::Private::clear()
     \value Image  a QImage
     \value Int  an int
     \value KeySequence  a QKeySequence
-    \value List  a QValueList<QVariant>
+    \value List  a QList<QVariant>
     \value LongLong a long long
     \value ULongLong an unsigned long long
     \value Map  a QMap<QString,QVariant>
@@ -969,11 +970,11 @@ QVariant::QVariant( double val )
 /*!
     Constructs a new variant with a list value, \a val.
 */
-QVariant::QVariant( const QValueList<QVariant>& val )
+QVariant::QVariant( const QList<QVariant>& val )
 {
     d = new Private;
     d->type = List;
-    d->value.ptr = new QValueList<QVariant>( val );
+    d->value.ptr = new QList<QVariant>( val );
     d->is_null = FALSE;
 }
 #endif
@@ -1027,7 +1028,7 @@ void QVariant::detach()
 /*!
     Returns the name of the type stored in the variant. The returned
     strings describe the C++ datatype used to store the data: for
-    example, "QFont", "QString", or "QValueList<QVariant>". An Invalid
+    example, "QFont", "QString", or "QList<QVariant>". An Invalid
     variant returns 0.
 */
 const char* QVariant::typeName() const
@@ -1063,7 +1064,7 @@ static const char* const type_map[ntypes] =
 {
     0,
     "QMap<QString,QVariant>",
-    "QValueList<QVariant>",
+    "QList<QVariant>",
     "QString",
     "QStringList",
     "QFont",
@@ -1161,7 +1162,7 @@ void QVariant::load( QDataStream& s )
     }
 	break;
     case List: {
-	QValueList<QVariant>* x = new QValueList<QVariant>;
+	QList<QVariant>* x = new QList<QVariant>;
 	s >> *x;
 	d->value.ptr = x;
 	d->is_null = FALSE;
@@ -1418,7 +1419,7 @@ void QVariant::save( QDataStream& s ) const
 	break;
 #ifndef QT_NO_TEMPLATE_VARIANT
     case List:
-	s << *((QValueList<QVariant>*)d->value.ptr);
+	s << *((QList<QVariant>*)d->value.ptr);
 	break;
     case Map:
 	s << *((QMap<QString,QVariant>*)d->value.ptr);
@@ -1674,9 +1675,9 @@ QStringList QVariant::toStringList() const
     case List:
 	{
 	    QStringList slst;
-	    QValueList<QVariant> list(toList());
-	    QValueList<QVariant>::ConstIterator it = list.begin();
-	    QValueList<QVariant>::ConstIterator end = list.end();
+	    QList<QVariant> list(toList());
+	    QList<QVariant>::ConstIterator it = list.begin();
+	    QList<QVariant>::ConstIterator end = list.end();
 	    while( it != end ) {
 		QString tmp = (*it).toString();
 		++it;
@@ -2320,14 +2321,14 @@ double QVariant::toDouble( bool * ok ) const
 
 #ifndef QT_NO_TEMPLATE_VARIANT
 /*!
-    Returns the variant as a QValueList<QVariant> if the variant has
+    Returns the variant as a QList<QVariant> if the variant has
     type() List or StringList; otherwise returns an empty list.
 
     Note that if you want to iterate over the list, you should iterate
     over a copy, e.g.
     \code
-    QValueList<QVariant> list = myVariant.toList();
-    QValueList<QVariant>::Iterator it = list.begin();
+    QList<QVariant> list = myVariant.toList();
+    QList<QVariant>::Iterator it = list.begin();
     while( it != list.end() ) {
 	myProcessing( *it );
 	++it;
@@ -2336,13 +2337,13 @@ double QVariant::toDouble( bool * ok ) const
 
     \sa asList()
 */
-QValueList<QVariant> QVariant::toList() const
+QList<QVariant> QVariant::toList() const
 {
     if ( d->type == List )
-	return *((QValueList<QVariant>*)d->value.ptr);
+	return *((QList<QVariant>*)d->value.ptr);
 #ifndef QT_NO_STRINGLIST
     if ( d->type == StringList ) {
-	QValueList<QVariant> lst;
+	QList<QVariant> lst;
 	QStringList slist(toStringList());
 	QStringList::ConstIterator it = slist.begin();
 	QStringList::ConstIterator end = slist.end();
@@ -2351,7 +2352,7 @@ QValueList<QVariant> QVariant::toList() const
 	return lst;
     }
 #endif //QT_NO_STRINGLIST
-    return QValueList<QVariant>();
+    return QList<QVariant>();
 }
 #endif
 
@@ -2800,19 +2801,19 @@ double& QVariant::asDouble()
     Note that if you want to iterate over the list, you should iterate
     over a copy, e.g.
     \code
-    QValueList<QVariant> list = myVariant.asList();
-    QValueList<QVariant>::Iterator it = list.begin();
+    QList<QVariant> list = myVariant.asList();
+    QList<QVariant>::Iterator it = list.begin();
     while( it != list.end() ) {
 	myProcessing( *it );
 	++it;
     }
     \endcode
 */
-QValueList<QVariant>& QVariant::asList()
+QList<QVariant>& QVariant::asList()
 {
     if ( d->type != List )
 	*this = QVariant( toList() );
-    return *((QValueList<QVariant>*)d->value.ptr);
+    return *((QList<QVariant>*)d->value.ptr);
 }
 
 /*!
@@ -2915,9 +2916,9 @@ bool QVariant::canCast( Type t ) const
 #ifndef QT_NO_TEMPLATE_VARIANT
     case StringList:
 	if ( d->type == List ) {
-	    QValueList<QVariant> varlist;
-	    QValueList<QVariant>::ConstIterator it = varlist.begin();
-	    QValueList<QVariant>::ConstIterator end = varlist.end();
+	    QList<QVariant> varlist;
+	    QList<QVariant>::ConstIterator it = varlist.begin();
+	    QList<QVariant>::ConstIterator end = varlist.end();
 	    for( ; it != end; ++it ) {
 		if ( !(*it).canCast( String ) )
 		    return FALSE;

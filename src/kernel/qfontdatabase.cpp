@@ -1172,8 +1172,8 @@ int main( int argc, char **argv )
 	for ( QStringList::Iterator s = styles.begin(); s != styles.end(); ++s ) {
 	    QString style = *s;
 	    QString dstyle = "\t" + style + " (";
-	    QValueList<int> smoothies = fdb.smoothSizes( family, style );
-	    for ( QValueList<int>::Iterator points = smoothies.begin();
+	    QList<int> smoothies = fdb.smoothSizes( family, style );
+	    for ( QList<int>::Iterator points = smoothies.begin();
 		  points != smoothies.end(); ++points ) {
 		dstyle += QString::number( *points ) + " ";
 	    }
@@ -1199,14 +1199,14 @@ int main( int argc, char **argv )
 */
 /*!
     \obsolete
-    \fn inline QValueList<int> QFontDatabase::pointSizes( const QString &family,
+    \fn inline QList<int> QFontDatabase::pointSizes( const QString &family,
 						  const QString &style ,
 						  const QString & )
 */
 
 /*!
     \obsolete
-    \fn inline QValueList<int> QFontDatabase::smoothSizes( const QString &family,
+    \fn inline QList<int> QFontDatabase::smoothSizes( const QString &family,
 						   const QString &style,
 						   const QString & )
 */
@@ -1506,7 +1506,7 @@ bool  QFontDatabase::isScalable( const QString &family,
 
     \sa smoothSizes(), standardSizes()
 */
-QValueList<int> QFontDatabase::pointSizes( const QString &family,
+QList<int> QFontDatabase::pointSizes( const QString &family,
 					   const QString &style)
 {
 #if defined(Q_WS_WIN) || defined(Q_WS_MAC)
@@ -1523,7 +1523,7 @@ QValueList<int> QFontDatabase::pointSizes( const QString &family,
 
     QtFontStyle::Key styleKey( style );
 
-    QValueList<int> sizes;
+    QList<int> sizes;
 
     QtFontFamily *fam = d->family( familyName );
     if ( !fam ) return sizes;
@@ -1615,7 +1615,7 @@ QFont QFontDatabase::font( const QString &family, const QString &style,
 
   \sa pointSizes(), standardSizes()
 */
-QValueList<int> QFontDatabase::smoothSizes( const QString &family,
+QList<int> QFontDatabase::smoothSizes( const QString &family,
 					    const QString &style)
 {
 #ifdef Q_WS_WIN
@@ -1631,7 +1631,7 @@ QValueList<int> QFontDatabase::smoothSizes( const QString &family,
 
     QtFontStyle::Key styleKey( style );
 
-    QValueList<int> sizes;
+    QList<int> sizes;
 
     QtFontFamily *fam = d->family( familyName );
     if ( !fam )
@@ -1676,9 +1676,9 @@ QValueList<int> QFontDatabase::smoothSizes( const QString &family,
 
     \sa smoothSizes(), pointSizes()
 */
-QValueList<int> QFontDatabase::standardSizes()
+QList<int> QFontDatabase::standardSizes()
 {
-    QValueList<int> ret;
+    QList<int> ret;
     static unsigned short standard[] =
 	{ 6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72, 0 };
     unsigned short *sizes = standard;

@@ -42,7 +42,7 @@
 #include "qglobal.h"
 #include "qdatastream.h"
 #include "qpair.h"
-#include "qvaluelist.h"
+#include "qlist.h"
 #include "qatomic.h"
 #endif // QT_H
 
@@ -325,8 +325,8 @@ public:
     inline const T operator[] (const Key& k) const { return value(k);}
 
 
-    QValueList<Key> keys() const;
-    QValueList<T> values() const;
+    QList<Key> keys() const;
+    QList<T> values() const;
 
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
     bool operator==(const QMap<Key,T>&) const { return FALSE; }
@@ -618,16 +618,16 @@ const T QMap<Key,T>::value(const Key& k, const T& defaultValue) const
 }
 
 template<class Key, class T>
-QValueList<Key> QMap<Key,T>::keys() const {
-    QValueList<Key> r;
+QList<Key> QMap<Key,T>::keys() const {
+    QList<Key> r;
     for (ConstIterator i=begin(); i!=end(); ++i)
 	r.append(i.key());
     return r;
 }
 
 template<class Key, class T>
-QValueList<T> QMap<Key,T>::values() const {
-    QValueList<T> r;
+QList<T> QMap<Key,T>::values() const {
+    QList<T> r;
     for (ConstIterator i=begin(); i!=end(); ++i)
 	r.append(*i);
     return r;

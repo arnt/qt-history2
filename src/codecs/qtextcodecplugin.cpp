@@ -78,7 +78,7 @@
 
 
 /*!
-    \fn QValueList<int> QTextCodecPlugin::mibEnums() const
+    \fn QList<int> QTextCodecPlugin::mibEnums() const
 
     Returns the list of mib enums supported by this plugin.
 
@@ -144,8 +144,8 @@ QRESULT QTextCodecPluginPrivate::queryInterface( const QUuid &iid, QUnknownInter
 QStringList QTextCodecPluginPrivate::featureList() const
 {
     QStringList keys = plugin->names();
-    QValueList<int> mibs = plugin->mibEnums();
-    for ( QValueList<int>::Iterator it = mibs.begin(); it != mibs.end(); ++it )
+    QList<int> mibs = plugin->mibEnums();
+    for ( QList<int>::Iterator it = mibs.begin(); it != mibs.end(); ++it )
 	keys += QString("MIB-%1").arg( *it );
     return keys;
 }

@@ -1149,9 +1149,9 @@ QDir QDir::root()
     \sa home()
 */
 
-QValueList<QRegExp> qt_makeFilterList( const QString &filter )
+QList<QRegExp> qt_makeFilterList( const QString &filter )
 {
-    QValueList<QRegExp> regExps;
+    QList<QRegExp> regExps;
     if ( filter.isEmpty() )
 	return regExps;
 
@@ -1169,10 +1169,10 @@ QValueList<QRegExp> qt_makeFilterList( const QString &filter )
     return regExps;
 }
 
-bool qt_matchFilterList( const QValueList<QRegExp>& filters,
+bool qt_matchFilterList( const QList<QRegExp>& filters,
 			 const QString &fileName )
 {
-    QValueList<QRegExp>::ConstIterator rit = filters.begin();
+    QList<QRegExp>::ConstIterator rit = filters.begin();
     while ( rit != filters.end() ) {
 	if ( (*rit).exactMatch(fileName) )
 	    return TRUE;

@@ -29,6 +29,7 @@
 
 #include <qmap.h>
 #include <qstring.h>
+#include <qcstring.h>
 #include <qtranslator.h>
 #include <qvaluelist.h>
 

@@ -38,7 +38,7 @@
 #include "qglist.h"
 #include "qgvector.h"
 #include "qdatastream.h"
-#include "qvaluelist.h"
+#include "qlist.h"
 
 inline  void qDelete( QGListIterator * ) {}
 /*!
@@ -110,7 +110,7 @@ public:
 	} else if ( list ) {
 	    list->push_front( i );
 	} else {
-	    list = new QValueList<QGListIterator*>;
+	    list = new QList<QGListIterator*>;
 	    list->push_front( i );
 	}
     }
@@ -134,7 +134,7 @@ public:
 	    iterator->curNode = 0;
 	}
 	if ( list ) {
-	    for ( QValueList<QGListIterator*>::Iterator i = list->begin(); i != list->end(); ++i ) {
+	    for ( QList<QGListIterator*>::Iterator i = list->begin(); i != list->end(); ++i ) {
 		if ( zeroList )
 		    (*i)->list = 0;
 		(*i)->curNode = 0;
@@ -148,7 +148,7 @@ public:
 		iterator->curNode = curNode;
 	}
 	if ( list ) {
-	    for ( QValueList<QGListIterator*>::Iterator i = list->begin(); i != list->end(); ++i ) {
+	    for ( QList<QGListIterator*>::Iterator i = list->begin(); i != list->end(); ++i ) {
 		if ( (*i)->curNode == n )
 		    (*i)->curNode = curNode;
 	    }
@@ -156,7 +156,7 @@ public:
     }
 
 private:
-    QValueList<QGListIterator*>* list;
+    QList<QGListIterator*>* list;
     QGListIterator* iterator;
 };
 

@@ -29,6 +29,7 @@
 #include <qfileinfo.h>
 #include <qregexp.h>
 #include <qdir.h>
+#include <qvaluelist.h>
 
 //#define PROFILE_DEBUG
 

@@ -56,7 +56,7 @@
 #include "qdragobject.h"
 #include "qbuffer.h"
 #include "qtextcodec.h"
-#include "qvaluelist.h"
+#include "qlist.h"
 #include "qt_x11_p.h"
 #include "qapplication_p.h"
 
@@ -121,7 +121,7 @@ public:
     QByteArray getDataInFormat(Atom fmtatom) const;
 
     Atom atom;
-    QValueList<const char *> formatList;
+    QList<const char *> formatList;
 };
 
 

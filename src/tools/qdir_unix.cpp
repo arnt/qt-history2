@@ -189,7 +189,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	fiList->clear();
     }
 
-    QValueList<QRegExp> filters = qt_makeFilterList( nameFilter );
+    QList<QRegExp> filters = qt_makeFilterList( nameFilter );
 
     bool doDirs	    = (filterSpec & Dirs)	!= 0;
     bool doFiles    = (filterSpec & Files)	!= 0;

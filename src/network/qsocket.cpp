@@ -42,6 +42,7 @@
 #include "qsocketdevice.h"
 #include "qdns.h"
 #include "private/qinternal_p.h"
+#include "qlist.h"
 
 #include <string.h>
 #ifndef NO_ERRNO_H
@@ -394,7 +395,7 @@ void QSocket::tryConnecting()
 #endif
     // ### this ifdef isn't correct - addresses() also does /etc/hosts and
 #ifndef QT_NO_DNS
-    static QValueList<QHostAddress> l;
+    static QList<QHostAddress> l;
     if ( d->state == HostLookup ) {
 	// numeric-address-as-string handling.
 	l = d->dns->addresses();

@@ -30,6 +30,7 @@
 #include <qstring.h>
 #include <qstringlist.h>
 #include <qobject.h>
+#include <qvaluelist.h>
 #include <qmap.h>
 
 class QTextDocument;

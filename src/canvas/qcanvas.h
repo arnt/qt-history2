@@ -44,7 +44,7 @@
 #include "qptrlist.h"
 #include "qbrush.h"
 #include "qpen.h"
-#include "qvaluelist.h"
+#include "qlist.h"
 #include "qpointarray.h"
 #endif // QT_H
 
@@ -73,7 +73,7 @@ class QCanvasView;
 class QCanvasPixmap;
 
 
-class QM_EXPORT_CANVAS QCanvasItemList : public QValueList<QCanvasItem*> {
+class QM_EXPORT_CANVAS QCanvasItemList : public QList<QCanvasItem*> {
 public:
     void sort();
     void drawUnique( QPainter& painter );
@@ -435,7 +435,7 @@ public:
     // this form is deprecated
     QCanvasPixmapArray(QPtrList<QPixmap>, QPtrList<QPoint> hotspots);
 
-    QCanvasPixmapArray(QValueList<QPixmap>, QPointArray hotspots = QPointArray() );
+    QCanvasPixmapArray(QList<QPixmap>, QPointArray hotspots = QPointArray() );
     ~QCanvasPixmapArray();
 
 #ifndef QT_NO_IMAGEIO

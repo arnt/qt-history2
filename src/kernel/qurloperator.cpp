@@ -157,7 +157,7 @@ public:
 */
 
 /*!
-    \fn void QUrlOperator::newChildren( const QValueList<QUrlInfo> &i, QNetworkOperation *op )
+    \fn void QUrlOperator::newChildren( const QList<QUrlInfo> &i, QNetworkOperation *op )
 
     This signal is emitted after listChildren() was called and new
     children (i.e. files) have been read from a list of files. \a i
@@ -872,9 +872,9 @@ void QUrlOperator::clearEntries()
     Adds an entry to the cache of children.
 */
 
-void QUrlOperator::addEntry( const QValueList<QUrlInfo> &i )
+void QUrlOperator::addEntry( const QList<QUrlInfo> &i )
 {
-    QValueList<QUrlInfo>::ConstIterator it = i.begin();
+    QList<QUrlInfo>::ConstIterator it = i.begin();
     for ( ; it != i.end(); ++it )
 	d->entryMap[ ( *it ).name().stripWhiteSpace() ] = *it;
 }

@@ -33,6 +33,7 @@
 #include <qfile.h>
 #include <qsettings.h>
 #include <qxml.h>
+#include <qvaluelist.h>
 
 static Config *static_configuration = 0;
 
