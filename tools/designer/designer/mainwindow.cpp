@@ -861,7 +861,7 @@ void MainWindow::setupFileActions()
     connect( ag, SIGNAL( selected( QAction * ) ), this, SLOT( projectSelected( QAction * ) ) );
     connect( ag, SIGNAL( selected( QAction * ) ), this, SIGNAL( projectChanged() ) );
     a = new QAction( tr( "<No Project>" ), tr( "<No Project>" ), 0, ag, 0, TRUE );
-    projects.insert( a, new Project( "", tr( "<No Project>" ) ) );
+    projects.insert( a, new Project( "", tr( "<No Project>" ), preferencePluginManager ) );
     a->setOn( TRUE );
     ag->addTo( fileMenu );
     ag->addTo( tb );
@@ -1323,7 +1323,7 @@ void MainWindow::fileNew()
 
 void MainWindow::fileNewProject()
 {
-    Project *pro = new Project( "" );
+    Project *pro = new Project( "", "", preferencePluginManager );
     ProjectSettings dia( pro, this, 0, TRUE );
     if ( dia.exec() != QDialog::Accepted ) {
 	delete pro;
@@ -3858,7 +3858,7 @@ void MainWindow::projectSelected( QAction *a )
 
 void MainWindow::openProject( const QString &fn )
 {
-    Project *pro = new Project( fn );
+    Project *pro = new Project( fn, "", preferencePluginManager );
     QAction *a = new QAction( pro->projectName(), pro->projectName(), 0, actionGroupProjects, 0, TRUE );
     projects.insert( a, pro );
     a->setOn( TRUE );

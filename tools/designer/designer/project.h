@@ -31,6 +31,8 @@
 #include <qstringlist.h>
 #include <qlist.h>
 #include <qmap.h>
+#include <qinterfacemanager.h>
+#include "../interfaces/preferenceinterface.h"
 
 class FormWindow;
 class QObjectList;
@@ -68,7 +70,7 @@ public:
     };
 
 
-    Project( const QString &fn, const QString &pName = QString::null );
+    Project( const QString &fn, const QString &pName = QString::null, QInterfaceManager<PreferenceInterface> *pm = 0 );
     ~Project();
 
     void setFileName( const QString &fn, bool doClear = TRUE );
@@ -122,9 +124,13 @@ public:
 
     QString formName( const QString &uifile );
 
+    void setCustomSetting( const QString &key, const QString &value );
+    QString customSetting( const QString &key ) const;
+
 private:
     void parse();
     void clear();
+    void updateCustomSettings();
 
 private:
     QString filename;
@@ -137,7 +143,9 @@ private:
     QList<DatabaseConnection> dbConnections;
     QString lang;
     DesignerProject *iface;
-
+    QMap<QString, QString> customSettings;
+    QStringList csList;
+    QInterfaceManager<PreferenceInterface> *preferencePluginManager;
 };
 
 #endif

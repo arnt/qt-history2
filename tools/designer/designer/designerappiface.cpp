@@ -223,6 +223,15 @@ QString DesignerProjectImpl::language() const
     return project->language();
 }
 
+void DesignerProjectImpl::setCustomSetting( const QString &key, const QString &value )
+{
+    project->setCustomSetting( key, value );
+}
+
+QString DesignerProjectImpl::customSetting( const QString &key ) const
+{
+    return project->customSetting( key );
+}
 
 
 

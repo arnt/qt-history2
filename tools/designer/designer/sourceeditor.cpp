@@ -25,6 +25,20 @@
 #include "project.h"
 #include "mainwindow.h"
 #include "../interfaces/languageinterface.h"
+#include <qregexp.h>
+
+static QString make_func_pretty( const QString &s )
+{
+    QString res = s;
+    if ( res.find( ")" ) - res.find( "(" ) == 1 )
+	return res;
+    res.replace( QRegExp( "[(]" ), "( " );
+    res.replace( QRegExp( "[)]" ), " )" );
+    res.replace( QRegExp( "&" ), " &" );
+    res.replace( QRegExp( "[*]" ), " *" );
+    res.replace( QRegExp( "," ), "," );
+    return res;
+}
 
 SourceEditor::SourceEditor( QWidget *parent, EditorInterface *iface, LanguageInterface *liface )
     : QVBox( parent ), iFace( iface ), lIface( liface ), formWindow( 0 )
@@ -98,7 +112,7 @@ void SourceEditor::save()
 	    if ( MetaDataBase::normalizeSlot( s ) == MetaDataBase::normalizeSlot( (*it).name ) ) {
 		found = TRUE;
 		MetaDataBase::Slot slot;
-		slot.slot = (*it).name;
+		slot.slot = make_func_pretty( (*it).name );
 		slot.access = (*sit).access;
 		slot.language = (*sit).language;
 		newSlots << slot;
@@ -109,7 +123,7 @@ void SourceEditor::save()
 	}
 	if ( !found ) {
 	    MetaDataBase::Slot slot;
-	    slot.slot = (*it).name;
+	    slot.slot = make_func_pretty( (*it).name );
 	    slot.access = "public";
 	    slot.language = lang;
 	    newSlots << slot;

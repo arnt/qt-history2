@@ -24,6 +24,7 @@
 #include <qcomponentinterface.h>
 #include <qwidgetlist.h>
 #include <qcstring.h>
+#include <qstringlist.h>
 
 // {5c168ee7-4bee-469f-9995-6afdb04ce5a2}
 #ifndef IID_PreferenceInterface
@@ -44,8 +45,7 @@ struct PreferenceInterface : public QUnknownInterface
     virtual QStringList featureList() const = 0;
     virtual Preference *globalPreference( const QString &feature ) = 0;
     virtual Preference *projectSetting( const QString &feature ) = 0;
-    virtual void saveProjectSetting( const QString &fileContents ) = 0;
-    virtual void loadProjectSetting( const QString &fileContents ) = 0;
+    virtual QStringList projectSettings() const = 0;
     virtual void connectTo( QUnknownInterface *appInterface ) = 0;
     virtual void deletePreferenceObject( Preference * ) = 0;
 };

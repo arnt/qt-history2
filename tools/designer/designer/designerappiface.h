@@ -79,6 +79,8 @@ public:
     void save() const;
     void setLanguage( const QString & );
     QString language() const;
+    void setCustomSetting( const QString &key, const QString &value );
+    QString customSetting( const QString &key ) const;
 
 private:
     Project *project;

@@ -34,8 +34,8 @@
 #include <qdatatable.h>
 #endif
 
-Project::Project( const QString &fn, const QString &pName )
-    : proName( pName )
+Project::Project( const QString &fn, const QString &pName, QInterfaceManager<PreferenceInterface> *pm )
+    : proName( pName ), preferencePluginManager( pm )
 {
     iface = 0;
     lang = "C++";
@@ -165,6 +165,18 @@ void Project::parse()
 	lang = "";
 	QString part = contents.mid( i + QString( "LANGUAGE" ).length() );
 	lang = parse_part( part );
+    }
+
+    updateCustomSettings();
+
+    for ( QStringList::Iterator it = csList.begin(); it != csList.end(); ++it ) {
+	i = contents.find( *it );
+	if ( i != -1 ) {
+	    QString val = "";
+	    QString part = contents.mid( i + QString( *it ).length() );
+	    val = parse_part( part );
+	    setCustomSetting( *it, val );
+	}
     }
 
     loadConnections();
@@ -332,6 +344,12 @@ void Project::save()
 	contents += "PROJECTNAME\t= " + proName + "\n";
 
     contents += "LANGUAGE\t= " + lang + "\n";
+
+    for ( QStringList::Iterator it = csList.begin(); it != csList.end(); ++it ) {
+	remove_contents( contents, *it );
+	QString val = *customSettings.find( *it );
+	contents += *it + "\t= " + val + "\n";
+    }
 
     if ( !f.open( IO_WriteOnly ) ) {
 	//## more of a warning here? mbox?
@@ -583,6 +601,7 @@ DesignerProject *Project::iFace()
 void Project::setLanguage( const QString &l )
 {
     lang = l;
+    updateCustomSettings();
     save();
 }
 
@@ -625,4 +644,28 @@ QString Project::formName( const QString &uifile )
 	    return className;
     }
     return uifile;
+}
+
+void Project::setCustomSetting( const QString &key, const QString &value )
+{
+    customSettings.remove( key );
+    customSettings.insert( key, value );
+    save();
+}
+
+QString Project::customSetting( const QString &key ) const
+{
+    return *customSettings.find( key );
+}
+
+void Project::updateCustomSettings()
+{
+    if ( !preferencePluginManager )
+	return;
+    PreferenceInterface *iface = (PreferenceInterface*)preferencePluginManager->queryInterface( lang );
+    if ( !iface )
+	return;
+    csList = iface->projectSettings();
+    customSettings.clear();
+    iface->release();
 }

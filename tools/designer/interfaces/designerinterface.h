@@ -88,6 +88,8 @@ struct DesignerProject
     virtual void save() const = 0;
     virtual void setLanguage( const QString & ) = 0;
     virtual QString language() const = 0;
+    virtual void setCustomSetting( const QString &key, const QString &value ) = 0;
+    virtual QString customSetting( const QString &key ) const = 0;
 };
 
 struct DesignerDatabase
