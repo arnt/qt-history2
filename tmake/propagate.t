@@ -198,4 +198,4 @@ clean:
 #$ BuildMocSrc(Project("HEADERS"));
 #$ BuildMocSrc(Project("SOURCES"));
 #$ Project("PNG_SOURCES") && BuildObj(Project("PNG_OBJECTS"),Project("PNG_SOURCES"));
-#$ Project("ZLIB_SOURCES") && BuildObj(Project("PNG_OBJECTS"),Project("ZLIB_SOURCES"));
+#$ Project("ZLIB_SOURCES") && BuildObj(Project("ZLIB_OBJECTS"),Project("ZLIB_SOURCES"));
