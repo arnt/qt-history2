@@ -554,6 +554,10 @@ bool QPainter::begin(QPaintDevice *pd)
             Q_ASSERT(pm);
             d->state->ww = d->state->vw = pm->width();
             d->state->wh = d->state->vh = pm->height();
+	    if (pm->depth() == 1) {
+		d->state->pen = QPen(Qt::color1);
+		d->state->brush = QBrush(Qt::color0);
+	    }
             break;
         }
         case QInternal::ExternalDevice:

@@ -586,13 +586,8 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
             end();
             return false;
         }
-        bool mono = pm->depth() == 1;           // monochrome bitmap
-        if (mono) {
+        if (pm->depth() == 1)
             setf(MonoDev);
-            // ### Port me !!!
-//             ps->bgBrush = Qt::color0; // ### superhack - remove when fixed
-//             ps->pen.setColor(Qt::color1);
-        }
     }
 
     setDirty(QPaintEngine::DirtyPen);
