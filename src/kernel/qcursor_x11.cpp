@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#32 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xos.h>
 #include <X11/cursorfont.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#31 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#32 $")
 
 
 /*****************************************************************************
@@ -196,7 +196,8 @@ QCursor::QCursor( int shape )			// cursor with shape
 QCursor::QCursor( const QBitmap &bitmap, const QBitmap &mask,
 		  int hotX, int hotY )
 {
-    if ( bitmap.depth() != 1 || mask.depth() != 1 ) {
+    if ( bitmap.depth() != 1 || mask.depth() != 1 ||
+	 bitmap.size() != mask.size() ) {
 #if defined(CHECK_NULL)
 	warning( "QCursor: Cannot create bitmap cursor; invalid bitmap(s)" );
 #endif
