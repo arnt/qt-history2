@@ -2902,8 +2902,8 @@ bool QRegExp::minimal() const
   Enables or disables minimal matching.  If \a minimal is FALSE, matching is
   maximal (the default).
 
-  For regular expression <b>\{.*\}</b> and input string <b>a{b}c{d}e</b>, the
-  minimal match is <b>{b}</b> and the maximal match is <b>{b}c{d}</b>.
+  For regular expression <b>\{.*\}</b> and input string <tt>a{b}c{d}e</tt>, the
+  minimal match is <tt>{b}</tt> and the maximal match is <tt>{b}c{d}</tt>.
 
   \sa minimal()
 */
