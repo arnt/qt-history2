@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qasciidict.h#7 $
+** $Id: //depot/qt/main/src/tools/qasciidict.h#8 $
 **
 ** Definition of QAsciiDict template class
 **
@@ -42,8 +42,13 @@
 #include "qgdict.h"
 #endif // QT_H
 
-
-template<class type> class Q_EXPORT QAsciiDict : public QGDict
+template<class type>
+class Q_EXPORT QAsciiDict
+#ifdef Q_QDOC
+	: public QPtrCollection
+#else
+	: public QGDict
+#endif
 {
 public:
     QAsciiDict(int size=17, bool caseSensitive=TRUE, bool copyKeys=TRUE )
@@ -70,12 +75,19 @@ public:
     void  clear()			{ QGDict::clear(); }
     void  resize( uint n )		{ QGDict::resize(n); }
     void  statistics() const		{ QGDict::statistics(); }
+
+#ifdef Q_QDOC
+protected:
+    virtual QDataStream& read( QDataStream &, QPtrCollection::Item & );
+    virtual QDataStream& write( QDataStream &, QPtrCollection::Item ) const;
+#endif
+
 private:
     void  deleteItem( Item d )		{ if ( del_item ) delete (type *)d; }
 };
 
-
-template<class type> class Q_EXPORT QAsciiDictIterator : public QGDictIterator
+template<class type>
+class Q_EXPORT QAsciiDictIterator : public QGDictIterator
 {
 public:
     QAsciiDictIterator(const QAsciiDict<type> &d)
@@ -91,6 +103,5 @@ public:
     type *operator++()	      { return (type *)QGDictIterator::operator++(); }
     type *operator+=(uint j)  { return (type *)QGDictIterator::operator+=(j);}
 };
-
 
 #endif // QASCIIDICT_H

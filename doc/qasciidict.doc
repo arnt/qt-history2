@@ -147,7 +147,7 @@
 
   Constructs a dictionary optimized for less than \a size entries.
 
-  We recommend setting \e size to a suitably large prime number (a bit
+  We recommend setting \a size to a suitably large prime number (a bit
   larger than the expected number of entries). This makes the hash
   distribution better and hence the lookup faster.
 
@@ -163,9 +163,9 @@
 
 /*!
   \fn QAsciiDict::QAsciiDict( const QAsciiDict<type> &dict )
-  Constructs a copy of \e dict.
+  Constructs a copy of \a dict.
 
-  Each item in \e dict is inserted into this dictionary.
+  Each item in \a dict is inserted into this dictionary.
   Only the pointers are copied (shallow copy).
 */
 
@@ -182,10 +182,10 @@
 
 /*!
   \fn QAsciiDict<type> &QAsciiDict::operator=(const QAsciiDict<type> &dict)
-  Assigns \e dict to this dictionary and returns a reference to this
+  Assigns \a dict to this dictionary and returns a reference to this
   dictionary.
 
-  This dictionary is first cleared and then each item in \e dict is inserted
+  This dictionary is first cleared and then each item in \a dict is inserted
   into this dictionary.
   Only the pointers are copied (shallow copy) unless newItem() has been
   reimplemented().
@@ -220,7 +220,7 @@
 /*!
   \fn void QAsciiDict::insert( const char *key, const type *item )
 
-  Inserts the \e key with the \e item into the dictionary.
+  Inserts the \a key with the \a item into the dictionary.
 
   The key does not have to be a unique dictionary key.  If multiple items
   are inserted with the same key, only the last item will be visible.
@@ -233,7 +233,7 @@
 /*!
   \fn void QAsciiDict::replace( const char *key, const type *item )
 
-  Replaces an item that has a key equal to \e key with \e item.
+  Replaces an item that has a key equal to \a key with \a item.
 
   If the item does not already exist, it will be inserted.
 
@@ -257,7 +257,7 @@
 /*!
   \fn bool QAsciiDict::remove( const char *key )
 
-  Removes the item associated with \e key from the dictionary.
+  Removes the item associated with \a key from the dictionary.
   Returns TRUE if successful, or FALSE if the key does not exist in the
   dictionary.
 
@@ -276,7 +276,7 @@
 /*!
   \fn type *QAsciiDict::take( const char *key )
 
-  Takes the item associated with \e key out of the dictionary without
+  Takes the item associated with \a key out of the dictionary without
   deleting it (even if \link QPtrCollection::setAutoDelete()
   auto-deletion\endlink is enabled).
 
@@ -308,7 +308,7 @@
 /*!
   \fn type *QAsciiDict::find( const char *key ) const
 
-  Returns the item associated with \e key, or null if the key does not
+  Returns the item associated with \a key, or null if the key does not
   exist in the dictionary.
 
   This function uses an internal hashing algorithm to optimize lookup.
@@ -324,7 +324,7 @@
 /*!
   \fn type *QAsciiDict::operator[]( const char *key ) const
 
-  Returns the item associated with \e key, or null if the key does not
+  Returns the item associated with \a key, or null if the key does not
   exist in the dictionary.
 
   This function uses an internal hashing algorithm to optimize lookup.
@@ -344,6 +344,25 @@
   using qDebug().
 */
 
+/*!
+  \fn QDataStream& QAsciiDict::read( QDataStream &s,
+				     QPtrCollection::Item &item )
+  Reads a dictionary item from the stream \a s and returns a
+  reference to the stream.
+
+  The default implementation sets \a item to 0.
+
+  \sa write()
+*/
+
+/*!
+  \fn QDataStream& QAsciiDict::write( QDataStream &s,
+				      QPtrCollection::Item ) const
+  Writes a dictionary item to the stream \a s and returns a
+  reference to the stream.
+
+  \sa read()
+*/
 
 /*****************************************************************************
   QAsciiDictIterator documentation
@@ -387,9 +406,9 @@
 
   Program output:
   \code
-	Russia -> Moscow
-	Norway -> Oslo
-	France -> Paris
+    Russia -> Moscow
+    Norway -> Oslo
+    France -> Paris
   \endcode
 
   Note that the traversal order is arbitrary; you are not guaranteed any
@@ -406,8 +425,8 @@
 
 /*!
   \fn QAsciiDictIterator::QAsciiDictIterator( const QAsciiDict<type> &dict )
-  Constructs an iterator for \e dict.  The current iterator item is
-  set to point on the first item in the \e dict.
+  Constructs an iterator for \a dict.  The current iterator item is
+  set to point on the first item in the \a dict.
 */
 
 /*!
@@ -471,11 +490,9 @@
 
 /*!
   \fn type *QAsciiDictIterator::operator+=( uint jump )
-  Sets the current item to the item \e jump positions after the current
+  Sets the current item to the item \a jump positions after the current
   item, and returns a pointer to that item.
 
   If that item is beyond the last item or if the dictionary is empty,
   it sets the current item to null and  returns null.
 */
-
-

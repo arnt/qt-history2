@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qptrdict.h#20 $
+** $Id: //depot/qt/main/src/tools/qptrdict.h#21 $
 **
 ** Definition of QPtrDict template class
 **
@@ -42,8 +42,13 @@
 #include "qgdict.h"
 #endif // QT_H
 
-
-template<class type> class Q_EXPORT QPtrDict : public QGDict
+template<class type>
+class Q_EXPORT QPtrDict
+#ifdef Q_QDOC
+	: public QPtrCollection
+#else
+	: public QGDict
+#endif
 {
 public:
     QPtrDict(int size=17) : QGDict(size,PtrKey,0,0) {}
@@ -67,17 +72,25 @@ public:
     void  clear()			{ QGDict::clear(); }
     void  resize( uint n )		{ QGDict::resize(n); }
     void  statistics() const		{ QGDict::statistics(); }
+
+#ifdef Q_QDOC
+protected:
+    virtual QDataStream& read( QDataStream &, QPtrCollection::Item & );
+    virtual QDataStream& write( QDataStream &, QPtrCollection::Item ) const;
+#endif
+
 private:
     void  deleteItem( Item d );
 };
 
-template<class type> inline void QPtrDict<type>::deleteItem( QPtrCollection::Item d )
+template<class type>
+inline void QPtrDict<type>::deleteItem( QPtrCollection::Item d )
 {
     if ( del_item ) operator delete( (type *)d );
 }
 
-
-template<class type> class Q_EXPORT QPtrDictIterator : public QGDictIterator
+template<class type>
+class Q_EXPORT QPtrDictIterator : public QGDictIterator
 {
 public:
     QPtrDictIterator(const QPtrDict<type> &d) :QGDictIterator((QGDict &)d) {}
@@ -92,6 +105,5 @@ public:
     type *operator++()	      { return (type *)QGDictIterator::operator++(); }
     type *operator+=(uint j)  { return (type *)QGDictIterator::operator+=(j);}
 };
-
 
 #endif // QPTRDICT_H

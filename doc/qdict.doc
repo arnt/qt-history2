@@ -57,7 +57,7 @@
   If you want to have a dictionary that maps QStrings to QStrings use
   QMap.
 
-  The size() of the dictionary is very \e important. In order to get good
+  The size() of the dictionary is very important. In order to get good
   performance, you should use a suitably large \link primes.html prime
   number\endlink.  Suitable means equal to or larger than the maximum
   expected number of dictionary items. Size is set in the constructor
@@ -107,31 +107,30 @@
   QPtrCollection::deleteItem() is called.  QDict's default implementation
   is to delete the item if auto-deletion is enabled.
 
+  Example:
 
-Example:
-
-\code
-QStringList styleList = QStyleFactory::styles();
-styleList.sort();
-QDict<int> letterDict( 17, FALSE );
-for ( QStringList::Iterator it = styleList.begin(); it != styleList.end(); ++it ) {
-    QString styleName = *it;
-    QString styleAccel = styleName;
-    if ( letterDict[styleAccel.left(1)] ) {
-	for ( uint i = 0; i < styleAccel.length(); i++ ) {
-	    if ( ! letterDict[styleAccel.mid( i, 1 )] ) {
-		styleAccel = styleAccel.insert( i, '&' );
-		letterDict.insert(styleAccel.mid( i, 1 ), (const int *)1);
-		break;
-	    }
-	}   
-    } else {
-	styleAccel = "&" + styleAccel;
-	letterDict.insert(styleAccel.left(1), (const int *)1);
+  \code
+    QStringList styleList = QStyleFactory::styles();
+    styleList.sort();
+    QDict<int> letterDict( 17, FALSE );
+    for ( QStringList::Iterator it = styleList.begin(); it != styleList.end(); ++it ) {
+	QString styleName = *it;
+	QString styleAccel = styleName;
+	if ( letterDict[styleAccel.left(1)] ) {
+	    for ( uint i = 0; i < styleAccel.length(); i++ ) {
+		if ( ! letterDict[styleAccel.mid( i, 1 )] ) {
+		    styleAccel = styleAccel.insert( i, '&' );
+		    letterDict.insert(styleAccel.mid( i, 1 ), (const int *)1);
+		    break;
+		}
+	    }   
+	} else {
+	    styleAccel = "&" + styleAccel;
+	    letterDict.insert(styleAccel.left(1), (const int *)1);
+	}
+	(void) new QAction( styleName, QIconSet(), styleAccel, parent );
     }
-    (void) new QAction( styleName, QIconSet(), styleAccel, parent );
-}
-\endcode
+  \endcode
     In the example we are using the dictionary to provide fast random
     access to the keys, and we don't care what the values are. The example
     is used to generate a menu of QStyles, each with a unique
@@ -352,6 +351,23 @@ for ( QStringList::Iterator it = styleList.begin(); it != styleList.end(); ++it 
   using qDebug().
 */
 
+/*!
+  \fn QDataStream& QDict::read( QDataStream &s, QPtrCollection::Item &item )
+  Reads a dictionary item from the stream \a s and returns a
+  reference to the stream.
+
+  The default implementation sets \a item to 0.
+
+  \sa write()
+*/
+
+/*!
+  \fn QDataStream& QDict::write( QDataStream &s, QPtrCollection::Item ) const
+  Writes a dictionary item to the stream \a s and returns a
+  reference to the stream.
+
+  \sa read()
+*/
 
 /*****************************************************************************
   QDictIterator documentation
@@ -377,23 +393,23 @@ for ( QStringList::Iterator it = styleList.begin(); it != styleList.end(); ++it 
   iterators that are referring to the removed item to point to the next
   item in the traversal order.
 
-    Example:
-\code
-QDict<QWidget> widgets;
-// ...
-widgets.insert( "OK", okButton );
-widgets.insert( "Cancel", cancelButton );
-widgets.insert( "Options", optionsCombobox );
-// ...
-QStringList buttonList;
-QDictIterator<QWidget> it( widgets );
-for ( ; it.current(); ++it ) 
-    if ( it.current()->inherits( "QPushButton" ) )
-	buttonList += it.currentKey();
-\endcode
-    In the example we insert some widgets into a dictionary, then
-    iterate over the dictionary adding the string keys for those widgets
-    which are derived from QPushButton, into a list.
+  Example:
+  \code
+    QDict<QWidget> widgets;
+    // ...
+    widgets.insert( "OK", okButton );
+    widgets.insert( "Cancel", cancelButton );
+    widgets.insert( "Options", optionsCombobox );
+    // ...
+    QStringList buttonList;
+    QDictIterator<QWidget> it( widgets );
+    for ( ; it.current(); ++it ) 
+	if ( it.current()->inherits( "QPushButton" ) )
+	    buttonList += it.currentKey();
+  \endcode
+  In the example we insert some widgets into a dictionary, then
+  iterate over the dictionary adding the string keys for those widgets
+  which are derived from QPushButton, into a list.
 
   \sa QDict, \link collection.html Collection Classes\endlink
 */
@@ -481,5 +497,3 @@ for ( ; it.current(); ++it )
   If that item is beyond the last item or if the dictionary is empty,
   it sets the current item to 0 and returns 0.
 */
-
-

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qintdict.h#31 $
+** $Id: //depot/qt/main/src/tools/qintdict.h#32 $
 **
 ** Definition of QIntDict template class
 **
@@ -42,8 +42,13 @@
 #include "qgdict.h"
 #endif // QT_H
 
-
-template<class type> class Q_EXPORT QIntDict : public QGDict
+template<class type>
+class Q_EXPORT QIntDict
+#ifdef Q_QDOC
+	: public QPtrCollection
+#else
+	: public QGDict
+#endif
 {
 public:
     QIntDict(int size=17) : QGDict(size,IntKey,0,0) {}
@@ -67,11 +72,19 @@ public:
     void  clear()			{ QGDict::clear(); }
     void  resize( uint n )		{ QGDict::resize(n); }
     void  statistics() const		{ QGDict::statistics(); }
+
+#ifdef Q_QDOC
+protected:
+    virtual QDataStream& read( QDataStream &, QPtrCollection::Item & );
+    virtual QDataStream& write( QDataStream &, QPtrCollection::Item ) const;
+#endif
+
 private:
     void  deleteItem( Item d );
 };
 
-template<class type> inline void QIntDict<type>::deleteItem( QPtrCollection::Item d )
+template<class type>
+inline void QIntDict<type>::deleteItem( QPtrCollection::Item d )
 {
     if ( del_item ) operator delete( (type*)d );
 }
@@ -91,6 +104,5 @@ public:
     type *operator++()	      { return (type *)QGDictIterator::operator++(); }
     type *operator+=(uint j)  { return (type *)QGDictIterator::operator+=(j);}
 };
-
 
 #endif // QINTDICT_H

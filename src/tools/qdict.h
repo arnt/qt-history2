@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdict.h#38 $
+** $Id: //depot/qt/main/src/tools/qdict.h#39 $
 **
 ** Definition of QDict template class
 **
@@ -42,14 +42,19 @@
 #include "qgdict.h"
 #endif // QT_H
 
-
-template<class type> class Q_EXPORT QDict : public QGDict
+template<class type>
+class Q_EXPORT QDict
+#ifdef Q_QDOC
+	: public QPtrCollection
+#else
+	: public QGDict
+#endif
 {
 public:
-    QDict(int size=17, bool caseSensitive=TRUE)
-	: QGDict(size,StringKey,caseSensitive,FALSE) {}
-    QDict( const QDict<type> &d ) : QGDict(d) {}
-   ~QDict()				{ clear(); }
+    QDict( int size = 17, bool caseSensitive = TRUE )
+	: QGDict( size, StringKey, caseSensitive, FALSE ) { }
+    QDict( const QDict<type> &d ) : QGDict( d ) { }
+    ~QDict()				{ clear(); }
     QDict<type> &operator=(const QDict<type> &d)
 			{ return (QDict<type>&)QGDict::operator=(d); }
     uint  count()   const		{ return QGDict::count(); }
@@ -70,21 +75,29 @@ public:
     void  clear()			{ QGDict::clear(); }
     void  resize( uint n )		{ QGDict::resize(n); }
     void  statistics() const		{ QGDict::statistics(); }
+
+#ifdef Q_QDOC
+protected:
+    virtual QDataStream& read( QDataStream &, QPtrCollection::Item & );
+    virtual QDataStream& write( QDataStream &, QPtrCollection::Item ) const;
+#endif
+
 private:
     void  deleteItem( Item d );
 };
 
-template<class type> inline void QDict<type>::deleteItem( QPtrCollection::Item d )
+template<class type>
+inline void QDict<type>::deleteItem( QPtrCollection::Item d )
 {
     if ( del_item ) operator delete( (type *)d );
 }
 
-
-template<class type> class Q_EXPORT QDictIterator : public QGDictIterator
+template<class type>
+class Q_EXPORT QDictIterator : public QGDictIterator
 {
 public:
-    QDictIterator(const QDict<type> &d) :QGDictIterator((QGDict &)d) {}
-   ~QDictIterator()	      {}
+    QDictIterator(const QDict<type> &d) : QGDictIterator((QGDict &)d) { }
+    ~QDictIterator()	      {}
     uint  count()   const     { return dict->count(); }
     bool  isEmpty() const     { return dict->count() == 0; }
     type *toFirst()	      { return (type *)QGDictIterator::toFirst(); }
@@ -94,8 +107,7 @@ public:
     QString currentKey() const{ return QGDictIterator::getKeyString(); }
     type *operator()()	      { return (type *)QGDictIterator::operator()(); }
     type *operator++()	      { return (type *)QGDictIterator::operator++(); }
-    type *operator+=(uint j)  { return (type *)QGDictIterator::operator+=(j);}
+    type *operator+=(uint j)  { return (type *)QGDictIterator::operator+=(j); }
 };
-
 
 #endif // QDICT_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#107 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#108 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -42,18 +42,20 @@
 #include <ctype.h>
 
 /*!
-  \class QGDict qgdict.h
+  \class QGDict
   \brief The QGDict class is an internal class for implementing QDict template classes.
+
+  \internal
 
   QGDict is a strictly internal class that acts as a base class for the
   \link collection.html collection classes\endlink QDict and QIntDict.
 
   QGDict has some virtual functions that can be reimplemented to customize
   the subclasses.
-  <ul>
-  <li> read() reads a collection/dictionary item from a QDataStream.
-  <li> write() writes a collection/dictionary item to a QDataStream.
-  </ul>
+  \list
+  \i read() reads a collection/dictionary item from a QDataStream.
+  \i write() writes a collection/dictionary item to a QDataStream.
+  \endlist
   Normally, you do not have to reimplement any of these functions.
 */
 
