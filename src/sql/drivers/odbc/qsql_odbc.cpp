@@ -57,6 +57,8 @@ public:
     SQLHANDLE hDbc;
     SQLHANDLE hStmt;
 
+    QSqlRecordInfo rInf;
+
     bool checkDriver() const;
 };
 
@@ -120,7 +122,7 @@ QVariant::Type qDecodeODBCType( SQLSMALLINT sqltype )
 //     case SQL_BINARY:
 //     case SQL_VARBINARY:
 //     case SQL_LONGVARBINARY:
-//	type = QSqlFieldInfo::Binary;
+//	type = QVariant::ByteArray;
 //	break;
     case SQL_DATE:
     case SQL_TYPE_DATE:
@@ -134,6 +136,11 @@ QVariant::Type qDecodeODBCType( SQLSMALLINT sqltype )
     case SQL_TYPE_TIMESTAMP:
 	type = QVariant::DateTime;
 	break;
+//    case SQL_WCHAR:
+//    case SQL_WVARCHAR:
+//    case SQL_WLONGVARCHAR:
+//	type = QVariant::String;
+//	break;
     default:
     case SQL_CHAR:
     case SQL_VARCHAR:
@@ -188,34 +195,13 @@ QSqlFieldInfo qMakeFieldInfo( const QODBCPrivate* p, int i  )
     			  (int)colType );
 }
 
-QString qGetStringData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndicator, bool& isNull )
+QString qGetStringData( SQLHANDLE hStmt, int column, int colSize, bool& isNull )
 {
-    QString fieldVal;
-    SQLSMALLINT colNameLen;
-    SQLSMALLINT colType;
-    SQLUINTEGER colSize;
-    SQLSMALLINT colScale;
-    SQLSMALLINT nullable;
-    SQLRETURN r = SQL_ERROR;
-    QString qColName;
+    QString     fieldVal;
+    SQLRETURN   r = SQL_ERROR;
+    SQLINTEGER  lengthIndicator = 0;
 
-    SQLCHAR colName[255];
-    r = SQLDescribeCol( hStmt,
-			column+1,
-			colName,
-			sizeof(colName),
-			&colNameLen,
-			&colType,
-			&colSize,
-			&colScale,
-			&nullable);
-    qColName = qstrdup( (const char*)colName );
-#ifdef QT_CHECK_RANGE
-    if ( r != SQL_SUCCESS )
-	qWarning( QString("qGetStringData: Unable to describe column %1").arg(column) );
-#endif
-    // SQLDescribeCol may return 0 if size cannot be determined
-    if (!colSize) {
+    if ( colSize <= 0 ) {
 	colSize = 255;
     }
     SQLCHAR* buf = new SQLTCHAR[ colSize + 1 ];
@@ -227,25 +213,19 @@ QString qGetStringData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndicator
 			colSize + 1,
 			&lengthIndicator );
 	if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) {
-	    if ( lengthIndicator == SQL_NO_TOTAL ){
-		fieldVal += QString( (char*)buf );  // keep going
+	    if ( lengthIndicator == SQL_NULL_DATA || lengthIndicator == SQL_NO_TOTAL ) {
+		fieldVal = QString::null;
+		isNull = TRUE;
+		break;
 	    }
-	    else if ( lengthIndicator == SQL_NULL_DATA ) {
-			fieldVal = QString::null;
-			isNull = TRUE;
-			break;
-	    } else {
-		if ( r == SQL_SUCCESS ) {
-		    fieldVal += QString( (char*)buf );
-		    break;
-		} else {
-		    if( (int)fieldVal.length() >= lengthIndicator ) // ### HACK - remove asap
-			break;
-		    fieldVal += QString( (char*)buf );
-		}
-	    }
+	    fieldVal += QString( (char*)buf );
+	} else if ( r == SQL_NO_DATA ) {
+	    break;
 	} else {
-	    fieldVal += QString::null;
+#ifdef QT_CHECK_RANGE
+	    qWarning( "qGetStringData: Error while fetching data (%d)", r );
+#endif
+	    fieldVal = QString::null;
 	    break;
 	}
     }
@@ -371,6 +351,7 @@ bool QODBCResult::reset ( const QString& query )
     setAt( QSql::BeforeFirst );
     SQLRETURN r;
 
+    d->rInf.clear();
     // If a statement handle exists - reuse it
     if ( d->hStmt ) {
 		r = SQLFreeStmt( d->hStmt, SQL_CLOSE );
@@ -410,7 +391,14 @@ bool QODBCResult::reset ( const QString& query )
     }
     SQLSMALLINT count;
     r = SQLNumResultCols( d->hStmt, &count );
-    setSelect( count != 0 );
+    if ( count ) {
+	setSelect( TRUE );
+	for ( int i = 0; i < count; ++i ) {
+	    d->rInf.append( qMakeFieldInfo( d, i ) );
+	}
+    } else {
+	setSelect( FALSE );
+    }
     setActive( TRUE );
     return TRUE;
 }
@@ -510,7 +498,7 @@ QVariant QODBCResult::data( int field )
     bool isNull = FALSE;
     int current = fieldCache.count();
     for ( ; current < (field + 1); ++current ) {
-	QSqlField info = qMakeField( d, current );
+	const QSqlFieldInfo info = d->rInf[ current ];
 	switch ( info.type() ) {
 	case QVariant::Int:
 	    isNull = FALSE;
@@ -584,7 +572,7 @@ QVariant QODBCResult::data( int field )
 	default:
 	case QVariant::String:
 	    isNull = FALSE;
-	    QString fieldVal = qGetStringData( d->hStmt, current, lengthIndicator, isNull );
+	    QString fieldVal = qGetStringData( d->hStmt, current, info.length(), isNull );
 	    fieldCache[ current ] = QVariant( fieldVal );
 	    nullCache[ current ] = isNull;
 	    break;
@@ -976,9 +964,8 @@ QStringList QODBCDriver::tables( const QString& /* user */ ) const
 			SQL_FETCH_NEXT,
 			0);
     while ( r == SQL_SUCCESS ) {
-	SQLINTEGER lengthIndicator = 0;
 	bool isNull;
-	QString fieldVal = qGetStringData( hStmt, 2, lengthIndicator, isNull ); // table name
+	QString fieldVal = qGetStringData( hStmt, 2, -1, isNull ); // table name
 	tl.append( fieldVal );
 	r = SQLFetchScroll( hStmt,
 			    SQL_FETCH_NEXT,
@@ -1028,10 +1015,9 @@ QSqlIndex QODBCDriver::primaryIndex( const QString& tablename ) const
 			0);
     // Store all fields in a StringList because some drivers can't detail fields in this FETCH loop
     while ( r == SQL_SUCCESS ) {
-	SQLINTEGER lengthIndicator = 0;
 	bool isNull;
-	QString cName = qGetStringData( hStmt, 3, lengthIndicator, isNull ); // column name
-	fMap[cName] = qGetStringData( hStmt, 5, lengthIndicator, isNull ); // pk index name
+	QString cName = qGetStringData( hStmt, 3, -1, isNull ); // column name
+	fMap[cName] = qGetStringData( hStmt, 5, -1, isNull ); // pk index name
 	r = SQLFetchScroll( hStmt,
 			    SQL_FETCH_NEXT,
 			    0);
@@ -1090,9 +1076,7 @@ QSqlRecord QODBCDriver::record( const QString& tablename ) const
     // Store all fields in a StringList because some drivers can't detail fields in this FETCH loop
     while ( r == SQL_SUCCESS ) {
 	bool isNull;
-	SQLINTEGER lengthIndicator(0);
-	fList += qGetStringData( hStmt, 3, lengthIndicator, isNull );
-	
+	fList += qGetStringData( hStmt, 3, -1, isNull );	
 	r = SQLFetchScroll( hStmt,
 			    SQL_FETCH_NEXT,
 			    0);
@@ -1178,9 +1162,7 @@ QSqlRecordInfo QODBCDriver::recordInfo( const QString& tablename ) const
     // Store all fields in a StringList because some drivers can't detail fields in this FETCH loop
     while ( r == SQL_SUCCESS ) {
 	bool isNull;
-	SQLINTEGER lengthIndicator(0);
-	fList += qGetStringData( hStmt, 3, lengthIndicator, isNull );
-	
+	fList += qGetStringData( hStmt, 3, -1, isNull );	
 	r = SQLFetchScroll( hStmt,
 			    SQL_FETCH_NEXT,
 			    0);
@@ -1209,19 +1191,7 @@ QSqlRecordInfo QODBCDriver::recordInfo( const QSqlQuery& query ) const
 	return fil;
     if ( query.isActive() && query.driver() == this ) {
 	QODBCResult* result = (QODBCResult*)query.result();
-	SQLRETURN r;
-	SQLSMALLINT count;
-	r = SQLNumResultCols( result->d->hStmt, &count );
-#ifdef QT_CHECK_RANGE
-	if ( r != SQL_SUCCESS )
-	    qSqlWarning( "QODBCDriver::record: Unable to count result columns", d );
-#endif
-	if ( count > 0 && r == SQL_SUCCESS ) {
-	    for ( int i = 0; i < count; ++i ) {
-		QSqlFieldInfo fi = qMakeFieldInfo( result->d, i );
-		fil.append( fi );
-	    }
-	}
+	fil = result->d->rInf;
     }
     return fil;
 }
