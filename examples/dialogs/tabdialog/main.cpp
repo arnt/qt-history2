@@ -5,7 +5,6 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-//    app.setDesktopSettingsAware(false);
     QString fileName;
 
     if (argc >= 2)
