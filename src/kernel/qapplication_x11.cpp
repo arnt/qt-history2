@@ -88,6 +88,10 @@ static int qt_thread_pipe[2];
 #include <bstring.h>
 #endif
 
+#if defined(_OS_AIX_)
+#include <strings.h>
+#endif
+
 #if defined(_OS_AIX_) && defined(_CC_GNU_)
 #include <sys/time.h>
 #include <sys/select.h>

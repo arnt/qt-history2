@@ -74,6 +74,7 @@ private:
     int		rescode;
     uint	did_move   : 1;
     uint	did_resize : 1;
+    uint 	in_loop: 1;
     QPushButton* mainDef;
 
 private:	// Disabled copy constructor and operator=

@@ -1632,7 +1632,7 @@ void QApplication::removeTranslator( QTranslator * mf )
 
 /*!
   If the literal quoted text in the program is not in the Latin1
-  encoding, this function can be used to set the appropriate encoding. 
+  encoding, this function can be used to set the appropriate encoding.
   For example, software developed by Korean programmers might use
   eucKR for all the text in the program, in which case main() would
   be:
@@ -1875,7 +1875,7 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 	    QResizeEvent e(newsize, oldsize);
 	    sendEvent( receiver, &e );
 	} else if ( event_type == QEvent::Paint ) {
-	    if ( receiver->isWidgetType() && 
+	    if ( receiver->isWidgetType() &&
 		 ((QWidget*)receiver)->isVisible() ) {
 		QWidget* w = (QWidget*)receiver;
 		if ( !erasePaintRegion.isEmpty() )
@@ -2080,7 +2080,7 @@ void QApplication::setActiveWindow( QWidget* act )
 /*!
   Returns the desktop widget (also called the root window).
 
-  The desktop widget is useful for obtaining the size of the screen. 
+  The desktop widget is useful for obtaining the size of the screen.
   It may also be possible to draw on the desktop. We recommend against
   assuming that it's possible to draw on the deskop, as it works on
   some machines and not on others.
@@ -2160,15 +2160,17 @@ int QApplication::enter_loop()
     app_exit_loop = old_app_exit_loop || quit_now;
     loop_level--;
 
-    if ( app_exit_loop && !loop_level )
+    if ( !loop_level ) {
+	quit_now = FALSE;
 	emit aboutToQuit();
+    }
 
     return 0;
 }
 
 
 /*!
-  This function leaves from a recursive call to the main event loop. 
+  This function leaves from a recursive call to the main event loop.
   Do not call it unless you are an expert.
 
   \sa enter_loop(), loopLevel()

@@ -101,7 +101,7 @@
 
   The \a f argument is the \link QWidget::QWidget() widget flags,
   \endlink which can be used to customize the window frame style.
-  
+
   If you e.g. don't want a What"s this button in the titlebar of the dialog,
   pass WStyle_Customize | WStyle_NormalBorder | WStyle_Title | WStyle_SysMenu
   here.
@@ -122,6 +122,7 @@ QDialog::QDialog( QWidget *parent, const char *name, bool modal, WFlags f )
     rescode = 0;
     did_move = FALSE;
     did_resize = FALSE;
+    in_loop = FALSE;
     mainDef = 0;
 }
 
@@ -416,8 +417,10 @@ void QDialog::show()
 	move( p );
     }
     QWidget::show();
-    if ( testWFlags(WType_Modal) )
+    if ( testWFlags(WType_Modal) && !in_loop ) {
+	in_loop = TRUE;
 	qApp->enter_loop();
+    }
 }
 
 /*!\reimp
@@ -425,10 +428,11 @@ void QDialog::show()
 void QDialog::hide()
 {
     // Reimplemented to exit a modal when the dialog is hidden.
-    bool ex = testWState(WState_Visible) && testWFlags(WType_Modal);
     QWidget::hide();
-    if ( ex )
+    if ( in_loop ) {
+	in_loop = FALSE;
 	qApp->exit_loop();
+    }
 }
 
 
