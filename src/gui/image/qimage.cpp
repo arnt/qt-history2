@@ -413,12 +413,18 @@ QImage::QImage()
     d = 0;
 }
 
+/*!
+    Constructs an image with \a width, \a height in format \a format.
+*/
 QImage::QImage(int width, int height, Format format)
     : QPaintDevice(QInternal::Image)
 {
     d = QImageData::create(QSize(width, height), format, 0);
 }
 
+/*!
+    Constructs an image with \a size in format \a format.
+*/
 QImage::QImage(const QSize &size, Format format)
     : QPaintDevice(QInternal::Image)
 {
@@ -2149,10 +2155,14 @@ static void qt_image_ARGB_PM_to_ARGB(QImageData *image)
 }
 
 
-QImage QImage::convertToFormat(Format f) const
+/*!
+    Converts the image to \a format and returns the
+    converted image. The original image is not changed.
+*/
+QImage QImage::convertToFormat(Format format) const
 {
     QImage image = *this;
-    if (d->format == f)
+    if (d->format == format)
         return image;
 
     if (d->format == Format_ARGB32_Premultiplied) {
@@ -2161,7 +2171,7 @@ QImage QImage::convertToFormat(Format f) const
     }
 
     int depth;
-    switch(f) {
+    switch(format) {
     case Format_Mono:
     case Format_MonoLSB:
         depth = 1;
@@ -2174,7 +2184,7 @@ QImage QImage::convertToFormat(Format f) const
     }
     image = image.convertDepth(depth);
 
-    if (f == Format_ARGB32_Premultiplied) {
+    if (format == Format_ARGB32_Premultiplied) {
         image.detach();
         qt_image_ARGB_to_ARGB_PM(image.d);
     }
