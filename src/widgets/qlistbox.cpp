@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#295 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#296 $
 **
 ** Implementation of QListBox widget class
 **
@@ -175,6 +175,25 @@ QListBoxItem::QListBoxItem( QListBox* listbox )
 }
 
 /*!
+  Constructs an empty list box item in the listbox \a listbox and
+  inserts it after the item \a after.
+*/
+
+QListBoxItem::QListBoxItem( QListBox* listbox, QListBoxItem *after )
+{
+    lbox = listbox;
+    s = FALSE;
+    dirty = TRUE;
+    p = n = 0;
+
+    // just something that'll look noticeable in the debugger
+    x = y = 42;
+
+    if (listbox)
+	listbox->insertItem( this, after );
+}
+
+/*!
   Destroys the list box item.
 */
 
@@ -286,6 +305,17 @@ QListBoxText::QListBoxText( const QString &text )
 }
 
 /*!
+  Constructs a list box item in listbox \a listtbox showing the text \a text. The
+  item gets inserted after the item \a after.
+*/
+
+QListBoxText::QListBoxText( QListBox* listbox, const QString &text, QListBoxItem *after )
+    : QListBoxItem( listbox, after )
+{
+    setText( text );
+}
+
+/*!
   Destroys the item.
 */
 
@@ -350,6 +380,17 @@ QListBoxPixmap::QListBoxPixmap( QListBox* listbox, const QPixmap &pixmap )
 
 QListBoxPixmap::QListBoxPixmap( const QPixmap &pixmap )
     : QListBoxItem()
+{
+    pm = pixmap;
+}
+
+/*!
+  Creates a new list box item in listbox \a listbox showing the pixmap \a pixmap. The item
+  gets inserted after the item \a after.
+*/
+
+QListBoxPixmap::QListBoxPixmap( QListBox* listbox, const QPixmap &pixmap, QListBoxItem *after )
+    : QListBoxItem( listbox, after )
 {
     pm = pixmap;
 }
@@ -865,6 +906,42 @@ void QListBox::insertItem( const QListBoxItem *lbi, int index )
 	    i->n = item;
 	    item->p = i;
 	    item->n = 0;
+	}
+    }
+    d->count++;
+    triggerUpdate( TRUE );
+}
+
+void QListBox::insertItem( const QListBoxItem *lbi, const QListBoxItem *after )
+{
+#if defined ( CHECK_NULL )
+    ASSERT( lbi != 0 );
+#else
+    if ( !lbi )
+	return;
+#endif
+
+    QListBoxItem * item = (QListBoxItem*)lbi;
+    item->lbox = this;
+    if ( !d->head || !after ) {
+	item->n = d->head;
+	item->p = 0;
+	d->head = item;
+	item->dirty = TRUE;
+	if ( item->n )
+	    item->n->p = item;
+    } else {
+	QListBoxItem * i = d->head;
+	while ( i && i != after )
+	    i = i->n;
+	
+	if ( i ) {
+	    item->n = i->n;
+	    item->p = i;
+	    if ( item->n )
+		item->n->p = item;
+	    if ( item->p )
+		item->p->n = item;
 	}
     }
     d->count++;

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#98 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#99 $
 **
 ** Definition of QListBox widget class
 **
@@ -58,6 +58,7 @@ public:
 			int numStrings=-1, int index=-1 );
 
     void insertItem( const QListBoxItem *, int index=-1 );
+    void insertItem( const QListBoxItem *, const QListBoxItem *after );
     void insertItem( const QString &text, int index=-1 );
     void insertItem( const QPixmap &pixmap, int index=-1 );
 
@@ -180,7 +181,7 @@ signals:
     void clicked( int index );
     void clicked( const QString & );
     void clicked( QListBoxItem * );
-    
+
 protected:
     void viewportMousePressEvent( QMouseEvent * );
     void viewportMouseReleaseEvent( QMouseEvent * );
@@ -247,6 +248,7 @@ class Q_EXPORT QListBoxItem
 {
 public:
     QListBoxItem( QListBox* listbox = 0);
+    QListBoxItem( QListBox* listbox, QListBoxItem *after);
     virtual ~QListBoxItem();
 
     virtual QString text() const;
@@ -285,6 +287,7 @@ class Q_EXPORT QListBoxText : public QListBoxItem
 public:
     QListBoxText( QListBox* listbox, const QString & text=QString::null );
     QListBoxText( const QString & text=QString::null );
+    QListBoxText( QListBox* listbox, const QString & text, QListBoxItem *after );
    ~QListBoxText();
 
     int	 height( const QListBox * ) const;
@@ -306,6 +309,7 @@ class Q_EXPORT QListBoxPixmap : public QListBoxItem
 public:
     QListBoxPixmap( QListBox* listbox, const QPixmap & );
     QListBoxPixmap( const QPixmap & );
+    QListBoxPixmap( QListBox* listbox, const QPixmap & pix, QListBoxItem *after );
    ~QListBoxPixmap();
 
     const QPixmap *pixmap() const { return &pm; }
