@@ -1829,8 +1829,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	//finally send the event to the widget if its not the popup
 	if ( widget && widget != popupwidget ) {
 	    if(ekind == kEventMouseDown || ekind == kEventMouseWheelMoved) {
-		if(popupwidget) //guess we hide the popup...
-		    popupwidget->hide();
+		if(popupwidget) //guess we close the popup...
+		    popupwidget->close();
 
 		QWidget* w = widget;
 		while ( w->focusProxy() )

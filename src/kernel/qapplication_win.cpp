@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#551 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#552 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2106,7 +2106,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		    int maxiter = 1024;
 		    QWidget *popup;
 		    while ( (popup=QApplication::activePopupWidget()) && maxiter-- )
-			popup->hide();
+			popup->close();
 		}
 		qApp->winFocus( widget, LOWORD(wParam) == WA_INACTIVE ? 0 : 1 );
 		break;
@@ -3526,7 +3526,7 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
     {
 	QWidget* popup = qApp->activePopupWidget();
 	if ( popup && w != popup )
-	    popup->hide();
+	    popup->close();
 	QWheelEvent e( w->mapFromGlobal( globalPos ), globalPos, delta, state, (state&AltButton)?Horizontal:Vertical  );
 	if ( QApplication::sendSpontaneousEvent( w, &e ) )
 	    return TRUE;
@@ -3536,7 +3536,7 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
     if ( w != qApp->focusWidget() && ( w = qApp->focusWidget() ) ) {
 	QWidget* popup = qApp->activePopupWidget();
 	if ( popup && w != popup )
-	    popup->hide();
+	    popup->close();
 	QWheelEvent e( w->mapFromGlobal( globalPos ), globalPos, delta, state, (state&AltButton)?Horizontal:Vertical  );
 	if ( QApplication::sendSpontaneousEvent( w, &e ) )
 	    return TRUE;
