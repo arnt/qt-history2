@@ -14,6 +14,8 @@ class QPainter;
 class QAbstractTextDocumentLayout;
 class QPoint;
 class QTextCursor;
+class QTextObject;
+class QTextFormat;
 
 namespace QText
 {
@@ -42,6 +44,7 @@ class Q_GUI_EXPORT QTextDocument : public QObject
     Q_PROPERTY(bool undoRedoEnabled READ isUndoRedoEnabled WRITE setUndoRedoEnabled)
     friend class QTextEditor; // ####
     friend class QTextCursor;
+    friend class QTextPieceTable;
 public:
     QTextDocument(QObject *parent = 0);
     QTextDocument(const QString &text, QObject *parent = 0);
@@ -83,6 +86,10 @@ public slots:
     void undo();
     void redo();
     void appendUndoItem(QAbstractUndoItem *);
+
+
+protected:
+    virtual QTextObject *createObject(const QTextFormat &f);
 
 private:
     void undoRedo(bool undo);

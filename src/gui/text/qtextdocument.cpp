@@ -3,6 +3,8 @@
 #include <qtextformat.h>
 #include "qtextdocumentlayout_p.h"
 #include "qtextdocumentfragment.h"
+#include "qtexttable.h"
+#include "qtextlist.h"
 #include <qdebug.h>
 
 #include "qtextdocument_p.h"
@@ -357,5 +359,20 @@ QTextCursor QTextDocument::find(const QString &expr, const QTextCursor &from, St
 {
     const int pos = (from.isNull() ? 0 : from.selectionEnd());
     return find(expr, pos, flags);
+}
+
+
+
+QTextObject *QTextDocument::createObject(const QTextFormat &f)
+{
+    QTextObject *obj = 0;
+    if (f.isListFormat())
+        obj = new QTextList(this);
+    else if (f.isTableFormat())
+        obj = new QTextTable(this);
+    else if (f.isFrameFormat())
+        obj = new QTextFrame(this);
+
+    return obj;
 }
 

@@ -499,11 +499,9 @@ class QTextFrame : public QTextObject
     friend class QTextPieceTable;
     friend class QTextFormatCollection;
 
-protected:
+public:
     QTextFrame(QTextDocument *doc);
     ~QTextFrame();
-    QTextFrame(QTextFramePrivate &p, QTextDocument *doc);
-public:
 
     void setFormat(const QTextFrameFormat &format) { QTextObject::setFormat(format); }
     QTextFrameFormat format() const { return QTextObject::format().toFrameFormat(); }
@@ -518,6 +516,9 @@ public:
 
     QList<QTextFrame *> children();
     QTextFrame *parent();
+
+protected:
+    QTextFrame(QTextFramePrivate &p, QTextDocument *doc);
 };
 
 

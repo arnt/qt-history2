@@ -1030,20 +1030,13 @@ QTextObject *QTextPieceTable::objectForFormat(const QTextFormat &f) const
 
 QTextObject *QTextPieceTable::createObject(const QTextFormat &f, int objectIndex)
 {
-    QTextObject *obj;
-    if (f.isListFormat())
-        obj = new QTextList(doc);
-    else if (f.isTableFormat())
-        obj = new QTextTable(doc);
-    else if (f.isFrameFormat())
-        obj = new QTextFrame(doc);
-    else
-        obj = new QTextObject(doc);
+    QTextObject *obj = doc->createObject(f);
 
-    obj->d_func()->pieceTable = this;
-    obj->d_func()->objectIndex = objectIndex == -1 ? formats.createObjectIndex(f) : objectIndex;
-
-    objects[obj->d_func()->objectIndex] = obj;
+    if (obj) {
+        obj->d_func()->pieceTable = this;
+        obj->d_func()->objectIndex = objectIndex == -1 ? formats.createObjectIndex(f) : objectIndex;
+        objects[obj->d_func()->objectIndex] = obj;
+    }
 
     return obj;
 }
