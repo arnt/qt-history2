@@ -14,12 +14,13 @@
 
 #include "qframe.h"
 #ifndef QT_NO_FRAME
-#include "qpainter.h"
-#include "qdrawutil.h"
-#include "qframe.h"
 #include "qbitmap.h"
-#include "qstyle.h"
+#include "qdrawutil.h"
 #include "qevent.h"
+#include "qframe.h"
+#include "qpainter.h"
+#include "qstyle.h"
+#include "qstyleoption.h"
 
 #include "qframe_p.h"
 #define d d_func()
@@ -463,13 +464,14 @@ void QFrame::paintEvent(QPaintEvent *)
 void QFrame::drawFrame(QPainter *p)
 {
     QPoint      p1, p2;
-    QRect       r     = frameRect();
+    Q4StyleOptionFrame opt(0);
     int frameShape  = d->frameStyle & QFrame::MShape;
     int frameShadow = d->frameStyle & QFrame::MShadow;
-    const QPalette &pal = palette();
 
     int lw = 0;
     int mlw = 0;
+    opt.rect = frameRect();
+    opt.palette = palette();
     switch (frameShape) {
     case QFrame::Box:
     case QFrame::HLine:
@@ -484,121 +486,124 @@ void QFrame::drawFrame(QPainter *p)
         lw = d->frameWidth;
         break;
     }
-
-    QStyleOption opt(lw, mlw);
-    QStyle::SFlags flags = QStyle::Style_Default;
+    opt.lineWidth = lw;
+    opt.midLineWidth = mlw;
+    opt.state = QStyle::Style_Default;
     if (isEnabled())
-        flags |= QStyle::Style_Enabled;
+        opt.state |= QStyle::Style_Enabled;
     if (frameShadow == Sunken)
-        flags |= QStyle::Style_Sunken;
+        opt.state |= QStyle::Style_Sunken;
     else if (frameShadow == Raised)
-        flags |= QStyle::Style_Raised;
+        opt.state |= QStyle::Style_Raised;
     if (hasFocus())
-        flags |= QStyle::Style_HasFocus;
+        opt.state |= QStyle::Style_HasFocus;
     if (testAttribute(WA_UnderMouse))
-        flags |= QStyle::Style_MouseOver;
+        opt.state |= QStyle::Style_MouseOver;
 
     switch (frameShape) {
-
     case Box:
         if (frameShadow == Plain)
-            qDrawPlainRect(p, r, pal.foreground(), lw);
+            qDrawPlainRect(p, opt.rect, opt.palette.foreground(), lw);
         else
-            qDrawShadeRect(p, r, pal, frameShadow == Sunken, lw, mlw);
+            qDrawShadeRect(p, opt.rect, opt.palette, frameShadow == Sunken, lw, mlw);
         break;
 
     case LineEditPanel:
-        style().drawPrimitive(QStyle::PE_PanelLineEdit, p, r, pal, flags, opt);
+        style().drawPrimitive(QStyle::PE_PanelLineEdit, &opt, p, this);
         break;
 
     case GroupBoxPanel:
-        style().drawPrimitive(QStyle::PE_PanelGroupBox, p, r, pal, flags, opt);
+        style().drawPrimitive(QStyle::PE_PanelGroupBox, &opt, p, this);
         break;
 
     case TabWidgetPanel:
-        style().drawPrimitive(QStyle::PE_PanelTabWidget, p, r, pal, flags, opt);
+        style().drawPrimitive(QStyle::PE_PanelTabWidget, &opt, p, this);
         break;
 
     case MenuBarPanel:
-        style().drawPrimitive(QStyle::PE_PanelMenuBar, p, r, pal, flags, opt);
+        style().drawPrimitive(QStyle::PE_PanelMenuBar, &opt, p, this);
         break;
     case ToolBarPanel:
-        style().drawPrimitive(QStyle::PE_PanelDockWindow, p, rect(), pal, flags, opt);
+        opt.rect = rect();
+        style().drawPrimitive(QStyle::PE_PanelDockWindow, &opt, p, this);
         break;
 
     case StyledPanel:
         if (frameShadow == Plain)
-            qDrawPlainRect(p, r, pal.foreground(), lw);
+            qDrawPlainRect(p, opt.rect, opt.palette.foreground(), lw);
         else
-            style().drawPrimitive(QStyle::PE_Panel, p, r, pal, flags, opt);
+            style().drawPrimitive(QStyle::PE_Panel, &opt, p, this);
         break;
 
     case PopupPanel:
     {
         int vmargin = style().pixelMetric(QStyle::PM_MenuVMargin, this),
             hmargin = style().pixelMetric(QStyle::PM_MenuHMargin, this);
-        if(vmargin > 0 || hmargin > 0) {
+        if (vmargin > 0 || hmargin > 0) {
+            Q4StyleOptionMenuItem menuOpt(0);
+            menuOpt.palette = opt.palette;
+            menuOpt.state = opt.state;
+            menuOpt.menuItemType = Q4StyleOptionMenuItem::Margin;
+            menuOpt.checkState = Q4StyleOptionMenuItem::NotCheckable;
+            menuOpt.maxIconWidth = lw;
+            menuOpt.tabWidth = mlw;
             QRect fr = frameRect();
             int   fw = d->frameWidth;
-            if(vmargin > 0) {
-                style().drawControl(QStyle::CE_MenuVMargin, p, this,
-                                    QRect(fr.x() + fw, fr.y() + fw, fr.width() - (fw*2), vmargin),
-                                    pal, flags, opt);
-                style().drawControl(QStyle::CE_MenuVMargin, p, this,
-                                    QRect(fr.x() + fw, fr.bottom() - fw - vmargin, fr.width() - (fw*2), vmargin),
-                                    pal, flags, opt);
+            if (vmargin > 0) {
+                menuOpt.rect.setRect(fr.x() + fw, fr.y() + fw, fr.width() - (fw*2), vmargin);
+                style().drawControl(QStyle::CE_MenuVMargin, &menuOpt, p, this);
+                menuOpt.rect.setRect(fr.x() + fw, fr.bottom() - fw - vmargin, fr.width() - (fw*2),
+                                     vmargin);
+                style().drawControl(QStyle::CE_MenuVMargin, &menuOpt, p, this);
             }
-            if(hmargin > 0) {
-                style().drawControl(QStyle::CE_MenuHMargin, p, this,
-                                    QRect(fr.x() + fw, fr.y() + fw + vmargin, hmargin, fr.height() - (fw*2) - vmargin),
-                                    pal, flags, opt);
-                style().drawControl(QStyle::CE_MenuHMargin, p, this,
-                                    QRect(fr.right() - fw - hmargin, fr.y() + fw + vmargin, hmargin, fr.height() - (fw*2) - vmargin),
-                                    pal, flags, opt);
+            if (hmargin > 0) {
+                menuOpt.rect.setRect(fr.x() + fw, fr.y() + fw + vmargin, hmargin,
+                                     fr.height() - (fw * 2) - vmargin);
+                style().drawControl(QStyle::CE_MenuHMargin, &menuOpt, p, this);
+                menuOpt.rect.setRect(fr.right() - fw - hmargin, fr.y() + fw + vmargin, hmargin,
+                                     fr.height() - (fw * 2) - vmargin);
+                style().drawControl(QStyle::CE_MenuHMargin, &opt, p, this);
             }
         }
-
         if (frameShadow == Plain)
-            qDrawPlainRect(p, r, pal.foreground(), lw);
+            qDrawPlainRect(p, opt.rect, opt.palette.foreground(), lw);
         else
-            style().drawPrimitive(QStyle::PE_PanelPopup, p, r, pal, flags, opt);
+            style().drawPrimitive(QStyle::PE_PanelPopup, &opt, p, this);
         break;
     }
 
     case Panel:
         if (frameShadow == Plain)
-            qDrawPlainRect(p, r, pal.foreground(), lw);
+            qDrawPlainRect(p, opt.rect, opt.palette.foreground(), lw);
         else
-            qDrawShadePanel(p, r, pal, frameShadow == Sunken, lw);
+            qDrawShadePanel(p, opt.rect, opt.palette, frameShadow == Sunken, lw);
         break;
 
     case WinPanel:
         if (frameShadow == Plain)
-            qDrawPlainRect(p, r, pal.foreground(), lw);
+            qDrawPlainRect(p, opt.rect, opt.palette.foreground(), lw);
         else
-            qDrawWinPanel(p, r, pal, frameShadow == Sunken);
+            qDrawWinPanel(p, opt.rect, opt.palette, frameShadow == Sunken);
         break;
     case HLine:
     case VLine:
         if (frameShape == HLine) {
-            p1 = QPoint(r.x(), r.height()/2);
-            p2 = QPoint(r.x()+r.width(), p1.y());
-        }
-        else {
-            p1 = QPoint(r.x()+r.width()/2, 0);
-            p2 = QPoint(p1.x(), r.height());
+            p1 = QPoint(opt.rect.x(), opt.rect.height() / 2);
+            p2 = QPoint(opt.rect.x() + opt.rect.width(), p1.y());
+        } else {
+            p1 = QPoint(opt.rect.x()+opt.rect.width() / 2, 0);
+            p2 = QPoint(p1.x(), opt.rect.height());
         }
         if (frameShadow == Plain) {
             QPen oldPen = p->pen();
-            p->setPen(QPen(pal.foreground(),lw));
+            p->setPen(QPen(opt.palette.foreground(), lw));
             p->drawLine(p1, p2);
             p->setPen(oldPen);
+        } else {
+            qDrawShadeLine(p, p1, p2, opt.palette, frameShadow == Sunken, lw, mlw);
         }
-        else
-            qDrawShadeLine(p, p1, p2, pal, frameShadow == Sunken, lw, mlw);
         break;
     }
-
 }
 
 

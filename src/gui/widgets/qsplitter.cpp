@@ -89,11 +89,10 @@ QSplitterHandle::QSplitterHandle(Orientation o, QSplitter *parent,
 QSize QSplitterHandle::sizeHint() const
 {
     int hw = s->handleWidth();
-    Q4StyleOptionFrame opt(0);
+    Q4StyleOption opt(0, Q4StyleOption::Default);
     opt.rect = s->rect();
     opt.palette = s->palette();
     opt.state = QStyle::Style_Default;
-    opt.lineWidth = 0;
     return parentWidget()->style().sizeFromContents(QStyle::CT_Splitter, &opt, QSize(hw, hw),
                                                     s->fontMetrics(), s)
                                                     .expandedTo(QApplication::globalStrut());

@@ -562,6 +562,7 @@ void QMenuBar::paintEvent(QPaintEvent *e)
         frame.palette = palette();
         frame.state = QStyle::Style_Default;
         frame.lineWidth = style().pixelMetric(QStyle::PM_MenuBarFrameWidth);
+        frame.midLineWidth = 0;
         style().drawPrimitive(QStyle::PE_MenuBarFrame, &frame, &p, this);
     }
     p.setClipRegion(emptyArea);

@@ -161,14 +161,6 @@ static void getSliderInfo(QStyle::ComplexControl cc, const Q4StyleOptionSlider *
             tdi->trackInfo.slider.thumbDir = kThemeThumbDownward;
     }
 }
-//utility to figure out the size (from the painter)
-static QAquaWidgetSize qt_mac_get_size_for_painter(QPainter *p)
-{
-    if (p && p->device()->devType() == QInternal::Widget)
-        return qt_aqua_size_constrain((QWidget*)p->device());
-    return qt_aqua_size_constrain(0);
-}
-
 class QMacStyleCGFocusWidget : public QAquaFocusWidget
 {
 public:
@@ -354,142 +346,6 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r
 {
     ThemeDrawState tds = d->getDrawState(flags, pal);
     switch (pe) {
-    case PE_CheckListController:
-        break;
-    case PE_CheckListExclusiveIndicator:
-    case PE_ExclusiveIndicatorMask:
-    case PE_ExclusiveIndicator: {
-        HIThemeButtonDrawInfo info;
-        info.version = qt_mac_hitheme_version;
-        info.state = tds;
-        switch (qt_mac_get_size_for_painter(p)) {
-        case QAquaSizeUnknown:
-        case QAquaSizeLarge:
-            info.kind = kThemeRadioButton;
-            break;
-        case QAquaSizeMini:
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
-                info.kind = kThemeMiniRadioButton;
-                break;
-            }
-#endif
-        case QAquaSizeSmall:
-            info.kind = kThemeSmallRadioButton;
-            break;
-        }
-        info.value = (flags & Style_On) ? kThemeButtonOn : kThemeButtonOff;
-        info.adornment = kThemeAdornmentNone;
-        const HIRect *mac_r = qt_glb_mac_rect(r, p);
-        if (pe == PE_ExclusiveIndicatorMask) {
-            QRegion saveRegion = p->clipRegion();
-            QCFType<HIShapeRef> shape;
-            HIThemeGetButtonShape(mac_r, &info, &shape);
-            p->setClipRegion(qt_mac_convert_mac_region(shape));
-            p->fillRect(r, color1);
-            p->setClipRegion(saveRegion);
-        } else {
-            HIThemeDrawButton(mac_r, &info, static_cast<CGContextRef>(p->handle()),
-                              kHIThemeOrientationNormal, 0);
-        }
-        break; }
-    case PE_CheckListIndicator:
-    case PE_IndicatorMask:
-    case PE_Indicator: {
-        HIThemeButtonDrawInfo info;
-        info.version = qt_mac_hitheme_version;
-        info.state = tds;
-        switch (qt_mac_get_size_for_painter(p)) {
-        case QAquaSizeUnknown:
-        case QAquaSizeLarge:
-            info.kind = kThemeCheckBox;
-            break;
-        case QAquaSizeMini:
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
-                info.kind = kThemeMiniCheckBox;
-                break;
-            }
-#endif
-        case QAquaSizeSmall:
-            info.kind = kThemeSmallCheckBox;
-            break;
-        }
-        if (flags & Style_NoChange)
-            info.value = kThemeButtonMixed;
-        else if (flags & Style_On)
-            info.value = kThemeButtonOn;
-        else
-            info.value = kThemeButtonOff;
-        info.adornment = kThemeAdornmentNone;
-        const HIRect *mac_r = qt_glb_mac_rect(r, p);
-        if (pe == PE_IndicatorMask) {
-            QRegion saveRegion = p->clipRegion();
-            QCFType<HIShapeRef> shape;
-            HIThemeGetButtonShape(mac_r, &info, &shape);
-            p->setClipRegion(qt_mac_convert_mac_region(shape));
-            p->fillRect(r, color1);
-            p->setClipRegion(saveRegion);
-        } else {
-            HIThemeDrawButton(mac_r, &info, static_cast<CGContextRef>(p->handle()),
-                              kHIThemeOrientationNormal, 0);
-        }
-        break; }
-    case PE_FocusRect:
-        break;     //This is not used because of the QAquaFocusWidget thingie..
-    case PE_Splitter: {
-        HIThemeSplitterDrawInfo sdi;
-        sdi.version = qt_mac_hitheme_version;
-        sdi.state = tds;
-        sdi.adornment = qt_mac_is_metal(p) ? kHIThemeSplitterAdornmentMetal
-                                           : kHIThemeSplitterAdornmentNone;
-        HIThemeDrawPaneSplitter(qt_glb_mac_rect(r, p), &sdi, static_cast<CGContextRef>(p->handle()),
-                                kHIThemeOrientationNormal);
-        break; }
-    case PE_ArrowUp:
-    case PE_ArrowDown:
-    case PE_ArrowRight:
-    case PE_ArrowLeft: {
-        HIThemePopupArrowDrawInfo info;
-        info.version = qt_mac_hitheme_version;
-        info.state = tds;
-        switch (pe) {
-        case PE_ArrowUp:
-            info.orientation = kThemeArrowUp;
-            break;
-        case PE_ArrowDown:
-            info.orientation = kThemeArrowDown;
-            break;
-        case PE_ArrowRight:
-            info.orientation = kThemeArrowRight;
-            break;
-        case PE_ArrowLeft:
-            info.orientation = kThemeArrowLeft;
-            break;
-        default:     // Stupid compiler _should_ know better.
-            break;
-        }
-        if (r.width() < 8)
-            info.size = kThemeArrow5pt;
-        else
-            info.size = kThemeArrow9pt;
-        HIThemeDrawPopupArrow(qt_glb_mac_rect(r, p), &info, static_cast<CGContextRef>(p->handle()),
-                              kHIThemeOrientationNormal);
-        break; }
-    case PE_TreeBranch: {
-        if (!(flags & Style_Children))
-            break;
-        HIThemeButtonDrawInfo bi;
-        bi.version = qt_mac_hitheme_version;
-        bi.state = flags & Style_Enabled ? kThemeStateActive : kThemeStateInactive;
-        if (flags & Style_Down)
-            bi.state |= kThemeStatePressed;
-        bi.kind = kThemeDisclosureButton;
-        bi.value = flags & Style_Open ? kThemeDisclosureDown : kThemeDisclosureRight;
-        bi.adornment = kThemeAdornmentNone;
-        HIThemeDrawButton(qt_glb_mac_rect(r, p), &bi, static_cast<CGContextRef>(p->handle()),
-                          kHIThemeOrientationNormal, 0);
-        break; }
     case PE_TabBarBase: {
         HIThemeTabPaneDrawInfo tpdi;
         tpdi.version = qt_mac_hitheme_version;
@@ -501,47 +357,6 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r
         HIThemeDrawTabPane(qt_glb_mac_rect(r, p), &tpdi, static_cast<CGContextRef>(p->handle()),
                            kHIThemeOrientationNormal);
         break; }
-    case PE_PanelGroupBox: {
-        if (opt.isDefault())
-            break;
-        HIThemeGroupBoxDrawInfo gdi;
-        gdi.version = qt_mac_hitheme_version;
-        gdi.state = tds;
-        QWidget *w = qt_abuse_painter_for_widget(p);
-        if (w && ::qt_cast<QGroupBox *>(w->parentWidget()))
-            gdi.kind = kHIThemeGroupBoxKindSecondary;
-        else
-            gdi.kind = kHIThemeGroupBoxKindPrimary;
-        HIThemeDrawGroupBox(qt_glb_mac_rect(r, p), &gdi, static_cast<CGContextRef>(p->handle()),
-                            kHIThemeOrientationNormal);
-        break; }
-    case PE_Panel:
-    case PE_PanelLineEdit:
-        if (flags & Style_Sunken) {
-            HIThemeFrameDrawInfo fdi;
-            fdi.version = qt_mac_hitheme_version;
-            fdi.state = tds;
-
-            SInt32 frame_size;
-            if (pe == PE_PanelLineEdit) {
-                fdi.kind = kHIThemeFrameTextFieldSquare;
-                GetThemeMetric(kThemeMetricEditTextFrameOutset, &frame_size);
-            } else {
-                fdi.kind = kHIThemeFrameListBox;
-                GetThemeMetric(kThemeMetricListBoxFrameOutset, &frame_size);
-            }
-            int lw = opt.isDefault() ? pixelMetric(PM_DefaultFrameWidth, 0) : opt.lineWidth();
-            p->fillRect(r.x(), r.y(), lw, r.height(), pal.background());
-            p->fillRect(r.right() - lw + 1, r.y(), lw, r.height(), pal.background());
-            p->fillRect(r.x(), r.y(), r.width(), lw, pal.background());
-            p->fillRect(r.x(), r.bottom() - lw + 1, r.width(), lw, pal.background());
-            const HIRect *rect = qt_glb_mac_rect(r, p, false, QRect(frame_size, frame_size,
-                                                                    frame_size * 2, frame_size * 2));
-            HIThemeDrawFrame(rect, &fdi, static_cast<CGContextRef>(p->handle()),
-                             kHIThemeOrientationNormal);
-            break;
-        }
-        // Fall through!
     default:
         QWindowsStyle::drawPrimitive(pe, p, r, pal, flags, opt);
         break;
@@ -1047,6 +862,9 @@ int QMacStyleCG::pixelMetric(PixelMetric metric, const QWidget *widget) const
     case PM_MenuScrollerHeight:
         ret = 15;
         break;
+    case PM_MenuVMargin:
+        ret = 4;
+        break;
     case PM_TitleBarHeight: {
         /*
         if (!widget)
@@ -1407,20 +1225,20 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
         pdi.version = qt_mac_hitheme_version;
         pdi.state = tds;
         switch (pe) {
-            case PE_ArrowUp:
-                pdi.orientation = kThemeArrowUp;
-                break;
-            case PE_ArrowDown:
-                pdi.orientation = kThemeArrowDown;
-                break;
-            case PE_ArrowRight:
-                pdi.orientation = kThemeArrowRight;
-                break;
-            case PE_ArrowLeft:
-                pdi.orientation = kThemeArrowLeft;
-                break;
-            default:     // Stupid compiler _should_ know better.
-                break;
+        case PE_ArrowUp:
+            pdi.orientation = kThemeArrowUp;
+            break;
+        case PE_ArrowDown:
+            pdi.orientation = kThemeArrowDown;
+            break;
+        case PE_ArrowRight:
+            pdi.orientation = kThemeArrowRight;
+            break;
+        case PE_ArrowLeft:
+            pdi.orientation = kThemeArrowLeft;
+            break;
+        default:     // Stupid compiler _should_ know better.
+            break;
         }
         if (opt->rect.width() < 8)
             pdi.size = kThemeArrow5pt;
@@ -1526,6 +1344,56 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
                               kHIThemeOrientationNormal, 0);
         }
         break;
+    case PE_PanelGroupBox:
+        if (const Q4StyleOptionFrame *frame = qt_cast<const Q4StyleOptionFrame *>(opt)) {
+            HIThemeGroupBoxDrawInfo gdi;
+            gdi.version = qt_mac_hitheme_version;
+            gdi.state = tds;
+            if (w && ::qt_cast<QGroupBox *>(w->parentWidget()))
+                gdi.kind = kHIThemeGroupBoxKindSecondary;
+            else
+                gdi.kind = kHIThemeGroupBoxKindPrimary;
+            HIRect hirect = qt_hirectForQRect(frame->rect, p);
+            HIThemeDrawGroupBox(&hirect, &gdi, static_cast<CGContextRef>(p->handle()),
+                                kHIThemeOrientationNormal);
+        }
+        break;
+    case PE_Panel:
+    case PE_PanelLineEdit:
+        if (const Q4StyleOptionFrame *frame = qt_cast<const Q4StyleOptionFrame *>(opt)) {
+            if (frame->state & Style_Sunken) {
+                HIThemeFrameDrawInfo fdi;
+                fdi.version = qt_mac_hitheme_version;
+                fdi.state = tds;
+                SInt32 frame_size;
+                if (pe == PE_PanelLineEdit) {
+                    fdi.kind = kHIThemeFrameTextFieldSquare;
+                    GetThemeMetric(kThemeMetricEditTextFrameOutset, &frame_size);
+                } else {
+                    fdi.kind = kHIThemeFrameListBox;
+                    GetThemeMetric(kThemeMetricListBoxFrameOutset, &frame_size);
+                }
+                int lw = frame->lineWidth;
+                if (lw <= 0)
+                    lw = pixelMetric(PM_DefaultFrameWidth, 0);
+                p->fillRect(frame->rect.x(), frame->rect.y(), lw, frame->rect.height(),
+                            frame->palette.background());
+                p->fillRect(frame->rect.right() - lw + 1, frame->rect.y(), lw, frame->rect.height(),
+                            frame->palette.background());
+                p->fillRect(frame->rect.x(), frame->rect.y(), frame->rect.width(), lw,
+                            frame->palette.background());
+                p->fillRect(frame->rect.x(), frame->rect.bottom() - lw + 1, frame->rect.width(), lw,
+                            frame->palette.background());
+                HIRect hirect = qt_hirectForQRect(frame->rect, p, false,
+                                                  QRect(frame_size, frame_size,
+                                                        frame_size * 2, frame_size * 2));
+
+                HIThemeDrawFrame(&hirect, &fdi, static_cast<CGContextRef>(p->handle()),
+                                 kHIThemeOrientationNormal);
+                break;
+            }
+            // Fall through!
+        }
     default:
         QWindowsStyle::drawPrimitive(pe, opt, p, w);
     }
@@ -1691,6 +1559,8 @@ void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
             }
         }
         break;
+    case CE_MenuHMargin:
+    case CE_MenuVMargin:
     case CE_MenuTearoff:
     case CE_MenuScroller:
         if (const Q4StyleOptionMenuItem *mi = qt_cast<const Q4StyleOptionMenuItem *>(opt)) {

@@ -452,47 +452,6 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe,
             break;
         }
 
-    case PE_MenuFrame:
-    case PE_Panel:
-    case PE_PanelPopup:
-        {
-            int lw = opt.isDefault() ? pixelMetric(PM_DefaultFrameWidth)
-                        : opt.lineWidth();
-
-            if (lw == 2) {
-                QPalette popupPal = pal;
-                if (pe == PE_PanelPopup) {
-                    popupPal.setColor(QPalette::Light, pal.background());
-                    popupPal.setColor(QPalette::Midlight, pal.light());
-                }
-                qDrawWinPanel(p, r, popupPal, flags & Style_Sunken);
-            } else {
-                QCommonStyle::drawPrimitive(pe, p, r, pal, flags, opt);
-            }
-            break;
-        }
-
-    case PE_Splitter:
-        {
-            QPen oldPen = p->pen();
-            p->setPen(pal.light());
-            if (flags & Style_Horizontal) {
-                p->drawLine(r.x() + 1, r.y(), r.x() + 1, r.height());
-                p->setPen(pal.dark());
-                p->drawLine(r.x(), r.y(), r.x(), r.height());
-                p->drawLine(r.right()-1, r.y(), r.right()-1, r.height());
-                p->setPen(pal.shadow());
-                p->drawLine(r.right(), r.y(), r.right(), r.height());
-            } else {
-                p->drawLine(r.x(), r.y() + 1, r.width(), r.y() + 1);
-                p->setPen(pal.dark());
-                p->drawLine(r.x(), r.bottom() - 1, r.width(), r.bottom() - 1);
-                p->setPen(pal.shadow());
-                p->drawLine(r.x(), r.bottom(), r.width(), r.bottom());
-            }
-            p->setPen(oldPen);
-            break;
-        }
     case PE_DockWindowResizeHandle:
         {
             QPen oldPen = p->pen();

@@ -141,7 +141,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe,
                                   const QRect &r,
                                   const QPalette &pal,
                                   SFlags flags,
-                                  const QStyleOption& opt) const
+                                  const QStyleOption& ) const
 {
     activePainter = p;
 
@@ -255,34 +255,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe,
         qDrawShadeLine(p, p1, p2, pal, 1, 1, 0);
         break; }
 
-    case PE_PanelDockWindow: {
-        int lw = opt.isDefault() ? pixelMetric(PM_DockWindowFrameWidth)
-                    : opt.lineWidth();
 
-        qDrawShadePanel(p, r, pal, false, lw);
-        break; }
-
-
-    case PE_PanelGroupBox: //We really do not need PE_GroupBoxFrame anymore, nasty holdover ###
-        drawPrimitive(PE_GroupBoxFrame, p, r, pal, flags, opt);
-        break;
-    case PE_GroupBoxFrame: {
-#ifndef QT_NO_FRAME
-        if (opt.isDefault())
-            break;
-        int lwidth = opt.lineWidth(), mlwidth = opt.midLineWidth();
-        if (flags & (Style_Sunken|Style_Raised))
-            qDrawShadeRect(p, r.x(), r.y(), r.width(), r.height(), pal, flags & Style_Sunken, lwidth, mlwidth);
-        else
-            qDrawPlainRect(p, r.x(), r.y(), r.width(), r.height(), pal.foreground(), lwidth);
-#endif
-        break; }
-
-    case PE_PanelLineEdit:
-    case PE_PanelTabWidget:
-    case PE_WindowFrame:
-        drawPrimitive(PE_Panel, p, r, pal, flags, opt);
-        break;
     default:
         break;
     }
@@ -295,7 +268,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe,
     painter \a p, with parent widget \a w.
 */
 void QCommonStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, QPainter *p,
-                                 const QWidget *) const
+                                 const QWidget *widget) const
 {
     switch (pe) {
     case PE_ButtonCommand:
@@ -639,6 +612,36 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, 
         }
         p->setPen(oldPen);
         break; }
+    case PE_PanelLineEdit:
+    case PE_PanelTabWidget:
+    case PE_WindowFrame:
+        drawPrimitive(PE_Panel, opt, p, widget);
+        break;
+    case PE_PanelGroupBox: //We really do not need PE_GroupBoxFrame anymore, nasty holdover ###
+        drawPrimitive(PE_GroupBoxFrame, opt, p, widget);
+        break;
+    case PE_GroupBoxFrame:
+        if (const Q4StyleOptionFrame *frame = qt_cast<const Q4StyleOptionFrame *>(opt)) {
+            int lwidth = frame->lineWidth,
+                mlwidth = frame->midLineWidth;
+            if (opt->state & (Style_Sunken | Style_Raised))
+                qDrawShadeRect(p, frame->rect.x(), frame->rect.y(), frame->rect.width(),
+                               frame->rect.height(), frame->palette, frame->state & Style_Sunken,
+                               lwidth, mlwidth);
+            else
+                qDrawPlainRect(p, frame->rect.x(), frame->rect.y(), frame->rect.width(),
+                               frame->rect.height(), frame->palette.foreground(), lwidth);
+        }
+        break;
+    case PE_PanelDockWindow:
+        if (const Q4StyleOptionFrame *frame = qt_cast<const Q4StyleOptionFrame *>(opt)) {
+            int lw = frame->lineWidth;
+            if (lw <= 0)
+                lw = pixelMetric(PM_DockWindowFrameWidth);
+
+            qDrawShadePanel(p, frame->rect, frame->palette, false, lw);
+        }
+        break;
     default:
         qWarning("QCommonStyle::drawPrimitive not handled %d", pe);
     }

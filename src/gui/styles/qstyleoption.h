@@ -41,6 +41,7 @@ struct Q4StyleOptionFocusRect  : public Q4StyleOption {
 struct Q4StyleOptionFrame : public Q4StyleOption {
     enum { Type = Frame };
     int lineWidth;
+    int midLineWidth;
     Q4StyleOptionFrame(int version) : Q4StyleOption(version, Frame) {}
 };
 
@@ -83,7 +84,7 @@ struct Q4StyleOptionProgressBar : public Q4StyleOption
 
 struct Q4StyleOptionMenuItem : public Q4StyleOption {
     enum { Type = MenuItem };
-    enum MenuItemType { Normal, Separator, SubMenu, Scroller, TearOff, EmptyArea, Q3Custom };
+    enum MenuItemType { Normal, Separator, SubMenu, Scroller, TearOff, Margin, EmptyArea, Q3Custom };
     enum CheckState { NotCheckable, Checked, Unchecked };
     MenuItemType menuItemType;
     CheckState checkState;
