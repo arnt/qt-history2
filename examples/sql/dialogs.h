@@ -16,8 +16,8 @@ class GenericDialog : public QDialog
 public:
     typedef enum Mode { Insert, Update, Delete };
 
-    GenericDialog( QSqlCursor * cursor, QSqlRecord* buf, Mode mode, 
-		QWidget * parent = 0, const char * name = 0 );
+    GenericDialog( QSqlRecord* buf, Mode mode, QWidget * parent = 0,
+		   const char * name = 0 );
 public slots:
     void close();
     void execute();

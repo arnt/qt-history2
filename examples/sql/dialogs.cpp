@@ -21,8 +21,8 @@
 //  GenericDialog class
 //
 
-GenericDialog::GenericDialog( QSqlCursor * cr, QSqlRecord* buf, Mode mode, 
-			QWidget * parent, const char * name )
+GenericDialog::GenericDialog( QSqlRecord* buf, Mode mode, QWidget * parent,
+			      const char * name )
     : QDialog( parent, name, TRUE ),
       mMode( mode )
 {
@@ -43,7 +43,7 @@ GenericDialog::GenericDialog( QSqlCursor * cr, QSqlRecord* buf, Mode mode,
     }
     setCaption( caption );
 
-    form = new QSqlForm( w, cr, buf, 2, this);
+    form = new QSqlForm( w, buf, 2, this);
     g->setMargin( 3 );
 
     QLabel * label = new QLabel( caption, this );
@@ -83,7 +83,7 @@ void GenericDialog::execute()
 //  InvoiceDialog
 //
 
-InvoiceDialog::InvoiceDialog( QSqlCursor * cursor, QSqlRecord* buf, 
+InvoiceDialog::InvoiceDialog( QSqlCursor * cursor, QSqlRecord * buf, 
 			      Mode mode, QWidget * parent, const char * name )
     : QDialog( parent, name, TRUE ),
       mMode( mode )
@@ -110,8 +110,8 @@ InvoiceDialog::InvoiceDialog( QSqlCursor * cursor, QSqlRecord* buf,
     h->setSpacing( 0 );
     h->setMargin( 0 );
 
-    // Generate a form based on cursor (should be an InvoiceCursor)
-    invoiceForm  = new QSqlForm( form, cursor, buf, 2, this);
+    // Generate a form based on 'buf'
+    invoiceForm  = new QSqlForm( form, buf, 2, this);
     invoiceItems = new QSqlTable( this );
 
     invoiceId = cursor->value("id"); // Save this for later - we need it..
@@ -177,35 +177,35 @@ void InvoiceDialog::updateProductTable( const QSqlRecord * )
 
 void InvoiceDialog::updateInvoiceItem()
 {
-    QSqlCursor * v = invoiceItems->cursor();
+    QSqlCursor * cr = invoiceItems->cursor();
 
-    GenericDialog dlg( v, v->updateBuffer(), GenericDialog::Delete, this );
+    GenericDialog dlg( cr->updateBuffer(), GenericDialog::Delete, this );
     if( dlg.exec() == QDialog::Accepted ){
-	v->update();
+	cr->update();
 	invoiceItems->refresh();
     }
 }
 
 void InvoiceDialog::insertInvoiceItem()
 {
-    QSqlCursor * v = invoiceItems->cursor();
-    QSqlRecord* buf = v->insertBuffer();
+    QSqlCursor * cr = invoiceItems->cursor();
+    QSqlRecord* buf = cr->insertBuffer();
     insertingInvoiceItem( buf );
 
-    GenericDialog dlg( v, buf, GenericDialog::Insert, this );
+    GenericDialog dlg( buf, GenericDialog::Insert, this );
     if( dlg.exec() == QDialog::Accepted ){
-	v->insert();
+	cr->insert();
 	invoiceItems->refresh();
     }
 }
 
 void InvoiceDialog::deleteInvoiceItem()
 {
-    QSqlCursor * v = invoiceItems->cursor();
+    QSqlCursor * cr = invoiceItems->cursor();
 
-    GenericDialog dlg( v, v->updateBuffer(), GenericDialog::Delete, this );
+    GenericDialog dlg( cr->updateBuffer(), GenericDialog::Delete, this );
     if( dlg.exec() == QDialog::Accepted ){
-	v->del();
+	cr->del();
 	invoiceItems->refresh();
     }
 }

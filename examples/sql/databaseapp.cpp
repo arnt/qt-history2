@@ -149,7 +149,7 @@ void DatabaseWgt::insertCustomer()
 {
     QSqlCursor * cr = customers->cursor();
 
-    GenericDialog dlg( cr, cr->insertBuffer(), GenericDialog::Insert, this );
+    GenericDialog dlg( cr->insertBuffer(), GenericDialog::Insert, this );
     if( dlg.exec() == QDialog::Accepted ){
 	cr->insert();
 	customers->refresh();
@@ -160,7 +160,7 @@ void DatabaseWgt::updateCustomer()
 {
     QSqlCursor * cr = customers->cursor();
 
-    GenericDialog dlg( cr, cr->updateBuffer(), GenericDialog::Update, this );
+    GenericDialog dlg( cr->updateBuffer(), GenericDialog::Update, this );
     if( dlg.exec() == QDialog::Accepted ){
 	cr->update();
 	customers->refresh();
@@ -171,7 +171,7 @@ void DatabaseWgt::deleteCustomer()
 {
     QSqlCursor * cr = customers->cursor();
 
-    GenericDialog dlg( cr, cr->updateBuffer(), GenericDialog::Delete, this );
+    GenericDialog dlg( cr->updateBuffer(), GenericDialog::Delete, this );
     if( dlg.exec() == QDialog::Accepted ){
 	cr->del();
 	customers->refresh();
