@@ -13,12 +13,15 @@
 #include <qstatusbar.h>
 #include <qaccel.h>
 #include <qmessagebox.h>
-#include <qprinter.h>
 #include <qpainter.h>
 #include <qeventloop.h>
 #include <qsimplerichtext.h>
 #include <qpaintdevicemetrics.h>
 #include <qfontdatabase.h>
+
+#if 0 // ### enable me
+#include <qprinter.h>
+#endif
 
 QList<MainWindow*> MainWindow::windows;
 
@@ -298,6 +301,7 @@ void MainWindow::on_actionGoHome_triggered()
 
 void MainWindow::on_actionFilePrint_triggered()
 {
+#if 0 // ### enable me
     QPrinter printer(QPrinter::HighResolution);
     printer.setFullPage(true);
     if (printer.setup(this)) {
@@ -339,6 +343,7 @@ void MainWindow::on_actionFilePrint_triggered()
         qApp->eventLoop()->processEvents(QEventLoop::ExcludeUserInput);
         qApp->restoreOverrideCursor();
     }
+#endif
 }
 
 void MainWindow::updateBookmarkMenu()
