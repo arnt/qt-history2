@@ -418,6 +418,14 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
 */
 
 /*!
+    \enum QModelIndex::SpecialValue
+
+    This enum describes a special type of model index:
+
+    \value Null A model index to represent the parent of top-level table items.
+*/
+
+/*!
     \fn QModelIndex::QModelIndex(SpecialValue type = Null)
 
     Creates a new empty model index of the given \a type. By default, a
@@ -570,6 +578,27 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
     Returns the parent of the model item with the given \a index.
 */
 
+/*!
+    \fn bool QAbstractItemModel::setHeaderData(int section, Qt::Orientation orientation, const QVariant &value)
+
+    \overload
+
+    Sets the title for the \a section in the header with the given
+    \a orientation to the \a value specified.
+
+    \sa headerData()
+*/
+
+/*!
+    \fn void QAbstractItemModel::headerDataChanged(Qt::Orientation orientation, int first, int last)
+
+    This signal is emitted whenever a header is changed. The \a orientation
+    indicates whether the horizontal or vertical header has changed. The
+    sections in the header from the \a first to the \a last need to be updated.
+
+    \sa headerData() setHeaderData()
+*/
+
 #define d d_func()
 #define q q_func()
 
@@ -679,8 +708,10 @@ QAbstractItemModel::~QAbstractItemModel()
     \enum QAbstractItemModel::Role
 
     Each item in the model has a set of data elements associated with
-    it, each with its own role. The roles are used when visualizing
-    and editing the items in the views.
+    it, each with its own role. The roles are used by the view to indicate
+    to the model which type of data it needs.
+
+    The general purpose roles are:
 
     \value DisplayRole    The data to be rendered as text.
     \value DecorationRole The data to be rendered as an icon.
@@ -690,6 +721,25 @@ QAbstractItemModel::~QAbstractItemModel()
     \value StatusTipRole  The data displayed in the status bar.
     \value WhatsThisRole  The data displayed for the item in "What's This?"
                           mode.
+
+    Roles describing appearance and meta data:
+
+    \value FontRole            The font used for items rendered with the default
+                               delegate.
+    \value BackgroundColorRole The background color used for items rendered with
+                               the default delegate.
+    \value TextColorRole       The text color used for items rendered with
+                               the default delegate.
+    \value CheckStateRole      Whether the item can be checked.
+
+    Accessibility roles:
+
+    \value AccessibleTextRole        The text to be used by accessibility
+                                     extensions and plugins, such as screen
+                                     readers.
+    \value AccessibleDescriptionRole A description of the item for accessibility
+                                     purposes.
+
     \value UserRole       The first role that can be used for
                           application-specific purposes.
 */
@@ -866,7 +916,8 @@ bool QAbstractItemModel::removeColumns(int, const QModelIndex &, int)
 }
 
 /*!
-  Fetches more data, if available.
+  Fetches any available data for the items with the parent specified by the
+  \a parent index.
 */
 void QAbstractItemModel::fetchMore(const QModelIndex &)
 {
@@ -887,10 +938,13 @@ void QAbstractItemModel::fetchMore(const QModelIndex &)
 */
 
 /*!
-    Returns ItemFlags.
+    Returns the item flags for the given \a index.
 
-    The base class implementation
-    returns QAbstractItemModel::ItemIsSelectable | QAbstractItemModel::ItemIsEnabled
+    The base class implementation returns a combination of flags that
+    enables the item (\c ItemIsEnabled) and allows it to be
+    selected (\c ItemIsSelectable).
+
+    \sa ItemFlag
 */
 QAbstractItemModel::ItemFlags QAbstractItemModel::flags(const QModelIndex &) const
 {
@@ -911,7 +965,8 @@ bool QAbstractItemModel::isSortable() const
 }
 
 /*!
-    Sorts the model by \a column, if it is sortable, in the given \a order.
+    Sorts the model by \a column in the given \a order for all the items with
+    the specified \a parent. Sorting will only occur if the model is sortable.
 
     The base class implementation does nothing.
 
@@ -1056,7 +1111,8 @@ QSize QAbstractItemModel::span(const QModelIndex &) const
 }
 
 /*!
-  Returns the data for the specified \a role and \a section in the header with  \a orientation.
+  Returns the data for the given \a role and \a section in the header
+  with the specified \a orientation.
 */
 
 QVariant QAbstractItemModel::headerData(int section, Qt::Orientation, int role) const
@@ -1067,7 +1123,10 @@ QVariant QAbstractItemModel::headerData(int section, Qt::Orientation, int role) 
 }
 
 /*!
-  Sets the data \a value in the header with \a orientation, in \a section and for \a role.
+  Sets the title for the \a section in the header with the given
+  \a orientation to the \a value for the specified \a role.
+
+  \sa headerData()
 */
 
 bool QAbstractItemModel::setHeaderData(int section, Qt::Orientation orientation, int role,
