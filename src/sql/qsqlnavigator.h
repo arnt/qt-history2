@@ -39,6 +39,7 @@
 
 #ifndef QT_H
 #include "qglobal.h"
+#include "qsqlerror.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL
@@ -51,17 +52,29 @@ class Q_EXPORT QSqlNavigator
 public:
     QSqlNavigator();
 
-    void insertRecord();
-    void updateRecord();
-    void deleteRecord();
-    void firstRecord();
-    void lastRecord();
-    void nextRecord();
-    void prevRecord();
+    enum Boundry {
+	Unknown,
+	None,
+	BeforeBeginning,
+	Beginning,
+	End,
+	AfterEnd
+    };
+
+    int insertRecord();
+    int updateRecord();
+    int deleteRecord();
+    bool firstRecord();
+    bool lastRecord();
+    bool nextRecord();
+    bool prevRecord();
     void clearForm();
-    
-    virtual QSqlCursor* defaultCursor();        
-    virtual QSqlForm* defaultForm();            
+
+    Boundry boundry();
+
+    virtual QSqlCursor* defaultCursor();
+    virtual QSqlForm* defaultForm();
+    virtual void handleError( const QSqlError& e );
 
 };
 
