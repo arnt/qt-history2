@@ -92,13 +92,13 @@ public:
 	{
 	    currentPage = 0;
 	    lastButton = 0;
-	    categories = new QPtrList<Page>;
-	    categories->setAutoDelete( TRUE );
+	    pageList = new QPtrList<Page>;
+	    pageList->setAutoDelete( TRUE );
 	}
 
     ~QToolBoxPrivate()
 	{
-	    delete categories;
+	    delete pageList;
 	}
 
     QToolBoxButton *button( QWidget *page )
@@ -115,8 +115,8 @@ public:
     Page *page( QWidget *page )
 	{
 	    QToolBoxButton *b = button( page );
-	    for ( QToolBoxPrivate::Page *c = categories->first(); c;
-		  c = categories->next() ) {
+	    for ( QToolBoxPrivate::Page *c = pageList->first(); c;
+		  c = pageList->next() ) {
 		if ( c->button == b )
 		    return c;
 	    }
@@ -142,7 +142,7 @@ public:
 	}
 
     QPtrDict<QWidget> pages;
-    QPtrList<Page> *categories;
+    QPtrList<Page> *pageList;
     QVBoxLayout *layout;
     QWidget *currentPage;
     QToolBoxButton *lastButton;
@@ -321,9 +321,9 @@ void QToolBox::insertPage( const QString &label, const QIconSet &iconSet,
     c->iconSet = iconSet;
     bool needRelayout = FALSE;
     if ( index < 0 || index >= count() ) {
-	d->categories->append( c );
+	d->pageList->append( c );
     } else {
-	d->categories->insert( index, c );
+	d->pageList->insert( index, c );
 	needRelayout = TRUE;
     }
 
@@ -380,16 +380,19 @@ void QToolBox::buttonClicked()
 	int direction = 0;
 
 	QWidgetList buttons;
-	for ( QToolBoxPrivate::Page *c = d->categories->first(); c;
-	      c = d->categories->next() ) {
+	for ( QToolBoxPrivate::Page *c = d->pageList->first(); c;
+	      c = d->pageList->next() ) {
 	    if ( c->button == tb ) {
-		buttons.append( c->button );
-		if ( direction < 0 )
+		if ( direction < 0 ) {
+		    buttons.append( c->button );
 		    break;
+		}
 		direction = 8;
 	    } else if ( c->button == d->lastButton ) {
-		if ( direction > 0 )
+		if ( direction > 0 ) {
+		    buttons.append( c->button );
 		    break;
+		}
 		direction = -8;
 	    } else if ( direction != 0 ) {
 		buttons.append( c->button );
@@ -446,8 +449,8 @@ void QToolBox::buttonClicked()
 void QToolBox::updateTabs()
 {
     bool after = FALSE;
-    for ( QToolBoxPrivate::Page *c = d->categories->first(); c;
-	  c = d->categories->next() ) {
+    for ( QToolBoxPrivate::Page *c = d->pageList->first(); c;
+	  c = d->pageList->next() ) {
 	c->button->setBackgroundMode( !after ? PaletteBackground : PaletteLight );
 	c->button->update();
 	after = c->button == d->lastButton;
@@ -460,7 +463,7 @@ void QToolBox::updateTabs()
 
 int QToolBox::count() const
 {
-    return d->categories->count();
+    return d->pageList->count();
 }
 
 void QToolBox::setCurrentPage( int index )
@@ -498,8 +501,8 @@ void QToolBox::relayout()
 {
     delete d->layout;
     d->layout = new QVBoxLayout( this );
-    for ( QToolBoxPrivate::Page *c = d->categories->first(); c;
-	  c = d->categories->next() ) {
+    for ( QToolBoxPrivate::Page *c = d->pageList->first(); c;
+	  c = d->pageList->next() ) {
 	d->layout->addWidget( c->button );
 	d->layout->addWidget( d->pages.find( c->button ) );
     }
@@ -550,7 +553,7 @@ int QToolBox::currentIndex() const
 
 QWidget *QToolBox::page( int index ) const
 {
-    return d->pages.find( d->categories->at( index )->button );
+    return d->pages.find( d->pageList->at( index )->button );
 }
 
 /*! Returns the index at which the page \a page is located */
@@ -559,8 +562,8 @@ int QToolBox::pageIndex( QWidget *page ) const
 {
     QToolBoxButton *tb = d->button( page );
     int i = 0;
-    for ( QToolBoxPrivate::Page *c = d->categories->first(); c;
-	  c = d->categories->next(), ++i ) {
+    for ( QToolBoxPrivate::Page *c = d->pageList->first(); c;
+	  c = d->pageList->next(), ++i ) {
 	if ( c->button == tb )
 	    return i;
     }
