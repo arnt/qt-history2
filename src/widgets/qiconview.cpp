@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#134 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#135 $
 **
 ** Definition of QIconView widget class
 **
@@ -155,6 +155,16 @@ struct QIconViewPrivate
     struct SortableItem {
 	QIconViewItem *item;
     };
+};
+
+/*****************************************************************************
+ *
+ * Struct QIconViewItemPrivate
+ *
+ *****************************************************************************/
+
+struct QIconViewItemPrivate
+{
 };
 
 /*****************************************************************************
@@ -712,6 +722,7 @@ QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after, const QSt
 
 void QIconViewItem::init()
 {
+    d = new QIconViewItemPrivate;
     f = 0;
     c = 0;
     if ( view ) {
@@ -732,10 +743,9 @@ void QIconViewItem::init()
 
 QIconViewItem::~QIconViewItem()
 {
-    if ( f )
-	delete f;
-    if ( c )
-	delete c;
+    delete d;
+    delete f;
+    delete c;
     view->removeItem( this );
     removeRenameBox();
 }
@@ -1944,16 +1954,11 @@ QIconView::~QIconView()
 	item = tmp;
     }
 
-    if ( d->scrollTimer )
-	delete d->scrollTimer;
-    if ( d->adjustTimer )
-	delete d->adjustTimer;
-    if ( d->updateTimer )
-	delete d->updateTimer;
-    if ( d->inputTimer )
-	delete d->inputTimer;
-    if ( d->singleClickSelectTimer )
-	delete d->singleClickSelectTimer;
+    delete d->scrollTimer;
+    delete d->adjustTimer;
+    delete d->updateTimer;
+    delete d->inputTimer;
+    delete d->singleClickSelectTimer;
 
     clearSingleClickConfig();
 

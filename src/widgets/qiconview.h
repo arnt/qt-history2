@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#60 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#61 $
 **
 ** Definition of QIconView widget class
 **
@@ -51,6 +51,7 @@ class QFocusEvent;
 class QShowEvent;
 
 struct QIconViewPrivate;
+struct QIconViewItemPrivate;
 class QIconViewItem;
 class QIconViewItemLineEdit;
 
@@ -229,7 +230,7 @@ protected:
     void setTextRect( const QRect &r );
     void setIconRect( const QRect &r );
     void calcTmpText();
-    
+
 private:
     QIconView *view;
     QString itemText, itemKey;
@@ -248,6 +249,8 @@ private:
     QRect oldRect;
     bool dirty, wordWrapDirty;
 
+    QIconViewItemPrivate *d;
+    
 };
 
 
@@ -355,7 +358,7 @@ public:
     bool rearrangeEnabled() const;
     virtual void setWordWrapIconText( bool b );
     bool wordWrapIconText() const;
-    
+
     virtual void setItemFont( const QFont &font );
     virtual void setItemColor( const QColor &color );
 
