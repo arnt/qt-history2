@@ -792,8 +792,44 @@ void QSocketDevice::fetchConnectionParameters()
 	p = ntohs( sa.sin_port );
 	a = QHostAddress( ntohl( sa.sin_addr.s_addr ) );
     }
-    if ( !::getpeername( fd, (struct sockaddr *)(&sa), &sz ) ) {
-	pp = ntohs( sa.sin_port );
-	pa = QHostAddress( ntohl( sa.sin_addr.s_addr ) );
+    pp = 0;
+    pa = QHostAddress();
+}
+
+
+Q_UINT16 QSocketDevice::peerPort() const
+{
+    // do the getpeername() lazy on Windows (sales/arc-18/37759 claims that
+    // there will be problems otherwise)
+    if ( pp==0 && isValid() ) {
+	struct sockaddr_in sa;
+	memset( &sa, 0, sizeof(sa) );
+	SOCKLEN_T sz;
+	sz = sizeof( sa );
+	if ( !::getpeername( fd, (struct sockaddr *)(&sa), &sz ) ) {
+	    QSocketDevice *that = (QSocketDevice*)this; // mutable
+	    that->pp = ntohs( sa.sin_port );
+	    that->pa = QHostAddress( ntohl( sa.sin_addr.s_addr ) );
+	}
     }
+    return pp;
+}
+
+
+QHostAddress QSocketDevice::peerAddress() const
+{
+    // do the getpeername() lazy on Windows (sales/arc-18/37759 claims that
+    // there will be problems otherwise)
+    if ( pp==0 && isValid() ) {
+	struct sockaddr_in sa;
+	memset( &sa, 0, sizeof(sa) );
+	SOCKLEN_T sz;
+	sz = sizeof( sa );
+	if ( !::getpeername( fd, (struct sockaddr *)(&sa), &sz ) ) {
+	    QSocketDevice *that = (QSocketDevice*)this; // mutable
+	    that->pp = ntohs( sa.sin_port );
+	    that->pa = QHostAddress( ntohl( sa.sin_addr.s_addr ) );
+	}
+    }
+    return pa;
 }

@@ -880,4 +880,31 @@ void QSocketDevice::fetchConnectionParameters()
 }
 
 
+/*!
+  Returns the port number of the port this socket device is connected to. This
+  may be 0 for a while, but is set to something sensible when there is a
+  sensible value it can have.
+
+  Note that for Datagram sockets, this is the source port of the last packet
+  received.
+*/
+Q_UINT16 QSocketDevice::peerPort() const
+{
+    return pp;
+}
+
+
+/*!
+  Returns the address of the port this socket device is connected to. This may
+  be 0.0.0.0 for a while, but is set to something sensible when there is a
+  sensible value it can have.
+
+  Note that for Datagram sockets, this is the source port of the last
+  packet received, and that it is in native byte order.
+*/
+QHostAddress QSocketDevice::peerAddress() const
+{
+    return pa;
+}
+
 #endif //QT_NO_NETWORK

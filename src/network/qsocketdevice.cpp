@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QSocketDevice class.
 **
@@ -445,40 +445,12 @@ Q_UINT16 QSocketDevice::port() const
 
 
 /*!
-  Returns the port number of the port this socket device is connected to. This
-  may be 0 for a while, but is set to something sensible when there is a
-  sensible value it can have.
-
-  Note that for Datagram sockets, this is the source port of the last packet
-  received, and that it is in native byte order.
-*/
-Q_UINT16 QSocketDevice::peerPort() const
-{
-    return pp;
-}
-
-
-/*!
   Returns the address of this socket device.  This may be 0.0.0.0 for a while,
   but is set to something sensible when there is a sensible value it can have.
 */
 QHostAddress QSocketDevice::address() const
 {
     return a;
-}
-
-
-/*!
-  Returns the address of the port this socket device is connected to. This may
-  be 0.0.0.0 for a while, but is set to something sensible when there is a
-  sensible value it can have.
-
-  Note that for Datagram sockets, this is the source address of the last packet
-  received.
-*/
-QHostAddress QSocketDevice::peerAddress() const
-{
-    return pa;
 }
 
 
