@@ -67,15 +67,23 @@ sub-examples: sub-src $(FORCEDEP)
 clean:
 	cd qmake
 	$(MAKE) -f $(QMFILE) $(CONTINUEONERROR) clean
-	cd ..\tools
+	cd ..
+	cd tools
 	$(MAKE) $(CONTINUEONERROR) clean
-	cd ..\src
+	cd ..
+	cd src
 	$(MAKE) $(CONTINUEONERROR) clean
 	$(MAKE) -f Makefile.main $(CONTINUEONERROR) clean
-	cd ..\tutorial
+	cd ..
+	cd tutorial
 	$(MAKE) $(CONTINUEONERROR) clean
-	cd ..\examples
+	cd ..
+	cd examples
 	$(MAKE) $(CONTINUEONERROR) clean
+	cd ..
+	cd src\codecs\src
+	$(MAKE) $(CONTINUEONERROR) clean
+	cd ..\..\..
 
 distclean: clean
 	-del .qmake.cache
