@@ -2159,7 +2159,7 @@ const QColorGroup &QWidget::colorGroup() const
 {
     if ( !isEnabled() )
 	return palette().disabled();
-    else if ( isActiveWindow() )
+    else if ( isActiveWindow() && hasFocus() )
 	return palette().active();
     else
 	return palette().inactive();

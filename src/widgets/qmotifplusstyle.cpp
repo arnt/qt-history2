@@ -1337,6 +1337,9 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
 			pal.setColor(QPalette::Active, QColorGroup::Button,
 				     singleton->prelight_palette.color(QPalette::Active,
 							       QColorGroup::Button));
+			pal.setColor(QPalette::Inactive, QColorGroup::Button,
+				     singleton->prelight_palette.color(QPalette::Inactive,
+							       QColorGroup::Button));
 			singleton->hoverWidget->setPalette(pal);
 		    } else
 			singleton->hoverWidget->setPalette(singleton->prelight_palette);

@@ -1320,6 +1320,7 @@ QSGIStyle::eventFilter( QObject* o, QEvent* e )
 		    if ( lastWidget->ownPalette() )
 			lastWidgetPalette = new QPalette( lastWidget->palette() );
 		    pal.setColor( QPalette::Active, QColorGroup::Button, pal.active().midlight() );
+		    pal.setColor( QPalette::Inactive, QColorGroup::Button, pal.inactive().midlight() );
 		    lastWidget->setPalette( pal );
 		}
 	    } else if ( o->isWidgetType() ) {		    // must be either slider or scrollbar

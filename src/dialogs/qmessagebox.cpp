@@ -543,6 +543,11 @@ static const char *mb_texts[] = {
 QMessageBox::QMessageBox( QWidget *parent, const char *name )
     : QDialog( parent, name, TRUE, WStyle_Customize | WStyle_NormalBorder | WStyle_Title | WStyle_SysMenu )
 {
+    if ( parent && parent->icon() && !parent->icon()->isNull() )
+	QDialog::setIcon( *parent->icon() );
+    else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !parent->icon()->isNull() )
+	QDialog::setIcon( *qApp->mainWidget()->icon() );
+
     init( Ok, 0, 0 );
 }
 
@@ -612,6 +617,11 @@ QMessageBox::QMessageBox( const QString& caption,
 			  bool modal, WFlags f )
     : QDialog( parent, name, modal, f | WStyle_Customize | WStyle_NormalBorder | WStyle_Title | WStyle_SysMenu )
 {
+    if ( parent && parent->icon() && !parent->icon()->isNull() )
+	QDialog::setIcon( *parent->icon() );
+    else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !parent->icon()->isNull() )
+	QDialog::setIcon( *qApp->mainWidget()->icon() );
+
     init( button0, button1, button2 );
     setCaption( caption );
     setText( text );

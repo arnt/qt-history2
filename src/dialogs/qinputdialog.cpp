@@ -47,6 +47,7 @@
 #include <qcombobox.h>
 #include <qwidgetstack.h>
 #include <qvalidator.h>
+#include <qapplication.h>
 
 class QInputDialogPrivate
 {
@@ -124,6 +125,11 @@ QInputDialog::QInputDialog( const QString &label, QWidget* parent, const char* n
 			  bool modal, Type type)
     : QDialog( parent, name, modal )
 {
+    if ( parent && parent->icon() &&!parent->icon()->isNull() )
+	setIcon( *parent->icon() );
+    else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !parent->icon()->isNull() )
+	QDialog::setIcon( *qApp->mainWidget()->icon() );
+
     d = new QInputDialogPrivate;
     d->lineEdit = 0;
     d->spinBox = 0;
