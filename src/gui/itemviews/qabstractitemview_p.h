@@ -40,6 +40,7 @@ public:
     //QRect dragRect;
     QModelIndex pressedItem;
     Qt::ButtonState pressedState;
+    QPoint pressedPosition;
     QAbstractItemView::State state;
     QPoint cursorIndex;
     int startEditActions;

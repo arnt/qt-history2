@@ -416,7 +416,7 @@ void QGenericListView::dropEvent(QDropEvent *e)
 {
     if (e->source() == this && d->movement == Free
 	 /*&& e->action() == QDropEvent::Move*/) {
-	QPoint delta = e->pos() - d->rubberBand->pos();//mapFromGlobal(d->rubberBand->pos());
+	QPoint delta = e->pos() - d->viewport->mapFromGlobal(d->rubberBand->pos());
 	QList<QModelIndex> items = selectionModel()->selectedItems();
         int i;
 	for (i = 0; i < items.count(); ++i) {
@@ -667,8 +667,8 @@ QRect QGenericListView::selectionRect(const QItemSelection &selection) const
     for (; it != items.end(); ++it)
 	rect |= itemRect(*it);
     items.clear();
-//     if ( d->drawSelectionRect )
-// 	return rect | d->selectionRect | d->oldSelectionRect;
+    rect.moveLeft(rect.left() - contentsX());
+    rect.moveTop(rect.top() - contentsY());
     return rect;
 }
 
@@ -1050,7 +1050,7 @@ void QGenericListViewPrivate::drawDraggedItems(QPainter *painter, const QPoint &
     QItemOptions options;
     q->getViewOptions(&options);
     QAbstractItemDelegate *delegate = q->itemDelegate();
-    QPoint delta = pos - rubberBand->pos();//q->mapFromGlobal(rubberBand->pos());
+    QPoint delta = pos - viewport->mapFromGlobal(rubberBand->pos());
     QVector<QModelIndex>::const_iterator it = draggedItems.begin();
     QGenericListViewItem item = indexToListViewItem(*it);
     draggedItemsRect.setRect(item.x + delta.x(), item.y + delta.y(), item.w, item.h);
