@@ -1888,7 +1888,7 @@ static inline QString paramType(const QString ptype, bool *out)
 	res.truncate(res.length() - 1);
     } else if (res.endsWith("**")) {
 	*out = true;
-	res.truncate(res.length() - 2);
+	res.truncate(res.length() - 1);
     }
 
     return res;

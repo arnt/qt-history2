@@ -481,23 +481,22 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QString &type, b
 	}
 	break;
 #endif // QAX_SERVER
-/* XXX
-    case 1000: // rawAccess in QAxBase::toVariant
-	if (type == "IDispatch*") {
-	    arg.vt = VT_DISPATCH;
-	    arg.pdispVal = (IDispatch*)qvar.rawAccess();
-	    if ( arg.pdispVal )
-		arg.pdispVal->AddRef();
-	} else {
-	    arg.vt = VT_UNKNOWN;
-	    arg.punkVal = (IUnknown*)qvar.rawAccess();
-	    if ( arg.punkVal )
-		arg.punkVal->AddRef();
-	}
+    case 1000:
+	arg.vt = VT_DISPATCH;
+	arg.pdispVal = *(IDispatch**)qvar.constData();
+	if ( arg.pdispVal )
+	    arg.pdispVal->AddRef();
 	break;
-*/
+
+    case 1001:
+	arg.vt = VT_UNKNOWN;
+	arg.punkVal = *(IUnknown**)qvar.constData();
+	if ( arg.punkVal )
+	    arg.punkVal->AddRef();
+	break;
+
     default:
-	return FALSE;
+	return false;
     }
 
     if (out)
