@@ -1121,6 +1121,14 @@ void QWidget::setWindowState(uint newstate)
 
 void QWidget::hideWindow()
 {
+    // Make sure that ShowWindow
+    // isn't called excessively
+    if (extra)
+	if (extra->shown_mode == SW_HIDE)
+	    return;
+	else
+	    extra->shown_mode = SW_HIDE;
+
     deactivateWidgetCleanup();
     ShowWindow( winId(), SW_HIDE );
 }
@@ -1162,7 +1170,7 @@ void QWidget::showWindow()
 
 void QWidget::showWindow()
 {
-    int sm = SW_SHOW;
+    uint sm = SW_SHOW;
     if ( isTopLevel() ) {
 	switch ( d->topData()->showMode ) {
 	case 1:
@@ -1183,6 +1191,14 @@ void QWidget::showWindow()
 
     if ( testWFlags(WStyle_Tool) || isPopup() )
 	sm = SW_SHOWNOACTIVATE;
+
+    // Make sure that ShowWindow and UpdateWindow
+    // isn't called excessively
+    if (extra)
+	if (extra->shown_mode == sm)
+	    return;
+	else
+	    extra->shown_mode = sm;
 
     ShowWindow( winId(), sm );
     UpdateWindow( winId() );
@@ -1552,6 +1568,7 @@ int QWidget::metric( int m ) const
 void QWidgetPrivate::createSysExtra()
 {
     extra->dropTarget = 0;
+    extra->shown_mode = SW_HIDE;
 }
 
 void QWidgetPrivate::deleteSysExtra()
