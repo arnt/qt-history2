@@ -255,6 +255,10 @@ void QGenericTreeView::ensureItemVisible(const QModelIndex &item)
 
 void QGenericTreeView::paintEvent(QPaintEvent *e)
 {
+    QItemOptions options;
+    getViewOptions(&options);
+    d->backBuffer.fill(options.palette.base());
+
     QPainter painter(&d->backBuffer, d->viewport);
     QRect area = e->rect();
 
@@ -271,8 +275,6 @@ void QGenericTreeView::paintEvent(QPaintEvent *e)
 
     const QGenericTreeViewItem *items = d->items.constData();
 
-    QItemOptions options;
-    getViewOptions(&options);
     QFontMetrics fontMetrics(this->fontMetrics());
     QAbstractItemDelegate *delegate = itemDelegate();
     QModelIndex index;

@@ -167,28 +167,29 @@ int QGenericHeader::sectionSizeHint(int section) const
 
 void QGenericHeader::paintEvent(QPaintEvent *e)
 {
+    QItemOptions options;
+    getViewOptions(&options);
+    //d->backBuffer.fill(options.palette.base());
+
     QPainter painter(&d->backBuffer, d->viewport);
     QRect area = e->rect();
 
     int offset = this->offset();
-
-    QItemOptions options;
-    getViewOptions(&options);
-
     int start, end;
     if (orientation() == Horizontal) {
         start = indexAt(offset + area.left());
-        end = indexAt(offset + area.right());
+        end = indexAt(offset + area.right() - 1);
     } else {
         start = indexAt(offset + area.top());
-        end = indexAt(offset + area.bottom());
+        end = indexAt(offset + area.bottom() - 1);
     }
+
+    start = start == -1 ? 0 : start;
+    end = end == -1 ? count() - 1 : end;
 
     int tmp = start;
     start = qMin(start, end);
     end = qMax(tmp, end);
-    start = start == -1 ? 0 : start;
-    end = end == -1 ? count() : end;
 
     QModelIndex item;
     if (d->sections.isEmpty())
@@ -216,6 +217,17 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
                                      width(), sectionSize(section));
             paintSection(&painter, &options, item);
         }
+    }
+
+    if (options.itemRect.right() < area.right()) {
+        QStyle::SFlags flags = QStyle::Style_Off | QStyle::Style_Raised;
+        if (orientation() == Horizontal)
+            flags |= QStyle::Style_Horizontal;
+        if (isEnabled())
+            flags |= QStyle::Style_Enabled;
+        QRect rect(options.itemRect.right() + 1, area.top(),
+                   area.width() - options.itemRect.right() - 1, area.height());
+        style().drawPrimitive(QStyle::PE_HeaderSection, &painter, rect, palette(), flags);
     }
 
     painter.end();
@@ -273,6 +285,9 @@ int QGenericHeader::indexAt(int position) const
 
     const QGenericHeaderPrivate::HeaderSection *sections = d->sections.constData();
 
+    if (end == 0 && sections[1].position < position)
+        return -1;
+
     while (end - start > 0) {
         if (sections[idx].position > position)
             end = idx - 1;
@@ -280,6 +295,7 @@ int QGenericHeader::indexAt(int position) const
             start = idx;
         idx = (start + end + 1) / 2;
     }
+
     return idx;
 }
 

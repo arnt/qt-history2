@@ -562,15 +562,12 @@ void QGenericListView::getViewOptions(QItemOptions *options) const
 
 void QGenericListView::paintEvent(QPaintEvent *e)
 {
-    QPainter painter(&d->backBuffer, d->viewport);
-
     QItemOptions options;
     getViewOptions(&options);
-    
-    QRect area = e->rect();
-    painter.fillRect(area, options.palette.base());
+    d->backBuffer.fill(options.palette.base());
 
-    QRect unmoved = area; // used for blitting
+    QPainter painter(&d->backBuffer, d->viewport);
+    QRect area = e->rect();
     area.moveBy(horizontalScrollBar()->value(), verticalScrollBar()->value());
 
     // fill the intersectVector
@@ -592,8 +589,10 @@ void QGenericListView::paintEvent(QPaintEvent *e)
     }
 
     painter.end();
+
+    area = e->rect();
     painter.begin(d->viewport);
-    painter.drawPixmap(unmoved.topLeft(), d->backBuffer, unmoved);
+    painter.drawPixmap(area.topLeft(), d->backBuffer, area);
     
     if (!d->draggedItems.isEmpty() && d->viewport->rect().contains(d->draggedItemsPos)) {
         QPoint delta = (d->movement == Snap

@@ -172,31 +172,40 @@ void QGenericTableView::drawGrid(QPainter *p, int x, int y, int w, int h) const
 
 void QGenericTableView::paintEvent(QPaintEvent *e)
 {
+    QItemOptions options;
+    getViewOptions(&options);
+    d->backBuffer.fill(options.palette.base());
+    
     QPainter painter(&d->backBuffer, d->viewport);
     QRect area = e->rect();
 
     int colfirst = columnAt(area.left());
-    int collast = columnAt(area.right());
+    int collast = columnAt(area.right() - 1);
+
+    if (colfirst == -1)
+        colfirst = 0;
+    if (collast == -1)
+        collast = model()->columnCount(root()) - 1;
     if (colfirst > collast) {
         int tmp = colfirst;
         colfirst = collast;
         collast = tmp;
     }
+
     int rowfirst = rowAt(area.top());
-    int rowlast = rowAt(area.bottom());
-    bool showGrid = d->showGrid;
+    int rowlast = rowAt(area.bottom() - 1);
 
-    QModelIndex bottomRight = model()->bottomRight(root());
-
-    if (rowfirst == -1 || colfirst == -1)
-        return;
+    if (rowfirst == -1)
+        rowfirst = 0;
     if (rowlast == -1)
-        rowlast = bottomRight.row();
-    if (collast == -1)
-        collast = bottomRight.column();
-
-    QItemOptions options;
-    getViewOptions(&options);
+        rowlast = model()->rowCount(root()) - 1;
+    if (rowfirst > rowlast) {
+        int tmp = rowfirst;
+        rowfirst = rowlast;
+        rowlast = tmp;
+    }
+    
+    bool showGrid = d->showGrid;    
     QItemSelectionModel *sels = selectionModel();
     QGenericHeader *leftHeader = d->leftHeader;
     QGenericHeader *topHeader = d->topHeader;
@@ -375,8 +384,10 @@ void QGenericTableView::updateGeometries()
     QRect vg = d->viewport->geometry();
     if (QApplication::reverseLayout())
         d->topHeader->setOffset(vg.width() - topHint.width());
-    d->leftHeader->setGeometry(reverse ? vg.right() + 1 : (vg.left() - 1 - width), vg.top(), width, vg.height());
-    d->topHeader->setGeometry(vg.left(), vg.top() - topHint.height() - 1, vg.width(), topHint.height());
+    d->leftHeader->setGeometry(reverse ? vg.right() : (vg.left() - width), vg.top(),
+                               width, vg.height());
+    d->topHeader->setGeometry(vg.left(), vg.top() - topHint.height(),
+                              vg.width(), topHint.height());
 
     // update sliders
     QItemOptions options;
