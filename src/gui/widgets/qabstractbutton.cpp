@@ -853,7 +853,7 @@ void QAbstractButton::changeEvent(QEvent *ev)
 }
 
 #ifdef QT_COMPAT
-QAbstractButton::QAbstractButton(QWidget *parent, const char *name, WFlags f=0)
+QAbstractButton::QAbstractButton(QWidget *parent, const char *name, WFlags f)
     :QWidget(*new QAbstractButtonPrivate, parent, f)
 {
     setObjectName(name);
