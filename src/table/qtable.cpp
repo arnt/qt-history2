@@ -4806,6 +4806,15 @@ void QTable::setNumRows( int r )
 {
     if ( r < 0 )
 	return;
+
+    if (r < numRows()) {
+	// Removed rows are no longer hidden, and should thus be removed from "hiddenRows"
+	for (int rr = numRows()-1; rr >= r; --rr) {
+	    if (d->hiddenRows.find(rr))
+		d->hiddenRows.remove(rr);
+	}
+    }
+
     QPtrVector<QTableItem> tmp;
     QPtrVector<TableWidget> tmp2;
     saveContents( tmp, tmp2 );
@@ -4844,6 +4853,15 @@ void QTable::setNumCols( int c )
 {
     if ( c < 0 )
 	return;
+
+    if (c < numCols()) {
+	// Removed columns are no longer hidden, and should thus be removed from "hiddenCols"
+	for (int cc = numCols()-1; cc >= c; --cc) {
+	    if (d->hiddenCols.find(cc))
+		d->hiddenCols.remove(cc);
+	}
+    }
+
     QPtrVector<QTableItem> tmp;
     QPtrVector<TableWidget> tmp2;
     saveContents( tmp, tmp2 );
@@ -6009,6 +6027,9 @@ void QTable::removeRow( int row )
     if ( row < 0 || row >= numRows() )
 	return;
     if ( row < numRows() - 1 ) {
+	if (d->hiddenRows.find(row))
+	    d->hiddenRows.remove(row);
+
 	for ( int i = row; i < numRows() - 1; ++i )
 	    ( (QTableHeader*)verticalHeader() )->swapSections( i, i + 1 );
     }
@@ -6056,6 +6077,9 @@ void QTable::removeColumn( int col )
     if ( col < 0 || col >= numCols() )
 	return;
     if ( col < numCols() - 1 ) {
+	if (d->hiddenCols.find(col))
+	    d->hiddenCols.remove(col);
+
 	for ( int i = col; i < numCols() - 1; ++i )
 	    ( (QTableHeader*)horizontalHeader() )->swapSections( i, i + 1 );
     }
