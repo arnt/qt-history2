@@ -113,7 +113,7 @@ void QSqlTableModelPrivate::revertCachedRow(int row)
     case QSql::Delete:
         cache.remove(row);
         emit q->dataChanged(q->createIndex(row, 0),
-                            q->createIndex(row, q->columnCount()));
+                            q->createIndex(row, q->columnCount() - 1));
         break;
     case QSql::Insert: {
             QMap<int, QSqlTableModelPrivate::ModifiedRow>::Iterator it = d->cache.find(row);
