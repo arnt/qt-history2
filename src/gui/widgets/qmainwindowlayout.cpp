@@ -1680,8 +1680,8 @@ Qt::DockWidgetAreas areasForMousePosition(const QRect &r, const QPoint &p, bool 
     return areas;
 }
 
-Qt::DockWidgetAreas QMainWindowLayout::locateDockWidget(QDockWidget *dockwidget,
-                                                        const QPoint &mouse) const
+Qt::DockWidgetArea QMainWindowLayout::locateDockWidget(QDockWidget *dockwidget,
+                                                       const QPoint &mouse) const
 {
     VDEBUG() << "  locate: mouse" << mouse;
 
@@ -1708,18 +1708,21 @@ Qt::DockWidgetAreas QMainWindowLayout::locateDockWidget(QDockWidget *dockwidget,
     Qt::DockWidgetAreas areas =
         areasForMousePosition(layout_info[4].item->geometry(), p,
                               (dockwidget->features() & QDockWidget::DockWidgetFloatable));
+    Qt::DockWidgetArea area;
 
     if (areas == (Qt::LeftDockWidgetArea | Qt::TopDockWidgetArea))
-        areas = corners[Qt::TopLeftCorner];
+        area = corners[Qt::TopLeftCorner];
     else if (areas == (Qt::LeftDockWidgetArea | Qt::BottomDockWidgetArea))
-        areas = corners[Qt::BottomLeftCorner];
+        area = corners[Qt::BottomLeftCorner];
     else if (areas == (Qt::RightDockWidgetArea | Qt::TopDockWidgetArea))
-        areas = corners[Qt::TopRightCorner];
+        area = corners[Qt::TopRightCorner];
     else if (areas == (Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea))
-        areas = corners[Qt::BottomRightCorner];
+        area = corners[Qt::BottomRightCorner];
+    else
+        area = (Qt::DockWidgetArea)(uint)areas;
 
-    VDEBUG() << "  result:" << areas;
-    return areas;
+    VDEBUG() << "  result:" << area;
+    return area;
 }
 
 QRect QMainWindowLayout::placeDockWidget(QDockWidget *dockwidget,
@@ -1728,16 +1731,16 @@ QRect QMainWindowLayout::placeDockWidget(QDockWidget *dockwidget,
 {
     DEBUG("QMainWindowLayout::placeDockWidget");
 
-    Qt::DockWidgetAreas areas = locateDockWidget(dockwidget, mouse);
+    Qt::DockWidgetArea area = locateDockWidget(dockwidget, mouse);
     QRect target;
 
-    if (!areas) {
+    if (!area || !dockwidget->isAreaAllowed(area)) {
         DEBUG() << "END of QMainWindowLayout::placeDockWidget (failed to place)";
         return target;
     }
 
     // if there is a window dock layout already here, forward the place
-    const int pos = positionForArea(areas);
+    const int pos = positionForArea(area);
     if (layout_info[pos].item && !layout_info[pos].item->isEmpty()) {
         DEBUG("  forwarding...");
         QDockWidgetLayout *l = qobject_cast<QDockWidgetLayout *>(layout_info[pos].item->layout());
@@ -1783,15 +1786,15 @@ void QMainWindowLayout::dropDockWidget(QDockWidget *dockwidget,
 {
     DEBUG("QMainWindowLayout::dropDockWidget");
 
-    Qt::DockWidgetAreas areas = locateDockWidget(dockwidget, mouse);
+    Qt::DockWidgetArea area = locateDockWidget(dockwidget, mouse);
 
-    if (!areas) {
+    if (!area || !dockwidget->isAreaAllowed(area)) {
         DEBUG() << "END of QMainWindowLayout::dropDockWidget (failed to place)";
         return;
     }
 
     // if there is a window dock layout already here, forward the drop
-    const int pos = positionForArea(areas);
+    const int pos = positionForArea(area);
     if (layout_info[pos].item) {
         DEBUG() << "  forwarding...";
         QDockWidgetLayout *l = qobject_cast<QDockWidgetLayout *>(layout_info[pos].item->layout());

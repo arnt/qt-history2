@@ -99,7 +99,7 @@ public:
     void endConstrain();
     int constrain(QDockWidgetLayout *dock, int delta);
 
-    Qt::DockWidgetAreas locateDockWidget(QDockWidget *dockwidget, const QPoint &mouse) const;
+    Qt::DockWidgetArea locateDockWidget(QDockWidget *dockwidget, const QPoint &mouse) const;
     QRect placeDockWidget(QDockWidget *dockwidget, const QRect &r, const QPoint &mouse);
     void dropDockWidget(QDockWidget *dockwidget, const QRect &r, const QPoint &mouse);
 
