@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#163 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#164 $
 **
 ** Implementation of QApplication class
 **
@@ -314,57 +314,12 @@ void QApplication::initialize( int argc, char **argv )
     QWidget::createMapper();			// create widget mapper
     is_app_running = TRUE;			// no longer starting up
 
-
     // no longer starting up .....
-
 
     if ( makebuilder ) {
 	builder = new QBuilder;
 	builder->show();
     }
-
-    // arnt was here.
-    QMessageFile * n = new QMessageFile( this );
-    n->insert( QMessageFile::hash( "QFileDialog", "Name" ), "Navn" );
-    n->insert( QMessageFile::hash( "QFileDialog", "Size" ), "Størrelse" );
-    n->insert( QMessageFile::hash( "QFileDialog", "Type" ), "Type" );
-    n->insert( QMessageFile::hash( "QFileDialog", "Directory" ), "Katalog" );
-    n->insert( QMessageFile::hash( "QFileDialog", "Date" ), "Dato" );
-    n->insert( QMessageFile::hash( "QFileDialog", "Attributes" ),
-	       "Attributter" );
-    n->insert( QMessageFile::hash( "QFileDialog", "OK" ), "Jess!" );
-    n->insert( QMessageFile::hash( "QFileDialog", "Cancel" ), "Avbryt" );
-    n->insert( QMessageFile::hash( "QFileDialog", "Look &in" ), "Se &i" );
-    n->insert( QMessageFile::hash( "QFileDialog", "File &name" ), "Fil&navn" );
-    n->insert( QMessageFile::hash( "QFileDialog", "File &type" ), "Fil&type" );
-    n->insert( QMessageFile::hash( "QFileDialog", "All files (*)" ),
-	       "Alle filer (*)" );
-    n->insert( QMessageFile::hash( "QFileDialog", "Open" ),
-	       "Åpne" );
-    n->insert( QMessageFile::hash( "QFileDialog", "Read-write" ),
-	       "Les- og skrivbar" );
-    n->insert( QMessageFile::hash( "QFileDialog", "Read-only" ),
-	       "Skrivebeskyttet" );
-    n->insert( QMessageFile::hash( "QFileDialog", "Write-only" ),
-	       "Ikke lesbar" );
-    n->insert( QMessageFile::hash( "QFileDialog", "Inaccessible" ),
-	       "Utilgjengelig" );
-    n->insert( QMessageFile::hash( "QFileDialog", "Symlink to File" ),
-	       "Symlink til fil" );
-    n->insert( QMessageFile::hash( "QFileDialog", "Symlink to Dir" ),
-	       "Symlink til katalog" );
-    n->insert( QMessageFile::hash( "QFileDialog", "Symlink to Special" ),
-	       "Symlink to spesialfil" );
-    n->insert( QMessageFile::hash( "QFileDialog", "File" ),
-	       "Fil" );
-    n->insert( QMessageFile::hash( "QFileDialog", "Dir" ),
-	       "Katalog" );
-    n->insert( QMessageFile::hash( "QFileDialog", "Special" ),
-	       "Spesialfil" );
-
-    installMessageFile( n );
-
-
 }
 
 
