@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#29 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#30 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -15,7 +15,7 @@
 #include "qpainter.h"
 #include <stdio.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#29 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#30 $")
 
 
 /*! \class QLCDNumber qlcdnum.h
@@ -255,7 +255,8 @@ void QLCDNumber::init()
 {
     initMetaObject();
     setFrameStyle( QFrame::Box | QFrame::Raised );
-    base = DEC;
+    val        = 0;
+    base       = DEC;
     smallPoint = FALSE;
     setNumDigits( ndigits );
 }
@@ -448,18 +449,64 @@ void QLCDNumber::display( const char *s )
     internalDisplay( s );
 }
 
+/*! Calls setMode( HEX ). Provided for convenience (e.g. for
+  connecting buttons to this).
+
+  \sa setMode() setDecMode() setOctMode() setBinMode() mode() */
+void QLCDNumber::setHexMode()
+{
+    setMode( HEX );
+}
+
+
+/*! Calls setMode( DEC ). Provided for convenience (e.g. for
+  connecting buttons to this).
+
+  \sa setMode() setHexMode() setOctMode() setBinMode() mode() */
+void QLCDNumber::setDecMode()
+{
+    setMode( DEC );
+}
+
+
+/*! Calls setMode( OCT ). Provided for convenience (e.g. for
+  connecting buttons to this).
+
+  \sa setMode() setHexMode() setDecMode() setBinMode() mode() */
+void QLCDNumber::setOctMode()
+{
+    setMode( OCT );
+}
+
+
+/*! Calls setMode( BIN ). Provided for convenience (e.g. for
+  connecting buttons to this).
+
+  \sa setMode() setHexMode() setDecMode() setOctMode() mode() */
+void QLCDNumber::setBinMode()
+{
+    setMode( BIN );
+}
+
+
 /*! Sets the display mode to \e m, which must be one of BIN, OCT, DEC
   and HEX.  All four modes can display both integers, floating-point
   numbers and strings (subject to character set limitations).
 
-  \sa mode() setSmallDecimalPoint() display() */
+  The display is set to "0".
+
+  Example:
+  \code
+    myLcd.setMode( QLCDNumber::HEX );
+  \endcode
+
+  \sa mode() setHexMode() setDecMode() setOctMode() setBinMode()
+  setSmallDecimalPoint() display() */
 
 void QLCDNumber::setMode( Mode m )
 {
-    if ( (Mode)base == m )
-	return;
     base = m;
-    display( "" );
+    display( 0 );
 }
 
 
@@ -477,14 +524,14 @@ void QLCDNumber::setMode( Mode m )
   The inter-digit space is made slightly wider when the decimal point
   is drawn between the digits.
 
+  The display is set to "0.0".
+
   \sa smallDecimalPoint() setMode() */
 
 void QLCDNumber::setSmallDecimalPoint( bool b )
 {
-    if ( (bool)smallPoint == b )
-	return;
     smallPoint = b;
-    display( "" );
+    display( 0.0 );
 }
 
 

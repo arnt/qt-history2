@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.h#13 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.h#14 $
 **
 ** Definition of QLCDNumber class
 **
@@ -36,6 +36,7 @@ public:
     bool    checkOverflow( long	  num ) const;
 
     QLCDNumber::Mode mode() const;
+    void    setMode( Mode );
 
     double  value() const;
     long    longValue() const;
@@ -45,7 +46,10 @@ public slots:
     void    display( float num );
     void    display( double num );
     void    display( const char *str );
-    void    setMode( Mode );
+    void    setHexMode();
+    void    setDecMode();
+    void    setOctMode();
+    void    setBinMode();
     void    setSmallDecimalPoint( bool );
 
 signals:
