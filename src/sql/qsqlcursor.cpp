@@ -98,79 +98,30 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::nu
 
     \module sql
 
-    A 'cursor' is a database record (see \l QSqlRecord) that
+    A QSqlCursor is a database record (see \l QSqlRecord) that
     corresponds to a table or view within an SQL database (see \l
-    QSqlDatabase).  Cursors contain a list of fields, and when
-    positioned on a valid record, contain the values for the current
-    record's fields. Cursors can be used to browse the records in a
-    database table, to edit existing records, and to add new records.
+    QSqlDatabase).  There are two buffers in a cursor, one used for
+    browsing and one used for editing records.  Each buffer contains a
+    list of fields which correspond to the fields in the table or
+    view.
 
-    For browsing data, a cursor must first 'select' data from the
-    database; it can then be used in the same way as \l QSqlQuery,
-    using next(), first(), seek(), etc.  Once positioned on a valid
-    record, data can be retrieved from the record's fields using
-    value().  When navigating to new records, the cursor fields are
-    automatically updated with their corresponding value from the
-    database.
+    When positioned on a valid record, the browse buffer
+    contains the values of the current record's fields from the
+    database.  The edit buffer is used for editing existing records
+    and inserting new records.
 
-    For example:
-
-    \walkthrough sql/overview/retrieve2/main.cpp
-    \skipto QSqlCursor
-    \printline QSqlCursor
-    \printuntil }
-
-    For editing rows of data, a cursor contains a separate 'edit
-    buffer' which is independant of the fields used when navigating.
-    The functions insert(), update() and del() operate on this 'edit
-    buffer'.  This allows the cursor to be repositioned to other
-    records while simultaneously maintaining a separate area for
-    edits.  You can get a handle to the cursor's edit buffer using
-    editBuffer().  The primeInsert(), primeUpdate() and primeDelete()
-    functions prepare the edit buffer for insert, update and delete
-    respectively.  Edit operations only affect a single row at a time.
-    Note that update() and del() require that the table or view
-    contain a primaryIndex(); this ensures that edit operations affect
-    a unique record within the database.
+    For browsing data, a cursor must first select() data from the
+    database. After a successful select() the cursor is active
+    (isActive() returns TRUE), but is initially not positioned on a
+    valid record (isValid() returns FALSE).  To position the cursor on
+    a valid record, use one of the navigation functions, next(),
+    prev(), first(), last(), or seek().  Once positioned on a valid
+    record, data can be retrieved from the browse buffer using
+    value().  If a navigation function is not successful, it returns
+    FALSE, the cursor will no longer be positioned on a valid record
+    and the values returned by value() are undefined.
 
     For example:
-
-    \walkthrough sql/overview/update/main.cpp
-    \skipto prices
-    \printline prices
-    \printuntil update
-    \printline
-
-    To edit an existing database record, first edit the values in the
-    cursor's edit buffer (see primeUpdate()), then call update().  The
-    values in the edit buffer will be used to locate the appropriate
-    record and update the database. To add a new record, populate an
-    empty edit buffer (see primeInsert()) and then insert() the record
-    into the database. Again, the values in the edit buffer will be
-    used when inserting into the database.
-
-    QSqlCursor contains virtual methods which allow all editing
-    behavior to be customized by subclasses.  This allows custom
-    cursors to be created which encapsulate all of the editing
-    behavior of a database table for an entire application.  For
-    example, a cursor can be customized to always auto-number primary
-    index fields, or provide fields with suitable default values, when
-    inserting new records.
-
-    Many operations apply to the "current cursor record". If the
-    cursor has never been positioned on a valid record,
-    e.g. immediately after creation, then the field values it returns
-    are not valid ( isValid() will return FALSE and isNull() will
-    return TRUE for each field). If the cursor is positioned on a
-    valid record, e.g. after a successful next(), first(), last(),
-    prev() or seek() that succeeded (isValid() returns TRUE), then the
-    field values it returns are those of the database record it is
-    positioned on. If the cursor is moved to an invalid record, e.g.
-    after an update(), insert() or del() or after a failed seek(),
-    then the field values returned are those of the last valid record
-    it was positioned on.
-
-    Example:
 
     \walkthrough sql/overview/retrieve2/main.cpp
     \skipto QSqlCursor
@@ -180,7 +131,64 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::nu
     In the above example, a cursor is created specifying a table or
     view name in the database. Then, select() is called, which can be
     parameterised to filter and order the records retrieved. Each
-    record in the cursor is retrieved using next().
+    record in the cursor is retrieved using next().  When next()
+    returns FALSE, there are no more records to process, and the loop
+    terminates.
+
+    For editing records (rows of data), a cursor contains a separate
+    edit buffer which is independent of the fields used when
+    navigating.  The functions insert(), update() and del() operate on
+    the edit buffer.  This allows the cursor to be repositioned to
+    other records while simultaneously maintaining a separate buffer
+    for edits.  You can get a handle to the cursor's edit buffer using
+    editBuffer().  The primeInsert(), primeUpdate() and primeDelete()
+    functions prepare the edit buffer for insert, update and delete
+    respectively.  Edit operations only affect a single row at a time.
+    Note that update() and del() require that the table or view
+    contain a primaryIndex() to ensure that edit operations affect a
+    unique record within the database.
+
+    For example:
+
+    \walkthrough sql/overview/update/main.cpp
+    \skipto prices
+    \printline prices
+    \printuntil update
+    \printline
+
+    To edit an existing database record, first move to the record you
+    wish to update.  Call primeUpdate() to get the pointer to the
+    cursor's edit buffer.  Then use this pointer to modify the values
+    in the edit buffer.  Finally, call update() to save the changes to
+    the database.  The values in the edit buffer will be used to
+    locate the appropriate record when updating the database (see
+    primaryIndex()).
+
+    Similarly, when deleting an existing database record, first move
+    the record you wish to delete.  Then, call primeDelete() to get
+    the pointer to the edit buffer.  Finally, call del() to delete the
+    record from the database.  Again, the values in the edit buffer
+    will be used to locate and delete the appropriate record.
+
+    To insert a new record, call primeInsert() to get the pointer to
+    the edit buffer.  Use this pointer to populate the edit buffer
+    with new values and then insert() the record into the database.
+
+    After calling insert(), update() or del(), the cursor is no longer
+    positioned on a valid record and can no longer be navigated
+    (isValid() return FALSE).  The reason for this is that any changes
+    made to the database will not be visible until select() is called
+    to refresh the cursor. You can change this behavior by passing
+    FALSE to insert(), update() or del() which will prevent the cursor
+    from becoming inactive. These edits will then not be visible when
+    navigating the cursor until select() is called.
+
+    QSqlCursor contains virtual methods which allow editing behavior
+    to be customized by subclasses.  This allows custom cursors to be
+    created which encapsulate the editing behavior of a database table
+    for an entire application.  For example, a cursor can be
+    customized to always auto-number primary index fields, or provide
+    fields with suitable default values, when inserting new records.
 
 */
 
@@ -982,15 +990,14 @@ QSqlRecord* QSqlCursor::primeInsert()
   \printline
 
   In the above example, a cursor is created on the 'prices' table and
-   is positioned on the record to be update updated. A pointer is then
-   aquired to the cursor's edit buffer using primeUpdate(). A new
-   value is calculated and placed into the edit buffer with the
-   setValue() call. Finally, an update() call is made on the cursor
-   which uses the tables's primary index to update the record in the
-   database with the contents of the cursor's edit buffer.  Remember:
-   all edit operations (insert(), update() and delete()) operate on
-   the contents of the cursor edit buffer and not on the contents of
-   the cursor itself.
+  is positioned on the record to be update updated. A pointer is then
+  aquired to the cursor's edit buffer using primeUpdate(). A new value
+  is calculated and placed into the edit buffer with the setValue()
+  call. Finally, an update() call is made on the cursor which uses the
+  tables's primary index to update the record in the database with the
+  contents of the cursor's edit buffer.  Remember: all edit operations
+  (insert(), update() and delete()) operate on the contents of the
+  cursor edit buffer and not on the contents of the cursor itself.
 
   Note that if the primary index does not uniquely distinguish records
   the database may be changed into an inconsistent state.
