@@ -24,7 +24,7 @@ extern int qt_mibForXlfd( const char * encoding );
 QFontEngineBox::QFontEngineBox( int size )
     : _size( size )
 {
-
+    cache_cost = 1;
 }
 
 QFontEngineBox::~QFontEngineBox()
@@ -231,6 +231,12 @@ QFontEngineXLFD::QFontEngineXLFD( XFontStruct *fs, const char *name, const char 
 {
     int mib = qt_mibForXlfd( encoding );
     if ( mib ) _codec = QTextCodec::codecForMib( mib );
+
+    cache_cost = (((fs->max_byte1 - fs->min_byte1) *
+		   (fs->max_char_or_byte2 - fs->min_char_or_byte2 + 1)) +
+		  fs->max_char_or_byte2 - fs->min_char_or_byte2);
+    cache_cost = ((fs->max_bounds.ascent + fs->max_bounds.descent) *
+		  (fs->max_bounds.width * cache_cost / 8));
 }
 
 QFontEngineXLFD::~QFontEngineXLFD()
@@ -474,6 +480,7 @@ QFontEngine::Type QFontEngineXLFD::type() const
 // Xft cont engine
 // ------------------------------------------------------------------
 
+
 #ifndef QT_NO_XFTFREETYPE
 class Q_HackPaintDevice : public QPaintDevice
 {
@@ -482,37 +489,63 @@ public:
     inline XftDraw *xftDrawHandle() const {
 	return (XftDraw *)rendhd;
     }
+
 };
 
-// ### all this won't work with Xft2!!!!
-// we need to encapsulate these in some methods to get it working!
 
-inline XftFontStruct *
-getFontStruct( XftFont *font )
+#ifndef QT_XFT2
+static inline XftFontStruct *getFontStruct( XftFont *font )
 {
     if (font->core)
 	return 0;
     return font->u.ft.font;
 }
+#endif // QT_XFT2
 
-// ditto
+static inline FT_Face getFTFace( XftFont *font )
+{
+#ifdef QT_XFT2
+    FT_Face face = XftLockFace( font );
+    XftUnlockFace( font );
+    return face;
+#else
+    if (font->core) return 0;
+    return font->u.ft.font->face;
+#endif // QT_XFT2
+}
+
 static inline void getGlyphInfo(XGlyphInfo *xgi, XftFont *font, int glyph)
 {
     XftTextExtents32(QPaintDevice::x11AppDisplay(), font, (XftChar32 *) &glyph, 1, xgi);
 }
 
 
-
-
 QFontEngineXft::QFontEngineXft( XftFont *font, XftPattern *pattern, int cmap )
     : _font( font ), _pattern( pattern ), _openType( 0 ), _cmap( cmap )
 {
+#ifndef QT_XFT2
     XftFontStruct *xftfs = getFontStruct( _font );
     if ( xftfs ) {
-	// dirty hack: we set the charmap in the Xftfreetype to -1, so XftFreetype assumes no encoding and
-	// really draws glyph indices. The FT_Face still has the Unicode encoding to we can convert from
-	// Unicode to glyph index
+	// dirty hack: we set the charmap in the Xftfreetype to -1, so
+	// XftFreetype assumes no encoding and really draws glyph
+	// indices. The FT_Face still has the Unicode encoding to we
+	// can convert from Unicode to glyph index
 	xftfs->charmap = -1;
+    }
+#endif // QT_XFT2
+
+    FT_Face face = getFTFace( _font );
+
+    cache_cost = _font->height * _font->max_advance_width *
+		 ( face ? face->num_glyphs : 1024 );
+
+    // if the Xft font is not antialiased, it uses bitmaps instead of
+    // 8-bit alpha maps... adjust the cache_cost to reflect this
+    Bool antialiased = TRUE;
+    if ( XftPatternGetBool( pattern, XFT_ANTIALIAS,
+			    0, &antialiased ) == XftResultMatch &&
+	 ! antialiased ) {
+	cache_cost /= 8;
     }
 }
 
@@ -532,6 +565,20 @@ QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str,  int len, gly
 	return OutOfMemory;
     }
 
+#ifdef QT_XFT2
+    for ( int i = 0; i < len; ++i )
+	glyphs[i] =
+	    XftCharIndex( QPaintDevice::x11AppDisplay(), _font, str[i].unicode() );
+
+    if ( advances ) {
+	for ( int i = 0; i < len; i++ ) {
+	    XGlyphInfo gi;
+	    FT_UInt glyph = *(glyphs + i);
+	    XftGlyphExtents( QPaintDevice::x11AppDisplay(), _font, &glyph, 1, &gi );
+	    *(advances + i) = gi.xOff;
+	}
+    }
+#else
     XftFontStruct *fs = getFontStruct( _font );
     if ( !fs ) {
 	for ( int i = 0; i < len; i++ )
@@ -548,6 +595,7 @@ QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str,  int len, gly
 	    *(advances++) = gi.xOff;
 	}
     }
+#endif // QT_XFT2
 
     *nglyphs = len;
     return NoError;
@@ -600,8 +648,14 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 	    // 	    qDebug("advance = %d/%d", adv.x, adv.y );
 	    x += adv;
 	    QGlyphMetrics gi = boundingBox( glyphs[i] );
-	    XftDrawString16 (draw, &col, _font, x-offsets[i].x-gi.xoff, y+offsets[i].y-gi.yoff,
-			     (XftChar16 *) (glyphs+i), 1);
+#ifdef QT_XFT2
+	    FT_UInt glyph = *(glyphs + i);
+	    XftDrawGlyphs( draw, &col, _font, x-offsets[i].x-gi.xoff,
+			   y+offsets[i].y-gi.yoff, &glyph, 1 );
+#else
+	    XftDrawString16 (draw, &col, _font, x-offsets[i].x-gi.xoff,
+			     y+offsets[i].y-gi.yoff, (XftChar16 *) (glyphs+i), 1);
+#endif // QT_XFT2
 #ifdef FONTENGINE_DEBUG
 	    p->drawRect( x - offsets[i].x - gi.xoff + gi.x, y + 100 + offsets[i].y - gi.yoff + gi.y, gi.width, gi.height );
 	    p->drawLine( x - offsets[i].x - gi.xoff, y + 150 + 5*i , x - offsets[i].x, y + 150 + 5*i );
@@ -611,8 +665,14 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
     } else {
 	int i = 0;
 	while ( i < numGlyphs ) {
-	    XftDrawString16 (draw, &col, _font, x+offsets[i].x, y+offsets[i].y,
-			     (XftChar16 *) (glyphs+i), 1);
+#ifdef QT_XFT2
+	    FT_UInt glyph = *(glyphs + i);
+	    XftDrawGlyphs( draw, &col, _font, x+offsets[i].x,
+			   y+offsets[i].y, &glyph, 1 );
+#else
+	    XftDrawString16( draw, &col, _font, x+offsets[i].x,
+			     y+offsets[i].y, (XftChar16 *) (glyphs+i), 1 );
+#endif // QT_XFT2
 	    advance_t adv = advances[i];
 	    // 	    qDebug("advance = %d/%d", adv.x, adv.y );
 	    x += adv;
@@ -731,15 +791,17 @@ QOpenType *QFontEngineXft::openType() const
 //     qDebug("openTypeIface requested!");
     if ( _openType )
 	return _openType;
-    XftFontStruct *xftfs = getFontStruct( _font );
-    if ( !xftfs ) {
-	qDebug("font is core font!");
+
+    FT_Face face = getFTFace( _font );
+    if ( ! face ) {
+#ifdef QT_CHECK_STATE
+	qWarning( "QFontEngineXft: no FT_Face for Xft font" );
+#endif // QT_CHECK_STATE
 	return 0;
     }
 
     QFontEngineXft *that = (QFontEngineXft *)this;
-
-    that->_openType = new QOpenType( xftfs->face );
+    that->_openType = new QOpenType( face );
     return _openType;
 }
 
