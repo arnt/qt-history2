@@ -2047,7 +2047,7 @@ static QString makePSFontName( const QFont &f, int *listpos = 0, int *ftype = 0 
 }
 
 /* static  */ // doesn't work because we need the friend decl from qfontdatabase
-QString qt_makePSFontName( const QFont &f, int *listpos = 0, int *ftype = 0 )
+QString qt_makePSFontName( const QFont &f, int *listpos, int *ftype)
 {
   QString ps;
   int i;
