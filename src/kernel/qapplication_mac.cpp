@@ -1176,10 +1176,15 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
     } else if(windowPart == inContent) {
 	return TRUE; //just return and let the event loop process
     } else if(windowPart != inGoAway && windowPart != inCollapseBox) {
-	widget->raise();
-	if(widget->isTopLevel() && !widget->isDesktop() && !widget->isPopup() &&
-	   (widget->isModal() || !widget->inherits("QDockWindow")))
-	    widget->setActiveWindow();
+	bool set_active = TRUE;
+	if(windowPart == inZoomIn || windowPart == inZoomOut || windowPart == inDrag || windowPart == inGrow) 
+	    set_active = !(GetCurrentKeyModifiers() & cmdKey);
+	if(set_active) {
+	    widget->raise();
+	    if(widget->isTopLevel() && !widget->isDesktop() && !widget->isPopup() &&
+	       (widget->isModal() || !widget->inherits("QDockWindow")))
+		widget->setActiveWindow();
+	}
     }
     if(windowPart == inGoAway || windowPart == inCollapseBox ||
        windowPart == inZoomIn || windowPart == inZoomOut) {
