@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#23 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#22 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#23 $")
 
 
 const int sbDim = 16;
@@ -1487,11 +1487,6 @@ void QTableView::setVerScrollBar( bool on, bool update )
 }
 
 
-/*----------------------------------------------------------------------------
-  \internal
-  Que???
- ----------------------------------------------------------------------------*/
-
 int QTableView::findRawRow( int yPos, int *cellMaxY, int *cellMinY,
 			    bool goOutsideView ) const
 {
@@ -1537,11 +1532,6 @@ int QTableView::findRawRow( int yPos, int *cellMaxY, int *cellMinY,
 
 }
 
-
-/*----------------------------------------------------------------------------
-  \internal
-  Que???
- ----------------------------------------------------------------------------*/
 
 int QTableView::findRawCol( int xPos, int *cellMaxX, int *cellMinX ,
 			    bool goOutsideView ) const
@@ -2012,11 +2002,6 @@ void QTableView::updateScrollBars( uint f )
 }
 
 
-/*----------------------------------------------------------------------------
-  \internal
-  Que???
- ----------------------------------------------------------------------------*/
-
 void QTableView::updateFrameSize()
 {
     int rw = width()  - ( testTableFlags(Tbl_vScrollBar) ? sbDim + 1 : 0 );
@@ -2172,11 +2157,6 @@ int QTableView::maxRowOffset()
     }
 }
 
-
-/*----------------------------------------------------------------------------
-  \internal
-  Que???
- ----------------------------------------------------------------------------*/
 
 void QTableView::showOrHideScrollBars()
 {
