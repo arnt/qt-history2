@@ -27,6 +27,7 @@ void Main::resizeEvent(QResizeEvent*)
 
 void Main::keyPressEvent(QKeyEvent*)
 {
+    clearMask();
 }
 
 void Main::keyReleaseEvent(QKeyEvent*)
