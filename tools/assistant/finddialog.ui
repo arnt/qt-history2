@@ -32,7 +32,7 @@
         </rect>
     </property>
     <property name="caption">
-        <string>Find Text</string>
+        <string>Qt Assistant - Find Text</string>
     </property>
     <property name="icon">
         <pixmap>icon.png</pixmap>

@@ -233,6 +233,7 @@ void SettingsDialog::selectColor()
 void SettingsDialog::addDocuFile()
 {
     QFileDialog *fd = new QFileDialog ( QDir::homeDirPath(), "xml Files (*.xml)", this );
+    fd->setCaption( tr( "Qt Assistant - Add Documentation" ) );
 
     if ( fd->exec() == QDialog::Accepted ) {
 	QString file = fd->selectedFile();
@@ -254,8 +255,10 @@ void SettingsDialog::addDocuFile()
 	setCursor( arrowCursor );
 	f.close();
 	if ( !ok ) {
-	    QMessageBox::warning( this, tr( "Qt Assistant" ),
-			tr( "Error in file %1:\n%2" ).arg( file ).arg( handler.errorProtocol() ) );
+	    QString msg = QString( "In file %1:\n%2" )
+			  .arg( QFileInfo( file ).absFilePath() )
+			  .arg( handler.errorProtocol() );
+	    QMessageBox::critical( this, tr( "Parse Error" ), tr( msg ) );
 	    return;
 	}
 	QString title = handler.getDocumentationTitle();
@@ -353,6 +356,7 @@ void SettingsDialog::deleteCategory()
 void SettingsDialog::browseWebApp()
 {
     QFileDialog *fd = new QFileDialog( this );
+    fd->setCaption( tr( "Qt Assistant - Set Web Browser" ) );
     fd->setMode( QFileDialog::AnyFile );
     fd->setDir( QDir::homeDirPath() );
 

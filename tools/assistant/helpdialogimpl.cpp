@@ -394,8 +394,11 @@ Q_UINT32 HelpDialog::getFileAges()
     QStringList::iterator i = addDocuFiles.begin();
 
     Q_UINT32 fileAges = 0;
-    for( ; i != addDocuFiles.end(); i++ )
-	fileAges += QFileInfo( *i ).lastModified().toTime_t();
+    for( ; i != addDocuFiles.end(); i++ ) {
+	QFileInfo fi( *i );
+	if ( fi.exists() )
+	    fileAges += fi.lastModified().toTime_t();
+    }
 
     return fileAges;
 }
@@ -421,6 +424,12 @@ void HelpDialog::buildKeywordDB()
     for( i = addDocuFiles.begin(); i != addDocuFiles.end(); i++ ){
 	DocuParser handler;
 	QFile file( *i );
+	if ( !file.exists() ) {
+	    QMessageBox::warning( this, tr( "Warning" ),
+		tr( "Documentation file %1 does not exist!\n"
+		    "Skipping file." ).arg( QFileInfo( file ).absFilePath() ) );
+	    continue;
+        }
 	fileAges += QFileInfo( file ).lastModified().toTime_t();
 	QXmlInputSource source( file );
 	QXmlSimpleReader reader;
@@ -429,26 +438,26 @@ void HelpDialog::buildKeywordDB()
 	bool ok = reader.parse( source );
 	file.close();
 	if( !ok ){
-	    QMessageBox::critical( this, "Parse Error",
-		    handler.errorProtocol()
-		    + "\nSkipping file " + *i );
+	    QString msg = QString( "In file %1:\n%2" )
+			  .arg( QFileInfo( file ).absFilePath() )
+			  .arg( handler.errorProtocol() );
+	    QMessageBox::critical( this, tr( "Parse Error" ), tr( msg ) );
+	    continue;
 	}
-	else{
-	    if( !isValidCategory( handler.getCategory() ) )
-		continue;
+	if( !isValidCategory( handler.getCategory() ) )
+	    continue;
 
-	    QFileInfo finfo( *i );
-	    QString dir = finfo.dirPath( TRUE ) + "/";
-	    QPtrList<IndexItem> indLst = handler.getIndexItems();
-	    QPtrListIterator<IndexItem> it( indLst );
-	    IndexItem *indItem;
-	    while ( ( indItem = it.current() ) != 0 ) {
-		QFileInfo fi( dir + indItem->reference );
-		lst.append( IndexKeyword( indItem->keyword, fi.absFilePath() ) );
-		if ( progressPrepare )
-		    progressPrepare->setProgress( progressPrepare->progress() + fi.absFilePath().length() * 1.6 );
-		++it;
-	    }
+	QFileInfo finfo( *i );
+	QString dir = finfo.dirPath( TRUE ) + "/";
+	QPtrList<IndexItem> indLst = handler.getIndexItems();
+	QPtrListIterator<IndexItem> it( indLst );
+	IndexItem *indItem;
+	while ( ( indItem = it.current() ) != 0 ) {
+	    QFileInfo fi( dir + indItem->reference );
+	    lst.append( IndexKeyword( indItem->keyword, fi.absFilePath() ) );
+	    if ( progressPrepare )
+		progressPrepare->setProgress( progressPrepare->progress() + fi.absFilePath().length() * 1.6 );
+	    ++it;
 	}
     }
     if ( !lst.isEmpty() )
@@ -508,6 +517,12 @@ void HelpDialog::buildTitlemapDB()
     for( QStringList::iterator it = docuFiles.begin(); it != docuFiles.end(); it++ ) {
 	DocuParser handler;
 	QFile file( *it );
+	if ( !file.exists() ) {
+	    QMessageBox::warning( this, tr( "Warning" ),
+	    tr( "Documentation file %1 does not exist!\n"
+	        "Skipping file." ).arg( QFileInfo( file ).absFilePath() ) );
+	    continue;
+        }
 	fileAges += QFileInfo( file ).lastModified().toTime_t();
 	QXmlInputSource source( file );
 	QXmlSimpleReader reader;
@@ -529,6 +544,12 @@ void HelpDialog::buildTitlemapDB()
 		titleMap[ link.absFilePath() ] = contItem->title.stripWhiteSpace();
 		++iter;
 	    }
+	} else {
+	    QString msg = QString( "In file %1:\n%2" )
+			  .arg( QFileInfo( file ).absFilePath() )
+			  .arg( handler.errorProtocol() );
+	    QMessageBox::critical( this, tr( "Parse Error" ), tr( msg ) );
+	    continue;
 	}
     }
     QFile titleFile( QDir::homeDirPath() + "/.titlemapdb" );
@@ -761,6 +782,12 @@ void HelpDialog::insertContents()
 	HelpNavigationContentsItem *additionalDocu;
 	QMimeSourceFactory *mime = QMimeSourceFactory::defaultFactory();
 	QFileInfo fi( *i );
+	if ( !fi.exists() ) {
+	    QMessageBox::warning( this, tr( "Warning" ),
+	    tr( "Documentation file %1 does not exist!\n"
+	        "Skipping file." ).arg( fi.absFilePath() ) );
+	    continue;
+        }
 	mime->addFilePath( fi.dirPath( TRUE ) );
 	mime->setExtensionType("html","text/html;charset=UTF-8");
 	mime->setExtensionType("png", "image/png" );
@@ -796,7 +823,10 @@ bool HelpDialog::insertContents( const QString &filename, HelpNavigationContents
     bool ok = reader.parse( source );
     xmlFile.close();
     if( !ok ){
-	QMessageBox::critical( this, "Parse Error", handler.errorProtocol() );
+	QString msg = QString( "In file %1:\n%2" )
+		      .arg( QFileInfo( xmlFile ).absFilePath() )
+		      .arg( handler.errorProtocol() );
+	QMessageBox::critical( this, tr( "Parse Error" ), tr( msg ) );
 	return FALSE;
     }
 
