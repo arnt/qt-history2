@@ -309,7 +309,7 @@ void QThread::start(Priority priority)
 	{
 	    int sched_policy;
 	    if (pthread_attr_getschedpolicy(&attr, &sched_policy) != 0) {
-		qDebug("QThread: could not determine the default schedule policy");
+		qWarning("QThread: could not determine the default schedule policy");
 		sched_policy = SCHED_RR;
 		pthread_attr_setschedpolicy(&attr, SCHED_RR);
 	    }
