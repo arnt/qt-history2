@@ -208,10 +208,6 @@ public:
 #ifndef QT_NO_BEZIER
     void	drawCubicBezier( const QPointArray &, int index=0 );
 #endif
-#ifndef QT_NO_COMPAT
-    void     drawQuadBezier( const QPointArray &pa, int index=0 )
-    { drawCubicBezier( pa, index ); }
-#endif
     void	drawPixmap( int x, int y, const QPixmap &,
 			    int sx=0, int sy=0, int sw=-1, int sh=-1 );
     void	drawPixmap( const QPoint &, const QPixmap &,
