@@ -42,7 +42,7 @@ void FigureEditor::contentsMouseMoveEvent(QMouseEvent* e)
 
 
 BouncyLogo::BouncyLogo(QCanvas* canvas) :
-    QCanvasSprite(canvas)
+    QCanvasSprite(0,canvas)
 {
     static QCanvasPixmapArray logo("qt-trans.xpm");
     setSequence(&logo);
