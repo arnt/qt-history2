@@ -3620,6 +3620,10 @@ bool QXmlSimpleReader::parseContent()
 
     for (;;) {
 	switch ( state ) {
+	    case Ref:
+		if ( !d->contentCharDataRead)
+		    d->contentCharDataRead = d->parseReference_charDataRead;
+		break;
 	    case PInstr:
 		if ( contentHnd ) {
 		    if ( !contentHnd->processingInstruction(name(),string()) ) {
@@ -3759,7 +3763,6 @@ bool QXmlSimpleReader::parseContent()
 			parseFailed( &QXmlSimpleReader::parseContent, state );
 			return FALSE;
 		    }
-		    d->contentCharDataRead = d->parseReference_charDataRead;
 		} else {
 		    if ( d->reportEntities ) {
 			// report character data in chunks
