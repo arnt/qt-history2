@@ -716,8 +716,6 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     if ( !isDesktop() )
 	setBackgroundFromMode(); //### parts of this are done in create but not all (see reparent(...) )
     // make sure move/resize events are sent to all widgets
-    qDebug("posting move & resize events: pos %d %d size %d %d", crect.x(), crect.y(),
-	   crect.width(), crect.height());
     QApplication::postEvent( this, new QMoveEvent( crect.topLeft(),
 						   crect.topLeft() ) );
     QApplication::postEvent( this, new QResizeEvent(crect.size(),
