@@ -1970,6 +1970,7 @@ void SetupWizardImpl::readLicense( QString filePath)
 	else
 	    productsString->setCurrentItem( 0 );
 	expiryDate->setText( licenseInfo[ "EXPIRYDATE" ] );
+	productKey->setText( licenseInfo[ "PRODUCTKEY" ] );
     }
 }
 
