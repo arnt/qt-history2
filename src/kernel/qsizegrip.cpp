@@ -246,7 +246,10 @@ bool QSizeGrip::eventFilter( QObject *o, QEvent *e )
 {
     if ( o == tlw ) {
 	switch ( e->type() ) {
+#ifndef Q_WS_MAC
+	/* The size grip goes no where on Mac OS X when you maximize!  --Sam */
 	case QEvent::ShowMaximized:
+#endif
 	case QEvent::ShowFullScreen:
 	    hide();
 	    break;
