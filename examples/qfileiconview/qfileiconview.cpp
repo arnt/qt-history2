@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#45 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#46 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -594,14 +594,15 @@ QtFileIconView::QtFileIconView( const QString &dir, bool isdesktop,
 
     setGridX( 100 );
     setResizeMode( Adjust );
-
+    setWordWrapIconText( FALSE );
+    
     connect( this, SIGNAL( doubleClicked( QIconViewItem * ) ),
 	     this, SLOT( itemDoubleClicked( QIconViewItem * ) ) );
-    connect( this, SIGNAL( dropped( QDropEvent * ) ), 
+    connect( this, SIGNAL( dropped( QDropEvent * ) ),
 	     this, SLOT( slotDropped( QDropEvent * ) ) );
     connect( this, SIGNAL( itemRightPressed( QIconViewItem * ) ),
 	     this, SLOT( slotItemRightClicked( QIconViewItem * ) ) );
-    connect( this, SIGNAL( viewportRightPressed() ), 
+    connect( this, SIGNAL( viewportRightPressed() ),
 	     this, SLOT( slotViewportRightClicked() ) );
 
     setReorderItemsWhenInsert( TRUE );
