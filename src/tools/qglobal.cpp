@@ -513,7 +513,7 @@ void fatal( const char *msg, ... )
   error code will be used if possible.
   Use this method to handle failures in platform specific API calls.
 
-  This function does nothing when Qt is built with Q_NO_DEBUG
+  This function does nothing when Qt is built with QT_NO_DEBUG
   defined.
 */
 void qSystemWarning( const char* msg, int code )
