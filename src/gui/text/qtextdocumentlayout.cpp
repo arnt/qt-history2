@@ -376,12 +376,16 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *paint
         painter->save();
         painter->setBrush(Qt::black);
         painter->setPen(Qt::NoPen);
-        int margin = fd->margin + fd->border;
-        int w = fd->boundingRect.width() - 2*margin;
-        int h = fd->boundingRect.height() - 2*margin;
+        const int margin = fd->margin + fd->border;
+        const int w = fd->boundingRect.width() - 2*margin;
+        const int h = fd->boundingRect.height() - 2*margin;
+        // left
         painter->drawRect(off.x() + fd->margin, off.y() + fd->margin, fd->border, h);
+        // top
         painter->drawRect(off.x() + fd->margin, off.y() + fd->margin, w, fd->border);
+        // right
         painter->drawRect(off.x() + fd->margin + w, off.y() + fd->margin, fd->border, h);
+        // bottom
         painter->drawRect(off.x() + fd->margin, off.y() + fd->margin + h, w + fd->border, fd->border);
         /*
         if (table) {
@@ -405,7 +409,6 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *paint
     if (table) {
         const int rows = table->rows();
         const int columns = table->columns();
-        const int cellSpacing = table->format().cellSpacing();
         QTextTableData *td = static_cast<QTextTableData *>(data(table));
 
         int row_start = -1, col_start = -1, num_rows = -1, num_cols = -1;
