@@ -997,12 +997,12 @@ void QSqlTable::deleteCurrent()
     }
     if ( !sqlCursor()->canDelete() )
 	return;
-            
+
     int b = 0;
     int conf = Yes;
     if ( confirmEdits() || confirmDelete() )
 	conf = confirmEdit( QSqlTable::Delete );
-    
+
     // Have to have this here - the confirmEdit() might pop up a
     // dialog that causes a repaint -> moves the cursor to the
     // record it have to repaint..
@@ -1756,10 +1756,16 @@ void QSqlTable::sortDescending( int col )
     sortColumn( col, FALSE );
 }
 
-/*! Refreshes the table using the current cursor
+/*! Refreshes the table.  If there is no currently defined cursor (see
+  setCursor()), nothing happens.  If there is a currently defined
+  cursor, and \a refreshCursor is TRUE, the cursor() is refreshed.
+  Otherwise, only the table header and viewport are refreshed
+  according to the currently defined columns (see addColumn())
+
+  \sa setCursor() addColumn()
 */
 
-void QSqlTable::refresh()
+void QSqlTable::refresh( bool refreshCursor )
 {
     QSqlCursor* cur = sqlCursor();
     if ( !cur )
@@ -1768,12 +1774,13 @@ void QSqlTable::refresh()
     setNumCols( 0 );
     d->haveAllRows = FALSE;
     d->colIndex.clear();
-    QSqlCursorNavigator::refresh();
+    if ( refreshCursor )
+	QSqlCursorNavigator::refresh();
     if ( d->fld.count() ) {
 	QSqlField* field = 0;
 	for ( uint i = 0; i < d->fld.count(); ++i ) {
 	    field = cur->field( d->fld[ i ] );
-	    if ( field && ( cur->isGenerated( field->name() ) || 
+	    if ( field && ( cur->isGenerated( field->name() ) ||
 			    cur->isCalculated( field->name() ) ) &&
 		 !cur->primaryIndex().contains( field->name() ) )
 	    {
@@ -1796,6 +1803,18 @@ void QSqlTable::refresh()
 	if ( cur->seek( d->lastAt ) )
 	    emit currentChanged( cur );
     }
+}
+
+/*! \overload
+
+  Refreshes the table.  The cursor is refreshed using the current
+  filter and current sort and the table header is refreshed using the
+  currently defined columns.  Equivalent to calling refresh( TRUE ).
+*/
+
+void QSqlTable::refresh()
+{
+    refresh( TRUE );
 }
 
 /*!  \reimp
