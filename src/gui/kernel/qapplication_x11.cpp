@@ -315,7 +315,7 @@ static bool            popupGrabOk;
 
 static bool sm_blockUserInput = false;                // session management
 
-int qt_xfocusout_grab_counter = 0;
+Q_GUI_EXPORT int qt_xfocusout_grab_counter = 0;
 
 #if defined (QT_TABLET_SUPPORT)
 // since XInput event classes aren't created until we actually open an XInput
