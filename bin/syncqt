@@ -216,17 +216,18 @@ sub classNames {
 }
 
 ######################################################################
-# Syntax:  syncHeader(header, iheader)
+# Syntax:  syncHeader(header, iheader, copy)
 # Params:  header, string, filename to create "symlink" for
 #          iheader, string, destination name of symlink
+#          copy, forces header to be a copy of iheader
 #
 # Purpose: Syncronizes header to iheader
 ######################################################################
 sub syncHeader {
-    my ($header, $iheader) = @_;
+    my ($header, $iheader, $copy) = @_;
     $iheader =~ s=\\=/=g;
     $header =~ s=\\=/=g;
-    return copyFile($iheader, $header) if($copy_headers);
+    return copyFile($iheader, $header) if($copy);
 
     my $iheader_no_basedir = $iheader;
     $iheader_no_basedir =~ s,^$basedir/?,,;
@@ -673,13 +674,13 @@ foreach (@modules_to_sync) {
 			if ($public_header) {
 			    @headers = ( "$includedir/Qt/$header", "$includedir/$lib/$header" );
 			    foreach(@classes) {
-				push @headers, "$includedir/$lib/$_";
+				$header_copies++ if(syncHeader("$includedir/$lib/$_", $copy_headers ? $header : $iheader, 0));
 			    }
 			} else {
 			    @headers = ( "$includedir/Qt/private/$header", "$includedir/$lib/private/$header" );
 			}
 			foreach(@headers) { #sync them
-			    $header_copies++ if(syncHeader($_, $iheader));
+			    $header_copies++ if(syncHeader($_, $iheader, $copy_headers));
 			}
 
 			if($public_header) {
