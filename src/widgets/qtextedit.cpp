@@ -2273,11 +2273,11 @@ void QTextEdit::insert( const QString &text, bool indent, bool checkNewLine, boo
 {
     uint f = 0;
     if ( indent )
-	f &= RedoIndentation;
+	f |= RedoIndentation;
     if ( checkNewLine )
-	f &= CheckNewLines;
+	f |= CheckNewLines;
     if ( removeSelected )
-	f &= removeSelected;
+	f |= RemoveSelected;
     insert( text, f );
 }
 
