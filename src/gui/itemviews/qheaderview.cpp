@@ -151,7 +151,7 @@
 
 /*!
     \property QHeaderView::highlightSections
-    \brief whether the selections containing selected items are highlighted
+    \brief whether the sections containing selected items are highlighted
 */
 
 /*!
