@@ -82,6 +82,7 @@ extern QPaintDevice *qt_mac_safe_pdev; //qapplication_mac.cpp
 
 //static utility variables
 static ThemeWindowType macWinType = kThemeUtilityWindow;
+static const int macSpinBoxSep        = 5;    // distance between spinwidget and the lineedit
 static const int macItemFrame         = 2;    // menu item frame width
 static const int macItemHMargin       = 3;    // menu item hor text margin
 static const int macItemVMargin       = 2;    // menu item ver text margin
@@ -1444,9 +1445,9 @@ QRect QMacStyle::querySubControlMetrics(ComplexControl control,
 	case SC_SpinWidgetButtonField:
 	    return QRect(x, y, spinner_w, w->height() - (fw*2));
 	case SC_SpinWidgetEditField: 
-	    return QRect(fw, fw, w->width() - spinner_w - (fw*2) - 10, w->height() - (fw*2)); 
+	    return QRect(fw, fw, w->width() - spinner_w - (fw*2) - macSpinBoxSep, w->height() - (fw*2)); 
 	case SC_SpinWidgetFrame: 
-	    return QRect(0, 0, w->width() - spinner_w - 10, w->height());
+	    return QRect(0, 0, w->width() - spinner_w - macSpinBoxSep, w->height());
 	default:
 	    break;
 	}
@@ -1736,7 +1737,7 @@ QSize QMacStyle::sizeFromContents(ContentsType contents, const QWidget *widget,
     QSize sz(contentsSize);
     switch(contents) {
     case CT_SpinBox: 
-	sz.setWidth(sz.width() + 10); //10 pixels between the spinner and the editor
+	sz.setWidth(sz.width() + macSpinBoxSep); //leave space between the spinner and the editor
 	break;
     case CT_TabBarTab: {
 	SInt32 lth = kThemeLargeTabHeight;
