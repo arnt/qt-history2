@@ -47,7 +47,7 @@
 
 #ifndef QT_NO_SQL
 
-/*!  
+/*!
   Constructs an editor factory with parent \a parent and name \a name.
 */
 
@@ -57,7 +57,7 @@ QEditorFactory::QEditorFactory ( QObject * parent, const char * name )
 
 }
 
-/*! 
+/*!
   Destroys the object and frees any allocated resources.
 */
 
@@ -69,7 +69,7 @@ QEditorFactory::~QEditorFactory()
 static QEditorFactory * defaultfactory = 0;
 static QCleanupHandler< QEditorFactory > q_cleanup_editor_factory;
 
-/*! 
+/*!
   Returns an instance of a default editor factory.
 */
 
@@ -83,8 +83,8 @@ QEditorFactory * QEditorFactory::defaultFactory()
     return defaultfactory;
 }
 
-/*! 
-  
+/*!
+
   Replaces the default editor factory with \a factory.
   <em>QEditorFactory takes ownership of factory, and destroys it when
   it is no longer needed. </em>
@@ -128,15 +128,19 @@ QWidget * QEditorFactory::createEditor( QWidget * parent, const QVariant & v )
 	case QVariant::CString:
 	case QVariant::Double:
 	    w = new QLineEdit( parent );
+	    ((QLineEdit*)w)->setFrame( FALSE );
 	    break;
 	case QVariant::Date:
 	    w = new QDateEdit( parent );
+	    ((QDateEdit*)w)->setFrame( FALSE );
 	    break;
 	case QVariant::Time:
 	    w = new QTimeEdit( parent );
+	    ((QTimeEdit*)w)->setFrame( FALSE );
 	    break;
 	case QVariant::DateTime:
 	    w = new QDateTimeEdit( parent );
+	    ((QDateTimeEdit*)w)->setFrameShape( QFrame::NoFrame );
 	    break;
 	case QVariant::Pixmap:
 	    w = new QLabel( parent );
@@ -165,5 +169,3 @@ QWidget * QEditorFactory::createEditor( QWidget * parent, const QVariant & v )
     return w;
 }
 #endif // QT_NO_SQL
-
-
