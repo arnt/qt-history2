@@ -250,5 +250,7 @@ int main( int argc, char** argv )
 
     if ( outfile.isOpen() )
 	outfile.close();
+    if ( verbose )
+	outstream << "done" << endl;
     return 0;
 }
