@@ -4414,4 +4414,173 @@ int QListBoxItem::rtti() const
     return RTTI;
 }
 
+/*!
+    \fn bool QListBox::dragSelect() const
+
+    Returns true. Dragging always selects.
+*/
+
+/*!
+    \fn void QListBox::setDragSelect(bool b)
+
+    Does nothing. Dragging always selects.
+*/
+
+/*!
+    \fn bool QListBox::autoScroll() const
+
+    Use dragAutoScroll() instead;
+*/
+
+/*!
+    \fn void QListBox::setAutoScroll(bool b)
+
+    Use setDragAutoScroll() instead.
+*/
+
+/*!
+    \fn bool QListBox::autoScrollBar() const
+
+    Use vScrollBarMode() instead.
+*/
+
+/*!
+    \fn void QListBox::setAutoScrollBar(bool enable)
+
+    Use setVScrollBarMode() instead.
+*/
+
+/*!
+    \fn bool QListBox::scrollBar() const
+
+    Use vScrollBarMode() instead.
+*/
+
+/*!
+    \fn void QListBox::setScrollBar(bool enable)
+
+    Use setVScrollBarMode() instead.
+*/
+
+/*!
+    \fn bool QListBox::autoBottomScrollBar() const
+
+    Use hScrollBarMode() instead.
+*/
+
+/*!
+    \fn void QListBox::setAutoBottomScrollBar(bool enable)
+
+    Use setHScrollBarMode() instead.
+*/
+
+/*!
+    \fn bool QListBox::bottomScrollBar() const
+
+    Use hScrollBarMode() instead.
+*/
+
+/*!
+    \fn void QListBox::setBottomScrollBar(bool enable)
+
+    Use setHScrollBarMode() instead.
+*/
+
+/*!
+    \fn bool QListBox::smoothScrolling() const
+
+    Returns false. Qt always scrolls smoothly.
+*/
+
+/*!
+    \fn void QListBox::setSmoothScrolling(bool b)
+
+    Does nothing. Qt always scrolls smoothly.
+*/
+
+/*!
+    \fn bool QListBox::autoUpdate() const
+
+    Returns true. Qt always updates automatically.
+*/
+
+/*!
+    \fn void QListBox::setAutoUpdate(bool b)
+
+    Does nothing. Qt always updates automatically.
+*/
+
+/*!
+    \fn void QListBox::setFixedVisibleLines(int lines)
+
+    Use setRowMode() instead.
+*/
+
+/*!
+    \fn int  QListBox::cellHeight(int i) const
+
+    Use itemHeight() instead.
+*/
+
+/*!
+    \fn int  QListBox::cellHeight() const
+
+    Use itemHeight() instead.
+*/
+
+/*!
+    \fn int  QListBox::cellWidth() const
+
+    Use maxItemWidth() instead.
+*/
+
+/*!
+    \fn int  QListBox::cellWidth(int i) const
+
+    Use maxItemWidth() instead.
+*/
+
+/*!
+    \fn int  QListBox::numCols() const
+
+    Use numColumns() instead.
+*/
+
+/*!
+    \fn void QListBox::updateCellWidth()
+
+    Does nothing. Qt automatically updates.
+*/
+
+/*!
+    \fn int  QListBox::totalWidth() const
+
+    Use contentsWidth() instead.
+*/
+
+/*!
+    \fn int  QListBox::totalHeight() const
+
+    Use contentsHeight() instead.
+*/
+
+/*!
+    \fn int  QListBox::findItem(int yPos) const
+
+    Use index(itemAt()) instead.
+*/
+
+/*!
+    \fn bool QListBoxItem::selected() const
+
+    Use isSelected() instead.
+*/
+
+/*!
+    \fn bool QListBoxItem::current() const
+
+    Use isCurrent() instead.
+*/
+
+
 #endif // QT_NO_LISTBOX

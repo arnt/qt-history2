@@ -1518,4 +1518,11 @@ void QSqlCursor::setValue(int i, const QCoreVariant& val)
     QSqlRecord::setValue(i, val);
 }
 
+/*!
+    \fn void QSqlCursor::insert(int pos, const QSqlFieldInfo &fieldInfo)
+
+    Use replace() instead.
+*/
+
+
 #endif

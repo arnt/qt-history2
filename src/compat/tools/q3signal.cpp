@@ -185,13 +185,33 @@ QCoreVariant Q3Signal::value() const
     \internal
 */
 
+/*!
+    Sets the signal's parameter to the given integer \a value.
+*/
 void Q3Signal::setParameter(int value)
 {
     val = value;
 }
 
+/*!
+    Returns the signal's parameter as an integer.
+*/
 int Q3Signal::parameter() const
 {
     return val.toInt();
 }
+
+/*!
+    \fn bool Q3Signal::isBlocked() const
+
+    Uses QObject::signalsBlocked() instead.
+*/
+
+/*!
+    \fn void Q3Signal::block(bool b)
+
+    Use QObject::blockSignals() instead.
+*/
+
+
 #endif //QT_NO_VARIANT

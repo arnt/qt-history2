@@ -1014,4 +1014,17 @@ to help. Ask them for ISBN 1859121047.
 
 */
 
+/*!
+    \fn QString QAccel::keyToString(const QKeySequence &k)
+
+    Cast to a QString directly, e.g., QString(k), instead.
+*/
+
+/*!
+    \fn QKeySequence QAccel::stringToKey(const QString &s)
+
+    Cast to a QKeySequence directly, e.g., QKeySequence(s), instead.
+*/
+
+
 #endif // QT_NO_ACCEL

@@ -105,6 +105,109 @@
     QCString, you will get better performance by converting the
     QCString to a QString yourself, and then searching in the QString.
 */
+/*!
+    \fn QCString QCString::left(uint len)  const
+
+    Use QByteArray::left() instead.
+
+*/
+
+/*!
+    \fn QCString QCString::right(uint len) const
+
+    Use QByteArray::right() instead.
+*/
+
+/*!
+    \fn QCString QCString::mid(uint index, uint len=0xffffffff) const
+
+    Use QByteArray::mid() instead.
+*/
+
+/*!
+    \fn QCString  QCString::lower() const
+
+    Use QByteArray::toLower() instead.
+*/
+
+/*!
+    \fn QCString  QCString::upper() const
+
+    Use QByteArray::toUpper() instead.
+*/
+
+/*!
+    \fn QCString  QCString::stripWhiteSpace() const
+
+    Use QByteArray::trimmed() instead.
+*/
+
+/*!
+    \fn QCString  QCString::simplifyWhiteSpace() const
+
+    Use QByteArray::simplified() instead.
+*/
+
+/*!
+    \fn QCString& QCString::insert(uint index, const char *c)
+
+    Use QByteArray::insert() instead.
+*/
+
+/*!
+    \fn QCString& QCString::insert(uint index, char c)
+
+    Use QByteArray::insert() instead.
+*/
+
+/*!
+    \fn QCString& QCString::prepend(const char *c)
+
+    Use QByteArray::prepend() instead.
+*/
+
+/*!
+    \fn QCString& QCString::remove(uint index, uint len)
+
+    Use QByteArray::remove() instead.
+*/
+
+/*!
+    \fn QCString& QCString::replace(uint index, uint len, const char *c)
+
+    Use QByteArray::replace() instead.
+*/
+
+/*!
+    \fn QCString& QCString::replace(char c, const QCString &after)
+
+    Use QByteArray::replace() instead.
+*/
+
+/*!
+    \fn QCString& QCString::replace(char c, const char *after)
+
+    Use QByteArray::replace() instead.
+*/
+
+/*!
+    \fn QCString& QCString::replace(const QCString &b, const QCString &a)
+
+    Use QByteArray::replace() instead.
+*/
+
+/*!
+    \fn QCString& QCString::replace(const char *b, const char *a)
+
+    Use QByteArray::replace() instead.
+*/
+
+/*!
+    \fn QCString& QCString::replace(char b, char a)
+
+    Use QByteArray::replace() instead.
+*/
+
 
 /*!
     \fn QCString::QCString()
@@ -112,6 +215,12 @@
     Constructs a null string.
 
     \sa isNull()
+*/
+
+/*!
+    \fn QCString::QCString(const QByteArray &ba)
+
+    Use QByteArray::QByteArray() instead.
 */
 
 /*!
@@ -158,6 +267,11 @@
     \sa isNull()
 */
 
+/*!
+    \fn QCString &QCString::operator=(const QByteArray &ba)
+
+    Assigns byte array \a ba to this QCString.
+*/
 
 /*!
     \fn QCString &QCString::operator=(const QCString &s)
@@ -366,8 +480,8 @@ QCString QCString::rightJustify(uint width, char fill, bool truncate) const
 /*!
     Returns the string converted to a \c long value.
 
-    If \a ok is not 0: \a *ok is set to false if the string is not a
-    number, or if it has trailing garbage; otherwise \a *ok is set to
+    If \a ok is not 0: *\a ok is set to false if the string is not a
+    number, or if it has trailing garbage; otherwise *\a ok is set to
     true.
 */
 
@@ -410,8 +524,8 @@ bye:
 /*!
     Returns the string converted to an \c{unsigned long} value.
 
-    If \a ok is not 0: \a *ok is set to false if the string is not a
-    number, or if it has trailing garbage; otherwise \a *ok is set to
+    If \a ok is not 0: *\a ok is set to false if the string is not a
+    number, or if it has trailing garbage; otherwise *\a ok is set to
     true.
 */
 
@@ -447,9 +561,9 @@ bye:
 /*!
     Returns the string converted to a \c{short} value.
 
-    If \a ok is not 0: \a *ok is set to false if the string is not a
+    If \a ok is not 0: *\a ok is set to false if the string is not a
     number, is out of range, or if it has trailing garbage; otherwise
-    \a *ok is set to true.
+    *\a ok is set to true.
 */
 
 short QCString::toShort(bool *ok) const
@@ -463,9 +577,9 @@ short QCString::toShort(bool *ok) const
 /*!
     Returns the string converted to an \c{unsigned short} value.
 
-    If \a ok is not 0: \a *ok is set to false if the string is not a
+    If \a ok is not 0: *\a ok is set to false if the string is not a
     number, is out of range, or if it has trailing garbage; otherwise
-    \a *ok is set to true.
+    *\a ok is set to true.
 */
 
 ushort QCString::toUShort(bool *ok) const
@@ -480,8 +594,8 @@ ushort QCString::toUShort(bool *ok) const
 /*!
     Returns the string converted to a \c{int} value.
 
-    If \a ok is not 0: \a *ok is set to false if the string is not a
-    number, or if it has trailing garbage; otherwise \a *ok is set to
+    If \a ok is not 0: *\a ok is set to false if the string is not a
+    number, or if it has trailing garbage; otherwise *\a ok is set to
     true.
 */
 
@@ -493,8 +607,8 @@ int QCString::toInt(bool *ok) const
 /*!
     Returns the string converted to an \c{unsigned int} value.
 
-    If \a ok is not 0: \a *ok is set to false if the string is not a
-    number, or if it has trailing garbage; otherwise \a *ok is set to
+    If \a ok is not 0: *\a ok is set to false if the string is not a
+    number, or if it has trailing garbage; otherwise *\a ok is set to
     true.
 */
 
@@ -506,8 +620,8 @@ uint QCString::toUInt(bool *ok) const
 /*!
     Returns the string converted to a \c{double} value.
 
-    If \a ok is not 0: \a *ok is set to false if the string is not a
-    number, or if it has trailing garbage; otherwise \a *ok is set to
+    If \a ok is not 0: *\a ok is set to false if the string is not a
+    number, or if it has trailing garbage; otherwise *\a ok is set to
     true.
 */
 
@@ -523,8 +637,8 @@ double QCString::toDouble(bool *ok) const
 /*!
     Returns the string converted to a \c{float} value.
 
-    If \a ok is not 0: \a *ok is set to false if the string is not a
-    number, or if it has trailing garbage; otherwise \a *ok is set to
+    If \a ok is not 0: *\a ok is set to false if the string is not a
+    number, or if it has trailing garbage; otherwise *\a ok is set to
     true.
 */
 

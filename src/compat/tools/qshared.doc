@@ -1,0 +1,24 @@
+/*!
+    \class QShared
+    \compat
+*/
+
+
+/*!
+    \fn QShared::QShared()
+
+    Use QSharedData and QSharedDataPointer instead.
+*/
+
+/*!
+    \fn void QShared::ref()               
+
+    Use QSharedDataPointer instead.
+*/
+
+/*!
+    \fn bool QShared::deref()       
+
+    Use QSharedDataPointer instead.
+*/
+
