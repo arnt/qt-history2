@@ -15,7 +15,7 @@
 #include <stdlib.h>
 
 MainForm::MainForm() :
-    changeListFrom(0), changeListTo(0)
+    changeListFrom(0), changeListTo(0), changeDateTo(0)
 {
     connect( quit, SIGNAL(clicked()), SLOT(close()) );
     connect( pathSelect, SIGNAL(clicked()), SLOT(selectPath()) );
@@ -39,6 +39,7 @@ MainForm::~MainForm()
 {
     delete changeListFrom;
     delete changeListTo;
+    delete changeDateTo;
 }
 
 void MainForm::selectPath()
@@ -74,8 +75,10 @@ void MainForm::go()
 {
     delete changeListFrom;
     delete changeListTo;
+    delete changeDateTo;
     changeListFrom = 0;
     changeListTo = 0;
+    changeDateTo = 0;
 
     incIntegrates = includeIntegrates->isChecked();
 #if !defined(USE_READLINE)
@@ -141,7 +144,20 @@ void MainForm::readyReadStdout()
 		if ( sTmpPos == -1 || eTmpPos == -1 )
 		    qWarning( "parsing error of p4 output" );
 		QString label = changesTmp.mid( sTmpPos, eTmpPos-sTmpPos );
-		list->append( label.toInt() );
+		int labelInt = label.toInt();
+		list->append( labelInt );
+		if ( changeDateTo ) {
+		    sTmpPos = changesTmp.find( ' ', eTmpPos+1 );
+		    eTmpPos = changesTmp.find( ' ', sTmpPos+1 );
+		    changeDateTo->insert( labelInt, changesTmp.mid( sTmpPos, eTmpPos-sTmpPos ) );
+#if 0
+		    if ( changes->currentItem() != 0 ) {
+			int i = desc.find( '\n' );
+			QString tmp = desc.left(i).replace( QRegExp("^Change \\d* by .* on ") , "" );
+			changes->currentItem()->setText( 1, tmp );
+		    }
+#endif
+		}
 		sPos = ePos + 1;
 	    }
 	    changesTmp = changesTmp.right( changesTmp.length() - sPos );
@@ -205,6 +221,7 @@ void MainForm::processExited()
 		changesTmp = "";
 #endif
 		changeListTo = new QValueList<int>;
+		changeDateTo = new QMap<int,QString>;
 		startChanges( changesTo->currentText() );
 	    } else {
 		changes->clear();
@@ -216,13 +233,13 @@ void MainForm::processExited()
 		while ( !TO_AT_END ) {
 		    if ( FROM_AT_END ) {
 			while ( !TO_AT_END ) {
-			    changes->insertItem( new ChangeItem( changes, *itTo ) );
+			    changes->insertItem( new ChangeItem( changes, *itTo, (*changeDateTo)[*itTo] ) );
 			    itTo++;
 			}
 			break;
 		    }
 		    while ( *itFrom > *itTo ) {
-			changes->insertItem( new ChangeItem( changes, *itTo ) );
+			changes->insertItem( new ChangeItem( changes, *itTo, (*changeDateTo)[*itTo] ) );
 			itTo++;
 			if ( TO_AT_END )
 			    break;
@@ -237,6 +254,12 @@ void MainForm::processExited()
 		errorView->append( QString("%1 changes found\n").arg(changes->childCount()) );
 		QApplication::restoreOverrideCursor();
 		QApplication::restoreOverrideCursor();
+		delete changeListFrom;
+		delete changeListTo;
+		delete changeDateTo;
+		changeListFrom = 0;
+		changeListTo = 0;
+		changeDateTo = 0;
 	    }
 	}
     } else if ( command == "describe" ) {
@@ -286,21 +309,6 @@ void MainForm::parseDescribe( const QString& desc )
     if ( changes->currentItem() != 0 ) {
 	((ChangeItem*)(changes->currentItem()))->setVisitedEnable( TRUE );
     }
-    // ### that should go somewhre else
-    if ( changes->currentItem() != 0 ) {
-	int i = desc.find( '\n' );
-	QString tmp = desc.left(i).replace( QRegExp("^Change \\d* by .* on ") , "" );
-	changes->currentItem()->setText( 1, tmp );
-    }
-#if 0
-    description->setCursorPosition( 0, 0 );
-    description->setText( desc );
-    if ( changes->currentItem() != 0 ) {
-	int i = desc.find( '\n' );
-	QString tmp = desc.left(i).replace( QRegExp("^Change \\d* by .* on ") , "" );
-	changes->currentItem()->setText( 1, tmp );
-    }
-#endif
 }
 
 void MainForm::setDescFilesDiff( const QString& de, const QString& f, const QString& di )

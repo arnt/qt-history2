@@ -31,6 +31,7 @@ private:
     QProcess process;
     QValueList<int> *changeListFrom;
     QValueList<int> *changeListTo;
+    QMap<int,QString> *changeDateTo;
     bool incIntegrates;
 #if !defined(USE_READLINE)
     QString changesTmp;

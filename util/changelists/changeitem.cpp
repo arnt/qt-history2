@@ -1,7 +1,7 @@
 #include "changeitem.h"
 
-ChangeItem::ChangeItem( QListView *parent, int changeNr ) :
-    QListViewItem( parent, QString::number(changeNr) ),
+ChangeItem::ChangeItem( QListView *parent, int changeNr, const QString& date ) :
+    QListViewItem( parent, QString::number(changeNr), date ),
     visited(FALSE)
 {
 }

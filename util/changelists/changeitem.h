@@ -6,7 +6,7 @@
 class ChangeItem : public QListViewItem
 {
 public:
-    ChangeItem( QListView*, int );
+    ChangeItem( QListView*, int, const QString& );
     ~ChangeItem();
 
     void setVisitedEnable( bool v );
