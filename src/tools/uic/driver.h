@@ -57,9 +57,6 @@ public:
     QString unique(const QString &instanceName=QString::null,
                    const QString &className=QString::null);
 
-    inline bool hasName(const QString &name) const
-    { return m_nameRepository.contains(name); }
-
     // symbol table
     QString findOrInsertWidget(DomWidget *ui_widget);
     QString findOrInsertSpacer(DomSpacer *ui_spacer);
@@ -68,6 +65,15 @@ public:
     QString findOrInsertName(const QString &name);
     QString findOrInsertActionGroup(DomActionGroup *ui_group);
     QString findOrInsertAction(DomAction *ui_action);
+
+    inline bool hasName(const QString &name) const
+    { return m_nameRepository.contains(name); }
+
+    DomWidget *widgetByName(const QString &name) const;
+    DomSpacer *spacerByName(const QString &name) const;
+    DomLayout *layoutByName(const QString &name) const;
+    DomActionGroup *actionGroupByName(const QString &name) const;
+    DomAction *actionByName(const QString &name) const;
 
     // pixmap
     void insertPixmap(const QString &pixmap);

@@ -232,3 +232,29 @@ bool Driver::containsPixmap(const QString &pixmap) const
 {
     return m_pixmaps.contains(pixmap);
 }
+
+DomWidget *Driver::widgetByName(const QString &name) const
+{
+    return m_widgets.key(name);
+}
+
+DomSpacer *Driver::spacerByName(const QString &name) const
+{
+    return m_spacers.key(name);
+}
+
+DomLayout *Driver::layoutByName(const QString &name) const
+{
+    return m_layouts.key(name);
+}
+
+DomActionGroup *Driver::actionGroupByName(const QString &name) const
+{
+    return m_actionGroups.key(name);
+}
+
+DomAction *Driver::actionByName(const QString &name) const
+{
+    return m_actions.key(name);
+}
+
