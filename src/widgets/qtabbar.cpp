@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#67 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#68 $
 **
 ** Implementation of QTabBar class
 **
@@ -157,6 +157,35 @@ int QTabBar::addTab( QTab * newTab )
     newTab->id = d->id++;
     l->append( newTab );
     lstatic->append( newTab );
+
+    layoutTabs();
+
+    int p = QAccel::shortcutKey( newTab->label );
+    if ( p )
+	d->a->insertItem( p, newTab->id );
+
+    return newTab->id;
+}
+
+/*!
+  Inserts \a newTab to the tab control.
+
+  Allocates a new id, sets t's id, locates it at position \e index,
+  inserts an accelerator if the tab's label contains the
+  string "&p" for some value of p, inserts it into the bar, and returns the
+  newly allocated id.
+*/
+
+int QTabBar::insertTab( QTab * newTab, int index )
+{
+	if ( index > l->count() - 1 )
+		index = l->count() - 1;
+	else if ( index < 0 )
+		index = 0;
+	
+    newTab->id = d->id++;
+    l->insert( index, newTab );
+    lstatic->insert( index, newTab );
 
     layoutTabs();
 
@@ -406,7 +435,7 @@ void QTabBar::paintEvent( QPaintEvent * e )
 	p.setBrushOrigin( rect().bottomLeft() );
 	p.fillRect(0, 0, width(), height(), QBrush( colorGroup().background(), *backgroundPixmap() ));
     }
-    
+
     QTab * t;
     t = l->first();
     do {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.h#27 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.h#28 $
 **
 ** Definition of QTabBar class
 **
@@ -67,6 +67,7 @@ public:
 
     void show();
 
+	virtual int insertTab( QTab *, int );
     virtual int addTab( QTab * );
     virtual void removeTab( QTab * );
 
