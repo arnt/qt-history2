@@ -375,7 +375,7 @@ void QTextView::keyPressEvent( QKeyEvent *e )
 
 
     bool selChanged = FALSE;
-    for ( int i = 1; i < QTextDocument::Temp; ++i ) // start with 1 as we don't want to remove the Standard-Selection
+    for ( int i = 1; i < doc->numSelections(); ++i ) // start with 1 as we don't want to remove the Standard-Selection
  	selChanged = doc->removeSelection( i ) || selChanged;
 
     if ( selChanged ) {
@@ -733,7 +733,7 @@ void QTextView::removeSelectedText()
     if ( isReadOnly() )
 	return;
 
-    for ( int i = 1; i < (int)QTextDocument::Temp; ++i )
+    for ( int i = 1; i < (int)doc->numSelections(); ++i )
 	doc->removeSelection( i );
 
     drawCursor( FALSE );
@@ -991,7 +991,7 @@ void QTextView::contentsMousePressEvent( QMouseEvent *e )
 	    }
 	}
 
-	for ( int i = 1; i < QTextDocument::Temp; ++i ) // start with 1 as we don't want to remove the Standard-Selection
+	for ( int i = 1; i < doc->numSelections(); ++i ) // start with 1 as we don't want to remove the Standard-Selection
 	    redraw = doc->removeSelection( i ) || redraw;
 
 	if ( !redraw ) {
@@ -1421,7 +1421,7 @@ void QTextView::undo()
     if ( isReadOnly() )
 	return;
 
-    for ( int i = 0; i < (int)QTextDocument::Temp; ++i )
+    for ( int i = 0; i < (int)doc->numSelections(); ++i )
 	doc->removeSelection( i );
 
 #ifndef QT_NO_CURSOR
@@ -1447,7 +1447,7 @@ void QTextView::redo()
     if ( isReadOnly() )
 	return;
 
-    for ( int i = 0; i < (int)QTextDocument::Temp; ++i )
+    for ( int i = 0; i < (int)doc->numSelections(); ++i )
 	doc->removeSelection( i );
 
 #ifndef QT_NO_CURSOR
@@ -1941,8 +1941,10 @@ void QTextView::getCursorPosition( int &parag, int &index ) const
 }
 
 void QTextView::setSelection( int parag_from, int index_from,
-			      int parag_to, int index_to )
+			      int parag_to, int index_to, int selNum )
 {
+    if ( selNum > doc->numSelections() - 1 )
+	doc->addSelection( selNum );
     QTextParag *p1 = doc->paragAt( parag_from );
     if ( !p1 )
 	return;
@@ -1961,8 +1963,8 @@ void QTextView::setSelection( int parag_from, int index_from,
     c.setIndex( index_from );
     cursor->setParag( p2 );
     cursor->setIndex( index_to );
-    doc->setSelectionStart( QTextDocument::Standard, &c );
-    doc->setSelectionEnd( QTextDocument::Standard, cursor );
+    doc->setSelectionStart( selNum, &c );
+    doc->setSelectionEnd( selNum, cursor );
     repaintChanged();
     ensureCursorVisible();
     drawCursor( TRUE );
@@ -1974,9 +1976,9 @@ void QTextView::setSelection( int parag_from, int index_from,
 */
 
 void QTextView::getSelection( int &parag_from, int &index_from,
-			      int &parag_to, int &index_to ) const
+			      int &parag_to, int &index_to, int selNum ) const
 {
-    if ( !doc->hasSelection( QTextDocument::Standard ) ) {
+    if ( !doc->hasSelection( selNum ) ) {
 	parag_from = -1;
 	index_from = -1;
 	parag_to = -1;
@@ -1984,8 +1986,8 @@ void QTextView::getSelection( int &parag_from, int &index_from,
 	return;
     }
 
-    doc->selectionStart( QTextDocument::Standard, parag_from, index_from );
-    doc->selectionEnd( QTextDocument::Standard, parag_from, index_from );
+    doc->selectionStart( selNum, parag_from, index_from );
+    doc->selectionEnd( selNum, parag_from, index_from );
 }
 
 /*!  Sets the text format to \a format. Possible choices are
@@ -2914,4 +2916,14 @@ void QTextView::setEnabled( bool b )
 	f->setColor( colorGroup().text() );
 	viewport()->repaint( FALSE );
     }
+}
+
+void QTextView::setSelectionAttributes( int selNum, const QColor &back, bool invertText )
+{
+    if ( selNum < 1 )
+	return;
+    if ( selNum > doc->numSelections() )
+	doc->addSelection( selNum );
+    doc->setSelectionColor( selNum, back );
+    doc->setInvertSelectionText( selNum, invertText );
 }

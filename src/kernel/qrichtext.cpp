@@ -1181,10 +1181,6 @@ void QTextCursor::setDocument( QTextDocument *d )
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-// the "static const int numSelections" is a hack for Borland
-static const int numSelections = 9; // Don't count the Temp one!
-const int QTextDocument::numSelections = 9; // numSelections;
-
 QTextDocument::QTextDocument( QTextDocument *p )
     : par( p ), parParag( 0 ), tc( 0 ), tArray( 0 ), tStopWidth( 0 )
 {
@@ -1207,6 +1203,7 @@ QTextDocument::QTextDocument( QTextDocument *p )
     minw = 0;
     minwParag = 0;
     align = AlignAuto;
+    nSelections = 1;
 
     sheet_ = QStyleSheet::defaultSheet();
     factory_ = QMimeSourceFactory::defaultFactory();
@@ -1237,23 +1234,7 @@ QTextDocument::QTextDocument( QTextDocument *p )
     flow_->setWidth( cw );
 
     selectionColors[ Standard ] = QApplication::palette().color( QPalette::Active, QColorGroup::Highlight );
-    selectionColors[ Selection1 ] = Qt::magenta;
-    selectionColors[ Selection2 ] = Qt::green;
-    selectionColors[ Selection3 ] = Qt::yellow;
-    selectionColors[ Selection4 ] = Qt::yellow;
-    selectionColors[ Selection5 ] = Qt::yellow;
-    selectionColors[ Selection6 ] = Qt::yellow;
-    selectionColors[ Selection7 ] = Qt::yellow;
-    selectionColors[ Selection8 ] = Qt::yellow;
     selectionText[ Standard ] = TRUE;
-    selectionText[ Selection1 ] = FALSE;
-    selectionText[ Selection2 ] = FALSE;
-    selectionText[ Selection3] = FALSE;
-    selectionText[ Selection4] = FALSE;
-    selectionText[ Selection5] = FALSE;
-    selectionText[ Selection6] = FALSE;
-    selectionText[ Selection7] = FALSE;
-    selectionText[ Selection8] = FALSE;
     commandHistory = new QTextCommandHistory( 100 );
     tStopWidth = formatCollection()->defaultFormat()->width( 'x' ) * 8;
 }
@@ -1793,6 +1774,11 @@ QTextParag *QTextDocument::selectionEnd( int id )
     if ( sel.startCursor.parag()->paragId() >  sel.endCursor.parag()->paragId() )
 	return sel.startCursor.parag();
     return sel.endCursor.parag();
+}
+
+void QTextDocument::addSelection( int id )
+{
+    nSelections = QMAX( nSelections, id + 1 );
 }
 
 bool QTextDocument::setSelectionEnd( int id, QTextCursor *cursor )
@@ -3362,11 +3348,12 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 
     QString qstr = str->toString();
 
-    int selectionStarts[ numSelections ];
-    int selectionEnds[ numSelections ];
+    const int nSels = doc ? doc->numSelections() : 1;
+    int selectionStarts[ nSels ];
+    int selectionEnds[ nSels ];
     if ( drawSelections ) {
 	bool hasASelection = FALSE;
-	for ( i = 0; i < numSelections; ++i ) {
+	for ( i = 0; i < nSels; ++i ) {
 	    if ( !hasSelection( i ) ) {
 		selectionStarts[ i ] = -1;
 		selectionEnds[ i ] = -1;
@@ -3443,7 +3430,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	// check if selection state changed
 	bool selectionChange = FALSE;
 	if ( drawSelections ) {
-	    for ( int j = 0; j < numSelections; ++j ) {
+	    for ( int j = 0; j < nSels; ++j ) {
 		selectionChange = selectionStarts[ j ] == i || selectionEnds[ j ] == i;
 		if ( selectionChange )
 		    break;
@@ -3528,7 +3515,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     if ( paintStart <= paintEnd ) {
 	bool selectionChange = FALSE;
 	if ( drawSelections ) {
-	    for ( int j = 0; j < numSelections; ++j ) {
+	    for ( int j = 0; j < nSels; ++j ) {
 		selectionChange = selectionStarts[ j ] == i || selectionEnds[ j ] == i;
 		if ( selectionChange )
 		    break;
@@ -3586,7 +3573,8 @@ void QTextParag::drawParagString( QPainter &painter, const QString &str, int sta
     }
 
     if ( drawSelections ) {
-	for ( int j = 0; j < numSelections; ++j ) {
+	const int nSels = doc ? doc->numSelections() : 1;
+	for ( int j = 0; j < nSels; ++j ) {
 	    if ( i > selectionStarts[ j ] && i <= selectionEnds[ j ] ) {
 		if ( !doc || doc->invertSelectionText( j ) )
 		    painter.setPen( QPen( cg.color( QColorGroup::HighlightedText ) ) );

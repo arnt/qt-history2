@@ -92,7 +92,8 @@ public slots:
     virtual void setAlignment( int a );
     virtual void setParagType( QStyleSheetItem::DisplayMode dm, QStyleSheetItem::ListStyle listStyle );
     virtual void setCursorPosition( int parag, int index );
-    virtual void setSelection( int parag_from, int index_from, int parag_to, int index_to );
+    virtual void setSelection( int parag_from, int index_from, int parag_to, int index_to, int selNum = 0 );
+    virtual void setSelectionAttributes( int selNum, const QColor &back, bool invertText );
     virtual void setModified( bool m );
     virtual void resetFormat();
     virtual void setUndoDepth( int d );
@@ -314,9 +315,14 @@ inline void QTextEdit::setCursorPosition( int parag, int index )
     QTextView::setCursorPosition( parag, index );
 }
 
-inline void QTextEdit::setSelection( int parag_from, int index_from, int parag_to, int index_to )
+inline void QTextEdit::setSelection( int parag_from, int index_from, int parag_to, int index_to, int selNum )
 {
-    QTextView::setSelection( parag_from, index_from, parag_to, index_to );
+    QTextView::setSelection( parag_from, index_from, parag_to, index_to, selNum );
+}
+
+inline void QTextEdit::setSelectionAttributes( int selNum, const QColor &back, bool invertText )
+{
+    QTextView::setSelectionAttributes( selNum, back, invertText );
 }
 
 inline void QTextEdit::setModified( bool m )

@@ -294,7 +294,7 @@
 
 /*! \fn void QTextEdit::clear()
 
-  Removes all text. 
+  Removes all text.
 
 */
 
@@ -374,11 +374,21 @@
   Sets the cursor to the index \a index in the paragraph \a parag.
 */
 
-/*! \fn void QTextEdit::setSelection( int parag_from, int index_from, int parag_to, int index_to )
+/*! \fn void QTextEdit::setSelection( int parag_from, int index_from, int parag_to, int index_to, int selNum )
 
-  Sets a selections which starts at the index \a index_from in the
+  Sets a selection which starts at the index \a index_from in the
   paragraph \a parag_from and ends at index \a index_to in the
   paragraph \a parag_to.
+
+  Uses the selection settings of selection \a selNum. If this is 0,
+  this is the default selection.
+*/
+
+/*! \fn void QTextEdit::setSelectionAttributes( int selNum, const QColor &back, bool invertText )
+
+  Sets the background color of the selection \a selNum to \a back and
+  specifies whether the text of this selection should be inverted by \a invertText.
+
 */
 
 /*! \fn void QTextEdit::setModified( bool m )

@@ -35,8 +35,8 @@ class EDITOR_EXPORT Editor : public QTextEdit
 
 public:
     enum Selection {
-	Error = QTextDocument::Selection4,
-	Step = QTextDocument::Selection5
+	Error = 3,
+	Step = 4
     };
 
     Editor( const QString &fn, QWidget *parent, const char *name );

@@ -39,8 +39,18 @@ Editor::Editor( const QString &fn, QWidget *parent, const char *name )
     connect( this, SIGNAL( cursorPositionChanged( QTextCursor * ) ),
 	     this, SLOT( cursorPosChanged( QTextCursor * ) ) );
     cfg = new Config;
+    document()->addSelection( Error );
+    document()->addSelection( Step );
     document()->setSelectionColor( Error, red );
     document()->setSelectionColor( Step, yellow );
+    document()->setInvertSelectionText( Error, FALSE );
+    document()->setInvertSelectionText( Step, FALSE );
+    document()->addSelection( ParenMatcher::Match );
+    document()->addSelection( ParenMatcher::Mismatch );
+    document()->setSelectionColor( ParenMatcher::Match, QColor( 204, 232, 195 ) );
+    document()->setSelectionColor( ParenMatcher::Mismatch, Qt::magenta );
+    document()->setInvertSelectionText( ParenMatcher::Match, FALSE );
+    document()->setInvertSelectionText( ParenMatcher::Mismatch, FALSE );
 }
 
 void Editor::cursorPosChanged( QTextCursor *c )

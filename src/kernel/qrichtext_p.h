@@ -672,19 +672,9 @@ class Q_EXPORT QTextDocument : public QObject
 public:
     enum SelectionIds {
 	Standard = 0,
-	Selection1,
-	Selection2,
-	Selection3,
-	Selection4,
-	Selection5,
-	Selection6,
-	Selection7,
-	Selection8,
-	Temp // This selection must not be drawn, it's used e.g. by undo/redo to
+	Temp = 32000 // This selection must not be drawn, it's used e.g. by undo/redo to
 	// remove multiple lines with removeSelectedText()
     };
-
-    static const int numSelections;
 
     QTextDocument( QTextDocument *p );
     ~QTextDocument();
@@ -744,6 +734,8 @@ public:
     void setFormat( int id, QTextFormat *f, int flags );
     QTextParag *selectionStart( int id );
     QTextParag *selectionEnd( int id );
+    int numSelections() const { return nSelections; }
+    void addSelection( int id );
 
     QString selectedText( int id ) const;
     void copySelectedText( int id );
@@ -896,6 +888,7 @@ private:
     int uDepth;
     QString oText;
     QList<QTextDocument> childList;
+    int nSelections;
 
 };
 

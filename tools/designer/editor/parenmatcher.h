@@ -42,6 +42,11 @@ typedef QValueList<Paren> ParenList;
 class EDITOR_EXPORT ParenMatcher
 {
 public:
+    enum Selection {
+	Match = 1,
+	Mismatch
+    };
+
     ParenMatcher();
 
     virtual bool match( QTextCursor *c );

@@ -111,7 +111,7 @@ public:
     QString fileName() const;
 
     void getSelection( int &parag_from, int &index_from,
-		    int &parag_to, int &index_to ) const;
+		    int &parag_to, int &index_to, int selNum = 0 ) const;
     virtual bool find( const QString &expr, bool cs, bool wo, bool forward = TRUE,
 		       int *parag = 0, int *index = 0 );
 
@@ -320,7 +320,8 @@ private: // these are functions which actually do editing stuff, but
     void setParagType( QStyleSheetItem::DisplayMode, QStyleSheetItem::ListStyle listStyle );
     void setCursorPosition( int parag, int index );
     void setSelection( int parag_from, int index_from,
-			       int parag_to, int index_to );
+			       int parag_to, int index_to, int selNum = 0 );
+    void setSelectionAttributes( int selNum, const QColor &back, bool invertText );
     void setModified( bool m );
     void resetFormat();
     void setUndoDepth( int d );

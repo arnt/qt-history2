@@ -108,11 +108,11 @@ bool ParenMatcher::checkOpenParen( QTextCursor *cursor )
 	
 	
 	
-	    int id = QTextDocument::Selection2;
+	    int id = Match;
 	    if ( c == '{' && closedParen.chr != '}' ||
 		 c == '(' && closedParen.chr != ')' ||
 		 c == '[' && closedParen.chr != ']' )
-		id = QTextDocument::Selection1;
+		id = Mismatch;
 	    cursor->document()->setSelectionStart( id, cursor );
 	    int tidx = cursor->index();
 	    QTextParag *tstring = cursor->parag();
@@ -184,11 +184,11 @@ bool ParenMatcher::checkClosedParen( QTextCursor *cursor )
 		continue;
 	    }
 	
-	    int id = QTextDocument::Selection2;
+	    int id = Match;
 	    if ( c == '}' && openParen.chr != '{' ||
 		 c == ')' && openParen.chr != '(' ||
 		 c == ']' && openParen.chr != '[' )
-		id = QTextDocument::Selection1;
+		id = Mismatch;
 	    cursor->document()->setSelectionStart( id, cursor );
 	    int tidx = cursor->index();
 	    QTextParag *tstring = cursor->parag();
