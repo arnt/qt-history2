@@ -1,3 +1,5 @@
 CONFIG -= static
-contains(TEMPLATE, ".*lib"): CONFIG -= staticlib
-win32:QMAKE_LFLAGS += $$QMAKE_LFLAGS_DLL
+contains(TEMPLATE, ".*lib"): {
+    CONFIG -= staticlib
+    win32:QMAKE_LFLAGS += $$QMAKE_LFLAGS_DLL
+}
