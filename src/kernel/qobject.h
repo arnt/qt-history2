@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#77 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#78 $
 **
 ** Definition of QObject class
 **
@@ -41,7 +41,7 @@
 class QMetaObject;
 class QVariant;
 class QDomElement;
-class QDomNode;
+class QDomDocument;
 struct QMetaProperty;
 
 class Q_EXPORT QObject: public Qt
@@ -107,7 +107,7 @@ public:
     virtual bool setProperty( const char *name, const QVariant& value );
     virtual bool property( const char *name, QVariant* value ) const;
     virtual bool setConfiguration( const QDomElement& element );
-    virtual QDomElement configuration( bool properties = TRUE ) const;
+    virtual QDomElement configuration( QDomDocument& doc, bool properties = TRUE ) const;
 #endif
 
 signals:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#217 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#218 $
 **
 ** Implementation of QObject class
 **
@@ -2865,10 +2865,10 @@ bool QObject::setProperty( const QMetaProperty* p, const QDomElement& element )
   return setProperty( name, element.property( name, type ) );
 }
 
-QDomElement QObject::configuration( bool properties ) const
+QDomElement QObject::configuration( QDomDocument& doc, bool properties ) const
 {
-    QDomElement e = parent.ownerDocument().createElement( className() );
-    
+    QDomElement e = doc.createElement( className() );
+
     if ( properties )
     {
 	QMetaObject* m = metaObject();
