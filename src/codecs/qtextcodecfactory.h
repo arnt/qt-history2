@@ -14,7 +14,6 @@ class Q_EXPORT QTextCodecFactory
 public:
     static QTextCodec *createForName( const QString & );
     static QTextCodec *createForMib( int );
-    static QStringList codecs();
 };
 
 #endif // QT_NO_TEXTCODEC
