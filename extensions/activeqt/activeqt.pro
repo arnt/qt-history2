@@ -12,8 +12,4 @@ contains( QT_PRODUCT, qt-(enterprise|internal) ) {
 		  examples
 
 	shared:SUBDIRDS += plugin
-
-#mingw dos not suport controls yet
-	win32-g++:SUBDIRS -= idc \
-		  control
 }

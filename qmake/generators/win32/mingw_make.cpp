@@ -406,6 +406,11 @@ MingwMakefileGenerator::init()
 	    if ( !project->isActiveConfig("dll") && !project->isActiveConfig("plugin") ) {
 		project->variables()["QMAKE_LIBS"] +=project->variables()["QMAKE_LIBS_QT_ENTRY"];
 	    }
+
+            // QMAKE_LIBS_QT_ENTRY should be first on the link line as it needs qt
+            project->variables()["QMAKE_LIBS"].remove(project->variables()["QMAKE_LIBS_QT_ENTRY"].first());
+	    project->variables()["QMAKE_LIBS"].prepend(project->variables()["QMAKE_LIBS_QT_ENTRY"].first());
+	    
 	    if (project->isActiveConfig( "activeqt" ) && project->variables()["QMAKE_LIBS"].contains("-lqaxserver")) { // ordering
 		project->variables()["QMAKE_LIBS"].remove("-lqaxserver");
 		project->variables()["QMAKE_LIBS"].prepend("-lqaxserver");

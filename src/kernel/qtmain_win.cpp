@@ -99,3 +99,10 @@ int APIENTRY WinMain( HINSTANCE instance, HINSTANCE prevInstance,
     return result;
 }
 
+
+// untill such time as mingw runtime calls winmain instead of main 
+// in a GUI app we need this.
+#if defined(Q_OS_WIN32) && defined(Q_CC_GNU)
+#include <qtcrtentrypoint.cpp>
+#endif
+
