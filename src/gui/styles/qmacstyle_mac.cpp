@@ -447,7 +447,7 @@ static inline const QRect qrectForHIRect(const HIRect &hirect)
 static inline bool qt_mac_is_metal(const QWidget *w)
 {
     for (; w; w = w->parentWidget()) {
-        if (w->testAttribute(Qt::WA_MacMetalStyle))
+        if (w->testAttribute(Qt::WA_MacMetalStyle) || w->testWFlags(Qt::WMacMetal))
             return true;
         if (w->isTopLevel())
             break;
@@ -1237,6 +1237,7 @@ void QMacStylePrivate::HIThemePolish(QWidget *w)
 {
     addWidget(w);
     QPixmap px(0, 0, 32);
+    qDebug("checking for window %s %d", w->metaObject()->className(), qt_mac_is_metal(w));
     if (qt_mac_is_metal(w)) {
         px.resize(200, 200);
         HIThemeBackgroundDrawInfo bginfo;
