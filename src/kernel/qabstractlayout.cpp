@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#27 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -993,60 +993,187 @@ bool QLayout::activate()
   width of the widget (for example, a widget with automatic word-breaking).
 */
 
-/*!
-    \fn SizeType QSizePolicy::horData () const
-
-    \internal
-*/
-/*!
-    \fn SizeType QSizePolicy::verData () const
-
-    \internal
-*/
-/*!
-    \fn bool QSizePolicy::hasWidthForHeight ()
-
-    \internal
-*/
-/*!
-    \fn bool QSizePolicy::mayGrowHorizontally () const
-
-    \internal
-*/
-/*!
-    \fn bool QSizePolicy::mayGrowVertically () const
-
-    \internal
-*/
-/*!
-    \fn bool QSizePolicy::mayShrinkHorizontally () const
-
-    \internal
-*/
-/*!
-    \fn bool QSizePolicy::mayShrinkVertically () const
-
-    \internal
-*/
-/*!
-    \fn void QSizePolicy::setHorData (SizeType d)
-
-    \internal
-*/
-/*!
-    \fn void QSizePolicy::setVerData (SizeType d)
-
-    \internal
-*/
-/*!
-    \fn ExpandData QSizePolicy::expanding () const
-
-    \internal
-*/
-/*!
-    \fn vool QSizePolicy::hasHeightForWidth() const
-
-    \internal
+/*! \fn QSizePolicy::SizeType QSizePolicy::horData() const
+Returns the horizontal component of the size policy.
 */
 
 
+/*! \fn QSizePolicy::SizeType QSizePolicy::verData() const
+Returns the vertical component of the size policy.
+*/
+
+/*! \fn bool QSizePolicy::mayShrinkHorizontally() const
+Returns TRUE if the widget can sensibly be narrower than its sizeHint().
+*/
+
+
+/*! \fn bool QSizePolicy::mayShrinkVertically() const
+Returns TRUE if the widget can sensibly be lower than its sizeHint().
+*/
+
+
+/*! \fn bool QSizePolicy::mayGrowHorizontally() const
+Returns TRUE if the widget can sensibly be wider than its sizeHint().
+*/
+
+
+/*! \fn bool QSizePolicy::mayGrowVertically() const
+Returns TRUE if the widget can sensibly be taller than its sizeHint().
+*/
+
+/*! \fn QSizePolicy::ExpandData QSizePolicy::expanding() const
+Returns a value indicating if the widget
+*/
+
+/*! \fn void QSizePolicy::setHorData( SizeType d )
+Sets the horizontal component of the size policy to \a d.
+*/
+
+
+/*! \fn void QSizePolicy::setVerData( SizeType d )
+Sets the vertical component of the size policy to \a d.
+*/
+
+/*! \fn bool QSizePolicy::hasHeightForWidth()
+Returns TRUE if the widget's preferred height depends on its width.
+*/
+
+
+/*! \fn bool QSizePolicy::setHeightForWidth( bool b )
+Sets the hasHeightForWidth() flag to \a b.
+*/
+
+
+/*! 
+  \class QGLayoutIterator qabstractlayout.h
+  \brief The abstract base class of internal layout iterators.
+  
+  To be subclassed by custom layout implementors.
+  
+  The QGLayoutIterator implements the functionality of
+  QLayoutIterator. Each subclass of QLayout needs a
+  QGLayoutIterator subclass.
+*/
+
+
+/*! \fn uint QGLayoutIterator::count() const 
+  Implemented in subclasses to return the number of items in the layout.
+ */
+
+/*! \fn void QGLayoutIterator::toFirst() 
+  Implemented in subclasses to move the iterator to the first item
+  in the layout.
+*/
+
+/*! \fn void QGLayoutIterator::next() 
+  Implemented in subclasses to move the iterator to the next item.
+ */
+
+/*! \fn QLayoutItem *QGLayoutIterator::current() 
+  Implemented in subclasses to return the current item, or 0 if there
+  is no next element.
+ */
+
+/*! \fn void QGLayoutIterator::removeCurrent() 
+  Implemented in subclasses to remove the current item and move
+  the iterator to the next item.
+ */
+
+
+/*! 
+  \class QLayoutIterator qabstractlayout.h
+  \brief The QLayoutIterator class provides iterators over QLayoutItem
+
+  Use QLayoutItem::iterator() to create an iterator over a layout.
+  
+  QLayoutIterator uses explicit sharing with a reference count. If
+  an iterator is copied, and one of the copies is modified,
+  both iterators will be modified.
+
+  A QLayoutIterator is not protected against changes in its layout. If
+  the layout is modified or deleted, the iterator will become invalid.
+  It is not posible to test for validity. It is safe to delete an
+  invalid layout. Any other access may lead to an illegal memory
+  reference, and the abnormal termination of the program.
+  
+  Calling removeCurrent() leaves the iterator in a valid state, but
+  may invalidate any other iterators that access the same layout.
+  
+
+  The following code will draw a rectangle for each layout item
+  in the layout structure of the widget.
+  \code
+  static void paintLayout( QPainter *p, QLayoutItem *lay )
+  {
+      QLayoutIterator it = lay->iterator();
+      QLayoutItem *child;
+      while ( (child = it.current() ) ) {
+          paintLayout( p, child );
+	  it.next();
+      }
+      p->drawRect( lay->geometry() );
+  }
+  void ExampleWidget::paintEvent( QPaintEvent * )
+  {
+      QPainter p( this );
+      if ( layout() )
+          paintLayout( &p, layout() ); 
+  }
+  \endcode
+  
+  All the functionality of QLayoutIterator is implemented by
+  subclasses of QGLayoutIterator. Note that there is not much
+  point in subclassing QLayoutIterator, since ~QLayoutIterator() is not
+  virtual.
+*/
+
+
+
+
+/*! \fn QLayoutIterator::QLayoutIterator( QGLayoutIterator *i )
+  Constructs an iterator based on \a i.
+  
+  This constructor is provided for layout implementors. Application
+  programmers should use QLayoutItem::iterator() to create an iterator
+  over a layout.
+*/
+  
+/*! \fn QLayoutIterator::QLayoutIterator( const QLayoutIterator &i )
+  Creates a shallow copy of \a i; if the copy is modified, then the
+  original will also be modified.
+*/
+
+/*! \fn ~QLayoutIterator() 
+  Destroys the iterator.
+*/
+
+/*! \fn QLayoutIterator &QLayoutIterator::operator=( const QLayoutIterator &i )
+  Assigns \a i to this iterator and returns a reference to this iterator.
+*/
+
+/*! \fn uint QLayoutIterator::count() const
+  Returns the number of child items in the layout item this iterator
+  iterates over.
+*/
+
+/*! \fn bool QLayoutIterator::isEmpty() const
+  Returns TRUE if the layout item has no children.
+*/
+
+/*! \fn void toFirst()
+   Moves the iterator to the first child item.
+*/
+
+/*! \fn void next() 
+  Moves the iterator to the next child item.
+*/
+
+/*! \fn QLayoutItem *current()
+  Returns the current item, or 0 if there is no current item.
+*/
+
+/*! \fn void removeCurrent()
+  Removes the current child item from the layout and moves the
+  iterator to the next item. This iterator will still be valid, but any
+  other iterator over the same layout may become invalid.
+*/

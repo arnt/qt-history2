@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#10 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#11 $
 **
 ** Definition of the abstract layout base class
 **
@@ -36,7 +36,7 @@ class QWidget;
 struct QLayoutData;
 class QLayoutItem;
 
-class Q_EXPORT QInternalLayoutIterator : public QShared
+class Q_EXPORT QGLayoutIterator : public QShared
 {
 public:
     virtual uint count() const = 0;
@@ -49,18 +49,18 @@ public:
 class Q_EXPORT QLayoutIterator
 {
 public:
-    QLayoutIterator( QInternalLayoutIterator *i ) :it(i) {}
-    QLayoutIterator( const QLayoutIterator &i ) :it( i.it ) 
+    QLayoutIterator( QGLayoutIterator *i ) :it(i) {}
+    QLayoutIterator( const QLayoutIterator &i ) :it( i.it )
     { if ( it ) it->ref(); }
     ~QLayoutIterator() { if ( it && it->deref() ) delete it; }
     QLayoutIterator &operator=( const QLayoutIterator &i )
-    { 
-	if ( it && it->deref() ) delete it; 
-	it = i.it; 
+    {
+	if ( it && it->deref() ) delete it;
+	it = i.it;
 	if ( it ) it->ref();
-	return *this; 
+	return *this;
     }
-    
+
     uint count() const { return it ? it->count() : 0; }
     bool isNull() const { return it == 0; }
     bool isEmpty() const { return count() == 0; }
@@ -69,7 +69,7 @@ public:
     QLayoutItem *current() { return it ? it->current() : 0; }
     void removeCurrent() { if ( it ) it->removeCurrent(); }
 private:
-    QInternalLayoutIterator *it;
+    QGLayoutIterator *it;
 };
 
 class Q_EXPORT QLayoutItem

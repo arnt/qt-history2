@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#83 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#84 $
 **
 ** Implementation of layout classes
 **
@@ -636,13 +636,12 @@ void QLayoutArray::distribute( QRect r, int spacing )
 	    QRect rr( x, y, w, h );
 	    box->setGeometry(rr);
 	    //end copying
-	
 	}
     }
 }
 
 
-class QLayoutArrayIterator : public QInternalLayoutIterator
+class QLayoutArrayIterator : public QGLayoutIterator
 {
 public:
     QLayoutArrayIterator( QLayoutArray *a ) :array(a) { toFirst(); }
@@ -874,6 +873,7 @@ QGridLayout::QGridLayout( int nRows, int nCols,
 
 QGridLayout::~QGridLayout()
 {
+    delete array;
 }
 
 /*!
