@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qlist.doc,v 2.17 1999/03/03 13:30:00 warwick Exp $
+** $Id: qlist.doc,v 2.18 1999/03/03 13:33:51 warwick Exp $
 **
 ** QList and QListIterator class documentation
 **
@@ -614,7 +614,7 @@
 /*!
   \fn type *QList::prev()
   Returns a pointer to the item preceding the current item.
-  Returns null if the current items is null or equal to the first item.
+  Returns null if the current item is null or equal to the first item.
 
   Makes the preceding item current. If the current item before this
   function call was the first item, the current item will be set to null.

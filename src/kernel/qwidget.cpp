@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#361 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#362 $
 **
 ** Implementation of QWidget class
 **
@@ -794,11 +794,6 @@ QWidget *QWidget::find( WId id )
 */
 
 /*!
-  \fn void QWidget::setWState (uint)
-  \internal
-*/
-
-/*!
   \fn WFlags QWidget::getWFlags() const
   \internal
   Returns the widget flags for this this widget.
@@ -824,6 +819,7 @@ QWidget *QWidget::find( WId id )
   Widget flags are internal, not meant for public use.
   \sa testWFlags(), getWFlags(), setWFlags()
 */
+
 
 
 /*!
@@ -3088,7 +3084,7 @@ QSize QWidget::sizeHint() const
 /*!
   \fn bool QWidget::testWFlags( WFlags n ) const
 
-  Returns non-zero if any of the widget flags in \e n are set. The
+  Returns TRUE if any of the widget flags in \e n are set. The
   widget flags are listed in qwindowdefs.h, and are strictly for
   internal use.
 
@@ -3153,6 +3149,28 @@ QSize QWidget::sizeHint() const
 			are delivered for the entire rectangle.
   </dl>
 */
+
+/*!
+  \fn bool QWidget::testWState (uint n) const
+  \internal
+  Tests the widget states \a n, returning TRUE if any are set.
+*/
+/*!
+  \fn uint QWidget::getWState () const
+  \internal
+  Returns the current widget state.
+*/
+/*!
+  \fn void QWidget::clearWState (uint n)
+  \internal
+  Clears the widgets states \a n.
+*/
+/*!
+  \fn void QWidget::setWState(uint n)
+  \internal
+  Sets the widgets states \a n.
+*/
+
 
 
 /*****************************************************************************
