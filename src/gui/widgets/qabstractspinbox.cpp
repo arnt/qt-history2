@@ -912,8 +912,10 @@ void QAbstractSpinBoxPrivate::calculateSizeHints() const
         int w = 0;
         QString s;
         s = prefix + mapValueToText(minimum) + suffix + QLatin1Char(' ');
+        s.truncate(18);
         w = qMax(w, fm.width(s));
         s = prefix + mapValueToText(maximum) + suffix + QLatin1Char(' ');
+        s.truncate(18);
         w = qMax(w, fm.width(s));
         if (specialvaluetext.size()) {
             s = specialvaluetext;
