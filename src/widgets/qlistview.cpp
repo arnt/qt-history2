@@ -3172,7 +3172,7 @@ void QListView::contentsMouseMoveEvent( QMouseEvent * e )
 	d->highlighted = i;
     }
 
-    if ( !d->buttonDown )
+    if ( !d->buttonDown || e->state() == NoButton )
 	return;
 
     // check, if we need to scroll

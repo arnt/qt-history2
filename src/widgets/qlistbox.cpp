@@ -1796,7 +1796,7 @@ void QListBox::mouseMoveEvent( QMouseEvent *e )
     // move outside the listbox without having seen a press, discard
     // it.
     if ( !rect().contains( e->pos() ) &&
-	 d->mousePressColumn < 0 && d->mousePressRow < 0 )
+	 ( d->mousePressColumn < 0 && d->mousePressRow < 0 || e->state() == NoButton ) )
 	return;
 
     // figure out in what direction to drag-select and perhaps scroll
@@ -3384,7 +3384,7 @@ QRect QListBox::itemRect( QListBoxItem *item ) const
   \obsolete
   Using this method is quite inefficient. We suggest to use insertItem()
   for inserting and sort() afterwards.
-  
+
   Inserts \a lbi at its sorted position in the list box.
 
   All items must be inserted with inSort() to maintain the sorting
@@ -3772,7 +3772,7 @@ static int cmpListBoxItems( const void *n1, const void *n2 )
 /*!
   Sorts the item in ascending order, if \a ascending  is TRUE, or
   descending otherwise.
-  
+
   To compare the items, the text (QListBoxItem::text()) of the items
   is used. The sorting is done using the Quick-Sort Alogorithm.
 */
