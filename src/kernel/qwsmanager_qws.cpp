@@ -184,40 +184,40 @@ bool QWSManager::event(QEvent *e)
 
 void QWSManager::mousePressEvent(QMouseEvent *e)
 {
-    if (e->button() == Qt::LeftButton) {
-	mousePos = e->globalPos();
-	dx = 0;
-	dy = 0;
-	activeRegion = pointInRegion(mousePos);
-	switch (activeRegion) {
-	    case QWSDecoration::Menu:
-		menu(managed->geometry().topLeft());
-		break;
-	    case QWSDecoration::Close:
-		closeBtn->setClicked(TRUE);
-		break;
-	    case QWSDecoration::Minimize:
-		minimizeBtn->setClicked(TRUE);
-		break;
-	    case QWSDecoration::Maximize:
-		maximizeBtn->setClicked(TRUE);
-		break;
-	    default:
-		break;
-	}
-	if ( activeRegion != QWSDecoration::None &&
-	     activeRegion != QWSDecoration::Menu ) {
-	    active = managed;
-	    managed->grabMouse();
-	}
-	if ( activeRegion != QWSDecoration::None &&
-	     activeRegion != QWSDecoration::Close &&
-	     activeRegion != QWSDecoration::Minimize &&
-	     activeRegion != QWSDecoration::Menu) {
-	    managed->raise();
-	    managed->setActiveWindow();
-	}
-    } else if (e->button() == Qt::RightButton) {
+
+    mousePos = e->globalPos();
+    dx = 0;
+    dy = 0;
+    activeRegion = pointInRegion(mousePos);
+    switch (activeRegion) {
+    case QWSDecoration::Menu:
+	menu(managed->geometry().topLeft());
+	break;
+    case QWSDecoration::Close:
+	closeBtn->setClicked(TRUE);
+	break;
+    case QWSDecoration::Minimize:
+	minimizeBtn->setClicked(TRUE);
+	break;
+    case QWSDecoration::Maximize:
+	maximizeBtn->setClicked(TRUE);
+	break;
+    default:
+	break;
+    }
+    if ( activeRegion != QWSDecoration::None &&
+	 activeRegion != QWSDecoration::Menu ) {
+	active = managed;
+	managed->grabMouse();
+    }
+    if ( activeRegion != QWSDecoration::None &&
+	 activeRegion != QWSDecoration::Close &&
+	 activeRegion != QWSDecoration::Minimize &&
+	 activeRegion != QWSDecoration::Menu) {
+	managed->raise();
+	managed->setActiveWindow();
+    }
+    if (e->button() == Qt::RightButton) {
 	menu(e->globalPos());
     }
 }
