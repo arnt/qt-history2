@@ -55,9 +55,7 @@ public:
 
 signals:
     void resized( int );
-#ifdef Q_OS_TEMP
     void workAreaResized( int );
-#endif
 
 protected:
     void resizeEvent( QResizeEvent *e );
