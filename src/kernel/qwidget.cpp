@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#380 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#381 $
 **
 ** Implementation of QWidget class
 **
@@ -3669,6 +3669,9 @@ void QWidget::closeEvent( QCloseEvent *e )
 
   The default implementation does nothing.
 
+  See the \link dnd.html Drag-and-drop documentation\endlink for
+  an overview of how to provide drag-and-drop in your application.
+
   \sa QTextDrag, QImageDrag, QDragEnterEvent
 */
 void QWidget::dragEnterEvent( QDragEnterEvent * )
@@ -3682,6 +3685,9 @@ void QWidget::dragEnterEvent( QDragEnterEvent * )
 
   The default implementation does nothing.
 
+  See the \link dnd.html Drag-and-drop documentation\endlink for
+  an overview of how to provide drag-and-drop in your application.
+
   \sa QTextDrag, QImageDrag, QDragMoveEvent
 */
 void QWidget::dragMoveEvent( QDragMoveEvent * )
@@ -3694,6 +3700,9 @@ void QWidget::dragMoveEvent( QDragMoveEvent * )
 
   The default implementation does nothing.
 
+  See the \link dnd.html Drag-and-drop documentation\endlink for
+  an overview of how to provide drag-and-drop in your application.
+
   \sa QTextDrag, QImageDrag, QDragLeaveEvent
 */
 void QWidget::dragLeaveEvent( QDragLeaveEvent * )
@@ -3705,6 +3714,9 @@ void QWidget::dragLeaveEvent( QDragLeaveEvent * )
   widget.
 
   The default implementation does nothing.
+
+  See the \link dnd.html Drag-and-drop documentation\endlink for
+  an overview of how to provide drag-and-drop in your application.
 
   \sa QTextDrag, QImageDrag, QDropEvent
 */

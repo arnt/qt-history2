@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#72 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#73 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -426,79 +426,19 @@ QWidget * QDragObject::source()
 
 /*! \class QDragObject qdragobject.h
 
-  \brief The QDragObject encapsulates MIME-based drag-and-drop
-  interaction.
+  \brief The QDragObject encapsulates MIME-based information transfer.
 
   \ingroup kernel
 
-  Drag-and-drop in Qt uses the MIME open standard, to allow
-  independently developers applications to exchange information.
+  QDragObject is the base class for all data that needs to be transferred
+  between and within applications, both for drag-and-drop and for the
+  clipboard.
 
-  To start a drag, for example in a \link QWidget::mouseMoveEvent
-  mouse motion event\endlink, create an object of the
-  QDragObject subclass appropriate for your media, such as
-  QTextDrag for text and QImageDrag for images. Then call
-  the drag() method. This is all you need for simple dragging
-  of existing types.
+  See the \link dnd.html Drag-and-drop documentation\endlink for
+  an overview of how to provide drag-and-drop in your application.
 
-  To be able to receive media dropped on a widget, multiply-inherit
-  the QDropSite class and override the
-  \link QWidget::dragEnterEvent() dragEnterEvent()\endlink,
-  \link QWidget::dragMoveEvent() dragMoveEvent()\endlink,
-  \link QWidget::dragLeaveEvent() dragLeaveEvent()\endlink, and
-  \link QWidget::dropEvent() dropEvent()\endlink event handler methods.
-
-  Support for specific media types is provided by subclasses of
-  QDragObject.
-  For example,
-  QTextDrag provides support for
-   the "<tt>text/plain</tt>" MIME type (ordinary unformatted text), and
-   the Unicode formats "<tt>text/utf8</tt>" and "<tt>text/utf16</tt>";
-  QImageDrag provides for "<tt>image/</tt><tt>*</tt>",
-  where <tt>*</tt>
-  is all the \link QImageIO image formats that Qt supports\endlink,
-  and the QUrlDrag subclass provides "<tt>text/uri-list</tt>",
-  a standard format for transferring a list of filenames.
-
-  To implement drag-and-drop of some type of media for which there
-  is no available QDragObject subclass, the
-  first and most important step is to look for existing formats
-  that are appropriate - the Internet Assigned Numbers Authority
-  (<a href=http://www.iana.org>IANA</a>) provides a
-  <a href=http://www.isi.edu/in-notes/iana/assignments/media-types/>
-  hierarchical list of MIME media types</a>
-  at the Information Sciences Institute
-  (<a href=http://www.isi.edu>ISI</a>).
-  This maximizes inter-operability of your software.
-
-  To support an additional media type, subclass either QDragObject
-  or QStoredDrag. Subclass QDragObject when you need to provide
-  support for multiple media types. Subclass the simpler QStoredDrag
-  when one type is sufficient.
-
-  Subclasses of QDragObject will override the format() and
-  encodedData() members, and provide a set-method to encode
-  the media data and static members canDecode()
-  and decode() to decode incoming data.  QImageDrag
-  is an example of such a class in Qt. Of course, you can
-  provide drag-only or drop-only support for a media type
-  by omitting some of these methods.
-
-  Subclasses of QStoredDrag provide a set-method to encode
-  the media data and static members canDecode()
-  and decode() to decode incoming data.
-
-  <h3>Inter-operating with existing applications</h3>
-  On X11, the public
-  <a href=http://www.cco.caltech.edu/~jafl/xdnd/>XDND protocol</a>
-  is used, while on Windows Qt uses the OLE standard.  On X11,
-  XDND uses MIME, so no translation is necessary.  On Windows,
-  MIME-aware applications can communicate by using clipboard
-  format names that are MIME types. Internally, Qt has facilities
-  for translating all proprietary clipboard formats to and from
-  MIME.  This interface will be made public at some time, but
-  if you need to do such translations now, contact your Qt
-  Technical Support service.
+  See the QClipboard documentation for
+  an overview of how to provide cut-and-paste in your application.
 */
 
 /*! \class QTextDrag qdragobject.h
