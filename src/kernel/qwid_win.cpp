@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#9 $
 **
 ** Implementation of QWidget and QWindow classes for Windows
 **
@@ -18,7 +18,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_win.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_win.cpp#9 $";
 #endif
 
 
@@ -392,12 +392,16 @@ void QWidget::setSizeIncrement( int w, int h )
 }
 
 
-void QWidget::erase()				// erase widget contents
+void QWidget::erase( int x, int y, int w, int h )
 {
-    HDC h = hdc;
-    if ( !hdc )
-	h = GetDC( id() );
-    SendMessage( id(), WM_ERASEBKGND, (WPARAM)h, 0 );
+    HDC tmphdc;
+    if ( hdc )
+	tmphdc = hdc;
+    else
+	tmphdc = GetDC( id() );
+#error This has to be implemented
+    if ( bg_pm )
+	SendMessage( id(), WM_ERASEBKGND, (WPARAM)tmphdc, (LPARAM)&l );
     if ( !hdc )
 	ReleaseDC( id(), h );
 }
