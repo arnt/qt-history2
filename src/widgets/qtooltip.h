@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.h#9 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.h#10 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -103,7 +103,7 @@ private slots:
     void hideTip();
 
 protected:
-    void maybeTip( const QPoint & = 0 );
+    void maybeTip( const QPoint & );
 
 private:
     QTimer wakeUp;
