@@ -3880,7 +3880,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	QWidget* enter = 0;
 	XEvent ev;
 	while ( XCheckMaskEvent( widget->x11Display(), EnterWindowMask | LeaveWindowMask , &ev )
-		&& !qt_x11EventFilter( &ev ) ) {
+		&& !qt_x11EventFilter( &ev ) && !widget->x11Event( &ev ) ) {
 	    if ( ev.type == LeaveNotify && ev.xcrossing.mode == NotifyNormal ){
 		if ( !enter )
 		    enter = QWidget::find( ev.xcrossing.window );
