@@ -1413,10 +1413,12 @@ void QODBCDriver::cleanup()
 void QODBCDriverPrivate::checkUnicode()
 {
 #if defined(Q_WS_WIN)
-    if (!qt_winunicode) {
+    QT_WA(
+    {},
+    {
         unicode = false;
         return;
-    }
+    })
 #endif
     SQLRETURN   r;
     SQLUINTEGER fFunc;
