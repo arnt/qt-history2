@@ -899,9 +899,13 @@ void QAbstractItemView::focusInEvent(QFocusEvent *e)
 void QAbstractItemView::focusOutEvent(QFocusEvent *e)
 {
     QViewport::focusOutEvent(e);
-    QModelIndex index = currentItem();
-    if (index.isValid())
-        d->viewport->update(itemViewportRect(index));
+    if (qApp->activeWindow()) {
+        QModelIndex index = currentItem();
+        if (index.isValid())
+            d->viewport->update(itemViewportRect(index));
+    } else {
+        d->viewport->update(); // update all selections
+    }
 }
 
 /*!
@@ -1769,9 +1773,11 @@ QWidget *QAbstractItemViewPrivate::requestEditor(QAbstractItemDelegate::BeginEdi
     if (editor) {
         editor->show();
         editor->setFocus();
+
         if (event && (action == QAbstractItemDelegate::AnyKeyPressed
                       || event->type() == QEvent::MouseButtonPress))
             QApplication::sendEvent(editor, event);
+
         editor->installEventFilter(q);
         QPersistentModelIndex idx = QPersistentModelIndex(index, model);
         currentEditor = QPair<QPersistentModelIndex, QPointer<QWidget> >(idx, editor);
