@@ -48,7 +48,6 @@
 #include <MacWindows.h>
 #include <OSUtils.h>
 
-
 // NOT REVISED
 /*!
   \class QPaintDevice qpaintdevice.h
@@ -287,11 +286,32 @@ int QPaintDevice::fontInf( QFont *, int ) const
   </ol>
 */
 
-void bitBlt( QPaintDevice *, int, int,
-	     const QPaintDevice *, int, int, int, int,
-	     Qt::RasterOp, bool )
+void bitBlt( QPaintDevice *dst, int dx, int dy, 
+	     const QPaintDevice *src, int sx, int sy, int sw, int sh, 
+	     Qt::RasterOp rop, bool imask)
 {
-    qDebug( "QPixmap::setMask" );
+  qDebug( "QPaintDevice::bitBlt" );
+
+  if(dx+sw>dst->metric(QPaintDeviceMetrics::PdmWidth)) {
+    sw=dst->metric(QPaintDeviceMetrics::PdmWidth)-dx;
+  }
+  if(dy+sh>dst->metric(QPaintDeviceMetrics::PdmHeight)) {
+    sh=dst->metric(QPaintDeviceMetrics::PdmHeight)-dy;
+  }
+
+  dst->lockPort();
+
+  //FIXME, need to handle ExtDevice!!!!!!
+
+  Rect r;
+  SetRect(&r,sx,sy,sx+sw,sy+sh);
+  Rect r2;
+  SetRect(&r2,dx,dy,dx+sw,dy+sh);
+  qDebug("one..");
+  CopyBits(src->portBitMap(), dst->portBitMap(), &r,&r2,(short)srcCopy,0);
+  qDebug("two..");
+
+  dst->unlockPort();
 }
 
 
@@ -310,9 +330,20 @@ Qt::HANDLE QPaintDevice::handle() const
     return hd;
 }
 
-void QPaintDevice::fixport()
+void 
+QPaintDevice::lockPort()
 {
-    if(handle())
-	SetPortWindowPort( (WindowPtr)handle() );
+
 }
 
+void 
+QPaintDevice::unlockPort()
+{
+
+}
+
+BitMap 
+*QPaintDevice::portBitMap() const
+{
+  return NULL;
+}

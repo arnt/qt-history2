@@ -196,7 +196,9 @@ protected:
     QPaintDeviceX11Data* getX11Data( bool def=FALSE ) const;
 #elif defined(_WS_MAC_)
     void * hd;
-    virtual void fixport();
+  virtual void lockPort();
+  virtual void unlockPort();
+  virtual BitMap *portBitMap() const;
 #elif defined(_WS_QWS_)
     Qt::HANDLE hd;
 #endif

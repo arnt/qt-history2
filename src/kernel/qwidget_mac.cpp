@@ -1098,7 +1098,7 @@ void QWidget::erase( int x, int y, int w, int h )
 	rc.red = bg_col.red()*256;
 	rc.green = bg_col.green()*256;
 	rc.blue = bg_col.blue()*256;
-	this->fixport();
+	this->lockPort();
 	RGBForeColor( &rc );
 	x--;
 	y--;
@@ -1114,6 +1114,7 @@ void QWidget::erase( int x, int y, int w, int h )
 	    h = height();
 	SetRect( &r, x, y, x + w, y + h );
 	PaintRect( &r );
+	this->unlockPort();
     } else if ( back_type == 2 ) {
 	// pixmap
 	if ( bg_pix ) {
@@ -1138,12 +1139,13 @@ void QWidget::erase( const QRegion& reg )
 {
     qDebug( "QWidget::erase QRegion" );
     RGBColor rc;
-    this->fixport();
+    this->lockPort();
     rc.red = bg_col.red()*256;
     rc.green = bg_col.green()*256;
     rc.blue = bg_col.blue()*256;
     RGBForeColor( &rc );
     PaintRgn( (RgnHandle)reg.handle() );
+    this->unlockPort();
 }
 
 
@@ -1353,7 +1355,7 @@ void QWidget::propagateUpdates(int x, int y, int x2, int y2)
 {
     qDebug( "QWidget::propagateUpdates" );
 
-    this->fixport();
+    this->lockPort();
     erase( x, y, x2, y2 );
     QRect paintRect( x, y, x2, y2 );
     QRegion paintRegion( paintRect );
@@ -1388,17 +1390,17 @@ void QWidget::propagateUpdates(int x, int y, int x2, int y2)
 	    child = --it;
 	} while ( child != 0 );
     }
+    this->unlockPort();
     qDebug( "leaving QWidget::propagateUpdates" );
 }
-
 
 //FIXME: I think function was used to define a clipping region
 //FIXME: Basically in ensures that I widget doesn't draw over
 //FIXME: The top of child widgets
 //FIXME: Maybe we should use Qt/Embedded code for doing this.
-void QWidget::fixport()
+void QWidget::lockPort()
 {
-    qDebug( QString( "QWidget::fixport %1" ).arg( (int)hd ) );;
+    qDebug( QString( "QWidget::lockPort %1" ).arg( (int)hd ) );;
     if ( !hd )
 	return;
 
@@ -1410,6 +1412,10 @@ void QWidget::fixport()
     return; //FIXME: NO CLIPPING
 }
 
+void QWidget::unlockPort() { } //does nothing
 
-
-
+BitMap
+*QWidget::portBitMap() const
+{
+  return (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)hd));
+}

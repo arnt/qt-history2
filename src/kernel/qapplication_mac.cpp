@@ -1466,10 +1466,15 @@ void qt_leave_modal( QWidget * )
 
   \sa processOneEvent(), exec(), QTimer
 */
-void QApplication::processEvents( int )
+void QApplication::processEvents( int maxtime)
 {
-    qDebug( "QApplication::processEvents" );
-    processNextEvent(FALSE);
+    QTime start = QTime::currentTime();
+    QTime now;
+    while ( !app_exit_loop && processNextEvent(FALSE) ) {
+	now = QTime::currentTime();
+	if ( start.msecsTo(now) > maxtime )
+	    break;
+    }
 }
 
 bool QApplication::macEventFilter( void ** )

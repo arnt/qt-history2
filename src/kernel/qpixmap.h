@@ -46,6 +46,7 @@
 #endif // QT_H
 
 class QGfx;
+class QPixmapPrivate;
 
 #if defined(_WS_WIN_)
 // Internal pixmap memory optimization class for Windows 9x
@@ -102,6 +103,12 @@ public:
 #ifndef QT_NO_TRANSFORMATIONS
     QPixmap	    xForm( const QWMatrix & ) const;
     static QWMatrix trueMatrix( const QWMatrix &, int w, int h );
+#endif
+
+#if defined( _WS_MAC_ )
+  virtual void lockPort();
+  virtual void unlockPort();
+  BitMap *portBitMap() const;
 #endif
 
     QImage	convertToImage() const;
@@ -193,6 +200,10 @@ protected:
 #elif defined(_WS_X11_)
 	void   *ximage;
 	void   *maskgc;
+#elif defined(_WS_MAC_)
+      bool is_locked;
+      GWorldPtr savedworld;
+      GDHandle savedhandle;
 #elif defined(_WS_QWS_)
 	int id; // ### should use QPaintDevice::hd, since it is there
 	QRgb * clut;

@@ -93,6 +93,9 @@ class QWidgetListIt;
 
 #if defined(_WS_MAC_)
 
+typedef struct OpaqueGrafPtr *GWorldPtr;
+typedef struct GDevice **GDHandle;
+typedef struct BitMap BitMap;
 typedef struct EventRecord EventRecord;
 typedef void * MSG;
 typedef int WId;

@@ -450,8 +450,11 @@ protected:
     QWidget * mytop;                            // This widget's top-level widg
     int back_type;                              // Type of background
     QPixmap * bg_pix;
-    virtual void fixport();
     virtual void propagateUpdates(int x,int y,int x2,int y2);
+
+  virtual void lockPort();
+  virtual void unlockPort();
+  BitMap *portBitMap() const;
 #elif defined(_WS_WIN_)
     virtual bool winEvent( MSG * );		// Windows event
 #elif defined(_WS_X11_)

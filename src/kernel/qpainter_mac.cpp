@@ -555,7 +555,7 @@ void QPainter::setClipRegion( const QRegion & )
 void QPainter::drawPolyInternal( const QPointArray &a, bool close )
 {
     qDebug( "QPainter::drawPolyInternal implemented tested" );
-    pdev->fixport();
+    pdev->lockPort();
     RgnHandle polyRegion = NewRgn();
     OpenRgn();
     uint loopc;
@@ -575,6 +575,7 @@ void QPainter::drawPolyInternal( const QPointArray &a, bool close )
 	FrameRgn( polyRegion );
     }
     DisposeRgn( polyRegion );
+    pdev->unlockPort();
 }
 
 
@@ -599,11 +600,12 @@ void QPainter::drawPoint( int x, int y )
         }
         map( x, y, &x, &y );
     }
-    pdev->fixport();
+    pdev->lockPort();
     // FIXME: This is a bit silly
     updatePen();
     MoveTo(x,y);
     LineTo(x,y);
+    pdev->unlockPort();
 }
 
 
@@ -668,13 +670,14 @@ void QPainter::lineTo( int x, int y )
         }
         map( x, y, &x, &y );
     }
-    pdev->fixport();
+    pdev->lockPort();
     updateBrush();
     updatePen();
     MoveTo(penx,peny);
     LineTo(x,y);
     penx = x;
     peny = y;
+    pdev->unlockPort();
 }
 
 /*!
@@ -701,10 +704,11 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
         map( x1, y1, &x1, &y1 );
         map( x2, y2, &x2, &y2 );
     }
-    pdev->fixport();
+    pdev->lockPort();
     updatePen();
     MoveTo(x1,y1);
     LineTo(x2,y2);
+    pdev->unlockPort();
 }
 
 
@@ -746,7 +750,7 @@ void QPainter::drawRect( int x, int y, int w, int h )
         h++;
     }
 
-    pdev->fixport();
+    pdev->lockPort();
 
     Rect rect;
     SetRect( &rect, x, y, x + w, y + h );
@@ -758,6 +762,8 @@ void QPainter::drawRect( int x, int y, int w, int h )
 	updatePen();
 	FrameRect(&rect);
     }
+
+    pdev->unlockPort();
 }
 
 /*!
@@ -915,7 +921,7 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd)
         h++;
     }
 
-    pdev->fixport();
+    pdev->lockPort();
     Rect rect;
     SetRect( &rect, x, y, x + w, y + h );
     if( this->brush().style() == SolidPattern ) {
@@ -926,6 +932,8 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd)
 	updatePen();
 	FrameRoundRect( &rect, w*xRnd/100, h*yRnd/100 );
     }
+
+    pdev->unlockPort();
 }
 
 /*!
@@ -963,7 +971,7 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
         w++;
         h++;
     }
-    pdev->fixport();
+    pdev->lockPort();
     Rect r;
     SetRect( &r, x, y, x + w, y + h );
     if( this->brush().style() == SolidPattern ) {
@@ -972,6 +980,7 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
     }
     updatePen();
     FrameOval( &r );
+    pdev->unlockPort();
 }
 
 
@@ -1022,11 +1031,12 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
             return;
         fix_neg_rect( &x, &y, &w, &h );
     }
-    pdev->fixport();
+    pdev->lockPort();
     Rect bounds;
     SetRect(&bounds,x,y,x+w,y+h);
     updatePen();
     FrameArc(&bounds,a/16,alen/16);
+    pdev->unlockPort();
 }
 
 
@@ -1088,7 +1098,7 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
         w++;
         h++;
     }
-    pdev->fixport();
+    pdev->lockPort();
     Rect bounds;
     SetRect(&bounds,x,y,x+w,y+h);
     //PaintArc(&bounds,a*16,alen*16);
@@ -1115,6 +1125,7 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
 	updatePen();
 	FrameArc(&bounds,aa,bb);
     }
+    pdev->unlockPort();
 }
 
 
@@ -1256,7 +1267,7 @@ void QPainter::drawQuadBezier( const QPointArray &, int )
 void QPainter::drawPixmap( int, int, const QPixmap &,
 			   int, int, int, int )
 {
-    qDebug( "QPixmap::setMask" );
+    qDebug( "QPixmap::drawPixmap" );
 }
 
 
