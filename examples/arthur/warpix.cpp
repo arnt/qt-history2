@@ -15,8 +15,6 @@ Warpix::Warpix(QWidget *parent)
     beat->setLoops(-1);
 
     clickPos = QPoint(-1, -1);
-
-    Q_ASSERT(!hasMouseTracking());
 }
 
 void Warpix::paintEvent(QPaintEvent *)

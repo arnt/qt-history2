@@ -22,7 +22,6 @@ private:
     QString text;
     QPixmap topGradient;
     QPixmap bottomGradient;
-    bool mouseIsDown;
     QPoint oldMousePoint;
     QTextDocument *textDocument;
     QTextCursor textCursor;

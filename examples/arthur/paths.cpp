@@ -16,12 +16,15 @@ void Paths::paintEvent(QPaintEvent *)
 
     fillBackground(&p);
 
+    if (attributes->antialias)
+        p.setRenderHints(QPainter::LineAntialiasing);
+
     p.setPen(QPen(QColor(63, 63, 127, attributes->alpha ? 191 : 255), 5));
     p.setBrush(QColor(191, 191, 255, attributes->alpha ? 127 : 255));
 
     int w = width(), h = height();
 
-    QRect r(200, 200, width() - 400, height() - 400);
+    QRect r(200, 200, w - 400, h - 400);
 
     QPainterPath path;
     path.beginSubpath();
@@ -39,5 +42,8 @@ void Paths::paintEvent(QPaintEvent *)
     }
 
     path.closeSubpath();
+
+    path.addRect(r);
+
     p.drawPath(path);
 }

@@ -5,6 +5,8 @@
 
 #include <qpixmap.h>
 
+class QMouseEvent;
+
 class Clipping : public DemoWidget
 {
 public:
@@ -14,12 +16,17 @@ public:
 
     void resizeEvent(QResizeEvent *e);
 
+    void mousePressEvent(QMouseEvent *e);
+    void mouseMoveEvent(QMouseEvent *e);
+
 private:
     QPixmap bgFill;
-    int textx;
-    int texty;
-    double textdirx;
-    double textdiry;
+
+    QList<QRect> rects;
+    QList<QPoint> rectDirection;
+
+    QPoint pressPoint;
+    QPoint currentPoint;
 };
 
 #endif // CLIPPING_H

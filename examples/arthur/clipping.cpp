@@ -3,92 +3,97 @@
 #include <qapplication.h>
 #include <qbitmap.h>
 #include <qpainter.h>
+#include <qevent.h>
 
 Clipping::Clipping(QWidget *parent)
-    : DemoWidget(parent), textx(0), texty(0)
+    : DemoWidget(parent)
 {
-    textdirx = xfunc(1001);
-    textdiry = yfunc(1001);
+    pressPoint = QPoint(-1, -1);
+    animationLoopStep = -1;
+
+    const int rectCount = 10;
+
+    for (int i=0; i<rectCount; ++i) {
+        int width  = 100;
+        int height = 100;
+
+        int x = i*7;
+        int y = i*13;
+
+        rects.append(QRect(x, y, width, height));
+        rectDirection.append(QPoint(xfunc(i*113)*5 + 5, yfunc(i*113)*5 + 5));
+    }
 }
 
 void Clipping::paintEvent(QPaintEvent *)
 {
     int w = width(), h = height();
-    if (bgFill.isNull()) {
-        bgFill.resize(w, h);
-        QPainter p(&bgFill);
-
-//         if (attributes->antialias)
-//             p.setRenderHints(QPainter::LineAntialiasing);
-
-        QColor col1(0, 63, 0);
-        QColor col2(255, 255, 100);
-
-        for (int x=0; x<=w; ++x) {
-            p.setPen(x % 2 ? col1 : col2);
-            p.drawLine(x, 0, w-x, h);
-        }
-        for (int y=0; y<=h; ++y) {
-            p.setPen(y % 2 ? col1 : col2);
-            p.drawLine(0, y, w, h-y);
-        }
-        p.end();
-    }
 
     QPainter pt(this);
-    pt.drawPixmap(0, 0, w, h, bgFill);
 
-    double x = xfunc(animationStep);
-    double y = yfunc(animationStep);
-
-    QBitmap bm(w, h);
-    bm.fill(Qt::color1);
-    QPainter bmPainter(&bm);
-
-    bmPainter.setBackgroundMode(Qt::TransparentMode);
-
-    bmPainter.setBrush(Qt::color0);
-    bmPainter.setPen(Qt::color0);
-
-    bmPainter.save();
-    bmPainter.translate(w/2, h/2);
-    bmPainter.rotate(animationStep);
-    bmPainter.drawRect(-100 -100*x, -100 -100*y, 200 + 200*x, 200 + 200*y);
-    bmPainter.restore();
-
-    QRect br;
-    QString text = "Arthur\nThe Paint Engine";
-    QFont font = qApp->font();
-    font.setPointSize(36);
-    font.setBold(true);
-    bmPainter.setFont(font);
-    QFontMetrics fm = bmPainter.fontMetrics();
-    bmPainter.drawText(0, 0, w, h, Qt::AlignCenter | Qt::TextDontPrint, text, -1, &br);
-
-    const int speed = 5;
-
-    textx += int(textdirx*speed);
-    if (textx < 0)
-        textdirx = -textdirx;
-    else if (textx > br.x() + br.width())
-        textdirx = -textdirx;
-
-    texty += int(textdiry*speed);
-    if (texty < 0)
-        textdiry = -textdiry;
-    else if (texty > br.y() + br.height())
-        textdiry = -textdiry;
-
-    bmPainter.drawText(textx, texty, br.width(), br.height(), Qt::AlignCenter, text);
-
-    bmPainter.end();
-
-    pt.setClipRegion(bm);
     fillBackground(&pt);
 
+    QRegion region;
+    for (int i=0; i<rects.size(); ++i) {
+        QRect r = rects.at(i);
+        QPoint d = rectDirection.at(i);
+        r.moveBy(d);
+
+        if (r.left() < 0) {
+            r.setRect(0, r.y(), r.width(), r.height());
+            d.setX(-d.x());
+        } else if (r.right() > w) {
+            r.setRect(w-r.width(), r.y(), r.width(), r.height());
+            d.setX(-d.x());
+        }
+
+        if (r.top() < 0) {
+            r.setRect(r.x(), 0, r.width(), r.height());
+            d.setY(-d.y());
+        } else if (r.bottom() > h) {
+            r.setRect(r.x(), h-r.height(), r.width(), r.height());
+            d.setY(-d.y());
+        }
+
+        if (i%4 == 0)
+            region |= QRegion(r, QRegion::Ellipse);
+        else
+            region |= r;
+
+        rects[i] = r;
+        rectDirection[i] = d;
+    }
+
+    if (pressPoint != QPoint(-1, -1)) {
+        QRect mouseRect = QRect(pressPoint, currentPoint);
+        region ^= mouseRect.normalize();
+    }
+
+    QRegion clip(0, 0, w, h);
+    clip ^= region;
+    pt.setClipRegion(clip);
+
+//     pt.setBrush(QBrush(QPoint(0, 0), QColor(220, 220, 255, attributes->alpha ? 191 : 255),
+//                        QPoint(0, h), QColor(63, 63, 150, attributes->alpha ? 191 : 255)));
+    QColor bg = palette().color(QPalette::Background);
+    pt.setPen(Qt::NoPen);
+    pt.setBrush(QColor(bg.red(), bg.green(), bg.blue(), attributes->alpha ? 191 : 255));
+
+    pt.drawRect(rect());
 }
 
 void Clipping::resizeEvent(QResizeEvent *)
 {
     bgFill = QPixmap();
+}
+
+void Clipping::mousePressEvent(QMouseEvent *e)
+{
+    pressPoint = e->pos();
+    currentPoint = e->pos();
+}
+
+void Clipping::mouseMoveEvent(QMouseEvent *e)
+{
+    currentPoint = e->pos();
 }

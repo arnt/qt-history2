@@ -9,6 +9,8 @@ public:
     Paths(QWidget *parent=0);
 
     void paintEvent(QPaintEvent *e);
+    void mousePressEvent(QMouseEvent *) { stopAnimation(); }
+    void mouseReleaseEvent(QMouseEvent *) { startAnimation(); }
 };
 
 #endif // PATHS_H

@@ -11,10 +11,10 @@
 #include <private/qtextdocumentlayout_p.h>
 
 IntroScreen::IntroScreen(QWidget *widget)
-    : DemoWidget(widget), mouseIsDown(false)
+    : DemoWidget(widget)
 {
     animationLoopStep = -1;
-    QFile textFile("text.html");
+    QFile textFile("..\\..\\doc\\html\\painting.html");
     if (!textFile.open(IO_ReadOnly))
         text = "Unable to load text file: 'text.html'";
     else
@@ -88,17 +88,18 @@ void IntroScreen::paintEvent(QPaintEvent *)
 
 void IntroScreen::mousePressEvent(QMouseEvent *e)
 {
-    mouseIsDown = true;
     oldMousePoint = e->pos();
+    stopAnimation();
 }
 
 void IntroScreen::mouseReleaseEvent(QMouseEvent *)
 {
-    mouseIsDown = false;
+    startAnimation();
 }
 
 void IntroScreen::mouseMoveEvent(QMouseEvent *e)
 {
     animationStep += oldMousePoint.y() - e->y();
     oldMousePoint = e->pos();
+    repaint();
 }
