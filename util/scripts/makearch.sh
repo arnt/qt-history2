@@ -217,7 +217,7 @@ library: \$(OBJECTS) \$(METAOBJ)
 		-o ../lib/libqt.so.\$(VERSION) \\
 		\$(OBJECTS) \$(METAOBJ) -lX11
 	-rm -f ../lib/libqt.so
-	-ln -sf libqt.so.\$(VERSION) ../lib/libqt.so
+	-ln -s libqt.so.\$(VERSION) ../lib/libqt.so
 	-rm -f ../lib/libqt.so.1
 	-ln -s libqt.so.\$(VERSION) ../lib/libqt.so.1
 
