@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocket.h#12 $
+** $Id: //depot/qt/main/src/network/qsocket.h#13 $
 **
 ** Definition of QSocket class.
 **
@@ -63,7 +63,7 @@ public:
     virtual ~QSocket();
 
     enum State { Idle, HostLookup, Connecting,
-		 Listening, Connected, Closing,
+		 Connected, Closing,
 		 Connection=Connected };
     State	 state() const;
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qhttp.cpp#32 $
+** $Id: //depot/qt/main/src/network/qhttp.cpp#33 $
 **
 ** Implementation of QHtpp and related classes.
 **
@@ -1534,7 +1534,7 @@ QIODevice* QHttpClient::device() const
   to set the QUrlOperator on which it works using
   setUrl().
 
-  \sa <a href="network.html">Qt Network Documentation</a> QNetworkProtocol, QUrlOperator
+  \sa \link network.html Qt Network Documentation \endlink QNetworkProtocol, QUrlOperator
 */
 
 /*!

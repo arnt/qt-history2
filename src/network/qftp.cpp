@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qftp.cpp#20 $
+** $Id: //depot/qt/main/src/network/qftp.cpp#21 $
 **
 ** Implementation of QFtp class.
 **
@@ -74,7 +74,7 @@
   to set the QUrlOperator on which it works using
   setUrl().
 
-  \sa <a href="network.html">Qt Network Documentation</a> QNetworkProtocol, QUrlOperator
+  \sa \link network.html Qt Network Documentation \endlink QNetworkProtocol, QUrlOperator
 */
 
 

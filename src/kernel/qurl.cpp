@@ -293,7 +293,7 @@ QString QUrl::protocol() const
 }
 
 /*!
-  Sets the protocol of the URL. This could be
+  Sets the protocol of the URL to \a protocol. This could be
   "file", "ftp" or similar.
 */
 
@@ -312,7 +312,7 @@ QString QUrl::user() const
 }
 
 /*!
-  Sets the username of the URL.
+  Sets the username of the URL to \a user.
 */
 
 void QUrl::setUser( const QString& user )
@@ -340,7 +340,7 @@ QString QUrl::password() const
 }
 
 /*!
-  Sets the password of the URL.
+  Sets the password of the URL to \a pass.
 */
 
 void QUrl::setPassword( const QString& pass )
@@ -368,7 +368,7 @@ QString QUrl::host() const
 }
 
 /*!
-  Sets the hostname of the URL.
+  Sets the hostname of the URL to \a host.
 */
 
 void QUrl::setHost( const QString& host )
@@ -396,7 +396,7 @@ int QUrl::port() const
 }
 
 /*!
-  Sets the port of the URL.
+  Sets the port of the URL to \a port.
 */
 
 void QUrl::setPort( int port )
@@ -405,7 +405,7 @@ void QUrl::setPort( int port )
 }
 
 /*!
-  Sets the path of the URL.
+  Sets the path of the URL to \a path.
 */
 
 void QUrl::setPath( const QString& path )
@@ -426,7 +426,7 @@ bool QUrl::hasPath() const
 }
 
 /*!
-  Sets the query of the URL. Must be encoded.
+  Sets the query of the URL to \a txt. \a txt must be encoded.
 */
 
 void QUrl::setQuery( const QString& txt )
@@ -453,7 +453,7 @@ QString QUrl::ref() const
 }
 
 /*!
-  Sets the reference of the URL. Must be encoded.
+  Sets the reference of the URL to \a txt. \a txt must be encoded.
 */
 
 void QUrl::setRef( const QString& txt )
@@ -747,9 +747,8 @@ bool QUrl::parse( const QString& url )
     return TRUE;
 }
 
-/*!
-  Assign operator. Parses \a url and assigns the resulting
-  data to this class.
+/*! \overload
+  Parses \a url and assigns the resulting data to this class.
 
   You can pass strings such as "/home/qt"; in this case the protocol
   "file" is assumed.
@@ -764,7 +763,7 @@ QUrl& QUrl::operator=( const QString& url )
 }
 
 /*!
-  Assign operator. Assigns the data of \a url to this class.
+  Assigns the data of \a url to this class.
 */
 
 QUrl& QUrl::operator=( const QUrl& url )
@@ -796,7 +795,7 @@ bool QUrl::operator==( const QUrl& url ) const
     return FALSE;
 }
 
-/*!
+/*! \overload
   Compares this URL with \a url. \a url is parsed
   first. Returns TRUE if  \a url is equal to this url,
   otherwise FALSE:
@@ -861,19 +860,22 @@ QString QUrl::encodedPathAndQuery()
 }
 
 /*!
-  Sets path and query. Both have to be encoded.
+  Parses \a pathAndQuery for a path and query and sets those values. The whole
+  string has to be encoded.
+
+  \sa encode()
 */
 
-void QUrl::setEncodedPathAndQuery( const QString& path )
+void QUrl::setEncodedPathAndQuery( const QString& pathAndQuery )
 {
     d->cleanPathDirty = TRUE;
-    int pos = path.find( '?' );
+    int pos = pathAndQuery.find( '?' );
     if ( pos == -1 ) {
-	d->path = path;
+	d->path = pathAndQuery;
 	d->queryEncoded = "";
     } else {
-	d->path = path.left( pos );
-	d->queryEncoded = path.mid( pos + 1 );
+	d->path = pathAndQuery.left( pos );
+	d->queryEncoded = pathAndQuery.mid( pos + 1 );
     }
 
     decode( d->path );

@@ -261,7 +261,7 @@ QUrlOperator::QUrlOperator( const QString &url )
 }
 
 /*!
-  Copy constructor.
+  Constructs a copy of \a url.
 */
 
 QUrlOperator::QUrlOperator( const QUrlOperator& url )
@@ -607,12 +607,11 @@ QPtrList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QStri
     return ops;
 }
 
-/*!
+/*! \overload
   Copies \a files to the directory \a dest. If \a move is TRUE
   the files are moved, not copied. \a dest has to point to a directory.
 
-  This function is just a more convenience version of the previous
-  copy function. It calls the copy for each entry in \a files one
+  This function calls the copy for each entry in \a files one
   after the other. You don't get a result from this function; each
   time a new copy begins, startedNextCopy() is emitted, with a list of
   QNetworkOperations that describe the new copy operation.
@@ -804,7 +803,7 @@ const QNetworkOperation *QUrlOperator::put( const QByteArray &data, const QStrin
 }
 
 /*!
-  Sets the name filter of the URL.
+  Sets the name filter of the URL to \a nameFilter.
 
   \sa QDir::setNameFilter()
 */
