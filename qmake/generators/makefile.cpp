@@ -517,6 +517,12 @@ MakefileGenerator::init()
         QStringList incDirs = v["DEPENDPATH"] + v["QMAKE_ABSOLUTE_SOURCE_PATH"];
         if(project->isActiveConfig("depend_includepath"))
             incDirs += v["INCLUDEPATH"];
+        if(!project->isActiveConfig("no_include_pwd")) {
+            QString pwd = qmake_getpwd();
+            if(pwd.isEmpty())
+                pwd = ".";
+            incDirs += pwd;
+        }
         QList<QMakeLocalFileName> deplist;
         for(QStringList::Iterator it = incDirs.begin(); it != incDirs.end(); ++it)
             deplist.append(QMakeLocalFileName((*it)));
