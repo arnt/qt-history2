@@ -14,7 +14,7 @@
 #ifndef QSET_H
 #define QSET_H
 
-#include <qhash.h>
+#include "QtCore/qhash.h"
 
 template <class T>
 class QSet
