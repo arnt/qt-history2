@@ -79,7 +79,12 @@
 
 QRect QWindowsXPStyle::subRect(SubRect r, const QStyleOption *option, const QWidget *widget) const
 {
-    return QWindowsStyle::subRect(r, option, widget);
+    QRect rect(option->rect);
+    switch(r) {
+    default:
+        rect = QWindowsStyle::subRect(r, option, widget);
+    }
+    return rect;
 }
 
 QPixmap QWindowsXPStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *option, const QWidget *widget) const
@@ -258,7 +263,7 @@ QColor   QWindowsXPStylePrivate::dockColorInactive = Qt::gray;
 struct XPThemeData
 {
     XPThemeData(const QWidget *w = 0, QPainter *p = 0, const QString &theme = QString::null, int part = 0, int state = 0, const QRect &r = QRect(), QRgb tabBorderColor = 0)
-        : widget(w), painter(p), name(theme),partId(part), stateId(state), rec(r), tbBorderColor(tabBorderColor), htheme(0), flipped(false), mirrored(false)
+        : widget(w), painter(p), name(theme),partId(part), stateId(state), rec(r), tbBorderColor(tabBorderColor), htheme(0), rotated(0), mirrored(false)
     {
     }
     ~XPThemeData()
@@ -321,9 +326,9 @@ struct XPThemeData
             SetWindowRgn(QWindowsXPStylePrivate::winId(widget), hrgn, true);
     }
 
-    void setFlipped(bool b = true)
+    void setRotate(int angle = 0)
     {
-        flipped = b;
+        rotated = angle;
     }
 
     void setMirrored(bool b = true)
@@ -345,9 +350,13 @@ struct XPThemeData
             partId == TABP_TABITEM)) {
             QRect oldrec = rec;
             rec = QRect(0, 0, rec.width(), rec.height());
+            if (rotated == 90 || rotated == 270)
+                rec.setRect(0,0, rec.height(), rec.width());
+
             QPixmap pm(rec.size());
             QPainter p(&pm);
-            p.eraseRect(0, 0, rec.width(), rec.height());
+            pm.fill(Qt::black);
+//            p.eraseRect(0, 0, rec.width(), rec.height());
 
             HDC dc2 = p.device()->getDC();
             pDrawThemeBackground(handle(), dc2, partId, stateId, &rect(), 0);
@@ -355,15 +364,25 @@ struct XPThemeData
 
             rec = oldrec;
             p.end();
-            if (flipped) {
-                QMatrix m;
-                m.scale(1, -1);
-                pm = pm.transform(m);
+
+            // ################ Make perfect 90 angle rotates, using QImage
+            if (rotated) {
+                if (rotated >= 180) {
+                    //QMatrix m;
+                    //m.scale(1, -1);
+                    //pm = pm.transform(m);
+                    QImage img = pm.toImage();
+                    img = img.mirror(false, true);
+                    pm = img;
+                    rotated -= 180;
+                }
+                if (rotated) {
+                    QMatrix m;
+                    m.rotate(rotated);
+                    pm = pm.transform(m);
+                }
             }
             painter->drawPixmap(rec.x(), rec.y(), pm);
-            painter->setPen(tbBorderColor);
-            if (!flipped)
-                painter->drawLine(rec.left(), rec.bottom(), rec.right()+1, rec.bottom());
         } else if (name == "TREEVIEW") {
             pDrawThemeBackground(handle(), dc, partId, stateId, &rect(), 0);
         } else if ((name == "EDIT" || name == "LISTVIEW") && ::qt_cast<const QComboBox*>(widget) == 0) {
@@ -431,8 +450,8 @@ private:
     QString name;
     HTHEME htheme;
     uint workAround :1;
-    uint flipped :1;
     uint mirrored :1;
+    uint rotated;
 };
 
 const QPixmap *QWindowsXPStylePrivate::tabBody(QWidget *widget)
@@ -618,10 +637,14 @@ void QWindowsXPStyle::polish(QWidget *widget)
         widget->setMouseTracking(true);
     } else if (qt_cast<QStackedWidget*>(widget) &&
                 qt_cast<QTabWidget*>(widget->parent())) {
-        QPalette p = widget->palette();
-        p.setBrush(widget->backgroundRole(), QBrush(*d->tabBody(widget)));
-        widget->setPalette(p);
+        //QPalette p = widget->palette();
+        //p.setBrush(widget->backgroundRole(), QBrush(*d->tabBody(widget)));
+        //widget->setPalette(p);
+        widget->parentWidget()->setAttribute(Qt::WA_ContentsPropagated);
     }
+    //else if (qt_cast<QTabWidget*>(widget)) {
+    //    widget->setAttribute(Qt::WA_ContentsPropagated);
+    //}
     // Fixed in Qt 4.0?
     //QWidget *pW = static_cast<QWidget *>(widget->parent());
     //if (!widget->testAttribute(QWidget::WA_SetPalette) && pW && !pW->palette().brush(pW->backgroundRole()).pixmap()) {
@@ -841,6 +864,9 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
         partId = TABP_PANE;
         break;
 
+    case PE_FrameTabBarBase:
+        return;
+
     case PE_FrameMenu:
 //    case PE_PanelPopup:
         p->save();
@@ -1051,7 +1077,6 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
 void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *option, QPainter *p,
                                   const QWidget *widget) const
 {
-    bool doFlipp = false;
     d->currentWidget = widget;
 
     if (!use_xp) {
@@ -1061,6 +1086,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
 
     QRect rect(option->rect);
     State flags = option->state;
+    int rotate = 0;
 
     QString name;
     int partId = 0;
@@ -1069,8 +1095,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
         flags |= State_MouseOver;
 
     switch (element) {
-    case CE_PushButton:
-        //    case CE_PushButtonLabel:
+    case CE_PushButtonBevel:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(option))
         {
             name = "BUTTON";
@@ -1092,16 +1117,20 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
         break;
 
     case CE_TabBarTabShape:
-        //    case CE_TabBarLabel:
         if (const QStyleOptionTab *tab = qt_cast<const QStyleOptionTab *>(option))
         {
             name = "TAB";
-            if ((tab->shape == QTabBar::RoundedSouth) ||
-                 (tab->shape == QTabBar::TriangularSouth))
-                 doFlipp = true;
+            if (!(flags & State_Enabled))
+                stateId = TIS_DISABLED;
+            else if (flags & State_HasFocus)
+                stateId = TIS_FOCUSED;
+            else if (flags & State_Selected)
+                stateId = TIS_SELECTED;
+            else if (d->hotTab == option->rect)
+                stateId = TIS_HOT;
+            else
+                stateId = TIS_NORMAL;
 
-            //int aidx = bar->indexOf(bar->currentTab());
-            //int lastTab = bar->count()-1;
             switch(tab->position)
             {
             case QStyleOptionTab::Beginning:
@@ -1113,35 +1142,69 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
                 partId = TABP_TABITEM;
             }
 
-            if (!(flags & State_Enabled))
-                stateId = TIS_DISABLED;
-            else if (flags & State_HasFocus)
-                stateId = TIS_FOCUSED;
-            else if (flags & State_Selected)
-                stateId = TIS_SELECTED;
-            else if (d->hotTab == option->rect)
-                stateId = TIS_HOT;
-            else
-                stateId = TIS_NORMAL;
-            if (doFlipp)
+            switch (tab->shape) {
+            case QTabBar::RoundedNorth:
+            case QTabBar::TriangularNorth:
                 if ((flags & State_Selected) || (flags & State_HasFocus)) {
-                    rect.addCoords(0, 0, 0, 0);
+                    rect.addCoords(0, 0, 0, 1);
                 } else {
-                    rect.addCoords(0, 0, 0, -2);
+                    rect.addCoords(0, 1, 0, 0);
                     if (tab->selectedPosition != QStyleOptionTab::NextIsSelected)
                         rect.addCoords(1, 0, 0, 0);
                     if (tab->selectedPosition != QStyleOptionTab::PreviousIsSelected)
                         rect.addCoords(0, 0, -1, 0);
                 }
-            else {
+                break;
+            case QTabBar::RoundedSouth:
+            case QTabBar::TriangularSouth:
+                rotate = 180;
                 if ((flags & State_Selected) || (flags & State_HasFocus)) {
-                    rect.addCoords(0, 0, 0, 1);
+                    rect.addCoords(0, -1, 0, 0);
                 } else {
-                    rect.addCoords(0, 2, 0, 0);
+                    rect.addCoords(0, 0, 0, -1);
                     if (tab->selectedPosition != QStyleOptionTab::NextIsSelected)
                         rect.addCoords(1, 0, 0, 0);
                     if (tab->selectedPosition != QStyleOptionTab::PreviousIsSelected)
                         rect.addCoords(0, 0, -1, 0);
+                }
+                break;
+            case QTabBar::RoundedEast:
+            case QTabBar::TriangularEast:
+                rotate = 90;
+                break;
+            case QTabBar::RoundedWest:
+            case QTabBar::TriangularWest:
+                rotate = 270;
+                if ((flags & State_Selected) || (flags & State_HasFocus)) {
+                    rect.addCoords(0, 0, 1, 0);
+                } else {
+                    rect.addCoords(1, 0, -5, 0);
+                    if (tab->selectedPosition != QStyleOptionTab::NextIsSelected)
+                        rect.addCoords(0, 1, 0, 0);
+                    if (tab->selectedPosition != QStyleOptionTab::PreviousIsSelected)
+                        rect.addCoords(0, 0, 0, -1);
+                }
+                break;
+            }
+
+            if (!(flags & State_Selected)) {
+                switch (tab->shape) {
+                case QTabBar::RoundedNorth:
+                case QTabBar::TriangularNorth:
+                    rect.addCoords(0,0, 0,-1);
+                    break;
+                case QTabBar::RoundedSouth:
+                case QTabBar::TriangularSouth:
+                    rect.addCoords(0,1, 0,0);
+                    break;
+                case QTabBar::RoundedEast:
+                case QTabBar::TriangularEast:
+                    rect.addCoords(1,0, 0,0);
+                    break;
+                case QTabBar::RoundedWest:
+                case QTabBar::TriangularWest:
+                    rect.addCoords(0,0, -1,0);
+                    break;
                 }
             }
         }
@@ -1317,11 +1380,6 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
         return;
 #endif
 
-    case CE_ToolButtonLabel:
-        //if (!option.isDefault())
-        //    return;
-        break;
-
     default:
         break;
     }
@@ -1332,8 +1390,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
         return;
     }
 
-    if (doFlipp)
-        theme.setFlipped();
+    theme.setRotate(rotate);
     theme.drawBackground();
 
     d->currentWidget = 0;
@@ -1743,6 +1800,12 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
             XPThemeData theme(widget, p, "TOOLBAR");
             QToolButton *tb = (QToolButton*)widget;
 
+            QRect button, menuarea;
+            button = visualRect(option->direction, option->rect,
+                                subControlRect(cc, toolbutton, SC_ToolButton, widget));
+            menuarea = visualRect(option->direction, option->rect,
+                                  subControlRect(cc, toolbutton, SC_ToolButtonMenu, widget));
+
             State bflags = flags, mflags = flags;
 
             if (toolbutton->activeSubControls == SC_ToolButton)
@@ -1821,6 +1884,10 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                 drawPrimitive(PE_IndicatorButtonDropDown, option, p, widget);
             }
 
+            QStyleOptionToolButton label = *toolbutton;
+            int fw = pixelMetric(PM_DefaultFrameWidth, option, widget);
+            label.rect = button.adjusted(fw, fw, -fw, -fw);
+            drawControl(CE_ToolButtonLabel, &label, p, widget);
             //if (tb->hasFocus() && !tb->focusProxy()) {
             //    Q3StyleOptionFocusRect option(0);
             //    option.rect = tb->rect();
@@ -2224,11 +2291,35 @@ int QWindowsXPStyle::pixelMetric(PixelMetric pm, const QStyleOption *option, con
         return 1;
 
     case PM_TabBarTabOverlap:
-        return 2;
+        return 0;
 
-    case PM_TabBarBaseOverlap:
     case PM_TabBarBaseHeight:
         return 0;
+
+    case PM_TabBarBaseOverlap:
+        if (const QStyleOptionTab *tab = qt_cast<const QStyleOptionTab *>(option)) {
+            int ret = 0;
+            switch (tab->shape) {
+            case QTabBar::RoundedNorth:
+            case QTabBar::TriangularNorth:
+                ret = 1;
+                break;
+            case QTabBar::RoundedSouth:
+            case QTabBar::TriangularSouth:
+                ret = 3;
+                break;
+            case QTabBar::RoundedEast:
+            case QTabBar::TriangularEast:
+                ret = 3;
+                break;
+            case QTabBar::RoundedWest:
+            case QTabBar::TriangularWest:
+                ret = 1;
+                break;
+            }
+            return ret;
+        }
+        return 1;
 
     case PM_TitleBarHeight:
         return QWindowsStyle::pixelMetric(pm, option, widget) + 4;
