@@ -254,7 +254,11 @@ void QCoreApplicationPrivate::removePostedChildInsertedEvents(QObject *receiver,
  */
 QCoreApplication::QCoreApplication(QCoreApplicationPrivate &p)
     : QObject(p, 0)
-{ init(); }
+{
+    init();
+    // note: it is the subclasses' job to call
+    // QCoreApplicationPrivate::eventDispatcher->startingUp();
+}
 
 /*!
     Flushes the platform specific event queues.
@@ -285,6 +289,7 @@ QCoreApplication::QCoreApplication(int &argc, char **argv)
     : QObject(*new QCoreApplicationPrivate(argc, argv), 0)
 {
     init();
+    QCoreApplicationPrivate::eventDispatcher->startingUp();
 }
 
 extern void set_winapp_name();
@@ -356,7 +361,8 @@ QCoreApplication::~QCoreApplication()
     QThread::cleanup();
 
     mainData()->eventDispatcher = 0;
-    d->eventDispatcher = 0;
+    QCoreApplicationPrivate::eventDispatcher->closingDown();
+    QCoreApplicationPrivate::eventDispatcher = 0;
 }
 
 /*!

@@ -886,8 +886,6 @@ QApplication::~QApplication()
     //### this should probable be done even later
     qt_call_post_routines();
 
-    d->eventDispatcher->closingDown();
-
     delete qt_desktopWidget;
     qt_desktopWidget = 0;
     QApplicationPrivate::is_app_closing = true;
