@@ -166,8 +166,9 @@ QGLFormat::QGLFormat()
   Creates a QGLFormat object that is a copy of the current \link
   defaultFormat() application default format\endlink.
 
-  If \a options is not 0, this copy will be modified by these format options.
-  The \a options parameter must be FormatOption values OR'ed together.
+  If \a options is not 0, this copy is modified by these format
+  options.  The \a options parameter must be FormatOption values OR'ed
+  together.
 
   This constructor makes it easy to specify a certain desired format
   in classes derived from QGLWidget, for example:
@@ -185,9 +186,9 @@ QGLFormat::QGLFormat()
    }
   \endcode
 
-  Note that there are FormatOption values to turn format settings both on and
-  off, e.g. DepthBuffer and NoDepthBuffer,
-  DirectRendering and IndirectRendering, etc.
+  Note that there are FormatOption values to turn format settings both
+  on and off, e.g. DepthBuffer and NoDepthBuffer, DirectRendering and
+  IndirectRendering, etc.
 
   \sa defaultFormat(), setOption()
 */
@@ -215,11 +216,11 @@ QGLFormat::QGLFormat( int options, int plane )
 
   Double buffering is enabled by default.
 
-  Double buffering is a technique where graphics are rendered to an off-screen
-  buffer and not directly to the screen. When the drawing has been
-  completed, the program calls a swapBuffers function to exchange the screen
-  contents with the buffer. The result is flicker-free drawing and often
-  better performance.
+  Double buffering is a technique where graphics are rendered to an
+  off-screen buffer and not directly to the screen. When the drawing
+  has been completed, the program calls a swapBuffers function to
+  exchange the screen contents with the buffer. The result is
+  flicker-free drawing and often better performance.
 
   \sa doubleBuffer(), QGLContext::swapBuffers(), QGLWidget::swapBuffers()
 */
@@ -1054,7 +1055,7 @@ bool QGLContext::create( const QGLContext* shareContext )
   first.
 
   QGLWidget provides advanced functions for requesting a new display
-  \link QGLFormat format\endlink, and you can even set a new rendering
+  \link QGLFormat format\endlink and you can even set a new rendering
   \link QGLContext context\endlink.
 
   You can achieve sharing of OpenGL display lists between QGLWidgets
@@ -1062,7 +1063,7 @@ bool QGLContext::create( const QGLContext* shareContext )
 
   <b>About Overlays:</b> The QGLWidget creates a GL overlay context
   in addition to the normal context if overlays are supported by the
-  underlying system. 
+  underlying system.
 
   If you want to use overlays, you specify it in the \link QGLFormat
   format\endlink. (Note: Overlay must be requested in the format
@@ -1099,7 +1100,7 @@ bool QGLContext::create( const QGLContext* shareContext )
   used. The widget will be \link isValid() invalid\endlink if the
   system has no \link QGLFormat::hasOpenGL() OpenGL support\endlink.
 
-  The \e parent, \e name, and \e f arguments are passed to the QWidget
+  The \a parent, \a name and \a f arguments are passed to the QWidget
   constructor.
 
   If the \a shareWidget parameter points to a valid QGLWidget, this
@@ -1136,7 +1137,7 @@ QGLWidget::QGLWidget( QWidget *parent, const char *name,
   The widget will be \link isValid() invalid\endlink if the
   system has no \link QGLFormat::hasOpenGL() OpenGL support\endlink.
 
-  The \e parent, \e name, and \e f arguments are passed to the QWidget
+  The \a parent, \a name and \a f arguments are passed to the QWidget
   constructor.
 
   If the \a shareWidget parameter points to a valid QGLWidget, this
@@ -1200,8 +1201,8 @@ QGLWidget::~QGLWidget()
 /*!
   \fn void QGLWidget::setAutoBufferSwap( bool on )
 
-  Turns on or off the automatic GL buffer swapping. If on, and the
-  widget is using a double-buffered format, the background and
+  Turns on or off the automatic GL buffer swapping. If \a on is TRUE
+  and the widget is using a double-buffered format, the background and
   foreground GL buffers will automatically be swapped after each time
   the paintGL() function has been called.
 
@@ -1506,7 +1507,7 @@ void QGLWidget::paintEvent( QPaintEvent * )
 
 
 /*!
-  Renders the current scene on a pixmap and returns it.
+  Renders the current scene on a pixmap and returns the pixmap.
 
   You may use this method on both visible and invisible QGLWidgets.
 
@@ -1521,12 +1522,12 @@ void QGLWidget::paintEvent( QPaintEvent * )
 
   If \a useContext is TRUE, this method will try to be more efficient
   by using the existing GL context to render the pixmap. The default
-  is FALSE. Use only if you know what you are doing.
+  is FALSE. Use TRUE only if you understand the risks.
 
   Any overlay is not rendered to the pixmap.
 
-  \bug May give unexpected results if the depth of the GL rendering
-  context is different from the depth of the desktop.
+  Note that if the GL rendering context and the desktop have different
+  bit depths, the result will most likely look surprising.
 */
 
 QPixmap QGLWidget::renderPixmap( int w, int h, bool useContext )
@@ -1638,11 +1639,32 @@ void QGLWidget::qglClearColor( const QColor& c ) const
 }
 
 
-/*!  
+/*! Converts \a img into the unnamed format expected by OpenGL
+  functions such as glTexImage2D(). The returned image is not usable
+  as a QImage, but QImage::width(), QImage::height() and
+  QImage::bits() may be used with OpenGL. The following few lines are
+  from the texture example. Most of the code is irrelevant, so we just
+  quote the few lines we want:
+  
+  \dontinclude texture/gltexobj.cpp
+  \skipto tex1
+  \printline tex1
+  \printline gllogo.bmp
+  
+  We create \e tex1 (and another variable) for OpenGL, and load a real
+  image into \e buf.
 
-  Convenience function for converting a QImage into the format expected by
-  OpenGL's texture functions.
+  \skipto convertToGLFormat
+  \printline convertToGLFormat
 
+  A few lines later, we convert \e buf into OpenGL format and store it
+  in \a tex1.
+  
+  \skipto glTexImage2D
+  \printline glTexImage2D
+  \printline tex1.bits
+
+  Another function in the same example uses \e tex1 with OpenGL.
 */
 
 
@@ -1692,7 +1714,7 @@ The Qt OpenGL module makes it easy to use OpenGL in Qt
 applications.  It provides an OpenGL widget class that can be used
 just like any other Qt widget, only that it opens an OpenGL display
 buffer where you can use the OpenGL API to render the contents.
- 
+
 The Qt OpenGL module is implemented as a platform-independent
 Qt/C++ wrapper around the platform-dependent GLX and WGL C APIs. The
 provided functionality is very similar to Mark Kilgard's GLUT library,
