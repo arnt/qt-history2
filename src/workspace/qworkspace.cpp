@@ -2041,7 +2041,6 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     childWidget->installEventFilter( this );
 
     widgetResizeHandler = new QWidgetResizeHandler( this, window );
-    widgetResizeHandler->setMovingEnabled( FALSE );
     widgetResizeHandler->setSizeProtection( !parent->scrollBarsEnabled() );
     connect( widgetResizeHandler, SIGNAL( activate() ),
 	     this, SLOT( activate() ) );
