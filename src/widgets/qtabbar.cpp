@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#60 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#61 $
 **
 ** Implementation of QTabBar class
 **
@@ -162,16 +162,19 @@ int QTabBar::addTab( QTab * newTab )
 	ih = newTab->iconset->pixmap( QIconSet::Small, QIconSet::Normal ).height();
     }
     int h = QMAX( fm.height(), ih );
-    if ( d->s == RoundedAbove || d->s == RoundedBelow )
-	h += 10;
+    
+    int hframe, vframe, overlap;
+    style().tabbarMetrics( this, hframe, vframe, overlap );
+    
+    h += vframe;
     if ( t ) {
 	QRect r( t->r );
 	while ( (t = l->next()) != 0 )
 	    r = r.unite( t->r );
-	newTab->r.setRect( r.right()-3, 0, lw + 24 + iw,
+	newTab->r.setRect( r.right()-overlap, 0, lw + hframe + iw,
 			   QMAX( r.height(), h ) );
     } else {
-	newTab->r.setRect( 0, 0, lw + 24 + iw, h );
+	newTab->r.setRect( 0, 0, lw + hframe + iw, h );
     }
 
     newTab->id = d->id++;
@@ -295,130 +298,9 @@ QSizePolicy QTabBar::sizePolicy() const
 void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 {
     QRect r( t->r );
-    int o = style().defaultFrameWidth() > 1 ? 1 : 0;
 
-    if ( d->s == RoundedAbove ) {
-	if ( o ) {
-	    p->setPen( style() == MotifStyle ? colorGroup().light() : colorGroup().midlight() );
-	    p->drawLine( r.left(), r.bottom(), r.right(), r.bottom() );
-	    p->setPen( colorGroup().light() );
-	    p->drawLine( r.left(), r.bottom()-1, r.right(), r.bottom()-1 );
-	    if ( r.left() == 0 )
-		p->drawPoint( rect().bottomLeft() );
-	}
-	else {
-	    p->setPen( colorGroup().light() );
-	    p->drawLine( r.left(), r.bottom(), r.right(), r.bottom() );
-	}
-
-	if ( selected ) {
-	    p->setPen( colorGroup().background() );
-	    p->drawLine( r.left()+1, r.bottom(), r.right()-2, r.bottom() );
-	    if (o)
-		p->drawLine( r.left()+1, r.bottom()-1, r.right()-2, r.bottom()-1 );
-	    p->drawLine( r.left()+1, r.bottom(), r.left()+1, r.top()+2 );
-	    p->setPen( colorGroup().light() );
-	} else {
-	    p->setPen( colorGroup().light() );
-	    r.setRect( r.left() + 2, r.top() + 2,
-		       r.width() - 4, r.height() - 2 );
-	}
-
-	p->drawLine( r.left(), r.bottom()-1, r.left(), r.top() + 2 );
-	p->drawPoint( r.left()+1, r.top() + 1 );
-	p->drawLine( r.left()+2, r.top(),
-		     r.right() - 2, r.top() );
-	if ( style() == WindowsStyle &&  r.left() > 0 ) {
- 	    p->setPen( colorGroup().midlight() );
-	}
-	p->drawPoint( r.left(), r.bottom());
-	
-	if ( o ) {
-	    if ( style() == WindowsStyle )
-		p->setPen( colorGroup().midlight() );
-	    p->drawLine( r.left()+1, r.bottom(), r.left()+1, r.top() + 2 );
-	    p->drawLine( r.left()+2, r.top()+1,
-			 r.right() - 2, r.top()+1 );
-	}
-
-	p->setPen( colorGroup().dark() );
-	p->drawLine( r.right() - 1, r.top() + 2,
-		     r.right() - 1, r.bottom() - 1 + (selected?o:-o));
-	p->setPen( colorGroup().shadow() );
-	if ( o ) {
-	    p->drawPoint( r.right() - 1, r.top() + 1 );
-	    p->drawLine( r.right(), r.top() + 2, r.right(), r.bottom() - (selected?1:1+o));
-	    p->drawPoint( r.right() - 1, r.top() + 1 );
-	}
-    } else if ( d->s == RoundedBelow ) {
-        if ( selected ) {
-            p->setPen( colorGroup().background() );
-            p->drawLine( r.left()+1, r.top(), r.right()-2, r.top() );
-            p->drawLine( r.left()+1, r.top(), r.left()+1, r.bottom()-2 );
-            p->setPen( colorGroup().dark() );
-        } else {
-            p->setPen( colorGroup().dark() );
-            p->drawLine( r.left(), r.top(), r.right(), r.top() );
-            r.setRect( r.left() + 2, r.top(),
-                       r.width() - 4, r.height() - 2 );
-        }
-
-        p->drawLine( r.right() - 1, r.top(),
-                     r.right() - 1, r.bottom() - 2 );
-        p->drawPoint( r.right() - 2, r.bottom() - 2 );
-        p->drawLine( r.right() - 2, r.bottom() - 1,
-                     r.left() + 1, r.bottom() - 1 );
-        p->drawPoint( r.left() + 1, r.bottom() - 2 );
-
-        p->setPen( colorGroup().shadow() );
-        if (style().defaultFrameWidth() > 1) {
-            p->drawLine( r.right(), r.top(),
-                         r.right(), r.bottom() - 1 );
-            p->drawPoint( r.right() - 1, r.bottom() - 1 );
-            p->drawLine( r.right() - 1, r.bottom(),
-                         r.left() + 2, r.bottom() );
-        }
-
-        p->setPen( colorGroup().light() );
-        p->drawLine( r.left(), r.top(),
-                     r.left(), r.bottom() - 2 );
-	
-    } else {
-	
-	// triangular, above or below
-	int y;
-	int x;
-	QPointArray a( 10 );
-	a.setPoint( 0, 0, -1 );
-	a.setPoint( 1, 0, 0 );
-	y = t->r.height()-2;
-	x = y/3;
-	a.setPoint( 2, x++, y-1 );
-	a.setPoint( 3, x++, y );
-	a.setPoint( 3, x++, y++ );
-	a.setPoint( 4, x, y );
-	
-	int i;
-	int right = t->r.width() - 1;
-	for ( i = 0; i < 5; i++ )
-	    a.setPoint( 9-i, right - a.point( i ).x(), a.point( i ).y() );
-
-	if ( d->s == TriangularAbove )
-	    for ( i = 0; i < 10; i++ )
-		a.setPoint( i, a.point(i).x(),
-			    t->r.height() - 1 - a.point( i ).y() );
-
-	a.translate( t->r.left(), t->r.top() );
-
-	if ( selected )
-	    p->setBrush( colorGroup().base() );
-	else
-	    p->setBrush( colorGroup().background() );
-	p->setPen( colorGroup().foreground() );
-	p->drawPolygon( a );
-	p->setBrush( NoBrush );
-    }
-
+    style().drawTab( p, this, t, selected );
+    
     p->setFont( font() );
 
     int iw = 0;
@@ -500,11 +382,15 @@ void  QTabBar::updateMask()
     p.setBrush(color1);
     p.setPen(color1);
 
-    QTab *t = l->first();
-    while ( t ) {
-	p.drawRect( t->r );
-	t  = l->next();
-    }
+    QTab * t;
+    t = l->first();
+    do {
+	QTab * n = l->next();
+	if ( t )
+	    style().drawTabMask( &p, this, t, n == 0 );
+	t = n;
+    } while ( t != 0 );
+
 
     p.end();
     setMask( bm );

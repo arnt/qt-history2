@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#34 $
 **
 ** Implementation of QStyle class
 **
@@ -35,6 +35,7 @@
 #include "qpushbutton.h"
 #include "qwidget.h"
 #include "qrangecontrol.h"
+#include "qtabbar.h"
 #include "qscrollbar.h"
 #include <limits.h>
 
@@ -517,6 +518,58 @@ QStyle::drawIndicatorMask( QPainter *p, int x, int y, int w, int h, int /*state*
   in that case to ensure that the focus rectangle is visible at all.
 */
 
+
+void QStyle::tabbarMetrics( const QTabBar* t, int& hframe, int& vframe, int& overlap)
+{
+    overlap = 3;
+    hframe = 24;
+    vframe = 0;
+    if ( t->shape() == QTabBar::RoundedAbove || t->shape() == QTabBar::RoundedBelow )
+	vframe += 10;
+}
+
+void QStyle::drawTab( QPainter* p,  const  QTabBar* tb, QTab* t , bool selected )
+{
+    if ( tb->shape() == QTabBar::TriangularAbove || tb->shape() == QTabBar::TriangularBelow ) {
+	// triangular, above or below
+	int y;
+	int x;
+	QPointArray a( 10 );
+	a.setPoint( 0, 0, -1 );
+	a.setPoint( 1, 0, 0 );
+	y = t->r.height()-2;
+	x = y/3;
+	a.setPoint( 2, x++, y-1 );
+	a.setPoint( 3, x++, y );
+	a.setPoint( 3, x++, y++ );
+	a.setPoint( 4, x, y );
+	
+	int i;
+	int right = t->r.width() - 1;
+	for ( i = 0; i < 5; i++ )
+	    a.setPoint( 9-i, right - a.point( i ).x(), a.point( i ).y() );
+
+	if ( tb->shape() == QTabBar::TriangularAbove )
+	    for ( i = 0; i < 10; i++ )
+		a.setPoint( i, a.point(i).x(),
+			    t->r.height() - 1 - a.point( i ).y() );
+
+	a.translate( t->r.left(), t->r.top() );
+
+	if ( selected )
+	    p->setBrush( tb->colorGroup().base() );
+	else
+	    p->setBrush( tb->colorGroup().background() );
+	p->setPen( tb->colorGroup().foreground() );
+	p->drawPolygon( a );
+	p->setBrush( NoBrush );
+    }
+}
+
+void QStyle::drawTabMask( QPainter* p,  const  QTabBar* /* tb*/ , QTab* t, bool /* selected */ ) 
+{
+    p->drawRect( t->r );
+}
 
 /*!
 

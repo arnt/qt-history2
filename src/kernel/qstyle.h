@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#25 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#26 $
 **
 ** Definition of QStyle class
 **
@@ -20,6 +20,8 @@
 class QButton;
 class QPushButton;
 class QScrollBar;
+class QTabBar;
+class QTab;
 
 class Q_EXPORT QStyle: public QObject
 {
@@ -139,6 +141,11 @@ public:
 
     // frame
     virtual int defaultFrameWidth() const;
+    
+    // tabbars
+    virtual void tabbarMetrics( const QTabBar*, int&, int&, int& );
+    virtual void drawTab( QPainter*, const QTabBar*, QTab*, bool selected );
+    virtual void drawTabMask( QPainter*, const QTabBar*, QTab*, bool selected );
 
     // scrollbars
     enum ScrollControl { ADD_LINE = 0x1 , SUB_LINE = 0x2 , ADD_PAGE = 0x4,

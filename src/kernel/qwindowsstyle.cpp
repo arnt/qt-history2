@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowsstyle.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qwindowsstyle.cpp#27 $
 **
 ** Implementation of Windows-like style class
 **
@@ -36,6 +36,7 @@
 #include "qwidget.h"
 #include "qrangecontrol.h"
 #include "qscrollbar.h"
+#include "qtabbar.h"
 #include <limits.h>
 
 /*!
@@ -179,7 +180,7 @@ QWindowsStyle::drawPanel( QPainter *p, int x, int y, int w, int h,
 		   int lineWidth, const QBrush* fill)
 {
     if ( lineWidth == 2 )
-      QWindowsStyle::drawButton(p, x, y, w, h, g, sunken, fill);
+	QWindowsStyle::drawButton(p, x, y, w, h, g, sunken, fill);
     else
 	QStyle::drawPanel( p, x, y, w, h, g, sunken, lineWidth, fill );
 }
@@ -433,6 +434,7 @@ void QWindowsStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
     qDrawWinPanel(p, x, y, w, h, g, TRUE,
                    fill?fill:(enabled?&g.brush( QColorGroup::Base ):
                                       &g.brush( QColorGroup::Background )));
+    // the special reversed left shadow panel ( slightly different from drawPanel() )
     qDrawWinPanel(p, w-2-16,2,16,h-4, g, sunken);
     drawArrow( p, QStyle::DownArrow, sunken,
 	       w-2-16+ 2, 2+ 2, 16- 4, h-4- 4, g, enabled, fill );
@@ -453,6 +455,104 @@ QRect QWindowsStyle::comboButtonFocusRect( int x, int y, int w, int h)
     return QRect(x+3, y+3, w-6-16, h-6);
 }
 
+
+/*! \reimp */
+void QWindowsStyle::tabbarMetrics( const QTabBar* t, int& hframe, int& vframe, int& overlap)
+{
+    QStyle::tabbarMetrics( t, hframe, vframe, overlap );
+}
+
+/*! \reimp */
+void QWindowsStyle::drawTab( QPainter* p,  const QTabBar* tb, QTab* t , bool selected )
+{
+    QRect r( t->r );
+    if ( tb->shape()  == QTabBar::RoundedAbove ) {
+	p->setPen( tb->colorGroup().midlight() );
+	p->drawLine( r.left(), r.bottom(), r.right(), r.bottom() );
+	p->setPen( tb->colorGroup().light() );
+	p->drawLine( r.left(), r.bottom()-1, r.right(), r.bottom()-1 );
+	if ( r.left() == 0 )
+	    p->drawPoint( tb->rect().bottomLeft() );
+	else {
+	    p->setPen( tb->colorGroup().midlight() );
+	    p->drawLine( r.left(), r.bottom(), r.right(), r.bottom() );
+	}
+
+	if ( selected ) {
+	    p->setPen( tb->colorGroup().background() );
+	    p->drawLine( r.left()+1, r.bottom(), r.right()-2, r.bottom() );
+	    p->drawLine( r.left()+1, r.bottom()-1, r.right()-2, r.bottom()-1 );
+	    p->drawLine( r.left()+1, r.bottom(), r.left()+1, r.top()+2 );
+	    p->setPen( tb->colorGroup().light() );
+	} else {
+	    p->setPen( tb->colorGroup().light() );
+	    r.setRect( r.left() + 2, r.top() + 2,
+		       r.width() - 4, r.height() - 2 );
+	}
+
+	p->drawLine( r.left(), r.bottom()-1, r.left(), r.top() + 2 );
+	p->drawPoint( r.left()+1, r.top() + 1 );
+	p->drawLine( r.left()+2, r.top(),
+		     r.right() - 2, r.top() );
+	if ( r.left() > 0 ) {
+ 	    p->setPen( tb->colorGroup().midlight() );
+	}
+	p->drawPoint( r.left(), r.bottom());
+	
+	p->setPen( tb->colorGroup().midlight() );
+	p->drawLine( r.left()+1, r.bottom(), r.left()+1, r.top() + 2 );
+	p->drawLine( r.left()+2, r.top()+1,
+		     r.right() - 2, r.top()+1 );
+
+	p->setPen( tb->colorGroup().dark() );
+	p->drawLine( r.right() - 1, r.top() + 2,
+		     r.right() - 1, r.bottom() - 1 + (selected?1:-1));
+	p->setPen( tb->colorGroup().shadow() );
+	p->drawPoint( r.right() - 1, r.top() + 1 );
+	p->drawLine( r.right(), r.top() + 2, r.right(), r.bottom() - (selected?1:2));
+	p->drawPoint( r.right() - 1, r.top() + 1 );
+    } else if ( tb->shape() == QTabBar::RoundedBelow ) {
+        if ( selected ) {
+            p->setPen( tb->colorGroup().background() );
+            p->drawLine( r.left()+1, r.top(), r.right()-2, r.top() );
+            p->drawLine( r.left()+1, r.top(), r.left()+1, r.bottom()-2 );
+            p->setPen( tb->colorGroup().dark() );
+        } else {
+            p->setPen( tb->colorGroup().dark() );
+            p->drawLine( r.left(), r.top(), r.right(), r.top() );
+            r.setRect( r.left() + 2, r.top(),
+                       r.width() - 4, r.height() - 2 );
+        }
+
+        p->drawLine( r.right() - 1, r.top(),
+                     r.right() - 1, r.bottom() - 2 );
+        p->drawPoint( r.right() - 2, r.bottom() - 2 );
+        p->drawLine( r.right() - 2, r.bottom() - 1,
+                     r.left() + 1, r.bottom() - 1 );
+        p->drawPoint( r.left() + 1, r.bottom() - 2 );
+
+        p->setPen( tb->colorGroup().shadow() );
+        p->drawLine( r.right(), r.top(),
+		     r.right(), r.bottom() - 1 );
+        p->drawPoint( r.right() - 1, r.bottom() - 1 );
+        p->drawLine( r.right() - 1, r.bottom(),
+		     r.left() + 2, r.bottom() );
+
+        p->setPen( tb->colorGroup().light() );
+        p->drawLine( r.left(), r.top(),
+                     r.left(), r.bottom() - 2 );
+	
+    } else {
+	QStyle::drawTab( p, tb, t, selected );
+    }
+
+}
+
+/*! \reimp */
+void QWindowsStyle::drawTabMask( QPainter* p,  const QTabBar* tb, QTab* t, bool selected )
+{
+    QStyle::drawTabMask(p, tb, t, selected );
+}
 
 #define HORIZONTAL	(sb->orientation() == QScrollBar::Horizontal)
 #define VERTICAL	!HORIZONTAL

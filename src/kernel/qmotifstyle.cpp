@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmotifstyle.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qmotifstyle.cpp#27 $
 **
 ** Implementation of Motif-like style class
 **
@@ -36,6 +36,7 @@
 #include "qwidget.h"
 #include "qrangecontrol.h"
 #include "qscrollbar.h"
+#include "qtabbar.h"
 #include <limits.h>
 
 /*!
@@ -449,6 +450,112 @@ QMotifStyle::drawPushButton( QPushButton* btn, QPainter *p)
     if ( p->brush().style() != NoBrush )
 	p->setBrush( NoBrush );
 }
+
+
+
+/*! \reimp */
+void QMotifStyle::tabbarMetrics( const QTabBar* t, int& hframe, int& vframe, int& overlap)
+{
+    QStyle::tabbarMetrics( t, hframe, vframe, overlap );
+}
+
+/*! \reimp */
+void QMotifStyle::drawTab( QPainter* p, const QTabBar* tb, QTab* t , bool selected )
+{
+    QRect r( t->r );
+    int o = defaultFrameWidth() > 1 ? 1 : 0;
+
+    if ( tb->shape()  == QTabBar::RoundedAbove ) {
+	if ( o ) {
+	    p->setPen( tb->colorGroup().light() );
+	    p->drawLine( r.left(), r.bottom(), r.right(), r.bottom() );
+	    p->setPen( tb->colorGroup().light() );
+	    p->drawLine( r.left(), r.bottom()-1, r.right(), r.bottom()-1 );
+	    if ( r.left() == 0 )
+		p->drawPoint( tb->rect().bottomLeft() );
+	}
+	else {
+	    p->setPen( tb->colorGroup().light() );
+	    p->drawLine( r.left(), r.bottom(), r.right(), r.bottom() );
+	}
+
+	if ( selected ) {
+	    p->setPen( tb->colorGroup().background() );
+	    p->drawLine( r.left()+1, r.bottom(), r.right()-2, r.bottom() );
+	    if (o)
+		p->drawLine( r.left()+1, r.bottom()-1, r.right()-2, r.bottom()-1 );
+	    p->drawLine( r.left()+1, r.bottom(), r.left()+1, r.top()+2 );
+	    p->setPen( tb->colorGroup().light() );
+	} else {
+	    p->setPen( tb->colorGroup().light() );
+	    r.setRect( r.left() + 2, r.top() + 2,
+		       r.width() - 4, r.height() - 2 );
+	}
+
+	p->drawLine( r.left(), r.bottom()-1, r.left(), r.top() + 2 );
+	p->drawPoint( r.left()+1, r.top() + 1 );
+	p->drawLine( r.left()+2, r.top(),
+		     r.right() - 2, r.top() );
+	p->drawPoint( r.left(), r.bottom());
+	
+	if ( o ) {
+	    p->drawLine( r.left()+1, r.bottom(), r.left()+1, r.top() + 2 );
+	    p->drawLine( r.left()+2, r.top()+1,
+			 r.right() - 2, r.top()+1 );
+	}
+
+	p->setPen( tb->colorGroup().dark() );
+	p->drawLine( r.right() - 1, r.top() + 2,
+		     r.right() - 1, r.bottom() - 1 + (selected?o:-o));
+	if ( o ) {
+	    p->drawPoint( r.right() - 1, r.top() + 1 );
+	    p->drawLine( r.right(), r.top() + 2, r.right(), r.bottom() - (selected?1:1+o));
+	    p->drawPoint( r.right() - 1, r.top() + 1 );
+	}
+    } else if ( tb->shape()  == QTabBar::RoundedBelow ) {
+        if ( selected ) {
+            p->setPen( tb->colorGroup().background() );
+            p->drawLine( r.left()+1, r.top(), r.right()-2, r.top() );
+            p->drawLine( r.left()+1, r.top(), r.left()+1, r.bottom()-2 );
+            p->setPen( tb->colorGroup().dark() );
+        } else {
+            p->setPen( tb->colorGroup().dark() );
+            p->drawLine( r.left(), r.top(), r.right(), r.top() );
+            r.setRect( r.left() + 2, r.top(),
+                       r.width() - 4, r.height() - 2 );
+        }
+
+        p->drawLine( r.right() - 1, r.top(),
+                     r.right() - 1, r.bottom() - 2 );
+        p->drawPoint( r.right() - 2, r.bottom() - 2 );
+        p->drawLine( r.right() - 2, r.bottom() - 1,
+                     r.left() + 1, r.bottom() - 1 );
+        p->drawPoint( r.left() + 1, r.bottom() - 2 );
+
+        if (defaultFrameWidth() > 1) {
+            p->drawLine( r.right(), r.top(),
+                         r.right(), r.bottom() - 1 );
+            p->drawPoint( r.right() - 1, r.bottom() - 1 );
+            p->drawLine( r.right() - 1, r.bottom(),
+                         r.left() + 2, r.bottom() );
+        }
+
+        p->setPen( tb->colorGroup().light() );
+        p->drawLine( r.left(), r.top(),
+                     r.left(), r.bottom() - 2 );
+	
+    } else {
+	QStyle::drawTab( p, tb, t, selected );
+    }
+    
+}
+
+/*! \reimp */
+void QMotifStyle::drawTabMask( QPainter* p,  const  QTabBar* tb, QTab* t, bool selected ) 
+{
+    QStyle::drawTabMask(p, tb, t, selected );
+}
+
 
 #define HORIZONTAL	(sb->orientation() == QScrollBar::Horizontal)
 #define VERTICAL	!HORIZONTAL
