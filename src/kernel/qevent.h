@@ -340,9 +340,9 @@ class Q_EXPORT QContextMenuEvent : public QEvent
 {
 public:
     enum Reason { Mouse, Keyboard, Other };
-    QContextMenuEvent( Reason reason, const QPoint &pos, const QPoint &globalPos )
-	: QEvent( ContextMenu ), p( pos ), gp( globalPos ), accpt( FALSE ), reas( reason ) {}
-    QContextMenuEvent( Reason reason, const QPoint &pos );
+    QContextMenuEvent( Reason reason, const QPoint &pos, const QPoint &globalPos, int state )
+	: QEvent( ContextMenu ), p( pos ), gp( globalPos ), accpt( FALSE ), reas( reason ), s(state) {}
+    QContextMenuEvent( Reason reason, const QPoint &pos, int state );
 
     int	    x() const { return p.x(); }
     int	    y() const { return p.y(); }
@@ -352,6 +352,7 @@ public:
     const QPoint&   pos() const { return p; }
     const QPoint&   globalPos() const { return gp; }
 
+    ButtonState state()	const	{ return (ButtonState) s; }
     bool    isAccepted() const	{ return accpt; }
     void    accept()		{ accpt = TRUE; }
     void    ignore()		{ accpt = FALSE; }
@@ -363,6 +364,7 @@ protected:
     QPoint  gp;
     bool    accpt;
     uint    reas:8;
+    ushort s;
 };
 
 #ifndef QT_NO_DRAGANDDROP

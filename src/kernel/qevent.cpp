@@ -1044,7 +1044,7 @@ void QFocusEvent::resetReason()
 */
 
 /*!
-  \fn QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, const QPoint &globalPos )
+  \fn QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, const QPoint &globalPos, int state )
 
   Constructs a context event object with the accept parameter flag set to FALSE.
 
@@ -1053,12 +1053,12 @@ void QFocusEvent::resetReason()
 
   The \a pos parameter specifies the position relative to the
   receiving widget. \a globalPos is the position in absolute
-  coordinates.
+  coordinates. \a state is the ButtonState at the time of the event.
 */
 
 
 /*!
-  \fn QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos )
+  \fn QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int state )
 
   Constructs a context event object with the accept parameter flag set to FALSE.
 
@@ -1066,15 +1066,15 @@ void QFocusEvent::resetReason()
   or \c QContextMenuEvent::Keyboard.
 
   The \a pos parameter specifies the position relative to the
-  receiving widget. 
+  receiving widget. \a state is the ButtonState at the time of the event.
 
   The globalPos() is initialized to QCursor::pos(), which may not be
   appropriate. Use the other constructor to specify the global position
   explicitly.
 */
 
-QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos )
-    : QEvent( ContextMenu ), p( pos ), accpt( FALSE ), reas( reason ) 
+QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int state )
+    : QEvent( ContextMenu ), p( pos ), accpt( FALSE ), reas( reason ), s((ushort)state)
 { 
     gp = QCursor::pos();
 }
@@ -1125,6 +1125,17 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos )
 
   Returns the global Y position of the mouse pointer at the time of the event.
   \sa globalX(), globalPos()
+*/
+
+/*!
+  \fn ButtonState QMouseEvent::state() const
+
+  Returns the button state (a combination of mouse buttons and keyboard
+  modifiers), i.e., what buttons and keys were being held depressed
+  immediately before the event was generated.
+
+  The returned value is \c LeftButton, \c RightButton, \c MidButton,
+  \c ShiftButton, \c ControlButton and \c AltButton OR'ed together.
 */
 
 /*!
