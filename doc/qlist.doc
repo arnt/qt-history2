@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qlist.doc,v 2.19 1999/03/05 00:49:12 weis Exp $
+** $Id: qlist.doc,v 2.20 1999/03/08 17:33:20 weis Exp $
 **
 ** QList and QListIterator class documentation
 **
@@ -33,7 +33,7 @@
   \ingroup collection
   \ingroup tools
 
-  QList is implemented as both a template and a macro class. Define a
+  In Qt 2.0 QList is only implemented as a template class. Define a
   template instance QList\<X\> to create a list that operates on pointers
   to X, or X*.
 
