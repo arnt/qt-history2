@@ -40,9 +40,6 @@ public:
     void *visual() const;
     bool defaultVisual() const;
 
-#ifdef QT_COMPAT
-    inline static QT_COMPAT Display *appDisplay() { return display(); }
-#endif
     static int appScreen();
     static int appDepth(int screen = -1);
     static int appCells(int screen = -1);
