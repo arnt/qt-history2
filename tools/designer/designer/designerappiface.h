@@ -19,7 +19,7 @@ public:
 
 private:
     QGuardedPtr<DesignerMainWindowInterface> mwIface;
-
+    QGuardedPtr<QComponentInterface> flIface;
 };
 
 class DesignerMainWindowInterface : public QComponentInterface

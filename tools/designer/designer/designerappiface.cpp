@@ -1,6 +1,7 @@
 #include "designerappiface.h"
 #include "mainwindow.h"
 #include "formwindow.h"
+#include "formlist.h"
 #include <qapplication.h>
 #include <qobjectlist.h>
 #include <qstatusbar.h>
@@ -12,8 +13,12 @@ DesignerApplicationInterface::DesignerApplicationInterface()
 
 QComponentInterface * DesignerApplicationInterface::queryInterface( const QString &request )
 {
+    MainWindow* mw = (MainWindow*)qApp->mainWidget();
+    FormList* fl = mw->formlist();
     if ( request == "DesignerMainWindowInterface" )
-	return mwIface ? mwIface : ( mwIface = new DesignerMainWindowInterface( (MainWindow*)qApp->mainWidget() ) );
+	return mwIface ? mwIface : ( mwIface = new DesignerMainWindowInterface( mw ) );
+    else if ( request == "DesignerFormListInterface" )
+	return flIface ? flIface : ( flIface = new QComponentInterface( fl ) );
     return 0;
 }
 
