@@ -1246,6 +1246,8 @@ static bool checkWidget( QLayout *l, QWidget *w )
     alignment now indicates that the widget should not grow to fill
     the available space, but should be sized according to sizeHint().
     \endlist
+
+    \sa addMultiCellWidget()
 */
 void QGridLayout::addWidget( QWidget *w, int row, int col, int alignment )
 {
@@ -1275,6 +1277,8 @@ void QGridLayout::addWidget( QWidget *w, int row, int col, int alignment )
     A non-zero alignment indicates that the widget should not grow to
     fill the available space but should be sized according to
     sizeHint().
+
+    \sa addWidget()
 */
 void QGridLayout::addMultiCellWidget( QWidget *w, int fromRow, int toRow,
 				      int fromCol, int toCol, int alignment )
@@ -1287,6 +1291,10 @@ void QGridLayout::addMultiCellWidget( QWidget *w, int fromRow, int toRow,
 /*!
     Places the \a layout at position (\a row, \a col) in the grid. The
     top-left position is (0, 0).
+
+    \a layout becomes a child of the grid layout.
+
+    \sa addMultiCellLayout()
 */
 void QGridLayout::addLayout( QLayout *layout, int row, int col )
 {
@@ -1306,6 +1314,10 @@ void QGridLayout::addLayout( QLayout *layout, int row, int col )
     A non-zero alignment indicates that the layout should not grow to
     fill the available space but should be sized according to
     sizeHint().
+
+    \a layout becomes a child of the grid layout.
+
+    \sa addLayout()
 */
 void QGridLayout::addMultiCellLayout( QLayout *layout, int fromRow, int toRow,
 				      int fromCol, int toCol, int alignment )
@@ -1959,6 +1971,8 @@ void QBoxLayout::insertStretch( int index, int stretch )
 /*!
     Inserts \a layout at position \a index, with stretch factor \a
     stretch. If \a index is negative, the layout is added at the end.
+
+    \a layout becomes a child of the box layout.
 
     \sa setAutoAdd(), insertWidget(), insertSpacing()
 */
