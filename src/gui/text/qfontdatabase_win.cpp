@@ -395,14 +395,14 @@ storeFont(ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/)
             style->smoothScalable = true;
             style->pixelSize(SMOOTH_SCALABLE, true);
         }
-        if (!styleKey.style == QFont::StyleItalic) {
+        if (styleKey.style != QFont::StyleItalic) {
             QtFontStyle::Key key(styleKey);
             key.style = QFont::StyleItalic;
             QtFontStyle *style = foundry->style(key,  true);
             style->smoothScalable = true;
             style->pixelSize(SMOOTH_SCALABLE, true);
         }
-        if (styleKey.weight <= QFont::DemiBold && !styleKey.style == QFont::StyleItalic) {
+        if (styleKey.weight <= QFont::DemiBold && styleKey.style != QFont::StyleItalic) {
             QtFontStyle::Key key(styleKey);
             key.weight = QFont::Bold;
             key.style = QFont::StyleItalic;
