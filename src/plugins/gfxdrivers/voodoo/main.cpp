@@ -13,6 +13,7 @@
 
 #include <qgfxdriverplugin_qws.h>
 #include <qgfxvoodoo_qws.h>
+#include <qstringlist.h>
 
 class GfxVoodooDriver : public QGfxDriverPlugin
 {

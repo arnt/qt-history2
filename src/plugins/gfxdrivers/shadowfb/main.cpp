@@ -13,6 +13,7 @@
 
 #include <qgfxdriverplugin_qws.h>
 #include <qgfxshadowfb_qws.h>
+#include <qstringlist.h>
 
 class GfxShadowFbDriver : public QGfxDriverPlugin
 {

@@ -13,6 +13,7 @@
 
 #include <qgfxdriverplugin_qws.h>
 #include <qgfxmatrox_qws.h>
+#include <qstringlist.h>
 
 class GfxMatroxDriver : public QGfxDriverPlugin
 {

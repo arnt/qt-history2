@@ -13,6 +13,7 @@
 
 #include <qgfxdriverplugin_qws.h>
 #include <qgfxvfb_qws.h>
+#include <qstringlist.h>
 
 class GfxVfbDriver : public QGfxDriverPlugin
 {

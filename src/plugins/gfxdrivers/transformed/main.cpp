@@ -13,6 +13,7 @@
 
 #include <qgfxdriverplugin_qws.h>
 #include <qgfxtransformed_qws.h>
+#include <qstringlist.h>
 
 class GfxTransformedDriver : public QGfxDriverPlugin
 {

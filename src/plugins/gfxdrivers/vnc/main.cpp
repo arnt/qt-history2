@@ -13,6 +13,7 @@
 
 #include <qgfxdriverplugin_qws.h>
 #include <qgfxvnc_qws.h>
+#include <qstringlist.h>
 
 class GfxVncDriver : public QGfxDriverPlugin
 {

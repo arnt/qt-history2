@@ -13,6 +13,7 @@
 
 #include <qgfxdriverplugin_qws.h>
 #include <qgfxvga16_qws.h>
+#include <qstringlist.h>
 
 class GfxVga16Driver : public QGfxDriverPlugin
 {
