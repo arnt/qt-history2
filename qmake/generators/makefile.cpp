@@ -399,24 +399,14 @@ MakefileGenerator::init()
 	if(!v.contains("QMAKE_ABSOLUTE_SOURCE_PATH")) {
 	    if(Option::mkfile::do_cache && !Option::mkfile::cachefile.isEmpty() &&
 	       v.contains("QMAKE_ABSOLUTE_SOURCE_ROOT")) {
-		qDebug( "using abs root");
 		QFileInfo fi(Option::mkfile::cachefile);
 		if(!fi.convertToAbs()) {
 		    QString cache_r = fi.dirPath(), pwd = Option::output_dir;
-		    // QDir::currentDirPath();
-
-		    qDebug( "cache_r %s pwd %s",
-			    (const char *) cache_r,
-			    (const char *) pwd );
-
 		    if ( pwd.left(cache_r.length()) == cache_r ) {
 			QString root = v["QMAKE_ABSOLUTE_SOURCE_ROOT"].first();
 			root = Option::fixPathToTargetOS( root );
 			if(!root.isEmpty()) {
 			    pwd = Option::fixPathToTargetOS(root + pwd.mid(cache_r.length()));
-			    qDebug( "pwd (new abs path): %s",
-				    (const char *) pwd );
-
 			    if(QFile::exists(pwd))
 				v.insert("QMAKE_ABSOLUTE_SOURCE_PATH", pwd);
 			}
