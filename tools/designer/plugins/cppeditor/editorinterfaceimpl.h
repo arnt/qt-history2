@@ -61,6 +61,7 @@ public:
     void readSettings();
 
     void setError( int line );
+    void setStep( int ) {}
     void setModified( bool m );
 
     int numLines() const;

@@ -29,6 +29,7 @@
 #include "../interfaces/languageinterface.h"
 #include "../interfaces/filterinterface.h"
 #include "../interfaces/programinterface.h"
+#include "../interfaces/interpreterinterface.h"
 #include "../interfaces/preferenceinterface.h"
 #include "sourceeditor.h"
 
@@ -147,6 +148,7 @@ public slots:
     void showProperties( QObject *w );
     void updateProperties( QObject *w );
     void showDialogHelp();
+    void showDebugStep( QObject *o, int line );
 
 signals:
     void currentToolChanged();
@@ -284,6 +286,7 @@ private:
     void openProject( const QString &fn );
 
     void addRecentlyOpened( const QString &fn, QStringList &lst );
+    void showSourceLine( QObject *o, int line, bool error );
 
 private slots:
     void doSlotsChanged();
@@ -357,6 +360,7 @@ private:
     QInterfaceManager<EditorInterface> *editorPluginManager;
     QInterfaceManager<TemplateWizardInterface> *templateWizardPluginManager;
     QInterfaceManager<ProgramInterface> *programPluginManager;
+    QInterfaceManager<InterpreterInterface> *interpreterPluginManager;
     QInterfaceManager<PreferenceInterface> *preferencePluginManager;
     QList<SourceEditor> sourceEditors;
     bool previewing;

@@ -88,6 +88,22 @@ void ViewManager::setError( int line )
     }
 }
 
+void ViewManager::setStep( int line )
+{
+    QTextParag *p = ( (Editor*)curView )->document()->paragAt( line );
+    if ( p ) {
+	ParagData *paragData = (ParagData*)p->extraData();
+	if ( !paragData )
+	    paragData = new ParagData;
+	paragData->marker = ParagData::Step;
+	p->setExtraData( paragData );
+	markerWidget->doRepaint();
+	( (Editor*)curView )->setStepSelection( line );
+	( (Editor*)curView )->setCursorPosition( line, 0 );
+	( (Editor*)curView )->viewport()->setFocus();
+    }
+}
+
 void ViewManager::resizeEvent( QResizeEvent *e )
 {
     QWidget::resizeEvent( e );

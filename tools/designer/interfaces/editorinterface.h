@@ -56,6 +56,7 @@ struct EditorInterface : public QUnknownInterface
     virtual void splitView() = 0;
     virtual void setContext( QObjectList *toplevels, QObject *this_ ) = 0;
     virtual void setError( int line ) = 0;
+    virtual void setStep( int line ) = 0;
     virtual void readSettings() = 0;
     virtual void setModified( bool m ) = 0;
     virtual int numLines() const = 0;

@@ -41,6 +41,7 @@ public:
     QWidget *currentView() const;
 
     void setError( int line );
+    void setStep( int line );
     void setBreakPoints( const QValueList<int> &l );
     QValueList<int> breakPoints() const;
 

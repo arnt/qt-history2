@@ -2204,37 +2204,10 @@ QObjectList *MainWindow::previewProject()
 			if ( it == qwf_functions->end() )
 			    continue;
 			if ( !piface->check( *it, error, line ) && !error.isEmpty() && !error[ 0 ].isEmpty() ) {
+			    showSourceLine( it.key(), line[ 0 ], TRUE );
 			    oWindow->setErrorMessages( error, line );
-			    bool found = FALSE;
-			    EditorInterface *eiface = (EditorInterface*)editorPluginManager->queryInterface( lang );
-			    QWidgetList windows = workspace->windowList();
-			    for ( QWidget *w = windows.first(); w; w = windows.next() ) {
-				if ( !w->inherits( "FormWindow" ) )
-				    continue;
-				FormWindow *fw = (FormWindow*)w;
-				if ( fw->project() != currentProject )
-				    continue;
-				if ( QString( fw->name() ) == QString( it.key()->name() ) ) {
-				    fw->setFocus();
-				    lastActiveFormWindow = fw;
-				    qApp->processEvents();
-				    editSource();
-				    eiface->setError( line[ 0 ] );
-				    found = TRUE;
-				    break;
-				}
-			    }
-			    if ( !found ) {
-				mblockNewForms = TRUE;
-				openFile( currentProject->makeAbsolute( *qwf_forms->find( it.key() ) ) );
-				qApp->processEvents(); // give all views the chance to get the formwindow
-				editSource();
-				eiface->setError( line[ 0 ] );
-				mblockNewForms = FALSE;
-			    }
 			    piface->release();
 			    QApplication::restoreOverrideCursor();
-			    eiface->release();
 			    return 0;
 			}
 		    }
@@ -2249,7 +2222,16 @@ QObjectList *MainWindow::previewProject()
     delete qwf_forms;
     qwf_forms = 0;
     delete qwf_language;
-    qwf_language = 0;
+    qwf_language = new QString( currentProject->language() );
+
+    if ( interpreterPluginManager ) {
+	QString lang = currentProject->language();
+	InterpreterInterface *iiface = (InterpreterInterface*)interpreterPluginManager->queryInterface( lang );
+	if ( iiface ) {
+	    iiface->onShowDebugStep( this, SLOT( showDebugStep( QObject *, int ) ) );
+	    iiface->release();
+	}
+    }
 
     QObjectList *l = new QObjectList;
     for ( QStringList::Iterator it2 = forms.begin(); it2 != forms.end(); ++it2 ) {
@@ -4351,6 +4333,7 @@ void MainWindow::setupPluginManagers()
     templateWizardPluginManager = new QInterfaceManager<TemplateWizardInterface>( IID_TemplateWizardInterface, pluginDir );
     MetaDataBase::setupInterfaceManagers();
     programPluginManager = new QInterfaceManager<ProgramInterface>( IID_ProgramInterface, pluginDir );
+    interpreterPluginManager = new QInterfaceManager<InterpreterInterface>( IID_InterpreterInterface, pluginDir );
     preferencePluginManager = new QInterfaceManager<PreferenceInterface>( IID_PreferenceInterface, pluginDir );
     if ( preferencePluginManager ) {
 	QStringList lst = preferencePluginManager->featureList();
@@ -4431,6 +4414,50 @@ void MainWindow::updateFunctionList()
 	return;
     ( (SourceEditor*)workSpace()->activeWindow() )->save();
     hierarchyView->functionList()->refreshFunctions();
+}
+
+void MainWindow::showDebugStep( QObject *o, int line )
+{
+    showSourceLine( o, line, FALSE );
+}
+
+void MainWindow::showSourceLine( QObject *o, int line, bool error )
+{
+    bool found = FALSE;
+    QString lang = currentProject->language();
+    EditorInterface *eiface = (EditorInterface*)editorPluginManager->queryInterface( lang );
+    QWidgetList windows = workspace->windowList();
+    for ( QWidget *w = windows.first(); w; w = windows.next() ) {
+	if ( !w->inherits( "FormWindow" ) )
+	    continue;
+	FormWindow *fw = (FormWindow*)w;
+	if ( fw->project() != currentProject )
+	    continue;
+	if ( QString( fw->name() ) == QString( o->name() ) ) {
+	    fw->setFocus();
+	    lastActiveFormWindow = fw;
+	    qApp->processEvents();
+	    editSource();
+	    if ( error )
+		eiface->setError( line );
+	    else
+		eiface->setStep( line );
+	    found = TRUE;
+	    break;
+	}
+    }
+    if ( !found ) {
+	mblockNewForms = TRUE;
+	openFile( currentProject->makeAbsolute( *qwf_forms->find( (QWidget*)o ) ) );
+	qApp->processEvents(); // give all views the chance to get the formwindow
+	editSource();
+	if ( error )
+	    eiface->setError( line );
+	else
+	    eiface->setStep( line );
+	mblockNewForms = FALSE;
+    }
+    eiface->release();
 }
 
 #include "mainwindow.moc"
