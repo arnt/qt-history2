@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#12 $
 **
 ** Implementation of QMetaObject class
 **
@@ -14,12 +14,15 @@
 #include "qobjcoll.h"
 #include "qstrlist.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qmetaobject.cpp#11 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qmetaobject.cpp#12 $")
 
 /*! \class QMetaObject qmetaobj.h
 
   \brief The QMetaObject class is an internal class used for the meta
   object system.
+
+  It is generally a very bad idea to use this class directly in
+  application programs.
 
   \internal
 

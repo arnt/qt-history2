@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#14 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -19,7 +19,7 @@
 #include "qfile.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprinter.cpp#13 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprinter.cpp#14 $")
 
 
 #if !defined(QT_HEADER_PS)
@@ -32,10 +32,13 @@ static char *ps_header =
 /*!
   \class QPSPrinter qpsprn.h
   \brief Internal class used by QPrinter under X-Windows to generate
-  PostScript (tm).
+  PostScript output.
 
-  \internal
-*/
+  It is generally a very bad idea to use this class directly in
+  application programs.
+
+  Use QPrinter instead unless you understand the implementation of
+  both QPSPrinter and QPrinter well and have special demands. */
 
 /*!
   \internal

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignal.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qsignal.cpp#11 $
 **
 ** Implementation of QSignal class
 **
@@ -14,12 +14,15 @@
 #include "qmetaobj.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qsignal.cpp#10 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qsignal.cpp#11 $")
 
 /*! \class QSignal qsignal.h
 
   \brief The QSignal class is an internal class, used in the
   signal/slot mechanism.
+
+  It is generally a very bad idea to use this class directly in
+  application programs.
 
   \internal
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qconnect.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qconnect.cpp#9 $
 **
 ** Implementation of QConnection class
 **
@@ -12,12 +12,15 @@
 
 #include "qconnect.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qconnect.cpp#8 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qconnect.cpp#9 $")
 
 /*! \class QConnection qconnect.h
 
   \brief The QConnection class is an internal class, used in the
   signal/slot mechanism.
+
+  It is generally a very bad idea to use this class directly in
+  application programs.
 
   \internal
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#74 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#75 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#74 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#75 $")
 
 
 /*----------------------------------------------------------------------------
@@ -126,12 +126,19 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#74 $")
  ----------------------------------------------------------------------------*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QSenderObject qobject.h
   \brief Internal object used for sending signals.
 
-  \internal
- ----------------------------------------------------------------------------*/
+  It is generally a very bad idea to use this class directly in
+  application programs.
+
+  In particular, do \e not use it to send signals from classes that do
+  not inherit QObject.  If you wish to do that, make an internal class
+  that QObject and has the necessary signals and slots.  */
+  
+  
+  
 
 
 //

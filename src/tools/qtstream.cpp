@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtstream.cpp#21 $
+** $Id: //depot/qt/main/src/tools/qtstream.cpp#22 $
 **
 ** Implementation of QTextStream class
 **
@@ -17,7 +17,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qtstream.cpp#21 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qtstream.cpp#22 $")
 
 
 /*!
@@ -44,6 +44,9 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qtstream.cpp#21 $")
 
   \brief The QTSManip class is an internal helper class for the
   QTextStream.
+
+  It is generally a very bad idea to use this class directly in
+  application programs.
 
   \ingroup streams
 
