@@ -1607,6 +1607,8 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			RETURN(0);
 		}
 #endif
+		if  (!wParam && autoCaptureWnd == widget->winId())
+		    releaseAutoCapture();
 		result = FALSE;
 		break;
 
