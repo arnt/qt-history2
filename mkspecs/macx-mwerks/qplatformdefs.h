@@ -28,6 +28,8 @@
 #include <signal.h>
 #define QT_NO_LIBRARY_UNLOAD
 
+#include <netinet/in.h>
+
 
 #define QT_STATBUF		struct stat
 #define QT_STATBUF4TSTAT	struct stat

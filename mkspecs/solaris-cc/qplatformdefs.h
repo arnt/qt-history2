@@ -34,6 +34,7 @@
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
+#include <netinet/in.h>
 
 
 #define QT_STATBUF		struct stat

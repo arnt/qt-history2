@@ -41,6 +41,7 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <windows.h>
+#include <netinet/in.h>
 
 
 #define QT_STATBUF		struct stat
