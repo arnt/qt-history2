@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#18 $
 **
 ** Implementation of QLabel widget class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#17 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#18 $";
 #endif
 
 
@@ -28,7 +28,7 @@ inherits QFrame).
 The contents of a label can be specified as a normal text or as a
 numeric value (which is internally converted to a text).
 
-A label can be aligned in many different ways.  The alignment setting
+A label can be aligned in many different ways.	The alignment setting
 specifies where to position the contents relative to the frame
 rectangle. See setAlignment() for a description of the alignment flags.
 
@@ -93,7 +93,7 @@ void QLabel::setText( const char *text )
 	return;
     str = text;
     if ( autoResize )
-        adjustSize();
+	adjustSize();
     else
 	updateLabel();
 }
@@ -113,8 +113,8 @@ void QLabel::setNum( long num )
     tmp.sprintf( "%ld", num );
     if ( tmp != str ) {
 	str = tmp;
-        if ( autoResize )
-            adjustSize();
+	if ( autoResize )
+	    adjustSize();
 	else
 	    updateLabel();
     }
@@ -135,8 +135,8 @@ void QLabel::setNum( double num )
     tmp.sprintf( "%g", num );
     if ( tmp != str ) {
 	str = tmp;
-        if ( autoResize )
-  	    adjustSize();
+	if ( autoResize )
+	    adjustSize();
 	else
 	    updateLabel();
     }
@@ -243,8 +243,8 @@ void QLabel::adjustSize()
     p.begin( this );
     QRect br = p.boundingRect( 0,0, 1000,1000, alignment(), text() );
     p.end();
-    resize( br.width()  + 4 + frameWidth() + midLineWidth(),
-	    br.height() + 4 + frameWidth() + midLineWidth() );
+    resize( br.width()	+ 4 + frameWidth(),
+	    br.height() + 4 + frameWidth() );
 }
 
 
