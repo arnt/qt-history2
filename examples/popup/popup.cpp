@@ -15,6 +15,8 @@
 #include <qevent.h>
 #include <qlayout.h>
 
+using namespace Qt;
+
 FancyPopup::FancyPopup( QWidget* parent, const char*  name ):
     QLabel( parent, name, WType_Popup ){
         setFrameStyle( WinPanel|Raised );
@@ -28,7 +30,7 @@ void FancyPopup::mouseMoveEvent( QMouseEvent * e){
     moves++;
     QString s;
     s.sprintf("%d/%d", e->pos().x(), e->pos().y());
-    if (e->state() & QMouseEvent::LeftButton)
+    if (e->state() & LeftButton)
         s += " (down)";
     setText(s);
 }
@@ -49,7 +51,7 @@ void FancyPopup::closeEvent( QCloseEvent *e ){
     // the popupParent popped us up in its mousePressEvent handler. To
     // avoid the button remaining in pressed state we simply send a
     // faked mouse button release event to it.
-    QMouseEvent me( QEvent::MouseButtonRelease, QPoint(0,0), QPoint(0,0), QMouseEvent::LeftButton, QMouseEvent::NoButton);
+    QMouseEvent me( QEvent::MouseButtonRelease, QPoint(0,0), QPoint(0,0), LeftButton, NoButton);
     QApplication::sendEvent( popupParent, &me );
 }
 

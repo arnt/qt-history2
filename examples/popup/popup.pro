@@ -8,3 +8,4 @@ QTDIR_build:REQUIRES	= "contains(QT_CONFIG, large-config)"
 
 HEADERS		= popup.h
 SOURCES		= popup.cpp
+QT	+= compat
