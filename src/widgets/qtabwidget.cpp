@@ -487,6 +487,14 @@ void QTabWidget::setCornerWidget( QWidget * w, Qt::Corner corner )
 /*!
     Returns the widget shown in the \a corner of the tab widget or 0.
 */
+QWidget * QTabWidget::cornerWidget( Qt::Corner corner ) const
+{
+    if ( (uint)corner & 1 )
+	return d->rightCornerWidget;
+    return d->leftCornerWidget;
+}
+
+/*! \internal */
 QWidget * QTabWidget::cornerWidget( Qt::Corner corner )
 {
     if ( (uint)corner & 1 )
