@@ -11,6 +11,8 @@
 **
 ****************************************************************************/
 
+//#define QHTTP_DEBUG
+
 #include <qplatformdefs.h>
 #include "qhttp.h"
 
@@ -28,8 +30,6 @@
 #include "private/qinternal_p.h"
 #include "qcoreevent.h"
 #include "qurl.h"
-
-//#define QHTTP_DEBUG
 
 class QHttpRequest
 {
@@ -2192,7 +2192,7 @@ void QHttpPrivate::slotConnected()
     bytesTotal = str.length();
     socket->write(str.toLatin1(), bytesTotal);
 #if defined(QHTTP_DEBUG)
-    qDebug("QHttp: write request header %p:\n---{\n%s}---", &header, str.latin1());
+    qDebug("QHttp: write request header %p:\n---{\n%s}---", &header, str.toLatin1().constData());
 #endif
 
     if (postDevice) {
@@ -2281,12 +2281,12 @@ void QHttpPrivate::slotReadyRead()
             return;
 
 #if defined(QHTTP_DEBUG)
-        qDebug("QHttp: read response header:\n---{\n%s}---", headerStr.latin1());
+        qDebug("QHttp: read response header:\n---{\n%s}---", headerStr.toLatin1().constData());
 #endif
         response = QHttpResponseHeader(headerStr);
         headerStr = "";
 #if defined(QHTTP_DEBUG)
-        qDebug("QHttp: read response header:\n---{\n%s}---", response.toString().latin1());
+        qDebug("QHttp: read response header:\n---{\n%s}---", response.toString().toLatin1().constData());
 #endif
         // Check header
         if (!response.isValid()) {

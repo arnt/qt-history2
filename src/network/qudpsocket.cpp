@@ -11,6 +11,8 @@
 **
 ****************************************************************************/
 
+//#define QUDPSOCKET_DEBUG
+
 /*! \class QUdpSocket
 
     \reentrant
@@ -82,8 +84,6 @@
 
 #define d d_func()
 #define q q_func()
-
-// #define QUDPSOCKET_DEBUG
 
 #if defined(QT_NO_IPV6)
 #define QT_ENSURE_INITIALIZED(a) do { \
@@ -222,7 +222,7 @@ qint64 QUdpSocket::writeDatagram(const char *data, qint64 size, const QHostAddre
 {
 #if defined QUDPSOCKET_DEBUG
     qDebug("QUdpSocket::writeDatagram(%p, %llu, \"%s\", %i)", data, size,
-           address.toString().latin1(), port);
+           address.toString().toLatin1().constData(), port);
 #endif
     QT_ENSURE_INITIALIZED(-1);
     qint64 sent = d->socketLayer.writeDatagram(data, size, address, port);

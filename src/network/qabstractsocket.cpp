@@ -399,8 +399,8 @@ bool QAbstractSocketPrivate::initSocketLayer(QAbstractSocket::SocketType type,
     if (!socketLayer.initialize(type, protocol)) {
 #if defined (QABSTRACTSOCKET_DEBUG)
         qDebug("QAbstractSocketPrivate::initSocketLayer(%s, %s) failed (%s)",
-               typeStr.latin1(), protocolStr.latin1(),
-               socketLayer.errorString().latin1());
+               typeStr.toLatin1().constData(), protocolStr.toLatin1().constData(),
+               socketLayer.errorString().toLatin1().constData());
 #endif
         socketError = socketLayer.error();
 	q->setErrorString(socketLayer.errorString());
@@ -412,7 +412,7 @@ bool QAbstractSocketPrivate::initSocketLayer(QAbstractSocket::SocketType type,
 
 #if defined (QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocketPrivate::initSocketLayer(%s, %s) success",
-           typeStr.latin1(), protocolStr.latin1());
+           typeStr.toLatin1().constData(), protocolStr.toLatin1().constData());
 #endif
     return true;
 }
@@ -610,7 +610,7 @@ void QAbstractSocketPrivate::startConnecting(const QHostInfo &hostInfo)
         s += addresses.at(i).toString();
     }
     s += "}";
-    qDebug("QAbstractSocketPrivate::startConnecting(hostInfo == %s)", s.latin1());
+    qDebug("QAbstractSocketPrivate::startConnecting(hostInfo == %s)", s.toLatin1().constData());
 #endif
 
     // Try all addresses twice.
@@ -675,7 +675,7 @@ void QAbstractSocketPrivate::connectToNextAddress()
         host = addresses.takeFirst();
 #if defined(QABSTRACTSOCKET_DEBUG)
         qDebug("QAbstractSocketPrivate::connectToNextAddress(), connecting to %s:%i",
-               host.toString().latin1(), port);
+               host.toString().toLatin1().constData(), port);
 #endif
 
         // Determine its protocol.
@@ -715,7 +715,7 @@ void QAbstractSocketPrivate::connectToNextAddress()
         if (socketLayer.state() != QAbstractSocket::ConnectingState) {
 #if defined(QABSTRACTSOCKET_DEBUG)
             qDebug("QAbstractSocketPrivate::connectToNextAddress(), connection failed (%s)",
-                   socketLayer.errorString().latin1());
+                   socketLayer.errorString().toLatin1().constData());
 #endif
             socketError = socketLayer.error();
             q->setErrorString(socketLayer.errorString());
@@ -757,7 +757,7 @@ void QAbstractSocketPrivate::testConnection()
         emit q->connected();
 #if defined(QABSTRACTSOCKET_DEBUG)
         qDebug("QAbstractSocketPrivate::testConnection() connection to %s:%i established",
-               host.toString().latin1(), port);
+               host.toString().toLatin1().constData(), port);
 #endif
         return;
     }
@@ -816,7 +816,7 @@ bool QAbstractSocketPrivate::readFromSocket()
         emit q->error(socketError);
 #if defined(QABSTRACTSOCKET_DEBUG)
         qDebug("QAbstractSocketPrivate::readFromSocket() read failed: %s",
-               q->errorString().latin1());
+               q->errorString().toLatin1().constData());
 #endif
         d->resetSocketLayer();
         return false;
@@ -909,7 +909,7 @@ void QAbstractSocket::connectToHost(const QString &hostName, quint16 port,
                                     OpenMode openMode)
 {
 #if defined(QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocket::connectToHost(\"%s\", %i, %i)...", hostName.latin1(), port,
+    qDebug("QAbstractSocket::connectToHost(\"%s\", %i, %i)...", hostName.toLatin1().constData(), port,
            (int) openMode);
 #endif
 
@@ -941,7 +941,7 @@ void QAbstractSocket::connectToHost(const QString &hostName, quint16 port,
     }
 
 #if defined(QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocket::connectToHost(\"%s\", %i) == %s%s", hostName.latin1(), port,
+    qDebug("QAbstractSocket::connectToHost(\"%s\", %i) == %s%s", hostName.toLatin1().constData(), port,
            (d->state == ConnectedState) ? "true" : "false",
            (d->state == ConnectingState || d->state == HostLookupState)
            ? " (connection in progress)" : "");
@@ -957,7 +957,7 @@ void QAbstractSocket::connectToHost(const QHostAddress &address, quint16 port,
 {
 #if defined(QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocket::connectToHost([%s], %i, %i)...",
-           address.toString().latin1(), port, (int) openMode);
+           address.toString().toLatin1().constData(), port, (int) openMode);
 #endif
     connectToHost(address.toString(), port, openMode);
 }
@@ -1290,7 +1290,7 @@ bool QAbstractSocket::waitForBytesWritten(int msecs)
             setErrorString(d->socketLayer.errorString());
 #if defined (QABSTRACTSOCKET_DEBUG)
             qDebug("QAbstractSocket::waitForBytesWritten(%i) failed (%i, %s)",
-                   msecs, d->socketError, errorString().latin1());
+                   msecs, d->socketError, errorString().toLatin1().constData());
 #endif
             if (d->socketError != SocketTimeoutError)
                 emit error(d->socketError);
@@ -1359,7 +1359,7 @@ bool QAbstractSocket::waitForDisconnected(int msecs)
             setErrorString(d->socketLayer.errorString());
 #if defined (QABSTRACTSOCKET_DEBUG)
             qDebug("QAbstractSocket::waitForReadyRead(%i) failed (%i, %s)",
-                   msecs, d->socketError, errorString().latin1());
+                   msecs, d->socketError, errorString().toLatin1().constData());
 #endif
             emit error(d->socketError);
             if (d->socketError != SocketTimeoutError)
@@ -1461,7 +1461,7 @@ qint64 QAbstractSocket::readData(char *data, qint64 maxSize)
 
 #if defined (QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocket::readData(%p \"%s\", %lli) == %lld",
-           data, qt_prettyDebug(data, qMin(32, readSoFar), readSoFar).data(),
+           data, qt_prettyDebug(data, qMin<qint64>(32, readSoFar), readSoFar).data(),
            maxSize, readSoFar);
 #endif
     return readSoFar;

@@ -22,7 +22,7 @@
 #include <qmutex.h>
 #include <qsignal.h>
 
-// #define QHOSTINFO_DEBUG
+//#define QHOSTINFO_DEBUG
 
 // Older SDKs do not include the addrinfo struct declaration, so we
 // include a copy of it here.

@@ -11,6 +11,8 @@
 **
 ****************************************************************************/
 
+//#define QTCPSERVER_DEBUG
+
 /*! \class QTcpServer
 
     \brief The QTcpServer class provides a TCP-based server.
@@ -61,8 +63,6 @@
 
     \sa hasPendingConnections(), nextPendingConnection()
 */
-
-//#define QTCPSERVER_DEBUG
 
 #include "private/qobject_p.h"
 #include "qalgorithms.h"
@@ -230,7 +230,7 @@ bool QTcpServer::listen(const QHostAddress &address, quint16 port)
 
 #if defined (QTCPSERVER_DEBUG)
     qDebug("QTcpServer::listen(%i, \"%s\") == true (listening on port %i)", port,
-           address.toString().latin1(), d->socketLayer.localPort());
+           address.toString().toLatin1().constData(), d->socketLayer.localPort());
 #endif
     return true;
 }
@@ -309,7 +309,7 @@ bool QTcpServer::setSocketDescriptor(int socketDescriptor)
         d->serverSocketErrorString = d->socketLayer.errorString();
 #if defined (QTCPSERVER_DEBUG)
         qDebug("QTcpServer::setSocketDescriptor(%i) failed (%s)", socketDescriptor,
-               d->serverSocketErrorString.latin1());
+               d->serverSocketErrorString.toLatin1().constData());
 #endif
         return false;
     }

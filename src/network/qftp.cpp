@@ -11,6 +11,9 @@
 **
 ****************************************************************************/
 
+//#define QFTPPI_DEBUG
+//#define QFTPDTP_DEBUG
+
 #include "qftp.h"
 #include "qabstractsocket.h"
 
@@ -26,9 +29,6 @@
 #include "qhash.h"
 #include "qtcpserver.h"
 #include "qsignal.h"
-
-//#define QFTPPI_DEBUG
-//#define QFTPDTP_DEBUG
 
 class QFtpPI;
 
@@ -581,7 +581,7 @@ void QFtpDTP::socketReadyRead()
             QUrlInfo i;
             QString line = socket->readLine();
 #if defined(QFTPDTP_DEBUG)
-            qDebug("QFtpDTP read (list): '%s'", line.latin1());
+            qDebug("QFtpDTP read (list): '%s'", line.toLatin1().constData());
 #endif
             if (parseDir(line, "", &i)) {
                 emit listInfo(i);
@@ -866,7 +866,7 @@ bool QFtpPI::processReply()
 #if defined(QFTPPI_DEBUG)
 //    qDebug("QFtpPI state: %d [processReply() begin]", state);
     if (replyText.length() < 400)
-        qDebug("QFtpPI recv: %d %s", 100*replyCode[0]+10*replyCode[1]+replyCode[2], replyText.latin1());
+        qDebug("QFtpPI recv: %d %s", 100*replyCode[0]+10*replyCode[1]+replyCode[2], replyText.toLatin1().constData());
     else
         qDebug("QFtpPI recv: %d (text skipped)", 100*replyCode[0]+10*replyCode[1]+replyCode[2]);
 #endif
@@ -1081,7 +1081,7 @@ bool QFtpPI::startNextCmd()
 
     pendingCommands.pop_front();
 #if defined(QFTPPI_DEBUG)
-    qDebug("QFtpPI send: %s", currentCmd.left(currentCmd.length()-2).latin1());
+    qDebug("QFtpPI send: %s", currentCmd.left(currentCmd.length()-2).toLatin1().constData());
 #endif
     state = Waiting;
     commandSocket.write(currentCmd.toLatin1());

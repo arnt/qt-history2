@@ -12,6 +12,8 @@
 **
 ****************************************************************************/
 
+//#define QSOCKETLAYER_DEBUG
+
 #include "qplatformdefs.h"
 
 #include "qsocketlayer_p.h"
@@ -21,8 +23,6 @@
 #include <time.h>
 #include <errno.h>
 #include <fcntl.h>
-
-//#define QSOCKETLAYER_DEBUG
 
 #if defined QSOCKETLAYER_DEBUG
 #include <qstring.h>
@@ -308,9 +308,9 @@ bool QSocketLayerPrivate::nativeConnect(const QHostAddress &addr, quint16 port)
         if (socketState != QAbstractSocket::ConnectedState) {
 #if defined (QSOCKETLAYER_DEBUG)
             qDebug("QSocketLayerPrivate::nativeConnect(%s, %i) == false (%s)",
-                   addr.toString().latin1(), port,
+                   addr.toString().toLatin1().constData(), port,
                    socketState == QAbstractSocket::ConnectingState
-                   ? "Connection in progress" : socketErrorString.latin1());
+                   ? "Connection in progress" : socketErrorString.toLatin1().constData());
 #endif
             return false;
         }
@@ -318,7 +318,7 @@ bool QSocketLayerPrivate::nativeConnect(const QHostAddress &addr, quint16 port)
 
 #if defined (QSOCKETLAYER_DEBUG)
     qDebug("QSocketLayerPrivate::nativeConnect(%s, %i) == true",
-           addr.toString().latin1(), port);
+           addr.toString().toLatin1().constData(), port);
 #endif
 
     socketState = QAbstractSocket::ConnectedState;
@@ -376,7 +376,7 @@ bool QSocketLayerPrivate::nativeBind(const QHostAddress &address, quint16 port)
 
 #if defined (QSOCKETLAYER_DEBUG)
         qDebug("QSocketLayerPrivate::nativeBind(%s, %i) == false (%s)",
-               address.toString().latin1(), port, socketErrorString.latin1());
+               address.toString().toLatin1().constData(), port, socketErrorString.toLatin1().constData());
 #endif
 
         return false;
@@ -384,7 +384,7 @@ bool QSocketLayerPrivate::nativeBind(const QHostAddress &address, quint16 port)
 
 #if defined (QSOCKETLAYER_DEBUG)
     qDebug("QSocketLayerPrivate::nativeBind(%s, %i) == true",
-           address.toString().latin1(), port);
+           address.toString().toLatin1().constData(), port);
 #endif
     socketState = QAbstractSocket::BoundState;
     return true;
@@ -404,7 +404,7 @@ bool QSocketLayerPrivate::nativeListen(int backlog)
 
 #if defined (QSOCKETLAYER_DEBUG)
         qDebug("QSocketLayerPrivate::nativeListen(%i) == false (%s)",
-               backlog, socketErrorString.latin1());
+               backlog, socketErrorString.toLatin1().constData());
 #endif
         return false;
     }
@@ -550,7 +550,7 @@ qint64 QSocketLayerPrivate::nativeReceiveDatagram(char *data, qint64 maxSize,
 #if defined (QSOCKETLAYER_DEBUG)
     qDebug("QSocketLayerPrivate::nativeReceiveDatagram(%p \"%s\", %lli, %s, %i) == %lli",
            data, qt_prettyDebug(data, qMin(recvFromResult, 16), recvFromResult).data(), maxSize,
-           address ? address->toString().latin1() : "(nil)",
+           address ? address->toString().toLatin1().constData() : "(nil)",
            port ? *port : 0, (qint64) recvFromResult);
 #endif
 
@@ -607,7 +607,7 @@ qint64 QSocketLayerPrivate::nativeSendDatagram(const char *data, qint64 len,
 
 #if defined (QSOCKETLAYER_DEBUG)
     qDebug("QSocketLayer::sendDatagram(%p \"%s\", %lli, \"%s\", %i) == %lli", data,
-           qt_prettyDebug(data, qMin(len, 16), len).data(), len, host.toString().latin1(),
+           qt_prettyDebug(data, qMin<int>(len, 16), len).data(), len, host.toString().toLatin1().constData(),
            port, (qint64) sentBytes);
 #endif
 
@@ -683,9 +683,9 @@ bool QSocketLayerPrivate::fetchConnectionParameters()
 
     qDebug("QSocketLayerPrivate::fetchConnectionParameters() local == %s:%i,"
            " peer == %s:%i, socket == %s - %s",
-           localAddress.toString().latin1(), localPort,
-           peerAddress.toString().latin1(), peerPort,socketTypeStr.latin1(),
-           socketProtocolStr.latin1());
+           localAddress.toString().toLatin1().constData(), localPort,
+           peerAddress.toString().toLatin1().constData(), peerPort,socketTypeStr.toLatin1().constData(),
+           socketProtocolStr.toLatin1().constData());
 #endif
     return true;
 }

@@ -84,7 +84,7 @@ QHostInfo QHostInfoAgent::fromName(const QString &hostName)
     // reentrant on all platforms. For now this is okay since we only
     // use one QHostInfoAgent, but if more agents are introduced, locking
     // must be provided.
-    hostent *result = gethostbyname(hostName.latin1());
+    hostent *result = gethostbyname(hostName.toLatin1().constData());
     if (result) {
         if (result->h_addrtype == AF_INET) {
             QList<QHostAddress> addresses;

@@ -11,6 +11,8 @@
 **
 ****************************************************************************/
 
+//#define QSOCKETLAYER_DEBUG
+
 /*! \class QSocketLayer
     \internal
 
@@ -68,11 +70,7 @@
 
 #include "qsocketlayer_p.h"
 
-//#define QSOCKETLAYER_DEBUG
-
-
 #define Q_VOID
-
 
 // Common constructs
 #define Q_CHECK_VALID_SOCKETLAYER(function, returnValue) do { \
@@ -208,7 +206,7 @@ bool QSocketLayer::initialize(QAbstractSocket::SocketType socketType, QAbstractS
         if (protocol == QAbstractSocket::IPv4Protocol) protocolStr = "IPv4Protocol";
         else if (protocol == QAbstractSocket::IPv6Protocol) protocolStr = "IPv6Protocol";
         qDebug("QSocketLayer::initialize(type == %s, protocol == %s) failed: %s",
-               typeStr.latin1(), protocolStr.latin1(), d->socketErrorString.latin1());
+               typeStr.toLatin1().constData(), protocolStr.toLatin1().constData(), d->socketErrorString.toLatin1().constData());
 #endif
         return false;
     }
@@ -261,7 +259,7 @@ bool QSocketLayer::initialize(int socketDescriptor, QAbstractSocket::SocketState
     if (!d->fetchConnectionParameters()) {
 #if defined (QSOCKETLAYER_DEBUG)
         qDebug("QSocketLayer::initialize(socketDescriptor == %i) failed: %s",
-               socketDescriptor, d->socketErrorString.latin1());
+               socketDescriptor, d->socketErrorString.toLatin1().constData());
 #endif
         d->socketDescriptor = -1;
         return false;

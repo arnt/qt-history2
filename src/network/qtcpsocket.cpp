@@ -11,6 +11,8 @@
 **
 ****************************************************************************/
 
+//#define QTCPSOCKET_DEBUG
+
 /*! \class QTcpSocket
 
     \brief The QTcpSocket class provides a TCP socket.
@@ -39,8 +41,6 @@
 #include "qabstractsocket_p.h"
 #include "qtcpsocket.h"
 #include "qhostaddress.h"
-
-//#define QTCPSOCKET_DEBUG
 
 #define d d_func()
 #define q q_func()
