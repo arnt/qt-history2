@@ -22,6 +22,7 @@
 #ifndef QT_NO_ACCESSIBILITY
 
 #ifndef QT_H
+#include "qobject.h"
 #include "qrect.h"
 #include "qvector.h"
 #include "qvariant.h"
