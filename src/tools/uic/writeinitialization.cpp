@@ -21,6 +21,8 @@
 #include <qtextstream.h>
 #include <qdebug.h>
 
+#include <limits.h>
+
 WriteInitialization::WriteInitialization(Uic *uic)
     : driver(uic->driver()), output(uic->output()), option(uic->option()),
       m_defaultMargin(INT_MIN), m_defaultSpacing(INT_MIN),
