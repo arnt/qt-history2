@@ -246,7 +246,9 @@ QNonBaseApplication *qApp = 0;			// global application object
 
 QStyle   *QApplication::app_style      = 0;	// default application style
 int	  QApplication::app_cspec = QApplication::NormalColor;
+#ifndef QT_NO_PALETTE
 QPalette *QApplication::app_pal	       = 0;	// default application palette
+#endif
 QFont	 *QApplication::app_font       = 0;	// default application font
 #ifndef QT_NO_CURSOR
 QCursor	 *QApplication::app_cursor     = 0;	// default application cursor
@@ -294,7 +296,7 @@ static QPostEventList *postedEvents = 0;	// list of posted events
 
 static void cleanupPostedEvents();
 
-
+#ifndef QT_NO_PALETTE
 QPalette *qt_std_pal = 0;
 
 void qt_create_std_palette()
@@ -326,7 +328,7 @@ static void qt_fix_tooltips()
     QPalette pal( cg, cg, cg );
     QApplication::setPalette( pal, TRUE, "QTipLabel");
 }
-
+#endif
 
 void QApplication::process_cmdline( int* argcptr, char ** argv )
 {
@@ -590,7 +592,9 @@ void QApplication::initialize( int argc, char **argv )
     quit_now = FALSE;
     quit_code = 0;
     QWidget::createMapper(); // create widget mapper
+#ifndef QT_NO_PALETTE
     (void) palette();  // trigger creation of application palette
+#endif
     is_app_running = TRUE; // no longer starting up
 
 #ifndef QT_NO_WIDGETS
@@ -709,14 +713,16 @@ QApplication::~QApplication()
     desktopWidget = 0;
     is_app_closing = TRUE;
     QWidget::destroyMapper();
+#ifndef QT_NO_PALETTE
     delete qt_std_pal;
     qt_std_pal = 0;
     delete app_pal;
     app_pal = 0;
-    delete app_font;
-    app_font = 0;
     delete app_palettes;
     app_palettes = 0;
+#endif
+    delete app_font;
+    app_font = 0;
     delete app_fonts;
     app_fonts = 0;
 #ifndef QT_NO_STYLE
@@ -1033,7 +1039,7 @@ void QApplication::setGlobalStrut( const QSize& strut )
 
   \sa setPalette(), QWidget::palette()
 */
-
+#ifndef QT_NO_PALETTE
 QPalette QApplication::palette(const QWidget* w)
 {
 #if defined(CHECK_STATE)
@@ -1062,7 +1068,6 @@ QPalette QApplication::palette(const QWidget* w)
     }
     return *app_pal;
 }
-
 
 /*!
   Changes the default application palette to \a palette. If \a
@@ -1117,6 +1122,8 @@ void QApplication::setPalette( const QPalette &palette, bool informWidgets,
 	}
     }
 }
+
+#endif // QT_NO_PALETTE
 
 /*!
   Returns the default font for a widget. Basically this function uses
@@ -1656,7 +1663,7 @@ void QApplication::syncX()	{}		// do nothing
   The default color is \c darkBlue.
   \sa winStyleHighlightColor()
 */
-
+#ifndef QT_NO_PALETTE
 void QApplication::setWinStyleHighlightColor( const QColor &c )
 {
     QPalette p( palette() );
@@ -1675,7 +1682,7 @@ const QColor& QApplication::winStyleHighlightColor()
 {
     return palette().normal().highlight();
 }
-
+#endif
 
 /*!
   \fn Qt::WindowsVersion QApplication::winVersion()
@@ -2254,6 +2261,7 @@ void QApplication::setActiveWindow( QWidget* act )
 	QApplication::sendEvent( active_window, &e );
     }
 
+#ifndef QT_NO_PALETTE
     QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
     register QWidget *w;
     while ( (w=it.current()) ) {		// for all widgets...
@@ -2271,7 +2279,7 @@ void QApplication::setActiveWindow( QWidget* act )
 		    w->update();
 	}
     }
-
+#endif
     // then focus events
     QFocusEvent::setReason( QFocusEvent::ActiveWindow );
     if ( !active_window && focus_widget ) {

@@ -766,10 +766,11 @@ static bool	qt_try_modal( QWidget *, QWSEvent * );
 extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
 extern void qt_clear_paintevent_clipping();
 
-
+#ifndef QT_NO_PALETTE
 // Palette handling
 extern QPalette *qt_std_pal;
 extern void qt_create_std_palette();
+#endif
 
 /*****************************************************************************
   qt_init() - initializes Qt/FB
@@ -780,9 +781,9 @@ extern void qt_create_std_palette();
 static void qt_set_qws_resources()
 
 {
+#ifndef QT_NO_PALETTE
     if ( !qt_std_pal )
 	qt_create_std_palette();
-
     if ( appFont )
 	QApplication::setFont( QFont(appFont) );
 
@@ -796,17 +797,14 @@ static void qt_set_qws_resources()
 	    bg = QColor( appBGCol );
 	else
 	    bg = qt_std_pal->normal().background();
-
 	if ( appFGCol )
 	    fg = QColor( appFGCol );
 	else
 	    fg = qt_std_pal->normal().foreground();
-
 	if ( appBTNCol )
 	    btn = QColor( appBTNCol);
 	else
 	    btn = qt_std_pal->normal().button();
-
 	int h,s,v;
 	fg.hsv(&h,&s,&v);
 	QColor base = Qt::white;
@@ -835,8 +833,8 @@ static void qt_set_qws_resources()
 	if ( pal != *qt_std_pal && pal != QApplication::palette() )
 	    QApplication::setPalette( pal, TRUE );
 	*qt_std_pal = pal;
-
     }
+#endif // QT_NO_PALETTE
 }
 
 static void init_display()

@@ -24,6 +24,8 @@
 *****************************************************************************/
 
 #include "qpalette.h"
+
+#ifndef QT_NO_PALETTE
 #include "qdatastream.h"
 #include "qpixmap.h"
 
@@ -1208,3 +1210,4 @@ nsyLoJIhCFLTyGQMBxi9CCoZgiC1C8pYdYBKhiBIjaIqYzhP5kVQyRAEqUW0ZAznybwIKhmC
 IDWHjozhAKMXQSVDEKS2QBmrPlDJEASpIYrKGM6TeZH/D0A5AKNKJaiaAAAAAElFTkSuQmCC
 
 */
+#endif // QT_NO_PALETTE

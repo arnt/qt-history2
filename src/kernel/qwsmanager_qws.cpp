@@ -1011,12 +1011,14 @@ void QWSDefaultDecorator::paint(QPainter *painter, const QWidget *widget)
 #ifndef QT_NO_WIDGETS // implies style    
     QStyle &style = QApplication::style();
 #endif
-    const QColorGroup &cg = widget->palette().active();
-
+    
     QRect r(widget->rect().left() - BORDER_WIDTH,
 	    widget->rect().top() - BORDER_WIDTH - TITLE_HEIGHT,
 	    widget->rect().width() + 2*BORDER_WIDTH,
 	    widget->rect().height() + 2*BORDER_WIDTH + TITLE_HEIGHT);
+
+#ifndef QT_NO_PALETTE
+    const QColorGroup &cg = widget->palette().active();
 
 #if !defined(QT_NO_WIDGETS)
     style.drawPanel(painter, r.x(), r.y(), r.width(),
@@ -1056,6 +1058,9 @@ void QWSDefaultDecorator::paint(QPainter *painter, const QWidget *widget)
 			titleWidth-5, TITLE_HEIGHT - 1,
 			QPainter::AlignVCenter, widget->caption());
     }
+
+#endif //QT_NO_PALETTE
+
 }
 
 /*!
@@ -1071,6 +1076,7 @@ void QWSDefaultDecorator::paint(QPainter *painter, const QWidget *widget)
 void QWSDefaultDecorator::paintButton(QPainter *painter, const QWidget *w,
 			QWSManager::Region type, int state)
 {
+#ifndef QT_NO_PALETTE    
 #ifndef QT_NO_WIDGETS
     QStyle &style = QApplication::style();
 #endif
@@ -1097,5 +1103,6 @@ void QWSDefaultDecorator::paintButton(QPainter *painter, const QWidget *w,
                     brect.height()-1, cg.brush(QColorGroup::Background));
 	if (pm) painter->drawPixmap(brect.x()+xoff, brect.y()+yoff, *pm);
     }
+#endif
 }
 

@@ -88,10 +88,11 @@ public:
 #endif
     static bool	     hasGlobalMouseTracking();
     static void	     setGlobalMouseTracking( bool enable );
-
+#ifndef QT_NO_PALETTE
     static QPalette  palette( const QWidget* = 0 );
     static void	     setPalette( const QPalette &, bool informWidgets=FALSE,
 				 const char* className = 0 );
+#endif
     static QFont     font( const QWidget* = 0 );
     static void	     setFont( const QFont &, bool informWidgets=FALSE,
 			      const char* className = 0 );
@@ -148,10 +149,10 @@ public:
     QString	     translate( const char *, const char *,
 				const char * ) const;
 #endif
-
+#ifndef QT_NO_PALETTE
     static void      setWinStyleHighlightColor( const QColor & );
     static const QColor &winStyleHighlightColor();
-
+#endif
     static void      setDesktopSettingsAware( bool );
     static bool      desktopSettingsAware();
 
@@ -231,7 +232,9 @@ private:
     int		     quit_code;
     static QStyle   *app_style;
     static int	     app_cspec;
+#ifndef QT_NO_PALETTE
     static QPalette *app_pal;
+#endif
     static QFont    *app_font;
 #ifndef QT_NO_CURSOR
     static QCursor  *app_cursor;

@@ -686,10 +686,13 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     lay_out = 0;
 #endif    
     extra = 0;					// no extra widget info
+#ifndef QT_NO_PALETTE
     bg_col = pal.normal().background();		// default background color
+#endif
     create();					// platform-dependent init
-
+#ifndef QT_NO_PALETTE
     pal = isTopLevel() ? QApplication::palette() : parentWidget()->palette();
+#endif
     fnt = isTopLevel() ? QApplication::font() : parentWidget()->font();
 
     if ( !isDesktop() )
@@ -1785,6 +1788,7 @@ void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 
 void QWidget::setBackgroundFromMode()
 {
+#ifndef QT_NO_PALETTE
     QColorGroup::ColorRole r = QColorGroup::Background;
     if ( extra ) {
 	int i = (BackgroundMode)extra->bg_mode;
@@ -1843,6 +1847,7 @@ void QWidget::setBackgroundFromMode()
 	setBackgroundPixmapDirect( *p );
     else
 	setBackgroundColorDirect( palette().active().color( r ) );
+#endif
 }
 
 /*!
@@ -1975,7 +1980,11 @@ void QWidget::setBackgroundModeDirect( BackgroundMode m )
 
 const QColor &QWidget::foregroundColor() const
 {
+#ifndef QT_NO_PALETTE
     return colorGroup().foreground();
+#else
+    return black; //###
+#endif
 }
 
 
@@ -2047,7 +2056,7 @@ void QWidget::backgroundPixmapChange( const QPixmap & )
 
   \sa palette(), setPalette()
 */
-
+#ifndef QT_NO_PALETTE
 const QColorGroup &QWidget::colorGroup() const
 {
     if ( !isEnabled() )
@@ -2057,7 +2066,7 @@ const QColorGroup &QWidget::colorGroup() const
     else
 	return palette().inactive();
 }
-
+#endif
 /*!
   \fn const QPalette &QWidget::palette() const
   Returns the widget palette.
@@ -2085,7 +2094,7 @@ const QColorGroup &QWidget::colorGroup() const
   \sa QApplication::setPalette(), palette(), paletteChange(), unsetPalette(), ownPalette()
   colorGroup()
 */
-
+#ifndef QT_NO_PALETTE
 void QWidget::setPalette( const QPalette &palette )
 {
     own_palette = TRUE;
@@ -2152,7 +2161,7 @@ void QWidget::setPalette( const QPalette &p, bool )
 void QWidget::paletteChange( const QPalette & )
 {
 }
-
+#endif // QT_NO_PALETTE
 
 /*!
   \fn QFont QWidget::font() const
@@ -3394,10 +3403,12 @@ void QWidget::polish()
 	    setFont( QApplication::font( this ) );
 	    own_font = FALSE;
 	}
+#ifndef QT_NO_PALETTE
 	if ( !own_palette && !QApplication::palette( this ).isCopyOf( QApplication::palette() ) ) {
 	    setPalette( QApplication::palette( this ) );
 	    own_palette = FALSE;
 	}
+#endif	
 	setWState(WState_Polished);
 	qApp->polish( this );
 	QApplication::sendPostedEvents( this, QEvent::ChildInserted );
@@ -3893,6 +3904,8 @@ bool QWidget::event( QEvent *e )
 		    setFont( QApplication::font( this ) );
 		own_font = FALSE;
 	    }
+	    break;
+#ifndef QT_NO_PALETTE
 	case QEvent::ParentPaletteChange:
  	    if ( isTopLevel() )
  		break;
@@ -3906,6 +3919,7 @@ bool QWidget::event( QEvent *e )
 		own_palette = FALSE;
 	    }
 	    break;
+#endif	    
         default:
 	    if ( e->type() >= QEvent::User ) {
 		customEvent( (QCustomEvent*) e );

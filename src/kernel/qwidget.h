@@ -205,12 +205,13 @@ public:
     const QPixmap *	backgroundPixmap() const;
     virtual void	setBackgroundPixmap( const QPixmap & );
 
+#ifndef QT_NO_PALETTE
     const QColorGroup & colorGroup() const;
     const QPalette &	palette()    const;
     bool		ownPalette() const;
     virtual void	setPalette( const QPalette & );
     void		unsetPalette();
-
+#endif
     QFont		font() const;
     bool		ownFont() const;
     virtual void	setFont( const QFont & );
@@ -455,7 +456,9 @@ protected:
     virtual void enabledChange( bool );
     virtual void backgroundColorChange( const QColor & );
     virtual void backgroundPixmapChange( const QPixmap & );
+#ifndef QT_NO_PALETTE
     virtual void paletteChange( const QPalette & );
+#endif
     virtual void fontChange( const QFont & );
 
     int		 metric( int )	const;
@@ -525,7 +528,9 @@ private:
     QPoint	 fpos;
     QRect	 crect;
     QColor	 bg_col;
+#ifndef QT_NO_PALETTE
     QPalette	 pal;
+#endif    
     QFont	 fnt;
 #ifndef QT_NO_LAYOUT
     QLayout 	*lay_out;
@@ -570,7 +575,9 @@ private:	// Disabled copy constructor and operator=
 #endif
 
 public: // obsolete functions to dissappear or to become inline in 3.0
+#ifndef QT_NO_PALETTE
     void setPalette( const QPalette &, bool iReallyMeanIt );
+#endif
     void setFont( const QFont &, bool iReallyMeanIt );
 };
 
@@ -651,8 +658,10 @@ inline void QWidget::setBaseSize( const QSize &s )
 inline const QColor &QWidget::backgroundColor() const
 { return bg_col; }
 
+#ifndef QT_NO_PALETTE
 inline const QPalette &QWidget::palette() const
 { return pal; }
+#endif
 
 inline QFont QWidget::font() const
 { return fnt; }
@@ -756,12 +765,12 @@ inline bool QWidget::ownFont() const
 {
     return own_font;
 }
-
+#ifndef QT_NO_PALETTE
 inline bool QWidget::ownPalette() const
 {
     return own_palette;
 }
-
+#endif
 
 
 

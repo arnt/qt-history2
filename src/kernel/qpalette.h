@@ -33,7 +33,7 @@
 #include "qbrush.h"
 #endif // QT_H
 
-
+#ifndef QT_NO_PALETTE
 class QColorGroupPrivate;
 
 
@@ -158,5 +158,5 @@ Q_EXPORT QDataStream &operator>>( QDataStream &, QColorGroup & );
 Q_EXPORT QDataStream &operator<<( QDataStream &, const QPalette & );
 Q_EXPORT QDataStream &operator>>( QDataStream &, QPalette & );
 
-
+#endif // QT_NO_PALETTE
 #endif // QPALETTE_H
