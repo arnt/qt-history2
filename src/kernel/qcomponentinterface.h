@@ -23,6 +23,11 @@ struct Q_EXPORT QComponentInterface : public QUnknownInterface
     virtual QString version() const = 0;
 };
 
+struct Q_EXPORT QLibraryInterface : public QUnknownInterface
+{
+    virtual bool canUnload() const = 0;
+};
+
 class Q_EXPORT QRefCountInterface : public QUnknownInterface
 {
 public:
@@ -38,7 +43,7 @@ private:
 
 #ifndef Q_CREATE_INSTANCE
     #define Q_CREATE_INSTANCE( IMPLEMENTATION )		\
-	QUnknownInterface *i = new IMPLEMENTATION;	\
+	IMPLEMENTATION *i = new IMPLEMENTATION;	\
 	i->addRef();					\
 	return i;
 #endif
@@ -53,11 +58,11 @@ private:
 
 #ifndef Q_EXPORT_INTERFACE
     #ifdef Q_WS_WIN
-	#define Q_EXPORT_INTERFACE( IMPLEMENTATION ) \
-	    Q_EXTERN_C __declspec(dllexport) QUnknownInterface *qt_load_interface() { Q_CREATE_INSTANCE( IMPLEMENTATION ) }
+	#define Q_EXPORT_INTERFACE() \
+	    Q_EXTERN_C __declspec(dllexport) QUnknownInterface *qt_load_interface()
     #else
-	#define Q_EXPORT_INTERFACE( IMPLEMENTATION ) \
-	    Q_EXTERN_C QUnknownInterface *qt_load_interface() { Q_CREATE_INSTANCE( IMPLEMENTATION ) }
+	#define Q_EXPORT_INTERFACE() \
+	    Q_EXTERN_C QUnknownInterface *qt_load_interface()
     #endif
 #endif
 
@@ -69,6 +74,11 @@ private:
 // {5F3968A5-F451-45b1-96FB-061AD98F926E}
 #ifndef IID_QComponentInterface 
 #define IID_QComponentInterface QUuid(0x5f3968a5, 0xf451, 0x45b1, 0x96, 0xfb, 0x6, 0x1a, 0xd9, 0x8f, 0x92, 0x6e)
+#endif
+
+// {D16111D4-E1E7-4C47-8599-24483DAE2E7} 
+#ifndef IID_QLibraryInterface
+#define IID_QLibraryInterface QUuid( 0xd16111d4, 0xe1e7, 0x4c47, 0x85, 0x99, 0x24, 0x48, 0x3d, 0xae, 0x2e, 0x7)
 #endif
 
 // {3F8FDC44-3015-4f3e-B6D6-E4AAAABDEAAD}

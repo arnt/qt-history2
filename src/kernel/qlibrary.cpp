@@ -338,9 +338,17 @@ QUnknownInterface* QLibrary::load()
 	    qDebug( "Symbol \"qt_load_interface\" not found." );
 #endif
 	info = infoProc ? infoProc() : 0;
+	if ( info ) {
+	    QLibraryInterface *piface = (QLibraryInterface*)info->queryInterface( IID_QLibraryInterface );
+	    if ( piface ) {
+		// ### some init function?
+		piface->release();
+	    }
+	}
 #if defined(QT_DEBUG_COMPONENT)
-	if ( !info )
+	else {
 	    qDebug( "No interface implemented." );
+	}
 #endif
     }
 #if defined(QT_DEBUG_COMPONENT)
@@ -380,6 +388,19 @@ bool QLibrary::unload( bool force )
 {
     if ( pHnd ) {
 	if ( info ) {
+	    QLibraryInterface *piface = (QLibraryInterface*)info->queryInterface( IID_QLibraryInterface );
+	    if ( piface ) {
+		bool can = piface->canUnload();
+		piface->release();
+		if ( !can ) {
+#if defined(QT_DEBUG_COMPONENT)
+		    qDebug( "%s refuses to be unloaded!", libfile.latin1() );
+#endif
+		    if ( !force )
+			return FALSE;
+		}
+	    }
+
 	    if ( info->release() ) {
 #if defined(QT_DEBUG_COMPONENT) || defined(QT_CHECK_RANGE)
 		qDebug( "%s is still in use!", libfile.latin1() );
