@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsizegrip.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qsizegrip.cpp#3 $
 **
 ** Implementation of QSizeGrip class
 **
@@ -80,10 +80,10 @@ QSizeGrip::QSizeGrip( QWidget * parent, const char* name )
 QSizeGrip::~QSizeGrip()
 {
 #if defined(_WS_X11_)
-    if ( !QApplication::closingDown() ) {
-	XChangeProperty(qt_xdisplay(), topLevelWidget()->winId(),
-			qt_sizegrip, XA_WINDOW, 32, PropModeReplace,
-			(unsigned char *)None, 1);
+    if ( !QApplication::closingDown() && parentWidget() ) {
+ 	XChangeProperty(qt_xdisplay(), topLevelWidget()->winId(),
+ 			qt_sizegrip, XA_WINDOW, 32, PropModeReplace,
+ 			(unsigned char *)None, 1);
     }
 #endif
 }
