@@ -5183,26 +5183,28 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 	QStringList lst = QStringList::split( ",", s );
 
 	HICON si;
-	UINT res;
+	UINT res = 0;
 	QString filepath = lst[ 0 ].stripWhiteSpace();
-	if ( filepath.find("%1") != -1 ) {
-	    filepath = filepath.arg( fi.filePath() );
-	    if ( ext.lower() == ".dll" ) {
-		pix = defaultFile;
-		return &pix;
+	if ( !filepath.isEmpty() ) {
+	    if ( filepath.find("%1") != -1 ) {
+		filepath = filepath.arg( fi.filePath() );
+		if ( ext.lower() == ".dll" ) {
+		    pix = defaultFile;
+		    return &pix;
+		}
 	    }
-	}
-	if ( filepath[0] == '"' && filepath[(int)filepath.length()-1] == '"' )
-	    filepath = filepath.mid( 1, filepath.length()-2 );
+	    if ( filepath[0] == '"' && filepath[(int)filepath.length()-1] == '"' )
+		filepath = filepath.mid( 1, filepath.length()-2 );
 
-	resolveLibs();
-	QT_WA( {
-	    res = ptrExtractIconEx( (TCHAR*)filepath.ucs2(), lst[ 1 ].stripWhiteSpace().toInt(),
-				  0, &si, 1 );
-	} , {
-	    res = ExtractIconExA( filepath.local8Bit(), lst[ 1 ].stripWhiteSpace().toInt(),
-				  0, &si, 1 );
-	} );
+	    resolveLibs();
+	    QT_WA( {
+		res = ptrExtractIconEx( (TCHAR*)filepath.ucs2(), lst[ 1 ].stripWhiteSpace().toInt(),
+				      0, &si, 1 );
+	    } , {
+		res = ExtractIconExA( filepath.local8Bit(), lst[ 1 ].stripWhiteSpace().toInt(),
+				      0, &si, 1 );
+	    } );
+	}
 
 	if ( res ) {
 	    pix.resize( pixw, pixh );
@@ -5220,25 +5222,25 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 	return &pix;
     } else {
 	HICON si;
-	UINT res;
-	QT_WA( {
-	    res = ptrExtractIconEx( (TCHAR*)fi.absFilePath().ucs2(), -1,
-				  0, 0, 1 );
-	} , {
-	    res = ExtractIconExA( fi.absFilePath().local8Bit(), -1,
-				  0, 0, 1 );
-	} );
-
-	if ( res == 0 ) {
-	    return &defaultExe;
-	} else {
+	UINT res = 0;
+	if ( !fi.absFilePath().isEmpty() ) {
 	    QT_WA( {
-		res = ptrExtractIconEx( (TCHAR*)fi.absFilePath().ucs2(), res - 1,
-				      0, &si, 1 );
+		res = ptrExtractIconEx( (TCHAR*)fi.absFilePath().ucs2(), -1,
+				      0, 0, 1 );
 	    } , {
-		res = ExtractIconExA( fi.absFilePath().local8Bit(), res - 1,
-				      0, &si, 1 );
+		res = ExtractIconExA( fi.absFilePath().local8Bit(), -1,
+				      0, 0, 1 );
 	    } );
+
+	    if ( res ) {
+		QT_WA( {
+		    res = ptrExtractIconEx( (TCHAR*)fi.absFilePath().ucs2(), res - 1,
+					  0, &si, 1 );
+		} , {
+		    res = ExtractIconExA( fi.absFilePath().local8Bit(), res - 1,
+					  0, &si, 1 );
+		} );
+	    }
 	}
 
 	if ( res ) {
