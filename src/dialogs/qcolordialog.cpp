@@ -160,15 +160,15 @@ void QColorWell::mouseMoveEvent( QMouseEvent *e )
 	setCurrent( oldCurrent.x(), oldCurrent.y() );
 	int i = findRow( e->y() ) + findCol( e->x() ) * numRows();
 	QColor col( values[ i ] );
-	QColorDrag *d = new QColorDrag( col, this );
+	QColorDrag *drg = new QColorDrag( col, this );
 	QPixmap pix( cellWidth(), cellHeight() );
 	pix.fill( col );
 	QPainter p( &pix );
 	p.drawRect( 0, 0, pix.width(), pix.height() );
 	p.end();
-	d->setPixmap( pix );
+	drg->setPixmap( pix );
 	mousePressed = FALSE;
-	d->dragCopy();
+	drg->dragCopy();
     }
 }
 
@@ -618,15 +618,15 @@ void QColorShowLabel::mouseMoveEvent( QMouseEvent *e )
     if ( !mousePressed )
 	return;
     if ( ( pressPos - e->pos() ).manhattanLength() > QApplication::startDragDistance() ) {
-	QColorDrag *d = new QColorDrag( col, this );
+	QColorDrag *drg = new QColorDrag( col, this );
 	QPixmap pix( 30, 20 );
 	pix.fill( col );
 	QPainter p( &pix );
 	p.drawRect( 0, 0, pix.width(), pix.height() );
 	p.end();
-	d->setPixmap( pix );
+	drg->setPixmap( pix );
 	mousePressed = FALSE;
-	d->dragCopy();
+	drg->dragCopy();
     }
 }
 

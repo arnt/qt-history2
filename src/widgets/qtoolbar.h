@@ -90,7 +90,7 @@ private:
     void init();
     virtual void setUpGM();
 
-    QBoxLayout * b;
+    QBoxLayout * bl;
     QToolBarPrivate * d;
     Orientation o;
     QMainWindow * mw;

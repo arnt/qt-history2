@@ -1101,9 +1101,9 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* parent
     titleL->setMouseTracking( TRUE );
     titleL->installEventFilter( this );
     titleL->setAlignment( AlignLeft | AlignVCenter | SingleLine );
-    QFont fnt = font();
-    fnt.setBold( TRUE );
-    titleL->setFont( fnt );
+    QFont f = font();
+    f.setBold( TRUE );
+    titleL->setFont( f );
 
     iconL = new QLabel( this, "icon" );
     iconL->setAlignment( AlignCenter );

@@ -217,14 +217,14 @@ QToolBar::QToolBar( QMainWindow * parent, const char * name )
 void QToolBar::init()
 {
     d = new QToolBarPrivate;
-    b = 0;
+    bl = 0;
     sw = 0;
 
-    b = new QBoxLayout( this, orientation() == Vertical
+    bl = new QBoxLayout( this, orientation() == Vertical
 			? QBoxLayout::Down : QBoxLayout::LeftToRight,
 			style() == WindowsStyle ? 2 : 1, 0 );
-    b->setAutoAdd( TRUE );
-    b->addSpacing( 9 );
+    bl->setAutoAdd( TRUE );
+    bl->addSpacing( 9 );
 
     if ( mw ) {
 	connect( mw, SIGNAL( startMovingToolBar( QToolBar * ) ),
@@ -245,8 +245,8 @@ void QToolBar::init()
 
 QToolBar::~QToolBar()
 {
-    delete b;
-    b = 0;
+    delete bl;
+    bl = 0;
     delete d;
     d = 0;
 }
@@ -273,9 +273,9 @@ void QToolBar::setOrientation( Orientation newOrientation )
 {
     if ( o != newOrientation ) {
 	o = newOrientation;
-	if ( b )
-	    b->setDirection( o==Horizontal ? QBoxLayout::LeftToRight :
-			     QBoxLayout::TopToBottom );
+	if ( bl )
+	    bl->setDirection( o==Horizontal ? QBoxLayout::LeftToRight :
+			      QBoxLayout::TopToBottom );
 	emit orientationChanged( newOrientation );
     }
 }
@@ -355,7 +355,7 @@ QMainWindow * QToolBar::mainWindow()
 void QToolBar::setStretchableWidget( QWidget * w )
 {
     sw = w;
-    b->setStretchFactor( w, 1 );
+    bl->setStretchFactor( w, 1 );
 
     if ( !isHorizontalStretchable() && !isVerticalStretchable() ) {
 	if ( orientation() == Horizontal )
@@ -375,7 +375,7 @@ bool QToolBar::event( QEvent * e )
     if ( e->type() == QEvent::ChildInserted ) {
 	QObject * child = ((QChildEvent*)e)->child();
 	if ( child && child->isWidgetType() && ((QWidget*)child) == sw )
-	    b->setStretchFactor( (QWidget*)child, 1 );
+	    bl->setStretchFactor( (QWidget*)child, 1 );
     }
     return r;
 }
