@@ -441,7 +441,8 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		    pid = 0;
 		}
 	    }
-	}
+	} else if ( state == PST_ABORTED && c == PdcEnd )
+	    state = PST_IDLE;
 	return r;
     }
     return TRUE;
