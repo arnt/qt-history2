@@ -97,7 +97,7 @@ struct QTextBidiStatus {
 
 class QTextBidiContext {
 public:
-    QTextBidiContext(unsigned char level, QChar::Direction embedding, QTextBidiContext *parent = 0, bool override = false);
+    QTextBidiContext( uchar level, QChar::Direction embedding, QTextBidiContext *parent = 0, bool override = FALSE );
     ~QTextBidiContext();
 
     void ref() const;
@@ -1831,7 +1831,7 @@ inline QTextString::Char &QTextString::at( int i ) const
 inline QString QTextString::toString() const
 {
     QString s;
-    for ( int i = 0; i < length(); ++i ) 
+    for ( int i = 0; i < length(); ++i )
 	s += data[ i ].c;
 	
     return s;

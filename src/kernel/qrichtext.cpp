@@ -2250,7 +2250,7 @@ void QTextString::checkBidi() const
     ((QTextString *)this)->bidi = FALSE;
     ((QTextString *)this)->rightToLeft = FALSE;
     while( len ) {
-	unsigned char row = c->c.row();
+	uchar row = c->c.row();
 	if( (row > 0x04 && row < 0x09) || row > 0xfa ) {
 	    ((QTextString *)this)->bidi = TRUE;
 	    basicDirection();
@@ -3332,7 +3332,7 @@ QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextString *text, QText
 	    // embedding and overrides (X1-X9 in the BiDi specs)
 	case QChar::DirRLE:
 	    {
-		unsigned char level = context->level;
+		uchar level = context->level;
 		if(level%2) // we have an odd level
 		    level += 2;
 		else
@@ -3349,7 +3349,7 @@ QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextString *text, QText
 	    }
 	case QChar::DirLRE:
 	    {
-		unsigned char level = context->level;
+		uchar level = context->level;
 		if(level%2) // we have an odd level
 		    level++;
 		else
@@ -3366,7 +3366,7 @@ QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextString *text, QText
 	    }
 	case QChar::DirRLO:
 	    {
-		unsigned char level = context->level;
+		uchar level = context->level;
 		if(level%2) // we have an odd level
 		    level += 2;
 		else
@@ -3384,7 +3384,7 @@ QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextString *text, QText
 	    }
 	case QChar::DirLRO:
 	    {
-		unsigned char level = context->level;
+		uchar level = context->level;
 		if(level%2) // we have an odd level
 		    level++;
 		else
@@ -5902,7 +5902,7 @@ void QTextTableCell::draw( int x, int y, int cx, int cy, int cw, int ch, const Q
    Each line of text caches the embedding level at the start of the line for faster
    relayouting
 */
-QTextBidiContext::QTextBidiContext(unsigned char l, QChar::Direction e, QTextBidiContext *p, bool o)
+QTextBidiContext::QTextBidiContext( uchar l, QChar::Direction e, QTextBidiContext *p, bool o )
     : level(l) , override(o), dir(e)
 {
     if ( p )
