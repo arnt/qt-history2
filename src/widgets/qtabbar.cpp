@@ -780,9 +780,9 @@ void QTabBar::layoutTabs()
 	return;
 
     int hframe, vframe, overlap;
-    hframe  = style().pixelMetric( QStyle::PM_TabBarHorizontalFrame, this );
-    vframe  = style().pixelMetric( QStyle::PM_TabBarVerticalFrame, this );
-    overlap = style().pixelMetric( QStyle::PM_TabBarOverlap, this );
+    hframe  = style().pixelMetric( QStyle::PM_TabBarTabHSpace, this );
+    vframe  = style().pixelMetric( QStyle::PM_TabBarTabVSpace, this );
+    overlap = style().pixelMetric( QStyle::PM_TabBarTabOverlap, this );
 
     QFontMetrics fm = fontMetrics();
     int x = 0;

@@ -142,7 +142,7 @@ void QSplitterHandle::mouseReleaseEvent( QMouseEvent *e )
 void QSplitterHandle::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
-    style().drawPrimitive(QStyle::PO_Splitter, &p, rect(), colorGroup(),
+    style().drawPrimitive(QStyle::PE_Splitter, &p, rect(), colorGroup(),
 			  (orientation() == Qt::Horizontal ?
 			   QStyle::PStyle_Horizontal : QStyle::PStyle_Vertical));
 }
@@ -467,7 +467,7 @@ bool QSplitter::event( QEvent *e )
 void QSplitter::drawSplitter( QPainter *p,
 			      QCOORD x, QCOORD y, QCOORD w, QCOORD h )
 {
-    style().drawPrimitive(QStyle::PO_Splitter, p, QRect(x, y, w, h), colorGroup(),
+    style().drawPrimitive(QStyle::PE_Splitter, p, QRect(x, y, w, h), colorGroup(),
 			  (orientation() == Qt::Horizontal ?
 			   QStyle::PStyle_Horizontal : QStyle::PStyle_Vertical));
 }

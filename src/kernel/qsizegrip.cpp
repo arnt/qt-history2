@@ -156,7 +156,7 @@ void QSizeGrip::paintEvent( QPaintEvent *e )
 {
     QPainter painter( this );
     painter.setClipRegion(e->region());
-    style().drawPrimitive(QStyle::PO_SizeGrip, &painter, rect(), colorGroup());
+    style().drawPrimitive(QStyle::PE_SizeGrip, &painter, rect(), colorGroup());
 }
 
 /*!

@@ -147,7 +147,7 @@ protected:
 	    if ( t->tabPosition() == QTabWidget::Bottom )
 		flags |= QStyle::PStyle_Bottom;
 	
-	    style().drawPrimitive( QStyle::PO_TabBarBase, &p, rect(),
+	    style().drawPrimitive( QStyle::PE_TabBarBase, &p, rect(),
 				   colorGroup(), flags );
         }
     }

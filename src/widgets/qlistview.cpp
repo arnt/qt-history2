@@ -1862,7 +1862,7 @@ void QListViewItem::paintFocus( QPainter *p, const QColorGroup &cg,
 {
     void *data[1];
     data[0] = (void *) (isSelected() ? &cg.highlight() : &cg.base());
-    listView()->style().drawPrimitive( QStyle::PO_FocusRect, p, r, cg,
+    listView()->style().drawPrimitive( QStyle::PE_FocusRect, p, r, cg,
 				       (isSelected() ?
 					QStyle::PStyle_FocusAtBorder :
 					QStyle::PStyle_Default),

@@ -318,7 +318,7 @@ protected:
 	    if ( i == pressedHandle )
 		flags |= QStyle::PStyle_On;
 
-	    style().drawPrimitive( QStyle::PO_DockWindowHandle, &p,
+	    style().drawPrimitive( QStyle::PE_DockWindowHandle, &p,
 				   QRect( x, 0, 30, 10 ), colorGroup(),
 				   flags );
 	    x += 30;
@@ -1432,7 +1432,7 @@ void QMainWindow::paintEvent( QPaintEvent * )
     if ( style() == WindowsStyle && d->mb ) {
 	QPainter p( this );
 	int y = d->mb->height() + 1;
-	style().drawPrimitive(QStyle::PO_Separator, &p, QRect(0, y, width(), 1),
+	style().drawPrimitive(QStyle::PE_Separator, &p, QRect(0, y, width(), 1),
 			      colorGroup(), QStyle::PStyle_Sunken);
     }
 }

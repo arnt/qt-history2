@@ -70,7 +70,7 @@ public:
     void polishPopupMenu( QPopupMenu* );
 
     // new style API
-    void drawPrimitive( PrimitiveOperation op,
+    void drawPrimitive( PrimitiveElement pe,
 			QPainter *p,
 			const QRect &r,
 			const QColorGroup &cg,

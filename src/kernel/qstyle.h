@@ -84,66 +84,66 @@ public:
 			   int len = -1, const QColor *penColor = 0 ) const;
 
 
-    enum PrimitiveOperation {
-	PO_ButtonCommand,
-	PO_ButtonBevel,
-	PO_ButtonTool,
-	PO_ButtonDropDown,
+    enum PrimitiveElement {
+	PE_ButtonCommand,
+	PE_ButtonBevel,
+	PE_ButtonTool,
+	PE_ButtonDropDown,
 
-	PO_FocusRect,
+	PE_FocusRect,
 
-	PO_ArrowUp,
-	PO_ArrowDown,
-	PO_ArrowRight,
-	PO_ArrowLeft,
+	PE_ArrowUp,
+	PE_ArrowDown,
+	PE_ArrowRight,
+	PE_ArrowLeft,
 
-	PO_SpinWidgetUp,
-	PO_SpinWidgetDown,
-	PO_SpinWidgetPlus,
-	PO_SpinWidgetMinus,
+	PE_SpinWidgetUp,
+	PE_SpinWidgetDown,
+	PE_SpinWidgetPlus,
+	PE_SpinWidgetMinus,
 
-	PO_Indicator,
-	PO_IndicatorMask,
-	PO_ExclusiveIndicator,
-	PO_ExclusiveIndicatorMask,
+	PE_Indicator,
+	PE_IndicatorMask,
+	PE_ExclusiveIndicator,
+	PE_ExclusiveIndicatorMask,
 
-	PO_DockWindowHandle,
-	PO_DockWindowSeparator,
-	PO_DockWindowResizeHandle,
+	PE_DockWindowHandle,
+	PE_DockWindowSeparator,
+	PE_DockWindowResizeHandle,
 
-	PO_Splitter,
+	PE_Splitter,
 
-	PO_Panel,
-	PO_PanelPopup,
-	PO_PanelMenuBar,
-	PO_PanelDockWindow,
+	PE_Panel,
+	PE_PanelPopup,
+	PE_PanelMenuBar,
+	PE_PanelDockWindow,
 
-	PO_TabBarBase,
+	PE_TabBarBase,
 
-	PO_HeaderSection,
-	PO_HeaderArrow,
-	PO_StatusBarSection,
+	PE_HeaderSection,
+	PE_HeaderArrow,
+	PE_StatusBarSection,
 
-	PO_GroupBoxFrame,
+	PE_GroupBoxFrame,
 
-	PO_Separator,
+	PE_Separator,
 
-	PO_SizeGrip,
+	PE_SizeGrip,
 
-	PO_CheckMark,
+	PE_CheckMark,
 
-	PO_ScrollBarAddLine,
-	PO_ScrollBarSubLine,
-	PO_ScrollBarAddPage,
-	PO_ScrollBarSubPage,
-	PO_ScrollBarSlider,
-	PO_ScrollBarFirst,
-	PO_ScrollBarLast,
+	PE_ScrollBarAddLine,
+	PE_ScrollBarSubLine,
+	PE_ScrollBarAddPage,
+	PE_ScrollBarSubPage,
+	PE_ScrollBarSlider,
+	PE_ScrollBarFirst,
+	PE_ScrollBarLast,
 
-	PO_ProgressBarChunk
+	PE_ProgressBarChunk
     };
 
-    enum PrimitiveOperationFlags {
+    enum PrimitiveElementFlags {
 	PStyle_Default = 		0x00000000,
 	PStyle_Enabled = 		0x00000001,
 	PStyle_Raised =			0x00000002,
@@ -168,7 +168,7 @@ public:
     };
     typedef uint PFlags;
 
-    virtual void drawPrimitive( PrimitiveOperation op,
+    virtual void drawPrimitive( PrimitiveElement op,
 				QPainter *p,
 				const QRect &r,
 				const QColorGroup &cg,
@@ -347,8 +347,8 @@ public:
 
 	PM_SliderThickness,	       	// total slider thickness
 	PM_SliderControlThickness,    	// thickness of the business part
-	PM_SliderLength,
-	PM_SliderTickmarkOffset,
+	PM_SliderLength,		// total length of slider
+	PM_SliderTickmarkOffset,	// 
 	PM_SliderSpaceAvailable,	// available space for slider to move
 
 	PM_DockWindowSeparatorExtent,
@@ -357,9 +357,9 @@ public:
 
 	PM_MenuBarFrameWidth,
 
-	PM_TabBarOverlap,
-	PM_TabBarHorizontalFrame,
-	PM_TabBarVerticalFrame,
+	PM_TabBarTabOverlap,
+	PM_TabBarTabHSpace,
+	PM_TabBarTabVSpace,
 	PM_TabBarBaseHeight,
 	PM_TabBarBaseOverlap,
 

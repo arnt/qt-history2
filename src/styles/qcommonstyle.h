@@ -58,7 +58,7 @@ private:
 
 
 public:
-    virtual void drawPrimitive( PrimitiveOperation op,
+    virtual void drawPrimitive( PrimitiveElement pe,
 				QPainter *p,
 				const QRect &r,
 				const QColorGroup &cg,

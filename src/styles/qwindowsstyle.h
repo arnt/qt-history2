@@ -61,7 +61,7 @@ public:
     virtual void polishPopupMenu( QPopupMenu* );
 
     // new stuff
-    void drawPrimitive( PrimitiveOperation op,
+    void drawPrimitive( PrimitiveElement pe,
 			QPainter *p,
 			const QRect &r,
 			const QColorGroup &cg,

@@ -423,7 +423,7 @@ void QStatusBar::paintEvent( QPaintEvent * )
 	    if ( item->w->isVisible() ) {
 		if ( item->p && item->w->x()-1 < psx )
 		    psx = item->w->x()-1;
-		style().drawPrimitive( QStyle::PO_StatusBarSection, &p,
+		style().drawPrimitive( QStyle::PE_StatusBarSection, &p,
 				       QRect(item->w->x() - 1, item->w->y() - 1,
 					     item->w->width()+2, item->w->height()+2),
 				       colorGroup() );

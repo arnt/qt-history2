@@ -373,7 +373,7 @@ void QDial::repaintScreen( const QRect *cr )
 	p.setBrush( NoBrush );
 	p.drawRect( br );
 	p.restore();
-	style().drawPrimitive( QStyle::PO_FocusRect, &p, br, colorGroup(), QStyle::PStyle_Default );
+	style().drawPrimitive( QStyle::PE_FocusRect, &p, br, colorGroup(), QStyle::PStyle_Default );
     }
     p.end();
 }

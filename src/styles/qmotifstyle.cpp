@@ -185,24 +185,24 @@ void QMotifStyle::polish( QApplication* a )
 
 /*!\reimp
 */
-void QMotifStyle::drawPrimitive( PrimitiveOperation op,
+void QMotifStyle::drawPrimitive( PrimitiveElement pe,
 				 QPainter *p,
 				 const QRect &r,
 				 const QColorGroup &cg,
 				 PFlags flags,
 				 void **data ) const
 {
-    switch( op ) {
-    case PO_ButtonCommand:
-    case PO_ButtonBevel:
-    case PO_ButtonTool:
-    case PO_HeaderSection:
+    switch( pe ) {
+    case PE_ButtonCommand:
+    case PE_ButtonBevel:
+    case PE_ButtonTool:
+    case PE_HeaderSection:
 	qDrawShadePanel( p, r, cg, bool(flags & (PStyle_Down | PStyle_On )),
 			 pixelMetric(PM_DefaultFrameWidth),
 			 &cg.brush(QColorGroup::Button) );
 	break;
 
-    case PO_Indicator: {
+    case PE_Indicator: {
 #ifndef QT_NO_BUTTON
 	bool on = flags & PStyle_On;
 	bool down = flags & PStyle_Down;
@@ -220,7 +220,7 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 	break;
     }
 
-    case PO_ExclusiveIndicator:
+    case PE_ExclusiveIndicator:
 	{
 #define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
 	    static QCOORD inner_pts[] =         // used for filling diamond
@@ -253,10 +253,10 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 	    break;
 	}
 
-    case PO_ArrowUp:
-    case PO_ArrowDown:
-    case PO_ArrowRight:
-    case PO_ArrowLeft:
+    case PE_ArrowUp:
+    case PE_ArrowDown:
+    case PE_ArrowRight:
+    case PE_ArrowLeft:
 	{
 	    QRect rect = r;
 	    QPointArray bFill;
@@ -264,7 +264,7 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 	    QPointArray bBot;
 	    QPointArray bLeft;
 	    QWMatrix matrix;
-	    bool vertical = op == PO_ArrowUp || op == PO_ArrowDown;
+	    bool vertical = pe == PE_ArrowUp || pe == PE_ArrowDown;
 	    bool horizontal = !vertical;
 	    int dim = rect.width() < rect.height() ? rect.width() : rect.height();
 	    int colspec = 0x0000;
@@ -321,7 +321,7 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 		}
 	    }
 
-	    if ( op == PO_ArrowUp || op == PO_ArrowLeft ) {
+	    if ( pe == PE_ArrowUp || pe == PE_ArrowLeft ) {
 		matrix.translate( rect.x(), rect.y() );
 		if ( vertical ) {
 		    matrix.translate( 0, rect.height() - 1 );
@@ -334,7 +334,7 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 		    colspec = horizontal ? 0x2334 : 0x2343;
 		else
 		    colspec = horizontal ? 0x1443 : 0x1434;
-	    } else if ( op == PO_ArrowDown || op == PO_ArrowRight ) {
+	    } else if ( pe == PE_ArrowDown || pe == PE_ArrowRight ) {
 		matrix.translate( rect.x(), rect.y() );
 		if ( vertical ) {
 		    matrix.translate( rect.width() - 1, 0 );
@@ -395,8 +395,8 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 	    break;
 	}
 
-    case PO_SpinWidgetPlus:
-    case PO_SpinWidgetMinus:
+    case PE_SpinWidgetPlus:
+    case PE_SpinWidgetMinus:
 	{
 	    p->save();
 	    int fw = pixelMetric( PM_DefaultFrameWidth );
@@ -426,15 +426,15 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 
 	    p->drawLine( x + xmarg, ( y + h / 2 - 1 ),
 			 x + xmarg + length - 1, ( y + h / 2 - 1 ) );
-	    if ( op == PO_SpinWidgetPlus )
+	    if ( pe == PE_SpinWidgetPlus )
 		p->drawLine( ( x+w / 2 ) - 1, y + ymarg,
 			     ( x+w / 2 ) - 1, y + ymarg + length - 1 );
 	    p->restore();
 	    break;
 	}
 
-    case PO_SpinWidgetUp:
-    case PO_SpinWidgetDown:
+    case PE_SpinWidgetUp:
+    case PE_SpinWidgetDown:
 	{
 	    p->save();
 	    int fw = pixelMetric( PM_DefaultFrameWidth );;
@@ -459,7 +459,7 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 	    int sy = y + h / 2 - sh / 2 - 1;
 
 	    QPointArray a;
-	    if ( op == PO_SpinWidgetDown )
+	    if ( pe == PE_SpinWidgetDown )
 		a.setPoints( 3,  0, 1,  sw-1, 1,  sh-2, sh-1 );
 	    else
 		a.setPoints( 3,  0, sh-1,  sw-1, sh-1,  sh-2, 1 );
@@ -477,7 +477,7 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 	    break;
 	}
 
-    case PO_DockWindowHandle:
+    case PE_DockWindowHandle:
 	{
 	    p->save();
 	    p->translate( r.x(), r.y() );
@@ -545,8 +545,8 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 	    break;
 	}
 
-    case PO_Splitter:
-    case PO_DockWindowResizeHandle:
+    case PE_Splitter:
+    case PE_DockWindowResizeHandle:
 	{
 	    const int motifOffset = 10;
  	    int sw = pixelMetric( PM_SplitterWidth );
@@ -572,7 +572,7 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
  	    break;
 	}
 
-    case PO_CheckMark:
+    case PE_CheckMark:
 	{
 	    const int markW = 6;
 	    const int markH = 6;
@@ -618,32 +618,32 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 	    break;
 	}
 
-    case PO_ScrollBarSubLine:
-	drawPrimitive(((flags & PStyle_Horizontal) ? PO_ArrowLeft : PO_ArrowUp),
+    case PE_ScrollBarSubLine:
+	drawPrimitive(((flags & PStyle_Horizontal) ? PE_ArrowLeft : PE_ArrowUp),
 		      p, r, cg, PStyle_Enabled | flags);
 	break;
 
-    case PO_ScrollBarAddLine:
-	drawPrimitive(((flags & PStyle_Horizontal) ? PO_ArrowRight : PO_ArrowDown),
+    case PE_ScrollBarAddLine:
+	drawPrimitive(((flags & PStyle_Horizontal) ? PE_ArrowRight : PE_ArrowDown),
 		      p, r, cg, PStyle_Enabled | flags);
 	break;
 
-    case PO_ScrollBarSubPage:
-    case PO_ScrollBarAddPage:
+    case PE_ScrollBarSubPage:
+    case PE_ScrollBarAddPage:
 	p->fillRect(r, cg.brush(QColorGroup::Mid));
 	break;
 
-    case PO_ScrollBarSlider:
-	drawPrimitive(PO_ButtonBevel, p, r, cg, PStyle_Enabled | PStyle_Raised);
+    case PE_ScrollBarSlider:
+	drawPrimitive(PE_ButtonBevel, p, r, cg, PStyle_Enabled | PStyle_Raised);
 	break;
 
-    case PO_ProgressBarChunk:
+    case PE_ProgressBarChunk:
 	p->fillRect( r.x(), r.y() + 2, r.width() - 2,
 	    r.height() - 4, cg.brush(QColorGroup::Highlight));
 	break;
 
     default:
-	QCommonStyle::drawPrimitive( op, p, r, cg, flags, data );
+	QCommonStyle::drawPrimitive( pe, p, r, cg, flags, data );
 	break;
     }
 }
@@ -708,7 +708,7 @@ void QMotifStyle::drawControl( ControlElement element,
 		    flags |= PStyle_On;
 		if (btn->isDown())
 		    flags |= PStyle_Down;
-		drawPrimitive( PO_ButtonCommand, p,
+		drawPrimitive( PE_ButtonCommand, p,
 			       tmp, newCg,
  			       flags );
 	    }
@@ -942,7 +942,7 @@ void QMotifStyle::drawControl( ControlElement element,
 		    if (act)
 			cflags |= PStyle_On;
 
-		    drawPrimitive(PO_CheckMark, p,
+		    drawPrimitive(PE_CheckMark, p,
 				  QRect(x+motifItemFrame, y+motifItemFrame, mw, mh),
 				  cg, cflags);
 		}
@@ -988,13 +988,13 @@ void QMotifStyle::drawControl( ControlElement element,
 	    if ( mi->popup() ) {                        // draw sub menu arrow
 		int dim = (h-2*motifItemFrame) / 2;
 		if ( act )
-		    drawPrimitive(PO_ArrowRight, p,
+		    drawPrimitive(PE_ArrowRight, p,
 				  QRect(x+w - motifArrowHMargin - motifItemFrame - dim,
 					y+h/2-dim/2, dim, dim), cg,
 				  (PStyle_Down |
 				   (mi->isEnabled() ? PStyle_Enabled : PStyle_Default)));
 		else
-		    drawPrimitive(PO_ArrowRight, p,
+		    drawPrimitive(PE_ArrowRight, p,
 				  QRect(x+w - motifArrowHMargin - motifItemFrame - dim,
 					y+h/2-dim/2, dim, dim), cg,
 				  (mi->isEnabled() ? PStyle_Enabled : PStyle_Default));
@@ -1137,12 +1137,12 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 
 	    if ( sl->hasFocus() ) {
 		QRect re = subRect( SR_SliderFocusRect, sl );
-		drawPrimitive( PO_FocusRect, p, re, cg );
+		drawPrimitive( PE_FocusRect, p, re, cg );
 	    }
 
 	    QRect re = querySubControlMetrics( CC_Slider, widget, SC_SliderHandle,
 					       data );
-	    drawPrimitive( PO_ButtonBevel, p, re, cg );
+	    drawPrimitive( PE_ButtonBevel, p, re, cg );
 	    if ( sl->orientation() == Horizontal ) {
 		QCOORD mid = re.x() + re.width() / 2;
 		qDrawShadeLine( p, mid,  re.y(), mid,  re.y() + re.height() - 2,
@@ -1162,10 +1162,10 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 	    int awh, ax, ay, sh, sy, dh, ew;
 	    int fw = pixelMetric( PM_DefaultFrameWidth, cb);
 
-	    drawPrimitive( PO_ButtonCommand, p, r, cg, flags );
+	    drawPrimitive( PE_ButtonCommand, p, r, cg, flags );
 	    QRect ar = QStyle::visualRect( querySubControlMetrics( CC_ComboBox, cb, SC_ComboBoxArrow,
 								   data ), cb );
-	    drawPrimitive( PO_ArrowDown, p, ar, cg, flags | PStyle_Enabled );
+	    drawPrimitive( PE_ArrowDown, p, ar, cg, flags | PStyle_Enabled );
 
 	    QRect tr = r;
 	    tr.addCoords( fw, fw, -fw, -fw );
@@ -1181,7 +1181,7 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 
 	    if ( cb->hasFocus() ) {
 		QRect re = QStyle::visualRect( subRect( SR_ComboBoxFocusRect, cb ), cb );
-		drawPrimitive( PO_FocusRect, p, re, cg );
+		drawPrimitive( PE_FocusRect, p, re, cg );
 	    }
 	}
 

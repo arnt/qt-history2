@@ -1250,7 +1250,7 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 {
     int section = mapToSection( index );
     if ( section < 0 ) {
-	style().drawPrimitive( QStyle::PO_HeaderSection, p, QRect(fr.x(), fr.y(), fr.width(), fr.height()),
+	style().drawPrimitive( QStyle::PE_HeaderSection, p, QRect(fr.x(), fr.y(), fr.width(), fr.height()),
 			       colorGroup(), QStyle::PStyle_Raised );
 	return;
     }
@@ -1264,7 +1264,7 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
     }
     p->setBrushOrigin( fr.topLeft() );
     if ( d->clicks[section] ) {
-	style().drawPrimitive( QStyle::PO_HeaderSection, p, QRect(fr.x(), fr.y(), fr.width(), fr.height()),
+	style().drawPrimitive( QStyle::PE_HeaderSection, p, QRect(fr.x(), fr.y(), fr.width(), fr.height()),
 			       colorGroup(), flags );
     } else {
 	if ( orientation() == Horizontal ) {
@@ -1272,7 +1272,7 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 
 	    // ### Hack to keep styles working
 	    p->setClipRect( fr );
-	    style().drawPrimitive( QStyle::PO_HeaderSection, p,
+	    style().drawPrimitive( QStyle::PE_HeaderSection, p,
 				   QRect(fr.x() - 2, fr.y() - 2, fr.width() + 4, fr.height() + 4),
 				   colorGroup(), flags );
 
@@ -1293,7 +1293,7 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 
 	    // ### Hack to keep styles working
 	    p->setClipRect( fr );
-	    style().drawPrimitive( QStyle::PO_HeaderSection, p,
+	    style().drawPrimitive( QStyle::PE_HeaderSection, p,
 				   QRect(fr.x() - 2, fr.y() - 2, fr.width() + 4, fr.height() + 4),
 				   colorGroup(), flags );
 
@@ -1365,7 +1365,7 @@ void QHeader::paintSectionLabel( QPainter *p, int index, const QRect& fr )
 	    tw = fr.width() - tw;
 	    ew = fr.width() - ew - tw;
 	}
-	style().drawPrimitive( QStyle::PO_HeaderArrow, p, QRect(fr.x() + pw + tw + ew, 4, arrowWidth, arrowHeight),
+	style().drawPrimitive( QStyle::PE_HeaderArrow, p, QRect(fr.x() + pw + tw + ew, 4, arrowWidth, arrowHeight),
 			       colorGroup(), d->sortDirection ? QStyle::PStyle_Down : QStyle::PStyle_Up);
     }
 }

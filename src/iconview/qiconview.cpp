@@ -1958,7 +1958,7 @@ void QIconViewItem::paintFocus( QPainter *p, const QColorGroup &cg )
 
     void *data[1];
     data[0] = (void *) (isSelected() ? &cg.highlight() : &cg.base());
-    view->style().drawPrimitive(QStyle::PO_FocusRect, p,
+    view->style().drawPrimitive(QStyle::PE_FocusRect, p,
 				QRect( textRect( FALSE ).x(), textRect( FALSE ).y(),
 				       textRect( FALSE ).width(),
 				       textRect( FALSE ).height() ), cg,
@@ -1969,7 +1969,7 @@ void QIconViewItem::paintFocus( QPainter *p, const QColorGroup &cg )
 
     if ( this != view->d->currentItem ) {
 	data[0] = (void *) &cg.base();
-	view->style().drawPrimitive(QStyle::PO_FocusRect, p,
+	view->style().drawPrimitive(QStyle::PE_FocusRect, p,
 				    QRect( pixmapRect( FALSE ).x(),
 					   pixmapRect( FALSE ).y(),
 					   pixmapRect( FALSE ).width(),
@@ -4927,7 +4927,7 @@ void QIconView::drawRubber( QPainter *p )
 
     void *data[1];
     data[0] = (void *) &colorGroup().base();
-    style().drawPrimitive(QStyle::PO_FocusRect, p,
+    style().drawPrimitive(QStyle::PE_FocusRect, p,
 			  QRect( pnt.x(), pnt.y(),
 				 d->rubber->width(), d->rubber->height() ),
 			  colorGroup(), QStyle::PStyle_Default, data);
@@ -5145,9 +5145,9 @@ void QIconView::drawDragShapes( const QPoint &pos )
 	    if ( !ir.intersects( QRect( contentsX(), contentsY(), visibleWidth(), visibleHeight() ) ) )
 		continue;
 
-	    style().drawPrimitive(QStyle::PO_FocusRect, &p, ir, colorGroup(),
+	    style().drawPrimitive(QStyle::PE_FocusRect, &p, ir, colorGroup(),
 				  QStyle::PStyle_Default, data);
-	    style().drawPrimitive(QStyle::PO_FocusRect, &p, tr, colorGroup(),
+	    style().drawPrimitive(QStyle::PE_FocusRect, &p, tr, colorGroup(),
 				  QStyle::PStyle_Default, data);
 	}
 
@@ -5160,7 +5160,7 @@ void QIconView::drawDragShapes( const QPoint &pos )
 
 	for ( int i = 0; i < d->numDragItems; ++i ) {
 	    QRect r( pos.x() + i * 40, pos.y(), 35, 35 );
-	    style().drawPrimitive(QStyle::PO_FocusRect, &p, r, colorGroup(),
+	    style().drawPrimitive(QStyle::PE_FocusRect, &p, r, colorGroup(),
 				  QStyle::PStyle_Default, data);
 	}
 

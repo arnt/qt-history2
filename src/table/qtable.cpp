@@ -1209,7 +1209,7 @@ void QCheckTableItem::paint( QPainter *p, const QColorGroup &cg,
 		      table()->style().pixelMetric( QStyle::PM_IndicatorHeight ) );
     QColorGroup c( cg );
     c.setBrush( QColorGroup::Background, c.brush( QColorGroup::Base ) );
-    table()->style().drawPrimitive( QStyle::PO_Indicator, p,
+    table()->style().drawPrimitive( QStyle::PE_Indicator, p,
 				    QRect( 0, ( cr.height() - sz.height() ) / 2, sz.width(), sz.height() ), c,
 				    isChecked() ? QStyle::PStyle_On : QStyle::PStyle_Off );
     int x = sz.width() + 6;
@@ -5100,7 +5100,7 @@ void QTableHeader::paintSection( QPainter *p, int index, const QRect& fr )
     if ( sectionState( index ) != Selected ) {
 	QHeader::paintSection( p, index, fr );
     } else {
-	style().drawPrimitive( QStyle::PO_HeaderSection, p, QRect(fr.x(), fr.y(), fr.width(), fr.height()),
+	style().drawPrimitive( QStyle::PE_HeaderSection, p, QRect(fr.x(), fr.y(), fr.width(), fr.height()),
 			       colorGroup(), QStyle::PStyle_Down );
 	paintSectionLabel( p, index, fr );
     }

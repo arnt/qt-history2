@@ -280,59 +280,59 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 }
 
 /*!
-  \enum QStyle::PrimitiveOperation
+  \enum QStyle::PrimitiveElement
 
-  This enum represents a style PrimitiveOperation.  A PrimitiveOperation is
+  This enum represents a style PrimitiveElement.  A PrimitiveElement is
   a common GUI element, such as a checkbox indicator or pushbutton bevel.
 
-  \value PO_ButtonCommand  button that performs an action/command, for example: a
+  \value PE_ButtonCommand  button that performs an action/command, for example: a
   push button.
-  \value PO_ButtonBevel  general purpose button bevel.
-  \value PO_ButtonTool  tool button, for example: a button in a toolbar.
-  \value PO_ButtonDropDown  drop down button, for example: a tool button that displays
+  \value PE_ButtonBevel  general purpose button bevel.
+  \value PE_ButtonTool  tool button, for example: a button in a toolbar.
+  \value PE_ButtonDropDown  drop down button, for example: a tool button that displays
   a popup menu.
 
 
-  \value PO_FocusRect  general purpose focus indicator.
+  \value PE_FocusRect  general purpose focus indicator.
 
 
-  \value PO_ArrowUp  up arrow.
-  \value PO_ArrowDown  down arrow.
-  \value PO_ArrowRight  right arrow.
-  \value PO_ArrowLeft  left arrow.
+  \value PE_ArrowUp  up arrow.
+  \value PE_ArrowDown  down arrow.
+  \value PE_ArrowRight  right arrow.
+  \value PE_ArrowLeft  left arrow.
 
 
-  \value PO_SpinWidgetUp  up symbol for a spin widget.
-  \value PO_SpinWidgetDown down symbol for a spin widget.
-  \value PO_SpinWidgetPlus  increase symbol for a spin widget.
-  \value PO_SpinWidgetMinus  decrease symbol for a spin widget.
+  \value PE_SpinWidgetUp  up symbol for a spin widget.
+  \value PE_SpinWidgetDown down symbol for a spin widget.
+  \value PE_SpinWidgetPlus  increase symbol for a spin widget.
+  \value PE_SpinWidgetMinus  decrease symbol for a spin widget.
 
   For more explanation of a spin widget, see the QSpinBox documentation.
 
 
-  \value PO_Indicator  on/off indicator, for example: a check box.
-  \value PO_IndicatorMask  bitmap mask for an indicator.
-  \value PO_ExclusiveIndicator  exclusive on/off indicator, for example: a radio button.
-  \value PO_ExclusiveIndicatorMask  bitmap mask for an exclusive indicator.
+  \value PE_Indicator  on/off indicator, for example: a check box.
+  \value PE_IndicatorMask  bitmap mask for an indicator.
+  \value PE_ExclusiveIndicator  exclusive on/off indicator, for example: a radio button.
+  \value PE_ExclusiveIndicatorMask  bitmap mask for an exclusive indicator.
 
 
-  \value PO_DockWindowHandle  tear off handle for dock windows and toolbars.
-  \value PO_DockWindowSeparator  item separator for dock window and toolbar contents.
-  \value PO_DockWindowResizeHandle  resize handle for dock windows.
+  \value PE_DockWindowHandle  tear off handle for dock windows and toolbars.
+  \value PE_DockWindowSeparator  item separator for dock window and toolbar contents.
+  \value PE_DockWindowResizeHandle  resize handle for dock windows.
 
 
-  \value PO_Splitter  splitter handle.
+  \value PE_Splitter  splitter handle.
 
 
-  \value PO_Panel  general purpose panel frame.
-  \value PO_PanelPopup  panel frame for popup windows/menus.
-  \value PO_PanelMenuBar  panel frame for menu bars.
-  \value PO_PanelDockWindow  panel frame for dock windows and toolbars.
+  \value PE_Panel  general purpose panel frame.
+  \value PE_PanelPopup  panel frame for popup windows/menus.
+  \value PE_PanelMenuBar  panel frame for menu bars.
+  \value PE_PanelDockWindow  panel frame for dock windows and toolbars.
 
   For more information on dock windows, see the QDockWindow documentation.
 
 
-  \value PO_TabBarBase  area below tabs in a tab widget.
+  \value PE_TabBarBase  area below tabs in a tab widget.
 
 
   \value PO_HeaderSection  section of a list/table header.
@@ -341,25 +341,25 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \value PO_StatusBarSection  section of a status bar.
 
 
-  \value PO_GroupBoxFrame  frame around a group box.
+  \value PE_GroupBoxFrame  frame around a group box.
 
 
-  \value PO_Separator  general purpose separator.
+  \value PE_Separator  general purpose separator.
 
 
-  \value PO_SizeGrip  window resize handle.
+  \value PE_SizeGrip  window resize handle.
 
 
-  \value PO_CheckMark  general purpose check mark.
+  \value PE_CheckMark  general purpose check mark.
 
 
-  \value PO_ScrollBarAddLine  scrollbar line increase indicator (ie. scroll down).
-  \value PO_ScrollBarSubLine  scrollbar line decrease indicator (ie. scroll up).
-  \value PO_ScrollBarAddPage  scolllbar page increase indicator (ie. page down).
-  \value PO_ScrollBarSubPage  scrollbar page decrease indicator (ie. page up).
-  \value PO_ScrollBarSlider  scrollbar slider
-  \value PO_ScrollBarFirst  scrollbar first line indicator (ie. home).
-  \value PO_ScrollBarLast  scrollbar last line indicator (ie. end).
+  \value PE_ScrollBarAddLine  scrollbar line increase indicator (ie. scroll down).
+  \value PE_ScrollBarSubLine  scrollbar line decrease indicator (ie. scroll up).
+  \value PE_ScrollBarAddPage  scolllbar page increase indicator (ie. page down).
+  \value PE_ScrollBarSubPage  scrollbar page decrease indicator (ie. page up).
+  \value PE_ScrollBarSlider  scrollbar slider
+  \value PE_ScrollBarFirst  scrollbar first line indicator (ie. home).
+  \value PE_ScrollBarLast  scrollbar last line indicator (ie. end).
 
 
   \value PO_ProgressBarChunk  section of a progress bar indicator.
@@ -368,9 +368,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 */
 
 /*!
-  \enum QStyle::PrimitiveOperationFlags
+  \enum QStyle::PrimitiveElementFlags
 
-  This enum represents flags for drawing PrimitiveOperations.  Not all primitives
+  This enum represents flags for drawing PrimitiveElements.  Not all primitives
   use all of these flags.  Note that these flags can have different meaning for
   different primitives.  For an explanation of the relationship of various primitives
   and flags, as well as the different meanings of the flags, see the Style overview.
@@ -397,64 +397,64 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 */
 
 /*!
-  \fn void QStyle::drawPrimitive ( PrimitiveOperation op, QPainter *p, const QRect &r, const QColorGroup &cg, PFlags flags = PStyle_Default, void **data = 0 ) const;
+  \fn void QStyle::drawPrimitive ( PrimitiveElement op, QPainter *p, const QRect &r, const QColorGroup &cg, PFlags flags = PStyle_Default, void **data = 0 ) const;
 
-  Draws the style PrimitiveOperation \a op using the painter \a p in the
+  Draws the style PrimitiveElement \a op using the painter \a p in the
   area \a r.  Colors are used from the color group \a cg.
 
   The rect \a r should be in screen coordinates.
 
-  The \a flags argument is used to control how the PrimitiveOperation is drawn.
+  The \a flags argument is used to control how the PrimitiveElement is drawn.
   Multiple flags can be OR'ed together.
 
   For example, a pressed button would be drawn with the flags \e PStyle_Enabled and
   \e PStyle_Down.
 
-  The \a data argument can be used to control how various PrimitiveOperations are drawn.
-  Note that \a data can be zero even for PrimitiveOperationss that make use of extra
+  The \a data argument can be used to control how various PrimitiveElements are drawn.
+  Note that \a data can be zero even for PrimitiveElementss that make use of extra
   data. When data is non-zero, the data is used as follows:
 
   <center>
   <table cellpadding=4 cellspacing=2 border=0>
     <tr bgcolor=#A2C511>
-      <th>PrimitiveOperation</th>
+      <th>PrimitiveElement</th>
       <th>Data</th>
       <th>Data Cast</th>
       <th>Notes</th>
     </tr>
     <tr bgcolor=#d0d0d0>
-      <td valign=top><b>PO_FocusRect</td>
+      <td valign=top><b>PE_FocusRect</td>
       <td valign=top>data[0]</td>
       <td valign=top>const QColor *</td>
       <td valign=top>pointer to the background color the on which focus rect is
           being drawn.</td>
     </tr>
     <tr bgcolor=#f0f0f0>
-      <td valign=top><b>PO_Panel</b></td>
+      <td valign=top><b>PE_Panel</b></td>
       <td valign=top>data[0]</td>
       <td valign=top>int *</td>
       <td valign=top>line width for drawing the panel.</td>
     </tr>
     <tr bgcolor=#d0d0d0>
-      <td valign=top><b>PO_PanelPopup</b></td>
+      <td valign=top><b>PE_PanelPopup</b></td>
       <td valign=top>data[0]</td>
       <td valign=top>int *</td>
       <td valign=top>line width for drawing the panel.</td>
     </tr>
     <tr bgcolor=#f0f0f0>
-      <td valign=top><b>PO_PanelMenuBar</b></td>
+      <td valign=top><b>PE_PanelMenuBar</b></td>
       <td valign=top>data[0]</td>
       <td valign=top>int *</td>
       <td valign=top>line width for drawing the panel.</td>
     </tr>
     <tr bgcolor=#d0d0d0>
-      <td valign=top><b>PO_PanelDockWindow</b></td>
+      <td valign=top><b>PE_PanelDockWindow</b></td>
       <td valign=top>data[0]</td>
       <td valign=top>int *</td>
       <td valign=top>line width for drawing the panel.</td>
     </tr>
     <tr bgcolor=#f0f0f0>
-      <td valign=top><b>PO_GroupBoxFrame</b></td>
+      <td valign=top><b>PE_GroupBoxFrame</b></td>
       <td valign=top>data[0]</td>
       <td valign=top>int *</td>
       <td valign=top>frame shape for the group box.  See the documentation for QFrame
@@ -481,9 +481,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   </table>
   </center>
 
-  For all other PrimitiveOperations, \a data is unused.
+  For all other PrimitiveElements, \a data is unused.
 
-  \sa PrimitiveOperation, PrimitiveOperationFlags
+  \sa PrimitiveElement, PrimitiveElementFlags
 */
 
 /*!
@@ -1061,9 +1061,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
   \value PM_SliderThickness  total slider thickness.
   \value PM_SliderControlThickness  thickness of the slider handle.
-  \value PM_SliderLength
-  \value PM_SliderTickmarkOffset
-  \value PM_SliderSpaceAvailable  available space for slider to move.
+  \value PM_SliderLength length of the slider.
+  \value PM_SliderTickmarkOffset the offset between the tickmarks and the slider.
+  \value PM_SliderSpaceAvailable  the available space for the slider to move.
 
 
   \value PM_DockWindowSeparatorExtent  width of a separator in a horiztonal dock window
@@ -1076,11 +1076,11 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \value PM_MenuBarFrameWidth  frame width of a menubar.
 
 
-  \value PM_TabBarOverlap
-  \value PM_TabBarHorizontalFrame
-  \value PM_TabBarVerticalFrame
-  \value PM_TabBarBaseHeight
-  \value PM_TabBarBaseOverlap
+  \value PM_TabBarTabOverlap number of pixels the tabs should overlap.
+  \value PM_TabBarTabHSpace extra space added to the tab width.
+  \value PM_TabBarTabVSpace extra space added to the tab heigth.
+  \value PM_TabBarBaseHeight height of the area between the tab bar and the tab pages.
+  \value PM_TabBarBaseOverlap number of pixels the tab bar overlaps the tab bar base.
 
 
   \value PM_ProgressBarChunkWidth  width of a chunk in a progress bar indicator.
@@ -1129,15 +1129,15 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
       <td valign=top>const QSlider *</td>
     </tr>
     <tr bgcolor=#d0d0d0>
-      <td valign=top>PM_TabBarOverlap</td>
+      <td valign=top>PM_TabBarTabOverlap</td>
       <td valign=top>const QTabBar *</td>
     </tr>
     <tr bgcolor=#f0f0f0>
-      <td valign=top>PM_TabBarHorizontalFrame</td>
+      <td valign=top>PM_TabBarTabHSpace</td>
       <td valign=top>const QTabBar *</td>
     </tr>
     <tr bgcolor=#d0d0d0>
-      <td valign=top>PM_TabBarVerticalFrame</td>
+      <td valign=top>PM_TabBarTabVSpace</td>
       <td valign=top>const QTabBar *</td>
     </tr>
     <tr bgcolor=#f0f0f0>

@@ -375,32 +375,32 @@ void QAquaStyle::drawItem( QPainter *p, const QRect &r,
 /*!
   \reimp
 */
-void QAquaStyle::drawPrimitive( PrimitiveOperation op,
+void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 				   QPainter *p,
 				   const QRect &r,
 				   const QColorGroup &cg,
 				   PFlags flags,
 				   void **data ) const
 {
-    switch( op ) {
-    case PO_HeaderArrow:
+    switch( pe ) {
+    case PE_HeaderArrow:
 	if(flags & PStyle_Up)
-	    drawPrimitive(PO_ArrowUp, p, QRect(r.x(), r.y()+2, r.width(), r.height()-4), cg, 0, data);
+	    drawPrimitive(PE_ArrowUp, p, QRect(r.x(), r.y()+2, r.width(), r.height()-4), cg, 0, data);
 	else
-	    drawPrimitive(PO_ArrowDown, p, QRect(r.x(), r.y()+2, r.width(), r.height()-4), cg, 0, data);
+	    drawPrimitive(PE_ArrowDown, p, QRect(r.x(), r.y()+2, r.width(), r.height()-4), cg, 0, data);
 	break;
-    case PO_ArrowUp:
-    case PO_ArrowDown:
-    case PO_ArrowRight:
-    case PO_ArrowLeft: {
+    case PE_ArrowUp:
+    case PE_ArrowDown:
+    case PE_ArrowRight:
+    case PE_ArrowLeft: {
 	p->save();
 	p->setPen( cg.text() );
 	QPointArray a;
-	if ( op == PO_ArrowDown )
+	if ( pe == PE_ArrowDown )
 	    a.setPoints( 3, r.x(), r.y(), r.right(), r.y(), r.x() + (r.width() / 2) , r.bottom());
-	else if( op == PO_ArrowRight )
+	else if( pe == PE_ArrowRight )
 	    a.setPoints( 3, r.x(), r.y(), r.right(), r.y() + (r.height() / 2), r.x(), r.bottom()); 
-	else if( op == PO_ArrowUp ) 
+	else if( pe == PE_ArrowUp ) 
 	    a.setPoints( 3, r.x() + (r.width() / 2), r.y(), r.right(), r.bottom(), r.x(), r.bottom()); 
 	else
 	    a.setPoints( 3, r.x(), r.y() + (r.height() / 2), r.right(), r.y(), r.right(), r.bottom());
@@ -409,7 +409,7 @@ void QAquaStyle::drawPrimitive( PrimitiveOperation op,
 	p->setBrush( NoBrush );
 	p->restore();
 	break; }
-    case PO_HeaderSection: {
+    case PE_HeaderSection: {
 	QPixmap px;
 	QString nstr = QString::number(r.height()), mod;
 	if(flags & PStyle_Down )
@@ -425,14 +425,14 @@ void QAquaStyle::drawPrimitive( PrimitiveOperation op,
 	p->drawLine( r.right(), r.top(), r.right(), r.bottom() );
 	p->restore();
 	break; }
-    case PO_ProgressBarChunk: {
+    case PE_ProgressBarChunk: {
 	QPixmap px;
 	qAquaPixmap( "progress_" + QString::number(r.height()), px );
 	p->drawTiledPixmap( r, px, QPoint((r.x() % px.width()) - d->progressOff, 0) );
 	break; }
-    case PO_FocusRect:
+    case PE_FocusRect:
 	break;     // The Mac Aqua style doesn't use focus rectangles
-    case PO_DockWindowHandle: {
+    case PE_DockWindowHandle: {
 	p->save();
 	p->translate( r.x(), r.y() );
 
@@ -488,7 +488,7 @@ void QAquaStyle::drawPrimitive( PrimitiveOperation op,
 	}
 	p->restore();
 	break; }
-    case PO_DockWindowSeparator: {
+    case PE_DockWindowSeparator: {
 	QPixmap px;
 	if( flags & PStyle_Vertical )
 	    qAquaPixmap( "tbar_vsep_" + QString::number(r.width())+ "_" + QString::number(r.height()), px );
@@ -496,7 +496,7 @@ void QAquaStyle::drawPrimitive( PrimitiveOperation op,
 	    qAquaPixmap( "tbar_hsep_" + QString::number(r.width())+ "_" + QString::number(r.height()), px );
 	p->drawPixmap( r.x(), r.y(), px );
 	break; }
-    case PO_TabBarBase: {
+    case PE_TabBarBase: {
 	QPixmap px;
 	if( qAquaActive( cg ) ){
 	    if( flags & PStyle_Top )
@@ -512,7 +512,7 @@ void QAquaStyle::drawPrimitive( PrimitiveOperation op,
 
 	p->drawTiledPixmap( r.x(), r.y(), r.width(), r.height(), px );
 	break; }
-    case PO_Indicator: {
+    case PE_Indicator: {
 	QPixmap px;
 	bool down = flags & PStyle_Down;
 	bool on  = flags  & PStyle_On;
@@ -540,10 +540,10 @@ void QAquaStyle::drawPrimitive( PrimitiveOperation op,
 	}
 	p->drawPixmap( r.x(), r.y(), px );
 	break; }
-    case PO_IndicatorMask: {
+    case PE_IndicatorMask: {
 	p->fillRect(r.x(), r.y()+2, r.width(), r.height(), color1);
 	break; }
-    case PO_ExclusiveIndicator: {
+    case PE_ExclusiveIndicator: {
 	QPixmap px;
 	bool down = flags & PStyle_Down;
 	bool on  = flags  & PStyle_On;
@@ -562,7 +562,7 @@ void QAquaStyle::drawPrimitive( PrimitiveOperation op,
 	}
 	p->drawPixmap( r.x(), r.y(), px );
 	break; }
-    case PO_ExclusiveIndicatorMask: {
+    case PE_ExclusiveIndicatorMask: {
 	QBitmap radio_mask( aqua_radio_mask_xbm_width,
 			    aqua_radio_mask_xbm_height,
 			    (const uchar *) aqua_radio_mask_xbm_bits, TRUE );
@@ -570,8 +570,8 @@ void QAquaStyle::drawPrimitive( PrimitiveOperation op,
 	break; }
 
 #ifndef QT_NO_SCROLLBAR
-    case PO_ScrollBarAddLine: 
-    case PO_ScrollBarSubLine: {
+    case PE_ScrollBarAddLine: 
+    case PE_ScrollBarSubLine: {
 	QPixmap arrow;
 	p->setBackgroundMode( OpaqueMode );
 	QString mod, prefix;
@@ -579,14 +579,14 @@ void QAquaStyle::drawPrimitive( PrimitiveOperation op,
 	    mod += "psh_";
 	if( flags & PStyle_Horizontal ) {
 	    prefix = "h";
-	    if(op == PO_ScrollBarAddLine) 
+	    if(pe == PE_ScrollBarAddLine) 
 		mod += "right_";
 	    else 
 		mod += "left_";
 	    mod += QString::number(r.height());
 	} else {
 	    prefix = "v";
-	    if(op == PO_ScrollBarAddLine) 
+	    if(pe == PE_ScrollBarAddLine) 
 		mod += "down_";
 	    else 
 		mod += "up_";
@@ -596,8 +596,8 @@ void QAquaStyle::drawPrimitive( PrimitiveOperation op,
 	p->drawPixmap( r.x(), r.y(), arrow );
 	break; }
 
-    case PO_ScrollBarSubPage: 
-    case PO_ScrollBarAddPage: {
+    case PE_ScrollBarSubPage: 
+    case PE_ScrollBarAddPage: {
 	QPixmap fill;
 	p->setBackgroundMode( OpaqueMode );
 	QString prefix="v";
@@ -608,7 +608,7 @@ void QAquaStyle::drawPrimitive( PrimitiveOperation op,
 	p->drawTiledPixmap( r, fill );
 	break; }
 
-    case PO_ScrollBarSlider: {
+    case PE_ScrollBarSlider: {
 	QPixmap tip1, tip2, fill;
 	QBitmap tip1m, tip2m;
 	QRect real_rect;
@@ -787,7 +787,7 @@ void QAquaStyle::drawControl( ControlElement element,
 		    cflags |= PStyle_Enabled;
 		if (act)
 		    cflags |= PStyle_On;
-		drawPrimitive(PO_CheckMark, p, QRect(xp, y+aquaItemFrame, mw, mh), cg, cflags);
+		drawPrimitive(PE_CheckMark, p, QRect(xp, y+aquaItemFrame, mw, mh), cg, cflags);
 	    }
 	}
 
@@ -853,12 +853,12 @@ void QAquaStyle::drawControl( ControlElement element,
 	}
 	if ( mi->popup() ) {                        // draw sub menu arrow
 	    int dim = (h-2*aquaItemFrame) / 2;
-	    PrimitiveOperation arrow;
+	    PrimitiveElement arrow;
 	    if ( reverse ) {
-		arrow = PO_ArrowLeft;
+		arrow = PE_ArrowLeft;
 		xpos = x + aquaArrowHMargin + aquaItemFrame;
 	    } else {
-		arrow = PO_ArrowRight;
+		arrow = PE_ArrowRight;
 		xpos = x+w - aquaArrowHMargin - aquaItemFrame - dim;
 	    }
 	    if ( act ) {
@@ -902,7 +902,7 @@ void QAquaStyle::drawControl( ControlElement element,
 
 	// ### What about buttons that are so small that the pixmaps don't fit?
 	if( w < 33 ){
-	    drawPrimitive( PO_ButtonCommand, p, r, cg, how, data);
+	    drawPrimitive( PE_ButtonCommand, p, r, cg, how, data);
 	    return;
 	}
 
@@ -973,7 +973,7 @@ void QAquaStyle::drawControl( ControlElement element,
 		p->drawLine(xx+2, yy+2, xx+2, yy+hh-2);
 	    }
 	    QRect ar(r.right() - dx, r.y() + 2, dx - 4, r.height() - 4);
-	    drawPrimitive(PO_ArrowDown, p, ar, cg, how, data);
+	    drawPrimitive(PE_ArrowDown, p, ar, cg, how, data);
 	    w -= dx;
 	}
 
@@ -1164,42 +1164,42 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	last    = querySubControlMetrics(ctrl, widget, SC_ScrollBarLast,    data);
 
 	if ((sub & SC_ScrollBarSubPage) && subpage.isValid())
-	    drawPrimitive(PO_ScrollBarSubPage, p, subpage, cg,
+	    drawPrimitive(PE_ScrollBarSubPage, p, subpage, cg,
 			  ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
 			  ((subActive == SC_ScrollBarSubPage) ?
 			   PStyle_Down : PStyle_Default) |
 			  ((scrollbar->orientation() == Qt::Horizontal) ?
 			   PStyle_Horizontal : PStyle_Vertical));
 	if ((sub & SC_ScrollBarAddPage) && addpage.isValid())
-	    drawPrimitive(PO_ScrollBarAddPage, p, addpage, cg,
+	    drawPrimitive(PE_ScrollBarAddPage, p, addpage, cg,
 			  ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
 			  ((subActive == SC_ScrollBarAddPage) ?
 			   PStyle_Down : PStyle_Default) |
 			  ((scrollbar->orientation() == Qt::Horizontal) ?
 			   PStyle_Horizontal : PStyle_Vertical));
 	if ((sub & SC_ScrollBarFirst) && first.isValid())
-	    drawPrimitive(PO_ScrollBarFirst, p, first, cg,
+	    drawPrimitive(PE_ScrollBarFirst, p, first, cg,
 			  ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
 			  ((subActive == SC_ScrollBarFirst) ?
 			   PStyle_Down : PStyle_Default) |
 			  ((scrollbar->orientation() == Qt::Horizontal) ?
 			   PStyle_Horizontal : PStyle_Vertical));
 	if ((sub & SC_ScrollBarLast) && last.isValid())
-	    drawPrimitive(PO_ScrollBarLast, p, last, cg,
+	    drawPrimitive(PE_ScrollBarLast, p, last, cg,
 			  ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
 			  ((subActive == SC_ScrollBarLast) ?
 			   PStyle_Down : PStyle_Default) |
 			  ((scrollbar->orientation() == Qt::Horizontal) ?
 			   PStyle_Horizontal : PStyle_Vertical));
 	if ((sub & SC_ScrollBarSubLine) && subline.isValid())
-	    drawPrimitive(PO_ScrollBarSubLine, p, subline, cg,
+	    drawPrimitive(PE_ScrollBarSubLine, p, subline, cg,
 			  ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
 			  ((subActive == SC_ScrollBarSubLine) ?
 			   PStyle_Down : PStyle_Default) |
 			  ((scrollbar->orientation() == Qt::Horizontal) ?
 			   PStyle_Horizontal : PStyle_Vertical));
 	if ((sub & SC_ScrollBarAddLine) && addline.isValid())
-	    drawPrimitive(PO_ScrollBarAddLine, p, addline, cg,
+	    drawPrimitive(PE_ScrollBarAddLine, p, addline, cg,
 			  ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
 			  ((subActive == SC_ScrollBarAddLine) ?
 			   PStyle_Down : PStyle_Default) |
@@ -1220,14 +1220,14 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		    eraserect.setRight(addline.x());
 	    }
 	    if(eraserect.isValid())
-		drawPrimitive(PO_ScrollBarAddPage, p, eraserect, cg,
+		drawPrimitive(PE_ScrollBarAddPage, p, eraserect, cg,
 			      ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
 			      ((subActive == SC_ScrollBarAddPage) ?
 			       PStyle_Down : PStyle_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
 			       PStyle_Horizontal : PStyle_Vertical));
 	    //now draw
-	    drawPrimitive(PO_ScrollBarSlider, p, slider, cg,
+	    drawPrimitive(PE_ScrollBarSlider, p, slider, cg,
 			  ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
 			  ((subActive == SC_ScrollBarSlider) ?
 			   PStyle_Down : PStyle_Default) |
@@ -1238,7 +1238,7 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    if (scrollbar->hasFocus()) {
 		QRect fr(slider.x() + 2, slider.y() + 2,
 			 slider.width() - 5, slider.height() - 5);
-		drawPrimitive(PO_FocusRect, p, fr, cg, PStyle_Default);
+		drawPrimitive(PE_FocusRect, p, fr, cg, PStyle_Default);
 	    }
 	}
 	break; }
@@ -1274,7 +1274,7 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    if(y + child->height() > 0) {
 		if ( child->isExpandable() || child->childCount() ) {
 		    int linebot = child->height()/2;
-		    drawPrimitive( child->isOpen() ? PO_ArrowDown : PO_ArrowRight,
+		    drawPrimitive( child->isOpen() ? PE_ArrowDown : PE_ArrowRight,
 				   p, QRect(bx-3, y+linebot-3, bx+3,linebot+3), cg );
 		}
 	    }
@@ -1491,16 +1491,16 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 			      pixelMetric(PM_ButtonShiftVertical, widget));
 
 	    if (drawarrow) {
-		PrimitiveOperation op;
+		PrimitiveElement pe;
 		switch (arrowType) {
-		case Qt::LeftArrow:  op = PO_ArrowLeft;  break;
-		case Qt::RightArrow: op = PO_ArrowRight; break;
-		case Qt::UpArrow:    op = PO_ArrowUp;    break;
+		case Qt::LeftArrow:  pe = PE_ArrowLeft;  break;
+		case Qt::RightArrow: pe = PE_ArrowRight; break;
+		case Qt::UpArrow:    pe = PE_ArrowUp;    break;
 		default:
-		case Qt::DownArrow:  op = PO_ArrowDown;  break;
+		case Qt::DownArrow:  pe = PE_ArrowDown;  break;
 		}
 
-		drawPrimitive(op, p, button, cg, bflags, data);
+		drawPrimitive(pe, p, button, cg, bflags, data);
 	    } else {
 		QColor btext = cg.buttonText();
 
@@ -1570,7 +1570,7 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		    qAquaPixmap( "toolbtn_off_mid_" + w + "_" + h, px );
 	    }
 	    p->drawPixmap( menuarea.x(), menuarea.y(), px );
-	    drawPrimitive(PO_ArrowDown, p, QRect(menuarea.x()+2, 
+	    drawPrimitive(PE_ArrowDown, p, QRect(menuarea.x()+2, 
 						 menuarea.y()+(menuarea.height()-menuarea.width()-4),
 						 menuarea.width() - 4, menuarea.width()-2), 
 						 cg, mflags, data);
@@ -1579,7 +1579,7 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	if (toolbutton->hasFocus() && !toolbutton->focusProxy()) {
 	    QRect fr = toolbutton->rect();
 	    fr.addCoords(3, 3, -3, -3);
-	    drawPrimitive(PO_FocusRect, p, fr, cg);
+	    drawPrimitive(PE_FocusRect, p, fr, cg);
 	}
 	break; }
     default:

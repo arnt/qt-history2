@@ -3877,7 +3877,7 @@ void QListBox::paintCell( QPainter * p, int row, int col )
 
 	void *data[1];
 	data[0] = (void *) (i->selected() ? &g.highlight() : &g.base());
-	style().drawPrimitive( QStyle::PO_FocusRect, p, QRect( 0, 0, cw, ch ), g,
+	style().drawPrimitive( QStyle::PE_FocusRect, p, QRect( 0, 0, cw, ch ), g,
 			       QStyle::PStyle_FocusAtBorder, data);
     }
 
@@ -4163,7 +4163,7 @@ void QListBox::drawRubber()
 	return;
     QPainter p( viewport() );
     p.setRasterOp( NotROP );
-    style().drawPrimitive( QStyle::PO_FocusRect, &p, d->rubber->normalize(),
+    style().drawPrimitive( QStyle::PE_FocusRect, &p, d->rubber->normalize(),
 			   colorGroup() );
     p.end();
 }

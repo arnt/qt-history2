@@ -232,7 +232,7 @@ void QDockWindowResizeHandle::mouseReleaseEvent( QMouseEvent *e )
 void QDockWindowResizeHandle::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
-    style().drawPrimitive(QStyle::PO_DockWindowResizeHandle, &p, rect(), colorGroup(),
+    style().drawPrimitive(QStyle::PE_DockWindowResizeHandle, &p, rect(), colorGroup(),
 			  (orientation() == Qt::Horizontal ?
 			   QStyle::PStyle_Vertical : QStyle::PStyle_Horizontal));
 }
@@ -359,7 +359,7 @@ void QDockWindowHandle::paintEvent( QPaintEvent *e )
     else
 	flags |= QStyle::PStyle_Vertical;
 
-    style().drawPrimitive( QStyle::PO_DockWindowHandle, &p,
+    style().drawPrimitive( QStyle::PE_DockWindowHandle, &p,
 			   QStyle::visualRect( style().subRect( QStyle::SR_DockWindowHandleRect,
 								this ), this ),
 			   colorGroup(), flags );
