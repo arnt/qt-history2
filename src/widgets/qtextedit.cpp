@@ -718,7 +718,7 @@ void QTextEdit::init()
 void QTextEdit::paintDocument( bool drawAll, QPainter *p, int cx, int cy, int cw, int ch )
 {
     bool drawCur = hasFocus() || viewport()->hasFocus();
-    if (( hasSelectedText() && !style().styleHint( QStyle::SH_BlinkCursorWhenTextSelected ) ) || 
+    if (( hasSelectedText() && !style().styleHint( QStyle::SH_BlinkCursorWhenTextSelected ) ) ||
 	isReadOnly() || !cursorVisible )
 	drawCur = FALSE;
     QColorGroup g = colorGroup();
@@ -980,7 +980,7 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 	    if ( e->text().length() &&
 		( !( e->state() & ControlButton ) &&
 		  !( e->state() & AltButton ) &&
-		  !( e->state() & MetaButton ) || 
+		  !( e->state() & MetaButton ) ||
 		 ( ( e->state() & ControlButton | AltButton ) == (ControlButton|AltButton) ) ) &&
 		 ( !e->ascii() || e->ascii() >= 32 || e->text() == "\t" ) ) {
 		clearUndoRedoInfo = FALSE;
@@ -1563,8 +1563,8 @@ void QTextEdit::drawCursor( bool visible )
 	 !cursor->parag() ||
 	 !cursor->parag()->isValid() ||
 	 ( !style().styleHint( QStyle::SH_BlinkCursorWhenTextSelected ) && !selectedText().isEmpty() ) ||
-	 ( visible && !hasFocus() && !viewport()->hasFocus() && !inDnD ) || 
-	 isReadOnly() ) 
+	 ( visible && !hasFocus() && !viewport()->hasFocus() && !inDnD ) ||
+	 isReadOnly() )
 	return;
 
     QPainter p( viewport() );
@@ -1788,6 +1788,13 @@ void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * e )
 #endif
     if ( mousePressed ) {
 	mousePressed = FALSE;
+#ifndef QT_NO_CLIPBOARD
+	if (QApplication::clipboard()->supportsSelection()) {
+	    QApplication::clipboard()->setSelectionMode(TRUE);
+	    copy();
+	    QApplication::clipboard()->setSelectionMode(FALSE);
+	}
+#endif
 #ifndef QT_NO_CLIPBOARD
     } else if ( e->button() == MidButton && !isReadOnly() ) {
         // only do middle-click pasting on systems that have selections (ie. X11)
