@@ -14,6 +14,7 @@
 #include "qlcdnumber.h"
 #include "qprogressbar.h"
 #include "qgroupbox.h"
+#include "qtoolbutton.h"
 
 /*!
   \class QAccessibleWidget qaccessiblewidget.h
@@ -439,15 +440,16 @@ QString	QAccessibleButton::name( int who ) const
 {
     QString n = QAccessibleWidget::name( who );
     if ( n.isNull() ) {
-	QString text = ((QButton*)object())->text();
+	n = ((QButton*)object())->text();
     
-	for ( uint i = 0; i < text.length(); i++ ) {
-	    if ( text[(int)i] == '&' )
-		text.remove( i, 1 );
+	for ( uint i = 0; i < n.length(); i++ ) {
+	    if ( n[(int)i] == '&' )
+		n.remove( i, 1 );
 	}
-    
-	return text;
     }
+    if ( n.isNull() && object()->inherits("QToolButton") )
+	n = ((QToolButton*)object())->textLabel();
+
     return n;
 }
 
