@@ -940,13 +940,12 @@ void QMacStyle::drawControl(ControlElement element,
 	    else
 		xp += macItemFrame;
 
-		SFlags cflags = Style_Default;
-		if(!dis)
-		    cflags |= Style_Enabled;
-		if(act)
-		    cflags |= Style_On;
-		drawPrimitive(PE_CheckMark, p, QRect(xp, y+macItemFrame, mw, mh), pal, cflags);
-	    }
+	    SFlags cflags = Style_Default;
+	    if(!dis)
+		cflags |= Style_Enabled;
+	    if(act)
+		cflags |= Style_On;
+	    drawPrimitive(PE_CheckMark, p, QRect(xp, y+macItemFrame, mw, mh), pal, cflags);
 	}
 
 	if(dis)
