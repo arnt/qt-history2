@@ -10,14 +10,14 @@ the changes between Qt 3.1 beta1 and Qt 3.1 beta2.
 *			    General					   *
 ****************************************************************************
 
-The binary incompatibilities which were introduced in Qt 3.1 beta1
+The binary incompatibilities that were introduced in Qt 3.1 beta1
 have been fixed.
 
 ****************************************************************************
 *			   Library					   *
 ****************************************************************************
 
-- QAction:
+- QAction
 	Don't update when nothing has changed.
 
 - QActionGroup
@@ -49,7 +49,7 @@ have been fixed.
 	Make sure stringlist is updated even if setStringList() is
 	called while an editor exists.
 
-- QDataTable:
+- QDataTable
 	Windows only: If edit confirmation was switched on and
 	the user cancelled an update by clicking in a different field,
 	the current row was needlessly changed.
@@ -57,7 +57,7 @@ have been fixed.
 - QDateTimeEdit/QTimeEdit
 	Now supports wraparound for time editing.
 	
-- QDesktopWidget:
+- QDesktopWidget
 	Windows only: Allow explicit creation of QDesktopWidgets.
 
 - QDns
@@ -71,7 +71,7 @@ have been fixed.
 	floating windows from the mainwindow's internal lists when
 	deleting.
 
-- QEventLoop:
+- QEventLoop
 	Renamed processNextEvent(flags,bool) to processEvents(flags)
 	and introduced new ProcessEvents flag, WaitForMore. Remove
 	processOneEvent since it is redundant.
@@ -98,18 +98,18 @@ have been fixed.
 	Fixed to only require operator<, instead of a mix of
 	operator<, <=, and >.
 
-- QIconView:
+- QIconView
 	Optimize updates on focus/window activation changes.
 
 - QLibrary
 	Windows only: only append ".dll" extension if no extension has
 	been provided.
 
-- QListBox:
+- QListBox
 	Don't call ensureCurrentVisible() in resizeEvent() unless the
 	current item was visible when you started resizing.
 
-- QListView:
+- QListView
 	Don't draw the cell if the cell wouldn't be visible due to
 	having a width or height of 0. Don't call cancelRename() when
 	the rename was OK'd. When showing a tooltip make sure it's
@@ -122,9 +122,9 @@ have been fixed.
 	Close all floating dockwindows of the mainwindow in the close
 	event.
 
-- QMenuData:
+- QMenuData
 	Make removeItem(int id) work on trees like the other functions
-	which take ids as arguments.
+	that take IDs as arguments.
 
 - QObject
 	Make sender() a safer function to use:
@@ -137,15 +137,15 @@ have been fixed.
 - QPicture
 	Proper streaming for null pictures.
 
-- QPixmap:
+- QPixmap
 	X11 only: allow grabWindow() to work on a screen other than
 	the default screen.
 
-- QPopupMenu:
+- QPopupMenu
 	Draw submenu items disabled if the submenu is disabled. Fix
 	null-pointer dereferencing for dynamically changing menus.
 
-- QProcess:
+- QProcess
 	Windows only: make the tryTerminate() function work for
 	windows applications (it still does not work for
 	consoleapplications, though).
@@ -156,7 +156,7 @@ have been fixed.
 - QSplitter
 	addWidget() now reparents the widget if necessary.
 
-- QTable:
+- QTable
 	Set the table of the item to the table in insertItem(), so
 	takeItem()/insertItem() can be used to move items between
 	tables.
@@ -164,11 +164,11 @@ have been fixed.
 - QWidget
 	Clear WDestructiveClose before calling deleteLater() on
 	widgets. Event processing during destruction might otherwise
-	have another close-event come along which would issue another
+	have another close event come along, which would issue another
 	deleteLater() call. Added a new function toggleShowHide(bool show).
 	Simplified visible() handling and added a convenience property
-	"shown" and a write function for "hidden". Save Wflags in
-	showFullScreen and restore them so flags are remembered
+	"shown" and a write function for "hidden". Save WFlags in
+	showFullScreen() and restore them so flags are remembered
 	correctly.
 
 - QWindowsStyle
