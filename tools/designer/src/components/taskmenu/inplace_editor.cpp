@@ -17,6 +17,7 @@
 #include <QtGui/QResizeEvent>
 #include <QtGui/QPushButton>
 #include <QtGui/QToolButton>
+#include <QtCore/QMetaProperty>
 #include <QtCore/qdebug.h>
 
 InPlaceEditor::InPlaceEditor(QWidget *widget, AbstractFormWindow *fw)
@@ -27,9 +28,10 @@ InPlaceEditor::InPlaceEditor(QWidget *widget, AbstractFormWindow *fw)
     setParent(widget->window());
     m_widget->installEventFilter(this);
     connect(this, SIGNAL(destroyed()), fw->mainContainer(), SLOT(setFocus()));
-    QVariant variant = m_widget->property("alignment");
-    if (variant.isValid()) {
-        setAlignment(Qt::Alignment(variant.toInt()));
+
+    if (m_widget->metaObject()->indexOfProperty("alignment") != -1) {
+        Qt::Alignment alignment = static_cast<Qt::Alignment>(m_widget->property("alignment").toInt());
+        setAlignment(alignment);
     } else if (qobject_cast<QPushButton *>(widget)
             || qobject_cast<QToolButton *>(widget) /* tool needs to be more complex */) {
         setAlignment(Qt::AlignHCenter);
