@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#54 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#55 $
 **
 ** Implementation of QButton widget class
 **
@@ -16,7 +16,7 @@
 #include "qkeycode.h"
 #include "qtimer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#54 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#55 $");
 
 
 /*!
@@ -183,16 +183,8 @@ void QButton::setPixmap( const QPixmap &pixmap )
 	btext.resize( 0 );
     if ( autoresize &&	(w != bpixmap->width() || h != bpixmap->height()) )
 	adjustSize();
-    else {
-	if ( w >= 0 && w <= bpixmap->width() && h <= bpixmap->height() ) {
-	    QPainter paint;
-	    paint.begin( this );
-	    drawButtonLabel( &paint );
-	    paint.end();
-	}
-	else
-	    update();
-    }
+    else
+	update();
 }
 
 
