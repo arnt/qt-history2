@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#53 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#54 $
 **
 ** Implementation of QTabDialog class
 **
@@ -20,7 +20,7 @@
 #include "qwidgetstack.h"
 #include "qlayout.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#53 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#54 $");
 
 
 /*!
@@ -82,9 +82,9 @@ RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#53 $");
 
   While tab dialogs can be a very good way to split up a complex
   dialog, it's also very easy to make a royal mess out of a tab
-  dialog.  Here is some advice (greatly inspired by a USENET posting
-  by Jared M. Spool of <a href="http://www.uie.com">User Interface
-  Engineering</a>):
+  dialog.  Here is some advice.  For more, see e.g. the <a
+  href="http://www.uie.com/tabbed.html">UIE web page on tab
+  dialogs.</a>
 
   <ol><li> Make sure that each page forms a logical whole which is
   adequately described by the label on the tab.
@@ -117,9 +117,9 @@ RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#53 $");
 
   The tab dialog is not a navigational aid, it is an organizational
   aid.  It is a good way to organize aspects of a complex operation
-  (such as setting up caching and proxies in a WWW browser), but a bad
+  (such as setting up caching and proxies in a web browser), but a bad
   way to navigate towards a simple operation (such as emptying the
-  cache in a WWW browser - emptying the cache is \e not part of
+  cache in a web browser - emptying the cache is \e not part of
   setting up the cache, it is a separate and independent operation).
 
   <li> The changes should take effect when the user presses Apply or
@@ -137,8 +137,14 @@ RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#53 $");
   ought not to be joined in a tab dialog.
 
   </ol>
+  
+  Most of the functionality in QTabDialog is provided by a QTabBar (at
+  the top, providing the tabs) and a QWidgetStack (most of the area,
+  organizing the individual pages).
 
   <img src=qtabdlg-m.gif> <img src=qtabdlg-w.gif>
+  
+  \sa QDialog
 */
 
 /*! \fn void QTabDialog::selected( const char * tabLabel );
@@ -626,13 +632,13 @@ void QTabDialog::setUpLayout()
     const int bottomMargin = 6;
     const int betweenButtonsMargin = 7;
     const int aboveButtonsMargin = 8;
-    
+
     delete d->tll;
     d->tll = new QBoxLayout( this, QBoxLayout::Down );
-    
+
     // top margin
     d->tll->addSpacing( topMargin );
-    
+
     // tab bar
     QBoxLayout * tmp = new QBoxLayout( QBoxLayout::LeftToRight );
     d->tll->addLayout( tmp, 0 );
@@ -647,12 +653,12 @@ void QTabDialog::setUpLayout()
     tmp->addSpacing( leftMargin + 1 );
     tmp->addWidget( d->stack, 1 );
     tmp->addSpacing( rightMargin + 2 );
-    
+
     d->tll->addSpacing( aboveButtonsMargin + 2 );
     QBoxLayout * buttonRow = new QBoxLayout( QBoxLayout::RightToLeft );
     d->tll->addLayout( buttonRow, 0 );
     d->tll->addSpacing( bottomMargin );
-    
+
     buttonRow->addSpacing( rightMargin );
     if ( d->cb ) {
 	buttonRow->addWidget( d->cb, 0 );

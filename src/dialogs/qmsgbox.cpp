@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#61 $
+** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#62 $
 **
 ** Implementation of QMessageBox class
 **
@@ -16,7 +16,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#61 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#62 $");
 
 
 // Message box icons, from page 210 of the Windows style guide.
@@ -284,6 +284,9 @@ static const unsigned char critical_gif_data[] = {
   QMessageBox has no signals or slots.
 
   <img src=qmsgbox-m.gif> <img src=qmsgbox-w.gif>
+
+  \sa QDialog, <a href="http://www.iarchitect.com/errormsg.htm">Isys on
+  error messages</a>
 */
 
 
