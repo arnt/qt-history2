@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#49 $
 **
 ** Implementation of QPrinter class
 **
@@ -155,7 +155,7 @@
 
   This enum type is used by QPrinter/QPrintDialog to tell the
   application program how to print.  The possible values are <ul>
- 
+
   <li> \c QPrinter::FirstPageFirst - the lowest-numbered page should
   be printed first.
 

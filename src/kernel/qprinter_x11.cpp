@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#66 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#67 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -360,16 +360,20 @@ int QPrinter::metric( int m ) const
     switch ( m ) {
 	case QPaintDeviceMetrics::PdmWidth:
 	    val = orient == Portrait ? widths[ s ] : heights[ s ];
+	    if ( !fullPage() )
+		val -= 2*margins().width();
 	    break;
 	case QPaintDeviceMetrics::PdmHeight:
 	    val = orient == Portrait ? heights[ s ] : widths[ s ];
+	    if ( !fullPage() )
+		val -= 2*margins().height();
 	    break;
 	case QPaintDeviceMetrics::PdmWidthMM:
-	    val = orient == Portrait ? widths[ s ] : heights[ s ];
+	    val = metric( QPaintDeviceMetrics::PdmWidth );
 	    val = (val * 254 + 360) / 720; // +360 to get the right rounding
 	    break;
 	case QPaintDeviceMetrics::PdmHeightMM:
-	    val = orient == Portrait ? heights[ s ] : widths[ s ];
+	    val = metric( QPaintDeviceMetrics::PdmHeight );
 	    val = (val * 254 + 360) / 720;
 	    break;
 	case QPaintDeviceMetrics::PdmNumColors:
@@ -385,4 +389,14 @@ int QPrinter::metric( int m ) const
 #endif
     }
     return val;
+}
+
+
+/*!
+
+*/
+
+QSize QPrinter::margins() const
+{
+    return QSize( 36, 22 );
 }
