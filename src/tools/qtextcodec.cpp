@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#33 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#34 $
 **
 ** Implementation of QTextCodec class
 **
@@ -917,6 +917,8 @@ QTextCodec* QTextCodec::loadCharmapFile(QString filename)
 	QTextCodecFromIOD* r = new QTextCodecFromIOD(&f);
 	if ( !r->ok() )
 	    delete r;
+	else
+	    return r;
     }
     return 0;
 }
