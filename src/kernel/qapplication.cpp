@@ -2338,16 +2338,33 @@ void QApplication::exit( int retcode )
     eventLoop()->exit( retcode );
 }
 
+/*!
+    \obsolete
+
+    This function enters the main event loop (recursively). Do not call
+    it unless you really know what you are doing.
+*/
 int QApplication::enter_loop()
 {
     return eventLoop()->enterLoop();
 }
 
+/*!
+    \obsolete
+
+    This function exits from a recursive call to the main event loop.
+    Do not call it unless you are an expert.
+*/
 void QApplication::exit_loop()
 {
     eventLoop()->exitLoop();
 }
 
+/*!
+    \obsolete
+    
+    Returns the current loop level.
+*/
 int QApplication::loopLevel() const
 {
     return eventLoop()->loopLevel();

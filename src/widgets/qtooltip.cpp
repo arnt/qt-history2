@@ -1153,7 +1153,7 @@ bool QToolTip::isGloballyEnabled()
 }
 
 /*!
-  Sets the wakeup delay for all tooltips
+  Sets the wakeup delay for all tooltips to \a i.
 */
 void QToolTip::setWakeUpDelay ( int i )
 {

@@ -204,7 +204,7 @@
     \enum QSettings::Scope
 
     \value Global Save settings as global as possible
-    \value Local Save settings in user space
+    \value User Save settings in user space
 */
 
 #if defined(Q_OS_UNIX)
