@@ -15,6 +15,7 @@
 #define QPAINTERPATH_P_H
 
 #include <qlist.h>
+#include <qregion.h>
 #include <qpainterpath.h>
 
 class QPolygon;
