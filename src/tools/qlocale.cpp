@@ -72,11 +72,9 @@ static inline double nan()
 #   define ULLONG_MAX Q_UINT64_C(18446744073709551615)
 #endif
 
-extern "C" {
-    static char *qdtoa(double d, int mode, int ndigits, int *decpt,
-    	    	    int *sign, char **rve, char **digits_str);
-    static double qstrtod(const char *s00, char const **se, bool *ok);
-}		    
+static char *qdtoa(double d, int mode, int ndigits, int *decpt,
+    	    	int *sign, char **rve, char **digits_str);
+static double qstrtod(const char *s00, char const **se, bool *ok);
 static Q_LLONG qstrtoll(const char *nptr, const char **endptr, register int base, bool *ok);
 static Q_ULLONG qstrtoull(const char *nptr, const char **endptr, register int base, bool *ok);
 
@@ -2798,8 +2796,6 @@ static Q_LLONG qstrtoll(const char *nptr, const char **endptr, register int base
     return (acc);
 }
 
-extern "C" {
-
 /*	From: NetBSD: strtod.c,v 1.26 1998/02/03 18:44:21 perry Exp */
 /* $FreeBSD: src/lib/libc/stdlib/netbsd_strtod.c,v 1.2.2.2 2001/03/02 17:14:15 tegge Exp $	*/
 
@@ -2942,29 +2938,9 @@ __RCSID("$NetBSD: strtod.c,v 1.26 1998/02/03 18:44:21 perry Exp $");
 #error Exactly one of IEEE_BIG_OR_LITTLE_ENDIAN, VAX, or IBM should be defined.
 #endif
 
-/*
-#ifdef IEEE_LITTLE_ENDIAN
-#define word0(x) ((ULong *)&x)[1]
-#define word1(x) ((ULong *)&x)[0]
-#else
-#define word0(x) ((ULong *)&x)[0]
-#define word1(x) ((ULong *)&x)[1]
-#endif
-*/
 
-static inline ULong &word0(double &x)
-{
-    if (QSysInfo::ByteOrder == QSysInfo::BigEndian)
-    	return ((ULong *)&x)[0];
-    return ((ULong *)&x)[1];
-}
-
-static inline ULong &word1(double &x)
-{
-    if (QSysInfo::ByteOrder == QSysInfo::BigEndian)
-    	return ((ULong *)&x)[1];
-    return ((ULong *)&x)[0];
-}
+#define word0(x) ((volatile ULong *)&x)[ByteOrder == BigEndian ? 0 : 1]
+#define word1(x) ((volatile ULong *)&x)[ByteOrder == BigEndian ? 1 : 0]
 
 /* The following definition of Storeinc is appropriate for MIPS processors.
  * An alternative that might be better on some machines is
@@ -3612,7 +3588,7 @@ static double ulp(double x)
 	else {
 	    word0(a) = 0;
 	    L -= Exp_shift;
-	    word1(a) = L >= 31 ? 1 : 1 << (31 - L);
+	    word1(a) = (L >= 31 ? 1U : 1U << (31 - L));
 	}
     }
 #endif
@@ -4558,7 +4534,7 @@ static int quorem(Bigint *b, Bigint *S)
  *	   calculation.
  */
 
-static char *qdtoa (double d, int mode, int ndigits, int *decpt, int *sign, char **rve, char **resultp)
+static char *qdtoa (volatile double d, int mode, int ndigits, int *decpt, int *sign, char **rve, char **resultp)
 {
     /*
       Arguments ndigits, decpt, sign are similar to those
@@ -4606,9 +4582,10 @@ static char *qdtoa (double d, int mode, int ndigits, int *decpt, int *sign, char
 #endif
     Bigint *b, *b1, *delta, *mhi, *S;
     Bigint *mlo = NULL; /* pacify gcc */
-    double d2, ds, eps;
+    volatile double d2;
+    double ds, eps;
     char *s, *s0;
-
+    
     if (word0(d) & Sign_bit) {
 	/* set sign for everything, including 0's and NaNs */
 	*sign = 1;
@@ -5155,6 +5132,4 @@ static char *qdtoa (double d, int mode, int ndigits, int *decpt, int *sign, char
     if (rve)
 	*rve = s;
     return s0;
-}
-
 }
