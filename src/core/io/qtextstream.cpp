@@ -1394,8 +1394,12 @@ bool QTextStreamPrivate::getNumber(qulonglong *ret)
                 break;
             }
         }
-        if (sign == QLatin1Char('-'))
-            val = -val;
+        if (sign == QLatin1Char('-')) {
+            qlonglong ival = qlonglong(val);
+            if (ival > 0)
+                ival = -ival;
+            val = qulonglong(ival);
+        }
         break;
     }
     case 16: {
