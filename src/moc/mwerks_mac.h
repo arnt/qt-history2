@@ -16,11 +16,6 @@
 #include "qglobal.h"
 #ifdef Q_OS_MAC
 
-#ifdef Q_OS_MAC9
- //these don't belong here, need a way to access this outside .h files
-# define QT_NO_CODECS
-# define MOC_MWERKS_PLUGIN
-#endif
 #define macintosh
 
 /*make moc a plugin*/
@@ -32,11 +27,6 @@ enum moc_status {
     moc_no_source = 5,
     moc_general_error = 6
 };
-
-//get the qt mac9 stuff
-#ifdef Q_OS_MAC9
-# include "qt_mac9.h"
-#endif
 
 #endif
 #endif

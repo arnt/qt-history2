@@ -33,9 +33,6 @@
 #include "qcursor.h"
 #include "qstyle.h"
 
-#if defined(Q_WS_MAC9)
-#define MAC_DRAG_HACK
-#endif
 #ifdef Q_WS_MACX
 static bool default_opaque = TRUE;
 #else

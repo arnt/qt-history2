@@ -52,10 +52,6 @@ static void slashify( QString& s, bool allowMultiple = TRUE )
 	}
 	if ( s[ i ] == '\\' )
 	    s[ i ] = '/';
-#if defined (Q_WS_MAC9)
-	if ( s[ i ] == ':' && (i == (int)s.length()-1 || s[ i + 1 ] != '/' ) ) //mac colon's go away, unless after a protocol
-		s[ i ] = '/';
-#endif
 	if ( s[ i ] == '/' )
 	    justHadSlash = TRUE;
 	else

@@ -1739,12 +1739,6 @@ bool qt_is_gui_used = FALSE;
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
-#ifdef Q_OS_MAC9
-# include <Files.h>
-# include <Strings.h>
-# include <Errors.h>
-# include "Aliases.h"
-#endif
 #include "CWPluginErrors.h"
 #include <CWPlugins.h>
 #include "DropInCompilerLinker.h"

@@ -66,8 +66,6 @@
 #  include <unistd.h>
 #  include <sys/time.h>
 #  include <sys/select.h>
-#elif defined(Q_WS_MAC9)
-typedef int timeval;
 #endif
 
 #include <string.h>

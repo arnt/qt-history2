@@ -51,8 +51,6 @@ QString Option::user_template;
 QString Option::user_template_prefix;
 #if defined(Q_OS_WIN32)
 Option::TARG_MODE Option::target_mode = Option::TARG_WIN_MODE;
-#elif defined(Q_OS_MAC9)
-Option::TARG_MODE Option::target_mode = Option::TARG_MAC9_MODE;
 #elif defined(Q_OS_MACX)
 Option::TARG_MODE Option::target_mode = Option::TARG_MACX_MODE;
 #elif defined(Q_OS_QNX6)

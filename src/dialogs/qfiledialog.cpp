@@ -5595,11 +5595,7 @@ QUrl QFileDialog::url() const
 
 static bool isRoot( const QUrl &u )
 {
-#if defined(Q_OS_MAC9)
-     QString p = QDir::convertSeparators(u.path());
-     if(p.contains(':') == 1)
-	return TRUE;
-#elif defined(Q_OS_UNIX)
+#if defined(Q_OS_UNIX)
     if ( u.path() == "/" )
 	return TRUE;
 #elif defined(Q_OS_WIN32)

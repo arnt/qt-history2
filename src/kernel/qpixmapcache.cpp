@@ -69,11 +69,7 @@
 
 
 static const int cache_size = 149;		// size of internal hash array
-#ifdef Q_WS_MAC9
-static int cache_limit	  = 256;		// 256 KB cache limit
-#else
 static int cache_limit	  = 1024;		// 1024 KB cache limit
-#endif
 
 class QPMCache: public QObject, public QCache<QString, QPixmap>
 {
@@ -277,10 +273,6 @@ int QPixmapCache::cacheLimit()
 
 void QPixmapCache::setCacheLimit( int n )
 {
-#ifdef Q_WS_MAC9
-    if(n > 256)
-        qWarning("QPixmapCache::setCacheLimit: Setting cache limits high is harmfull to mac9's health");
-#endif
     cache_limit = n;
     if ( pm_cache )
 	pm_cache->setMaxCost( 1024*cache_limit );

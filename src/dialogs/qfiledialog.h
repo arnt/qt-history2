@@ -294,7 +294,7 @@ private:
 					    const QString& caption = QString::null);
     static QString resolveLinkFile( const QString& linkfile );
 #endif
-#if defined(Q_WS_MACX) || defined(Q_WS_MAC9)
+#if defined(Q_WS_MACX)
     static QString macGetSaveFileName( const QString &, const QString &,
 				       QString *, QWidget *, const char*,
 				       const QString&, QString *);

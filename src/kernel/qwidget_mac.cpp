@@ -289,10 +289,7 @@ void qt_clean_root_win() {
 static bool qt_create_root_win() {
     if(qt_root_win)
 	return false;
-#ifdef Q_WS_MAC9
-    //FIXME NEED TO FIGURE OUT HOW TO GET DESKTOP
-    //GetCWMgrPort(ret);
-#else if defined(Q_WS_MACX)
+#if defined(Q_WS_MACX)
     Rect r;
     int w = 0, h = 0;
     for(GDHandle g = GetMainDevice(); g; g = GetNextDevice(g)) {

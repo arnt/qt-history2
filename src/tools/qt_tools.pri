@@ -58,9 +58,6 @@ tools {
 			   $$TOOLS_CPP/qfileinfo_wce.cpp
 	}
 
-        offmac:SOURCES += $$TOOLS_CPP/qdir_mac.cpp \
-		  $$TOOLS_CPP/qfile_mac.cpp \
-		  $$TOOLS_CPP/qfileinfo_mac.cpp
 	else:unix:SOURCES += $$TOOLS_CPP/qdir_unix.cpp \
 		  $$TOOLS_CPP/qfile_unix.cpp \
 		  $$TOOLS_CPP/qfileinfo_unix.cpp

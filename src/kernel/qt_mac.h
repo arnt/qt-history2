@@ -33,10 +33,7 @@
 #include <qconfig.h> //We need this to get QT_MACOSX_VERSION
 #include "qglobal.h"
 
-#ifdef Q_OS_MAC9
-# define QMAC_DEFAULT_STYLE "QPlatinumStyle" //Default style
-# include "qt_mac9.h"
-#elif defined(Q_WS_MACX)
+#if defined(Q_WS_MACX)
 # define QMAC_DEFAULT_STYLE "QMacStyle" //DefaultStyle
 #endif
 

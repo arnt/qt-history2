@@ -319,37 +319,18 @@ QStringList QFileDialog::macGetOpenFileNames(const QString &filter, QString *,
     DescType    type;
     Size        size;
     FSRef ref;
-#ifdef Q_WS_MAC9
-    FSSpec      spec;
-#endif
 
     for(long index = 1; index <= count; index++) {
-#ifdef Q_WS_MAC9
-	err = AEGetNthPtr(&(ret.selection), index, typeFSS, &keyword,
-			  &type,&spec, sizeof(spec), &size);
-
-#else
 	err = AEGetNthPtr(&(ret.selection), index, typeFSRef, &keyword,
 			  &type,&ref, sizeof(ref), &size);
-#endif
 	if(err != noErr)
 	    break;
 
-#ifdef Q_WS_MAC9
-	//we must *try* to create a file, and remove it if successfull
-	//to actually get a path, bogus? I think so.
-	bool delete_file = (FSpCreate(&spec, 'CUTE', 'TEXT', smSystemScript) == noErr);
-	FSpMakeFSRef(&spec, &ref);
-#endif
 	if(!str_buffer) {
 	    qAddPostRoutine(cleanup_str_buffer);
 	    str_buffer = (UInt8 *)malloc(1024);
 	}
 	FSRefMakePath(&ref, str_buffer, 1024);
-#ifdef Q_WS_MAC9
-	if(delete_file) 
-	    FSpDelete(&spec);
-#endif
 	retstrl.append(QString::fromUtf8((const char *)str_buffer));
     }
     NavDisposeReply(&ret);
@@ -456,30 +437,14 @@ QString QFileDialog::macGetSaveFileName(const QString &start, const QString &fil
     DescType    type;
     Size        size;
     FSRef ref;
-#ifdef Q_WS_MAC9
-    FSSpec      spec;
-    err = AEGetNthPtr(&(ret.selection), 1, typeFSS, &keyword,
-		      &type, &spec, sizeof(spec), &size);
-#else
     err = AEGetNthPtr(&(ret.selection), 1, typeFSRef, &keyword,
 		      &type, &ref, sizeof(ref), &size);
-#endif    
     if(err == noErr) {
-#ifdef Q_WS_MAC9
-	//we must *try* to create a file, and remove it if successfull
-	//to actually get a path, bogus? I think so.
-	bool delete_file = (FSpCreate(&spec, 'CUTE', 'TEXT', smSystemScript) == noErr);
-	FSpMakeFSRef(&spec, &ref);
-#endif
 	if(!str_buffer) {
 	    qAddPostRoutine(cleanup_str_buffer);
 	    str_buffer = (UInt8 *)malloc(1024);
 	}
 	FSRefMakePath(&ref, str_buffer, 1024);
-#ifdef Q_WS_MAC9
-	if(delete_file) 
-	    FSpDelete(&spec);
-#endif
 	retstr = QString::fromUtf8((const char *)str_buffer);
 	//now filename
 	CFStringGetCString(ret.saveFileName, (char *)str_buffer, 1024, kCFStringEncodingUTF8);

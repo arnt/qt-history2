@@ -430,14 +430,6 @@ QString QDir::convertSeparators( const QString &pathName )
 	if ( n[i] == '/' )
 	    n[i] = '\\';
     }
-#elif defined(Q_OS_MAC9)
-	while(n.length() && n[0] == '/' ) n = n.right(n.length()-1);
-    for ( int i=0; i<(int)n.length(); i++ ) {
-	if ( n[i] == '/' )
-	    n[i] = ':';
-    }
-    if(n.contains(':') && n.left(1) != ':')
-	n.prepend(':');
 #endif
     return n;
 }

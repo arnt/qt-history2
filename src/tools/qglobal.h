@@ -24,7 +24,6 @@
 /*
    The operating system, must be one of: (Q_OS_x)
 
-     MAC9	- Mac OS 9
      DARWIN     - Darwin OS (synonym for Q_OS_MACX)
      MSDOS	- MS-DOS and Windows
      OS2	- OS/2
@@ -57,8 +56,6 @@
 
 #if defined(__APPLE__) && defined(__GNUC__)
 #  define Q_OS_DARWIN
-#elif defined(macintosh)
-#  define Q_OS_MAC9
 #elif defined(__CYGWIN__)
 #  define Q_OS_CYGWIN
 #elif defined(MSDOS) || defined(_MSDOS)
@@ -134,11 +131,11 @@
 #if defined(Q_OS_DARWIN)
 #  define Q_OS_MACX /* Q_OS_MACX is mostly for compatiblity, but also more clear */
 #endif
-#if defined(Q_OS_MAC9) || defined(Q_OS_DARWIN)
+#if defined(Q_OS_DARWIN)
 #  define Q_OS_MAC
 #endif
 
-#if defined(Q_OS_MAC9) || defined(Q_OS_MSDOS) || defined(Q_OS_OS2) || defined(Q_OS_WIN)
+#if defined(Q_OS_MSDOS) || defined(Q_OS_OS2) || defined(Q_OS_WIN)
 #  undef Q_OS_UNIX
 #elif !defined(Q_OS_UNIX)
 #  define Q_OS_UNIX
@@ -506,9 +503,7 @@
      WIN16	- unsupported
 */
 
-#if defined(Q_OS_MAC9)
-#  define Q_WS_MAC9
-#elif defined(Q_OS_MSDOS)
+#if defined(Q_OS_MSDOS)
 #  define Q_WS_WIN16
 #  error "Qt requires Win32 and does not work with Windows 3.x"
 #elif defined(_WIN32_X11_)
@@ -539,7 +534,7 @@
 #  define Q_WS_WIN
 #endif
 
-#if (defined(Q_WS_MAC9) || defined(Q_WS_MACX)) && !defined(Q_WS_QWS) && !defined(Q_WS_X11)
+#if defined(Q_WS_MACX) && !defined(Q_WS_QWS) && !defined(Q_WS_X11)
 #  define Q_WS_MAC
 #endif
 
@@ -829,15 +824,6 @@ class QDataStream;
 # define QT_NO_SQL
 #endif
 
-#if defined(Q_WS_MAC9)
-//No need for menu merging
-#  ifndef QMAC_QMENUBAR_NO_MERGE
-#    define QMAC_QMENUBAR_NO_MERGE
-#  endif
-#  ifndef QMAC_QMENUBAR_NO_EVENT
-#    define QMAC_QMENUBAR_NO_EVENT
-#  endif
-#endif
 #if defined(Q_WS_MACX)
 #  ifndef QMAC_QMENUBAR_NO_EVENT
 #    define QMAC_QMENUBAR_NO_EVENT

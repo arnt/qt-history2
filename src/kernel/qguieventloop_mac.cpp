@@ -21,11 +21,7 @@
 #  include "qmutex.h"
 #endif // QT_THREAD_SUPPORT
 
-#ifdef Q_WS_MAC9
-#  define QMAC_EVENT_NOWAIT 0.01
-#else
-#  define QMAC_EVENT_NOWAIT kEventDurationNoWait
-#endif
+#define QMAC_EVENT_NOWAIT kEventDurationNoWait
 
 #include "qguieventloop_p.h"
 #define d d_func()
