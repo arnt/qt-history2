@@ -204,11 +204,9 @@ QIconSetIcon *QIconSetData::icon(const QIconSet *iconSet, QIconSet::Size size,
   cannot provide any (the default), QIconSet generates a pixmap based
   on the pixmaps it has been given and returns it.
 
-  The \c Disabled appearance is computed using an algorithm that
-  produces results very similar to those used in Microsoft Windows
-  95. The \c Active appearance is identical to the \c Normal
-  appearance unless you use setPixmap() to set it to something
-  special.
+  The \c Disabled appearance is computed using the current style. The
+  \c Active appearance is identical to the \c Normal appearance unless
+  you use setPixmap() to set it to something special.
 
   When scaling icons, QIconSet uses \link QImage::smoothScale()
   smooth scaling\endlink, which can partially blend the color component
