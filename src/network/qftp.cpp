@@ -185,7 +185,7 @@ public:
 signals:
     void connectState( int );
     void finished( const QString& );
-    void error( const QString& );
+    void error( QFtp::Error, const QString& );
     void rawFtpReply( int, const QString& );
 
 private slots:
@@ -643,7 +643,7 @@ bool QFtpPI::sendCommands( const QStringList &cmds )
 	return FALSE;
 
     if ( commandSocket.state()!=QSocket::Connected || state!=Idle ) {
-	emit error( tr( "Not connected" ) );
+	emit error( QFtp::NotConnected, tr( "Not connected" ) );
 	return TRUE; // there are no pending commands
     }
 
@@ -703,10 +703,12 @@ void QFtpPI::error( int e )
 {
     if ( e == QSocket::ErrHostNotFound ) {
 	emit connectState( QFtp::Unconnected );
-	emit error( tr( "Host %1 not found" ).arg( commandSocket.peerName() ) );
+	emit error( QFtp::HostNotFound,
+		tr( "Host %1 not found" ).arg( commandSocket.peerName() ) );
     } else if ( e == QSocket::ErrConnectionRefused ) {
 	emit connectState( QFtp::Unconnected );
-	emit error( tr( "Connection refused to host %1" ).arg( commandSocket.peerName() ) );
+	emit error( QFtp::ConnectionRefused,
+		tr( "Connection refused to host %1" ).arg( commandSocket.peerName() ) );
     }
 }
 
@@ -868,7 +870,7 @@ bool QFtpPI::processReply()
 	    // no break!
 	case Idle:
 	    if ( dtp.hasError() ) {
-		emit error( dtp.errorMessage() );
+		emit error( QFtp::UnknownError, dtp.errorMessage() );
 		dtp.clearError();
 	    }
 	    startNextCmd();
@@ -877,7 +879,7 @@ bool QFtpPI::processReply()
 	    // ### do nothing
 	    break;
 	case Failure:
-	    emit error( replyText );
+	    emit error( QFtp::UnknownError, replyText );
 	    state = Idle;
 	    startNextCmd();
 	    break;
@@ -937,7 +939,8 @@ void QFtpPI::dtpConnectState( int s )
 	    return;
 	case QFtpDTP::CsHostNotFound:
 	case QFtpDTP::CsConnectionRefused:
-	    emit error( tr( "Connection refused for data connection" ) );
+	    emit error( QFtp::ConnectionRefused,
+		    tr( "Connection refused for data connection" ) );
 	    startNextCmd();
 	    return;
 	default:
@@ -955,13 +958,16 @@ class QFtpPrivate
 public:
     QFtpPrivate() :
 	close_waitForStateChange(FALSE),
-	state( QFtp::Unconnected )
+	state( QFtp::Unconnected ),
+	error( QFtp::NoError )
     { pending.setAutoDelete( TRUE ); }
 
     QFtpPI pi;
     QPtrList<QFtpCommand> pending;
     bool close_waitForStateChange;
     QFtp::State state;
+    QFtp::Error error;
+    QString errorString;
 };
 
 static QPtrDict<QFtpPrivate> *d_ptr = 0;
@@ -1054,13 +1060,14 @@ void QFtp::init()
     // ### new stuff -- keep it
     ///////////////////////////////////////////////////////////
     QFtpPrivate *d = ::d( this );
+    d->errorString = tr( "Unknown error" );
 
     connect( &d->pi, SIGNAL(connectState(int)),
 	    SLOT(piConnectState(int)) );
     connect( &d->pi, SIGNAL(finished( const QString& )),
 	    SLOT(piFinished( const QString& )) );
-    connect( &d->pi, SIGNAL(error(const QString&)),
-	    SLOT(piError(const QString&)) );
+    connect( &d->pi, SIGNAL(error(QFtp::Error, const QString&)),
+	    SLOT(piError(QFtp::Error, const QString&)) );
     connect( &d->pi, SIGNAL(rawFtpReply(int, const QString&)),
 	    SLOT(piFtpReply(int, const QString&)) );
 
@@ -1107,19 +1114,13 @@ void QFtp::init()
 
   \sa list()
 */
-/*!  \fn void QFtp::start( int id )
+/*!  \fn void QFtp::commandStarted( int id )
   This signal is emitted ###
 */
-/*!  \fn void QFtp::finishedSuccess( int id )
+/*!  \fn void QFtp::commandFinished( int id, bool error )
   This signal is emitted ###
 */
-/*!  \fn void QFtp::finishedError( int id, const QString &detail )
-  This signal is emitted ###
-*/
-/*!  \fn void QFtp::doneSuccess()
-  This signal is emitted ###
-*/
-/*!  \fn void QFtp::doneError( const QString &detail )
+/*!  \fn void QFtp::done( bool error )
   This signal is emitted ###
 */
 /*!  \fn void QFtp::newData( const QByteArray &data )
@@ -1146,10 +1147,10 @@ void QFtp::init()
   is done asynchronous. In order to identify this command, the function returns
   a unique identifier.
 
-  When the command is started the start() signal is emitted. When it is
-  finished, either the finishedSuccess() or finishedError() signal is emitted.
+  When the command is started the commandStarted() signal is emitted. When it is
+  finished, either the commandFinished() signal is emitted.
 
-  \sa stateChanged() start() finishedSuccess() finishedError()
+  \sa stateChanged() commandStarted() commandFinished()
 */
 int QFtp::connectToHost( const QString &host, Q_UINT16 port )
 {
@@ -1167,10 +1168,10 @@ int QFtp::connectToHost( const QString &host, Q_UINT16 port )
   is done asynchronous. In order to identify this command, the function returns
   a unique identifier.
 
-  When the command is started the start() signal is emitted. When it is
-  finished, either the finishedSuccess() or finishedError() signal is emitted.
+  When the command is started the commandStarted() signal is emitted. When it is
+  finished, either the commandFinished() signal is emitted.
 
-  \sa start() finishedSuccess() finishedError()
+  \sa commandStarted() commandFinished()
 */
 int QFtp::login( const QString &user, const QString &password )
 {
@@ -1187,10 +1188,10 @@ int QFtp::login( const QString &user, const QString &password )
   is done asynchronous. In order to identify this command, the function returns
   a unique identifier.
 
-  When the command is started the start() signal is emitted. When it is
-  finished, either the finishedSuccess() or finishedError() signal is emitted.
+  When the command is started the commandStarted() signal is emitted. When it is
+  finished, either the commandFinished() signal is emitted.
 
-  \sa stateChanged() start() finishedSuccess() finishedError()
+  \sa stateChanged() commandStarted() commandFinished()
 */
 int QFtp::close()
 {
@@ -1205,10 +1206,10 @@ int QFtp::close()
   is done asynchronous. In order to identify this command, the function returns
   a unique identifier.
 
-  When the command is started the start() signal is emitted. When it is
-  finished, either the finishedSuccess() or finishedError() signal is emitted.
+  When the command is started the commandStarted() signal is emitted. When it is
+  finished, either the commandFinished() signal is emitted.
 
-  \sa listInfo() start() finishedSuccess() finishedError()
+  \sa listInfo() commandStarted() commandFinished()
 */
 int QFtp::list( const QString &dir )
 {
@@ -1229,10 +1230,10 @@ int QFtp::list( const QString &dir )
   is done asynchronous. In order to identify this command, the function returns
   a unique identifier.
 
-  When the command is started the start() signal is emitted. When it is
-  finished, either the finishedSuccess() or finishedError() signal is emitted.
+  When the command is started the commandStarted() signal is emitted. When it is
+  finished, either the commandFinished() signal is emitted.
 
-  \sa start() finishedSuccess() finishedError()
+  \sa commandStarted() commandFinished()
 */
 int QFtp::cd( const QString &dir )
 {
@@ -1247,10 +1248,10 @@ int QFtp::cd( const QString &dir )
   is done asynchronous. In order to identify this command, the function returns
   a unique identifier.
 
-  When the command is started the start() signal is emitted. When it is
-  finished, either the finishedSuccess() or finishedError() signal is emitted.
+  When the command is started the commandStarted() signal is emitted. When it is
+  finished, either the commandFinished() signal is emitted.
 
-  \sa newData() dataTransferProgress() start() finishedSuccess() finishedError()
+  \sa newData() dataTransferProgress() commandStarted() commandFinished()
 */
 int QFtp::get( const QString &file )
 {
@@ -1265,8 +1266,7 @@ int QFtp::get( const QString &file )
 /*! \overload
   Downloads the file \a file from the server and stores it on the IO device \a
   dev. Make sure that the \a dev pointer is valid throughout the whole pending
-  operation (it is safe to emit it when the finishedSuccess() or
-  finishedError() is emitted).
+  operation (it is safe to emit it when the commandFinished() is emitted).
 
   This overload emits the same signals, except for the newData() signal which
   is never emitted.
@@ -1289,10 +1289,10 @@ int QFtp::get( const QString &file, QIODevice *dev )
   is done asynchronous. In order to identify this command, the function returns
   a unique identifier.
 
-  When the command is started the start() signal is emitted. When it is
-  finished, either the finishedSuccess() or finishedError() signal is emitted.
+  When the command is started the commandStarted() signal is emitted. When it is
+  finished, either the commandFinished() signal is emitted.
 
-  \sa dataTransferProgress() start() finishedSuccess() finishedError()
+  \sa dataTransferProgress() commandStarted() commandFinished()
 */
 int QFtp::put( const QByteArray &data, const QString &file )
 {
@@ -1311,8 +1311,7 @@ int QFtp::put( const QByteArray &data, const QString &file )
   data into memory at once.
 
   Make sure that the \a dev pointer is valid throughout the whole pending
-  operation (it is safe to emit it when the finishedSuccess() or
-  finishedError() is emitted).
+  operation (it is safe to emit it when the commandFinished() is emitted).
 */
 int QFtp::put( QIODevice *dev, const QString &file )
 {
@@ -1332,10 +1331,10 @@ int QFtp::put( QIODevice *dev, const QString &file )
   is done asynchronous. In order to identify this command, the function returns
   a unique identifier.
 
-  When the command is started the start() signal is emitted. When it is
-  finished, either the finishedSuccess() or finishedError() signal is emitted.
+  When the command is started the commandStarted() signal is emitted. When it is
+  finished, either the commandFinished() signal is emitted.
 
-  \sa start() finishedSuccess() finishedError()
+  \sa commandStarted() commandFinished()
 */
 int QFtp::remove( const QString &file )
 {
@@ -1349,10 +1348,10 @@ int QFtp::remove( const QString &file )
   is done asynchronous. In order to identify this command, the function returns
   a unique identifier.
 
-  When the command is started the start() signal is emitted. When it is
-  finished, either the finishedSuccess() or finishedError() signal is emitted.
+  When the command is started the commandStarted() signal is emitted. When it is
+  finished, either the commandFinished() signal is emitted.
 
-  \sa start() finishedSuccess() finishedError()
+  \sa commandStarted() commandFinished()
 */
 int QFtp::mkdir( const QString &dir )
 {
@@ -1366,10 +1365,10 @@ int QFtp::mkdir( const QString &dir )
   is done asynchronous. In order to identify this command, the function returns
   a unique identifier.
 
-  When the command is started the start() signal is emitted. When it is
-  finished, either the finishedSuccess() or finishedError() signal is emitted.
+  When the command is started the commandStarted() signal is emitted. When it is
+  finished, either the commandFinished() signal is emitted.
 
-  \sa start() finishedSuccess() finishedError()
+  \sa commandStarted() commandFinished()
 */
 int QFtp::rmdir( const QString &dir )
 {
@@ -1385,11 +1384,11 @@ int QFtp::rmdir( const QString &dir )
     execution is done asynchronous. In order to identify this command, the
     function returns a unique identifier.
 
-    When the command is started the start() signal is emitted. When it is
-    finished, either the finishedSuccess() or finishedError() signal is
+    When the command is started the commandStarted() signal is emitted. When it is
+    finished, either the commandFinished() signal is
     emitted.
 
-    \sa rawCommandReply() start() finishedSuccess() finishedError()
+    \sa rawCommandReply() commandStarted() commandFinished()
 */
 int QFtp::rawCommand( const QString &command )
 {
@@ -1401,23 +1400,23 @@ int QFtp::rawCommand( const QString &command )
   Aborts the current command and deletes all scheduled commands.
 
   If there is a started but not finished command (i.e. a command for which the
-  start() signal was already emitted, but no finishedSuccess() or
-  finishedError() signal is emitted yet), this function sends an \c ABORT
-  command to the server. When the server replies that the command is aborted,
-  the finishedError() is emitted for that command. Due to timing issues, it is
-  possible that the command is already finished before the abort request
-  arrives at the server. In this case, the finishedSuccess() signal is emitted.
+  commandStarted() signal was already emitted, but no commandFinished()
+  signal is emitted yet), this function sends an \c ABORT command to the
+  server. When the server replies that the command is aborted, the
+  commandFinished() signal with \c FALSE is emitted for that command. Due to
+  timing issues, it is possible that the command is already finished before the
+  abort request arrives at the server. In this case, the commandFinished()
+  signal is emitted.
 
   For all other commands that are affected by the abort(), no signals are
   emitted.
 
   If you don't start further FTP commands directly after the abort(), there
-  won't be any scheduled commands and the doneError() resp. doneSuccess()
-  signal is emitted.
+  won't be any scheduled commands and the done() signal is emitted.
 
   \warning We experienced that some FTP servers, namely the BSD FTP daemon
   (version 0.3), wrongly return a positive reply in the case that the abort was
-  successful and as a result the finishedSuccess() signal is emitted, although
+  successful and as a result the commandFinished() signal is emitted, although
   the command was aborted.
 */
 void QFtp::abort()
@@ -1474,13 +1473,42 @@ QFtp::State QFtp::state() const
     return d->state;
 }
 
+/*!
+    Returns the last error that occured. This is useful to find out details
+    about the failure when receiving a commandFinished() or a done() signal
+    with the \c error argument \c FALSE.
+
+    If you start a new command, the error status is reset to \c NoError.
+*/
+QFtp::Error QFtp::error() const
+{
+    QFtpPrivate *d = ::d( this );
+    return d->error;
+}
+
+/*!
+    Returns a human readable description of the last error that occured. This
+    is useful to present a error message to the user when receiving a
+    commandFinished() or a done() signal with the \c error argument \c FALSE.
+
+    The error string is often (but not always) the reply from the server. In
+    such a case, it is not possible to translate the string. If the message
+    comes from Qt, the strings are already sent through tr().
+*/
+QString QFtp::errorString() const
+{
+    QFtpPrivate *d = ::d( this );
+    return d->errorString;
+}
+
+
 int QFtp::addCommand( QFtpCommand *cmd )
 {
     QFtpPrivate *d = ::d( this );
     d->pending.append( cmd );
 
     if ( d->pending.count() == 1 )
-	// don't emit the start() signal before the id is returned
+	// don't emit the commandStarted() signal before the id is returned
 	QTimer::singleShot( 0, this, SLOT(startNextCommand()) );
 
     return cmd->id;
@@ -1494,7 +1522,10 @@ void QFtp::startNextCommand()
     if ( c == 0 )
 	return;
 
-    emit start( c->id );
+    d->error = NoError;
+    d->errorString = tr( "Unknown error" );
+
+    emit commandStarted( c->id );
 
     if ( c->command == ConnectToHost ) {
 	d->pi.connectToHost( c->rawCmds[0], c->rawCmds[1].toUInt() );
@@ -1534,23 +1565,23 @@ void QFtp::piFinished( const QString& )
     if ( c->command == Close ) {
 	// The order of in which the slots are called is arbitrary, so
 	// disconnect the SIGNAL-SIGNAL temporary to make sure that we
-	// don't get the finishedSuccess() signal before the stateChanged()
+	// don't get the commandFinished() signal before the stateChanged()
 	// signal.
 	if ( d->state != QFtp::Unconnected ) {
 	    d->close_waitForStateChange = TRUE;
 	    return;
 	}
     }
-    emit finishedSuccess( c->id );
+    emit commandFinished( c->id, FALSE );
 
     d->pending.removeFirst();
     if ( d->pending.isEmpty() )
-	emit doneSuccess();
+	emit done( FALSE );
     else
 	startNextCommand();
 }
 
-void QFtp::piError( const QString &text )
+void QFtp::piError( QFtp::Error errorCode, const QString &text )
 {
     QFtpPrivate *d = ::d( this );
     QFtpCommand *c = d->pending.getFirst();
@@ -1563,45 +1594,45 @@ void QFtp::piError( const QString &text )
 	return;
     }
 
-    QString msg;
+    d->error = errorCode;
     switch ( currentCommand() ) {
 	case ConnectToHost:
-	    msg = tr( "Connecting to host failed:\n%1" ).arg( text );
+	    d->errorString = tr( "Connecting to host failed:\n%1" ).arg( text );
 	    break;
 	case Login:
-	    msg = tr( "Login failed:\n%1" ).arg( text );
+	    d->errorString = tr( "Login failed:\n%1" ).arg( text );
 	    break;
 	case List:
-	    msg = tr( "Listing directory failed:\n%1" ).arg( text );
+	    d->errorString = tr( "Listing directory failed:\n%1" ).arg( text );
 	    break;
 	case Cd:
-	    msg = tr( "Changing directory failed:\n%1" ).arg( text );
+	    d->errorString = tr( "Changing directory failed:\n%1" ).arg( text );
 	    break;
 	case Get:
-	    msg = tr( "Downloading file failed:\n%1" ).arg( text );
+	    d->errorString = tr( "Downloading file failed:\n%1" ).arg( text );
 	    break;
 	case Put:
-	    msg = tr( "Uploading file failed:\n%1" ).arg( text );
+	    d->errorString = tr( "Uploading file failed:\n%1" ).arg( text );
 	    break;
 	case Remove:
-	    msg = tr( "Removing file failed:\n%1" ).arg( text );
+	    d->errorString = tr( "Removing file failed:\n%1" ).arg( text );
 	    break;
 	case Mkdir:
-	    msg = tr( "Creating directory failed:\n%1" ).arg( text );
+	    d->errorString = tr( "Creating directory failed:\n%1" ).arg( text );
 	    break;
 	case Rmdir:
-	    msg = tr( "Removing directory failed:\n%1" ).arg( text );
+	    d->errorString = tr( "Removing directory failed:\n%1" ).arg( text );
 	    break;
 	default:
-	    msg = text;
+	    d->errorString = text;
 	    break;
     }
 
     d->pi.clearPendingCommands();
-    emit finishedError( c->id, msg );
+    emit commandFinished( c->id, TRUE );
 
     d->pending.clear();
-    emit doneError( msg );
+    emit done( TRUE );
 
 }
 

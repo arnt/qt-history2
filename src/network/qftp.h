@@ -76,6 +76,13 @@ public:
 	LoggedIn,
 	Closing
     };
+    enum Error {
+	NoError,
+	UnknownError,
+	NotConnected,
+	HostNotFound,
+	ConnectionRefused
+    };
     enum Command {
 	None,
 	ConnectToHost,
@@ -111,6 +118,9 @@ public:
     Command currentCommand() const;
     State state() const;
 
+    Error error() const;
+    QString errorString() const;
+
 public slots:
     void abort();
 
@@ -121,11 +131,9 @@ signals:
     void dataTransferProgress( int, int );
     void rawCommandReply( int, const QString& );
 
-    void start( int );
-    void finishedSuccess( int );
-    void finishedError( int, const QString& );
-    void doneSuccess();
-    void doneError( const QString& );
+    void commandStarted( int );
+    void commandFinished( int, bool );
+    void done( bool );
 
 protected:
     void parseDir( const QString &buffer, QUrlInfo &info ); // ### delete in Qt 4.0?
@@ -160,7 +168,7 @@ private:
 private slots:
     void startNextCommand();
     void piFinished( const QString& );
-    void piError( const QString& );
+    void piError( QFtp::Error, const QString& );
     void piConnectState( int );
     void piFtpReply( int, const QString& );
 

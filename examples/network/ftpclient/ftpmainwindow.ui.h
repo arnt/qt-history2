@@ -36,10 +36,10 @@ void FtpMainWindow::init()
     statusBar()->addWidget( stateFtp, 0, TRUE );
 
     ftp = new QFtp( this );
-    connect( ftp, SIGNAL(start(int)),
-	    SLOT(ftp_start()) );
-    connect( ftp, SIGNAL(doneError(const QString&)),
-	    SLOT(ftp_doneError(const QString&)) );
+    connect( ftp, SIGNAL(commandStarted(int)),
+	    SLOT(ftp_commandStarted()) );
+    connect( ftp, SIGNAL(done(bool)),
+	    SLOT(ftp_done(bool)) );
     connect( ftp, SIGNAL(stateChanged(int)),
 	    SLOT(ftp_stateChanged(int)) );
     connect( ftp, SIGNAL(listInfo(const QUrlInfo &)),
@@ -112,9 +112,7 @@ void FtpMainWindow::downloadFile()
     connect( ftp, SIGNAL(dataTransferProgress(int,int)),
 	    &progress, SLOT(setProgress(int,int)) );
 
-    connect( ftp, SIGNAL(finishedSuccess(int)),
-	    &progress, SLOT(reset()) );
-    connect( ftp, SIGNAL(finishedError(int,const QString&)),
+    connect( ftp, SIGNAL(commandFinished(int,bool)),
 	    &progress, SLOT(reset()) );
 
     connect( &progress, SIGNAL(cancelled()),
@@ -180,7 +178,7 @@ void FtpMainWindow::changePathOrDownload( QListViewItem *item )
 **
 *****************************************************************************/
 
-void FtpMainWindow::ftp_start()
+void FtpMainWindow::ftp_commandStarted()
 {
     if ( ftp->currentCommand() == QFtp::List ) {
 	remoteView->clear();
@@ -189,15 +187,17 @@ void FtpMainWindow::ftp_start()
     }
 }
 
-void FtpMainWindow::ftp_doneError( const QString &msg )
+void FtpMainWindow::ftp_done( bool error )
 {
-    QMessageBox::critical( this, tr("FTP Error"), msg );
+    if ( error ) {
+	QMessageBox::critical( this, tr("FTP Error"), ftp->errorString() );
 
-    // If we are connected, but not logged in, it is not meaningful to stay
-    // connected to the server since the error is a really fatal one (login
-    // failed).
-    if ( ftp->state() == QFtp::Connected )
-	ftp->close();
+	// If we are connected, but not logged in, it is not meaningful to stay
+	// connected to the server since the error is a really fatal one (login
+	// failed).
+	if ( ftp->state() == QFtp::Connected )
+	    ftp->close();
+    }
 }
 
 void FtpMainWindow::ftp_stateChanged( int state )
