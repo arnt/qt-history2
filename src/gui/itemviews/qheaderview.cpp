@@ -291,7 +291,7 @@ QSize QHeaderView::sizeHint() const
     if (d->sections.isEmpty())
         return QSize();
     QSize hint = sectionSizeFromContents(logicalIndex(count() - 1));
-    // FIXME: we should check all sections
+    // FIXME: we should check all sections (slow)
     return QSize(hint.width(), hint.height());
 }
 
@@ -357,7 +357,9 @@ int QHeaderView::logicalIndexAt(int position) const
 
 int QHeaderView::sectionSize(int logicalIndex) const
 {
-    if (logicalIndex < 0 || logicalIndex >= d->sections.count() - 1 || isSectionHidden(logicalIndex))
+    if (logicalIndex < 0
+        || logicalIndex >= d->sections.count() - 1
+        || isSectionHidden(logicalIndex))
         return 0;
     int visual = visualIndex(logicalIndex);
     return d->sections.at(visual + 1).position - d->sections.at(visual).position;
@@ -555,7 +557,8 @@ void QHeaderView::setSectionHidden(int logicalIndex, bool hide)
         d->sections[visualIndex(logicalIndex)].hidden = true;
     } else {
         d->sections[visualIndex(logicalIndex)].hidden = false;
-        resizeSection(logicalIndex, orientation() == Qt::Horizontal ? default_width : default_height);
+        resizeSection(logicalIndex, orientation() == Qt::Horizontal
+                      ? default_width : default_height);
         // FIXME: when you show a section, you should get the old section size bach
     }
 }
@@ -843,7 +846,8 @@ void QHeaderView::resizeSections()
     ResizeMode mode;
     int secSize = 0;
     int stretchSecs = 0;
-    int stretchSize = orientation() == Qt::Horizontal ? d->viewport->width() : d->viewport->height();
+    int stretchSize = orientation() == Qt::Horizontal
+                      ? d->viewport->width() : d->viewport->height();
     QList<int> section_sizes;
     int count = qMax(d->sections.count() - 1, 0);
     QHeaderViewPrivate::HeaderSection *secs = d->sections.data();
@@ -1136,7 +1140,7 @@ void QHeaderView::mousePressEvent(QMouseEvent *e)
         d->updateSectionIndicator(d->section, pos);
     } else {
         int handle = d->sectionHandleAt(pos);
-        while (handle > -1 && isSectionHidden(handle)) handle--;
+        while (handle > -1 && isSectionHidden(handle)) --handle;
         if (handle == -1) {
             d->pressed = logicalIndexAt(pos);
             updateSection(d->pressed);
@@ -1256,16 +1260,16 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
     } else {
         if (logicalIndex == d->pressed)
             opt.state |= QStyle::Style_Down;
-//             opt.state |= QStyle::Style_Sunken;
     }
 
+    int textAlignment = d->model->headerData(logicalIndex, orientation(),
+                                             QAbstractItemModel::TextAlignmentRole).toInt();
+    opt.textAlignment = Qt::Alignment(textAlignment);
+    opt.iconAlignment = Qt::AlignVCenter;
     opt.text = d->model->headerData(logicalIndex, orientation(),
                                     QAbstractItemModel::DisplayRole).toString();
     opt.icon = d->model->headerData(logicalIndex, orientation(),
                                     QAbstractItemModel::DecorationRole).toIcon();
-    opt.textAlignment = Qt::Alignment(d->model->headerData(logicalIndex, orientation(),
-                                                           QAbstractItemModel::TextAlignmentRole).toInt());
-    opt.iconAlignment = Qt::AlignVCenter;
 
     style()->drawPrimitive(QStyle::PE_PanelHeader, &opt, painter, this);
     opt.rect = style()->subRect(QStyle::SR_HeaderLabel, &opt, this);
