@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#251 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#252 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -59,7 +59,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#251 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#252 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -343,12 +343,12 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 
   // Support protocols
 
-    q_wm_protocols = XInternAtom( appDpy, "WM_PROTOCOLS", FALSE );
-    q_wm_delete_window = XInternAtom( appDpy, "WM_DELETE_WINDOW", FALSE );
+    qt_wm_protocols = XInternAtom( appDpy, "WM_PROTOCOLS", FALSE );
+    qt_wm_delete_window = XInternAtom( appDpy, "WM_DELETE_WINDOW", FALSE );
 
   // Internal protocols
 
-    q_qt_scrolldone = XInternAtom( appDpy, "QT_SCROLL_DONE", TRUE );
+    qt_qt_scrolldone = XInternAtom( appDpy, "QT_SCROLL_DONE", TRUE );
 
   // Misc. initialization
 
@@ -1635,11 +1635,11 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	case ClientMessage:			// client message
 	    if ( event->xclient.format == 32 )
 	    {
-		if ( event->xclient.message_type == q_wm_protocols ) {
+		if ( event->xclient.message_type == qt_wm_protocols ) {
 		    long *l = event->xclient.data.l;
-		    if ( *l == (long)q_wm_delete_window )
+		    if ( *l == (long)qt_wm_delete_window )
 			widget->translateCloseEvent(event);
-		} else if ( event->xclient.message_type == q_qt_scrolldone ) {
+		} else if ( event->xclient.message_type == qt_qt_scrolldone ) {
 		    widget->translateScrollDoneEvent(event);
 		}
 	    }
@@ -2655,7 +2655,7 @@ static Bool isPaintOrScrollDoneEvent( Display *, XEvent *ev, XPointer a )
     PaintEventInfo *info = (PaintEventInfo *)a;
     if ( ev->type == Expose || ev->type == GraphicsExpose
       ||    ev->type == ClientMessage
-	 && ev->xclient.message_type == q_qt_scrolldone )
+	 && ev->xclient.message_type == qt_qt_scrolldone )
     {
 	if ( ev->xexpose.window == info->window )
 	    return TRUE;
@@ -2704,7 +2704,7 @@ void qt_insert_sip( QWidget* scrolled_widget, int dx, int dy )
     client_message.type = ClientMessage;
     client_message.window = scrolled_widget->winId();
     client_message.format = 32;
-    client_message.message_type = q_qt_scrolldone;
+    client_message.message_type = qt_qt_scrolldone;
     client_message.data.l[0] = sip->id;
 
     XSendEvent( appDpy, scrolled_widget->winId(), FALSE, NoEventMask,
