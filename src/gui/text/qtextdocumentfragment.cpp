@@ -84,7 +84,7 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
 
     int pos = startPos;
     QTextBlockIterator currentBlock = pieceTable->blocksFind(pos);
-    int charsLeftInCurrentBlock = qMin(currentBlock.length() - 1, endPos - pos);
+    int charsLeftInCurrentBlock = qMin(currentBlock.length() - 1 - (pos - currentBlock.position()), endPos - pos);
 
     QTextPieceTable::FragmentIterator fragIt = pieceTable->find(pos);
 
