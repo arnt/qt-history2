@@ -960,7 +960,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
     qt_mac_event_release(this);
     qt_mac_unicode_cleanup(this);
     if(isDesktop() && destroyWindow)
-        qt_root_win_widgets.remove(this);
+        qt_root_win_widgets.removeAll(this);
     if(testWState(WState_Created)) {
         clearWState(WState_Created);
         QObjectList chldrn = children();
@@ -1542,10 +1542,9 @@ void QWidget::raise()
         GetCurrentProcess(&psn);
         SetFrontProcessWithOptions(&psn, kSetFrontProcessFrontWindowOnly);
     } else if(QWidget *p = parentWidget()) {
-        if(p->d->children.indexOf(this) >= 0) {
-            p->d->children.remove(this);
-            p->d->children.append(this);
-        }
+        int from = p->d->children.indexOf(this);
+        if (from >= 0)
+            p->d->children.move(from, p->d->children.size() - 1);
         HIViewSetZOrder((HIViewRef)winId(), kHIViewZOrderAbove, 0);
     }
 }
@@ -1558,10 +1557,9 @@ void QWidget::lower()
     if(isTopLevel()) {
         SendBehind(qt_mac_window_for((HIViewRef)winId()), 0);
     } else if(QWidget *p = parentWidget()) {
-        if(p->d->children.indexOf(this) >= 0) {
-            p->d->children.remove(this);
-            p->d->children.insert(0, this);
-        }
+        int from = p->d->children.indexOf(this);
+        if (from >= 0)
+            p->d->children.move(from, 0);
         HIViewSetZOrder((HIViewRef)winId(), kHIViewZOrderBelow, 0);
     }
 }
@@ -1575,10 +1573,9 @@ void QWidget::stackUnder(QWidget *w)
     if(!p || p != w->parentWidget())
         return;
     int loc = p->d->children.indexOf(w);
-    if(loc >= 0 && p->d->children.indexOf(this) >= 0) {
-        p->d->children.remove(this);
-        p->d->children.insert(loc, this);
-    }
+    int from = p->d->children.indexOf(this);
+    if (loc >= 0 && from >= 0)
+        p->d->children.move(from, loc);
     HIViewSetZOrder((HIViewRef)winId(), kHIViewZOrderBelow, (HIViewRef)w->winId());
 }
 

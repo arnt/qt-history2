@@ -108,7 +108,7 @@ QMacMime::QMacMime(char t) : type(t)
 QMacMime::~QMacMime()
 {
     if(!QApplication::closingDown())
-        mimes.remove(this);
+        mimes.removeAll(this);
 }
 
 ScrapFlavorType qt_mac_mime_type = 'CUTE';

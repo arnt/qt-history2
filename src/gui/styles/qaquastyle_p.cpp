@@ -237,7 +237,7 @@ void QAquaAnimate::stopAnimate(QAquaAnimate::Animates as, QWidget *w)
         if(tmp->isVisible())
             tmp->update();
     } else if(as == AquaProgressBar) {
-        d->progressBars.remove(static_cast<QProgressBar *>(w));
+        d->progressBars.removeAll(static_cast<QProgressBar *>(w));
     }
 }
 
@@ -256,7 +256,7 @@ void QAquaAnimate::startAnimate(QAquaAnimate::Animates as, QWidget *w)
 void QAquaAnimate::stopAnimate(QAquaAnimate::Animates as, const QListViewItem *l)
 {
     if(as == AquaListViewItemOpen)
-        d->lvis.remove(l);
+        d->lvis.removeAll(l);
 }
 
 void QAquaAnimate::timerEvent(QTimerEvent *)
@@ -324,7 +324,7 @@ bool QAquaAnimate::eventFilter(QObject * o, QEvent * e)
                 startAnimate(AquaProgressBar, pb);
             break;
         case QEvent::Hide:
-            d->progressBars.remove(pb);
+            d->progressBars.removeAll(pb);
         }
     } else if(QPushButton *btn = ::qt_cast<QPushButton *>(o)) {
         switch (e->type()) {

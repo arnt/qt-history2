@@ -329,7 +329,7 @@ void QSettingsPrivate::sysRemoveSearchPath(QSettings::System s, const QString &p
     QString realpath = path;
     while(realpath.right(1) == "/")
         realpath.truncate(realpath.length() -1);
-    sysd->searchPaths.remove(realpath);
+    sysd->searchPaths.removeAll(realpath);
 }
 
 bool QSettingsPrivate::sysReadBoolEntry(const QString &key, bool def, bool *ok) const

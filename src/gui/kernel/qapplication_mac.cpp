@@ -1426,7 +1426,7 @@ void qt_enter_modal(QWidget *widget)
 
 void qt_leave_modal(QWidget *widget)
 {
-    if(qt_modal_stack && qt_modal_stack->remove(widget)) {
+    if(qt_modal_stack && qt_modal_stack->removeAll(widget)) {
 #ifdef DEBUG_MODAL_EVENTS
         qDebug("Leaving modal state with %s::%s::%p (%d)", widget->className(), widget->objectName(),
                widget, qt_modal_stack->count());
@@ -2541,7 +2541,7 @@ void QApplication::closePopup(QWidget *popup)
     if(!popupWidgets)
         return;
 
-    popupWidgets->remove(popup);
+    popupWidgets->removeAll(popup);
     if(popup == popupOfPopupButtonFocus) {
         popupButtonFocus = 0;
         popupOfPopupButtonFocus = 0;

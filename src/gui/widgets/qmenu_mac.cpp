@@ -77,7 +77,7 @@ static short qt_mac_menu_find_action(MenuRef menu, MenuCommand cmd)
     MenuItemIndex ret_idx;
     MenuRef ret_menu;
     if(GetIndMenuItemWithCommandID(menu, cmd, 1, &ret_menu, &ret_idx) == noErr) {
-        if(ret_menu == menu)
+        if (ret_menu == menu)
             return (short)ret_idx;
     }
     return -1;
@@ -562,7 +562,7 @@ QMenuPrivate::QMacMenuPrivate::removeAction(QMacMenuAction *action)
         qt_mac_command_set_enabled(action->menu, action->command, false);
     else
         DeleteMenuItem(action->menu, qt_mac_menu_find_action(action->menu, action));
-    actionItems.remove(action);
+    actionItems.removeAll(action);
 }
 
 MenuRef
@@ -695,7 +695,7 @@ Q4MenuBarPrivate::QMacMenuBarPrivate::removeAction(QMacMenuAction *action)
     if(!action || !menu)
         return;
     DeleteMenuItem(action->menu, qt_mac_menu_find_action(action->menu, action));
-    actionItems.remove(action);
+    actionItems.removeAll(action);
 }
 
 void

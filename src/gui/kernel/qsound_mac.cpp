@@ -88,7 +88,7 @@ public:
         qsound_server(ss), qsound(s) { init(s->loopsRemaining(), m); }
     QAuServerMacCleanupHandler(int l, Movie m) : qsound_server(0), qsound(0) { init(l, m); }
     ~QAuServerMacCleanupHandler() {
-        cleanups.remove(this);
+        cleanups.removeAll(this);
 #if 0
         if(callback) {
             CancelCallBack(callback);
