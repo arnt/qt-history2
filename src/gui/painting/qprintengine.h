@@ -17,7 +17,7 @@
 #include <QtCore/qvariant.h>
 #include <QtGui/qprinter.h>
 
-class QPrintEngine
+class Q_GUI_EXPORT QPrintEngine
 {
 public:
     enum PrintEnginePropertyKey {
@@ -56,8 +56,8 @@ public:
     virtual QPrinter::PrinterState printerState() const = 0;
 
 #ifdef Q_WS_WIN
-    virtual HDC getDC() const { return 0; }
-    virtual void releaseDC(HDC) { }
+    virtual HDC getPrinterDC() const { return 0; }
+    virtual void releasePrinterDC(HDC) const { }
 #endif
 
 };

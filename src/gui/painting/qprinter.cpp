@@ -1083,7 +1083,7 @@ QPrinter::PrinterState QPrinter::printerState() const
 */
 HDC QPrinter::getDC() const
 {
-    return d->printEngine->getDC();
+    return d->printEngine->getPrinterDC();
 }
 
 /*!
@@ -1091,7 +1091,7 @@ HDC QPrinter::getDC() const
 */
 void QPrinter::releaseDC(HDC hdc) const
 {
-    d->printEngine->releaseDC(hdc);
+    d->printEngine->releasePrinterDC(hdc);
 }
 #endif
 

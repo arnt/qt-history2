@@ -58,6 +58,9 @@ public:
     HDC getDC() const;
     void releaseDC(HDC) const;
 
+    HDC getPrinterDC() const { return getDC(); }
+    void releasePrinterDC(HDC dc) const { releaseDC(dc); }
+
 private:
     friend class QPrintDialog;
     friend class QPageSetupDialog;
