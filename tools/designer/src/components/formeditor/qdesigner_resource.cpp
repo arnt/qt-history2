@@ -187,10 +187,12 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
             int index = sheet->indexOf(propertyName);
             if (index != -1) {
                 QVariant v;
-                if (p->kind() == DomProperty::IconSet) {
+                if (p->kind() == DomProperty::IconSet || p->kind() == DomProperty::Pixmap) {
                     QString name;
                     if (p->elementIconSet() != 0)
                         name = p->elementIconSet()->attributeResource();
+                    else if (p->elementPixmap() != 0)
+                        name = p->elementPixmap()->attributeResource();
                     qDebug() << "QDesignerResource::applyProperties(): name=" << name;
                     v = m_core->pixmapCache()->nameToPixmap(name);
                 } else {
@@ -818,7 +820,7 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
 #endif
         qWarning("createProperty for flags not implemented yet!");
         return 0;
-    } else if (value.type() == QVariant::Pixmap) {
+    } else if (value.type() == QVariant::Pixmap || value.type() == QVariant::Icon) {
         DomResourcePixmap *r = new DomResourcePixmap;
         r->setAttributeResource(m_core->pixmapCache()->pixmapToName(value.toPixmap()));
         DomProperty *p = new DomProperty;

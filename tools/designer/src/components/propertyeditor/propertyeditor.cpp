@@ -26,6 +26,7 @@
 #include <QHBoxWidget>
 #include <QLineEdit>
 #include <QToolButton>
+#include <QFileDialog>
 
 using namespace QPropertyEditor;
 
@@ -71,6 +72,7 @@ signals:
 
 public slots:
     void setPath(const QString &path);
+    void showDialog();
 
 private:
     QToolButton *m_button;
@@ -91,6 +93,15 @@ PixmapPropertyEditor::PixmapPropertyEditor(AbstractFormEditor *core, const QPixm
     setPixmap(pm);
     
     connect(m_edit, SIGNAL(textChanged(const QString&)), this, SLOT(setPath(const QString&)));
+    connect(m_button, SIGNAL(clicked()), this, SLOT(showDialog()));
+}
+
+void PixmapPropertyEditor::showDialog()
+{
+    QString name = QFileDialog::getOpenFileName(0, tr("Designer"), QString(),
+                                                QLatin1String("Images (*.png *.gif *.xpm *.jpg);;All files (*)"));
+    if (!name.isEmpty())
+        setPath(name);
 }
 
 void PixmapPropertyEditor::setPath(const QString &path)
