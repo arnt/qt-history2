@@ -113,7 +113,7 @@ qbutton.o: /home/popcorn/home/hanord/qt/include/qarray.h
 qbutton.o: /home/popcorn/home/hanord/qt/include/qgarray.h
 qbutton.o: /home/popcorn/home/hanord/qt/include/qshared.h
 qbutton.o: /usr/include/string.h /usr/include/features.h
-qbutton.o: /usr/include/sys/cdefs.h /usr/local/lib/gcc-include/stddef.h
+qbutton.o: /usr/include/sys/cdefs.h
 qbutton.o: /home/popcorn/home/hanord/qt/include/qcolor.h
 qbutton.o: /home/popcorn/home/hanord/qt/include/qfont.h
 qbutton.o: /home/popcorn/home/hanord/qt/include/qcursor.h
@@ -133,7 +133,7 @@ qchkbox.o: /home/popcorn/home/hanord/qt/include/qarray.h
 qchkbox.o: /home/popcorn/home/hanord/qt/include/qgarray.h
 qchkbox.o: /home/popcorn/home/hanord/qt/include/qshared.h
 qchkbox.o: /usr/include/string.h /usr/include/features.h
-qchkbox.o: /usr/include/sys/cdefs.h /usr/local/lib/gcc-include/stddef.h
+qchkbox.o: /usr/include/sys/cdefs.h
 qchkbox.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 qchkbox.o: /home/popcorn/home/hanord/qt/include/qrect.h
 qchkbox.o: /home/popcorn/home/hanord/qt/include/qsize.h
@@ -160,7 +160,7 @@ qclock.o: /home/popcorn/home/hanord/qt/include/qarray.h
 qclock.o: /home/popcorn/home/hanord/qt/include/qgarray.h
 qclock.o: /home/popcorn/home/hanord/qt/include/qshared.h
 qclock.o: /usr/include/string.h /usr/include/features.h
-qclock.o: /usr/include/sys/cdefs.h /usr/local/lib/gcc-include/stddef.h
+qclock.o: /usr/include/sys/cdefs.h
 qclock.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 qclock.o: /home/popcorn/home/hanord/qt/include/qrect.h
 qclock.o: /home/popcorn/home/hanord/qt/include/qsize.h
@@ -186,7 +186,7 @@ qlcdnum.o: /home/popcorn/home/hanord/qt/include/qarray.h
 qlcdnum.o: /home/popcorn/home/hanord/qt/include/qgarray.h
 qlcdnum.o: /home/popcorn/home/hanord/qt/include/qshared.h
 qlcdnum.o: /usr/include/string.h /usr/include/features.h
-qlcdnum.o: /usr/include/sys/cdefs.h /usr/local/lib/gcc-include/stddef.h
+qlcdnum.o: /usr/include/sys/cdefs.h
 qlcdnum.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 qlcdnum.o: /home/popcorn/home/hanord/qt/include/qrect.h
 qlcdnum.o: /home/popcorn/home/hanord/qt/include/qsize.h
@@ -212,7 +212,7 @@ qlined.o: /home/popcorn/home/hanord/qt/include/qarray.h
 qlined.o: /home/popcorn/home/hanord/qt/include/qgarray.h
 qlined.o: /home/popcorn/home/hanord/qt/include/qshared.h
 qlined.o: /usr/include/string.h /usr/include/features.h
-qlined.o: /usr/include/sys/cdefs.h /usr/local/lib/gcc-include/stddef.h
+qlined.o: /usr/include/sys/cdefs.h
 qlined.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 qlined.o: /home/popcorn/home/hanord/qt/include/qrect.h
 qlined.o: /home/popcorn/home/hanord/qt/include/qsize.h
@@ -238,7 +238,7 @@ qpushbt.o: /home/popcorn/home/hanord/qt/include/qarray.h
 qpushbt.o: /home/popcorn/home/hanord/qt/include/qgarray.h
 qpushbt.o: /home/popcorn/home/hanord/qt/include/qshared.h
 qpushbt.o: /usr/include/string.h /usr/include/features.h
-qpushbt.o: /usr/include/sys/cdefs.h /usr/local/lib/gcc-include/stddef.h
+qpushbt.o: /usr/include/sys/cdefs.h
 qpushbt.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 qpushbt.o: /home/popcorn/home/hanord/qt/include/qrect.h
 qpushbt.o: /home/popcorn/home/hanord/qt/include/qsize.h
@@ -265,7 +265,7 @@ qradiobt.o: /home/popcorn/home/hanord/qt/include/qarray.h
 qradiobt.o: /home/popcorn/home/hanord/qt/include/qgarray.h
 qradiobt.o: /home/popcorn/home/hanord/qt/include/qshared.h
 qradiobt.o: /usr/include/string.h /usr/include/features.h
-qradiobt.o: /usr/include/sys/cdefs.h /usr/local/lib/gcc-include/stddef.h
+qradiobt.o: /usr/include/sys/cdefs.h
 qradiobt.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 qradiobt.o: /home/popcorn/home/hanord/qt/include/qrect.h
 qradiobt.o: /home/popcorn/home/hanord/qt/include/qsize.h
@@ -292,7 +292,7 @@ qscrbar.o: /home/popcorn/home/hanord/qt/include/qarray.h
 qscrbar.o: /home/popcorn/home/hanord/qt/include/qgarray.h
 qscrbar.o: /home/popcorn/home/hanord/qt/include/qshared.h
 qscrbar.o: /usr/include/string.h /usr/include/features.h
-qscrbar.o: /usr/include/sys/cdefs.h /usr/local/lib/gcc-include/stddef.h
+qscrbar.o: /usr/include/sys/cdefs.h
 qscrbar.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 qscrbar.o: /home/popcorn/home/hanord/qt/include/qrect.h
 qscrbar.o: /home/popcorn/home/hanord/qt/include/qsize.h
@@ -318,8 +318,8 @@ mbutton.o: /home/popcorn/home/hanord/qt/include/qarray.h
 mbutton.o: /home/popcorn/home/hanord/qt/include/qgarray.h
 mbutton.o: /home/popcorn/home/hanord/qt/include/qshared.h
 mbutton.o: /usr/include/string.h /usr/include/features.h
-mbutton.o: /usr/include/sys/cdefs.h /usr/local/lib/gcc-include/stddef.h
-mbutton.o: qbutton.h /home/popcorn/home/hanord/qt/include/qwidget.h
+mbutton.o: /usr/include/sys/cdefs.h qbutton.h
+mbutton.o: /home/popcorn/home/hanord/qt/include/qwidget.h
 mbutton.o: /home/popcorn/home/hanord/qt/include/qwindefs.h
 mbutton.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 mbutton.o: /home/popcorn/home/hanord/qt/include/qrect.h
@@ -339,8 +339,8 @@ mchkbox.o: /home/popcorn/home/hanord/qt/include/qarray.h
 mchkbox.o: /home/popcorn/home/hanord/qt/include/qgarray.h
 mchkbox.o: /home/popcorn/home/hanord/qt/include/qshared.h
 mchkbox.o: /usr/include/string.h /usr/include/features.h
-mchkbox.o: /usr/include/sys/cdefs.h /usr/local/lib/gcc-include/stddef.h
-mchkbox.o: qchkbox.h qbutton.h /home/popcorn/home/hanord/qt/include/qwidget.h
+mchkbox.o: /usr/include/sys/cdefs.h qchkbox.h qbutton.h
+mchkbox.o: /home/popcorn/home/hanord/qt/include/qwidget.h
 mchkbox.o: /home/popcorn/home/hanord/qt/include/qwindefs.h
 mchkbox.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 mchkbox.o: /home/popcorn/home/hanord/qt/include/qrect.h
@@ -360,8 +360,8 @@ mclock.o: /home/popcorn/home/hanord/qt/include/qarray.h
 mclock.o: /home/popcorn/home/hanord/qt/include/qgarray.h
 mclock.o: /home/popcorn/home/hanord/qt/include/qshared.h
 mclock.o: /usr/include/string.h /usr/include/features.h
-mclock.o: /usr/include/sys/cdefs.h /usr/local/lib/gcc-include/stddef.h
-mclock.o: qclock.h /home/popcorn/home/hanord/qt/include/qview.h
+mclock.o: /usr/include/sys/cdefs.h qclock.h
+mclock.o: /home/popcorn/home/hanord/qt/include/qview.h
 mclock.o: /home/popcorn/home/hanord/qt/include/qwidget.h
 mclock.o: /home/popcorn/home/hanord/qt/include/qwindefs.h
 mclock.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
@@ -382,8 +382,8 @@ mlcdnum.o: /home/popcorn/home/hanord/qt/include/qarray.h
 mlcdnum.o: /home/popcorn/home/hanord/qt/include/qgarray.h
 mlcdnum.o: /home/popcorn/home/hanord/qt/include/qshared.h
 mlcdnum.o: /usr/include/string.h /usr/include/features.h
-mlcdnum.o: /usr/include/sys/cdefs.h /usr/local/lib/gcc-include/stddef.h
-mlcdnum.o: qlcdnum.h /home/popcorn/home/hanord/qt/include/qwidget.h
+mlcdnum.o: /usr/include/sys/cdefs.h qlcdnum.h
+mlcdnum.o: /home/popcorn/home/hanord/qt/include/qwidget.h
 mlcdnum.o: /home/popcorn/home/hanord/qt/include/qwindefs.h
 mlcdnum.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 mlcdnum.o: /home/popcorn/home/hanord/qt/include/qrect.h
@@ -404,8 +404,8 @@ mpushbt.o: /home/popcorn/home/hanord/qt/include/qarray.h
 mpushbt.o: /home/popcorn/home/hanord/qt/include/qgarray.h
 mpushbt.o: /home/popcorn/home/hanord/qt/include/qshared.h
 mpushbt.o: /usr/include/string.h /usr/include/features.h
-mpushbt.o: /usr/include/sys/cdefs.h /usr/local/lib/gcc-include/stddef.h
-mpushbt.o: qpushbt.h qbutton.h /home/popcorn/home/hanord/qt/include/qwidget.h
+mpushbt.o: /usr/include/sys/cdefs.h qpushbt.h qbutton.h
+mpushbt.o: /home/popcorn/home/hanord/qt/include/qwidget.h
 mpushbt.o: /home/popcorn/home/hanord/qt/include/qwindefs.h
 mpushbt.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 mpushbt.o: /home/popcorn/home/hanord/qt/include/qrect.h
@@ -425,8 +425,7 @@ mradiobt.o: /home/popcorn/home/hanord/qt/include/qarray.h
 mradiobt.o: /home/popcorn/home/hanord/qt/include/qgarray.h
 mradiobt.o: /home/popcorn/home/hanord/qt/include/qshared.h
 mradiobt.o: /usr/include/string.h /usr/include/features.h
-mradiobt.o: /usr/include/sys/cdefs.h /usr/local/lib/gcc-include/stddef.h
-mradiobt.o: qradiobt.h qbutton.h
+mradiobt.o: /usr/include/sys/cdefs.h qradiobt.h qbutton.h
 mradiobt.o: /home/popcorn/home/hanord/qt/include/qwidget.h
 mradiobt.o: /home/popcorn/home/hanord/qt/include/qwindefs.h
 mradiobt.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
@@ -447,8 +446,8 @@ mlined.o: /home/popcorn/home/hanord/qt/include/qarray.h
 mlined.o: /home/popcorn/home/hanord/qt/include/qgarray.h
 mlined.o: /home/popcorn/home/hanord/qt/include/qshared.h
 mlined.o: /usr/include/string.h /usr/include/features.h
-mlined.o: /usr/include/sys/cdefs.h /usr/local/lib/gcc-include/stddef.h
-mlined.o: qlined.h /home/popcorn/home/hanord/qt/include/qwidget.h
+mlined.o: /usr/include/sys/cdefs.h qlined.h
+mlined.o: /home/popcorn/home/hanord/qt/include/qwidget.h
 mlined.o: /home/popcorn/home/hanord/qt/include/qwindefs.h
 mlined.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 mlined.o: /home/popcorn/home/hanord/qt/include/qrect.h
@@ -468,8 +467,8 @@ mscrbar.o: /home/popcorn/home/hanord/qt/include/qarray.h
 mscrbar.o: /home/popcorn/home/hanord/qt/include/qgarray.h
 mscrbar.o: /home/popcorn/home/hanord/qt/include/qshared.h
 mscrbar.o: /usr/include/string.h /usr/include/features.h
-mscrbar.o: /usr/include/sys/cdefs.h /usr/local/lib/gcc-include/stddef.h
-mscrbar.o: qscrbar.h /home/popcorn/home/hanord/qt/include/qwidget.h
+mscrbar.o: /usr/include/sys/cdefs.h qscrbar.h
+mscrbar.o: /home/popcorn/home/hanord/qt/include/qwidget.h
 mscrbar.o: /home/popcorn/home/hanord/qt/include/qwindefs.h
 mscrbar.o: /home/popcorn/home/hanord/qt/include/qpaintd.h
 mscrbar.o: /home/popcorn/home/hanord/qt/include/qrect.h
