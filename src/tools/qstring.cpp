@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#163 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#164 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -119,6 +119,17 @@ bool QChar::isSpace() const
 
   Returns the Latin1 character equivalent to the QChar,
   or 0.  This is mainly useful for non-internationalized software.
+
+  \sa unicode()
+*/
+
+/*!
+  \fn ushort QChar::unicode() const
+
+  Returns the numeric Unicode value equal to the QChar.  Normally, you
+  should use QChar objects as they are equivalent, but for some low-level
+  tasks (eg. indexing into an array of Unicode information), this function
+  is useful.
 */
 
 /*!

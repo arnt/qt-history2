@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#97 $
+** $Id: //depot/qt/main/src/tools/qstring.h#98 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and QCString classes
@@ -72,6 +72,8 @@ public:
     bool isSpace() const;
 
     operator char() const { return row?0:cell; }
+
+    ushort unicode() const { return (row << 8) | cell; }
 
     friend int operator==( const QChar& c1, const QChar& c2 );
     friend int operator==( const QChar& c1, char c );
@@ -494,8 +496,6 @@ Q_EXPORT inline QString operator+( char c1, const QString &s2 )
     tmp += s2;
     return tmp;
 }
-
-
 
 #if defined(_OS_WIN32_)
 extern Q_EXPORT QString qt_winQString(void*);
