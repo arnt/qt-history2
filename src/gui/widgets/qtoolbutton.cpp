@@ -536,7 +536,7 @@ void QToolButton::mousePressEvent(QMouseEvent *e)
         return;
     }
     if (e->button() == LeftButton && d->delay <= 0 && d->instantPopup && !d->popupMenu
-        && (d->menu || !actions().isEmpty()())) {
+        && (d->menu || !actions().isEmpty())) {
         showMenu();
         return;
     }
