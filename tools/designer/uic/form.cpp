@@ -894,7 +894,7 @@ void Uic::createFormImpl( const QDomElement &e )
 			out << endl;
 		    } else {
 			images += img;
-			out << "static const unsigned char const " << img << "_data[] = { " << endl;
+			out << "static const unsigned char " << img << "_data[] = { " << endl;
 			out << "    ";
 			int a ;
 			for ( a = 0; a < (int) (data.length()/2)-1; a++ ) {
