@@ -93,7 +93,7 @@ class QWidgetListIt;
 
 #if defined(Q_WS_MAC)
 
-typedef struct ScrapStuff ScrapStuff;
+typedef struct OpaqueScrapRef *ScrapRef;
 typedef struct OpaqueRgnHandle *RgnHandle;
 typedef struct OpaqueWindowPtr *WindowPtr;
 typedef struct OpaqueGrafPtr *GWorldPtr;

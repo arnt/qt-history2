@@ -47,45 +47,28 @@
 #include "qdragobject.h"
 #include "qbuffer.h"
 #include "qapplication_p.h"
-
-// REVISED: arnt
-
+#include "qt_mac.h"
 
 /*****************************************************************************
   QClipboard member functions for mac.
  *****************************************************************************/
 
-/*!
-  Clears the clipboard contents.
-*/
-
 void QClipboard::clear()
 {
+    ClearCurrentScrap();
+    scrap = NULL;
 }
 
-
-/*!
-  \internal
-  Internal cleanup for Windows.
-*/
 
 void QClipboard::ownerDestroyed()
 {
 }
 
 
-/*!
-  \internal
-  Internal optimization for Windows.
-*/
-
 void QClipboard::connectNotify( const char * )
 {
 }
 
-
-/*!\reimp
-*/
 
 bool QClipboard::event( QEvent * )
 {
@@ -93,33 +76,16 @@ bool QClipboard::event( QEvent * )
 }
 
 
-
-
-
-
-/*!
-  Returns a reference to a QMimeSource representation of the current
-  clipboard data.
-*/
 QMimeSource* QClipboard::data() const
 {
+    qDebug("Pasting fra clipboard..");
     return 0;
 }
 
-/*!
-  Sets the clipboard data.  Ownership of the data is transferred to
-  the clipboard - the only ways to remove this data is to set
-  something else, or to call clear().  The QDragObject subclasses are
-  reasonable things to put on the clipboard (but do not try to call
-  QDragObject::drag() on the same object).  Any QDragObject placed in
-  the clipboard should have a parent of 0.  Do not put QDragMoveEvent
-  or QDropEvent subclasses on the clipboard, as they do not belong to
-  the event handler which receives them.
-
-  The setText() and setPixmap() functions are simpler wrappers for this.
-*/
-void QClipboard::setData( QMimeSource* )
+void QClipboard::setData( QMimeSource *src )
 {
+    qDebug("Copying til clipboard..");
+    
 }
 
 void QClipboard::setSelectionMode(bool)
@@ -129,12 +95,25 @@ void QClipboard::setSelectionMode(bool)
 
 bool QClipboard::selectionModeEnabled() const
 {
-    return FALSE;
+    return FALSE; //nei takk
 }
 
 bool QClipboard::supportsSelection() const
 {
-    return FALSE;
+    return FALSE; //nei takk
 }
+
+void QClipboard::loadClipboard(bool)
+{
+    LoadScrap();
+    GetCurrentScrap(&scrap);
+}
+
+void QClipboard::saveClipboard()
+{
+    UnloadScrap();
+    scrap = NULL;
+}
+
 
 #endif // QT_NO_CLIPBOARD

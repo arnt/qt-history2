@@ -1039,6 +1039,7 @@ bool QApplication::do_mouse_down( EventRecord* es )
     DragWindow( wp, er->where, 0 );
     break;
   case inContent:
+    SelectWindow(wp);
     in_widget = TRUE;
     break;
   case inGrow:
@@ -1345,10 +1346,11 @@ int QApplication::macProcessEvent(MSG * m)
 		QApplication::sendEvent( widget, &qme );
 	    }
 	}
+
 	//mousedown's will effect stuff outside InContent as well
-	else if(er->what == mouseDown) {
+	if(er->what == mouseDown) 
 	    do_mouse_down( er ); //do resize/move stuff
-	}
+
     } else if(er->what == osEvt) {
 	if(((er->message >> 24) & 0xFF) == mouseMovedMessage) {
 	    short part = FindWindow( er->where, &wp );
@@ -1394,8 +1396,13 @@ int QApplication::macProcessEvent(MSG * m)
 		}
 	    }
 	}
-	else 
-	    printf("Damn!\n");
+	else if( qt_clipboard && (er->message >> 24 & 0xFF) == suspendResumeMessage ) {
+	    if(er->message & 0x01)
+		clipboard()->loadClipboard((er->message >> 1) & 0x01);
+	    else
+		clipboard()->saveClipboard();
+	}
+	else printf("Damn!\n");
     } else {
 	qWarning("  Type %d",er->what);
     }
