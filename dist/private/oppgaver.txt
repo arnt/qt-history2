@@ -65,6 +65,8 @@ Funksjonalitet:
 	satt), Arnt mener dette er et sikkerhetshull, og at default boer
 	vaere at vi dumper genererte events.
 
+    fiks threads i i QApplication::sendEvent() og i repaint(), og evt.
+    andre steder som tvinger fram et callback.
 
 Bugs:
 -----
