@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#94 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#95 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#94 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#95 $");
 
 
 // Motif style parameters
@@ -153,11 +153,14 @@ static QString accel_str( int k )
     }
     k &= ~(SHIFT | CTRL | ALT);
     QString p;
-    if ( k >= Key_F1 && k <= Key_F24 )
+    if ( (k & ASCII_ACCEL) == ASCII_ACCEL ) {
+	k &= ~ASCII_ACCEL;
+	p.sprintf( "%c", (k & 0xff) );
+    } else if ( k >= Key_F1 && k <= Key_F24 ) {
 	p.sprintf( "F%d", k - Key_F1 + 1 );
-    else if ( k >= Key_Space && k <= Key_AsciiTilde )
+    } else if ( k >= Key_Space && k <= Key_AsciiTilde ) {
 	p.sprintf( "%c", k );
-    else {
+    } else {
 	switch ( k ) {
 	    case Key_Escape:
 		p = "Esc";
