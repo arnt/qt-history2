@@ -123,6 +123,7 @@ QString *qwf_language = 0;
 QWidgetFactory::QWidgetFactory()
     : dbControls( 0 )
 {
+    widgetFactories.setAutoDelete( TRUE );
 }
 
 /*! Loads the Qt Designer user interface description file \a uiFile
