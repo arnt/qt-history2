@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qsize.cpp#13 $
 **
 ** Implementation of QSize class
 **
@@ -14,338 +14,280 @@
 #include "qsize.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qsize.cpp#12 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qsize.cpp#13 $")
 
-/*!
-\class QSize qsize.h
-\brief The QSize class defines the size of a two-dimensional object.
 
-A size is specified by a width and a height.
+/*----------------------------------------------------------------------------
+  \class QSize qsize.h
+  \brief The QSize class defines the size of a two-dimensional object.
 
-The width/height type is QCOORD (defined as <code>short</code>). The minimum
-value of QCOORD is -32768 and the maximum value is 32767.
+  A size is specified by a width and a height.
 
-\sa QPoint and QRect.
-*/
+  The coordinate type is QCOORD (defined in qwindefs.h as \c short).
+  The minimum value of QCOORD is QCOORD_MIN (-32768) and the maximum
+  value is  QCOORD_MAX (32767).
 
-// --------------------------------------------------------------------------
-// QSize member functions
-//
+  \sa QPoint, QRect
+ ----------------------------------------------------------------------------*/
 
-/*!
-\fn QSize::QSize()
-Constructs a size with undefined width and height.
-*/
 
-/*!
-Constructs a size with width \e w and height \e h.
-*/
+/*****************************************************************************
+  QSize member functions
+ *****************************************************************************/
 
-QSize::QSize( int w, int h )
-{
-    wd=(QCOORD)w; ht=(QCOORD)h;
-}
+/*----------------------------------------------------------------------------
+  \fn QSize::QSize()
+  Constructs a size with undefined width and height.
+ ----------------------------------------------------------------------------*/
 
-/*!
-\fn bool QSize::isNull() const
-Returns TRUE if the width is 0 and the height is 0, otherwise FALSE.
-*/
+/*----------------------------------------------------------------------------
+  \fn QSize::QSize( int w, int h )
+  Constructs a size with width \e w and height \e h.
+ ----------------------------------------------------------------------------*/
 
-/*!
-\fn bool QSize::isEmpty() const
-Returns TRUE if the width is less than 0 or the height is less than 0,
-otherwise FALSE.
-*/
+/*----------------------------------------------------------------------------
+  \fn bool QSize::isNull() const
+  Returns TRUE if the width is 0 and the height is 0, otherwise FALSE.
+ ----------------------------------------------------------------------------*/
 
-/*!
-\fn bool QSize::isValid() const
-Returns TRUE if the width is equal to or greater than 0 and the height is
-equal to or greater than 0, otherwise FALSE.
-*/
+/*----------------------------------------------------------------------------
+  \fn bool QSize::isEmpty() const
+  Returns TRUE if the width is less than 0 or the height is less than 0,
+  otherwise FALSE.
+ ----------------------------------------------------------------------------*/
 
-/*!
-\fn int QSize::width() const
-Returns the width.
+/*----------------------------------------------------------------------------
+  \fn bool QSize::isValid() const
+  Returns TRUE if the width is equal to or greater than 0 and the height is
+  equal to or greater than 0, otherwise FALSE.
+ ----------------------------------------------------------------------------*/
 
-\sa height().
-*/
+/*----------------------------------------------------------------------------
+  \fn int QSize::width() const
+  Returns the width.
+  \sa height()
+ ----------------------------------------------------------------------------*/
 
-/*!
-\fn int QSize::height() const
-Returns the height.
+/*----------------------------------------------------------------------------
+  \fn int QSize::height() const
+  Returns the height.
+  \sa width()
+ ----------------------------------------------------------------------------*/
 
-\sa width().
-*/
+/*----------------------------------------------------------------------------
+  \fn void QSize::setWidth( int w )
+  Sets the width to \e w.
+  \sa width(), setHeight()
+ ----------------------------------------------------------------------------*/
 
-/*!
-\fn void QSize::setWidth( int w )
-Sets the width to \e w.
+/*----------------------------------------------------------------------------
+  \fn void QSize::setHeight( int h )
+  Sets the height to \e h.
+  \sa height(), setWidth()
+ ----------------------------------------------------------------------------*/
 
-\sa setHeight().
-*/
+/*----------------------------------------------------------------------------
+  \fn QCOORD &QSize::rwidth()
+  Returns a reference to the width.
 
-/*!
-\fn void QSize::setHeight( int h )
-Sets the height to \e h.
+  Using a reference makes it possible to directly manipulate the width.
 
-\sa setWidth().
-*/
+  Example:
+  \code
+    QSize s( 100, 10 );
+    s.rwidth() += 20;		// s becomes (120,10)
+  \endcode
 
-/*!
-\fn QCOORD &QSize::rwidth()
-Returns a reference to the width.
+  \sa rheight()
+ ----------------------------------------------------------------------------*/
 
-Using a reference makes it possible to directly manipulate the width:
-\code
-  QSize s( 100, 10 );
-  s.rwidth() += 20;		\/ s becomes (120,10)
+/*----------------------------------------------------------------------------
+  \fn QCOORD &QSize::rheight()
+  Returns a reference to the height.
+
+  Using a reference makes it possible to directly manipulate the height.
+
+  Example:
+  \code
+    QSize s( 100, 10 );
+    s.rheight() += 5;		// s becomes (100,15)
+  \endcode
+
+  \sa rwidth()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn QSize &QSize::operator+=( const QSize &s )
+
+  Adds \e s to the size and returns a reference to this size.
+
+  Example:
+  \code
+    QSize s(  3, 7 );
+    QSize r( -1, 4 );
+    s += r;			// s becomes (2,11)
 \endcode
+ ----------------------------------------------------------------------------*/
 
-\sa rheight().
-*/
+/*----------------------------------------------------------------------------
+  \fn QSize &QSize::operator-=( const QSize &s )
 
-/*!
-\fn QCOORD &QSize::rheight()
-Returns a reference to the height.
+  Subtracts \e s from the size and returns a reference to this size.
 
-Using a reference makes it possible to directly manipulate the height:
-\code
-  QSize s( 100, 10 );
-  s.rheight() += 5;		\/ s becomes (100,15)
-\endcode
+  Example:
+  \code
+    QSize s(  3, 7 );
+    QSize r( -1, 4 );
+    s -= r;			// s becomes (4,3)
+  \endcode
+ ----------------------------------------------------------------------------*/
 
-\sa rwidth().
-*/
+/*----------------------------------------------------------------------------
+  \fn QSize &QSize::operator*=( int c )
+  Multiplies both the width and height with \e c and returns a reference to
+  the size.
+ ----------------------------------------------------------------------------*/
 
-/*!
-Adds \e s to the size and returns a reference to this size.
+/*----------------------------------------------------------------------------
+  \fn QSize &QSize::operator*=( float c )
 
-\code
-  QSize s(  3, 7 );
-  QSize r( -1, 4 );
-  s += r;			\/ s becomes (2,11)
-\endcode
-*/
+  Multiplies both the width and height with \e c and returns a reference to
+  the size.
 
-QSize &QSize::operator+=( const QSize &s )
-{
-    wd+=s.wd; ht+=s.ht; return *this;
-}
+  Note that the result is truncated.
+ ----------------------------------------------------------------------------*/
 
-/*!
-Subtracts \e s from the size and returns a reference to this size.
-\code
-  QSize s(  3, 7 );
-  QSize r( -1, 4 );
-  s -= r;			\/ s becomes (4,3)
-\endcode
-*/
+/*----------------------------------------------------------------------------
+  \fn bool operator==( const QSize &s1, const QSize &s2 )
+  \relates QSize
+  Returns TRUE if \e s1 and \e s2 are equal, or FALSE if they are different.
+ ----------------------------------------------------------------------------*/
 
-QSize &QSize::operator-=( const QSize &s )
-{
-    wd-=s.wd; ht-=s.ht; return *this;
-}
+/*----------------------------------------------------------------------------
+  \fn bool operator!=( const QSize &s1, const QSize &s2 )
+  \relates QSize
+  Returns TRUE if \e s1 and \e s2 are different, or FALSE if they are equal.
+ ----------------------------------------------------------------------------*/
 
-/*!
-Multiplies both the width and height with \e c and returns a reference to
-the size.
-*/
+/*----------------------------------------------------------------------------
+  \fn QSize operator+( const QSize &s1, const QSize &s2 )
+  \relates QSize
+  Returns the sum of \e s1 and \e s2; each component is added separately.
+ ----------------------------------------------------------------------------*/
 
-QSize &QSize::operator*=( int c )
-{
-    wd*=(QCOORD)c; ht*=(QCOORD)c; return *this;
-}
+/*----------------------------------------------------------------------------
+  \fn QSize operator-( const QSize &s1, const QSize &s2 )
+  \relates QSize
+  Returns \e s2 subtracted from \e s1; each component is
+  subtracted separately.
+ ----------------------------------------------------------------------------*/
 
-/*!
-Multiplies both the width and height with \e c and returns a reference to
-the size.
+/*----------------------------------------------------------------------------
+  \fn QSize operator*( const QSize &s, int c )
+  \relates QSize
+  Multiplies \e s by \e c and returns the result.
+ ----------------------------------------------------------------------------*/
 
-Notice that the result is truncated.
-*/
+/*----------------------------------------------------------------------------
+  \fn QSize operator*( int c, const QSize &s )
+  \relates QSize
+  Multiplies \e s by \e c and returns the result.
+ ----------------------------------------------------------------------------*/
 
-QSize &QSize::operator*=( float c )
-{
-    wd=(QCOORD)(wd*c); ht=(QCOORD)(ht*c); return *this;
-}
+/*----------------------------------------------------------------------------
+  \fn QSize operator*( const QSize &s, float c )
+  \relates QSize
+  Multiplies \e s by \e c and returns the result.
+ ----------------------------------------------------------------------------*/
 
-/*!
-Divides both the width and height by \e c and returns a reference to the
-size.
+/*----------------------------------------------------------------------------
+  \fn QSize operator*( float c, const QSize &s )
+  \relates QSize
+  Multiplies \e s by \e c and returns the result.
+ ----------------------------------------------------------------------------*/
 
-The division will not be performed if \e c is 0.
-*/
+
+/*----------------------------------------------------------------------------
+  Divides both the width and height by \e c and returns a reference to the
+  size.
+ ----------------------------------------------------------------------------*/
 
 QSize &QSize::operator/=( int c )
 {
-    if ( c == 0 ) {
+    if ( c == 0 )
 #if defined(CHECK_MATH)
 	warning( "QSize: Attempt to divide size by zero" );
 #endif
-	return *this;
-    }
     wd/=(QCOORD)c; ht/=(QCOORD)c; return *this;
 }
 
-/*!
-Divides both the width and height by \e c and returns a reference to the
-size.
+/*----------------------------------------------------------------------------
+  Divides both the width and height by \e c and returns a reference to the
+  size.
 
-The division will not be performed if \e c is 0.
-
-Notice that the result is truncated.
-*/
+  Note that the result is truncated.
+ ----------------------------------------------------------------------------*/
 
 QSize &QSize::operator/=( float c )
 {
-    if ( c == 0.0 ) {
+    if ( c == 0.0 )
 #if defined(CHECK_MATH)
 	warning( "QSize: Attempt to divide size by zero" );
 #endif
-	return *this;
-    }
     wd=(QCOORD)(wd/c); ht=(QCOORD)(ht/c); return *this;
 }
 
-/*!
-\relates QSize
-Returns TRUE if \e s1 and \e s2 are equal, or FALSE if they are different.
-*/
-
-bool operator==( const QSize &s1, const QSize &s2 )
-{
-    return s1.wd == s2.wd && s1.ht == s2.ht;
-}
-
-/*!
-\relates QSize
-Returns TRUE if \e s1 and \e s2 are different, or FALSE if they are equal.
-*/
-
-bool operator!=( const QSize &s1, const QSize &s2 )
-{
-    return s1.wd != s2.wd || s1.ht != s2.ht;
-}
-
-/*!
-\relates QSize
-Returns the sum of \e s1 and \e s2; each component is added separately.
-*/
-
-QSize operator+( const QSize & s1, const QSize & s2 )
-{
-    return QSize( s1.wd+s2.wd, s1.ht+s2.ht );
-}
-
-/*!
-\relates QSize
-Returns \e s2 subtracted from \e s1; each component is
-subtracted separately.
-*/
-
-QSize operator-( const QSize & p1, const QSize & p2 )
-{
-    return QSize( p1.wd-p2.wd, p1.ht-p2.ht );
-}
-
-/*!
-\relates QSize
-Multiplies \e s by \e c and returns the result.
-*/
-
-QSize operator*( const QSize &s, int c )
-{
-    return QSize( s.wd*c, s.ht*c );
-}
-
-/*!
-\relates QSize
-Multiplies \e s by \e c and returns the result.
-*/
-
-QSize operator*( int c, const QSize &s )
-{
-    return QSize( s.wd*c, s.ht*c );
-}
-
-/*!
-\relates QSize
-Multiplies \e s by \e c and returns the result.
-*/
-
-QSize operator*( const QSize &s, float c )
-{
-    return QSize( (QCOORD)(s.wd*c), (QCOORD)(s.ht*c) );
-}
-
-/*!
-\relates QSize
-Multiplies \e s by \e c and returns the result.
-*/
-
-QSize operator*( float c, const QSize &s )
-{
-    return QSize( (QCOORD)(s.wd*c), (QCOORD)(s.ht*c) );
-}
-
-/*!
-\relates QSize
-Divides \e s by \e c and returns the result.
-
-This function returns \e s if \e c is 0.
-*/
+/*----------------------------------------------------------------------------
+  \relates QSize
+  Divides \e s by \e c and returns the result.
+ ----------------------------------------------------------------------------*/
 
 QSize operator/( const QSize &s, int c )
 {
-    if ( c == 0 ) {
+    if ( c == 0 )
 #if defined(CHECK_MATH)
 	warning( "QSize: Attempt to divide size by zero" );
 #endif
-	return s;
-    }
     return QSize( s.wd/c, s.ht/c );
 }
 
-/*!
-\relates QSize
-Divides \e s by \e c and returns the result.
+/*----------------------------------------------------------------------------
+  \relates QSize
+  Divides \e s by \e c and returns the result.
 
-This function returns \e s if \e c is 0.
-
-Notice that the result is truncated.
-*/
+  Note that the result is truncated.
+ ----------------------------------------------------------------------------*/
 
 QSize operator/( const QSize &s, float c )
 {
-    if ( c == 0.0 ) {
+    if ( c == 0.0 )
 #if defined(CHECK_MATH)
 	warning( "QSize: Attempt to divide size by zero" );
 #endif
-	return s;
-    }
     return QSize( (QCOORD)(s.wd/c), (QCOORD)(s.ht/c) );
 }
 
 
-// --------------------------------------------------------------------------
-// QSize stream functions
-//
+/*****************************************************************************
+  QSize stream functions
+ *****************************************************************************/
 
-/*!
-\relates QSize
-Writes the size to the stream and returns a reference to the stream.
+/*----------------------------------------------------------------------------
+  \relates QSize
+  Writes the size to the stream and returns a reference to the stream.
 
-Output format: [width (INT16), height (INT16)].
-*/
+  Serialization format: [width (INT16), height (INT16)].
+ ----------------------------------------------------------------------------*/
 
 QDataStream &operator<<( QDataStream &s, const QSize &sz )
 {
     return s << (INT16)sz.width() << (INT16)sz.height();
 }
 
-/*!
-\relates QSize
-Reads the size from the stream and returns a reference to the stream.
-*/
+/*----------------------------------------------------------------------------
+  \relates QSize
+  Reads the size from the stream and returns a reference to the stream.
+ ----------------------------------------------------------------------------*/
 
 QDataStream &operator>>( QDataStream &s, QSize &sz )
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qpoint.cpp#19 $
 **
 ** Implementation of QPoint class
 **
@@ -14,7 +14,7 @@
 #include "qpoint.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpoint.cpp#18 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpoint.cpp#19 $")
 
 
 /*----------------------------------------------------------------------------
@@ -23,11 +23,14 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpoint.cpp#18 $")
 
   A point is specified by an x coordinate and a y coordinate.
 
-  The coordinate type is QCOORD (defined as <code>short</code>). The minimum
-  value of QCOORD is -32768 and the maximum value is 32767.
+  The coordinate type is QCOORD (defined in qwindefs.h as \c short).
+  The minimum value of QCOORD is QCOORD_MIN (-32768) and the maximum
+  value is  QCOORD_MAX (32767).
 
   We have defined many operator functions that make arithmetic on points
-  simple and intuitive:
+  simple and intuitive.
+
+  Example:
   \code
     QPoint p(  1, 2 );
     QPoint q( -8, 5 );
@@ -87,7 +90,9 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpoint.cpp#18 $")
   \fn QCOORD &QPoint::rx()
   Returns a reference to the x coordinate of the point.
 
-  Using a reference makes it possible to directly manipulate x:
+  Using a reference makes it possible to directly manipulate x.
+
+  Example:
   \code
     QPoint p( 1, 2 );
     p.rx()--;			// p becomes (0,2)
@@ -100,7 +105,9 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpoint.cpp#18 $")
   \fn QCOORD &QPoint::ry()
   Returns a reference to the y coordinate of the point.
 
-  Using a reference makes it possible to directly manipulate y:
+  Using a reference makes it possible to directly manipulate y.
+
+  Example:
   \code
     QPoint p( 1, 2 );
     p.ry()++;			// p becomes (1,3)
@@ -114,6 +121,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpoint.cpp#18 $")
   \fn QPoint &QPoint::operator+=( const QPoint &p )
   Adds \e p to the point and returns a reference to this point.
 
+  Example:
   \code
     QPoint p(  3, 7 );
     QPoint q( -1, 4 );
@@ -125,6 +133,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpoint.cpp#18 $")
   \fn QPoint &QPoint::operator-=( const QPoint &p )
   Subtracts \e p from the point and returns a reference to this point.
 
+  Example:
   \code
     QPoint p(  3, 7 );
     QPoint q( -1, 4 );
@@ -136,6 +145,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpoint.cpp#18 $")
   \fn QPoint &QPoint::operator*=( int c )
   Multiplies both x and y with \e c, and return a reference to this point.
 
+  Example:
   \code
     QPoint p( -1, 4 );
     p *= 2;			// p becomes (-2,8)
@@ -146,12 +156,13 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpoint.cpp#18 $")
   \fn QPoint &QPoint::operator*=( double c )
   Multiplies both x and y with \e c, and return a reference to this point.
 
+  Example:
   \code
     QPoint p( -1, 4 );
     p *= 2.5;			// p becomes (-3,10)
   \endcode
 
-  Notice that the result is truncated.
+  Note that the result is truncated.
  ----------------------------------------------------------------------------*/
 
 
@@ -216,8 +227,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpoint.cpp#18 $")
 /*----------------------------------------------------------------------------
   Divides both x and y by \e c, and return a reference to this point.
 
-  The division will not be performed if \e c is 0.
-
+  Example:
   \code
     QPoint p( -2, 8 );
     p /= 2;			// p becomes (-1,4)
@@ -237,14 +247,13 @@ QPoint &QPoint::operator/=( int c )
 /*----------------------------------------------------------------------------
   Divides both x and y by \e c, and return a reference to this point.
 
-  The division will not be performed if \e c is 0.
-
+  Example:
   \code
     QPoint p( -3, 10 );
     p /= 2.5;			// p becomes (-1,4)
   \endcode
 
-  Notice that the result is truncated.
+  Note that the result is truncated.
  ----------------------------------------------------------------------------*/
 
 QPoint &QPoint::operator/=( double c )
@@ -260,8 +269,6 @@ QPoint &QPoint::operator/=( double c )
 /*----------------------------------------------------------------------------
   \relates QPoint
   Divides both of \e p's components by \e c and returns the result.
-
-  This function returns \e p if \e c is 0.
  ----------------------------------------------------------------------------*/
 
 QPoint operator/( const QPoint &p, int c )
@@ -277,9 +284,7 @@ QPoint operator/( const QPoint &p, int c )
   \relates QPoint
   Divides both of \e p's components by \e c and returns the result.
 
-  This function returns \e p if \e c is 0.
-
-  Notice that the result is truncated.
+  Note that the result is truncated.
  ----------------------------------------------------------------------------*/
 
 QPoint operator/( const QPoint &p, double c )
@@ -300,8 +305,7 @@ QPoint operator/( const QPoint &p, double c )
   \relates QPoint
   Writes a QPoint to the stream and returns a reference to the stream.
 
-  First \e p.x() and then p.y() are written, both as signed 16-bit
-  numbers.
+  Serialization format: [x (INT16), y (INT16)].
  ----------------------------------------------------------------------------*/
 
 QDataStream &operator<<( QDataStream &s, const QPoint &p )

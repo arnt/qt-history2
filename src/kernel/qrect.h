@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.h#19 $
+** $Id: //depot/qt/main/src/kernel/qrect.h#20 $
 **
 ** Definition of QRect class
 **
@@ -29,12 +29,12 @@ public:
     bool   isValid()	const;
     QRect  normalize()	const;
 
-    int	   left()	const	{ return x1; }
-    int	   top()	const	{ return y1; }
-    int	   right()	const	{ return x2; }
-    int	   bottom()	const	{ return y2; }
-    int	   x()		const	{ return x1; }
-    int	   y()		const	{ return y1; }
+    int	   left()	const;
+    int	   top()	const;
+    int	   right()	const;
+    int	   bottom()	const;
+    int	   x()		const;
+    int	   y()		const;
     void   setLeft( int pos );
     void   setTop( int pos );
     void   setRight( int pos );
@@ -47,6 +47,7 @@ public:
     QPoint topRight()	 const;
     QPoint bottomLeft()	 const;
     QPoint center()	 const;
+
     void   rect( int *x, int *y, int *w, int *h ) const;
     void   coords( int *x1, int *y1, int *x2, int *y2 ) const;
     void   setTopLeft( const QPoint &p );
@@ -62,8 +63,8 @@ public:
     void   setCoords( int x1, int y1, int x2, int y2 );
 
     QSize  size()	const;
-    int	   width()	const	{ return x2 - x1 + 1; }
-    int	   height()	const	{ return y2 - y1 + 1; }
+    int	   width()	const;
+    int	   height()	const;
     void   setWidth( int w );
     void   setHeight( int h );
     void   setSize( const QSize &s );
@@ -100,88 +101,86 @@ QDataStream &operator<<( QDataStream &, const QRect & );
 QDataStream &operator>>( QDataStream &, QRect & );
 
 
-#if !(defined(QRECT_C) || defined(DEBUG))
-
 // --------------------------------------------------------------------------
-// QRect member functions
+// QRect inline member functions
 //
 
-inline bool QRect::isNull() const
+inline QRect::QRect( int left, int top, int width, int height )
 {
-    return x2 == x1-1 && y2 == y1-1;
+    x1 = (QCOORD)left;
+    y1 = (QCOORD)top;
+    x2 = (QCOORD)(left+width-1);
+    y2 = (QCOORD)(top+height-1);
 }
+
+inline bool QRect::isNull() const
+{ return x2 == x1-1 && y2 == y1-1; }
 
 inline bool QRect::isEmpty() const
-{
-    return x1 > x2 || y1 > y2;
-}
+{ return x1 > x2 || y1 > y2; }
 
 inline bool QRect::isValid() const
-{
-    return x1 <= x2 && y1 <= y2;
-}
+{ return x1 <= x2 && y1 <= y2; }
+
+inline int QRect::left() const
+{ return x1; }
+
+inline int QRect::top()	const
+{ return y1; }
+
+inline int QRect::right() const
+{ return x2; }
+
+inline int QRect::bottom() const
+{ return y2; }
+
+inline int QRect::x() const
+{ return x1; }
+
+inline int QRect::y() const
+{ return y1; }
 
 inline void QRect::setLeft( int pos )
-{
-    x1 = (QCOORD)pos;
-}
+{ x1 = (QCOORD)pos; }
 
 inline void QRect::setTop( int pos )
-{
-    y1 = (QCOORD)pos;
-}
+{ y1 = (QCOORD)pos; }
 
 inline void QRect::setRight( int pos )
-{
-    x2 = (QCOORD)pos;
-}
+{ x2 = (QCOORD)pos; }
 
 inline void QRect::setBottom( int pos )
-{
-    y2 = (QCOORD)pos;
-}
+{ y2 = (QCOORD)pos; }
 
 inline void QRect::setX( int x )
-{
-    x1 = (QCOORD)x;
-}
+{ x1 = (QCOORD)x; }
 
 inline void QRect::setY( int y )
-{
-    y1 = (QCOORD)y;
-}
+{ y1 = (QCOORD)y; }
 
 inline QPoint QRect::topLeft() const
-{
-    return QPoint( x1, y1 );
-}
+{ return QPoint(x1, y1); }
 
 inline QPoint QRect::bottomRight() const
-{
-    return QPoint( x2, y2 );
-}
+{ return QPoint(x2, y2); }
 
 inline QPoint QRect::topRight() const
-{
-    return QPoint( x2, y1 );
-}
+{ return QPoint(x2, y1); }
 
 inline QPoint QRect::bottomLeft() const
-{
-    return QPoint( x1, y2 );
-}
+{ return QPoint(x1, y2); }
 
 inline QPoint QRect::center() const
-{
-    return QPoint( (x1+x2)/2, (y1+y2)/2 );
-}
+{ return QPoint((x1+x2)/2, (y1+y2)/2); }
+
+inline int QRect::width() const
+{ return  x2 - x1 + 1; }
+
+inline int QRect::height() const
+{ return  y2 - y1 + 1; }
 
 inline QSize QRect::size() const
-{
-    return QSize( x2-x1+1, y2-y1+1 );
-}
-
-#endif // inline functions
+{ return QSize(x2-x1+1, y2-y1+1); }
 
 
 #endif // QRECT_H
