@@ -625,6 +625,12 @@ void QWorkspace::minimizeWindow( QWidget* w)
 	insertIcon( c->iconWidget() );
 	c->hide();
 	d->focus.append( c );
+	if ( d->maxWindow )
+	    d->maxWindow->setFocus();
+
+	QWorkspace *fake = (QWorkspace*)w;
+	fake->clearWState( WState_Maximized );
+	fake->setWState( WState_Minimized );
     }
 }
 
@@ -645,6 +651,9 @@ void QWorkspace::normalizeWindow( QWidget* w)
 		removeIcon( c->iconw->parentWidget() );
 	    c->show();
 	}
+	QWorkspace *fake = (QWorkspace*)w;
+	fake->clearWState( WState_Minimized | WState_Maximized );
+
 	hideMaximizeControls();
     }
 }
@@ -680,6 +689,10 @@ void QWorkspace::maximizeWindow( QWidget* w)
 		.arg(d->topCaption).arg(c->caption()) );
 	inCaptionChange = FALSE;
 	setUpdatesEnabled( TRUE );
+
+	QWorkspace *fake = (QWorkspace*)w;
+	fake->clearWState( WState_Minimized );
+	fake->setWState( WState_Maximized );
     }
 }
 

@@ -743,11 +743,14 @@ void QWidget::showMinimized()
     // works for widgets that are already visible.
     hide();
     //parentWidget()->repaint(geometry());
+    clearWState( WState_Maximized );
+    setWState( WState_Minimized );
 }
 
 bool QWidget::isMinimized() const
 {
-    return FALSE; // XXX
+    // true for non-toplevels that have the minimized flag, e.g. MDI children
+    return FALSE || (!isTopLevel() && testWState( WState_Minimized ) ); // XXX
 }
 
 void QWidget::showMaximized()
@@ -768,24 +771,25 @@ void QWidget::showMaximized()
     show();
     QEvent e( QEvent::ShowMaximized );
     QApplication::sendEvent( this, &e );
+    clearWState( WState_Minimized );
     setWState(WState_Maximized);
 }
 
 void QWidget::showNormal()
 {
-    if ( !isTopLevel() )
-	return;
-
-    if ( topData()->fullscreen ) {
-	reparent( 0, WType_TopLevel, QPoint(0,0) );
-	topData()->fullscreen = 0;
-    }
-    QRect r = topData()->normalGeometry;
-    if ( r.width() >= 0 ) {
-	topData()->normalGeometry = QRect(0,0,-1,-1);
-	setGeometry( r );
+    if ( isTopLevel() ) {
+	if ( topData()->fullscreen ) {
+	    reparent( 0, WType_TopLevel, QPoint(0,0) );
+	    topData()->fullscreen = 0;
+	}
+	QRect r = topData()->normalGeometry;
+	if ( r.width() >= 0 ) {
+	    topData()->normalGeometry = QRect(0,0,-1,-1);
+	    setGeometry( r );
+	}
     }
     show();
+    clearWState( WState_Minimized | WState_Maximized );
 }
 
 

@@ -1566,6 +1566,8 @@ void QWidget::showMinimized()
     }
     QEvent e( QEvent::ShowMinimized );
     QApplication::sendEvent( this, &e );
+    clearWState( WState_Maximized );
+    setWState( WState_Minimized );
 }
 
 /*!
@@ -1576,7 +1578,8 @@ void QWidget::showMinimized()
  */
 bool QWidget::isMinimized() const
 {
-    return qt_wstate_iconified( winId() );
+    // true for non-toplevels that have the minimized flag, e.g. MDI children
+    return qt_wstate_iconified( winId() ) || ( !isTopLevel() && testWState( WState_Minimized ) );
 }
 
 bool QWidget::isMaximized() const
@@ -1649,6 +1652,7 @@ void QWidget::showMaximized()
     show();
     QEvent e( QEvent::ShowMaximized );
     QApplication::sendEvent( this, &e );
+    clearWState( WState_Minimized );
     setWState(WState_Maximized);
 }
 
@@ -1679,6 +1683,7 @@ void QWidget::showNormal()
     show();
     QEvent e( QEvent::ShowNormal );
     QApplication::sendEvent( this, &e );
+    clearWState( WState_Minimized | WState_Maximized );
 }
 
 
