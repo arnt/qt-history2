@@ -220,15 +220,16 @@ static void heuristicSetGlyphAttributes( const QString &string, int from, int le
     for ( int i = 0; i < si->num_glyphs; i++ )
 	logClusters[i] = i;
 
-    int pos = 1;
-
     // first char in a run is never (treated as) a mark
     int cStart = 0;
     glyphs[0].attributes.mark = FALSE;
     glyphs[0].attributes.clusterStart = TRUE;
 
+    int pos = 1;
+    QChar::Category lastCat = ::category(uc[0]);
     while ( pos < len ) {
-	if ( ::category( uc[pos] ) != QChar::Mark_NonSpacing ) {
+	QChar::Category cat = ::category(uc[pos]);
+	if (cat != QChar::Mark_NonSpacing) {
 	    glyphs[pos].attributes.mark = FALSE;
 	    glyphs[pos].attributes.clusterStart = TRUE;
 	    glyphs[pos].attributes.combiningClass = 0;
@@ -275,6 +276,15 @@ static void heuristicSetGlyphAttributes( const QString &string, int from, int le
 	    glyphs[pos].advance.y = 0;
 	    si->hasPositioning = TRUE;
 	}
+
+	if (lastCat == QChar::Separator_Space)
+	    glyphs[pos-1].attributes.justification = QGlyphLayout::Space;
+	else if (cat != QChar::Mark_NonSpacing)
+	    glyphs[pos-1].attributes.justification = QGlyphLayout::Character;
+	else
+	    glyphs[pos-1].attributes.justification = QGlyphLayout::NoJustification;
+
+	lastCat = cat;
 	pos++;
     }
 }
@@ -533,50 +543,6 @@ static inline ArabicGroup arabicGroup(unsigned short uc)
 
 
 /*
-According to http://www.microsoft.com/middleeast/Arabicdev/IE6/KBase.asp
-
-1. Find the priority of the connecting opportunities in each word
-2. Add expansion at the highest priority connection opportunity
-3. If more than one connection opportunity have the same highest value,
-   use the opportunity closest to the end of the word.
-
-Following is a chart that provides the priority for connection
-opportunities and where expansion occurs. The character group names
-are those in table 6.6 of the UNICODE 2.0 book.
-
-
-PrioritY	Glyph                   Condition                                       Kashida Location
-
-Arabic_Kashida	User inserted Kashida   The user entered a Kashida in a position.       After the user
-		(Shift+j or Shift+Ê)    Thus, it is the highest priority to insert an   inserted kashida
-					automatic kashida.
-
-Arabic_Seen	Seen, Sad               Connecting to the next character.               After the character.
-					(Initial or medial form).
-
-Arabic_HaaDal	Teh Marbutah, Haa, Dal  Connecting to previous character.               Before the final form
-											of these characters.
-
-Arabic_Alef     Alef, Tah, Lam,         Connecting to previous character.               Before the final form
-		Kaf and Gaf                                                             of these characters.
-
-Arabic_BaRa     Reh, Yeh                Connected to medial Beh                         Before preceding medial Baa
-
-Arabic_Waw	Waw, Ain, Qaf, Feh      Connecting to previous character.               Before the final form of
-											these characters.
-
-Arabic_Normal   Other connecting        Connecting to previous character.               Before the final form
-		characters                                                              of these characters.
-
-
-
-This seems to imply that we have at most one kashida point per arabic word.
-
-*/
-
-
-
-/*
    Arabic shaping obeys a number of rules according to the joining classes (see Unicode book, section on
    arabic).
 
@@ -669,6 +635,48 @@ static const JoiningPair joining_table[5][4] =
 };
 
 
+/*
+According to http://www.microsoft.com/middleeast/Arabicdev/IE6/KBase.asp
+
+1. Find the priority of the connecting opportunities in each word
+2. Add expansion at the highest priority connection opportunity
+3. If more than one connection opportunity have the same highest value,
+   use the opportunity closest to the end of the word.
+
+Following is a chart that provides the priority for connection
+opportunities and where expansion occurs. The character group names
+are those in table 6.6 of the UNICODE 2.0 book.
+
+
+PrioritY	Glyph                   Condition                                       Kashida Location
+
+Arabic_Kashida	User inserted Kashida   The user entered a Kashida in a position.       After the user
+		(Shift+j or Shift+Ê)    Thus, it is the highest priority to insert an   inserted kashida
+					automatic kashida.
+
+Arabic_Seen	Seen, Sad               Connecting to the next character.               After the character.
+					(Initial or medial form).
+
+Arabic_HaaDal	Teh Marbutah, Haa, Dal  Connecting to previous character.               Before the final form
+											of these characters.
+
+Arabic_Alef     Alef, Tah, Lam,         Connecting to previous character.               Before the final form
+		Kaf and Gaf                                                             of these characters.
+
+Arabic_BaRa     Reh, Yeh                Connected to medial Beh                         Before preceding medial Baa
+
+Arabic_Waw	Waw, Ain, Qaf, Feh      Connecting to previous character.               Before the final form of
+											these characters.
+
+Arabic_Normal   Other connecting        Connecting to previous character.               Before the final form
+		characters                                                              of these characters.
+
+
+
+This seems to imply that we have at most one kashida point per arabic word.
+
+*/
+
 struct ArabicProperties {
     unsigned char shape;
     unsigned char justification;
@@ -680,21 +688,100 @@ static void getArabicProperties(const unsigned short *chars, int len, ArabicProp
 {
 //     qDebug("arabicSyriacOpenTypeShape: properties:");
     int lastPos = 0;
+    int lastGroup = ArabicNone;
+
     ArabicGroup group = arabicGroup(chars[0]);
     Joining j = joining_for_group[group];
     Shape shape = joining_table[XIsolated][j].form2;
+
     for (int i = 1; i < len; ++i) {
+	// #### fix handling for spaces and punktuation
+	properties[i].justification = QGlyphLayout::NoJustification;
+
 	group = arabicGroup(chars[i]);
 	j = joining_for_group[group];
-// 	qDebug("    i=%d, shape=%d group=%d joining=%d", i, shape, group, j);
+
 	if (j == JTransparent) {
 	    properties[i].shape = XIsolated;
-	} else {
-	    properties[lastPos].shape = joining_table[shape][j].form1;
-	    shape = joining_table[shape][j].form2;
-// 	    qDebug("    lastPos=%d, shape=%d", lastPos, properties[lastPos].shape);
-	    lastPos = i;
+	    continue;
 	}
+
+	properties[lastPos].shape = joining_table[shape][j].form1;
+	shape = joining_table[shape][j].form2;
+
+	switch(lastGroup) {
+	case Seen:
+	    if (properties[lastPos].shape == XInitial || properties[lastPos].shape == XMedial)
+		properties[i-1].justification = QGlyphLayout::Arabic_Seen;
+	    break;
+	case Hah:
+	    if (properties[lastPos].shape == XFinal)
+		properties[lastPos-1].justification = QGlyphLayout::Arabic_HaaDal;
+	    break;
+	case Alef:
+	    if (properties[lastPos].shape == XFinal)
+		properties[lastPos-1].justification = QGlyphLayout::Arabic_Alef;
+	    break;
+	case Ain:
+	    if (properties[lastPos].shape == XFinal)
+		properties[lastPos-1].justification = QGlyphLayout::Arabic_Waw;
+	    break;
+	case Noon:
+	    if (properties[lastPos].shape == XFinal)
+		properties[lastPos-1].justification = QGlyphLayout::Arabic_Normal;
+	    break;
+
+	default:
+	    Q_ASSERT(false);
+	}
+
+	lastGroup = ArabicNone;
+
+	switch(group) {
+	case ArabicNone:
+	case Transparent:
+	// ### Center should probably be treated as transparent when it comes to justification.
+	case Center:
+	    break;
+
+	case Kashida:
+	    properties[i].justification = QGlyphLayout::Arabic_Kashida;
+	    break;
+	case Seen:
+	    lastGroup = Seen;
+	    break;
+
+	case Hah:
+	case Dal:
+	    lastGroup = Hah;
+	    break;
+
+	case Alef:
+	case Tah:
+	    lastGroup = Alef;
+	    break;
+
+	case Yeh:
+	case Reh:
+	    if (properties[lastPos].shape == XMedial && arabicGroup(chars[lastPos]) == Beh)
+		properties[lastPos-1].justification = QGlyphLayout::Arabic_BaRa;
+	    break;
+
+	case Ain:
+	case Waw:
+	    lastGroup = Ain;
+	    break;
+
+	case Noon:
+	case Beh:
+	case HamzaOnHehGoal:
+	    lastGroup = Noon;
+	    break;
+	case ArabicGroupsEnd:
+	    Q_ASSERT(false);
+	}
+
+	lastPos = i;
     }
     properties[lastPos].shape = joining_table[shape][XIsolated].form1;
 }
@@ -1130,6 +1217,7 @@ static void shapedString(const QString& uc, int from, int len, QChar *shapeBuffe
 	}
 	glyphs[gpos].attributes.clusterStart = !glyphs[gpos].attributes.mark;
 	glyphs[gpos].attributes.combiningClass = combiningClass( *ch );
+	glyphs[gpos].attributes.justification = properties[i].justification;
 	data++;
     skip:
 	ch++;
@@ -1161,7 +1249,8 @@ static void arabicSyriacOpenTypeShape( int script, QOpenType *openType, const QS
  	if (uc[i] == 0x200c || uc[i] == 0x200d)
  	    continue;
  	glyphs[j] = glyphs[i];
- 	properties[i] = properties[j];
+ 	properties[j] = properties[i];
+ 	glyphs[j].attributes.justification = properties[i].justification;
  	logClusters[i] = logClusters[j];
  	++j;
     }
