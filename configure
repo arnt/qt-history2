@@ -252,8 +252,8 @@ CFG_SQL_AUTODETECTED=
 CFG_GFX_AVAILABLE=
 CFG_TABLET=auto
 CFG_XKB=auto
-CFG_CUPS=auto
 CFG_NIS=auto
+CFG_CUPS=auto
 CFG_LARGEFILE=auto
 CFG_NEWABI=no ### need to break ABI for full Large File support...
 CFG_STL=auto
@@ -1422,8 +1422,6 @@ fi
 if [ "$CFG_NIS" != "no" ]; then
     CFG_NIS=yes
     $unixtests/nis.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS && CFG_NIS=no
-else
-    CFG_NIS=no
 fi
 # auto-detect CUPS support
 if [ "$CFG_CUPS" != "no" ]; then
