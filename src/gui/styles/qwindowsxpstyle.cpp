@@ -979,9 +979,6 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
     QString name;
     int partId = 0;
     int stateId = 0;
-    if (widget->testAttribute(Qt::WA_UnderMouse) && widget->isActiveWindow())
-        flags |= State_MouseOver;
-
     switch (element) {
     case CE_HeaderSection:
         name = "HEADER";
@@ -1035,7 +1032,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
             bool centerAligned = styleHint(SH_TabBar_Alignment, tab, widget) == Qt::AlignCenter;
             //bool rightAligned = styleHint(SH_TabBar_Alignment, tab, widget) == Qt::AlignRight;
             int borderThickness = pixelMetric(PM_DefaultFrameWidth, option, widget);
-            int tabOverlap = pixelMetric(PM_TabBarTabOverlap, option, widget);
+            int tabOverlap = onlyOne ? 0 : pixelMetric(PM_TabBarTabOverlap, option, widget);
 
             if (isDisabled)
                 stateId = TIS_DISABLED;
@@ -1067,14 +1064,14 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
                 break;
             case QTabBar::RoundedNorth:
                 if (selected)
-                    rect.adjust(!firstTab ? -tabOverlap : 0, 0, !lastTab ? tabOverlap : 0, borderThickness);
+                    rect.adjust(firstTab ? 0 : -tabOverlap, 0, lastTab ? 0 : tabOverlap, borderThickness);
                 else
                     rect.adjust(0, tabOverlap, 0, -borderThickness);
                 break;
             case QTabBar::RoundedSouth:
                 vMirrored = true;
                 if (selected)
-                    rect.adjust(!firstTab ? -tabOverlap : 0, -borderThickness, !lastTab ? tabOverlap : 0, 0);
+                    rect.adjust(firstTab ? 0 : -tabOverlap , -borderThickness, lastTab ? 0 : tabOverlap, 0);
                 else
                     rect.adjust(0, borderThickness, 0, -tabOverlap);
                 break;
@@ -1487,9 +1484,9 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                 partId = SBP_ARROWBTN;
                 if (!(flags & State_Enabled))
                     stateId = (isHorz ? (isRTL ? ABS_RIGHTDISABLED : ABS_LEFTDISABLED) : ABS_UPDISABLED);
-                else if (scrollbar->activeSubControls & SC_ScrollBarAddLine && (scrollbar->state & State_Sunken))
+                else if (scrollbar->activeSubControls & SC_ScrollBarSubLine && (scrollbar->state & State_Sunken))
                     stateId = (isHorz ? (isRTL ? ABS_RIGHTPRESSED : ABS_LEFTPRESSED) : ABS_UPPRESSED);
-                else if (scrollbar->activeSubControls & SC_ScrollBarAddLine && (scrollbar->state & State_MouseOver))
+                else if (scrollbar->activeSubControls & SC_ScrollBarSubLine && (scrollbar->state & State_MouseOver))
                     stateId = (isHorz ? (isRTL ? ABS_RIGHTHOT : ABS_LEFTHOT) : ABS_UPHOT);
                 else
                     stateId = (isHorz ? (isRTL ? ABS_RIGHTNORMAL : ABS_LEFTNORMAL) : ABS_UPNORMAL);
@@ -1819,7 +1816,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                     partId = WP_CAPTION;
                     //partId = tb->testWFlags(Qt::WA_WState_Tool) ? WP_SMALLCAPTION :
                     //        (titlebar->window() && titlebar->window()->isMinimized() ? WP_MINCAPTION : WP_CAPTION);
-                    if (!widget->isEnabled())
+                    if (widget && !widget->isEnabled())
                         stateId = CS_DISABLED;
                     else if (isActive)
                         stateId = CS_ACTIVE;
@@ -2303,10 +2300,7 @@ void QWindowsXPStyle::updateRegion(QWidget *widget)
     if (!use_xp)
         return;
 
-    if (widget->inherits("QDockWidgetTitle")) {
-        XPThemeData theme(widget, 0, "WINDOW", WP_SMALLCAPTION, CS_ACTIVE, widget->rect());
-        theme.setTransparency();
-    } else if (widget->inherits("Q3TitleBar") && !QString::compare(widget->objectName(), "_workspacechild_icon_")) {
+    if (widget->inherits("Q3TitleBar") && !QString::compare(widget->objectName(), "_workspacechild_icon_")) {
         XPThemeData theme(widget, 0, "WINDOW", WP_MINCAPTION, CS_ACTIVE, widget->rect());
         theme.setTransparency();
         XPThemeData theme2(widget->parentWidget(), 0, "WINDOW", WP_MINCAPTION, CS_ACTIVE, widget->rect());

@@ -2040,7 +2040,7 @@ void Q3WorkspaceChild::paintEvent(QPaintEvent *)
     opt.rect = rect();
     opt.palette = palette();
     opt.state = QStyle::State_None;
-    opt.lineWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth, 0, this);
+    opt.lineWidth = style()->pixelMetric(QStyle::PM_MDIFrameWidth, 0, this);
     opt.midLineWidth = 1;
 
     if (titlebar && titlebar->isActive())

@@ -65,6 +65,7 @@ public:
 inline int Q3TitleBarPrivate::titleBarState() const
 {
     uint state = window ? window->windowState() : static_cast<Qt::WindowStates>(Qt::WindowNoState);
+    state |= uint(act ? QStyle::State_Active : QStyle::State_None);
     return (int)state;
 }
 
