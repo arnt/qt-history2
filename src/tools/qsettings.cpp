@@ -1806,13 +1806,11 @@ QDateTime QSettings::lastModificationTime( const QString &key )
     strings in the list should contain the separator. If the list is
     empty or null the key's value will be an empty string.
 
-    \warning The list should not contain empty or null strings, as
-    readListEntry() will use QStringList::split() to recreate the
-    list.  As the documentation states, QStringList::split() will omit
-    empty strings from the list.  Because of this, it is impossible to
-    retrieve identical list data that is stored with this function.
-    We recommend using the writeEntry() and readListEntry() overloads
-    that do not take a \a separator argument.
+    \warning If \a value contains null strings, this function converts
+    them to empty strings.  The list returned by readListEntry() will
+    not be identical to \a value.  We recommend using the writeEntry()
+    and readListEntry() overloads that do not take a \a separator
+    argument.
 
     If an error occurs the settings are left unchanged and FALSE is
     returned; otherwise returns TRUE.
@@ -1860,15 +1858,15 @@ bool QSettings::writeEntry(const QString &key, const QStringList &value)
 
     Reads the entry specified by \a key as a string. The \a separator
     is used to create a QStringList by calling QStringList::split(\a
-    separator, entry). If \a ok is not 0: \a *ok is set to TRUE if the
-    key was read, otherwise \a *ok is set to FALSE.
+    separator, entry, TRUE). If \a ok is not 0: \a *ok is set to TRUE
+    if the key was read, otherwise \a *ok is set to FALSE.
 
-    \warning As the documentation states, QStringList::split() will
-    omit empty strings from the list.  Because of this, it is
-    impossible to retrieve identical list data with this function.  We
-    recommend using the readListEntry() and writeEntry() overloads
-    that do not take a \a separator argument.
-
+    \warning If the string list argument to the writeEntry() function
+    contains null strings, the return value of this function will not
+    be identical to the original data.  All null strings are converted
+    to emptry strings by the writeEntry() function.  We recommend
+    using the writeEntry() and readListEntry() overloads that do not
+    take a \a separator argument.
 
     Note that if you want to iterate over the list, you should iterate
     over a copy, e.g.
@@ -1881,7 +1879,7 @@ bool QSettings::writeEntry(const QString &key, const QStringList &value)
     }
     \endcode
 
-    \sa readEntry(), readDoubleEntry(), readBoolEntry(), writeEntry(), removeEntry(), QStringList::split()
+    \sa readEntry(), readDoubleEntry(), readBoolEntry(), writeEntry(), removeEntry()
 */
 
 /*!
@@ -1893,7 +1891,7 @@ QStringList QSettings::readListEntry(const QString &key, const QChar &separator,
     if ( ok && !*ok )
 	return QStringList();
 
-    return QStringList::split(separator, value);
+    return QStringList::split(separator, value, TRUE);
 }
 
 /*!
