@@ -29,8 +29,8 @@ macx {
 	SOURCES +=$$STYLES_CPP/qaquastyle.cpp
 }
 
-!windows:DEFINES += QT_NO_STYLE_WINDOWSXP
-windows {
+!win32:DEFINES += QT_NO_STYLE_WINDOWSXP
+win32 {
 	HEADERS +=$$STYLES_H/qwindowsxpstyle.h
 	SOURCES +=$$STYLES_CPP/qwindowsxpstyle.cpp
 }
