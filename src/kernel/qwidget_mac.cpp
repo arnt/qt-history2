@@ -1356,19 +1356,21 @@ void QWidget::repaint(const QRegion &r)
 	    parents += w;
 	}
 
-	QBrush bg = q->palette().brush(w->d->bg_role);
-	QRect rr = rgn.boundingRect();
-	bool was_unclipped = q->testWFlags(Qt::WPaintUnclipped);
-	q->clearWFlags(Qt::WPaintUnclipped);
-	QPainter p(q);
-	if(was_unclipped)
-	    q->setWFlags(Qt::WPaintUnclipped);
-	p.setClipRegion(rgn);
-	if(bg.pixmap())
-	    p.drawTiledPixmap(rr,*bg.pixmap(), QPoint(rr.x()+(offset.x()%bg.pixmap()->width()),
-						      rr.y()+(offset.y()%bg.pixmap()->height())));
-	else
-	    p.fillRect(rr, bg.color());
+	if(!testAttribute(WA_NoBackground)) {
+	    QBrush bg = q->palette().brush(w->d->bg_role);
+	    QRect rr = rgn.boundingRect();
+	    bool was_unclipped = q->testWFlags(Qt::WPaintUnclipped);
+	    q->clearWFlags(Qt::WPaintUnclipped);
+	    QPainter p(q);
+	    if(was_unclipped)
+		q->setWFlags(Qt::WPaintUnclipped);
+	    p.setClipRegion(rgn);
+	    if(bg.pixmap())
+		p.drawTiledPixmap(rr,*bg.pixmap(), QPoint(rr.x()+(offset.x()%bg.pixmap()->width()),
+							  rr.y()+(offset.y()%bg.pixmap()->height())));
+	    else
+		p.fillRect(rr, bg.color());
+	}
 
 	if (!!parents) {
 	    w = parents.pop();
