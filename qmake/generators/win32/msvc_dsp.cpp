@@ -661,7 +661,7 @@ DspMakefileGenerator::init()
     project->variables()["MSVCDSP_LFLAGS" ] += project->variables()["QMAKE_LFLAGS"];
     project->variables()["MSVCDSP_CXXFLAGS" ] += project->variables()["QMAKE_CXXFLAGS"];
     project->variables()["MSVCDSP_DEFINES"].append(varGlue("DEFINES","/D ","" " /D ",""));
-    project->variables()["MSVCDSP_DEFINES"].append(varGlue("PRL_EXPORT_DEFINES"," /D ","" " /D ",""));
+    project->variables()["MSVCDSP_DEFINES"].append(varGlue("PRL_EXPORT_DEFINES","/D ","" " /D ",""));
     project->variables()["MSVCDSP_INCPATH"].append(varGlue("INCLUDEPATH","/I \"","\" /I \"","\"") +
 						   " /I \"" + specdir() + "\"");
     if ( project->isActiveConfig("qt") ) {
@@ -726,7 +726,7 @@ DspMakefileGenerator::processPrlVariable(const QString &var, const QStringList &
 	QStringList &out = project->variables()["MSVCDSP_DEFINES"];
 	for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
 	    if(out.findIndex((*it)) == -1)
-		out.append((*it));
+		out.append((" /D \"" + *it + "\""));
 	}
     } else {
 	MakefileGenerator::processPrlVariable(var, l);
