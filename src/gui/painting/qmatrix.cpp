@@ -56,11 +56,11 @@
     routines in QPainter and by QPixmap::xForm().
 
     The QMatrix class contains a 3x3 matrix of the form:
-    <table align=center border=1 cellpadding=1 cellspacing=0>
-    <tr align=center><td>m11</td><td>m12</td><td>&nbsp;0 </td></tr>
-    <tr align=center><td>m21</td><td>m22</td><td>&nbsp;0 </td></tr>
-    <tr align=center><td>dx</td> <td>dy</td> <td>&nbsp;1 </td></tr>
-    </table>
+    \table
+    \row \i m11 \i m12 \i 0
+    \row \i m21 \i m22 \i 0
+    \row \i dx  \i dy  \i 1
+    \endtable
 
     A matrix transforms a point in the plane to another point:
     \code
@@ -99,7 +99,7 @@
 
     QMatrix lets you combine transformations like this:
     \code
-        QMatrix m;           // identity matrix
+        QMatrix m;            // identity matrix
         m.translate(10, -20); // first translate (10,-20)
         m.rotate(25);         // then rotate 25 degrees
         m.scale(1.2, 0.7);    // finally scale it
@@ -110,10 +110,10 @@
         double a    = pi/180 * 25;         // convert 25 to radians
         double sina = sin(a);
         double cosa = cos(a);
-        QMatrix m1(1, 0, 0, 1, 10, -20);  // translation matrix
-        QMatrix m2(cosa, sina,            // rotation matrix
+        QMatrix m1(1, 0, 0, 1, 10, -20);   // translation matrix
+        QMatrix m2(cosa, sina,             // rotation matrix
                     -sina, cosa, 0, 0);
-        QMatrix m3(1.2, 0, 0, 0.7, 0, 0); // scaling matrix
+        QMatrix m3(1.2, 0, 0, 0.7, 0, 0);  // scaling matrix
         QMatrix m;
         m = m3 * m2 * m1;                  // combine all transformations
     \endcode
