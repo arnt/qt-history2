@@ -491,6 +491,7 @@ void Configure::generateOutputVars()
 
     if( dictionary[ "SHARED" ] == "yes" ) {
 	dictionary[ "QMAKE_OUTDIR" ] += "_shared";
+	qmakeDefines += "QT_DLL";
     } else {
 	dictionary[ "QMAKE_OUTDIR" ] += "_static";
     }
