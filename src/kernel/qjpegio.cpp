@@ -41,7 +41,8 @@
 
 #ifndef QT_NO_IMAGEIO_JPEG
 
-#include "qiodevice.h"
+#include <qiodevice.h>
+#include <qjpegio.h>
 
 #include <stdio.h> // jpeglib needs this to be pre-included
 #include <setjmp.h>

@@ -38,6 +38,8 @@
 #ifndef QJPEGIO_H
 #define QJPEGIO_H
 
-void qInitJpegIO();
+#include <qglobal.h>
+
+Q_EXPORT extern void qInitJpegIO();
 
 #endif
