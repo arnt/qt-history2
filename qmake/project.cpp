@@ -793,8 +793,12 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
 	int sf = scope_flag;
 	TestStatus sc = test_status;
 	bool r = read(file.latin1(), place);
-	if(r) 
+	if(r) {
 	    vars["QMAKE_INTERNAL_INCLUDED_FILES"].append(file);
+	} else {
+	    warn_msg(WarnParser, "%s:%d: Failure to include file %s.\n",
+		     pi.file.latin1(), pi.line_no, file.latin1());
+	}
 	parser = pi;
 	test_status = sc;
 	scope_flag = sf;
