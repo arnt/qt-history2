@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#171 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#172 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -1737,7 +1737,7 @@ void QPainter::drawImage( int x, int y, const QImage & image,
 	QPDevCmdParam param[2];
 	QPoint p(x,y);
 	param[0].point = &p;
-	param[1].image = &image;
+	param[1].image = &subimage;
 #if defined(_WS_WIN_)
 	if ( !pdev->cmd(PDC_DRAWIMAGE,this,param) || !hdc )
 #else
