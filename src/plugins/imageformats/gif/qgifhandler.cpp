@@ -160,16 +160,15 @@ void QGIFFormat::disposePrevious(QImage *image)
             fillRect(image, l, t, r-l+1, b-t+1, color(bgcol));
         } else {
             // Impossible:  We don't know of a bgcol - use pixel 0
-            QRgb** line = (QRgb **)image->jumpTable();
-            fillRect(image, l, t, r-l+1, b-t+1, line[0][0]);
+            QRgb *bits = (QRgb*)image->bits();
+            fillRect(image, l, t, r-l+1, b-t+1, bits[0]);
         }
         // ### Changed: QRect(l, t, r-l+1, b-t+1)
         break;
       case RestoreImage: {
         if (frame >= 0) {
-            QRgb** line = (QRgb **)image->jumpTable();
             for (int ln=t; ln<=b; ln++) {
-                memcpy(line[ln]+l,
+                memcpy(image->scanLine(ln)+l,
                     backingstore.scanLine(ln-t),
                     (r-l+1)*sizeof(QRgb));
             }
@@ -198,7 +197,6 @@ int QGIFFormat::decode(QImage *image, const uchar *buffer, int length,
 #define LM(l, m) (((m)<<8)|l)
     digress = false;
     int initial = length;
-    QRgb** line = (QRgb **)image->jumpTable();
     while (!digress && length) {
         length--;
         unsigned char ch=*buffer++;
@@ -306,7 +304,6 @@ int QGIFFormat::decode(QImage *image, const uchar *buffer, int length,
                     *nextSize = QSize(swidth, sheight);
                 }
                 image->setAlphaBuffer(trans_index >= 0);
-                line = (QRgb **)image->jumpTable();
 
                 disposePrevious(image);
                 disposed = false;
@@ -377,7 +374,7 @@ int QGIFFormat::decode(QImage *image, const uchar *buffer, int length,
                     }
                     for (int ln=0; ln<h; ln++) {
                         memcpy(backingstore.scanLine(ln),
-                               line[t+ln]+l, w*sizeof(QRgb));
+                               image->scanLine(t+ln)+l, w*sizeof(QRgb));
                     }
                 }
 
@@ -449,8 +446,8 @@ int QGIFFormat::decode(QImage *image, const uchar *buffer, int length,
                 } else {
                     if (needfirst) {
                         firstcode=oldcode=code;
-                        if (!out_of_bounds && line && firstcode!=trans_index)
-                            line[y][x] = color(firstcode);
+                        if (!out_of_bounds && image->height() > y && firstcode!=trans_index)
+                            ((QRgb*)image->scanLine(y))[x] = color(firstcode);
                         x++;
                         if (x>=swidth) out_of_bounds = true;
                         needfirst=false;
@@ -494,8 +491,8 @@ int QGIFFormat::decode(QImage *image, const uchar *buffer, int length,
                         oldcode=incode;
                         while (sp>stack) {
                             --sp;
-                            if (!out_of_bounds && line && *sp!=trans_index)
-                                line[y][x] = color(*sp);
+                            if (!out_of_bounds && image->height() > y && *sp!=trans_index)
+                                ((QRgb*)image->scanLine(y))[x] = color(*sp);
                             x++;
                             if (x>=swidth) out_of_bounds = true;
                             if (x>right) {
@@ -606,11 +603,10 @@ int QGIFFormat::decode(QImage *image, const uchar *buffer, int length,
 void QGIFFormat::fillRect(QImage *image, int col, int row, int w, int h, QRgb color)
 {
     if (w>0) {
-        QRgb** line = (QRgb **)image->jumpTable() + row;
         for (int j=0; j<h; j++) {
-            for (int i=0; i<w; i++) {
-                *(line[j]+col+i) = color;
-            }
+            QRgb *line = (QRgb*)image->scanLine(j+row);
+            for (int i=0; i<w; i++)
+                *(line+col+i) = color;
         }
     }
 }
