@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#374 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#375 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -370,7 +370,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     if ( destroyw )
 	qt_XDestroyWindow( this, dpy, destroyw );
 
-    setFontSys();
 }
 
 
@@ -1879,7 +1878,6 @@ void QWidget::createTLSysExtra()
 	XFree(preedit_att);
 	XFree(status_att);
 
-	setFontSys();
     } else {
 	extra->topextra->xic = 0;
     }

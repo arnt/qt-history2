@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#259 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#260 $
 **
 ** Implementation of QApplication class
 **
@@ -780,7 +780,7 @@ void QApplication::setColorSpec( int spec )
   \sa setPalette(), QWidget::palette()
 */
 
-QPalette QApplication::palette(const QWidget* w)
+const QPalette& QApplication::palette(const QWidget* w)
 {
 #if defined(CHECK_STATE)
     if ( !qApp ) {
@@ -880,7 +880,7 @@ void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets, c
   \sa setFont(), fontMetrics(), QWidget::font()
 */
 
-QFont QApplication::font( const QWidget* w )
+const QFont& QApplication::font( const QWidget* w )
 {
     if ( w && app_fonts ) {
 	QAsciiDictIterator<QFont> it( *app_fonts );
@@ -922,7 +922,7 @@ QFont QApplication::font( const QWidget* w )
   \sa font(), fontMetrics(), QWidget::setFont()
 */
 
-void QApplication::setFont( const QFont &font,	bool updateAllWidgets, const char* className )
+void QApplication::setFont( const QFont &font, bool updateAllWidgets, const char* className )
 {
     if (!className) {
 	delete app_font;
@@ -969,6 +969,9 @@ void QApplication::setFont( const QFont &font,	bool updateAllWidgets, const char
 
 void QApplication::polish(QWidget* w)
 {
+    if ( !w->testWState( WState_PaletteSet ) &&
+	 w->palette() != palette() )
+	w->setPalette( w->palette() );
     app_style->polish( w );
 }
 

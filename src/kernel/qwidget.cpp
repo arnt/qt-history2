@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#433 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#434 $
 **
 ** Implementation of QWidget class
 **
@@ -1794,13 +1794,8 @@ const QColorGroup &QWidget::colorGroup() const
 
 const QPalette &QWidget::palette() const
 {
-    if ( !testWState(WState_PaletteSet) ){
-	QWidget* that = (QWidget*)this;
-	that->pal = QApplication::palette( that );
-	that->setWState(WState_PaletteSet);
-	if ( that->pal == QApplication::palette() && parentWidget() )
-	    that->pal = parentWidget()->palette();
-    }
+    if ( !testWState(WState_PaletteSet) )
+	return QApplication::palette( this );
     return pal;
 }
 
@@ -1837,6 +1832,7 @@ const QPalette &QWidget::palette() const
 void QWidget::setPalette( const QPalette &p )
 {
     QPalette old = palette();
+    setWState( WState_PaletteSet );
     pal = p;
     setBackgroundFromMode();
     paletteChange( old );
@@ -1865,13 +1861,11 @@ void QWidget::setPalette( const QPalette &p )
 
 void QWidget::setPalette( const QPalette &p, bool fixed )
 {
-    if ( fixed ) {
-	setWState( WState_PaletteSet|WState_PaletteFixed );
-    } else {
-	clearWState( WState_PaletteFixed );
-	setWState( WState_PaletteSet );
-    }
     setPalette( p );
+    if ( fixed )
+	setWState( WState_PaletteFixed );
+    else
+	clearWState( WState_PaletteFixed );
 }
 
 /*!
@@ -1902,22 +1896,15 @@ void QWidget::paletteChange( const QPalette & )
   fontInfo() tells you what font is actually being used.
 
   As long as no special font has been set, this is either a special
-  font for the widget class, the font of the parent widget or
-  the default application font.
+  font for the widget class or the default application font.
 
   \sa setFont(), fontInfo(), fontMetrics(), QApplication::font()
 */
 
 const QFont &QWidget::font() const
 {
-    if ( !testWState(WState_FontSet) ) {
-	QWidget* that = (QWidget*)this;
-	that->fnt = QApplication::font( that );
-	that->setWState( WState_FontSet );
-	if ( that->fnt == QApplication::font() && that->parentWidget() )
-	    that->fnt = that->parentWidget()->font();
-    }
-	
+    if ( !testWState(WState_FontSet) )
+	return QApplication::font( this );
     return fnt;
 }
 
@@ -1948,8 +1935,7 @@ void QWidget::setFont( const QFont &font )
     QFont old = QWidget::font();
     fnt = font;
     fnt.handle();				// force load font
-    if ( !testWState(WState_FontSet) )
-	setWState(WState_FontSet);			// indicate initialized
+    setWState(WState_FontSet);			// indicate initialized
     fontChange( old );
     PropagationMode m = fontPropagation();
     if ( m != NoChildren && children() ) {
@@ -1963,7 +1949,8 @@ void QWidget::setFont( const QFont &font )
 		 w->setFont( fnt );
 	}
     }
-    setFontSys();
+    if ( hasFocus() )
+	setFontSys();
 }
 
 /*!
@@ -1975,13 +1962,11 @@ void QWidget::setFont( const QFont &font )
 
 void QWidget::setFont( const QFont &font, bool fixed )
 {
-    if ( fixed ) {
-	setWState( WState_FontSet|WState_FontFixed );
-    } else {
-	clearWState( WState_FontFixed );
-	setWState( WState_FontSet );
-    }
     setFont( font );
+    if ( fixed )
+	setWState( WState_FontFixed );
+    else
+	clearWState( WState_FontFixed );
 }
 
 /*!
@@ -2848,7 +2833,7 @@ static bool noMoreToplevels()
     QWidget     *widget = list->first();
     while ( widget ) {
 	if ( !widget->testWState( Qt::WState_Withdrawn )
-	     && !widget->isDesktop() 
+	     && !widget->isDesktop()
 	     && !widget->isPopup()
 	     && !widget->testWFlags( Qt::WStyle_Dialog) )
 	    break;
@@ -3465,6 +3450,7 @@ bool QWidget::event( QEvent *e )
 	    break;
 
 	case QEvent::FocusIn:
+	    setFontSys();
 	    focusInEvent( (QFocusEvent*)e );
 	    break;
 
@@ -4238,7 +4224,7 @@ bool QWidget::customWhatsThis() const
   to change geometry.
 
   Call this function if the sizeHint() or sizePolicy() have changed.
-*/
+*/#
 
 void QWidget::updateGeometry()
 {
