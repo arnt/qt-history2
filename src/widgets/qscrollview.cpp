@@ -53,9 +53,6 @@ static const int autoscroll_margin = 16;
 static const int initialScrollTime = 30;
 static const int initialScrollAccel = 5;
 
-static const QScrollView::ResizePolicy StretchOne=(QScrollView::ResizePolicy)4;
-					//Becomes member in 3.0
-
 struct QSVChildRec {
     QSVChildRec(QWidget* c, int xx, int yy) :
 	child(c),
@@ -258,7 +255,7 @@ struct QScrollViewData {
 	        if ( s.isValid() )
 		    r->child->resize(s);
 	    }
-	} else if ( policy == StretchOne ) {
+	} else if ( policy == QScrollView::StretchOne ) {
 	    QSVChildRec* r = children.first();
 	    if (r) {
 		QSize sh = r->child->sizeHint();
@@ -268,7 +265,7 @@ struct QScrollViewData {
     }
 
     void viewportResized( int w, int h ) {
-	if ( policy == StretchOne ) {
+	if ( policy == QScrollView::StretchOne ) {
 	    QSVChildRec* r = children.first();
 	    if (r) {
 		QSize sh = r->child->sizeHint();

@@ -67,7 +67,7 @@ public:
     QScrollView(QWidget *parent=0, const char *name=0, WFlags f=0);
     ~QScrollView();
 
-    enum ResizePolicy { Default, Manual, AutoOne /*, StretchOne=4*/ };
+    enum ResizePolicy { Default, Manual, AutoOne, StretchOne };
     virtual void setResizePolicy( ResizePolicy );
     ResizePolicy resizePolicy() const;
 

@@ -1,24 +1,13 @@
+#include "stretchone.h"
 #include <qapplication.h>
-#include <qscrollview.h>
-#include <qframe.h>
 #include <qlayout.h>
 #include <qlineedit.h>
 #include <qvbox.h>
 #include <qvbuttongroup.h>
 #include <qradiobutton.h>
 
-class Fit : public QFrame {
-	Q_OBJECT
-public:
-	Fit( QWidget* parent=0, const char* name=0 );
-	QSize sizeHint() const;
-	QSize minimumSizeHint() const;
-	QSize minimumSize() const;
-	QSize maximumSize() const;
-	void resize( int w, int h );
-};
 
-Fit::Fit( QWidget* parent, const char* name ) : QFrame( parent, name ) {
+Stretch::Stretch( QWidget* parent, const char* name ) : QFrame( parent, name ) {
 	QBoxLayout *layout = new QVBoxLayout( this );
 	for ( int i = 0; i < 10; ++i ) {
 		QString contents;
@@ -29,53 +18,35 @@ Fit::Fit( QWidget* parent, const char* name ) : QFrame( parent, name ) {
 	}
 }
 
-QSize Fit::sizeHint() const {
+QSize Stretch::sizeHint() const {
 	QSize s = QFrame::sizeHint();
-	qDebug( "Fit::sizeHint() = %d x %d", s.width(), s.height() );
+	qDebug( "Stretch::sizeHint() = %d x %d", s.width(), s.height() );
 	return s;
 }
 
-QSize Fit::minimumSizeHint() const {
+QSize Stretch::minimumSizeHint() const {
 	QSize s = QFrame::minimumSizeHint();
-	qDebug( "Fit::minimumSizeHint() = %d x %d", s.width(), s.height() );
+	qDebug( "Stretch::minimumSizeHint() = %d x %d", s.width(), s.height() );
 	return s;
 }
 
-QSize Fit::minimumSize() const {
+QSize Stretch::minimumSize() const {
 	QSize s = QFrame::minimumSize();
-	qDebug( "Fit::minimumSize() = %d x %d", s.width(), s.height() );
+	qDebug( "Stretch::minimumSize() = %d x %d", s.width(), s.height() );
 	return s;
 }
 
-QSize Fit::maximumSize() const {
+QSize Stretch::maximumSize() const {
 	QSize s = QFrame::maximumSize();
-	qDebug( "Fit::maximumSize() = %d x %d", s.width(), s.height() );
+	qDebug( "Stretch::maximumSize() = %d x %d", s.width(), s.height() );
 	return s;
 }
 
-void Fit::resize( int w, int h ) {
-	qDebug( "Fit::resize( %d, %d )", w, h );
+void Stretch::resize( int w, int h ) {
+	qDebug( "Stretch::resize( %d, %d )", w, h );
 	return QFrame::resize( w, h );
 }
 
-
-class MyScrollView : public QScrollView {
-	Q_OBJECT
-public:
-	MyScrollView( QWidget* parent=0, const char* name=0, WFlags f=0 );
-	~MyScrollView();
-	void setResizePolicy( ResizePolicy r );
-	void addChild( QWidget* child, int x=0, int y=0 );
-	void moveChild( QWidget* child, int x=0, int y=0 );
-	void resizeEvent( QResizeEvent* e );
-	bool eventFilter( QObject *, QEvent *e );
-	void show();
-
-public slots:
-	void resizeContents( int w, int h );
-    	void setContentsPos( int x, int y );
-	void setResizePolicySlot( int id );
-};
 
 MyScrollView::MyScrollView( QWidget* parent, const char* name, WFlags f )
 	: QScrollView( parent, name, f ) {
@@ -98,8 +69,8 @@ void MyScrollView::setResizePolicy( ResizePolicy r ) {
 	case AutoOne:
 		s = "AutoOne";
 		break;
-	case AutoOneFit:
-		s = "AutoOneFit";
+	case StretchOne:
+		s = "StretchOne";
 		break;
 	};
 	qDebug( "MyScrollView::setResizePolicy( %s )", s );
@@ -158,7 +129,7 @@ void MyScrollView::setResizePolicySlot( int id ) {
 		setResizePolicy( AutoOne );
 		break;
 	case 1:
-		setResizePolicy( AutoOneFit );
+		setResizePolicy( StretchOne );
 		break;
 	default:
 		qFatal( "internal error in %s:%d", __FILE__, __LINE__ );
@@ -166,25 +137,22 @@ void MyScrollView::setResizePolicySlot( int id ) {
 }
 
 
-#include "autoonefit.moc"
-
-
 int main( int argc, char* argv[] )
 {
 	QApplication application( argc, argv );
 
 	MyScrollView* sv = new MyScrollView( 0, "sv" );
-	Fit* fit = new Fit( sv->viewport(), "fit" );
+	Stretch* fit = new Stretch( sv->viewport(), "fit" );
 	sv->addChild( fit );
 	sv->show();
 
 	QButtonGroup* bg = new QVButtonGroup( "Resize policy:", 0, "bg" );
 	bg->resize( 200, 200 );
 	QRadioButton* b1 = new QRadioButton( "AutoOne", bg, "autoone" );
-	QRadioButton* b2 = new QRadioButton( "AutoOneFit", bg, "autoonefit" );
+	QRadioButton* b2 = new QRadioButton( "StretchOne", bg, "autoonefit" );
 	QObject::connect( bg, SIGNAL(clicked(int)),
 		sv, SLOT(setResizePolicySlot(int)) );
-	sv->setResizePolicy( QScrollView::AutoOneFit );
+	sv->setResizePolicy( QScrollView::StretchOne );
 	b2->setChecked( TRUE );
 	bg->resize( bg->sizeHint() );
 	bg->show();
