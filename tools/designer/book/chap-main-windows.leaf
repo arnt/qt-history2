@@ -400,6 +400,8 @@ drop it on the toolbar handle to the right of the vertical lines. The
 three alignment actions will be added to the toolbar.
 
 \img qd-chapmainwin-toolbarhandle2.png
+\caption Dragging the Action Group to the Toolbar
+
 \img qd-chapmainwin-toolbaractiongroup1.png
 \caption Populating the Toolbar with an Action Group
 
@@ -413,17 +415,16 @@ button. Separate the alignment toolbar buttons from the font related
 buttons by right clicking the centered toolbar button and clicking
 Insert Separator.
 
-	\index Separator!Toolbar button
+\index Separator!Toolbar button
 \index Deleting!Toolbar Separators
 \index Deleting!Toolbars
 Toolbar buttons and separators (usually represented as indented
-	vertical gray lines), can be dragged and dropped into new
-	positions in the toolbar at any time. Separators can be inserted
-	by right clicking a toolbar button and clicking Insert
-	Separator. Toolbar buttons and separators can be deleted by
-	right clicking them and clicking Delete Item. Toolbars can be
-	deleted by right clicking their toolbar handle and clicking
-	Delete Toolbar.
+vertical gray lines), can be dragged and dropped into new positions in
+the toolbar at any time. Separators can be inserted by right clicking
+a toolbar button and clicking Insert Separator. Toolbar buttons and
+separators can be deleted by right clicking them and clicking Delete
+Item. Toolbars can be deleted by right clicking their toolbar handle
+and clicking Delete Toolbar.
 
 \index Previewing!Toolbars
 If you preview the application you'll find that both the original and
@@ -497,8 +498,10 @@ positioned at the bottom of the menu, then drop the action. Repeat
 this process for the italic and underline actions.
 
 \img qd-chapmainwin-dragtomenu.png
+\caption Draggin the Action Group to the Menu Bar
+
 \img qd-chapmainwin-dropinmenu1.png
-\img Dragging and Dropping Align Action Group to the Format Menu
+\caption Dragging and Dropping Align Action Group to the Format Menu
 
 
 \index Creating Menus

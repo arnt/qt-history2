@@ -4,6 +4,7 @@
 
 TEMPLATE += app
 TARGET += tablet
+REQUIRES = tablet
 
 # Input
 HEADERS += canvas.h scribble.h tabletstats.h

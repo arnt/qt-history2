@@ -34,7 +34,8 @@ QString extractContents( const QString& line )
 	pos++;
     pos++;
     while ( pos < int(line.length()) && line[pos] != '\"' ) {
-	if ( line[pos] == '\\') {
+	// 0xa5: the yen sign is the Japanese backslash
+	if ( line[pos] == '\\' || line[pos] == QChar(0xa5) ) {
 	    pos++;
 	    switch (char(line[pos]) ) {
 	    case 'n':

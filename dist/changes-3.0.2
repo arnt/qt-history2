@@ -1,0 +1,180 @@
+54494
+
+Qt 3.0.2 is a bugfix release. It maintains both forward and backward
+compatibility (source and binary) with Qt 3.0.1
+
+
+****************************************************************************
+*			    General					   *
+****************************************************************************
+
+- Improved build on SCO OpenServer 5.0.5, Sun WorkShop 4.2, MIPSpro 7.2
+
+- Bidi on X11: direction key events for right-to-left are configurable
+in QSettings via qt/useRtlExtensions. In 3.0.1 they were always turned
+on.
+
+- basic table support with XFree86
+
+- unicode on X11: fix keysymbols 0x1000000-0x100ffff
+
+****************************************************************************
+*			   Library					   *
+****************************************************************************
+
+- QAbstractLayout
+	Fixes for heightToWidth handling
+
+- QDataTable	
+	Faster key event handling. Fixed crash when cancelling cell
+	editing.
+
+- QDateEdit
+	Gray out background if the widget is disabled. Fixed small
+	static memory leak on exit.
+
+- QDialog
+	On show(), send a tab-focus event to the focus widget, so that
+	e.g. lineedits select all when becoming visible.
+
+-QDockWindow
+	Use correct minimum size, taking frame into account. Less
+	flicker on (de)activation.
+
+- QFileDialog
+	win32 only: In getExistingDirectory(), use QFileDialog and not
+	the Windows system one when the dirOnly flag is FALSE
+
+- QFont
+	win32 only: Fixed boundingBox() when called in a widget
+	constructor. Internal fixes for invalid HDCs. More
+	accurate exactMatch()
+
+- QGLWidget
+	x11 only: fixed shared OpenGL display lists
+
+- QGroupBox
+	More predictable focus handling
+
+- QImage
+	Fixed xForm() for bigendian bitmaps
+
+-QLabel
+	Smarter minimumSizeHint() for word-break labels
+
+- QLayout
+	Fixed possible crash when deleting/adding layout items. More
+	robut on runtime layout changes.
+
+- QLineEdit
+	Ctrl-V now calls the virtual paste() rather than duplicating
+	its functionality. Override accelerators for keypad keys.
+
+- QListBox
+	When inserting items, make sure that we set the head item to selected,
+	since QListBox::currentItem returns 0, but
+	QListBox::item(0)->isSelected() returns FALSE. Make
+	itemVisible() mroe robust with deferred layouts
+
+- QListView
+	Fix focus rects for QCheckList items that have a Controller as
+	a parent. Also, fix drawing of selected checklist boxes so
+	that the focus rect doesn't overlap it. Keep checklist items
+	working after the user swapped columns
+
+- QMenuBar
+	mostly X11: when the focus widget is unfocused, the menubar
+	should stop waiting for an alt release.  On X11, when you use
+	an alt-key shortcut to switch desktops back and forth, then
+	you will get the menubar in altmode when you return to that
+	desktop
+
+- QMovie
+	Animated gifs with a frame delay of 0 work nicer
+
+- QODBCResult
+	Fixed isNull() for some cases
+
+- QPopupMenu
+	More fixes for the animate and fade effects
+
+- QPixmap
+	Make grabWidget() work with internally doublebuffered widgets
+
+- QScrollBar
+	Make sure middle clicking a scrollbar doesn't allow the slider
+	to move outside the groove
+
+- QSettings
+	In readEntry(), report 'ok' in all cases.  Make sure the
+	default value is returned correctly for bool entries that
+	do not exist in the settings files. Both readNumEntry()
+	and readDoubleEntry() report a false ok parameter if the
+	conversion fails
+
+- QSgiStyle
+	Minor visual improvements
+
+- QSlider
+	Make setting a new size policy in designer work
+
+- QSqlRecord
+	Fixed crash when accessing values of non-existing fields
+
+- QString
+	mid() works savely now for len > length() && len != 0xffffffff
+
+- QTable
+	Use correct style flags for QCheckTableItem drawing. The
+	internal event filter no longer consumes FocusIn/FocusOut,
+	meaning those events are accessible for subclasses now
+
+- QTextCode
+	Support for @euro locales
+
+- QTextEdit
+	The internal event filter no longer consumes FocusIn/FocusOut,
+	meaning those events are accessible for subclasses
+	now. Override accelerators for keypad keys. Reduced memory
+	consumption for contents with many paragraphs. Emit
+	selectionChanged() when the selected text has been
+	removed. Emitting the linkClicked() signal may result in the
+	cursor overing over a new, valid link - check this and set the
+	appropriate cursor shape
+
+- QToolTip
+	Fixed wordbreaking when using both rich text and plain text
+	tooltips
+
+- QVariant
+	In toDateTime(), allow conversion from QDate
+
+- QWhatsThis
+	X11 only: Fixed positioning on dualhead setups
+
+- QWidget
+	X11 only:  fixed a show() problem that occured
+	after few reparents from and to toplevel
+
+- QWindowsStyle
+	Minor visual improvements (popupmenu checkitems, listview branches)
+
+- QWorkspace
+	Obey minimumSizeHint() of document widgets. Do not emit
+	windowActivated() for the already active document window.
+
+
+****************************************************************************
+*			   Extensions					   *
+****************************************************************************
+
+
+****************************************************************************
+*			      Other					   *
+****************************************************************************
+
+
+****************************************************************************
+*		    Qt/Embedded-specific changes		           *
+****************************************************************************
+

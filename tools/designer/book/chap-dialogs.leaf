@@ -947,7 +947,7 @@ We'll create the \Func init() function first. One way of
 invoking the code editor is to click the Source tab, then click the
 name of the function you want to work on. If you have no functions or
 wish to create a new function you need to use the Source tab. Right
-click the 'protected' item in the Source tab's Functions list, then
+click the 'protected' item in the Source tab's Slots list, then
 left click \Menu New to launch the \Dialog{Edit Slots} dialog. Change
 the slot's name from 'newSlot' to 'init()' then click \Button OK. You
 can then click inside the editor window that appears to enter your

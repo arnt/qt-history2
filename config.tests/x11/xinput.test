@@ -26,7 +26,7 @@ done
 # debuggery
 [ "$VERBOSE" = "yes" ] && echo "XInput auto-detection..."
 
-#check for the XInput library
+# check for the XInput library
 XDIRS=`sed -n -e '/^QMAKE_LIBDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $XCONFIG`
 LIBDIRS="$IN_LIBDIRS $XDIRS /usr/lib /lib"
 F=
@@ -46,8 +46,7 @@ then
     [ "VERBOSE" = "yes" ] && echo "  Could not find XInput lib anywhere in $LIBDIRS"
 fi
 
-#check for XInput.h and the IRIX wacom.h
-
+# check for XInput.h and the IRIX wacom.h
 if [ "$XINPUT" = "yes" ]
 then
     INCS="X11/extensions/XInput.h wacom.h"
@@ -74,7 +73,7 @@ then
     done
 fi
 
-#done
+# done
 if [ "$XINPUT" != "yes" ]
 then
     [ "$VERBOSE" = "yes" ] && echo "XInput disabled."

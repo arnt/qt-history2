@@ -26,7 +26,12 @@
 #include <string.h>
 #include <qxml.h>
 
+/* qmake ignore Q_OBJECT */
+
 static const char MagicComment[] = "TRANSLATOR ";
+
+static QMap<QCString, int> needs_Q_OBJECT;
+static QMap<QCString, int> lacks_Q_OBJECT;
 
 /*
   The first part of this source file is the C++ tokenizer.  We skip
@@ -51,9 +56,10 @@ static const char MagicComment[] = "TRANSLATOR ";
 */
 
 enum { Tok_Eof, Tok_class, Tok_namespace, Tok_return, Tok_tr,
-       Tok_trUtf8, Tok_translate, Tok_Ident, Tok_Comment, Tok_String,
-       Tok_Colon, Tok_Gulbrandsen, Tok_LeftBrace, Tok_RightBrace,
-       Tok_LeftParen, Tok_RightParen, Tok_Comma, Tok_Semicolon };
+       Tok_trUtf8, Tok_translate, Tok_Q_OBJECT, Tok_Ident,
+       Tok_Comment, Tok_String, Tok_Colon, Tok_Gulbrandsen,
+       Tok_LeftBrace, Tok_RightBrace, Tok_LeftParen, Tok_RightParen,
+       Tok_Comma, Tok_Semicolon };
 
 /*
   The tokenizer maintains the following global variables. The names
@@ -133,7 +139,9 @@ static int getToken()
 
 	    switch ( yyIdent[0] ) {
 	    case 'Q':
-		if ( strcmp(yyIdent + 1, "T_TR_NOOP") == 0 ) {
+		if ( strcmp(yyIdent + 1, "_OBJECT") == 0 ) {
+		    return Tok_Q_OBJECT;
+		} else if ( strcmp(yyIdent + 1, "T_TR_NOOP") == 0 ) {
 		    return Tok_tr;
 		} else if ( strcmp(yyIdent + 1, "T_TRANSLATE_NOOP") == 0 ) {
 		    return Tok_translate;
@@ -251,8 +259,8 @@ static int getToken()
 		yyString[yyStringLen] = '\0';
 
 		if ( yyCh != '"' )
-		    fprintf( stderr, "%s: Unterminated C++ string on line %d\n",
-			     (const char *) yyFileName, yyLineNo );
+		    qWarning( "%s:%d: Unterminated C++ string",
+			      (const char *) yyFileName, yyLineNo );
 
 		if ( yyCh == EOF ) {
 		    return Tok_Eof;
@@ -366,6 +374,7 @@ static void parse( MetaTranslator *tor, const char *initialContext,
     QCString functionContext = initialContext;
     QCString prefix;
     bool utf8 = FALSE;
+    bool missing_Q_OBJECT = FALSE;
 
     yyTok = getToken();
     while ( yyTok != Tok_Eof ) {
@@ -383,13 +392,6 @@ static void parse( MetaTranslator *tor, const char *initialContext,
 		      safe with impure definitions such as
 		      'class Q_EXPORT QMessageBox', in which case
 		      'QMessageBox' is the class name, not 'Q_EXPORT'.
-
-		      Incidentally, the token Tok_Colon is necessary
-		      for this code to work, even though it is not
-		      used explicitly. Otherwise,
-		      'class Foo : public Bar' would be tokenized as
-		      'class Foo Bar' and functionContext would be set
-		      to 'Bar', not 'Foo'.
 		    */
 		    functionContext = yyIdent;
 		    yyTok = getToken();
@@ -400,6 +402,12 @@ static void parse( MetaTranslator *tor, const char *initialContext,
 		    functionContext += "::";
 		    functionContext += yyIdent;
 		    yyTok = getToken();
+		}
+
+		if ( yyTok == Tok_Colon ) {
+		    missing_Q_OBJECT = TRUE;
+		} else {
+		    functionContext = defaultContext;
 		}
 	    }
 	    break;
@@ -435,6 +443,15 @@ static void parse( MetaTranslator *tor, const char *initialContext,
 			context = qualifiedContexts[context];
 		    tor->insert( MetaTranslatorMessage(context, text, com,
 						       QString::null, utf8) );
+
+		    if ( lacks_Q_OBJECT.contains(context) ) {
+			qWarning( "%s:%d: Class '%s' lacks Q_OBJECT macro",
+				  (const char *) yyFileName, yyLineNo,
+				  (const char *) context );
+			lacks_Q_OBJECT.remove( context );
+		    } else {
+			needs_Q_OBJECT.insert( context, 0 );
+		    }
 		}
 	    }
 	    break;
@@ -456,6 +473,10 @@ static void parse( MetaTranslator *tor, const char *initialContext,
 		    tor->insert( MetaTranslatorMessage(context, text, com,
 						       QString::null, utf8) );
 	    }
+	    break;
+	case Tok_Q_OBJECT:
+	    missing_Q_OBJECT = FALSE;
+	    yyTok = getToken();
 	    break;
 	case Tok_Ident:
 	    if ( !prefix.isNull() )
@@ -503,8 +524,19 @@ static void parse( MetaTranslator *tor, const char *initialContext,
 	    if ( yyBraceDepth >= 0 &&
 		 yyBraceDepth + 1 == (int) namespaces.count() )
 		namespaces.remove( namespaces.fromLast() );
-	    if ( yyBraceDepth == (int) namespaces.count() )
+	    if ( yyBraceDepth == (int) namespaces.count() ) {
+		if ( missing_Q_OBJECT ) {
+		    if ( needs_Q_OBJECT.contains(functionContext) ) {
+			qWarning( "%s:%d: Class '%s' lacks Q_OBJECT macro",
+				  (const char *) yyFileName, yyLineNo,
+				  (const char *) functionContext );
+		    } else {
+			lacks_Q_OBJECT.insert( functionContext, 0 );
+		    }
+		}
 		functionContext = defaultContext;
+		missing_Q_OBJECT = FALSE;
+	    }
 	    yyTok = getToken();
 	    break;
 	default:

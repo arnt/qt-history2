@@ -16,6 +16,13 @@ win32 {
 	OBJECTS_DIR		= obj
 	!win32-borland:LIBS 	*= NTWDBLIB.LIB
 	win32-borland:LIBS 	*= $(BCB)/lib/PSDK/NTWDBLIB.LIB
+	win32-msvc: { 
+		LIBS *= delayimp.lib
+		QMAKE_LFLAGS += /DELAYLOAD:ntwdblib.dll
+	}
+	win32-borland: {
+		QMAKE_LFLAGS += /dntwdblib.dll
+	}		
 }
 
 REQUIRES	= sql

@@ -51,8 +51,8 @@ where you choose to install Qt.
 
     After you have done this, you will need to login again, or
     re-source the profile before continuing, so that at least $QTDIR
-    is set.  The installation will give an error message and not
-    proceed otherwise.
+    and $PATH is set.  The installation will give an error message and
+    not proceed otherwise.
 
     On AIX set LIBPATH and on HP-UX set SHLIB_PATH instead of LD_LIBRARY_PATH.
 
