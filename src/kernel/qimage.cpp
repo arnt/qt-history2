@@ -140,7 +140,7 @@
   the image, for example, colorTable(), allGray(), isGrayscale(),
   bitOrder(), bytesPerLine(), depth(), dotsPerMeterX() and
   dotsPerMeterY(), hasAlphaBuffer(), numBytes(), numColors(), and
-  width() and height(). 
+  width() and height().
 
   Pixel colors are retrieved with pixel() and set with setPixel().
 
@@ -151,7 +151,7 @@
   createHeuristicMask(), mirror(), scale(), smoothScale(), swapRGB()
   and xForm(). There are also functions for changing attributes of
   an image in-place, for example, setAlphaBuffer(), setColor(),
-  setDotsPerMeterX() and setDotsPerMeterY() and setNumColors(). 
+  setDotsPerMeterX() and setDotsPerMeterY() and setNumColors().
 
   Images can be loaded and saved in the supported formats.
   Images are saved to a file with save(). Images are loaded from a
@@ -192,15 +192,15 @@
 	   QImage::depth() depth\endlink 1 and contains only
 	   black and white pixels, the pixmap becomes monochrome.
     \value ColorOnly The pixmap is dithered/converted to the
-	   \link QPixmap::defaultDepth() native display depth\endlink.	
+	   \link QPixmap::defaultDepth() native display depth\endlink.
     \value MonoOnly The pixmap becomes monochrome.  If necessary,
-	   it is dithered using the chosen dithering algorithm.	
+	   it is dithered using the chosen dithering algorithm.
 
   Dithering mode preference for RGB channels
     \value DiffuseDither (default) - A high-quality dither.
     \value OrderedDither A faster, more ordered dither.
     \value ThresholdDither No dithering; closest color is used.
- 
+
   Dithering mode preference for alpha channel
     \value ThresholdAlphaDither (default) - No dithering.
     \value OrderedAlphaDither A faster, more ordered dither.
@@ -463,6 +463,8 @@ QImage::QImage( uchar* yourdata, int w, int h, int depth,
 		Endian bitOrder )
 {
     init();
+    if ( !yourdata || w <= 0 || h <= 0 || depth <= 0 || numColors < 0 )
+	return;					// invalid parameter(s)
     data->w = w;
     data->h = h;
     data->d = depth;
@@ -519,6 +521,8 @@ QImage::QImage( uchar* yourdata, int w, int h, int depth,
 		Endian bitOrder )
 {
     init();
+    if ( !yourdata || w <= 0 || h <= 0 || depth <= 0 || numColors < 0 )
+	return;					// invalid parameter(s)
     data->w = w;
     data->h = h;
     data->d = depth;
@@ -933,7 +937,7 @@ void QImage::fill( uint pixel )
 
   If the depth is 32: if \a invertAlpha is TRUE, the alpha bits are also
   inverted, otherwise they are left unchanged.
-  
+
   If the depth is not 32, the argument \a invertAlpha has no meaning.
 
   \sa fill() depth() hasAlphaBuffer()
@@ -3406,7 +3410,7 @@ bool QImage::loadFromData( QByteArray buf, const char *format )
   format and a quality factor of \a quality.  \a quality must be in the range
   0..100 or -1.  Specify 0 to obtain small compressed files, 100 for
   large uncompressed files, and -1 (the default) to use the default
-  settings.  
+  settings.
 
   Returns TRUE if the image was successfully saved; otherwise returns FALSE.
 
@@ -3829,7 +3833,7 @@ static QImageHandler *get_image_handler( const char *format )
   \endcode
 
   Before the regexp test, all the 0 bytes in the file header are
-  converted to 1 bytes. This is done because when Qt was 
+  converted to 1 bytes. This is done because when Qt was
   ASCII-based, QRegExp could not handle 0 bytes in strings.
 
   (Note that if one handlerIO supports writing a format and another
@@ -3905,8 +3909,8 @@ void QImageIO::setImage( const QImage &image )
 
 /*!
   Sets the image IO status to \a status.  A non-zero value indicates
-  an error, whereas 0 means that the IO operation was successful. 
-  
+  an error, whereas 0 means that the IO operation was successful.
+
   \sa status()
 */
 
@@ -5697,7 +5701,7 @@ static void write_xpm_image( QImageIO * iio )
 
   Returns an image with depth \a d, using the \a palette_count colors
   pointed to by \a palette. If \a d is 1 or 8, the returned image will
-  have its color table ordered the same as \a palette. 
+  have its color table ordered the same as \a palette.
 
     If the image needs to be modified to fit in a lower-resolution
     result (eg. converting from 32-bit to 8-bit), use the \a
@@ -6086,10 +6090,10 @@ QValueList<QImageTextKeyLang> QImage::textList() const
 /*!
     Records string \a s for the keyword \a key.  The \a key should be
     a portable keyword recognizable by other software - some suggested
-    values can be found in 
+    values can be found in
     \link http://www.cdrom.com/pub/png/spec/PNG-Chunks.html#C.tEXt
     the PNG specification\endlink.  \a s can be any text.  \a lang should
-    specify the language code (see 
+    specify the language code (see
     \link ftp://ftp.isi.edu/in-notes/1766 RFC 1766\endlink) or 0.
 */
 void QImage::setText(const char* key, const char* lang, const QString& s)
