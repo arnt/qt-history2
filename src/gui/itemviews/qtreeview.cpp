@@ -1391,8 +1391,6 @@ int QTreeViewPrivate::coordinate(int item) const
     Q_Q(const QTreeView);
     int scrollbarValue = q->verticalScrollBar()->value();
     int viewItemIndex = itemAt(scrollbarValue); // first item (may start above the page)
-    if (viewItemIndex == -1)
-        qDebug() << item << scrollbarValue;
     Q_ASSERT(viewItemIndex != -1);
     int viewItemHeight = height(viewItemIndex);
     int viewportHeight = viewport->height();
