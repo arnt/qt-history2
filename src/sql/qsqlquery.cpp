@@ -988,16 +988,17 @@ bool QSqlQuery::exec()
 /*!
     Set the placeholder \a placeholder to be bound to value \a val in
     the prepared statement. Note that the placeholder mark (e.g \c{:})
-    should be included when specifying the placeholder name.
-    Placeholder values are cleared after the query has been executed.
+    should be included when specifying the placeholder name.    
+    If \a type is QSql::Out or QSql::InOut, the placeholder will be
+    overwritten with data from the database after exec().
 
     \sa addBindValue(), prepare(), exec()
 */
-void QSqlQuery::bindValue( const QString& placeholder, const QVariant& val )
+void QSqlQuery::bindValue( const QString& placeholder, const QVariant& val, QSql::ParameterType type )
 {
     if ( !d->sqlResult || !d->sqlResult->extension() )
 	return;
-    d->sqlResult->extension()->bindValue( placeholder, val );
+    d->sqlResult->extension()->bindValue( placeholder, val, type );    
 }
 
 /*!
@@ -1005,32 +1006,68 @@ void QSqlQuery::bindValue( const QString& placeholder, const QVariant& val )
 
     Set the placeholder in position \a pos to be bound to value \a val
     in the prepared statement. Field numbering starts at 0.
-    Placeholder values are cleared after the query has been executed.
+    If \a type is QSql::Out or QSql::InOut, the placeholder will be
+    overwritten with data from the database after exec().
 
     \sa addBindValue(), prepare(), exec()
 */
-void QSqlQuery::bindValue( int pos, const QVariant& val )
+void QSqlQuery::bindValue( int pos, const QVariant& val, QSql::ParameterType type )
 {
     if ( !d->sqlResult || !d->sqlResult->extension() )
 	return;
-    d->sqlResult->extension()->bindValue( pos, val );
+    d->sqlResult->extension()->bindValue( pos, val, type );
 }
 
 /*!
     Adds the value \a val to the list of values when using positional
     value binding. The order of the addBindValue() calls determines
     which placeholder a value will be bound to in the prepared query.
-    Placeholder values are cleared after the query has been executed.
-
+    If \a type is QSql::Out or QSql::InOut, the placeholder will be
+    overwritten with data from the database after exec().
+    
     \sa bindValue(), prepare(), exec()
 */
-void QSqlQuery::addBindValue( const QVariant& val )
+void QSqlQuery::addBindValue( const QVariant& val, QSql::ParameterType type )
 {
     if ( !d->sqlResult || !d->sqlResult->extension() )
 	return;
-    d->sqlResult->extension()->addBindValue( val );
+    d->sqlResult->extension()->addBindValue( val, type );
 }
 
+
+/*!
+    \overload
+    
+    Binds the placeholder with type QSql::In.
+*/
+void QSqlQuery::bindValue( const QString& placeholder, const QVariant& val )
+{
+    bindValue( placeholder, val, QSql::In );
+}
+
+/*!
+    \overload
+    
+    Binds the placeholder with type QSql::In.
+*/
+void QSqlQuery::bindValue( int pos, const QVariant& val )
+{
+    bindValue( pos, val, QSql::In );
+}
+
+/*!
+    \overload
+    
+    Binds the placeholder with type QSql::In.
+*/
+void QSqlQuery::addBindValue( const QVariant& val )
+{
+    addBindValue( val, QSql::In );
+}
+
+/*!
+    Returns the value for the \a placeholder.
+*/
 QVariant QSqlQuery::boundValue( const QString& placeholder ) const
 {
     if ( !d->sqlResult || !d->sqlResult->extension() )
@@ -1038,7 +1075,11 @@ QVariant QSqlQuery::boundValue( const QString& placeholder ) const
     return d->sqlResult->extension()->boundValue( placeholder );
 }
 
-
+/*!
+    \overload
+    
+    Returns the value for the placeholder at position \a pos.
+*/
 QVariant QSqlQuery::boundValue( int pos ) const
 {
     if ( !d->sqlResult || !d->sqlResult->extension() )

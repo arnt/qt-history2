@@ -44,6 +44,7 @@
 #include "qvaluelist.h"
 #include "qsqlerror.h"
 #include "qsqlfield.h"
+#include "qsql.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL
@@ -102,6 +103,10 @@ public:
     void		bindValue( const QString& placeholder, const QVariant& val );
     void		bindValue( int pos, const QVariant& val );
     void		addBindValue( const QVariant& val );
+    // remove these overloads in 4.0
+    void		bindValue( const QString& placeholder, const QVariant& val, QSql::ParameterType type );
+    void		bindValue( int pos, const QVariant& val, QSql::ParameterType type );
+    void		addBindValue( const QVariant& val, QSql::ParameterType type );
     QVariant		boundValue( const QString& placeholder ) const;
     QVariant		boundValue( int pos ) const;
     
