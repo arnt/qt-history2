@@ -30,7 +30,7 @@ if [ "$relpath" != `pwd` ]; then
     #need a top level makefile, prefer gnu internally
     if [ -f $relpath/GNUmakefile ]; then
 	ln -sf $relpath/GNUmakefile $outpath/Makefile
-    else [ -f $relpath/Makefile ]; then
+    elif [ -f $relpath/Makefile ]; then
 	ln -sf $relpath/Makefile $outpath/Makefile
     else
 	echo "No top level Makefile."
