@@ -733,7 +733,7 @@ bool QClipboard::event( QEvent *e )
 				      PropModeReplace, (uchar *) data.data(), n );
 		    evt.xselection.property = property;
 		    if ( multi )
-			delete multi;
+			delete[] multi;
 		} else {
 		    bool already_done = FALSE;
 		    if ( target == XA_STRING) {
