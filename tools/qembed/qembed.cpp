@@ -72,7 +72,7 @@ int main( int argc, char **argv )
 
   // Embed data for all input files
 
-    long l = random();
+    long l = rand();
     out << "#ifndef _" << l << endl;
     out << "#define _" << l << endl;
 
