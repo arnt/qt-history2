@@ -1409,6 +1409,7 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
     case Qt::Key_PageUp:
     case Qt::Key_Up:
         newRow = currentItem() - 1;
+        e->accept();
         break;
     case Qt::Key_Down:
         if (e->state() & Qt::AltButton) {
@@ -1418,24 +1419,31 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
         // fall through
     case Qt::Key_PageDown:
         newRow = currentItem() + 1;
+        e->accept();
         break;
     case Qt::Key_Home:
-        if (!isEditable())
+        if (!isEditable()) {
             newRow = 0;
+            e->accept();
+        }
         break;
     case Qt::Key_End:
-        if (!isEditable())
+        if (!isEditable()) {
             newRow = d->model->rowCount(root()) - 1;
+            e->accept();
+        }
         break;
     case Qt::Key_F4:
         if (e->state() == 0) {
             popup();
+            e->accept();
             return;
         }
         break;
     case Qt::Key_Space:
         if (!d->lineEdit) {
             popup();
+            e->accept();
             return;
         }
         break;
