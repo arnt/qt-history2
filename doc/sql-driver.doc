@@ -385,10 +385,9 @@ make sure that the following requirements are met:
 
 QSqlDatabase is responsible for loading and managing database driver
 plugins.  When a database is added (see QSqlDatabase::addDatabase()),
-the appropriate driver plugin is loaded (using QLibrary).
-QSqlDatabase relies on the driver plugin to provide <q
-href="qinterfacemanager.html">interfaces</a> for QSqlDriver and
-QSqlResult.
+the appropriate driver plugin is loaded (using QSqlDriverPlugin).
+QSqlDatabase relies on the driver plugin to provide interfaces for
+QSqlDriver and QSqlResult.
 
 QSqlDriver is an abstract base class which defines the functionality
 of a SQL database driver.  This includes functions such as
@@ -412,12 +411,10 @@ Qt SQL driver, both of these classes must to be subclassed and the
 abstract virtual methods in each class must be implemented.  
 
 To implement a Qt SQL driver as a plugin (so that it is recognized and
-loaded by the Qt library at runtime), the driver must export a
-QSqlDriverFactoryInterface, which is an interface that is capable of
-producing QSqlDriver objects (see QSqlDriverFactory::create()).  There
-are several macros available to assist in creating such a plugin.  See
-the source from the examples provided with Qt in 
-\c{QTDIR/plugins/src/sqldrivers} and \c{QTDIR/src/sql/drivers}
- for more information.
+loaded by the Qt library at runtime), the driver must use the
+Q_EXPORT_PLUGIN macro. Please read the \link plugins.html Qt
+Plugin\endlink documentation for more information on this. You can
+also check out how this is done in the SQL plugins that is provided
+with Qt in \c{QTDIR/plugins/src/sqldrivers} and \c{QTDIR/src/sql/drivers}.
 
 */
