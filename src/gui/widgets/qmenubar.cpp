@@ -129,7 +129,7 @@ void QMenuBarPrivate::popupAction(QAction *action, bool activateFirst)
 
         QRect dh = QApplication::desktop()->rect();
         QRect adjustedActionRect = actionRect(action);
-        QPoint pos(q->mapToGlobal(QPoint(adjustedActionRect.left(), adjustedActionRect.bottom())));
+        QPoint pos(q->mapToGlobal(QPoint(adjustedActionRect.left(), adjustedActionRect.bottom() + 1)));
         QSize popup_size = activeMenu->sizeHint();
         const int off = pos.x()+popup_size.width() - dh.right();
         if(off > 0)
