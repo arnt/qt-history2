@@ -280,12 +280,16 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
-\fn void QAbstractItemView::pressed(const QModelIndex &index)
+    \fn void QAbstractItemView::pressed(const QModelIndex &index)
 
     This signal is emitted when a mouse button is pressed. The item the
-mouse was pressed on is specified by \a index (which may be invalid if
-                                               the mouse was not pressed on an item). The state of the mouse buttons
-and keyboard modifiers are specified by \a button and \a modifiers.
+    mouse was pressed on is specified by \a index (which may be invalid if
+    the mouse was not pressed on an item).
+    \omit
+    ###
+    The state of the mouse buttons
+    and keyboard modifiers are specified by \a button and \a modifiers.
+    \emdomit
 */
 
 /*!

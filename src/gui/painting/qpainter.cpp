@@ -727,18 +727,14 @@ void QPainterPrivate::updateInvMatrix()
 
 /*!
     \enum QPainter::TextDirection
+    This enum describes the direction in which text is rendered by
+    the painter.
 
-    \value Auto
-    \value RTL right to left
-    \value LTR left to right
+    \value Auto The default text direction is used.
+    \value RTL  Text is rendered from right to left.
+    \value LTR  Text is rendered from left to right.
 
     \sa drawText()
-*/
-
-/*!
-    \fn QPaintEngine *QPaintDevice::paintEngine() const
-
-    \internal
 */
 
 /*!
@@ -2889,18 +2885,6 @@ void QPainter::drawLines(const QLineF *lines, int lineCount)
 */
 
 /*!
-    \fn void QPainter::drawLines(const QVector<QPointF> &pointPairs)
-
-    \overload
-
-    Draws a line for each pair of points in the vector \a pointPairs using
-    the current pen.
-
-    If there is an odd number of points in the array, the last point
-    will be ignored.
-*/
-
-/*!
     \overload
 
     Draws the first \a lineCount lines in the array \a pointPairs using
@@ -3523,7 +3507,7 @@ void QPainter::drawImage(const QRectF &targetRect, const QImage &image, const QR
 
     \overload
 
-    Draws the string \a str within the rectangle with origin (\a{x},
+    Draws the given \a text within the rectangle with origin (\a{x},
     \a{y}), width \a w and height \a h. The flags that are given in the
     \a flags parameter are a selection of flags from \l{Qt::AlignmentFlag}s
     and \l{Qt::TextFlag}s combined using the bitwise OR operator. \a br
@@ -3532,8 +3516,8 @@ void QPainter::drawImage(const QRectF &targetRect, const QImage &image, const QR
 */
 
 /*!
-    Draws the string \a str at position \a p. The text's direction is
-    given by \a dir.
+    Draws the string \a str with the currently defined text direction,
+    beginning at position \a p.
 
     \sa QPainter::TextDirection
 */
@@ -3709,7 +3693,7 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &ti)
 
     \overload
 
-    Returns the bounding rectangle of the characters in the string \a str
+    Returns the bounding rectangle of the characters in the given \a text,
     constrained by the rectangle beginning at the point (\a{x}, \a{y})
     with width \a w and height \a h.
 */
@@ -5096,24 +5080,28 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
 
 /*!
     \fn void QPainter::drawText(int x, int y, const QString &text, int pos, int len, TextDirection dir)
+    \compat
 
     Use drawText(x, y, text.mid(pos, len), dir) instead.
 */
 
 /*!
     \fn void QPainter::drawText(const QPoint &p, const QString &text, int pos, int len, TextDirection dir)
+    \compat
 
     Use drawText(p, text.mid(pos, len), dir) instead.
 */
 
 /*!
     \fn void QPainter::drawText(int x, int y, const QString &text, int len, TextDirection dir)
+    \compat
 
     Use drawText(x, y, text.left(len), dir) instead.
 */
 
 /*!
     \fn void QPainter::drawText(const QPoint &p, const QString &s, int len, TextDirection dir)
+    \compat
 
     Use drawText(p, text.left(len), dir) instead.
 */
