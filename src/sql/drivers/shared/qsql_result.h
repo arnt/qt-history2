@@ -52,8 +52,16 @@
 #include <qvariant.h>
 #include <qsqlresult.h>
 
+#if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL ) || defined(QT_PLUGIN)
+#define QM_EXPORT_SQLTDS
+#else
+#define QM_EXPORT_SQLTDS Q_EXPORT
+#endif
 
-class QSqlClientData
+#ifndef QT_NO_SQL
+
+
+class QM_EXPORT_SQLTDS QSqlClientData
 {
 public:
     virtual ~QSqlClientData();
@@ -61,7 +69,7 @@ public:
     virtual QSqlClientData* clone();
 };
 
-class QSqlClientNullData
+class QM_EXPORT_SQLTDS QSqlClientNullData
 {
 public:
     virtual ~QSqlClientNullData();
@@ -70,7 +78,7 @@ public:
     virtual QSqlClientNullData* clone();
 };
 
-class QSqlClientResultBuffer
+class QM_EXPORT_SQLTDS QSqlClientResultBuffer
 {
 public:
     QSqlClientResultBuffer();
@@ -97,7 +105,7 @@ private:
     Private* d;
 };
 
-class QSqlClientResultSet
+class QM_EXPORT_SQLTDS QSqlClientResultSet
 {
 public:
     QSqlClientResultSet();
@@ -119,7 +127,7 @@ private:
 };
 
 
-class QSqlCachedResult: public QSqlResult
+class QM_EXPORT_SQLTDS QSqlCachedResult: public QSqlResult
 {
 public:
     virtual ~QSqlCachedResult();
@@ -144,5 +152,7 @@ protected:
 
 };
 
+
+#endif
 
 #endif
