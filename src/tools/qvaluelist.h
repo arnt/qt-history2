@@ -461,10 +461,15 @@ public:
 	for ( ; n > 0; --n )
 	    insert( pos, x );
     }
+    // Some compilers (incl. vc++) would instantiate this function even if
+    // it is not used; this would constrain QValueList to classes that provide
+    // an operator<
+    /*
     void sort()
     {
 	qHeapSort( *this );
     }
+    */
 
     QValueList<T> operator+ ( const QValueList<T>& l ) const
     {
