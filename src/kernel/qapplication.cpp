@@ -3328,10 +3328,12 @@ QString QSessionManager::sessionId() const
     return d->sessionId;
 }
 
+#if defined(Q_WS_X11) || defined(Q_WS_MAC)
 void* QSessionManager::handle() const
 {
     return 0;
 }
+#endif
 
 bool QSessionManager::allowsInteraction()
 {
