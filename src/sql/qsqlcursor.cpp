@@ -231,9 +231,11 @@ void QSqlCursor::setName( const QString& name, bool autopopulate )
 {
     d->nm = name;
     if ( autopopulate ) {
-	d->editBuffer = driver()->record( name );
-	*this = d->editBuffer;
-	d->priIndx = driver()->primaryIndex( name );
+	if ( driver() ) {
+	    d->editBuffer = driver()->record( name );
+	    *this = d->editBuffer;
+	    d->priIndx = driver()->primaryIndex( name );
+	}
 #ifdef QT_CHECK_RANGE
 	if ( isEmpty() )
 	    qWarning("QSqlCursor::setName: unable to build record, does '%s' exist?", name.latin1() );
@@ -558,8 +560,11 @@ bool QSqlCursor::canDelete() const
 
 QString QSqlCursor::toString( const QString& prefix, QSqlField* field, const QString& fieldSep ) const
 {
-    QString f = ( prefix.length() > 0 ? prefix + QString(".") : QString::null ) + field->name();
-    f += " " + fieldSep + " " + driver()->formatValue( field );
+    QString f;
+    if ( field && driver() ) {
+	f = ( prefix.length() > 0 ? prefix + QString(".") : QString::null ) + field->name();
+	f += " " + fieldSep + " " + driver()->formatValue( field );
+    }
     return f;
 }
 
@@ -625,7 +630,7 @@ QString QSqlCursor::toString( const QSqlIndex& i, QSqlRecord* rec, const QString
 
 int QSqlCursor::insert( bool invalidate )
 {
-    if ( ( d->md & Insert ) != Insert )
+    if ( ( d->md & Insert ) != Insert || !driver() )
 	return FALSE;
     int k = d->editBuffer.count();
     if( k == 0 ) return 0;
@@ -829,7 +834,7 @@ int QSqlCursor::apply( const QString& q, bool invalidate )
 	d->lastAt = QSqlResult::BeforeFirst;
 	if ( exec( q ) )
 	    ar = numRowsAffected();
-    } else {
+    } else if ( driver() ) {
 	QSqlQuery sql( driver()->createQuery() );
 	if ( sql.exec( q ) )
 	    ar = sql.numRowsAffected();
