@@ -181,6 +181,7 @@ void QPaintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDra
             updateBrush(QBrush(), QPoint(0, 0));
             setDirty(DirtyBrush);
         } else {
+            path.setFillRule(mode == WindingMode ? Qt::WindingFill : Qt::OddEvenFill);
             path.closeSubpath();
         }
         drawPath(path);
@@ -217,6 +218,7 @@ void QPaintEngine::drawPolygon(const QPoint *points, int pointCount, PolygonDraw
             updateBrush(QBrush(), QPoint(0, 0));
             setDirty(DirtyBrush);
         } else {
+            path.setFillRule(mode == WindingMode ? Qt::WindingFill : Qt::OddEvenFill);
             path.closeSubpath();
         }
         drawPath(path);
