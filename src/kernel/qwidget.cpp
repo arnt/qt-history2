@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#80 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#81 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#80 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#81 $")
 
 
 /*!
@@ -747,19 +747,31 @@ QPoint QWidget::mapFromParent( const QPoint &p ) const
     return p - crect.topLeft();
 }
 
-/*!  Closes this widget.  First it sends the widget a QCloseEvent,
-  then, if the widget did accept that, or \e forceKill is TRUE, it
-  does an explicit delete of the widget and all its children.
 
-  \sa closeEvent() ~QWidget()*/
+/*!
+  Closes this widget.
 
-bool QWidget::close( bool forceKill )		// close widget
+  First it sends the widget a QCloseEvent, then, if the widget did accept
+  that, or \e forceKill is TRUE, it deletes the widget and all its children.
+
+  The application will be terminated if the main widget is closed.
+
+  \sa closeEvent(), ~QWidget(), QApplication::setMainWidget(),
+      QApplication::quit()
+*/
+
+bool QWidget::close( bool forceKill )
 {
     QCloseEvent event;
-    QApplication::sendEvent( this, &event );
-    if ( event.isAccepted() || forceKill )
-	delete this;
-    return event.isAccepted();
+    bool accept = QApplication::sendEvent( this, &event );
+    if ( accept || forceKill ) {
+	hide();
+	if ( qApp->mainWidget() == this )
+	    qApp->quit();
+	else
+	    delete this;
+    }
+    return accept;
 }
 
 /*!
@@ -872,7 +884,7 @@ void QWidget::adjustSize()
 
 bool QWidget::event( QEvent *e )		// receive event(),
 {
-    if ( eventFilters )	{			// try filters
+    if ( eventFilters ) {			// try filters
 	if ( activate_filters( e ) )		// stopped by a filter
 	    return TRUE;
     }
