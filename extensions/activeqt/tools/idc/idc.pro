@@ -1,7 +1,7 @@
 TEMPLATE        = app
 TARGET          = idc
 
-CONFIG         += console release warn_off qtinc
+CONFIG         += console warn_off qtinc
 CONFIG	       -= qt
 DESTDIR         = ../../../../bin
 
