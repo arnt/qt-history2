@@ -1,8 +1,8 @@
-#include "qcomplextext_p.h"
+#include <private/qcomplextext_p.h>
 
 #ifndef QT_NO_COMPLEXTEXT
-#include "qrichtext_p.h"
-#include "qfontdata_p.h"
+#include <private/qrichtext_p.h>
+#include <private/qfontdata_p.h>
 #include "qfontmetrics.h"
 #include "qrect.h"
 #include <stdlib.h>

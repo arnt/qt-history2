@@ -50,8 +50,8 @@
 #include "qstringlist.h"
 #include "qguardedptr.h"
 #include <ctype.h>
-#include "../kernel/qrichtext_p.h"
-#include "../kernel/qinternal_p.h"
+#include <private/qrichtext_p.h>
+#include <private/qinternal_p.h>
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif

@@ -73,7 +73,7 @@
 #include "qlayout.h"
 #include "qobject.h"
 #include <limits.h>
-#include "qcomplextext_p.h"
+#include <private/qcomplextext_p.h>
 #include "qapplication.h"
 #endif // QT_H
 

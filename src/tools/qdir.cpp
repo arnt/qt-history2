@@ -39,7 +39,7 @@
 #include "qdir.h"
 
 #ifndef QT_NO_DIR
-#include "qdir_p.h"
+#include <private/qdir_p.h>
 #include "qfileinfo.h"
 #include "qregexp.h"
 #include "qstringlist.h"

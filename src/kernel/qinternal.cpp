@@ -35,7 +35,7 @@
 **
 **********************************************************************/
 
-#include "qinternal_p.h"
+#include <private/qinternal_p.h>
 #include "qwidget.h"
 #include "qpixmap.h"
 #include "qpainter.h"

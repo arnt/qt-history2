@@ -35,7 +35,7 @@
 **
 *****************************************************************************/
 
-#include "qsvgdevice_p.h"
+#include <private/qsvgdevice_p.h>
 
 #ifndef QT_NO_SVG
 

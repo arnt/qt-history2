@@ -31,7 +31,7 @@
 #if defined(QT_NON_COMMERCIAL)
 #include "qmessagebox.h"
 #endif
-#include "qapplication_p.h"
+#include <private/qapplication_p.h>
 #include "qwidget.h"
 #include "qwidgetlist.h"
 #include "qwidgetintdict.h"

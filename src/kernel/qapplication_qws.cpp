@@ -38,9 +38,9 @@
 #include "qglobal.h"
 #include "qcursor.h"
 #include "qapplication.h"
-#include "qapplication_p.h"
+#include <private/qapplication_p.h>
 #include "qwidget.h"
-#include "qwidget_p.h"
+#include <private/qwidget_p.h>
 #include "qobjectlist.h"
 #include "qwidgetlist.h"
 #include "qwidgetintdict.h"

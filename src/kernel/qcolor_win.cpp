@@ -28,7 +28,7 @@
 **********************************************************************/
 
 #include "qcolor.h"
-#include "qcolor_p.h"
+#include <private/qcolor_p.h>
 #include "qapplication.h"
 #include "qt_windows.h"
 
