@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qpic2cpp/qpic2cpp.cpp#2 $
+** $Id: //depot/qt/main/util/qpic2cpp/qpic2cpp.cpp#3 $
 **
 ** This is a utility program for converting Qt metafiles to C++ code
 **
@@ -28,7 +28,7 @@
 #include <qdstream.h>
 
 
-static const UINT32 mfhdr_tag = 0x11140d06;	// header tag
+static const Q_UINT32 mfhdr_tag = 0x11140d06;	// header tag
 static const int    mfhdr_maj = 1;		// major version #
 static const int    mfhdr_min = 0;		// minor version #
 
@@ -76,8 +76,8 @@ bool genCPlusPlus( QString fileName, QFile &file )
     QColor color;
     char *str;
 
-    UINT32 tag;					// metafile tag
-    UINT16 cs;					// checksum
+    Q_UINT32 tag;				// metafile tag
+    Q_UINT16 cs;				// checksum
     int major, minor;
     s >> tag >> cs >> major >> minor;
     if ( tag != mfhdr_tag ) {
