@@ -2296,9 +2296,9 @@ QObjectList *MainWindow::runProject()
 
     qwf_stays_on_top = FALSE;
 
-    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
-	if ( e->project() == currentProject )
-	    e->editorInterface()->setMode( EditorInterface::Debugging );
+    for ( SourceEditor *e2 = sourceEditors.first(); e2; e2 = sourceEditors.next() ) {
+	if ( e2->project() == currentProject )
+	    e2->editorInterface()->setMode( EditorInterface::Debugging );
     }
     return l;
 }
