@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdstream.cpp#21 $
+** $Id: //depot/qt/main/src/tools/qdstream.cpp#22 $
 **
 ** Implementation of QDataStream class
 **
@@ -21,7 +21,7 @@
 #include <netinet/in.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdstream.cpp#21 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qdstream.cpp#22 $")
 
 
 /*----------------------------------------------------------------------------
@@ -579,7 +579,7 @@ QDataStream &QDataStream::operator<<( INT32 i )
     CHECK_STREAM_PRECOND
     if ( printable ) {				// printable data
 	char buf[16];
-	sprintf( buf, "%ld\n", i );
+	sprintf( buf, "%d\n", i );
 	dev->writeBlock( buf, strlen(buf) );
     }
     else if ( noswap )				// no conversion needed
