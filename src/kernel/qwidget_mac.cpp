@@ -1813,8 +1813,8 @@ void QWidget::setGeometry_helper(int x, int y, int w, int h, bool isMove)
 				    olds.width(), olds.height(), Qt::CopyROP, true, true);
 		}
 	    }
-	    if(isTopLevel()) 
-		qt_mac_destroy_cg_hd(this, TRUE);
+	    if(isResize)
+		qt_mac_destroy_cg_hd(this, isTopLevel());
 	    if((!newreg_empty || !oldreg_empty) &&
 	       (isResize || !isTopLevel() || !QDIsPortBuffered(GetWindowPort((WindowPtr)hd)))) {
 		//finally issue "expose" event
@@ -2308,8 +2308,13 @@ uint QWidget::clippedSerial(bool do_children)
 */
 Qt::HANDLE QWidget::macCGHandle(bool do_children) const
 {
-    if(!cg_hd) 
+    if(!cg_hd) {
 	CreateCGContextForPort(GetWindowPort((WindowPtr)handle()), (CGContextRef*)&cg_hd);
+#ifdef USE_TRANSLATED_CG_CONTEXT
+	CGContextTranslateCTM((CGContextRef)cg_hd, 0, height());
+	CGContextScaleCTM((CGContextRef)cg_hd, 1, -1);
+#endif
+    }
     QRegion rgn = ((QWidget*)this)->clippedRegion(do_children);
     if(!rgn.handle()) {
 	QRect qr = rgn.boundingRect();

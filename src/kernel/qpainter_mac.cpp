@@ -30,9 +30,6 @@
 #include <private/qtextlayout_p.h>
 #include <string.h>
 
-//This turns on core graphics (don't use it unless you're Sam!!!)
-//#define USE_CORE_GRAPHICS
-
 class paintevent_item;
 class QPainterPrivate
 {
@@ -51,10 +48,33 @@ public:
     } qd_info;
     //implementation details of the port information (for CoreGraphics)
     struct {
+#ifndef USE_TRANSLATED_CG_CONTEXT
 	int width, height;
+#endif
 	CGPatternRef fill_pattern;
 	CGColorSpaceRef fill_colorspace;
     } cg_info;
+#ifdef USE_TRANSLATED_CG_CONTEXT
+    inline void cg_mac_point(const int &inx, const int &iny, float *outx, float *outy, bool global=false) {
+	if(outx)
+	    *outx = inx;
+	if(outy)
+	    *outy = iny;
+	if(!global) {
+	    if(outx)
+		*outx += offx;
+	    if(outy)
+		*outy += offy;
+	}
+    }
+    inline void cg_mac_point(const int &inx, const int &iny, CGPoint *p, bool global=false) {
+	cg_mac_point(inx, iny, &p->x, &p->y, global);
+    }
+    inline void cg_mac_rect(const int &inx, const int &iny, const int &inw, const int &inh, CGRect *rct, bool global=false) {
+	*rct = CGRectMake(0, 0, inw, inh);
+	cg_mac_point(inx, iny, &rct->origin, global);
+    }
+#else
     inline void cg_mac_point(const int &inx, const int &iny, float *outx, float *outy, bool global=false) {
 	if(outx)
 	    *outx = inx;
@@ -74,6 +94,7 @@ public:
 	*rct = CGRectMake(0, 0, inw, -inh);
 	cg_mac_point(inx, iny, &rct->origin, global);
     }
+#endif
 };
 
 
@@ -200,7 +221,9 @@ void QPainter::init()
     d->qd_info.crgn_dirty = d->locked = d->unclipped = false;
     d->qd_info.clippedreg = d->qd_info.paintreg = QRegion();
     d->offx = d->offy = 0;
+#ifndef USE_TRANSLATED_CG_CONTEXT
     d->cg_info.width = d->cg_info.height = 0;
+#endif
     d->cg_info.fill_pattern = 0;
     d->cg_info.fill_colorspace = 0;
 }
@@ -381,7 +404,15 @@ static void qt_mac_draw_pattern(void *info, CGContextRef c)
 					   pat->im->provider, 0, 0, kCGRenderingIntentDefault);
 	}
     }
-    CGContextDrawImage(c, CGRectMake(0, 0, w, h), pat->im->image);
+    CGRect rect = CGRectMake(0, 0, w, h);
+#ifdef USE_TRANSLATED_CG_CONTEXT
+    /* For whatever reason HIViews are top, left - so we'll just use this convenience function to
+       actually render the CGImageRef. If this proves not to be an efficent funciton call (I doubt
+       it), we'll just flip the image in the conversion above. */
+    HIViewDrawCGImage(c, &rect, pat->im->image);
+#else
+    CGContextDrawImage(c, rect, pat->im->image);
+#endif
 }
 
 static void qt_mac_dispose_pattern(void *info)
@@ -622,7 +653,9 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
     d->qd_info.paintevent = 0;
     d->qd_info.crgn_dirty = false;
     d->offx = d->offy = 0;
+#ifndef USE_TRANSLATED_CG_CONTEXT
     d->cg_info.width = d->cg_info.height = 0;
+#endif
     d->cg_info.fill_pattern = 0;
     wx = wy = vx = vy = 0;                      // default view origins
 
@@ -639,11 +672,13 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
 	    d->offx = wp.x();
 	    d->offy = wp.y();
 	}
+#ifndef USE_TRANSLATED_CG_CONTEXT
         {
 	    QWidget *tlw = w->topLevelWidget();
 	    d->cg_info.width  = tlw->width();
 	    d->cg_info.height = tlw->height();
         }
+#endif
 	ww = vw = w->width();                   // default view size
 	wh = vh = w->height();
 	if(!unclipped)
@@ -675,8 +710,10 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
 #endif
 	    ww = vw = pm->width();                  // default view size
 	    wh = vh = pm->height();
+#ifndef USE_TRANSLATED_CG_CONTEXT
 	    d->cg_info.width  = pm->width();
 	    d->cg_info.height = pm->height();
+#endif
 	} 
     }
     d->unclipped = unclipped;
@@ -686,8 +723,12 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
     initPaintDevice(true); //force setting paint device, this does unclipped fu
 
     if(testf(ExtDev)) {               // external device
-	d->cg_info.width = ww = vw = pdev->metric(QPaintDeviceMetrics::PdmWidth);
-	d->cg_info.height = wh = vh = pdev->metric(QPaintDeviceMetrics::PdmHeight);
+	ww = vw = pdev->metric(QPaintDeviceMetrics::PdmWidth);
+	wh = vh = pdev->metric(QPaintDeviceMetrics::PdmHeight);
+#ifndef USE_TRANSLATED_CG_CONTEXT
+	d->cg_info.width = ww;
+	d->cg_info.height = wh;
+#endif
     }
 
     if(ww == 0)
@@ -1443,17 +1484,28 @@ void QPainter::drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd)
     float cg_x, cg_y;
     d->cg_mac_point(x, y, &cg_x, &cg_y);
 
-    int offx = xRnd, offy = yRnd;
     CGMutablePathRef path = CGPathCreateMutable();
-    CGPathMoveToPoint(path, 0, cg_x, cg_y - offy);                             //start
-    CGPathAddQuadCurveToPoint(path, 0, cg_x, cg_y, cg_x + offx, cg_y);         //top left
-    CGPathAddLineToPoint(path, 0, cg_x+(w-offx), cg_y);                        //top
-    CGPathAddQuadCurveToPoint(path, 0, cg_x+w, cg_y, cg_x+w, cg_y-offy);       //top right
-    CGPathAddLineToPoint(path, 0, cg_x+w, cg_y-(h-offy));                      //right
-    CGPathAddQuadCurveToPoint(path, 0, cg_x+w, cg_y-h, cg_x+(w-offx), cg_y-h); //bottom right
-    CGPathAddLineToPoint(path, 0, cg_x+offx, cg_y-h);                          //bottom
-    CGPathAddQuadCurveToPoint(path, 0, cg_x, cg_y-h, cg_x, cg_y-(h-offy));     //bottom left
-    CGPathAddLineToPoint(path, 0, cg_x, cg_y-offy);                            //left
+#ifdef USE_TRANSLATED_CG_CONTEXT
+    CGPathMoveToPoint(path, 0, cg_x, cg_y+yRnd);                             //start
+    CGPathAddQuadCurveToPoint(path, 0, cg_x, cg_y, cg_x+xRnd, cg_y);         //top left
+    CGPathAddLineToPoint(path, 0, cg_x+(w-xRnd), cg_y);                        //top
+    CGPathAddQuadCurveToPoint(path, 0, cg_x+w, cg_y, cg_x+w, cg_y+yRnd);       //top right
+    CGPathAddLineToPoint(path, 0, cg_x+w, cg_y+(h-yRnd));                      //right
+    CGPathAddQuadCurveToPoint(path, 0, cg_x+w, cg_y+h, cg_x+(w-xRnd), cg_y+h); //bottom right
+    CGPathAddLineToPoint(path, 0, cg_x+xRnd, cg_y+h);                          //bottom
+    CGPathAddQuadCurveToPoint(path, 0, cg_x, cg_y+h, cg_x, cg_y+(h-yRnd));     //bottom left
+    CGPathAddLineToPoint(path, 0, cg_x, cg_y+yRnd);                            //left
+#else
+    CGPathMoveToPoint(path, 0, cg_x, cg_y - yRnd);                             //start
+    CGPathAddQuadCurveToPoint(path, 0, cg_x, cg_y, cg_x + xRnd, cg_y);         //top left
+    CGPathAddLineToPoint(path, 0, cg_x+(w-xRnd), cg_y);                        //top
+    CGPathAddQuadCurveToPoint(path, 0, cg_x+w, cg_y, cg_x+w, cg_y-yRnd);       //top right
+    CGPathAddLineToPoint(path, 0, cg_x+w, cg_y-(h-yRnd));                      //right
+    CGPathAddQuadCurveToPoint(path, 0, cg_x+w, cg_y-h, cg_x+(w-xRnd), cg_y-h); //bottom right
+    CGPathAddLineToPoint(path, 0, cg_x+xRnd, cg_y-h);                          //bottom
+    CGPathAddQuadCurveToPoint(path, 0, cg_x, cg_y-h, cg_x, cg_y-(h-yRnd));     //bottom left
+    CGPathAddLineToPoint(path, 0, cg_x, cg_y-yRnd);                            //left
+#endif
     CGContextBeginPath((CGContextRef)hd);
     CGContextAddPath((CGContextRef)hd, path);
     if(cbrush.style() != NoBrush)
@@ -1513,7 +1565,11 @@ void QPainter::drawEllipse(int x, int y, int w, int h)
 	transform = CGAffineTransformMakeScale(((float)w)/h, 1);
     float cg_x, cg_y;
     d->cg_mac_point(x, y, &cg_x, &cg_y);
+#ifdef USE_TRANSLATED_CG_CONTEXT
+    CGPathAddArc(path, w == h ? 0 : &transform, (cg_x+(w/2))/((float)w/h), cg_y + (h/2), h/2, 0, 360, false);
+#else
     CGPathAddArc(path, w == h ? 0 : &transform, (cg_x+(w/2))/((float)w/h), cg_y - (h/2), h/2, 0, 360, false);
+#endif
     CGContextBeginPath((CGContextRef)hd);
     CGContextAddPath((CGContextRef)hd, path);
     if(cbrush.style() != NoBrush)
@@ -1619,7 +1675,11 @@ void QPainter::drawArc(int x, int y, int w, int h, int a, int alen)
     float cg_x, cg_y;
     d->cg_mac_point(x, y, &cg_x, &cg_y);
     float begin_radians = ((float)a/16) * (M_PI/180), end_radians = ((float)(a+alen)/16) * (M_PI/180);
+#ifdef USE_TRANSLATED_CG_CONTEXT
+    CGPathAddArc(path, w == h ? 0 : &transform, (cg_x+(w/2))/((float)w/h), cg_y + (h/2), h/2, begin_radians, end_radians, a < 0 || alen < 0);
+#else
     CGPathAddArc(path, w == h ? 0 : &transform, (cg_x+(w/2))/((float)w/h), cg_y - (h/2), h/2, begin_radians, end_radians, a < 0 || alen < 0);
+#endif
     CGContextBeginPath((CGContextRef)hd);
     CGContextAddPath((CGContextRef)hd, path);
     if(cpen.style() != NoPen) 
@@ -1676,9 +1736,15 @@ void QPainter::drawPie(int x, int y, int w, int h, int a, int alen)
     float cg_x, cg_y;
     d->cg_mac_point(x, y, &cg_x, &cg_y);
     float begin_radians = ((float)a/16) * (M_PI/180), end_radians = ((float)(a+alen)/16) * (M_PI/180);
+#ifdef USE_TRANSLATED_CG_CONTEXT
+    CGPathMoveToPoint(path, 0, cg_x + (w/2), cg_y + (h/2));
+    CGPathAddArc(path, w == h ? 0 : &transform, (cg_x+(w/2))/((float)w/h), cg_y + (h/2), h/2, begin_radians, end_radians, a < 0 || alen < 0);
+    CGPathAddLineToPoint(path, 0, cg_x + (w/2), cg_y + (h/2));
+#else
     CGPathMoveToPoint(path, 0, cg_x + (w/2), cg_y - (h/2));
     CGPathAddArc(path, w == h ? 0 : &transform, (cg_x+(w/2))/((float)w/h), cg_y - (h/2), h/2, begin_radians, end_radians, a < 0 || alen < 0);
     CGPathAddLineToPoint(path, 0, cg_x + (w/2), cg_y - (h/2));
+#endif
     CGContextBeginPath((CGContextRef)hd);
     CGContextAddPath((CGContextRef)hd, path);
     if(cbrush.style() != NoBrush) 
@@ -1733,8 +1799,13 @@ void QPainter::drawChord(int x, int y, int w, int h, int a, int alen)
     d->cg_mac_point(x, y, &cg_x, &cg_y);
     float begin_radians = ((float)a/16) * (M_PI/180), end_radians = ((float)(a+alen)/16) * (M_PI/180);
     //We draw twice because the first draw will set the point to the end of arc, and the second pass will draw the line to the first point
-    CGPathAddArc(path, w == h ? 0 : &transform, (cg_x+(w/2))/((float)w/h), cg_y - (h/2), h/2, begin_radians, end_radians, a < 0 || alen < 0);
-    CGPathAddArc(path, w == h ? 0 : &transform, (cg_x+(w/2))/((float)w/h), cg_y - (h/2), h/2, begin_radians, end_radians, a < 0 || alen < 0);
+#ifdef USE_TRANSLATED_CG_CONTEXT
+    CGPathAddArc(path, w == h ? 0 : &transform, (cg_x+(w/2))/((float)w/h), cg_y+(h/2), h/2, begin_radians, end_radians, a < 0 || alen < 0);
+    CGPathAddArc(path, w == h ? 0 : &transform, (cg_x+(w/2))/((float)w/h), cg_y+(h/2), h/2, begin_radians, end_radians, a < 0 || alen < 0);
+#else
+    CGPathAddArc(path, w == h ? 0 : &transform, (cg_x+(w/2))/((float)w/h), cg_y-(h/2), h/2, begin_radians, end_radians, a < 0 || alen < 0);
+    CGPathAddArc(path, w == h ? 0 : &transform, (cg_x+(w/2))/((float)w/h), cg_y-(h/2), h/2, begin_radians, end_radians, a < 0 || alen < 0);
+#endif
     CGContextBeginPath((CGContextRef)hd);
     CGContextAddPath((CGContextRef)hd, path);
     if(cbrush.style() != NoBrush) 
@@ -2244,7 +2315,11 @@ QPoint QPainter::pos() const
     QPoint ret;
 #ifdef USE_CORE_GRAPHICS
     CGPoint pt = CGContextGetPathCurrentPoint((CGContextRef)hd);
+#ifndef USE_TRANSLATED_CG_CONTEXT
     ret = QPoint((int)(pt.x - d->offx), (int)(d->cg_info.height - pt.y - d->offy));
+#else
+    ret = QPoint((int)(pt.x - d->offx), (int)(pt.y - d->offy));
+#endif
 #else
     ((QPainter *)this)->initPaintDevice();
     Point pt;

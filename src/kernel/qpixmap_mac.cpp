@@ -748,8 +748,14 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
 */
 Qt::HANDLE QPixmap::macCGHandle() const
 {
-    if(!cg_hd)
+    if(!cg_hd) {
 	CreateCGContextForPort((CGrafPtr)hd, (CGContextRef*)&cg_hd);
+	SyncCGContextOriginWithPort((CGContextRef)cg_hd, (CGrafPtr)hd); //account for origin (just in case)
+#ifdef USE_TRANSLATED_CG_CONTEXT
+	CGContextTranslateCTM((CGContextRef)cg_hd, 0, height());
+	CGContextScaleCTM((CGContextRef)cg_hd, 1, -1);
+#endif
+    }
     return cg_hd;
 }
 
