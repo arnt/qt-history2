@@ -124,7 +124,7 @@ public:
 #ifndef QT_NO_PROPERTIES
 	enumData(0), numEnumData(0),propData(0),numPropData(0),
 #endif
-	classInfo(0), numClassInfo(0), slotAccess(0),sigOffset(-1) {}
+	classInfo(0), numClassInfo(0), sigOffset(-1) {}
 #ifndef QT_NO_PROPERTIES
     QMetaEnum     *enumData;			// enumeration types
     int		   numEnumData;
@@ -133,7 +133,6 @@ public:
 #endif
     QClassInfo    *classInfo;			// class information
     int            numClassInfo;
-    QMetaData::Access* slotAccess; // ### remove 3.0
 
     int sigOffset;
 };
@@ -242,8 +241,6 @@ QMetaObject::~QMetaObject()
 #endif
     if ( d->classInfo )
 	delete [] d->classInfo;
-    if ( d->slotAccess )
-	delete [] d->slotAccess;
     delete slotDict;				// delete dicts
     delete signalDict;
     delete d;
