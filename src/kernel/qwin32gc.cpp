@@ -446,6 +446,12 @@ void QWin32GC::drawLine(int x1, int y1, int x2, int y2)
 void QWin32GC::drawRect(int x, int y, int w, int h)
 {
     Q_ASSERT(isActive());
+
+    if (d->pStyle == NoPen) {
+	++w;
+	++h;
+    }
+
     if (d->nocolBrush) {
 	SetTextColor(d->hdc, d->bColor);
 	Rectangle(d->hdc, x, y, x+w, y+h);
