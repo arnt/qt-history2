@@ -190,8 +190,8 @@ static QString getEnglishName(const QString &familyName)
     }, {
         LOGFONTA lf;
         memset( &lf, 0, sizeof( LOGFONTA ) );
-        QCString lfam = familyName.local8Bit();
-        memcpy( lf.lfFaceName, familyName.local8Bit(), QMIN( LF_FACESIZE, familyName.local8Bit().length() ) );
+        QByteArray lfam = familyName.local8Bit();
+        memcpy( lf.lfFaceName, lfam, QMIN( LF_FACESIZE, lfam.size() ) );
         lf.lfCharSet = DEFAULT_CHARSET;
         hfont = CreateFontIndirectA( &lf );
     } );
