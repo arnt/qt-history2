@@ -38,6 +38,7 @@ signals:
 
 public slots:
     void showLineEdit();
+    void hideLineEdit();
     void renameClickedItem();
 
 private:
