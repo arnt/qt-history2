@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#78 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#79 $
 **
 ** Implementation of QLabel widget class
 **
@@ -581,16 +581,24 @@ void QLabel::buddyDied() // I can't remember if I cried.
 
 void QLabel::setBuddy( QWidget *buddy )
 {
-    setAlignment( alignment() | ShowPrefix );
+    if ( buddy )
+	setAlignment( alignment() | ShowPrefix );
+    else
+	setAlignment( alignment() & ~ShowPrefix );
 
     if ( extra ) {
 	if ( extra->buddy )
 	    disconnect( extra->buddy, SIGNAL(destroyed()),
 			this, SLOT(buddyDied()) );
-    } else {
+    } else if ( buddy ) {
 	extra = new QLabelExtra(this);
 	extra->buddy = buddy;
     }
+
+    extra->buddy = buddy;
+
+    if ( !buddy )
+	return;
 
     const char * p = ltext.isEmpty() ? 0 : strchr( ltext, '&' );
     while( p && *p && p[1] == '&' )
@@ -601,7 +609,6 @@ void QLabel::setBuddy( QWidget *buddy )
 				  this, SLOT(acceleratorSlot()) );
     }
 
-    extra->buddy = buddy;
     connect( buddy, SIGNAL(destroyed()), this, SLOT(buddyDied()) );
 }
 
