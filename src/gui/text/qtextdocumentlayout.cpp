@@ -341,6 +341,7 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *paint
                 QRect cellRect(QPoint(td->columnPositions.at(c), td->rowPositions.at(r)),
                                QPoint(td->columnPositions.at(c+cspan-1) + td->widths.at(c+cspan-1),
                                       td->rowPositions.at(r+rspan-1) + td->heights.at(r+rspan-1)));
+                cellRect.moveBy(off);
                 if (!cellRect.intersects(painter->clipRegion().boundingRect()))
                     continue;
 
@@ -393,8 +394,11 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPoint &offset, QPainter *paint
         cursor = -1;
 
     QColor bgCol = blockFormat.backgroundColor();
-    if (bgCol.isValid())
-        painter->fillRect(bl.layout()->rect(), bgCol);
+    if (bgCol.isValid()) {
+        QRect r = bl.layout()->rect();
+        r.moveBy(offset);
+        painter->fillRect(r , bgCol);
+    }
 
     QTextLayout::Selection s;
     int nSel = 0;
