@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#115 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#116 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** Q1String classes
@@ -627,7 +627,7 @@ QString::~QString()
     deref();
 }
 
-void QString::detach()
+void QString::real_detach()
 {
     int newlen = d->len;
     ushort * nd = new ushort[newlen];
@@ -764,7 +764,7 @@ void QString::resize( uint newlenp1 )
 void QString::setLength( uint len )
 {
     if ( d->len != len ) {
-	detach();
+	real_detach();
 	if ( len > d->maxl ) {
 	    uint newmax = QMAX(d->maxl,4);
 	    while ( newmax < len )
@@ -897,6 +897,18 @@ int QString::find( const QString& str, int index, bool cs ) const
     }
     return n>=strl ? (int)(uc - unicode()) : -1;
 }
+
+/*!
+  \fn int QString::findRev( const char* str, int index ) const
+ 
+  Equivalent to findRev(QString(str), index).
+*/
+
+/*!
+  \fn int QString::find( const char* str, int index ) const
+
+  Equivalent to find(QString(str), index).
+*/
 
 /*!
   Finds the first occurrence of the character \e c, starting at
@@ -1211,7 +1223,7 @@ QString QString::lower() const
 {
     QString s(*this);
     int l=length();
-    s.detach(); // could do this only when we find a change
+    s.real_detach(); // could do this only when we find a change
     register ushort *p=s.d->unicode;
     if ( p ) {
 	while ( l-- ) {
@@ -1238,7 +1250,7 @@ QString QString::upper() const
 {
     QString s(*this);
     int l=length();
-    s.detach(); // could do this only when we find a change
+    s.real_detach(); // could do this only when we find a change
     register ushort *p=s.d->unicode;
     if ( p ) {
 	while ( l-- ) {
@@ -1353,7 +1365,7 @@ QString &QString::insert( uint index, const QString &s )
 	return *this;
     uint olen = length();
     int nlen = olen + len;
-    detach();
+    real_detach();
     if ( index >= olen ) {			// insert after end of string
 	setLength( nlen+index-olen );
 	int n = index-olen;
@@ -1425,7 +1437,7 @@ QString &QString::remove( uint index, uint len )
 	    setLength(index);
 	}
     } else if ( len != 0 ) {
-	detach();
+	real_detach();
 	memmove( d->unicode+index, unicode()+index+len,
 	    sizeof(ushort)*(olen-index-len+1) );
 	setLength( olen-len );
@@ -1773,9 +1785,35 @@ void QString::setExpand( uint index, ushort c )
 
 
 /*!
-  \fn QString::operator const char *() const
-  Returns the string data.
+  \fn void QString::detach()
+
+  Obsolete.  This method is provided to aide porting to Qt 2.0.
+
+  In Qt 1.x, QString was explicitly shared.  Now it
+  is implicitly shared.  This function is a no-op.
 */
+
+/*!
+  \fn const char* QString::data() const
+
+  Obsolete.  This method is provided to aide porting to Qt 2.0.
+
+  In Qt 1.x, this returned a char* allowing direct
+  manipulation of the string as a sequence of bytes.  Now that
+  QString is a Unicode string, char* conversion constructs
+  a temporary string, and hence direct character operations
+  are meaningless.
+*/
+
+/*!
+  \fn uint QString::size() const
+
+  Obsolete.  This method is provided to aide porting to Qt 2.0.
+
+  In Qt 1.x, QString was a QByteArray subclass, and so it had
+  a size() method which was usually equivalent length()+1.
+*/
+
 
 /*!
   \fn bool QString::operator!() const
@@ -1881,7 +1919,7 @@ QString::operator const char *() const
 */
 ushort& QString::at( uint i )
 {
-    detach();
+    real_detach();
 
     if ( d->len <= i ) {
 	int ol = d->len;
@@ -1924,7 +1962,7 @@ QDataStream &operator<<( QDataStream &s, const QString &str )
 
 QDataStream &operator>>( QDataStream &s, QString &str )
 {
-    str.detach();
+    str.real_detach();
     Q_UINT32 bytes;
     s >> bytes;					// read size of string
     str.setLength( bytes/2 );

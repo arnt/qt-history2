@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#156 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#157 $
 **
 ** Definition of QWidget class
 **
@@ -226,6 +226,11 @@ public:
 
     void	 reparent( QWidget *parent, WFlags, const QPoint &,
 			   bool showIt=FALSE );
+#ifndef QT_NO_COMPAT
+    void	 recreate( QWidget *parent, WFlags f, const QPoint & p,
+			   bool showIt=FALSE )
+	{ reparent(parent,f,p,showIt); }
+#endif
 
     void	 erase();
     void	 erase( int x, int y, int w, int h );

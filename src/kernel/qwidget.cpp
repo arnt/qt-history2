@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#261 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#262 $
 **
 ** Implementation of QWidget class
 **
@@ -2236,6 +2236,13 @@ void QWidget::reparentFocusWidgets( QWidget * parent )
     }
 }
 
+/*!
+  \fn void recreate( QWidget *parent, WFlags f, const QPoint & p, bool showIt )
+
+  Obsolete.  This method is provided to aide porting to Qt 2.0.
+
+  The function recreate is renamed to reparent in Qt 2.0.
+*/
 
 /*!
   \internal

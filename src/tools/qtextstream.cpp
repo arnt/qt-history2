@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#52 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#53 $
 **
 ** Implementation of QTextStream class
 **
@@ -153,11 +153,10 @@ const int QTextStream::adjustfield = ( QTextStream::left |
 const int QTextStream::floatfield  = ( QTextStream::scientific |
 				       QTextStream::fixed );
 
-
-int eat_ws( QIODevice *d )
+int QTextStream::eat_ws()
 {
     int c;
-    do { c = d->getch(); } while ( c != EOF && isspace(c) );
+    do { c = ts_getc(); } while ( c != EOF && ts_isspace(c) );
     return c;
 }
 
@@ -170,6 +169,7 @@ QTextStream::QTextStream()
 {
     dev = 0;					// no device set
     fstrm = owndev = FALSE;
+    cmode = Ascii;
     reset();
 }
 
@@ -181,12 +181,199 @@ QTextStream::QTextStream( QIODevice *d )
 {
     dev = d;					// set device
     fstrm = owndev = FALSE;
+    cmode = Ascii;
     reset();
 }
 
+class QStringBuffer : public QIODevice {
+public:
+    QStringBuffer( QString& str ) :
+	s(str)
+    {
+    }
+
+   ~QStringBuffer()
+    {
+    }
+
+
+    bool  open( int m )
+    {
+	if ( isOpen() ) {                           // buffer already open
+#if defined(CHECK_STATE)
+	    warning( "QStringBuffer::open: Buffer already open" );
+#endif
+	    return FALSE;
+	}
+	setMode( m );
+	if ( m & IO_Truncate ) {                    // truncate buffer
+	    s.truncate( 0 );
+	}
+	if ( m & IO_Append ) {                      // append to end of buffer
+	    index = s.length();
+	} else {
+	    index = 0;
+	}
+	setState( IO_Open );
+	setStatus( 0 );
+	return TRUE;
+    }
+
+    void  close()
+    {
+	if ( isOpen() ) {
+	    setFlags( IO_Direct );
+	    index = 0;
+	}
+    }
+
+    void  flush()
+    {
+    }
+
+
+    uint  size() const
+    {
+	return s.length()*sizeof(ushort);
+    }
+
+    int   at()   const
+    {
+	return index;
+    }
+
+    bool  at( int pos )
+    {
+#if defined(CHECK_STATE)
+	if ( !isOpen() ) {
+	    warning( "QStringBuffer::at: Buffer is not open" );
+	    return FALSE;
+	}
+#endif
+	if ( (uint)pos > s.length()*2 ) {
+#if defined(CHECK_RANGE)
+	    warning( "QStringBuffer::at: Index %d out of range", pos );
+#endif
+	    return FALSE;
+	}
+	index = pos;
+	return TRUE;
+    }
+
+
+    int   readBlock( char *p, uint len )
+    {
+#if defined(CHECK_STATE)
+	CHECK_PTR( p );
+	if ( !isOpen() ) {                          // buffer not open
+	    warning( "QBuffer::readBlock: Buffer not open" );
+	    return -1;
+	}
+	if ( !isReadable() ) {                      // reading not permitted
+	    warning( "QBuffer::readBlock: Read operation not permitted" );
+	    return -1;
+	}
+#endif
+	if ( (uint)index + len > s.length()*sizeof(ushort) ) {
+					     	    // overflow
+	    if ( (uint)index >= s.length()*sizeof(ushort) ) {
+		setStatus( IO_ReadError );
+		return -1;
+	    } else {
+		len = s.length()*2 - (uint)index;
+	    }
+	}
+	memcpy( p, ((char*)(s.unicode()))+index, len );
+	index += len;
+	return len;
+    }
+
+    int writeBlock( const char *p, uint len )
+    {
+#if defined(CHECK_NULL)
+	if ( p == 0 && len != 0 )
+	    warning( "QBuffer::writeBlock: Null pointer error" );
+#endif
+#if defined(CHECK_STATE)
+	if ( !isOpen() ) {                          // buffer not open
+	    warning( "QBuffer::writeBlock: Buffer not open" );
+	    return -1;
+	}
+	if ( !isWritable() ) {                      // writing not permitted
+	    warning( "QBuffer::writeBlock: Write operation not permitted" );
+	    return -1;
+	}
+#endif
+	if ( (uint)index + len >= s.length()*2 ) {  // overflow
+	    s.setLength((index+len+1)/2);
+	}
+	memcpy( ((char*)s.unicode())+index, p, len );
+	index += len;
+	return len;
+    }
+
+
+    int   getch()
+    {
+#if defined(CHECK_STATE)
+	if ( !isOpen() ) {                          // buffer not open
+	    warning( "QBuffer::getch: Buffer not open" );
+	    return -1;
+	}
+	if ( !isReadable() ) {                      // reading not permitted
+	    warning( "QBuffer::getch: Read operation not permitted" );
+	    return -1;
+	}
+#endif
+	if ( (uint)index >= s.length()*2 ) {           // overflow
+	    setStatus( IO_ReadError );
+	    return -1;
+	}
+	return *((char*)s.unicode() + index++);
+    }
+
+    int   putch( int ch )
+    {
+	char c = ch;
+	if ( writeBlock(&c,1) < 0 )
+	    return -1;
+	else
+	    return ch;
+    }
+
+    int   ungetch( int ch )
+    {
+#if defined(CHECK_STATE)
+	if ( !isOpen() ) {                          // buffer not open
+	    warning( "QBuffer::ungetch: Buffer not open" );
+	    return -1;
+	}
+	if ( !isReadable() ) {                      // reading not permitted
+	    warning( "QBuffer::ungetch: Read operation not permitted" );
+	    return -1;
+	}
+#endif
+	if ( ch != -1 ) {
+	    if ( index )
+		index--;
+	    else
+		ch = -1;
+	}
+	return ch;
+    }
+
+
+protected:
+    QString& s;
+
+private:        // Disabled copy constructor and operator=
+    QStringBuffer( const QStringBuffer & );
+    QStringBuffer &operator=( const QStringBuffer & );
+};
+
 /*!
-  Constructs a text stream that operates on a byte array throught an
-  internal QBuffer device.
+  Constructs a text stream that operates on a Unicode QString through an
+  internal device.
 
   Example:
   \code
@@ -195,28 +382,47 @@ QTextStream::QTextStream( QIODevice *d )
     ts << "pi = " << 3.14;			// str == "pi = 3.14"
   \endcode
 
+  The \a mode argument cannot be Ascii.
+
   Writing data to the text stream will modify the contents of the string.
   The string will be expanded when data is written beyond the end of the
+  string.
+*/
+
+QTextStream::QTextStream( QString& str, int filemode, CharacterMode mode )
+{
+    dev = new QStringBuffer( str );
+    ((QStringBuffer *)dev)->open( filemode );
+    fstrm = FALSE;
+    owndev = TRUE;
+    ASSERT(mode != Ascii);
+    cmode = mode;
+    reset();
+}
+
+/*!
+  Constructs a text stream that operates on a byte array through an
+  internal QBuffer device.
+
+  Example:
+  \code
+    QByteArray array;
+    QTextStream ts( array, IO_WriteOnly );
+    ts << "pi = " << 3.14 << '\0';		// array == "pi = 3.14"
+  \endcode
+
+  Writing data to the text stream will modify the contents of the array.
+  The array will be expanded when data is written beyond the end of the
   string.
 
   Same example, using a QBuffer:
   \code
-    QString str;
-    QBuffer buf( str );
+    QByteArray array;
+    QBuffer buf( array );
     buf.open( IO_WriteOnly );
     QTextStream ts( &buf );
-    ts << "pi = " << 3.14;			// str == "pi = 3.14"
+    ts << "pi = " << 3.14 << '\0';		// array == "pi = 3.14"
     buf.close();
-  \endcode
-
-  Note that QStrings created in this way will not have NUL terminators.
-  So unless you are using the string purely as an array of bytes, you
-  should terminate them:
-  \code
-    QString str;
-    ...
-    ts << "pi = " << 3.14;			// str == "pi = 3.14"
-    ts << '\0';
   \endcode
 */
 
@@ -226,6 +432,7 @@ QTextStream::QTextStream( QByteArray a, int mode )
     ((QBuffer *)dev)->open( mode );
     fstrm = FALSE;
     owndev = TRUE;
+    cmode = Ascii;
     reset();
 }
 
@@ -246,6 +453,7 @@ QTextStream::QTextStream( FILE *fh, int mode )
     dev = new QFile;
     ((QFile *)dev)->open( mode, fh );
     fstrm = owndev = TRUE;
+    cmode = Ascii;
     reset();
 }
 
@@ -260,6 +468,105 @@ QTextStream::~QTextStream()
     if ( owndev )
 	delete dev;
 }
+
+/*!
+  Sets the character mode for the stream to \a mode.
+
+  This should only be done before any characters are written
+  to or read from the stream.
+*/
+void QTextStream::setCharacterMode(CharacterMode mode)
+{
+    cmode = mode;
+}
+
+/*!
+  \fn bool QTextStream::characterMode() const
+
+  Returns the character mode of the stream.
+
+  \sa setCharacterMode()
+*/
+
+/*!
+  Returns one character from the stream, or EOF.
+*/
+int QTextStream::ts_getc()
+{
+    // WARNING: some QTextStream functions call getch directly.
+
+    switch (cmode) {
+     case Ascii:
+	return dev->getch();
+     case UnicodeBigEndian: {
+	    int c = dev->getch();
+	    if ( c == EOF )
+		return c;
+	    return (c << 8) | dev->getch();
+	}
+     case UnicodeLittleEndian: {
+	    int c = dev->getch();
+	    if ( c == EOF )
+		return c;
+	    return c | (dev->getch() << 8);
+	}
+    }
+    return EOF;
+}
+
+/*!
+  Puts one character to the stream.
+*/
+void QTextStream::ts_putc(int ch)
+{
+    switch (cmode) {
+     case Ascii:
+	dev->putch(ch);
+	break;
+     case UnicodeBigEndian:
+	dev->putch(ch>>8);
+	dev->putch(ch&0xff);
+	break;
+     case UnicodeLittleEndian:
+	dev->putch(ch&0xff);
+	dev->putch(ch>>8);
+    }
+}
+
+bool QTextStream::ts_isdigit(int ch)
+{
+    if ( cmode == Ascii )
+	return isdigit(ch);
+    else // ######## see QString ucdigit()
+	return isdigit(ch&0xff);
+}
+
+bool QTextStream::ts_isspace(int ch)
+{
+    if ( cmode == Ascii )
+	return isspace(ch);
+    else // ######## see QString ucspace()
+	return isspace(ch&0xff);
+}
+
+void QTextStream::ts_ungetc(int ch)
+{
+    switch (cmode) {
+     case Ascii:
+	dev->ungetch(ch);
+	break;
+     case UnicodeBigEndian:
+	// Reverse of put
+	dev->ungetch(ch&0xff);
+	dev->ungetch(ch>>8);
+	break;
+     case UnicodeLittleEndian:
+	// Reverse of put
+	dev->ungetch(ch>>8);
+	dev->ungetch(ch&0xff);
+    }
+}
+
 
 
 /*!
@@ -338,75 +645,71 @@ void QTextStream::unsetDevice()
 QTextStream &QTextStream::operator>>( char &c )
 {
     CHECK_STREAM_PRECOND
-    c = eat_ws( dev );
+    c = eat_ws();
     return *this;
 }
 
 
-static ulong input_bin( QTextStream *s )
+ulong QTextStream::input_bin()
 {
-    QIODevice *d = s->device();
     ulong val = 0;
-    register int c = eat_ws( d );
+    register int c = eat_ws();
     while ( c == '0' || c == '1' ) {
 	val <<= 1;
 	val += c - '0';
-	c = d->getch();
+	c = ts_getc();
     }
     if ( c != EOF )
-	d->ungetch( c );
+	ts_ungetc( c );
     return val;
 }
 
-static ulong input_oct( QTextStream *s )
+ulong QTextStream::input_oct()
 {
-    QIODevice *d = s->device();
     ulong val = 0;
-    register int c = eat_ws( d );
+    register int c = eat_ws();
     while ( c >= '0' && c <= '7' ) {
 	val <<= 3;
 	val += c - '0';
-	c = d->getch();
+	c = ts_getc();
     }
     if ( c == '8' || c == '9' ) {
-	while ( isdigit(c) )
-	    c = d->getch();
+	while ( ts_isdigit(c) )
+	    c = ts_getc();
     }
     if ( c != EOF )
-	d->ungetch( c );
+	ts_ungetc( c );
     return val;
 }
 
-static ulong input_dec( QTextStream *s )
+ulong QTextStream::input_dec()
 {
-    QIODevice *d = s->device();
     ulong val = 0;
-    register int c = eat_ws( d );
-    while ( isdigit(c) ) {
+    register int c = eat_ws();
+    while ( ts_isdigit(c) ) {
 	val *= 10;
 	val += c - '0';
-	c = d->getch();
+	c = ts_getc();
     }
     if ( c != EOF )
-	d->ungetch( c );
+	ts_ungetc( c );
     return val;
 }
 
-static ulong input_hex( QTextStream *s )
+ulong QTextStream::input_hex()
 {
-    QIODevice *d = s->device();
     ulong val = 0;
-    register int c = eat_ws( d );
+    register int c = eat_ws();
     while ( isxdigit(c) ) {
 	val <<= 4;
-	if ( isdigit(c) )
+	if ( ts_isdigit(c) )
 	    val += c - '0';
 	else
 	    val += 10 + tolower(c) - 'a';
-	c = d->getch();
+	c = ts_getc();
     }
     if ( c != EOF )
-	d->ungetch( c );
+	ts_ungetc( c );
     return val;
 }
 
@@ -416,20 +719,20 @@ long QTextStream::input_int()
     int c;
     switch ( flags() & basefield ) {
 	case bin:
-	    val = (long)input_bin( this );
+	    val = (long)input_bin();
 	    break;
 	case oct:
-	    val = (long)input_oct( this );
+	    val = (long)input_oct();
 	    break;
 	case dec:
-	    c = eat_ws( dev );
+	    c = eat_ws();
 	    if ( c == EOF ) {
 		val = 0;
 	    } else {
 		if ( !(c == '-' || c == '+') )
-		    dev->ungetch( c );
+		    ts_ungetc( c );
 		if ( c == '-' ) {
-		    ulong v = input_dec( this );
+		    ulong v = input_dec();
 		    if ( v ) {		// ensure that LONG_MIN can be read
 			v--;
 			val = -((long)v) - 1;
@@ -437,37 +740,37 @@ long QTextStream::input_int()
 			val = 0;
 		    }
 		} else {
-		    val = (long)input_dec( this );
+		    val = (long)input_dec();
 		}
 	    }
 	    break;
 	case hex:
-	    val = (long)input_hex( this );
+	    val = (long)input_hex();
 	    break;
 	default:
 	    val = 0;
-	    c = eat_ws( dev );
+	    c = eat_ws();
 	    if ( c == '0' ) {		// bin, oct or hex
-		c = dev->getch();
+		c = ts_getc();
 		if ( tolower(c) == 'x' )
-		    val = (long)input_hex( this );
+		    val = (long)input_hex();
 		else if ( tolower(c) == 'b' )
-		    val = (long)input_bin( this );
+		    val = (long)input_bin();
 		else {			// octal
 		    if ( c >= '0' && c <= '7' ) {
-			dev->ungetch( c );
-			val = (long)input_oct( this );
+			ts_ungetc( c );
+			val = (long)input_oct();
 		    } else {
 			val = 0;
 		    }
 		}
 	    }
 	    else if ( c >= '1' && c <= '9' ) {
-		dev->ungetch( c );
-		val = (long)input_dec( this );
+		ts_ungetc( c );
+		val = (long)input_dec();
 	    }
 	    else if ( c == '-' || c == '+' ) {
-		val = (long)input_dec( this );
+		val = (long)input_dec();
 		if ( c == '-' )
 		    val = -val;
 	    }
@@ -481,7 +784,7 @@ long QTextStream::input_int()
 // strtod() cannot be used directly since we're reading from a QIODevice
 //
 
-static double input_double( QTextStream *s )
+double QTextStream::input_double()
 {
     const int Init	 = 0;			// states
     const int Sign	 = 1;
@@ -513,10 +816,9 @@ static double input_double( QTextStream *s )
     int state = Init;				// parse state
     int input;					// input token
 
-    QIODevice *d = s->device();
     char buf[256];
     int i = 0;
-    int c = eat_ws( d );
+    int c = eat_ws();
 
     while ( TRUE ) {
 
@@ -545,17 +847,17 @@ static double input_double( QTextStream *s )
 
 	if  ( state == 0 || state == Done || i > 250 ) {
 	    if ( i > 250 ) {			// ignore rest of digits
-		do { c = d->getch(); } while ( c != EOF && isdigit(c) );
+		do { c = ts_getc(); } while ( c != EOF && ts_isdigit(c) );
 	    }
 	    if ( c != EOF )
-		d->ungetch( c );
+		ts_ungetc( c );
 	    buf[i] = '\0';
 	    char *end;
 	    return strtod( buf, &end );
 	}
 
 	buf[i++] = c;
-	c = d->getch();
+	c = ts_getc();
     }
 
 #if !defined(NO_DEADCODE)
@@ -650,7 +952,7 @@ QTextStream &QTextStream::operator>>( unsigned long &i )
 QTextStream &QTextStream::operator>>( float &f )
 {
     CHECK_STREAM_PRECOND
-    f = (float)input_double( this );
+    f = (float)input_double();
     return *this;
 }
 
@@ -663,7 +965,7 @@ QTextStream &QTextStream::operator>>( float &f )
 QTextStream &QTextStream::operator>>( double &f )
 {
     CHECK_STREAM_PRECOND
-    f = input_double( this );
+    f = input_double();
     return *this;
 }
 
@@ -676,16 +978,16 @@ QTextStream &QTextStream::operator>>( char *s )
 {
     CHECK_STREAM_PRECOND
     int maxlen = width( 0 );
-    int c = eat_ws( dev );
+    int c = eat_ws();
     if ( !maxlen )
 	maxlen = -1;
     while ( c != EOF ) {
-	if ( isspace(c) || maxlen-- == 0 ) {
-	    dev->ungetch( c );
+	if ( ts_isspace(c) || maxlen-- == 0 ) {
+	    ts_ungetc( c );
 	    break;
 	}
 	*s++ = c;
-	c = dev->getch();
+	c = ts_getc();
     }
 
     *s = '\0';
@@ -701,15 +1003,15 @@ QTextStream &QTextStream::operator>>( QString &str )
     CHECK_STREAM_PRECOND
     str="";
     int	i = 0;
-    int	c = eat_ws(dev);
+    int	c = eat_ws();
 
     while ( c != EOF ) {
-	if ( isspace(c) ) {
-	    dev->ungetch( c );
+	if ( ts_isspace(c) ) {
+	    ts_ungetc( c );
 	    break;
 	}
 	str[i++] = c;
-	c = dev->getch();
+	c = ts_getc();
     }
     return *this;
 }
@@ -726,11 +1028,11 @@ QTextStream &QTextStream::operator>>( Q1String &str )
     char      buffer[buflen];
     char     *s = buffer;
     int	      i = 0;
-    int	      c = eat_ws(dev);
+    int	      c = eat_ws();
 
     while ( c != EOF ) {
-	if ( isspace(c) ) {
-	    dev->ungetch( c );
+	if ( ts_isspace(c) ) {
+	    ts_ungetc( c );
 	    break;
 	}
 	if ( i >= buflen-1 ) {
@@ -743,7 +1045,7 @@ QTextStream &QTextStream::operator>>( Q1String &str )
 	    s = dynbuf->data();
 	}
 	s[i++] = c;
-	c = dev->getch();
+	c = ts_getc();
     }
     str.resize( i+1 );
     memcpy( str.data(), s, i );
@@ -773,14 +1075,14 @@ QString QTextStream::readLine()
 #endif
     QString   result;
     int	      i = 0;
-    int	      c = dev->getch();
+    int	      c = ts_getc();
 
     while ( c != EOF ) {
 	if ( c == '\n' ) {
 	    break;
 	}
 	result[i++] = c;
-	c = dev->getch();
+	c = ts_getc();
     }
     if ( i > 0 && result[i-1] == '\r' )
 	result.setLength(i-1);			// if there are two \r, let one stay
@@ -800,7 +1102,7 @@ QString QTextStream::readLine()
 QTextStream &QTextStream::operator<<( char c )
 {
     CHECK_STREAM_PRECOND
-    dev->putch( c );
+    ts_putc( c );
     return *this;
 }
 
@@ -877,8 +1179,8 @@ QTextStream &QTextStream::output_int( int format, ulong n, bool neg )
 		*--p = '-';
 	    else if ( flags() & showpos )
 		*--p = '+';
-	    if ( (flags() & internal) && fwidth && !isdigit(*p) ) {
-		dev->putch( *p );		// special case for internal
+	    if ( (flags() & internal) && fwidth && !ts_isdigit(*p) ) {
+		ts_putc( *p );		// special case for internal
 		++p;				//   padding
 		fwidth--;
 		return *this << (const char *)p;
@@ -1249,14 +1551,7 @@ QTextStream &flush( QTextStream &s )
 
 QTextStream &ws( QTextStream &s )
 {
-    register QIODevice *d = s.device();
-    if ( d ) {
-	int c = d->getch();
-	while ( c != EOF && isspace(c) )
-	    c = d->getch();
-	if ( c != EOF )
-	    d->ungetch( c );
-    }
+    s.eatWhiteSpace();
     return s;
 }
 

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#64 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#65 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -1774,12 +1774,12 @@ static struct {
 
 
 
-static char * fixed_ps_header = 0;
+static QString *fixed_ps_header = 0;
 static QIntDict<QString> * font_vectors = 0;
 
 static void cleanup()
 {
-    delete[] fixed_ps_header;
+    delete fixed_ps_header;
     fixed_ps_header = 0;
     delete font_vectors;
     font_vectors = 0;
@@ -1849,9 +1849,9 @@ static void makeFixedStrings()
 	    psh += *l++;
 	    psh += '\n';
 	}
-	fixed_ps_header = qstrdup( psh );
+	fixed_ps_header = new QString(psh);
     }
-    wordwrap( fixed_ps_header );
+    wordwrap( *fixed_ps_header );
 
     // fonts.
     font_vectors = new QIntDict<QString>( 17 );
@@ -2605,7 +2605,7 @@ void QPSPrinter::emitHeader( bool finished )
     if ( !fixed_ps_header )
 	makeFixedStrings();
 
-    stream << "% Standard Qt prolog\n" << fixed_ps_header << "\n";
+    stream << "% Standard Qt prolog\n" << *fixed_ps_header << "\n";
     if ( d->fontBuffer->buffer().size() ) {
 	if ( pageCount == 1 )
 	    stream << "% Fonts and encodings used\n";

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#55 $
+** $Id: //depot/qt/main/src/tools/qstring.h#56 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and Q1String classes
@@ -179,9 +179,13 @@ public:
     int		find( ushort c, int index=0, bool cs=TRUE ) const;
     int		find( const QString &str, int index=0, bool cs=TRUE ) const;
     int		find( const QRegExp &, int index=0 ) const;
+    int		find( const char* str, int index=0 ) const
+		    { return find(QString(str), index); }
     int		findRev( ushort c, int index=-1, bool cs=TRUE) const;
     int		findRev( const QString &str, int index=-1, bool cs=TRUE) const;
     int		findRev( const QRegExp &, int index=-1 ) const;
+    int		findRev( const char* str, int index=-1 ) const
+		    { return findRev(QString(str), index); }
     int		contains( ushort c, bool cs=TRUE ) const;
     int		contains( const char* str, bool cs=TRUE ) const;
     int		contains( const QString &str, bool cs=TRUE ) const;
@@ -248,9 +252,15 @@ public:
 
     friend QDataStream &operator>>( QDataStream &, QString & );
 
+#ifndef QT_NO_COMPAT
+    const char* data() const { return *this; }
+    void detach() { }
+    uint size()	const { return length()+1; }
+#endif
+
 private:
     void deref();
-    void detach();
+    void real_detach();
 
     struct Data : public QShared {
 	Data() : unicode(0), len(0), maxl(0) { }

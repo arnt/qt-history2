@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.h#28 $
+** $Id: //depot/qt/main/src/tools/qtextstream.h#29 $
 **
 ** Definition of QTextStream class
 **
@@ -34,8 +34,19 @@
 class QTextStream				// text stream class
 {
 public:
+    enum CharacterMode {
+	Ascii,
+	UnicodeBigEndian,
+	UnicodeLittleEndian,
+	Unicode=UnicodeBigEndian,
+    };
+
+    void	 setCharacterMode(CharacterMode);
+    CharacterMode characterMode() const { return cmode; }
+
     QTextStream();
     QTextStream( QIODevice * );
+    QTextStream( QString&, int mode, CharacterMode m=Unicode );
     QTextStream( QByteArray, int mode );
     QTextStream( FILE *, int mode );
     virtual ~QTextStream();
@@ -75,6 +86,7 @@ public:
     QTextStream &writeRawBytes( const char *, uint len );
 
     QString	readLine();
+    void eatWhiteSpace() { eat_ws(); }
 
     enum {
 	skipws	  = 0x0001,			// skip whitespace on input
@@ -122,6 +134,19 @@ private:
     int		 fprec;
     bool	 fstrm;
     bool	 owndev;
+    CharacterMode cmode;
+
+    int eat_ws();
+    void ts_ungetc(int);
+    int ts_getc();
+    void ts_putc(int);
+    bool ts_isspace(int c);
+    bool ts_isdigit(int c);
+    ulong input_bin();
+    ulong input_oct();
+    ulong input_dec();
+    ulong input_hex();
+    double input_double();
 
 private:	// Disabled copy constructor and operator=
     QTextStream( const QTextStream & );
