@@ -291,6 +291,9 @@ public:
     QT_COMPAT void setParagraphBackgroundColor(int parag, const QColor &col);
     */
 
+    inline QT_COMPAT void insert(const QString &text)
+    { cursor().insertText(text); }
+
 #endif
 };
 
