@@ -20,6 +20,7 @@
  */
 #define QT_VERSION 0x040000
 
+
 /*
    The operating system, must be one of: (Q_OS_x)
 
@@ -143,6 +144,10 @@
 #  undef Q_OS_UNIX
 #elif !defined(Q_OS_UNIX)
 #  define Q_OS_UNIX
+#endif
+
+#if defined(Q_OS_MACX) && !defined(QT_LARGEFILE_SUPPORT)
+#  define QT_LARGEFILE_SUPPORT 64
 #endif
 
 
@@ -573,7 +578,6 @@ typedef char	       *pchar;
 typedef uchar	       *puchar;
 typedef const char     *pcchar;
 
-
 //
 // Constant bool values
 //
@@ -590,6 +594,7 @@ typedef const char     *pcchar;
 #if defined(Q_CC_MSVC) && !defined(Q_CC_MSVC_NET)
 #  define for if(0){}else for
 #endif
+
 
 //
 // Use the "explicit" keyword on platforms that support it.
@@ -659,15 +664,6 @@ typedef unsigned long long	Q_UINT64;	// 64 bit unsigned
 #endif
 typedef Q_INT64			Q_LLONG;	// signed long long
 typedef Q_UINT64		Q_ULLONG;	// unsigned long long
-
-#if defined(Q_OS_MACX) && !defined(QT_LARGEFILE_SUPPORT)
-#  define QT_LARGEFILE_SUPPORT 64
-#endif
-#if defined(QT_LARGEFILE_SUPPORT)
-    typedef Q_ULLONG QtOffset;
-#else
-    typedef Q_ULONG QtOffset;
-#endif
 
 
 //

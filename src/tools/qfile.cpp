@@ -717,7 +717,7 @@ void QFile::setErrorStringErrno( int errnum )
 
 QDataStream &operator<<( QDataStream &s, const QOffset &o )
 {
-    s << (Q_UINT64)o.offset;
+    s << (Q_UINT64)o;
     return s;
 }
 
@@ -728,9 +728,9 @@ QDataStream &operator>>( QDataStream &s, QOffset &o )
 #if defined(QT_LARGEFILE_SUPPORT)
     o = value;
 #else
-    if ( value > UINT_MAX ) {
-	qWarning("Large files are not supported on this platform");
-	o = UINT_MAX;
+    if ( value > INT_MAX ) {
+	qWarning("Large file offsets are not supported on this platform.");
+	o = INT_MAX;
     } else
 	o = (Q_UINT32)value;
 #endif

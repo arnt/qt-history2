@@ -17,6 +17,7 @@
 
 #ifndef QT_H
 #include "qglobal.h"
+#include "private/qfile_p.h"
 #endif // QT_H
 
 
@@ -65,11 +66,7 @@ class QByteArray;
 class Q_EXPORT QIODevice
 {
 public:
-#if defined(QT_ABI_QT4)
-    typedef QtOffset Offset;
-#else
-    typedef Q_ULONG Offset;
-#endif
+    typedef QOffset Offset;
 
     QIODevice();
     virtual ~QIODevice();

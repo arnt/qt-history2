@@ -430,12 +430,12 @@ bool QStringBuffer::at( Offset pos )
 	return FALSE;
     }
 #endif
-    if ( pos >= QIODevice::Offset(s->length()*2) ) {
+    if ( pos >= s->length()*2 ) {
 #if defined(QT_CHECK_RANGE)
-#if defined(QT_LARGEFILE_SUPPORT) && defined(QT_ABI_64BITOFFSET)
-	qWarning( "QStringBuffer::at: Index %llu out of range", pos );
+#if defined(QT_LARGEFILE_SUPPORT)
+	qWarning( "QStringBuffer::at: Index %lu out of range", (Q_ULLONG)pos );
 #else
-	qWarning( "QStringBuffer::at: Index %lu out of range", pos );
+	qWarning( "QStringBuffer::at: Index %lu out of range", (Q_ULONG)pos );
 #endif
 #endif
 	return FALSE;
@@ -460,11 +460,11 @@ Q_LONG QStringBuffer::readBlock( char *p, Q_ULONG len )
 #endif
     if ( ioIndex + len > s->length()*sizeof(QChar) ) {
 	// overflow
-	if ( ioIndex >= QIODevice::Offset(s->length()*sizeof(QChar)) ) {
+	if ( ioIndex >= s->length()*sizeof(QChar) ) {
 	    setStatus( IO_ReadError );
 	    return -1;
 	} else {
-	    len = s->length()*2 - (uint)ioIndex;
+	    len = s->length()*2 - ioIndex;
 	}
     }
     memcpy( p, ((const char*)(s->unicode()))+ioIndex, len );
@@ -513,7 +513,7 @@ int QStringBuffer::getch()
 	return -1;
     }
 #endif
-    if ( ioIndex >= QIODevice::Offset(s->length()*2) ) {           // overflow
+    if ( ioIndex >= s->length()*2 ) {           // overflow
 	setStatus( IO_ReadError );
 	return -1;
     }

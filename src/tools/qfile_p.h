@@ -30,52 +30,34 @@
 
 class QOffset
 {
-    friend Q_EXPORT QDataStream &operator<<( QDataStream &, const QOffset & );
 public:
+#if defined(QT_LARGEFILE_SUPPORT)
+    typedef Q_ULLONG type;
+#else
+    typedef Q_ULONG type;
+#endif
     QOffset() {}
-#if defined(QT_LARGEFILE_SUPPORT)
-    QOffset( Q_UINT64 o ) : offset( o ) {}
-#else
-    QOffset( Q_UINT32 o ) : offset( o ) {}
-#endif
-    QOffset( const QOffset &o ) : offset(o.offset) {}
-    QOffset &operator=( const QOffset &o ) { offset = o.offset; return *this; }
-    bool operator==( const QOffset &o ) const { return offset == o.offset; }
-    bool operator!=( const QOffset &o ) const { return !(operator==(o)); }
-    bool operator<( const QOffset &o ) const { return offset < o.offset; }
-    bool operator<=( const QOffset &o ) const { return !o.operator<( * this ); }
-    bool operator>( const QOffset &o ) const { return o.operator<( * this ); }
-    bool operator>=( const QOffset &o ) const { return !operator<( o ); }
-    QOffset &operator+=( long n ) { offset += n; return *this; }
-    QOffset &operator+=( ulong n ) { offset += n; return *this; }
-    const QOffset operator+( long n ) { return *this += n; }
-    const QOffset operator+( ulong n ) { return *this += n; }
-    QOffset operator++() { offset++; return *this; }
-    QOffset operator++(int) { return QOffset( offset++ ); }
-    QOffset &operator-=( long n ) { offset -= n; return *this; }
-    QOffset &operator-=( ulong n ) { offset -= n; return *this; }
-    QOffset &operator-=( int n ) { offset -= n; return *this; }
-    QOffset &operator-=( uint n ) { offset -= n; return *this; }
-    const QOffset operator-( long n ) { return *this -= n; }
-    const QOffset operator-( ulong n ) { return *this -= n; }
-    const QOffset operator-( int n ) { return *this -= n; }
-    const QOffset operator-( uint n ) { return *this -= n; }
-    QOffset operator--() { offset--; return *this; }
-    QOffset operator--(int) { return QOffset( offset-- ); }
+    QOffset(Q_ULONG o) : offset(o) {}
+    QOffset(const QOffset &o) : offset(o.offset) {}
+    QOffset &operator=(Q_ULONG o) { offset = o; return *this; }
+    QOffset &operator=(const QOffset &o) { offset = o.offset; return *this; }
+    QOffset &operator+=(Q_ULONG n) { offset += n; return *this; }
+    QOffset operator++() { ++offset; return *this; }
+    QOffset operator++(int) { QOffset o(*this); ++offset; return o; }
+    QOffset &operator-=(Q_ULONG n) { offset -= n; return *this; }
+    QOffset operator--() { --offset; return *this; }
+    QOffset operator--(int) { QOffset o(*this); --offset; return o; }
+    operator Q_ULONG() const { return (Q_ULONG)offset; }
 private:
-#if defined(QT_LARGEFILE_SUPPORT)
-    Q_UINT64 offset;
-#else
-    Q_UINT32 offset;
-#endif
+    type offset;
 };
 
 /*****************************************************************************
   QOffset stream functions
  *****************************************************************************/
 #ifndef QT_NO_DATASTREAM
-Q_EXPORT QDataStream &operator<<( QDataStream &, const QOffset & );
-Q_EXPORT QDataStream &operator>>( QDataStream &, QOffset & );
+Q_EXPORT QDataStream &operator<<(QDataStream &, const QOffset &);
+Q_EXPORT QDataStream &operator>>(QDataStream &, QOffset &);
 #endif
 
 #endif

@@ -273,10 +273,10 @@ bool QBuffer::at( Offset pos )
     // #### maybe resize if not readonly?
     if ( pos > (Offset)b.size() ) {
 #if defined(QT_CHECK_RANGE)
-#if defined(QT_LARGEFILE_SUPPORT) && defined(QT_ABI_64BITOFFSET)
-        qWarning( "QBuffer::at: Index %llu out of range", pos );
+#if defined(QT_LARGEFILE_SUPPORT)
+        qWarning( "QBuffer::at: Index %llu out of range", (Q_ULLONG)pos );
 #else
-        qWarning( "QBuffer::at: Index %lu out of range", pos );
+        qWarning( "QBuffer::at: Index %lu out of range", (Q_ULONG)pos );
 #endif
 #endif
         return FALSE;
