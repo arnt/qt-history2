@@ -1578,7 +1578,7 @@ QString QTextStream::readLine()
     }
 #endif
     bool readCharByChar = TRUE;
-    QString result( "" );
+    QString result;
 #if 0
     if ( !doUnicodeHeader && (
 	    (latin1) || 
