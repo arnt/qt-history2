@@ -210,7 +210,7 @@ static void timeSpeed()
 
 //     qDebug("string lengths are: latin=%d i18n=%d", latinString.length(), i18nString.length() );
 
-    for ( int test = 0; test < 1; test++ ) {
+    for ( int test = 0; test < 2; test++ ) {
 	QString str;
 	if ( test == 0 ) {
 	    qDebug("\nTesting for Latin text:\n");
@@ -222,7 +222,7 @@ static void timeSpeed()
 // 	qDebug("string = '%s'",  str.utf8().data() );
 	fm.width( str );
 
-#if 0
+#if 1
 	qDebug("    Font Metrics:");
 	t.start();
 	int w = 0;
@@ -278,7 +278,7 @@ static void timeSpeed()
 	qDebug("        simple\t\t\t\t%02.2f us/char",
 	       ((float)t.elapsed())/loops/str.length()*1000 );
 
-#if 0
+#if 1
 	t.start();
 	for ( int i = 0; i < loops; i++ )
 	    p.drawText( 0, 0, 500, 500, Qt::SingleLine, str );
@@ -298,6 +298,7 @@ int main( int argc, char** argv )
 {
 
     QApplication app( argc, argv );
+    app.connect( &app, SIGNAL(lastWindowClosed()), SLOT(quit()) );
 
 
     int mode = 0;
