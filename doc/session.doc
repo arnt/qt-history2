@@ -113,10 +113,10 @@ the state of the application.
 
 <strong>Important:</strong> In order to allow the window manager to
 restore window attributes such as stacking order or geometry
-information, you have to identify your toplevel widgets with an
+information, you have to identify your top level widgets with an
 application-wide unique object name (see \l QObject::setName() ). When
 restoring the application, you'll have to ensure that all restored
-toplevel widgets end up with their prior object name again.
+top level widgets end up with their prior object name again.
 
 <h2> Testing and debugging session management </h2>
 

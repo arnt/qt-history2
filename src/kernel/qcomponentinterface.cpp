@@ -418,7 +418,7 @@ QApplicationInterface* QUnknownInterface::applicationInterface() const
 */
 
 /*!
-  Creates a QComponentInterface. This is always a toplevel interface.
+  Creates a QComponentInterface. This is always a top level interface.
 */
 
 QComponentInterface::QComponentInterface( const char* name )
@@ -545,7 +545,7 @@ QApplicationComponentInterface::QApplicationComponentInterface( QObject* object,
 {
 #if defined(QT_DEBUG)
     if ( !parent )
-	qWarning( "QApplicationComponentInterfaces can't be toplevel!" );
+	qWarning( "QApplicationComponentInterfaces can't be top level!" );
 #endif
     comp = object;
 }

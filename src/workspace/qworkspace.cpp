@@ -109,7 +109,7 @@
   windows, cascade() and tile().  Both are slots, so you can easily
   connect menu entries to them.
 
-  In case the toplevel window contains a menu bar and a document
+  In case the top level window contains a menu bar and a document
   window is maximized, QWorkspace moves the document window's
   minimize, restore and close buttons from the document window's frame
   to the workspace window's menu bar, and inserts a window operations

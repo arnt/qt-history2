@@ -225,7 +225,7 @@ fixed
 		  Enabling and disabling with setEnabled() propagates to
 		  children.
 		  Changed isVisible(). It now returns whether a widget
-		  is mapped up to the toplevel widget (the previous
+		  is mapped up to the top level widget (the previous
 		  implementation only returned isVisibleTo(parentWidget()).
 		  New property 'backgroundOrigin' that lets a widget draw
 		  its background relatively to its parent widget's coordinate

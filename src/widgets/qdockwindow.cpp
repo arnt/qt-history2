@@ -520,7 +520,7 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
   \ingroup application
 
   The QDockWindow class provides a widget which can live and be
-  managed inside a QDockArea or float as toplevel window on the
+  managed inside a QDockArea or float as top level window on the
   desktop. All operations to move, resize, dock, undock, etc. this
   window are handled by this class. If the user moved a QDockWindow
   onto a QDockArea, the QDockWindow gets docked into that. If he/she
@@ -546,7 +546,7 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
   QListView). To specify the resizeable state of the QDockWindow, use
   the setResizeEnabled() function. A resizeable QDockWindow can be
   resized inside a QDockArea using splitter-like handles, and when
-  floating just like every other toplevel window.
+  floating just like every other top level window.
 
   Also it sometimes makes sense to allow the user to close a
   QDockWindow, and somethimes not. To specify that, use the
@@ -918,7 +918,7 @@ void QDockWindow::endRectDraw( bool drawRect )
 
 /*! If \a b is TRUE, this QDockWindow becomes resizeable, else not. A
   resizeable QDockWindow can be resized using splitter-like handles
-  insode a QDockArea and like every other toplevel window when
+  inside a QDockArea and like every other top level window when
   floating.
 */
 

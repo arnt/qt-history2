@@ -453,7 +453,7 @@ QXtWidget::QXtWidget(const char* name, Widget parent, bool managed) :
   application.  The QXtWidget looks and behaves
   like the Xt class, but can be used like any QWidget.
 
-  Note that Xt requires that the most toplevel Xt widget is a shell.
+  Note that Xt requires that the most top level Xt widget is a shell.
   That means, if \a parent is a QXtWidget, the \a widget_class can be
   of any kind. If there isn't a parent or the parent is just a normal
   QWidget, \a widget_class should be something like \c

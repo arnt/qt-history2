@@ -583,9 +583,10 @@ public:
     <li>\c Bottom - below the central widget, above the status bar.
     <li>\c Left - to the left of the central widget.
     <li>\c Right - to the left of the central widget.
-    <li>\c Minimized - the toolbar is not shown - all handles of minimized toolbars
-    are drawn in one row below the menu bar.
-    <li> \c TornOff - floating dock window as own toplevel window which always stays on to of the mainwindow
+    <li>\c Minimized - the toolbar is not shown - all handles of minimized
+    toolbars are drawn in one row below the menu bar.
+    <li> \c TornOff - floating dock window as own top level window which
+    always stays on to of the mainwindow.
     </ul>
 
   Other values are also defined for future expansion.

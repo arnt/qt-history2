@@ -966,7 +966,7 @@ void QFocusEvent::resetReason()
   when it is deleted.  This is a useful signal if a widget needs to know
   when another widget is deleted.
 
-  If the last toplevel window is closed, the
+  If the last top level window is closed, the
   QApplication::lastWindowClosed() signal is emitted.
 
   \sa QWidget::close(), QWidget::hide(), QObject::destroyed(),

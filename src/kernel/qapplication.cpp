@@ -1520,10 +1520,10 @@ void QApplication::quit()
 
 
 /*!
-  A convenience function that closes all toplevel windows.
+  A convenience function that closes all top level windows.
 
   The function is particularly useful for applications with many
-  toplevel windows. It could for example be connected to a "Quit"
+  top level windows. It could for example be connected to a "Quit"
   entry in the file menu as shown in the following code example:
 
   \code
@@ -1571,7 +1571,7 @@ void QApplication::closeAllWindows()
   widgets but no main widget. You can then connect it to the quit()
   slot.
 
-  For convenience, transient toplevel widgets such as popup menus and
+  For convenience, transient top level widgets such as popup menus and
   dialogs are omitted.
 
   \sa mainWidget(), topLevelWidgets(), QWidget::isTopLevel(), QWidget::close()
@@ -2771,7 +2771,7 @@ bool QApplication::locked()
   example usage.
 
   The default implementation requests interaction and sends a close
-  event to all visible toplevel widgets. If at least one event was
+  event to all visible top level widgets. If at least one event was
   rejected, the shutdown is cancelled.
 
   \sa isSessionRestored(), sessionId(), saveState()

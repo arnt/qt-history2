@@ -257,7 +257,7 @@ Note that setActiveWindow() won't work if the widget does not become
 physically visible during this event cycle. However, without a window
 manager running, this is guaranteed to happen. For the curious reader:
 setActiveWindow() emulates a window manager by explicitly setting the
-X Input Focus to a widget's toplevel window.
+X Input Focus to a widget's top level window.
 
 <h2>Other common problems</h2>
 

@@ -899,9 +899,9 @@ QWExtra *QWidget::extraData()
 
 /*!
   \internal
-  Returns a pointer to the block of extra toplevel widget data.
+  Returns a pointer to the block of extra top level widget data.
 
-  This data is guaranteed to exist for toplevel widgets.
+  This data is guaranteed to exist for top level widgets.
 */
 
 QTLWExtra *QWidget::topData()
@@ -2196,7 +2196,7 @@ const QColorGroup &QWidget::colorGroup() const
 
   As long as no special palette has been set, this is either a special
   palette for the widget class, the parent's palette or - if this
-  widget is a toplevel widget - the default application palette.
+  widget is a top level widget - the default application palette.
 
   \sa setPalette(), colorGroup(), QApplication::palette()
 */
@@ -2285,7 +2285,7 @@ void QWidget::paletteChange( const QPalette & )
 
   As long as no special font has been set, this is either a special
   font for the widget class, the parent's font or - if this widget is
-  a toplevel widget - the default application font.
+  a top level widget - the default application font.
 
   \sa setFont(), fontInfo(), fontMetrics(), QApplication::font()
 */
@@ -2333,7 +2333,7 @@ void QWidget::setFont( const QFont &font )
 /*!
   Unsets the font for this widget. The widget will use its natural
   default font from now on.  This is either a special font for the
-  widget class, the parent's font or - if this widget is a toplevel
+  widget class, the parent's font or - if this widget is a top level
   widget - the default application font.
 
 \sa setFont(), ownFont()
@@ -3636,7 +3636,7 @@ bool QWidget::close( bool alsoDelete )
   Returns TRUE if the widget itself is visible, or else FALSE.
 
   Calling show() sets the widget to visible status if all its parent
-  widgets up to the toplevel widget are visible. If an ancestor is not
+  widgets up to the top level widget are visible. If an ancestor is not
   visible, the widget won't become visible until all its ancestors are
   shown.
 
@@ -4488,7 +4488,7 @@ void QWidget::dropEvent( QDropEvent * )
   widget show events.
 
   Non-spontaneous show events are sent to widgets right before they are
-  shown. Spontaneous show events of toplevel widgets are delivered
+  shown. Spontaneous show events of top level widgets are delivered
   afterwards, naturally.
 
   \sa event(), QShowEvent
