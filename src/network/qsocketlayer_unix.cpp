@@ -87,8 +87,8 @@ static inline int qt_socket_socket(int domain, int type, int protocol)
 static void qt_ignore_sigpipe()
 {
     struct sigaction noaction;
+    memset(&noaction, 0, sizeof(noaction));
     noaction.sa_handler = SIG_IGN;
-    noaction.sa_flags = 0;
     ::sigaction(SIGPIPE, &noaction, 0);
 }
 
