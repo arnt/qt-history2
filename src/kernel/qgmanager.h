@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanager.h#9 $
+** $Id: //depot/qt/main/src/kernel/qgmanager.h#10 $
 **
 ** Definition of QGManager class (workhorse for QLayout classes)
 **
@@ -34,6 +34,7 @@ public:
     enum { unlimited = QCOORD_MAX };
 
     QChain *newSerChain( Direction );
+    QChain *newSerChain( Direction, int );
     QChain *newParChain( Direction );
 
     bool add( QChain *destination, QChain *source, int stretch = 0 );
