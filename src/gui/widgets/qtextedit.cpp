@@ -34,6 +34,7 @@
 #include <limits.h>
 #include <qtexttable.h>
 #include <qvariant.h>
+#include <qurl.h>
 
 #ifdef Q_WS_X11
 #include <qinputcontext.h>
