@@ -3639,7 +3639,7 @@ void QListBox::viewportPaintEvent( QPaintEvent * e )
 
     const QColorGroup & g = colorGroup();
     p.setPen( g.text() );
-    p.setBackgroundColor( g.base() );
+    p.setBackgroundColor( backgroundBrush().color() );
     while ( i && (int)col < numColumns() && d->columnPos[col] < x + w ) {
 	int cw = d->columnPos[col+1] - d->columnPos[col];
 	while ( i && row < top ) {
@@ -3920,7 +3920,7 @@ void QListBox::paintCell( QPainter * p, int row, int col )
 	} else {
 	    int iw = i->width( this );
 	    p->fillRect( 0, 0, iw, ch, g.brush( QColorGroup::Highlight ) );
-	    p->fillRect( iw, 0, cw - iw + 1, ch, g.base() );
+	    p->fillRect( iw, 0, cw - iw + 1, ch, backgroundBrush() );
 	    p->setPen( g.highlightedText() );
 	    p->setBackgroundColor( g.highlight() );
 	}
@@ -3936,7 +3936,7 @@ void QListBox::paintCell( QPainter * p, int row, int col )
 
 	style().drawPrimitive( QStyle::PE_FocusRect, p, QRect( 0, 0, cw, ch ), g,
 			       QStyle::Style_FocusAtBorder,
-				QStyleOption(i->isSelected() ? g.highlight() : g.base()) );
+			       QStyleOption(i->isSelected() ? g.highlight() : g.base() ) );
     }
 
     p->restore();

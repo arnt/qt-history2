@@ -1937,7 +1937,7 @@ void QListViewItem::paintFocus( QPainter *p, const QColorGroup &cg,
 				       (isSelected() ?
 					QStyle::Style_FocusAtBorder :
 					QStyle::Style_Default),
-				       QStyleOption(isSelected() ? cg.highlight() : cg.base()));
+				       QStyleOption(isSelected() ? cg.highlight() : cg.base() ));
 }
 
 
