@@ -37,6 +37,7 @@
 <th bgcolor=#a2c511>Internationalization</th>
 </tr>
 
+<tr>
 <td valign=top>
 \list
 \i \link i18n.html Internationalization with Qt \endlink
@@ -51,7 +52,8 @@
 <th bgcolor=#a2c511>Qt/Embedded</th>
 </tr>
 
-<tr><td rowspan=5 valign=top>
+<tr>
+<td align=top>
 \list
 \i \link porting.html Porting to Qt 3.x \endlink
 \i \link commonproblems.html FAQs \endlink
@@ -81,15 +83,10 @@
 \i \link xt.html Qt Xt/Motif Support Extension \endlink
 \endlist
 </td>
-
-</tr>
-
-<tr><td rowspan=3 valign=top>
+<td valign=top>
 \list
 \i \link qembed.html  QEmbed tool - inline files/images \endlink
 \i \link qvfb-qws.html  QVFb tool - virtual framebuffer for Qt/Embedded \endlink
-\endlist
-\list
 \i \link install-qws.html Installing Qt/Embedded \endlink
 \i \link features.html The Feature Definition File \endlink
 \i \link embedclasses.html The Qt/Embedded-specific classes \endlink
@@ -106,8 +103,8 @@
 \i \link performance-qws.html Qt/Embedded Performance Tuning \endlink
 \i \link vnc-qws.html Qt/Embedded as a VNC Server \endlink
 \endlist
-</td></tr>
-
+</td>
+</tr>
 </table>
 
 */
