@@ -103,7 +103,7 @@ QTableModel::~QTableModel()
     clear();
 }
 
-bool QTableModel::insertRows(int row,int count, const QModelIndex &)
+bool QTableModel::insertRows(int row, int count, const QModelIndex &)
 {
     // insert rows
     int rc = vertical.count();
@@ -300,9 +300,9 @@ void QTableModel::setRowCount(int rows)
     if (rc == rows)
         return;
     if (rc < rows)
-        insertRows(qMax(rc - 1, 0), rows - rc);
+        insertRows(qMax(rc, 0), rows - rc);
     else
-        removeRows(qMax(rows - 1, 0), rc - rows);
+        removeRows(qMax(rows, 0), rc - rows);
 }
 
 void QTableModel::setColumnCount(int columns)
@@ -311,9 +311,9 @@ void QTableModel::setColumnCount(int columns)
     if (cc == columns)
         return;
     if (cc < columns)
-        insertColumns(qMax(cc - 1, 0), columns - cc);
+        insertColumns(qMax(cc, 0), columns - cc);
     else
-        removeColumns(qMax(columns - 1, 0), cc - columns);
+        removeColumns(qMax(columns, 0), cc - columns);
 }
 
 int QTableModel::rowCount(const QModelIndex &) const
@@ -400,7 +400,9 @@ QVariant QTableModel::headerData(int section, Qt::Orientation orientation, int r
         itm = vertical.at(section);
     if (itm)
         return itm->data(role);
-    return QAbstractItemModel::headerData(section, orientation, role);
+    if (role == DisplayRole)
+        return QVariant(section);
+    return QVariant();
 }
 
 bool QTableModel::setHeaderData(int section, Qt::Orientation orientation,
@@ -411,12 +413,10 @@ bool QTableModel::setHeaderData(int section, Qt::Orientation orientation,
         itm = horizontal.at(section);
     else
         itm = vertical.at(section);
-
     if (itm) {
         itm->setData(role, value);
         return true;
     }
-
     return false;
 }
 
