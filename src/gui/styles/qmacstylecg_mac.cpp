@@ -342,6 +342,15 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r
         //HIThemeDrawFocusRect(qt_glb_mac_rect(r, p), true, static_cast<CGContextRef>(p->handle()),
         //                     kHIThemeOrientationNormal);
 	break;
+    case PE_Splitter: {
+        HIThemeSplitterDrawInfo sdi;
+        sdi.version = qt_mac_hitheme_version;
+        sdi.state = tds;
+        // ### If they have brushed metal, we need to change adornment. I need the widget flags
+        sdi.adornment = kHIThemeSplitterAdornmentNone;
+        HIThemeDrawPaneSplitter(qt_glb_mac_rect(r, p), &sdi, static_cast<CGContextRef>(p->handle()),
+                                kHIThemeOrientationNormal);
+        break; }
     case PE_ArrowUp:
     case PE_ArrowDown:
     case PE_ArrowRight:
@@ -362,7 +371,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r
         case PE_ArrowLeft:
             info.orientation = kThemeArrowLeft;
             break;
-        default:     // Stupid compiler should know better.
+        default:     // Stupid compiler _should_ know better.
             break;
         }
         if (r.width() < 8)
