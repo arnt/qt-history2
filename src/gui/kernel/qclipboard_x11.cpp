@@ -723,9 +723,7 @@ static Atom send_string_selection(QClipboardData *d, Atom target, Window window,
 
     DEBUG("    format 8\n    %d bytes", data.size());
 
-    XChangeProperty(X11->display, window, property, xtarget, 8,
-                    PropModeReplace, (uchar *) data.data(), data.size());
-    return property;
+    return send_selection(d, xtarget, window, property, 8, data);
 }
 
 static Atom send_pixmap_selection(QClipboardData *d, Atom target, Window window, Atom property)
@@ -779,9 +777,8 @@ static Atom send_selection(QClipboardData *d, Atom target, Window window, Atom p
     static Atom motif_clip_temporary = ATOM(CLIP_TEMPORARY);
     bool allow_incr = property != motif_clip_temporary;
 
-    const int increment =
-        (XMaxRequestSize(X11->display) >= 65536 ?
-         65536 : XMaxRequestSize(X11->display));
+    // X_ChangeProperty protocol request is 24 bytes
+    const int increment = (XMaxRequestSize(X11->display) * 4) - 24;
     if (data.size() > increment && allow_incr) {
         long bytes = data.size();
         XChangeProperty(X11->display, window, property,
@@ -792,7 +789,7 @@ static Atom send_selection(QClipboardData *d, Atom target, Window window, Atom p
     }
 
     // make sure we can perform the XChangeProperty in a single request
-    if ((int)data.size() >= XMaxRequestSize(X11->display) - 100)
+    if (data.size() > increment)
         return XNone; // ### perhaps use several XChangeProperty calls w/ PropModeAppend?
 
     // use a single request to transfer data
