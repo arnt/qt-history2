@@ -31,14 +31,14 @@
 **********************************************************************/
 
 #include "qlock_p.h"
+
 #ifndef QT_NO_QWS_MULTIPROCESS
-#include <sys/types.h>
-#include <sys/ipc.h>
-#include <errno.h>
 
 #ifdef Q_OS_MACX
 #define Q_NO_SEMAPHORE
+#include <unistd.h>
 #include <sys/stat.h>
+#include <sys/file.h>
 #else
 #include <sys/sem.h>
 #if defined(__GNU_LIBRARY__) && !defined(_SEM_SEMUN_UNDEFINED) \
@@ -54,12 +54,12 @@ union semun {
 #endif
 #endif
 
-#define MAX_LOCKS   200	    // maximum simultaneous read locks
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <string.h>
+#include <errno.h>
 
-#ifdef Q_NO_SEMAPHORE
-#include <unistd.h>
-#include <sys/file.h>
-#endif
+#define MAX_LOCKS   200	    // maximum simultaneous read locks
 
 class QLockData
 {
@@ -118,7 +118,7 @@ QLock::QLock( const QString &filename, char id, bool create )
 	}
     }
 #else
-    int semkey = ftok(filename, id);
+    key_t semkey = ftok(filename, id);
     data->id = semget(semkey,0,0);
     if ( create ) {
 	semun arg; arg.val = 0;
