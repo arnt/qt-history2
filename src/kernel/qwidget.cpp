@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#13 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qcolor.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#13 $";
 #endif
 
 
@@ -310,6 +310,10 @@ bool QWidget::close( bool forceKill )		// close widget
 
 bool QWidget::event( QEvent *e )		// receive event
 {
+    if ( eventFilters ) {			// pass through event filters
+	if ( activate_filters( e ) )		// eaten by some filter
+	    return TRUE;
+    }
     bool res = TRUE;
     switch ( e->type() ) {
 	case Event_Timer:
