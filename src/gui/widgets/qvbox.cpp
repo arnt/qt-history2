@@ -14,6 +14,7 @@
 
 
 #include "qvbox.h"
+#include "qlayout.h"
 #ifndef QT_NO_VBOX
 
 /*!
@@ -43,7 +44,9 @@
 QVBox::QVBox(QWidget *parent, const char *name, Qt::WFlags f)
     :QHBox(Qt::Vertical, parent, f)
 {
-    setObjectName(name);
+    QString nm(name);
+    setObjectName(nm);
+    layout()->setObjectName(nm);
 }
 #endif //QT_COMPAT
 

@@ -50,11 +50,14 @@
     constructor.
 */
 QHBox::QHBox(QWidget *parent, const char *name, Qt::WFlags f)
-    :QFrame(parent, name, f)
+    :QFrame(parent, f)
 {
+    QString nm(name);
+    setObjectName(nm);
     lay = new QHBoxLayout(this);
     lay->setMargin(frameWidth());
     lay->setSpacing(frameWidth());
+    lay->setObjectName(nm);
 }
 #endif
 
