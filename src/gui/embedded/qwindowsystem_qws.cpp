@@ -1360,8 +1360,8 @@ QList<QWSInternalWindowInfo*> * QWSServer::windowList()
 /*!
   \internal
 */
-void QWSServer::sendQCopEvent(QWSClient *c, const QByteArray &ch,
-                               const QByteArray &msg, const QByteArray &data,
+void QWSServer::sendQCopEvent(QWSClient *c, const QString &ch,
+                               const QString &msg, const QByteArray &data,
                                bool response)
 {
     Q_ASSERT(c);

@@ -1224,14 +1224,14 @@ void QWSDisplay::playSoundFile(const QString& f)
 #endif
 
 #ifndef QT_NO_COP
-void QWSDisplay::registerChannel(const QByteArray& channel)
+void QWSDisplay::registerChannel(const QString& channel)
 {
     QWSQCopRegisterChannelCommand reg;
     reg.setChannel(channel);
     qt_fbdpy->d->sendCommand(reg);
 }
 
-void QWSDisplay::sendMessage(const QByteArray &channel, const QByteArray &msg,
+void QWSDisplay::sendMessage(const QString &channel, const QString &msg,
                    const QByteArray &data)
 {
     QWSQCopSendCommand com;

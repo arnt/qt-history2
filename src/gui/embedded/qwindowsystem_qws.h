@@ -293,8 +293,8 @@ signals:
 private:
     void initServer(int flags);
 #ifndef QT_NO_COP
-    static void sendQCopEvent(QWSClient *c, const QByteArray &ch,
-                               const QByteArray &msg, const QByteArray &data,
+    static void sendQCopEvent(QWSClient *c, const QString &ch,
+                               const QString &msg, const QByteArray &data,
                                bool response = false);
 #endif
     void move_region(const QWSRegionMoveCommand *);

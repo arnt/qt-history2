@@ -31,7 +31,7 @@ static QCopClientMap *qcopClientMap = 0;
 class QCopChannelPrivate
 {
 public:
-    QByteArray channel;
+    QString channel;
 };
 
 /*!
@@ -351,7 +351,7 @@ void QCopChannel::answer(QWSClient *cl, const QString& ch,
                           const QString& msg, const QByteArray &data)
 {
     // internal commands
-    if (!ch) {
+    if (ch.isEmpty()) {
         if (msg == "isRegistered()") {
             QByteArray c;
             QDataStream s(data);
@@ -381,14 +381,14 @@ void QCopChannel::answer(QWSClient *cl, const QString& ch,
             }
             return;
         }
-        qWarning("QCopChannel: unknown internal command %s", msg);
+        qWarning("QCopChannel: unknown internal command %s", msg.local8Bit());
         QWSServer::sendQCopEvent(cl, "", "bad", data);
         return;
     }
 
     QList<QWSClient*> clist = (*qcopServerMap)[ch];
     if (clist.isEmpty()) {
-        qWarning("QCopChannel: no client registered for channel %s", ch);
+        qWarning("QCopChannel: no client registered for channel %s", ch.local8Bit());
         return;
     }
 
@@ -409,7 +409,7 @@ void QCopChannel::sendLocally(const QString& ch, const QString& msg,
     Q_ASSERT(qcopClientMap);
 
     // filter out internal events
-    if (!ch)
+    if (ch.isEmpty())
         return;
 
     // feed local clients with received data

@@ -128,15 +128,15 @@ struct QWSIdentifyCommand : public QWSCommand
 
     void setData(const char *d, int len, bool allocateMem) {
         QWSCommand::setData(d, len, allocateMem);
-        id = QString(reinterpret_cast<const QChar*>(d), simpleData.idLen/2);
+        id = QString(reinterpret_cast<const QChar*>(d), simpleData.idLen);
     }
 
     void setId(const QString& i)
     {
         id = i;
-        int l = simpleData.idLen = id.length()*2;
+        int l = simpleData.idLen = id.length();
         char *d = new char[l];
-        memcpy(d, id.unicode(), simpleData.idLen);
+        memcpy(d, id.unicode(), simpleData.idLen*2);
         setData(d, l, true);
         delete[] d;
     }
@@ -459,16 +459,21 @@ struct QWSQCopRegisterChannelCommand : public QWSCommand
 
     void setData(const char *d, int len, bool allocateMem) {
         QWSCommand::setData(d, len, allocateMem);
-        channel = QByteArray(d, len);
+        channel = QString(reinterpret_cast<const QChar*>(d), simpleData.chLen);
     }
 
-    void setChannel(const QByteArray& n)
+    void setChannel(const QString& n)
     {
-        setData(reinterpret_cast<const char*>(n.data()), n.length()+1, true);
+        channel = n;
+        int l = simpleData.chLen = channel.length();
+        char *d = new char[l];
+        memcpy(d, channel.unicode(), simpleData.chLen*2);
+        setData(d, l, true);
+        delete[] d;
     }
 
     struct SimpleData {
-        bool unused; // we may need it
+        int chLen;
     } simpleData;
     QString channel;
 };
@@ -481,25 +486,28 @@ struct QWSQCopSendCommand : public QWSCommand
 
     void setData(const char *d, int len, bool allocateMem) {
         QWSCommand::setData(d, len, allocateMem);
-        channel = QByteArray(d, simpleData.clen + 1);
-        d += simpleData.clen;
-        message = QByteArray(d, simpleData.mlen + 1);
-        d += simpleData.mlen;
+        const QChar *cd = reinterpret_cast<const QChar*>(d);
+        channel = QString(cd,simpleData.clen); cd += simpleData.clen;
+        message = QString(cd,simpleData.mlen);
+        d += simpleData.clen*sizeof(QChar) + simpleData.mlen*sizeof(QChar);
         data = QByteArray(d, simpleData.dlen);
     }
 
-    void setMessage(const QByteArray &c, const QByteArray &m,
+    void setMessage(const QString &c, const QString &m,
                      const QByteArray &data)
     {
-        int l = simpleData.clen = c.length();
-        l += simpleData.mlen = m.length();
-        l += simpleData.dlen = data.size();
+        simpleData.clen = c.length();
+        simpleData.mlen = m.length();
+        simpleData.dlen = data.size();
+        int l = simpleData.clen*sizeof(QChar);
+        l += simpleData.mlen*sizeof(QChar);
+        l += simpleData.dlen;
         char *tmp = new char[l];
         char *d = tmp;
-        memcpy(d, c.data(), simpleData.clen);
-        d += simpleData.clen;
-        memcpy(d, m.data(), simpleData.mlen);
-        d += simpleData.mlen;
+        memcpy(d, c.unicode(), simpleData.clen*sizeof(QChar));
+        d += simpleData.clen*sizeof(QChar);
+        memcpy(d, m.unicode(), simpleData.mlen*sizeof(QChar));
+        d += simpleData.mlen*sizeof(QChar);
         memcpy(d, data.data(), simpleData.dlen);
         setData(tmp, l, true);
         delete[] tmp;
@@ -510,8 +518,8 @@ struct QWSQCopSendCommand : public QWSCommand
         int mlen;
         int dlen;
     } simpleData;
-    QByteArray channel;
-    QByteArray message;
+    QString channel;
+    QString message;
     QByteArray data;
 };
 
