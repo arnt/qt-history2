@@ -56,7 +56,8 @@ void ItemDelegate::paint(QPainter *painter,
                          const QStyleOptionViewItem &options,
                          const QModelIndex &index) const
 {
-    QColor base = qApp->palette().color(QPalette::Button);
+    QColor base = QApplication::palette().color(QPalette::Button);
+    QColor pen = QApplication::palette().color(QPalette::ButtonText);
 
     QColor g1 = base.light();
     QColor g2 = base.dark();
@@ -64,20 +65,18 @@ void ItemDelegate::paint(QPainter *painter,
     bool selected = (options.state & QStyle::Style_Selected) != 0;
 
     if (selected) {
-        g1 = g1.dark(150);
-        g2 = g2.dark(150);
+         base = QApplication::palette().color(QPalette::Highlight);
+         pen = QApplication::palette().color(QPalette::HighlightedText);
 
-        g1 = QColor(g1.red(), g1.green(), g1.blue() + 70);
-        g2 = QColor(g2.red(), g2.green(), g2.blue() + 70);
+        g2 = base.light();
+        g1 = base.dark(120);
     }
 
     QRect r = options.rect;
     painter->fillRect(r, QBrush(r.topLeft(), g1, r.bottomLeft(), g2));
 
-    painter->setPen(Qt::black);
+    painter->setPen(pen);
     QRect textRect = r;
-    if (selected)
-        textRect.translate(1, 1);
     painter->drawText(textRect, Qt::AlignCenter, index.model()->data(index).toString());
 
     painter->setPen(selected ? Qt::white : Qt::black);
@@ -275,7 +274,7 @@ void DemoViewer::openSource(bool on)
         contents.replace('>', "&gt;");
 
         // add some pretty unsofisticated syntax highlighting
-        QList<QString> keywords;
+        QStringList keywords;
         keywords << "for " << "if " << "switch " << " int " << "#include " << "const"
                  << "void " << "uint " << "case " << "double " << "#define " << "static"
                  << "#ifndef" << "#else" << "#endif" << "#ifdef" << "break" << "default"
