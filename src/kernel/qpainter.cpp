@@ -3781,7 +3781,7 @@ QBrush QBrush::copy() const
     \row \i CustomPattern \i set when a pixmap pattern is being used.
     \endtable
 
-    On Windows, the dense and custom patterns are cannot be transparent.
+    On Windows, dense and custom patterns cannot be transparent.
 
     See the \link #details Detailed Description\endlink for a picture
     of all the styles.
