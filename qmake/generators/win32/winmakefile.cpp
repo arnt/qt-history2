@@ -253,13 +253,13 @@ Win32MakefileGenerator::findLibraries(const QString &where)
     }
     dirs.setAutoDelete(TRUE);
     for(QStringList::Iterator it = l.begin(); it != l.end(); ) {
-	QChar quoted;
+	QChar quote;
+	bool modified_opt = FALSE, remove = FALSE;
 	QString opt = (*it).stripWhiteSpace();
-	if((opt.left(1) == '\'' || opt.left(1) == '"') && opt.constref( opt.length()-1 ) == opt.constref( 0 ) ) {
-	    quoted = opt[0];
-	    opt = opt.mid(1, opt.length());
+	if((opt[0] == '\'' || opt[0] == '"') && opt[(int)opt.length()-1] == opt[0]) {
+	    quote = opt[0];
+	    opt = opt.mid(1, opt.length()-2);
 	}
-        bool remove = FALSE;
 	if(opt.startsWith("/LIBPATH:")) {
             QString r = opt.mid(9), l = Option::fixPathToLocalOS(r);
             dirs.append(new MakefileDependDir(r.replace("\"",""),
@@ -268,7 +268,7 @@ Win32MakefileGenerator::findLibraries(const QString &where)
             QString r = opt.mid(2), l = Option::fixPathToLocalOS(r);
             dirs.append(new MakefileDependDir(r.replace("\"",""),
                                               l.replace("\"","")));
-            remove = TRUE;
+            remove = TRUE; //we eat this switch
         } else if(opt.startsWith("-l") || opt.startsWith("/l")) {
             QString lib = opt.right(opt.length() - 2), out;
             if(!lib.isEmpty()) {
@@ -285,10 +285,12 @@ Win32MakefileGenerator::findLibraries(const QString &where)
 		    }
                 }
             }
-            if(out.isEmpty())
-                remove = TRUE;
-            else
-                (*it) = quoted + out + quoted;
+            if(out.isEmpty()) {
+                remove = TRUE; //just eat it since we cannot find one..
+            } else {
+		modified_opt = TRUE;
+                (*it) = out;
+	    }
         } else if(!QFile::exists(Option::fixPathToLocalOS(opt))) {
 	    QPtrList<MakefileDependDir> lib_dirs;
 	    QString file = opt;
@@ -318,17 +320,21 @@ Win32MakefileGenerator::findLibraries(const QString &where)
 				    dir += Option::dir_sep;
 				lib_tmpl.prepend(dir);
 			    }
-			    (*it) = quoted + lib_tmpl + quoted;
+			    modified_opt = TRUE;
+			    (*it) = lib_tmpl;
 			    break;
 			}
 		    }
 		}
 	    }
         }
-        if(remove)
+        if(remove) {
             it = l.remove(it);
-        else
+        } else {
+	    if(!quote.isNull() && modified_opt)
+		(*it) = quote + (*it) + quote;
             ++it;
+	}
     }
     return TRUE;
 }
