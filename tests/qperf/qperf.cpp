@@ -172,7 +172,8 @@ void qrnd_init()
 
 int qrnd_speed()
 {
-    for ( int i=0; i<100000; i++ ) {
+    int i;
+    for ( i=0; i<100000; i++ ) {
 	qrnd(640);
 	qrnd(48);
     }

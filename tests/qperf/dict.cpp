@@ -1,12 +1,14 @@
 #include "qperf.h"
 #include <qdict.h>
+#if QT_VERSION >= 200
 #include <qmap.h>
+#endif
 #include "words.inc"
 
-QDict<int> d;
-
-QDict<int>         wordDict(601);
+QDict<int> wordDict(601);
+#if QT_VERSION >= 200
 QMap<QString,int*> wordMap;
+#endif
 
 
 static void fill_wordDict()
@@ -30,26 +32,8 @@ static void dict_init()
     fill_wordMap();
 }
 
-static int dict_lookup()
-{
-    int i;
-    for ( i=0; i<10000; i++ ) {
-	d.find("Troll Tech");
-    }
-    return i;
-}
 
-static int dict_lookup_qstring()
-{
-    int i;
-    QString s("Troll Tech");
-    for ( i=0; i<10000; i++ ) {
-	d.find(s);
-    }
-    return i;
-}
-
-static int dict_words_lookup()
+static int dict_lookup_pchar()
 {
     int i;
     for ( i=0; i<1000; i++ ) {
@@ -61,7 +45,7 @@ static int dict_words_lookup()
     return i*4;
 }
 
-static int dict_words_lookup_map()
+static int dict_lookup()
 {
     QString s1("Troll Tech");
     QString s2("sequences");
@@ -69,18 +53,61 @@ static int dict_words_lookup_map()
     QString s4("POSIXLYCORRECT");
     int i;
     for ( i=0; i<1000; i++ ) {
-	wordMap[s1];
-	wordMap[s2];
-	wordMap[s3];
-	wordMap[s4];
+	wordDict.find(s1);
+	wordDict.find(s2);
+	wordDict.find(s3);
+	wordDict.find(s4);
     }
     return i*4;
 }
 
+static int dict_lookup_map()
+{
+#if QT_VERSION >= 200
+    QString s1("Troll Tech");
+    QString s2("sequences");
+    QString s3("FSF");
+    QString s4("POSIXLYCORRECT");
+    int i;
+    for ( i=0; i<1000; i++ ) {
+	wordMap.find(s1);
+	wordMap.find(s2);
+	wordMap.find(s3);
+	wordMap.find(s4);
+    }
+    return i*4;
+#endif
+}
+
+static int dict_insdel()
+{
+    const char *s1 = "Troll Tech";
+    int i;
+    for ( i=0; i<1000; i++ ) {
+	wordDict.insert(s1,(int*)123);
+	wordDict.remove(s1);
+    }
+    return i*4;
+}
+
+static int dict_insdel_map()
+{
+#if QT_VERSION >= 200
+    QString s1("Troll Tech");
+    int i;
+    for ( i=0; i<1000; i++ ) {
+	wordMap.insert(s1,(int*)123);
+	wordMap.remove(s1);
+    }
+    return i*4;
+#endif
+}
+
 
 QPERF_BEGIN(dict,"QDict tests")
-    QPERF(dict_lookup,"Tests QDict lookup, using const char *")
-    QPERF(dict_lookup_qstring,"Tests QDict lookup, using QString")
-    QPERF(dict_words_lookup,"Realistic dict lookup using char*")
-    QPERF(dict_words_lookup_map,"Dict lookup, but use a QMap and QString")
+    QPERF(dict_lookup_pchar,"Tests QDict lookup, using const char *")
+    QPERF(dict_lookup,"QDict lookup, using QString")
+    QPERF(dict_lookup_map,"QMap lookup, using QString")
+    QPERF(dict_insdel,"Insert and delete const char *")
+    QPERF(dict_insdel_map,"Insert and delete for QMap")
 QPERF_END(dict)

@@ -1,4 +1,4 @@
-static const num_words = 598;
+static const int num_words = 598;
 static pchar words[num_words] = {
 	"LS1",
 	"NNAAMMEE",
