@@ -127,6 +127,23 @@ LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
 		QMouseEvent e( type, pos, QPoint(gpos.x,gpos.y), button, state );
 		QApplication::sendEvent( ax, &e );
 	    }
+	} else if ( message == WM_KEYDOWN && msg->wParam == VK_TAB ) {
+	    HWND hwnd = msg->hwnd;
+	    QWidget *widget = 0;
+	    QAxWidget *ax = 0;
+	    while ( !ax && hwnd ) {
+		widget = QWidget::find( hwnd );
+		if ( widget )
+		    ax = (QAxWidget*)widget->qt_cast( "QAxWidget" );
+		hwnd = ::GetParent( hwnd );
+	    }
+	    if ( ax && msg->hwnd != ax->winId() ) {
+		QObject *host = ax->child( "QAxHostWidget", "QWidget" );
+		if ( host ) {
+		    QKeyEvent e( QEvent::KeyPress, Qt::Key_Tab, 9, 0 );
+		    QApplication::sendEvent( host, &e );
+		}
+	    }
 	}
 	reentrant = FALSE;
     }
@@ -157,6 +174,7 @@ protected:
     void focusInEvent( QFocusEvent *e );
     void focusOutEvent( QFocusEvent *e );
     void windowActivationChange( bool oldActive );
+    bool focusNextPrevChild( bool next );
 
     QAxHostWindow *axhost;
 
@@ -1190,6 +1208,7 @@ bool QAxHostWidget::event( QEvent *e )
     switch ( e->type() ) {
     case QEvent::Timer:
 	if ( ((QTimerEvent*)e)->timerId() == setFocusTimer ) {
+	    killTimer( setFocusTimer );
 	    setFocusTimer = 0;
 	    RECT rcPos = { x(), y(), x()+sizeHint().width(), y()+sizeHint().height() };
 	    HRESULT res = axhost->m_spOleObject->DoVerb( OLEIVERB_UIACTIVATE, 0, (IOleClientSite*)axhost, 0, winId(), &rcPos );
@@ -1221,6 +1240,22 @@ void QAxHostWidget::focusOutEvent( QFocusEvent *e )
 	return;
 
     axhost->m_spInPlaceObject->UIDeactivate();
+}
+
+bool QAxHostWidget::focusNextPrevChild( bool next )
+{
+    if ( axhost && axhost->m_spInPlaceActiveObject ) {
+	MSG msg;
+	msg.hwnd = winId();
+	msg.message = WM_KEYDOWN;
+	msg.wParam = VK_TAB;
+	msg.lParam = 1;
+
+	if ( axhost->m_spInPlaceActiveObject->TranslateAccelerator( &msg ) == S_OK )
+	    return TRUE;
+    }
+
+    return QWidget::focusNextPrevChild( next );
 }
 
 void QAxHostWidget::windowActivationChange( bool oldActive )
