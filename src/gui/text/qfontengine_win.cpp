@@ -542,7 +542,6 @@ void QFontEngineWin::addOutlineToPath(float x, float y, const QGlyphLayout *glyp
                 TTPOLYCURVE *curve;
                 while (offset<int(headerOffset + ttph->cb)) {
                     curve = (TTPOLYCURVE*)((char*)(dataBuffer) + offset);
-                    Q_ASSERT(curve->wType != TT_PRIM_QSPLINE);
                     switch (curve->wType) {
                     case TT_PRIM_LINE: {
                         for (int i=0; i<curve->cpfx; ++i) {
