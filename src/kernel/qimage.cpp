@@ -1185,7 +1185,7 @@ void QImage::setAlphaBuffer( bool enable )
     allocated.
 
     The \a width and \a height is limited to 32767. \a depth must be
-    1, 8, 16 or 32. If \a depth is 1, \a bitOrder must be set to
+    1, 8, or 32. If \a depth is 1, \a bitOrder must be set to
     either QImage::LittleEndian or QImage::BigEndian. For other depths
     \a bitOrder must be QImage::IgnoreEndian.
 
