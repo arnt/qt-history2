@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#175 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#176 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#175 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#176 $");
 
 
 /*!
@@ -1118,6 +1118,80 @@ void QWidget::setFixedSize( int w, int h )
     setMinimumSize( w, h );
     setMaximumSize( w, h );
     resize( w, h );
+}
+
+
+/*!  Sets the minimum width of the widget to \a w without changing the
+  height.  Provided for convenience.
+
+  \sa sizeHint() minimumSize() maximumSize() setFixedSize() and more
+*/
+
+void QWidget::setMinimumWidth( int w )
+{
+    setMinimumSize( w, minimumSize().height() );
+}
+
+
+/*!  Sets the minimum height of the widget to \a h without changing the
+  width.  Provided for convenience.
+
+  \sa sizeHint() minimumSize() maximumSize() setFixedSize() and more
+*/
+
+void QWidget::setMinimumHeight( int h )
+{
+    setMinimumSize( minimumSize().width(), h );
+}
+
+
+/*!  Sets the maximum width of the widget to \a w without changing the
+  height.  Provided for convenience.
+
+  \sa sizeHint() minimumSize() maximumSize() setFixedSize() and more
+*/
+
+void QWidget::setMaximumWidth( int w )
+{
+    setMaximumSize( w, maximumSize().height() );
+}
+
+
+/*!  Sets the maximum height of the widget to \a h without changing the
+  width.  Provided for convenience.
+
+  \sa sizeHint() minimumSize() maximumSize() setFixedSize() and more
+*/
+
+void QWidget::setMaximumHeight( int h )
+{
+    setMaximumSize( maximumSize().width(), h );
+}
+
+
+/*!  Sets both the minimum and maximum width of the widget to \a w
+  without changing the heights.  Provided for convenience.
+
+  \sa sizeHint() minimumSize() maximumSize() setFixedSize() and more
+*/
+
+void QWidget::setFixedWidth( int w )
+{
+    setMinimumSize( w, minimumSize().height() );
+    setMaximumSize( w, maximumSize().height() );
+}
+
+
+/*!  Sets both the minimum and maximum heights of the widget to \a h
+  without changing the widths.  Provided for convenience.
+
+  \sa sizeHint() minimumSize() maximumSize() setFixedSize() and more
+*/
+
+void QWidget::setFixedHeight( int h )
+{
+    setMinimumSize( minimumSize().width(), h );
+    setMaximumSize( maximumSize().width(), h );
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#112 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#113 $
 **
 ** Definition of QWidget class
 **
@@ -65,6 +65,10 @@ public:
     void	 setMinimumSize( int w, int h );
     void	 setMaximumSize( const QSize & );
     void	 setMaximumSize( int w, int h );
+    void	 setMinimumWidth( int w );
+    void	 setMinimumHeight( int h );
+    void	 setMaximumWidth( int w );
+    void	 setMaximumHeight( int h );
 
     QSize	 sizeIncrement() const;
     void	 setSizeIncrement( const QSize & );
@@ -72,6 +76,8 @@ public:
 
     void	 setFixedSize( const QSize & );
     void	 setFixedSize( int w, int h );
+    void	 setFixedWidth( int w );
+    void	 setFixedHeight( int h );
 
   // Widget coordinate mapping
 
