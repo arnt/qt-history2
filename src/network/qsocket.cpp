@@ -135,9 +135,9 @@ void QSocketPrivate::close()
   The signals error(), connected(), readyRead() and connectionClosed()
   inform you of the progress of the connection.  There are also some
   less commonly used signals.  hostFound() is emitted when
-  connectToHost() has finished its DSN lookup and is starting its TCP
+  connectToHost() has finished its DNS lookup and is starting its TCP
   connection. delayedCloseFinished() is emitted when close()
-  succeeds().  bytesWritten() is emitted when QSocket moves data from
+  succeeds.  bytesWritten() is emitted when QSocket moves data from
   its "to be written" queue into the TCP implementation.
 
   There are several access functions for the socket: state() returns
