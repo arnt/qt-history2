@@ -1255,6 +1255,71 @@ void QWidget::update(int x, int y, int w, int h)
     }
 }
 
+struct QX11DoubleBuffer
+{
+    Qt::HANDLE hd, rendhd;
+    int screen, depth;
+    int width, height;
+};
+static QX11DoubleBuffer *qt_x11_double_buffer = 0;
+
+void qt_x11_discard_double_buffer()
+{
+    if (!qt_x11_discard_double_buffer) return;
+
+    XFreePixmap(QPaintDevice::x11AppDisplay(), qt_x11_double_buffer->hd);
+#ifndef QT_NO_XFTFREETYPE
+    if (qt_use_xrender && qt_has_xft)
+	XftDrawDestroy((XftDraw *) qt_x11_double_buffer->rendhd);
+#endif
+
+    delete qt_x11_double_buffer;
+    qt_x11_double_buffer = 0;
+}
+
+static
+void qt_x11_get_double_buffer(Qt::HANDLE &hd, Qt::HANDLE &rendhd,
+			      int screen, int depth, int width, int height)
+{
+    // the db should consist of 128x128 chunks
+    width  = (( width / 128) + 1) * 128;
+    height = ((height / 128) + 1) * 128;
+
+    if (qt_x11_double_buffer) {
+	if (qt_x11_double_buffer->screen == screen
+	    && qt_x11_double_buffer->depth == depth
+	    && qt_x11_double_buffer->width >= width
+	    && qt_x11_double_buffer->height >= height) {
+	    hd = qt_x11_double_buffer->hd;
+	    rendhd = qt_x11_double_buffer->rendhd;
+	    return;
+	}
+
+	width  = QMAX(qt_x11_double_buffer->width,  width);
+	height = QMAX(qt_x11_double_buffer->height, height);
+
+	qt_x11_discard_double_buffer();
+    }
+
+    qt_x11_double_buffer = new QX11DoubleBuffer;
+    qt_x11_double_buffer->hd =
+	XCreatePixmap(QPaintDevice::x11AppDisplay(), hd, width, height, depth);
+
+#ifndef QT_NO_XFTFREETYPE
+    if (qt_use_xrender && qt_has_xft)
+	qt_x11_double_buffer->rendhd =
+	    (Qt::HANDLE) XftDrawCreate(QPaintDevice::x11AppDisplay(),
+				       qt_x11_double_buffer->hd,
+				       (Visual *) QPaintDevice::x11AppVisual(),
+				       QPaintDevice::x11AppColormap());
+#endif
+
+    qt_x11_double_buffer->screen = screen;
+    qt_x11_double_buffer->depth = depth;
+    qt_x11_double_buffer->width = width;
+    qt_x11_double_buffer->height = height;
+}
+
 void QWidget::repaint(const QRegion& rgn)
 {
     if (testWState(WState_InPaintEvent))
@@ -1276,14 +1341,7 @@ void QWidget::repaint(const QRegion& rgn)
     HANDLE old_rendhd = rendhd;
 
     if (double_buffer) {
-	hd = XCreatePixmap(x11Display(), winId(), br.width(), br.height(), x11Depth());
-
-#ifndef QT_NO_XFTFREETYPE
-	if (qt_use_xrender && qt_has_xft) {
-	    rendhd =
-		(HANDLE) XftDrawCreate(x11Display(), hd, (Visual *) x11Visual(), x11Colormap());
-	}
-#endif
+	qt_x11_get_double_buffer(hd, rendhd, x11Screen(), x11Depth(), br.width(), br.height());
 
 	dboff = br.topLeft();
 	QPainter::setRedirected(this, this, dboff);
@@ -1366,12 +1424,6 @@ void QWidget::repaint(const QRegion& rgn)
 		      rr.width(), rr.height(),
 		      rr.x(), rr.y());
 	}
-
-#ifndef QT_NO_XFTFREETYPE
-	if (qt_use_xrender && qt_has_xft)
-	    XftDrawDestroy((XftDraw *) rendhd);
-#endif
-	XFreePixmap(x11Display(), hd);
 
 	hd = old_hd;
 	rendhd = old_rendhd;
@@ -1780,12 +1832,12 @@ void QWidget::setGeometry_helper( int x, int y, int w, int h, bool isMove )
 	    }
 	}
 	if ( isResize ) {
-
 	    // set config pending only on resize, see qapplication_x11.cpp, translateConfigEvent()
 	    setWState( WState_ConfigPending );
 
 	    QResizeEvent e( size(), oldSize );
 	    QApplication::sendEvent( this, &e );
+
 	    // Process events immediately rather than in
 	    // translateConfigEvent to avoid message process delay.
 	    if (!testAttribute(WA_StaticContents))
