@@ -481,6 +481,8 @@ void Uic::createFormImpl( const QDomElement &e )
 	}
     }
 
+    out << "#include <qvariant.h>   // first for gcc 2.7.2" << endl;
+
     globalIncludes = unique( globalIncludes );
     for ( it = globalIncludes.begin(); it != globalIncludes.end(); ++it ) {
 	if ( !(*it).isEmpty() )
@@ -493,7 +495,6 @@ void Uic::createFormImpl( const QDomElement &e )
     }
 
     out << "#include <qlayout.h>" << endl;
-    out << "#include <qvariant.h>" << endl;
     out << "#include <qtooltip.h>" << endl;
     out << "#include <qwhatsthis.h>" << endl;
 
