@@ -1,6 +1,5 @@
 TEMPLATE = lib
 CONFIG += qt plugin
-win32-borland:CONFIG += warn_off
 TARGET += qmng
 VERSION = 1.0.0
 DESTDIR = ../../../imageformats
@@ -8,6 +7,11 @@ INCLUDEPATH += $(QTDIR)/src/3rdparty/zlib
 INCLUDEPATH += $(QTDIR)/src/3rdparty/libjpeg
 INCLUDEPATH += $(QTDIR)/src/3rdparty/libmng
 REQUIRES += !mng
+
+win32-borland {
+	QMAKE_CFLAGS_WARN_ON	+= -w-par
+	QMAKE_CXXFLAGS_WARN_ON	+= -w-par
+}
 
 SOURCES += main.cpp \
 	../../../../src/3rdparty/libmng/libmng_callback_xs.c \

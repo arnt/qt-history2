@@ -8,6 +8,11 @@ DLLDESTDIR	= ../bin
 
 CONFIG		+= qt warn_on
 
+win32-borland {
+	mng:QMAKE_CFLAGS_WARN_ON	+= -w-par
+	mng:QMAKE_CXXFLAGS_WARN_ON	+= -w-par
+}
+
 KERNEL_CPP	= kernel	
 CANVAS_CPP      = canvas
 WIDGETS_CPP	= widgets
