@@ -51,7 +51,7 @@ void YellowThread::run()
 
 	QCustomEvent *event = new QCustomEvent(12345);
      	event->setData(new QString("Yellow!"));
-	QThread::postEvent(receiver, event);
+	QApplication::postEvent(receiver, event);
 	msleep(200);
 
 	(*greenSem)--;
@@ -69,7 +69,7 @@ void YellowThread::run()
 
     QCustomEvent *event = new QCustomEvent(12346);
     event->setData(new QString("Yellow!"));
-    QThread::postEvent(receiver, event);
+    QApplication::postEvent(receiver, event);
 
     (*greenSem)--;
 }
@@ -107,7 +107,7 @@ void GreenThread::run()
 
 	QCustomEvent *event = new QCustomEvent(12345);
      	event->setData(new QString("Green!"));
-	QThread::postEvent(receiver, event);
+	QApplication::postEvent(receiver, event);
 	msleep(200);
 
 	(*yellowSem)--;
@@ -125,7 +125,7 @@ void GreenThread::run()
 
     QCustomEvent *event = new QCustomEvent(12346);
     event->setData(new QString("Green!"));
-    QThread::postEvent(receiver, event);
+    QApplication::postEvent(receiver, event);
     msleep(10);
 
     (*yellowSem)--;
