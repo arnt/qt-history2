@@ -202,9 +202,9 @@ void HelpDialog::initialize()
     termsEdit->setValidator( new SearchValidator( termsEdit ) );
 
     itemPopup = new QPopupMenu( this );
-    itemPopup->insertItem( tr( "Open Link in Current Page" ), 0 );
+    itemPopup->insertItem( tr( "Open Link in Current Tab" ), 0 );
     itemPopup->insertItem( tr( "Open Link in New Window" ), 1 );
-    itemPopup->insertItem( tr( "Open Link in New Page" ), 2 );
+    itemPopup->insertItem( tr( "Open Link in New Tab" ), 2 );
 
     contentList.setAutoDelete( TRUE );
     contentList.clear();

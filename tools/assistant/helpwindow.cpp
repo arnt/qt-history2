@@ -203,7 +203,7 @@ QPopupMenu *HelpWindow::createPopupMenu( const QPoint& pos )
 	}
 	m->insertItem( tr("Open Link in New Window\tShift+LMB"),
 		       this, SLOT( openLinkInNewWindow() ) );
-	m->insertItem( tr("Open Link in New Page"),
+	m->insertItem( tr("Open Link in New Tab"),
 		       this, SLOT( openLinkInNewPage() ) );
     }
     mw->actionNewWindow->addTo( m );

@@ -412,7 +412,7 @@
             <cstring>actionNextPage</cstring>
         </property>
         <property name="text">
-            <string>Next Page</string>
+            <string>Next Tab</string>
         </property>
         <property name="accel">
             <string>Ctrl+Alt+Right</string>
@@ -423,7 +423,7 @@
             <cstring>actionPrevPage</cstring>
         </property>
         <property name="text">
-            <string>Previous Page</string>
+            <string>Previous Tab</string>
         </property>
         <property name="accel">
             <string>Ctrl+Alt+Left</string>
