@@ -321,7 +321,7 @@ QColor::QColor(int x, int y, int z, Spec colorSpec)
 }
 
 
-/*! 
+/*!
     \fn QColor::QColor(const QString &name)
 
     Constructs a named color in the same way as setNamedColor() using
@@ -333,7 +333,7 @@ QColor::QColor(int x, int y, int z, Spec colorSpec)
 */
 
 
-/*! 
+/*!
     \fn QColor::QColor(const char *name)
 
     Constructs a named color in the same way as setNamedColor() using
@@ -354,7 +354,7 @@ QColor::QColor(int x, int y, int z, Spec colorSpec)
 */
 
 
-/*! 
+/*!
     \fn QColor &QColor::operator=(const QColor &other)
 
     Assigns a copy of the \a other color to this color, and returns a
@@ -405,11 +405,11 @@ QString QColor::name() const
 {
 #ifndef QT_NO_SPRINTF
     QString s;
-    s.sprintf("#%02x%02x%02x%02x", alpha(), red(), green(), blue());
+    s.sprintf("#%02x%02x%02x", red(), green(), blue());
     return s;
 #else
     char s[20];
-    sprintf(s, "#%02x%02x%02x%02x", alpha(), red(), green(), blue());
+    sprintf(s, "#%02x%02x%02x", red(), green(), blue());
     return QString(s);
 #endif
 }
@@ -582,7 +582,7 @@ void QColor::setHsv(int h, int s, int v)
     \sa setRgb(), getHsv(), qRed(), qBlue(), qGreen(), isValid()
 */
 
-/*! 
+/*!
     \fn void QColor::getRgb(int *r, int *g, int *b) const
 
     Sets the contents pointed to by \a r, \a g and, \a b to the red,
