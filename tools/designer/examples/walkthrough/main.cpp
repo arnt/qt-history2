@@ -9,11 +9,11 @@
 #include <qapplication.h>
 #include "mydialogimpl.h"
 
-int main( int argc, char ** argv ) 
+int main( int argc, char ** argv )
 {
     QApplication a( argc, argv );
     MyDialogImpl * mw = new MyDialogImpl;
+    a.setMainWidget( mw );
     mw->show();
-    a.connect( &a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()) );
     return a.exec();
 }
