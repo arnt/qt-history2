@@ -38,21 +38,19 @@ public:
     QSqlRecord();
     QSqlRecord(const QSqlRecord& other);
     QSqlRecord& operator=(const QSqlRecord& other);
-    virtual ~QSqlRecord();
-    virtual QCoreVariant value(int i) const;
+    ~QSqlRecord();
+
+    QCoreVariant value(int i) const;
     QCoreVariant value(const QString& name) const;
-    virtual void setValue(int i, const QCoreVariant& val);
+    void setValue(int i, const QCoreVariant& val);
     void setValue(const QString& name, const QCoreVariant& val);
-    bool isGenerated(int i) const;
-    bool isGenerated(const QString& name) const;
-    void setGenerated(const QString& name, bool generated);
-    virtual void setGenerated(int i, bool generated);
-    virtual void setNull(int i);
+
+    void setNull(int i);
     void setNull(const QString& name);
     bool isNull(int i) const;
     bool isNull(const QString& name) const;
 
-    int position(const QString& name) const;
+    int indexOf(const QString &name) const;
     QString fieldName(int i) const;
 
     QSqlField field(int i) const;
@@ -61,24 +59,32 @@ public:
 #ifdef QT_COMPAT
     QT_COMPAT const QSqlField* fieldPtr(int i) const;
     QT_COMPAT const QSqlField* fieldPtr(const QString& name) const;
+    QT_COMPAT bool isGenerated(int i) const;
+    QT_COMPAT bool isGenerated(const QString& name) const;
+    QT_COMPAT void setGenerated(const QString& name, bool generated);
+    QT_COMPAT void setGenerated(int i, bool generated);
 #endif
 
-    virtual void append(const QSqlField& field);
-    virtual void replace(int pos, const QSqlField& field);
-    virtual void remove(int pos);
+    void append(const QSqlField& field);
+    void replace(int pos, const QSqlField& field);
+    void insert(int pos, const QSqlField& field);
+    void remove(int pos);
 
 #ifdef QT_COMPAT
-    inline QT_COMPAT void insert(int pos, const QSqlField& field) { replace(pos, field); }
+    inline QT_COMPAT int position(const QString& name) const { return indexOf(name); }
 #endif
 
     bool isEmpty() const;
     bool contains(const QString& name) const;
-    virtual void clear();
-    virtual void clearValues();
+    void clear();
+    void clearValues();
     int count() const;
-    virtual QString toString(const QString& prefix = QString(),
-                                   const QString& sep = ",") const;
-    virtual QStringList toStringList(const QString& prefix = QString()) const;
+    QString toString(const QString& prefix = QString(),
+                     const QString& sep = ",") const;
+    QStringList toStringList(const QString& prefix = QString()) const;
+
+protected:
+    QSqlRecord(QSqlRecordPrivate &p);
 
 private:
     void detach();

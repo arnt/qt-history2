@@ -40,16 +40,16 @@ public:
     QSqlIndex(const QSqlIndex& other);
     ~QSqlIndex();
     QSqlIndex&       operator=(const QSqlIndex& other);
-    virtual void     setCursorName(const QString& cursorName);
+    void             setCursorName(const QString& cursorName);
     QString          cursorName() const { return cursor; }
-    virtual void     setName(const QString& name);
+    void             setName(const QString& name);
     QString          name() const { return nm; }
 
     void             append(const QSqlField& field);
-    virtual void     append(const QSqlField& field, bool desc);
+    void             append(const QSqlField& field, bool desc);
 
     bool             isDescending(int i) const;
-    virtual void     setDescending(int i, bool desc);
+    void             setDescending(int i, bool desc);
 
     QString          toString(const QString& prefix = QString(),
                                const QString& sep = ",",

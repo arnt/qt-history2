@@ -14,6 +14,7 @@ HEADERS +=      qsql.h \
                 qsqldatabase.h \
                 qsqlfield.h \
                 qsqlrecord.h \
+                qsqlrecord_p.h \
                 qsqldriver.h \
                 qsqldriverinterface_p.h \
                 qsqlnulldriver_p.h \
