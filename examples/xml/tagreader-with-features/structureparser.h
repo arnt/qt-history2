@@ -6,7 +6,7 @@ $Id$
 #define STRUCTUREPARSER_H   
 
 #include <qxml.h>
-#include <qstack.h>
+#include <qptrstack.h>
 
 class QListView;
 class QListViewItem;

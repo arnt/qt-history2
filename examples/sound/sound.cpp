@@ -23,7 +23,7 @@ SoundPlayer::SoundPlayer() :
     bucket3("sounds/3.wav"),
     bucket4("sounds/4.wav")
 {
-    if (!QSound::available()) {
+    if (!QSound::isAvailable()) {
 	// Bail out.  Programs in which sound is not critical
 	// could just silently (hehe) ignore the lack of a server.
 	//

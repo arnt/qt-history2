@@ -18,7 +18,7 @@
 const bool no_writing = FALSE;
 
 Canvas::Canvas( QWidget *parent, const char *name, WFlags fl )
-    : QWidget( parent, name, WNorthWestGravity | fl ), 
+    : QWidget( parent, name, WStaticContents | fl ), 
       pen( Qt::red, 3 ), polyline(3),
       mousePressed( FALSE ), oldPressure( 0 ), saveColor( red ),
       buffer( width(), height() ) 

@@ -43,10 +43,10 @@ void MyListBoxItem::paint( QPainter *painter )
     bool in_list_box = listBox() && listBox()->viewport() == painter->device();
 
     QRect r ( 0, 0, width( listBox() ), height( listBox() ) );
-    if ( in_list_box && selected() )
+    if ( in_list_box && isSelected() )
 	painter->eraseRect( r );
     painter->fillRect( 5, 5, width( listBox() ) - 10, height( listBox() ) - 10, Qt::red );
-    if ( in_list_box && current() )
+    if ( in_list_box && isCurrent() )
 	listBox()->style().drawPrimitive( QStyle::PE_FocusRect, painter, r, listBox()->colorGroup() );
 }
 
@@ -148,7 +148,7 @@ void ListBoxCombo::slotLeft2Right()
     for ( unsigned int i = 0; i < lb1->count(); i++ ) {
 	QListBoxItem *item = lb1->item( i );
 	// if the item is selected...
-	if ( item->selected() ) {
+	if ( item->isSelected() ) {
 	    // ...and it is a text item...
 	    if ( item->pixmap() && !item->text().isEmpty() )
 		lb2->insertItem( *item->pixmap(), item->text() );

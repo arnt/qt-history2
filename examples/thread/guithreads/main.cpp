@@ -11,6 +11,7 @@
 #include <qapplication.h>
 #include <qhbox.h>
 #include <qthread.h>
+#include <qmutex.h>
 #include <qlabel.h>
 
 

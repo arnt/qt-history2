@@ -270,7 +270,7 @@ void desktopText( const char *s = "Trolltech" )
 {
     const int border = 20;
 
-    QColor c1 =	 qApp->palette().normal().background();
+    QColor c1 =	 qApp->palette().inactive().background();
     QColor c2 = c1.light(104);
     QColor c3 = c1.dark(106);
 

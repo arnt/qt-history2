@@ -90,7 +90,7 @@ void CategoryItem::paint( QPainter *p )
     int w = width( listBox() );
     int tx = (w-p->fontMetrics().boundingRect(text()).width())/2;
     p->drawText( tx, 80, text() );
-    if ( selected() )
+    if ( isSelected() )
 	p->drawPixmap( (w-pm_Sel.width())/2, 10, pm_Sel );
     else
     	p->drawPixmap( (w-pm_Unsel.width())/2, 10, pm_Unsel );

@@ -45,7 +45,7 @@ private:
 //
 
 ConnectWidget::ConnectWidget( QWidget *parent, const char *name )
-    : QWidget( parent, name, WNorthWestGravity )
+    : QWidget( parent, name, WStaticContents )
 {
     setBackgroundColor( white );		// white background
     count = 0;

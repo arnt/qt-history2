@@ -357,7 +357,7 @@ void KAsteroidsView::timerEvent( QTimerEvent * )
     // move powerups and check for collision with player and missiles
     processPowerups();
 
-    if ( textSprite->visible() )
+    if ( textSprite->isVisible() )
     {
 	if ( textDy < 0 &&
 	     textSprite->boundingRect().y() <= -textSprite->boundingRect().height() ) {
@@ -554,7 +554,7 @@ void KAsteroidsView::processMissiles()
 
 void KAsteroidsView::processShip()
 {
-    if ( ship->visible() )
+    if ( ship->isVisible() )
     {
 	if ( shieldOn )
 	{
