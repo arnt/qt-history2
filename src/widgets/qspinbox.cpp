@@ -85,7 +85,7 @@ public:
   is 99, clicking "up" will give 0.  Use setWrapping() if you want
   circular behavior.
 
-  The displayed value can be prepended and/or appended with an
+  The displayed value can be prepended and appended with an
   arbitrary string indicating, for example, the unit of measurement.
   See setPrefix() and setSuffix().
 
@@ -231,7 +231,7 @@ QString QSpinBox::text() const
 /*!
   \property QSpinBox::cleanText
 
-  \brief the current text of the spin box with any prefix and/or suffix and
+  \brief the current text of the spin box with any prefix or suffix and
   with the whitespace at the start and end removed.
 
   \sa text, prefix, suffix
@@ -875,11 +875,13 @@ void QSpinBox::styleChange( QStyle& old )
   This enum type determines what the buttons in a spin box show.  The
   currently defined values are:
 
-  \value UpDownArrows - the buttons show little arrows in the
-  classic style.  This is the default.
+  \value UpDownArrows the buttons show little arrows in the
+  classic style.
 
-  \value PlusMinus - the buttons show + and - symbols.  This is
-  often considered to be more meaningful than \c UpDownArrows.
+  \value PlusMinus the buttons show + and - symbols.  In many
+  situations, this is more meaningful than \c UpDownArrows.
+
+  \sa QSpinBox::buttonSymbols
 */
 
 /*!
