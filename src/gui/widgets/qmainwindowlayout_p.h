@@ -62,7 +62,7 @@ class QMainWindowLayout : public QLayout
     QRect placeDockWindow(QDockWindow *dockwindow, const QRect &r, const QPoint &mouse);
     void dropDockWindow(QDockWindow *dockwindow, const QRect &r, const QPoint &mouse);
 
-    int locateToolBar(const QPoint &mouse) const;
+    int locateToolBar(QToolBar *toolbar, const QPoint &mouse) const;
     QRect placeToolBar(QToolBar *toolbar, const QPoint &mouse, const QPoint &offset);
     void dropToolBar(QToolBar *toolbar, const QPoint &mouse, const QPoint &offset);
 

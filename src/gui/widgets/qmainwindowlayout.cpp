@@ -1231,11 +1231,11 @@ QMainWindowLayout::locateDockWindow(QDockWindow *dockwindow, const QPoint &mouse
                 pos = positionForArea(corners[Qt::BottomLeft]);
             else
                 pos = LEFT;
-        } else if (p.x() > width / 2 && dockwindow->isDockable(Qt::DockWindowAreaRight)) {
+        } else if (p.x() >= width / 2 && dockwindow->isDockable(Qt::DockWindowAreaRight)) {
             // right side
             if (p.y() < height / 3 && dockwindow->isDockable(Qt::DockWindowAreaTop))
                 pos = positionForArea(corners[Qt::TopRight]);
-            else if (p.y() > height * 2 / 3 && dockwindow->isDockable(Qt::DockWindowAreaBottom))
+            else if (p.y() >= height * 2 / 3 && dockwindow->isDockable(Qt::DockWindowAreaBottom))
                 pos = positionForArea(corners[Qt::BottomRight]);
             else
                 pos = RIGHT;
@@ -1252,15 +1252,15 @@ QMainWindowLayout::locateDockWindow(QDockWindow *dockwindow, const QPoint &mouse
             // top side
             if (p.x() < width / 3 && dockwindow->isDockable(Qt::DockWindowAreaLeft))
                 pos = positionForArea(corners[Qt::TopLeft]);
-            else if (p.x() > width * 2 / 3 && dockwindow->isDockable(Qt::DockWindowAreaRight))
+            else if (p.x() >= width * 2 / 3 && dockwindow->isDockable(Qt::DockWindowAreaRight))
                 pos = positionForArea(corners[Qt::TopRight]);
             else
                 pos = TOP;
-        } else if (p.y() > height / 2 && dockwindow->isDockable(Qt::DockWindowAreaBottom)) {
+        } else if (p.y() >= height / 2 && dockwindow->isDockable(Qt::DockWindowAreaBottom)) {
             // bottom side
             if (p.x() < width / 3 && dockwindow->isDockable(Qt::DockWindowAreaLeft))
                 pos = positionForArea(corners[Qt::BottomLeft]);
-            else if (p.x() > width * 2 / 3 && dockwindow->isDockable(Qt::DockWindowAreaRight))
+            else if (p.x() >= width * 2 / 3 && dockwindow->isDockable(Qt::DockWindowAreaRight))
                 pos = positionForArea(corners[Qt::BottomRight]);
             else
                 pos = BOTTOM;
@@ -1399,7 +1399,7 @@ void QMainWindowLayout::removeRecursive(QDockWindow *dockwindow)
     removeWidgetRecursively(this, dockwindow, save_layout_info != 0);
 }
 
-int QMainWindowLayout::locateToolBar(const QPoint &mouse) const
+int QMainWindowLayout::locateToolBar(QToolBar *toolbar, const QPoint &mouse) const
 {
     const int width = parentWidget()->width(),
              height = parentWidget()->height();
@@ -1407,9 +1407,32 @@ int QMainWindowLayout::locateToolBar(const QPoint &mouse) const
                 p2 = QPoint(width / 2, height / 2);
     const int dx = QABS(p.x() - p2.x()),
               dy = QABS(p.y() - p2.y());
-    POSITION where = ((dx > dy)
-		      ? ((p.x() < p2.x()) ? LEFT : RIGHT)
-		      : ((p.y() < p2.y()) ? TOP : BOTTOM));
+
+    POSITION pos = CENTER;
+    if (dx > dy) {
+        if (p.x() < p2.x() && toolbar->isDockable(Qt::ToolBarAreaLeft)) {
+            pos = LEFT;
+        } else if (p.x() >= p2.x() && toolbar->isDockable(Qt::ToolBarAreaRight)) {
+            pos = RIGHT;
+        } else {
+            if (p.y() < p2.y() && toolbar->isDockable(Qt::ToolBarAreaTop))
+                pos = TOP;
+            else if (p.y() >= p2.y() && toolbar->isDockable(Qt::ToolBarAreaBottom))
+                pos = BOTTOM;
+        }
+    } else {
+        if (p.y() < p2.y() && toolbar->isDockable(Qt::ToolBarAreaTop)) {
+                pos = TOP;
+        } else if (p.y() >= p2.y() && toolbar->isDockable(Qt::ToolBarAreaBottom)) {
+                pos = BOTTOM;
+        } else {
+            if (p.x() < p2.x() && toolbar->isDockable(Qt::ToolBarAreaLeft))
+                pos = LEFT;
+            else if (p.x() >= p2.x() && toolbar->isDockable(Qt::ToolBarAreaRight))
+                pos = RIGHT;
+        }
+    }
+    Q_ASSERT(pos != CENTER);
 
     for (int k = 0; k < tb_layout_info.size(); ++k) {
 	bool break_it = false;
@@ -1417,19 +1440,19 @@ int QMainWindowLayout::locateToolBar(const QPoint &mouse) const
 	    const ToolBarLayoutInfo &info = tb_layout_info.at(k).at(i);
 	    if (!info.item) continue;
  	    if (!info.item->geometry().contains(p)) continue;
-	    where = static_cast<POSITION>(info.where);
+	    pos = static_cast<POSITION>(info.where);
 	    break_it = true;
 	    break;
 	}
 	if (break_it)
 	    break;
     }
-    return where;
+    return pos;
 }
 
 QRect QMainWindowLayout::placeToolBar(QToolBar *toolbar, const QPoint &mouse, const QPoint &offset)
 {
-    POSITION where = static_cast<POSITION>(locateToolBar(mouse));
+    POSITION where = static_cast<POSITION>(locateToolBar(toolbar, mouse));
 
     // save layout info
     beginConstrain();
@@ -1511,7 +1534,7 @@ QRect QMainWindowLayout::placeToolBar(QToolBar *toolbar, const QPoint &mouse, co
 
 void QMainWindowLayout::dropToolBar(QToolBar *toolbar, const QPoint &mouse, const QPoint &offset)
 {
-    POSITION where = static_cast<POSITION>(locateToolBar(mouse));
+    POSITION where = static_cast<POSITION>(locateToolBar(toolbar, mouse));
 
     if (positionForArea(toolbar->area()) == where) {
 
