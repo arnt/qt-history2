@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbrush.h#10 $
+** $Id: //depot/qt/main/src/kernel/qbrush.h#11 $
 **
 ** Definition of QBrush class
 **
@@ -18,8 +18,9 @@
 
 
 enum BrushStyle					// brush style
-      { NoBrush, SolidBrush,
-	Pix1Pattern, Pix2Pattern, Pix3Pattern, Pix4Pattern, Pix5Pattern,
+      { NoBrush, SolidPattern,
+	Dense1Pattern, Dense2Pattern, Dense3Pattern, Dense4Pattern,
+	Dense5Pattern, Dense6Pattern, Dense7Pattern,
 	HorPattern, VerPattern, CrossPattern,
 	BDiagPattern, FDiagPattern, DiagCrossPattern, CustomPattern=24 };
 
@@ -30,7 +31,7 @@ friend class QPainter;
 public:
     QBrush();
     QBrush( BrushStyle );
-    QBrush( const QColor &, BrushStyle=SolidBrush );
+    QBrush( const QColor &, BrushStyle=SolidPattern );
     QBrush( const QColor &, const QBitMap & );
     QBrush( const QBrush & );
    ~QBrush();
