@@ -1580,6 +1580,9 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
         if(stat == IncludeFeatureAlreadyLoaded) {
             warn_msg(WarnParser, "%s:%d: Duplicate of loaded feature %s",
                      parser.file.latin1(), parser.line_no, file.latin1());
+        } else if(stat == IncludeNoExist && include_statement) {
+            warn_msg(WarnParser, "%s:%d: Unable to find file for inclusion %s",
+                     parser.file.latin1(), parser.line_no, file.latin1());
         } else if(stat >= IncludeFailure) {
             if(!ignore_error) {
                 printf("Project LOAD(): Feature %s cannot be found.\n", file.latin1());
