@@ -1,4 +1,5 @@
 TEMPLATE    =	subdirs
+# removed themes for now
 SUBDIRS     =	aclock \
 		action \
 		action/actiongroup \
@@ -48,7 +49,6 @@ SUBDIRS     =	aclock \
 		tabdialog \
 		tetrix \
 		textedit \
-		themes \
 		tictac \
 		tooltip \
 		tux \
