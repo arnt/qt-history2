@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#80 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#81 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -63,7 +63,7 @@ public:
 
 
 /*****************************************************************************
-  Default implementation of virtual functions
+  Default implementation of special and virtual functions
  *****************************************************************************/
 
 /*!
@@ -245,7 +245,7 @@ QGDict::~QGDict()
     delete [] vec;
     if ( !iterators )				// no iterators for this dict
 	return;
-    register QGDictIterator *i = iterators->first();
+    QGDictIterator *i = iterators->first();
     while ( i ) {				// notify all iterators that
 	i->dict = 0;				// this dict is deleted
 	i = iterators->next();
@@ -507,9 +507,9 @@ void QGDict::resize( uint newsize )
     copyk = old_copyk;
 
     // Invalidate all iterators, since order is lost
-    if ( iterators ) {			// update iterators
-	register QGDictIterator *i = iterators->first();
-	while ( i ) {			// fix all iterators
+    if ( iterators && iterators->count() ) {
+	QGDictIterator *i = iterators->first();
+	while ( i ) {
 	    i->toFirst();
 	    i = iterators->next();
 	}
@@ -524,8 +524,8 @@ void QGDict::resize( uint newsize )
 
 void QGDict::unlink_common( int index, QBaseBucket *node, QBaseBucket *prev )
 {
-    if ( iterators ) {				// update iterators
-	register QGDictIterator *i = iterators->first();
+    if ( iterators && iterators->count() ) {	// update iterators
+	QGDictIterator *i = iterators->first();
 	while ( i ) {				// invalidate all iterators
 	    if ( i->curNode == node )		// referring to pending node
 		i->operator++();
@@ -804,12 +804,12 @@ void QGDict::clear()
 	    vec[j] = 0;				// detach list of buckets
 	}
     }
-    if ( !iterators )				// no iterators for this dict
-	return;
-    QGDictIterator *i = iterators->first();
-    while ( i ) {				// notify all iterators that
-	i->curNode = 0;				// this dict is empty
-	i = iterators->next();
+    if ( iterators && iterators->count() ) {	// invalidate all iterators
+	QGDictIterator *i = iterators->first();
+	while ( i ) {
+	    i->curNode = 0;
+	    i = iterators->next();
+	}
     }
 }
 
@@ -1018,14 +1018,8 @@ QGDictIterator::QGDictIterator( const QGDictIterator &it )
 
 QGDictIterator &QGDictIterator::operator=( const QGDictIterator &it )
 {
-    if ( dict ) {				// detach from old dict
-	if ( dict->iterators->removeRef(this) ){
-	    if ( dict->iterators->count() == 0 ) {
-		delete dict->iterators;		// this was the last iterator
-		dict->iterators = 0;
-	    }
-	}
-    }
+    if ( dict )					// detach from old dict
+	dict->iterators->removeRef( this );
     dict = it.dict;
     curNode = it.curNode;
     curIndex = it.curIndex;
@@ -1041,17 +1035,8 @@ QGDictIterator &QGDictIterator::operator=( const QGDictIterator &it )
 
 QGDictIterator::~QGDictIterator()
 {
-    if ( dict ) {				// detach iterator from dict
-#if defined(DEBUG)
-	ASSERT( dict->iterators );
-#endif
-	if ( dict->iterators->removeRef(this) ) {
-	    if ( dict->iterators->count() == 0 ) {
-		delete dict->iterators;		// this was the last iterator
-		dict->iterators = 0;
-	    }
-	}
-    }
+    if ( dict )					// detach iterator from dict
+	dict->iterators->removeRef( this );
 }
 
 

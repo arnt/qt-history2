@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#55 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#56 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -26,6 +26,7 @@
 #include "qglist.h"
 #include "qgvector.h"
 #include "qdatastream.h"
+
 
 /*!
   \class QLNode qglist.h
@@ -172,7 +173,7 @@ QGList::QGList( const QGList & list )
     numNodes  = 0;
     curIndex  = -1;
     iterators = 0;				// initialize iterator list
-    register QLNode *n = list.firstNode;
+    QLNode *n = list.firstNode;
     while ( n ) {				// copy all items from list
 	append( n->data );
 	n = n->next;
@@ -189,7 +190,7 @@ QGList::~QGList()
     clear();
     if ( !iterators )				// no iterators for this list
 	return;
-    register QGListIterator *i = (QGListIterator*)iterators->first();
+    QGListIterator *i = (QGListIterator*)iterators->first();
     while ( i ) {				// notify all iterators that
 	i->list = 0;				// this list is deleted
 	i = (QGListIterator*)iterators->next();
@@ -207,7 +208,7 @@ QGList& QGList::operator=( const QGList &list )
 {
     clear();
     if ( list.count() > 0 ) {
-	register QLNode *n = list.firstNode;
+	QLNode *n = list.firstNode;
 	while ( n ) {				// copy all items from list
 	    append( n->data );
 	    n = n->next;
@@ -419,8 +420,8 @@ QLNode *QGList::unlink()
 	curNode = n->prev;
 	curIndex--;
     }
-    if ( iterators ) {				// update iterators
-	register QGListIterator *i = (QGListIterator*)iterators->first();
+    if ( iterators && iterators->count() ) {	// update iterators
+	QGListIterator *i = (QGListIterator*)iterators->first();
 	while ( i ) {				// fix all iterators that
 	    if ( i->curNode == n )		// refers to pending node
 		i->curNode = curNode;
@@ -616,8 +617,8 @@ void QGList::clear()
     numNodes = 0;
     curIndex = -1;
 
-    if ( iterators ) {
-	register QGListIterator *i = (QGListIterator*)iterators->first();
+    if ( iterators && iterators->count() ) {
+	QGListIterator *i = (QGListIterator*)iterators->first();
 	while ( i ) {				// notify all iterators that
 	    i->curNode = 0;			// this list is empty
 	    i = (QGListIterator*)iterators->next();
@@ -846,88 +847,79 @@ void QGList::toVector( QGVector *vector ) const
 
 void QGList::heapSortPushDown( QCollection::Item* heap, int first, int last )
 {
-  int r = first;
-  while( r <= last/2 )
-  {
-    // Node r has only one child ?
-    if ( last == 2*r )
-    {
-      // Need for swapping ?
-      if ( compareItems( heap[r], heap[ 2*r ] ) > 0 )
-      {
-	QCollection::Item tmp = heap[r];
-	heap[ r ] = heap[ 2*r ];
-	heap[ 2*r ] = tmp;
-      }
-      // That's it ...
-      r = last;
+    int r = first;
+    while( r <= last/2 ) {
+	// Node r has only one child ?
+	if ( last == 2*r ) {
+	    // Need for swapping ?
+	    if ( compareItems( heap[r], heap[ 2*r ] ) > 0 ) {
+		QCollection::Item tmp = heap[r];
+		heap[ r ] = heap[ 2*r ];
+		heap[ 2*r ] = tmp;
+	    }
+	    // That's it ...
+	    r = last;
+	} else {
+	    // Node has two children
+	    if ( compareItems( heap[r], heap[ 2*r ] ) > 0 &&
+		 compareItems( heap[ 2*r ], heap[ 2*r+1 ] ) <= 0 ) {
+		// Swap with left child
+		QCollection::Item tmp = heap[r];
+		heap[ r ] = heap[ 2*r ];
+		heap[ 2*r ] = tmp;
+		r *= 2;
+	    } else if ( compareItems( heap[r], heap[ 2*r+1 ] ) > 0 &&
+			compareItems( heap[ 2*r+1 ], heap[ 2*r ] ) < 0 ) {
+		// Swap with right child
+		QCollection::Item tmp = heap[r];
+		heap[ r ] = heap[ 2*r+1 ];
+		heap[ 2*r+1 ] = tmp;
+		r = 2*r+1;
+	    } else {
+		// We are done
+		r = last;
+	    }
+	}
     }
-    // Node has two children
-    else
-    {
-      if ( compareItems( heap[r], heap[ 2*r ] ) > 0 && compareItems( heap[ 2*r ], heap[ 2*r+1 ] ) <= 0 )
-      {
-        // Swap with left child
-	QCollection::Item tmp = heap[r];
-	heap[ r ] = heap[ 2*r ];
-	heap[ 2*r ] = tmp;
-        r *= 2;
-      }
-      else if ( compareItems( heap[r], heap[ 2*r+1 ] ) > 0 && compareItems( heap[ 2*r+1 ], heap[ 2*r ] ) < 0 )
-      {
-        // Swap with right child
-	QCollection::Item tmp = heap[r];
-	heap[ r ] = heap[ 2*r+1 ];
-	heap[ 2*r+1 ] = tmp;
-        r = 2*r+1;
-      }
-      else
-        // We are done
-        r = last;
-    }
-  }
 }
 
 void QGList::sort()
 {
-  uint n = count();
-  if ( n < 2 )
-    return;
+    uint n = count();
+    if ( n < 2 )
+	return;
 
-  // Create the heap
-  QCollection::Item* realheap = new QCollection::Item[ n ];
-  // Wow, what a fake. But I want the heap to be indexed as 1...n
-  QCollection::Item* heap = realheap - 1;
-  int size = 0;
-  QLNode* insert = firstNode;
-  for( ; insert != 0; insert = insert->next )
-  {
-    heap[++size] = insert->data;
-    int i = size;
-    while( i > 1 && compareItems( heap[i], heap[ i / 2 ] ) < 0 )
-    {
-      QCollection::Item tmp = heap[ i ];
-      heap[ i ] = heap[ i/2 ];
-      heap[ i/2 ] = tmp;
-      i /= 2;
+    // Create the heap
+    QCollection::Item* realheap = new QCollection::Item[ n ];
+    // Wow, what a fake. But I want the heap to be indexed as 1...n
+    QCollection::Item* heap = realheap - 1;
+    int size = 0;
+    QLNode* insert = firstNode;
+    for( ; insert != 0; insert = insert->next ) {
+	heap[++size] = insert->data;
+	int i = size;
+	while( i > 1 && compareItems( heap[i], heap[ i / 2 ] ) < 0 ) {
+	    QCollection::Item tmp = heap[ i ];
+	    heap[ i ] = heap[ i/2 ];
+	    heap[ i/2 ] = tmp;
+	    i /= 2;
+	}
     }
-  }
 
-  insert = firstNode;
-  // Now do the sorting
-  for( int i = n; i > 0; i-- )
-  {
-    insert->data = heap[1];
-    insert = insert->next;
-    if ( i > 1 )
-    {
-      heap[1] = heap[i];
-      heapSortPushDown( heap, 1, i - 1 );
+    insert = firstNode;
+    // Now do the sorting
+    for ( int i = n; i > 0; i-- ) {
+	insert->data = heap[1];
+	insert = insert->next;
+	if ( i > 1 ) {
+	    heap[1] = heap[i];
+	    heapSortPushDown( heap, 1, i - 1 );
+	}
     }
-  }
 
-  delete[] realheap;
+    delete [] realheap;
 }
+
 
 /*****************************************************************************
   QGList stream functions
@@ -1044,8 +1036,7 @@ QGListIterator::QGListIterator( const QGListIterator &it )
 QGListIterator &QGListIterator::operator=( const QGListIterator &it )
 {
     if ( list )					// detach from old list
-	list->iterators->removeRef(this);
-
+	list->iterators->removeRef( this );
     list = it.list;
     curNode = it.curNode;
     if ( list )
@@ -1060,12 +1051,8 @@ QGListIterator &QGListIterator::operator=( const QGListIterator &it )
 
 QGListIterator::~QGListIterator()
 {
-    if ( list ) {				// detach iterator from list
-#if defined(DEBUG)
-	ASSERT( list->iterators );
-#endif
+    if ( list )					// detach iterator from list
 	list->iterators->removeRef(this);
-    }
 }
 
 
