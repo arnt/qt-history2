@@ -155,7 +155,6 @@ QRTFormatArray::QRTFormatArray()
 QRTFormatArray::QRTFormatArray( const QRTFormat &f, int len )
     : size( 1 ), alloc( 1 )
 {
-    qDebug("sizeof=%d",  sizeof(FormatHint ) );
     formatHints = (FormatHint *) malloc( sizeof(FormatHint) );
     formatHints->format = f.d;
     formatHints->format->ref();
