@@ -1202,7 +1202,7 @@ void UnixMakefileGenerator::init2()
 	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_SHLIB"];
 	if ( project->isActiveConfig("plugin") ) {
 	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_PLUGIN"];
-	    if( !project->isActiveConfig("plugin_no_soname") && !project->isActiveConfig("compile_libtool"))
+	    if( project->isActiveConfig("plugin_with_soname") && !project->isActiveConfig("compile_libtool"))
 		project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_SONAME"];
 	} else {
 	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_SHLIB"];
