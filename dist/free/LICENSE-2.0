@@ -34,13 +34,13 @@
 <!-- -->change all packages which link to the binary.
 <li>The Qt Free Edition can be used to
 <!-- -->run commercial software written with the Qt Profession Edition
-<!-- -->without having to install another library.
+<!-- -->without having to install another library or worse, link statically.
 </font></i>
 </ul>
 Free software development with the Qt Free Edition is additionally protected
 by the <a href=http://www.troll.no/kde-freeqt/>KDE Free Qt Foundation</a>.
 
-<p>To develop software with the Qt Free Edition, simply meet
+<p><b>To develop software with the Qt Free Edition,</b> simply meet
 <!-- -->the requirements in the QPL.
 <!-- -->Your software can be licensed by any license
 <!-- -->that meets the requirements.
