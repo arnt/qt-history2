@@ -500,8 +500,10 @@ QAxBase::QAxBase( IUnknown *iface )
 {
     d = new QAxBasePrivate();
 
-    if ( ptr )
+    if ( ptr ) {
+	moduleLock();
 	ptr->AddRef();
+    }
 }
 
 /*!
@@ -951,11 +953,13 @@ QMetaObject *QAxBase::metaObject() const
 
 		    // parse function description
 		    bool unsupported = FALSE;
+		    QString firstUnsupported;
 		    BSTR bstrNames[256];
 		    UINT maxNames = 255;
 		    UINT maxNamesOut;
 		    info->GetNames( funcdesc->memid, (BSTR*)&bstrNames, maxNames, &maxNamesOut );
 		    for ( int p = 0; p < (int)maxNamesOut; ++ p ) {
+			bool wasUnsupported = unsupported;
 			QString paramName = BSTRToQString( bstrNames[p] );
 			SysFreeString( bstrNames[p] );
 
@@ -973,6 +977,8 @@ QMetaObject *QAxBase::metaObject() const
 				parameters << "return";
 				paramTypes << returnType;
 			    }
+			    if ( unsupported )
+				firstUnsupported = returnType;
 
 			    continue;
 			}
@@ -995,6 +1001,9 @@ QMetaObject *QAxBase::metaObject() const
 			parameters << paramName;
 			if ( p < funcdesc->cParams )
 			    prototype += ",";
+
+			if ( !wasUnsupported && unsupported && firstUnsupported.isEmpty() )
+			    firstUnsupported = ptype + " " + paramName;
 		    }
 		    if ( !!prototype )
 			prototype += ")";
@@ -1008,9 +1017,9 @@ QMetaObject *QAxBase::metaObject() const
 			{
 			    if ( unsupported ) {
 #ifndef QT_NO_DEBUG
-				qWarning( "%s: Property is of unsupported datatype.", function.latin1() );
+				qWarning( "%s: Property is of unsupported type: ", QString( returnType + " " + prototype ).latin1() );
 #endif
-				debugInfo += QString( "%1: Property is of unsupported datatype.\n" ).arg( function );
+				debugInfo += QString( "%1: Property is of unsupported type.\n" ).arg( returnType + " "+ function );
 				break;
 			    }
 			    if ( funcdesc->cParams > 1 ) {
@@ -1103,9 +1112,9 @@ QMetaObject *QAxBase::metaObject() const
 			{
 			    if ( unsupported ) {
 #ifndef QT_NO_DEBUG
-				qWarning( "%s: Function has parameters of unsupported datatype.", function.latin1() );
+				qWarning( "%s: Function has parameter of unsupported datatype: ", QString( returnType + " " + prototype ).latin1() );
 #endif
-				debugInfo += QString( "%1: Function has parameters of unsupported datatype.\n" ).arg( function );
+				debugInfo += QString( "%1: Function has parameters of unsupported datatype.\n" ).arg( QString( returnType + " " + prototype ) );
 				break;
 			    }
 			    if ( funcdesc->invkind == INVOKE_PROPERTYPUT && prop ) {
@@ -1236,9 +1245,9 @@ QMetaObject *QAxBase::metaObject() const
 
 		    if ( unsupported ) {
 #ifndef QT_NO_DEBUG
-			qWarning( "%1: Property is of unsupported datatype", variableName.latin1() );
+			qWarning( "%1: Property is of unsupported datatype", QString( variableType + " " + variableName ).latin1() );
 #endif
-			debugInfo = QString( "%1: Property is of unsupported datatype" ).arg( variableName );
+			debugInfo = QString( "%1: Property is of unsupported datatype" ).arg( variableType + " " + variableName );
 		    } else if ( !(vardesc->wVarFlags & VARFLAG_FHIDDEN) ) {
 			// generate meta property
 			QMetaProperty *prop = proplist[variableName];
@@ -1942,8 +1951,8 @@ static inline QCString qt_rmWS( const char *s )
     dynamicCall can not be used to read or write properties. Instead, use QObject::property()
     and QObject::setProperty() respectively.
 
-    It is only possible to call functions through dynamicCall that have parameters of
-    datatypes supported in QVariant. See the QAxBase class documentation for a list of 
+    It is only possible to call functions through dynamicCall that have parameters or return
+    values of datatypes supported in QVariant. See the QAxBase class documentation for a list of 
     supported and unsupported datatypes. If you want to call functions that have
     unsupported datatypes in the parameter list, use queryInterface to retrieve the appropriate 
     COM interface, and use the function directly.
@@ -2040,6 +2049,90 @@ QVariant QAxBase::dynamicCall( const QCString &function, const QVariant &var1,
 	    obj[o].type->clear( obj+o );
     }
     return result;
+}
+
+/*!
+    \internal
+*/
+bool QAxBase::internalInvoke( const QCString &name, void *inout, const QVariant &var )
+{
+    CComPtr<IDispatch> disp;
+    ptr->QueryInterface( IID_IDispatch, (void**)&disp );
+    if ( !disp || !inout )
+	return FALSE;
+
+    DISPID dispid;
+    OLECHAR *names = (TCHAR*)qt_winTchar(name, TRUE );
+    disp->GetIDsOfNames( IID_NULL, &names, 1, LOCALE_USER_DEFAULT, &dispid );
+    if ( dispid == DISPID_UNKNOWN ) {
+#ifdef QT_CHECK_STATE
+	const char *coclass = metaObject()->classInfo( "CoClass" );
+	qWarning( "QAxBase::dynamicGet: %s: No such property in %s [%s]", (const char*)name, control().latin1(), 
+	    coclass ? coclass: "unknown" );
+#endif
+	return FALSE;
+    }
+
+    VARIANTARG *res = (VARIANTARG*)inout;
+    VARIANT arg;
+    DISPPARAMS params;
+    if ( !var.isValid() ) {
+	params.cArgs = 0;
+	params.cNamedArgs = 0;
+	params.rgdispidNamedArgs = 0;
+	params.rgvarg = 0;
+    } else {
+	arg = QVariantToVARIANT( var );
+	params.cArgs = 1;
+	params.cNamedArgs = 0;
+	params.rgdispidNamedArgs = 0;
+	params.rgvarg = &arg;
+    }
+
+    HRESULT hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, &params, res, 0, 0 );
+
+    return checkHRESULT( hres );
+}
+
+/*!
+    Returns a pointer to a QAxObject wrapping the COM object provided by calling the
+    method or property getter for \a name, passing \a var as an optional parameter.
+    The returned object is a child of this object (which is either of type QAxObject or
+    QAxWidget), and is deleted when this object is being  deleted. It is however safe to 
+    delete the returned object.
+
+    COM enabled applications usually have an object model publishing certain elements of
+    the application as dispatch interfaces. Use this method to navigate the hierarchy of
+    the object model, e.g.
+
+    \code
+    QAxWidget outlook( "Outlook.Application" );
+    QAxObject *session = outlook.createSubObject( "Session" );
+    if ( session ) {
+	// ...
+    }
+    \endcode
+*/
+QAxObject *QAxBase::createSubObject( const QCString &name, const QVariant &var )
+{
+    QObject *that = qObject();
+    QAxObject *object = 0;
+
+    VARIANTARG res;
+    if ( !internalInvoke( name, &res, var ) )
+	return FALSE;
+    switch ( res.vt ) {
+    case VT_DISPATCH:
+	object = new QAxObject( res.pdispVal, that, name );
+	break;
+    case VT_UNKNOWN:
+	object = new QAxObject( res.punkVal, that, name );
+	break;
+    default:
+	break;
+    }
+
+    return object;
 }
 
 class QtPropertyBag : public IPropertyBag

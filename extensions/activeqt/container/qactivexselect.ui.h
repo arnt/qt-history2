@@ -50,7 +50,7 @@ void QActiveXSelect::init()
 
 void QActiveXSelect::controlSelected( const QString &ctrl )
 {
-    control = ctrl;
+    ActiveX->setText( ctrl );
 }
 
 void QActiveXSelect::openLater()
@@ -61,7 +61,7 @@ void QActiveXSelect::openLater()
 	return;
     }
     if ( exec() ) {
-	activex->setControl( control );
+	activex->setControl( ActiveX->text() );
 	DesignerFormWindow *form = designer->currentForm();
 	if ( form ) {
 	    form->setPropertyChanged( activex, "control", TRUE );
@@ -85,5 +85,5 @@ void QActiveXSelect::setDesigner( DesignerInterface *des )
 
 QString QActiveXSelect::selectedControl()
 {
-    return control;
+    return ActiveX->text();
 }

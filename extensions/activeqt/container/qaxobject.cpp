@@ -111,7 +111,8 @@ bool QAxObject::initialize( IUnknown **ptr )
     moduleLock();
 
     *ptr = 0;
-    CoCreateInstance( uuid, 0, CLSCTX_ALL, IID_IUnknown, (void**)ptr );
+    CoCreateInstance( uuid, 0, CLSCTX_SERVER, IID_IUnknown, (void**)ptr );
+
     if ( !ptr ) {
 	moduleUnlock();
 	return FALSE;

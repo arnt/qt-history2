@@ -48,7 +48,7 @@
 struct IUnknown;
 struct QUuid;
 class QAxEventSink;
-
+class QAxObject;
 class QAxBasePrivate;
 
 class QAX_EXPORT QAxBase
@@ -75,6 +75,7 @@ public:
 					   const QVariant &v6 = QVariant(),
 					   const QVariant &v7 = QVariant(),
 					   const QVariant &v8 = QVariant() );
+    QAxObject *createSubObject( const QCString &name, const QVariant &var = QVariant() );
 
     virtual QMetaObject *metaObject() const;
     virtual bool qt_invoke( int, QUObject* );
@@ -114,6 +115,7 @@ private:
 
     static QMetaObject *staticMetaObject() { return 0; }
     virtual QMetaObject *parentMetaObject() const = 0;
+    bool internalInvoke( const QCString &name, void *out, const QVariant &var );
 
     IUnknown *ptr;
     QString ctrl;
