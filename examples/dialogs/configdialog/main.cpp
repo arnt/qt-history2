@@ -1,12 +1,12 @@
 #include <QApplication>
 
-#include "window.h"
+#include "configdialog.h"
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    Window window;
-    app.setMainWidget(&window);
-    window.show();
+    ConfigDialog *dialog = new ConfigDialog;
+    dialog->show();
+    app.setMainWidget(dialog);
     return app.exec();
 }

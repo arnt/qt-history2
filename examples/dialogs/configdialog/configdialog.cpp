@@ -1,10 +1,10 @@
 #include <QtGui>
 
+#include "configdialog.h"
 #include "optionbutton.h"
 #include "pages.h"
-#include "window.h"
 
-Window::Window()
+ConfigDialog::ConfigDialog()
 {
     contentsWidget = new QWidget;
     QWidgetView *view = new QWidgetView(this);
@@ -36,10 +36,10 @@ Window::Window()
     mainLayout->addSpacing(12);
     mainLayout->addLayout(buttonsLayout);
 
-    setWindowTitle(tr("Configuration Widget"));
+    setWindowTitle(tr("Configuration Dialog"));
 }
 
-void Window::createIcons()
+void ConfigDialog::createIcons()
 {
     OptionButton *configButton = new OptionButton(104, 104, 0, contentsWidget);
     configButton->setIcon(QIcon(":/images/config.png"));
@@ -63,14 +63,14 @@ void Window::createIcons()
     queryButton->setAutoExclusive(true);
     queryButton->move(0, 208);
 
-    connect(configButton, SIGNAL(clicked()), this, SLOT(changePage()));
-    connect(updateButton, SIGNAL(clicked()), this, SLOT(changePage()));
-    connect(queryButton, SIGNAL(clicked()), this, SLOT(changePage()));
+    connect(configButton, SIGNAL(toggled(bool)), this, SLOT(changePage()));
+    connect(updateButton, SIGNAL(toggled(bool)), this, SLOT(changePage()));
+    connect(queryButton, SIGNAL(toggled(bool)), this, SLOT(changePage()));
 
     contentsWidget->resize(104, 312);
 }
 
-void Window::changePage()
+void ConfigDialog::changePage()
 {
     pagesWidget->setCurrentIndex(static_cast<OptionButton *>(sender())->page());
 }

@@ -1,17 +1,17 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
-#include <QWidget>
+#include <QDialog>
 
 class QStackedWidget;
 class QWidgetView;
 
-class Window : public QWidget
+class ConfigDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    Window();
+    ConfigDialog();
 
 public slots:
     void changePage();
