@@ -60,8 +60,7 @@ bool QItemViewDragObject::decode(QMimeSource *src) const
     return d->model->decode(src);
 }
 
-//#include <private/qabstractitemview_p.h>
-#include "qabstractitemview_p.h"
+#include <private/qabstractitemview_p.h>
 #define d d_func()
 #define q q_func()
 

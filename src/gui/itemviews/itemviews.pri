@@ -11,6 +11,7 @@ HEADERS += \
 	itemviews/qabstractitemdelegate.h \
 	itemviews/qitemdelegate.h \
 	itemviews/qitemselectionmodel.h \
+	itemviews/qitemselectionmodel_p.h \
 	itemviews/qlistmodel.h \
 	itemviews/qlistview_.h \
 	itemviews/qtablemodel.h \

@@ -1,6 +1,5 @@
 #include "qitemselectionmodel.h"
-
-#include "private/qobject_p.h"
+#include <private/qobject_p.h>
 
 QModelIndexList QItemSelectionRange::items(const QGenericItemModel *model) const
 {
@@ -72,30 +71,6 @@ bool QItemSelection::operator==(const QItemSelection &other) const
     return (it == end() && it2 == other.end());
 }
 
-class QItemSelectionModelPrivate: public QObjectPrivate
-{
-    Q_DECLARE_PUBLIC(QItemSelectionModel);
-public:
-    QItemSelectionModelPrivate()
-	: selectionMode(QItemSelectionModel::Multi), toggleState(false) {}
-
-    inline void remove(QList<QItemSelectionRange> &r)
-    {
-	QList<QItemSelectionRange>::const_iterator it = r.begin();
-	for (; it != r.end(); ++it)
-	    ranges.remove(*it);
-    }
-
-    QItemSelection expandRows(const QItemSelection &selection) const;
-
-    QGenericItemModel *model;
-    QItemSelectionModel::SelectionMode selectionMode;
-    QItemSelection ranges;
-    QItemSelection currentSelection;
-    QModelIndex currentItem;
-    bool toggleState;
-};
-
 static void split(QItemSelectionRange &range, const QItemSelectionRange &other, QItemSelection *result)
 {
     QModelIndex parent = other.parent();
@@ -116,6 +91,10 @@ static void split(QItemSelectionRange &range, const QItemSelectionRange &other, 
     if (other_right < right)
 	result->append(QItemSelectionRange(parent, top, other_right + 1, bottom, right));
 }
+
+#include <private/qitemselectionmodel_p.h>
+#define d d_func()
+#define q q_func()
 
 QItemSelection QItemSelectionModelPrivate::expandRows(const QItemSelection &selection) const
 {
