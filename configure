@@ -269,7 +269,6 @@ CFG_XKB=auto
 CFG_NIS=auto
 CFG_CUPS=auto
 CFG_LARGEFILE=auto
-CFG_NEWABI=no ### need to break ABI for full Large File support...
 CFG_STL=auto
 CFG_NAS=no
 CFG_QWS_DEPTHS=prompted
@@ -823,13 +822,6 @@ while [ "$#" -gt 0 ]; do
 	    UNKNOWN_OPT=yes
 	fi
 	;;
-    newabi)
-	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
-	    CFG_NEWABI="$VAL"
-	else
-	    UNKNOWN_OPT=yes
-	fi
-	;;
     enable) #left for commandline compatibility, not documented
 	MODULE="$VAL"
 	if [ -n $MODULE -a -d "$relpath/src/$MODULE" ]; then
@@ -1073,17 +1065,6 @@ if [ "$OPT_VERBOSE" = "yes" -a "$OPT_SHADOW" = "yes" ]; then
     echo "Performing shadow build..."
 fi
 
-#detect how jpeg should be built
-if [ "$CFG_JPEG" = "auto" ]; then
-    if [ "$CFG_EMBEDDED" = "yes" ]; then
-	CFG_JPEG=no
-    elif [ "$CFG_SHARED" = "yes" ]; then
-	CFG_JPEG=plugin
-    else
-	CFG_JPEG=yes
-    fi
-fi
-
 #detect how mng should be built
 if [ "$CFG_MNG" = "auto" ]; then
     if [ "$CFG_EMBEDDED" = "yes" ]; then
@@ -1092,6 +1073,19 @@ if [ "$CFG_MNG" = "auto" ]; then
 	CFG_MNG=plugin
     else
 	CFG_MNG=yes
+    fi
+fi
+
+#detect how jpeg should be built
+if [ "$CFG_JPEG" = "auto" ]; then
+    if [ "$CFG_EMBEDDED" = "yes" ]; then
+	CFG_JPEG=no
+    elif [ "$CFG_MNG" = "yes" ]; then
+	CFG_JPEG=yes
+    elif [ "$CFG_SHARED" = "yes" ]; then
+	CFG_JPEG=plugin
+    else
+	CFG_JPEG=yes
     fi
 fi
 
@@ -2967,9 +2961,6 @@ EOF
 
 if [ "$CFG_LARGEFILE" = "yes" ]; then
     echo "#define QT_LARGEFILE_SUPPORT 64" >>$outpath/include/qconfig.h.new
-    if [ "$CFG_NEWABI" = "yes" ]; then
-	echo "#define QT_ABI_QT4 1" >>$outpath/include/qconfig.h.new
-    fi
 fi
 
 
