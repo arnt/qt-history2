@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#162 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#163 $
 **
 ** Implementation of QApplication class
 **
@@ -244,6 +244,37 @@ void process_cmdline( int* argcptr, char ** argv )
 
 QApplication::QApplication( int &argc, char **argv )
 {
+    init_precmdline();
+    static char *empty = "";
+    if ( argc == 0 || argv == 0 ) {
+	argc = 0;
+	argv = &empty;
+    }
+    qt_init( &argc, argv );
+    process_cmdline( &argc, argv );
+    initialize( argc, argv );
+}
+
+
+#if defined(_WS_X11_)
+
+/*!
+  Create an application, given an already open display.  This is
+  available only on X11.
+*/
+
+QApplication::QApplication( Display* dpy )
+{
+    init_precmdline();
+    // ... no command line.
+    qt_init( dpy );
+    initialize( 0, 0 );
+}
+
+#endif // _WS_X11_
+
+void QApplication::init_precmdline()
+{
     messageFiles = 0;
 #if defined(CHECK_STATE)
     if ( qApp )
@@ -256,16 +287,36 @@ QApplication::QApplication( int &argc, char **argv )
     app_style = new QMotifStyle;// default style for X Windows
 #endif
     qApp = this;
-    static char *empty = "";
-    if ( argc == 0 || argv == 0 ) {
-	argc = 0;
-	argv = &empty;
-    }
-    qt_init( &argc, argv );
-    process_cmdline( &argc, argv );
+}
 
-    initialize( argc, argv );
+/*!
+  Initializes the QApplication object, called from the constructors.
+*/
+
+void QApplication::initialize( int argc, char **argv )
+{
     app_style->initialize( this );
+
+    app_argc = argc;
+    app_argv = argv;
+    quit_now = FALSE;
+    quit_code = 0;
+    if ( !app_pal ) {				// palette not already set
+	create_palettes();
+	app_pal = new QPalette( *stdPalette );
+	CHECK_PTR( app_pal );
+    }
+    if ( !app_font ) {				// font not already set
+	app_font = new QFont;
+	app_font->setCharSet( QFont::defaultFont().charSet() );
+	CHECK_PTR( app_font );
+    }
+    QWidget::createMapper();			// create widget mapper
+    is_app_running = TRUE;			// no longer starting up
+
+
+    // no longer starting up .....
+
 
     if ( makebuilder ) {
 	builder = new QBuilder;
@@ -312,52 +363,8 @@ QApplication::QApplication( int &argc, char **argv )
 	       "Spesialfil" );
 
     installMessageFile( n );
-}
 
 
-#if defined(_WS_X11_)
-
-/*!
-  Create an application, given an already open display.  This is
-  available only on X11.
-*/
-
-QApplication::QApplication( Display* dpy )
-{
-#if defined(CHECK_STATE)
-    if ( qApp )
-	warning( "QApplication: There should be only one application object" );
-#endif
-    qApp = this;
-    qt_init( dpy );
-    initialize( 0, 0 );
-}
-
-#endif // _WS_X11_
-
-
-/*!
-  Initializes the QApplication object, called from the constructors.
-*/
-
-void QApplication::initialize( int argc, char **argv )
-{
-    app_argc = argc;
-    app_argv = argv;
-    quit_now = FALSE;
-    quit_code = 0;
-    if ( !app_pal ) {				// palette not already set
-	create_palettes();
-	app_pal = new QPalette( *stdPalette );
-	CHECK_PTR( app_pal );
-    }
-    if ( !app_font ) {				// font not already set
-	app_font = new QFont;
-	app_font->setCharSet( QFont::defaultFont().charSet() );
-	CHECK_PTR( app_font );
-    }
-    QWidget::createMapper();			// create widget mapper
-    is_app_running = TRUE;			// no longer starting up
 }
 
 
