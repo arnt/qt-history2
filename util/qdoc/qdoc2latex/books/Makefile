@@ -1,5 +1,5 @@
-all:
-	${QTDIR}/util/qdoc/qdoc2latex/q2l \
+a4:
+	${QTDIR}/util/qdoc/qdoc2latex/q2l -P \
 	${QTDIR}/util/qdoc/qdoc2latex/books/access-i18n.q2l \
 	${QTDIR}/util/qdoc/qdoc2latex/books/added.q2l \
 	${QTDIR}/util/qdoc/qdoc2latex/books/comms.q2l \
@@ -19,7 +19,7 @@ all:
 	${QTDIR}/util/qdoc/qdoc2latex/books/linguist-manual.book
 
 us:
-	${QTDIR}/util/qdoc/qdoc2latex/q2l -u \
+	${QTDIR}/util/qdoc/qdoc2latex/q2l -P -u \
 	${QTDIR}/util/qdoc/qdoc2latex/books/access-i18n.q2l \
 	${QTDIR}/util/qdoc/qdoc2latex/books/added.q2l \
 	${QTDIR}/util/qdoc/qdoc2latex/books/comms.q2l \

@@ -45,5 +45,6 @@ void Workspace::paintEvent( QPaintEvent* )
 {
     QPainter p ( this );
     p.setPen( QPen( white ) );
-    p.drawText ( 0, height() / 2,  width(), height(), AlignHCenter, "Follow the white rabbit!" );
+    p.drawText ( 0, height() / 2,  width(), height(), AlignHCenter,
+		"The moose in the noose\nate the goose who was loose." );
 }

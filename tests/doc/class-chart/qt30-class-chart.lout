@@ -167,6 +167,9 @@ CP 1258
 Apple Roman
 } 
 }
+@Place x { 25.65c } y { 26.25c }
+{ 0.5 @Scale grey @Colour 90d @Rotate
+{ Copyright @CopyRight 2001 Trolltech AS. All Rights Reserved. } }
 @CD 
 @Scale 
 @Diag 
@@ -215,7 +218,7 @@ Apple Roman
 	    K { QWIDGET:: @Node { QWidget } } 
 	    Q { QWIDGETFACTORY:: @BNode { QWidgetFactory } }
 	    R { QACCESSIBLE:: @BNode { QAccessible } }
-	    V { QMEMARRAY:: @Node paint { cyan } { QMemArray } }
+	    V { QMEMARRAY:: @Node paint { cyan } { Q{@B{M}}emArray } }
 	@Rowa
 	    B { QBRUSH:: @ANode { QBrush } } 
 	    E { QEVENT:: @Node paint { lightblue } { QEvent } } 
@@ -228,14 +231,14 @@ Apple Roman
 	@Rowa
 	    B { QCURSOR:: @ANode { QCursor } } 
 	    E { QIMEVENT:: @Node paint { lightblue } { QIMEvent } } 
-	    F { QACTION:: @Node paint { yellow } { QAction } } 
+	    F { QACTION:: @Node paint { yellow } { Q{@B{A}}ction } } 
 	    L { QCOMBOBOX:: @Node { QComboBox } } 
 	    M { QCHECKBOX:: @Node { QCheckBox } } 
 	    R { QASYNCIO:: @BNode { QAsyncIO } } 
 	    V { QMETAPROPERTY:: @BNode { QMetaProperty } }
 	    W { QPOINTARRAY:: @Node paint { cyan } { QPointArray } }
 	@Rowa
-	    B { QKEYSEQUENCE:: @ANode { QKeySequence } } 
+	    B { QKEYSEQUENCE:: @ANode { Q{@B{K}}eySequence } } 
 	    E { QKEYEVENT:: @Node paint { lightblue } { QKeyEvent } } 
 	    F { QAPPLICATION:: @Node paint { yellow } { QApplication } } 
 	    L { QDATETIMEEDIT:: @Node { QDateTimeEdit } } 
@@ -258,7 +261,7 @@ Apple Roman
 	    E { QDROPEVENT:: @Node paint { lightblue } { QDropEvent } } 
 	    F { QCLIPBOARD:: @Node paint { yellow } { QClipboard } } 
 	    L { QDIAL:: @Node { QDial } } 
-	    M { QRADIOBUTTON:: @Node { QRadioButton } } 
+	    M { QRADIOBUTTON:: @Node { Q{@B{R}}adioButton } } 
 	    Q { QXMLDTDHANDLER:: @Node paint { lightmagenta } { QXmlDTDHandler } }
 	    R { QCOLORGROUP:: @BNode { QColorGroup } } 
 	    V { QMUTEX:: @BNode { QMutex } }
@@ -472,32 +475,32 @@ Apple Roman
 	    F { QDATATABLE:: @CNode { QDataTable } } 
 	@Rowa
 	    E { 32s @Wide {} } # PADDING
-	    L { QCUSTOMMENUITEM:: @ANode QCustomMenuItem }
+	    L { QGRIDLAYOUT:: @Node paint { yellow } { QGridLayout } } 
 	    M { QICONVIEWITEM:: @ANode QIconViewItem }
 	    Q { QLISTBOXITEM:: @BNode QListBoxItem }
 	    R { QASCIICACHEITERATOR:: @Node paint { cyan } QAsciiCacheIterator }
 	    V { QPTRDICTITERATOR:: @Node paint { cyan } QPtrDictIterator }
 	@Rowa
-	    L { QSTYLESHEETITEM:: @Node paint { yellow } { QStyleSheetItem } } 
+	    L { QBOXLAYOUT:: @Node paint { yellow } { QBoxLayout } } 
 	    M { QLISTVIEWITEM:: @ANode QListViewItem }
 	    Q { QLISTBOXTEXT:: @BNode QListBoxText }
 	    R { QCACHEITERATOR:: @Node paint { cyan } QCacheIterator }
 	    V { QMAPITERATOR:: @Node paint { cyan } QMapIterator }
 	@Rowa
-	    L { QGRIDLAYOUT:: @Node paint { yellow } { QGridLayout } } 
+	    L { QHBOXLAYOUT:: @Node paint { yellow } { QHBoxLayout } } 
 	    M { QCHECKLISTITEM:: @ANode QCheckListItem }
 	    Q { QLISTBOXPIXMAP:: @BNode QListBoxPixmap }
 	    R { QINTCACHEITERATOR:: @Node paint { cyan } QIntCacheIterator }
 	    V { QVALUELISTITERATOR:: @Node paint { cyan } QValueListIterator }
 	@Rowa
-	    L { QBOXLAYOUT:: @Node paint { yellow } { QBoxLayout } } 
+	    L { QVBOXLAYOUT:: @Node paint { yellow } { QVBoxLayout } } 
 	    M { QTABLEITEM:: @ANode QTableItem }
 	    Q { QLAYOUTITEM:: @BNode QLayoutItem }
 	    R { QASCIIDICTITERATOR:: @Node paint { cyan } QAsciiDictIterator }
 	    V { QPTRLISTITERATOR:: @Node paint { cyan } QPtrListIterator }
 	    W { QHBUTTONGROUP:: @Node { QHButtonGroup } }
 	@Rowa
-	    L { QHBOXLAYOUT:: @Node paint { yellow } { QHBoxLayout } } 
+	    L { QSTYLESHEETITEM:: @Node paint { yellow } { QStyleSheetItem } } 
 	    M { QCHECKTABLEITEM:: @ANode QCheckTableItem }
 	    Q { QSPACERITEM:: @BNode QSpacerItem }
 	    R { QDICTITERATOR:: @Node paint { cyan } QDictIterator }
@@ -506,7 +509,7 @@ Apple Roman
 	@Rowb
 	    A { { BoldSlope +3p } @Font 
 		{ The Essential Qt 3.0 Class Hierarchy } }
-	    L { QVBOXLAYOUT:: @Node paint { yellow } { QVBoxLayout } } 
+	    L { QCUSTOMMENUITEM:: @ANode QCustomMenuItem }
 	    M { QCOMBOTABLEITEM:: @ANode QComboTableItem }
 	    Q { QWIDGETITEM:: @BNode QWidgetItem }
 	    R { QHGROUPBOX:: @Node { QHGroupBox } }

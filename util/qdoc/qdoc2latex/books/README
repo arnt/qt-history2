@@ -1,0 +1,33 @@
+This directory contains Qt documentation in PDF format.
+
+
+File                     Document title
+
+access-i18n-??.pdf       Accessibility and Internationalization with Qt
+added-??.pdf             Additional Functionality with Qt
+comms-??.pdf             Input/Output and Networking with Qt
+datastructures-??.pdf    Datastructures and String Handling with Qt
+dialogs-??.pdf           Dialogs and Windows with Qt
+events-??.pdf            Events, Actions, Layouts and Styles with Qt
+graphics-??.pdf          Graphics with Qt
+plugins-??.pdf           Plugins with Qt
+programming-??.pdf       Programming with Qt
+qws-??.pdf               Embedded Applications with Qt
+sql-??.pdf               Databases with Qt
+thread-??.pdf            Threading with Qt
+widgets-??.pdf           Widgets with Qt
+xml-??.pdf               XML with Qt
+
+designer-manual-??.pdf   Qt Designer Manual
+linguist-manual-??.pdf   Guide to the Qt Translation Tools
+assistant-manual-??.pdf  Qt Assistant 
+qmake-manual-??.pdf      qmake User Guide
+
+whitepaper-??-web.pdf    Qt 3.0 Whitepaper
+
+
+The ?? in the filename is 'a4' for A4 size paper and 'us' for US
+Letter size paper.
+
+The definitive official Qt documentation is in HTML format, supplied
+with Qt and available online at http://doc.trolltech.com.

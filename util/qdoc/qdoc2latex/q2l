@@ -6,13 +6,14 @@ use strict;
 use Getopt::Long qw(GetOptions);
 
 sub usage {
-    print "usage: q2l [-d] [-y] [-c|-C] [-u] file1.{q2l,book} file2.{q2l,book} ...\n",
+    print "usage: q2l [-P] [-d] [-y] [-c|-C] [-u] file1.{q2l,book} file2.{q2l,book} ...\n",
 	  "-d is debug, i.e. show don't do\n",
 	  "-y is produce postscript and don't ask about intermediate steps\n",
 	  "-Y as -y but cleanup after\n",
 	  "-c is clear intermediate files before and after the run\n",
 	  "-C is clear intermediate, log and postscript files\n",
 	  "-u is output US letter size (default is A4)\n",
+	  "-P is print to PDF and clear\n",
 	  ;
     exit;
 }
@@ -24,6 +25,7 @@ my $YES = 0;
 my $SIZE = 'a4';
 my $JUSTCLEAN = 0;
 my $RUNCLEAN = 0;
+my $JUSTDOIT = 0;
 
 Getopt::Long::Configure('no_ignore_case');
 GetOptions('help|h' => \&usage,
@@ -32,9 +34,10 @@ GetOptions('help|h' => \&usage,
 	   'c' => \$RUNCLEAN,
 	   'C' => \$JUSTCLEAN,
 	   'u' => \$SIZE,
+	   'P' => \$JUSTDOIT,
 	  ) or usage();
 
-if ( $JUSTCLEAN or $RUNCLEAN ) {
+if ( $JUSTCLEAN or $RUNCLEAN or $JUSTDOIT ) {
     cleanup(1);
     perform("rm -f *.ps");
     perform("rm -f *.pdf");
@@ -42,6 +45,7 @@ if ( $JUSTCLEAN or $RUNCLEAN ) {
     $RUNCLEAN = 1 if $JUSTCLEAN;
 }
 my $YESTOPS = $YES;
+$YESTOPS = $YES = $JUSTDOIT if $JUSTDOIT;
 $SIZE = 'letter' if $SIZE ne 'a4';
 
 my $QTDIR = $ENV{'QTDIR'};
@@ -65,7 +69,7 @@ for ( my $i = 0; $i < scalar @file; $i++ ) {
     $pdf[$i] =~ s/\.(q2l|book)$/.pdf/;
 }
 
-perform("qdoc2latex -$SIZE $QTDIR/doc/html " . join(" ", @file)) if ask("qdoc2latex");
+perform("$ENV{'QTDIR'}/util/qdoc/qdoc2latex/qdoc2latex -$SIZE $QTDIR/doc/html " . join(" ", @file)) if ask("qdoc2latex");
 if ( ask("pslatex (1)") ) {
     for my $tex ( @tex ) {
 	perform("pslatex --interaction batchmode $tex >& /dev/null");
@@ -92,6 +96,12 @@ if ( ask("dvips") ) {
 if ( ask("ps2pdf") ) {
     for my $ps ( @ps ) {
 	my $pdf = shift @pdf;
+	if ( $SIZE eq 'a4' ) {
+	    $pdf =~ s/\.pdf$/-a4.pdf/;
+	}
+	else {
+	    $pdf =~ s/\.pdf$/-us.pdf/;
+	}
 	perform("ps2pdf $ps $pdf");
     }
 }
