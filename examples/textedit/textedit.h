@@ -46,12 +46,6 @@ private slots:
     void fileClose();
     void fileExit();
 
-    void editUndo();
-    void editRedo();
-    void editCut();
-    void editCopy();
-    void editPaste();
-
     void textBold();
     void textUnderline();
     void textItalic();
@@ -81,7 +75,10 @@ private:
 	*actionAlignRight,
 	*actionAlignJustify,
         *actionUndo,
-        *actionRedo;
+        *actionRedo,
+        *actionCut,
+        *actionCopy,
+        *actionPaste;
 
     QMenu *editMenu;
     QToolBar *editToolBar;

@@ -112,24 +112,19 @@ void TextEdit::setupEditActions()
 
     QAction *a;
     a = actionUndo = new QAction( QPixmap::fromMimeSource( "editundo.xpm" ), tr( "&Undo" ), CTRL + Key_Z, this );
-    connect( a, SIGNAL( triggered() ), this, SLOT( editUndo() ) );
     tb->addAction(a);
     menu->addAction(a);
     a = actionRedo = new QAction( QPixmap::fromMimeSource( "editredo.xpm" ), tr( "&Redo" ), CTRL + Key_Y, this );
-    connect( a, SIGNAL( triggered() ), this, SLOT( editRedo() ) );
     tb->addAction(a);
     menu->addAction(a);
     menu->addSeparator();
-    a = new QAction( QPixmap::fromMimeSource( "editcut.xpm" ), tr( "Cu&t" ), CTRL + Key_X, this );
-    connect( a, SIGNAL( triggered() ), this, SLOT( editCut() ) );
+    a = actionCut = new QAction( QPixmap::fromMimeSource( "editcut.xpm" ), tr( "Cu&t" ), CTRL + Key_X, this );
     tb->addAction(a);
     menu->addAction(a);
-    a = new QAction( QPixmap::fromMimeSource( "editcopy.xpm" ), tr( "&Copy" ), CTRL + Key_C, this );
-    connect( a, SIGNAL( triggered() ), this, SLOT( editCopy() ) );
+    a = actionCopy = new QAction( QPixmap::fromMimeSource( "editcopy.xpm" ), tr( "&Copy" ), CTRL + Key_C, this );
     tb->addAction(a);
     menu->addAction(a);
-    a = new QAction( QPixmap::fromMimeSource( "editpaste.xpm" ), tr( "&Paste" ), CTRL + Key_V, this );
-    connect( a, SIGNAL( triggered() ), this, SLOT( editPaste() ) );
+    a = actionPaste = new QAction( QPixmap::fromMimeSource( "editpaste.xpm" ), tr( "&Paste" ), CTRL + Key_V, this );
     tb->addAction(a);
     menu->addAction(a);
 }
@@ -222,10 +217,7 @@ void TextEdit::load( const QString &f )
     if ( !file.open( IO_ReadOnly ) )
 	return;
 
-    QByteArray data;
-    data.resize(file.size());
-    file.readBlock(data.data(), file.size());
-
+    QByteArray data = file.readAll();
     edit->setHtml(data);
 
     filenames.insert( edit, f );
@@ -351,41 +343,6 @@ void TextEdit::fileClose()
 void TextEdit::fileExit()
 {
     qApp->quit();
-}
-
-void TextEdit::editUndo()
-{
-    if ( !currentEditor )
-       return;
-    currentEditor->undo();
-}
-
-void TextEdit::editRedo()
-{
-    if ( !currentEditor )
-       return;
-    currentEditor->redo();
-}
-
-void TextEdit::editCut()
-{
-    if ( !currentEditor )
-       return;
-    currentEditor->cut();
-}
-
-void TextEdit::editCopy()
-{
-    if ( !currentEditor )
-       return;
-    currentEditor->copy();
-}
-
-void TextEdit::editPaste()
-{
-    if ( !currentEditor )
-       return;
-    currentEditor->paste();
 }
 
 void TextEdit::textBold()
@@ -552,6 +509,16 @@ void TextEdit::editorChanged()
                    actionUndo, SLOT(setEnabled(bool)));
         disconnect(currentEditor->document(), SIGNAL(redoAvailable(bool)),
                    actionRedo, SLOT(setEnabled(bool)));
+
+        disconnect(actionUndo, SIGNAL(triggered()), currentEditor, SLOT(undo()));
+        disconnect(actionRedo, SIGNAL(triggered()), currentEditor, SLOT(redo()));
+
+        disconnect(actionCut, SIGNAL(triggered()), currentEditor, SLOT(cut()));
+        disconnect(actionCopy, SIGNAL(triggered()), currentEditor, SLOT(copy()));
+        disconnect(actionPaste, SIGNAL(triggered()), currentEditor, SLOT(paste()));
+
+        disconnect(currentEditor, SIGNAL(copyAvailable(bool)), actionCut, SLOT(setEnabled(bool)));
+        disconnect(currentEditor, SIGNAL(copyAvailable(bool)), actionCopy, SLOT(setEnabled(bool)));
     }
 
     currentEditor = qt_cast<QTextEdit *>(tabWidget->currentWidget());
@@ -568,6 +535,20 @@ void TextEdit::editorChanged()
 
     actionUndo->setEnabled(currentEditor->document()->isUndoAvailable());
     actionRedo->setEnabled(currentEditor->document()->isRedoAvailable());
+
+    connect(actionUndo, SIGNAL(triggered()), currentEditor, SLOT(undo()));
+    connect(actionRedo, SIGNAL(triggered()), currentEditor, SLOT(redo()));
+
+    const bool selection = currentEditor->cursor().hasSelection();
+    actionCut->setEnabled(selection);
+    actionCopy->setEnabled(selection);
+
+    connect(actionCut, SIGNAL(triggered()), currentEditor, SLOT(cut()));
+    connect(actionCopy, SIGNAL(triggered()), currentEditor, SLOT(copy()));
+    connect(actionPaste, SIGNAL(triggered()), currentEditor, SLOT(paste()));
+
+    connect(currentEditor, SIGNAL(copyAvailable(bool)), actionCut, SLOT(setEnabled(bool)));
+    connect(currentEditor, SIGNAL(copyAvailable(bool)), actionCopy, SLOT(setEnabled(bool)));
 }
 
 QTextEdit *TextEdit::createNewEditor(const QString &title)
