@@ -50,4 +50,5 @@ SOURCES += \
     widgets/q3workspace.cpp \
     widgets/qbutton.cpp \
     widgets/qrangecontrol.cpp \
-    widgets/qspinwidget.cpp \
+    widgets/qspinwidget.cpp
+
