@@ -113,7 +113,6 @@ win32 {
     STYLES_H	= $$STYLES_CPP
     ACCESSIBLE_H	= $$ACCESSIBLE_CPP
     COMPAT_H	= $$COMPAT_CPP
-    !embedded:!mac:CONFIG	   += x11 x11inc
 }
 win32-borland:INCLUDEPATH += kernel
 

@@ -2,6 +2,7 @@ TARGET		= qt
 include(qbase.pri)
 
 QCONFIG = kernel 
+!win32:!embedded:!mac:CONFIG	   += x11 x11inc
 
 !cups:DEFINES += QT_NO_CUPS
 !nis:DEFINES += QT_NO_NIS
