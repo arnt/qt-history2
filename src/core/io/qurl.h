@@ -81,7 +81,6 @@ public:
     bool isRelative() const;
     bool isParentOf(const QUrl &url) const;
 
-    bool isLocalFile() const;
     static QUrl fromLocalFile(const QString &localfile);
     QString toLocalFile() const;
 

@@ -128,31 +128,6 @@ public:
     bool isValidated;
 };
 
-#if defined Q_OS_WIN32
-    #include <windows.h>
-#else
-    #include <unistd.h>
-#endif
-
-// ### put this somewhere. and ues wa{}
-Q_CORE_EXPORT QString qGetHostName()
-{
-#if defined Q_OS_WIN32
-    char hostname[512];
-    DWORD size = sizeof(hostname);
-    if (GetComputerNameA(hostname, &size))
-	return QString::fromAscii(hostname, size);
-#else
-    char hostname[512];
-    if (gethostname(hostname, sizeof(hostname)) == 0) {
-        hostname[sizeof(hostname) - 1] = '\0';
-        return QString::fromAscii(hostname);
-    }
-#endif
-    return QString();
-}
-
-
 class UrlParser {
 public:
     // inline for speed
@@ -2327,20 +2302,6 @@ void QUrl::detach()
 }
 
 /*!
-    Returns true if this URL represents a local file. The file is
-    local if the scheme is "file", and the host is either empty or
-    equal to the current host name.
-*/
-bool QUrl::isLocalFile() const
-{
-    if (!d->isParsed) d->parse();
-
-    return (d->scheme.isEmpty() || d->scheme == QLatin1String("file"))
-	   && (d->host.isEmpty() || d->host.toLower() == QLatin1String("localhost")
-	   || d->host.toLower() == qGetHostName().toLower());
-}
-
-/*!
     Returns a QUrl representation of \a localFile, interpreted as a
     local file.
 */
@@ -2368,7 +2329,7 @@ QString QUrl::toLocalFile() const
     if (!d->isParsed) d->parse();
 
     QString tmp;
-    if (isLocalFile()) {
+    if (d->scheme.isEmpty() || d->scheme.toLower() == QLatin1String("file")) {
         tmp = d->path;
         // magic for drives on windows
         if (tmp.length() > 2 && tmp.at(0) == '/' && tmp.at(2) == ':')
