@@ -273,7 +273,7 @@ Also see \link #DirectoryNote this note \endlink.
 \target DLLDESTDIR
 <dt>\c DLLDESTDIR
 
-<dd>###
+<dd>Specifies where to copy the \link #TARGET target \endlink dll.
 
 Also see \link #DirectoryNote this note \endlink.
 
@@ -432,7 +432,11 @@ See also \link #HEADERS HEADERS \endlink
 
 
 <dt>\c SRCMOC
-<dd>###
+<dd>This variable is set by \e qmake if files can be found that
+contain the Q_OBJECT macro.  \c SRCMOC contains the
+name of all the generated moc files. The value of this variable
+is typically handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be
+modified.
 
 
 
@@ -527,7 +531,10 @@ either internal or very rarely used.
 \target DESTDIR_TARGET
 <dt>\c DESTDIR_TARGET
 
-<dd>###
+<dd>This variable is set internally by \e qmake which is basically the DESTDIR variable with
+the TARGET variable appened at the end.  The value of this variable
+is typically handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be
+modified.
 
 Also see \link #DirectoryNote this note \endlink.
 
@@ -773,7 +780,8 @@ to be modified.
 \target QMAKE_CLEAN
 <dt>\c QMAKE_CLEAN
 
-<dd>###
+<dd>This variable contains any files which are not generated files (such as moc and uic 
+generated files) and object files that should be removed when using "make clean".
 
 
 
@@ -886,7 +894,9 @@ to be modified.
 \target QMAKE_EXTENTION_SHLIB
 <dt>\c QMAKE_EXTENTION_SHLIB
 
-<dd>###
+<dd>This variable contains the extention for shared libraries.  The value of this 
+variable is typically handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink 
+and rarely needs to be modified.
 
 
 
@@ -894,7 +904,10 @@ to be modified.
 \target QMAKE_FAILED_REQUIREMENTS
 <dt>\c QMAKE_FAILED_REQUIREMENTS
 
-<dd>###
+<dd>This variable contains the list of requirements that were failed to be met when
+\e qmake was ran, such as, the sql module is needed and wasn't compiled into Qt.  The 
+value of this variable is typically handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink 
+and rarely needs to be modified.
 
 
 
@@ -1228,14 +1241,17 @@ variable is typically handled by \e qmake or
 
 
 <dt>\c QMAKE_LIBS_QT_OPENGL
-<dd>###
+
+<dd>This variable contains all the libraries needed to link against if 
+OpenGL support is turned on.
 
 
 
 
 <dt>\c QMAKE_LIBS_QT_THREAD
 
-<dd>###
+<dd>This variable contains all the libraries needed to link against if 
+thread support is turned on.
 
 
 
