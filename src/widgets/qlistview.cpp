@@ -2044,8 +2044,7 @@ void QListViewItem::paintCell( QPainter * p, const QPalette & pal,
     int r = marg;
     const QPixmap * icon = pixmap( column );
 
-    const BackgroundMode bgmode = lv->viewport()->backgroundMode();
-    const QPalette::ColorRole crole = QPalette::backgroundRoleFromMode( bgmode );
+    const QPalette::ColorRole crole = lv->palettePolicy().foreground();
     if ( pal.brush( crole ) != lv->palette().brush( crole ) )
 	p->fillRect( 0, 0, width, height(), pal.brush( crole ) );
     else
@@ -2651,8 +2650,7 @@ void QListView::init()
 
     viewport()->setFocusProxy( this );
     viewport()->setFocusPolicy( WheelFocus );
-    viewport()->setBackgroundMode( PaletteBase );
-    setBackgroundMode( PaletteBackground, PaletteBase );
+    viewport()->setPalettePolicy( QPalette::Base );
 }
 
 /*!
@@ -6563,8 +6561,7 @@ void QCheckListItem::paintCell( QPainter * p, const QPalette & pal,
     if ( !lv )
 	return;
 
-    const BackgroundMode bgmode = lv->viewport()->backgroundMode();
-    const QPalette::ColorRole crole = QPalette::backgroundRoleFromMode( bgmode );
+    const QPalette::ColorRole crole = lv->palettePolicy().foreground();
     if ( pal.brush( crole ) != lv->palette().brush( crole ) )
 	p->fillRect( 0, 0, width, height(), pal.brush( crole ) );
     else

@@ -939,8 +939,8 @@ void QTextEdit::init()
     currentFormat = doc->formatCollection()->defaultFormat();
     currentAlignment = Qt::AlignAuto;
 
-    setBackgroundMode( PaletteBase );
-    viewport()->setBackgroundMode( PaletteBase );
+    setPalettePolicy( QPalette::Base );
+    viewport()->setPalettePolicy( QPalette::Base );
     viewport()->setAcceptDrops( TRUE );
     resizeContents( 0, doc->lastParagraph() ?
 		    ( doc->lastParagraph()->paragId() + 1 ) * doc->formatCollection()->defaultFormat()->height() : 0 );
@@ -1005,7 +1005,7 @@ void QTextEdit::paintDocument( bool drawAll, QPainter *p, int cx, int cy, int cw
 	isReadOnly() || !cursorVisible )
 	drawCur = FALSE;
     QPalette pal = palette();
-    const QPalette::ColorRole backRole = QPalette::backgroundRoleFromMode(backgroundMode());
+    const QPalette::ColorRole backRole = palettePolicy().background();
     if ( doc->paper() )
 	pal.setBrush( backRole, *doc->paper() );
 
@@ -2071,7 +2071,7 @@ void QTextEdit::drawCursor( bool visible )
     p.translate( -contentsX() + cursor->totalOffsetX(), -contentsY() + cursor->totalOffsetY() );
     QPixmap *pix = 0;
     QPalette pal( palette() );
-    const QPalette::ColorRole backRole = QPalette::backgroundRoleFromMode(backgroundMode());
+    const QPalette::ColorRole backRole = palettePolicy().background();
     if ( cursor->paragraph()->background() )
 	pal.setBrush( backRole, *cursor->paragraph()->background() );
     else if ( doc->paper() )

@@ -211,20 +211,19 @@ void qt_draw_tiled_pixmap( HDC, int, int, int, int,
 			   const QPixmap *, int, int );
 
 void qt_erase_background( HDC hdc, int x, int y, int w, int h,
-			  const QColor &bg_color,
-			  const QPixmap *bg_pixmap, int off_x, int off_y )
+			  const QBrush &brush, int off_x, int off_y )
 {
-    if ( bg_pixmap && bg_pixmap->isNull() )	// empty background
+    if ( brush.pixmap() && brush.pixmap()->isNull() )	// empty background
 	return;
     HPALETTE oldPal = 0;
     if ( QColor::hPal() ) {
 	oldPal = SelectPalette( hdc, QColor::hPal(), FALSE );
 	RealizePalette( hdc );
     }
-    if ( bg_pixmap ) {
-	qt_draw_tiled_pixmap( hdc, x, y, w, h, bg_pixmap, off_x, off_y );
+    if ( brush.pixmap() ) {
+	qt_draw_tiled_pixmap( hdc, x, y, w, h, brush.pixmap(), off_x, off_y );
     } else {
-	HBRUSH brush = CreateSolidBrush( bg_color.pixel() );
+	HBRUSH brush = CreateSolidBrush( brush.color().pixel() );
 	HBRUSH oldBrush = (HBRUSH)SelectObject( hdc, brush );
 	PatBlt( hdc, x, y, w, h, PATCOPY );
 	SelectObject( hdc, oldBrush );

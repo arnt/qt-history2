@@ -45,7 +45,7 @@ QAquaFocusWidget::QAquaFocusWidget(bool noerase, QWidget *w)
     : QWidget(w, "magicFocusWidget", (noerase ? (WResizeNoErase | WRepaintNoErase) : 0)), d(NULL)
 {
     if(noerase)
-	setBackgroundMode(NoBackground);
+	setAttribute(WA_NoErase, true);
     if(w)
 	setFocusWidget(w);
 }

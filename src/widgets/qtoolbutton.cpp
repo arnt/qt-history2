@@ -187,7 +187,7 @@ void QToolButton::init()
     s = 0;
 
     setFocusPolicy( NoFocus );
-    setBackgroundMode( PaletteButton);
+    setPalettePolicy(QPalettePolicy(QPalette::Inherited, QPalette::ButtonText));
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum ) );
 }
 

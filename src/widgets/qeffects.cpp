@@ -86,7 +86,7 @@ QAlphaWidget::QAlphaWidget( QWidget* w, WFlags f )
     setEnabled( FALSE );
 
     pm.setOptimization( QPixmap::BestOptim );
-    setBackgroundMode( NoBackground );
+    setAttribute(WA_NoErase, true);
     widget = (QAccessWidget*)w;
     alpha = 0;
 }
@@ -228,7 +228,7 @@ void QAlphaWidget::render()
 		QColor erc = widget->eraseColor();
 		const QPixmap *erp = widget->erasePixmap();
 
-		widget->setBackgroundMode( NoBackground );
+		widget->setAttribute(WA_NoErase, true);
 		widget->show();
 		if ( bgm != FixedColor && bgm != FixedPixmap ) {
 		    widget->clearWState( WState_Visible ); // prevent update in setBackgroundMode
@@ -341,7 +341,7 @@ QRollEffect::QRollEffect( QWidget* w, WFlags f, DirFlags orient )
     widget = (QAccessWidget*) w;
     Q_ASSERT( widget );
 
-    setBackgroundMode( NoBackground );
+    setAttribute(WA_NoErase, true);
 
     if ( widget->testWState( WState_Resized ) ) {
 	totalWidth = widget->width();
@@ -538,7 +538,7 @@ void QRollEffect::scroll()
 		QColor erc = widget->eraseColor();
 		const QPixmap *erp = widget->erasePixmap();
 
-		widget->setBackgroundMode( NoBackground );
+		widget->setAttribute(WA_NoErase, true);
 		widget->show();
 		if ( bgm != FixedColor && bgm != FixedPixmap ) {
 		    widget->clearWState( WState_Visible ); // prevent update in setBackgroundMode

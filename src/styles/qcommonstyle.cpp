@@ -1507,7 +1507,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    const QToolButton *toolbutton = (const QToolButton *) widget;
 
 	    QPalette pal2 = pal;
-	    if ( toolbutton->backgroundMode() != PaletteButton )
+	    if ( toolbutton->palettePolicy().background() != QPalette::Button )
 		pal2.setBrush( QPalette::Button,
 			    toolbutton->paletteBackgroundColor() );
 	    QRect button, menuarea;

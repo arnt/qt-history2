@@ -314,7 +314,7 @@ void QPushButton::init()
 #else
     autoDefButton = FALSE;
 #endif
-    setBackgroundMode( PaletteButton );
+    setPalettePolicy(QPalettePolicy(QPalette::Inherited, QPalette::ButtonText));
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
 }
 

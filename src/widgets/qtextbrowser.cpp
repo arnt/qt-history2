@@ -436,7 +436,7 @@ void QTextBrowser::popupDetail( const QString& contents, const QPoint& pos )
     const int hMargin = 12;
 
     QWidget* popup = new QTextDetailPopup;
-    popup->setBackgroundMode( QWidget::NoBackground );
+    setAttribute(WA_NoErase, true);
 
     QSimpleRichText* doc = new QSimpleRichText( contents, popup->font() );
     doc->adjustSize();

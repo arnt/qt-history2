@@ -109,8 +109,8 @@ public:
     {
 	l_marg = r_marg = t_marg = b_marg = 0;
 	viewport->polish();
-	viewport->setBackgroundMode( QWidget::PaletteDark );
-	viewport->setBackgroundOrigin( QWidget::WidgetOrigin );
+	viewport->setPalettePolicy( QPalette::Dark );
+	parent->setPalettePolicy( QPalette::Background );
 	vMode = QScrollView::Auto;
 	hMode = QScrollView::Auto;
 	corner = 0;
@@ -2528,7 +2528,7 @@ void QScrollView::enableClipper(bool y)
 	d->clipped_viewport->setGeometry(-coord_limit/2,-coord_limit/2,
 					 coord_limit,coord_limit);
 	d->clipped_viewport->setBackgroundMode( d->viewport->backgroundMode() );
-	d->viewport->setBackgroundMode(NoBackground); // no exposures for this
+	d->viewport->setAttribute(WA_NoErase, true); // no exposures for this
 	d->viewport->removeEventFilter( this );
 	d->clipped_viewport->installEventFilter( this );
 	d->clipped_viewport->show();

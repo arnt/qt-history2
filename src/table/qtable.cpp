@@ -2004,7 +2004,7 @@ void QTable::init( int rows, int cols )
     viewport()->setFocusProxy( this );
     viewport()->setFocusPolicy( WheelFocus );
 
-    viewport()->setBackgroundMode( PaletteBase );
+    viewport()->setPalettePolicy( QPalette::Base );
 
 #ifndef QT_NO_DRAGANDDROP
     setDragAutoScroll( FALSE );
@@ -2027,7 +2027,6 @@ void QTable::init( int rows, int cols )
     contents.setAutoDelete( TRUE );
     widgets.setAutoDelete( TRUE );
 
-    setBackgroundMode( PaletteBackground, PaletteBase );
     setResizePolicy( Manual );
     selections.setAutoDelete( TRUE );
 
@@ -6256,11 +6255,11 @@ QTableHeader::QTableHeader( int i, QTable *t,
 #ifndef NO_LINE_WIDGET
     line1 = new QWidget( table->viewport(), "qt_line1" );
     line1->hide();
-    line1->setBackgroundMode( PaletteText );
+    line1->setPalettePolicy( QPalette::Text );
     table->addChild( line1 );
     line2 = new QWidget( table->viewport(), "qt_line2" );
     line2->hide();
-    line2->setBackgroundMode( PaletteText );
+    line2->setPalettePolicy( QPalette::Text );
     table->addChild( line2 );
 #else
     d = new QTableHeaderPrivate;

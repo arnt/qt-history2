@@ -25,6 +25,7 @@
 #include "qfontinfo.h"
 #include "qsizepolicy.h"
 #include "qregion.h"
+#include "qbrush.h"
 #endif // QT_H
 
 #ifdef QT_INCLUDE_COMPAT
@@ -57,6 +58,19 @@ class QHideEvent;
 
 struct QWidgetPrivate;
 
+class Q_EXPORT QPalettePolicy 
+{
+    QPalette::ColorRole bg, fg;
+public:
+    QPalettePolicy();
+    QPalettePolicy(const QPalettePolicy &p);
+    QPalettePolicy(QPalette::ColorRole b, QPalette::ColorRole f);
+    QPalettePolicy(QPalette::ColorRole b);
+
+    inline QPalette::ColorRole background() const { return bg; }
+    inline QPalette::ColorRole foreground() const { return fg; }
+};
+
 class Q_EXPORT QWidget : public QObject, public QPaintDevice
 {
     Q_OBJECT
@@ -79,6 +93,7 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( QRect rect READ rect )
     Q_PROPERTY( QRect childrenRect READ childrenRect )
     Q_PROPERTY( QRegion childrenRegion READ childrenRegion )
+    Q_PROPERTY( QPalettePolicy palettePolicy READ palettePolicy WRITE setPalettePolicy DESIGNABLE false)
     Q_PROPERTY( QSizePolicy sizePolicy READ sizePolicy WRITE setSizePolicy )
     Q_PROPERTY( QSize minimumSize READ minimumSize WRITE setMinimumSize )
     Q_PROPERTY( QSize maximumSize READ maximumSize WRITE setMaximumSize )
@@ -88,11 +103,8 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( int maximumHeight READ maximumHeight WRITE setMaximumHeight STORED false DESIGNABLE false )
     Q_PROPERTY( QSize sizeIncrement READ sizeIncrement WRITE setSizeIncrement )
     Q_PROPERTY( QSize baseSize READ baseSize WRITE setBaseSize )
-    Q_PROPERTY( BackgroundMode backgroundMode READ backgroundMode WRITE setBackgroundMode DESIGNABLE false )
-    Q_PROPERTY( QColor paletteForegroundColor READ paletteForegroundColor WRITE setPaletteForegroundColor RESET unsetPalette )
-    Q_PROPERTY( QColor paletteBackgroundColor READ paletteBackgroundColor WRITE setPaletteBackgroundColor RESET unsetPalette )
-    Q_PROPERTY( QPixmap paletteBackgroundPixmap READ paletteBackgroundPixmap WRITE setPaletteBackgroundPixmap RESET unsetPalette )
-    Q_PROPERTY( QBrush backgroundBrush READ backgroundBrush )
+    Q_PROPERTY( QColor foreground READ foreground WRITE setForeground )
+    Q_PROPERTY( QBrush background READ background WRITE setBackground )
     Q_PROPERTY( QPalette palette READ palette WRITE setPalette RESET unsetPalette  STORED ownPalette )
     Q_PROPERTY( BackgroundOrigin backgroundOrigin READ backgroundOrigin WRITE setBackgroundOrigin )
     Q_PROPERTY( bool ownPalette READ ownPalette )
@@ -212,39 +224,19 @@ public:
     QWidget	*topLevelWidget()   const;
 
     // Widget appearance functions
-
-    BackgroundMode	backgroundMode() const;
-    void setBackgroundMode( BackgroundMode );
-    void 		setBackgroundMode( BackgroundMode, BackgroundMode );
-
-    const QColor &	foregroundColor() const;
-
-    const QColor &	eraseColor() const;
-    void setEraseColor( const QColor & );
-
-    const QPixmap *	erasePixmap() const;
-    void setErasePixmap( const QPixmap & );
-
-#ifndef QT_NO_PALETTE
-#ifndef QT_NO_COMPAT
-    QColorGroup colorGroup() const;
-#endif
     const QPalette &	palette()    const;
     bool		ownPalette() const;
     void	setPalette( const QPalette & );
     void		unsetPalette();
-#endif
 
-    const QColor &	paletteForegroundColor() const;
-    void		setPaletteForegroundColor( const QColor & );
+    void setPalettePolicy(const QPalettePolicy &);
+    const QPalettePolicy &palettePolicy() const;
 
-    const QColor &	paletteBackgroundColor() const;
-    void setPaletteBackgroundColor( const QColor & );
+    const QBrush &background() const;
+    void setBackground(const QBrush &);
 
-    const QPixmap *	paletteBackgroundPixmap() const;
-    void setPaletteBackgroundPixmap( const QPixmap & );
-
-    const QBrush&	backgroundBrush() const;
+    const QColor &foreground() const;
+    void setForeground(const QColor &);
 
     QFont		font() const;
     bool		ownFont() const;
@@ -272,13 +264,6 @@ public:
     void setMask( const QBitmap & );
     void setMask( const QRegion & );
     void clearMask();
-
-#ifndef QT_NO_COMPAT
-    const QColor &backgroundColor() const;
-    void setBackgroundColor( const QColor & );
-    const QPixmap *backgroundPixmap() const;
-    void setBackgroundPixmap( const QPixmap & );
-#endif
 
 public slots:
 #ifndef QT_NO_WIDGET_TOPEXTRA
@@ -473,6 +458,7 @@ public:
 	WA_UnderMouse,
 	WA_MouseTracking,
 	WA_ContentsInherited,
+	WA_NoErase,
 
 	WA_ForceDisabled = 32,
 	WA_KeyCompression,
@@ -576,6 +562,26 @@ protected:
 
 #ifndef QT_NO_COMPAT
 public:
+    BackgroundMode	backgroundMode() const;
+    void setBackgroundMode( BackgroundMode );
+    void 		setBackgroundMode( BackgroundMode, BackgroundMode );
+    const QColor &	eraseColor() const;
+    void setEraseColor( const QColor & );
+    const QColor &	foregroundColor() const;
+    const QPixmap *	erasePixmap() const;
+    void setErasePixmap( const QPixmap & );
+    const QColor &	paletteForegroundColor() const;
+    void		setPaletteForegroundColor( const QColor & );
+    const QColor &	paletteBackgroundColor() const;
+    void setPaletteBackgroundColor( const QColor & );
+    const QPixmap *	paletteBackgroundPixmap() const;
+    void setPaletteBackgroundPixmap( const QPixmap & );
+    const QBrush&	backgroundBrush() const;
+    const QColor &backgroundColor() const;
+    void setBackgroundColor( const QColor & );
+    const QPixmap *backgroundPixmap() const;
+    void setBackgroundPixmap( const QPixmap & );
+    QColorGroup colorGroup() const;
     QWidget *parentWidget( bool sameWindow ) const;
     inline void setKeyCompression(bool b) { setAttribute(WA_KeyCompression, b); }
     inline void setFont( const QFont &f, bool ) { setFont( f ); }
@@ -619,12 +625,9 @@ private:
     void hide_helper();
     void setEnabled_helper(bool);
     void	 reparentFocusWidgets( QWidget * );
-    void         setBackgroundFromMode();
-    void         setBackgroundColorDirect( const QColor & );
-    void   	 setBackgroundPixmapDirect( const QPixmap & );
-    void         setBackgroundModeDirect( BackgroundMode );
     void         setBackgroundEmpty();
     void	 updateFrameStrut() const;
+    const QWidget *findInheritedPalettePolicyWidget() const;
 
     WId		 winid;
     uint	 widget_state; // will go away, eventually
@@ -641,7 +644,7 @@ private:
     uint	 fstrut_dirty : 1;
     uint	 im_enabled : 1;
     QRect	 crect;
-    QColor	 bg_col;
+    QPalettePolicy pal_policy;
 #ifndef QT_NO_PALETTE
     mutable QPalette	 pal;
 #endif
@@ -700,6 +703,10 @@ private:	// Disabled copy constructor and operator=
 
 typedef QPointer<QWidget> QWidgetPointer;
 
+#ifndef QT_NO_COMPAT
+inline void QWidget::setBackgroundMode( BackgroundMode m, BackgroundMode)
+{ setBackgroundMode(m); }
+#endif
 
 inline Qt::WState QWidget::testWState( WState s ) const
 { return (widget_state & s); }
@@ -707,6 +714,8 @@ inline Qt::WState QWidget::testWState( WState s ) const
 inline Qt::WFlags QWidget::testWFlags( WFlags f ) const
 { return (widget_flags & f); }
 
+inline const QPalettePolicy &QWidget::palettePolicy() const
+{ return pal_policy; }
 
 inline WId QWidget::winId() const
 { return winid; }
@@ -770,9 +779,6 @@ inline void QWidget::setSizeIncrement( const QSize &s )
 
 inline void QWidget::setBaseSize( const QSize &s )
 { setBaseSize(s.width(),s.height()); }
-
-inline const QColor &QWidget::eraseColor() const
-{ return bg_col; }
 
 inline QFont QWidget::font() const
 { return fnt; }
@@ -914,10 +920,22 @@ inline bool QWidget::testAttribute(WidgetAttribute attribute) const
 }
 
 #ifndef QT_NO_COMPAT
-inline const QColor & QWidget::backgroundColor() const { return eraseColor(); }
-inline void QWidget::setBackgroundColor( const QColor &c ) { setEraseColor( c ); }
-inline const QPixmap *QWidget::backgroundPixmap() const { return erasePixmap(); }
-inline void QWidget::setBackgroundPixmap( const QPixmap &pm ) { setErasePixmap( pm ); }
+inline const QColor &QWidget::eraseColor() const { return background(); }
+inline void QWidget::setEraseColor(const QColor &c) { setBackground(c); }
+inline const QColor &QWidget::foregroundColor() const { return foreground(); }
+inline const QPixmap *QWidget::erasePixmap() const { return background(); }
+inline void QWidget::setErasePixmap(const QPixmap &p) { setBackground(p); }
+inline const QColor &QWidget::paletteForegroundColor() const { return foreground(); }
+inline void QWidget::setPaletteForegroundColor(const QColor &c) { setForeground(c); }
+inline const QColor &QWidget::paletteBackgroundColor() const { return background(); }
+inline void QWidget::setPaletteBackgroundColor(const QColor &c) { setBackground(c); }
+inline const QPixmap *QWidget::paletteBackgroundPixmap() const { return background(); }
+inline void QWidget::setPaletteBackgroundPixmap(const QPixmap &p) { setBackground(p); }
+inline const QBrush& QWidget::backgroundBrush() const { return background(); }
+inline const QColor & QWidget::backgroundColor() const { return background(); }
+inline void QWidget::setBackgroundColor(const QColor &c) { setBackground(c); }
+inline const QPixmap *QWidget::backgroundPixmap() const { return background(); }
+inline void QWidget::setBackgroundPixmap(const QPixmap &p) { setBackground(p); }
 #endif
 
 #define QWIDGETSIZE_MAX 32767

@@ -319,9 +319,9 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 					      crect.width(), crect.height(),
 					      0,
 					      black.pixel(x11Screen()),
-					      bg_col.pixel(x11Screen()) );
+					      d->bg_brush.color().pixel(x11Screen()) );
 	} else {
-	    wsa.background_pixel = bg_col.pixel(x11Screen());
+	    wsa.background_pixel = d->bg_brush.color().pixel(x11Screen());
 	    wsa.border_pixel = black.pixel(x11Screen());
 	    wsa.colormap = (Colormap)x11Colormap();
 	    id = (WId)qt_XCreateWindow( this, dpy, parentw,
@@ -695,8 +695,7 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p, bool show
     bool     enable = isEnabled();		// remember status
     FocusPolicy fp = focusPolicy();
     QSize    s	    = size();
-    QPixmap *bgp    = (QPixmap *)backgroundPixmap();
-    QColor   bgc    = bg_col;			// save colors
+    QBrush bgb = background();                 // save colors
     QString capt= caption();
     widget_flags = f;
     clearWState(WState_Created | WState_Visible | WState_Hidden | WState_ExplicitShowHide);
@@ -731,10 +730,10 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p, bool show
 	}
     }
     qPRCreate( this, old_winid );
-    if ( bgp )
-	XSetWindowBackgroundPixmap( dpy, winid, bgp->handle() );
+    if ( bgb.pixmap() )
+	XSetWindowBackgroundPixmap( dpy, winid, bgb.pixmap()->handle() );
     else
-	XSetWindowBackground( dpy, winid, bgc.pixel(x11Screen()) );
+	XSetWindowBackground( dpy, winid, bgb.color().pixel(x11Screen()) );
 
     setGeometry( p.x(), p.y(), s.width(), s.height() );
     setEnabled( enable );
@@ -856,71 +855,9 @@ void QWidget::setFontSys( QFont * )
     // Nothing
 }
 
-
-void QWidget::setBackgroundColorDirect( const QColor &color )
+void QWidgetPrivate::setBackgroundBrush( const QBrush &brush )
 {
-    bg_col = color;
-    if ( d->extra && d->extra->bg_pix ) {		// kill the background pixmap
-	delete d->extra->bg_pix;
-	d->extra->bg_pix = 0;
-    }
-    XSetWindowBackground( x11Display(), winId(), bg_col.pixel(x11Screen()) );
-}
-
-static int allow_null_pixmaps = 0;
-
-
-void QWidget::setBackgroundPixmapDirect( const QPixmap &pixmap )
-{
-    QPixmap old;
-    if ( d->extra && d->extra->bg_pix )
-	old = *d->extra->bg_pix;
-    if ( !allow_null_pixmaps && pixmap.isNull() ) {
-	XSetWindowBackground( x11Display(), winId(), bg_col.pixel(x11Screen()) );
-	if ( d->extra && d->extra->bg_pix ) {
-	    delete d->extra->bg_pix;
-	    d->extra->bg_pix = 0;
-	}
-    } else {
-	QPixmap pm = pixmap;
-	if (!pm.isNull()) {
-	    if ( pm.depth() == 1 && QPixmap::defaultDepth() > 1 ) {
-		pm = QPixmap( pixmap.size() );
-		bitBlt( &pm, 0, 0, &pixmap, 0, 0, pm.width(), pm.height() );
-	    }
-	}
-	if ( d->extra && d->extra->bg_pix )
-	    delete d->extra->bg_pix;
-	else
-	    d->createExtra();
-	d->extra->bg_pix = new QPixmap( pm );
-	d->extra->bg_pix->x11SetScreen( x11Screen() );
-	XSetWindowBackgroundPixmap( x11Display(), winId(), d->extra->bg_pix->handle() );
-	if ( testWFlags(WType_Desktop) )	// save rootinfo later
-	    qt_updated_rootinfo();
-    }
-}
-
-
-/*!
-    Sets the window-system background of the widget to nothing.
-
-    Note that "nothing" is actually a pixmap that isNull(), thus you
-    can check for an empty background by checking backgroundPixmap().
-
-    \sa setBackgroundPixmap(), setBackgroundColor()
-*/
-void QWidget::setBackgroundEmpty()
-{
-    allow_null_pixmaps++;
-    setErasePixmap(QPixmap());
-    allow_null_pixmaps--;
-}
-
-
-void QWidgetPrivate::setBackgroundX11Relative()
-{
-    XSetWindowBackgroundPixmap( q->x11Display(), q->winId(), ParentRelative );
+    XSetWindowBackground( q->x11Display(), q->winId(), brush.color().pixel(x11Screen()) );
 }
 
 void QWidget::setCursor( const QCursor &cursor )

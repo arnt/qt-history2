@@ -240,7 +240,7 @@ void QtTableView::repaint( int x, int y, int w, int h, bool erase )
     if ( r.isEmpty() )
 	return; // nothing to do
     QPaintEvent e( r );
-    if ( erase && backgroundMode() != NoBackground )
+    if ( erase && !testAttribute(WA_NoErase ))
 	eraseInPaint = TRUE;			// erase when painting
     paintEvent( &e );
     eraseInPaint = FALSE;

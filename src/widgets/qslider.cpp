@@ -369,9 +369,9 @@ void QSlider::reallyMoveSlider( int newPos )
     QRegion newR(sliderRect());
 
     /* just the one repaint if no background */
-    if (backgroundMode() == NoBackground)
+    if (testAttribute(WA_NoErase)) {
 	repaint(newR | oldR, FALSE);
-    else {
+    } else {
 	repaint(oldR.subtract(newR));
 	repaint(newR, FALSE);
     }

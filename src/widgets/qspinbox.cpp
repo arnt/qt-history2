@@ -247,8 +247,6 @@ void QSpinBox::initSpinBox()
     setFocusProxy( vi );
 
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
-    setBackgroundMode( PaletteBackground, PaletteBase );
-
     updateDisplay();
 
     connect( vi, SIGNAL(textChanged(const QString&)), SLOT(textChanged()) );

@@ -557,11 +557,6 @@ void QPalette::init() {
     is_colorgroup = 0;
 #endif
     current_group = Active; //as a default..
-
-    for(int grp = 0; grp < (int)NColorGroups; grp++) {
-	for(int role = 0; role < (int)NColorRoles; role++) 
-	    d->br[grp][role] = Qt::green;
-    }
 }
 
 /*!
@@ -600,6 +595,7 @@ QPalette &QPalette::operator=(const QPalette &p)
 */
 const QBrush &QPalette::brush(ColorGroup cg, ColorRole cr) const
 {
+    Q_ASSERT(cr < NColorRoles);
     if(cg >= (int)NColorGroups) {
 	if(cg == Current) {
 	    cg = current_group;
@@ -636,6 +632,7 @@ const QBrush &QPalette::brush(ColorGroup cg, ColorRole cr) const
 */
 void QPalette::setBrush(ColorGroup cg, ColorRole cr, const QBrush &b)
 {
+    Q_ASSERT(cr < NColorRoles);
     detach();
     d->ser_no = palette_count++;
     if(cg >= (int)NColorGroups) {
@@ -893,62 +890,4 @@ QPalette::setColorGroup(ColorGroup cg, const QBrush &foreground, const QBrush &b
     setBrush(cg, LinkVisited, link_visited);
 }
 
-/*!\internal*/
-QPalette::ColorRole QPalette::foregroundRoleFromMode(Qt::BackgroundMode mode)
-{
-    switch (mode) {
-    case Qt::PaletteButton:
-	return ButtonText;
-    case Qt::PaletteBase:
-	return Text;
-    case Qt::PaletteDark:
-    case Qt::PaletteShadow:
-	return Light;
-    case Qt::PaletteHighlight:
-	return HighlightedText;
-    case Qt::PaletteBackground:
-    default:
-	return Foreground;
-    }
-}
-
-/*!\internal*/
-QPalette::ColorRole QPalette::backgroundRoleFromMode(Qt::BackgroundMode mode)
-{
-    switch (mode) {
-    case Qt::PaletteForeground:
-	return Foreground;
-    case Qt::PaletteButton:
-	return Button;
-    case Qt::PaletteLight:
-	return Light;
-    case Qt::PaletteMidlight:
-	return Midlight;
-    case Qt::PaletteDark:
-	return Dark;
-    case Qt::PaletteMid:
-	return Mid;
-    case Qt::PaletteText:
-	return Text;
-    case Qt::PaletteBrightText:
-	return BrightText;
-    case Qt::PaletteButtonText:
-	return ButtonText;
-    case Qt::PaletteBase:
-	return Base;
-    case Qt::PaletteShadow:
-	return Shadow;
-    case Qt::PaletteHighlight:
-	return Highlight;
-    case Qt::PaletteHighlightedText:
-	return HighlightedText;
-    case Qt::PaletteLink:
-	return Link;
-    case Qt::PaletteLinkVisited:
-	return LinkVisited;
-    case Qt::PaletteBackground:
-    default:
-	return Background;
-    }
-}
 #endif // QT_NO_PALETTE

@@ -56,7 +56,7 @@ public:
     QToolBoxButton( QWidget *parent, const char *name )
 	: QButton( parent, name, WNoAutoErase ), selected( FALSE )
     {
-	setBackgroundMode(PaletteBackground);
+	setPalettePolicy(QPalette::Background);
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
 	setFocusPolicy(NoFocus);
     }
@@ -153,7 +153,7 @@ void QToolBoxPrivate::updateTabs()
 	    (*i).button->setEraseColor((*i).widget->eraseColor());
 	    (*i).button->update();
 	} else if ( (*i).button->backgroundMode() != Qt::PaletteBackground ) {
-	    (*i).button->setBackgroundMode( Qt::PaletteBackground );
+	    (*i).button->setPalettePolicy( QPalette::Background );
 	    (*i).button->update();
 	}
 	after = (*i).button == lastButton;
@@ -235,8 +235,8 @@ void QToolBoxButton::drawButton( QPainter *p )
     const QColor* fill = 0;
     if ( selected &&
 	 style().styleHint( QStyle::SH_ToolBox_SelectedPageTitleBold ) &&
-	 tb->backgroundMode() != NoBackground )
-	fill = &pal.color( QPalette::foregroundRoleFromMode( tb->backgroundMode() ) );
+	 !tb->testAttribute(WA_NoErase))
+	fill = &pal.color( palettePolicy().foreground() );
 
     style().drawItem( p, tr, AlignLeft | AlignVCenter | ShowPrefix, pal,
 		      isEnabled(), 0, txt, -1, fill );
@@ -297,7 +297,7 @@ QToolBox::QToolBox( QWidget *parent, const char *name, WFlags f )
 {
     d = new QToolBoxPrivate;
     d->layout = new QVBoxLayout( this );
-    QWidget::setBackgroundMode( PaletteButton );
+    setPalettePolicy( QPalette::Button );
 }
 
 /*! \reimp */

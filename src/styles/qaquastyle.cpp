@@ -295,7 +295,7 @@ void QAquaStyle::unPolish(QWidget * w)
 
     if(!w->isTopLevel()) {
         if(!w->inherits("QSplitter") && w->backgroundPixmap() &&
-            (w->backgroundMode() == QWidget::PaletteBackground))
+            (w->palettePolicy().background() == QPalette::Background))
             w->setBackgroundOrigin(QWidget::WidgetOrigin);
     }
 }

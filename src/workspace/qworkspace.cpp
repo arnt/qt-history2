@@ -303,7 +303,7 @@ QWorkspace::init()
 		    this, SLOT( closeActiveWindow() ) );
 #endif
 
-    setBackgroundMode( PaletteDark );
+    setPalettePolicy( QPalette::Dark );
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
 
 #ifndef QT_NO_WIDGET_TOPEXTRA

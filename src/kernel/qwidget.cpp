@@ -51,6 +51,135 @@ QWidgetPrivate::~QWidgetPrivate()
 	deleteExtra();
 }
 
+void QWidgetPrivate::propagatePaletteChange()
+{
+    QEvent pc(QEvent::PaletteChange);
+    QApplication::sendEvent(q, &pc);
+    if(!children.isEmpty()) {
+	QEvent ppc(QEvent::ParentPaletteChange);
+	for(int i = 0; i < children.size(); ++i) {
+	    QObject *o = children.at(i);
+	    if(o->isWidgetType())
+		QApplication::sendEvent(o, &ppc);
+	}
+    }
+    q->paletteChange(q->palette()); // compatibility
+}
+
+ 
+/*!
+    \class QPalettePolicy qwidget.h
+    \brief The QPalettePolicy class is used to set the background used for a QWidget.
+
+    \ingroup abstractwidgets
+
+    This class can be used to enum describes how the background of a widget changes, as the
+    widget's palette changes.
+
+    The background is what the widget contains when \link
+    QWidget::paintEvent() paintEvent()\endlink is called. To minimize
+    flicker, this should be the most common color or pixmap in the
+    widget. There are also two special values, listed at the end:
+
+    \value QPalette::Foreground
+    \value QPalette::Background
+    \value QPalette::Button
+    \value QPalette::Light
+    \value QPalette::Midlight
+    \value QPalette::Dark
+    \value QPalette::Mid
+    \value QPalette::Text
+    \value QPalette::BrightText
+    \value QPalette::ButtonText
+    \value QPalette::Base
+    \value QPalette::Shadow
+    \value QPalette::Highlight
+    \value QPalette::HighlightedText
+    \value QPalette::Link
+    \value QPalette::LinkVisited
+    \value QPalette::Overridden the widget is cleared to a fixed color
+    or pixmap, normally different from all the ones in the
+    palette(). Set using \link QWidget::setPaletteBackgroundColor()
+    setPaletteBackgroundColor()\endlink.
+    \value QPalette::Inherited the widget will allow a parent without
+    this palette policy (or top level) to shine through as if it was
+    the QWidget's background.
+
+    Although QPalette::Overridden is sometimes just right, if you use
+    them, make sure that you test your application when the desktop
+    color scheme has been changed. (On X11, a quick way to test this
+    is e.g. "./myapp -bg paleblue". On Windows, you must use the
+    control panel.)
+
+    \sa QWidget::setPalettePolicy() QWidget::palettePolicy()
+    QWidget::setBackgroundPixmap() QWidget::setPaletteBackgroundColor()
+*/
+
+/*!
+    Constructs a palette policy with a background role of \a b and a foreground role of \a f.
+
+    \sa QPalettePolicy::foreground(), QPalettePolicy::background()
+*/
+QPalettePolicy::QPalettePolicy(QPalette::ColorRole b, QPalette::ColorRole f) : bg(b), fg(f) 
+{ 
+}
+
+/*!
+    Constructs a palette policy with a background role of \a b an appropriate foreground
+    role for the background will be calculated..
+*/
+QPalettePolicy::QPalettePolicy(QPalette::ColorRole b) : bg(b)
+{
+    switch (bg) {
+    case QPalette::Button:
+	fg = QPalette::ButtonText;
+	break;
+    case QPalette::Base:
+	fg = QPalette::Text;
+	break;
+    case QPalette::Dark:
+    case QPalette::Shadow:
+	fg = QPalette::Light;
+	break;
+    case QPalette::Highlight:
+	fg = QPalette::HighlightedText;
+	break;
+    default:
+	fg = QPalette::Foreground;
+	break;
+    }
+}
+
+/*!
+    Constructs a default palette policy with a background role of Inherited and foreground
+    role of Foreground.
+*/
+QPalettePolicy::QPalettePolicy() : bg(QPalette::Inherited), fg(QPalette::Foreground) 
+{ 
+}
+
+QPalettePolicy::QPalettePolicy(const QPalettePolicy &p) : bg(p.bg), fg(p.fg) 
+{ 
+}
+
+
+/*!
+    \fn QPalette::ColoreRole QPalettePolicy::foreground() const
+
+    Returns the foreground colore role set in the policy.
+
+    \sa QPalettePolicy::background()
+*/
+
+/*!
+    \fn QPalette::ColoreRole QPalettePolicy::background() const
+
+    Returns the background colore role set in the policy.
+
+    \sa QPalettePolicy::foreground()
+*/
+
+
 /*!
     \class QWidget qwidget.h
     \brief The QWidget class is the base class of all user interface objects.
@@ -182,8 +311,8 @@ QWidgetPrivate::~QWidgetPrivate()
 	setFont(),
 	palette(),
 	setPalette(),
-	backgroundMode(),
-	setBackgroundMode(),
+	backgroundPolicy(),
+	setBackgroundPolicy(),
 	fontMetrics(),
 	fontInfo().
 
@@ -728,7 +857,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     in_show_maximized = 0;
     im_enabled = FALSE;
 #ifndef QT_NO_PALETTE
-    bg_col = pal.color(QPalette::Active, QPalette::Background); 	// default background color
+    d->bg_brush = pal.brush(QPalette::Active, QPalette::Background); 	// default background color
 #endif
     create();					// platform-dependent init
 #ifndef QT_NO_PALETTE
@@ -741,7 +870,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 #endif // Q_WS_X11
 
     if ( !isDesktop() )
-	setBackgroundFromMode(); //### parts of this are done in create but not all (see reparent(...) )
+	d->setBackgroundBrush(background()); //### parts of this are done in create but not all (see reparent(...) )
     if ( isTopLevel() ) {
 	setWState(WState_Hidden);
 	d->createTLExtra();
@@ -802,7 +931,7 @@ QWidget::QWidget( QWidgetPrivate *dd, QWidget* parent, const char* name, WFlags 
     in_show_maximized = 0;
     im_enabled = FALSE;
 #ifndef QT_NO_PALETTE
-    bg_col = pal.color(QPalette::Active, QPalette::Background);		// default background color
+    d->bg_brush = pal.brush(QPalette::Active, QPalette::Background);		// default background color
 #endif
     create();					// platform-dependent init
 #ifndef QT_NO_PALETTE
@@ -815,7 +944,7 @@ QWidget::QWidget( QWidgetPrivate *dd, QWidget* parent, const char* name, WFlags 
 #endif // Q_WS_X11
 
     if ( !isDesktop() )
-	setBackgroundFromMode(); //### parts of this are done in create but not all (see reparent(...) )
+	d->setBackgroundBrush(background()); //### parts of this are done in create but not all (see reparent(...) )
     if ( isTopLevel() ) {
 	setWState(WState_Hidden);
 	d->createTLExtra();
@@ -961,13 +1090,10 @@ void QWidgetPrivate::createExtra()
 	extra = new QWExtra;
 	extra->minw = extra->minh = 0;
 	extra->maxw = extra->maxh = QWIDGETSIZE_MAX;
-	extra->bg_pix = 0;
 #ifndef QT_NO_CURSOR
 	extra->curs = 0;
 #endif
 	extra->topextra = 0;
-	extra->bg_mode = Qt::PaletteBackground;
-	extra->bg_mode_visual = Qt::PaletteBackground;
 	extra->bg_origin = QWidget::WidgetOrigin;
 #ifndef QT_NO_STYLE
 	extra->style = 0;
@@ -987,7 +1113,6 @@ void QWidgetPrivate::createExtra()
 void QWidgetPrivate::deleteExtra()
 {
     if ( extra ) {				// if exists
-	delete extra->bg_pix;
 #ifndef QT_NO_CURSOR
 	delete extra->curs;
 #endif
@@ -1343,7 +1468,7 @@ void QWidget::setEnabled_helper(bool enable)
 	return; // nothing to do
 
     setAttribute(WA_Disabled, !enable);
-    setBackgroundFromMode();
+    d->setBackgroundBrush(background());
     enabledChange(!enable);
 
     if (!enable && focusWidget() == this && (!parentWidget()||parentWidget()->isEnabled()))
@@ -1433,12 +1558,11 @@ void QWidget::windowActivationChange( bool )
     for(int role=0; role < (int)QPalette::NColorRoles; role++) {
 	if(pal.brush(QPalette::Active, (QPalette::ColorRole)role) != 
 	   pal.brush(QPalette::Inactive, (QPalette::ColorRole)role)) {
-	    BackgroundMode bm = backgroundMode();
-	    QPalette::ColorRole trans_role = QPalette::backgroundRoleFromMode(bm);
-	    if ( bm > NoBackground && 
-		 (role == trans_role || (role < trans_role && pal.brush(QPalette::Active, trans_role) != 
-					 pal.brush(QPalette::Inactive, trans_role ))))
-		setBackgroundFromMode();
+	    QPalette::ColorRole bg_role = pal_policy.background();
+	    if ( !testAttribute(WA_NoErase) && bg_role < QPalette::NColorRoles && 
+		 (role == bg_role || (role < bg_role && pal.brush(QPalette::Active, bg_role) != 
+					 pal.brush(QPalette::Inactive, bg_role ))))
+		d->setBackgroundBrush(background());
 	    else if(role <= QPalette::Shadow) 
 		update();
 	    break;
@@ -1983,470 +2107,233 @@ QWidget *QWidget::topLevelWidget() const
 
 
 /*!
-    \property QWidget::paletteForegroundColor
+    \property QWidget::foreground
     \brief the foreground color of the widget
 
-    setPaletteForegroundColor() is a convenience function that creates
-    and sets a modified QPalette with setPalette(). The palette is
-    modified according to the widget's \e {background mode}. For
-    example, if the background mode is \c PaletteButton the palette entry
-    \c QPalette::ButtonText is set to color.
-
-    \sa setPalette() QApplication::setPalette() backgroundMode()
-      foregroundColor() setBackgroundMode() setEraseColor()
+    \sa background palette QApplication::setPalette() palettePolicy
 */
-const QColor &QWidget::paletteForegroundColor() const
+const QColor &QWidget::foreground() const
 {
-#ifndef QT_NO_PALETTE
-    BackgroundMode mode = d->extra ? (BackgroundMode) d->extra->bg_mode_visual : PaletteBackground;
-    return palette().color( QPalette::foregroundRoleFromMode(mode) );
-#else
-    return Qt::black;
-#endif
-}
-
-void QWidget::setPaletteForegroundColor( const QColor & color )
-{
-#ifndef QT_NO_PALETTE
-    BackgroundMode mode = d->extra ? (BackgroundMode) d->extra->bg_mode_visual : PaletteBackground;
-    QPalette pal = palette();
-    QPalette::ColorRole role = QPalette::foregroundRoleFromMode( mode );
-    pal.setColor( QPalette::Active, role, color );
-    pal.setColor( QPalette::Inactive, role, color );
-    pal.setColor( QPalette::Disabled, role, color );
-    setPalette( pal );
-#endif
-}
-
-
-/*!
-    Same as paletteForegroundColor()
- */
-const QColor &QWidget::foregroundColor() const
-{
-    return paletteForegroundColor();
-}
-
-
-/*!
-    \fn const QColor& QWidget::eraseColor() const
-
-    Returns the erase color of the widget.
-
-    \sa setEraseColor() setErasePixmap() backgroundColor()
-*/
-
-/*!
-    Sets the erase color of the widget to \a color.
-
-    The erase color is the color the widget is to be cleared to before
-    paintEvent() is called. If there is an erase pixmap (set using
-    setErasePixmap()), then this property has an indeterminate value.
-
-    \sa erasePixmap(), backgroundColor(), backgroundMode(), palette()
-*/
-void QWidget::setEraseColor( const QColor & color )
-{
-    setBackgroundModeDirect( FixedColor );
-    setBackgroundColorDirect( color );
-    update();
-}
-
-/*!
-    Returns the widget's erase pixmap.
-
-    \sa setErasePixmap() eraseColor()
-*/
-const QPixmap *QWidget::erasePixmap() const
-{
-    return ( d->extra && d->extra->bg_pix ) ? d->extra->bg_pix : 0;
-}
-
-/*!
-    Sets the widget's erase pixmap to \a pixmap.
-
-    This pixmap is used to clear the widget before paintEvent() is
-    called.
-*/
-void QWidget::setErasePixmap( const QPixmap &pixmap )
-{
-    // This function is called with a null pixmap by setBackgroundEmpty().
-    setBackgroundPixmapDirect( pixmap );
-    setBackgroundModeDirect( FixedPixmap );
-    update();
-}
-
-void QWidget::setBackgroundFromMode()
-{
-#ifndef QT_NO_PALETTE
-    QPalette::ColorRole r = QPalette::Background;
-    if ( d->extra ) {
-	int i = (BackgroundMode)d->extra->bg_mode;
-	if ( i == FixedColor || i == FixedPixmap || i == NoBackground ) {
-	    // Mode is for fixed color, not one based on palette,
-	    // so nothing to do.
-	    return;
-	}
-	switch( i ) {
-	case PaletteForeground:
-	    r = QPalette::Foreground;
-	    break;
-	case PaletteButton:
-	    r = QPalette::Button;
-	    break;
-	case PaletteLight:
-	    r = QPalette::Light;
-	    break;
-	case PaletteMidlight:
-	    r = QPalette::Midlight;
-	    break;
-	case PaletteDark:
-	    r = QPalette::Dark;
-	    break;
-	case PaletteMid:
-	    r = QPalette::Mid;
-	    break;
-	case PaletteText:
-	    r = QPalette::Text;
-	    break;
-	case PaletteBrightText:
-	    r = QPalette::BrightText;
-	    break;
-	case PaletteBase:
-	    r = QPalette::Base;
-	    break;
-	case PaletteBackground:
-	    r = QPalette::Background;
-	    break;
-	case PaletteShadow:
-	    r = QPalette::Shadow;
-	    break;
-	case PaletteHighlight:
-	    r = QPalette::Highlight;
-	    break;
-	case PaletteHighlightedText:
-	    r = QPalette::HighlightedText;
-	    break;
-	case PaletteButtonText:
-	    r = QPalette::ButtonText;
-	    break;
-	case X11ParentRelative:
-#if defined(Q_WS_X11)
-	    d->setBackgroundX11Relative();
-#endif
-	    return;
-	}
+    const QWidget *w = this;
+    QPalette::ColorRole role = pal_policy.foreground();
+    if(role == QPalette::Inherited) {
+	w = findInheritedPalettePolicyWidget();
+	role = w->pal_policy.foreground();
+	if(role == QPalette::Inherited)
+	    role = QPalette::Foreground; 
     }
-    QBrush brush = palette().brush(r);
-    if ( brush.pixmap() )
-	setBackgroundPixmapDirect( *brush.pixmap() );
-    else
-	setBackgroundColorDirect( brush.color() );
-#endif
+    if(role == QPalette::Overridden)
+	return w->d->fg_color;
+    return w->palette().color( role );
+}
+
+void QWidget::setForeground(const QColor &color)
+{
+    d->fg_color = color;
+    setPalettePolicy(QPalettePolicy(pal_policy.background(), QPalette::Overridden));
 }
 
 /*!
-    \enum Qt::BackgroundMode
+    \property QWidget::background
+    \brief the background color of the widget
 
-    This enum describes how the background of a widget changes, as the
-    widget's palette changes.
-
-    The background is what the widget contains when \link
-    QWidget::paintEvent() paintEvent()\endlink is called. To minimize
-    flicker, this should be the most common color or pixmap in the
-    widget. For \c PaletteBackground, use palette().brush( \c
-    QPalette::Background ), and so on. There are also three special
-    values, listed at the end:
-
-    \value PaletteForeground
-    \value PaletteBackground
-    \value PaletteButton
-    \value PaletteLight
-    \value PaletteMidlight
-    \value PaletteDark
-    \value PaletteMid
-    \value PaletteText
-    \value PaletteBrightText
-    \value PaletteButtonText
-    \value PaletteBase
-    \value PaletteShadow
-    \value PaletteHighlight
-    \value PaletteHighlightedText
-    \value NoBackground the widget is not cleared before paintEvent().
-    If the widget's paint event always draws on all the pixels, using
-    this mode can be both fast and flicker-free.
-    \value FixedColor the widget is cleared to a fixed color, normally
-    different from all the ones in the palette(). Set using \link
-    QWidget::setPaletteBackgroundColor()
-    setPaletteBackgroundColor()\endlink.
-    \value FixedPixmap the widget is cleared to a fixed pixmap,
-    normally different from all the ones in the palette(). Set using
-    \link QWidget::setPaletteBackgroundPixmap()
-    setPaletteBackgroundPixmap()\endlink.
-    \value PaletteLink
-    \value PaletteLinkVisited
-    \value X11ParentRelative (internal use only)
-
-    Although \c FixedColor and \c FixedPixmap are sometimes just
-    right, if you use them, make sure that you test your application
-    when the desktop color scheme has been changed. (On X11, a quick
-    way to test this is e.g. "./myapp -bg paleblue". On Windows, you
-    must use the control panel.)
-
-    \sa QWidget::setBackgroundMode() QWidget::backgroundMode()
-    QWidget::setBackgroundPixmap() QWidget::setPaletteBackgroundColor()
+    \sa foreground palette QApplication::setPalette() palettePolicy
 */
+const QBrush &QWidget::background() const
+{
+    const QWidget *w = this;
+    QPalette::ColorRole role = pal_policy.background();
+    if(role == QPalette::Inherited) {
+	w = findInheritedPalettePolicyWidget();
+	role = w->pal_policy.background();
+	if(role == QPalette::Inherited)
+	    role = QPalette::Background; 
+    }
+    if(role == QPalette::Overridden)
+	return w->d->bg_brush;
+    return w->palette().brush(role);
+}
+
+void QWidget::setBackground(const QBrush &brush)
+{
+    d->bg_brush = brush;
+    d->setBackgroundBrush(brush);
+    setPalettePolicy(QPalettePolicy(QPalette::Overridden, pal_policy.foreground()));
+}
 
 /*!
-    \property QWidget::backgroundMode
-    \brief the color role used for painting the background of the widget
+    Sets the window-system background of the widget to nothing.
 
-    setPaletteBackgroundColor() reads this property to determine which
-    entry of the \link QWidget::palette palette\endlink to set.
+    Note that "nothing" is actually a pixmap that isNull(), thus you
+    can check for an empty background by checking backgroundPixmap().
 
-    For most widgets the default suffices (\c PaletteBackground,
-    typically gray), but some need to use \c PaletteBase (the
-    background color for text output, typically white) or another
-    role.
-
-    QListBox, which is "sunken" and uses the base color to contrast
-    with its environment, does this in its constructor:
-
-    \code
-    setBackgroundMode( PaletteBase );
-    \endcode
-
-    You will never need to set the background mode of a built-in
-    widget in Qt, but you might consider setting it in your custom
-    widgets, so that setPaletteBackgroundColor() works as expected.
-
-    Note that two of the BackgroundMode values make no sense for
-    setBackgroundMode(), namely \c FixedPixmap and \c FixedColor. You
-    must call setBackgroundPixmap() and setPaletteBackgroundColor()
-    instead.
+    \sa setBackgroundPixmap(), setBackgroundColor()
 */
+void QWidget::setBackgroundEmpty()
+{
+    setBackground(QBrush());
+}
+
+#ifndef QT_NO_COMPAT
 Qt::BackgroundMode QWidget::backgroundMode() const
 {
-    return d->extra ? (BackgroundMode) d->extra->bg_mode : PaletteBackground;
+    if(testAttribute(WA_NoErase))
+	return NoBackground;
+    switch(pal_policy.background()) {
+    case QPalette::Overridden:
+	if(d->bg_brush.pixmap())
+	    return FixedPixmap;
+	return FixedColor;
+    case QPalette::Foreground:
+	return PaletteForeground;
+    case QPalette::Button:
+	return PaletteButton;
+    case QPalette::Light:
+	return PaletteLight;
+    case QPalette::Midlight:
+	return PaletteMidlight;
+    case QPalette::Dark:
+	return PaletteDark;
+    case QPalette::Mid:
+	return PaletteMid;
+    case QPalette::Text:
+	return PaletteText;
+    case QPalette::BrightText:
+	return PaletteBrightText;
+    case QPalette::Base:
+	return PaletteBase;
+    case QPalette::Background:
+	return PaletteBackground;
+    case QPalette::Shadow:
+	return PaletteShadow;
+    case QPalette::Highlight:
+	return PaletteHighlight;
+    case QPalette::HighlightedText:
+	return PaletteHighlightedText;
+    case QPalette::ButtonText:
+	return PaletteButtonText;
+    case QPalette::Link:
+	return PaletteLink;
+    case QPalette::LinkVisited:
+	return PaletteLinkVisited;
+    case QPalette::Inherited:
+	return X11ParentRelative;
+    default:
+	break;
+    }
+    return NoBackground;
 }
 
 void QWidget::setBackgroundMode( BackgroundMode m )
 {
-    setBackgroundMode( m, m );
-    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) ==
-	 WState_Visible )
+    if(m == NoBackground) {
+	setAttribute(WA_NoErase, true);
+	return;
+    }
+    setAttribute(WA_NoErase, false);
+    QPalette::ColorRole role;
+    switch(m) {
+    case FixedColor:
+    case FixedPixmap:
+	role = QPalette::Overridden;
+	break;
+    case PaletteForeground:
+	role = QPalette::Foreground;
+	break;
+    case PaletteButton:
+	role = QPalette::ButtonText;
+	break;
+    case PaletteLight:
+	role = QPalette::Light;
+	break;
+    case PaletteMidlight:
+	role = QPalette::Midlight;
+	break;
+    case PaletteDark:
+	role = QPalette::Dark;
+	break;
+    case PaletteMid:
+	role = QPalette::Mid;
+	break;
+    case PaletteText:
+	role = QPalette::Text;
+	break;
+    case PaletteBrightText:
+	role = QPalette::BrightText;
+	break;
+    case PaletteBase:
+	role = QPalette::Base;
+	break;
+    case PaletteBackground:
+	role = QPalette::Background;
+	break;
+    case PaletteShadow:
+	role = QPalette::Shadow;
+	break;
+    case PaletteHighlight:
+	role = QPalette::Highlight;
+	break;
+    case PaletteHighlightedText:
+	role = QPalette::HighlightedText;
+	break;
+    case PaletteButtonText:
+	role = QPalette::ButtonText;
+	break;
+    case PaletteLink:
+	role = QPalette::Link;
+	break;
+    case PaletteLinkVisited:
+	role = QPalette::LinkVisited;
+	break;
+    case X11ParentRelative:
+	role = QPalette::Inherited;
+	break;
+    default:
+	break;
+    }
+    setPalettePolicy(QPalettePolicy(role));
+    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible )
 	update();
 }
-
+#endif
 
 /*!
-    \overload
+    \property QWidget::palettePolicy
+    \brief the QPalettePolicy used for finding the background of the widget
 
-    Sets the widget's own background mode to \a m and the visual
-    background mode to \a visual. The visual background mode is used
-    with the designable properties \c backgroundColor, \c
-    foregroundColor and \c backgroundPixmap.
+    setPaletteBackgroundColor() reads this property to determine which
+    entry of the \link QWidget::palette palette\endlink to set.
 
-    For complex controls, the logical background mode sometimes
-    differs from a widget's own background mode. A spinbox for example
-    has \c PaletteBackground as background mode (typically dark gray),
-    while it's embedded lineedit control uses \c PaletteBase
-    (typically white). Since the lineedit covers most of the visual
-    area of a spinbox, it defines \c PaletteBase to be its \a visual
-    background mode. Changing the \c backgroundColor property thus
-    changes the lineedit control's background, which is exactly what
-    the user expects in \e{Qt Designer}.
-*/
-void QWidget::setBackgroundMode( BackgroundMode m, BackgroundMode visual )
-{
-    if ( m == NoBackground ) {
-	setBackgroundEmpty();
-    } else if ( m == FixedColor || m == FixedPixmap ) {
-#if defined(QT_DEBUG)
-	qWarning( "QWidget::setBackgroundMode: FixedColor or FixedPixmap makes"
-		  " no sense" );
-#endif
-	return;
-    }
-    setBackgroundModeDirect(m);
-    if ( m != visual && !d->extra )
-	d->createExtra();
-    if ( d->extra )
-	d->extra->bg_mode_visual = visual;
+    For most widgets the default suffices (\c QPalette::Inherited,
+    QPalette::Foreground), but some need to use \c PaletteBase (the
+    background color for text output, typically white) or another
+    role.
+
+    You will never need to set the palette policy of a built-in widget
+    in Qt, but you might consider setting it in your custom widgets,
+    so that setPaletteBackgroundColor() works as expected.
+
+    Note that setting the palette policy to QPalette::Overridden makes
+    no sense for setPalettePolicy(). You must call
+    setBackgroundPixmap() and setPaletteBackgroundColor() instead.
+*/  
+
+void QWidget::setPalettePolicy(const QPalettePolicy &pp)
+{ 
+    pal_policy = pp;
+    d->propagatePaletteChange();
 }
 
-
-/*!
-  \internal
-*/
-void QWidget::setBackgroundModeDirect( BackgroundMode m )
+/*!\internal
+ */
+const QWidget *QWidget::findInheritedPalettePolicyWidget() const
 {
-    if ( m == PaletteBackground && !d->extra )
-	return;
-
-    d->createExtra();
-    if ( (BackgroundMode)d->extra->bg_mode != m ) {
-	d->extra->bg_mode = m;
-	d->extra->bg_mode_visual = m;
-	setBackgroundFromMode();
+    for(const QWidget *w = this; w; w = w->parentWidget(TRUE)) {
+	if(w->testWFlags(WType_TopLevel|WSubWindow) || 
+	   !w->palettePolicy().background() == QPalette::Inherited)
+	    return w;
     }
-}
-
-/*!
-    \property QWidget::paletteBackgroundColor
-    \brief the background color of the widget
-
-    The palette background color is usually set implicitly by
-    setBackgroundMode(), although it can also be set explicitly by
-    setPaletteBackgroundColor(). setPaletteBackgroundColor() is a
-    convenience function that creates and sets a modified QPalette
-    with setPalette(). The palette is modified according to the
-    widget's background mode. For example, if the background mode is
-    \c PaletteButton the color used for the palette's \c
-    QPalette::Button color entry is set.
-
-    If there is a background pixmap (set using
-    setPaletteBackgroundPixmap()), then the return value of this
-    function is indeterminate.
-
-    \sa paletteBackgroundPixmap, paletteForegroundColor, palette
-*/
-const QColor & QWidget::paletteBackgroundColor() const
-{
-#ifndef QT_NO_PALETTE
-    BackgroundMode mode = d->extra ? (BackgroundMode) d->extra->bg_mode_visual : PaletteBackground;
-    switch( mode ) {
-    case FixedColor:
-    case FixedPixmap :
-    case NoBackground:
-    case X11ParentRelative:
-	return eraseColor();
-    default:
-	QPalette::ColorRole role = QPalette::backgroundRoleFromMode( mode );
-	return palette().color( role );
-    }
-#else
-    return eraseColor();
-#endif
-}
-
-void QWidget::setPaletteBackgroundColor( const QColor &color )
-{
-#ifndef QT_NO_PALETTE
-    BackgroundMode mode = d->extra ? (BackgroundMode) d->extra->bg_mode_visual : PaletteBackground;
-    switch( mode ) {
-    case FixedColor:
-    case FixedPixmap :
-    case NoBackground:
-    case X11ParentRelative:
-	setEraseColor( color );
-	break;
-    default:
-	QPalette pal = palette();
-	QPalette::ColorRole role = QPalette::backgroundRoleFromMode( mode );
-	pal.setColor( QPalette::Active, role, color );
-	pal.setColor( QPalette::Inactive, role, color );
-	pal.setColor( QPalette::Disabled, role, color );
-	setPalette( pal );
-	break;
-    }
-#else
-    setEraseColor( color );
-#endif
-}
-
-
-/*!
-    \property QWidget::paletteBackgroundPixmap
-    \brief the background pixmap of the widget
-
-    The palette background pixmap is usually set implicitly by
-    setBackgroundMode(), although it can also be set explicitly by
-    setPaletteBackgroundPixmap(). setPaletteBackgroundPixmap() is a
-    convenience function that creates and sets a modified QPalette
-    with setPalette(). The palette is modified according to the
-    widget's background mode. For example, if the background mode is
-    \c PaletteButton the pixmap used for the palette's
-    \c QPalette::Button color entry is set.
-
-    If there is a plain background color (set using
-    setPaletteBackgroundColor()), then this function returns 0.
-
-    \sa paletteBackgroundColor, paletteForegroundColor, palette
-*/
-const QPixmap *QWidget::paletteBackgroundPixmap() const
-{
-#ifndef QT_NO_PALETTE
-    BackgroundMode mode = d->extra ? (BackgroundMode) d->extra->bg_mode_visual : PaletteBackground;
-    switch( mode ) {
-    case FixedColor:
-    case FixedPixmap :
-    case NoBackground:
-    case X11ParentRelative:
-	return erasePixmap();
-    default:
-	QPalette::ColorRole role = QPalette::backgroundRoleFromMode( mode );
-	return palette().brush( QPalette::Active, role ).pixmap();
-    }
-#else
-    return erasePixmap();
-#endif
-}
-
-void QWidget::setPaletteBackgroundPixmap( const QPixmap &pixmap )
-{
-#ifndef QT_NO_PALETTE
-    BackgroundMode mode = d->extra ? (BackgroundMode) d->extra->bg_mode_visual : PaletteBackground;
-    switch( mode ) {
-    case FixedColor:
-    case FixedPixmap :
-    case NoBackground:
-    case X11ParentRelative:
-	setErasePixmap( pixmap );
-	break;
-    default:
-	QPalette pal = palette();
-	QPalette::ColorRole role = QPalette::backgroundRoleFromMode( mode );
-	pal.setBrush( QPalette::Active, role, QBrush( pal.color( QPalette::Active, role ), pixmap ) );
-	pal.setBrush( QPalette::Inactive, role, QBrush( pal.color( QPalette::Inactive, role ), pixmap ) );
-	pal.setBrush( QPalette::Disabled, role, QBrush( pal.color( QPalette::Disabled, role ), pixmap ) );
-	setPalette( pal );
-	break;
-    }
-#else
-    setErasePixmap( pixmap );
-#endif
-}
-
-
-/*!
-    \property QWidget::backgroundBrush
-    \brief the widget's background brush
-
-    The background brush depends on a widget's palette and its
-    background mode.
-
-    \sa backgroundColor(), backgroundPixmap(), eraseColor(),  palette,
-    QApplication::setPalette()
-*/
-const QBrush& QWidget::backgroundBrush() const
-{
-    static QBrush noBrush;
-#ifndef QT_NO_PALETTE
-    BackgroundMode mode = d->extra ? (BackgroundMode) d->extra->bg_mode_visual : PaletteBackground;
-    switch( mode ) {
-    case FixedColor:
-    case FixedPixmap :
-    case NoBackground:
-    case X11ParentRelative:
-	return noBrush;
-    default:
-	QPalette::ColorRole role = QPalette::backgroundRoleFromMode( mode );
-	return palette().brush( role );
-    }
-#else
-    return noBrush;
-#endif
+    return NULL;
 }
 
 #ifndef QT_NO_PALETTE
@@ -2486,19 +2373,8 @@ void QWidget::setPalette( const QPalette &palette )
 	return;
     QPalette old = pal;
     pal = palette;
-    setBackgroundFromMode();
-    QEvent ev( QEvent::PaletteChange );
-    QApplication::sendEvent( this, &ev );
-    if ( !d->children.isEmpty() ) {
-	QEvent e( QEvent::ParentPaletteChange );
-	for (int i = 0; i < d->children.size(); ++i) {
-	    QObject *o = d->children.at(i);
-	    if ( o->isWidgetType() )
-		QApplication::sendEvent( o, &e );
-	}
-    }
-    paletteChange( old );
-    update();
+    d->setBackgroundBrush(background());
+    d->propagatePaletteChange();
 }
 
 void QWidget::unsetPalette()
@@ -4271,22 +4147,23 @@ bool QWidget::event( QEvent *e )
 		unsetFont();
 	    break;
 
-#ifndef QT_NO_PALETTE
 	case QEvent::ParentPaletteChange:
-	    if ( isTopLevel() )
+	    if(isTopLevel())
 		break;
-	    // fall through
-	case QEvent::ApplicationPaletteChange:
-	    if ( !own_palette && !isDesktop() )
-		unsetPalette();
-# if defined(Q_WS_QWS) && !defined (QT_NO_QWS_MANAGER)
-	    if ( isTopLevel() && d->topData()->qwsManager ) {
-		QRegion r( d->topData()->qwsManager->region() );
-		QApplication::postEvent(d->topData()->qwsManager, new QPaintEvent(r, FALSE) );
-	    }
-# endif
+	    if(!own_palette)
+		pal = qt_naturalWidgetPalette(this);
+	    d->setBackgroundBrush(background());
+	    d->propagatePaletteChange();
 	    break;
-#endif
+
+	case QEvent::ApplicationPaletteChange:
+	    if (!own_palette && !isDesktop())
+		unsetPalette();
+	    break;
+
+	case QEvent::PaletteChange:
+	    update();
+	    break;
 
 	case QEvent::WindowActivate:
 	case QEvent::WindowDeactivate:
@@ -4642,9 +4519,9 @@ void QWidget::leaveEvent( QEvent * )
     are a couple of exceptions and QPaintEvent::erased() tells you
     whether the widget has been erased or not.
 
-    The background can be set using setBackgroundMode(),
+    The background can be set using setPalettePolicy(),
     setPaletteBackgroundColor() or setBackgroundPixmap(). The
-    documentation for setBackgroundMode() elaborates on the
+    documentation for setPalettePolicy() elaborates on the
     background; we recommend reading it.
 
     \sa event(), repaint(), update(), QPainter, QPixmap, QPaintEvent
@@ -5051,7 +4928,7 @@ void QWidget::setAutoMask( bool enable )
     seamlessly when an ancestor of the widget has an origin other than
     \c QWindowOrigin.
 
-    \sa backgroundPixmap(), setBackgroundMode()
+    \sa backgroundPixmap(), setPalettePolicy()
 */
 QWidget::BackgroundOrigin QWidget::backgroundOrigin() const
 {
@@ -5082,7 +4959,7 @@ void QWidget::updateMask()
   \internal
   Returns the offset of the widget from the backgroundOrigin.
 
-  \sa setBackgroundMode(), backgroundMode(),
+  \sa setPalettePolicy(), palettePolicy(),
 */
 QPoint QWidget::backgroundOffset() const
 {
@@ -5487,22 +5364,6 @@ void QWidget::drawText(const QPoint &p, const QString &str)
     QPainter paint(this);
     paint.drawText(p.x(), p.y(), str);
 }
-
-/*! \fn const QColor & QWidget::backgroundColor() const
-  \obsolete  Use paletteBackgroundColor() or eraseColor() instead.
-*/
-
-/*! \fn void QWidget::setBackgroundColor( const QColor &c )
-  \obsolete  Use setPaletteBackgroundColor() or setEraseColor() instead.
-*/
-
-/*! \fn const QPixmap *QWidget::backgroundPixmap() const
-  \obsolete  Use paletteBackgroundPixmap()  or erasePixmap() instead.
-*/
-
-/*! void QWidget::setBackgroundPixmap( const QPixmap &pm )
-  \obsolete  Use setPaletteBackgroundPixmap() or setErasePixmap() instead.
-*/
 
 /*!
     \enum QWidget::WidgetAttribute

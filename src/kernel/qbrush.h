@@ -27,6 +27,7 @@ public:
     QBrush(BrushStyle bs);
     QBrush(const QColor &color, BrushStyle bs=SolidPattern);
     QBrush(const QColor &color, const QPixmap &pixmap);
+    QBrush(const QPixmap &pixmap);
     QBrush(const QBrush &brush);
     ~QBrush();
     QBrush &operator=(const QBrush &brush);

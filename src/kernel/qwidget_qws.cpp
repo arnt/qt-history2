@@ -374,8 +374,7 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
     bool     enable = isEnabled();		// remember status
     FocusPolicy fp = focusPolicy();
     QSize    s	    = size();
-    //QPixmap *bgp    = (QPixmap *)backgroundPixmap();
-    //QColor   bgc    = bg_col;			// save colors
+    //QBrush   bgc    = background();			// save colors
 #ifndef QT_NO_WIDGET_TOPEXTRA
     QString capt= caption();
 #endif
@@ -384,12 +383,6 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
     create();
     if ( isTopLevel() || (!parent || parent->isVisible() ) )
 	setWState(WState_Hidden);
-    /*
-    if ( bgp )
-	XSetWindowBackgroundPixmap( dpy, winid, bgp->handle() );
-    else
-	XSetWindowBackground( dpy, winid, bgc.pixel() );
-    */
     setGeometry( p.x(), p.y(), s.width(), s.height() );
     setEnabled( enable );
     setFocusPolicy( fp );
@@ -455,54 +448,8 @@ void QWidget::setFontSys( QFont * )
 {
 }
 
-
-void QWidget::setBackgroundColorDirect( const QColor &color )
+void QWidgetPrivate::setBackgroundBrush( const QBrush &brush )
 {
-    bg_col = color;
-    if ( d->extra && d->extra->bg_pix ) {		// kill the background pixmap
-	delete d->extra->bg_pix;
-	d->extra->bg_pix = 0;
-    }
-    // XXX XSetWindowBackground( x11Display(), winId(), bg_col.pixel() );
-}
-
-static int allow_null_pixmaps = 0;
-
-
-void QWidget::setBackgroundPixmapDirect( const QPixmap &pixmap )
-{
-    QPixmap old;
-    if ( d->extra && d->extra->bg_pix )
-	old = *d->extra->bg_pix;
-    if ( !allow_null_pixmaps && pixmap.isNull() ) {
-	// XXX XSetWindowBackground( x11Display(), winId(), bg_col.pixel() );
-	if ( d->extra && d->extra->bg_pix ) {
-	    delete d->extra->bg_pix;
-	    d->extra->bg_pix = 0;
-	}
-    } else {
-	QPixmap pm = pixmap;
-	if (!pm.isNull()) {
-	    if ( pm.depth() == 1 && QPixmap::defaultDepth() > 1 ) {
-		pm = QPixmap( pixmap.size() );
-		bitBlt( &pm, 0, 0, &pixmap, 0, 0, pm.width(), pm.height() );
-	    }
-	}
-	if ( d->extra && d->extra->bg_pix )
-	    delete d->extra->bg_pix;
-	else
-	    d->createExtra();
-	d->extra->bg_pix = new QPixmap( pm );
-	// XXX XSetWindowBackgroundPixmap( x11Display(), winId(), pm.handle() );
-    }
-}
-
-
-void QWidget::setBackgroundEmpty()
-{
-    allow_null_pixmaps++;
-    setErasePixmap(QPixmap());
-    allow_null_pixmaps--;
 }
 
 #ifndef QT_NO_CURSOR
@@ -1171,7 +1118,7 @@ void QWidget::setBaseSize( int basew, int baseh )
 
 void QWidget::erase( int x, int y, int w, int h )
 {
-    if ( backgroundMode() == NoBackground )
+    if ( testAttribute(WA_NoErase) )
 	return;
 
     erase( QRegion( x, y, w, h ) );
@@ -1181,25 +1128,25 @@ void QWidget::erase( int x, int y, int w, int h )
 void QWidget::erase( const QRegion& reg )
 {
     //this is experimental, I need to test more, but it seems in unclipped mode erasing shouldn't happen????
-    if ( backgroundMode() == NoBackground || testWFlags(WPaintUnclipped) )
+    if ( testAttribute(WA_NoErase) || testWFlags(WPaintUnclipped) )
 	return;
 
     bool unclipped = testWFlags( WPaintUnclipped );
     clearWFlags( WPaintUnclipped );
     QPainter p(this);
     p.setClipRegion( reg );
-    if ( d->extra && d->extra->bg_pix ) {
-	if ( !d->extra->bg_pix->isNull() ) {
+    QBrush bg = background();
+    if ( bg.pixmap() ) {
+	if ( !bg.pixmap()->isNull() ) {
 	    QPoint offset = backgroundOffset();
 	    int xoff = offset.x();
 	    int yoff = offset.y();
 
-	    p.drawTiledPixmap(rect(),*d->extra->bg_pix,
-			      QPoint(xoff%d->extra->bg_pix->width(),
-				     yoff%d->extra->bg_pix->height()));
+	    p.drawTiledPixmap(rect(),*bg.pixmap(),
+			      QPoint(xoff%d->bg.pixmap()->width(), yoff%d->bg.pixmap()->height()));
 	}
     } else {
-	p.fillRect(rect(),bg_col);
+	p.fillRect(rect(),bg.color());
     }
     if ( unclipped )
 	setWFlags( WPaintUnclipped );

@@ -764,8 +764,8 @@ void QLabel::drawContents( QPainter *p )
 	// background mode PaletteBackground, so we create a temporary
 	// color group with the text color adjusted.
 	QPalette pal = palette();
-	if ( backgroundMode() != PaletteBase && isEnabled() )
-	    pal.setColor( QPalette::Text, paletteForegroundColor() );
+	if ( palettePolicy().foreground() != QPalette::Text && isEnabled() )
+	    pal.setColor( QPalette::Foreground, paletteForegroundColor() );
 	doc->draw(p, cr.x(), cr.y()+yo, cr, pal, 0);
     } else
 #endif

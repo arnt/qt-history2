@@ -88,7 +88,6 @@ struct QTLWExtra {
 struct QWExtra {
     Q_INT16  minw, minh;			// minimum size
     Q_INT16  maxw, maxh;			// maximum size
-    QPixmap *bg_pix;				// background pixmap
     QWidgetPointer focus_proxy;
 #ifndef QT_NO_CURSOR
     QCursor *curs;
@@ -119,17 +118,12 @@ struct QWExtra {
 #if defined(Q_WS_QWS) || defined(Q_WS_MAC)
     QRegion mask;				// widget mask
 #endif
-    char     bg_mode;				// background mode
-    char     bg_mode_visual;			// visual background mode
 #ifndef QT_NO_STYLE
     QStyle* style;
 #endif
     QRect micro_focus_hint;			// micro focus hint
     QSizePolicy size_policy;
 };
-
-
-
 
 struct QWidgetPrivate : public QObjectPrivate
 {
@@ -154,18 +148,21 @@ public:
     void deleteSysExtra();
     void createTLSysExtra();
     void deleteTLSysExtra();
+    void setBackgroundBrush(const QBrush &);
+    void propagatePaletteChange();
 
 #if defined(Q_WS_X11)
     void createInputContext();
     void destroyInputContext();
     void focusInputContext();
     void checkChildrenDnd();
-    void setBackgroundX11Relative();
 #endif
 
     QWExtra *extra;
     QWidget *focus_next;
     QWidget *focus_child;
+    QColor fg_color;
+    QBrush bg_brush;
 
 #ifndef QT_NO_LAYOUT
     QLayout *layout;

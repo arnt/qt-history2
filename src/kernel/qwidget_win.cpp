@@ -125,21 +125,12 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     if ( !window )				// always initialize
 	initializeWindow = TRUE;
 
-    if ( popup ) {
+    if ( popup ) 
 	setWFlags(WStyle_StaysOnTop); // a popup stays on top
-    }
-
 
     if ( sw < 0 ) {				// get the (primary) screen size
 	sw = GetSystemMetrics( SM_CXSCREEN );
 	sh = GetSystemMetrics( SM_CYSCREEN );
-    }
-
-    if ( window ) {
-	// There's no way we can know the background color of the
-	// other window because it could be cleared using the WM_ERASEBKND
-	// message.  Therefore we assume white.
-	bg_col = white;
     }
 
     if ( dialog || popup || desktop ) {		// these are top-level, too
@@ -539,46 +530,9 @@ void QWidget::resetInputContext()
     QInputContext::accept();
 }
 
-void QWidget::setBackgroundColorDirect( const QColor &color )
+void QWidgetPrivate::setBackgroundBrush( const QBrush &brush )
 {
-    bg_col = color;
-    if ( d->extra && d->extra->bg_pix ) {		// kill the background pixmap
-	delete d->extra->bg_pix;
-	d->extra->bg_pix = 0;
-    }
 }
-
-
-static int allow_null_pixmaps = 0;
-
-
-void QWidget::setBackgroundPixmapDirect( const QPixmap &pixmap )
-{
-    QPixmap old;
-    if ( d->extra && d->extra->bg_pix )
-	old = *d->extra->bg_pix;
-    if ( !allow_null_pixmaps && pixmap.isNull() ) {
-	if ( d->extra && d->extra->bg_pix ) {
-	    delete d->extra->bg_pix;
-	    d->extra->bg_pix = 0;
-	}
-    } else {
-	if ( d->extra && d->extra->bg_pix )
-	    delete d->extra->bg_pix;
-	else
-	    d->createExtra();
-	d->extra->bg_pix = new QPixmap( pixmap );
-    }
-}
-
-
-void QWidget::setBackgroundEmpty()
-{
-    allow_null_pixmaps++;
-    setErasePixmap(QPixmap());
-    allow_null_pixmaps--;
-}
-
 
 extern void qt_set_cursor( QWidget *, const QCursor & ); // qapplication_win.cpp
 
@@ -1213,14 +1167,13 @@ void QWidget::setBaseSize( int w, int h )
 }
 
 
-extern void qt_erase_background( HDC, int, int, int, int,
-			 const QColor &, const QPixmap *, int, int );
+extern void qt_erase_background( HDC, int, int, int, int, const QBrush &, int, int );
 
 void QWidget::erase( int x, int y, int w, int h )
 {
     // SIMILAR TO region ERASE BELOW
 
-    if ( backgroundMode()==NoBackground )
+    if ( testAttribute(WA_NoErase) )
 	return;
     if ( w < 0 )
 	w = crect.width() - x;
@@ -1246,7 +1199,7 @@ void QWidget::erase( int x, int y, int w, int h )
     int ox = offset.x();
     int oy = offset.y();
 
-    qt_erase_background( lhdc, x, y, w, h, bg_col, backgroundPixmap(), ox, oy );
+    qt_erase_background( lhdc, x, y, w, h, background(), ox, oy );
 
     if ( tmphdc ) {
 	ReleaseDC( winId(), lhdc );
@@ -1258,7 +1211,7 @@ void QWidget::erase( const QRegion& rgn )
 {
     // SIMILAR TO rect ERASE ABOVE
 
-    if ( backgroundMode()==NoBackground )
+    if ( testAttribute(WA_NoErase) )
 	return;
 
     HDC lhdc;
@@ -1291,8 +1244,8 @@ void QWidget::erase( const QRegion& rgn )
     int ox = offset.x();
     int oy = offset.y();
 
-    qt_erase_background( lhdc, 0, 0, crect.width(), crect.height(), bg_col,
-			 backgroundPixmap(), ox, oy );
+    //#### use background() brush
+    qt_erase_background( lhdc, 0, 0, crect.width(), crect.height(), background(), ox, oy );
     SelectClipRgn( lhdc, hasRegion ? oldRegion : 0 );
     DeleteObject( oldRegion );
     if ( hasRegion )
@@ -1309,7 +1262,7 @@ void QWidget::scroll( int dx, int dy )
     if ( testWState( WState_BlockUpdates ) && !children() )
 	return;
     UINT flags = SW_INVALIDATE | SW_SCROLLCHILDREN;
-    if ( backgroundMode() != NoBackground )
+    if ( !testAttribute(WA_NoErase ))
 	flags |= SW_ERASE;
 
     ScrollWindowEx( winId(), dx, dy, 0, 0, 0, 0, flags );
@@ -1321,7 +1274,7 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
     if ( testWState( WState_BlockUpdates ) )
 	return;
     UINT flags = SW_INVALIDATE;
-    if ( backgroundMode() != NoBackground )
+    if ( !testAttribute(WA_NoErase ))
 	flags |= SW_ERASE;
 
     RECT wr;

@@ -236,7 +236,7 @@ QSGIStyle::polish( QWidget* w )
         w->setMouseTracking( TRUE );
 #ifndef QT_NO_SCROLLBAR
         if ( qt_cast<QScrollBar*>(w) )
-            w->setBackgroundMode( QWidget::NoBackground );
+            w->setAttribute(QWidget::WA_NoErase, true);
 #endif
     } else if ( qt_cast<QComboBox*>(w) ) {
 	QFont f = QApplication::font();

@@ -125,7 +125,7 @@ QWellArray::QWellArray( QWidget *parent, const char * name, bool popup )
     setFocusPolicy( StrongFocus );
     setVScrollBarMode(AlwaysOff);
     setHScrollBarMode(AlwaysOff);
-    viewport()->setBackgroundMode( PaletteBackground );
+    viewport()->setPalettePolicy( QPalette::Background );
     setNumCols( 7 );
     setNumRows( 7 );
     setCellWidth( 24 );
@@ -668,7 +668,7 @@ QColorLuminancePicker::QColorLuminancePicker(QWidget* parent,
 {
     hue = 100; val = 100; sat = 100;
     pix = 0;
-    //    setBackgroundMode( NoBackground );
+    //    setAttribute(WA_NoErase, true);
 }
 
 QColorLuminancePicker::~QColorLuminancePicker()
@@ -770,7 +770,7 @@ QColorPicker::QColorPicker(QWidget* parent, const char* name )
 	}
     pix = new QPixmap;
     pix->convertFromImage(img);
-    setBackgroundMode( NoBackground );
+    setAttribute(WA_NoErase, true);
     setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed )  );
 }
 
@@ -926,7 +926,6 @@ class QColorShowLabel : public QFrame
 public:
     QColorShowLabel( QWidget *parent ) : QFrame( parent, "qt_colorshow_lbl" ) {
 	setFrameStyle( QFrame::Panel|QFrame::Sunken );
-	setBackgroundMode( PaletteBackground );
 	setAcceptDrops( TRUE );
 	mousePressed = FALSE;
     }

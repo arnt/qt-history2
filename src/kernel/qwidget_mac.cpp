@@ -559,7 +559,7 @@ QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef window, RgnHandle rgn
 	    reg.translate(-px.h, -px.v);
 	}
 	//Clear a nobackground widget to make it transparent
-	if(widget->backgroundMode() == Qt::NoBackground) {
+	if(!widget->testAttribute(QWidget::WA_NoErase)) {
 	    CGContextRef ctx;
 	    CGRect r2 = CGRectMake(0, 0, widget->width(), widget->height());
 	    CreateCGContextForPort(GetWindowPort((WindowPtr)widget->handle()), &ctx);
@@ -1112,63 +1112,18 @@ void QWidget::setFontSys(QFont *)
 {
 }
 
-void QWidget::setBackgroundColorDirect(const QColor &color)
+void QWidgetPrivate::setBackgroundBrush( const QBrush &brush )
 {
-    bg_col = color;
-    QWExtra *extra = d->extraData();
-    if(extra && extra->bg_pix) {		// kill the background pixmap
-	delete extra->bg_pix;
-	extra->bg_pix = 0;
-    }
-    if(isTopLevel()) {
-	QMacSavedPortInfo savedInfo(this);
+    if(!brush.pixmap() && q->isTopLevel()) {
+	QMacSavedPortInfo savedInfo(q);
 	RGBColor f;
-	f.red = bg_col.red() * 256;
-	f.green = bg_col.green() * 256;;
-	f.blue = bg_col.blue() * 256;
+	f.red = brush.color().red() * 256;
+	f.green = brush.color().green() * 256;;
+	f.blue = brush.color().blue() * 256;
 	RGBBackColor(&f);
     }
-    update();
 }
 
-static int allow_null_pixmaps = 0;
-void QWidget::setBackgroundPixmapDirect(const QPixmap &pixmap)
-{
-    QPixmap old;
-    QWExtra *extra = d->extraData();
-    if(extra && extra->bg_pix)
-	old = *extra->bg_pix;
-    if(!allow_null_pixmaps && pixmap.isNull()) {
-	if(extra && extra->bg_pix) {
-	    delete extra->bg_pix;
-	    extra->bg_pix = 0;
-	}
-    } else {
-	QPixmap pm = pixmap;
-//	pm.setMask(QBitmap());
-	if(!pixmap.isNull()) {
-	    if(pm.depth() == 1 && QPixmap::defaultDepth() > 1) {
-		pm = QPixmap(pixmap.size());
-		bitBlt(&pm, 0, 0, &pixmap, 0, 0, pm.width(), pm.height());
-	    }
-	}
-	if(extra && extra->bg_pix)
-	    delete extra->bg_pix;
-	else
-	    d->createExtra();
-	d->extraData()->bg_pix = new QPixmap(pm);
-    }
-    update();
-}
-
-void QWidget::setBackgroundEmpty()
-{
-    allow_null_pixmaps++;
-    setErasePixmap(QPixmap());
-    allow_null_pixmaps--;
-    if(isTopLevel())
-	ReshapeCustomWindow((WindowPtr)hd);
-}
 
 void QWidget::setCursor(const QCursor &cursor)
 {
@@ -1873,7 +1828,7 @@ void QWidget::erase(int x, int y, int w, int h)
 
 void QWidget::erase(const QRegion& reg)
 {
-    if(backgroundMode() == NoBackground || isDesktop() || !isVisible())
+    if(testAttribute(WA_NoErase) || isDesktop() || !isVisible())
 	return;
     QRect rr(reg.boundingRect());
     bool unclipped = testWFlags(WPaintUnclipped);
@@ -1882,16 +1837,16 @@ void QWidget::erase(const QRegion& reg)
     if(unclipped)
 	setWFlags(WPaintUnclipped);
     p.setClipRegion(reg);
-    QWExtra *extra = d->extraData();
-    if(extra && extra->bg_pix) {
-	if(!extra->bg_pix->isNull()) {
+    QBrush bg = background();
+    if(bg.pixmap()) {
+	if(!bg.pixmap()->isNull()) {
 	    QPoint offset = backgroundOffset();
-	    p.drawTiledPixmap(rr,*extra->bg_pix,
-			      QPoint(rr.x()+(offset.x()%extra->bg_pix->width()),
-				     rr.y()+(offset.y()%extra->bg_pix->height())));
+	    p.drawTiledPixmap(rr,*bg.pixmap(),
+			      QPoint(rr.x()+(offset.x()%bg.pixmap()->width()),
+				     rr.y()+(offset.y()%bg.pixmap()->height())));
 	}
     } else {
-	p.fillRect(rr, bg_col);
+	p.fillRect(rr, bg.color());
     }
     p.end();
 }

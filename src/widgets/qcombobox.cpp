@@ -474,7 +474,7 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
     d->completionTimer       = new QTimer( this );
 
     setFocusPolicy( TabFocus );
-    setBackgroundMode( PaletteButton );
+    setPalettePolicy(QPalettePolicy(QPalette::Inherited, QPalette::ButtonText));
 }
 
 
@@ -517,7 +517,8 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
     d->ed = 0;
     if ( rw )
 	setUpLineEdit();
-    setBackgroundMode( PaletteButton, PaletteBase );
+
+    setPalettePolicy(QPalettePolicy(QPalette::Inherited, QPalette::ButtonText));
 }
 
 

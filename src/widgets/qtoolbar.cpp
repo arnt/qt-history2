@@ -362,7 +362,7 @@ void QToolBar::init()
     d->extension->button()->setPopupDelay( -1 );
     sw = 0;
 
-    setBackgroundMode( PaletteButton);
+    setPalettePolicy( QPalette::Button);
     setFocusPolicy( NoFocus );
     setFrameStyle( QFrame::ToolBarPanel | QFrame::Raised);
 }

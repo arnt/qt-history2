@@ -836,7 +836,7 @@ public:
 	Sunday = 7
     };
 
-    // documented in qwidget.cpp
+#ifndef QT_NO_COMPAT
     enum BackgroundMode {
 	FixedColor,
 	FixedPixmap,
@@ -859,6 +859,7 @@ public:
 	PaletteLinkVisited,
 	X11ParentRelative
     };
+#endif
 
     typedef uint ComparisonFlags;
 

@@ -30,7 +30,7 @@ public:
     public:
 	Invisible( QWidgetStack * parent )
 	    : QWidget( parent, "qt_invisible_widgetstack" )
-	{ setBackgroundMode( NoBackground ); }
+	{ setAttribute(WA_NoErase, true); }
 	const char * className() const
 	{ return "QWidgetStackPrivate::Invisible"; }
     };

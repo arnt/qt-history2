@@ -580,7 +580,7 @@ QtMultiLineEdit::QtMultiLineEdit( QWidget *parent , const char *name )
 		   Tbl_clipCellPainting
 		   );
     setFrameStyle( QFrame::WinPanel | QFrame::Sunken );
-    setBackgroundMode( PaletteBase );
+    setPalettePolicy( QPalette::Base );
     setWFlags( WResizeNoErase );
     setKeyCompression( TRUE );
     setFocusPolicy( WheelFocus );

@@ -3567,6 +3567,16 @@ QBrush::QBrush()
 }
 
 /*!
+    Constructs a brush with a black color and a pixmap set to \a pixmap.
+*/
+
+QBrush::QBrush(const QPixmap &pixmap)
+{
+    init(Qt::black, CustomPattern);
+    setPixmap(pixmap);
+}
+
+/*!
     Constructs a black brush with the style \a style.
 
     \sa setStyle()

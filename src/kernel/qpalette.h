@@ -49,7 +49,7 @@ public:
     enum ColorRole { Foreground, Button, Light, Midlight, Dark, Mid,
 		     Text, BrightText, ButtonText, Base, Background, Shadow,
 		     Highlight, HighlightedText, Link, LinkVisited,
-		     NColorRoles };
+		     NColorRoles, Inherited, Overridden };
     
     inline ColorGroup currentColorGroup() const { return current_group; }
     inline void setCurrentColorGroup(ColorGroup cg) { current_group = cg; }
@@ -107,9 +107,6 @@ public:
     bool isCopyOf(const QPalette &p);
 
     int	serialNumber() const { return d->ser_no; }
-
-    static ColorRole foregroundRoleFromMode(Qt::BackgroundMode mode);
-    static ColorRole backgroundRoleFromMode(Qt::BackgroundMode mode);
 
 private:
     void setColorGroup(ColorGroup cr, const QBrush &foreground, const QBrush &button, 
