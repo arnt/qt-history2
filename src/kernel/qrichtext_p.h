@@ -156,6 +156,8 @@ private:
 	//abort();
 	return *this;
     }
+    QTextStringChar( const QTextStringChar & ) {
+    }
     friend class QComplexText;
     friend class QTextParagraph;
 };
