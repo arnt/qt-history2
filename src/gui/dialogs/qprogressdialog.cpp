@@ -315,7 +315,6 @@ QProgressDialog::~QProgressDialog()
     if (d->creator)
         d->creator->setCursor(d->parentCursor);
 #endif
-    delete d;
 }
 
 /*!
