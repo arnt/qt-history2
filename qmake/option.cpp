@@ -63,12 +63,12 @@ bool usage(const char *a0)
 {
     fprintf(stderr, "Usage: %s [options] project-files\n"
 	   "Options:\n"
-	   "\t-nodepend\tDon't generate dependency information\n"
-	   "\t-o file\tWrite output to file\n"
-	   "\t-unix\tRun in unix mode\n"
-	   "\t-win32\tRun in win32 mode\n"
-	   "\t-mkspec file\tUse file as spec\n"
-	    "\t-d\tIncrease debug level\n", a0);
+	   "\t-nodepend     Don't generate dependency information\n"
+	   "\t-o file       Write output to file\n"
+	   "\t-unix         Run in unix mode\n"
+	   "\t-win32        Run in win32 mode\n"
+	   "\t-mkspec file  Use file as spec\n"
+	   "\t-d            Increase debug level\n", a0);
     return FALSE;
 }
 
