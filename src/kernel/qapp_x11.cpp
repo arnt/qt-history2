@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#87 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#88 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -31,7 +31,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#87 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#88 $";
 #endif
 
 
@@ -235,7 +235,7 @@ void qt_init( int *argcptr, char **argv )
     QFont::initialize();
     QCursor::initialize();
     QPainter::initialize();
-#if defined(_OS_SUN_)
+#if defined(_OS_SUN_) && !defined(__SVR4)
     gettimeofday( &watchtime );
 #else
     gettimeofday( &watchtime, 0 );
@@ -1222,7 +1222,7 @@ static void insertTimer( const TimerInfo *ti )	// insert timer info into list
 
 static inline void getTime( timeval &t )	// get time of day
 {
-#if defined(_OS_SUN_)
+#if defined(_OS_SUN_) && !defined(__SVR4)
     gettimeofday( &t );
     while ( t.tv_usec >= 1000000 ) {		// correct if NTP daemon bug
 	t.tv_usec -= 1000000;

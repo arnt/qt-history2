@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#26 $
 **
 ** Implementation of QColor class for X11
 **
@@ -11,13 +11,14 @@
 *****************************************************************************/
 
 #include "qcolor.h"
+#include "string.h"
 #define	 GC GC_QQQ
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#25 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#26 $";
 #endif
 
 
