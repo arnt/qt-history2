@@ -3013,7 +3013,7 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 }
 
 /*!
-    This virtual function does the core processing of individual X
+    This function does the core processing of individual X
     \a{event}s, normally by dispatching Qt events to the right
     destination.
 
