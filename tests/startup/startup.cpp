@@ -19,6 +19,34 @@ TimerWidget::TimerWidget( QWidget * parent )
     : QWidget( parent, 0 )
 {
     widgets.insert( this, this );
+    static int x = 0;
+    x = (x+1)&7;
+    switch( x ) {
+    case 0:
+	setBackgroundColor( white );
+	break;
+    case 1:
+	setBackgroundColor( black );
+	break;
+    case 2:
+	setBackgroundColor( blue );
+	break;		    
+    case 3:		    
+	setBackgroundColor( cyan );
+	break;		    
+    case 4:		    
+	setBackgroundColor( magenta );
+	break;		    
+    case 5:		    
+	setBackgroundColor( red );
+	break;		    
+    case 6:		    
+	setBackgroundColor( green );
+	break;		    
+    case 7:		    
+	setBackgroundColor( yellow );
+	break;
+    }
 }
 
 
@@ -31,7 +59,33 @@ void TimerWidget::paintEvent( QPaintEvent * )
     }
 }
 
-const int size = 1000;
+const int big = 1000;
+const int small = 10;
+
+void recursive( QWidget * parent )
+{
+    int m = parent->width()/2;
+    if ( m < small )
+	return;
+    QWidget * w;
+
+    w = new TimerWidget( parent );
+    w->setGeometry( 1, 1, m-2, m-2 );
+    recursive( w );
+
+    w = new TimerWidget( parent );
+    w->setGeometry( 1, m+1, m-2, m-2 );
+    recursive( w );
+
+    w = new TimerWidget( parent );
+    w->setGeometry( m+1, 1, m-2, m-2  );
+    recursive( w );
+
+    w = new TimerWidget( parent );
+    w->setGeometry( m+1, m+1, m-2, m-2);
+    recursive( w );
+}
+
 
 int main( int argc, char ** argv ) {
     QApplication a( argc, argv );
@@ -39,18 +93,11 @@ int main( int argc, char ** argv ) {
     s.start();
 
     TimerWidget * top = new TimerWidget( 0 );
-    top->resize( size, size );
-    int x, y;
-    int w = 1;
-    for( x = 5; x < size; x += 20 ) {
-	for( y = 5; y < size; y += 20 ) {
-	    QWidget * c = new TimerWidget( top );
-	    c->setGeometry( x, y, 10, 10 );
-	    w++;
-	}
-    }
-
-    debug( "Created %d widgets.\nCreation %2.3fs", w, s.restart()*0.001 );
+    top->resize( big, big );
+    recursive( top );
+	    
+    debug( "Created %d widgets.\nCreation %2.3fs",
+	   widgets.count(), s.restart()*0.001 );
     top->show();
     debug( "show()   %2.3fs", s.restart()*0.001 );
     (void)a.exec();
