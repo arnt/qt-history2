@@ -23,6 +23,8 @@ public:
 	MenuEnd		    = 0x0005,
 	PopupMenuStart	    = 0x0006,
 	PopupMenuEnd	    = 0x0007,
+	ContextHelpStart    = 0x000C,
+	ContextHelpEnd	    = 0x000D,
 	DragDropStart	    = 0x000E,
 	DragDropEnd	    = 0x000F,
 	DialogStart	    = 0x0010,

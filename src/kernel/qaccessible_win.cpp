@@ -30,11 +30,16 @@ bool qt_notify_accessibility( QObject *o, int reason )
     }
 
     if ( !w ) {
-	w = qApp->mainWidget();
-	if ( !w ) {
+	if ( reason != QAccessible::ContextHelpStart && 
+	     reason != QAccessible::ContextHelpEnd )
 	    w = qApp->focusWidget();
-	    if ( !w )
-		return FALSE;
+	if ( !w ) {
+	    w = qApp->activeWindow();
+	    if ( !w ) {
+		w = qApp->mainWidget();
+		if ( !w )
+		    return FALSE;
+	    }
 	}
     }
 

@@ -48,6 +48,9 @@
 #include "qtooltip.h"
 #include "qsimplerichtext.h"
 #include "qstylesheet.h"
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+#include "qaccessible.h"
+#endif
 
 /*!
   \class QWhatsThis qwhatsthis.h
@@ -165,6 +168,7 @@ public:
     // setup and teardown
     static void setUpWhatsThis();
 
+    void enterWhatsThisMode();
     void leaveWhatsThisMode();
 
     // variables
@@ -360,6 +364,9 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 	if (e->type() == QEvent::MouseButtonPress  ||
 	    e->type() == QEvent::KeyPress ) {
 	    whatsThat->hide();
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	    emit accessibilityChanged( QAccessible::ContextHelpEnd );
+#endif
 	    return TRUE;
 	}
 #ifdef Q_WS_QWS
@@ -389,8 +396,12 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 		}
 	    }
 	    leaveWhatsThisMode();
-	    if (!i )
+	    if (!i ) {
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+		emit accessibilityChanged( QAccessible::ContextHelpEnd );
+#endif
 		return TRUE;
+	    }
 	    if ( i->whatsthis )
 		say( w, i->whatsthis->text( p ), me->globalPos() );
 	    else
@@ -454,6 +465,14 @@ void QWhatsThisPrivate::setUpWhatsThis()
 	qAddPostRoutine( qWhatsThisPrivateCleanup );
     }
 }
+
+void QWhatsThisPrivate::enterWhatsThisMode()
+{
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    emit accessibilityChanged( QAccessible::ContextHelpStart );
+#endif
+}
+
 
 void QWhatsThisPrivate::leaveWhatsThisMode()
 {
@@ -866,6 +885,7 @@ void QWhatsThis::enterWhatsThisMode()
 {
     QWhatsThisPrivate::setUpWhatsThis();
     if ( wt->state == QWhatsThisPrivate::Inactive ) {
+	wt->enterWhatsThisMode();
 #ifndef QT_NO_CURSOR
 	QApplication::setOverrideCursor( *wt->cursor, FALSE );
 #endif
@@ -906,7 +926,7 @@ void QWhatsThis::leaveWhatsThisMode( const QString& text, const QPoint& pos )
 {
     if ( !inWhatsThisMode() )
 	return;
-
+    
     wt->leaveWhatsThisMode();
     if ( !text.isNull() )
 	wt->say( 0, text, pos );
