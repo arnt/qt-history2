@@ -1353,8 +1353,14 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	for ( i=image.numColors(); i<256; i++ ) // ignore out-of-range pixels
 	    pop[i] = 0;
 
-	PIX *pixarr	   = new PIX[ncols];	// pixel array
-	PIX *pixarr_sorted = new PIX[ncols];	// pixel array (sorted)
+	// works since we make sure above to have at least 
+	// one color in the image
+	if ( ncols == 0 )
+	    ncols = 1; 
+	
+	PIX pixarr[256];			// pixel array
+	PIX pixarr_sorted[256];			// pixel array (sorted)
+	memset( pixarr, 0, ncols*sizeof(PIX) );
 	PIX *px		   = &pixarr[0];
 	int  maxpop = 0;
 	int  maxpix = 0;
@@ -1430,8 +1436,6 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    pix[px->index] = c.pixel(x11Screen());
 	    px++;
 	}
-	delete [] pixarr;
-	delete [] pixarr_sorted;
 
 	p = newbits;
 	for ( i=0; i<nbytes; i++ ) {		// translate pixels
