@@ -882,42 +882,40 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
 
         WindowGroupRef grp = 0;
         WindowAttributes wattr = kWindowCompositingAttribute;
-        if(customize) {
-            if(qt_mac_is_macsheet(q)) {
-                grp = GetWindowGroupOfClass(kMovableModalWindowClass);
-                wclass = kSheetWindowClass;
+        if(qt_mac_is_macsheet(q)) {
+            grp = GetWindowGroupOfClass(kMovableModalWindowClass);
+            wclass = kSheetWindowClass;
+        } else {
+            grp = GetWindowGroupOfClass(wclass);
+            // Shift things around a bit to get the correct window class based on the presence
+            // (or lack) of the border.
+            if(flags & Qt::FramelessWindowHint) {
+                if(wclass == kDocumentWindowClass)
+                    wclass = kPlainWindowClass;
+                else if(wclass == kFloatingWindowClass)
+                    wclass = kToolbarWindowClass;
             } else {
-                grp = GetWindowGroupOfClass(wclass);
-                // Shift things around a bit to get the correct window class based on the presence
-                // (or lack) of the border.
-                if(flags & Qt::FramelessWindowHint) {
-                    if(wclass == kDocumentWindowClass)
-                        wclass = kPlainWindowClass;
-                    else if(wclass == kFloatingWindowClass)
-                        wclass = kToolbarWindowClass;
-                } else {
-                    if(wclass != kModalWindowClass)
-                        wattr |= kWindowResizableAttribute;
-                    if(wclass == kToolbarWindowClass) {
-                        if(!parentWidget || parentWidget->window()->windowType() == Qt::Desktop)
-                            wclass = kDocumentWindowClass;
-                        else
-                            wclass = kFloatingWindowClass;
-                    }
+                if(wclass != kModalWindowClass)
+                    wattr |= kWindowResizableAttribute;
+                if(wclass == kToolbarWindowClass) {
+                    if(!parentWidget || parentWidget->window()->windowType() == Qt::Desktop)
+                        wclass = kDocumentWindowClass;
+                    else
+                        wclass = kFloatingWindowClass;
                 }
-                // Only add extra decorations (well, buttons) for widgets that can have them
-                // and have an actual border we can put them on.
-                if(wclass != kModalWindowClass && wclass != kMovableModalWindowClass
-                    && wclass != kSheetWindowClass && wclass != kPlainWindowClass
-                    && !(flags & Qt::FramelessWindowHint) && wclass != kDrawerWindowClass
-                    && wclass != kHelpWindowClass) {
-                    if(flags & Qt::WindowMaximizeButtonHint)
-                        wattr |= kWindowFullZoomAttribute;
-                    if(flags & Qt::WindowMinimizeButtonHint)
-                        wattr |= kWindowCollapseBoxAttribute;
-                    if(flags & (Qt::WindowTitleHint | Qt::WindowSystemMenuHint))
-                       wattr |= kWindowCloseBoxAttribute;
-                }
+            }
+            // Only add extra decorations (well, buttons) for widgets that can have them
+            // and have an actual border we can put them on.
+            if(wclass != kModalWindowClass && wclass != kMovableModalWindowClass
+                && wclass != kSheetWindowClass && wclass != kPlainWindowClass
+                && !(flags & Qt::FramelessWindowHint) && wclass != kDrawerWindowClass
+                && wclass != kHelpWindowClass) {
+                if(flags & Qt::WindowMaximizeButtonHint)
+                    wattr |= kWindowFullZoomAttribute;
+                if(flags & Qt::WindowMinimizeButtonHint)
+                    wattr |= kWindowCollapseBoxAttribute;
+                if(flags & (Qt::WindowTitleHint | Qt::WindowSystemMenuHint))
+                   wattr |= kWindowCloseBoxAttribute;
             }
         }
         if(tool && type != Qt::SplashScreen && !q->isModal())
@@ -958,7 +956,8 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             { 0, 0 }
         };
 #undef ADD_DEBUG_WINDOW_NAME
-        qDebug("Qt: internal: ************* Creating new window %p (%s::%s)", this, metaObject()->className(), objectName().local8Bit());
+        qDebug("Qt: internal: ************* Creating new window %p (%s::%s)", q, q->metaObject()->className(),
+               q->objectName().toLocal8Bit().constData());
         bool found_class = false;
         for(int i = 0; known_classes[i].name; i++) {
             if(wclass == known_classes[i].tag) {
@@ -1035,7 +1034,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             else if(grpf == grp)
                 from = "Copied";
             qDebug("Qt: internal: With window group '%s' [%p] @ %d: %s",
-                   static_cast<QString>(cfname).latin1(), grpf, (int)lvl, from);
+                   static_cast<QString>(cfname).toLatin1().constData(), grpf, (int)lvl, from);
         } else {
             qDebug("Qt: internal: No window group!!!");
         }
