@@ -152,15 +152,28 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
     writeMakeQmake(t);
 
     t << "qmake_all:";
-    for( it.toFirst(); it.current(); ++it) {
-	t << " ";
-	if(!(*it)->directory.isEmpty())
-	    t << (*it)->directory << Option::dir_sep;
-	t << (*it)->makefile;
+    if ( !subdirs.isEmpty() ) {
+	for( it.toFirst(); it.current(); ++it) {
+	    QString subdir = (*it)->directory;
+	    int subLevels = subdir.contains(Option::dir_sep) + 1;
+	    t << "\n\t"
+	      << "cd " << subdir << "\n\t";
+	    int lastSlash = subdir.findRev(Option::dir_sep);
+	    if(lastSlash != -1)
+		subdir = subdir.mid( lastSlash + 1 );
+	    t << "$(QMAKE) " << subdir << ".pro"
+	      << (!project->isEmpty("MAKEFILE") ? QString(" -o ") + var("MAKEFILE") : QString(""))
+	      << " " << buildArgs() << "\n\t"
+	      << "@cd ..";
+	    for(int i = 1; i < subLevels; i++ )
+		t << Option::dir_sep << "..";
+	}
+    } else {
+	// Borland make does not like empty an empty command section, so insert
+	// a dummy command.
+	t << "\n\t" << "@cd .";
     }
-    // Borland make does not like empty an empty command section, so insert
-    // a dummy command.
-    t << "\n\t" << "@cd ." << endl << endl;
+    t << endl << endl;
 
     QString targs[] = { QString("clean"), QString("install"), QString("mocclean"), QString::null };
     for(int x = 0; targs[x] != QString::null; x++) {
