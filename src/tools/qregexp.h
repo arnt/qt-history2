@@ -73,7 +73,7 @@ public:
 
     bool match( const QString& str );
     bool match( const QString& str ) const;
-#if defined(QT_OBSOLETE)
+#ifndef QT_NO_COMPAT
     int match( const QString& str, int index, int *len = 0,
 	       bool indexIsStart = TRUE );
 #endif
