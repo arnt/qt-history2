@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidgetintdict.h#9 $
+** $Id: //depot/qt/main/src/kernel/qwidgetintdict.h#10 $
 **
 ** Definition of QWidgetIntDict
 **
@@ -51,9 +51,9 @@ public:
 class Q_EXPORT QWidgetIntDictIt : public QIntDictIterator<QWidget>
 {
 public:
-    QWidgetIntDictIt( const QWidgetIntDict &dict ) : QIntDictIterator<QWidget>(dict) {}
-    QWidgetIntDictIt &operator=(const QWidgetIntDictIt &dict)
-	{ return (QWidgetIntDictIt&)QIntDictIterator<QWidget>::operator=(dict); }
+    QWidgetIntDictIt( const QWidgetIntDict &d ) : QIntDictIterator<QWidget>(d) {}
+    QWidgetIntDictIt &operator=(const QWidgetIntDictIt &i)
+	{ return (QWidgetIntDictIt&)QIntDictIterator<QWidget>::operator=(i); }
 };
 
 
