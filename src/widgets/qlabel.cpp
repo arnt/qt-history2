@@ -107,7 +107,7 @@ public:
     right corner (both lines being flush with the right side of the
     label):
     \code
-    QLabel *label = new QLabel;
+    QLabel *label = new QLabel( this );
     label->setFrameStyle( QFrame::Panel | QFrame::Sunken );
     label->setText( "first line\nsecond line" );
     label->setAlignment( AlignBottom | AlignRight );
