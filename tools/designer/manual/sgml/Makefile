@@ -1,4 +1,5 @@
-targets = chap-01.sgml \
+targets = chap-preface.sgml \
+	chap-01.sgml \
 	chap-02.sgml \
 	chap-03.sgml \
 	chap-04.sgml \
@@ -8,8 +9,8 @@ targets = chap-01.sgml \
 	chap-08.sgml \
 	chap-09.sgml \
 	chap-10.sgml \
+	chap-custom-controls.sgml \
 	chap-creating-database-applications.sgml \
-	chap-preface.sgml \
 	manual.sgml
 
 manual: $(targets)
