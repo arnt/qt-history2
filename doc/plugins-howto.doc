@@ -59,20 +59,32 @@ by default in the standard plugin directory.
 \i Default Path
 \row
 \i \l QImageFormatPlugin
-\i \c{QTDIR/plugins/imageformats} <sup>*</sup>
+\i \c{pluginsbase/imageformats} <sup>*</sup>
 \row
 \i \l QSqlDriverPlugin
-\i \c{QTDIR/plugins/sqldrivers} <sup>*</sup>
+\i \c{pluginsbase/sqldrivers} <sup>*</sup>
 \row
 \i \l QStylePlugin
-\i \c{QTDIR/plugins/styles} <sup>*</sup>
+\i \c{pluginsbase/styles} <sup>*</sup>
 \row
 \i \l QTextCodecPlugin
-\i \c{QTDIR/plugins/codecs} <sup>*</sup>
+\i \c{pluginsbase/codecs} <sup>*</sup>
 \row
 \i \l QWidgetPlugin
-\i \c{QTDIR/plugins/designer} <sup>*</sup>
+\i \c{pluginsbase/designer} <sup>*</sup>
 \endtable
+
+But where is the \c{pluginsbase} directory? When the application is
+run, Qt will first treat the application's executable directory as the
+\c{pluginsbase}. For example if the application is in \c{C:\Program
+Files\MyApp} and has a style plugin, Qt will look in \c{C:\Program
+Files\MyApp\styles}. (See \l{QApplication::applicationDirPath()} for
+how to find out where the application's executable is.) Qt will also
+look in the directory given by \c{qInstallPathPlugins()}. If you want
+Qt to look in additional places you can add as many paths as you need
+with calls to \c{QApplication::addLibraryPath()}. And if you want to
+set your own path or paths you can use
+\c{QApplication::setLibraryPaths()}.
 
 Suppose that you have a new style class called 'MyStyle' that you want
 to make available as a plugin. The required code is straightforward:
