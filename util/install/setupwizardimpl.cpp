@@ -35,6 +35,7 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 {
     totalFiles = 0;
     setNextEnabled( introPage, false );
+    setNextEnabled( licensePage, false );
     setBackEnabled( progressPage, false );
     setNextEnabled( progressPage, false );
     setBackEnabled( buildPage, false );
@@ -550,7 +551,8 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	modules = new QCheckListItem ( configList, "Modules" );
 	modules->setOpen( TRUE );
 	QStringList licensedModules = QStringList::split( " ", "styles tools kernel widgets dialogs iconview workspace" );
-	if( ( licenseInfo[ "PRODUCTS" ].length() ) && ( licenseInfo[ "PRODUCTS" ] != "qt-professional" ) ) {
+
+	if( licenseInfo[ "PRODUCTS" ] == "qt-enterprise" ) {
 	    licensedModules += QStringList::split( ' ', "network canvas table xml opengl sql" );
 	    // advanced
 	    sqldrivers = new QCheckListItem ( advancedList, "SQL Drivers" );
@@ -560,9 +562,11 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 		item = new QCheckListItem( sqldrivers, (*it2), QCheckListItem::CheckBox );
 		item->setOn( true );
 	    }
+	    // We have items on the advanced tab, so enable it
+	    configTabs->setTabEnabled( advancedTab, true );
 	}
 	else
-	    configTabs->removePage( advancedTab );
+	    configTabs->setTabEnabled( advancedTab, false );
 
 	for( QStringList::Iterator it = licensedModules.begin(); it != licensedModules.end(); ++it ) {
 	    item = new QCheckListItem( modules, (*it), QCheckListItem::CheckBox );

@@ -1,7 +1,7 @@
 #include <qtextstream.h>
 #include <qregexp.h>
 #include "configureapp.h"
-#include "../../install/environment.h"
+#include "../install/environment.h"
 
 #include <iostream.h>
 
@@ -67,7 +67,7 @@ void ConfigureApp::buildModulesList()
     
     readLicense();
     
-    if( ( licenseInfo[ "PRODUCTS" ].length() ) && ( licenseInfo[ "PRODUCTS" ] != "qt-professional" ) )
+    if( licenseInfo[ "PRODUCTS" ] == "qt-enterprise" )
 	allModules += QStringList::split( ' ', "network canvas table xml opengl sql" );
 
     while( ( fi = listIter.current() ) ) {
@@ -84,12 +84,14 @@ void ConfigureApp::buildSqlList()
     QFileInfoListIterator listIter( *fiList );
     QFileInfo* fi;
 
-    allSqlDrivers = QStringList::split( ' ', "mysql oci odbc psql" );
+    if( licenseInfo[ "PRODUCTS" ] == "qt-enterprise" ) {
+	allSqlDrivers = QStringList::split( ' ', "mysql oci odbc psql" );
 
-    while( ( fi = listIter.current() ) ) {
-	if( allSqlDrivers.findIndex( fi->fileName() ) != -1 )
-	    sqlDrivers += fi->fileName();
-	++listIter;
+	while( ( fi = listIter.current() ) ) {
+	    if( allSqlDrivers.findIndex( fi->fileName() ) != -1 )
+		sqlDrivers += fi->fileName();
+	    ++listIter;
+	}
     }
 }
 
@@ -662,25 +664,6 @@ void ConfigureApp::showSummary()
     cout << "To reconfigure, run " << make.latin1() << " clean and configure." << endl << endl;
 }
 
-void ConfigureApp::copyDefsFile()
-{
-    QFile src( QString( QEnvironment::getEnv( "QTDIR" ) ) + "/mkspecs/" + dictionary[ "QMAKESPEC" ] + "/qplatformdefs.h" );
-    QFile trg( QString( QEnvironment::getEnv( "QTDIR" ) ) + "/include/qplatformdefs.h" );
-    
-    cout << "Copying platform definition file..." << endl;
-    if( src.open( IO_ReadOnly ) ) {
-	QByteArray buffer( src.size() );
-	if( trg.open( IO_WriteOnly ) ) {
-	    if( buffer.size() ) {
-		src.readBlock( buffer.data(), buffer.size() );
-		trg.writeBlock( buffer.data(), buffer.size() );
-	    }
-	    trg.close();
-	}
-	src.close();
-    }
-}
-
 bool ConfigureApp::isProjectLibrary( const QString& proFileName )
 {
     QFile proFile( proFileName );
@@ -712,7 +695,7 @@ bool ConfigureApp::readLicense()
     QFile licenseFile( qtDir + "/.qt-license" );
 
     if( QFile::exists( qtDir + "/LICENSE.TROLL" ) ) {
-	licenseInfo[ "PRODUCTS" ] = "qt-internal";
+	licenseInfo[ "PRODUCTS" ] = "qt-enterprise";
 	return true;
     }
     if( licenseFile.open( IO_ReadOnly ) ) {

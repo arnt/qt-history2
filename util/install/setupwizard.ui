@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>560</width>
-            <height>336</height>
+            <width>552</width>
+            <height>332</height>
         </rect>
     </property>
     <property name="caption">
@@ -1171,15 +1171,46 @@ Alternatively, the installation wizard may read them from a license file.</strin
         <receiver>SetupWizard</receiver>
         <slot>clickedLicenseFile()</slot>
     </connection>
+    <connection language="C++">
+        <sender>customerID</sender>
+        <signal>textChanged(const QString&amp;)</signal>
+        <receiver>SetupWizard</receiver>
+        <slot>licenseChanged(const QString&amp;)</slot>
+    </connection>
+    <connection language="C++">
+        <sender>licenseID</sender>
+        <signal>textChanged(const QString&amp;)</signal>
+        <receiver>SetupWizard</receiver>
+        <slot>licenseChanged(const QString&amp;)</slot>
+    </connection>
+    <connection language="C++">
+        <sender>licenseeName</sender>
+        <signal>textChanged(const QString&amp;)</signal>
+        <receiver>SetupWizard</receiver>
+        <slot>licenseChanged(const QString&amp;)</slot>
+    </connection>
+    <connection language="C++">
+        <sender>productsString</sender>
+        <signal>textChanged(const QString&amp;)</signal>
+        <receiver>SetupWizard</receiver>
+        <slot>licenseChanged(const QString&amp;)</slot>
+    </connection>
+    <connection language="C++">
+        <sender>expiryDate</sender>
+        <signal>textChanged(const QString&amp;)</signal>
+        <receiver>SetupWizard</receiver>
+        <slot>licenseChanged(const QString&amp;)</slot>
+    </connection>
     <slot access="protected" language="C++" returnType="void">init()</slot>
     <slot access="protected" language="C++" returnType="void">destroy()</slot>
     <slot access="public" language="C++" returnType="void">clickedDevSysPath()</slot>
     <slot access="public" language="C++" returnType="void">clickedEnvironmentButton()</slot>
     <slot access="public" language="C++" returnType="void">clickedFolderPath()</slot>
+    <slot access="public" language="C++" returnType="void">clickedLicenseFile()</slot>
     <slot access="public" language="C++" returnType="void">clickedPath()</slot>
     <slot access="public" language="C++" returnType="void">clickedSystem( int )</slot>
     <slot access="public" language="C++" returnType="void">licenseAction( int )</slot>
-    <slot access="public" language="C++" returnType="void">clickedLicenseFile()</slot>
+    <slot access="public" language="C++" returnType="void">licenseChanged( const QString &amp; )</slot>
 </connections>
 <functions>
     <function name="init()" >{
@@ -1197,6 +1228,9 @@ Alternatively, the installation wizard may read them from a license file.</strin
     <function name="clickedFolderPath()" >{
 
 }</function>
+    <function name="clickedLicenseFile()" >{
+
+}</function>
     <function name="clickedPath()" >{
 
 }</function>
@@ -1206,7 +1240,12 @@ Alternatively, the installation wizard may read them from a license file.</strin
     <function name="licenseAction(int)" >{
 
 }</function>
-    <function name="" ></function>
+    <function name="licenseChanged(const QString&amp;)" >{
+	if( licenseID-&gt;text().length() &amp;&amp; productsString-&gt;text().length() )
+	    setNextEnabled( licensePage, true );
+    	else
+		setNextEnabled( licensePage, false );
+}</function>
 </functions>
 <tabstops>
     <tabstop>introText</tabstop>
