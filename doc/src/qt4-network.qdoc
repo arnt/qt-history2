@@ -53,19 +53,16 @@
 
     QTcpSocket and QUdpSocket inherit most of their functionality
     from QAbstractSocket. You can also use QAbstractSocket directly
-    as a wrapper around a native socket descriptor, or subclass
-    QAbstractSocket and implement your own socket type (e.g., for
-    Unix domain sockets or Windows named pipes).
+    as a wrapper around a native socket descriptor.
 
     By default, the socket classes work asynchronously (i.e., they
     are non-blocking), emitting signals to notify when data has
     arrived or when the peer has closed the connection. In
     multithreaded applications and in non-GUI applications, you also
-    have the opportunity of setting the socket to blocking (using
-    QAbstractSocket::setBlocking()), which often results in a more
-    straightforward style of programming, with the networking logic
-    concentrated in one or two functions instead of spread across
-    multiple slots.
+    have the opportunity of using blocking (synchronous) functions on
+    the socket, which often results in a more straightforward style
+    of programming, with the networking logic concentrated in one or
+    two functions instead of spread across multiple slots.
 
     QFtp and QHttp use QTcpSocket internally to implement the FTP and
     HTTP protocols. Both classes work asynchronously and can schedule
@@ -199,11 +196,12 @@
     Qt API. If you used QSocketDevice to send or receive UDP
     datagrams, use QUdpSocket instead. If you used QSocketDevice
     because it supported blocking sockets, use QTcpSocket or
-    QUdpSocket instead and call
-    \l{QAbstractSocket::setBlocking()}{setBlocking()}. If you used
-    QSocketDevice from a non-GUI thread because it was the only
-    reentrant networking class in Qt 3, use QTcpSocket, QTcpServer,
-    or QUdpSocket instead.
+    QUdpSocket instead and use the blocking functions
+    (\l{QAbstractSocket::waitForConnected()}{waitForConnected()},
+    \l{QAbstractSocket::waitForConnected()}{waitForReadyRead()},
+    etc.). If you used QSocketDevice from a non-GUI thread because it
+    was the only reentrant networking class in Qt 3, use QTcpSocket,
+    QTcpServer, or QUdpSocket instead.
 
     Internally, Qt 4 has a class called QSocketLayer that provides a
     cross-platform low-level socket API. It resembles the old

@@ -17,23 +17,24 @@
     libraries.
 
     \list
-    \i \bold{QtCore}: core non-GUI functionality
-    \i \bold{QtGui}: core GUI functionality
-    \i \bold{QtNetwork}: network module
-    \i \bold{QtOpenGL}: OpenGL module
-    \i \bold{QtSql}: SQL module
-    \i \bold{QtXml}: XML module
-    \i \bold{Qt3Compat}: Qt 3 compatibility classes (see \l{Qt 3 Compatibility} below)
+    \o \bold{QtCore}: core non-GUI functionality
+    \o \bold{QtGui}: core GUI functionality
+    \o \bold{QtNetwork}: network module
+    \o \bold{QtOpenGL}: OpenGL module
+    \o \bold{QtSql}: SQL module
+    \o \bold{QtXml}: XML module
+    \o \bold{Qt3Compat}: Qt 3 compatibility classes (see \l{Qt 3 Compatibility} below)
     \endlist
 
-    QtCore contains tool classes like QString, QList, and QFile, as well
-    as kernel classes like QObject and QTimer. A few Qt 3 classes have
-    been refactored so that they can be used in non-GUI applications:
+    QtCore contains tool classes like QString, QList, and QFile, as
+    well as kernel classes like QObject and QTimer. A few classes
+    have been refactored so that they can be used in non-GUI
+    applications:
 
     \list
-    \i QApplication is split into QCoreApplication (in QtCore) and
+    \o QApplication is split into QCoreApplication (in QtCore) and
        QApplication (in QtGui).
-    \i QVariant is split into QCoreVariant and QVariant.
+    \o QVariant is split into QCoreVariant and QVariant.
     \endlist
 
     This split makes it possible to develop server applications using Qt
@@ -89,14 +90,14 @@
         #include <qclassname.h>
     \endcode
 
-    still works for compatibility.
+    still works, but we encourage you to switch to the new syntax.
 
     If you attempt to include a header file from a library that isn't
-    linked against the application, this will result in a compile-time
-    warning (e.g., "QSqlQuery: No such file or directory"). You can remedy
-    to this problem either by removing the offending include or by
-    specifying the missing library in the QT entry of your .pro file (see
-    Build System above).
+    linked against the application, this will result in a
+    compile-time warning (e.g., "QSqlQuery: No such file or
+    directory"). You can remedy to this problem either by removing
+    the offending include or by specifying the missing library in the
+    QT entry of your \c .pro file (see \l{Build System} above).
 
     To include the definitions for all the classes in a library, simply
     specify the name of that library. For example:
@@ -107,28 +108,28 @@
 
     \section1 Namespaces
 
-    Qt 2 introduced a class called Qt for global-like constants (e.g.,
-    Qt::yellow). The C++ namespace construct was not used because not all
-    compilers understood it when it was released.
+    Qt 2 introduced a class called Qt for global-like constants
+    (e.g., \c{Qt::yellow}). The C++ namespace construct was not used
+    because not all compilers understood it when it was released.
 
     With Qt 4, the Qt class has become the Qt namespace. If you want
     to access a constant that is part of the Qt namespace, prefix it
-    with "Qt::" (e.g., Qt::yellow), or add the directive
+    with \c Qt:: (e.g., \c{Qt::yellow}), or add the directive
 
     \code
         using namespace Qt;
     \endcode
 
-    at the top of your source files, after your #include directives. If
-    you use the "using namespace" syntax you don't need the prefix (e.g.,
-    yellow is sufficient).
+    at the top of your source files, after your \c #include
+    directives. If you use the "using namespace" syntax you don't
+    need the prefix (e.g., yellow is sufficient).
 
     When porting Qt 3 applications, you may run into some source
-    compatibility problems with some of these symbols. For example, in Qt
-    3, it was legal to write QWidget::yellow instead of Qt::yellow,
-    because QWidget inherited from Qt. This won't work in Qt 4; you must
-    write Qt::yellow or add the "using namespace" directive and drop the
-    "Qt::" prefix.
+    compatibility problems with some of these symbols. For example,
+    in Qt 3, it was legal to write \c QWidget::yellow instead of \c
+    Qt::yellow, because QWidget inherited from Qt. This won't work in
+    Qt 4; you must write \c Qt::yellow or add the "using namespace"
+    directive and drop the \c Qt:: prefix.
 
     The \l{qt3to4.html}{qt3to4 porting tool} automates this conversion.
 
@@ -233,11 +234,11 @@
     before, without bloating Qt.
 
     \list
-    \i  Classes that have been replaced by a different class with the
+    \o  Classes that have been replaced by a different class with the
         same name, such as QListView, and classes that no longer exist in Qt 4
         are available with a \c 3 in their name (e.g., Q3ListView, Q3Accel).
 
-    \i  Other classes provide compatibility functions. Most of these are
+    \o  Other classes provide compatibility functions. Most of these are
         implemented inline, so that they don't bloat the Qt libraries.
     \endlist
 

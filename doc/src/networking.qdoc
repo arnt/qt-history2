@@ -1,4 +1,5 @@
-/*! \page networking.html
+/*!
+    \page networking.html
     \title Network Module
 
     The network module offers classes to make network programming

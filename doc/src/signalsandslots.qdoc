@@ -197,8 +197,7 @@
     QScrollBar::valueChanged() were to use a special type such as the
     hypothetical \c QRangeControl::Range, it could only be connected to
     slots designed specifically for QRangeControl. Something as simple as
-    the program in \link tutorial1-05.html Tutorial #1 part 5\endlink
-    would be impossible.
+    the program in \l{tutorial/t5}{Tutorial 5} would be impossible.
 
     \section1 Slots
 

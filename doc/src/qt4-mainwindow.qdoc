@@ -24,7 +24,7 @@
     and predictable experience for users. Tool bars and dock windows
     provide feedback while being dragged into their new positions.
 
-    \img mainwindow-docks.png
+    \image mainwindow-docks.png
 
     The diagram above shows the layout of a main window that contains both
     tool bars and dock windows. Each corner area can be used by either
@@ -44,58 +44,40 @@
     associated user interface components:
 
     \list
-    \i QMainWindow remains the central class around which applications
+    \o QMainWindow remains the central class around which applications
        can be built. The interface to this class has been simplified --
        much of the functionality previously included is now present in the
        companion classes, QDockWindow and QToolBar.
 
-    \i QDockWindow provides a widget that can be used to create
+    \o QDockWindow provides a widget that can be used to create
        detachable tool palettes or helper windows. Dock windows keep track
        of their own properties -- they can be moved, closed, and floated as
        external windows.
 
-    \i QToolBar provides a generic tool bar widget that can hold a
+    \o QToolBar provides a generic tool bar widget that can hold a
        number of different action-related widgets, such as buttons,
        drop-down menus, comboboxes, and spin boxes. The emphasis on a
        unified action model in Qt 4 means that tool bars cooperate well
        with menus and keyboard shortcuts.
     \endlist
 
-    The new main window classes are working well, but are not quite complete.
-    In their current state, they are not ready for production use. There
-    are a number of features in each class that we have not included in this
-    release.
-
-    In the QMainWindow class:
+    \section1 What's Changed Since Qt 4 Technology Preview 2?
 
     \list
-    \i The tool bar and dock window context menu is missing.
-    \i Saving and restoring of dock window and tool bar states is not
+    \o The tool bar and dock window context menu has been added.
+
+    \o Saving and restoring of dock window and tool bar states is now
        implemented.
-    \i Support for large pixmaps and text labels in tool bar buttons is not
-       present.
+
+    \o Support for large pixmaps and text labels in tool bar buttons has been
+       added.
+
+    \o Support for arbitrary widgets in the tool bar is now present.
+
+    \o The previously private button class \c QToolBarButton that was
+       used by \c addAction() and \c insertAction() has been merged
+       with QToolButton.
     \endlist
-
-    In the QDockWindow class:
-
-    \list
-    \i There is currently no support for tabbed dock windows. The API for
-       this feature is under discussion.
-    \endlist
-
-    In the QToolBar class:
-
-    \list
-    \i Support for using \l{QActionGroup}s to manage tool bar items is not
-       implemented. The API for action group support in QToolBar is under
-       discussion.
-    \i Support for arbitrary widgets in the tool bar is not present.
-    \i Better support for widgets in the extension menu is required.
-    \endlist
-
-    We are interested in feedback regarding the look and feel, API, and
-    design of each of these classes.
-
 
     \section1 Example Code
 
@@ -203,7 +185,7 @@
     Note that the left and right dock windows will occupy the top and bottom
     corners of the main window in this layout.
 
-    \img mainwindow-docks-example.png
+    \image mainwindow-docks-example.png
 
     Finally, once all of the main window components have been set up, the
     central widget is created and installed:
@@ -280,23 +262,10 @@
         dockWindow->setArea(dockWindow, Qt::DockWindowAreaLeft);
     \endcode
 
-    The central widget in a main window is now defined using
-    setCentralWidget().
-
-    In Qt 3:
-    \code
-        setCentralWidget(centralWidget);
-    \endcode
-    In Qt 4:
-    \code
-        setCentralWidget(centralWidget);
-    \endcode
-
     These changes provide more than a cosmetic improvement to Qt's API.
     They allow more consistent behavior to be defined and implemented. In
     response to feedback from customers, we hope to improve these classes
     even further.
-
 
     \section1 Future Work
 
@@ -305,46 +274,19 @@
     the Trolltech development team, and put forward for implementation.
     Feedback is welcome and encouraged.
 
-    In the QMainWindow class:
-
     \list
-    \i Convenience functions to return a QMenu (or, possibly, a
-       QAction with a menu) that can list all tool bars and dock windows.
-       This menu will allow the user to toggle the visibility of each tool
-       bar and dock window.
-    \endlist
 
-    In the QDockWindow class:
-
-    \list
-    \i Dragging/dropping behavior may change such that dropped dock
+    \o Dragging/dropping behavior may change such that dropped dock
        windows will always split a single dock window.
-
-       The current behavior when placing a dock window between two other
+       (The current behavior when placing a dock window between two other
        dock windows is to take equal space from each to make room for the
-       newly placed dock window.
+       newly placed dock window.)
 
-    \i When unfloating a dock window, the main window could remember the
+    \o When unfloating a dock window, the main window could remember the
        original location such that, if the user clicks the "unfloat" button,
        the dockwindow would return to the original location.
-
-       The current behavior is to re-insert the dock window at the end of
-       the layout.
-
-    \i Support for auto-hiding of dock windows.
-
-       A tab bar along each edge of the main window would slide out a single
-       dock window when a tab is selected. When the dock window loses focus,
-       the main window will automatically hide the dock window.
-    \endlist
-
-    In the QToolBar class:
-
-    \list
-    \i Currently, a private button class (\c QToolBarButton) is used when
-       using the action interface (e.g. addAction() and insertAction()).
-       This class may either become public, or be merged with
-       QToolButton.
+       (The current behavior is to re-insert the dock window at the end of
+       the layout.)
     \endlist
 
     \link qt4-intro.html [Back to the Beta page] \endlink

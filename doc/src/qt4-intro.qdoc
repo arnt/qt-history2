@@ -1,16 +1,17 @@
-/*! \page qt4-intro.html
+/*!
+    \page qt4-intro.html
     \title Welcome to the Qt 4.0.0 Beta 1
 
     We are pleased to present our first beta release for Qt 4. We are
     releasing this code to our users because we want you to have the
     opportunity to give us your feedback before the Qt 4.0 API is
     frozen. The feedback we receive will help us to ensure that the
-    final Qt 4.0.0 release provides as much value and productivity as
+    final Qt 4.0 release provides as much value and productivity as
     possible.
 
     This beta release is not meant to be used in production code.
     However, you can already start using it for new projects. The API
-    might change before Qt 4.0.0 final is released, but only in minor
+    might change before Qt 4.0 final is released, but only in minor
     ways. Your can also start porting your Qt 3 based projects over
     to Qt 4. The \l{porting4.html}{Porting Guide} and the
     \l{qt3to4.html}{qt3to4 porting tool} will help you with the
@@ -65,24 +66,20 @@
 
     \section1 Supported Platforms
 
-    This beta release has not been tested on the entire range of
-    platforms targeted by the final Qt 4.0 release. The following
-    platforms are supported:
+    For this beta release, we have tested the entire range of
+    platforms targeted by the final Qt 4.0 release, with three
+    exceptions: Windows with Borland C++, HP-UX i, and HP-UX with aCC
+    1.x.
 
-    \list
-    \o GNU/Linux with gcc 2.95 or later on Intel x86
-    \o Mac OS X 10.3 with the native gcc compiler
-    \o Microsoft Windows 2000 and later with MSVC 6 or later
-    \o Qt/Embedded with gcc 3.3 on Intel x86
-    \endlist
-
-    Other operating systems and compilers might work but are not yet part
-    of the testing program.
+    While testing, we found out that we needed to install patches on
+    some of the compilers. If you run into problems when compiling,
+    make sure to get the most recent upgrades from your compiler
+    vendor.
 
     \section1 How to Provide Feedback
 
     Trolltech has set up a special mailing list, \c qt4-preview-feedback,
-    for discussion of Qt 4 related issues. To subscribe,
+    for discussion of Qt 4 issues. To subscribe,
     send a message containing just the word \e subscribe to
     \l{mailto:qt4-preview-feedback-request@trolltech.com}{qt4-preview-feedback-request@trolltech.com}.
     We encourage you to use this mailing list instead of \c qt-interest for
