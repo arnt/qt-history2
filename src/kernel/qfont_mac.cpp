@@ -181,7 +181,8 @@ static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, tex
 	err = ConvertFromUnicodeToScriptCodeRun( runi, unilen-read_so_far, unibuf+read_so_far, flags,
 						 0, NULL, NULL, NULL, buf_len, &read, 
 						 &converted, buf, run_len, &run_len, runs);
-	if(err != noErr && err != kTECUsedFallbacksStatus && err != kTECArrayFullErr) {
+	if(err != noErr && err != kTECUsedFallbacksStatus && 
+	   err != kTECArrayFullErr && err != kTECOutputBufferFullStatus)  {
 	    qDebug("unlikely error %d %s:%d", (int)err, __FILE__, __LINE__);
 	    DisposeUnicodeToTextRunInfo(&runi);
 	    free(buf);
@@ -220,7 +221,7 @@ static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, tex
 		TextSize(sz);
 	}
 
-	if( err != kTECArrayFullErr )
+	if( err != kTECArrayFullErr && err != kTECOutputBufferFullStatus)
 	    break;
     }
     DisposeUnicodeToTextRunInfo(&runi);
