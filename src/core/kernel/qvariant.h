@@ -519,6 +519,7 @@ Q_DECLARE_TYPEINFO(QVariant, Q_MOVABLE_TYPE);
 
 #ifndef QT_NO_DEBUG_OUTPUT
 Q_CORE_EXPORT QDebug operator<<(QDebug, const QVariant &);
+Q_CORE_EXPORT QDebug operator<<(QDebug, const QVariant::Type);
 #endif
 
 #endif //QT_NO_VARIANT

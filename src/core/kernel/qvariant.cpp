@@ -2360,6 +2360,18 @@ QDebug operator<<(QDebug dbg, const QVariant &v)
     Q_UNUSED(v);
 #endif
 }
+
+QDebug operator<<(QDebug dbg, const QVariant::Type p)
+{
+#ifndef Q_NO_STREAMING_DEBUG
+    dbg.nospace() << "QVariant::" << QVariant::typeToName(p);
+    return dbg.space();
+#else
+    qWarning("This compiler does not support streaming QDebug");
+    Q_UNUSED(p)
+    return dbg;
+#endif
+}
 #endif
 
 /*!
