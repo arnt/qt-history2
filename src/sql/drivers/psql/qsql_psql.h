@@ -14,8 +14,8 @@
 #ifndef QSQL_PSQL_H
 #define QSQL_PSQL_H
 
-#include <qsqlresult.h>
-#include <qsqldriver.h>
+#include <QtSql/qsqlresult.h>
+#include <QtSql/qsqldriver.h>
 
 #ifdef QT_PLUGIN
 #define Q_EXPORT_SQLDRIVER_PSQL
