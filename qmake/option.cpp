@@ -225,7 +225,7 @@ Option::parseCommandLine(int argc, char **argv)
 			Option::mkfile::do_preprocess = TRUE;
 		    } else if(opt == "cache") {
 			Option::mkfile::cachefile = argv[++x];
-		    } else if(opt == "spec") {
+		    } else if(opt == "platform" || opt == "spec") {
 			Option::mkfile::qmakespec = argv[++x];
 			Option::mkfile::qmakespec_commandline = argv[x];
 		    } else {
