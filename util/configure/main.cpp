@@ -13,7 +13,7 @@ int main( int argc, char** argv )
     app.validateArgs();
     app.generateOutputVars();
     if( app.displayHelp() )
-	return 0;
+	return 1;
     else {
 	app.generateCachefile();
 	app.generateConfigfiles();
