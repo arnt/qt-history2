@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#239 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#240 $
 **
 ** Implementation of QWidget class
 **
@@ -30,7 +30,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#239 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#240 $");
 
 
 /*!
@@ -722,10 +722,10 @@ void QWidget::destroyMapper()
     ASSERT( it.count() == 0 );
 #endif
 #if 0
-    w = it.toFirst();				// shouln't be any more widgets
-    while ( w ) {				// delete the rest
+    it.toFirst();				// shouln't be any more widgets
+    while ( (w=it.current()) ) {		// delete the rest
+	++it;
 	delete w;
-	w = ++it;
     }
 #endif
     delete mapper;
