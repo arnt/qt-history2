@@ -1038,7 +1038,7 @@ QString QHttpResponseHeader::toString() const
 
 class QHttpRequestHeaderPrivate : public QHttpHeaderPrivate
 {
-    Q_DECLARE_PUBLIC(QHttpRequestHeader);
+    Q_DECLARE_PUBLIC(QHttpRequestHeader)
 public:
     QString m;
     QString p;
