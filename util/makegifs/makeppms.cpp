@@ -40,6 +40,7 @@
 #include <qhbox.h>
 #include <qvbox.h>
 #include <qgrid.h>
+#include <qiconview.h>
 
 
 #include <life.h>
@@ -770,6 +771,124 @@ public:
     }
 };
 
+class EgComplexMainWindow : public QMainWindow
+{
+public:
+    EgComplexMainWindow() : QMainWindow() {
+	menuBar()->insertItem( "&File" );
+	menuBar()->insertItem( "&Edit" );
+	menuBar()->insertItem( "&Insert" );
+	menuBar()->insertItem( "&Tools" );
+	menuBar()->insertItem( "&Plugins" );
+	menuBar()->insertItem( "E&xtra" );
+	menuBar()->insertSeparator();
+	menuBar()->insertItem( "&Help" );
+	
+	QToolBar *t = new QToolBar( this );
+	QToolButton *tb;
+	tb = new QToolButton( t );
+	tb->setPixmap( QPixmap( "fileopen.xpm" ) );
+	tb = new QToolButton( t );
+	tb->setPixmap( QPixmap( "filesave.xpm" ) );
+	tb = new QToolButton( t );
+	tb->setPixmap( QPixmap( "fileprint.xpm" ) );
+
+	t = new QToolBar( this );
+	tb = new QToolButton( t );
+	tb->setPixmap( QPixmap( "editcut.xpm" ) );
+	tb = new QToolButton( t );
+	tb->setPixmap( QPixmap( "editcopy.xpm" ) );
+	tb = new QToolButton( t );
+	tb->setPixmap( QPixmap( "editpaste.xpm" ) );
+	moveToolBar( t, Left );
+	
+	t = new QToolBar( this );
+	QComboBox *cb = new QComboBox( t );
+	cb->insertItem( "Helvetica" );
+	t->setStretchableWidget( cb );
+	cb = new QComboBox( t );
+	cb->insertItem( "20" );
+	t->addSeparator();
+	tb = new QToolButton( t );
+	tb->setPixmap( QPixmap( "leftjust.xpm" ) );
+	tb = new QToolButton( t );
+	tb->setPixmap( QPixmap( "centrejust.xpm" ) );
+	tb = new QToolButton( t );
+	tb->setPixmap( QPixmap( "rightjust.xpm" ) );
+	
+	QMultiLineEdit *me = new QMultiLineEdit( this );
+	setCentralWidget( me );
+	me->setText( "This is the Central Widget." );
+	
+	statusBar()->message( "For Hel, Press F1" );
+	
+	resize( 400, 300 );
+	
+    }
+};
+
+class EgComplexSplitter : public QSplitter
+{
+public:
+    EgComplexSplitter() : QSplitter() {
+	setOrientation( Vertical );
+	QSplitter *sp = new QSplitter( this );
+	sp->setOrientation( Horizontal );
+	
+	QListBox *lb = new QListBox( sp );
+	lb->insertItem( QPixmap( "fileopen.xpm" ), "File-Open" );
+	lb->insertItem( QPixmap( "filesave.xpm" ), "File-Save" );
+	lb->insertItem( QPixmap( "fileprint.xpm" ), "File-Print" );
+	lb->insertItem( QPixmap( "editcut.xpm" ), "File-Cut" );
+	lb->insertItem( QPixmap( "editcopy.xpm" ), "File-Copy" );
+	lb->insertItem( QPixmap( "editpaste.xpm" ), "File-Paste" );
+	lb->setCurrentItem( 2 );
+	
+	QListView *lv = new QListView( sp );
+	lv->setRootIsDecorated( TRUE );
+	lv->addColumn( "Action" );
+	lv->addColumn( "Description" );
+	QListViewItem *li;
+	lv->setSorting( -1 );
+	li = new QListViewItem( lv, "File", "File Operations" );
+	QListViewItem *r = li;
+	li->setOpen( TRUE );
+	li = new QListViewItem( r, "Open", "Open a local or remote file" );
+	li->setPixmap( 0, QPixmap( "fileopen.xpm" ) );
+	li = new QListViewItem( r, "Save", "Save the document to a file" );
+	li->setPixmap( 0, QPixmap( "filesave.xpm" ) );
+	li = new QListViewItem( r, "Print", "Print out the contents of the document" );
+	li->setPixmap( 0, QPixmap( "filePrint.xpm" ) );
+	li = new QListViewItem( lv, "Edit", "Edit Operations" );
+	li->setOpen( TRUE );
+	r = li;
+	li = new QListViewItem( r, "Cut", "Cut the selection" );
+	li->setPixmap( 0, QPixmap( "editcut.xpm" ) );
+	li = new QListViewItem( r, "Copy", "Copy the selection to the clipboard" );
+	li->setPixmap( 0, QPixmap( "editcopy.xpm" ) );
+	li = new QListViewItem( r, "Paste", "Paste the data from the clipboard" );
+	li->setPixmap( 0, QPixmap( "editpaste.xpm" ) );
+ 	li = new QListViewItem( lv, "Extra", "Extra Operations" );
+ 	li = new QListViewItem( lv, "Help", "Help and Documentation" );
+	lv->setMinimumSize( 300, 200 );
+	
+	QIconView *iv = new QIconView( this );
+	new QIconViewItem( iv, "Actions", QPixmap( "qtlogo.xpm" ) );
+	new QIconViewItem( iv, "User Settings", QPixmap( "qtlogo.xpm" ) );
+	new QIconViewItem( iv, "Global Settings", QPixmap( "qtlogo.xpm" ) );
+	new QIconViewItem( iv, "Plugins", QPixmap( "qtlogo.xpm" ) );
+	new QIconViewItem( iv, "Administration", QPixmap( "qtlogo.xpm" ) );
+	new QIconViewItem( iv, "Network", QPixmap( "qtlogo.xpm" ) );
+	new QIconViewItem( iv, "Update", QPixmap( "qtlogo.xpm" ) );
+	iv->setCurrentItem( iv->firstItem() );
+	iv->setSelected( iv->firstItem(), FALSE );
+	iv->setMinimumHeight( 150 );
+	iv->setFocus();
+	
+	resize( 400, 450 );
+    }
+};
+
 int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
@@ -782,9 +901,9 @@ int main( int argc, char **argv )
 	WidgetDepicter wd(suffix);
 
 #define DEPICT(eg, ofile, wname) \
-    wd.depict( new eg(), ofile, wname );
+wd.depict( new eg(), ofile, wname );
 #define DEPICTFRAMED(eg, ofile, wname) \
-    wd.depict( new eg(), ofile, wname, TRUE );
+wd.depict( new eg(), ofile, wname, TRUE );
 
 	DEPICT( EgQButtonGroup, "qbttngrp", "QButtonGroup" );
 	DEPICT( EgQTabDialog, "qtabdlg", "QTabDialog" );
@@ -827,7 +946,8 @@ int main( int argc, char **argv )
 	DEPICT( EgQDial, "qdial", "QDial" );
 
 	DEPICT( EgQSizeGrip, "qsizegrip", "QSizeGrip" );	
-	
+	DEPICTFRAMED( EgComplexMainWindow, "mainwindow", "QMainWindow" );	
+	DEPICT( EgComplexSplitter, "splitter-views", "QSplitter" );	
 	if ( !first ) break;
 
 	first = false;
