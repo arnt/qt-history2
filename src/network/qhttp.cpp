@@ -1989,7 +1989,7 @@ void QHttp::slotReadyRead()
 
     if ( !d->readHeader ) {
 	Q_ULONG n = d->socket.bytesAvailable();
-	if ( n > 0 ) {
+	if ( n >= 0 ) {
 	    QByteArray *arr = 0;
 	    if ( d->chunkedSize != -1 ) {
 		// transfer-encoding is chunked
@@ -2057,12 +2057,14 @@ void QHttp::slotReadyRead()
 		}
 	    } else if ( d->response.hasContentLength() ) {
 		n = QMIN( d->response.contentLength() - d->bytesDone, n );
-		arr = new QByteArray( n );
-		Q_LONG read = d->socket.readBlock( arr->data(), n );
-		arr->resize( read );
+		if ( n > 0 ) {
+		    arr = new QByteArray( n );
+		    Q_LONG read = d->socket.readBlock( arr->data(), n );
+		    arr->resize( read );
+		}
 		if ( d->bytesDone + bytesAvailable() + n == d->response.contentLength() )
 		    everythingRead = TRUE;
-	    } else {
+	    } else if ( n > 0 ) {
 		// workaround for VC++ bug
 		QByteArray temp = d->socket.readAll();
 		arr = new QByteArray( temp );
