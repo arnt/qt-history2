@@ -80,7 +80,7 @@ void QMenuBarPrivate::updateActions()
         shortcutIndexMap.resize(0); // faster than clear
         for(int i = 0; i < actionItems.count(); i++)
             shortcutIndexMap.append(
-                q->grabShortcut(QKeySequence::mnemonic(actionItems.at(i)->action->text())));
+                q->grabShortcut(QKeySequence::mnemonic(actionItems.at(i)->action->menuText())));
     }
     itemsDirty = 0;
 
@@ -184,7 +184,7 @@ QList<QMenuAction*> QMenuBarPrivate::calcActionRects(int max_width, int start) c
                 separator = ret.count();
             continue; //we don't really position these!
         } else {
-            QString s = action->text();
+            QString s = action->menuText();
             int w = fm.width(s);
             w -= s.count('&') * fm.width('&');
             w += s.count("&&") * fm.width('&');
@@ -275,7 +275,7 @@ QStyleOptionMenuItem QMenuBarPrivate::getStyleOption(const QAction *action) cons
     opt.menuRect = q->rect();
     opt.menuItemType = QStyleOptionMenuItem::Normal;
     opt.checkState = QStyleOptionMenuItem::NotCheckable;
-    opt.text = action->text();
+    opt.text = action->menuText();
     opt.icon = action->icon();
     return opt;
 }
@@ -713,7 +713,7 @@ void QMenuBar::keyPressEvent(QKeyEvent *e)
             QChar c = e->text()[0].toUpper();
             for(int i = 0; i < d->actionItems.size(); ++i) {
                 register QMenuAction *act = d->actionItems.at(i);
-                QString s = act->action->text();
+                QString s = act->action->menuText();
                 if(!s.isEmpty()) {
                     int ampersand = s.indexOf('&');
                     if(ampersand >= 0) {

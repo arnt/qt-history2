@@ -497,6 +497,10 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
 {
     if(!action)
         return;
+
+    if(action_e == QAction::Trigger)
+        hideUpToMenuBar();
+
     action->activate(action_e);
 
     if(action_e == QAction::Hover) {
@@ -506,8 +510,6 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
         QAccessible::updateAccessibility(q, actionID, QAccessible::Selection);
 #endif
         action->showStatusText(q);
-    } else if(action_e == QAction::Trigger) {
-        hideUpToMenuBar();
     }
 
     for(QWidget *caused = q; caused;) {
@@ -562,7 +564,7 @@ QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
     else
         opt.menuItemType = QStyleOptionMenuItem::Normal;
     opt.icon = action->icon();
-    QString textAndAccel = action->text();
+    QString textAndAccel = action->menuText();
     if (textAndAccel.indexOf('\t') == -1) {
         QKeySequence seq = action->shortcut();
         if(!seq.isEmpty())
@@ -1393,13 +1395,10 @@ void QMenu::mouseReleaseEvent(QMouseEvent *e)
         }
     }
     if(action && action->action->isEnabled()) {
-        if(action->action->menu()) {
+        if(action->action->menu())
             action->action->menu()->d->setFirstActionActive();
-        } else {
-            d->hideUpToMenuBar();
-            if(action)
-                d->activateAction(action->action, QAction::Trigger);
-        }
+        else
+            d->activateAction(action->action, QAction::Trigger);
     }
 }
 
@@ -1634,7 +1633,7 @@ void QMenu::keyPressEvent(QKeyEvent *e)
                 QChar c = e->text()[0].toUpper();
                 for(int i = 0; i < d->actionItems.size(); ++i) {
                     register QMenuAction *act = d->actionItems.at(i);
-                    QString s = act->action->text();
+                    QString s = act->action->menuText();
                     if(!s.isEmpty()) {
                         int ampersand = s.indexOf('&');
                         if(ampersand >= 0) {
