@@ -151,7 +151,7 @@ bool QTableModel::removeRows(int row, int count, const QModelIndex &)
     if (row >= 0 && row < vertical.count()) {
         emit rowsAboutToBeRemoved(QModelIndex(), row, row + count - 1);
         // remove rows
-        int i = tableIndex(row - 1, columnCount() - 1);
+        int i = tableIndex(row, 0);
         int n = count * columnCount();
         table.remove(qMax(i, 0), n);
         vertical.remove(row, count);

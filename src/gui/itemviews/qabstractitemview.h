@@ -169,10 +169,10 @@ signals:
 protected:
     QAbstractItemView(QAbstractItemViewPrivate &, QWidget *parent = 0);
 
-    void setHorizontalFactor(int factor);
-    int horizontalFactor() const;
-    void setVerticalFactor(int factor);
-    int verticalFactor() const;
+    void setHorizontalStepsPerItem(int steps);
+    int horizontalStepsPerItem() const;
+    void setVerticalStepsPerItem(int steps);
+    int verticalStepsPerItem() const;
 
     enum CursorAction { MoveUp, MoveDown, MoveLeft, MoveRight,
                         MoveHome, MoveEnd, MovePageUp, MovePageDown,

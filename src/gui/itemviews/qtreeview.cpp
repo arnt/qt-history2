@@ -471,9 +471,10 @@ void QTreeView::scrollTo(const QModelIndex &index)
     }
 
     // vertical
+    int verticalSteps = verticalStepsPerItem();
     if (rect.top() < area.top()) { // above
         int i = d->viewIndex(index);
-        verticalScrollBar()->setValue(i * verticalFactor());
+        verticalScrollBar()->setValue(i * verticalSteps);
     } else if (rect.bottom() > area.bottom()) { // below
         int i = d->viewIndex(index);
         if (i < 0) {
@@ -484,8 +485,8 @@ void QTreeView::scrollTo(const QModelIndex &index)
         while (y > 0 && i > 0)
             y -= d->height(i--);
         int h = d->height(i);
-        int a = (-y * verticalFactor()) / (h ? h : 1);
-        verticalScrollBar()->setValue(++i * verticalFactor() + a);
+        int a = (-y * verticalSteps) / (h ? h : 1);
+        verticalScrollBar()->setValue(++i * verticalSteps + a);
     }
 
     // horizontal
@@ -495,16 +496,17 @@ void QTreeView::scrollTo(const QModelIndex &index)
     bool rightOf = isRightToLeft()
                    ? rect.left() < area.left()
                    : rect.right() > area.right();
+    int horizontalSteps = horizontalStepsPerItem();
     if (leftOf) {
-        horizontalScrollBar()->setValue(index.column() * horizontalFactor());
+        horizontalScrollBar()->setValue(index.column() * horizontalSteps);
     } else if (rightOf) {
         int c = index.column();
         int x = area.width();
         while (x > 0 && c > 0)
             x -= columnWidth(c--);
         int w = columnWidth(c);
-        int a = (-x * horizontalFactor()) / (w ? w : 1);
-        horizontalScrollBar()->setValue(++c * horizontalFactor() + a);
+        int a = (-x * horizontalSteps) / (w ? w : 1);
+        horizontalScrollBar()->setValue(++c * horizontalSteps + a);
     }
 }
 
@@ -798,7 +800,7 @@ int QTreeView::horizontalOffset() const
 int QTreeView::verticalOffset() const
 {
     // gives an estimate
-    int item = verticalScrollBar()->value() / d->verticalFactor;
+    int item = verticalScrollBar()->value() / verticalStepsPerItem();
     if (model()->rowCount(rootIndex()) > 0 && model()->columnCount(rootIndex()) > 0)
         return item * d->itemHeight;
     return item * 30;
@@ -931,7 +933,7 @@ void QTreeView::scrollContentsBy(int dx, int dy)
 {
     // guestimate the number of items in the viewport
     int viewCount = d->viewport->height() / d->itemHeight;
-    int maxDeltaY = verticalFactor() * qMin(d->viewItems.count(), viewCount);
+    int maxDeltaY = verticalStepsPerItem() * qMin(d->viewItems.count(), viewCount);
 
     // no need to do a lot of work if we are going to redraw the whole thing anyway
     if (qAbs(dy) > maxDeltaY) {
@@ -941,10 +943,11 @@ void QTreeView::scrollContentsBy(int dx, int dy)
     }
 
     if (dx) {
+        int steps = horizontalStepsPerItem();
         int scrollbarValue = horizontalScrollBar()->value();
-        int column = d->header->logicalIndex(scrollbarValue / d->horizontalFactor);
-        int left = (scrollbarValue % d->horizontalFactor) * d->header->sectionSize(column);
-        int offset = (left / d->horizontalFactor) + d->header->sectionPosition(column);
+        int column = d->header->logicalIndex(scrollbarValue / steps);
+        int left = (scrollbarValue % steps) * d->header->sectionSize(column);
+        int offset = (left / steps) + d->header->sectionPosition(column);
         if (isRightToLeft())
             dx = offset - d->header->offset();
         else
@@ -953,10 +956,11 @@ void QTreeView::scrollContentsBy(int dx, int dy)
     }
 
     if (dy) {
+        int steps = verticalStepsPerItem();
         int currentScrollbarValue = verticalScrollBar()->value();
         int previousScrollbarValue = currentScrollbarValue + dy; // -(-dy)
-        int currentViewIndex = currentScrollbarValue / d->verticalFactor; // the first visible item
-        int previousViewIndex = previousScrollbarValue / d->verticalFactor;
+        int currentViewIndex = currentScrollbarValue / steps; // the first visible item
+        int previousViewIndex = previousScrollbarValue / steps;
 
         const QVector<QTreeViewItem> viewItems = d->viewItems;
 
@@ -1386,13 +1390,13 @@ QModelIndex QTreeViewPrivate::modelIndex(int i) const
 
 int QTreeViewPrivate::itemAt(int value) const
 {
-    return value / verticalFactor;
+    return value / verticalStepsPerItem;
 }
 
 int QTreeViewPrivate::topItemDelta(int value, int iheight) const
 {
-    int above = (value % verticalFactor) * iheight; // what's left; in "item units"
-    return -(above / verticalFactor); // above the page
+    int above = (value % verticalStepsPerItem) * iheight; // what's left; in "item units"
+    return -(above / verticalStepsPerItem); // above the page
 }
 
 int QTreeViewPrivate::columnAt(int x) const
@@ -1457,10 +1461,10 @@ void QTreeViewPrivate::updateVerticalScrollbar()
     int i = itemCount; // FIXME: wrong
     while (y > 0 && i > 0)
         y -= height(--i);
-    int max = i * verticalFactor;
+    int max = i * verticalStepsPerItem;
 
     if (y < 0) { // if the first item starts above the viewport, we have to backtrack
-        int backtracking = verticalFactor * -y;
+        int backtracking = verticalStepsPerItem * -y;
         int itemSize = height(i);
         if (itemSize > 0) // avoid division by zero
             max += (backtracking / itemSize) + 1;
@@ -1484,16 +1488,16 @@ void QTreeViewPrivate::updateHorizontalScrollbar()
     int x = width;
     while (x > 0 && count > 0)
         x -= header->sectionSize(--count);
-    int max = count * horizontalFactor;
+    int max = count * horizontalStepsPerItem;
 
     // set page step size
     int visibleCount = header->count() - count - 1;
-    q->horizontalScrollBar()->setPageStep(visibleCount * horizontalFactor);
+    q->horizontalScrollBar()->setPageStep(visibleCount * horizontalStepsPerItem);
 
     if (x < 0) { // if the first item starts left of the viewport, we have to backtrack
         int sectionSize = header->sectionSize(count);
         if (sectionSize > 0) // avoid division by zero
-            max += ((-x * horizontalFactor) / sectionSize) + 1;
+            max += ((-x * horizontalStepsPerItem) / sectionSize) + 1;
     }
 
     q->horizontalScrollBar()->setRange(0, max);

@@ -119,8 +119,8 @@ public:
     QAbstractItemView::EditTriggers editTriggers;
 
     QPersistentModelIndex root;
-    int horizontalFactor;
-    int verticalFactor;
+    int horizontalStepsPerItem;
+    int verticalStepsPerItem;
 
     bool tabKeyNavigation;
     bool showDropIndicator;

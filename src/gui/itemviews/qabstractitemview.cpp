@@ -80,8 +80,8 @@ void QAbstractItemViewPrivate::init()
     viewport->setBackgroundRole(QPalette::Base);
     viewport->setAttribute(Qt::WA_NoBackground);
 
-    q->setHorizontalFactor(64);
-    q->setVerticalFactor(64);
+    q->setHorizontalStepsPerItem(64);
+    q->setVerticalStepsPerItem(64);
 
     dropIndicator = new QRubberBand(QRubberBand::Line, viewport);
 
@@ -888,7 +888,6 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
     if (!selectionModel() || (d->state == EditingState && d->editors.contains(index)))
         return;
 
-    bool itemWasSelected = selectionModel()->isSelected(index);
     QPoint offset(horizontalOffset(), verticalOffset());
     d->pressedIndex = index;
     d->pressedModifiers = e->modifiers();
@@ -1504,48 +1503,48 @@ void QAbstractItemView::editorDestroyed(QObject *editor)
         setState(NoState);
 }
 
-// ###DOC: this value is also used by the "scroll in item units" algorithm to
+// ###DOC: this value is used by the "scroll in item units" algorithm to
 // enable the scrolling in fractions of item units (one step == itemHeight / verticalFraction)
 /*!
     Sets the horizontal scrollbar's stepping factor to \a factor.
 
-    \sa horizontalFactor() setVerticalFactor()
+    \sa horizontalStepsPerItem() setVerticalStepsPerItem()
 */
-void QAbstractItemView::setHorizontalFactor(int factor)
+void QAbstractItemView::setHorizontalStepsPerItem(int steps)
 {
-    d->horizontalFactor = factor;
-    horizontalScrollBar()->setSingleStep(factor);
+    d->horizontalStepsPerItem = steps;
+    horizontalScrollBar()->setSingleStep(steps);
 }
 
 /*!
-    Returns the horizontal scrollbar's stepping factor.
+    Returns the horizontal scrollbar's steps per item.
 
-    \sa setHorizontalFactor() verticalFactor()
+    \sa setHorizontalStepsPerItem() verticalStepsPerItem()
 */
-int QAbstractItemView::horizontalFactor() const
+int QAbstractItemView::horizontalStepsPerItem() const
 {
-    return d->horizontalFactor;
+    return d->horizontalStepsPerItem;
 }
 
 /*!
-    Sets the vertical scrollbar's stepping \a factor.
+    Sets the vertical scrollbar's \a steps per item.
 
-    \sa verticalFactor() setHorizontalFactor()
+    \sa verticalStepsPerItem() setHorizontalStepsPerItem()
 */
-void QAbstractItemView::setVerticalFactor(int factor)
+void QAbstractItemView::setVerticalStepsPerItem(int steps)
 {
-    d->verticalFactor = factor;
-    verticalScrollBar()->setSingleStep(factor);
+    d->verticalStepsPerItem = steps;
+    verticalScrollBar()->setSingleStep(steps);
 }
 
 /*!
-    Returns the vertical scrollbar's stepping factor.
+    Returns the vertical scrollbar's steps per item.
 
-    \sa setVerticalFactor() horizontalFactor()
+    \sa setVerticalStepsPerIItem() horizontalStepsPerItem()
 */
-int QAbstractItemView::verticalFactor() const
+int QAbstractItemView::verticalStepsPerItem() const
 {
-    return d->verticalFactor;
+    return d->verticalStepsPerItem;
 }
 
 /*!

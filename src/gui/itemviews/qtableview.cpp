@@ -44,7 +44,7 @@ void QTableViewPrivate::init()
 
 void QTableViewPrivate::updateVerticalScrollbar()
 {
-    int factor = q->verticalFactor();
+    int steps = q->verticalStepsPerItem();
     int height = viewport->height();
     int count = verticalHeader->count();
 
@@ -58,16 +58,16 @@ void QTableViewPrivate::updateVerticalScrollbar()
     int y = height;
     while (y > 0 && count > 0)
         y -= verticalHeader->sectionSize(--count);
-    int max = count * factor;
+    int max = count * steps;
 
     // set page step size
     int visibleCount = verticalHeader->count() - count - 1;
-    q->verticalScrollBar()->setPageStep(visibleCount * factor);
+    q->verticalScrollBar()->setPageStep(visibleCount * steps);
 
     if (y < 0) { // if the last item starts above the viewport, we have to backtrack
         int sectionSize = verticalHeader->sectionSize(count);
         if (sectionSize) // avoid division by zero
-            max += ((-y * factor)/ sectionSize) + 1; // how many units to add
+            max += ((-y * steps)/ sectionSize) + 1; // how many units to add
     }
 
     q->verticalScrollBar()->setRange(0, max);
@@ -75,7 +75,7 @@ void QTableViewPrivate::updateVerticalScrollbar()
 
 void QTableViewPrivate::updateHorizontalScrollbar()
 {
-    int factor = q->horizontalFactor();
+    int steps = q->horizontalStepsPerItem();
     int width = viewport->width();
     int count = horizontalHeader->count();
 
@@ -89,16 +89,16 @@ void QTableViewPrivate::updateHorizontalScrollbar()
     int x = width;
     while (x > 0 && count > 0)
         x -= horizontalHeader->sectionSize(--count);
-    int max = count * factor;
+    int max = count * steps;
 
     // set page step size
     int visibleCount = horizontalHeader->count() - count - 1;
-    q->horizontalScrollBar()->setPageStep(visibleCount * factor);
+    q->horizontalScrollBar()->setPageStep(visibleCount * steps);
 
     if (x < 0) { // if the last item starts left of the viewport, we have to backtrack
         int sectionSize = horizontalHeader->sectionSize(count);
         if (sectionSize) // avoid division by zero
-            max += ((-x * factor) / sectionSize) + 1;
+            max += ((-x * steps) / sectionSize) + 1;
     }
 
     q->horizontalScrollBar()->setRange(0, max);
@@ -281,9 +281,10 @@ void QTableView::scrollContentsBy(int dx, int dy)
 {
     if (dx) { // horizontal
         int value = horizontalScrollBar()->value();
-        int section = d->horizontalHeader->logicalIndex(value / horizontalFactor());
-        int left = (value % horizontalFactor()) * d->horizontalHeader->sectionSize(section);
-        int offset = (left / horizontalFactor()) + d->horizontalHeader->sectionPosition(section);
+        int section = d->horizontalHeader->logicalIndex(value / horizontalStepsPerItem());
+        int steps = horizontalStepsPerItem();
+        int left = (value % steps) * d->horizontalHeader->sectionSize(section);
+        int offset = (left / steps) + d->horizontalHeader->sectionPosition(section);
         if (isRightToLeft())
             dx = offset - d->horizontalHeader->offset();
         else
@@ -293,9 +294,10 @@ void QTableView::scrollContentsBy(int dx, int dy)
 
     if (dy) { // vertical
         int value = verticalScrollBar()->value();
-        int section = d->verticalHeader->logicalIndex(value / verticalFactor());
-        int above = (value % verticalFactor()) * d->verticalHeader->sectionSize(section);
-        int offset = (above / verticalFactor()) + d->verticalHeader->sectionPosition(section);
+        int section = d->verticalHeader->logicalIndex(value / verticalStepsPerItem());
+        int steps = verticalStepsPerItem();
+        int above = (value % steps) * d->verticalHeader->sectionSize(section);
+        int offset = (above / steps) + d->verticalHeader->sectionPosition(section);
         dy = d->verticalHeader->offset() - offset;
         d->verticalHeader->setOffset(offset);
     }
@@ -873,16 +875,17 @@ void QTableView::scrollTo(const QModelIndex &index)
     }
 
     // vertical
+    int verticalSteps = verticalStepsPerItem();
     if (rect.top() < area.top()) { // above
-        verticalScrollBar()->setValue(index.row() * verticalFactor());
+        verticalScrollBar()->setValue(index.row() * verticalSteps);
     } else if (rect.bottom() > area.bottom()) { // below
         int r = index.row();
         int y = area.height();
         while (y > 0 && r > 0)
             y -= rowHeight(r--);
         int h = rowHeight(r);
-        int a = (-y * verticalFactor()) / (h ? h : 1);
-        verticalScrollBar()->setValue(++r * verticalFactor() + a);
+        int a = (-y * verticalSteps) / (h ? h : 1);
+        verticalScrollBar()->setValue(++r * verticalSteps + a);
     }
 
     // horizontal
@@ -892,16 +895,17 @@ void QTableView::scrollTo(const QModelIndex &index)
     bool rightOf = isRightToLeft()
                    ? rect.left() < area.left()
                    : rect.right() > area.right();
+    int horizontalSteps = horizontalStepsPerItem();
     if (leftOf) {
-        horizontalScrollBar()->setValue(index.column() * horizontalFactor());
+        horizontalScrollBar()->setValue(index.column() * horizontalSteps);
     } else if (rightOf) {
         int c = index.column();
         int x = area.width();
         while (x > 0 && c > 0)
             x -= columnWidth(c--);
         int w = columnWidth(c);
-        int a = (-x * horizontalFactor()) / (w ? w : 1);
-        horizontalScrollBar()->setValue(++c * horizontalFactor() + a);
+        int a = (-x * horizontalSteps) / (w ? w : 1);
+        horizontalScrollBar()->setValue(++c * horizontalSteps + a);
     }
 
     d->viewport->update(visualRect(index));
@@ -1101,29 +1105,29 @@ void QTableView::sortByColumn(int column)
 */
 void QTableView::verticalScrollbarAction(int action)
 {
-    int factor = d->verticalFactor;
+    int steps = verticalStepsPerItem();
     int value = verticalScrollBar()->value();
-    int row = value / factor;
-    int above = (value % factor) * d->verticalHeader->sectionSize(row); // what's left; in "item units"
-    int y = -(above / factor); // above the page
+    int row = value / steps;
+    int above = (value % steps) * d->verticalHeader->sectionSize(row); // what's left; in "item units"
+    int y = -(above / steps); // above the page
 
     if (action == QScrollBar::SliderPageStepAdd) {
         // go down to the bottom of the page
         int h = d->viewport->height();
         while (y < h && row < d->model->rowCount(rootIndex()))
             y += d->verticalHeader->sectionSize(row++);
-        value = row * factor; // i is now the last item on the page
+        value = row * steps; // i is now the last item on the page
         if (y > h && row)
-            value -= factor * (y - h) / d->verticalHeader->sectionSize(row - 1);
+            value -= steps * (y - h) / d->verticalHeader->sectionSize(row - 1);
         verticalScrollBar()->setSliderPosition(value);
     } else if (action == QScrollBar::SliderPageStepSub) {
         y += d->viewport->height();
         // go up to the top of the page
         while (y > 0 && row > 0)
             y -= d->verticalHeader->sectionSize(--row);
-        value = row * factor; // i is now the first item in the page
+        value = row * steps; // i is now the first item in the page
         if (y < 0)
-            value += factor * -y / d->verticalHeader->sectionSize(row);
+            value += steps * -y / d->verticalHeader->sectionSize(row);
         verticalScrollBar()->setSliderPosition(value);
     }
 }
@@ -1133,20 +1137,20 @@ void QTableView::verticalScrollbarAction(int action)
 */
 void QTableView::horizontalScrollbarAction(int action)
 {
-    int factor = d->horizontalFactor;
+    int steps = horizontalStepsPerItem();
     int value = horizontalScrollBar()->value();
-    int column = value / factor;
-    int above = (value % factor) * d->horizontalHeader->sectionSize(column); // what's left; in "item units"
-    int x = -(above / factor); // above the page
+    int column = value / steps;
+    int above = (value % steps) * d->horizontalHeader->sectionSize(column); // what's left; in "item units"
+    int x = -(above / steps); // above the page
 
     if (action == QScrollBar::SliderPageStepAdd) {
         // go down to the right of the page
         int w = d->viewport->width();
         while (x < w && column < d->model->columnCount(rootIndex()))
             x += d->horizontalHeader->sectionSize(column++);
-        value = column * factor; // i is now the last item on the page
+        value = column * steps; // i is now the last item on the page
         if (x > w && column)
-            value -= factor * (x - w) / d->horizontalHeader->sectionSize(column - 1);
+            value -= steps * (x - w) / d->horizontalHeader->sectionSize(column - 1);
         horizontalScrollBar()->setSliderPosition(value);
 
     } else if (action == QScrollBar::SliderPageStepSub) {
@@ -1154,9 +1158,9 @@ void QTableView::horizontalScrollbarAction(int action)
         // go up to the left of the page
         while (x > 0 && column > 0)
             x -= d->horizontalHeader->sectionSize(--column);
-        value = column * factor; // i is now the first item in the page
+        value = column * steps; // i is now the first item in the page
         if (x < 0)
-            value += factor * -x / d->horizontalHeader->sectionSize(column);
+            value += steps * -x / d->horizontalHeader->sectionSize(column);
         horizontalScrollBar()->setSliderPosition(value);
     }
 }
