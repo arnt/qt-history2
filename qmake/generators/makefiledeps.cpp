@@ -263,8 +263,8 @@ void QMakeSourceFileInfo::setCacheFile(const QString &cf)
 void QMakeSourceFileInfo::addSourceFiles(const QStringList &l, uchar seek,
                                          QMakeSourceFileInfo::SourceFileType type)
 {
-    for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it)
-        addSourceFile((*it), seek, type);
+    for(int i=0; i<l.size(); ++i)
+        addSourceFile(l.at(i), seek, type);
 }
 void QMakeSourceFileInfo::addSourceFile(const QString &f, uchar seek,
                                         QMakeSourceFileInfo::SourceFileType type)
