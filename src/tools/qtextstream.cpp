@@ -2264,7 +2264,7 @@ QTextStream &reset( QTextStream &s )
 */
 
 /*!
-  \fn QTextIStream::QTextIStream( QString *s )
+  \fn QTextIStream::QTextIStream( const QString *s )
 
   Constructs a stream to read from the string \a s.
 */
