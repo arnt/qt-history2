@@ -160,7 +160,7 @@ void QGfxVFb<depth,type>::drawLine( int x1,int y1,int x2,int y2 )
     QWSDisplay::grab( TRUE );
     QRect r;
     r.setCoords( x1+xoffs, y1+yoffs, x2+xoffs, y2+yoffs );
-    qvfb_screen->setDirty( r );
+    qvfb_screen->setDirty( r.normalize() );
     QGfxRaster<depth,type>::drawLine( x1, y1, x2, y2 );
     QWSDisplay::ungrab();
 }
