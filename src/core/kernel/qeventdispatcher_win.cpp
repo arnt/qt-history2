@@ -40,6 +40,7 @@ class QEventDispatcherWin32Private : public QAbstractEventDispatcherPrivate
     Q_DECLARE_PUBLIC(QEventDispatcherWin32)
 public:
     QEventDispatcherWin32Private();
+    ~QEventDispatcherWin32Private();
 
     DWORD threadId;
 
@@ -55,6 +56,9 @@ public:
     QSNDict sn_write;
     QSNDict sn_except;
 
+    // event notifier
+    QWinEventNotifier wakeUpNotifier;
+
     QList<QWinEventNotifier *> winEventNotifierList;
     void activateEventNotifier(QWinEventNotifier * wen);
 
@@ -63,7 +67,17 @@ public:
 
 QEventDispatcherWin32Private::QEventDispatcherWin32Private()
     : threadId(GetCurrentThreadId()), interrupt(false), sn_win(0)
-{ }
+{
+    wakeUpNotifier.setHandle(QT_WA_INLINE(CreateEventW(0, false, false, L"Wakeup event"),
+                                          CreateEventA(0, false, false, "Wakeup event")));
+    wakeUpNotifier.setEnabled(true);
+}
+
+QEventDispatcherWin32Private::~QEventDispatcherWin32Private()
+{
+    wakeUpNotifier.setEnabled(false);
+    CloseHandle(wakeUpNotifier.handle());
+}
 
 void QEventDispatcherWin32Private::activateEventNotifier(QWinEventNotifier * wen)
 {
@@ -535,8 +549,7 @@ void QEventDispatcherWin32::activateEventNotifiers()
 void QEventDispatcherWin32::wakeUp()
 {
     Q_D(QEventDispatcherWin32);
-    QT_WA({ PostThreadMessageW(d->threadId, WM_NULL, 0, 0); } ,
-          { PostThreadMessageA(d->threadId, WM_NULL, 0, 0); });
+    SetEvent(d->wakeUpNotifier.handle());
 }
 
 void QEventDispatcherWin32::interrupt()
