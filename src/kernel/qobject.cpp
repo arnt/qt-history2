@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#8 $
 **
 ** Implementation of QObject class
 **
@@ -12,11 +12,10 @@
 
 #include "qobject.h"
 #include "qobjcoll.h"
-#include "qview.h"
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#8 $";
 #endif
 
 
@@ -28,23 +27,38 @@ bool  qKillTimer( QObject *obj );
 
 
 declare(QDictM,QConnection);			// dictionary of connections
+declare(QDictIteratorM,QConnection);		// dictionary iterator
 
 QMetaObject *QObject::metaObj = 0;
+
+
+static void removeObjFromList( QObjectList *objList, const QObject *obj )
+{
+    int i = objList->findRef( obj );
+    while ( i >= 0 ) {
+	objList->remove();
+	i = objList->findNextRef( obj );
+    }
+}
+
 
 QObject::QObject( QObject *parent, const char *name )
 {
     if ( !objectDict )				// will create object dict
 	initMetaObject();
-    parentObj = parent;				// set parent
     if ( name )
 	objname = name;				// set object name
-    sender = 0;					// no sender yet
-    connections = 0;				// no connections yet
+    parentObj = parent;				// set parent
     childObjects = 0;				// no children yet
-    isWidget = FALSE;				// assume not a widget
+    connections = 0;				// no connections yet
+    senderObjects = 0;				// no signals connected yet
+    sigSender = 0;				// no sender yet
+    isSignal = FALSE;				// assume not a signal object
+    isWidget = FALSE;				// assume not a widget object
+    hasTimer = FALSE;				// no timers yet
+    blockSig = FALSE;				// not blocking signals
     if ( parentObj )				// add object to parent
 	parentObj->insertChild( this );
-    hasTimer = FALSE;				// has no timer yet
 }
 
 QObject::~QObject()
@@ -53,9 +67,28 @@ QObject::~QObject()
 	qKillTimer( (QObject *)this );
     if ( parentObj )				// remove it from parent object
 	parentObj->removeChild( this );
-    delete connections;				// delete all connections
-    if ( childObjects ) {
-	register QObject *obj = childObjects->first();
+    register QObject *obj;
+    if ( senderObjects ) {			// disconnect from senders
+	obj = senderObjects->first();
+	while ( obj ) {
+	    obj->disconnect( this );
+	    obj = senderObjects->next();
+	}
+	delete senderObjects;
+	senderObjects = 0;			// in case of auto-connections
+    }
+    if ( connections ) {			// disconnect receivers
+	QDictIteratorM(QConnection) it(*connections);
+	QConnection *c;
+	while ( (c=it.current()) ) {
+	    if ( (obj=c->object()) && obj->senderObjects )
+		removeObjFromList( obj->senderObjects, this );
+	    ++it;
+	}
+	delete connections;
+    }
+    if ( childObjects ) {			// delete children objects
+	obj = childObjects->first();
 	while ( obj ) {				// delete all child objects
 	    obj->parentObj = 0;			// object should not remove
 	    delete obj;				//   itself from the list
@@ -63,6 +96,12 @@ QObject::~QObject()
 	}
 	delete childObjects;
     }
+}
+
+
+const char *QObject::className() const		// get name of class
+{
+    return "QObject";
 }
 
 
@@ -80,7 +119,7 @@ bool QObject::event( QEvent * )			// receive event
 
 void QObject::blockSignals( bool b )
 {
-    blockSig = b ? TRUE : FALSE;
+    blockSig = b;
 }
 
 
@@ -119,8 +158,8 @@ void QObject::insertChild( QObject *obj )	// add object object
     }
 #if defined(CHECK_RANGE)
     else if ( childObjects->findRef(obj) >= 0 ) {
-	warning( "QObject::insertChild: Duplicate %ss in list",
-		 obj->className() );
+	warning( "QObject::insertChild: Object %s::%s already in list",
+		 obj->className(), obj->name() );
 	return;
     }
 #endif
@@ -150,25 +189,60 @@ static char *rmWS( char *dest, const char *src )// remove white space
 }
 
 
-bool QObject::connect( QObject *sigobj, const char *signal,
-		       const QObject *obj, const char *member )
+bool QObject::connect( QObject *sender, const char *signal,
+		       const QObject *receiver, const char *member )
 {						// connect signal to method
+#if defined(CHECK_NULL)
+    if ( sender == 0 || receiver == 0 || signal == 0 || member == 0 ) {
+	warning( "QObject::connect: Unexpected NULL parameter" );
+	return FALSE;
+    }
+#endif
     char *s=strdup(signal), *m=strdup(member);
     rmWS( s, signal );
     rmWS( m, member );
-    bool result = sigobj->bind( s, obj, m );
+    bool result = sender->bind( s, receiver, m );
+    if ( result ) {				// ok
+	register QObject *x = (QObject *)receiver; // override const
+	if ( !x->senderObjects ) {		// create list of senders
+	    x->senderObjects = new QObjectList;
+	    CHECK_PTR( x->senderObjects );
+	}
+	x->senderObjects->append( sender );	// add sender to list
+    }
     delete s;
     delete m;
     return result;
 }
 
-bool QObject::disconnect( QObject *obj, const char *signal )
+bool QObject::disconnect( QObject *sender, const char *signal,
+			  const QObject *receiver, const char *member )
 {
-    char *s = strdup(signal);
-    rmWS( s, signal );
-    bool result = obj->unbind( s );
-    delete s;
-    return result;
+#if defined(CHECK_NULL)
+    if ( sender == 0 || receiver == 0 || (signal == 0 && member != 0) ) {
+	warning( "QObject::disconnect: Unexpected NULL parameter" );
+	return FALSE;
+    }
+#endif
+    if ( !sender->connections )			// sender has no signals
+	return FALSE;
+    if ( signal == 0 && member == 0 ) {		// remove all signals to recv
+	QDictIteratorM(QConnection) it(*sender->connections);	
+	register QConnection *c;
+	while ( (c=it.current()) ) {
+	    if ( c->object() == receiver )
+		sender->connections->remove( it.currentKey() );
+	    else
+		++it;
+	}
+    }
+    else if ( member == 0 ) {			// remove signal to recv
+	sender->connections->remove( signal );	// ONLY ONE RECEIVER!!!
+    }
+    else {
+	sender->connections->remove( signal );	// ONLY ONE RECEIVER!!!
+    }
+    return TRUE;
 }
 
 
@@ -182,19 +256,19 @@ bool QObject::bind( const char *signal, const QObject *object,
     }
     if ( !meta ) {				// has no meta object
 #if defined(CHECK_NULL)
-	fatal( "QObject::bind: No meta object for %s (WHY?)", className() );
-#else
-	return FALSE;
+	warning( "QObject::bind: Object %s::%s has no meta object",
+		 className(), name() );
 #endif
+	return FALSE;
     }
 #if defined(CHECK_RANGE)
     int sigcode = (int)(*signal) - '0';
     if ( sigcode != SIGNAL_CODE ) {
 	if ( sigcode == METHOD_CODE || sigcode == SLOT_CODE )
-	    warning( "QObject::bind: Attempt to bind non-signal '%s::%s'",
+	    warning( "QObject::bind: Attempt to bind non-signal %s::%s",
 		     className(), signal+1 );
 	else
-	    warning( "QObject::bind: Use the SIGNAL() macro to bind '%s::%s'",
+	    warning( "QObject::bind: Use the SIGNAL() macro to bind %s::%s",
 		     className(), signal );
 	return FALSE;
     }
@@ -203,19 +277,27 @@ bool QObject::bind( const char *signal, const QObject *object,
     if ( meta->signal( signal, TRUE ) == 0 ) {	// no such find signal
 #if defined(CHECK_RANGE)
 	if ( strchr(signal,')') == 0 )		// was common typing mistake
-	    warning( "QObject::bind: Parentheses expected for signal '%s::%s'",
+	    warning( "QObject::bind: Parentheses expected for signal %s::%s",
 		     className(), signal );
 	else
-	    warning( "QObject::bind: No such signal '%s::%s'",
+	    warning( "QObject::bind: No such signal %s::%s",
 		     className(), signal );
 #endif
 	return FALSE;
     }
 
-    int memberCode = member[0] - '0';		// get member code
-    member++;					// skip code
+    int membcode = member[0] - '0';		// get member code
     QObject *r = object ?			// set receiver object
 		 (QObject *)object : parentObj;
+#if defined(CHECK_RANGE)
+    if ( membcode != METHOD_CODE && membcode != SLOT_CODE &&
+	 membcode != SIGNAL_CODE ) {
+	warning( "QObject::bind: Use the SLOT/SIGNAL macro to connect %s::%s",
+		 r->className(), member );
+        return FALSE;
+    }
+#endif
+    member++;					// skip code
     QMember *m = 0;
     QMetaObject *rmeta = r->metaObject();
     if ( !rmeta ) {				// receiver has no meta object
@@ -224,30 +306,29 @@ bool QObject::bind( const char *signal, const QObject *object,
     }
     if ( !rmeta ) {
 #if defined(CHECK_NULL)
-	fatal( "QObject::bind: No meta object for %s (WHY?)", r->className() );
-#else
-	return FALSE;
+	warning( "QObject::bind: Object %s::%s has no meta object",
+		 r->className(), r->name() );
 #endif
+	return FALSE;
     }
-    switch ( memberCode ) {			// get receiver member
+    switch ( membcode ) {			// get receiver member
 	case METHOD_CODE: m = rmeta->method( member, TRUE ); break;
 	case SLOT_CODE:	  m = rmeta->slot( member, TRUE );   break;
 	case SIGNAL_CODE: m = rmeta->signal( member, TRUE ); break;
     }
     if ( !m ) {					// no such member
 #if defined(CHECK_RANGE)
-	char *memberType;
-	switch ( memberCode ) {			// set member type string
+	char *memberType = 0;
+	switch ( membcode ) {			// set member type string
 	    case METHOD_CODE: memberType = "method"; break;
 	    case SLOT_CODE:   memberType = "slot";   break;
 	    case SIGNAL_CODE: memberType = "signal"; break;
-	    default:	      memberType = "(unspecified)";
 	}
 	if ( strchr(member,')') == 0 )		// was common typing mistake
-	    warning( "QObject::bind: Parentheses expected for %s '%s::%s'",
+	    warning( "QObject::bind: Parentheses expected for %s %s::%s",
 		     memberType, r->className(), member );
 	else
-	    warning( "QObject::bind: No such %s: '%s::%s'", memberType,
+	    warning( "QObject::bind: No such %s: %s::%s", memberType,
 		     r->className(), member );
 #endif
 	return FALSE;
@@ -262,7 +343,7 @@ bool QObject::bind( const char *signal, const QObject *object,
 	int s2len = strlen(s2);
 	if ( !(s2len < s1len && !strncmp(s1,s2,s2len-1) && s1[s2len-1]==',')) {
 	    warning( "QObject::bind: Incompatible sender/receiver arguments"
-		     "\n\t'%s::%s' --> '%s::%s'", className(), signal,
+		     "\n\t%s::%s --> %s::%s", className(), signal,
 		     r->className(), member );
 	    return FALSE;
 	}
@@ -270,6 +351,7 @@ bool QObject::bind( const char *signal, const QObject *object,
 #endif
     if ( !connections ) {
 	connections = new QConnections;		// create connections dict
+	CHECK_PTR( connections );
 	connections->setAutoDelete( TRUE );
     }
     QConnection *c = connections->find( signal );
@@ -280,18 +362,6 @@ bool QObject::bind( const char *signal, const QObject *object,
     return TRUE;
 }
 
-bool QObject::unbind( const char *signal )	// disconnect from signal
-{
-    if ( !connections )
-	return FALSE;
-    return connections->remove( signal );
-}
-
-
-const char *QObject::className() const		// get name of class
-{
-    return "QObject";
-}
 
 void QObject::initMetaObject()			// initialize meta object
 {
