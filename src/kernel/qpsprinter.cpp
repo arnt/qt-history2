@@ -4679,16 +4679,63 @@ class QPSPrinterFontAsian
   : public QPSPrinterFontPrivate {
 public:
       QPSPrinterFontAsian()
-	  : QPSPrinterFontPrivate(), codec( 0 ), slant( 0. ) {}
+	  : QPSPrinterFontPrivate(), codec( 0 ) {}
       void download(QTextStream& s, bool global);
       QString defineFont( QTextStream &stream, const QString &ps, const QFont &f, const QString &key,
                           QPSPrinterPrivate *d );
       void drawText( QTextStream &stream, uint spaces, const QPoint &p,
                      const QString &text, QPSPrinterPrivate *d, QPainter *paint );
       
+      QString makePSFontName( const QFont &f, int type ) const;
+      virtual QString extension() const = 0;
+      
       QTextCodec *codec;
-      float slant;
 };
+
+QString QPSPrinterFontAsian::makePSFontName( const QFont &f, int type ) const
+{
+    QString ps;
+    int i;
+
+    QString family = f.family();
+    family = family.lower();
+ 
+ 
+    // try to make a "good" postscript name
+    ps = family.simplifyWhiteSpace();
+    i = 0;
+    while( (unsigned int)i < ps.length() ) {
+	if ( i == 0 || ps[i-1] == ' ' ) {
+	    ps[i] = ps[i].upper();
+	    if ( i )
+		ps.remove( i-1, 1 );
+	    else
+		i++;
+	} else {
+	    i++;
+	}
+    }
+ 
+    switch ( type ) {
+	case 1:
+	    ps.append( QString::fromLatin1("-Italic") );
+	    break;
+	case 2:
+	    ps.append( QString::fromLatin1("-Bold") );
+	    break;
+	case 3:
+	    ps.append( QString::fromLatin1("-BoldItalic") );
+	    break;
+	case 0:
+	default:
+	    break;
+    }
+
+    ps += extension();
+    
+    return ps;
+}
+
 
 QString QPSPrinterFontAsian::defineFont( QTextStream &stream, const QString &ps, const QFont &f,
 					 const QString &key, QPSPrinterPrivate *d)
@@ -4785,62 +4832,96 @@ void QPSPrinterFontAsian::drawText( QTextStream &stream, uint spaces, const QPoi
 // ----------- Japanese --------------
 
 static const psfont Japanese1 [] = {
-    { "Ryumin-Light-H", 0, 100. },
-    { "Ryumin-Light-H", 0.2, 100. },
-    { "GothicBBB-Medium-H", 0, 100. },
-    { "GothicBBB-Medium-H", 0.2, 100. }
+    { "Ryumin-Light-EUC-H", 0, 100. },
+    { "Ryumin-Light-EUC-H", 0.2, 100. },
+    { "GothicBBB-Medium-EUC-H", 0, 100. },
+    { "GothicBBB-Medium-EUC-H", 0.2, 100. }
 };
 
 static const psfont Japanese1a [] = {
-    { "GothicBBB-Medium-H", 0, 100. },
-    { "GothicBBB-Medium-H", 0.2, 100. },
-    { "Ryumin-Light-H", 0, 100. },
-    { "Ryumin-Light-H", 0.2, 100. }
+    { "GothicBBB-Medium-EUC-H", 0, 100. },
+    { "GothicBBB-Medium-EUC-H", 0.2, 100. },
+    { "Ryumin-Light-EUC-H", 0, 100. },
+    { "Ryumin-Light-EUC-H", 0.2, 100. }
 };
 
 static const psfont Japanese2 [] = {
-    { "GothicBBB-Medium-H", 0, 100. },
-    { "GothicBBB-Medium-H", 0.2, 100. },
-    { "GothicBBB-Medium-H", 0, 100. },
-    { "GothicBBB-Medium-H", 0.2, 100. }
+    { "GothicBBB-Medium-EUC-H", 0, 100. },
+    { "GothicBBB-Medium-EUC-H", 0.2, 100. },
+    { "GothicBBB-Medium-EUC-H", 0, 100. },
+    { "GothicBBB-Medium-EUC-H", 0.2, 100. }
 };
 
 static const psfont Japanese2a [] = {
-    { "Ryumin-Light-H", 0, 100. },
-    { "Ryumin-Light-H", 0.2, 100. },
-    { "Ryumin-Light-H", 0, 100. },
-    { "Ryumin-Light-H", 0.2, 100. }
+    { "Ryumin-Light-EUC-H", 0, 100. },
+    { "Ryumin-Light-EUC-H", 0.2, 100. },
+    { "Ryumin-Light-EUC-H", 0, 100. },
+    { "Ryumin-Light-EUC-H", 0.2, 100. }
 };
 
+
+// Wadalab fonts
+
+static const psfont WadaMin [] = {
+    { "WadaMin-Regular-EUC-H", 0, 100. },
+    { "WadaMin-Regular-EUC-H", 0.2, 100. },
+    { "WadaMin-Bold-EUC-H", 0, 100. },
+    { "WadaMin-Bold-EUC-H", 0.2, 100. }
+};
+
+static const psfont WadaGo [] = {
+    { "WadaMaruGo-Regular-EUC-H", 0, 100. },
+    { "WadaMaruGo-Regular-EUC-H", 0.2, 100. },
+    { "WadaGo-Bold-EUC-H", 0, 100. },
+    { "WadaGo-Bold-EUC-H", 0.2, 100. }
+};
+
+// Adobe Wadalab
+
+static const psfont WadaGoAdobe [] = {
+    { "WadaMaruGo-RegularH-Hojo-EUC-H", 0, 100. },
+    { "WadaMaruGo-RegularH-Hojo-EUC-H", 0.2, 100. },
+    { "WadaMaruGo-RegularH-Hojo-EUC-H", 0, 100. },
+    { "WadaMaruGo-RegularH-Hojo-EUC-H", 0.2, 100. },
+};
+static const psfont WadaMinAdobe [] = {
+    { "WadaMin-RegularH-Hojo-EUC-H", 0, 100. },
+    { "WadaMin-RegularH-Hojo-EUC-H", 0.2, 100. },
+    { "WadaMin-RegularH-Hojo-EUC-H", 0, 100. },
+    { "WadaMin-RegularH-Hojo-EUC-H", 0.2, 100. },
+};
+
+
 static const psfont * const Japanese1Replacements[] = {
-    Japanese1, Japanese1a, 0
+    Japanese1, Japanese1a, WadaMin, WadaGo, WadaMinAdobe, WadaGoAdobe, 0
 };
 static const psfont * const Japanese2Replacements[] = {
-    Japanese2, Japanese2a, 0
+    Japanese2, Japanese2a, WadaMin, WadaGo, WadaMinAdobe, WadaGoAdobe, 0
 };
 
 class QPSPrinterFontJapanese
   : public QPSPrinterFontAsian {
 public:
       QPSPrinterFontJapanese(const QFont& f);
+      virtual QString extension() const;
 };
 
 QPSPrinterFontJapanese::QPSPrinterFontJapanese(const QFont& f)
 {
-    codec = QTextCodec::codecForMib( 63 ); // jisx0208.1983-0
+    codec = QTextCodec::codecForMib( 18 ); // eucjp
 
-    psname = makePSFontName( f );
     int type = getPsFontType( f );
+    psname = makePSFontName( f, type );
+    QString best = "[ /" + psname + " 1.0 0.0 ]";
+    replacementList.append( best );
 
-    if ( psname.contains( "Helvetica" ) ) {
-	psname = Japanese2[type].psname;
-	slant = Japanese2[type].slant;
-	appendReplacements( replacementList, Japanese2Replacements, type );
-    } else {
-	psname = Japanese1[type].psname;
-	slant = Japanese1[type].slant;
-	appendReplacements( replacementList, Japanese1Replacements, type );
-    }
+    const psfont *const *replacements = ( psname.contains( "Helvetica" ) ? Japanese2Replacements : Japanese1Replacements );
+    appendReplacements( replacementList, replacements, type );
+}
+
+QString QPSPrinterFontJapanese::extension() const
+{
+    return "-EUC-H";
 }
 
 // ----------- Korean --------------
@@ -4915,17 +4996,23 @@ class QPSPrinterFontKorean
   : public QPSPrinterFontAsian {
 public:
       QPSPrinterFontKorean(const QFont& f);
+      QString extension() const;
 };
 
 QPSPrinterFontKorean::QPSPrinterFontKorean(const QFont& f)
 {
     codec = QTextCodec::codecForMib( 36 ); // ksc5601.1987-0
     int type = getPsFontType( f );
-    psname = SMGothic[type].psname;
-    slant = SMGothic[type].slant;
+    psname = makePSFontName( f, type );
+    QString best = "[ /" + psname + " 1.0 0.0 ]";
+    replacementList.append( best );
     appendReplacements( replacementList, KoreanReplacements, type );
 }
 
+QString QPSPrinterFontKorean::extension() const
+{
+    return "-KSC-EUC-H"; 
+}
 // ----------- traditional chinese ------------
 
 // Arphic Public License Big5 TrueType fonts (on Debian and CLE and others)
@@ -5048,15 +5135,22 @@ class QPSPrinterFontTraditionalChinese
   : public QPSPrinterFontAsian {
 public:
       QPSPrinterFontTraditionalChinese(const QFont& f);
+      QString extension() const;
 };
 
 QPSPrinterFontTraditionalChinese::QPSPrinterFontTraditionalChinese(const QFont& f)
 {
     codec = QTextCodec::codecForMib( -2026 ); // Big5-0
     int type = getPsFontType( f );
-    psname = MSung[type].psname;
-    slant = MSung[type].slant;
+    psname = makePSFontName( f, type );
+    QString best = "[ /" + psname + " 1.0 0.0 ]";
+    replacementList.append( best );
     appendReplacements( replacementList, TraditionalReplacements, type );
+}
+
+QString QPSPrinterFontTraditionalChinese::extension() const
+{
+    return "-B5-H"; 
 }
 
 // ----------- simplified chinese ------------
@@ -5156,15 +5250,23 @@ class QPSPrinterFontSimplifiedChinese
   : public QPSPrinterFontAsian {
 public:
       QPSPrinterFontSimplifiedChinese(const QFont& f);
+      QString extension() const;
 };
 
 QPSPrinterFontSimplifiedChinese::QPSPrinterFontSimplifiedChinese(const QFont& f)
 {
     codec = QTextCodec::codecForMib( 2025 ); // gbk
     int type = getPsFontType( f );
-    psname = SongGBK2K[type].psname;
-    slant = SongGBK2K[type].slant;
+    psname = makePSFontName( f, type );
+    QString best = "[ /" + psname + " 1.0 0.0 ]";
+    replacementList.append( best );
+    qDebug("simplified chinese: fontname is %s, psname=%s", f.family().latin1(), psname.latin1() );
     appendReplacements( replacementList, SimplifiedReplacements, type );
+}
+
+QString QPSPrinterFontSimplifiedChinese::extension() const
+{
+    return "-GBK-EUC-H"; 
 }
 
 #endif
