@@ -1330,7 +1330,7 @@ ProjectBuilderMakefileGenerator::fixForOutput(const QString &values)
         rep += reg_var.matchedLength();
     }
     QString ret = values;
-    ret = ret.replace(QRegExp("('|\")"), "\\\\1"); //fix quotes
+    ret = ret.replace(QRegExp("('|\\\\|\")"), "\\\\1"); //fix quotes
     ret = ret.replace("\t", "    "); //fix tabs
     return ret;
 }
