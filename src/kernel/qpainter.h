@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#57 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#58 $
 **
 ** Definition of QPainter class
 **
@@ -95,6 +95,12 @@ public:
     bool	hasWorldXForm() const { return testf(WxF); }
     const QWMatrix &worldMatrix() const;	// get/set world xform matrix
     void	setWorldMatrix( const QWMatrix &, bool concat=FALSE );
+
+    void	translate( float dx, float dy );
+    void	scale( float sx, float sy );
+    void	shear( float sh, float sv );
+    void	rotate( float a );
+    void	resetXForm();
 
     QPoint	xForm( const QPoint & ) const;	// map virtual -> device
     QRect	xForm( const QRect & )	const;
