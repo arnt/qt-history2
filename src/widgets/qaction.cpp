@@ -1099,6 +1099,27 @@ bool QActionGroup::addTo( QWidget* w )
 bool QActionGroup::removeFrom( QWidget* w )
 {
     if ( w->inherits( "QToolBar" ) ) {
+	QListIterator<QComboBox> cb( d->comboboxes );
+	while( cb.current() ) {
+	    QComboBox *box = cb.current();
+	    ++cb;
+	    if ( box->parentWidget() == w )
+		delete cb;
+	}
+	QListIterator<QToolButton> mb( d->menubuttons );
+	while( mb.current() ) {
+	    QToolButton *btn = mb.current();
+	    ++mb;
+	    if ( btn->parentWidget() == w )
+		delete btn;
+	}
+    } else if ( w->inherits( "QPopupMenu" ) ) {
+	QListIterator<QActionGroupPrivate::MenuItem> pu( d->menuitems );
+	while ( pu.current() ) { 
+	    QActionGroupPrivate::MenuItem *mi = pu.current();
+	    ++pu;
+	    delete mi->popup;
+	}
     }
 
     for ( QListIterator<QAction> it( d->actions); it.current(); ++it ) {
