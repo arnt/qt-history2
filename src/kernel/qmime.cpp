@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmime.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qmime.cpp#15 $
 **
 ** Implementation of MIME support
 **
@@ -264,7 +264,13 @@ const QMimeSource* QMimeSourceFactory::data(const QString& abs_name) const
 
     QMimeSource* r = 0;
     QStringList::Iterator it;
-    if ( abs_name[0] == '/' ) { // handle absolute file names directly
+    if ( abs_name[0] == '/'
+#ifdef _WS_WIN_
+	    || abs_name[0] && abs_name[1] == ':'
+#endif
+    )
+    {
+	// handle absolute file names directly
 	r = data_internal( abs_name, d->extensions );
     }
     else { // check list of paths
