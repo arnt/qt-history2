@@ -1,8 +1,8 @@
 TEMPLATE	= subdirs
 SUBDIRS		= util \
 		   uic \
-		   designer \
 		   resource \
+		   designer \
 		   editor \
 		  plugins/wizards \
 		  plugins/cppeditor
