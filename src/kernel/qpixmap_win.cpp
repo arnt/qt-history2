@@ -614,11 +614,11 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	  QApplication::winVersion() == Qt::WV_2000 );
 
     if ( data->hasAlpha && d==32 ) {
+	// ### can we have alpha channel with depth<32bpp?
 	// Windows expects premultiplied alpha
 	int l = image.numBytes();
 	uchar *b = new uchar[l];
 	memcpy( b, image.bits(), l );
-	// ### is it right to assume that we have 32bpp?
 	for ( int i=0; i+3<l; i+=4 ) {
 	    b[i]   = (b[i]  *b[i+3]) / 255;
 	    b[i+1] = (b[i+1]*b[i+3]) / 255;

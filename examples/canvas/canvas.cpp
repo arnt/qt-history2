@@ -57,14 +57,7 @@ ImageItem::ImageItem( QImage img, QCanvas *canvas )
     setSize( image.width(), image.height() );
 
 #if !defined(Q_WS_QWS)
-    // ### maybe we need something in the API that tells you if alpha Blending
-    // is supported (Windows 98 and 2000 support it only, so the following is
-    // not completely right)
-#if defined(Q_WS_WIN32)
-    pixmap.convertFromImage(image);
-#else
     pixmap.convertFromImage(image, OrderedAlphaDither);
-#endif
 #endif
 }
 
