@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#23 $
 **
 ** Implementation of QFileDialog class
 **
@@ -779,7 +779,7 @@ struct QNetworkOperationPrivate
 };
 
 /*!
-  class QNetworkOperation qnetworkprotocol.h
+  \class QNetworkOperation qnetworkprotocol.h
   
   For each operation, which a network protocol should process
   such an object is created to describe the operation and the current
