@@ -176,9 +176,11 @@ public:
         }
         return QVariant::Invalid;
     }
+
     int rowCount() const {
         return list.count();
     }
+
     bool setData(const QModelIndex &index, int role, const QVariant &value) {
         if (!index.isValid())
             return false;
@@ -193,9 +195,11 @@ public:
         }
         return false;
     }
-    bool isEditable(const QModelIndex &) const {
-        return true;
+
+    QAbstractItemModel::ItemFlags flags(const QModelIndex &index) const {
+        return QAbstractItemModel::flags(index) | QAbstractItemModel::ItemIsEditable;
     }
+
     bool insertRows(int row, const QModelIndex &parent, int count) {
         // this model only allows a 1D list
         if (parent.isValid() || count < 1 || row < 0 || row > rowCount())
@@ -207,6 +211,7 @@ public:
         emit rowsInserted(parent, row, row+count-1);
         return true;
     }
+
     bool removeRows(int row, const QModelIndex &parent, int count) {
         // this model only allows a 1D list
         if (parent.isValid() || count < 1 || row < 0 || row+count > rowCount())

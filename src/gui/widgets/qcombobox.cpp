@@ -1237,6 +1237,10 @@ void QComboBox::hide()
 void QComboBox::clear()
 {
     model()->removeRows(0, root(), model()->rowCount(root()));
+    // ### shouldn't be necessary, model should update persistentindexes
+    QModelIndex old = d->currentItem;
+    d->currentItem = QPersistentModelIndex();
+    emit currentChanged(old, d->currentItem);
     if (d->lineEdit)
         d->lineEdit->setText(QString::null);
 }
