@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#328 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#329 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -195,7 +195,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 #ifdef UNICODE
 	if ( qt_winver & Qt::WV_NT_based ) {
 	    title = (TCHAR*)qt_winTchar_new(QString::fromLatin1(qAppName()));
-	} else 
+	} else
 #endif
 	{
 	    title95 = qAppName();
@@ -250,7 +250,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 				    CW_USEDEFAULT, CW_USEDEFAULT,
 				    CW_USEDEFAULT, CW_USEDEFAULT,
 				    parentw, 0, appinst, 0 );
-	} else 
+	} else
 #endif
 	{
 	    if ( exsty )
@@ -277,7 +277,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    TCHAR *cname = (TCHAR*)qt_winTchar(windowClassName,TRUE);
 	    id = CreateWindow( cname, title, style, 0, 0, 100, 30,
 			    parentw, NULL, appinst, NULL );
-	} else 
+	} else
 #endif
 	{
 	    id = CreateWindowA( windowClassName.latin1(), title95, style, 0, 0, 100, 30,
@@ -501,7 +501,7 @@ void QWidget::setFontSys( QFont *f )
 	LOGFONT lf;
 	if ( GetObject( hf, sizeof(lf), &lf ) )
 	    ImmSetCompositionFont( imc, &lf );
-    } else 
+    } else
 #endif
     {
 	LOGFONTA lf;
@@ -958,7 +958,8 @@ void QWidget::showNormal()
 {
     if ( isTopLevel() ) {
 	if ( topData()->fullscreen ) {
-	    reparent( 0, WType_TopLevel, QPoint(0,0) );
+	    // when reparenting, preserve some widget flags
+	    reparent( 0, WType_TopLevel | (getWFlags() & 0xffff0000), QPoint(0,0) );
 	    topData()->fullscreen = 0;
 	    QRect r = topData()->normalGeometry;
 	    if ( r.width() >= 0 ) {
@@ -1055,7 +1056,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	}
 	clearWState( WState_ConfigPending );
     }
-    
+
      bool isResize = w != oldSize.width() || h != oldSize.height();
      if ( isVisible() ) {
 	if ( isMove && pos() != oldPos ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#530 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#531 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1237,7 +1237,7 @@ void QWidget::setActiveWindow()
 
   Calling update() several times normally results in just one
   paintEvent() call.
-  
+
   Qt normally erases the widget's area before the paintEvent() call.
   Only if the WRepaintNoErase widget flag is set, the widget itself is
   responsible for painting all its pixels.
@@ -1576,7 +1576,8 @@ void QWidget::showNormal()
 {
     if ( isTopLevel() ) {
 	if ( topData()->fullscreen ) {
-	    reparent( 0, WType_TopLevel, QPoint(0,0) );
+	    // when reparenting, preserve some widget flags
+	    reparent( 0, WType_TopLevel | (getWFlags() & 0xffff0000), QPoint(0,0) );
 	    topData()->fullscreen = 0;
 	}
 	QRect r = topData()->normalGeometry;

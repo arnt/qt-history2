@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#715 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#716 $
 **
 ** Implementation of QWidget class
 **
@@ -1374,8 +1374,8 @@ void QWidget::enabledChange( bool )
 /*!
   \fn void QWidget::windowActivationChange( bool oldActive )
 
-  This virtual function is called for a widget when its window is activated or 
-  deactivated by the windows system. \a oldActive is the previous state; you can 
+  This virtual function is called for a widget when its window is activated or
+  deactivated by the windows system. \a oldActive is the previous state; you can
   get the new setting from isActiveWindow().
 
   Reimplement this function if your widget needs to know when its window becomes
@@ -1402,9 +1402,9 @@ void QWidget::windowActivationChange( bool )
 	 acg.base() != icg.base() ||
 	 acg.text() != icg.text() ||
 	 acg.foreground() != icg.foreground() ||
-	 acg.button() != icg.button() ||	
+	 acg.button() != icg.button() ||
 	 acg.buttonText() != icg.buttonText() ||
-	 acg.brightText() != icg.brightText() ||	
+	 acg.brightText() != icg.brightText() ||
 	 acg.dark() != icg.dark() ||
 	 acg.light() != icg.light() ||
 	 acg.mid() != icg.mid() ||
@@ -3135,8 +3135,8 @@ void QWidget::move( int x, int y )
 	    ++it;
 	    if ( object->isWidgetType() ) {
 		widget = (QWidget*)object;
-		if ( !widget->isHidden() && !widget->isTopLevel() && !widget->testWFlags(Qt::WSubWindow) && 
-		     widget->backgroundOrigin() == WindowOrigin && widget->backgroundPixmap() ) 
+		if ( !widget->isHidden() && !widget->isTopLevel() && !widget->testWFlags(Qt::WSubWindow) &&
+		     widget->backgroundOrigin() == WindowOrigin && widget->backgroundPixmap() )
 		    widget->update();
 	    }
 	}
@@ -3173,8 +3173,8 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 	    ++it;
 	    if ( object->isWidgetType() ) {
 		widget = (QWidget*)object;
-		if ( !widget->isHidden() && !widget->isTopLevel() && !widget->testWFlags(Qt::WSubWindow) && 
-		     widget->backgroundOrigin() == WindowOrigin && widget->backgroundPixmap() ) 
+		if ( !widget->isHidden() && !widget->isTopLevel() && !widget->testWFlags(Qt::WSubWindow) &&
+		     widget->backgroundOrigin() == WindowOrigin && widget->backgroundPixmap() )
 		    widget->update();
 	    }
 	}
@@ -5090,7 +5090,9 @@ void QWidget::showFullScreen()
     }
     if ( topData()->normalGeometry.width() < 0 )
 	topData()->normalGeometry = QRect( pos(), size() );
-    reparent( 0, WType_TopLevel | WStyle_Customize | WStyle_NoBorderEx,
+    reparent( 0, WType_TopLevel | WStyle_Customize | WStyle_NoBorderEx |
+	      // preserve some widget flags
+	      (getWFlags() & 0xffff0000),
 	      QPoint(0,0) );
     topData()->fullscreen = 1;
     move(0, 0);
