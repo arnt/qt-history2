@@ -742,7 +742,7 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 	    QPushButton *pb = (QPushButton*)widget;
 	    if ( !(flags & Style_Enabled) )
 		stateId = PBS_DISABLED;
-	    else if ( flags & Style_Down || flags & Style_Sunken )
+	    else if ( flags & Style_Down || flags & Style_Sunken || pb->isOn() )
 		stateId = PBS_PRESSED;
 	    else if ( flags & Style_MouseOver )
 		stateId = PBS_HOT;
