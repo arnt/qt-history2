@@ -180,4 +180,20 @@ copy() is obsolete, use standard assignment instead.
 
 Has been removed.
 
+\section1 QWidgetList
+
+QWidgetList is a typdef to a QList of QWidget pointers and not a QPtrList now.
+
+\section1 QApplication
+
+allWidgets() and topLevelWidgets() return a QWidgetList and not a
+pointer to a QWidgetList now. This resolves some memory management
+issues using these methods.
+
+
+
+
+
+
+
 */
