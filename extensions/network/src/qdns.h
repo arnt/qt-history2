@@ -76,7 +76,7 @@ public:
 	MailServer();
 #endif
     };
-    QValueList<QDns::MailServer> mailServers() const;
+    QValueList<MailServer> mailServers() const;
 
     class Server {
     public:
@@ -90,7 +90,7 @@ public:
 	Server();
 #endif
     };
-    QValueList<QDns::Server> servers() const;
+    QValueList<Server> servers() const;
 
     QStringList texts() const;
 
