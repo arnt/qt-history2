@@ -1203,7 +1203,7 @@ bool QMenuData::setItemParameter( int id, int param ) {
 	mi->signal_data = new QSignal;
 	Q_CHECK_PTR( mi->signal_data );
     }
-    mi->signal_data->setParameter( param );
+    mi->signal_data->setValue( param );
     return TRUE;
 }
 
@@ -1221,7 +1221,7 @@ int QMenuData::itemParameter( int id ) const
     QMenuItem *mi = findItem( id );
     if ( !mi || !mi->signal_data )
 	return id;
-    return mi->signal_data->parameter();
+    return mi->signal_data->value().toInt();
 }
 
 
@@ -1243,7 +1243,7 @@ bool QMenuData::connectItem( int id, const QObject *receiver,
     if ( !mi->signal_data ) {			// create new signal
 	mi->signal_data = new QSignal;
 	Q_CHECK_PTR( mi->signal_data );
-	mi->signal_data->setParameter( id );
+	mi->signal_data->setValue( id );
     }
     return mi->signal_data->connect( receiver, member );
 }
