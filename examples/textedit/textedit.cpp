@@ -41,6 +41,8 @@
 #include <qprintdialog.h>
 #include <private/qtextdocumentlayout_p.h>
 
+#include <limits.h>
+
 TextEdit::TextEdit(QWidget *parent)
     : QMainWindow(parent)
 {
