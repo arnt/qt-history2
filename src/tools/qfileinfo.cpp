@@ -635,6 +635,8 @@ QDateTime QFileInfo::lastRead() const
     This function returns the same as filePath(), unless isRelative()
     is TRUE.
 
+    If the QFileInfo is empty it returns QDir::currentDirPath().
+
     This function can be time consuming under Unix (in the order of
     milliseconds).
 
