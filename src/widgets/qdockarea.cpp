@@ -479,18 +479,16 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r,
 #if defined(QDOCKAREA_DEBUG)
 	    qDebug( "     which starts at %d", index );
 #endif
-	    int lastPos = 0;
-	    int lastPos2 = 0;
 	    if ( !insertLine ) { // if we only insert the docking widget in the existing line
 		// find the index for the widget
 		bool inc = TRUE;
+		bool firstTime = TRUE;
 		for ( dw = dockWidgets->current(); dw; dw = dockWidgets->next() ) {
 		    if ( orientation() == Horizontal )
 			dw->setFixedExtentWidth( -1 );
 		    else
 			dw->setFixedExtentHeight( -1 );
-		    if ( point_pos( dw->pos(), orientation() ) <= lastPos && // we are in next line, so break 
-			 point_pos( dw->pos(), orientation(), TRUE ) > lastPos2 )
+		    if ( !firstTime && lineStarts.find( dw ) != -1 ) // we are in the next line, so break
 			break;
 		    if ( point_pos( pos, orientation() ) <
 			 point_pos( dw->pos(), orientation() ) + size_extent( dw->size(), orientation() ) / 2 ) {
@@ -498,8 +496,7 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r,
 		    }
 		    if ( inc )
 			index++;
-		    lastPos = point_pos( dw->pos(), orientation() );
-		    lastPos2 = point_pos( dw->pos(), orientation(), TRUE );
+		    firstTime = FALSE;
 		}
 #if defined(QDOCKAREA_DEBUG)
 		qDebug( "insert at index: %d", index );
@@ -657,18 +654,16 @@ void QDockArea::dockWidget( QDockWidget *dockWidget, DockWidgetData *data )
 	    index = 0;
 	    (void)dockWidgets->at( index );
 	}
-	int lastPos = 0;
-	int lastPos2 = 0;
+	bool firstTime = TRUE;
 	int offset = data->offset;
 	for ( QDockWidget *dw = dockWidgets->current(); dw; dw = dockWidgets->next() ) {
-	    if ( point_pos( dw->pos(), orientation() ) <= lastPos && point_pos( dw->pos(), orientation(), TRUE ) > lastPos2 )
+	    if ( !firstTime && lineStarts.find( dw ) != -1 )
 		break;
 	    if ( offset <
 		 point_pos( dw->pos(), orientation() ) + size_extent( dw->size(), orientation() ) / 2 )
 		break;
 	    index++;
-	    lastPos = point_pos( dw->pos(), orientation() );
-	    lastPos2 = point_pos( dw->pos(), orientation(), TRUE );
+	    firstTime = FALSE;
 	}
 	if ( index >= 0 && index < (int)dockWidgets->count() &&
 	     dockWidgets->at( index )->newLine() && lineOf( index ) == data->line ) {
