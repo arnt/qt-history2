@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#146 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#147 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1705,7 +1705,7 @@ void QListBox::updateNumRows( bool updateWidth )
 
 
 /*!
-  Returns the width in pixels of the longest item.
+  Returns the width in pixels of the widest item.
 */
 
 long QListBox::maxItemWidth() const

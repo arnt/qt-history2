@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#252 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#253 $
 **
 ** Implementation of QWidget class
 **
@@ -1766,7 +1766,7 @@ void QWidget::fontChange( const QFont & )
 
   The font metrics object is automatically updated if somebody sets a new
   widget font. We have decided to change this policy in Qt 2.0: setting
-  a new font for a widget should not affect existing QFontMetric objects.
+  a new font for a widget should not affect existing QFontMetrics objects.
 
   \sa font(), fontInfo(), setFont()
 */

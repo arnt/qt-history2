@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#20 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#21 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -572,7 +572,7 @@ bool QGLContext::create( const QGLContext* shareContext )
 
 
 /*!
-  \fn bool QGLContext::chooseContext()
+  \fn bool QGLContext::chooseContext( const QGLContext* shareContext = 0 )
 
   This semi-internal function is called by create(). It creates a
   system-dependent OpenGL handle that matches the specified \link
