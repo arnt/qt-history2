@@ -641,7 +641,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
         t << "@$(DEL_FILE) " << pkginfo << "\n\t"
           << "@echo \"APPL????\" >" << pkginfo << endl;
     }
-    if(!project->first("QMAKE_INFO_PLIST").isEmpty()) {
+    if(!project->isEmpty("QMAKE_INFO_PLIST")) {
+        //copy the plist
         QString info_plist = project->first("QMAKE_INFO_PLIST"),
             info_plist_out = project->first("QMAKE_INFO_PLIST_OUT");
         QString destdir = project->first("DESTDIR");
@@ -651,13 +652,15 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
         t << "@$(DEL_FILE) " << info_plist_out << "\n\t"
           << "@sed -e \"s,@ICON@,application.icns,g\" -e \"s,@EXECUTABLE@," << var("QMAKE_ORIG_TARGET")
           << ",g\" \"" << info_plist << "\" >\"" << info_plist_out << "\"" << endl;
-        if(!project->first("ICON").isEmpty()) {
-            QString dir = destdir + "../Resources/";
+        //copy the icon
+        if(!project->isEmpty("ICON")) {
+            QString dir = project->first("DESTDIR") + "../Resources/";
             t << dir << "application.icns: " << fileFixify(var("ICON")) << "\n\t"
               << "@test -d " << dir << " || mkdir -p " << dir << "\n\t"
               << "@$(DEL_FILE) " << dir << "application.icns" << "\n\t"
               << "@$(COPY_FILE) " << fileFixify(var("ICON")) << " " << dir << "application.icns" << endl;
         }
+        //copy other data
         if(!project->isEmpty("QMAKE_BUNDLE_DATA")) {
             const QStringList &bundle_data = project->variables()["QMAKE_BUNDLE_DATA"];
             for(int i = 0; i < bundle_data.count(); i++) {
