@@ -24,7 +24,7 @@ signals:
     void added( QListViewItem * );
     void deleting( QListViewItem * );
 public slots:
-    void confirm( QListViewItem * );
+    void confirmDrop( QListViewItem * );
 
 protected:
     bool dragEnterEvent( QDragEnterEvent * event );

@@ -41,7 +41,7 @@ void ConfigToolboxDialog::init()
 	QObject::connect( toolsDnd, SIGNAL( dropped( QListViewItem * ) ),
 			  commonDnd, SLOT( confirm( QListViewItem * ) ) );
 	QObject::connect( commonDnd, SIGNAL( dropped( QListViewItem * ) ),
-			  commonDnd, SLOT( confirm( QListViewItem * ) ) );
+			  commonDnd, SLOT( confirmDrop( QListViewItem * ) ) );
 	
 	QDict<QListViewItem> groups;
 	QAction *a;

@@ -53,7 +53,7 @@ bool ListViewDnd::eventFilter( QObject *, QEvent * event )
     return FALSE;
 }
 
-void ListViewDnd::confirm( QListViewItem * )
+void ListViewDnd::confirmDrop( QListViewItem * )
 {
     dropConfirmed = TRUE;
 }
