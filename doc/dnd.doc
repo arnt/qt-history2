@@ -24,7 +24,7 @@
 /*! \page dnd.html
 
 <title>
-Qt toolkit - Drag and Drop
+Qt Toolkit - Drag and Drop
 </title></head><body bgcolor="#ffffff">
 
 \postheader
@@ -346,8 +346,8 @@ Qt toolkit - Drag and Drop
   Technical Support service.
 
   On X11, Qt also supports drops via the Motif Drag&Drop Protocol. The
-  Xlib implementation of this protocol that formed the basis of the implementation in 
-  Qt is <pre> 
+  Xlib implementation of this protocol that formed the basis of the implementation in
+  Qt is <pre>
 /* Copyright 1996 Daniel Dardailler.
 
    Permission to use, copy, modify, distribute, and sell this software

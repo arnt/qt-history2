@@ -29,7 +29,7 @@ static char ident[] = "$Id: credits.doc,v 2.17 1999/06/07 09:58:55 reggie Exp $"
 
 /*! \page credits.html
 
-<title>Qt toolkit - Credits</title>
+<title>Qt Toolkit - Credits</title>
 </head><body bgcolor="#ffffff">
 \postheader
 

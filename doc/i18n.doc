@@ -24,7 +24,7 @@
 /*! \page i18n.html
 
 <title>
-Qt toolkit - Internationalization
+Qt Toolkit - Internationalization
 </title></head><body bgcolor="#ffffff">
 
 \postheader
@@ -447,7 +447,7 @@ for example, if you have a <tt>/usr/share/locale/ja_JP.EUC</tt>
 directory, this does not necessarily mean you can display Japanese text
 - you also need JIS encoded fonts (or Unicode fonts), and that
 <tt>/usr/share/locale/ja_JP.EUC</tt> directory needs to be complete.
-For best results, use complete locales from your OS vendor.  
+For best results, use complete locales from your OS vendor.
 
 
 <h2>Note about Kinput2 on X11</h2>

@@ -24,7 +24,7 @@
 /*! \page layout.html
 
 <title>
-Qt toolkit - Layout
+Qt Toolkit - Layout
 </title></head><body bgcolor="#ffffff">
 
 \postheader
@@ -85,7 +85,7 @@ The grid above can be produced by the following code:
 
 
 You can adjust the layout somewhat by calling \link
-QWidget::setMinimumSize() setMinimumSize()\endlink or 
+QWidget::setMinimumSize() setMinimumSize()\endlink or
 \link QWidget::setFixedSize() setFixedSize()\endlink on
 the children.
 
@@ -94,7 +94,7 @@ the children.
 If you need more control over the layout, use a \link QLayout QLayout\endlink
  subclass. The layout classes included in Qt 2.0 are \link QGridLayout
  QGridLayout\endlink and \link QBoxLayout QBoxLayout\endlink.
-(\link QHBoxLayout  QHBoxLayout\endlink and 
+(\link QHBoxLayout  QHBoxLayout\endlink and
 \link QVBoxLayout  QVBoxLayout\endlink are trivial subclasses of QBoxLayout,
 that are simpler to use and make the code easier to read.)
 
@@ -105,13 +105,13 @@ done with a function called \c addWidget()). This way, you can give
 layout parameters for each widget, specifying properties like
 alignment, stretch, and placement.
 <p>
-The following code makes a grid like the one above, with a couple of 
-improvements: 
+The following code makes a grid like the one above, with a couple of
+improvements:
 \code
     QWidget *main = new QWidget;
 
     //make a 1x1 grid, it will auto-expand:
-    QGridLayout *grid = new QGridLayout( main, 1, 1 ); 
+    QGridLayout *grid = new QGridLayout( main, 1, 1 );
 
     //add the first four widgets with (row, column) addressing
     grid->addWidget( new QLabel( "One", main ), 0, 0 );
@@ -121,7 +121,7 @@ improvements:
 
     //add the last widget on row 2, let it span from column 0 to
     //column 1, and let it be aligned center.	
-    grid->addMultiCellWidget( new QLabel( "Five", main ), 2, 2, 0, 1, 
+    grid->addMultiCellWidget( new QLabel( "Five", main ), 2, 2, 0, 1,
 			      Qt::AlignCenter );
 
     //let the ratio between the widths of columns 0 and 1 be 2:3.
@@ -132,7 +132,7 @@ improvements:
 <p>
 
 You can insert layouts inside a layout by giving the parent layout as
-a parameter in the constructor. 
+a parameter in the constructor.
 \code
     QWidget*       main = new QWidget;
     QLineEdit*    field = new QLineEdit( main );
@@ -143,7 +143,7 @@ a parameter in the constructor.
     QVBoxLayout *vbox    = new QVBoxLayout( main ); // A layout on a widget
     vbox->addWidget( label );
     vbox->addWidget( field );
-    
+
     QHBoxLayout *buttons = new QHBoxLayout( vbox ); // A layout inside a layout
     buttons->addWidget( ok );
     buttons->addWidget( cancel );
@@ -219,7 +219,7 @@ to be notified of \c LayoutHint events.
 /*!  \page customlayout.html
 
 <title>
-Qt toolkit - Custom Layouts
+Qt Toolkit - Custom Layouts
 </title></head><body bgcolor="#ffffff">
 
 \postheader
@@ -238,9 +238,9 @@ To write your own layout class, you must define the following:
        handle by the layout.
 	Each item is a \link QLayoutItem QLayoutItem\endlink.
 	We will just use a QList in this example.
-  <li>\link QLayout::addItem() addItem() \endlink, how to add items 
+  <li>\link QLayout::addItem() addItem() \endlink, how to add items
 	to the layout.
-  <li>\link QLayout::setGeometry() setGeometry() \endlink, how to do the 
+  <li>\link QLayout::setGeometry() setGeometry() \endlink, how to do the
 	layout.
   <li>\link QLayout::sizeHint() sizeHint() \endlink, the preferred size of the
 	layout.
@@ -248,7 +248,7 @@ To write your own layout class, you must define the following:
 	layout.
   </ul>
 
-In most cases, you will also implement \link QLayout::minimumSize() 
+In most cases, you will also implement \link QLayout::minimumSize()
 minimumSize()\endlink.
 
 <h3> card.h </h3>
@@ -293,7 +293,7 @@ private:
 
 We first define an iterator over the layout. Layout iterators are
 used internally by the layout system to handle deletion of
-widgets. They are also available for application programmers. 
+widgets. They are also available for application programmers.
 
 There are two different classes involved: QLayoutIterator is the class
 that is visible to application programmers, it is explicitly
@@ -331,8 +331,8 @@ private:
 \endcode
 
 
-We must implement QLayout:iterator() to return a QLayoutIterator over 
-this layout. 
+We must implement QLayout:iterator() to return a QLayoutIterator over
+this layout.
 
 \code
 QLayoutIterator CardLayout::iterator()
@@ -358,7 +358,7 @@ void CardLayout::addItem( QLayoutItem *item )
 \endcode
 
 
-The layout takes over responsibility of the items added. Since 
+The layout takes over responsibility of the items added. Since
 QLayoutItem does not inherit QObject, we must delete the items
 manually. The function \link QLayout::deleteAllItems() deleteAllItems()\endlink
 uses the iterator we defined above to delete all items in the layout.
@@ -414,7 +414,7 @@ QSize CardLayout::sizeHint() const
     QSize s(0,0);
     int n = list.count();
     if ( n > 0 )
-	s = QSize(100,70); //start with a nice default size 
+	s = QSize(100,70); //start with a nice default size
     QListIterator<QLayoutItem> it(list);
     QLayoutItem *o;
     while ( (o=it.current()) != 0 ) {
@@ -447,7 +447,7 @@ We ignore QLayoutItem::isEmpty(), this means that the layout will treat
 hidden widgets as visible.
 
 For complex layouts, speed can be greatly increased by caching calculated
-values and/or data structures. In that case, implement \link 
+values and/or data structures. In that case, implement \link
 QLayoutItem::invalidate() invalidate()\endlink to mark the cached
 data as dirty.
 
