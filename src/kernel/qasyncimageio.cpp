@@ -1181,10 +1181,9 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 		disposePrevious( img, consumer );
 		disposal=Disposal((hold[1]>>2)&0x7);
 		//UNUSED: waitforuser=!!((hold[1]>>1)&0x1);
-		int delay=count>3 ? LM(hold[2], hold[3]) : 0;
-// 		int delay=count>3 ? LM(hold[2], hold[3]) : 1;
-// 		if ( delay < 1 )
-// 		    delay = 1;
+		int delay=count>3 ? LM(hold[2], hold[3]) : 1;
+		if ( delay < 1 )
+		    delay = 1;
 
 		bool havetrans=hold[1]&0x1;
  		trans_index = havetrans ? hold[4] : -1;
