@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#37 $
 **
 ** Implementation of QMetaObject class
 **
@@ -209,7 +209,7 @@ QMetaData *QMetaObject::mdata( int code, const char *name, bool super ) const
 	else					// not found
 	    return 0;
     }
-#if !defined(NO_DEADCODE)
+#if !defined(Q_NO_DEAD_CODE)
     return 0;
 #endif
 }
@@ -246,7 +246,7 @@ QMetaData *QMetaObject::mdata( int code, int index, bool super ) const
 	    return 0;
 	}
     }
-#if !defined(NO_DEADCODE)
+#if !defined(Q_NO_DEAD_CODE)
     return 0;
 #endif
 }
