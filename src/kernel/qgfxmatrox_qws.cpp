@@ -395,7 +395,8 @@ void QGfxMatrox<depth,type>::drawLine(int x1,int y1,int x2,int y2)
     if(x2<x1) {
 	sgn |= 0x2;
     }
-    if(y2<y1) {	    sgn |= 0x4;
+    if(y2<y1) {	    
+	sgn |= 0x4;
     }
 
     for(loopc=0;loopc<ncliprect;loopc++) {
