@@ -489,8 +489,8 @@ void QDialog::contextMenuEvent(QContextMenuEvent *e)
         w = w->isTopLevel() ? 0 : w->parentWidget();
     if (w) {
         QPopupMenu p(0,"qt_whats_this_menu");
-        p.insertItem(tr("What's This?"), 42);
-        if (p.exec(e->globalPos()) >= 42) {
+        QAction *wt = p.addAction(tr("What's This?"));
+        if (p.exec(e->globalPos()) == wt) {
             QHelpEvent e(QEvent::WhatsThis, w->rect().center(),
                          w->mapToGlobal(w->rect().center()));
             QApplication::sendEvent(w, &e);
