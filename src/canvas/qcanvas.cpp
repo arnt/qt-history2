@@ -1157,10 +1157,8 @@ void QCanvas::update()
                 // r = Visible area of the canvas where there are changes
                 QRect r = changeBounds(view->inverseWorldMatrix().map(area));
                 if (!r.isEmpty()) {
- 		    QPoint tl = view->contentsToViewport(QPoint(0,0));
- 		    QPainter::setRedirected(view->viewport(), view->viewport(), tl);
- 		    view->viewport()->repaint(wm.map(r));
- 		    QPainter::restoreRedirected(view->viewport());
+		    r.moveBy(-view->contentsX(), -view->contentsY());
+   		    view->viewport()->repaint(wm.map(r));
 		    doneareas.append(r);
                 }
             } else
