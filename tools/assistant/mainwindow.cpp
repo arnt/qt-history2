@@ -397,7 +397,7 @@ void MainWindow::showLinks(const QStringList &links)
     }
 
     if (links.size() == 1) {
-        showLink(links.first());
+        showLink(urlifyFileName(links.first()));
         return;
     }
 
