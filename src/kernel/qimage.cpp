@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#106 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#107 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#106 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#107 $");
 
 
 /*!
@@ -628,7 +628,7 @@ void QImage::setAlphaBuffer( bool enable )
   bitOrder must be QImage::IgnoreEndian.
 
   This function allocates a color table and a buffer for the image data.
-  The image data is filled with the pixel value 0.
+  The image data is not initialized.
 
   The image buffer is allocated as a single block that consists of a table
   of \link scanLine() scanline\endlink pointers (jumpTable()) and the
