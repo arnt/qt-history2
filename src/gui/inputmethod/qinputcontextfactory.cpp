@@ -63,6 +63,7 @@ QInputContext *QInputContextFactory::create( const QString& key, QWidget *widget
         QInputContext *result = new QXIMInputContext;
         result->setParent(widget);
         result->setHolderWidget(widget);
+        return result;
     }
 #endif
 #ifndef QT_NO_COMPONENT

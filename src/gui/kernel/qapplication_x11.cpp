@@ -338,7 +338,7 @@ Q_GUI_EXPORT QX11EventFilter qt_set_x11_event_filter(QX11EventFilter filter)
 }
 static bool qt_x11EventFilter(XEvent* ev)
 {
-    if (qt_x11_event_filter  && qt_x11_event_filter(ev) )
+    if (qt_x11_event_filter  && qt_x11_event_filter(ev))
         return true;
     return qApp->x11EventFilter(ev);
 }
@@ -442,7 +442,7 @@ static void changeInputContextForChildren(QWidget *parent, const QString &newIM)
     application. The function's argument is the identifier name of
     the newly selected input method.
 */
-void QApplication::setInputContext( const QString &identifierName )
+void QApplication::setInputContext(const QString &identifierName)
 {
     // #### iterating over all widgets might be a bit slow
     QWidgetList widgets = qApp->topLevelWidgets();
@@ -785,7 +785,7 @@ bool QApplication::x11_apply_settings()
             qt_xim_preferred_style = XIMPreeditNothing | XIMStatusNothing;
     }
 
-    X11->default_im = settings.value( "DefaultInputMethodSwitcher", QLatin1String("imsw-multi") ).toString();
+    X11->default_im = settings.value("DefaultInputMethodSwitcher", QLatin1String("imsw-multi")).toString();
     if (!QInputContextFactory::keys().contains(X11->default_im))
         X11->default_im = QLatin1String("xim");
 #endif
@@ -858,7 +858,7 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
     QApplication::setEffectEnabled(Qt::UI_FadeTooltip, false);
     QApplication::setEffectEnabled(Qt::UI_AnimateToolBox, false);
 
-    if (QApplication::desktopSettingsAware() && !QApplication::x11_apply_settings() ) {
+    if (QApplication::desktopSettingsAware() && !QApplication::x11_apply_settings()) {
         int format;
         ulong  nitems, after = 1;
         QString res;
@@ -1727,7 +1727,7 @@ void qt_init(QApplicationPrivate *priv, int,
                     }
 
                     // get the min/max value for pressure!
-                    any = (XAnyClassPtr) ( devs->inputclassinfo );
+                    any = (XAnyClassPtr) (devs->inputclassinfo);
                     for (j = 0; j < devs->num_classes; j++) {
                         if (any->c_class == ValuatorClass) {
                             v = (XValuatorInfoPtr) any;
@@ -2584,44 +2584,44 @@ int QApplication::x11ProcessEvent(XEvent* event)
     // filtering opportunity first to ensure all input methods work
     // properly regardless of application design.
 
-    if( keywidget && keywidget->isEnabled() && keywidget->testAttribute(Qt::WA_InputMethodEnabled) ) {
-	if( ( event->type==XKeyPress || event->type==XKeyRelease ) &&
-	    sm_blockUserInput ) // block user interaction during session management
-	    return TRUE;
+    if(keywidget && keywidget->isEnabled() && keywidget->testAttribute(Qt::WA_InputMethodEnabled)) {
+        // block user interaction during session management
+	if((event->type==XKeyPress || event->type==XKeyRelease) && sm_blockUserInput)
+	    return true;
 
         // for XIM handling
 	QInputContext *qic = keywidget->inputContext();
-	if( qic && qic->x11FilterEvent( keywidget, event ) )
-	    return TRUE;
+	if(qic && qic->x11FilterEvent(keywidget, event))
+	    return true;
 
 	// filterEvent() accepts QEvent *event rather than preexpanded
 	// key event attribute values. This is intended to pass other
 	// QInputEvent in future. Other non IM-related events should
 	// not be forwarded to input contexts to prevent weird event
 	// handling.
-	if ( ( event->type == XKeyPress || event->type == XKeyRelease ) ) {
+	if ((event->type == XKeyPress || event->type == XKeyRelease)) {
 	    int code = -1;
 	    int count = 0;
 	    int state;
 	    QEvent::Type type;
 	    QString text;
 
-	    keywidget->translateKeyEventInternal( event, count, text,
+	    keywidget->translateKeyEventInternal(event, count, text,
 						  state, code, type,
-						  FALSE, FALSE );
+						  false, false);
 
 	    // both key press/release is required for some complex
 	    // input methods. don't eliminate anything.
-	    QKeyEvent keyevent( type, code, 0, state, text, FALSE, count );
+	    QKeyEvent keyevent(type, code, 0, state, text, false, count);
 
-	    if( qic && qic->filterEvent( &keyevent ) )
-		return TRUE;
+	    if(qic && qic->filterEvent(&keyevent))
+		return true;
 	}
     } else
 #endif // QT_NO_IM
     {
-	if ( XFilterEvent( event, XNone ) )
-	    return TRUE;
+	if (XFilterEvent(event, XNone))
+	    return true;
     }
 
     if (qt_x11EventFilter(event))                // send through app filter
@@ -2801,7 +2801,6 @@ int QApplication::x11ProcessEvent(XEvent* event)
             event->xfocus.detail != NotifyInferior &&
             event->xfocus.detail != NotifyNonlinear)
             break;
-        widget->d->createInputContext();
         setActiveWindow(widget);
         if (X11->focus_model == QX11Data::FM_PointerRoot) {
             // We got real input focus from somewhere, but we were in PointerRoot
@@ -2874,7 +2873,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
                 XPutBackEvent(widget->x11Info().display(), &ev);
                 break;
             }
-            if ( ev.xcrossing.mode != NotifyNormal ||
+            if (ev.xcrossing.mode != NotifyNormal ||
                  ev.xcrossing.detail == NotifyVirtual  ||
                  ev.xcrossing.detail == NotifyNonlinearVirtual)
                 continue;
@@ -2892,7 +2891,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
         if ((! enter || enter->isDesktop()) &&
             event->xcrossing.focus && widget == QApplicationPrivate::active_window &&
             X11->focus_model == QX11Data::FM_PointerRoot // PointerRoot mode
-            ) {
+           ) {
             setActiveWindow(0);
         }
 
@@ -4313,9 +4312,6 @@ static QChar keysymToUnicode(unsigned char byte3, unsigned char byte4)
 }
 #endif
 
-typedef QHash<int, KeySym> KeyHash;
-Q_GLOBAL_STATIC(KeyHash, keyHash)
-
 bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QString& text, int& state,
                                            int& code, QEvent::Type &type, bool willRepeat, bool statefulTranslation)
 {
@@ -4354,89 +4350,70 @@ bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QStri
     int               keycode = event->xkey.keycode;
     Status     status;
 
-    if (type == QEvent::KeyPress) {
-        bool mb=false;
-	// commit string handling is done by
-	// QXIMInputContext::x11FilterEvent() and are passed to
-	// widgets via QIMEvent regardless of XIM style, so the
-	// following code is commented out.
-#if 0
-        if (X11->xim) {
-            QTLWExtra*  xd = tlw->d->topData();
-            QInputContext *qic = (QInputContext *) xd->xic;
-            if (qic) {
-                mb=true;
-                count = qic->lookupString(&xkeyevent, chars, &key, &status);
-            }
-        }
-#endif
-        if (!mb) {
-            count = XLookupString(&xkeyevent,
-                                   chars.data(), chars.size(), &key, 0);
-        }
-        if (count && !keycode) {
-            keycode = qt_ximComposingKeycode;
-            qt_ximComposingKeycode = 0;
-        }
-        if (key)
-            (*keyHash())[keycode] = key;
-        // all keysyms smaller than that are actally keys that can be mapped
-        // to unicode chars
-        if (count == 0 && key < 0xff00) {
-            unsigned char byte3 = (unsigned char)(key >> 8);
-            int mib = -1;
-            switch(byte3) {
-            case 0: // Latin 1
-            case 1: // Latin 2
-            case 2: //latin 3
-            case 3: // latin4
-                mib = byte3 + 4; break;
-            case 5: // arabic
-                mib = 82; break;
-            case 12: // Hebrew
-                mib = 85; break;
-            case 13: // Thai
-                mib = 2259; break;
-            case 4: // kana
-            case 6: // cyrillic
-            case 7: // greek
-            case 8: // technical, no mapping here at the moment
-            case 9: // Special
-            case 10: // Publishing
-            case 11: // APL
-            case 14: // Korean, no mapping
+    bool mb=false;
+    // commit string handling is done by
+    // QXIMInputContext::x11FilterEvent() and are passed to
+    // widgets via QIMEvent regardless of XIM style, so the
+    // following code is commented out.
+    if (!mb) {
+        count = XLookupString(&xkeyevent,
+                              chars.data(), chars.size(), &key, 0);
+    }
+    if (count && !keycode) {
+        keycode = qt_ximComposingKeycode;
+        qt_ximComposingKeycode = 0;
+    }
+    // all keysyms smaller than that are actally keys that can be mapped
+    // to unicode chars
+    if (count == 0 && key < 0xff00) {
+        unsigned char byte3 = (unsigned char)(key >> 8);
+        int mib = -1;
+        switch(byte3) {
+        case 0: // Latin 1
+        case 1: // Latin 2
+        case 2: //latin 3
+        case 3: // latin4
+            mib = byte3 + 4; break;
+        case 5: // arabic
+            mib = 82; break;
+        case 12: // Hebrew
+            mib = 85; break;
+        case 13: // Thai
+            mib = 2259; break;
+        case 4: // kana
+        case 6: // cyrillic
+        case 7: // greek
+        case 8: // technical, no mapping here at the moment
+        case 9: // Special
+        case 10: // Publishing
+        case 11: // APL
+        case 14: // Korean, no mapping
+            mib = -1; // manual conversion
+            mapper = 0;
+            converted = keysymToUnicode(byte3, key & 0xff);
+        case 0x20:
+            // currency symbols
+            if (key >= 0x20a0 && key <= 0x20ac) {
                 mib = -1; // manual conversion
                 mapper = 0;
-                converted = keysymToUnicode(byte3, key & 0xff);
-            case 0x20:
-                // currency symbols
-                if (key >= 0x20a0 && key <= 0x20ac) {
-                    mib = -1; // manual conversion
-                    mapper = 0;
-                    converted = (uint)key;
-                }
-                break;
-            default:
-                break;
+                converted = (uint)key;
             }
-            if (mib != -1) {
-                mapper = QTextCodec::codecForMib(mib);
-                chars[0] = (unsigned char) (key & 0xff); // get only the fourth bit for conversion later
-                count++;
-            }
-        } else if (key >= 0x1000000 && key <= 0x100ffff) {
-            converted = (ushort) (key - 0x1000000);
-            mapper = 0;
+            break;
+        default:
+            break;
         }
-        if (count < (int)chars.size()-1)
-            chars[count] = '\0';
-        tlw = 0;
-    } else {
-        key = keyHash()->value(keycode, 0);
-        if (key)
-            if(!willRepeat) // Take out key of dictionary only if this call.
-                keyHash()->remove(keycode);
+        if (mib != -1) {
+            mapper = QTextCodec::codecForMib(mib);
+            chars[0] = (unsigned char) (key & 0xff); // get only the fourth bit for conversion later
+            count++;
+        }
+    } else if (key >= 0x1000000 && key <= 0x100ffff) {
+        converted = (ushort) (key - 0x1000000);
+        mapper = 0;
     }
+    if (count < (int)chars.size()-1)
+        chars[count] = '\0';
+    tlw = 0;
 #endif // !QT_NO_XIM
 
     // convert chars (8bit) to text (unicode).
@@ -4480,9 +4457,9 @@ bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QStri
 		lastWinId = winId();
 	    }
         } else {
-           // this can no longer be a direction-changing accel.
-           // if any other key was pressed.
-           directionKeyEvent = Qt::Key_Space;
+            // this can no longer be a direction-changing accel.
+            // if any other key was pressed.
+            directionKeyEvent = Qt::Key_Space;
         }
 
     // Commentary in X11/keysymdef says that X codes match ASCII, so it
@@ -4538,7 +4515,7 @@ bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QStri
         }
 
         if (code == Qt::Key_Tab &&
-             (state & Qt::ShiftButton) == Qt::ShiftButton) {
+            (state & Qt::ShiftButton) == Qt::ShiftButton) {
             // map shift+tab to shift+backtab, QShortcutMap knows about it
             // and will handle it.
             code = Qt::Key_Backtab;
@@ -4548,10 +4525,10 @@ bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QStri
         if (statefulTranslation && qt_use_rtl_extensions && type  == QEvent::KeyPress) {
             if (directionKeyEvent && lastWinId == winId()) {
                 if (key == XK_Shift_L && directionKeyEvent == XK_Control_L ||
-                     key == XK_Control_L && directionKeyEvent == XK_Shift_L) {
+                    key == XK_Control_L && directionKeyEvent == XK_Shift_L) {
                     directionKeyEvent = Qt::Key_Direction_L;
                 } else if (key == XK_Shift_R && directionKeyEvent == XK_Control_R ||
-                            key == XK_Control_R && directionKeyEvent == XK_Shift_R) {
+                           key == XK_Control_R && directionKeyEvent == XK_Shift_R) {
                     directionKeyEvent = Qt::Key_Direction_R;
                 }
             }
@@ -5550,7 +5527,7 @@ QSessionManager::QSessionManager(QApplication * app, QString &id, QString& key)
         qWarning("Session management error: %s", error.latin1());
     }
     else {
-        sm_receiver = new QSmSocketReceiver( IceConnectionNumber(SmcGetIceConnection(smcConnection)));
+        sm_receiver = new QSmSocketReceiver(IceConnectionNumber(SmcGetIceConnection(smcConnection)));
     }
 }
 

@@ -48,6 +48,7 @@
 
 #include <stdlib.h>
 #include <limits.h>
+#include <qdebug.h>
 
 #include "qx11info_x11.h"
 
@@ -430,7 +431,6 @@ void QXIMInputContext::setHolderWidget( QWidget *widget )
 
 QXIMInputContext::~QXIMInputContext()
 {
-
 #if !defined(QT_NO_XIM)
     if (ic)
         XDestroyIC((XIC) ic);
@@ -616,71 +616,6 @@ bool QXIMInputContext::x11FilterEvent( QWidget *keywidget, XEvent *event )
     if (XFilterEvent(event, keywidget->topLevelWidget()->winId())) {
         qt_ximComposingKeycode = xkey_keycode; // ### not documented in xlib
 
-        // Cancel of the composition is realizable even if
-        // follwing codes don't exist
-#if 0
-        if (event->type != XKeyPress || ! (xim_style & XIMPreeditCallbacks))
-            return 1;
-
-        /*
-         * The Solaris htt input method will transform a ClientMessage
-         * event into a filtered KeyPress event, in which case our
-         * keywidget is still zero.
-         */
-        if (! keywidget) {
-            keywidget = (QETWidget*)QWidget::keyboardGrabber();
-            if (keywidget) {
-                grabbed = true;
-            } else {
-                if (focus_widget)
-                    keywidget = (QETWidget*)focus_widget;
-                if (!keywidget) {
-                    if (inPopupMode()) // no focus widget, see if we have a popup
-                        keywidget = (QETWidget*) activePopupWidget();
-                    else if (widget)
-                        keywidget = (QETWidget*)widget->topLevelWidget();
-                }
-            }
-        }
-
-        /*
-          if the composition string has been emptied, we need to send
-          an IMEnd event.  however, we have no way to tell if the user
-          has cancelled input, or if the user has accepted the
-          composition.
-
-          so, we have to look for the next keypress and see if it is
-          the 'commit' key press (keycode == 0).  if it is, we deliver
-          an IMEnd event with the final text, otherwise we deliver an
-          IMEnd with empty text (meaning the user has cancelled the
-          input).
-        */
-        QInputContext *qic =
-            (QInputContext *) keywidget->topLevelWidget()->d->topData()->xic;
-        extern bool qt_compose_emptied; // qinputcontext_x11.cpp
-        if (qic && qic->composing && qic->focusWidget && qt_compose_emptied) {
-            XEvent event2;
-            bool found = false;
-            if (XCheckTypedEvent(QX11Info::appDisplay(),
-                                   XKeyPress, &event2)) {
-                if (event2.xkey.keycode == 0) {
-                    // found a key event with the 'commit' string
-                    found = true;
-                    XPutBackEvent(QX11Info::appDisplay(), &event2);
-                }
-            }
-
-            if (!found) {
-                // no key event, so the user must have cancelled the composition
-                QIMEvent endevent(QEvent::IMEnd, QString::null, -1);
-                QApplication::sendEvent(qic->focusWidget, &endevent);
-
-                qic->focusWidget = 0;
-            }
-
-            qt_compose_emptied = false;
-        }
-#endif
         return true;
     } else if ( focusWidget() ) {
         if ( event->type == XKeyPress && event->xkey.keycode == 0 ) {

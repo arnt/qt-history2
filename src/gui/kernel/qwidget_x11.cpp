@@ -789,12 +789,14 @@ void QWidget::setParent_sys(QWidget *parent, Qt::WFlags f)
     XReparentWindow(d->xinfo.display(), old_winid,
                      RootWindow(d->xinfo.display(), d->xinfo.screen()), 0, 0);
 
-    if (parent && d->ic && !testAttribute(Qt::WA_OwnInputContext))
+    if (parent && d->ic && !testAttribute(Qt::WA_OwnInputContext)) {
 	// input contexts are sometimes associated with toplevel widgets, so
 	// we need destroy the context here.  if we are reparenting back to
 	// toplevel, then we may have another context created, otherwise we
 	// will use our new ic holder's context
         delete d->ic;
+        d->ic = 0;
+    }
 
     if (isTopLevel() || !parent) // we are toplevel, or reparenting to toplevel
         d->topData()->parentWinId = 0;
@@ -2789,6 +2791,8 @@ QInputContext *QWidget::inputContext()
 */
 void QWidget::setInputContext( const QString& identifierName )
 {
+    if (!testAttribute(Qt::WA_InputMethodEnabled))
+        return;
     QWidget *icWidget = testAttribute(Qt::WA_OwnInputContext) ? this : topLevelWidget();
 
     if (icWidget->d->ic)
