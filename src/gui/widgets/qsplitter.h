@@ -22,9 +22,7 @@
 
 #ifndef QT_NO_SPLITTER
 
-class QSplitterHandle;
 class QSplitterPrivate;
-class QSplitterLayoutStruct;
 class QTextStream;
 template <typename T> class QList;
 
@@ -51,11 +49,11 @@ public:
     void setCollapsible(QWidget *w, bool);
     void setOpaqueResize(bool = true);
     bool opaqueResize() const;
+    void refresh();
 
     void moveToFirst(QWidget *);
     void moveToLast(QWidget *);
 
-    void refresh() { recalc(true); }
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
@@ -85,24 +83,6 @@ protected:
     void getRange(int id, int *, int *);
 
 private:
-    void init();
-    void recalc(bool update = false);
-    void doResize();
-    void storeSizes();
-    void getRange(int id, int *, int *, int *, int *);
-    void addContribution(int, int *, int *, bool);
-    int adjustPos(int, int, int *, int *, int *, int *);
-    bool collapsible(QSplitterLayoutStruct *);
-    void processChildEvents();
-    QSplitterLayoutStruct *findWidget(QWidget *);
-    QSplitterLayoutStruct *addWidget(QWidget *, bool prepend = false);
-    void recalcId();
-    void doMove(bool backwards, int pos, int id, int delta, bool upLeft,
-                 bool mayCollapse);
-    void setGeo(QSplitterLayoutStruct *s, int pos, int size, bool splitterMoved);
-    int findWidgetJustBeforeOrJustAfter(int id, int delta, int &collapsibleSize);
-    void updateHandles();
-
     friend class QSplitterHandle;
 
 #ifndef QT_NO_TEXTSTREAM
