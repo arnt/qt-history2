@@ -133,7 +133,7 @@ bool QServerSocket::ok() const
  */
 void QServerSocket::init( const QHostAddress & address, Q_UINT16 port, int backlog )
 {
-    d->s = new QSocketDevice( QSocketDevice::Stream, address.isIp4Addr()
+    d->s = new QSocketDevice( QSocketDevice::Stream, address.isIPv4Address()
 			      ? QSocketDevice::IPv4 : QSocketDevice::IPv6, 0 );
 #if !defined(Q_OS_WIN32)
     // Under Unix, we want to be able to use the port, even if a socket on the

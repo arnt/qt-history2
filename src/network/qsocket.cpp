@@ -94,6 +94,7 @@ public:
     void closeSocket();
     void close();
     void connectionClosed();
+    void setSocketDevice( QSocket *q, QSocketDevice *device, QSocketDevice::Protocol protocol=QSocketDevice::IPv4 );
 
     QSocket::State	state;			// connection state
     QString		host;			// host name
@@ -142,7 +143,8 @@ void QSocketPrivate::closeSocket()
     rsn = 0;
     delete wsn;
     wsn = 0;
-    socket->close();
+    if ( socket )
+	socket->close();
 }
 
 void QSocketPrivate::close()
@@ -160,6 +162,29 @@ void QSocketPrivate::connectionClosed()
     closeSocket();
     wba.clear();
     windex = wsize = 0;
+}
+
+void QSocketPrivate::setSocketDevice( QSocket *q, QSocketDevice *device, QSocketDevice::Protocol protocol )
+{
+    delete socket;
+    delete rsn;
+    delete wsn;
+
+    if ( device ) {
+	socket = device;
+    } else {
+	socket = new QSocketDevice( QSocketDevice::Stream, protocol, 0 );
+	socket->setBlocking( FALSE );
+	socket->setAddressReusable( TRUE );
+    }
+
+    rsn = new QSocketNotifier( socket->socket(), QSocketNotifier::Read, q, "read" );
+    wsn = new QSocketNotifier( socket->socket(), QSocketNotifier::Write, q, "write" );
+
+    QObject::connect( rsn, SIGNAL(activated(int)), q, SLOT(sn_read()) );
+    rsn->setEnabled( FALSE );
+    QObject::connect( wsn, SIGNAL(activated(int)), q, SLOT(sn_write()) );
+    wsn->setEnabled( FALSE );
 }
 
 /*!
@@ -289,15 +314,7 @@ void QSocket::setSocketDevice( QSocketDevice *device )
 {
     if ( state() != Idle )
 	close();
-    if( d->socket )
-	delete d->socket;
-
-    if ( !device ) {
-	device = new QSocketDevice( QSocketDevice::Stream );
-	device->setBlocking( FALSE );
-	device->setAddressReusable( TRUE );
-    }
-    d->socket = device;
+    d->setSocketDevice( this, device );
 }
 
 /*!
@@ -351,7 +368,6 @@ void QSocket::connectToHost( const QString &host, Q_UINT16 port )
 	    name(), host.ascii(), port );
 #endif
     setSocketIntern( -1 );
-
     d->state = HostLookup;
     d->host = host;
     d->port = port;
@@ -400,6 +416,7 @@ void QSocket::tryConnecting()
     }
 
     if ( d->state == Connecting ) {
+	d->setSocketDevice( this, 0, d->addr.isIPv4Address() ? QSocketDevice::IPv4 : QSocketDevice::IPv6 );
 	if ( d->socket->connect( d->addr, d->port ) == FALSE ) {
 	    if ( d->socket->error() == QSocketDevice::NoError ) {
 		if ( d->wsn )
@@ -411,9 +428,11 @@ void QSocket::tryConnecting()
 	    return;
 	}
 #if defined(QSOCKET_DEBUG)
-	QString canonical = d->dns->canonicalName();
-	if ( !canonical.isNull() && canonical != d->host )
-	    qDebug( "Connecting to %s", canonical.ascii() );
+	if ( d && d->dns ) {
+	    QString canonical = d->dns->canonicalName();
+	    if ( !canonical.isNull() && canonical != d->host )
+		qDebug( "Connecting to %s", canonical.ascii() );
+	}
 	qDebug( "QSocket (%s)::tryConnecting: Connect to IP address %s",
 		name(), l[0].toString().ascii() );
 #endif
@@ -1108,7 +1127,7 @@ void QSocket::sn_read( bool force )
 
     } else {					// data to be read
 #if defined(QSOCKET_DEBUG)
-	qDebug( "QSocket (%s): sn_read: %d incoming bytes", name(), nbytes );
+	qDebug( "QSocket (%s): sn_read: %ld incoming bytes", name(), nbytes );
 #endif
 	if ( nbytes > (int)sizeof(buf) ) {
 	    // big
@@ -1236,12 +1255,6 @@ void QSocket::setSocket( int socket )
 
 void QSocket::setSocketIntern( int socket )
 {
-    QSocketDevice *sd;
-    if ( socket >= 0 )
-        sd = new QSocketDevice( socket, QSocketDevice::Stream );
-    else
-        sd = new QSocketDevice( QSocketDevice::Stream );
-
     if ( state() != Idle ) {
 	clearPendingData();
         close();
@@ -1249,18 +1262,14 @@ void QSocket::setSocketIntern( int socket )
     delete d;
 
     d = new QSocketPrivate;
-    d->socket = sd;
-    d->socket->setBlocking( FALSE );
-    d->socket->setAddressReusable( TRUE );
+    if ( socket >= 0 ) {
+	QSocketDevice *sd = new QSocketDevice( socket, QSocketDevice::Stream );
+	sd->setBlocking( FALSE );
+	sd->setAddressReusable( TRUE );
+	d->setSocketDevice( this, sd );
+    }
     d->state = Idle;
-    d->rsn = new QSocketNotifier( d->socket->socket(), QSocketNotifier::Read,
-                                  this, "read" );
-    d->wsn = new QSocketNotifier( d->socket->socket(), QSocketNotifier::Write,
-                                  this, "write" );
-    connect( d->rsn, SIGNAL(activated(int)), SLOT(sn_read()) );
-    d->rsn->setEnabled( FALSE );
-    connect( d->wsn, SIGNAL(activated(int)), SLOT(sn_write()) );
-    d->wsn->setEnabled( FALSE );
+
     // Initialize the IO device flags
     setFlags( IO_Direct );
     resetStatus();
