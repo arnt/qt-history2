@@ -56,6 +56,7 @@ void SqlEx::init()
 {
     hsplit->setResizeMode( lv, QSplitter::KeepSize );
     vsplit->setResizeMode( gb, QSplitter::KeepSize );
+    submitBtn->setEnabled( FALSE );
 }
 
 void SqlEx::dbConnect()
@@ -63,14 +64,21 @@ void SqlEx::dbConnect()
     ConnectDialog* conDiag = new ConnectDialog( this, "Connection Dialog", TRUE );
     if ( conDiag->exec() != QDialog::Accepted )
 	return;
+    if ( dt->sqlCursor() ) {
+	dt->setSqlCursor( 0 );
+    }
     QSqlDatabase* db = QSqlDatabase::addDatabase( conDiag->comboDriver->currentText(), "SqlEx" );
-    if ( !db )
+    if ( !db ) {
+	QMessageBox::warning( this, "Error", "Could not open database" );	
 	return;
+    }
     db->setHostName( conDiag->editHostname->text() );
     db->setDatabaseName( conDiag->editDatabase->text() );
     db->setPort( conDiag->portSpinBox->value() );
-    if ( !db->open( conDiag->editUsername->text(), conDiag->editPassword->text() ) )
+    if ( !db->open( conDiag->editUsername->text(), conDiag->editPassword->text() ) ) {
 	showError( db->lastError(), this );
+	return;
+    }
     lbl->setText( "Double-Click on a table-name to view the contents" );
     lv->clear();
     
@@ -92,6 +100,7 @@ void SqlEx::dbConnect()
 	}
 	lv->insertItem( lvi );	
     }
+    submitBtn->setEnabled( TRUE );
 }
 
 void SqlEx::execQuery()
