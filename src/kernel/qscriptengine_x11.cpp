@@ -2212,10 +2212,9 @@ static void khmer_shape_syllable( const QString &string, int from, int syllableL
 
     int len = syllableLength;
 
-    int i, j;
+    int i;
     unsigned short reordered[16];
     GlyphAttributes glyphAttributes[16];
-    glyph_t glyphs[16];
     unsigned char properties[16];
     enum {
 	AboveForm = 0x01,
@@ -2293,6 +2292,8 @@ static void khmer_shape_syllable( const QString &string, int from, int syllableL
     int firstGlyph = si->num_glyphs;
 
 #ifndef QT_NO_XFTFREETYPE
+    int j;
+    glyph_t glyphs[16];
     if (openType) {
 	int error = si->fontEngine->stringToCMap((QChar *)reordered, len, glyphs, 0, &len,
 						 (si->analysis.bidiLevel %2));
