@@ -692,6 +692,11 @@ public:
 };
 
 typedef QPointer<QWidget> QWidgetPointer;
+template <> inline QWidget *qt_cast<QWidget*>(const QObject *o)
+{
+    if (!o || !o->isWidgetType()) return 0;
+    return (QWidget*)(o);
+}
 
 inline Qt::WState QWidget::testWState( WState s ) const
 { return (widget_state & s); }
