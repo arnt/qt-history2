@@ -72,7 +72,9 @@ struct QBezierLineSegment
 QPolygon QBezier::toPolygon() const
 {
     QStack<QBezierLineSegment> lines;
+    lines.reserve(32);
     QPolygon polygon;
+    polygon.reserve(64);
 
     polygon << QPointF(x1, y1);
 

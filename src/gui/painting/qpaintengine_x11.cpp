@@ -533,13 +533,14 @@ struct QEdge {
     float m;
     float b;
     char winding;
-    bool operator<(const QEdge &other) const
-    {
-        return p1.y() < other.p1.y();
-    }
 };
 
-static bool isEqual(const QPointF &p1, const QPointF &p2)
+static inline bool compareEdges(const QEdge *e1, const QEdge *e2)
+{
+    return e1->p1.y() < e2->p1.y();
+}
+
+static inline bool isEqual(const QPointF &p1, const QPointF &p2)
 {
     return QABS(p1.x()-p2.x()) < 0.0001 && QABS(p1.y() - p2.y()) < 0.0001;
 }
@@ -547,40 +548,45 @@ static bool isEqual(const QPointF &p1, const QPointF &p2)
 struct QIntersectionPoint {
     float x;
     const QEdge *edge;
-    bool operator<(const QIntersectionPoint &other) const
-    {
-	if (QABS(x - other.x) > 0.01) { // x != other.x in 99% of the cases
-	    return x < other.x;
-	} else {
-            float x1 = qIsInf(edge->b) ? edge->p1.x()
-                       : (currentY+1.f - edge->b)*edge->m;
-            float x2 = qIsInf(other.edge->b) ? other.edge->p1.x()
-                       : (currentY+1.f - other.edge->b)*other.edge->m;
-            return x1 < x2;
-        }
-    }
 };
 
-static void populateXTrapezoid(XTrapezoid *trap, float y,
-                               const QEdge &left, const QEdge &right, bool round)
+static bool QT_FASTCALL compareIntersections(const QIntersectionPoint &i1, const QIntersectionPoint &i2)
 {
-    if (round) {
-        trap->top = IntToXFixed(qRound(y));
-        trap->left.p1.y = IntToXFixed(qRound(left.p1.y()));
-        trap->left.p2.y = IntToXFixed(qRound(left.p2.y()));
-        trap->right.p1.y = IntToXFixed(qRound(right.p1.y()));
-        trap->right.p2.y = IntToXFixed(qRound(right.p2.y()));
+    if (QABS(i1.x - i2.x) > 0.01) { // x != other.x in 99% of the cases
+        return i1.x < i2.x;
     } else {
-        trap->top = FloatToXFixed(y);
-        trap->left.p1.y = FloatToXFixed(left.p1.y());
-        trap->left.p2.y = FloatToXFixed(left.p2.y());
-        trap->right.p1.y = FloatToXFixed(right.p1.y());
-        trap->right.p2.y = FloatToXFixed(right.p2.y());
+        float x1 = qIsInf(i1.edge->b) ? i1.edge->p1.x()
+                   : (currentY+1.f - i1.edge->b)*i1.edge->m;
+        float x2 = qIsInf(i2.edge->b) ? i2.edge->p1.x()
+                   : (currentY+1.f - i2.edge->b)*i2.edge->m;
+        return x1 < x2;
     }
-    trap->left.p1.x = FloatToXFixed(left.p1.x());
-    trap->left.p2.x = FloatToXFixed(left.p2.x());
-    trap->right.p1.x = FloatToXFixed(right.p1.x());
-    trap->right.p2.x = FloatToXFixed(right.p2.x());
+}
+
+
+static XTrapezoid QT_FASTCALL toXTrapezoid(float y1, float y2, const QEdge &left, const QEdge &right, bool round)
+{
+    XTrapezoid trap;
+    if (round) {
+        trap.top = IntToXFixed(qRound(y1));
+        trap.bottom = IntToXFixed(qRound(y2));
+        trap.left.p1.y = IntToXFixed(qRound(left.p1.y()));
+        trap.left.p2.y = IntToXFixed(qRound(left.p2.y()));
+        trap.right.p1.y = IntToXFixed(qRound(right.p1.y()));
+        trap.right.p2.y = IntToXFixed(qRound(right.p2.y()));
+    } else {
+        trap.top = FloatToXFixed(y1);
+        trap.bottom = FloatToXFixed(y2);
+        trap.left.p1.y = FloatToXFixed(left.p1.y());
+        trap.left.p2.y = FloatToXFixed(left.p2.y());
+        trap.right.p1.y = FloatToXFixed(right.p1.y());
+        trap.right.p2.y = FloatToXFixed(right.p2.y());
+    }
+    trap.left.p1.x = FloatToXFixed(left.p1.x());
+    trap.left.p2.x = FloatToXFixed(left.p2.x());
+    trap.right.p1.x = FloatToXFixed(right.p1.x());
+    trap.right.p2.x = FloatToXFixed(right.p2.x());
+    return trap;
 }
 
 #ifdef QT_DEBUG_TESSELATOR
@@ -605,12 +611,11 @@ static void dump_trap(const XTrapezoid &t)
 #endif
 
 
-static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPolygon &pg,
+static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPolygon &pg,
                                  bool winding, bool do_rounding)
 {
-    QList<XTrapezoid> atps; // active trapezoids
-    QList<QEdge> et; 	    // edge list
-    QList<QEdge> aet; 	    // edges that intersects the current scanline
+    QVector<QEdge> edges;
+    edges.reserve(128);
     float ymin = 99999999.f;
     float ymax = -99999999.f;
 
@@ -630,19 +635,26 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPoly
 		 / double(edge.p1.x() - edge.p2.x()); // line derivative
 	edge.b = edge.p1.y() - edge.m * edge.p1.x(); // intersection with y axis
 	edge.m = edge.m != 0.0 ? 1.0 / edge.m : 0.0; // inverted derivative
-	et.append(edge);
+	edges.append(edge);
         ymin = qMin(ymin, edge.p1.y());
         ymax = qMax(ymax, edge.p2.y());
     }
 
+    QList<const QEdge *> et; 	    // edge list
+    for (int i = 0; i < edges.size(); ++i)
+        et.append(&edges.at(i));
+
     // sort edge table by min y value
-    qHeapSort(et);
+//     qHeapSort(edges);
+    qHeapSort(et.begin(), et.end(), compareEdges);
 
     // eliminate shared edges
     for (int i = 0; i < et.size(); ++i) {
 	for (int k = i+1; k < et.size(); ++k) {
-   	    if (isEqual(et.at(i).p1, et.at(k).p1) && isEqual(et.at(i).p2, et.at(k).p2)
-		&& et.at(i).winding != et.at(k).winding) {
+            if (et.at(k)->p1.y() > et.at(i)->p1.y())
+                break;
+   	    if (isEqual(et.at(i)->p1, et.at(k)->p1) && isEqual(et.at(i)->p2, et.at(k)->p2)
+		&& et.at(i)->winding != et.at(k)->winding) {
  		et.removeAt(k);
 		et.removeAt(i);
 		--i;
@@ -653,6 +665,7 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPoly
 
     if (ymax <= ymin)
 	return;
+    QList<const QEdge *> aet; 	    // edges that intersects the current scanline
 
 //     if (ymin < 0)
 // 	ymin = 0;
@@ -667,17 +680,16 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPoly
     for (float y = ymin; y < ymax;) {
 	// fill active edge table with edges that intersect the current line
 	for (int i = 0; i < et.size(); ++i) {
-	    if (et.at(i).p1.y() <= y && et.at(i).p2.y() > y
-                || (et.at(i).p1.y() == y && et.at(i).p2.y() == y)) {
-		aet.append(et.at(i));
-		et.removeAt(i);
-		--i;
-	    }
+            if (et.at(i)->p1.y() > y)
+                break;
+            aet.append(et.at(i));
+            et.removeAt(i);
+            --i;
 	}
 
 	// remove processed edges from active edge table
 	for (int i = 0; i < aet.size(); ++i) {
-	    if (aet.at(i).p2.y() <= y) {
+	    if (aet.at(i)->p2.y() <= y) {
 		aet.removeAt(i);
  		--i;
 	    }
@@ -690,7 +702,7 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPoly
             if (!et.size()) {
                 break;
 	    } else {
- 		y = et.at(0).p1.y();
+ 		y = et.at(0)->p1.y();
                 continue;
 	    }
         }
@@ -698,18 +710,18 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPoly
         // calculate the next y where we have to start a new set of trapezoids
 	float next_y = 99999999.f;
  	for (int i = 0; i < aet.size(); ++i)
- 	    if (aet.at(i).p2.y() < next_y)
- 		next_y = aet.at(i).p2.y();
+ 	    if (aet.at(i)->p2.y() < next_y)
+ 		next_y = aet.at(i)->p2.y();
 
-	if (et.size() && next_y > et.at(0).p1.y())
-	    next_y = et.at(0).p1.y();
+	if (et.size() && next_y > et.at(0)->p1.y())
+	    next_y = et.at(0)->p1.y();
 
 	for (int i = 0; i < aet.size(); ++i) {
 	    for (int k = i+1; k < aet.size(); ++k) {
-		float m1 = aet.at(i).m;
-		float b1 = aet.at(i).b;
-		float m2 = aet.at(k).m;
-		float b2 = aet.at(k).b;
+		float m1 = aet.at(i)->m;
+		float b1 = aet.at(i)->b;
+		float m2 = aet.at(k)->m;
+		float b2 = aet.at(k)->b;
 
 		if (m1 == m2)
                     continue;
@@ -717,9 +729,9 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPoly
                 // ### intersect is not calculated correctly when optimized with -O2 (gcc)
                 volatile float intersect;
                 if (qIsInf(b1))
-                    intersect = (1.f / m2) * aet.at(i).p1.x() + b2;
+                    intersect = (1.f / m2) * aet.at(i)->p1.x() + b2;
                 else if (qIsInf(b2))
-                    intersect = (1.f / m1) * aet.at(k).p1.x() + b1;
+                    intersect = (1.f / m1) * aet.at(k)->p1.x() + b1;
                 else
                     intersect = (b1*m1 - b2*m2) / (m1 - m2);
 
@@ -738,26 +750,16 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPoly
 	// calc intersection points
  	QVarLengthArray<QIntersectionPoint> isects(aet.size()+1);
  	for (int i = 0; i < isects.size()-1; ++i) {
- 	    isects[i].x = QABS(aet.at(i).p1.x() - aet.at(i).p2.x()) > 0.0001 ?
-			  ((y - aet.at(i).b)*aet.at(i).m) : aet.at(i).p1.x();
-	    isects[i].edge = &aet.at(i);
+ 	    isects[i].x = QABS(aet.at(i)->p1.x() - aet.at(i)->p2.x()) > 0.0001 ?
+			  ((y - aet.at(i)->b)*aet.at(i)->m) : aet.at(i)->p1.x();
+	    isects[i].edge = aet.at(i);
 	}
 
 	Q_ASSERT(isects.size()%2 == 1);
 
 	// sort intersection points
- 	qHeapSort(&isects[0], &isects[isects.size()-1]);
+ 	qHeapSort(&isects[0], &isects[isects.size()-1], compareIntersections);
 
-        if (atps.size()) {
-            int start = traps->size();
-            traps->resize(start + atps.size());
-            for (int i = 0; i < atps.size(); ++i) {
-                (*traps)[start + i] = atps.at(i);
-                (*traps)[start + i].bottom = do_rounding ? IntToXFixed(qRound(y))
-                                             : FloatToXFixed(y);
-            }
-            atps.clear();
-        }
 	if (winding) {
 	    // winding fill rule
 	    for (int i = 0; i < isects.size()-1;) {
@@ -771,30 +773,14 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPoly
 		}
 		if (!left || !right)
 		    break;
-                XTrapezoid trap;
-                populateXTrapezoid(&trap, y, *left, *right, do_rounding);
-                atps.append(trap);
+                traps->append(toXTrapezoid(y, next_y, *left, *right, do_rounding));
 	    }
 	} else {
 	    // odd-even fill rule
-	    for (int i = 0; i < isects.size()-2; i += 2) {
-                XTrapezoid trap;
-                populateXTrapezoid(&trap, y, *isects[i].edge, *isects[i+1].edge, do_rounding);
-                atps.append(trap);
-            }
+	    for (int i = 0; i < isects.size()-2; i += 2)
+                traps->append(toXTrapezoid(y, next_y, *isects[i].edge, *isects[i+1].edge, do_rounding));
 	}
 	y = currentY = next_y;
-    }
-
-    // close off any open trapezoids
-    if (atps.size()) {
-        int start = traps->size();
-        traps->resize(start + atps.size());
-        for (int i = 0; i < atps.size(); ++i) {
-            (*traps)[start + i] = atps.at(i);
-            (*traps)[start + i].bottom = do_rounding ? IntToXFixed(qRound(currentY))
-                                         : FloatToXFixed(currentY);
-        }
     }
 
 #ifdef QT_DEBUG_TESSELATOR
@@ -1426,11 +1412,12 @@ void QX11PaintEngine::drawPolygon(const QPolygon &a, PolygonDrawMode mode)
                 attrs.poly_edge = smooth_edges ? PolyEdgeSmooth : PolyEdgeSharp;
                 XRenderChangePicture(d->dpy, dst, CPPolyEdge, &attrs);
 
-                QVarLengthArray<XTrapezoid> traps;
+                QVector<XTrapezoid> traps;
+                traps.reserve(128);
                 qt_tesselate_polygon(&traps, pa, mode == WindingMode, smooth_edges);
 
                 XRenderCompositeTrapezoids(d->dpy, PictOpOver, src, dst, 0,
-                                           x_offset, 0, traps.data(), traps.size());
+                                           x_offset, 0, traps.constData(), traps.size());
             }
         } else
 #endif
