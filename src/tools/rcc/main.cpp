@@ -47,7 +47,7 @@ listResourceFile(const QString &file)
     QList<RCCResource> ret;
     QFile in(file);
     if(!in.open(QIODevice::ReadOnly)) {
-        fprintf(stderr, "Unable to open %s", file.toLatin1().constData());
+        fprintf(stderr, "Unable to open %s\n", file.toLatin1().constData());
         return ret;
     }
     QString filePath = QFileInfo(file).path();
@@ -57,12 +57,16 @@ listResourceFile(const QString &file)
     document.setContent(&in);
     QDomElement root = document.firstChild().toElement();
     if(root.tagName() != QLatin1String("RCC")) {
+#if 0
         RCCResource resource;
         RCCFileInfo resource_file;
         resource_file.fileinfo = QFileInfo(filePath + file);
         resource_file.name = resource_file.fileinfo.filePath();
         resource.files.append(resource_file);
         ret << resource;
+#else
+        fprintf(stderr, "Unable to parse %s\n", file.toLatin1().constData());
+#endif
         return ret;
     }
     for(QDomElement child = root.firstChild().toElement(); !child.isNull();
