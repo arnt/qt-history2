@@ -419,6 +419,27 @@ void QSpinBox::clearMaximum()
 }
 
 /*!
+    Convenience function to set minimum and maximum values with one
+    function call.
+
+    setRange(min, max);
+
+       is analogous to:
+
+    setMinimum(min);
+    setMaximum(max);
+
+    \sa setMinimum(), maximum(), setMaximum(), clearMinimum(),
+    setMinimum(), maximum(), setMaximum(), clearMinimum()
+*/
+
+void QSpinBox::setRange(int min, int max)
+{
+    d->setBoundary(Minimum, QCoreVariant(qMin(min,max)));
+    d->setBoundary(Maximum, QCoreVariant(qMax(min,max)));
+}
+
+/*!
     This virtual function is used by the spin box whenever it needs to
     display value \a v. The default implementation returns a string
     containing \a v printed in the standard way. Reimplementations may

@@ -48,8 +48,9 @@ public:
     void setMaximum(int max);
     void clearMaximum();
 
+    void setRange(int min, int max);
+
 #ifdef QT_COMPAT
-    inline QT_COMPAT void setRange(int min, int max) { setMinimum(min); setMaximum(max); }
     inline QT_COMPAT void setLineStep(int step) { setSingleStep(step); }
     inline QT_COMPAT void setMaxValue(int val) { setMaximum(val); }
     inline QT_COMPAT void setMinValue(int val) { setMinimum(val); }
