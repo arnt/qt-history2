@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#103 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#104 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#103 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#104 $");
 
 
 const int Unsorted = 16383;
@@ -3209,8 +3209,7 @@ void QCheckListItem::paintBranches( QPainter * p, const QColorGroup & cg,
 QSize QListView::sizeHint() const
 {
     if ( !isVisibleToTLW() &&
-	 !d->drawables ||
-	 d->drawables->isEmpty() ) {
+	 (!d->drawables || d->drawables->isEmpty()) ) {
 	// force the column widths to sanity, if possible
 	buildDrawableList();
 
