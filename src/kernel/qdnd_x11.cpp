@@ -17,6 +17,7 @@
 #ifndef QT_NO_DRAGANDDROP
 
 #include "qwidget.h"
+#include "qpixmap.h"
 #include "qdesktopwidget.h"
 #include "qevent.h"
 #include "qintdict.h"
