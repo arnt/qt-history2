@@ -2467,6 +2467,13 @@ void QListViewItem::ignoreDoubleClick()
     returnPressed(QListViewItem*),
     rightButtonClicked(QListViewItem*, const QPoint&, int), etc.
 
+    Note that changing the state of the list view in a slot connected
+    to a list view signal may cause unexpected side effects. If you
+    need to change the list view's state in response to a signal, use
+    a \link QTimer::singleShot() single shot timer\endlink with a
+    time out of 0, and connect this timer to a slot that modifies the
+    list view's state.
+
     In Motif style, QListView deviates fairly strongly from the look
     and feel of the Motif hierarchical tree view. This is done mostly
     to provide a usable keyboard interface and to make the list view

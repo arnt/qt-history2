@@ -371,6 +371,9 @@ static QString qt_stripMenuText( QString s )
 
     For accelerators and status tips to work, \a parent must either be
     a widget, or an action group whose parent is a widget.
+
+    \warning To prevent recursion, don't create an action as a child
+    of a widget that the action is later added to.
 */
 QAction::QAction( QObject* parent, const char* name )
     : QObject( parent, name )
@@ -422,6 +425,9 @@ QAction::QAction( QObject* parent, const char* name, bool toggle )
     these using setToolTip() and setStatusTip().
 
     Call setToggleAction(TRUE) to make the action a toggle action.
+
+    \warning To prevent recursion, don't create an action as a child
+    of a widget that the action is later added to.
 */
 QAction::QAction( const QIconSet& icon, const QString& menuText, QKeySequence accel,
 		  QObject* parent, const char* name )
@@ -455,6 +461,9 @@ QAction::QAction( const QIconSet& icon, const QString& menuText, QKeySequence ac
     these using setToolTip() and setStatusTip().
 
     Call setToggleAction(TRUE) to make the action a toggle action.
+
+    \warning To prevent recursion, don't create an action as a child
+    of a widget that the action is later added to.
 */
 QAction::QAction( const QString& menuText, QKeySequence accel,
 		  QObject* parent, const char* name )
