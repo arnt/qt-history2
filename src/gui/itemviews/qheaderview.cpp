@@ -1062,7 +1062,7 @@ void QHeaderView::paintEvent(QPaintEvent *e)
             highlight = (focus && i == current.row());
         }
         if (highlight) {
-            QFont bf(font());
+            QFont bf(fnt);
             bf.setBold(true);
             painter.setFont(bf);
             paintSection(&painter, rect, logical);
