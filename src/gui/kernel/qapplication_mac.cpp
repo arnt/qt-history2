@@ -19,24 +19,25 @@
 #include "qdatastream.h"
 #include "qdatetime.h"
 #include "qdesktopwidget.h"
+#include "qdockwindow.h"
 #include "qevent.h"
-#include "qpointer.h"
 #include "qhash.h"
+#include "qmenubar.h"
 #include "qmessagebox.h"
 #include "qmime.h"
 #include "qpaintdevicemetrics.h"
-#include <qpaintengine_mac.h>
 #include "qpixmapcache.h"
+#include "qpointer.h"
 #include "qsessionmanager.h"
 #include "qsettings.h"
 #include "qsocketnotifier.h"
 #include "qstyle.h"
 #include "qstylefactory.h"
 #include "qtextcodec.h"
+#include "qtoolbar.h"
 #include "qvariant.h"
 #include "qwidget.h"
-#include "qmenubar.h"
-#include "qdockwindow.h"
+#include <qpaintengine_mac.h>
 
 #include "private/qapplication_p.h"
 #include "private/qcolor_p.h"
@@ -1296,36 +1297,20 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
         widget->d->close_helper(QWidgetPrivate::CloseWithSpontaneousEvent);
         break;
     case inToolbarButton: { //hide toolbars thing
-        int h = 0;
         QObjectList chldrn = widget->children();
 #ifndef QT_NO_MAINWINDOW
-        QMainWindow *mw = ::qt_cast<QMainWindow *>(widget);
-        for(int i = 0; i < chldrn.size(); i++) {
+        for (int i = 0; i < chldrn.size(); i++) {
             QObject *obj = chldrn.at(i);
-            QDockArea *area = ::qt_cast<QDockArea *>(obj);
-            if (area) {
-                if(mw && mw->topDock() != area)
-                    continue;
-                if(area->width() < area->height()) //only do horizontal orientations
-                    continue;
-                int oh = area->sizeHint().height();
-                if(oh < 0)
-                    oh = 0;
-                if(area->isVisible())
-                    area->hide();
+            QToolBar *toolbar = ::qt_cast<QToolBar *>(obj);
+            if (toolbar && toolbar->area() == Qt::ToolBarAreaTop) {
+                if(toolbar->isVisible())
+                    toolbar->hide();
                 else
-                    area->show();
+                    toolbar->show();
                 sendPostedEvents();
-                int nh = area->sizeHint().height();
-                if(nh < 0)
-                    nh = 0;
-                if(oh != nh)
-                    h += (oh - nh);
             }
         }
 #endif
-        if(h)
-            widget->resize(widget->width(), widget->height() - h);
         break; }
     case inProxyIcon: {
         QIconDragEvent e;

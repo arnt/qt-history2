@@ -20,7 +20,6 @@
 #include "qdesktopwidget.h"
 #include "qevent.h"
 #include "qlayout.h"
-#include "qpainter.h"
 #include "qstackedbox.h"
 #include "qstyle.h"
 #include "qstyleoption.h"

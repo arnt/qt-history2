@@ -16,12 +16,14 @@
 #include <qapplication.h>
 #include <qcheckbox.h>
 #include <qcombobox.h>
+#include <qdockwindow.h>
 #include <qevent.h>
 #include <qpointer.h>
 #include <qlabel.h>
 #include <qlineedit.h>
 #include <qlist.h>
 #include <qlistbox.h>
+#include <qmainwindow.h>
 #include <qmenubar.h>
 #include <qprogressbar.h>
 #include <qpushbutton.h>
@@ -357,7 +359,7 @@ void QAquaAnimate::setFocusWidget(QWidget *w)
             top = top->parentWidget();
 #ifndef QT_NO_MAINWINDOW
         if(::qt_cast<QMainWindow *>(top)) {
-            QWidget *central = static_cast<QMainWindow *>(top)->centralWidget();
+            QWidget *central = static_cast<QMainWindow *>(top)->centerWidget();
             for (const QWidget *par = w; par; par = par->parentWidget()) {
                 if(par == central) {
                     top = central;
@@ -405,7 +407,7 @@ bool QAquaAnimate::focusable(const QWidget *w) const
 }
 
 #if defined(QMAC_QAQUASTYLE_SIZE_CONSTRAIN) || defined(DEBUG_SIZE_CONSTRAINT)
-static QAquaWidgetSize qt_aqua_guess_size(const QWidget *, QSize large, QSize small, QSize mini)
+static QAquaWidgetSize qt_aqua_guess_size(const QWidget *widg, QSize large, QSize small, QSize mini)
 {
     if(large == QSize(-1, -1)) {
         if(small != QSize(-1, -1))

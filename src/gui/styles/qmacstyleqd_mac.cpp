@@ -32,6 +32,7 @@
 #include <qlabel.h>
 #include <qlayout.h>
 #include <qlineedit.h>
+#include <qmainwindow.h>
 #include <qmap.h>
 #include <qmenu.h>
 #include <qpaintengine_mac.h>
@@ -50,6 +51,7 @@
 #include <qstyleoption.h>
 #include <qtabbar.h>
 #include <qtoolbutton.h>
+#include <qtoolbar.h>
 
 extern QRegion qt_mac_convert_mac_region(RgnHandle rgn);
 extern QRegion qt_mac_convert_mac_region(HIShapeRef shape);
@@ -397,7 +399,7 @@ void QMacStyleQD::polish(QWidget* w)
     }
 #ifndef QT_NO_MAINWINDOW
     else if(QToolBar *bar = ::qt_cast<QToolBar*>(w)) {
-        QBoxLayout * layout = bar->boxLayout();
+        QLayout *layout = bar->layout();
         layout->setSpacing(0);
         layout->setMargin(0);
     }
@@ -512,7 +514,7 @@ int QMacStyleQD::pixelMetric(PixelMetric metric, const QWidget *widget) const
 #ifndef QT_NO_MAINWINDOW
         if(widget && (widget->isTopLevel() || !widget->parentWidget()
                 || (::qt_cast<QMainWindow*>(widget->parentWidget())
-                   && ((QMainWindow*)widget->parentWidget())->centralWidget() == widget))
+                   && static_cast<QMainWindow *>(widget->parentWidget())->centerWidget() == widget))
                 && (::qt_cast<QScrollView*>(widget) || widget->inherits("QWorkspaceChild")))
             ret = 0;
         else

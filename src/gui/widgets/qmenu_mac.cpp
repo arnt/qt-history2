@@ -17,6 +17,7 @@
 #include "qapplication.h"
 #include <private/qt_mac_p.h>
 #include "qregexp.h"
+#include "qmainwindow.h"
 #include "qdockwindow.h"
 #include "qtoolbar.h"
 
@@ -831,13 +832,11 @@ bool QMenuBar::macUpdateMenuBar()
     if(w) {
         mb = QMenuBarPrivate::QMacMenuBarPrivate::menubars.value(w);
 #ifndef QT_NO_MAINWINDOW
-        if(!mb && (!w->parentWidget() || w->parentWidget()->isDesktop()) &&
-           ::qt_cast<QDockWindow *>(w)) {
-            if(QWidget *area = ((QDockWindow*)w)->area()) {
-                QWidget *areaTL = area->topLevelWidget();
-                if((mb = QMenuBarPrivate::QMacMenuBarPrivate::menubars.value(areaTL)))
-                    w = areaTL;
-            }
+        QDockWindow *dw = qt_cast<QDockWindow *>(w);
+        if(!mb && dw) {
+            QMainWindow *mw = dw->mainWindow();
+            if ((mb = QMenuBarPrivate::QMacMenuBarPrivate::menubars.value(mw)))
+                w = mw;
         }
 #endif
         while(w && !mb)
