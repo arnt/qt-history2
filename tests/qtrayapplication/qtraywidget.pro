@@ -1,6 +1,6 @@
 TEMPLATE	= app
 CONFIG		= qt warn_on release
-HEADERS		= qtrayapplication.h
+HEADERS		= qtraywidget.h
 SOURCES		= main.cpp \
-		  qtrayapplication_win.cpp
+		  qtraywidget_win.cpp
 INTERFACES	= 
