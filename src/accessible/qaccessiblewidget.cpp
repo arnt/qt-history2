@@ -98,8 +98,6 @@ int QAccessibleWidget::childAt(int x, int y) const
     if (!QRect(gp.x(), gp.y(), w->width(), w->height()).contains(x, y))
 	return -1;
 
-    QPoint rp = w->mapFromGlobal(QPoint(x, y));
-
     QObjectList list = w->queryList( "QWidget", 0, FALSE, FALSE );
     int ccount = childCount();
 
@@ -112,6 +110,7 @@ int QAccessibleWidget::childAt(int x, int y) const
 	return 0;
     }
 
+    QPoint rp = w->mapFromGlobal(QPoint(x, y));
     QList<QObject*>::Iterator it = list.begin();
     QWidget *child = 0;
     int index = 1;
@@ -147,6 +146,19 @@ int QAccessibleWidget::relationTo(int child, const QAccessibleInterface *other, 
     QObject *o = other ? other->object() : 0;
     if (!o || !o->isWidgetType())
 	return relation;
+
+    QWidget *focus = widget()->focusWidget();
+    if (object() == focus) {
+	QObject *focusParent = focus->parent();
+	bool focusIsChild = FALSE;
+	while(focusParent && !focusIsChild) {
+	    focusIsChild = focusParent == o;
+	    focusParent = focusParent ->parent();
+	}
+
+	if(focusIsChild)
+	    relation |= FocusChild;
+    }
 
     if(o == object()) {
 	if (child && !otherChild)
@@ -196,8 +208,10 @@ int QAccessibleWidget::relationTo(int child, const QAccessibleInterface *other, 
 	parent = parent->parent();
     }
 
-    int inverse = other->relationTo(otherChild, this, child);
-    if ((inverse & Descendent) || (inverse & Child))
+    parent = o->parent();
+    while (parent && object() != parent)
+	parent = parent->parent();
+    if (object() == parent)
 	return relation | Ancestor;
 
     return relation;
