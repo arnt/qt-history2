@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#4 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -25,6 +25,159 @@
 #include "qwidget.h"
 #include "qmenubar.h"
 #include "qapplication.h"
+
+
+QLayoutItem::~QLayoutItem()
+{
+}
+
+static const int HorAlign = Qt::AlignHCenter | Qt::AlignRight | Qt::AlignLeft;
+static const int VerAlign = Qt::AlignVCenter | Qt::AlignBottom | Qt::AlignTop;
+
+static QSize smartMinSize( QWidget *w )
+{
+    QSize s(0,0);
+    if ( w->layout() ) {
+	//###this is hacky
+	s = w->layout()->minimumSize();
+    } else {
+	if ( !w->sizePolicy().horData().mayShrink() )
+	    s.setWidth( w->sizeHint().width() );
+	if ( !w->sizePolicy().verData().mayShrink() )
+	    s.setHeight( w->sizeHint().height() );
+    }
+    QSize min = w->minimumSize();
+    if ( min.width() > 0 )
+	s.setWidth( min.width() );
+    if ( min.height() > 0 )
+	s.setHeight( min.height() );
+
+    return s;
+}
+
+//returns the max size of a box containing \a w with alignment \a align.
+static QSize smartMaxSize( QWidget *w, int align = 0 )
+{
+    QSize s = w->maximumSize();
+    if ( s.width() == QCOORD_MAX )
+	if ( !w->sizePolicy().horData().mayGrow() )
+	    s.setWidth( w->sizeHint().width() );
+
+    if ( s.height() ==  QCOORD_MAX )
+	if ( !w->sizePolicy().verData().mayGrow() )
+	    s.setHeight( w->sizeHint().height() );
+
+    //s = s.expandedTo( w->minimumSize() ); //### ???
+
+    if (align & HorAlign )
+	s.setWidth( QCOORD_MAX );
+    if (align & VerAlign )
+	s.setHeight( QCOORD_MAX );
+    return s;
+}
+
+
+
+
+
+void QSpacerItem::setGeometry( const QRect& ) 
+{
+}
+
+void QWidgetItem::setGeometry( const QRect &r )
+{
+    QSize s = r.size().boundedTo( smartMaxSize( wid ) );
+    int x = r.x();
+    int y = r.y();
+    QSize pref = wid->sizeHint().expandedTo( wid->minimumSize() ); //###
+	
+    if ( align & HorAlign )
+	s.setWidth( QMIN( s.width(), pref.width() ) );
+    if ( align & VerAlign )
+	s.setHeight( QMIN( s.height(), pref.height() ) );
+	
+    if ( align & Qt::AlignRight )
+	x = x + ( r.width() - s.width() );
+    else if ( !(align & Qt::AlignLeft) )
+	x = x + ( r.width() - s.width() ) / 2;
+
+    if ( align & Qt::AlignBottom )
+	y = y + ( r.height() - s.height() );
+    else if ( !(align & Qt::AlignTop) )
+	y = y + ( r.height() - s.height() ) / 2;
+
+    wid->setGeometry( x, y, s.width(), s.height() );
+}
+
+QSizePolicy::Expansiveness QSpacerItem::expansive() const
+{
+    return sizeP.expansive();
+}
+QSizePolicy::Expansiveness QWidgetItem::expansive() const
+{
+    return wid->sizePolicy().expansive();
+}
+
+QSize QSpacerItem::minimumSize() const
+{
+	return QSize( sizeP.horData().mayShrink() ? 0 : width,
+		      sizeP.verData().mayShrink() ? 0 : height );;
+}
+QSize QWidgetItem::minimumSize() const
+{
+	return smartMinSize( wid );
+}
+
+
+QSize QSpacerItem::maximumSize() const
+{
+    return QSize( sizeP.horData().mayGrow() ? QCOORD_MAX : width,
+		  sizeP.verData().mayGrow() ? QCOORD_MAX : height );
+}
+
+QSize QWidgetItem::maximumSize() const
+{
+	return smartMaxSize( wid, align );
+}
+
+QSize QSpacerItem::sizeHint() const
+{
+	return QSize( width, height );
+}
+
+QSize QWidgetItem::sizeHint() const
+{
+    //########### Should minimumSize() override sizeHint ????????????
+    if ( wid->layout() )
+	return QSize( QMAX( wid->sizeHint().width(), wid->minimumWidth() ),
+		      QMAX( wid->sizeHint().height(), wid->minimumHeight() ));
+    return QSize( wid->minimumWidth() == 0 ?
+		  wid->sizeHint().width() : wid->minimumWidth(),
+		  wid->minimumHeight() == 0 ?
+		  wid->sizeHint().height() : wid->minimumHeight() );
+}
+
+bool QSpacerItem::isEmpty() const
+{
+    return TRUE;
+}
+bool QWidgetItem::isEmpty() const
+{
+    return FALSE;
+}
+
+QLayoutItem::SearchResult QWidgetItem::removeW( QWidget *w )
+{
+    return wid == w ? FoundAndDeleteable : NotFound;
+}
+
+
+QLayoutItem::SearchResult QSpacerItem::removeW( QWidget *)
+{
+    return NotFound;
+}
+
+
 
 /*!
   \class QLayout qabstractlayout.h
@@ -113,7 +266,7 @@ QLayout::QLayout( QWidget *parent, int border, int autoBorder, const char *name 
 
 
 /*!
-  \fn bool QLayout::removeWidget (QWidget *w )
+  \fn QLayoutItem::SearchResult QLayout::removeWidget (QWidget *w )
   This function is implemented in subclasses to remove \a w from geometry
   management.
  */
@@ -160,6 +313,10 @@ QLayout::QLayout( int autoBorder, const char *name )
     insideSpacing = autoBorder;
 }
 
+bool QLayout::isEmpty() const
+{
+    return FALSE; //### should check
+}
 
 
 /*!
@@ -199,6 +356,13 @@ void QLayout::setWidgetLayout( QWidget *w, QLayout *l )
   Returns the minimum size this layout needs.
 */
 
+
+QLayoutItem::SearchResult QLayout::removeW( QWidget *w)
+{
+    return removeWidget( w ) ? Found : NotFound;
+}
+
+
 /*! \fn	 bool removeWidget( QWidget *w )
 
   Remove \a w from geometry management. This function is called
@@ -208,19 +372,6 @@ void QLayout::setWidgetLayout( QWidget *w, QLayout *l )
   responsibility of the reimplementor to propagate the call to
   sub-layouts.	This function returns TRUE if the widget was found.
  */
-
-#if 0
-/*!
-  Implemented in subclasses to remove cached values used during
-  geometry calculations, if any.
-
-  The default implementation does nothing.
-*/
-
-void QLayout::clearCache()
-{
-}
-#endif
 
 /*!
   This function is reimplemented in subclasses to
@@ -374,7 +525,7 @@ void QLayout::setMenuBar( QMenuBar *w )
 
 /*!
   \fn QSize QLayout::sizeHint()
-  
+
   Implemented in subclasses to return the preferred size of this layout.
 */
 
@@ -385,7 +536,7 @@ void QLayout::setMenuBar( QMenuBar *w )
   The default implementation allows unlimited resizing.
 */
 
-QSize QLayout::minimumSize()
+QSize QLayout::minimumSize() const
 {
     return QSize( 0, 0 );
 }
@@ -398,7 +549,7 @@ QSize QLayout::minimumSize()
   The default implementation allows unlimited resizing.
 */
 
-QSize QLayout::maximumSize()
+QSize QLayout::maximumSize() const
 {
     return QSize( QCOORD_MAX, QCOORD_MAX );
 }
@@ -413,7 +564,7 @@ QSize QLayout::maximumSize()
   The default implementation returns NoDirection.
 */
 
-QSizePolicy::Expansiveness QLayout::expansive()
+QSizePolicy::Expansiveness QLayout::expansive() const
 {
     return QSizePolicy::NoDirection;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#2 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#3 $
 **
 ** Definition of the abstract layout base class
 **
@@ -33,7 +33,63 @@ class QMenuBar;
 class QWidget;
 struct QLayoutData;
 
-class Q_EXPORT QLayout : public QObject
+class Q_EXPORT QLayoutItem
+{
+public:
+    enum SearchResult { NotFound, Found, FoundAndDeleteable };
+
+    QLayoutItem( int alignment = 0 ) :align(alignment) {}
+    virtual ~QLayoutItem();
+    virtual QSize sizeHint() const = 0;
+    virtual QSize minimumSize() const = 0;
+    virtual QSize maximumSize() const = 0;
+    virtual QSizePolicy::Expansiveness expansive() const =0;
+    virtual void setGeometry( const QRect& ) = 0;
+    virtual SearchResult removeW( QWidget * )=0;
+    virtual bool isEmpty() const = 0;
+    
+    int alignment() const { return align; }
+    void setAlignment( int a ) { align = a; }
+protected:
+        int align;
+};
+
+
+class Q_EXPORT QSpacerItem : public QLayoutItem
+{
+ public:
+    QSpacerItem( int w, int h, QSizeData hData=QSizeData::MayGrow,
+		 QSizeData vData= QSizeData::MayGrow )
+	:width(w), height(h), sizeP(hData, vData )
+	{}
+    QSize sizeHint() const ;
+    QSize minimumSize() const ;
+    QSize maximumSize() const ;
+    QSizePolicy::Expansiveness expansive() const;
+    bool isEmpty() const;
+    void setGeometry( const QRect& ) ;
+    SearchResult removeW( QWidget * );
+ private:
+    int width, height;
+    QSizePolicy sizeP;
+};
+
+class Q_EXPORT QWidgetItem : public QLayoutItem
+{
+public:
+    QWidgetItem( QWidget *w ) : wid(w) {}
+    QSize sizeHint() const ;
+    QSize minimumSize() const ;
+    QSize maximumSize() const ;
+    QSizePolicy::Expansiveness expansive() const;
+    bool isEmpty() const;
+    void setGeometry( const QRect& ) ;
+    SearchResult removeW( QWidget * );
+private:
+    QWidget *wid;
+};
+
+class Q_EXPORT QLayout : public QObject, public QLayoutItem
 {
     Q_OBJECT
 public:
@@ -41,7 +97,7 @@ public:
 	     const char *name=0 );
     QLayout( int autoBorder=-1, const char *name=0 );
 
-    virtual ~QLayout();
+    ~QLayout();
     int defaultBorder() const { return insideSpacing; }
     int margin() const { return outsideBorder; }
 
@@ -59,14 +115,17 @@ public:
 #if 1	//OBSOLETE
     bool activate();
 #endif
-    virtual QSizePolicy::Expansiveness expansive();
-    virtual QSize sizeHint() = 0;
-    virtual QSize minimumSize();
-    virtual QSize maximumSize();
+    virtual void add ( QLayoutItem * ) = 0;
 
-    virtual void invalidate();
-    virtual void setGeometry( const QRect& );
+    QSizePolicy::Expansiveness expansive() const;
+    QSize minimumSize() const;
+    QSize maximumSize() const;
+    void setGeometry( const QRect& );
+    SearchResult removeW( QWidget * );
+    bool isEmpty() const;
+
     virtual bool removeWidget( QWidget * ) = 0;
+    virtual void invalidate();
 protected:
     bool  eventFilter( QObject *, QEvent * );
     virtual void paintEvent( QPaintEvent * );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#281 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#282 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -32,6 +32,7 @@
 #include "qaccel.h"
 #include "qdragobject.h"
 #include "qfocusdata.h"
+#include "qabstractlayout.h"
 #define	 GC GC_QQQ
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#60 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#61 $
 **
 ** Implementation of layout classes
 **
@@ -27,41 +27,35 @@
 #include "qlist.h"
 #include "qsizepolicy.h"
 
+
+
+
+// This cannot be a subclass of QLayoutItem, since it can contain different item classes.
 class QLayoutBox
 {
 public:
-    enum Type { Error, Layout, Widget, Spacer };
-    QLayoutBox( QLayout* );
-    QLayoutBox( QWidget*);
-    //    QLayoutBox( int w, int h, bool hStretch=FALSE, bool vStretch=FALSE );
+    QLayoutBox( QLayoutItem *lit ) { item = lit; }
+    //    QLayoutBox( QLayout *layout ) { item = new QLayoutLayoutItem( layout ); }
+    QLayoutBox( QWidget *wid ) { item = new QWidgetItem( wid ); }
     QLayoutBox( int w, int h, QSizeData hData=QSizeData::MayGrow,
-		QSizeData vData= QSizeData::MayGrow );
-    ~QLayoutBox() {}
+		QSizeData vData= QSizeData::MayGrow )
+	{ item = new QSpacerItem( w, h, hData, vData ); }
+    ~QLayoutBox() { delete item; }
 
-    Type type() const { return myType; }
-
-    QSize sizeHint() const;
-    QSize minimumSize() const;
-    QSize maximumSize() const;
-    QSizePolicy::Expansiveness expansive() const;
-
-    void setAlignment( int a ) { align = a; }
-    void setGeometry( const QRect& );
-
+    QSize sizeHint() const { return item->sizeHint(); }
+    QSize minimumSize() const { return item->minimumSize(); }
+    QSize maximumSize() const { return item->maximumSize(); }
+    QSizePolicy::Expansiveness expansive() const { return item->expansive(); }
+    bool isEmpty() const { return item->isEmpty(); }
+    QLayoutItem::SearchResult removeWidget( QWidget *w ) { return item->removeW(w); }
+    
+    void setAlignment( int a ) { item->setAlignment( a ); }
+    void setGeometry( const QRect &r ) { item->setGeometry( r ); }
+    int alignment() const { return item->alignment(); }
 private:
     friend class QLayoutArray;
-    Type myType;
-
-    int align;
-
+    QLayoutItem *item;
     int row, col;
-    int width, height;
-    QSizePolicy sizeP;
-    //union {
-    QLayout *lay;
-    QWidget *wid;
-    // }
-    void init();
 };
 
 
@@ -78,54 +72,6 @@ private:
 };
 
 
-//### These functions calculates max/min sizes from sizePolicy()
-//### this should perhaps be QWidget member functions???
-
-
-static const int HorAlign = Qt::AlignHCenter | Qt::AlignRight | Qt::AlignLeft;
-static const int VerAlign = Qt::AlignVCenter | Qt::AlignBottom | Qt::AlignTop;
-
-static QSize smartMinSize( QWidget *w )
-{
-    QSize s(0,0);
-    if ( w->layout() ) {
-	//###this is hacky
-	s = w->layout()->minimumSize();
-    } else {
-	if ( !w->sizePolicy().horData().mayShrink() )
-	    s.setWidth( w->sizeHint().width() );
-	if ( !w->sizePolicy().verData().mayShrink() )
-	    s.setHeight( w->sizeHint().height() );
-    }
-    QSize min = w->minimumSize();
-    if ( min.width() > 0 )
-	s.setWidth( min.width() );
-    if ( min.height() > 0 )
-	s.setHeight( min.height() );
-
-    return s;
-}
-
-//returns the max size of a box containing \a w with alignment \a align.
-static QSize smartMaxSize( QWidget *w, int align = 0 )
-{
-    QSize s = w->maximumSize();
-    if ( s.width() == QCOORD_MAX )
-	if ( !w->sizePolicy().horData().mayGrow() )
-	    s.setWidth( w->sizeHint().width() );
-
-    if ( s.height() ==  QCOORD_MAX )
-	if ( !w->sizePolicy().verData().mayGrow() )
-	    s.setHeight( w->sizeHint().height() );
-
-    //s = s.expandedTo( w->minimumSize() ); //### ???
-
-    if (align & HorAlign )
-	s.setWidth( QCOORD_MAX );
-    if (align & VerAlign )
-	s.setHeight( QCOORD_MAX );
-    return s;
-}
 #if 0
 //this one gives the "soft max" size -- probably buggy
 static QSize smartMaxPrefSize( QWidget *w )
@@ -139,159 +85,6 @@ static QSize smartMaxPrefSize( QWidget *w )
     return s.boundedTo( w->maximumSize() );
 }
 #endif
-QLayoutBox::QLayoutBox( QLayout *l )
-{
-    init();
-    myType = Layout;
-    lay = l;
-}
-QLayoutBox::QLayoutBox( QWidget *w )
-{
-    init();
-    myType = Widget;
-    wid = w;
-}
-
-//construct a spacer, default gives w,h as minimum size, and mayGrow
-QLayoutBox::QLayoutBox( int w, int h, QSizeData hData, QSizeData vData )
-{
-    init();
-    myType = Spacer;
-    width = QMAX( 0, w );
-    height = QMAX( 0, h );
-
-    sizeP = QSizePolicy( hData, vData );
-}
-
-
-
-void QLayoutBox::init()
-{
-    myType = Error;
-    lay = 0;
-    wid = 0;
-    width = height = 0;
-    align = 0;
-}
-
-void QLayoutBox::setGeometry( const QRect &r )
-{
-    switch ( myType ) {
-    case Spacer:
-	break;
-    case Layout:
-	//### layoutHint...
-	lay->setGeometry( r );
-	break;
-    case Widget: {
-	QSize s = r.size().boundedTo( smartMaxSize( wid ) );
-	int x = r.x();
-	int y = r.y();
-	QSize pref = wid->sizeHint().expandedTo( wid->minimumSize() ); //###
-	
-	if ( align & HorAlign )
-	    s.setWidth( QMIN( s.width(), pref.width() ) );
-	if ( align & VerAlign )
-	    s.setHeight( QMIN( s.height(), pref.height() ) );
-	
-	if ( align & Qt::AlignRight )
-	    x = x + ( r.width() - s.width() );
-	else if ( !(align & Qt::AlignLeft) )
-	    x = x + ( r.width() - s.width() ) / 2;
-
-	if ( align & Qt::AlignBottom )
-	    y = y + ( r.height() - s.height() );
-	else if ( !(align & Qt::AlignTop) )
-	    y = y + ( r.height() - s.height() ) / 2;
-
-	wid->setGeometry( x, y, s.width(), s.height() );
-    }
-    break;
-    case Error:
-	warning( "QLayout error: uninitialized case D." );
-	break;
-    }
-}
-
-QSizePolicy::Expansiveness QLayoutBox::expansive() const
-{
-    switch ( myType ) {
-    case Spacer:
-	return sizeP.expansive();
-    case Layout:
-	return lay->expansive();
-    case Widget:
-	return wid->sizePolicy().expansive();
-    case Error:
-	warning( "QLayout error: uninitialized case B." );
-	break;
-    }
-    return QSizePolicy::NoDirection;
-}
-
-
-
-
-
-QSize QLayoutBox::minimumSize() const
-{
-    switch ( myType ) {
-    case Spacer:
-	return QSize( sizeP.horData().mayShrink() ? 0 : width,
-		      sizeP.verData().mayShrink() ? 0 : height );;
-    case Layout:
-	return lay->minimumSize();
-    case Widget:
-	return smartMinSize( wid );
-    case Error:
-	warning( "QLayout error: uninitialized case A." );
-	break;
-    }
-    return QSize( 0, 0 );
-}
-
-QSize QLayoutBox::maximumSize() const
-{
-    switch ( myType ) {
-    case Spacer:
-	return QSize( sizeP.horData().mayGrow()
-		      ? QCOORD_MAX : width,
-		      sizeP.verData().mayGrow()
-		      ? QCOORD_MAX : height );
-    case Layout:
-	return lay->maximumSize();
-    case Widget:
-	return smartMaxSize( wid, align );
-    case Error:
-	warning( "QLayout error: uninitialized case E." );
-	break;
-    }
-    return QSize( QCOORD_MAX, QCOORD_MAX );
-}
-
-QSize QLayoutBox::sizeHint() const
-{
-    switch ( myType ) {
-    case Spacer:
-	return QSize( width, height );
-    case Layout:
-	return lay->sizeHint();
-    case Widget:
-	//########### Should minimumSize() override sizeHint ????????????
-	if ( wid->layout() )
-	    return QSize( QMAX( wid->sizeHint().width(), wid->minimumWidth() ),
-		      QMAX( wid->sizeHint().height(), wid->minimumHeight() ));
-	return QSize( wid->minimumWidth() == 0 ?
-		      wid->sizeHint().width() : wid->minimumWidth(),
-		      wid->minimumHeight() == 0 ?
-		      wid->sizeHint().height() : wid->minimumHeight() );
-    case Error:
-	warning( "QLayout error: uninitialized case F." );
-	break;
-    }
-    return QSize( 0, 0 );
-}
-
 
 struct LayoutStruct
 {
@@ -470,9 +263,9 @@ public:
 
     void add( QLayoutBox*, int row, int col );
     void add( QLayoutBox*, int row1, int row2, int col1, int col2  );
-    QSize sizeHint( int );
-    QSize minimumSize( int );
-    QSize maximumSize( int );
+    QSize sizeHint( int ) const;
+    QSize minimumSize( int ) const;
+    QSize maximumSize( int ) const;
 
     QSizePolicy::Expansiveness expansive();
 
@@ -490,7 +283,7 @@ public:
 
 private:
     void init();
-    QSize findSize( QCOORD LayoutStruct::*, int );
+    QSize findSize( QCOORD LayoutStruct::*, int ) const;
     void addData ( QLayoutBox *b, bool r = TRUE, bool c = TRUE );
     void setSize( int rows, int cols );
     void setupLayoutData();
@@ -530,11 +323,13 @@ bool QLayoutArray::removeWidget( QWidget *w )
     QLayoutBox * box;
     while ( (box=it.current()) != 0 ) {
 	++it;
-	if ( box->type() == QLayoutBox::Widget && box->wid == w ) {
+	switch ( box->removeWidget( w ) ) {
+	case QLayoutItem::NotFound:
+	    break;
+	case QLayoutItem::FoundAndDeleteable:
 	    things.removeRef( box );
 	    return TRUE;
-	} else if ( box->type() == QLayoutBox::Layout &&
-		    box->lay->removeWidget(w) ) {
+	case QLayoutItem::Found:	    
 	    return TRUE;
 	}
     }
@@ -544,11 +339,13 @@ bool QLayoutArray::removeWidget( QWidget *w )
 	while ( (mbox=it.current()) != 0 ) {
 	    ++it;
 	    box = mbox->box();
-	    if ( box->type() == QLayoutBox::Widget && box->wid == w ) {
+	    switch ( box->removeWidget( w ) ) {
+	    case QLayoutItem::NotFound:
+		break;
+	    case QLayoutItem::FoundAndDeleteable:
 		multi->removeRef( mbox );
 		return TRUE;
-	    } else if ( box->type() == QLayoutBox::Layout &&
-			box->lay->removeWidget(w) ) {
+	    case QLayoutItem::Found:	    
 		return TRUE;
 	    }
 	}
@@ -556,6 +353,7 @@ bool QLayoutArray::removeWidget( QWidget *w )
     setDirty();
     return FALSE;
 }
+
 #if 0
 QSizePolicy QLayoutArray::sizePolicy()
 {
@@ -573,9 +371,10 @@ QSizePolicy QLayoutArray::sizePolicy()
 }
 #endif
 
-QSize QLayoutArray::findSize( QCOORD LayoutStruct::*size, int spacer )
+QSize QLayoutArray::findSize( QCOORD LayoutStruct::*size, int spacer ) const
 {
-    setupLayoutData();
+    QLayoutArray *This = (QLayoutArray*)this;
+    This->setupLayoutData(); //###A very clever optimizer could cause trouble
     int w = 0;
     int h = 0;
     int n = 0;
@@ -617,17 +416,17 @@ QSizePolicy::Expansiveness QLayoutArray::expansive()
 		  | ( vExp ? QSizePolicy::Vertical : 0 ) );
 }
 
-QSize QLayoutArray::sizeHint( int spacer )
+QSize QLayoutArray::sizeHint( int spacer ) const
 {
     return findSize( &LayoutStruct::sizeHint, spacer );
 }
 
-QSize QLayoutArray::maximumSize( int spacer )
+QSize QLayoutArray::maximumSize( int spacer ) const
 {
     return findSize( &LayoutStruct::maximumSize, spacer );
 }
 
-QSize QLayoutArray::minimumSize( int spacer )
+QSize QLayoutArray::minimumSize( int spacer ) const
 {
     return findSize( &LayoutStruct::minimumSize, spacer );
 }
@@ -659,6 +458,7 @@ void QLayoutArray::add( QLayoutBox *box, int row, int col )
     setDirty();
 }
 
+//#### should be QLayoutItem
 void QLayoutArray::add( QLayoutBox *box,  int row1, int row2,
 			int col1, int col2  )
 {
@@ -698,8 +498,8 @@ void QLayoutArray::addData ( QLayoutBox *box, bool r, bool c )
     rowData[box->row].expansive = rowData[box->row].expansive ||
 				  (box->expansive() & QSizePolicy::Vertical);
     }
-    if ( box->type() != QLayoutBox::Spacer ) {
-	//#### spacers do not get borders. This is ugly, but compatible.
+    if ( !box->isEmpty() ) {
+	//#### empty boxes ( i.e. spacers) do not get borders. This is hacky, but compatible.
 	if ( c )
 	    colData[box->col].empty = FALSE;
 	if ( r )
@@ -771,6 +571,10 @@ void QLayoutArray::setupLayoutData()
 	    int c1 = box->col;
 	    int r2 = mbox->torow;
 	    int c2 = mbox->tocol;
+	    if ( r2 < 0 )
+		r2 = rr-1;
+	    if ( c2 < 0 )
+		c2 = cc-1;
 	    QSize hint = box->sizeHint();
 	    QSize min = box->minimumSize();
 	    if ( r1 == r2 ) {
@@ -831,6 +635,11 @@ void QLayoutArray::distribute( QRect r, int spacing )
 	    QLayoutBox *box = mbox->box();
 	    int r2 = mbox->torow;
 	    int c2 = mbox->tocol;
+	    if ( r2 < 0 )
+		r2 = rr-1;
+	    if ( c2 < 0 )
+		c2 = cc-1;
+
 	    int x = colData[box->col].pos;
 	    int y = rowData[box->row].pos;
 	    int x2 = colData[c2].pos + colData[c2].size;
@@ -1058,7 +867,7 @@ int QGridLayout::numCols() const
   Returns the preferred size of this grid.
 */
 
-QSize QGridLayout::sizeHint()
+QSize QGridLayout::sizeHint() const
 {
     QSize s =  array->sizeHint( defaultBorder() );
     if ( isTopLevel() )
@@ -1069,7 +878,7 @@ QSize QGridLayout::sizeHint()
   Returns the minimum size needed by this grid.
 */
 
-QSize QGridLayout::minimumSize()
+QSize QGridLayout::minimumSize() const
 {
     QSize s =  array->minimumSize( defaultBorder() );
     if ( isTopLevel() )
@@ -1080,7 +889,7 @@ QSize QGridLayout::minimumSize()
   Returns the maximum size needed by this grid.
 */
 
-QSize QGridLayout::maximumSize()
+QSize QGridLayout::maximumSize() const
 {
     QSize s =  array->maximumSize( defaultBorder() );
     if ( isTopLevel() )
@@ -1125,6 +934,13 @@ void QGridLayout::init( int nRows, int nCols )
 }
 
 
+void QGridLayout::add( QLayoutItem *item )
+{
+    int r =0;
+    int c =0; 
+    //######################################################################
+    add( item, r, c );
+}
 
 
 
@@ -1133,8 +949,9 @@ void QGridLayout::init( int nRows, int nCols )
   of \a box.
 */
 
-void QGridLayout::add( QLayoutBox *box, int row, int col )
+void QGridLayout::add( QLayoutItem *item, int row, int col )
 {
+    QLayoutBox *box = new QLayoutBox( item );
     array->add( box, row, col );
 }
 
@@ -1152,7 +969,7 @@ void QGridLayout::add( QLayoutBox *box, int row, int col )
 
 void QGridLayout::addWidget( QWidget *w, int row, int col, int align )
 {
-    QLayoutBox *b = new QLayoutBox( w );
+    QWidgetItem *b = new QWidgetItem( w );
     b->setAlignment( align );
     add( b, row, col );
 }
@@ -1172,7 +989,7 @@ void QGridLayout::addWidget( QWidget *w, int row, int col, int align )
 void QGridLayout::addMultiCellWidget( QWidget *w, int fromRow, int toRow,
 				      int fromCol, int toCol, int align	 )
 {
-    QLayoutBox *b = new QLayoutBox( w );
+    QLayoutBox *b = new QLayoutBox( w );  //#### should be QLayoutItem
     b->setAlignment( align );
     array->add( b, fromRow, toRow, fromCol, toCol );
 }
@@ -1186,8 +1003,7 @@ void QGridLayout::addMultiCellWidget( QWidget *w, int fromRow, int toRow,
 void QGridLayout::addLayout( QLayout *layout, int row, int col)
 {
     addChildLayout( layout );
-    QLayoutBox *b = new QLayoutBox( layout );
-    add( b, row, col );
+    add( layout, row, col );
 }
 
 
@@ -1232,7 +1048,7 @@ void QGridLayout::setColStretch( int col, int stretch )
  */
 void QGridLayout::addRowSpacing( int row, int minsize )
 {
-    QLayoutBox *b = new QLayoutBox( 0, minsize );
+    QLayoutItem *b = new QSpacerItem( 0, minsize );
     //b.setAlignment( align );
     add( b, row, 0 );
 }
@@ -1242,7 +1058,7 @@ void QGridLayout::addRowSpacing( int row, int minsize )
  */
 void QGridLayout::addColSpacing( int col, int minsize )
 {
-    QLayoutBox *b = new QLayoutBox( minsize, 0 );
+    QLayoutItem *b = new QSpacerItem( minsize, 0 );
     //b.setAlignment( align );
     add( b, 0, col );
 }
@@ -1350,6 +1166,13 @@ static inline bool horz( QBoxLayout::Direction dir )
     return dir == QBoxLayout::RightToLeft || dir == QBoxLayout::LeftToRight;
 }
 
+#if 0
+class QBoxLayoutData {
+public:
+    QArray<LayoutStruct> arr;
+};
+#endif
+
 /*!
   Creates a new QBoxLayout with direction \a d and main widget \a
   parent.  \a parent may not be 0.
@@ -1368,6 +1191,7 @@ QBoxLayout::QBoxLayout( QWidget *parent, Direction d,
 			int border, int autoBorder, const char *name )
     : QGridLayout( parent, 0, 0, border, autoBorder, name )
 {
+    //    data = new QBoxLayoutData;
     dir = d;
     if ( d == RightToLeft || d == BottomToTop )
 	setOrigin( BottomRight );
@@ -1384,6 +1208,7 @@ QBoxLayout::QBoxLayout( Direction d,
 			int autoBorder, const char *name )
     : QGridLayout( 0, 0, autoBorder, name )
 {
+    //    data = new QBoxLayoutData;
     dir = d;
     if ( d == RightToLeft || d == BottomToTop )
 	setOrigin( BottomRight );
@@ -1397,6 +1222,25 @@ QBoxLayout::QBoxLayout( Direction d,
 QBoxLayout::~QBoxLayout()
 {
 }
+
+
+/*!
+  Adds \a item to this box.
+*/
+
+void QBoxLayout::add( QLayoutItem *item )
+{
+    if ( horz( dir ) ) {
+	int n = numCols();
+	QGridLayout::add( item, 0, n ) ;
+    } else {
+	int n = numRows();
+	QGridLayout::add( item, n, 0 ) ;
+    }
+    
+}
+
+
 
 /*!
   Adds \a layout to the box, with serial stretch factor \a stretch.
@@ -1430,15 +1274,15 @@ void QBoxLayout::addSpacing( int size )
     if ( horz( dir ) ) {
 	int n = numCols();
 	expand( 1, n+1 );
-	QLayoutBox *b = new QLayoutBox( size, 0, QSizeData::NoGrow,
+	QLayoutItem *b = new QSpacerItem( size, 0, QSizeData::NoGrow,
 					QSizeData::MayGrow );
-	add( b, 0, n ) ;
+	QGridLayout::add( b, 0, n ) ;
     } else {
 	int n = numRows();
 	expand( n+1, 1 );
-	QLayoutBox *b = new QLayoutBox( 0, size, QSizeData::MayGrow,
+	QLayoutItem *b = new QSpacerItem( 0, size, QSizeData::MayGrow,
 					QSizeData::NoGrow );
-	add( b, n, 0 ) ;
+	QGridLayout::add( b, n, 0 ) ;
     }
 }
 
@@ -1455,16 +1299,16 @@ void QBoxLayout::addStretch( int stretch )
     if ( horz( dir ) ) {
 	int n = numCols();
 	expand( 1, n+1 );
-	QLayoutBox *b = new QLayoutBox( 0, 0, QSizeData::WannaGrow,
+	QLayoutItem *b = new QSpacerItem( 0, 0, QSizeData::WannaGrow,
 				       QSizeData::MayGrow );
-	add( b, 0, n ) ;
+	QGridLayout::add( b, 0, n ) ;
 	setColStretch( n, stretch );
     } else {
 	int n = numRows();
 	expand( n+1, 1 );
-	QLayoutBox *b = new QLayoutBox( 0, 0, QSizeData::MayGrow,
+	QLayoutItem *b = new QSpacerItem( 0, 0, QSizeData::MayGrow,
 					QSizeData::WannaGrow );
-	add( b, n, 0 ) ;
+	QGridLayout::add( b, n, 0 ) ;
 	setRowStretch( n, stretch );
     }
 }
@@ -1554,6 +1398,7 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
 
   \sa addWidget(), addBox(), addSpacing()
 */
+
 
 
 
@@ -1659,4 +1504,5 @@ QVBoxLayout::QVBoxLayout( int autoBorder, const char *name )
 QVBoxLayout::~QVBoxLayout()
 {
 }
+
 

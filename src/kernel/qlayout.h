@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#29 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#30 $
 **
 ** Definition of layout classes
 **
@@ -41,9 +41,9 @@ public:
 		 const char *name=0 );
     ~QGridLayout();
 
-    QSize sizeHint();
-    QSize minimumSize();
-    QSize maximumSize();
+    QSize sizeHint() const;
+    QSize minimumSize() const;
+    QSize maximumSize() const;
 
     virtual void setRowStretch( int row, int stretch );
     virtual void setColStretch( int col, int stretch );
@@ -53,16 +53,10 @@ public:
 
     QSizePolicy::Expansiveness expansive();
     void invalidate();
-#if 0
-    void add( QWidget*, int row, int col );
-    void add( QWidget*, int row1, int row2, int col1, int col2 );
-    void add( QLayout*, int row, int col );
-    //    void add( QSize, int row, int col );
-#endif
 
+    void add ( QLayoutItem * );
     // void setAlignment( QWidget* );
 
-	//OBSOLETE (?????)
     void addWidget( QWidget *, int row, int col, int align = 0 );
     void addMultiCellWidget( QWidget *, int fromRow, int toRow,
 			       int fromCol, int toCol, int align = 0 );
@@ -70,13 +64,13 @@ public:
     void addRowSpacing( int row, int minsize );
     void addColSpacing( int col, int minsize );
     void expand( int rows, int cols );
-    //END OBSOLETE (?????)
+
     enum Corner { TopLeft, TopRight, BottomLeft, BottomRight };
     void setOrigin( Corner );
 protected:
     bool removeWidget( QWidget * );
     void setGeometry( const QRect& );
-    void add( QLayoutBox*, int row, int col );
+    void add( QLayoutItem*, int row, int col );
 private:
     void init( int rows, int cols );
     QLayoutArray *array;
@@ -88,6 +82,8 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
+
+class QBoxLayoutData;
 
 class Q_EXPORT QBoxLayout : public QGridLayout
 {
@@ -104,17 +100,19 @@ public:
 
     ~QBoxLayout();
 
+    void add( QLayoutItem * );
+    
     Direction direction() const { return dir; }
 
-#if 1	//OBSOLETE
+    //#if 1	//OBSOLETE ?????
     void addSpacing( int size );
     void addStretch( int stretch = 0 );
     void addWidget( QWidget *, int stretch = 0, int alignment = 0 );
     void addLayout( QLayout *layout, int stretch = 0 );
     void addStrut( int );
-#endif
+    //#endif
 private:
-    QRect lastKnownGeom;
+    //QBoxLayoutData *data;
     Direction dir;
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

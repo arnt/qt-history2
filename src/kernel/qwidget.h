@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#177 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#178 $
 **
 ** Definition of QWidget class
 **
@@ -34,7 +34,7 @@
 #include "qfontmetrics.h"
 #include "qfontinfo.h"
 #include "qstyle.h"
-#include "qabstractlayout.h"
+//#include "qabstractlayout.h"
 #include "qsizepolicy.h"
 #endif // QT_H
 
@@ -397,7 +397,7 @@ private:
     friend class QFontMetrics;
     friend class QFontInfo;
     friend class QETWidget;
-#ifdef TOTAL_LOSER_COMPILER
+#if 1 //def TOTAL_LOSER_COMPILER
     friend class QLayout;
 #else
     friend void QLayout::setWidgetLayout( QWidget *, QLayout * );
