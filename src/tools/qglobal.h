@@ -844,15 +844,15 @@ class QDataStream;
 #    if defined(QT_DLL)
 #      undef QT_DLL
 #    endif
-#    if defined(QT_KERNEL_LIB)
-#      define Q_KERNEL_EXPORT __declspec(dllexport)
-#    else
+#    if defined(QT_KERNEL_WIN_IMPORT)
 #      define Q_KERNEL_EXPORT __declspec(dllimport)
-#    endif
-#    if defined(QT_GUI_LIB)
-#      define Q_GUI_EXPORT __declspec(dllexport)
 #    else
+#      define Q_KERNEL_EXPORT __declspec(dllexport)
+#    endif
+#    if defined(QT_GUI_WIN_IMPORT)
 #      define Q_GUI_EXPORT __declspec(dllimport)
+#    else
+#      define Q_GUI_EXPORT __declspec(dllexport)
 #    endif
 #    define Q_EXPORT  __declspec(dllexport)
 #    define Q_TEMPLATEDLL
