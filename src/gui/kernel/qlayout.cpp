@@ -1427,11 +1427,148 @@ public:
 
     inline void deleteAll() { while (!list.isEmpty()) delete list.takeFirst(); }
 
+    void setupGeom();
+    void calcHfw(int);
+
 };
 
 QBoxLayoutPrivate::~QBoxLayoutPrivate()
 {
 }
+
+static inline bool horz(QBoxLayout::Direction dir)
+{
+    return dir == QBoxLayout::RightToLeft || dir == QBoxLayout::LeftToRight;
+}
+
+/*
+    Initializes the data structure needed by qGeomCalc and
+    recalculates max/min and size hint.
+*/
+void QBoxLayoutPrivate::setupGeom()
+{
+    if (!dirty)
+        return;
+
+    int maxw = horz(dir) ? 0 : QLAYOUTSIZE_MAX;
+    int maxh = horz(dir) ? QLAYOUTSIZE_MAX : 0;
+    int minw = 0;
+    int minh = 0;
+    int hintw = 0;
+    int hinth = 0;
+
+    bool horexp = false;
+    bool verexp = false;
+
+    hasHfw = false;
+
+    int n = list.count();
+    geomArray.clear();
+    geomArray.resize(n);
+    QVector<QLayoutStruct> &a = geomArray;
+
+    bool first = true;
+    for (int i = 0; i < n; i++) {
+        QBoxLayoutItem *box = list.at(i);
+        QSize max = box->item->maximumSize();
+        QSize min = box->item->minimumSize();
+        QSize hint = box->item->sizeHint();
+        QSizePolicy::ExpandData exp = box->item->expanding();
+        bool empty = box->item->isEmpty();
+        // space before non-empties, except the first:
+        int space = (empty || first) ? 0 : q->spacing();
+        bool ignore = empty && box->item->widget(); // ignore hidden widgets
+
+        if (horz(dir)) {
+            bool expand = exp & QSizePolicy::Horizontally || box->stretch > 0;
+            horexp = horexp || expand;
+            maxw += max.width() + space;
+            minw += min.width() + space;
+            hintw += hint.width() + space;
+            if (!ignore)
+                qMaxExpCalc(maxh, verexp,
+                             max.height(), exp & QSizePolicy::Vertically);
+            minh = qMax(minh, min.height());
+            hinth = qMax(hinth, hint.height());
+
+            a[i].sizeHint = hint.width();
+            a[i].maximumSize = max.width();
+            a[i].minimumSize = min.width();
+            a[i].expansive = expand;
+            a[i].stretch = box->stretch ? box->stretch : box->hStretch();
+        } else {
+            bool expand = (exp & QSizePolicy::Vertically || box->stretch > 0);
+            verexp = verexp || expand;
+            maxh += max.height() + space;
+            minh += min.height() + space;
+            hinth += hint.height() + space;
+            if (!ignore)
+                qMaxExpCalc(maxw, horexp,
+                             max.width(), exp & QSizePolicy::Horizontally);
+            minw = qMax(minw, min.width());
+            hintw = qMax(hintw, hint.width());
+
+            a[i].sizeHint = hint.height();
+            a[i].maximumSize = max.height();
+            a[i].minimumSize = min.height();
+            a[i].expansive = expand;
+            a[i].stretch = box->stretch ? box->stretch : box->vStretch();
+        }
+
+        a[i].empty = empty;
+        hasHfw = hasHfw || box->item->hasHeightForWidth();
+        first = first && empty;
+    }
+
+    expanding = (QSizePolicy::ExpandData)
+                       ((horexp ? QSizePolicy::Horizontally : 0)
+                         | (verexp ? QSizePolicy::Vertically : 0));
+
+    minSize = QSize(minw, minh);
+    maxSize = QSize(maxw, maxh).expandedTo(minSize);
+    sizeHint = QSize(hintw, hinth)
+                     .expandedTo(minSize)
+                     .boundedTo(maxSize);
+
+    dirty = false;
+}
+
+/*
+  Calculates and stores the preferred height given the width \a w.
+*/
+void QBoxLayoutPrivate::calcHfw(int w)
+{
+    int h = 0;
+    int mh = 0;
+
+    if (horz(dir)) {
+        QVector<QLayoutStruct> &a = geomArray;
+        int n = a.count();
+        qGeomCalc(a, 0, n, 0, w, q->spacing());
+        for (int i = 0; i < n; i++) {
+            QBoxLayoutItem *box = list.at(i);
+            h = qMax(h, box->hfw(a[i].size));
+            mh = qMax(mh, box->mhfw(a[i].size));
+        }
+    } else {
+        bool first = true;
+        for (int i = 0; i < list.size(); ++i) {
+            QBoxLayoutItem *box = list.at(i);
+            bool empty = box->item->isEmpty();
+            h += box->hfw(w);
+            mh += box->mhfw(w);
+            if (!first && !empty) {
+                h += q->spacing();
+                mh += q->spacing();
+            }
+            first = first && empty;
+        }
+    }
+    hfwWidth = w;
+    hfwHeight = h;
+    hfwMinHeight = mh;
+}
+
 
 /*!
     \class QBoxLayout
@@ -1528,14 +1665,6 @@ QBoxLayoutPrivate::~QBoxLayoutPrivate()
     \value BottomToTop  Vertical, from bottom to top
     \value Up  The same as \c BottomToTop
 */
-
-static inline bool horz(QBoxLayout::Direction dir)
-{
-    return dir == QBoxLayout::RightToLeft || dir == QBoxLayout::LeftToRight;
-}
-
-
-
 
 /*!
     Constructs a new QBoxLayout with direction \a dir and parent widget \a
@@ -1652,10 +1781,8 @@ QBoxLayout::~QBoxLayout()
 */
 QSize QBoxLayout::sizeHint() const
 {
-    if (d->dirty) {
-        QBoxLayout *that = (QBoxLayout*)this;
-        that->setupGeom();
-    }
+    if (d->dirty)
+        const_cast<QBoxLayout*>(this)->d->setupGeom();
     return d->sizeHint + QSize(2 * margin(), 2 * margin());
 }
 
@@ -1664,10 +1791,8 @@ QSize QBoxLayout::sizeHint() const
 */
 QSize QBoxLayout::minimumSize() const
 {
-    if (d->dirty) {
-        QBoxLayout *that = (QBoxLayout*)this;
-        that->setupGeom();
-    }
+    if (d->dirty)
+        const_cast<QBoxLayout*>(this)->d->setupGeom();
     return d->minSize + QSize(2 * margin(), 2 * margin());
 }
 
@@ -1676,10 +1801,8 @@ QSize QBoxLayout::minimumSize() const
 */
 QSize QBoxLayout::maximumSize() const
 {
-    if (d->dirty) {
-        QBoxLayout *that = (QBoxLayout*)this;
-        that->setupGeom();
-    }
+    if (d->dirty)
+        const_cast<QBoxLayout*>(this)->d->setupGeom();
     QSize s = (d->maxSize + QSize(2 * margin(), 2 * margin()))
               .boundedTo(QSize(QLAYOUTSIZE_MAX, QLAYOUTSIZE_MAX));
     if (alignment() & Qt::AlignHorizontal_Mask)
@@ -1695,10 +1818,8 @@ QSize QBoxLayout::maximumSize() const
 */
 bool QBoxLayout::hasHeightForWidth() const
 {
-    if (d->dirty) {
-        QBoxLayout *that = (QBoxLayout*)this;
-        that->setupGeom();
-    }
+    if (d->dirty)
+        const_cast<QBoxLayout*>(this)->d->setupGeom();
     return d->hasHfw;
 }
 
@@ -1710,10 +1831,9 @@ int QBoxLayout::heightForWidth(int w) const
     if (!hasHeightForWidth())
         return -1;
     w -= 2 * margin();
-    if (w != d->hfwWidth) {
-        QBoxLayout *that = (QBoxLayout*)this;
-        that->calcHfw(w);
-    }
+    if (w != d->hfwWidth)
+        const_cast<QBoxLayout*>(this)->d->calcHfw(w);
+
     return d->hfwHeight + 2 * margin();
 }
 
@@ -1765,10 +1885,8 @@ QLayoutItem *QBoxLayout::takeAt(int index)
 */
 QSizePolicy::ExpandData QBoxLayout::expanding() const
 {
-    if (d->dirty) {
-        QBoxLayout *that = (QBoxLayout*)this;
-        that->setupGeom();
-    }
+    if (d->dirty)
+        const_cast<QBoxLayout*>(this)->d->setupGeom();
     return d->expanding;
 }
 
@@ -1780,7 +1898,7 @@ void QBoxLayout::setGeometry(const QRect &r)
     if (d->dirty || r != geometry()) {
         QLayout::setGeometry(r);
         if (d->dirty)
-            setupGeom();
+            d->setupGeom();
         QRect cr = alignment() ? alignmentRect(r) : r;
         QRect s(cr.x() + margin(), cr.y() + margin(),
                  cr.width() - 2 * margin(), cr.height() - 2 * margin());
@@ -2198,134 +2316,6 @@ void QBoxLayout::setDirection(Direction direction)
     }
     d->dir = direction;
     invalidate();
-}
-
-/*
-    Initializes the data structure needed by qGeomCalc and
-    recalculates max/min and size hint.
-*/
-void QBoxLayout::setupGeom()
-{
-    if (!d->dirty)
-        return;
-
-    int maxw = horz(d->dir) ? 0 : QLAYOUTSIZE_MAX;
-    int maxh = horz(d->dir) ? QLAYOUTSIZE_MAX : 0;
-    int minw = 0;
-    int minh = 0;
-    int hintw = 0;
-    int hinth = 0;
-
-    bool horexp = false;
-    bool verexp = false;
-
-    d->hasHfw = false;
-
-    int n = d->list.count();
-    d->geomArray.clear();
-    d->geomArray.resize(n);
-    QVector<QLayoutStruct> &a = d->geomArray;
-
-    bool first = true;
-    for (int i = 0; i < n; i++) {
-        QBoxLayoutItem *box = d->list.at(i);
-        QSize max = box->item->maximumSize();
-        QSize min = box->item->minimumSize();
-        QSize hint = box->item->sizeHint();
-        QSizePolicy::ExpandData exp = box->item->expanding();
-        bool empty = box->item->isEmpty();
-        // space before non-empties, except the first:
-        int space = (empty || first) ? 0 : spacing();
-        bool ignore = empty && box->item->widget(); // ignore hidden widgets
-
-        if (horz(d->dir)) {
-            bool expand = exp & QSizePolicy::Horizontally || box->stretch > 0;
-            horexp = horexp || expand;
-            maxw += max.width() + space;
-            minw += min.width() + space;
-            hintw += hint.width() + space;
-            if (!ignore)
-                qMaxExpCalc(maxh, verexp,
-                             max.height(), exp & QSizePolicy::Vertically);
-            minh = qMax(minh, min.height());
-            hinth = qMax(hinth, hint.height());
-
-            a[i].sizeHint = hint.width();
-            a[i].maximumSize = max.width();
-            a[i].minimumSize = min.width();
-            a[i].expansive = expand;
-            a[i].stretch = box->stretch ? box->stretch : box->hStretch();
-        } else {
-            bool expand = (exp & QSizePolicy::Vertically || box->stretch > 0);
-            verexp = verexp || expand;
-            maxh += max.height() + space;
-            minh += min.height() + space;
-            hinth += hint.height() + space;
-            if (!ignore)
-                qMaxExpCalc(maxw, horexp,
-                             max.width(), exp & QSizePolicy::Horizontally);
-            minw = qMax(minw, min.width());
-            hintw = qMax(hintw, hint.width());
-
-            a[i].sizeHint = hint.height();
-            a[i].maximumSize = max.height();
-            a[i].minimumSize = min.height();
-            a[i].expansive = expand;
-            a[i].stretch = box->stretch ? box->stretch : box->vStretch();
-        }
-
-        a[i].empty = empty;
-        d->hasHfw = d->hasHfw || box->item->hasHeightForWidth();
-        first = first && empty;
-    }
-
-    d->expanding = (QSizePolicy::ExpandData)
-                       ((horexp ? QSizePolicy::Horizontally : 0)
-                         | (verexp ? QSizePolicy::Vertically : 0));
-
-    d->minSize = QSize(minw, minh);
-    d->maxSize = QSize(maxw, maxh).expandedTo(d->minSize);
-    d->sizeHint = QSize(hintw, hinth)
-                     .expandedTo(d->minSize)
-                     .boundedTo(d->maxSize);
-
-    d->dirty = false;
-}
-
-/*
-  Calculates and stores the preferred height given the width \a w.
-*/
-void QBoxLayout::calcHfw(int w)
-{
-    int h = 0;
-    int mh = 0;
-
-    if (horz(d->dir)) {
-        QVector<QLayoutStruct> &a = d->geomArray;
-        int n = a.count();
-        qGeomCalc(a, 0, n, 0, w, spacing());
-        for (int i = 0; i < n; i++) {
-            QBoxLayoutItem *box = d->list.at(i);
-            h = qMax(h, box->hfw(a[i].size));
-            mh = qMax(mh, box->mhfw(a[i].size));
-        }
-    } else {
-        bool first = true;
-        for (int i = 0; i < d->list.size(); ++i) {
-            QBoxLayoutItem *box = d->list.at(i);
-            bool empty = box->item->isEmpty();
-            h += box->hfw(w);
-            mh += box->mhfw(w);
-            if (!first && !empty) {
-                h += spacing();
-                mh += spacing();
-            }
-            first = first && empty;
-        }
-    }
-    d->hfwWidth = w;
-    d->hfwHeight = h;
-    d->hfwMinHeight = mh;
 }
 
 /*!

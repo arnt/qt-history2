@@ -402,9 +402,6 @@ private:
     QBoxLayout(const QBoxLayout &);
     QBoxLayout &operator=(const QBoxLayout &);
 #endif
-
-    void setupGeom();
-    void calcHfw(int);
 };
 
 class Q_GUI_EXPORT QHBoxLayout : public QBoxLayout
