@@ -1199,9 +1199,13 @@ GLuint QGLContextPrivate::bindTexture(const QImage &image, GLint format, int key
     GLuint tx_id;
     glGenTextures(1, &tx_id);
     glBindTexture(GL_TEXTURE_2D, tx_id);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     if (generate_mipmaps) {
 	glHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);
 	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    } else {
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     }
 
     glTexImage2D(GL_TEXTURE_2D, 0, format, tx.width(), tx.height(), 0, GL_RGBA,
