@@ -83,7 +83,7 @@ static void qt_debug_path(const QPainterPath &path)
     printf("\nQPainterPath: elementCount=%d\n", path.elementCount());
     for (int i=0; i<path.elementCount(); ++i) {
         const QPainterPath::Element &e = path.elementAt(i);
-        Q_ASSERT(e.type >= 0 && e.type <= QPainterPath::CurveToElement);
+        Q_ASSERT(e.type >= 0 && e.type <= QPainterPath::CurveToDataElement);
         printf(" - %s, (%.2f, %.2f)\n", names[e.type], e.x, e.y);
     }
 }

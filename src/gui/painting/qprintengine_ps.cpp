@@ -5169,7 +5169,8 @@ void QPSPrintEnginePrivate::flushPage(bool last)
 QPSPrintEngine::QPSPrintEngine(QPrinter::PrinterMode m)
     : QPaintEngine(*(new QPSPrintEnginePrivate(m)),
                    CoordTransform | PenWidthTransform | PatternTransform | PixmapTransform
-                   | PixmapScale | ClipTransform | UsesFontEngine | PainterPaths)
+                   | LinearGradients | DrawRects | AlphaFill | AlphaStroke | PixmapScale
+                   | ClipTransform | UsesFontEngine | PainterPaths )
 {
 }
 
@@ -5593,11 +5594,17 @@ void QPSPrintEngine::drawPath(const QPainterPath &p)
         d->pageStream << "/WFi true d\n";
     d->pageStream << "NP\n";
 
+    int start = -1;
     for (int i=0; i<p.elementCount(); ++i) {
         const QPainterPath::Element &elm = p.elementAt(i);
         switch (elm.type) {
         case QPainterPath::MoveToElement:
+            if (start >= 0
+                && p.elementAt(start).x == p.elementAt(i-1).x
+                && p.elementAt(start).y == p.elementAt(i-1).y)
+                d->pageStream << "CP\n";
             d->pageStream << QT_PATH_ELEMENT(elm) << "MT\n";
+            start = i;
             break;
         case QPainterPath::LineToElement:
             d->pageStream << QT_PATH_ELEMENT(elm) << "LT\n";
@@ -5612,9 +5619,13 @@ void QPSPrintEngine::drawPath(const QPainterPath &p)
             i += 2;
             break;
         default:
-            qFatal("QGdiplusPaintEngine::drawPath(), unhandled type: %d", elm.type);
+            qFatal("QPSPrintEngine::drawPath(), unhandled type: %d", elm.type);
         }
     }
+    if (start >= 0
+        && p.elementAt(start).x == p.elementAt(p.elementCount()-1).x
+        && p.elementAt(start).y == p.elementAt(p.elementCount()-1).y)
+        d->pageStream << "CP\n";
 
     d->pageStream << "BF QS\n";
 
