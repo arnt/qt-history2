@@ -321,7 +321,7 @@
    such as template specialization nevertheless */
 #    elif defined(sgi) || defined(__sgi)
 #      define Q_CC_MIPS
-#      if defined(_MIPS_SIM) && ( _MIPS_SIM == _ABIO32) /* o32 ABI */
+#      if defined(_MIPS_SIM) && (_MIPS_SIM == _ABIO32) /* o32 ABI */
 #        define Q_BROKEN_TEMPLATE_SPECIALIZATION
 #      elif defined(_COMPILER_VERSION) && (_COMPILER_VERSION < 730) /* 7.2 */
 #        define Q_BROKEN_TEMPLATE_SPECIALIZATION
@@ -395,7 +395,7 @@
      WIN16  - unsupported
 */
 
-#if defined( Q_OS_MAC9 )
+#if defined(Q_OS_MAC9)
 #  define Q_WS_MAC9
 #elif defined(Q_OS_MSDOS)
 #  define Q_WS_WIN16
@@ -413,7 +413,7 @@
 #elif defined(Q_OS_UNIX)
 #  ifdef QWS
 #    define Q_WS_QWS
-#  elif defined( Q_OS_MACX )
+#  elif defined(Q_OS_MACX)
 #    define Q_WS_MACX
 #  else
 #    define Q_WS_X11
@@ -427,7 +427,7 @@
 #  define Q_WS_WIN
 #endif
 
-#if (defined(Q_WS_MAC9) || defined(Q_WS_MACX)) && !defined( Q_WS_QWS ) && !defined( Q_WS_X11 )
+#if (defined(Q_WS_MAC9) || defined(Q_WS_MACX)) && !defined(Q_WS_QWS) && !defined(Q_WS_X11)
 #  define Q_WS_MAC
 #endif
 
