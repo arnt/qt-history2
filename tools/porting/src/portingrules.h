@@ -41,6 +41,7 @@ private:
     QStringList neededHeaders;
     QStringList inheritsQtClass;
     void parseXml();
+    void checkScopeAddRule(/*const */QtSimpleXml &currentRule);
 };
 
 #endif

@@ -110,9 +110,7 @@ void PortingRules::parseXml()
         else if(ruleType == "RenamedEnumvalue" ||
                 ruleType == "RenamedType" ||
                 ruleType == "RenamedQtSymbol" ) {
-            tokenRules.append(new ScopedTokenReplacement(
-                    currentRule["Qt3"].text().toLatin1(),
-                    currentRule["Qt4"].text().toLatin1()));
+            checkScopeAddRule(currentRule);
         }
         else if(ruleType == "NeedHeader") {
             neededHeaders += currentRule["Header"].text();
@@ -127,4 +125,19 @@ void PortingRules::parseXml()
             inheritsQtClass += currentRule.text();
         }
     }
+}
+/*
+    Check if the rule in currentRule describes a qualified name
+    (like QButton::ToggleState). If so, create a scoped ScopedTokenReplacement,
+    else create a GenericTokenReplacement
+*/
+void PortingRules::checkScopeAddRule(/*const */QtSimpleXml &currentRule)
+{
+    QByteArray oldToken = currentRule["Qt3"].text().toLatin1();
+    QByteArray newToken = currentRule["Qt4"].text().toLatin1();
+
+    if (oldToken.contains("::"))
+        tokenRules.append(new ScopedTokenReplacement(oldToken, newToken));
+    else
+        tokenRules.append(new GenericTokenReplacement(oldToken, newToken));
 }

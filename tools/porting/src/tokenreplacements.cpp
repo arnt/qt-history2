@@ -20,7 +20,7 @@
 using std::cout;
 using std::endl;
 
-void TokenReplacement::makeLogEntry(QString text, TokenStream *tokenStream)
+void TokenReplacement::addLogSourceEntry(QString text, TokenStream *tokenStream)
 {
     Logger *logger = Logger::instance();
     int line;
@@ -33,6 +33,11 @@ void TokenReplacement::makeLogEntry(QString text, TokenStream *tokenStream)
     logger->addEntry(logEntry);
 }
 
+
+void TokenReplacement::addLogWarning(QString text)
+{
+     Logger::instance()->addEntry(new PlainLogEntry("Warning", "Porting", text));
+}
 
 QualifiedNameParser::QualifiedNameParser(TokenStream *tokenStream, int index)
 :tokenStream(tokenStream)
@@ -133,7 +138,7 @@ bool IncludeTokenReplacement::doReplace(TokenStream *tokenStream, TextReplacemen
         if(pos!=-1) {
     //      printf("a match was made\n");
             Token token = tokenStream->token();
-            makeLogEntry(tokenText + " -> " + toFile, tokenStream);
+            addLogSourceEntry(tokenText + " -> " + toFile, tokenStream);
             textReplacements.insert(toFile, token.position+pos, fromFile.size());
             return true;
         }
@@ -158,7 +163,7 @@ bool GenericTokenReplacement::doReplace(TokenStream *tokenStream, TextReplacemen
     QByteArray tokenText=tokenStream->currentTokenText();
     if(tokenText==oldToken){
         Token token = tokenStream->token();
-        makeLogEntry(tokenText + " -> " + newToken, tokenStream);
+        addLogSourceEntry(tokenText + " -> " + newToken, tokenStream);
         textReplacements.insert(newToken, token.position, tokenText.size());
         return true;
     }
@@ -210,7 +215,7 @@ bool ClassNameReplacement::doReplace(TokenStream *tokenStream, TextReplacements 
             return false;
     }
     Token token = tokenStream->token();
-    makeLogEntry(tokenText + " -> " + newToken, tokenStream);
+    addLogSourceEntry(tokenText + " -> " + newToken, tokenStream);
     textReplacements.insert(newToken, token.position, tokenText.size());
     return true;
 }
@@ -225,95 +230,96 @@ ScopedTokenReplacement::ScopedTokenReplacement(QByteArray oldToken,
 
 bool ScopedTokenReplacement::doReplace(TokenStream *tokenStream, TextReplacements &textReplacements)
 {
+    if (oldToken.contains("::") == false) {
+        addLogWarning("Warning: in ScopedTokenReplacement::doReplace(): token "
+                            + oldToken + " is not a scoped token");
+        return false;
+    }
+
+    QByteArray oldTokenName = oldToken.mid(oldToken.lastIndexOf(':')+1);
+    QByteArray oldTokenScope = oldToken.mid(0, oldToken.indexOf(':'));
+    Token token = tokenStream->token();
     QByteArray tokenText=tokenStream->currentTokenText();
-//     qDebug("Scoped token: Matching (%s -> %s) against %s", oldToken.constData(),newToken.constData(), tokenText.constData());
-    QByteArray oldTokenName;
-    QByteArray oldTokenScope;
-    if (oldToken.contains("::")) {
-        oldTokenName = oldToken.mid(oldToken.lastIndexOf(':')+1);
-        oldTokenScope = oldToken.mid(0, oldToken.indexOf(':'));
-    } else {
-        oldTokenName = oldToken;
+
+    if(tokenText != oldTokenName)
+        return false;
+
+    QualifiedNameParser nameParser(tokenStream, tokenStream->cursor());
+
+    if(nameParser.isPartOfQualifiedName() == false)
+    {
+        QByteArray newTokenScope = newToken.mid(0, newToken.indexOf(':'));
+        // ##### this is a bit hacky. We just try to avoid replacements of
+        // e.g. Vertical with QSizePolicy::Vertically. Unqualified tokens
+        // can't happen for classes one does not usually inherit from, so
+        // we only let them pass for stuff that people usually inherited from.
+        if (newTokenScope != "Qt"
+            && newTokenScope != "QFrame"
+            && newTokenScope != "QValidator")
+            return false;
+
+        addLogSourceEntry(tokenText + " -> " + newToken, tokenStream);
+        textReplacements.insert(newToken, token.position, tokenText.size());
+        return true;
     }
 
-    //check token text
-    if(tokenText == oldTokenName ){
-        //check scope (if any)
-        if(!oldTokenScope.isEmpty()) {
-            QualifiedNameParser qnp(tokenStream, tokenStream->cursor());
-            if(qnp.isName()) {
-                //token in tokenStream is qualified
-                int scopeTokenIndex = qnp.peek(QualifiedNameParser::Left);
-                QByteArray scopeText = tokenStream->tokenText(scopeTokenIndex);
-//                 qDebug("scopeText=%s oldTokenScope=%s", scopeText.data(), oldTokenScope.data());
-                if(scopeText != oldTokenScope) {
-                    // special case! if oldTokenScope is Qt, meaning the Qt class,
-                    // we check if scopeText is one of the Qt3 classes that inherits Qt.
-                    // This will cach cases such as QWidget::ButtonState, wich will be
-                    // renamed to Qt:ButtonState
-                    if(oldTokenScope == "Qt") {
-                        if (!PortingRules::instance()->getInheritsQt().contains(scopeText))
-                            return false;    //false alarm, scopeText is not a Qt class
-                     } else {
-                         return false;
-                     }
-                }
-                Token token = tokenStream->token();
-                if (newToken.contains("::")) {
-                    QByteArray newTokenName = newToken.mid(newToken.lastIndexOf(':')+1);
-                    QByteArray newTokenScope = newToken.mid(0, newToken.indexOf(':'));
-                    if(newTokenScope == scopeText){
-                        //the old and new scopes are equal, replace name part only
-                        if (tokenText == newTokenName) //names are equal, no need to do anything
-                            return true;
-                        makeLogEntry(tokenText + " -> " + newTokenName, tokenStream);
-                        textReplacements.insert(newTokenName, token.position, tokenText.size());
-                        return true;
-                    } else {
-                        //replace scope and name
-                        makeLogEntry(tokenText + " -> " + newToken, tokenStream);
-                        Token scopeToken = tokenStream->tokenAt(scopeTokenIndex);
-                        textReplacements.insert(newTokenScope, scopeToken.position, scopeText.size());
-                        textReplacements.insert(newTokenName, token.position, tokenText.size());
-                        return true;
-                    }
-                } else {
-                    makeLogEntry(scopeText + "::" + tokenText + " -> " + newToken, tokenStream);
-                    Token scopeToken = tokenStream->tokenAt(scopeTokenIndex);
-                    textReplacements.insert(newToken, scopeToken.position, token.position + tokenText.size() - scopeToken.position);
-                }
-            } else {
-                QByteArray newTokenScope = newToken.mid(0, newToken.indexOf(':'));
-                // ##### this is a bit hacky. We just try to avoid replacements of
-                // e.g. Vertical with QSizePolicy::Vertically. Unqualified tokens
-                // can't happen for classes one does not usually inherit from, so
-                // we only let them pass for stuff that people usually inherited from.
-                if (newTokenScope != "Qt"
-                    && newTokenScope != "QFrame"
-                    && newTokenScope != "QValidator")
-                    return false;
-                // token in the tokenStream is not qualified
-                // relplace token with qualified new token
-                Token token = tokenStream->token();
-                makeLogEntry(tokenText + " -> " + newToken, tokenStream);
-                textReplacements.insert(newToken, token.position, tokenText.size());
-                return true;
-            }
-        } else {
-            //oldToken is not qualified - This won't happen. (use a plain TokenReplacement
-            //for unqualified tokens)
+    if(nameParser.isName() == false) {
+        //This is a pretty special case, it means that in a qualified
+        //name like aaa::bbb the replacement rule has been triggered for
+        //the aaa part. Since this is not what we'd normally use a
+        //ScopedReplacement for, we just return here.
+        return false;
+    }
 
-            //relplace token with (non-qualified) new token
-            /*
-            Token token = tokenStream->token();
-            makeLogEntry("ScopedReplace", tokenText + " -> " + newToken, tokenStream);
-            textReplacements.insert(newToken, token.position, tokenText.size());
+    int scopeTokenIndex = nameParser.peek(QualifiedNameParser::Left);
+    if (scopeTokenIndex == -1 ) {
+        addLogWarning( "Warning: Internal error in ScopedTokenReplacement::doReplace(): \
+                        Could not find scope for token " + tokenText);
+        return false;
+    }
+
+    Token scopeToken = tokenStream->tokenAt(scopeTokenIndex);
+    QByteArray scopeText = tokenStream->tokenText(scopeTokenIndex);
+
+    if(scopeText != oldTokenScope) {
+        // special case! if oldTokenScope is Qt, meaning the Qt class,
+        // we check if scopeText is one of the Qt3 classes that inherits Qt.
+        // This will cach cases such as QWidget::ButtonState, wich will be
+        // renamed to Qt::ButtonState
+        if(oldTokenScope != "Qt")
+            return false;
+        if (!PortingRules::instance()->getInheritsQt().contains(scopeText)) //TODO optimize: linear search
+            //false alarm, scopeText is not a Qt class
+            return false;
+    }
+
+    if (newToken.count("::") != 1 || newToken.contains("(") ) {
+        //Spcecial cases, such as QIODevice::Offset -> Q_LONGLONG
+        //or Qt::WType_Modal -> (Qt::WType_Dialog | Qt::WShowModal)
+        addLogSourceEntry(scopeText + "::" + tokenText + " -> " + newToken, tokenStream);
+        int beginPos = scopeToken.position;
+        int endPos = token.position - scopeToken.position + tokenText.size();
+        textReplacements.insert(newToken, beginPos, endPos);
+        return true;
+    }
+    //The rest of the code expects that newToken contains one andv only one "::"
+    QByteArray newTokenName = newToken.mid(newToken.lastIndexOf(':')+1);
+    QByteArray newTokenScope = newToken.mid(0, newToken.indexOf(':'));
+    if(newTokenScope == scopeText){
+        //the old and new scopes are equal, replace name part only
+        if (tokenText == newTokenName)
+            //names are equal, no need to do anything
             return true;
-            */
-        }
+        addLogSourceEntry(tokenText + " -> " + newTokenName, tokenStream);
+        textReplacements.insert(newTokenName, token.position, tokenText.size());
+        return true;
+    } else {
+        //replace scope and name
+        addLogSourceEntry(tokenText + " -> " + newToken, tokenStream);
+        textReplacements.insert(newTokenScope, scopeToken.position, scopeText.size());
+        textReplacements.insert(newTokenName, token.position, tokenText.size());
+        return true;
     }
-
-    return false;
 }
 
 QByteArray ScopedTokenReplacement::getReplaceKey()
