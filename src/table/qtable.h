@@ -521,9 +521,7 @@ private:
     int startDragCol;
     QPoint dragStartPos;
     int oldCurrentRow, oldCurrentCol;
-    QWidget *unused_topLeftCorner; //### remove in 4.0
     FocusStyle focusStl;
-    QSize unused_cachedSizeHint; // ### remove in 4.0
 
 #if defined(Q_DISABLE_COPY)
     QTable( const QTable & );
