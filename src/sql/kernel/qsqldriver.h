@@ -65,8 +65,12 @@ public:
     inline QT_COMPAT QSqlRecord recordInfo(const QSqlQuery& query) const
     { return query.record(); }
     inline QT_COMPAT QString nullText() const { return QLatin1String("NULL"); }
+    inline QT_COMPAT QString formatValue(const QSqlField *field, bool trimStrings = false) const
+    { return field ? formatValue(*field, trimStrings) : QString(); }
 #endif
-    virtual QString formatValue(const QSqlField* field, bool trimStrings = false) const;
+    virtual QString formatValue(const QSqlField& field, bool trimStrings = false) const;
+    virtual QString whereClause(const QSqlRecord &rec, bool preparedStatement) const;
+
     QSqlError lastError() const;
 
     virtual bool hasFeature(DriverFeature f) const = 0;

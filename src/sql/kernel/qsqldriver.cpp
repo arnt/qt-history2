@@ -299,6 +299,35 @@ QSqlRecord QSqlDriver::record(const QString& ) const
     return QSqlRecord();
 }
 
+QString QSqlDriver::whereClause(const QSqlRecord &rec, bool preparedStatement) const
+{
+    QString s;
+    s.reserve(128);
+    if (preparedStatement) {
+        for (int i = 0; i < rec.count(); ++i) {
+            s.append(rec.fieldName(i));
+            QString val = formatValue(rec.field(i));
+            if (val == QLatin1String("NULL"))
+                s.append(QLatin1String(" IS NULL"));
+            else
+                s.append(" = ").append(val);
+            s.append(" AND ");
+        }
+    } else {
+        for (int i = 0; i < rec.count(); ++i)
+            s.append(rec.fieldName(i)).append(" = ? AND ");
+    }
+    if (!s.isEmpty())
+        s.truncate(s.length() - 5); // remove trailing AND
+    return s;
+}
+
+
+/*!  \fn QString QSqlDriver::formatValue(const QSqlField *field, bool trimStrings) const
+     \obsolete
+     use QSqlDriver::formatValue(const QSqlField &field, bool trimStrings) const instead
+ */
+
 /*!
     Returns a string representation of the \a field value for the
     database. This is used, for example, when constructing INSERT and
@@ -332,44 +361,44 @@ QSqlRecord QSqlDriver::record(const QString& ) const
     \sa QCoreVariant::toString().
 
 */
-QString QSqlDriver::formatValue(const QSqlField* field, bool trimStrings) const
+QString QSqlDriver::formatValue(const QSqlField &field, bool trimStrings) const
 {
     static const QString nullTxt("NULL");
 
     QString r;
-    if (field->isNull())
+    if (field.isNull())
         r = nullTxt;
     else {
-        switch (field->type()) {
+        switch (field.type()) {
         case QCoreVariant::Int:
         case QCoreVariant::UInt:
-            if (field->value().type() == QCoreVariant::Bool)
-                r = field->value().toBool() ? "1" : "0";
+            if (field.value().type() == QCoreVariant::Bool)
+                r = field.value().toBool() ? "1" : "0";
             else
-                r = field->value().toString();
+                r = field.value().toString();
             break;
         case QCoreVariant::Date:
-            if (field->value().toDate().isValid())
-                r = "'" + field->value().toDate().toString(Qt::ISODate) + "'";
+            if (field.value().toDate().isValid())
+                r = "'" + field.value().toDate().toString(Qt::ISODate) + "'";
             else
                 r = nullTxt;
             break;
         case QCoreVariant::Time:
-            if (field->value().toTime().isValid())
-                r = "'" + field->value().toTime().toString(Qt::ISODate) + "'";
+            if (field.value().toTime().isValid())
+                r = "'" + field.value().toTime().toString(Qt::ISODate) + "'";
             else
                 r = nullTxt;
             break;
         case QCoreVariant::DateTime:
-            if (field->value().toDateTime().isValid())
+            if (field.value().toDateTime().isValid())
                 r = "'" +
-                    field->value().toDateTime().toString(Qt::ISODate) + "'";
+                    field.value().toDateTime().toString(Qt::ISODate) + "'";
             else
                 r = nullTxt;
             break;
         case QCoreVariant::String:
         {
-            QString result = field->value().toString();
+            QString result = field.value().toString();
             if (trimStrings) {
                 int end = result.length() - 1;
                 while (end && result[end].isSpace()) /* skip white space from end */
@@ -382,14 +411,14 @@ QString QSqlDriver::formatValue(const QSqlField* field, bool trimStrings) const
             break;
         }
         case QCoreVariant::Bool:
-            if (field->value().toBool())
+            if (field.value().toBool())
                 r = "1";
             else
                 r = "0";
             break;
         case QCoreVariant::ByteArray : {
             if (hasFeature(BLOB)) {
-                QByteArray ba = field->value().toByteArray();
+                QByteArray ba = field.value().toByteArray();
                 QString res;
                 static const char hexchars[] = "0123456789abcdef";
                 for (int i = 0; i < ba.size(); ++i) {
@@ -402,7 +431,7 @@ QString QSqlDriver::formatValue(const QSqlField* field, bool trimStrings) const
             }
         }
         default:
-            r = field->value().toString();
+            r = field.value().toString();
             break;
         }
     }

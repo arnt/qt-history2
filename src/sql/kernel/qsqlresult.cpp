@@ -501,7 +501,7 @@ bool QSqlResult::exec()
             QSqlField f("", val.type());
             f.setValue(val);
             query = query.replace(d->holders[i].holderPos,
-                                   holder.length(), driver()->formatValue(&f));
+                                   holder.length(), driver()->formatValue(f));
         }
     } else {
         QString val;
@@ -517,8 +517,8 @@ bool QSqlResult::exec()
                 f.clear();
             else
                 f.setValue(var);
-            val = driver()->formatValue(&f);
-            query = query.replace(i, 1, driver()->formatValue(&f));
+            val = driver()->formatValue(f);
+            query = query.replace(i, 1, driver()->formatValue(f));
             i += val.length();
         }
     }
