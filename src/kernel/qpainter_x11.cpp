@@ -2993,12 +2993,16 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
             int tx=-bbox.x(),  ty=-bbox.y();    // text position
             QWMatrix mat1( m11(), m12(), m21(), m22(), dx(),  dy() );
             QFont dfont( cfont );
-	    float pixSize = cfont.pixelSize();
-	    if ( pixSize == -1 )
-		pixSize = cfont.deciPointSize() * QPaintDeviceMetrics( pdev ).logicalDpiY() / 720;
-	    int newSize = (int) (sqrt( QABS(m11()*m22() - m12()*m21()) ) * pixSize);
-	    newSize = QMAX( 6, QMIN( newSize, 72 ) ); // empirical values
-	    dfont.setPixelSize( newSize );
+	    float det = QABS(m11()*m22() - m12()*m21());
+	    if ( det != 1 ) {
+		// det == 1. means we have only a rotation, so no need to change font size.
+		float pixSize = cfont.pixelSize();
+		if ( pixSize == -1 )
+		    pixSize = cfont.deciPointSize() * QPaintDeviceMetrics( pdev ).logicalDpiY() / 720;
+		int newSize = (int) (sqrt( det ) * pixSize) - 1;
+		newSize = QMAX( 6, QMIN( newSize, 72 )); // empirical values
+		dfont.setPixelSize( newSize );
+	    }
 	    QFontMetrics fm2( dfont );
 	    QRect abbox = fm2.boundingRect( str, len );
 	    aw = abbox.width();
