@@ -31,6 +31,11 @@
 
 #ifndef QT_NO_FILEDIALOG
 
+/*****************************************************************************
+  QFileDialog debug facilities
+ *****************************************************************************/
+//#define DEBUG_FILEDIALOG_FILTERS
+
 #include "qapplication.h"
 #include <private/qapplication_p.h>
 #include "qt_mac.h"
@@ -74,6 +79,9 @@ static qt_mac_filter_name *extractFilter( const QString& rawFilter )
 // Makes a list of filters from ;;-separated text.
 static QPtrList<qt_mac_filter_name> makeFiltersList( const QString &filter )
 {
+#ifdef DEBUG_FILEDIALOG_FILTERS
+    qDebug("QFileDialog:%d - Got filter (%s)", __LINE__, filter.latin1());
+#endif
     QString f( filter );
 
     if ( f.isEmpty( ) )
@@ -91,8 +99,14 @@ static QPtrList<qt_mac_filter_name> makeFiltersList( const QString &filter )
     }
     QPtrList<qt_mac_filter_name> ret;
     QStringList filts = QStringList::split( sep, f);
-    for (QStringList::Iterator it = filts.begin(); it != filts.end(); ++it )
-	ret.append(extractFilter((*it)));
+    for (QStringList::Iterator it = filts.begin(); it != filts.end(); ++it ) {
+	qt_mac_filter_name *filter = extractFilter((*it));
+#ifdef DEBUG_FILEDIALOG_FILTERS
+	qDebug("QFileDialog:%d Split out filter (%d) '%s' '%s'", __LINE__, ret.count(),
+	       filter->regxp.latin1(), filter->description.latin1());
+#endif
+	ret.append(filter);
+    }
     return ret;
 }
 
@@ -129,6 +143,10 @@ static QMAC_PASCAL Boolean qt_mac_nav_filter(AEDesc *theItem, void *info,
 		tmp[str[0]] = '\0';
 		for(QStringList::Iterator it = reg.begin(); it != reg.end(); ++it) {
 		    QRegExp rg((*it), TRUE, TRUE);
+#ifdef DEBUG_FILEDIALOG_FILTERS
+		    qDebug("QFileDialog:%d, asked to filter.. %s (%s)", __LINE__, 
+			   tmp, (*it).latin1());
+#endif
 		    if(rg.exactMatch(tmp)) 
 			return true;
 		}
@@ -148,6 +166,10 @@ static QMAC_PASCAL Boolean qt_mac_nav_filter(AEDesc *theItem, void *info,
 		str = str.right(str.length() - slsh - 1);
 	    for(QStringList::Iterator it = reg.begin(); it != reg.end(); ++it) {
 		QRegExp rg((*it), TRUE, TRUE);
+#ifdef DEBUG_FILEDIALOG_FILTERS
+		qDebug("QFileDialog:%d, asked to filter.. %s (%s)", __LINE__, 
+		       str.latin1(), (*it).latin1());
+#endif
 		if(rg.exactMatch(str)) 
 		    return true;
 	    }
@@ -187,6 +209,9 @@ static QMAC_PASCAL void qt_mac_filedialog_event_proc(const NavEventCallbackMessa
 	qt_mac_nav_filter_type *t = (qt_mac_nav_filter_type *)myd;
 	NavMenuItemSpec *s = (NavMenuItemSpec*)p->eventData.eventDataParms.param;
 	t->index = s->menuType;
+#ifdef DEBUG_FILEDIALOG_FILTERS
+	qDebug("QFileDialog:%d - Selected a filter: %d", __LINE__, s->menuType);
+#endif
 	break; }
     case kNavCBStart:
 	g_nav_blocking=TRUE;
