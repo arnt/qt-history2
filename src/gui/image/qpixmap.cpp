@@ -643,13 +643,21 @@ void QPixmap::setMask( const QBitmap &newmask )
 	data->selfmask = TRUE;			// mask == pixmap
 	return;
     }
-    detach();
-    data->selfmask = FALSE;
+
     if ( newmask.isNull() ) {			// reset the mask
-	delete data->mask;
-	data->mask = 0;
+	if (data->mask) {
+	    detach();
+	    data->selfmask = FALSE;
+
+	    delete data->mask;
+	    data->mask = 0;
+	}
 	return;
     }
+
+    detach();
+    data->selfmask = FALSE;
+
     if ( newmask.width() != width() || newmask.height() != height() ) {
 	qWarning( "QPixmap::setMask: The pixmap and the mask must have "
 		  "the same size" );
@@ -1091,8 +1099,6 @@ QPixmap QPixmap::grabWidget( QWidget * widget, int x, int y, int w, int h )
     grabWidget_helper(widget, res, buf, r, QPoint());
     return res;
 }
-
-
 
 
 
