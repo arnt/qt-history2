@@ -639,16 +639,14 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
         p->restore();
 }
 
-/* ### For some reason qdoc doesn't understand this
-
+/*!
     \fn void QStyle::drawItem(QPainter *p, const QRect &r, int flags, const
                               QPalette &pal, bool enabled, const QPixmap &pixmap,
                               const QString &text, int len, const QColor *penColor)
 
     \overload
 
-    Draws the \a pixmap in rectangle \a r using painter \a p and color
-    group \a pal.
+    Draws the \a pixmap in rectangle \a r using painter \a p and palette \a pal.
 */
 
 /*!
