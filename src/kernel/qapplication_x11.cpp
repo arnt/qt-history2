@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#392 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#393 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -173,8 +173,6 @@ Atom		qt_wm_delete_window;		// delete window protocol
 static Atom	qt_qt_scrolldone;		// scroll synchronization
 
 static Atom	qt_embedded_window;
-static Atom	qt_focus_in;
-static Atom	qt_focus_out;
 static Atom	qt_unicode_key_press;
 static Atom	qt_unicode_key_release;
 
@@ -785,8 +783,6 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
     qt_x11_intern_atom( "QT_SIZEGRIP", &qt_sizegrip );
 
     qt_x11_intern_atom( "QT_EMBEDDED_WINDOW", &qt_embedded_window );
-    qt_x11_intern_atom( "QT_FOCUS_IN", &qt_focus_in );
-    qt_x11_intern_atom( "QT_FOCUS_OUT", &qt_focus_out );
     qt_x11_intern_atom( "QT_UNICODE_KEY_PRESS", &qt_unicode_key_press );
     qt_x11_intern_atom( "QT_UNICODE_KEY_RELEASE", &qt_unicode_key_release );
 
