@@ -34,7 +34,7 @@ struct Q4StyleOption {
 struct Q4StyleOptionButton : public Q4StyleOption {
     enum { Type = Button };
     enum Extras { None = 0x00, Flat = 0x01, HasMenu = 0x02 };
-    Extras extras;
+    uint extras;
     QString text;
     QPixmap pixmap;
     QIconSet icon;

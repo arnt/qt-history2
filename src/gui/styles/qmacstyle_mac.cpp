@@ -370,50 +370,57 @@ QStyle *QMacStyle::correctStyle(const QPaintDevice *pdev) const
     return 0;
 }
 
-void QMacStyle::drawPrimitive(PrimitiveElement , const Q4StyleOption &, QPainter *,
-                               const QWidget *) const
+void QMacStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, QPainter *p,
+                               const QWidget *w) const
 {
-}
-void QMacStyle::drawControl(ControlElement , const Q4StyleOption &, QPainter *,
-                         const QWidget *) const
-{
+    correctStyle(p)->drawPrimitive(pe, opt, p, w);
 }
 
-void QMacStyle::drawControlMask(ControlElement , const Q4StyleOption &, QPainter *,
-                             const QWidget *) const
+void QMacStyle::drawControl(ControlElement ce, const Q4StyleOption *opt, QPainter *p,
+                            const QWidget *w) const
 {
+    correctStyle(p)->drawControl(ce, opt, p, w);
 }
 
-QRect QMacStyle::subRect(SubRect , const Q4StyleOption &, const QWidget *) const
+void QMacStyle::drawControlMask(ControlElement ce, const Q4StyleOption *opt, QPainter *p,
+                                const QWidget *w) const
 {
-    return QRect();
+    correctStyle(p)->drawControl(ce, opt, p, w);
 }
 
-void QMacStyle::drawComplexControl(ComplexControl , const Q4StyleOptionComplex &, QPainter *,
-                                const QWidget *) const
+QRect QMacStyle::subRect(SubRect sr, const Q4StyleOption *opt, const QWidget *w) const
 {
+    return correctStyle(w)->subRect(sr, opt, w);
 }
 
-void QMacStyle::drawComplexControlMask(ComplexControl , const Q4StyleOptionComplex &, QPainter *, const QWidget *) const
+void QMacStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionComplex *opt, QPainter *p,
+                                   const QWidget *w) const
 {
+    correctStyle(p)->drawComplexControl(cc, opt, p, w);
 }
 
-QStyle::SubControl QMacStyle::querySubControl(ComplexControl , const Q4StyleOptionComplex &,
-                                   const QPoint &, const QWidget *) const
+void QMacStyle::drawComplexControlMask(ComplexControl cc, const Q4StyleOptionComplex *opt,
+                                       QPainter *p, const QWidget *w) const
 {
-    return SC_None;
+    correctStyle(p)->drawComplexControlMask(cc, opt, p, w);
 }
 
-QRect QMacStyle::querySubControlMetrics(ComplexControl , const Q4StyleOptionComplex &,
-                                     const QWidget *) const
+QStyle::SubControl QMacStyle::querySubControl(ComplexControl cc, const Q4StyleOptionComplex *opt,
+                                              const QPoint &pt, const QWidget *w) const
 {
-    return QRect();
+    return correctStyle(w)->querySubControl(cc, opt, pt, w);
 }
 
-QSize QMacStyle::sizeFromContents(ContentsType , const Q4StyleOption &, const QSize &,
-                                   const QFontMetrics &) const
+QRect QMacStyle::querySubControlMetrics(ComplexControl cc, const Q4StyleOptionComplex *opt,
+                                        const QWidget *w) const
 {
-    return QSize();
+    return correctStyle(w)->querySubControlMetrics(cc, opt, w);
+}
+
+QSize QMacStyle::sizeFromContents(ContentsType ct, const Q4StyleOption *opt, const QSize &sz,
+                                  const QFontMetrics &fm, const QWidget *w) const
+{
+    return correctStyle(w)->sizeFromContents(ct, opt, sz, fm, w);
 }
 
 #endif

@@ -16,29 +16,27 @@
 
 #if !defined(QT_NO_STYLE_WINDOWS) || defined(QT_PLUGIN)
 
-#include "qmenu.h"
+#include "q3menubar.h"
 #include "qapplication.h"
-#include "qpainter.h"
-#include "qdrawutil.h" // for now
-#include "qpixmap.h" // for now
-#include "qwidget.h"
-#include "qlabel.h"
-#include "qimage.h"
-#include "qpushbutton.h"
+#include "qcleanuphandler.h"
 #include "qcombobox.h"
+#include "qdockwindow.h"
+#include "qdrawutil.h" // for now
+#include "qevent.h"
+#include "qlabel.h"
 #include "qlistbox.h"
-#include "qwidget.h"
+#include "qlistview.h"
+#include "qmenu.h"
+#include "qpainter.h"
+#include "qpushbutton.h"
 #include "qrangecontrol.h"
 #include "qscrollbar.h"
 #include "qslider.h"
-#include "qtabwidget.h"
+#include "qstyleoption.h"
 #include "qtabbar.h"
-#include "qlistview.h"
-#include "qbitmap.h"
-#include "qcleanuphandler.h"
-#include "qdockwindow.h"
-#include "q3menubar.h"
-#include "qevent.h"
+#include "qtabwidget.h"
+#include "qwidget.h"
+
 
 #if defined(Q_WS_WIN)
 #include "qt_windows.h"
@@ -2395,50 +2393,168 @@ QRect QWindowsStyle::subRect(SubRect r, const QWidget *widget) const
     return rect;
 }
 
-void QWindowsStyle::drawPrimitive(PrimitiveElement , const Q4StyleOption &, QPainter *,
-                           const QWidget *) const
+void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, QPainter *p,
+                           const QWidget *w) const
 {
+    switch (pe) {
+    case PE_ButtonCommand:
+    {
+        QBrush fill;
+        SFlags flags = opt->state;
+        QPalette pal = opt->palette;
+        QRect r = opt->rect;
+        if (! (flags & Style_Down) && (flags & Style_On))
+            fill = QBrush(pal.light(), Dense4Pattern);
+        else
+            fill = pal.brush(QPalette::Button);
+        
+        if (flags & Style_ButtonDefault && flags & Style_Down) {
+            p->setPen(pal.dark());
+            p->setBrush(fill);
+            p->drawRect(r);
+        } else if (flags & (Style_Raised | Style_Down | Style_On | Style_Sunken))
+            qDrawWinButton(p, r, pal, flags & (Style_Sunken | Style_Down | Style_On), &fill);
+        else
+            p->fillRect(r, fill);
+        break;
+    }
+            
+    case PE_ButtonBevel:
+    case PE_HeaderSection:
+    {
+        QBrush fill;
+        if (! (opt->state & Style_Down) && (opt->state & Style_On))
+            fill = QBrush(opt->palette.light(), Dense4Pattern);
+        else
+            fill = opt->palette.brush(QPalette::Button);
+        
+        if (opt->state & (Style_Raised | Style_Down | Style_On | Style_Sunken))
+            qDrawWinButton(p, opt->rect, opt->palette, opt->state & (Style_Down | Style_On), &fill);
+        else
+            p->fillRect(opt->rect, fill);
+        break;
+    }
+    case PE_ButtonDefault:
+        p->setPen(opt->palette.shadow());
+        p->drawRect(opt->rect);
+        break;
+    case PE_ArrowUp:
+    case PE_ArrowDown:
+    case PE_ArrowRight:
+    case PE_ArrowLeft: {
+        QPointArray a;
+        
+        switch (pe) {
+            case PE_ArrowUp:
+                a.setPoints(7, -4,1, 2,1, -3,0, 1,0, -2,-1, 0,-1, -1,-2);
+                break;
+                
+            case PE_ArrowDown:
+                a.setPoints(7, -4,-2, 2,-2, -3,-1, 1,-1, -2,0, 0,0, -1,1);
+                break;
+                
+            case PE_ArrowRight:
+                a.setPoints(7, -2,-3, -2,3, -1,-2, -1,2, 0,-1, 0,1, 1,0);
+                break;
+                
+            case PE_ArrowLeft:
+                a.setPoints(7, 0,-3, 0,3, -1,-2, -1,2, -2,-1, -2,1, -3,0);
+                break;
+                
+            default:
+                break;
+        }
+        
+        if (a.isEmpty())
+            return;
+        
+        p->save();
+        if (opt->state & Style_Down)
+            p->translate(pixelMetric(PM_ButtonShiftHorizontal),
+                         pixelMetric(PM_ButtonShiftVertical));
+        
+        if (opt->state & Style_Enabled) {
+            a.translate(opt->rect.x() + opt->rect.width() / 2,
+                        opt->rect.y() + opt->rect.height() / 2);
+            p->setPen(opt->palette.buttonText());
+            p->drawLineSegments(a, 0, 3);         // draw arrow
+            p->drawPoint(a[6]);
+        } else {
+            a.translate(opt->rect.x() + opt->rect.width() / 2 + 1,
+                        opt->rect.y() + opt->rect.height() / 2 + 1);
+            p->setPen(opt->palette.light());
+            p->drawLineSegments(a, 0, 3);         // draw arrow
+            p->drawPoint(a[6]);
+            a.translate(-1, -1);
+            p->setPen(opt->palette.mid());
+            p->drawLineSegments(a, 0, 3);         // draw arrow
+            p->drawPoint(a[6]);
+        }
+        p->restore();
+        break; }
+    default:
+        QCommonStyle::drawPrimitive(pe, opt, p, w);
+    }
 }
-void QWindowsStyle::drawControl(ControlElement , const Q4StyleOption &, QPainter *,
-                         const QWidget *) const
+void QWindowsStyle::drawControl(ControlElement ce, const Q4StyleOption *opt, QPainter *p,
+                         const QWidget *w) const
 {
+    switch (ce) {
+    default:
+        QCommonStyle::drawControl(ce, opt, p, w);
+    }
 }
 
-void QWindowsStyle::drawControlMask(ControlElement , const Q4StyleOption &, QPainter *,
-                             const QWidget *) const
+QRect QWindowsStyle::subRect(SubRect sr, const Q4StyleOption *opt, const QWidget *w) const
 {
+    QRect r;
+    switch (sr) {
+    default:
+        r = QCommonStyle::subRect(sr, opt, w);
+    }
+    return r;
 }
 
-QRect QWindowsStyle::subRect(SubRect , const Q4StyleOption &, const QWidget *) const
-{
-    return QRect();
-}
-
-void QWindowsStyle::drawComplexControl(ComplexControl , const Q4StyleOptionComplex &, QPainter *,
+void QWindowsStyle::drawComplexControl(ComplexControl , const Q4StyleOptionComplex *, QPainter *,
                                 const QWidget *) const
 {
 }
 
-void QWindowsStyle::drawComplexControlMask(ComplexControl , const Q4StyleOptionComplex &, QPainter *, const QWidget *) const
-{
-}
-
-QStyle::SubControl QWindowsStyle::querySubControl(ComplexControl , const Q4StyleOptionComplex &,
+QStyle::SubControl QWindowsStyle::querySubControl(ComplexControl , const Q4StyleOptionComplex *,
                                    const QPoint &, const QWidget *) const
 {
     return SC_None;
 }
 
-QRect QWindowsStyle::querySubControlMetrics(ComplexControl , const Q4StyleOptionComplex &,
+QRect QWindowsStyle::querySubControlMetrics(ComplexControl , const Q4StyleOptionComplex *,
                                      const QWidget *) const
 {
     return QRect();
 }
 
-QSize QWindowsStyle::sizeFromContents(ContentsType , const Q4StyleOption &, const QSize &,
-                                   const QFontMetrics &) const
+QSize QWindowsStyle::sizeFromContents(ContentsType ct, const Q4StyleOption *opt, const QSize &csz,
+                                      const QFontMetrics &fm, const QWidget *widget) const
 {
-    return QSize();
+    QSize sz(csz);
+    switch (ct) {
+    case CT_PushButton:
+        if (Q4StyleOptionButton *btn = qt_cast<Q4StyleOptionButton *>(opt)) {
+            sz = QCommonStyle::sizeFromContents(ct, opt, csz, fm, widget);
+            int w = sz.width(),
+                h = sz.height();
+            int defwidth = 0;
+            if (btn->state & Style_ButtonDefault)
+                defwidth = 2 * pixelMetric(PM_ButtonDefaultIndicator, widget);
+            if (w < 80 + defwidth && btn->icon.isNull())
+                w = 80 + defwidth;
+            if (h < 23 + defwidth)
+                h = 23 + defwidth;
+            sz = QSize(w, h);
+        }
+        break;
+    default:
+        sz = QCommonStyle::sizeFromContents(ct, opt, csz, fm, widget);
+    }
+    return sz;
 }
-
 #endif

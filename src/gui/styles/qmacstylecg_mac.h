@@ -29,23 +29,19 @@ public:
     void unPolish(QWidget *w);
     void polish(QApplication *app);
 
-    void drawPrimitive(PrimitiveElement pe, const Q4StyleOption &opt, QPainter *p,
-                               const QWidget *w = 0) const;
-    void drawControl(ControlElement element, const Q4StyleOption &opt, QPainter *p,
-                             const QWidget *w = 0) const;
-    void drawControlMask(ControlElement element, const Q4StyleOption &opt, QPainter *p,
-                                 const QWidget *w) const;
-    QRect subRect(SubRect r, const Q4StyleOption &opt, const QWidget *widget = 0) const;
-    void drawComplexControl(ComplexControl cc, const Q4StyleOptionComplex &opt, QPainter *p,
-                                    const QWidget *w = 0) const;
-    void drawComplexControlMask(ComplexControl cc, const Q4StyleOptionComplex &opt, QPainter *p, const QWidget *w = 0) const;
-
-    SubControl querySubControl(ComplexControl cc, const Q4StyleOptionComplex &opt,
+    void drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, QPainter *p,
+                       const QWidget *w = 0) const;
+    void drawControl(ControlElement element, const Q4StyleOption *opt, QPainter *p,
+                     const QWidget *w = 0) const;
+    QRect subRect(SubRect r, const Q4StyleOption *opt, const QWidget *widget = 0) const;
+    void drawComplexControl(ComplexControl cc, const Q4StyleOptionComplex *opt, QPainter *p,
+                            const QWidget *w = 0) const;
+    SubControl querySubControl(ComplexControl cc, const Q4StyleOptionComplex *opt,
                                        const QPoint &pt, const QWidget *w = 0) const;
-    QRect querySubControlMetrics(ComplexControl cc, const Q4StyleOptionComplex &opt,
+    QRect querySubControlMetrics(ComplexControl cc, const Q4StyleOptionComplex *opt,
                                          const QWidget *w) const;
-    QSize sizeFromContents(ContentsType ct, const Q4StyleOption &opt, const QSize &contentsSize,
-                                   const QFontMetrics &fm) const;
+    QSize sizeFromContents(ContentsType ct, const Q4StyleOption *opt, const QSize &contentsSize,
+                                   const QFontMetrics &fm, const QWidget *w = 0) const;
 
     void drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r, const QPalette &pal,
                         SFlags flags, const QStyleOption& = QStyleOption::Default) const;

@@ -2767,47 +2767,47 @@ QPixmap QMacStyleQD::stylePixmap(StylePixmap stylepixmap,  const QWidget *widget
     return QWindowsStyle::stylePixmap(stylepixmap, widget, opt);
 }
 
-void QMacStyleQD::drawPrimitive(PrimitiveElement , const Q4StyleOption &, QPainter *,
+void QMacStyleQD::drawPrimitive(PrimitiveElement , const Q4StyleOption *, QPainter *,
                            const QWidget *) const
 {
 }
-void QMacStyleQD::drawControl(ControlElement , const Q4StyleOption &, QPainter *,
+void QMacStyleQD::drawControl(ControlElement , const Q4StyleOption *, QPainter *,
                          const QWidget *) const
 {
 }
 
-void QMacStyleQD::drawControlMask(ControlElement , const Q4StyleOption &, QPainter *,
+void QMacStyleQD::drawControlMask(ControlElement , const Q4StyleOption *, QPainter *,
                              const QWidget *) const
 {
 }
 
-QRect QMacStyleQD::subRect(SubRect , const Q4StyleOption &, const QWidget *) const
+QRect QMacStyleQD::subRect(SubRect , const Q4StyleOption *, const QWidget *) const
 {
     return QRect();
 }
 
-void QMacStyleQD::drawComplexControl(ComplexControl , const Q4StyleOptionComplex &, QPainter *,
+void QMacStyleQD::drawComplexControl(ComplexControl , const Q4StyleOptionComplex *, QPainter *,
                                 const QWidget *) const
 {
 }
 
-void QMacStyleQD::drawComplexControlMask(ComplexControl , const Q4StyleOptionComplex &, QPainter *, const QWidget *) const
+void QMacStyleQD::drawComplexControlMask(ComplexControl , const Q4StyleOptionComplex *, QPainter *, const QWidget *) const
 {
 }
 
-QStyle::SubControl QMacStyleQD::querySubControl(ComplexControl , const Q4StyleOptionComplex &,
+QStyle::SubControl QMacStyleQD::querySubControl(ComplexControl , const Q4StyleOptionComplex *,
                                    const QPoint &, const QWidget *) const
 {
     return SC_None;
 }
 
-QRect QMacStyleQD::querySubControlMetrics(ComplexControl , const Q4StyleOptionComplex &,
+QRect QMacStyleQD::querySubControlMetrics(ComplexControl , const Q4StyleOptionComplex *,
                                      const QWidget *) const
 {
     return QRect();
 }
 
-QSize QMacStyleQD::sizeFromContents(ContentsType , const Q4StyleOption &, const QSize &,
+QSize QMacStyleQD::sizeFromContents(ContentsType , const Q4StyleOption *, const QSize &,
                                    const QFontMetrics &) const
 {
     return QSize();

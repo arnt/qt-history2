@@ -12,21 +12,23 @@
 **
 ****************************************************************************/
 
-#include "qpushbutton.h"
-#include "qbutton.h"
-#include "qdialog.h"
-#include "qfontmetrics.h"
-#include "qpainter.h"
-#include "qdrawutil.h"
-#include "qpixmap.h"
-#include "qbitmap.h"
-#include "qmenu.h"
-#include "qpointer.h"
 #include "qapplication.h"
+#include "qbitmap.h"
+#include "qbutton.h"
 #include "qdesktopwidget.h"
-#include "qtoolbar.h"
-#include "qstyle.h"
+#include "qdialog.h"
+#include "qdrawutil.h"
 #include "qevent.h"
+#include "qfontmetrics.h"
+#include "qmenu.h"
+#include "qpainter.h"
+#include "qpixmap.h"
+#include "qpointer.h"
+#include "qpushbutton.h"
+#include "qstyle.h"
+#include "qstyleoption.h"
+#include "qtoolbar.h"
+
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
@@ -41,6 +43,7 @@ public:
     QPushButtonPrivate():autoDefault(true), defaultButton(false), flat(false){}
     void init();
     void popupPressed();
+    Q4StyleOptionButton getStyleOption() const;
     QPointer<QMenu> menu;
     uint autoDefault : 1;
     uint defaultButton : 1;
@@ -262,6 +265,27 @@ void QPushButtonPrivate::init()
     q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 }
 
+Q4StyleOptionButton QPushButtonPrivate::getStyleOption() const
+{
+    Q4StyleOptionButton opt(0);
+    opt.init(q);
+    opt.extras = Q4StyleOptionButton::None;
+    if (q->isFlat())
+        opt.extras |= Q4StyleOptionButton::Flat;
+    if (q->menu())
+        opt.extras |= Q4StyleOptionButton::HasMenu;
+    if (q->isDown())
+        opt.state |= QStyle::Style_Down;
+    if (q->isChecked())
+        opt.state |= QStyle::Style_On;
+    if (!q->isFlat() && !q->isDown())
+        opt.state |= QStyle::Style_Raised;
+    if (defaultButton)
+        opt.state |= QStyle::Style_ButtonDefault;
+    opt.text = q->text();
+    opt.icon = q->icon();
+    return opt;
+}
 
 void QPushButton::setAutoDefault(bool enable)
 {
@@ -327,7 +351,8 @@ QSize QPushButton::sizeHint() const
         w += sz.width();
     if(!empty || !h)
         h = qMax(h, sz.height());
-    return (style().sizeFromContents(QStyle::CT_PushButton, this, QSize(w, h)).
+    Q4StyleOptionButton opt = d->getStyleOption();
+    return (style().sizeFromContents(QStyle::CT_PushButton, &opt, QSize(w, h), fm, this).
             expandedTo(QApplication::globalStrut()));
 }
 
@@ -336,23 +361,11 @@ QSize QPushButton::sizeHint() const
 
     \sa drawLabel()
 */
+
 void QPushButton::drawBevel(QPainter *paint)
 {
-    QStyle::SFlags flags = QStyle::Style_Default;
-    if (isEnabled())
-        flags |= QStyle::Style_Enabled;
-    if (hasFocus())
-        flags |= QStyle::Style_HasFocus;
-    if (isDown())
-        flags |= QStyle::Style_Down;
-    if (isCheckable())
-        flags |= QStyle::Style_On;
-    if (! isFlat() && ! isDown())
-        flags |= QStyle::Style_Raised;
-    if (d->defaultButton)
-        flags |= QStyle::Style_ButtonDefault;
-
-    style().drawControl(QStyle::CE_PushButton, paint, this, rect(), palette(), flags);
+    Q4StyleOptionButton opt = d->getStyleOption();
+    style().drawControl(QStyle::CE_PushButton, &opt, paint, this);
 }
 
 
@@ -363,24 +376,9 @@ void QPushButton::drawBevel(QPainter *paint)
 */
 void QPushButton::drawLabel(QPainter *paint)
 {
-
-    QStyle::SFlags flags = QStyle::Style_Default;
-    if (isEnabled())
-        flags |= QStyle::Style_Enabled;
-    if (hasFocus())
-        flags |= QStyle::Style_HasFocus;
-    if (isDown())
-        flags |= QStyle::Style_Down;
-    if (isChecked())
-        flags |= QStyle::Style_On;
-    if (! isFlat() && ! isDown())
-        flags |= QStyle::Style_Raised;
-    if (d->defaultButton)
-        flags |= QStyle::Style_ButtonDefault;
-
-    style().drawControl(QStyle::CE_PushButtonLabel, paint, this,
-                        style().subRect(QStyle::SR_PushButtonContents, this),
-                        palette(), flags);
+    Q4StyleOptionButton opt = d->getStyleOption();
+    opt.rect = style().subRect(QStyle::SR_PushButtonContents, &opt, this);
+    style().drawControl(QStyle::CE_PushButtonLabel, &opt, paint, this);
 }
 
 
@@ -392,11 +390,11 @@ void QPushButton::updateMask()
     QBitmap bm(size());
     bm.fill(color0);
 
-    {
-        QPainter p(&bm, this);
-        style().drawControlMask(QStyle::CE_PushButton, &p, this, rect());
-    }
-
+    QPainter p(&bm, this);
+    Q4StyleOptionButton opt = d->getStyleOption();
+    style().drawControlMask(QStyle::CE_PushButton, &opt, &p, this);
+    p.end();
+    
     setMask(bm);
 }
 

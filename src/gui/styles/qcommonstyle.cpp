@@ -16,32 +16,31 @@
 
 #ifndef QT_NO_STYLE
 
-#include "qmenu.h"
+#include "private/qdialogbuttons_p.h"
 #include "q3menubar.h"
 #include "qapplication.h"
-#include "qpainter.h"
-#include "qdrawutil.h"
-#include "qpixmap.h"
-#include "qpushbutton.h"
-#include "qtabbar.h"
-#include "qscrollbar.h"
-#include "qtoolbutton.h"
-#include "qtoolbar.h"
-#include "qdockarea.h"
-#include "qheader.h"
-#include "qspinbox.h"
-#include "qrangecontrol.h"
-#include "qgroupbox.h"
-#include "qslider.h"
-#include "qlistview.h"
 #include "qcheckbox.h"
-#include "qradiobutton.h"
-#include "qbitmap.h"
+#include "qdockarea.h"
+#include "qdrawutil.h"
+#include "qgroupbox.h"
+#include "qheader.h"
+#include "qlistview.h"
+#include "qmenu.h"
+#include "qpainter.h"
 #include "qprogressbar.h"
-#include <private/qdialogbuttons_p.h>
+#include "qpushbutton.h"
+#include "qradiobutton.h"
+#include "qrangecontrol.h"
+#include "qscrollbar.h"
+#include "qslider.h"
+#include "qspinbox.h"
+#include "qstyleoption.h"
+#include "qtabbar.h"
+#include "qtoolbar.h"
+#include "qtoolbox.h"
+#include "qtoolbutton.h"
+
 #include <limits.h>
-#include <qpixmap.h>
-#include <qtoolbox.h>
 
 /*!
     \class QCommonStyle qcommonstyle.h
@@ -648,8 +647,22 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe,
     activePainter = 0;
 }
 
-void QCommonStyle::drawPrimitive(PrimitiveElement, const Q4StyleOption &, QPainter *, QWidget *) const
+void QCommonStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, QPainter *p,
+                                 const QWidget *) const
 {
+    switch (pe) {
+    case PE_ButtonCommand:
+    case PE_ButtonBevel:
+    case PE_ButtonTool:
+    case PE_ButtonDropDown:
+    case PE_HeaderSection:
+        qDrawShadePanel(p, opt->rect, opt->palette,
+                        opt->state & (Style_Sunken | Style_Down | Style_On), 1,
+                        &opt->palette.brush(QPalette::Button));
+        break;
+    default:
+        qWarning("Primitive not handled %d", pe);
+    }
 }
 
 /*! \reimp */
@@ -1176,11 +1189,87 @@ void QCommonStyle::drawControl(ControlElement element,
 }
 
 
-void QCommonStyle::drawControl(ControlElement , const Q4StyleOption &, QPainter *, QWidget *) const
+void QCommonStyle::drawControl(ControlElement ce, const Q4StyleOption *opt,
+                               QPainter *p, const QWidget *w) const
 {
+    switch (ce) {
+    case CE_PushButton:
+        if (Q4StyleOptionButton *btn = qt_cast<Q4StyleOptionButton *>(opt)) {
+            QRect br = btn->rect;
+            int dbi = pixelMetric(PM_ButtonDefaultIndicator, w);
+            if (btn->state & Style_ButtonDefault) {
+                drawPrimitive(PE_ButtonDefault, opt, p, w);
+                br.setCoords(br.left() + dbi, br.top() + dbi, br.right() - dbi, br.bottom() - dbi);
+            }
+            if (!(btn->extras & Q4StyleOptionButton::Flat)
+                || btn->state & (Style_Down | Style_On)) {
+                Q4StyleOptionButton tmpBtn = *btn;
+                tmpBtn.rect = br;
+                drawPrimitive(PE_ButtonCommand, &tmpBtn, p, w);
+            }
+            if (btn->extras & Q4StyleOptionButton::HasMenu) {
+                int mbi = pixelMetric(PM_MenuButtonIndicator, w);
+                QRect ir = btn->rect;
+                Q4StyleOptionButton newBtn = *btn;
+                newBtn.rect = QRect(ir.right() - mbi, ir.height() - 20, mbi, ir.height() - 4);
+                drawPrimitive(PE_ArrowDown, &newBtn, p, w);
+            }
+        }
+        break;
+    case CE_PushButtonLabel:
+        if (const Q4StyleOptionButton *btn = qt_cast<Q4StyleOptionButton *>(opt)) {
+            QRect ir = btn->rect;
+            uint tf = AlignVCenter | ShowPrefix | NoAccel;
+            if (!btn->icon.isNull()) {
+                QIconSet::Mode mode = btn->state & Style_Enabled ? QIconSet::Normal
+                                                                 : QIconSet::Disabled;
+                if (mode == QIconSet::Normal && btn->state & Style_HasFocus)
+                    mode = QIconSet::Active;
+                QIconSet::State state = QIconSet::Off;
+                if (btn->state & Style_On)
+                    state = QIconSet::On;
+                QPixmap pixmap = btn->icon.pixmap(QIconSet::Small, mode, state);
+                int pixw = pixmap.width();
+                int pixh = pixmap.height();
+                //Center the icon if there is neither text nor pixmap
+                if (btn->text.isEmpty())
+                    p->drawPixmap(ir.x() + ir.width() / 2 - pixw / 2,
+                                  ir.y() + ir.height() / 2 - pixh / 2, pixmap);
+                else
+                    p->drawPixmap(ir.x() + 2, ir.y() + ir.height() / 2 - pixh / 2, pixmap);
+                ir.moveBy(pixw + 4, 0);
+                ir.setWidth(ir.width() - (pixw + 4));
+                // left-align text if there is
+                if (!btn->text.isEmpty())
+                    tf |= AlignLeft;
+            } else {
+                tf |= AlignHCenter;
+            }
+            drawItem(p, ir, tf, btn->palette, btn->state & Style_Enabled, QPixmap(), btn->text, -1,
+                     &(btn->palette.buttonText().color()));
+        }
+        break;
+    default:
+        qWarning("not currently handled %d", ce);
+    }
 }
-void QCommonStyle::drawControlMask(ControlElement , const Q4StyleOption &, QPainter *, QWidget *) const
+
+void QCommonStyle::drawControlMask(ControlElement ce, const Q4StyleOption *opt, QPainter *p,
+                                   const QWidget *w) const
 {
+    QPalette pal(color1,color1,color1,color1,color1,color1,color1,color1,color0);
+    switch (ce) {
+    case CE_PushButton:
+        if (Q4StyleOptionButton *btn = qt_cast<Q4StyleOptionButton *>(opt)) {
+            Q4StyleOptionButton newBtn = *btn;
+            newBtn.palette = pal;
+            drawPrimitive(PE_ButtonCommand, &newBtn, p, w);
+        }
+        break;
+    default:
+        p->fillRect(opt->rect, color1);
+    }
+
 }
 
 /*! \reimp */
@@ -1522,28 +1611,43 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
     return rect;
 }
 
-QRect QCommonStyle::subRect(SubRect , const Q4StyleOption &, const QWidget *) const
+QRect QCommonStyle::subRect(SubRect sr, const Q4StyleOption *opt, const QWidget *w) const
 {
-    return QRect();
+    QRect r;
+    switch (sr) {
+    case SR_PushButtonContents:
+        if (Q4StyleOptionButton *btn = qt_cast<Q4StyleOptionButton *>(opt)) {
+            int dx1, dx2;
+            dx1 = pixelMetric(PM_DefaultFrameWidth, w);
+            if (btn->state & Style_ButtonDefault)
+                dx1 += pixelMetric(PM_ButtonDefaultIndicator, w);
+            dx2 = dx1 * 2;
+            r.setRect(opt->rect.x() + dx1, opt->rect.y() + dx1, opt->rect.width() - dx2,
+                      opt->rect.height() - dx2);
+        }
+        break;
+    }
+    return r;
 }
 
-void QCommonStyle::drawComplexControl(ComplexControl , const Q4StyleOptionComplex &, QPainter *,
+void QCommonStyle::drawComplexControl(ComplexControl , const Q4StyleOptionComplex *, QPainter *,
                                     const QWidget *) const
 {
 }
 
-void QCommonStyle::drawComplexControlMask(ComplexControl , const Q4StyleOptionComplex &,
-                                          QPainter *, const QWidget *) const
+void QCommonStyle::drawComplexControlMask(ComplexControl , const Q4StyleOptionComplex *opt,
+                                          QPainter *p, const QWidget *) const
 {
+    p->fillRect(opt->rect, color1);
 }
 
-QStyle::SubControl QCommonStyle::querySubControl(ComplexControl , const Q4StyleOptionComplex &,
+QStyle::SubControl QCommonStyle::querySubControl(ComplexControl , const Q4StyleOptionComplex *,
                                                    const QPoint &, const QWidget *) const
 {
     return SC_None;
 }
 
-QRect QCommonStyle::querySubControlMetrics(ComplexControl , const Q4StyleOptionComplex &,
+QRect QCommonStyle::querySubControlMetrics(ComplexControl , const Q4StyleOptionComplex *,
                                          const QWidget *) const
 {
     return QRect();
@@ -2782,10 +2886,31 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
     return sz;
 }
 
-QSize QCommonStyle::sizeFromContents(ContentsType , const Q4StyleOption &, const QSize &,
-                                   const QFontMetrics &) const
+QSize QCommonStyle::sizeFromContents(ContentsType ct, const Q4StyleOption *opt, const QSize &csz,
+                                     const QFontMetrics &, const QWidget *widget) const
 {
-    return QSize();
+    QSize sz(csz);
+    switch (ct) {
+    case CT_PushButton:
+        if (Q4StyleOptionButton *btn = qt_cast<Q4StyleOptionButton *>(opt)) {
+            int w = csz.width(),
+                h = csz.height(),
+                bm = pixelMetric(PM_ButtonMargin, widget),
+            fw = pixelMetric(PM_DefaultFrameWidth, widget) * 2;
+            w += bm + fw;
+            h += bm + fw;
+            if (btn->state & Style_ButtonDefault) {
+                int dbw = pixelMetric(PM_ButtonDefaultIndicator, widget) * 2;
+                w += dbw;
+                h += dbw;
+            }
+            sz = QSize(w, h);
+        }
+        break;
+    default:
+        break;
+    }
+    return sz;
 }
 
 
