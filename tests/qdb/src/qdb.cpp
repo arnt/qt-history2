@@ -1,7 +1,7 @@
 /*
     Xbase project source code
 
-    This file contains XBase SQL environment implementations
+    This file contains the LocalSQL implementation
 
     Copyright (C) 2000 Dave Berton (db@trolltech.com)
 		       Jasmin Blanchette (jasmin@trolltech.com)
@@ -46,7 +46,7 @@
 #include <qtextstream.h>
 #include <qvaluestack.h>
 
-class QDb::Private
+class LocalSQL::Private
 {
 public:
     Private() : stdOut( stdout, IO_WriteOnly )
@@ -55,7 +55,7 @@ public:
     }
     QMap<int,FileDriver> drivers;
     QMap<int,ResultSet> results;
-    qdb::Stack stck;
+    localsql::Stack stck;
     Program pgm;
     Parser prs;
     QTextStream stdOut;
@@ -63,7 +63,7 @@ public:
     QString err;
 };
 
-/*! \class QDb
+/*! \class LocalSQL
 
   The main database environment. //## more
 */
@@ -73,7 +73,7 @@ public:
 
 */
 
-QDb::QDb()
+LocalSQL::LocalSQL()
 {
     d = new Private();
 }
@@ -83,7 +83,7 @@ QDb::QDb()
 
 */
 
-QDb::~QDb()
+LocalSQL::~LocalSQL()
 {
     reset();
     delete d;
@@ -95,7 +95,7 @@ QDb::~QDb()
  \sa fileDriver()
 */
 
-void QDb::addFileDriver( int id, const QString& fileName )
+void LocalSQL::addFileDriver( int id, const QString& fileName )
 {
     d->drivers[id] = FileDriver( this, fileName );
 }
@@ -106,7 +106,7 @@ void QDb::addFileDriver( int id, const QString& fileName )
  \sa fileDriver()
 */
 
-int QDb::addFileDriver( const QString& fileName )
+int LocalSQL::addFileDriver( const QString& fileName )
 {
     int id = d->drivers.count()+1;
     d->drivers[id] = FileDriver( this, fileName );
@@ -117,7 +117,7 @@ int QDb::addFileDriver( const QString& fileName )
  must have been previously added with addfileDriver().
  */
 
-void QDb::removeFileDriver( int id )
+void LocalSQL::removeFileDriver( int id )
 {
     d->drivers[id].close();
     d->drivers.remove( d->drivers.find( id ) );
@@ -129,7 +129,7 @@ void QDb::removeFileDriver( int id )
  \sa resultSet()
 */
 
-void QDb::addResultSet( int id )
+void LocalSQL::addResultSet( int id )
 {
     d->results[id] = ResultSet( this );
 }
@@ -145,7 +145,7 @@ void QDb::addResultSet( int id )
 
 */
 
-qdb::FileDriver* QDb::fileDriver( int id )
+localsql::FileDriver* LocalSQL::fileDriver( int id )
 {
     return &d->drivers[id];
 }
@@ -156,7 +156,7 @@ environment, so do not delete it.
 
 */
 
-qdb::Stack* QDb::stack()
+localsql::Stack* LocalSQL::stack()
 {
     return &d->stck;
 }
@@ -167,7 +167,7 @@ qdb::Stack* QDb::stack()
 
 */
 
-qdb::Program* QDb::program()
+localsql::Program* LocalSQL::program()
 {
     return &d->pgm;
 }
@@ -180,7 +180,7 @@ qdb::Program* QDb::program()
 
 */
 
-bool QDb::parse( const QString& commands, bool verbose )
+bool LocalSQL::parse( const QString& commands, bool verbose )
 {
     if ( verbose )
 	output() << "parsing..." << endl;
@@ -194,11 +194,11 @@ bool QDb::parse( const QString& commands, bool verbose )
 
 */
 
-bool QDb::execute( bool verbose )
+bool LocalSQL::execute( bool verbose )
 {
     if ( verbose )
 	output() << "executing..." << endl;
-    qdb::Op* op = 0;
+    localsql::Op* op = 0;
     d->pgm.resetCounter();
     while( (op = d->pgm.next() ) ) {
 	if ( !op->exec( this ) ) {
@@ -216,7 +216,7 @@ closes and removed any file drivers, etc).
 
 */
 
-void QDb::reset()
+void LocalSQL::reset()
 {
     d->stck.clear();
     d->pgm.clear();
@@ -236,7 +236,7 @@ void QDb::reset()
 
 */
 
-qdb::ResultSet* QDb::resultSet( int id )
+localsql::ResultSet* LocalSQL::resultSet( int id )
 {
     return &d->results[id];
 }
@@ -248,7 +248,7 @@ qdb::ResultSet* QDb::resultSet( int id )
 
 */
 
-void QDb::setOutput( QTextStream& stream )
+void LocalSQL::setOutput( QTextStream& stream )
 {
     d->out = &stream;
 }
@@ -259,7 +259,7 @@ void QDb::setOutput( QTextStream& stream )
   \sa setOutput()
 
 */
-QTextStream& QDb::output()
+QTextStream& LocalSQL::output()
 {
     return *d->out;
 }
@@ -269,7 +269,7 @@ QTextStream& QDb::output()
   \sa lastError()
 */
 
-void QDb::setLastError( const QString& error )
+void LocalSQL::setLastError( const QString& error )
 {
     d->err = error;
 }
@@ -279,7 +279,7 @@ void QDb::setLastError( const QString& error )
   \sa setLastError()
 */
 
-QString QDb::lastError() const
+QString LocalSQL::lastError() const
 {
     return d->err;
 }

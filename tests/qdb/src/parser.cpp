@@ -80,7 +80,7 @@ inline void Parser::readChar()
     }
 }
 
-bool Parser::parse( const QString& commands, qdb::Environment *env )
+bool Parser::parse( const QString& commands, localsql::Environment *env )
 {
     startTokenizer( commands );
     yyTok = getToken();
@@ -532,7 +532,7 @@ void Parser::emitExpr( const QVariant& expr, int trueLab, int falseLab )
     if ( expr.type() == QVariant::List ) {
 	QValueList<QVariant>::ConstIterator v = expr.listBegin();
 	int tok = (*v).toInt();
-	qdb::Op *op = 0;
+	localsql::Op *op = 0;
 	int driver;
 	QString field;
 
@@ -1360,10 +1360,10 @@ void Parser::matchUpdateStatement()
 	yyProg->append( new PushFieldDesc(0, as.key()) );
 	emitExpr( *as );
 	yyProg->append( new MakeList(2) );
-	yyProg->append( new Update(0) );
 	++as;
     }
     yyProg->append( new MakeList(assignments.count()) );
+    yyProg->append( new Update(0) );
     yyProg->append( new Goto(nextMarkedRecord) );
     yyProg->appendLabel( endRecords );
     yyProg->append( new Close(0) );

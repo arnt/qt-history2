@@ -55,66 +55,6 @@
 //#define DEBUG_XBASE 1
 //#define VERBOSE_DEBUG_XBASE
 
-#ifdef DEBUG_XBASE
-#define ERROR_RETURN(err) do { \
-			   env->setLastError( err ); \
-			   close(); \
-			   env->output() << endl; \
-			   return FALSE; \
-			  } while(0)
-#else
-#define ERROR_RETURN(err) do { \
-			   env->setLastError( err ); \
-			   close(); \
-			   return FALSE; \
-			  } while(0)
-#endif
-
-
-
-class FileDriver::Private
-{
-public:
-    Private() : file(&x) { indexes.setAutoDelete( TRUE ); }
-    Private( const Private& ) : file(&x) { indexes.setAutoDelete( TRUE ); }
-    Private& operator=( const Private& )
-    {
-	return *this;
-    }
-    xbXBase x;		/* initialize xbase  */
-    xbDbf file;		/* class for table   */
-    QValueList<int> marked;
-    QVector<xbNdx> indexes;
-};
-
-FileDriver::FileDriver( qdb::Environment* environment, const QString& name = QString::null )
-    : nm( name ), env( environment )
-{
-    d = new Private();
-    setIsOpen( FALSE );
-}
-
-FileDriver::~FileDriver()
-{
-    delete d;
-}
-
-FileDriver::FileDriver( const FileDriver& other )
-    : qdb::FileDriver(), nm( other.nm ), env( other.env )
-{
-    *d = *other.d;
-    setIsOpen( FALSE );
-}
-
-FileDriver& FileDriver::operator=( const FileDriver& other )
-{
-    env = other.env;
-    nm = other.nm;
-    *d = *other.d;
-    setIsOpen( FALSE );
-    return *this;
-}
-
 static QVariant::Type xbaseTypeToVariant( char type )
 {
     switch ( type ) {
@@ -152,7 +92,117 @@ static char variantToXbaseType( QVariant::Type type )
     }
 }
 
-bool FileDriver::create( const qdb::List& data )
+#ifdef DEBUG_XBASE
+#define ERROR_RETURN(err) do { \
+			   env->setLastError( err ); \
+			   close(); \
+			   env->output() << endl; \
+			   return FALSE; \
+			  } while(0)
+#else
+#define ERROR_RETURN(err) do { \
+			   env->setLastError( err ); \
+			   close(); \
+			   return FALSE; \
+			  } while(0)
+#endif
+
+
+
+class FileDriver::Private
+{
+public:
+    Private() : file(&x) { indexes.setAutoDelete( TRUE ); }
+    Private( const Private& ) : file(&x) { indexes.setAutoDelete( TRUE ); }
+    Private& operator=( const Private& )
+    {
+	return *this;
+    }
+    xbShort putField( int i, const QVariant& v )
+    {
+	xbShort rc;
+	switch ( xbaseTypeToVariant( file.GetFieldType(i) ) ) {
+	case QVariant::String:
+	case QVariant::CString: {
+	    QCString data = v.toString().utf8();
+	    rc = file.PutField( i, data.data() );
+	    break;
+	}
+	case QVariant::Date: {
+	    QDate d = v.toDate();
+	    QString val = QString( QString::number( d.year() ) +
+				   QString::number( d.month() ).rightJustify( 2, '0' ) +
+				   QString::number( d.day() ).rightJustify( 2, '0' ) );
+	    rc = file.PutField( i, val.latin1() );
+	    break;
+	}
+	default:
+	    rc = file.PutField( i, v.toString().latin1() );
+	    break;
+	}
+	return rc;
+    }
+    int getField( int i, QVariant& v )
+    {
+	int len = file.GetFieldLen( i );
+	char buf[ len ];
+	int r = file.GetField( i, buf );
+	switch ( file.GetFieldType(i) ) {
+	case 'N': /* numeric */
+	    v = QString(buf).toInt();
+	    break;
+	case 'F': /* float */
+	    v = QString(buf).toDouble();
+	    break;
+	case 'D': /* date */
+	    v = QDate::fromString(QString(buf));
+	    break;
+	case 'L': /* logical */
+	    v = QVariant( QString(buf).toInt(), 1 );
+	    break;
+	case 'C': /* character */
+	default:
+	    QString utf8 = QString::fromUtf8( buf );
+	    v = utf8;
+	    break;
+	}
+	return r;
+    }
+    xbXBase x;		/* initialize xbase  */
+    xbDbf file;		/* class for table   */
+    QValueList<int> marked;
+    QVector<xbNdx> indexes;
+};
+
+FileDriver::FileDriver( localsql::Environment* environment, const QString& name = QString::null )
+    : nm( name ), env( environment )
+{
+    d = new Private();
+    setIsOpen( FALSE );
+}
+
+FileDriver::~FileDriver()
+{
+    delete d;
+}
+
+FileDriver::FileDriver( const FileDriver& other )
+    : localsql::FileDriver(), nm( other.nm ), env( other.env )
+{
+    *d = *other.d;
+    setIsOpen( FALSE );
+}
+
+FileDriver& FileDriver::operator=( const FileDriver& other )
+{
+    env = other.env;
+    nm = other.nm;
+    *d = *other.d;
+    setIsOpen( FALSE );
+    return *this;
+}
+
+bool FileDriver::create( const localsql::List& data )
 {
 #ifdef DEBUG_XBASE
     env->output() << "FileDriver::create..." << flush;
@@ -167,7 +217,7 @@ bool FileDriver::create( const qdb::List& data )
     xbSchema x;
     uint i = 0;
     for ( i = 0; i < data.count(); ++i ) {
-	qdb::List fieldDescription = data[i].toList();
+	localsql::List fieldDescription = data[i].toList();
 	if ( fieldDescription.count() != 4 ) {
 	    ERROR_RETURN( "Internal error: Bad field description" );
 	}
@@ -309,7 +359,7 @@ bool FileDriver::close()
     return TRUE;
 }
 
-bool FileDriver::insert( const qdb::List& data )
+bool FileDriver::insert( const localsql::List& data )
 {
 #ifdef DEBUG_XBASE
     env->output() << "FileDriver::insert..." << flush;
@@ -325,7 +375,7 @@ bool FileDriver::insert( const qdb::List& data )
     d->file.BlankRecord();
     uint i = 0;
     for ( ; i < data.count(); ++i ) {
-	qdb::List insertData = data[i].toList();
+	localsql::List insertData = data[i].toList();
 	if ( !insertData.count() ) {
 	    ERROR_RETURN( "Internal error: No insert data" );
 	}
@@ -350,11 +400,8 @@ bool FileDriver::insert( const qdb::List& data )
 	    if ( !d.isValid() ) {
 		ERROR_RETURN( "Invalid date '" + val.toString() + "'" );
 	    }
-	    val = QString( QString::number( d.year() ) +
-			   QString::number( d.month() ).rightJustify( 2, '0' ) +
-			   QString::number( d.day() ).rightJustify( 2, '0' ) );
 	}
-	xbShort rc = d->file.PutField( pos, val.toString().latin1() );
+	xbShort rc = d->putField( pos, val );
 	if ( rc != XB_NO_ERROR ) {
 	    ERROR_RETURN( "Unable to put field data: " + QString( xbStrError( rc ) ) );
 	}
@@ -456,28 +503,7 @@ bool FileDriver::field( uint i, QVariant& v )
     if ( (int)i > d->file.FieldCount()-1 ) {
 	ERROR_RETURN( "Internal error: Field does not exist" );
     }
-    int len = d->file.GetFieldLen( i );
-    char buf[ len ];
-    d->file.GetField( i, buf );
-    switch ( d->file.GetFieldType(i) ) {
-    case 'N': /* numeric */
-	v = QString(buf).toInt();
-	break;
-    case 'F': /* float */
-	v = QString(buf).toDouble();
-	break;
-    case 'D': /* date */
-	v = QDate::fromString(QString(buf));
-	break;
-    case 'L': /* logical */
-	v = QVariant( QString(buf).toInt(), 1 );
-	break;
-    case 'C': /* character */
-    default:
-	v = QString(buf).simplifyWhiteSpace();
-	break;
-    }
-    return TRUE;
+    return d->getField( i, v );
 }
 
 bool FileDriver::fieldDescription( const QString& name, QVariant& v )
@@ -495,7 +521,7 @@ bool FileDriver::fieldDescription( int i, QVariant& v )
     if ( i == -1 || i > d->file.FieldCount()-1 ) {
 	ERROR_RETURN( "Internal error: Field does not exist" );
     }
-    qdb::List field;
+    localsql::List field;
     QString name = d->file.GetFieldName( i );
     QVariant::Type type = xbaseTypeToVariant( d->file.GetFieldType( i ) );
     int len = d->file.GetFieldLen( i );
@@ -508,7 +534,7 @@ bool FileDriver::fieldDescription( int i, QVariant& v )
     return TRUE;
 }
 
-bool FileDriver::updateMarked( const qdb::List& data )
+bool FileDriver::updateMarked( const localsql::List& data )
 {
 #ifdef DEBUG_XBASE
     env->output() << "FileDriver::updateMarked..." << flush;
@@ -526,7 +552,7 @@ bool FileDriver::updateMarked( const qdb::List& data )
     }
     uint i = 0;
     for ( ; i < data.count(); ++i ) {
-	qdb::List updateData = data[i].toList();
+	localsql::List updateData = data[i].toList();
 	if ( !updateData.count() ) {
 	    ERROR_RETURN( "Internal error: No update data" );
 	}
@@ -545,9 +571,9 @@ bool FileDriver::updateMarked( const qdb::List& data )
 	}
 	uint j = 0;
 	for ( j = 0; j < data.count(); ++j ) {
-	    qdb::List updateData = data[i].toList();
+	    localsql::List updateData = data[i].toList();
 	    xbShort fieldnum = d->file.GetFieldNo( updateData[0].toString().latin1() );
-	    xbShort rc = d->file.PutField( fieldnum, updateData[1].toString().latin1() );
+	    xbShort rc = d->putField( fieldnum, updateData[1] );
 	    if ( rc != XB_NO_ERROR ) {
 		ERROR_RETURN( "Unable to put field data: " + QString( xbStrError( rc )  ) );
 	    }
@@ -589,7 +615,7 @@ bool FileDriver::nextMarked()
     return TRUE;
 }
 
-bool FileDriver::update( const qdb::List& data )
+bool FileDriver::update( const localsql::List& data )
 {
 #ifdef DEBUG_XBASE
     env->output() << "FileDriver::update..." << flush;
@@ -600,38 +626,37 @@ bool FileDriver::update( const qdb::List& data )
     if ( d->file.GetCurRecNo() == 0 ) {
 	ERROR_RETURN( "Internal error: Not positioned on valid record" );
     }
-    if ( (int)data.count() != d->file.FieldCount() ) {
-	ERROR_RETURN( "Internal error: Incorrect number of fields" );
-    }
     if ( !data.count() ) {
 	ERROR_RETURN( "Internal error: No update data");
     }
     xbShort rc;
     uint i = 0;
+    qDebug("data count:" + QString::number( data.count() ) );
     for ( ;  i < data.count(); ++i ) {
-	QString name;
-	int pos;
-	if ( data[0].type() == QVariant::String || data[0].type() == QVariant::CString ) {
-	    name = data[0].toString();
-	    pos = d->file.GetFieldNo( name );
-	} else {
-	    pos = data[0].toInt();
-	    name = d->file.GetFieldName( pos );
+	localsql::List updateData = data[i].toList();
+	qDebug("update data count:" + QString::number( updateData.count() ) );
+	if ( updateData.count() != 2 ) {
+	    ERROR_RETURN( "Internal error: Bad field description" );
 	}
+	localsql::List fieldDesc = updateData[0].toList();
+	QString name = fieldDesc[0].toString();
+	qDebug("name:" + name );
+	xbShort pos = d->file.GetFieldNo( name.latin1() );
 	if ( pos == -1 ) {
 	    ERROR_RETURN( "Internal error: Field not found:" + name );
 	}
 	if ( !name.length() ) {
 	    ERROR_RETURN( "Internal error: Unknown field number:" + QString::number(pos) );
 	}
-	if ( variantToXbaseType( data[1].type() ) != d->file.GetFieldType( pos ) ) {
-	    ERROR_RETURN( "Internal error: Invalid field type:" + QString(data[1].typeName()) );
+	if ( variantToXbaseType( updateData[1].type() ) != d->file.GetFieldType( pos ) ) {
+	    QVariant v; v.cast( xbaseTypeToVariant( d->file.GetFieldType( pos ) ) );
+	    ERROR_RETURN( "Internal error: Invalid field type:" + QString(updateData[1].typeName()) +
+			  ", expected:" + QString( v.typeName() ) );
 	}
-	rc = d->file.PutField( pos, data[1].toString().latin1() );
+	rc = d->putField( pos, updateData[1] );
 	if ( rc != XB_NO_ERROR ) {
 	    ERROR_RETURN( "Unable to put field data: " + QString( xbStrError( rc ) ) );
 	}
-
     }
     rc = d->file.PutRecord();
     if ( rc != XB_NO_ERROR ) {
@@ -643,7 +668,7 @@ bool FileDriver::update( const qdb::List& data )
     return TRUE;
 }
 
-bool FileDriver::rangeMark( const qdb::List& data )
+bool FileDriver::rangeMark( const localsql::List& data )
 {
 #ifdef DEBUG_XBASE
     env->output() << "FileDriver::rangeMark..." << flush;
@@ -660,7 +685,7 @@ bool FileDriver::rangeMark( const qdb::List& data )
     QString indexDesc;
     uint i = 0;
     for ( i = 0; i < data.count(); ++i ) {
-	qdb::List rangeMarkFieldData = data[i].toList();
+	localsql::List rangeMarkFieldData = data[i].toList();
 	if ( rangeMarkFieldData.count() != 4 ) {
 	    ERROR_RETURN( "Internal error: Bad field description");
 	}
@@ -710,7 +735,7 @@ bool FileDriver::rangeMark( const qdb::List& data )
 		    for ( ; rc == XB_NO_ERROR ; ) {
 			bool markOK = TRUE;
 			for ( uint k = 0; k < data.count(); ++k ) {
-			    qdb::List rangeScanFieldData = data[i].toList();
+			    localsql::List rangeScanFieldData = data[i].toList();
 			    QString name = rangeScanFieldData[0].toString();
 			    QVariant value = rangeScanFieldData[1];
 			    xbShort fieldnum = d->file.GetFieldNo( name.latin1() );
@@ -741,7 +766,7 @@ bool FileDriver::rangeMark( const qdb::List& data )
 	while ( rc == XB_NO_ERROR ) {
 	    bool markRecord = FALSE;
 	    for ( i = 0; i < data.count(); ++i ) {
-		qdb::List rangeScanFieldData = data[i].toList();
+		localsql::List rangeScanFieldData = data[i].toList();
 		QString name = rangeScanFieldData[0].toString();
 		QVariant value = data[++i];
 		xbShort fieldnum = d->file.GetFieldNo( name.latin1() );
@@ -765,7 +790,7 @@ bool FileDriver::rangeMark( const qdb::List& data )
     return TRUE;
 }
 
-bool FileDriver::createIndex( const qdb::List& data, bool unique )
+bool FileDriver::createIndex( const localsql::List& data, bool unique )
 {
 #ifdef DEBUG_XBASE
     env->output() << "FileDriver::createIndex..." << flush;
@@ -781,7 +806,7 @@ bool FileDriver::createIndex( const qdb::List& data, bool unique )
     QString indexDesc;
     QVariant::Type indexType = QVariant::Invalid;
     for ( ; i < data.count(); ++i ) {
-	qdb::List createIndexData = data[i].toList();
+	localsql::List createIndexData = data[i].toList();
 	if ( createIndexData.count() != 4 ) {
 	    ERROR_RETURN( "Internal error: Bad index data");
 	}

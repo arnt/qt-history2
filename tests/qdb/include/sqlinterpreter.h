@@ -1,7 +1,7 @@
 /*
     Xbase project source code
 
-    This file contains the XBase SQL support classes
+    This file contains the LocalSQL support classes
     (file driver, parser, etc)
 
     Copyright (C) 2000 Dave Berton (db@trolltech.com)
@@ -49,10 +49,10 @@
 #include <qstack.h>
 #include <qtextstream.h>
 
-class FileDriver : public qdb::FileDriver
+class FileDriver : public localsql::FileDriver
 {
 public:
-    FileDriver( qdb::Environment* environment = 0,
+    FileDriver( localsql::Environment* environment = 0,
 		const QString& name = QString::null );
     virtual ~FileDriver();
     FileDriver( const FileDriver& other );
@@ -60,23 +60,23 @@ public:
 
     QString name() const { return nm; }
 
-    bool create( const qdb::List& data );
+    bool create( const localsql::List& data );
     bool open();
     bool close();
     bool isOpen() const { return opened; }
-    bool insert( const qdb::List& data );
+    bool insert( const localsql::List& data );
     int at() const { return internalAt; }
     bool next();
     bool mark();
     bool deleteMarked();
     bool commit();
     bool field( uint i, QVariant& v );
-    bool updateMarked( const qdb::List& data );
+    bool updateMarked( const localsql::List& data );
     bool rewindMarked();
     bool nextMarked();
-    bool update( const qdb::List& data );
-    bool rangeMark( const qdb::List& data );
-    bool createIndex( const qdb::List& data, bool unique );
+    bool update( const localsql::List& data );
+    bool rangeMark( const localsql::List& data );
+    bool createIndex( const localsql::List& data, bool unique );
     bool drop();
     bool fieldDescription( const QString& name, QVariant& v );
     bool fieldDescription( int i, QVariant& v );
@@ -101,26 +101,26 @@ private:
     bool opened;
     int internalAt;
     int internalMarkedAt;
-    qdb::Environment* env;
+    localsql::Environment* env;
 };
 
-class ResultSet : public qdb::ResultSet
+class ResultSet : public localsql::ResultSet
 {
 public:
-    ResultSet( qdb::Environment* environment = 0 );
+    ResultSet( localsql::Environment* environment = 0 );
     virtual ~ResultSet();
     ResultSet( const ResultSet& other );
     ResultSet& operator=( const ResultSet& other );
 
-    bool setHeader( const qdb::List& list );
-    bool append( const qdb::Record& buf );
+    bool setHeader( const localsql::List& list );
+    bool append( const localsql::Record& buf );
     void clear();
-    bool sort( const qdb::List& index );
+    bool sort( const localsql::List& index );
     bool first();
     bool last();
     bool next();
     bool prev();
-    qdb::Record& currentRecord();
+    localsql::Record& currentRecord();
     uint size() const { return data.count(); }
     uint count() const;
     QStringList columnNames() const;
@@ -130,21 +130,21 @@ public:
 private:
     class Header;
     Header* head;
-    qdb::Data data;
-    qdb::Environment* env;
-    qdb::ColumnKey sortKey;
-    qdb::ColumnKey::ConstIterator keyit;
-    qdb::Data::Iterator datait;
+    localsql::Data data;
+    localsql::Environment* env;
+    localsql::ColumnKey sortKey;
+    localsql::ColumnKey::ConstIterator keyit;
+    localsql::Data::Iterator datait;
     int j;
 };
 
-class Parser : public qdb::Parser
+class Parser : public localsql::Parser
 {
 public:
     Parser();
     virtual ~Parser();
 
-    bool parse( const QString& commands, qdb::Environment *env );
+    bool parse( const QString& commands, localsql::Environment *env );
 
 private:
     QString yyIn;
@@ -169,8 +169,8 @@ private:
     int getToken();
 
     int yyTok;
-    qdb::Environment *yyEnv;
-    qdb::Program *yyProg;
+    localsql::Environment *yyEnv;
+    localsql::Program *yyProg;
     int yyNextLabel;
     bool yyOK;
 
@@ -213,28 +213,28 @@ private:
     void matchSql();
 };
 
-class Program : public qdb::Program
+class Program : public localsql::Program
 {
 public:
     Program();
     virtual ~Program();
 
     void appendLabel( int lab );
-    void append( qdb::Op* op );
+    void append( localsql::Op* op );
     void remove( uint i );
     void clear();
     void setCounter( int i );
     void resetCounter();
     int counter();
-    qdb::Op* next();
+    localsql::Op* next();
     QStringList listing() const;
 
 private:
-    QList< qdb::Op > ops;
+    QList< localsql::Op > ops;
     int pc;
-    qdb::ColumnKey sortKey;
     int pendingLabel;
     QArray< int > counters;
+    localsql::ColumnKey sortKey;
     bool dirty;
 
     Program( const Program& other );

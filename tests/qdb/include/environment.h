@@ -1,7 +1,7 @@
 /*
     Xbase project source code
 
-    This file contains XBase SQL command line processor
+    This file contains LocalSQL interfaces
 
     Copyright (C) 2000 Dave Berton (db@trolltech.com)
 		       Jasmin Blanchette (jasmin@trolltech.com)
@@ -42,8 +42,6 @@
 #ifndef ENVIRONMENT_H
 #define ENVIRONMENT_H
 
-/* QDb interfaces */
-
 #include <qvariant.h>
 #include <qstring.h>
 #include <qstringlist.h>
@@ -53,12 +51,13 @@
 
 class QIODevice;
 
-/*! \namespace qdb
+/*! \namespace localsql
 
-  All QDb interfaces are in the 'qdb' namespace.
+  All LocalSQL interfaces are in the 'localsql' namespace.
+
 */
 
-namespace qdb {
+namespace localsql {
 
     /*! List which may contain other lists */
     typedef QValueList<QVariant> List;

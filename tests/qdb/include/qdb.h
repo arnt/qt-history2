@@ -1,7 +1,7 @@
 /*
     Xbase project source code
 
-    This file contains the XBase SQL command line environment
+    This file contains the LocalSQL class
 
     Copyright (C) 2000 Dave Berton (db@trolltech.com)
 		       Jasmin Blanchette (jasmin@trolltech.com)
@@ -44,11 +44,11 @@
 
 #include "environment.h"
 
-class QDb : public qdb::Environment
+class LocalSQL : public localsql::Environment
 {
 public:
-    QDb();
-    virtual ~QDb();
+    LocalSQL();
+    virtual ~LocalSQL();
 
     void setOutput( QTextStream& stream );
     QTextStream& output();
@@ -59,10 +59,10 @@ public:
     int addFileDriver( const QString& fileName );
     void removeFileDriver( int id );
     void addResultSet( int id );
-    qdb::FileDriver* fileDriver( int id );
-    qdb::Stack* stack();
-    qdb::Program* program();
-    qdb::ResultSet* resultSet( int id );
+    localsql::FileDriver* fileDriver( int id );
+    localsql::Stack* stack();
+    localsql::Program* program();
+    localsql::ResultSet* resultSet( int id );
     void setLastError( const QString& error );
     QString lastError() const;
 

@@ -1,7 +1,7 @@
 /*
     Xbase project source code
 
-    This file contains XBase SQL support class implementations
+    This file contains LocalSQL support class implementations
 
     Copyright (C) 2000 Dave Berton (db@trolltech.com)
 		       Jasmin Blanchette (jasmin@trolltech.com)
@@ -85,7 +85,7 @@ ownership of the pointer.
 
 */
 
-void Program::append( qdb::Op* op )
+void Program::append( localsql::Op* op )
 {
     ops.append( op );
     dirty = TRUE;
@@ -130,7 +130,7 @@ void Program::setCounter( int i )
     if ( i < 0 ) {
 	if ( dirty ) {
 	    int instrNo = 0;
-	    qdb::Op *op = ops.first();
+	    localsql::Op *op = ops.first();
 	    while ( op != 0 ) {
 		if ( op->label() < 0 ) {
 		    int n = -( op->label() + 1 );
@@ -175,7 +175,7 @@ int Program::counter()
 
 */
 
-qdb::Op* Program::next()
+localsql::Op* Program::next()
 {
     ++pc;
     if ( pc < (int)ops.count() )
@@ -214,13 +214,13 @@ QStringList Program::listing() const
     ((Program*)this)->resetCounter();
     QStringList l;
     int i = 0;
-    qdb::Op* op = 0;
+    localsql::Op* op = 0;
     while( (op = ((Program*)this)->next() ) ) {
 	QString s;
 	if ( op->label() != 0 )
 	    s = QString::number( op->label() );
-	s = s.rightJustify( 4 );
-	s += QString::number( i ).rightJustify( 4 );
+	s = s.rightJustify( 8 );
+	s += QString::number( i ).rightJustify( 8 );
 	s += op->name().rightJustify( 16 );
 	s += asListing( op->P(0) ).rightJustify( 16 );
 	s += asListing( op->P(1) ).rightJustify( 16 );
@@ -260,14 +260,14 @@ public:
 
 */
 
-ResultSet::ResultSet( qdb::Environment* environment )
+ResultSet::ResultSet( localsql::Environment* environment )
     : env( environment )
 {
     head = new Header();
 }
 
 ResultSet::ResultSet( const ResultSet& other )
-    : qdb::ResultSet()
+    : localsql::ResultSet()
 {
     *this = other;
 }
@@ -337,14 +337,14 @@ bool ResultSet::field( uint i, QVariant& v )
 
 */
 
-bool ResultSet::setHeader( const qdb::List& list )
+bool ResultSet::setHeader( const localsql::List& list )
 {
     if ( !list.count() ) {
 	env->setLastError( "No fields defined" );
 	return 0;
     }
     for ( int i = 0; i < (int)list.count(); ++i ) {
-	qdb::List fieldDescription = list[i].toList();
+	localsql::List fieldDescription = list[i].toList();
 	if ( fieldDescription.count() != 4 ) {
 	    env->setLastError( "Internal error: Bad field description" );
 	    return 0;
@@ -359,7 +359,7 @@ bool ResultSet::setHeader( const qdb::List& list )
 
 */
 
-bool ResultSet::append( const qdb::Record& buf )
+bool ResultSet::append( const localsql::Record& buf )
 {
     if ( !env ) {
 	qWarning( "Fatal internal error: No environment" );
@@ -472,7 +472,7 @@ bool ResultSet::prev()
     return TRUE;
 }
 
-qdb::Record& ResultSet::currentRecord()
+localsql::Record& ResultSet::currentRecord()
 {
     if ( !data.count() ) {
 	env->output() << "ResultSet::currentRecord: no data available";
@@ -486,13 +486,13 @@ qdb::Record& ResultSet::currentRecord()
 }
 
 
-static void reverse( qdb::ColumnKey& colkey, uint elements )
+static void reverse( localsql::ColumnKey& colkey, uint elements )
 {
     if ( !colkey.count() || !elements )
 	return;
-    qdb::ColumnKey::Iterator asc = colkey.begin();
+    localsql::ColumnKey::Iterator asc = colkey.begin();
     int a = 0;
-    qdb::ColumnKey::Iterator des = --colkey.end();
+    localsql::ColumnKey::Iterator des = --colkey.end();
     int d = des.data().count()-1;
     for ( uint i = 0; i < elements/2; ++i ) {
 	qSwap<int>( asc.data()[a], des.data()[d] );
@@ -515,7 +515,7 @@ static void reverse( qdb::ColumnKey& colkey, uint elements )
 
 */
 
-bool ResultSet::sort( const qdb::List& index )
+bool ResultSet::sort( const localsql::List& index )
 {
     if ( !env ) {
 	env->setLastError( "Internal error: No environment" );
@@ -540,7 +540,7 @@ bool ResultSet::sort( const qdb::List& index )
     QMap<int,bool> desc; /* indicates fields with a descending sort */
     Header sortIndex;
     for ( uint i = 0; i < index.count(); ++i ) {
-	qdb::List fieldDescription = index[i].toList();
+	localsql::List fieldDescription = index[i].toList();
 	if ( fieldDescription.count() != 4 ) {
 	    env->setLastError("Internal error: Bad field description");
 	    return 0;
@@ -605,12 +605,12 @@ bool ResultSet::sort( const qdb::List& index )
     if ( sortIndex.fields.count() == 1 && desc[ 0 ] )
 	reverse( sortKey, data.count() );
 
-    qdb::ColumnKey::Iterator it;
+    localsql::ColumnKey::Iterator it;
     if ( sortIndex.fields.count() > 1 ) {
 	/* sort rest of fields */
 	for ( int idx = sortIndex.fields.count()-2; idx >= 0; --idx ) {
 	    int sortField = head->position( sortIndex.fields[idx].name );
-	    qdb::ColumnKey subSort;
+	    localsql::ColumnKey subSort;
 	    for ( it = sortKey.begin();
 		  it != sortKey.end();
 		  ++it ) {

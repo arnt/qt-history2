@@ -48,7 +48,7 @@
 
 /* Base class for all ops.
 */
-class Op : public qdb::Op
+class Op : public localsql::Op
 {
 public:
     Op( const QVariant& P1 = QVariant(),
@@ -70,12 +70,12 @@ public:
     }
 
 protected:
-    void error( qdb::Environment *env, const QString& msg )
+    void error( localsql::Environment *env, const QString& msg )
     {
 	env->setLastError( QString("internal error:%1: %2").arg(name())
 			   .arg(msg) );
     }
-    bool checkStack( qdb::Environment *env, int min )
+    bool checkStack( localsql::Environment *env, int min )
     {
 	bool ok = ( (int) env->stack()->count() >= min );
 	if ( !ok )
@@ -98,7 +98,7 @@ public:
     Noop() {}
     ~Noop() {}
     QString name() const { return "noop"; }
-    int exec( qdb::Environment* )
+    int exec( localsql::Environment* )
     {
 	return 1;
     }
@@ -132,7 +132,7 @@ public:
     }
     ~Push() {}
     QString name() const { return "push"; }
-    int exec( qdb::Environment* env )
+    int exec( localsql::Environment* env )
     {
 	if ( p1.isValid() )
 	    env->stack()->push( p1 );
@@ -153,7 +153,7 @@ class Add : public Op
 public:
     Add() {}
     QString name() const { return "add"; }
-    int exec( qdb::Environment* env )
+    int exec( localsql::Environment* env )
     {
 	if ( !checkStack(env, 2) )
 	    return 0;
@@ -173,7 +173,7 @@ class Subtract : public Op
 public:
     Subtract() {}
     QString name() const { return "subtract"; }
-    int exec( qdb::Environment* env )
+    int exec( localsql::Environment* env )
     {
 	if ( !checkStack(env, 2) )
 	    return 0;
@@ -192,7 +192,7 @@ class Multiply : public Op
 public:
     Multiply() {}
     QString name() const { return "multiply"; }
-    int exec( qdb::Environment* env )
+    int exec( localsql::Environment* env )
     {
 	if ( !checkStack(env, 2) )
 	    return 0;
@@ -214,7 +214,7 @@ class Divide : public Op
 public:
     Divide() {}
     QString name() const { return "divide"; }
-    int exec( qdb::Environment* env )
+    int exec( localsql::Environment* env )
     {
 	if ( !checkStack(env, 2) )
 	    return 0;
@@ -234,7 +234,7 @@ class CompOp : public Op
 public:
     CompOp( int trueLab, int falseLab )
 	: Op( trueLab, falseLab ) {}
-    int exec( qdb::Environment* env )
+    int exec( localsql::Environment* env )
     {
 	if ( !checkStack(env, 2) )
 	    return 0;
@@ -341,11 +341,11 @@ public:
     MakeList( const QVariant& num )
 	: Op( num ) {}
     QString name() const { return "makelist"; }
-    int exec( qdb::Environment* env )
+    int exec( localsql::Environment* env )
     {
 	if ( !checkStack(env, p1.toInt()) )
 	    return 0;
-	qdb::List rec;
+	localsql::List rec;
 	for ( int i = 0; i < p1.toInt(); ++i )
 	    rec.prepend( env->stack()->pop() );
 	env->stack()->push( rec );
@@ -377,11 +377,11 @@ public:
     Create( const QVariant& name )
 	: Op( name ) {}
     QString name() const { return "create"; }
-    int exec( qdb::Environment* env )
+    int exec( localsql::Environment* env )
     {
-	qdb::List list = env->stack()->pop().toList();
+	localsql::List list = env->stack()->pop().toList();
 	int id = env->addFileDriver( p1.toString() );
-	qdb::FileDriver* drv = env->fileDriver( id );
+	localsql::FileDriver* drv = env->fileDriver( id );
 	return drv->create( list );
     }
 };
@@ -396,10 +396,10 @@ public:
     Open( const QVariant& id, const QVariant& name )
 	: Op( id, name ) {}
     QString name() const { return "open"; }
-    int exec( qdb::Environment* env )
+    int exec( localsql::Environment* env )
     {
 	env->addFileDriver( p1.toInt(), p2.toString() );
-	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
+	localsql::FileDriver* drv = env->fileDriver( p1.toInt() );
 	return drv->open();
     }
 };
@@ -413,9 +413,9 @@ public:
     Close( const QVariant& id )
 	: Op( id ) {}
     QString name() const { return "close"; }
-    int exec( qdb::Environment* env )
+    int exec( localsql::Environment* env )
     {
-	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
+	localsql::FileDriver* drv = env->fileDriver( p1.toInt() );
 	return drv->close();
     }
 };
@@ -445,9 +445,9 @@ public:
     Insert( const QVariant& id )
 	: Op( id ) {}
     QString name() const { return "insert"; }
-    int exec( qdb::Environment* env )
+    int exec( localsql::Environment* env )
     {
-	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
+	localsql::FileDriver* drv = env->fileDriver( p1.toInt() );
 	return drv->insert( env->stack()->pop().toList() );
     }
 };
@@ -462,9 +462,9 @@ public:
     Mark( const QVariant& id )
 	: Op( id ) {}
     QString name() const { return "mark"; }
-    int exec( qdb::Environment* env )
+    int exec( localsql::Environment* env )
     {
-	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
+	localsql::FileDriver* drv = env->fileDriver( p1.toInt() );
 	return drv->mark();
     }
 };
@@ -479,9 +479,9 @@ public:
     DeleteMarked( const QVariant& id )
 	: Op( id ) {}
     QString name() const { return "deletemarked"; }
-    int exec( qdb::Environment* env )
+    int exec( localsql::Environment* env )
     {
-	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
+	localsql::FileDriver* drv = env->fileDriver( p1.toInt() );
 	return drv->deleteMarked();
     }
 };
@@ -511,9 +511,9 @@ public:
     UpdateMarked( const QVariant& id )
 	: Op( id ) {}
     QString name() const { return "updatemarked"; }
-    int exec( qdb::Environment* env )
+    int exec( localsql::Environment* env )
     {
-	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
+	localsql::FileDriver* drv = env->fileDriver( p1.toInt() );
 	bool b = drv->updateMarked( env->stack()->pop().toList() );
 	return b;
     }
@@ -531,9 +531,9 @@ public:
 	  const QVariant& P2 )
 	: Op( id, P2 ) {}
     QString name() const { return "next"; }
-    int exec( qdb::Environment* env )
+    int exec( localsql::Environment* env )
     {
-	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
+	localsql::FileDriver* drv = env->fileDriver( p1.toInt() );
 	if ( !drv->next() )
 	    env->program()->setCounter( p2.toInt() );
 	return TRUE;
@@ -549,7 +549,7 @@ public:
     Goto( int lab )
 	: Op( lab ) {}
     QString name() const { return "goto"; }
-    int exec( qdb::Environment* env )
+    int exec( localsql::Environment* env )
     {
 	env->program()->setCounter( p1.toInt() );
 	return TRUE;
@@ -567,9 +567,9 @@ public:
     PushFieldValue( const QVariant& id, const QVariant& P2 )
 	: Op( id, P2 ) {}
     QString name() const { return "pushfieldvalue"; }
-    int exec( qdb::Environment* env )
+    int exec( localsql::Environment* env )
     {
-	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
+	localsql::FileDriver* drv = env->fileDriver( p1.toInt() );
 	QVariant v;
 	if ( !drv->field( p2.toInt(), v ) )
 	    return FALSE;
@@ -599,9 +599,9 @@ public:
 		   const QVariant& nameOrNumber )
 	: Op( id, nameOrNumber ) {}
     QString name() const { return "pushfielddesc"; }
-    int exec( qdb::Environment* env )
+    int exec( localsql::Environment* env )
     {
-	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
+	localsql::FileDriver* drv = env->fileDriver( p1.toInt() );
 	QVariant v;
 	if ( p2.type() == QVariant::String || p2.type() == QVariant::CString ) {
 	    if ( !drv->fieldDescription( p2.toString(), v ) )
@@ -636,9 +636,9 @@ public:
     SaveResult( const QVariant& id )
 	: Op( id ) {}
     QString name() const { return "saveresult"; }
-    int exec( qdb::Environment* env )
+    int exec( localsql::Environment* env )
     {
-	qdb::List list = env->stack()->pop().toList();
+	localsql::List list = env->stack()->pop().toList();
 	return env->resultSet( p1.toInt() )->append( list );
     }
 };
@@ -671,7 +671,7 @@ public:
     CreateResult( const QVariant& id )
 	: Op( id ) {}
     QString name() const { return "createresult"; }
-    int exec( qdb::Environment* env )
+    int exec( localsql::Environment* env )
     {
 	env->addResultSet( p1.toInt() );
 	return env->resultSet( p1.toInt() )->setHeader( env->stack()->pop().toList() );
@@ -690,9 +690,9 @@ public:
     RewindMarked( const QVariant& id )
 	: Op( id ) {}
     QString name() const { return "rewindmarked"; }
-    int exec( qdb::Environment* env )
+    int exec( localsql::Environment* env )
     {
-	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
+	localsql::FileDriver* drv = env->fileDriver( p1.toInt() );
 	return drv->rewindMarked();
     }
 };
@@ -709,9 +709,9 @@ public:
 		const QVariant& P2 )
 	: Op( id, P2 ) {}
     QString name() const { return "nextmarked"; }
-    int exec( qdb::Environment* env )
+    int exec( localsql::Environment* env )
     {
-	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
+	localsql::FileDriver* drv = env->fileDriver( p1.toInt() );
 	bool b = drv->nextMarked();
 	if ( !b )
 	    env->program()->setCounter( p2.toInt() );
@@ -745,9 +745,9 @@ public:
     Update( const QVariant& id )
 	: Op( id ) {}
     QString name() const { return "update"; }
-    int exec( qdb::Environment* env )
+    int exec( localsql::Environment* env )
     {
-	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
+	localsql::FileDriver* drv = env->fileDriver( p1.toInt() );
 	bool b = drv->update( env->stack()->pop().toList() );
 	return b;
     }
@@ -791,9 +791,9 @@ public:
     RangeMark( const QVariant& id )
 	: Op( id ) {}
     QString name() const { return "rangemark"; }
-    int exec( qdb::Environment* env )
+    int exec( localsql::Environment* env )
     {
-	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
+	localsql::FileDriver* drv = env->fileDriver( p1.toInt() );
 	return drv->rangeMark( env->stack()->pop().toList() );
     }
 };
@@ -824,9 +824,9 @@ public:
 		 const QVariant& unique )
 	: Op( id, unique ) {}
     QString name() const { return "createindex"; }
-    int exec( qdb::Environment* env )
+    int exec( localsql::Environment* env )
     {
-	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
+	localsql::FileDriver* drv = env->fileDriver( p1.toInt() );
 	return drv->createIndex( env->stack()->pop().toList(), p2.toBool() );
     }
 };
@@ -842,10 +842,10 @@ public:
     Drop( const QVariant& name )
 	: Op( name ) {}
     QString name() const { return "drop"; }
-    int exec( qdb::Environment* env )
+    int exec( localsql::Environment* env )
     {
 	int id = env->addFileDriver( p1.toString() );
-	qdb::FileDriver* drv = env->fileDriver( id );
+	localsql::FileDriver* drv = env->fileDriver( id );
 	return drv->drop();
     }
 };
@@ -880,7 +880,7 @@ public:
     Sort( const QVariant& id )
 	: Op( id ) {}
     QString name() const { return "sort"; }
-    int exec( qdb::Environment* env )
+    int exec( localsql::Environment* env )
     {
 	return env->resultSet( p1.toInt() )->sort( env->stack()->pop().toList() );
     }
@@ -897,9 +897,9 @@ public:
     ClearMarked( const QVariant& id, const QVariant& name )
 	: Op( id, name ) {}
     QString name() const { return "clearmarked"; }
-    int exec( qdb::Environment* env )
+    int exec( localsql::Environment* env )
     {
-	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
+	localsql::FileDriver* drv = env->fileDriver( p1.toInt() );
 	return drv->clearMarked();
     }
 };

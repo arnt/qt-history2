@@ -1,7 +1,7 @@
 /*
     Xbase project source code
 
-    This file contains the XBase SQL command line processor
+    This file contains the LocalSQL command line processor
 
     Copyright (C) 2000 Dave Berton (db@trolltech.com)
 
@@ -225,10 +225,10 @@ int main( int argc, char** argv )
 
     /* table description */
     if ( tablename.length() ) {
-	QDb env;
+	LocalSQL env;
 	uint i = 0;
 	env.addFileDriver( 0, tablename );
-	qdb::FileDriver* driver = env.fileDriver( 0 );
+	localsql::FileDriver* driver = env.fileDriver( 0 );
 	if ( !driver->open() )
 	    die( "unable to open table:" + tablename );
 	if ( !suppressheader ) {
@@ -242,7 +242,7 @@ int main( int argc, char** argv )
 	    QVariant v;
 	    if ( !driver->fieldDescription( i, v ) )
 		die( "unable to find field:" + QString::number( i ) );
-	    qdb::List l = v.toList();
+	    localsql::List l = v.toList();
 	    QString name( l[0].toString() );
 	    v.cast( (QVariant::Type)l[1].toInt() );
 	    QString typeName( v.typeName() );
@@ -283,7 +283,7 @@ int main( int argc, char** argv )
 	die( "no commands specified" );
 
     /* execute commands */
-    QDb env;
+    LocalSQL env;
     env.setOutput( outstream );
     if ( env.parse( commands, echo ) ) {
 	if ( analyse )
@@ -294,7 +294,7 @@ int main( int argc, char** argv )
 	die( env.lastError() );
 
     /* output results */
-    qdb::ResultSet* rs = env.resultSet( 0 ); //## what about more than one result set?
+    localsql::ResultSet* rs = env.resultSet( 0 ); //## what about more than one result set?
     if ( rs->size() ) {
 	uint fieldcount = rs->count();
 	uint i = 0;
@@ -312,7 +312,7 @@ int main( int argc, char** argv )
 	rs->first();
 	do {
 	    line = sep;
-	    qdb::Record& rec = rs->currentRecord();
+	    localsql::Record& rec = rs->currentRecord();
 	    for ( i = 0; i < fieldcount; ++i )
 		line += rec[i].toString().rightJustify( 15 ) + sep;
 	    outstream << line << endl;
