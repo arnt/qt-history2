@@ -15,6 +15,7 @@ public:
     QStyle *create( const QString& );
 
     bool init();
+    void cleanup();
     bool canUnload() const;
 
 private:
@@ -75,6 +76,11 @@ QStyle* PlatinumStyle::create( const QString& s )
 bool PlatinumStyle::init()
 {
     return TRUE;
+}
+
+void PlatinumStyle::cleanup() 
+{
+    delete style;
 }
 
 bool PlatinumStyle::canUnload() const
