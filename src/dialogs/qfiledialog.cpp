@@ -91,6 +91,12 @@
 #include "qcursor.h"
 #include "qlibrary.h"
 
+#ifdef Q_WS_WIN
+#ifdef QT_THREAD_SUPPORT
+#  include <private/qmutexpool_p.h>
+#endif // QT_THREAD_SUPPORT
+#endif // Q_WS_WIN
+
 #if !defined(Q_OS_TEMP)
 #include <time.h>
 #endif
@@ -472,7 +478,46 @@ static bool isDirectoryMode( int m )
     return m == QFileDialog::Directory || m == QFileDialog::DirectoryOnly;
 }
 
+
+// Don't remove the lines below!
+//
+// resolving the W methods manually is needed, because Windows 95 doesn't include
+// these methods in Shell32.lib (not even stubs!), so you'd get an unresolved symbol
+// when Qt calls getEsistingDirectory(), etc.
 #if defined(Q_WS_WIN)
+
+typedef UINT (WINAPI *PtrExtractIconEx)(LPCTSTR,int,HICON*,HICON*,UINT);
+static PtrExtractIconEx ptrExtractIconEx = 0;
+
+static void resolveLibs()
+{
+#ifndef Q_OS_TEMP
+    static bool triedResolve = FALSE;
+
+    if ( !triedResolve ) {
+#ifdef QT_THREAD_SUPPORT
+	// protect initialization
+	QMutexLocker locker( qt_global_mutexpool->get( &triedResolve ) );
+	// check triedResolve again, since another thread may have already
+	// done the initialization
+	if ( triedResolve ) {
+	    // another thread did initialize the security function pointers,
+	    // so we shouldn't do it again.
+	    return;
+	}
+#endif
+	triedResolve = TRUE;
+	if ( qt_winunicode ) {
+	    QLibrary lib("shell32");
+	    lib.setAutoUnload( FALSE );
+	    ptrExtractIconEx = (PtrExtractIconEx) lib.resolve( "ExtractIconExW" );
+	}
+    }
+#endif
+}
+#ifdef Q_OS_TEMP
+#define PtrExtractIconEx ExtractIconEx
+#endif
 
 class QWindowsIconProvider : public QFileIconProvider
 {
@@ -4970,6 +5015,7 @@ QWindowsIconProvider::QWindowsIconProvider( QObject *parent, const char *name )
 			   "folder\\DefaultIcon",
 			   0, KEY_READ, &k );
     } );
+    resolveLibs();
     if ( r == ERROR_SUCCESS ) {
 	s = getWindowsRegString( k, QString::null );
 	RegCloseKey( k );
@@ -4977,7 +5023,7 @@ QWindowsIconProvider::QWindowsIconProvider( QObject *parent, const char *name )
 	QStringList lst = QStringList::split( ",", s );
 
 	QT_WA( {
-	    res = ExtractIconExW( (TCHAR*)lst[ 0 ].simplifyWhiteSpace().ucs2(),
+	    res = ptrExtractIconEx( (TCHAR*)lst[ 0 ].simplifyWhiteSpace().ucs2(),
 				  lst[ 1 ].simplifyWhiteSpace().toInt(),
 				  0, &si, 1 );
 	} , {
@@ -5004,7 +5050,7 @@ QWindowsIconProvider::QWindowsIconProvider( QObject *parent, const char *name )
 
     //------------------------------- get default file pixmap
     QT_WA( {
-	res = ExtractIconExW( L"shell32.dll",
+	res = ptrExtractIconEx( L"shell32.dll",
 				 0, 0, &si, 1 );
     } , {
 	res = ExtractIconExA( "shell32.dll",
@@ -5026,7 +5072,7 @@ QWindowsIconProvider::QWindowsIconProvider( QObject *parent, const char *name )
 
     //------------------------------- get default exe pixmap
     QT_WA( {
-	res = ExtractIconExW( L"shell32.dll",
+	res = ptrExtractIconEx( L"shell32.dll",
 			      2, 0, &si, 1 );
     } , {
 	res = ExtractIconExA( "shell32.dll",
@@ -5113,9 +5159,9 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 		return &pix;
 	    }
 	}
-
+	resolveLibs();
 	QT_WA( {
-	    res = ExtractIconExW( (TCHAR*)filepath.ucs2(), lst[ 1 ].stripWhiteSpace().toInt(),
+	    res = ptrExtractIconEx( (TCHAR*)filepath.ucs2(), lst[ 1 ].stripWhiteSpace().toInt(),
 				  NULL, &si, 1 );
 	} , {
 	    res = ExtractIconExA( filepath.local8Bit(), lst[ 1 ].stripWhiteSpace().toInt(),
@@ -5140,7 +5186,7 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 	HICON si;
 	UINT res;
 	QT_WA( {
-	    res = ExtractIconExW( (TCHAR*)fi.absFilePath().ucs2(), -1,
+	    res = ptrExtractIconEx( (TCHAR*)fi.absFilePath().ucs2(), -1,
 				  0, 0, 1 );
 	} , {
 	    res = ExtractIconExA( fi.absFilePath().local8Bit(), -1,
@@ -5151,7 +5197,7 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 	    return &defaultExe;
 	} else {
 	    QT_WA( {
-		res = ExtractIconExW( (TCHAR*)fi.absFilePath().ucs2(), res - 1,
+		res = ptrExtractIconEx( (TCHAR*)fi.absFilePath().ucs2(), res - 1,
 				      0, &si, 1 );
 	    } , {
 		res = ExtractIconExA( fi.absFilePath().local8Bit(), res - 1,
