@@ -38,7 +38,7 @@
         </rect>
     </property>
     <property name="caption">
-        <string>Qt Assistent by Trolltech</string>
+        <string>Qt Assistant by Trolltech</string>
     </property>
 </widget>
 <menubar>
@@ -278,7 +278,7 @@
 </connections>
 <functions>
     <function name="init()" >{
-    browser = new HelpWindow( this, "qt_assistent_helpwindow" );
+    browser = new HelpWindow( this, "qt_assistant_helpwindow" );
     browser-&gt;setFrameStyle( QFrame::Panel | QFrame::Sunken ); 
     setCentralWidget( browser );
     
