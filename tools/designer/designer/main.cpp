@@ -201,6 +201,7 @@ int main( int argc, char *argv[] )
 	splash->setFrameStyle( QFrame::WinPanel | QFrame::Raised );
 	splash->setPixmap( splashScreen() );
 	splash->adjustSize();
+	splash->setCaption( "Qt Designer" );
 	QRect r = QApplication::desktop()->geometry();
 	splash->move( r.center() - splash->rect().center() );
 	splash->show();
