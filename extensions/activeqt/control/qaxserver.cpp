@@ -1081,6 +1081,7 @@ extern "C" HRESULT __stdcall DumpIDL(const QString &outfile, const QString &ver)
     }
     
     out << "};" << endl;
+    out.flush();
     
 ErrorInClass:
     if (delete_qApp)
