@@ -103,18 +103,17 @@ public:
 
     int section;
     QString text;
-    int textAlignment;
+    Qt::Alignment textAlignment;
     QIcon icon;
-    int iconAlignment;
+    Qt::Alignment iconAlignment;
 
     QStyleOptionHeader();
 
     QDOC_PROPERTY(int section)
     QDOC_PROPERTY(QString text)
-    QDOC_PROPERTY(int textAlignment)
-    QDOC_PROPERTY(int alignment)
+    QDOC_PROPERTY(Qt::Alignment textAlignment)
     QDOC_PROPERTY(QIcon icon)
-    QDOC_PROPERTY(int iconAligment)
+    QDOC_PROPERTY(Qt::Alignment iconAlignment)
 
 protected:
     QStyleOptionHeader(int version);
@@ -307,6 +306,7 @@ public:
     QDOC_PROPERTY(int decorationAlignment)
     QDOC_PROPERTY(Position decorationPosition)
     QDOC_PROPERTY(Size decorationSize)
+    QDOC_PROPERTY(QFont font)
 
 protected:
     QStyleOptionViewItem(int version);
@@ -369,8 +369,8 @@ public:
     QStyleOptionSlider();
 
     QDOC_PROPERTY(Qt::Orientation orientation)
-    QDOC_PROPERTY(int maximum)
     QDOC_PROPERTY(int minimum)
+    QDOC_PROPERTY(int maximum)
     QDOC_PROPERTY(QSlider::TickSetting tickmarks)
     QDOC_PROPERTY(int tickInterval)
     QDOC_PROPERTY(bool useRightToLeft)

@@ -393,8 +393,9 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int section
                                     QAbstractItemModel::DisplayRole).toString();
     opt.icon = d->model->headerData(section, orientation(),
                                     QAbstractItemModel::DecorationRole).toIconSet();
-    opt.textAlignment = d->model->headerData(section, orientation(),
-                                             QAbstractItemModel::TextAlignmentRole).toInt();
+    opt.textAlignment = (Qt::Alignment)d->model->headerData(section, orientation(),
+                                                            QAbstractItemModel::TextAlignmentRole)
+	                                       .toInt();
     opt.iconAlignment = Qt::AlignVCenter;
 
     style().drawPrimitive(QStyle::PE_HeaderSection, &opt, painter, this);
