@@ -2802,7 +2802,7 @@ bool QFontInfo::fixedPitch() const
 {
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
     Q_ASSERT( engine != 0 );
-    return (QFont::StyleHint) engine->fontDef.fixedPitch;
+    return engine->fontDef.fixedPitch;
 }
 
 /*!

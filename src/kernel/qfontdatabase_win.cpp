@@ -175,14 +175,14 @@ storeFont( ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/ )
 	italic = f->elfLogFont.lfItalic;
 	weight = f->elfLogFont.lfWeight;
 	TEXTMETRIC *tm = (TEXTMETRIC *)textmetric;
-	fixed = (tm->tmPitchAndFamily & TMPF_FIXED_PITCH);
+	fixed = !(tm->tmPitchAndFamily & TMPF_FIXED_PITCH);
     } , {
 	ENUMLOGFONTEXA* fa = (ENUMLOGFONTEXA *)f;
 	familyName = QString::fromLocal8Bit( fa->elfLogFont.lfFaceName );
 	italic = fa->elfLogFont.lfItalic;
 	weight = fa->elfLogFont.lfWeight;
 	TEXTMETRICA *tm = (TEXTMETRICA *)textmetric;
-	fixed = (tm->tmPitchAndFamily & TMPF_FIXED_PITCH);
+	fixed = !(tm->tmPitchAndFamily & TMPF_FIXED_PITCH);
     } );
     // the "@family" fonts are just the same as "family". Ignore them.
     if ( familyName[0] != '@' ) {
