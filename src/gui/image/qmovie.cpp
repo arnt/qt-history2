@@ -84,6 +84,48 @@
     \value Running The movie is running.
 */
 
+/*! \fn QMovie::started()
+
+    This signal is emitted after QMovie::start() has been called, and QMovie
+    has entered QMovie::Running state.
+*/
+
+/*! \fn QMovie::resized(const QSize &size)
+
+    This signal is emitted when the current frame has been resized to \a
+    size. This effect is sometimes used in animations as an alternative to
+    replacing the frame. You can call frameImage() or framePixmap() to get a
+    copy of the updated frame.
+*/
+
+/*! \fn QMovie::updated(const QRect &rect)
+
+    This signal is emitted when the rect \a rect in the current frame has been
+    updated. You can call frameImage() or framePixmap() to get a copy of the
+    updated frame.
+*/
+
+/*! \fn QMovie::stateChanged(MovieState state)
+
+    This signal is emitted every time QMovie's state changes. \a state is the
+    new state of QMovie.
+
+    \sa QMovie::state()
+*/
+
+/*! \fn QMovie::error()
+
+    This signal is emitted by QMovie when an error occurred during playback.
+    QMovie will stop the movie, and enter QMovie::NotRunning state.
+*/
+
+/*! \fn QMovie::finished()
+
+    This signal is emitted when the movie has finished.
+
+    \sa QMovie::stop()
+*/
+
 #include "qmovie.h"
 
 #include <qimage.h>
@@ -93,8 +135,6 @@
 #include <qtimer.h>
 #include <private/qobject_p.h>
 
-/*! \internal
- */
 class QMoviePrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QMovie)
@@ -268,8 +308,9 @@ QString QMovie::fileName() const
 }
 
 /*!
-    Sets the format that QMovie will use when decoding image data. By default,
-    QMovie will attempt to guess the format of the image data.
+    Sets the format that QMovie will use when decoding image data, to \a
+    format. By default, QMovie will attempt to guess the format of the image
+    data.
 
     \sa QImageReader::supportedImageFormats()
 */
