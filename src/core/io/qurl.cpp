@@ -188,6 +188,7 @@ static bool QT_FASTCALL _pctEncoded(char **ptr, char pct[])
     return true;
 }
 
+#if 0
 // gen-delims  = ":" / "/" / "?" / "#" / "[" / "]" / "@"
 static bool QT_FASTCALL _genDelims(char **ptr, char *c)
 {
@@ -202,6 +203,7 @@ static bool QT_FASTCALL _genDelims(char **ptr, char *c)
         return false;
     }
 }
+#endif
 
 // sub-delims  = "!" / "$" / "&" / "'" / "(" / ")"
 //             / "*" / "+" / "," / ";" / "="
@@ -415,6 +417,7 @@ static bool QT_FASTCALL _IPv4Address(char **ptr, QByteArray *c)
     return true;
 }
 
+#if 0
 // ls32        = ( h16 ":" h16 ) / IPv4address
 //             ; least-significant 32 bits of address
 static bool QT_FASTCALL _ls32(char **ptr, QByteArray *c)
@@ -432,6 +435,7 @@ static bool QT_FASTCALL _ls32(char **ptr, QByteArray *c)
     *ptr = ptrBackup;
     return _IPv4Address(ptr, c);
 }
+#endif
 
 // IPv6address =                            6( h16 ":" ) ls32
 //             /                       "::" 5( h16 ":" ) ls32
