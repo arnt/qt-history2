@@ -142,13 +142,15 @@ void HelpDialog::loadIndexFile()
     indexDone = TRUE;
     framePrepare->show();
     qApp->processEvents();
-    QProgressBar *bar = progressPrepare;
-    bar->setTotalSteps( QFileInfo( documentationPath + "/index" ).size() +
-	                QFileInfo( linguistDocPath + "/index" ).size() );
-    bar->setProgress( 0 );
 
     QString indexFile = documentationPath + "/index";
     QString linguistIndexFile = linguistDocPath + "/index";
+    
+    QProgressBar *bar = progressPrepare;
+    bar->setTotalSteps( QFileInfo( indexFile ).size() +
+	                QFileInfo( linguistIndexFile ).size() );
+    bar->setProgress( 0 );
+
 
     HelpNavigationListItem *lastItem = 0;
 
@@ -179,44 +181,44 @@ void HelpDialog::loadIndexFile()
 
  build_db:
     if ( buildDb ) {
-	if ( !f.open( IO_ReadOnly ) )
-	    return;
-	QTextStream ts( &f );
-	while ( !ts.atEnd() && isVisible() ) {
-	    qApp->processEvents();
-	    if ( !isVisible() )
-		break;
-	    QString l = ts.readLine();
-	    if ( l.find( "::" ) != -1 ) {
-		int i = l.find( "\"" ) + 1;
-		l.remove( i, l.find( "::" ) + 2 - i );
+	if ( f.open( IO_ReadOnly ) ) {
+	    QTextStream ts( &f );
+	    while ( !ts.atEnd() && isVisible() ) {
+		qApp->processEvents();
+		if ( !isVisible() )
+		    break;
+		QString l = ts.readLine();
+		if ( l.find( "::" ) != -1 ) {
+		    int i = l.find( "\"" ) + 1;
+		    l.remove( i, l.find( "::" ) + 2 - i );
+		}
+		lst->append( l );
+		if ( bar )
+		    bar->setProgress( bar->progress() + l.length() );
 	    }
-	    lst->append( l );
-	    if ( bar )
-		bar->setProgress( bar->progress() + l.length() );
 	}
-
+	 
 	// Read the Linguist index as well
 	// ### This is a temp hack and should be removed when the
 	// ### Assistant becomes more generalised.
-	if ( !f2.open( IO_ReadOnly ) )
-	    return;
-	QTextStream ts2( &f2 );
-	while ( !ts2.atEnd() && isVisible() ) {
-	    qApp->processEvents();
-	    if ( !isVisible() )
+	if ( f2.open( IO_ReadOnly ) ) {
+	    QTextStream ts( &f2 );
+	    while ( !ts.atEnd() && isVisible() ) {
+		qApp->processEvents();
+		if ( !isVisible() )
 		break;
-	    QString l = ts2.readLine();
-	    if ( l.find( "::" ) != -1 ) {
-		int i = l.find( "\"" ) + 1;
-		l.remove( i, l.find( "::" ) + 2 - i );
+		QString l = ts.readLine();
+		if ( l.find( "::" ) != -1 ) {
+		    int i = l.find( "\"" ) + 1;
+		    l.remove( i, l.find( "::" ) + 2 - i );
+		}
+		lst->append( l );
+		if ( bar )
+		    bar->setProgress( bar->progress() + l.length() );
 	    }
-	    lst->append( l );
-	    if ( bar )
-		bar->setProgress( bar->progress() + l.length() );
 	}
 
-	if ( ts.atEnd() || ts2.atEnd() ) {
+	if ( !lst->isEmpty() ) {
 	    qHeapSort( *lst );
 
 	    QFile indexout( QDir::homeDirPath() + "/.indexdb" );
