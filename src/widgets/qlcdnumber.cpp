@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#28 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#29 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -15,7 +15,7 @@
 #include "qpainter.h"
 #include <stdio.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#28 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#29 $")
 
 
 /*! \class QLCDNumber qlcdnum.h
@@ -323,11 +323,12 @@ void QLCDNumber::setNumDigits( int numDigits )
 	}
 	ndigits = numDigits;
 	update();
-	// ### hack - emit overflow() by hand
+	/*	// ### hack - emit overflow() by hand
 	bool of;
-	QString s = double2string( num, base, ndigits, &of );
+ 	QString s = double2string( num, base, ndigits, &of );
 	if ( of )
 	    emit overflow();
+	*/
     }
 }
 
@@ -363,6 +364,28 @@ QLCDNumber::Mode QLCDNumber::mode() const
 }
 
 
+/*! Returns the last value set by one of the display() slots. If display(
+    const char *) was the last called 0 will be returned.
+    \sa longValue(), display()
+*/
+ 
+double QLCDNumber::value() const
+{
+    return val;
+}
+
+/*! Returns the last value set by one of the display() slots rounded to the
+    nearest long. If display(const char *) was the last called 0 will be 
+    returned.
+    \sa value(), display()
+*/
+ 
+long QLCDNumber::longValue() const
+{
+    return (long) (val < 0 ? val - 0.5 : val + 0.5);
+}
+
+
 /*! Sets the contents of the display to \e num.
 
   \sa setMode() smallDecimalPoint() */
@@ -385,12 +408,13 @@ void QLCDNumber::display( float num )
 
 void QLCDNumber::display( long num )
 {
+    val = (double) num;
     bool of;
     QString s = long2string( num, base, ndigits, &of );
     if ( of )
 	emit overflow();
     else
-	display( s );
+	internalDisplay( s );
 }
 
 
@@ -398,12 +422,13 @@ void QLCDNumber::display( long num )
 
 void QLCDNumber::display( double num )
 {
+    val = num;
     bool of;
     QString s = double2string( num, base, ndigits, &of );
     if ( of )
 	emit overflow();
     else
-	display( s );
+	internalDisplay( s );
 }
 
 
@@ -419,63 +444,9 @@ void QLCDNumber::display( double num )
 
 void QLCDNumber::display( const char *s )
 {
-    QPainter p;
-    QString buffer(ndigits+1);
-    int i;
-    int len = strlen(s);
-
-    p.begin( this );
-    if ( !smallPoint ) {
-	if ( len >= ndigits ) {			  // String too long?
-	    for( i=0; i<(int)ndigits; i++ )	  // Yes, show first chars.
-		buffer[i] = s[len - ndigits + i];
-	} else {
-	    for( i=0; i<ndigits-len; i++ )	  // Pad with spaces.
-		buffer[i] = ' ';
-	    for( i=0; i<len; i++ )
-		buffer[ndigits - len + i] = s[i];
-	}
-	drawString( buffer, p );
-   } else {
-	int  index = -1;
-	bool lastWasPoint = TRUE;
-	QBitArray newPoints(ndigits);
-	newPoints.clearBit(0);
-	for ( i=0; i<len; i++ ) {
-	    if ( s[i] == '.' ) {
-		if ( lastWasPoint ) {		// Point already set for digit?
-		    if ( index == ndigits - 1 ) // No more digits?
-			break;
-		    index++;
-		    buffer[index] = ' ';	// 2 points in a row, add space
-		}
-		newPoints.setBit(index);	// Set decimal point
-		lastWasPoint = TRUE;
-	    } else {
-		if ( index == ndigits - 1 )
-		    break;
-		index++;
-		buffer[index] = s[i];
-		newPoints.clearBit(index);     // Decimal point default off
-		lastWasPoint = FALSE;
-	    }
-	}
-	if ( index < ((int) ndigits) - 1 ) {
-	    for( i=index; i>=0; i-- ) {
-		buffer[ndigits - 1 - index + i] = buffer[i];
-		newPoints.setBit( ndigits - 1 - index + i,
-				   newPoints.testBit(i) );
-	    }
-	    for( i=0; i<ndigits-index-1; i++ ) {
-		buffer[i] = ' ';
-		newPoints.clearBit(i);
-	    }
-	}
-	drawString(buffer,p,&newPoints);
-    }
-    p.end();
+    val = 0;
+    internalDisplay( s );
 }
-
 
 /*! Sets the display mode to \e m, which must be one of BIN, OCT, DEC
   and HEX.  All four modes can display both integers, floating-point
@@ -539,6 +510,66 @@ void QLCDNumber::drawContents( QPainter *p )
 	drawString( digitStr, *p, 0, FALSE );
 }
 
+/*! \internal */
+
+void QLCDNumber::internalDisplay( const char *s )
+{
+    QPainter p;
+    QString buffer(ndigits+1);
+    int i;
+    int len = strlen(s);
+
+    p.begin( this );
+    if ( !smallPoint ) {
+	if ( len >= ndigits ) {			  // String too long?
+	    for( i=0; i<(int)ndigits; i++ )	  // Yes, show first chars.
+		buffer[i] = s[len - ndigits + i];
+	} else {
+	    for( i=0; i<ndigits-len; i++ )	  // Pad with spaces.
+		buffer[i] = ' ';
+	    for( i=0; i<len; i++ )
+		buffer[ndigits - len + i] = s[i];
+	}
+	drawString( buffer, p );
+   } else {
+	int  index = -1;
+	bool lastWasPoint = TRUE;
+	QBitArray newPoints(ndigits);
+	newPoints.clearBit(0);
+	for ( i=0; i<len; i++ ) {
+	    if ( s[i] == '.' ) {
+		if ( lastWasPoint ) {		// Point already set for digit?
+		    if ( index == ndigits - 1 ) // No more digits?
+			break;
+		    index++;
+		    buffer[index] = ' ';	// 2 points in a row, add space
+		}
+		newPoints.setBit(index);	// Set decimal point
+		lastWasPoint = TRUE;
+	    } else {
+		if ( index == ndigits - 1 )
+		    break;
+		index++;
+		buffer[index] = s[i];
+		newPoints.clearBit(index);     // Decimal point default off
+		lastWasPoint = FALSE;
+	    }
+	}
+	if ( index < ((int) ndigits) - 1 ) {
+	    for( i=index; i>=0; i-- ) {
+		buffer[ndigits - 1 - index + i] = buffer[i];
+		newPoints.setBit( ndigits - 1 - index + i,
+				   newPoints.testBit(i) );
+	    }
+	    for( i=0; i<ndigits-index-1; i++ ) {
+		buffer[i] = ' ';
+		newPoints.clearBit(i);
+	    }
+	}
+	drawString(buffer,p,&newPoints);
+    }
+    p.end();
+}
 
 /*! \internal */
 

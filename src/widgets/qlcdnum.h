@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnum.h#12 $
+** $Id: //depot/qt/main/src/widgets/qlcdnum.h#13 $
 **
 ** Definition of QLCDNumber class
 **
@@ -37,6 +37,8 @@ public:
 
     QLCDNumber::Mode mode() const;
 
+    double  value() const;
+    long    longValue() const;
 public slots:
     void    display( int num );
     void    display( long num );
@@ -55,12 +57,14 @@ protected:
 
 private:
     void    init();
+    void    internalDisplay( const char * );
     void    drawString( const char *, QPainter &, QBitArray * = 0,
 			bool = TRUE );
     void    drawDigit( const QPoint &, QPainter &, int, char, char = ' ' );
     void    drawSegment( const QPoint &, char, QPainter &, int, bool = FALSE );
 
     int	    ndigits;
+    double  val;
     uint    base	: 2;
     uint    smallPoint	: 1;
     QString digitStr;
