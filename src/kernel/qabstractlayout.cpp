@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#26 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -191,7 +191,7 @@ bool QLayoutItem::hasHeightForWidth() const
 /*!
   Returns an iterator over this item's QLayoutItem children.
   The default implementation returns an empty iterator.
-  
+
   Reimplement this function in subclasses that can have
   children.
 */
@@ -363,6 +363,8 @@ QRect QLayout::geometry() const
 
 bool QWidgetItem::hasHeightForWidth() const
 {
+    if ( isEmpty() )
+	return FALSE;
     if ( wid->layout() )
 	return wid->layout()->hasHeightForWidth();
     return wid->sizePolicy().hasHeightForWidth();
@@ -393,6 +395,8 @@ QSizePolicy::ExpandData QSpacerItem::expanding() const
 
 QSizePolicy::ExpandData QWidgetItem::expanding() const
 {
+    if ( isEmpty() )
+	return QSizePolicy::NoDirection;
     return wid->layout() ? wid->layout()->expanding()
 	: wid->sizePolicy().expanding();
 }
@@ -402,8 +406,8 @@ QSizePolicy::ExpandData QWidgetItem::expanding() const
 */
 QSize QSpacerItem::minimumSize() const
 {
-	return QSize( sizeP.mayShrinkHorizontally() ? 0 : width,
-		      sizeP.mayShrinkVertically() ? 0 : height );;
+    return QSize( sizeP.mayShrinkHorizontally() ? 0 : width,
+		  sizeP.mayShrinkVertically() ? 0 : height );;
 }
 
 /*!
@@ -412,7 +416,9 @@ QSize QSpacerItem::minimumSize() const
 
 QSize QWidgetItem::minimumSize() const
 {
-	return smartMinSize( wid );
+    if ( isEmpty() )
+	return QSize(0,0);
+    return smartMinSize( wid );
 }
 
 
@@ -446,6 +452,8 @@ QSize QSpacerItem::sizeHint() const
 */
 QSize QWidgetItem::sizeHint() const
 {
+    if ( isEmpty() )
+	return QSize(0,0);
     //########### Should minimumSize() override sizeHint ????????????
     if ( wid->layout() )
 	return QSize( QMAX( wid->sizeHint().width(), wid->minimumWidth() ),
@@ -457,7 +465,7 @@ QSize QWidgetItem::sizeHint() const
 }
 
 /*!
-  Returns FALSE, since a space item never contains widgets.
+  Returns TRUE, since a space item never contains widgets.
 */
 bool QSpacerItem::isEmpty() const
 {
@@ -465,11 +473,11 @@ bool QSpacerItem::isEmpty() const
 }
 
 /*!
-  Returns TRUE, since a widget item always contains a widget!
+  Returns TRUE, if the widget has been hidden, FALSE otherwise.
 */
 bool QWidgetItem::isEmpty() const
 {
-    return FALSE;
+    return wid->testWState( QWidget::WState_ForceHide );
 }
 
 
@@ -882,6 +890,21 @@ QSizePolicy::ExpandData QLayout::expanding() const
   it out.
 */
 
+
+
+
+static void  invalidateRecursive( QLayoutItem *lay )
+{
+    lay->invalidate();
+    QLayoutIterator it = lay->iterator();
+    QLayoutItem *child;
+    while ( (child = it.current() ) ) {
+	invalidateRecursive( child );
+	it.next();
+    }
+}
+
+
 bool QLayout::activate()
 {
     // Paul: If adding stuff to a QLayout for a widget causes
@@ -893,14 +916,14 @@ bool QLayout::activate()
     // for example, its size hint changes at well, the parent widget
     // receives a layout hint but layout doesn't react to it :-(
 
-#if 1
-    invalidate(); //######### need to invalidate all child layouts!!!
+
+    invalidateRecursive( this );
     QSize s = mainWidget()->size();
     int mbh = menubar ? menubar->heightForWidth( s.width() ) : 0;
     setGeometry( QRect( outsideBorder, mbh + outsideBorder,
 			s.width() - 2*outsideBorder,
 			s.height() - mbh - 2*outsideBorder ) );
-#endif
+
     return TRUE;
 }
 

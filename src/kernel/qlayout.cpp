@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#82 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#83 $
 **
 ** Implementation of layout classes
 **
@@ -109,7 +109,7 @@ public:
     bool findWidget( QWidget* w, int *row, int *col );
 
     void getNextPos( int &row, int &col ) { row = nextR; col = nextC; }
-    uint count() const { return things.count() + (multi?multi->count():0); } 
+    uint count() const { return things.count() + (multi?multi->count():0); }
 private:
     void recalcHFW( int w, int s );
     void addHfwData ( QLayoutBox *box );
@@ -647,25 +647,25 @@ class QLayoutArrayIterator : public QInternalLayoutIterator
 public:
     QLayoutArrayIterator( QLayoutArray *a ) :array(a) { toFirst(); }
     uint count() const { return array->count(); }
-    QLayoutItem *current() { 
-	bool notAtEnd = !multi || 
+    QLayoutItem *current() {
+	bool notAtEnd = !multi ||
 			array->multi && idx < int(array->multi->count());
 	if ( notAtEnd )
-	    return multi ?  array->multi->at(idx)->box()->item() : 
+	    return multi ?  array->multi->at(idx)->box()->item() :
 			array->things.at(idx)->item();
 	else
 	    return 0;
     }
     void toFirst() { multi = FALSE; idx = 0; }
     void next() {
-	idx++; 
+	idx++;
 	if ( !multi && idx >= int(array->things.count()) ) {
 	    multi = TRUE; idx = 0;
 	}
     }
-    void removeCurrent() { 
-	if ( multi ) array->multi->remove( idx ); 
-	else array->things.remove( idx ); 
+    void removeCurrent() {
+	if ( multi ) array->multi->remove( idx );
+	else array->things.remove( idx );
     }
 private:
     QLayoutArray *array;
