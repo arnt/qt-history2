@@ -7,20 +7,13 @@
 class MainWindow;
 class FormList;
 class QStatusBar;
-class DesignerMainWindowInterface;
-class DesignerFormWindowInterface;
-class DesignerStatusBarInterface;
 
-class DesignerApplicationInterface : public QApplicationInterface
+class DesignerStatusBarInterface : public QComponentInterface
 {
 public:
-    DesignerApplicationInterface();
+    DesignerStatusBarInterface( QStatusBar *sb );
 
-    QComponentInterface *queryInterface( const QString &request );
-
-private:
-    QGuardedPtr<DesignerMainWindowInterface> mwIface;
-    QGuardedPtr<QComponentInterface> flIface;
+    bool requestSetProperty( const QCString &p, const QVariant &v );
 };
 
 class DesignerMainWindowInterface : public QComponentInterface
@@ -31,7 +24,6 @@ public:
     QComponentInterface *queryInterface( const QString &request );
 
 private:
-    QGuardedPtr<DesignerFormWindowInterface> fwIface;
     QGuardedPtr<DesignerStatusBarInterface> sbIface;
     MainWindow *mainWindow;
 
@@ -77,20 +69,28 @@ private:
     QValueList<Connect2> connects2;
 };
 
-class DesignerStatusBarInterface : public QComponentInterface
-{
-public:
-    DesignerStatusBarInterface( QStatusBar *sb );
-
-    bool requestSetProperty( const QCString &p, const QVariant &v );
-};
-
 class DesignerFormListInterface : public QComponentInterface
 {
 public:
     DesignerFormListInterface( FormList *fl );
 
+    QComponentInterface *queryInterface( const QString &request );
     QVariant requestProperty( const QCString &p );
+
+private:
+    QGuardedPtr<DesignerFormWindowInterface> fwIface;
+};
+
+class DesignerApplicationInterface : public QApplicationInterface
+{
+public:
+    DesignerApplicationInterface();
+
+    QComponentInterface *queryInterface( const QString &request );
+
+private:
+    QGuardedPtr<DesignerMainWindowInterface> mwIface;
+    QGuardedPtr<DesignerFormListInterface> flIface;
 };
 
 #endif

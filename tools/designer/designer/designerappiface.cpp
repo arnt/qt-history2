@@ -23,6 +23,9 @@ QComponentInterface * DesignerApplicationInterface::queryInterface( const QStrin
     return 0;
 }
 
+/*
+ * DesignerMainWindowInterface
+*/
 DesignerMainWindowInterface::DesignerMainWindowInterface( MainWindow *mw )
     : QComponentInterface( mw ), mainWindow( mw )
 {
@@ -30,13 +33,68 @@ DesignerMainWindowInterface::DesignerMainWindowInterface( MainWindow *mw )
 
 QComponentInterface *DesignerMainWindowInterface::queryInterface( const QString &request )
 {
-    if ( request == "DesignerFormWindowInterface" )
-	return fwIface ? fwIface : ( fwIface = new DesignerFormWindowInterface( mainWindow ) );
-    else if ( request == "DesignerStatusBarInterface" )
-	return sbIface ? sbIface : ( sbIface = new DesignerStatusBarInterface( mainWindow->statusBar() ) );
+    QStatusBar* sb = mainWindow->statusBar();
+    if ( request == "DesignerStatusBarInterface" && sb )
+	return sbIface ? sbIface : ( sbIface = new DesignerStatusBarInterface( sb ) );
     return 0;
 }
 
+/*
+ * DesignerStatusBarInterface
+*/
+DesignerStatusBarInterface::DesignerStatusBarInterface( QStatusBar *sb )
+    : QComponentInterface( sb )
+{
+}
+
+bool DesignerStatusBarInterface::requestSetProperty( const QCString &p, const QVariant &v )
+{
+    if ( p == "message" ) {
+	QStatusBar* sb = (QStatusBar*)object();
+	if ( sb ) {
+	    sb->message( v.toString(), 3000 );
+	    return TRUE;
+	} else {
+	    return FALSE;
+	}
+    }
+    return QComponentInterface::requestSetProperty( p, v );
+}
+
+/*
+ * DesignerFormListInterface
+*/
+DesignerFormListInterface::DesignerFormListInterface( FormList *fl )
+    : QComponentInterface( fl )
+{
+}
+
+QComponentInterface *DesignerFormListInterface::queryInterface( const QString &request )
+{
+    MainWindow* mw = (MainWindow*)qApp->mainWidget();
+    if ( request == "DesignerFormWindowInterface" && mw )
+	return fwIface ? fwIface : ( fwIface = new DesignerFormWindowInterface( mw ) );
+    return QComponentInterface::queryInterface( request );
+}
+
+QVariant DesignerFormListInterface::requestProperty( const QCString& p )
+{
+    if ( p == "fileList" ) {
+	QStringList list;
+	QListViewItemIterator it( (FormList*)object() );
+	while ( it.current() ) {
+	    QListViewItem* item = it.current();
+	    ++it;
+	    list << item->text( 2);
+	}
+	return QVariant( list );
+    }
+    return QComponentInterface::requestProperty( p );
+}
+
+/*
+ * DesignerFormWindowInterface
+*/
 DesignerFormWindowInterface::DesignerFormWindowInterface( MainWindow *mw )
     : QComponentInterface( mw ), mainWindow( mw )
 {
@@ -108,41 +166,3 @@ void DesignerFormWindowInterface::reconnect()
     }
 }
 
-DesignerStatusBarInterface::DesignerStatusBarInterface( QStatusBar *sb )
-    : QComponentInterface( sb )
-{
-}
-
-bool DesignerStatusBarInterface::requestSetProperty( const QCString &p, const QVariant &v )
-{
-    if ( p == "message" ) {
-	QStatusBar* sb = (QStatusBar*)object();
-	if ( sb ) {
-	    sb->message( v.toString(), 3000 );
-	    return TRUE;
-	} else {
-	    return FALSE;
-	}
-    }
-    return QComponentInterface::requestSetProperty( p, v );
-}
-
-DesignerFormListInterface::DesignerFormListInterface( FormList *fl )
-    : QComponentInterface( fl )
-{
-}
-
-QVariant DesignerFormListInterface::requestProperty( const QCString& p )
-{
-    if ( p == "fileList" ) {
-	QStringList list;
-	QListViewItemIterator it( (FormList*)object() );
-	while ( it.current() ) {
-	    QListViewItem* item = it.current();
-	    ++it;
-	    list << item->text( 2);
-	}
-	return QVariant( list );
-    }
-    return QComponentInterface::requestProperty( p );
-}
