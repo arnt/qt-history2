@@ -725,6 +725,8 @@ void QToolBar::setupArrowMenu()
 	d->menu = new QPopupMenu( this );
 	connect( d->menu, SIGNAL( activated( int ) ),
 		 this, SLOT( popupSelected( int ) ) );
+	connect( d->menu, SIGNAL( aboutToShow() ),
+		 this, SLOT( setupArrowMenu() ) );
     }
     QObjectList *childs = (QObjectList*)children();
     if ( childs ) {
@@ -761,6 +763,8 @@ void QToolBar::setupArrowMenu()
 			d->hiddenItems.insert( id, b );
 			if ( b->isToggleButton() )
 			    d->menu->setItemChecked( id, b->isOn() );
+			if ( !b->isEnabled() )
+			    d->menu->setItemEnabled( id, FALSE );
 			justHadSep = FALSE;
 		    } else if ( w->inherits( "QButton" ) ) {
 			QButton *b = (QButton*)w;
@@ -775,6 +779,8 @@ void QToolBar::setupArrowMenu()
 			d->hiddenItems.insert( id, b );
 			if ( b->isToggleButton() )
 			    d->menu->setItemChecked( id, b->isOn() );
+			if ( !b->isEnabled() )
+			    d->menu->setItemEnabled( id, FALSE );
 			justHadSep = FALSE;
 		    }
 		}
