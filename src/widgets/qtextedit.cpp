@@ -102,6 +102,8 @@ public:
     QString pressedName;
     QString onName;
     QClipboard::Mode clipboard_mode;
+    QTimer *trippleClickTimer;
+    QPoint trippleClickPoint;
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     QTextEditOptimPrivate * od;
     bool optimMode : 1;
@@ -901,6 +903,7 @@ void QTextEdit::init()
 	     this, SLOT( startDrag() ) );
 #endif
 
+    d->trippleClickTimer = new QTimer( this );
 
     formatMore();
 
@@ -1895,6 +1898,21 @@ void QTextEdit::contentsMousePressEvent( QMouseEvent *e )
 	return;
     }
 #endif
+
+    if ( d->trippleClickTimer->isActive() &&
+	 ( e->globalPos() - d->trippleClickPoint ).manhattanLength() <
+	 QApplication::startDragDistance() ) {
+	QTextCursor c1 = *cursor;
+	QTextCursor c2 = *cursor;
+	c1.gotoLineStart();
+	c2.gotoLineEnd();
+	doc->setSelectionStart( QTextDocument::Standard, c1 );
+	doc->setSelectionEnd( QTextDocument::Standard, c2 );
+	*cursor = c2;
+	repaintChanged();
+	return;
+    }
+
     clearUndoRedo();
     QTextCursor oldCursor = *cursor;
     QTextCursor c = *cursor;
@@ -2148,6 +2166,10 @@ void QTextEdit::contentsMouseDoubleClickEvent( QMouseEvent * e )
     *cursor = c2;
 
     repaintChanged();
+
+    d->trippleClickTimer->start( qApp->doubleClickInterval(), TRUE );
+    d->trippleClickPoint = e->globalPos();
+
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     } else {
 	QString str = d->od->lines[ para ];

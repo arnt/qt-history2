@@ -201,7 +201,6 @@ struct QLineEditPrivate {
     int selectionStart;
     const QValidator * validator;
     QTimer blinkTimer;
-
     QTimer dndTimer;
     QTextParagraph *parag;
     QTextCursor *cursor;
@@ -215,6 +214,8 @@ struct QLineEditPrivate {
     QString txtBuffer;  // semi-persistant storage for text()
     QChar passwordChar;
     QClipboard::Mode clipboard_mode;
+    QTimer trippleClickTimer;
+    QPoint trippleClickPoint;
 };
 
 
@@ -1081,6 +1082,14 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 {
     if ( e->button() == RightButton )
 	return;
+
+    if ( d->trippleClickTimer.isActive() &&
+	 ( e->globalPos() - d->trippleClickPoint ).manhattanLength() <
+	 QApplication::startDragDistance() ) {
+	selectAll();
+	return;
+    }
+
     bool oldHST = hasSelectedText();
 
     d->undoRedoInfo.clear();
@@ -1269,7 +1278,7 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 
 /*!\reimp
 */
-void QLineEdit::mouseDoubleClickEvent( QMouseEvent * )
+void QLineEdit::mouseDoubleClickEvent( QMouseEvent *e )
 {
     bool oldHST = hasSelectedText();
     d->inDoubleClick = TRUE;
@@ -1284,6 +1293,9 @@ void QLineEdit::mouseDoubleClickEvent( QMouseEvent * )
 
 	d->parag->setSelection( QTextDocument::Standard, c1.index(), c2.index() );
 	*d->cursor = c2;
+	
+	d->trippleClickTimer.start( qApp->doubleClickInterval(), TRUE );
+	d->trippleClickPoint = e->globalPos();
     }
 #ifndef QT_NO_CLIPBOARD
     if (! d->mousePressed && QApplication::clipboard()->supportsSelection()) {
@@ -1653,7 +1665,7 @@ QSize QLineEdit::sizeHint() const
     QFontMetrics fm( font() );
     int h = fm.lineSpacing();
     int w = fm.width( 'x' ) * 17; // "some"
-    return (style().sizeFromContents(QStyle::CT_LineEdit, this, 
+    return (style().sizeFromContents(QStyle::CT_LineEdit, this,
 				     QSize(w + 2 + 2*frameWidth(), QMAX( h, 14 ) + 2 + 2*frameWidth()).
 	    expandedTo(QApplication::globalStrut())));
 }
