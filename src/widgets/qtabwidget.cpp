@@ -824,10 +824,14 @@ void QTabWidget::updateMask()
  */
 bool QTabWidget::eventFilter( QObject *o, QEvent * e)
 {
-    if ( o == d->stack && e->type() == QEvent::ChildRemoved
-         && ( (QChildEvent*)e )->child()->isWidgetType() ) {
-        removePage( (QWidget*)  ( (QChildEvent*)e )->child() );
-        return TRUE;
+    if ( o == d->stack ) {
+	if ( e->type() == QEvent::ChildRemoved
+	     && ( (QChildEvent*)e )->child()->isWidgetType() ) {
+	    removePage( (QWidget*)  ( (QChildEvent*)e )->child() );
+	    return TRUE;
+	} else if ( e->type() == QEvent::LayoutHint ) {
+	    updateGeometry();
+	}
     }
     return FALSE;
 }

@@ -60,6 +60,22 @@ public:
     };
 };
 
+
+class QWidgetStackEventFilter : public QObject
+{
+    //For binary compatibility, since we cannot implement
+    //virtual functions
+public:  
+    QWidgetStackEventFilter( QObject *parent = 0, const char * name = 0 )
+	: QObject( parent, name ) {}
+    bool eventFilter( QObject *o, QEvent * e ) {
+	if ( e->type() == QEvent::LayoutHint && o->isWidgetType() )
+	    ((QWidget*)o)->updateGeometry();
+	return FALSE;
+    }
+};
+
+
 /*! \class QWidgetStack qwidgetstack.h
 
   \brief The QWidgetStack class provides a stack of widgets of which only the
@@ -101,6 +117,8 @@ QWidgetStack::QWidgetStack( QWidget * parent, const char *name )
     : QFrame( parent, name )
 {
     d = 0;
+    QWidgetStackEventFilter *ef = new QWidgetStackEventFilter( this );
+    installEventFilter( ef );
     dict = new QIntDict<QWidget>;
     focusWidgets = 0;
     topWidget = 0;
