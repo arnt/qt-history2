@@ -991,7 +991,7 @@ bool FileDriver::rangeAction( const List* data, const List* cols,
 	QVariant value = rangeMarkFieldData[1];
 	xbShort fieldnum = d->file.GetFieldNo( name.latin1() );
 	if (  fieldnum == -1 ) {
-	    ERROR_RETURN( "Internal error: Field not found:" + name );
+	    ERROR_RETURN( "Field not found:" + name );
 	}
 	if ( !canConvert( xbaseTypeToVariant( d->file.GetFieldType( fieldnum ) ),
 					      value.type() ) ) {
