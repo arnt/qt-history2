@@ -1997,6 +1997,7 @@ void QObject::cleanupEventFilter(QObject* obj)
 
 /*!
     \fn QString QObject::tr( const char *sourceText, const char * comment ) const
+    \reentrant
 
     Returns a translated version of \a sourceText, or \a sourceText
     itself if there is no appropriate translated version. The
@@ -2005,6 +2006,12 @@ void QObject::cleanupEventFilter(QObject* obj)
     a reimplementation of this function with the subclass name as
     context.
 
+    \warning This method is reentrant only if all translators are
+    installed \e before calling this method.  Installing or removing
+    translators while performing translations is not supported.  Doing
+    so will most likely result in crashes or other undesirable
+    behavior.
+
     \sa trUtf8() QApplication::translate()
 	\link i18n.html Internationalization with Qt\endlink
 */
@@ -2012,11 +2019,18 @@ void QObject::cleanupEventFilter(QObject* obj)
 /*!
     \fn QString QObject::trUtf8( const char *sourceText,
                                  const char *comment ) const
+    \reentrant
 
     Returns a translated version of \a sourceText, or
     QString::fromUtf8(\a sourceText) if there is no appropriate
     version. It is otherwise identical to tr(\a sourceText, \a
     comment).
+
+    \warning This method is reentrant only if all translators are
+    installed \e before calling this method.  Installing or removing
+    translators while performing translations is not supported.  Doing
+    so will most likely result in crashes or other undesirable
+    behavior.
 
     \sa tr() QApplication::translate()
 */

@@ -2494,9 +2494,9 @@ void QApplication::installTranslator( QTranslator * mf )
     if ( !mf )
 	return;
     if ( !translators )
-	translators = new QPtrList<QTranslator>;
+	translators = new QValueList<QTranslator*>;
 
-    translators->insert( 0, mf );
+    translators->prepend( mf );
 
 #ifndef QT_NO_TRANSLATION_BUILDER
     if ( mf->isEmpty() )
@@ -2528,10 +2528,8 @@ void QApplication::removeTranslator( QTranslator * mf )
 {
     if ( !translators || !mf )
 	return;
-    translators->first();
-    while ( translators->current() && translators->current() != mf )
-	translators->next();
-    if ( translators->take() && !qApp->closingDown() ) {
+
+    if ( translators->remove( mf ) && ! qApp->closingDown() ) {
 	setReverseLayout( qt_detectRTLLanguage() );
 
 	QWidgetList *list = topLevelWidgets();
@@ -2604,7 +2602,7 @@ QTextCodec* QApplication::defaultCodec() const
   \sa QObject::tr(), QObject::trUtf8(), QString::fromUtf8()
 */
 
-/*!
+/*! \reentrant
   Returns the translation text for \a sourceText, by querying the
   installed messages files. The message files are searched from the most
   recently installed message file back to the first installed message
@@ -2633,6 +2631,11 @@ QTextCodec* QApplication::defaultCodec() const
   This function is not virtual. You can use alternative translation
   techniques by subclassing \l QTranslator.
 
+  \warning This method is reentrant only if all translators are
+  installed \e before calling this method.  Installing or removing
+  translators while performing translations is not supported.  Doing
+  so will most likely result in crashes or other undesirable behavior.
+
   \sa QObject::tr() installTranslator() defaultCodec()
 */
 
@@ -2643,11 +2646,11 @@ QString QApplication::translate( const char * context, const char * sourceText,
 	return QString::null;
 
     if ( translators ) {
-	QPtrListIterator<QTranslator> it( *translators );
+	QValueList<QTranslator*>::iterator it;
 	QTranslator * mf;
 	QString result;
-	while( (mf = it.current()) != 0 ) {
-	    ++it;
+	for ( it = translators->begin(); it != translators->end(); ++it ) {
+	    mf = *it;
 	    result = mf->findMessage( context, sourceText, comment ).translation();
 	    if ( !result.isNull() )
 		return result;

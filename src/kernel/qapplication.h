@@ -59,7 +59,6 @@ class QWSDecoration;
 class QMutex;
 #endif // QT_THREAD_SUPPORT
 
-template <class type> class QPtrList;
 
 class QApplication;
 extern Q_EXPORT QApplication *qApp;		// global application object
@@ -349,7 +348,7 @@ private:
     static bool	     fade_tooltip;
     static bool	     widgetCount; // Coupled with -widgetcount switch
 
-    QPtrList<QTranslator> *translators;
+    QValueList<QTranslator*> *translators;
 #ifndef QT_NO_SESSIONMANAGER
     QSessionManager *session_manager;
     QString	     session_id, session_key;
