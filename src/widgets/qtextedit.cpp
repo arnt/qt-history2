@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextedit.cpp#40 $
+** $Id: //depot/qt/main/src/widgets/qtextedit.cpp#41 $
 **
 ** Implementation of the QTextEdit class
 **
@@ -365,7 +365,7 @@ static bool block_set_alignment = FALSE;
 
   This signal is emitted whenever the selection changes.
 
-  \sa copyAvailable()
+  \sa setSelection() copyAvailable()
 */
 
 /*!  \fn QTextDocument *QTextEdit::document() const
@@ -1150,8 +1150,9 @@ void QTextEdit::readFormats( QTextCursor &c1, QTextCursor &c2, int oldLen, QText
 /*!
   Deletes the selected text (i.e. the default selection's text). If
   there is no selected text (in selection 0) nothing happens.
-*/
 
+  \sa selectedText
+*/
 
 void QTextEdit::removeSelectedText()
 {
@@ -2617,7 +2618,7 @@ void QTextEdit::getCursorPosition( int *parag, int *index ) const
   Uses the selection settings of selection \a selNum. If \a selNum is 0,
   this is the default selection.
 
-  \sa getSelection() QTextEdit::selectedText()
+  \sa getSelection() selectedText
 */
 
 void QTextEdit::setSelection( int paraFrom, int indexFrom,
@@ -2667,8 +2668,7 @@ void QTextEdit::setSelection( int paraFrom, int indexFrom,
     The \a selNum is the number of the selection (multiple selections
     are supported). It defaults to 0 (the default selection).
 
-    \sa selectedText()
-
+    \sa setSelection() selectedText
 */
 
 void QTextEdit::getSelection( int *paraFrom, int *indexFrom,
@@ -2912,8 +2912,10 @@ void QTextEdit::startDrag()
 /*!
     If \a select is TRUE (the default), all the text is selected as
     selection 0.
-    If \a select is FALSE any selected text is de-selected i.e. the
+    If \a select is FALSE any selected text is unselected, i.e., the
     default selection (selection 0) is cleared.
+
+  \sa selectedText
 */
 
 void QTextEdit::selectAll( bool select )
