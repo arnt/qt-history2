@@ -975,17 +975,12 @@ bool QClipboard::event( QEvent *e )
 		  qt_xdnd_atom_to_str(req->target));
 
 	    QClipboardData *d;
-	    Mode m;
-
 	    if ( req->selection == XA_PRIMARY ) {
-		m = Selection;
 		d = selectionData();
 	    } else if ( req->selection == ATOM(Clipboard) ) {
-		m = Clipboard;
 		d = clipboardData();
 	    } else {
 		qWarning("QClipboard: unknown selection '%lx'", req->selection);
-
 		XSendEvent(dpy, req->requestor, False, NoEventMask, &event);
 		break;
 	    }
