@@ -1222,13 +1222,13 @@ bool WidgetFactory::hasSpecialEditor( int id )
 {
     QString className = WidgetDatabase::className( id );
 
-    if ( className.mid( 1 ) == "ListBox" )
+    if ( className.contains( "ListBox" ) )
 	return TRUE;
-    if ( className.mid( 1 ) == "ComboBox" )
+    if ( className.contains( "ComboBox" ) )
 	return TRUE;
-    if ( className.mid( 1 ) == "ListView" )
+    if ( className.contains( "ListView" ) )
 	return TRUE;
-    if ( className.mid( 1 ) == "IconView" )
+    if ( className.contains( "IconView" ) )
 	return TRUE;
     if ( className == "QTextEdit" || className == "QMultiLineEdit" )
 	return TRUE;
@@ -1242,8 +1242,8 @@ bool WidgetFactory::hasItems( int id )
 {
     QString className = WidgetDatabase::className( id );
 
-    if ( className.mid( 1 ) == "ListBox" || className.mid( 1 ) == "ListView" ||
-	 className.mid( 1 ) == "IconView" || className.mid( 1 ) == "ComboBox" ||
+    if ( className.contains( "ListBox" ) || className.contains( "ListView" ) ||
+	 className.contains( "IconView" )  || className.contains( "ComboBox" ) ||
 	 className.contains( "Table" ) )
 	return TRUE;
 
@@ -1254,7 +1254,7 @@ void WidgetFactory::editWidget( int id, QWidget *parent, QWidget *editWidget, Fo
 {
     QString className = WidgetDatabase::className( id );
 
-    if ( className.mid( 1 ) == "ListBox" ) {
+    if ( className.contains( "ListBox" ) ) {
 	if ( !editWidget->inherits( "QListBox" ) )
 	    return;
 	ListBoxEditor *e = new ListBoxEditor( parent, editWidget, fw );
@@ -1263,7 +1263,7 @@ void WidgetFactory::editWidget( int id, QWidget *parent, QWidget *editWidget, Fo
 	return;
     }
 
-    if ( className.mid( 1 ) == "ComboBox" ) {
+    if ( className.contains( "ComboBox" ) ) {
 	if ( !editWidget->inherits( "QComboBox" ) )
 	    return;
 	QComboBox *cb = (QComboBox*)editWidget;
@@ -1274,7 +1274,7 @@ void WidgetFactory::editWidget( int id, QWidget *parent, QWidget *editWidget, Fo
 	return;
     }
 
-    if ( className.mid( 1 ) == "ListView" ) {
+    if ( className.contains( "ListView" ) ) {
 	if ( !editWidget->inherits( "QListView" ) )
 	    return;
 	QListView *lv = (QListView*)editWidget;
@@ -1284,7 +1284,7 @@ void WidgetFactory::editWidget( int id, QWidget *parent, QWidget *editWidget, Fo
 	return;
     }
 
-    if ( className.mid( 1 ) == "IconView" ) {
+    if ( className.contains( "IconView" ) ) {
 	if ( !editWidget->inherits( "QIconView" ) )
 	    return;
 	IconViewEditor *e = new IconViewEditor( parent, editWidget, fw );
