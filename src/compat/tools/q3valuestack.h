@@ -11,13 +11,27 @@
 **
 ****************************************************************************/
 
-#ifndef QVALUELIST_H
-#define QVALUELIST_H
+#ifndef Q3VALUESTACK_H
+#define Q3VALUESTACK_H
 
 #include "q3valuelist.h"
 
-#define QValueList Q3ValueList
-#define QValueListIterator Q3ValueListIterator
-#define QValueListConstIterator Q3ValueListConstIterator
+template<class T>
+class QT_COMPAT Q3ValueStack : public Q3ValueList<T>
+{
+public:
+    Q3ValueStack() {}
+   ~Q3ValueStack() {}
+    void  push(const T& val) { this->append(val); }
+    T pop()
+    {
+        T elem(this->last());
+        if (!this->isEmpty())
+            this->remove(this->fromLast());
+        return elem;
+    }
+    T& top() { return this->last(); }
+    const T& top() const { return this->last(); }
+};
 
-#endif // QVALUELIST_H
+#endif

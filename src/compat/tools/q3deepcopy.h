@@ -11,11 +11,41 @@
 **
 ****************************************************************************/
 
-#ifndef QDEEPCOPY_H
-#define QDEEPCOPY_H
+#ifndef Q3DEEPCOPY_H
+#define Q3DEEPCOPY_H
 
-#include "q3deepcopy.h"
+#include "qglobal.h"
 
-#define QDeepCopy Q3DeepCopy
+template <class T>
+class Q3DeepCopy
+{
+public:
+    inline Q3DeepCopy()
+    {
+    }
+
+    inline Q3DeepCopy(const T &t)
+	: deepcopy(t)
+    {
+	deepcopy.detach();
+    }
+
+    inline Q3DeepCopy<T> &operator=(const T &t)
+    {
+	deepcopy = t;
+	deepcopy.detach();
+	return *this;
+    }
+
+    inline operator T ()
+    {
+	T tmp = deepcopy;
+	tmp.detach();
+	return tmp;
+    }
+
+private:
+    T deepcopy;
+};
 
 #endif // QDEEPCOPY_H

@@ -15,76 +15,9 @@
 #define QINTCACHE_H
 
 #include "qgcache.h"
+#include "q3intcache.h"
 
-
-template<class type>
-class QIntCache : public QGCache
-{
-public:
-    QIntCache(const QIntCache<type> &c) : QGCache(c) {}
-    QIntCache(int maxCost=100, int size=17)
-        : QGCache(maxCost, size, IntKey, false, false) {}
-   ~QIntCache()                { clear(); }
-    QIntCache<type> &operator=(const QIntCache<type> &c)
-                        { return static_cast<QIntCache<type>&>(QGCache::operator=(c)); }
-    int          maxCost()   const        { return QGCache::maxCost(); }
-    int          totalCost() const        { return QGCache::totalCost(); }
-    void  setMaxCost(int m)        { QGCache::setMaxCost(m); }
-    uint  count()     const        { return QGCache::count(); }
-    uint  size()      const        { return QGCache::size(); }
-    bool  isEmpty()   const        { return QGCache::count() == 0; }
-    bool  insert(long k, const type *d, int c=1, int p=0)
-                { return QGCache::insert_other(reinterpret_cast<const char*>(k),Item(d),c,p); }
-    bool  remove(long k)
-                { return QGCache::remove_other(reinterpret_cast<const char*>(k)); }
-    type *take(long k)
-                { return static_cast<type *>(QGCache::take_other(reinterpret_cast<const char*>(k)));}
-    void  clear()                { QGCache::clear(); }
-    type *find(long k, bool ref=true) const
-                { return static_cast<type *>(QGCache::find_other(reinterpret_cast<const char*>(k),ref));}
-    type *operator[](long k) const
-                { return static_cast<type *>(QGCache::find_other(reinterpret_cast<const char*>(k))); }
-    void  statistics() const { QGCache::statistics(); }
-private:
-        void  deleteItem(Item d);
-};
-
-#if !defined(Q_BROKEN_TEMPLATE_SPECIALIZATION)
-template<> inline void QIntCache<void>::deleteItem(QPtrCollection::Item)
-{
-}
-#endif
-
-template<class type> inline void QIntCache<type>::deleteItem(QPtrCollection::Item d)
-{
-    if (del_item) delete static_cast<type *>(d);
-}
-
-template<class type>
-class QIntCacheIterator : public QGCacheIterator
-{
-public:
-    QIntCacheIterator(const QIntCache<type> &c)
-        : QGCacheIterator(c) {}
-    QIntCacheIterator(const QIntCacheIterator<type> &ci)
-                              : QGCacheIterator(ci) {}
-    QIntCacheIterator<type> &operator=(const QIntCacheIterator<type>&ci)
-        { return static_cast<QIntCacheIterator<type> &>(QGCacheIterator::operator=(ci));}
-    uint  count()   const     { return QGCacheIterator::count(); }
-    bool  isEmpty() const     { return QGCacheIterator::count() == 0; }
-    bool  atFirst() const     { return QGCacheIterator::atFirst(); }
-    bool  atLast()  const     { return QGCacheIterator::atLast(); }
-    type *toFirst()              { return static_cast<type *>(QGCacheIterator::toFirst()); }
-    type *toLast()              { return static_cast<type *>(QGCacheIterator::toLast()); }
-    operator type *()  const  { return static_cast<type *>(QGCacheIterator::get()); }
-    type *current()    const  { return static_cast<type *>(QGCacheIterator::get()); }
-    long  currentKey() const  { return reinterpret_cast<long>(QGCacheIterator::getKeyInt());}
-    type *operator()()              { return static_cast<type *>(QGCacheIterator::operator()());}
-    type *operator++()              { return static_cast<type *>(QGCacheIterator::operator++()); }
-    type *operator+=(uint j)  { return static_cast<type *>(QGCacheIterator::operator+=(j));}
-    type *operator--()              { return static_cast<type *>(QGCacheIterator::operator--()); }
-    type *operator-=(uint j)  { return static_cast<type *>(QGCacheIterator::operator-=(j));}
-};
-
+#define QIntCache Q3IntCache
+#define QIntCacheIterator Q3IntCacheIterator
 
 #endif // QINTCACHE_H

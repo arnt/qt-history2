@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qcstring.h"
+#include "q3cstring.h"
 #include "qregexp.h"
 #include "qdatastream.h"
 
@@ -23,36 +23,36 @@
 
 
 /*****************************************************************************
-  QCString member functions
+  Q3CString member functions
  *****************************************************************************/
 
 /*!
-    \class QCString qcstring.h
+    \class Q3CString qcstring.h
     \reentrant
-    \brief The QCString class provides an abstraction of the classic C
+    \brief The Q3CString class provides an abstraction of the classic C
     zero-terminated char array (char *).
 
     \compat
 
-    QCString tries to behave like a more convenient \c{const char *}.
+    Q3CString tries to behave like a more convenient \c{const char *}.
     The price of doing this is that some algorithms will perform
     badly. For example, append() is O(length()) since it scans for a
-    null terminator. Although you might use QCString for text that is
+    null terminator. Although you might use Q3CString for text that is
     never exposed to the user, for most purposes, and especially for
     user-visible text, you should use QString. QString provides
     implicit sharing, Unicode and other internationalization support,
     and is well optimized.
 
-    Note that for the QCString methods that take a \c{const char *}
+    Note that for the Q3CString methods that take a \c{const char *}
     parameter the \c{const char *} must either be 0 (null) or not-null
     and '\0' (NUL byte) terminated; otherwise the results are
     undefined.
 
-    A QCString that has not been assigned to anything is \e null, i.e.
-    both the length and the data pointer is 0. A QCString that
+    A Q3CString that has not been assigned to anything is \e null, i.e.
+    both the length and the data pointer is 0. A Q3CString that
     references the empty string ("", a single '\0' char) is \e empty.
-    Both null and empty QCStrings are legal parameters to the methods.
-    Assigning \c{const char *} 0 to QCString produces a null QCString.
+    Both null and empty Q3CStrings are legal parameters to the methods.
+    Assigning \c{const char *} 0 to Q3CString produces a null Q3CString.
 
     The length() function returns the length of the string; resize()
     resizes the string and truncate() truncates the string. A string
@@ -76,14 +76,14 @@
     toShort(), toInt(), toLong(), toULong(), toFloat() and toDouble().
     Numbers can be converted to strings with setNum().
 
-    Many operators are overloaded to work with QCStrings. QCString
+    Many operators are overloaded to work with Q3CStrings. Q3CString
     also supports some more obscure functions, e.g. sprintf(),
     setStr() and setExpand().
 
     \target asciinotion
     \sidebar Note on Character Comparisons
 
-    In QCString the notion of uppercase and lowercase and of which
+    In Q3CString the notion of uppercase and lowercase and of which
     character is greater than or less than another character is locale
     dependent. This affects functions which support a case insensitive
     option or which compare or lowercase or uppercase their arguments.
@@ -98,118 +98,118 @@
     characters using Unicode.
     \endsidebar
 
-    Performance note: The QCString methods for QRegExp searching are
-    implemented by converting the QCString to a QString and performing
-    the search on that. This implies a deep copy of the QCString data.
+    Performance note: The Q3CString methods for QRegExp searching are
+    implemented by converting the Q3CString to a QString and performing
+    the search on that. This implies a deep copy of the Q3CString data.
     If you are going to perform many QRegExp searches on a large
-    QCString, you will get better performance by converting the
-    QCString to a QString yourself, and then searching in the QString.
+    Q3CString, you will get better performance by converting the
+    Q3CString to a QString yourself, and then searching in the QString.
 */
 
 /*!
-    \fn QCString QCString::left(uint len)  const
+    \fn Q3CString Q3CString::left(uint len)  const
 
     \internal
 */
 
 /*!
-    \fn QCString QCString::right(uint len) const
+    \fn Q3CString Q3CString::right(uint len) const
 
     \internal
 */
 
 /*!
-    \fn QCString QCString::mid(uint index, uint len) const
+    \fn Q3CString Q3CString::mid(uint index, uint len) const
 
     \internal
 */
 
 /*!
-    \fn QCString  QCString::lower() const
+    \fn Q3CString  Q3CString::lower() const
 
     Use QByteArray::toLower() instead.
 */
 
 /*!
-    \fn QCString  QCString::upper() const
+    \fn Q3CString  Q3CString::upper() const
 
     Use QByteArray::toUpper() instead.
 */
 
 /*!
-    \fn QCString  QCString::stripWhiteSpace() const
+    \fn Q3CString  Q3CString::stripWhiteSpace() const
 
     Use QByteArray::trimmed() instead.
 */
 
 /*!
-    \fn QCString  QCString::simplifyWhiteSpace() const
+    \fn Q3CString  Q3CString::simplifyWhiteSpace() const
 
     Use QByteArray::simplified() instead.
 */
 
 /*!
-    \fn QCString& QCString::insert(uint index, const char *c)
+    \fn Q3CString& Q3CString::insert(uint index, const char *c)
 
     \internal
 */
 
 /*!
-    \fn QCString& QCString::insert(uint index, char c)
+    \fn Q3CString& Q3CString::insert(uint index, char c)
 
     \internal
 */
 
 /*!
-    \fn QCString& QCString::prepend(const char *c)
+    \fn Q3CString& Q3CString::prepend(const char *c)
 
     \internal
 */
 
 /*!
-    \fn QCString& QCString::remove(uint index, uint len)
+    \fn Q3CString& Q3CString::remove(uint index, uint len)
 
     \internal
 */
 
 /*!
-    \fn QCString& QCString::replace(uint index, uint len, const char *c)
+    \fn Q3CString& Q3CString::replace(uint index, uint len, const char *c)
 
     \internal
 */
 
 /*!
-    \fn QCString& QCString::replace(char c, const QCString &after)
+    \fn Q3CString& Q3CString::replace(char c, const Q3CString &after)
 
     \internal
 */
 
 /*!
-    \fn QCString& QCString::replace(char c, const char *after)
+    \fn Q3CString& Q3CString::replace(char c, const char *after)
 
     \internal
 */
 
 /*!
-    \fn QCString& QCString::replace(const QCString &b, const QCString &a)
+    \fn Q3CString& Q3CString::replace(const Q3CString &b, const Q3CString &a)
 
     \internal
 */
 
 /*!
-    \fn QCString& QCString::replace(const char *b, const char *a)
+    \fn Q3CString& Q3CString::replace(const char *b, const char *a)
 
     \internal
 */
 
 /*!
-    \fn QCString& QCString::replace(char b, char a)
+    \fn Q3CString& Q3CString::replace(char b, char a)
 
     \internal
 */
 
 /*!
-    \fn QCString::QCString()
+    \fn Q3CString::Q3CString()
 
     Constructs a null string.
 
@@ -217,20 +217,20 @@
 */
 
 /*!
-    \fn QCString::QCString(const QByteArray &ba)
+    \fn Q3CString::Q3CString(const QByteArray &ba)
 
     Constructs a copy of \a ba.
 */
 
 /*!
-    \fn QCString::QCString(const QCString &s)
+    \fn Q3CString::Q3CString(const Q3CString &s)
 
     Constructs a shallow copy \a s.
 
     \sa assign()
 */
 
-/*! \fn QCString::QCString(int size)
+/*! \fn Q3CString::Q3CString(int size)
     Constructs a string with room for \a size characters, including
     the '\0'-terminator. Makes a null string if \a size == 0.
 
@@ -240,7 +240,7 @@
     \sa resize(), isNull()
 */
 
-/*! \fn QCString::QCString(const char *str)
+/*! \fn Q3CString::Q3CString(const char *str)
     Constructs a string that is a deep copy of \a str.
 
     If \a str is 0 a null string is created.
@@ -249,38 +249,38 @@
 */
 
 
-/*! \fn QCString::QCString(const char *str, uint maxsize)
+/*! \fn Q3CString::Q3CString(const char *str, uint maxsize)
 
     Constructs a string that is a deep copy of \a str. The copy will
     be at most \a maxsize bytes long including the '\0'-terminator.
 
     Example:
     \code
-    QCString str("helloworld", 6); // assigns "hello" to str
+    Q3CString str("helloworld", 6); // assigns "hello" to str
     \endcode
 
     If \a str contains a 0 byte within the first \a maxsize bytes, the
-    resulting QCString will be terminated by this 0. If \a str is 0 a
+    resulting Q3CString will be terminated by this 0. If \a str is 0 a
     null string is created.
 
     \sa isNull()
 */
 
 /*!
-    \fn QCString &QCString::operator=(const QByteArray &ba)
+    \fn Q3CString &Q3CString::operator=(const QByteArray &ba)
 
-    Assigns byte array \a ba to this QCString.
+    Assigns byte array \a ba to this Q3CString.
 */
 
 /*!
-    \fn QCString &QCString::operator=(const QCString &s)
+    \fn Q3CString &Q3CString::operator=(const Q3CString &s)
 
     Assigns a shallow copy of \a s to this string and returns a
     reference to this string.
 */
 
 /*!
-    \fn QCString &QCString::operator=(const char *str)
+    \fn Q3CString &Q3CString::operator=(const char *str)
     \overload
 
     Assigns a deep copy of \a str to this string and returns a
@@ -292,15 +292,15 @@
 */
 
 /*
-    \fn bool QCString::isNull() const
+    \fn bool Q3CString::isNull() const
 
     Returns true if the string is null, i.e. if data() == 0; otherwise
     returns false. A null string is also an empty string.
 
     Example:
     \code
-    QCString a;                // a.data() == 0,  a.size() == 0, a.length() == 0
-    QCString b == "";        // b.data() == "", b.size() == 1, b.length() == 0
+    Q3CString a;                // a.data() == 0,  a.size() == 0, a.length() == 0
+    Q3CString b == "";        // b.data() == "", b.size() == 1, b.length() == 0
     a.isNull();                // true  because a.data() == 0
     a.isEmpty();        // true  because a.length() == 0
     b.isNull();                // false because b.data() == ""
@@ -311,7 +311,7 @@
 */
 
 /*
-    \fn bool QCString::isEmpty() const
+    \fn bool Q3CString::isEmpty() const
 
     Returns true if the string is empty, i.e. if length() == 0;
     otherwise returns false. An empty string is not always a null
@@ -323,7 +323,7 @@
 */
 
 /*
-    \fn uint QCString::length() const
+    \fn uint Q3CString::length() const
 
     Returns the length of the string, excluding the '\0'-terminator.
     Equivalent to calling \c strlen(data()).
@@ -334,7 +334,7 @@
 */
 
 /*
-    \fn bool QCString::truncate(uint pos)
+    \fn bool Q3CString::truncate(uint pos)
 
     Truncates the string at position \a pos.
 
@@ -342,7 +342,7 @@
 
     Example:
     \code
-    QCString s = "truncate this string";
+    Q3CString s = "truncate this string";
     s.truncate(5);                      // s == "trunc"
     \endcode
 
@@ -362,10 +362,10 @@
 
     Example:
     \code
-    QCString s;
+    Q3CString s;
     s.sprintf("%d - %s", 1, "first");                // result < 256 chars
 
-    QCString big(25000);                        // very long string
+    Q3CString big(25000);                        // very long string
     big.sprintf("%d - %s", 2, longString);        // result < 25000 chars
     \endcode
 
@@ -379,7 +379,7 @@
     later someone will paste a huge line into your application.
 */
 
-QCString &QCString::sprintf(const char *format, ...)
+Q3CString &Q3CString::sprintf(const char *format, ...)
 {
     detach();
     va_list ap;
@@ -395,7 +395,7 @@ QCString &QCString::sprintf(const char *format, ...)
 
 
 /*!
-    \fn QCString QCString::copy() const
+    \fn Q3CString Q3CString::copy() const
 
     Returns a deep copy of this string.
 
@@ -414,16 +414,16 @@ QCString &QCString::sprintf(const char *format, ...)
 
     Example:
     \code
-    QCString s("apple");
-    QCString t = s.leftJustify(8, '.');  // t == "apple..."
+    Q3CString s("apple");
+    Q3CString t = s.leftJustify(8, '.');  // t == "apple..."
     \endcode
 
     \sa rightJustify()
 */
 
-QCString QCString::leftJustify(uint width, char fill, bool truncate) const
+Q3CString Q3CString::leftJustify(uint width, char fill, bool truncate) const
 {
-    QCString result;
+    Q3CString result;
     int len = qstrlen(constData());
     int padlen = width - len;
     if (padlen > 0) {
@@ -451,16 +451,16 @@ QCString QCString::leftJustify(uint width, char fill, bool truncate) const
 
     Example:
     \code
-    QCString s("pie");
-    QCString t = s.rightJustify(8, '.');  // t == ".....pie"
+    Q3CString s("pie");
+    Q3CString t = s.rightJustify(8, '.');  // t == ".....pie"
     \endcode
 
     \sa leftJustify()
 */
 
-QCString QCString::rightJustify(uint width, char fill, bool truncate) const
+Q3CString Q3CString::rightJustify(uint width, char fill, bool truncate) const
 {
-    QCString result;
+    Q3CString result;
     int len = qstrlen(constData());
     int padlen = width - len;
     if (padlen > 0) {
@@ -484,7 +484,7 @@ QCString QCString::rightJustify(uint width, char fill, bool truncate) const
     true.
 */
 
-long QCString::toLong(bool *ok) const
+long Q3CString::toLong(bool *ok) const
 {
     const char *p = constData();
     long val=0;
@@ -528,7 +528,7 @@ bye:
     true.
 */
 
-ulong QCString::toULong(bool *ok) const
+ulong Q3CString::toULong(bool *ok) const
 {
     const char *p = constData();
     ulong val=0;
@@ -565,7 +565,7 @@ bye:
     *\a ok is set to true.
 */
 
-short QCString::toShort(bool *ok) const
+short Q3CString::toShort(bool *ok) const
 {
     long v = toLong(ok);
     if (ok && *ok && (v < -32768 || v > 32767))
@@ -581,7 +581,7 @@ short QCString::toShort(bool *ok) const
     *\a ok is set to true.
 */
 
-ushort QCString::toUShort(bool *ok) const
+ushort Q3CString::toUShort(bool *ok) const
 {
     ulong v = toULong(ok);
     if (ok && *ok && (v > 65535))
@@ -598,7 +598,7 @@ ushort QCString::toUShort(bool *ok) const
     true.
 */
 
-int QCString::toInt(bool *ok) const
+int Q3CString::toInt(bool *ok) const
 {
     return (int)toLong(ok);
 }
@@ -611,7 +611,7 @@ int QCString::toInt(bool *ok) const
     true.
 */
 
-uint QCString::toUInt(bool *ok) const
+uint Q3CString::toUInt(bool *ok) const
 {
     return (uint)toULong(ok);
 }
@@ -624,7 +624,7 @@ uint QCString::toUInt(bool *ok) const
     true.
 */
 
-double QCString::toDouble(bool *ok) const
+double Q3CString::toDouble(bool *ok) const
 {
     char *end;
     double val = strtod(constData() ? constData() : "", &end);
@@ -641,13 +641,13 @@ double QCString::toDouble(bool *ok) const
     true.
 */
 
-float QCString::toFloat(bool *ok) const
+float Q3CString::toFloat(bool *ok) const
 {
     return (float)toDouble(ok);
 }
 
 
-/*! \fn QCString &QCString::setStr(const char *str)
+/*! \fn Q3CString &Q3CString::setStr(const char *str)
     Makes a deep copy of \a str. Returns a reference to the string.
 */
 
@@ -658,7 +658,7 @@ float QCString::toFloat(bool *ok) const
     and returns a reference to the string.
 */
 
-QCString &QCString::setNum(long n)
+Q3CString &Q3CString::setNum(long n)
 {
     data();
     char buf[20];
@@ -688,7 +688,7 @@ QCString &QCString::setNum(long n)
     and returns a reference to the string.
 */
 
-QCString &QCString::setNum(ulong n)
+Q3CString &Q3CString::setNum(ulong n)
 {
     data();
     char buf[20];
@@ -703,7 +703,7 @@ QCString &QCString::setNum(ulong n)
 }
 
 /*!
-    \fn QCString &QCString::setNum(int n)
+    \fn Q3CString &Q3CString::setNum(int n)
     \overload
 
     Sets the string to the string representation of the number \a n
@@ -711,7 +711,7 @@ QCString &QCString::setNum(ulong n)
 */
 
 /*!
-    \fn QCString &QCString::setNum(uint n)
+    \fn Q3CString &Q3CString::setNum(uint n)
     \overload
 
     Sets the string to the string representation of the number \a n
@@ -719,7 +719,7 @@ QCString &QCString::setNum(ulong n)
 */
 
 /*!
-    \fn QCString &QCString::setNum(short n)
+    \fn Q3CString &Q3CString::setNum(short n)
     \overload
 
     Sets the string to the string representation of the number \a n
@@ -727,7 +727,7 @@ QCString &QCString::setNum(ulong n)
 */
 
 /*!
-    \fn QCString &QCString::setNum(ushort n)
+    \fn Q3CString &Q3CString::setNum(ushort n)
     \overload
 
     Sets the string to the string representation of the number \a n
@@ -747,11 +747,11 @@ QCString &QCString::setNum(ulong n)
     QString::arg().
 */
 
-QCString &QCString::setNum(double n, char f, int prec)
+Q3CString &Q3CString::setNum(double n, char f, int prec)
 {
 #ifndef QT_NO_DEBUG
     if (!(f=='f' || f=='F' || f=='e' || f=='E' || f=='g' || f=='G'))
-        qWarning("QCString::setNum: Invalid format char '%c'", f);
+        qWarning("Q3CString::setNum: Invalid format char '%c'", f);
 #endif
     char format[20];
     register char *fs = format;                        // generate format string
@@ -771,7 +771,7 @@ QCString &QCString::setNum(double n, char f, int prec)
     return sprintf(format, n);
 }
 
-/*! \fn QCString &QCString::setNum(float n, char f, int prec)
+/*! \fn Q3CString &Q3CString::setNum(float n, char f, int prec)
     \overload
 */
 
@@ -783,7 +783,7 @@ QCString &QCString::setNum(double n, char f, int prec)
     not be expanded; otherwise returns true.
 */
 
-bool QCString::setExpand(uint index, char c)
+bool Q3CString::setExpand(uint index, char c)
 {
     uint oldlen = length();
     if (index >= oldlen) {
@@ -797,14 +797,14 @@ bool QCString::setExpand(uint index, char c)
 
 
 /*
-    \fn QCString::operator const char *() const
+    \fn Q3CString::operator const char *() const
 
     Returns the string data.
 */
 
 
 /*!
-    \fn QCString& QCString::append(const char *str)
+    \fn Q3CString& Q3CString::append(const char *str)
 
     Appends string \a str to the string and returns a reference to the
     string. Equivalent to operator+=().
@@ -812,8 +812,8 @@ bool QCString::setExpand(uint index, char c)
 
 
 
-/*! \fn QDataStream &operator<<(QDataStream &s, const QCString &str)
-    \relates QCString
+/*! \fn QDataStream &operator<<(QDataStream &s, const Q3CString &str)
+    \relates Q3CString
 
     Writes string \a str to the stream \a s.
 
@@ -821,8 +821,8 @@ bool QCString::setExpand(uint index, char c)
 */
 
 /*!
-  \fn QDataStream &operator>>(QDataStream &s, QCString &str)
-    \relates QCString
+  \fn QDataStream &operator>>(QDataStream &s, Q3CString &str)
+    \relates Q3CString
 
     Reads a string into \a str from the stream \a s.
 
@@ -834,20 +834,9 @@ bool QCString::setExpand(uint index, char c)
  *****************************************************************************/
 
 /*!
-    \fn bool operator==(const QCString &s1, const QCString &s2)
+    \fn bool operator==(const Q3CString &s1, const Q3CString &s2)
 
-    \relates QCString
-
-    Returns true if \a s1 and \a s2 are equal; otherwise returns false.
-
-    Equivalent to qstrcmp(\a s1, \a s2) == 0.
-*/
-
-/*!
-    \fn bool operator==(const QCString &s1, const char *s2)
-    \overload
-
-    \relates QCString
+    \relates Q3CString
 
     Returns true if \a s1 and \a s2 are equal; otherwise returns false.
 
@@ -855,10 +844,10 @@ bool QCString::setExpand(uint index, char c)
 */
 
 /*!
-    \fn bool operator==(const char *s1, const QCString &s2)
+    \fn bool operator==(const Q3CString &s1, const char *s2)
     \overload
 
-    \relates QCString
+    \relates Q3CString
 
     Returns true if \a s1 and \a s2 are equal; otherwise returns false.
 
@@ -866,20 +855,20 @@ bool QCString::setExpand(uint index, char c)
 */
 
 /*!
-    \fn bool operator!=(const QCString &s1, const QCString &s2)
-
-    \relates QCString
-
-    Returns true if \a s1 and \a s2 are different; otherwise returns false.
-
-    Equivalent to qstrcmp(\a s1, \a s2) != 0.
-*/
-
-/*!
-    \fn bool operator!=(const QCString &s1, const char *s2)
+    \fn bool operator==(const char *s1, const Q3CString &s2)
     \overload
 
-    \relates QCString
+    \relates Q3CString
+
+    Returns true if \a s1 and \a s2 are equal; otherwise returns false.
+
+    Equivalent to qstrcmp(\a s1, \a s2) == 0.
+*/
+
+/*!
+    \fn bool operator!=(const Q3CString &s1, const Q3CString &s2)
+
+    \relates Q3CString
 
     Returns true if \a s1 and \a s2 are different; otherwise returns false.
 
@@ -887,10 +876,10 @@ bool QCString::setExpand(uint index, char c)
 */
 
 /*!
-    \fn bool operator!=(const char *s1, const QCString &s2)
+    \fn bool operator!=(const Q3CString &s1, const char *s2)
     \overload
 
-    \relates QCString
+    \relates Q3CString
 
     Returns true if \a s1 and \a s2 are different; otherwise returns false.
 
@@ -898,9 +887,20 @@ bool QCString::setExpand(uint index, char c)
 */
 
 /*!
-    \fn bool operator<(const QCString &s1, const char *s2)
+    \fn bool operator!=(const char *s1, const Q3CString &s2)
+    \overload
 
-    \relates QCString
+    \relates Q3CString
+
+    Returns true if \a s1 and \a s2 are different; otherwise returns false.
+
+    Equivalent to qstrcmp(\a s1, \a s2) != 0.
+*/
+
+/*!
+    \fn bool operator<(const Q3CString &s1, const char *s2)
+
+    \relates Q3CString
 
     Returns true if \a s1 is less than \a s2; otherwise returns false.
 
@@ -910,10 +910,10 @@ bool QCString::setExpand(uint index, char c)
 */
 
 /*!
-    \fn bool operator<(const char *s1, const QCString &s2)
+    \fn bool operator<(const char *s1, const Q3CString &s2)
     \overload
 
-    \relates QCString
+    \relates Q3CString
 
     Returns true if \a s1 is less than \a s2; otherwise returns false.
 
@@ -923,9 +923,9 @@ bool QCString::setExpand(uint index, char c)
 */
 
 /*!
-    \fn bool operator<=(const QCString &s1, const char *s2)
+    \fn bool operator<=(const Q3CString &s1, const char *s2)
 
-    \relates QCString
+    \relates Q3CString
 
     Returns true if \a s1 is less than or equal to \a s2; otherwise
     returns false.
@@ -936,10 +936,10 @@ bool QCString::setExpand(uint index, char c)
 */
 
 /*!
-    \fn bool operator<=(const char *s1, const QCString &s2)
+    \fn bool operator<=(const char *s1, const Q3CString &s2)
     \overload
 
-    \relates QCString
+    \relates Q3CString
 
     Returns true if \a s1 is less than or equal to \a s2; otherwise
     returns false.
@@ -950,9 +950,9 @@ bool QCString::setExpand(uint index, char c)
 */
 
 /*!
-    \fn bool operator>(const QCString &s1, const char *s2)
+    \fn bool operator>(const Q3CString &s1, const char *s2)
 
-    \relates QCString
+    \relates Q3CString
 
     Returns true if \a s1 is greater than \a s2; otherwise returns false.
 
@@ -962,10 +962,10 @@ bool QCString::setExpand(uint index, char c)
 */
 
 /*!
-    \fn bool operator>(const char *s1, const QCString &s2)
+    \fn bool operator>(const char *s1, const Q3CString &s2)
     \overload
 
-    \relates QCString
+    \relates Q3CString
 
     Returns true if \a s1 is greater than \a s2; otherwise returns false.
 
@@ -975,9 +975,9 @@ bool QCString::setExpand(uint index, char c)
 */
 
 /*!
-    \fn bool operator>=(const QCString &s1, const char *s2)
+    \fn bool operator>=(const Q3CString &s1, const char *s2)
 
-    \relates QCString
+    \relates Q3CString
 
     Returns true if \a s1 is greater than or equal to \a s2; otherwise
     returns false.
@@ -988,10 +988,10 @@ bool QCString::setExpand(uint index, char c)
 */
 
 /*!
-    \fn bool operator>=(const char *s1, const QCString &s2)
+    \fn bool operator>=(const char *s1, const Q3CString &s2)
     \overload
 
-    \relates QCString
+    \relates Q3CString
 
     Returns true if \a s1 is greater than or equal to \a s2; otherwise
     returns false.
@@ -1002,46 +1002,46 @@ bool QCString::setExpand(uint index, char c)
 */
 
 /*!
-    \fn const QCString operator+(const QCString &s1, const QCString &s2)
+    \fn const Q3CString operator+(const Q3CString &s1, const Q3CString &s2)
 
-    \relates QCString
+    \relates Q3CString
 
     Returns a string which consists of the concatenation of \a s1 and
     \a s2.
 */
 
 /*!
-    \fn const QCString operator+(const QCString &s1, const char *s2)
+    \fn const Q3CString operator+(const Q3CString &s1, const char *s2)
     \overload
 
-    \relates QCString
+    \relates Q3CString
 
     Returns a string which consists of the concatenation of \a s1 and \a s2.
 */
 
 /*!
-    \fn const QCString operator+(const char *s1, const QCString &s2)
+    \fn const Q3CString operator+(const char *s1, const Q3CString &s2)
     \overload
 
-    \relates QCString
+    \relates Q3CString
 
     Returns a string which consists of the concatenation of \a s1 and \a s2.
 */
 
 /*!
-    \fn const QCString operator+(const QCString &s, char c)
+    \fn const Q3CString operator+(const Q3CString &s, char c)
     \overload
 
-    \relates QCString
+    \relates Q3CString
 
     Returns a string which consists of the concatenation of \a s and \a c.
 */
 
 /*!
-    \fn const QCString operator+(char c, const QCString &s)
+    \fn const Q3CString operator+(char c, const Q3CString &s)
     \overload
 
-    \relates QCString
+    \relates Q3CString
 
     Returns a string which consists of the concatenation of \a c and \a s.
 */

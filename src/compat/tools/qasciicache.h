@@ -15,77 +15,9 @@
 #define QASCIICACHE_H
 
 #include "qgcache.h"
+#include "q3asciicache.h"
 
-
-template<class type>
-class QAsciiCache : public QGCache
-{
-public:
-    QAsciiCache(const QAsciiCache<type> &c) : QGCache(c) {}
-    QAsciiCache(int maxCost=100, int size=17, bool caseSensitive=true,
-                 bool copyKeys=true)
-        : QGCache(maxCost, size, AsciiKey, caseSensitive, copyKeys) {}
-   ~QAsciiCache()                        { clear(); }
-    QAsciiCache<type> &operator=(const QAsciiCache<type> &c)
-                        { return static_cast<QAsciiCache<type> &>(QGCache::operator=(c)); }
-    int          maxCost()   const                { return QGCache::maxCost(); }
-    int          totalCost() const                { return QGCache::totalCost(); }
-    void  setMaxCost(int m)                { QGCache::setMaxCost(m); }
-    uint  count()     const                { return QGCache::count(); }
-    uint  size()      const                { return QGCache::size(); }
-    bool  isEmpty()   const                { return QGCache::count() == 0; }
-    void  clear()                        { QGCache::clear(); }
-    bool  insert(const char *k, const type *d, int c=1, int p=0)
-                        { return QGCache::insert_other(k,Item(d),c,p);}
-    bool  remove(const char *k)
-                        { return QGCache::remove_other(k); }
-    type *take(const char *k)
-                        { return static_cast<type *>(QGCache::take_other(k)); }
-    type *find(const char *k, bool ref=true) const
-                        { return static_cast<type *>(QGCache::find_other(k,ref));}
-    type *operator[](const char *k) const
-                        { return static_cast<type *>(QGCache::find_other(k));}
-    void  statistics() const              { QGCache::statistics(); }
-private:
-    void  deleteItem(Item d);
-};
-
-#if !defined(Q_BROKEN_TEMPLATE_SPECIALIZATION)
-template<> inline void QAsciiCache<void>::deleteItem(QPtrCollection::Item)
-{
-}
-#endif
-
-template<class type> inline void QAsciiCache<type>::deleteItem(QPtrCollection::Item d)
-{
-    if (del_item) delete static_cast<type *>(d);
-}
-
-
-template<class type>
-class QAsciiCacheIterator : public QGCacheIterator
-{
-public:
-    QAsciiCacheIterator(const QAsciiCache<type> &c):QGCacheIterator(c) {}
-    QAsciiCacheIterator(const QAsciiCacheIterator<type> &ci)
-                                : QGCacheIterator(ci) {}
-    QAsciiCacheIterator<type> &operator=(const QAsciiCacheIterator<type>&ci)
-        { return static_cast<QAsciiCacheIterator<type> &>(QGCacheIterator::operator=(ci)); }
-    uint  count()   const     { return QGCacheIterator::count(); }
-    bool  isEmpty() const     { return QGCacheIterator::count() == 0; }
-    bool  atFirst() const     { return QGCacheIterator::atFirst(); }
-    bool  atLast()  const     { return QGCacheIterator::atLast(); }
-    type *toFirst()              { return static_cast<type *>(QGCacheIterator::toFirst()); }
-    type *toLast()              { return static_cast<type *>(QGCacheIterator::toLast()); }
-    operator type *() const   { return static_cast<type *>(QGCacheIterator::get()); }
-    type *current()   const   { return static_cast<type *>(QGCacheIterator::get()); }
-    const char *currentKey() const { return QGCacheIterator::getKeyAscii(); }
-    type *operator()()              { return static_cast<type *>(QGCacheIterator::operator()());}
-    type *operator++()              { return static_cast<type *>(QGCacheIterator::operator++()); }
-    type *operator+=(uint j)  { return static_cast<type *>(QGCacheIterator::operator+=(j));}
-    type *operator--()              { return static_cast<type *>(QGCacheIterator::operator--()); }
-    type *operator-=(uint j)  { return static_cast<type *>(QGCacheIterator::operator-=(j));}
-};
-
+#define QAsciiCache Q3AsciiCache
+#define QAsciiCacheIterator Q3AsciiCacheIterator
 
 #endif // QASCIICACHE_H

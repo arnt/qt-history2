@@ -11,13 +11,18 @@
 **
 ****************************************************************************/
 
-#ifndef QASCIIDICT_H
-#define QASCIIDICT_H
+#ifndef Q3SHARED_H
+#define Q3SHARED_H
 
-#include "qgdict.h"
-#include "q3asciidict.h"
+#include "qglobal.h"
 
-#define QAsciiDict Q3AsciiDict
-#define QAsciiDictIterator Q3AsciiDictIterator
+struct Q_COMPAT_EXPORT Q3Shared
+{
+    Q3Shared() : count( 1 ) { }
+    void ref()		{ count++; }
+    bool deref()	{ return !--count; }
+    uint count;
+};
 
-#endif // QASCIIDICT_H
+
+#endif // Q3SHARED_H

@@ -14,24 +14,9 @@
 #ifndef QOBJECTDICT_H
 #define QOBJECTDICT_H
 
-#include "qmetaobject.h"
 #include "qasciidict.h"
+#include "q3objectdict.h"
 
-
-//
-// The object dictionary is a collection of QMetaObjects
-//
-
-class Q_COMPAT_EXPORT QObjectDictionary : public QAsciiDict<QMetaObject>
-{
-public:
-    QObjectDictionary(int size=17,bool cs=true,bool ck=true)
-        : QAsciiDict<QMetaObject>(size,cs,ck) {}
-    QObjectDictionary(const QObjectDictionary &dict)
-        : QAsciiDict<QMetaObject>(dict) {}
-   ~QObjectDictionary() { clear(); }
-    QObjectDictionary &operator=(const QObjectDictionary &dict)
-        { return static_cast<QObjectDictionary&>(QAsciiDict<QMetaObject>::operator=(dict));}
-};
+typedef Q3ObjectDictionary QObjectDictionary;
 
 #endif // QOBJECTDICT_H

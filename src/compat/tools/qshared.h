@@ -14,16 +14,8 @@
 #ifndef QSHARED_H
 #define QSHARED_H
 
-#include "qglobal.h"
+#include "q3shared.h"
 
-
-struct Q_COMPAT_EXPORT QShared
-{
-    QShared() : count(1) { }
-    void ref()                { count++; }
-    bool deref()        { return !--count; }
-    uint count;
-};
-
+typedef Q3Shared QShared;
 
 #endif // QSHARED_H

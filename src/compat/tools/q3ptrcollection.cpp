@@ -11,21 +11,22 @@
 **
 ****************************************************************************/
 
-#include "qptrcollection.h"
+#include "q3ptrcollection.h"
 
 /*!
-    \class QPtrCollection qptrcollection.h
+    \class Q3PtrCollection qptrcollection.h
     \reentrant
-    \brief The QPtrCollection class is the base class of most pointer-based Qt collections.
+    \brief The Q3PtrCollection class is the base class of most pointer-based Qt collections.
 
-    \reentrant
+    \ingroup collection
+    \ingroup tools
 
-    The QPtrCollection class is an abstract base class for the Qt
-    collection classes QDict, QPtrList,
+    The Q3PtrCollection class is an abstract base class for the Qt
+    \link collection.html collection classes\endlink QDict, Q3PtrList,
     etc. Qt also includes value based collections, e.g. QValueList,
     QMap, etc.
 
-    A QPtrCollection only knows about the number of objects in the
+    A Q3PtrCollection only knows about the number of objects in the
     collection and the deletion strategy (see setAutoDelete()).
 
     A collection is implemented using the \c Item (generic collection
@@ -35,24 +36,24 @@
 
 
 /*!
-    \enum QPtrCollection::Item
+    \enum Q3PtrCollection::Item
 
-    This type is the generic "item" in a QPtrCollection.
+    This type is the generic "item" in a Q3PtrCollection.
 */
 
 
 /*!
-    \fn QPtrCollection::QPtrCollection()
+    \fn Q3PtrCollection::Q3PtrCollection()
 
     Constructs a collection. The constructor is protected because
-    QPtrCollection is an abstract class.
+    Q3PtrCollection is an abstract class.
 */
 
 /*!
-    \fn QPtrCollection::QPtrCollection(const QPtrCollection & source)
+    \fn Q3PtrCollection::Q3PtrCollection( const Q3PtrCollection & source )
 
-    Constructs a copy of \a source with autoDelete() set to false. The
-    constructor is protected because QPtrCollection is an abstract
+    Constructs a copy of \a source with autoDelete() set to FALSE. The
+    constructor is protected because Q3PtrCollection is an abstract
     class.
 
     Note that if \a source has autoDelete turned on, copying it will
@@ -60,32 +61,32 @@
 */
 
 /*!
-    \fn QPtrCollection::~QPtrCollection()
+    \fn Q3PtrCollection::~Q3PtrCollection()
 
     Destroys the collection. The destructor is protected because
-    QPtrCollection is an abstract class.
+    Q3PtrCollection is an abstract class.
 */
 
 
 /*!
-    \fn bool QPtrCollection::autoDelete() const
+    \fn bool Q3PtrCollection::autoDelete() const
 
-    Returns the setting of the auto-delete option. The default is false.
+    Returns the setting of the auto-delete option. The default is FALSE.
 
     \sa setAutoDelete()
 */
 
 /*!
-    \fn void QPtrCollection::setAutoDelete(bool enable)
+    \fn void Q3PtrCollection::setAutoDelete( bool enable )
 
     Sets the collection to auto-delete its contents if \a enable is
-    true and to never delete them if \a enable is false.
+    TRUE and to never delete them if \a enable is FALSE.
 
     If auto-deleting is turned on, all the items in a collection are
     deleted when the collection itself is deleted. This is convenient
     if the collection has the only pointer to the items.
 
-    The default setting is false, for safety. If you turn it on, be
+    The default setting is FALSE, for safety. If you turn it on, be
     careful about copying the collection - you might find yourself
     with two collections deleting the same items.
 
@@ -99,13 +100,13 @@
 
 
 /*!
-    \fn virtual uint QPtrCollection::count() const
+    \fn virtual uint Q3PtrCollection::count() const
 
     Returns the number of objects in the collection.
 */
 
 /*!
-    \fn virtual void QPtrCollection::clear()
+    \fn virtual void Q3PtrCollection::clear()
 
     Removes all objects from the collection. The objects will be
     deleted if auto-delete has been enabled.
@@ -114,7 +115,7 @@
 */
 
 /*!
-    \fn void QPtrCollection::deleteItem(Item d)
+    \fn void Q3PtrCollection::deleteItem( Item d )
 
     Reimplement this function if you want to be able to delete items.
 
@@ -149,7 +150,7 @@
     \sa deleteItem()
 */
 
-QPtrCollection::Item QPtrCollection::newItem(Item d)
+Q3PtrCollection::Item Q3PtrCollection::newItem(Item d)
 {
-    return d;                                        // just return reference
+    return d;					// just return reference
 }

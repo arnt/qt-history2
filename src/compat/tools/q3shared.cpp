@@ -11,6 +11,30 @@
 **
 ****************************************************************************/
 
-#include "qshared.h"
+#include "q3shared.h"
 
 // This file is needed to force compilation of QShared into the kernel library.
+
+/*!
+    \class Q3Shared
+*/
+
+
+/*!
+    \fn Q3Shared::Q3Shared()
+
+    Use QSharedData and QSharedDataPointer instead.
+*/
+
+/*!
+    \fn void Q3Shared::ref()
+
+    Use QSharedDataPointer instead.
+*/
+
+/*!
+    \fn bool Q3Shared::deref()
+
+    Use QSharedDataPointer instead.
+*/
+

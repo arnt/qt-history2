@@ -15,21 +15,8 @@
 #define QSORTEDLIST_H
 
 #include "qptrlist.h"
+#include "q3sortedlist.h"
 
-
-template<class type>
-class QSortedList : public QPtrList<type>
-{
-public:
-    QSortedList() {}
-    QSortedList(const QSortedList<type> &l) : QPtrList<type>(l) {}
-    ~QSortedList() { this->clear(); }
-    QSortedList<type> &operator=(const QSortedList<type> &l)
-      { return static_cast<QSortedList<type> &>(QPtrList<type>::operator=(l)); }
-
-    virtual int compareItems(QPtrCollection::Item s1, QPtrCollection::Item s2) {
-        if (*static_cast<type*>(s1) == *static_cast<type*>(s2)) return 0;
-        return (*static_cast<type*>(s1) < *static_cast<type*>(s2) ? -1 : 1); }
-};
+#define QSortedList Q3SortedList
 
 #endif

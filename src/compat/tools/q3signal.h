@@ -14,8 +14,10 @@
 #ifndef Q3SIGNAL_H
 #define Q3SIGNAL_H
 
-#include "qcorevariant.h"
+#ifndef QT_H
+#include "qvariant.h"
 #include "qobject.h"
+#endif // QT_H
 
 
 class Q_COMPAT_EXPORT Q3Signal : public QObject
@@ -26,27 +28,27 @@ public:
     Q3Signal(QObject *parent=0, const char *name=0);
     ~Q3Signal();
 
-    bool        connect(const QObject *receiver, const char *member);
-    bool        disconnect(const QObject *receiver, const char *member=0);
+    bool	connect(const QObject *receiver, const char *member);
+    bool	disconnect(const QObject *receiver, const char *member=0);
 
-    void        activate();
+    void	activate();
 
-    bool        isBlocked() const
-        { return QObject::signalsBlocked(); }
-    void        block(bool b)
-        { QObject::blockSignals(b); }
+#ifndef QT_NO_COMPAT
+    bool	isBlocked()	 const		{ return QObject::signalsBlocked(); }
+    void	block(bool b)		{ QObject::blockSignals(b); }
 #ifndef QT_NO_VARIANT
-    void        setParameter(int value);
-    int        parameter() const;
+    void	setParameter(int value);
+    int		parameter() const;
+#endif
 #endif
 
 #ifndef QT_NO_VARIANT
-    void        setValue(const QCoreVariant &value);
-    QCoreVariant        value() const;
+    void	setValue(const QVariant &value);
+    QVariant	value() const;
 #endif
 signals:
 #ifndef QT_NO_VARIANT
-    void signal(const QCoreVariant&);
+    void signal(const QVariant&);
 #endif
     void intSignal(int);
 
@@ -54,8 +56,10 @@ private:
     Q_DISABLE_COPY(Q3Signal)
 
 #ifndef QT_NO_VARIANT
-    QCoreVariant val;
+    QVariant val;
 #endif
+
 };
+
 
 #endif // Q3SIGNAL_H

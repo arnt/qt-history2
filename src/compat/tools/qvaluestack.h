@@ -15,25 +15,8 @@
 #define QVALUESTACK_H
 
 #include "qvaluelist.h"
+#include "q3valuestack.h"
 
-#ifdef QT_COMPAT
-template<class T>
-class QValueStack : public QValueList<T>
-{
-public:
-    QValueStack() {}
-   ~QValueStack() {}
-    void  push(const T& val) { this->append(val); }
-    T pop()
-    {
-        T elem(this->last());
-        if (!this->isEmpty())
-            this->remove(this->fromLast());
-        return elem;
-    }
-    T& top() { return this->last(); }
-    const T& top() const { return this->last(); }
-};
-#endif
+#define QValueStack Q3ValueStack
 
 #endif
