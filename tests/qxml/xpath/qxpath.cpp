@@ -3,22 +3,11 @@
 
 /***************************************************************
  *
- * QXPathLexicalAnalyzer
+ * QXPathNS: "name space" for the XPath classes
  *
  ***************************************************************/
-class QXPathLexicalAnalyzer
-{
+class QXPathNS {
 public:
-    QXPathLexicalAnalyzer( const QString &e ) :
-	expr(e), parsePos(0), token(TkError)
-    {
-    }
-
-    ~QXPathLexicalAnalyzer()
-    {
-    }
-
-    // Tokens are taken from the XPath 1.0 recommendation, section 3.7
     enum Token {
 	TkError,	// an error occured during parsing
 	TkLeftParen,	// '('
@@ -56,6 +45,46 @@ public:
 	TkNumber,
 	TkVariableReference
     };
+
+    enum Operator {
+	OpNone,
+	OpAnd,		// 'and'
+	OpOr,		// 'or'
+	OpMod,		// 'mod'
+	OpDiv,		// 'div'
+	OpSlash,	// '/'
+	OpDoubleSlash,	// '//'
+	OpPipe,		// '|'
+	OpMultiply,	// '*'
+	OpPlus,		// '+'
+	OpMinus,	// '-'
+	OpEqual,	// '='
+	OpNotEqual,	// '!='
+	OpLt,		// '<'
+	OpLtEq,		// '<='
+	OpGt,		// '>'
+	OpGtEq		// '>='
+    };
+};
+
+/***************************************************************
+ *
+ * QXPathLexicalAnalyzer
+ *
+ ***************************************************************/
+class QXPathLexicalAnalyzer : public QXPathNS
+{
+public:
+    QXPathLexicalAnalyzer( const QString &e ) :
+	expr(e), parsePos(0), token(TkError)
+    {
+    }
+
+    ~QXPathLexicalAnalyzer()
+    {
+    }
+
+    // Tokens are taken from the XPath 1.0 recommendation, section 3.7
     // Returns the next token.
     Token nextToken()
     {
@@ -67,6 +96,7 @@ public:
 
 	// first look for the special stuff
 	QChar parseChar = expr[parsePos];
+qDebug( QString(parseChar) );
 	if        ( parseChar == '(' ) {
 	    token = TkLeftParen;
 	    goto finished;
@@ -130,6 +160,57 @@ public:
 	    goto finished;
 	}
 
+	// look for the "non-special" operators ('<', '<=', etc.)
+	if ( parseChar == '=' ) {
+	    token = TkOperator;
+	    op = OpEqual;
+	    goto finished;
+	} else if ( parseChar == '/' ) {
+	    token = TkOperator;
+	    if ( lookAhead(1) == '/' ) {
+		parsePos++;
+		op = OpDoubleSlash;
+	    } else {
+		op = OpSlash;
+	    }
+	    goto finished;
+	} else if ( parseChar == '|' ) {
+	    token = TkOperator;
+	    op = OpPipe;
+	    goto finished;
+	} else if ( parseChar == '+' ) {
+	    token = TkOperator;
+	    op = OpPlus;
+	    goto finished;
+	} else if ( parseChar == '-' ) {
+	    token = TkOperator;
+	    op = OpMinus;
+	    goto finished;
+	} else if ( parseChar == '!' && lookAhead(1) == '=' ) {
+	    token = TkOperator;
+	    parsePos++;
+	    op = OpNotEqual;
+	    goto finished;
+	} else if ( parseChar == '<' ) {
+	    token = TkOperator;
+	    if ( lookAhead(1) == '=' ) {
+		parsePos++;
+		op = OpLtEq;
+	    } else {
+		op = OpLt;
+	    }
+	    goto finished;
+	} else if ( parseChar == '>' ) {
+	    token = TkOperator;
+	    if ( lookAhead(1) == '=' ) {
+		parsePos++;
+		op = OpGtEq;
+	    } else {
+		op = OpGt;
+	    }
+	    goto finished;
+	}
+
 	// look for NCName and related stuff (QName, functions, axis, etc.)
 	if ( parseChar.isLetter() || parseChar == '_' ) {
 	    uint strBegin = parsePos;
@@ -152,9 +233,34 @@ public:
 	    str = expr.mid( strBegin, parsePos-strBegin );
 	    eatWs();
 	    parseChar = expr[parsePos]; // get char at actual position
+
+	    // must an operator be recognized?
+	    switch ( token ) {
+		case TkAttribAbbr:
+		case TkDoubleColon:
+		case TkLeftParen:
+		case TkRightParen:
+		case TkOperator:
+		    token = TkOperator;
+		    if ( str == "and" ) {
+			op = OpAnd;
+		    } else if ( str == "or" ) {
+			op = OpOr;
+		    } else if ( str == "mod" ) {
+			op = OpMod;
+		    } else if ( str == "div" ) {
+			op = OpDiv;
+		    } else {
+			token = TkError;
+		    }
+		    return token;
+		default:
+		    break;
+	    }
+
+	    // no operator
 	    if ( forceQName )
 		goto finished;
-
 	    if ( parseChar == '(' ) {
 		token = TkFunctionName;
 	    } else if ( parseChar == ':' ) {
@@ -208,12 +314,11 @@ public:
 
     // Returns string representation of token for token where it makes sense
     // (e.g. TkFunctionName), otherwise a null-string is returned.
-    QString string()
+    QString getString()
     {
 	switch ( token ) {
 	    case TkNameTest_NCNameStar:
 	    case TkNameTest_QName:
-	    case TkOperator: // separate function for this one?
 	    case TkFunctionName:
 	    case TkLiteral:
 	    case TkVariableReference:
@@ -226,7 +331,7 @@ public:
     }
 
     // Returns the number for TkNumber tokens, otherwise 0 is returned.
-    double number()
+    double getNumber() const
     {
 	if ( token == TkNumber )
 	    return num;
@@ -234,18 +339,28 @@ public:
 	    return 0;
     }
 
-    bool atEnd()
+    // Returns the operator for TkOperator tokens, otherwise OpNone is returned.
+    Operator getOperator() const
+    {
+	if ( token == TkOperator )
+	    return op;
+	else
+	    return OpNone;
+    }
+
+    bool atEnd() const
     {
 	return parsePos >= expr.length();
     }
 
+private:
     void eatWs()
     {
 	while ( !atEnd() && expr[parsePos].isSpace() )
 	    parsePos++;
     }
 
-    QChar lookAhead( int offset )
+    QChar lookAhead( int offset ) const
     {
 	if ( parsePos + offset < expr.length() )
 	    return expr[parsePos+offset];
@@ -253,12 +368,13 @@ public:
 	    return QChar( 0xFFFF );
     }
 
-private:
     QString expr;
     uint parsePos;
     Token token;
+
     QString str;
     double num;
+    Operator op;
 };
 
 /***************************************************************
@@ -351,11 +467,12 @@ bool QXPath::parse( const QString& expr )
     }
 #endif
     QXPathLexicalAnalyzer lex( expr );
-    QXPathLexicalAnalyzer::Token token;
+    QXPathNS::Token token;
 qDebug( "Reporting tokens for: %s", expr.latin1() );
     while ( !lex.atEnd() ) {
 	token = lex.nextToken();
-qDebug( "Token %d: (%s) (%f)", token, lex.string().latin1(), lex.number() );
+qDebug( "Token %d: (%s) (%f) (%d)", token,
+	lex.getString().latin1(), lex.getNumber(), lex.getOperator() );
     }
 
     return TRUE;
