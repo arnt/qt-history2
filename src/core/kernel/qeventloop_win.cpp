@@ -465,6 +465,7 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
 
     QCoreApplication::sendPostedEvents();
 
+    bool shortcut = d->exitloop || d->quitnow;
     bool canWait = d->exitloop || d->quitnow ? false : (flags & WaitForMore);
 
     if (flags & ExcludeUserInput) {
@@ -497,10 +498,10 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
     do {
         message = winPeekMessage(&msg, 0, 0, 0, PM_REMOVE);
         winProcessEvent(&msg);
-    } while (message && !(flags & ExcludeUserInput));
+    } while (message && !(flags & ExcludeUserInput) && !shortcut);
 
     // wait for next message if allowed to block
-    if (canWait) {
+    if (canWait && !shortcut) {
         emit aboutToBlock();
         if (!winGetMessage(&msg, 0, 0, 0)) {
             exit(0);
