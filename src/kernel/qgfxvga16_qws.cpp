@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgfxvga16_qws.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qgfxvga16_qws.cpp#14 $
 **
 ** Implementation of QGfxVga16 (graphics context) class for VGA cards
 **
@@ -1292,8 +1292,8 @@ void QGfxVga16::drawThickLine( int x1, int y1, int x2, int y2 )
     QPointArray pa(5);
     int w = cpen.width() - 1;
     double a = atan2( y2 - y1, x2 - x1 );
-    double ix = cos(a) * w / 2;
-    double iy = sin(a) * w / 2;
+    int ix = (int)(cos(a) * w / 2);
+    int iy = (int)(sin(a) * w / 2);
 
     // No cap.
     pa[0].setX( x1 + iy );
