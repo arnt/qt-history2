@@ -15,6 +15,7 @@
 
 #include <qimage.h>
 #include <qvariant.h>
+#include <qvector.h>
 
 #include <stdio.h>      // jpeglib needs this to be pre-included
 #include <setjmp.h>
@@ -233,18 +234,17 @@ static bool read_jpeg_image(QIODevice *device, QImage *outImage, const QByteArra
             scaleSize(sWidth, sHeight, cinfo.output_width, cinfo.output_height, sMode);
 //            qDebug("Scaling the jpeg to %i x %i", sWidth, sHeight, sModeStr);
 
-            bool created = false;
             if (cinfo.output_components == 3 || cinfo.output_components == 4) {
-                created = image.create(sWidth, sHeight, 32);
+                image = QImage(sWidth, sHeight, 32);
             } else if (cinfo.output_components == 1) {
-                created = image.create(sWidth, sHeight, 8, 256);
+                image = QImage(sWidth, sHeight, 8, 256);
                 for (int i=0; i<256; i++)
                     image.setColor(i, qRgb(i,i,i));
             } else {
                 // Unsupported format
             }
-            if (!created)
-                image = QImage();
+            if (image.isNull())
+                return false;
 
             if (!image.isNull()) {
                 QImage tmpImage(cinfo.output_width, 1, 32);
@@ -282,18 +282,17 @@ static bool read_jpeg_image(QIODevice *device, QImage *outImage, const QByteArra
 
         } else {
 
-            bool created = false;
             if (cinfo.output_components == 3 || cinfo.output_components == 4) {
-                created = image.create(cinfo.output_width, cinfo.output_height, 32);
+                image = QImage(cinfo.output_width, cinfo.output_height, 32);
             } else if (cinfo.output_components == 1) {
-                created = image.create(cinfo.output_width, cinfo.output_height, 8, 256);
+                image = QImage(cinfo.output_width, cinfo.output_height, 8, 256);
                 for (int i=0; i<256; i++)
                     image.setColor(i, qRgb(i,i,i));
             } else {
                 // Unsupported format
             }
-            if (!created)
-                image = QImage();
+            if (image.isNull())
+                return false;
 
             if (!image.isNull()) {
                 uchar** lines = image.jumpTable();
@@ -434,15 +433,13 @@ static bool write_jpeg_image(const QImage &sourceImage, QIODevice *device, int s
         cinfo.image_width = image.width();
         cinfo.image_height = image.height();
 
-        QRgb* cmap=0;
+        QVector<QRgb> cmap = image.colorTable();
         bool gray=false;
         switch (image.depth()) {
         case 1:
         case 8:
-            cmap = image.colorTable();
             gray = true;
-            int i;
-            for (i=image.numColors(); gray && i--;) {
+            for (int i = image.numColors(); gray && i--;) {
                 gray = gray & (qRed(cmap[i]) == qGreen(cmap[i]) &&
                                qRed(cmap[i]) == qBlue(cmap[i]));
             }

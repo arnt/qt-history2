@@ -199,8 +199,8 @@ static bool read_dib(QDataStream &s, int offset, int startpos, QImage &image)
     else                                        // # colors used
         ncols = bi.biClrUsed ? bi.biClrUsed : 1 << nbits;
 
-    image.create(w, h, depth, ncols, nbits == 1 ?
-                  QImage::BigEndian : QImage::IgnoreEndian);
+    image = QImage(w, h, depth, ncols, nbits == 1 ?
+                   QImage::BigEndian : QImage::IgnoreEndian);
     if (image.isNull())                        // could not create image
         return false;
 
@@ -507,7 +507,7 @@ bool Q_GUI_EXPORT qt_write_dib(QDataStream &s, QImage image)
     if (image.depth() != 32) {                // write color table
         uchar *color_table = new uchar[4*image.numColors()];
         uchar *rgb = color_table;
-        QRgb *c = image.colorTable();
+        QVector<QRgb> c = image.colorTable();
         for (int i=0; i<image.numColors(); i++) {
             *rgb++ = qBlue (c[i]);
             *rgb++ = qGreen(c[i]);

@@ -120,7 +120,7 @@ public:
     QImage *colorizeBitmap(const QImage *image, const QColor &color);
 
     qreal *gradientStopPoints(const QGradient *gradient);
-    ARGB *gradientStopColors(const QGradient *gradient);
+    uint *gradientStopColors(const QGradient *gradient);
 
     QPointF brushOffset;
     QBrush brush;
@@ -136,7 +136,7 @@ public:
     QRasterBuffer *fontRasterBuffer;
 
     QDataBuffer<qreal> stopPoints;
-    QDataBuffer<ARGB> stopColors;
+    QDataBuffer<uint> stopColors;
 
     QPainterPath baseClip;
     QRect deviceRect;
@@ -205,7 +205,7 @@ public:
     void replaceClipSpans(int y, QSpan *spans, int spanCount);
     void resetClipSpans(int y, int count);
 
-    ARGB *scanLine(int y) { Q_ASSERT(y>=0); Q_ASSERT(y<m_height); return m_buffer + y * m_width; }
+    uint *scanLine(int y) { Q_ASSERT(y>=0); Q_ASSERT(y<m_height); return m_buffer + y * m_width; }
 
 #ifndef QT_NO_DEBUG
     QImage clipImage() const;
@@ -221,7 +221,7 @@ public:
     int width() const { return m_width; }
     int height() const { return m_height; }
 
-    ARGB *buffer() const { return m_buffer; }
+    uint *buffer() const { return m_buffer; }
 
 private:
 #if defined(Q_WS_WIN)
@@ -231,7 +231,7 @@ private:
 
     int m_width;
     int m_height;
-    ARGB *m_buffer;
+    uint *m_buffer;
 
     int *m_clipSpanCount;
     int *m_clipSpanCapacity;

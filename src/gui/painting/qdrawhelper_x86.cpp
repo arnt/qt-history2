@@ -45,6 +45,9 @@ static uint detectCPUFeatures() {
     return features;
 }
 
+#define qt_alpha_pixel(s, t, a, ra) { int tmp = s*a + t*ra; t = qt_div_255(tmp); }
+#define qt_alpha_pixel_pm(s, t, ra) { int tmp = s + t*ra; t = qt_div_255(tmp); }
+
 static void blend_color_sse(ARGB *target, const QSpan *span, ARGB color)
 {
     if (!span->len)

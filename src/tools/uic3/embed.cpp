@@ -19,6 +19,7 @@
 #include <qfileinfo.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <qvector.h>
 
 // on embedded, we do not compress image data. Rationale: by mapping
 // the ready-only data directly into memory we are both faster and
@@ -147,7 +148,8 @@ void Ui3Reader::embed(const char *project, const QStringList &images)
         e->numColors = img.numColors();
         e->colorTable = new QRgb[e->numColors];
         e->alpha = img.hasAlphaBuffer();
-        memcpy(e->colorTable, img.colorTable(), e->numColors*sizeof(QRgb));
+        QVector<QRgb> ct = img.colorTable();
+        memcpy(e->colorTable, ct.constData(), e->numColors*sizeof(QRgb));
         QFileInfo fi( *it );
         e->name = fi.fileName();
         e->cname = QString::fromLatin1("image_%1").arg( image_count++);

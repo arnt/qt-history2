@@ -24,6 +24,7 @@ class QStringList;
 class QMatrix;
 class QVariant;
 template <class T> class QList;
+template <class T> class QVector;
 
 struct QImageData;
 class QImageDataMisc; // internal
@@ -49,8 +50,19 @@ class Q_GUI_EXPORT QImage : public QPaintDevice
 public:
     enum Endian { BigEndian, LittleEndian, IgnoreEndian };
     enum InvertMode { InvertRgb, InvertRgba };
+    enum Format {
+        Format_Invalid,
+        Format_Mono,
+        Format_MonoLSB,
+        Format_Indexed8,
+        Format_RGB32,
+        Format_ARGB32,
+        Format_ARGB32_Premultiplied
+    };
 
     QImage();
+    QImage(int with, int height, Format format);
+
     QImage(int width, int height, int depth, int numColors=0, Endian bitOrder=IgnoreEndian);
     QImage(const QSize&, int depth, int numColors=0, Endian bitOrder=IgnoreEndian);
     explicit QImage(const char * const xpm[]);
@@ -68,20 +80,27 @@ public:
     ~QImage();
 
     QImage &operator=(const QImage &);
+    bool isNull() const;
+
     bool operator==(const QImage &) const;
     bool operator!=(const QImage &) const;
     operator QVariant() const;
     void detach();
     bool isDetached() const;
+
     QImage copy() const;
     inline QImage copy(int x, int y, int w, int h, Qt::ImageConversionFlags flags = Qt::AutoColor) const;
     QImage copy(const QRect&, Qt::ImageConversionFlags flags = Qt::AutoColor) const;
-    bool isNull() const;
+
+    Format format() const;
+
+    QImage convertToFormat(Format f) const;
 
     int width() const;
     int height() const;
     QSize size() const;
     QRect rect() const;
+
     int depth() const;
     int numColors() const;
     Endian bitOrder() const;
@@ -105,8 +124,9 @@ public:
     const uchar *scanLine(int) const;
     uchar **jumpTable();
     const uchar * const *jumpTable() const;
-    QRgb *colorTable();
-    const QRgb *colorTable() const;
+
+    QVector<QRgb> colorTable() const;
+    void setColorTable(const QVector<QRgb> colors);
 
     int numBytes() const;
     int bytesPerLine() const;
@@ -116,10 +136,6 @@ public:
     virtual int qwsBytesPerLine() const;
 #endif
     QPaintEngine *paintEngine() const;
-
-    bool create(int width, int height, int depth, int numColors=0, Endian bitOrder=IgnoreEndian);
-    bool create(const QSize&, int depth, int numColors=0, Endian bitOrder=IgnoreEndian);
-    void reset();
 
     void fill(uint pixel);
     void invertPixels(InvertMode = InvertRgb);
@@ -149,14 +165,11 @@ public:
     QImage createHeuristicMask(bool clipTight = true) const;
 #endif
 #ifndef QT_NO_IMAGE_MIRROR
-    QImage mirror() const;
-    QImage mirror(bool horizontally, bool vertically) const;
+    QImage mirrored(bool horizontally = false, bool vertically = true) const;
 #endif
-    QImage swapRGB() const;
+    QImage rgbSwapped() const;
 
     static Endian systemBitOrder();
-    static inline Endian systemByteOrder()
-        { return QSysInfo::ByteOrder == QSysInfo::BigEndian ? BigEndian : LittleEndian; }
 
 #ifndef QT_NO_IMAGEIO
     bool load(const QString &fileName, const char* format=0);
@@ -195,6 +208,14 @@ public:
 #endif
 
 #ifdef QT3_SUPPORT
+    inline QT3_SUPPORT void reset() { *this = QImage(); }
+    static inline QT3_SUPPORT Endian systemByteOrder()
+        { return QSysInfo::ByteOrder == QSysInfo::BigEndian ? BigEndian : LittleEndian; }
+    inline QT3_SUPPORT QImage swapRGB() const { return rgbSwapped(); }
+    inline QT3_SUPPORT QImage mirror(bool horizontally = false, bool vertically = true) const
+        { return mirrored(horizontally, vertically); }
+    QT3_SUPPORT bool create(const QSize&, int depth, int numColors=0, Endian bitOrder=IgnoreEndian);
+    QT3_SUPPORT bool create(int width, int height, int depth, int numColors=0, Endian bitOrder=IgnoreEndian);
     inline QT3_SUPPORT QImage xForm(const QMatrix &matrix) const { return transformed(matrix); }
     inline QT3_SUPPORT QImage smoothScale(int w, int h, Qt::AspectRatioMode mode = Qt::IgnoreAspectRatio) const
         { return scaled(QSize(w, h), mode, Qt::SmoothTransformation); }

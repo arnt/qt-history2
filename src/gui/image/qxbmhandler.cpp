@@ -83,7 +83,7 @@ static bool read_xbm_image(QIODevice *device, QImage *outImage)
             break;
     }
 
-    image.create(w, h, 1, 2, QImage::LittleEndian);
+    image = QImage(w, h, 1, 2, QImage::LittleEndian);
     if (image.isNull())
         return false;
 

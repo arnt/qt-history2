@@ -96,7 +96,7 @@ void qt_span_clip(int y, int count, QT_FT_Span *spans, void *userData);
 struct SolidFillData
 {
     QRasterBuffer *rasterBuffer;
-    ARGB color;
+    uint color;
     QRasterPaintEnginePrivate::RasterOperation rop;
     BlendColor blendColor;
 };
@@ -104,7 +104,7 @@ struct SolidFillData
 struct TextureFillData
 {
     QRasterBuffer *rasterBuffer;
-    ARGB *imageData;
+    const void *imageData;
     int width, height;
     bool hasAlpha;
     qreal m11, m12, m21, m22, dx, dy;   // inverse xform matrix
@@ -129,49 +129,6 @@ struct ClipData
     Qt::ClipOperation operation;
     int lastIntersected;
 };
-
-#define GRADIENT_STOPTABLE_SIZE 1024
-
-struct GradientData
-{
-    QRasterBuffer *rasterBuffer;
-    QGradient::Spread spread;
-
-    int stopCount;
-    qreal *stopPoints;
-    ARGB *stopColors;
-
-    ARGB colorTable[GRADIENT_STOPTABLE_SIZE];
-
-    uint alphaColor : 1;
-
-    void initColorTable();
-};
-
-struct LinearGradientData : public GradientData
-{
-    QPointF origin;
-    QPointF end;
-
-    void init();
-
-    qreal xincr;
-    qreal yincr;
-};
-
-struct RadialGradientData : public GradientData
-{
-    QPointF center;
-    qreal radius;
-    QPointF focal;
-};
-
-struct ConicalGradientData : public GradientData
-{
-    QPointF center;
-    qreal angle;
-};
-
 
 void qt_scanconvert(QT_FT_Outline *outline, qt_span_func callback, void *userData, QT_FT_BBox *bounds, QRasterPaintEnginePrivate *d);
 
@@ -893,7 +850,7 @@ void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRe
     Q_D(QRasterPaintEngine);
     TextureFillData textureData = {
         d->rasterBuffer,
-        (ARGB*)image.bits(), image.width(), image.height(), image.hasAlphaBuffer(),
+        image.bits(), image.width(), image.height(), image.hasAlphaBuffer(),
         0., 0., 0., 0., 0., 0.,
         d->drawHelper->blend,
         d->bilinear ? d->drawHelper->blendTransformedBilinear : d->drawHelper->blendTransformed
@@ -946,7 +903,7 @@ void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
 
     TextureFillData textureData = {
         d->rasterBuffer,
-        (ARGB*)image->bits(), image->width(), image->height(), image->hasAlphaBuffer(),
+        image->bits(), image->width(), image->height(), image->hasAlphaBuffer(),
         0., 0., 0., 0., 0., 0.,
         d->drawHelper->blendTiled,
         d->bilinear ? d->drawHelper->blendTransformedBilinearTiled : d->drawHelper->blendTransformedTiled
@@ -1215,19 +1172,19 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
 
     static QDataBuffer<QT_FT_Span> spans;
     for (int y=ymin; y<ymax; ++y) {
-        ARGB *scanline = d->fontRasterBuffer->scanLine(y - devRect.y()) - devRect.x();
+        void *scanline = d->fontRasterBuffer->scanLine(y - devRect.y()) - devRect.x();
         // Generate spans for this y coord
         spans.reset();
         for (int x = xmin; x<xmax; ) {
             // Skip those with 0 coverage (black on white so inverted)
-            while (x < xmax && qGray(scanline[x].toRgba()) == 255) ++x;
+            while (x < xmax && qGray(scanline[x]) == 255) ++x;
             if (x >= xmax) break;
 
             int prev = qGray(scanline[x].toRgba());
 	    QT_FT_Span span = { x, 0, 255 - prev };
 
             // extend span until we find a different one.
-            while (x < xmax && qGray(scanline[x].toRgba()) == prev) ++x;
+            while (x < xmax && qGray(scanline[x]) == prev) ++x;
             span.len = x - span.x;
 
             spans.add(span);
@@ -1530,7 +1487,7 @@ FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, const QPai
     case Qt::SolidPattern:
         fillData->callback = qt_span_solidfill;
         fillData->data = solidFillData;
-        solidFillData->color = brush.color();
+        solidFillData->color = PREMUL(brush.color().rgba());
         solidFillData->rop = rasterOperation;
         solidFillData->rasterBuffer = fillData->rasterBuffer;
         solidFillData->blendColor = drawHelper->blendColor;
@@ -1564,6 +1521,7 @@ FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, const QPai
         linearGradientData->alphaColor = !brush.isOpaque();
         linearGradientData->init();
         linearGradientData->initColorTable();
+        linearGradientData->blendFunc = drawHelper->blendLinearGradient;
         fillData->callback = qt_span_linear_gradient;
         fillData->data = linearGradientData;
         break;
@@ -1727,12 +1685,12 @@ qreal *QRasterPaintEnginePrivate::gradientStopPoints(const QGradient *gradient)
     return stopPoints.data();
 }
 
-ARGB *QRasterPaintEnginePrivate::gradientStopColors(const QGradient *gradient)
+uint *QRasterPaintEnginePrivate::gradientStopColors(const QGradient *gradient)
 {
     stopColors.reset();
     QGradientStops stops = gradient->stops();
     for (int i=0; i<stops.size(); ++i)
-        stopColors.add(stops.at(i).second.rgba());
+        stopColors.add(PREMUL(stops.at(i).second.rgba()));
     return stopColors.data();
 }
 
@@ -1741,14 +1699,13 @@ QImage *QRasterPaintEnginePrivate::colorizeBitmap(const QImage *image, const QCo
 {
     tempImage = QImage(image->size(), 32);
     Q_ASSERT(image->depth() == 32);
-//     QRgb color0 = 0xffffffff;
     QRgb color1 = 0xff000000;
-    QRgb fg = color.rgba();
-    QRgb bg = opaqueBackground ? bgBrush.color().rgba() : 0;
+    QRgb fg = PREMUL(color.rgba());
+    QRgb bg = opaqueBackground ? PREMUL(bgBrush.color().rgba()) : 0;
     for (int y=0; y<image->height(); ++y) {
         const QRgb *source = reinterpret_cast<const QRgb *>(image->scanLine(y));
         uint *target = reinterpret_cast<QRgb *>(tempImage.scanLine(y));
-        for (int x=0; x<image->width(); ++x)
+        for (int x=0; x < image->width(); ++x)
             target[x] = source[x] == color1 ? fg : bg;
     }
     tempImage.setAlphaBuffer(true);
@@ -1798,12 +1755,12 @@ void QRasterBuffer::prepare(QImage *image)
     int depth = image->depth();
     if (depth == 32) {
         prepareClip(image->width(), image->height());
-        m_buffer = (ARGB *)image->bits();
+        m_buffer = (uint *)image->bits();
     } else if (depth == 1) {
         prepare(image->width(), image->height());
-        ARGB table[2] = { image->color(0), image->color(1) };
+        uint table[2] = { image->color(0), image->color(1) };
         for (int y=0; y<image->height(); ++y) {
-            ARGB *bscan = scanLine(y);
+            uint *bscan = scanLine(y);
             // ### use image scanlines directly
             for (int x=0; x<image->width(); ++x) {
                 bscan[x] = table[image->pixelIndex(x, y)];
@@ -1821,7 +1778,7 @@ void QRasterBuffer::prepare(QPixmap *pixmap)
 {
     prepareClip(pixmap->width(), pixmap->height());
 
-    m_buffer = (ARGB *)pixmap->qwsScanLine(0);
+    m_buffer = (uint *)pixmap->qwsScanLine(0);
 
     m_width = pixmap->width();
     m_height = pixmap->height();
@@ -1857,7 +1814,7 @@ void QRasterBuffer::prepareClip(int /*width*/, int height)
 
 void QRasterBuffer::resetBuffer(int val)
 {
-    memset(m_buffer, val, m_width*m_height*sizeof(ARGB));
+    memset(m_buffer, val, m_width*m_height*sizeof(uint));
 }
 
 #if defined(Q_WS_WIN)
@@ -1899,8 +1856,8 @@ void QRasterBuffer::prepareBuffer(int width, int height)
 void QRasterBuffer::prepareBuffer(int width, int height)
 {
     delete[] m_buffer;
-    m_buffer = new ARGB[width*height];
-    memset(m_buffer, 255, width*height*sizeof(ARGB));
+    m_buffer = new uint[width*height];
+    memset(m_buffer, 255, width*height*sizeof(uint));
 }
 #elif defined(Q_WS_MAC)
 static void qt_mac_raster_data_free(void *, const void *data, size_t)
@@ -1910,8 +1867,8 @@ static void qt_mac_raster_data_free(void *, const void *data, size_t)
 
 void QRasterBuffer::prepareBuffer(int width, int height)
 {
-    m_buffer = new ARGB[width*height*sizeof(ARGB)];
-    memset(m_buffer, 255, width*height*sizeof(ARGB));
+    m_buffer = new uint[width*height*sizeof(uint)];
+    memset(m_buffer, 255, width*height*sizeof(uint));
 
 #ifdef QMAC_NO_COREGRAPHICS
 # warning "Unhandled!!"
@@ -1995,9 +1952,9 @@ void qt_span_solidfill(int y, int count, QT_FT_Span *spans, void *userData)
 //     fprintf(stdout, "qt_span_solidfill, y=%d, count=%d\n", y, count);
 //     fflush(stdout);
     QRasterPaintEnginePrivate::RasterOperation rop = data->rop;
-    ARGB color = data->color;
+    uint color = data->color;
     QRasterBuffer *rb = data->rasterBuffer;
-    ARGB *rasterBuffer = rb->buffer() + y * rb->width();
+    uint *rasterBuffer = rb->buffer() + y * rb->width();
 
     Q_ASSERT(y >= 0);
     Q_ASSERT(y < rb->height());
@@ -2007,7 +1964,7 @@ void qt_span_solidfill(int y, int count, QT_FT_Span *spans, void *userData)
             Q_ASSERT(spans->x >= 0);
             Q_ASSERT(spans->len > 0);
             Q_ASSERT(spans->x + spans->len <= rb->width());
-            ARGB *target = rasterBuffer + spans->x;
+            uint *target = rasterBuffer + spans->x;
             data->blendColor(target, (const QSpan *)spans, color, QPainter::CompositionMode_SourceOver);
             ++spans;
         }
@@ -2017,7 +1974,7 @@ void qt_span_solidfill(int y, int count, QT_FT_Span *spans, void *userData)
             Q_ASSERT(spans->x >= 0);
             Q_ASSERT(spans->len > 0);
             Q_ASSERT(spans->x + spans->len <= rb->width());
-            ARGB *target = rasterBuffer + spans->x;
+            uint *target = rasterBuffer + spans->x;
             for (int i=spans->len; i; --i) {
                 *target++ = color;
             }
@@ -2042,11 +1999,11 @@ void qt_span_texturefill(int y, int count, QT_FT_Span *spans, void *userData)
     if (yoff < 0)
         yoff += image_height;
 
-    ARGB *scanline = data->imageData + ((y+yoff) % image_height) * image_width;
-    ARGB *baseTarget = rb->scanLine(y);
+    const uint *scanline = (const uint *)data->imageData + ((y+yoff) % image_height) * image_width;
+    uint *baseTarget = rb->scanLine(y);
     bool opaque = !data->hasAlpha;
     while (count--) {
-        ARGB *target = baseTarget + spans->x;
+        uint *target = baseTarget + spans->x;
         if (opaque && spans->coverage == 255) {
             int span_x = spans->x;
             int span_len = spans->len;
@@ -2056,7 +2013,7 @@ void qt_span_texturefill(int y, int count, QT_FT_Span *spans, void *userData)
                 Q_ASSERT(image_x >= 0);
                 Q_ASSERT(image_x + len <= image_width); // inclusive since it is used as upper bound.
                 Q_ASSERT(span_x + len <= rb->width());
-                memcpy(target, scanline + image_x, len * sizeof(ARGB));
+                memcpy(target, scanline + image_x, len * sizeof(uint));
                 span_x += len;
                 span_len -= len;
                 target += len;
@@ -2075,7 +2032,7 @@ void qt_span_texturefill_xform(int y, int count, QT_FT_Span *spans, void *userDa
     QRasterBuffer *rb = data->rasterBuffer;
     int image_width = data->width;
     int image_height = data->height;
-    ARGB *baseTarget = rb->scanLine(y);
+    uint *baseTarget = rb->scanLine(y);
 
     qreal ix = data->m21 * y + data->dx;
     qreal iy = data->m22 * y + data->dy;
@@ -2092,7 +2049,7 @@ void qt_span_texturefill_xform(int y, int count, QT_FT_Span *spans, void *userDa
 }
 
 
-ARGB qt_gradient_pixel(const GradientData *data, double pos)
+uint qt_gradient_pixel(const GradientData *data, double pos)
 {
   // calculate the actual offset.
     if (pos <= 0 || pos >= 1) {
@@ -2108,35 +2065,18 @@ ARGB qt_gradient_pixel(const GradientData *data, double pos)
     }
 
     return data->colorTable[int(pos * GRADIENT_STOPTABLE_SIZE)];
-} // qt_gradient_pixel
+}
 
 void qt_span_linear_gradient(int y, int count, QT_FT_Span *spans, void *userData)
 {
     LinearGradientData *data = reinterpret_cast<LinearGradientData *>(userData);
-
-    ARGB *baseTarget = data->rasterBuffer->scanLine(y);
+    uint *baseTarget = data->rasterBuffer->scanLine(y);
 
     qreal ybase = (y - data->origin.y()) * data->yincr;
-    qreal x1 = data->origin.x();
-    qreal t;
 
     while (count--) {
-        ARGB *target = baseTarget + spans->x;
-        t = ybase + data->xincr * (spans->x - x1);
-        if (!data->alphaColor && spans->coverage == 255) {
-            for (int x = spans->x; x<spans->x + spans->len; x++) {
-                *target = qt_gradient_pixel(data, t);
-                ++target;
-                t += data->xincr;
-            }
-        } else {
-            for (int x = spans->x; x<spans->x + spans->len; x++) {
-                ARGB src = qt_gradient_pixel(data, t);
-                qt_blend_pixel(src, target, spans->coverage);
-                ++target;
-                t += data->xincr;
-            }
-        }
+        uint *target = baseTarget + spans->x;
+        data->blendFunc(target, (const QSpan *)spans, data, ybase, QPainter::CompositionMode_SourceOver);
         ++spans;
     }
 }
@@ -2375,11 +2315,11 @@ QImage QRasterBuffer::bufferImage() const
     QImage image(m_width, m_height, 32);
 
     for (int y = 0; y < m_height; ++y) {
-        ARGB *span = const_cast<QRasterBuffer *>(this)->scanLine(y);
+        uint *span = const_cast<QRasterBuffer *>(this)->scanLine(y);
 
         for (int x=0; x<m_width; ++x) {
-            ARGB argb = span[x];
-            image.setPixel(x, y, qRgba(argb.r, argb.g, argb.b, argb.a));
+            uint argb = span[x];
+            image.setPixel(x, y, argb);
         }
     }
     image.setAlphaBuffer(true);
@@ -2394,10 +2334,10 @@ void QRasterBuffer::flushTo1BitImage(QImage *target) const
 
     // ### Direct scanline access
     for (int y=0; y<h; ++y) {
-        ARGB *sourceLine = const_cast<QRasterBuffer *>(this)->scanLine(y);
+        uint *sourceLine = const_cast<QRasterBuffer *>(this)->scanLine(y);
         for (int x=0; x<w; ++x) {
-            ARGB p = sourceLine[x];
-            target->setPixel(x, y, qGray(p.r, p.g, p.b) > 127 ? 0 : 1);
+            uint p = sourceLine[x];
+            target->setPixel(x, y, qGray(p) > 127 ? 0 : 1);
         }
     }
 
@@ -2407,7 +2347,7 @@ void TextureFillData::init(QRasterBuffer *raster, QImage *image, const QMatrix &
                            Blend b, BlendTransformed func)
 {
     rasterBuffer = raster;
-    imageData = (ARGB*) image->bits();
+    imageData = (uint*) image->bits();
     width = image->width();
     height = image->height();
     hasAlpha = image->hasAlphaBuffer();
@@ -2450,17 +2390,14 @@ void GradientData::initColorTable()
 
         Q_ASSERT(current_stop < stopCount);
 
-        ARGB current_color = stopColors[current_stop];
-        ARGB next_color = stopColors[current_stop+1];
+        uint current_color = stopColors[current_stop];
+        uint next_color = stopColors[current_stop+1];
 
-        qreal dist = (dpos - stopPoints[current_stop])
-                     / (stopPoints[current_stop+1] - stopPoints[current_stop]);
-        qreal idist = 1 - dist;
+        int dist = (int)(255*(dpos - stopPoints[current_stop])
+                         / (stopPoints[current_stop+1] - stopPoints[current_stop]));
+        int idist = 255 - dist;
 
-        colorTable[pos] = ARGB(uchar(current_color.a * idist + next_color.a * dist),
-                               uchar(current_color.r * idist + next_color.r * dist),
-                               uchar(current_color.g * idist + next_color.g * dist),
-                               uchar(current_color.b * idist + next_color.b * dist));
+        colorTable[pos] = INTERPOLATE_PIXEL(current_color, idist, next_color, dist);
 
         ++pos;
         dpos += incr;
@@ -2775,13 +2712,13 @@ QImage qt_draw_radial_gradient_image( const QRect &rect, RadialGradientData *rda
     }
 
     if ( rdata->radius <= 0. ) {
-        image.fill( qt_gradient_pixel( rdata, 0 ).toRgba() );
+        image.fill(qt_gradient_pixel(rdata, 0));
         return image;
     }
 
     qreal r, x0, y0, fx, fy, sw, sh, a, b, c, dc, d2c, dba, ba, rad, dx, dy, drad, d2rad, p, d2y;
     int i, j;
-    ARGB *line;
+    uint *line;
 
     r = rdata->radius;
     x0 = ( rect.left() - rdata->center.x() ) / r;
@@ -2808,7 +2745,7 @@ QImage qt_draw_radial_gradient_image( const QRect &rect, RadialGradientData *rda
     d2y = -1. / r;
 
     for ( i = 0; i < height; i++ ) {
-        line = (ARGB *) image.scanLine( i );
+        line = (uint *) image.scanLine( i );
         b = dx * fx + dy * fy;
         c = dx * dx + dy * dy;
         ba = b / a;
@@ -2853,7 +2790,7 @@ QImage qt_draw_conical_gradient_image(const QRect &rect, ConicalGradientData *cd
     double dx0, dy0, da, dy, dx, dny, dnx, nx, ny, p, dp, rp;
     int i, j, si;
     bool mdp;
-    ARGB *line;
+    uint *line;
 
     p = 0;
     dp = 0;
@@ -2865,14 +2802,14 @@ QImage qt_draw_conical_gradient_image(const QRect &rect, ConicalGradientData *cd
     dy = dy0;
 
     if ( floor( dx0 ) == dx0 && floor( dy0 ) == dy0 )
-        image.setPixel( -(int)dx0, -(int)dy0, qt_gradient_pixel( cdata, 0. ).toRgba() );
+        image.setPixel(-(int)dx0, -(int)dy0, qt_gradient_pixel( cdata, 0. ));
 
     for ( i = 0; i < height; i++ ) {
         if ( dy == 0. ) {
             dy += 1;
             continue;
         }
-        line = (ARGB *) image.scanLine( i );
+        line = (uint *) image.scanLine( i );
         dnx = fabs( 1. / dy );
         nx = dx0 * dnx;
 
@@ -2909,7 +2846,7 @@ QImage qt_draw_conical_gradient_image(const QRect &rect, ConicalGradientData *cd
             dx += 1;
             continue;
         }
-        line = (ARGB *) image.scanLine( i );
+        line = (uint *) image.scanLine( i );
         dny = fabs( 1. / dx );
         ny = dy0 * dny;
         si = 0;
@@ -2934,7 +2871,7 @@ QImage qt_draw_conical_gradient_image(const QRect &rect, ConicalGradientData *cd
             rp = p - da;
             if ( rp < 0.001 && rp > -0.001 )
                 rp = 0.;
-            image.setPixel( i, j, qt_gradient_pixel( cdata, rp ).toRgba() );
+            image.setPixel(i, j, qt_gradient_pixel( cdata, rp ));
             p += dp;
             ny += dny;
             j++;

@@ -115,7 +115,7 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
 //     qDebug() << " - originalPath.bounds" << originalPath.boundingRect();
 //     qDebug() << " - path.bounds" << path.boundingRect();
 
-    QImage image(devWidth, devHeight, 32);
+    QImage image(devWidth, devHeight, QImage::Format_ARGB32_Premultiplied);
     image.fill(0);
     image.setAlphaBuffer(true);
 

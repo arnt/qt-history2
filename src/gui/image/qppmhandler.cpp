@@ -96,8 +96,7 @@ static bool read_pbm_image(QIODevice *device, QImage *outImage)        // read P
     int maxc = mcc;
     if (maxc > 255)
         maxc = 255;
-    image.create(w, h, nbits, 0,
-                  nbits == 1 ? QImage::BigEndian :  QImage::IgnoreEndian);
+    image = QImage(w, h, nbits, 0, nbits == 1 ? QImage::BigEndian :  QImage::IgnoreEndian);
     if (image.isNull())
         return false;
 
@@ -254,7 +253,7 @@ static bool write_pbm_image(QIODevice *out, const QImage &sourceImage, const QBy
             str.append("255\n");
             if (out->write(str, str.length()) != str.length())
                 return false;
-            QRgb  *color = image.colorTable();
+            QVector<QRgb> color = image.colorTable();
             uint bpl = w*(gray ? 1 : 3);
             uchar *buf   = new uchar[bpl];
             for (uint y=0; y<h; y++) {

@@ -821,9 +821,9 @@ bool qt_read_xpm_image_or_array(QIODevice *device, const char * const * source, 
         return false;
 
     if (ncols > 256) {
-        image.create(w, h, 32);
+        image = QImage(w, h, 32);
     } else {
-        image.create(w, h, 8, ncols);
+        image = QImage(w, h, 8, ncols);
     }
 
     if (image.isNull())
