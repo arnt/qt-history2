@@ -387,7 +387,7 @@ bool QSqlTableModel::update(int row, const QSqlRecord &values)
         d->error = d->editQuery.lastError();
         return false;
     }
-    qDebug("executed: %s", d->editQuery.executedQuery().ascii());
+    qDebug("executed: %s, %d", d->editQuery.executedQuery().ascii(), d->editQuery.numRowsAffected());
     return true;
 }
 
@@ -420,6 +420,8 @@ bool QSqlTableModel::insert(const QSqlRecord &values)
  */
 bool QSqlTableModel::submitChanges()
 {
+    bool isOk = true;
+
     switch (d->strategy) {
     case OnFieldChange:
         return true;
@@ -435,14 +437,19 @@ bool QSqlTableModel::submitChanges()
     case OnManualSubmit:
         QSqlTableModelPrivate::CacheHash::const_iterator i = d->cache.constBegin();
         while (i != d->cache.constEnd()) {
-            update(i.key(), d->record(i.value())); // ### error handling
+            if (!update(i.key(), d->record(i.value()))) {
+                isOk = false;
+                break;
+            }
             ++i;
         }
-        d->cache.clear();
-        d->query.exec(d->query.lastQuery()); // ### Refresh
+        if (isOk) {
+            d->cache.clear();
+            d->query.exec(d->query.lastQuery()); // ### Refresh
+        }
         break;
     }
-    return true;
+    return isOk;
 }
 
 
@@ -484,6 +491,21 @@ QSqlTableModel::EditStrategy QSqlTableModel::editStrategy() const
  */
 void QSqlTableModel::cancelChanges()
 {
+    switch (d->strategy) {
+    case OnFieldChange:
+        break;
+    case OnRowChange:
+        d->editBuffer.clear();
+        if (d->editIndex >= 0)
+            emit dataChanged(index(d->editIndex, 0), index(d->editIndex, d->rec.count()));
+        break;
+    case OnManualSubmit: {
+        QList<int> keys = d->cache.keys();
+        d->cache.clear();
+        for (int i = 0; i < keys.count(); ++i)
+            emit dataChanged(index(keys.at(i), 0), index(keys.at(i), d->rec.count()));
+        break; }
+    }
     d->editQuery.clear();
     d->editBuffer.clear();
     d->cache.clear();
