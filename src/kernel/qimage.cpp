@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#48 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#47 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#48 $")
 
 
 /*!
@@ -913,11 +913,15 @@ static void swapPixel01( QImage *image )	// 1-bit: swap 0 and 1 pixels
     if ( image->depth() == 1 && image->numColors() == 2 ) {
 	register ulong *p = (ulong *)image->bits();
 	long nbytes = image->numBytes();
-	for ( i=0; i<nbytes/4; i++ )
-	    *p++ = ~*p;
+	for ( i=0; i<nbytes/4; i++ ) {
+	    *p = ~*p;
+	    p++;
+	}
 	uchar *p2 = (uchar *)p;
-	for ( i=0; i<(nbytes&3); i++ )
-	    *p2++ = ~*p2;
+	for ( i=0; i<(nbytes&3); i++ ) {
+	    *p2 = ~*p2;
+	    p2++;
+	}
 	ulong t = image->color(0);		// swap color 0 and 1
 	image->setColor( 0, image->color(1) );
 	image->setColor( 1, t );
