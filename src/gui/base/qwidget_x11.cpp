@@ -700,6 +700,13 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
     if ( destroyw )
 	qt_XDestroyWindow( this, dpy, destroyw );
+
+    // newly created windows are positioned at the window system's
+    // (0,0) position. If the parent uses wrect mapping to expand the
+    // coordinate system, we must also adjust this widget's window
+    // system position
+    if (!topLevel && !parentWidget()->data->wrect.topLeft().isNull())
+        d->setWSGeometry();
 }
 
 
@@ -1936,9 +1943,11 @@ static void do_size_hints( QWidget* widget, QWExtra *x )
   coordinate system to X11's 16bit coordinate system.
 
   Sets the geometry of the widget to data.crect, but clipped to sizes
-  that X can handle. Unmaps widgets that are completely outside the valid range.
+  that X can handle. Unmaps widgets that are completely outside the
+  valid range.
 
-  Maintains data.wrect, which is the geometry of the X widget, measured in this widget's coordinate system.
+  Maintains data.wrect, which is the geometry of the X widget,
+  measured in this widget's coordinate system.
 
   if the parent is not clipped, parentWRect is empty, otherwise
   parentWRect is the geometry of the parent's X rect, measured in
