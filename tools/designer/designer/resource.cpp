@@ -856,7 +856,7 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
 	QMap<QString, QStringList> eventFunctions = MetaDataBase::eventFunctions( w );
 	QMap<QString, QStringList>::ConstIterator it = eventFunctions.begin();
 	for ( ; it != eventFunctions.end(); ++it ) {
-	    ts << makeIndent( indent ) << "<event name=\"" << it.key() << "\" functions=\"";
+	    ts << makeIndent( indent ) << "<event name=\"" << entitize( it.key() ) << "\" functions=\"";
 	    for ( QStringList::ConstIterator fit = (*it).begin(); fit != (*it).end(); ++fit ) {
 		if ( fit != (*it).begin() )
 		    ts << ",";
