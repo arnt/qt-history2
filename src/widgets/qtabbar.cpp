@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#77 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#78 $
 **
 ** Implementation of QTabBar class
 **
@@ -732,5 +732,60 @@ void QTabBar::layoutTabs()
 	h += vframe;
 	t->r.setRect( x, 0, lw + hframe + iw, QMAX(r.height(), h) );
 	x += t->r.width() - overlap;
+    }
+}
+
+void QTabBar::focusInEvent( QFocusEvent * )
+{
+    QTab *t = l->first();
+    for ( ; t; t = l->next() ) {
+	if ( t->id == d->focus ) {
+	    QPainter p;
+	    p.begin( this );
+	    QRect r = t->r;
+	    p.setFont( font() );
+
+	    int iw = 0;
+	    int ih = 0;
+	    if ( t->iconset != 0 ) {
+		iw = t->iconset->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 2;
+		ih = t->iconset->pixmap( QIconSet::Small, QIconSet::Normal ).height();
+	    }
+	    int w = iw + p.fontMetrics().width( t->label ) + 4;
+	    int h = QMAX(p.fontMetrics().height() + 4, ih );
+	    paintLabel( &p, QRect( r.left() + ( r.width() -w ) /2 - 3,
+				   r.top() + ( r.height()-h ) / 2,
+				   w, h ), t, TRUE );
+	    p.end();
+	}
+    }
+}
+
+void QTabBar::focusOutEvent( QFocusEvent * )
+{
+    QTab *t = l->first();
+    for ( ; t; t = l->next() ) {
+	if ( t->id == d->focus ) {
+	    QPainter p;
+	    p.begin( this );
+	    QRect r = t->r;
+	    p.setFont( font() );
+
+	    int iw = 0;
+	    int ih = 0;
+	    if ( t->iconset != 0 ) {
+		iw = t->iconset->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 2;
+		ih = t->iconset->pixmap( QIconSet::Small, QIconSet::Normal ).height();
+	    }
+	    int w = iw + p.fontMetrics().width( t->label ) + 4;
+	    int h = QMAX(p.fontMetrics().height() + 4, ih );
+	    p.fillRect( QRect( r.left() + ( r.width() -w ) / 2 - 4,
+				   r.top() + ( r.height()-h ) / 2 - 1,
+			       w + 2, h + 2 ), colorGroup().background() );
+	    paintLabel( &p, QRect( r.left() + ( r.width() -w ) /2 - 3,
+				   r.top() + ( r.height()-h ) / 2,
+				   w, h ), t, FALSE );
+	    p.end();
+	}
     }
 }
