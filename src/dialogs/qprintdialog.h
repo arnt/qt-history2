@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.h#16 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.h#17 $
 **
 ** Definition of print dialog.
 **
@@ -43,6 +43,7 @@ private slots:
     void paperSizeSelected( int );
     void orientSelected( int );
     void pageOrderSelected( int );
+    void colorModeSelected( int );
     void setNumCopies( int );
     void printRangeSelected( int );
     void setFirstPage( int );

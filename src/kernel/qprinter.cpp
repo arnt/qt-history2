@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#33 $
 **
 ** Implementation of QPrinter class
 **
@@ -11,7 +11,7 @@
 
 #include "qprinter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#32 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#33 $");
 
 
 /*!
@@ -283,6 +283,16 @@ void QPrinter::setOrientation( Orientation orientation )
   \sa setPageSize()
 */
 
+
+static QPrinter::PageSize makepagesize( QPrinter::PageSize ps,
+					QPrinter::PageOrder po,
+					QPrinter::ColorMode cm )
+{
+    return (QPrinter::PageSize)( ((int)ps & 255) + 
+				 ((po == QPrinter::LastPageFirst) ? 256 : 0) +
+				 ((cm == QPrinter::GrayScale) ? 512 : 0) );
+}
+
 /*!
   Sets the printer page size to \a newPageSize.
 
@@ -300,12 +310,12 @@ void QPrinter::setOrientation( Orientation orientation )
 
 void QPrinter::setPageSize( PageSize newPageSize )
 {
-    page_size = (PageSize)(newPageSize + 256 * pageOrder());
+    page_size = makepagesize( newPageSize, pageOrder(), colorMode() );
 }
 
 
 /*!  Sets the page order to \a newPageOrder.
-  
+
   The page order can be \c QPrinter::FirstPageFirst or \c
   QPrinter::LastPageFirst.  The application programmer is responsible
   for reading the page order and printing accordingly.
@@ -313,18 +323,53 @@ void QPrinter::setPageSize( PageSize newPageSize )
 
 void QPrinter::setPageOrder( PageOrder newPageOrder )
 {
-    page_size = (PageSize)(pageSize() + 256 * newPageOrder);
+    page_size = makepagesize( pageSize(), newPageOrder, colorMode() );
 }
 
 
 /*!  Returns the current page order.
-  
+
   The default page order is \a FirstPageFirst.
 */
 
-bool QPrinter::pageOrder() const
+QPrinter::PageOrder QPrinter::pageOrder() const
 {
-    return (PageOrder) ( ((int)page_size) >> 8 );
+    if ( ((int)page_size) & 256 )
+	return QPrinter::LastPageFirst;
+    else
+	return QPrinter::FirstPageFirst;
+}
+
+
+/*!  Sets the printer's color mode to \a newColorMode, which can be
+  one of \c Color (the default) and \c GrayScale.
+  
+  A future version of Qt will modify its printing accordingly.  At
+  present, QPrinter behaves as if \c Color is selected.
+  
+  \sa colorMode()  
+*/
+
+void QPrinter::setColorMode( ColorMode newColorMode )
+{
+    page_size = makepagesize( pageSize(), pageOrder(), newColorMode );
+}
+
+
+/*!  Returns the current color mode.  The default color more is \c
+  Color.
+  
+  \sa setColorMode()
+*/
+
+QPrinter::ColorMode QPrinter::colorMode() const
+{
+    if ( ((int)page_size) & 512 )
+	return QPrinter::GrayScale;
+    else
+	return QPrinter::Color;
+    
+    
 }
 
 

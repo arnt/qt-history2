@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#28 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#29 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -34,7 +34,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#28 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#29 $");
 
 
 struct QPrintDialogPrivate
@@ -64,6 +64,9 @@ struct QPrintDialogPrivate
 
     QButtonGroup * pageOrder;
     QPrinter::PageOrder pageOrder2;
+
+    QButtonGroup * colorMode;
+    QPrinter::ColorMode colorMode2;
 
     int numCopies;
 };
@@ -483,6 +486,10 @@ QGroupBox * QPrintDialog::setupOptions()
     connect( d->pageOrder, SIGNAL(clicked(int)),
 	     this, SLOT(pageOrderSelected(int)) );
 
+    d->colorMode = new QButtonGroup( (QWidget *)0 );
+    connect( d->pageOrder, SIGNAL(clicked(int)),
+	     this, SLOT(colorModeSelected(int)) );
+
     d->printAllButton = new QRadioButton( tr("Print all"), g, "print all" );
     d->printAllButton->setMinimumSize( d->printAllButton->sizeHint() );
     d->printRange->insert( d->printAllButton, 0 );
@@ -540,6 +547,25 @@ QGroupBox * QPrintDialog::setupOptions()
     rb->setMinimumSize( rb->sizeHint() );
     tll->addWidget( rb );
     d->pageOrder->insert( rb, QPrinter::LastPageFirst );
+
+    divider = new QFrame( g, "divider", 0, TRUE );
+    divider->setFrameStyle( QFrame::HLine + QFrame::Sunken );
+    divider->setMinimumHeight( 6 );
+    tll->addWidget( divider, 1 );
+
+    // color mode
+    rb = new QRadioButton( tr("Print in color if available"),
+			   g, "color" );
+    rb->setMinimumSize( rb->sizeHint() );
+    tll->addWidget( rb );
+    d->colorMode->insert( rb, QPrinter::Color );
+    rb->setChecked( TRUE );
+
+    rb = new QRadioButton( tr("Print in grayscale"),
+			   g, "graysacle" );
+    rb->setMinimumSize( rb->sizeHint() );
+    tll->addWidget( rb );
+    d->colorMode->insert( rb, QPrinter::GrayScale );
 
     divider = new QFrame( g, "divider", 0, TRUE );
     divider->setFrameStyle( QFrame::HLine + QFrame::Sunken );
@@ -748,6 +774,7 @@ void QPrintDialog::okClicked()
     d->printer->setOrientation( d->orientation );
     d->printer->setPageSize( d->pageSize );
     d->printer->setPageOrder( d->pageOrder2 );
+    d->printer->setColorMode( d->colorMode2 );
 
     accept();
 }
@@ -856,4 +883,10 @@ void QPrintDialog::setPrinter( QPrinter * p, bool pickUpSettings )
 QPrinter * QPrintDialog::printer() const
 {
     return d->printer;
+}
+
+
+void QPrintDialog::colorModeSelected( int id )
+{
+    d->colorMode2 = (QPrinter::ColorMode)id;
 }
