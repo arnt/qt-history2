@@ -2151,7 +2151,7 @@ void MetaObjectGenerator::readFuncsInfo(ITypeInfo *typeinfo, ushort nFuncs)
                 if (hasEnum(type))
                     flags |= EnumOrFlag;
 
-                if (funcdesc->wFuncFlags & FUNCFLAG_FBINDABLE) {
+                if (funcdesc->wFuncFlags & FUNCFLAG_FBINDABLE && funcdesc->invkind == INVOKE_PROPERTYGET) {
                     addChangedSignal(function, type, funcdesc->memid);
                     flags |= Bindable;
                 }
@@ -2174,6 +2174,7 @@ void MetaObjectGenerator::readFuncsInfo(ITypeInfo *typeinfo, ushort nFuncs)
                 } else if (funcdesc->invkind == INVOKE_PROPERTYPUT && hasProperty(function)) {
                     addSetterSlot(function);
                 }
+                break;
             }
             // FALL THROUGH to support multi-variat properties
         case INVOKE_FUNC: // method
