@@ -1238,7 +1238,6 @@ QDir::makeAbsolute() // ### What do the return values signify?
     // The current directory is "/usr/local"
     QDir d1("/usr/local/bin");
     QDir d2("bin");
-    d2.makeAbsolute();
     if (d1 == d2)
         qDebug("They're the same");
     \endcode
@@ -1246,11 +1245,27 @@ QDir::makeAbsolute() // ### What do the return values signify?
 
 bool QDir::operator==(const QDir &dir) const
 {
-    return dir.d->data == d->data
-           || (d->data->path == dir.d->data->path
-               && d->data->filterSpec == dir.d->data->filterSpec
-               && d->data->sortSpec == dir.d->data->sortSpec
-               && d->data->nameFilters == dir.d->data->nameFilters);
+    if(dir.d->data == d->data)
+        return true;
+    Q_ASSERT(d->data->fileEngine && dir.d->data->fileEngine);
+    if(d->data->fileEngine->type() != dir.d->data->fileEngine->type() ||
+       d->data->fileEngine->caseSensitive() != dir.d->data->fileEngine->caseSensitive())
+        return false;
+    if(d->data->filterSpec == dir.d->data->filterSpec
+       && d->data->sortSpec == dir.d->data->sortSpec
+       && d->data->nameFilters == dir.d->data->nameFilters) {
+        QString dir1 = absolutePath(), dir2 = dir.absolutePath();
+        if(!dir.d->data->fileEngine->caseSensitive()) {
+            for(int i = 0; i < dir1.length(); i++) {
+                if(dir1.at(i).toLower() != dir2.at(i).toLower())
+                    return false;
+            }
+            return true;
+        }
+        return (dir1 == dir2);
+
+    }
+    return false;
 }
 
 /*!
