@@ -21,7 +21,6 @@
 #include <qrangecontrol.h>
 #include <qt_mac.h>
 #include <qtabbar.h>
-#include <qcfhelper_mac.h>
 
 #include <private/qaquastyle_p.h>
 #include <private/qtitlebar_p.h>

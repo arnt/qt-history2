@@ -27,7 +27,6 @@
 #include <qdict.h>
 #include <qpainter.h>
 #include "qtextengine_p.h"
-#include "qcfhelper_mac.h"
 #include <stdlib.h>
 
 QFont::Script QFontPrivate::defaultScript = QFont::UnknownScript;
