@@ -1383,6 +1383,11 @@ void QMenuBar::setActiveItem( int i, bool show, bool activate_first_item )
 	setMicroFocusHint( mfrect.x(), mfrect.y(), mfrect.width(), mfrect.height(), FALSE );
     }
 
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    if ( mi )
+	QAccessible::updateAccessibility( this, indexOf( mi->id() )+1, QAccessible::Focus );
+#endif
+
     if ( actItem < 0 || !popupvisible || !mi  )
 	return;
 

@@ -712,7 +712,7 @@ void QPopupMenu::actSig( int id, bool inwhatsthis )
 	emit activated( id );
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	if ( !fromAccel )
-	    QAccessible::updateAccessibility( this, id, QAccessible::MenuCommand );
+	    QAccessible::updateAccessibility( this, indexOf(id)+1, QAccessible::MenuCommand );
 #endif
     } else {
 #ifndef QT_NO_WHATSTHIS
@@ -732,6 +732,11 @@ void QPopupMenu::hilitSig( int id )
 {
     emit highlighted( id );
     emit highlightedRedirect( id );
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessible::updateAccessibility( this, indexOf(id)+1, QAccessible::Focus );
+    QAccessible::updateAccessibility( this, indexOf(id)+1, QAccessible::Selection );
+#endif
 }
 
 
