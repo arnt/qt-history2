@@ -611,7 +611,8 @@ void QTextLine::draw(QPainter *p, int xpos, int ypos, int selection) const
                 // ###
                 selType = static_cast<QTextLayout::SelectionType>(eng->selections[selection].type());
 
-            eng->docLayout->drawObject(p, QPoint(x.toInt(), y.toInt()), QTextObject(item, eng), format, selType);
+            eng->docLayout->drawObject(p, QRect(x.toInt(), (y-si.ascent).toInt(), si.width.toInt(), (si.ascent+si.descent).toInt()),
+                                       QTextObject(item, eng), format, selType);
         }
 
         if (si.isTab || si.isObject) {

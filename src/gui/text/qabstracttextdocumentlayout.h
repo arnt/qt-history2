@@ -13,6 +13,7 @@ class QRect;
 class QRegion;
 class QAbstractTextDocumentLayoutPrivate;
 class QTextBlockIterator;
+class QTextObjectInterface;
 
 class Q_GUI_EXPORT QAbstractTextDocumentLayout : public QObject
 {
@@ -37,10 +38,12 @@ public:
 
     virtual int numPages() const = 0;
 
-public:
-    void registerHandler(int formatType, QObject *component);
+    void registerHandler(int objectType, QObject *component);
+    QTextObjectInterface *handlerForObject(int objectType) const;
+
     virtual void layoutObject(QTextObject item, const QTextFormat &format);
-    virtual void drawObject(QPainter *p, const QPoint &position, QTextObject item, const QTextFormat &format, QTextLayout::SelectionType selType);
+    virtual void drawObject(QPainter *painter, const QRect &rect, QTextObject object, const QTextFormat &format,
+                            QTextLayout::SelectionType selection);
 
     virtual void setPageSize(const QSize &size) = 0;
     virtual QSize pageSize() const = 0;
@@ -65,8 +68,9 @@ private slots:
 class QTextObjectInterface
 {
 public:
-    virtual void layoutObject(QTextObject object, const QTextFormat &format) = 0;
-    virtual void drawObject(QPainter *painter, const QPoint &position, QTextObject object, const QTextFormat &format, QTextLayout::SelectionType selection) = 0;
+    virtual QSize intrinsicSize(QTextObject object, const QTextFormat &format) = 0;
+    virtual void drawObject(QPainter *painter, const QRect &rect, QTextObject object, const QTextFormat &format,
+                            QTextLayout::SelectionType selection) = 0;
 };
 Q_DECLARE_INTERFACE(QTextObjectInterface)
 

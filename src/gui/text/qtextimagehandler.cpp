@@ -53,35 +53,23 @@ QTextImageHandler::QTextImageHandler(QObject *parent)
 {
 }
 
-void QTextImageHandler::layoutObject(QTextObject item, const QTextFormat &format)
+QSize QTextImageHandler::intrinsicSize(QTextObject, const QTextFormat &format)
 {
-    if (item.width() >= 0)
-        return;
-
     QTextImageFormat imageFormat = format.toImageFormat();
 
     QPixmap pixmap = getPixmap(imageFormat);
-    if (pixmap.isNull())
-        return;
-
-    item.setWidth(pixmap.width());
-    item.setAscent(pixmap.height() / 2);
-    item.setDescent(pixmap.height() / 2);
+    return pixmap.size();
 }
 
-void QTextImageHandler::drawObject(QPainter *p, const QPoint &position, QTextObject item, const QTextFormat &format, QTextLayout::SelectionType selType)
+void QTextImageHandler::drawObject(QPainter *p, const QRect &rect, QTextObject item, const QTextFormat &format, QTextLayout::SelectionType selType)
 {
     QTextImageFormat imageFormat = format.toImageFormat();
     QPixmap pixmap = getPixmap(imageFormat);
 
-    QPoint adjustedPos(position.x(), position.y() - item.ascent());
-
-    p->drawPixmap(adjustedPos, pixmap);
+    p->drawPixmap(rect, pixmap);
 
     if (selType == QTextLayout::Highlight && item.engine()->pal) {
-        QRect rect(adjustedPos, pixmap.size());
         QBrush brush(item.engine()->pal->highlight(), QBrush::Dense4Pattern);
-
         p->fillRect(rect, brush);
     }
 }

@@ -49,6 +49,15 @@ void QAbstractTextDocumentLayout::registerHandler(int formatType, QObject *compo
     d->handlers.insert(formatType, h);
 }
 
+QTextObjectInterface *QAbstractTextDocumentLayout::handlerForObject(int objectType) const
+{
+    QTextObjectHandler handler = d->handlers.value(objectType);
+    if (!handler.component)
+        return 0;
+
+    return handler.iface;
+}
+
 void QAbstractTextDocumentLayout::layoutObject(QTextObject item, const QTextFormat &format)
 {
     QTextCharFormat f = format.toCharFormat();
@@ -56,10 +65,14 @@ void QAbstractTextDocumentLayout::layoutObject(QTextObject item, const QTextForm
     QTextObjectHandler handler = d->handlers.value(f.objectType());
     if (!handler.component)
         return;
-    handler.iface->layoutObject(item, format);
+
+    QSize s = handler.iface->intrinsicSize(item, format);
+    item.setWidth(s.width());
+    item.setAscent(s.height());
+    item.setDescent(0);
 }
 
-void QAbstractTextDocumentLayout::drawObject(QPainter *p, const QPoint &position, QTextObject item,
+void QAbstractTextDocumentLayout::drawObject(QPainter *p, const QRect &rect, QTextObject item,
                                              const QTextFormat &format, QTextLayout::SelectionType selType)
 {
     QTextCharFormat f = format.toCharFormat();
@@ -67,7 +80,7 @@ void QAbstractTextDocumentLayout::drawObject(QPainter *p, const QPoint &position
     QTextObjectHandler handler = d->handlers.value(f.objectType());
     if (!handler.component)
         return;
-    handler.iface->drawObject(p, position, item, format, selType);
+    handler.iface->drawObject(p, rect, item, format, selType);
 }
 
 void QAbstractTextDocumentLayout::handlerDestroyed(QObject *obj)
