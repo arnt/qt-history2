@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#67 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#68 $
 **
 ** Implementation of QAccel class
 **
@@ -23,7 +23,6 @@
 **
 *****************************************************************************/
 
-#define QAccelList QListM_QAccelItem
 #include "qaccel.h"
 #include "qapplication.h"
 #include "qwidget.h"
@@ -33,7 +32,7 @@
 
 /*!
   \class QAccel qaccel.h
-  \brief The QAccel class handles keyboard accelerator keys.
+  \brief The QAccel class handles keyboard accelerator and shortcut keys.
 
   \ingroup kernel
 
@@ -427,10 +426,15 @@ void QAccel::tlwDestroyed()
   Returns the shortcut key for \a string, or 0 if \a string has no
   shortcut sequence.
 
-  For example, shortcutChar("E&xit") returns ALT+Key_X,
+  For example, acceleratorKey("E&xit") returns ALT+Key_X,
   shortcutChar("&Exit") returns ALT+Key_E and shortcutChar("Exit")
   returns 0.  (In code that does not inherit the Qt namespace class,
   you need to write e.g. Qt::ALT+Qt::Key_X.)
+
+  We provide a \link accelerators.html list of common accelerators
+  \endlink in English.  (At the time of writing the Microsoft and The
+  Open Group appear to not have issued such recommendations for other
+  languages.)
 */
 
 int QAccel::shortcutKey( const QString &str )
@@ -494,7 +498,7 @@ bool QAccel::ignoreWhatsThis() const
 
 
 
-/* \page shortcuts.html
+/* \page accelerators.html
 
 <title>Standard Accelerators</title>
 \postheader
@@ -571,9 +575,15 @@ parentheses.
 <li><b><u>W</u></b>hat's This?
 <li><b><u>W</u></b>indow
 <li><b><u>Y</u></b>es
-	</ul>
+</ul>
 
+The
 <a href="http://www.amazon.com/exec/obidos/ASIN/1556156790/trolltech/t">
+Microsoft book</a> has ISBN 1556156790.  The corresponding
 <a href="http://www.amazon.com/exec/obidos/ASIN/1859121047/trolltech/t">
+Open Group book</a> has ISBN 1859121047.  (The link does not work at
+the time of writing, but is correct: The books is simply hard to get
+hold of.  OGPubs@opengroup.org may be able to help, if you have too much
+money.)
 
 */
