@@ -69,7 +69,7 @@ class Q_EXPORT QTabBar: public QWidget
     Q_OBJECT
     Q_ENUMS( Shape )
     Q_PROPERTY( Shape shape READ shape WRITE setShape )
-    Q_PROPERTY( int currentTab READ currentTab )
+    Q_PROPERTY( int currentTab READ currentTab WRITE setCurrentTab )
     Q_PROPERTY( int keyboardFocusTab READ keyboardFocusTab )
 
 public:

@@ -66,8 +66,6 @@ Editor::Editor( QWidget * parent , const char * name )
     changed = FALSE;
     e = new QMultiLineEdit( this, "editor" );
     connect( e, SIGNAL( textChanged() ), this, SLOT( textChanged() ) );
-    // e->setFont( QFont("Helvetica", 24) );
-    // e->setFont( QFont("Unifont", 16, 50, FALSE, QFont::Unicode) );
 
     e->setFocus();
 }

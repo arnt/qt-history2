@@ -2262,11 +2262,14 @@ int QBoxLayout::calcHfw( int w )
     } else {
 	QListIterator<QBoxLayoutItem> it( data->list );
 	QBoxLayoutItem *box;
-	int space=0;
+	bool first = TRUE;
 	while ( (box=it.current()) != 0 ) {
 	    ++it;
-	    h += box->hfw( w ) + space;
-	    space = box->item->isEmpty() ? 0 : spacing();
+	    bool empty = box->item->isEmpty();
+	    h += box->hfw( w );
+	    if ( !first && !empty )
+		h += spacing();
+	    first = first && empty;
 	}
     }
     data->hfwHeight = h;

@@ -1767,6 +1767,7 @@ QListView::QListView( QWidget * parent, const char *name )
     d->pressedItem = 0;
     d->makeCurrentVisibleOnUpdate = TRUE;
     d->selectAnchor = 0;
+    d->select = TRUE;
 
     setMouseTracking( TRUE );
     viewport()->setMouseTracking( TRUE );

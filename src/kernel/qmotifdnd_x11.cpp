@@ -295,26 +295,26 @@ static int _DndIndexToTargets(Display * display,
 			      int index,
 			      Atom ** targets);
 
+extern void qt_x11_intern_atom( const char *, Atom * );
+
 /////////////////////////////////////////////////////////////////
 
-static void InitAtoms(Display * dpy)
+void qt_x11_motifdnd_init()
 {
-    if (atom_message_type) return ; /* already Initialized */
-
     /* Init atoms used in the com */
 
-    atom_message_type =  XInternAtom(dpy, "_MOTIF_DRAG_AND_DROP_MESSAGE", False);
-    atom_src_property_type = XInternAtom(dpy, "_MOTIF_DRAG_INITIATOR_INFO", False);
-    atom_receiver_info = XInternAtom(dpy, "_MOTIF_DRAG_RECEIVER_INFO", False);
-    atom_motif_window = XInternAtom(dpy, "_MOTIF_DRAG_WINDOW", False);
-    atom_target_list = XInternAtom(dpy, "_MOTIF_DRAG_TARGETS", False);
+    qt_x11_intern_atom( "_MOTIF_DRAG_AND_DROP_MESSAGE", &atom_message_type );
+    qt_x11_intern_atom( "_MOTIF_DRAG_INITIATOR_INFO", &atom_src_property_type );
+    qt_x11_intern_atom( "_MOTIF_DRAG_RECEIVER_INFO", &atom_receiver_info );
+    qt_x11_intern_atom( "_MOTIF_DRAG_WINDOW", &atom_motif_window );
+    qt_x11_intern_atom( "_MOTIF_DRAG_TARGETS", &atom_target_list );
 
-    Dnd_transfer_success = XInternAtom( qt_xdisplay(), "XmTRANSFER_SUCCESS", False);
-    Dnd_transfer_failure = XInternAtom( qt_xdisplay(), "XmTRANSFER_FAILURE", False);
-
+    qt_x11_intern_atom( "XmTRANSFER_SUCCESS", &Dnd_transfer_success );
+    qt_x11_intern_atom( "XmTRANSFER_FAILURE", &Dnd_transfer_failure );
+    
     char my_dnd_selection_name[30];  // 11-digit number should be enough
     sprintf(my_dnd_selection_name, "_MY_DND_SELECTION_%d", (int)getpid());
-    Dnd_selection = XInternAtom( qt_xdisplay(), my_dnd_selection_name, False);
+    qt_x11_intern_atom( my_dnd_selection_name, &Dnd_selection );
 }
 
 static unsigned char DndByteOrder (void)
@@ -338,8 +338,6 @@ static void DndReadSourceProperty(Display * dpy,
     Atom type ;
     int format ;
     unsigned long bytesafter, lengthRtn;
-
-    InitAtoms(dpy);
 
     if ((XGetWindowProperty (dpy, window, dnd_selection, 0L, 100000L,
 			     False, atom_src_property_type, &type,
@@ -369,8 +367,6 @@ static void DndWriteReceiverProperty(Display * dpy, Window window,
 {
     DndReceiverProp receiver_prop ;
 
-    InitAtoms(dpy);
-
     receiver_prop.byte_order = DndByteOrder() ;
     receiver_prop.protocol_version = DND_PROTOCOL_VERSION;
     receiver_prop.protocol_style = protocol_style ;
@@ -399,8 +395,6 @@ static void DndFillClientMessage(Display * dpy, Window window,
 				 char receiver)
 {
     DndMessage * dnd_message = (DndMessage*)&cm->data.b[0] ;
-
-    InitAtoms(dpy);
 
     cm->display = dpy;
     cm->type = ClientMessage;
@@ -452,8 +446,6 @@ static Bool DndParseClientMessage(XClientMessageEvent *cm, DndData * dnd_data,
 				  char * receiver)
 {
     DndMessage * dnd_message = (DndMessage*)&cm->data.b[0] ;
-
-    InitAtoms(cm->display);
 
     if (cm->message_type != atom_message_type) {
 	return False ;
@@ -650,8 +642,6 @@ static int _DndIndexToTargets(Display * display,
     int i ;
 
     /* again, slow: no caching here, alloc/free each time */
-
-    InitAtoms(display) ;
 
     if (!(targets_table = TargetsTable (display)) ||
 	(index >= targets_table->num_entries)) {

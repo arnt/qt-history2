@@ -46,6 +46,7 @@
  *****************************************************************************/
 
 extern Time qt_x_time;			// def. in qapplication_x11.cpp
+extern Time qt_x_incr;			// def. in qapplication_x11.cpp
 extern Atom qt_selection_property;
 extern Atom qt_selection_sentinel;
 extern Atom* qt_xdnd_str_to_atom( const char *mimeType );
@@ -604,8 +605,7 @@ QByteArray QClipboardWatcher::getDataInFormat(Atom fmtatom) const
 
     if ( qt_xclb_read_property(dpy,win,qt_selection_property,TRUE,
 			       &buf,0,&type,0,FALSE) ) {
-	// ### use qt_x11_intern_atoms for faster startup
-	if ( type == XInternAtom(dpy,"INCR",FALSE) ) {
+	if ( type == qt_x_incr ) {
 	    int nbytes = buf.size() >= 4 ? *((int*)buf.data()) : 0;
 	    buf = qt_xclb_read_incremental_property( dpy, win,
 						     qt_selection_property,

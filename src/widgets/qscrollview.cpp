@@ -2187,11 +2187,14 @@ QSize QScrollView::sizeHint() const
     QSize result = QSize(frameWidth()*2, frameWidth()*2);
     if ( d->policy == QScrollView::AutoOne ) {
 	QSVChildRec* r = d->children.first();
-	QSize cs = r->child->sizeHint();
-	if ( cs.isValid() )
-	    result += cs;
-	else
-	    result += r->child->size();
+	if (r)
+	{
+            QSize cs = r->child->sizeHint();
+	    if ( cs.isValid() )
+        	result += cs;
+	    else
+        	result += r->child->size();
+        }
     } else {
 	result += QSize(contentsWidth(),contentsHeight());
     }

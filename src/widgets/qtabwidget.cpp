@@ -631,3 +631,11 @@ bool QTabWidget::eventFilter( QObject *o, QEvent * e)
     return FALSE;
 }
 
+
+/*!\reimp
+ */
+
+QSizePolicy QTabWidget::sizePolicy() const
+{
+    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
+}

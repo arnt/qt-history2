@@ -80,8 +80,11 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( QPixmap backgroundPixmap READ backgroundPixmap WRITE setBackgroundPixmap DESIGNABLE false )
     Q_PROPERTY( QColorGroup colorGroup READ colorGroup )
     Q_PROPERTY( QPalette palette READ palette WRITE setPalette RESET unsetPalette )
+    Q_PROPERTY( bool ownPalette READ ownPalette )
     Q_PROPERTY( QFont font READ font WRITE setFont RESET unsetFont )
+    Q_PROPERTY( bool ownFont READ ownFont )
     Q_PROPERTY( QCursor cursor READ cursor WRITE setCursor RESET unsetCursor )
+    Q_PROPERTY( bool ownCursor READ ownCursor )
     Q_PROPERTY( QString caption READ caption WRITE setCaption )
     Q_PROPERTY( QPixmap icon READ icon WRITE setIcon )
     Q_PROPERTY( QString iconText READ iconText WRITE setIconText )
@@ -202,10 +205,12 @@ public:
 
     const QColorGroup & colorGroup() const;
     const QPalette &	palette()    const;
+    bool		ownPalette() const;
     virtual void	setPalette( const QPalette & );
     void		unsetPalette();
 
     QFont		font() const;
+    bool		ownFont() const;
     virtual void	setFont( const QFont & );
     void		unsetFont();
     QFontMetrics	fontMetrics() const;
@@ -221,6 +226,7 @@ public:
     virtual void	setPalettePropagation( PropagationMode ); // obsolete, remove 3.0
 
     const QCursor      &cursor() const;
+    bool		ownCursor() const;
     virtual void	setCursor( const QCursor & );
     virtual void	unsetCursor();
 
@@ -360,12 +366,12 @@ public:
     virtual void	setAcceptDrops( bool on );
 
     // transparency and pseudo transparency
-    
+
     virtual void	setAutoMask(bool);
     bool		autoMask() const;
-    
+
     enum BackgroundOrigin { WidgetOrigin, ParentOrigin };
-    
+
     void setBackgroundOrigin( BackgroundOrigin );
     BackgroundOrigin backgroundOrigin() const;
 
@@ -698,6 +704,24 @@ inline void QWidget::constPolish() const
         that->setWState(WState_Polished); // be on the safe side...
     }
 }
+
+inline bool QWidget::ownCursor() const
+{
+    return testWState( WState_OwnCursor );
+}
+
+inline bool QWidget::ownFont() const
+{
+    return own_font;
+}
+
+inline bool QWidget::ownPalette() const
+{
+    return own_palette;
+}
+
+
+
 
 // Extra QWidget data
 //  - to minimize memory usage for members that are seldom used.

@@ -248,6 +248,8 @@ void QStatusBar::setSizeGripEnabled(bool enabled)
 	    d->resizer = 0;
 	}
 	reformat();
+	if ( d->resizer && isVisible() )
+	    d->resizer->show();
     }
 }
 
@@ -280,7 +282,6 @@ void QStatusBar::reformat()
     }
 
     l->addStretch( 0 );
-
 
     while ( item ) {
 	l->addWidget( item->w, item->s );

@@ -214,6 +214,7 @@ Atom 		qt_wm_client_leader;
 Atom 		qt_window_role;
 Atom 		qt_sm_client_id;
 Atom 		qt_xa_motif_wm_hints;
+Atom 		qt_x_incr;
 
 static Window	mouseActWindow	     = 0;	// window where mouse is
 static int	mouseButtonPressed   = 0;	// last mouse button pressed
@@ -327,6 +328,7 @@ extern void qt_xdnd_handle_selection_request( const XSelectionRequestEvent * );
 extern bool qt_xdnd_handle_badwindow();
 
 extern void qt_motifdnd_handle_msg( QWidget *, const XEvent *, bool );
+extern void qt_x11_motifdnd_init();
 
 // client message atoms
 extern Atom qt_xdnd_enter;
@@ -1082,8 +1084,10 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	qt_x11_intern_atom( "WINDOW_ROLE", &qt_window_role);
 	qt_x11_intern_atom( "SM_CLIENT_ID", &qt_sm_client_id);
 	qt_x11_intern_atom( "_MOTIF_WM_HINTS", &qt_xa_motif_wm_hints );
+	qt_x11_intern_atom( "INCR", &qt_x_incr );
 
 	qt_xdnd_setup();
+	qt_x11_motifdnd_init();
 
 	// Finally create all atoms
 	qt_x11_process_intern_atoms();

@@ -795,7 +795,6 @@ void QApplication::setStyle( QStyle *style )
 	qt_create_std_palette();
     QPalette tmpPal = *qt_std_pal;
     app_style->polish( tmpPal );
-    if ( tmpPal != *app_pal )
 	setPalette( tmpPal, TRUE );
 
     // initialize the application with the new style

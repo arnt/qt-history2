@@ -1641,19 +1641,19 @@ QPoint QWidget::mapFromParent( const QPoint &pos ) const
 }
 
 
-/*!  
-  
+/*!
+
   Returns the top-level widget for this widget, i.e. the next ancestor
   widget that has a window-system frame (or at least may have one).
-  
+
   If the widget is a top-level, the widget itself is returned.
-  
+
   Typical usage is changing the window caption:
-  
+
   \code
     aWidget->topLevelWidget()->setCaption( "New Caption" );
   \endcode
-  
+
   \sa isTopLevel()
 */
 
@@ -2037,7 +2037,7 @@ const QColorGroup &QWidget::colorGroup() const
 /*!
   Sets the widget palette to \e palette and informs all children about the change.
 
-  \sa QApplication::setPalette(), palette(), paletteChange(), unsetPalette(),
+  \sa QApplication::setPalette(), palette(), paletteChange(), unsetPalette(), ownPalette()
   colorGroup()
 */
 
@@ -2068,7 +2068,7 @@ void QWidget::setPalette( const QPalette &palette )
   Unsets the palette for this widget. The widget will use its natural
   default palette from now on.
 
-\sa setPalette()
+\sa setPalette(), ownPalette()
  */
 void QWidget::unsetPalette()
 {
@@ -2137,7 +2137,7 @@ void QWidget::paletteChange( const QPalette & )
     setFont( f );
   \endcode
 
-  \sa font(), fontChange(), fontInfo(), fontMetrics(), unsetFont()
+  \sa font(), fontChange(), fontInfo(), fontMetrics(), unsetFont(), ownFont()
 */
 
 void QWidget::setFont( const QFont &font )
@@ -2169,7 +2169,7 @@ void QWidget::setFont( const QFont &font )
   widget class, the parent's font or - if this widget is a toplevel
   widget - the default application font.
 
-\sa setFont()
+\sa setFont(), ownFont()
  */
 void QWidget::unsetFont()
 {
@@ -4729,3 +4729,27 @@ void QWidget::showFullScreen()
 
     setActiveWindow();
 }
+
+
+
+/*!
+  \fn bool QWidget::ownCursor() const
+  Unsets the palette for this widget. The widget will use its natural
+  default palette from now on.
+ */
+
+/*!
+  \fn bool QWidget::ownFont() const
+  Returns whether the widget uses its own font or its natural
+  default font.
+  
+  \sa setFont(), unsetFont()
+ */
+
+/*!
+  \fn bool QWidget::ownPalette()
+  Returns whether the widget uses its own palette or its natural
+  default palette.
+  
+  \sa setPalette(), unsetPalette()
+ */

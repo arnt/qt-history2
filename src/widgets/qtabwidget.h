@@ -65,7 +65,7 @@ public:
 
     void showPage( QWidget * );
     void removePage( QWidget * );
-    QString tabLabel( QWidget * );
+    QString tabLabel( QWidget * ); //### const in 3.0
 
     QWidget * currentPage() const;
 
@@ -79,7 +79,8 @@ public:
     int margin() const;
     void setMargin( int );
 
-
+    QSizePolicy sizePolicy() const;
+    
 protected:
     void showEvent( QShowEvent * );
     void resizeEvent( QResizeEvent * );

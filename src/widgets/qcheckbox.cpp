@@ -308,34 +308,36 @@ void QCheckBox::resizeEvent( QResizeEvent* )
 */
 void QCheckBox::updateMask()
 {
-
     QBitmap bm(width(),height());
     {
-	int x, y, w, h;
-	GUIStyle gs = style().guiStyle();
 	bm.fill(color0);
 	QPainter p( &bm, this );
-
-	QColorGroup cg(color1,color1,color1,color1,color1,color1,color1,color1, color0);
-	QFontMetrics fm = fontMetrics();
+	int x, y, w, h;
+	GUIStyle gs = style().guiStyle();
+        QFontMetrics fm = fontMetrics();
 	QSize lsz = fm.size(ShowPrefix, text());
 	QSize sz = style().indicatorSize();
-	x = gs == MotifStyle ? 1 : 0;
-	y = (height() - lsz.height() + fm.height() - sz.height())/2;
-
-	style().drawIndicatorMask(&p, x, y, sz.width(), sz.height(), state() );
-
-	sz = style().indicatorSize();
+        if ( gs == WindowsStyle )
+          sz.setWidth(sz.width() + 1);
 	y = 0;
-	x = sz.width() + extraWidth( gs );
+        x = sz.width() + extraWidth(gs);
 	w = width() - x;
 	h = height();
+
+        QColorGroup cg(color1,color1,color1,color1,color1,color1,color1,color1,color0);
+
 	style().drawItem( &p, x, y, w, h,
 			  AlignLeft|AlignVCenter|ShowPrefix,
 			  cg, TRUE,
 			  pixmap(), text() );
+        x = 0;
+        y = (height() - lsz.height() + fm.height() - sz.height())/2;
+	
+        style().drawIndicatorMask(&p, x, y, sz.width(), sz.height(), state() );
 
 	if ( hasFocus() ) {
+            y = 0;
+            x = sz.width() + extraWidth(gs);
 	    QRect br = style().itemRect( &p, x, y, w, h,
 					 AlignLeft|AlignVCenter|ShowPrefix,
 					 isEnabled(),

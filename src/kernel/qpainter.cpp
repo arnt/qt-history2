@@ -2922,7 +2922,7 @@ QDataStream &operator<<( QDataStream &s, const QPen &p )
 
 QDataStream &operator>>( QDataStream &s, QPen &p )
 {
-    UINT8 style, width;
+    Q_UINT8 style, width;
     QColor color;
     s >> style;
     s >> width;
