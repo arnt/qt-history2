@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#293 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#294 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -121,6 +121,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     if ( testWFlags(WState_Created) && window == 0 )
 	return;
     setWFlags( WState_Created );		// set created flag
+    
+    usposition = 0;
 
     if ( !parentWidget() )
 	setWFlags( WType_TopLevel );		// top-level widget
@@ -253,7 +255,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 		XSetTransientForHint( dpy, id, root_win );
 	}
 	XSizeHints size_hints;
-	size_hints.flags = PPosition | PSize | PWinGravity;
+	size_hints.flags = USSize | PSize | PWinGravity;
 	size_hints.x = crect.left();
 	size_hints.y = crect.top();
 	size_hints.width = crect.width();
@@ -1220,10 +1222,15 @@ void QWidget::move( int x, int y )
 void QWidget::internalMove( int x, int y )
 {
     if ( testWFlags(WType_TopLevel) ) {
+	usposition = 1;
 	XSizeHints size_hints;			// tell window manager
-	size_hints.flags = PPosition;
+	size_hints.flags = USPosition;
 	size_hints.x = x;
 	size_hints.y = y;
+	// always set the size, otherwise it would be cleared
+	size_hints.flags |= USSize | PSize;
+	size_hints.width = width();
+	size_hints.height = height();
 	do_size_hints( dpy, winid, extra, &size_hints );
     }
     XMoveWindow( dpy, winid, x, y );
@@ -1299,9 +1306,15 @@ void QWidget::internalResize( int w, int h )
 {
     if ( testWFlags(WType_TopLevel) ) {
 	XSizeHints size_hints;			// tell window manager
-	size_hints.flags = USSize;
+	size_hints.flags = USSize | PSize;
 	size_hints.width = w;
 	size_hints.height = h;
+	if (usposition) {
+	    // also restore the usposition, otherwise it would be cleared
+	    size_hints.flags |= USPosition;
+	    size_hints.x = x();
+	    size_hints.y = y();
+	}
 	do_size_hints( dpy, winid, extra, &size_hints );
     }
     XResizeWindow( dpy, winid, w, h );
@@ -1377,8 +1390,9 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 void QWidget::internalSetGeometry( int x, int y, int w, int h )
 {
     if ( testWFlags(WType_TopLevel) ) {
+	usposition = 1;
 	XSizeHints size_hints;			// tell window manager
-	size_hints.flags = USPosition | USSize;
+	size_hints.flags = USPosition | USSize | PSize;
 	size_hints.x = x;
 	size_hints.y = y;
 	size_hints.width = w;

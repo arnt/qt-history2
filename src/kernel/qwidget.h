@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#189 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#190 $
 **
 ** Definition of QWidget class
 **
@@ -405,6 +405,9 @@ private:
     uint propagatePalette: 2;
     uint dnd : 1; // drop enable
     uint keyCompression : 1;
+#if defined(_WS_X11_)
+    uint usposition : 1;
+#endif    
 
     static void	 createMapper();
     static void	 destroyMapper();
