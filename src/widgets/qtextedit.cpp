@@ -42,6 +42,7 @@
 #include "qstack.h"
 #include "qmetaobject.h"
 #include "qtextbrowser.h"
+#include "private/qsyntaxhighlighter_p.h"
 
 #ifndef QT_NO_ACCEL
 #include <qkeysequence.h>
@@ -7139,6 +7140,18 @@ void QTextEdit::setAutoFormatting( AutoFormatting features )
 QTextEdit::AutoFormatting QTextEdit::autoFormatting() const
 {
     return d->autoFormatting;
+}
+
+/*!
+    Returns the QSyntaxHighlighter set on this QTextEdit. 0 is
+    returned if no syntax highlighter is set.
+ */
+QSyntaxHighlighter * QTextEdit::syntaxHighlighter() const
+{
+    if (document()->preProcessor())
+	return ((QSyntaxHighlighterInternal *) document()->preProcessor())->highlighter;
+    else
+	return 0;
 }
 
 #endif //QT_NO_TEXTEDIT

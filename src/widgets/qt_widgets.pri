@@ -43,6 +43,7 @@ widgets {
 		  $$WIDGETS_H/qstatusbar.h \
 		  $$WIDGETS_H/qtabbar.h \
 		  $$WIDGETS_H/qsyntaxhighlighter.h \
+		  $$WIDGETS_P/qsyntaxhighlighter_p.h \
 		  $$WIDGETS_H/qtabwidget.h \
 		  $$WIDGETS_P/qtitlebar_p.h \
 		  $$WIDGETS_H/qtoolbar.h \
@@ -132,7 +133,7 @@ wince-* {
 
 	SOURCES -= $$WIDGETS_CPP/qsyntaxhighlighter.cpp \
 		   $$WIDGETS_CPP/qsplashscreen.cpp
-		   
+
 	HEADERS -= $$WIDGETS_H/qsyntaxhighlighter.h \
 		   $$WIDGETS_H/qsplashscreen.h
 }

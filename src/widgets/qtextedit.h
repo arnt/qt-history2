@@ -277,6 +277,7 @@ public:
 
     void setAutoFormatting( AutoFormatting );
     AutoFormatting autoFormatting() const;
+    QSyntaxHighlighter *syntaxHighlighter() const;
 
 public slots:
     void setEnabled( bool );

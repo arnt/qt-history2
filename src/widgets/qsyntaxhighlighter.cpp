@@ -13,58 +13,12 @@
 ****************************************************************************/
 
 #include "qsyntaxhighlighter.h"
+#include "private/qsyntaxhighlighter_p.h"
 
 #ifndef QT_NO_SYNTAXHIGHLIGHTER
 #include "../kernel/qrichtext_p.h"
 #include "qtextedit.h"
 #include "qtimer.h"
-
-class QSyntaxHighlighterPrivate
-{
-public:
-    QSyntaxHighlighterPrivate() :
-	currentParagraph( -1 )
-	{}
-
-    int currentParagraph;
-};
-
-class QSyntaxHighlighterInternal : public QTextPreProcessor
-{
-public:
-    QSyntaxHighlighterInternal( QSyntaxHighlighter *h ) : highlighter( h ) {}
-    void process( QTextDocument *doc, QTextParagraph *p, int, bool invalidate ) {
-	if ( p->prev() && p->prev()->endState() == -1 )
-	    process( doc, p->prev(), 0, FALSE );
-
-	highlighter->para = p;
-	QString text = p->string()->toString();
-	int endState = p->prev() ? p->prev()->endState() : -2;
-	int oldEndState = p->endState();
-	highlighter->d->currentParagraph = p->paragId();
-	p->setEndState( highlighter->highlightParagraph( text, endState ) );
-	highlighter->d->currentParagraph = -1;
-	highlighter->para = 0;
-
-	p->setFirstPreProcess( FALSE );
-	QTextParagraph *op = p;
-	p = p->next();
-	if ( (!!oldEndState || !!op->endState()) && oldEndState != op->endState() &&
-	     invalidate && p && !p->firstPreProcess() && p->endState() != -1 ) {
-	    while ( p ) {
-		if ( p->endState() == -1 )
-		    return;
-		p->setEndState( -1 );
-		p = p->next();
-	    }
-	}
-    }
-    QTextFormat *format( int ) { return 0; }
-
-private:
-    QSyntaxHighlighter *highlighter;
-
-};
 
 /*!
     \class QSyntaxHighlighter qsyntaxhighlighter.h

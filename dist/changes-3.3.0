@@ -14,9 +14,9 @@ Applications compiled for 3.2 will continue to run with 3.3.
 Qt library
 ----------
 
-- The Qt SQL module now supports Interbase and SQLite. This makes it
-  possible to write database applications that do not require a
-  database server.
+Two new database drivers has been added to the SQL module, Interbase
+and SQLite. This makes it possible to write database applications that
+does not require a database server.
 
 Qt Motif Extension
 ------------------
@@ -29,14 +29,14 @@ Two new functions, QAxFactory::startServer() and
 QAxFactory::stopServer(), can be used to start and stop an
 out-of-process ActiveQt server in runtime. Server binaries no longer
 need to implement a main() entry point function.  A default
-implementation will be used for out-of-process servers.
-IClassFactory2 is supported for the development of licensed
-components, and QAxFactory supports the creation of non-visual COM
-objects.  Class specific information can be provided directly in the
-C++ class declaration using the Q_CLASSINFO macro to control how
-objects and controls are registered and exposed.  New helper classes
-and macros are avialable to make it even easier to expose object
-classes (see the QAxServer documentation for details).
+implementation will be used for out-of-process servers. IClassFactory2
+is supported for the development of licensed components, and
+QAxFactory supports the creation of non-visual COM objects.  Class
+specific information can be provided directly in the C++ class
+declaration using the Q_CLASSINFO macro to control how objects and
+controls are registered and exposed.  New helper classes and macros
+are avialable to make it even easier to expose object classes (see the
+QAxServer documentation for details).
 
 COM objects developed with ActiveQt are now supported in a wider range
 of clients, including Microsoft Office applications and .NET. Examples
@@ -113,3 +113,5 @@ Qt 3.3.x does no longer officially support IRIX MIPSpro o32 or Sun CC
 - QSql
   Support for Interbase and SQLite
 
+- QTextEdit
+  Added an accessor for the currently set QSyntaxHighlighter.
