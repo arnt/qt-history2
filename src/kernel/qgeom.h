@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgeom.h#20 $
+** $Id: //depot/qt/main/src/kernel/qgeom.h#21 $
 **
 **  Geometry Management
 **
@@ -22,6 +22,8 @@ public:
     virtual ~QLayout();
     int defaultBorder() const { return defBorder; }
 
+    enum { unlimited = QCOORD_MAX };
+
     virtual bool activate();
     virtual bool deactivate();
     void freeze( int w, int h );
@@ -38,11 +40,11 @@ protected:
 	     int autoBorder, const char *name );
     QLayout( int autoBorder = -1, const char *name=0 );
 
-    QBasicManager *basicManager() { return bm; }
+    QGManager *basicManager() { return bm; }
     virtual QChain *mainVerticalChain() = 0;
     virtual QChain *mainHorizontalChain() = 0;
 
-    virtual void initBM() = 0;
+    virtual void initGM() = 0;
     void addChildLayout( QLayout *);
 
     static QChain *verChain( QLayout *l ) { return l->mainVerticalChain(); }
@@ -50,7 +52,7 @@ protected:
 
 private:
     const char *objName;
-    QBasicManager * bm;
+    QGManager * bm;
     QLayout *parentLayout;
     QList<QLayout> *children;
     int defBorder;
@@ -87,12 +89,12 @@ public:
 protected:
     QChain *mainVerticalChain();
     QChain *mainHorizontalChain();
-    void initBM();
+    void initGM();
 
 private:
     void addB( QLayout *, int stretch );
 
-    QBasicManager::Direction dir;
+    QGManager::Direction dir;
     QChain * parChain;
     QChain * serChain;
     bool    pristine;
@@ -125,7 +127,7 @@ public:
 protected:
     QChain *mainVerticalChain() { return verChain; }
     QChain *mainHorizontalChain() { return horChain; }
-    void initBM();
+    void initGM();
 
 private:
     QArray<QChain*> *rows;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbasic.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qbasic.cpp#30 $
 **
 **  Geometry Management
 **
@@ -13,13 +13,13 @@
 #include "qlist.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#29 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#30 $");
 
 
 
 /*!
-  \class QBasicManager qbasic.h
-  \brief The QBasicManager class provides one-dimensional geometry management.
+  \class QGManager qbasic.h
+  \brief The QGManager class provides one-dimensional geometry management.
 
   This class is intended for those who write geometry managers and
   graphical designers. <strong>It is not for the faint of
@@ -43,9 +43,9 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#29 $");
 */
 
 
-static inline bool horz( QBasicManager::Direction dir )
+static inline bool horz( QGManager::Direction dir )
 {
-    return dir == QBasicManager::RightToLeft || dir == QBasicManager::LeftToRight;
+    return dir == QGManager::RightToLeft || dir == QGManager::LeftToRight;
 }
 struct WidgetInfo {
     QRect geom;
@@ -70,7 +70,7 @@ WidgetInfo *lookup( QWidget * w, wDict & table,
 
 
 
-static void setWinfo( QWidget * w, wDict &dict, QBasicManager::Direction d, int p, int s )
+static void setWinfo( QWidget * w, wDict &dict, QGManager::Direction d, int p, int s )
 {
     WidgetInfo *wi = lookup( w, dict, TRUE );
     if ( horz( d ) ) {
@@ -85,18 +85,18 @@ static void setWinfo( QWidget * w, wDict &dict, QBasicManager::Direction d, int 
 /*!
   \internal
   \class QChain
-  \brief internal class for the QBasicManager.
+  \brief internal class for the QGManager.
 
-  Everything is put into chains. Use QBasicManager::newParChain()
-  or QBasicManager::newSerChain() to make chains.
+  Everything is put into chains. Use QGManager::newParChain()
+  or QGManager::newSerChain() to make chains.
 
-  \sa QBasicManager.
+  \sa QGManager.
 */
 class QChain
 {
 public:
 
-    QChain( QBasicManager::Direction d ) { dir = d; }
+    QChain( QGManager::Direction d ) { dir = d; }
     virtual ~QChain() {}
 
     bool add( QChain *s, int stretch )
@@ -121,12 +121,12 @@ public:
 
     virtual void distribute( wDict&, int pos, int space) = 0;
 
-    QBasicManager::Direction direction() { return dir; }
+    QGManager::Direction direction() { return dir; }
 
 protected:
     virtual bool addC( QChain *s ) = 0;
 private:
-    QBasicManager::Direction dir;
+    QGManager::Direction dir;
 
     int sstretch;
 };
@@ -135,7 +135,7 @@ private:
 class QSpaceChain : public QChain
 {
 public:
-    QSpaceChain( QBasicManager::Direction d, int min, int max )
+    QSpaceChain( QGManager::Direction d, int min, int max )
 	: QChain( d ), minsize( min ), maxsize( max ) {}
     // needs direction for consistency check.....
     bool addC( QChain * ) { return FALSE; }
@@ -154,7 +154,7 @@ private:
 class QWidChain : public QChain
 {
 public:
-    QWidChain( QBasicManager::Direction d,  QWidget * w )
+    QWidChain( QGManager::Direction d,  QWidget * w )
 	: QChain( d ), widget ( w ) {}
     bool addC( QChain * ) { return FALSE; }
 
@@ -187,7 +187,7 @@ class QParChain : public QChain
 {
 public:
 
-    QParChain( QBasicManager::Direction d )
+    QParChain( QGManager::Direction d )
 	: QChain( d )
     {
     }
@@ -230,7 +230,7 @@ class QSerChain : public QChain
 {
 public:
 
-    QSerChain( QBasicManager::Direction d ) : QChain( d ) {}
+    QSerChain( QGManager::Direction d ) : QChain( d ) {}
     ~QSerChain();
 
     bool addC( QChain *s );
@@ -285,11 +285,11 @@ QSerChain::~QSerChain()
 bool QSerChain::addBranch( QChain *b, int from, int to )
 {
     if ( from < 0 || to < from || from >= (int)chain.count() ) {
-	warning( "QBasicManager: Invalid anchor for branch" );
+	warning( "QGManager: Invalid anchor for branch" );
 	return FALSE;
     }
     if ( horz( direction() ) != horz( b->direction() ) ) {
-	warning( "QBasicManager: branch 90 degrees off" );
+	warning( "QGManager: branch 90 degrees off" );
 	return FALSE;
     }
     QBranchData *d = new QBranchData;
@@ -325,7 +325,7 @@ void QSerChain::distribute( wDict & wd, int pos, int space )
 
     fixed available = toFixed( space - minSize() );
     if ( available < 0 ) {
-	warning( "QBasicManager: not enough space to go around" );
+	warning( "QGManager: not enough space to go around" );
 	available = 0;
     }
     int sf = sumStretch();
@@ -369,8 +369,8 @@ void QSerChain::distribute( wDict & wd, int pos, int space )
 	fpos += sizes[i];
     }
 
-    bool backwards = ( direction() == QBasicManager::RightToLeft ||
-		       direction() == QBasicManager::Up );
+    bool backwards = ( direction() == QGManager::RightToLeft ||
+		       direction() == QGManager::Up );
 
     for ( i = 0; i < (int)chain.count(); i++ ) {
 	int p = places[i];
@@ -413,7 +413,7 @@ int QParChain::maxMin()
 
 int QParChain::minMax()
 {
-    int min = QBasicManager::unlimited;
+    int min = QGManager::unlimited;
     for ( int i = 0; i < (int)chain.count(); i ++ ) {
 	int m = chain.at(i)->maxSize();
 	if ( m < min )
@@ -455,8 +455,8 @@ int QSerChain::sumMax()
     int s = 0;
     for ( int i = 0; i < (int)chain.count(); i ++ )
 	s += chain.at(i)->maxSize();
-    if ( s > QBasicManager::unlimited )
-	s = QBasicManager::unlimited;
+    if ( s > QGManager::unlimited )
+	s = QGManager::unlimited;
     return s;
 }
 
@@ -466,9 +466,9 @@ bool QSerChain::addC( QChain *s )
 {
     if ( horz( s->direction() ) != horz( direction() ) ) {
 	if ( horz( direction() ) )
-	    warning("QBasicManager:Cannot add vertical chain to horizontal serial chain");
+	    warning("QGManager:Cannot add vertical chain to horizontal serial chain");
 	else
-	    warning("QBasicManager:Cannot add horizontal chain to vertical serial chain");
+	    warning("QGManager:Cannot add horizontal chain to vertical serial chain");
 	return FALSE;
     }
     chain.append( s );
@@ -479,9 +479,9 @@ bool QParChain::addC( QChain *s )
 {
     if ( horz( s->direction() ) != horz( direction() ) ) {
 	if ( horz( direction() ) )
-	    warning("QBasicManager:Cannot add vertical chain to horizontal parallel chain");
+	    warning("QGManager:Cannot add vertical chain to horizontal parallel chain");
 	else
-	    warning("QBasicManager:Cannot add horizontal chain to vertical parallel chain");
+	    warning("QGManager:Cannot add horizontal chain to vertical parallel chain");
 	return FALSE;
     }
     chain.append( s );
@@ -489,9 +489,9 @@ bool QParChain::addC( QChain *s )
 }
 
 /*!
-  Creates a new QBasicManager which manages \e parent's children.
+  Creates a new QGManager which manages \e parent's children.
 */
-QBasicManager::QBasicManager( QWidget *parent, const char *name )
+QGManager::QGManager( QWidget *parent, const char *name )
     : QObject( parent, name )
 {
     main = parent;
@@ -508,9 +508,9 @@ QBasicManager::QBasicManager( QWidget *parent, const char *name )
 }
 
 /*!
-  Destroys the QBasicManager, deleting all add()ed chains.
+  Destroys the QGManager, deleting all add()ed chains.
 */
-QBasicManager::~QBasicManager()
+QGManager::~QGManager()
 {
     delete xC;
     delete yC;
@@ -518,14 +518,14 @@ QBasicManager::~QBasicManager()
 
 
 /*!
-  \fn QWidget *QBasicManager::mainWidget()
+  \fn QWidget *QGManager::mainWidget()
 
   Returns the main widget of the manager. 
   */
 
 
 /*!
-  \fn QChain *QBasicManager::xChain()
+  \fn QChain *QGManager::xChain()
 
   Returns the main horizontal chain of the manager. All horizontal chains
   should be inserted into this chain or one of its descendants, otherwise
@@ -534,7 +534,7 @@ QBasicManager::~QBasicManager()
 
 
 /*!
-  \fn QChain *QBasicManager::yChain()
+  \fn QChain *QGManager::yChain()
 
   Returns the main vertical chain of the manager. All vertical chains
   should be inserted into this chain or one of its descendants, otherwise
@@ -543,7 +543,7 @@ QBasicManager::~QBasicManager()
 
 
 /*!
-  \fn void QBasicManager::setBorder( int b )
+  \fn void QGManager::setBorder( int b )
 
   Sets the border around the edge of the widget. \e b is the number of
   pixels between the edge of the widget and the area controlled by the
@@ -555,7 +555,7 @@ QBasicManager::~QBasicManager()
   Creates a new QChain which is \e parallel.
 */
 
-QChain * QBasicManager::newParChain( Direction d )
+QChain * QGManager::newParChain( Direction d )
 {
     QChain * c = new QParChain( d );
     CHECK_PTR(c);
@@ -567,7 +567,7 @@ QChain * QBasicManager::newParChain( Direction d )
   Creates a new QChain which is \e serial.
 */
 
-QChain * QBasicManager::newSerChain( Direction d )
+QChain * QGManager::newSerChain( Direction d )
 {
     QChain * c = new QSerChain( d );
     CHECK_PTR(c);
@@ -578,7 +578,7 @@ QChain * QBasicManager::newSerChain( Direction d )
   Adds the chain \e source to the chain \e destination.
 */
 
-bool QBasicManager::add( QChain *destination, QChain *source, int stretch )
+bool QGManager::add( QChain *destination, QChain *source, int stretch )
 {
     return destination->add(source, stretch);
 }
@@ -588,10 +588,10 @@ bool QBasicManager::add( QChain *destination, QChain *source, int stretch )
   Adds the widget  \e w to the chain \e d.
 */
 
-bool QBasicManager::addWidget( QChain *d, QWidget *w, int stretch )
+bool QGManager::addWidget( QChain *d, QWidget *w, int stretch )
 {
     //if ( w->parent() != main ) {
-    //	  warning("QBasicManager::addWidget - widget is not child.");
+    //	  warning("QGManager::addWidget - widget is not child.");
     //	  return FALSE;
     //}
     return d->add( new QWidChain( d->direction(), w) , stretch );
@@ -603,7 +603,7 @@ bool QBasicManager::addWidget( QChain *d, QWidget *w, int stretch )
   the maximum and minimum size.
 */
 
-bool QBasicManager::addSpacing( QChain *d, int minSize, int stretch, int maxSize )
+bool QGManager::addSpacing( QChain *d, int minSize, int stretch, int maxSize )
 {
     return d->add( new QSpaceChain( d->direction(), minSize, maxSize), stretch	);
 }
@@ -612,7 +612,7 @@ bool QBasicManager::addSpacing( QChain *d, int minSize, int stretch, int maxSize
   Grabs all resize events for my parent, and does child widget resizing.
 */
 
-bool QBasicManager::eventFilter( QObject *o, QEvent *e )
+bool QGManager::eventFilter( QObject *o, QEvent *e )
 {
     if ( !o->isWidgetType() )
 	return FALSE;
@@ -628,7 +628,7 @@ bool QBasicManager::eventFilter( QObject *o, QEvent *e )
     return FALSE;			    // standard event processing
 }
 
-void QBasicManager::resizeHandle( QWidget *, const QSize & )
+void QGManager::resizeHandle( QWidget *, const QSize & )
 {
     resizeAll();
 }
@@ -637,7 +637,7 @@ void QBasicManager::resizeHandle( QWidget *, const QSize & )
   Starts geometry management.
 */
 
-bool QBasicManager::activate()
+bool QGManager::activate()
 {
     if ( frozen )
 	return FALSE;
@@ -653,11 +653,11 @@ bool QBasicManager::activate()
     main->setMinimumSize( xs, ys );
 
     ys = yC->maxSize() + 2*border + mbh;
-    if ( ys > QBasicManager::unlimited )
-	ys = QBasicManager::unlimited;
+    if ( ys > QGManager::unlimited )
+	ys = QGManager::unlimited;
     xs = xC->maxSize() + 2*border;
-    if ( xs > QBasicManager::unlimited )
-	xs = QBasicManager::unlimited;
+    if ( xs > QGManager::unlimited )
+	xs = QGManager::unlimited;
 
     main->setMaximumSize( xs, ys );
 
@@ -671,7 +671,7 @@ bool QBasicManager::activate()
   value. Thus freeze(0,0) (the default) will fix the widget to its
   minimum size.
 */
-void QBasicManager::freeze( int w, int h )
+void QGManager::freeze( int w, int h )
 {
     frozen = FALSE; // so activate can do it.
     activate();
@@ -688,7 +688,7 @@ void QBasicManager::freeze( int w, int h )
     frozen = TRUE;
 }
 
-void QBasicManager::resizeAll()
+void QGManager::resizeAll()
 {
 
     QIntDict<WidgetInfo> lookupTable;
@@ -732,12 +732,12 @@ void QBasicManager::resizeAll()
   \warning This feature is new and not comprehensively tested.
 */
 
-bool QBasicManager::addBranch( QChain *destination, QChain *branch,
+bool QGManager::addBranch( QChain *destination, QChain *branch,
 			       int fromIndex, int toIndex )
 {
     bool success = destination->addBranch( branch, fromIndex, toIndex );
     if ( ! success )
-	warning( "QBasicManager: Couldn't add branch" );
+	warning( "QGManager: Couldn't add branch" );
     return success;
 }
 
@@ -750,7 +750,7 @@ bool QBasicManager::addBranch( QChain *destination, QChain *branch,
   \sa add() 
 */
 
-void QBasicManager::setStretch( QChain *c, int s )
+void QGManager::setStretch( QChain *c, int s )
 {
     c->setStretch( s );
 }

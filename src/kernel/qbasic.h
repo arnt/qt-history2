@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbasic.h#16 $
+** $Id: //depot/qt/main/src/kernel/qbasic.h#17 $
 **
 **   Geometry Management
 **
@@ -16,14 +16,14 @@
 #include "qwidget.h"
 
 class QChain;
-struct QBasicManagerData;
+struct QGManagerData;
 
-class QBasicManager : public QObject
+class QGManager : public QObject
 {
     Q_OBJECT
 public:
-    QBasicManager( QWidget *parent, const char *name=0 );
-    ~QBasicManager();
+    QGManager( QWidget *parent, const char *name=0 );
+    ~QGManager();
 
     void setBorder( int b ) { border = b; }
 
@@ -66,12 +66,12 @@ private:
     QChain *yC;
     QWidget *main;
     QWidget *menuBar;
-    QBasicManagerData *extraData;
+    QGManagerData *extraData;
     bool frozen;
 
 private:	// Disabled copy constructor and operator=
-    QBasicManager( const QBasicManager & ) {}
-    QBasicManager &operator=( const QBasicManager & ) { return *this; }
+    QGManager( const QGManager & ) {}
+    QGManager &operator=( const QGManager & ) { return *this; }
 };
 
 

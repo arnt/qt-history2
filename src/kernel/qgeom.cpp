@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgeom.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qgeom.cpp#27 $
 **
 **  Geometry Management
 **
@@ -10,7 +10,7 @@
 *****************************************************************************/
 #include "qgeom.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#26 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#27 $");
 
 /*!
   \class QLayout qgeom.h
@@ -24,7 +24,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#26 $");
   can be deleted.
 
   To make a new layout manager, you need to implement the functions
-  mainVerticalChain(), mainHorizontalChain() and initBM()
+  mainVerticalChain(), mainHorizontalChain() and initGM()
   */
 
 
@@ -50,7 +50,7 @@ QLayout::QLayout( QWidget *parent, int border, int autoBorder, const char *name 
 {
     topLevel     = TRUE;
     parentLayout = 0;
-    bm           = new QBasicManager( parent, name );
+    bm           = new QGManager( parent, name );
     children	 = 0;
 
     if ( autoBorder < 0 )
@@ -97,7 +97,7 @@ QLayout::QLayout( int autoBorder, const char *name )
 
 /*!
   Deletes all sublayouts and notifies my parentLayout that I have gone.
-  The basicManager is not deleted.
+  The basicManager() is not deleted.
  */
 QLayout::~QLayout()
 {
@@ -134,20 +134,20 @@ void QLayout::addChildLayout( QLayout *l )
     children->append( l );
     if ( l->defBorder < 0 )
 	l->defBorder = defBorder;
-    l->initBM();
+    l->initGM();
 }
 
 /*!
-  \fn void QLayout::initBM()
+  \fn void QLayout::initGM()
 
   Implement this function to do what's necessary to initialize chains,
   once the layout has a basicManager().
   */
 
 /*!
-  \fn QBasicManager *QLayout::basicManager()
+  \fn QGManager *QLayout::basicManager()
 
-  Returns the QBasicManager for this layout. Returns 0 if 
+  Returns the QGManager for this layout. Returns 0 if 
   this is a child layout which has not been inserted yet.
   */
 
@@ -284,17 +284,17 @@ void QLayout::setMenuBar( QWidget *w )
   boxes.
 */
 
-static inline bool horz( QBasicManager::Direction dir )
+static inline bool horz( QGManager::Direction dir )
 {
-    return dir == QBasicManager::RightToLeft || dir == QBasicManager::LeftToRight;
+    return dir == QGManager::RightToLeft || dir == QGManager::LeftToRight;
 }
 
-static inline QBasicManager::Direction perp( QBasicManager::Direction dir )
+static inline QGManager::Direction perp( QGManager::Direction dir )
 {
     if ( horz( dir ))
-	return QBasicManager::Down;
+	return QGManager::Down;
     else
-	return QBasicManager::LeftToRight;
+	return QGManager::LeftToRight;
 }
 
 /*!
@@ -316,7 +316,7 @@ QBoxLayout::QBoxLayout( QWidget *parent, Direction d,
     : QLayout( parent, border, autoBorder, name )
 {
     pristine = TRUE;
-    dir = (QBasicManager::Direction)d;
+    dir = (QGManager::Direction)d;
 
     serChain = basicManager()->newSerChain( dir );
     if ( horz( dir )  ) {
@@ -339,7 +339,7 @@ QBoxLayout::QBoxLayout( Direction d,
     : QLayout( autoBorder, name )
 {
     pristine = TRUE;
-    dir = (QBasicManager::Direction)d;
+    dir = (QGManager::Direction)d;
     parChain = 0; // debug
     serChain = 0; // debug
 }
@@ -358,7 +358,7 @@ QBoxLayout::~QBoxLayout()
   Initializes this box. 
 */
 
-void QBoxLayout::initBM()
+void QBoxLayout::initGM()
 {
     serChain = basicManager()->newSerChain( dir );
     parChain = basicManager()->newParChain( perp( dir ) );
@@ -387,12 +387,12 @@ void QBoxLayout::addLayout( QLayout *layout, int stretch )
 void QBoxLayout::addB( QLayout * l, int stretch )
 {
     if ( horz( dir ) ) {
-	basicManager()->QBasicManager::add( parChain, verChain( l ) );
-	basicManager()->QBasicManager::add( serChain, horChain( l ),
+	basicManager()->QGManager::add( parChain, verChain( l ) );
+	basicManager()->QGManager::add( serChain, horChain( l ),
 					    stretch );
     } else {
-	basicManager()->QBasicManager::add( parChain, horChain( l ) );
-	basicManager()->QBasicManager::add( serChain, verChain( l ),
+	basicManager()->QGManager::add( parChain, horChain( l ) );
+	basicManager()->QGManager::add( serChain, verChain( l ),
 					    stretch );
     }
 }
@@ -481,7 +481,7 @@ void QBoxLayout::addStrut( int size )
 
 void QBoxLayout::addMaxStrut( int size)
 {
-    gm->QBasicManager::addSpacing( parChain, 0, 0, size );
+    gm->QGManager::addSpacing( parChain, 0, 0, size );
 }
 */
 
@@ -542,7 +542,7 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
     if ( 0/*a == alignBoth*/ ) {
 	basicManager()->addWidget( parChain, widget, 0 );
     } else {
-	QBasicManager::Direction d = perp( dir );
+	QGManager::Direction d = perp( dir );
 	QChain *sc = basicManager()->newSerChain( d );
 	if ( align & first || align & AlignCenter ) {
 	    basicManager()->addSpacing(sc, 0);
@@ -558,7 +558,7 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
 }
 
 /*!
-  \fn QBasicManager::Direction QBoxLayout::direction() const
+  \fn QGManager::Direction QBoxLayout::direction() const
 
   Returns the (serial) direction of the box. addWidget(), addBox()
   and addSpacing() works in this direction; the stretch stretches
@@ -595,8 +595,8 @@ QGridLayout::QGridLayout( QWidget *parent, int nRows, int nCols, int border ,
 			  int autoBorder , const char *name )
     : QLayout( parent, border, autoBorder, name )
 {
-    horChain = basicManager()->newSerChain( QBasicManager::LeftToRight );
-    verChain = basicManager()->newSerChain( QBasicManager::Down );
+    horChain = basicManager()->newSerChain( QGManager::LeftToRight );
+    verChain = basicManager()->newSerChain( QGManager::Down );
     basicManager()->add( basicManager()->xChain(), horChain );
     basicManager()->add( basicManager()->yChain(), verChain );
     init( nRows, nCols );
@@ -636,10 +636,10 @@ QGridLayout::~QGridLayout()
   Initializes this grid. 
 */
 
-void QGridLayout::initBM()
+void QGridLayout::initGM()
 {
-    horChain = basicManager()->newSerChain( QBasicManager::LeftToRight );
-    verChain = basicManager()->newSerChain( QBasicManager::Down );
+    horChain = basicManager()->newSerChain( QGManager::LeftToRight );
+    verChain = basicManager()->newSerChain( QGManager::Down );
     init( rr, cc );
 }
 
@@ -659,7 +659,7 @@ void QGridLayout::init( int nRows, int nCols )
 	if ( i != 0 )
 	    basicManager()->addSpacing( verChain, defaultBorder(), 0,
 					defaultBorder() );
-	(*rows)[i] = basicManager()->newParChain( QBasicManager::Down );
+	(*rows)[i] = basicManager()->newParChain( QGManager::Down );
 	basicManager()->add( verChain, (*rows)[i] );
     }
 
@@ -667,7 +667,7 @@ void QGridLayout::init( int nRows, int nCols )
 	if ( i != 0 )
 	    basicManager()->addSpacing( horChain, defaultBorder(), 0, 
 					defaultBorder() );
-	(*cols)[i] = basicManager()->newParChain( QBasicManager::LeftToRight );
+	(*cols)[i] = basicManager()->newParChain( QGManager::LeftToRight );
 	basicManager()->add( horChain, (*cols)[i] );
     }
     
@@ -723,7 +723,7 @@ void QGridLayout::addMultiCellWidget( QWidget *w, int fromRow, int toRow,
 
     QChain *c;
     if ( a || fromCol != toCol ) {
-	c = basicManager()->newSerChain( QBasicManager::LeftToRight );
+	c = basicManager()->newSerChain( QGManager::LeftToRight );
 	if ( fromCol == toCol )
 	    basicManager()->add( (*cols)[ fromCol ], c );
 	else
@@ -741,7 +741,7 @@ void QGridLayout::addMultiCellWidget( QWidget *w, int fromRow, int toRow,
     // vertical dimension:
     a = align & vFlags;
     if ( a || fromRow != toRow ) {
-	c = basicManager()->newSerChain( QBasicManager::Down );
+	c = basicManager()->newSerChain( QGManager::Down );
 	if ( fromRow == toRow )
 	    basicManager()->add( (*rows)[ fromRow ], c );
 	else
