@@ -30,52 +30,56 @@ public:
 };
 
 /*!
-    \class QStackedWidget qstackedwidget.h
-    \brief The QStackedWidget class provides a stack of widgets where only the top
-    widget is visible.
+    \class QStackedWidget
+    \brief The QStackedWidget class provides a stack of widgets where
+    only one widget is visible at a time.
 
     \ingroup organizers
     \ingroup geomanagement
     \ingroup appearance
     \mainclass
 
-    A stacked box provides a container for a number of child widgets, keeping
-    all of these hidden except the widget at the top of the stack. It can be
-    used to create a user interface similar to the one provided by QTabWidget.
+    QStackedWidget can be used to create a user interface similar to
+    the one provided by QTabWidget. It is a convenience layout widget
+    built on top of QStackedLayout.
 
-    A stacked box can be constructed and populated with a number of child
-    widgets, each of which is typically created without a parent widget:
-
-    \code
-      QStackedWidget *pages = new QStackedWidget(this);
-      pages->addWidget(firstPageWidget);
-      pages->addWidget(secondPageWidget);
-      pages->addWidget(thirdPageWidget);
-    \endcode
-
-    The top widget in the stack is the currentWidget(). It can be changed by
-    setting the \l currentIndex property, using setCurrentIndex(). The index
-    of a given widget inside the stacked box is retrieved with indexOf().
-    The widget() function returns the widget at a given index position.
-
-    It is often useful to be able to control the current widget from other
-    widgets. For example, a combobox could be used to hold the titles of the
-    widgets in a stacked box, and used to change the current widget when an
-    item is selected. This would be achieved by connecting its activated()
-    signal to the setCurrent() slot of the stacked box:
+    A QStackedWidget can be constructed and populated with a number
+    of child widgets ("pages"), each of which can be created without
+    a parent widget:
 
     \code
-      QComboBox *pageComboBox = new QComboBox(this);
-      pageComboBox->insertItem("Page 1");
-      pageComboBox->insertItem("Page 2");
-      pageComboBox->insertItem("Page 3");
-      connect(pageComboBox, SIGNAL(activated(int)),
-              pages, SLOT(setCurrentIndex(int)));
+        QWidget *firstPageWidget = new QWidget;
+        QWidget *secondPageWidget = new QWidget;
+        QWidget *thirdPageWidget = new QWidget;
+        ...
+
+        QStackedWidget *stackedWidget = new QStackedWidget(this);
+        stackedWidget->addWidget(firstPageWidget);
+        stackedWidget->addWidget(secondPageWidget);
+        stackedWidget->addWidget(thirdPageWidget);
     \endcode
 
-    If you just need a stacked layout (not a widget), use QStackedLayout instead.
+    When inserted, the widgets are added to an internal list. The
+    indexOf() function returns the index of a widget in that list.
+    The widget() function returns the widget at a given index
+    position. The widget that is shown on screen is the currentWidget().
+    It can be changed using setCurrentIndex().
 
-    \sa QTabWidget
+    QStackedWidget provides no intrinsic means for the user to switch
+    page. This is typically done through a QComboBox or a QListWidget
+    that stores the titles of the QStackedWidget's pages. For
+    example:
+
+    \code
+        QComboBox *pageComboBox = new QComboBox(this);
+        pageComboBox->addItem(tr("Page 1"));
+        pageComboBox->addItem(tr("Page 2"));
+        pageComboBox->addItem(tr("Page 3"));
+        connect(pageComboBox, SIGNAL(activated(int)),
+                stackedWidget, SLOT(setCurrentIndex(int)));
+    \endcode
+
+    \sa QStackedLayout, QTabWidget
 */
 
 /*!
@@ -83,8 +87,10 @@ public:
 
     This signal is emitted when the current widget is changed. The
     parameter holds the \a index of the new current widget, or -1 if
-    there isn't a new one (for example, if there are no widgets in the
-    stacked box).
+    there isn't a new one (for example, if there are no widgets in
+    the QStackedWidget).
+
+    \sa widgetRemoved(), indexOf()
 */
 
 /*!
@@ -92,66 +98,76 @@ public:
 
     This signal is emitted when the widget at position \a index is
     removed.
-*/
 
+    \sa currentChanged()
+*/
 
 /*!
-  Constructs a new QStackedWidget as a child of \a parent.
+    Constructs a QStackedWidget with the given \a parent.
 */
-
 QStackedWidget::QStackedWidget(QWidget *parent)
-    :QFrame(*new QStackedWidgetPrivate, parent)
+    : QFrame(*new QStackedWidgetPrivate, parent)
 {
     d->layout = new QStackedLayout(this);
     connect(d->layout, SIGNAL(widgetRemoved(int)), this, SIGNAL(widgetRemoved(int)));
 }
 
 /*!
-  Destroys the object and frees any allocated resources.
+    Destroys the object and frees any allocated resources.
 */
-
 QStackedWidget::~QStackedWidget()
 {
 }
 
-/*!  Adds \a w to this box. The first widget added becomes the
-  initial current widget.  Returns the index of \a w in this box.
+/*!
+    Adds \a widget to this QStackedWidget and returns the index
+    position of \a widget.
+
+    If the QStackedWidget is empty before this function is called,
+    \a widget becomes the current widget.
+
+    \sa insertWidget(), removeWidget(), currentWidget()
 */
-int QStackedWidget::addWidget(QWidget *w)
+int QStackedWidget::addWidget(QWidget *widget)
 {
     QBoolBlocker block(d->blockChildAdd);
-    return d->layout->addWidget(w);
+    return d->layout->addWidget(widget);
 }
-
-/*!  Inserts \a w to this box at position \a index. If \a index is out
-  of range, the widget gets appened. The first widget added becomes
-  the initial current widget.  Returns the index of \a w in this box.
-*/
-int QStackedWidget::insertWidget(int index, QWidget *w)
-{
-    QBoolBlocker block(d->blockChildAdd);
-    return d->layout->insertWidget(index, w);
-}
-
 
 /*!
-    Removes widget \a w from this layout, but does not delete it.
+    Inserts \a widget at position \a index in this QStackedWidget. If
+    \a index is out of range, the widget is appended. Returns the
+    actual index of \a widget.
+    
+    If the QStackedWidget was empty before this function is called,
+    \a widget becomes the current widget.
+
+    \sa addWidget(), removeWidget(), count(), currentWidget()
 */
-void QStackedWidget::removeWidget(QWidget *w)
+int QStackedWidget::insertWidget(int index, QWidget *widget)
 {
-    d->layout->removeWidget(w);
+    QBoolBlocker block(d->blockChildAdd);
+    return d->layout->insertWidget(index, widget);
 }
 
+/*!
+    Removes \a widget from the QStackedWidget's layout. The widget is
+    \e not deleted.
+
+    \sa addWidget(), insertWidget(), currentWidget()
+*/
+void QStackedWidget::removeWidget(QWidget *widget)
+{
+    d->layout->removeWidget(widget);
+}
 
 /*!
     \property QStackedWidget::currentIndex
-    \brief The index position of the current widget
+    \brief the index position of the widget that is visible
 
-    The current index is -1 if there is no current widget. The widget
-    at index position 0 is the one that is on top (i.e. the one that
-    is visible).
+    The current index is -1 if there is no current widget.
 
-    \sa currentWidget() indexOf()
+    \sa currentWidget(), indexOf()
 */
 
 void QStackedWidget::setCurrentIndex(int index)
@@ -169,25 +185,33 @@ int QStackedWidget::currentIndex() const
 }
 
 /*!
-  Returns the current widget, or 0 if there are no child widgets.
+    Returns the current widget, or 0 if there are no child widgets.
+
+    Equivalent to widget(currentIndex()).
+
+    \sa currentIndex()
 */
 QWidget *QStackedWidget::currentWidget() const
 {
     return d->layout->currentWidget();
 }
 
-
 /*!
-  Returns the index of \a w, or -1 if \a w is not a child.
- */
-int QStackedWidget::indexOf(QWidget *w) const
+    Returns the index of \a widget, or -1 if \a widget is not a child
+    of QStackedWidget.
+
+    \sa currentIndex(), widget()
+*/
+int QStackedWidget::indexOf(QWidget *widget) const
 {
-    return d->layout->indexOf(w);
+    return d->layout->indexOf(widget);
 }
 
 /*!
     Returns the widget at position \a index, or 0 if there is no such
     widget.
+
+    \sa indexOf()
 */
 QWidget *QStackedWidget::widget(int index) const
 {
@@ -196,7 +220,9 @@ QWidget *QStackedWidget::widget(int index) const
 
 /*!
     \property QStackedWidget::count
-    \brief The number of widgets in this layout.
+    \brief the number of child widgets
+
+    \sa currentIndex(), widget()
 */
 int QStackedWidget::count() const
 {
@@ -204,14 +230,14 @@ int QStackedWidget::count() const
 }
 
 /*!
-  \reimp
+    \reimp
 */
 void QStackedWidget::childEvent(QChildEvent *e)
 {
     if (!e->child()->isWidgetType())
         return;
-    QWidget *w = static_cast<QWidget*>(e->child());
+    QWidget *widget = static_cast<QWidget*>(e->child());
 
-    if (e->added() && !d->blockChildAdd && !w->isWindow() && d->layout->indexOf(w) < 0)
-        d->layout->addWidget(w);
+    if (e->added() && !d->blockChildAdd && !widget->isWindow() && d->layout->indexOf(widget) < 0)
+        d->layout->addWidget(widget);
 }
