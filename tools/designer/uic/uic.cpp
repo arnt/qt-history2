@@ -515,6 +515,8 @@ void Uic::createPopupMenuImpl( const QDomElement &e, const QString &parentClass,
 	    } else {
 		out << indent << n.attribute( "name" ) << "->addTo( " << parent << " );" << endl;
 	    }
+	} else if (n.tagName() == "actiongroup") {
+	    out << indent << n.attribute( "name" ) << "->addTo( " << parent << " );" << endl;
 	} else if ( n.tagName() == "separator" ) {
 	    out << indent << parent << "->insertSeparator();" << endl;
 	}

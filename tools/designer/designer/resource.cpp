@@ -3055,7 +3055,7 @@ void Resource::saveToolBars( QMainWindow *mw, QTextStream &ts, int indent )
 			indent--;
 			ts << makeIndent( indent ) << "</widget>" << endl;
 		    } else {
-			ts <<  makeIndent( indent ) << "<action name=\"" << a->name() << "\"/>" << endl;
+			ts << makeIndent( indent ) << "<action name=\"" << a->name() << "\"/>" << endl;
 		    }
 		}
 	    }
@@ -3104,8 +3104,10 @@ void Resource::savePopupMenu( PopupMenuEditor *pm, QMainWindow *mw, QTextStream 
 	QAction *a = i->action();
 	if ( ::qt_cast<QSeparatorAction*>(a) )
 	    ts <<  makeIndent( indent ) << "<separator/>" << endl;
-	else
+	else if ( ::qt_cast<QDesignerAction*>(a) )
 	    ts <<  makeIndent( indent ) << "<action name=\"" << a->name() << "\"/>" << endl;
+	else if  ( ::qt_cast<QDesignerActionGroup*>(a) )
+	    ts <<  makeIndent( indent ) << "<actiongroup name=\"" << a->name() << "\"/>" << endl;
 	PopupMenuEditor *s =  i->subMenu();
 	if ( s && s->count() ) {
 	    QString n = s->name();
@@ -3186,7 +3188,7 @@ void Resource::loadPopupMenu( PopupMenuEditor *p, const QDomElement &e )
     QDomElement n = e.firstChild().toElement();
     QAction *a = 0;
     while ( !n.isNull() ) {
-	if ( n.tagName() == "action" ) {
+	if ( n.tagName() == "action" || n.tagName() == "actiongroup") {
 	    a = formwindow->findAction( n.attribute( "name" ) );
 	    if ( a )
 		p->insert( a );
