@@ -60,6 +60,8 @@ void Paths::paintEvent(QPaintEvent *)
     path.addRect(100, 100, w-200, h-200);
 
     // Draw the path
+    p.setClipRect(100-p.pen().width()/2, 100-p.pen().width()/2,
+                  w-200+p.pen().width(), h-200+p.pen().width());
     p.drawPath(path);
     p.end();
 
