@@ -319,6 +319,9 @@ private:
     short lbearing;
     short rbearing;
     float _scale;
+    enum { widthCacheSize = 0x500, cmapCacheSize = 0x500 };
+    unsigned char widthCache[widthCacheSize];
+    glyph_t cmapCache[cmapCacheSize];
 };
 #endif
 

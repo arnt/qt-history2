@@ -1248,6 +1248,9 @@ QFontEngineXft::QFontEngineXft( XftFont *font, XftPattern *pattern, int cmap )
     }
     lbearing = SHRT_MIN;
     rbearing = SHRT_MIN;
+
+    memset( widthCache, 0, sizeof(widthCache) );
+    memset( cmapCache, 0, sizeof(cmapCache) );
 }
 
 QFontEngineXft::~QFontEngineXft()
@@ -1276,16 +1279,30 @@ QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str, int len, glyp
     }
 
 #ifdef QT_XFT2
-    for ( int i = 0; i < len; ++i )
-	glyphs[i] =
-	    XftCharIndex( QPaintDevice::x11AppDisplay(), _font, str[i].unicode() );
+    bool missing = FALSE;
+    for ( int i = 0; i < len; ++i ) {
+	unsigned short uc = str[i].unicode();
+	glyphs[i] = uc < cmapCacheSize ? cmapCache[uc] : 0;
+	if ( !glyphs[i] ) {
+	    glyph_t glyph = XftCharIndex( QPaintDevice::x11AppDisplay(), _font, uc );
+	    glyphs[i] = glyph;
+	    if ( uc < cmapCacheSize )
+		((QFontEngineXft *)this)->cmapCache[str[i].unicode()] = glyph;
+	}
+    }
 
     if ( advances ) {
 	for ( int i = 0; i < len; i++ ) {
-	    XGlyphInfo gi;
 	    FT_UInt glyph = *(glyphs + i);
-	    XftGlyphExtents( QPaintDevice::x11AppDisplay(), _font, &glyph, 1, &gi );
-	    *(advances + i) = gi.xOff;
+	    if ( glyph < widthCacheSize )
+		advances[i] = widthCache[glyph];
+	    if ( !advances[i] ) {
+		XGlyphInfo gi;
+		XftGlyphExtents( QPaintDevice::x11AppDisplay(), _font, &glyph, 1, &gi );
+		advances[i] = gi.xOff;
+		if ( glyph < widthCacheSize && gi.xOff < 0x100 )
+		    ((QFontEngineXft *)this)->widthCache[glyph] = gi.xOff;
+	    }
 	}
 	if ( _scale != 1. ) {
 	    for ( int i = 0; i < len; i++ )
@@ -1297,16 +1314,30 @@ QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str, int len, glyp
 	for ( int i = 0; i < len; i++ )
 	    glyphs[i] = str[i].unicode();
     } else {
-	for ( int i = 0; i < len; i++ )
-	    glyphs[i] = FT_Get_Char_Index (_face, str[i].unicode() );
+	for ( int i = 0; i < len; i++ ) {
+	    unsigned short uc = str[i].unicode();
+	    glyphs[i] = uc < cmapCacheSize ? cmapCache[uc] : 0;
+	    if ( !glyphs[i] ) {
+		glyph_t glyph = FT_Get_Char_Index( _face, str[i].unicode() );
+		glyphs[i] = glyph;
+		if ( uc < cmapCacheSize )
+		    ((QFontEngineXft *)this)->cmapCache[str[i].unicode()] = glyph;
+	    }
+	}
     }
 
     if ( advances ) {
 	for ( int i = 0; i < len; i++ ) {
-	    XGlyphInfo gi;
-	    XftTextExtents16(QPaintDevice::x11AppDisplay(), _font,
-			     (XftChar16 *) glyphs+i, 1, &gi);
-	    *(advances + i) = gi.xOff;
+	    XftChar16 glyph = *(glyphs + i);
+	    if ( glyph < widthCacheSize )
+		advances[i] = widthCache[glyph];
+	    if ( !advances[i] ) {
+		XGlyphInfo gi;
+		XftTextExtents16(QPaintDevice::x11AppDisplay(), _font, &glyph, 1, &gi);
+		advances[i] = gi.xOff;
+		if ( glyph < widthCacheSize && gi.xOff < 0x100 )
+		    ((QFontEngineXft *)this)->widthCache[glyph] = gi.xOff;
+	    }
 	}
 	if ( _scale != 1. ) {
 	    for ( int i = 0; i < len; i++ )
