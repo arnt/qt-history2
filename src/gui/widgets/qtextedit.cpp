@@ -1729,6 +1729,7 @@ void QTextEdit::mouseDoubleClickEvent(QMouseEvent *ev)
     if (line.isValid() && line.length()) {
         d->cursor.select(QTextCursor::WordUnderCursor);
         d->selectionChanged();
+        d->setClipboardSelection();
         d->viewport->update();
     }
 
