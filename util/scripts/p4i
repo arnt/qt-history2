@@ -113,7 +113,8 @@ for ( $count = 0; $count < @branchFiles; $count++ ) {
 	chomp( $line );
 	($file, $message) = split( m/ - /, $line );
 	if ( $message ne "integrate from $branchFiles[$count]#".$branchRevisions[$count]
-	  && $message ne "branch/sync from $branchFiles[$count]#".$branchRevisions[$count] ) {
+	  && $message ne "branch/sync from $branchFiles[$count]#".$branchRevisions[$count]
+	  && $message ne "delete from $branchFiles[$count]#".$branchRevisions[$count] ) {
 	    print STDERR "Gaps in integration of $file: \"$message\"\n";
 	    $message =~ s/.*\#([0-9]+),\#([0-9]+)/$1 $2/g;
 	    ($start, $end) = split( " ", $message );
@@ -139,7 +140,8 @@ for ( $count = 0; $count < @branchFiles; $count++ ) {
 	# Discard revisions here.
 	$line =~ s/\#[0-9]+//g;
 	if ( $line ne "$mainFiles[$count] - integrate from $branchFiles[$count]"
-	  && $line ne "$mainFiles[$count] - branch/sync from $branchFiles[$count]" ) {
+	  && $line ne "$mainFiles[$count] - branch/sync from $branchFiles[$count]"
+	  && $line ne "$mainFiles[$count] - delete from $branchFiles[$count]" ) {
 	    print STDERR "$P4 returned unexpected line \"$line\"\n";
 	    $abort = 1;
 	}
