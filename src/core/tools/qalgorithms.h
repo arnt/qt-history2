@@ -86,8 +86,13 @@ void qBubbleSort(BiIterator begin, BiIterator end, LessThan lessThan)
 {
     // Goto last element;
     BiIterator last = end;
+
+    // empty list
+    if (begin == end)
+        return;
+
     --last;
-    // only one element or no elements ?
+    // only one element ?
     if (last == begin)
         return;
 
