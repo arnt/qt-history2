@@ -142,7 +142,7 @@ QFontPrivate::QFontPrivate(const QFontPrivate &other)
 QFontPrivate::~QFontPrivate()
 {
     if (engineData)
-        -engineData->ref.deref();
+        engineData->ref.deref();
     engineData = 0;
 }
 
@@ -2223,7 +2223,7 @@ void QFontCache::cleanupPrinterFonts()
 #ifdef Q_WS_WIN
                 for(int i = 0; i < QUnicodeTables::ScriptCount; ++i) {
                     if(it.value()->engines[i]) {
-                        --it.value()->engines[i]->ref;
+                        it.value()->engines[i]->ref.deref();
                         it.value()->engines[i] = 0;
                     }
                 }
