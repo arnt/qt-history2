@@ -21,7 +21,8 @@
 */
 
 #include <qstyleplugin.h>
-#include "lightstyle.h"
+#include "lightstyle-v2.h"
+#include "lightstyle-v3.h"
 
 class LightStylePlugin : public QStylePlugin
 {
@@ -40,14 +41,17 @@ LightStylePlugin::LightStylePlugin()
 QStringList LightStylePlugin::keys() const
 {
     QStringList list;
-    list << "Light";
+    list << "Light, 2nd revision";
+    list << "Light, 3rd revision";
     return list;
 }
 
 QStyle *LightStylePlugin::create(const QString &s)
 {
-    if (s.lower() == "light")
-	return new LightStyle;
+    if (s.lower() == "light, 2nd revision")
+	return new LightStyleV2;
+    if (s.lower() == "light, 3rd revision")
+	return new LightStyleV3;
     return 0;
 }
 

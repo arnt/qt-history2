@@ -20,8 +20,8 @@
   DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef LIGHTSTYLE_H
-#define LIGHTSTYLE_H
+#ifndef LIGHTSTYLE_V2_H
+#define LIGHTSTYLE_V2_H
 
 
 #ifndef QT_H
@@ -31,19 +31,19 @@
 
 
 #ifdef QT_PLUGIN
-#  define Q_EXPORT_STYLE_LIGHT
+#  define Q_EXPORT_STYLE_LIGHT_V2
 #else
-#  define Q_EXPORT_STYLE_LIGHT Q_EXPORT
+#  define Q_EXPORT_STYLE_LIGHT_V2 Q_EXPORT
 #endif // QT_PLUGIN
 
 
-class Q_EXPORT_STYLE_LIGHT LightStyle : public QWindowsStyle
+class Q_EXPORT_STYLE_LIGHT_V2 LightStyleV2 : public QWindowsStyle
 {
     Q_OBJECT
 
 public:
-    LightStyle();
-    virtual ~LightStyle();
+    LightStyleV2();
+    virtual ~LightStyleV2();
 
     void drawPrimitive(PrimitiveElement, QPainter *, const QRect &, const QColorGroup &,
 		       SFlags = Style_Default,
@@ -79,4 +79,4 @@ public:
 };
 
 
-#endif // LIGHTSTYLE_H
+#endif // LIGHTSTYLE_V2_H

@@ -2,10 +2,9 @@ TEMPLATE        = lib
 CONFIG          += qt warn_on plugin
 
 contains(styles,windows) {
-    HEADERS         = lightstyle.h
+    HEADERS         = lightstyle-v2.h lightstyle-v3.h
 
-    SOURCES         = main.cpp \
-		      lightstyle.cpp
+    SOURCES         = main.cpp lightstyle-v2.cpp lightstyle-v3.cpp
 
     unix:OBJECTS_DIR        = .obj
     win32:OBJECTS_DIR       = obj
