@@ -217,7 +217,7 @@ QSound:
   a HTTP server, e.g.
 
 QPrinter:
-  On Windows set a method that the user can change the paper bin it wants to print from.  
+  On Windows set a method that the user can change the paper bin it wants to print from.
   (support/arc-09/19577)
 
 QListBox
@@ -349,3 +349,6 @@ QListBox/maybe QTable (Reggie)
 
 QTableItem (Reggie):
     setEnabled( bool )
+
+QTable (Reggie):
+    functions for insert/remove row/column
