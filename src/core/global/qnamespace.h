@@ -243,11 +243,12 @@ public:
         WStyle_Splash           = WStyle_NoBorder | WStyle_Tool | WWinOwnDC,
 #endif
 #if defined(Q_WS_MAC)
-        WStyle_ToolTip          = 0x80000000,
+        WStyle_ToolTip          = 0x80000000
 #else
-        WStyle_ToolTip          = WStyle_StaysOnTop | WStyle_Customize | WStyle_NoBorder | WStyle_Tool | WX11BypassWM,
+        WStyle_ToolTip          = WStyle_StaysOnTop | WStyle_Customize | WStyle_NoBorder | WStyle_Tool | WX11BypassWM
 #endif
 #ifdef QT_COMPAT
+        ,
         WStaticContents        = 0x00400000,
         WNoAutoErase           = 0x00800000,
         WRepaintNoErase        = WNoAutoErase,
