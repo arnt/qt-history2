@@ -1,0 +1,88 @@
+/*! \page containers.html
+
+    \title Generic Containers
+
+    \section1 Overview of the Qt Containers
+
+	* \l {implicit sharing}
+
+    \section1 Running Times
+
+    The containers documentation provide information about how fast
+    (or slow) each function is as the number of items in the
+    container grow. For example, inserting an item in the middle of a
+    QLinkedList is an extremely fast operation, irrespective of the
+    number of items stored in the QLinkedList. On the other hand,
+    inserting an item in the middle of a QVector is potentially very
+    expensive if the QVector contains many items, since half of the
+    items must be moved one position in memory.
+
+    In the documentation, we use the following terminology, based on
+    the \link somewhere "big Oh" notation \endlink:
+
+    \list
+    \i \e{constant time}: O(1). A function is said to run in constant
+       time if it requires the same amount of time no matter how many
+       items are present in the container. One example is
+       QLinkedList::insert().
+
+    \i \e{logarithmic time}: O(log \e n). A function that runs in
+       logarithmic time is a function whose running time is
+       proportional to the logarithm of the number of items in the
+       container. One example is qBinaryFind().
+
+    \i \e{linear time}: O(\e n). A function that runs in linear time
+       will execute in a time directly proportional to the number of
+       items stored in the container. One example is
+       QVector::insert().
+
+    \i \e{linear-logarithmic time}: O(\e{n} log \e n). A function
+       that runs in linear-logarithmic time is asymtotically slower
+       than a linear-time function, but faster than a quadratic-time
+       function.
+
+    \i \e{quadratic time}: O(\e{n}^2). A quadratic-time function
+       executes in a time that is proportional to the square of the
+       number of items stored in the container.
+    \endlist
+
+    \section1
+
+	* how to override operator<() to provide a different kind of sorting
+
+    \section1 Pointers vs. Values
+
+	* previous versions of Qt used to distinguish between pointer-based containers
+          and value-based containers.
+
+	* this distinction was artificial and abolished in Qt 4.
+
+    \section1 Iterators
+
+    Qt's container classes provide two types of iterators:
+    
+    \list
+    \i The \e{Java-style iterators} are new in Qt 4.0 and are expected to become
+       the norm in Qt applications. They are designed to be more
+       convenient to use than the STL-style iterators, at the price
+       of being slightly less efficient.
+
+    \i The \e{STL-style iterators} have been around since Qt 2.0.
+       They are compatible with Qt's and STL's \l{generic algorithms}
+       and are optimized for speed.
+    \endlist
+
+    \section2 Java-Style Iterators
+
+
+
+    \section2 STL-Style Iterators
+
+	* ConstIterator const_iterator
+        * Iterator iterator
+
+	* begin()
+        * end()
+	* erase() etc.
+
+*/
