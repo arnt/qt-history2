@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#268 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#269 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -49,6 +49,10 @@ typedef char *XPointer;
 #include <unistd.h>
 #endif
 
+#if defined(_OS_IRIX_)
+#include <bstring.h>
+#endif
+
 #if defined(_OS_WIN32_) && defined(gettimeofday)
 #undef gettimeofday
 #include <sys/timeb.h>
@@ -75,7 +79,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#268 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#269 $");
 
 
 /*****************************************************************************
