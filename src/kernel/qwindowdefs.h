@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#80 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#81 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -168,7 +168,7 @@ void  qAddPostRoutine( CleanUpFunction );
 
 void *qt_find_obj_child( QObject *, const char *, const char * );
 #define CHILD(parent,type,name) \
-	((type*)qt_find_obj_child(parent,#type,#name))
+	((type*)qt_find_obj_child(parent,#type,name))
 
 
 // GUI styles
