@@ -1359,6 +1359,11 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
     case SR_ToolButtonContents:
 	rect = querySubControlMetrics(CC_ToolButton, widget, SC_ToolButton);
 	break;
+	
+    case SR_ToolBoxTabContents:
+	rect = wrect;
+	rect.addCoords( 0, 0, -20, 0 );
+	break;
 
     default:
 	rect = wrect;

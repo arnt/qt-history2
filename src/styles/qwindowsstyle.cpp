@@ -1904,6 +1904,9 @@ QRect QWindowsStyle::subRect(SubRect r, const QWidget *widget) const
 	    break;
 	}
 #endif // QT_NO_SLIDER
+    case SR_ToolBoxTabContents:
+	rect = widget->rect();
+	break;
     default:
 	rect = QCommonStyle::subRect( r, widget );
 	break;
