@@ -733,7 +733,9 @@ void SetupWizardImpl::sysOtherComboChanged(int index)
 
 void SetupWizardImpl::clickedSystem( int sys )
 {
-#ifndef Q_OS_MAC
+#ifndef Q_OS_MACX
+    if (sys == 99) // This is the Integrate with IDE checkbox
+	return;
     globalInformation.setSysId( GlobalInformation::SysId(sys) );
     if (sys == GlobalInformation::Other) {
 	if (optionsPage->sysOtherCombo->currentText() == "win32-icc")

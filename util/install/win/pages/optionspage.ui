@@ -217,6 +217,9 @@
                                     <property name="checked">
                                         <bool>true</bool>
                                     </property>
+				    <property name="buttonGroupId">
+                                         <number>99</number>
+                                    </property>
                                 </widget>
                                 <spacer>
                                     <property name="name">
