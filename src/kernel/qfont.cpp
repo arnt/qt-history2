@@ -52,9 +52,8 @@ bool QFontDef::operator==( const QFontDef &other ) const
       QFontDef comparison is more complicated than just simple
       per-member comparisons.
 
-      When comparing point/pixel sizes, we allow for them to be -1.
-      We use strict comparison if and only if the size members are not
-      -1 in this instance and \a other.
+      When comparing point/pixel sizes, either point or pixelsize could be -1.
+      in This case we have to compare the non negative size value.
 
       To compare the family members, we need to parse the font names
       and compare the family/foundry strings separately.  This allows
@@ -65,13 +64,12 @@ bool QFontDef::operator==( const QFontDef &other ) const
     QFontDatabase::parseFontName(family, this_foundry, this_family);
     QFontDatabase::parseFontName(other.family, other_foundry, other_family);
 
-    return ((pointSize == -1
-	     || other.pointSize == -1
-	     || pointSize == other.pointSize)
-	    && (pixelSize == -1
-		|| other.pixelSize == -1
-		|| pixelSize == other.pixelSize)
-	    && styleHint     == other.styleHint
+    if ((pointSize == -1 || other.pointSize == -1) && pixelSize != other.pixelSize)
+	return FALSE;
+    if ((pixelSize == -1 || other.pixelSize == -1) && pointSize != other.pointSize)
+	return FALSE;
+
+    return ( styleHint     == other.styleHint
 	    && styleStrategy == other.styleStrategy
 	    && weight        == other.weight
 	    && italic        == other.italic
@@ -84,7 +82,7 @@ bool QFontDef::operator==( const QFontDef &other ) const
 #ifdef Q_WS_X11
 	    && addStyle == other.addStyle
 #endif // Q_WS_X11
-	    );
+	);
 }
 
 
