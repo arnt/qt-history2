@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#47 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#48 $
 **
 ** Definition of QButton widget class
 **
@@ -30,16 +30,19 @@ public:
     const QPixmap *pixmap() const;
     void	setPixmap( const QPixmap & );
 
+    int		accel()	const;
+    void	setAccel( int );
+
     bool	isToggleButton() const;
 
-    bool	isDown()	const;
-    bool	isOn()		const;
+    bool	isDown() const;
+    bool	isOn() const;
 
-    bool	autoResize()	const;
+    bool	autoResize() const;
     void	setAutoResize( bool );
 
+    bool	autoRepeat() const;
     void	setAutoRepeat( bool );
-    bool	autoRepeat() const { return (bool)repeat; }
 
 public slots:
     void	animateClick();
@@ -68,8 +71,6 @@ protected:
     void	focusOutEvent( QFocusEvent * );
 
     void	enabledChange( bool );
-
-    void	setAccelerator( bool );
 
 private slots:
     void	timerSlot();
@@ -124,6 +125,11 @@ inline bool QButton::isOn() const
 inline bool QButton::autoResize() const
 {
     return autoresize;
+}
+
+inline bool QButton::autoRepeat() const
+{
+    return repeat;
 }
 
 

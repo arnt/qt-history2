@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#69 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#70 $
 **
 ** Implementation of QButton widget class
 **
@@ -18,9 +18,26 @@
 #include "qaccel.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#69 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#70 $");
+
 
 static const int autoRepeatPeriod = 200;
+
+/*
+  Internal function that returns the shortcut character in a string.
+  Returns zero if no shortcut character was found.
+  Example:
+    shortcutChar("E&xit") returns 'x'.
+*/
+
+static int shortcutChar( const char *str )
+{
+    const char *p = str ? strchr(str, '&') : 0;
+    while ( p && *p && p[1] == '&' )
+	p = strchr( p+2, '&' );
+    return (p && *p && p[1] && p[1] != '&') ? p[1] : 0;
+}
+
 
 /*!
   \class QButton qbutton.h
@@ -40,14 +57,16 @@ static const int autoRepeatPeriod = 200;
   Any button can have either a text or pixmap label.  setText() sets
   the button to be a text button and setPixmap() sets it to be a
   pixmap button.  The text/pixmap is manipulated as necessary to
-  create "disabled" appearance.
+  create "disabled" appearance when the button is \link
+  QWidget::setEnabled() disabled\endlink.
 
-  QButton provides most of the states used for buttons: <ul>
-  <li>setDown() determines whether the button is \e pressed (see
+  QButton provides most of the states used for buttons:
+  <ul>
+  <li>isDown() determines whether the button is \e pressed (see
   below)
-  <li>setOn() determines whether the (toggle) button is \e on (see
+  <li>isOn() determines whether the (toggle) button is \e on (see
   below)
-  <li>setEnabled() determines whether the button can be pressed by the
+  <li>isEnabled() determines whether the button can be pressed by the
   user.
   <li>setAutoRepeat() determines whether the button will auto-repeat
   if the user holds it down.
@@ -55,7 +74,7 @@ static const int autoRepeatPeriod = 200;
   button or not.
   </ul>
 
-  The difference between setDown() and setOn() can be a bit hard to
+  The difference between isDown() and isOn() can be a bit hard to
   grasp at first.  It's not really hard, however, as this example
   shows:
 
@@ -67,14 +86,13 @@ static const int autoRepeatPeriod = 200;
   Default buttons (as used in many dialogs) are provided by
   QPushButton::setDefault() and QPushButton::setAutoDefault().
 
-  QButton provides four signals: <ul>
+  QButton provides four signals:
+  <ul>
   <li>pressed() is emitted when the left mouse button is pressed while
-  the cursor is inside the button, and if the button is an
-  autoRepeat() button, at regular intervals while the button is being
-  held down.
+  the mouse cursor is inside the button.
   <li>released() is emitted when the left mouse button is released.
-  <li>clicked() is emitted when the left mouse button is released as
-  above, or when the accelerator key is typed, or when animateClick()
+  <li>clicked() is emitted when the button is first pressed then
+  released, or when the accelerator key is typed, or when animateClick()
   is called.
   <li>toggled() is emitted when the state of a toggle button changes.
   </ul>
@@ -85,19 +103,20 @@ static const int autoRepeatPeriod = 200;
   accelerator key, Alt-C:
 
   \code
-    QPushButton * p = new QPushButton( "Ro&ck && Roll", this, "4/4!" );
+    QPushButton *p = new QPushButton( "Ro&ck && Roll", this );
   \endcode
 
   When the user presses the accelerator (Alt-C in this case), the
   button emits clicked() and perhaps toggled().
 
   Buttons with pixmaps do not have automatic accelerators, but you can
-  achieve the same effect in another way.  In this example, yourAccel
-  is a QAccel supplied by you and anyButton is a QButton (or one of
-  its subclasses):
+  achieve the same effect in another way.  Call the setAccel function
+  to set a custom accelerator on the button.
  
   \code
-    yourAccel->connectItem( ALT+Key_F7, anyButton, SLOT(animateClick()) );
+    QPushButton *p;
+    ...
+    p->setAccel( ALT+Key_F7 );
   \endcode
 
   In this example, when the user presses Alt-F7 the buttop will be
@@ -210,6 +229,8 @@ void QButton::setText( const char *text )
 {
     if ( btext == text )
 	return;
+    int oldAccelChar = shortcutChar(btext);
+    int newAccelChar = shortcutChar(text);
     btext = text;
     if ( bpixmap ) {
 	delete bpixmap;
@@ -217,7 +238,10 @@ void QButton::setText( const char *text )
     }
     if ( autoresize )
 	adjustSize();
-    setAccelerator( TRUE );
+    if ( oldAccelChar && !newAccelChar && !accel() )
+	setAccel( 0 );
+    if ( newAccelChar )
+	setAccel( ALT+toupper(newAccelChar) );
     update();
 }
 
@@ -239,7 +263,7 @@ void QButton::setText( const char *text )
   The button resizes itself if auto-resizing is enabled, and always
   disables any accelerator.
 
-  \sa pixmap() setText() setAutoResize() setAccelerator() QPixmap::mask()
+  \sa pixmap(), setText(), setAutoResize(), setAccel(), QPixmap::mask()
 */
 
 void QButton::setPixmap( const QPixmap &pixmap )
@@ -257,11 +281,13 @@ void QButton::setPixmap( const QPixmap &pixmap )
     *bpixmap = pixmap;
     if ( bpixmap->depth() == 1 && !bpixmap->mask() )
 	bpixmap->setMask( *((QBitmap *)bpixmap) );
+    int oldAccelChar = shortcutChar(btext);
     if ( !btext.isNull() )
 	btext.resize( 0 );
-    setAccelerator( FALSE );
     if ( autoresize && !sameSize )
 	adjustSize();
+    if ( oldAccelChar )
+	setAccel( 0 );
     repaint( FALSE );
 }
 
@@ -297,14 +323,14 @@ void QButton::setAutoResize( bool enable )
 }
 
 
-/*! \fn bool QButton::autoRepeat() const
+/*!
+  \fn bool QButton::autoRepeat() const
 
   Returns TRUE if the button is auto-repeating, else FALSE.
 
   The default is FALSE.
 
   \sa setAutoRepeat()
-
 */
 
 
@@ -329,28 +355,59 @@ void QButton::setAutoRepeat( bool enable )
 }
 
 
-/*!  Turns on or off accelerator interpretation for this button
-  according to text(). */
+/*!
+  Returns the accelerator key currently set for the button, or 0
+  if no accelerator key has been set.
+  \sa setAccel()
+*/
 
-void QButton::setAccelerator( bool enable )
+int QButton::accel() const
 {
-    QAccel * a = CHILD( this, QAccel, "button accelerator" );
+    QAccel *a = CHILD((QObject*)this,QAccel,"buttonAccel");
+    return a ? a->key(0) : 0;
+}
 
-    if ( enable ) {
-	const char * p = strchr( text(), '&' );
-	while( p && *p && p[1] == '&' )
-	    p = strchr( p+2, '&' );
-	if ( p && *p && isalpha(p[1]) ) {
-	    if ( a )
-		a->clear();
-	    else
-		a = new QAccel( this, "button accelerator" );
-	    a->connectItem( a->insertItem(ALT+toupper(p[1])),
-			    this, SLOT(animateClick()) );
-	    a = 0; // to avoid the delete
-	}
+/*!
+  Specifies an accelerator \a key for the button, or removes the
+  accelerator if \a key is 0.
+
+  Setting a button text containing a shortcut character (for
+  example the 'x' in E&xit) automatically defines an ALT+letter
+  accelerator for the button.
+  You only need to call this function in order to specify a custom
+  accelerator.
+
+  Example:
+  \code
+    QPushButton *b1 = new QPushButton;
+    b1->setText( "&OK" );		// sets accel ALT+'O'
+
+    QPushButton *b2 = new QPushButton;
+    b2->setPixmap( printIcon );		// pixmap instead of text
+    b2->setAccel( CTRL+'P' );		// custom accel
+  \endcode
+
+  \sa accel(), setText(), QAccel
+*/
+
+void QButton::setAccel( int key )
+{
+    if ( key == -1 ) {				// guess from the text
+	int c = shortcutChar( text() );
+	key = c ? ALT+toupper(c) : 0;
     }
-    delete a;
+
+    QAccel *a = CHILD(this,QAccel,"buttonAccel");
+    if ( key == 0 ) {				// delete accel
+	delete a;
+    } else {
+	if ( a )
+	    a->clear();
+	else
+	    a = new QAccel( this, "buttonAccel" );
+	a->connectItem( a->insertItem(key,0),
+			this, SLOT(animateClick()) );
+    }
 }
 
 
@@ -376,7 +433,7 @@ void QButton::setAccelerator( bool enable )
 
 void QButton::setDown( bool enable )
 {
-    mlbDown = FALSE; // the safe setting
+    mlbDown = FALSE;				// the safe setting
     if ( (bool)buttonDown != enable ) {
 	buttonDown = enable;
 	repaint( FALSE );
@@ -542,6 +599,7 @@ void QButton::mouseMoveEvent( QMouseEvent *e )
     }
 }
 
+
 /*!
   Handles paint events for the button.
 
@@ -647,8 +705,6 @@ void QButton::autoRepeatSlot()
 }
 
 
-
-
 /*!
   Reimplemented for implementational reasons.
 */
@@ -661,16 +717,22 @@ void QButton::enabledChange( bool e )
 }
 
 
-/*!  Draws an animated click: The button is pressed and a short while
+/*!
+  Draws an animated click: The button is pressed and a short while
   later released.
 
   clicked() and toggled() signals are emitted as appropriate.
 
-  \sa setAccelerator()
+  This function does nothing if the button is \link setEnabled()
+  disabled\endlink.
+
+  \sa setAccel()
 */
 
 void QButton::animateClick()
 {
+    if ( !isEnabled() )
+	return;
     buttonDown = TRUE;
     repaint( FALSE );
     buttonDown = FALSE;
@@ -683,7 +745,9 @@ void QButton::animateClick()
 }
 
 
-/*!  Internal slot used for the second stage of animateClick(). */
+/*!
+  Internal slot used for the second stage of animateClick().
+*/
 
 void QButton::repaintSlot()
 {
