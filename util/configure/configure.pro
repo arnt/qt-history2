@@ -43,8 +43,3 @@ win32-g++:LIBS += -luuid
 win32:LIBS += -lole32
 
 win32:CONFIG+=console
-
-eval {
-    DEFINES		+= EVAL
-    DESTDIR		= .
-}
