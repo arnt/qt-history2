@@ -558,6 +558,9 @@ public:
     void setText( const QString& );
     void setFont( const QFont& );
     void setColor( const QColor& );
+    QString text() const;
+    QFont font() const;
+    QColor color() const;
 
     void moveBy(double dx, double dy);
 
@@ -580,9 +583,9 @@ private:
 
     void setRect();
     QRect brect;
-    QString text;
+    QString txt;
     int flags;
-    QFont font;
+    QFont fnt;
     QColor col;
     QCanvasTextExtra* extra;
 

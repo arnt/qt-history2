@@ -3381,7 +3381,7 @@ void QCanvasEllipse::drawShape(QPainter & p)
 */
 QCanvasText::QCanvasText(QCanvas* canvas) :
     QCanvasItem(canvas),
-    text("<text>"), flags(0)
+    txt("<text>"), flags(0)
 {
     setRect();
     addToChunks();
@@ -3394,7 +3394,7 @@ QCanvasText::QCanvasText(QCanvas* canvas) :
 */
 QCanvasText::QCanvasText(const QString& t, QCanvas* canvas) :
     QCanvasItem(canvas),
-    text(t), flags(0)
+    txt(t), flags(0)
 {
     setRect();
     addToChunks();
@@ -3407,8 +3407,8 @@ QCanvasText::QCanvasText(const QString& t, QCanvas* canvas) :
 */
 QCanvasText::QCanvasText(const QString& t, QFont f, QCanvas* canvas) :
     QCanvasItem(canvas),
-    text(t), flags(0),
-    font(f)
+    txt(t), flags(0),
+    fnt(f)
 {
     setRect();
     addToChunks();
@@ -3431,8 +3431,8 @@ void QCanvasText::setRect()
     static QWidget *w=0;
     if (!w) w = new QWidget;
     QPainter p(w);
-    p.setFont(font);
-    brect = p.boundingRect(QRect(int(x()),int(y()),0,0), flags, text);
+    p.setFont(fnt);
+    brect = p.boundingRect(QRect(int(x()),int(y()),0,0), flags, txt);
 }
 
 /*!
@@ -3457,29 +3457,62 @@ void QCanvasText::setTextFlags(int f)
 }
 
 /*!
+  Returns the text to be displayed.
+
+  \sa setText()
+*/
+QString QCanvasText::text() const
+{
+    return txt;
+}
+
+
+/*!
   Sets the text to be displayed.  The text may contain newlines.
+
+  \sa text(), setFont(), setColor()
 */
 void QCanvasText::setText( const QString& t )
 {
     removeFromChunks();
-    text = t;
+    txt = t;
     setRect();
     addToChunks();
+}
+
+/*!
+  Returns the font in which the text is drawn.
+  \sa setFont()
+*/
+QFont QCanvasText::font() const
+{
+    return fnt;
 }
 
 /*!
   Sets the font in which the text is drawn.
+  \sa font()
 */
 void QCanvasText::setFont( const QFont& f )
 {
     removeFromChunks();
-    font = f;
+    fnt = f;
     setRect();
     addToChunks();
 }
 
 /*!
+  Returns the color of the text.
+  \sa setColor()
+*/
+QColor QCanvasText::color() const
+{
+    return col;
+}
+
+/*!
   Sets the color of the text.
+  \sa color(), setFont()
 */
 void QCanvasText::setColor(const QColor& c)
 {
@@ -3503,9 +3536,9 @@ void QCanvasText::moveBy(double dx, double dy)
 */
 void QCanvasText::draw(QPainter& painter)
 {
-    painter.setFont(font);
+    painter.setFont(fnt);
     painter.setPen(col);
-    painter.drawText(brect, flags, text);
+    painter.drawText(brect, flags, txt);
 }
 
 /*!
