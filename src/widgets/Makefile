@@ -29,14 +29,14 @@ SOURCES =	qbttngrp.cpp	qbutton.cpp	qchkbox.cpp	qcombo.cpp    \
 		qpopmenu.cpp	qpushbt.cpp	qradiobt.cpp	qrangect.cpp  \
 		qslider.cpp	qscrbar.cpp	qtablevw.cpp	qtooltip.cpp  \
 		qmlined.cpp     qheader.cpp	qtabbar.cpp	qspinbox.cpp  \
-		qprogbar.cpp	qscrollview.cpp	qvalidator.cpp
+		qprogbar.cpp	qscrollview.cpp	
 OBJECTS =	qbttngrp.o	qbutton.o	qchkbox.o	qcombo.o      \
 		qframe.o	qgrpbox.o	qlabel.o	qlcdnum.o     \
 		qlined.o	qlistbox.o	qmenubar.o	qmenudta.o    \
 		qpopmenu.o	qpushbt.o	qradiobt.o	qrangect.o    \
 		qslider.o	qscrbar.o	qtablevw.o	qtooltip.o    \
 		qmlined.o       qheader.o	qtabbar.o	qspinbox.o    \
-		qprogbar.o	qscrollview.o	qvalidator.o
+		qprogbar.o	qscrollview.o	
 SRCMETA =	mbttngrp.cpp	mbutton.cpp	mchkbox.cpp	mcombo.cpp    \
 		mframe.cpp	mgrpbox.cpp	mlabel.cpp	mlcdnum.cpp   \
 		mlined.cpp	mlistbox.cpp	mmenubar.cpp	mpopmenu.cpp  \
@@ -49,8 +49,7 @@ OBJMETA =	mbttngrp.o	mbutton.o	mchkbox.o	mcombo.o      \
 		mlined.o	mlistbox.o	mmenubar.o	mpopmenu.o    \
 		mpushbt.o	mradiobt.o	mscrbar.o	mtablevw.o    \
 		mmlined.o	mtooltip.o	mslider.o	mheader.o     \
-		mtabbar.o	mspinbox.o	mprogbar.o	mscrollview.o \
-		minputvalidator.o
+		mtabbar.o	mspinbox.o	mprogbar.o	mscrollview.o
 
 TARGET = $(LIBDIR)/libqwidgets.a
 

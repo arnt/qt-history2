@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#179 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#180 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#179 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#180 $");
 
 
 /*!
@@ -587,10 +587,11 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     create();					// platform-dependent init
     deferMove( frect.topLeft() );
     deferResize( crect.size() );    
-    if ( testWFlags( WState_TabToFocus ) {	// focus was set using WFlags
-	QFocusData * f = focusData( TRUE );
-	if ( f->focusWidgets.findRef( this ) < 0 )
- 	    f->focusWidgets.append( this );
+    //ARNT du maa teste koden din
+    if ( testWFlags( WState_TabToFocus ) ) {	// focus was set using WFlags
+	QFocusData * fd = focusData( TRUE );
+	if ( fd->focusWidgets.findRef( this ) < 0 )
+ 	    fd->focusWidgets.append( this );
     }
 }
 
@@ -1627,7 +1628,8 @@ void QWidget::setFocus()
 	// does not, 'this' must not be in the list - an error, but
 	// perhaps possible.  fix it.
 	if ( f->it.current() != this ) {
-	    f->focuswidgts.append( this );
+	    //ARNT du maa teste koden din
+	    //f->focuswidgets.append( this );
 	    f->it.toLast();
 	}
     }
