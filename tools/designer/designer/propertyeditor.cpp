@@ -485,7 +485,7 @@ QString PropertyItem::currentItemFromObject() const
 
 void PropertyItem::setFocus( QWidget *w )
 {
-    if ( !qApp->focusWidget() || 
+    if ( !qApp->focusWidget() ||
 	 !listview->propertyEditor()->formWindow()->mainWindow()->isAFormWindowChild( qApp->focusWidget() ) )
 	w->setFocus();
 }
@@ -632,7 +632,8 @@ void PropertyTextItem::setValue( const QVariant &v )
 	int oldCursorPos;
 	oldCursorPos = lin->cursorPosition();
 	lined()->setText( to_string( v, accel ) );
-	lin->setCursorPosition( oldCursorPos );
+	if ( oldCursorPos < (int)lin->text().length() )
+	    lin->setCursorPosition( oldCursorPos );
 	lined()->blockSignals( FALSE );
     }
     setText( 1, to_string( v, accel ) );
@@ -1601,8 +1602,10 @@ void PropertyPaletteItem::setValue( const QVariant &v )
 
 void PropertyPaletteItem::getPalette()
 {
+    if ( !listview->propertyEditor()->widget()->isWidgetType() )
+	return;
     bool ok = FALSE;
-    QWidget *w = listview->propertyEditor()->widget();
+    QWidget *w = (QWidget*)listview->propertyEditor()->widget();
     if ( w->inherits( "QScrollView" ) )
 	w = ( (QScrollView*)w )->viewport();
     QPalette pal = PaletteEditor::getPalette( &ok, val.toPalette(),
@@ -1899,11 +1902,12 @@ void PropertyList::setupProperties()
     QStrList lst = editor->widget()->metaObject()->propertyNames( allProperties );
     PropertyItem *item = 0;
     QMap<QString, bool> unique;
-    QWidget *w = editor->widget();
+    QObject *w = editor->widget();
     QStringList valueSet;
     bool parentHasLayout =
-	!editor->formWindow()->isMainContainer( w ) && w->parentWidget() &&
-	WidgetFactory::layoutType( w->parentWidget() ) != WidgetFactory::NoLayout;
+	w->isWidgetType() && 
+	!editor->formWindow()->isMainContainer( (QWidget*)w ) && ( (QWidget*)w )->parentWidget() &&
+	WidgetFactory::layoutType( ( (QWidget*)w )->parentWidget() ) != WidgetFactory::NoLayout;
     for ( QListIterator<char> it( lst ); it.current(); ++it ) {
 	const QMetaProperty* p = editor->widget()->metaObject()->property( it.current(), allProperties );
 	if ( !p )
@@ -1911,7 +1915,8 @@ void PropertyList::setupProperties()
 	if ( unique.contains( QString::fromLatin1( it.current() ) ) )
 	    continue;
 	unique.insert( QString::fromLatin1( it.current() ), TRUE );
-	if ( editor->formWindow()->isMainContainer( editor->widget() ) ) {
+	if ( editor->widget()->isWidgetType() && 
+	     editor->formWindow()->isMainContainer( (QWidget*)editor->widget() ) ) {
 	    if ( qstrcmp( p->name(), "geometry" ) == 0 )
 		continue;
 	} else { // hide some toplevel-only stuff
@@ -1941,8 +1946,9 @@ void PropertyList::setupProperties()
 	if ( qstrcmp( p->name(), "maximumWidth" ) == 0 )
 	    continue;
 	if ( qstrcmp( p->name(), "buttonGroupId" ) == 0 ) { // #### remove this when designable in Q_PROPERTY can take a function (isInButtonGroup() in this case)
-	    if ( !editor->widget()->parentWidget() ||
-		 !editor->widget()->parentWidget()->inherits( "QButtonGroup" ) )
+	    if ( !editor->widget()->isWidgetType() ||
+		 !editor->widget()->parent() ||
+		 !editor->widget()->parent()->inherits( "QButtonGroup" ) )
 		continue;
 	}
 	
@@ -2005,7 +2011,7 @@ void PropertyList::setupProperties()
 	}
     }
 
-    if ( WidgetFactory::layoutType( w ) != WidgetFactory::NoLayout ) {
+    if ( w->isWidgetType() && WidgetFactory::layoutType( (QWidget*)w ) != WidgetFactory::NoLayout ) {
 	item = new PropertyIntItem( this, item, 0, "layoutSpacing", TRUE );
 	setPropertyValue( item );
 	item->setChanged( TRUE );
@@ -2246,9 +2252,9 @@ void PropertyList::setPropertyValue( PropertyItem *i )
 	    else
 		i->setValue( QVariant( FALSE, 0 ) );
 	} else if ( i->name() == "layoutSpacing" ) {
-	    ( (PropertyIntItem*)i )->setValue( MetaDataBase::spacing( WidgetFactory::containerOfWidget( editor->widget() ) ) );
+	    ( (PropertyIntItem*)i )->setValue( MetaDataBase::spacing( WidgetFactory::containerOfWidget( (QWidget*)editor->widget() ) ) );
 	} else if ( i->name() == "layoutMargin" ) {
-	    ( (PropertyIntItem*)i )->setValue( MetaDataBase::margin( WidgetFactory::containerOfWidget( editor->widget() ) ) );
+	    ( (PropertyIntItem*)i )->setValue( MetaDataBase::margin( WidgetFactory::containerOfWidget( (QWidget*)editor->widget() ) ) );
 	} else if ( i->name() == "toolTip" || i->name() == "whatsThis" ) {
 	    i->setValue( MetaDataBase::fakeProperty( editor->widget(), i->name() ) );
 	} else if ( editor->widget()->inherits( "CustomWidget" ) ) {
@@ -2329,16 +2335,16 @@ PropertyEditor::PropertyEditor( QWidget *parent )
     listview = new PropertyList( this );
 }
 
-QWidget *PropertyEditor::widget() const
+QObject *PropertyEditor::widget() const
 {
     return wid;
 }
 
-void PropertyEditor::setWidget( QWidget *w, FormWindow *fw )
+void PropertyEditor::setWidget( QObject *w, FormWindow *fw )
 {
     if ( w == wid ) {
 	bool ret = TRUE;
-	if ( WidgetFactory::layoutType( wid ) != WidgetFactory::NoLayout ) {
+	if ( wid->isWidgetType() && WidgetFactory::layoutType( (QWidget*)wid ) != WidgetFactory::NoLayout ) {
 	    QListViewItemIterator it( listview );
 	    ret = FALSE;
 	    while ( it.current() ) {

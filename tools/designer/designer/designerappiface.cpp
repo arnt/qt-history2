@@ -22,7 +22,7 @@ DesignerApplicationInterface::DesignerApplicationInterface()
 }
 
 QString DesignerApplicationInterface::interfaceId() const
-{ 
+{
     return createId( QApplicationInterface::interfaceId(), "DesignerApplicationInterface" );
 }
 
@@ -154,7 +154,7 @@ uint DesignerFormListInterfaceImpl::count() const
 DesignerFormWindowInterface *DesignerFormListInterfaceImpl::current()
 {
     FormListItem *item = (FormListItem*)listIterator->current();
-   
+
     return item ? new DesignerFormWindowInterfaceImpl( item->formWindow(), this ) : 0;
 }
 
@@ -515,8 +515,10 @@ bool DesignerActiveWidgetInterfaceImpl::initialize( QApplicationInterface *appIf
 {
     if ( !propertyEditor )
 	return FALSE;
-    QWidget *w = propertyEditor->widget();
-    setComponent( w );
+    QObject *w = propertyEditor->widget();
+    if ( !w->isWidgetType() )
+	return FALSE;
+    setComponent( (QWidget*)w );
 
     if ( !w )
 	return FALSE;

@@ -121,6 +121,7 @@ FormWindow::FormWindow( QWidget *parent, const char *name )
 
 void FormWindow::init()
 {
+    propertyWidget = 0;
     toolFixed = FALSE;
     checkedSelectionsForMove = FALSE;
     mContainer = 0;
@@ -915,8 +916,15 @@ void FormWindow::handleKeyRelease( QKeyEvent *e, QWidget * )
     e->ignore();
 }
 
-void FormWindow::selectWidget( QWidget *w, bool select )
+void FormWindow::selectWidget( QObject *o, bool select )
 {
+    if ( !o->isWidgetType() ) {
+	// ########### do QObject stuff
+	return;
+    }
+	
+    QWidget *w = (QWidget*)o;
+    
     if ( isMainContainer( w ) ) {
 	QWidget *opw = propertyWidget;
 	propertyWidget = mainContainer();
@@ -1098,9 +1106,11 @@ void FormWindow::selectWidgets()
     emitSelectionChanged();
 }
 
-bool FormWindow::isWidgetSelected( QWidget *w )
+bool FormWindow::isWidgetSelected( QObject *w )
 {
-    return usedSelections.find( w ) != 0;
+    if ( w->isWidgetType() )
+	return usedSelections.find( (QWidget*)w ) != 0;
+    return FALSE; // #### do stuff for QObjects
 }
 
 void FormWindow::moveSelectedWidgets( int dx, int dy )
@@ -1247,9 +1257,11 @@ QWidgetList FormWindow::selectedWidgets() const
     return widgets;
 }
 
-void FormWindow::widgetChanged( QWidget *w )
+void FormWindow::widgetChanged( QObject *w )
 {
-    updateSelection( w );
+    if ( w->isWidgetType() )
+	updateSelection( (QWidget*)w );
+    // ########## do QObject stuff
 }
 
 QLabel *FormWindow::sizePreview() const
@@ -2015,7 +2027,7 @@ void FormWindow::modificationChanged( bool m )
     emit modificationChanged( m, fileName() );
 }
 
-bool FormWindow::unify( QWidget *w, QString &s, bool changeIt )
+bool FormWindow::unify( QObject *w, QString &s, bool changeIt )
 {
     bool found = !isMainContainer( w ) && qstrcmp( name(), s.latin1() ) == 0;
     if ( !found ) {
@@ -2140,9 +2152,9 @@ QWidget *FormWindow::containerAt( const QPoint &pos, QWidget *notParentOf )
     return container;
 }
 
-bool FormWindow::isMainContainer( QWidget *w ) const
+bool FormWindow::isMainContainer( QObject *w ) const
 {
-    return w == (QWidget*)this || w == mainContainer();
+    return w && w->isWidgetType() && ( w == (QWidget*)this || w == mainContainer() );
 }
 
 void FormWindow::setMainContainer( QWidget *w )

@@ -310,7 +310,7 @@ QLayout *WidgetFactory::createLayout( QWidget *widget, QLayout*  layout, LayoutT
 
     if ( !layout && widget && widget->inherits( "QMainWindow" ) )
 	widget = ((QMainWindow*)widget)->centralWidget();
-    
+
     if ( !layout && widget && widget->inherits( "QWidgetStack" ) )
 	widget = ((QWidgetStack*)widget)->visibleWidget();
 
@@ -947,7 +947,7 @@ void WidgetFactory::editWidget( int id, QWidget *parent, QWidget *editWidget, Fo
     }
 }
 
-bool WidgetFactory::canResetProperty( QWidget *w, const QString &propName )
+bool WidgetFactory::canResetProperty( QObject *w, const QString &propName )
 {
     if ( propName == "name" || propName == "geometry" )
 	return FALSE;
@@ -955,7 +955,7 @@ bool WidgetFactory::canResetProperty( QWidget *w, const QString &propName )
     return l.findIndex( propName ) == -1;
 }
 
-bool WidgetFactory::resetProperty( QWidget *w, const QString &propName )
+bool WidgetFactory::resetProperty( QObject *w, const QString &propName )
 {
     const QMetaProperty *p = w->metaObject()->property( propName, TRUE );
     if (!p || ( p->reset == 0 ) )
@@ -968,7 +968,7 @@ bool WidgetFactory::resetProperty( QWidget *w, const QString &propName )
     return TRUE;
 }
 
-QVariant WidgetFactory::defaultValue( QWidget *w, const QString &propName )
+QVariant WidgetFactory::defaultValue( QObject *w, const QString &propName )
 {
     if ( propName == "wordwrap" ) {
 	int v = defaultValue( w, "alignment" ).toInt();
@@ -981,7 +981,7 @@ QVariant WidgetFactory::defaultValue( QWidget *w, const QString &propName )
     return *( *defaultProperties->find( WidgetDatabase::idFromClassName( classNameOf( w ) ) ) ).find( propName );
 }
 
-QString WidgetFactory::defaultCurrentItem( QWidget *w, const QString &propName )
+QString WidgetFactory::defaultCurrentItem( QObject *w, const QString &propName )
 {
     const QMetaProperty *p = w->metaObject()->property( propName, TRUE );
     if ( !p ) {
@@ -1014,7 +1014,7 @@ QWidget *WidgetFactory::createCustomWidget( QWidget *parent, const char *name, M
     return new CustomWidget( parent, name, w );
 }
 
-QVariant WidgetFactory::property( QWidget *w, const char *name )
+QVariant WidgetFactory::property( QObject *w, const char *name )
 {
     QVariant v = w->property( name );
     if ( v.isValid() )

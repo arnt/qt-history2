@@ -92,14 +92,14 @@ public:
 
     virtual void breakLayout( QWidget *w );
 
-    virtual void selectWidget( QWidget *w, bool select = TRUE );
+    virtual void selectWidget( QObject *w, bool select = TRUE );
     virtual void selectAll();
     virtual void updateSelection( QWidget *w );
     virtual void raiseSelection( QWidget *w );
     virtual void repaintSelection( QWidget *w );
     virtual void clearSelection( bool changePropertyDisplay = TRUE );
     virtual void selectWidgets();
-    bool isWidgetSelected( QWidget *w );
+    bool isWidgetSelected( QObject *w );
     virtual void updateChildSelections( QWidget *w );
     virtual void raiseChildSelections( QWidget *w );
 
@@ -142,13 +142,13 @@ public:
     virtual bool hasInsertedChildren( QWidget *w ) const;
 
     virtual QWidget *currentWidget() const { return propertyWidget; }
-    virtual bool unify( QWidget *w, QString &s, bool changeIt );
+    virtual bool unify( QObject *w, QString &s, bool changeIt );
 
     virtual bool isCustomWidgetUsed( MetaDataBase::CustomWidget *w );
 
     virtual QPoint mapToForm( const QWidget* w, const QPoint&  ) const;
 
-    bool isMainContainer( QWidget *w ) const;
+    bool isMainContainer( QObject *w ) const;
     QWidget *mainContainer() const { return mContainer; }
     void setMainContainer( QWidget *w );
 
@@ -162,7 +162,7 @@ public:
     void setToolFixed() { toolFixed = TRUE; }
 
 public slots:
-    virtual void widgetChanged( QWidget *w );
+    virtual void widgetChanged( QObject *w );
     virtual void currentToolChanged();
     virtual void visibilityChanged();
 

@@ -392,7 +392,7 @@ void DeleteCommand::unexecute()
 // ------------------------------------------------------------
 
 SetPropertyCommand::SetPropertyCommand( const QString &n, FormWindow *fw,
-					QWidget *w, PropertyEditor *e,
+					QObject *w, PropertyEditor *e,
 					const QString &pn, const QVariant &ov,
 					const QVariant &nv, const QString &ncut,
 					const QString &ocut, bool reset )
@@ -520,9 +520,9 @@ void SetPropertyCommand::setProperty( const QVariant &v, const QString &currentI
 		align |= WordBreak;
 	    widget->setProperty( "alignment", QVariant( align ) );
 	} else if ( propName == "layoutSpacing" ) {
-	    MetaDataBase::setSpacing( WidgetFactory::containerOfWidget( editor->widget() ), v.toInt() );
+	    MetaDataBase::setSpacing( WidgetFactory::containerOfWidget( (QWidget*)editor->widget() ), v.toInt() );
 	} else if ( propName == "layoutMargin" ) {
-	    MetaDataBase::setMargin( WidgetFactory::containerOfWidget( editor->widget() ), v.toInt() );
+	    MetaDataBase::setMargin( WidgetFactory::containerOfWidget( (QWidget*)editor->widget() ), v.toInt() );
 	} else if ( propName == "toolTip" || propName == "whatsThis" ) {
 	    MetaDataBase::setFakeProperty( editor->widget(), propName, v );
 	} else if ( editor->widget()->inherits( "CustomWidget" ) ) {
@@ -547,9 +547,9 @@ void SetPropertyCommand::setProperty( const QVariant &v, const QString &currentI
 	    ov = widget->property( propName );
 	widget->setProperty( propName, v );
 	if ( propName == "cursor" )
-	    MetaDataBase::setCursor( widget, v.toCursor() );
-	if ( propName == "name" ) {
-	    formWindow()->mainWindow()->objectHierarchy()->namePropertyChanged( widget, ov );
+	    MetaDataBase::setCursor( (QWidget*)widget, v.toCursor() );
+	if ( propName == "name" && widget->isWidgetType() ) {
+	    formWindow()->mainWindow()->objectHierarchy()->namePropertyChanged( (QWidget*)widget, ov );
 	    if ( formWindow()->isMainContainer( widget ) ) {
 		formWindow()->mainWindow()->formlist()->nameChanged( (FormWindow*)widget );
 		formWindow()->setName( v.toCString() );

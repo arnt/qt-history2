@@ -479,7 +479,7 @@ class PropertyEditor : public QVBox
 public:
     PropertyEditor( QWidget *parent );
 
-    QWidget *widget() const;
+    QObject *widget() const;
 
     void clear();
     void setup();
@@ -502,13 +502,13 @@ signals:
     void hidden();
 
 public slots:
-    void setWidget( QWidget *w, FormWindow *fw );
+    void setWidget( QObject *w, FormWindow *fw );
 
 protected:
     void closeEvent( QCloseEvent *e );
 
 private:
-    QWidget *wid;
+    QObject *wid;
     PropertyList *listview;
     FormWindow *formwindow;
 

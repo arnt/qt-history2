@@ -198,7 +198,7 @@ class SetPropertyCommand : public Command
 {
 public:
     SetPropertyCommand( const QString &n, FormWindow *fw,
-			QWidget *w, PropertyEditor *e,
+			QObject *w, PropertyEditor *e,
 			const QString &pn, const QVariant &ov,
 			const QVariant &nv, const QString &ncut,
 			const QString &ocut,
@@ -214,7 +214,7 @@ public:
 private:
     void setProperty( const QVariant &v, const QString &currentItemText, bool select = TRUE );
 
-    QWidget *widget;
+    QObject *widget;
     PropertyEditor *editor;
     QString propName;
     QVariant oldValue, newValue;
@@ -288,7 +288,7 @@ private:
     int margin;
     QWidget *lb;
     QWidgetList widgets;
-    
+
 };
 
 class MacroCommand : public Command
