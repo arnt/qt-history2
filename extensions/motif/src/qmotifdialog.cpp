@@ -333,8 +333,9 @@ void QMotifDialog::show()
     // tell motif about modality
     Arg args[1];
     XtSetArg( args[0], XmNdialogStyle,
-	      ( testWFlags(Qt::WShowModal) ? XmDIALOG_FULL_APPLICATION_MODAL :
-		XmDIALOG_MODELESS ) );
+              (testAttribute(Qt::WA_ShowModal)
+               ? XmDIALOG_FULL_APPLICATION_MODAL :
+               XmDIALOG_MODELESS));
     XtSetValues( d->shell, args, 1 );
 
     XtSetMappedWhenManaged( d->shell, False );

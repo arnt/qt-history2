@@ -25,7 +25,6 @@ int main( int argc, char **argv )
     QApplication app( argc, argv );
 
     MainWindow mainwindow;
-    app.setMainWidget( &mainwindow );
     mainwindow.show();
 
     return app.exec();
