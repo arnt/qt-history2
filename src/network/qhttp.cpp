@@ -1390,9 +1390,12 @@ bool QHttp::hasPendingRequests() const
 */
 void QHttp::clearPendingRequests()
 {
-    QHttpRequest *r = d->pending.take( 0 );
+    QHttpRequest *r = 0;
+    if ( d->pending.count() > 0 )
+	r = d->pending.take( 0 );
     d->pending.clear();
-    d->pending.append( r );
+    if ( r )
+	d->pending.append( r );
 }
 
 /*!

@@ -1584,9 +1584,12 @@ bool QFtp::hasPendingCommands() const
 void QFtp::clearPendingCommands()
 {
     QFtpPrivate *d = ::d( this );
-    QFtpCommand *c = d->pending.take( 0 );
+    QFtpCommand *c = 0;
+    if ( d->pending.count() > 0 )
+	c = d->pending.take( 0 );
     d->pending.clear();
-    d->pending.append( c );
+    if ( c )
+	d->pending.append( c );
 }
 
 /*!
@@ -1809,6 +1812,8 @@ QFtp::~QFtp()
     closeInternal();
     delete commandSocket;
     delete dataSocket;
+
+    abort();
     delete_d( this );
 }
 
