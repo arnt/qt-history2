@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#192 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#193 $
 #
 # this is a massive hack, written very quickly
 #
@@ -441,7 +441,7 @@ sub processdocs {
 		(?:(?:\n\s*?\n\s*)|(?:$ ))/\n/sx);
 	$doc =~ s/\s*$/\n/s;
 	$doc =~ s/^\s*//s;
-	$doc =~ s-\s*\\warning\s+-<p><strong>Warning:</strong> -gs;
+	$doc =~ s-\s*\\warning\s+-<p><b>Warning:</b> -gs;
 	if (!$internal) {
 	    $doc =~ s/^\s*\\internal\s/For internal use only.\\internal /s;
 	    $doc =~ s/\\internal\s.*//s;
@@ -511,7 +511,7 @@ sub processdocs {
 		    sprintf("<a href=\"%s\">%s</a>",
 			    $anchor{"::" . $1}, &html($1 . $2));
 		} else {
-		    print "No link to '", $1, "'\n";
+		    print "No link to '$1'\n";
 		    sprintf("%s", $1 . $2);
 		}
 	    }
@@ -529,7 +529,9 @@ sub processdocs {
 		    sprintf("<a href=\"%s\">%s</a>",
 			    $anchor{"::" . $1}, &html($2));
 		} else {
-		    print "No link to '", $1, "' for '", $2, "'\n";
+		    my ( $target, $string ) = ( $1, $2 );
+		    $string =~ s/\s+/ /gs;
+		    print "No link to '$target' for '$string'\n";
 		    sprintf("%s", $2);
 		}
 	    }
@@ -616,7 +618,7 @@ sub processdocs {
 
 	$doc =~ s@</em>\s+<em>@ @gs;
 	$doc =~ s@</code>\s+<code>@ @gs;
-	$doc =~ s@</strong>\s+<strong>@ @gs;
+	$doc =~ s@</b>\s+<b>@ @gs;
 
 	$brief{$url} = $1
 	    if ($doc =~ s/\s*\\brief\s+(.*?)(?:(?:\n<p>\s*)|(?:$))//s);
@@ -1153,13 +1155,15 @@ sub readc {
 #    $c =~ s-(?:(?:(/\*.*?\*/))|(?://[^\n]*))-$1-gs;
     $c =~ s-(?:(?:(/\*[\-!].*?\*/))|(?:/\*.*?\*/)|(?://[^\n]*))-$1-gs;
 
-    while ($c =~ m@/\*\!\s*(.*?)\s*-*\*/\s*
+    while ($c =~ m@/\*\!\s*
+	   ([^\*]*\*+(?:[^\*/][^\*]+\*+)*)/\s*
 	   (?:([A-Za-z_](?:[^\{;\*]|(?:\*[^/]))+)\s*\x7b)?@gsx) {
 	my ($doc, $def, $type, $class, $name, $args, $const, $skip);
 	$skip = 0;
 
 	$doc = $1;
 	$def = $2;
+	$doc =~ s/\s*\*$//;
 	$def =~ s/\):/\) :/gs; # add a space so next s/// works
 	$def =~ s/\s:\s*\b.*//s; # strip away constructor inheritance
 	$def =~ s/\s+/ /gs;
@@ -1220,18 +1224,25 @@ sub readc {
 		    . $2;
 	    $classes{$1} = "";
 	    $skip = 1;
-	} elsif ( $doc =~ m@^\\enum\s+(\w+::\w+)\s+(.*?)\s*$@s ) {
+	} elsif ( $doc =~ m@^\\enum\s+(\w+)::(\w+)\s+(.*?)\s*$@s ) {
 	    # it's a \enum
-	    $enums{$1} = $2;
+	    my( $class, $member, $enumdoc ) = ( $1, $2, $3 );
 	    $skip = 1;
+	    my $globalname = $class . "::" . $member;
+	    my $url = &mangleclass( $globalname ) . "#" . $member;
+	    $urls{$globalname} = $url;
+	    $name{$url} = $class . "::" . $member;;
+	    $type{$url} = "enum";
+	    $doc{$url} = $enumdoc;
+	    $urls{$url} = $url;
 	} elsif ($doc =~ m@^\\example\s+([\w\./]+)\s+(.*?)\s*$@s) {
 	    # it's an example file
 	    $examples{$1} = $2;
 	    $skip = 1;
 	} else {
 	    # it's a function, \fn or real?
-	    print "";
 	    $doc .= "\n";
+	    $overload = 0;
 	    if ($doc =~ /^\\overload\s+([^;\n\(\)]+(?:\(\s*\)\s*)?\([^\);]*\)\s*(?:const)?);?\s+(.*?)\s*$/s) {
 		$def = $1;
 		$doc = "This is an overloaded member function, provided for convenience.  It differs from the above function only in what argument(s) it accepts.\n\n" . $2;
@@ -1321,6 +1332,7 @@ sub readc {
     }
 }
 
+
 sub makenames {
     local($_, $dum, $ferdig, $anchor);
 
@@ -1331,7 +1343,6 @@ sub makenames {
 		 (!defined($doc{$_})) ||
 		 ($doc{$_} =~ /^\s*$/s)) {
 	    $anchor{$name{$_}} = $_ ;
-	    $export{$name{$_}}++;
 	}
     }
 
@@ -1371,7 +1382,7 @@ sub makenames {
 		    $ferdig = 0;
 		}
 		unless (defined($anchor{$_ . "::" . $member})) {
-;		    $urls{$possible} = $urls{$url};
+		    $urls{$possible} = $urls{$url};
 		    $anchor{$_ . "::" . $member} = $urls{$url};
 		}
 	    }
@@ -1541,6 +1552,7 @@ sub weirdly {
 sub printclass {
     local ( $url ) = @_;
     local ( $class, $file, $tail, $fnheader );
+    my %enumdocs;
 
     $class = $name{$url};
 
@@ -1596,7 +1608,7 @@ sub printclass {
 	    $header = $def{$_};
 	    $header =~ s@</?a.*?>@@gs; #okok, so it is stupid
 	    $header =~
-		s;([^\(]*\s)\b(\S+);$1<a href=\"$url#$name\"><strong>$2</strong></a>;s;
+		s;([^\(]*\s)\b(\S+);$1<a href=\"$url#$name\"><b>$2</b></a>;s;
 	    $family = join( "\n<li>", $family, $header);
 	}
 	$tail = join("", $relatives, $tail);
@@ -1723,14 +1735,14 @@ sub printclass {
 		$u = &manglefn($r, $name{$url},
 			       "_cast", "", $c);
 		if ($type{$u} eq "fn") {
-		    $_ = join("", "operator <a href=", $u, "><strong>",
-			      &html($r), "</strong></a> ()", $c);
+		    $_ = join("", "operator <a href=", $u, "><b>",
+			      &html($r), "</b></a> ()", $c);
 		    $fndocs{$u} = $mode;
 		} else {
 		    print "undocumented: ", $name{$url}, "::operator ", $r,
 		        " () ", $c, "\n" if ($errmsg++<$maxerr);
-		    $_ = join("", "operator <strong>", &html($r),
-			      "</strong> ()", $c);
+		    $_ = join("", "operator <b>", &html($r),
+			      "</b> ()", $c);
 		}
 		$_ = join ("", $_, " - <em>", $capt{$u}, "</em>")
 		    if (defined($capt{$u}));
@@ -1763,33 +1775,43 @@ sub printclass {
 			$a =~ s/\s*\).*?$//s;
 			$a =~ s-<a href=.*?>(.*?)</a>-$1-g;
 			$_ = join("", &html($t), "<a href=\"", $u,
-				  "\"><strong>", &html($f),
-				  "</strong></a> (", $a,
+				  "\"><b>", &html($f),
+				  "</b></a> (", $a,
 				  ") ", $c);
 		    } else {
 			$_ = join("", &html($t), "<a href=\"", $u,
-				  "\"><strong>", &html($f),
-				  "</strong></a> (", &html($a),
+				  "\"><b>", &html($f),
+				  "</b></a> (", &html($a),
 				  ") ", $c);
 		    }
 		    $fndocs{$u} = $mode;
 		} else {
 		    print "undocumented: ", $t," ", $name{$url}, "::", $f,
 		        " (",$a,") ", $c, "\n" if ($errmsg++<$maxerr);
-		    $_ = join("", &html($t), "<strong>",
-			      &html($f), "</strong> (",
+		    $_ = join("", &html($t), "<b>",
+			      &html($f), "</b> (",
 			      &html($a), ") ", $c);
 		}
 		$_ = join ("", $_, " - <em>", $capt{$u}, "</em>")
 		    if (defined($capt{$u}));
-	    } elsif (/^\s*enum\s+(\w+)/s &&
-		     defined($anchor{$name{$url} . "::" . $1})) {
+	    } elsif ( /^\s*enum\s+(\w+)/s ) {
 		my($name);
 		$name = $1;
 		$_ = &html($_);
-		s;(\w+[^\=:\(\{]*)\b(\w+);$1<strong><a name=\"$name\"></a>$2</strong>;s;
+		if ( defined( $anchor{$class . "::" . $name} ) ) {
+		    my $url = $anchor{$class . "::" . $name};
+		    s;\b$name\b;<a href=\"$url\"><b>$name</b></a>;s;
+		    $enumdocs{$url} = $name;
+		} else {
+		    s;\b$name\b;<b>$name</b>;s;
+		}
 	    } elsif (/^\s*enum\s*\{/s) {
 		$_ = &html($_); # don't do anything, but it's legal
+	    } elsif ( /^\s*typedef\b.*\b([A-Z][a-zA-Z]*)$/s && 
+		      defined( $anchor{$class . "::" . $1} ) ) {
+		my $name = $1;
+		$enumdocs{$file . "#" . $name} = $name;
+		s;\b$name\b;<a href=\"\#$name\"><b>$name</b></a>;s;
 	    } else {
 		$_ = "";
 	    }
@@ -1800,6 +1822,7 @@ sub printclass {
 		s/ +/ /gs; # to nbsp
 		s/, /, /gs; # from nbsp
 		s/<a /<a /gs;
+		s/<a href=\"$file\#/<a href=\"\#/gs;
 		print O $foreplay, "<li><span class=\"fn\">", $_, "</span>\n";
 		$foreplay = "";
 		$afterglow = "</ul>\n";
@@ -1814,15 +1837,20 @@ sub printclass {
     if ($brief{$url} =~ /\S/s) {
 	print O "<hr><h2><a name=\"details\"></a>Detailed Description</h2>\n";
 	if ( defined( $extension{$url} ) ) {
-#	    print O "This class is part of the <a href=\"",
-#	    $extension{$url} . "\">" , $extension{$url},
-#	    "</a> extension.\n";
 	    print O "This class is defined in the <b>Qt ", $extension{$url};
 	    print O " Extension</b>, which can be found in the <tt>qt/extensions</tt> directory.\nIt is not included in the main Qt API.\n<p>\n";
 	}
 	print O $brief{$url}, "\n<p>\n", $doc{$url}, "\n";
     } else {
 	print O "<hr><h2>Detailed Description</h2>\n", $doc{$url}, "\n";
+    }
+
+    if ( keys %enumdocs ) {
+	print O "<hr><h2>Member Type Documentation</h2>\n";
+	foreach $url ( sort keys %enumdocs ) {
+	    print O "<h3 class=\"fn\"><a name=\"", $enumdocs{$url}, "\">";
+	    print O $class, "::", $enumdocs{$url}, "</h3>\n", $doc{$url};
+	}
     }
 
     foreach $url ( sort weirdly grep( /$url/, keys %fndocs ) ) {
@@ -1962,8 +1990,8 @@ sub annotatedclasslist {
 	    if ( defined( $extension{ $url } ) ) {
 		$ex = " <small><b>[Qt $extension{$url} Extension]</b></small>";
 	    }
-	    $result = join( "", $result,  "$preline<strong><a href=\"",
-			   $url, "\">", $name{$url}, "</a></strong>$sep",
+	    $result = join( "", $result,  "$preline<b><a href=\"",
+			   $url, "\">", $name{$url}, "</a></b>$sep",
 			   $capt{$url}, $ex, "$postline" )
 		if ( $capt{$url} =~ /\S/ );
 	}
@@ -2000,8 +2028,8 @@ sub classindex {
     foreach $url ( sort keys %type ) {
 	if (($type{$url} eq "class") && defined($documented{$url})) {
 	    print O "<li><a href=\"", $url, "\">", $name{$url}, "</a>\n";
-	    print P "<li><strong><a href=\"", $url, "\">", $name{$url}
-	        , "</a></strong> (", $capt{$url}, ")\n"
+	    print P "<li><b><a href=\"", $url, "\">", $name{$url}
+	        , "</a></b> (", $capt{$url}, ")\n"
 		    if ( $capt{$url} =~ /\S/ );
 	}
     }
@@ -2226,10 +2254,6 @@ sub memberlists {
 	} elsif ( $type{$anchor{$_}} eq "enum" ) {
 	    $member = $_;
 	    $member =~ s/.*:://;
-	    print $class, "::", $member;
-	    print " documented"
-		if ( $documented{$anchor{$_}} );
-	    print "\n";
 	    print O
 	      "<li>enum <a href=\"",$anchor{$_},"\">",&html($member),"</a>\n"
 		if ( $documented{$anchor{$_}} );
@@ -2292,54 +2316,6 @@ sub functionindex {
 
 
 
-sub readimports {
-    local( $mode, $line );
-    foreach ( sort keys %imports ) {
-	if ( open( IMP, "< $_" ) ) {
-	    while( $line = <IMP> ) {
-		chomp $line;
-		if ( $line eq "-keys" ) {
-		    $mode = "keys";
-		} elsif ( $line eq "-urls" ) {
-		    $mode = "urls";
-		} elsif ( $line eq "-anchors" ) {
-		    $mode = "anchors";
-		} elsif ( $line eq "-inheritance" ) {
-		    $mode = "anchors";
-		} else {
-		    if ( $mode eq "keys" ) {
-			# nah-thang.  yet.
-		    } elsif ( $mode eq "urls" ) {
-			if ( $line =~ /^([^:]+):\s(\S+)$/ ) {
-			    # not necessary?
-			    #$urls{$2} = $imports{$_} . $1;
-			} else {
-			    die "unable to read $_ line $.\n$line\nstopped (1)";
-			}
-		    } elsif ( $mode eq "anchors" ) {
-			if ( $line =~ /^(\S+?):\s(\S+)$/ ) {
-			    $anchor{$1} = $imports{$_} . $2;
-			} else {
-			    die "unable to read $_ line $.\n$line\nstopped (2)";
-			}
-		    } elsif ( $mode eq "inheritance" ) {
-			if ( $line =~ /^(\S+?):\s(\S+)$/ ) {
-			    $inheritance{$1} = $2;
-			} else {
-			    die "unable to read $_ line $.\n$line\nstopped (3)";
-			}
-		    } else {
-			die "unable to read $_ line $.\n$line\nstopped (4)";
-		    }
-		}
-	    }
-	    close IMP;
-	}
-    }
-}
-
-
-
 ($j, $min, $hour, $mday, $mon, $year) = localtime(time);
 
 if ( $#ARGV == -1 ) {
@@ -2383,8 +2359,6 @@ $postheader ||= "";
 umask 0111;
 $cfile = "VOLD";
 $maxerr ||= 5;
-
-&readimports();
 
 $doctype ||= "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">";
 
@@ -2462,6 +2436,7 @@ if ( $internal ) {
 	}
     }
 }
+print "hei\n";
 
 print "Documented ", $countdoc, " member functions, left out ",
     0+$errmsg, " undocumented member functions and ",
