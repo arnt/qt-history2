@@ -147,7 +147,7 @@ void PhraseModel::sort(int column, const QModelIndex &parent, Qt::SortOrder orde
     sortOrder = sSortOrder = order;
     sortColumn = sSortColumn = column;
 
-    qHeapSort(plist.begin(), plist.end(), PhraseModel::compare);
+    qSort(plist.begin(), plist.end(), PhraseModel::compare);
     emit dataChanged(QAbstractTableModel::index(0,0),
         QAbstractTableModel::index(plist.count()-1, 2));
 

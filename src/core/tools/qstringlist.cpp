@@ -190,7 +190,7 @@
 
     Sorts the list of strings in ascending order (case sensitively).
 
-    Sorting is performed using Qt's qHeapSort() algorithm,
+    Sorting is performed using Qt's qSort() algorithm,
     which operates in \l{linear-logarithmic time}, i.e. O(\e{n} log \e{n}).
 
     If you want to sort your strings in an arbitrary order, consider
@@ -200,11 +200,11 @@
     being the strings), or a QMap\<int, QString\> to sort the strings
     by some integer index.
 
-    \sa qHeapSort()
+    \sa qSort()
 */
 void QtPrivate::QStringList_sort(QStringList *that)
 {
-    qHeapSort(*that);
+    qSort(*that);
 }
 
 

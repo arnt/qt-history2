@@ -64,7 +64,7 @@ void ApiGenerator::generateNode(const Node *node, CodeMarker *marker, int indent
             QStringList enumNames;
             foreach (EnumItem item, enume->items())
                 enumNames << item.name();
-            qHeapSort(enumNames);
+            qSort(enumNames);
 
             foreach (QString name, enumNames)
                 out << indentStr(indent) << "Enum value: " << name << "\n";
@@ -96,7 +96,7 @@ void ApiGenerator::generateNode(const Node *node, CodeMarker *marker, int indent
     if (node->isInnerNode()) {
         const InnerNode *inner = static_cast<const InnerNode *>(node);
         NodeList nodes = inner->childNodes();
-        qHeapSort(nodes.begin(), nodes.end(), lessThanName);
+        qSort(nodes.begin(), nodes.end(), lessThanName);
         foreach (const Node *child, nodes)
             generateNode(child, marker, indent);
     }

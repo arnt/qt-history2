@@ -717,6 +717,6 @@ QList<QByteArray> QImageReader::supportedImageFormats()
             formats << keys.at(i).toLatin1();
     }
 
-    qHeapSort(formats);
+    qSort(formats);
     return formats;
 }

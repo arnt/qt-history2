@@ -1446,7 +1446,7 @@ static QByteArray createLigatureInfo()
             QList<Ligature> l = ligatureHashes.value(uc);
             if (!l.isEmpty()) {
                 b.decompositionPositions.append(tableIndex);
-                qHeapSort(l);
+                qSort(l);
 
                 ligatures.append(l.size());
                 for (int i = 0; i < l.size(); ++i) {

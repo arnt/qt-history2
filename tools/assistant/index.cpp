@@ -258,7 +258,7 @@ QStringList Index::query( const QStringList &terms, const QStringList &termSeq, 
     }
     if ( !termList.count() )
         return QStringList();
-    qHeapSort(termList);
+    qSort(termList);
 
     QList<Document> minDocs = termList.takeFirst().documents;
     for(QList<Term>::Iterator it = termList.begin(); it != termList.end(); ++it) {
@@ -281,7 +281,7 @@ QStringList Index::query( const QStringList &terms, const QStringList &termSeq, 
     }
 
     QStringList results;
-    qHeapSort( minDocs );
+    qSort( minDocs );
     if ( termSeq.isEmpty() ) {
         for(QList<Document>::Iterator it = minDocs.begin(); it != minDocs.end(); ++it)
             results << docList.at((int)(*it).docNumber);
@@ -394,7 +394,7 @@ QList<Document> Index::setupDummyTerm( const QStringList &terms )
     QList<Document> maxList;
     if ( !termList.count() )
         return maxList;
-    qHeapSort(termList);
+    qSort(termList);
 
     maxList = termList.takeLast().documents;
     for(QList<Term>::Iterator it = termList.begin(); it != termList.end(); ++it) {

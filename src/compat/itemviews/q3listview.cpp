@@ -14,7 +14,7 @@
 #include <qplatformdefs.h>
 #include "q3listview.h"
 #ifndef QT_NO_LISTVIEW
-#include "qalgorithms.h"
+#include "q3tl.h"
 #include "qapplication.h"
 #include "qbitmap.h"
 #include "qcleanuphandler.h"

@@ -761,7 +761,7 @@
 
     \o  QMemArray::bsearch() and QMemArray::sort() have no equivalent
         in the new QByteArray class. Use \l qBinaryFind() and \l
-        qHeapSort() if you need that functionality.
+        qSort() if you need that functionality.
     \endlist
 
     QByteArray was an explicitly shared class in Qt 3. See
@@ -1991,7 +1991,7 @@
     \row \o QMemArray::resetRawData(const T *, uint) \o N/A
     \row \o QMemArray::find(const T &, uint) \o QVector::indexOf(const T &, int)
     \row \o QMemArray::contains(const T &) \o QVector::count(const T &)
-    \row \o QMemArray::sort() \o \l qHeapSort()
+    \row \o QMemArray::sort() \o \l qSort()
     \row \o QMemArray::bsearch(const T &d) \o \l qBinaryFind()
     \row \o QMemArray::at(uint) \o QVector::operator[]()
     \row \o QMemArray::operator const T *() \o QVector::constData()
@@ -2307,7 +2307,7 @@
         \endcode
 
     \o  QPtrList::sort() relied on the virtual comparedItems() to
-        sort items. In Qt 4, you can use qHeapSort() instead and pass
+        sort items. In Qt 4, you can use qSort() instead and pass
         your "compare item" function as an argument.
 
     \o  QPtrList::find(const T *) returns an iterator, whereas
@@ -2703,7 +2703,7 @@
     \row \o QPtrVector::isNull() \o N/A
     \row \o QPtrVector::remove(uint) \o See remark below
     \row \o QPtrVector::setAutoDelete() \o See discussion below
-    \row \o QPtrVector::sort() \o qHeapSort()
+    \row \o QPtrVector::sort() \o qSort()
     \row \o QPtrVector::take(uint) \o See remark below
     \row \o QPtrVector::toList(QGList *) \o QList::QList(const QVector &)
     \endtable
@@ -3031,7 +3031,7 @@
     4, it has been moved to the \l{Qt 3 compatibility library}.
 
     In new code, we recommend that you use QList<T> instead and use
-    \l{qHeapSort()} to sort the items.
+    \l{qSort()} to sort the items.
 
     \section1 QSplitter
 

@@ -213,7 +213,7 @@ void QListModel::sort(int column, Qt::SortOrder order)
     if (column != 0)
         return;
     LessThan compare = (order == Qt::AscendingOrder ? &itemLessThan : &itemGreaterThan);
-    qHeapSort(lst.begin(), lst.end(), compare);
+    qSort(lst.begin(), lst.end(), compare);
     emit dataChanged(index(0, 0), index(lst.count() - 1, 0));
 }
 

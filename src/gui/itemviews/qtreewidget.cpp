@@ -476,7 +476,7 @@ void QTreeModel::sort(int column, Qt::SortOrder order)
 {
     // sort top level
     LessThan compare = order == Qt::AscendingOrder ? &itemLessThan : &itemGreaterThan;
-    qHeapSort(tree.begin(), tree.end(), compare);
+    qSort(tree.begin(), tree.end(), compare);
 
     // sort the children
     QList<QTreeWidgetItem*>::iterator it = tree.begin();
@@ -1228,7 +1228,7 @@ void QTreeWidgetItem::sortChildren(int column, Qt::SortOrder order, bool climb)
 {
     LessThan compare = (order == Qt::AscendingOrder
                         ? &QTreeModel::itemLessThan : &QTreeModel::itemGreaterThan);
-    qHeapSort(children.begin(), children.end(), compare);
+    qSort(children.begin(), children.end(), compare);
     if (!climb)
         return;
     QList<QTreeWidgetItem*>::iterator it = children.begin();

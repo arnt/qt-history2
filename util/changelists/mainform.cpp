@@ -237,8 +237,8 @@ void MainForm::processExited()
 		QDict<QListViewItem> roots;
 
 		changes->clear();
-		qHeapSort( *changeListFrom );
-		qHeapSort( *changeListTo );
+		qSort( *changeListFrom );
+		qSort( *changeListTo );
 		QList<int>::iterator itFrom, itTo;
 		itFrom = changeListFrom->begin();
 		itTo = changeListTo->begin();

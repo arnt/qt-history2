@@ -373,7 +373,7 @@ void QTableModel::sort(int column, Qt::SortOrder order)
     for (int i = 0; i < sorting.count(); ++i)
         sorting[i] = item(i, column);
     LessThan compare = order == Qt::AscendingOrder ? &itemLessThan : &itemGreaterThan;
-    qHeapSort(sorting.begin(), sorting.end(), compare);
+    qSort(sorting.begin(), sorting.end(), compare);
     for (int j = 0; j < sorting.count(); ++j)
         table[tableIndex(j, column)] = sorting.at(j);
 }

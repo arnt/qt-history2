@@ -121,7 +121,7 @@ void TextOutline::mousePressEvent(QMouseEvent *e)
     l << SortHelper(BottomLeft, QLineF(e->pos(), pbl).length());
     l << SortHelper(BottomRight, QLineF(e->pos(), pbr).length());
 
-    qHeapSort(l);
+    qSort(l);
     // First element is now the closest to the mouse press.
     dragLocation = l.at(0).drag;
 

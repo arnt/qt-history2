@@ -1559,7 +1559,7 @@ QList<QByteArray> QPictureIO::inputFormats()
         if (p->read_picture && !p->obsolete  && !result.contains(p->format))
             result.append(p->format);
     }
-    qHeapSort(result);
+    qSort(result);
 
     return result;
 }

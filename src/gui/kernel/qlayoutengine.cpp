@@ -87,7 +87,7 @@ void qGeomCalc(QVector<QLayoutStruct> &chain, int start, int count,
             list << chain[i].minimumSize;
         }
 
-        qHeapSort(list);
+        qSort(list);
 
         int space_left = space - spacerCount*spacer;
 

@@ -440,7 +440,7 @@ void HelpDialog::buildKeywordDB()
         delete handler;
     }
     if (!lst.isEmpty())
-        qHeapSort(lst);
+        qSort(lst);
 
     QFile indexout(cacheFilesPath + QDir::separator() + QLatin1String("indexdb.")
 		+ Config::configuration()->profileName());
@@ -627,7 +627,7 @@ void HelpDialog::showIndexTopic()
     if (links.count() == 1) {
         emit showLink(links.first());
     } else {
-        qHeapSort(links);
+        qSort(links);
         QStringList::Iterator it = links.begin();
         QStringList linkList;
         QStringList linkNames;

@@ -133,10 +133,16 @@ Q_OUTOFLINE_TEMPLATE void qSortHelper(BiIterator start, BiIterator end, const T 
      qSortHelper(low+1, end+1, t, lessThan);
 }
 
-template <typename Container, typename T, typename LessThan>
-Q_OUTOFLINE_TEMPLATE void qSortHelper(Container c, const T &t, LessThan lessThan)
+template <typename BiIterator, typename T>
+inline void qSortHelper(BiIterator begin, BiIterator end, const T &dummy)
 {
-    qSortHelper(c.begin(), c.end(), t, lessThan);
+    qSortHelper(begin, end, dummy, qLess<T>());
+}
+
+template <typename BiIterator>
+inline void qSort(BiIterator start, BiIterator end)
+{
+    qSortHelper(start, end, *start);
 }
 
 template <typename BiIterator, typename LessThan>
@@ -148,107 +154,21 @@ inline void qSort(BiIterator start, BiIterator end, LessThan lessThan)
 template<typename Container>
 inline void qSort(Container &c)
 {
+#ifdef Q_CC_BOR
+    // Work around Borland 5.5 optimizer bug
+    c.detach();
+#endif
     qSortHelper(c.begin(), c.end(), *c.begin());
 }
 
 template<typename Container, typename LessThan>
 inline void qSort(Container &c, LessThan lessThan)
 {
-    qSortHelper(c.begin(), c.end(), *c.begin(), lessThan);
-}
-
-template <typename T, typename LessThan>
-Q_OUTOFLINE_TEMPLATE void qHeapSortPushDown(T *heap, int first, int last, LessThan lessThan)
-{
-    int r = first;
-    while (r <= last / 2) {
-        if (last == 2 * r) {
-            // node r has only one child
-            if (lessThan(heap[2 * r], heap[r]))
-                qSwap(heap[r], heap[2 * r]);
-            r = last;
-        } else {
-            // node r has two children
-            if (lessThan(heap[2 * r], heap[r]) && !lessThan(heap[2 * r + 1], heap[2 * r])) {
-                // swap with left child
-                qSwap(heap[r], heap[2 * r]);
-                r *= 2;
-            } else if (lessThan(heap[2 * r + 1], heap[r])
-                       && lessThan(heap[2 * r + 1], heap[2 * r])) {
-                // swap with right child
-                qSwap(heap[r], heap[2 * r + 1]);
-                r = 2 * r + 1;
-            } else {
-                r = last;
-            }
-        }
-    }
-}
-
-template <typename BiIterator, typename T, typename LessThan>
-Q_OUTOFLINE_TEMPLATE void qHeapSortHelper(BiIterator begin, BiIterator end, const T & /* dummy */, LessThan lessThan)
-{
-    BiIterator it = begin;
-    uint n = 0;
-    while (it != end) {
-        ++n;
-        ++it;
-    }
-    if (n == 0)
-        return;
-
-    // Create the heap
-    BiIterator insert = begin;
-    T *realheap = new T[n];
-    T *heap = realheap - 1;
-    int size = 0;
-    for(; insert != end; ++insert) {
-        heap[++size] = *insert;
-        int i = size;
-        while (i > 1 && lessThan(heap[i], heap[i / 2])) {
-            qSwap(heap[i], heap[i / 2]);
-            i /= 2;
-        }
-    }
-
-    // Now do the sorting
-    for (int i = n; i > 0; i--) {
-        *begin++ = heap[1];
-        if (i > 1) {
-            heap[1] = heap[i];
-            qHeapSortPushDown(heap, 1, i - 1, lessThan);
-        }
-    }
-
-    delete[] realheap;
-}
-
-template <typename BiIterator, typename T>
-inline void qHeapSortHelper(BiIterator begin, BiIterator end, const T &dummy)
-{
-    qHeapSortHelper(begin, end, dummy, qLess<T>());
-}
-
-template <typename BiIterator, typename LessThan>
-inline void qHeapSort(BiIterator begin, BiIterator end, LessThan lessThan)
-{
-    qHeapSortHelper(begin, end, *begin, lessThan);
-}
-
-template <typename BiIterator>
-inline void qHeapSort(BiIterator begin, BiIterator end)
-{
-    qHeapSortHelper(begin, end, *begin);
-}
-
-template <typename Container>
-inline void qHeapSort(Container &c)
-{
 #ifdef Q_CC_BOR
     // Work around Borland 5.5 optimizer bug
     c.detach();
 #endif
-    qHeapSortHelper(c.begin(), c.end(), *c.begin());
+    qSortHelper(c.begin(), c.end(), *c.begin(), lessThan);
 }
 
 template <typename RandomAccessIterator, typename T>

@@ -67,7 +67,7 @@ void HtmlGenerator::terminateGenerator()
 {
     dcfRoot.ref = "index.html";
     dcfRoot.title = "Qt Reference Documentation";
-    qHeapSort(dcfRoot.subsections);
+    qSort(dcfRoot.subsections);
     generateDcfSections(dcfRoot, outputDir() + "/" +
 			project.toLower().replace(QRegExp("[\\s/]"), ".") + ".dcf",
                         project.toLower() + "/reference");

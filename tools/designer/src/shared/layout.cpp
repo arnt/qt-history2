@@ -900,8 +900,8 @@ void GridLayout::buildGrid()
         index += 2;
     }
 
-    qHeapSort(x);
-    qHeapSort(y);
+    qSort(x);
+    qSort(y);
 
     // Remove duplicate x enteries (Remove next, if equal to current)
     if ( !x.empty() ) {

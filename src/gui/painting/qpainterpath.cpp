@@ -286,7 +286,7 @@ void qt_vectorize_region(const QRegion &region, QPainterPath *path)
         }
 
         xvals[xpos] = INT_MAX;
-        qHeapSort(&xvals[0], &xvals[xpos]);
+        qSort(&xvals[0], &xvals[xpos]);
 
         Q_ASSERT(xpos % 2 == 0);
 

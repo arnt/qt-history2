@@ -68,7 +68,7 @@ void ContextItem::sortMessages(int column, Qt::SortOrder order)
     sortOrder = sSortOrder = order;
     sortColumn = sSortColumn = column;
 
-    qHeapSort(msgItemList.begin(), msgItemList.end(), ContextItem::compare);
+    qSort(msgItemList.begin(), msgItemList.end(), ContextItem::compare);
 }
 
 bool ContextItem::compare(const MessageItem *left, const MessageItem *right)
@@ -217,7 +217,7 @@ void ContextModel::sort(int column, const QModelIndex &parent, Qt::SortOrder ord
     sortOrder = sSortOrder = order;
     sortColumn = sSortColumn = column;
 
-    qHeapSort(cntxtList.begin(), cntxtList.end(), ContextModel::compare);
+    qSort(cntxtList.begin(), cntxtList.end(), ContextModel::compare);
     emit dataChanged(index(0,0), index(cntxtList.count()-1, 2));
 
     Q_UNUSED(parent);
