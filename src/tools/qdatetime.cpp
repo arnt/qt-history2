@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#77 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#78 $
 **
 ** Implementation of date and time classes
 **
@@ -906,6 +906,9 @@ QDateTime::QDateTime( const QDate &date, const QTime &time )
   since 00:00:00 on January 1, 1970, Coordinated Universal Time (UTC).
   On systems that do not support timezones this function will behave as if
   local time were UTC.
+
+  Note that Microsoft Windows supports only a limited range of values for
+  \a secsSince1Jan1970UTC.
 */
 
 void QDateTime::setTime_t( uint secsSince1Jan1970UTC )
@@ -913,14 +916,13 @@ void QDateTime::setTime_t( uint secsSince1Jan1970UTC )
     time_t tmp = (time_t) secsSince1Jan1970UTC;
     tm *tM = localtime( &tmp );
     if ( !tM ) {
-	tM = localtime( 0 );
+	tM = gmtime( &tmp );
 	if ( !tM ) {
-#if defined(CHECK_NULL)
-	    qWarning( "QDateTime::setTime_t: Cannot get localtime" );
-#endif
+	    d.jd = QDate::greg2jul( 1970, 1, 1 );
+	    t.ds = 0;
 	    return;
 	}
-    }
+    } 
     d.jd = QDate::greg2jul( tM->tm_year + 1900, tM->tm_mon + 1, tM->tm_mday );
     t.ds = MSECS_PER_HOUR*tM->tm_hour + MSECS_PER_MIN*tM->tm_min +
 	    1000*tM->tm_sec;
