@@ -546,7 +546,7 @@ public:
 
 	    if (! rmp->count) {
 #  ifdef QT_CHECK_RANGE
-		qWarning("QWaitCondition::unlockAndWait: recursive mutex not locked!");
+		qWarning("QWaitCondition::wait: recursive mutex not locked!");
 #  endif
 
 		return FALSE;
@@ -1023,8 +1023,8 @@ public:
 
 #ifdef QT_CHECK_RANGE
 	if (mtx->d->type() == Q_MUTEX_RECURSIVE)
-	    qWarning("QWaitCondition::unlockAndWait: warning - using recursive mutexes"
-		     " with\n                               conditions is undefined!");
+	    qWarning("QWaitCondition::wait: warning - using recursive mutexes with\n"
+		     "                      conditions is undefined!");
 #endif
 
 #ifndef Q_HAS_RECURSIVE_MUTEX
@@ -1037,7 +1037,7 @@ public:
 
 	    if (! rmp->count) {
 #  ifdef QT_CHECK_RANGE
-		qWarning("QWaitCondition::unlockAndWait: recursive mutex not locked!");
+		qWarning("QWaitCondition::wait: recursive mutex not locked!");
 #  endif
 
 		return FALSE;
