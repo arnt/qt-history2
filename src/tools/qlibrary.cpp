@@ -50,7 +50,7 @@
 #define QT_NO_LIBRARY_UNLOAD
 #endif
 
-#if defined(Q_WS_WIN) && !defined(QT_DLL)
+#if defined(Q_WS_WIN) && !defined(QT_MAKEDLL)
 #define QT_NO_LIBRARY_UNLOAD
 #endif
 
@@ -356,11 +356,13 @@ bool QLibrary::unload( bool force )
 // (other compilers may have the same problem)
 #if !defined(QT_NO_LIBRARY_UNLOAD)
     if ( !d->freeLibrary() ) {
-#endif
 #if defined(QT_DEBUG_COMPONENT) && QT_DEBUG_COMPONENT == 2
 	qDebug( "%s could not be unloaded.", library().latin1() );
 #endif
 	return FALSE;
+#else
+	return TRUE;
+#endif
 #if !defined(QT_NO_LIBRARY_UNLOAD)
     }
 
