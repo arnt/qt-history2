@@ -155,8 +155,9 @@ public:
     QFileInfoList rootChildren() const;
     inline QString rootName() const { return QObject::tr("My Computer"); }
     inline QIcon rootIcon() const { return iconProvider->computerIcon(); }
-    inline QFileInfoList entryInfoList(const QDir &dir) const
+    inline QFileInfoList entryInfoList(const QString &path) const
         {
+            QDir dir(path);
             QFileInfoList fil = dir.entryInfoList(nameFilters, filters, sort);
             for (int i = 0; i < fil.count(); ++i) {
                 QString fn = fil.at(i).fileName();
@@ -788,8 +789,7 @@ QModelIndex QDirModel::index(const QString &path, int column) const
         {
             QString absPath = node->info.absoluteFilePath();
 
-            QDir dir(absPath);
-            QFileInfoList info = d->entryInfoList(dir);
+            QFileInfoList info = d->entryInfoList(absPath);
             entries.clear();
             for (int fi = 0; fi < info.count(); ++fi)
                 entries << info.at(fi).fileName();
@@ -986,10 +986,9 @@ bool QDirModel::remove(const QModelIndex &index)
 
 void QDirModelPrivate::init()
 {
-    const QDir directory; // get default values
-    filters = directory.filter();
-    sort = directory.sorting();
-    nameFilters = directory.nameFilters();
+    filters = QDir::All;
+    sort = QDir::Name;
+    nameFilters << "*.*";
     root.parent = 0;
     root.info = QFileInfo();
     root.children = children(0);
@@ -1025,16 +1024,15 @@ QDirModelPrivate::QDirNode *QDirModelPrivate::parent(QDirNode *child) const
 QVector<QDirModelPrivate::QDirNode> QDirModelPrivate::children(QDirNode *parent) const
 {
     QFileInfoList info;
-    if (!parent) {
+    if (!parent)
         info = rootChildren();
-    } else if (parent->info.isDir()) {
-        QDir dir = QDir(parent->info.filePath());
-        info = entryInfoList(dir);
-    }
+    else if (parent->info.isDir())
+        info = entryInfoList(parent->info.filePath());
     
     QVector<QDirNode> nodes(info.count());
     for (int i = 0; i < info.count(); ++i) {
         nodes[i].parent = parent;
+        // FIXME: we should only resolve when the user _enters_ the directory.
         if (d->resolveSymlinks && info.at(i).isSymLink()) {
             QString link = info.at(i).readLink();
             if (link.at(link.size() - 1) == QDir::separator())
@@ -1065,12 +1063,10 @@ int QDirModelPrivate::idx(QDirNode *node) const
 void QDirModelPrivate::refresh(QDirNode *parent)
 {
     QFileInfoList info;
-    if (!parent) {
+    if (!parent)
         info = rootChildren();
-    } else if (parent->info.isDir()) {
-        QDir dir = QDir(parent->info.filePath());
-        info = entryInfoList(dir);
-    }
+    else if (parent->info.isDir())
+        info = entryInfoList(parent->info.filePath());
 
     QVector<QDirNode> *nodes = parent ? &(parent->children) : &(root.children);
     if (nodes->count() != info.count())

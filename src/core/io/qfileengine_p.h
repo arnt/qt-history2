@@ -75,6 +75,9 @@ public:
 
     mutable uint could_stat : 1;
     mutable uint tried_stat : 1;
+#ifdef Q_OS_UNIX
+    mutable uint isSymLink : 1;
+#endif
     mutable QT_STATBUF st;
     bool doStat() const;
     int sysOpen(const QString &, int flags);

@@ -281,10 +281,9 @@ QFSFileEnginePrivate::doStat() const
             that->could_stat = !QT_FSTAT(d->fd, &st);
         } else {
             const QByteArray file = QFile::encodeName(d->file);
-            if(QT_LSTAT(file, &st) == 0)
-                that->could_stat = true;
-            else
-                that->could_stat = !QT_STAT(file, &st);
+            if(QT_LSTAT(file, &st) == 0) 
+                that->isSymLink = S_ISLNK(st.st_mode);
+            that->could_stat = !QT_STAT(file, &st);
         }
     }
     return could_stat;
@@ -338,9 +337,9 @@ QFSFileEngine::fileFlags(QFileEngine::FileFlags type) const
         if(!foundAlias)
 #endif
         {
-            if((d->st.st_mode & S_IFMT) == S_IFLNK)
+            if(d->isSymLink)//(d->st.st_mode & S_IFMT) == S_IFLNK)
                 ret |= LinkType;
-            else if((d->st.st_mode & S_IFMT) == S_IFREG)
+            if((d->st.st_mode & S_IFMT) == S_IFREG)
                 ret |= FileType;
             else if((d->st.st_mode & S_IFMT) == S_IFDIR)
                 ret |= DirectoryType;
@@ -409,7 +408,7 @@ QFSFileEngine::fileName(FileName file) const
         }
         return fileName(AbsoluteName);
     } else if(file == LinkName) {
-        if(d->doStat() && (d->st.st_mode & S_IFMT) == S_IFLNK) {
+        if(d->doStat() && d->isSymLink) {
             char s[PATH_MAX+1];
             int len = readlink(QFile::encodeName(d->file), s, PATH_MAX);
             if(len > 0) {

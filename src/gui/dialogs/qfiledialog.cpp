@@ -1692,8 +1692,8 @@ void QFileDialogPrivate::setDirFilter(QDir::Filters filters)
 QDir::Filters QFileDialogPrivate::filterForMode(QFileDialog::FileMode mode)
 {
     if (mode == QFileDialog::DirectoryOnly)
-        return QDir::Filters(QDir::AllDirs|QDir::Drives|QDir::Dirs);
-    return QDir::Filters(QDir::AllDirs|QDir::Drives|QDir::TypeMask);
+        return QDir::Filters(QDir::AllDirs|QDir::Drives|QDir::Dirs) & ~QDir::NoSymLinks;
+    return QDir::Filters(QDir::AllDirs|QDir::Drives|QDir::TypeMask) & ~QDir::NoSymLinks;
 }
 
 QAbstractItemView::SelectionMode QFileDialogPrivate::selectionMode(QFileDialog::FileMode mode)
