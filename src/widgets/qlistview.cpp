@@ -626,7 +626,7 @@ void QListViewItem::okRename()
     setText( col, renameBox->text() );
     cancelRename();
     emit lv->itemRenamed( this );
-    emit lv->itemRenamed( this, renameBox->text() );
+    emit lv->itemRenamed( this, text( col ) );
 }
 
 void QListViewItem::cancelRename()
