@@ -825,7 +825,9 @@ void QTextEdit::timerEvent(QTimerEvent *ev)
         if (d->cursor.hasSelection())
             d->cursorOn &= (style().styleHint(QStyle::SH_BlinkCursorWhenTextSelected) != 0);
 
-        d->viewport->update(d->cursor.block().layout()->rect());
+        QRect r = d->cursor.block().layout()->rect();
+        r.moveBy(-d->hbar->value(), -d->vbar->value());
+        d->viewport->update(r);
     } else if (ev->timerId() == d->dragStartTimer.timerId()) {
         d->dragStartTimer.stop();
         d->startDrag();
