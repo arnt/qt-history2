@@ -293,9 +293,9 @@ void QDockWindowResizeHandle::drawLine( const QPoint &globalPos )
     }
 }
 
-static QPoint realWidgetPos( QWidget *w )
+static QPoint realWidgetPos( QDockWindow *w )
 {
-    if ( !w->parentWidget() || !w->parentWidget()->inherits( "QDockArea" ) )
+    if ( !w->parentWidget() || w->place() == QDockWindow::OutsideDock )
 	return w->pos();
     return w->parentWidget()->mapToGlobal( w->geometry().topLeft() );
 }
