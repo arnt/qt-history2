@@ -273,6 +273,7 @@ void QWindowsXPStyle::polish( QWidget *widget )
 
     if ( widget->inherits( "QButton" ) ) {
 	widget->installEventFilter( this );
+	widget->setBackgroundOrigin( QWidget::ParentOrigin );
     } else if ( widget->inherits( "QTabBar" ) ) {
 	widget->installEventFilter( this );
 	widget->setMouseTracking( TRUE );
@@ -1847,6 +1848,12 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 
     case QEvent::Resize:
 	updateRegion( widget );
+	break;
+
+    case QEvent::Move:
+	if ( widget->paletteBackgroundPixmap() &&
+	     widget->backgroundOrigin() != QWidget::WidgetOrigin )
+	    widget->update();
 	break;
 
     default:
