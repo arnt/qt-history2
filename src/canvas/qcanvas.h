@@ -1,11 +1,11 @@
 /**********************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QCanvas classes
 **
 ** Created : 991211
 **
-** Copyright (C) 1999-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1999-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the canvas module of the Qt GUI Toolkit.
 **
@@ -42,7 +42,6 @@
 #include "qscrollview.h"
 #include "qpixmap.h"
 #include "qptrlist.h"
-#include "qptrdict.h"
 #include "qbrush.h"
 #include "qpen.h"
 #include "qvaluelist.h"

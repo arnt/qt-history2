@@ -1,11 +1,11 @@
 /**********************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QCanvas and associated classes
 **
 ** Created : 991211
 **
-** Copyright (C) 1999-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1999-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the canvas module of the Qt GUI Toolkit.
 **
@@ -35,19 +35,16 @@
 **
 **********************************************************************/
 
-
 #include "qcanvas.h"
 #ifndef QT_NO_CANVAS
 #include "qapplication.h"
 #include "qbitmap.h"
 #include "qimage.h"
+#include "qptrdict.h"
 #include "qpainter.h"
 #include "qpolygonscanner.h"
 #include "qtimer.h"
 #include "qtl.h"
-#include "qwidget.h"
-
-#include <stdlib.h>
 
 class QCanvasData {
 public:
