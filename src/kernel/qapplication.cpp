@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#72 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#73 $
 **
 ** Implementation of QApplication class
 **
@@ -16,7 +16,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#72 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#73 $")
 
 
 /*----------------------------------------------------------------------------
@@ -74,6 +74,7 @@ QFont	 *QApplication::app_font      = 0;	// default application font
 QCursor	 *QApplication::app_cursor    = 0;	// default application cursor
 bool	  QApplication::starting_up   = TRUE;	// app starting up
 bool	  QApplication::closing_down  = FALSE;	// app closing down
+int	  QApplication::loop_level    = 0;	// event loop level
 QWidget	 *QApplication::main_widget   = 0;	// main application widget
 QWidget	 *QApplication::focus_widget  = 0;	// has keyboard input focus
 
