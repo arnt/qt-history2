@@ -1192,7 +1192,7 @@ void QWidget::setWindowIconText(const QString &iconText)
 	CFStringRef str = 0;
 	if(!iconText.isNull())
 	    CFStringCreateWithCharacters(0, (UniChar *)iconText.unicode(), iconText.length());
-	SetWindowAlternateTitle(HIViewGetWindow((HIViewRef)winId()), str);
+	SetWindowAlternateTitle(qt_mac_window_for((HIViewRef)winId()), str);
     }
     QEvent e(QEvent::IconTextChange);
     QApplication::sendEvent(this, &e);
