@@ -35,6 +35,8 @@
 #include <qevent.h>
 #include <qvaluelist.h>
 
+#include <qdebug.h>
+
 #include <stdlib.h>
 
 
@@ -241,6 +243,10 @@ MainWindow::MainWindow()
                                               QColorGroup::Button));
     buttonMainColor2->setColor(palette().color(QPalette::Active,
                                                QColorGroup::Background));
+    connect(buttonMainColor, SIGNAL(colorChanged(const QColor&)),
+                this, SLOT(buildPalette()));
+    connect(buttonMainColor2, SIGNAL(colorChanged(const QColor&)),
+                this, SLOT(buildPalette()));
 
     QFontDatabase db;
     QStringList families = db.families();
@@ -502,6 +508,8 @@ void MainWindow::setModified(bool m)
 
 void MainWindow::buildPalette()
 {
+    qDebug() << "buildPalette()";
+
     int i;
     QColorGroup cg;
     QColor btn = buttonMainColor->color();

@@ -24,8 +24,7 @@ class Workspace : public Q3Workspace
     Q_OBJECT
 
 public:
-    Workspace( QWidget* parent = 0, const char* name = 0 )
-        : Q3Workspace( parent, name ) {}
+    Workspace( QWidget* parent = 0, const char* name = 0 );
     ~Workspace() {}
 
 protected:
