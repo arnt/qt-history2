@@ -47,6 +47,7 @@
  *****************************************************************************/
 //#define DEBUG_MENUBAR_ACTIVATE
 
+extern QString cfstring2qstring(CFStringRef); //qglobal.cpp
 QCString p2qstring(const unsigned char *); //qglobal.cpp
 void qt_event_request_menubarupdate(); //qapplication_mac.cpp
 
@@ -270,8 +271,15 @@ uint QMenuBar::isCommand(QMenuItem *it, bool just_check)
 		text.replace(QRegExp("\\.*$"), ""); //no ellipses
 #ifdef Q_WS_MACX
 		if(ret == kHICommandAbout && text.lower() == tr("About").lower()) {
-		    QString prog = qApp->argv()[0];
-		    text += " " + prog.section('/', -1, -1);;
+		    ProcessSerialNumber psn;
+		    if(GetCurrentProcess(&psn) == noErr) {
+			CFStringRef cfstr;
+			CopyProcessName(&psn, &cfstr);
+			text += " " + cfstring2qstring(cfstr);
+		    } else {
+			QString prog = qApp->argv()[0];
+			text += " " + prog.section('/', -1, -1);;
+		    }
 		}
 #endif
 		CFStringRef cfref;
