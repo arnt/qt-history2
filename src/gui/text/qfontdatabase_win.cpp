@@ -578,6 +578,32 @@ void QFontPrivate::initFontInfo()
 #endif
 
 
+static const char **tryFonts= 0;
+
+static const char *jp_tryFonts [] = {
+    "Arial",
+    "MS Mincho",
+    "SimSun",
+    "Arial Unicode MS",
+    0
+};
+
+static const char *ch_CN_tryFonts [] = {
+    "Arial",
+    "SimSun",
+    "MS Mincho",
+    "Arial Unicode MS",
+    0
+};
+
+static const char *ch_TW_tryFonts [] = {
+    "Arial",
+    "SimSun",
+    "MS Mincho",
+    "Arial Unicode MS",
+    0
+};
+
 static inline HFONT systemFont()
 {
     if (stock_sysfont == 0)
@@ -795,5 +821,31 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
 
     }
     QFontEngine *fe = new QFontEngineWin(family->name, hfont, stockFont, lf);
+    if(script == QUnicodeTables::Common) {
+        if(!tryFonts) {
+	    LANGID lid = GetUserDefaultLangID();
+	    switch( lid&0xff ) {
+	    case LANG_CHINESE: // Chinese (Taiwan)
+	        if ( lid == 0x0804 ) // Taiwan
+		    tryFonts = ch_TW_tryFonts;
+	        else
+	    	    tryFonts = ch_CN_tryFonts;
+	        break;
+	    case LANG_JAPANESE:
+	    default:
+	    	tryFonts = jp_tryFonts;
+	        break;
+	    }
+        }
+        QStringList fm = QFontDatabase().families();
+        QStringList list;
+        const char **tf = tryFonts;
+        while(tf && *tf) {
+            if(fm.contains(QLatin1String(*tf)))
+                list << QLatin1String(*tf);
+            ++tf;
+        }
+        fe = new QFontEngineMultiWin(static_cast<QFontEngineWin *>(fe), list);
+    }
     return fe;
 }

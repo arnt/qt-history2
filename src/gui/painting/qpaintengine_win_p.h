@@ -61,6 +61,9 @@ public:
     void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr, Qt::PixmapDrawingMode mode);
     void drawTextItem(const QPointF &p, const QTextItem &textItem);
 
+    void drawTextItemMulti(const QPointF &p, const QTextItem &textItem);
+    void drawTextItemWin(const QPointF &p, const QTextItem &textItem);
+
     void drawPath(const QPainterPath &path);
 
     inline Type type() const { return QPaintEngine::Windows; }

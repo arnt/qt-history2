@@ -700,6 +700,45 @@ void QFontEngineWin::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyp
     }
 }
 
+// -------------------------------------- Multi font engine
+
+QFontEngineMultiWin::QFontEngineMultiWin(QFontEngineWin *first, const QStringList &fallbacks)
+        : QFontEngineMulti(fallbacks.size()+1),
+          fallbacks(fallbacks)
+{
+    ttf = false;
+    engines[0] = first;
+    ++first->ref;
+}
+
+void QFontEngineMultiWin::loadEngine(int at)
+{
+    Q_ASSERT(at < engines.size());
+    Q_ASSERT(engines.at(at) == 0);
+
+    QString fam = fallbacks.at(at-1);
+
+    LOGFONT lf = engines.at(0)->logfont;
+    HFONT hfont;
+    QT_WA({
+        memcpy(lf.lfFaceName, fam.utf16(), sizeof(TCHAR)*qMin(fam.length()+1,32));  // 32 = Windows hard-coded
+        hfont = CreateFontIndirect(&lf);
+    } , {
+        // LOGFONTA and LOGFONTW are binary compatible
+        QByteArray lname = fam.toLocal8Bit();
+        memcpy(lf.lfFaceName,lname.data(),
+            qMin(lname.length()+1,32));  // 32 = Windows hard-coded
+        hfont = CreateFontIndirectA((LOGFONTA*)&lf);
+    });
+    bool stockFont = false;
+    if (hfont == 0) {
+        hfont = (HFONT)GetStockObject(ANSI_VAR_FONT);
+        stockFont = true;
+    }
+    engines[at] = new QFontEngineWin(fam, hfont, stockFont, lf);
+    ++engines[at]->ref;
+}
+
 
 // ----------------------------------------------------------------------------
 // True type support methods
@@ -932,3 +971,4 @@ end:
     qSort(pairs);
     return pairs;
 }
+

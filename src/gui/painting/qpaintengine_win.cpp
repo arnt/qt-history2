@@ -777,6 +777,82 @@ void QWin32PaintEngine::drawPixmap(const QRectF &rf, const QPixmap &sourcePm, co
 void QWin32PaintEngine::drawTextItem(const QPointF &pos, const QTextItem &textItem)
 {
     const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
+    if (!ti.num_glyphs)
+        return;
+
+    switch(ti.fontEngine->type()) {
+    case QFontEngine::Multi:
+        drawTextItemMulti(pos, ti);
+        break;
+    case QFontEngine::Win:
+    default:
+        drawTextItemWin(pos, ti);
+        break;
+    }
+}
+
+void QWin32PaintEngine::drawTextItemMulti(const QPointF &p, const QTextItem &textItem)
+{
+    const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
+    QFontEngineMulti *multi = static_cast<QFontEngineMulti *>(ti.fontEngine);
+    QGlyphLayout *glyphs = ti.glyphs;
+    int which = glyphs[0].glyph >> 24;
+
+    qreal x = p.x();
+    qreal y = p.y();
+
+    int start = 0;
+    int end, i;
+    for (end = 0; end < ti.num_glyphs; ++end) {
+        const int e = glyphs[end].glyph >> 24;
+        if (e == which)
+            continue;
+
+        // set the high byte to zero
+        for (i = start; i < end; ++i)
+            glyphs[i].glyph = glyphs[i].glyph & 0xffffff;
+
+        // draw the text
+        QTextItemInt ti2 = ti;
+        ti2.glyphs = ti.glyphs + start;
+        ti2.num_glyphs = end - start;
+        ti2.fontEngine = multi->engine(which);
+        ti2.f = ti.f;
+        drawTextItem(QPointF(x, y), ti2);
+
+        // reset the high byte for all glyphs and advance to the next sub-string
+        const int hi = which << 24;
+        for (i = start; i < end; ++i) {
+            glyphs[i].glyph = hi | glyphs[i].glyph;
+            x += glyphs[i].advance.x();
+        }
+
+        // change engine
+        start = end;
+        which = e;
+    }
+
+    // set the high byte to zero
+    for (i = start; i < end; ++i)
+        glyphs[i].glyph = glyphs[i].glyph & 0xffffff;
+
+    // draw the text
+    QTextItemInt ti2 = ti;
+    ti2.glyphs = ti.glyphs + start;
+    ti2.num_glyphs = end - start;
+    ti2.fontEngine = multi->engine(which);
+    ti2.f = ti.f;
+    drawTextItem(QPointF(x,y), ti2);
+
+    // reset the high byte for all glyphs
+    const int hi = which << 24;
+    for (i = start; i < end; ++i)
+        glyphs[i].glyph = hi | glyphs[i].glyph;
+}
+
+void QWin32PaintEngine::drawTextItemWin(const QPointF &pos, const QTextItem &textItem)
+{
+    const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
 
 #ifdef QT_DEBUG_DRAW
         printf(" - QWin32PaintEngine::drawTextItem(), (%.2f,%.2f), string=%s\n",

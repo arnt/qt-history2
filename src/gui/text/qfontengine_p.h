@@ -336,46 +336,7 @@ public:
                    QPaintEngine *p=NULL) const;
 };
 
-#elif defined(Q_WS_WIN)
-
-class QFontEngineWin : public QFontEngine
-{
-public:
-    QFontEngineWin(const QString &name, HFONT, bool, LOGFONT);
-    ~QFontEngineWin();
-
-    FECaps capabilites() const;
-
-    bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
-
-    void addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path);
-    virtual void doKerning(int , QGlyphLayout *, QTextEngine::ShaperFlags) const;
-
-    HGDIOBJ selectDesignFont(float *) const;
-
-    glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
-    glyph_metrics_t boundingBox(glyph_t glyph);
-
-    qreal ascent() const;
-    qreal descent() const;
-    qreal leading() const;
-    qreal maxCharWidth() const;
-    qreal minLeftBearing() const;
-    qreal minRightBearing() const;
-
-    const char *name() const;
-
-    bool canRender(const QChar *string,  int len);
-
-    Type type() const;
-
-    enum { widthCacheSize = 0x800, cmapCacheSize = 0x500 };
-    mutable unsigned char widthCache[widthCacheSize];
-    mutable float *designAdvances;
-    mutable int designAdvancesSize;
-};
-
-#endif // Q_WS_WIN
+#endif 
 
 
 class Q_GUI_EXPORT QFontEngineMulti : public QFontEngine
@@ -423,6 +384,8 @@ protected:
 
 #if defined(Q_WS_X11)
 #  include "qfontengine_x11_p.h"
+#elif defined(Q_WS_WIN)
+#  include "qfontengine_win_p.h"
 #endif
 
 class QTestFontEngine : public QFontEngineBox

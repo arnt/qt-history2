@@ -57,6 +57,7 @@ win32 {
 	SOURCES += \
 		text/qfont_win.cpp \
 		text/qfontengine_win.cpp
+	HEADERS += text/qfontengine_win_p.h
 }
 
 wince-* {

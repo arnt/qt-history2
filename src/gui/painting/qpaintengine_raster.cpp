@@ -2002,8 +2002,8 @@ void LinearGradientData::init()
 }
 
 #ifdef Q_WS_WIN
-void qt_draw_text_item(const QPointF &pos, const QTextItemInt &ti, HDC hdc,
-                       QRasterPaintEnginePrivate *d)
+static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC hdc,
+                               QRasterPaintEnginePrivate *d)
 {
     QPointF p = pos;
 
@@ -2179,6 +2179,85 @@ void qt_draw_text_item(const QPointF &pos, const QTextItemInt &ti, HDC hdc,
             qErrnoWarning("SetGraphicsMode failed");
     }
 }
+
+static void draw_text_item_multi(const QPointF &p, const QTextItemInt &ti, HDC hdc,
+                       QRasterPaintEnginePrivate *d)
+{
+    QFontEngineMulti *multi = static_cast<QFontEngineMulti *>(ti.fontEngine);
+    QGlyphLayout *glyphs = ti.glyphs;
+    int which = glyphs[0].glyph >> 24;
+
+    qreal x = p.x();
+    qreal y = p.y();
+
+    int start = 0;
+    int end, i;
+    for (end = 0; end < ti.num_glyphs; ++end) {
+        const int e = glyphs[end].glyph >> 24;
+        if (e == which)
+            continue;
+
+        // set the high byte to zero
+        for (i = start; i < end; ++i)
+            glyphs[i].glyph = glyphs[i].glyph & 0xffffff;
+
+        // draw the text
+        QTextItemInt ti2 = ti;
+        ti2.glyphs = ti.glyphs + start;
+        ti2.num_glyphs = end - start;
+        ti2.fontEngine = multi->engine(which);
+        ti2.f = ti.f;
+        draw_text_item_win(QPointF(x, y), ti2, hdc, d);
+
+        // reset the high byte for all glyphs and advance to the next sub-string
+        const int hi = which << 24;
+        for (i = start; i < end; ++i) {
+            glyphs[i].glyph = hi | glyphs[i].glyph;
+            x += glyphs[i].advance.x();
+        }
+
+        // change engine
+        start = end;
+        which = e;
+    }
+
+    // set the high byte to zero
+    for (i = start; i < end; ++i)
+        glyphs[i].glyph = glyphs[i].glyph & 0xffffff;
+
+    // draw the text
+    QTextItemInt ti2 = ti;
+    ti2.glyphs = ti.glyphs + start;
+    ti2.num_glyphs = end - start;
+    ti2.fontEngine = multi->engine(which);
+    ti2.f = ti.f;
+    draw_text_item_win(QPointF(x, y), ti2, hdc, d);
+
+    // reset the high byte for all glyphs
+    const int hi = which << 24;
+    for (i = start; i < end; ++i)
+        glyphs[i].glyph = hi | glyphs[i].glyph;
+}
+
+void qt_draw_text_item(const QPointF &pos, const QTextItemInt &ti, HDC hdc,
+                       QRasterPaintEnginePrivate *d)
+{
+    if (!ti.num_glyphs)
+        return;
+
+    switch(ti.fontEngine->type()) {
+    case QFontEngine::Multi:
+        draw_text_item_multi(pos, ti, hdc, d);
+        break;
+    case QFontEngine::Win:
+    default:
+        draw_text_item_win(pos, ti, hdc, d);
+        break;
+    }
+}
+
+
+
 #endif
 
 QImage qt_draw_radial_gradient_image( const QRect &rect, RadialGradientData *rdata )
