@@ -221,8 +221,12 @@ void Keyboard::mousePressEvent(QMouseEvent *e)
     } else {
 	qk = QWSServer::keyMap()[k].key_code;
 	if ( qk != Key_unknown ) {
-	    u = shift^lock ? QWSServer::keyMap()[k].shift_unicode : 
-		QWSServer::keyMap()[k].unicode;
+		if ( ctrl )
+		    u = QWSServer::keyMap()[k].ctrl_unicode;
+		else if ( shift^lock )
+		    u = QWSServer::keyMap()[k].shift_unicode;
+		else 
+		    u = QWSServer::keyMap()[k].unicode;
 	}
     }
     if  ( u != -1 ) {
