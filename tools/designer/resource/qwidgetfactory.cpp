@@ -206,19 +206,11 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	    QSqlTable *table = (QSqlTable*)widgetFactory->toplevel->child( it.key(), "QSqlTable" );
 	    if ( !table )
 		continue;
-	    QString conn = (*it)[ 0 ];
-	    QSqlCursor* c = 0;
-	    if ( conn.isEmpty() || conn == "(default)" )
-		c = new QSqlCursor( (*it)[ 1 ] );
-	    else
-		c = new QSqlCursor( (*it)[ 1 ], conn );
 	    QValueList<Field> fieldMap = *widgetFactory->fieldMaps.find( table );
-	    table->setCursor( c, fieldMap.isEmpty(), TRUE );
 	    if ( !fieldMap.isEmpty() ) {
 		    int i = 0;
 		    for ( QValueList<Field>::Iterator fit = fieldMap.begin(); fit != fieldMap.end(); ++fit, ++i ) {
-			c->setDisplayLabel( (*fit).field, (*fit).name );
-			table->addColumn( c->field( (*fit).field ) );
+			table->addColumn( (*fit).field, (*fit).name );
 			// ## pixmap support for QSqlTable?
 //			if ( !(*fit).pix.isNull() )
 //			    table->horizontalHeader()->setLabel( i, (*fit).pix, (*fit).name );
@@ -226,9 +218,16 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 //			    table->horizontalHeader()->setLabel( i, (*fit).name );
 		    }
 	    }
+	    QString conn = (*it)[ 0 ];
+	    QSqlCursor* c = 0;
+	    if ( conn.isEmpty() || conn == "(default)" )
+		c = new QSqlCursor( (*it)[ 1 ] );
+	    else
+		c = new QSqlCursor( (*it)[ 1 ], conn );
+	    table->setCursor( c, fieldMap.isEmpty(), TRUE );
 	    table->refresh();
 	}
-	
+
 	if ( !eventInterfaceManager ) {
 	    QString dir = getenv( "QTDIR" );
 	    dir += "/lib";
