@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#105 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#106 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#105 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#106 $");
 
 
 const int Unsorted = 16383;
@@ -826,6 +826,12 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 
     const char * t = text( column );
     if ( t ) {
+	if ( !column ) {
+	    p->fillRect( r, 0, width-marg-r, height(), red );
+	    QApplication::flushX();
+	    //sleep( 1 );
+	    p->fillRect( r, 0, width-marg-r, height(), cg.base() );
+	}
 	// should do the ellipsis thing in drawText()
 	p->drawText( r, 0, width-marg-r, height(),
 		     align | AlignVCenter, t );
@@ -1530,11 +1536,10 @@ void QListView::clear()
 
     setSelected( d->currentSelected, FALSE );
     d->focusItem = 0;
-    resizeContents( d->h->sizeHint().width(), viewport()->height() );
 
     // if it's down its downness makes no sense, so undown it
     d->buttonDown = FALSE;
-
+    
     QListViewItem *c = (QListViewItem *)d->r->firstChild();
     QListViewItem *n;
     while( c ) {
@@ -1542,6 +1547,8 @@ void QListView::clear()
 	delete c;
 	c = n;
     }
+    resizeContents( d->h->sizeHint().width(), 0 );
+    triggerUpdate();
 }
 
 
@@ -1579,8 +1586,10 @@ void QListView::setColumnText( int column, const char * label )
 void QListView::setColumnWidth( int column, int w )
 {
     ASSERT( column < d->h->count() );
-    d->h->setCellSize( column, w );
-    d->h->update(); // ##### paul, QHeader::setCellSize should do this.
+    if ( d->h->cellSize( column ) != w ) {
+	d->h->setCellSize( column, w );
+	d->h->update(); // ##### paul, QHeader::setCellSize should do this.
+    }
 }
 
 /*!
@@ -1698,21 +1707,19 @@ void QListView::show()
 
 void QListView::updateContents()
 {
+    viewport()->update();
     updateGeometries();
-    viewport()->repaint( FALSE );
 }
 
 void QListView::updateGeometries()
 {
-    int w = 0;
-    for( int i=0; i<d->h->count(); i++ )
-	w += d->h->cellSize( i );
+    QSize hs( d->h->sizeHint() );
 
-    int h = d->h->sizeHint().height(); // ### slightly slow
-    setMargins( 0, h, 0, 0 );
-    resizeContents( w, d->r->totalHeight() );
-    d->h->setGeometry( viewport()->x(), viewport()->y()-h,
-		       viewport()->width(), h );
+    resizeContents( hs.width(), d->r->totalHeight() );
+
+    setMargins( 0, hs.height(), 0, 0 );
+    d->h->setGeometry( viewport()->x(), viewport()->y()-hs.height(),
+		       viewport()->width(), hs.height() );
 }
 
 /*!
@@ -1743,7 +1750,7 @@ void QListView::updateDirtyItems()
 	    QRect ir( itemRect( i ) );
 	    if ( !ir.isEmpty() ) {
 		// we now have a rectangle to give to repaint() - so do it
-		viewport()->repaint( ir );
+		viewport()->update( ir );
 		return;
 	    }
 	}
