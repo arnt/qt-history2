@@ -151,6 +151,7 @@ void MainWindow::handleClose(AbstractFormWindow *fw, bool *accept)
         switch (box.exec()) {
         case QMessageBox::Yes:
             *accept = saveForm(fw);
+            fw->setDirty(false);
             break;
         case QMessageBox::No:
             fw->setDirty(false); // Not really necessary, but stops problems if we get close again.
@@ -575,19 +576,19 @@ void MainWindow::newForm(const QString &widgetClass)
 
 void MainWindow::saveForm()
 {
-    if (AbstractFormWindow *fw = m_formWindowManager->activeFormWindow()) {
-        if (saveForm(fw)) {
-            fw->setDirty(false);
-        }
-    }
+    if (AbstractFormWindow *fw = m_formWindowManager->activeFormWindow())
+        saveForm(fw);
 }
 
 bool MainWindow::saveForm(AbstractFormWindow *fw)
 {
+    bool ret;
     if (fw->fileName().isEmpty())
-        return saveFormAs(fw);
+        ret = saveFormAs(fw);
     else
-        return writeOutForm(fw, fw->fileName());
+        ret =  writeOutForm(fw, fw->fileName());
+    fw->setDirty(false);
+    return ret;
 }
 
 void MainWindow::saveFormAs()

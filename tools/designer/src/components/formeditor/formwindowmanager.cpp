@@ -147,10 +147,7 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
 
             bool accept = true;
             emit formWindowClosing(fw, &accept);
-            if (accept)
-                static_cast<QCloseEvent*>(e)->accept();
-            else
-                static_cast<QCloseEvent*>(e)->ignore();
+            static_cast<QCloseEvent *>(e)->setAccepted(accept);
         } break;
 
         case QEvent::Hide:
