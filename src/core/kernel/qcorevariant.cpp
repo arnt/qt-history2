@@ -1051,7 +1051,7 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             break;
         case QCoreVariant::ULongLong:
 #if defined(Q_CC_MSVC) && !defined(Q_CC_MSVC_NET)
-            *f = (double)(Q_LONGLONG)*v_cast<Q_ULONGLONG>(d);
+            *f = (double)(Q_LONGLONG)*v_cast<Q_ULONGLONG>(d, 0);
 #else
             *f = double(*v_cast<Q_ULONGLONG>(d, 0));
 #endif
