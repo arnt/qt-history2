@@ -1,23 +1,57 @@
 #!/bin/sh
 #
-# Builds the Qt library, examples and tutorial
+# Configures to build the Qt library
+#
+# Copyright 1999 Troll Tech AS.  All rights reserved.
+#
+
+# To remove the need for the first test, do this:
+# QTDIR=`pwd` export QTDIR
+
+touch .test.qt.
+if [ '!' -f ${QTDIR}/.test.qt. ];
+then
+    echo
+    echo
+    echo '   The environment variable $QTDIR is not set correctly. It is currently'
+    echo '   set to "'`echo $QTDIR`'", but it should be set to "'`pwd`'".'
+    echo
+    echo '   Please read the INSTALL file for instructions on how to set $QTDIR'
+    echo '   correctly. If you have set $QTDIR in your .profile or .login, you '
+    echo '   will need to log out and log in again to make the setting effective.'
+    echo
+    echo
+    exit 1
+fi
+rm .test.qt.
+
 
 # Defaults
 
 DEBUG=no
+SHARED=yes
 GIF=no
 SM=no
 ZLIB=yes
 LIBPNG=yes
 
+###Warwick, here goes your platform detection code
+
 # Parse the arguments, setting things to "yes" or "no".
 
 for a in $* ; do
    case $a in
+   -platform)
+###Warwick I don't know the right syntax here
+       shift; PLATFORM=$1;
    -release)
        DEBUG=no;;
    -debug)
        DEBUG=yes;;
+   -shared)
+       SHARED=yes;;
+   -static)
+       SHARED=no;;
    -no-gif)
        GIF=no;;
    -gif)
@@ -55,20 +89,26 @@ Usage: $0 [-debug] [-release] [-gif] [-no-gif] [-sm] [-no-sm] \\
 The defaults (*) are usually acceptable.  Here is a short explanation of
 each option:
 
-    -debug ........... Compile and link Qt with debugging turned on.
- *  -release ......... Compile and link Qt with debugging turned off.
+ *  -release ........... Compile and link Qt with debugging turned off.
+    -debug ............. Compile and link Qt with debugging turned on.
 
-    -gif ............. Compile in GIF support. Please see qgif.h.
- *  -no-gif .......... Do not compile in GIF support. Please see qgif.h.
+ *  -shared ............ Create and use a shared Qt library (libqt.so)
+    -static ............ Create and use a static Qt library (libqt.a)
 
-    -sm .............. Support X Session Management, links in -lXSM -lICE.
- *  -no-sm ........... Do not support X Session Management.
+ *  -no-gif ............ Do not compile in GIF support. Please see qgif.h.
+    -gif ............... Compile in GIF support. Please see qgif.h.
 
- *  -qt-zlib ......... Use the zlib bundled with Qt.
-    -system-zlib ..... Use a zlib from the operating system
+ *  -no-sm ............. Do not support X Session Management.
+    -sm ................ Support X Session Management, links in -lXSM -lICE.
 
- *  -qt-libpng ....... Use the libpng bundled with Qt.
-    -system-libpng ... Use a libpng from the operating system.
+ *  -qt-zlib ........... Use the zlib bundled with Qt.
+    -system-zlib ....... Use a zlib from the operating system
+
+ *  -qt-libpng ......... Use the libpng bundled with Qt.
+    -system-libpng ..... Use a libpng from the operating system.
+
+    -platform target ... See the PLATFORMS file for a list of supported
+                         operating systems and compilers.
 
 EOF
    [ "x$ERROR" = "xyes" ] && exit 1
@@ -92,10 +132,47 @@ fi
 #done
 
 
+# Check if the platform + static + debug exists
+
+TARGET=$PLATFORM
+if [ "x$SHARED" = "xyes" ]; then
+    TARGET="${TARGET}-shared"
+    if [ '!' -f configs/$TARGET ]; then
+        echo
+        echo
+        echo '    No shared library support for platform/compiler ' $TARGET
+        echo
+        echo
+        exit 1
+    fi
+else
+    TARGET="${TARGET}-static"
+    if [ '!' -f configs/$TARGET ]; then
+        echo
+        echo
+        echo '    No static library support for platform/compiler ' $TARGET
+        echo
+        echo
+        exit 1
+    fi
+fi
+
+if [ "x$DEBUG" = "xyes" ]; then
+    TARGET="${TARGET}-debug"
+    if [ '!' -f configs/$TARGET ]; then
+        echo
+        echo
+        echo '    Cannot build with debug info for platform/compiler ' $TARGET
+        echo
+        echo
+        exit 1
+    fi
+fi
+
+
 # Build up the variables for output
 
 QT_CXX=""
-
 [ "x$GIF" = "xyes" ] && QT_CXX="${QT_CXX} -DQT_BUILTIN_GIF_READER"
 [ "x$SM" = "xyes" ] && QT_CXX="${QT_CXX} -DQT_SUPPORT_SM"
 [ "x$ZLIB" = "xyes" ] && QT_CXX="${QT_CXX} -I3rdparty/zlib"
@@ -104,13 +181,11 @@ QT_CXX=""
 QT_LIBS=""
 QT_PNG=""
 QT_ZLIB=""
-
 [ "x$SM" = "xyes" ] && QT_LIBS="${QT_LIBS} -lICE -lSM"
 [ "x$ZLIB" = "xyes" ] && QT_PNG=' $(PNG_OBJECTS)'
 [ "x$LIBPNG" = "xyes" ] && QT_ZLIB=' $(ZLIB_OBJECTS)'
-[ "x$ZLIB" = "xno" ] && QT_LIBS="${QT_LIBS} -zlib"
+[ "x$ZLIB" = "xno" ] && QT_LIBS="${QT_LIBS} -lzlib"
 [ "x$LIBPNG" = "xno" ] && QT_LIBS="${QT_LIBS} -lpng"
-
 
 
 # Create the .buildopts file
@@ -122,3 +197,34 @@ QT_PNG_OBJ      =$QT_PNG
 QT_ZLIB_OBJ	=$QT_ZLIB
 
 EOF
+
+if [ -z "$TARGET" -o '!' -f "$TARGET" ];
+then
+    echo
+    echo
+    echo '   An internal error occurred, Qt cannot be built.'
+    echo
+    echo
+    exit 2
+fi
+
+QTDIR='$(QTDIR)'
+
+for a in `find . -name Makefile.in -print | sort` ; do
+    N=`dirname $a`/Makefile
+    M=${N}.in
+    cat > $N <<EOF
+#############################################################################
+# Automatically generated from $M
+# Build options from $1
+#############################################################################
+
+EOF
+    cat .buildopts $TARGET $M >> $N
+    echo '  Created' $N
+done
+
+echo
+echo Qt is now configured for building. Just run make.
+echo To reconfigure, run make config.
+echo

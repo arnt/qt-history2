@@ -1,6 +1,6 @@
 #!/bin/sh
 # 
-# Copyright 1997 Troll Tech AS.  All rights reserved.
+# Copyright 1997-1999 Troll Tech AS.  All rights reserved.
 #
 
 VERBOSE=
@@ -42,21 +42,21 @@ all: $SYMLINKS moc src tutorial examples
 	@echo "Enjoy!   - the Troll Tech team"
 	@echo
 
-moc: variables FORCE
+moc: .buildopts FORCE
 	cd src/moc; \$(MAKE)
 	cp src/moc/moc bin/moc
 
 symlinks:
 	@cd include; rm -f q*.h; ln -s ../src/*/q*.h .
 
-src: moc variables FORCE
+src: moc .buildopts FORCE
 	cd \$@; \$(MAKE)
 
 tutorial examples: src FORCE
 	cd \$@; \$(MAKE)
 
 clean:
-	-rm variables
+	-rm .buildopts
 	cd src/moc; \$(MAKE) clean
 	cd src; \$(MAKE) clean
 	cd tutorial; \$(MAKE) clean
@@ -67,50 +67,17 @@ depend:
 	cd tutorial; \$(MAKE) depend
 	cd examples; \$(MAKE) depend
 
-config: variables
-	-rm variables
+config: .buildopts
+	-rm .buildopts
 	\$(MAKE)
 
-variables: Makefile
+.buildopts: Makefile
 	@echo
-	@echo These targets are available:
-	@echo
-	@cd configs; ls *-*-*
-	@echo
-	@echo Make any of them to configure Qt for building.
-	@echo
-	@echo If you build Qt now reading of GIF images will not be
-	@echo supported. Please see the file src/kernel/qt_gif.h
-	@echo if you want to enable GIF reading support.
+	@echo You must run the ./configure script before you can build Qt.
 	@echo
 	@echo The make process will now abort with an error.
 	@echo
 	@exit 1
-
-
-# individual targets
-
-EOF
-
-# Explicit rules, for sucky makes...
-for a in $(cd configs; ls); do
-	echo ${a}: Makefile
-	echo '	./propagate configs/'${a}
-	echo
-done
-
-# Implicit...
-echo '%-static: configs/%-shared'
-echo '	./propagate configs/$*'
-echo
-echo '%-static: configs/%-shared'
-echo '	./propagate configs/$*'
-echo
-echo '%-debug: configs/%-debug'
-echo '	./propagate configs/$*'
-echo
-
-cat <<EOF
 
 dep: depend
 
