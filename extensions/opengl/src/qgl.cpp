@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#32 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#33 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -2020,7 +2020,7 @@ void QGLWidget::glDraw()
   QGL classes overview documentation.
  *****************************************************************************/
 
-/*! \page qgl.html
+/*! \page opengl.html
 
 <title>Qt OpenGL Classes</title>
 </head><body bgcolor="#ffffff">
