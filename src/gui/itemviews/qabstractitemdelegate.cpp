@@ -84,7 +84,9 @@
 
   This signal is emitted when the \a editor widget has completed editing the
   data, and wants to write it back into the model.
+  \omit
   ... ### FIXME ###
+  \endomit
 */
 
 /*!
@@ -152,12 +154,12 @@ QAbstractItemDelegate::~QAbstractItemDelegate()
 */
 
 /*!
-    Returns the editor to be used for editing the data item at the
-    given \a index in the \a model. The editor's parent widget is specified by
-    \a parent, and the item options by \a option.
-    Ownership is kept by the delegate. Subsequent calls to this
-    function with the same arguments are not guaranteed to return
-    the same editor object.
+    Returns the editor to be used for editing the data item with the
+    given \a index. Note that the index contains information about the
+    model being used. The editor's parent widget is specified by \a parent,
+    and the item options by \a option. Ownership of the editor is remains
+    with the delegate. Subsequent calls to this function with the same
+    arguments are not guaranteed to return the same editor object.
 
     Note: When the editor is no longer in use, call releaseEditor().
 
@@ -191,7 +193,8 @@ void QAbstractItemDelegate::releaseEditor(QWidget *,
 
 /*!
     Sets the contents of the given \a editor to the data for the item
-    at the given \a index, in the model \a model.
+    at the given \a index. Note that the index contains information
+    about the model being used.
 
     The base implementation does nothing. If you want custom editing
     you will need to reimplement this function.
@@ -221,10 +224,11 @@ void QAbstractItemDelegate::setModelData(QWidget *,
 }
 
 /*!
-    Updates the geometry of the \a editor for the item in the \a model
-    with the given \a index, according to the rectangle specified in the \a
-    option. If the item has an internal layout, the editor will be
-    laid out accordingly.
+    Updates the geometry of the \a editor for the item with the given
+    \a index, according to the rectangle specified in the \a option.
+    If the item has an internal layout, the editor will be laid out
+    accordingly. Note that the index contains information about the
+    model being used.
 
     The base implementation does nothing. If you want custom editing
     you must reimplement this function.
@@ -239,7 +243,7 @@ void QAbstractItemDelegate::updateEditorGeometry(QWidget *,
 }
 
 /*!
-    Whenever an event occurs, this function is called with the \a e
+    Whenever an event occurs, this function is called with the \a event
     \a option and the model \a index in the \a model.
 
     The base implementation returns false (indicating that it has not
