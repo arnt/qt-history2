@@ -49,31 +49,30 @@
 #include "qregexp.h"
 #include "qbuffer.h"
 
-/**
- * TODO:
- * If the document dies, remove all pointers to it from children
- * which can not be deleted at this time.
- *
- * If a node dies and has direct children which can not be deleted,
- * then remove the pointer to the parent.
- *
- * Handle QDomDocumentFragment on insertion correctly.
- *
- * createElement and friends create double reference counts.
- */
+/*
+  ### old todo comments -- I don't know if they still apply...
 
-/**
- * Reference counting:
- *
- * Some simple rules:
- * 1) If an intern object returns a pointer to another intern object
- *    then the reference count of the returned object is not increased.
- * 2) If an extern object is created and gets a pointer to some intern
- *    object, then the extern object increases the intern objects reference count.
- * 3) If an extern object is deleted, then it decreases the reference count
- *    on its associated intern object and deletes it if nobody else hold references
- *    on the intern object.
- */
+  If the document dies, remove all pointers to it from children
+  which can not be deleted at this time.
+
+  If a node dies and has direct children which can not be deleted,
+  then remove the pointer to the parent.
+
+  createElement and friends create double reference counts.
+*/
+
+/*
+  Reference counting:
+
+  Some simple rules:
+  1) If an intern object returns a pointer to another intern object
+     then the reference count of the returned object is not increased.
+  2) If an extern object is created and gets a pointer to some intern
+     object, then the extern object increases the intern objects reference count.
+  3) If an extern object is deleted, then it decreases the reference count
+     on its associated intern object and deletes it if nobody else hold references
+     on the intern object.
+*/
 
 
 /*
@@ -2151,6 +2150,9 @@ QDomNode QDomNode::removeChild( const QDomNode& oldChild )
     this node. If \a newChild is a child of this node, then its
     position in the list of children is changed.
 
+    If \a newChild is a QDomDocumentFragment, then the children of the
+    fragment are removed from the fragment and appended.
+
     Returns a new reference to \a newChild.
 
     \sa insertBefore() insertAfter() replaceChild() removeChild()
@@ -3228,9 +3230,9 @@ QDomNodePrivate* QDomDocumentFragmentPrivate::cloneNode( bool deep)
 
     The most important feature of QDomDocumentFragment is that it is
     treated in a special way by QDomNode::insertAfter(),
-    QDomNode::insertBefore() and QDomNode::replaceChild(): instead of
-    inserting the fragment itself, all the fragment's children are
-    inserted.
+    QDomNode::insertBefore(), QDomNode::replaceChild() and
+    QDomNode::appendChild(): instead of inserting the fragment itself, all
+    the fragment's children are inserted.
 */
 
 /*!
