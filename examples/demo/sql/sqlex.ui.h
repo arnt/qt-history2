@@ -67,6 +67,13 @@ void SqlEx::dbConnect()
     if ( dt->sqlCursor() ) {
 	dt->setSqlCursor( 0 );
     }
+    // close old connection (if any)
+    if ( QSqlDatabase::contains( "SqlEx" ) ) {
+	QSqlDatabase* oldDb = QSqlDatabase::database( "SqlEx" );
+	oldDb->close();
+	QSqlDatabase::removeDatabase( "SqlEx" );
+    }
+    // open the new connection
     QSqlDatabase* db = QSqlDatabase::addDatabase( conDiag->comboDriver->currentText(), "SqlEx" );
     if ( !db ) {
 	QMessageBox::warning( this, "Error", "Could not open database" );	
