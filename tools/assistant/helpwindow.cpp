@@ -18,7 +18,7 @@
 
 #include <qapplication.h>
 #include <qclipboard.h>
-#include <qurl.h>
+#include <q3url.h>
 #include <qmessagebox.h>
 #include <qdir.h>
 #include <qfile.h>
@@ -132,7 +132,7 @@ void HelpWindow::setSource(const QString &name)
         return;
     }
 
-    QUrl u(context(), name);
+    Q3Url u(context(), name);
     if (!u.isLocalFile()) {
         QMessageBox::information(mw, tr("Help"), tr("Can't load and display non-local file\n"
                     "%1").arg(name));
