@@ -560,7 +560,10 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
             p = p->topLevelWidget();
 
         if (dialog || testWFlags(Qt::WStyle_DialogBorder) || testWFlags(Qt::WStyle_Tool)) {
-            if (p && (p->testWFlags(Qt::WGroupLeader) || p->testWFlags(Qt::WType_Dialog))) {
+            if (p && (p->testWFlags(Qt::WGroupLeader)
+                      || (p->testWFlags(Qt::WType_Dialog)
+                          || p->testWFlags(Qt::WStyle_DialogBorder)
+                          || p->testWFlags(Qt::WStyle_Tool)))) {
                 // transient for window
                 XSetTransientForHint(dpy, id, p->winId());
             } else {
@@ -658,8 +661,8 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         TabletDeviceDataList *tablet_list = qt_tablet_devices();
         for (int i = 0; i < tablet_list->size(); ++i) {
             TabletDeviceData tablet = tablet_list->at(i);
-            XSelectExtensionEvent(dpy, id, reinterpret_cast<XEventClass*>(tablet.eventList), 
-                                    tablet.eventCount);
+            XSelectExtensionEvent(dpy, id, reinterpret_cast<XEventClass*>(tablet.eventList),
+                                  tablet.eventCount);
         }
 #endif
     }
@@ -1084,32 +1087,35 @@ void QWidgetPrivate::setWindowIcon_sys(const QPixmap &pixmap)
     if (d->extra && d->extra->topextra) {
         delete d->extra->topextra->icon;
         d->extra->topextra->icon = 0;
-    } else {
-        d->createTLExtra();
     }
-    Pixmap icon_pixmap = 0;
-    Pixmap mask_pixmap = 0;
-    if (!pixmap.isNull()) {
-        QPixmap* pm = new QPixmap(pixmap);
-        d->extra->topextra->icon = pm;
-        if (!pm->mask())
-            pm->setMask(pm->createHeuristicMask()); // may do detach()
-        icon_pixmap = pm->handle();
-        if (pm->mask())
-            mask_pixmap = pm->mask()->handle();
-    }
+
     XWMHints *h = XGetWMHints(d->xinfo.display(), q->winId());
-    XWMHints  wm_hints;
-    bool got_hints = h != 0;
-    if (!got_hints) {
+    XWMHints wm_hints;
+    if (!h) {
         h = &wm_hints;
         h->flags = 0;
     }
-    h->icon_pixmap = icon_pixmap;
-    h->icon_mask = mask_pixmap;
-    h->flags |= IconPixmapHint | IconMaskHint;
+
+    if (!pixmap.isNull()) {
+        QPixmap* pm = new QPixmap(pixmap);
+        if (!pm->mask())
+            pm->setMask(pm->createHeuristicMask()); // may do detach()
+
+        d->createTLExtra();
+        d->extra->topextra->icon = pm;
+
+        h->icon_pixmap = pm->handle();
+        h->flags |= IconPixmapHint;
+        if (pm->mask()) {
+            h->icon_mask = pm->mask()->handle();
+            h->flags |= IconMaskHint;
+        }
+    } else {
+        h->flags &= ~(IconPixmapHint | IconMaskHint);
+    }
+
     XSetWMHints(d->xinfo.display(), q->winId(), h);
-    if (got_hints)
+    if (h != &wm_hints)
         XFree((char *)h);
 }
 
