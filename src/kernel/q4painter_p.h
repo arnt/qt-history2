@@ -19,6 +19,7 @@ public:
     {
 	if (s) {
 	    font = QFont(s->font);
+	    pfont = s->pfont;
 	    pen = QPen(s->pen);
 	    brush = QBrush(s->brush);
 	    bgOrigin = s->bgOrigin;
@@ -53,11 +54,13 @@ public:
 	    VxF = false;
 	    wx = wy = ww = wh = 0;
 	    vx = vy = vw = vh = 0;
+	    pfont = 0;
 	}
     }
 
     QPoint 	bgOrigin;
     QFont 	font;
+    QFont       *pfont;
     QPen 	pen;
     QBrush 	brush;
     QBrush 	bgBrush;		// background brush

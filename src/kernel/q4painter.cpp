@@ -1107,7 +1107,7 @@ void QPainter::drawText(int x, int y, const QString &str, int pos, int len, Text
 
 //     QTextEngine engine( cstr.string(), pfont ? pfont->d : cfont.d );
 //     QTextEngine engine( cstr.string(), ds->font.d );
-    QTextLayout layout(cstr.string(), 0);
+    QTextLayout layout(cstr.string(), ds->pfont ? *ds->pfont : ds->font);
     QTextEngine *engine = layout.engine();
 
     // this is actually what beginLayout does. Inlined here, so we can
@@ -1196,12 +1196,6 @@ void QPainter::drawTextItem(int x, int y, const QTextItem &ti, int textFlags)
     x += si->x;
     y += si->y;
 
-#ifdef Q_WS_WIN
-    QWin32GC *wingc = (QWin32GC*)dgc;
-    HDC oldDC = fe->hdc;
-    fe->hdc = dgc->handle();
-    SelectObject( wingc->handle(), fe->hfont );
-#endif
     fe->draw( this, x,  y, engine, si, textFlags );
 #endif
 }
