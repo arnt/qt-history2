@@ -1129,8 +1129,8 @@ bool QHeaderView::event(QEvent *e)
     Q_D(QHeaderView);
     switch (e->type()) {
     case QEvent::HoverEnter: {
-        QHoverEvent *e = static_cast<QHoverEvent*>(e);
-        d->hover = logicalIndexAt(e->pos());
+        QHoverEvent *he = static_cast<QHoverEvent*>(e);
+        d->hover = logicalIndexAt(he->pos());
         updateSection(d->hover);
         break; }
     case QEvent::HoverLeave: {
@@ -1139,8 +1139,8 @@ bool QHeaderView::event(QEvent *e)
         break; }
     case QEvent::HoverMove: {
         updateSection(d->hover);
-        QHoverEvent *e = static_cast<QHoverEvent*>(e);
-        d->hover = logicalIndexAt(e->pos());
+        QHoverEvent *he = static_cast<QHoverEvent*>(e);
+        d->hover = logicalIndexAt(he->pos());
         updateSection(d->hover);
         break; }
     default:
