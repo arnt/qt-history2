@@ -227,14 +227,11 @@ void QAbstractSpinBox::setTracking(bool t)
     to the minimum() value and vica versa. Wrapping only make sense if
     you have minimum() and maximum() values set.
 
-    \code
-        QSpinBox *sb = new QSpinBox(0, 100, 1, 0, this);
+        QSpinBox *spinBox = new QSpinBox(this);
+	spinBox->setRange(0, 100);
+	spinBox->setWrapping(true);
         sb->setValue(100);
-        sb->stepUp();
-        // value is 100
-
-        sb->setWrapping(true);
-        sb->stepUp();
+        sb->stepBy(1);
         // value is 0
     \endcode
 
