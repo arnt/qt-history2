@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#328 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#329 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -73,6 +73,10 @@ typedef char *XPointer;
 #include <sys/time.h>
 #include <sys/select.h>
 #include <unistd.h>
+#endif
+
+#if defined(_OS_QNX_)
+#include <sys/select.h>
 #endif
 
 #if defined(_OS_WIN32_) && defined(gettimeofday)
