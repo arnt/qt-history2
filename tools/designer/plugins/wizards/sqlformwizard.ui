@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>580</width>
-            <height>468</height>
+            <width>556</width>
+            <height>458</height>
         </rect>
     </property>
     <property name="caption">
@@ -24,17 +24,17 @@
         <attribute name="title">
             <string>Choose the Database and Table</string>
         </attribute>
-        <hbox>
+        <grid>
             <property name="name">
                 <cstring>unnamed</cstring>
             </property>
             <property name="margin">
-                <number>0</number>
+                <number>11</number>
             </property>
             <property name="spacing">
                 <number>6</number>
             </property>
-            <widget class="QLabel">
+            <widget class="QLabel" row="0" column="0">
                 <property name="name">
                     <cstring>TextLabel4</cstring>
                 </property>
@@ -268,7 +268,7 @@
                     </sizepolicy>
                 </property>
             </widget>
-            <widget class="QLayoutWidget">
+            <widget class="QLayoutWidget" row="0" column="1">
                 <property name="name">
                     <cstring>Layout3</cstring>
                 </property>
@@ -339,7 +339,7 @@
                     </widget>
                 </grid>
             </widget>
-        </hbox>
+        </grid>
     </widget>
     <widget class="QWidget">
         <property name="name">
@@ -348,17 +348,17 @@
         <attribute name="title">
             <string>Autopopulate Form</string>
         </attribute>
-        <hbox>
+        <grid>
             <property name="name">
                 <cstring>unnamed</cstring>
             </property>
             <property name="margin">
-                <number>0</number>
+                <number>11</number>
             </property>
             <property name="spacing">
                 <number>6</number>
             </property>
-            <widget class="QLabel">
+            <widget class="QLabel" row="0" column="0">
                 <property name="name">
                     <cstring>TextLabel4_2</cstring>
                 </property>
@@ -592,11 +592,11 @@
                     </sizepolicy>
                 </property>
             </widget>
-            <widget class="QLayoutWidget">
+            <widget class="QLayoutWidget" row="0" column="1">
                 <property name="name">
                     <cstring>Layout3</cstring>
                 </property>
-                <vbox>
+                <grid>
                     <property name="name">
                         <cstring>unnamed</cstring>
                     </property>
@@ -606,7 +606,134 @@
                     <property name="spacing">
                         <number>6</number>
                     </property>
-                    <widget class="QLabel">
+                    <widget class="QGroupBox" row="2" column="0">
+                        <property name="name">
+                            <cstring>fieldsGroupBox</cstring>
+                        </property>
+                        <property name="title">
+                            <string>Fields</string>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>5</hsizetype>
+                                <vsizetype>7</vsizetype>
+                            </sizepolicy>
+                        </property>
+                        <grid>
+                            <property name="margin">
+                                <number>11</number>
+                            </property>
+                            <property name="spacing">
+                                <number>6</number>
+                            </property>
+                            <widget class="QPushButton" row="4" column="1">
+                                <property name="name">
+                                    <cstring>buttonFieldUp</cstring>
+                                </property>
+                                <property name="text">
+                                    <string></string>
+                                </property>
+                                <property name="pixmap">
+                                    <pixmap>image0</pixmap>
+                                </property>
+                            </widget>
+                            <widget class="QListBox" row="0" column="0" rowspan="7" colspan="1">
+                                <property name="name">
+                                    <cstring>listBoxField</cstring>
+                                </property>
+                            </widget>
+                            <widget class="QPushButton" row="2" column="1">
+                                <property name="name">
+                                    <cstring>buttonRemoveField</cstring>
+                                </property>
+                                <property name="text">
+                                    <string></string>
+                                </property>
+                                <property name="pixmap">
+                                    <pixmap>image1</pixmap>
+                                </property>
+                            </widget>
+                            <widget class="QListBox" row="0" column="2" rowspan="7" colspan="1">
+                                <property name="name">
+                                    <cstring>listBoxSelectedField</cstring>
+                                </property>
+                            </widget>
+                            <widget class="QPushButton" row="1" column="1">
+                                <property name="name">
+                                    <cstring>buttonAddField</cstring>
+                                </property>
+                                <property name="text">
+                                    <string></string>
+                                </property>
+                                <property name="pixmap">
+                                    <pixmap>image2</pixmap>
+                                </property>
+                            </widget>
+                            <widget class="QPushButton" row="5" column="1">
+                                <property name="name">
+                                    <cstring>buttonFieldDown</cstring>
+                                </property>
+                                <property name="text">
+                                    <string></string>
+                                </property>
+                                <property name="pixmap">
+                                    <pixmap>image3</pixmap>
+                                </property>
+                            </widget>
+                            <spacer row="3" column="1">
+                                <property name="name" stdset="0">
+                                    <cstring>Spacer1</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Vertical</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>20</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                            <spacer row="0" column="1">
+                                <property name="name" stdset="0">
+                                    <cstring>Spacer2</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Vertical</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>20</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                            <spacer row="6" column="1">
+                                <property name="name" stdset="0">
+                                    <cstring>Spacer3</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Vertical</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>20</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                        </grid>
+                    </widget>
+                    <widget class="QLabel" row="0" column="0">
                         <property name="name">
                             <cstring>TextLabel1_2</cstring>
                         </property>
@@ -616,10 +743,16 @@
                         <property name="alignment">
                             <set>AlignAuto|AlignCenter</set>
                         </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>7</hsizetype>
+                                <vsizetype>5</vsizetype>
+                            </sizepolicy>
+                        </property>
                         <property name="hAlign" stdset="0">
                         </property>
                     </widget>
-                    <widget class="QCheckBox">
+                    <widget class="QCheckBox" row="1" column="0">
                         <property name="name">
                             <cstring>checkBoxAutoPopulate</cstring>
                         </property>
@@ -630,30 +763,30 @@
                             <bool>true</bool>
                         </property>
                     </widget>
-                    <widget class="QGroupBox">
-                        <property name="name">
-                            <cstring>GroupBox2</cstring>
-                        </property>
-                        <property name="title">
-                            <string>GroupBox2</string>
-                        </property>
-                        <property name="sizePolicy">
-                            <sizepolicy>
-                                <hsizetype>5</hsizetype>
-                                <vsizetype>7</vsizetype>
-                            </sizepolicy>
-                        </property>
-                    </widget>
-                </vbox>
+                </grid>
             </widget>
-        </hbox>
+        </grid>
     </widget>
 </widget>
+<images>
+    <image name="image0">
+        <data format="XPM.GZ" length="1040">789c5dd1c98eda401006e03b4f61d137143136b6bbdd8a723078f681616e91a21c7a653160867520cabbc755e54c028683bfbfbaed1ffaa6137c1f0f83ce4d6bbb53bb9909cc546d828edd2f97a71f3fbffd6ab5231ed4df240da2f69756bb1b986054ad1cdc8feb7b16f1983b0d2c902256ce005f912af63e06de2375127bdc7b00f6746abc07ae8171947ae216c9b9a0c503a4e69ca68f489f728b954644ee687a074c7adc3a0bf44821044d9f914a28e22dd2f2d460e721300db394a66fc8881b83355e90a9e81127c84c444600fb4893298f7c02f2306b5abd2313a14d08cc915c36adce482133e2022985d619f0885499b4f8e407a2d43e015648279b1731a0e865f566e00ac955f3a213522849d4c84c45d4b9443ad59cc21c98496d894ba00c4d730a7b64fddf10674869a4974087b436a2a902ea5ebd173b7f20bde374be3ba08d5ce8f1142c52fba6a401bac4699a4e91f5efa1e906e8fd5f76f1624a33bafbcc98b1ce4f2e3266a6b379e917ff6575b42c57ab6afdfe99b1cd745e27f5b55d3419db4df71455d56141d9f16376c2e89cf70745b30e3ebeaa06b75dcdd8bf2eddbbd3f99e5df6ebf6cbfc7095b187b25a4faeb2f2940f1eafb2f92af7c565762cf3a7e7abec6538da6e5fd9e5dea228c66fb4eef7d7d61f7133f21b</data>
+    </image>
+    <image name="image1">
+        <data format="XPM.GZ" length="1055">789c65d24b8fda301000e03bbf22223754b18424b6a3aa076061792fbba74a550f7ecd121e09cb6ba155ff7b3363b76a0101ca37338967ec3c3482af8b59d078a81d8ef298eb402fe53e6898d3767bfdf6fdcbcf5a3d6241f54daafffaa75abd19e8605e1616af5fabebb005b10640ce91118b334b7c26f22475d90151c4000a39249a24863672ece91fd543b65b09078dec10790c867ab81275ca5cf10119b7526604b24f4c58db65474499b64d827c222aa65cf6824c529e382e8882719d216744c5624df7be103537ae788a4c2366b4414e884cf8791f892014486417c962ce1535591279c65df10fa2cc04d042672264e0b2219233a1740b59384a3ffed253381aa2145a51576ba295fe511b22c8d8d2802b4715b9ec1e29daca8ff0418cab6c8a944490ccdd9b23b344276ec013916bbfb14004cd808eeccdd1f87dde2195b29eef481d5b3fd196688d061a41218db011d0ba47647567e68a35915513521b9668c1cfdbbcf9fc8d85f22e2695963731a32ddcd4196bdf96e6bf58b55ebe5a874d69642837219dc2d6e6c5ba2837b0dbbdeff607da92e3695d14e7759e7fec97c5e54a07bf5f55a1f3b92cf177e9d0abd27bac42457fd0bbf69f2efd21ad311a4faa92a931b351673e9cb95ea6cf97f2ec7b317f7a5e0c5e2677b3755fc7e1dd1e74e7f7b17ff7ead7e7da6f139df86d</data>
+    </image>
+    <image name="image2">
+        <data format="XPM.GZ" length="1175">789c65d24b5322311007f03b9f624a6ed6160e339379d4d61ec4f5b5828282afad3d249d044618544045adfdee3bfd4ff6204ccd617e9da4bb69b2b71bdcf67bc1ee5e63b992ab92029ac845b0ab5faaeafdf79f1f9f8d9d761ad4af4882f6ceb7c64e2ba0e0fc716ef87b547f37c32812161c806924ad629e32db149311cc4b6614c5994e9917609a4883cde72025d620558f1947425ac9bc0363a12c7ae8822215d632fb6091268e57a0123121f30968d2c23579cf4c42a10999afc1426845cca1631a139a3c002913a660fe628a306b6b143a0393dcd7bd0529930699df409d1bab9973661a6599425763302b5277760de6995639f3182419bad59fa02e721b323b9eca0d47832617843997cc2c953eb3048bbc90e08d63911b147a0749e6366236412b431333c9d3ba5453669e2a9ff901cc65e4ba3a7254995b7d0449f99e67a0553e55c52cea61394ec08c7247036af29b0f41ab23c77da66c6b3f9c1518d544210b16dab8d50f501b7ff685a9da3a73bf770116c65fa45790b4bf2a4bd068653158c524b2a13bfb0c6aeba7f1c4e4328ead8de74bac29b76375d9ad98b163bd7576624aed62f2a1d9d4cd564b4e67b36a3c47ecf1e979b15cae5e5ea7349dceded6f8933faa6a5299fd8af8e91ce04a1d1e4da92c8f39528e4f4e71bd8fcf4ebabdf38b7e1dea7407382b4f2faf866b29e79d3a34bafedacbcdb8371a6ef477db1d0c377bbee35d1bb1fbf9f60cfecfeaeff7c63fa8741158</data>
+    </image>
+    <image name="image3">
+        <data format="XPM.GZ" length="1085">789c5dd14b6fe2301000e03bbf222237b4a224c44ea26a0f9094a60f28941e2aadf6e067a1e54d0835abfdef9b199b5529e2e06f32331edb572def753cf45a578d7dc9cab9f0c48cedbc963c2c97e6d7ef9f7f1acd807af53f4abca0f9a3d16c7bc21bad570ad6a37aed776828b5064e9049a82c5f8001ef6a8d8553604849a039f009c949aab1d50ea9494761f207b01b904885c01b644c94ee02fb484689dde801292851d8ea889491e2b8d13d308a0817d8ea848c6357fb8c4c684710608594b13b510f483a540b01bc437663a1b0f31648491adbe42592a7a19d39438a24e20c38b64c5de7474b1658ee912a89450c2c803165d45e8e462a162a6c952335d3b656029390a52a011a64ccdd5443c7c4f213a952253ac08325774fa6903a4d398eb101a6b170b525520a97ec23350b393ecada5276edd7019085753205be5b4a77de0532e291904086a49c29bc6701e4a148ed83ae9044715bcb91a960f6eb2d9249aaf1f873a064703bc019500567be0135d5eeeadaf0f3191752e1f27f4cbfcde6ef1ffed7d862b95a6fb6bbcbbcfda63c54c7c545ecd36ccca97799a7ea583fbb8c2df426bff1bfc564791183ce6a509a2aab570b1bdb0f6e993918630aadefee6d2c7b781c0e8dc94d5ef4473dd72f7b1ad759795e9c26cffe798f3a58478a6a04539ff7cda6db627b1a1dfdafb364d3aa9a7c3b5b7bbf7be9b9f9fe5e37fe011eea014e</data>
+    </image>
+</images>
 <connections>
     <connection>
         <sender>checkBoxAutoPopulate</sender>
         <signal>toggled(bool)</signal>
-        <receiver>GroupBox2</receiver>
+        <receiver>fieldsGroupBox</receiver>
         <slot>setEnabled(bool)</slot>
     </connection>
     <connection>
@@ -680,7 +813,47 @@
         <receiver>editConnection</receiver>
         <slot>setText(const QString&amp;)</slot>
     </connection>
-    <slot access="protected">tableSelected( const QString &amp; )</slot>
+    <connection>
+        <sender>buttonAddField</sender>
+        <signal>clicked()</signal>
+        <receiver>SqlFormWizardBase</receiver>
+        <slot>addField()</slot>
+    </connection>
+    <connection>
+        <sender>buttonRemoveField</sender>
+        <signal>clicked()</signal>
+        <receiver>SqlFormWizardBase</receiver>
+        <slot>removeField()</slot>
+    </connection>
+    <connection>
+        <sender>buttonFieldUp</sender>
+        <signal>clicked()</signal>
+        <receiver>SqlFormWizardBase</receiver>
+        <slot>fieldUp()</slot>
+    </connection>
+    <connection>
+        <sender>buttonFieldDown</sender>
+        <signal>clicked()</signal>
+        <receiver>SqlFormWizardBase</receiver>
+        <slot>fieldDown()</slot>
+    </connection>
+    <connection>
+        <sender>listBoxSelectedField</sender>
+        <signal>doubleClicked(QListBoxItem*)</signal>
+        <receiver>SqlFormWizardBase</receiver>
+        <slot>removeField()</slot>
+    </connection>
+    <connection>
+        <sender>listBoxField</sender>
+        <signal>doubleClicked(QListBoxItem*)</signal>
+        <receiver>SqlFormWizardBase</receiver>
+        <slot>addField()</slot>
+    </connection>
     <slot access="protected">connectionSelected( const QString &amp; )</slot>
+    <slot access="protected">fieldDown()</slot>
+    <slot access="protected">fieldUp()</slot>
+    <slot access="protected">removeField()</slot>
+    <slot access="protected">tableSelected( const QString &amp; )</slot>
+    <slot access="protected">addField()</slot>
 </connections>
 </UI>

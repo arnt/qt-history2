@@ -16,6 +16,11 @@ public:
 protected slots:
     void connectionSelected( const QString & );
     void tableSelected( const QString & );
+    void autoPopulate( bool populate );
+    void fieldDown();
+    void fieldUp();
+    void removeField();
+    void addField();
 
 private:
     QWidget *widget;
