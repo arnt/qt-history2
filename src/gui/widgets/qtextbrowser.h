@@ -55,8 +55,7 @@ signals:
     void forwardAvailable(bool);
     void sourceChanged(const QString&);
     void highlighted(const QString&);
-    void linkClicked(const QString&);
-    void anchorClicked(const QString &href);
+    void anchorClicked(const QString &);
 
 protected:
     void keyPressEvent(QKeyEvent *ev);
@@ -64,8 +63,6 @@ protected:
     void mouseReleaseEvent(QMouseEvent *ev);
 
 #if defined(QT_COMPAT)
-signals:
-    QT_MOC_COMPAT void anchorClicked(const QString&, const QString&);
 public:
     QT_COMPAT_CONSTRUCTOR QTextBrowser(QWidget *parent, const char *name);
 #endif

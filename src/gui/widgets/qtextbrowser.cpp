@@ -479,14 +479,7 @@ void QTextBrowser::mouseReleaseEvent(QMouseEvent *ev)
         d->textOrSourceChanged = false;
 
         const QString url = QUrl(d->currentURL).resolved(anchor).toString();
-        emit linkClicked(url);
-
-#ifdef QT_COMPAT
-        // compat signal. the name is set to null. the 'name' makes no sense as it is
-        // an attribute for specifying a destination.
-        emit anchorClicked(QString::null, anchor);
-#endif
-        emit anchorClicked(anchor);
+        emit anchorClicked(url);
 
         if (!d->textOrSourceChanged)
             setSource(url);
