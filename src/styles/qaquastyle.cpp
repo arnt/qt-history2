@@ -41,7 +41,7 @@
 /* Mask for Aqua buttons - left */
 #define aqua_btn_mask_left_xbm_width 13
 #define aqua_btn_mask_left_xbm_height 23
-static char aqua_btn_mask_left_xbm_bits[] = {
+static const unsigned char aqua_btn_mask_left_xbm_bits[] = {
    0xc0, 0x1f, 0xf0, 0x1f, 0xf8, 0x1f, 0xfc, 0x1f, 0xfe, 0x1f, 0xff, 0x1f,
    0xff, 0x1f, 0xff, 0x1f, 0xff, 0x1f, 0xff, 0x1f, 0xff, 0x1f, 0xff, 0x1f,
    0xff, 0x1f, 0xff, 0x1f, 0xff, 0x1f, 0xff, 0x1f, 0xff, 0x1f, 0xff, 0x1f,
@@ -50,7 +50,7 @@ static char aqua_btn_mask_left_xbm_bits[] = {
 /* Mask for Aqua buttons - right */
 #define aqua_btn_mask_right_xbm_width 13
 #define aqua_btn_mask_right_xbm_height 23
-static char aqua_btn_mask_right_xbm_bits[] = {
+static const unsigned char aqua_btn_mask_right_xbm_bits[] = {
    0x7f, 0x00, 0xff, 0x01, 0xff, 0x03, 0xff, 0x07, 0xff, 0x0f, 0xff, 0x1f,
    0xff, 0x1f, 0xff, 0x1f, 0xff, 0x1f, 0xff, 0x1f, 0xff, 0x1f, 0xff, 0x1f,
    0xff, 0x1f, 0xff, 0x1f, 0xff, 0x1f, 0xff, 0x1f, 0xff, 0x1f, 0xff, 0x1f,
@@ -59,7 +59,7 @@ static char aqua_btn_mask_right_xbm_bits[] = {
 /* Mask for Aqua scrollbars */
 #define aqua_hsbr_tip_left_mask_width 10
 #define aqua_hsbr_tip_left_mask_height 14
-static char aqua_hsbr_tip_left_mask_bits[] = {
+static const unsigned char aqua_hsbr_tip_left_mask_bits[] = {
    0xf0, 0x03, 0xfc, 0x03, 0xfe, 0x03, 0xfe, 0x03, 0xff, 0x03, 0xff, 0x03,
    0xff, 0x03, 0xff, 0x03, 0xff, 0x03, 0xff, 0x03, 0xfe, 0x03, 0xfe, 0x03,
    0xfc, 0x03, 0xf0, 0x03 };
@@ -67,7 +67,7 @@ static char aqua_hsbr_tip_left_mask_bits[] = {
 /* Mask for Aqua scrollbars */
 #define aqua_hsbr_tip_right_mask_width 10
 #define aqua_hsbr_tip_right_mask_height 14
-static char aqua_hsbr_tip_right_mask_bits[] = {
+static const unsigned char aqua_hsbr_tip_right_mask_bits[] = {
    0x3f, 0x00, 0xff, 0x00, 0xff, 0x01, 0xff, 0x01, 0xff, 0x03, 0xff, 0x03,
    0xff, 0x03, 0xff, 0x03, 0xff, 0x03, 0xff, 0x03, 0xff, 0x01, 0xff, 0x01,
    0xff, 0x00, 0x3f, 0x00 };
@@ -75,7 +75,7 @@ static char aqua_hsbr_tip_right_mask_bits[] = {
 /* Mask for Aqua radio buttons */
 #define aqua_radio_mask_xbm_width 14
 #define aqua_radio_mask_xbm_height 17
-static char aqua_radio_mask_xbm_bits[] = {
+static const unsigned char aqua_radio_mask_xbm_bits[] = {
    0xe0, 0x01, 0xf8, 0x07, 0xfc, 0x0f, 0xfe, 0x1f, 0xff, 0x3f, 0xff, 0x3f,
    0xff, 0x3f, 0xff, 0x3f, 0xff, 0x3f, 0xff, 0x3f, 0xff, 0x3f, 0xff, 0x3f,
    0xff, 0x3f, 0xff, 0x3f, 0xfe, 0x1f, 0xfc, 0x0f, 0xf8, 0x07 };
@@ -83,7 +83,7 @@ static char aqua_radio_mask_xbm_bits[] = {
 /* Mask for pointy Aqua sliders */
 #define aqua_sldr_pty_mask_width 17
 #define aqua_sldr_pty_mask_height 20
-static char aqua_sldr_pty_mask_bits[] = {
+static const unsigned char aqua_sldr_pty_mask_bits[] = {
    0xfe, 0xff, 0x00, 0xff, 0xff, 0x01, 0xff, 0xff, 0x01, 0xff, 0xff, 0x01,
    0xff, 0xff, 0x01, 0xff, 0xff, 0x01, 0xff, 0xff, 0x01, 0xff, 0xff, 0x01,
    0xff, 0xff, 0x01, 0xff, 0xff, 0x01, 0xff, 0xff, 0x01, 0xff, 0xff, 0x01,
@@ -93,19 +93,19 @@ static char aqua_sldr_pty_mask_bits[] = {
 /* Mask for Aqua scrollbars */
 #define aqua_vsbr_tip_down_mask_width 14
 #define aqua_vsbr_tip_down_mask_height 10
-static char aqua_vsbr_tip_down_mask_bits[] = {
+static const unsigned char aqua_vsbr_tip_down_mask_bits[] = {
    0xff, 0x3f, 0xff, 0x3f, 0xff, 0x3f, 0xff, 0x3f, 0xff, 0x3f, 0xff, 0x3f,
    0xfe, 0x1f, 0xfc, 0x1f, 0xf8, 0x0f, 0xf0, 0x03 };
 
 /* Mask for Aqua scrollbars */
 #define aqua_vsbr_tip_up_mask_width 14
 #define aqua_vsbr_tip_up_mask_height 11
-static char aqua_vsbr_tip_up_mask_bits[] = {
+static const unsigned char aqua_vsbr_tip_up_mask_bits[] = {
    0xf0, 0x03, 0xf8, 0x07, 0xfc, 0x0f, 0xfe, 0x1f, 0xff, 0x3f, 0xff, 0x3f,
    0xff, 0x3f, 0xff, 0x3f, 0xff, 0x3f, 0xff, 0x3f, 0xff, 0x3f };
 
 /* XPM */
-static char * aqua_btn_def_left_xpm[] = {
+static const char * const aqua_btn_def_left_xpm[] = {
 "13 23 147 2",
 "       c None",
 ".      c #FFFFFF",
@@ -278,7 +278,7 @@ static char * aqua_btn_def_left_xpm[] = {
 ". + + } c.E N <.o.5.5.h.h.",
 ". . . + - } @ E c N N p.p."};
 /* XPM */
-static char * aqua_btn_def_left1_xpm[] = {
+static const char * const aqua_btn_def_left1_xpm[] = {
 "13 23 147 2",
 "       c None",
 ".      c #FFFFFF",
@@ -451,7 +451,7 @@ static char * aqua_btn_def_left1_xpm[] = {
 ". + + } c.E N <.o.5.5.h.h.",
 ". . . + - } @ E c N N p.p."};
 /* XPM */
-static char * aqua_btn_def_left2_xpm[] = {
+static const char * const aqua_btn_def_left2_xpm[] = {
 "13 23 147 2",
 "       c None",
 ".      c #FFFFFF",
@@ -624,7 +624,7 @@ static char * aqua_btn_def_left2_xpm[] = {
 ". + + } c.E N <.o.5.5.h.h.",
 ". . . + - } @ E c N N p.p."};
 /* XPM */
-static char * aqua_btn_def_left3_xpm[] = {
+static const char * const aqua_btn_def_left3_xpm[] = {
 "13 23 147 2",
 "       c None",
 ".      c #FFFFFF",
@@ -797,7 +797,7 @@ static char * aqua_btn_def_left3_xpm[] = {
 ". + + } c.E N <.o.5.5.h.h.",
 ". . . + - } @ E c N N p.p."};
 /* XPM */
-static char * aqua_btn_def_left4_xpm[] = {
+static const char * const aqua_btn_def_left4_xpm[] = {
 "13 23 147 2",
 "       c None",
 ".      c #FFFFFF",
@@ -970,7 +970,7 @@ static char * aqua_btn_def_left4_xpm[] = {
 ". + + } c.E N <.o.5.5.h.h.",
 ". . . + - } @ E c N N p.p."};
 /* XPM */
-static char * aqua_btn_def_left5_xpm[] = {
+static const char * const aqua_btn_def_left5_xpm[] = {
 "13 23 147 2",
 "       c None",
 ".      c #FFFFFF",
@@ -1143,7 +1143,7 @@ static char * aqua_btn_def_left5_xpm[] = {
 ". + + } c.E N <.o.5.5.h.h.",
 ". . . + - } @ E c N N p.p."};
 /* XPM */
-static char * aqua_btn_def_left6_xpm[] = {
+static const char * const aqua_btn_def_left6_xpm[] = {
 "13 23 147 2",
 "       c None",
 ".      c #FFFFFF",
@@ -1316,7 +1316,7 @@ static char * aqua_btn_def_left6_xpm[] = {
 ". + + } c.E N <.o.5.5.h.h.",
 ". . . + - } @ E c N N p.p."};
 /* XPM */
-static char * aqua_btn_def_left7_xpm[] = {
+static const char * const aqua_btn_def_left7_xpm[] = {
 "13 23 147 2",
 "       c None",
 ".      c #FFFFFF",
@@ -1489,7 +1489,7 @@ static char * aqua_btn_def_left7_xpm[] = {
 ". + + } c.E N <.o.5.5.h.h.",
 ". . . + - } @ E c N N p.p."};
 /* XPM */
-static char * aqua_btn_def_left8_xpm[] = {
+static const char * const aqua_btn_def_left8_xpm[] = {
 "13 23 147 2",
 "       c None",
 ".      c #FFFFFF",
@@ -1662,7 +1662,7 @@ static char * aqua_btn_def_left8_xpm[] = {
 ". + + } c.E N <.o.5.5.h.h.",
 ". . . + - } @ E c N N p.p."};
 /* XPM */
-static char * aqua_btn_def_left9_xpm[] = {
+static const char * const aqua_btn_def_left9_xpm[] = {
 "13 23 147 2",
 "       c None",
 ".      c #FFFFFF",
@@ -1835,7 +1835,7 @@ static char * aqua_btn_def_left9_xpm[] = {
 ". + + } c.E N <.o.5.5.h.h.",
 ". . . + - } @ E c N N p.p."};
 /* XPM */
-static char * aqua_btn_def_mid_xpm[] = {
+static const char * const aqua_btn_def_mid_xpm[] = {
 "7 23 38 1",
 "       c None",
 ".      c #183173",
@@ -1899,7 +1899,7 @@ static char * aqua_btn_def_mid_xpm[] = {
 "8888888",
 "9999999"};
 /* XPM */
-static char * aqua_btn_def_mid1_xpm[] = {
+static const char * const aqua_btn_def_mid1_xpm[] = {
 "7 23 41 1",
 "       c None",
 ".      c #243C7A",
@@ -1966,7 +1966,7 @@ static char * aqua_btn_def_mid1_xpm[] = {
 "aaaaaaa",
 "bbbbbbb"};
 /* XPM */
-static char * aqua_btn_def_mid2_xpm[] = {
+static const char * const aqua_btn_def_mid2_xpm[] = {
 "7 23 39 1",
 "       c None",
 ".      c #304681",
@@ -2031,7 +2031,7 @@ static char * aqua_btn_def_mid2_xpm[] = {
 "9999999",
 "0000000"};
 /* XPM */
-static char * aqua_btn_def_mid3_xpm[] = {
+static const char * const aqua_btn_def_mid3_xpm[] = {
 "7 23 39 1",
 "       c None",
 ".      c #3B5188",
@@ -2096,7 +2096,7 @@ static char * aqua_btn_def_mid3_xpm[] = {
 "9999999",
 "0000000"};
 /* XPM */
-static char * aqua_btn_def_mid4_xpm[] = {
+static const char * const aqua_btn_def_mid4_xpm[] = {
 "7 23 39 1",
 "       c None",
 ".      c #475B90",
@@ -2161,7 +2161,7 @@ static char * aqua_btn_def_mid4_xpm[] = {
 "9999999",
 "0000000"};
 /* XPM */
-static char * aqua_btn_def_mid5_xpm[] = {
+static const char * const aqua_btn_def_mid5_xpm[] = {
 "7 23 39 1",
 "       c None",
 ".      c #526596",
@@ -2226,7 +2226,7 @@ static char * aqua_btn_def_mid5_xpm[] = {
 "9999999",
 "0000000"};
 /* XPM */
-static char * aqua_btn_def_mid6_xpm[] = {
+static const char * const aqua_btn_def_mid6_xpm[] = {
 "7 23 39 1",
 "       c None",
 ".      c #5F709E",
@@ -2291,7 +2291,7 @@ static char * aqua_btn_def_mid6_xpm[] = {
 "9999999",
 "0000000"};
 /* XPM */
-static char * aqua_btn_def_mid7_xpm[] = {
+static const char * const aqua_btn_def_mid7_xpm[] = {
 "7 23 39 1",
 "       c None",
 ".      c #6A7AA4",
@@ -2356,7 +2356,7 @@ static char * aqua_btn_def_mid7_xpm[] = {
 "9999999",
 "0000000"};
 /* XPM */
-static char * aqua_btn_def_mid8_xpm[] = {
+static const char * const aqua_btn_def_mid8_xpm[] = {
 "7 23 39 1",
 "       c None",
 ".      c #7584AC",
@@ -2421,7 +2421,7 @@ static char * aqua_btn_def_mid8_xpm[] = {
 "9999999",
 "0000000"};
 /* XPM */
-static char * aqua_btn_def_mid9_xpm[] = {
+static const char * const aqua_btn_def_mid9_xpm[] = {
 "7 23 39 1",
 "       c None",
 ".      c #808EB2",
@@ -2486,7 +2486,7 @@ static char * aqua_btn_def_mid9_xpm[] = {
 "9999999",
 "0000000"};
 /* XPM */
-static char * aqua_btn_def_right_xpm[] = {
+static const char * const aqua_btn_def_right_xpm[] = {
 "13 23 137 2",
 "       c None",
 ".      c #213973",
@@ -2649,7 +2649,7 @@ static char * aqua_btn_def_right_xpm[] = {
 "0.0.:.:.e.^.P L 6.5 * * * ",
 "f.f.P P m L & 5 * * * * * "};
 /* XPM */
-static char * aqua_btn_def_right1_xpm[] = {
+static const char * const aqua_btn_def_right1_xpm[] = {
 "13 23 137 2",
 "       c None",
 ".      c #2C437A",
@@ -2812,7 +2812,7 @@ static char * aqua_btn_def_right1_xpm[] = {
 "0.0.:.:.e.^.P L 6.5 * * * ",
 "f.f.P P m L & 5 * * * * * "};
 /* XPM */
-static char * aqua_btn_def_right2_xpm[] = {
+static const char * const aqua_btn_def_right2_xpm[] = {
 "13 23 137 2",
 "       c None",
 ".      c #384D81",
@@ -2975,7 +2975,7 @@ static char * aqua_btn_def_right2_xpm[] = {
 "0.0.:.:.e.^.P L 6.5 * * * ",
 "f.f.P P m L & 5 * * * * * "};
 /* XPM */
-static char * aqua_btn_def_right3_xpm[] = {
+static const char * const aqua_btn_def_right3_xpm[] = {
 "13 23 137 2",
 "       c None",
 ".      c #435788",
@@ -3138,7 +3138,7 @@ static char * aqua_btn_def_right3_xpm[] = {
 "0.0.:.:.e.^.P L 6.5 * * * ",
 "f.f.P P m L & 5 * * * * * "};
 /* XPM */
-static char * aqua_btn_def_right4_xpm[] = {
+static const char * const aqua_btn_def_right4_xpm[] = {
 "13 23 137 2",
 "       c None",
 ".      c #4E6190",
@@ -3301,7 +3301,7 @@ static char * aqua_btn_def_right4_xpm[] = {
 "0.0.:.:.e.^.P L 6.5 * * * ",
 "f.f.P P m L & 5 * * * * * "};
 /* XPM */
-static char * aqua_btn_def_right5_xpm[] = {
+static const char * const aqua_btn_def_right5_xpm[] = {
 "13 23 137 2",
 "       c None",
 ".      c #596B96",
@@ -3464,7 +3464,7 @@ static char * aqua_btn_def_right5_xpm[] = {
 "0.0.:.:.e.^.P L 6.5 * * * ",
 "f.f.P P m L & 5 * * * * * "};
 /* XPM */
-static char * aqua_btn_def_right6_xpm[] = {
+static const char * const aqua_btn_def_right6_xpm[] = {
 "13 23 137 2",
 "       c None",
 ".      c #65769E",
@@ -3627,7 +3627,7 @@ static char * aqua_btn_def_right6_xpm[] = {
 "0.0.:.:.e.^.P L 6.5 * * * ",
 "f.f.P P m L & 5 * * * * * "};
 /* XPM */
-static char * aqua_btn_def_right7_xpm[] = {
+static const char * const aqua_btn_def_right7_xpm[] = {
 "13 23 137 2",
 "       c None",
 ".      c #6F7FA4",
@@ -3790,7 +3790,7 @@ static char * aqua_btn_def_right7_xpm[] = {
 "0.0.:.:.e.^.P L 6.5 * * * ",
 "f.f.P P m L & 5 * * * * * "};
 /* XPM */
-static char * aqua_btn_def_right8_xpm[] = {
+static const char * const aqua_btn_def_right8_xpm[] = {
 "13 23 137 2",
 "       c None",
 ".      c #7B89AC",
@@ -3953,7 +3953,7 @@ static char * aqua_btn_def_right8_xpm[] = {
 "0.0.:.:.e.^.P L 6.5 * * * ",
 "f.f.P P m L & 5 * * * * * "};
 /* XPM */
-static char * aqua_btn_def_right9_xpm[] = {
+static const char * const aqua_btn_def_right9_xpm[] = {
 "13 23 137 2",
 "       c None",
 ".      c #8592B2",
@@ -4116,7 +4116,7 @@ static char * aqua_btn_def_right9_xpm[] = {
 "0.0.:.:.e.^.P L 6.5 * * * ",
 "f.f.P P m L & 5 * * * * * "};
 /* XPM */
-static char * aqua_btn_dis_left_xpm[] = {
+static const char * const aqua_btn_dis_left_xpm[] = {
 "13 23 14 1",
 "       c None",
 ".      c #E7E7E7",
@@ -4156,7 +4156,7 @@ static char * aqua_btn_dis_left_xpm[] = {
 "&&..+@,==***=",
 "----;;&..++++"};
 /* XPM */
-static char * aqua_btn_dis_mid_xpm[] = {
+static const char * const aqua_btn_dis_mid_xpm[] = {
 "7 23 9 1",
 "       c None",
 ".      c #ADADAD",
@@ -4191,7 +4191,7 @@ static char * aqua_btn_dis_mid_xpm[] = {
 "*******",
 "#######"};
 /* XPM */
-static char * aqua_btn_dis_right_xpm[] = {
+static const char * const aqua_btn_dis_right_xpm[] = {
 "13 23 13 1",
 "       c None",
 ".      c #ADADAD",
@@ -4230,7 +4230,7 @@ static char * aqua_btn_dis_right_xpm[] = {
 "&***&&-#$%%==",
 "$$$$%%=;;>>>>"};
 /* XPM */
-static char * aqua_btn_nrm_left_xpm[] = {
+static const char * const aqua_btn_nrm_left_xpm[] = {
 "13 23 22 1",
 "       c None",
 ".      c #FFFFFF",
@@ -4278,7 +4278,7 @@ static char * aqua_btn_nrm_left_xpm[] = {
 "...+!'];@=={=",
 ".....*!))'']]"};
 /* XPM */
-static char * aqua_btn_nrm_mid_xpm[] = {
+static const char * const aqua_btn_nrm_mid_xpm[] = {
 "7 23 11 1",
 "       c None",
 ".      c #737373",
@@ -4315,7 +4315,7 @@ static char * aqua_btn_nrm_mid_xpm[] = {
 "-------",
 "@@@@@@@"};
 /* XPM */
-static char * aqua_btn_nrm_right_xpm[] = {
+static const char * const aqua_btn_nrm_right_xpm[] = {
 "13 23 22 1",
 "       c None",
 ".      c #737373",
@@ -4363,7 +4363,7 @@ static char * aqua_btn_nrm_right_xpm[] = {
 "-~--#]&,>$%%%",
 "&&,,))>;%%%%%"};
 /* XPM */
-static char * aqua_bvlbtn_small_dis_xpm[] = {
+static const char * const aqua_bvlbtn_small_dis_xpm[] = {
 "24 24 12 1",
 "       c None",
 ".      c #EFEFEF",
@@ -4402,7 +4402,7 @@ static char * aqua_bvlbtn_small_dis_xpm[] = {
 "+$$%................%$$+",
 "*&#-;;;;;;;;;;;;;;;;-#&*"};
 /* XPM */
-static char * aqua_bvlbtn_small_off_xpm[] = {
+static const char * const aqua_bvlbtn_small_off_xpm[] = {
 "24 24 20 1",
 "       c None",
 ".      c #E7E7E7",
@@ -4449,7 +4449,7 @@ static char * aqua_bvlbtn_small_off_xpm[] = {
 "+)!*>>>>>>>>>>>>>>>>*!)+",
 ".%!~{]]]]]]]]]]]]]]{~!%."};
 /* XPM */
-static char * aqua_bvlbtn_small_on_xpm[] = {
+static const char * const aqua_bvlbtn_small_on_xpm[] = {
 "24 24 18 1",
 "       c None",
 ".      c #E7E7E7",
@@ -4494,7 +4494,7 @@ static char * aqua_bvlbtn_small_on_xpm[] = {
 ">!&,****************,%!>",
 ".+=%#~~~~~~~~~~~~~~#%=+."};
 /* XPM */
-static char * aqua_chk_act_f_xpm[] = {
+static const char * const aqua_chk_act_f_xpm[] = {
 "15 18 24 1",
 "       c None",
 ".      c #E7E7E7",
@@ -4539,7 +4539,7 @@ static char * aqua_chk_act_f_xpm[] = {
 "${(;;;;;;;;({^~",
 "+.~@@@@@@@@~~.+"};
 /* XPM */
-static char * aqua_chk_act_t_xpm[] = {
+static const char * const aqua_chk_act_t_xpm[] = {
 "15 18 142 2",
 "       c None",
 ".      c #E7E7E7",
@@ -4702,7 +4702,7 @@ static char * aqua_chk_act_t_xpm[] = {
 "i.- j.k.k.k.k.k.k.k.k.j.- * T ",
 "$ . T % % % % % % % % T T . $ "};
 /* XPM */
-static char * aqua_chk_dis_t_xpm[] = {
+static const char * const aqua_chk_dis_t_xpm[] = {
 "15 18 32 1",
 "       c None",
 ".      c #E7E7E7",
@@ -4755,7 +4755,7 @@ static char * aqua_chk_dis_t_xpm[] = {
 "~-1))))))))1-*_",
 "$._%%%%%%%%__.$"};
 /* XPM */
-static char * aqua_cmb_act_left_xpm[] = {
+static const char * const aqua_cmb_act_left_xpm[] = {
 "7 22 18 1",
 "       c None",
 ".      c #F7F7F7",
@@ -4798,7 +4798,7 @@ static char * aqua_cmb_act_left_xpm[] = {
 "+*&$)!~",
 "'.>*%@@"};
 /* XPM */
-static char * aqua_cmb_act_mid_xpm[] = {
+static const char * const aqua_cmb_act_mid_xpm[] = {
 "20 22 9 1",
 "       c None",
 ".      c #A5A5A5",
@@ -4832,7 +4832,7 @@ static char * aqua_cmb_act_mid_xpm[] = {
 "&&&&&&&&&&&&&&&&&&&&",
 "********************"};
 /* XPM */
-static char * aqua_cmb_act_right_xpm[] = {
+static const char * const aqua_cmb_act_right_xpm[] = {
 "22 22 139 2",
 "       c None",
 ".      c #1052AD",
@@ -4996,7 +4996,7 @@ static char * aqua_cmb_act_right_xpm[] = {
 "c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.d.e.f.g.6 = ",
 "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2.6 8.- h."};
 /* XPM */
-static char * aqua_cmb_dis_right_xpm[] = {
+static const char * const aqua_cmb_dis_right_xpm[] = {
 "22 22 29 1",
 "       c None",
 ".      c #737373",
@@ -5050,7 +5050,7 @@ static char * aqua_cmb_dis_right_xpm[] = {
 "@@@@@@@@@@@@@@@@+.{>-%",
 "!!!!!!!!!!!!!!!!!*-,&<"};
 /* XPM */
-static char * aqua_gen_back_xpm[] = {
+static const char * const aqua_gen_back_xpm[] = {
 "90 72 4 1",
 "       c None",
 ".      c #FFFFFF",
@@ -5129,7 +5129,7 @@ static char * aqua_gen_back_xpm[] = {
 "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",
 "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"};
 /* XPM */
-static char * aqua_hsbr_arw_left_xpm[] = {
+static const char * const aqua_hsbr_arw_left_xpm[] = {
 "26 14 22 1",
 "       c None",
 ".      c #B5B5B5",
@@ -5168,7 +5168,7 @@ static char * aqua_hsbr_arw_left_xpm[] = {
 "**---------------~.+#>~&**",
 "***---------------~==>~&&*"};
 /* XPM */
-static char * aqua_hsbr_arw_right_xpm[] = {
+static const char * const aqua_hsbr_arw_right_xpm[] = {
 "26 14 23 1",
 "       c None",
 ".      c #BDBDBD",
@@ -5208,7 +5208,7 @@ static char * aqua_hsbr_arw_right_xpm[] = {
 "--=~'$.+~>>>>>>>>>>>>>>--$",
 "-==~'**~>>>>>>>>>>>>>>---$"};
 /* XPM */
-static char * aqua_hsbr_back_fill_xpm[] = {
+static const char * const aqua_hsbr_back_fill_xpm[] = {
 "32 14 10 1",
 "       c None",
 ".      c #BDBDBD",
@@ -5235,7 +5235,7 @@ static char * aqua_hsbr_back_fill_xpm[] = {
 "================================",
 "********************************"};
 /* XPM */
-static char * aqua_hsbr_fill_xpm[] = {
+static const char * const aqua_hsbr_fill_xpm[] = {
 "16 14 56 1",
 "       c None",
 ".      c #ADADAD",
@@ -5308,7 +5308,7 @@ static char * aqua_hsbr_fill_xpm[] = {
 "pjgghiiliigggeff",
 "qqqqqqqqqqqqqqqq"};
 /* XPM */
-static char * aqua_hsbr_tip_left_xpm[] = {
+static const char * const aqua_hsbr_tip_left_xpm[] = {
 "10 14 93 2",
 "       c None",
 ".      c #BDBDBD",
@@ -5418,7 +5418,7 @@ static char * aqua_hsbr_tip_left_xpm[] = {
 "T U M V W X Y E Q K ",
 "Z T U ` d l  . . . ."};
 /* XPM */
-static char * aqua_hsbr_tip_right_xpm[] = {
+static const char * const aqua_hsbr_tip_right_xpm[] = {
 "10 14 88 1",
 "       c None",
 ".      c #ADADAD",
@@ -5523,7 +5523,7 @@ static char * aqua_hsbr_tip_right_xpm[] = {
 "LMuNOPQ+FR",
 "SSSTUV+WKR"};
 /* XPM */
-static char * aqua_radio_f_xpm[] = {
+static const char * const aqua_radio_f_xpm[] = {
 "14 17 26 1",
 "       c None",
 ".      c #FFFFFF",
@@ -5569,7 +5569,7 @@ static char * aqua_radio_f_xpm[] = {
 "..<_@;>>;@+<..",
 "...:_++++_:..."};
 /* XPM */
-static char * aqua_radio_t_xpm[] = {
+static const char * const aqua_radio_t_xpm[] = {
 "14 17 135 2",
 "       c None",
 ".      c #FFFFFF",
@@ -5724,7 +5724,7 @@ static char * aqua_radio_t_xpm[] = {
 ". . d.a.@ - g g - @ + d.. . ",
 ". . . . a.+ + + + a.. . . . "};
 /* XPM */
-static char * aqua_radio_dis_t_xpm[] = {
+static const char * const aqua_radio_dis_t_xpm[] = {
 "14 17 30 1",
 "       c None",
 ".      c #FFFFFF",
@@ -5774,7 +5774,7 @@ static char * aqua_radio_dis_t_xpm[] = {
 "..|$#>,,>#@|..",
 "...+$@@@@$+..."};
 /* XPM */
-static char * aqua_sel_back_xpm[] = {
+static const char * const aqua_sel_back_xpm[] = {
 "11 20 4 1",
 "       c None",
 ".      c #295AB5",
@@ -5801,7 +5801,7 @@ static char * aqua_sel_back_xpm[] = {
 "@@@@@@@@@@@",
 "+++++++++++"};
 /* XPM */
-static char * aqua_sldr_act_pty_xpm[] = {
+static const char * const aqua_sldr_act_pty_xpm[] = {
 "17 20 125 2",
 "       c None",
 ".      c #EFEFEF",
@@ -5949,7 +5949,7 @@ static char * aqua_sldr_act_pty_xpm[] = {
 ". . . . . ~.1 M M ]  .~.. . . . . ",
 "~.~.~.~.~.~.!.= 1  .!.~.~.~.~.~.~."};
 /* XPM */
-static char * aqua_sldr_dis_pty_xpm[] = {
+static const char * const aqua_sldr_dis_pty_xpm[] = {
 "17 20 26 1",
 "       c None",
 ".      c #EFEFEF",
@@ -5998,7 +5998,7 @@ static char * aqua_sldr_dis_pty_xpm[] = {
 "....._+--,)_.....",
 "______(&+)(______"};
 /* XPM */
-static char * aqua_sldr_grv_mid_xpm[] = {
+static const char * const aqua_sldr_grv_mid_xpm[] = {
 "20 7 8 1",
 "       c None",
 ".      c #525252",
@@ -6016,7 +6016,7 @@ static char * aqua_sldr_grv_mid_xpm[] = {
 "%%%%%%%%%%%%%%%%%%%%",
 "&&&&&&&&&&&&&&&&&&&&"};
 /* XPM */
-static char * aqua_sldr_grv_tip_left_xpm[] = {
+static const char * const aqua_sldr_grv_tip_left_xpm[] = {
 "4 7 18 1",
 "       c None",
 ".      c #E7E7E7",
@@ -6044,7 +6044,7 @@ static char * aqua_sldr_grv_tip_left_xpm[] = {
 ",;$'",
 ")!~'"};
 /* XPM */
-static char * aqua_sldr_grv_tip_right_xpm[] = {
+static const char * const aqua_sldr_grv_tip_right_xpm[] = {
 "4 7 22 1",
 "       c None",
 ".      c #424242",
@@ -6076,7 +6076,7 @@ static char * aqua_sldr_grv_tip_right_xpm[] = {
 "~'@{",
 "]^#/"};
 /* XPM */
-static char * aqua_tab_act_left_xpm[] = {
+static const char * const aqua_tab_act_left_xpm[] = {
 "8 31 124 2",
 "       c None",
 ".      c #E7E7E7",
@@ -6234,7 +6234,7 @@ static char * aqua_tab_act_left_xpm[] = {
 "2.2.2.2.2.2.2.2.",
 "3.3.3.3.3.3.3.3."};
 /* XPM */
-static char * aqua_tab_act_mid_xpm[] = {
+static const char * const aqua_tab_act_mid_xpm[] = {
 "4 31 47 1",
 "       c None",
 ".      c #00218C",
@@ -6315,7 +6315,7 @@ static char * aqua_tab_act_mid_xpm[] = {
 "gggg",
 "hhhh"};
 /* XPM */
-static char * aqua_tab_act_right_xpm[] = {
+static const char * const aqua_tab_act_right_xpm[] = {
 "8 31 123 2",
 "       c None",
 ".      c #00218C",
@@ -6472,7 +6472,7 @@ static char * aqua_tab_act_right_xpm[] = {
 "1.1.1.1.1.1.1.1.",
 "2.2.2.2.2.2.2.2."};
 /* XPM */
-static char * aqua_tab_dis_left_xpm[] = {
+static const char * const aqua_tab_dis_left_xpm[] = {
 "8 31 32 1",
 "       c None",
 ".      c #E7E7E7",
@@ -6538,7 +6538,7 @@ static char * aqua_tab_dis_left_xpm[] = {
 "%%%%%%%%",
 "@@@@@@@@"};
 /* XPM */
-static char * aqua_tab_dis_mid_xpm[] = {
+static const char * const aqua_tab_dis_mid_xpm[] = {
 "4 31 21 1",
 "       c None",
 ".      c #7B7B7B",
@@ -6593,7 +6593,7 @@ static char * aqua_tab_dis_mid_xpm[] = {
 "]]]]",
 "^^^^"};
 /* XPM */
-static char * aqua_tab_dis_right_xpm[] = {
+static const char * const aqua_tab_dis_right_xpm[] = {
 "8 31 31 1",
 "       c None",
 ".      c #737373",
@@ -6658,7 +6658,7 @@ static char * aqua_tab_dis_right_xpm[] = {
 "++++++++",
 "########"};
 /* XPM */
-static char * aqua_vsbr_arw_down_xpm[] = {
+static const char * const aqua_vsbr_arw_down_xpm[] = {
 "14 26 22 1",
 "       c None",
 ".      c #BDBDBD",
@@ -6709,7 +6709,7 @@ static char * aqua_vsbr_arw_down_xpm[] = {
 "=@&*&$##$%&***",
 "--.=--=.+@@###"};
 /* XPM */
-static char * aqua_vsbr_arw_up_xpm[] = {
+static const char * const aqua_vsbr_arw_up_xpm[] = {
 "14 26 22 1",
 "       c None",
 ".      c #B5B5B5",
@@ -6760,7 +6760,7 @@ static char * aqua_vsbr_arw_up_xpm[] = {
 "==>+%%$&@@@###",
 "==>+%$&@######"};
 /* XPM */
-static char * aqua_vsbr_back_fill_xpm[] = {
+static const char * const aqua_vsbr_back_fill_xpm[] = {
 "14 16 10 1",
 "       c None",
 ".      c #BDBDBD",
@@ -6789,7 +6789,7 @@ static char * aqua_vsbr_back_fill_xpm[] = {
 ".+@#$%&**====*",
 ".+@#$%&**====*"};
 /* XPM */
-static char * aqua_vsbr_fill_xpm[] = {
+static const char * const aqua_vsbr_fill_xpm[] = {
 "14 16 56 1",
 "       c None",
 ".      c #ADADAD",
@@ -6864,7 +6864,7 @@ static char * aqua_vsbr_fill_xpm[] = {
 ".+l$$jm*=-;n;'",
 ".+@$!jop=-q(;'"};
 /* XPM */
-static char * aqua_vsbr_tip_down_xpm[] = {
+static const char * const aqua_vsbr_tip_down_xpm[] = {
 "14 10 83 1",
 "       c None",
 ".      c #ADADAD",
@@ -6960,7 +6960,7 @@ static char * aqua_vsbr_tip_down_xpm[] = {
 "uFFGHIJKLMNuOP",
 "uFQQQFuuuQOPRR"};
 /* XPM */
-static char * aqua_vsbr_tip_up_xpm[] = {
+static const char * const aqua_vsbr_tip_up_xpm[] = {
 "14 11 89 1",
 "       c None",
 ".      c #BDBDBD",
@@ -7063,7 +7063,7 @@ static char * aqua_vsbr_tip_up_xpm[] = {
 "DQRSTvUnpAPVWM",
 "DQRSGTxepAXVXM"};
 /* XPM */
-static char * aqua_hsbr_dis_fill_xpm[] = {
+static const char * const aqua_hsbr_dis_fill_xpm[] = {
 "16 14 11 1",
 "       c None",
 ".      c #ADADAD",
@@ -7091,7 +7091,7 @@ static char * aqua_hsbr_dis_fill_xpm[] = {
 "$$$$$$$$$$$$$$$$",
 "----------------"};
 /* XPM */
-static char * aqua_hsbr_tip_dis_left_xpm[] = {
+static const char * const aqua_hsbr_tip_dis_left_xpm[] = {
 "10 14 21 1",
 "       c None",
 ".      c #BDBDBD",
@@ -7129,7 +7129,7 @@ static char * aqua_hsbr_tip_dis_left_xpm[] = {
 "!;)]*.=~~~",
 "~!;%{]^^^^"};
 /* XPM */
-static char * aqua_hsbr_tip_dis_right_xpm[] = {
+static const char * const aqua_hsbr_tip_dis_right_xpm[] = {
 "10 14 20 1",
 "       c None",
 ".      c #ADADAD",
@@ -7166,7 +7166,7 @@ static char * aqua_hsbr_tip_dis_right_xpm[] = {
 "!!!)@#$+-,",
 "~~~{]#+'),"};
 /* XPM */
-static char * aqua_vsbr_dis_fill_xpm[] = {
+static const char * const aqua_vsbr_dis_fill_xpm[] = {
 "14 16 9 1",
 "       c None",
 ".      c #ADADAD",
@@ -7194,7 +7194,7 @@ static char * aqua_vsbr_dis_fill_xpm[] = {
 ".+@###$@%#&&&*",
 ".+@###$@%#&&&*"};
 /* XPM */
-static char * aqua_vsbr_tip_dis_down_xpm[] = {
+static const char * const aqua_vsbr_tip_dis_down_xpm[] = {
 "14 10 20 1",
 "       c None",
 ".      c #ADADAD",
@@ -7227,7 +7227,7 @@ static char * aqua_vsbr_tip_dis_down_xpm[] = {
 "],,.)+){)))]%&",
 "],!!!,]]]!%&$$"};
 /* XPM */
-static char * aqua_vsbr_tip_dis_up_xpm[] = {
+static const char * const aqua_vsbr_tip_dis_up_xpm[] = {
 "14 11 20 1",
 "       c None",
 ".      c #BDBDBD",
@@ -7261,7 +7261,7 @@ static char * aqua_vsbr_tip_dis_up_xpm[] = {
 "*-'&&&$'%&{{{]",
 "*-%{&&$'%&{{{]"};
 /* XPM */
-static char * aqua_toolbtn_nrm_left_xpm[] = {
+static const char * const aqua_toolbtn_nrm_left_xpm[] = {
 "23 21 18 1",
 "       c None",
 ".      c #F7F7F7",
@@ -7303,7 +7303,7 @@ static char * aqua_toolbtn_nrm_left_xpm[] = {
 "@)*;''''''''''''''''''-",
 "-&#!~%%%%%%%%%%%%%%%%%%"};
 /* XPM */
-static char * aqua_toolbtn_nrm_mid_xpm[] = {
+static const char * const aqua_toolbtn_nrm_mid_xpm[] = {
 "23 21 14 1",
 "       c None",
 ".      c #A5A5A5",
@@ -7341,7 +7341,7 @@ static char * aqua_toolbtn_nrm_mid_xpm[] = {
 ",,,,,,,,,,,,,,,,,,,,,,@",
 "+++++++++++++++++++++++"};
 /* XPM */
-static char * aqua_toolbtn_nrm_right_xpm[] = {
+static const char * const aqua_toolbtn_nrm_right_xpm[] = {
 "23 21 18 1",
 "       c None",
 ".      c #A5A5A5",
@@ -7383,7 +7383,7 @@ static char * aqua_toolbtn_nrm_right_xpm[] = {
 ",,,,,,,,,,,,,,,,,,,;*'@",
 "))))))))))))))))))!~+=%"};
 /* XPM */
-static char * aqua_toolbtn_act_mid_xpm[] = {
+static const char * const aqua_toolbtn_act_mid_xpm[] = {
 "23 21 33 1",
 "       c None",
 ".      c #1052AD",
@@ -7440,7 +7440,7 @@ static char * aqua_toolbtn_act_mid_xpm[] = {
 "33333333333333333333331",
 "+++++++++++++++++++++++"};
 /* XPM */
-static char * aqua_tab_sel_dis_left_xpm[] = {
+static const char * const aqua_tab_sel_dis_left_xpm[] = {
 "8 31 26 1",
 "       c None",
 ".      c #EFEFEF",
@@ -7500,7 +7500,7 @@ static char * aqua_tab_sel_dis_left_xpm[] = {
 "________",
 ",,,,,,,,"};
 /* XPM */
-static char * aqua_tab_sel_dis_mid_xpm[] = {
+static const char * const aqua_tab_sel_dis_mid_xpm[] = {
 "4 31 15 1",
 "       c None",
 ".      c #424242",
@@ -7549,7 +7549,7 @@ static char * aqua_tab_sel_dis_mid_xpm[] = {
 "''''",
 "&&&&"};
 /* XPM */
-static char * aqua_tab_sel_dis_right_xpm[] = {
+static const char * const aqua_tab_sel_dis_right_xpm[] = {
 "8 31 26 1",
 "       c None",
 ".      c #393939",
@@ -7609,7 +7609,7 @@ static char * aqua_tab_sel_dis_right_xpm[] = {
 "________",
 ",,,,,,,,"};
 /* XPM */
-static char * aqua_tab_usel_dis_left_xpm[] = {
+static const char * const aqua_tab_usel_dis_left_xpm[] = {
 "8 31 21 1",
 "       c None",
 ".      c #EFEFEF",
@@ -7664,7 +7664,7 @@ static char * aqua_tab_usel_dis_left_xpm[] = {
 "%%%%%%%%",
 ",,,,,,,,"};
 /* XPM */
-static char * aqua_tab_usel_dis_mid_xpm[] = {
+static const char * const aqua_tab_usel_dis_mid_xpm[] = {
 "4 31 14 1",
 "       c None",
 ".      c #737373",
@@ -7712,7 +7712,7 @@ static char * aqua_tab_usel_dis_mid_xpm[] = {
 ">>>>",
 ",,,,"};
 /* XPM */
-static char * aqua_tab_usel_dis_right_xpm[] = {
+static const char * const aqua_tab_usel_dis_right_xpm[] = {
 "8 31 21 1",
 "       c None",
 ".      c #737373",
@@ -7767,7 +7767,7 @@ static char * aqua_tab_usel_dis_right_xpm[] = {
 "++++++++",
 ">>>>>>>>"};
 /* XPM */
-static char * aqua_chk_psh_f_xpm[] = {
+static const char * const aqua_chk_psh_f_xpm[] = {
 "15 18 27 1",
 "       c None",
 ".      c #EFEFEF",
@@ -7815,7 +7815,7 @@ static char * aqua_chk_psh_f_xpm[] = {
 "$];'''''''';]:(",
 "+.(@@@@@@@@((.+"};
 /* XPM */
-static char * aqua_chk_psh_t_xpm[] = {
+static const char * const aqua_chk_psh_t_xpm[] = {
 "15 18 123 2",
 "       c None",
 ".      c #EFEFEF",
@@ -7959,7 +7959,7 @@ static char * aqua_chk_psh_t_xpm[] = {
 "; - ] 2.2.2.2.2.2.2.2.] - * G ",
 "$ . G % % % % % % % % G G . $ "};
 /* XPM */
-static char * aqua_radio_psh_f_xpm[] = {
+static const char * const aqua_radio_psh_f_xpm[] = {
 "14 17 29 1",
 "       c None",
 ".      c #F7F7F7",
@@ -8008,7 +8008,7 @@ static char * aqua_radio_psh_f_xpm[] = {
 "~~.+$[>>[$<.~~",
 "....#++++#...."};
 /* XPM */
-static char * aqua_radio_psh_t_xpm[] = {
+static const char * const aqua_radio_psh_t_xpm[] = {
 "14 17 120 2",
 "       c None",
 ".      c #F7F7F7",
