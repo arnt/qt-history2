@@ -126,8 +126,11 @@ Uic::Uic( const QString &fn, QTextStream &outStream, QDomDocument doc,
     stdsetdef = toBool( doc.firstChild().toElement().attribute("stdsetdef") );
 
     QDomElement e = doc.firstChild().firstChild().toElement();
-    while ( e.tagName() != "widget" ) {
-	if ( e.tagName() == "pixmapinproject" ) {
+    QDomElement widget;
+    while ( !e.isNull() ) {
+	if ( e.tagName() == "widget" ) {
+	    widget = e;
+	} else if ( e.tagName() == "pixmapinproject" ) {
 	    externPixmaps = TRUE;
 	} else if ( e.tagName() == "layoutdefaults" ) {
 	    defSpacing = e.attribute( "spacing", QString::number( defSpacing ) ).toInt();
@@ -135,6 +138,7 @@ Uic::Uic( const QString &fn, QTextStream &outStream, QDomDocument doc,
 	}
 	e = e.nextSibling().toElement();
     }
+    e = widget;
 
     if ( nameOfClass.isEmpty() )
 	nameOfClass = getObjectName( e );
