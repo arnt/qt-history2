@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#215 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#216 $
 **
 ** Implementation of QObject class
 **
@@ -559,6 +559,7 @@ QStringList QObject::superClasses( bool includeThis ) const
 */
 const char * QObject::name() const
 {
+    // If you change the name here, the builder will be broken
     return objname ? objname : "unnamed";
 }
 
