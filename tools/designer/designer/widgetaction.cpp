@@ -34,7 +34,8 @@ void WidgetAction::addedTo( QWidget *w, QWidget *container )
 
 WidgetAction::~WidgetAction()
 {
-    MainWindow::self->toolActions.removeRef( this );
+    if ( MainWindow::self )
+	MainWindow::self->toolActions.removeRef( this );
 }
 
 void WidgetAction::init( const QString &g )
