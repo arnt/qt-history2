@@ -1984,7 +1984,7 @@ QWidget *QWidget::topLevelWidget() const
 /*! \property QWidget::paletteForegroundColor
     \brief the foreground color of the widget
 
-  setForegroundColor() is a convenience function that creates and
+  setPaletteForegroundColor() is a convenience function that creates and
   sets a modified QPalette with setPalette(). The palette is modified
   according to the widget's \e {background mode}. For example, if the
   background mode is PaletteButton the palette entry

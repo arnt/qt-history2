@@ -11,3 +11,6 @@
 \input chap-customizing.leaf
 \input chap-advanced-widgets.leaf
 \input chap-key-bindings.leaf
+\input chap-menus.leaf
+\input chap-toolbuttons.leaf
+\input chap-mdialogs.leaf

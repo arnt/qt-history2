@@ -2495,9 +2495,9 @@ void QIconViewItem::checkRect()
 
 /*! \overload void QIconView::clicked ( QIconViewItem * item, const QPoint & pos )
 
-  This signal is emitted when the user clicks any mouse button. If \a
-  item is non-null, the cursor is on \a item. If \a item is null, the
-  mouse cursor isn't on any item.
+  This signal is emitted when the user clicks any mouse button. \a
+  item is a pointer to the item that has been clicked. If you click on
+  the iconview, but not on an item, then the signal is not emitted.
 
   \a pos is the position of the mouse cursor in the global coordinate
   system (QMouseEvent::globalPos()). (If the click's press and release

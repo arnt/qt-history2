@@ -1,4 +1,4 @@
-\chapter Qt Designer Menu Options
+\chapter Menu Options
 
 \section1 Menu Options and Functions
 
@@ -21,32 +21,32 @@ This menu is invoked with \Key Alt+F, and provides the following
 options:
 \list
 
-*\i \Menu File|New Click this menu option (or press \Key Ctrl+N) to
+\i \Menu File|New Click this menu option (or press \Key Ctrl+N) to
 create a new project, form or file. This option invokes the
-\l{The New File Dialog}.
+\l{The New File Dialog}. 
 
-*\i \Menu File|Open Click this menu option (or press\Key Ctrl+O) to
+\i \Menu File|Open Click this menu option (or press\Key Ctrl+O) to
 open existing projects, forms or files. The \l{Open Dialog} appears and
-the file name and type must be selected.
+the file name and type must be selected. 
 
 \i \Menu File|Close Click this menu option to close the project that
 is currently open. If changes are made to the project and it has not
-been saved previously, the \l{Save Form Dialog} appears.
+been saved previously, the \l{Save Form Dialog} appears. 
 
 \i \Menu File|Save  Click this menu option (or press \Key Ctrl+S) to
 save the project, forms, and files. For a new project with no forms or
 files added to it, click 'Save' to save the project before exiting.
 For new forms, click 'Save' and the \l{Save As Dialog} appears. For
 forms that have been saved previously click 'Save'. For new files or
-for files that have been changed, click 'Save'.  
+for files that have been changed, click 'Save'. 
 
-*\i \Menu {File|Save As} Click this menu option to save and name the project.
+\i \Menu {File|Save As} Click this menu option to save and name the project.
 This option invokes the \l{Save As Dialog}.
 
 \i \Menu {File|Save All} Click this menu option to save every open
 file and form in every open project.
 
-*\i \Menu {File|Create Template} Click this menu option to create a
+\i \Menu {File|Create Template} Click this menu option to create a
 form template. This option invokes the \l{Create Template}
 dialog.
 
@@ -66,7 +66,11 @@ dialog} will appear for each of these files. If any open project's
 name begins with the word 'unnamed' the \l{Save Project Settings}
 message box appears.  
 
-\section3 The Edit Menu
+\endlist 
+
+See also the \l{The File Toolbar buttons}.
+
+The Edit Menu
 
 This menu is invoked with \Key Alt+E, and provides the following
 options:
@@ -74,24 +78,25 @@ options:
 
 \i \Menu Edit|Undo Click this menu option (or press \Key Ctrl+Z) to
 undo an action. The name of the last action that was performed appears
-after the word 'Undo'. 
+after the word 'Undo'.  
 
 \i \Menu Edit|Redo Click this menu option (or press \Key Ctrl+Y) to
 redo an action.The name of the last action that was performed appears
-after the word 'Redo'.
+after the word 'Redo'. 
 
 \i \Menu Edit|Cut Click this menu option (or press \Key Ctrl+X) to
 delete the selected item from the current form or file and copy it to
-the clipboard.
+the clipboard. 
 
-\i \Menu Edit|Copy Click this menu option (or press \Key Ctrl+C) to copy the selected
-item from the current form or file to the clipboard.
+\i \Menu Edit|Copy Click this menu option (or press \Key Ctrl+C) to
+copy the selected item from the current form or file to the clipboard.
 
-\i \Menu Edit|Paste Click this menu option (or press \Key Ctrl+V) to paste the
-selected item from the clipboard into the current form or file.
+\i \Menu Edit|Paste Click this menu option (or press \Key Ctrl+V) to
+paste the selected item from the clipboard into the current form or
+file. 
 
-\i \Menu Edit|Delete Click this menu option (or press \Key Del) to delete the selected
-item from the current form or file.
+\i \Menu Edit|Delete Click this menu option (or press \Key Del) to
+delete the selected item from the current form or file.
 
 \i \Menu {Edit|Select All} Click this menu option (or press \Key Ctrl+A) to highlight all
 the widgets on the current form or all the text in the current file. 
@@ -105,18 +110,22 @@ used. Click 'Select' to highlight the widgets with the same
 accelerator, or click 'Cancel' to exit the message box without any
 action. 
 
-*\i \Menu Edit|Slots Click this menu option to edit or create slots.This option invokes the \l{Edit Slots Dialog}.
+\i \Menu Edit|Slots Click this menu option to edit or create slots.This option invokes the \l{Edit Slots Dialog}.
 
-*\i \Menu Edit|Connections Click this menu option to invoke the \l{View
+\i \Menu Edit|Connections Click this menu option to invoke the \l{View
 Connections Dialog}. 
 
 \i \Menu {Edit|Form Settings}  Click this menu option to invoke the \l{Form
 Settings Dialog}.
 
-*\i \Menu Edit|Preferences Click this menu option to invoke the
+\i \Menu Edit|Preferences Click this menu option to invoke the
 \l{Preferences Dialog}.
 
-\section4 The Project Menu
+\endlist
+
+See also the \l{The Edit Toolbar buttons}.
+
+The Project Menu
 
 This menu is invoked with \Key Alt+O, and provides the following
 options:
@@ -124,27 +133,31 @@ options:
 
 \i \Menu {Project|Active Project|\<project name\>}  Click this menu
 option to toggle between projects if there is more than one project
-open.
+open. 
 
-*\i \Menu{Project|Add File} Click this menu option 
+\i \Menu{Project|Add File} Click this menu option 
  to invoke the \l{Add Dialog}
  
-*\i \Menu {Project|Project Settings}  Click this menu option to invoke
+\i \Menu {Project|Project Settings}  Click this menu option to invoke
 the \l{Project Settings Dialog}.
 
-*\i \Menu {Project|Image Collection}  Click this menu option to invoke
+\i \Menu {Project|Image Collection}  Click this menu option to invoke
 the \l{Edit Image Collection Dialog}.
 
-*\i \Menu {Project|Database Connections}  Click this menu option to
+\i \Menu {Project|Database Connections}  Click this menu option to
 invoke the \l{Edit Database Connections Dialog}.
 
-\section5 The Search Menu
+\endlist
+
+See also the \l{The Project Toolbar buttons}.
+
+The Search Menu
 
 This menu is invoked with \Key Alt+S, and provides the following
 options:
 \list
 
-*\i \Menu Search|Find Click this menu option (or press \Key Ctrl+F) to
+\i \Menu Search|Find Click this menu option (or press \Key Ctrl+F) to
 invoke the \l{Find Text Dialog}. 
 
 \i \Menu {Search|Find Incremental} Click this menu option (or press
@@ -154,15 +167,19 @@ you type \QD will highlight the first occurrence of the text that it
 finds in the file. Press the \Key Enter key to go to the next
 occurrence of the text.
 
-*\i \Menu Search|Replace Click this menu option (or press \Key Ctrl+R)
+\i \Menu Search|Replace Click this menu option (or press \Key Ctrl+R)
 to invoke the \l{Replace Text} Dialog to replace specific words or
 characters.
 
-*\i \Menu{Search|Goto line} Click this menu option (or press \Key
+\i \Menu{Search|Goto line} Click this menu option (or press \Key
 Alt+G) to invoke the \l{Goto Line Dialog} to go to a specific line
 in the file.
 
-\section6 The Tools Menu
+\endlist
+
+See also the \l{The Search Toolbar buttons}.
+
+The Tools Menu
 
 This menu is invoked with \Key Alt+T, and provides the following
 options:
@@ -171,13 +188,13 @@ options:
 \i \Menu Tools|Pointer Click this menu option (or press \Key F2) to
 deselect any selected widget toolbar button. The pointer is also used
 to stop inserting new widgets on the form if you double clicked a
-widget toolbar button.
+widget toolbar button. 
 
 \i \Menu{Tools|Connect Signals and Slots} Click this toolbar button
 (or press \Key F3) to connect signals and slots and click on a widget
 and drag the pink rubber band to the widget (or form) that you want to
 connect to; then release the mouse button and the \l{Edit Connections
-Dialog} will appear.
+Dialog} will appear. 
 
 \i \Menu {Tools|Tab Order} Click this menu option (or press \F4) to
 set the tab order for all the widgets on the form that can accept
@@ -186,10 +203,10 @@ them appear next to the widgets. Click the widget that you want to be
 first in the tab order, then click the widget that should be next in
 the tab order, and continue until all the widgets have the tab order
 numbers you want. If you make a mistake, double click the first widget
-and start again.  
+and start again. 
 
 \i \Menu {Tools|Buttons|PushButton} Click this option and click
-the form to place the Pushbutton widget on the form.
+the form to place the Pushbutton widget on the form. 
 
 \i \Menu {Tools|Buttons|ToolButton} Click this option and click
 the form to place the Toolbutton widget on the form.
@@ -281,16 +298,21 @@ click the form to place the ProgressBar widget on the form.
 \i \Menu {Tools|Display|TextBrowser} Click this option and 
 click the form to place the TextBrowser widget on the form.
 
-*\i \Menu {Tools|Custom|Edit Custom Widgets} Click this menu option
+\i \Menu {Tools|Custom|Edit Custom Widgets} Click this menu option
 to invoke the \l{Edit Custom Widget Dialog}. The \Menu{Tools|Custom}
 menu also lists the names of any custom widgets that have been added
 to \QD; to add one of these widgets click its name.
 
 \i \Menu {Tools|Custom|My Custom Widget} Click this option and click
 the form to place the Custom Widget on the form. Note:This menu option
-appears if you have created a widget using Tools|Custom|Edit Custom Widgets.
+appears if you have created a widget using Tools|Custom|Edit Custom
+Widgets. 
 
-\section7 The Layout Menu 
+\endlist
+
+See also the \l{The Tools Toolbar buttons}.
+
+The Layout Menu 
 
 This menu is invoked with \Key Alt+L, and provides the following
 options:
@@ -314,7 +336,7 @@ is sometimes easiest to select widgets and layouts by clicking them in
 the Widgets tab of the \l{Object Explorer} window.
 
 \i \Menu {Layout|Lay Out in a Grid} Click this menu option (or press
-\Key Ctrl+G)
+\Key Ctrl+G) 
 
 \i \Menu {Layout|Lay Out Horizontally (in Splitter)} Click this menu
 option to lay out the selected widgets or layouts side by
@@ -337,7 +359,11 @@ tab of the \l{Object Explorer} window.
 \i \Menu {Layout|Add Spacer} Click this menu option to add a spacer
 to widgets that take up too much space on the form. The spacer consumes extra space in the layout.
 
-\section8 The Preview Menu \Key Alt+P
+\endlist
+
+See also the \l{The Layout Toolbar buttons}.
+
+The Preview Menu \Key Alt+P
 
 This menu is invoked with \Key Alt+P, and provides the following
 options:
@@ -364,7 +390,9 @@ preview the form in Platinum style.
 \i \Menu{Preview|...in SGI Style} Click this menu option to preview the
 form in SGI style.
 
-\section9 The Window Menu
+\endlist
+
+The Window Menu
 
 This menu is invoked with \Key Alt+W, and provides the following
 options:
@@ -482,7 +510,9 @@ at once, rather than moving each individual toolbar into place.
 between forms or files that are currently open. Select the name of the
 form or file from the list.
 
-\section10 The Help Menu
+\endlist
+
+The Help Menu
 
 This menu is invoked with \Key Alt+H, and provides the following
 options:
@@ -495,10 +525,10 @@ the \l{Qt Assistant by Trolltech Dialog} which provides online help.
 invoke the \l{Qt Assistant by Trolltech Dialog} which provides online
 help.
 
-*\i \Menu{Help|About...} Click this menu option to invoke the Qt Designer
+\i \Menu{Help|About...} Click this menu option to invoke the Qt Designer
 dialog, which provides information about \QD.
 
-*\i \Menu{Help|About Qt...} Click this menu option to invoke the Qt
+\i \Menu{Help|About Qt...} Click this menu option to invoke the Qt
 Designer dialog which provides information about Qt.
 
 \i \Menu{Help|What's This?} Click this menu option to invoke a small
@@ -506,6 +536,9 @@ question mark that is linked to the pointer. Click the pointer on a
 feature which you would like more information about. A message box
 appears with information about the feature.
 
+\endlist 
+
+See also the \l{The Help Toolbar buttons}.
 
 
 
