@@ -1409,24 +1409,6 @@ QFontEngine *loadEngine(int script,
     }
 #endif // QT_NO_XFT
 
-    FM_DEBUG("    using XLFD");
-
-    QByteArray xlfd("-");
-    xlfd += foundry->name.isEmpty() ? QByteArray("*") : foundry->name.toLatin1();
-    xlfd += "-";
-    xlfd += family->name.isEmpty() ? QByteArray("*") : family->name.toLatin1();
-
-    xlfd += "-";
-    xlfd += style->weightName ? style->weightName : "*";
-    xlfd += "-";
-    xlfd += (style->key.style == QFont::StyleItalic
-             ? "i"
-             : (style->key.style == QFont::StyleOblique ? "o" : "r"));
-    xlfd += "-";
-    xlfd += style->setwidthName ? style->setwidthName : "*";
-    // ### handle add-style
-    xlfd += "-*-";
-
     int px = size->pixelSize;
     if (style->smoothScalable && px == SMOOTH_SCALABLE)
         px = request.pixelSize;
@@ -1440,60 +1422,70 @@ QFontEngine *loadEngine(int script,
     if (fp && fp->dpi != QX11Info::appDpiY())
         scale = (double)request.pixelSize/(double)px;
 
-    xlfd += QByteArray::number(px);
-    xlfd += "-";
-
-    QByteArray xlfdPrefix = xlfd;
-
-    xlfd += QByteArray::number(encoding->xpoint);
-    xlfd += "-";
-    xlfd += QByteArray::number(encoding->xres);
-    xlfd += "-";
-    xlfd += QByteArray::number(encoding->yres);
-    xlfd += "-";
-    xlfd += encoding->pitch;
-    xlfd += "-";
-    xlfd += QByteArray::number(encoding->avgwidth);
-    xlfd += "-";
-    xlfd += xlfd_for_id(encoding->encoding);
-
-    FM_DEBUG("    xlfd: '%s'", xlfd.data());
-
     QFontEngine *fe = 0;
-    if (script != QUnicodeTables::Common) {
+    if (forced_encoding || script != QUnicodeTables::Common) {
+        QByteArray xlfd("-");
+        xlfd += foundry->name.isEmpty() ? QByteArray("*") : foundry->name.toLatin1();
+        xlfd += "-";
+        xlfd += family->name.isEmpty() ? QByteArray("*") : family->name.toLatin1();
+        xlfd += "-";
+        xlfd += style->weightName ? style->weightName : "*";
+        xlfd += "-";
+        xlfd += (style->key.style == QFont::StyleItalic
+                 ? "i"
+                 : (style->key.style == QFont::StyleOblique ? "o" : "r"));
+        xlfd += "-";
+        xlfd += style->setwidthName ? style->setwidthName : "*";
+        // ### handle add-style
+        xlfd += "-*-";
+        xlfd += QByteArray::number(px);
+        xlfd += "-";
+        xlfd += QByteArray::number(encoding->xpoint);
+        xlfd += "-";
+        xlfd += QByteArray::number(encoding->xres);
+        xlfd += "-";
+        xlfd += QByteArray::number(encoding->yres);
+        xlfd += "-";
+        xlfd += encoding->pitch;
+        xlfd += "-";
+        xlfd += QByteArray::number(encoding->avgwidth);
+        xlfd += "-";
+        xlfd += xlfd_for_id(encoding->encoding);
+
+        FM_DEBUG("    using XLFD: %s\n", xlfd.data());
+
         const int mib = xlfd_encoding[encoding->encoding].mib;
         XFontStruct *xfs;
         if (! (xfs = XLoadQueryFont(QX11Info::display(), xlfd)))
             return 0;
         fe = new QFontEngineXLFD(xfs, xlfd, mib);
     } else {
-        QList<QByteArray> xlfds;
-        xlfds.append(xlfd);
+        QList<int> encodings;
+        encodings.append(encoding->encoding);
+
         // append all other encodings for the matched font
         for (int i = 0; i < style->count; ++i) {
-            QtFontSize *size = style->pixelSizes + i;
-            for (int x = 0; x < size->count; ++x) {
-                QtFontEncoding *e = size->encodings + x;
-                if (e == encoding)
-                    break;
-                QByteArray n = xlfdPrefix;
-                n += QByteArray::number(e->xpoint);
-                n += "-";
-                n += QByteArray::number(e->xres);
-                n += "-";
-                n += QByteArray::number(e->yres);
-                n += "-";
-                n += e->pitch;
-                n += "-";
-                n += QByteArray::number(e->avgwidth);
-                n += "-";
-                n += xlfd_for_id(e->encoding);
-                xlfds.append(n);
-            }
+            QtFontEncoding *e = size->encodings + i;
+            if (e == encoding)
+                break;
+            encodings.append(e->encoding);
         }
-        // ### TODO: fill in the missing encodings
+        // fill in the missing encodings
+        const XlfdEncoding *enc = xlfd_encoding;
+        for (; enc->name; ++enc) {
+            if (!encodings.contains(enc->id))
+                encodings.append(enc->id);
+        }
 
-        fe = new QFontEngineMultiXLFD(xlfds, fp->screen);
+#if defined(FONT_MATCH_DEBUG)
+        FM_DEBUG("    using MultiXLFD, encodings:");
+        for (int i = 0; i < encodings.size(); ++i) {
+            const int id = encodings.at(i);
+            FM_DEBUG("      %2d: %s", xlfd_encoding[id].id, xlfd_encoding[id].name);
+        }
+#endif
+
+        fe = new QFontEngineMultiXLFD(request, encodings, fp->screen);
     }
     fe->setScale(scale);
     return fe;

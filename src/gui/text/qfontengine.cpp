@@ -226,7 +226,7 @@ bool QFontEngineMulti::stringToCMap(const QChar *str, int len,
                 engine->setScale(scale());
             }
             Q_ASSERT(engine != 0);
-            if (engine->canRender(str + i, 1)) {
+            if (engine->type() != Box && engine->canRender(str + i, 1)) {
                 glyphs[i].advance = glyphs[i].offset = QPointF();
                 engine->stringToCMap(str + i, 1, glyphs + i, nglyphs, flags);
                 // set the high byte to indicate which engine the glyph came from

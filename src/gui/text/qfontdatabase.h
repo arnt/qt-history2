@@ -90,7 +90,7 @@ private:
     friend struct QFontDef;
     friend class QFontPrivate;
     friend class QFontDialog;
-    friend class QFontEngineLatinXLFD;
+    friend class QFontEngineMultiXLFD;
 
     QFontDatabasePrivate *d;
 };

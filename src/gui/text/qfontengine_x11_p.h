@@ -30,13 +30,13 @@
 class QFontEngineMultiXLFD : public QFontEngineMulti
 {
 public:
-    QFontEngineMultiXLFD(const QList<QByteArray> &l, int s);
+    QFontEngineMultiXLFD(const QFontDef &r, const QList<int> &l, int s);
     ~QFontEngineMultiXLFD();
 
     void loadEngine(int at);
 
 private:
-    QList<QByteArray> xlfds;
+    QList<int> encodings;
     int screen;
 };
 
