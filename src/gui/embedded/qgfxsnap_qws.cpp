@@ -442,7 +442,7 @@ void QGfxSNAP<depth,type>::scroll(
 
     // Get exclusive write access to the display and get ready for drawing
     QWSDisplay::grab(true);
-    GFX_START(QRect(QMIN(left+xoffs,srcLeft+xoffs), QMIN(top+yoffs,srcTop+yoffs), width+qAbs(dx)+1, height+qAbs(dy)+1));
+    GFX_START(QRect(qMin(left+xoffs,srcLeft+xoffs), qMin(top+yoffs,srcTop+yoffs), width+qAbs(dx)+1, height+qAbs(dy)+1));
 
     // Set the required hardware state if is has changed
     if (memcmp(&cntState->drawBuf,&drawBuf,sizeof(drawBuf)) != 0) {
