@@ -18,32 +18,30 @@ Q_EXPORT char *qstrdup( const char * );
 
 Q_EXPORT inline uint qstrlen( const char *str )
 { return str ? (uint)strlen(str) : 0; }
-
 Q_EXPORT inline char *qstrcpy( char *dst, const char *src )
 { return src ? strcpy(dst, src) : 0; }
-
 Q_EXPORT char *qstrncpy( char *dst, const char *src, uint len );
 
+Q_EXPORT inline int qstrcmp(const char *str1, const char *str2)
+{
+    return (str1 && str2) ? strcmp(str1, str2)
+	: (str1 ? 1 : (str2 ? -1 : 0));
+}
 Q_EXPORT inline int qstrncmp( const char *str1, const char *str2, uint len )
 {
     return ( str1 && str2 ) ? strncmp( str1, str2, len )
-			    : ( str1 ? 1 : ( str2 ? -1 : 0 ) );
+	: ( str1 ? 1 : ( str2 ? -1 : 0 ) );
 }
-
 Q_EXPORT int qstricmp( const char *, const char * );
-
 Q_EXPORT int qstrnicmp( const char *, const char *, uint len );
 
 #ifndef QT_CLEAN_NAMESPACE
 Q_EXPORT inline uint cstrlen( const char *str )
 { return (uint)strlen(str); }
-
 Q_EXPORT inline char *cstrcpy( char *dst, const char *src )
 { return strcpy(dst,src); }
-
 Q_EXPORT inline int cstrcmp( const char *str1, const char *str2 )
 { return strcmp(str1,str2); }
-
 Q_EXPORT inline int cstrncmp( const char *str1, const char *str2, uint len )
 { return strncmp(str1,str2,len); }
 #endif
@@ -52,14 +50,10 @@ Q_EXPORT inline int cstrncmp( const char *str1, const char *str2, uint len )
 
 Q_EXPORT Q_UINT16 qChecksum( const char *s, uint len );
 
-Q_EXPORT inline int qstrcmp(const char *str1, const char *str2)
-{
-    return (str1 && str2) ? strcmp(str1, str2)
-	: (str1 ? 1 : (str2 ? -1 : 0));
-}
 
 class QByteRef;
 class QString;
+class QDataStream;
 
 class Q_EXPORT QByteArray
 {
@@ -116,7 +110,6 @@ public:
     QByteArray right(int len) const;
     QByteArray mid(int index, int len=-1) const;
 
-    // ### mve into qt_no_compat?
     QByteArray lower() const;
     QByteArray upper() const;
 
