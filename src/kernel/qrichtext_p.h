@@ -414,6 +414,8 @@ public:
     int ypos; // used for floating items
     int width;
     int height;
+    
+    QRect geometry() const { return QRect( xpos, ypos, width, height ); }
 
     virtual bool enter( QTextCursor *, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, bool atEnd = FALSE );
     virtual bool enterAt( QTextCursor *, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, const QPoint & );
@@ -506,8 +508,9 @@ public:
 
     virtual void registerFloatingItem( QTextCustomItem* item );
     virtual void unregisterFloatingItem( QTextCustomItem* item );
+    virtual QRect boundingRect() const;
     virtual void drawFloatingItems(QPainter* p, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool selected );
-    
+
     virtual int adjustFlow( int  y, int w, int h ); // adjusts y according to the defined pagesize. Returns the shift.
 
     virtual bool isEmpty();
@@ -548,7 +551,7 @@ public:
     bool isEmpty() const;
     void setGeometry( const QRect& ) ;
     QRect geometry() const;
-
+    
     bool hasHeightForWidth() const;
     int heightForWidth( int ) const;
 
@@ -568,6 +571,8 @@ public:
     QBrush *backGround() const { return background; }
     virtual void invalidate();
 
+    int verticalAlignmentOffset() const;
+
 private:
     QPainter* painter() const;
     QRect geom;
@@ -585,6 +590,7 @@ private:
     int cached_width;
     int cached_sizehint;
     QMap<QString, QString> attributes;
+    int align;
 };
 
 #if defined(Q_TEMPLATEDLL)
@@ -1323,7 +1329,7 @@ protected:
 #endif
     virtual bool isBreakable( QTextString *string, int pos ) const;
     void insertLineStart( QTextParag *parag, int index, QTextParagLineStart *ls );
-    
+
 private:
     bool wrapEnabled;
     int wrapColumn;
@@ -1618,13 +1624,6 @@ inline int QTextDocument::width() const
 inline int QTextDocument::visibleWidth() const
 {
     return vw;
-}
-
-inline int QTextDocument::height() const
-{
-    if ( lParag )
-	return lParag->rect().top() + lParag->rect().height() + 1;
-    return 0;
 }
 
 inline QTextParag *QTextDocument::firstParag() const

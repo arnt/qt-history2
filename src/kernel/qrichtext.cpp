@@ -1376,6 +1376,17 @@ int QTextDocument::widthUsed() const
     return w;
 }
 
+int QTextDocument::height() const
+{
+    int h = 0;
+    if ( lParag )
+	h = lParag->rect().top() + lParag->rect().height() + 1;
+    int fh = flow_->boundingRect().height();
+    return QMAX( h, fh );
+}
+
+
+
 QTextParag *QTextDocument::createParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool updateIds )
 {
     return new QTextParag( d, pr, nx, updateIds );
@@ -1654,13 +1665,14 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			}
 		    }
 		
-		    if ( attr.find( "align" ) != attr.end() &&
+		    if ( attr.contains( "align" ) &&
 			 ( curtag.name == "p" || curtag.name == "li" || curtag.name[ 0 ] == 'h' ) ) {
-			if ( *attr.find( "align" ) == "center" )
+			QString align = attr["align"];
+			if ( align == "center" )
 			    curpar->setAlignment( Qt::AlignCenter );
-			else if ( *attr.find( "align" ) == "right" )
+			else if ( align == "right" )
 			    curpar->setAlignment( Qt::AlignRight );
-			else if ( *attr.find( "align" ) == "justify" )
+			else if ( align == "justify" )
 			    curpar->setAlignment( Qt::AlignJustify );
 		    }
 		    depth++;
@@ -6374,6 +6386,23 @@ void QTextFlow::registerFloatingItem( QTextCustomItem* item )
     }
 }
 
+QRect QTextFlow::boundingRect() const
+{
+    QRect br;
+    QPtrListIterator<QTextCustomItem> l( leftItems );
+    while( l.current() ) {
+	br = br.unite( l.current()->geometry() );
+	++l;
+    }
+    QPtrListIterator<QTextCustomItem> r( rightItems );
+    while( r.current() ) {
+	br = br.unite( r.current()->geometry() );
+	++r;
+    }
+    return br;
+}
+
+
 void QTextFlow::drawFloatingItems( QPainter* p, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool selected )
 {
     QTextCustomItem *item;
@@ -6411,8 +6440,7 @@ QTextTable::QTextTable( QTextDocument *p, const QMap<QString, QString> & attr  )
     cellpadding = 1;
     if ( attr.contains("cellpadding") )
 	cellpadding = attr["cellpadding"].toInt();
-    border = 0;
-    innerborder = us_ib = 1;
+    border = innerborder = 0;
     if ( attr.contains("border" ) ) {
 	QString s( attr["border"] );
 	if ( s == "TRUE" )
@@ -6421,9 +6449,15 @@ QTextTable::QTextTable( QTextDocument *p, const QMap<QString, QString> & attr  )
 	    border = attr["border"].toInt();
     }
     us_b = border;
+    
+    innerborder = us_ib = border ? 1 : 0;
 
-    if ( border )
+    if ( border ) {
 	cellspacing += 2;
+	innerborder += 1;
+    }
+
+    us_ib = innerborder;
     us_cs = cellspacing;
     outerborder = cellspacing + border;
     us_ob = outerborder;
@@ -6723,7 +6757,7 @@ bool QTextTable::enterAt( QTextCursor *c, QTextDocument *&doc, QTextParag *&para
     parag = doc->firstParag();
     idx = 0;
     ox += cell->geometry().x() + outerborder + parent->x();
-    oy += cell->geometry().y() + outerborder;
+    oy += cell->geometry().y() + cell->verticalAlignmentOffset() + outerborder;
     return TRUE;
 }
 
@@ -6893,14 +6927,24 @@ QTextTableCell::QTextTableCell( QTextTable* table,
     stretch_ = 0;
     richtext = new QTextDocument( table->parent );
     richtext->setTableCell( this );
-    QString align = *attr.find( "align" );
-    if ( !align.isEmpty() ) {
-	if ( align.lower() == "left" )
+    QString a = *attr.find( "align" );
+    if ( !a.isEmpty() ) {
+	a = a.lower();
+	if ( a == "left" )
 	    richtext->setAlignment( Qt::AlignLeft );
-	else if ( align.lower() == "center" )
+	else if ( a == "center" )
 	    richtext->setAlignment( Qt::AlignHCenter );
-	else if ( align.lower() == "right" )
+	else if ( a == "right" )
 	    richtext->setAlignment( Qt::AlignRight );
+    }
+    align = 0;
+    QString va = *attr.find( "valign" );
+    if ( !va.isEmpty() ) {
+	va = va.lower();
+	if ( va == "center" )
+	    align |= Qt::AlignVCenter;
+	else if ( va == "bottom" )
+	    align |= Qt::AlignBottom;
     }
     richtext->setFormatter( table->parent->formatter() );
     richtext->setUseFormatCollection( table->parent->useFormatCollection() );
@@ -6919,6 +6963,7 @@ QTextTableCell::QTextTableCell( QTextTable* table,
     if ( attr.contains("bgcolor") ) {
 	background = new QBrush(QColor( attr["bgcolor"] ));
     }
+    
 
     hasFixedWidth = FALSE;
     if ( attr.contains("width") ) {
@@ -7060,6 +7105,15 @@ QPainter* QTextTableCell::painter() const
     return parent->painter;
 }
 
+int QTextTableCell::verticalAlignmentOffset() const 
+{
+    if ( (align & Qt::AlignVCenter ) == Qt::AlignVCenter )
+	return ( geom.height() - richtext->height() ) / 2;
+    else if ( ( align & Qt::AlignBottom ) == Qt::AlignBottom )
+	return geom.height() - richtext->height();
+    return 0;
+}
+
 void QTextTableCell::draw( int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool )
 {
     if ( cached_width != geom.width() ) {
@@ -7079,6 +7133,8 @@ void QTextTableCell::draw( int x, int y, int cx, int cy, int cw, int ch, const Q
     else if ( richtext->paper() )
 	painter()->fillRect( 0, 0, geom.width(), geom.height(), *richtext->paper() );
 
+    painter()->translate( 0, verticalAlignmentOffset() );
+
     QRegion r;
     QTextCursor *c = 0;
     if ( richtext->parent()->tmpCursor )
@@ -7087,13 +7143,6 @@ void QTextTableCell::draw( int x, int y, int cx, int cy, int cw, int ch, const Q
 	richtext->draw( painter(), cx - ( x + geom.x() ), cy - ( y + geom.y() ), cw, ch, g, FALSE, (c != 0), c );
     else
 	richtext->draw( painter(), -1, -1, -1, -1, g, FALSE, (c != 0), c );
-
-#if defined(DEBUG_TABLE_RENDERING)
-    painter()->save();
-    painter()->setPen( Qt::blue );
-    painter()->drawRect( 0, 0, geom.width(), geom.height() );
-    painter()->restore();
-#endif
 
     painter()->restore();
 }
