@@ -347,7 +347,7 @@ struct QtFontFamily
 };
 
 #if defined(Q_OS_MAC) && !defined(QWS)
-inline static void qt_mac_get_fixed_pitch(QtFontFamily *f) 
+inline static void qt_mac_get_fixed_pitch(QtFontFamily *f)
 {
     if(f && !f->fixedPitchComputed) {
 	QFontMetrics fm(f->name);
@@ -850,14 +850,14 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 	}
 
 	QFontCache::Key key( request, script,
-#ifdef Q_WS_WIN || Q_WS_MAC
+#if defined(Q_WS_WIN) || defined(Q_WS_MAC)
 			     (int)fp->paintdevice
 #else
 			     fp->screen
 #endif
 	    );
 	fe = QFontCache::instance->findEngine( key );
-	if ( fe ) 
+	if ( fe )
 	    return fe;
     }
 

@@ -1288,7 +1288,7 @@ static QFontEngine *loadFontConfigFont(const QFontPrivate *fp, const QFontDef &r
 
     QStringList family_list;
     if (request.family.isEmpty()) {
-	family_list = QStringList::split(QChar(','), fp->request.family);
+	family_list = fp->request.family.split(QChar(','));
 
 	QString stylehint;
 	switch ( request.styleHint ) {

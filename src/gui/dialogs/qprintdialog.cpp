@@ -186,8 +186,7 @@ static void parsePrinterDesc( QString printerDesc, QListView * printers )
 	int j = printerDesc.indexOf( '|' );
 	if ( j > 0 && j < i ) {
 	    printerName = printerDesc.left( j );
-	    aliases = QStringList::split( '|',
-		    printerDesc.mid(j + 1, i - j - 1) );
+	    aliases = printerDesc.mid(j + 1, i - j - 1).split('|');
 	    // try extracting a comment from the aliases
 	    printerComment = QPrintDialog::tr( "Aliases: %1" )
 			     .arg( aliases.join(", ") );
@@ -391,8 +390,7 @@ static char * parsePrintersConf( QListView * printers, bool *found = 0 )
 
 		if ( j > 0 ) {
 		    // try extracting a comment from the aliases
-		    aliases = QStringList::split( '|',
-			    printerDesc.mid(j + 1, i - j - 1) );
+		    aliases = printerDesc.mid(j + 1, i - j - 1).split('|');
 		    printerComment = QPrintDialog::tr( "Aliases: %1" )
 				     .arg( aliases.join(", ") );
 		}

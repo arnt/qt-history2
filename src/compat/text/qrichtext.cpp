@@ -1739,7 +1739,7 @@ void Q3TextDocument::setRichTextInternal( const QString &text, Q3TextCursor* cur
 			    linkColor = QColor(*it);
 			it = attr.find("title");
 			if (it != end)
-			    attribs.replace("title", *it);
+			    attribs.insert("title", *it);
 
 			if ( textEditMode ) {
 			    it = attr.find("style");
@@ -1769,7 +1769,7 @@ void Q3TextDocument::setRichTextInternal( const QString &text, Q3TextCursor* cur
 			    title += doc[ pos ];
 			    ++pos;
 			}
-			attribs.replace( "title", title );
+			attribs.insert( "title", title );
 		    }
 		} // end of well-known tag handling
 
@@ -5096,7 +5096,7 @@ QString Q3TextParagraph::richText() const
 	Q3TextStringChar *c = &str->at( i );
 	if ( c->isAnchor() && !c->anchorName().isEmpty() ) {
 	    if ( c->anchorName().contains( '#' ) ) {
-		QStringList l = QStringList::split( '#', c->anchorName() );
+		QStringList l = c->anchorName().split('#');
 		for ( QStringList::ConstIterator it = l.begin(); it != l.end(); ++it )
 		    s += "<a name=\"" + *it + "\"></a>";
 	    } else {
@@ -5489,7 +5489,7 @@ void Q3TextFormatter::insertLineStart( Q3TextParagraph *parag, int index, QTextL
 	parag->lineStartList().insert( index, ls );
     } else {
 	delete *it;
-	parag->lineStartList().remove( it );
+	parag->lineStartList().erase( it );
 	parag->lineStartList().insert( index, ls );
     }
 }
@@ -5505,7 +5505,7 @@ int Q3TextFormatter::formatVertically( Q3TextDocument* doc, Q3TextParagraph* par
     QMap<int, QTextLineStart*>::Iterator it = lineStarts.begin();
     int h = parag->prev() ? qMax(parag->prev()->bottomMargin(),parag->topMargin() ) / 2: 0;
     for ( ; it != lineStarts.end() ; ++it  ) {
-	QTextLineStart * ls = it.data();
+	QTextLineStart * ls = it.value();
 	ls->y = h;
 	Q3TextStringChar *c = &parag->string()->at(it.key());
 #ifndef QT_NO_TEXTCUSTOMITEM

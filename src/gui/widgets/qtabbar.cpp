@@ -236,7 +236,7 @@ public:
 
     void add( QTab * tab, const QString & tip )
     {
-	tabTips.replace( tab, tip );
+	tabTips.insert( tab, tip );
     }
 
     void remove( QTab * tab )
@@ -249,7 +249,7 @@ public:
 	QMap<QTab *, QString>::ConstIterator it;
 	it = tabTips.find( tab );
 	if ( it != tabTips.end() )
-	    return it.data();
+	    return it.value();
 	else
 	    return QString();
     }
@@ -276,7 +276,7 @@ protected:
 	QMap<QTab *, QString>::Iterator it;
 	for ( it = tabTips.begin(); it != tabTips.end(); ++it ) {
 	    if ( it.key()->rect().contains( p ) )
-		tip( it.key()->rect(), it.data() );
+		tip( it.key()->rect(), it.value() );
 	}
 #endif
     }
@@ -496,7 +496,7 @@ void QTabBar::setTabEnabled( int id, bool enabled )
 			emit selected( t->id );
 		    }
 		}
-		repaint( r, FALSE );
+		repaint(r);
 	    }
 	    return;
 	}
@@ -843,10 +843,10 @@ void QTabBar::setCurrentTab( QTab * tab )
 	setMicroFocusHint( tab->rect().x(), tab->rect().y(), tab->rect().width(), tab->rect().height(), FALSE );
 
 	if ( tab->r.intersects( r ) ) {
-	    repaint( r.unite( tab->r ), FALSE );
+	    repaint(r.unite( tab->r ));
 	} else {
-	    repaint( r, FALSE );
-	    repaint( tab->r, FALSE );
+	    repaint(r);
+	    repaint(tab->r);
 	}
 	makeVisible( tab );
 	emit selected( tab->id );
@@ -1146,7 +1146,7 @@ void QTabBar::focusInEvent( QFocusEvent * )
 {
     QTab *t = tab( d->focus );
     if ( t )
-	repaint( t->r, FALSE );
+	repaint( t->r );
 }
 
 /*!
@@ -1156,7 +1156,7 @@ void QTabBar::focusOutEvent( QFocusEvent * )
 {
     QTab *t = tab( d->focus );
     if ( t )
-	repaint( t->r, FALSE );
+	repaint( t->r );
 }
 
 /*!
@@ -1316,7 +1316,7 @@ void QTab::setText( const QString& text )
 	    tb->d->a->insertItem( p, id );
 #endif
 	tb->layoutTabs();
-	tb->repaint(FALSE);
+	tb->repaint();
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	QAccessible::updateAccessibility( tb, tb->indexOf(id)+1, QAccessible::NameChanged );

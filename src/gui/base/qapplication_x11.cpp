@@ -1163,7 +1163,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
     }
 
     if ( !resEF.isEmpty() ) {
-	QStringList effects = QStringList::split(" ",resEF);
+	QStringList effects = resEF.split(' ');
 	QApplication::setEffectEnabled( Qt::UI_General,  effects.contains("general") );
 	QApplication::setEffectEnabled( Qt::UI_AnimateMenu, effects.contains("animatemenu") );
 	QApplication::setEffectEnabled( Qt::UI_FadeMenu, effects.contains("fademenu") );

@@ -684,7 +684,7 @@ void QTranslator::squeeze( SaveMode mode )
 	    cpNext = 0;
 	else
 	    cpNext = (int) it.key().commonPrefix( next.key() );
-	offsets.replace( QTranslatorPrivate::Offset(it.key(),
+	offsets.insert( QTranslatorPrivate::Offset(it.key(),
 			 ms.device()->at()), (void*)0 );
 	it.key().write( ms, mode == Stripped,
 			(QTranslatorMessage::Prefix) qMax(cpPrev, cpNext + 1) );

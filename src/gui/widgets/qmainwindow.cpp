@@ -1047,7 +1047,7 @@ QToolTipGroup * QMainWindow::toolTipGroup() const
 
 void QMainWindow::setDockEnabled( Dock dock, bool enable )
 {
-    d->docks.replace( dock, enable );
+    d->docks.insert( dock, enable );
 }
 
 
@@ -2086,7 +2086,7 @@ QPopupMenu *QMainWindow::createDockWindowMenu( DockWindows dockWindows ) const
 
     QPopupMenu *menu = new QPopupMenu( (QMainWindow*)this, "qt_customize_menu" );
     menu->setCheckable( TRUE );
-    d->dockWindowModes.replace( menu, dockWindows );
+    d->dockWindowModes.insert( menu, dockWindows );
     connect( menu, SIGNAL( aboutToShow() ), this, SLOT( menuAboutToShow() ) );
     return menu;
 }
@@ -2358,7 +2358,7 @@ bool QMainWindow::appropriate( QDockWindow *dw ) const
 
 void QMainWindow::setAppropriate( QDockWindow *dw, bool a )
 {
-    d->appropriate.replace( dw, a );
+    d->appropriate.insert( dw, a );
 }
 
 #ifndef QT_NO_TEXTSTREAM
@@ -2510,18 +2510,18 @@ QTextStream &operator>>( QTextStream &ts, QMainWindow &mainWindow )
     QList<QDockWindow *> l = mainWindow.dockWindows();
 
     QString s = ts.readLine();
-    QStringList names = QStringList::split( ',', s );
+    QStringList names = s.split(',');
     loadDockArea( names, 0, Qt::DockMinimized, l, &mainWindow, ts );
 
     s = ts.readLine();
-    names = QStringList::split( ',', s );
+    names = s.split(',');
     loadDockArea( names, 0, Qt::DockTornOff, l, &mainWindow, ts );
 
     int i = 0;
     QDockArea *areas[] = { mainWindow.topDock(), mainWindow.bottomDock(), mainWindow.rightDock(), mainWindow.leftDock() };
     for ( int d = (int)Qt::DockTop; d != (int)Qt::DockMinimized; ++d, ++i ) {
 	s = ts.readLine();
-	names = QStringList::split( ',', s );
+	names = s.split(',');
 	loadDockArea( names, areas[ i ], (Qt::Dock)d, l, &mainWindow, ts );
     }
     return ts;

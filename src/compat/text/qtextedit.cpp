@@ -4776,7 +4776,7 @@ void QTextEdit::scrollToAnchor( const QString& name )
 	if( c->isAnchor() ) {
 	    QString a = c->anchorName();
 	    if ( a == name ||
-		 (a.contains( '#' ) && QStringList::split( '#', a ).contains( name ) ) ) {
+		 (a.contains( '#' ) && a.split('#').contains( name ) ) ) {
 		setContentsPos( contentsX(), qMin( cursor.paragraph()->rect().top() + cursor.totalOffsetY(), contentsHeight() - visibleHeight() ) );
 		break;
 	    }
@@ -5957,7 +5957,7 @@ QString QTextEdit::optimText() const
 	    tmp = d->od->lines[ LOGOFFSET(i) ] + "\n";
 	    // inject the tags for this line
 	    if ( (it = d->od->tagIndex.find( LOGOFFSET(i) )) != d->od->tagIndex.end() )
-		ftag = it.data();
+		ftag = it.value();
 	    offset = 0;
 	    while ( ftag && ftag->line == i ) {
 		tmp.insert( ftag->index + offset, "<" + ftag->tag + ">" );
@@ -5984,7 +5984,7 @@ void QTextEdit::optimSetText( const QString &str )
     d->od->clearTags();
     QFontMetrics fm( QScrollView::font() );
     if ( !(str.isEmpty() || str.isNull() || d->maxLogLines == 0) ) {
-	QStringList strl = QStringList::split( '\n', str, TRUE );
+	QStringList strl = str.split('\n');
 	int lWidth = 0;
 	for ( QStringList::Iterator it = strl.begin(); it != strl.end(); ++it ) {
  	    optimParseTags( &*it );
@@ -6022,7 +6022,7 @@ QTextEditOptimPrivate::Tag * QTextEdit::optimAppendTag( int index, const QString
     d->od->lastTag = t;
     tmp = d->od->tagIndex[ LOGOFFSET(t->line) ];
     if ( !tmp || (tmp && tmp->index > t->index) ) {
-	d->od->tagIndex.replace( LOGOFFSET(t->line), t );
+	d->od->tagIndex.insert( LOGOFFSET(t->line), t );
     }
     return t;
 }
@@ -6073,7 +6073,7 @@ QTextEditOptimPrivate::Tag *QTextEdit::optimInsertTag(int line, int index, const
 
     tmp = d->od->tagIndex[LOGOFFSET(t->line)];
     if (!tmp || (tmp && tmp->index >= t->index)) {
-	d->od->tagIndex.replace(LOGOFFSET(t->line), t);
+	d->od->tagIndex.insert(LOGOFFSET(t->line), t);
     }
     return t;
 }
@@ -6302,7 +6302,7 @@ void QTextEdit::optimAppend( const QString &str )
     if ( str.isEmpty() || str.isNull() || d->maxLogLines == 0 )
 	return;
 
-    QStringList strl = QStringList::split( '\n', str, TRUE );
+    QStringList strl = str.split('\n');
     QStringList::Iterator it = strl.begin();
 
     QFontMetrics fm( QScrollView::font() );
@@ -6401,7 +6401,7 @@ void QTextEdit::optimInsert(const QString& text, int line, int index)
     if (index > d->od->lines[line].length())
 	index = d->od->lines[line].length();
 
-    QStringList strl = QStringList::split('\n', text, TRUE);
+    QStringList strl = text.split('\n');
     int numNewLines = strl.count() - 1;
     QTextEditOptimPrivate::Tag *tag = 0;
     QMap<int,QTextEditOptimPrivate::Tag *>::ConstIterator ii;
@@ -6439,7 +6439,7 @@ void QTextEdit::optimInsert(const QString& text, int line, int index)
 	// might take a while..
 	for (x = line; x < d->od->numLines; x++) {
 	    if ((ii = d->od->tagIndex.find(LOGOFFSET(line))) != d->od->tagIndex.end()) {
-		tag = ii.data();
+		tag = ii.value();
 		if (LOGOFFSET(tag->line) == line)
 		    while (tag && (LOGOFFSET(tag->line) == line && tag->index < index))
 			tag = tag->next;
@@ -6521,7 +6521,7 @@ QTextEditOptimPrivate::Tag * QTextEdit::optimPreviousLeftTag( int line )
     QTextEditOptimPrivate::Tag * ftag = 0;
     QMap<int,QTextEditOptimPrivate::Tag *>::ConstIterator it;
     if ( (it = d->od->tagIndex.find( LOGOFFSET(line) )) != d->od->tagIndex.end() )
-	ftag = it.data();
+	ftag = it.value();
     if ( !ftag ) {
 	// start searching for an open tag
 	ftag = d->od->tags;
@@ -6653,7 +6653,7 @@ void QTextEdit::optimDrawContents( QPainter * p, int clipx, int clipy,
   	tmp = optimPreviousLeftTag( i );
 	for ( ; i < startLine + nLines; i++ ) {
 	    if ( (it = d->od->tagIndex.find( LOGOFFSET(i) )) != d->od->tagIndex.end() )
-		tag = it.data();
+		tag = it.value();
 	    // Step 2 - iterate over tags on the current line
 	    int lastIndex = 0;
 	    while ( tag && tag->line == i ) {
@@ -7143,12 +7143,12 @@ void QTextEdit::optimCheckLimit( const QString& str )
 	// ...in the tag index as well
 	QMap<int, QTextEditOptimPrivate::Tag *>::Iterator idx;
 	if ( (idx = d->od->tagIndex.find( d->logOffset )) != d->od->tagIndex.end() )
-	    d->od->tagIndex.remove( idx );
+	    d->od->tagIndex.erase( idx );
 
 	QMap<int,QString>::Iterator it;
 	if ( (it = d->od->lines.find( d->logOffset )) != d->od->lines.end() ) {
 	    d->od->len -= (*it).length();
-	    d->od->lines.remove( it );
+	    d->od->lines.erase( it );
 	    d->od->numLines--;
 	    d->logOffset = LOGOFFSET(1);
 	}

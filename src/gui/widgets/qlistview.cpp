@@ -1989,7 +1989,7 @@ void QListViewItem::paintCell( QPainter * p, const QPalette & pal,
 		ci->tmpText = qEllipsisText( t, fm, width - pw, align );
 	    } else if ( mlenabled && fm.width( t ) + pw > width ) {
 #ifndef QT_NO_STRINGLIST
-		QStringList list = QStringList::split( QChar('\n'), t, TRUE );
+		QStringList list = t.split(QChar('\n'));
 		for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it ) {
 		    QString z = *it;
 		    if ( fm.width( z ) + pw > width ) {

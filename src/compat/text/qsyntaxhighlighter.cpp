@@ -176,7 +176,7 @@ void QSyntaxHighlighter::rehighlight()
 	s->needPreProcess = TRUE;
 	s = s->next();
     }
-    edit->repaintContents( FALSE );
+    edit->repaintContents();
 }
 
 /*!

@@ -1224,15 +1224,15 @@ QString QCoreApplication::applicationFilePath()
 	  PATH environment variable.
 	*/
 	char *pEnv = getenv( "PATH" );
-	QStringList paths( QStringList::split(QChar(':'), pEnv) );
-	QStringList::const_iterator p = paths.begin();
-	while ( p != paths.end() ) {
+	QStringList paths = QString(pEnv).split(QChar(':'));
+	for (QStringList::const_iterator p = paths.begin(); p != paths.end(); ++p) {
+	    if ((*p).isEmpty())
+		continue;
 	    QString candidate = QDir::current().absFilePath( *p + "/" + argv0 );
 	    if ( QFile::exists(candidate) ) {
 		absPath = candidate;
 		break;
 	    }
-	    ++p;
 	}
     }
 

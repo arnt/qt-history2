@@ -373,7 +373,6 @@ void QDockWindowHandle::paintEvent( QPaintEvent *e )
 {
     if ( (!dockWindow->dockArea || mousePressed) && !opaque )
 	return;
-    erase();
     QPainter p( this );
     QStyle::SFlags flags = QStyle::Style_Default;
     if ( isEnabled() )
@@ -1051,10 +1050,10 @@ void QDockWindow::init()
 void QDockWindow::setOrientation( Orientation o )
 {
     QGridLayout *glayout = (QGridLayout*)layout();
-    glayout->remove( hHandleTop );
-    glayout->remove( hHandleBottom );
-    glayout->remove( vHandleLeft );
-    glayout->remove( vHandleRight );
+    glayout->removeWidget( hHandleTop );
+    glayout->removeWidget( hHandleBottom );
+    glayout->removeWidget( vHandleLeft );
+    glayout->removeWidget( vHandleRight );
 
     if ( o == Horizontal ) {
 	// Set up the new layout as

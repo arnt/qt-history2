@@ -940,7 +940,7 @@ void QWhatsThis::display( const QString& text, const QPoint& pos, QWidget* w )
 */
 void QWhatsThis::setFont( const QFont &font )
 {
-    QApplication::setFont( font, TRUE, "QWhatsThat" );
+    QApplication::setFont( font, "QWhatsThat" );
 }
 
 /*!\obsolete
