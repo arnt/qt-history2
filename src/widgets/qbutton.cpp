@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#52 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#53 $
 **
 ** Implementation of QButton widget class
 **
@@ -16,7 +16,7 @@
 #include "qkeycode.h"
 #include "qtimer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#52 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#53 $");
 
 
 /*!
@@ -447,28 +447,38 @@ void QButton::focusOutEvent( QFocusEvent * )
 {
     repaint( FALSE );
 }
+
+
 /*!
-  Handles keyboard events for the button. Space is the only key that has 
-  any effect: it emulates a mousePressEvent() followed by a 
-  mouseReleaseEvent().
-  */ 
+  Handles keyboard events for the button.
+
+  Space is the only key that has any effect; it emulates a
+  mousePressEvent() followed by a mouseReleaseEvent().
+*/
+
 void QButton::keyPressEvent( QKeyEvent *e ) 
 {
-    switch ( e->key() ) {			  
-    case Key_Space:
-	if ( isTiming )
-	    timerSlot(); //release button 
-	else {
+    if ( e->key() == Key_Space ) {
+	QTimer *timer;
+	if ( isTiming ) {
+	    timer = CHILD(this,QTimer,"timer");
+	    if ( timer ) {
+		timer->stop();
+		timer->start( 200, TRUE );
+	    }
+	    return;
+	} else {
 	    isTiming = TRUE;
-	    QTimer::singleShot( 100, this, SLOT(timerSlot()) );
+	    timer = new QTimer( this, "timer" );
+	    CHECK_PTR( timer );
+	    connect( timer, SIGNAL(timeout()), SLOT(timerSlot()) );
+	    timer->start( 200, TRUE );
 	}
 	buttonDown = TRUE;
 	repaint( FALSE );
 	emit pressed();
-	break;
-    default:
+    } else {
 	e->ignore();
-	break;
     }
 }
 
@@ -481,8 +491,10 @@ void QButton::timerSlot()
 {
     if ( !isTiming )
 	return;
-    isTiming = FALSE;
+    isTiming   = FALSE;
     buttonDown = FALSE;
+    QTimer *timer = CHILD(this,QTimer,"timer");
+    delete timer;
     if ( toggleBt )
 	buttonOn = !buttonOn;
     repaint( FALSE );
