@@ -33,11 +33,11 @@ typedef struct sqlite_vm sqlite_vm;
 static QSqlVariant::Type nameToType(const QString& typeName)
 {
     QString tName = typeName.toUpper();
-    if (tName.startsWith("INT"))
+    if (tName.startsWith(QLatin1String("INT")))
         return QSqlVariant::Int;
-    if (tName.startsWith("FLOAT") || tName.startsWith("NUMERIC"))
+    if (tName.startsWith(QLatin1String("FLOAT")) || tName.startsWith(QLatin1String("NUMERIC")))
         return QSqlVariant::Double;
-    if (tName.startsWith("BOOL"))
+    if (tName.startsWith(QLatin1String("BOOL")))
         return QSqlVariant::Bool;
     // SQLite is typeless - consider everything else as string
     return QSqlVariant::String;
@@ -109,7 +109,9 @@ void QSQLiteResultPrivate::finalize()
     char* err = 0;
     int res = sqlite_finalize(currentMachine, &err);
     if (err) {
-        q->setLastError(QSqlError("Unable to fetch results", err, QSqlError::StatementError, res));
+        q->setLastError(QSqlError(QLatin1String("Unable to fetch results"),
+                                  QString::fromAscii(err),
+                                  QSqlError::StatementError, res));
         sqlite_freemem(err);
     }
     currentMachine = 0;
@@ -129,7 +131,8 @@ void QSQLiteResultPrivate::init(const char **cnames, int numCols)
     for (int i = 0; i < numCols; ++i) {
         const char* lastDot = strrchr(cnames[i], '.');
         const char* fieldName = lastDot ? lastDot + 1 : cnames[i];
-        rInf.append(QSqlField(fieldName, nameToType(cnames[i+numCols])));
+        rInf.append(QSqlField(QString::fromAscii(fieldName),
+                              nameToType(QString::fromAscii(cnames[i+numCols]))));
     }
 }
 
@@ -174,7 +177,7 @@ bool QSQLiteResultPrivate::fetchNext(QSqlCachedResult::ValueCache &values, int i
         if (idx < 0 && !initialFetch)
             return true;
         for (i = 0; i < colNum; ++i)
-            values[i + idx] = utf8 ? QString::fromUtf8(fvals[i]) : QString(fvals[i]);
+            values[i + idx] = utf8 ? QString::fromUtf8(fvals[i]) : QString::fromAscii(fvals[i]);
         return true;
     case SQLITE_DONE:
         if (rInf.isEmpty())
@@ -229,7 +232,9 @@ bool QSQLiteResult::reset (const QString& query)
                                 &(d->currentMachine),
                                 &err);
     if (res != SQLITE_OK || err) {
-        setLastError(QSqlError("Unable to execute statement", err, QSqlError::StatementError, res));
+        setLastError(QSqlError(QLatin1String("Unable to execute statement"),
+                     QString::fromAscii(err),
+                     QSqlError::StatementError, res));
         sqlite_freemem(err);
     }
     //if (*d->currentTail != '\000' then there is more sql to eval
@@ -318,7 +323,8 @@ bool QSQLiteDriver::open(const QString & db, const QString &, const QString &, c
     char* err = 0;
     d->access = sqlite_open(QFile::encodeName(db), 0, &err);
     if (err) {
-        setLastError(QSqlError("Error to open database", err, QSqlError::ConnectionError));
+        setLastError(QSqlError(QLatin1String("Error to open database"), QString::fromAscii(err),
+                     QSqlError::ConnectionError));
         sqlite_freemem(err);
         err = 0;
     }
@@ -358,7 +364,8 @@ bool QSQLiteDriver::beginTransaction()
     if (res == SQLITE_OK)
         return true;
 
-    setLastError(QSqlError("Unable to begin transaction", err, QSqlError::TransactionError, res));
+    setLastError(QSqlError(QLatin1String("Unable to begin transaction"),
+                           QString::fromAscii(err), QSqlError::TransactionError, res));
     sqlite_freemem(err);
     return false;
 }
@@ -374,7 +381,8 @@ bool QSQLiteDriver::commitTransaction()
     if (res == SQLITE_OK)
         return true;
 
-    setLastError(QSqlError("Unable to commit transaction", err, QSqlError::TransactionError, res));
+    setLastError(QSqlError(QLatin1String("Unable to commit transaction"),
+                QString::fromAscii(err), QSqlError::TransactionError, res));
     sqlite_freemem(err);
     return false;
 }
@@ -390,7 +398,8 @@ bool QSQLiteDriver::rollbackTransaction()
     if (res == SQLITE_OK)
         return true;
 
-    setLastError(QSqlError("Unable to rollback Transaction", err, QSqlError::TransactionError, res));
+    setLastError(QSqlError(QLatin1String("Unable to rollback Transaction"),
+                           QString::fromAscii(err), QSqlError::TransactionError, res));
     sqlite_freemem(err);
     return false;
 }
@@ -404,11 +413,11 @@ QStringList QSQLiteDriver::tables(QSql::TableType type) const
     QSqlQuery q = createQuery();
     q.setForwardOnly(true);
     if ((type & QSql::Tables) && (type & QSql::Views))
-        q.exec("SELECT name FROM sqlite_master WHERE type='table' OR type='view'");
+        q.exec(QLatin1String("SELECT name FROM sqlite_master WHERE type='table' OR type='view'"));
     else if (type & QSql::Tables)
-        q.exec("SELECT name FROM sqlite_master WHERE type='table'");
+        q.exec(QLatin1String("SELECT name FROM sqlite_master WHERE type='table'"));
     else if (type & QSql::Views)
-        q.exec("SELECT name FROM sqlite_master WHERE type='view'");
+        q.exec(QLatin1String("SELECT name FROM sqlite_master WHERE type='view'"));
 
     if (q.isActive()) {
         while(q.next())
@@ -417,7 +426,7 @@ QStringList QSQLiteDriver::tables(QSql::TableType type) const
 
     if (type & QSql::SystemTables) {
         // there are no internal tables beside this one:
-        res.append("sqlite_master");
+        res.append(QLatin1String("sqlite_master"));
     }
 
     return res;
@@ -433,7 +442,7 @@ QSqlIndex QSQLiteDriver::primaryIndex(const QString &tblname) const
     QSqlQuery q = createQuery();
     q.setForwardOnly(true);
     // finrst find a UNIQUE INDEX
-    q.exec("PRAGMA index_list('" + tblname + "');");
+    q.exec(QLatin1String("PRAGMA index_list('") + tblname + QLatin1String("');"));
     QString indexname;
     while(q.next()) {
         if (q.value(2).toInt()==1) {
@@ -444,7 +453,7 @@ QSqlIndex QSQLiteDriver::primaryIndex(const QString &tblname) const
     if (indexname.isEmpty())
         return QSqlIndex();
 
-    q.exec("PRAGMA index_info('" + indexname + "');");
+    q.exec(QLatin1String("PRAGMA index_info('") + indexname + QLatin1String("');"));
 
     QSqlIndex index(indexname);
     while(q.next()) {
@@ -464,6 +473,6 @@ QSqlRecord QSQLiteDriver::record(const QString &tbl) const
 
     QSqlQuery q = createQuery();
     q.setForwardOnly(true);
-    q.exec("SELECT * FROM " + tbl + " LIMIT 1");
+    q.exec(QLatin1String("SELECT * FROM ") + tbl + QLatin1String(" LIMIT 1"));
     return q.record();
 }

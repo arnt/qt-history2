@@ -103,12 +103,12 @@ QString QSqlResultPrivate::holderAt(int pos) const
 
 void QSqlResultPrivate::positionalToNamedBinding()
 {
-    QRegExp rx("'[^']*'|\\?");
+    QRegExp rx(QLatin1String("'[^']*'|\\?"));
     QString q = sql;
     int i = 0, cnt = -1;
     while ((i = rx.indexIn(q, i)) != -1) {
-        if (rx.cap(0) == "?") {
-            q = q.replace(i, 1, ":f" + QString::number(++cnt));
+        if (rx.cap(0) == QLatin1String("?")) {
+            q = q.replace(i, 1, QLatin1String(":f") + QString::number(++cnt));
         }
         i += rx.matchedLength();
     }
@@ -117,7 +117,7 @@ void QSqlResultPrivate::positionalToNamedBinding()
 
 void QSqlResultPrivate::namedToPositionalBinding()
 {
-    QRegExp rx("'[^']*'|:([a-zA-Z0-9_]+)");
+    QRegExp rx(QLatin1String("'[^']*'|:([a-zA-Z0-9_]+)"));
     QString q = sql;
     int i = 0, cnt = -1;
     while ((i = rx.indexIn(q, i)) != -1) {
@@ -127,7 +127,7 @@ void QSqlResultPrivate::namedToPositionalBinding()
             // record the index of the placeholder - needed
             // for emulating named bindings with ODBC
             index[rx.cap(0)]= ++cnt;
-            q = q.replace(i, rx.matchedLength(), "?");
+            q = q.replace(i, rx.matchedLength(), QLatin1String("?"));
             ++i;
         }
     }
@@ -474,7 +474,7 @@ bool QSqlResult::savePrepare(const QString& query)
 */
 bool QSqlResult::prepare(const QString& query)
 {
-    QRegExp rx("'[^']*'|:([a-zA-Z0-9_]+)");
+    QRegExp rx(QLatin1String("'[^']*'|:([a-zA-Z0-9_]+)"));
     int i = 0;
     while ((i = rx.indexIn(query, i)) != -1) {
         if (!rx.cap(1).isEmpty())
@@ -502,7 +502,7 @@ bool QSqlResult::exec()
         for (i = d->holders.count() - 1; i >= 0; --i) {
             holder = d->holders[i].holderName;
             val = d->values[d->index[holder]];
-            QSqlField f("", val.type());
+            QSqlField f(QLatin1String(""), val.type());
             f.setValue(val);
             query = query.replace(d->holders[i].holderPos,
                                    holder.length(), driver()->formatValue(f));
@@ -512,11 +512,11 @@ bool QSqlResult::exec()
         int i = 0;
         int idx = 0;
         for (idx = 0; idx < d->values.count(); ++idx) {
-            i = query.indexOf('?', i);
+            i = query.indexOf(QLatin1Char('?'), i);
             if (i == -1)
                 continue;
             QCoreVariant var = d->values[idx];
-            QSqlField f("", var.type());
+            QSqlField f(QLatin1String(""), var.type());
             if (var.isNull())
                 f.clear();
             else
@@ -568,7 +568,7 @@ void QSqlResult::bindValue(const QString& placeholder, const QCoreVariant& val, 
 void QSqlResult::bindValue(int pos, const QCoreVariant& val, QSql::ParamType tp)
 {
     d->bindm = BindByPosition;
-    QString nm(":f" + QString::number(pos));
+    QString nm(QLatin1String(":f") + QString::number(pos));
     d->index[nm] = pos;
     if (d->values.count() <= pos)
         d->values.resize(pos + 1);

@@ -32,7 +32,7 @@ QODBCDriverPlugin::QODBCDriverPlugin()
 
 QSqlDriver* QODBCDriverPlugin::create(const QString &name)
 {
-    if (name == "QODBC3") {
+    if (name == QLatin1String("QODBC3")) {
         QODBCDriver* driver = new QODBCDriver();
         return driver;
     }
@@ -42,7 +42,7 @@ QSqlDriver* QODBCDriverPlugin::create(const QString &name)
 QStringList QODBCDriverPlugin::keys() const
 {
     QStringList l;
-    l.append("QODBC3");
+    l.append(QLatin1String("QODBC3"));
     return l;
 }
 

@@ -164,7 +164,7 @@ QString QSqlIndex::toString(const QString& prefix, const QString& sep, bool verb
     bool comma = false;
     for (int i = 0; i < count(); ++i) {
         if(comma)
-            s += sep + " ";
+            s += sep + QLatin1Char(' ');
         s += createField(i, prefix, verbose);
         comma = true;
     }
@@ -213,10 +213,11 @@ QString QSqlIndex::createField(int i, const QString& prefix, bool verbose) const
 {
     QString f;
     if (!prefix.isEmpty())
-        f += prefix + ".";
+        f += prefix + QLatin1Char('.');
     f += field(i).name();
     if (verbose)
-        f += " " + QString((isDescending(i) ? "DESC" : "ASC"));
+        f += QLatin1Char(' ') + QString((isDescending(i)
+                    ? QLatin1String("DESC") : QLatin1String("ASC")));
     return f;
 }
 

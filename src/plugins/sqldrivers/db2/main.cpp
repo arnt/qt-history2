@@ -32,7 +32,7 @@ QDB2DriverPlugin::QDB2DriverPlugin()
 
 QSqlDriver* QDB2DriverPlugin::create(const QString &name)
 {
-    if (name == "QDB2") {
+    if (name == QLatin1String("QDB2")) {
         QDB2Driver* driver = new QDB2Driver();
         return driver;
     }
@@ -42,7 +42,7 @@ QSqlDriver* QDB2DriverPlugin::create(const QString &name)
 QStringList QDB2DriverPlugin::keys() const
 {
     QStringList l;
-    l.append("QDB2");
+    l.append(QLatin1String("QDB2"));
     return l;
 }
 

@@ -102,14 +102,14 @@ public:
     QT_STATIC_CONST char *defaultConnection;
 
     static QSqlDatabase addDatabase(const QString& type,
-                                    const QString& connectionName = QString(defaultConnection));
+                                 const QString& connectionName = QLatin1String(defaultConnection));
     static QSqlDatabase addDatabase(QSqlDriver* driver,
-                                    const QString& connectionName = QString(defaultConnection));
+                                 const QString& connectionName = QLatin1String(defaultConnection));
     static QSqlDatabase cloneDatabase(const QSqlDatabase &other, const QString& connectionName);
-    static QSqlDatabase database(const QString& connectionName = defaultConnection,
+    static QSqlDatabase database(const QString& connectionName = QLatin1String(defaultConnection),
                                  bool open = true);
     static void removeDatabase(const QString& connectionName);
-    static bool contains(const QString& connectionName = defaultConnection);
+    static bool contains(const QString& connectionName = QLatin1String(defaultConnection));
     static QStringList drivers();
     static void registerSqlDriver(const QString& name, QSqlDriverCreatorBase* creator);
     static bool isDriverAvailable(const QString& name);

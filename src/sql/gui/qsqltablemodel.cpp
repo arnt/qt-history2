@@ -632,8 +632,8 @@ QString QSqlTableModel::orderByStatement() const
     QSqlField f = d->rec.field(d->sortColumn);
     if (!f.isValid())
         return s;
-    s.append("ORDER BY ").append(f.name());
-    s += d->sortOrder == Qt::AscendingOrder ? " ASC" : " DESC";
+    s.append(QLatin1String("ORDER BY ")).append(f.name());
+    s += d->sortOrder == Qt::AscendingOrder ? QLatin1String(" ASC") : QLatin1String(" DESC");
     return s;
 }
 
@@ -652,11 +652,12 @@ QString QSqlTableModel::selectStatement() const
 {
     QString query;
     if (d->tableName.isEmpty()) {
-        d->error = QSqlError("No tablename given", QString(), QSqlError::StatementError);
+        d->error = QSqlError(QLatin1String("No tablename given"), QString(),
+                             QSqlError::StatementError);
         return query;
     }
     if (d->rec.isEmpty()) {
-        d->error = QSqlError("Unable to find table " + d->tableName, QString(),
+        d->error = QSqlError(QLatin1String("Unable to find table ") + d->tableName, QString(),
                              QSqlError::StatementError);
         return query;
     }
@@ -664,12 +665,12 @@ QString QSqlTableModel::selectStatement() const
     query = d->db.driver()->sqlStatement(QSqlDriver::SelectStatement, d->tableName,
                                           d->rec, false);
     if (query.isEmpty()) {
-        d->error = QSqlError("Unable to select fields from table " + d->tableName, QString(),
-                             QSqlError::StatementError);
+        d->error = QSqlError(QLatin1String("Unable to select fields from table ") + d->tableName,
+                             QString(), QSqlError::StatementError);
         return query;
     }
     if (!d->filter.isEmpty())
-        query.append(" WHERE ").append(d->filter).append(" ");
+        query.append(QLatin1String(" WHERE ")).append(d->filter).append(QLatin1Char(' '));
     query.append(orderByStatement());
 
     return query;

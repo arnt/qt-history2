@@ -24,8 +24,6 @@
 #include <qtextcodec.h>
 #include <qvector.h>
 
-#define QMYSQL_DRIVER_NAME "QMYSQL3"
-
 #ifdef Q_OS_WIN32
 // comment the next line out if you want to use MySQL/embedded on Win32 systems.
 // note that it will crash if you don't statically link to the mysql/e library!
@@ -62,7 +60,10 @@ static QTextCodec* codec(MYSQL* mysql)
 static QSqlError qMakeError(const QString& err, QSqlError::ErrorType type,
                             const QMYSQLDriverPrivate* p)
 {
-    return QSqlError(QMYSQL_DRIVER_NAME ": " + err, QString(mysql_error(p->mysql)), type, mysql_errno(p->mysql));
+    const char *cerr = mysql_error(p->mysql);
+    return QSqlError(QLatin1String("QMYSQL3: ") + err,
+                     p->tc ? p->tc->toUnicode(cerr) : QString::fromLatin1(cerr),
+                     type, mysql_errno(p->mysql));
 }
 
 static QCoreVariant::Type qDecodeMYSQLType(int mysqltype, uint flags)
@@ -247,7 +248,8 @@ QCoreVariant QMYSQLResult::data(int field)
             return QCoreVariant(QDateTime());
         if (val.length() == 14u)
             // TIMESTAMPS have the format yyyyMMddhhmmss
-            val.insert(4, "-").insert(7, "-").insert(10, 'T').insert(13, ':').insert(16, ':');
+            val.insert(4, QLatin1Char('-')).insert(7, QLatin1Char('-')).insert(10,
+                    QLatin1Char('T')).insert(13, QLatin1Char(':')).insert(16, QLatin1Char(':'));
         return QCoreVariant(QDateTime::fromString(val, Qt::ISODate));
     case QCoreVariant::ByteArray: {
         unsigned long* fl = mysql_fetch_lengths(d->result);
@@ -280,7 +282,8 @@ bool QMYSQLResult::reset (const QString& query)
     cleanup();
     const QByteArray encQuery(d->tc->fromUnicode(query));
     if (mysql_real_query(d->mysql, encQuery.data(), encQuery.length())) {
-        setLastError(qMakeError("Unable to execute query", QSqlError::StatementError, d));
+        setLastError(qMakeError(QLatin1String("Unable to execute query"),
+                                QSqlError::StatementError, d));
         return false;
     }
     if (isForwardOnly()) {
@@ -291,7 +294,8 @@ bool QMYSQLResult::reset (const QString& query)
         d->result = mysql_store_result(d->mysql);
     }
     if (!d->result && mysql_field_count(d->mysql) > 0) {
-        setLastError(qMakeError("Unable to store result", QSqlError::StatementError, d));
+        setLastError(qMakeError(QLatin1String("Unable to store result"),
+                                QSqlError::StatementError, d));
         return false;
     }
     int numFields = mysql_field_count(d->mysql);
@@ -464,7 +468,7 @@ bool QMYSQLDriver::open(const QString& db,
         int idx;
         if ((idx = tmp.indexOf('=')) != -1) {
             QString val(tmp.mid(idx + 1).simplified());
-            if (val == "TRUE" || val == "1")
+            if (val == QLatin1String("TRUE") || val == QLatin1String("1"))
                 setOptionFlag(optionFlags, tmp.left(idx).simplified());
             else
                 qWarning("QMYSQLDriver::open: Illegal connect option value '%s'", tmp.latin1());
@@ -484,13 +488,15 @@ bool QMYSQLDriver::open(const QString& db,
                                 optionFlags))
     {
         if (mysql_select_db(d->mysql, db.local8Bit())) {
-            setLastError(qMakeError("Unable open database '" + db + "'", QSqlError::ConnectionError, d));
+            setLastError(qMakeError(QLatin1String("Unable open database '") + db +
+                        QLatin1Char('\''), QSqlError::ConnectionError, d));
             mysql_close(d->mysql);
             setOpenError(true);
             return false;
         }
     } else {
-            setLastError(qMakeError("Unable to connect", QSqlError::ConnectionError, d));
+            setLastError(qMakeError(QLatin1String("Unable to connect"),
+                                    QSqlError::ConnectionError, d));
             mysql_close(d->mysql);
             setOpenError(true);
             return false;
@@ -544,11 +550,11 @@ QSqlIndex QMYSQLDriver::primaryIndex(const QString& tablename) const
     if (!isOpen())
         return idx;
     QSqlQuery i = createQuery();
-    QString stmt("show index from %1;");
+    QString stmt(QLatin1String("show index from %1;"));
     QSqlRecord fil = record(tablename);
     i.exec(stmt.arg(tablename));
     while (i.isActive() && i.next()) {
-        if (i.value(2).toString() == "PRIMARY") {
+        if (i.value(2).toString() == QLatin1String("PRIMARY")) {
             idx.append(fil.field(i.value(4).toString()));
             idx.setCursorName(i.value(0).toString());
             idx.setName(i.value(2).toString());
@@ -590,7 +596,8 @@ bool QMYSQLDriver::beginTransaction()
         return false;
     }
     if (mysql_query(d->mysql, "BEGIN WORK")) {
-        setLastError(qMakeError("Unable to begin transaction", QSqlError::StatementError, d));
+        setLastError(qMakeError(QLatin1String("Unable to begin transaction"),
+                                QSqlError::StatementError, d));
         return false;
     }
     return true;
@@ -608,7 +615,8 @@ bool QMYSQLDriver::commitTransaction()
         return false;
     }
     if (mysql_query(d->mysql, "COMMIT")) {
-        setLastError(qMakeError("Unable to commit transaction", QSqlError::StatementError, d));
+        setLastError(qMakeError(QLatin1String("Unable to commit transaction"),
+                                QSqlError::StatementError, d));
         return false;
     }
     return true;
@@ -626,7 +634,8 @@ bool QMYSQLDriver::rollbackTransaction()
         return false;
     }
     if (mysql_query(d->mysql, "ROLLBACK")) {
-        setLastError(qMakeError("Unable to rollback transaction", QSqlError::StatementError, d));
+        setLastError(qMakeError(QLatin1String("Unable to rollback transaction"),
+                                QSqlError::StatementError, d));
         return false;
     }
     return true;
@@ -646,14 +655,14 @@ QString QMYSQLDriver::formatValue(const QSqlField &field, bool trimStrings) cons
             char* buffer = new char[ba.size() * 2 + 1];
             int escapedSize = (int)mysql_escape_string(buffer, ba.data(), ba.size());
             r.reserve(escapedSize + 3);
-            r.append("'").append(buffer).append("'");
+            r.append(QLatin1Char('\'')).append(QLatin1String(buffer)).append(QLatin1Char('\''));
             delete[] buffer;
         }
         break;
         case QCoreVariant::String:
             // Escape '\' characters
             r = QSqlDriver::formatValue(field, trimStrings);
-            r.replace("\\", "\\\\");
+            r.replace(QLatin1String("\\"), QLatin1String("\\\\"));
             break;
         default:
             r = QSqlDriver::formatValue(field, trimStrings);

@@ -32,7 +32,7 @@ QPSQLDriverPlugin::QPSQLDriverPlugin()
 
 QSqlDriver* QPSQLDriverPlugin::create(const QString &name)
 {
-    if (name == "QPSQL7") {
+    if (name == QLatin1String("QPSQL7")) {
         QPSQLDriver* driver = new QPSQLDriver();
         return driver;
     }
@@ -42,7 +42,7 @@ QSqlDriver* QPSQLDriverPlugin::create(const QString &name)
 QStringList QPSQLDriverPlugin::keys() const
 {
     QStringList l;
-    l.append("QPSQL7");
+    l.append(QLatin1String("QPSQL7"));
     return l;
 }
 

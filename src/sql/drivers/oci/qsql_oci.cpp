@@ -322,27 +322,30 @@ int qOraErrorNumber(const QOCIPrivate* d)
 
 QSqlError qMakeError(const QString& err, QSqlError::ErrorType type, const QOCIPrivate* p)
 {
-    return QSqlError("QOCI: " + err, qOraWarn(p), type);
+    return QSqlError(QLatin1String("QOCI: ") + err, qOraWarn(p), type);
 }
 
 QCoreVariant::Type qDecodeOCIType(const QString& ocitype, int ocilen, int ociprec, int ociscale)
 {
     QCoreVariant::Type type = QCoreVariant::Invalid;
-    if (ocitype == "VARCHAR2" || ocitype == "VARCHAR" || ocitype.startsWith("INTERVAL") ||
-         ocitype == "CHAR" || ocitype == "NVARCHAR2" || ocitype == "NCHAR")
+    if (ocitype == QLatin1String("VARCHAR2") || ocitype == QLatin1String("VARCHAR")
+         || ocitype.startsWith(QLatin1String("INTERVAL"))
+         || ocitype == QLatin1String("CHAR") || ocitype == QLatin1String("NVARCHAR2")
+         || ocitype == QLatin1String("NCHAR"))
         type = QCoreVariant::String;
-    else if (ocitype == "NUMBER")
+    else if (ocitype == QLatin1String("NUMBER"))
         type = QCoreVariant::Int;
-    else if (ocitype == "FLOAT")
+    else if (ocitype == QLatin1String("FLOAT"))
         type = QCoreVariant::Double;
 //    else if (ocitype == "LONG" || ocitype == "NCLOB" || ocitype == "CLOB")
 //        type = QCoreVariant::CString;
-    else if (ocitype == "RAW" || ocitype == "LONG RAW" || ocitype == "ROWID"
-              || ocitype == "CFILE" || ocitype == "BFILE" || ocitype == "BLOB")
+    else if (ocitype == QLatin1String("RAW") || ocitype == QLatin1String("LONG RAW")
+             || ocitype == QLatin1String("ROWID") || ocitype == QLatin1String("BLOB")
+             || ocitype == QLatin1String("CFILE") || ocitype == QLatin1String("BFILE"))
         type = QCoreVariant::ByteArray;
-    else if (ocitype == "DATE" ||  ocitype.startsWith("TIME"))
+    else if (ocitype == QLatin1String("DATE") ||  ocitype.startsWith(QLatin1String("TIME")))
         type = QCoreVariant::DateTime;
-    else if (ocitype == "UNDEFINED")
+    else if (ocitype == QLatin1String("UNDEFINED"))
         type = QCoreVariant::Invalid;
     if (type == QCoreVariant::Int) {
         if (ocilen == 22 && ociprec == 0 && ociscale == 0)
@@ -1123,7 +1126,7 @@ bool QOCIResult::prepare(const QString& query)
                         0);
     if (r != 0) {
         qOraWarning("QOCIResult::prepare: unable to alloc statement:", d);
-        setLastError(qMakeError("Unable to alloc statement", QSqlError::StatementError, d));
+        setLastError(qMakeError(QLatin1String("Unable to alloc statement"), QSqlError::StatementError, d));
         return false;
     }
     r = OCIStmtPrepare(d->sql,
@@ -1134,7 +1137,7 @@ bool QOCIResult::prepare(const QString& query)
                         OCI_DEFAULT);
     if (r != 0) {
         qOraWarning("QOCIResult::prepare: unable to prepare statement:", d);
-        setLastError(qMakeError("Unable to prepare statement", QSqlError::StatementError, d));
+        setLastError(qMakeError(QLatin1String("Unable to prepare statement"), QSqlError::StatementError, d));
         return false;
     }
     // do something with the placeholders? into a map?
@@ -1154,7 +1157,7 @@ bool QOCIResult::exec()
     if (boundValueCount() > 0
          && d->bindValues(boundValues(), indicators, tmpStorage) != OCI_SUCCESS) {
         qOraWarning("QOCIResult::exec: unable to bind value: ", d);
-        setLastError(qMakeError("Unable to bind value", QSqlError::StatementError, d));
+        setLastError(qMakeError(QLatin1String("Unable to bind value"), QSqlError::StatementError, d));
         return false;
     }
 
@@ -1177,7 +1180,7 @@ bool QOCIResult::exec()
                             OCI_DEFAULT);
         if (r != 0) {
             qOraWarning("QOCIResult::exec: unable to execute select statement:", d);
-            setLastError(qMakeError("Unable to execute select statement", QSqlError::StatementError, d));
+            setLastError(qMakeError(QLatin1String("Unable to execute select statement"), QSqlError::StatementError, d));
             return false;
         }
         ub4 parmCount = 0;
@@ -1193,7 +1196,7 @@ bool QOCIResult::exec()
                                 d->transaction ? OCI_DEFAULT : OCI_COMMIT_ON_SUCCESS );
         if (r != 0) {
             qOraWarning("QOCIResult::exec: unable to execute statement:", d);
-            setLastError(qMakeError("Unable to execute statement", QSqlError::StatementError, d));
+            setLastError(qMakeError(QLatin1String("Unable to execute statement"), QSqlError::StatementError, d));
             return false;
         }
         setSelect(false);
@@ -1463,7 +1466,7 @@ bool QOCI9Result::exec()
     if (boundValueCount() > 0
         && d->bindValues(boundValues(), indicators, tmpStorage) != OCI_SUCCESS) {
         qOraWarning("QOCIResult::exec: unable to bind value: ", d);
-        setLastError(qMakeError("Unable to bind value", QSqlError::StatementError, d));
+        setLastError(qMakeError(QLatin1String("Unable to bind value"), QSqlError::StatementError, d));
         return false;
     }
 
@@ -1489,7 +1492,7 @@ bool QOCI9Result::exec()
                             mode);
         if (r != 0) {
             qOraWarning("QOCI9Result::reset: unable to execute select statement: ", d);
-            setLastError(qMakeError("Unable to execute select statement", QSqlError::StatementError, d));
+            setLastError(qMakeError(QLatin1String("Unable to execute select statement"), QSqlError::StatementError, d));
             return false;
         }
         ub4 parmCount = 0;
@@ -1504,7 +1507,7 @@ bool QOCI9Result::exec()
                                 d->transaction ? OCI_DEFAULT : OCI_COMMIT_ON_SUCCESS);
         if (r != 0) {
             qOraWarning("QOCI9Result::reset: unable to execute statement: ", d);
-            setLastError(qMakeError("Unable to execute statement", QSqlError::StatementError, d));
+            setLastError(qMakeError(QLatin1String("Unable to execute statement"), QSqlError::StatementError, d));
             return false;
         }
         setSelect(false);
@@ -1595,7 +1598,7 @@ void QOCIDriver::init()
     if (r != 0)
         qOraWarning("QOCIDriver: unable to alloc service context:", d);
     if (r != 0)
-        setLastError(qMakeError("Unable to initialize", QSqlError::ConnectionError, d));
+        setLastError(qMakeError(QLatin1String("Unable to initialize"), QSqlError::ConnectionError, d));
 }
 
 QOCIDriver::~QOCIDriver()
@@ -1643,7 +1646,7 @@ bool QOCIDriver::open(const QString & db,
                         (OraText*)db.unicode(),
                         db.length() * sizeof(QChar));
     if (r != 0) {
-        setLastError(qMakeError("Unable to logon", QSqlError::ConnectionError, d));
+        setLastError(qMakeError(QLatin1String("Unable to logon"), QSqlError::ConnectionError, d));
         setOpenError(true);
         return false;
     }
@@ -1662,7 +1665,7 @@ bool QOCIDriver::open(const QString & db,
     } else {
         QString versionStr = d->utf16bind ? QString::fromUtf16((unsigned short*)vertxt)
                             : QString::fromUtf8((char*)vertxt, sizeof(vertxt));
-        QRegExp vers("([0-9]+)\\.[0-9\\.]+[0-9]");
+        QRegExp vers(QLatin1String("([0-9]+)\\.[0-9\\.]+[0-9]"));
         if (vers.indexIn(versionStr) >= 0)
             d->serverVersion = vers.cap(1).toInt();
         if (d->serverVersion == 0)
@@ -1674,16 +1677,16 @@ bool QOCIDriver::open(const QString & db,
 
     QSqlQuery q = createQuery();
     q.setForwardOnly(true);
-    if (q.exec("select parameter, value from nls_database_parameters "
+    if (q.exec(QLatin1String("select parameter, value from nls_database_parameters "
                  "where parameter = 'NLS_CHARACTERSET' "
-                 "or parameter = 'NLS_NCHAR_CHARACTERSET'")) {
+                 "or parameter = 'NLS_NCHAR_CHARACTERSET'"))) {
         while (q.next()) {
             // qDebug("NLS: " + q.value(0).toString()); // ###
-            if (q.value(0).toString() == "NLS_CHARACTERSET" &&
-                 q.value(1).toString().toUpper().startsWith("UTF8")) {
+            if (q.value(0).toString() == QLatin1String("NLS_CHARACTERSET") &&
+                 q.value(1).toString().toUpper().startsWith(QLatin1String("UTF8"))) {
                 d->utf8 = true;
-            } else if (q.value(0).toString() == "NLS_NCHAR_CHARACTERSET" &&
-                 q.value(1).toString().toUpper().startsWith("UTF8")) {
+            } else if (q.value(0).toString() == QLatin1String("NLS_NCHAR_CHARACTERSET") &&
+                 q.value(1).toString().toUpper().startsWith(QLatin1String("UTF8"))) {
                 d->nutf8 = true;
             }
         }
@@ -1783,39 +1786,39 @@ QStringList QOCIDriver::tables(QSql::TableType type) const
     QSqlQuery t = createQuery();
     t.setForwardOnly(true);
     if (type & QSql::Tables) {
-        t.exec("select owner, table_name from all_tables "
+        t.exec(QLatin1String("select owner, table_name from all_tables "
                 "where owner != 'MDSYS' "
                 "and owner != 'LBACSYS' "
                 "and owner != 'SYS' "
                 "and owner != 'SYSTEM' "
                 "and owner != 'WKSYS'"
                 "and owner != 'CTXSYS'"
-                "and owner != 'WMSYS'");
+                "and owner != 'WMSYS'"));
         while (t.next()) {
             if (t.value(0).toString() != d->user)
-                tl.append(t.value(0).toString() + "." + t.value(1).toString());
+                tl.append(t.value(0).toString() + QLatin1String(".") + t.value(1).toString());
             else
                 tl.append(t.value(1).toString());
         }
     }
     if (type & QSql::Views) {
-        t.exec("select owner, view_name from all_views "
+        t.exec(QLatin1String("select owner, view_name from all_views "
                 "where owner != 'MDSYS' "
                 "and owner != 'LBACSYS' "
                 "and owner != 'SYS' "
                 "and owner != 'SYSTEM' "
                 "and owner != 'WKSYS'"
                 "and owner != 'CTXSYS'"
-                "and owner != 'WMSYS'");
+                "and owner != 'WMSYS'"));
         while (t.next()) {
             if (t.value(0).toString() != d->user)
-                tl.append(t.value(0).toString() + "." + t.value(1).toString());
+                tl.append(t.value(0).toString() + QLatin1String(".") + t.value(1).toString());
             else
                 tl.append(t.value(1).toString());
         }
     }
     if (type & QSql::SystemTables) {
-        t.exec("select table_name from dictionary");
+        t.exec(QLatin1String("select table_name from dictionary"));
         while (t.next()) {
             tl.append(t.value(0).toString());
         }
@@ -1845,27 +1848,27 @@ QSqlRecord QOCIDriver::record(const QString& tablename) const
     QSqlQuery t = createQuery();
     // using two separate queries for this is A LOT faster than using
     // eg. a sub-query on the sys.synonyms table
-    QString stmt("select column_name, data_type, data_length, "
+    QString stmt(QLatin1String("select column_name, data_type, data_length, "
                   "data_precision, data_scale, nullable, data_default%1"
                   "from all_tab_columns "
-                  "where table_name=%2");
+                  "where table_name=%2"));
     if (d->serverVersion >= 9)
-        stmt = stmt.arg(", char_length ");
+        stmt = stmt.arg(QLatin1String(", char_length "));
     else
-        stmt = stmt.arg(" ");
+        stmt = stmt.arg(QLatin1String(" "));
     bool buildRecordInfo = false;
     QString table, owner, tmpStmt;
     qSplitTableAndOwner(tablename, &table, &owner);
-    tmpStmt = stmt.arg("'" + table + "'");
+    tmpStmt = stmt.arg(QLatin1String("'") + table + QLatin1String("'"));
     if (owner.isEmpty()) {
         owner = d->user;
     }
-    tmpStmt += " and owner='" + owner + "'";
+    tmpStmt += QLatin1String(" and owner='") + owner + QLatin1String("'");
     t.setForwardOnly(true);
     t.exec(tmpStmt);
     if (!t.next()) { // try and see if the tablename is a synonym
-        stmt= stmt.arg("(select tname from sys.synonyms where sname='"
-                        + table + "' and creator=owner)");
+        stmt= stmt.arg(QLatin1String("(select tname from sys.synonyms where sname='")
+                        + table + QLatin1String("' and creator=owner)"));
         t.setForwardOnly(true);
         t.exec(stmt);
         if (t.next())
@@ -1899,26 +1902,26 @@ QSqlIndex QOCIDriver::primaryIndex(const QString& tablename) const
     if (!isOpen())
         return idx;
     QSqlQuery t = createQuery();
-    QString stmt("select b.column_name, b.index_name, a.table_name, a.owner "
+    QString stmt(QLatin1String("select b.column_name, b.index_name, a.table_name, a.owner "
                   "from all_constraints a, all_ind_columns b "
                   "where a.constraint_type='P' "
                   "and b.index_name = a.constraint_name "
-                  "and b.index_owner = a.owner");
+                  "and b.index_owner = a.owner"));
 
     bool buildIndex = false;
     QString table, owner, tmpStmt;
     qSplitTableAndOwner(tablename, &table, &owner);
-    tmpStmt = stmt + " and a.table_name='" + table + "'";
+    tmpStmt = stmt + QLatin1String(" and a.table_name='") + table + QLatin1String("'");
     if (owner.isEmpty()) {
         owner = d->user;
     }
-    tmpStmt += " and a.owner='" + owner + "'";
+    tmpStmt += QLatin1String(" and a.owner='") + owner + QLatin1String("'");
     t.setForwardOnly(true);
     t.exec(tmpStmt);
 
     if (!t.next()) {
-        stmt += " and a.table_name=(select tname from sys.synonyms "
-                "where sname='" + table + "' and creator=a.owner)";
+        stmt += QLatin1String(" and a.table_name=(select tname from sys.synonyms "
+                "where sname='") + table + QLatin1String("' and creator=a.owner)");
         t.setForwardOnly(true);
         t.exec(stmt);
         if (t.next()) {
@@ -1933,9 +1936,10 @@ QSqlIndex QOCIDriver::primaryIndex(const QString& tablename) const
         tt.setForwardOnly(true);
         idx.setName(t.value(1).toString());
         do {
-            tt.exec("select data_type from all_tab_columns where table_name='" +
-                     t.value(2).toString() + "' and column_name='" +
-                     t.value(0).toString() + "' and owner='" + owner + "'");
+            tt.exec(QLatin1String("select data_type from all_tab_columns where table_name='") +
+                     t.value(2).toString() + QLatin1String("' and column_name='") +
+                     t.value(0).toString() + QLatin1String("' and owner='") +
+                     owner +QLatin1String("'"));
             if (!tt.next()) {
                 return QSqlIndex();
             }
@@ -1952,12 +1956,13 @@ QString QOCIDriver::formatValue(const QSqlField &field, bool) const
     switch (field.type()) {
     case QCoreVariant::String: {
         if (d->serverVersion >= 9) {
-            QString encStr = "UNISTR('";
+            QString encStr = QLatin1String("UNISTR('");
             const QString srcStr = field.value().toString();
             for (int i = 0; i < srcStr.length(); ++i) {
-                encStr += '\\' + QString::number(srcStr.at(i).unicode(), 16).rightJustified(4, '0');
+                encStr += QLatin1Char('\\') +
+                          QString::number(srcStr.at(i).unicode(), 16).rightJustified(4, '0');
             }
-            encStr += "')";
+            encStr += QLatin1String("')");
             return encStr;
         } else {
             return QSqlDriver::formatValue(field);
@@ -1968,15 +1973,16 @@ QString QOCIDriver::formatValue(const QSqlField &field, bool) const
         QDateTime datetime = field.value().toDateTime();
         QString datestring;
         if (datetime.isValid()) {
-            datestring = "TO_DATE('" + QString::number(datetime.date().year()) + "-" + \
-                                 QString::number(datetime.date().month()) + "-" + \
-                                 QString::number(datetime.date().day()) + " " + \
-                                 QString::number(datetime.time().hour()) + ":" + \
-                                 QString::number(datetime.time().minute()) + ":" + \
-                                 QString::number(datetime.time().second()) + "',"
-                                 "'YYYY-MM-DD HH24:MI:SS')";
+            datestring = QLatin1String("TO_DATE('") + QString::number(datetime.date().year())
+                         + QLatin1Char('-')
+                         + QString::number(datetime.date().month()) + QLatin1Char('-')
+                         + QString::number(datetime.date().day()) + QLatin1Char(' ')
+                         + QString::number(datetime.time().hour()) + QLatin1Char(':')
+                         + QString::number(datetime.time().minute()) + QLatin1Char(':')
+                         + QString::number(datetime.time().second())
+                         + QLatin1String("','YYYY-MM-DD HH24:MI:SS')");
         } else {
-            datestring = "NULL";
+            datestring = QLatin1String("NULL");
         }
         return datestring;
         break;
@@ -1985,12 +1991,12 @@ QString QOCIDriver::formatValue(const QSqlField &field, bool) const
         QDate date = field.value().toDate();
         QString datestring;
         if (date.isValid()) {
-            datestring = "TO_DATE('" + QString::number(date.year()) + "-" + \
-                                 QString::number(date.month()) + "-" + \
-                                 QString::number(date.day()) + "',"
-                                 "'YYYY-MM-DD')";
+            datestring = QLatin1String("TO_DATE('") + QString::number(date.year()) +
+                         QLatin1Char('-') +
+                         QString::number(date.month()) + QLatin1Char('-') +
+                         QString::number(date.day()) + QLatin1String("','YYYY-MM-DD')");
         } else {
-            datestring = "NULL";
+            datestring = QLatin1String("NULL");
         }
         return datestring;
         break;

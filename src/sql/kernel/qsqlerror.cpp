@@ -204,10 +204,10 @@ void QSqlError::setNumber(int number)
 
 QString QSqlError::text() const
 {
-    if (databaseError.endsWith("\n"))
+    if (databaseError.endsWith(QLatin1String("\n")))
         return databaseError + driverError;
     else
-        return databaseError + " " + driverError;
+        return databaseError + QLatin1Char(' ') + driverError;
 }
 
 #endif // QT_NO_SQL

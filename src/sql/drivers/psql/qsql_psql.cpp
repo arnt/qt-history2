@@ -372,7 +372,7 @@ int QPSQLResult::size()
 
 int QPSQLResult::numRowsAffected()
 {
-    return QString(PQcmdTuples(d->result)).toInt();
+    return QString::fromLatin1(PQcmdTuples(d->result)).toInt();
 }
 
 QSqlRecord QPSQLResult::record() const
@@ -430,7 +430,7 @@ static QPSQLDriver::Protocol getPSQLVersion(PGconn* connection)
     PGresult* result = PQexec(connection, "select version()");
     int status =  PQresultStatus(result);
     if (status == PGRES_COMMAND_OK || status == PGRES_TUPLES_OK) {
-        QString val(PQgetvalue(result, 0, 0));
+        QString val = QString::fromAscii(PQgetvalue(result, 0, 0));
         PQclear(result);
         QRegExp rx(QLatin1String("(\\d+)\\.(\\d+)"));
         rx.setMinimalMatching(true); // enforce non-greedy RegExp

@@ -32,7 +32,7 @@ QSQLiteDriverPlugin::QSQLiteDriverPlugin()
 
 QSqlDriver* QSQLiteDriverPlugin::create(const QString &name)
 {
-    if (name == "QSQLITE") {
+    if (name == QLatin1String("QSQLITE")) {
         QSQLiteDriver* driver = new QSQLiteDriver();
         return driver;
     }
@@ -42,7 +42,7 @@ QSqlDriver* QSQLiteDriverPlugin::create(const QString &name)
 QStringList QSQLiteDriverPlugin::keys() const
 {
     QStringList l;
-    l  << "QSQLITE";
+    l  << QLatin1String("QSQLITE");
     return l;
 }
 

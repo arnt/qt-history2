@@ -60,7 +60,8 @@
 
 
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
-    (QSqlDriverFactoryInterface_iid, QCoreApplication::libraryPaths(), "/sqldrivers"))
+    (QSqlDriverFactoryInterface_iid, QCoreApplication::libraryPaths(),
+     QLatin1String("/sqldrivers")))
 
 QT_STATIC_CONST_IMPL char *QSqlDatabase::defaultConnection = "qt_sql_default_connection";
 
@@ -404,36 +405,36 @@ QStringList QSqlDatabase::drivers()
     }
 
 #ifdef QT_SQL_POSTGRES
-    if (!l.contains("QPSQL7"))
-        l << "QPSQL7";
+    if (!l.contains(QLatin1String("QPSQL7")))
+        l << QLatin1String("QPSQL7");
 #endif
 #ifdef QT_SQL_MYSQL
-    if (!l.contains("QMYSQL3"))
-        l << "QMYSQL3";
+    if (!l.contains(QLatin1String("QMYSQL3")))
+        l << QLatin1String("QMYSQL3");
 #endif
 #ifdef QT_SQL_ODBC
-    if (!l.contains("QODBC3"))
-        l << "QODBC3";
+    if (!l.contains(QLatin1String("QODBC3")))
+        l << QLatin1String("QODBC3");
 #endif
 #ifdef QT_SQL_OCI
-    if (!l.contains("QOCI8"))
-        l << "QOCI8";
+    if (!l.contains(QLatin1String("QOCI8")))
+        l << QLatin1String("QOCI8");
 #endif
 #ifdef QT_SQL_TDS
-    if (!l.contains("QTDS7"))
-        l << "QTDS7";
+    if (!l.contains(QLatin1String("QTDS7")))
+        l << QLatin1String("QTDS7");
 #endif
 #ifdef QT_SQL_DB2
-    if (!l.contains("QDB2"))
-        l << "QDB2";
+    if (!l.contains(QLatin1String("QDB2")))
+        l << QLatin1String("QDB2");
 #endif
 #ifdef QT_SQL_SQLITE
-    if (!l.contains("QSQLITE"))
-        l << "QSQLITE";
+    if (!l.contains(QLatin1String("QSQLITE")))
+        l << QLatin1String("QSQLITE");
 #endif
 #ifdef QT_SQL_IBASE
-    if (!l.contains("QIBASE"))
-        l << "QIBASE";
+    if (!l.contains(QLatin1String("QIBASE")))
+        l << QLatin1String("QIBASE");
 #endif
 
     return l;
@@ -617,7 +618,8 @@ void QSqlDatabasePrivate::init(const QString& type)
     if (!driver) {
 
         qWarning("QSqlDatabase: %s driver not loaded", type.latin1());
-        qWarning("QSqlDatabase: available drivers: %s", QSqlDatabase::drivers().join(" ").latin1());
+        qWarning("QSqlDatabase: available drivers: %s",
+                        QSqlDatabase::drivers().join(QLatin1String(" ")).latin1());
         driver = shared_null()->driver;
     }
 }

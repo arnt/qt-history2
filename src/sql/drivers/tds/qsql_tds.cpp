@@ -96,7 +96,7 @@
 
 QSqlError qMakeError(const QString& err, QSqlError::ErrorType type, int errNo = -1)
 {
-    return QSqlError("QTDS: " + err, QString(), type, errNo);
+    return QSqlError(QLatin1String("QTDS: ") + err, QString(), type, errNo);
 }
 
 class QTDSDriverPrivate
@@ -117,7 +117,7 @@ public:
     DBPROCESS* dbproc; // connection from app to server
     QSqlError lastError;
     void addErrorMsg(QString& errMsg) { errorMsgs.append(errMsg); }
-    QString getErrorMsgs() { return errorMsgs.join("\n"); }
+    QString getErrorMsgs() { return errorMsgs.join(QLatin1String("\n")); }
     void clearErrorMsgs() { errorMsgs.clear(); }
     QVector<void *> buffer;
     QSqlRecord rec;
@@ -148,7 +148,8 @@ static int CS_PUBLIC qTdsMsgHandler (DBPROCESS* dbproc,
     }
 
     if (severity > 0) {
-        QString errMsg = QString("%1 (%2)").arg(msgtext).arg(msgstate);
+        QString errMsg = QString(QLatin1String("%1 (%2)")).arg(QString::fromAscii(msgtext)).arg(
+                                    msgstate);
         p->addErrorMsg(errMsg);
     }
 
@@ -177,7 +178,8 @@ static int CS_PUBLIC qTdsErrHandler(DBPROCESS* dbproc,
     }
 
 
-    QString errMsg = QString("%1 %2\n").arg(dberrstr).arg(oserrstr);
+    QString errMsg = QString(QLatin1String("%1 %2\n")).arg(QString::fromAscii(dberrstr)).arg(
+                                QString::fromAscii(oserrstr));
     errMsg += p->getErrorMsgs();
     p->lastError = qMakeError(errMsg, QSqlError::UnknownError, dberr);
     p->clearErrorMsgs();
@@ -310,8 +312,8 @@ bool QTDSResult::gotoNext(QSqlCachedResult::ValueCache &values, int index)
                     values[idx] = QCoreVariant(QCoreVariant::DateTime);
                 } else {
                     DBDATETIME *bdt = (DBDATETIME*) d->buffer.at(i * 2);
-                    QDate date = QDate::fromString("1900-01-01", Qt::ISODate);
-                    QTime time = QTime::fromString("00:00:00", Qt::ISODate);
+                    QDate date = QDate::fromString(QLatin1String("1900-01-01"), Qt::ISODate);
+                    QTime time = QTime::fromString(QLatin1String("00:00:00"), Qt::ISODate);
                     values[idx] = QDateTime(date.addDays(bdt->dtdays), time.addMSecs(int(bdt->dttime / 0.3)));
                     break;
                 }
@@ -383,7 +385,7 @@ bool QTDSResult::reset (const QString& query)
     for (int i = 0; i < numCols; ++i) {
         int dbType = dbcoltype(d->dbproc, i+1);
         QCoreVariant::Type vType = qDecodeTDSType(dbType);
-        QSqlField f(dbcolname(d->dbproc, i+1), vType);
+        QSqlField f(QString::fromAscii(dbcolname(d->dbproc, i+1)), vType);
         f.setSqlType(dbType);
         f.setLength(dbcollen(d->dbproc, i+1));
         d->rec.append(f);
@@ -653,8 +655,8 @@ QSqlRecord QTDSDriver::record(const QString& tablename) const
         return info;
     QSqlQuery t = createQuery();
     t.setForwardOnly(true);
-    QString stmt ("select name, type, length, prec from syscolumns "
-                   "where id = (select id from sysobjects where name = '%1')");
+    QString stmt (QLatin1String("select name, type, length, prec from syscolumns "
+                   "where id = (select id from sysobjects where name = '%1')"));
     t.exec(stmt.arg(tablename));
     while (t.next()) {
         QSqlField f(t.value(0).toString().simplified(), qDecodeTDSType(t.value(1).toInt()));
@@ -676,11 +678,11 @@ QStringList QTDSDriver::tables(QSql::TableType type) const
     QString typeFilter;
 
     if (type & QSql::Tables)
-        typeFilter += "type='U' or ";
+        typeFilter += QLatin1String("type='U' or ");
     if (type & QSql::SystemTables)
-        typeFilter += "type='S' or ";
+        typeFilter += QLatin1String("type='S' or ");
     if (type & QSql::Views)
-        typeFilter += "type='V' or ";
+        typeFilter += QLatin1String("type='V' or ");
 
     if (typeFilter.isEmpty())
         return list;
@@ -688,7 +690,7 @@ QStringList QTDSDriver::tables(QSql::TableType type) const
 
     QSqlQuery t = createQuery();
     t.setForwardOnly(true);
-    t.exec("select name from sysobjects where " + typeFilter);
+    t.exec(QLatin1String("select name from sysobjects where ") + typeFilter);
     while (t.next())
         list.append(t.value(0).toString().simplified());
 
@@ -703,7 +705,7 @@ QString QTDSDriver::formatValue(const QSqlField &field,
         r = QLatin1String("NULL");
     else if (field.type() == QCoreVariant::DateTime) {
         if (field.value().toDateTime().isValid()){
-            r = field.value().toDateTime().toString("'yyyyMMdd hh:mm:ss'");
+            r = field.value().toDateTime().toString(QLatin1String("'yyyyMMdd hh:mm:ss'"));
         } else
             r = QLatin1String("NULL");
     } else if (field.type() == QCoreVariant::ByteArray) {
@@ -715,7 +717,7 @@ QString QTDSDriver::formatValue(const QSqlField &field,
             res += hexchars[s >> 4];
             res += hexchars[s & 0x0f];
         }
-        r = "0x" + res;
+        r = QLatin1String("0x") + res;
     } else {
         r = QSqlDriver::formatValue(field, trim);
     }
@@ -732,14 +734,14 @@ QSqlIndex QTDSDriver::primaryIndex(const QString& tablename) const
 
     QSqlQuery t = createQuery();
     t.setForwardOnly(true);
-    t.exec(QString("sp_helpindex '%1'").arg(tablename));
+    t.exec(QString::fromLatin1("sp_helpindex '%1'").arg(tablename));
     if (t.next()) {
         QStringList fNames = t.value(2).toString().simplified().split(',');
-        QRegExp regx("\\s*(\\S+)(?:\\s+(DESC|desc))?\\s*");
+        QRegExp regx(QLatin1String("\\s*(\\S+)(?:\\s+(DESC|desc))?\\s*"));
         for(QStringList::Iterator it = fNames.begin(); it != fNames.end(); ++it) {
             regx.indexIn(*it);
             QSqlField f(regx.cap(1), rec.field(regx.cap(1)).type());
-            if (regx.cap(2).toLower() == "desc") {
+            if (regx.cap(2).toLower() == QLatin1String("desc")) {
                 idx.append(f, true);
             } else {
                 idx.append(f, false);

@@ -38,7 +38,8 @@ class QSqlNullResult : public QSqlResult
 {
 public:
     inline QSqlNullResult(const QSqlDriver* d): QSqlResult(d)
-    { QSqlResult::setLastError(QSqlError("Driver not loaded", "Driver not loaded")); }
+    { QSqlResult::setLastError(
+            QSqlError(QLatin1String("Driver not loaded"), QLatin1String("Driver not loaded"))); }
 protected:
     inline QCoreVariant data(int) { return QCoreVariant(); }
     inline bool reset (const QString&) { return false; }
@@ -67,7 +68,8 @@ class QSqlNullDriver : public QSqlDriver
 {
 public:
     inline QSqlNullDriver(): QSqlDriver()
-    { QSqlDriver::setLastError(QSqlError("Driver not loaded", "Driver not loaded")); }
+    { QSqlDriver::setLastError(
+            QSqlError(QLatin1String("Driver not loaded"), QLatin1String("Driver not loaded"))); }
     inline bool hasFeature(DriverFeature) const { return false; }
     inline bool open(const QString &, const QString & , const QString & ,
               const QString &, int, const QString&)

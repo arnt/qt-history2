@@ -37,7 +37,7 @@ QTDSDriverPlugin::QTDSDriverPlugin()
 
 QSqlDriver* QTDSDriverPlugin::create(const QString &name)
 {
-    if (name == "QTDS7") {
+    if (name == QLatin1String("QTDS7")) {
         QTDSDriver* driver = new QTDSDriver();
         return driver;
     }
@@ -47,7 +47,7 @@ QSqlDriver* QTDSDriverPlugin::create(const QString &name)
 QStringList QTDSDriverPlugin::keys() const
 {
     QStringList l;
-    l.append("QTDS7");
+    l.append(QLatin1String("QTDS7"));
     return l;
 }
 

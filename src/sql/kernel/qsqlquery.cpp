@@ -290,7 +290,7 @@ void QSqlQuery::init(const QString& query, QSqlDatabase db)
     d = QSqlQueryPrivate::shared_null();
     QSqlDatabase database = db;
     if (!database.isValid())
-        database = QSqlDatabase::database(QSqlDatabase::defaultConnection, false);
+        database = QSqlDatabase::database(QLatin1String(QSqlDatabase::defaultConnection), false);
     if (database.isValid())
         *this = database.driver()->createQuery();
     if (!query.isEmpty())

@@ -54,7 +54,7 @@ QIBaseDriverPlugin::QIBaseDriverPlugin()
 
 QSqlDriver* QIBaseDriverPlugin::create(const QString &name)
 {
-    if (name == "QIBASE") {
+    if (name == QLatin1String("QIBASE")) {
         QIBaseDriver* driver = new QIBaseDriver();
         return driver;
     }
@@ -64,7 +64,7 @@ QSqlDriver* QIBaseDriverPlugin::create(const QString &name)
 QStringList QIBaseDriverPlugin::keys() const
 {
     QStringList l;
-    l  << "QIBASE";
+    l  << QLatin1String("QIBASE");
     return l;
 }
 

@@ -41,10 +41,11 @@ static void qAppendWhereClause(QString &query, const QString &clause1, const QSt
     if (clause1.isEmpty() && clause2.isEmpty())
         return;
     if (clause1.isEmpty() || clause2.isEmpty())
-        query.append(" WHERE (").append(clause1).append(clause2);
+        query.append(QLatin1String(" WHERE (")).append(clause1).append(clause2);
     else
-        query.append(" WHERE (").append(clause1).append(") AND (").append(clause2);
-    query.append(") ");
+        query.append(QLatin1String(" WHERE (")).append(clause1).append(
+                        QLatin1String(") AND (")).append(clause2);
+    query.append(QLatin1String(") "));
 }
 
 void QSqlRelationalTableModelPrivate::clearChanges()
@@ -116,27 +117,28 @@ QString QSqlRelationalTableModel::selectStatement() const
     for (int i = 0; i < rec.count(); ++i) {
         QSqlRelation relation = d->relations.value(i, nullRelation).rel;
         if (relation.isValid()) {
-            fList.append(relation.tableName()).append(".");
-            fList.append(relation.displayColumn()).append(",");
+            fList.append(relation.tableName()).append(QLatin1Char('.'));
+            fList.append(relation.displayColumn()).append(QLatin1Char(','));
             if (!tables.contains(relation.tableName()))
                 tables.append(relation.tableName());
-            where.append(tableName()).append(".").append(rec.fieldName(i));
-            where.append("=").append(relation.tableName()).append(".");
-            where.append(relation.indexColumn()).append(" and ");
+            where.append(tableName()).append(QLatin1Char('.')).append(rec.fieldName(i));
+            where.append(QLatin1Char('=')).append(relation.tableName()).append(QLatin1Char('.'));
+            where.append(relation.indexColumn()).append(QLatin1String(" and "));
         } else {
-            fList.append(tableName()).append(".").append(rec.fieldName(i)).append(",");
+            fList.append(tableName()).append(QLatin1Char('.')).append(rec.fieldName(i)).append(
+                            QLatin1Char(','));
         }
     }
     if (!tables.isEmpty())
-        tList.append(tables.join(",")).append(",");
+        tList.append(tables.join(QLatin1String(","))).append(QLatin1String(","));
     if (fList.isEmpty())
         return query;
-    tList.prepend(",").prepend(tableName());
+    tList.prepend(QLatin1Char(',')).prepend(tableName());
     // truncate tailing comma
     tList.chop(1);
     fList.chop(1);
-    query.append("SELECT ");
-    query.append(fList).append(" FROM ").append(tList);
+    query.append(QLatin1String("SELECT "));
+    query.append(fList).append(QLatin1String(" FROM ")).append(tList);
     if (!where.isEmpty())
         where.chop(5);
     qAppendWhereClause(query, where, filter());
