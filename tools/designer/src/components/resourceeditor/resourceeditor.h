@@ -16,6 +16,7 @@ public:
     ResourceEditor(AbstractFormEditor *core, QWidget *parent = 0);
 
     QAction *addPrefixAction() const { return m_add_prefix_action; }
+    QAction *editPrefixAction() const { return m_edit_prefix_action; }
     QAction *addFileAction() const { return m_add_file_action; }
     QAction *deleteAction() const { return m_delete_action; }
     QAction *addResourceAction() const { return m_add_resource_action; }
@@ -26,6 +27,7 @@ protected:
 private slots:
     void addResource();
     void addPrefix();
+    void editPrefix();
     void addFile();
     void deleteItem();
     
@@ -38,7 +40,8 @@ private:
     QAction *m_add_file_action;
     QAction *m_delete_action;
     QAction *m_add_resource_action;
-
+    QAction *m_edit_prefix_action;
+    
     enum ItemType { ResourceItem, PrefixItem, FileItem };
     ItemType classifyItem(QTreeWidgetItem *item) const;
     QTreeWidgetItem *addToTree(const QString &path);

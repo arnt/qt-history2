@@ -180,3 +180,24 @@ QString ResourceFile::absolutePath(const QString &rel_path) const
     return QDir::cleanPath(QFileInfo(m_file_name).path() + QDir::separator() + rel_path);
 }
 
+bool ResourceFile::contains(const QString &prefix) const
+{
+    return m_resource_map.contains(prefix);
+}
+
+bool ResourceFile::contains(const QString &prefix, const QString &file) const
+{
+    QStringList file_list = m_resource_map.value(prefix);
+    return file_list.contains(file);
+}
+
+void ResourceFile::changePrefix(const QString &old_prefix, const QString &new_prefix)
+{
+    if (!m_resource_map.contains(old_prefix))
+        return;
+    if (m_resource_map.contains(new_prefix))
+        return;
+    QStringList file_list = m_resource_map.value(old_prefix);
+    m_resource_map.remove(old_prefix);
+    m_resource_map.insert(new_prefix, file_list);
+}

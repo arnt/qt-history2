@@ -24,6 +24,7 @@ ResourceEditor::ResourceEditor(AbstractFormEditor *core, QWidget *parent)
     m_add_file_action = new QAction(tr("Add file"), this);
     m_delete_action = new QAction(tr("Delete"), this);
     m_add_resource_action = new QAction(tr("Add resource"), this);
+    m_edit_prefix_action = new QAction(tr("Edit prefix"));
 
     m_core = core;
 
@@ -31,11 +32,13 @@ ResourceEditor::ResourceEditor(AbstractFormEditor *core, QWidget *parent)
                 this, SLOT(updateTree()));
     connect(m_add_resource_action, SIGNAL(triggered()), this, SLOT(addResource()));
     connect(m_add_prefix_action, SIGNAL(triggered()), this, SLOT(addPrefix()));
+    connect(m_edit_prefix_action, SIGNAL(triggered()), this, SLOT(editPrefix()));
     connect(m_add_file_action, SIGNAL(triggered()), this, SLOT(addFile()));
     connect(m_delete_action, SIGNAL(triggered()), this, SLOT(deleteItem()));
     connect(this, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)),
             this, SLOT(updateActions()));
-
+    connect(this, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)), this, SLOT(editPrefix()));
+            
     updateActions();
 }
 
@@ -121,6 +124,9 @@ void ResourceEditor::addResource()
         return;
     QString file_name = file_name_list.at(0);
 
+    if (form->resourceFiles().contains(file_name))
+        return;
+
     if (!QFileInfo(file_name).exists()) {
         ResourceFile rf(file_name);
         if (!rf.save()) {
@@ -141,6 +147,55 @@ void ResourceEditor::addResource()
 
     form->addResourceFile(file_name);
     fixItem(new_item);
+    resizeColumnToContents(0);
+}
+
+void ResourceEditor::editPrefix()
+{
+    AbstractFormWindow *form = m_core->formWindowManager()->activeFormWindow();
+    if (form == 0)
+        return;
+    
+    QTreeWidgetItem *item = currentItem();
+    if (item == 0)
+        return;
+    ItemType type = classifyItem(item);
+    if (type != PrefixItem)
+        return;
+
+    QString prefix = QInputDialog::getText(this, tr("Edit prefix"), tr("Prefix"), QLineEdit::Normal,
+                                            item->text(0));
+    if (prefix.isEmpty() || prefix == item->text(0))
+        return;
+    QString file_name = form->absolutePath(item->parent()->text(0));
+
+    ResourceFile rf(file_name);
+    if (!rf.load()) {
+        QMessageBox::warning(this, tr("Resource error"),
+                                tr("Failed to open \"%1\"").arg(file_name),
+                                QMessageBox::Ok, QMessageBox::NoButton);
+        return;
+    }
+
+    if (rf.contains(prefix)) {
+        QMessageBox::warning(this, tr("Resource error"),
+                                tr("Prefix \"%1\" already exists").arg(prefix),
+                                QMessageBox::Ok, QMessageBox::NoButton);
+        return;
+    }
+    
+    rf.changePrefix(item->text(0), prefix);
+
+    if (!rf.save()) {
+        QMessageBox::warning(this, tr("Resource error"),
+                                tr("Failed to save \"%1\"").arg(file_name),
+                                QMessageBox::Ok, QMessageBox::NoButton);
+        return;
+    }
+    
+    item->setText(0, prefix);
+    fixItem(item);
+    resizeColumnToContents(0);
 }
 
 void ResourceEditor::addPrefix()
@@ -169,6 +224,13 @@ void ResourceEditor::addPrefix()
         return;
     }
 
+    if (rf.contains(prefix)) {
+        QMessageBox::warning(this, tr("Resource error"),
+                                tr("Prefix \"%1\" already exists").arg(prefix),
+                                QMessageBox::Ok, QMessageBox::NoButton);
+        return;
+    }
+    
     rf.addPrefix(prefix);
 
     if (!rf.save()) {
@@ -181,6 +243,7 @@ void ResourceEditor::addPrefix()
     QTreeWidgetItem *new_item = new QTreeWidgetItem(item);
     new_item->setText(0, prefix);
     fixItem(new_item);
+    resizeColumnToContents(0);
 }
 
 void ResourceEditor::addFile()
@@ -211,6 +274,15 @@ void ResourceEditor::addFile()
         return;
     }
 
+    QStringList fixed_file_name_list;
+    foreach (QString file_name, file_name_list) {
+        if (!rf.contains(prefix, file_name))
+            fixed_file_name_list.append(file_name);
+    }
+    file_name_list = fixed_file_name_list;
+    if (file_name_list.isEmpty())
+        return;
+    
     foreach (QString file_name, file_name_list)
         rf.addFile(prefix, file_name);
 
@@ -231,6 +303,7 @@ void ResourceEditor::addFile()
         fixItem(item);
     else
         fixItem(new_item);
+    resizeColumnToContents(0);
 }
 
 void ResourceEditor::deleteItem()
@@ -293,6 +366,7 @@ void ResourceEditor::deleteItem()
     else
         item->parent()->takeChild(item->parent()->indexOfChild(item));
     delete item;
+    resizeColumnToContents(0);
 }
 
 void ResourceEditor::mousePressEvent(QMouseEvent *e)
@@ -324,12 +398,13 @@ QMenu *ResourceEditor::createMenu(ItemType type)
     QMenu *menu = new QMenu(this);
     switch (type) {
         case ResourceItem:
-            menu->addAction(m_delete_action);
             menu->addAction(m_add_prefix_action);
+            menu->addAction(m_delete_action);
             break;
         case PrefixItem:
-            menu->addAction(m_delete_action);
             menu->addAction(m_add_file_action);
+            menu->addAction(m_edit_prefix_action);
+            menu->addAction(m_delete_action);
             break;
         case FileItem:
             menu->addAction(m_delete_action);
@@ -346,6 +421,7 @@ void ResourceEditor::updateActions()
         m_delete_action->setEnabled(false);
         m_add_prefix_action->setEnabled(false);
         m_add_file_action->setEnabled(false);
+        m_edit_prefix_action->setEnabled(false);
         m_add_resource_action->setEnabled(false);
         return;
     }
@@ -362,6 +438,7 @@ void ResourceEditor::updateActions()
         m_delete_action->setEnabled(true);
         ItemType type = classifyItem(item);
         m_add_file_action->setEnabled(type == PrefixItem);
+        m_edit_prefix_action->setEnabled(type == PrefixItem);
         m_add_prefix_action->setEnabled(type == ResourceItem);
     }
 }

@@ -22,6 +22,9 @@ public:
     void addFile(const QString &prefix, const QString &file);
     void removePrefix(const QString &prefix);
     void removeFile(const QString &prefix, const QString &file);
+    bool contains(const QString &prefix) const;
+    bool contains(const QString &prefix, const QString &file) const;
+    void changePrefix(const QString &old_prefix, const QString &new_prefix);
 
     QString relativePath(const QString &abs_path) const;
     QString absolutePath(const QString &rel_path) const;
