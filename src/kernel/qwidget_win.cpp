@@ -468,7 +468,7 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
 	setWState( WState_ForceHide );	// new widgets do not show up in already visible parents
     const QObjectList *chlist = children();
     if ( chlist ) {				// reparent children
-	QObjectListIt it( *chlist );
+	QObjectListIterator it( *chlist );
 	QObject *obj;
 	while ( (obj=it.current()) ) {
 	    if ( obj->isWidgetType() ) {
