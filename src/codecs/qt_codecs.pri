@@ -3,7 +3,9 @@
 !bigcodecs:DEFINES += QT_NO_BIG_CODECS
 tools {
 	CODECS_P		= codecs
-	HEADERS += $$CODECS_H/qbig5codec.h \
+	HEADERS += \
+#$$CODECS_H/qasmocodec.h \
+		$$CODECS_H/qbig5codec.h \
 		  $$CODECS_H/qeucjpcodec.h \
 		  $$CODECS_H/qeuckrcodec.h \
 		  $$CODECS_H/qgbkcodec.h \
@@ -17,7 +19,9 @@ tools {
 		   $$CODECS_H/qtextcodecinterface.h \
 		   $$CODECS_H/qtextcodecfactory.h
 
-	SOURCES += $$CODECS_CPP/qbig5codec.cpp \
+	SOURCES += \
+#$$CODECS_CPP/qasmocodec.cpp \
+		$$CODECS_CPP/qbig5codec.cpp \
 		  $$CODECS_CPP/qeucjpcodec.cpp \
 		  $$CODECS_CPP/qeuckrcodec.cpp \
 		  $$CODECS_CPP/qgbkcodec.cpp \

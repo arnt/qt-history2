@@ -40,6 +40,7 @@
 // and the grateful thanks of the Trolltech team.
 
 /*! \class QSjisCodec qsjiscodec.h
+  \internal
     \ingroup i18n
   \brief The QSjisCodec class provides conversion to and from Shift-JIS.
 
