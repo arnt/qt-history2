@@ -2342,6 +2342,40 @@ bool QListView::showToolTips() const
     return d->toolTips;
 }
 
+/*! If you pass TRUE here, the section \a section of the listview
+  header always adjusts on resize events, so that the full width is
+  covered by sections of the header. If \a section is -1, all sections
+  are adjusted equally.
+*/
+
+void QListView::setFullSize( bool b, int section )
+{
+    header()->setFullSize( b, section );
+}
+
+/*! Returns whether the listview's header sections always cover the
+  full width of the header by automatically adjusted all sections.
+
+  \sa setFullSize()
+*/
+
+bool QListView::fullSize() const
+{
+    return header()->fullSize();
+}
+
+/*! Returns whether the listview's header sections always cover the
+  full width of the header by automatically adjusting the section \a
+  section.
+
+  \sa setFullSize()
+*/
+
+bool QListView::fullSize( int section ) const
+{
+    return header()->fullSize( section );
+}
+
 /*!
   Destructs the list view, deleting all items in it, and frees up all
   allocated resources.

@@ -1588,6 +1588,7 @@ void QHeader::setFullSize( bool b, int section )
 	d->fullSize = section;
     else
 	d->fullSize = -2;
+    adjustHeaderSize();
 }
 
 /*! Returns whether the header sections always cover the full width of
@@ -1598,7 +1599,7 @@ void QHeader::setFullSize( bool b, int section )
 
 bool QHeader::fullSize() const
 {
-    return d->fullSize == -2;
+    return d->fullSize == -1;
 }
 
 /*! Returns whether the header sections always cover the full width of

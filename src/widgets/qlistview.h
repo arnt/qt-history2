@@ -240,6 +240,7 @@ class Q_EXPORT QListView: public QScrollView
     Q_PROPERTY( int itemMargin READ itemMargin WRITE setItemMargin )
     Q_PROPERTY( bool rootIsDecorated READ rootIsDecorated WRITE setRootIsDecorated )
     Q_PROPERTY( bool showToolTips READ showToolTips WRITE setShowToolTips )
+    Q_PROPERTY( bool fullSize READ fullSize WRITE setFullSize )
 
 public:
     QListView( QWidget * parent = 0, const char *name = 0, WFlags f = 0 );
@@ -325,6 +326,11 @@ public:
     bool showSortIndicator() const;
     virtual void setShowToolTips( bool b );
     bool showToolTips() const;
+
+    virtual void setFullSize( bool b, int section );
+    void setFullSize( bool b ) { setFullSize( b, -1 ); }
+    bool fullSize() const;
+    bool fullSize( int section ) const;
 
 public slots:
     virtual void clear();

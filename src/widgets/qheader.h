@@ -109,7 +109,7 @@ public:
     virtual void moveCell( int, int); // obsolete, do not use
 
     void 	setSortIndicator( int section, bool increasing = TRUE );
-    void setFullSize( bool b, int section );
+    virtual void setFullSize( bool b, int section );
     void setFullSize( bool b ) { setFullSize( b, -1 ); }
     bool fullSize() const;
     bool fullSize( int section ) const;
