@@ -3250,7 +3250,8 @@ QStyleSheet* QTextEdit::styleSheet() const
     return doc->styleSheet();
 }
 
-/*! Sets the stylesheet to use with this text edit to \a styleSheet.
+/*! Sets the stylesheet to use with this text edit to \a styleSheet. Changes
+  will only take effect for new text added with setText() or append().
 
     \sa styleSheet()
  */
