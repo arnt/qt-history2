@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#40 $
 **
 ** Implementation of QColor class
 **
@@ -13,7 +13,7 @@
 #include "qcolor.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#39 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#40 $")
 
 
 /*----------------------------------------------------------------------------
@@ -150,7 +150,7 @@ QColor::QColor()
 
   \e r, \e g and \e b must be in the rangle 0..255.
 
-  \sa setRgb() setHSV() setNamedColor()
+  \sa setRgb()
  ----------------------------------------------------------------------------*/
 
 QColor::QColor( int r, int g, int b )
@@ -323,19 +323,19 @@ void QColor::setHsv( int h, int s, int v )
 	h /= 60;
 	uint p = (uint)((ulong)(2L*v*(255L-s)+255L)/510L);
 	uint q, t;
-	if ( h&1 ) {				// do only when necessary
+	if ( h&1 ) {
 	    q = (uint)((ulong)(2L*v*(15300L-s*f)+15300L)/30600L);
 	    switch( h ) {
-	    case 1: r=(int)q; g=(int)v, b=(int)p; break;
-	    case 3: r=(int)p; g=(int)q, b=(int)v; break;
-	    case 5: r=(int)v; g=(int)p, b=(int)q; break;
+		case 1: r=(int)q; g=(int)v, b=(int)p; break;
+		case 3: r=(int)p; g=(int)q, b=(int)v; break;
+		case 5: r=(int)v; g=(int)p, b=(int)q; break;
 	    }
 	} else {
 	    t = (uint)((ulong)(2L*v*(15300L-(s*(60L-f)))+15300L)/30600L);
 	    switch( h ) {
-	    case 0: r=(int)v; g=(int)t, b=(int)p; break;
-	    case 2: r=(int)p; g=(int)v, b=(int)t; break;
-	    case 4: r=(int)t; g=(int)p, b=(int)v; break;
+		case 0: r=(int)v; g=(int)t, b=(int)p; break;
+		case 2: r=(int)p; g=(int)v, b=(int)t; break;
+		case 4: r=(int)t; g=(int)p, b=(int)v; break;
 	    }
 	}
     }
@@ -485,12 +485,12 @@ QColor QColor::dark( int factor ) const
 /*----------------------------------------------------------------------------
   Enables or disables lazy color allocation.
 
-  If lazy allocation is enabled, colors are allocated the first time
-  they are used (upon calling the pixel() function).  If lazy
-  allocation is disabled, colors are allocated when they are
-  constructed or when either setRgb() or setHsv() is called.
+  If lazy allocation is enabled, colors are allocated the first time they
+  are used (upon calling the pixel() function).  If lazy allocation is
+  disabled, colors are allocated when they are constructed or when either
+  setRgb() or setHsv() is called.
 
-  The default setting is to enable lazy color allocation.
+  Lazy color allocation is enabled by default.
 
   \sa lazyAlloc()
  ----------------------------------------------------------------------------*/
