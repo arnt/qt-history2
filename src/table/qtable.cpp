@@ -2806,11 +2806,9 @@ void QTable::contentsMousePressEvent( QMouseEvent* e )
 
     QTableItem *itm = item( pressedRow, pressedCol );
     if ( itm && !itm->isEnabled() ) {
-	if ( e->button() != LeftButton ) {
-	    emit pressed( tmpRow, tmpCol, e->button(), e->pos() );
-	    if ( context_menu )
-		emit contextMenuRequested( tmpRow, tmpCol, mapToGlobal( contentsToViewport( e->pos() ) ) );
-	}
+	emit pressed( tmpRow, tmpCol, e->button(), e->pos() );
+	if ( e->button() != LeftButton && context_menu )
+	    emit contextMenuRequested( tmpRow, tmpCol, mapToGlobal( contentsToViewport( e->pos() ) ) );
 	return;
     }
 
@@ -2852,13 +2850,9 @@ void QTable::contentsMousePressEvent( QMouseEvent* e )
 	}
     }
 
-    if ( e->button() != LeftButton ) {
-	emit pressed( tmpRow, tmpCol, e->button(), e->pos() );
-	if ( context_menu )
-	    emit contextMenuRequested( tmpRow, tmpCol, mapToGlobal( contentsToViewport( e->pos() ) ) );
-    }
-
     emit pressed( tmpRow, tmpCol, e->button(), e->pos() );
+    if ( e->button() != LeftButton && context_menu )
+	emit contextMenuRequested( tmpRow, tmpCol, mapToGlobal( contentsToViewport( e->pos() ) ) );
 }
 
 /*! \reimp
