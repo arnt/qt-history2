@@ -155,6 +155,11 @@ public:
     // ### helper for compat functions
     QTextBlock blockAt(const QPoint &pos, int *documentPosition = 0) const;
 
+    inline int contentsX() const { return hbar->value(); }
+    inline int contentsY() const { return vbar->value(); }
+    inline int contentsWidth() const { return hbar->maximum() + viewport->width(); }
+    inline int contentsHeight() const { return vbar->maximum() + viewport->height(); }
+
     QTextDocument *doc;
     bool cursorOn;
     QTextCursor cursor;
@@ -228,6 +233,9 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
 
     if (cursor.hasSelection() != hadSelection)
         selectionChanged();
+
+    // ####
+    viewport->update();
 
     return true;
 }
@@ -1486,7 +1494,6 @@ void QTextEdit::append(const QString &text)
 */
 void QTextEdit::ensureCursorVisible()
 {
-    /* ###########
     QTextBlock block = d->cursor.block();
     QTextLayout *layout = block.layout();
     QPoint layoutPos = layout->position();
@@ -1495,12 +1502,27 @@ void QTextEdit::ensureCursorVisible()
     if (!line.isValid())
         return;
 
-    int x = layoutPos.x() + line.cursorToX(relativePos);
-    int y = layoutPos.y() + line.y();
-    int height = line.ascent() + line.descent();
-    const int width = 1;
-    ensureVisible(x, y + (height / 2), width, (height / 2) + 2);
-    */
+    const int cursorX = layoutPos.x() + line.cursorToX(relativePos);
+    const int cursorY = layoutPos.y() + line.y();
+    const int cursorWidth = 1;
+    const int cursorHeight = line.ascent() + line.descent();
+
+    const int visibleWidth = d->viewport->width();
+    const int visibleHeight = d->viewport->height();
+
+    if (d->hbar->isVisible()) {
+        if (cursorX < d->contentsX())
+            d->hbar->setValue(cursorX - cursorWidth);
+        else if (cursorX + cursorWidth > d->contentsX() + visibleWidth)
+            d->hbar->setValue(cursorX + cursorWidth - visibleWidth);
+    }
+
+    if (d->vbar->isVisible()) {
+        if (cursorY < d->contentsY())
+            d->vbar->setValue(cursorY - cursorHeight);
+        else if (cursorY + cursorHeight > d->contentsY() + visibleHeight)
+            d->vbar->setValue(cursorY + cursorHeight - visibleHeight);
+    }
 }
 
 #include "moc_qtextedit.cpp"
