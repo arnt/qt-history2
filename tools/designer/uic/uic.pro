@@ -4,13 +4,12 @@ HEADERS	= uic.h \
 		  ../shared/widgetdatabase.h \
 		  ../shared/domtool.h \
 		  ../integration/kdevelop/kdewidgets.h \
-		  ../shared/widgetinterface.h \
-		  ../shared/widgetplugin.h
+		  ../shared/widgetinterface.h
+
 SOURCES	= uic.cpp  \
 		  ../shared/widgetdatabase.cpp  \
 		  ../shared/domtool.cpp \
-		   ../integration/kdevelop/kdewidgets.cpp \
-		  ../shared/widgetplugin.cpp
+		   ../integration/kdevelop/kdewidgets.cpp
 
 TARGET		= uic
 INCLUDEPATH	= ../shared ../util ../../../src/3rdparty/zlib/

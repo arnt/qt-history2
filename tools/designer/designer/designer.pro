@@ -39,13 +39,10 @@ HEADERS	= command.h \
 		  qmodules.h \
 		  splashloader.h \
 		  ../shared/widgetinterface.h \
-		  ../shared/widgetplugin.h \
 		  designerapp.h \
 		  designerappiface.h \
 		  actioniface.h \
-		  actionplugin.h \
 		  filteriface.h \
-		  filterplugin.h \
 		  actioneditorimpl.h
 
 SOURCES	= command.cpp \
@@ -85,11 +82,8 @@ SOURCES	= command.cpp \
 		  ../integration/kdevelop/kdewidgets.cpp \
 		  ../shared/domtool.cpp \
 		  splashloader.cpp \
-		  ../shared/widgetplugin.cpp \
 		  designerapp.cpp \
 		  designerappiface.cpp \
-		  actionplugin.cpp \
-		  filterplugin.cpp \
 		  actioneditorimpl.cpp
 
 INTERFACES	= listboxeditor.ui \
