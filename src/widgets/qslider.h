@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.h#8 $
+** $Id: //depot/qt/main/src/widgets/qslider.h#9 $
 **
 ** Definition of QSlider class
 **
@@ -15,6 +15,8 @@
 #include "qwidget.h"
 #include "qrangect.h"
 
+class QTimer;
+struct QSliderData;
 
 class QSlider : public QWidget, public QRangeControl
 {
@@ -34,6 +36,13 @@ public:
 
     virtual void setPalette( const QPalette & );
     QRect	sliderRect() const;
+    QSize	sizeHint() const;
+
+public slots:
+    void	setValue( int );
+    void	pageUp();
+    void	pageDown();
+
 signals:
     void	valueChanged( int value );
     void	sliderPressed();
@@ -41,13 +50,10 @@ signals:
     void	sliderReleased();
 
 protected:
-    void	timerEvent( QTimerEvent * );
-
-    void	keyPressEvent( QKeyEvent * );
-
     void	resizeEvent( QResizeEvent * );
     void	paintEvent( QPaintEvent * );
 
+    void	keyPressEvent( QKeyEvent * );
     void	mousePressEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );
     void	mouseMoveEvent( QMouseEvent * );
@@ -55,38 +61,40 @@ protected:
     void	valueChange();
     void	rangeChange();
 
-    virtual void paintSlider( QPainter *, const QRect& );
+    virtual void paintSlider( QPainter *, const QRect & );
+    void	drawWinGroove( QPainter *, QCOORD );
 
+private slots:
+    void	autoRepeat();
 private:
+    enum State { None, Dragging, TimingUp, TimingDown };
 
-    void	drawWinBackground( QPainter*, QColorGroup & );
     void	init();
     int		positionFromValue( int ) const;
     int		valueFromPosition( int ) const;
     void	moveSlider( int );
-    void	paintSlider( int, int );
+    void	reallyMoveSlider( int );
     void	resetState();
-    bool	track;
     int		slideWidth() const;
     int		available() const;
+    int		goodPart( const QPoint& );
 
-    int		timerId;
+    QSliderData *d;
+    QTimer	*timer;
     QCOORD	sliderPos;
-    int		sliderVal;
     QCOORD	clickOffset;
-    enum State { None, Dragging, TimingUp, TimingDown };
+    QCOORD	tickOffset;
     State	state;
+    bool	track;
+    bool	tickmarksAbove;
+    bool	tickmarksBelow;
+    int		sliderVal;
     Orientation orient;
 
 private:	// Disabled copy constructor and operator=
     QSlider( const QSlider & ) {}
     QSlider &operator=( const QSlider & ) { return *this; }
 };
-
-inline void QSlider::setTracking( bool t )
-{
-    track = t;
-}
 
 inline bool QSlider::tracking() const
 {

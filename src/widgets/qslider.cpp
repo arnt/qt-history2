@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#14 $
 **
 ** Implementation of QSlider class
 **
@@ -12,17 +12,23 @@
 #include "qslider.h"
 #include "qpainter.h"
 #include "qdrawutl.h"
+#include "qtimer.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#13 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#14 $");
 
-#define SLIDE_BORDER	2
-#define MOTIF_WIDTH	30
-#define WIN_WIDTH	10
-//#define WIN_LENGTH	20
+static const int motifBorder = 2;
+static const int motifLength = 30;
+static const int motifThickness = 16;
+static const int winLength = 10;
+static const int winThickness = 20;
+
+
 
 static const int thresholdTime = 500;
 static const int repeatTime    = 100;
+
+static int sliderStartVal = 0; //##### class member?
 
 
 /*!
@@ -45,14 +51,10 @@ static const int repeatTime    = 100;
   enable keyboard focus.
 
   \ingroup realwidgets
-  \internal
-  sizeHint is not implemented yet!
-
-  WinStyle is not finished! 
 */
 
 /*!
-  Constructs a vertical slider.
+  Constructs a horizontal slider.
 
   The \e parent and \e name arguments are sent to the QWidget constructor.
 */
@@ -60,7 +62,7 @@ static const int repeatTime    = 100;
 QSlider::QSlider( QWidget *parent, const char *name )
     : QWidget( parent, name )
 {
-    orient = Vertical;
+    orient = Horizontal;
     init();
 }
 
@@ -79,7 +81,6 @@ QSlider::QSlider( Orientation orientation, QWidget *parent,
     orient = orientation;
     init();
 }
-
 
 /*!
   Constructs a slider.
@@ -105,17 +106,18 @@ QSlider::QSlider( int minValue, int maxValue, int step,
 
 void QSlider::init()
 {
-    timerId   = 0;
-    track     = TRUE;
+    timer = 0;
+    track = TRUE;
     sliderPos = 0;
     if ( style() == MotifStyle )
 	setBackgroundColor( colorGroup().mid() );
     setFocusPolicy( NoFocus );
+    tickOffset = 0; //###
+    tickmarksAbove = tickmarksBelow = FALSE;
 }
 
 
 /*!
-  \fn void QSlider::setTracking( bool enable )
   Enables slider tracking if \e enable is TRUE, or disables tracking
   if \e enable is FALSE.
 
@@ -127,6 +129,12 @@ void QSlider::init()
 
   \sa tracking()
 */
+
+void QSlider::setTracking( bool enable )
+{
+    track = enable;
+}
+
 
 /*!
   \fn bool QSlider::tracking() const
@@ -178,13 +186,13 @@ int QSlider::available() const
     int a;
     switch ( style() ) {
     case WindowsStyle:
-	a = (orient == Horizontal) ? width() - WIN_WIDTH
-	    : height() - WIN_WIDTH;
+	a = (orient == Horizontal) ? width() - winLength
+	    : height() - winLength;
 	break;
     default:
     case MotifStyle:
-	a = (orient == Horizontal) ? width() -MOTIF_WIDTH - 2*SLIDE_BORDER 
-	    : height() - MOTIF_WIDTH - 2*SLIDE_BORDER;
+	a = (orient == Horizontal) ? width() -motifLength - 2*motifBorder 
+	    : height() - motifLength - 2*motifBorder;
 	break;
     }
     return a;
@@ -207,8 +215,7 @@ void QSlider::rangeChange()
 {
     int newPos = positionFromValue( value() );
     if ( newPos != sliderPos ) {
-	paintSlider( sliderPos, newPos );
-	sliderPos = newPos;
+	reallyMoveSlider( newPos ); 
     }
 }
 
@@ -218,10 +225,9 @@ void QSlider::rangeChange()
 void QSlider::valueChange()
 {
     if ( sliderVal != value() ) {
-	int oldPos = sliderPos;
-	sliderPos = positionFromValue( value() );
+	int newPos = positionFromValue( value() );
 	sliderVal = value();
-	paintSlider( oldPos, sliderPos );
+	reallyMoveSlider( newPos );
     }
     emit valueChanged(value());
 }
@@ -234,6 +240,27 @@ void QSlider::valueChange()
 void QSlider::resizeEvent( QResizeEvent * )
 {
     rangeChange();
+
+    //#### put this into tickChange function...
+    int thick;
+    switch ( style() ) {
+    case WindowsStyle:
+	thick = winThickness;
+	break;
+    case MotifStyle:
+    default:
+	thick = motifThickness;
+	break;
+    }
+    int space = (orient == Horizontal) ? height() : width();
+    if ( tickmarksBelow == tickmarksAbove ) {
+	tickOffset = ( space - thick ) / 2;
+    } else if ( tickmarksAbove ) {
+	tickOffset = space - thick;
+    } else {
+	tickOffset = 0;
+    }
+	
 }
 
 
@@ -275,53 +302,30 @@ void QSlider::setOrientation( Orientation orientation )
 
 
 /*!
-  Returns the slider rectangle.
+  Returns the slider handle rectangle. (The actual moving-around thing.)
   */
 QRect QSlider::sliderRect() const
 {
     switch ( style() ) {
     case WindowsStyle:
 	if (orient == Horizontal )
-	    return QRect ( sliderPos, 0, 
-			   WIN_WIDTH, height()  );
+	    return QRect ( sliderPos, tickOffset, 
+			   winLength, winThickness  );
 	else
-	    return QRect ( 0, sliderPos,
-			   width(), WIN_WIDTH  );
+	    return QRect ( tickOffset, sliderPos,
+			   winThickness, winLength  );
 	break;
     default:
     case MotifStyle:
 	if (orient == Horizontal )
-	    return QRect ( SLIDE_BORDER + sliderPos, SLIDE_BORDER, 
-			   MOTIF_WIDTH, height() - 2 * SLIDE_BORDER );
+	    return QRect ( sliderPos + motifBorder, tickOffset + motifBorder, 
+			   motifLength, motifThickness - 2 * motifBorder );
 	else
-	    return QRect ( SLIDE_BORDER, SLIDE_BORDER + sliderPos, 
-			   width() - 2 * SLIDE_BORDER, MOTIF_WIDTH );
+	    return QRect ( tickOffset + motifBorder, sliderPos + motifBorder, 
+			   motifThickness - 2 * motifBorder, motifLength );
 	break;
     }
 }
-
-/*
-  Handles slider auto-repeat.
-  */
-void QSlider::timerEvent( QTimerEvent *t )
-{
-    if ( t->timerId() != timerId )
-	return; // Hmm, someone must have inherited us...
-    switch ( state ) {
-    case TimingDown:
-	subtractPage();
-	break;
-    case TimingUp:
-	addPage();
-	break;
-    default:
-	warning("QSlider::timerEvent, bad state");
-    }
-    killTimer( timerId );
-    timerId = startTimer( repeatTime );
-}
-
-
 
 /*!
   Paints the slider button using painter \a p with size and
@@ -336,7 +340,15 @@ void QSlider::paintSlider( QPainter *p, const QRect &r )
 
     switch ( style() ) {
     case WindowsStyle:
-	qDrawWinButton( p, r, g, FALSE, &fill );
+	if ( orient == Horizontal ) {
+	    int d = r.width() / 4;
+	    qDrawWinButton( p, r.x() , r.y() + d, r.width(), r.height() -2*d,
+			    g, FALSE, &fill );
+	} else {
+	    int d = r.height() / 4;
+	    qDrawWinButton( p, r.x() + d, r.y(), r.width() - 2*d, r.height(),
+			    g, FALSE, &fill );
+	}
 	break;
     default:
     case MotifStyle:
@@ -355,70 +367,36 @@ void QSlider::paintSlider( QPainter *p, const QRect &r )
 }
 
 /*!
-  Removes the old slider and draws the new, with a minimum of flickering.
+  Performs the actual moving of the slider.
  */
 
-void QSlider::paintSlider( int oldPos, int newPos )
+void QSlider::reallyMoveSlider( int newPos )
 {
-    QPainter p;
-    p.begin( this );
-
-    QColorGroup g = colorGroup();
-    QRect sliderR = sliderRect();
-    int c,d;
-    //### a bit wasteful if the slider moves more than one slider width
-    switch ( style() ) {
-    case WindowsStyle:
-	d = QABS( newPos - oldPos );
-	if ( oldPos < newPos ) {
-	    c = oldPos;
-	} else {
-	    c = newPos + WIN_WIDTH;
-	}
-	if ( orient == Horizontal )
-	    p.fillRect( c, 0, d, height(), backgroundColor() );
-	else
-	    p.fillRect( 0, c, width(), d, backgroundColor() ); 
-	drawWinBackground( &p, g );
-	paintSlider( &p, sliderR );
-	break;
-    default:
-    case MotifStyle:
-	d = QABS( newPos - oldPos );
-	if ( oldPos < newPos ) {
-	    c = oldPos + SLIDE_BORDER;
-	} else {
-	    c = newPos + MOTIF_WIDTH + SLIDE_BORDER;
-	}
-	if ( orient == Horizontal )
-	    p.fillRect( c, SLIDE_BORDER, d, 
-			height() - 2*SLIDE_BORDER, backgroundColor() );
-	else
-	    p.fillRect( SLIDE_BORDER, c, 
-			width() - 2*SLIDE_BORDER, d, backgroundColor() ); 
-	paintSlider( &p, sliderR );
-	break;
-    }
-    p.end();
+    QRect updateR = sliderRect();
+    sliderPos = newPos;
+    updateR.unite( sliderRect() );
+    repaint( updateR );
 }
 
 
 
 /*!
-  Draws the "groove" on which the slider moves.
+  Draws the "groove" on which the slider moves, using the painter \a p.
+  \a c gives the distance from the top (or left) edge of the widget to
+  the center of the groove.
 */
 
-void QSlider::drawWinBackground( QPainter *p, QColorGroup &g )
+void QSlider::drawWinGroove( QPainter *p, QCOORD c )
 {
-	if ( orient == Horizontal ) {
-	    qDrawWinPanel( p, 0, height()/2 - 2,  width(), 4 , g, TRUE );
-	    p->setPen( black );
-	    p->drawLine( 1, height()/2 - 1, width() - 3, height()/2 - 1 );
-	} else {
-	    qDrawWinPanel( p, width()/2 - 2, 0, 4, height(), g, TRUE );
-	    p->setPen( black );
-	    p->drawLine( width()/2 - 1, 1, width()/2 - 1, height() - 3 );
-	}
+    if ( orient == Horizontal ) {
+	qDrawWinPanel( p, 0, c - 2,  width(), 4, colorGroup(), TRUE );
+	p->setPen( black );
+	p->drawLine( 1, c - 1, width() - 3, c - 1 );
+    } else {
+	qDrawWinPanel( p, c - 2, 0, 4, height(), colorGroup(), TRUE );
+	p->setPen( black );
+	p->drawLine( c - 1, 1, c - 1, height() - 3 );
+    }
 }
 
 
@@ -429,6 +407,8 @@ void QSlider::drawWinBackground( QPainter *p, QColorGroup &g )
 
 void QSlider::paintEvent( QPaintEvent * )
 {
+    //QRect paintRect = e->rect();
+    
     QPainter p;
     p.begin( this );
 
@@ -436,25 +416,47 @@ void QSlider::paintEvent( QPaintEvent * )
     QColorGroup g = colorGroup();
     switch ( style() ) {
     case WindowsStyle:
-	if ( hasFocus() )
-	    p.drawWinFocusRect( 0, 0, width(), height() );
-	drawWinBackground( &p, g );
+	if ( hasFocus() ) {
+	    QRect r;
+	    if ( orient == Horizontal )
+		r.setRect( 0, tickOffset, width(), winThickness );
+	    else
+		r.setRect( tickOffset, 0, winThickness, height() );
+
+	    qDrawPlainRect( &p, r, g.background() );
+	    p.drawWinFocusRect( r );
+	}
+	drawWinGroove( &p, tickOffset + winThickness/2 );
 	paintSlider( &p, sliderR );
 	break;
     default:
     case MotifStyle:
-	qDrawShadePanel( &p, rect(), colorGroup(), TRUE );
+	if ( orient == Horizontal ) {
+	    qDrawShadePanel( &p, 0, tickOffset, width(), motifThickness,
+			     g, TRUE );
+	    p.fillRect( 0, 0, width(), tickOffset, g.background() );
+	    p.fillRect( 0, tickOffset + motifThickness + 1,
+			width(), height()/*###*/, g.background() ); 
+	} else {
+	    qDrawShadePanel( &p, tickOffset, 0, motifThickness, height(),
+			     g, TRUE );
+	    p.fillRect( 0, 0,  tickOffset, height(), g.background() );
+	    p.fillRect( tickOffset + motifThickness + 1, 0,
+			width()/*###*/, height(), g.background() ); 
+	}
+
 	if ( hasFocus() ) {
 	    p.setPen( black );
-	    p.drawRect(  1, 1, width() - 2, height() - 2 );
+	    if ( orient == Horizontal )
+		p.drawRect(  1, tickOffset + 1, width() - 2, motifThickness - 2 );
+	    else
+		p.drawRect( tickOffset + 1, 1, motifThickness - 2, height() - 2 );
 	}
 	paintSlider( &p, sliderR );
 	break;
     }
     p.end();
 }
-
-static int sliderStartVal = 0;
 
 /*!
   Handles mouse press events for the slider.
@@ -464,7 +466,7 @@ void QSlider::mousePressEvent( QMouseEvent *e )
     resetState();
     sliderStartVal = sliderVal;
     if ( e->button() == MidButton ) {
-	int pos = (orient == Horizontal) ?  e->pos().x(): e->pos().y();
+	int pos = goodPart( e->pos() );
 	moveSlider( pos - slideWidth() / 2 );
 	return;
     }
@@ -474,25 +476,29 @@ void QSlider::mousePressEvent( QMouseEvent *e )
 
     if ( r.contains( e->pos() ) ) {
 	state = Dragging;
-	clickOffset = (QCOORD)( ( (orient == Horizontal) ?
-				  e->pos().x() : e->pos().y())
-				- sliderPos );
+	clickOffset = (QCOORD)( goodPart( e->pos() ) - sliderPos );
 	emit sliderPressed();
     } else if ( style()   == WindowsStyle) {
-	int pos = (orient == Horizontal) ?  e->pos().x(): e->pos().y();
+	int pos = goodPart( e->pos() );
 	moveSlider( pos - slideWidth() / 2 );
 	state = Dragging;
 	clickOffset = slideWidth() / 2;     
-    } else if ( orient == Horizontal && e->pos().x() < r.left() 
+    } else if ( orient == Horizontal && e->pos().x() < r.left() //### goodPart
 		|| orient == Vertical && e->pos().y() < r.top() ) {
 	state = TimingDown;
         subtractPage();
-	timerId = startTimer( thresholdTime );
-    } else if ( orient == Horizontal && e->pos().x() > r.right() 
+	if ( !timer )
+	    timer = new QTimer( this );
+	connect( timer, SIGNAL(timeout()), SLOT(autoRepeat()) );
+	timer->start( thresholdTime, TRUE ); 
+    } else if ( orient == Horizontal && e->pos().x() > r.right() //### goodPart
 		|| orient == Vertical && e->pos().y() > r.bottom() ) {
 	state = TimingUp;
 	addPage();
-	timerId = startTimer( thresholdTime );
+	if ( !timer )
+	    timer = new QTimer( this );
+	connect( timer, SIGNAL(timeout()), SLOT(autoRepeat()) );
+	timer->start( thresholdTime, TRUE ); 
     }
 }
 
@@ -516,7 +522,7 @@ void QSlider::mouseMoveEvent( QMouseEvent *e )
     }
 
     if ( (e->state() & MidButton) ) { 		// middle button wins
-	int pos = (orient == Horizontal) ?  e->pos().x(): e->pos().y();
+	int pos = goodPart( e->pos() );
 	moveSlider( pos - slideWidth() / 2 );
 	return;	
     }
@@ -525,8 +531,7 @@ void QSlider::mouseMoveEvent( QMouseEvent *e )
     if ( state != Dragging )
 	return;
 
-    int pos = (orient == Horizontal) ?  e->pos().x(): e->pos().y();
-
+    int pos = goodPart( e->pos() );
     
     moveSlider( pos - clickOffset );
 }
@@ -545,13 +550,12 @@ void QSlider::mouseReleaseEvent( QMouseEvent *e )
 
 /*!
   Moves the left (or top) edge of the slider to position 
-  \a pos.
+  \a pos. Performs snapping.
 */
 
 void QSlider::moveSlider( int pos )
 {
     int  a = available();
-    int oldPos = sliderPos;
     int newPos = QMIN( a, QMAX( 0, pos ) );
     int newVal = valueFromPosition( newPos );
     if ( sliderVal != newVal ) {
@@ -565,28 +569,31 @@ void QSlider::moveSlider( int pos )
 
     switch ( style() ) {
     case WindowsStyle:
-	sliderPos = positionFromValue( newVal );
+	newPos = positionFromValue( newVal );
 	break;
     default:
     case MotifStyle:
-	sliderPos  = newPos;
 	break;
     }	    
-    if ( sliderPos != oldPos )
-	paintSlider( oldPos, sliderPos );
+
+    if ( sliderPos != newPos )
+	reallyMoveSlider( newPos );
 }
 
 
 /*!
-  Resets all state information and kills my timer.
+  Resets all state information and stops my timer.
 */
 
 void QSlider::resetState()
 {
+    if ( timer ) {
+	timer->stop();
+	timer->disconnect();
+    }
     switch ( state ) {
     case TimingUp:
     case TimingDown:
-	killTimer( timerId );
 	break;
     case Dragging: {
 	setValue( valueFromPosition( sliderPos ) );
@@ -639,23 +646,107 @@ void QSlider::keyPressEvent( QKeyEvent *e )
 	break;
     default:
 	e->ignore();
-	break;
+	return;
     }
+    e->accept();
 }
 
 
 /*!
-  Returns the width of the slider.
+  Returns the length of the slider.
 */
 
 int QSlider::slideWidth() const 
 {
     switch ( style() ) {
     case WindowsStyle:
-	return WIN_WIDTH;
+	return winLength;
     default:
     case MotifStyle:
-	return MOTIF_WIDTH;
+	return motifLength;
     }
 }
 
+
+
+/*!
+  Makes QRangeControl::setValue() available as a slot.
+*/
+
+void QSlider::setValue( int value )
+{
+    QRangeControl::setValue( value );
+}
+
+
+/*!
+  Moves the slider one pageStep() upwards.
+*/
+
+void QSlider::pageUp()
+{
+    addPage();
+}
+
+
+/*!
+  Moves the slider one pageStep() downwards.
+*/
+
+void QSlider::pageDown()
+{
+    subtractPage();
+}
+
+
+/*!
+  Waits for autorepeat.
+*/
+
+void QSlider::autoRepeat()
+{
+    ASSERT( timer );
+    timer->disconnect();
+    if ( state == TimingDown )
+	connect( timer, SIGNAL(timeout()), SLOT(pageDown()) );
+    else if ( state == TimingUp )
+	connect( timer, SIGNAL(timeout()), SLOT(pageUp()) );
+    timer->start( repeatTime, FALSE );   
+}
+
+
+/*!
+  Returns the relevant dimension of \a p.
+*/
+
+int QSlider::goodPart( const QPoint &p )
+{
+    return (orient == Horizontal) ?  p.x() : p.y();
+}
+
+
+/*!  
+
+  Returns the recommended size of the slider. Only the thickness is
+  relevant.
+
+*/
+
+QSize QSlider::sizeHint() const
+{
+    const int length = 42;
+    int thickness;
+    switch ( style() ) {
+    case WindowsStyle:
+	thickness = winThickness;
+	break;
+    case MotifStyle:
+    default:
+	thickness = motifThickness;
+	break;
+    }
+    if ( orient == Horizontal )
+	return QSize( length, thickness );
+    else
+	return QSize( thickness, length );
+}
