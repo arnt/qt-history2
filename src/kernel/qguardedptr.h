@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qguardedptr.h#4 $
+** $Id: //depot/qt/main/src/kernel/qguardedptr.h#5 $
 **
 ** Definition of QGuardedPtr class
 **
@@ -68,9 +68,9 @@ public:
 
     QGuardedPtr<T> &operator=(const QGuardedPtr<T> &p)
     {
-	p.ref();
+	((QGuardedPtr<T>) p).ref();
 	deref();
-	p = p.priv;
+	priv = p.priv;
 	return *this;
     }
 
