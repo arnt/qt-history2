@@ -39,6 +39,22 @@
 
 #ifndef QT_NO_PRINTDIALOG
 
+#ifndef QT_NO_NIS
+
+#ifndef BOOL_DEFINED
+#define BOOL_DEFINED
+#endif
+
+#include <rpcsvc/ypclnt.h>
+#include <rpcsvc/yp_prot.h>
+
+#endif // QT_NO_NIS
+
+// UNIX Large File Support redefines open -> open64
+#if defined(open)
+#undef open
+#endif
+
 #include "qfiledialog.h"
 
 #include "qfile.h"
@@ -425,13 +441,6 @@ static char * parsePrintersConf( QListView * printers )
 
 #ifndef QT_NO_NIS
 
-#ifndef BOOL_DEFINED
-#define BOOL_DEFINED
-#endif
-
-#include <rpcsvc/ypclnt.h>
-#include <rpcsvc/yp_prot.h>
-
 #if defined(Q_C_CALLBACKS)
 extern "C" {
 #endif
@@ -780,7 +789,6 @@ static char * parseCupsOutput( QListView * printers )
     return defaultPrinter;
 }
 #endif
-
 
 static QPrintDialog * globalPrintDialog = 0;
 

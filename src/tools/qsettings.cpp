@@ -37,9 +37,19 @@
 
 #include "qplatformdefs.h"
 
+static inline int qt_open( const char *pathname, int flags, mode_t mode )
+{
+    return ::open( pathname, flags, mode );
+}
+
+// POSIX Large File Support redefines open -> open64
+#if defined(open)
+#undef open
+#endif
+
 // POSIX Large File Support redefines truncate -> truncate64
 #if defined(truncate)
-# undef truncate
+#undef truncate
 #endif
 
 #include "qsettings.h"
@@ -229,8 +239,8 @@ static HANDLE openlock( const QString &name, int type )
     QString lockfile = info.dirPath() + "/." + info.fileName() + ".lock";
 
     // open the lockfile
-    HANDLE fd = open( QFile::encodeName( lockfile ),
-		      O_RDWR | O_CREAT, S_IRUSR | S_IWUSR );
+    HANDLE fd = qt_open( QFile::encodeName( lockfile ),
+			 O_RDWR | O_CREAT, S_IRUSR | S_IWUSR );
 
     if ( fd < 0 ) {
  	// failed to open the lock file, most likely because of permissions

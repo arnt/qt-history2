@@ -37,6 +37,11 @@
 
 #include "qplatformdefs.h"
 
+// UNIX Large File Support redefines open -> open64
+#if defined(open)
+#undef open
+#endif
+
 #include "qtextcodec.h"
 #ifndef QT_NO_TEXTCODEC
 
@@ -76,14 +81,6 @@
 #endif
 #ifdef Q_OS_MAC
 #include <Carbon/Carbon.h>
-#endif
-
-#if defined(Q_OS_SOLARIS)
-// On Solaris <euc.h> defines a macro "multibyte" and for some
-// reason is included by <string> and <iterator> on Solaris 2.5.1.
-#ifdef multibyte
-#undef multibyte
-#endif
 #endif
 
 static QValueList<QTextCodec*> *all = 0;
@@ -1268,18 +1265,18 @@ QTextDecoder::~QTextDecoder()
 #define CHAINED 0xffff
 
 struct QMultiByteUnicodeTable {
-    // If multibyte, ignore unicode and index into multibyte
+    // If multiByte, ignore unicode and index into multiByte
     //  with the next character.
-    QMultiByteUnicodeTable() : unicode(0xfffd), multibyte(0) { }
+    QMultiByteUnicodeTable() : unicode(0xfffd), multiByte(0) { }
 
     ~QMultiByteUnicodeTable()
     {
-	if ( multibyte )
-	    delete [] multibyte;
+	if ( multiByte )
+	    delete [] multiByte;
     }
 
     ushort unicode;
-    QMultiByteUnicodeTable* multibyte;
+    QMultiByteUnicodeTable* multiByte;
 };
 
 static int getByte(char* &cursor)
@@ -1311,27 +1308,27 @@ class QTextCodecFromIOD : public QTextCodec {
 
     QCString n;
 
-    // If from_unicode_page[row()][cell()] is 0 and from_unicode_page_multibyte,
-    //  use from_unicode_page_multibyte[row()][cell()] as string.
+    // If from_unicode_page[row()][cell()] is 0 and from_unicode_page_multiByte,
+    //  use from_unicode_page_multiByte[row()][cell()] as string.
     char** from_unicode_page;
-    char*** from_unicode_page_multibyte;
+    char*** from_unicode_page_multiByte;
     char unkn;
 
     // Only one of these is used
     ushort* to_unicode;
-    QMultiByteUnicodeTable* to_unicode_multibyte;
+    QMultiByteUnicodeTable* to_unicode_multiByte;
     int max_bytes_per_char;
     QStrList aliases;
 
-    bool stateless() const { return !to_unicode_multibyte; }
+    bool stateless() const { return !to_unicode_multiByte; }
 
 public:
     QTextCodecFromIOD(QIODevice* iod)
     {
 	from_unicode_page = 0;
-	to_unicode_multibyte = 0;
+	to_unicode_multiByte = 0;
 	to_unicode = 0;
-	from_unicode_page_multibyte = 0;
+	from_unicode_page_multiByte = 0;
 	max_bytes_per_char = 1;
 
 	const int maxlen=100;
@@ -1380,19 +1377,19 @@ public:
 			byte = getByte(cursor);
 
 			if ( *cursor == esc ) {
-			    if ( !to_unicode_multibyte ) {
-				to_unicode_multibyte =
+			    if ( !to_unicode_multiByte ) {
+				to_unicode_multiByte =
 				    new QMultiByteUnicodeTable[256];
 				for (int i=0; i<256; i++) {
-				    to_unicode_multibyte[i].unicode =
+				    to_unicode_multiByte[i].unicode =
 					to_unicode[i];
-				    to_unicode_multibyte[i].multibyte = 0;
+				    to_unicode_multiByte[i].multiByte = 0;
 				}
 				delete [] to_unicode;
 				to_unicode = 0;
 			    }
 			    QMultiByteUnicodeTable* mbut =
-				to_unicode_multibyte+byte;
+				to_unicode_multiByte+byte;
 			    mb[nmb++] = byte;
 			    while ( nmb < maxmb && *cursor == esc ) {
 				// Always at least once
@@ -1400,11 +1397,11 @@ public:
 				mbut->unicode = CHAINED;
 				byte = getByte(cursor);
 				mb[nmb++] = byte;
-				if (!mbut->multibyte) {
-				    mbut->multibyte =
+				if (!mbut->multiByte) {
+				    mbut->multiByte =
 					new QMultiByteUnicodeTable[256];
 				}
-				mbut = mbut->multibyte+byte;
+				mbut = mbut->multiByte+byte;
 				mb_unicode = & mbut->unicode;
 			    }
 
@@ -1426,18 +1423,18 @@ public:
 		    }
 		    if ( mb_unicode ) {
 			from_unicode_page[ch.row()][ch.cell()] = 0;
-			if (!from_unicode_page_multibyte) {
-			    from_unicode_page_multibyte = new char**[256];
+			if (!from_unicode_page_multiByte) {
+			    from_unicode_page_multiByte = new char**[256];
 			    for (int i=0; i<256; i++)
-				from_unicode_page_multibyte[i]=0;
+				from_unicode_page_multiByte[i]=0;
 			}
-			if (!from_unicode_page_multibyte[ch.row()]) {
-			    from_unicode_page_multibyte[ch.row()] = new char*[256];
+			if (!from_unicode_page_multiByte[ch.row()]) {
+			    from_unicode_page_multiByte[ch.row()] = new char*[256];
 			    for (int i=0; i<256; i++)
-				from_unicode_page_multibyte[ch.row()][i] = 0;
+				from_unicode_page_multiByte[ch.row()][i] = 0;
 			}
 			mb[nmb++] = 0;
-			from_unicode_page_multibyte[ch.row()][ch.cell()]
+			from_unicode_page_multiByte[ch.row()][ch.cell()]
 			    = qstrdup(mb);
 			*mb_unicode = unicode;
 		    } else {
@@ -1445,7 +1442,7 @@ public:
 			if ( to_unicode )
 			    to_unicode[byte] = unicode;
 			else
-			    to_unicode_multibyte[byte].unicode = unicode;
+			    to_unicode_multiByte[byte].unicode = unicode;
 		    }
 		} else {
 		}
@@ -1463,17 +1460,17 @@ public:
 		if (from_unicode_page[i])
 		    delete [] from_unicode_page[i];
 	}
-	if ( from_unicode_page_multibyte ) {
+	if ( from_unicode_page_multiByte ) {
 	    for (int i=0; i<256; i++)
-		if (from_unicode_page_multibyte[i])
+		if (from_unicode_page_multiByte[i])
 		    for (int j=0; j<256; j++)
-			if (from_unicode_page_multibyte[i][j])
-			    delete [] from_unicode_page_multibyte[i][j];
+			if (from_unicode_page_multiByte[i][j])
+			    delete [] from_unicode_page_multiByte[i][j];
 	}
 	if ( to_unicode )
 	    delete [] to_unicode;
-	if ( to_unicode_multibyte )
-	    delete [] to_unicode_multibyte;
+	if ( to_unicode_multiByte )
+	    delete [] to_unicode_multiByte;
     }
 
     bool ok() const
@@ -1522,16 +1519,16 @@ public:
     {
 	const uchar* uchars = (const uchar*)chars;
 	QString result;
-	QMultiByteUnicodeTable* multibyte=to_unicode_multibyte;
-	if ( multibyte ) {
+	QMultiByteUnicodeTable* multiByte=to_unicode_multiByte;
+	if ( multiByte ) {
 	    while (len--) {
-		QMultiByteUnicodeTable& mb = multibyte[*uchars];
-		if ( mb.multibyte ) {
+		QMultiByteUnicodeTable& mb = multiByte[*uchars];
+		if ( mb.multiByte ) {
 		    // Chained multi-byte
-		    multibyte = mb.multibyte;
+		    multiByte = mb.multiByte;
 		} else {
 		    result += QChar(mb.unicode);
-		    multibyte=to_unicode_multibyte;
+		    multiByte=to_unicode_multiByte;
 		}
 		uchars++;
 	    }
@@ -1565,9 +1562,9 @@ public:
 	    {
 		*cursor++ = from_unicode_page[ch.row()][ch.cell()];
 		lout++;
-	    } else if ( from_unicode_page_multibyte &&
-		      from_unicode_page_multibyte[ch.row()] &&
-		      (s=from_unicode_page_multibyte[ch.row()][ch.cell()]) )
+	    } else if ( from_unicode_page_multiByte &&
+		      from_unicode_page_multiByte[ch.row()] &&
+		      (s=from_unicode_page_multiByte[ch.row()][ch.cell()]) )
 	    {
 		while (*s) {
 		    *cursor++ = *s++;
@@ -1587,7 +1584,7 @@ public:
 QTextCodecFromIODDecoder::QTextCodecFromIODDecoder(const QTextCodecFromIOD* c) :
     codec(c)
 {
-    mb = codec->to_unicode_multibyte;
+    mb = codec->to_unicode_multiByte;
 }
 
 QString QTextCodecFromIODDecoder::toUnicode(const char* chars, int len)
@@ -1596,13 +1593,13 @@ QString QTextCodecFromIODDecoder::toUnicode(const char* chars, int len)
     QString result;
     while (len--) {
 	QMultiByteUnicodeTable& t = mb[*uchars];
-	if ( t.multibyte ) {
+	if ( t.multiByte ) {
 	    // Chained multi-byte
-	    mb = t.multibyte;
+	    mb = t.multiByte;
 	} else {
 	    if ( t.unicode )
 		result += QChar(t.unicode);
-	    mb=codec->to_unicode_multibyte;
+	    mb=codec->to_unicode_multiByte;
 	}
 	uchars++;
     }

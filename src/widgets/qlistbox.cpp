@@ -35,17 +35,9 @@
 **
 **********************************************************************/
 
-// needed for qsort (Borland), because of a std namespace problem
+#if defined(Q_CC_BOR)
+// needed for qsort() because of a std namespace problem on Borland
 #include "qplatformdefs.h"
-
-// Solaris redefines connect -> __xnet_connect with _XOPEN_SOURCE_EXTENDED.
-#if defined(connect)
-# undef connect
-#endif
-
-// POSIX Large File Support redefines truncate -> truncate64
-#if defined(truncate)
-# undef truncate
 #endif
 
 #include "qlistbox.h"
