@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qcolordialog.cpp#20 $
+** $Id: //depot/qt/main/src/dialogs/qcolordialog.cpp#21 $
 **
 ** Implementation of QColorDialog class
 **
@@ -40,6 +40,60 @@ static bool initrgb = FALSE;
 static QRgb stdrgb[6*8];
 static QRgb cusrgb[2*8];
 
+
+static void initRGB()
+{
+    if ( initrgb )
+	return;
+    initrgb = TRUE;
+    int i = 0;
+    for ( int g = 0; g < 4; g++ )
+	for ( int r = 0;  r < 4; r++ )
+	    for ( int b = 0; b < 3; b++ )
+		stdrgb[i++] = qRgb( r*255/3, g*255/3, b*255/2 );
+
+    for ( i = 0; i < 2*8; i++ )
+	cusrgb[i] = qRgb(0xff,0xff,0xff);
+}
+
+/*!  
+  Returns the number of custom colors supported by
+  QColorDialog. All color dialogs share the same custom colors.
+*/
+int QColorDialog::customCount()
+{
+    return 2*8;
+}
+
+/*!
+  Returns custom color number \a i as a QRgb.
+ */
+QRgb QColorDialog::customColor( int i )
+{
+    initRGB();
+    if ( i < 0 || i >= customCount() ) {
+#ifdef CHECK_RANGE
+	qDebug( "QColorDialog::customColor() index %d out of range", i );
+#endif	
+	i = 0;
+    }
+    return cusrgb[i];
+}
+
+/*!
+  Sets custom color number \a i to the QRgb value \a c.
+*/
+void QColorDialog::setCustomColor( int i, QRgb c )
+{
+    initRGB();
+    if ( i < 0 || i >= customCount() ) {
+#ifdef CHECK_RANGE
+	qDebug( "QColorDialog::customColor() index %d out of range", i );
+#endif	
+	return;
+    }
+    cusrgb[i] = c;
+}
 
 static inline void rgb2hsv( QRgb rgb, int&h, int&s, int&v )
 {
@@ -658,17 +712,7 @@ QColorDialogPrivate::QColorDialogPrivate( QColorDialog *dialog ) :
     QHBoxLayout *topLay = new QHBoxLayout( dialog, 12, 6 );
     QVBoxLayout *leftLay = new QVBoxLayout( topLay );
 
-    if ( !initrgb ) {
-	initrgb = TRUE;
-	int i = 0;
-	for ( int g = 0; g < 4; g++ )
-	    for ( int r = 0;  r < 4; r++ )
-		for ( int b = 0; b < 3; b++ )
-		    stdrgb[i++] = qRgb( r*255/3, g*255/3, b*255/2 );
-
-	for ( i = 0; i < 2*8; i++ )
-	    cusrgb[i] = qRgb(0xff,0xff,0xff);
-    }
+    initRGB();
 
 
     standard = new QColorWell( dialog, 6, 8, stdrgb );
@@ -755,8 +799,14 @@ void QColorDialogPrivate::addCustom()
   \brief The QColorDialog provides a dialog widget for specifying colors.
   \ingroup dialogs
 
-  This version of Qt provides the static getColor() function that
-  pops up a modal color dialog.
+  This version of Qt only provides modal color dialogs. The static
+  getColor() function lets the user specify a color, while getRgba()
+  lets the user specify a color with an alpha channel value.
+  
+  The user can store customCount() different custom colors. The custom
+  colors are shared by all color dialogs, and remembered during the
+  execution of the program. Use setCustomColor() to set the
+  custom colors, and customColor() to get them.
 */
 
 QColorDialog::QColorDialog(QWidget* parent, const char* name, bool modal) :

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qcolordialog.h#8 $
+** $Id: //depot/qt/main/src/dialogs/qcolordialog.h#9 $
 **
 ** Definition of QColorDialog class
 **
@@ -39,6 +39,11 @@ public:
     static QRgb getRgba( QRgb, bool* ok = 0,
 			 QWidget *parent=0, const char* name=0 );
 
+    
+    static int customCount();
+    static QRgb customColor( int );
+    static void setCustomColor( int, QRgb );
+    
     ~QColorDialog();
 private:
     QColorDialog( QWidget* parent=0, const char* name=0, bool modal=FALSE );
