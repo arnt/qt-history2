@@ -538,7 +538,7 @@ void qSystemWarning( const char *msg, ... )
 	QString fstr( buf );
 	OutputDebugString( (fstr + "\n").ucs2() );
 #else
-	fprintf( stderr, "%s\n", buf );		// add newline
+	fprintf( stderr, "%s\n", buf.data() );		// add newline
 #endif
     }
 }
