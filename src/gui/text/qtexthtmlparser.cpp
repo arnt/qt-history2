@@ -312,9 +312,9 @@ static QChar resolveEntity(const QString &entity)
 // the displayMode value is according to the what are blocks in the piecetable, not
 // what the w3c defines.
 static const struct QTextHtmlElement
-{ 
+{
     const char *name;
-    int id; 
+    int id;
     enum DisplayMode { DisplayBlock, DisplayInline, DisplayNone } displayMode;
 } elements[Html_NumElements+1]= {
     { "a", Html_a, QTextHtmlElement::DisplayInline },
@@ -440,11 +440,11 @@ static QString quoteNewline(const QString &s)
 QTextHtmlParserNode::QTextHtmlParserNode()
     : parent(0), id(-1), isBlock(false), isListItem(false), isListStart(false), isTableCell(false), isAnchor(false),
       fontItalic(false), fontUnderline(false), fontOverline(false), fontStrikeOut(false), fontFixedPitch(false),
-      cssFloat(QTextFrameFormat::InFlow), hasOwnListStyle(false), hasFontPointSize(false), fontPointSize(DefaultFontSize),
+      cssFloat(QTextFrameFormat::InFlow), hasOwnListStyle(false), hasFontPointSize(false),
+      hasCssBlockIndent(false), hasCssListIndent(false), fontPointSize(DefaultFontSize),
       fontWeight(QFont::Normal), alignment(Qt::AlignAuto),listStyle(QTextListFormat::ListStyleUndefined),
-      imageWidth(-1), imageHeight(-1), tableBorder(0), tableCellRowSpan(1), tableCellColSpan(1), 
-      tableCellSpacing(2), tableCellPadding(0), cssBlockIndent(0), hasCssBlockIndent(false),
-      cssListIndent(0), hasCssListIndent(false), wsm(WhiteSpaceModeUndefined)
+      imageWidth(-1), imageHeight(-1), tableBorder(0), tableCellRowSpan(1), tableCellColSpan(1),
+      tableCellSpacing(2), tableCellPadding(0), cssBlockIndent(0), cssListIndent(0), wsm(WhiteSpaceModeUndefined)
 {
     margin[QTextHtmlParser::MarginLeft] = 0;
     margin[QTextHtmlParser::MarginRight] = 0;
@@ -705,7 +705,7 @@ void QTextHtmlParser::parseTag()
     if (node->wsm != QTextHtmlParserNode::WhiteSpacePre
         && node->wsm != QTextHtmlParserNode::WhiteSpacePreWrap)
         eatSpace();
- 
+
     if (node->mayNotHaveChildren()) {
         newNode(node->parent);
         resolveNode();
