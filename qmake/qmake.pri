@@ -54,11 +54,11 @@ bootstrap { #Qt code
         qurl.cpp \
         qunicodetables.cpp \
         quuid.cpp \
-	qcoresettings.obj \
-	qcorevariant.obj \
-	qrect.obj \
-	qpoint.obj \
-	qsize.obj \
+	qcoresettings.cpp \
+	qcorevariant.cpp \
+	qrect.cpp \
+	qpoint.cpp \
+	qsize.cpp \
         qvector.cpp 
 
    HEADERS+= \
