@@ -24,6 +24,7 @@
 #include <abstractpropertyeditor.h>
 #include <qextensionmanager.h>
 #include <propertysheet.h>
+#include <qdesigner_promotedwidget.h>
 
 #include <QtCore/qdebug.h>
 
@@ -211,6 +212,112 @@ bool SetPropertyCommand::mergeMeWith(QtCommand *other)
     return false;
 }
 
+// ---- ResetPropertyCommand ----
+ResetPropertyCommand::ResetPropertyCommand(AbstractFormWindow *formWindow)
+    : AbstractFormWindowCommand(QString(), formWindow),
+      m_index(-1),
+      m_propertySheet(0),
+      m_changed(false)
+{
+    setCanMerge(true);
+}
+
+QWidget *ResetPropertyCommand::widget() const
+{
+    return m_widget;
+}
+
+QWidget *ResetPropertyCommand::parentWidget() const
+{
+    return m_parentWidget;
+}
+
+void ResetPropertyCommand::init(QWidget *widget, const QString &propertyName)
+{
+    Q_ASSERT(widget);
+
+    m_widget = widget;
+    m_parentWidget = widget->parentWidget();
+    m_propertyName = propertyName;
+
+    AbstractFormEditor *core = formWindow()->core();
+    m_propertySheet = qt_extension<IPropertySheet*>(core->extensionManager(), widget);
+    Q_ASSERT(m_propertySheet);
+
+    m_index = m_propertySheet->indexOf(m_propertyName);
+    Q_ASSERT(m_index != -1);
+
+    m_changed = m_propertySheet->isChanged(m_index);
+    m_oldValue = m_propertySheet->property(m_index);
+
+    setDescription(tr("changed '%1' of '%2'").arg(m_propertyName).arg(m_widget->objectName()));
+}
+
+void ResetPropertyCommand::redo()
+{
+    Q_ASSERT(m_propertySheet);
+    Q_ASSERT(m_index != -1);
+
+    QObject *obj = m_widget;
+    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(obj))
+        obj = promoted->child();
+
+    QVariant new_value;
+        
+    if (m_propertySheet->reset(m_index)) {
+        new_value = m_propertySheet->property(m_index);
+    } else {
+        int item_idx =  formWindow()->core()->widgetDataBase()->indexOfObject(obj);
+        if (item_idx == -1) {
+            new_value = m_oldValue; // We simply don't know the value in this case
+        } else {
+            AbstractWidgetDataBaseItem *item
+                = formWindow()->core()->widgetDataBase()->item(item_idx);
+            QList<QVariant> default_prop_values = item->defaultPropertyValues();
+            if (m_index < default_prop_values.size())
+                new_value = default_prop_values.at(m_index);
+            else
+                new_value = m_oldValue; // Again, we just don't know
+        }
+    
+        m_propertySheet->setProperty(m_index, new_value);
+    }
+                
+    m_propertySheet->setChanged(m_index, false);
+
+    if (m_propertyName == QLatin1String("geometry")) {
+        checkSelection(m_widget);
+        checkParent(m_widget, m_parentWidget);
+    } else if (m_propertyName == QLatin1String("objectName")) {
+        checkObjectName(m_widget);
+    }
+
+    if (AbstractPropertyEditor *propertyEditor = formWindow()->core()->propertyEditor()) {
+        if (propertyEditor->object() == widget())
+            propertyEditor->setPropertyValue(propertyName(), new_value);
+    }
+}
+
+void ResetPropertyCommand::undo()
+{
+    Q_ASSERT(m_propertySheet);
+    Q_ASSERT(m_index != -1);
+
+    m_propertySheet->setProperty(m_index, m_oldValue);
+    m_propertySheet->setChanged(m_index, m_changed);
+
+    if (m_propertyName == QLatin1String("geometry")) {
+        checkSelection(m_widget);
+        checkParent(m_widget, m_parentWidget);
+    } else if (m_propertyName == QLatin1String("objectName")) {
+        checkObjectName(m_widget);
+    }
+
+    if (AbstractPropertyEditor *propertyEditor = formWindow()->core()->propertyEditor()) {
+        if (propertyEditor->object() == widget())
+            propertyEditor->setPropertyValue(propertyName(), m_oldValue);
+    }
+}
 
 // ---- InsertWidgetCommand ----
 InsertWidgetCommand::InsertWidgetCommand(AbstractFormWindow *formWindow)

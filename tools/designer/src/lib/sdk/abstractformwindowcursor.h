@@ -65,7 +65,8 @@ public:
 
     virtual void setProperty(const QString &name, const QVariant &value) = 0;
     virtual void setWidgetProperty(QWidget *widget, const QString &name, const QVariant &value) = 0;
-
+    virtual void resetWidgetProperty(QWidget *widget, const QString &name) = 0;
+    
     bool isWidgetSelected(QWidget *widget) const;
 };
 

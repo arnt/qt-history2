@@ -124,6 +124,42 @@ private:
     bool m_changed;
 };
 
+class QT_SHARED_EXPORT ResetPropertyCommand: public AbstractFormWindowCommand
+{
+    Q_OBJECT
+public:
+    ResetPropertyCommand(AbstractFormWindow *formWindow);
+
+    void init(QWidget *widget, const QString &propertyName);
+
+    QWidget *widget() const;
+    QWidget *parentWidget() const;
+
+    inline QString propertyName() const
+    { return m_propertyName; }
+
+    inline QVariant oldValue() const
+    { return m_oldValue; }
+
+    inline void setOldValue(const QVariant &oldValue)
+    { m_oldValue = oldValue; }
+
+    virtual void redo();
+    virtual void undo();
+
+protected:
+    virtual bool mergeMeWith(QtCommand *other) { return false; }
+
+private:
+    QString m_propertyName;
+    int m_index;
+    QPointer<QWidget> m_widget;
+    QPointer<QWidget> m_parentWidget;
+    IPropertySheet *m_propertySheet;
+    QVariant m_oldValue;
+    bool m_changed;
+};
+
 class QT_SHARED_EXPORT InsertWidgetCommand: public AbstractFormWindowCommand
 {
     Q_OBJECT

@@ -152,3 +152,13 @@ void FormWindowCursor::setWidgetProperty(QWidget *widget, const QString &name, c
     cmd->init(widget, name, value);
     m_formWindow->commandHistory()->push(cmd);
 }
+
+void FormWindowCursor::resetWidgetProperty(QWidget *widget, const QString &name)
+{
+    IPropertySheet *sheet = qt_extension<IPropertySheet*>(m_formWindow->core()->extensionManager(), widget);
+    Q_ASSERT(sheet);
+
+    ResetPropertyCommand *cmd = new ResetPropertyCommand(m_formWindow);
+    cmd->init(widget, name);
+    m_formWindow->commandHistory()->push(cmd);
+}

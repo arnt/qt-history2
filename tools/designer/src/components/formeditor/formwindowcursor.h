@@ -45,6 +45,7 @@ public:
 
     virtual void setProperty(const QString &name, const QVariant &value);
     virtual void setWidgetProperty(QWidget *widget, const QString &name, const QVariant &value);
+    virtual void resetWidgetProperty(QWidget *widget, const QString &name);
 
 public slots:
     void update();
