@@ -3,3 +3,14 @@ before compiling this plugin.
 
 See the Qt SQL documentation for more information on compiling Qt SQL
 driver plugins.
+
+
+Notes on Linux / Unix:
+
+You need the MySQL include files and shared libraries. Depending
+on your Linux distribution it should be a package called 
+MySQL-devel. Install it and tell qmake where to find the files:
+
+cd $QTDIR/src/sql/src/mysql
+qmake -o Makefile "INCLUDEPATH=/usr/local/include" "LIBS=-L/usr/local/libs -lmysqlclient" mysql.pro 
+make
