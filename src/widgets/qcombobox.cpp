@@ -1524,8 +1524,16 @@ void QComboBox::popup()
 	if (y + h > sy+sh && y - h - height() >= 0 )
 	    y = y - h - height();
 
-	lb->setGeometry( style().querySubControlMetrics( QStyle::CC_ComboBox, this, QStyle::SC_ComboBoxListBoxPopup,
-							 QStyleOption( x, y, w, h ) ) );
+       	QRect rect =
+	    style().querySubControlMetrics( QStyle::CC_ComboBox, this,
+					    QStyle::SC_ComboBoxListBoxPopup,
+					    QStyleOption( x, y, w, h ) );
+	// work around older styles that don't implement the combobox
+	// listbox popup subcontrol
+	if ( rect.isNull() )
+	    rect.setRect( x, y, w, h );
+	lb->setGeometry( rect );
+
 	lb->raise();
 	bool block = lb->signalsBlocked();
 	lb->blockSignals( TRUE );
