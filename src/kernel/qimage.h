@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#38 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#39 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -25,8 +25,8 @@ public:
     QImage( int width, int height, int depth, int numColors=0,
 	    Endian bitOrder=IgnoreEndian );
     QImage( const char *fileName, const char *format=0 );
+    QImage( const char *xpm[] );
     QImage( const QImage & );
-    QImage( const char * xpm [] );
    ~QImage();
 
     QImage     &operator=( const QImage & );
@@ -48,6 +48,9 @@ public:
     void	setColor( int i, QRgb c );
     void	setNumColors( int );
 
+    bool	hasAlphaBuffer() const;
+    void	setAlphaBuffer( bool );
+
     uchar      *bits()		const;
     uchar      *scanLine( int ) const;
     uchar     **jumpTable()	const;
@@ -61,9 +64,10 @@ public:
 
     void	fill( uint pixel );
 
-    QImage	convertDepth( int )	const;
-    QImage	convertBitOrder( QImage::Endian )	const;
+    QImage	convertDepth( int ) const;
+    QImage	convertBitOrder( QImage::Endian ) const;
 
+    QImage	buildAlphaMask( bool dither=FALSE ) const;
     QImage 	reasonableMask( bool = TRUE ) const;
 
     static QImage::Endian systemBitOrder();
@@ -88,6 +92,7 @@ private:
 	int	bitordr;			// bit order (1 bit depth)
 	QRgb   *ctbl;				// color table
 	uchar **bits;				// image data
+	bool	alpha;				// alpha buffer
     } *data;
 };
 
@@ -158,6 +163,16 @@ private:	// Disabled copy constructor and operator=
   QImage member functions
  *****************************************************************************/
 
+inline bool QImage::hasAlphaBuffer() const
+{
+    return data->alpha;
+}
+
+inline uchar *QImage::bits() const
+{
+    return data->bits ? data->bits[0] : 0;
+}
+
 inline uchar **QImage::jumpTable() const
 {
     return data->bits;
@@ -176,11 +191,6 @@ inline int QImage::numBytes() const
 inline int QImage::bytesPerLine() const
 {
     return data->h ? data->nbytes/data->h : 0;
-}
-
-inline uchar *QImage::bits() const
-{
-    return data->bits ? data->bits[0] : 0;
 }
 
 #if !(defined(QIMAGE_C) || defined(DEBUG))

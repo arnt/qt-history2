@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#65 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#66 $
 **
 ** Implementation of QPixmap class
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#65 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#66 $");
 
 
 /*!
@@ -130,6 +130,19 @@ QPixmap::QPixmap( const char *fileName, const char *format, ColorMode mode )
 {
     init( 0, 0, 0 );
     load( fileName, format, mode );
+}
+
+/*!
+  Constructs a pixmap from \a xpm, which must be a valid XPM image.
+*/
+
+QPixmap::QPixmap( const char *xpm[] )
+    : QPaintDevice( PDT_PIXMAP )
+{
+    init( 0, 0, 0 );
+    QImage image( xpm );
+    if ( !image.isNull() )
+	convertFromImage( image );
 }
 
 

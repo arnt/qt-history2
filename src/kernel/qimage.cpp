@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#93 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#94 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#93 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#94 $");
 
 
 /*!
@@ -129,8 +129,6 @@ uchar *qt_get_bitflip_array()			// called from QPixmap code
 }
 
 
-
-
 /*!
   Constructs a null image.
   \sa isNull()
@@ -144,8 +142,8 @@ QImage::QImage()
 }
 
 /*!
-  Constructs an image with \e w width, \e h height, \e depth bits per
-  pixel, \e numColors colors and bit order \e bitOrder.
+  Constructs an image with \a w width, \a h height, \a depth bits per
+  pixel, \a numColors colors and bit order \a bitOrder.
 
   Using this constructor is the same as first constructing a null image and
   then calling the create() function.
@@ -161,6 +159,39 @@ QImage::QImage( int w, int h, int depth, int numColors, Endian bitOrder )
     create( w, h, depth, numColors, bitOrder );
 }
 
+
+/*!
+  Constructs an image from loading \a fileName and an optional
+  \a format.
+  \sa load()
+*/
+
+QImage::QImage( const char *fileName, const char *format=0 )
+{
+    data = new QImageData;
+    CHECK_PTR( data );
+    init();
+    load( fileName, format );
+}
+
+
+// helper
+static void read_xpm_image_or_array( QImageIO *, const char **, QImage & );
+
+/*!
+  Constructs an image from \a xpm, which must be a valid XPM image.
+
+  Errors are silently ignored.
+*/
+
+QImage::QImage( const char *xpm[] )
+{
+    data = new QImageData;
+    CHECK_PTR( data );
+    init();
+    read_xpm_image_or_array( 0, xpm, *this );
+}
+
 /*!
   Constructs a shallow copy of \e image.
 */
@@ -171,23 +202,6 @@ QImage::QImage( const QImage &image )
     data->ref();
 }
 
-
-// helper
-static void read_xpm_image_or_array( QImageIO *, const char **, QImage & );
-
-/*! Constructs an image from \a array, which must be a valid compiled
-  XPM pixmap.
-
-  Errors are silently ignored.
-*/
-
-QImage::QImage( const char * array[] )
-{
-    data = new QImageData;
-    CHECK_PTR( data );
-    init();
-    read_xpm_image_or_array( 0, array, *this );
-}
 
 /*!
   Destroys the image and cleans up.
@@ -450,31 +464,40 @@ void QImage::reset()
 */
 
 void QImage::fill( uint pixel )
-{
-    if ( depth() == 1 ) {
-	if ( pixel & 1 )
-	    pixel = 0xffffffff;
-	else
-	    pixel = 0;
-    } else if ( depth() == 8 ) {
-	uint c = pixel & 0xff;
-	pixel = c | ((c << 8) & 0xff00) | ((c << 16) & 0xff0000) |
-	        ((c << 24) & 0xff000000);
-    }
-    int bpl = bytesPerLine();
-    if ( depth() == 32 && 0 /* hasAlphaBuffer() */ ) {
-	pixel &= 0x00ffffff;
-	for ( int i=0; i<height(); i++ ) {
-	    uint *p = (uint *)scanLine(i);
-	    uint *end = p + width();
-	    while ( p < end ) {
-		*p = (*p & 0xff000000) | pixel;
-		p++;
-	    }
+{    
+    if ( depth() == 1 || depth() == 8 ) {
+	if ( depth() == 1 ) {
+	    if ( pixel & 1 )
+		pixel = 0xffffffff;
+	    else
+		pixel = 0;
+	} else {
+	    uint c = pixel & 0xff;
+	    pixel = c | ((c << 8) & 0xff00) | ((c << 16) & 0xff0000) |
+		    ((c << 24) & 0xff000000);
 	}
-    } else {
+	int bpl = bytesPerLine();
 	for ( int i=0; i<height(); i++ )
 	    memset( scanLine(i), pixel, bpl );
+    } else if ( depth() == 32 ) {
+	if ( 0 /* hasAlphaBuffer() */ ) {
+	    pixel &= 0x00ffffff;
+	    for ( int i=0; i<height(); i++ ) {
+		uint *p = (uint *)scanLine(i);
+		uint *end = p + width();
+		while ( p < end ) {
+		    *p = (*p & 0xff000000) | pixel;
+		    p++;
+		}
+	    }
+	} else {	    
+	    for ( int i=0; i<height(); i++ ) {
+		uint *p = (uint *)scanLine(i);
+		uint *end = p + width();
+		while ( p < end )
+		    *p++ = pixel;
+	    }
+	}
     }
 }
 
@@ -555,6 +578,42 @@ void QImage::setNumColors( int numColors )
 	data->ctbl = (QRgb*)calloc( numColors*sizeof(QRgb), 1 );
     }
     data->ncols = data->ctbl == 0 ? 0 : numColors;
+}
+
+
+/*!
+  \fn bool QImage::hasAlphaBuffer( bool enable ) const
+
+  Returns TRUE if alpha buffer mode is enabled, otherwise FALSE.
+
+  \sa setAlphaBuffer()
+*/
+
+/*!
+  Enables alpha buffer mode if \a enable is TRUE, otherwise disables it.
+  The default setting is disabled.
+
+  An 8-bpp image has 8 bit pixels. A pixel is an index into the \link
+  color() color table\endlink, which contains 32-bit color values.
+  In a 32-bpp image, the 32 bit pixels are the color values.
+
+  This 32 bit value is encoded as follows: The lower 24 bits are used for
+  the red, green and blue components. The upper 8 bits contain the alpha
+  component.
+
+  The alpha component specifies the transparency of a pixel. 0 means
+  completely transparent and 255 means opaque. The alpha component is
+  ignored if you do not enable alpha buffer mode.
+
+  The alpha buffer is used to set a mask when a QImage is translated to a
+  QPixmap.
+
+  \sa hasAlphaBuffer()
+*/
+
+void QImage::setAlphaBuffer( bool enable )
+{
+    data->alpha = enable;
 }
 
 
@@ -651,6 +710,7 @@ void QImage::init()
     data->ctbl = 0;
     data->bits = 0;
     data->bitordr = QImage::IgnoreEndian;
+    data->alpha = FALSE;
 }
 
 /*!
@@ -698,8 +758,8 @@ static bool convert_32_to_8( const QImage *src, QImage *dst )
 	b = dst->scanLine(y);
 	x = src->width();
 	while ( x-- ) {
-	    if ( !(pix=cdict.find(*p)) ) {	// new RGB, insert in dict
-		cdict.insert( *p, (pix=++pixel) );
+	    if ( !(pix=cdict.find(*p & 0x00ffffff )) ) {
+		cdict.insert( *p & 0x00ffffff, (pix=++pixel) );
 		if ( cdict.count() > 256 ) {	// too many colors
 		    do_quant = TRUE;
 		    y = src->height();
@@ -727,8 +787,6 @@ static bool convert_32_to_8( const QImage *src, QImage *dst )
 		p++;
 		x++;
 	    }
-	    ASSERT( x == src->width() );
-	    ASSERT( x == dst->width() );
 	}
     } else {					// number of colors <= 256
 	QIntDictIteratorM(char) cdictit( cdict );
@@ -828,7 +886,7 @@ static bool dither_image( const QImage *src, QImage *dst )
     bool  use_gray = src->depth() == 8;
     if ( use_gray ) {				// make gray map
 	for ( int i=0; i<src->numColors(); i++ )
-	    gray[i] = qGray( src->color(i) );
+	    gray[i] = qGray( src->color(i) & 0x00ffffff );
     }
     int *line1 = new int[w];
     int *line2 = new int[w];
@@ -981,20 +1039,124 @@ QImage QImage::convertBitOrder( QImage::Endian bitOrder ) const
 
 
 
-/*!  Return a one-bpp image which problably is a reasonably good mask
-  for this image.  It works by selecting a color from one of the
-  corners, then chipping away pixels of that color, starting at all
-  the edges.
+/*!
+  Builds and returns a 1-bpp mask from the alpha buffer in this image.
+  Returns a null image if \link setAlphaBuffer() alpha buffer mode\endlink
+  is disabled.
+
+  If \a dither is TRUE, this function uses the Floyd-Steinberg dithering
+  algorithm to create the mask. It gives accurate results but is somewhat
+  slow. If \a dither is FALSE, this function avoids dithering and instead
+  interprets all alpha values from 127 and below as transparent and values
+  from 128 and above as opaque. It is much faster than dithering and
+  usually sufficient when reading images with transparent colors.
+
+  The returned image has little-endian bit order, which you can
+  convert to big-endianness using convertBitOrder().
+
+  \sa setAlphaBuffer()
+*/
+
+QImage QImage::buildAlphaMask( bool dither ) const
+{
+    if ( isNull() || !hasAlphaBuffer() ) {
+	QImage nullImage;
+	return nullImage;
+    }
+
+    if ( depth() == 1 ) {
+	return convertDepth(8).buildAlphaMask();
+    }
+
+    int i;
+    if ( !dither ) {				// simple quantization
+	QImage mask1( width(), height(), 1, 2, QImage::BigEndian );
+	mask1.setColor( 0, 0xffffff );
+	mask1.setColor( 1, 0 );
+	mask1.fill( 0 );
+	if ( depth() == 32 ) {
+	    for ( i=0; i<height(); i++ ) {
+		uint  *p = (uint *)scanLine(i);
+		uint  *end = p + width();
+		uchar *m = mask1.scanLine(i);
+		int bit = 7;
+		while ( p < end ) {
+		    if ( (*p++ >> 24) & 0x80 )
+			*m |= 1 << bit;
+		    if ( bit == 0 ) {
+			m++;
+			bit = 7;
+		    } else {
+			bit--;
+		    }
+		}
+	    }
+	} else if ( depth() == 8 ) {
+	    uchar c[256];
+	    for ( i=0; i<numColors(); i++ )
+		c[i] = (color(i) >> 24) & 0x80;
+	    for ( i=0; i<height(); i++ ) {
+		uchar *p = scanLine(i);
+		uchar *end = p + width();
+		uchar *m = mask1.scanLine(i);
+		int bit = 7;
+		while ( p < end ) {
+		    if ( c[*p++] )
+			*m |= 1 << bit;
+		    if ( bit == 0 ) {
+			m++;
+			bit = 7;
+		    } else {
+			bit--;
+		    }
+		}
+	    }
+	}
+	return mask1;
+    }
+
+    QImage mask8( width(), height(), 8, 256 );
+    for ( i=0; i<256; i++ )
+	mask8.data->ctbl[i] = qGray(i,i,i);
+    if ( depth() == 32 ) {
+	for ( i=0; i<height(); i++ ) {
+	    uint  *p = (uint *)scanLine(i);
+	    uint  *end = p + width();
+	    uchar *m = mask8.scanLine(i);
+	    while ( p < end )
+		*m++ = (uchar)(*p++ >> 24);
+	}
+    } else if ( depth() == 8 ) {
+	uchar c[256];
+	for ( i=0; i<numColors(); i++ )
+	    c[i] = (uchar)(color(i) >> 24);
+	for ( i=0; i<height(); i++ ) {
+	    uchar *p = scanLine(i);
+	    uchar *end = p + width();
+	    uchar *m = mask8.scanLine(i);
+	    while ( p < end )
+		*m++ = c[*p++];
+	}
+    }
+    QImage mask1;
+    dither_image( &mask8, &mask1 );
+    return mask1;
+}
+
+
+/*!
+  Builds and returns a 1-bpp heuristic mask for this image.  It works by
+  selecting a color from one of the corners, then chipping away pixels of
+  that color, starting at all the edges.
 
   The four corners vote over which color is to be masked away.  In
   case of a draw (this generally means that this function is not
   applicable to the image) the voting results are undocumented.
 
-  This function is much slower than it might have been, and not as
-  flexible - it always returns a little-endian mask (which you can
-  convert to big-endianness using convertBitOrder()).
+  The returned image has little-endian bit order, which you can
+  convert to big-endianness using convertBitOrder().
 
-  This function disregards the alpha channel.
+  This function disregards the alpha buffer.
 */
 
 QImage QImage::reasonableMask( bool clipTightly ) const
@@ -1049,7 +1211,7 @@ QImage QImage::reasonableMask( bool clipTightly ) const
 	}
     }
 
-    if ( clipTightly == FALSE ) {
+    if ( !clipTightly ) {
 	ypn = m.scanLine(0);
 	ypc = 0;
 	for ( y = 0; y < h; y++ ) {
@@ -1092,11 +1254,11 @@ const char *QImage::imageFormat( const char *fileName )
 
 
 /*!
-  Loads an image from the file \e fileName.
+  Loads an image from the file \a fileName.
   Returns TRUE if successful, or FALSE if the image could not be loaded.
 
-  If \e format is specified, the loader attempts to read the image using the
-  specified format. If \e format is not specified (default),
+  If \a format is specified, the loader attempts to read the image using the
+  specified format. If \a format is not specified (default),
   the loader reads a few bytes from the header to guess the file format.
 
   The QImageIO documentation lists the supported image formats and
@@ -2482,11 +2644,11 @@ static void write_xbm_image( QImageIO *iio )	// write X bitmap image data
 
     iio->setStatus( 0 );
 
-    if ( image.depth() != 1 || image.bitOrder() != QImage::LittleEndian ) {
+    if ( image.depth() != 1 )
 	image = image.convertDepth( 1 );	// dither
-	if ( image.bitOrder() != QImage::LittleEndian )
-	    image = image.convertBitOrder( QImage::LittleEndian );
-    }
+    if ( image.bitOrder() != QImage::LittleEndian )
+	image = image.convertBitOrder( QImage::LittleEndian );
+
     bool invert = qGray(image.color(0)) < qGray(image.color(1));
     char hexrep[16];
     for ( i=0; i<10; i++ )
