@@ -3311,8 +3311,11 @@ int QTable::addSelection( const QTableSelection &s )
 {
     if ( !s.isActive() )
 	return -1;
-    QTableSelection *sel = new QTableSelection( s.anchorRow(), s.anchorCol(), 
-				    QMIN(s.bottomRow(), numRows()-1), QMIN(s.rightCol(), numCols()-1) );
+
+    const int maxr = numRows()-1;
+    const int maxc = numCols()-1;
+    QTableSelection *sel = new QTableSelection( QMIN(s.anchorRow(), maxr), QMIN(s.anchorCol(), maxc),
+				    QMIN(s.bottomRow(), maxr), QMIN(s.rightCol(), maxc) );
 
     selections.append( sel );
 
@@ -3387,10 +3390,13 @@ int QTable::currentSelection() const
 
 void QTable::selectCells( int start_row, int start_col, int end_row, int end_col )
 {
-    start_row = QMAX( 0, start_row );
-    start_col = QMAX( 0, start_col );
-    end_row = QMIN( numRows()-1, end_row );
-    end_col = QMIN( numCols()-1, end_col );
+    const int maxr = numRows()-1;
+    const int maxc = numCols()-1;
+
+    start_row = QMIN( maxr, QMAX( 0, start_row ) );
+    start_col = QMIN( maxc, QMAX( 0, start_col ) );
+    end_row = QMIN( maxr, end_row );
+    end_col = QMIN( maxc, end_col );
     QTableSelection sel( start_row, start_col, end_row, end_col );
     addSelection( sel );
 }
