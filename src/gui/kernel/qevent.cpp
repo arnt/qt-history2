@@ -1417,7 +1417,7 @@ QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, int state
     \fn int QIMEvent::cursorPos() const
 
     Returns the current cursor position inside the composition string.
-    Will return 0 for IMStartEvent and IMEndEvent.
+    Will return -1 for IMStartEvent and IMEndEvent.
 */
 
 /*!
