@@ -21,7 +21,7 @@ OBJS=project.o main.o makefile.o unixmake.o unixmake2.o borland_bmake.o mingw_ma
 #qt code
 QTOBJS=qstring.o quuid.o qtextstream.o qiodevice.o qglobal.o qgdict.o qcstring.o qdatastream.o \
  	qgarray.o qbuffer.o qglist.o qptrcollection.o qfile.o qfile_win.o qregexp.o qgvector.o \
- 	qgcache.o qbitarray.o qdir.o qfileinfo_win.o qdir_win.o qfileinfo.o qdatetime.o \
+ 	qgcache.o qbitarray.o qdir.o qfileinfo_win.o qdir_win.o qfileinfo.o qdatetime.o qhash.o \
  	qstringlist.o qmap.o qlibrary.o qlibrary_win.o qconfig.o qsettings.o qsettings_win.o qunicodetables.o qlinkedlist.o
 
 
@@ -113,6 +113,9 @@ qbitarray.o: ..\src\tools\qbitarray.cpp
 
 qdir.o: ..\src\tools\qdir.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qdir.cpp
+
+qhash.o: ..\src\tools\qhash.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qhash.cpp
 
 qsettings.o: ..\src\tools\qsettings.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qsettings.cpp

@@ -29,11 +29,10 @@ SOURCES+=qchar.cpp qstring.cpp qtextstream.cpp \
 	 qptrcollection.cpp qfile.cpp \
 	 qregexp.cpp quuid.cpp \
 	 qgvector.cpp qvector.cpp \
-	 qbitarray.cpp qdir.cpp \
-	 qfileinfo.cpp qdatetime.cpp \
+	 qbitarray.cpp qdir.cpp qhash.cpp \
+	 qfileinfo.cpp qdatetime.cpp qlinkedlist.cpp \
 	 qstringlist.cpp qmap.cpp \
-	 qsettings.cpp qunicodetables.cpp \
-	 qlibrary.cpp 
+	 qsettings.cpp qunicodetables.cpp 
 
 exists($$QT_BUILD_TREE/src/tools/qconfig.cpp) {  #qconfig.cpp
     DEFINES += HAVE_QCONFIG_CPP                                           
@@ -51,7 +50,7 @@ unix {
 }
 win32 {
    VPATH += $$QT_SOURCE_TREE/src/tools
-   SOURCES += qfile_win.cpp qfileinfo_win.cpp qdir_win.cpp qsettings_win.cpp qlibrary_win.cpp
+   SOURCES += qfile_win.cpp qfileinfo_win.cpp qdir_win.cpp qsettings_win.cpp
    *-msvc:LIBS += ole32.lib advapi32.lib
 }
 macx-*: LIBS += -framework CoreServices
