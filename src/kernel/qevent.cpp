@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#13 $
 **
 ** Implementation of event classes
 **
@@ -13,7 +13,7 @@
 #include "qevent.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#13 $";
 #endif
 
 
@@ -237,7 +237,7 @@ Key code 0 meams that the event is not a result of a known key (e.g. it
 may be the result of a compose sequence or keyboard macro). */
 
 /*!
-\fn char QKeyEvent::ascii() const
+\fn uchar QKeyEvent::ascii() const
 Returns the ASCII code of the key that was pressed or released.
 */
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#16 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#17 $
 **
 ** Definition of event classes
 **
@@ -101,7 +101,7 @@ public:
 	: QEvent(type)		{ k=(ushort)kc; a=ac; st=(ushort)state;
 				  accpt=TRUE; accel=0; }
     int	   key()	const	{ return k; }	// key code (Key_Code)
-    unsigned char ascii() const	{ return a; }	// ascii value
+    uchar  ascii() const	{ return a; }	// ascii value
     int	   state()	const	{ return st; }	// keyboard status
     bool   isAccepted()	const	{ return accpt; }
     void   accept()		{ accpt = TRUE; }
