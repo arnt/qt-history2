@@ -770,7 +770,10 @@ QIconViewItem::~QIconViewItem()
 }
 
 /*!
-  Sets \a text as text of the iconview item.
+  Sets \a text as text of the iconview item.  This method might be a no-op 
+  if you reimplement text().
+  
+  \sa text()
 */
 
 void QIconViewItem::setText( const QString &text )
@@ -802,7 +805,10 @@ void QIconViewItem::setKey( const QString &k )
 }
 
 /*!
-  Sets \a icon as item icon of the iconview item.
+  Sets \a icon as item icon of the iconview item. This method might be a no-op
+  if you reimplement pixmap().
+  
+  \sa pixmap()
 */
 
 void QIconViewItem::setPixmap( const QPixmap &icon )
@@ -822,6 +828,10 @@ void QIconViewItem::setPixmap( const QPixmap &icon )
   Sets \a text as text of the iconview item. Using \a recalc you can
   specify, if the iconview should be recalculated and using \a redraw if it
   should be repainted or not.
+
+  This method might be a no-op if you reimplement text().
+  
+  \sa text()
 */
 
 void QIconViewItem::setText( const QString &text, bool recalc, bool redraw )
@@ -842,6 +852,10 @@ void QIconViewItem::setText( const QString &text, bool recalc, bool redraw )
   Sets \a icon as item icon of the iconview item. Using \a recalc you can
   specify, if the iconview should be recalculated and using \a redraw if it
   should be repainted or not.
+
+  This method might be a no-op if you reimplement pixmap().
+  
+  \sa pixmap()
 */
 
 void QIconViewItem::setPixmap( const QPixmap &icon, bool recalc, bool redraw )
@@ -893,7 +907,11 @@ void QIconViewItem::setDropEnabled( bool allow )
 }
 
 /*!
-  Returns the text of the iconview item.
+  Returns the text of the iconview item. Normally you will set the text
+  if the item with setText(), but somethimes you don't want to call setText/) 
+  for each item,  so you can reimplement this method and return the text of 
+  the item directly here. If you do this you have to call calcRect() manually each 
+  time the text (and so the size of it) changes.
 
   \sa setText()
 */
@@ -915,8 +933,13 @@ QString QIconViewItem::key() const
 }
 
 /*!
-  Returns the icon of the iconview item.
-
+  Returns the icon of the iconview item. Normally you will set the pixmap
+  if the item with setPixmap(), but somethimes you don't want that every item
+  stores a copy of a pixmap or that you need to call setPixmap() for each item, 
+  so you can reimplement this method and return the pointer to the item pixmap
+  directly here. If you do this you have to call calcRect() manually each time
+  the size of this pixmap changes!
+  
   \sa setPixmap()
 */
 
