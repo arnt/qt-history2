@@ -7,7 +7,10 @@
 
 // Set any POSIX/XOPEN defines at the top of this file to turn on
 // specific APIs
+#ifdef QT_THREAD_SUPPORT
 #define _GNU_SOURCE
+#endif // QT_THREAD_SUPPORT
+
 
 #include <unistd.h>
 #include <sys/types.h>
