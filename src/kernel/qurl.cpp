@@ -201,30 +201,26 @@ bool QUrl::isRelativeUrl( const QString &url )
   QUrl u( "ftp://ftp.trolltech.com/qt/source", "qt-2.1.0.tar.gz" );
   \endcode
 
-  will be "/qt/srource/qt-2.1.0.tar.gz".
-
-  And
+  is "/qt/source/qt-2.1.0.tar.gz".
 
   \code
   QUrl u( "ftp://ftp.trolltech.com/qt/source", "/usr/local" );
   \endcode
 
-  will result in a new URL:  "ftp://ftp.trolltech.com/usr/local",
-
-  And
+  on the other hand results in a new URL:  "ftp://ftp.trolltech.com/usr/local".
 
   \code
   QUrl u( "ftp://ftp.trolltech.com/qt/source", "file:/usr/local" );
   \endcode
 
-  will result in a new URL, with "/usr/local" as path
+  results in a new URL, with "/usr/local" as path
   and "file" as protocol.
 
-  Normally it is expected that the path of \a url points to
-  a directory, even if the path has no slash at the end. But
-  if you want the constructor to handle the last
-  part of the path as file name if there is no slash at the end,
-  and to let it be replaced by the file name of \a relUrl
+  Usually the path of \a url should point to
+  a directory, even without a slash at the end. 
+  If you however want the constructor to handle the last
+  part of the path as a file name in case the trailing slash is missing,
+  and replace it by the file name in \a relUrl
   (if it contains one), set \a checkSlash to TRUE.
 */
 
