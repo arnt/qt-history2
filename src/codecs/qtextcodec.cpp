@@ -45,6 +45,7 @@
 #include "qtextcodec.h"
 #ifndef QT_NO_TEXTCODEC
 
+#include "qmemarray.h"
 #include "qvaluelist.h"
 #include "qtextcodecfactory.h"
 #include "qutfcodec.h"
