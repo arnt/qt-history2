@@ -2024,6 +2024,7 @@ AddActionToPopupCommand::AddActionToPopupCommand( const QString &n,
 void AddActionToPopupCommand::execute()
 {
     menu->insert( item, index );
+    formWindow()->mainWindow()->objectHierarchy()->rebuild();
 }
 
 void AddActionToPopupCommand::unexecute()
@@ -2031,6 +2032,7 @@ void AddActionToPopupCommand::unexecute()
     item->hideMenu();
     int i = menu->find( item->action() );
     menu->remove( i );
+    formWindow()->mainWindow()->objectHierarchy()->rebuild();
 }
 
 // ------------------------------------------------------------
@@ -2125,6 +2127,7 @@ void RenameActionCommand::execute()
     ActionEditor *ae = actionEditor();
     if ( ae )
 	ae->updateActionName( action );
+    formWindow()->mainWindow()->objectHierarchy()->rebuild();
 }
 
 void RenameActionCommand::unexecute()
@@ -2135,6 +2138,7 @@ void RenameActionCommand::unexecute()
     ActionEditor *ae = actionEditor();
     if ( ae )
 	ae->updateActionName( action );
+    formWindow()->mainWindow()->objectHierarchy()->rebuild();
 }
 
 // ------------------------------------------------------------
@@ -2193,19 +2197,20 @@ void AddMenuCommand::execute()
     QMainWindow *mw = (QMainWindow*)formWindow()->mainContainer();
     if ( !mb ) {
 	mb = new MenuBarEditor( formWindow(), mw );
-	QString n = "MenuBar";
+	QString n = "MenuBarEditor";
 	formWindow()->unify( mb, n, TRUE );
 	mb->setName( n );
 	MetaDataBase::addEntry( mb );
     }
     if ( !item ) {
 	PopupMenuEditor *popup = new PopupMenuEditor( formWindow(), mw );
-	QString n = "PopupMenu";
+	QString n = "PopupMenuEditor";
 	formWindow()->unify( popup, n, TRUE );
 	popup->setName( n );
 	MetaDataBase::addEntry( popup );
 	mb->insertItem( name, popup, index );
     } else {
+	MetaDataBase::addEntry( item->menu() );
 	mb->insertItem( item, index );
     }
     formWindow()->mainWindow()->objectHierarchy()->rebuild();
@@ -2217,6 +2222,7 @@ void AddMenuCommand::unexecute()
     int i = mb->findItem( item );
     mb->removeItemAt( i );
     formWindow()->mainWindow()->objectHierarchy()->rebuild();
+    MetaDataBase::removeEntry( item->menu() );
 }
 
 // ------------------------------------------------------------
@@ -2309,18 +2315,24 @@ QString RenameMenuCommand::mangle( QString name )
 
 void RenameMenuCommand::execute()
 {
+    MetaDataBase::removeEntry( item->menu() );
     item->setMenuText( newName );
     QString s = newName;
     PopupMenuEditor *popup = item->menu();
     popup->setName( mangle( newName ) );
+    MetaDataBase::addEntry( item->menu() );
+    formWindow()->mainWindow()->objectHierarchy()->rebuild();
 }
 
 void RenameMenuCommand::unexecute()
 {
+    MetaDataBase::removeEntry( item->menu() );
     item->setMenuText( oldName );
     // FIXME: setName to old name ?
     PopupMenuEditor *popup = item->menu();
     popup->setName( mangle( oldName ) );
+    MetaDataBase::addEntry( item->menu() );
+    formWindow()->mainWindow()->objectHierarchy()->rebuild();
 }
 
 // ------------------------------------------------------------

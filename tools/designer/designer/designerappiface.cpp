@@ -956,6 +956,7 @@ void DesignerFormWindowImpl::addMenu( const QString &text, const QString &name )
 	MetaDataBase::addEntry( mb );
     }
     mb->insertItem( text, popup );
+    MetaDataBase::addEntry( popup );
 }
 
 void DesignerFormWindowImpl::addMenuAction( const QString &menu, QAction *a )

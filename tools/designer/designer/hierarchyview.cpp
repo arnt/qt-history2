@@ -488,7 +488,7 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 	}
 	insertObject( obj, item );
     }
-
+    
     if ( fakeMainWindow ) {
 	QObjectList l = o->parent()->queryList( "QDesignerToolBar" );
 	for (int i = 0; i < l.size(); ++i) {

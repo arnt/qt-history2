@@ -2966,6 +2966,7 @@ void Resource::loadMenuBar( const QDomElement &e )
 	    loadPopupMenu( popup, n );
 	    popup->setName( n.attribute( "name" ) );
 	    mb->insertItem( n.attribute( "text" ), popup );
+	    MetaDataBase::addEntry( popup );
 	} else if ( n.tagName() == "property" ) {
 	    setObjectProperty( mb, n.attribute( "name" ), n.firstChild().toElement() );
 	} else if ( n.tagName() == "separator" ) {
