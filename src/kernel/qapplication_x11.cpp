@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#553 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#554 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -946,12 +946,11 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 		      FocusChangeMask | PropertyChangeMask
 		      );
     }
-    qt_xim = 0;
     setlocale( LC_ALL, "" );		// use correct char set mapping
     setlocale( LC_NUMERIC, "C" );	// make sprintf()/scanf() work
     if ( QApplication::is_gui_used ) {
 #if !defined(NO_XIM)
-
+	qt_xim = 0;
 	if ( !XSupportsLocale() )
 	    qDebug("Qt: Locales not supported on X server");
 	else if ( XSetLocaleModifiers ("") == NULL )
@@ -1018,10 +1017,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	// pick default character set (now that we have done setlocale stuff)
 	QFont::locale_init();
 	QFont f;
-	if ( QPaintDevice::x11AppDpiX() < 95 )
-	    f=QFont( "Helvetica", 12 ); // default font
-	else
-	    f=QFont( "Helvetica", 11 ); // default font
+	f = QFont( "Helvetica", (QPaintDevice::x11AppDpiX() < 95) ? 12 : 11 );
 	f.setCharSet( QFont::charSetForLocale() ); // must come after locale_init()
 	QApplication::setFont( f );
 
