@@ -2402,9 +2402,12 @@ static void doResInit()
     for( i=0; i < MAXNS && i < res.nscount; i++ )
 	ns->append( new QHostAddress( ntohl( res.nsaddr_list[i].sin_addr.s_addr ) ) );
 #  if defined(MAXDFLSRCH)
-    for( i=0; i < MAXDFLSRCH; i++ )
+    for( i=0; i < MAXDFLSRCH; i++ ) {
 	if ( res.dnsrch[i] && *(res.dnsrch[i]) )
 	    domains->append( QString::fromLatin1( res.dnsrch[i] ).lower() );
+	else
+	    break;
+    }
 #  endif
     if ( *res.defdname )
 	domains->append( QString::fromLatin1( res.defdname ).lower() );
@@ -2415,9 +2418,12 @@ static void doResInit()
     for( i=0; i < MAXNS && i < _res.nscount; i++ )
 	ns->append( new QHostAddress( ntohl( _res.nsaddr_list[i].sin_addr.s_addr ) ) );
 #  if defined(MAXDFLSRCH)
-    for( i=0; i < MAXDFLSRCH; i++ )
+    for( i=0; i < MAXDFLSRCH; i++ ) {
 	if ( _res.dnsrch[i] && *(_res.dnsrch[i]) )
 	    domains->append( QString::fromLatin1( _res.dnsrch[i] ).lower() );
+	else
+	    break;
+    }
 #  endif
     if ( *_res.defdname )
 	domains->append( QString::fromLatin1( _res.defdname ).lower() );
