@@ -372,7 +372,7 @@ bool QPainter::begin( const QPaintDevice *pd )
         bg_col = w->backgroundColor();          // use widget bg color
         ww = vw = w->width();                   // default view size
         wh = vh = w->height();
-        if ( w->testWFlags(WPaintUnclipped) ) { // paint direct on device
+        if ( 0 && w->testWFlags(WPaintUnclipped) ) { // paint direct on device
             setf( NoCache );
             updatePen();
             updateBrush();
