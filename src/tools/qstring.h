@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#30 $
+** $Id: //depot/qt/main/src/tools/qstring.h#31 $
 **
 ** Definition of extended char array operations, and QByteArray and
 ** QString classes
@@ -16,6 +16,25 @@
 
 #include "qarray.h"
 #include <string.h>
+
+
+#if defined(_OS_HPUX_)
+
+// Workarounds for HP-UX that fixes problems with strstr etc.
+
+inline char *hack_strstr( const char *s1, const char *s2 )
+{ return (char *)strstr(s1, s2); }
+
+inline char *hack_strchr( const char *s, int c )
+{ return (char *)strchr(s, c); }
+
+inline char *hack_strrchr( const char *s, int c )
+{ return (char *)strrchr(s, c); }
+
+#define strstr  hack_strstr
+#define strchr  hack_strchr
+#define strrchr hack_strrchr
+#endif
 
 
 // --------------------------------------------------------------------------
@@ -200,8 +219,8 @@ public:
     friend QString operator+( const QString &, const QString & );
     friend QString operator+( const QString &, const char * );
     friend QString operator+( const char *, const QString & );
-    friend QString operator+( const QString &, char c2 );
-    friend QString operator+( char c1, const QString & );
+    friend QString operator+( const QString &, char );
+    friend QString operator+( char, const QString & );
 };
 
 
