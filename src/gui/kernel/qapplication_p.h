@@ -62,7 +62,7 @@ enum { QT_TABLET_NPACKETQSIZE = 128 };
   extern DWORD qt_cever;
 # endif
 #elif defined (Q_OS_MAC)
-extern Qt::MacintoshVersion qt_macver;
+extern QSysInfo::MacVersion qt_macver;
 #endif
 
 #if defined (Q_WS_X11)
