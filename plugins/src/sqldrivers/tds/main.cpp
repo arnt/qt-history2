@@ -28,7 +28,11 @@
 
 #define Q_UUIDIMPL
 #include <qsqldriverplugin.h>
+#ifdef Q_OS_WIN32    // We assume that MS SQL Server is used. Set Q_USE_SYBASE to force Sybase.
+#include <windows.h>
+#endif
 #include "../../../../src/sql/drivers/tds/qsql_tds.h"
+
 
 class QTDSDriverPlugin : public QSqlDriverPlugin
 {

@@ -24,20 +24,21 @@
 **
 **********************************************************************/
 
-#include "qsql_tds.h"
-#include "../shared/qsql_result.cpp"
-
-#include <qapplication.h>
 #include <qglobal.h>
-#include <qptrdict.h>
-#include <qstringlist.h>
-#include <qdatetime.h>
-#include <qregexp.h>
 #ifdef Q_OS_WIN32    // We assume that MS SQL Server is used. Set Q_USE_SYBASE to force Sybase.
 #include <windows.h>
 #else
 #define Q_USE_SYBASE
 #endif
+
+#include "qsql_tds.h"
+//#include "../shared/qsql_result.cpp"
+
+#include <qapplication.h>
+#include <qptrdict.h>
+#include <qstringlist.h>
+#include <qdatetime.h>
+#include <qregexp.h>
 
 #ifdef DBNTWIN32
 #define QMSGHANDLE DBMSGHANDLE_PROC
