@@ -518,6 +518,7 @@ QPainter::~QPainter()
     if ( wm_stack )
 	delete (QWMatrixStack *)wm_stack;
 #endif
+    destroy();
 }
 
 
@@ -2108,6 +2109,9 @@ void QPainter::drawPixmap( const QRect &r, const QPixmap &pm )
 #elif defined(Q_WS_QWS)
 	pdev->cmd( QPaintDevice::PdcDrawPixmap, this, param );
 	return;
+#elif defined(Q_WS_MAC)
+	if ( !pdev->cmd( QPaintDevice::PdcDrawPixmap, this, param ))
+	    return;
 #else
 	if ( !pdev->cmd( QPaintDevice::PdcDrawPixmap, this, param ) || !hd )
 	    return;
@@ -2234,7 +2238,7 @@ void QPainter::drawImage( int x, int y, const QImage & image,
 #if defined(Q_WS_WIN)
 	if ( !pdev->cmd( QPaintDevice::PdcDrawImage, this, param ) || !hdc )
 	    return;
-#elif defined(Q_WS_QWS)
+#elif defined(Q_WS_MAC)
 	pdev->cmd( QPaintDevice::PdcDrawImage, this, param );
 	return;
 #else
@@ -2290,6 +2294,9 @@ void QPainter::drawImage( const QRect &r, const QImage &i )
 #elif defined(Q_WS_QWS)
 	pdev->cmd( QPaintDevice::PdcDrawImage, this, param );
 	return;
+#elif defined(Q_WS_MAC)
+	if ( !pdev->cmd( QPaintDevice::PdcDrawImage, this, param ))
+	    return;
 #else
 	if ( !pdev->cmd( QPaintDevice::PdcDrawImage, this, param ) || !hd )
 	    return;
@@ -2487,6 +2494,9 @@ void QPainter::drawText( const QRect &r, int tf,
 #elif defined(Q_WS_QWS)
 		pdev->cmd( QPaintDevice::PdcDrawText2Formatted, this, param);
 		return;
+#elif defined(Q_WS_MAC)
+		if ( !pdev->cmd( QPaintDevice::PdcDrawText2Formatted, this, param))
+		    return;			// QPrinter wants PdcDrawText2
 #else
 		if ( !pdev->cmd( QPaintDevice::PdcDrawText2Formatted,
 				 this, param) ||

@@ -287,6 +287,7 @@ public:
 
 private:
     void	init();
+    void        destroy();
     void	updateFont();
     void	updatePen();
     void	updateBrush();
@@ -386,15 +387,7 @@ protected:
     QPoint	curPt;				// current point
     uint	clip_serial;			// clipping serial number
 #elif defined(Q_WS_MAC)
-    QRegion clippedreg, paintreg;
-    QMacSavedPortInfo *saved;
-
     void initPaintDevice(bool force=FALSE);
-
-    int offx, offy;
-    void * hd;
-    QPixmap *brush_style_pix;
-    bool unclipped, locked;
 #elif defined(Q_WS_QWS)
     QGfx * gfx;
 #endif

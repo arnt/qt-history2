@@ -49,6 +49,16 @@ const int TxTranslate=1;
 const int TxScale=2;
 const int TxRotShear=3;
 
+class QPainterPrivate
+{
+public:
+    QRegion clippedreg, paintreg;
+    QMacSavedPortInfo *saved;
+    int offx, offy;
+    QPixmap *brush_style_pix;
+    bool unclipped, locked;
+};
+
 /*****************************************************************************
   QPainter member functions
  *****************************************************************************/
@@ -181,6 +191,11 @@ void QPainter::redirect( QPaintDevice *pdev, QPaintDevice *replacement )
     }
 }
 
+void QPainter::destroy()
+{
+    delete d;
+}
+
 void QPainter::init()
 {
     flags = IsStartingUp;
@@ -195,14 +210,16 @@ void QPainter::init()
     pdev = 0;
     txop = txinv = 0;
     penRef = brushRef = 0;
-    hd = 0;
-#ifdef QMAC_NO_QUARTZ
-    saved = 0;
-#endif
-    brush_style_pix = 0;
-    locked = unclipped = FALSE;
-    paintreg = QRegion();
     pfont = 0;
+
+    d = new QPainterPrivate;
+#ifdef QMAC_NO_QUARTZ
+    d->saved = 0;
+#endif
+    d->brush_style_pix = 0;
+    d->locked = d->unclipped = FALSE;
+    d->clippedreg = d->paintreg = QRegion();
+    d->offx = d->offy = 0;
 }
 
 
@@ -225,7 +242,7 @@ void QPainter::updateFont()
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].font = &cfont;
-	if ( !pdev->cmd(QPaintDevice::PdcSetFont,this,param) || !hd )
+	if ( !pdev->cmd(QPaintDevice::PdcSetFont,this,param))
 	    return;
     }
     if ( penRef )
@@ -245,7 +262,7 @@ void QPainter::updatePen()
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].pen = &cpen;
-	if ( !pdev->cmd( QPaintDevice::PdcSetPen, this, param ) || !hd )
+	if ( !pdev->cmd( QPaintDevice::PdcSetPen, this, param ) )
 	    return;
     }
 
@@ -297,7 +314,7 @@ void QPainter::updateBrush()
     if ( testf( ExtDev ) ) {
 	QPDevCmdParam param[1];
 	param[0].brush = &cbrush;
-	if ( !pdev->cmd( QPaintDevice::PdcSetBrush,this,param) || !hd )
+	if ( !pdev->cmd( QPaintDevice::PdcSetBrush,this,param ))
 	    return;
     }
 
@@ -355,25 +372,25 @@ void QPainter::updateBrush()
 	dense6_pat, dense7_pat,
 	hor_pat, ver_pat, cross_pat, bdiag_pat, fdiag_pat, dcross_pat };
 
-    brush_style_pix = 0;
+    d->brush_style_pix = 0;
     int bs = cbrush.style();
     if( bs >= Dense1Pattern && bs <= DiagCrossPattern ) {
 	QString key;
 	key.sprintf( "$qt-brush$%d", bs );
-	brush_style_pix = QPixmapCache::find( key );
-	if ( !brush_style_pix ) {                        // not already in pm dict
+	d->brush_style_pix = QPixmapCache::find( key );
+	if ( !d->brush_style_pix ) {                        // not already in pm dict
 	    uchar *pat=pat_tbl[ bs-Dense1Pattern ];
-	    int d = 16;
+	    int size = 16;
 	    if(bs<=Dense7Pattern)
-		d=8;
+		size=8;
 	    else if (bs<=CrossPattern)
-		d=24;
-	    brush_style_pix = new QPixmap( d, d );
-	    Q_CHECK_PTR( brush_style_pix );
-	    brush_style_pix->setMask(QBitmap( d, d, pat, FALSE ));
-	    QPixmapCache::insert( key, brush_style_pix );
+		size=24;
+	    d->brush_style_pix = new QPixmap( size, size );
+	    Q_CHECK_PTR( d->brush_style_pix );
+	    d->brush_style_pix->setMask(QBitmap( size, size, pat, FALSE ));
+	    QPixmapCache::insert( key, d->brush_style_pix );
 	}
-	brush_style_pix->fill(cbrush.color());
+	d->brush_style_pix->fill(cbrush.color());
     }
 
     //penmodes
@@ -409,7 +426,7 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipp )
 
 #ifdef QMAC_NO_QUARTZ
     //save the gworld now, we'll reset it in end()
-    saved = new QMacSavedPortInfo;
+    d->saved = new QMacSavedPortInfo;
 #endif
 
     QWidget *copyFrom = 0;
@@ -459,7 +476,6 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipp )
 
 
     pdev->painters++;                           // also tell paint device
-    hd = pdev->hd;
     bro = QPoint( 0, 0 );
     if ( reinit ) {
 	bg_mode = TransparentMode;              // default background mode
@@ -477,9 +493,9 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipp )
 	    // was white
 	}
     }
-    offx = offy = wx = wy = vx = vy = 0;                      // default view origins
+    d->offx = d->offy = wx = wy = vx = vy = 0;                      // default view origins
 
-    unclipped = unclipp;
+    d->unclipped = unclipp;
     if ( pdev->devType() == QInternal::Widget ) {                    // device is a widget
 	QWidget *w = (QWidget*)pdev;
 	cfont = w->font();                      // use widget font
@@ -491,10 +507,10 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipp )
 	bg_col = w->backgroundColor();          // use widget bg color
 	ww = vw = w->width();                   // default view size
 	wh = vh = w->height();
-	if(!unclipped)
-	    unclipped = w->testWFlags(WPaintUnclipped);
+	if(!d->unclipped)
+	    d->unclipped = w->testWFlags(WPaintUnclipped);
 #ifdef Q_WS_MACX
-	if(w->isDesktop() && !unclipped)
+	if(w->isDesktop() && !d->unclipped)
 	    warning( "QPainter::begin: Does not support clipped desktop on MacOSX");
 #endif
     } else if ( pdev->devType() == QInternal::Pixmap ) {             // device is a pixmap
@@ -553,15 +569,15 @@ bool QPainter::end()				// end painting
 
 #ifdef QMAC_NO_QUARTZ
 #ifndef ONE_PIXEL_LOCK
-    if ( locked ) {
+    if ( d->locked ) {
 	UnlockPixels(GetGWorldPixMap((GWorldPtr)pdev->handle()));
-	locked = FALSE;
+	d->locked = FALSE;
     }
 #endif
 
     //reset the value we got in begin()
-    delete saved;
-    saved = NULL;
+    delete d->saved;
+    d->saved = NULL;
 #else //!QMAC_NO_QUARTZ
 //FIXME
 #endif
@@ -581,11 +597,11 @@ void QPainter::flush(const QRegion &rgn, CoordinateMode m)
     QRegion b;
     if(m == CoordDevice) {
 	b = rgn;
-	b.translate(offx, offy);
+	b.translate(d->offx, d->offy);
     } else {
 	b = xmat * rgn;
     }
-    QMacSavedPortInfo::flush(pdev, b & clippedreg, TRUE);
+    QMacSavedPortInfo::flush(pdev, b & d->clippedreg, TRUE);
 }
 
 void QPainter::flush()
@@ -593,7 +609,7 @@ void QPainter::flush()
     if(!isActive())
 	return;
     initPaintDevice();
-    QMacSavedPortInfo::flush(pdev, clippedreg, TRUE);
+    QMacSavedPortInfo::flush(pdev, d->clippedreg, TRUE);
 }
 
 void QPainter::setBackgroundColor( const QColor &c )
@@ -608,7 +624,7 @@ void QPainter::setBackgroundColor( const QColor &c )
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].color = &bg_col;
-	if ( !pdev->cmd( QPaintDevice::PdcSetBkColor, this, param ) || !hd )
+	if ( !pdev->cmd( QPaintDevice::PdcSetBkColor, this, param ))
 	    return;
     }
     if ( !penRef )
@@ -636,7 +652,7 @@ void QPainter::setBackgroundMode( BGMode m)
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].ival = m;
-	if ( !pdev->cmd( QPaintDevice::PdcSetBkMode, this, param ) || !hd )
+	if ( !pdev->cmd( QPaintDevice::PdcSetBkMode, this, param ))
 	    return;
     }
     if ( !penRef )
@@ -669,7 +685,7 @@ void QPainter::setRasterOp( RasterOp r )
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].ival = r;
-	if ( !pdev->cmd( QPaintDevice::PdcSetROP, this, param ) || !hd )
+	if ( !pdev->cmd( QPaintDevice::PdcSetROP, this, param ))
 	    return;
     }
     if ( penRef )
@@ -690,7 +706,7 @@ void QPainter::setBrushOrigin( int x, int y )
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].point = &bro;
-	if ( !pdev->cmd( QPaintDevice::PdcSetBrushOrigin, this, param ) || !hd )
+	if ( !pdev->cmd( QPaintDevice::PdcSetBrushOrigin, this, param ))
 	    return;
     }
     if ( brushRef )
@@ -710,7 +726,7 @@ void QPainter::setClipping( bool b )
 	setf(ClipOn);
     else
 	clearf(ClipOn);
-    paintreg = QRegion();
+    d->paintreg = QRegion();
     initPaintDevice(); //reset the clip region
 }
 
@@ -735,7 +751,7 @@ void QPainter::setClipRegion( const QRegion &rgn, CoordinateMode m )
 	crgn = xmat * rgn;
 
     setf( ClipOn );
-    paintreg = QRegion();
+    d->paintreg = QRegion();
     initPaintDevice(); //reset clip region
 }
 
@@ -743,16 +759,16 @@ void QPainter::setClipRegion( const QRegion &rgn, CoordinateMode m )
 void QPainter::drawPolyInternal( const QPointArray &a, bool close )
 {
     initPaintDevice();
-    if(paintreg.isEmpty())
+    if(d->paintreg.isEmpty())
 	return;
 
     RgnHandle polyRegion = qt_mac_get_rgn();
     OpenRgn();
     uint loopc;
-    MoveTo( a[0].x()+offx, a[0].y()+offy );
+    MoveTo( a[0].x()+d->offx, a[0].y()+d->offy );
     for ( loopc = 1; loopc < a.size(); loopc++ )
-	LineTo( a[loopc].x()+offx, a[loopc].y()+offy );
-    LineTo( a[0].x()+offx, a[0].y()+offy );
+	LineTo( a[loopc].x()+d->offx, a[loopc].y()+d->offy );
+    LineTo( a[0].x()+d->offx, a[0].y()+d->offy );
     CloseRgn( polyRegion );
 
     if( close && this->brush().style() != NoBrush) {
@@ -766,7 +782,7 @@ void QPainter::drawPolyInternal( const QPointArray &a, bool close )
 	    if(cbrush.style() == QBrush::CustomPattern)
 		pm = cbrush.data->pixmap;
 	    else {
-		pm = brush_style_pix;
+		pm = d->brush_style_pix;
 		if(bg_mode == OpaqueMode) {
 		    ::RGBColor f;
 		    f.red = bg_col.red()*256;
@@ -829,7 +845,7 @@ void QPainter::drawPoint( int x, int y )
 	    QPDevCmdParam param[1];
 	    QPoint p( x, y );
 	    param[0].point = &p;
-	    if ( !pdev->cmd( QPaintDevice::PdcDrawPoint, this, param ) || !hd )
+	    if ( !pdev->cmd( QPaintDevice::PdcDrawPoint, this, param ))
 		return;
 	}
 	map( x, y, &x, &y );
@@ -837,10 +853,10 @@ void QPainter::drawPoint( int x, int y )
 
     if ( cpen.style() != NoPen ) {
 	initPaintDevice();
-	if(paintreg.isEmpty())
+	if(d->paintreg.isEmpty())
 	    return;
 	updatePen();
-	MoveTo(x + offx, y+offy);
+	MoveTo(x + d->offx, y + d->offy);
 	Line(0,1);
     }
 }
@@ -864,7 +880,7 @@ void QPainter::drawPoints( const QPointArray& a, int index, int npoints )
 	    for (int i=0; i<npoints; i++) {
 		QPoint p( pa[index+i].x(), pa[index+i].y() );
 		param[0].point = &p;
-		if ( !pdev->cmd(QPaintDevice::PdcDrawPoint,this,param) || !hd)
+		if ( !pdev->cmd(QPaintDevice::PdcDrawPoint,this,param ))
 		    return;
 	    }
 	}
@@ -879,11 +895,11 @@ void QPainter::drawPoints( const QPointArray& a, int index, int npoints )
 
     if ( cpen.style() != NoPen ) {
 	initPaintDevice();
-	if(paintreg.isEmpty())
+	if(d->paintreg.isEmpty())
 	    return;
 	updatePen();
 	for (int i=0; i<npoints; i++) {
-	    MoveTo(pa[index+i].x()+offx, pa[index+i].y()+offy);
+	    MoveTo(pa[index+i].x()+d->offx, pa[index+i].y()+d->offy);
 	    Line(0,1);
 	}
     }
@@ -902,14 +918,14 @@ void QPainter::moveTo( int x, int y )
       QPDevCmdParam param[1];
       QPoint p( x, y );
       param[0].point = &p;
-      if ( !pdev->cmd(QPaintDevice::PdcMoveTo,this,param) || !hd )
+      if ( !pdev->cmd(QPaintDevice::PdcMoveTo,this,param ))
 	return;
     }
     map( x, y, &x, &y );
   }
 
   initPaintDevice();
-  MoveTo(x+offx, y+offy);
+  MoveTo(x+d->offx, y+d->offy);
 }
 #else //!QMAC_NO_QUARTZ
 //FIXME
@@ -925,17 +941,17 @@ void QPainter::lineTo( int x, int y )
       QPDevCmdParam param[1];
       QPoint p( x, y );
       param[0].point = &p;
-      if ( !pdev->cmd( QPaintDevice::PdcLineTo, this, param ) || !hd )
+      if ( !pdev->cmd( QPaintDevice::PdcLineTo, this, param ))
 	return;
     }
     map( x, y, &x, &y );
   }
 
   initPaintDevice();
-  if(paintreg.isEmpty())
+  if(d->paintreg.isEmpty())
       return;
   updatePen();
-  LineTo(x+offx,y+offy);
+  LineTo(x+d->offx,y+d->offy);
 }
 #else //!QMAC_NO_QUARTZ
 //FIXME
@@ -952,7 +968,7 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
       QPoint p1(x1, y1), p2(x2, y2);
       param[0].point = &p1;
       param[1].point = &p2;
-      if ( !pdev->cmd( QPaintDevice::PdcDrawLine, this, param ) || !hd )
+      if ( !pdev->cmd( QPaintDevice::PdcDrawLine, this, param ))
 	return;
     }
     map( x1, y1, &x1, &y1 );
@@ -960,11 +976,11 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
   }
 
   initPaintDevice();
-  if(paintreg.isEmpty())
+  if(d->paintreg.isEmpty())
       return;
   updatePen();
-  MoveTo(x1+offx,y1+offy);
-  LineTo(x2+offx,y2+offy);
+  MoveTo(x1+d->offx,y1+d->offy);
+  LineTo(x2+d->offx,y2+d->offy);
 }
 #else //!QMAC_NO_QUARTZ
 //FIXME
@@ -980,7 +996,7 @@ void QPainter::drawRect( int x, int y, int w, int h )
 	    QPDevCmdParam param[1];
 	    QRect r( x, y, w, h );
 	    param[0].rect = &r;
-	    if ( !pdev->cmd( QPaintDevice::PdcDrawRect, this, param ) || !hd )
+	    if ( !pdev->cmd( QPaintDevice::PdcDrawRect, this, param ))
 		return;
 	}
 	if ( txop == TxRotShear ) {             // rotate/shear polygon
@@ -997,11 +1013,11 @@ void QPainter::drawRect( int x, int y, int w, int h )
     }
 
     initPaintDevice();
-    if(paintreg.isEmpty())
+    if(d->paintreg.isEmpty())
 	return;
 
     Rect rect;
-    SetRect( &rect, x+offx, y+offy, x + w+offx, y + h+offy);
+    SetRect( &rect, x+d->offx, y+d->offy, x + w+d->offx, y + h+d->offy);
     if( this->brush().style() != NoBrush) {
 	updateBrush();
 	if( this->brush().style() == SolidPattern ) {
@@ -1011,7 +1027,7 @@ void QPainter::drawRect( int x, int y, int w, int h )
 	    if(cbrush.style() == QBrush::CustomPattern)
 		pm = cbrush.data->pixmap;
 	    else {
-		pm = brush_style_pix;
+		pm = d->brush_style_pix;
 		if(bg_mode == OpaqueMode) {
 		    ::RGBColor f;
 		    f.red = bg_col.red()*256;
@@ -1134,7 +1150,7 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd)
 	    param[0].rect = &r;
 	    param[1].ival = xRnd;
 	    param[2].ival = yRnd;
-	    if ( !pdev->cmd( QPaintDevice::PdcDrawRoundRect, this, param) || !hd )
+	    if ( !pdev->cmd( QPaintDevice::PdcDrawRoundRect, this, param))
 		return;
 	}
 	if ( txop == TxRotShear ) {             // rotate/shear polygon
@@ -1178,11 +1194,11 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd)
     }
 
     initPaintDevice();
-    if(paintreg.isEmpty())
+    if(d->paintreg.isEmpty())
 	return;
 
     Rect rect;
-    SetRect( &rect, x+offx, y+offy, x + w+offx, y + h+offy );
+    SetRect( &rect, x+d->offx, y+d->offy, x + w+d->offx, y + h+d->offy );
     if( this->brush().style() == SolidPattern ) {
 	updateBrush();
 	PaintRoundRect( &rect, w*xRnd/100, h*yRnd/100 );
@@ -1207,7 +1223,7 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
 	    QPDevCmdParam param[1];
 	    QRect r( x, y, w, h );
 	    param[0].rect = &r;
-	    if ( !pdev->cmd( QPaintDevice::PdcDrawEllipse, this, param ) || !hd )
+	    if ( !pdev->cmd( QPaintDevice::PdcDrawEllipse, this, param ))
 		return;
 	}
 	if ( txop == TxRotShear ) {             // rotate/shear polygon
@@ -1225,11 +1241,11 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
     }
 
     initPaintDevice();
-    if(paintreg.isEmpty())
+    if(d->paintreg.isEmpty())
 	return;
 
     Rect r;
-    SetRect( &r, x+offx, y+offy, x + w+offx, y + h+offy );
+    SetRect( &r, x+d->offx, y+d->offy, x + w+d->offx, y + h+d->offy );
 
     if( this->brush().style() != NoBrush) {
 	updateBrush();
@@ -1242,7 +1258,7 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
 	    if(cbrush.style() == QBrush::CustomPattern)
 		pm = cbrush.data->pixmap;
 	    else {
-		pm = brush_style_pix;
+		pm = d->brush_style_pix;
 		if(bg_mode == OpaqueMode) {
 		    ::RGBColor f;
 		    f.red = bg_col.red()*256;
@@ -1304,7 +1320,7 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
 	    param[0].rect = &r;
 	    param[1].ival = a;
 	    param[2].ival = alen;
-	    if ( !pdev->cmd( QPaintDevice::PdcDrawArc, this, param ) || !hd )
+	    if ( !pdev->cmd( QPaintDevice::PdcDrawArc, this, param ))
 		return;
 	}
 	if ( txop == TxRotShear ) {             // rotate/shear
@@ -1322,11 +1338,11 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
     }
 
     initPaintDevice();
-    if(paintreg.isEmpty())
+    if(d->paintreg.isEmpty())
 	return;
 
     Rect bounds;
-    SetRect(&bounds,x+offx,y+offy,x+w+offx,y+h+offy);
+    SetRect(&bounds,x+d->offx,y+d->offy,x+w+d->offx,y+h+d->offy);
     updatePen();
     FrameArc(&bounds,a/16,alen/16);
 }
@@ -1352,7 +1368,7 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
 	    param[0].rect = &r;
 	    param[1].ival = a;
 	    param[2].ival = alen;
-	    if ( !pdev->cmd( QPaintDevice::PdcDrawPie, this, param) || !hd )
+	    if ( !pdev->cmd( QPaintDevice::PdcDrawPie, this, param ))
 		return;
 	}
 	if ( txop == TxRotShear ) {             // rotate/shear
@@ -1376,11 +1392,11 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
     }
 
     initPaintDevice();
-    if(paintreg.isEmpty())
+    if(d->paintreg.isEmpty())
 	return;
 
     Rect bounds;
-    SetRect(&bounds,x+offx,y+offy,x+w+offx,y+h+offy);
+    SetRect(&bounds,x+d->offx,y+d->offy,x+w+d->offx,y+h+d->offy);
     //PaintArc(&bounds,a*16,alen*16);
     int aa,bb;
     if(!a) {
@@ -1439,7 +1455,7 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 	    }
 	    QPDevCmdParam param[1];
 	    param[0].ptarr = (QPointArray*)&pa;
-	    if ( !pdev->cmd(QPaintDevice::PdcDrawLineSegments,this,param) || !hd)
+	    if ( !pdev->cmd(QPaintDevice::PdcDrawLineSegments,this,param ))
 		return;
 	}
 	if ( txop != TxNone ) {
@@ -1455,15 +1471,15 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
     uint i = index;
 
     initPaintDevice();
-    if(paintreg.isEmpty())
+    if(d->paintreg.isEmpty())
 	return;
 
     updatePen();
     while ( nlines-- ) {
 	pa.point( i++, &x1, &y1 );
 	pa.point( i++, &x2, &y2 );
-	MoveTo(x1 + offx, y1 + offy);
-	LineTo(x2 + offx, y2 + offy);
+	MoveTo(x1 + d->offx, y1 + d->offy);
+	LineTo(x2 + d->offx, y2 + d->offy);
     }
 }
 #else //!QMAC_NO_QUARTZ
@@ -1490,7 +1506,7 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 	    }
 	    QPDevCmdParam param[1];
 	    param[0].ptarr = (QPointArray*)&pa;
-	    if ( !pdev->cmd(QPaintDevice::PdcDrawPolyline,this,param) || !hd )
+	    if ( !pdev->cmd(QPaintDevice::PdcDrawPolyline,this,param ))
 		return;
 	}
 	if ( txop != TxNone ) {
@@ -1521,14 +1537,14 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
     }
     int loopc;
     initPaintDevice();
-    if(paintreg.isEmpty())
+    if(d->paintreg.isEmpty())
 	return;
 
     updateBrush();
     updatePen();
-    MoveTo(pa[0].x() + offx, pa[0].y() + offy );
+    MoveTo(pa[0].x() + d->offx, pa[0].y() + d->offy );
     for( loopc = 1; loopc < (int)pa.size(); loopc++ ) {
-	LineTo( pa[loopc].x() + offx ,pa[loopc].y() + offy );
+	LineTo( pa[loopc].x() + d->offx ,pa[loopc].y() + d->offy );
     }
 }
 #else //!QMAC_NO_QUARTZ
@@ -1563,7 +1579,7 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
 	    QPDevCmdParam param[2];
 	    param[0].ptarr = (QPointArray*)&pa;
 	    param[1].ival = winding;
-	    if ( !pdev->cmd( QPaintDevice::PdcDrawPolygon, this, param ) |!hd )
+	    if ( !pdev->cmd( QPaintDevice::PdcDrawPolygon, this, param ))
 		return;
 	}
 	if ( txop != TxNone ) {
@@ -1625,7 +1641,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap, int sx, int sy, 
 	    int w, h;
 	    map( x, y, sw, sh, &x, &y, &w, &h );
 	    initPaintDevice();
-	    if(paintreg.isEmpty())
+	    if(d->paintreg.isEmpty())
 		return;
 	    unclippedScaledBitBlt( pdev, x, y, w, h, &pixmap, sx, sy, sw, sh, (RasterOp)rop, FALSE );
 	    return;
@@ -1648,7 +1664,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap, int sx, int sy, 
 		QRect r( x, y, pixmap.width(), pixmap.height() );
 		param[0].rect  = &r;
 		param[1].pixmap = &pixmap;
-		if ( !pdev->cmd(QPaintDevice::PdcDrawPixmap,this,param) || !hd  ) {
+		if ( !pdev->cmd(QPaintDevice::PdcDrawPixmap,this,param )) {
 		    return;
 		}
 	    }
@@ -1667,7 +1683,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap, int sx, int sy, 
 		int dx, dy;
 		mat.map( 0, 0, &dx, &dy );
 		initPaintDevice();
-		if(paintreg.isEmpty())
+		if(d->paintreg.isEmpty())
 		    return;
 		unclippedBitBlt( pdev, x-dx, y-dy, &pm, 0, 0, pm.width(),
 				 pm.height(), (RasterOp)rop, FALSE );
@@ -1679,7 +1695,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap, int sx, int sy, 
 	    map( x, y, &x, &y );
     }
     initPaintDevice();
-    if(paintreg.isEmpty())
+    if(d->paintreg.isEmpty())
 	return;
     unclippedBitBlt( pdev, x, y, &pixmap, sx, sy, sw, sh, (RasterOp)rop, FALSE );
 }
@@ -1757,7 +1773,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 	QString newstr = str.left(len);
 	param[0].point = &p;
 	param[1].str = &newstr;
-	if ( !pdev->cmd(QPaintDevice::PdcDrawText2,this,param) || !hd )
+	if ( !pdev->cmd(QPaintDevice::PdcDrawText2,this,param ))
 	    return;
     }
 
@@ -1851,11 +1867,11 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
     }
 
     initPaintDevice();
-    if(paintreg.isEmpty())
+    if(d->paintreg.isEmpty())
 	return;
 
     updatePen();
-    cfont.d->drawText(x + offx, y + offy, str, len);
+    cfont.d->drawText(x + d->offx, y + d->offy, str, len);
 }
 #else //!QMAC_NO_QUARTZ
 //FIXME
@@ -1867,7 +1883,7 @@ QPoint QPainter::pos() const
     ((QPainter *)this)->initPaintDevice();
     Point pt;
     GetPen(&pt);
-    return QPoint(pt.h - offx, pt.v - offy);
+    return QPoint(pt.h - d->offx, pt.v - d->offy);
 }
 #else //!QMAC_NO_QUARTZ
 //FIXME
@@ -1875,53 +1891,52 @@ QPoint QPainter::pos() const
 
 #ifdef QMAC_NO_QUARTZ
 inline void QPainter::initPaintDevice(bool force) {
-    paintreg = clippedreg = QRegion(); //empty
+    d->paintreg = d->clippedreg = QRegion(); //empty
     QMacSavedPortInfo::setPaintDevice(pdev);
 
     if( pdev->devType() == QInternal::Printer ) {
-	if(pdev->handle()) {
-	    clippedreg = QRegion(0, 0, pdev->metric(QPaintDeviceMetrics::PdmWidth),
+	if(pdev->handle()) 
+	    d->clippedreg = QRegion(0, 0, pdev->metric(QPaintDeviceMetrics::PdmWidth),
 				 pdev->metric(QPaintDeviceMetrics::PdmHeight));
-	}
     } else if ( pdev->devType() == QInternal::Widget ) {                    // device is a widget
 	QWidget *w = (QWidget*)pdev;
 
 	//offset painting in widget relative the tld
 	QPoint wp(posInWindow(w));
-	offx = wp.x();
-	offy = wp.y();
+	d->offx = wp.x();
+	d->offy = wp.y();
 
 	if(!w->isVisible())
-	    clippedreg = QRegion(0, 0, 0, 0); //make the clipped reg empty if its not visible!!!
-	else if ( unclipped )
-	    clippedreg = w->clippedRegion(FALSE);	    //just clip my bounding rect
+	    d->clippedreg = QRegion(0, 0, 0, 0); //make the clipped reg empty if its not visible!!!
+	else if ( d->unclipped )
+	    d->clippedreg = w->clippedRegion(FALSE);	    //just clip my bounding rect
 	else
-	    clippedreg = w->clippedRegion();
+	    d->clippedreg = w->clippedRegion();
 	if(!paintevents.isEmpty() && (*paintevents.current()) == pdev)
-	    clippedreg &= paintevents.current()->region();
+	    d->clippedreg &= paintevents.current()->region();
     } else if ( pdev->devType() == QInternal::Pixmap ) {             // device is a pixmap
 	QPixmap *pm = (QPixmap*)pdev;
 
 #ifndef ONE_PIXEL_LOCK
-	if(!locked) {
+	if(!d->locked) {
 	    Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)pm->handle())));
-	    locked = TRUE;
+	    d->locked = TRUE;
 	}
 #endif
 	//clip out my bounding rect
-	clippedreg = QRegion(0, 0, pm->width(), pm->height());
+	d->clippedreg = QRegion(0, 0, pm->width(), pm->height());
     }
 
     //update clipped region
     if(testf(ClipOn) && !crgn.isNull()) {
-	paintreg = crgn;
-	paintreg.translate(offx, offy);
-	if(!clippedreg.isNull())
-	    paintreg &= clippedreg;
+	d->paintreg = crgn;
+	d->paintreg.translate(d->offx, d->offy);
+	if(!d->clippedreg.isNull())
+	    d->paintreg &= d->clippedreg;
     } else {
-	paintreg = clippedreg;
+	d->paintreg = d->clippedreg;
     }
-    QMacSavedPortInfo::setClipRegion(paintreg);
+    QMacSavedPortInfo::setClipRegion(d->paintreg);
 }
 
 #else //!QMAC_NO_QUARTZ
