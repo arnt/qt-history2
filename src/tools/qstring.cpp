@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#190 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#191 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -2071,6 +2071,7 @@ static const Q_UINT16 cb_fe [] = {
     0, 0, 0, 0, 0, 0, 0, 0,
 };
 
+// Not used yet.
 static const Q_UINT16 *combining_info [256] = {
      cb_0, cb_0, cb_0, cb_3, cb_4, cb_5, cb_6, cb_0,
      cb_0, cb_9, cb_a, cb_b, cb_c, cb_d, cb_e, cb_f,
@@ -9251,8 +9252,6 @@ QLigature::QLigature( QChar c )
 
 QChar QLigature::head()
 {
-    Q_UINT16 *d, pos;
-	
     if(current())
 	return QChar(decomp_map[current()+1]);
 
@@ -9261,8 +9260,6 @@ QChar QLigature::head()
 
 QChar::Decomposition QLigature::tag()
 {
-    Q_UINT16 *d, pos;
-	
     if(current())
 	return (QChar::Decomposition) decomp_map[current()];
 	
@@ -9273,8 +9270,6 @@ int QLigature::match(QString & str, unsigned int index)
 {
     unsigned int i=index;
 	
-    Q_UINT16 *d, pos;
-    
     if(!current()) return 0;
 	
     Q_UINT16 lig = current() + 2;
@@ -9337,7 +9332,7 @@ static inline QChar::Decomposition format(QChar ch, QString & str,
   */
 void QString::compose()
 {
-    unsigned int index=0, len, d, di;
+    unsigned int index=0, len;
 
     QChar code, head;
 
@@ -9475,7 +9470,7 @@ QString & QString::visual(int index, int len)
     // check bounds
     if (len == -1)
 	len = length()-index;
-    if (index > l)
+    if ((uint)index > l)
 	return *(new QString());
     
     level = new (unsigned char)[l];
@@ -9603,7 +9598,7 @@ QString & QString::visual(int index, int len)
 	QChar::Direction l,r;
 		
 	if (is_neutral(at(pos))) {
-	    if (pos >= 0)
+	    if (pos > 0)
 		l = at(pos-1).direction();
 	    else
 		l = (base == 0 ? QChar::L : QChar::R);
