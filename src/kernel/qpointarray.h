@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.h#36 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.h#37 $
 **
 ** Definition of QPointArray class
 **
@@ -125,6 +125,7 @@ public:
 
     void    makeArc( int x, int y, int w, int h, int a1, int a2 );
     void    makeEllipse( int x, int y, int w, int h );
+    void    makeArc( int x, int y, int w, int h, int a1, int a2, const QWMatrix& );
 
     QPointArray quadBezier() const;
 };

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#58 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#59 $
 **
 ** Implementation of QPointArray class
 **
@@ -25,7 +25,10 @@
 #include "qrect.h"
 #include "qbitarray.h"
 #include "qdatastream.h"
+#include "qwmatrix.h"
 #include <stdarg.h>
+
+const double Q_PI   = 3.14159265358979323846;   // pi
 
 /*!
   \class QPointVal qpointarray.h
@@ -479,7 +482,9 @@ static inline int fix_angle( int a )
 /*!
   Sets the points of the array to those describing an arc of an
   ellipse with size \a w by \a h and position (\a x, \a y ), starting
-  from angle \a1, spanning \a a2.
+  from angle \a1, spanning \a a2.  The returned array has sufficient
+  resolution for use as pixels (see the overloaded function which
+  takes an additional QWMatrix parameter).
   Angles are specified in 16ths of a degree,
   i.e. a full circle equals 5760 (16*360). Positive values mean
   counter-clockwise while negative values mean clockwise direction.
@@ -488,6 +493,9 @@ static inline int fix_angle( int a )
 
 void QPointArray::makeArc( int x, int y, int w, int h, int a1, int a2 )
 {
+    QWMatrix unit;
+    makeArc(x,y,w,h,a1,a2,unit);
+#if QT_OLD_MAKEELLIPSE // ### WWA says discard this.
     a1 = fix_angle( a1 );
     if ( a1 < 0 )
 	a1 += 16*360;
@@ -513,14 +521,179 @@ void QPointArray::makeArc( int x, int y, int w, int h, int a1, int a2 )
     }
     *this = a;
     return;
+#endif
+}
+
+
+// Based upon:
+//   parelarc.c from Graphics Gems III
+//   VanAken / Simar, "A Parametric Elliptical Arc Algorithm"
+//
+static void
+qtr_elips(QPointArray& a, int& offset, double dxP, double dyP, double dxQ, double dyQ, double dxK, double dyK, int m)
+{
+#define PIV2  102944     /* fixed point PI/2 */
+#define TWOPI 411775     /* fixed point 2*PI */
+#define HALF  32768      /* fixed point 1/2 */
+
+    int xP, yP, xQ, yQ, xK, yK;
+    xP = int(dxP * 65536.0); yP = int(dyP * 65536.0);
+    xQ = int(dxQ * 65536.0); yQ = int(dyQ * 65536.0);
+    xK = int(dxK * 65536.0); yK = int(dyK * 65536.0);
+
+    int i;
+    int vx, ux, vy, uy, xJ, yJ;
+
+    vx = xK - xQ;                 /* displacements from center */
+    ux = xK - xP;
+    vy = yK - yQ;
+    uy = yK - yP;
+    xJ = xP - vx + HALF;          /* center of ellipse J */
+    yJ = yP - vy + HALF;
+
+    int r;
+    ux -= (r = ux >> (2*m + 3));  /* cancel 2nd-order error */
+    ux -= (r >>= (2*m + 4));      /* cancel 4th-order error */
+    ux -= r >> (2*m + 3);         /* cancel 6th-order error */
+    ux += vx >> (m + 1);          /* cancel 1st-order error */
+    uy -= (r = uy >> (2*m + 3));  /* cancel 2nd-order error */
+    uy -= (r >>= (2*m + 4));      /* cancel 4th-order error */
+    uy -= r >> (2*m + 3);         /* cancel 6th-order error */
+    uy += vy >> (m + 1);          /* cancel 1st-order error */
+
+    int n = offset;
+    for (i = (PIV2 << m) >> 16; i >= 0; --i) {
+        a[n++] = QPoint((xJ + vx) >> 16, (yJ + vy) >> 16);
+        ux -= vx >> m;
+        vx += ux >> m;
+        uy -= vy >> m;
+        vy += uy >> m;
+    }
+    offset = n;
+
+#undef PIV2
+#undef TWOPI
+#undef HALF
+}
+
+
+void QPointArray::makeArc( int x, int y, int w, int h,
+			       int a1, int a2,
+			       const QWMatrix& xf )
+{
+    bool rev = a2 < 0;
+    if ( rev ) {
+	a1 += a2;
+	a2 = -a2;
+    }
+    a1 = fix_angle( a1 );
+    if ( a1 < 0 )
+	a1 += 16*360;
+    a2 = fix_angle( a2 );
+
+    bool arc = a1 != 0 || a2 != 360*16 || rev;
+
+
+    double xP, yP, xQ, yQ, xK, yK;
+
+    //xf.map(x+w, y+h/2.0, &xP, &yP);
+    //xf.map(x+w/2.0, y+h, &xQ, &yQ);
+    //xf.map(x+w, y+h, &xK, &yK);
+    xf.map(x+w, y+h/2.0, &xP, &yP);
+    xf.map(x+w/2.0, y, &xQ, &yQ);
+    xf.map(x+w, y, &xK, &yK);
+
+    int m = 2;
+    int max;
+    int q = int(QMAX(QABS(xP-xQ),QABS(yP-yQ)));
+    if ( arc )
+	q *= 2;
+    do {
+	m++;
+	max = 4*(1 + int((Q_PI/2)*(1<<m)));
+    } while (max < q && m < 16); // 16 limits memory usage on HUGE arcs
+    resize(max);
+
+    int n = 0;
+
+    double inc = 1.0/(1<<m);
+
+    int nquad[4];
+    nquad[0]=0;
+
+    qtr_elips(*this, n, xP, yP, xQ, yQ, xK, yK, m);
+    nquad[1] = n;
+
+    xP = xQ; yP = yQ;
+    //xf.map(x, y+h/2.0, &xQ, &yQ);
+    //xf.map(x, y+h, &xK, &yK);
+    xf.map(x, y+h/2.0, &xQ, &yQ);
+    xf.map(x, y, &xK, &yK);
+    qtr_elips(*this, n, xP, yP, xQ, yQ, xK, yK, m);
+    nquad[2] = n;
+
+    xP = xQ; yP = yQ;
+    //xf.map(x+w/2.0, y, &xQ, &yQ);
+    //xf.map(x, y, &xK, &yK);
+    xf.map(x+w/2.0, y+h, &xQ, &yQ);
+    xf.map(x, y+h, &xK, &yK);
+    qtr_elips(*this, n, xP, yP, xQ, yQ, xK, yK, m);
+    nquad[3] = n;
+
+    xP = xQ; yP = yQ;
+    //xf.map(x+w, y+h/2.0, &xQ, &yQ);
+    //xf.map(x+w, y, &xK, &yK);
+    xf.map(x+w, y+h/2.0, &xQ, &yQ);
+    xf.map(x+w, y+h, &xK, &yK);
+    qtr_elips(*this, n, xP, yP, xQ, yQ, xK, yK, m);
+
+    if ( arc ) {
+	// We could merge the sub-ellipse extraction into the above so
+	// that we didn't generate points we don't need, but this is
+	// clearer, and optimizes for the common case.
+	double da1 = double(a1)*Q_PI / (360*8);
+	double da2 = double(a2)*Q_PI / (360*8);
+	int t = 0;
+	while ( da1 > Q_PI/2 ) {
+	    da1 -= Q_PI/2;
+	    t++;
+	}
+	int i = nquad[t]+int(da1/inc+0.5);
+	int k = int(da2/inc+0.5);
+	if ( rev ) {
+	    QPointArray r(k);
+	    int j = 0;
+	    while (k--)
+		r[j++] = at((i+k)%n);
+	    *this = r;
+	} else {
+	    int j = 0;
+	    while (j < k) {
+		setPoint(j,at((k+j)%n));
+		j++;
+	    }
+	    resize(j);
+	}
+    } else {
+	resize(n);
+    }
 }
 
 /*!
   Sets the points of the array to those describing an ellipse with
   size \a w by \a h and position (\a x, \a y ).
+
+  The returned array has sufficient
+  resolution for use as pixels (see the overloaded function which
+  takes an additional QWMatrix parameter).
 */
 void QPointArray::makeEllipse( int xx, int yy, int w, int h )
 {						// midpoint, 1/4 ellipse
+    QWMatrix unit;
+    makeArc(xx,yy,w,h,0,360*16,unit);
+    return;
+
+#if QT_OLD_MAKEELLIPSE // ### WWA says discard this.
     if ( w <= 0 || h <= 0 ) {
 	if ( w == 0 || h == 0 ) {
 	    resize( 0 );
@@ -588,6 +761,7 @@ void QPointArray::makeEllipse( int xx, int yy, int w, int h )
     }
     delete[] px;
     delete[] py;
+#endif
 }
 
 

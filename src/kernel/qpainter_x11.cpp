@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#276 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#277 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -1576,6 +1576,9 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
 	    int rxx2 = 2*rxx;
 	    int ryy2 = 2*ryy;
 	    int xx, yy;
+
+	    // ###### WWA: this should use the new makeArc (with xmat)
+
 	    a.makeEllipse( x, y, rxx2, ryy2 );
 	    int s = a.size()/4;
 	    int i = 0;
@@ -1684,8 +1687,8 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
 	}
 	if ( txop == TxRotShear ) {		// rotate/shear polygon
 	    QPointArray a;
-	    a.makeEllipse( x, y, w, h );
-	    drawPolyInternal( xForm(a) );
+	    a.makeArc( x, y, w, h, 0, 360*16, xmat );
+	    drawPolyInternal( a );
 	    return;
 	}
 	map( x, y, w, h, &x, &y, &w, &h );
@@ -1745,8 +1748,8 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
 	}
 	if ( txop == TxRotShear ) {		// rotate/shear
 	    QPointArray pa;
-	    pa.makeArc( x, y, w, h, a, alen );	// arc polyline
-	    drawPolyInternal( xForm(pa), FALSE );
+	    pa.makeArc( x, y, w, h, a, alen, xmat ); // arc polyline
+	    drawPolyInternal( pa, FALSE );
 	    return;
 	}
 	map( x, y, w, h, &x, &y, &w, &h );
@@ -1801,12 +1804,14 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
 	}
 	if ( txop == TxRotShear ) {		// rotate/shear
 	    QPointArray pa;
-	    pa.makeArc( x, y, w, h, a, alen );	// arc polyline
+	    pa.makeArc( x, y, w, h, a, alen, xmat ); // arc polyline
 	    int n = pa.size();
+	    int cx, cy;
+	    xmat.map(x+w/2, y+h/2, &cx, &cy);
 	    pa.resize( n+2 );
-	    pa.setPoint( n, x+w/2, y+h/2 );	// add legs
+	    pa.setPoint( n, cx, cy );	// add legs
 	    pa.setPoint( n+1, pa.at(0) );
-	    drawPolyInternal( xForm(pa) );
+	    drawPolyInternal( pa );
 	    return;
 	}
 	map( x, y, w, h, &x, &y, &w, &h );
@@ -1878,11 +1883,11 @@ void QPainter::drawChord( int x, int y, int w, int h, int a, int alen )
 	}
 	if ( txop == TxRotShear ) {		// rotate/shear
 	    QPointArray pa;
-	    pa.makeArc( x, y, w-1, h-1, a, alen ); // arc polygon
+	    pa.makeArc( x, y, w-1, h-1, a, alen, xmat ); // arc polygon
 	    int n = pa.size();
 	    pa.resize( n+1 );
 	    pa.setPoint( n, pa.at(0) );		// connect endpoints
-	    drawPolyInternal( xForm(pa) );
+	    drawPolyInternal( pa );
 	    return;
 	}
 	map( x, y, w, h, &x, &y, &w, &h );
