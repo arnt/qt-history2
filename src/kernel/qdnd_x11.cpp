@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#19 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -21,14 +21,13 @@
 #include "qdict.h"
 #include "qdragobject.h"
 #include "qobjectlist.h"
-#include "qobjectdict.h"
 
 
 #include <X11/X.h> // for Atom
 #include <X11/Xlib.h> // for XEvent
 #include <X11/Xatom.h> // for XA_STRING and friends
 
-// this stuff is copied from qapplication_x11.cpp
+// this stuff is copied from qapp_x11.cpp
 
 extern void qt_x11_intern_atom( const char *, Atom * );
 
@@ -36,7 +35,7 @@ extern Window qt_x11_findClientWindow( Window, Atom, bool );
 extern Atom qt_wm_state;
 extern Time qt_x_clipboardtime;
 
-// this stuff is copied from qclipboard_x11.cpp
+// this stuff is copied from qclb_x11.cpp
 
 extern bool qt_xclb_wait_for_event( Display *dpy, Window win, int type,
 				    XEvent *event, int timeout );
@@ -47,7 +46,7 @@ extern bool qt_xclb_read_property( Display *dpy, Window win, Atom property,
 extern QByteArray qt_xclb_read_incremental_property( Display *dpy, Window win,
 						     Atom property,
 						     int nbytes );
-// and all this stuff is copied -into- qapplication_x11.cpp
+// and all this stuff is copied -into- qapp_x11.cpp
 
 void qt_xdnd_setup();
 void qt_handle_xdnd_enter( QWidget *, const XEvent * );
@@ -83,13 +82,13 @@ Atom qt_xdnd_aware;
 
 // real variables:
 // xid of current drag source
-static Window qt_xdnd_dragsource_xid = 0;
+static Atom qt_xdnd_dragsource_xid = 0;
 
 // the types in this drop.  100 is no good, but at least it's big.
 static Atom qt_xdnd_types[100];
 
 static QIntDict<QString> * qt_xdnd_drag_types = 0;
-static QDict<Atom> qt_xdnd_atom_numbers( 17 );
+static QDict<Atom> * qt_xdnd_atom_numbers = 0;
 
 // rectangle in which the answer will be the same
 static QRect qt_xdnd_source_sameanswer;
@@ -113,18 +112,20 @@ static void qt_xdnd_add_type( const char * mimeType )
 {
     if ( !mimeType || !*mimeType )
 	return;
-    if ( qt_xdnd_atom_numbers.find( mimeType ) )
+    if ( !qt_xdnd_atom_numbers )
+	qt_xdnd_atom_numbers = new QDict<Atom>( 17 );
+    if ( qt_xdnd_atom_numbers->find( mimeType ) )
 	return;
 
     Atom * tmp = new Atom;
     *tmp = 0;
-    qt_xdnd_atom_numbers.insert( mimeType, tmp );
+    qt_xdnd_atom_numbers->insert( mimeType, tmp );
     qt_x11_intern_atom( mimeType, tmp );
     if ( qt_xdnd_drag_types ) {
 	QString * s = new QString( mimeType );
 	qt_xdnd_drag_types->insert( (long)(*tmp), s );
     }
-    qt_xdnd_atom_numbers.setAutoDelete( TRUE );
+    qt_xdnd_atom_numbers->setAutoDelete( TRUE );
 }
 
 
@@ -158,6 +159,10 @@ void qt_xdnd_cleanup()
 {
     delete qt_xdnd_drag_types;
     qt_xdnd_drag_types = 0;
+    delete qt_xdnd_atom_numbers;
+    qt_xdnd_atom_numbers = 0;
+    delete qt_xdnd_target_data;
+    qt_xdnd_target_data = 0;
 }
 
 
@@ -191,15 +196,15 @@ static QWidget * find_child( QWidget * tlw, QPoint & p )
 
 
 void qt_handle_xdnd_enter( QWidget *, const XEvent * xe ) {
+    if ( !qt_xdnd_atom_numbers )
+	return; // haven't been set up for dnd
+
     const long *l = xe->xclient.data.l;
-
-    //debug( "xdnd enter" );
-
     // first, build the atom dict, if possible
     if ( !qt_xdnd_drag_types ) {
 	qt_xdnd_drag_types = new QIntDict<QString>( 17 );
 	qt_xdnd_drag_types->setAutoDelete( TRUE );
-	QDictIterator<Atom> it( qt_xdnd_atom_numbers );
+	QDictIterator<Atom> it( *qt_xdnd_atom_numbers );
 	Atom * a;
 	while( (a=it.current()) != 0 ) {
 	    QString * s = new QString( it.currentKey() );
@@ -218,7 +223,7 @@ void qt_handle_xdnd_enter( QWidget *, const XEvent * xe ) {
     if ( version > 2 )
 	return;
 
-    qt_xdnd_dragsource_xid = (Window)l[0];
+    qt_xdnd_dragsource_xid = l[0];
     // ### can crash if the xid is wild
     if ( qt_xdnd_dragsource_xid && !QWidget::find( qt_xdnd_dragsource_xid ) )
 	XSelectInput( qt_xdisplay(), qt_xdnd_dragsource_xid,
@@ -244,10 +249,10 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe )
 {
     const unsigned long *l = (const unsigned long *)xe->xclient.data.l;
 
-    QPoint p( (int)((l[2] & 0xffff0000) >> 16), (int)(l[2] & 0x0000ffff) );
+    QPoint p( (l[2] & 0xffff0000) >> 16, l[2] & 0x0000ffff );
     QWidget * c = find_child( w, p );
 
-    if ( (Window)l[0] != qt_xdnd_dragsource_xid ) {
+    if ( l[0] != qt_xdnd_dragsource_xid ) {
 	debug( "xdnd drag position from unexpected source (%08lx not %08lx)",
 	       l[0], qt_xdnd_dragsource_xid );
 	return;
@@ -301,7 +306,7 @@ void qt_handle_xdnd_leave( QWidget *w, const XEvent * xe )
 
     //debug( "xdnd leave" );
 
-    if ( (Window)l[0] != qt_xdnd_dragsource_xid ) {
+    if ( l[0] != qt_xdnd_dragsource_xid ) {
 	debug( "xdnd drag leave from unexpected source (%08lx not %08lx",
 	       l[0], qt_xdnd_dragsource_xid );
 	qt_xdnd_current_widget = 0;
@@ -329,7 +334,7 @@ static void qt_xdnd_send_leave()
     leave.window = qt_xdnd_current_target;
     leave.format = 32;
     leave.message_type = qt_xdnd_leave;
-    leave.data.l[0] = (Atom)qt_xdnd_dragsource_xid;
+    leave.data.l[0] = qt_xdnd_dragsource_xid;
     leave.data.l[1] = 0; // flags
     leave.data.l[2] = 0; // x, y
     leave.data.l[3] = 0; // w, h
@@ -356,7 +361,7 @@ void qt_handle_xdnd_drop( QWidget *, const XEvent * xe )
 
     //debug( "xdnd drop" );
 
-    if ( (Window)l[0] != qt_xdnd_dragsource_xid ) {
+    if ( l[0] != qt_xdnd_dragsource_xid ) {
 	debug( "xdnd drop from unexpected source (%08lx not %08lx",
 	       l[0], qt_xdnd_dragsource_xid );
 	return;
@@ -425,7 +430,7 @@ void QDragManager::move( const QPoint & globalPos )
 	if ( qt_xdnd_current_target )
 	    qt_xdnd_send_leave();
 
-	Atom * primaryType = qt_xdnd_atom_numbers.find( object->format() );
+	Atom * primaryType = qt_xdnd_atom_numbers->find( object->format() );
 	XClientMessageEvent enter;
 	enter.type = ClientMessage;
 	enter.window = target;
@@ -513,7 +518,7 @@ void qt_xdnd_handle_destroy_notify( const XDestroyWindowEvent * e )
     if ( e->window == qt_xdnd_current_target ) {
 	qt_xdnd_current_target = 0;
     }
-    if ( e->window == qt_xdnd_dragsource_xid ) {
+    if ( e->window == (Window)qt_xdnd_dragsource_xid ) {
 	qt_xdnd_dragsource_xid = 0;
 	if ( qt_xdnd_current_widget ) {
 	    QDragLeaveEvent e;
@@ -602,10 +607,10 @@ static QByteArray qt_xdnd_obtain_data( const char * format )
 	return result;
     }
 
-    Atom * a = qt_xdnd_atom_numbers.find( format );
+    Atom * a = qt_xdnd_atom_numbers->find( format );
     if ( !a || !*a )
 	return result;
-    
+
     if ( !qt_xdnd_target_data )
 	qt_xdnd_target_data = new QIntDict<QByteArray>( 17 );
 
@@ -703,4 +708,3 @@ void QDragManager::startDrag( QDragObject * o )
 			dragSource->topLevelWidget()->winId(),
 			qt_xdnd_source_current_time );
 }
-
