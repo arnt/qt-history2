@@ -26,13 +26,13 @@
 */
 
 
-QAbstractTextDocumentLayout::QAbstractTextDocumentLayout()
-    : QObject(*new QAbstractTextDocumentLayoutPrivate, 0)
+QAbstractTextDocumentLayout::QAbstractTextDocumentLayout(QTextDocument *document)
+    : QObject(*new QAbstractTextDocumentLayoutPrivate, document)
 {
 }
 
-QAbstractTextDocumentLayout::QAbstractTextDocumentLayout(QAbstractTextDocumentLayoutPrivate &p)
-    :QObject(p, 0)
+QAbstractTextDocumentLayout::QAbstractTextDocumentLayout(QAbstractTextDocumentLayoutPrivate &p, QTextDocument *document)
+    :QObject(p, document)
 {
 }
 
@@ -176,15 +176,17 @@ QTextCharFormat QAbstractTextDocumentLayout::format(int pos)
 QTextObject *QAbstractTextDocumentLayout::object(int objectIndex) const
 {
     QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->d_func();
-    if (!pieceTable)
-        return 0;
     return pieceTable->objectForIndex(objectIndex);
 }
 
 QTextObject *QAbstractTextDocumentLayout::objectForFormat(const QTextFormat &f) const
 {
     QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->d_func();
-    if (!pieceTable)
-        return 0;
     return pieceTable->objectForFormat(f);
+}
+
+
+const QTextDocument *QAbstractTextDocumentLayout::document() const
+{
+    return qt_cast<QTextDocument *>(parent());
 }

@@ -32,7 +32,7 @@ public:
         bool textColorFromPalette;
     };
 
-    QAbstractTextDocumentLayout();
+    QAbstractTextDocumentLayout(QTextDocument *doc);
 
     virtual void draw(QPainter *painter, const PaintContext &context) = 0;
     virtual int hitTest(const QPoint &point, QText::HitTestAccuracy accuracy) const = 0;
@@ -53,7 +53,7 @@ public:
     virtual QSize pageSize() const = 0;
 
 protected:
-    QAbstractTextDocumentLayout(QAbstractTextDocumentLayoutPrivate &);
+    QAbstractTextDocumentLayout(QAbstractTextDocumentLayoutPrivate &, QTextDocument *);
 
     void invalidate(const QRect &r);
     void invalidate(const QRegion &r);
@@ -70,6 +70,8 @@ protected:
 
     int formatIndex(int pos);
     QTextCharFormat format(int pos);
+
+    const QTextDocument *document() const;
 
 private slots:
     void handlerDestroyed(QObject *obj);

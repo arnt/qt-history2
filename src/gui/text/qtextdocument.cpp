@@ -22,8 +22,8 @@
 
     The layout of a document is determined by the documentLayout();
     you can create your own QAbstractTextDocumentLayout subclass and
-    pass an instance of your subclass to the QTextDocument constructor
-    if you want to use your own layout logic.
+    set it using setDocumentLayout() if you want to use your own
+    layout logic.
 
     You can retrieve the plain text content of the document using
     plainText(); if you want the text and the format information use a
@@ -53,7 +53,7 @@
 QTextDocument::QTextDocument(QObject *parent)
     : QObject(*new QTextDocumentPrivate, parent)
 {
-    d->init(0);
+    d->init();
 }
 
 /*!
@@ -63,18 +63,8 @@ QTextDocument::QTextDocument(QObject *parent)
 QTextDocument::QTextDocument(const QString &text, QObject *parent)
     : QObject(*new QTextDocumentPrivate, parent)
 {
-    d->init(0);
+    d->init();
     QTextCursor(this).insertText(text);
-}
-
-/*!
-    Constructs a QTextDocument with a custom document layout \a
-    documentLayout, and with parent \a parent.
-*/
-QTextDocument::QTextDocument(QAbstractTextDocumentLayout *documentLayout, QObject *parent)
-    : QObject(*new QTextDocumentPrivate, parent)
-{
-    d->init(documentLayout);
 }
 
 /*!
@@ -191,13 +181,25 @@ bool QTextDocument::isRedoAvailable() const
     return d->isRedoAvailable();
 }
 
+/*!
+    Sets a new layout on the document. The old layout will be deleted.
+*/
+void QTextDocument::setDocumentLayout(QAbstractTextDocumentLayout *layout)
+{
+    d->setLayout(layout);
+}
 
 /*!
     Returns the document layout for this document.
 */
 QAbstractTextDocumentLayout *QTextDocument::documentLayout() const
 {
-    return d->layout();
+    if (!d->lout) {
+        qDebug("auto creating layout");
+        QTextDocument *that = const_cast<QTextDocument *>(this);
+        that->d->setLayout(new QTextDocumentLayout(that));
+    }
+    return d->lout;
 }
 
 
@@ -364,5 +366,15 @@ QTextObject *QTextDocument::createObject(const QTextFormat &f)
         obj = new QTextFrame(this);
 
     return obj;
+}
+
+QTextFrame *QTextDocument::frameAt(int pos) const
+{
+    return d->frameAt(pos);
+}
+
+QTextFrame *QTextDocument::rootFrame() const
+{
+    return d->rootFrame();
 }
 

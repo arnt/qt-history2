@@ -482,7 +482,7 @@ QTextCursor::QTextCursor(QTextDocument *document)
     Constructs a cursor pointing to the beginning of the \a block.
 */
 QTextCursor::QTextCursor(const QTextBlockIterator &block)
-    : d(new QTextCursorPrivate(block.pieceTable()))
+    : d(new QTextCursorPrivate(block.pt))
 {
     d->position = block.position();
 }

@@ -106,7 +106,9 @@ public:
     QTextDocumentPrivate();
     ~QTextDocumentPrivate();
 
-    void init(QAbstractTextDocumentLayout *);
+    void init();
+
+    void setLayout(QAbstractTextDocumentLayout *layout);
 
     void insert(int pos, const QString &text, int format);
     void insert(int pos, int strPos, int strLength, int format);

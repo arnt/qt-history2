@@ -15,6 +15,7 @@ class QPoint;
 class QTextCursor;
 class QTextObject;
 class QTextFormat;
+class QTextFrame;
 
 namespace QText
 {
@@ -47,7 +48,6 @@ class Q_GUI_EXPORT QTextDocument : public QObject
 public:
     QTextDocument(QObject *parent = 0);
     QTextDocument(const QString &text, QObject *parent = 0);
-    QTextDocument(QAbstractTextDocumentLayout *documentLayout, QObject *parent = 0);
     ~QTextDocument();
 
     QString plainText() const;
@@ -60,6 +60,7 @@ public:
     bool isUndoAvailable() const;
     bool isRedoAvailable() const;
 
+    void setDocumentLayout(QAbstractTextDocumentLayout *layout);
     QAbstractTextDocumentLayout *documentLayout() const;
 
     QString documentTitle() const;
@@ -75,6 +76,9 @@ public:
 
     QTextCursor find(const QString &exp, int from = 0, StringComparison flags = (CaseSensitive | Contains)) const;
     QTextCursor find(const QString &exp, const QTextCursor &from, StringComparison flags = (CaseSensitive | Contains)) const;
+
+    QTextFrame *frameAt(int pos) const;
+    QTextFrame *rootFrame() const;
 
 signals:
     void contentsChanged();

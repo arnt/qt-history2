@@ -5,6 +5,7 @@
 #include <qglobal.h>
 #endif
 
+class QTextDocument;
 class QTextDocumentPrivate;
 class QTextLayout;
 class QString;
@@ -20,7 +21,9 @@ class QTextBlockIterator
     friend class QAbstractTextDocumentLayout;
     friend class QTextTablePrivate;
     friend class QTextTable;
+    friend class QTextList;
     friend class QTextObject;
+    friend class QTextCursor;
 
     inline QTextBlockIterator(const QTextDocumentPrivate *p, int b) : pt(p), n(b) {}
 public:
@@ -48,8 +51,7 @@ public:
     QTextBlockIterator& operator++();
     QTextBlockIterator& operator--();
 
-    // ######
-    const QTextDocumentPrivate *pieceTable() const { return pt; }
+    const QTextDocument *document() const;
 };
 
 Q_DECLARE_TYPEINFO(QTextBlockIterator, Q_PRIMITIVE_TYPE);

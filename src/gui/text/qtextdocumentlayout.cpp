@@ -701,8 +701,8 @@ void QTextDocumentLayoutPrivate::findY(LayoutStruct *layoutStruct, int requiredW
 }
 
 
-QTextDocumentLayout::QTextDocumentLayout()
-    : QAbstractTextDocumentLayout(*new QTextDocumentLayoutPrivate)
+QTextDocumentLayout::QTextDocumentLayout(QTextDocument *doc)
+    : QAbstractTextDocumentLayout(*new QTextDocumentLayoutPrivate, doc)
 {
     d->blockTextFlags = Qt::IncludeTrailingSpaces|Qt::WordBreak;
 

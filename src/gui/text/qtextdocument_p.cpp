@@ -84,18 +84,14 @@ QTextDocumentPrivate::QTextDocumentPrivate()
 
     undoPosition = 0;
     framesDirty = false;
+
+    lout = 0;
 }
 
-void QTextDocumentPrivate::init(QAbstractTextDocumentLayout *layout)
+void QTextDocumentPrivate::init()
 {
-    if (!layout)
-        layout = new QTextDocumentLayout();
     frame = qt_cast<QTextFrame *>(createObject(QTextFrameFormat()));
     framesDirty = false;
-
-    lout = layout;
-    // take ownership
-    lout->setParent(q);
 
     undoEnabled = false;
     insertBlock(0, formats.indexForFormat(QTextBlockFormat()), formats.indexForFormat(QTextCharFormat()));
@@ -107,6 +103,16 @@ QTextDocumentPrivate::~QTextDocumentPrivate()
     undoPosition = 0;
     undoEnabled = true;
     truncateUndoStack();
+}
+
+void QTextDocumentPrivate::setLayout(QAbstractTextDocumentLayout *layout)
+{
+    if (lout) {
+        qDebug("deleting old layout!!!");
+        delete lout;
+    }
+    lout = layout;
+    lout->documentChange(0, 0, length());
 }
 
 
@@ -710,7 +716,7 @@ void QTextDocumentPrivate::endEditBlock()
     if (framesDirty)
         scan_frames(docChangeFrom, docChangeOldLength, docChangeLength);
 
-    if (docChangeFrom >= 0)
+    if (lout && docChangeFrom >= 0)
         lout->documentChange(docChangeFrom, docChangeOldLength, docChangeLength);
     docChangeFrom = -1;
 }

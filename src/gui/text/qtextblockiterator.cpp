@@ -171,3 +171,11 @@ QTextBlockIterator& QTextBlockIterator::operator--()
     Returns true of the iterator is at the end of the document.
  */
 
+
+
+const QTextDocument *QTextBlockIterator::document() const
+{
+    if (pt)
+        return pt->document();
+    return 0;
+}
