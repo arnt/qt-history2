@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.h#24 $
+** $Id: //depot/qt/main/src/kernel/qprocess.h#25 $
 **
 ** Implementation of QProcess class
 **
@@ -103,7 +103,7 @@ private:
 
     void init();
     void reset();
-#if defined(Q_WS_WIN)
+#if defined(Q_OS_WIN32)
     uint readStddev( HANDLE dev, char *buf, uint bytes );
 #endif
 
