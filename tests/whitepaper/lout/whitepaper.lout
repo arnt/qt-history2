@@ -8,6 +8,7 @@
 @Report
     @Title {Qt 3.0 Whitepaper}
     @Author { Trolltech }
+    @Institution { @F www.trolltech.com }
     @Abstract { @Include { abstract.lout } }
 //
 @Include { introduction.lout }
