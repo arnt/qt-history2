@@ -29,7 +29,7 @@
 LineEdits::LineEdits( QWidget *parent )
     : QGroupBox( "Line edits", parent )
 {
-    setAlignment(Horizontal);
+    setAlignment(Qt::Horizontal);
 
     QVBoxLayout* box = new QVBoxLayout( layout() );
 
@@ -210,13 +210,13 @@ void LineEdits::slotAlignmentChanged( int i )
 {
     switch ( i ) {
     case 0:
-	lined3->setAlignment( QLineEdit::AlignLeft );
+	lined3->setAlignment( Qt::AlignLeft );
         break;
     case 1:
-	lined3->setAlignment( QLineEdit::AlignCenter );
+	lined3->setAlignment( Qt::AlignCenter );
         break;
     case 2:
-	lined3->setAlignment( QLineEdit::AlignRight );
+	lined3->setAlignment( Qt::AlignRight );
         break;
     }
 
