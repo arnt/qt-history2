@@ -39,8 +39,6 @@ QPixmap::QPixmap(int w, int h, const uchar *bits, bool isXbitmap)
 #endif
     long *dptr = (long *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)hd)), *drow, q;
     unsigned short dbpr = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)hd));
-    char mode = true32b;
-    SwapMMUMode(&mode);
     for(int yy=0;yy<h;yy++) {
 	drow = (long *)((char *)dptr + (yy * dbpr));
 	int sy = yy * ((w+7)/8);
@@ -56,7 +54,6 @@ QPixmap::QPixmap(int w, int h, const uchar *bits, bool isXbitmap)
 	    *(drow + xx) = q;
 	}
     }
-    SwapMMUMode(&mode);
 #ifndef QMAC_ONE_PIXEL_LOCK
     UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));
 #endif
@@ -174,8 +171,6 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
     uchar *sptr = image.bits(), *srow;
     QImage::Endian sord = image.bitOrder();
 
-    char mode = true32b;
-    SwapMMUMode(&mode);
     for(int yy=0;yy<h;yy++) {
  	drow = (long *)((char *)dptr + (yy * dbpr));
 	srow = sptr + (yy * sbpr);
@@ -218,7 +213,6 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
 	    break;
 	}
     }
-    SwapMMUMode(&mode);
 #ifndef QMAC_ONE_PIXEL_LOCK
     UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));
 #endif
@@ -235,7 +229,18 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
 	    setMask(m);
 	}
 #ifdef QMAC_PIXMAP_ALPHA
-	if(img.depth() == 32) {
+        bool alphamap = img.depth() == 32;
+	if (img.depth() == 8) {
+	    const QRgb * const rgb = img.colorTable();
+	    for (int i = 0, count = img.numColors(); i < count; ++i) {
+		const int alpha = qAlpha(rgb[i]);
+		if (alpha != 0 && alpha != 0xff) {
+		    alphamap = true;
+		    break;
+		}
+	    }
+	}
+	if (alphamap) {
 	    data->alphapm = new QPixmap(w, h, 32);
 #ifndef QMAC_ONE_PIXEL_LOCK
 	    bool locked = LockPixels(GetGWorldPixMap((GWorldPtr)data->alphapm->hd));
@@ -243,19 +248,29 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
 #endif
 	    long *dptr = (long *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)data->alphapm->hd)), *drow;
 	    unsigned short dbpr = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)hd));
-	    unsigned short sbpr = image.bytesPerLine();
-	    long *sptr = (long*)image.bits(), *srow;
-	    uchar mode = true32b, clr;
-	    SwapMMUMode(&mode);
-	    for(int yy=0;yy<h;yy++) {
-		drow = (long *)((char *)dptr + (yy * dbpr));
-		srow = (long *)((char *)sptr + (yy * sbpr));
-		for(int xx=0;xx<w;xx++) {
-		    clr = ~(((*(srow + xx)) >> 24) & 0xFF);
-		    *(drow + xx) = qRgba(clr, clr, clr, 0);
-		}
-	    }
-	    SwapMMUMode(&mode);
+            if (img.depth() == 32) {
+                unsigned short sbpr = image.bytesPerLine();
+                long *sptr = (long*)image.bits(), *srow;
+                uchar clr;
+                for(int yy=0; yy < h; yy++) {
+                    drow = (long *)((char *)dptr + (yy * dbpr));
+                    srow = (long *)((char *)sptr + (yy * sbpr));
+                    for (int xx=0; xx < w; xx++) {
+                        clr = ~(((*(srow + xx)) >> 24) & 0xFF);
+                        *(drow + xx) = qRgba(clr, clr, clr, 0);
+                    }
+                }
+            } else {
+                const QRgb *const rgb = img.colorTable();
+                for (int y = 0; y < h; ++y) {
+                    const uchar *iptr = image.scanLine(y);
+                    drow = (long *)((char *)dptr + (y * dbpr));
+                    for (int x = 0; x < w; ++x) {
+                        const int alpha = ~qAlpha(rgb[*iptr++]);
+                        *(drow + x) = qRgba(alpha, alpha, alpha, 0);
+                    }
+                }
+            }
 #ifndef QMAC_ONE_PIXEL_LOCK
 	    UnlockPixels(GetGWorldPixMap((GWorldPtr)data->alphapm->hd));
 #endif
@@ -331,8 +346,6 @@ QImage QPixmap::convertToImage() const
 	abpr = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)data->alphapm->hd));
     }
 
-    char mode = true32b;
-    SwapMMUMode(&mode);
     for(int yy=0;yy<h;yy++) {
 	srow = (long *)((char *)sptr + (yy * sbpr));
 	if(aptr)
@@ -348,7 +361,6 @@ QImage QPixmap::convertToImage() const
 		image.setPixel(xx,yy,q);
 	}
     }
-    SwapMMUMode(&mode);
 
 #ifndef QMAC_ONE_PIXEL_LOCK
     UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));
@@ -622,8 +634,6 @@ QPixmap QPixmap::xForm(const QWMatrix &matrix) const
     else
 	memset(dptr, 0xff, dbytes);
 
-    char mode = true32b;
-    SwapMMUMode(&mode);
     int	xbpl = bpp == 1 ? ((w+7)/8) : ((w*bpp)/8);
     if(!qt_xForm_helper(mat, 0, QT_XFORM_TYPE_MSBFIRST, bpp,
 			dptr, xbpl, dbpl - xbpl, h, sptr, sbpl, ws, hs)){
@@ -631,7 +641,6 @@ QPixmap QPixmap::xForm(const QWMatrix &matrix) const
 	QPixmap pm;
 	return pm;
     }
-    SwapMMUMode(&mode);
 #ifndef QMAC_ONE_PIXEL_LOCK
     UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));
     UnlockPixels(GetGWorldPixMap((GWorldPtr)pm.handle()));
