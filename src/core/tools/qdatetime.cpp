@@ -1094,7 +1094,6 @@ QDate QDate::fromString(const QString& s, Qt::DateFormat f)
                 }
             }
             if (month < 1 || month > 12) {
-                qWarning("QDate::fromString: Parameter out of range");
                 QDate d;
                 d.jd = 0;
                 return d;
