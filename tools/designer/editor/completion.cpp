@@ -28,6 +28,7 @@
 #include "qapplication.h"
 #include "qregexp.h"
 #include "qlabel.h"
+#include <qsizegrip.h>
 
 static QColor getColor( const QString &type )
 {
@@ -103,6 +104,9 @@ EditorCompletion::EditorCompletion( Editor *e )
     completionListBox = new QListBox( completionPopup );
     completionListBox->setFrameStyle( QFrame::NoFrame );
     completionListBox->installEventFilter( this );
+    completionListBox->setHScrollBarMode( QScrollView::AlwaysOn );
+    completionListBox->setVScrollBarMode( QScrollView::AlwaysOn );
+    completionListBox->setCornerWidget( new QSizeGrip( completionListBox ) );
     completionPopup->installEventFilter( this );
     functionLabel->installEventFilter( this );
     completionPopup->setFocusProxy( completionListBox );
@@ -243,7 +247,9 @@ bool EditorCompletion::doCompletion()
 	for ( QValueList<CompletionEntry>::ConstIterator it = lst.begin(); it != lst.end(); ++it )
 	    (void)new CompletionItem( completionListBox, (*it).text, (*it).type, (*it).prefix );
 	cList = lst;
-	completionPopup->resize( completionListBox->sizeHint() + QSize( 4, 4 ) );
+	completionPopup->resize( completionListBox->sizeHint() +
+				 QSize( completionListBox->verticalScrollBar()->width(),
+					completionListBox->horizontalScrollBar()->height() ) );
 	completionListBox->setCurrentItem( 0 );
 	completionListBox->setFocus();
 	completionPopup->move( curEditor->mapToGlobal( curEditor->contentsToViewport( QPoint( x, y + h ) ) ) );
@@ -575,7 +581,9 @@ void EditorCompletion::showCompletion( const QValueList<CompletionEntry> &lst )
     for ( QValueList<CompletionEntry>::ConstIterator it = lst.begin(); it != lst.end(); ++it )
 	(void)new CompletionItem( completionListBox, (*it).text, (*it).type, (*it).prefix );
     cList = lst;
-    completionPopup->resize( completionListBox->sizeHint() + QSize( 4, 4 ) );
+    completionPopup->resize( completionListBox->sizeHint() +
+			     QSize( completionListBox->verticalScrollBar()->width(),
+				    completionListBox->horizontalScrollBar()->height() ) );
     completionListBox->setCurrentItem( 0 );
     completionListBox->setFocus();
     completionPopup->move( curEditor->mapToGlobal( curEditor->contentsToViewport( QPoint( x, y + h ) ) ) );
