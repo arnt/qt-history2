@@ -318,7 +318,7 @@ LRESULT CALLBACK axc_FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
 	    }
 	    if (ax && msg->hwnd != ax->winId()) {
 		if ( message >= WM_KEYFIRST && message <= WM_KEYLAST ) {
-		    QAxHostWidget *host = ax->findChild(0, (QAxHostWidget*)0);
+		    QAxHostWidget *host = qFindChild<QAxHostWidget*>(ax);
 		    QAxHostWindow *site = host ? host->clientSite() : 0;
 		    if (site && site->inPlaceObject() && site->translateKeyEvent(msg->message, msg->wParam))
 			site->inPlaceObject()->TranslateAccelerator(msg);
@@ -795,12 +795,9 @@ HRESULT WINAPI QAxHostWindow::OnPosRectChange( LPCRECT /*lprcPosRect*/ )
 HRESULT WINAPI QAxHostWindow::InsertMenus( HMENU /*hmenuShared*/, LPOLEMENUGROUPWIDTHS lpMenuWidths )
 {
     QMenuBar *mb = menuBar;
-    QWidget *p = widget;
-    while ( !mb && p ) {
-	mb = p->findChild(0, (QMenuBar*)0);
-	p = p->parentWidget(/* TRUE XXX*/);
-    }
-    if ( !mb )
+    if (!mb)
+	mb = qFindChild<QMenuBar*>(widget->topLevelWidget());
+    if (!mb)
 	return E_NOTIMPL;
     menuBar = mb;
 
@@ -933,12 +930,9 @@ HRESULT WINAPI QAxHostWindow::SetMenu( HMENU hmenuShared, HOLEMENU /*holemenu*/,
     if ( hmenuShared ) {
 	m_menuOwner = hwndActiveObject;
 	QMenuBar *mb = menuBar;
-	QWidget *p = widget;
-	while ( !mb && p ) {
-	    mb = p->findChild(0, (QMenuBar*)0 );
-	    p = p->parentWidget(/*TRUE XXX*/);
-	}
-	if ( !mb )
+	if (!mb)
+	    mb = qFindChild<QMenuBar*>(widget->topLevelWidget());
+	if (!mb)
 	    return E_NOTIMPL;
 	menuBar = mb;
 
@@ -1038,12 +1032,9 @@ HRESULT WINAPI QAxHostWindow::RemoveMenus( HMENU /*hmenuShared*/ )
 HRESULT WINAPI QAxHostWindow::SetStatusText( LPCOLESTR pszStatusText )
 {
     QStatusBar *sb = statusBar;
-    QWidget *p = widget;
-    while ( !sb && p ) {
-	sb = p->findChild(0, (QStatusBar*)0);
-	p = p->parentWidget(/*TRUE XXX*/ );
-    }
-    if ( !sb )
+    if (!sb)
+    sb = qFindChild<QStatusBar*>(widget->topLevelWidget());
+    if (!sb)
 	return E_NOTIMPL;
     statusBar = sb;
 
