@@ -772,8 +772,8 @@ QMakeProject::doProjectTest(const QString& func, const QString &params, QMap<QSt
 
 /* If including a feature it will look in:
 
-   1) <project_root> (where .qmake.cache lives) + FEATURES_DIR
-   2) environment variable QMAKEFEATURES (as separated by colons)
+   1) environment variable QMAKEFEATURES (as separated by colons)
+   2) <project_root> (where .qmake.cache lives) + FEATURES_DIR
    3) environment variable QMAKEPATH (as separated by colons) + /mkspecs/ + FEATURES_DIR
    4) your QMAKESPEC dir
    5) environment variable QTDIR + /mkspecs/ + FEATURES_DIR
@@ -819,15 +819,6 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
 	    }
 	    const QString mkspecs_concat = QDir::separator() + QString("mkspecs");
 	    QStringList feature_roots;
-	    if(!Option::mkfile::cachefile.isEmpty()) {
-		QString path;
-		int last_slash = Option::mkfile::cachefile.findRev(Option::dir_sep);
-		if(last_slash != -1)
-		    path = Option::fixPathToLocalOS(Option::mkfile::cachefile.left(last_slash));
-		for(QStringList::Iterator concat_it = concat.begin();
-		    concat_it != concat.end(); ++concat_it)
-		    feature_roots << (path + (*concat_it));
-	    }
 	    if(const char *mkspec_path = getenv("QMAKEFEATURES")) {
 #ifdef Q_OS_WIN
 		QStringList lst = QStringList::split(';', mkspec_path);
@@ -836,6 +827,15 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
 #else
 		feature_roots += QStringList::split(':', mkspec_path);
 #endif
+	    }
+	    if(!Option::mkfile::cachefile.isEmpty()) {
+		QString path;
+		int last_slash = Option::mkfile::cachefile.findRev(Option::dir_sep);
+		if(last_slash != -1)
+		    path = Option::fixPathToLocalOS(Option::mkfile::cachefile.left(last_slash));
+		for(QStringList::Iterator concat_it = concat.begin();
+		    concat_it != concat.end(); ++concat_it)
+		    feature_roots << (path + (*concat_it));
 	    }
 	    if(const char *qmakepath = getenv("QMAKEPATH")) {
 #ifdef Q_OS_WIN
