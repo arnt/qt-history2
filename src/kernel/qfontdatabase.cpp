@@ -226,7 +226,8 @@ void QtFamilyNamesList::sort()
 {
     // temporarily replace '[' with '#', so that 'Arial [Xft]' isn't placed
     // after 'Arial Black [Xft]' ( '[' is after 'B', but '#' is before 'B' )
-    for( Iterator it = begin();
+    Iterator it;
+    for(  it = begin();
          it != end();
          ++it ) {
         int pos = (*it).find( '[' );
@@ -234,7 +235,7 @@ void QtFamilyNamesList::sort()
             (*it)[ pos ] = '#';
     }
     qHeapSort( *this );
-    for( Iterator it = begin();
+    for( it = begin();
          it != end();
          ++it ) {
         int pos = (*it).find( '#' );
