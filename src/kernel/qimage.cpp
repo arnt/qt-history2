@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#40 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#39 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#40 $";
 #endif
 
 
@@ -34,9 +34,9 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#39 $";
   for image processing and for pixmap archiving.
 
   An image contains the parameters width, height and depth (bits per
-  pixel, bpp), a color table and the actual pixels.  QImage support 1 bit,
-  8 bits and 24 bits depths.  1 bit and 8 bit images use a color lookup
-  table, where the pixel value is the index of a color.
+  pixel, bpp), a color table and the actual pixels.  QImage support 1
+  bit, 8 bit and 24 bit depths.  1 bit and 8 bit images use a color
+  lookup table, where the pixel value is the index of a color.
 
   An entry in the color table is an RGB triplet encoded as
   <code>ulong</code>.  Use the QRED, QGREEN and QBLUE functions (qcolor.h)
@@ -94,8 +94,7 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#39 $";
   means that the object automatically detaches when it is about to change.
   Implicit data sharing is easy to implement for classes that can detect
   change through member functions, but impossible to implement for classes
-  that export pointers to internal data.
-*/
+  that export pointers to internal data. */
 
 
 extern bool qt_image_can_turn_scanlines();
@@ -218,10 +217,9 @@ QImage &QImage::operator=( const QPixmap &pixmap )
   Detaches from shared image data and makes sure that this image is the
   only one referring the data.
 
-  If multiple images share common data, this image dereferences the
-  data and gets a copy of the data. Nothing will be done if there is just
-  a single reference.
-*/
+  If multiple images share common data, this image makes a copy of the
+  data and detaches itself from the sharing mechanism.  Nothing is
+  done if there is just a single reference. */
 
 void QImage::detach()
 {
@@ -319,7 +317,7 @@ QImage QImage::copy() const
 
 /*!
   \fn long QImage::numBytes() const
-  Returned the number of bytes occupied by the image data.
+  Returns the number of bytes occupied by the image data.
 */
 
 /*!
@@ -334,7 +332,7 @@ QImage QImage::copy() const
   A color value is an RGB triplet. Use the QRED, QGREEN and QBLUE functions
   (defined in qcolor.h) to get the color value components.
 
-  \sa setColor()
+  \sa setColor() QColor
 */
 
 ulong QImage::color( int i ) const
@@ -488,8 +486,9 @@ void QImage::setNumColors( int numColors )
   Allocates a color table and a buffer for the image data.
   The image data is filled with the pixel value 0.
 
-  If \e depth is 1, then \e bitOrder must be set to QImage::LittleEndian
-  or QImage::BigEndian, otherwise \e bitOrder must be QImage::IgnoreEndian.
+  If \e depth is 1, then \e bitOrder must be set to either
+  QImage::LittleEndian or QImage::BigEndian.  If \e depth is greater
+  than 1, \e bitOrder must be QImage::IgnoreEndian.
 
   On 32-bit systems, the image data is always allocated as one block
   (contiguous data).
@@ -498,8 +497,7 @@ void QImage::setNumColors( int numColors )
   The image data structure ('bits' member of QImage) consists of a
   table of pointers to each scanline.
 
-  \sa contiguousBits()
-*/
+  \sa contiguousBits() */
 
 bool QImage::create( int width, int height, int depth, int numColors,
 		     QImage::Endian bitOrder )
@@ -1004,8 +1002,12 @@ static void swapPixel01( QImage *image )	// 1-bit: swap 0 and 1 pixels
 
 /*!
   \class QImageIO qimage.h
+
   \brief The QImageIO class contains parameters for loading
   and saving images.
+
+  \ingroup images
+  \ingroup files
 
   QImageIO contains a QIODevice object that is used for image data I/O.
   The programmer can install new image file formats in addition to those
@@ -1015,9 +1017,13 @@ static void swapPixel01( QImage *image )	// 1-bit: swap 0 and 1 pixels
   The different PNM formats are: PBM (P1), PGM (P2), PPM (P3), PBMRAW (P4),
   PGMRAW (P5) and PPMRAW (P6).
 
+  You will normally not need to use this class, QPixmap::load(),
+  QPixmap::save() and QImage contain most of the needed functionality.
+
   \bug
   PNM files can only be read, not written.
-*/
+
+  \sa QImage QPixmap QFile */
 
 /*!
   Constructs a QImageIO object with all parameters set to zero.
@@ -1031,7 +1037,7 @@ QImageIO::QImageIO()
 }
 
 /*!
-  Constructs a QImageIO object with a file name and a format tag.
+  Constructs a QImageIO object with an I/O device and a format tag.
 */
 
 QImageIO::QImageIO( QIODevice *ioDevice, const char *format )
@@ -1403,7 +1409,7 @@ const char *QImageIO::imageFormat( QIODevice *d )
 	pixmap = iio.image();		// convert to pixmap
   \endcode
 
-  \sa setIODevice(), setFileName(), setFormat(), write()
+  \sa setIODevice(), setFileName(), setFormat(), write() QPixmap::load()
 */
 
 bool QImageIO::read()				// read image data
