@@ -71,8 +71,7 @@ public:
     static THREAD_HANDLE currentThread();
     static void postEvent( QObject *,QEvent * );
     static void yield();   // Only useful on MacOS
-    static void * threadData();
-    static void setThreadData(void *);
+
     static void exit();
 
     QThread();
@@ -82,7 +81,8 @@ public:
     virtual void run();
     THREAD_HANDLE handle();
     bool running();
-
+    void * threadData();
+    void setThreadData(void *);
 
     void runWrapper();
 

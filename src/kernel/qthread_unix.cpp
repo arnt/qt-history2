@@ -52,7 +52,8 @@ public:
 
     pthread_t mythread;
     QThreadEvent thread_done;      // Used for QThread::wait()
-
+    pthread_key_t mykey;
+    
 };
 
 class QThreadEventPrivate {
@@ -193,11 +194,17 @@ void QThreadEventsPrivate::sendEvents()
 static QThreadEventsPrivate * qthreadeventsprivate = 0;
 
 extern "C" {
-    static void * start_thread(QThread * t) {
+    static void * start_thread(QThread * t) 
+    {
 	t->runWrapper();
 	return 0;
     }
+    
+    void destruct_dummy(void *)
+    {
+    }
 }
+
 
 THREAD_HANDLE QThread::currentThread()
 {
@@ -224,14 +231,18 @@ void QThread::yield()
     // Do nothing. This is a real OS.
 }
 
+// Do we want to support more than one thread data?
 void * QThread::threadData()
 {
-    return 0;
+  return pthread_getspecific(& (d->mykey) );
 }
 
-void QThread::setThreadData(void *)
+void QThread::setThreadData(void * v)
 {
-
+  int ret=pthread_setspecific(& (d->mykey), v);
+  if(ret) {
+      qWarning("Error setting thread data: %s",strerror(ret));
+  }  
 }
 
 THREAD_HANDLE QThread::handle()
@@ -241,11 +252,20 @@ THREAD_HANDLE QThread::handle()
 
 QThread::QThread()
 {
+    // Hmm. Not sure how to provide proper cleanup function here
     d=new QThreadPrivate;
+    int ret=pthread_key_create(& ( d->mykey ), destruct_dummy);
+    if(ret) {
+	qFatal("Thread key create error: %s",strerror(ret));
+    }
 }
 
 QThread::~QThread()
 {
+    int ret=pthread_key_delete(& (d->mykey));
+    if(ret) {
+	qWarning("Thread key destroy error: %s",strerror(ret));
+    }
     delete d;
 }
 
