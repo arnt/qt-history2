@@ -1285,6 +1285,7 @@ Qt::TextFormat QTextEdit::textFormat() const
     return d->textFormat;
 }
 
+/*
 QTextBlock QTextEdit::blockAt(int blockNr) const
 {
     QTextBlock block = d->doc->rootFrame()->begin().currentBlock();
@@ -1352,6 +1353,7 @@ void QTextEdit::getSelection(int *paraFrom, int *indexFrom, int *paraTo, int *in
     *paraTo = blockNr(toBlock);
     *indexTo = selEnd - toBlock.position();
 }
+*/
 
 /* really have this?
 int QTextEdit::lineOfChar(int parag, int index) const
@@ -1368,6 +1370,7 @@ int QTextEdit::lineOfChar(int parag, int index) const
 }
 */
 
+/*
 int QTextEdit::paragraphAt(const QPoint &pos) const
 {
     return blockNr(d->blockAt(pos));
@@ -1400,6 +1403,7 @@ void QTextEdit::setParagraphBackgroundColor(int parag, const QColor &col)
     fmt.setBackgroundColor(col);
     c.mergeBlockFormat(fmt);
 }
+*/
 
 #endif
 

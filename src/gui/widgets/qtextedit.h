@@ -247,6 +247,7 @@ public:
 
     // small helper for compat methods
     // ### compat
+    /*
     QTextBlock blockAt(int parag) const;
 
     QT_COMPAT void setCursorPosition(int para, int index);
@@ -273,6 +274,7 @@ public:
 
     QT_COMPAT int paragraphAt(const QPoint &pos) const;
     QT_COMPAT int charAt(const QPoint &pos, int *parag) const;
+    */
 
     inline QT_COMPAT bool hasSelectedText() const
     { return cursor().hasSelection(); }
@@ -284,9 +286,11 @@ public:
     inline QT_COMPAT bool isRedoAvailable() const
     { return document()->isRedoAvailable(); }
 
+    /*
     inline QT_COMPAT QColor paragraphBackgroundColor(int parag) const
     { return blockAt(parag).blockFormat().backgroundColor(); }
     QT_COMPAT void setParagraphBackgroundColor(int parag, const QColor &col);
+    */
 
 #endif
 };
