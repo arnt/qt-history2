@@ -304,12 +304,11 @@ struct QX11Data
     int xrender_eventbase;
     int xrender_errorbase;
 
-#if !defined (QT_NO_TABLET_SUPPORT)
+    // true if Qt is compiled w/ Tablet support and we have a tablet.
     bool use_xinput;
     int xinput_major;
     int xinput_eventbase;
     int xinput_errorbase;
-#endif
 
     bool has_xft;
     bool xftDone;
