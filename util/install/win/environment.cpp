@@ -4,6 +4,7 @@
 #include <qtextstream.h>
 #include <qfileinfo.h>
 #include <qdir.h>
+#include <qsettings.h>
 #if defined(Q_OS_WIN32)
 #include <windows.h>
 #endif
@@ -11,7 +12,7 @@
 #include <string.h>
 #include <errno.h>
 
-QString QEnvironment::getEnv( QString varName, int envBlock )
+QString QEnvironment::getEnv( const QString &varName, int envBlock )
 {
 #if defined(Q_OS_WIN32)
     OSVERSIONINFOA osvi;
@@ -60,13 +61,12 @@ QString QEnvironment::getEnv( QString varName, int envBlock )
     }
     if( envBlock & LocalEnv ) {
 	if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
-	    TCHAR *varNameT = (TCHAR*)qt_winTchar( varName, TRUE );
-	    int size = GetEnvironmentVariableW( varNameT, 0, 0 );
+	    int size = GetEnvironmentVariableW( (TCHAR*)varName.ucs2(), 0, 0 );
 	    if ( size == 0 )
 		return QString::null;
 	    TCHAR *data = new TCHAR[ size ];
-	    GetEnvironmentVariableW( varNameT, data, size );
-	    QString ret = qt_winQString( data );
+	    GetEnvironmentVariableW( (TCHAR*)varName.ucs2(), data, size );
+	    QString ret = QString::fromUcs2( data );
 	    delete[] data;
 	    return ret;
 	} else {
@@ -90,7 +90,7 @@ QString QEnvironment::getEnv( QString varName, int envBlock )
     return QString::null;
 }
 
-void QEnvironment::putEnv( QString varName, QString varValue, int envBlock )
+void QEnvironment::putEnv( const QString &varName, const QString &varValue, int envBlock )
 {
 #if defined(Q_OS_WIN32)
     OSVERSIONINFOA osvi;
@@ -143,9 +143,7 @@ void QEnvironment::putEnv( QString varName, QString varValue, int envBlock )
     }
     if( envBlock & LocalEnv ) {
 	if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
-	    TCHAR *varNameT = (TCHAR*)qt_winTchar_new( varName );
-	    SetEnvironmentVariableW( varNameT, (const wchar_t*) varValue.ucs2() );
-	    delete varNameT;
+	    SetEnvironmentVariableW( (TCHAR*)varName.ucs2(), (const wchar_t*) varValue.ucs2() );
 	} else {
 	    SetEnvironmentVariableA( varName.local8Bit(), varValue.local8Bit() );
 	}
@@ -156,7 +154,7 @@ void QEnvironment::putEnv( QString varName, QString varValue, int envBlock )
 #endif
 }
 
-void QEnvironment::removeEnv( QString varName, int envBlock )
+void QEnvironment::removeEnv( const QString &varName, int envBlock )
 {
 #if defined(Q_OS_WIN32)
     HKEY hkKey;
@@ -187,9 +185,7 @@ void QEnvironment::removeEnv( QString varName, int envBlock )
 
     if( envBlock & LocalEnv ) {
 	if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
-	    TCHAR *varNameT = (TCHAR*)qt_winTchar_new( varName );
-	    SetEnvironmentVariableW( varNameT, 0 );
-	    delete varNameT;
+	    SetEnvironmentVariableW( (TCHAR*)varName.ucs2(), 0 );
 	} else {
 	    SetEnvironmentVariableA( varName.local8Bit(), 0 );
 	}
@@ -198,78 +194,35 @@ void QEnvironment::removeEnv( QString varName, int envBlock )
 }
 
 #if defined(Q_OS_WIN32)
-bool QEnvironment::recordUninstall( QString displayName, QString cmdString )
+void QEnvironment::recordUninstall( const QString &displayName, const QString &cmdString )
 {
-    HKEY key;
-    QByteArray buffer;
-
-    if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
-	if( RegCreateKeyExW( HKEY_LOCAL_MACHINE, (const wchar_t*) QString( "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\" + displayName ).ucs2(), 0, NULL, 0, KEY_WRITE, NULL, &key, NULL ) == ERROR_SUCCESS ) {
-	    const QChar* data;
-	    int i;
-
-	    buffer.resize( displayName.length() * 2 + 2 );
-	    data = displayName.unicode();
-	    for ( i = 0; i < (int)displayName.length(); ++i ) {
-		buffer[ 2*i ] = displayName[ i ].cell();
-		buffer[ (2*i)+1 ] = displayName[ i ].row();
-	    }
-	    buffer[ (2*i) ] = 0;
-	    buffer[ (2*i)+1 ] = 0;
-	    RegSetValueExW( key, (const wchar_t*) QString("DisplayName").ucs2(), 0, REG_SZ, (const unsigned char*)buffer.data(), buffer.size() );
-
-	    buffer.resize( cmdString.length() * 2 + 2 );
-	    data = cmdString.unicode();
-	    for ( i = 0; i < (int)cmdString.length(); ++i ) {
-		buffer[ 2*i ] = cmdString[ i ].cell();
-		buffer[ (2*i)+1 ] = cmdString[ i ].row();
-	    }
-	    buffer[ (2*i) ] = 0;
-	    buffer[ (2*i)+1 ] = 0;
-	    RegSetValueExW( key, L"UninstallString", 0, REG_SZ, (const unsigned char*)buffer.data(), buffer.size() );
-
-	    RegCloseKey( key );
-	    return true;
-	}
-    }
-    else {
-	if( RegCreateKeyExA( HKEY_LOCAL_MACHINE, QString( QString( "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\" ) + displayName ).local8Bit(), 0, NULL, 0, KEY_WRITE, NULL, &key, NULL ) == ERROR_SUCCESS ) {
-	    RegSetValueExA( key, "DisplayName", 0, REG_SZ,
-		    (const unsigned char*)displayName.local8Bit().data(),
-		    displayName.local8Bit().length() + 1 );
-	    RegSetValueExA( key, "UninstallString", 0, REG_SZ,
-		    (const unsigned char*)cmdString.local8Bit().data(),
-		    cmdString.local8Bit().length() + 1 );
-
-	    RegCloseKey( key );
-	    return true;
-	}
-    }
-    return false;
+    QSettings settings;
+    settings.insertSearchPath(QSettings::Windows, "/Microsoft/Windows/CurrentVersion/Uninstall");
+    settings.beginGroup("/" + displayName);
+    settings.writeEntry("/DisplayName", displayName);
+    settings.writeEntry("/Publisher", "Trolltech AS");
+    settings.writeEntry("/URLInfoAbout", "http://www.trolltech.com");
+    settings.writeEntry("/HelpLink", "http://www.trolltech.com/support");
+    settings.writeEntry("/UninstallString", cmdString);
+    settings.endGroup();
 }
-#endif
 
-#if defined(Q_OS_WIN32)
-bool QEnvironment::removeUninstall( QString displayName )
+void QEnvironment::removeUninstall( const QString &displayName )
 {
-    HKEY key;
-
-    if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
-	if( RegOpenKeyExW( HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", 0, KEY_WRITE, &key ) == ERROR_SUCCESS )
-	    RegDeleteKeyW( key, (const wchar_t*) displayName.ucs2() );
-	return true;
-    }
-    else {
-	if( RegOpenKeyExA( HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", 0, KEY_WRITE, &key ) == ERROR_SUCCESS )
-	    RegDeleteKeyA( key, displayName.local8Bit() );
-	return true;
-    }
-    return false;
+    QSettings settings;
+    settings.insertSearchPath(QSettings::Windows, "/Microsoft/Windows/CurrentVersion/Uninstall");
+    settings.beginGroup("/" + displayName);
+    settings.removeEntry("/DisplayName");
+    settings.removeEntry("/Publisher");
+    settings.removeEntry("/URLInfoAbout");
+    settings.removeEntry("/DisplayVersion");
+    settings.removeEntry("/HelpLink");
+    settings.removeEntry("/UninstallString");
+    settings.removeEntry("/.");
+    settings.endGroup();
 }
-#endif
 
-#if defined(Q_OS_WIN32)
-QString QEnvironment::getRegistryString( QString keyName, QString valueName, int scope )
+QString QEnvironment::getRegistryString( const QString &keyName, const QString &valueName, int scope )
 {
     QString value;
     HKEY scopeKeys[] = { HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE };

@@ -6,13 +6,13 @@
 class QEnvironment
 {
 public:
-    static QString getEnv( QString varName, int envBlock = LocalEnv );
-    static void putEnv( QString varName, QString varValue, int envBlock = LocalEnv );
-    static void removeEnv( QString varName, int envBlock = LocalEnv );
+    static QString getEnv( const QString &varName, int envBlock = LocalEnv );
+    static void putEnv( const QString &varName, const QString &varValue, int envBlock = LocalEnv );
+    static void removeEnv( const QString &varName, int envBlock = LocalEnv );
 #if defined(Q_OS_WIN32)
-    static QString getRegistryString( QString keyName, QString valueName, int scope = CurrentUser );
-    static bool recordUninstall( QString displayName, QString cmdString );
-    static bool removeUninstall( QString displayName );
+    static QString getRegistryString( const QString &keyName, const QString &valueName, int scope = CurrentUser );
+    static void recordUninstall( const QString &displayName, const QString &cmdString );
+    static void removeUninstall( const QString &displayName );
 #endif
     static QString getTempPath();
     static QString getLastError();
