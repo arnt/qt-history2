@@ -664,10 +664,7 @@ void QMenuBar::goodbye( bool cancelled )
 {
     mouseBtDn = FALSE;
     popupvisible = 0;
-    if ( cancelled && style().styleHint(QStyle::SH_MenuBar_AltKeyNavigation, this) )
-	setAltMode( TRUE );
-    else
-	setAltMode( FALSE );
+    setAltMode( cancelled && style().styleHint(QStyle::SH_MenuBar_AltKeyNavigation, this) );
 }
 
 
@@ -1129,6 +1126,8 @@ void QMenuBar::mousePressEvent( QMouseEvent *e )
     int item = itemAtPos( e->pos() );
     if ( item == actItem && popupvisible )
 	toggleclose = 1;
+    if ( item >= 0 )
+ 	setAltMode( TRUE );
     setActiveItem( item, TRUE, FALSE );
 }
 
