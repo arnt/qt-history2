@@ -670,7 +670,7 @@ void FormDefinitionView::setup()
 
     LanguageInterface *lIface = MetaDataBase::languageInterface( formWindow->project()->language() );
     if ( lIface ) {
-	QStringList defs = lIface->definitions(); 
+	QStringList defs = lIface->definitions();
 	for ( QStringList::Iterator dit = defs.begin(); dit != defs.end(); ++dit ) {
 	    HierarchyItem *itemDef = new HierarchyItem( HierarchyItem::DefinitionParent,
 							this, tr( *dit ), QString::null, QString::null );
@@ -705,7 +705,7 @@ void FormDefinitionView::refresh( bool doDelete )
 	}
 	i = i->nextSibling();
     }
-    
+
     i = firstChild();
     while ( i ) {
 	if ( doDelete && i->rtti() == HierarchyItem::FunctParent ) {
@@ -716,7 +716,7 @@ void FormDefinitionView::refresh( bool doDelete )
 	}
 	i = i->nextSibling();
     }
-    
+
     itemSlots = new HierarchyItem( HierarchyItem::SlotParent,
 				   this, tr( "Slots" ), QString::null, QString::null );
     itemSlots->moveItem( i );
@@ -729,42 +729,43 @@ void FormDefinitionView::refresh( bool doDelete )
 				     QString::null, QString::null );
     if ( formWindow->project()->language() != "C++" ) {
 	itemSlots->setText( 0, tr( "Functions" ) );
+	itemFunct = 0;
     } else {
 	itemFunct = new HierarchyItem( HierarchyItem::FunctParent,
 				    this, tr( "Functions" ), QString::null, QString::null );
 	itemFunct->setPixmap( 0, *folderPixmap );
-	itemFunctPriv = new HierarchyItem( HierarchyItem::FunctPrivate, itemFunct, 
+	itemFunctPriv = new HierarchyItem( HierarchyItem::FunctPrivate, itemFunct,
 				    tr( "private" ), QString::null, QString::null );
 	itemFunctProt = new HierarchyItem( HierarchyItem::FunctProtected, itemFunct,
 				    tr( "protected" ), QString::null, QString::null );
 	itemFunctPubl = new HierarchyItem( HierarchyItem::FunctPublic, itemFunct,
-				    tr( "public" ), QString::null, QString::null );    
+				    tr( "public" ), QString::null, QString::null );
     }
-   
+
     QValueList<MetaDataBase::Function> functionList = MetaDataBase::functionList( formWindow );
     QValueList<MetaDataBase::Function>::Iterator it = --( functionList.end() );
-    if ( !functionList.isEmpty() ) {
+    if ( !functionList.isEmpty() && itemFunct ) {
 	for (;;) {
 	    QListViewItem *item = 0;
 	    if ( (*it).type == "slot" ) {
 		if ( (*it).access == "protected" )
-		    item = new HierarchyItem( HierarchyItem::Slot, itemProtected, (*it).function, 
+		    item = new HierarchyItem( HierarchyItem::Slot, itemProtected, (*it).function,
 					      QString::null, QString::null );
 		else if ( (*it).access == "private" )
-		    item = new HierarchyItem( HierarchyItem::Slot, itemPrivate, (*it).function, 
+		    item = new HierarchyItem( HierarchyItem::Slot, itemPrivate, (*it).function,
 					      QString::null, QString::null );
 		else // default is public
-		    item = new HierarchyItem( HierarchyItem::Slot, itemPublic, (*it).function, 
+		    item = new HierarchyItem( HierarchyItem::Slot, itemPublic, (*it).function,
 					      QString::null, QString::null );
-	    } else {	    
-		if ( (*it).access == "protected" )    
-		    item = new HierarchyItem( HierarchyItem::Function, itemFunctProt, (*it).function, 
+	    } else {	
+		if ( (*it).access == "protected" )
+		    item = new HierarchyItem( HierarchyItem::Function, itemFunctProt, (*it).function,
 					      QString::null, QString::null );
 		else if ( (*it).access == "private" )
-		    item = new HierarchyItem( HierarchyItem::Function, itemFunctPriv, (*it).function, 
+		    item = new HierarchyItem( HierarchyItem::Function, itemFunctPriv, (*it).function,
 					      QString::null, QString::null );
 		else // default is public
-		    item = new HierarchyItem( HierarchyItem::Function, itemFunctPubl, (*it).function, 
+		    item = new HierarchyItem( HierarchyItem::Function, itemFunctPubl, (*it).function,
 					      QString::null, QString::null );
 	    }
 	    item->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
@@ -773,17 +774,19 @@ void FormDefinitionView::refresh( bool doDelete )
 	    --it;
 	}
     }
-    
+
     itemPrivate->setOpen( TRUE );
     itemProtected->setOpen( TRUE );
     itemPublic->setOpen( TRUE );
     itemSlots->setOpen( TRUE );
-    
-    itemFunct->setOpen( TRUE );
-    itemFunctPriv->setOpen( TRUE );
-    itemFunctProt->setOpen( TRUE );
-    itemFunctPubl->setOpen( TRUE );
-   
+
+    if ( itemFunct ) {
+	itemFunct->setOpen( TRUE );
+	itemFunctPriv->setOpen( TRUE );
+	itemFunctProt->setOpen( TRUE );
+	itemFunctPubl->setOpen( TRUE );
+    }
+
     if ( formWindow->project()->language() != "C++" )
 	itemProtected->setVisible( FALSE );
 }
@@ -878,7 +881,7 @@ void FormDefinitionView::contentsMouseDoubleClickEvent( QMouseEvent *e )
 	    access = "private";
 	dlg.functionAdd( access, "function" );	
 	dlg.exec();	
-    
+
     } else {
 	insertEntry( i );
     }
@@ -910,7 +913,7 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	}
 	return;
     }
-    
+
     if ( i->rtti() == HierarchyItem::Slot ) {
 	QPopupMenu menu;
 	const int PROPS = 1;
@@ -950,7 +953,7 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	    MetaDataBase::removeFunction( formWindow, i->text( 0 ) );
 	    EditFunctions::removeFunctionFromCode( i->text( 0 ), formWindow );
 	    formWindow->mainWindow()->objectHierarchy()->updateFormDefinitionView();
-	    MainWindow::self->functionsChanged(); 
+	    MainWindow::self->functionsChanged();
 	}
 	return;
     }
@@ -992,7 +995,7 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	    MetaDataBase::removeFunction( formWindow, i->text( 0 ) );
 	    EditFunctions::removeFunctionFromCode( i->text( 0 ), formWindow );
 	    formWindow->mainWindow()->objectHierarchy()->updateFormDefinitionView();
-	    MainWindow::self->functionsChanged(); 
+	    MainWindow::self->functionsChanged();
 	}
 	return;
     }
@@ -1045,10 +1048,10 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	    QString access = "public";
 	    if ( i->rtti() == HierarchyItem::FunctProtected )
 		access = "protected";
-	    else if ( i->rtti() == HierarchyItem::FunctPrivate ) 
+	    else if ( i->rtti() == HierarchyItem::FunctPrivate )
 		access = "private";
 	    dlg.functionAdd( access, "function" );
-	    dlg.exec();	    
+	    dlg.exec();	
 	} else {
 	    insertEntry( i );
 	}
