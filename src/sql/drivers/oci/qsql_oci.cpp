@@ -1964,15 +1964,15 @@ bool QOCIDriver::open( const QString & db,
     }
 
     // get server version
-    text c[512];
-    r = OCIServerVersion( d->svc, d->err, (text*)&c, 512, OCI_HTYPE_SVCCTX );
+    QCString c( 512 );
+    r = OCIServerVersion( d->svc, d->err, (text*)(c.data()), c.size(), OCI_HTYPE_SVCCTX );
 #ifdef QT_CHECKRANGE
     if ( r != 0 ) {
 	qWarning( "QOCIDriver::open: could not get Oracle server version." );
     }
 #endif
     QRegExp vers("([0-9]+)\\.[0-9\\.]+[0-9]");
-    if ( vers.search( QString::fromUtf8( (char*)c, 512 ) ) >= 0 )
+    if ( vers.search( c ) >= 0 )
 	d->serverVersion = vers.cap( 1 ).toInt();
     if ( d->serverVersion == 0 )
 	d->serverVersion = -1;
