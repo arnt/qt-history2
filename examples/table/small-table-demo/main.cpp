@@ -53,8 +53,10 @@ int main( int argc, char **argv )
     for ( int j = 0; j < numRows; ++j )
 	table.setItem( j, 1, new QCheckTableItem( &table, "Check me" ) );
 
-    for ( int i = table.numCols() - 1; i > table.numCols() / 2; i--) 
-	table.setColumnStretchable(i, TRUE);
+    {
+	for ( int i = table.numCols() - 1; i > table.numCols() / 2; i--) 
+	    table.setColumnStretchable(i, TRUE);
+    }
     table.setRowStretchable(0, TRUE);
 
     app.setMainWidget( &table );
