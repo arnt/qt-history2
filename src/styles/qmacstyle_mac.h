@@ -39,7 +39,7 @@
 #define QMACSTYLE_H
 
 #ifndef QT_H
-#include "qaquastyle.h"
+#include "qwindowsstyle.h"
 #endif // QT_H
 
 #if defined( Q_WS_MAC ) && !defined( QT_NO_STYLE_AQUA )
@@ -53,14 +53,17 @@ class QPalette;
 #endif
 
 
-class Q_EXPORT_STYLE_MAC QMacStyle : public QAquaStyle
+class Q_EXPORT_STYLE_MAC QMacStyle : public QWindowsStyle
 {
     Q_OBJECT
 public:
     QMacStyle( );
     virtual ~QMacStyle();
 
-    // new stuff
+    void polish( QWidget * w );
+    void unPolish( QWidget * w );
+    void polish( QApplication* );
+
     void drawPrimitive( PrimitiveElement pe,
 			QPainter *p,
 			const QRect &r,
@@ -102,6 +105,14 @@ public:
 				const QWidget *widget,
 				const QPoint &pos,
 				const QStyleOption& = QStyleOption::Default ) const;
+
+    virtual int styleHint(StyleHint sh, const QWidget *, const QStyleOption &, 
+			  QStyleHintReturn *) const;
+
+    QSize sizeFromContents( ContentsType contents,
+			    const QWidget *w,
+			    const QSize &contentsSize,
+			    const QStyleOption& = QStyleOption::Default ) const;
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

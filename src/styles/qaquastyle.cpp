@@ -80,8 +80,8 @@ static const int aquaTabSpacing        = 12;   // space between text and tab
 static const int aquaCheckMarkHMargin  = 2;    // horiz. margins of check mark
 static const int aquaRightBorder       = 12;   // right border on aqua
 static const int aquaCheckMarkWidth    = 12;   // checkmarks width on aqua
-QColor qt_mac_highlight_color = QColor( 0xC2, 0xC2, 0xC2 ); //color of highlighted text
-bool qt_mac_scrollbar_arrows_together = FALSE; //whether scroll arrows go together
+static QColor qt_mac_highlight_color = QColor( 0xC2, 0xC2, 0xC2 ); //color of highlighted text
+static bool qt_mac_scrollbar_arrows_together = FALSE; //whether scroll arrows go together
 QCString p2qstring(const unsigned char *c); //qglobal.cpp
 
 QAquaFocusWidget::QAquaFocusWidget( )

@@ -51,7 +51,9 @@
 #ifndef QT_NO_STYLE_AQUA
 #include "qaquastyle.h"
 #endif
-#ifndef QT_NO_STYLE_MAC
+#if !defined( QT_NO_STYLE_MAC ) && defined( Q_WS_MAC )
+QCString p2qstring(const unsigned char *c); //qglobal.cpp
+#include "qt_mac.h"
 #include "qmacstyle_mac.h"
 #endif
 #include <stdlib.h>
@@ -148,8 +150,8 @@ QStyle *QStyleFactory::create( const QString& key )
     if ( style == "aqua" )
         return new QAquaStyle;
 #endif
-#ifndef QT_NO_STYLE_MAC
-    if( style == "macintosh" )
+#if !defined( QT_NO_STYLE_MAC ) && defined( Q_WS_MAC )
+    if( style.left(9) == "macintosh" )
 	return new QMacStyle;
 #endif
 
@@ -217,9 +219,17 @@ QStringList QStyleFactory::keys()
     if ( !list.contains( "Aqua" ) )
 	list << "Aqua";
 #endif
-#ifndef QT_NO_STYLE_MAC
-    if ( !list.contains( "Macintosh" ) )
-	list << "Macintosh";
+#if !defined( QT_NO_STYLE_MAC ) && defined( Q_WS_MAC )
+    QString mstyle = "Macintosh";
+    if(Collection c=NewCollection()) {
+	GetTheme(c);
+	Str255 str;
+	long int s = 256;
+	if(!GetCollectionItem(c, kThemeNameTag, 0, &s, &str)) 
+	    mstyle += " (" + p2qstring(str) + ")";
+    }
+    if ( !list.contains( mstyle ) )
+	list << mstyle;
 #endif
 
     return list;

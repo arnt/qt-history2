@@ -19,9 +19,9 @@ styles {
 		HEADERS +=$$STYLES_H/qmacstyle_mac.h
 		SOURCES +=$$STYLES_CPP/qmacstyle_mac.cpp
 
-		!contains( styles, aqua ) {
-			message( mac requires aqua )
-			styles += aqua
+		!contains( styles, windows ) {
+			message( mac requires windows )
+			styles += windows
 		}
 	}
 	!contains( styles, mac ):DEFINES += QT_NO_STYLE_MAC
