@@ -835,9 +835,9 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
 
 QDockWindow::QDockWindow( Place p, QWidget *parent, const char *name, WFlags f )
     : QFrame( parent, name, f | ( p == OutsideDock ? (WType_Dialog | WStyle_Customize | WStyle_NoBorder) : 0 ) ),
-      curPlace( p ), wid( 0 ), unclippedPainter( 0 ), dockArea( 0 ), tmpDockArea( 0 ), resizeEnabled( FALSE ),
-      moveEnabled( TRUE ), cMode( Never ), offs( 0 ), fExtent( -1, -1 ), nl( FALSE ), dockWindowData( 0 ),
-      lastPos( -1, -1 ), opaque( FALSE )
+      wid( 0 ), unclippedPainter( 0 ), dockArea( 0 ), tmpDockArea( 0 ), curPlace( p ), resizeEnabled( FALSE ),
+      moveEnabled( TRUE ), nl( FALSE ), opaque( FALSE ), cMode( Never ), offs( 0 ), fExtent( -1, -1 ), dockWindowData( 0 ),
+      lastPos( -1, -1 ) 
 {
     widgetResizeHandler = new QWidgetResizeHandler( this );
     widgetResizeHandler->setMovingEnabled( FALSE );
@@ -1209,7 +1209,6 @@ void QDockWindow::startRectDraw( const QPoint &so, bool drawRect )
 #endif
 	unclippedPainter->drawRect( dr );
     }
-    startRect = currRect;
     startOrientation = orientation();
     startOffset = so;
 }

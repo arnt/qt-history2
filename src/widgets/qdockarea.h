@@ -55,6 +55,7 @@ class QBoxLayout;
 class QDockAreaLayout;
 class QMouseEvent;
 class QDockWindowResizeHandle;
+class QDockAreaPrivate;
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
@@ -161,7 +162,8 @@ private:
     QDockAreaLayout *layout;
     HandlePosition hPos;
     QPtrList<QDockWindow> forbiddenWidgets;
-
+    QDockAreaPrivate *d;
+    
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QDockArea( const QDockArea & );

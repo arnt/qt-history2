@@ -169,21 +169,22 @@ private:
 private:
     QDockWindowHandle *horHandle, *verHandle;
     QDockWindowTitleBar *titleBar;
-    Place curPlace;
     QWidget *wid;
     QPainter *unclippedPainter;
-    QRect currRect;
-    Place state;
     QDockArea *dockArea, *tmpDockArea;
-    bool resizeEnabled, moveEnabled;
-    int cMode;
-    Orientation startOrientation;
-    QRect startRect;
-    QPoint startOffset;
+    QRect currRect;
+    Place curPlace;
+    Place state;
+    bool resizeEnabled : 1;
+    bool moveEnabled : 1;
+    bool nl : 1;
+    bool opaque : 1;
     bool stretchable[ 3 ];
+    Orientation startOrientation;
+    int cMode;
+    QPoint startOffset;
     int offs;
     QSize fExtent;
-    bool nl;
     QDockWindowResizeHandle *hHandleTop, *hHandleBottom, *vHandleLeft, *vHandleRight;
     QVBoxLayout *hbox;
     QHBoxLayout *vbox;
@@ -191,7 +192,6 @@ private:
     void *dockWindowData;
     QPoint lastPos;
     QWidgetResizeHandler *widgetResizeHandler;
-    bool opaque;
     QDockWindowPrivate *d;
 
 private:	// Disabled copy constructor and operator=
