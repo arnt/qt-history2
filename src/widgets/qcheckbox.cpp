@@ -84,7 +84,7 @@
   <img src=qchkbox-m.png> <img src=qchkbox-w.png>
 
   \sa QButton QRadioButton
-  <a href="guibooks.html#fowler">Fowler: Check Box</a>
+  \link guibooks.html#fowler Fowler: Check Box \endlink
 */
 
 /*! \property QCheckBox::checked
