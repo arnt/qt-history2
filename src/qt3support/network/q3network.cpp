@@ -27,8 +27,6 @@
     This function registers the network protocols for FTP and HTTP.
     You must call this function before you use QUrlOperator for
     these protocols.
-
-    This function is declared in \l q3network.h.
 */
 void q3InitNetworkProtocols()
 {

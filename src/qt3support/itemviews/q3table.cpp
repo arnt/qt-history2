@@ -791,7 +791,7 @@ void Q3TableItem::setContentFromEditor(QWidget *w)
     are aligned when drawn. The default implementation aligns numbers
     to the right and any other text to the left.
 
-    \sa Qt::AlignmentFlags
+    \sa Qt::Alignment
 */
 
 // ed: For consistency reasons a setAlignment() should be provided
@@ -1629,7 +1629,7 @@ QSize Q3CheckTableItem::sizeHint() const
     headers\endlink, \link #columnsrows rows and columns\endlink,
     \link #cells cells\endlink and \link #selections
     selections\endlink. Q3Table also provides in-place editing and
-    \link dnd.html drag and drop\endlink, as well as a useful set of
+    drag and drop, as well as a useful set of
     \link #signals signals\endlink. Q3Table efficiently supports very
     large tables, for example, tables one million by one million cells
     are perfectly possible. Q3Table is economical with memory, using
@@ -1652,8 +1652,7 @@ QSize Q3CheckTableItem::sizeHint() const
     1, although row and column numbers within Q3Table begin at 0.)
 
     If you want to use mouse tracking call setMouseTracking(true) on
-    the \e viewport; (see \link q3scrollview.html#allviews
-    Q3ScrollView\endlink).
+    the \e viewport.
 
     \img qtableitems.png Table Items
 
@@ -1716,8 +1715,7 @@ QSize Q3CheckTableItem::sizeHint() const
     For editable tables (see setReadOnly()) you can set the read-only
     property of individual rows and columns with setRowReadOnly() and
     setColumnReadOnly(). (Whether a cell is editable or read-only
-    depends on these settings and the cell's \link
-    q3tableitem.html#wheneditable Q3TableItem::EditType\endlink.)
+    depends on these settings and the cell's Q3TableItem.
 
     The row and column which have the focus are returned by
     currentRow() and currentColumn() respectively.
@@ -1761,8 +1759,7 @@ QSize Q3CheckTableItem::sizeHint() const
 
     In-place editing of the text in Q3TableItems, and the values in
     Q3ComboTableItems and Q3CheckTableItems works automatically. Cells
-    may be editable or read-only, see \link
-    q3tableitem.html#wheneditable Q3TableItem::EditType\endlink. If you
+    may be editable or read-only, see Q3TableItem::EditType. If you
     want fine control over editing see beginEdit() and endEdit().
 
     The contents of a cell can be retrieved as a Q3TableItem using
@@ -1970,8 +1967,6 @@ QSize Q3CheckTableItem::sizeHint() const
 
     Call setNumRows() and setNumCols() to set the table size before
     populating the table if you're using Q3TableItems.
-
-    \sa QWidget::clearWFlags() Qt::WidgetFlags
 */
 
 Q3Table::Q3Table(QWidget *parent, const char *name)
@@ -1991,8 +1986,6 @@ Q3Table::Q3Table(QWidget *parent, const char *name)
     can create Q3TableItem, Q3ComboTableItem and Q3CheckTableItem items
     and insert them into the table using setItem(). (See the notes on
     large tables for an alternative to using Q3TableItems.)
-
-    \sa QWidget::clearWFlags() Qt::WidgetFlags
 */
 
 Q3Table::Q3Table(int numRows, int numCols, QWidget *parent, const char *name)
@@ -2140,8 +2133,7 @@ void Q3Table::setReadOnly(bool b)
     row is set to be editable.
 
     Whether a cell in this row is editable or read-only depends on the
-    cell's EditType, and this setting:
-    see \link q3tableitem.html#wheneditable Q3TableItem::EditType\endlink.
+    cell's EditType, and this setting.
 
     \sa isRowReadOnly() setColumnReadOnly() setReadOnly()
 */
@@ -2169,8 +2161,7 @@ void Q3Table::setRowReadOnly(int row, bool ro)
     the column is set to be editable.
 
     Whether a cell in this column is editable or read-only depends on
-    the cell's EditType, and this setting:
-    see \link q3tableitem.html#wheneditable Q3TableItem::EditType\endlink.
+    the cell's EditType, and this setting.
 
     \sa isColumnReadOnly() setRowReadOnly() setReadOnly()
 
@@ -2199,9 +2190,7 @@ void Q3Table::setColumnReadOnly(int col, bool ro)
     \brief whether the table is read-only
 
     Whether a cell in the table is editable or read-only depends on
-    the cell's \link Q3TableItem::EditType EditType\endlink, and this setting:
-    see \link q3tableitem.html#wheneditable
-    Q3TableItem::EditType\endlink.
+    the cell's \link Q3TableItem::EditType EditType\endlink, and this setting.
 
     \sa QWidget::enabled setColumnReadOnly() setRowReadOnly()
 */
@@ -2216,8 +2205,7 @@ bool Q3Table::isReadOnly() const
 
     Whether a cell in this row is editable or read-only depends on the
     cell's \link Q3TableItem::EditType EditType\endlink, and this
-    setting: see \link q3tableitem.html#wheneditable
-    Q3TableItem::EditType\endlink.
+    setting.
 
     \sa setRowReadOnly() isColumnReadOnly()
 */
@@ -2232,8 +2220,7 @@ bool Q3Table::isRowReadOnly(int row) const
     false.
 
     Whether a cell in this column is editable or read-only depends on
-    the cell's EditType, and this setting: see \link
-    q3tableitem.html#wheneditable Q3TableItem::EditType\endlink.
+    the cell's EditType, and this setting.
 
     \sa setColumnReadOnly() isRowReadOnly()
 */
@@ -2264,8 +2251,6 @@ void Q3Table::setSelectionMode(SelectionMode mode)
 
     The default mode is \c Multi which allows the user to select
     multiple ranges of cells.
-
-    \sa SelectionMode setSelectionMode()
 */
 
 Q3Table::SelectionMode Q3Table::selectionMode() const
@@ -3168,6 +3153,9 @@ void Q3Table::setCurrentCell(int row, int col)
        leftMargin() \
 )
 
+/*!
+    \reimp
+*/
 QVariant Q3Table::inputMethodQuery(Qt::InputMethodQuery query) const
 {
     if (query == Qt::ImMicroFocus)
@@ -5978,7 +5966,7 @@ void Q3Table::setDragEnabled(bool b)
 /*!
     If this function returns true, the table supports dragging.
 
-    \sa setDragEnabled();
+    \sa setDragEnabled()
 */
 
 bool Q3Table::dragEnabled() const
@@ -6312,7 +6300,7 @@ Q3DragObject *Q3Table::dragObject()
 
     Usually you don't need to call or reimplement this function yourself.
 
-    \sa dragObject();
+    \sa dragObject()
 */
 
 void Q3Table::startDrag()

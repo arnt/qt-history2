@@ -94,10 +94,6 @@ public:
     emit the correct signals. Also, always emit the finished() signal
     when an operation is done (on success \e and on failure). Qt
     relies on correctly emitted finished() signals.
-
-    For a detailed description of the Qt Network Architecture and how
-    to implement and use network protocols in Qt, see the \link
-    network.html Qt Network Documentation\endlink.
 */
 
 /*!
@@ -283,6 +279,7 @@ public:
     \value OpRename  Rename a child (e.g. a file).
     \value OpGet  Get data from a location.
     \value OpPut  Put data to a location.
+    \omitvalue OpMkdir
 */
 
 /*!
@@ -342,6 +339,8 @@ public:
 
     \value ErrPermissionDenied  Permission for doing the operation has
     been denied.
+    \omitvalue ErrMkdir
+    \omitvalue ErrListChlidren
 
     You should also use these error codes when implementing custom
     network protocols. If this is not possible, you can define your own
@@ -903,10 +902,6 @@ public:
 
     An object is created to describe the operation and the current
     state for each operation that a network protocol should process.
-
-    For a detailed description of the Qt Network Architecture and how
-    to implement and use network protocols in Qt, see the \link
-    network.html Qt Network Documentation\endlink.
 
     \sa Q3NetworkProtocol
 */

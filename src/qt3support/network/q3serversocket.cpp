@@ -44,7 +44,7 @@ public:
     (Note that due to lack of support in the underlying APIs,
     Q3ServerSocket cannot accept or reject connections conditionally.)
 
-    \sa QSocket, Q3SocketDevice, QHostAddress, QSocketNotifier
+    \sa Q3Socket, Q3SocketDevice, QHostAddress, QSocketNotifier
 */
 
 

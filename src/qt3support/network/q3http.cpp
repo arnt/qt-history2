@@ -1304,7 +1304,7 @@ Q3Http::~Q3Http()
     bytes, since for large files these values might need to be
     "scaled" to avoid overflow.
 
-    \sa dataReadProgress() post() request() QProgressBar::setProgress()
+    \sa dataReadProgress() post() request() QProgressBar::setValue()
 */
 
 /*!
@@ -1323,7 +1323,7 @@ Q3Http::~Q3Http()
     bytes, since for large files these values might need to be
     "scaled" to avoid overflow.
 
-    \sa dataSendProgress() get() post() request() QProgressBar::setProgress()
+    \sa dataSendProgress() get() post() request() QProgressBar::setValue()
 */
 
 /*!

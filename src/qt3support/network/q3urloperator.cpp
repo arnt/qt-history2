@@ -90,8 +90,7 @@ public:
     listChildren(), a name filter can be set with setNameFilter().
 
     A Q3UrlOperator can be used like this, for example to download a
-    file (and assuming that the FTP protocol is \link
-    qInitNetworkProtocols() registered\endlink):
+    file (and assuming that the FTP protocol is registered):
     \code
     Q3UrlOperator *op = new Q3UrlOperator();
     op->copy( QString("ftp://ftp.trolltech.com/qt/source/qt-2.1.0.tar.gz"),
@@ -124,9 +123,6 @@ public:
     \i \link Q3Http HTTP\endlink,
     \i \link Q3LocalFs local file system\endlink.
     \endlist
-
-    For more information about the Qt Network Architecture see the
-    \link network.html Qt Network Documentation\endlink.
 
     \sa Q3NetworkProtocol, Q3NetworkOperation
 */
@@ -660,7 +656,7 @@ void Q3UrlOperator::copy( const QStringList &files, const QString &dest,
     Returns true if the URL is a directory; otherwise returns false.
     This may not always work correctly, if the protocol of the URL is
     something other than file (local filesystem). If you pass a bool
-    pointer as the \a ok argument, \a *ok is set to true if the result
+    pointer as the \a ok argument, *\a ok is set to true if the result
     of this function is known to be correct, and to false otherwise.
 */
 

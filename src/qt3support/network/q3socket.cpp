@@ -332,6 +332,7 @@ void Q3Socket::setSocketDevice( Q3SocketDevice *device )
     \value Connecting during TCP connection establishment
     \value Connected when there is an operational connection
     \value Closing if the socket is closing down, but is not yet closed.
+    \omitvalue Connection
 */
 
 /*!
@@ -520,9 +521,9 @@ void Q3Socket::tryConnecting()
 */
 
 /*!
-    \fn void Q3Socket::error( int )
+    \fn void Q3Socket::error(int error)
 
-    This signal is emitted after an error occurred. The parameter is
+    This signal is emitted after an error occurred. The \a error parameter is
     the \l Error value.
 */
 
@@ -871,9 +872,9 @@ qint64 Q3Socket::bytesAvailable() const
     Returns the number of bytes available.
 
     If \a timeout is non-null and no error occurred (i.e. it does not
-    return -1): this function sets \a *timeout to true, if the reason
+    return -1): this function sets *\a timeout to true, if the reason
     for returning was that the timeout was reached; otherwise it sets
-    \a *timeout to false. This is useful to find out if the peer
+    *\a timeout to false. This is useful to find out if the peer
     closed the connection.
 
     \warning This is a blocking call and should be avoided in event
@@ -1462,5 +1463,10 @@ Q_ULONG Q3Socket::readBufferSize() const
 {
     return d->readBufferSize;
 }
+
+/*!
+    \fn bool Q3Socket::isSequential() const
+    \internal
+*/
 
 #endif //QT_NO_NETWORK

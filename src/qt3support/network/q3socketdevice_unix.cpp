@@ -660,9 +660,9 @@ qint64 Q3SocketDevice::bytesAvailable() const
     error occurred.
 
     If \a timeout is non-null and no error occurred (i.e. it does not
-    return -1): this function sets \a *timeout to true, if the reason
+    return -1): this function sets *\a timeout to true, if the reason
     for returning was that the timeout was reached; otherwise it sets
-    \a *timeout to false. This is useful to find out if the peer
+    *\a timeout to false. This is useful to find out if the peer
     closed the connection.
 
     \warning This is a blocking call and should be avoided in event

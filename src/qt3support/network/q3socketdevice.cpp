@@ -40,8 +40,8 @@ public:
 
     This class provides a low level API for working with sockets.  Users of
     this class are assumed to have networking experience. For most users the
-    QSocket class provides a much easier and high level alternative, but
-    certain things (like UDP) can't be done with QSocket and if you need a
+    Q3Socket class provides a much easier and high level alternative, but
+    certain things (like UDP) can't be done with Q3Socket and if you need a
     platform-independent API for those, Q3SocketDevice is the right choice.
 
     The essential purpose of the class is to provide a QIODevice that
@@ -53,7 +53,7 @@ public:
     creation of a socket device of a specific protocol. If not set, the
     protocol will be detected at the first call to connect() or bind().
 
-    \sa QSocket, QSocketNotifier, QHostAddress
+    \sa Q3Socket, QSocketNotifier, QHostAddress
 */
 
 
@@ -108,6 +108,8 @@ public:
 
     \value UnknownError  The operating system did something
     unexpected.
+
+    \omitvalue Bug
 */
 
 /*!
@@ -294,7 +296,7 @@ void Q3SocketDevice::setSocket( int socket, Type type )
     function is called from the Q3SocketDevice constructors and from
     the setSocket() function. You should not call it yourself.
 
-    \sa close().
+    \sa close()
 */
 bool Q3SocketDevice::open( int mode )
 {
@@ -344,8 +346,10 @@ QIODevice::Offset Q3SocketDevice::at() const
 /*!
     The read/write index is meaningless for a socket, therefore this
     function does nothing and returns true.
+
+    The \a offset parameter is ignored.
 */
-bool Q3SocketDevice::at( Offset )
+bool Q3SocketDevice::at( Offset /* offset */ )
 {
     return true;
 }
@@ -508,4 +512,8 @@ void Q3SocketDevice::setError( Error err )
     This is used for \c QSocketDevice::Stream sockets.
 */
 
+/*!
+    \fn bool Q3SocketDevice::isSequential() const
+    \internal
+*/
 #endif //QT_NO_NETWORK
