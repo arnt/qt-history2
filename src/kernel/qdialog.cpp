@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#9 $
 **
 ** Implementation of QDialog class
 **
@@ -17,35 +17,41 @@
 #include "qobjcoll.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qdialog.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qdialog.cpp#9 $";
 #endif
 
 
 /*!
-\class QDialog qdialog.h
-\brief The QDialog class is the base class of modal dialog views.
+  \class QDialog qdialog.h
+  \brief The QDialog class is the base class of dialog windows.
 
-A dialog widget is a modal view that normally is popped up to get
-some input from the user.  The dialog must be finished before the
-user can continue with other parts of the program.
+  A dialog window is a window for getting some input from the
+  user.  It offers mechanisms such as default buttons.
+
+  The dialog window can either be modeless or modal.  A modeless
+  dialog is a normal window, while a modal window must be finished
+  before the user can continue with other parts of the program.
 */
 
 
 /*!
-Constructs a QDialog, named \e name,  which will be a child view of \e parent.
-The widget flags \e f should normally be set to zero unless you know what you
-are doing.
+  Constructs a dialog named \e name, which will be a child widget of
+  \e parent.
+
+  The dialog will by default be modeless, unless you set \e modal to
+  TRUE, which constructs a modal dialog.
 */
 
-QDialog::QDialog( QWidget *parent, const char *name, WFlags f )
-    : QView( parent, name, f )
+QDialog::QDialog( QWidget *parent, const char *name,
+		  bool modal, WFlags f )
+    : QWindow( parent, name, modal ? (f | WType_Modal) : f )
 {
     rescode = 0;
     did_move = did_resize = FALSE;
 }
 
 /*!
-Destroys the QDialog and all its children.
+  Destroys the QDialog and all its children.
 */
 
 QDialog::~QDialog()
@@ -54,9 +60,9 @@ QDialog::~QDialog()
 
 
 /*!
-\internal
-Called from the push button \e pushButton when this push button becomes the
-default button.
+  \internal
+  Called from the push button \e pushButton when this push button becomes the
+  default button.
 */
 
 void QDialog::setDefault( QPushButton *pushButton )
@@ -74,8 +80,8 @@ void QDialog::setDefault( QPushButton *pushButton )
 
 
 /*!
-Starts the dialog and returns the result code. Same as calling
-show(), then result().
+  Starts the dialog and returns the result code. Same as calling
+  show(), then result().
 */
 
 int QDialog::exec()
@@ -87,7 +93,7 @@ int QDialog::exec()
 
 
 /*!
-Closes the dialog and sets the result code to \e r.
+  Closes the dialog and sets the result code to \e r.
 */
 
 void QDialog::done( int r )
@@ -97,7 +103,7 @@ void QDialog::done( int r )
 }
 
 /*!
-Closes the dialog and sets the result code to Accepted.
+  Closes the dialog and sets the result code to \c Accepted.
 */
 
 void QDialog::accept()
@@ -106,7 +112,7 @@ void QDialog::accept()
 }
 
 /*!
-Closes the dialog and sets the result code to Rejected.
+  Closes the dialog and sets the result code to \c Rejected.
 */
 
 void QDialog::reject()
@@ -120,7 +126,7 @@ void QDialog::reject()
 //
 
 /*!
-Calls accept() if enter is pressed, or reject() if escape is pressed.
+  Calls accept() if Return/Enter is pressed, or reject() if Escape is pressed.
 */
 
 void QDialog::keyPressEvent( QKeyEvent *e )
@@ -159,6 +165,10 @@ void QDialog::keyPressEvent( QKeyEvent *e )
 // Geometry management.
 //
 
+/*!
+  Does auto-resize and auto-positioning.
+*/
+
 void QDialog::show()
 {
     if ( !did_resize )
@@ -175,12 +185,12 @@ void QDialog::show()
 
 
 /*!
-Virtual function that adjusts the size of the dialog to fit the contents.
+  Virtual function that adjusts the size of the dialog to fit the contents.
 
-This function will not be called if the dialog has been explicitly
-resized before showing it.
+  This function will not be called if the dialog has been explicitly
+  resized before showing it.
 
-The default implementation does nothing.
+  The default implementation does nothing.
 */
 
 void QDialog::adjustSize()
