@@ -3,6 +3,8 @@
 #include <qregexp.h>
 #include <qfile.h>
 
+#define DATAAREA "nor"
+
 ImportApp::ImportApp( int argc, char** argv ) : QApplication( argc, argv )
 {
     internDB = QSqlDatabase::addDatabase( "QMYSQL3", "intern" );
@@ -38,12 +40,12 @@ void ImportApp::doImport()
 
 		    QSqlCursor axaptaCursor( "CustTable", true, axaptaDB );
 
-		    axaptaCursor.select( "Name = '" + customerName.left( 30 ) + "' and Address = '" + customerAddress + "' and dataareaid = 'ts3'" );
+		    axaptaCursor.select( "Name = '" + customerName.left( 30 ) + "' and Address = '" + customerAddress + "' and dataareaid = '" + DATAAREA + "'" );
 		    axaptaCursor.first();
 		    if( axaptaCursor.isValid() ) {
 			    // We found a record, hooray :)
 			    QSqlQuery q( QString::null, axaptaDB );
-			    QString tmp = "UPDATE CUSTTABLE SET INTERNID = '" + customerID + "' WHERE DATAAREAID = 'ts3' AND ACCOUNTNUM = '" + axaptaCursor.value( "ACCOUNTNUM" ).toString() + "'";
+			    QString tmp = "UPDATE CUSTTABLE SET INTERNID = '" + customerID + "' WHERE DATAAREAID = '" + DATAAREA + "' AND ACCOUNTNUM = '" + axaptaCursor.value( "ACCOUNTNUM" ).toString() + "'";
 			    bool b = q.exec( tmp );
 			    if( b )
 				log << customerID << " ... OK" << endl;
@@ -56,7 +58,7 @@ void ImportApp::doImport()
 			if( axaptaCursor.isValid() ) {
 			    // We found a record, hooray :)
 			    QSqlQuery q( QString::null, axaptaDB );
-			    QString tmp = "UPDATE CUSTTABLE SET INTERNID = '" + customerID + "' WHERE DATAAREAID = 'ts3' AND ACCOUNTNUM = '" + axaptaCursor.value( "ACCOUNTNUM" ).toString() + "'";
+			    QString tmp = "UPDATE CUSTTABLE SET INTERNID = '" + customerID + "' WHERE DATAAREAID = '" + DATAAREA + "' AND ACCOUNTNUM = '" + axaptaCursor.value( "ACCOUNTNUM" ).toString() + "'";
 			    bool b = q.exec( tmp );
 			    if( b ) {
 				QString simpleAxaptaAddress = axaptaCursor.value( "ADDRESS" ).toString();
