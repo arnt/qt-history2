@@ -2,9 +2,10 @@
 
 This is the official release of Qt 0.96 for X11.
 
-This archive does not contain the Qt library in binary form, you also need
-one of the precompiled binaries (qt0.96.bin-*.tar.gz) which are available at
-http://www.troll.no or probably from wherever you got this archive.
+This archive contains header files, documentation and examples for the Qt
+library. You also need one of the precompiled binaries (qt0.96.bin-*.tar.gz)
+which are available at http://www.troll.no/dl/ or probably from wherever you
+got this archive. The source code is also available.
 
 You can use Qt for free if you develop freely distributable software
 (future versions for X11 will continue to be free for non-commercial
