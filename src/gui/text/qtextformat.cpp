@@ -145,9 +145,7 @@ QDataStream &operator>>(QDataStream &stream, QTextFormatProperty &prop)
     can format, e.g. a block of text, a list, a table, etc. A format
     also has various properties (some specific to particular format
     types), as described by the \c Property enum. Every property has a
-    \c PropertyType. A property can also have an associated object()
-    (currently the only object type that is supported is \c
-    ImageObject).
+    \c PropertyType. A property can also have an associated object().
 
     The format type is given by type(), tested with
     isCharFormat(), isBlockFormat(), isListFormat(),
@@ -238,10 +236,12 @@ QDataStream &operator>>(QDataStream &stream, QTextFormatProperty &prop)
     \value ListStyle
     \value ListIndent
 
-    Table properties
+    Table and frame properties
 
     \value TableColumns
-    \value TableBorder
+    \value FrameBorder
+    \value FrameMargin
+    \value FramePadding
     \value Width
     \value Height
 
@@ -264,6 +264,7 @@ QDataStream &operator>>(QDataStream &stream, QTextFormatProperty &prop)
 
     \value NoObject
     \value ImageObject
+    \value TableObject
 */
 
 /*!
@@ -618,6 +619,21 @@ void QTextFormat::setObject(QTextFormatObject *object)
 }
 
 /*!
+    \fn void QTextFormat::setObjectType(int type)
+
+    Set's the text format's object type to \a type. See
+    \c{ObjectTypes}.
+*/
+
+
+/*!
+    \fn int QTextFormat::objectType() const
+
+    Returns the text format's object type. See \c{ObjectTypes}.
+*/
+
+
+/*!
     Returns the index of the text format's format object, or -1 if
     there isn't a format object.
 
@@ -725,14 +741,21 @@ QDataStream &operator>>(QDataStream &stream, QTextFormat &format)
     setFontFamily(), setFontPointSize(), setFontWeight() (for bold),
     setFontItalic(), setFontUnderline(), setFontOverline(),
     setFontStrikeOut(), and setFontFixedPitch(). The color is set with
-    setColor(), and the anchor (for hyperlinks) with setAnchor() and
-    setAnchorHref(). The characters can be marked as non-deletable
-    with setNonDeletable().
+    setColor(), and the anchor (for hyperlinks) with setAnchor(),
+    setAnchorHref(), setAnchorName(). The characters can be marked as
+    non-deletable with setNonDeletable().
 
     If the characters are in a table the cell and row spanning
     characteristics can be set with setTableCellRowSpan() and
     setTableCellColumnSpan().
 */
+
+/*!
+    \fn QTextCharFormat::QTextCharFormat()
+
+    Constructs a new QTextCharFormat.
+*/
+
 
 /*!
     \fn bool QTextCharFormat::isValid() const
@@ -995,20 +1018,6 @@ QDataStream &operator>>(QDataStream &stream, QTextFormat &format)
 
 
 /*!
-    \fn void QTextCharFormat::setObjectType(int type)
-
-    \reimp
-*/
-
-
-/*!
-    \fn int QTextCharFormat::objectType() const
-
-    \reimp
-*/
-
-
-/*!
     \fn void QTextCharFormat::setTableCellRowSpan(int tableCellRowSpan)
 
     If this character format is applied to characters in a table cell,
@@ -1097,11 +1106,227 @@ QFont QTextCharFormat::font() const
 
     \ingroup text
 
-    A document is composed out a list of blocks, that each contain one
-    paragraph of text. Each block has an associated block format
-    describing block specific properties as alignment, margins,
-    indentation and possibly references to list and table formats.
+    A document is composed of a list of blocks. Each block can contain
+    an item of some kind, for example, a paragraph of text, a table, a
+    list, or an image. Every block has an associated QTextBlockFormat
+    that specifies its characteristics.
+
+    To cater for left-to-right and right-to-left languages you can set
+    a block's direction with setDirection(). Paragraph alignment is
+    set with setAlignment(). Margins are controlled by setTopMargin(),
+    setBottomMargin(), setLeftMargin(), setRightMargin(), and
+    setFirstLineMargin(). Overall indentation is set with setIndent().
+    Line breaking is controlled with setNonBreakableLines(). The
+    paragraph's background color is set with setBackgroundColor().
+
+    A text block can also have a list format (if is part of a list);
+    this is accessible using listFormat().
 */
+
+/*!
+    \enum QTextBlockFormat::Direction
+
+    \value LeftToRight
+    \value RightToLeft
+    \value AutoDirection
+*/
+
+/*!
+    \fn QTextBlockFormat::QTextBlockFormat()
+
+    Constructs a new QTextBlockFormat.
+*/
+
+/*!
+    \fn QTextBlockFormat::isValid() const
+
+    \reimp
+*/
+
+/*!
+    \fn void QTextBlockFormat::setDirection(Direction dir)
+
+    Set's the text's direction to \a dir.
+
+    \sa direction()
+*/
+
+
+/*!
+    \fn Direction QTextBlockFormat::direction() const
+
+    Returns the text's direction.
+
+    \sa setDirection()
+*/
+
+
+/*!
+    \fn void QTextBlockFormat::setAlignment(Qt::Alignment alignment)
+
+    Sets the paragraph's alignment to \a alignment.
+
+    \sa alignment()
+*/
+
+
+/*!
+    \fn Qt::Alignment QTextBlockFormat::alignment() const
+
+    Returns the paragraph's alignment.
+
+    \sa setAlignment()
+*/
+
+
+/*!
+    \fn void QTextBlockFormat::setTopMargin(int margin)
+
+    Sets the paragraph's top margin to \a margin.
+
+    \sa topMargin() setBottomMargin() setLeftMargin() setRightMargin() setFirstLineMargin()
+*/
+
+
+/*!
+    \fn int QTextBlockFormat::topMargin() const
+
+    Returns the paragraph's top margin.
+
+    \sa setTopMargin() bottomMargin()
+*/
+
+
+/*!
+    \fn void QTextBlockFormat::setBottomMargin(int margin)
+
+    Sets the paragraph's bottom margin to \a margin.
+
+    \sa bottomMargin() setTopMargin() setLeftMargin() setRightMargin() setFirstLineMargin()
+*/
+
+
+/*!
+    \fn int QTextBlockFormat::bottomMargin() const
+
+    Returns the paragraph's bottom margin.
+
+    \sa setBottomMargin() topMargin()
+*/
+
+
+/*!
+    \fn void QTextBlockFormat::setLeftMargin(int margin)
+
+    Sets the paragraph's left margin to \a margin. Indentation can be
+    applied separately with setIndent().
+
+    \sa leftMargin() setRightMargin() setTopMargin() setBottomMargin() setFirstLineMargin()
+*/
+
+
+/*!
+    \fn int QTextBlockFormat::leftMargin() const
+
+    Returns the paragraph's left margin.
+
+    \sa setLeftMargin() rightMargin() indent()
+*/
+
+
+/*!
+    \fn void QTextBlockFormat::setRightMargin(int margin)
+
+    Sets the paragraph's right margin to \a margin.
+
+    \sa rightMargin() setLeftMargin() setTopMargin() setBottomMargin() setFirstLineMargin()
+*/
+
+
+/*!
+    \fn int QTextBlockFormat::rightMargin() const
+
+    Returns the paragraph's right margin.
+
+    \sa setRightMargin() leftMargin()
+*/
+
+
+/*!
+    \fn void QTextBlockFormat::setFirstLineMargin(int margin)
+
+    Sets the paragraph's first line margin to \a margin.
+
+    \sa firstLineMargin() setLeftMargin() setRightMargin() setTopMargin() setBottomMargin()
+*/
+
+
+/*!
+    \fn int QTextBlockFormat::firstLineMargin() const
+
+    Returns the paragraph's first line margin.
+
+    \sa setFirstLineMargin()
+*/
+
+
+/*!
+    \fn void QTextBlockFormat::setIndent(int indent)
+
+    Sets the paragraph's indent to \a indent. Margins are set
+    independently of indentation, for example with, setLeftMargin()
+    and setFirstLineMargin().
+
+    \sa indent()
+*/
+
+
+/*!
+    \fn int QTextBlockFormat::indent() const
+
+    Returns the paragraph's indent.
+
+    \sa setIndent()
+*/
+
+
+/*!
+    \fn void QTextBlockFormat::setNonBreakableLines(bool b)
+
+    If \a b is true, the lines in the paragraph are treated as
+    non-breakable; otherwise they are breakable.
+
+    \sa nonBreakableLines()
+*/
+
+
+/*!
+    \fn bool QTextBlockFormat::nonBreakableLines() const
+
+    Returns true if the lines in the paragraph are non-breakable;
+    otherwise returns false.
+
+    \sa setNonBreakableLines()
+*/
+
+
+/*!
+    \fn void QTextBlockFormat::setBackgroundColor(const QColor &color)
+
+    Sets the paragraph's background color to \a color.
+
+    \sa backgroundColor()
+*/
+
+
+/*!
+    \fn QColor QTextBlockFormat::backgroundColor() const
+
+    Returns the paragraph's background color.
+
+    \sa setBackgroundColor()
+*/
+
 
 /*!
     Returns the list format for this character format.
@@ -1129,10 +1354,72 @@ QTextTableFormat QTextCharFormat::tableFormat() const
 
     \ingroup text
 
-    Several blocks in a document can together form a list. The list
-    format is a generic format describing the properties common for
-    the whole list, as list style and indentation.
+    A list is composed of one or more items; each item is a block. A
+    list format is used to specify the characteristics of a list, for
+    example, setStyle() controls the bulleting or numbering of the
+    list items, and setIndent() controls the list's indentation.
 */
+
+/*!
+    \enum QTextListFormat::Style
+
+    \value ListDisc
+    \value ListCircle
+    \value ListSquare
+    \value ListDecimal
+    \value ListLowerAlpha
+    \value ListUpperAlpha
+*/
+
+/*!
+    \fn QTextListFormat::QTextListFormat()
+
+    Constructs a new QTextListFormat.
+*/
+
+
+/*!
+    \fn bool QTextListFormat::isValid() const
+
+    \reimp
+*/
+
+
+/*!
+    \fn void QTextListFormat::setStyle(int style)
+
+    Sets the list format's list style to \a style. See \c{Style}.
+
+    \sa style()
+*/
+
+
+/*!
+    \fn QTextListFormat::style() const
+
+    Returns the list format's style. See \c{Style}.
+
+    \sa setStyle()
+*/
+
+
+/*!
+    \fn void QTextListFormat::setIndent(int indent)
+
+    Sets the list format's indent to \a indent.
+
+    \sa indent()
+*/
+
+
+/*!
+    \fn int QTextListFormat::indent() const
+
+    Returns the list format's indent.
+
+    \sa setIndent()
+*/
+
 
 /*!
     \class QTextTableFormat qtextformat.h
@@ -1141,10 +1428,46 @@ QTextTableFormat QTextCharFormat::tableFormat() const
 
     \ingroup text
 
-    Several blocks in a document can together form a table. The table
-    format is a generic format describing the properties common for
-    the whole list, as border style and width.
+    A table comprises one or more rows of one or more columns of
+    cells. Each cell contains a block.
+
+    A QTextTableFormat specifies the characteristics of a table. The
+    setColumns() function sets the number of columns; the number of
+    rows is automatically derived based on the number of columns and
+    the number of cells (blocks) contained in the table.
 */
+
+/*!
+    \fn QTextTableFormat::QTextTableFormat()
+
+    Constructs a new QTextTableFormat.
+*/
+
+
+/*!
+    \fn bool QTextTableFormat::isValid() const
+
+    \reimp
+*/
+
+
+/*!
+    \fn int QTextTableFormat::columns() const
+
+    Returns the table format's number of columns.
+
+    \sa setColumns()
+*/
+
+
+/*!
+    \fn void QTextTableFormat::setColumns(int columns)
+
+    Sets the table format's number of columns to \a columns.
+
+    \sa columns()
+*/
+
 
 /*!
     \class QTextImageFormat qtextformat.h
@@ -1154,9 +1477,79 @@ QTextTableFormat QTextCharFormat::tableFormat() const
     \ingroup text
 
     Inline images are represented by an object replacement character
-    (U+fffc in Unicode) with a special image format. The image format
-    contains a name property to locate the image and width and height
-    for the images dimension.
+    (0xFFFC in Unicode) which has an associated QTextImageFormat. The
+    image format specifies a name with setName() that is used to
+    locate the image. The size of the rectangle that the image will
+    occupy is specified using setWidth() and setHeight().
+*/
+
+/*!
+    \fn QTextImageFormat::QTextImageFormat()
+
+    Creates a new QTextImageFormat.
+*/
+
+
+/*!
+    \fn bool QTextImageFormat::isValid() const
+
+    \reimp
+*/
+
+
+/*!
+    \fn void QTextImageFormat::setName(const QString &name)
+
+    Sets the name of the image to \a name. The \a name is used to
+    locate the image.
+
+    \sa name()
+*/
+
+
+/*!
+    \fn QString QTextImageFormat::name() const
+
+    Returns the name of the image.
+
+    \sa setName()
+*/
+
+
+/*!
+    \fn void QTextImageFormat::setWidth(int width)
+
+    Sets the width of the rectangle occupied by the image to \a width.
+
+    \sa width() setHeight()
+*/
+
+
+/*!
+    \fn int QTextImageFormat::width() const
+
+    Returns the width of the rectangle occupied by the image.
+
+    \sa height() setWidth()
+*/
+
+
+/*!
+    \fn void QTextImageFormat::setHeight(int height)
+
+    Sets the height of the rectangle occupied by the image to \a
+    height.
+
+    \sa height() setWidth()
+*/
+
+
+/*!
+    \fn int QTextImageFormat::height() const
+
+    Returns the height of the rectangle occupied by the image.
+
+    \sa width() setHeight()
 */
 
 

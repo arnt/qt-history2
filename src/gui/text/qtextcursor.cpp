@@ -373,16 +373,18 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
     manipulate a QTextDocument. It embodies both a cursor position and
     optionally a selection.
 
-    A document can be thought of as a single string of characters with
-    the cursor's position() being the absolute 0-based cursor position
-    within this string. Documents can also contain tables, lists,
-    images, etc., in addition to text, but from the APIs point of view
-    the document is just one long string, with some portions of that
-    string considered to be within particular blocks (e.g.
-    paragraphs), or within a table's cell, or a list's item, etc. When
-    we refer to "current character" we mean the character at
-    position() in the document; similarly the "current block" is the
-    block that contains position().
+    QTextCursor is modelled on how a text cursor behaves in a text
+    editor, providing a programmatic means of doing what users do
+    through the user interface.A document can be thought of as a
+    single string of characters with the cursor's position() being the
+    absolute 0-based cursor position within this string. Documents can
+    also contain tables, lists, images, etc., in addition to text, but
+    from the APIs point of view the document is just one long string,
+    with some portions of that string considered to be within
+    particular blocks (e.g. paragraphs), or within a table's cell, or
+    a list's item, etc. When we refer to "current character" we mean
+    the character at position() in the document; similarly the
+    "current block" is the block that contains position().
 
     A QTextCursor also has an anchor() position. The text that is
     between the anchor() and the position() is the selection.
@@ -606,8 +608,11 @@ bool QTextCursor::movePosition(MoveOperation op, MoveMode mode, int n)
     Inserts \a text at the current position, using the current
     character format.
 
-    \sa charFormat()
- */
+    If there is a selection, the selection is deleted and replaced by
+    \a text.
+
+    \sa charFormat() hasSelection()
+*/
 void QTextCursor::insertText(const QString &text)
 {
     insertText(text, charFormat());
@@ -617,7 +622,7 @@ void QTextCursor::insertText(const QString &text)
     \overload
 
     Inserts \a text at the current position with the given \a format.
- */
+*/
 void QTextCursor::insertText(const QString &text, const QTextCharFormat &format)
 {
     if (!d || text.isEmpty())
@@ -901,6 +906,8 @@ void QTextCursor::mergeCharFormat(const QTextCharFormat &modifier)
 /*!
     Returns true if the cursor is at the start of a block; otherwise
     returns false.
+
+    \sa atEnd()
 */
 bool QTextCursor::atBlockStart() const
 {
@@ -911,8 +918,10 @@ bool QTextCursor::atBlockStart() const
 }
 
 /*!
-    Returns true if the cursor is at the end of a block; otherwise
-    returns false.
+    Returns true if the cursor is at the end of the document;
+    otherwise returns false.
+
+    \sa atBlockStart()
 */
 bool QTextCursor::atEnd() const
 {
