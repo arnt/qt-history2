@@ -80,11 +80,6 @@ class Q_GUI_EXPORT QWin32PaintEnginePrivate : public QPaintEnginePrivate
     Q_DECLARE_PUBLIC(QWin32PaintEngine)
 public:
 
-    enum ComposePathMode {
-        ComposeClosed,
-        DrawUnclosed
-    };
-
     QWin32PaintEnginePrivate() :
         hwnd(0),
         hdc(0),
@@ -205,7 +200,7 @@ public:
     /*!
       Composes the path on the current device context
     */
-    void composeGdiPath(const QPainterPathPrivate *pd, ComposePathMode mode = ComposeClosed);
+    void composeGdiPath(const QPainterPathPrivate *pd);
 
     uint gdiplusInUse : 1;
     QGdiplusPaintEngine *gdiplusEngine;
