@@ -592,7 +592,18 @@ public:
     bool isRightToLeft() const;
 
 private:
-    QString( int size, bool /*dummy*/ );	// allocate size incl. \0
+    /*
+      In Qt 1.0 and 2.0, users could write
+      str.replace(QString("foo"), QString("bar")) and "foo" was
+      automatically converted into a regexp.
+
+      In Qt 3.0, this gives a compiler error. Users have to write
+      QRegExp("foo"). In Qt 3.1 or 4.0, we will move replace() to the
+      public API.
+    */
+    QString& replace( const QString &, const QString & ) { return *this; }
+
+    QString( int size, bool /* dummy */ );	// allocate size incl. \0
 
     void deref();
     void real_detach();

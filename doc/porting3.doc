@@ -378,15 +378,6 @@ QRegExp::find(), tries to find a match somewhere in the target
 string, while QRegExp::exactMatch() tries to match the whole target
 string.
 
-Usually, QRegExp is easy to spot in programs.  However, in one unfortunate case,
-it is subtle: as the first argument to \l QString::replace().  Code like
-\code
-    QString text = fetch_it_from_somewhere();
-    text.replace( QString("([^)]*)"), "" );
-\endcode
-involves an implicit QRegExp (namely, \c "([^)]*)") that should be
-changed.
-
 \section2 QRegExp::operator=()
 
 This function has been replaced by \l QRegExp::setPattern() in Qt 2.2.
@@ -441,7 +432,24 @@ start of input, so
 \endcode
 returns 1, not 13 or 14.
 
-These changes affect very few existing programs.
+This change affect very few existing programs.
+
+\section2 QString::replace()
+
+With Qt 1.0 and 2.0, a QString is converted implicitly into a QRegExp
+as the first argument to QString::replace():
+\code
+    QString text = fetch_it_from_somewhere();
+    text.replace( QString("[A-Z]+"), "" );
+\endcode
+With Qt 3.0, the compiler gives an error. The solution is to use a
+QRegExp cast:
+\code
+    text.replace( QRegExp("[A-Z]+"), "" );
+\endcode
+This change makes it possible to introduce a
+QString::replace(QString, QString) overload in a future version of Qt
+without breaking source compatibility.
 
 \section1 QTableView
 
