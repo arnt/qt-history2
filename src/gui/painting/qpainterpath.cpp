@@ -85,7 +85,7 @@ static void qt_debug_path(const QPainterPath &path)
     for (int i=0; i<path.elementCount(); ++i) {
         const QPainterPath::Element &e = path.elementAt(i);
         Q_ASSERT(e.type >= 0 && e.type <= QPainterPath::CurveToDataElement);
-        printf(" - %s, (%.2f, %.2f)\n", names[e.type], e.x, e.y);
+        printf(" - %3d:: %s, (%.2f, %.2f)\n", i, names[e.type], e.x, e.y);
     }
 }
 #endif
@@ -676,16 +676,24 @@ void QPainterPath::addPath(const QPainterPath &other)
     if (other.isEmpty())
         return;
 
+    // Locate where our own current subpath will start after the other path is added.
+    int cStart = elements.size() + other.d->cStart;
+
     if (d->isClosed()) {
-        // Remove last goto so we don't get multiple moveto's
+        // Remove last moveto so we don't get multiple moveto's
         if (elements.last().type == MoveToElement)
             elements.remove(elements.size()-1);
+        Q_ASSERT(other.elements.first().type == MoveToElement);
         elements += other.elements;
     } else {
         int otherFirst = elements.size();
         elements += other.elements;
+        // Since elements are to be connected, we replace the others first moveto with
+        // a lineto
         elements[otherFirst].type = QPainterPath::LineToElement;
     }
+
+    d->cStart = cStart;
 }
 
 /*!
@@ -809,7 +817,7 @@ QList<QPolygon> QPainterPath::toSubpathPolygons() const
         }
     }
 
-    if (!current.isEmpty())
+    if (current.size()>1)
         flatCurves += current;
 
     return flatCurves;
@@ -1083,53 +1091,49 @@ QPainterPath QPainterPathStroker::createStroke(const QPainterPath &input) const
     QPainterPath stroke;
 
     QList<QPolygon> flatCurves = input.toSubpathPolygons();
-#ifdef QPP_STROKE_DEBUG
-    printf(" -> path size: %d\n", input.elementCount());
-#endif
     QPainterPath reverse = input.toReversed();
 
+#ifdef QPP_STROKE_DEBUG
+    printf(" -> path size: %d\n", input.elementCount());
+    qt_debug_path(input);
+    qt_debug_path(reverse);
+#endif
+
     int pathSize = input.elementCount();
-    int elmi = 1;
-    while (elmi < pathSize) {
+    for (int elmi = 1; elmi < pathSize; ++elmi) {
         QPainterPath usegs;
         QPainterPath dsegs;
 
         QPointF startPoint(input.elementAt(elmi-1).x, input.elementAt(elmi-1).y);
 
-        int revPos = elmi;
-        for (; elmi<pathSize; ++elmi, ++revPos) {
-
-            {
-                const QPainterPath::Element &elm = input.elementAt(elmi);
-                Q_ASSERT(elm.type != QPainterPath::CurveToDataElement);
-                if (elm.type == QPainterPath::MoveToElement) {
-                    break;
-                } else if (elm.type == QPainterPath::LineToElement) {
-                    QLineF ffw(input.elementAt(elmi-1).x, input.elementAt(elmi-1).y, elm.x, elm.y);
-                    d->strokeLine(ffw, &usegs, QPainterPathStrokerPrivate::NormalJoin);
-                } else if (elm.type == QPainterPath::CurveToElement) {
-                    d->strokeCurve(elmi, input, &usegs);
-                    elmi += 2;
-                }
-            }
-
-            {
-                const QPainterPath::Element &elm = reverse.elementAt(revPos);
-                Q_ASSERT(elm.type != QPainterPath::CurveToDataElement);
-                if (elm.type == QPainterPath::MoveToElement) {
-                    break;
-                } else if (elm.type == QPainterPath::LineToElement) {
-                    QLineF rev(reverse.elementAt(revPos-1).x, reverse.elementAt(revPos-1).y,
-                               reverse.elementAt(revPos).x, reverse.elementAt(revPos).y);
-                    d->strokeLine(rev, &dsegs, QPainterPathStrokerPrivate::NormalJoin);
-                } else if (elm.type == QPainterPath::CurveToElement) {
-                    d->strokeCurve(revPos, reverse, &dsegs);
-                    revPos += 2;
-                }
+        for (; elmi<pathSize; ++elmi) {
+            const QPainterPath::Element &elm = input.elementAt(elmi);
+            Q_ASSERT(elm.type != QPainterPath::CurveToDataElement);
+            if (elm.type == QPainterPath::MoveToElement) {
+                break;
+            } else if (elm.type == QPainterPath::LineToElement) {
+                QLineF ffw(input.elementAt(elmi-1).x, input.elementAt(elmi-1).y, elm.x, elm.y);
+                d->strokeLine(ffw, &usegs, QPainterPathStrokerPrivate::NormalJoin);
+            } else if (elm.type == QPainterPath::CurveToElement) {
+                d->strokeCurve(elmi, input, &usegs);
+                elmi += 2;
             }
         }
 
-        Q_ASSERT(revPos == elmi);
+        for (int revPos = pathSize - elmi + 1; revPos < pathSize; ++revPos) {
+            const QPainterPath::Element &elm = reverse.elementAt(revPos);
+            Q_ASSERT(elm.type != QPainterPath::CurveToDataElement);
+            if (elm.type == QPainterPath::MoveToElement) {
+                break;
+            } else if (elm.type == QPainterPath::LineToElement) {
+                QLineF rev(reverse.elementAt(revPos-1).x, reverse.elementAt(revPos-1).y,
+                           reverse.elementAt(revPos).x, reverse.elementAt(revPos).y);
+                d->strokeLine(rev, &dsegs, QPainterPathStrokerPrivate::NormalJoin);
+            } else if (elm.type == QPainterPath::CurveToElement) {
+                d->strokeCurve(revPos, reverse, &dsegs);
+                revPos += 2;
+            }
+        }
 
 #ifdef QPP_STROKE_DEBUG
         printf("Paths before closing:\n");
@@ -1141,7 +1145,7 @@ QPainterPath QPainterPathStroker::createStroke(const QPainterPath &input) const
         bool closed = startPoint == QPointF(input.elementAt(elmi-1).x,
                                             input.elementAt(elmi-1).y);
         if (!closed) {
-            // Cap styles...
+            // ### Cap styles...
             usegs.lineTo(QPointF(dsegs.elements.first().x, dsegs.elements.first().y));
             dsegs.lineTo(QPointF(usegs.elements.first().x, usegs.elements.first().y));
             stroke += usegs;
@@ -1155,17 +1159,24 @@ QPainterPath QPainterPathStroker::createStroke(const QPainterPath &input) const
             if (!dsegs.d_ptr->isClosed()) {
                 dsegs.lineTo(dfirst);
             }
+
             stroke += usegs;
+            stroke.closeSubpath();
+
             stroke += dsegs;
+            stroke.closeSubpath();
         }
+
+#ifdef QPP_STROKE_DEBUG
+        printf("Path after joining\n");
+        qt_debug_path(stroke);
+#endif
     }
 
     stroke.setFillMode(QPainterPath::Winding);
 
-#ifdef QPP_STROKE_DEBUG
     printf(" -> Final path:\n");
     qt_debug_path(stroke);
-#endif
 
     return stroke;
 }
